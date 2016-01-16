@@ -1,0 +1,35 @@
+# Joomla System Files (i.e. cache, etc.) #
+/administrator/cache
+/cache
+/images
+/logs
+/tmp
+/configuration.php
+/.htaccess
+/LICENSE.txt
+/README.txt
+/htaccess.txt
+/robots.txt.dist
+/web.config.txt
+/templates/beez3
+/templates/protostar
+
+# IDE & System Related Files #
+.buildpath
+.project
+.settings
+.DS_Store
+.idea
+
+# OSX #
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows #
+Thumbs.db
+Desktop.ini
+
+# Tools #
+/bower_components
+/node_modules
