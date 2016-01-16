@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="3.1" method="upgrade">
+	<name>com_slider</name>
+	<author>Niels van der Veer - Perfect Web Team</author>
+	<creationDate>December 2015</creationDate>
+	<copyright>(C) 2015 Open Source Matters. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<authorEmail>inof@perfectwebteam.nl</authorEmail>
+	<authorUrl>www.perfectwebteam.nl</authorUrl>
+	<version>1.0.0</version>
+	<description>COM_SLIDER_XML_DESCRIPTION</description>
+	<install>
+		<sql>
+			<file charset="utf8" driver="mysql">sql/install.mysql.sql</file>
+		</sql>
+	</install>
+	<uninstall>
+		<sql>
+			<file charset="utf8" driver="mysql">sql/uninstall.mysql.sql</file>
+		</sql>
+	</uninstall>
+	<files>
+	</files>
+	<administration>
+		<menu img="class:videoslider">com_slider</menu>
+		<files folder="administrator/components/com_slider">
+			<folder>controllers</folder>
+			<folder>models</folder>
+			<folder>sql</folder>
+			<folder>tables</folder>
+			<folder>views</folder>
+			<filename>controller.php</filename>
+			<filename>slider.php</filename>
+			<filename>slider.xml</filename>
+		</files>
+		<languages folder="language">
+			<language tag="nl-NL">nl-NL/nl-NL.com_slider.ini</language>
+			<language tag="nl-NL">nl-NL/nl-NL.com_slider.sys.ini</language>
+		</languages>
+	</administration>
+</extension>

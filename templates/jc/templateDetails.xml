@@ -25,10 +25,14 @@
 	</files>
 	<positions>
 		<position>debug</position>
-		<position>rechts</position>
-		<position>links</position>
-
 		<position>footer</position>
+		<position>links</position>
+		<position>mainmenu</position>
+		<position>rechts</position>
+		<position>slider</position>
+		<position>submenu</position>
+		<position>top-a</position>
+		<position>usermenu</position>
 	</positions>
 	<languages folder="language">
 		<language tag="en-GB">en-GB/en-GB.tpl_jc.ini</language>
@@ -48,7 +52,7 @@
 				<field name="logoFile" class="" type="media" default=""
 					label="TPL_PROTOSTAR_LOGO_LABEL"
 					description="TPL_PROTOSTAR_LOGO_DESC" />
-					
+
 				<field name="sitetitle"  type="text" default=""
 					label="JGLOBAL_TITLE"
 					description="JFIELD_ALT_PAGE_TITLE_LABEL"

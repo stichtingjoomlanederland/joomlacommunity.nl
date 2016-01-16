@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset>
+		<field
+			name="id"
+			type="hidden"
+		/>
+		<field
+			name="title"
+			type="text"
+			label="COM_SLIDER_FIELD_TITLE_LABEL"
+			description="COM_SLIDER_FIELD_TITLE_DESC"
+			default=""
+			required="true"
+		/>
+		<field
+			name="image"
+			type="media"
+			label="COM_SLIDER_FIELD_IMAGE_LABEL"
+			description="COM_SLIDER_FIELD_IMAGE_DESC"
+			directory="slider"
+			required="true"
+		/>
+		<field
+			name="image_alt"
+			type="text"
+			label="COM_SLIDER_FIELD_IMAGEALT_LABEL"
+			description="COM_SLIDER_FIELD_IMAGEALT_DESC"
+			default=""
+		/>
+		<field
+			name="text"
+			type="editor"
+			default=""
+			filter="safehtml"
+			label="COM_SLIDER_FIELD_TEXT_LABEL"
+			description="COM_SLIDER_FIELD_TEXT_DESC"
+			required="true"
+		/>
+	</fieldset>
+</form>
