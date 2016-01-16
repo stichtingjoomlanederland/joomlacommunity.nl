@@ -1,0 +1,42 @@
+.pagetitle {
+  .paginatitel,
+  .banner {
+    .make-lg-column(6);
+    .make-md-column(6);
+  }
+}
+
+.paginatitel {
+  h3 {
+    line-height: 50px;
+    margin: 0 0 0 -10px;
+    font-weight: 200;
+    font-size: 36px;
+    color: #ffffff;
+
+    @media (min-width: @screen-sm) {
+      line-height: 70px;
+    }
+
+    @media (min-width: @screen-md) {
+      line-height: 90px;
+    }
+  }
+  @media (min-width: @screen-md) {
+    width: inherit;
+  }
+}
+
+.post-heading {
+  padding: 150px 0;
+
+  h1 {
+    font-weight: 800;
+    color: white;
+    font-size: 55px;
+  }
+}
+
+.list-group-item-heading {
+  font-size: 17px;
+}
