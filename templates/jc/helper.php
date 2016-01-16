@@ -229,7 +229,7 @@ class ThisTemplateHelper
 		JHtml::_('behavior.framework');
 		JHtml::_('bootstrap.framework');
 		JHtml::_('jquery.framework');
-		JHtml::_('bootstrap.tooltip');
+
 
 		// Unset unwanted JavaScript
 		unset($this->doc->_scripts[$this->doc->baseurl . '/media/system/js/mootools-core.js']);

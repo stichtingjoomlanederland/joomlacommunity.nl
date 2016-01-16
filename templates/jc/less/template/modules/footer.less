@@ -1,0 +1,33 @@
+//Footer
+.footer {
+  position: relative;
+  width: 100%;
+  bottom: 0;
+  font-size: @font-size-small;
+  color: @gray;
+  border-top-style: solid;
+  border-top-width: 6px;
+  margin-top: 20px;
+  background: darken(@body, 8%);
+
+  a {
+    color: @gray-darker;
+    &:hover {
+      color: @gray;
+    }
+  }
+
+  .footer-navs {
+    display: none;
+    padding-top: 20px;
+
+    @media (min-width: @screen-sm) {
+      display: block;
+    }
+  }
+}
+
+.footerline {
+  border-top: 1px solid @gray-lighter;
+  margin-bottom: 10px;
+}

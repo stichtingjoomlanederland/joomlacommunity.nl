@@ -53,7 +53,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 }
 ?>
 <div class="header <?php if ($itemid == 248): ?>homepage<?php endif; ?>">
-	<nav class="navbar navbar-default navbar-fixed-top navbar-main" role="navigation">
+	<nav class="navbar navbar-default navbar-fixed-top navbar-main  visible-lg-block" role="navigation">
 		<div class="container">
 			<div class="navbar-logo">
 				<a class="logo" href=".">
@@ -65,6 +65,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 			<div class="navbar-main-menu navbar-left">
 				<jdoc:include type="modules" name="mainmenu"/>
 			</div>
+
 			<jdoc:include type="modules" name="usermenu"/>
 			<form class="navbar-form navbar-right" role="search">
 				<div class="form-group ">
@@ -73,6 +74,26 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 			</form>
 		</div>
 	</nav>
+
+    <nav class="navbar navbar-default navbar-mobile hidden-lg" role="navigation">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand logo-navbar logo" href="#"><?php echo $sitename ?></a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <jdoc:include type="modules" name="mainmenu-mobile"/>
+            </div>
+        </div>
+    </nav>
 
 	<div class="pagetitle">
 		<?php if ($this->countModules('slider')) : ?>
