@@ -1,12 +1,10 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
-defined( '_JEXEC' ) or die( 'Restricted access' ); 
-jimport( 'joomla.application.component.view');
+defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class rseventsproViewPdf extends JViewLegacy
 {
@@ -15,17 +13,25 @@ class rseventsproViewPdf extends JViewLegacy
 	public function display($tpl = null) {
 		if ($this->_load()) {
 			JFactory::getDocument()->setMimeEncoding('application/pdf');
-			$pdf = RSEventsProPDF::getInstance();
 			
-			if ($id = JFactory::getApplication()->input->getInt('id',0))
-				$this->buffer 		= $pdf->ticket($id);
+			try {
+				$pdf = RSEventsProPDF::getInstance();
 			
-			if ($eid = JFactory::getApplication()->input->getInt('eid',0))
-				$this->buffer 		= $pdf->tickets($eid);
+				if ($id = JFactory::getApplication()->input->getInt('id',0)) {
+					$this->buffer = $pdf->ticket($id);
+				}
 			
-			if ($this->buffer === false)
-				JFactory::getApplication()->redirect('index.php?option=com_rseventspro', JText::_('COM_RSEVENTSPRO_ERROR_WHILE_LOADING_PDF'));
+				if ($eid = JFactory::getApplication()->input->getInt('eid',0)) {
+					$this->buffer = $pdf->tickets($eid);
+				}
 			
+				if ($this->buffer === false) {
+					JFactory::getApplication()->redirect('index.php?option=com_rseventspro', JText::_('COM_RSEVENTSPRO_ERROR_WHILE_LOADING_PDF'));
+				}
+			} catch (Exception $e) {
+				JFactory::getApplication()->enqueueMessage($e->getMessage());
+				JFactory::getApplication()->redirect('index.php?option=com_rseventspro');
+			}
 		}
 		parent::display($tpl);
 	}

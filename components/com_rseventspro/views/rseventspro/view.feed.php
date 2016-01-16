@@ -1,14 +1,12 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
 // no direct access
 defined( '_JEXEC' ) or die( 'Restricted access' );
-jimport( 'joomla.application.component.view');
 
 class rseventsproViewRseventspro extends JViewLegacy
 {
@@ -16,10 +14,7 @@ class rseventsproViewRseventspro extends JViewLegacy
 	public function display() {
 		$doc		= JFactory::getDocument();
 		$jinput		= JFactory::getApplication()->input;
-		$config		= JFactory::getConfig();
-		
-		$jinput->set('limit', $config->get('feed_limit'));
-		$rows = $this->get('events');
+		$rows		= $this->get('events');
 		
 		foreach ($rows as $row ) {
 			
@@ -34,11 +29,14 @@ class rseventsproViewRseventspro extends JViewLegacy
 			$title = html_entity_decode($title, ENT_COMPAT, 'UTF-8');		
 
 			// Url link to event
-			$link = rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($row->id,$event->name));
+			$link = rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($row->id,$event->name),false,rseventsproHelper::itemid($row->id));
 			
 			// feed item description text
 			$description = JText::_('COM_RSEVENTSPRO_FEED_LOCATION').': <strong>'.$this->escape($event->locationname).'</strong> - '.$this->escape($event->address).'<br />';
-			$description .= JText::_('COM_RSEVENTSPRO_FEED_DATE').': '.rseventsproHelper::date($event->start).' - '.rseventsproHelper::date($event->end).'<br />';
+			$description .= JText::_('COM_RSEVENTSPRO_FEED_DATE').': '.rseventsproHelper::showdate($event->start);
+			if (!$event->allday) $description .= ' - '.rseventsproHelper::showdate($event->end);
+			$description .= '<br />';
+			
 			if (!empty($event->description)) $description .= $event->description;
 			
 			@$created =  ($event->created == JFactory::getDbo()->getNullDate()) ? date( 'r', strtotime($event->start)) : date( 'r', strtotime($event->created));
@@ -60,7 +58,7 @@ class rseventsproViewRseventspro extends JViewLegacy
 		$query	= $db->getQuery(true);
 		
 		$query->clear()
-			->select($db->qn('e.name'))->select($db->qn('e.start'))->select($db->qn('e.end'))
+			->select($db->qn('e.name'))->select($db->qn('e.start'))->select($db->qn('e.end'))->select($db->qn('e.allday'))
 			->select($db->qn('e.description'))->select($db->qn('e.created'))->select($db->qn('l.name','locationname'))
 			->select($db->qn('l.address'))
 			->from($db->qn('#__rseventspro_events','e'))

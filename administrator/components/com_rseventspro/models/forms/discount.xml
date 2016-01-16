@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<field name="id" type="hidden" label="JGLOBAL_FIELD_ID_LABEL" description ="JGLOBAL_FIELD_ID_DESC" size="10" default="0" readonly="true" />
+	<field name="name" type="text" class="input-xxlarge" label="COM_RSEVENTSPRO_DISCOUNT_NAME" description="COM_RSEVENTSPRO_DISCOUNT_NAME_DESC" required="true" size="70" />
+	<field name="code" type="text" class="input-large" label="COM_RSEVENTSPRO_DISCOUNT_CODE" description="COM_RSEVENTSPRO_DISCOUNT_CODE_DESC" required="true" size="50" />
+	<field name="from" type="rscalendar" label="COM_RSEVENTSPRO_DISCOUNT_FROM" description="COM_RSEVENTSPRO_DISCOUNT_FROM_DESC" default="" />
+	<field name="to" type="rscalendar" label="COM_RSEVENTSPRO_DISCOUNT_TO" description="COM_RSEVENTSPRO_DISCOUNT_TO_DESC" default="" />
+	<field name="usage" type="text" class="input-small" label="COM_RSEVENTSPRO_DISCOUNT_USAGE" description="COM_RSEVENTSPRO_DISCOUNT_USAGE_DESC" size="10" />
+	<field name="type" type="list" class="input-small" size="1">
+		<option value="1">COM_RSEVENTSPRO_DISCOUNT_TYPE_PERCENT</option>
+		<option value="2">COM_RSEVENTSPRO_DISCOUNT_TYPE_FIXED</option>
+	</field>
+	<field name="value" type="text" class="input-small" label="COM_RSEVENTSPRO_DISCOUNT_TYPE" description="COM_RSEVENTSPRO_DISCOUNT_TYPE_DESC" required="true" size="10" />
+	<field name="apply_to" type="list" class="input-large" size="1" label="COM_RSEVENTSPRO_DISCOUNT_APPLY_TO" onchange="rsepro_discount_assignment()">
+		<option value="1">COM_RSEVENTSPRO_DISCOUNT_APPLY_TO_ALL</option>
+		<option value="2">COM_RSEVENTSPRO_DISCOUNT_APPLY_TO_SELECTED</option>
+		<option value="3">COM_RSEVENTSPRO_DISCOUNT_APPLY_TO_EXCLUDED</option>
+	</field>
+	<field name="events" type="events" label="COM_RSEVENTSPRO_DISCOUNT_EVENTS" multiple="multiple" description="COM_RSEVENTSPRO_DISCOUNT_EVENTS_DESC" />
+	<field name="groups" type="groups" label="COM_RSEVENTSPRO_DISCOUNT_GROUPS" multiple="multiple" description="COM_RSEVENTSPRO_DISCOUNT_GROUPS_DESC" />
+	
+	<field name="same_tickets" type="text" class="input-mini" size="5" />
+	<field name="different_tickets" type="text" class="input-mini" size="5" />
+	<field name="total" type="checkbox" default="0" />
+	<field name="totalvalue" type="text" class="input-mini" size="5" />
+	<field name="payment" type="checkbox" default="0" />
+	<field name="paymentvalue" type="rspayments" size="1" shownone="false" />
+	
+	
+	<field name="discounttype" type="hidden" />
+</form>

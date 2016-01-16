@@ -1,8 +1,7 @@
 <?php
 /**
-* @version 1.0.0
 * @package RSJoomla! Adapter
-* @copyright (C) 2012 www.rsjoomla.com
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/licenses/gpl-2.0.html
 */
 
@@ -75,27 +74,26 @@ class RSFilterBar {
 		<?php
 	}
 	
-	public function orderingHead($items, $task) {
+	public function orderingHead($items, $task, $orderby = 'ordering') {
 		$html	= array();
-		$html[] = '<th width="1%" class="center hidden-phone" nowrap="nowrap">';
-		$html[] = JHtml::_('grid.sort', '<i class="icon-menu-2"></i>', 'ordering', $this->listDirn, $this->listOrder, null, 'asc', 'JGRID_HEADING_ORDERING');
+		$html[] = '<th width="1%" class="nowrap center hidden-phone">';
+		$html[] = JHtml::_('grid.sort', '<i class="icon-menu-2"></i>', $orderby, $this->listDirn, $this->listOrder, null, 'asc', 'JGRID_HEADING_ORDERING');
 		$html[] = '</th>';
 		
 		return implode('',$html);
 	}
 	
 	public function orderingBody($order, $default, $pagination, $i, $total, $task) {
-		$disableClassName	= $this->listOrder == $default ? '' : 'inactive tip-top';
-		$disabledLabel		= $this->listOrder == $default ? '' : JText::_('JORDERINGDISABLED');
-		$html				= array();
+		$extra	= $this->listOrder == $default ? '"' : ' inactive tip-top" title="'.JText::_('JORDERINGDISABLED').'" rel="tooltip"';
+		$html	= array();
 		
 		if ($this->listOrder == $default) {
 			$saveOrderingUrl = 'index.php?option=com_rseventspro&task='.$task.'.saveOrderAjax&tmpl=component';
-			JHtml::_('sortablelist.sortable', $task.'List', 'adminForm', strtolower($this->listDirn), $saveOrderingUrl);
+			JHtml::_('sortablelist.sortable', $task.'List', 'adminForm', strtolower($this->listDirn), $saveOrderingUrl, false, true);
 		}
 		
 		$html[] = '<td class="order nowrap center hidden-phone">';
-		$html[] = '<span class="sortable-handler '.$disableClassName.'" title="'.$disabledLabel.'" rel="tooltip">';
+		$html[] = '<span class="sortable-handler'.$extra.'>';
 		$html[] = '<i class="icon-menu"></i>';
 		$html[] = '</span>';
 		$html[] = '<input type="text" style="display:none;"  name="order[]" size="5" value="'.$order.'" class="width-20 text-area-order" />';

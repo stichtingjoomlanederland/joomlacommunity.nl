@@ -5,4 +5,17 @@
 			<![CDATA[COM_RSEVENTSPRO_SUBSCRIPTIONS_VIEW_DESC]]>
 		</message>
 	</layout>
+	
+	<fields name="params">
+		<fieldset name="basic">
+			<field name="archived" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_ARCHIVED_EVENTS" description="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_ARCHIVED_EVENTS_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="past" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_PAST_EVENTS" description="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_PAST_EVENTS_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+		</fieldset>
+	</fields>
 </metadata>

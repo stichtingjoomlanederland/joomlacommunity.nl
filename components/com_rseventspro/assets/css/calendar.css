@@ -1,122 +1,223 @@
-/* RSCalendar css */
-
-a.rs_calendar_arrows {
-    background: none repeat scroll 0 0 #828282 !important;
-    color: #FFFFFF !important;
-    padding: 4px;
+.rsepro-calendar * {
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
+	box-sizing: border-box;
 }
 
-table.rs_calendar_component {
-    border: 1px solid #D8D8D8;
+.rsepro-calendar input,.rsepro-calendar textarea {
+	-moz-box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	box-sizing: content-box;
 }
 
-table.rs_calendar_component th {
-    background: none repeat scroll 0 0 #828282;
-    color: #FFFFFF;
-    padding: 8px 3px;
-    text-align: center;
+.rsepro-calendar a {
+	transition: color .5s;
+	outline: 0!important;
 }
 
-
-table.rs_calendar_component {
-	border:1px solid #d8d8d8;
+.rsepro-calendar a:active,.rsepro-calendar a:focus,.rsepro-calendar a:hover {
+	text-decoration: none!important;
+	outline: 0!important;
 }
 
-table.rs_calendar_component td { 
-	background: #f8f8f8;
-	border:1px solid #d8d8d8 !important; 
-	padding: 2px; 
+.rsepro-calendar img {
+	max-width: 100%;
+	height: auto;
 }
 
-table.rs_calendar_component td.prev-month, table.rs_calendar_component td.next-month { 
-	background-color: #f4f4f4; 
-	padding:2px; 
+.rsepro-calendar table {
+	table-layout: fixed;
 }
 
-table.rs_calendar_component td.week { 
-	text-align:center; 
-	color: #000; 
+.rsepro-calendar table caption {
+	padding: 10px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	margin-bottom: 10px;
+}
+
+.rsepro-calendar table caption select {
+	margin: 0 5px 0 0;
+}
+
+.rsepro-calendar table .pager {
+	margin: 0;
+}
+
+.rsepro-calendar table td,.rsepro-calendar table th {
+	width: 13%;
+	text-align: center;
+}
+
+.rsepro-calendar table th {
+	font-size: 14px;
+}
+
+.rsepro-calendar table th span {
+	text-align: center;
+}
+
+.rsepro-calendar table td {
+	font-size: 20px;
+	padding: 2px;
+	height: 100px;
+}
+
+.rsepro-calendar table td.week,.rsepro-calendar table th.week {
+	width: 9%;
 	vertical-align: middle;
 }
 
-table.rs_calendar_component td.has-events{ 
-	background:#FFFFCC; 
+.rsepro-calendar table td div>a {
+	display: block;
+	position: relative;
+	padding: 5%;
+	background-color: #f8f8f8;
 }
 
-table.rs_calendar_component td { 
-	height: 90px; 
-	width: 50px; 
-	vertical-align: top; 
+.rsepro-calendar table td.week>a {
+	background-color: transparent;
 }
 
-table.rs_calendar_component td.curr-day span.rs_calendar_date { 
-	background: url(../images/calendar/datebg2.gif) repeat-x left top !important;
+.rsepro-calendar table td.curr-day>a {
+	color: #fff;
+	background-color: #ddd;
 }
 
-table.rs_calendar_component td span.rs_calendar_date { 
-	font-size: 24px; 
-	width: 100%; 
-	display: block; 
-	text-align: center; 
-	padding: 8px 0; 
-	background: url(../images/calendar/datebg.gif) repeat-x left top !important; 
-	border-bottom: 1px solid #91bbdc;
+.rsepro-calendar table td.curr-day>a:hover {
+	color: initial;
 }
 
-table.rs_calendar_component td a span.rs_calendar_date { 
-	text-decoration: none !important; 
+.rsepro-calendar-day {
+	position: relative;
 }
 
-table.rs_calendar_component td.has-events { 
-	background: #deebe9 !important; 
+.rsepro-calendar table td div.rsepro-calendar-day>a.rsepro-add-event {
+	display: none;
+	position: absolute;
+	right: 0;
+	top: 0;
+	margin: 2px 2px 0 0;
+	line-height: 0;
+	padding: 4%;
+	border-radius: 4px;
 }
 
-table.rs_calendar_component td.has-events a.rsttip { 
-	margin: 6px; 
-	display: block; 
-	background: url(../images/calendar/event.png) no-repeat left 3px !important; 
-	padding: 5px 5px 5px 20px; 
+.rsepro-calendar table td div.rsepro-calendar-day>a.rsepro-add-event>i {
+	font-size: 12px;
 }
 
-#rs_calendar_component table.rs_calendar_component td.has-events a.rsttip:hover, 
-#rs_calendar_component table.rs_calendar_component td.has-events a.rsttip:focus, 
-#rs_calendar_component table.rs_calendar_component td.has-events a.rsttip:active {
-	margin: 6px; 
-	display: block; 
-	background: url(../images/calendar/event.png) no-repeat left 3px !important; 
-	padding-left: 20px;
+.rsepro-calendar table td div.rsepro-calendar-day>a.rsepro-add-event span {
+	display: block;
+	margin: 0;
+	padding: 0;
 }
 
-table.rs_calendar_component td.week { 
-	width: 6%; 
+.rsepro-calendar table td div.rsepro-calendar-day:hover>a.rsepro-add-event {
+	display: block;
 }
 
-table.rs_calendar_component td.curr-month , table.rs_calendar_component td.prev-month  { 
-	width: 12%; 
+.rsepro-calendar .has-events>a {
+	margin-bottom: 5px;
 }
 
-table.rs_calendar_component td.prev-month span.rs_calendar_date, table.rs_calendar_component td.next-month span.rs_calendar_date { 
-	background: url(../images/calendar/datebg3.gif) repeat-x left top !important; 
+.rsepro-calendar .has-events ul {
+	list-style: none;
+	text-align: left;
+	margin: 0;
+	padding: 0;
 }
 
-.rs_calendar_details a {
-	text-decoration: none !important;
-	cursor: pointer;
+.rsepro-calendar .has-events ul a {
+	white-space: nowrap;
+	overflow:hidden;
+	display: block;
+	padding: 0 2px;
 }
 
-.rs_calendar_events {
-	overflow: hidden;
-	width: 80px;
-	height: 25px;
+.rsepro-calendar .has-events ul.rsepro-full-name a {
+	white-space: normal;
+}
+
+.rsepro-calendar .has-events .event {
+	margin-top: 2px;
+	font-size: 12px;
+	padding-left: 5px;
 }
 
 #cloneevent {
-	background: url("../images/calendar/event.png") no-repeat scroll left 3px #F8F8F8 !important;
-    display: block;
-    padding: 5px 5px 5px 20px; 
+	background: left 3px no-repeat #f5f5f5;
+	display: block;
+	padding: 5px 5px 5px 0;
 	font-size: inherit;
 	font-family: inherit;
 	color: #095197;
 	text-decoration: none;
 	z-index: 99999999999;
+}
+
+.rsepro-active {
+	background: left 3px no-repeat #f5f5f5;
+	padding: 0 2px;
+	font-size: inherit;
+	font-family: inherit;
+	color: #095197;
+	text-decoration: none;
+	position: relative;
+	overflow: visible !important;
+	display: inline-block !important;
+}
+
+@media (max-width:480px) {
+	caption select,caption ul {
+		float: none!important;
+	}
+	
+	caption select+ul {
+		margin-top: 10px!important;
+	}
+
+	.rsepro-calendar table th {
+		font-size: 12px;
+	}
+
+	.rsepro-calendar table td {
+		font-size: 12px;
+		padding: 0;
+		height: 40px;
+	}
+
+	.rsepro-calendar table td div.rsepro-calendar-day>a.rsepro-add-event {
+		border-radius: 0;
+	}
+
+	.rsepro-calendar .has-events a {
+		font-size: 11px;
+	}
+
+	.rsepro-calendar .has-events .icon-calendar {
+		display: none;
+	}
+}
+
+@media (max-width:768px) {
+	#rseform table .hidden-desktop {
+		display: block!important;
+	}
+}
+
+@media (max-width:479px) {
+	#rsepro-legend .rsepro_legend_block {
+		height: auto;
+		padding: 0;
+	}
+
+	#rsepro-legend .rsepro_legend_color {
+		float: none;
+	}
+
+	#rsepro-legend .rsepro_legend_text {
+		margin: 0;
+		font-size: 11px;
+	}
 }

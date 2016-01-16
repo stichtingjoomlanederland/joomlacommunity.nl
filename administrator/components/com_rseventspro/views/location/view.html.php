@@ -1,12 +1,10 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
-defined( '_JEXEC' ) or die( 'Restricted access' ); 
-jimport( 'joomla.application.component.view');
+defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class rseventsproViewLocation extends JViewLegacy
 {
@@ -30,9 +28,13 @@ class rseventsproViewLocation extends JViewLegacy
 		JToolBarHelper::save2new('location.save2new');
 		JToolBarHelper::cancel('location.cancel');
 		
-		rseventsproHelper::chosen();
+		if (rseventsproHelper::isJ3()) {
+			JHtml::_('rseventspro.chosen','select');
+		}
 		
-		if ($this->config->enable_google_maps)
+		if ($this->config->enable_google_maps) {
 			JFactory::getDocument()->addScript('https://maps.google.com/maps/api/js?sensor=false');
+			JFactory::getDocument()->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION);
+		}
 	}
 }

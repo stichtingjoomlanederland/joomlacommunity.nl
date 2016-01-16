@@ -138,8 +138,8 @@ class phpthumb {
 	// * Security
 	var $config_high_security_enabled                = false;
 	var $config_high_security_password               = null;
-	var $config_disable_debug                        = true;
-	var $config_allow_src_above_docroot              = false;
+	var $config_disable_debug                        = false;
+	var $config_allow_src_above_docroot              = true;
 	var $config_allow_src_above_phpthumb             = true;
 
 	// * HTTP fopen
@@ -556,7 +556,8 @@ class phpthumb {
 		}
 
 		if ($this->RenderOutput()) {
-			if (file_put_contents($renderfilename, $this->outputImageData)) {
+			jimport('joomla.filesystem.file');
+			if (JFile::write($renderfilename, $this->outputImageData)) {
 				$this->DebugMessage('RenderToFile('.$renderfilename.') succeeded', __FILE__, __LINE__);
 				return true;
 			}
@@ -592,19 +593,17 @@ class phpthumb {
 		}
 
 		if ($this->useRawIMoutput) {
-
 			header('Content-Type: '.phpthumb_functions::ImageTypeToMIMEtype($this->thumbnailFormat));
 			echo $this->IMresizedData;
 
 		} else {
-
 			$this->DebugMessage('ImageInterlace($this->gdimg_output, '.intval($this->config_output_interlace).')', __FILE__, __LINE__);
 			ImageInterlace($this->gdimg_output, intval($this->config_output_interlace));
 			switch ($this->thumbnailFormat) {
 				case 'jpeg':
 					header('Content-Type: '.phpthumb_functions::ImageTypeToMIMEtype($this->thumbnailFormat));
 					$ImageOutFunction = 'image'.$this->thumbnailFormat;
-					@$ImageOutFunction($this->gdimg_output, '', $this->thumbnailQuality);
+					$ImageOutFunction($this->gdimg_output, null, $this->thumbnailQuality);
 					break;
 
 				case 'png':
@@ -1117,18 +1116,7 @@ class phpthumb {
 		static $open_basedirs = null;
 		static $file_exists_cache = array();
 		if (!$cached || !isset($file_exists_cache[$filename])) {
-			if (is_null($open_basedirs)) {
-				$open_basedirs = explode(';', ini_get('open_basedir'));
-			}
-			if (empty($open_basedirs) || in_array(dirname($filename), $open_basedirs)) {
-				$file_exists_cache[$filename] = file_exists($filename);
-			} elseif ($this->iswindows) {
-				$ls_filename = trim(phpthumb_functions::SafeExec('dir '.escapeshellarg($filename)));
-				$file_exists_cache[$filename] = !preg_match('#File Not Found#i', $ls_filename);
-			} else {
-				$ls_filename = trim(phpthumb_functions::SafeExec('ls '.escapeshellarg($filename)));
-				$file_exists_cache[$filename] = ($ls_filename == $filename);
-			}
+			$file_exists_cache[$filename] = file_exists($filename);
 		}
 		return $file_exists_cache[$filename];
 	}
@@ -2884,13 +2872,13 @@ exit;
 	function CalculateThumbnailDimensions() {
 		$this->DebugMessage('CalculateThumbnailDimensions() starting with [W,H,sx,sy,sw,sh] initially set to ['.$this->source_width.','.$this->source_height.','.$this->sx.','.$this->sy.','.$this->sw.','.$this->sh.']', __FILE__, __LINE__);
 //echo $this->source_width.'x'.$this->source_height.'<hr>';
-		$this->thumbnailCropX = ($this->sx ? (($this->sx >= 2) ? $this->sx : round($this->sx * $this->source_width))  : 0);
+		$this->thumbnailCropX = ($this->sx ? (($this->sx >= 1) ? $this->sx : round($this->sx * $this->source_width))  : 0);
 //echo $this->thumbnailCropX.'<br>';
-		$this->thumbnailCropY = ($this->sy ? (($this->sy >= 2) ? $this->sy : round($this->sy * $this->source_height)) : 0);
+		$this->thumbnailCropY = ($this->sy ? (($this->sy >= 1) ? $this->sy : round($this->sy * $this->source_height)) : 0);
 //echo $this->thumbnailCropY.'<br>';
-		$this->thumbnailCropW = ($this->sw ? (($this->sw >= 2) ? $this->sw : round($this->sw * $this->source_width))  : $this->source_width);
+		$this->thumbnailCropW = ($this->sw ? (($this->sw >= 1) ? $this->sw : round($this->sw * $this->source_width))  : $this->source_width);
 //echo $this->thumbnailCropW.'<br>';
-		$this->thumbnailCropH = ($this->sh ? (($this->sh >= 2) ? $this->sh : round($this->sh * $this->source_height)) : $this->source_height);
+		$this->thumbnailCropH = ($this->sh ? (($this->sh >= 1) ? $this->sh : round($this->sh * $this->source_height)) : $this->source_height);
 //echo $this->thumbnailCropH.'<hr>';
 
 		// limit source area to original image area
@@ -3299,7 +3287,13 @@ exit;
 			return false;
 		}
 		if (function_exists('memory_get_usage')) {
-			$available_memory = max(intval(ini_get('memory_limit')), intval(get_cfg_var('memory_limit'))) * 1048576;
+			$ini_memory = intval(ini_get('memory_limit'));
+			$cfg_memory = intval(get_cfg_var('memory_limit'));
+			
+			if ($ini_memory == -1 && $cfg_memory == -1) {
+				$ini_memory = 128;
+			}
+			$available_memory = max($ini_memory, $cfg_memory) * 1048576;
 			$available_memory -= memory_get_usage();
 			return (bool) (($width * $height * 5) > $available_memory);
 		}

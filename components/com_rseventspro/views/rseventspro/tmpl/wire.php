@@ -1,8 +1,7 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
@@ -34,7 +33,7 @@ $total		= 0; ?>
 	
 	<div>
 		<label class="rs_wire"><b><?php echo JText::_('COM_RSEVENTSPRO_WIRE_DATE'); ?></b></label>
-		<?php echo rseventsproHelper::date($data->date,null,true); ?>
+		<?php echo rseventsproHelper::showdate($data->date,null,true); ?>
 	</div>
 	<div class="rs_clear"></div>
 	
@@ -85,7 +84,7 @@ $total		= 0; ?>
 <div class="rs_clear"></div>
 <br /><br />
 <div>
-	<?php echo $this->payment->details; ?>
+	<?php echo rseventsproEmails::placeholders($this->payment->details, $data->ide, ''); ?>
 </div>
 <div class="rs_clear"></div>
 
@@ -93,4 +92,4 @@ $total		= 0; ?>
 <button type="button" class="button" onclick="document.location='<?php echo $this->payment->redirect; ?>'"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CONTINUE'); ?></button>
  <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?>
 <?php } ?>
- <a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($data->ide,$event->name)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_BACK_TO_EVENT'); ?></a>
+ <a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($data->ide,$event->name),false,rseventsproHelper::itemid($data->ide)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_BACK_TO_EVENT'); ?></a>

@@ -1,12 +1,10 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
-defined( '_JEXEC' ) or die( 'Restricted access' ); 
-jimport( 'joomla.application.component.view');
+defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class rseventsproViewSubscriptions extends JViewLegacy
 {
@@ -25,6 +23,7 @@ class rseventsproViewSubscriptions extends JViewLegacy
 			JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_EVENT_SCAN_TICKET'),'rseventspro48');
 			
 			$this->scan			= rseventsproHelper::getScan();
+			$this->event		= $this->get('Event');
 		} else {
 			$this->items 		= $this->get('Items');
 			$this->pagination 	= $this->get('Pagination');
@@ -55,9 +54,12 @@ class rseventsproViewSubscriptions extends JViewLegacy
 		}
 		
 		JToolBar::getInstance('toolbar')->appendButton( 'Link', 'lamp', JText::_('COM_RSEVENTSPRO_EVENT_SCAN_TICKET'), JRoute::_('index.php?option=com_rseventspro&view=subscriptions&layout=scan'));
+		JToolBarHelper::custom('subscriptions.confirmsubscriber','approve','approve',JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_CONFIRM'));
 		JToolBarHelper::custom('rseventspro','rseventspro32','rseventspro32',JText::_('COM_RSEVENTSPRO_GLOBAL_NAME'),false);
 		
-		JFactory::getDocument()->addScript(JURI::root().'components/com_rseventspro/assets/js/dom.js');
+		if (rseventsproHelper::isJ3()) {
+			JHtml::_('rseventspro.chosen','select');
+		}
 	}
 	
 	protected function getUser($id) {

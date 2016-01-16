@@ -1,13 +1,11 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2009-2012 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/licenses/gpl-2.0.html
 */
 
 defined('_JEXEC') or die('Restricted access');
-jimport('joomla.application.component.controller');
 
 class rseventsproControllerSettings extends JControllerLegacy
 {	
@@ -90,11 +88,14 @@ class rseventsproControllerSettings extends JControllerLegacy
 		
 		if (!$model->savetoken()) {
 			$this->setMessage($model->getError(), 'error');
+			$this->setRedirect('index.php?option=com_rseventspro&view=settings');
 		} else {
-			$this->setMessage(JText::_('COM_RSEVENTSPRO_FACEBOOK_CONNECTION_OK'), 'message');
+			echo '<script type="text/javascript">';
+			echo 'window.opener.location = \''.addslashes(JRoute::_('index.php?option=com_rseventspro&view=settings&fb=1',false)).'\';';
+			echo 'window.close();';
+			echo '</script>';
+			JFactory::getApplication()->close();
 		}
-		
-		$this->setRedirect('index.php?option=com_rseventspro&view=settings');
 	}
 	
 	/**
@@ -110,8 +111,6 @@ class rseventsproControllerSettings extends JControllerLegacy
 			$this->setMessage($model->getError(), 'error');
 			$this->setRedirect('index.php?option=com_rseventspro&view=settings');
 		} else {
-			$events = $model->getState('settings.fbevents');
-			$this->setMessage(JText::sprintf('COM_RSEVENTSPRO_IMPORTED_FROM_FACEBOOK',$events), 'message');
 			$this->setRedirect('index.php?option=com_rseventspro&view=events');
 		}
 	}

@@ -443,10 +443,12 @@ class phpthumb_functions {
 	static function SafeExec($command) {
 		static $AllowedExecFunctions = array();
 		if (empty($AllowedExecFunctions)) {
-			$AllowedExecFunctions = array('shell_exec'=>true, 'passthru'=>true, 'system'=>true, 'exec'=>true);
+			$AllowedExecFunctions = array('shell_exec'=>false, 'passthru'=>false, 'system'=>false, 'exec'=>false);
+			/*
 			foreach ($AllowedExecFunctions as $key => $value) {
 				$AllowedExecFunctions[$key] = !phpthumb_functions::FunctionIsDisabled($key);
 			}
+			*/
 		}
 		$command .= ' 2>&1'; // force redirect stderr to stdout
 		foreach ($AllowedExecFunctions as $execfunction => $is_allowed) {

@@ -1,12 +1,10 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
-defined( '_JEXEC' ) or die( 'Restricted access' ); 
-jimport( 'joomla.application.component.view');
+defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class rseventsproViewRseventspro extends JViewLegacy
 {
@@ -21,6 +19,8 @@ class rseventsproViewRseventspro extends JViewLegacy
 	public function display($tpl = null) {		
 		$layout = $this->getLayout();	
 		
+		$this->version = (string) new RSEventsProVersion();
+		
 		if ($layout == 'update') {
 			$this->sidebar = rseventsproHelper::isJ3() ? JHtmlSidebar::render() : '';
 			$jversion = new JVersion();
@@ -32,6 +32,7 @@ class rseventsproViewRseventspro extends JViewLegacy
 			$this->events		= $this->get('Events');
 			$this->subscribers	= $this->get('Subscribers');
 			$this->comments		= $this->get('Comments');
+			$this->buttons		= $this->get('Buttons');
 		}
 		
 		$this->addToolBar($layout);

@@ -6,8 +6,9 @@
 	<copyright>GNU General Public License</copyright>
 	<authorEmail>suport@rsjoomla.com</authorEmail>
 	<authorUrl>http://www.rsjoomla.com</authorUrl>
-	<version>1.0</version>
+	<version>1.2</version>
 	<description>MOD_RSEVENTSPRO_CATEGORIES_DESCRIPTION</description>
+	<scriptfile>script.php</scriptfile>
 
 	<languages>
 		<language tag="en-GB">language/en-GB/en-GB.mod_rseventspro_categories.ini</language>
@@ -73,6 +74,11 @@
 			
 			<fieldset name="advanced">
 				<field name="moduleclass_sfx" type="text" label="MOD_RSEVENTSPRO_CATEGORIES_CLASS_SUFFIX" description="MOD_RSEVENTSPRO_CATEGORIES_CLASS_SUFFIX_DESC" />
+				<field name="use_cache" type="list" default="1" label="MOD_RSEVENTSPRO_CATEGORIES_USE_CACHE" description="MOD_RSEVENTSPRO_CATEGORIES_USE_CACHE_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="cache_time" type="text" default="900" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
 				<field name="layout" type="modulelayout" label="JFIELD_ALT_LAYOUT_LABEL" description="JFIELD_ALT_MODULE_LAYOUT_DESC" />
 				<field name="item_heading" type="list" default="4" label="MOD_RSEVENTSPRO_CATEGORIES_TITLE_HEADING" description="MOD_RSEVENTSPRO_CATEGORIES_TITLE_HEADING_DESC">
 					<option value="1">JH1</option>

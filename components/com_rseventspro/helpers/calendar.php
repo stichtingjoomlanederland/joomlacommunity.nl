@@ -1,8 +1,7 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -15,6 +14,12 @@ class RSEPROCalendar
 	 * @var array
 	 */
 	public $weekdays = array();
+	
+	/**
+	 * Array containing the order of short week days
+	 * @var array
+	 */
+	public $shortweekdays = array();
 	
 	/**
 	 * Week starts on this day
@@ -130,20 +135,11 @@ class RSEPROCalendar
 	public $params = null;
 	
 	/**
-	 * Database
-	 * @var db
-	*/
-	public $_db = null;
-	
-	
-	
-	/**
 	* Initializes the calendar based on today's date
 	*/
 	public function __construct($events, $params, $module = false) {
 		JFactory::getLanguage()->load('com_rseventspro.dates');
 		
-		$this->_db			= JFactory::getDbo();
 		$this->is_module	= $module;
 		$this->params		= $params;
 		$this->weekstart	= (int) $this->params->get('startday',1);
@@ -158,45 +154,101 @@ class RSEPROCalendar
 	* @return true if successful
 	*/
 	public function setDate($month = 0, $year = 0) {
+		$now = JFactory::getDate();
+		
 		$this->setWeekStart($this->weekstart);
 		$this->_setMonths();
 		
-		$now = rseventsproHelper::date('now',null,false,true);
-		$now->setTZByID($now->getTZID());
-		$now->convertTZ(new RSDate_Timezone('GMT'));
-		
-		if ($month == 0) {
-			$month = JFactory::getApplication()->input->getInt('month',0);
-			if (!$month)
-				$month = (int) $now->formatLikeDate('n');
-		} else $month = (int) $month;
-		
-		if ($year == 0) {
-			$year = JFactory::getApplication()->input->getInt('year',0);
-			if (!$year)
-				$year = (int) $now->formatLikeDate('Y');
-		} else $year = (int) $year;
-		
-		if (is_numeric($year) && $year >=1970)
-			$this->cyear = (int) $year;
+		if ($this->is_module) {
+			if ($month == 0) {
+				$paramsMonth = (int) $this->params->get('startmonth',0);
+				if ($paramsMonth == 0) {
+					$month = (int) $now->format('n');
+				} else {
+					$month = $paramsMonth;
+				}
+			}
 			
+			if ($year == 0) {
+				$paramsYear = (int) $this->params->get('startyear',0);
+				if (empty($paramsYear)) {
+					$year = (int) $now->format('Y');
+				} else {
+					$year = $paramsYear;
+				}
+			}
+		} else {
+			if ($month == 0) {
+				$month = JFactory::getApplication()->input->getInt('month',0);
+				if (!$month) {
+					$paramsMonth = (int) $this->params->get('startmonth',0);
+					if ($paramsMonth == 0) {
+						$month = (int) $now->format('n');
+					} else {
+						$month = $paramsMonth;
+					}
+				}
+			} else {
+				$month = (int) $month;
+			}
+			
+			if ($year == 0) {
+				$year = JFactory::getApplication()->input->getInt('year',0);
+				if (!$year) {
+					$paramsYear = (int) $this->params->get('startyear',0);
+					if (empty($paramsYear)) {
+						$year = (int) $now->format('Y');
+					} else {
+						$year = $paramsYear;
+					}
+				}
+			} else {
+				$year = (int) $year;
+			}
+		}
+		
+		if (is_numeric($year) && $year >= 1970) {
+			$this->cyear = (int) $year;
+		} else {
+			$this->cyear = (int) $now->format('Y');
+		}
+		
 		if (is_numeric($month) && $month >= 1 && $month <= 12) {			
 			$this->cmonth = (int) $month;
 			$this->_setDate();
-			$cmonth_days = rseventsproHelper::date($this->unixdate,null,false,true);
-			$cmonth_days->setTZByID($cmonth_days->getTZID());
-			$cmonth_days->convertTZ(new RSDate_Timezone('GMT'));
-			$this->cmonth_days = $cmonth_days->formatLikeDate('t');
+			$cmonth_days = JFactory::getDate($this->unixdate);
+			$this->cmonth_days = $cmonth_days->format('t');
 			
-			$month_start_unixdate = rseventsproHelper::date($this->unixdate,null,false,true);
-			$month_start_unixdate->setTZByID($month_start_unixdate->getTZID());
-			$month_start_unixdate->convertTZ(new RSDate_Timezone('GMT'));
-			
-			$this->month_start_unixdate = $month_start_unixdate->formatLikeDate('Y-m-d H:i:s');
-			$this->month_start_day = $month_start_unixdate->formatLikeDate('w');
+			$month_start_unixdate = JFactory::getDate($this->unixdate);
+			$this->month_start_unixdate = $month_start_unixdate->format('Y-m-d H:i:s');
+			$this->month_start_day = $month_start_unixdate->format('w');
 			$this->_createMonthObject();
 		}
 		return true;
+	}
+	
+	public function getNextMonth() {
+		$date = JFactory::getDate($this->unixdate);
+		$date->modify('+1 months');
+		return $date->format('m');
+	}
+	
+	public function getNextYear() {
+		$date = JFactory::getDate($this->unixdate);
+		$date->modify('+1 months');
+		return $date->format('Y');
+	}
+	
+	public function getPrevMonth() {
+		$date = JFactory::getDate($this->unixdate);
+		$date->modify('-1 months');
+		return $date->format('m');
+	}
+	
+	public function getPrevYear() {
+		$date = JFactory::getDate($this->unixdate);
+		$date->modify('-1 months');
+		return $date->format('Y');
 	}
 	
 	protected function setWeekStart($i) {
@@ -221,6 +273,16 @@ class RSEPROCalendar
 						4 => JText::_('COM_RSEVENTSPRO_THURSDAY'),
 						5 => JText::_('COM_RSEVENTSPRO_FRIDAY'),
 						6 => JText::_('COM_RSEVENTSPRO_SATURDAY')
+					);
+					
+					$this->shortweekdays = array(
+						0 => JText::_('COM_RSEVENTSPRO_SU_SHORT'),
+						1 => JText::_('COM_RSEVENTSPRO_MO_SHORT'),
+						2 => JText::_('COM_RSEVENTSPRO_TU_SHORT'),
+						3 => JText::_('COM_RSEVENTSPRO_WE_SHORT'),
+						4 => JText::_('COM_RSEVENTSPRO_TH_SHORT'),
+						5 => JText::_('COM_RSEVENTSPRO_FR_SHORT'),
+						6 => JText::_('COM_RSEVENTSPRO_SA_SHORT')
 					);
 				}
 				
@@ -249,6 +311,16 @@ class RSEPROCalendar
 						6 => JText::_('COM_RSEVENTSPRO_SATURDAY'),
 						0 => JText::_('COM_RSEVENTSPRO_SUNDAY')
 					);
+					
+					$this->shortweekdays = array(
+						1 => JText::_('COM_RSEVENTSPRO_MO_SHORT'),
+						2 => JText::_('COM_RSEVENTSPRO_TU_SHORT'),
+						3 => JText::_('COM_RSEVENTSPRO_WE_SHORT'),
+						4 => JText::_('COM_RSEVENTSPRO_TH_SHORT'),
+						5 => JText::_('COM_RSEVENTSPRO_FR_SHORT'),
+						6 => JText::_('COM_RSEVENTSPRO_SA_SHORT'),
+						0 => JText::_('COM_RSEVENTSPRO_SU_SHORT')
+					);
 				}
 				
 				$this->weekstart = 1;
@@ -266,7 +338,7 @@ class RSEPROCalendar
 						4 => JText::_('COM_RSEVENTSPRO_TH'),
 						5 => JText::_('COM_RSEVENTSPRO_FR')
 					);
-				} else  {
+				} else {
 					$this->weekdays = array(
 						6 => JText::_('COM_RSEVENTSPRO_SATURDAY'),
 						0 => JText::_('COM_RSEVENTSPRO_SUNDAY'),
@@ -275,6 +347,16 @@ class RSEPROCalendar
 						3 => JText::_('COM_RSEVENTSPRO_WEDNESDAY'),
 						4 => JText::_('COM_RSEVENTSPRO_THURSDAY'),
 						5 => JText::_('COM_RSEVENTSPRO_FRIDAY')
+					);
+					
+					$this->shortweekdays = array(
+						6 => JText::_('COM_RSEVENTSPRO_SA_SHORT'),
+						0 => JText::_('COM_RSEVENTSPRO_SU_SHORT'),
+						1 => JText::_('COM_RSEVENTSPRO_MO_SHORT'),
+						2 => JText::_('COM_RSEVENTSPRO_TU_SHORT'),
+						3 => JText::_('COM_RSEVENTSPRO_WE_SHORT'),
+						4 => JText::_('COM_RSEVENTSPRO_TH_SHORT'),
+						5 => JText::_('COM_RSEVENTSPRO_FR_SHORT')
 					);
 				}
 			
@@ -310,11 +392,8 @@ class RSEPROCalendar
 			$this->cmonth = '0'.$this->cmonth;
 		}
 		
-		$firstdayofweek = rseventsproHelper::date($this->cyear.'-'.$this->cmonth.'-01 00:00:00',null,false,true);
-		$firstdayofweek->setTZByID($firstdayofweek->getTZID());
-		$firstdayofweek->convertTZ(new RSDate_Timezone('GMT'));
-		
-		$this->unixdate = $firstdayofweek->formatLikeDate('Y-m-d H:i:s');
+		$firstdayofweek = JFactory::getDate($this->cyear.'-'.$this->cmonth.'-01 00:00:00');
+		$this->unixdate = $firstdayofweek->format('Y-m-d H:i:s');
 	}
 	
 	protected function _createMonthObject() {
@@ -327,10 +406,8 @@ class RSEPROCalendar
 		$month->nr_days = $this->cmonth_days;
 		// Days
 		$month->days = array();
-		// Get now 
-		$now = rseventsproHelper::date('now',null,false,true);
-		$now->setTZByID($now->getTZID());
-		$now->convertTZ(new RSDate_Timezone('GMT'));
+		// Get now
+		$nowTZ = rseventsproHelper::showdate('now','d.m.Y');
 		
 		// Days in previous month
 		if ($this->month_start_day != $this->weekstart) {
@@ -339,27 +416,31 @@ class RSEPROCalendar
 		
 			$i = 0;
 			foreach ($this->weekdays as $position => $weekday)
-				if ($position == $this->month_start_day)
+				if ($position == $this->month_start_day) {
 					break;
-				else
+				} else {
 					$i++;
+				}
 			
 			for ($i; $i>0; $i--) {
 				$day = new stdClass();
-				$lmunixdate = rseventsproHelper::date($this->month_start_unixdate,null,false,true);
-				$lmunixdate->setTZByID($lmunixdate->getTZID());
-				$lmunixdate->convertTZ(new RSDate_Timezone('GMT'));
-				$lmunixdate->subtractSeconds($i * 86400);				
+
+				$lmunixdate = JFactory::getDate($this->month_start_unixdate);
+				$lmunixdate->modify('-'.$i.' days');
 				
-				$day->unixdate = $lmunixdate->formatLikeDate('Y-m-d H:i:s');
-				$day->day = $lmunixdate->formatLikeDate('w');
-				$day->week = $lmunixdate->formatLikeDate('W');
-				$day->class = 'prev-month';
-				$day->events = false;
-				if (!empty($this->event_dates[$lmunixdate->formatLikeDate('d.m.Y')]))
-					$day->events = $this->event_dates[$lmunixdate->formatLikeDate('d.m.Y')];
-				if (!empty($day->events))
+				$day->unixdate	= $lmunixdate->format('Y-m-d H:i:s');
+				$day->day		= $lmunixdate->format('w');
+				$day->week		= $lmunixdate->format('W');
+				$day->class		= 'prev-month';
+				$day->events	= false;
+				
+				if (!empty($this->event_dates[$lmunixdate->format('d.m.Y')])) {
+					$day->events = $this->event_dates[$lmunixdate->format('d.m.Y')];
+				}
+				
+				if (!empty($day->events)) {
 					$day->class .= ' has-events';
+				}
 				
 				$month->days[] = $day;
 			}
@@ -370,64 +451,78 @@ class RSEPROCalendar
 			$day = new stdClass();
 			
 			$cmonth = $this->cmonth;
-			if (strlen($cmonth) == 1)
+			
+			if (strlen($cmonth) == 1) {
 				$cmonth = '0'.$cmonth;
+			}
 			
 			$cday = $j;
-			if (strlen($cday) == 1)
+			
+			if (strlen($cday) == 1) {
 				$cday = '0'.$cday;
+			}
 			
-			$cmunixdate = rseventsproHelper::date($this->cyear.'-'.$cmonth.'-'.$cday.' 00:00:00',null,false,true);
-			$cmunixdate->setTZByID($cmunixdate->getTZID());
-			$cmunixdate->convertTZ(new RSDate_Timezone('GMT'));
+			$cmunixdate		= JFactory::getDate($this->cyear.'-'.$cmonth.'-'.$cday.' 00:00:00');
+			$day->unixdate	= $cmunixdate->format('Y-m-d H:i:s');
+			$day->day		= $cmunixdate->format('w');
+			$day->week		= $cmunixdate->format('W');
+			$day->class		= 'curr-month';
 			
-			$day->unixdate = $cmunixdate->formatLikeDate('Y-m-d H:i:s');
-			$day->day = $cmunixdate->formatLikeDate('w');
-			$day->week = $cmunixdate->formatLikeDate('W');
-			$day->class = 'curr-month';
-			if ($cmunixdate->formatLikeDate('d.m.Y') == $now->formatLikeDate('d.m.Y'))
+			if ($cmunixdate->format('d.m.Y') == $nowTZ) {
 				$day->class .= ' curr-day';
+			}
+			
 			$day->events = false;
-				if (!empty($this->event_dates[$cmunixdate->formatLikeDate('d.m.Y')]))
-					$day->events = $this->event_dates[$cmunixdate->formatLikeDate('d.m.Y')];
-			if (!empty($day->events))
+			
+			if (!empty($this->event_dates[$cmunixdate->format('d.m.Y')])) {
+				$day->events = $this->event_dates[$cmunixdate->format('d.m.Y')];
+			}
+			
+			if (!empty($day->events)) {
 				$day->class .= ' has-events';
+			}
 			
 			$month->days[] = $day;
 		}
 		
 		// Days in next month		
 		$k = 1;
-		if ($day->day != $this->weekend)
+		if ($day->day != $this->weekend) {
 			while($day->day != $this->weekend) {
 				$day = new stdClass();
 				$nextmonth = $this->cmonth+1 > 12 ? ($this->cmonth+1)-12 : $this->cmonth+1;
 				$nextyear  = $this->cmonth+1 > 12 ? $this->cyear+1 : $this->cyear;
 				
-				if (strlen($nextmonth) == 1)
+				if (strlen($nextmonth) == 1) {
 					$nextmonth = '0'.$nextmonth;
+				}
 				
 				$cday = $k;
-				if (strlen($cday) == 1)
+				
+				if (strlen($cday) == 1) {
 					$cday = '0'.$cday;
+				}
 				
-				$nmunixdate = rseventsproHelper::date($nextyear.'-'.$nextmonth.'-'.$cday.' 00:00:00',null,false,true);
-				$nmunixdate->setTZByID($nmunixdate->getTZID());
-				$nmunixdate->convertTZ(new RSDate_Timezone('GMT'));
+				$nmunixdate		= JFactory::getDate($nextyear.'-'.$nextmonth.'-'.$cday.' 00:00:00');
+				$day->unixdate	= $nmunixdate->format('Y-m-d H:i:s');
+				$day->day		= $nmunixdate->format('w');
+				$day->week		= $nmunixdate->format('W');
+				$day->class		= 'next-month';
+				$day->events	= false;
 				
-				$day->unixdate = $nmunixdate->formatLikeDate('Y-m-d H:i:s');
-				$day->day = $nmunixdate->formatLikeDate('w');
-				$day->week = $nmunixdate->formatLikeDate('W');
-				$day->class = 'next-month';
-				$day->events = false;
-				if (!empty($this->event_dates[$nmunixdate->formatLikeDate('d.m.Y')]))
-					$day->events = $this->event_dates[$nmunixdate->formatLikeDate('d.m.Y')];
-				if (!empty($day->events))
+				if (!empty($this->event_dates[$nmunixdate->format('d.m.Y')])) {
+					$day->events = $this->event_dates[$nmunixdate->format('d.m.Y')];
+				}
+				
+				if (!empty($day->events)) {
 					$day->class .= ' has-events';
+				}
+				
 				$k++;
 				
 				$month->days[] = $day;
 			}
+		}
 		
 		$this->days = $month;
 	}
@@ -440,80 +535,77 @@ class RSEPROCalendar
 		$events		= $this->_container;
 		$display	= $this->params->get('display',0);
 		
-		$nowgmt = new RSDate();
-		$nowgmt->setTZByID($nowgmt->getTZID());
-		$nowgmt->convertTZ(new RSDate_Timezone('GMT'));
-		$nowtimezone = new RSDate();
-		$nowtimezone->setTZByID($nowtimezone->getTZID());
-		$nowtimezone->convertTZ(new RSDate_Timezone(rseventsproHelper::getTimezone()));
-		
-		$diff = ($nowtimezone->dateDiff($nowgmt) * 86400);
-		
 		if (!empty($events)) {
-			$Calc	= new RSDate_Calc();
-			$endofmonth = $Calc->endOfMonth($this->cmonth, $this->cyear);
-			$date = new RSDate($endofmonth);
-			$date->addSeconds(691199);
-			$endofmonth = $date->getDate(RSDATE_FORMAT_UNIXTIME);
+			$date = JFactory::getDate($this->cyear.'-'.$this->cmonth.'-01 00:00:00');
+			$end_of_month = $date->format('Y-m-t H:i:s');
+			$endofmonth = JFactory::getDate($end_of_month);
+			$endofmonth->modify('+691199 seconds');
+			$endofmonth = $endofmonth->toUnix();
 			
-			$date = rseventsproHelper::date('now',null,false,true);
-			$start = rseventsproHelper::date('now',null,false,true);
-			$end = rseventsproHelper::date('now',null,false,true);
-			$date->setTZByID($date->getTZID());
-			$date->convertTZ(new RSDate_Timezone('GMT'));
-			$start->setTZByID($start->getTZID());
-			$start->convertTZ(new RSDate_Timezone('GMT'));
-			$end->setTZByID($end->getTZID());
-			$end->convertTZ(new RSDate_Timezone('GMT'));
+			$tz			= new DateTimezone(rseventsproHelper::getTimezone());
+			$utc		= new DateTimezone('UTC');
+			$limit 		= (int) $this->params->get('limit',3);
 			
-			$tz = new RSDate_Timezone(rseventsproHelper::getTimezone());
+			$timezone = date_default_timezone_get();
+			date_default_timezone_set('UTC');
 			
 			foreach ($events as $event) {
 				$this->events[$event->id] = $event;
 				
-				// Set the start and end dates
-				$start->setDate($event->start);
-				$end->setDate($event->end);
-				
-				$start->addSeconds($diff);
-				$end->addSeconds($diff);
-				
-				$startplus = $tz->inDaylightTime($start) ? 3600 : 0;
-				$endplus = $tz->inDaylightTime($end) ? 3600 : 0;
-				
-				$start->addSeconds($startplus);
-				$end->addSeconds($endplus);
-				
-				$startFormat = $start->formatLikeDate('d.m.Y');
+				$date = new DateTime($event->start, $utc);
+				$date->setTimezone($tz);
+				$start = $date->format('d.m.Y');
 				
 				// Event start date
-				$this->event_dates[$startFormat][$event->id] = $event->id;
+				$this->event_dates[$start][$event->id] = $event->id;
 				
 				if ($event->end == '0000-00-00 00:00:00' || $event->allday) {
 					continue;
 				}
-				$endFormat = $end->formatLikeDate('d.m.Y');
+				
+				$date = new DateTime($event->end, $utc);
+				$date->setTimezone($tz);
+				$end = $date->format('d.m.Y');
 				
 				// Event occuring dates
 				if ($display == 0) {
-					$start->setHourMinuteSecond(0,0,0);
-					$unixstartdate = $start->getDate(RSDATE_FORMAT_UNIXTIME);
-					$end->setHourMinuteSecond(0,0,0);
-					$unixendate = $end->getDate(RSDATE_FORMAT_UNIXTIME);
+					$unixstartdate = new DateTime($event->start, new DateTimezone('UTC'));
+					$unixstartdate->setTimezone(new DateTimezone(rseventsproHelper::getTimezone()));
+					$unixstartdate = $unixstartdate->format('U');
+					
+					$unixendate = new DateTime($event->end, new DateTimezone('UTC'));
+					$unixendate->setTimezone(new DateTimezone(rseventsproHelper::getTimezone()));
+					$unixendate = $unixendate->format('U');
 					
 					if ($unixendate > $endofmonth) {
 						$unixendate = $endofmonth;
 					}
 					
-					for ($i = $unixstartdate; $i <= $unixendate; $i += 86400) {
-						$this->event_dates[gmdate('d.m.Y',$i )][$event->id] = $event->id;
+					for ($i = $unixstartdate; $i < $unixendate; $i += 86400) {
+						$date = new DateTime(date('Y-m-d H:i:s', $i), $utc);
+						$date->setTimezone($tz);
+						
+						if (!isset($this->event_dates[$date->format('d.m.Y')])) {
+							$this->event_dates[$date->format('d.m.Y')] = array();
+						}
+						
+						if (!$this->is_module) {
+							if ($limit > 0 && count($this->event_dates[$date->format('d.m.Y')]) >= $limit) {
+								break;
+							}
+						}
+						
+						$this->event_dates[$date->format('d.m.Y')][$event->id] = $event->id;
 					}
 				}
 				
 				// Event end date
-				if ($display == 0 || $display == 2)
-					$this->event_dates[$endFormat][$event->id] = $event->id;
+				if ($display == 0 || $display == 2) {
+					$this->event_dates[$end][$event->id] = $event->id;
+				}
 			}
+			
+			date_default_timezone_set($timezone);
 		}
 	}
 }

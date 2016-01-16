@@ -1,83 +1,142 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
-defined( '_JEXEC' ) or die( 'Restricted access' ); 
-jimport( 'joomla.application.component.view');
+defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class rseventsproViewRseventspro extends JViewLegacy
 {
 	public function display($tpl = null) {
 		$db				= JFactory::getDbo();
 		$query			= $db->getQuery(true);
+		$app			= JFactory::getApplication();
 		$layout			= $this->getLayout();
-		$jinput			= JFactory::getApplication()->input;
+		$jinput			= $app->input;
 		$this->user		= $this->get('User');
 		$this->admin	= rseventsproHelper::admin();
 		$this->config	= rseventsproHelper::getConfig();
+		$this->params	= rseventsproHelper::getParams();
+		$root			= JUri::getInstance()->toString(array('scheme', 'user', 'pass', 'host', 'port'));
 		
-		if ($layout == 'ticket') {
-			if ($jinput->get('from') == 'subscriber') {
-				$query->clear()
-					->select($db->qn('e.owner'))
-					->from($db->qn('#__rseventspro_events','e'))
-					->join('left', $db->qn('#__rseventspro_users','u').' ON '.$db->qn('u.ide').' = '.$db->qn('e.id'))
-					->where($db->qn('u.id').' = '.$jinput->getInt('id'));
-				
-				$db->setQuery($query);
-				$userid = (int) $db->loadResult();
-			} else {
-				$query->clear()
-					->select($db->qn('idu'))
-					->from($db->qn('#__rseventspro_users'))
-					->where($db->qn('id').' = '.$jinput->getInt('id'));
-				
-				$db->setQuery($query);
-				$userid = (int) $db->loadResult();
+		if ($jinput->getCmd('type','') == 'ical') {
+			if ($this->params->get('ical',1) == 0) {
+				$app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=default',false));
 			}
 			
-			if ($this->admin || $userid == $this->user) {
-				if (file_exists(JPATH_SITE.'/components/com_rseventspro/helpers/pdf.php')) {
-					require_once JPATH_SITE.'/components/com_rseventspro/helpers/pdf.php';
-					JFactory::getDocument()->setMimeEncoding('application/pdf');
-					$pdf = RSEventsProPDF::getInstance();
+			if ($rows = $this->get('events')) {
+				$events = array();
+				foreach ($rows as $row) {
+					if (!rseventsproHelper::canview($row->id)) {
+						continue;
+					}
 					
-					if ($id = $jinput->getInt('id'))
-						$this->buffer 		= $pdf->ticket($id);
+					$events[] = $row->id;
+				}
+				
+				require_once JPATH_SITE.'/components/com_rseventspro/helpers/ical.php';
+				$ical = RSEventsProiCal::getInstance($events);
+				
+				$ical->toIcal();
+			} else {
+				$app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=default',false));
+			}
+		} else {
+			if ($layout == 'edit') {
+				require_once JPATH_SITE.'/components/com_rseventspro/helpers/events.php';
+				
+				$tpl	= $jinput->getCmd('tpl');
+				$id		= $jinput->getInt('id',0);
+				$this->eventClass = RSEvent::getInstance($id);
+				
+				if ($tpl == 'tickets') {
+					require_once JPATH_SITE.'/components/com_rseventspro/controllers/rseventspro.php';
+					
+					$controller = new rseventsproControllerRseventspro();
+					$tid = $controller->saveticket();
+					$this->tickets = $this->eventClass->getTickets($tid);
+					
+					$response = new stdClass();
+					$response->id = $tid;
+					$response->html = $this->loadTemplate('tickets');
+					
+					echo json_encode($response);
+					die();
+				} elseif ($tpl == 'coupons') {
+					require_once JPATH_SITE.'/components/com_rseventspro/controllers/rseventspro.php';
+					
+					$controller = new rseventsproControllerRseventspro();
+					$cid = $controller->savecoupon();
+					$this->coupons = $this->eventClass->getCoupons($cid);
+					
+					$response = new stdClass();
+					$response->id = $cid;
+					$response->html = $this->loadTemplate('coupons');
+					
+					echo json_encode($response);
+					die();
+				}
+			} elseif ($layout == 'ticket') {
+				if ($jinput->get('from') == 'subscriber') {
+					$query->clear()
+						->select($db->qn('e.owner'))
+						->from($db->qn('#__rseventspro_events','e'))
+						->join('left', $db->qn('#__rseventspro_users','u').' ON '.$db->qn('u.ide').' = '.$db->qn('e.id'))
+						->where($db->qn('u.id').' = '.$jinput->getInt('id'));
+					
+					$db->setQuery($query);
+					$userid = (int) $db->loadResult();
+				} else {
+					$query->clear()
+						->select($db->qn('idu'))
+						->from($db->qn('#__rseventspro_users'))
+						->where($db->qn('id').' = '.$jinput->getInt('id'));
+					
+					$db->setQuery($query);
+					$userid = (int) $db->loadResult();
+				}
+				
+				if ($this->admin || $userid == $this->user) {
+					if (file_exists(JPATH_SITE.'/components/com_rseventspro/helpers/pdf.php')) {
+						require_once JPATH_SITE.'/components/com_rseventspro/helpers/pdf.php';
+						JFactory::getDocument()->setMimeEncoding('application/pdf');
+						$pdf = RSEventsProPDF::getInstance();
+						
+						if ($id = $jinput->getInt('id'))
+							$this->buffer 		= $pdf->ticket($id);
+					} else {
+						JFactory::getApplication()->close();
+					}
 				} else {
 					JFactory::getApplication()->close();
 				}
 			} else {
-				JFactory::getApplication()->close();
-			}
-		} else {		
-			$jinput->set('limitstart',$jinput->getInt('limitstart',0));
-			$tmpl = $jinput->get('tpl');
-			
-			if ($tmpl == 'events') {
-				$this->events = $this->get('Events');
-			} elseif ($tmpl == 'search') {
-				$this->events = $this->get('Results');
-			} elseif ($tmpl == 'locations') {
-				$this->locations = $this->get('Locations');
-			} elseif ($tmpl == 'categories') {
-				$this->categories = $this->get('Categories');
-			} elseif ($tmpl == 'subscribers') {
-				$this->event = $this->get('Event');
+				$jinput->set('limitstart',$jinput->getInt('limitstart',0));
+				$tmpl = $jinput->get('tpl');
 				
-				if ($this->admin || $this->event->owner == $this->user) {
-					$this->subscribers  = $this->get('subscribers');
-				} else {
-					JFactory::getApplication()->close();
+				if ($tmpl == 'events') {
+					$this->events = $this->get('Events');
+				} elseif ($tmpl == 'search') {
+					$this->events = $this->get('Results');
+				} elseif ($tmpl == 'locations') {
+					$this->locations = $this->get('Locations');
+				} elseif ($tmpl == 'categories') {
+					$this->categories = $this->get('Categories');
+				} elseif ($tmpl == 'subscribers') {
+					$this->event = $this->get('Event');
+					
+					if ($this->admin || $this->event->owner == $this->user) {
+						$this->subscribers  = $this->get('subscribers');
+					} else {
+						JFactory::getApplication()->close();
+					}
 				}
+				
+				$this->tmpl			= $tmpl;
+				$this->fid			= $this->get('FilterId');
+				$this->permissions	= rseventsproHelper::permissions();
 			}
-			
-			$this->tmpl			= $tmpl;
-			$this->params		= rseventsproHelper::getParams();
-			$this->permissions	= rseventsproHelper::permissions();
 		}
 		
 		parent::display($tpl);
@@ -144,5 +203,20 @@ class rseventsproViewRseventspro extends JViewLegacy
 		
 		if (!$events) return;
 		return $events.' '.JText::plural('COM_RSEVENTSPRO_CALENDAR_EVENTS',$events);
+	}
+	
+	protected function getEvent($id) {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		
+		$query->clear()
+			->select($db->qn('e.name'))->select($db->qn('e.start'))->select($db->qn('e.end'))->select($db->qn('e.description'))
+			->select($db->qn('l.name','locationname'))->select($db->qn('l.address'))->select($db->qn('e.allday'))
+			->from($db->qn('#__rseventspro_events','e'))
+			->join('left', $db->qn('#__rseventspro_locations','l').' ON '.$db->qn('l.id').' = '.$db->qn('e.location'))
+			->where($db->qn('e.id').' = '.(int) $id);
+		
+		$db->setQuery($query);
+		return $db->loadObject();
 	}
 }

@@ -1,13 +1,11 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2009-2012 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/licenses/gpl-2.0.html
 */
 
 defined('_JEXEC') or die('Restricted access');
-jimport('joomla.application.component.controller');
 
 class rseventsproControllerEvents extends JControllerAdmin
 {
@@ -189,6 +187,49 @@ class rseventsproControllerEvents extends JControllerAdmin
 			}
 		}
 
+		$this->setRedirect('index.php?option=com_rseventspro&view=events');
+	}
+	
+	/**
+	 * Method to run batch operations.
+	 *
+	 * @param   object  $model  The model.
+	 * @return  boolean   True if successful, false otherwise and internal error is set.
+	 * @since   1.6
+	 */
+	public function batch() {
+		JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
+
+		// Set the model
+		$model	= $this->getModel();
+		$pks    = JFactory::getApplication()->input->get('cid', array(), 'array');
+		
+		if (!$model->batch($pks)) {
+			JError::raiseWarning(500, $model->getError());
+		} else {
+			JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_BATCH_COMPLETED'));
+		}
+		
+		// Preset the redirect
+		$this->setRedirect('index.php?option=com_rseventspro&view=events');
+	}
+	
+	/**
+	 * Method to sync event dates.
+	 */
+	public function sync() {
+		JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
+
+		// Set the model
+		$model	= $this->getModel();
+		
+		if (!$model->sync()) {
+			JError::raiseWarning(500, $model->getError());
+		} else {
+			JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_SYNC_COMPLETED'));
+		}
+		
+		// Preset the redirect
 		$this->setRedirect('index.php?option=com_rseventspro&view=events');
 	}
 }

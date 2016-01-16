@@ -25,9 +25,29 @@
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
 		</field>
+		<field name="hideseconds" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_HIDE_SECONDS" description="COM_RSEVENTSPRO_CONF_HIDE_SECONDS_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
 	</fieldset>
 	
 	<fieldset name="miscellaneous" label="COM_RSEVENTSPRO_CONF_MISCELLANEOUS" description="COM_RSEVENTSPRO_CONF_MISCELLANEOUS_DESC">
+		<field name="jquery" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_ENABLE_JQUERY" description="COM_RSEVENTSPRO_CONF_ENABLE_JQUERY_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="adminjquery" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_ENABLE_ADMIN_JQUERY" description="COM_RSEVENTSPRO_CONF_ENABLE_ADMIN_JQUERY_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="bootstrap" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_ENABLE_BOOTSTRAP" description="COM_RSEVENTSPRO_CONF_ENABLE_BOOTSTRAP_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="fontawesome" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_ENABLE_FONT_AWESOME" description="COM_RSEVENTSPRO_CONF_ENABLE_FONT_AWESOME_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
 		<field name="jsactivity" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_JOMSOCIAL_ACTIVITY" description="COM_RSEVENTSPRO_CONF_JOMSOCIAL_ACTIVITY_DESC" default="0">
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
@@ -62,11 +82,19 @@
 	</fieldset>
 	
 	<fieldset name="generalsettings" label="COM_RSEVENTSPRO_CONF_GENERALSETTINGS" description="COM_RSEVENTSPRO_CONF_GENERALSETTINGS_DESC">
+		<field name="backendlist" type="list" label="COM_RSEVENTSPRO_BACKEND_LIST" description="COM_RSEVENTSPRO_BACKEND_LIST_DESC" default="0">
+			<option value="0">COM_RSEVENTSPRO_BACKEND_LIST_TIMELINE</option>
+			<option value="1">COM_RSEVENTSPRO_BACKEND_LIST_STANDARD</option>
+		</field>
+		
 		<field name="modal" type="list" label="COM_RSEVENTSPRO_CONF_MODAL" description="COM_RSEVENTSPRO_CONF_MODAL_DESC" default="0">
 			<option value="0">COM_RSEVENTSPRO_CONF_MODAL_NEW_PAGE</option>
 			<option value="1">COM_RSEVENTSPRO_CONF_MODAL_JQUERY</option>
 			<option value="2">COM_RSEVENTSPRO_CONF_MODAL_JOOMLA</option>
 		</field>
+		
+		<field name="modal_width" type="text" label="COM_RSEVENTSPRO_CONF_MODAL_WIDTH" description="COM_RSEVENTSPRO_CONF_MODAL_WIDTH_DESC" class="input-small" size="5" default="800" />
+		<field name="modal_heigth" type="text" label="COM_RSEVENTSPRO_CONF_MODAL_HEIGHT" description="COM_RSEVENTSPRO_CONF_MODAL_HEIGHT_DESC" class="input-small" size="5" default="600" />
 		
 		<field name="errors" type="list" label="COM_RSEVENTSPRO_CONF_ERRORS" description="COM_RSEVENTSPRO_CONF_ERRORS_DESC" default="0">
 			<option value="0">COM_RSEVENTSPRO_CONF_ERRORS_JOOMLA_500</option>
@@ -89,6 +117,16 @@
 		</field>
 		
 		<field name="color" type="list" label="COM_RSEVENTSPRO_CONF_CATEGORIES_COLOR" description="COM_RSEVENTSPRO_CONF_CATEGORIES_COLOR_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		
+		<field name="postreminder" type="list" label="COM_RSEVENTSPRO_CONF_POSTREMINDER" description="COM_RSEVENTSPRO_CONF_POSTREMINDER_DESC" default="0">
+			<option value="0">COM_RSEVENTSPRO_CONF_POSTREMINDER_ONCE</option>
+			<option value="1">COM_RSEVENTSPRO_CONF_POSTREMINDER_MULTIPLE</option>
+		</field>
+		
+		<field name="timezone" type="list" label="COM_RSEVENTSPRO_CONF_TIMEZONE" description="COM_RSEVENTSPRO_CONF_TIMEZONE_DESC" default="0">
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
 		</field>
@@ -125,9 +163,10 @@
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
 		</field>
-		<field name="create_user" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_CREATE_USER" description="COM_RSEVENTSPRO_CONF_CREATE_USER_DESC" default="1">
-			<option value="0">JNO</option>
+		<field name="create_user" type="list" label="COM_RSEVENTSPRO_CONF_CREATE_USER" description="COM_RSEVENTSPRO_CONF_CREATE_USER_DESC" default="1">
+			<option value="2">COM_RSEVENTSPRO_CONF_CREATE_USER_AFTER_APPROVAL</option>
 			<option value="1">JYES</option>
+			<option value="0">JNO</option>
 		</field>
 		<field name="user_display" type="list" label="COM_RSEVENTSPRO_CONF_USER_DISPLAY" description="COM_RSEVENTSPRO_CONF_USER_DISPLAY_DESC" default="0">
 			<option value="0">COM_RSEVENTSPRO_CONF_USER_DISPLAY_NAME</option>
@@ -168,16 +207,36 @@
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
 		</field>
+		<field name="seats_width" type="text" label="COM_RSEVENTSPRO_CONF_TICKETS_WIDTH" description="COM_RSEVENTSPRO_CONF_TICKETS_WIDTH_DESC" size="5" default="1280" class="input-small" />
+		<field name="seats_height" type="text" label="COM_RSEVENTSPRO_CONF_TICKETS_HEIGHT" description="COM_RSEVENTSPRO_CONF_TICKETS_HEIGHT_DESC" size="5" default="800" class="input-small" />
 	</fieldset>
 	
-	<fieldset name="media" label="COM_RSEVENTSPRO_CONF_MEDIA" description="COM_RSEVENTSPRO_CONF_MEDIA_DESC">
+	<fieldset name="comments" label="COM_RSEVENTSPRO_CONF_COMMENTS" description="COM_RSEVENTSPRO_CONF_COMMENTS_DESC">
 		<field name="event_comment" type="list" label="COM_RSEVENTSPRO_CONF_EVENT_COMMENT" description="COM_RSEVENTSPRO_CONF_EVENT_COMMENT_DESC" default="0">
 			<option value="0">COM_RSEVENTSPRO_CONF_EVENT_COMMENT_NONE</option>
 			<option value="1">COM_RSEVENTSPRO_CONF_EVENT_COMMENT_FACEBOOK</option>
 			<option value="2">COM_RSEVENTSPRO_CONF_EVENT_COMMENT_RSCOMMENTS</option>
 			<option value="3">COM_RSEVENTSPRO_CONF_EVENT_COMMENT_JCOMMENTS</option>
 			<option value="4">COM_RSEVENTSPRO_CONF_EVENT_COMMENT_JOMCOMMENTS</option>
+			<option value="5">COM_RSEVENTSPRO_CONF_EVENT_COMMENT_DISQUS</option>
 		</field>
+		<field name="disqus_shortname" type="text" label="COM_RSEVENTSPRO_CONF_DISQUS_SHORTNAME" description="COM_RSEVENTSPRO_CONF_DISQUS_SHORTNAME_DESC" />
+		<field name="facebook_admins" type="text" label="COM_RSEVENTSPRO_CONF_FACEBOOK_ADMINS" description="COM_RSEVENTSPRO_CONF_FACEBOOK_ADMINS_DESC" />
+		<field name="facebook_order_by" type="list" label="COM_RSEVENTSPRO_CONF_FACEBOOK_ORDER_BY" description="COM_RSEVENTSPRO_CONF_FACEBOOK_ORDER_BY_DESC">
+			<option value="social">COM_RSEVENTSPRO_CONF_FACEBOOK_SOCIAL</option>
+			<option value="reverse_time">COM_RSEVENTSPRO_CONF_FACEBOOK_REVERSE_TIME</option>
+			<option value="time">COM_RSEVENTSPRO_CONF_FACEBOOK_TIME</option>
+		</field>
+		<field name="facebook_color_scheme" type="list" label="COM_RSEVENTSPRO_CONF_FACEBOOK_COLOR_SCHEME" description="COM_RSEVENTSPRO_CONF_FACEBOOK_COLOR_SCHEME_DESC">
+			<option value="light">COM_RSEVENTSPRO_LIGHT</option>
+			<option value="dark">COM_RSEVENTSPRO_DARK</option>
+		</field>
+		<field name="facebook_num_posts" type="text" filter="int" default="5" label="COM_RSEVENTSPRO_CONF_FACEBOOK_NUM_POSTS" description="COM_RSEVENTSPRO_CONF_FACEBOOK_NUM_POSTS_DESC" />
+		<field name="facebook_width" type="text" default="650" label="COM_RSEVENTSPRO_CONF_FACEBOOK_WIDTH" description="COM_RSEVENTSPRO_CONF_FACEBOOK_WIDTH_DESC" />
+	</fieldset>
+	
+	<fieldset name="media" label="COM_RSEVENTSPRO_CONF_MEDIA" description="COM_RSEVENTSPRO_CONF_MEDIA_DESC">
+		<field name="facebook_app_id" type="text" label="COM_RSEVENTSPRO_CONF_FACEBOOK_APP_ID" description="COM_RSEVENTSPRO_CONF_FACEBOOK_APP_ID_DESC" />
 		<field name="icon_small_width" type="text" label="COM_RSEVENTSPRO_CONF_ICON_SMALL_WIDTH" description="COM_RSEVENTSPRO_CONF_ICON_SMALL_WIDTH_DESC" size="5" default="100" />
 		<field name="icon_big_width" type="text" label="COM_RSEVENTSPRO_CONF_ICON_BIG_WIDTH" description="COM_RSEVENTSPRO_CONF_ICON_BIG_WIDTH_DESC" size="5" default="200" />
 		<field name="extensions" type="text" label="COM_RSEVENTSPRO_CONF_EXTENSIONS" description="COM_RSEVENTSPRO_CONF_EXTENSIONS_DESC" default="zip,gif,jpg,txt" class="input-large" size="40" />
@@ -188,13 +247,14 @@
 			<option value="C93">Code 93</option>
 			<option value="C128">Code 128</option>
 		</field>
+		<field name="barcode_prefix" type="text" label="COM_RSEVENTSPRO_CONF_BARCODE_PREFIX" description="COM_RSEVENTSPRO_CONF_BARCODE_PREFIX_DESC" default="RST-" class="input-large" size="20" />
 	</fieldset>
 	
 	<fieldset name="emails" label="COM_RSEVENTSPRO_CONF_EMAILS" description="COM_RSEVENTSPRO_CONF_EMAILS_DESC">
-		<field name="email_from" type="text" label="COM_RSEVENTSPRO_CONF_EMAIL_FROM" description="COM_RSEVENTSPRO_CONF_EMAIL_FROM_DESC" size="50" default="from@yoursite.com" />
-		<field name="email_fromname" type="text" label="COM_RSEVENTSPRO_CONF_EMAIL_FROMNAME" description="COM_RSEVENTSPRO_CONF_EMAIL_FROMNAME_DESC" size="50" default="RSEvents!Pro" />
-		<field name="email_replyto" type="text" label="COM_RSEVENTSPRO_CONF_EMAIL_REPLYTO" description="COM_RSEVENTSPRO_CONF_EMAIL_REPLYTO_DESC" size="50" default="reply@yoursite.com" />
-		<field name="email_replytoname" type="text" label="COM_RSEVENTSPRO_CONF_EMAIL_REPLYTONAME" description="COM_RSEVENTSPRO_CONF_EMAIL_REPLYTONAME_DESC" size="50" default="RSEvents!Pro" />
+		<field name="email_from" type="text" label="COM_RSEVENTSPRO_CONF_EMAIL_FROM" description="COM_RSEVENTSPRO_CONF_EMAIL_FROM_DESC" size="50" default="" />
+		<field name="email_fromname" type="text" label="COM_RSEVENTSPRO_CONF_EMAIL_FROMNAME" description="COM_RSEVENTSPRO_CONF_EMAIL_FROMNAME_DESC" size="50" default="" />
+		<field name="email_replyto" type="text" label="COM_RSEVENTSPRO_CONF_EMAIL_REPLYTO" description="COM_RSEVENTSPRO_CONF_EMAIL_REPLYTO_DESC" size="50" default="" />
+		<field name="email_replytoname" type="text" label="COM_RSEVENTSPRO_CONF_EMAIL_REPLYTONAME" description="COM_RSEVENTSPRO_CONF_EMAIL_REPLYTONAME_DESC" size="50" default="" />
 		<field name="email_cc" type="text" label="COM_RSEVENTSPRO_CONF_EMAIL_CC" description="COM_RSEVENTSPRO_CONF_EMAIL_CC_DESC" size="50" default="" />
 		<field name="email_bcc" type="text" label="COM_RSEVENTSPRO_CONF_EMAIL_BCC" description="COM_RSEVENTSPRO_CONF_EMAIL_BCC_DESC" size="50" default="" />
 	</fieldset>
@@ -209,6 +269,19 @@
 		<field name="google_map_directions" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_GOOGLE_MAP_DIRECTIONS" description="COM_RSEVENTSPRO_CONF_GOOGLE_MAP_DIRECTIONS_DESC" default="1">
 			<option value="0">JNO</option>
 			<option value="1">JYES</option>
+		</field>
+	</fieldset>
+	
+	<fieldset name="captcha" label="COM_RSEVENTSPRO_CONF_CAPTCHA">
+		<field name="recaptcha_site_key" class="input-xlarge" type="text" label="COM_RSEVENTSPRO_CONF_CAPTCHA_SITE_KEY" description="COM_RSEVENTSPRO_CONF_CAPTCHA_SITE_KEY_DESC" size="70" />
+		<field name="recaptcha_secret_key" class="input-xlarge" type="text" label="COM_RSEVENTSPRO_CONF_CAPTCHA_SECRET_KEY" description="COM_RSEVENTSPRO_CONF_CAPTCHA_SECRET_KEY_DESC" size="70" />
+		<field name="recaptcha_theme" type="list" default="light" label="COM_RSEVENTSPRO_CONF_CAPTCHA_THEME" description="COM_RSEVENTSPRO_CONF_CAPTCHA_THEME_DESC">
+			<option value="light">COM_RSEVENTSPRO_CONF_CAPTCHA_THEME_LIGHT</option>
+			<option value="dark">COM_RSEVENTSPRO_CONF_CAPTCHA_THEME_DARK</option>
+		</field>
+		<field name="recaptcha_type" type="list" default="image" label="COM_RSEVENTSPRO_CONF_CAPTCHA_TYPE" description="COM_RSEVENTSPRO_CONF_CAPTCHA_TYPE_DESC">
+			<option value="image">COM_RSEVENTSPRO_CONF_CAPTCHA_TYPE_IMAGE</option>
+			<option value="audio">COM_RSEVENTSPRO_CONF_CAPTCHA_TYPE_AUDIO</option>
 		</field>
 	</fieldset>
 	
@@ -231,36 +304,9 @@
 		<field name="payment_mask" type="text" label="COM_RSEVENTSPRO_CONF_PAYMENT_MASK" description="COM_RSEVENTSPRO_CONF_PAYMENT_MASK_DESC" size="10" default="%p %c" />
 	</fieldset>
 	
-	<fieldset name="ideal" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_DESC">
-		<field name="ideal_account" type="list" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ACCOUNT" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ACCOUNT_DESC" default="mollie" size="1" onchange="rs_ideal(this.value);">
-			<option value="mollie">COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ACCOUNT_MOLLIE</option>
-			<option value="ingbasic">COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ACCOUNT_ING_BASIC</option>
-			<option value="ingadvanced">COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ACCOUNT_ING_ADVANCED</option>
-			<option value="rabobanklite">COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ACCOUNT_RABOBANK_LITE</option>
-			<option value="rabobankpro">COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ACCOUNT_RABOBANK_PRO</option>
-			<option value="abnamroeasy">COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ACCOUNT_ABN_AMRO_EASY</option>
-			<option value="targetpay">COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ACCOUNT_TARGETPAY</option>
-		</field>
-		<field name="ideal_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_MODE" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_MODE_DESC" default="0">
-			<option value="0">COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_MODE_TEST</option>
-			<option value="1">COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_MODE_LIVE</option>
-		</field>
-		<field name="ideal_merchantid" type="text" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ID" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ID_DESC" size="30" default="" />
-		<field name="ideal_subid" type="text" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_SUBID" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_SUBID_DESC" size="30" default="0" />
-		<field name="ideal_hashkey" type="text" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_HASH_KEY" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_HASH_KEY_DESC" size="30" default="" />
-		<field name="ideal_abnamroid" type="text" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ABNAMRO_ID" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ABNAMRO_ID_DESC" size="30" default="" />
-		
-		<field name="ideal_ing_cer" type="file" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_CER" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_CER_DESC" size="30" />
-		<field name="ideal_ing_pem" type="file" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_PEM" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_PEM_DESC" size="30" />
-		
-		<field name="ideal_rabo_cer" type="file" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_CER" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_CER_DESC" size="30" />
-		<field name="ideal_rabo_pem" type="file" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_PEM" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_PEM_DESC" size="30" />
-	</fieldset>
-	
-	
 	<fieldset name="google" label="COM_RSEVENTSPRO_CONF_GOOGLE" description="COM_RSEVENTSPRO_CONF_GOOGLE_DESC">
-		<field name="google_username" type="text" label="COM_RSEVENTSPRO_CONF_GOOGLE_USERNAME" description="COM_RSEVENTSPRO_CONF_GOOGLE_USERNAME_DESC" size="30" default="" />
-		<field name="google_password" type="password" label="COM_RSEVENTSPRO_CONF_GOOGLE_PASSWORD" description="COM_RSEVENTSPRO_CONF_GOOGLE_PASSWORD_DESC" size="30" default="" />
+		<field name="google_client_id" type="text" label="COM_RSEVENTSPRO_CONF_GOOGLE_CLIENT_ID" description="COM_RSEVENTSPRO_CONF_GOOGLE_CLIENT_ID_DESC" size="30" default="" />
+		<field name="google_secret" type="text" label="COM_RSEVENTSPRO_CONF_GOOGLE_SECRET" description="COM_RSEVENTSPRO_CONF_GOOGLE_SECRET_DESC" size="30" default="" />
 		<field name="google_category" type="category" extension="com_rseventspro" published="1" label="COM_RSEVENTSPRO_CONF_GOOGLE_CATEGORY" description="COM_RSEVENTSPRO_CONF_GOOGLE_CATEGORY_DESC" size="1" default="" />
 		<field name="google_location" type="rslocations" label="COM_RSEVENTSPRO_CONF_GOOGLE_LOCATION" description="COM_RSEVENTSPRO_CONF_GOOGLE_CATEGORY_DESC" size="1" default="" />
 	</fieldset>
@@ -268,6 +314,7 @@
 	<fieldset name="facebook" label="COM_RSEVENTSPRO_CONF_FACEBOOK" description="COM_RSEVENTSPRO_CONF_FACEBOOK_DESC">
 		<field name="facebook_category" type="category" extension="com_rseventspro" published="1" label="COM_RSEVENTSPRO_CONF_FACEBOOK_CATEGORY" description="COM_RSEVENTSPRO_CONF_FACEBOOK_CATEGORY_DESC" size="1" default="" />
 		<field name="facebook_location" type="rslocations" label="COM_RSEVENTSPRO_CONF_FACEBOOK_LOCATION" description="COM_RSEVENTSPRO_CONF_FACEBOOK_LOCATION_DESC" size="1" default="" />
+		<field name="facebook_pages" type="text" label="COM_RSEVENTSPRO_CONF_FACEBOOK_PAGES" description="COM_RSEVENTSPRO_CONF_FACEBOOK_PAGES_DESC" size="30" default="" />
 		
 		<field type="hidden" name="facebook_appid" default="340486642645761" />
 		<field type="hidden" name="facebook_secret" default="fea413f9a085e01555de0e93848c2c4a" />
@@ -308,8 +355,19 @@
 		</fieldset>
 	</fields>
 	
+	<fieldset name="yahoo" label="COM_RSEVENTSPRO_CONF_YAHOO" description="COM_RSEVENTSPRO_CONF_YAHOO_DESC">
+		<field name="yahoo_appid" type="text" label="COM_RSEVENTSPRO_CONF_YAHOO_APPID" description="COM_RSEVENTSPRO_CONF_YAHOO_APPID_DESC" size="30" default="" />
+		<field name="yahoo_key" type="text" label="COM_RSEVENTSPRO_CONF_YAHOO_KEY" description="COM_RSEVENTSPRO_CONF_YAHOO_KEY_DESC" size="30" default="" />
+		<field name="yahoo_secret" type="text" label="COM_RSEVENTSPRO_CONF_YAHOO_SECRET" description="COM_RSEVENTSPRO_CONF_YAHOO_SECRET_DESC" size="30" default="" />
+	</fieldset>
+	
 	<field name="incomplete_minutes_check" type="hidden" filter="unset" />
 	<field name="archive_check" type="hidden" filter="unset" />
 	<field name="rules_check" type="hidden" filter="unset" />
+	
+	<field name="captcha" type="list" label="COM_RSEVENTSPRO_CONF_SELECT_CAPTCHA" description="COM_RSEVENTSPRO_CONF_SELECT_CAPTCHA_DESC" default="1" size="1">
+		<option value="1">COM_RSEVENTSPRO_CONF_SELECT_CAPTCHA_1</option>
+		<option value="2">COM_RSEVENTSPRO_CONF_SELECT_CAPTCHA_2</option>
+	</field>
 
 </form>

@@ -1,12 +1,10 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-jimport( 'joomla.application.component.model' );
 
 class rseventsproModelEvent extends JModelAdmin
 {
@@ -41,38 +39,37 @@ class rseventsproModelEvent extends JModelAdmin
 				$item->location = 0;
 			
 			$query->clear()
+				->select($db->qn('id'))
 				->select($db->qn('name'))
 				->from($db->qn('#__rseventspro_locations'))
 				->where($db->qn('id').' = '.$item->location);
 			$db->setQuery($query);
-			$item->locationname = $db->loadResult();
+			$location = $db->loadObject();
+			$item->locationname = $location->name;
 			
 			// Convert image properties
 			$registry = new JRegistry;
 			$registry->loadString($item->properties);
 			$item->properties = $registry->toArray();
 			
-			$now = rseventsproHelper::date('now',null,false,true);
-			$now->setTZByID($now->getTZID());
-			$now->convertTZ(new RSDate_Timezone('GMT'));
+			if (empty($item->start) || $item->start == $db->getNullDate()) {
+				$item->start = JFactory::getDate()->toSql();
+			}
 			
-			$enow = rseventsproHelper::date('now',null,false,true);
-			$enow->copy($now);
-			$enow->setTZByID($now->getTZID());
-			$enow->convertTZ(new RSDate_Timezone('GMT'));
-			$enow->addHours(2);
-			
-			if (empty($item->start) || $item->start == $db->getNullDate()) 
-				$item->start = $now->formatLikeDate('Y-m-d H:i:s');
-			
-			if (empty($item->end) || $item->end == $db->getNullDate()) 
-				$item->end = $enow->formatLikeDate('Y-m-d H:i:s');
+			if (empty($item->end) || $item->end == $db->getNullDate()) {
+				$end = JFactory::getDate();
+				$end->modify('+2 hours');
+				$item->end = $end->toSql();
+			}
 			
 			if (empty($item->id)) 
 				$item->published = 1;
 			
 			if (empty($item->URL) && empty($item->id)) 
 				$item->URL = 'http://';
+			
+			if (empty($item->itemid)) 
+				$item->itemid = '';
 			
 			if (empty($item->repeat_end) || $item->repeat_end == $db->getNullDate()) 
 				$item->repeat_end = '';
@@ -174,11 +171,16 @@ class rseventsproModelEvent extends JModelAdmin
 			return false;
 		}
 		
+		if (isset($data['from']))
+			$table->from = $data['from'];
+		
 		// Check the data.
 		if (!$table->check()) {
 			$this->setError($table->getError());
 			return false;
 		}
+		
+		JFactory::getApplication()->triggerEvent('rsepro_beforeEventStore',array(array('data'=>&$table)));
 		
 		// Store the data.
 		if (!$table->store()) {
@@ -190,6 +192,8 @@ class rseventsproModelEvent extends JModelAdmin
 		require_once JPATH_SITE.'/components/com_rseventspro/helpers/events.php';
 		$event = RSEvent::getInstance($table->id);
 		$event->save($table, $isNew);
+		
+		JFactory::getApplication()->triggerEvent('rsepro_afterEventStore',array(array('data'=>&$table, 'event' => $event)));
 		
 		$this->setState($this->getName() . '.id', $table->id);
 		$this->setState($this->getName() . '.name', $table->name);
@@ -204,49 +208,10 @@ class rseventsproModelEvent extends JModelAdmin
 	 */
 	public function exportical($pks) {
 		if (!empty($pks)) {
-			$db = JFactory::getDbo();
-			$query = $db->getQuery(true);
+			require_once JPATH_SITE.'/components/com_rseventspro/helpers/ical.php';
+			$ical = RSEventsProiCal::getInstance($pks);
 			
-			$query->clear()
-				->select($db->qn('e.name'))->select($db->qn('e.start'))->select($db->qn('e.end'))->select($db->qn('e.description'))
-				->select($db->qn('l.name','locationname'))->select($db->qn('l.address'))->select($db->qn('e.allday'))
-				->from($db->qn('#__rseventspro_events','e'))
-				->join('left', $db->qn('#__rseventspro_locations','l').' ON '.$db->qn('l.id').' = '.$db->qn('e.location'))
-				->where($db->qn('e.id').' IN ('.implode(',',$pks).')');
-			
-			$db->setQuery($query);
-			if ($events = $db->loadObjectList()) {
-				require_once JPATH_SITE.'/components/com_rseventspro/helpers/ical/iCalcreator.class.php';
-			
-				$config = array("unique_id" => JURI::root(), 'filename' => 'Events.ics');
-				$v = new vcalendar( $config );
-				$v->setProperty( "method", "PUBLISH" );
-				
-				foreach ($events as $event) {
-					$description = strip_tags($event->description);
-					$description = str_replace("\n",'',$description);
-					
-					$start	= rseventsproHelper::date($event->start,null,false,true);
-					$end	= rseventsproHelper::date($event->end,null,false,true);
-					
-					$start->setTZByID($start->getTZID());
-					$start->convertTZ(new RSDate_Timezone('GMT'));
-					$end->setTZByID($end->getTZID());
-					$end->convertTZ(new RSDate_Timezone('GMT'));
-					
-					$vevent = & $v->newComponent( "vevent" );
-					$vevent->setProperty( "dtstart", array($start->getYear(), $start->getMonth(), $start->getDay(), $start->getHour(), $start->getMinute(), $start->getSecond(), 'tz' => 'Z'));
-					if (!$event->allday) $vevent->setProperty( "dtend", array($end->getYear(), $end->getMonth(), $end->getDay(), $end->getHour(), $end->getMinute(), $end->getSecond(), 'tz' => 'Z'));
-					$vevent->setProperty( "LOCATION", $event->locationname. ' (' .$event->address . ')' );
-					$vevent->setProperty( "summary", $event->name ); 
-					$vevent->setProperty( "description", $description);
-				}
-				$v->returnCalendar();
-				
-			} else {
-				$this->setError(JText::_('JLIB_DATABASE_ERROR_NO_ROWS_SELECTED'));
-				return false;
-			}
+			$ical->toIcal();
 		} else {
 			$this->setError(JText::_('JLIB_DATABASE_ERROR_NO_ROWS_SELECTED'));
 			return false;
@@ -290,15 +255,10 @@ class rseventsproModelEvent extends JModelAdmin
 					$address = strip_tags($event->address);
 					$address = str_replace(array('\\r','\\n','\\t','"'),array("\015","\012","\011",'""'),$address);
 					
-					$start	= rseventsproHelper::date($event->start,null,false,true);
-					$end	= rseventsproHelper::date($event->end,null,false,true);
+					$start	= JFactory::getDate($event->start);
+					$end	= JFactory::getDate($event->end);
 					
-					$start->setTZByID($start->getTZID());
-					$start->convertTZ(new RSDate_Timezone('GMT'));
-					$end->setTZByID($end->getTZID());
-					$end->convertTZ(new RSDate_Timezone('GMT'));
-					
-					$csv .= '"'.$name.'","'.$start->formatLikeDate('Y-m-d H:i:s').'","'.$end->formatLikeDate('Y-m-d H:i:s').'","'.$description.'","'.$url.'","'.$email.'","'.$phone.'","'.$locationname.'","'.$address.'"'."\n";
+					$csv .= '"'.$name.'","'.$start->toSql().'","'.$end->toSql().'","'.$description.'","'.$url.'","'.$email.'","'.$phone.'","'.$locationname.'","'.$address.'"'."\n";
 				}
 				
 				$file = 'Events.csv';
@@ -412,40 +372,54 @@ class rseventsproModelEvent extends JModelAdmin
 	 */
 	public function upload() {
 		jimport('joomla.filesystem.file');
-		require_once JPATH_SITE.'/components/com_rseventspro/helpers/phpthumb/phpthumb.class.php';
 		
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
-		$id		= JFactory::getApplication()->input->getInt('id');
-		$icon	= JFactory::getApplication()->input->files->get('icon',array(),'array');
+		$input	= JFactory::getApplication()->input;
+		$id		= $input->getInt('id');
+		$icon	= $input->files->get('icon',array(),'array');
+		$local	= $input->getString('local');
 		$path	= JPATH_SITE.'/components/com_rseventspro/assets/images/events/';
+		$empty  = empty($local) && $icon['size'] == 0;
+		$type	= '';
 		
-		if (!empty($icon)) {
-			$ext = JFile::getExt($icon['name']);
-			if (in_array(strtolower($ext),array('jpg','png','jpeg'))) {
+		if ($icon['size'] > 0 && $icon['error'] == 0) {
+			$type = 'upload';
+		} elseif (!empty($local)) {
+			$type = 'local';
+		}
+		
+		if (!$empty || empty($type)) {
+			// Check for file extension
+			$ext = JFile::getExt($type == 'upload' ? $icon['name'] : $local);
+			if (!in_array(strtolower($ext),array('jpg','png','jpeg'))) {
+				$this->setError(JText::_('COM_RSEVENTSPRO_WRONG_FILE_TYPE'));
+				return false;
+			}
+			
+			// Remove old icon
+			$query->clear()
+				->select($db->qn('icon'))
+				->from($db->qn('#__rseventspro_events'))
+				->where($db->qn('id').' = '.$id);
+			
+			$db->setQuery($query);
+			if ($eventicon = $db->loadResult()) {
+				if (JFile::exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/'.$eventicon)) {
+					JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/'.$eventicon);
+				}
+			}
+			
+			// Copy or upload the new icon
+			if ($type == 'upload') {
+				// Upload file
 				if ($icon['error'] == 0) {
-					$query->clear()
-						->select($db->qn('icon'))
-						->from($db->qn('#__rseventspro_events'))
-						->where($db->qn('id').' = '.$id);
-					
-					$db->setQuery($query);
-					if ($eventicon = $db->loadResult()) {
-						if (JFile::exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/'.$eventicon))
-							JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/'.$eventicon);
-						if (JFile::exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/e_'.$eventicon))
-							JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/e_'.$eventicon);
-						if (JFile::exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/s_'.$eventicon))
-							JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/s_'.$eventicon);
-						if (JFile::exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/b_'.$eventicon))
-							JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/b_'.$eventicon);
-					}
-					
 					$file		= JFile::makeSafe($icon['name']);
 					$filename	= JFile::getName(JFile::stripExt($file));
 					
-					while(JFile::exists($path.$filename.'.'.$ext))
+					while(JFile::exists($path.$filename.'.'.$ext)) {
 						$filename .= rand(1,999);
+					}
 						
 					if (JFile::upload($icon['tmp_name'],$path.$filename.'.'.$ext)) {
 						$query->clear()
@@ -458,16 +432,57 @@ class rseventsproModelEvent extends JModelAdmin
 						$db->execute();
 						
 						$this->setState('com_rseventspro.edit.icon', $filename.'.'.$ext);
-						
-						rseventsproHelper::resize($path.$filename.'.'.$ext,rseventsproHelper::getConfig('icon_big_width'),$path.'thumbs/b_'.$filename.'.'.$ext);
-						rseventsproHelper::resize($path.$filename.'.'.$ext,rseventsproHelper::getConfig('icon_small_width'),$path.'thumbs/s_'.$filename.'.'.$ext);
-						rseventsproHelper::resize($path.$filename.'.'.$ext,188,$path.'thumbs/e_'.$filename.'.'.$ext);
-					} else return JText::_('COM_RSEVENTSPRO_UPLOAD_ERROR',true);
-				} else return JText::_('COM_RSEVENTSPRO_FILE_ERROR',true);
-			} else return JText::_('COM_RSEVENTSPRO_WRONG_FILE_TYPE',true);
-		} else return JText::_('COM_RSEVENTSPRO_NO_FILE_SELECTED',true);
+					} else { 
+						$this->setError(JText::_('COM_RSEVENTSPRO_UPLOAD_ERROR'));
+						return false;
+					}
+				} else {
+					$this->setError(JText::_('COM_RSEVENTSPRO_FILE_ERROR'));
+					return false;
+				}
+			} else {
+				// Copy local file
+				$params 	= JComponentHelper::getParams('com_media');
+				$root		= JPATH_ROOT . '/' . $params->get('image_path', 'images');
+				$root		= str_replace(DIRECTORY_SEPARATOR, '/', $root . '/');
+				$file		= $root.$local;
+				$filename	= JFile::getName(JFile::stripExt($file));
+				
+				while(JFile::exists($path.$filename.'.'.$ext)) {
+					$filename .= rand(1,999);
+				}
+				
+				if (JFile::copy($file,$path.$filename.'.'.$ext)) {
+					$query->clear()
+						->update($db->qn('#__rseventspro_events'))
+						->set($db->qn('icon').' = '.$db->q($filename.'.'.$ext))
+						->set($db->qn('properties').' = '.$db->q(''))
+						->where($db->qn('id').' = '.$id);
+					
+					$db->setQuery($query);
+					$db->execute();
+					
+					$this->setState('com_rseventspro.edit.icon', $filename.'.'.$ext);
+				} else { 
+					$this->setError(JText::_('COM_RSEVENTSPRO_COPY_ERROR'));
+					return false;
+				}
+			}
+			
+		} else {
+			$this->setError(JText::_('COM_RSEVENTSPRO_NO_FILE_SELECTED'));
+			return false;
+		}
 		
 		return true;
+	}
+	
+	public function getIcon() {
+		if ($icon = JFactory::getApplication()->input->getString('icon','')) {
+			return base64_decode($icon);
+		}
+		
+		return false;
 	}
 	
 	/**
@@ -490,12 +505,6 @@ class rseventsproModelEvent extends JModelAdmin
 		if ($icon = $db->loadResult()) {
 			if (JFile::exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/'.$icon))
 				JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/'.$icon);
-			if (JFile::exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/e_'.$icon))
-				JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/e_'.$icon);
-			if (JFile::exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/s_'.$icon))
-				JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/s_'.$icon);
-			if (JFile::exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/b_'.$icon))
-				JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/b_'.$icon);
 			
 			$query->clear()
 				->update($db->qn('#__rseventspro_events'))
@@ -517,10 +526,9 @@ class rseventsproModelEvent extends JModelAdmin
 	public function crop() {
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
-		$id		= JFactory::getApplication()->input->getInt('id');
+		$input	= JFactory::getApplication()->input;
+		$id		= $input->getInt('id');
 		$path	= JPATH_SITE.'/components/com_rseventspro/assets/images/events/';
-		
-		require_once JPATH_SITE.'/components/com_rseventspro/helpers/phpthumb/phpthumb.class.php';
 		
 		$query->clear()
 			->select($db->qn('icon'))
@@ -532,10 +540,10 @@ class rseventsproModelEvent extends JModelAdmin
 		
 		$this->setState('com_rseventspro.crop.icon', $icon);
 		
-		$left	= JFactory::getApplication()->input->getInt('left');
-		$top	= JFactory::getApplication()->input->getInt('top');
-		$width	= JFactory::getApplication()->input->getInt('width');
-		$height	= JFactory::getApplication()->input->getInt('height');
+		$left	= $input->getInt('x1');
+		$top	= $input->getInt('y1');
+		$width	= $input->getInt('width');
+		$height	= $input->getInt('height');
 		
 		$properties = array('left' => $left, 'top' => $top, 'width' => $width, 'height' => $height);
 		$registry = new JRegistry;
@@ -545,34 +553,13 @@ class rseventsproModelEvent extends JModelAdmin
 		$query->clear()
 			->update($db->qn('#__rseventspro_events'))
 			->set($db->qn('properties').' = '.$db->q($properties))
+			->set($db->qn('aspectratio').' = '.$db->q($input->getInt('aspectratio',0)))
 			->where($db->qn('id').' = '.$id);
 		
 		$db->setQuery($query);
 		$db->execute();
 		
-		rseventsproHelper::crop($path.$icon,rseventsproHelper::getConfig('icon_big_width'),$path.'thumbs/b_'.$icon);
-		rseventsproHelper::crop($path.$icon,rseventsproHelper::getConfig('icon_small_width'),$path.'thumbs/s_'.$icon);
-		rseventsproHelper::crop($path.$icon,188,$path.'thumbs/e_'.$icon);
 		return true;
-	}
-	
-	/**
-	 * Method to get an event file details.
-	 *
-	 * @return	object
-	 */
-	public function getFile() {
-		$db		= JFactory::getDbo();
-		$query	= $db->getQuery(true);
-		$id		= JFactory::getApplication()->input->getInt('id');
-		
-		$query->clear()
-			->select($db->qn('id'))->select($db->qn('name'))->select($db->qn('permissions'))
-			->from($db->qn('#__rseventspro_files'))
-			->where($db->qn('id').' = '.$id);
-		
-		$db->setQuery($query);
-		return $db->loadObject();
 	}
 	
 	/**
@@ -729,5 +716,323 @@ class rseventsproModelEvent extends JModelAdmin
 		}
 
 		return true;
+	}
+	
+	public function batch($pks) {
+		// Sanitize the ids.
+		$pks = (array) $pks;
+		JArrayHelper::toInteger($pks);
+		
+		$batch	 = JFactory::getApplication()->input->get('batch',array(),'array');
+		$all	 = isset($batch['all']) ? $batch['all'] : 0;
+		$options = isset($batch['options']) ? $batch['options'] : array();
+		$enable	 = isset($batch['enable_options']) ? 1 : 0;
+		
+		$categories	= isset($batch['categories']) ? $batch['categories'] : array();
+		$tags		= isset($batch['tags']) ? $batch['tags'] : array();
+		$location	= isset($batch['location']) ? $batch['location'] : 0;
+		$itemid		= isset($batch['itemid']) ? $batch['itemid'] : '';
+		$type		= isset($batch['type']) ? $batch['type'] : 'r';
+		
+		if (empty($pks) && !$all) {
+			$this->setError(JText::_('JERROR_NO_ITEMS_SELECTED'));
+			return false;
+		}
+		
+		try {
+			$db		 = $this->getDbo();
+			$query	 = $db->getQuery(true);
+			
+			if ($enable) {
+				$defaults = rseventsproHelper::getDefaultOptions();
+				$registry = new JRegistry;
+				$registry->loadString($defaults);
+				$defaults = $registry->toArray();
+				
+				foreach ($defaults as $name => $value) {
+					if (!isset($options[$name]))
+						$options[$name] = 0;
+				}
+			
+				$registry = new JRegistry;
+				$registry->loadArray($options);
+			
+				$query->update($db->qn('#__rseventspro_events'))->set($db->qn('options').' = '.$db->q($registry->toString()));
+			
+				if ($location) {
+					$query->set($db->qn('location').' = '.$db->q($location));
+				}
+				
+				if ($itemid) {
+					$query->set($db->qn('itemid').' = '.$db->q($itemid));
+				}
+				
+				if (!$all) {
+					$query->where($db->qn('id').' IN ('.implode(',', $pks).')');
+				}
+				
+				$db->setQuery($query);
+				$db->execute();
+			} else {
+				if ($location || $itemid) {
+					$query->update($db->qn('#__rseventspro_events'));
+					
+					if ($location) {
+						$query->set($db->qn('location').' = '.$db->q($location));
+					}
+					
+					if ($itemid) {
+						$query->set($db->qn('itemid').' = '.$db->q($itemid));
+					}
+					
+					if (!$all) {
+						$query->where($db->qn('id').' IN ('.implode(',', $pks).')');
+					}
+					
+					$db->setQuery($query);
+					$db->execute();
+				}
+			}
+			
+			// Update categories
+			if (!empty($categories)) {
+				JArrayHelper::toInteger($categories);
+				
+				if ($all) {
+					if ($type == 'r') {
+						$query->clear()
+							->delete($db->qn('#__rseventspro_taxonomy'))
+							->where($db->qn('type').' = '.$db->q('category'));
+						$db->setQuery($query);
+						$db->execute();
+					}
+					
+					$query->clear()
+						->select($db->qn('id'))
+						->from($db->qn('#__rseventspro_events'));
+					$db->setQuery($query);
+					if ($events = $db->loadColumn()) {
+						foreach ($events as $id) {
+							foreach ($categories as $category) {
+								$query->clear()
+									->select($db->qn('id'))
+									->from($db->qn('#__rseventspro_taxonomy'))
+									->where($db->qn('type').' = '.$db->q('category'))
+									->where($db->qn('ide').' = '.$db->q($id))
+									->where($db->qn('id').' = '.$db->q($category));
+								$db->setQuery($query);
+								$txid = (int) $db->loadResult();
+								
+								if (!$txid) {
+									$query->clear()
+										->insert($db->qn('#__rseventspro_taxonomy'))
+										->set($db->qn('type').' = '.$db->q('category'))
+										->set($db->qn('ide').' = '.$db->q($id))
+										->set($db->qn('id').' = '.$db->q($category));
+									$db->setQuery($query);
+									$db->execute();
+								}
+							}
+						}
+					}
+				} else {
+					if ($type == 'r') {
+						$query->clear()
+							->delete($db->qn('#__rseventspro_taxonomy'))
+							->where($db->qn('type').' = '.$db->q('category'))
+							->where($db->qn('ide').' IN ('.implode(',', $pks).')');
+						$db->setQuery($query);
+						$db->execute();
+					}
+					
+					foreach ($pks as $id) {
+						foreach ($categories as $category) {
+							$query->clear()
+								->select($db->qn('id'))
+								->from($db->qn('#__rseventspro_taxonomy'))
+								->where($db->qn('type').' = '.$db->q('category'))
+								->where($db->qn('ide').' = '.$db->q($id))
+								->where($db->qn('id').' = '.$db->q($category));
+							$db->setQuery($query);
+							$txid = (int) $db->loadResult();
+							
+							if (!$txid) {
+								$query->clear()
+									->insert($db->qn('#__rseventspro_taxonomy'))
+									->set($db->qn('type').' = '.$db->q('category'))
+									->set($db->qn('ide').' = '.$db->q($id))
+									->set($db->qn('id').' = '.$db->q($category));
+								$db->setQuery($query);
+								$db->execute();
+							}
+						}
+					}
+				}
+			}
+			
+			// Update tags
+			if (!empty($tags)) {
+				// Get the tags ids
+				$ids = array();
+				foreach ($tags as $tag) {
+					$tag = trim($tag);
+					$query->clear()
+						->select($db->qn('id'))
+						->from($db->qn('#__rseventspro_tags'))
+						->where($db->qn('name').' = '.$db->q($tag));
+					$db->setQuery($query);
+					if ($tid = (int) $db->loadResult()) {
+						$ids[] = $tid;
+					} else {
+						$query->clear()
+							->insert($db->qn('#__rseventspro_tags'))
+							->set($db->qn('name').' = '.$db->q($tag))
+							->set($db->qn('published').' = '.$db->q(1));
+						
+						$db->setQuery($query);
+						$db->execute();
+						$tid = $db->insertid();
+						$ids[] = $tid;
+					}
+				}
+				
+				if ($all) {
+					if ($type == 'r') {					
+						$query->clear()
+							->delete($db->qn('#__rseventspro_taxonomy'))
+							->where($db->qn('type').' = '.$db->q('tag'));
+						$db->setQuery($query);
+						$db->execute();
+					}
+					
+					$query->clear()
+						->select($db->qn('id'))
+						->from($db->qn('#__rseventspro_events'));
+					$db->setQuery($query);
+					if ($events = $db->loadColumn()) {
+						foreach ($events as $id) {
+							foreach ($ids as $idt) {
+								$query->clear()
+									->select($db->qn('id'))
+									->from($db->qn('#__rseventspro_taxonomy'))
+									->where($db->qn('type').' = '.$db->q('tag'))
+									->where($db->qn('ide').' = '.$db->q($id))
+									->where($db->qn('id').' = '.$db->q($idt));
+								$db->setQuery($query);
+								$txid = (int) $db->loadResult();
+								
+								if (!$txid) {
+									$query->clear()
+										->insert($db->qn('#__rseventspro_taxonomy'))
+										->set($db->qn('type').' = '.$db->q('tag'))
+										->set($db->qn('ide').' = '.$db->q($id))
+										->set($db->qn('id').' = '.$db->q($idt));
+									$db->setQuery($query);
+									$db->execute();
+								}
+							}
+						}
+					}
+				} else {
+					if ($type == 'r') {
+						$query->clear()
+							->delete($db->qn('#__rseventspro_taxonomy'))
+							->where($db->qn('type').' = '.$db->q('tag'))
+							->where($db->qn('ide').' IN ('.implode(',', $pks).')');
+						$db->setQuery($query);
+						$db->execute();
+					}
+					
+					foreach ($pks as $id) {
+						foreach ($ids as $idt) {
+							$query->clear()
+								->select($db->qn('id'))
+								->from($db->qn('#__rseventspro_taxonomy'))
+								->where($db->qn('type').' = '.$db->q('tag'))
+								->where($db->qn('ide').' = '.$db->q($id))
+								->where($db->qn('id').' = '.$db->q($idt));
+							$db->setQuery($query);
+							$txid = (int) $db->loadResult();
+							
+							if (!$txid) {
+								$query->clear()
+									->insert($db->qn('#__rseventspro_taxonomy'))
+									->set($db->qn('type').' = '.$db->q('tag'))
+									->set($db->qn('ide').' = '.$db->q($id))
+									->set($db->qn('id').' = '.$db->q($idt));
+								$db->setQuery($query);
+								$db->execute();
+							}
+						}
+					}
+				}
+			}
+			
+			return true;
+		} catch (Exception $e) {
+			$this->setError($e->getMessage());
+			return false;
+		}
+	}
+	
+	public function sync() {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		$config	= JFactory::getConfig();
+		$offset	= $config->get('offset');
+		
+		$query->select($db->qn('id'))
+			->select($db->qn('start'))->select($db->qn('timezone'))
+			->from($db->qn('#__rseventspro_events'))
+			->where($db->qn('allday').' = 1');
+		
+		$db->setQuery($query);
+		if ($events = $db->loadObjectList()) {
+			foreach ($events as $event) {
+				if ($event->timezone == $offset) {
+					continue;
+				}
+				
+				if (empty($event->timezone)) {
+					$event->timezone = 'UTC';
+				}
+				
+				$date = new DateTime($event->start, new DateTimezone('UTC'));
+				$date->setTimezone(new DateTimezone($event->timezone));
+				
+				$date = new DateTime($date->format('Y-m-d H:i:s'), new DateTimezone($offset));
+				$date->setTimezone(new DateTimezone('UTC'));
+				
+				$start = $date->format('Y-m-d H:i:s');
+				
+				$query->clear()
+					->update($db->qn('#__rseventspro_events'))
+					->set($db->qn('start').' = '.$db->q($start))
+					->set($db->qn('timezone').' = '.$db->q($offset))
+					->where($db->qn('id').' = '.$db->q($event->id));
+				$db->setQuery($query);
+				$db->execute();
+			}
+		}
+		
+		return true;
+	}
+	
+	public function ticketsorder() {
+		$db		 = JFactory::getDbo();
+		$query	 = $db->getQuery(true);
+		$input	 = JFactory::getApplication()->input;
+		$id		 = $input->getInt('id',0);
+		$tickets = $input->get('ticket', array(), 'array');
+		
+		foreach ($tickets as $i => $ticket) {
+			$query->clear()
+				->update($db->qn('#__rseventspro_tickets'))
+				->set($db->qn('order').' = '.$db->q($i))
+				->where($db->qn('id').' = '.$db->q($ticket))
+				->where($db->qn('ide').' = '.$db->q($id));
+			$db->setQuery($query);
+			$db->execute();
+		}
 	}
 }

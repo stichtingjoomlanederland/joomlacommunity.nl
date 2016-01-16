@@ -1,13 +1,13 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-JHtml::_('behavior.tooltip');
 JText::script('COM_RSEVENTSPRO_TICKETS'); 
+JText::script('COM_RSEVENTSPRO_SEATS'); 
+JText::script('COM_RSEVENTSPRO_SELECT_TICKETS');
 $modal = $this->config->modal == 1 || $this->config->modal == 2; ?>
 
 <script type="text/javascript">
@@ -21,22 +21,30 @@ var ticket_limit_<?php echo $ticket->id; ?> = <?php echo (int) rseventsproHelper
 		var thedocument = window.opener || window.parent;
 	}
 	
-	window.addEvent('domready', function() {
-		$('rsepro_wrapper').setStyle('height', window.getSize().y - 100);
+	jQuery(document).ready(function() {
+		jQuery('#rsepro_wrapper').css('height', jQuery(window).height() - 100);
 		
-		thedocument.$$('#rsepro_selected_tickets input').each(function (el) {
-			if (el.name.indexOf('unlimited') != -1) {
-				ticketid = el.name.replace('unlimited[','').replace(']','');
-				$('rsepro_unlimited_'+ticketid).value = el.value;
+		thedocument.jQuery('<?php echo $this->event->form == 0 ? '#rsepro-cart-details input' : '#rsepro_selected_tickets input'; ?>').each(function () {
+			if (jQuery(this).prop('name').indexOf('unlimited') != -1) {
+				ticketid = jQuery(this).prop('name').replace('unlimited[','').replace(']','');
+				jQuery('#rsepro_unlimited_'+ticketid).val(jQuery(this).val());
 			} else {
-				ticketid = el.id.replace('ticket','');
-				$('rsepro_seat_'+ticketid).addClass('rsepro_selected');
+				ticketid = jQuery(this).prop('id').replace('ticket','');
+				jQuery('#rsepro_seat_'+ticketid).addClass('rsepro_selected');
 			}
 		});
 	});
 	
 	function rsepro_close() {
-		<?php if ($modal) { ?>thedocument.rsepro_update_total();window.close();<?php } else { ?>window.parent.SqueezeBox.close();<?php } ?>
+		<?php if ($modal) { ?>thedocument.<?php echo $this->event->form == 0 ? 'rsepro_multi_seats_total()' : 'rsepro_update_total()'; ?>;window.close();<?php } else { ?>window.parent.SqueezeBox.close();<?php } ?>
+	}
+	
+	function rsepro_seats_select(id, place, name, price) {
+		<?php if ($this->event->form == 0) { ?>rsepro_add_ticket_seats(id, place);<?php } else { ?>rsepro_add_ticket(id, place, name, price);<?php } ?>
+	}
+	
+	function rsepro_seats_reset(text) {
+		<?php if ($this->event->form == 0) { ?>rsepro_reset_tickets_seats();<?php } else { ?>rsepro_reset_tickets(text);<?php } ?>
 	}
 	
 </script>
@@ -53,14 +61,14 @@ var ticket_limit_<?php echo $ticket->id; ?> = <?php echo (int) rseventsproHelper
 				<?php echo $ticket->name; ?> - 
 				<?php echo $price; ?>
 				<?php if (!empty($ticket->description)) { ?>
-				<img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/information.png" alt="" class="hasTip" title="<?php echo $ticket->description; ?>::" />
+				<i class="fa fa-info-circle <?php echo rseventsproHelper::tooltipClass(); ?>" title="<?php echo rseventsproHelper::tooltipText($ticket->description); ?>"></i>
 				<?php } ?>
 			</div>
 		</div>
 		<div id="rsepro_ticket_seats<?php echo $ticket->id; ?>" class="rsepro_ticket_seats">
 			<?php if (!$ticket->seats) { ?>
 			<div class="rsepro_ticket_unlimited">
-				<input type="text" id="rsepro_unlimited_<?php echo $ticket->id; ?>" name="tickets[<?php echo $ticket->id; ?>][]" value="" onchange="rsepro_add_ticket('<?php echo $ticket->id; ?>',0, '<?php echo $ticket->name; ?>', '<?php echo $price; ?>');" onkeyup="javascript:this.value=this.value.replace(/[^0-9]/g, '');" class="input-mini rsepro_ticket_center" size="5" />
+				<input type="text" id="rsepro_unlimited_<?php echo $ticket->id; ?>" name="tickets[<?php echo $ticket->id; ?>][]" value="" onkeyup="javascript:this.value=this.value.replace(/[^0-9]/g, '');rsepro_seats_select('<?php echo $ticket->id; ?>', 0, '<?php echo rawurlencode($ticket->name); ?>', '<?php echo $price; ?>');" class="input-mini rsepro_ticket_center" size="5" />
 			</div>
 			<?php } else { ?>
 			<?php for($i=1; $i <= $ticket->seats; $i++) { ?>
@@ -69,7 +77,7 @@ var ticket_limit_<?php echo $ticket->id; ?> = <?php echo (int) rseventsproHelper
 				<?php if ($disabled) { ?>
 				<?php echo $i; ?>
 				<?php } else { ?>
-				<a href="javascript:void(0);" onclick="rsepro_add_ticket('<?php echo $ticket->id; ?>','<?php echo $i; ?>', '<?php echo $ticket->name; ?>', '<?php echo $price; ?>','<?php echo (int) $modal; ?>');"><?php echo $i; ?></a>
+				<a href="javascript:void(0);" onclick="rsepro_seats_select('<?php echo $ticket->id; ?>','<?php echo $i; ?>', '<?php echo rawurlencode($ticket->name); ?>', '<?php echo $price; ?>');"><?php echo $i; ?></a>
 				<?php } ?>
 			</div>
 			<?php } ?>
@@ -82,5 +90,5 @@ var ticket_limit_<?php echo $ticket->id; ?> = <?php echo (int) rseventsproHelper
 
 <div style="text-align: center;">
 	<button type="button" class="btn btn-success" onclick="rsepro_close();"><?php echo JText::_('COM_RSEVENTSPRO_CLOSE_TICKETS'); ?></button>
-	<button type="button" class="btn btn-primary" onclick="rsepro_reset_tickets('<?php echo JText::_('COM_RSEVENTSPRO_SELECT_TICKETS'); ?>');"><?php echo JText::_('COM_RSEVENTSPRO_RESET'); ?></button>
+	<button type="button" class="btn btn-primary" onclick="rsepro_seats_reset('<?php echo JText::_('COM_RSEVENTSPRO_SELECT_TICKETS'); ?>');"><?php echo JText::_('COM_RSEVENTSPRO_RESET'); ?></button>
 </div>

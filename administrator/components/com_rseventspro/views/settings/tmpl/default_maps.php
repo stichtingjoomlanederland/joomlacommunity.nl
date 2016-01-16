@@ -1,19 +1,18 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
 $fieldsets = array('maps'); 
 foreach ($fieldsets as $fieldset) {
-	echo JHtml::_('rsfieldset.start', 'adminform', JText::_($this->fieldsets[$fieldset]->label));
+	echo JHtml::_('rsfieldset.start', 'adminform');
 	foreach ($this->form->getFieldset($fieldset) as $field) {
 		$extra = '';
 		if ($field->fieldname == 'google_maps_center')
-			$extra = '<span class="rsextra"> - '.JText::_('COM_RSEVENTSPRO_CONF_CHANGE_CENTER').'</span>';
+			$extra = '<span class="rsextra"> - <a href="javascript:void(0)" onclick="rseproMap();">'.JText::_('COM_RSEVENTSPRO_CONF_CHANGE_CENTER').'</a></span>';
 		echo JHtml::_('rsfieldset.element', $field->label, $field->input.$extra);
 	}
 	echo JHtml::_('rsfieldset.end');

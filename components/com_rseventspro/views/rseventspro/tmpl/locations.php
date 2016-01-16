@@ -1,13 +1,11 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-$count = count($this->locations);
-?>
+$count = count($this->locations); ?>
 
 <?php if ($this->params->get('show_page_heading', 1)) { ?>
 <?php $title = $this->params->get('page_heading', ''); ?>
@@ -15,18 +13,18 @@ $count = count($this->locations);
 <?php } ?>
 
 <?php if (!empty($this->locations)) { ?>
-<ul class="rs_events_container" id="rs_events_container">
+<ul class="rs_events_container rsepro-locations-list" id="rs_events_container">
 	<?php foreach($this->locations as $location) { ?>
 	<li>
-		<div class="rs_block">
+		<div class="well">
 			<div class="rs_options" style="display:none;">
 				<?php if ((!empty($this->permissions['can_edit_locations']) || $this->admin) && !empty($this->user)) { ?>
 					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=editlocation&id='.rseventsproHelper::sef($location->id,$location->name)); ?>">
-						<img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/edit.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_EDIT'); ?>" />
+						<i class="fa fa-pencil"></i>
 					</a>
 				<?php } ?>
 				<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=location&id='.rseventsproHelper::sef($location->id,$location->name)); ?>">
-					<img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/view.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_VIEW'); ?>" />
+					<i class="fa fa-eye"></i>
 				</a>
 			</div>
 			
@@ -62,23 +60,20 @@ $count = count($this->locations);
 <?php } ?>
 
 <script type="text/javascript">
-	window.addEvent('domready', function(){
+	jQuery(document).ready(function() {
 		<?php if ($this->total > $count) { ?>
-		$('rsepro_loadmore').addEvent('click', function(el) {
-			var lstart = $$('#rs_events_container > li');
-			rspagination('locations',lstart.length);
+		jQuery('#rsepro_loadmore').on('click', function() {
+			rspagination('locations', jQuery('#rs_events_container > li').length);
 		});
 		<?php } ?>
 		
 		<?php if (!empty($count)) { ?>
-		$$('#rs_events_container li').addEvents({
-			mouseenter: function(){ 
-				if (isset($(this).getElement('div.rs_options')))
-					$(this).getElement('div.rs_options').style.display = '';
+		jQuery('#rs_events_container li').on({
+			mouseenter: function() {
+				jQuery(this).find('div.rs_options').css('display','');
 			},
-			mouseleave: function(){      
-				if (isset($(this).getElement('div.rs_options')))
-					$(this).getElement('div.rs_options').style.display = 'none';
+			mouseleave: function() {
+				jQuery(this).find('div.rs_options').css('display','none');
 			}
 		});
 		<?php } ?>

@@ -1,8 +1,7 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -36,8 +35,8 @@ class rseventsproTableEmail extends JTable
 		// Remove the history
 		$query->clear();
 		$query->delete();
-		$query->from($db->quoteName('#__rseventspro_emails'));
-		$query->where($db->quoteName('parent').' = '.$db->quote($pk));
+		$query->from($db->qn('#__rseventspro_emails'));
+		$query->where($db->qn('parent').' = '.$db->q($pk));
 		
 		$db->setQuery($query);
 		$db->execute();

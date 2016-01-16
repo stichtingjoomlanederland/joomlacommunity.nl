@@ -1,8 +1,7 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -42,74 +41,105 @@ class rseventsproTableEvent extends JTable
 	 * @since   11.1
 	 */
 	public function check() {
-		$db = $this->getDbo();
-		$config = JFactory::getConfig();
-		$tzoffset = $config->get('offset');
+		$db		  = $this->getDbo();
+		$app	  = JFactory::getApplication();
+		$tzoffset = JFactory::getConfig()->get('offset');
 		
-		if ($this->URL == 'http://')
-			$this->URL = '';
+		if ($this->URL == 'http://') $this->URL = '';
 		
 		// Manipulate dates
 		if (empty($this->id)) {
 			$user	= JFactory::getUser();
-			$start	= JFactory::getDate();
 			$end	= JFactory::getDate();
-			$endunix = $end->toUnix() + 7200;
-			$end	= JFactory::getDate($endunix);
+			$end->modify('+2 hours');
 			
-			if (JFactory::getApplication()->isAdmin()) $this->published = 1;
-			$this->name = empty($this->name) ? JText::_('COM_RSEVENTSPRO_NEW_EVENT') : $this->name;
-			$this->start = (empty($this->start) || $this->start == $db->getNullDate()) ? $start->toSql() : $this->start;
-			$this->end = (empty($this->end) || $this->end == $db->getNullDate()) ? $end->toSql() : $this->end;
-			$this->owner = $user->get('id');
+			if ($app->isAdmin()) { 
+				$this->published = 1;
+			}
+			
+			$this->name		= empty($this->name) ? JText::_('COM_RSEVENTSPRO_NEW_EVENT') : $this->name;
+			$this->start	= (empty($this->start) || $this->start == $db->getNullDate()) ? JFactory::getDate()->toSql() : $this->start;
+			$this->created	= JFactory::getDate()->toSql();
+			
+			if (!isset($this->from)) {
+				$this->end = (empty($this->end) || $this->end == $db->getNullDate()) ? $end->toSql() : $this->end;
+			} else {
+				unset($this->from);
+			}
+			
+			$this->owner = empty($this->owner) ? $user->get('id') : $this->owner;
 			$this->options = rseventsproHelper::getDefaultOptions();
 			
-			if ($user->get('guest')) 
+			if ($user->get('guest')) {
 				$this->sid = JFactory::getSession()->getId();
-			
-			$created	= new RSDate();
-			$created->convertTZByID('GMT');
-			$this->created = $created->formatLikeDate('Y-m-d H:i:s');
+			}
 		} else {
 			if ($this->allday) {
-				$this->start = $this->start.' 00:00:00';
-			}
-			
-			$start_date	= rseventsproHelper::date($this->start,null,false,true);
-			$start_date->setTZByID($start_date->getTZID());
-			$start_date->convertTZ(new RSDate_Timezone('GMT'));
-			
-			if (!$this->allday) {
-				$end_date = rseventsproHelper::date($this->end,null,false,true);
-				$end_date->setTZByID($end_date->getTZID());
-				$end_date->convertTZ(new RSDate_Timezone('GMT'));
+				$start = JFactory::getDate($this->start, $tzoffset);
+				$start->setTimezone(new DateTimezone('UTC'));
+				$this->start = $start->toSql();
+				$this->end	 = $db->getNullDate();
+			} else {
+				$start = JFactory::getDate($this->start, $tzoffset);
+				$start->setTimezone(new DateTimezone('UTC'));
 				
-				if ($start_date > $end_date)
-					$end_date->addSeconds(7200);
+				if ($start->format('I')) {
+					$start->modify('-1 hours');
+				}
+				
+				$this->start = $start->toSql();
+				
+				$end = JFactory::getDate($this->end, $tzoffset);
+				$end->setTimezone(new DateTimezone('UTC'));
+				
+				if ($start > $end) {
+					$end->modify('+2 hours');
+				}
+				
+				if ($end->format('I')) {
+					$end->modify('-1 hours');
+				}
+				
+				$this->end = $end->toSql();
 			}
 			
-			$new_start = new RSDate($start_date->formatLikeDate('Y-m-d H:i:s'));
-			$new_start->setTZByID(rseventsproHelper::getTimezone());
-			$new_start->convertTZ(new RSDate_Timezone('GMT'));
+			// Check for start date
+			if (empty($this->start) || $this->start == $db->getNullDate()) {
+				$this->setError(JText::_('COM_RSEVENTSPRO_PLEASE_INPUT_START_DATE'));
+				return false;
+			}
 			
+			// Check for end date
+			if ((empty($this->end) || $this->start == $db->getNullDate()) && !$this->allday) {
+				$this->setError(JText::_('COM_RSEVENTSPRO_PLEASE_INPUT_END_DATE'));
+				return false;
+			}
+			
+			// Check start and end dates
 			if (!$this->allday) {
-				$new_end = new RSDate($end_date->formatLikeDate('Y-m-d H:i:s'));
-				$new_end->setTZByID(rseventsproHelper::getTimezone());
-				$new_end->convertTZ(new RSDate_Timezone('GMT'));
+				if (JFactory::getDate($this->start) > JFactory::getDate($this->end)) {
+					$this->setError(JText::_('COM_RSEVENTSPRO_END_BIGGER_ERROR'));
+					return false;
+				}
 			}
 			
-			$start = rseventsproHelper::date($new_start->formatLikeDate('Y-m-d H:i:s'),null,false,true);
-			$start->setTZByID($start->getTZID());
-			$start->convertTZ(new RSDate_Timezone('GMT'));
-			
-			if (!$this->allday) {
-				$end = rseventsproHelper::date($new_end->formatLikeDate('Y-m-d H:i:s'),null,false,true);
-				$end->setTZByID($end->getTZID());
-				$end->convertTZ(new RSDate_Timezone('GMT'));
+			// Check for a location
+			if (empty($this->location)) {
+				$this->setError(JText::_('COM_RSEVENTSPRO_PLEASE_SELECT_LOCATION'));
+				return false;
 			}
 			
-			$this->start	= $start->formatLikeDate('Y-m-d H:i:s');
-			$this->end		= $this->allday ? $db->getNullDate() : $end->formatLikeDate('Y-m-d H:i:s'); 
+			// Check for categories
+			$categories = $app->input->get('categories',array(),'array');
+			// Check for allowed categories
+			if ($app->isSite()) {
+				rseventsproHelper::allowedCategories($categories);
+			}
+			
+			if (count($categories) == 0) {
+				$this->setError(JText::_('COM_RSEVENTSPRO_PLEASE_SELECT_CATEGORY'));
+				return false;
+			}
 		}
 		
 		// Start registration
@@ -129,6 +159,11 @@ class rseventsproTableEvent extends JTable
 			$this->unsubscribe_date = JFactory::getDate($this->unsubscribe_date, $tzoffset)->toSql();
 		}
 		
+		// End registration date
+		if (!empty($this->repeat_end) && $this->repeat_end != $db->getNullDate()) {
+			$this->repeat_end = JFactory::getDate($this->repeat_end, $tzoffset)->toSql();
+		}
+		
 		// Discounts
 		if ($this->discounts) {
 			if ($this->early_fee_end && $this->early_fee_end != $db->getNullDate()) {
@@ -145,27 +180,30 @@ class rseventsproTableEvent extends JTable
 			$dates = array_unique($this->repeat_also);
 			$dates = array_merge($dates,array());
 			
-			$startdate	= rseventsproHelper::date($this->start,null,false,true);
-			$seconds	= ($startdate->formatLikeDate('H') * 60 + $startdate->formatLikeDate('i')) * 60 + $startdate->formatLikeDate('s');
-			
-			foreach ($dates as $i => $date) {
-				$newdate = rseventsproHelper::date($date,null,false,true);
-				$newdate->setTZByID($newdate->getTZID());
-				$newdate->convertTZ(new RSDate_Timezone('GMT'));
-				$newdate->addSeconds($seconds);
-				$dates[$i] = $newdate->formatLikeDate('Y-m-d H:i:s');
-			}
-			
 			$registry = new JRegistry();
 			$registry->loadArray($dates);
 			$this->repeat_also = (string) $registry;
 		} else $this->repeat_also = '';
+		
+		// Exclude dates
+		if (isset($this->exclude_dates) && is_array($this->exclude_dates)) {
+			$exclude = array_unique($this->exclude_dates);
+			$exclude = array_merge($exclude,array());
+			
+			$registry = new JRegistry();
+			$registry->loadArray($exclude);
+			$this->exclude_dates = (string) $registry;
+		} else $this->exclude_dates = '';
 		
 		if (isset($this->payments) && is_array($this->payments)) {
 			$registry = new JRegistry();
 			$registry->loadArray($this->payments);
 			$this->payments = (string) $registry;
 		} else $this->payments = '';
+		
+		if (isset($this->metakeywords) && is_array($this->metakeywords)) {
+			$this->metakeywords = implode(', ',$this->metakeywords);
+		} else $this->metakeywords = '';
 		
 		if (isset($this->gallery_tags) && is_array($this->gallery_tags)) {
 			$registry = new JRegistry;
@@ -175,16 +213,30 @@ class rseventsproTableEvent extends JTable
 			$this->gallery_tags = '';
 		}
 		
-		if (isset($this->options) && is_array($this->options)) {
-			$registry = new JRegistry();
-			$registry->loadArray($this->options);
-			$this->options = (string) $registry;
-		} else $this->options = '';
+		$updateOptions = true;
+		
+		if ($app->isSite()) {
+			$permissions = rseventsproHelper::permissions();
+			
+			if (empty($permissions['can_change_options'])) {
+				$updateOptions = false;
+			}
+		}
+		
+		if ($updateOptions) {		
+			if (isset($this->options) && is_array($this->options)) {
+				$registry = new JRegistry();
+				$registry->loadArray($this->options);
+				$this->options = (string) $registry;
+			} else $this->options = '';
+		}
 		
 		if (!empty($this->metakeywords)) {
 			$this->metakeywords = rtrim($this->metakeywords,',');
 		}
 
+		$this->timezone = $tzoffset;
+		
 		return true;
 	}
 	
@@ -204,16 +256,40 @@ class rseventsproTableEvent extends JTable
 	 * @since   11.1
 	 */
 	public function publish($pks = null, $value = 1, $userid = 0) {
-		if (JFactory::getApplication()->input->getCmd('task') == 'archive') {
-			$db		= JFactory::getDBO();
-			$query	= $db->getQuery(true);
-			
-			$query->update($db->qn('#__rseventspro_events'));
-			$query->set($db->qn('archived'). ' = '.$db->quote(1));
-			$query->where($db->qn('id'). ' IN ('.implode(',',$pks).')');
+		$db		= JFactory::getDBO();
+		$query	= $db->getQuery(true);
+		$task	= JFactory::getApplication()->input->getCmd('task');
+		
+		if (count($pks) == 1 && $task == 'unpublish') {
+			$query->clear()
+				->select($db->qn('published'))
+				->from($db->qn('#__rseventspro_events'))
+				->where($db->qn('id').' = '.(int) @$pks[0]);
+			$db->setQuery($query);
+			$state = (int) $db->loadResult();
+			if ($state == 2) {
+				JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_ARCHIVE_INFO'));
+			}
+		}
+		
+		if ($task == 'archive') {
+			$query->clear()
+				->update($db->qn('#__rseventspro_events'))
+				->set($db->qn('archived'). ' = '.$db->q(1))
+				->where($db->qn('id'). ' IN ('.implode(',',$pks).')');
 			
 			$db->setQuery($query);
 			$db->execute();
+		} else {
+			if ($value == 1) {
+				$query->clear()
+					->update($db->qn('#__rseventspro_events'))
+					->set($db->qn('approved'). ' = '.$db->q(0))
+					->where($db->qn('id'). ' IN ('.implode(',',$pks).')');
+				
+				$db->setQuery($query);
+				$db->execute();
+			}
 		}
 		
 		return parent::publish($pks, $value, $userid);

@@ -1,16 +1,15 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );?>
 
 <script type="text/javascript">
 function rse_add_form(id,value) {
-	window.parent.document.getElementById('rse_form_name').innerHTML = value;
-	window.parent.document.getElementById('form').value = id;
+	window.parent.jQuery('.rsepro-event-form').text(value);
+	window.parent.jQuery('#form').val(id);
 	window.parent.SqueezeBox.close();
 }
 </script>

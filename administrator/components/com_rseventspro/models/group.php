@@ -1,12 +1,10 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-jimport( 'joomla.application.component.model' );
 
 class rseventsproModelGroup extends JModelAdmin
 {
@@ -48,6 +46,11 @@ class rseventsproModelGroup extends JModelAdmin
 			$registry = new JRegistry;
 			$registry->loadString($item->event);
 			$item->event = $registry->toArray();
+			
+			// Convert the restricted categories.
+			$registry = new JRegistry;
+			$registry->loadString($item->restricted_categories);
+			$item->restricted_categories = $registry->toArray();
 		}
 		
 		return $item;

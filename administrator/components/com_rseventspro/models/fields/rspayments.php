@@ -1,24 +1,13 @@
 <?php
 /**
- * @package     Joomla.Platform
- * @subpackage  Form
- *
- * @copyright   Copyright (C) 2005 - 2012 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE
- */
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
+* @license     GNU General Public License version 2 or later; see LICENSE
+*/
 
 defined('JPATH_PLATFORM') or die;
 
 JFormHelper::loadFieldClass('list');
-
-/**
- * Form Field class for the Joomla Platform.
- * Implements a combo box field.
- *
- * @package     Joomla.Platform
- * @subpackage  Form
- * @since       11.1
- */
 class JFormFieldRSPayments extends JFormFieldList
 {
 	/**
@@ -37,6 +26,7 @@ class JFormFieldRSPayments extends JFormFieldList
 	 * @since   11.1
 	 */
 	protected function getOptions() {
-		return rseventsproHelper::getPayments(true);
+		$param = $this->element['shownone'] ? ((string) $this->element['shownone'] == 'false' ? false : true) : true;
+		return rseventsproHelper::getPayments($param);
 	}
 }

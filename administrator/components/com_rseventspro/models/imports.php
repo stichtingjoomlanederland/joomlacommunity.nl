@@ -1,12 +1,10 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-jimport( 'joomla.application.component.model' );
 
 class rseventsproModelImports extends JModelLegacy
 {
@@ -290,8 +288,8 @@ class rseventsproModelImports extends JModelLegacy
 		if (!empty($big) || !empty($small))
 			$size = max($big,$size);
 		
-		$start = $event->EventStartDate + $tz;
-		$end = $event->EventEndDate + $tz;
+		$start = $event->EventStartDate + $this->_tz;
+		$end = $event->EventEndDate + $this->_tz;
 		
 		// IMPORT events
 		$data = array();
@@ -324,7 +322,7 @@ class rseventsproModelImports extends JModelLegacy
 		$data['late_fee_start'] = !empty($event->late_fee_date) ? JFactory::getDate($event->late_fee_date + $this->_tz)->toSql() : '';
 		$data['start_registration'] = !empty($event->EventStartRegistration) ? JFactory::getDate($event->EventStartRegistration + $this->_tz)->toSql() : '';
 		$data['end_registration'] = !empty($event->EventEndRegistration) ? JFactory::getDate($event->EventEndRegistration + $this->_tz)->toSql() : '';
-
+		
 		$idevent = $this->_saveevent($data);
 		
 		// IMPORT categories
@@ -580,10 +578,6 @@ class rseventsproModelImports extends JModelLegacy
 						
 						$db->setQuery($query);
 						$db->execute();
-						
-						rseventsproHelper::resize($path.$filename.'.'.$ext,rseventsproHelper::getConfig('icon_big_width'),$path.'thumbs/b_'.$filename.'.'.$ext);
-						rseventsproHelper::resize($path.$filename.'.'.$ext,rseventsproHelper::getConfig('icon_small_width'),$path.'thumbs/s_'.$filename.'.'.$ext);
-						rseventsproHelper::resize($path.$filename.'.'.$ext,188,$path.'thumbs/e_'.$filename.'.'.$ext);
 					}
 				}
 			}
@@ -1301,20 +1295,17 @@ class rseventsproModelImports extends JModelLegacy
 			if (!empty($events)) {
 				foreach ($events as $event) {
 					// IMPORT events
-					$start = new RSDate($event->start);
-					$start->setTZByID(rseventsproHelper::getTimezone());
-					$start->convertTZ(new RSDate_Timezone('GMT'));
-					$end = new RSDate($event->end);
-					if ($event->end_time_enabled) $end->addHours(2);
-					$end->setTZByID(rseventsproHelper::getTimezone());
-					$end->convertTZ(new RSDate_Timezone('GMT'));
+					$startDate	= $event->date.' '.$event->start_time;
+					$endDate	= $event->end_date.' '.$event->end_time;					
+					$start		= JFactory::getDate($startDate, rseventsproHelper::getTimezone());
+					$end		= JFactory::getDate($endDate, rseventsproHelper::getTimezone());
 					
 					$data = array();
 					$data['name'] = $event->title;
 					$data['description'] = $event->description;
 					$data['location'] = $thelocations[$event->ohanah_venue_id];
-					$data['start'] = $start->formatLikeDate('Y-m-d H:i:s');
-					$data['end'] = $end->formatLikeDate('Y-m-d H:i:s');
+					$data['start'] = $start->format('Y-m-d H:i:s');
+					$data['end'] = $end->format('Y-m-d H:i:s');
 					$data['published'] = $event->enabled;
 					$data['owner'] = $event->created_by;
 					$data['completed'] = 1;
@@ -1349,11 +1340,12 @@ class rseventsproModelImports extends JModelLegacy
 		jimport('joomla.filesystem.file');
 		
 		$config		= JFactory::getConfig();
+		$format		= JFactory::getApplication()->input->getString('dateformat','Y-m-d');
 		$file		= JFactory::getApplication()->input->files->get('events');
 		$tmp		= $config->get('tmp_path');
-		$category	= JFactory::getApplication()->input->getInt('category',0);
 		$uid		= JFactory::getUser()->get('id');
 		$count		= 0;
+		$nulldate	= $db->getNullDate();
 		
 		if (JFile::getExt($file['name']) != 'csv') {
 			$this->setError(JText::_('COM_RSEVENTSPRO_INVALID_CSV_FILE'));
@@ -1364,6 +1356,7 @@ class rseventsproModelImports extends JModelLegacy
 			$upload = JFile::upload($file['tmp_name'],$tmp.'/rseventspro.csv');
 			
 			if ($upload) {
+				ini_set('auto_detect_line_endings', true);
 				setlocale(LC_ALL, 'en_US.UTF-8');
 				$csvfile = $tmp.'/rseventspro.csv';
 				$content = array();
@@ -1371,36 +1364,35 @@ class rseventsproModelImports extends JModelLegacy
 				if (($handle = fopen($csvfile, 'r')) !== FALSE)  {
 					while (($data = fgetcsv($handle, 4096, ',')) !== FALSE) {
 						if (count($data) == 1 && $data[0] == '') continue;
-						if (count($data) != 9) continue;
-						$content[] = $data;
+						if (count($data) == 9 || count($data) == 11 || count($data) == 12) {
+							$content[] = $data;
+						} else continue;
 					}
 					fclose($handle);
 				}
 				
 				if (!empty($content)) {
-					if (empty($category)) {
-						$data = array();
-						$data['published'] = 1;
-						$data['title'] = 'Events';
-						$data['description'] = '';
-						$data['parent_id'] = 1;
-						
-						$category = $this->_savecategory($data);
-					}
+					$eventCategoriesCache = array();
+					$eventTagsCache = array();
 					
 					foreach ($content as $event) {
+						$allday		= 0;
 						$location	= JFactory::getApplication()->input->getInt('location',0);
+						$category	= JFactory::getApplication()->input->getInt('category',0);
 						$name		= !empty($event[0]) ? $event[0] : JText::_('COM_RSEVENTSPRO_NEW_EVENT');
-						$start		= !empty($event[1]) ? $event[1] : rseventsproHelper::date('now','Y-m-d H:i:s');
-						$now		= rseventsproHelper::date('now',null,false,true);
-						$now->addHours(2);						
-						$end		= !empty($event[2]) ? $event[2] : rseventsproHelper::date($now,'Y-m-d H:i:s');
+						$start		= !empty($event[1]) ? $event[1] : JFactory::getDate()->format($format.' H:i:s');
+						$end		= @$event[2];
 						$description= !empty($event[3]) ? $event[3] : '';
 						$url		= !empty($event[4]) ? $event[4] : '';
 						$email		= !empty($event[5]) ? $event[5] : '';
 						$phone		= !empty($event[6]) ? $event[6] : '';
 						$lname		= !empty($event[7]) ? $event[7] : '';
 						$laddress	= !empty($event[8]) ? $event[8] : '';
+						$catname	= !empty($event[9]) ? $event[9] : 'Events';
+						$catdesc	= !empty($event[10]) ? $event[10] : '';
+						$tags		= !empty($event[11]) ? $event[11] : '';
+						$start		= $this->transformDate($start,$format);
+						$end		= $this->transformDate($end,$format);
 						
 						if ($location == 0 && !empty($lname)) {
 							$data = array();
@@ -1420,52 +1412,99 @@ class rseventsproModelImports extends JModelLegacy
 								$location = $this->_savelocation($data);
 						}
 						
-						$estart	= new RSDate($start);
-						$eend	= new RSDate($end);
-						
-						$estart->setTZByID('GMT');
-						$estart->convertTZ(new RSDate_Timezone(rseventsproHelper::getTimezone()));
-						
-						$eend->setTZByID('GMT');
-						$eend->convertTZ(new RSDate_Timezone(rseventsproHelper::getTimezone()));
-						
-						if ($estart->inDaylightTime()) {
-							$timezone	= new RSDate_Timezone(rseventsproHelper::getTimezone());
-							$offset 	= $timezone->getDSTSavings() / 1000;
-							
-							if ($offset != 0) {
-								$newstart	= new RSDate($start);
-								$newstart->subtractSeconds($offset);
-								$newstart->setTZByID('GMT');
-								$newstart->convertTZ(new RSDate_Timezone('GMT'));
+						// Categories
+						$eventCategories = array();
+						if ($category) {
+							$eventCategories[] = $category;
+						} else {
+							$categories     = explode('|', $catname);
+							$descriptions   = explode('|', $catdesc);
+
+							foreach ($categories as $i => $category) {
+								$data = array(
+									'published'     => 1,
+									'title'         => $category,
+									'description'   => isset($descriptions[$i]) ? $descriptions[$i] : '',
+									'parent_id'     => 1
+								);
+
+								// Cache the category results so we don't query the db often
+								$hash = md5($data['title'].'|'.$data['description']);
+								if (empty($eventCategoriesCache[$hash])) {
+									// Do we have a category with the same details in the database?
+									$query->clear()
+										->select($db->qn('id'))
+										->from($db->qn('#__categories'))
+										->where($db->qn('title').' = '.$db->q($data['title']))
+										->where($db->qn('description').' = '.$db->q($data['description']));
+									$db->setQuery($query);
+									if ($category = (int) $db->loadResult()) {
+										// Add its ID to the list of cached categories
+										$eventCategoriesCache[$hash] = $category;
+									} else {
+										// Add the new category
+										$eventCategoriesCache[$hash] = $this->_savecategory($data);
+									}
+								}
 								
-								$start = $newstart->formatLikeDate('Y-m-d H:i:s');
+								$eventCategories[] = $eventCategoriesCache[$hash];
 							}
 						}
 						
-						if ($eend->inDaylightTime()) {
-							$timezone	= new RSDate_Timezone(rseventsproHelper::getTimezone());
-							$offset 	= $timezone->getDSTSavings() / 1000;
-							
-							if ($offset != 0) {
-								$newend	= new RSDate($end);
-								$newend->subtractSeconds($offset);
-								$newend->setTZByID('GMT');
-								$newend->convertTZ(new RSDate_Timezone('GMT'));
-								
-								$end = $newend->formatLikeDate('Y-m-d H:i:s');
+						// Tags
+						$eventTags	= array();
+						if ($tags) {
+							if ($tags = explode('|', $tags)) {
+								foreach ($tags as $tag) {
+									$tdata = array(
+										'published' => 1,
+										'name'     => $tag
+									);
+									
+									// Cache the tag results so we don't query the db often
+									$hash = md5($tdata['name']);
+									if (empty($eventTagsCache[$hash])) {
+										// Do we have a category with the same details in the database?
+										$query->clear()
+											->select($db->qn('id'))
+											->from($db->qn('#__rseventspro_tags'))
+											->where($db->qn('name').' = '.$db->q($tdata['name']));
+										$db->setQuery($query);
+										if ($tagid = (int) $db->loadResult()) {
+											// Add its ID to the list of cached tags
+											$eventTagsCache[$hash] = $tagid;
+										} else {
+											// Add the new tag
+											$eventTagsCache[$hash] = $this->_savetag($tdata);
+										}
+									}
+									
+									$eventTags[] = $eventTagsCache[$hash];
+								}
 							}
 						}
 						
-						$thestart = new RSDate($start);
-						$thestart->addSeconds($this->_tz);
-						$start = $thestart->formatLikeDate('Y-m-d H:i:s');
+						$start = JFactory::getDate($start);
+						$start->modify($this->_tz.' seconds');
+						$start = $start->toSql();
 						
-						$theend = new RSDate($end);
-						$theend->addSeconds($this->_tz);
-						$end = $theend->formatLikeDate('Y-m-d H:i:s');
+						if (empty($end) || $end == $nulldate) {
+							$end = $nulldate;
+							$allday = 1;
+						} else {
+							$end = JFactory::getDate($end);
+							$end->modify($this->_tz.' seconds');
+							$end = $end->toSql();
+						}
 						
+						if ($allday) {
+							$start = explode(' ',$start);
+							$start = $start[0].' 00:00:00';
+						}
+						
+						// Save event
 						$data = array();
+						$data['from'] = 'import';
 						$data['name'] = $name;
 						$data['description'] = $description;
 						$data['location'] = $location;
@@ -1477,16 +1516,30 @@ class rseventsproModelImports extends JModelLegacy
 						$data['published'] = 1;
 						$data['owner'] = $uid;
 						$data['completed'] = 1;
+						$data['allday'] = $allday;
 						
 						if ($idevent = $this->_saveevent($data)) {
-							$query->clear()
-								->insert($db->qn('#__rseventspro_taxonomy'))
-								->set($db->qn('type').' = '.$db->q('category'))
-								->set($db->qn('id').' = '.(int) $category)
-								->set($db->qn('ide').' = '.(int) $idevent);
-						
-							$db->setQuery($query);
-							$db->execute();
+							foreach ($eventCategories as $eventCategory) {
+								$query->clear()
+									->insert($db->qn('#__rseventspro_taxonomy'))
+									->set($db->qn('type').' = '.$db->q('category'))
+									->set($db->qn('id').' = '.(int) $eventCategory)
+									->set($db->qn('ide').' = '.(int) $idevent);
+
+								$db->setQuery($query);
+								$db->execute();
+							}
+							
+							foreach ($eventTags as $eventTag) {
+								$query->clear()
+									->insert($db->qn('#__rseventspro_taxonomy'))
+									->set($db->qn('type').' = '.$db->q('tag'))
+									->set($db->qn('id').' = '.(int) $eventTag)
+									->set($db->qn('ide').' = '.(int) $idevent);
+
+								$db->setQuery($query);
+								$db->execute();
+							}
 							
 							$count++;
 						}
@@ -1520,12 +1573,26 @@ class rseventsproModelImports extends JModelLegacy
 	protected function _savecategory($data) {
 		$data['extension'] = 'com_rseventspro';
 		$data['language'] = '*';
-		$table = JTable::getInstance('Category', 'rseventsproTable');
-		$table->setLocation($data['parent_id'], 'last-child');
-		$table->save($data);
-		$table->rebuildPath($table->id);
-		$table->rebuild($table->id, $table->lft, $table->level, $table->path);
-		return $table->id;
+		
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true)->select($db->qn('id'))->from($db->qn('#__categories'));
+		
+		foreach ($data as $key => $value) {
+			$query->where($db->qn($key).' = '.$db->q($value));
+		}
+		
+		$db->setQuery($query);
+		if ($catID = (int) $db->loadResult()) {
+			return $catID;
+		} else {
+			$table = JTable::getInstance('Category', 'rseventsproTable');
+			$table->setLocation($data['parent_id'], 'last-child');
+			$table->save($data);
+			$table->rebuildPath($table->id);
+			$table->rebuild($table->id, $table->lft, $table->level, $table->path);
+			
+			return $table->id;
+		}
 	}
 	
 	/**
@@ -1542,6 +1609,19 @@ class rseventsproModelImports extends JModelLegacy
 	}
 	
 	/**
+	 *	Method to save tag
+	 *
+	 *	@var $object
+	 *
+	 *	@return boolean
+	 */
+	protected function _savetag($data) {
+		$table = JTable::getInstance('Tag', 'rseventsproTable');
+		$table->save($data);
+		return $table->id;
+	}
+	
+	/**
 	 *	Method to save event
 	 *
 	 *	@var $object
@@ -1549,12 +1629,106 @@ class rseventsproModelImports extends JModelLegacy
 	 *	@return boolean
 	 */
 	protected function _saveevent($data) {
-		$model = JModelLegacy::getInstance('Event','rseventsproModel',  array('ignore_request' => true));
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		$model	= JModelLegacy::getInstance('Event','rseventsproModel',  array('ignore_request' => true));
 		
 		if ($model->save($data)) {
-			return $model->getState('event.id');
+			$eid			= $model->getState('event.id');
+			$defaultOptions = rseventsproHelper::getDefaultOptions();
+			
+			$query->clear()
+				->update($db->qn('#__rseventspro_events'))
+				->set($db->qn('options').' = '.$db->q($defaultOptions))
+				->where($db->qn('id').' = '.(int) $eid);
+			$db->setQuery($query);
+			$db->execute();
+			
+			return $eid;
 		}
 		
 		return false;
+	}
+	
+	/**
+	 *	Method to transform a date to the standard MySql date format
+	 *
+	 *	@return string
+	 */
+	protected function transformDate($date, $format) {
+		$nulldate = JFactory::getDbo()->getNullDate();
+		if (empty($date) || $date == $nulldate || $date == '00/00/0000 00:00:00' || $date == '00.00.0000 00:00:00' || $date == '00 00 0000 00:00:00') {
+			return $nulldate;
+		}
+		
+		if ($format == 'Y-m-d') {
+			return $date;
+		} elseif ($format == 'Y/m/d') {
+			return str_replace('/','-',$date);
+		} elseif ($format == 'Y.m.d') {
+			return str_replace('.','-',$date);
+		} elseif ($format == 'Y m d') {
+			$date = explode(' ',$date);
+			$date = $date[0].'-'.$date[1].'-'.$date[2].' '.$date[3];
+			return $date;
+		} elseif ($format == 'd-m-Y') {
+			$regex = '#(\d{1,2})\-(\d{1,2})\-(\d{1,4})\s(.*)#s';
+			if (preg_match($regex,$date,$match)) {
+				if (!empty($match)) {
+					return $match[3].'-'.$match[2].'-'.$match[1].' '.$match[4];
+				}
+			}
+		} elseif ($format == 'd/m/Y') {
+			$regex = '#(\d{1,2})\/(\d{1,2})\/(\d{1,4})\s(.*)#s';
+			if (preg_match($regex,$date,$match)) {
+				if (!empty($match)) {
+					return $match[3].'-'.$match[2].'-'.$match[1].' '.$match[4];
+				}
+			}
+		} elseif ($format == 'd.m.Y') {
+			$regex = '#(\d{1,2})\.(\d{1,2})\.(\d{1,4})\s(.*)#s';
+			if (preg_match($regex,$date,$match)) {
+				if (!empty($match)) {
+					return $match[3].'-'.$match[2].'-'.$match[1].' '.$match[4];
+				}
+			}
+		} elseif ($format == 'd m Y') {
+			$regex = '#(\d{1,2})\s(\d{1,2})\s(\d{1,4})\s(.*)#s';
+			if (preg_match($regex,$date,$match)) {
+				if (!empty($match)) {
+					return $match[3].'-'.$match[2].'-'.$match[1].' '.$match[4];
+				}
+			}
+		} elseif ($format == 'm-d-Y') {
+			$regex = '#(\d{1,2})\-(\d{1,2})\-(\d{1,4})\s(.*)#s';
+			if (preg_match($regex,$date,$match)) {
+				if (!empty($match)) {
+					return $match[3].'-'.$match[1].'-'.$match[2].' '.$match[4];
+				}
+			}
+		} elseif ($format == 'm/d/Y') {
+			$regex = '#(\d{1,2})\/(\d{1,2})\/(\d{1,4})\s(.*)#s';
+			if (preg_match($regex,$date,$match)) {
+				if (!empty($match)) {
+					return $match[3].'-'.$match[1].'-'.$match[2].' '.$match[4];
+				}
+			}
+		} elseif ($format == 'm.d.Y') {
+			$regex = '#(\d{1,2})\.(\d{1,2})\.(\d{1,4})\s(.*)#s';
+			if (preg_match($regex,$date,$match)) {
+				if (!empty($match)) {
+					return $match[3].'-'.$match[1].'-'.$match[2].' '.$match[4];
+				}
+			}
+		} elseif ($format == 'm d Y') {
+			$regex = '#(\d{1,2})\s(\d{1,2})\s(\d{1,4})\s(.*)#s';
+			if (preg_match($regex,$date,$match)) {
+				if (!empty($match)) {
+					return $match[3].'-'.$match[1].'-'.$match[2].' '.$match[4];
+				}
+			}
+		}
+		
+		return $date;
 	}
 }

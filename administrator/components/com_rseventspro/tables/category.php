@@ -1,8 +1,7 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -29,7 +28,7 @@ class rseventsproTableCategory extends CategoriesTableCategory
 	 * @see     http://docs.joomla.org/JTableNested/delete
 	 * @since   2.5
 	 */
-	public function delete($pk = null, $children = false) {
+	public function delete($pk = null, $children = true) {
 		return parent::delete($pk, $children);
 	}
 }

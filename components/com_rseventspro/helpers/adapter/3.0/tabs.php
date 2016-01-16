@@ -1,8 +1,7 @@
 <?php
 /**
-* @version 1.0.0
 * @package RSJoomla! Adapter
-* @copyright (C) 2012 www.rsjoomla.com
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/licenses/gpl-2.0.html
 */
 
@@ -25,7 +24,12 @@ class RSTabs {
 	 * @return  void
 	 */
 	public function __construct($id) {
-		$this->id	   = preg_replace('#[^A-Z0-9_\. -]#i', '', $id);
+		$jversion = new JVersion;
+		if ($jversion->isCompatible('3.2.0')) {
+			JHtml::_('behavior.tabstate');
+		}
+		
+		$this->id = preg_replace('#[^A-Z0-9_\. -]#i', '', $id);
 	}
 
 	/**

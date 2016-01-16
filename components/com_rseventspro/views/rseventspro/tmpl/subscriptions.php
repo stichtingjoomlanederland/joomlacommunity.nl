@@ -1,8 +1,7 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );?>
@@ -26,21 +25,24 @@ defined( '_JEXEC' ) or die( 'Restricted access' );?>
 <?php foreach ($this->subscriptions as $subscription) { ?>
 <div class="rs_my_subscription rs_my_subscription<?php echo $this->pdf ? '4' : '3'; ?>">
 	<span class="rs_subscription_id"><?php echo $i; ?></span> 
-	<span><?php echo rseventsproHelper::date($subscription->subscribe_date,null,true); ?></span>
-	<span><a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($subscription->id,$subscription->name)); ?>"><?php echo $subscription->name; ?></a></span>
+	<span><?php echo rseventsproHelper::showdate($subscription->subscribe_date,null,true); ?></span>
+	<span><a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($subscription->id,$subscription->name),false,rseventsproHelper::itemid($subscription->id)); ?>"><?php echo $subscription->name; ?></a></span>
 	<span>
 		<span class="subscription_state<?php echo $subscription->state; ?>">
 		<?php if ($subscription->state == 1) { ?>
+		<i class="fa fa-check"></i>
 		<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS_COMPLETED'); ?>
 		<?php } else if ($subscription->state == 0) { ?>
 		<?php if (!empty($subscription->URL)) { ?>
-		<a href="<?php echo base64_decode($subscription->URL); ?>">
+		<a href="<?php echo $subscription->URL; ?>">
 		<?php } ?>
+		<i class="fa fa-exclamation-triangle"></i>
 		<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS_INCOMPLETE'); ?>
 		<?php if (!empty($subscription->URL)) { ?>
 		</a>
 		<?php } ?>
 		<?php } else if ($subscription->state == 2) { ?>
+		<i class="fa fa-minus-circle"></i>
 		<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS_DENIED'); ?>
 		<?php } ?>
 		</span>

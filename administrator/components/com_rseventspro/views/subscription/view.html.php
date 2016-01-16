@@ -1,12 +1,10 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
-defined( '_JEXEC' ) or die( 'Restricted access' ); 
-jimport( 'joomla.application.component.view');
+defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class rseventsproViewSubscription extends JViewLegacy
 {
@@ -17,11 +15,11 @@ class rseventsproViewSubscription extends JViewLegacy
 	protected $tickets;
 	
 	public function display($tpl = null) {		
-		$this->layout		= $this->getLayout();
+		$this->layout	= $this->getLayout();
+		$this->document	= JFactory::getDocument();
 		
 		if ($this->layout == 'seats') {
-			JFactory::getDocument()->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/js/jquery/jquery-ui-1.10.3.custom.css');
-			JFactory::getDocument()->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/tickets.css');
+			$this->document->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/tickets.css');
 			
 			$eventId		= $this->getEventId();
 			$this->tickets	= rseventsproHelper::getTickets($eventId);
@@ -32,14 +30,8 @@ class rseventsproViewSubscription extends JViewLegacy
 			$this->id			= JFactory::getApplication()->input->getInt('id',0);
 			
 			if ($this->type) {
-				if (!rseventsproHelper::isJ3()) {
-					JFactory::getDocument()->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery/jquery-1.9.1.js');
-					JFactory::getDocument()->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery/jquery.noconflict.js');
-				}
-			
-				JFactory::getDocument()->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery/jquery-ui-1.10.3.custom.js');
-				JFactory::getDocument()->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/js/jquery/jquery-ui-1.10.3.custom.css');
-				JFactory::getDocument()->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/tickets.css');
+				$this->document->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery-ui.min.js');
+				$this->document->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/tickets.css');
 			}
 			
 			$this->tickets	= rseventsproHelper::getTickets($this->id);
@@ -63,6 +55,10 @@ class rseventsproViewSubscription extends JViewLegacy
 		JToolBarHelper::save('subscription.save');
 		JToolBarHelper::save2new('subscription.save2new');
 		JToolBarHelper::cancel('subscription.cancel');
+		
+		if (rseventsproHelper::isJ3()) {
+			JHtml::_('rseventspro.chosen','select');
+		}
 	}
 	
 	protected function getEvent($id) {

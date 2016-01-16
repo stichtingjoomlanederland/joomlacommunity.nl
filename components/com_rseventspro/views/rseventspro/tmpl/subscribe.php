@@ -1,12 +1,13 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); 
 JText::script('COM_RSEVENTSPRO_TICKETS'); 
+JText::script('COM_RSEVENTSPRO_SEATS');
+JHtml::_('behavior.modal','.rs_modal');
 $modal = $this->config->modal == 1 || $this->config->modal == 2; ?>
 
 <script type="text/javascript">
@@ -24,8 +25,8 @@ $modal = $this->config->modal == 1 || $this->config->modal == 2; ?>
 	smessage[7] = '<?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_SINGLE_TICKET',true); ?>';
 	
 	function RSopenModal() {
-		var dialogHeight = 800;
-		var dialogWidth  = 1280;
+		var dialogHeight = <?php echo rseventsproHelper::getConfig('seats_height','int','800'); ?>;
+		var dialogWidth  = <?php echo rseventsproHelper::getConfig('seats_width','int','1280'); ?>;
 		
 		<?php if ($modal) { ?>
 		if (window.showModalDialog) {
@@ -41,13 +42,12 @@ $modal = $this->config->modal == 1 || $this->config->modal == 2; ?>
 				y:dialogHeight
 			},
 			onClose: function() {
-				rsepro_update_total();
+				<?php echo $this->event->form == 0 ? 'rsepro_multi_seats_total();' : 'rsepro_update_total();'; ?>
 			}
 		});
 		<?php } ?>
 	}
 </script>
-<span id="eventID" style="display:none;"><?php echo $this->event->id; ?></span>
 
 <?php if ($modal) { ?>
 <style type="text/css">
@@ -59,102 +59,146 @@ $modal = $this->config->modal == 1 || $this->config->modal == 2; ?>
 <div class="rs_subscribe">
 	<span style="clear:both;display:block;"></span>
 	<?php echo rseventsproHelper::loadRSForm($this->event->form); ?>
-	<?php if (!empty($this->tickets) && !$this->thankyou) { ?><script type="text/javascript"><?php if ($this->event->ticketsconfig) { ?>rsepro_update_total();<?php } else { ?>rs_get_ticket($('RSEProTickets').value);<?php } ?></script><?php } ?>
+	<?php if (!empty($this->tickets) && !$this->thankyou) { ?><script type="text/javascript"><?php if ($this->event->ticketsconfig) { ?>rsepro_update_total();<?php } else { ?>rs_get_ticket(jQuery('#RSEProTickets').val());<?php } ?></script><?php } ?>
 </div>
 <?php } else { ?>
-<form action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe'); ?>" method="post" name="adminForm">
+<form action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe'); ?>" method="post" name="adminForm" id="adminForm" class="form-horizontal">
 <div class="rs_subscribe">
 	<h1><?php echo JText::sprintf('COM_RSEVENTSPRO_SUBSCRIBER_JOIN',$this->event->name); ?></h1>
-	<p>
-		<label for="name" class="rs_subscribe_label"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_NAME'); ?></label>
-		<input type="text" name="name" id="name" value="<?php echo rseventsproHelper::getUser($this->user->get('id')); ?>" size="40" class="rs_edit_inp_small" />
-	</p>
-	<div class="rs_clear"></div>
-	<p>
-		<label for="email" class="rs_subscribe_label"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EMAIL'); ?></label>
-		<input type="text" name="email" id="email" value="<?php echo $this->user->get('email'); ?>" size="40" class="rs_edit_inp_small" />
-	</p>
-	<div class="rs_clear"></div>
+	
+	<div class="control-group">
+		<div class="control-label">
+			<label for="name"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_NAME'); ?></label>
+		</div>
+		<div class="controls">
+			<input type="text" name="name" id="name" value="<?php echo rseventsproHelper::getUser($this->user->get('id')); ?>" size="40" class="input-large" />
+		</div>
+	</div>
+	
+	<div class="control-group">
+		<div class="control-label">
+			<label for="email"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EMAIL'); ?></label>
+		</div>
+		<div class="controls">
+			<input type="text" name="email" id="email" value="<?php echo $this->user->get('email'); ?>" size="40" class="input-large" />
+		</div>
+	</div>
+	
 	<?php if (!empty($this->tickets)) { ?>
 	
 	<?php if ($this->event->ticketsconfig) { ?>
-	<p>
-		<label class="rs_subscribe_label">&nbsp;</label>
-		<a href="javascript:void(0);" onclick="RSopenModal();">
-			<i class="icon-cart"></i> <span id="rsepro_cart"><?php echo JText::_('COM_RSEVENTSPRO_SELECT_TICKETS'); ?></span>
-		</a>
-	</p>
-	<div class="rs_clear"></div>
-	<p>
-		<label class="rs_subscribe_label"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKETS'); ?></label>
-		<span id="rsepro_selected_tickets_view" style="float:left;"></span>
-		<span id="rsepro_selected_tickets"></span>
-	</p>
-	<div class="rs_clear"></div>
+	<div class="control-group">
+		<div class="control-label">
+			<label>&nbsp;</label>
+		</div>
+		<div class="controls">
+			<a href="javascript:void(0);" onclick="RSopenModal();">
+				<i class="fa fa-shopping-cart"></i> <span id="rsepro_cart"><?php echo JText::_('COM_RSEVENTSPRO_SELECT_TICKETS'); ?></span>
+			</a>
+		</div>
+	</div>
 	
 	<?php } else { ?>
-		<p>
-			<label for="ticket" class="rs_subscribe_label"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_SELECT_TICKETS'); ?></label>
-			<input type="text" id="numberinp" name="numberinp" value="1" size="3" style="display: none;" onkeyup="this.value=this.value.replace(/[^0-9\.\,]/g, '');rse_calculatetotal();" class="rs_edit_inp_small" />
-			<select name="number" id="number" class="rs_edit_sel_small" onchange="rse_calculatetotal();"><option value="1">1</option></select>
-			<?php echo $this->lists['tickets']; ?> 
-			<img id="rs_loader" src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/loader.gif" alt="" style="vertical-align: middle; display: none;" />
-			<?php if (rseventsproHelper::getConfig('multi_tickets','int')) { ?>
-			<a href="javascript:void(0);" onclick="rs_add_ticket();"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_ADD_TICKET'); ?></a>
-			<?php } ?>
-		</p>
-		<div class="rs_clear"></div>
-		<p>
-			<label for="tdescription" class="rs_subscribe_label"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_DESC'); ?></label>
-			<span id="tdescription"></span>
-		</p>
-		<div class="rs_clear"></div>
-		<?php if (rseventsproHelper::getConfig('multi_tickets','int')) { ?>
-		<p>
-			<label class="rs_subscribe_label"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKETS'); ?></label>
-			<span id="tickets" style="float:left;"></span>
-			<span id="hiddentickets"></span>
-		</p>
-		<?php } ?>
-		<div class="rs_clear"></div>
-	<?php } ?>
 	
+	<div class="control-group">
+		<div class="control-label">
+			<label for="ticket"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_SELECT_TICKETS'); ?></label>
+		</div>
+		<div class="controls">
+			<input type="text" id="numberinp" name="numberinp" value="1" size="3" style="display: none;" onkeyup="<?php echo $this->js; ?>" class="input-mini" />
+			<select name="number" id="number" class="input-mini" onchange="<?php echo $this->js; ?>"><option value="1">1</option></select>
+			<select name="ticket" id="ticket" onchange="<?php echo $this->js; ?>" size="1" class="input-large">
+				<?php echo JHtml::_('select.options', $this->tickets); ?>
+			</select>
+			<img id="rs_loader" src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/loader.gif" alt="" style="vertical-align: middle; display: none;" />
+			<?php if ($this->config->multi_tickets) { ?>
+			<a href="javascript:void(0);" onclick="rsepro_add_multiple_tickets();"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_ADD_TICKET'); ?></a>
+			<?php } ?>
+		</div>
+	</div>
+	
+	<?php } ?>
 	
 	<?php if ($this->payment && $this->payments) { ?>
-	<div id="rsepro_payment">
-		<label for="payment" class="rs_subscribe_label"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_PAYMENT_METHOD'); ?></label>
-		<?php echo $this->lists['payments']; ?>
+	
+	<div class="control-group" id="rsepro_payment">
+		<div class="control-label">
+			<label for="payment"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_PAYMENT_METHOD'); ?></label>
+		</div>
+		<div class="controls">
+			<?php echo $this->lists['payments']; ?>
+		</div>
 	</div>
-	<div class="rs_clear"></div>
+	
 	<?php if ($this->event->discounts) { ?>
-	<p>
-		<label for="coupon" class="rs_subscribe_label"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_PAYMENT_COUPON'); ?></label>
-		<input type="text" name="coupon" id="coupon" value="" size="40" class="rs_edit_inp_small" onkeyup="<?php echo $this->updatefunction; ?>" />
-		<a href="javascript:void(0)" onclick="rse_verify_coupon(<?php echo $this->event->id; ?>,$('coupon').value)">
-			<img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/coupon.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_COUPON_VERIFY'); ?>" style="vertical-align:middle" />
-		</a>
-	</p>
+	
+	<div class="control-group">
+		<div class="control-label">
+			<label for="coupon"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_PAYMENT_COUPON'); ?></label>
+		</div>
+		<div class="controls">
+			<input type="text" name="coupon" id="coupon" value="" size="40" class="input-large" onkeyup="<?php echo $this->updatefunction; ?>" />
+			<a href="javascript:void(0)" onclick="rse_verify_coupon(<?php echo $this->event->id; ?>,document.getElementById('coupon').value)">
+				<i class="fa fa-refresh"></i>
+			</a>
+		</div>
+	</div>
+	
 	<?php } ?>
+	
 	<?php } ?>
+	
+	<table class="table table-striped table-condensed" id="rsepro-cart-details">
+		
+		<tr class="rsepro-cart-options" id="rsepro-cart-discount" style="display: none;">
+			<td>
+				<strong><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_DISCOUNT'); ?></strong>
+				<span></span>
+			</td>
+			<td></td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr class="rsepro-cart-options" id="rsepro-cart-latefee" style="display: none;">
+			<td>
+				<strong><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_LATE_FEE'); ?></strong>
+			</td>
+			<td></td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr class="rsepro-cart-options" id="rsepro-cart-earlybooking" style="display: none;">
+			<td>
+				<strong><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_EARLY_FEE'); ?></strong>
+			</td>
+			<td></td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr class="rsepro-cart-options" id="rsepro-cart-tax" style="display: none;">
+			<td>
+				<strong><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_TAX'); ?></strong>
+			</td>
+			<td></td>
+			<td>&nbsp;</td>
+		</tr>
+		<tr class="rsepro-cart-options" id="rsepro-cart-total">
+			<td>
+				<strong><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_TOTAL'); ?></strong>
+			</td>
+			<td><?php echo rseventsproHelper::currency(0); ?></td>
+			<td>&nbsp;</td>
+		</tr>
+	</table>
+	
+	<?php } ?>	
+
 	<hr />
-	<p id="grandtotalcontainer" style="display:none;">
-		<label class="rs_subscribe_label"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_TOTAL'); ?></label>
-		<span id="grandtotal"></span>
-	</p>
-	<div class="rs_clear"></div>
-	<p id="paymentinfocontainer" style="display:none;">
-		<label class="rs_subscribe_label">&nbsp;</label>
-		<span id="paymentinfo"></span>
-	</p>
-	<div class="rs_clear"></div>
-	<p>&nbsp;</p>
-	<?php } ?>
-	<p>
-		<label class="rs_subscribe_label">&nbsp;</label>
-		<button type="submit" class="button btn btn-primary" onclick="return svalidation();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button> <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?> 
-		<?php echo rseventsproHelper::redirect(false,JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'),rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name))); ?>
-	</p>
-	<div class="rs_clear"></div>
+	
+	<div class="control-group">
+		<div class="controls">
+			<button type="submit" class="button btn btn-primary" onclick="return rsepro_validate_subscription();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button> <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?> 
+			<?php echo rseventsproHelper::redirect(false,JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'),rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id))); ?>
+		</div>
+	</div>
+
 </div>
 
 	<?php echo JHTML::_('form.token')."\n"; ?>
@@ -164,7 +208,13 @@ $modal = $this->config->modal == 1 || $this->config->modal == 2; ?>
 	<input type="hidden" name="id" value="<?php echo $this->event->id; ?>" />
 	<input type="hidden" name="tmpl" value="component" />
 </form>
-<?php if (!empty($this->tickets)) { ?>
-<script type="text/javascript"><?php if ($this->event->ticketsconfig) { ?>rsepro_update_total();<?php } else { ?>rs_get_ticket($('ticket').value);<?php } ?></script>
+<?php if (!empty($this->tickets) && !$this->event->ticketsconfig) { ?>
+<script type="text/javascript">
+jQuery(document).ready(function() {
+	<?php echo $this->js; ?>
+});
+</script>
 <?php } ?>
 <?php } ?>
+
+<span id="eventID" style="display:none;"><?php echo $this->event->id; ?></span>

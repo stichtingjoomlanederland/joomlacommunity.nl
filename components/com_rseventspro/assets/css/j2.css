@@ -7,10 +7,6 @@
 	display: inline;
 }
 
-.rs_select_top {
-	margin: 4px;
-}
-
 #rs_event_main , #rs_event_main fieldset p, #rs_event_main form label {
 	font-size: 12px !important;
 }
@@ -62,43 +58,6 @@
 #rs_event_main a:hover, #rs_event_main a:active, #rs_event_main a:focus {
 	background : none repeat scroll 0 0 transparent !important;
 	color: #095197 !important;
-}
-
-div#mbox label {
-	margin: 0 auto !important;
-}
-
-div#mbox {
-	text-align: left !important;
-}
-
-#rs_admin_options {
-	margin: 0 auto !important;
-	padding: 0 !important;
-}
-
-#rs_admin li {
-	padding: 2px !important;
-}
-
-.rs_admin_subs li a:hover, .rs_admin_subs li a:active, .rs_admin_subs li a:focus {
-	background : none repeat scroll 0 0 transparent !important;
-	color: #fff !important;
-}
-
-.rs_calendar_icon {
-	right: 3px !important;
-}
-
-#rs_controls .rs_button_control:hover, #rs_admin li a:hover {
-	background: none repeat scroll 0 0 #5F78AB !important;
-    text-decoration: none;
-	color: #FFFFFF !important;
-}
-
-#rs_admin_option, #rs_admin_option:hover, #rs_admin_option:focus , #rs_admin_option:active {
-	color: #FFFFFF !important;
-    text-decoration: none !important;
 }
 
 .rs_results {
@@ -183,14 +142,6 @@ div#mbox {
 	margin-left: 5px !important;
 }
 
-.icon-cart {
-	background: url("../images/cart.png") no-repeat scroll 0 0 transparent;
-	display: inline-block;
-    height: 16px;
-    width: 16px;
-    vertical-align: middle;
-}
-
 .adminformlist {
 	list-style: none outside none !important;
 }
@@ -216,4 +167,12 @@ div#mbox {
 #paymentinfo {
 	float: left;
 	width: 85%;
+}
+
+.subscriber_confirmation {
+	padding: 5px;
+}
+
+.bootstrap-datetimepicker-widget .collapse {
+	overflow: hidden;
 }

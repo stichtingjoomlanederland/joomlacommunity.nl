@@ -1,8 +1,7 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); 
@@ -20,8 +19,10 @@ JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_rseventspro/tables')
 rseventsproHelper::loadHelper();
 // Add the Joomla! 2.5 metat title to the menus
 rseventsproHelper::metatitle();
-// Feed fix
-rseventsproHelper::feed();
+// Set some task that are not available in the front-end
+rseventsproHelper::task();
+
+JFactory::getCache('page')->clean();
 
 $controller	= JControllerLegacy::getInstance('RSEventspro');
 $controller->execute(JFactory::getApplication()->input->get('task'));

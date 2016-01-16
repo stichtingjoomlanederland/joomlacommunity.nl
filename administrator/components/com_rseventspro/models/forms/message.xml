@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	
+	<field name="language" type="language" label="COM_RSEVENTSPRO_MESSAGES_LANGUAGE" description="COM_RSEVENTSPRO_MESSAGES_LANGUAGE_DESC" size="1" default="" onchange="document.adminForm.submit();" />
+	
+	<field name="registration_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="activation_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="unsubscribe_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="denied_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="invite_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="reminder_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="preminder_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="moderation_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="tag_moderation_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="notify_me_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="report_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="approval_subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	
+	<field name="registration_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="activation_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="unsubscribe_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="denied_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="invite_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="reminder_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="preminder_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="moderation_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="tag_moderation_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="notify_me_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="report_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="approval_message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
+	
+	<field name="registration_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="activation_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="unsubscribe_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="denied_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="invite_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="reminder_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="preminder_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="moderation_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="tag_moderation_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="notify_me_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="report_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="approval_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	
+	<field name="registration_enable" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_ENABLE" description="COM_RSEVENTSPRO_MESSAGES_ENABLE_DESC" default="1">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="activation_enable" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_ENABLE" description="COM_RSEVENTSPRO_MESSAGES_ENABLE_DESC" default="1">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="unsubscribe_enable" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_ENABLE" description="COM_RSEVENTSPRO_MESSAGES_ENABLE_DESC" default="1">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="denied_enable" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_ENABLE" description="COM_RSEVENTSPRO_MESSAGES_ENABLE_DESC" default="1">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="invite_enable" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_ENABLE" description="COM_RSEVENTSPRO_MESSAGES_ENABLE_DESC" default="1">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="reminder_enable" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_ENABLE" description="COM_RSEVENTSPRO_MESSAGES_ENABLE_DESC" default="1">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="preminder_enable" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_ENABLE" description="COM_RSEVENTSPRO_MESSAGES_ENABLE_DESC" default="1">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="report_enable" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_ENABLE" description="COM_RSEVENTSPRO_MESSAGES_ENABLE_DESC" default="1">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="approval_enable" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_ENABLE" description="COM_RSEVENTSPRO_MESSAGES_ENABLE_DESC" default="1">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	
+	<fields name="config">
+		<field name="email_invite_message" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_EMAIL_INVITE_MESSAGE" description="COM_RSEVENTSPRO_MESSAGES_EMAIL_INVITE_MESSAGE_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="auto_postreminder" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_EMAIL_AUTO_POSTREMINDER" description="COM_RSEVENTSPRO_MESSAGES_EMAIL_AUTO_POSTREMINDER_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="postreminder_hash" type="text" size="50" class="input-xlarge" default="2437ec0d9cd9392705cd34c09a3a73c5" label="COM_RSEVENTSPRO_MESSAGES_EMAIL_POSTREMINDER_HASH" description="COM_RSEVENTSPRO_MESSAGES_EMAIL_POSTREMINDER_HASH_DESC" />
+		<field name="email_reminder_days" type="text" size="5" default="" class="input-mini" />
+		<field name="email_reminder_run" type="list" default="1" class="input-small">
+			<option value="1">COM_RSEVENTSPRO_MESSAGES_EMAIL_REMINDER_RUN_START</option>
+			<option value="0">COM_RSEVENTSPRO_MESSAGES_EMAIL_REMINDER_RUN_END</option>
+		</field>
+		<field name="report_to" type="text" size="" default="" class="input-xlarge" label="COM_RSEVENTSPRO_MESSAGES_TO" description="COM_RSEVENTSPRO_MESSAGES_TO_DESC" />
+		<field name="report_to_owner" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_TO_OWNER" description="COM_RSEVENTSPRO_MESSAGES_TO_OWNER_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+	</fields>
+</form>

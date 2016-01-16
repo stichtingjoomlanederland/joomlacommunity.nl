@@ -1,8 +1,7 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
@@ -116,7 +115,53 @@ class RSEvent
 			->where($db->qn('ide').' = '.$this->id);
 		
 		$db->setQuery($query);
-		return $db->loadColumn();
+		$selected = $db->loadColumn();
+		
+		if (JFactory::getApplication()->isSite()) {
+			rseventsproHelper::allowedCategories($selected);
+		}
+		
+		return $selected;
+	}
+	
+	/**
+	 * Method to get RSEvents!Pro categories
+	 *
+	 * @return   array  List of categories
+	 *
+	 */
+	public function getCategoriesOptions() {
+		$db			= JFactory::getDbo();
+		$query		= $db->getQuery(true);
+		$categories = JHtml::_('category.options','com_rseventspro', array('filter.published' => array(1)));
+		$groups		= rseventsproHelper::getUserGroups();
+		$disabled	= array();
+		
+		if ($groups) {
+			$query->select($db->qn('restricted_categories'))
+				->from($db->qn('#__rseventspro_groups'))
+				->where($db->qn('id').' IN ('.implode(',',$groups).')');
+			$db->setQuery($query);
+			if ($restrictions = $db->loadColumn()) {
+				foreach ($restrictions as $restriction) {
+					$registry = new JRegistry;
+					$registry->loadString($restriction);
+					if ($restriction = $registry->toArray()) {
+						$disabled = array_merge($disabled, $restriction);
+					}
+				}
+			}
+			
+			if ($disabled) {
+				foreach ($categories as $i => $category) {
+					if (in_array($category->value, $disabled)) {
+						$categories[$i]->disable = true;
+					}
+				}
+			}
+		}
+		
+		return $categories;
 	}
 	
 	/**
@@ -125,7 +170,7 @@ class RSEvent
 	 * @return   array  List of selected tags
 	 *
 	 */
-	public function getTags() {
+	public function getTags($array = false) {
 		$db = JFactory::getDbo();
 		$query = $db->getQuery(true);
 		
@@ -137,7 +182,47 @@ class RSEvent
 			->where($db->qn('tx.ide').' = '.$this->id);
 		
 		$db->setQuery($query);
-		return implode(',',$db->loadColumn());
+		$tags = $db->loadColumn();
+		
+		if ($array) {
+			$return = array();
+			foreach ($tags as $tag) {
+				$return[] = JHtml::_('select.option',$tag,$tag);
+			}
+			
+			return $return;
+		} else {
+			return implode(',',$tags);
+		}
+	}
+	
+	/**
+	 * Method to get Event meta keywords
+	 *
+	 * @return   array  List of selected meta keywords
+	 *
+	 */
+	public function getKeywords() {
+		$db 	= JFactory::getDbo();
+		$query  = $db->getQuery(true);
+		$return = array();
+		
+		$query->clear()
+			->select($db->qn('metakeywords'))
+			->from($db->qn('#__rseventspro_events'))
+			->where($db->qn('id').' = '.$this->id);
+		
+		$db->setQuery($query);
+		if ($keywords = $db->loadResult()) {
+			$keywords = explode(',',$keywords);
+			$keywords = array_unique($keywords);
+			foreach ($keywords as $keyword) {
+				$keyword = trim($keyword);
+				$return[] = JHtml::_('select.option',$keyword,$keyword);
+			}
+		}
+		
+		return $return;
 	}
 	
 	/**
@@ -205,8 +290,13 @@ class RSEvent
 		if (!empty($options)) {
 			$registry = new JRegistry;
 			$registry->loadString($options);
-			$options = $registry->toArray();
-			return $options;
+			if ($options = $registry->toArray()) {
+				foreach ($options as $option => $value) {
+					if (isset($defaults[$option])) {
+						$defaults[$option] = $value;
+					}
+				}
+			}
 		}
 		
 		return $defaults;
@@ -220,6 +310,10 @@ class RSEvent
 	 */
 	public function getDefaultOptions() {
 		return rseventsproHelper::getOptions();
+	}
+	
+	public function yesno() {
+		return array(JHTML::_('select.option', 0, JText::_('JNO')), JHTML::_('select.option', 1, JText::_('JYES')));
 	}
 	
 	/**
@@ -295,12 +389,56 @@ class RSEvent
 			$days = $registry->toArray();
 			
 			foreach ($days as $i => $day) {
-				$days[$i] = JHtml::_('select.option', rseventsproHelper::date($day, 'Y-m-d'), rseventsproHelper::date($day, 'Y-m-d'));
+				$days[$i] = JHtml::_('select.option', $day, $day);
 			}
 		}
 		
 		return $days ? $days : array();
 	}
+	
+	/**
+	 * Method to get Event repeat exclude dates
+	 *
+	 * @return   array  A list of event exclude dates
+	 *
+	 */
+	public function excludeDates() {
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
+		$days = array();
+		
+		$query->clear()
+			->select($db->qn('exclude_dates'))
+			->from($db->qn('#__rseventspro_events'))
+			->where($db->qn('id').' = '.$this->id);
+		
+		$db->setQuery($query);
+		if ($days = $db->loadResult()) {
+			$registry = new JRegistry;
+			$registry->loadString($days);
+			$days = $registry->toArray();
+			
+			foreach ($days as $i => $day) {
+				$days[$i] = JHtml::_('select.option', $day, $day);
+			}
+		}
+		
+		return $days ? $days : array();
+	}
+	
+	public function repeatOn() {
+		return array(JHTML::_('select.option', 0, JText::_('COM_RSEVENTSPRO_REPEAT_ON_SAME_AS_START')), JHTML::_('select.option', 1, JText::_('COM_RSEVENTSPRO_REPEAT_ON_SPECIFIC_DAY')), 
+			JHTML::_('select.option', 2, JText::_('COM_RSEVENTSPRO_REPEAT_ON_SPECIFIC_INTERVAL'))
+		);
+	}
+	
+	public function repeatOnOrder() {
+		return array(JHTML::_('select.option', 1, JText::_('COM_RSEVENTSPRO_REPEAT_ON_FIRST')), JHTML::_('select.option', 2, JText::_('COM_RSEVENTSPRO_REPEAT_ON_SECOND')), 
+			JHTML::_('select.option', 3, JText::_('COM_RSEVENTSPRO_REPEAT_ON_THIRD')), JHTML::_('select.option', 4, JText::_('COM_RSEVENTSPRO_REPEAT_ON_FOURTH')),
+			JHTML::_('select.option', 5, JText::_('COM_RSEVENTSPRO_REPEAT_ON_LAST'))
+		);
+	}
+	
 	
 	/**
 	 * Method to get Event selected payment methods
@@ -333,7 +471,7 @@ class RSEvent
 	 * @return   array  Tickets list
 	 *
 	 */
-	public function getTickets() {
+	public function getTickets($id = null) {
 		$db = JFactory::getDbo();
 		$query = $db->getQuery(true);
 		
@@ -341,7 +479,11 @@ class RSEvent
 			->select('*')
 			->from($db->qn('#__rseventspro_tickets'))
 			->where($db->qn('ide').' = '.$this->id)
-			->order($db->qn('name').' ASC');
+			->order($db->qn('order').' ASC');
+			
+		if (!is_null($id)) {
+			$query->where($db->qn('id').' = '.$db->q($id));
+		}
 		
 		$db->setQuery($query);
 		if ($tickets = $db->loadObjectList()) {
@@ -389,7 +531,7 @@ class RSEvent
 	 * @return   array  Coupons list
 	 *
 	 */
-	public function getCoupons() {
+	public function getCoupons($id = null) {
 		$db = JFactory::getDbo();
 		$query = $db->getQuery(true);
 		
@@ -397,6 +539,10 @@ class RSEvent
 			->select('*')
 			->from($db->qn('#__rseventspro_coupons'))
 			->where($db->qn('ide').' = '.$this->id);
+		
+		if (!is_null($id)) {
+			$query->where($db->qn('id').' = '.$db->q($id));
+		}
 		
 		$db->setQuery($query);
 		if ($coupons = $db->loadObjectList()) {
@@ -532,7 +678,8 @@ class RSEvent
 			->select($db->qn('start'))->select($db->qn('end'))
 			->select($db->qn('allday'))
 			->from($db->qn('#__rseventspro_events'))
-			->where($db->qn('parent').' = '.$this->id);
+			->where($db->qn('parent').' = '.$this->id)
+			->order($db->qn('start').' ASC');
 		
 		$db->setQuery($query);
 		return $db->loadObjectList();
@@ -580,10 +727,8 @@ class RSEvent
 		self::repeatevents($table);
 		// JomSocial activity
 		self::jomsocial($table->id);
-			
-		// Clean the cache, if any
-		$cache = JFactory::getCache('com_rseventspro');
-		$cache->clean();
+		// Smart search index
+		self::index($table->id,$new);
 	}
 	
 	/**
@@ -632,7 +777,7 @@ class RSEvent
 		$app	= JFactory::getApplication();
 		$query	= $db->getQuery(true);
 		$lang	= JFactory::getLanguage();
-		$tags	= JFactory::getApplication()->input->getString('tags');
+		$tags	= JFactory::getApplication()->input->get('tags', array(), 'array');
 		
 		$permissions	= rseventsproHelper::permissions();
 		$admin			= rseventsproHelper::admin();
@@ -650,11 +795,9 @@ class RSEvent
 		$db->execute();
 		
 		if (!empty($tags)) {
-			$tags		= rtrim($tags,',');
 			$sendmail 	= false;
 			$items 		= array();
 			
-			$tags = explode(',',$tags);
 			foreach ($tags as $tag) {
 				$tag = trim($tag);
 				
@@ -737,6 +880,10 @@ class RSEvent
 		
 		$db->setQuery($query);
 		$db->execute();
+		
+		if (JFactory::getApplication()->isSite()) {
+			rseventsproHelper::allowedCategories($categories);
+		}
 		
 		if (!empty($categories)) {
 			foreach($categories as $category) {
@@ -888,7 +1035,7 @@ class RSEvent
 		$db			= JFactory::getDbo();
 		$query		= $db->getQuery(true);
 		$config		= JFactory::getConfig();
-		$tzoffset	= $config->get('offset');
+		$tzoffset	= rseventsproHelper::getTimezone();
 		$nulldate	= $db->getNullDate();
 		$coupons	= JFactory::getApplication()->input->get('coupons',array(),'array');
 		
@@ -939,6 +1086,7 @@ class RSEvent
 							$codeid = (int) $db->loadResult();
 							
 							if (!$codeid) {
+								$couponcoderow = new stdClass();
 								$couponcoderow->id = null;
 								$couponcoderow->idc = $cid;
 								$couponcoderow->code = $code;
@@ -1015,25 +1163,16 @@ class RSEvent
 		$db		= JFactory::getDbo();
 		$app	= JFactory::getApplication();
 		$query	= $db->getQuery(true);
+		$admin	= rseventsproHelper::admin();
 		
 		$permissions	= rseventsproHelper::permissions();
-		$admin			= rseventsproHelper::admin();
-		
-		if (empty($permissions['can_repeat_events']) && !$admin && !$app->isAdmin())
+		if (empty($permissions['can_repeat_events']) && !$admin && !$app->isAdmin()) {
 			return false;
+		}
 		
-		if ($row->recurring == 0 || $apply == 0)
+		if ($row->recurring == 0 || $apply == 0) {
 			return false;
-		
-		$dates		= array();
-		$repeat		= $row->repeat_interval;
-		$repeat		= empty($repeat) ? 0 : $repeat;
-		
-		$start	= rseventsproHelper::date($row->start,null,false,true);
-		$stop	= rseventsproHelper::date($row->repeat_end.' 00:00:00',null,false,true);
-		
-		list($h, $m, $s) = explode(':', $start->formatLikeDate('H:i:s'), 3);
-		$hours = $h*3600+$m*60+$s;
+		}
 		
 		$query->clear()
 			->select($db->qn('id'))
@@ -1044,109 +1183,36 @@ class RSEvent
 		$db->setQuery($query);
 		$days = $db->loadColumn();
 		
-		//switch on the type of the repetition
-		if ($repeat > 0) {
-			switch($row->repeat_type) {
-				
-				//Days
-				case 1:
-					while ($start <= $stop) {
-						$start->addDays($repeat);
-						if (!in_array($start->formatLikeDate('w'),$days)) continue;
-						if($start > $stop) break;
-						$dates[] = $start->formatLikeDate('Y-m-d H:i:s');
-					}
-				break;
-				
-				//Weeks
-				case 2:
-					while ($start <= $stop) {
-						$start->addDays($repeat * 7);
-						if($start > $stop) break;
-						
-						$Calc = new RSDate_Calc();
-						$beginofweek = $Calc->beginOfWeek($start->formatLikeDate('d'),$start->formatLikeDate('m'),$start->formatLikeDate('Y'));
-						$from = rseventsproHelper::date($beginofweek,null,false,true);
-						$from->setHourMinuteSecond(0,0,0);
-						$from->addSeconds($hours);
-						
-						
-						$Calc = new RSDate_Calc();
-						$endofweek = $Calc->endOfWeek($start->formatLikeDate('d'),$start->formatLikeDate('m'),$start->formatLikeDate('Y'));
-						$to = rseventsproHelper::date($endofweek,null,false,true);
-						$to->setHourMinuteSecond(0,0,0);
-						$to->addSeconds($hours);
-						
-						if ($to > $stop) {
-							$blank = $stop->getDate(RSDATE_FORMAT_UNIXTIME) + $hours;
-							$to = rseventsproHelper::date($blank,null,false,true);
-						}
-						
-						if (in_array($from->formatLikeDate('w'),$days))
-							$dates[] = $from->formatLikeDate('Y-m-d H:i:s');
-						if (in_array($to->formatLikeDate('w'),$days))
-							$dates[] = $to->formatLikeDate('Y-m-d H:i:s');
-						
-						while ($from <= $to) {
-							$from->addDays(1);
-							if($from > $to) break;
-							if (in_array($from->formatLikeDate('w'),$days))
-								$dates[] = $from->formatLikeDate('Y-m-d H:i:s');
-						}
-						
-						if (!in_array($start->formatLikeDate('w'),$days)) continue;
-						$dates[] = $start->formatLikeDate('Y-m-d H:i:s');
-					}
-				break;
-				
-				//Months
-				case 3:
-					while ($start <= $stop) {
-						$start->addMonths($repeat);
-						if($start > $stop) break;
-						$dates[] = $start->formatLikeDate('Y-m-d H:i:s');
-					}
-				break;
-				
-				//Years
-				case 4:
-					while ($start <= $stop) {
-						$start->addYears($repeat);
-						if($start > $stop) break;
-						$dates[] = $start->formatLikeDate('Y-m-d H:i:s');
-					}
-				break;
-			}
-		}
+		require_once JPATH_SITE . '/components/com_rseventspro/helpers/recurring.php';
 		
-		$dates = array_unique($dates);
-		
+		$registry = new JRegistry;
+		$registry->set('interval', $row->repeat_interval);
+		$registry->set('type', $row->repeat_type);
+		$registry->set('start', $row->start);
+		$registry->set('end', $row->repeat_end);
+		$registry->set('days', $days);
 		
 		if (!empty($row->repeat_also)) {
-			$registry = new JRegistry;
-			$registry->loadString($row->repeat_also);
-			if ($also = $registry->toArray()) {
-				foreach ($also as $j => $d) {
-					$date_old = rseventsproHelper::date($d,null,false,true);
-					$date_old->setTZByID(rseventsproHelper::getTimezone());
-					$date_old->convertTZ(new RSDate_Timezone('GMT'));
-					$also[$j] = $date_old->formatLikeDate('Y-m-d H:i:s');
-				}
-			
-				$dates = array_merge($dates,$also);
-			}
+			$reg = new JRegistry;
+			$reg->loadString($row->repeat_also);
+			$registry->set('also', $reg->toArray());
 		}
 		
-		$dates = array_unique($dates);
+		if (!empty($row->exclude_dates)) {
+			$reg = new JRegistry;
+			$reg->loadString($row->exclude_dates);
+			$registry->set('exclude', $reg->toArray());
+		}
 		
-		if (!empty($dates)) {			
-			foreach ($dates as $i => $date) {
-				$new = new RSDate($date);
-				$new->setTZByID(rseventsproHelper::getTimezone());
-				$new->convertTZ(new RSDate_Timezone('GMT'));
-				$dates[$i] = $new->formatLikeDate('Y-m-d H:i:s');
-			}
-			
+		$registry->set('repeat_on_type', $row->repeat_on_type);
+		$registry->set('repeat_on_day', $row->repeat_on_day);
+		$registry->set('repeat_on_day_order', $row->repeat_on_day_order);
+		$registry->set('repeat_on_day_type', $row->repeat_on_day_type);
+		
+		$recurring = RSEventsProRecurring::getInstance($registry);
+		$dates = $recurring->getDates();
+		
+		if (!empty($dates)) {
 			// Get the old children list
 			$query->clear()
 				->select($db->qn('id'))->select($db->qn('start'))
@@ -1198,6 +1264,14 @@ class RSEvent
 			}
 			
 			rseventsproHelper::copy($row->id,$dates);
+		} else {
+			// Delete all children
+			$query->clear()
+				->delete()
+				->from($db->qn('#__rseventspro_events'))
+				->where($db->qn('parent').' = '.$db->q($row->id));
+			$db->setQuery($query);
+			$db->execute();
 		}
 	}
 	
@@ -1247,12 +1321,16 @@ class RSEvent
 			$activity = $db->loadResult();
 			
 			if (empty($activity) && rseventsproHelper::getConfig('jsactivity','int')) {
-				$link = '<a href="'.$root.rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($id,$row->name),true,RseventsproHelperRoute::getEventsItemid()).'">'.$row->name.'</a>';
+				$eitemid  = RseventsproHelperRoute::getEventsItemid();
+				$jsitemid = rseventsproHelper::itemid($id);
+				$jsitemid = empty($jsitemid) ? $eitemid : $jsitemid;
+				
+				$link = '<a href="'.$root.rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($id,$row->name),true,$jsitemid).'">'.$row->name.'</a>';
 				
 				$act = new stdClass();
 				$act->cmd     = 'rseventspro.create';
 				$act->actor   = $row->owner;
-				$act->target  = 0;
+				$act->target  = $row->owner;
 				$act->title   = JText::sprintf('COM_RSEVENTSPRO_JOMSOCIAL_ACTIVITY_POST',$link);
 				$act->content = substr(strip_tags($row->description),0,255);
 				$act->app     = 'rseventspro';
@@ -1267,6 +1345,25 @@ class RSEvent
 				
 				CActivities::add($act);
 			}
+		}
+	}
+	
+	/**
+	 * Method to index events for the smart search plugin
+	 *
+	 * @return   void
+	 *
+	 */
+	protected function index($id, $isNew) {
+		$dispatcher	= JDispatcher::getInstance();
+		JPluginHelper::importPlugin('finder');
+		
+		$table = JTable::getInstance('Event','rseventsproTable');
+		$table->load($id);
+		
+		if ($table->completed) {
+			// Trigger the onFinderAfterSave event.
+			$dispatcher->trigger('onFinderAfterSave', array('com_rseventspro.event', $table, $isNew));
 		}
 	}
 }

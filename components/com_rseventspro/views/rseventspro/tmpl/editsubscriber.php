@@ -1,11 +1,11 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
+JHtml::_('behavior.modal','.rs_modal');
 
 $total		= 0;
 $subscriber = $this->data['data'];
@@ -20,16 +20,21 @@ function rs_validate_subscr() {
 	var msg = new Array();
 	
 	// do field validation
-	if ($('name').value.length == 0) {
-		$('name').className = 'rs_edit_inp_error_small';
+	if (jQuery('#jform_name').val().length == 0) {
+		jQuery('#jform_name').addClass('invalid');
 		msg.push('<?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_ADD_NAME', true); ?>');
 		ret = false;
-	} else $('name').className = 'rs_edit_inp_small';
-	if ($('email').value.length == 0) {
-		$('email').className = 'rs_edit_inp_error_small';
+	} else {
+		jQuery('#jform_name').removeClass('invalid');
+	}
+	
+	if (jQuery('#jform_email').val().length == 0) {
+		jQuery('#jform_email').addClass('invalid');
 		msg.push('<?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_ADD_EMAIL', true); ?>');
 		ret = false;
-	} else $('email').className = 'rs_edit_inp_small';
+	} else {
+		jQuery('#jform_email').removeClass('invalid');
+	}
 	
 	if (ret) {
 		return true;
@@ -47,22 +52,41 @@ function rs_validate_subscr() {
 	<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribers&id='.rseventsproHelper::sef($event->id,$event->name)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></a>
 </div>
 
-<fieldset class="rs_fieldset">
+<fieldset class="rs_fieldset form-horizontal">
 	<legend><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_INFO'); ?></legend>
-	<table cellspacing="0" cellpadding="3" border="0" class="rs_table">
-		<tr>
-			<td width="100"><label for="name"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_NAME'); ?></label></td>
-			<td><input type="text" name="jform[name]" value="<?php echo $this->escape($subscriber->name); ?>" id="name" size="60" class="rs_edit_inp_small" /></td>
-		</tr>
-		<tr>
-			<td><label for="email"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EMAIL'); ?></label></td>
-			<td><input type="text" name="jform[email]" value="<?php echo $this->escape($subscriber->email); ?>" id="email" size="60" class="rs_edit_inp_small" /></td>
-		</tr>
-		<tr>
-			<td><label for="state"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS'); ?></label></td>
-			<td><?php echo $this->lists['status']; ?></td>
-		</tr>
-	</table>
+	
+	<div class="control-group">
+		<div class="control-label">
+			<label for="jform_name"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_NAME'); ?></label>
+		</div>
+		<div class="controls">
+			<input type="text" name="jform[name]" value="<?php echo $this->escape($subscriber->name); ?>" id="jform_name" size="60" class="input-xlarge" />
+		</div>
+	</div>
+	<div class="control-group">
+		<div class="control-label">
+			<label for="jform_email"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EMAIL'); ?></label>
+		</div>
+		<div class="controls">
+			<input type="text" name="jform[email]" value="<?php echo $this->escape($subscriber->email); ?>" id="jform_email" size="60" class="input-xlarge" />
+		</div>
+	</div>
+	<div class="control-group">
+		<div class="control-label">
+			<label for="jform_state"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS'); ?></label>
+		</div>
+		<div class="controls">
+			<?php echo $this->lists['status']; ?>
+		</div>
+	</div>
+	<div class="control-group">
+		<div class="control-label">
+			<label for="jform_confirmed"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_HEAD_CONFIRMED'); ?></label>
+		</div>
+		<div class="controls">
+			<?php echo $this->lists['confirmed']; ?>
+		</div>
+	</div>
 </fieldset>
 
 <div class="rs_clear"></div>
@@ -72,7 +96,7 @@ function rs_validate_subscr() {
 	<table cellspacing="0" cellpadding="3" border="0" class="rs_table">
 		<tr>
 			<td width="160"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIPTION_DATE'); ?></td>
-			<td><?php echo rseventsproHelper::date($subscriber->date); ?></td>
+			<td><?php echo rseventsproHelper::showdate($subscriber->date); ?></td>
 		</tr>
 		<tr>
 			<td width="160"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIPTION_IP'); ?></td>
@@ -136,7 +160,7 @@ function rs_validate_subscr() {
 		<?php if ($event->ticketsconfig && rseventsproHelper::hasSeats($subscriber->id)) { ?>
 		<tr>
 			<td width="160">&nbsp;</td>
-			<td><a class="modal" rel="{handler: 'iframe', size: {x:1280,y:800}}" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=userseats&tmpl=component&id='.rseventsproHelper::sef($subscriber->id,$subscriber->name)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_SEATS_CONFIGURATION'); ?></a></td>
+			<td><a class="rs_modal" rel="{handler: 'iframe', size: {x:<?php echo rseventsproHelper::getConfig('seats_width','int','1280'); ?>,y:<?php echo rseventsproHelper::getConfig('seats_height','int','800'); ?>}}" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=userseats&tmpl=component&id='.rseventsproHelper::sef($subscriber->id,$subscriber->name)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_SEATS_CONFIGURATION'); ?></a></td>
 		</tr>
 		<?php } ?>
 		<tr>

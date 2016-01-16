@@ -1,8 +1,7 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2012 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -25,7 +24,7 @@ class com_rseventsproInstallerScript
 	}
 
 	public function postflight($type, $parent) {
-		$this->installprocess($type);
+		$this->installprocess($type, $parent);
 		
 		$messages = array(
 			'plugins' 	=> array(),
@@ -37,47 +36,27 @@ class com_rseventsproInstallerScript
 		$this->showinstall($messages);
 	}
 	
-	public function uninstall($parent) {}
+	public function uninstall($parent) {
+		$db			= JFactory::getDbo();
+		$installer	= new JInstaller();
+		
+		$db->setQuery('SELECT '.$db->qn('extension_id').' FROM '.$db->qn('#__extensions').' WHERE '.$db->qn('element').' = '.$db->q('rseventspro').' AND '.$db->qn('folder').' = '.$db->q('installer').' AND '.$db->qn('type').' = '.$db->q('plugin').' LIMIT 1');
+		$plg_id = $db->loadResult();
+		if ($plg_id) $installer->uninstall('plugin', $plg_id);
+	}
 	
 	// Install - Update process
-	public function installprocess($type) {
+	public function installprocess($type, $parent) {
 		$db		= JFactory::getDbo();
 		
+		// Install the updater plugin
+		$installer = new JInstaller();
+		$installer->install($parent->getParent()->getPath('source').'/other/plg_installer');
+		$db->setQuery('UPDATE '.$db->qn('#__extensions').' SET '.$db->qn('enabled').' = 1 WHERE '.$db->qn('element').' = '.$db->q('rseventspro').' AND '.$db->qn('type').' = '.$db->q('plugin').' AND '.$db->qn('folder').' = '.$db->q('installer'));
+		$db->execute();
+		
+		
 		if ($type == 'update') {
-			
-			// REV 5 
-			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_tickets` WHERE `Field` = 'position'");
-			if (!$db->loadResult()) {
-				$db->setQuery("ALTER TABLE `#__rseventspro_tickets` ADD `position` TEXT NOT NULL");
-				$db->execute();
-			}
-			
-			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_tickets` WHERE `Field` = 'groups'");
-			if (!$db->loadResult()) {
-				$db->setQuery("ALTER TABLE `#__rseventspro_tickets` ADD `groups` TEXT NOT NULL");
-				$db->execute();
-			}
-			
-			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_events` WHERE `Field` = 'ticketsconfig'");
-			if (!$db->loadResult()) {
-				$db->setQuery("ALTER TABLE `#__rseventspro_events` ADD `ticketsconfig` TINYINT( 1 ) NOT NULL");
-				$db->execute();
-			}
-			
-			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_events` WHERE `Field` = 'featured'");
-			if (!$db->loadResult()) {
-				$db->setQuery("ALTER TABLE `#__rseventspro_events` ADD `featured` TINYINT( 1 ) NOT NULL");
-				$db->execute();
-			}
-			
-			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_groups` WHERE `Field` = 'event'");
-			if (!$db->loadResult()) {
-				$db->setQuery("ALTER TABLE `#__rseventspro_groups` ADD `event` TEXT NOT NULL");
-				$db->execute();
-			}
-			
-			
-			
 			// REV 4
 			
 			// Check for the sync field
@@ -632,9 +611,163 @@ class com_rseventsproInstallerScript
 				}
 			}
 			
+			// START REV 5 UPDATE
+			$db->setQuery("ALTER TABLE `#__rseventspro_events` CHANGE `late_fee` `late_fee` FLOAT NOT NULL");
+			$db->execute();
+			
+			$db->setQuery("ALTER TABLE `#__rseventspro_events` CHANGE `early_fee` `early_fee` FLOAT NOT NULL");
+			$db->execute();
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_tickets` WHERE `Field` = 'position'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_tickets` ADD `position` TEXT NOT NULL");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_tickets` WHERE `Field` = 'groups'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_tickets` ADD `groups` TEXT NOT NULL");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_events` WHERE `Field` = 'ticketsconfig'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_events` ADD `ticketsconfig` TINYINT( 1 ) NOT NULL");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_events` WHERE `Field` = 'featured'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_events` ADD `featured` TINYINT( 1 ) NOT NULL");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_groups` WHERE `Field` = 'event'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_groups` ADD `event` TEXT NOT NULL");
+				$db->execute();
+			}
+			// END REV 5 UPDATE
+			
+			// START VERSION 1.6.0 UPDATE
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_events` WHERE `Field` = 'hits'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_events` ADD `hits` INT( 11 ) NOT NULL");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_events` WHERE `Field` = 'repeat_on_type'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_events` ADD `repeat_on_type` TINYINT( 1 ) NOT NULL AFTER `repeat_also`");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_events` WHERE `Field` = 'repeat_on_day'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_events` ADD `repeat_on_day` TINYINT( 2 ) NOT NULL AFTER `repeat_on_type`");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_events` WHERE `Field` = 'repeat_on_day_order'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_events` ADD `repeat_on_day_order` TINYINT( 1 ) NOT NULL AFTER `repeat_on_day`");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_events` WHERE `Field` = 'repeat_on_day_type'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_events` ADD `repeat_on_day_type` VARCHAR( 25 ) NOT NULL AFTER `repeat_on_day_order`");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_users` WHERE `Field` = 'create_user'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_users` ADD `create_user` TINYINT( 1 ) NOT NULL");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_users` WHERE `Field` = 'confirmed'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_users` ADD `confirmed` TINYINT( 1 ) NOT NULL");
+				$db->execute();
+			}
+			
+			// END VERSION 1.6.0 UPDATE
+			
+			// Version 1.7.1
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_events` WHERE `Field` = 'timezone'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_events` ADD `timezone` VARCHAR( 255 ) NOT NULL");
+				$db->execute();
+			}
+			
+			// Version 1.8.0
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_events` WHERE `Field` = 'aspectratio'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_events` ADD `aspectratio` TINYINT( 1 ) NOT NULL");
+				$db->execute();
+				$db->setQuery("UPDATE `#__rseventspro_events` SET `aspectratio` = 1");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_events` WHERE `Field` = 'exclude_dates'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_events` ADD `exclude_dates` TEXT NOT NULL AFTER `repeat_on_day_type`");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_tickets` WHERE `Field` = 'price'");
+			if ($columns = $db->loadObject()) {
+				if ($columns->Type == 'float') {
+					$db->setQuery("ALTER TABLE `#__rseventspro_tickets` CHANGE `price` `price` DECIMAL( 20, 3 ) NOT NULL");
+					$db->execute();
+				}
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_groups` WHERE `Field` = 'restricted_categories'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_groups` ADD `restricted_categories` TEXT NOT NULL");
+				$db->execute();
+			}
+			
+			$db->setQuery("SELECT `ide` FROM `#__rseventspro_taxonomy` WHERE `type` = 'postreminder'");
+			if ($preminders = $db->loadColumn()) {
+				foreach ($preminders as $preminder) {
+					$db->setQuery("SELECT DISTINCT `email` FROM `#__rseventspro_users` WHERE `ide` = ".(int) $preminder." AND `state` = 1");
+					if ($emails = $db->loadColumn()) {
+						foreach ($emails as $email) {
+							$db->setQuery("INSERT IGNORE INTO `#__rseventspro_taxonomy` SET `type` = 'preminder', `ide` = ".(int) $preminder.", `id` = '1', `extra` = ".$db->q($email)." ");
+							$db->execute();
+						}
+					}
+				}
+				
+				$db->setQuery("DELETE FROM `#__rseventspro_taxonomy` WHERE `type` = 'postreminder'");
+				$db->execute();
+			}
+			
+			// Version 1.9.0
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_events` WHERE `Field` = 'itemid'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_events` ADD `itemid` INT( 11 ) NOT NULL");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_tickets` WHERE `Field` = 'order'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_tickets` ADD `order` INT( 11 ) NOT NULL");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_groups` WHERE `Field` = 'can_change_options'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_groups` ADD `can_change_options` TINYINT( 1 ) NOT NULL AFTER `can_approve_tags`");
+				$db->execute();
+			}
 			
 			// Run queries
-			$sqlfile = JPATH_ADMINISTRATOR.'/components/com_rseventspro/install.mysql.utf8.sql';
+			$sqlfile = JPATH_ADMINISTRATOR.'/components/com_rseventspro/install.mysql.sql';
 			$buffer = file_get_contents($sqlfile);
 			if ($buffer === false) {
 				JError::raiseWarning(1, JText::_('JLIB_INSTALLER_ERROR_SQL_READBUFFER'));
@@ -661,6 +794,20 @@ class com_rseventsproInstallerScript
 			}
 		}
 		
+		$jversion = new JVersion();
+		if ($jversion->isCompatible('3.0')) {
+			if ($content = JTable::getInstance('Contenttype', 'JTable')) {
+				if (!$content->load(array('type_alias' => 'com_rseventspro.categories'))) {
+					$content->save(array(
+						'type_title' => 'RSEvents! Pro Category',
+						'type_alias' => 'com_rseventspro.category',
+						'table'		 => '{"special":{"dbtable":"#__categories","key":"id","type":"Category","prefix":"JTable","config":"array()"},"common":{"dbtable":"#__ucm_content","key":"ucm_id","type":"Corecontent","prefix":"JTable","config":"array()"}}',
+						'field_mappings' => '{"common":{"core_content_item_id":"id","core_title":"title","core_state":"published","core_alias":"alias","core_created_time":"created_time","core_modified_time":"modified_time","core_body":"description", "core_hits":"hits","core_publish_up":"null","core_publish_down":"null","core_access":"access", "core_params":"params", "core_featured":"null", "core_metadata":"metadata", "core_language":"language", "core_images":"null", "core_urls":"null", "core_version":"version", "core_ordering":"null", "core_metakey":"metakey", "core_metadesc":"metadesc", "core_catid":"parent_id", "core_xreference":"null", "asset_id":"asset_id"}, "special":{"parent_id":"parent_id","lft":"lft","rgt":"rgt","level":"level","path":"path","extension":"extension","note":"note"}}',
+					));
+				}
+			}
+		}
+		
 		// Unpublish the RSMediaGallery! plugin
 		$db->setQuery("SELECT `extension_id`, `name` FROM `#__extensions` WHERE `type` = 'plugin' AND `element` = 'rsmediagallery' AND `folder` = 'rseventspro'");
 		if ($gallery = $db->loadObject()) {
@@ -682,6 +829,8 @@ class com_rseventsproInstallerScript
 	margin: 0 0 0.5em 0;
 	padding: 0 0 0 4em;
 }
+
+.version,
 .version-new,
 .version-fixed,
 .version-upgraded {
@@ -696,6 +845,10 @@ class com_rseventsproInstallerScript
 	-webkit-border-radius: 4px;
 	-moz-border-radius: 4px;
 	border-radius: 4px;
+}
+
+.version {
+	background: #000;
 }
 
 .version-new {
@@ -788,20 +941,14 @@ class com_rseventsproInstallerScript
 		</p>
 		<?php } ?>
 	<?php } ?>
+	<h2>Changelog v1.9.11</h2>
 	<ul class="version-history">
-		<li><span class="version-upgraded">Upg</span> Calendar legend (You can choose the type of the calendar legend: table legend or dropdown).</li>
-		<li><span class="version-new">New</span> Featured events.</li>
-		<li><span class="version-new">New</span> Create custom seat charts for your events.</li>
-		<li><span class="version-new">New</span> Restrict tickets based on the RSEvents!Pro groups.</li>
-		<li><span class="version-new">New</span> Event reporting tool.</li>
-		<li><span class="version-new">New</span> AJAX autocomplete when adding tags to an event.</li>
-		<li><span class="version-new">New</span> Content plugin. (Add events to your Joomla! Articles)</li>
-		<li><span class="version-new">New</span> Archived module.</li>
-		<li><span class="version-new">New</span> Featured module.</li>
+		<li><span class="version-fixed">Fix</span> Week and day events were not displayed correctly from the calendar.</li>
+		<li><span class="version-fixed">Fix</span> Google Calendar fixes.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Start using RSEvents!Pro</a>
-	<a class="com-rseventspro-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/170-rseventspro.html" target="_blank">Read the RSEvents!Pro User Guide</a>
-	<a class="com-rseventspro-button" href="http://www.rsjoomla.com/customer-support/tickets.html" target="_blank">Get Support!</a>
+	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the RSEvents!Pro User Guide</a>
+	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/customer-support/tickets.html" target="_blank">Get Support!</a>
 </div>
 <div style="clear: both;"></div>
 <?php
@@ -857,7 +1004,8 @@ class com_rseventsproInstallerScript
 			'rseproauthorize',
 			'rseprooffline',
 			'rsepropaypal',
-			'rseventspro'
+			'rseventspro',
+			'rseproideal'
 		);
 		
 		if ($installed = $this->getPlugins($plugins)) {
@@ -881,12 +1029,24 @@ class com_rseventsproInstallerScript
 						);
 					} else {
 						if ($plugin->element == 'rsfprseventspro') {
-							$this->installPlugin($parent, 'rsform');
-							$messages['messages'][] = 'The plugin "'.$plugin->name.'"  has been successfully updated.';
+							if ($this->checkVersion($xml,'1.5.0','>')) {
+								$this->disableExtension($plugin->extension_id);
+								$messages['messages'][] = 'Please update the plugin "'.$plugin->name.'" manually.';
+							}
 						}
 						
 						if ($plugin->element == 'rsepropdf') {
-							$messages['messages'][] = 'Please update the plugin "'.$plugin->name.'" manually.';
+							if ($this->checkVersion($xml,'1.4.0','>')) {
+								$this->disableExtension($plugin->extension_id);
+								$messages['messages'][] = 'Please update the plugin "'.$plugin->name.'" manually.';
+							}
+						}
+						
+						if ($plugin->element == 'rseproideal') {
+							if ($this->checkVersion($xml,'1.1.0','>')) {
+								$this->disableExtension($plugin->extension_id);
+								$messages['messages'][] = 'Please update the plugin "'.$plugin->name.'" manually.';
+							}
 						}
 					}
 				}
@@ -894,12 +1054,15 @@ class com_rseventsproInstallerScript
 		}
 		
 		$modules = array(
+			'mod_rseventspro_archived',
 			'mod_rseventspro_attendees',
 			'mod_rseventspro_calendar',
 			'mod_rseventspro_categories',
+			'mod_rseventspro_featured',
 			'mod_rseventspro_location',
 			'mod_rseventspro_locations',
 			'mod_rseventspro_map',
+			'mod_rseventspro_popular',
 			'mod_rseventspro_search',
 			'mod_rseventspro_slider',
 			'mod_rseventspro_upcoming'
@@ -920,10 +1083,101 @@ class com_rseventsproInstallerScript
 							'text'		=> 'Disabled'
 						);
 					} else {
+						
+						if ($module->element == 'mod_rseventspro_archived') {
+							$lang->load('mod_rseventspro_archived',JPATH_SITE);
+							if ($this->checkVersion($xml,'1.1','>')) {
+								$this->unpublishModule($module->element);
+								$messages['messages'][] = 'Please update the module "'.JText::_($module->name).'" manually.';
+							}
+						}
+						
+						if ($module->element == 'mod_rseventspro_attendees') {
+							$lang->load('mod_rseventspro_attendees',JPATH_SITE);
+							if ($this->checkVersion($xml,'1.1','>')) {
+								$this->unpublishModule($module->element);
+								$messages['messages'][] = 'Please update the module "'.JText::_($module->name).'" manually.';
+							}
+						}
+						
 						if ($module->element == 'mod_rseventspro_calendar') {
-							$lang->load('mod_rseventspro_calendar.sys',JPATH_SITE);
-							$this->installModule($parent, 'mod_rseventspro_calendar');
-							$messages['messages'][] = 'The module "'.JText::_($module->name).'"  has been successfully updated.';
+							$lang->load('mod_rseventspro_calendar',JPATH_SITE);
+							if ($this->checkVersion($xml,'1.2','>')) {
+								$this->unpublishModule($module->element);
+								$messages['messages'][] = 'Please update the module "'.JText::_($module->name).'" manually.';
+							}
+						}
+						
+						if ($module->element == 'mod_rseventspro_categories') {
+							$lang->load('mod_rseventspro_categories',JPATH_SITE);
+							if ($this->checkVersion($xml,'1.1','>')) {
+								$this->unpublishModule($module->element);
+								$messages['messages'][] = 'Please update the module "'.JText::_($module->name).'" manually.';
+							}
+						}
+						
+						if ($module->element == 'mod_rseventspro_featured') {
+							$lang->load('mod_rseventspro_featured',JPATH_SITE);
+							if ($this->checkVersion($xml,'1.1','>')) {
+								$this->unpublishModule($module->element);
+								$messages['messages'][] = 'Please update the module "'.JText::_($module->name).'" manually.';
+							}
+						}
+						
+						if ($module->element == 'mod_rseventspro_location') {
+							$lang->load('mod_rseventspro_location',JPATH_SITE);
+							if ($this->checkVersion($xml,'1.1','>')) {
+								$this->unpublishModule($module->element);
+								$messages['messages'][] = 'Please update the module "'.JText::_($module->name).'" manually.';
+							}
+						}
+						
+						if ($module->element == 'mod_rseventspro_locations') {
+							$lang->load('mod_rseventspro_locations',JPATH_SITE);
+							if ($this->checkVersion($xml,'1.1','>')) {
+								$this->unpublishModule($module->element);
+								$messages['messages'][] = 'Please update the module "'.JText::_($module->name).'" manually.';
+							}
+						}
+						
+						if ($module->element == 'mod_rseventspro_map') {
+							$lang->load('mod_rseventspro_map',JPATH_SITE);
+							if ($this->checkVersion($xml,'1.1','>')) {
+								$this->unpublishModule($module->element);
+								$messages['messages'][] = 'Please update the module "'.JText::_($module->name).'" manually.';
+							}
+						}
+						
+						if ($module->element == 'mod_rseventspro_popular') {
+							$lang->load('mod_rseventspro_popular',JPATH_SITE);
+							if ($this->checkVersion($xml,'1.1','>')) {
+								$this->unpublishModule($module->element);
+								$messages['messages'][] = 'Please update the module "'.JText::_($module->name).'" manually.';
+							}
+						}
+						
+						if ($module->element == 'mod_rseventspro_search') {
+							$lang->load('mod_rseventspro_search',JPATH_SITE);
+							if ($this->checkVersion($xml,'1.2','>')) {
+								$this->unpublishModule($module->element);
+								$messages['messages'][] = 'Please update the module "'.JText::_($module->name).'" manually.';
+							}
+						}
+						
+						if ($module->element == 'mod_rseventspro_slider') {
+							$lang->load('mod_rseventspro_slider',JPATH_SITE);
+							if ($this->checkVersion($xml,'1.2','>')) {
+								$this->unpublishModule($module->element);
+								$messages['messages'][] = 'Please update the module "'.JText::_($module->name).'" manually.';
+							}
+						}
+						
+						if ($module->element == 'mod_rseventspro_upcoming') {
+							$lang->load('mod_rseventspro_upcoming',JPATH_SITE);
+							if ($this->checkVersion($xml,'1.0.4','>')) {
+								$this->unpublishModule($module->element);
+								$messages['messages'][] = 'Please update the module "'.JText::_($module->name).'" manually.';
+							}
 						}
 					}
 				}
@@ -937,6 +1191,16 @@ class com_rseventsproInstallerScript
 		$query->update('#__extensions')
 			  ->set($db->quoteName('enabled').'='.$db->quote(0))
 			  ->where($db->quoteName('extension_id').'='.$db->quote($extension_id));
+		$db->setQuery($query);
+		$db->execute();
+	}
+	
+	protected function unpublishModule($module) {
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
+		$query->update('#__modules')
+			  ->set($db->quoteName('published').'='.$db->quote(0))
+			  ->where($db->quoteName('module').'='.$db->quote($module));
 		$db->setQuery($query);
 		$db->execute();
 	}
@@ -991,19 +1255,12 @@ class com_rseventsproInstallerScript
 		return htmlentities($string, ENT_COMPAT, 'utf-8');
 	}
 	
-	protected function installPlugin($parent, $plugin) {
-		// Get a new installer
-		$installer = new JInstaller();
+	protected function checkVersion($string, $version, $operator = '>') {
+		preg_match('#<version>(.*?)<\/version>#is',$string,$match);
+		if (isset($match) && isset($match[1])) {
+			return version_compare($version,$match[1],$operator);
+		}
 		
-		// Install the module
-		$installer->install($parent->getParent()->getPath('source').'/other/plugins/'.$plugin);
-	}
-	
-	protected function installModule($parent, $module) {
-		// Get a new installer
-		$installer = new JInstaller();
-		
-		// Install the module
-		$installer->install($parent->getParent()->getPath('source').'/other/modules/'.$module);
+		return false;
 	}
 }

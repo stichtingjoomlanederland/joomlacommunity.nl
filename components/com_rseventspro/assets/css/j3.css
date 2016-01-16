@@ -30,10 +30,6 @@
 	float: none;
 }
 
-#locationForm #rsepro_results {
-	left: auto;
-}
-
 #rs_results {
 	margin: 12px 0 0;
 	z-index: 99;
@@ -77,31 +73,8 @@ ul.autocompleter-choices {
 	margin-left: 5px !important;
 }
 
-.textboxlist-bits {
-	margin: 0 10px 0 0;
-}
-
-.textboxlist-bit {
-	margin: 4px 5px 0 0 !important;
-}
-
-.textboxlist-bit-editable-input {
-	box-shadow: none !important;
-}
-
-div#mbox .rs_sel {
-	height: auto !important;
-}
-
-@media (max-width: 480px) {
-	.rs_image {
-		float: none;
-	}
-}
-
-#rsepro_payment .controls {
-	float: left;
-	width: 85%;
+#rsepro_payment .controls .controls {
+	margin-left: 0;
 }
 
 #rsepro_payment .controls label {
@@ -112,4 +85,10 @@ div#mbox .rs_sel {
 
 textarea.invalid {
     border: 1px solid #9D261D;
+}
+
+@media (max-width: 480px) {
+	.rs_image {
+		float: none;
+	}
 }

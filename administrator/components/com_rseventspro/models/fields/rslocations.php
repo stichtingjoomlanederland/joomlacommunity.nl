@@ -1,24 +1,13 @@
 <?php
 /**
- * @package     Joomla.Platform
- * @subpackage  Form
- *
- * @copyright   Copyright (C) 2005 - 2012 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE
- */
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
+* @license     GNU General Public License version 2 or later; see LICENSE
+*/
 
 defined('JPATH_PLATFORM') or die;
 
 JFormHelper::loadFieldClass('list');
-
-/**
- * Form Field class for the Joomla Platform.
- * Implements a combo box field.
- *
- * @package     Joomla.Platform
- * @subpackage  Form
- * @since       11.1
- */
 class JFormFieldRSLocations extends JFormFieldList
 {
 	/**
@@ -42,7 +31,7 @@ class JFormFieldRSLocations extends JFormFieldList
 		}
 		
 		$default	= array((object) array('value' => 0, 'text' => JText::_('COM_RSEVENTSPRO_CONF_GOOGLE_NEW_LOCATION')));
-		$locations	= rseventsproHelper::getLocations(true);
+		$locations	= rseventsproHelper::getLocations();
 		
 		if (!isset($this->element['show_root']))
 			return array_merge($default, $locations);

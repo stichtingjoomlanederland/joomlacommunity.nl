@@ -1,22 +1,21 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
-defined( '_JEXEC' ) or die( 'Restricted access' ); 
-jimport( 'joomla.application.component.view');
+defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class rseventsproViewEvents extends JViewLegacy
 {
 	protected $sidebar;
 	
 	public function display($tpl = null) {
-		$this->layout			= $this->getLayout();
+		$this->layout	= $this->getLayout();
+		$this->app		= JFactory::getApplication();
 		
 		if ($this->layout == 'items') {
-			$jinput					= JFactory::getApplication()->input;
+			$jinput					= $this->app->input;
 			$type					= $jinput->get('type');
 			$this->total			= $jinput->getInt('total',0);
 			
@@ -44,48 +43,64 @@ class rseventsproViewEvents extends JViewLegacy
 		} elseif ($this->layout == 'forms') {
 			$this->forms			= $this->get('Forms');
 			$this->fpagination		= $this->get('FormsPagination');
-			$this->eventID			= JFactory::getApplication()->input->getInt('id');
+			$this->eventID			= $this->app->input->getInt('id');
 		} elseif ($this->layout == 'report') {
 			$this->sidebar			= $this->get('Sidebar');
-			$this->reports			= rseventsproHelper::getReports(JFactory::getApplication()->input->getInt('id'));
+			$this->reports			= rseventsproHelper::getReports($this->app->input->getInt('id'));
 			
 			$this->addToolBarReport();
 		} else {
 			$this->sidebar			= $this->get('Sidebar');
+			$this->tpl				= rseventsproHelper::getConfig('backendlist','int',0) ? 'general' : 'timeline';
 			
-			$this->past				= $this->get('pastevents');
-			$this->ongoing			= $this->get('ongoingevents');
-			$this->thisweek			= $this->get('thisweekevents');
-			$this->thismonth		= $this->get('thismonthevents');
-			$this->nextmonth		= $this->get('nextmonthevents');
-			$this->upcoming			= $this->get('upcomingevents');
+			JHtml::_('rseventspro.chosen');
 			
-			$this->total_past		= $this->get('pasttotal');
-			$this->total_ongoing	= $this->get('ongoingtotal');
-			$this->total_thisweek	= $this->get('thisweektotal');
-			$this->total_thismonth	= $this->get('thismonthtotal');
-			$this->total_nextmonth	= $this->get('nextmonthtotal');
-			$this->total_upcoming	= $this->get('upcomingtotal');
+			if (rseventsproHelper::checkTimezone()) {
+				$this->app->enqueueMessage(JText::_('COM_RSEVENTSPRO_TIMEZONE_HAS_CHANGED'),'notice');
+			}
 			
+			if ($this->tpl == 'general') {
+				$this->events			= $this->get('events');
+				$this->pagination		= $this->get('pagination');
+			} else {			
+				$this->past				= $this->get('pastevents');
+				$this->ongoing			= $this->get('ongoingevents');
+				$this->thisweek			= $this->get('thisweekevents');
+				$this->thismonth		= $this->get('thismonthevents');
+				$this->nextmonth		= $this->get('nextmonthevents');
+				$this->upcoming			= $this->get('upcomingevents');
+				
+				$this->total_past		= $this->get('pasttotal');
+				$this->total_ongoing	= $this->get('ongoingtotal');
+				$this->total_thisweek	= $this->get('thisweektotal');
+				$this->total_thismonth	= $this->get('thismonthtotal');
+				$this->total_nextmonth	= $this->get('nextmonthtotal');
+				$this->total_upcoming	= $this->get('upcomingtotal');
+			}
 			
 			$this->sortColumn		= $this->get('sortColumn');
+			$this->sortColumnText	= $this->get('OrderingText');
 			$this->sortOrder		= $this->get('sortOrder');
+			$this->sortOrderText	= $this->get('OrderText');
 			
 			$filters				= $this->get('filters');
 			$this->columns			= $filters[0];
 			$this->operators		= $filters[1];
 			$this->values			= $filters[2];
 			$this->other			= $this->get('OtherFilters');
+			$this->operator			= $this->get('Operator');
+			$this->showCondition	= $this->get('ConditionsNr');
+			$this->tabs				= $this->get('Tabs');
 			
 			$this->addToolBar();
 		}
-		
-		$this->pagination = $this->get('pagination');
 		
 		parent::display($tpl);
 	}
 	
 	protected function addToolBar() {
+		$doc = JFactory::getDocument();
+		
 		JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_LIST_EVENTS'),'rseventspro48');
 		JToolBarHelper::addNew('event.add');
 		JToolBarHelper::editList('event.edit');
@@ -102,18 +117,30 @@ class rseventsproViewEvents extends JViewLegacy
 		JToolBarHelper::divider();
 		JToolBarHelper::custom('events.rating','trash','trash',JText::_('COM_RSEVENTSPRO_CLEAR_RATING'));
 		JToolBarHelper::divider();
+		
+		if (rseventsproHelper::isJ3()) {
+			JHtml::_('bootstrap.modal', 'batchevents');
+			$custom = '<button data-toggle="modal" data-target="#batchevents" class="btn btn-small"><i class="icon-checkbox-partial" title="'.JText::_('COM_RSEVENTSPRO_BATCH').'"></i> '.JText::_('COM_RSEVENTSPRO_BATCH').'</button>';
+		} else {
+			$doc->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery-1.11.1.min.js?v='.RSEPRO_RS_REVISION);
+			$doc->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery.noconflict.js?v='.RSEPRO_RS_REVISION);
+			$doc->addScript(JURI::root(true).'/administrator/components/com_rseventspro/assets/js/bootstrap.modal.js');
+			$doc->addScript(JURI::root(true).'/administrator/components/com_rseventspro/assets/js/bootstrap.dropdown.js');
+			$doc->addScript(JURI::root(true).'/administrator/components/com_rseventspro/assets/js/bootstrap.collapse.js');
+			$doc->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/bootstrap.fix.js?v='.RSEPRO_RS_REVISION);
+			$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rseventspro/assets/css/navbar.css');
+			$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rseventspro/assets/css/bootstrap.modal.css');
+			$doc->addScriptDeclaration("(function($){ $('#batchevents').modal({\"backdrop\": true,\"keyboard\": true,\"show\": true,\"remote\": \"\"}); }) (jQuery);");
+			
+			$custom = '<a class="toolbar" href="javascript:void(0)" data-toggle="modal" data-target="#batchevents"><span class="icon-32-list"></span>'.JText::_('COM_RSEVENTSPRO_BATCH').'</a>';
+		}
+		
+		JToolBarHelper::custom('events.sync','refresh','refresh',JText::_('COM_RSEVENTSPRO_SYNC'),false);
+		JToolBar::getInstance()->appendButton('custom',$custom);
+		JToolBarHelper::divider();
 		JToolBarHelper::custom('rseventspro','rseventspro32','rseventspro32',JText::_('COM_RSEVENTSPRO_GLOBAL_NAME'),false);
 		
-		JFactory::getDocument()->addScript(JURI::root().'components/com_rseventspro/assets/js/dom.js');
-		JFactory::getDocument()->addScript(JURI::root().'components/com_rseventspro/assets/js/select.js');
-		
-		JFactory::getDocument()->addCustomTag('<!--[if IE 7]>
-				<style type="text/css">
-					.elSelect { width: 200px; }
-					.optionsContainer { margin-top: -30px; }
-					.selectedOption { width: 165px !important; }
-				</style>
-				<![endif]-->');
+		$doc->addScript(JURI::root().'components/com_rseventspro/assets/js/jquery.filter.js');
 	}
 	
 	protected function addToolBarReport() {
@@ -128,8 +155,9 @@ class rseventsproViewEvents extends JViewLegacy
 		
 		$query->clear()
 			->select($db->qn('e.id'))->select($db->qn('e.name'))->select($db->qn('e.start'))->select($db->qn('e.end'))
-			->select($db->qn('e.parent'))->select($db->qn('e.icon'))->select($db->qn('e.published'))->select($db->qn('e.owner'))->select($db->qn('e.featured'))
-			->select($db->qn('e.completed'))->select($db->qn('l.id','lid'))->select($db->qn('l.name','lname'))->select($db->qn('u.name','uname'))->select($db->qn('e.allday'))
+			->select($db->qn('e.parent'))->select($db->qn('e.icon'))->select($db->qn('e.published'))
+			->select($db->qn('e.owner'))->select($db->qn('e.featured'))->select($db->qn('e.completed'))->select($db->qn('l.id','lid'))
+			->select($db->qn('l.name','lname'))->select($db->qn('u.name','uname'))->select($db->qn('e.allday'))->select($db->qn('e.hits'))
 			->from($db->qn('#__rseventspro_events','e'))
 			->join('left', $db->qn('#__rseventspro_locations','l').' ON '.$db->qn('e.location').' = '.$db->qn('l.id'))
 			->join('left', $db->qn('#__users','u').' ON '.$db->qn('u.id').' = '.$db->qn('e.owner'))
