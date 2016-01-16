@@ -75,65 +75,8 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 	</nav>
 
 	<div class="pagetitle">
-		<?php if ($itemid == 248): ?>
-			<div class="carousel slide" id="jc-home-slider">
-				<div class="carousel-inner">
-					<div class="item active">
-						<img alt="First slide" src="images/slide0.png">
-						<div class="carousel-caption left">
-							<p class="lead">JoomlaCommunity.nl is vernieuwd!<br/>Benieuwd wat er nieuw is?</p>
-							<br/>
-							<p>
-								<a href="#" class="btn btn-success">Start de rondleiding</a>
-							</p>
-							<br/>
-							<br/>
-						</div>
-					</div>
-					<div class="item">
-						<img alt="First slide" src="images/slide1.png">
-						<div class="carousel-caption left">
-							<h2>Joomla! 3</h2>
-							<p class="lead">Klaar voor MOBI3L<br/> Vriendelijk in G3BRUIK</p>
-							<p>
-								<a href="#" class="btn btn-danger">Meer informatie</a>
-								<a href="#" class="btn btn-warning">Download Joomla! 3</a>
-								<a href="#" class="btn btn-success">Joomla! 3 documentatie</a>
-							</p>
-						</div>
-					</div>
-					<div class="item">
-						<img alt="Second slide" src="images/slide2.png">
-						<div class="carousel-caption left">
-							<h2>Joomlamagazine</h2>
-							<p class="lead">Alles over Joomla 3, het werken met tags,<br/>nieuws en handige workshops
-							</p>
-							<p>
-								<a href="#" class="btn btn-danger">Bestel nu voor 4,95 euro</a>
-							</p>
-						</div>
-					</div>
-					<div class="item">
-						<img alt="Third slide" src="images/slide3.png">
-						<div class="carousel-caption left dark">
-							<h2>Joomla!dagen 2016</h2>
-							<p class="lead">Ontmoet Joomla!gebruikers, leer van experts en deel je kennis!<br/> Bestel nu kaarten met 25% korting
-							</p>
-							<p>
-								<a href="#" class="btn btn-danger">Bestel tickets</a>
-							</p>
-						</div>
-					</div>
-				</div>
-				<div class="carousel-controls">
-					<a class="left carousel-control" href="#jc-home-slider" data-slide="prev">
-						<span class="icon-prev"></span>
-					</a>
-					<a class="right carousel-control" href="#jc-home-slider" data-slide="next">
-						<span class="icon-next"></span>
-					</a>
-				</div>
-			</div>
+		<?php if ($this->countModules('slider')) : ?>
+			<jdoc:include type="modules" name="slider" />
 		<?php else: ?>
 			<div class="container">
 				<div class="paginatitel pull-left">
