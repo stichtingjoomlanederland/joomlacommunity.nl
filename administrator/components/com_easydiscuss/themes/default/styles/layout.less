@@ -1,0 +1,115 @@
+/*------------------------------------*\
+    $discuss-layout.less
+\*------------------------------------*/
+
+// =Layout Organization
+// ----------------
+min-height: 850px;
+background: #f8f8f8;
+font-size:@baseFontSize;
+p {
+	// font-size: 12px;
+}
+table {
+	border-collapse:collapse;
+}
+
+.sidebar { //left side
+	display: block;
+	min-height: 100%;
+	position: relative;
+	// position: absolute;
+	float: left;
+	z-index: 3;
+	border-right: 1px solid #c3c3c3;
+	background: #f4f4f4;
+	width: 20%;
+	width: 220px;
+	background: url(@{admin_base_uri}/../images/nav-bg2.png) repeat;
+	.border-radius(0 0 0 10px);
+	margin-bottom: -1px;
+}
+
+> .content { //right side
+	padding-bottom: 60px;
+	position: relative;
+	margin-left: 0px;
+	background: #f8f8f8;
+	color: #555;
+	min-height: 800px;
+	overflow: hidden;
+	border-left: 1px solid #c3c3c3;
+	left: -1px;
+	.content-top {
+		padding: 0 40px;
+		height: 62px;
+		background:white;
+		border-bottom: 1px solid #ccc;
+		.box-shadow(0 1px 3px rgba(0,0,0,.1));
+		z-index: 2;
+		position:relative;
+	}
+	.wrapper {
+		margin: 0;
+		padding: 20px;
+	}
+	&.front {
+		.wrapper {
+			width: 70%;
+			padding-right:20px;
+		}
+	}
+	.extra {
+		background: #f0f0f0;
+		height: 100%;
+		width: 24%;
+		position: absolute;
+		top:88px;
+		left: 72%;
+		margin-left: 61px;
+		border-left:1px solid #ccc;
+		border-radius: 0 0 12px 0;
+		.extra-wrap {
+			padding: 20px;
+			.extra-title {
+				font-weight: normal;
+				font-size: 20px;
+				margin: 0 0 10px;
+				padding: 0;
+			}
+		}
+	}
+	.guide-wrap {
+		p{
+			margin-left: 0;
+		}
+		.fb-like iframe{
+			width: 110px !important;
+		}
+		ul.support-desc{
+			list-style: none;
+		}
+	}
+	.center{
+		text-align:center;
+	}
+}//content
+
+.panel-title {
+	margin: 0;
+	padding: 0;
+	border-radius: 3px;
+	margin: 0 0 20px;
+	background:#fff;
+	border: 1px solid #ccc;
+	color: #555;
+	padding: 12px;
+	h2 {
+		font-size: 18px;
+	}
+	&.panel-title-alt {
+		border:none;
+		padding: 0;
+		line-height: 60px;
+	}
+}

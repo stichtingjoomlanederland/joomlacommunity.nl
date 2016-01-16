@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_RSEVENTSPRO_MAP_VIEW_TITLE" >
+		<message>
+			<![CDATA[COM_RSEVENTSPRO_MAP_VIEW_DESC]]>
+		</message>
+	</layout>
+	
+	<fields name="params">
+		<fieldset name="basic" addfieldpath="/administrator/components/com_rseventspro/models/fields">
+			<field name="search" type="list" default="1" label="COM_RSEVENTSPRO_ENABLE_SEARCH" description="COM_RSEVENTSPRO_ENABLE_SEARCH_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="categories" type="category" description="COM_RSEVENTSPRO_SELECT_CATEGORIES_DESC" extension="com_rseventspro" label="COM_RSEVENTSPRO_SELECT_CATEGORIES" multiple="multiple" class="rs200 rschosen" />
+			<field name="locations" type="rslocations" default="" label="COM_RSEVENTSPRO_SELECT_LOCATIONS" description="COM_RSEVENTSPRO_SELECT_LOCATIONS_DESC" multiple="multiple" class="rs200 rschosen" show_root="false" />
+			<field name="tags" type="rstags" default="" label="COM_RSEVENTSPRO_SELECT_TAGS" description="COM_RSEVENTSPRO_SELECT_TAGS_DESC" multiple="multiple" class="rs200 rschosen" />
+			<field name="choosen" type="rschosen" />
+		</fieldset>
+	</fields>
+</metadata>

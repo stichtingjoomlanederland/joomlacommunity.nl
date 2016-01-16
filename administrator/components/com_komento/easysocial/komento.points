@@ -1,0 +1,166 @@
+[
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_POINTS_COMMENT_ADDED_AUTHOR",
+		"alias"			: "komento-add-comment-article-author",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_POINTS_COMMENT_ADDED_AUTHOR_DESC",
+		"command"		: "komento.add.comment.article.author",
+		"extension"		: "com_komento",
+		"state"			: true,
+		"points"		: 5
+	},
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_POINTS_COMMENT_ADDED",
+		"alias"			: "komento-add-comment",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_POINTS_COMMENT_ADDED_DESC",
+		"command"		: "komento.add.comment",
+		"extension"		: "com_komento",
+		"state"			: true,
+		"points"		: 5,
+		"params"		:
+		{
+			"min"	:
+			{
+				"title"		: "Minimum Characters",
+				"desc"		: "Specify the amount of characters a user must enter before being able to achieve this point",
+				"default"	: 0,
+				"value"		: 0
+			}
+		}
+	},
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_POINTS_COMMENT_LIKED",
+		"alias"			: "komento-comment-liked",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_POINTS_COMMENT_LIKED_DESC",
+		"command"		: "komento.comment.liked",
+		"extension"		: "com_komento",
+		"state"			: true,
+		"points"		: 1
+	},
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_POINTS_COMMENT_REMOVED",
+		"alias"			: "komento-comment-removed",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_POINTS_COMMENT_REMOVED_DESC",
+		"command"		: "komento.comment.removed",
+		"extension"		: "com_komento",
+		"state"			: true,
+		"points"		: -5
+	},
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_POINTS_COMMENT_REPORTED",
+		"alias"			: "komento-comment-reported",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_POINTS_COMMENT_REPORTED_DESC",
+		"command"		: "komento.comment.reported",
+		"extension"		: "com_komento",
+		"state"			: true,
+		"points"		: -2
+	},
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_POINTS_COMMENT_STICKED",
+		"alias"			: "komento-comment-sticked",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_POINTS_COMMENT_STICKED_DESC",
+		"command"		: "komento.comment.sticked",
+		"extension"		: "com_komento",
+		"state"			: true,
+		"points"		: 5
+	},
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_POINTS_COMMENT_UNLIKED",
+		"alias"			: "komento-comment-unliked",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_POINTS_COMMENT_UNLIKED_DESC",
+		"command"		: "komento.comment.unliked",
+		"extension"		: "com_komento",
+		"state"			: true,
+		"points"		: -1
+	},
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_POINTS_COMMENT_UNREPORTED",
+		"alias"			: "komento-comment-unreported",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_POINTS_COMMENT_UNREPORTED_DESC",
+		"command"		: "komento.comment.unreported",
+		"extension"		: "com_komento",
+		"state"			: true,
+		"points"		: 2
+	},
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_POINTS_COMMENT_UNSTICKED",
+		"alias"			: "komento-comment-unsticked",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_POINTS_COMMENT_UNSTICKED_DESC",
+		"command"		: "komento.comment.unsticked",
+		"extension"		: "com_komento",
+		"state"			: true,
+		"points"		: -5
+	},
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_POINTS_LIKE_COMMENT",
+		"alias"			: "komento-like-comment",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_POINTS_LIKE_COMMENT_DESC",
+		"command"		: "komento.like.comment",
+		"extension"		: "com_komento",
+		"state"			: true,
+		"points"		: 1
+	},
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_POINTS_REMOVE_COMMENT_AUTHOR",
+		"alias"			: "komento-remove-comment-article-author",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_POINTS_REMOVE_COMMENT_AUTHOR_DESC",
+		"command"		: "komento.remove.comment.article.author",
+		"extension"		: "com_komento",
+		"state"			: true,
+		"points"		: -5
+	},
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_POINTS_REPLY_COMMENT",
+		"alias"			: "komento-reply-comment",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_POINTS_REPLY_COMMENT_DESC",
+		"command"		: "komento.reply.comment",
+		"extension"		: "com_komento",
+		"state"			: true,
+		"points"		: 3,
+		"params"		:
+		{
+			"min"	:
+			{
+				"title"		: "Minimum Characters",
+				"desc"		: "Specify the amount of characters a user must enter before being able to achieve this point",
+				"default"	: 0,
+				"value"		: 0
+			}
+		}
+	},
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_POINTS_REPORT_COMMENT",
+		"alias"			: "komento-report-comment",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_POINTS_REPORT_COMMENT_DESC",
+		"command"		: "komento.report.comment",
+		"extension"		: "com_komento",
+		"state"			: true,
+		"points"		: 2
+	},
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_POINTS_UNLIKE_COMMENT",
+		"alias"			: "komento-unlike-comment",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_POINTS_UNLIKE_COMMENT_DESC",
+		"command"		: "komento.unlike.comment",
+		"extension"		: "com_komento",
+		"state"			: true,
+		"points"		: -1
+	},
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_POINTS_UNREPORT_COMMENT",
+		"alias"			: "komento-unreport-comment",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_POINTS_UNREPORT_COMMENT_DESC",
+		"command"		: "komento.unreport.comment",
+		"extension"		: "com_komento",
+		"state"			: true,
+		"points"		: -1
+	},
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_POINTS_UPLOAD_ATTACHMENT",
+		"alias"			: "komento-upload-attachments",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_POINTS_UPLOAD_ATTACHMENT_DESC",
+		"command"		: "komento.upload.attachments",
+		"extension"		: "com_komento",
+		"state"			: true,
+		"points"		: 2
+	}
+]

@@ -1,0 +1,112 @@
+/*------------------------------------*\
+	$elements-extend.less
+\*------------------------------------*/
+
+.label-notification {
+	.border-radius(60px);
+
+	font-size: 10px;
+	min-width: 18px;
+	height: 18px;
+	line-height: 14px;
+	position: absolute;
+	right: -1px;
+	text-align: center;
+	top: 1px;
+
+	z-index: 2;
+}
+
+
+// =discuss-avatar ( @elements )
+// ----------------
+// 	e.g.:
+// 	.discuss-avatar
+// 		&.avatar-small
+// 		&.avatar-medium
+// 		&.avatar-large
+
+.discuss-avatar {
+	// float: left;
+	margin: 0 auto;
+	img {
+		border-radius: 2px;
+	}
+	&.avatar-mini {
+
+		width: 20px;
+		height: 20px;
+		text-align: center;
+		padding: 0;
+		img {
+			width: 20px;
+			height: 20px;
+			margin-bottom:2px;
+		}
+	}
+	&.avatar-small {
+
+		width: 32px;
+		height: 32px;
+		text-align: center;
+		padding: 0;
+		img {
+			width: 32px;
+			height: 32px;
+			margin-bottom:2px;
+		}
+	}
+	&.avatar-medium {
+		min-width: 40px;
+		min-height: 40px;
+		img {
+			width: 40px;
+			height: 40px;
+		}
+	}
+	&.avatar-large {
+		position: relative;
+		width: 120px;
+		height: 120px;
+		margin: 0 auto;
+		z-index: 1;
+		img {
+			width: 110px;
+			height: 110px;
+		}
+		&.discuss-avatar-arrow {
+			// left: 8px;
+			&:before, &:after {
+				position: absolute;
+				display: inline-block;
+				width: 0;
+				height: 0;
+				border-color: transparent;
+				border-style: solid;
+				content: "";
+			}
+			&:before {
+				top: 48px;
+				right: -9px;
+				border-width: 10px 0 10px 9px;
+				border-left-color: @discussBorderColor;
+				z-index: 2;
+			}
+			&:after {
+				top: 50px;
+				right: -8px;
+				border-width: 8px 0 8px 8px;
+				border-left-color: @white;
+				z-index: 3;
+			}
+		}
+	}//.discuss-avatar
+}
+
+.discuss-category-meta {
+	display: inline-block;
+}
+
+.discuss-protected {
+	float: none;
+}

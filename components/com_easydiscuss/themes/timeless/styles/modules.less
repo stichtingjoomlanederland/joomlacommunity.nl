@@ -1,0 +1,73 @@
+/*------------------------------------*\
+	$modules-extend.less
+\*------------------------------------*/
+.discuss-headers-wrapper {
+	background: #363636;
+}
+
+// =discuss-user ( @module )
+.discuss-user {
+	float: left;
+	position: relative;
+	padding: 15px 15px 5px;
+	font-size: 12px;
+	display: block;
+	clear: both;
+	text-align: center;
+	line-height: 14px;
+
+	.discuss-user-name {
+		font-size: 11px;
+		line-height: 18px;
+		font-weight: bold;
+		display: block;
+		word-wrap: break-word;
+		&:hover {
+			background: none;
+		}
+	}
+	.discuss-avatar {
+		.border-radius(@discussItemBorderRadius);
+
+		&.avatar-medium {
+			width: 42px;
+			padding: 2px;
+		}
+		&.avatar-large {
+			padding: 8px 5px;
+		}
+
+	}
+	.discuss-role-title {
+		font-weight: normal;
+		word-wrap: break-word;
+		font-size: 11px;
+		line-height: 14px;
+		margin-top: 2px;
+	}
+	.discuss-user-role {
+		max-width: 76px;
+	    white-space: pre-wrap;
+	    word-wrap: break-word;
+	}
+	.discuss-user-rank {
+		clear: both;
+		display: block;
+		margin-top: 8px;
+		font-size: 11px;
+		color: @gray;
+	}
+	.discuss-user-graph {
+		width: 52px;
+		margin: 0 auto;
+		float: none;
+	}
+	.discuss-flyout-content {
+		position: absolute;
+	}
+}
+
+// discuss-status
+.discuss-status {
+	position: relative;
+}

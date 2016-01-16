@@ -1,0 +1,8 @@
+[
+    {
+        "script": [
+            "komento.common"
+        ],
+        "adapter": "Komento"
+    }
+]

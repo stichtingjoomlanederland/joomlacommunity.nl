@@ -1,0 +1,11 @@
+[
+    {
+        "language": [
+            "COM_EASYDISCUSS_UNLIKE_THIS_POST",
+            "COM_EASYDISCUSS_LIKE_THIS_POST",
+            "COM_EASYDISCUSS_UNLIKE",
+            "COM_EASYDISCUSS_LIKES"
+        ],
+        "adapter": "EasyDiscuss"
+    }
+]

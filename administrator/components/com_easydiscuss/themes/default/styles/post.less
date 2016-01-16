@@ -1,0 +1,127 @@
+
+// =discuss-attachments
+.discuss-attachments {
+
+    padding-top: 9px; // To match the line-height of text in other tabs
+
+    &.no-attachment {
+
+        display: none;
+    }
+
+    &.limit-exceeded {
+
+        .attachment-limit-exceed-hint {
+            display: block;
+        }
+    }
+
+    &.editable {
+
+        &.no-attachment {
+
+            display: block;
+        }
+
+        .attachment-item {
+            min-height: 22px;
+            padding: 0 0 10px 0;
+        }
+    }
+}
+
+.attachment-limit-exceed-hint {
+    display: none;
+}
+
+.attachment-itemgroup {
+    font: 100 .9em/22px verdana,arial;
+    margin-bottom: 20px;
+}
+
+.attachment-item {
+
+    .icon {
+        position: relative;
+        top: 4px;
+        width: 16px;
+        height: 16px;
+        display: inline-block;
+        margin-right: 2px;
+    }
+
+    > input {
+        display: none;
+    }
+
+    &.new {
+        > .icon,
+        > span,
+        > a {
+            display: none
+        }
+        > input {
+            display: block;
+        }
+    }
+
+    > input {
+        line-height: 12px;
+    }
+
+    &.attachment-type-default {
+        > .icon {
+            background: url('@{media_uri}/../images/fugue/document-medium.png') center center no-repeat;
+        }
+    }
+
+    &.attachment-type-image {
+        > .icon {
+            background: url('@{media_uri}/../images/fugue/document-image.png') center center no-repeat;
+        }
+    }
+
+    &.attachment-type-archive {
+        > .icon {
+            background: url('@{media_uri}/../images/fugue/document-zipper.png') center center no-repeat;
+        }
+    }
+
+    &.attachment-type-pdf {
+        > .icon {
+            background: url('@{media_uri}/../images/fugue/document-pdf.png') center center no-repeat;
+        }
+    }
+}
+
+// =discuss-references
+.discuss-references {
+    margin: 15px 0;
+    .reference-title {
+        margin: 0;
+    }
+    ol {
+        margin-left: 0px;
+        > li {
+            list-style-position: inside;
+            list-style-type: decimal;
+            overflow: hidden;
+            a {
+                display: inline-block;
+                width: 90%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-height: 24px;
+                word-break: normal;
+                line-height: 30px;
+                font-size: 14px;
+                vertical-align: text-bottom;
+
+            }
+        }
+    }
+
+    .reference-list {
+        margin-left: 0px;
+    }
+}

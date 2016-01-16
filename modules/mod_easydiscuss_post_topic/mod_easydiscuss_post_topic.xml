@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.0" client="site" method="upgrade">
+	<name>EasyDiscuss - Post Topic</name>
+	<author>StackIdeas</author>
+	<creationDate>Dec 2012</creationDate>
+	<copyright>Copyright 2009 - 2011 Stack Ideas. All rights reserved.</copyright>
+	<license>GPL License</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://stackideas.com</authorUrl>
+	<version>3.2.1</version>
+	<description>Post a quick topic for discussion.</description>
+	<languages>
+		<language tag="en-GB">en-GB.mod_easydiscuss_post_topic.ini</language>
+	</languages>
+	<files>
+		<filename module="mod_easydiscuss_post_topic">mod_easydiscuss_post_topic.php</filename>
+		<filename>mod_easydiscuss_post_topic.xml</filename>
+		<folder>styles</folder>
+		<folder>tmpl</folder>
+	</files>
+	<params>
+	</params>
+	<params group="advanced">
+		<param name="cache" type="list" default="0" label="Caching" description="Select whether to cache the content of this module">
+			<option value="1">Use global</option>
+			<option value="0">No caching</option>
+		</param>
+		<param name="cache_time" type="text" default="900" label="Cache Time" description="The time before the module is recached" />
+	</params>
+
+	<config>
+		<fields name="params">
+			<fieldset name="advanced">
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+				<field name="cache_time" type="text" default="900" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

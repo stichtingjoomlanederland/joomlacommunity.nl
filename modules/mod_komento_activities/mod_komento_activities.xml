@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.0" type="module" client="site" method="upgrade">
+	<name>Komento Activities</name>
+	<author>StackIdeas</author>
+	<creationDate>May 2012</creationDate>
+	<copyright>Copyright 2009 - 2012 Stack Ideas. All rights reserved.</copyright>
+	<license>GPL License</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://www.stackideas.com</authorUrl>
+	<version>1.0.4</version>
+	<description>Display activities from Komento</description>
+	<files>
+		<filename module="mod_komento_activities">mod_komento_activities.php</filename>
+		<folder>tmpl</folder>
+	</files>
+
+	<config>
+		<fields name="params">
+			<fieldset name="basic" addfieldpath="/administrator/components/com_komento/elements">
+				<field name="limit" type="text" default="5" label="Activities Limit" description="Max activities to display" />
+				<field name="component" type="modal_komentocomponent" default="all" label="Select Component" description="Select which component's comment to display" state="1" />
+				<field name="includelikes" type="list" default="1" label="Include Likes Activity" description="Show or hide likes activity">
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field>
+				<field name="includecomments" type="list" default="1" label="Include Comment Activity" description="Show or hide comment activity">
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field>
+				<field name="includereplies" type="list" default="1" label="Include Reply Activity" description="Show or hide reply activity">
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field>
+				<!-- <field name="showavatar" type="list" default="1" label="Show avatar" description="Show or hide the commentor's avatar in the module.">
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field> -->
+				<field name="showcomment" type="list" default="1" label="Show comment" description="Show or hide comment text in the module.">
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field>
+				<field name="maxcommentlength" type="text" default="100" label="Max comment length" description="Specify the length of characters display in comments text." />
+				<field name="maxtitlelength" type="text" default="30" label="Max title length" description="Specify the length of characters display in title text." />
+			</fieldset>
+			<fieldset name="advanced">
+				<field
+					name="moduleclass_sfx" type="text"
+					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+					description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC">
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+			</fieldset>
+		</fields>
+	</config>
+</extension>

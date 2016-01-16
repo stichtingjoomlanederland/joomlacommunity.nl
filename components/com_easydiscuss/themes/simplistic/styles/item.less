@@ -1,0 +1,84 @@
+/*------------------------------------*\
+    $item.less
+\*------------------------------------*/
+/**
+* (each post or reply DOM )
+	Reusable post/item classes
+	DOM e.g.:
+		discuss-item
+			.discuss-item-hd
+			.discuss-item-left
+			.discuss-item-right
+				.discuss-story
+					.discuss-story-hd
+					.discuss-story-bd
+					.discuss-story-ft
+			.discuss-item-ft
+*/
+.discuss-item {
+	width:auto;
+	background: @discussItemBackground;
+	border: 1px solid @discussBorderColor;
+	position: relative;
+	.border-radius(@discussItemBorderRadius);
+	.clearfix();
+	.discuss-item-hd {
+		padding: 15px;
+		min-height: 5px;
+		position: relative;
+		border-bottom: 1px solid @discussItemHdBorderColor;
+		.clearfix();
+
+		.discuss-post-meta{
+			font-size: 11px;
+			margin-top: 15px;
+
+			.discuss-clock{
+				>i {
+					margin-right: 3px;
+				}
+			}
+		}
+	}
+	.discuss-item-bd {
+		position: relative;
+	}
+	.discuss-item-ft {
+		position: relative;
+	}
+	.discuss-item-left {
+		float: left;
+		position: relative;
+		width: 110px;
+		padding: 15px 15px 5px;
+		font-size: 12px;
+		display: block;
+		clear: both;
+		text-align: center;
+		line-height: 14px;
+		.clearfix();
+		+ .discuss-item-right {
+			position: relative;
+			margin-left: 110px;
+			border-left: 1px solid @discussItemRightBorderColor;
+			.clearfix();
+		}
+	}
+	.discuss-item-right {
+		padding-top: 5px;
+
+		.discuss-story{
+			.discuss-action-options{
+				color: #666;
+			}
+		}
+	}
+
+	.discuss-content {
+		margin-bottom: 10px;
+		pre {
+			clear: both;
+		}
+	}
+
+}//discuss-item

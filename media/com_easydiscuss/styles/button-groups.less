@@ -1,0 +1,67 @@
+//
+// Button groups
+// --------------------------------------------------
+// btn-group-yesno
+@esYesnoBackground: #e5e5e5;
+@esYesnoColor: #626262;
+@esYesnoBtnBackground: #c5c5c5;
+@esYesnoBtnActiveBackground: #fff; 
+@esYesnoBtnBackgroundHighlight: #f2f2f2;
+@esYesnoBtnColor: #333;
+@esYesnoBtnBorder: #c5c5c5;
+@esYesnoBtnBorderBottom: #a7a7a7;
+@esYesnoActiveColor: #626262;
+@esYesnoTextShadow: 0 1px 1px rgba(255,255,255,.1);
+
+.btn-group-yesno {
+	.btn-group();
+	padding: 3px;
+	background: @esYesnoBackground;
+	display: inline-block;
+	&.disabled {
+		
+	}
+	.border-radius(3px);
+	.box-shadow(~"inset 0 1px 2px rgba(0,0,0,.2), 0 1px 2px rgba(0,0,0,.05)");
+	.btn {
+		padding: 1px 16px !important;
+		margin: 0 !important;
+		outline: 0 !important;
+		background: none;
+		.box-shadow(none);
+		border: 1px solid transparent !important;
+		text-shadow: none !important;
+		font-weight: bold !important;
+		font-size: 11px !important;
+		color: @esYesnoColor !important;
+		height: 20px !important;
+		line-height: 18px !important;
+		&.active {
+			background: none;
+
+			display: inline-block !important;
+			.ie7-inline-block();
+			margin-bottom: 0 !important; // For input.btn
+			line-height: 18px !important;
+			text-align: center !important;
+			vertical-align: middle !important;
+			cursor: pointer;
+			
+			.buttonBackground(@esYesnoBtnActiveBackground, @esYesnoBtnBackgroundHighlight, @esYesnoActiveColor, @esYesnoTextShadow);
+
+			border: 1px solid esYesnoBtnColor;
+			*border: 0; // Remove the border to prevent IE7's black border on input:focus
+			border-bottom-color: @esYesnoBtnBorderBottom;
+			.border-radius(@baseBorderRadius);
+			.ie7-restore-left-whitespace(); // Give IE7 some love
+			.box-shadow(~"inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05)");
+			&.btn-yes {
+				color: #7cc110 !important;
+			}
+			&.btn-no {
+				color: #bb4a3b !important;
+			}
+		}
+	}
+}
+

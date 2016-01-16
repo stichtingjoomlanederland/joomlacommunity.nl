@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<field name="id" type="hidden" />
+	<field name="name" type="hidden" />
+	<field name="start" type="hidden" />
+	<field name="end" type="hidden" />
+	<field name="description" type="editor" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="location" type="hidden" />
+	<field name="owner" type="hidden" />
+	<field name="URL" type="hidden" />
+	<field name="email" type="hidden" />
+	<field name="phone" type="hidden" />
+	<field name="metaname" type="hidden" />
+	<field name="metakeywords" type="hidden" />
+	<field name="metadescription" type="hidden" />
+	<field name="recurring" type="hidden" />
+	<field name="registration" type="hidden" />
+	<field name="comments" type="hidden" />
+	<field name="repeat_interval" type="hidden" />
+	<field name="repeat_type" type="hidden" />
+	<field name="repeat_end" type="hidden" />
+	<field name="repeat_also" type="hidden" />
+	<field name="start_registration" type="hidden" />
+	<field name="end_registration" type="hidden" />
+	<field name="unsubscribe_date" type="hidden" />
+	<field name="payments" type="hidden" />
+	<field name="max_tickets" type="hidden" />
+	<field name="max_tickets_amount" type="hidden" />
+	<field name="notify_me" type="hidden" />
+	<field name="notify_me_unsubscribe" type="hidden" />
+	<field name="overbooking" type="hidden" />
+	<field name="overbooking_amount" type="hidden" />
+	<field name="show_registered" type="hidden" />
+	<field name="automatically_approve" type="hidden" />
+	<field name="paypal_email" type="hidden" />
+	<field name="discounts" type="hidden" />
+	<field name="form" type="hidden" />
+	<field name="early_fee" type="hidden" />
+	<field name="early_fee_type" type="hidden" />
+	<field name="early_fee_end" type="hidden" />
+	<field name="late_fee" type="hidden" />
+	<field name="late_fee_type" type="hidden" />
+	<field name="late_fee_start" type="hidden" />
+	<field name="options" type="hidden" />
+	<field name="published" type="hidden" />
+	<field name="ticket_pdf" type="hidden" />
+	<field name="ticket_pdf_layout" type="editor" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="gallery_tags" type="hidden" />
+	<field name="sync" type="hidden" />
+	<field name="allday" type="hidden" />
+	<field name="ticketsconfig" type="hidden" />
+	<field name="featured" type="hidden" />
+	
+	<field name="created" type="hidden" filter="unset" />
+	<field name="icon" type="hidden" filter="unset" />
+	<field name="archived" type="hidden" filter="unset" />
+	<field name="completed" type="hidden" filter="unset" />
+	<field name="approved" type="hidden" filter="unset" />
+	<field name="properties" type="hidden" filter="unset" />
+	<field name="sid" type="hidden" filter="unset" />
+</form>

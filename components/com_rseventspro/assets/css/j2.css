@@ -1,0 +1,219 @@
+.admintable input , .adminform input {
+	float: none !important;
+}
+
+.admintable label , .adminform label {
+	float: none !important;
+	display: inline;
+}
+
+.rs_select_top {
+	margin: 4px;
+}
+
+#rs_event_main , #rs_event_main fieldset p, #rs_event_main form label {
+	font-size: 12px !important;
+}
+
+#rs_event_main fieldset label {
+	float: none !important;
+}
+
+.rs_repeatblock{
+	float:right;
+	width : 165px;
+}
+
+#rs_to_left {
+	margin-left: 15px !important;
+}
+
+#rs_list_files li {
+	padding: 0 20px !important;
+}
+
+.rs_events_container a:hover, .rs_events_container a:active, .rs_events_container a:focus {
+	background : none repeat scroll 0 0 transparent !important;
+	color: #095197 !important;
+}
+
+.rsepro_loadmore:hover, .rsepro_loadmore:active, .rsepro_loadmore:focus {
+	background : none repeat scroll 0 0 transparent !important;
+	color: #095197 !important;
+}
+
+.rs_events_container li {
+	line-height: 1.2em !important;
+}
+
+.rs_input:focus {
+	border: 1px solid #E8E7E7 !important;
+}
+
+.rs_input {
+	height: 22px !important;
+}
+
+#rs_event_show a:hover, #rs_event_show a:active, #rs_event_show a:focus {
+	background : none repeat scroll 0 0 transparent !important;
+	color: #095197 !important;
+}
+
+#rs_event_main a:hover, #rs_event_main a:active, #rs_event_main a:focus {
+	background : none repeat scroll 0 0 transparent !important;
+	color: #095197 !important;
+}
+
+div#mbox label {
+	margin: 0 auto !important;
+}
+
+div#mbox {
+	text-align: left !important;
+}
+
+#rs_admin_options {
+	margin: 0 auto !important;
+	padding: 0 !important;
+}
+
+#rs_admin li {
+	padding: 2px !important;
+}
+
+.rs_admin_subs li a:hover, .rs_admin_subs li a:active, .rs_admin_subs li a:focus {
+	background : none repeat scroll 0 0 transparent !important;
+	color: #fff !important;
+}
+
+.rs_calendar_icon {
+	right: 3px !important;
+}
+
+#rs_controls .rs_button_control:hover, #rs_admin li a:hover {
+	background: none repeat scroll 0 0 #5F78AB !important;
+    text-decoration: none;
+	color: #FFFFFF !important;
+}
+
+#rs_admin_option, #rs_admin_option:hover, #rs_admin_option:focus , #rs_admin_option:active {
+	color: #FFFFFF !important;
+    text-decoration: none !important;
+}
+
+.rs_results {
+	right: 120px;
+    top: 28px;
+}
+
+#rs_calendar .rs_results {
+	right: 124px;
+    top: 24px;
+}
+
+#rs_calendar #rseprosearch {
+	margin: 4px 0;
+}
+
+#rs_calendar .rs_search_button {
+	margin: 4px 0;
+	padding: 0;
+}
+
+.rs_table tr, .rs_table td {
+	padding: 5px 0;
+}
+
+.rs_fieldset {
+	border: 1px solid #CCCCCC;
+    padding: 5px;
+    text-align: left;
+	margin: 10px;
+    overflow: hidden;
+}
+
+.key {
+	padding-right: 10px;
+    width: 200px;
+}
+
+.list-footer {
+    clear: both;
+    width: 100%;
+}
+
+.limit {
+    clear: both;
+    padding: 10px 0;
+    width: 100%;
+	text-align: center !important
+}
+
+.list-footer ul {
+    padding-left: 43% !important;
+}
+
+.list-footer li {
+    float: left;
+    line-height: 1 !important;
+    list-style-type: none !important;
+}
+
+.counter {
+    float: left;
+    line-height: 3;
+    text-align: center !important;
+    width: 100%;
+	padding-top: 5px;
+}
+
+.rs_gallery_tags {
+	margin-top: 5px;
+}
+
+.rschosen {
+	width: 200px;
+}
+
+#categories_chzn {
+	float: left;
+}
+
+.rs_add_category {
+	margin-left: 5px !important;
+}
+
+.icon-cart {
+	background: url("../images/cart.png") no-repeat scroll 0 0 transparent;
+	display: inline-block;
+    height: 16px;
+    width: 16px;
+    vertical-align: middle;
+}
+
+.adminformlist {
+	list-style: none outside none !important;
+}
+
+.adminformlist li label {
+	margin-right: 10px;
+}
+
+.subscriber_container.well {
+	min-height: 20px;
+	padding: 19px;
+	margin-bottom: 20px;
+	background-color: #f5f5f5;
+	border: 1px solid #e3e3e3;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
+	-moz-box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
+	box-shadow: inset 0 1px 1px rgba(0,0,0,0.05);
+}
+
+#paymentinfo {
+	float: left;
+	width: 85%;
+}

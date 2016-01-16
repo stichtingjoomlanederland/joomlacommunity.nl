@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<field name="id" type="hidden" label="JGLOBAL_FIELD_ID_LABEL" description ="JGLOBAL_FIELD_ID_DESC" size="10" default="0" readonly="true" />
+	<field name="name" type="text" class="input-xxlarge" label="COM_RSEVENTSPRO_LOCATION_NAME" description="COM_RSEVENTSPRO_LOCATION_NAME_DESC" required="true" size="70" />
+	<field name="url" type="text" class="input-xxlarge" label="COM_RSEVENTSPRO_LOCATION_URL" description="COM_RSEVENTSPRO_LOCATION_URL_DESC" size="70" />
+	<field name="address" type="text" class="input-xxlarge" label="COM_RSEVENTSPRO_LOCATION_ADDRESS" description="COM_RSEVENTSPRO_LOCATION_ADDRESS_DESC" size="70" />
+	<field name="description" type="editor" class="inputbox" label="COM_RSEVENTSPRO_LOCATION_DESCRIPTION" description="COM_RSEVENTSPRO_LOCATION_DESCRIPTION_DESC" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="coordinates" type="text" class="input-xxlarge" label="COM_RSEVENTSPRO_LOCATION_COORDINATES" description="COM_RSEVENTSPRO_LOCATION_COORDINATES_DESC" size="50" />
+	<field name="gallery_tags" type="rsgallery" class="input-xxlarge rswidth-20 rschosen" label="COM_RSEVENTSPRO_LOCATION_GALLERY_TAGS" description="COM_RSEVENTSPRO_LOCATION_GALLERY_TAGS_DESC" multiple="multiple" />
+	<field name="published" type="list" label="JSTATUS" description="JFIELD_PUBLISHED_DESC" class="inputbox" filter="intval" size="1" default="1">
+		<option value="1">JPUBLISHED</option>
+		<option value="0">JUNPUBLISHED</option>
+	</field>
+	<field name="ordering" type="hidden" filter="unset" />
+	
+	<fields name="config">
+		<field name="enable_google_maps" type="radio" class="btn-group" label="COM_RSEVENTSPRO_LOCATION_ENABLE_MAP" description="COM_RSEVENTSPRO_LOCATION_ENABLE_MAP_DESC" filter="intval" default="0">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+	</fields>
+	
+</form>

@@ -1,0 +1,9 @@
+[
+    {
+        "language": [
+            "COM_EASYDISCUSS_SUCCESS",
+            "COM_EASYDISCUSS_FAIL"
+        ],
+        "adapter": "EasyDiscuss"
+    }
+]

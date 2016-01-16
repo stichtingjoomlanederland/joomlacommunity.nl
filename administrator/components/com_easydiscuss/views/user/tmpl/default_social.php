@@ -1,0 +1,63 @@
+<?php
+/**
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Restricted access');
+?>
+<div class="row-fluid">
+	<div class="span12">
+		<h3><?php echo JText::_( 'COM_EASYDISCUSS_USER_SOCIAL_PROFILES' ); ?></h3>
+		<hr />
+		<table class="table table-striped">
+			<tr>
+				<td>
+					<?php echo JText::_( 'COM_EASYDISCUSS_FACEBOOK' ); ?>:
+				</td>
+				<td>
+					<input type="text" value="<?php echo $this->escape( $this->userparams->get( 'facebook' ) ); ?>" name="facebook" class="input" style="width:200px" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<?php echo JText::_( 'COM_EASYDISCUSS_TWITTER' ); ?>:
+				</td>
+				<td>
+					<input type="text" value="<?php echo $this->escape( $this->userparams->get( 'twitter' ) ); ?>" name="twitter" class="input" style="width:200px" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<?php echo JText::_( 'COM_EASYDISCUSS_LINKEDIN' ); ?>:
+				</td>
+				<td>
+					<input type="text" value="<?php echo $this->escape( $this->userparams->get( 'linkedin' ) ); ?>" name="linkedin" class="input" style="width:200px" />
+				</td>
+			<tr>
+				<td>
+					<?php echo JText::_( 'COM_EASYDISCUSS_SKYPE' ); ?>:
+				</td>
+				<td>
+					<input type="text" value="<?php echo $this->escape( $this->userparams->get( 'skype' ) ); ?>" name="skype" class="input" style="width:200px" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<?php echo JText::_( 'COM_EASYDISCUSS_WEBSITE' ); ?>:
+				</td>
+				<td>
+					<input type="text" value="<?php echo $this->escape( $this->userparams->get( 'website' ) ); ?>" name="website" class="input" style="width:200px" />
+				</td>
+			</tr>
+			</tr>
+		</table>
+
+	</div>
+
+</div>

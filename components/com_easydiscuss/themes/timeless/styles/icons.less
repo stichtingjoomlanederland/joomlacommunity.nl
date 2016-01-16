@@ -1,0 +1,179 @@
+/*------------------------------------*\
+    $icon.less
+\*------------------------------------*/
+
+// Remove bootstrap icons
+// ----------------
+[class^="icon-"],
+[class*=" icon-"] {
+	background-image: none;
+	vertical-align: baseline;
+	height: auto;
+}
+
+// icon mixins
+// ----------------
+// =Icon -add in custom icon (@element)
+@sprite-px: 16px; //icon grid
+.spriteGrid(@x, @y) {
+	background-position: -((@x*@sprite-px)-@sprite-px) -((@y*@sprite-px)-@sprite-px);
+}
+.spriteSize(@size) {
+	width: @size;
+	height: @size;
+	line-height:@size;
+}
+[class^="icon-ed-"],
+[class*=" icon-ed-"] {
+	width:@sprite-px;
+	height:@sprite-px;
+	line-height:@sprite-px;
+	// background-image:url('@{site_base_uri}/../images/icon-sprite.png');
+	background-image: url("@{discussIconSpritePath}");
+	background-repeat: no-repeat;
+	display: inline-block;
+	vertical-align: text-top;
+}
+[class^="icon-ed-tb-"],
+[class*=" icon-ed-tb-"] {
+	background-image: url("@{discussToolbarSpritePath}");
+}
+[class^="icon-ed-"]:last-child,
+[class*=" icon-ed-"]:last-child {
+	*margin-left:0;
+}
+
+.icon-gray {
+	color: #333;
+}
+.icon-lightgray {
+	color:#999;
+}
+.icon-ed-empty {
+	background-position: 100px 100px;
+}
+.icon-ed-featured {
+	.spriteGrid(28, 1);
+	// width: 42px;
+	// height: 23px;
+}
+
+.icon-ed-resolved {
+	.spriteGrid(28, 3);
+	// width: 42px;
+	// height: 23px;
+}
+.icon-ed-unanswered {
+	.spriteGrid(5, 1);
+}
+.icon-ed-inprogress {
+	.spriteGrid(6, 1);
+}
+.icon-ed-time {
+	.spriteGrid(10, 1);
+	.spriteSize(12px);
+}
+.icon-ed-love {
+	.spriteGrid(11, 1);
+}
+.icon-ed-remove {
+	.spriteGrid(11, 2);
+}
+.icon-ed-locked {
+	.spriteGrid(13, 1);
+	.spriteSize(12px);
+}
+.icon-ed-rss-plus,
+.icon-ed-rss {
+	.spriteGrid(14, 1);
+}
+.icon-ed-rss-minus,
+.icon-ed-rss.cancel {
+	.spriteGrid(15, 1);
+}
+.icon-ed-email-plus,
+.icon-ed-email {
+	.spriteGrid(16, 1);
+}
+.icon-ed-email-minus,
+.icon-ed-email.cancel {
+	.spriteGrid(17, 1);
+}
+.icon-ed-replies {
+	.spriteGrid(18, 1);
+}
+.icon-ed-likes {
+	.spriteGrid(19, 1);
+}
+.icon-ed-hits {
+	.spriteGrid(20, 1);
+}
+.icon-ed-votes {
+	.spriteGrid(21, 1);
+}
+.icon-ed-polls {
+	.spriteGrid(22, 1);
+}
+.icon-ed-favors {
+	.spriteGrid(23, 1);
+}
+.icon-ed-category {
+	.spriteGrid(24, 1);
+}
+
+.icon-ed-earned {
+	.spriteGrid(1, 5);
+	.spriteSize(32px);
+
+}
+
+.icon-ed-pm{
+	.spriteGrid( 1, 1 );
+}
+
+//social icons
+.icon-ed-fb {
+	background:url('@{site_base_uri}/../images/social/facebook.png') 0 0 !important;
+}
+.icon-ed-twitter {
+	background:url('@{site_base_uri}/../images/social/twitter.png') 0 0 !important;
+}
+.icon-ed-linkedin {
+	background:url('@{site_base_uri}/../images/social/linkedin.png') 0 0 !important;
+}
+.icon-ed-skype {
+	background:url('@{site_base_uri}/../images/social/skype.png') 0 0 !important;
+}
+.icon-ed-website {
+	background:url('@{site_base_uri}/../images/social/website.png') 0 0 !important;
+}
+
+
+//toolbar
+.icon-ed-tb-home {
+	.spriteGrid(1, 1);
+}
+.icon-ed-tb-categories {
+	.spriteGrid(3, 1);
+}
+.icon-ed-tb-tags {
+	.spriteGrid(5, 1);
+}
+.icon-ed-tb-members {
+	.spriteGrid(7, 1);
+}
+.icon-ed-tb-badges {
+	.spriteGrid(9, 1);
+}
+.icon-ed-tb-msg {
+	.spriteGrid(11, 1);
+}
+.icon-ed-tb-notice {
+	.spriteGrid(13, 1);
+}
+.icon-ed-tb-user {
+	.spriteGrid(15, 1);
+}
+.icon-ed-tb-locked {
+	.spriteGrid(17, 1);
+}

@@ -1,0 +1,225 @@
+.clear{clear:both;font-size:0 !important;height:0 !important;line-height:0 !important}
+.clearfix{display:block;zoom:1;overflow:visible;clear:none;}
+.clearfix:after{content:".";display:block;height:0;clear:both;visibility:hidden}
+.float-l,
+.alignleft,
+.float-li li{float:left}
+.float-r,
+.alignright{float:right!important}
+.in-block,
+.float-r,
+.float-l,
+.float-li li{display:inline-block}
+/*IE7*/*:first-child+html #komento-wrapper .tablecell{display:table-cell;vertical-align:top;zoom:1;width:auto}
+
+
+// SPACING --------------------------------------------------//
+
+.mt-5  { margin-top: 5px; }
+.mt-10 { margin-top: 10px; }
+.mt-15 { margin-top: 15px; }
+.mt-20 { margin-top: 20px; }
+.pt-5  { padding-top: 5px; }
+.pt-10 { padding-top: 10px; }
+.pt-15 { padding-top: 15px; }
+.pt-20 { padding-top: 20px; }
+
+.mr-5  { margin-right: 5px; }
+.mr-10 { margin-right: 10px; }
+.mr-15 { margin-right: 15px; }
+.mr-20 { margin-right: 20px; }
+.pr-5  { padding-right: 5px; }
+.pr-10 { padding-right: 10px; }
+.pr-15 { padding-right: 15px; }
+.pr-20 { padding-right: 20px; }
+
+.mb-5  { margin-bottom: 5px; }
+.mb-10 { margin-bottom: 10px; }
+.mb-15 { margin-bottom: 15px; }
+.mb-20 { margin-bottom: 20px; }
+.pb-5  { padding-bottom: 5px; }
+.pb-10 { padding-bottom: 10px; }
+.pb-15 { padding-bottom: 15px; }
+.pb-20 { padding-bottom: 20px; }
+
+.ml-5  { margin-left: 5px; }
+.ml-10 { margin-left: 10px; }
+.ml-15 { margin-left: 15px; }
+.ml-20 { margin-left: 20px; }
+.pl-5  { padding-left: 5px; }
+.pl-10 { padding-left: 10px; }
+.pl-15 { padding-left: 15px; }
+.pl-20 { padding-left: 20px; }
+
+// div.ui-stars-star {
+//     display: inline-block;
+//     vertical-align: middle;
+
+//     > a {
+//         color: @grey-400;
+//         display: inline-block;
+//         float: left;
+//         font: 14px/1 FontAwesome !important;
+//         text-rendering: auto;
+//         -webkit-font-smoothing: antialiased;
+//         -moz-osx-font-smoothing: grayscale;
+//         transform: translate(0, 0);
+//         width: 13px/2;
+//         overflow: hidden;
+//         vertical-align: middle;
+//         text-decoration: none !important;
+        
+//         &:before {
+//             content: "\f005";
+//             display: block;
+//         }
+//     }
+
+//     &:nth-child(2n) a {
+//         margin-right: 2px;
+
+//         &:before {
+//             margin-left: -6.5px;
+//         }
+//     }
+// }
+
+// div.ui-stars-star-hover,
+// div.ui-stars-star-on {
+//     > a {
+//         color: @yellow-800;
+//     }
+// }
+
+
+// SEPARATE DIVs WITH DOT --------------------------------------------------//
+
+.div-dotted {
+    > div {
+        display: table-cell;
+        position: relative;
+        padding-right: 6px;
+
+        + div {
+            padding-left: 8px;
+
+            &:before {
+                background: #ccc;
+                background: rgba(0, 0, 0, 0.25);
+                border-radius: 2px;
+                content: '';
+                display: block;
+                width: 2px;
+                height: 2px;
+                margin-top: -1px;
+
+                position: absolute;
+                left: 0;
+                top: 50%;
+            }
+        }
+
+        &:last-child {
+            padding-right: 0;
+        }
+    }
+}
+
+
+// RESET LIST --------------------------------------------------//
+
+.reset-list,
+.reset-list > li {
+    background: none;
+    border: none;
+    clear: none;
+    float: none;
+    list-style: none;
+    list-style-image: none;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+    width: auto;
+}
+
+
+// RESET HEADING --------------------------------------------------//
+
+.reset-h { 
+    background: none;
+    border: medium none;
+    clear: none;
+    display: block;
+    float: none;
+    margin: 0;
+    padding: 0;
+    position: static;
+    width: auto;
+}
+
+// RESET TYPOGRAPHY --------------------------------------------------//
+
+.text-tight {
+    line-height: 1;
+    display: block;
+}
+
+.text-small {
+    font-size: 11px; 
+}
+
+.text-inherit {
+    color: inherit;
+}
+
+.text-bold {
+    font-weight: bold;
+}
+
+.text-ellipse {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.text-muted {
+    color: #999;
+}
+
+
+// DISPLAY: TABLE & CELLS --------------------------------------------------//
+
+.row-table {
+    display: table;
+    width: 100%;
+}
+
+.cell-top > .col-cell {
+    vertical-align: top;
+}
+
+.cell-bottom > .col-cell {
+    vertical-align: bottom;
+}
+
+.col-cell {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.cell-tight {
+    width: 1%;
+    white-space: nowrap;
+}
+
+.cell-half {
+    width: 50%;
+}
+
+.cell-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 0;
+}

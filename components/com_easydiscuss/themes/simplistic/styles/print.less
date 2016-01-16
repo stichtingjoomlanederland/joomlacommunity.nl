@@ -1,0 +1,53 @@
+/*------------------------------------*\
+    $print.less
+\*------------------------------------*/
+@media print {
+
+body * {
+	visibility:hidden;
+}
+
+(~"@{EasyDiscuss}") {
+	visibility: visible;
+	* {
+		visibility: visible;
+	}
+	position:absolute;
+	left:0;
+	top:0;
+
+	// Elements not to print out
+	// ----------------
+	.discuss-searchbar,
+	.discuss-toolbar,
+	.alert-info,
+	.discuss-status,
+	.discuss-user-reply,
+	.discuss-subscribe,
+	.social-button,
+	.discuss-likes,
+	.discuss-favors,
+	.via-email,
+	.discuss-user-graph,
+	.discuss-signature,
+	.discuss-vote,
+	.btn {
+		display: none !important;
+	}
+
+
+	&.discuss-view-post {
+		.discuss-item {
+			// page-break-before: always !important;
+		}
+		.discuss-item-left {
+			// left: 10px;
+			+ .discuss-item-right {
+			}
+		}
+	}
+}
+
+
+}
+

@@ -1,0 +1,52 @@
+[
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_BADGES_ADD_COMMENTS_TITLE",
+		"alias"			: "komento-add-comments",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_BADGES_ADD_COMMENTS_DESC",
+		"howto"			: "COM_KOMENTO_EASYSOCIAL_BADGES_ADD_COMMENTS_HOWTO",
+		"command"		: "komento.add.comment",
+		"extension"		: "com_komento",
+		"avatar"		: "media/com_komento/badges/attentiongrabber.png",
+		"frequency"		: 50
+	},
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_BADGES_LIKE_COMMENTS_TITLE",
+		"alias"			: "komento-like-comments",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_BADGES_LIKE_COMMENTS_DESC",
+		"howto"			: "COM_KOMENTO_EASYSOCIAL_BADGES_LIKE_COMMENTS_HOWTO",
+		"command"		: "komento.like.comment",
+		"extension"		: "com_komento",
+		"avatar"		: "media/com_komento/badges/loveydovey.png",
+		"frequency"		: 50
+	},
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_BADGES_REPORT_COMMENTS_TITLE",
+		"alias"			: "komento-report-comments",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_BADGES_REPORT_COMMENTS_DESC",
+		"howto"			: "COM_KOMENTO_EASYSOCIAL_BADGES_REPORT_COMMENTS_HOWTO",
+		"command"		: "komento.report.comment",
+		"extension"		: "com_komento",
+		"avatar"		: "media/com_komento/badges/police.png",
+		"frequency"		: 15
+	},
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_BADGES_REPLY_COMMENTS_TITLE",
+		"alias"			: "komento-reply-comments",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_BADGES_REPLY_COMMENTS_TITLE",
+		"howto"			: "COM_KOMENTO_EASYSOCIAL_BADGES_REPLY_COMMENTS_HOWTO",
+		"command"		: "komento.reply.comment",
+		"extension"		: "com_komento",
+		"avatar"		: "media/com_komento/badges/discussionbooster.png",
+		"frequency"		: 30
+	},
+	{
+		"title" 		: "COM_KOMENTO_EASYSOCIAL_BADGES_UPLOAD_ATTACHMENTS_TITLE",
+		"alias"			: "komento-upload-attachments",
+		"description"	: "COM_KOMENTO_EASYSOCIAL_BADGES_UPLOAD_ATTACHMENTS_DESC",
+		"howto"			: "COM_KOMENTO_EASYSOCIAL_BADGES_UPLOAD_ATTACHMENTS_HOWTO",
+		"command"		: "komento.upload.attachments",
+		"extension"		: "com_komento",
+		"avatar"		: "media/com_komento/badges/distributor.png",
+		"frequency"		: 10
+	}
+]

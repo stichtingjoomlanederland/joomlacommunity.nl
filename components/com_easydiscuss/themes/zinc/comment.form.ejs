@@ -1,0 +1,42 @@
+<?php
+/**
+ * @package		EasyDiscuss
+ * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+ * @license		GNU/GPL, see LICENSE.php
+ *
+ * EasyDiscuss is free software. This version may have been modified pursuant
+ * to the GNU General Public License, and as distributed it includes or
+ * is derivative of works licensed under the GNU General Public License or
+ * other free or open source software licenses.
+ * See COPYRIGHT.php for copyright notices and details.
+ */
+defined('_JEXEC') or die('Restricted access');
+?>
+<form name="discussCommentForm">
+	<div class="discuss-respond-form">
+		<article>
+			<textarea id="comment" name="comment" class="form-control commentMessage"></textarea>
+		</article>
+
+		<footer>
+			<?php if( $system->config->get( 'main_comment_tnc' ) ){ ?>
+			<div class="comment-terms float-l checkbox">
+				<label>
+					<input type="checkbox" name="tnc" value="1" class="commentTnc" />
+					<?php echo JText::_( 'COM_EASYDISCUSS_I_HAVE_READ_AND_AGREED' );?> 
+					<a href="javascript:void(0);" class="termsLink">
+						<?php echo JText::_( 'COM_EASYDISCUSS_TERMS_AND_CONDITIONS' );?>
+					</a>
+				</label>
+			</div>
+			<?php } ?>
+
+			<div class="comment-actions float-r">
+				<a href="javascript:void(0);" class="butt butt-s cancelButton"><?php echo JText::_( 'COM_EASYDISCUSS_BUTTON_CANCEL' ); ?></a>
+				<a href="javascript:void(0);" class="butt butt-s butt-primary saveButton"><?php echo JText::_( 'COM_EASYDISCUSS_BUTTON_SUBMIT' ); ?></a>
+				<span class="pull-right commentLoader discuss-loader" style="display: none;"></span>
+			</div>
+		</footer>
+	</div>
+	<input type="hidden" name="post_id" class="postId" value="[%= id %]">
+</form>

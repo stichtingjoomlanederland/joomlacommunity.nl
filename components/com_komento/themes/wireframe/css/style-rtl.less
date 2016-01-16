@@ -1,0 +1,107 @@
+/*= KOMENTO COMPILE KIT (RTL)  ------------------------------------------------- */
+
+
+// CORE
+body div#section-kmt.kmt .pr-5 {
+    padding-right: 0;
+    padding-left: 5px;
+}
+
+body div#section-kmt.kmt .div-dotted {
+    > div {
+        padding-right: 0;
+        padding-left: 6px;
+    }
+
+    > div + div {
+        padding-right: 8px;
+
+        &:before {
+            left: auto;
+            right: 0;
+        }
+    }
+
+    > div:last-child {
+        padding-right: 8px;
+    }
+}
+
+body div#section-kmt.kmt .checkbox {
+    padding-left: 0;
+    padding-right: 20px;
+
+    > label {
+        &:before,
+        &:after {
+            left: auto;
+            right: 0;
+            margin-left: 0;
+            margin-right: -20px;
+        }
+    }
+}
+
+// COMMENT FORM
+
+body div#section-kmt.kmt .kmt-form-avatar {
+    padding-right: 0;
+    padding-left: 10px;
+}
+body div#section-kmt.kmt .markItUp .markItUpContainer .markItUpHeader > ul > li {
+    float: right;   
+}
+
+body div#section-kmt.kmt .kmt-form-respond {
+    display: table;
+}
+
+
+// STAR RATINGS
+body div#section-kmt.kmt .kmt-form-ratings {
+    .col-cell:first-child {
+        padding: 0;
+    }
+}
+body div#section-kmt.kmt .kmt-ratings-stars .ui-stars-star:nth-child(2n) {
+    a {
+        margin-left: 0 !important;
+        margin-right: -8px;
+    }
+}
+
+body div#section-kmt.kmt .kmt-ratings-stars .ui-stars-cancel {
+    border-right: 0;
+    border-left: 1px solid #ccc;
+    padding: 0 10px !important;
+    margin: 0 0 0 10px !important;
+}
+
+body div#section-kmt.kmt .kmt-ratings-stars .ui-stars-cancel,
+body div#section-kmt.kmt .kmt-ratings-stars .ui-stars-star {
+    margin-top: -1px !important;
+}
+
+body div#section-kmt.kmt .kmt-people-list li {
+    float: right;
+    margin: 5px 0 5px 10px
+}
+
+body div#section-kmt.kmt .kmt-wrap .kmt-thumb {
+    padding: 0 0 0 10px;
+}
+
+
+// SORTING
+
+body div#section-kmt.kmt .kmt-sort > div + div:before {
+    margin-left: 0;
+    margin-right: 3px;
+}
+
+
+// COMMENTS
+
+body div#section-kmt.kmt .kmt-share-social a {
+    float: right;
+}

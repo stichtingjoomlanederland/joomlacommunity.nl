@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="2.5" method="upgrade">
+	<name>com_rseventspro</name>
+	<creationDate>January 2013</creationDate>
+	<author>www.rsjoomla.com</author>
+	<copyright>(C) 2012 www.rsjoomla.com</copyright>
+	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
+	<authorEmail>support@rsjoomla.com</authorEmail>
+	<authorUrl>www.rsjoomla.com</authorUrl>
+	<version>1.0.0</version>
+	<description>RSEvents!Pro is the ideal extension that you can use to organize events, invite people or sell tickets directly on your website.</description>
+	<scriptfile>script.rseventspro.php</scriptfile>
+
+	<install>
+		<sql>
+			<file driver="mysql" charset="utf8">install.mysql.utf8.sql</file>
+			<file driver="mysql">install.mysql.nonutf8.sql</file>
+		</sql>
+	</install>
+
+	<uninstall>
+		<sql>
+			<file driver="mysql" charset="utf8">uninstall.mysql.sql</file>
+			<file driver="mysql">uninstall.mysql.sql</file>
+		</sql>
+	</uninstall>
+	
+	<files folder="site">
+		<folder>assets</folder>
+		<folder>controllers</folder>
+		<folder>helpers</folder>
+		<folder>models</folder>
+		<folder>views</folder>
+		<filename>controller.php</filename>
+		<filename>index.html</filename>
+		<filename>router.php</filename>
+		<filename>rseventspro.php</filename>
+	</files>
+	
+	<languages>
+		<language tag="en-GB">languages/site/en-GB.com_rseventspro.ini</language>
+		<language tag="en-GB">languages/site/en-GB.com_rseventspro.dates.ini</language>
+	</languages>
+
+	<administration>
+		<menu img="../administrator/components/com_rseventspro/assets/images/rsepro_icon.gif">com_rseventspro</menu>
+		<submenu>
+			  <menu link="option=com_rseventspro">COM_RSEVENTSPRO_MAIN_MENU_OVERVIEW</menu>
+			  <menu link="option=com_rseventspro&amp;view=events">COM_RSEVENTSPRO_MAIN_MENU_EVENTS</menu>
+			  <menu link="option=com_rseventspro&amp;view=locations">COM_RSEVENTSPRO_MAIN_MENU_LOCATIONS</menu>
+			  <menu link="option=com_categories&amp;extension=com_rseventspro">COM_RSEVENTSPRO_MAIN_MENU_CATEGORIES</menu>
+			  <menu link="option=com_rseventspro&amp;view=tags">COM_RSEVENTSPRO_MAIN_MENU_TAGS</menu>
+			  <menu link="option=com_rseventspro&amp;view=subscriptions">COM_RSEVENTSPRO_MAIN_MENU_SUBSCRIPTIONS</menu>
+			  <menu link="option=com_rseventspro&amp;view=payments">COM_RSEVENTSPRO_MAIN_MENU_PAYMENTS</menu>
+			  <menu link="option=com_rseventspro&amp;view=groups">COM_RSEVENTSPRO_MAIN_MENU_GROUPS</menu>
+			  <menu link="option=com_rseventspro&amp;view=imports">COM_RSEVENTSPRO_MAIN_MENU_IMPORT</menu>
+			  <menu link="option=com_rseventspro&amp;view=settings">COM_RSEVENTSPRO_MAIN_MENU_SETTINGS</menu>
+			  <menu link="option=com_rseventspro&amp;layout=update">COM_RSEVENTSPRO_MAIN_MENU_UPDATES</menu>
+		</submenu>
+		
+		<files folder="admin">
+			<filename>install.mysql.utf8.sql</filename>
+			<filename>install.mysql.nonutf8.sql</filename>
+			<filename>uninstall.mysql.sql</filename>
+			
+			<folder>assets</folder>
+			<folder>controllers</folder>
+			<folder>helpers</folder>
+			<folder>models</folder>
+			<folder>tables</folder>
+			<folder>views</folder>
+			<filename>access.xml</filename>
+			<filename>config.xml</filename>
+			<filename>controller.php</filename>
+			<filename>index.html</filename>
+			<filename>rseventspro.php</filename>
+		</files>
+		
+		<languages>
+			<language tag="en-GB">languages/admin/en-GB.com_rseventspro.ini</language>
+			<language tag="en-GB">languages/admin/en-GB.com_rseventspro.sys.ini</language>
+		</languages>
+		
+	</administration>
+</extension>

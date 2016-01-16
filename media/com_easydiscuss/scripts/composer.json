@@ -1,0 +1,12 @@
+[
+    {
+        "library": [
+            "markitup",
+            "expanding"
+        ],
+        "script": [
+            "bbcode"
+        ],
+        "adapter": "EasyDiscuss"
+    }
+]

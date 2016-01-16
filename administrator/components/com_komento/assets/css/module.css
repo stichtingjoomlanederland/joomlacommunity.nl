@@ -1,0 +1,169 @@
+
+
+/* TYPOGRAPHY & FORM ELEMENTS : IKRAM WAS HERE;
+================================================== */
+
+#element-box *{
+	font-size:12px;
+	font-family:'Lucida Grande',Arial,sans-serif;
+}
+#element-box input,
+#element-box select{
+	padding:3px;
+	font-family:inherit!important;
+	font-size:inherit!important;
+}
+#element-box input{
+	height:18px;
+}
+#element-box table#blog-authors{
+	border:0;
+	padding:0;
+	margin:0;
+	border-collapse:collapse;
+}
+
+
+
+/* PANE SLIDER
+================================================== */
+
+#element-box .pane-sliders{
+	margin:13px 0 0;
+}
+#element-box .pane-sliders .panel{
+	border:1px solid #ccc;
+	border-bottom-color:#bbb;
+	margin-bottom:7px;
+	border-radius:2px;
+	-moz-border-radius:2px;
+	-webkit-border-radius:2px;
+}
+#element-box .pane-sliders .panel:hover{
+	border:1px solid #b5b5b5;
+}
+#element-box .pane-sliders .panel h3{
+	padding:10px;
+	background: -moz-linear-gradient(top,  #fff 0%, #f0f0f0 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fff), color-stop(100%,#f0f0f0)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #fff 0%,#f0f0f0 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #fff 0%,#f0f0f0 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #fff 0%,#f0f0f0 100%); /* IE10+ */
+	background: linear-gradient(top,  #fff 0%,#f0f0f0 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fff', endColorstr='#f0f0f0',GradientType=0 ); /* IE6-9 */
+}
+#element-box .pane-sliders .panel h3.title span{
+	padding-left:25px;
+	font-size:12px;
+	line-height:16px;
+	height:16px;
+	background:url(../images/toggle.png) 0 0 no-repeat;
+}
+#element-box .pane-sliders .panel h3.pane-toggler-down span{
+	background-position:0 bottom;
+}
+#element-box .pane-sliders .panel fieldset{
+	padding:10px 15px;
+	margin:0;
+}
+
+
+
+/* ADMINFORM LIST
+================================================== */
+
+#element-box fieldset.adminform{
+	margin:0 10px 10px 0;
+}
+#element-box fieldset.adminform legend{
+	display:block;
+	background:#eee;
+	padding:5px 10px;
+	border:1px solid #ccc;
+}
+
+
+
+/* ADMINFORMLIST
+================================================== */
+
+#element-box .adminformlist li{
+	display:inline-block;
+	width:100%;
+}
+#element-box .adminformlist li > label{
+	width:180px;
+	color:#777;
+	margin-top:10px;
+	padding-right:10px;
+	text-align:right;
+}
+#element-box .adminformlist li > label:after{
+	content:" :";
+}
+#element-box .adminformlist li:hover > label{
+	color:#333;
+}
+#element-box .adminformlist .panel select{
+	min-width:100px;
+}
+#element-box .adminformlist li .button2-left{
+	margin-top:5px;
+}
+
+
+
+/* BUTTONS
+================================================== */
+
+#element-box .button2-left{
+	background:none;
+}
+#element-box button.jform-rightbtn,
+#element-box .button2-left a{
+	font-size:11px;
+	font-weight:bold;
+	padding:0 8px;
+	margin-left:-1px;
+	border:1px solid #ccc;
+	border-bottom-color:#bbb;
+	height:24px;
+	line-height:24px;
+	background: -moz-linear-gradient(top,  #fff 0%, #f0f0f0 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#fff), color-stop(100%,#f0f0f0)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #fff 0%,#f0f0f0 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #fff 0%,#f0f0f0 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #fff 0%,#f0f0f0 100%); /* IE10+ */
+	background: linear-gradient(top,  #fff 0%,#f0f0f0 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fff', endColorstr='#f0f0f0',GradientType=0 ); /* IE6-9 */
+}
+#element-box button.jform-rightbtn{
+	height:auto;
+	line-height:auto;
+	padding:2px 8px;
+}
+#element-box .button2-left a{
+	margin:0;
+}
+#element-box .adminformlist li tr.add-author .button2-left{
+	margin:-3px 0 5px!important;
+}
+
+
+#element-box #jform_menus-lbl,
+#element-box #jform_menuselect-lbl{
+	margin-top:10px;
+}
+
+
+
+/* TABS
+================================================== */
+
+#element-box dl.tabs dt{
+	margin:0 4px 0 0;
+	padding:8px 10px;
+	border-radius:2px 2px 0 0;
+	-moz-border-radius:2px 2px 0 0;
+	-webkit-border-radius:2px 2px 0 0;
+}

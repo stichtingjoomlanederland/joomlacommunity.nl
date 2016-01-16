@@ -1,0 +1,658 @@
+img {
+    max-width: none;
+}
+ 
+.kmt-emoticon { 
+    width: 16px;
+    height: 16px;
+    vertical-align: top;
+    margin: 0 2px;
+}
+
+.btn {
+    font-weight: bold;
+    .box-shadow(0 1px 1px rgba(0, 0, 0, 0.15));
+}
+
+.kmt-title {
+    background: @grey-200;
+    border: 1px solid @grey-300;
+    border-radius: 3px;
+    // text-transform: uppercase;
+    font: bold 12px/1 'Helvetica Neue', Arial, sans-serif;
+    padding: 10px;
+    margin: 25px 0 15px !important;
+}
+
+.kmt-form-composer {
+    border: 1px solid @grey-300;
+    border-radius: 3px;
+    display: table;
+    width: 100%;
+    padding: 10px 10px 35px;
+    position: relative;
+}
+
+.kmt-form-avatar {
+    display: table-cell;
+    vertical-align: top;
+    width: 1%;
+    padding-right: 10px;
+}
+
+.kmt-form-editor {
+    display: table-cell;
+    vertical-align: top;
+
+    > textarea {
+        background: none !important;
+        display: block !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        -moz-box-shadow: none !important;
+        -webkit-box-shadow: none !important;
+    }
+}
+
+.kmt-form-attach {
+    padding: 10px 0;
+    position: relative;
+
+    &:before {
+        content: '';
+        display: block;
+        position: absolute;
+        left: 0;
+        right: -10px;
+        top: 0;
+        height: 1px;
+        background: @grey-300;
+    }
+
+    > p {
+        font-size: 11px;
+        color: @grey-500;
+        line-height: 1;
+    }
+
+    &.for-files > div {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+
+        + div {
+            > a {
+                border-top: 1px solid transparent;
+            }
+            > i, 
+            > b {
+                border-top: 1px solid @grey-200;
+            }
+        }
+
+        &:first-child {
+            a, i, b {
+                padding-top: 0;
+            }
+        }
+
+        &:last-child {
+            a, i, b {
+                padding-bottom: 0;
+            }
+        }
+
+        > a, > i, > b {
+            padding: 10px 0;    
+        }
+
+        * {
+            display: table-cell;
+            vertical-align: middle;
+            font-size: 12px;
+            line-height: 1;
+        }
+
+        a {
+            width: 20px;
+            text-align: left;
+            
+            i {
+                color: @red-600;
+                width: auto;
+            }
+        }
+
+        i {
+            width: 70px;
+            color: @grey-600;
+            font-style: normal;
+        }
+
+        b {
+            color: @grey-900;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+}
+
+#locationForm {
+    position: relative;
+}
+
+.kmt-form-location {
+    [role="status"] {
+        position: absolute;
+        right: 0;
+        top: 5px;
+        font-size: 11px;
+        color: @grey-700;
+    }
+}
+
+.kmt-form-respond {
+    font-size: 12px;
+    line-height: 16px;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    padding: 0 10px 10px;
+    width: 1%;
+    white-space: nowrap;
+}
+
+.kmt-form-share {
+    .col-cell {
+        + .col-cell:before {
+            content: "/";
+            margin-left: 3px;
+            color: @grey-400;
+        }
+    }
+
+    a {
+        color: @green-800;
+    }
+}
+
+.kmt-form-ratings {
+    font-size: 12px;
+    line-height: 1;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 0 10px 10px;
+    white-space: nowrap;
+}
+
+.kmt-form-addon {
+    display: none;
+}
+
+.kmt-form-grid {
+    margin: 0 -5px;
+
+    .col-cell {
+        padding: 0 5px 10px; 
+        width: 33.333%;
+
+        @media (max-width: 640px) {
+            display: block;
+            width: auto;
+        }
+    }
+}
+
+.kmt-form-alert {
+    background: @red-50;
+    // border: 1px solid @red-100;
+    border-radius: 3px;
+    color: @red-900;
+    line-height: 1.25;
+    padding: 10px 13px;
+    margin-bottom: 15px;
+
+    &.success {
+        background: @green-100;
+        color: @green-900;
+    }
+}
+
+
+
+// RATINGS 
+
+.kmt-ratings-title {
+    font-size: 12px;
+    margin: 0 0 0 10px;
+}
+
+
+// FILTERS 
+
+.kmt-filters {
+    display: table;
+    width: 100%;
+    border: 1px solid @grey-300;
+    border-radius: 3px;
+    background: #fff;
+    overflow: hidden;
+
+    > div {
+        display: table-cell;
+        width: 33.333%;
+        text-align: center;
+
+        + div {
+            border-left: 1px solid @grey-300;
+        }
+
+        a {
+            background: transparent;
+            display: block;
+            padding: 10px 0;
+            line-height: 1;
+            color: @grey-800;
+            text-decoration: none !important;
+
+            &.active {
+                background: @grey-200;
+                font-weight: bold;
+                color: @grey-900;
+            }
+        }
+    }
+}
+
+
+// RANKS 
+
+.kmt-rank {
+    background: @grey-400;
+    border-radius: 3px;
+}
+
+.kmt-rank-progress {
+    background: @green-600;
+    border-radius: 3px;
+    height: 5px;
+}
+
+
+// COMMENTS 
+
+.kmt-list {
+    > li {
+        margin-top: 30px;
+    }
+}
+
+.kmt-wrap {
+    display: table;
+    width: 100%;
+
+    .kmt-thumb,
+    .kmt-content {
+        display: table-cell;
+        vertical-align: top; 
+    }
+
+    .kmt-thumb {
+        width: 1%;
+        padding: 0 10px 0 0;
+        font-size: 0;
+    }
+
+    &:hover {
+        .kmt-option {
+            visibility: visible;
+        }
+    }
+}
+
+.kmt-head {
+    line-height: 1;
+}
+
+.kmt-body {
+    img {
+        max-width: 100%;
+    }
+}
+
+.kmt-bio {
+    * {
+        display: inline;
+        line-height: 1;
+    }
+
+    h3 {
+        font-size: inherit;
+        font-family: inherit;
+
+        a {
+            // color: inherit;
+        }
+    }
+}
+
+.kmt-option {
+    width: 1%;
+    visibility: hidden;
+}
+
+.kmt-admin-wrap {
+    position: relative;
+    width: 15px;
+    text-align: center;
+
+    &:hover {
+        .kmt-admin-list {
+            display: block;
+        }
+    }
+}
+
+.kmt-admin-list {
+    display: none;
+    background: #fff;
+    border: 1px solid @grey-300;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: bold;
+    position: absolute;
+    right: -60px + 7.5px;
+    top: 100%;
+    z-index: 100;
+    width: 120px;
+    text-align: center;
+    margin-top: 5px;
+
+    &:before,
+    &:after {
+        border-right: 6px solid transparent;
+        border-left: 6px solid transparent;
+        border-bottom: 6px solid @grey-300;
+        content: '';
+        display: block;
+        position: absolute;
+        left: 53px;
+        top: -6px;
+    }
+
+    &:after {
+        border-bottom-color: #fff;
+        top: -5px;
+    }
+
+    > li {
+        + li {
+            border-top: 1px solid @grey-200;
+        }
+
+        > a {
+            color: @blue-600;
+            display: block;
+            padding: 5px;
+            text-decoration: none !important;
+
+            &:hover {
+                color: @grey-800;
+            }
+        }
+    }
+}
+
+.kmt-control {
+    a {
+        color: inherit;
+    }
+}
+
+.kmt-share-wrap {
+    position: relative;
+
+    &:hover .kmt-share-balloon {
+        display: block;
+    }
+}
+
+.kmt-share-balloon {
+    display: none;
+    background: #fff;
+    border: 1px solid @grey-400;
+    border-radius: 3px;
+    color: @grey-800;
+    overflow: hidden;
+
+    position: absolute;
+    left: 0;
+    bottom: 100%;
+    width: 287px;
+
+    > div {
+        padding: 10px;
+        overflow: hidden;
+
+        + div {
+            background: @grey-100;
+            border-top: 1px solid @grey-300;
+        }
+    }
+
+    .fa {
+        width: 24px;
+        line-height: 24px;
+        height: 24px;
+        text-align: center;
+        font-size: 14px;
+        background: @grey-300;
+        border-radius: 3px;
+
+        &:hover {
+            background: @grey-800;
+            color: #fff;
+        }
+    }
+}
+
+.kmt-share-social {
+    > div {
+        margin: -3px;
+    }
+
+    a {
+        float: left;
+        margin: 3px;
+    }
+}
+
+.kmt-info {
+    font-size: 90%;
+    font-style: italic;
+    .opacity(.7);
+    display: block;
+    margin: 0 0 1em;
+}
+
+
+// TOOLBAR
+
+.kmt-toolbar {
+    font-size: 12px;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid @grey-300;
+}
+
+.kmt-sort {
+    font-size: 0;
+    background: #fff;
+
+    > div {
+        display: inline-block;
+        vertical-align: middle;
+        font-size: 12px;
+
+        + div {
+            &:before {
+                content: "/";
+                margin-left: 3px;
+                color: #bdbdbd;
+            }
+        }
+    }
+
+    a {
+
+        &.selected {
+            color: inherit;
+        }
+    }
+}
+
+.kmt-subs-email + .kmt-subs-rss:before {
+    content: "/";
+    margin-left: 3px;
+    color: #bdbdbd;
+}
+
+
+// PEOPLE 
+
+.kmt-people-list {
+    li {
+        margin: 5px 10px 5px 0;
+    }
+    a {
+        float: left;
+    }
+
+    b {
+        display: none;
+    }
+}
+
+
+// ATTACHMENT 
+
+.kmt-attachment-item {
+    display: table;
+    width: 100%;
+    font-size: 12px;
+
+    + .kmt-attachment-item {
+        // border-top: 1px solid @grey-300;
+        // padding-top: 6px;
+        margin-top: 5px;
+    }
+}
+
+.kmt-attachment-del {
+    color: @red-600;
+    text-decoration: none !important;
+    width: 20px;
+}
+
+.kmt-attachment-detail {
+    i {
+        display: none;
+    }
+}
+
+.kmt-like-counter {
+    display: inline-block;
+    width: 26px;
+    text-align: center;
+    background: @grey-200;
+    border: 1px solid @grey-300;
+    line-height: 16px;
+    border-radius: 8px;
+    margin: 0 3px 0 0;
+}
+
+
+// LOGIN FORM
+
+.kmt-login-form-list {
+    > li {
+        display: table;
+        width: 100%;
+
+        + li {
+            margin-top: 10px;
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

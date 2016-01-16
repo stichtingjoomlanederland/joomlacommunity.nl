@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jomsocial>
+	<component>com_komento</component>
+	<rules>
+		<rule>
+			<name>Komento Add Comment</name>
+			<description>Give points when registered user add new comment.</description>
+			<action_string>com_komento.comment.add</action_string>
+			<publish>true</publish>
+			<points>1</points>
+			<access_level>1</access_level>
+		</rule>
+
+		<rule>
+			<name>Komento Reply Comment</name>
+			<description>Give points when registered user reply to a comment.</description>
+			<action_string>com_komento.comment.reply</action_string>
+			<publish>true</publish>
+			<points>1</points>
+			<access_level>1</access_level>
+		</rule>
+
+		<rule>
+			<name>Komento Add Comment to Article Author</name>
+			<description>Give points to article's author when a comment is added on that article</description>
+			<action_string>com_komento.comment.add.author</action_string>
+			<publish>true</publish>
+			<points>1</points>
+			<access_level>1</access_level>
+		</rule>
+
+		<rule>
+			<name>Komento Comment Removed</name>
+			<description>Deduct points to the author when the comment has been removed.</description>
+			<action_string>com_komento.comment.removed</action_string>
+			<publish>true</publish>
+			<points>-1</points>
+			<access_level>1</access_level>
+		</rule>
+
+		<rule>
+			<name>Komento Remove Comment from Article Author</name>
+			<description>Deduct points to article's author when a comment is removed from that article</description>
+			<action_string>com_komento.comment.removed.author</action_string>
+			<publish>true</publish>
+			<points>-1</points>
+			<access_level>1</access_level>
+		</rule>
+
+		<rule>
+			<name>Komento Like Comment</name>
+			<description>Assign points when a user like a comment.</description>
+			<action_string>com_komento.comment.like</action_string>
+			<publish>true</publish>
+			<points>1</points>
+			<access_level>1</access_level>
+		</rule>
+
+		<rule>
+			<name>Komento Unlike Comment</name>
+			<description>Deduct points when a user unlike a comment.</description>
+			<action_string>com_komento.comment.unlike</action_string>
+			<publish>true</publish>
+			<points>-1</points>
+			<access_level>1</access_level>
+		</rule>
+
+		<rule>
+			<name>Komento Comment has been liked</name>
+			<description>Assign points to the author when the comment has been liked.</description>
+			<action_string>com_komento.comment.liked</action_string>
+			<publish>true</publish>
+			<points>1</points>
+			<access_level>1</access_level>
+		</rule>
+
+		<rule>
+			<name>Komento Comment has been unliked</name>
+			<description>Deduct points to the author when the comment has been unliked.</description>
+			<action_string>com_komento.comment.unliked</action_string>
+			<publish>true</publish>
+			<points>-1</points>
+			<access_level>1</access_level>
+		</rule>
+
+		<rule>
+			<name>Komento Report Comment</name>
+			<description>Assign points when a user report a comment.</description>
+			<action_string>com_komento.comment.report</action_string>
+			<publish>true</publish>
+			<points>1</points>
+			<access_level>1</access_level>
+		</rule>
+
+		<rule>
+			<name>Komento Comment Reported</name>
+			<description>Deduct points to the author when the comment has been reported.</description>
+			<action_string>com_komento.comment.reported</action_string>
+			<publish>true</publish>
+			<points>-1</points>
+			<access_level>1</access_level>
+		</rule>
+
+		<rule>
+			<name>Komento Unreport Comment</name>
+			<description>Deduct points when a user unreport a comment.</description>
+			<action_string>com_komento.comment.unreport</action_string>
+			<publish>true</publish>
+			<points>-1</points>
+			<access_level>1</access_level>
+		</rule>
+
+		<rule>
+			<name>Komento Comment Unreported</name>
+			<description>Add points to the author when the comment has been unreported.</description>
+			<action_string>com_komento.comment.unreported</action_string>
+			<publish>true</publish>
+			<points>1</points>
+			<access_level>1</access_level>
+		</rule>
+
+		<rule>
+			<name>Komento Comment Sticked</name>
+			<description>Assign points to the author when the comment has been sticked.</description>
+			<action_string>com_komento.comment.sticked</action_string>
+			<publish>true</publish>
+			<points>1</points>
+			<access_level>1</access_level>
+		</rule>
+
+		<rule>
+			<name>Komento Comment Unsticked</name>
+			<description>Deduct points to the author when the comment has been unsticked.</description>
+			<action_string>com_komento.comment.unsticked</action_string>
+			<publish>true</publish>
+			<points>-1</points>
+			<access_level>1</access_level>
+		</rule>
+	</rules>
+</jomsocial>

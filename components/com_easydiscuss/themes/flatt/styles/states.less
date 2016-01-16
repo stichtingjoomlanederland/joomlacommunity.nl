@@ -1,0 +1,71 @@
+/*------------------------------------*\
+	$states.less
+\*------------------------------------*/
+
+// =post-status
+// ----------------
+// status [is-featured, is-locked, is-resolved, is-unread, is-read , is-unanswered, is-inprogress]
+.discuss-item {
+	> .discuss-status {
+		top: 10px;
+		.icon-ed-featured {
+			position: relative;
+			top: auto;
+			right: auto;
+		}
+	}
+	&.is-featured,
+	// &.is-resolved,
+	&.is-locked {
+		.discuss-status {
+			[class^="icon-ed"],
+			[class*=" icon-ed"],
+			[class^="icon-"],
+			[class*=" icon-"] {
+				display: none;
+				float: right;
+				+ i {
+					margin-right: 6px;
+				}
+			}
+		}
+	}
+	&.is-featured {
+		.discuss-status {
+			.icon-ed-featured {
+				display: inline-block;
+			}
+		}
+	}
+	&.is-locked {
+		.discuss-status {
+			.icon-ed-locked {
+				display: inline-block;
+			}
+		}
+	}
+	&.is-protected {
+		.discuss-status {
+			.icon-ed-key {
+				display: inline-block;
+			}
+		}
+	}
+	&.is-resolved {
+		.discuss-resolvedbar {
+			// display: block;
+			visibility: visible;
+		}
+	}
+	.discuss-statistic.pull-right {
+		margin-top: 20px;
+	}
+
+}
+&.w320 {
+	.discuss-item {
+		.discuss-statistic.pull-right {
+			margin-top: 0;
+		}
+	}
+}

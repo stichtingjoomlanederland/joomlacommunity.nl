@@ -1,0 +1,9 @@
+[
+    {
+        "script": [
+            "ui/core",
+            "ui/widget"
+        ],
+        "adapter": "Foundry"
+    }
+]

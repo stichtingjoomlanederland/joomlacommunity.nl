@@ -1,0 +1,17 @@
+[
+    {
+        "library": [
+            "ui/effect",
+            "dialog"
+        ],
+        "language": [
+            "COM_KOMENTO_UNPUBLISHED"
+        ],
+        "view": [
+            "dialogs/delete.affectchild",
+            "dialogs/unpublish.affectchild",
+            "comment/edit.form"
+        ],
+        "adapter": "Komento"
+    }
+]

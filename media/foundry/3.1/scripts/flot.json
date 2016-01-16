@@ -1,0 +1,10 @@
+[
+    {
+        "script": [
+            "event/drag",
+            "mousewheel",
+            "resize"
+        ],
+        "adapter": "Foundry"
+    }
+]

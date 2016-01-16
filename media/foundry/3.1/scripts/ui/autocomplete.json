@@ -1,0 +1,11 @@
+[
+    {
+        "script": [
+            "ui/core",
+            "ui/widget",
+            "ui/position",
+            "ui/menu"
+        ],
+        "adapter": "Foundry"
+    }
+]

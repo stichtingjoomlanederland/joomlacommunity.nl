@@ -1,0 +1,8 @@
+[
+    {
+        "library": [
+            "ui/autocomplete"
+        ],
+        "adapter": "Komento"
+    }
+]

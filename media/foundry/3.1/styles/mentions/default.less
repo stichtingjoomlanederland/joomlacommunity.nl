@@ -1,0 +1,260 @@
+.mentions {
+
+	// This is so textarea can
+	// reposition itself on top
+	// of mentions overlay
+	position: relative;
+
+	.reset() {
+
+		// Reset everything.
+		padding: 0 !important;
+		margin: 0 !important;
+		border: 0 !important;
+		background: transparent !important;
+		.box-shadow(~"none !important");
+		.border-radius(0);
+	}
+
+	// Overlay
+	// Using <div> because it seems to wrap more
+	// accurately than <pre> although alistapart
+	// suggested the use of <pre>. FB uses <div>.
+	div {
+		.reset();
+
+		// Fill up the width as determined
+		// by mentions-textfield.
+		width: 100%;
+
+		// Ensure overlay is always below textarea
+		top: 0;
+		left: 0;
+		z-index: 1;
+
+		// Ensure both pre & textarea
+		// has the same word wrap behavior.
+		white-space: pre-wrap;
+		word-wrap: break-word;
+
+		// Text color comes from textarea.
+		color: transparent;
+
+		// Overlay is transparent until
+		// controller is implemented.
+		opacity: 0;
+
+		// Mozilla has padding on each side of the textarea,
+		// so we emulate it in our textarea.
+		// Using 1px instead of 1.5px because it seems to be more accurate.
+		// http://stackoverflow.com/questions/4374537/how-to-force-firefox-to-render-textarea-padding-the-same-as-in-a-div
+		-moz-padding-end: 1px;
+		-moz-padding-start: 1px;
+
+		// Using span because it has less css conflicts
+		> span {
+			background: #C2E2FF;
+			.border-radius(2px);
+			.box-shadow(~"0 0 1px #005C87 inset");
+		}
+	}
+
+	// Textarea
+	textarea {
+
+		.reset();
+
+		// The pre tag will have the actual width & height.
+		position: absolute;
+		width: 100%;
+		height: 100%;
+
+		// Ensure textarea is always above overlay
+		top: 0;
+		left: 0;
+		z-index: 2;
+
+		// Ensure both pre & textarea
+		// has the same word wrap behavior.
+		white-space: pre-wrap;
+		word-wrap: break-word;
+
+		// Disable corner resize handle.
+		resize: none;
+		outline: none;
+
+		// Hide scrollbar on textarea
+		overflow: hidden;
+	}
+}
+
+.mentions-inspector {
+
+	background: #fafafa;
+	.clearfix();
+	border-top: 1px solid #ccc;
+	margin-top: 5px;
+
+	fieldset {
+		width: 50%;
+		float: left;
+		.box-sizing(border-box);
+		padding: 10px;
+	}
+
+	label {
+		display: inline-block;
+		float: left;
+		width: 30%;
+		font-size: 10px;
+		margin: 0;
+		line-height: 26px;
+		text-align: right;
+		padding-right: 5px;
+		.box-sizing(border-box);
+	}
+
+	input {
+		width: 70%;
+		margin: 0;
+		padding: 2px;
+		.box-sizing(border-box);
+	}
+
+	b {
+		text-align: right;
+	}
+
+	hr {
+		margin: 0;
+		.clearfix();
+		opacity: 0;
+	}
+}
+
+.mentions-autocomplete {
+	position: absolute !important;
+	z-index: 99999 !important;
+	.box-shadow(0 3px 2px rgba(0,0,0,.15));
+	margin-top: 8px;
+
+	&.loading {
+		.mentions-autocomplete-loading {
+			display: block;
+		}
+
+		.mentions-menu {
+			display: none;
+		}
+	}
+
+	&.empty {
+		.mentions-autocomplete-empty {
+			display: block;
+		}
+		.mentions-menu {
+			display: none;
+		}
+
+		// Loading takes precendence
+		&.loading {
+			.mentions-autocomplete-empty {
+				display: none;
+			}
+		}
+	}
+
+	&.search {
+		.mentions-autocomplete-search {
+			display: block;
+		}
+		.mentions-menu {
+			display: none;
+		}
+		// Loading takes precendence
+		&.loading {
+			.mentions-autocomplete-search {
+				display: none;
+			}
+		}
+	}
+}
+
+.mentions-autocomplete-loading,
+.mentions-autocomplete-empty,
+.mentions-autocomplete-search {
+	display: none;
+	text-align: center;
+	padding: 6px;
+}
+
+.mentions-autocomplete-loading-indicator {
+	display: block;
+	padding: 8px 0px;
+	height: 16px;
+	background: url("@{media_uri}/../images/loading.gif") center center no-repeat;
+}
+
+.mentions-autocomplete-inner {
+	border: 1px solid #aaa;
+	.border-radius(3px);
+	background: white;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.mentions-menu { //ul
+	list-style: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	background: none !important;
+
+	.mentions-menuItem { //li
+		cursor: pointer;
+		padding: 6px;
+		text-align: left;
+		font-size: 13px;
+
+		+ .mentions-menuItem {
+			border-top: 1px solid #ddd;
+		}
+
+		&.active {
+			background: #E7EDF3;
+		}
+
+		&.hidden {
+			display: none;
+		}
+	}
+}
+
+.mentions-itemRemoveButton {
+    position: absolute;
+    height: 20px;
+    padding: 0;
+    right: 0;
+    top: 0;
+    width: 20px;
+    opacity: 0.8;
+    cursor: pointer;
+
+    &:hover {
+    	opacity: 1;
+    }
+
+    > i {
+	    width: 8px !important;
+	    height: 8px !important;
+	    font-size: 8px !important;
+	    margin: 4px 0 0 6px !important;
+	    line-height: 10px !important;
+    }
+}
+
+.mentions-menu-avatar {
+	width: 16px;
+	height: 16px;
+	position: relative;
+    top: 1px;
+}

@@ -1,0 +1,12 @@
+[
+    {
+        "library": [
+            "dialog"
+        ],
+        "view": [
+            "dialogs/delete.affectchild",
+            "comment/edit.form"
+        ],
+        "adapter": "Komento"
+    }
+]

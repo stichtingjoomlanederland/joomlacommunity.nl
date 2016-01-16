@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<view title="COM_EASYDISCUSS_MENU_INDEX_LAYOUT">
+		<message>
+			<![CDATA[
+			COM_EASYDISCUSS_MENU_INDEX_LAYOUT_DESC
+			]]>
+		</message>
+		<options var="filter">
+			<default name="COM_EASYDISCUSS_MENU_INDEX_LAYOUT" msg="COM_EASYDISCUSS_MENU_INDEX_LAYOUT_DESC" />
+		</options>
+	</view>
+</metadata>

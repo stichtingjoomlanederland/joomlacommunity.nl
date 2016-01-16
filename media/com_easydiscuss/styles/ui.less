@@ -1,0 +1,150 @@
+/*------------------------------------*\
+  ui.less
+\*------------------------------------*/
+
+// =ui-autocomplete
+// ----------------
+// autocomplete styling
+.ui-autocomplete {
+	&.location-suggestion {
+		width: 250px !important;
+		padding: 3px !important;
+		border-top: 0 !important;
+		max-height: 120px !important;
+		overflow-y: scroll !important;
+		z-index: 9999 !important;
+		border-radius: 0 0 2px 2px !important;
+		-moz-border-radius: 0 0 2px 2px !important;
+		-webkit-border-radius: 0 0 2px 2px !important;
+		background: white !important;
+		list-style: none;
+		.ui-menu-item {
+			a {
+				font-family: sans-serif !important;
+				font-size: 12px !important;
+				text-align: left !important;
+				padding: 5px 8px !important;
+				border-radius: 2px !important;
+				-moz-border-radius: 2px !important;
+				-webkit-border-radius: 2px !important;
+				display: block;
+				text-align: left;
+			}
+			.ui-state-focus, a:hover {
+				color: white !important;
+				background-color: #3875D7 !important;
+				text-decoration: none;
+				#gradient > .vertical(#3875D7, #2A62BC) !important;
+			}
+		}
+	}
+}
+
+
+// chosen form
+// ----------------
+.chzn-container {
+	width: 100% !important;
+}
+.chzn-container .chzn-drop {
+	width: 100% !important;
+	.box-sizing(border-box);
+}
+
+
+// tooltip
+// ----------------
+div.tooltip.tooltip-ed {
+	background: none;
+	border: none;
+	padding: 5px;
+	max-width: auto;
+	width: auto;
+	line-height: 12px;
+}
+
+// avatar cropper
+// ----------------
+
+.avatarCropper {
+
+	.avatarContainer {
+		float: left;
+		position: relative;
+	}
+
+	.avatarPreview {
+		display: none;
+		border: 1px solid #ccc;
+	}
+
+	.cropActions {
+		display: inline-block;
+	}
+
+	.stopCropButton,
+	.saveCropButton {
+		display: none !important;
+	}
+
+	&.cropping {
+
+		.startCropButton {
+			display: none !important;
+		}
+
+		.stopCropButton,
+		.saveCropButton {
+			display: inline-block !important;
+		}
+	}
+}
+
+
+// dropdown
+// ----------------
+.dropdown_ {
+	position: relative;
+}
+
+
+// similar questions
+// ----------------
+#dc_similar-questions .popover {
+	display: block;
+}
+
+
+
+
+/*Responsive video size*/
+(~"@{EasyDiscuss}") {
+	&.w600 .video-container {
+		position: relative;
+		width: 100%;
+		padding-bottom: 56.25%;
+		padding-top: 30px;
+		height: 0;
+		overflow: hidden;
+		clear: both;
+		top: 10px;
+	}
+
+	&.w600 .video-container iframe,
+	&.w600 .video-container object,
+	&.w600 .video-container embed {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+	}
+}
+
+// Fixed conflict for BS3
+// ----------------
+div#discuss-wrapper {
+	.collapse {
+		display: block;
+	}
+}

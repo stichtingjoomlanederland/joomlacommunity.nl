@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_RSEVENTSPRO_CATEGORIES_VIEW_TITLE" >
+		<message>
+			<![CDATA[COM_RSEVENTSPRO_CATEGORIES_VIEW_DESC]]>
+		</message>
+	</layout>
+	
+	<fields name="params">
+		<fieldset name="basic">
+			<field name="ordering" type="list" default="title" label="COM_RSEVENTSPRO_ORDERING" description="COM_RSEVENTSPRO_ORDERING_DESC">
+				<option value="title">COM_RSEVENTSPRO_CATEGORIES_VIEW_ORDERING_TITLE</option>
+				<option value="lft">COM_RSEVENTSPRO_CATEGORIES_VIEW_ORDERING_ORDER</option>
+			</field>
+			
+			<field name="order" type="list" default="ASC" label="COM_RSEVENTSPRO_DIRECTION" description="COM_RSEVENTSPRO_DIRECTION_DESC">
+				<option value="DESC">COM_RSEVENTSPRO_DESCENDING</option>
+				<option value="ASC">COM_RSEVENTSPRO_ASCENDING</option>
+			</field>
+			
+			<field name="type" type="list" default="1" label="COM_RSEVENTSPRO_LOCATIONS_VIEW_STRIP_TEXT" description="COM_RSEVENTSPRO_LOCATIONS_VIEW_STRIP_TEXT_DESC">
+				<option value="1">COM_RSEVENTSPRO_TEXT</option>
+				<option value="0">COM_RSEVENTSPRO_HTML</option>
+			</field>
+			
+			<field name="events" type="list" default="0" label="COM_RSEVENTSPRO_CATEGORIES_VIEW_SHOW_NUMBER_OF_EVENTS" description="COM_RSEVENTSPRO_CATEGORIES_VIEW_SHOW_NUMBER_OF_EVENTS_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="rss" type="list" default="1" label="COM_RSEVENTSPRO_ENABLE_RSS" description="COM_RSEVENTSPRO_ENABLE_RSS_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="search" type="list" default="1" label="COM_RSEVENTSPRO_ENABLE_SEARCH" description="COM_RSEVENTSPRO_ENABLE_SEARCH_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="hierarchy" type="list" default="0" label="COM_RSEVENTSPRO_ENABLE_HIERARCHY" description="COM_RSEVENTSPRO_ENABLE_HIERARCHY_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+		</fieldset>
+	</fields>
+</metadata>

@@ -1,0 +1,34 @@
+// @import "bootstrap/less/mixins.less";
+// @import "bootstrap.less";
+@import "colors.less";
+@import "variables.less";
+
+
+
+body.com_komento {
+    @import "reset.less";
+    @import "joomla/default.less"; 
+}
+
+body {
+    @import "joomla/joomla25.less";
+}
+
+@import "font-awesome/less/font-awesome.less"; 
+
+#si.komento {
+    font-family: @font-family-sans-serif;
+    font-size: @font-size-base;
+    
+    *,
+    *:before,
+    *:after {
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+    }
+
+    @import "bootstrap.less";
+    @import "layout/default.less";
+}
+

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_EASYDISCUSS_MENU_TAG_LAYOUT">
+		<message>
+			<![CDATA[COM_EASYDISCUSS_MENU_TAG_LAYOUT_DESC]]>
+		</message>
+		<view>tag</view>
+	</layout>
+	<state>
+		<name><![CDATA[COM_EASYDISCUSS_MENU_TAG_LAYOUT]]></name>
+		<description><![CDATA[COM_EASYDISCUSS_MENU_TAG_LAYOUT_DESC]]></description>
+		<url addpath="/administrator/components/com_easydiscuss/elements">
+			<param name="id" type="tags" label="Tag Id" default="0" description="Choose a tag..." />
+		</url>
+		<params>
+		</params>
+	</state>
+
+	<!-- Add fields to the request variables for the layout. -->
+	<fields name="request">
+		<fieldset name="request"
+			addfieldpath="/administrator/components/com_easydiscuss/elements/fields">
+
+			<field name="id" type="modal_tags"
+				label="Tag Id"
+				required="true"
+				description="Choose a tag..."
+			/>
+		</fieldset>
+	</fields>
+</metadata>

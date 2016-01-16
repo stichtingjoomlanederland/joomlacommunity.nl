@@ -1,0 +1,26 @@
+.dg-shim{
+	opacity : 0.3;
+	filter: alpha(opacity = 30);
+	background-color: #06E;
+}
+.dg-resize-handle{
+	background-image:url(../images/square-blue.gif);
+	background-repeat:no-repeat;
+}
+
+.dg-crop{
+	border:1px dashed #515153;
+}
+
+.dg-movable{
+	background-color:#FFF;
+	filter:alpha(opacity=0);
+	opacity:0;
+	width:100%;
+}
+
+.dg-crop-shadow{
+	background-color:#229;
+	filter:alpha(opacity:35);
+	opacity:0.35;
+}

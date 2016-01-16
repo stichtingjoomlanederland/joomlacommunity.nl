@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="1.5.0" method="upgrade" client="site">
+	<name>MOD_RSEVENTSPRO_CATEGORIES</name>
+	<creationDate>02/05/2012</creationDate>
+	<author>www.rsjoomla.com</author>
+	<copyright>GNU General Public License</copyright>
+	<authorEmail>suport@rsjoomla.com</authorEmail>
+	<authorUrl>http://www.rsjoomla.com</authorUrl>
+	<version>1.0</version>
+	<description>MOD_RSEVENTSPRO_CATEGORIES_DESCRIPTION</description>
+
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.mod_rseventspro_categories.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.mod_rseventspro_categories.sys.ini</language>
+	</languages>
+	
+	<files>
+		<filename module="mod_rseventspro_categories">mod_rseventspro_categories.php</filename>
+		<folder>tmpl</folder>
+		<filename>helper.php</filename>
+		<filename>style.css</filename>
+		<filename>index.html</filename>
+	</files>
+	
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="parent" type="category" extension="com_rseventspro" published="1" show_root="true" label="MOD_RSEVENTSPRO_CATEGORIES_PARENT" description="MOD_RSEVENTSPRO_CATEGORIES_PARENT_DESC"/>
+				<field name="show_children" type="radio" class="btn-group" default="0" label="MOD_RSEVENTSPRO_CATEGORIES_SHOW_CHILDREN" description="MOD_RSEVENTSPRO_CATEGORIES_SHOW_CHILDREN_DESC">
+					<option value="0">JNO</option> 
+					<option value="1">JYES</option>
+				</field>
+				<field name="limit" type="list" label="MOD_RSEVENTSPRO_CATEGORIES_LIMIT" description="MOD_RSEVENTSPRO_CATEGORIES_LIMIT_DESC" default="0">
+					<option value="0">JALL</option>
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+					<option value="6">6</option>
+					<option value="7">7</option>
+					<option value="8">8</option>
+					<option value="9">9</option>
+					<option value="10">10</option>
+				</field>
+				<field name="maxlevel" type="list" label="MOD_RSEVENTSPRO_CATEGORIES_MAXLEVEL" description="MOD_RSEVENTSPRO_CATEGORIES_MAXLEVEL_DESC" default="0" >
+					<option value="0">JALL</option>
+					<option value="1">1</option>
+					<option value="2">2</option>
+					<option value="3">3</option>
+					<option value="4">4</option>
+					<option value="5">5</option>
+					<option value="6">6</option>
+					<option value="7">7</option>
+					<option value="8">8</option>
+					<option value="9">9</option>
+					<option value="10">10</option>
+				</field>
+				<field name="links" type="list" default="0" label="MOD_RSEVENTSPRO_CATEGORIES_EVENTS_LINKS" description="MOD_RSEVENTSPRO_CATEGORIES_EVENTS_LINKS_DESC">
+					<option value="0">MOD_RSEVENTSPRO_CATEGORIES_EVENTS_LINKS_NEW</option>
+					<option value="1">MOD_RSEVENTSPRO_CATEGORIES_EVENTS_LINKS_CURRENT</option>
+				</field>
+				<field name="counter" type="radio" class="btn-group" default="0" label="MOD_RSEVENTSPRO_CATEGORIES_EVENTS_COUNTER" description="MOD_RSEVENTSPRO_CATEGORIES_EVENTS_COUNTER_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="remove" type="radio" class="btn-group" default="0" label="MOD_RSEVENTSPRO_CATEGORIES_EVENTS_UNLINK" description="MOD_RSEVENTSPRO_CATEGORIES_EVENTS_UNLINK_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="itemid" type="text" default="" label="MOD_RSEVENTSPRO_CATEGORIES_ITEMID" description="MOD_RSEVENTSPRO_CATEGORIES_ITEMID_DESC" />
+			</fieldset>
+			
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="text" label="MOD_RSEVENTSPRO_CATEGORIES_CLASS_SUFFIX" description="MOD_RSEVENTSPRO_CATEGORIES_CLASS_SUFFIX_DESC" />
+				<field name="layout" type="modulelayout" label="JFIELD_ALT_LAYOUT_LABEL" description="JFIELD_ALT_MODULE_LAYOUT_DESC" />
+				<field name="item_heading" type="list" default="4" label="MOD_RSEVENTSPRO_CATEGORIES_TITLE_HEADING" description="MOD_RSEVENTSPRO_CATEGORIES_TITLE_HEADING_DESC">
+					<option value="1">JH1</option>
+					<option value="2">JH2</option>
+					<option value="3">JH3</option>
+					<option value="4">JH4</option>
+					<option value="5">JH5</option>
+				</field>
+			</fieldset>
+		</fields>
+	</config>
+	
+</extension>

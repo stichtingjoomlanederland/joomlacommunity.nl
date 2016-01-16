@@ -1,0 +1,103 @@
+/*------------------------------------*\
+	$polls.less
+\*------------------------------------*/
+// =discuss-polls (@module)
+.discuss-polls {
+	margin: 10px 0 30px;
+	border: 1px solid @grayLighter;
+	margin-right: 180px;
+	.border-radius(@discussItemBorderRadius);
+	.clearfix();
+	.box-shadow( 0 0 2px rgba(0,0,0,.15));
+	.poll-title {
+		font-size: 12px;
+		word-wrap: break-word;
+	}
+	// .discuss-polls-hd,
+	.discuss-polls-bd,
+	.discuss-polls-ft, {
+		.clearfix();
+	}
+	.discuss-polls-hd {
+		min-height: 20px;
+		border-bottom: 1px solid @grayLighter;
+		padding: 10px 20px;
+	}
+	.discuss-polls-bd {
+		padding: 10px 20px 0 30px;
+		ul > li {
+			border-bottom: 1px dotted @discussBorderColor;
+			margin-bottom: 10px;
+
+			label.checkbox {
+				padding-left: 0;
+				margin-bottom: 10px;
+				input.votePoll{
+					margin-right: 10px;
+				}
+			}
+		}
+	}
+	.discuss-polls-ft {
+		padding: 10px 20px;
+	}
+	.progress {
+		height: 15px;
+		.border-radius(6px);
+	}
+	.discuss-checkbox {
+
+	}
+
+
+	.poll-locked {
+		color: #666;
+		margin-left: 15px;
+		.icon-lock{
+			display: inline-block;
+		}
+	}
+
+	label {
+		font-size: 12px;
+		word-wrap: break-word;
+	}
+	input[type="checkbox"],
+	input[type="radio"] {
+		// margin-top: 6px;
+	}
+
+	.progress {
+		line-height: 14px;
+		position: relative;
+	}
+	.poll-count {
+		font-size: 12px;
+		line-height: 16px;
+		margin-left: 4px;
+		position: absolute;
+		right: 10px;
+		a {
+			color: @linkColor;
+			&:hover {
+				background: none;
+				color: @linkColor;
+			}
+		}
+
+	}//poll-count
+	.discuss-voters {
+		> li {
+			display: block;
+			float: left;
+			margin-right: 4px;
+			line-height: 30px;
+		}
+	}
+}
+
+&.w320 {
+	.discuss-polls {
+		margin-right: 0;
+	}
+}

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<field name="id" type="hidden" label="JGLOBAL_FIELD_ID_LABEL" description ="JGLOBAL_FIELD_ID_DESC" size="10" default="0" readonly="true" />
+	<field name="name" type="text" class="input-xxlarge" label="COM_RSEVENTSPRO_GROUP_NAME" description="COM_RSEVENTSPRO_GROUP_NAME_DESC" required="true" size="70" />
+	<field name="jgroups" type="usergroup" class="input-large rschosen rswidth-20" label="COM_RSEVENTSPRO_GROUP_GROUPS" description="COM_RSEVENTSPRO_GROUP_GROUPS_DESC" multiple="multiple" size="8" />
+	<field name="jusers" type="rsusers" class="input-large rschosen rswidth-20" label="COM_RSEVENTSPRO_GROUP_USERS" description="COM_RSEVENTSPRO_GROUP_USERS_DESC" multiple="multiple" size="8" />
+	
+	<field name="can_add_locations" type="radio" class="btn-group" label="COM_RSEVENTSPRO_GROUP_CAN_ADD_LOCATIONS" description="COM_RSEVENTSPRO_GROUP_CAN_ADD_LOCATIONS_DESC" default="0">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="can_create_categories" type="radio" class="btn-group" label="COM_RSEVENTSPRO_GROUP_CAN_CREATE_CATEGORIES" description="COM_RSEVENTSPRO_GROUP_CAN_CREATE_CATEGORIES_DESC" default="0">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="can_delete_events" type="radio" class="btn-group" label="COM_RSEVENTSPRO_GROUP_CAN_DELETE_EVENTS" description="COM_RSEVENTSPRO_GROUP_CAN_DELETE_EVENTS_DESC" default="0">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="can_download" type="radio" class="btn-group" label="COM_RSEVENTSPRO_GROUP_CAN_DOWNLOAD" description="COM_RSEVENTSPRO_GROUP_CAN_DOWNLOAD_DESC" default="1">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="can_edit_events" type="radio" class="btn-group" label="COM_RSEVENTSPRO_GROUP_CAN_EDIT_EVENTS" description="COM_RSEVENTSPRO_GROUP_CAN_EDIT_EVENTS_DESC" default="0">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="can_edit_locations" type="radio" class="btn-group" label="COM_RSEVENTSPRO_GROUP_CAN_EDIT_LOCATIONS" description="COM_RSEVENTSPRO_GROUP_CAN_EDIT_LOCATIONS_DESC" default="0">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="can_post_events" type="radio" class="btn-group" label="COM_RSEVENTSPRO_GROUP_CAN_POST_EVENTS" description="COM_RSEVENTSPRO_GROUP_CAN_POST_EVENTS_DESC" default="0">
+		<option value="0" onclick="JHide();">JNO</option>
+		<option value="1" onclick="JHide();">JYES</option>
+	</field>
+	<field name="can_register" type="radio" class="btn-group" label="COM_RSEVENTSPRO_GROUP_CAN_REGISTER" description="COM_RSEVENTSPRO_GROUP_CAN_REGISTER_DESC" default="1">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="can_repeat_events" type="radio" class="btn-group" label="COM_RSEVENTSPRO_GROUP_CAN_REPEAT_EVENTS" description="COM_RSEVENTSPRO_GROUP_CAN_REPEAT_EVENTS_DESC" default="0">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="can_unsubscribe" type="radio" class="btn-group" label="COM_RSEVENTSPRO_GROUP_CAN_UNSUBSCRIBE" description="COM_RSEVENTSPRO_GROUP_CAN_UNSUBSCRIBE_DESC" default="1">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="can_upload" type="radio" class="btn-group" label="COM_RSEVENTSPRO_GROUP_CAN_UPLOAD" description="COM_RSEVENTSPRO_GROUP_CAN_UPLOAD_DESC" default="0">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="event_moderation" type="radio" class="btn-group" label="COM_RSEVENTSPRO_GROUP_EVENT_MODERATION" description="COM_RSEVENTSPRO_GROUP_EVENT_MODERATION_DESC" default="1">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="tag_moderation" type="radio" class="btn-group" label="COM_RSEVENTSPRO_GROUP_TAG_MODERATION" description="COM_RSEVENTSPRO_GROUP_TAG_MODERATION_DESC" default="1">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="can_approve_events" type="radio" class="btn-group" label="COM_RSEVENTSPRO_GROUP_CAN_APPROVE_EVENTS" description="COM_RSEVENTSPRO_GROUP_CAN_APPROVE_EVENTS_DESC" default="0">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="can_approve_tags" type="radio" class="btn-group" label="COM_RSEVENTSPRO_GROUP_CAN_APPROVE_TAGS" description="COM_RSEVENTSPRO_GROUP_CAN_APPROVE_TAGS_DESC" default="0">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	
+	<fields name="event">
+		<field name="enable_rating" type="radio" class="btn-group" label="COM_RSEVENTSPRO_ENABLE_EVENT_RATING" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="enable_fb_like" type="radio" class="btn-group" label="COM_RSEVENTSPRO_ENABLE_FACEBOOK_LIKE" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="enable_twitter" type="radio" class="btn-group" label="COM_RSEVENTSPRO_ENABLE_TWITTER" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="enable_gplus" type="radio" class="btn-group" label="COM_RSEVENTSPRO_ENABLE_GOOGLEPLUS" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="enable_linkedin" type="radio" class="btn-group" label="COM_RSEVENTSPRO_ENABLE_LINKEDIN" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		
+		<field name="start_date" type="radio" class="btn-group" label="COM_RSEVENTSPRO_SHOW_START_DATE" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="start_time" type="radio" class="btn-group" label="COM_RSEVENTSPRO_SHOW_START_TIME" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="end_date" type="radio" class="btn-group" label="COM_RSEVENTSPRO_SHOW_END_DATE" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="end_time" type="radio" class="btn-group" label="COM_RSEVENTSPRO_SHOW_END_TIME" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="show_description" type="radio" class="btn-group" label="COM_RSEVENTSPRO_SHOW_DESCRIPTION" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="show_location" type="radio" class="btn-group" label="COM_RSEVENTSPRO_SHOW_LOCATION" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="show_categories" type="radio" class="btn-group" label="COM_RSEVENTSPRO_SHOW_CATEGORIES" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="show_tags" type="radio" class="btn-group" label="COM_RSEVENTSPRO_SHOW_TAGS" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="show_files" type="radio" class="btn-group" label="COM_RSEVENTSPRO_SHOW_FILES" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="show_contact" type="radio" class="btn-group" label="COM_RSEVENTSPRO_SHOW_CONTACT" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="show_map" type="radio" class="btn-group" label="COM_RSEVENTSPRO_SHOW_MAP" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="show_export" type="radio" class="btn-group" label="COM_RSEVENTSPRO_SHOW_EXPORT" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="show_invite" type="radio" class="btn-group" label="COM_RSEVENTSPRO_SHOW_INVITE" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="show_postedby" type="radio" class="btn-group" label="COM_RSEVENTSPRO_SHOW_POSTEDBY" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="show_repeats" type="radio" class="btn-group" label="COM_RSEVENTSPRO_SHOW_REPEATS" description="" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		
+		
+		
+		
+	</fields>
+</form>

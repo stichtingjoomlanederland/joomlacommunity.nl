@@ -1,0 +1,310 @@
+/*------------------------------------*\
+	$easydiscuss.less
+\*------------------------------------*/
+// Frontend/Backend shared classes name
+// some quickFix and common classes port from previous reset
+
+
+.debug * { background:rgba(0,0,0,0.1) !important; } /* debug class */
+
+ul, ul li {
+	margin: 0;
+	padding: 0;
+}
+
+.no-focus-outline() {
+	outline: none !important;
+	&::-moz-focus-inner {
+		border: 0 !important;
+	}
+}
+.btn-navbar {
+	.user-select(none);
+}
+.discuss-clear {
+	clear: both;
+	height: 0px;
+	overflow: hidden;
+}
+.break-word {
+	white-space: pre;           // CSS 2.0
+	white-space: pre-wrap;      // CSS 2.1
+	//white-space: pre-line;      // CSS 3.0
+	white-space: -pre-wrap;     // Opera 4-6
+	white-space: -o-pre-wrap;   // Opera 7
+	white-space: -moz-pre-wrap; // Mozilla
+	word-wrap: break-word;      // IE 5+
+}
+
+// .clear {clear:both}
+
+// margin spacing
+.mv-5{margin:5px 0}
+.mv-10{margin:10px 0}
+.mv-15{margin:15px 0}
+.mt-0{margin-top:0px}
+.mt-5{margin-top:5px}
+.mt-10{margin-top:10px}
+.mt-15{margin-top:15px}
+.mt-20{margin-top:20px}
+.mb-0{margin-bottom:0px}
+.mb-5{margin-bottom:5px}
+.mb-10{margin-bottom:10px}
+.mb-15{margin-bottom:15px}
+.mb-20{margin-bottom:20px}
+.mr-0{margin-right:0px}
+.mr-5{margin-right:5px}
+.mr-10{margin-right:10px}
+.mr-15{margin-right:15px}
+.mr-20{margin-right:20px}
+.ml-0{margin-left:0px}
+.ml-5{margin-left:5px}
+.ml-10{margin-left:10px}
+.ml-15{margin-left:15px}
+.ml-20{margin-left:20px}
+
+// padding spacing
+.pv-5{padding:5px 0}
+.pv-10{padding:10px 0}
+.pv-15{padding:15px 0}
+.ph-5{padding-left:5px;padding-right:5px;}
+.ph-10{padding-left:10px;padding-right:10px;}
+.ph-15{padding-left:15px;padding-right:15px;}
+.ph-20{padding-left:20px;padding-right:20px;}
+.pa-5{padding:5px}
+.pa-10{padding:10px}
+.pa-15{padding:15px}
+.pt-0{padding-top:0px}
+.pt-5{padding-top:5px}
+.pt-10{padding-top:10px}
+.pt-15{padding-top:15px}
+.pt-20{padding-top:20px}
+.pb-0{padding-bottom:0px}
+.pb-5{padding-bottom:5px}
+.pb-10{padding-bottom:10px}
+.pb-15{padding-bottom:15px}
+.pb-20{padding-bottom:20px}
+.pr-0{padding-right:0px}
+.pr-5{padding-right:5px}
+.pr-10{padding-right:10px}
+.pr-15{padding-right:15px}
+.pr-20{padding-right:20px}
+.pl-0{padding-left:0px}
+.pl-5{padding-left:5px}
+.pl-10{padding-left:10px}
+.pl-15{padding-left:15px}
+.pl-20{padding-left:20px}
+
+// font-size
+.fs-24{font-size:24px}
+.fs-16{font-size:16px}
+.fs-14{font-size:14px}
+.fs-12{font-size:12px}
+.fs-11{font-size:11px}
+.fs-10{font-size:10px}
+.fs-9{font-size:9px}
+
+// width
+.half-width{
+	width:50%;
+	max-width: 50%;
+}
+.full-width {
+	width: 100%;
+	max-width: 100%;
+}
+
+.input.full-width,
+.textarea.full-width {
+	.box-sizing(border-box);
+}
+.input.full-width {
+	height: @baseLineHeight + 10;
+}
+// select,
+// textarea,
+// input[type="text"],
+// input[type="password"],
+// input[type="datetime"],
+// input[type="datetime-local"],
+// input[type="date"],
+// input[type="month"],
+// input[type="time"],
+// input[type="week"],
+// input[type="number"],
+// input[type="email"],
+// input[type="url"],
+// input[type="search"],
+// input[type="tel"],
+// input[type="color"],
+// .uneditable-input {
+// 	//.box-sizing(border-box);
+// 	// min-height: @baseLineHeight + 10;
+// 	//height: @baseLineHeight + 10;
+// }
+
+/*border*/
+// .b-sc{border:1px solid #ccc}
+// .b-sd{border:1px solid #ddd}
+// .b-se{border:1px solid #eee}
+// /*border-top*/
+// .bt-0{border-top:0;}
+// .bt-sc{border-top:1px solid #ccc}
+// .bt-sd{border-top:1px solid #ddd}
+// .bt-se{border-top:1px solid #eee}
+// .bt-dc{border-top:1px dotted #ccc}
+// .bt-dd{border-top:1px dotted #ddd}
+// .bt-hd{border-top:1px dashed #ddd}
+// /*border-bottom*/
+// .bb-0{border-bottom:0;}
+// .bb-sb{border-bottom:1px solid #bbb}
+// .bb-sc{border-bottom:1px solid #ccc}
+// .bb-sd{border-bottom:1px solid #ddd}
+// .bb-se{border-bottom:1px solid #eee}
+// .bb-dc{border-bottom:1px dotted #bbb}
+// .bb-dc{border-bottom:1px dotted #ccc}
+// .bb-dd{border-bottom:1px dotted #ddd}
+
+/*position*/
+// .pos-a{position:absolute}
+// .pos-r{position:relative}
+/**/
+
+
+//hack for joomla 2.5 template
+div.pagination {
+	border-top: none;
+	ul {
+		display: block;
+	}
+}
+
+.visible-phone {
+	display: none !important;
+	// visibility: hidden;
+	// .opacity(0);
+	// display: none;
+}
+.w768 {
+	.visible-phone {
+		display: inherit !important;
+	}
+}
+
+// &.w320 {
+// 	.visible-phone {
+// 		display: inherit !important;
+// 	}
+// }
+.narrow {
+	.visible-phone {
+		display: inline !important;
+		// visibility: visible;
+		// .opacity(100);
+	}
+}
+
+
+.locationMap img {
+  max-width: none !important;
+  width: auto;
+  display:inline;
+}
+
+
+
+/*hack for joomla 2.5 template*/
+div.tooltip {
+	font-family: sans-serif !important;
+	font-size: 11px;
+	background:none !important;
+	border:none !important;
+	.tooltip-inner {
+
+	}
+}
+
+
+// =nav-bar
+// ----------------
+/**
+* horizontal listing
+*/
+.nav-bar {
+	> li {
+		float: left;
+		display: block;
+		position: relative;
+		padding: 0;
+		margin: 0;
+	}
+}
+
+
+// =discuss-loader
+// ----------------
+.discuss-loader {
+	background: url('@{media_uri}/../images/loading.gif') no-repeat;
+	width: 20px;
+	height: 11px;
+	position: absolute;
+	z-index: 10;
+	.hide-text();
+}
+.tab-pane-loading,
+.btn-loading,
+.alert-loading {
+	position: relative;
+	&:before {
+		display: block;
+		content: "";
+		background: url('@{media_uri}/../images/loading.gif') 4px center no-repeat;
+		position: absolute;
+		width: 20px;
+		height: 11px;
+		top: 50%;
+		margin-top: -5px;
+		left: 0;
+	}
+	padding-left: 26px;
+}
+.tab-pane-loading {
+	&:before {
+		left: 50%;
+		margin-left: -10px;
+	}
+}
+
+
+
+// button
+// ----------------
+.btn-remove {
+	position: absolute;
+	top: -4px;
+	right: -4px;
+	.border-radius(50%);
+	padding: 1px;
+	.transition(all .1s linear );
+	line-height: 11px !important;
+	height: 16px !important;
+	width: 16px !important;
+	font-size: 10px !important;
+	i {
+		font-size: 10px !important;
+		width: 12px !important;
+		height: 12px !important;
+		line-height: 12px !important;
+		vertical-align: middle !important;
+		background: url("@{media_uri}/../images/icon-remove.png") 0 0 no-repeat;
+		display: inline-block;
+		vertical-align: text-top;
+
+	}
+}
+
+// Foundry clearfix (temporary)
+// ----------------
+.fd-cf {
+	.clearfix();
+}

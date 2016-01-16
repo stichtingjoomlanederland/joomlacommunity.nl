@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.0" client="site" method="upgrade">
+	<name>EasyDiscuss Welcome</name>
+	<author>imarklee</author>
+	<creationDate>05/02/2012</creationDate>
+	<copyright>Copyright 2009 - 2011 StackIdeas. All rights reserved.</copyright>
+	<license>GPL License</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://stackideas.com</authorUrl>
+	<version>3.1.1</version>
+	<description>A module that provides users login and will welcome the users if they are already logged in. It also includes the shortcuts to EasyDiscuss links.</description>
+	<languages>
+		<language tag="en-GB">en-GB.mod_easydiscuss_welcome.ini</language>
+	</languages>
+	<files>
+		<filename module="mod_easydiscuss_welcome">mod_easydiscuss_welcome.php</filename>
+		<filename>mod_easydiscuss_welcome.xml</filename>
+		<filename>helper.php</filename>
+		<filename>index.html</filename>
+		<folder>tmpl</folder>
+		<folder>styles</folder>
+		<folder>images</folder>
+	</files>
+	<params>
+		<param name="menuid" type="menuitem" default="" disable="separator" label="Use menu id in links" description="Select a menu item to associate the links that are generated from the module." state="1">
+			<option value="">Default</option>
+		</param>
+		<param name="display_avatar" type="list" default="1" label="Show avatar" description="Select to enable/disable avatar from being display.">
+			<option value="1">Yes</option>
+			<option value="0">No</option>
+		</param>
+		<param name="show_ranks" type="list" default="1" label="Show Ranking" description="Show user's ranking in the module.">
+			<option value="1">Yes</option>
+			<option value="0">No</option>
+		</param>
+		<param name="show_badges" type="list" default="1" label="Show User Badges" description="Show user's badges in the module.">
+			<option value="1">Yes</option>
+			<option value="0">No</option>
+		</param>
+		<param name="show_favourites" type="list" default="1" label="Show View My Favourites" description="Display the View My Favourite button.">
+			<option value="1">Yes</option>
+			<option value="0">No</option>
+		</param>
+		<param name="show_subscriptions" type="list" default="1" label="Show View My Subscription" description="Display the View My Subscription button.">
+			<option value="1">Yes</option>
+			<option value="0">No</option>
+		</param>
+		<param name="show_assigned_posts" type="list" default="1" label="Show View My Assigned Posts" description="Display the View My Assigned Posts button.">
+			<option value="1">Yes</option>
+			<option value="0">No</option>
+		</param>
+		<param name="show_my_discussions" type="list" default="1" label="Show My Discussions" description="Display the My Discussions button.">
+			<option value="1">Yes</option>
+			<option value="0">No</option>
+		</param>
+		<param name="show_browse_discussions" type="list" default="1" label="Show Browse Discussions" description="Display the Browse Discussions button.">
+			<option value="1">Yes</option>
+			<option value="0">No</option>
+		</param>
+		<param name="show_browse_categories" type="list" default="1" label="Show Browse Categories" description="Display the Browse Categories button.">
+			<option value="1">Yes</option>
+			<option value="0">No</option>
+		</param>
+		<param name="show_browse_tags" type="list" default="1" label="Show Browse Tags" description="Display the Browse Tags button.">
+			<option value="1">Yes</option>
+			<option value="0">No</option>
+		</param>
+		<param name="show_browse_badges" type="list" default="1" label="Show Browse Badges" description="Display the Browse Badges button.">
+			<option value="1">Yes</option>
+			<option value="0">No</option>
+		</param>
+		<param name="enable_login" type="list" default="1" label="Login Option" description="If enabled, login form and logout link will be displayed in the module.">
+			<option value="1">Yes</option>
+			<option value="0">No</option>
+		</param>
+		<param name="usesecure" type="radio" default="0" label="Encrypt Login Form" description="Submit encrypted login data (requires SSL)">
+			<option value="0">No</option>
+			<option value="1">Yes</option>
+		</param>
+		<param name="login" type="menuitem" default="" disable="separator" label="Login Redirection URL" description="MOD_EASYBLOGWELCOME_LOGIN_REDIRECT" state="1" />
+		<param name="logout" type="menuitem" default="" disable="separator" label="Logout Redirection URL" description="MOD_EASYBLOGWELCOME_LOGOUT_REDIRECT" state="1" />
+	</params>
+	<params group="advanced">
+		<param name="moduleclass_sfx" type="text" default="" label="Module Class Suffix" description="PARAMMODULECLASSSUFFIX" />
+		<param name="cache" type="list" default="0" label="Caching" description="Select whether to cache the content of this module">
+			<option value="1">Use global</option>
+			<option value="0">No caching</option>
+		</param>
+		<param name="cache_time" type="text" default="900" label="Cache Time" description="The time before the module is recached" />
+	</params>
+
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="menuid" type="menuitem" default="" disable="separator" label="Use menu id in links" description="Select a menu item to associate the links that are generated from the module." state="1">
+					<option value="">Default</option>
+				</field>
+				<field name="display_avatar" type="list" default="1" label="Show avatar" description="Select to enable/disable avatar from being display.">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="show_ranks" type="list" default="1" label="Show Ranking" description="Show user's ranking in the module.">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="show_badges" type="list" default="1" label="Show User Badges" description="Show user's badges in the module.">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="show_favourites" type="list" default="1" label="Show View My Favourites" description="Display the View My Favourite button.">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="show_subscriptions" type="list" default="1" label="Show View My Subscription" description="Display the View My Subscription button.">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="show_assigned_posts" type="list" default="1" label="Show View My Assigned Posts" description="Display the View My Assigned Posts button.">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="show_my_discussions" type="list" default="1" label="Show My Discussions" description="Display the My Discussions button.">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="show_browse_discussions" type="list" default="1" label="Show Browse Discussions" description="Display the Browse Discussions button.">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="show_browse_categories" type="list" default="1" label="Show Browse Categories" description="Display the Browse Categories button.">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="show_browse_tags" type="list" default="1" label="Show Browse Tags" description="Display the Browse Tags button.">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="show_browse_badges" type="list" default="1" label="Show Browse Badges" description="Display the Browse Badges button.">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="enable_login" type="list" default="1" label="Login Option" description="If enabled, login form and logout link will be displayed in the module.">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="usesecure" type="radio" default="0" label="Encrypt Login Form" description="Submit encrypted login data (requires SSL)">
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field>
+				<field name="login" type="menuitem" default="" disable="separator" label="Login Redirection URL" description="MOD_EASYBLOGWELCOME_LOGIN_REDIRECT" state="1" />
+				<field name="logout" type="menuitem" default="" disable="separator" label="Logout Redirection URL" description="MOD_EASYBLOGWELCOME_LOGOUT_REDIRECT" state="1" />
+			</fieldset>
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
+					<option value="0">Never</option>
+				</field>
+			</fieldset>
+		</fields>
+	</config>
+</extension>
+

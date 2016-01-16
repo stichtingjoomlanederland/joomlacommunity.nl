@@ -1,0 +1,24 @@
+/*------------------------------------*\
+	$reset.less
+\*------------------------------------*/
+// reset to prevent conflict for Joomla Template
+
+* {
+	//safe to use width:100% without caring the padding
+	.box-sizing(border-box);
+}
+
+//reset some template add in value to :before :after
+//e.g.: <li> with bullet
+
+ul,ol,li {
+	margin: 0;
+	padding: 0;
+	// list-style: none;
+	&:before,
+	&:after {
+		// content: " ";
+		background: none;
+		display: none;
+	}
+}

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE extension>
+<extension type="component" version="1.6.0" method="upgrade">
+	<name>com_easydiscuss</name>
+	<author>StackIdeas</author>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://www.stackideas.com</authorUrl>
+	<copyright>Copyright 2009 - 2012 Stack Ideas. All rights reserved</copyright>
+	<license>GPL License</license>
+	<version>3.2.9744</version>
+	<creationDate>September 2015</creationDate>
+	<description>
+		Discussion extension for your Joomla! site.
+	</description>
+	<scriptfile>script.php</scriptfile>
+	<install>
+		<sql>
+			<file driver="mysql" charset="utf8">install.mysql.utf8.sql</file>
+		</sql>
+	</install>
+	<uninstall>
+		<sql>
+			<file driver="mysql" charset="utf8">uninstall.mysql.utf8.sql</file>
+		</sql>
+	</uninstall>
+	<update>
+		<schemas>
+			<schemapath type="mysql">sql/updates/mysql</schemapath>
+		</schemas>
+	</update>
+
+	<files folder="site">
+		<folder>classes</folder>
+		<folder>controllers</folder>
+		<folder>helpers</folder>
+		<folder>models</folder>
+		<folder>sef_ext</folder>
+		<folder>themes</folder>
+		<folder>views</folder>
+		<filename>badwords_list.txt</filename>
+		<filename>constants.php</filename>
+		<filename>COPYRIGHT.PHP</filename>
+		<filename>cron.php</filename>
+		<filename>easydiscuss.php</filename>
+		<filename>index.html</filename>
+		<filename>jomsocial_rule.xml</filename>
+		<filename>router.php</filename>
+		<filename>views.php</filename>
+		<filename>services.php</filename>
+	</files>
+
+	<administration>
+		<menu link="option=com_easydiscuss" img="components/com_easydiscuss/themes/default/images/favicons/easydiscuss.png">COM_EASYDISCUSS</menu>
+		<submenu>
+			<menu view="settings" img="components/com_easydiscuss/themes/default/images/favicons/easydiscuss-settings.png">COM_EASYDISCUSS_ADMIN_MENU_SETTINGS</menu>
+			<menu view="posts" img="components/com_easydiscuss/themes/default/images/favicons/easydiscuss-posts.png">COM_EASYDISCUSS_MENU_DISCUSSIONS</menu>
+			<menu view="autoposting" img="components/com_easydiscuss/themes/default/images/favicons/easydiscuss-autoposting.png">COM_EASYDISCUSS_ADMIN_MENU_AUTOPOSTING</menu>
+			<menu view="categories" img="components/com_easydiscuss/themes/default/images/favicons/easydiscuss-categories.png">COM_EASYDISCUSS_ADMIN_MENU_CATEGORIES</menu>
+			<menu view="tags" img="components/com_easydiscuss/themes/default/images/favicons/easydiscuss-tags.png">COM_EASYDISCUSS_ADMIN_MENU_TAGS</menu>
+			<menu view="users" img="components/com_easydiscuss/themes/default/images/favicons/easydiscuss-users.png">COM_EASYDISCUSS_ADMIN_MENU_USERS</menu>
+			<menu view="roles" img="components/com_easydiscuss/themes/default/images/favicons/easydiscuss-roles.png">COM_EASYDISCUSS_ADMIN_MENU_ROLES</menu>
+			<menu view="acls" img="components/com_easydiscuss/themes/default/images/favicons/easydiscuss-acls.png">COM_EASYDISCUSS_ADMIN_MENU_ACL</menu>
+			<menu view="reports" img="components/com_easydiscuss/themes/default/images/favicons/easydiscuss-reports.png">COM_EASYDISCUSS_ADMIN_MENU_REPORTS</menu>
+			<menu view="subscription" img="components/com_easydiscuss/themes/default/images/favicons/easydiscuss-subscription.png">COM_EASYDISCUSS_ADMIN_MENU_SUBSCRIPTION</menu>
+			<menu view="badges" img="components/com_easydiscuss/themes/default/images/favicons/easydiscuss-badges.png">COM_EASYDISCUSS_ADMIN_MENU_BADGES</menu>
+			<menu view="points" img="components/com_easydiscuss/themes/default/images/favicons/easydiscuss-points.png">COM_EASYDISCUSS_ADMIN_MENU_POINTS</menu>
+			<menu view="ranks" img="components/com_easydiscuss/themes/default/images/favicons/easydiscuss-ranks.png">COM_EASYDISCUSS_ADMIN_MENU_RANKING</menu>
+			<menu view="customfields" img="components/com_easydiscuss/themes/default/images/favicons/easydiscuss-customfields.png">COM_EASYDISCUSS_ADMIN_MENU_CUSTOMFIELDS</menu>
+			<menu view="spools" img="components/com_easydiscuss/themes/default/images/favicons/easydiscuss-spools.png">COM_EASYDISCUSS_ADMIN_MENU_SPOOLS</menu>
+		</submenu>
+
+		<files folder="admin">
+			<folder>assets</folder>
+			<folder>controllers</folder>
+			<folder>elements</folder>
+			<folder>models</folder>
+			<folder>easysocial</folder>
+			<folder>sql</folder>
+			<folder>tables</folder>
+			<folder>themes</folder>
+			<folder>views</folder>
+			<file>access.xml</file>
+			<file>easydiscuss.php</file>
+			<file>config.xml</file>
+			<file>foundry.php</file>
+			<file>configuration.ini</file>
+			<file>index.html</file>
+			<file>install.default.php</file>
+			<file>install.mysql.utf8.sql</file>
+			<file>uninstall.mysql.utf8.sql</file>
+			<file>views.php</file>
+		</files>
+		<languages>
+			<language tag="en-GB">languages/admin/en-GB.com_easydiscuss.ini</language>
+			<language tag="en-GB">languages/admin/en-GB.com_easydiscuss.sys.ini</language>
+		</languages>
+	</administration>
+	<languages>
+		<language tag="en-GB">languages/site/en-GB.com_easydiscuss.ini</language>
+	</languages>
+	<plugins>
+		<plugin plugin="plg_user_easydiscussusers" group="user" />
+	</plugins>
+</extension>

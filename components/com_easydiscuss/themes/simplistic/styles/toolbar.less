@@ -1,0 +1,620 @@
+/*------------------------------------*\
+    $toolbar.less
+\*------------------------------------*/
+// (@extended bootstrap navbar)
+// ----------------
+// main toolbar with responsive control
+
+.discuss-toolbar {
+	position: relative;
+	z-index: 19; // issues #1128 reduce from 600 to 19, right under easysocial z-index 20
+	.brand {
+		padding: 8px 18px 10px;
+		&:hover {
+			background-color: transparent;
+		}
+	}
+	.navbar-inner {
+		min-height: 36px;
+		padding-left: 10px;
+		padding-right: 10px;
+		background-image: none;
+	}
+	.divider-vertical {
+		margin: 0 2px;
+		height: 36px;
+	}
+
+	.icon-large {
+		width: 32px;
+		height: 22px;
+		position: relative;
+		top: 0px;
+		vertical-align: top;
+		font-size: 13px;
+		line-height: 20px;
+		&:before {
+			text-align: center;
+		}
+	}
+
+	.toolbar-text {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+	}
+	// .nav-collapse .nav > li > a:hover,
+	.nav-collapse .dropdown-menu li > a {
+		position: relative;
+		text-decoration: none;
+		font-size: 12px;
+		padding: 10px 5px;
+		margin: 0;
+
+		> i{
+			margin-right: 5px;
+			font-size: 14px;
+		}
+		.label {
+			// position: relative;
+			position: absolute;
+			right: 10px;
+		}
+
+		&:hover {
+			background: rgba(0,0,0,.05);
+			color: @grayDark;
+			.reset-filter();
+		}
+	}
+	.nav-collapse .dropdown-menu a:hover {
+		// background-color: @navbarBackground;
+		// background-color:@grayDark;
+	}
+
+	// Dividers in navbar
+	// -------------------------
+	&.navbar-inverse .divider-vertical {
+		border-left: 1px solid lighten(@navbarInverseBackground, 3%);
+		border-right: 1px solid lighten(@navbarInverseBackgroundHighlight, 3%);
+	}
+	//dropdown menu
+	.nav-collapse {
+		.discuss-user-menu {
+			h5 {
+				font-size: 16px;
+			}
+			.discuss-avatar {
+				> a {
+					padding: 0;
+				}
+			}
+			.btn-logout {
+				display: inline-block;
+				color: white;
+			}
+			.badges-list {
+				> li {
+					margin-bottom: 10px;
+					width: 32px;
+					height: 32px;
+					img {
+
+					}
+					> a {
+						padding: 0;
+					}
+				}
+			}
+			.modal-body {
+				overflow: visible;
+			}
+
+			.modal-footer {
+				padding: 5px 12px 11px 12px;
+				margin-bottom: -5px;
+			}
+		}
+		.discuss-user-links {
+			margin: -5px 0 10px 5px;
+		}
+
+		.discuss-notice-menu {
+
+			ul {
+				.loading-indicator i {
+					text-indent: -9999px;
+					display: block;
+					padding: 25px;
+					background: url("@{media_uri}/../images/loading.gif") center no-repeat;
+				}
+				> li {
+					width: 100%;
+					border-bottom: 0;
+				}
+
+			}
+			.notification-result {
+				padding-top: 0;
+				border: 0;
+			}
+			.notificationItem + .notificationItem {
+				margin-top: 0px;
+			}
+			.btn-logout {
+				display: inline-block;
+				color: white;
+			}
+			li > a {
+				min-height: 40px;
+				.clearfix();
+				i {
+					position: absolute;
+					top: 6px;
+					left: 6px;
+				}
+				white-space: normal;
+				text-align: left;
+				display: block;
+				padding: 0px 0 0 5px;
+				> span {
+					margin-left: 20px;
+					padding: 4px;
+					color: @gray;
+					background: none;
+					small {
+						display: block;
+					}
+				}
+				&:hover {
+					background: rgba(0,0,0,.05);
+					color: @grayDark;
+					.reset-filter();
+				}
+			}
+			li + li {
+				border-top: 1px solid darken(@white, 6%);
+				clear: both;
+				margin: 0;
+			    padding: 0;
+			}
+			.btn {
+				margin-top: 0;
+			}
+
+			.media-body {
+
+			}
+		}//notice-menu
+
+	}//dropdown menu
+
+
+	.notice-message {
+		padding: 4px;
+		a {
+			display: block;
+			padding: 0px 5px;
+			&:hover {
+				background: none;
+				color: @grayDark;
+				.reset-filter();
+			}
+		}
+		strong {
+			color: @gray;
+		}
+		p {
+			margin: 0;
+			color: @grayLight;
+			height: 20px;
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+		}
+		small {
+			font-size: 11px;
+			color: @grayLight;
+		}
+		&:hover {
+			background: lighten(@grayLighter, 1%);
+		}
+	}
+
+
+	div.modal-footer {
+		clear: both;
+	}
+	.dropdown-menu .discuss-login-menu {
+
+		width: 250px;
+		padding: 10px;
+
+		input{
+			font-size: 11px;
+		}
+
+		a,
+		label {
+			font-size: 11px;
+		}
+
+		label {
+			padding: 4px;
+		}
+	}
+	.nav-collapse {
+
+	}
+
+	.discuss-signin-menu {
+		// width: 300px;
+		.modal-body {
+			padding: 10px 15px 0;
+		}
+		.modal-footer {
+			padding: 0 15px 5px;
+			> ul {
+				margin: 4px 0;
+			}
+		}
+		.form-horizontal {
+			.control-group {
+				margin-bottom: 10px;
+			}
+			.control-label {
+				width: 80px;
+			}
+			.controls {
+				margin-left: 100px;
+			}
+		}
+	}
+	.nav {
+		padding: 0;
+		margin: 0;
+		li {
+			padding: 0;
+			background-image: none;
+		}
+		> li {
+			line-height: 20px;
+			position: relative;
+			overflow: visible;
+			> a {
+				padding: 10px 12px 6px;
+				height: 36px;
+				line-height: 20px;
+				overflow: hidden;
+				[class^="icon-ed-"],
+				[class*=" icon-ed-"] {
+					.opacity(50);
+					.transition(all 300ms ease-in-out);
+					vertical-align: top;
+				}
+				&:hover {
+					[class^="icon-ed-"],
+					[class*=" icon-ed-"] {
+						.opacity(50);
+						.transition(all 300ms ease-in-out);
+					}
+				}
+				&.to_login {
+					padding: 12px 35px 8px 0;
+				}
+				// &.to_create {
+				// 	padding:12px 100px 8px 0;
+				// }
+				&.btn-ask {
+					padding: 6px 14px 2px;
+					color: white;
+					&:hover {
+						background: #5BB75B;
+					}
+					.toolbar-text {
+						position: static;
+					}
+				}
+			}
+			> .dropdown-toggle_ {
+				cursor: pointer;
+				> .label-notification{
+					font-size: 10px;
+					padding: 1px 2px;
+					font-weight: normal;
+				}
+				> .label {
+					position: absolute;
+					top: 1px;
+					right: -1px;
+					z-index: 2;
+					// background: red;
+				}
+				> .caret {
+					position: absolute;
+					top: 18px;
+					right: 0;
+					border-top-color: @gray;
+					border-bottom-color: @gray;
+				}
+			}
+
+			&.dropdown.open {
+				> .dropdown-toggle_ {
+					background: none;
+				}
+			}
+			&.active {
+				> a {
+					[class^="icon-ed-"],
+					[class*=" icon-ed-"] {
+						.opacity(50);
+						.transition(all 300ms ease-in-out);
+					}
+				}
+			}
+		}//li
+	}
+	//Alt Color
+	&.navbar-orange {
+		color: @navbarOrangeText;
+
+		.navbar-inner {
+			#gradient > .vertical(@navbarOrangeBackgroundHighlight, @navbarOrangeBackground);
+			border-color: @navbarOrangeBorder;
+		}
+		.divider-vertical {
+			border-left-color: @navbarOrangeBackground;
+			border-right-color: @navbarOrangeBackgroundHighlight;
+		}
+		.nav > li > a {
+		  color: @navbarOrangeLinkColor;
+		  // text-shadow: 0 -1px 0 rgba(0,0,0,.25);
+		  text-shadow: none;
+		  &:hover {
+			color: @navbarOrangeLinkColorHover;
+		  }
+		}
+		.nav .active > a,
+		.nav .active > a:hover,
+		.nav .active > a:focus {
+			color: @navbarOrangeLinkColorActive;
+			background-color: @navbarOrangeLinkBackgroundActive;
+		}
+		// Navbar collapse button
+		.btn-navbar {
+			.buttonBackground(darken(@navbarOrangeBackgroundHighlight, 5%), darken(@navbarOrangeBackground, 5%));
+			.icon-bar {
+				background: #FFE5BD;
+			}
+		}
+	}//orange
+
+
+	//Responsive Control
+	&.wide {
+		.nav-collapse.collapse {
+			height: auto !important;
+			overflow: visible !important;
+			display: block !important;
+			visibility: visible !important;
+		}
+	}//wide
+    .nav-collapse.collapse {
+        height: auto !important;
+        overflow: visible !important;
+        display: block !important;
+        visibility: visible !important;
+    }
+	&.narrow {
+		.brand {
+			margin-left: 5px;
+		}
+		.discuss-user-menu {
+			width:auto;
+			img {
+				// width: 50px;
+			}
+		}
+		.discuss-user-links {
+			margin: 0;
+		}
+		.pull-right, .pull-left {
+			float: none;
+		}
+		.navbar-inner {
+			padding-left: 0;
+			padding-right: 0;
+		}
+		.nav {
+			margin:0;
+			clear: both;
+			float: none;
+			> li {
+				display: block;
+				clear: both;
+				width: 100%;
+				float: none;
+				a {
+					line-height: 30px;
+					[class^="icon-ed-"],
+					[class*=" icon-ed-"] {
+
+						vertical-align: middle;
+					}
+				}
+				&.divider-vertical {
+					display: none;
+				}
+				> .dropdown-toggle_ {
+					> .label {
+						position: static;
+					}
+					> .caret {
+						position: static;
+						display: none;
+					}
+				}
+			}
+			.dropdown-menu {
+				// display: block;
+				// margin-left: 40px;
+			}
+		}
+		.toolbar-text {
+			position: relative;
+			top: 0px;
+			// right: 8px;
+		}
+		// COLLAPSIBLE NAVBAR
+		// ------------------
+		// Nav collapse clears brand
+		.nav-collapse {
+			clear: both;
+			// background: red;
+		}
+        .nav-collapse.collapse {
+            height: 0 !important;
+            overflow: visible !important;
+            display: none !important;
+        }
+		// Block-level the nav
+		.nav-collapse .nav {
+			float: none !important;
+			margin: 0 0 (20px / 2);
+		}
+		.nav-collapse .nav > li {
+			float: none;
+		}
+		.nav-collapse .nav > li > a {
+			margin-bottom: 2px;
+			height: 46px;
+		}
+		.nav-collapse .nav > .divider-vertical {
+			display: none;
+		}
+		.nav-collapse .nav .nav-header {
+			// color: @navbarText;
+			text-shadow: none;
+		}
+		// Nav and dropdown links in navbar
+		.nav-collapse .nav > li > a,
+		.nav-collapse .dropdown-menu a {
+			padding: 9px 15px;
+			font-size: 11px;
+			font-weight: bold;
+			// color: @navbarLinkColor;
+			.border-radius(3px);
+		}
+		// Buttons
+		.nav-collapse .btn {
+			padding: 4px 10px 4px;
+			font-weight: normal;
+			.border-radius(4px);
+		}
+		.nav-collapse .dropdown-menu li + li a {
+			margin-bottom: 2px;
+		}
+		.nav-collapse .nav > li > a:hover,
+		.nav-collapse .dropdown-menu a:hover {
+			background-color: @navbarBackground;
+			// background-color:#fff;
+			// color:#fff;
+		}
+		&.navbar-inverse .nav-collapse .nav > li > a,
+		&.navbar-inverse .nav-collapse .dropdown-menu a {
+			// background-color: @navbarInverseBackground;
+			color: lighten(@navbarInverseLinkColor, 15%);
+			// color: #fff;
+		}
+		&.navbar-inverse .nav-collapse .nav > li > a:hover,
+		&.navbar-inverse .nav-collapse .dropdown-menu a:hover {
+			background-color: @navbarInverseBackground;
+		}
+		&.navbar-inverse {
+			.modal-header {
+				border-bottom: 1px solid #505050;
+			}
+			.modal-footer {
+				background: transparent;
+				border-top: 1px solid #505050;
+				.box-shadow(none);
+			}
+		}
+		// Buttons in the navbar
+		.nav-collapse.in .btn-group {
+			margin-top: 5px;
+			padding: 0;
+		}
+		// Dropdowns in the navbar
+		.nav-collapse .dropdown-menu {
+			position: static;
+			top: auto;
+			left: auto;
+			float: none;
+			display: block;
+			max-width: none;
+			margin: 0 15px 0 0px;
+			padding: 0;
+			background-color: transparent;
+			border: none;
+			.border-radius(0);
+			.box-shadow(none);
+		}
+		.nav-collapse .dropdown-menu:before,
+		.nav-collapse .dropdown-menu:after {
+			display: none;
+		}
+		.nav-collapse .dropdown-menu .divider {
+			display: none;
+		}
+		// Forms in navbar
+		.nav-collapse .navbar-form,
+		.nav-collapse .navbar-search {
+			float: none;
+			padding: (20px / 2) 15px;
+			margin: (20px / 2) 0;
+			// border-top: 1px solid @navbarBackground;
+			// border-bottom: 1px solid @navbarBackground;
+			.box-shadow(~"inset 0 1px 0 rgba(255,255,255,.1), 0 1px 0 rgba(255,255,255,.1)");
+		}
+		// Pull right (secondary) nav content
+		.nav-collapse .nav.pull-right {
+			float: none;
+			margin-left: 0;
+		}
+		.nav-collapse.in {
+			overflow: visible;
+			height: auto;
+		}
+		// Hide everything in the navbar save .brand and toggle button */
+		// .nav-collapse,
+		.nav-collapse.collapse {
+			overflow: hidden;
+			height: 0;
+		}
+		// Navbar button
+		.btn-navbar {
+			display: block;
+		}
+
+		// STATIC NAVBAR
+		// -------------
+		.navbar-static .navbar-inner {
+			padding-left:  10px;
+			padding-right: 10px;
+		}
+		.discuss-user-menu {
+			.thumbnail {
+				width: 50px;
+			}
+			.badges-list > li {
+				float: left;
+			}
+			.modal-body {
+				max-height: none;
+				overflow: visible;
+			}
+		}
+	}//narrow
+}//discuss-toolbar

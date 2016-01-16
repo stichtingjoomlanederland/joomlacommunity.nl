@@ -1,0 +1,73 @@
+@import "bootstrap/variables";
+@import "variables";
+@import "component";
+
+/*------------------------------------*\
+	$Table of Contents
+\*------------------------------------*/
+/**
+	elements > layout > module > state > theme
+*/
+
+(~"@{EasyDiscuss}") {
+
+	// @baseFontFamily: 'Lucida Grande', 'Gisha', 'Lucida Sans Unicode', 'Lucida Sans', Lucida, Arial, Verdana, sans-serif;
+	// font-family: @baseFontFamily;
+	// font-size-adjust: none;
+	
+
+	//	$Elements
+	@import "elements";
+	@import "item";
+	@import "form";
+
+	//	$Stats/trigger
+	@import "states";
+
+	//	$Modules
+	@import "searchbar";
+	@import "toolbar";
+	@import "statistic";
+	@import "polls";
+	@import "modules"; // Not breaking to smaller parts yet
+
+	//	$Views
+	// Override for specific view when necessary
+	@import "views";
+
+	//	$Icons
+	// have to gain 1 more specificity to override default icon
+	// e.g.: body div#wrapper
+	body & {
+		@import "icons";
+	}
+
+	@import "prism";
+	
+	//	$Responsive
+	@import "responsive";
+
+}
+
+//	$UI elements
+//	custom ui elements to to override default javascript components
+//	.popover
+//	.ui-autocomplete
+//	.dialog
+@import "ui";
+
+
+//	$Custom
+//	custom hack for conflict with template
+@import "custom";
+
+// $Print
+@import "print";
+
+
+// $RTL
+@import "rtl";
+
+
+// $Override
+@import "override";

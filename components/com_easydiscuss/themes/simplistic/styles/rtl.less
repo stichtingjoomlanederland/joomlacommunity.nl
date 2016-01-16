@@ -1,0 +1,680 @@
+/*------------------------------------*\
+	$rtl.less
+\*------------------------------------*/
+//
+html[dir='rtl'] body {
+	(~"@{EasyDiscuss}") {
+		text-align: right;
+		.pull-left {
+			float: right;
+		}
+		.pull-right {
+			float: left;
+		}
+		.discuss-searchbar {
+			.discuss-avatar {
+				margin-right: 0;
+				margin-left: 10px;
+			}
+			.input-searchbar {
+				right: 0;
+				padding: 4px 1% 4px 90px;
+			}
+			.btn-searchbar {
+				left: 4%;
+				right: auto;
+			}
+		}
+
+		.modal-footer {
+			text-align: left;
+		}
+		.discuss-story,
+		.ui-autocomplete.location-suggestion .ui-menu-item a {
+			text-align: right;
+		}
+		.discuss-category-header .btn-new-post {
+			right: auto;
+			left: 0;
+		}
+		.discuss-category-header .discuss-subscribe {
+			right: auto;
+			left: 0;
+		}
+
+		// tooltip
+		// ----------------
+		.has-tip.atr .tooltip-ed {
+			right: auto;
+			left: -5px;
+			.tooltip-arrow {
+				right: auto;
+				left: 12px;
+			}
+		}
+		.discuss-category-header .discuss-subscribe .tooltip-ed {
+			right: auto;
+			left: -5px;
+		}
+		.discuss-category-header .discuss-subscribe .tooltip-arrow {
+			left: 12px;
+			right: auto;
+		}
+
+		.discuss-item.is-featured.is-resolved .discuss-status .icon-ed-resolved {
+			right: 5px;
+		}
+		.discuss-item .discuss-status .icon-ed-featured,
+		.discuss-item .discuss-status .icon-ed-resolved {
+			right: 32px;
+		}
+
+		.discuss-timeline {
+			// position: relative;
+			&:before { //timeline
+				right: 26px;
+			}
+		}
+		.row-fluid [class*="span"] {
+			&:first-child {
+				margin-right: 0;
+			}
+			float: right;
+			margin-right: 2.12766%;
+			margin-left: auto;
+		}
+
+		//media object
+		.media {
+			.pull-left {
+				margin-right: auto;
+				margin-left: 10px;
+			}
+		}
+		.discuss-filter .nav-pills li + li {
+			margin-left: auto;
+			margin-right: 10px;
+		}
+		&.discuss-view-users .discuss-users-list {
+			.discuss-user-name {
+				text-align: center;
+			}
+			.discuss-flyout-content {
+				right: 10px;
+				left: auto;
+			}
+			.discuss-item-left {
+				float: none;
+			}
+			.nav-bar {
+				margin-right: -65px;
+				right: 50%;
+				margin-left: -auto;
+				left: auto;
+			}
+
+		}
+		//navbar
+		.nav-bar > li,
+		.navbar .nav > li,
+		.nav-tabs > li,
+		.nav-pills > li {
+			float: right;
+		}
+		.navbar .nav {
+			float: right;
+			left: auto;
+			right: 0;
+		}
+		.navbar .nav.pull-right {
+			float: left;
+			margin-left: 0;
+			margin-right: auto;
+		}
+		.navbar .pull-right > li > .dropdown-menu,
+		.navbar .nav > li > .dropdown-menu.pull-right {
+			left: 0;
+			right: auto;
+		}
+		.navbar .pull-right > li > .dropdown-menu:after,
+		.navbar .nav > li > .dropdown-menu.pull-right:after {
+			left: 13px;
+			right: auto;
+		}
+		.navbar .pull-right > li > .dropdown-menu:before,
+		.navbar .nav > li > .dropdown-menu.pull-right:before {
+			left: 12px;
+			right: auto;
+		}
+
+		.pull-right > .dropdown-menu {
+			left: 0;
+			right: auto;
+		}
+		.discuss-tag-list .btn-tag-rss {
+			// position: absolute;
+			left: 6px;
+			right: auto;
+		}
+		.discuss-tag-list .btn-tag {
+			// position: absolute;
+			left: 6px;
+			right: auto;
+		}
+
+		//toolbar @extended navbar
+		.discuss-toolbar .nav-collapse {
+			.discuss-notice-menu li > a > span {
+				margin-left: auto;
+				margin-right: 20px;
+			}
+			.discuss-notice-menu li > a i {
+				right: 6px;
+				left: auto;
+			}
+		}
+
+		//tab
+		// Tabs on the right
+		.tabs-left > .nav-tabs {
+		  float: right;
+		  margin-left: 19px;
+		  border-left: 1px solid #ddd;
+		}
+		.tabs-left > .nav-tabs > li > a {
+		  margin-left: -1px;
+		  .border-radius(0 4px 4px 0);
+		}
+		.tabs-left > .nav-tabs > li > a:hover {
+		  border-color: @grayLighter @grayLighter @grayLighter #ddd;
+		}
+		.tabs-left > .nav-tabs .active > a,
+		.tabs-left > .nav-tabs .active > a:hover {
+		  border-color: #ddd #ddd #ddd transparent;
+		  *border-left-color: @white;
+		}
+
+
+		.tabs-left > .nav-tabs > li,
+		.tabs-right > .nav-tabs > li {
+			float: none;
+		}
+		.tabs-left > .nav-tabs {
+			float: right;
+			border-left: 1px solid @grayLighter;
+			border-right: none;
+		}
+		.discuss-form .tabs-left .tab-content {
+			margin-right: 180px;
+			margin-left: auto;
+		}
+		.tab-box .nav-tabs > li {
+			margin: 15px 5px -1px 0;
+		}
+		.tab-box .tabs-left .nav-tabs > li a {
+			border-color: @grayLighter @grayLighter @grayLighter transparent;
+		}
+		.discuss-filter .nav-tabs-alt {
+			right: auto;
+			left: 0;
+		}
+
+		//discuss-statistics
+		.discuss-statistics {
+			.nav-pills > li + li {
+				border-right: 1px dotted @discussBorderColor;
+				border-left: none;
+				padding-left: auto;
+				padding-right: 10px;
+			}
+		}
+
+		.discuss-category-statistic span + span {
+			margin-left: auto;
+			margin-right: 16px;
+		}
+		// =discuss-view (@view)
+		// ----------------
+		&.discuss-view-index {
+			.discuss-post-title {
+				padding-left: 55px;
+				padding-right: 0;
+			}
+		}
+
+		&.discuss-view-categories {
+
+			.discuss-list {
+				> .child-1 {
+					padding-right: 50px;
+					padding-left: auto;
+					> div {
+						&:before {
+							width: 50px;
+							right: -22px;
+							left: auto;
+						}
+					}
+				}
+				> .child-2 {
+					padding-right: 100px;
+					padding-left: auto;
+					> div {
+						&:before {
+							right: -72px;
+							left: auto;
+						}
+					}
+				}
+				> .child-3 {
+					padding-right: 150px;
+					padding-left: auto;
+					> div {
+						&:before {
+							right: -122px;
+							left: auto;
+						}
+					}
+				}
+				> .child-4 {
+					padding-right: 200px;
+					padding-left: auto;
+					> div {
+						&:before {
+							right: -172px;
+							left: auto;
+						}
+					}
+				}
+				> .child-5 {
+					padding-right: 250px;
+					padding-left: auto;
+					> div {
+						&:before {
+							right: -222px;
+							left: auto;
+						}
+					}
+				}
+				> .child-6 {
+					padding-right: 300px;
+					padding-left: auto;
+					> div {
+						&:before {
+							right: -272px;
+							left: auto;
+						}
+					}
+				}
+				> .child-7 {
+					padding-right: 350px;
+					padding-left: auto;
+					> div {
+						&:before {
+							right: -322px;
+							left: auto;
+						}
+					}
+				}
+			}
+			> .child {
+				+ .parent {
+					margin-top: 20px;
+				}
+			}
+			.dc-media-object {
+				margin-left: 20px;
+				margin-right: auto;
+
+			}
+		}
+
+
+		&.discuss-view-post {
+			.discuss-filter {
+				.nav {
+					> li {
+						float: left;
+					}
+				}
+			}
+			.discuss-likes {
+				float: right;
+			}
+			.discuss-post-comment {
+				float: right;
+			}
+		}
+		//item
+		.discuss-item {
+			.discuss-item-left {
+				float: right;
+				+ .discuss-item-right {
+					margin-left: auto;
+					margin-right: 110px;
+					border-left: 1px solid transparent;
+					border-right: 1px solid @discussItemRightBorderColor;
+				}
+			}
+			.discuss-status {
+				.icon-ed-featured {
+					float: left;
+					left: -4px;
+					right: auto;
+				}
+				.icon-lock {
+					float: left;
+					right: auto;
+					left: 7px;
+
+				}
+			}
+		}
+		.discuss-comment-form {
+			margin-right: auto;
+			margin-left: 40px;
+		}
+		.discuss-comment-form:before {
+			right: 30px;
+			left: auto;
+		}
+
+		.discuss-item > .discuss-status {
+			right: auto;
+			left: 0;
+		}
+		.discuss-comments .discuss-list {
+			padding-left: 40px;
+			padding-right: 0;
+		}
+		.discuss-comments .discuss-item-left + .discuss-item-right {
+			border-right: medium none;
+			margin-right: 60px;
+		}
+		.discuss-comments .discuss-comment-text {
+			padding: 0 0 0 20px;
+		}
+
+		//icon
+		[class^="icon-ed-"],
+		[class*=" icon-ed-"] {
+			background-image:url('@{site_base_uri}/../images/icon-sprite-rtl.png') !important;
+		}
+		//icon
+		[class^="icon-ed-tb-"],
+		[class*=" icon-ed-tb-"] {
+			background-image:url('@{site_base_uri}/../images/icon-toolbar.png') !important;
+		}
+		//social icons
+		.icon-ed-fb {
+			background-image:url('@{site_base_uri}/../images/social/facebook.png');
+		}
+		.icon-ed-twitter {
+			background-image:url('@{site_base_uri}/../images/social/twitter.png');
+		}
+		.icon-ed-linkedin {
+			background-image:url('@{site_base_uri}/../images/social/linkedin.png');
+		}
+		.icon-ed-skype {
+			background-image:url('@{site_base_uri}/../images/social/skype.png');
+		}
+		.icon-ed-website {
+			background-image:url('@{site_base_uri}/../images/social/website.png');
+		}
+
+
+		// form
+		.input-append input, .input-append select, .input-append .uneditable-input {
+			.border-radius(0 3px 3px 0);
+		}
+		.input-append .add-on:last-child, .input-append .btn:last-child {
+			.border-radius(3px 0 0 3px);
+		}
+		.discuss-form .control-label {
+			text-align: right;
+			float: right;
+		}
+		.radio,
+		.checkbox {
+			padding-right: 20px;
+			padding-left: auto;
+		}
+		.polls-tab .control-group > label {
+			text-align: right;
+		}
+		.radio input[type="radio"], .checkbox input[type="checkbox"] {
+			float: right;
+			margin-left: auto;
+			margin-right: -20px;
+		}
+		.form-horizontal .form-actions {
+			padding-left: 10px;
+			// padding-right: 180px;
+		}
+		.controls {
+			margin-left: 100px;
+		}
+
+		.discuss-badges-list {
+			.discuss-item {
+				> .discuss-status {
+					left: auto;
+					right: 10px;
+				}
+				.discuss-story-bd {
+					text-align: center;
+				}
+
+				.discuss-item-left {
+					+ .discuss-item-right {
+						margin-right: 0;
+						margin-left: auto;
+						border-right: none;
+					}
+
+				}
+			}
+		}
+
+		.discuss-profile-nav {
+			text-align: right;
+			> li {
+				> a {
+					.border-radius(0 @discussItemBorderRadius @discussItemBorderRadius 0);
+				}
+				&.active {
+					&:before, &:after {
+					}
+					&:before {
+						left: -0px;
+						border-width: 8px 0 8px 8px;
+						border-left-color: @discussBorderColor;
+					}
+					&:after {
+						left: -2px;
+						border-width: 8px 0 8px 8px;
+						border-left-color: @discussWrapperBackground;
+					}
+				}
+			}
+		}
+
+		//profile @view
+		&.discuss-view-profile {
+			.discuss-profile-left {
+				float: right;
+				border-left: 1px solid @discussBorderColor;
+				border-right: none;
+			}
+			.discuss-profile-right {
+				border-right: 1px solid @discussBorderColor;
+				border-left: none;
+				margin-right: 170px;
+				margin-left: auto;
+				padding-right: 20px;
+				padding-left: auto;
+			}
+
+		}//view-profile
+		// subscribe list
+		// ----------------
+		.discuss-subscribe-list > li {
+			.discuss-unsubscribe {
+				right: auto;
+				left: 0;
+			}
+			.discuss-subscribe-title {
+				margin-left: 140px;
+				margin-right: 0;
+			}
+		}
+		&.w600 {
+			.discuss-subscribe-list {
+				> li {
+					margin-bottom: 12px;
+					padding-bottom: 28px;
+					.discuss-subscribe-title {
+						margin-right: 0px;
+					}
+					.discuss-unsubscribe {
+						float: right;
+						position: relative;
+						right: auto;
+					}
+				}
+			}
+		}
+
+
+		// =discuss-item-message
+		// ----------------
+		// extended .discuss-item
+		.discuss-item-message {
+			.media-object {
+				float: right;
+			}
+			.discuss-item-media {
+				> .discuss-item-left {
+					// width: 70%;
+					text-align: right;
+				}
+			}
+			.discuss-item {
+				border: 1px solid transparent;
+				.discuss-avatar {
+					margin: 0 0 0 10px;
+				}
+				.discuss-item-left {
+					padding: 10px 0px;
+					margin-left: 10px;
+					+ .discuss-item-right {
+						border-left: none;
+						border-right: none;
+						margin-left: 10px;
+						margin-right: 70%;
+					}
+				}
+			}
+		}
+
+		// =discuss-message-box
+		// ----------------
+		.discuss-message-box {
+			left: auto;
+			right: 10px;
+
+			&:before {
+				border-color: rgba(255,255,255,0) rgba(255,255,255,0) rgba(255,255,255,0) @discussMessageBackgroundAlt ;
+				top: 8px;
+				right: -8px;
+				left: auto;
+				border-width: 8px 0 8px 8px;
+			}
+		}
+		// =discuss-conversation-list
+		// ----------------
+		.discuss-conversation-list {
+			> li {
+
+			}
+
+			.by-me {
+				.discuss-item-media {
+					.media-object {
+						float: left;
+					}
+					.media-body {
+						text-align: left;
+					}
+				}
+				.discuss-avatar {
+					margin: 0 10px 0 0;
+				}
+				.discuss-message-box {
+					margin-right: 0;
+					margin-left: 10px;
+					left: auto;
+					right: 0;
+					&:before {
+						left: -8px;
+						right: auto;
+						border-width: 8px 8px 8px 0;
+						border-color: rgba(255,255,255,0) @discussMessageBackground rgba(255,255,255,0) rgba(255,255,255,0) ;
+					}
+				}
+			}
+			.by-user {
+				.discuss-item-message {
+					// background: @grayLighter;
+				}
+				.discuss-message-box {
+					margin-left: 10px;
+					margin-right: 0;
+				}
+			}
+		}
+
+		// assigned-stats
+		// ----------------
+		.discuss-assigned-stats {
+			.discuss-stat-items {
+				.discuss-stat-item {
+					float: right;
+				}
+				.discuss-stat-item .discuss-stat-icon span {
+					left: auto;
+					right: 2px;
+				}
+				.discuss-stat-item ul {
+					float: right;
+					margin: 4px 14px 0 0;
+				}
+			}
+		}
+
+		//easydiscuss rtl
+		.mr-0{margin-left:0px}
+		.mr-5{margin-left:5px}
+		.mr-10{margin-left:10px}
+		.mr-15{margin-left:15px}
+		.mr-20{margin-left:20px}
+		.ml-0{margin-right:0px}
+		.ml-5{margin-right:5px}
+		.ml-10{margin-right:10px}
+		.ml-15{margin-right:15px}
+		.ml-20{margin-right:20px}
+
+		.pr-5{padding-left:5px}
+		.pr-10{padding-left:10px}
+		.pr-15{padding-left:15px}
+		.pr-20{padding-left:20px}
+		.pl-0{padding-right:0px}
+		.pl-5{padding-right:5px}
+		.pl-10{padding-right:10px}
+		.pl-15{padding-right:15px}
+		.pl-20{padding-right:20px}
+
+
+	}//wrap
+
+}

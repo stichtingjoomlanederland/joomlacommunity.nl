@@ -1,0 +1,103 @@
+/*------------------------------------*\
+  tabs.less
+\*------------------------------------*/
+
+// =tab-box
+.tab-content {
+	overflow: visible;
+}
+.nav-tabs {
+	> li {
+		a {
+			font-size: 11px;
+		}
+	}
+}
+.tab-box { //wrap tabbable for background color
+	background: none repeat scroll 0 0 @white;
+	border: 1px solid @discussBorderColor;
+	border-radius: 3px 3px 3px 3px;
+	margin-bottom: 20px;
+	font-size: 12px;
+	label {
+		font-size: 12px;
+	}
+	.nav-tabs {
+		padding-top:0px;
+		margin:0px;
+		#gradient > .vertical(@discussTabBoxBackground, @discussTabBoxBackgroundHighlight);
+		> li {
+			margin: 5px 0 -1px 5px;
+			a {
+				padding-left: 8px;
+				padding-right: 8px;
+			}
+		}
+	}
+	.tab-content {
+		padding:10px 18px 20px;
+		border: none;
+	}
+
+	.tabs-left { //if tabs on left side
+		overflow: hidden;
+		.nav-tabs {
+			height: 2500px;
+			margin-bottom: -9999px;
+			border-right: 1px solid darken(@grayLighter, 13.5%) ;
+			> li {
+				margin-top: 15px;
+				a {
+					border-color: darken(@grayLighter, 13.5%) transparent darken(@grayLighter, 13.5%) darken(@grayLighter, 13.5%);
+					&:hover {
+						border-color: @discussBorderColor @grayLighter @discussBorderColor @discussBorderColor;
+						border-color: darken(@grayLighter, 13.5%) darken(@grayLighter, 6.5%) darken(@grayLighter, 13.5%) darken(@grayLighter, 13.5%) ;
+					}
+				}
+				&.active {
+					a {
+						&:hover {
+							border-color: @discussBorderColor @white @discussBorderColor @discussBorderColor;
+						}
+					}
+				}
+			}
+		}
+		.tab-content {
+			min-height: 380px;
+		}
+	}
+}
+
+
+&.w320 {
+	.tab-box {
+		.nav-tabs {
+			padding: 0;
+			border: none;
+			> li {
+				width: 50%;
+				margin: 0;
+				padding: 0;
+				a {
+					margin: -1px -1px 0 -1px;
+					.border-radius(0);
+					border: 1px solid @discussBorderColor;
+				}
+				&:nth-child(2n+1) {
+					a {
+						margin: -1px 0 0 -1px;
+					}
+				}
+			}
+		}
+	}
+
+	.discuss-composer {
+		.nav-tabs.formTabs {
+			padding: 0;
+		}
+	}
+
+
+}

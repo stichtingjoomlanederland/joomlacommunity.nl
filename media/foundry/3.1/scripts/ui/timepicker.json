@@ -1,0 +1,9 @@
+[
+    {
+        "script": [
+            "ui/datepicker",
+            "ui/slider"
+        ],
+        "adapter": "Foundry"
+    }
+]

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fields name="params">
+		<fieldset name="basic">
+			<field name="color" type="color" label="COM_RSEVENTSPRO_CATEGORIES_COLOR" description="COM_RSEVENTSPRO_CATEGORIES_COLOR_DESC" />
+			</fieldset>
+	</fields>
+</form>

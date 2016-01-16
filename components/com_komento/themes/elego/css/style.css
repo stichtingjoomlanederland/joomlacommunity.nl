@@ -1,0 +1,84 @@
+/**
+ * @package		Komento
+ * @copyright	Copyright (C) 2012 Stack Ideas Private Limited. All rights reserved.
+ * @license		GNU/GPL, see LICENSE.php
+ *
+ * Komento is free software. This version may have been modified pursuant
+ * to the GNU General Public License, and as distributed it includes or
+ * is derivative of works licensed under the GNU General Public License or
+ * other free or open source software licenses.
+ * See COPYRIGHT.php for copyright notices and details.
+ */
+
+
+/* =comment listing
+****************************************/
+#section-kmt .kmt-list > li + li > div,
+#section-kmt .kmt-list > .kmt-form + li > div{
+	border-top:0;
+	margin:15px 0 0;
+	padding:15px 0 0;
+}
+#section-kmt .kmt-avatar img{
+	width:50px;
+	border-radius:3px;
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+}
+#section-kmt .kmt-body{
+	margin:10px 0;
+	padding:15px;
+	background:#fff;
+	border:1px solid #cacaca;
+	border-bottom-color:#aaa;
+	border-radius:0 2px 2px 2px;
+	-moz-border-radius:0 2px 2px 2px;
+	-webkit-border-radius:0 2px 2px 2px;
+}
+#section-kmt .kmt-body > i{
+	position:absolute;
+	left:-1px;
+	top:-10px;
+	background:url(../images/bubble.png) 0 0 no-repeat;
+	width:20px;
+	height:10px;
+}
+#section-kmt .kmt-option{
+	top:2px;
+}
+#section-kmt .kmt-meta{
+	top:-5px;
+	position:relative;
+}
+#section-kmt .kmt-control-user{
+	top:-5px;
+}
+#section-kmt .kmt-btn,
+#section-kmt .kmt-btn:hover{
+	background: -moz-linear-gradient(top,  #ffffff 0%, #ffffff 49%, #eeeeee 51%, #eeeeee 100%); /* FF3.6+ */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(49%,#ffffff), color-stop(51%,#eeeeee), color-stop(100%,#eeeeee)); /* Chrome,Safari4+ */
+	background: -webkit-linear-gradient(top,  #ffffff 0%,#ffffff 49%,#eeeeee 51%,#eeeeee 100%); /* Chrome10+,Safari5.1+ */
+	background: -o-linear-gradient(top,  #ffffff 0%,#ffffff 49%,#eeeeee 51%,#eeeeee 100%); /* Opera 11.10+ */
+	background: -ms-linear-gradient(top,  #ffffff 0%,#ffffff 49%,#eeeeee 51%,#eeeeee 100%); /* IE10+ */
+	background: linear-gradient(top,  #ffffff 0%,#ffffff 49%,#eeeeee 51%,#eeeeee 100%); /* W3C */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#eeeeee',GradientType=0 ); /* IE6-9 */
+}
+
+
+#section-kmt .kmt-rank--author { /* @extend kmt-rank */
+	width: 34px;
+	top: -1px;
+}
+
+/**
+* Responsive control
+#section-kmt.w600
+#section-kmt.w320
+*/
+#section-kmt.w320 .kmt-rank + .kmt-content,
+#section-kmt.w320 .kmt-avatar + .kmt-content {
+	margin-left: 0;
+}
+#section-kmt.w320 .kmt-avatar {
+	margin-right: 10px;
+}

@@ -1,0 +1,12 @@
+[
+    {
+        "library": [
+            "dialog"
+        ],
+        "script": [
+            "komento.common",
+            "admin.language"
+        ],
+        "adapter": "Komento"
+    }
+]

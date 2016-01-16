@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="3.0.0" method="upgrade">
+	<name>com_komento</name>
+	<creationDate>Jan 2012</creationDate>
+	<author>Stack Ideas</author>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://www.stackideas.com</authorUrl>
+	<copyright>Copyright 2012 Stack Ideas. All rights reserved</copyright>
+	<license>GPL License</license>
+	<version>2.0.5</version>
+	<description>
+		Komento is a Joomla! comment component.
+	</description>
+	<scriptfile>script.php</scriptfile>
+	<install>
+		<sql>
+			<file driver="mysql" charset="utf8">install.mysql.utf8.sql</file>
+		</sql>
+	</install>
+	<uninstall>
+		<sql>
+			<file driver="mysql" charset="utf8">uninstall.mysql.utf8.sql</file>
+		</sql>
+	</uninstall>
+	<update>
+		<schemas>
+			<schemapath type="mysql">sql/updates/mysql</schemapath>
+		</schemas>
+	</update>
+	<files folder="site">
+		<folder>assets</folder>
+		<folder>classes</folder>
+		<folder>controllers</folder>
+		<folder>helpers</folder>
+		<folder>komento_plugins</folder>
+		<folder>models</folder>
+		<folder>themes</folder>
+		<folder>views</folder>
+		<filename>bootstrap.php</filename>
+		<filename>constants.php</filename>
+		<filename>controller.php</filename>
+		<filename>COPYRIGHT.PHP</filename>
+		<filename>jomsocial_rule.xml</filename>
+		<filename>komento.php</filename>
+		<filename>index.html</filename>
+		<filename>LICENSE.php</filename>
+		<filename>router.php</filename>
+		<filename>api.php</filename>
+		<filename>cron.php</filename>
+	</files>
+	<media folder="media">
+		<folder>com_komento</folder>
+	</media>
+	<modules>
+		<module module="mod_komento_activities" client="site" />
+		<module module="mod_komento_comments" client="site" />
+		<module module="mod_komento_activities_admin" client="admin" />
+		<module module="mod_komento_comments_admin" client="admin" />
+	</modules>
+	<plugins>
+		<plugin plugin="plg_content_komento" group="content" />
+		<plugin plugin="plg_system_komento" group="system" />
+		<plugin plugin="plg_user_komentousers" group="user" />
+	</plugins>
+	<administration>
+		<menu link="option=com_komento" img="components/com_komento/assets/images/komento-favicon.png">Komento</menu>
+		<submenu>
+			<menu view="comments" img="components/com_komento/assets/images/comments-favicon.png">COM_KOMENTO_MENU_COMMENTS</menu>
+			<menu view="pending" img="components/com_komento/assets/images/pending-favicon.png">COM_KOMENTO_MENU_PENDINGS</menu>
+			<menu view="reports" img="components/com_komento/assets/images/reports-favicon.png">COM_KOMENTO_MENU_REPORTS</menu>
+			<menu view="subscribers" img="components/com_komento/assets/images/subscribers-favicon.png">COM_KOMENTO_MENU_SUBSCRIBERS</menu>
+			<menu view="integrations" img="components/com_komento/assets/images/integrations-favicon.png">COM_KOMENTO_MENU_INTEGRATIONS</menu>
+			<menu view="system" img="components/com_komento/assets/images/system-favicon.png">COM_KOMENTO_MENU_CONFIGURATION</menu>
+			<menu view="acl" img="components/com_komento/assets/images/acls-favicon.png">COM_KOMENTO_MENU_ACL</menu>
+			<menu view="migrators" img="components/com_komento/assets/images/migrators-favicon.png">COM_KOMENTO_MENU_MIGRATORS</menu>
+			<menu view="mailq" img="components/com_komento/assets/images/mailq-favicon.png">COM_KOMENTO_MENU_MAILQ</menu>
+		</submenu>
+		<files folder="admin">
+			<folder>assets</folder>
+			<folder>controllers</folder>
+			<folder>easysocial</folder>
+			<folder>elements</folder>
+			<folder>models</folder>
+			<folder>tables</folder>
+			<folder>views</folder>
+			<folder>sql</folder>
+			<filename>access.xml</filename>
+			<filename>acl.json</filename>
+			<filename>admin.komento.php</filename>
+			<filename>config.xml</filename>
+			<filename>configuration.json</filename>
+			<filename>foundry.php</filename>
+			<filename>index.html</filename>
+			<filename>install.default.php</filename>
+			<filename>install.mysql.utf8.sql</filename>
+			<filename>komento.php</filename>
+			<filename>konfiguration.json</filename>
+			<filename>toolbar.komento.php</filename>
+			<filename>uninstall.mysql.utf8.sql</filename>
+			<filename>usergroupsacl.json</filename>
+			<filename>views.php</filename>
+		</files>
+		<languages>
+			<language tag="en-GB">languages/admin/en-GB.com_komento.ini</language>
+			<language tag="en-GB">languages/admin/en-GB.com_komento.sys.ini</language>
+		</languages>
+	</administration>
+	<languages>
+		<language tag="en-GB">languages/site/en-GB.com_komento.ini</language>
+	</languages>
+</extension>

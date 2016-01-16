@@ -1,0 +1,97 @@
+#rs_right_1 {
+	position: relative;
+	}
+	
+.rs_display_none {
+	display: none;
+	}
+	
+ul#rs_event_menu {	
+	position: relative;
+	top: -4px;
+	}
+	
+#rs_event_main fieldset .rs_txt {
+	margin-left: -15px;
+	}
+	
+div.MultiSelect ul, div.MultiSelect {	
+	z-index: 5000 !important;
+	margin-left: 0;
+	margin-top: 12px;
+	}
+	
+div.MultiSelect ul {
+	position: absolute;
+	z-index: 8000 !important;
+}
+	
+div.MultiSelect ul li {
+	z-index: 5000 !important;
+}
+
+div.rs_groups {
+	z-index: 5000 !important;
+}
+	
+.rs_add_category {
+	margin-top: 12px;
+}
+	
+#wider_label {	
+	}
+	
+#rs_event_main fieldset .rs_inp, #rs_event_main p {
+	position: relative;
+	z-index: 10;
+	}
+	
+#rs_event_main fieldset {
+	position: relative;
+	}
+	
+#rs_event_main fieldset p {
+	position: relative;
+	z-index: 1;
+}
+
+#rs_event_menu {
+	min-height: 0;
+}
+	
+	
+#rs_to_left {
+	margin-left: 0 !important;	
+}
+	
+.rs_calendar_icon, .rs_calendar_icon2 {
+	z-index: 15;
+	}
+	
+#rs_location_window {	
+	z-index: 6000 !important;
+	top: 65px;
+	left: 0;
+	}	
+	
+#rs_event_main .mceEditor {
+	z-index: 25;
+	position: relative;
+}
+	
+#rs_location_window .rs_txt {	
+	margin-left: -5px;
+	}
+	
+ul.autocompleter-choices {
+	margin-top: 7px;
+	margin-left: 0;
+}
+
+#rs_event_main .rs_txt {	
+	margin-left: 0px !important;
+	}
+	
+div.calendar {
+	margin-left: -15px !important;	
+}

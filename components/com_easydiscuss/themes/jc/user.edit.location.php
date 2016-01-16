@@ -1,0 +1,62 @@
+<?php
+/**
+ * @package		EasyDiscuss
+ * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+ * @license		GNU/GPL, see LICENSE.php
+ *
+ * EasyDiscuss is free software. This version may have been modified pursuant
+ * to the GNU General Public License, and as distributed it includes or
+ * is derivative of works licensed under the GNU General Public License or
+ * other free or open source software licenses.
+ * See COPYRIGHT.php for copyright notices and details.
+ */
+
+defined('_JEXEC') or die('Restricted access');
+?>
+<script type="text/javascript">
+EasyDiscuss
+	.require()
+	.script( 'location'  )
+	.done(function($){
+
+		$( '.locationForm' ).implement( EasyDiscuss.Controller.Location.Form,
+		{
+			<?php if ( $profile->location ){ ?>
+			initialLocation: "<?php echo $profile->location; ?>",
+			<?php } ?>
+
+			// Map settings
+			height: '250px',
+			width: '100%',
+			mapType : "ROADMAP",
+			language: '<?php echo $system->config->get( 'main_location_language' );?>',
+			"{locationInput}"		: "input[name=address]",
+			"{locationLatitude}"	: "input[name=latitude]",
+			"{locationLongitude}"	: "input[name=longitude]"
+		});
+});
+</script>
+
+<div class="discuss-location locationForm">
+	<label class="control-label" for="shareAdress"><?php echo JText::_( 'COM_EASYDISCUSS_SHARE_LOCATION' );?> :</label>
+	<p><input type="text" id="shareAdress" name="address" class="form-control publish-location loading" autocomplete="off" value="<?php echo $profile->location; ?>" /></p>
+	<p>
+		<a class="butt butt-default autoDetectButton" href="javascript: void(0);">
+			<i class="i i-map-marker muted"></i> 
+			&nbsp;
+			<?php echo JText::_( 'COM_EASYDISCUSS_AUTO_DETECT_LOCATION' );?>
+		</a>
+		<a class="butt butt-default removeLocationButton" href="javascript:void(0);">
+			<i class="i i-times muted"></i> 
+			&nbsp;
+			<?php echo JText::_( 'COM_EASYDISCUSS_CANCEL' );?>
+		</a>
+	</p>
+	<p class="discuss-location-coords small locationCoords">
+		<?php echo JText::_( 'COM_EASYDISCUSS_LATITUDE' );?>: <span class="latitudeDisplay"><?php echo $profile->latitude; ?></span> ,
+		<?php echo JText::_( 'COM_EASYDISCUSS_LONGITUDE' );?>: <span class="longitudeDisplay"><?php echo $profile->longitude; ?></span>.
+		<input type="hidden" name="latitude" value="<?php echo $profile->latitude;?>" />
+		<input type="hidden" name="longitude" value="<?php echo $profile->longitude;?>" />
+	</p>
+	<div class="locationMap location-map" style="display: none; "></div>
+</div>

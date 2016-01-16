@@ -1,0 +1,8 @@
+[
+    {
+        "library": [
+            "dialog"
+        ],
+        "adapter": "Komento"
+    }
+]

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.0" type="plugin" client="site" group="user" method="upgrade">
+	<name>User - Komento Users</name>
+	<author>StackIdeas</author>
+	<creationDate>February 2012</creationDate>
+	<copyright>Copyright 2012 StackIdeas. All rights reserved.</copyright>
+	<license>GPL License</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://www.stackideas.com</authorUrl>
+	<version>1.0.0</version>
+	<description>Komento user plugin. This plugin is responsible to delete user's related records.</description>
+	<files>
+		<filename plugin="komentousers">komentousers.php</filename>
+	</files>
+</extension>

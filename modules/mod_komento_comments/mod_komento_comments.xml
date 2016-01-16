@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.0" type="module" client="site" group="user" method="upgrade">
+	<name>Komento Comments</name>
+	<author>StackIdeas</author>
+	<creationDate>May 2012</creationDate>
+	<copyright>Copyright 2009 - 2012 Stack Ideas. All rights reserved.</copyright>
+	<license>GPL License</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://www.stackideas.com</authorUrl>
+	<version>1.0.7</version>
+	<description>Display comments from Komento</description>
+	<files>
+		<filename module="mod_komento_comments">mod_komento_comments.php</filename>
+		<folder>tmpl</folder>
+	</files>
+
+	<config>
+		<fields name="params">
+			<fieldset name="basic" addfieldpath="/administrator/components/com_komento/elements">
+				<field name="limit" type="text" default="5" label="Comments Limit" description="Max comments to display" />
+				<field name="component" type="modal_komentocomponent" default="all" label="Select Component" description="Select which component's comment to display" state="1" />
+				
+				<field name="filter" type="list" default="all" label="Filter" description="Select Filter type">
+					<option value="">No Filter</option>
+					<option value="category">Filter by Category</option>
+					<option value="article">Filter by Article</option>
+					<option value="user">Filter by User</option>
+				</field>
+				
+				<field name="category" type="text" default="" label="Filter by Category ID" description="Filter comments with category id (comma separated)" />
+				<field name="articleId" type="text" default="" label="Filter by Article ID" description="Filter comments with article id (comma separated)" />
+				<field name="userId" type="text" default="" label="Filter by User ID" description="Filter comments with user id (comma separated)" />
+				
+				<field name="sort" type="list" default="latest" label="Sort" description="Select sorting type">
+					<option value="latest">Latest First</option>
+					<option value="oldest">Oldest First</option>
+					<option value="likes">Most Liked</option>
+				</field>
+				<field name="random" type="list" default="0" label="Randomized" description="If enabled, module will fetch random comments">
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field>
+				<field name="filtersticked" type="list" default="0" label="Sticked comments only" description="If enabled, module will only fetch sticked comments">
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field>
+				<field name="showtitle" type="list" default="1" label="Show blog title" description="Show or hide the blog's title text in the module.">
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field>
+				<field name="showcomponent" type="list" default="1" label="Show component title" description="Show or hide the component's title text in the module.">
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field>
+				<field name="showavatar" type="list" default="1" label="Show avatar" description="Show or hide the commentor's avatar in the module.">
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field>
+				<field name="showauthor" type="list" default="1" label="Show author" description="Show or hide the author's name in the module.">
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field>
+				<field name="maxcommentlength" type="text" default="100" label="Max comment length" description="Specify the length of characters display in comments text." />
+				<field name="maxtitlelength" type="text" default="30" label="Max title length" description="Specify the length of characters display in title text." />
+			</fieldset>
+			<fieldset name="advanced">
+				<field
+					name="moduleclass_sfx" type="text"
+					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+					description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC">
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+			</fieldset>
+		</fields>
+	</config>
+</extension>

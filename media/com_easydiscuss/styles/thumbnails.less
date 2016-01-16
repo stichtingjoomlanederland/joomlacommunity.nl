@@ -1,0 +1,37 @@
+/*------------------------------------*\
+  $thumbnails.less
+\*------------------------------------*/
+/**
+* extended tw .thumbnail
+e.g:
+<ul class="thumbnails">
+	<li class="thumbnail thumbnail-small"><img></li>
+</ul>
+without declaring the size image size will default to width 100%
+*/
+.thumbnail-small {
+	width: 110px;
+	height: auto;
+}
+.thumbnail-large {
+	width: 200px;
+	height: auto;
+}
+
+.thumbnail {
+	> a {
+		display: block;
+		> img {
+			width: 160px;
+			height: 90px;
+		}
+	}
+	.caption {
+		height: 20px;
+		overflow: hidden;
+		padding: 2px;
+		line-height: 20px;
+		font-size: 12px;
+	}
+}
+

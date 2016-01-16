@@ -1,0 +1,164 @@
+/* =extend markitup : general
+****************************************/
+.markItUp{width:100%}
+.markItUp *{margin:0;outline:none;padding:0;list-style: none;}
+.markItUp a:link,.markItUp a:visited{color:#000;text-decoration:none;}
+.markItUp .markItUpContainer{display:block;font:12px 'Helvetica Neue',Arial,Helvetica,sans-serif;background:none;border:0;padding:0;margin:0;min-height:0;}
+
+/* =extend markitup : header
+****************************************/
+.markItUp .markItUpContainer .markItUpHeader{overflow: hidden;}
+.markItUp .markItUpContainer .markItUpHeader > ul{float:left;}
+.markItUp .markItUpContainer .markItUpHeader > ul,
+.markItUp .markItUpContainer .markItUpHeader > ul > li{background:none;border:none;clear:none;float:none;list-style:none;list-style-image:none;margin:0;padding:0;overflow:visible;width:auto;}
+.markItUp .markItUpContainer .markItUpHeader > ul {display:inline-block;position:relative;padding:0;margin:0;vertical-align:top;}
+.markItUp .markItUpContainer .markItUpHeader > ul > li{float:left;position:relative;line-height:1!important;}
+.markItUp .markItUpContainer .markItUpHeader > ul > li:hover > ul{display:block}
+.markItUp .markItUpContainer .markItUpHeader > ul .markItUpDropMenu{background:transparent url(../images/markitup/menu.png) no-repeat 115% 50%;margin-right:5px}
+.markItUp .markItUpContainer .markItUpHeader > ul .markItUpDropMenu li{margin-right:0}
+.markItUp .markItUpContainer .markItUpHeader > ul > ul{display:none;position:absolute;top:18px;left:0;background:#FFF;border:1px solid #000}
+.markItUp .markItUpContainer .markItUpHeader > ul > ul > li{float:none;border-bottom:1px solid #000}
+.markItUp .markItUpContainer .markItUpHeader > ul > ul .markItUpDropMenu{background:#FFF url(../images/markitup/submenu.png) no-repeat 100% 50%}
+.markItUp .markItUpContainer .markItUpHeader > ul .markItUpSeparator{background: @grey-300; text-indent: -9999px; width: 1px; margin: 4px 10px;height: 14px;position:static;}
+.markItUp .markItUpContainer .markItUpHeader > ul > ul .markItUpSeparator{width:auto;height:1px;margin:0}
+.markItUp .markItUpContainer .markItUpHeader > ul > ul > ul{position:absolute;top:-1px;left:150px}
+.markItUp .markItUpContainer .markItUpHeader > ul > ul > ul > li{float:none}
+.markItUp .markItUpContainer .markItUpHeader > ul > li > a{background:none no-repeat center center; border:0 !important;display:block;width:16px;height:16px;-moz-border-radius:3px;-webkit-border-radius:3px;border-radius:3px;margin:0;padding:3px}
+.markItUp .markItUpContainer .markItUpHeader > ul > ul a{display:block;text-indent:0;width:120px;background-position:2px 50%;padding:5px 5px 5px 25px}
+.markItUp .markItUpContainer .markItUpHeader > ul > ul a:hover{color:#FFF;background-color:#000}
+.markItUp .markItUpContainer .markItUpHeader > ul > li > a{padding:0;border:none;}
+.markItUp .markItUpContainer .markItUpHeader > ul > li > a:hover{}
+.markItUp .markItUpContainer .markItUpHeader > ul > li.markItUpButton {
+    border: 1px solid transparent;
+    border-radius: 2px;
+    cursor: pointer;
+    height: 22px;
+    padding: 2px;
+
+    &:hover {
+        background: @grey-200;
+        border-color: @grey-300;
+    }
+
+    > a {
+        width: 16px;
+        height: 16px;
+        line-height: 16px;
+        text-align: center;
+        text-indent: 0;
+        background-color: transparent;
+    }
+}
+
+/* =extend markitup : icons
+****************************************/
+.markItUp .kmt-markitup-bold a,
+.markItUp .kmt-markitup-italic a,
+.markItUp .kmt-markitup-underline a,
+.markItUp .kmt-markitup-link a,
+.markItUp .kmt-markitup-picture a,
+.markItUp .kmt-markitup-video a,
+.markItUp .kmt-markitup-bullet a,
+.markItUp .kmt-markitup-numeric a,
+.markItUp .kmt-markitup-list a,
+.markItUp .kmt-markitup-quote a,
+.markItUp .kmt-markitup-code a{
+    background: none !important;
+    display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 0;
+    color: transparent;
+    overflow: hidden;
+
+    &:before {
+        text-indent: 0;
+        font-size: 12px;
+        color: #555;
+    }
+}
+
+.kmt-markitup-clean {
+    display: none !important;
+}
+
+.markItUp .kmt-markitup-bold a:before       { content: "\f032"; }
+.markItUp .kmt-markitup-italic a:before     { content: "\f033"; }
+.markItUp .kmt-markitup-underline a:before  { content: "\f0cd"; }
+.markItUp .kmt-markitup-link a:before       { content: "\f0c1"; }
+.markItUp .kmt-markitup-picture a:before    { content: "\f03e"; }
+.markItUp .kmt-markitup-video a:before      { content: "\f008"; }
+.markItUp .kmt-markitup-bullet a:before     { content: "\f0ca"; }
+.markItUp .kmt-markitup-numeric a:before    { content: "\f0cb"; }
+.markItUp .kmt-markitup-list a:before       { content: "\f03a"; }
+.markItUp .kmt-markitup-quote a:before      { content: "\f10d"; }
+.markItUp .kmt-markitup-code a:before       { content: "\f121"; }
+
+.markItUp .kmt-markitup-smile a,
+.markItUp .kmt-markitup-happy a,
+.markItUp .kmt-markitup-surprised a,
+.markItUp .kmt-markitup-tongue a,
+.markItUp .kmt-markitup-unhappy a,
+.markItUp .kmt-markitup-wink a {
+    background-size: cover !important;
+    background-position: center !important;
+    text-indent: -9999px !important;
+    overflow: hidden !important;
+}
+.markItUp .kmt-markitup-smile a{background-image:url(../images/markitup/emoticon-smile.png)!important}
+.markItUp .kmt-markitup-happy a{background-image:url(../images/markitup/emoticon-happy.png)!important}
+.markItUp .kmt-markitup-surprised a{background-image:url(../images/markitup/emoticon-surprised.png)!important}
+.markItUp .kmt-markitup-tongue a{background-image:url(../images/markitup/emoticon-tongue.png)!important}
+.markItUp .kmt-markitup-unhappy a{background-image:url(../images/markitup/emoticon-unhappy.png)!important}
+.markItUp .kmt-markitup-wink a{background-image:url(../images/markitup/emoticon-wink.png)!important}
+.markItUp .kmt-markitup-clean a{background-image:url(../images/markitup/clean.png)!important}
+.markItUp .kmt-markitup-preview a{background-image:url(../images/markitup/preview.png)!important}
+
+/* =extend markitup : textarea
+****************************************/
+.markItUpEditor{background:#fff!important;color:#222;resize:none;font:12px Arial,Helvetica,sans-serif;height:50px;line-height:20px;overflow:auto;padding:5px;width:100%;margin:0 0 20px;border:0;border-radius:0;-moz-border-radius:0;-webkit-border-radius:0;box-shadow:none;-moz-box-shadow:none;-webkit-box-shadow:none;}
+.markItUpPreviewFrame{background-color:#fff;height:300px;margin:5px 0;overflow:auto;width:99.9%}
+.markItUpFooter{}
+.markItUpResizeHandle,
+.markItUpResizeHandle:before,
+.markItUpResizeHandle:after {
+    background:#ddd;
+    cursor:n-resize;
+    height:1px;
+}
+.markItUpResizeHandle {
+    background: #fff;
+    left: -30px;
+    margin:0 auto;
+    position: relative;
+    width:22px;
+    height: 6px;
+    border-top: 1px solid #ddd;
+
+    &:before,
+    &:after {
+        content: '';
+        display: block;
+        width: 100%;
+        position: absolute;
+        left: 0;
+    }
+
+    &:before {
+        top: 2px;
+    }
+
+    &:after {
+        top: 5px;
+    }
+}
+
+.markItUpFooter {
+    position: absolute;
+    left: 0;
+    bottom: 10px;
+    width: 100%;
+}

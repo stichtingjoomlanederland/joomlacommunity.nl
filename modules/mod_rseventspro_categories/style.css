@@ -1,0 +1,14 @@
+.rsepro_categories {
+	list-style: none outside none !important;
+    margin: 0 !important;
+    padding: 0;
+    width: 100%;
+}
+
+.rsepro_categories li a,
+.rsepro_categories li a:hover,
+.rsepro_categories li a:active,
+.rsepro_categories li a:focus
+ {
+	text-decoration: none;
+}

@@ -1,0 +1,13 @@
+/*------------------------------------*\
+	$rtl-extend.less
+\*------------------------------------*/
+html[dir='rtl'] body {
+	(~"@{EasyDiscuss}") {
+
+		//make dark theme to use correct sprite
+		[class^="icon-ed-tb-"],
+		[class*=" icon-ed-tb-"] {
+			background-image: url("@{discussToolbarSpritePath}");
+		}
+	}
+}

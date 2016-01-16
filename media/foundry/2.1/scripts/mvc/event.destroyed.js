@@ -1,0 +1,1 @@
+!function(){var moduleFactory=function($){var module=this,exports=function(){var oldClean=$.cleanData;$.cleanData=function(elems){for(var elem,i=0;void 0!==(elem=elems[i]);i++)$(elem).triggerHandler("destroyed");oldClean(elems)}};exports(),module.resolveWith(exports)};dispatch("mvc/event.destroyed").containing(moduleFactory).to("Foundry/2.1 Modules")}();

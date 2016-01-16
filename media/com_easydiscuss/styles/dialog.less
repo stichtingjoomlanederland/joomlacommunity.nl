@@ -1,0 +1,102 @@
+/*------------------------------------*\
+  $dialog.less
+\*------------------------------------*/
+
+#discuss-dialog {
+	@import "bootstrap/close";
+	@import "bootstrap/buttons";
+	@import "bootstrap/alerts"; // Note: alerts share common CSS with buttons and thus have styles in buttons
+	@import "bootstrap/forms";
+	@import "markitup/default";
+	@import "markitup";//customize for easydiscuss
+	@import "easydiscuss";
+
+	.modal-header {
+		h3 {
+			font-weight: 700;
+			font-size: 24px;
+			text-align: left !important;
+		}
+	}
+	.modal-body {
+		text-align: left !important;
+		font-size: 14px;
+		p {
+			font-size: 14px;
+		}
+	}
+	.btn,
+	.close {
+		text-decoration: none !important;
+	}
+	.close {
+		&:hover {
+			background: none;
+		}
+	}
+
+	input[type="text"] {
+		&.full-width {
+			height: 30px;
+			width: 100%;
+			.box-sizing(border-box);
+		}
+	}
+
+	.form-horizontal {
+		.control-label {
+			width: 100px;
+		}
+		.controls {
+			margin-left: 120px;
+		}
+	}
+
+	// voters
+	// ----------------
+	.discuss-voters {
+		max-height:600px;
+		overflow-y:auto;
+	}
+	.discuss-voter {
+		display: inline-block;
+		width: 31.5%;
+		height: 52px;
+		overflow: hidden;
+		padding: 5px;
+		line-height: 16px;
+		margin: 5px 1% 5px 0;
+		vertical-align: top;
+		border: 1px solid @grayLighter;
+		.border-radius(3px);
+		.box-sizing(border-box);
+		.table {
+			display: table;
+		}
+		.table-cell {
+			display: table-cell;
+			vertical-align: middle;
+			height: 40px;
+		}
+		img {
+			.border-radius(2px);
+			width: 40px;
+			float:left;
+			display:inline-block;
+			margin-right:10px;
+		}
+		a {
+			text-decoration: none;
+			color: @grayDark;
+			font-size: 12px;
+			&:hover {
+				color: @gray;
+				background: none;
+				text-decoration: none;
+			}
+		}
+	}
+	.discuss-voters-guest {
+		font-size: 12px;
+	}
+}

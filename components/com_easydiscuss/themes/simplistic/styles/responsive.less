@@ -1,0 +1,144 @@
+/*------------------------------------*\
+    $responsive.less
+\*------------------------------------*/
+//	responsive control class
+
+
+&.w768 {
+
+}
+&.w600 {
+	.discuss-list-grid {
+		> li {
+			width: 45.914893617021%;
+			*width: 45.86170212766%;
+			margin-right: 2.0276595744681%;
+			*margin-right: 2.0744680851064%;
+		}
+	}
+	.discuss-vote {
+		float: right;
+	}
+}
+&.w320 {
+	// Fluid rows
+	.row-fluid {
+		width: 100%;
+	}
+	// Undo negative margin on rows and thumbnails
+	.row,
+	.thumbnails {
+		margin-left: 0;
+	}
+	.thumbnails > li {
+		float: none;
+		margin-left: 0; // Reset the default margin for all li elements when no .span* classes are present
+	}
+	// Make all grid-sized elements block level again
+	[class*="span"],
+	.row-fluid [class*="span"] {
+		float: none;
+		display: block;
+		width: auto;
+		margin-left: 0;
+	}
+	.span12,
+	.row-fluid .span12 {
+		width: 100%;
+		.box-sizing(border-box);
+	}
+	.discuss-item {
+		 .discuss-item-left {
+		 	width: auto;
+		 	padding: 15px 5px 5px;
+			+ .discuss-item-right {
+				margin-left: 0;
+				border-left: none;
+				clear: both;
+			}
+		 }
+	}
+
+	//form
+	.form-horizontal {
+		.control-label {
+			// width:
+		}
+		.controls {
+			clear: both;
+			margin-left: 0;
+		}
+	}
+
+	.discuss-post-login {
+		&:before { //line
+			display: none;
+		}
+	}
+	.discuss-list-grid {
+		> li {
+			// width: 47.5%;
+			width: 100%;
+		}
+	}
+
+	.hide-phone {
+		display: none !important;
+	}
+
+	//states
+	.discuss-item {
+		&.is-minimized {
+			.discuss-item-left {
+				+.discuss-item-right {
+					clear: none;
+					margin-left: 80px;
+				}
+			}
+		}
+		&.is-featured,
+		&.is-resolved {
+
+			.discuss-statistic.pull-right {
+				margin-top: 0;
+			}
+
+
+		}
+	}//item
+	.discuss-story {
+		.discuss-story-bd {
+			clear: both;
+		}
+	}
+}//w320
+
+
+
+.visible-phone {
+	display: none !important;
+	// visibility: hidden;
+	// .opacity(0);
+	// display: none;
+}
+&.w768 {
+	.visible-phone {
+		// display: inherit !important;
+	}
+}
+
+// &.w320 {
+// 	.visible-phone {
+// 		display: inherit !important;
+// 	}
+// }
+.narrow {
+	.visible-phone {
+		display: inline !important;
+		// visibility: visible;
+		// .opacity(100);
+	}
+	.hide-phone {
+		display: none !important;
+	}
+}

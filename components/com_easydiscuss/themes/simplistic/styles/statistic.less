@@ -1,0 +1,96 @@
+/*------------------------------------*\
+	$statistic.less
+\*------------------------------------*/
+.discuss-statistic {
+	// float: right;
+	margin-right: 10px;
+	margin-top: 5px;
+	padding-right: 2px;
+	.votes,
+	.status,
+	.views,
+	.likes {
+		.border-radius(@discussItemBorderRadius);
+		position: relative;
+		border: 1px solid @discussBorderColor;
+		float: left;
+		font-size: 10px;
+		height: 42px;
+		margin: 0 0 0 6px;
+		padding: 6px 5px 0;
+		text-align: center;
+		width: auto;
+		min-width: 46px;
+
+		background-color: @discussStatisticBackground;
+		// text-shadow: @btnTextShadowAlt;
+		a {
+			color: @discussStatisticColor;
+			line-height: 19px;
+			&:hover {
+				color: @discussStatisticColor;
+				background: none;
+			}
+		}
+	}
+	.status {
+		background-color: @discussStatisticStatusBackground;
+		border: 1px solid darken(spin(@discussStatisticStatusBackground, -10), 10%);
+		a {
+			color: @discussStatisticStatusColor;
+			&:hover {
+				color: @discussStatisticStatusColor;
+			}
+		}
+
+	}
+	.item-count {
+		display: block;
+		font-size: 15px;
+		font-weight: bold;
+		margin-bottom: -5px;
+	}
+}
+&.w320 {
+	.discuss-statistic {
+		float: none;
+		// margin-top: 0;
+	}
+}
+
+.is-resolved {
+	.status {
+		background-color: @discussStatisticResolvedBackground;
+		border: 1px solid darken(spin(@discussStatisticResolvedBackground, -10), 15%);
+
+		a {
+			color: @discussStatisticResolvedColor;
+			&:hover {
+				color: @discussStatisticResolvedColor;
+			}
+		}
+	}
+}
+
+
+.discuss-statistic-mini {
+	font-size: 12px;
+	color: @gray;
+	a {
+		color: @gray;
+		margin-right: 10px;
+		&:hover {
+			background: none;
+			color: @gray;
+			text-decoration: none;
+		}
+	}
+	span + span {
+		margin-left: 10px;
+	}
+	[class^="icon-ed"],
+	[class*=" icon-ed"] {
+		position: relative;
+		top: 2px;
+	}
+}

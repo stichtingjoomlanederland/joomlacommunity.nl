@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" version="3.0" group="user" method="upgrade">
+	<name>User - EasyDiscuss Users</name>
+	<author>StackIdeas</author>
+	<creationDate>22 February 2011</creationDate>
+	<copyright>Copyright 2009 - 2011 StackIdeas. All rights reserved.</copyright>
+	<license>GPL License</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://www.stackideas.com</authorUrl>
+	<version>3.0.5</version>
+	<description>EasyDiscuss user plugin. This plugin is responsible to delete user's related records such as question post, reply and etc.</description>
+	<files>
+		<filename plugin="easydiscussusers">easydiscussusers.php</filename>
+	</files>
+	<params/>
+</extension>

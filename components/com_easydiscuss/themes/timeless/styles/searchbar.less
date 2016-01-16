@@ -1,0 +1,134 @@
+/*------------------------------------*\
+    $searchbar.less
+\*------------------------------------*/
+// main searchbar
+
+.discuss-searchbar {
+	// background: #333;
+	// border: 1px solid @grayLighter;
+	padding: 10px 0px;
+	// margin-bottom: 20px;
+	height: 70px;
+	// background: @discussSearchBarBackground;
+	// width: 100%;
+	position: relative;
+	.border-radius(2px);
+	.clearfix();
+
+	table {
+		td,tr {
+			border:none;
+		}
+	}
+
+	// .discuss-searchbar--left {
+	// 	width: 70px;
+	// }
+	// .discuss-searchbar--center {
+	// 	width: 100%;
+	// }
+	// .discuss-searchbar--right {
+	// 	width: 140px;
+	// }
+	.discuss-searchbar--input {
+		position: relative;
+		width: 100%;
+		display: inline-block;
+
+		&:before {
+			display: block;
+			content: "";
+			background: url('@{theme}../images/icon-search.png') 0 0 no-repeat;
+			position: absolute;
+			width: 20px;
+			height: 20px;
+			top: 50%;
+			// margin-top: -5px;
+			left: 10px;
+			.opacity(50);
+			z-index: 3;
+		}
+
+		// .icon-ed-arrow-searchbar {
+		// 	position: absolute;
+		// 	z-index: 2;
+		// 	top: 14px;
+		// 	left: 54px;
+		// }
+		// &:before, &:after {
+		// 	content: "";
+		// 	position: absolute;
+		// 	border-color: transparent;
+		// 	border-style: solid;
+		// 	display: inline-block;
+		// }
+		// &:before {
+		// 	z-index: 2;
+		// 	top: 14px;
+		// 	left: -7px;
+		// 	border-width: 8px 8px 8px 0;
+		// 	border-right-color: @grayLight;
+		// }
+		// &:after {
+		// 	z-index: 3;
+		// 	top: 14px;
+		// 	left: -6px;
+		// 	border-width: 8px 8px 8px 0;
+		// 	border-right-color: #fff;
+		// }
+	}
+
+	.discuss-avatar {
+		margin-right: 10px;
+	}
+	.input-searchbar {
+		height: 40px;
+		width: 100%;
+		font-size: 18px;
+		line-height: 28px;
+		position: absolute;
+		padding: 4px 0 4px 34px;
+		.box-sizing(border-box);
+		.border-radius(20px);
+
+	}
+	.btn-searchbar {
+		position: absolute;
+		right: 6px;
+		top: 5px;
+		font-size: 11px;
+		font-weight: bold;
+		.border-radius(30px);
+		padding: 4px 16px;
+		line-height: 20px;
+	}
+	// .btn-ask {
+	// 	font-size: 15px;
+	// 	font-weight: bold;
+	// 	padding: 15px 10px;
+	// 	width: 140px;
+	// 	height: 22px;
+	// 	display: block;
+	// }
+	&.narrow {
+		min-height: 50px;
+		.discuss-searchbar--right {
+			display: block;
+			width: auto;
+		}
+		.input-searchbar {
+			font-size: 18px;
+		}
+		.btn-ask {
+			width: 100%;
+			display: block;
+			margin-top: 10px;
+			.box-sizing(border-box);
+			height: 50px;
+		}
+		.discuss-table {
+			display: block;
+		}
+	}
+
+}//discuss-searchbar

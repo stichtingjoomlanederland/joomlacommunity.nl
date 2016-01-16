@@ -1,0 +1,535 @@
+/*------------------------------------*\
+	$states.less
+\*------------------------------------*/
+//
+// Stats/trigger
+//
+
+// =empty
+// ----------------
+// for display empty post/categories
+
+.empty { //categories empty post
+	padding: 0;
+	border: 1px solid @discussBorderColor;
+	text-align: center;
+	background: lighten(@grayLighter, 2.5%); //#f4f4f4
+	font-size: 18px;
+	font-weight:700;
+	color: lighten(@gray, 3%);
+	height: 120px;
+	line-height: 120px !important;
+}
+&.w600 {
+	.empty {
+		height: 60px;
+		line-height: 60px !important;
+	}
+}
+&.w320 {
+	.empty {
+		height: 70px;
+		padding: 20px 0;
+		font-size: 14px;
+		line-height: 35px !important;
+	}
+}
+
+// =post-status
+// ----------------
+// status [is-featured, is-locked, is-resolved, is-unread, is-read , is-unanswered, is-inprogress]
+
+.discuss-item {
+	.discuss-status {
+		[class^="icon-ed"],
+		[class*=" icon-ed"],
+		[class^="icon-"],
+		[class*=" icon-"],
+		.discuss-status-text {
+			display: none;
+		}
+		.icon-ed-featured,
+		.icon-ed-resolved, {
+			float: right;
+			position: relative;
+			z-index: 1;
+			top: 10px;
+			right: -4px;
+			margin: 0;
+		}
+		// .icon-lock {
+		// 	float: right;
+		// 	position: relative;
+		// 	top: 12px;
+		// 	right: 7px;
+		// 	z-index: 1;
+		// 	+ .tooltip {
+		// 		position: relative;
+		// 	}
+		// }
+
+	}
+	.admin-lock{
+		.icon-lock{
+			display: inline-block;
+		}
+	}
+	.admin-poll-lock{
+		.icon-key{
+			display: inline-block;
+		}
+	}
+	.icon-lock {
+		display: none;
+	}
+	.unfeaturePost{
+		display: none;
+	}
+	&.is-featured,
+	&.is-resolved {
+
+		.discuss-statistic.pull-right {
+			margin-top: 40px;
+		}
+
+
+	}
+	&.is-featured {
+		.discuss-status {
+			.icon-ed-featured {
+				display: block;
+			}
+		}
+		.featurePost{
+			display: none;
+		}
+		.unfeaturePost{
+			display: block;
+		}
+	}
+
+	//is-featured and is-resolved trigger
+	&.is-featured {
+		&.is-resolved {
+			.discuss-status {
+				.icon-ed-featured {
+					z-index: 2;
+
+				}
+				.icon-ed-resolved {
+					position: absolute;
+					z-index: 1;
+					height: 20px;
+					right: 25px;
+				}
+				// &:hover {
+				// 	.icon-ed-featured {
+				// 		visibility: hidden;
+				// 	}
+				// 	.icon-ed-resolved {
+				// 		height: 23px;
+				// 		right: -4px;
+				// 	}
+				// }
+			}
+		}
+	}
+
+	.unlockPost{
+		display: none;
+	}
+
+	&.is-protected{
+		.discuss-post-title {
+			.icon-ed-protected {
+				position: relative;
+				top: 4px;
+			}
+		}
+		.icon-ed-protected {
+			display: inline-block;
+		}
+		.discuss-status {
+			.icon-ed-protected {
+			    position: relative;
+			    right: -15px;
+			    top: 13px;
+			}
+		}
+		.lockPost {
+			display: none;
+		}
+		.unlockPost {
+			display: block;
+		}
+	}
+	&.is-locked {
+		.discuss-post-title {
+			.icon-lock {
+				position: relative;
+				// top: 4px;
+				color: @grayLight;
+				font-size: 13px;
+				width: 14px;
+			}
+			.icon-key {
+				color: @grayLight;
+				font-size: 13px;
+				width: 14px;
+			}
+		}
+		.icon-lock {
+			display: inline-block;
+		}
+		.discuss-status {
+			.icon-lock {
+			    position: relative;
+			    right: -15px;
+			    top: 13px;
+			}
+		}
+		.lockPost {
+			display: none;
+		}
+		.unlockPost {
+			display: block;
+		}
+	}
+	&.is-resolved {
+		.discuss-status {
+			.icon-ed-resolved {
+				display: block;
+			}
+		}
+	}
+	&.is-unanswered {
+		.discuss-status {
+			.icon-ed-unanswered {
+				display: block;
+			}
+		}
+	}
+	&.is-inprogress {
+		.discuss-status {
+			.icon-ed-inprogress {
+				display: block;
+			}
+		}
+	}
+	&.is-unread {
+		.discuss-post-title {
+			font-weight: 700;
+		}
+	}
+
+	&.is-read {
+		.discuss-post-title {
+			// font-weight: 100;
+			small {
+				display: none;
+			}
+		}
+	}
+	&.is-earned {
+		.discuss-status {
+			.icon-ed-earned {
+				display: block;
+			}
+		}
+	}
+	&.is-minimized {
+		height: 50px;
+		overflow: hidden;
+		.discuss-item-left {
+			padding: 6px 15px 5px;
+		}
+		.discuss-user {
+			.discuss-avatar {
+				width: 32px;
+				height: 32px;
+				min-width: 32px;
+				min-height: 32px;
+				padding: 3px;
+
+				img {
+					width: 32px;
+					height: 32px;
+				}
+			}
+		}
+
+		.discuss-story {
+			display: none;
+		}
+		.discuss-reply-minimized {
+			display: block;
+		}
+		.discuss-role-title {
+			display: none;
+		}
+	}
+	&.is-favourited {
+		&:before {
+			background: url('@{site_base_uri}/../images/icon-favourite-s.png') no-repeat;
+			content: "";
+			display: block;
+			width: 24px;
+			height: 24px;
+			right: -12px;
+			// margin-left: -24px;
+			position: absolute;
+			top: -12px;
+
+		}
+	}
+}//discuss-item
+
+
+.discuss-entry {
+	.discuss-item {
+		.discuss-story-ft {
+			// display: none;
+		}
+		&.is-resolved {
+			.discuss-story-ft {
+				// display: block;
+			}
+		}
+	}
+}
+
+// =discuss-flyout (@trigger)
+// ----------------
+// trigger to show hidden content when mouseover parent element.
+//	e.g.:
+//	.discuss-flyout
+//		.discuss-flyout-content
+//		&.opacity-30 (optional modifier)
+
+.discuss-flyout {
+	position: relative;
+	.discuss-flyout-content {
+		visibility:hidden;
+		.opacity(0);
+		&.opacity-30 {
+			visibility: visible;
+			.opacity(30);
+		}
+	}
+	&:hover {
+		.discuss-flyout-content {
+			visibility: visible;
+			.opacity(100);
+		}
+	}
+}
+
+
+
+// =discuss-admin (.class to trigger hover effect)
+// ----------------
+// Same with .discuss-flyout apply to .discuss-item only
+
+.discuss-admin-panel {
+	visibility: hidden;
+	.opacity(0);
+}
+.discuss-item:hover .discuss-admin-panel {
+	visibility: visible;
+	.opacity(100);
+}
+
+// =discuss-notifications
+// ----------------
+// toolbar notifications status
+
+.notification-result {
+	> li > a > i {
+		width: 16px;
+		height: 16px;
+		background-repeat: no-repeat;
+		background-image: url(@{site_base_uri}/../images/icon-notice.png);
+	}
+	> li {
+
+		&.type-likes-discussion,
+		&.type-likes-replies {
+			> a > i {
+				background-position: -16px 0;
+			}
+		}//type
+		&.type-accepted {
+			> a > i {
+				background-position: -32px 0;
+			}
+		}//type
+		&.type-reply,
+		&.type-comment {
+			> a > i {
+				background-position: -48px 0;
+			}
+		}//type
+		&.type-resolved {
+			> a > i {
+				background-position: -64px 0;
+			}
+		}//type
+
+		&.type-featured {
+			> a > i {
+				background-position: -80px 0;
+			}
+		}//type
+		&.type-locked {
+			> a > i {
+				background-position: -96px 0;
+			}
+		}//type
+		&.type-unlocked {
+			> a > i {
+				background-position: -112px 0;
+			}
+		}//type
+		&.type-badge {
+			> a > i {
+				background-position: -128px 0;
+			}
+		}//type
+		&.type-mention,
+		&.type-profile {
+			> a > i {
+				background-position: -144px 0;
+			}
+		}//type
+	}
+}//notification-result
+
+
+// notice-message
+// ----------------
+// states is-read is-unread
+.is-unread {
+	.notice-message {
+		background: @discussNoticeActiveBackground;
+	}
+	.icon-unread-message {
+		display:inline-block;
+	}
+}
+.is-read {
+	.notice-message {
+		.icon-unread-message {
+			display:none;
+		}
+	}
+}
+
+// discuss-message
+// ----------------
+.is-unread {
+	.discuss-item-message {
+		background: @discussNoticeActiveBackground;
+		.icon-unread-message {
+			color: @linkColor;
+			width: 16px;
+			font-size: 16px;
+		}
+	}
+}
+.is-read {
+	.discuss-item-message {
+		// background: @discussNoticeActiveBackground;
+		.icon-unread-message {
+			display: none;
+		}
+		> .discuss-item-left {
+			display: none;
+			+ .discuss-item-right {
+				margin-left: 0px;
+			}
+		}
+	}
+
+}
+
+
+// =loading-bar
+// ----------------
+.loading-bar {
+	// border: 1px solid @discussBorderColor;
+	height: 60px;
+	text-align: center;
+	position: relative;
+	.border-radius(@discussItemBorderRadius);
+	.discuss-loader {
+		position: absolute;
+		left: 50%;
+		top: 20px;
+	}
+}
+
+
+// =discuss-admin-bar
+// ----------------
+.discuss-admin-bar {
+	.admin-unresolve,
+	.admin-poll-unlock,
+	.admin-unlock,
+	.admin-unfeatured {
+		display: none;
+	}
+}
+
+.is-resolved {
+	.discuss-admin-bar {
+		.admin-resolve {
+			display: none;
+		}
+		.admin-unresolve {
+			display: block;
+		}
+	}
+}
+
+.is-poll-lock{
+	.discuss-admin-bar {
+		.admin-poll-unlock {
+			display: block;
+		}
+
+		.admin-poll-lock {
+			display: none;
+		}
+	}
+}
+
+.is-locked {
+	.discuss-admin-bar {
+		.admin-lock {
+			display: none;
+		}
+		.admin-unlock {
+			display: block;
+		}
+	}
+}
+.is-featured {
+	.discuss-admin-bar {
+		.admin-featured {
+			display: none;
+		}
+		.admin-unfeatured {
+			display: block;
+		}
+	}
+}
+
+&.discuss-view-post {
+	.discuss-item {
+		&.is-protected {
+			.icon-lock {
+				display: inline-block;
+			}
+		}
+	}
+}

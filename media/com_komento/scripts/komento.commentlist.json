@@ -1,0 +1,25 @@
+[
+    {
+        "library": [
+            "ui/effect",
+            "fancybox",
+            "dialog"
+        ],
+        "script": [
+            "sharelinks",
+            "markitup",
+            "komento.common",
+            "komento.commentitem",
+            "komento.bbcode",
+            "komento.language"
+        ],
+        "view": [
+            "dialogs/delete.single",
+            "dialogs/delete.affectchild",
+            "dialogs/unpublish.affectchild",
+            "comment/item/edit.form",
+            "dialogs/delete.attachment"
+        ],
+        "adapter": "Komento"
+    }
+]

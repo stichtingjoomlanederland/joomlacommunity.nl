@@ -1,0 +1,63 @@
+.discuss-frontpage-tools .align-left{
+	text-align: left;
+}
+
+.discuss-frontpage-tools .align-right{
+	text-align: right;
+}
+
+.discuss-frontpage-tools .align-center{
+	text-align: center;
+}
+
+/**
+ * Frontpage tools
+ **/
+.discuss-frontpage-tools a{
+	padding: 0 0 0 18px !important;
+	display:inline-block;
+}
+
+.discuss-frontpage-tools a+a{
+	margin-left: 10px;
+}
+
+.discuss-frontpage-tools .discuss-hits{
+	background: url(../images/hits.png) no-repeat;
+}
+
+.discuss-frontpage-tools .discuss-this{
+	background: url(../images/discuss.png) no-repeat;
+}
+
+/**
+ * Items listing
+ **/
+#discuss-wrapper .discuss-show-all{
+	text-align: right;
+}
+
+/**
+ * Reply form
+ **/
+#discuss-wrapper .button-submit, #discuss-wrapper .button-cancel {
+    -moz-border-bottom-colors: none !important;
+    -moz-border-image: none !important;
+    -moz-border-left-colors: none !important;
+    -moz-border-right-colors: none !important;
+    -moz-border-top-colors: none !important;
+    background: none repeat scroll 0 0 #1E71C1 !important;
+    border-color: #0D447B #0D447B #0A3B6C !important;
+    border-radius: 2px 2px 2px 2px;
+    border-style: solid !important;
+    border-width: 1px !important;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset;
+    color: #FFFFFF !important;
+    font-family: Arial !important;
+    font-size: 11px !important;
+    font-weight: bold !important;
+    height: 29px !important;
+    margin: 0 !important;
+    padding: 0 15px !important;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+}

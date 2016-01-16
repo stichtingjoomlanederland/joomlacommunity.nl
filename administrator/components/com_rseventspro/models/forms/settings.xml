@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset name="license" label="COM_RSEVENTSPRO_CONF_LICENSE" description="COM_RSEVENTSPRO_CONF_LICENSE_DESC">
+		<field name="global_code" type="text" label="COM_RSEVENTSPRO_CONF_LICENSE_CODE" description="COM_RSEVENTSPRO_CONF_LICENSE_CODE_DESC" size="70" class="input-xlarge" default="" />
+	</fieldset>
+	
+	<fieldset name="datetime" label="COM_RSEVENTSPRO_CONF_DATETIME" description="COM_RSEVENTSPRO_CONF_DATETIME_DESC">
+		<field name="global_date" type="rscombobox" label="COM_RSEVENTSPRO_CONF_DATE" description="COM_RSEVENTSPRO_CONF_DATE_DESC" size="30" default="">
+			<option value="d F Y">30 November 2012</option>
+			<option value="F d, Y">November 30, 2012</option>
+			<option value="m/d/y">11/30/12</option>
+			<option value="d.m.Y">30.11.2012</option>
+			<option value="m.d.Y">11.30.2012</option>
+		</field>
+		<field name="global_time" type="rscombobox" label="COM_RSEVENTSPRO_CONF_TIME" description="COM_RSEVENTSPRO_CONF_TIME_DESC" size="30" default="">
+			<option value="H:i:s">13:23:10</option>
+			<option value="H:i">13:23</option>
+			<option value="g:i a">1:23 pm</option>
+		</field>
+		<field name="time_format" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_TIME_FORMAT" description="COM_RSEVENTSPRO_CONF_TIME_FORMAT_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="hideyear" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_HIDE_YEAR" description="COM_RSEVENTSPRO_CONF_HIDE_YEAR_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+	</fieldset>
+	
+	<fieldset name="miscellaneous" label="COM_RSEVENTSPRO_CONF_MISCELLANEOUS" description="COM_RSEVENTSPRO_CONF_MISCELLANEOUS_DESC">
+		<field name="jsactivity" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_JOMSOCIAL_ACTIVITY" description="COM_RSEVENTSPRO_CONF_JOMSOCIAL_ACTIVITY_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="enable_buttons" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_EDITOR_BUTTONS" description="COM_RSEVENTSPRO_CONF_EDITOR_BUTTONS_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="descr_length" type="text" class="input-small" label="COM_RSEVENTSPRO_CONF_DESCR_LENGTH" description="COM_RSEVENTSPRO_CONF_DESCR_LENGTH_DESC" size="5" default="255" />
+	</fieldset>
+	
+	<fieldset name="modules" label="COM_RSEVENTSPRO_CONF_MODULES" description="COM_RSEVENTSPRO_CONF_MODULES_DESC">
+		<field name="dashboard_upcoming" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_UPCOMING_MOD_EVENTS" description="COM_RSEVENTSPRO_CONF_UPCOMING_MOD_EVENTS_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="dashboard_upcoming_nr" type="text" class="input-small" label="COM_RSEVENTSPRO_CONF_UPCOMING_EVENTS_MOD_LIMIT" description="COM_RSEVENTSPRO_CONF_UPCOMING_EVENTS_MOD_LIMIT_DESC" size="5" default="5" />
+		<field name="dashboard_subscribers" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_SUBSCRIBERS_MOD" description="COM_RSEVENTSPRO_CONF_SUBSCRIBERS_MOD_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="dashboard_subscribers_nr" type="text" class="input-small" label="COM_RSEVENTSPRO_CONF_SUBSCRIBERS_MOD_LIMIT" description="COM_RSEVENTSPRO_CONF_SUBSCRIBERS_MOD_LIMIT_DESC" size="5" default="5" />
+		<field name="dashboard_comments" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_COMMENTS_MOD" description="COM_RSEVENTSPRO_CONF_COMMENTS_MOD_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="dashboard_comments_nr" type="text" class="input-small" label="COM_RSEVENTSPRO_CONF_COMMENTS_MOD_LIMIT" description="COM_RSEVENTSPRO_CONF_COMMENTS_MOD_LIMIT_DESC" size="5" default="5" />
+		<field name="dashboard_sync" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_SYNC_MOD" description="COM_RSEVENTSPRO_CONF_SYNC_MOD_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+	</fieldset>
+	
+	<fieldset name="generalsettings" label="COM_RSEVENTSPRO_CONF_GENERALSETTINGS" description="COM_RSEVENTSPRO_CONF_GENERALSETTINGS_DESC">
+		<field name="modal" type="list" label="COM_RSEVENTSPRO_CONF_MODAL" description="COM_RSEVENTSPRO_CONF_MODAL_DESC" default="0">
+			<option value="0">COM_RSEVENTSPRO_CONF_MODAL_NEW_PAGE</option>
+			<option value="1">COM_RSEVENTSPRO_CONF_MODAL_JQUERY</option>
+			<option value="2">COM_RSEVENTSPRO_CONF_MODAL_JOOMLA</option>
+		</field>
+		
+		<field name="errors" type="list" label="COM_RSEVENTSPRO_CONF_ERRORS" description="COM_RSEVENTSPRO_CONF_ERRORS_DESC" default="0">
+			<option value="0">COM_RSEVENTSPRO_CONF_ERRORS_JOOMLA_500</option>
+			<option value="1">COM_RSEVENTSPRO_CONF_ERRORS_JOOMLA_403</option>
+			<option value="2">COM_RSEVENTSPRO_CONF_ERRORS_REDIRECT</option>
+		</field>
+		
+		<field name="reports" type="list" label="COM_RSEVENTSPRO_CONF_ENABLE_REPORTS" description="COM_RSEVENTSPRO_CONF_ENABLE_REPORTS_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="reports_guests" type="list" label="COM_RSEVENTSPRO_CONF_ENABLE_REPORTS_GUESTS" description="COM_RSEVENTSPRO_CONF_ENABLE_REPORTS_GUESTS_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		
+		<field name="featured" type="list" label="COM_RSEVENTSPRO_CONF_FEATURED_EVENTS" description="COM_RSEVENTSPRO_CONF_FEATURED_EVENTS_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		
+		<field name="color" type="list" label="COM_RSEVENTSPRO_CONF_CATEGORIES_COLOR" description="COM_RSEVENTSPRO_CONF_CATEGORIES_COLOR_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+	</fieldset>
+	
+	<fieldset name="moderation" label="COM_RSEVENTSPRO_CONF_MODERATION" description="COM_RSEVENTSPRO_CONF_MODERATION_DESC">
+		<field name="event_moderation_emails" type="text" label="COM_RSEVENTSPRO_CONF_EVENT_MODERATION" description="COM_RSEVENTSPRO_CONF_EVENT_MODERATION_DESC" class="input-xlarge" size="70" default="" />
+		<field name="tags_moderation_emails" type="text" label="COM_RSEVENTSPRO_CONF_TAGS_MODERATION" description="COM_RSEVENTSPRO_CONF_TAGS_MODERATION_DESC" class="input-xlarge" size="70" default="" />
+	</fieldset>
+	
+	<fieldset name="maintenance" label="COM_RSEVENTSPRO_CONF_MAINTENANCE" description="COM_RSEVENTSPRO_CONF_MAINTENANCE_DESC">
+		<field name="auto_archive" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_AUTO_ARCHIVE" description="COM_RSEVENTSPRO_CONF_AUTO_ARCHIVE_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="archive_days" type="text" label="COM_RSEVENTSPRO_CONF_ARCHIVE_DAYS" description="COM_RSEVENTSPRO_CONF_ARCHIVE_DAYS_DESC" class="input-small" size="5" default="5" />
+		<field name="incomplete" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_INCOMPLETE" description="COM_RSEVENTSPRO_CONF_INCOMPLETE_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="incomplete_minutes" type="text" label="COM_RSEVENTSPRO_CONF_INCOMPLETE_MINUTES" description="COM_RSEVENTSPRO_CONF_INCOMPLETE_MINUTES_DESC" class="input-small" size="5" default="5" />
+	</fieldset>
+	
+	<fieldset name="registration" label="COM_RSEVENTSPRO_CONF_REGISTRATION" description="COM_RSEVENTSPRO_CONF_REGISTRATION_DESC">
+		<field name="multi_registration" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_MULTI_REGISTRATION" description="COM_RSEVENTSPRO_CONF_MULTI_REGISTRATION_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="multi_tickets" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_MULTI_TICKETS" description="COM_RSEVENTSPRO_CONF_MULTI_TICKETS_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="must_login" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_MUST_LOGIN" description="COM_RSEVENTSPRO_CONF_MUST_LOGIN_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="create_user" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_CREATE_USER" description="COM_RSEVENTSPRO_CONF_CREATE_USER_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="user_display" type="list" label="COM_RSEVENTSPRO_CONF_USER_DISPLAY" description="COM_RSEVENTSPRO_CONF_USER_DISPLAY_DESC" default="0">
+			<option value="0">COM_RSEVENTSPRO_CONF_USER_DISPLAY_NAME</option>
+			<option value="1">COM_RSEVENTSPRO_CONF_USER_DISPLAY_USERNAME</option>
+			<option value="2">COM_RSEVENTSPRO_CONF_USER_DISPLAY_JS</option>
+			<option value="3">COM_RSEVENTSPRO_CONF_USER_DISPLAY_CB</option>
+		</field>
+		<field name="user_avatar" type="list" label="COM_RSEVENTSPRO_CONF_USER_AVATAR" description="COM_RSEVENTSPRO_CONF_USER_AVATAR_DESC" default="">
+			<option value="">COM_RSEVENTSPRO_CONF_USER_AVATAR_NONE</option>
+			<option value="gravatar">COM_RSEVENTSPRO_CONF_USER_AVATAR_GRAVATAR</option>
+			<option value="comprofiler">COM_RSEVENTSPRO_CONF_USER_AVATAR_CB</option>
+			<option value="community">COM_RSEVENTSPRO_CONF_USER_AVATAR_JS</option>
+			<option value="kunena">COM_RSEVENTSPRO_CONF_USER_AVATAR_KUNENA</option>
+			<option value="fireboard">COM_RSEVENTSPRO_CONF_USER_AVATAR_FIREBOARD</option>
+			<option value="k2">COM_RSEVENTSPRO_CONF_USER_AVATAR_K2</option>
+		</field>
+		<field name="user_profile" type="list" label="COM_RSEVENTSPRO_CONF_USER_PROFILE" description="COM_RSEVENTSPRO_CONF_USER_PROFILE_DESC" default="0">
+			<option value="0">COM_RSEVENTSPRO_CONF_USER_PROFILE_NONE</option>
+			<option value="1">COM_RSEVENTSPRO_CONF_USER_PROFILE_JS</option>
+			<option value="2">COM_RSEVENTSPRO_CONF_USER_PROFILE_CB</option>
+		</field>
+		<field name="event_owner" type="list" label="COM_RSEVENTSPRO_CONF_EVENT_OWNER" description="COM_RSEVENTSPRO_CONF_EVENT_OWNER_DESC" default="0">
+			<option value="0">COM_RSEVENTSPRO_CONF_USER_DISPLAY_NAME</option>
+			<option value="1">COM_RSEVENTSPRO_CONF_USER_DISPLAY_USERNAME</option>
+			<option value="2">COM_RSEVENTSPRO_CONF_USER_DISPLAY_JS</option>
+			<option value="3">COM_RSEVENTSPRO_CONF_USER_DISPLAY_CB</option>
+		</field>
+		<field name="event_owner_profile" type="list" label="COM_RSEVENTSPRO_CONF_EVENT_OWNER_PROFILE" description="COM_RSEVENTSPRO_CONF_EVENT_OWNER_PROFILE_DESC" default="0">
+			<option value="0">COM_RSEVENTSPRO_CONF_USER_PROFILE_NONE</option>
+			<option value="1">COM_RSEVENTSPRO_CONF_USER_PROFILE_JS</option>
+			<option value="2">COM_RSEVENTSPRO_CONF_USER_PROFILE_CB</option>
+		</field>
+		<field name="export_headers" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_EXPORT_HEADERS" description="COM_RSEVENTSPRO_CONF_EXPORT_HEADERS_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="active_events" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_ACTIVE_EVENTS" description="COM_RSEVENTSPRO_CONF_ACTIVE_EVENTS_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+	</fieldset>
+	
+	<fieldset name="media" label="COM_RSEVENTSPRO_CONF_MEDIA" description="COM_RSEVENTSPRO_CONF_MEDIA_DESC">
+		<field name="event_comment" type="list" label="COM_RSEVENTSPRO_CONF_EVENT_COMMENT" description="COM_RSEVENTSPRO_CONF_EVENT_COMMENT_DESC" default="0">
+			<option value="0">COM_RSEVENTSPRO_CONF_EVENT_COMMENT_NONE</option>
+			<option value="1">COM_RSEVENTSPRO_CONF_EVENT_COMMENT_FACEBOOK</option>
+			<option value="2">COM_RSEVENTSPRO_CONF_EVENT_COMMENT_RSCOMMENTS</option>
+			<option value="3">COM_RSEVENTSPRO_CONF_EVENT_COMMENT_JCOMMENTS</option>
+			<option value="4">COM_RSEVENTSPRO_CONF_EVENT_COMMENT_JOMCOMMENTS</option>
+		</field>
+		<field name="icon_small_width" type="text" label="COM_RSEVENTSPRO_CONF_ICON_SMALL_WIDTH" description="COM_RSEVENTSPRO_CONF_ICON_SMALL_WIDTH_DESC" size="5" default="100" />
+		<field name="icon_big_width" type="text" label="COM_RSEVENTSPRO_CONF_ICON_BIG_WIDTH" description="COM_RSEVENTSPRO_CONF_ICON_BIG_WIDTH_DESC" size="5" default="200" />
+		<field name="extensions" type="text" label="COM_RSEVENTSPRO_CONF_EXTENSIONS" description="COM_RSEVENTSPRO_CONF_EXTENSIONS_DESC" default="zip,gif,jpg,txt" class="input-large" size="40" />
+		<field name="barcode" type="list" label="COM_RSEVENTSPRO_CONF_BARCODE" description="COM_RSEVENTSPRO_CONF_BARCODE_DESC" default="" size="1">
+			<option value="qrcode">QR code</option>
+			<option value="C39">Code 39</option>
+			<option value="C39E">Code 39 Extended</option>
+			<option value="C93">Code 93</option>
+			<option value="C128">Code 128</option>
+		</field>
+	</fieldset>
+	
+	<fieldset name="emails" label="COM_RSEVENTSPRO_CONF_EMAILS" description="COM_RSEVENTSPRO_CONF_EMAILS_DESC">
+		<field name="email_from" type="text" label="COM_RSEVENTSPRO_CONF_EMAIL_FROM" description="COM_RSEVENTSPRO_CONF_EMAIL_FROM_DESC" size="50" default="from@yoursite.com" />
+		<field name="email_fromname" type="text" label="COM_RSEVENTSPRO_CONF_EMAIL_FROMNAME" description="COM_RSEVENTSPRO_CONF_EMAIL_FROMNAME_DESC" size="50" default="RSEvents!Pro" />
+		<field name="email_replyto" type="text" label="COM_RSEVENTSPRO_CONF_EMAIL_REPLYTO" description="COM_RSEVENTSPRO_CONF_EMAIL_REPLYTO_DESC" size="50" default="reply@yoursite.com" />
+		<field name="email_replytoname" type="text" label="COM_RSEVENTSPRO_CONF_EMAIL_REPLYTONAME" description="COM_RSEVENTSPRO_CONF_EMAIL_REPLYTONAME_DESC" size="50" default="RSEvents!Pro" />
+		<field name="email_cc" type="text" label="COM_RSEVENTSPRO_CONF_EMAIL_CC" description="COM_RSEVENTSPRO_CONF_EMAIL_CC_DESC" size="50" default="" />
+		<field name="email_bcc" type="text" label="COM_RSEVENTSPRO_CONF_EMAIL_BCC" description="COM_RSEVENTSPRO_CONF_EMAIL_BCC_DESC" size="50" default="" />
+	</fieldset>
+	
+	<fieldset name="maps" label="COM_RSEVENTSPRO_CONF_MAPS" description="COM_RSEVENTSPRO_CONF_MAPS_DESC">
+		<field name="enable_google_maps" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_ENABLE_GOOGLE_MAPS" description="COM_RSEVENTSPRO_CONF_ENABLE_GOOGLE_MAPS_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="google_map_zoom" type="text" label="COM_RSEVENTSPRO_CONF_GOOGLE_MAP_ZOOM" description="COM_RSEVENTSPRO_CONF_GOOGLE_MAP_ZOOM_DESC" size="10" default="12" />
+		<field name="google_maps_center" type="text" label="COM_RSEVENTSPRO_CONF_GOOGLE_MAPS_CENTER" description="COM_RSEVENTSPRO_CONF_GOOGLE_MAPS_CENTER_DESC" size="50" default="55.6254888,37.5989676" />
+		<field name="google_map_directions" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_GOOGLE_MAP_DIRECTIONS" description="COM_RSEVENTSPRO_CONF_GOOGLE_MAP_DIRECTIONS_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+	</fieldset>
+	
+	<fieldset name="payments" label="COM_RSEVENTSPRO_CONF_PAYMENTS" description="COM_RSEVENTSPRO_CONF_PAYMENTS_DESC">
+		<field name="default_payment" type="rspayments" label="COM_RSEVENTSPRO_CONF_DEFAULT_PAYMENT" description="COM_RSEVENTSPRO_CONF_DEFAULT_PAYMENT_DESC" default="0" />
+		<field name="payment_type" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_PAYMENT_TYPE" description="COM_RSEVENTSPRO_CONF_PAYMENT_TYPE_DESC" default="0">
+			<option value="0">COM_RSEVENTSPRO_CONF_PAYMENT_TYPE_RADIO</option>
+			<option value="1">COM_RSEVENTSPRO_CONF_PAYMENT_TYPE_LIST</option>
+		</field>
+		<field name="payment_paypal" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_PAYMENT_USER_PAYPAL" description="COM_RSEVENTSPRO_CONF_PAYMENT_USER_PAYPAL_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		
+		<field name="payment_currency" type="text" label="COM_RSEVENTSPRO_CONF_PAYMENT_CURRENCY" description="COM_RSEVENTSPRO_CONF_PAYMENT_CURRENCY_DESC" size="5" default="EUR" />
+		<field name="payment_currency_sign" type="text" label="COM_RSEVENTSPRO_CONF_PAYMENT_CURRENCY_SIGN" description="COM_RSEVENTSPRO_CONF_PAYMENT_CURRENCY_SIGN_DESC" size="5" default="€" />
+		<field name="payment_thousands" type="text" label="COM_RSEVENTSPRO_CONF_PAYMENT_THOUSANDS" description="COM_RSEVENTSPRO_CONF_PAYMENT_THOUSANDS_DESC" size="5" default="," />
+		<field name="payment_decimal" type="text" label="COM_RSEVENTSPRO_CONF_PAYMENT_DECIMAL" description="COM_RSEVENTSPRO_CONF_PAYMENT_DECIMAL_DESC" size="5" default="." />
+		<field name="payment_decimals" type="text" label="COM_RSEVENTSPRO_CONF_PAYMENT_DECIMALS" description="COM_RSEVENTSPRO_CONF_PAYMENT_DECIMALS_DESC" size="5" default="2" />
+		<field name="payment_mask" type="text" label="COM_RSEVENTSPRO_CONF_PAYMENT_MASK" description="COM_RSEVENTSPRO_CONF_PAYMENT_MASK_DESC" size="10" default="%p %c" />
+	</fieldset>
+	
+	<fieldset name="ideal" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_DESC">
+		<field name="ideal_account" type="list" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ACCOUNT" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ACCOUNT_DESC" default="mollie" size="1" onchange="rs_ideal(this.value);">
+			<option value="mollie">COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ACCOUNT_MOLLIE</option>
+			<option value="ingbasic">COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ACCOUNT_ING_BASIC</option>
+			<option value="ingadvanced">COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ACCOUNT_ING_ADVANCED</option>
+			<option value="rabobanklite">COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ACCOUNT_RABOBANK_LITE</option>
+			<option value="rabobankpro">COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ACCOUNT_RABOBANK_PRO</option>
+			<option value="abnamroeasy">COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ACCOUNT_ABN_AMRO_EASY</option>
+			<option value="targetpay">COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ACCOUNT_TARGETPAY</option>
+		</field>
+		<field name="ideal_mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_MODE" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_MODE_DESC" default="0">
+			<option value="0">COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_MODE_TEST</option>
+			<option value="1">COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_MODE_LIVE</option>
+		</field>
+		<field name="ideal_merchantid" type="text" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ID" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ID_DESC" size="30" default="" />
+		<field name="ideal_subid" type="text" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_SUBID" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_SUBID_DESC" size="30" default="0" />
+		<field name="ideal_hashkey" type="text" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_HASH_KEY" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_HASH_KEY_DESC" size="30" default="" />
+		<field name="ideal_abnamroid" type="text" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ABNAMRO_ID" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_ABNAMRO_ID_DESC" size="30" default="" />
+		
+		<field name="ideal_ing_cer" type="file" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_CER" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_CER_DESC" size="30" />
+		<field name="ideal_ing_pem" type="file" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_PEM" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_PEM_DESC" size="30" />
+		
+		<field name="ideal_rabo_cer" type="file" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_CER" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_CER_DESC" size="30" />
+		<field name="ideal_rabo_pem" type="file" label="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_PEM" description="COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_PEM_DESC" size="30" />
+	</fieldset>
+	
+	
+	<fieldset name="google" label="COM_RSEVENTSPRO_CONF_GOOGLE" description="COM_RSEVENTSPRO_CONF_GOOGLE_DESC">
+		<field name="google_username" type="text" label="COM_RSEVENTSPRO_CONF_GOOGLE_USERNAME" description="COM_RSEVENTSPRO_CONF_GOOGLE_USERNAME_DESC" size="30" default="" />
+		<field name="google_password" type="password" label="COM_RSEVENTSPRO_CONF_GOOGLE_PASSWORD" description="COM_RSEVENTSPRO_CONF_GOOGLE_PASSWORD_DESC" size="30" default="" />
+		<field name="google_category" type="category" extension="com_rseventspro" published="1" label="COM_RSEVENTSPRO_CONF_GOOGLE_CATEGORY" description="COM_RSEVENTSPRO_CONF_GOOGLE_CATEGORY_DESC" size="1" default="" />
+		<field name="google_location" type="rslocations" label="COM_RSEVENTSPRO_CONF_GOOGLE_LOCATION" description="COM_RSEVENTSPRO_CONF_GOOGLE_CATEGORY_DESC" size="1" default="" />
+	</fieldset>
+
+	<fieldset name="facebook" label="COM_RSEVENTSPRO_CONF_FACEBOOK" description="COM_RSEVENTSPRO_CONF_FACEBOOK_DESC">
+		<field name="facebook_category" type="category" extension="com_rseventspro" published="1" label="COM_RSEVENTSPRO_CONF_FACEBOOK_CATEGORY" description="COM_RSEVENTSPRO_CONF_FACEBOOK_CATEGORY_DESC" size="1" default="" />
+		<field name="facebook_location" type="rslocations" label="COM_RSEVENTSPRO_CONF_FACEBOOK_LOCATION" description="COM_RSEVENTSPRO_CONF_FACEBOOK_LOCATION_DESC" size="1" default="" />
+		
+		<field type="hidden" name="facebook_appid" default="340486642645761" />
+		<field type="hidden" name="facebook_secret" default="fea413f9a085e01555de0e93848c2c4a" />
+		<field type="hidden" name="facebook_token" default="" />
+		
+	</fieldset>
+	
+	<fields name="gallery">
+		<fieldset name="gallery" label="COM_RSEVENTSPRO_CONF_GALLERY" description="COM_RSEVENTSPRO_CONF_GALLERY_DESC">
+			<field name="thumb_resolution" type="rsresolution" label="COM_RSEVENTSPRO_CONF_THUMB_RESOLUTION" description="COM_RSEVENTSPRO_CONF_THUMB_RESOLUTION_DESC" size="5" default="w,280" />
+			<field name="full_resolution" type="rsresolution" label="COM_RSEVENTSPRO_CONF_FULL_RESOLUTION" description="COM_RSEVENTSPRO_CONF_FULL_RESOLUTION_DESC" size="5" default="w,600" />
+			
+			<field name="use_original" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_GALLERY_USE_ORIGINAL" description="COM_RSEVENTSPRO_CONF_GALLERY_USE_ORIGINAL_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="ordering" type="list" label="COM_RSEVENTSPRO_CONF_GALLERY_ORDERING" description="COM_RSEVENTSPRO_CONF_GALLERY_ORDERING_DESC" default="title" size="1">
+				<option value="ordering">COM_RSEVENTSPRO_CONF_GALLERY_ORDERING_ORDERING</option>
+				<option value="title">COM_RSEVENTSPRO_CONF_GALLERY_ORDERING_TITLE</option>
+				<option value="description">COM_RSEVENTSPRO_CONF_GALLERY_ORDERING_DESCR</option>
+				<option value="hits">COM_RSEVENTSPRO_CONF_GALLERY_ORDERING_HITS</option>
+				<option value="created">COM_RSEVENTSPRO_CONF_GALLERY_ORDERING_CREATED</option>
+				<option value="modified">COM_RSEVENTSPRO_CONF_GALLERY_ORDERING_MODIFIED</option>
+			</field>
+			<field name="direction" type="list" label="COM_RSEVENTSPRO_CONF_GALLERY_DIRECTION" description="COM_RSEVENTSPRO_CONF_GALLERY_DIRECTION_DESCR" default="ASC" size="1">
+				<option value="ASC">COM_RSEVENTSPRO_CONF_GALLERY_DIRECTION_ASC</option>
+				<option value="DESC">COM_RSEVENTSPRO_CONF_GALLERY_DIRECTION_DESC</option>
+			</field>
+			<field name="limit" type="text" label="COM_RSEVENTSPRO_CONF_GALLERY_LIMIT" description="COM_RSEVENTSPRO_CONF_GALLERY_LIMIT_DESC" size="10" default="" />
+			<field name="show_title" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_GALLERY_SHOW_TITLE" description="COM_RSEVENTSPRO_CONF_GALLERY_SHOW_TITLE_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="show_description" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_GALLERY_SHOW_DESCRIPTION" description="COM_RSEVENTSPRO_CONF_GALLERY_SHOW_DESCRIPTION_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+		</fieldset>
+	</fields>
+	
+	<field name="incomplete_minutes_check" type="hidden" filter="unset" />
+	<field name="archive_check" type="hidden" filter="unset" />
+	<field name="rules_check" type="hidden" filter="unset" />
+
+</form>

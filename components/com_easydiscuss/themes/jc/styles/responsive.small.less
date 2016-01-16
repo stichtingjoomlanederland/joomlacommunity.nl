@@ -1,0 +1,60 @@
+//DISCUSS GRIDS
+#discuss-wrapper
+{
+	.discuss-grid
+	{
+		>li 
+		{
+			width: 100%;
+		}
+	}
+
+	#discuss-head, 
+	.category-header footer
+	{
+		.butt 
+		{
+			float: none !important;
+			display: block;
+			text-align: left;
+
+			+.butt 
+			{
+				margin-top: 5px;
+			}
+		}
+	}
+
+	.discuss-filter 
+	{
+		.nav-filter,
+		.nav-sort 
+		{
+			float: none !important;
+
+			>li 
+			{
+				float: none;
+				display: block;
+
+				+li 
+				{
+					margin: 5px 0 0;
+				}
+
+				.butt 
+				{
+					display: block;
+					text-align: left;
+				}
+			}
+		}
+
+		.nav-sort
+		{
+			border-top: 1px solid #eee;
+			padding-top: 10px;
+			margin-top: 10px;
+		}
+	}
+}

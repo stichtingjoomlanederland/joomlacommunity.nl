@@ -1,0 +1,122 @@
+/* RSCalendar css */
+
+a.rs_calendar_arrows {
+    background: none repeat scroll 0 0 #828282 !important;
+    color: #FFFFFF !important;
+    padding: 4px;
+}
+
+table.rs_calendar_component {
+    border: 1px solid #D8D8D8;
+}
+
+table.rs_calendar_component th {
+    background: none repeat scroll 0 0 #828282;
+    color: #FFFFFF;
+    padding: 8px 3px;
+    text-align: center;
+}
+
+
+table.rs_calendar_component {
+	border:1px solid #d8d8d8;
+}
+
+table.rs_calendar_component td { 
+	background: #f8f8f8;
+	border:1px solid #d8d8d8 !important; 
+	padding: 2px; 
+}
+
+table.rs_calendar_component td.prev-month, table.rs_calendar_component td.next-month { 
+	background-color: #f4f4f4; 
+	padding:2px; 
+}
+
+table.rs_calendar_component td.week { 
+	text-align:center; 
+	color: #000; 
+	vertical-align: middle;
+}
+
+table.rs_calendar_component td.has-events{ 
+	background:#FFFFCC; 
+}
+
+table.rs_calendar_component td { 
+	height: 90px; 
+	width: 50px; 
+	vertical-align: top; 
+}
+
+table.rs_calendar_component td.curr-day span.rs_calendar_date { 
+	background: url(../images/calendar/datebg2.gif) repeat-x left top !important;
+}
+
+table.rs_calendar_component td span.rs_calendar_date { 
+	font-size: 24px; 
+	width: 100%; 
+	display: block; 
+	text-align: center; 
+	padding: 8px 0; 
+	background: url(../images/calendar/datebg.gif) repeat-x left top !important; 
+	border-bottom: 1px solid #91bbdc;
+}
+
+table.rs_calendar_component td a span.rs_calendar_date { 
+	text-decoration: none !important; 
+}
+
+table.rs_calendar_component td.has-events { 
+	background: #deebe9 !important; 
+}
+
+table.rs_calendar_component td.has-events a.rsttip { 
+	margin: 6px; 
+	display: block; 
+	background: url(../images/calendar/event.png) no-repeat left 3px !important; 
+	padding: 5px 5px 5px 20px; 
+}
+
+#rs_calendar_component table.rs_calendar_component td.has-events a.rsttip:hover, 
+#rs_calendar_component table.rs_calendar_component td.has-events a.rsttip:focus, 
+#rs_calendar_component table.rs_calendar_component td.has-events a.rsttip:active {
+	margin: 6px; 
+	display: block; 
+	background: url(../images/calendar/event.png) no-repeat left 3px !important; 
+	padding-left: 20px;
+}
+
+table.rs_calendar_component td.week { 
+	width: 6%; 
+}
+
+table.rs_calendar_component td.curr-month , table.rs_calendar_component td.prev-month  { 
+	width: 12%; 
+}
+
+table.rs_calendar_component td.prev-month span.rs_calendar_date, table.rs_calendar_component td.next-month span.rs_calendar_date { 
+	background: url(../images/calendar/datebg3.gif) repeat-x left top !important; 
+}
+
+.rs_calendar_details a {
+	text-decoration: none !important;
+	cursor: pointer;
+}
+
+.rs_calendar_events {
+	overflow: hidden;
+	width: 80px;
+	height: 25px;
+}
+
+#cloneevent {
+	background: url("../images/calendar/event.png") no-repeat scroll left 3px #F8F8F8 !important;
+    display: block;
+    padding: 5px 5px 5px 20px; 
+	font-size: inherit;
+	font-family: inherit;
+	color: #095197;
+	text-decoration: none;
+	z-index: 99999999999;
+}

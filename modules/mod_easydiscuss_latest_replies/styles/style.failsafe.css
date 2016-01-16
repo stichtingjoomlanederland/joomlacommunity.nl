@@ -1,0 +1,122 @@
+.clearfix {
+  *zoom: 1;
+}
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+.clearfix:after {
+  clear: both;
+}
+.hide-text {
+  font: 0/0 a;
+  color: transparent;
+  text-shadow: none;
+  background-color: transparent;
+  border: 0;
+}
+.input-block-level {
+  display: block;
+  width: 100%;
+  min-height: ;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+.discuss-mod,
+.dc-clearfix {
+  *zoom: 1;
+}
+.discuss-mod:before,
+.discuss-mod:after,
+.dc-clearfix:before,
+.dc-clearfix:after {
+  display: table;
+  content: "";
+  line-height: 0;
+}
+.discuss-mod:after,
+.dc-clearfix:after {
+  clear: both;
+}
+.discuss-mod {
+  font-family: 'Lucida Grande', 'Gisha', 'Lucida Sans Unicode', 'Lucida Sans', Lucida, Arial, Verdana, sans-serif;
+}
+.discuss-mod [class^="icon-dc-mod-"],
+.discuss-mod [class*=" icon-dc-mod-"] {
+  background-repeat: no-repeat;
+  display: inline-block;
+  vertical-align: text-top;
+}
+.discuss-mod .icon-dc-mod-list {
+  width: 16px;
+  height: 16px;
+  line-height: 16px;
+  background-image: url('../../../media/com_easydiscuss/styles/../images/mod/icon-list.png');
+}
+.discuss-mod .btn {
+  text-decoration: none !important;
+  text-shadow: none !important;
+}
+.discuss-mod .btn-link {
+  border-color: transparent !important;
+  cursor: pointer !important;
+  color: #08C !important;
+  -webkit-border-radius: 0 !important;
+  -moz-border-radius: 0 !important;
+  border-radius: 0 !important;
+}
+.discuss-mod .pa-10 {
+  padding: 10px;
+}
+.discuss-mod ul.unstyled,
+.discuss-mod ol.unstyled {
+  list-style: none outside none;
+}
+#discuss-welcome .btn {
+  -moz-border-bottom-colors: none;
+  -moz-border-left-colors: none;
+  -moz-border-right-colors: none;
+  -moz-border-top-colors: none;
+  background-color: #F5F5F5;
+  background-image: linear-gradient(to bottom,#FFFFFF,#E6E6E6);
+  background-repeat: repeat-x;
+  border-color: rgba(0,0,0,0.1) rgba(0,0,0,0.1) #A2A2A2;
+  border-image: none;
+  border-radius: 2px;
+  border-style: solid;
+  border-width: 1px;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.2) inset, 0 1px 2px rgba(0,0,0,0.05);
+  color: #333333;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 14px;
+  line-height: 20px;
+  margin-bottom: 0;
+  padding: 4px 12px;
+  text-align: center;
+  text-shadow: 0 1px 1px rgba(255,255,255,0.75);
+  vertical-align: middle;
+}
+#discuss-welcome .btn-primary {
+  background-color: #006DCC;
+  background-image: linear-gradient(to bottom,#0088CC,#0044CC);
+  background-repeat: repeat-x;
+  border-color: rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);
+  color: #FFFFFF;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+}
+#discuss-mod .bold {
+  font-weight: 700;
+}
+#discuss-mod .list-item .item {
+  display: inline-block;
+  width: 100%;
+}
+#discuss-mod .list-item .item + .item {
+  padding-top: 5px;
+  margin-top: 5px;
+  border-top: 1px dotted #ddd;
+}

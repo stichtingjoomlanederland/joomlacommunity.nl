@@ -1,0 +1,144 @@
+.icon-rseventspro32:before {
+	color: #3F2FBC;
+	content: "y";
+}
+
+.icon-approve:before {
+	content: "G";
+	color: #51A351;
+}
+
+.icon-pending:before {
+	content: "n";
+	color: #260DEE;
+}
+
+.icon-denied:before {
+	content: "J";
+	color: #BD362F;
+}
+
+.icon-back:before {
+	content: "l";
+}
+
+.icon-preview:before {
+	content: "d";
+}
+
+.icon-export:before {
+	content: "m";
+}
+
+.icon-export:before {
+	content: "m";
+}
+
+#rsepro_results {
+	list-style: none outside none;
+    margin: 0;
+    width: 455px;
+	background: none repeat scroll 0 0 #F5F5F5;
+	border: 1px solid #E8E7E7;
+    height: auto;
+	position: absolute;
+	z-index: 999999;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+
+#rsepro_results li {
+}
+
+#rsepro_results li a {
+	padding: 4px;
+	text-decoration: none;
+	display: block;
+	line-height: 20px;
+}
+
+#rsepro_results li a:hover{
+	text-decoration: none;
+	background: #fff;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+
+#payment_chzn, #status_chzn, 
+#rule_chzn, #offset_chzn, #ticket_chzn {
+	vertical-align: sub;
+}
+
+#categories_chzn {
+	float: left;
+}
+
+.rs_add_category {
+	margin-left: 5px !important;
+}
+
+#rs_event_main fieldset .rs_sel_smaller,
+#rs_event_main fieldset .rs_sel {
+	height: auto !important;
+}
+
+#rs_event_main fieldset legend {
+	width: auto !important;
+	margin-bottom: 0 !important;
+	line-height: auto !important;
+	border: none !important;
+}
+
+.textboxlist-bits {
+	margin: 0 10px 0 0;
+}
+
+.textboxlist-bit {
+	margin: 4px 5px 0 0 !important;
+}
+
+ul.autocompleter-choices {
+	margin-left: 0 !important;
+	margin-top: 10px !important;
+}
+
+#rs_location_window {
+	margin-left: 6px;
+}
+
+#rs_filters {
+	margin: 0;
+}
+
+#rs_results {
+	margin: 15px 0 0;
+	max-width: 203px;
+	min-width: 203px;
+}
+
+#rs_event_main img,
+#map-canvas img {
+	max-width: none;
+}
+
+#rscombobox_jform_global_date_chzn,
+#rscombobox_jform_global_time_chzn {
+	vertical-align: sub;
+}
+
+#jform_global_date,
+#jform_global_time {
+	padding: 3px;
+    position: absolute;
+    width: 139px !important;
+}
+
+ul.rs_repeats li {
+	padding-bottom: 5px;
+}
+
+div#mbox .rs_sel {
+	height: auto !important;
+}

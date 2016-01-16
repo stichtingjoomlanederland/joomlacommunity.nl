@@ -1,0 +1,11 @@
+[
+    {
+        "view": [
+            "comment/form/uploadrow"
+        ],
+        "library": [
+            "plupload"
+        ],
+        "adapter": "Komento"
+    }
+]

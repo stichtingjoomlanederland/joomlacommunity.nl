@@ -1,0 +1,340 @@
+/**
+ * @package		EasyDiscuss
+ * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+ * @license		GNU/GPL, see LICENSE.php
+ *
+ * EasyDiscuss is free software. This version may have been modified pursuant
+ * to the GNU General Public License, and as distributed it includes or
+ * is derivative of works licensed under the GNU General Public License or
+ * other free or open source software licenses.
+ * See COPYRIGHT.php for copyright notices and details.
+ */
+
+
+/* MCE Editor : Reset */
+#discuss-wrapper .mceEditor{border:1px solid #ccc;display:inline-block;width:100%}
+#discuss-wrapper #editor-xtd-buttons,
+#discuss-wrapper #editor-xtd-buttons + div{display:inline-block;width:100%;background:#f5f5f5;border:1px solid #ccc;border-top:0;padding:0}
+#discuss-wrapper #editor-xtd-buttons + div{margin-top:0 !important}
+#discuss-wrapper #editor-xtd-buttons > div,
+#discuss-wrapper #editor-xtd-buttons + div > div{margin:3px 0 3px 5px}
+#discuss-wrapper .defaultSkin table,
+#discuss-wrapper .defaultSkin tbody,
+#discuss-wrapper .defaultSkin a,
+#discuss-wrapper .defaultSkin img,
+#discuss-wrapper .defaultSkin tr,
+#discuss-wrapper .defaultSkin td,
+#discuss-wrapper .defaultSkin iframe,
+#discuss-wrapper .defaultSkin .mceText{border:0;background:transparent;white-space:nowrap;text-decoration:none;font-weight:400;cursor:default;color:#000;vertical-align:baseline;width:auto;border-collapse:separate;text-align:left;margin:0;padding:0}
+#discuss-wrapper .defaultSkin a:hover,#discuss-wrapper .defaultSkin a:link,#discuss-wrapper .defaultSkin a:visited,#discuss-wrapper .defaultSkin a:active{text-decoration:none;font-weight:400;cursor:default;color:#000}
+#discuss-wrapper .defaultSkin table td{vertical-align:middle;width:auto}
+
+/* MCE Editor : Containers */
+#discuss-wrapper .defaultSkin table{direction:ltr;background:#f5f5f5}
+#discuss-wrapper .defaultSkin iframe{display:block}
+#discuss-wrapper .defaultSkin .mceToolbar{height:26px}
+#discuss-wrapper .defaultSkin .mceLeft{text-align:left}
+#discuss-wrapper .defaultSkin .mceRight{text-align:right}
+
+/* MCE Editor : External */
+#discuss-wrapper .defaultSkin .mceExternalToolbar{position:absolute;border:1px solid #CCC;border-bottom:0;display:none}
+#discuss-wrapper .defaultSkin .mceExternalToolbar td.mceToolbar{padding-right:13px}
+#discuss-wrapper .defaultSkin .mceExternalClose{position:absolute;top:3px;right:3px;width:7px;height:7px;background:url(../images/editor/icons.png) -820px 0}
+
+/* MCE Editor : Layout */
+#discuss-wrapper .defaultSkin table.mceLayout{width:100%!important}
+#discuss-wrapper .defaultSkin table.mceLayout tr.mceLast td{border-bottom:0}
+#discuss-wrapper .defaultSkin table.mceToolbar,.defaultSkin tr.mceFirst .mceToolbar tr td,.defaultSkin tr.mceLast .mceToolbar tr td{border:0;margin:0;padding:0}
+#discuss-wrapper .defaultSkin td.mceToolbar{padding-top:1px;vertical-align:top}
+#discuss-wrapper .defaultSkin .mceIframeContainer{border-top:1px solid #ccc;border-bottom:1px solid #ccc}
+#discuss-wrapper .defaultSkin .mceStatusbar{font-family:Verdana,Arial;font-size:0.9em;line-height:16px;overflow:visible;color:#000;display:block;height:20px}
+#discuss-wrapper .defaultSkin .mceStatusbar div{float:left;margin:2px}
+#discuss-wrapper .defaultSkin .mceStatusbar a.mceResize{display:block;float:right;background:url(../images/editor/icons.png) -800px 0;width:20px;height:20px;cursor:se-resize}
+#discuss-wrapper .defaultSkin .mceStatusbar a:hover{text-decoration:underline}
+#discuss-wrapper .defaultSkin table.mceToolbar{margin-left:3px;width:auto!important}
+#discuss-wrapper .defaultSkin span.mceIcon,.defaultSkin img.mceIcon{display:block;width:20px;height:20px}
+#discuss-wrapper .defaultSkin .mceIcon{background:url(../images/editor/icons.png) no-repeat 20px 20px}
+#discuss-wrapper .defaultSkin .mceButton .mceIcon{background-color:#F0F0EE}
+#discuss-wrapper .defaultSkin td.mceCenter{text-align:center}
+#discuss-wrapper .defaultSkin td.mceCenter table{text-align:left;margin:0 auto}
+#discuss-wrapper .defaultSkin td.mceRight table{margin:0 0 0 auto}
+
+/* MCE Editor : Button */
+#discuss-wrapper .defaultSkin .mceButton{display:block;border:1px solid #CCC;width:20px;height:20px;margin-right:1px;-moz-border-radius:2px;-webkit-border-radius:2px;border-radius:2px}
+
+#discuss-wrapper .defaultSkin a.mceButtonEnabled:hover .mceIcon{background-color:#B2BBD0}
+#discuss-wrapper .defaultSkin a.mceButtonActive .mceIcon,.defaultSkin a.mceButtonSelected .mceIcon{background-color:#C2CBE0}
+#discuss-wrapper .defaultSkin a.mceButtonEnabled:hover,#discuss-wrapper .defaultSkin a.mceButtonActive,.defaultSkin a.mceButtonSelected{border:1px solid #0A246A}
+
+#discuss-wrapper .defaultSkin .mceButtonDisabled .mceIcon{opacity:0.3;-ms-filter:alpha(opacity=30);filter:alpha(opacity=30)}
+#discuss-wrapper .defaultSkin .mceButtonLabeled{width:auto}
+#discuss-wrapper .defaultSkin .mceButtonLabeled span.mceIcon{float:left}
+#discuss-wrapper .defaultSkin span.mceButtonLabel{display:block;font-size:10px;font-family:Tahoma,Verdana,Arial,Helvetica;padding:4px 6px 0 22px}
+#discuss-wrapper .defaultSkin .mceButtonDisabled .mceButtonLabel{color:#888}
+
+/* MCE Editor : Separator */
+#discuss-wrapper .defaultSkin .mceSeparator {width:0px; height:20px; margin:0 4px;padding:2px 0;border-left: 1px solid #CCCCCC;background:none}
+
+/* MCE Editor : ListBox */
+#discuss-wrapper .defaultSkin .mceListBox,.defaultSkin .mceListBox a{display:block}
+#discuss-wrapper .defaultSkin .mceListBox .mceText{padding-left:4px;width:70px;text-align:left;border:1px solid #CCC;border-right:0;background:#FFF;font-family:Tahoma,Verdana,Arial,Helvetica;font-size:11px;height:20px;line-height:20px;overflow:hidden;-webkit-border-top-left-radius:2px;-webkit-border-bottom-left-radius:2px;-moz-border-radius-topleft:2px;-moz-border-radius-bottomleft:2px;border-top-left-radius:2px;border-bottom-left-radius:2px}
+#discuss-wrapper .defaultSkin .mceListBox .mceOpen{width:9px;height:20px;background:url(../images/editor/icons.png) -741px 0;margin-right:2px;border:1px solid #CCC;-webkit-border-top-right-radius:2px;-webkit-border-bottom-right-radius:2px;-moz-border-radius-topright:2px;-moz-border-radius-bottomright:2px;border-top-right-radius:2px;border-bottom-right-radius:2px}
+#discuss-wrapper .defaultSkin table.mceListBoxEnabled:hover .mceText,.defaultSkin .mceListBoxHover .mceText,.defaultSkin .mceListBoxSelected .mceText{border:1px solid #A2ABC0;border-right:0;background:#FFF}
+#discuss-wrapper .defaultSkin table.mceListBoxEnabled:hover .mceOpen,.defaultSkin .mceListBoxHover .mceOpen,.defaultSkin .mceListBoxSelected .mceOpen{background-color:#FFF;border:1px solid #A2ABC0}
+#discuss-wrapper .defaultSkin .mceListBoxDisabled a.mceText{color:gray;background-color:transparent}
+#discuss-wrapper .defaultSkin .mceListBoxMenu{overflow:auto;overflow-x:hidden}
+#discuss-wrapper .defaultSkin .mceOldBoxModel .mceListBox .mceText{height:22px}
+#discuss-wrapper .defaultSkin .mceOldBoxModel .mceListBox .mceOpen{width:11px;height:22px}
+#discuss-wrapper .defaultSkin select.mceNativeListBox{font-family:'MS Sans Serif',sans-serif,Verdana,Arial;font-size:7pt;background:#F0F0EE;border:1px solid gray;margin-right:2px}
+
+/* MCE Editor : SplitButton */
+#discuss-wrapper .defaultSkin .mceSplitButton{width:32px;height:20px;direction:ltr;margin:0 1px 0 0}
+#discuss-wrapper .defaultSkin .mceSplitButton a,.defaultSkin .mceSplitButton span{height:20px;display:block}
+#discuss-wrapper .defaultSkin .mceSplitButton a.mceAction{width:20px;border:1px solid #CCC;border-right:0;-webkit-border-top-left-radius:2px;-webkit-border-bottom-left-radius:2px;-moz-border-radius-topleft:2px;-moz-border-radius-bottomleft:2px;border-top-left-radius:2px;border-bottom-left-radius:2px}
+#discuss-wrapper .defaultSkin .mceSplitButton span.mceAction{width:20px;background-image:url(../images/editor/icons.png)}
+#discuss-wrapper .defaultSkin .mceSplitButton a.mceOpen{width:9px;background:url(../images/editor/icons.png) -741px 0;border:1px solid #CCC;-webkit-border-top-right-radius:2px;-webkit-border-bottom-right-radius:2px;-moz-border-radius-topright:2px;-moz-border-radius-bottomright:2px;border-top-right-radius:2px;border-bottom-right-radius:2px}
+#discuss-wrapper .defaultSkin .mceSplitButton span.mceOpen{display:none}
+#discuss-wrapper .defaultSkin table.mceSplitButtonEnabled:hover a.mceAction,.defaultSkin .mceSplitButtonHover a.mceAction,.defaultSkin .mceSplitButtonSelected a.mceAction{border:1px solid #0A246A;border-right:0;background-color:#B2BBD0}
+#discuss-wrapper .defaultSkin table.mceSplitButtonEnabled:hover a.mceOpen,.defaultSkin .mceSplitButtonHover a.mceOpen,.defaultSkin .mceSplitButtonSelected a.mceOpen{background-color:#B2BBD0;border:1px solid #0A246A}
+#discuss-wrapper .defaultSkin .mceSplitButtonDisabled .mceAction,.defaultSkin .mceSplitButtonDisabled a.mceOpen{opacity:0.3;-ms-filter:alpha(opacity=30);filter:alpha(opacity=30)}
+#discuss-wrapper .defaultSkin .mceSplitButtonActive a.mceAction{border:1px solid #0A246A;background-color:#C2CBE0}
+#discuss-wrapper .defaultSkin .mceSplitButtonActive a.mceOpen{border-left:0}
+
+/* MCE Editor : ColorSplitButton */
+#discuss-wrapper .defaultSkin div.mceColorSplitMenu table{background:#FFF;border:1px solid gray}
+#discuss-wrapper .defaultSkin .mceColorSplitMenu td{padding:2px}
+#discuss-wrapper .defaultSkin .mceColorSplitMenu a{display:block;width:9px;height:9px;overflow:hidden;border:1px solid gray}
+#discuss-wrapper .defaultSkin .mceColorSplitMenu td.mceMoreColors{padding:1px 3px 1px 1px}
+#discuss-wrapper .defaultSkin .mceColorSplitMenu a.mceMoreColors{width:100%;height:auto;text-align:center;font-family:Tahoma,Verdana,Arial,Helvetica;font-size:11px;line-height:20px;border:1px solid #FFF}
+#discuss-wrapper .defaultSkin .mceColorSplitMenu a.mceMoreColors:hover{border:1px solid #0A246A;background-color:#B6BDD2}
+#discuss-wrapper .defaultSkin a.mceMoreColors:hover{border:1px solid #0A246A}
+#discuss-wrapper .defaultSkin .mceColorPreview{margin-left:2px;width:16px;height:4px;overflow:hidden;background:#9a9b9a}
+#discuss-wrapper .defaultSkin .mce_forecolor span.mceAction,.defaultSkin .mce_backcolor span.mceAction{overflow:hidden;height:15px}
+
+/* MCE Editor : Menu */
+#discuss-wrapper .defaultSkin .mceMenu {position:absolute; left:0; top:0; z-index:1000; border:1px solid #D4D0C8}
+#discuss-wrapper .defaultSkin .mceNoIcons span.mceIcon {width:0;}
+#discuss-wrapper .defaultSkin .mceNoIcons a .mceText {padding-left:10px}
+#discuss-wrapper .defaultSkin .mceMenu table {background:#FFF}
+#discuss-wrapper .defaultSkin .mceMenu a, .defaultSkin .mceMenu span, .defaultSkin .mceMenu {display:block}
+#discuss-wrapper .defaultSkin .mceMenu td {height:20px}
+#discuss-wrapper .defaultSkin .mceMenu a {position:relative;padding:3px 0 4px 0}
+#discuss-wrapper .defaultSkin .mceMenu .mceText {position:relative; display:block; font-family:Tahoma,Verdana,Arial,Helvetica; color:#000; cursor:default; margin:0; padding:0 25px 0 25px; display:block}
+#discuss-wrapper .defaultSkin .mceMenu span.mceText, .defaultSkin .mceMenu .mcePreview {font-size:11px}
+#discuss-wrapper .defaultSkin .mceMenu pre.mceText {font-family:Monospace}
+#discuss-wrapper .defaultSkin .mceMenu .mceIcon {position:absolute; top:0; left:0; width:22px;}
+#discuss-wrapper .defaultSkin .mceMenu .mceMenuItemEnabled a:hover, .defaultSkin .mceMenu .mceMenuItemActive {background-color:#dbecf3}
+#discuss-wrapper .defaultSkin td.mceMenuItemSeparator {background:#DDD; height:1px}
+#discuss-wrapper .defaultSkin .mceMenuItemTitle a {border:0; background:#EEE; border-bottom:1px solid #DDD}
+#discuss-wrapper .defaultSkin .mceMenuItemTitle span.mceText {color:#000; font-weight:bold; padding-left:4px}
+#discuss-wrapper .defaultSkin .mceMenuItemDisabled .mceText {color:#888}
+#discuss-wrapper .defaultSkin .mceMenu span.mceMenuLine {display:none}
+
+/* MCE Editor : Progress,Resize */
+#discuss-wrapper .defaultSkin .mceBlocker {position:absolute; left:0; top:0; z-index:1000; opacity:0.5; -ms-filter:'alpha(opacity=50)'; filter:alpha(opacity=50); background:#FFF}
+#discuss-wrapper .defaultSkin .mceProgress {position:absolute; left:0; top:0; z-index:1001; background:url(../images/editor/progress.gif) no-repeat; width:32px; height:32px; margin:-16px 0 0 -16px}
+#discuss-wrapper .defaultSkin .mcePlaceHolder {border:1px dotted gray}
+
+/* MCE Editor : Formats */
+#discuss-wrapper .defaultSkin .mce_formatPreview a {font-size:10px}
+#discuss-wrapper .defaultSkin .mce_p span.mceText {}
+#discuss-wrapper .defaultSkin .mce_address span.mceText {font-style:italic}
+#discuss-wrapper .defaultSkin .mce_pre span.mceText {font-family:monospace}
+#discuss-wrapper .defaultSkin .mce_h1 span.mceText {font-weight:bolder; font-size: 2em}
+#discuss-wrapper .defaultSkin .mce_h2 span.mceText {font-weight:bolder; font-size: 1.5em}
+#discuss-wrapper .defaultSkin .mce_h3 span.mceText {font-weight:bolder; font-size: 1.17em}
+#discuss-wrapper .defaultSkin .mce_h4 span.mceText {font-weight:bolder; font-size: 1em}
+#discuss-wrapper .defaultSkin .mce_h5 span.mceText {font-weight:bolder; font-size: .83em}
+#discuss-wrapper .defaultSkin .mce_h6 span.mceText {font-weight:bolder; font-size: .75em}
+
+/* MCE Editor : Theme */
+#discuss-wrapper .defaultSkin span.mce_bold{background-position:0 0}
+#discuss-wrapper .defaultSkin span.mce_italic{background-position:-60px 0}
+#discuss-wrapper .defaultSkin span.mce_underline{background-position:-140px 0}
+#discuss-wrapper .defaultSkin span.mce_strikethrough{background-position:-120px 0}
+#discuss-wrapper .defaultSkin span.mce_undo{background-position:-160px 0}
+#discuss-wrapper .defaultSkin span.mce_redo{background-position:-100px 0}
+#discuss-wrapper .defaultSkin span.mce_cleanup{background-position:-40px 0}
+#discuss-wrapper .defaultSkin span.mce_bullist{background-position:-20px 0}
+#discuss-wrapper .defaultSkin span.mce_numlist{background-position:-80px 0}
+#discuss-wrapper .defaultSkin span.mce_justifyleft{background-position:-460px 0}
+#discuss-wrapper .defaultSkin span.mce_justifyright{background-position:-480px 0}
+#discuss-wrapper .defaultSkin span.mce_justifycenter{background-position:-420px 0}
+#discuss-wrapper .defaultSkin span.mce_justifyfull{background-position:-440px 0}
+#discuss-wrapper .defaultSkin span.mce_anchor{background-position:-200px 0}
+#discuss-wrapper .defaultSkin span.mce_indent{background-position:-400px 0}
+#discuss-wrapper .defaultSkin span.mce_outdent{background-position:-540px 0}
+#discuss-wrapper .defaultSkin span.mce_link{background-position:-500px 0}
+#discuss-wrapper .defaultSkin span.mce_unlink{background-position:-640px 0}
+#discuss-wrapper .defaultSkin span.mce_sub{background-position:-600px 0}
+#discuss-wrapper .defaultSkin span.mce_sup{background-position:-620px 0}
+#discuss-wrapper .defaultSkin span.mce_removeformat{background-position:-580px 0}
+#discuss-wrapper .defaultSkin span.mce_newdocument{background-position:-520px 0}
+#discuss-wrapper .defaultSkin span.mce_image{background-position:-380px 0}
+#discuss-wrapper .defaultSkin span.mce_help{background-position:-340px 0}
+#discuss-wrapper .defaultSkin span.mce_hr{background-position:-360px 0}
+#discuss-wrapper .defaultSkin span.mce_visualaid{background-position:-660px 0}
+#discuss-wrapper .defaultSkin span.mce_charmap{background-position:-240px 0}
+#discuss-wrapper .defaultSkin span.mce_paste{background-position:-560px 0}
+#discuss-wrapper .defaultSkin span.mce_copy{background-position:-700px 0}
+#discuss-wrapper .defaultSkin span.mce_cut{background-position:-680px 0}
+#discuss-wrapper .defaultSkin span.mce_blockquote{background-position:-220px 0}
+#discuss-wrapper .defaultSkin span.mce_code,#discuss-wrapper .defaultSkin span.mce_source{background-position:-260px 0}
+#discuss-wrapper .defaultSkin .mce_forecolor span.mceAction,#discuss-wrapper .defaultSkin span.mce_forecolor,#discuss-wrapper .defaultSkin span.mce_forecolorpicker{background-position:-720px 0}
+#discuss-wrapper .defaultSkin .mce_backcolor span.mceAction,#discuss-wrapper .defaultSkin span.mce_backcolor,#discuss-wrapper .defaultSkin span.mce_backcolorpicker{background-position:-760px 0}
+
+#discuss-wrapper .defaultSkin span.mce_readmore{background-position:-920px 0}
+#discuss-wrapper .defaultSkin span.mce_pagebreak{background-position:-940px 0}
+
+/* MCE Editor : Plugins */
+#discuss-wrapper .defaultSkin span.mce_advhr{background-position:0 -20px}
+#discuss-wrapper .defaultSkin span.mce_ltr{background-position:-20px -20px}
+#discuss-wrapper .defaultSkin span.mce_rtl{background-position:-40px -20px}
+#discuss-wrapper .defaultSkin span.mce_emotions{background-position:-60px -20px}
+#discuss-wrapper .defaultSkin span.mce_fullpage{background-position:-80px -20px}
+#discuss-wrapper .defaultSkin span.mce_fullscreen{background-position:-100px -20px}
+#discuss-wrapper .defaultSkin span.mce_iespell{background-position:-120px -20px}
+#discuss-wrapper .defaultSkin span.mce_insertdate{background-position:-140px -20px}
+#discuss-wrapper .defaultSkin span.mce_inserttime{background-position:-160px -20px}
+
+#discuss-wrapper .defaultSkin span.mce_absolute{background-position:-180px -20px}
+#discuss-wrapper .defaultSkin span.mce_insertlayer{background-position:-240px -20px}
+#discuss-wrapper .defaultSkin span.mce_movebackward{background-position:-200px -20px}
+#discuss-wrapper .defaultSkin span.mce_moveforward{background-position:-220px -20px}
+
+#discuss-wrapper .defaultSkin span.mce_media{background-position:-320px -20px}
+#discuss-wrapper .defaultSkin span.mce_nonbreaking{background-position:-340px -20px}
+#discuss-wrapper .defaultSkin span.mce_pastetext{background-position:-360px -20px}
+#discuss-wrapper .defaultSkin span.mce_pasteword{background-position:-380px -20px}
+#discuss-wrapper .defaultSkin span.mce_selectall{background-position:-400px -20px}
+#discuss-wrapper .defaultSkin span.mce_preview{background-position:-420px -20px}
+#discuss-wrapper .defaultSkin span.mce_print{background-position:-440px -20px}
+#discuss-wrapper .defaultSkin span.mce_cancel{background-position:-460px -20px}
+#discuss-wrapper .defaultSkin span.mce_save{background-position:-480px -20px}
+#discuss-wrapper .defaultSkin span.mce_replace{background-position:-500px -20px}
+#discuss-wrapper .defaultSkin span.mce_search{background-position:-520px -20px}
+#discuss-wrapper .defaultSkin span.mce_cell_props{background-position:-600px -20px}
+#discuss-wrapper .defaultSkin span.mce_delete_table{background-position:-620px -20px}
+#discuss-wrapper .defaultSkin span.mce_delete_col{background-position:-640px -20px}
+#discuss-wrapper .defaultSkin span.mce_delete_row{background-position:-660px -20px}
+#discuss-wrapper .defaultSkin span.mce_col_after{background-position:-680px -20px}
+#discuss-wrapper .defaultSkin span.mce_col_before{background-position:-700px -20px}
+#discuss-wrapper .defaultSkin span.mce_row_after{background-position:-720px -20px}
+#discuss-wrapper .defaultSkin span.mce_row_before{background-position:-740px -20px}
+#discuss-wrapper .defaultSkin span.mce_merge_cells{background-position:-760px -20px}
+#discuss-wrapper .defaultSkin span.mce_table_props{background-position:-980px -20px}
+#discuss-wrapper .defaultSkin span.mce_row_props{background-position:-780px -20px}
+#discuss-wrapper .defaultSkin span.mce_split_cells{background-position:-800px -20px}
+#discuss-wrapper .defaultSkin span.mce_template{background-position:-820px -20px}
+#discuss-wrapper .defaultSkin span.mce_visualchars{background-position:-840px -20px}
+#discuss-wrapper .defaultSkin span.mce_abbr{background-position:-860px -20px}
+#discuss-wrapper .defaultSkin span.mce_acronym{background-position:-880px -20px}
+#discuss-wrapper .defaultSkin span.mce_attribs{background-position:-900px -20px}
+#discuss-wrapper .defaultSkin span.mce_cite{background-position:-920px -20px}
+#discuss-wrapper .defaultSkin span.mce_del{background-position:-940px -20px}
+#discuss-wrapper .defaultSkin span.mce_ins{background-position:-960px -20px}
+#discuss-wrapper .defaultSkin span.mce_styleprops,#discuss-wrapper .defaultSkin span.mce_style{background-position:-560px -20px}
+#discuss-wrapper .defaultSkin span.mce_table,#discuss-wrapper .defaultSkin span.mce_table_insert{background-position:-580px -20px}
+/*.defaultSkin span.mce_pagebreak {background-position:0 -40px}*/
+#discuss-wrapper .defaultSkin span.mce_spellchecker{background-position:-540px -20px}
+#discuss-wrapper .defaultSkin span.mce_restoredraft,#discuss-wrapper .defaultSkin span.mce_autosave{background-position:-20px -40px}
+
+#discuss-wrapper .defaultSkin span.mce_wrap{background-position:-100px -40px}
+#discuss-wrapper .defaultSkin span.mce_numbers{background-position:-120px -40px}
+#discuss-wrapper .defaultSkin span.mce_highlight{background-position:-140px -40px}
+#discuss-wrapper .defaultSkin span.mce_imgmanager{background-position:-380px 0}
+#discuss-wrapper .defaultSkin span.mce_article{background-position:-920px 0;width:40px}
+#discuss-wrapper .defaultSkin span.mce_textcase{background-position:-40px -40px}
+
+#jce span.mceIcon.mce_fontselect,
+#jce span.mceIcon.mce_fontsizeselect,
+#jce span.mceIcon.mce_formatselect,
+#jce span.mceIcon.mce_styleselect{background:url(../images/editor/layout.png) no-repeat 0 0;width:78px;border:1px solid #ccc;background-position:0 -60px}
+#jce span.mceIcon.mce_fontselect{background-position:0 0}
+#jce span.mceIcon.mce_fontsizeselect{background-position:0 -20px}
+#jce span.mceIcon.mce_formatselect{background-position:0 -40px}
+#jce span.mceIcon.mce_paste,
+#jce span.mceIcon.mce_numlist,
+#jce span.mceIcon.mce_bullist,
+#jce span.mceIcon.mce_forecolor,
+#jce span.mceIcon.mce_backcolor,
+#jce span.mceIcon.mce_spellchecker,
+#jce span.mceIcon.mce_textcase{background:url(../images/editor/layout.png) no-repeat 0 0;width:30px;border:1px solid #ccc;background-position:0 -140px}
+#jce span.mceIcon.mce_numlist{background-position:0 -100px}
+#jce span.mceIcon.mce_bullist{background-position:-30px -100px}
+#jce span.mceIcon.mce_forecolor{background-position:0 -80px}
+#jce span.mceIcon.mce_backcolor{background-position:-30px -80px}
+#jce span.mceIcon.mce_paste{background-position:0 -120px}
+#jce span.mceIcon.mce_spellchecker{background-position:-30px -120px}
+
+/*tinymce custom styling*/
+#discuss-wrapper .modal-button,
+#discuss-wrapper .toggle-editor a {
+	font-weight: normal;
+	-moz-border-bottom-colors: none;
+	-moz-border-left-colors: none;
+	-moz-border-right-colors: none;
+	-moz-border-top-colors: none;
+	background-color: #F5F5F5;
+	background-image: linear-gradient(to bottom, #FFFFFF, #E6E6E6);
+	background-repeat: repeat-x;
+	border-color: #BBBBBB #BBBBBB #A2A2A2;
+	border-image: none;
+	border-radius: 4px 4px 4px 4px;
+	border-style: solid;
+	border-width: 1px;
+	box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
+	color: #333333;
+	cursor: pointer;
+	display: inline-block;
+	font-size: 12px;
+	line-height: 20px;
+	margin-bottom: 0;
+	padding: 4px 12px;
+	text-align: center;
+	text-shadow: 0 1px 1px rgba(255, 255, 255, 0.55);
+	vertical-align: middle;
+}
+#discuss-wrapper .modal-button:hover,
+#discuss-wrapper .modal-button:focus,
+#discuss-wrapper .toggle-editor a:hover,
+#discuss-wrapper .toggle-editor a:focus {
+	background-position: 0 0px;
+	color: #333333;
+	text-decoration: none;
+	background-color: #e6e6e6;
+	transition: background-position 0.1s linear 0s;
+}
+
+#discuss-wrapper .discuss-form {
+	position: relative;
+}
+#discuss-wrapper #editor-xtd-buttons {
+	border: none;
+	background: none;
+	height: 60px;
+	width: auto;
+}
+#discuss-wrapper #editor-xtd-buttons .icon-file-add:before {
+	content: "\f016";
+}
+#discuss-wrapper #editor-xtd-buttons + div {
+	position: relative;
+	width: auto;
+	border: none;
+	background: none;
+	padding-right: 5px;
+	float: right;
+	display: block;
+}
+#discuss-wrapper #editor-xtd-buttons + div .icon-eye-open:before,
+#discuss-wrapper #editor-xtd-buttons + div .icon-eye:before {
+	content: "\f06e";
+}
+
+
+#dc_reply_content {
+	&.mce_editable {
+		width: 98% !important;
+	}
+}

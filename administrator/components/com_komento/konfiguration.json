@@ -1,0 +1,40 @@
+{
+	"profile_enable": "1",
+
+	"profile_tab_comments": "1",
+	"profile_tab_activities": "1",
+	"profile_tab_popular": "1",
+	"profile_tab_sticked": "1",
+
+	"profile_activities_comments": "1",
+	"profile_activities_replies": "1",
+	"profile_activities_likes": "1",
+
+	"name_type": "default",
+	"layout_avatar_integration": "gravatar",
+	"layout_phpbb_path": "",
+	"layout_phpbb_url": "",
+
+	"enable_schema": "1",
+
+	"database_clearcaptchaonpageload": "0",
+
+	"enable_inline_reply": "1",
+	"enable_ajax_permalink": "1",
+	"enable_ajax_load_list": "0",
+	"enable_ajax_load_stickies": "1",
+	"enforce_live_stickies": "1",
+	"enable_ajax_load_lovies": "1",
+	"enforce_live_lovies": "1",
+	"enable_shorten_link": "1",
+	"parent_preload": "0",
+	"enable_js_form_validation": "1",
+	"enable_live_form_validation": "1",
+	"enable_admin_mode": "0",
+	"enable_warning_messages": "1",
+	"enable_language_fallback": "1",
+	"disable_mailq": "0",
+
+	"komento_environment": "static",
+	"komento_mode": "compressed"
+}

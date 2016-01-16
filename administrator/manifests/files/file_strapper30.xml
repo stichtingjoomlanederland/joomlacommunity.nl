@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension type="file" version="3.3" method="upgrade">
+    <!-- Generic Metadata -->
+    <name>file_strapper30</name>
+    <author>Nicholas K. Dionysopoulos</author>
+    <authorEmail>nicholas@dionysopoulos.me</authorEmail>
+    <authorUrl>https://www.akeebabackup.com</authorUrl>
+    <copyright>(C) 2012-2015 Akeeba Ltd.</copyright>
+    <license>GNU GPL v2 or later</license>
+    <version>3.0.0</version>
+    <creationDate>2015-06-29 11:08:32</creationDate>
+    <description>Namespaced jQuery and Bootstrap for compatibility with non-Bootstrap templates. This is the FOF 3.0 version.</description>
+
+    <!-- Fileset definition -->
+    <fileset>
+        <files folder="strapper30" target="media/strapper30">
+            <folder>css</folder>
+            <folder>img</folder>
+            <folder>js</folder>
+            <folder>less</folder>
+            <filename>strapper.ini</filename>
+            <filename>strapper.php</filename>
+            <filename>version.php</filename>
+        </files>
+		<files target="media/strapper30">
+			<filename>version.txt</filename>
+		</files>
+    </fileset>
+
+    <!-- Installation / uninstallation script file -->
+    <scriptfile>script.strapper.php</scriptfile>
+
+    <!-- Update server -->
+    <updateservers>
+        <server type="extension" priority="1" name="Akeeba Strapper">http://cdn.akeebabackup.com/updates/strapper.xml</server>
+    </updateservers>
+</extension>

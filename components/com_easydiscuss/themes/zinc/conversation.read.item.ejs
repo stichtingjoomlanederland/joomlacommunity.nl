@@ -1,0 +1,33 @@
+<?php
+/**
+ * @package		EasyDiscuss
+ * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+ * @license		GNU/GPL, see LICENSE.php
+ *
+ * EasyDiscuss is free software. This version may have been modified pursuant
+ * to the GNU General Public License, and as distributed it includes or
+ * is derivative of works licensed under the GNU General Public License or
+ * other free or open source software licenses.
+ * See COPYRIGHT.php for copyright notices and details.
+ */
+defined('_JEXEC') or die('Restricted access');
+?>
+<li class="[%= post.className %]">
+	<div class="media">
+		<a class="discuss-avatar float-l" href="[%= post.authorLink %]">
+			<img src="[%= post.authorAvatar %]" alt="[%= post.authorName %]" class="avatar" width="70" height="70" />
+		</a>
+		<div class="media-body">
+			<header>
+				<b><a href="[%= post.authorLink %]">[%= post.authorName %]</a></b>
+			</header>
+			<article>
+				[%= post.message %]
+			</article>
+			<footer>
+				[%= post.lapsed %]
+				<time datetime="[%= post.created %]"></time>
+			</footer>
+		</div>
+	</div>
+</li>

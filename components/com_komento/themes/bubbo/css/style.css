@@ -1,0 +1,109 @@
+/**
+ * @package		Komento
+ * @copyright	Copyright (C) 2012 Stack Ideas Private Limited. All rights reserved.
+ * @license		GNU/GPL, see LICENSE.php
+ *
+ * Komento is free software. This version may have been modified pursuant
+ * to the GNU General Public License, and as distributed it includes or
+ * is derivative of works licensed under the GNU General Public License or
+ * other free or open source software licenses.
+ * See COPYRIGHT.php for copyright notices and details.
+ */
+
+
+
+
+/* =comment listing
+****************************************/
+#section-kmt .kmt-list > li + li > div,
+#section-kmt .kmt-list > .kmt-form + li > div{
+	border-top:0;
+	padding:15px 0;
+}
+/* =comment listing
+****************************************/
+#section-kmt .kmt-avatar{
+	margin:0 15px 0 0;
+}
+#section-kmt .kmt-avatar img{
+	width:40px;
+	border-radius:3px;
+	-moz-border-radius:3px;
+	-webkit-border-radius:3px;
+}
+#section-kmt .kmt-avatar + .kmt-content{
+	margin:0;
+}
+#section-kmt .kmt-rank + .kmt-content{
+	margin:0;
+}
+#section-kmt .kmt-head{
+	position:relative;
+	top:5px;
+}
+#section-kmt .kmt-head .kmt-option{
+	top:12px;
+}
+#section-kmt .kmt-body{
+	background:#fff;
+	border:1px solid #cacaca;
+	border-bottom-color:#bababa;
+	padding:15px;
+	margin:30px 0 10px;
+
+	border-radius:4px;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+}
+#section-kmt .kmt-body > i{
+	background:url(../images/bubble.png);
+	position:absolute;
+	left:48px;
+	top:-18px;
+	width:20px;
+	height:18px;
+}
+#section-kmt .kmt-control{
+	top:-5px;
+}
+#section-kmt .kmt-meta{
+	position:relative;
+	top:-5px;
+	margin:0 150px 0 10px;
+}
+
+/* =comment listing : rank
+****************************************/
+#section-kmt .kmt-rank {
+	width: 40px;
+	top: 43px;
+}
+#section-kmt .kmt-rank--author { /* @extend kmt-rank */
+	width: 34px;
+	top: -1px;
+}
+
+
+/* =comment styling with star rating
+****************************************/
+#section-kmt .kmt-star-rated .kmt-head{
+	top: -10px;
+}
+
+/**
+* Responsive control
+#section-kmt.w600
+#section-kmt.w320
+*/
+#section-kmt.w320 .kmt-head {
+	top: 0;
+}
+#section-kmt.w320 .kmt-head .kmt-option {
+	top: 0;
+}
+#section-kmt.w320 .kmt-rank + .kmt-content {
+	margin: 0;
+}
+#section-kmt.w320 .kmt-body > i {
+	left: 38px;
+}

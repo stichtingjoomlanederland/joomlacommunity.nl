@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<access component="com_komento">
+	<section name="component">
+		<action name="core.manage" title="JACTION_MANAGE" description="JACTION_MANAGE_COMPONENT_DESC" />
+		<action name="komento.manage.comments" title="COM_KOMENTO_JACL_MANAGE_COMMENTS" description="COM_KOMENTO_JACL_MANAGE_COMMENTS_DESC" />
+		<action name="komento.manage.pendings" title="COM_KOMENTO_JACL_MANAGE_PENDINGS" description="COM_KOMENTO_JACL_MANAGE_PENDINGS_DESC" />
+		<action name="komento.manage.reports" title="COM_KOMENTO_JACL_MANAGE_REPORTS" description="COM_KOMENTO_JACL_MANAGE_REPORTS_DESC" />
+		<action name="komento.manage.subscribers" title="COM_KOMENTO_JACL_MANAGE_SUBSCRIBERS" description="COM_KOMENTO_JACL_MANAGE_SUBSCRIBERS_DESC" />
+		<action name="komento.manage.integrations" title="COM_KOMENTO_JACL_MANAGE_INTEGRATIONS" description="COM_KOMENTO_JACL_MANAGE_INTEGRATION_DESC" />
+		<action name="komento.manage.system" title="COM_KOMENTO_JACL_MANAGE_SYSTEM" description="COM_KOMENTO_JACL_MANAGE_SYSTEM_DESC" />
+		<action name="komento.manage.acl" title="COM_KOMENTO_JACL_MANAGE_ACL" description="COM_KOMENTO_JACL_MANAGE_ACL_DESC" />
+		<action name="komento.manage.migrators" title="COM_KOMENTO_JACL_MANAGE_MIGRATORS" description="COM_KOMENTO_JACL_MANAGE_MIGRATORS_DESC" />
+		<action name="komento.manage.mailq" title="COM_KOMENTO_JACL_MANAGE_MAILQ" description="COM_KOMENTO_JACL_MANAGE_MAILQ_DESC" />
+	</section>
+</access>

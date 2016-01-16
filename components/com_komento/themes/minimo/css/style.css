@@ -1,0 +1,188 @@
+/**
+ * @package		Komento
+ * @copyright	Copyright (C) 2012 Stack Ideas Private Limited. All rights reserved.
+ * @license		GNU/GPL, see LICENSE.php
+ *
+ * Komento is free software. This version may have been modified pursuant
+ * to the GNU General Public License, and as distributed it includes or
+ * is derivative of works licensed under the GNU General Public License or
+ * other free or open source software licenses.
+ * See COPYRIGHT.php for copyright notices and details.
+ */
+
+#section-kmt .avatar{
+	width:35px;
+	border-radius:2px;
+	-moz-border-radius:2px;
+	-webkit-border-radius:2px;
+}
+#section-kmt .kmt-list > li + li > div,
+#section-kmt .kmt-list > .kmt-form + li > div{
+	border-top:0;
+}
+#section-kmt .kmt-wrap{
+	position:relative;
+}
+#section-kmt .kmt-avatar + .kmt-content .kmt-head,
+#section-kmt .kmt-avatar + .kmt-content .kmt-body,
+#section-kmt .kmt-avatar + .kmt-content .kmt-control{
+	margin:0 0 0 -60px;
+}
+#section-kmt .kmt-rank {
+	top: 52px;
+	z-index: 2;
+}
+#section-kmt .kmt-rank + .kmt-content {
+	margin: 0;
+}
+#section-kmt .kmt-avatar + .kmt-content .kmt-head,
+#section-kmt .kmt-rank + .kmt-content .kmt-head{
+	padding:0 0 0 55px;
+}
+#section-kmt .kmt-head{
+	background:#f0f0f0;
+	border:1px solid #ccc;
+	border-bottom:0;
+	height:55px;
+	padding:0 10px;
+
+	border-radius:2px 2px 0 0;
+	-moz-border-radius:2px 2px 0 0;
+	-webkit-border-radius:2px 2px 0 0;
+}
+#section-kmt .kmt-body{
+	border:1px solid #ccc;
+	padding:8px 10px;
+	margin:0;
+}
+#section-kmt .kmt-list .kmt-avatar{
+	position:absolute;
+	z-index:2;
+	left:10px;
+	top:30px;
+}
+#section-kmt .kmt-list .kmt-author{
+	margin-top:15px;
+}
+#section-kmt .kmt-list .kmt-author,
+#section-kmt .kmt-list .kmt-author a{
+	height:25px;
+	line-height:25px;
+}
+#section-kmt .kmt-option{
+	right:10px;
+	top:16px;
+}
+#section-kmt .kmt-control{
+	background:#f5f5f5;
+	border:1px solid #ccc;
+	border-top:0;
+	padding:5px 10px;
+	display:block;
+	width:auto;
+
+	border-radius:0 0 2px 2px;
+	-moz-border-radius:0 0 2px 2px;
+	-webkit-border-radius:0 0 2px 2px;
+
+	box-shadow:0 1px 0 #eee inset;
+}
+#section-kmt .kmt-control-user{
+	right:10px;
+	top:5px;
+}
+
+#section-kmt .kmt-form form{
+	display:block;
+	padding:10px;
+	border:1px solid #ccc;
+	margin-top:-10px;
+
+	border-radius:2px;
+	-moz-border-radius:2px;
+	-webkit-border-radius:2px;
+}
+#section-kmt div.kmt-form-author .kmt-author-detail{
+	padding:0;
+}
+
+.kmt-readon span.kmt-hits{
+	background: url(../images/ico-hits.png) 0 center no-repeat;
+}
+
+.kmt-readon span.kmt-readmore{
+	background: url(../images/ico-readmore.png) 0 center no-repeat;
+}
+
+.kmt-readon span.kmt-comment{
+	background: url(../images/ico-comment.png) 0 center no-repeat;
+}
+
+/* =comment listing : rank
+****************************************/
+#section-kmt .kmt-rank {
+	width: 35px;
+	top: 50px;
+	left: 10px;
+}
+#section-kmt .kmt-rank--author { /* @extend kmt-rank */
+	width: 34px;
+	top: -1px;
+	left: 0px;
+}
+
+
+/* =comment styling with star rating
+****************************************/
+#section-kmt .kmt-star-rated .kmt-author{
+	margin-top:5px;
+}
+#section-kmt .kmt-star-rated .kmt-author,
+#section-kmt .kmt-star-rated .kmt-author a{
+	height:20px;
+	line-height:20px;
+} 
+
+
+/* =preview
+****************************************/
+#section-kmt.kmt-preview .kmt-list > li > div {
+    padding: 17px 0 0;
+}
+#section-kmt.kmt-preview .kmt-list {
+	border-bottom: none;
+}
+/**
+* Responsive control
+#section-kmt.w600
+#section-kmt.w320
+*/
+#section-kmt.w320 .kmt-list .kmt-avatar {
+	top: 35px;
+}
+#section-kmt.w320 .kmt-head {
+	height: 95px;
+	padding: 0 5px;
+}
+#section-kmt.w320 .kmt-option {
+	margin: 0 10px;
+}
+#section-kmt.w320 .kmt-body {
+	top: 0;
+	margin: 0;
+}
+#section-kmt.w320 .kmt-control {
+	height: 64px;
+}
+
+#section-kmt.w320 .kmt-list .kmt-author,
+#section-kmt.w320 .kmt-list .kmt-author a {
+height: auto;
+line-height: 20px;
+}
+#section-kmt.w320 .kmt-list .kmt-author {
+margin-top: 10px;
+}
+#section-kmt.w320 .kmt-list > li > div {
+	padding: 20px 0 0px;
+}

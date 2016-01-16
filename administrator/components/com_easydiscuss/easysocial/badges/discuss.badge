@@ -1,0 +1,83 @@
+
+[
+	{
+		"title" 		: "Motivator",
+		"alias"			: "motivator",
+		"description"	: "Votes on Discussion Replies",
+		"howto"			: "To unlock this badge, you need to vote on more than 100 replies.",
+		"command"		: "vote.reply",
+		"extension"		: "com_easydiscuss",
+		"avatar"		: "media/com_easydiscuss/badges/motivator.png",
+		"frequency"		: 100
+	},
+	{
+		"title" 		: "Ace Helper",
+		"alias"			: "ace-helper",
+		"description"	: "Spot on with the answers!",
+		"howto"			: "To unlock this badge, you need to have 50 replies accepted as answer.",
+		"command"		: "accepted.reply",
+		"extension"		: "com_easydiscuss",
+		"avatar"		: "media/com_easydiscuss/badges/hole-in-one.png",
+		"frequency"		: 50
+	},
+	{
+		"title" 		: "Smile Seeker",
+		"alias"			: "smile-seeker",
+		"description"	: "Loves liking posts on the site.",
+		"howto"			: "To unlock this badge, you need to like 100 posts on the site.",
+		"command"		: "like.question",
+		"extension"		: "com_easydiscuss",
+		"avatar"		: "media/com_easydiscuss/badges/busybody.png",
+		"frequency"		: 100
+	},
+	{
+		"title" 		: "Sherlock Holmes",
+		"alias"			: "sherlock-holmes",
+		"description"	: "Create new discussions on the site.",
+		"howto"			: "To unlock this badge, you need to create at least 30 different new discussions on the site.",
+		"command"		: "create.question",
+		"extension"		: "com_easydiscuss",
+		"avatar"		: "media/com_easydiscuss/badges/busybody.png",
+		"frequency"		: 30
+	},
+	{
+		"title" 		: "The Voice",
+		"alias"			: "the-voice",
+		"description"	: "Loves collaborating with others in the forums.",
+		"howto"			: "To unlock this badge, you need to post at least 100 replies on the site.",
+		"command"		: "reply.question",
+		"extension"		: "com_easydiscuss",
+		"avatar"		: "media/com_easydiscuss/badges/the-voice.png",
+		"frequency"		: 100
+	},
+	{
+		"title" 		: "Bookworm",
+		"alias"			: "bookworm",
+		"description"	: "Loves reading the forums.",
+		"howto"			: "To unlock this badge, you need to read at least 50 different discussions on the site.",
+		"command"		: "read.question",
+		"extension"		: "com_easydiscuss",
+		"avatar"		: "media/com_easydiscuss/badges/bookworm.png",
+		"frequency"		: 50
+	},
+	{
+		"title" 		: "Peacemaker",
+		"alias"			: "peacemaker",
+		"description"	: "Being a good helper on the forum by resolving posts.",
+		"howto"			: "To unlock this badge, you need to help resolve 50 discussions by marking replies as answer.",
+		"command"		: "resolve.reply",
+		"extension"		: "com_easydiscuss",
+		"avatar"		: "media/com_easydiscuss/badges/peacemaker.png",
+		"frequency"		: 50
+	},
+	{
+		"title" 		: "Firestarter",
+		"alias"			: "firestarter",
+		"description"	: "Comments in the forum",
+		"howto"			: "To unlock this badge, you need to post at least 100 comments in the forums.",
+		"command"		: "create.comment",
+		"extension"		: "com_easydiscuss",
+		"avatar"		: "media/com_easydiscuss/badges/firestarter.png",
+		"frequency"		: 100
+	}
+]

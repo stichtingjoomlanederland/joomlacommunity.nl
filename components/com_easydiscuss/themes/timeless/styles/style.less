@@ -1,0 +1,82 @@
+@import "bootstrap/variables";
+@import "@{site_base}/variables";
+@import "variables";
+@import "component";
+
+/*------------------------------------*\
+	$Table of Contents
+\*------------------------------------*/
+/**
+	elements > layout > module > state > theme
+*/
+
+(~"@{EasyDiscuss}") {
+
+	//	$Elements
+	@import "@{site_base}/elements";
+	@import "elements";
+	@import "@{site_base}/form";
+
+	@import "@{site_base}/item";
+	@import "item"; //extended from simplistic
+
+	//	$Stats/trigger
+	@import "@{site_base}/states";
+	@import "states";
+
+	//	$Modules
+	@import "searchbar"; // own search bar styling
+
+	@import "@{site_base}/toolbar";
+	@import "toolbar"; //extended from simplistic
+
+	@import "@{site_base}/statistic";
+	@import "@{site_base}/polls";
+	@import "@{site_base}/modules"; // Not breaking to smaller parts yet
+	@import "modules"; // Not breaking to smaller parts yet
+
+
+	@import "headers"; // customize header for timeless
+
+	//@import "@{theme}/modules-extend"; //extended
+
+
+	//	$Views
+	// Override for specific view when necessary
+	@import "@{site_base}/views";
+	@import "views"; //extended from simplistic
+
+	//	$Icons
+	// have to gain 1 more specificity to override default icon
+	// e.g.: body div#wrapper
+	body & {
+		@import "icons";
+	}
+
+
+	//	$Responsive
+	@import "@{site_base}/responsive";
+	@import "responsive";
+
+}
+
+//	$UI elements
+//	custom ui elements to to override default javascript components
+//	.popover
+//	.ui-autocomplete
+//	.dialog
+@import "@{site_base}/ui";
+
+//	$Custom
+//	custom hack for conflict with template
+@import "@{site_base}/custom";
+
+// $Print
+@import "@{site_base}/print";
+
+
+// $RTL
+//@import "rtl";
+
+// $Override
+@import "override";

@@ -1,0 +1,16 @@
+[
+    {
+        "script": [
+            "komento.commentlist",
+            "komento.common",
+            "komento.language"
+        ],
+        "library": [
+            "dialog"
+        ],
+        "view": [
+            "notifications/new.comment"
+        ],
+        "adapter": "Komento"
+    }
+]

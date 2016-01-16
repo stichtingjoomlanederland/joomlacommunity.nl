@@ -1,0 +1,122 @@
+/*------------------------------------*\
+    $form.less
+\*------------------------------------*/
+
+// =custom-field
+// ----------------
+.discuss-fields {
+	margin: 20px 0;
+	padding: 10px;
+	.border-radius(@discussItemBorderRadius);
+	// background: @discussPanelBackground;
+	border: 1px dashed @discussBorderColor;
+	// .discuss-field-title {
+	// 	margin-left: 0;
+	// 	font-weight: bold;
+
+	// }
+	// &.form-horizontal .controls {
+	// 	margin: 0;
+	// }
+	.control-label  {
+		font-weight: bold;
+		text-align: right;
+	}
+	.controls-row {
+		margin: 12px 0;
+
+	}
+	label {
+		font-size: @baseFontSize - 1;
+	}
+}
+
+
+.discuss-form {
+	// .modal-footer {
+	.btn-primary,
+	.cancel-reply {
+		height: 30px;
+	}
+	// }
+	.post-type { //<select>
+		height: 40px;
+		padding-bottom: 10px;
+		padding-top: 10px;
+	}
+}
+// =discuss-composer
+// ----------------
+// creating, editing, replying
+.discuss-composer {
+	&.discuss-composer-creating {
+
+	}
+	&.discuss-composer-editing {
+		background: @composerEditingBackground;
+		border: 1px solid @composerEditingBorder;
+		padding: 8px;
+		.discuss-form {
+			> .control-group-guest {
+				display: none;
+			}
+		}
+		.discuss-location-map { // @extend location.less
+			input[type="text"] {
+				width: 80%;
+			}
+		}
+		.discuss-content {
+			margin-bottom: 0;
+			> form {
+				margin-bottom: 0;
+			}
+		}
+		.form-actions {
+			margin-bottom: 10px;
+		}
+	}
+	&.discuss-composer-replying {
+		.control-group-guest {
+			margin-top: 10px;
+		}
+	}
+}
+
+
+// poll form
+// ----------------
+.polls-tab {
+	.control-group > label {
+		text-align: left;
+		float: none;
+		width: auto;
+	}
+}
+
+.attach-list {
+	> li {
+		margin-bottom: 10px;
+	}
+}
+
+.CodeMirror-wrapping {
+	border: 1px solid @grayLighter;
+	background: @white;
+}
+
+
+&.w320 {
+	.discuss-form {
+		.input-xlarge {
+			width: 180px;
+		}
+	}
+}
+
+
+.dc-tag-form {
+	.chzn-container-multi .chzn-choices .search-field input {
+		height: 26px;
+	}
+}

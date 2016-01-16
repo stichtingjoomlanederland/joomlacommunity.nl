@@ -1,0 +1,48 @@
+/* -------------------------------------------------------------------
+// markItUp! Universal MarkUp Engine, JQuery plugin
+// By Jay Salvat - http://markitup.jaysalvat.com/
+// ------------------------------------------------------------------*/
+
+/**
+ * @package		Komento
+ * @copyright	Copyright (C) 2012 Stack Ideas Private Limited. All rights reserved.
+ * @license		GNU/GPL, see LICENSE.php
+ *
+ * Komento is free software. This version may have been modified pursuant
+ * to the GNU General Public License, and as distributed it includes or
+ * is derivative of works licensed under the GNU General Public License or
+ * other free or open source software licenses.
+ * See COPYRIGHT.php for copyright notices and details.
+ */
+
+#section-kmt  .markItUp *{margin:0;outline:none;padding:0;list-style: none;}
+#section-kmt  .markItUp a:link,.markItUp a:visited{color:#000;text-decoration:none;}
+#section-kmt  .markItUp{margin:5px 0;width:100%}
+#section-kmt  .markItUpContainer{font:11px Verdana, Arial, Helvetica, sans-serif}
+#section-kmt  .markItUpEditor{clear:both;display:block;font:12px Verdana, Tahoma, Arial;height:160px;line-height:18px;overflow:auto;padding:5px;width:98%;border:1px solid #ccc; margin:4px 0 0;}
+#section-kmt  .markItUpPreviewFrame{background-color:#FFF;height:300px;margin:5px 0;overflow:auto;width:99.9%}
+#section-kmt  .markItUpFooter{width:100%}
+#section-kmt  .markItUpResizeHandle{background-image:url(images/handle.png);cursor:n-resize;height:5px;margin-left:auto;margin-right:auto;overflow:hidden;width:22px}
+/***************************************************************************************/
+/* first row of buttons */
+
+.kmt-form-body .markItUpHeader ul,
+.kmt-form-body .markItUpHeader ul li{background:none;border:none;clear:none;float:none;list-style:none;list-style-image:none;margin:0;padding:0;overflow:visible;width:auto;}
+#section-kmt .markItUpHeader ul {background: none; display: block; position: relative;  padding:0; float: left;}
+#section-kmt .kmt-form-content .markItUpHeader ul {top:0px; left:12px; float:left;}
+#section-kmt .kmt-edit-form-body .markItUpHeader ul {top:0px; left:0px; margin: 4px 0; padding: 2px 0;}
+#section-kmt .markItUpHeader ul li{float:left;position:relative;line-height:normal!important;margin:0 2px 0 0}
+#section-kmt .markItUpHeader ul li:hover > ul{display:block}
+#section-kmt .markItUpHeader ul .markItUpDropMenu{background:transparent url(images/menu.png) no-repeat 115% 50%;margin-right:5px}
+#section-kmt .markItUpHeader ul .markItUpDropMenu li{margin-right:0}
+#section-kmt .markItUpHeader ul ul{display:none;position:absolute;top:18px;left:0;background:#FFF;border:1px solid #000}
+#section-kmt .markItUpHeader ul ul li{float:none;border-bottom:1px solid #000}
+#section-kmt .markItUpHeader ul ul .markItUpDropMenu{background:#FFF url(images/submenu.png) no-repeat 100% 50%}
+#section-kmt .markItUpHeader ul .markItUpSeparator{width:1px;height:16px;overflow:hidden;background-color:#fff;margin:0 2px}
+#section-kmt .markItUpHeader ul ul .markItUpSeparator{width:auto;height:1px;margin:0}
+#section-kmt .markItUpHeader ul ul ul{position:absolute;top:-1px;left:150px}
+#section-kmt .markItUpHeader ul ul ul li{float:none}
+#section-kmt .markItUpHeader ul a{background:#fff no-repeat center center; border:solid 1px #ccc;display:block;width:16px;height:16px;text-indent:-10000px;-moz-border-radius:3px;-webkit-border-radius:3px;border-radius:3px;margin:0;padding:3px}
+#section-kmt .markItUpHeader ul ul a{display:block;text-indent:0;width:120px;background-position:2px 50%;padding:5px 5px 5px 25px}
+#section-kmt .markItUpHeader ul ul a:hover{color:#FFF;background-color:#000}
+body #section-kmt .kmt-form-body .markItUpHeader ul li a:hover {background:#fff no-repeat center center; padding:3px;}

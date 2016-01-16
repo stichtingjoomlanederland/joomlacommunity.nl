@@ -1,0 +1,222 @@
+/*------------------------------------*\
+	$views.less
+\*------------------------------------*/
+// view index
+// ----------------
+
+&.w320 {
+	.discuss-post-title {
+		padding-right: 5px;
+	}
+}
+
+// =discuss-view-categories (@view)
+// ----------------
+&.discuss-view-categories {
+
+	.discuss-timeline {
+		&:before,
+		&:after {
+			display: none;
+		}
+		.discuss-list-grid {
+			h3 {
+				margin: 0 0 10px;
+			}
+		}
+		.discuss-list {
+			> li {
+				padding: 0 0 0px;
+				margin-bottom: 20px;
+				height: auto;
+				overflow: hidden;
+				width: 50%;
+				background: @gray;
+				> div {
+					position: relative;
+					overflow: visible;
+					h3 {
+						margin: 0;
+						font-size: 16px;
+						line-height: 30px;
+					}
+					.media-object {
+						position: relative;
+					}
+					&:before { //line
+						content: '';
+						height: 2px;
+						position: absolute;
+						background-color: @discussTimelineBackground;
+						top: 25px;
+						z-index: 0;
+						display: block;
+					}
+				}
+			}
+			> .parent {
+				width: 50%;
+			}
+			> .child-1 {
+				padding-left: 50px;
+				> div {
+					&:before {
+						width: 50px;
+						left: -22px;
+					}
+				}
+			}
+			> .child-2 {
+				padding-left: 100px;
+				> div {
+					&:before {
+						width: 100px;
+						left: -72px;
+					}
+				}
+			}
+			> .child-3 {
+				padding-left: 150px;
+				> div {
+					&:before {
+						width: 150px;
+						left: -122px;
+					}
+				}
+			}
+			> .child-4 {
+				padding-left: 200px;
+				> div {
+					&:before {
+						width: 200px;
+						left: -172px;
+					}
+				}
+			}
+			> .child-5 {
+				padding-left: 250px;
+				> div {
+					&:before {
+						width: 250px;
+						left: -222px;
+					}
+				}
+			}
+			> .child-6 {
+				padding-left: 300px;
+				> div {
+					&:before {
+						width: 300px;
+						left: -272px;
+					}
+				}
+			}
+			> .child-7 {
+				padding-left: 350px;
+				> div {
+					&:before {
+						width: 350px;
+						left: -322px;
+					}
+				}
+			}
+		}
+		> .child {
+			+ .parent {
+				margin-top: 20px;
+			}
+		}
+
+	}//discuss-timeline
+
+	.dc-media-object {
+		width: 50px;
+		z-index: 2;
+		position: relative;
+		margin-right: 20px;
+
+	}
+	.discuss-categories {
+		.discuss-avatar {
+			background: lighten(@grayLighter, 5%);
+			.border-radius(1px);
+			border: 1px solid @discussBorderColor;
+			img {
+				.border-radius(1px);
+			}
+		}
+	}
+	.discuss-post-title {
+		padding-right: 55px;
+	}
+
+}
+
+// view favourite
+// ----------------
+&.discuss-view-favourites {
+	.discuss-favors {
+		display: block;
+		.btn-remove {
+			right: 15px;
+			top: -1px;
+			padding: 1px;
+			background: #DA4F49;
+			.border-radius(0);
+		}
+	}
+	.discuss-story  {
+
+		.discuss-story-ft {
+			background: none repeat scroll 0 0 #F9F9F9;
+			border-radius: 0 0 4px 0;
+			border-top: 1px solid #DFDFDF;
+			clear: both;
+			padding: 0 10px;
+			position: relative;
+		}
+	}
+}
+&.discuss-view-favourites,
+&.discuss-view-users,
+&.discuss-view-badges {
+	.discuss-item {
+		border: 1px solid @discussBorderColor;
+		padding-bottom: 0;
+	}
+}
+
+
+// view tags
+// ----------------
+&.discuss-view-tags {
+	.discuss-tags {
+	}
+}
+
+
+// view post
+// ----------------
+&.discuss-view-post {
+	.discuss-resolvedbar {
+		padding: 2px 0;
+		position: absolute;
+		right: 0;
+		top: -24px;
+		width: 100%;
+	}
+}
+
+
+// view profile
+// ----------------
+&.discuss-view-profile {
+	.discuss-resolvedbar {
+		position: absolute;
+		right: 0px;
+		top: 26px;
+	}
+	.discuss-statistic {
+		margin-top: 0;
+	}
+}

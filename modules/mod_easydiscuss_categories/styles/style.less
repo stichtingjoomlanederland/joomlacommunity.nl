@@ -1,0 +1,46 @@
+// Pointing to /media/com_easydiscuss/styles/modules.less
+@import "modules";
+
+/*MODULE BASIC RESET*/
+div.discuss-mod .clear{clear:both}
+div.discuss-mod  img.avatar{border:1px solid #ccc}
+div.discuss-mod  a:hover img.avatar{border:1px solid #bbb;border-bottom-color:#aaa}
+div.discuss-mod .bold{font-weight:bold}
+div.discuss-mod .float-l{float:left}
+div.discuss-mod .list-item .item{display:inline-block;width:100%;}
+
+/*MODULE STYLING*/
+div.discuss-mod.discuss-categories .list-item .item + .item{padding-top:10px;margin-top:10px;border-top:1px solid #ddd}
+div.discuss-mod.discuss-categories img.avatar{width:40px;height:40px}
+div.discuss-mod.discuss-categories .item-avatar + .item-story{margin-left:50px}
+div.discuss-mod.discuss-categories .item-title{display:inline-block}
+
+div.discuss-mod-categories{
+	.item-story{
+
+		.show-item,
+		.hide-item{
+			text-decoration: none;
+		}
+		
+		i {
+			margin-right: 3px;
+		}
+
+		&.expanded{
+			.show-item{
+				display: none;
+			}
+
+			.hide-item{
+				display: inline;
+			}
+		}
+		.show-item{
+			display: inline;
+		}
+		.hide-item{
+			display: none;
+		}
+	}
+}

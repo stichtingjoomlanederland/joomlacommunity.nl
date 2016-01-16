@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5.0" type="plugin" group="jmonitoring" method="upgrade">
+	<name>PLG_JMONITORING_AKEEBABACKUP_TITLE</name>
+	<author>Nicholas K. Dionysopoulos / AkeebaBackup.com</author>
+	<creationDate>May 2012</creationDate>
+	<license>GNU/GPL version 3 or later</license>
+	<authorEmail>nicholas@dionysopoulos.me</authorEmail>
+	<authorUrl>http://www.akeebabackup.com</authorUrl>
+	<version>1.0</version>
+	<description>PLG_JMONITORING_AKEEBABACKUP_DESCRIPTION</description>
+	<files>
+		<filename plugin="akeebabackup">akeebabackup.php</filename>
+	</files>
+	<languages folder="language">
+		<language tag="en-GB">en-GB/en-GB.plg_jmonitoring_akeebabackup.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_jmonitoring_akeebabackup.sys.ini</language>
+	</languages>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="maxbackupperiod" type="text" label="PLG_JMONITORING_AKEEBABACKUP_PERIOD_LBL"
+					description="PLG_JMONITORING_AKEEBABACKUP_PERIOD_DESC" size="5" default="24" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

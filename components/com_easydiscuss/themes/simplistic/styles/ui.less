@@ -1,0 +1,85 @@
+/*------------------------------------*\
+    $ui.less
+\*------------------------------------*/
+// ui elements for javascript components
+
+// =popover
+// ----------------
+// custom popover style (@extended from bootstrap .popover)
+.popover {
+	display: block;
+	position: absolute !important;
+	.popover-title {
+		font-family: sans-serif !important;
+		background-color: #F7F7F7;
+		border-bottom: 1px solid #EBEBEB;
+		border-radius: 5px 5px 0 0;
+		font-size: 13px;
+		font-weight: normal;
+		line-height: 14px;
+		margin: 0;
+		padding: 4px 14px;
+	}
+	.popover-content {
+		font-family: sans-serif !important;
+		font-size: 12px;
+		p {
+			margin-top:0;
+		}
+	}
+}
+
+// =Modal
+#discuss-dialog {
+
+	// =discuss-video-providers
+	// ----------------
+	.discuss-video-providers {
+		margin-bottom: 5px;
+		> li {
+			width: 35%;
+			display: inline-block;
+			margin-bottom: 10px;
+			padding-left: 22px;
+		}
+	}
+
+	// =discuss-ajax-subscribe
+	// ----------------
+	.discuss-ajax-subscribe {
+		.form-inline {
+			margin-bottom: 5px;
+			label {
+				display: inline-block;
+			}
+		}
+		.radio {
+			margin-right: 10px;
+		}
+	}
+
+	@import "markitup/skins/default/style";
+	@import "markitup";//customize for easydiscuss
+
+}//discuss-dialog
+
+/* Fixed dialog in mobile view*/
+@media (max-width: 480px) {
+	#discuss-dialog.modal {
+		width: 340px !important;
+	}
+}
+
+/* Favicon for videos in bbcode */
+ul.discuss-video-providers {
+	li {
+		&.video-youtube{background:url('@{media_uri}/../images/videos/youtube.png') no-repeat;}
+		&.video-vimeo{background:url('@{media_uri}/../images/videos/vimeo.png') no-repeat;}
+		&.video-dailymotion{background:url('@{media_uri}/../images/videos/dailymotion.png') no-repeat;}
+		&.video-google{background:url('@{media_uri}/../images/videos/google.png') no-repeat;}
+		&.video-liveleak{background:url('@{media_uri}/../images/videos/liveleak.png') no-repeat;}
+		&.video-metacafe{background:url('@{media_uri}/../images/videos/metacafe.png') no-repeat;}
+		&.video-nicovideo{background:url('@{media_uri}/../images/videos/nicovideo.png') no-repeat;}
+		&.video-yahoo{background:url('@{media_uri}/../images/videos/yahoo.png') no-repeat;}
+	}
+}

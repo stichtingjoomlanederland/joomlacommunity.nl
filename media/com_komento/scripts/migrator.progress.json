@@ -1,0 +1,9 @@
+[
+    {
+        "script": [
+            "admin.language",
+            "komento.common"
+        ],
+        "adapter": "Komento"
+    }
+]

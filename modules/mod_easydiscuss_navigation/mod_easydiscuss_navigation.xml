@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.0" client="site" method="upgrade">
+	<name>EasyDiscuss Navigation</name>
+	<author>imarklee</author>
+	<creationDate>19/12/2012</creationDate>
+	<copyright>Copyright 2009 - 2012 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
+	<license>GNU GPL v3 or later</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://stackideas.com</authorUrl>
+	<version>3.1.1</version>
+	<description>
+		<![CDATA[
+			A nice module that provides category navigation in the site.
+		]]>
+	</description>
+	<languages>
+		<language tag="en-GB">en-GB.mod_easydiscuss_navigation.ini</language>
+	</languages>
+	<files>
+		<filename module="mod_easydiscuss_navigation">mod_easydiscuss_navigation.php</filename>
+		<filename>mod_easydiscuss_navigation.xml</filename>
+		<filename>index.html</filename>
+		<folder>tmpl</folder>
+		<folder>styles</folder>
+	</files>
+	<params>
+		<param name="display_empty_category" type="list" default="1" label="Display empty category" description="If enabled, empty category will be displayed.">
+			<option value="1">Yes</option>
+			<option value="0">No</option>
+		</param>
+		<param name="display_notification_button" type="list" default="1" label="Display notification button" description="If enabled, the notification button will be displayed.">
+			<option value="1">Yes</option>
+			<option value="0">No</option>
+		</param>
+	</params>
+	<params group="advanced">
+		<param name="moduleclass_sfx" type="text" default="" label="Module Class Suffix" description="PARAMMODULECLASSSUFFIX" />
+		<param name="cache" type="list" default="0" label="Caching" description="Select whether to cache the content of this module">
+			<option value="1">Use global</option>
+			<option value="0">No caching</option>
+		</param>
+		<param name="cache_time" type="text" default="900" label="Cache Time" description="The time before the module is recached" />
+	</params>
+
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="display_empty_category" type="list" default="1" label="Display empty category" description="If enabled, empty category will be displayed.">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="display_notification_button" type="list" default="1" label="Display notification button" description="If enabled, the notification button will be displayed.">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+			</fieldset>
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
+					<option value="0">Never</option>
+				</field>
+			</fieldset>
+		</fields>
+	</config>
+</extension>

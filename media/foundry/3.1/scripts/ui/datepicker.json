@@ -1,0 +1,8 @@
+[
+    {
+        "script": [
+            "ui/core"
+        ],
+        "adapter": "Foundry"
+    }
+]

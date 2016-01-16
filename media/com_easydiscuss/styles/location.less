@@ -1,0 +1,73 @@
+/*------------------------------------*\
+  location.less
+\*------------------------------------*/
+// =discuss-location
+.discuss-location {
+	clear: both;
+	.discuss-location-coords {
+		margin: 5px 0 5px;
+		display: none;
+		&.showCoords {
+			display: block;
+		}
+	}
+	.discuss-location-map {
+		background: @white;
+		padding: 10px;
+		border: 1px solid darken(@grayLighter, 4%);
+		.border-radius(3px);
+		.locationMap {
+			border: 1px solid darken(@discussBorderColor, 3%);
+		}
+		&.showMap {
+			display: block;
+		}
+		input[type="text"] {
+			width: 100%;
+		}
+	}
+
+	.btn-danger {
+		height: 26px;
+		i {
+			line-height: 20px !important;
+			&:before {
+				line-height: 18px !important;
+				vertical-align: top !important;
+			}
+		}
+	}
+}
+.location-map {
+	color: #333;
+}
+
+
+.btn-location {
+	height: 26px;
+	font-size: 18px;
+	line-height: 20px;
+	i {
+		line-height: 20px !important;
+		&:before {
+			line-height: 18px !important;
+			vertical-align: top !important;
+		}
+	}
+}
+
+.tab-pane { //if location map under tab-pane
+	.discuss-location {
+		.discuss-location-map {
+			input[type="text"] {
+				width: 80%;
+			}
+		}
+	}
+
+}
+&.w320 {
+	.discuss-location .discuss-location-map input[type="text"] {
+		width: 70%;
+	}
+}

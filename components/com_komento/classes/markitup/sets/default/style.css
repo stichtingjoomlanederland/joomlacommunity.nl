@@ -1,0 +1,40 @@
+/* -------------------------------------------------------------------
+// markItUp!
+// By Jay Salvat - http://markitup.jaysalvat.com/
+// ------------------------------------------------------------------*/
+
+/**
+ * @package		Komento
+ * @copyright	Copyright (C) 2012 Stack Ideas Private Limited. All rights reserved.
+ * @license		GNU/GPL, see LICENSE.php
+ *
+ * Komento is free software. This version may have been modified pursuant
+ * to the GNU General Public License, and as distributed it includes or
+ * is derivative of works licensed under the GNU General Public License or
+ * other free or open source software licenses.
+ * See COPYRIGHT.php for copyright notices and details.
+ */
+
+.markItUp .markItUpButton1 a {
+	background-image:url(images/bold.png);
+}
+.markItUp .markItUpButton2 a {
+	background-image:url(images/italic.png);
+}
+.markItUp .markItUpButton3 a {
+	background-image:url(images/stroke.png);
+}
+
+.markItUp .markItUpButton4 a {
+	background-image:url(images/picture.png);
+}
+.markItUp .markItUpButton5 a {
+	background-image:url(images/link.png);
+}
+
+.markItUp .markItUpButton6 a {
+	background-image:url(images/clean.png);
+}
+.markItUp .preview a {
+	background-image:url(images/preview.png);
+}

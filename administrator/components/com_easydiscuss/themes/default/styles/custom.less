@@ -1,0 +1,222 @@
+/*------------------------------------*\
+    $discuss-custom.less
+\*------------------------------------*/
+
+/* JOOMLA 3.0 */
+body.com_easydiscuss .container-main {
+	padding: 0;
+}
+
+div#discuss-wrapper .footer-pagination [class^="icon-"]:before,
+div#discuss-wrapper .footer-pagination [class*=" icon-"]:before {
+	font-family: 'IcoMoon';
+	display: block;
+
+}
+
+div#discuss-wrapper .icon-menu-2:before {
+	font-family: 'IcoMoon';
+}
+
+body.com_easydiscuss .subhead {
+	margin-bottom: 0;
+}
+
+// Joomla 2.5 admin template hack
+// ----------------
+div#submenu-box {
+	margin-bottom: 0 !important;
+	display: none !important;
+}
+#content-box{overflow:hidden;}
+// #content-box *{font-family:'Lucida Grande',Tahoma,Arial,sans-serif;font-size:12px}
+
+#content-box .small{color:#999;line-height: 16px}
+#content-box .padding{padding:0 !important}
+div#element-box,
+div#toolbar-box{margin:0 !important;padding:0 !important}
+div#toolbar-box div.header{background-position:0 center;
+	font-family:Arial;
+	font-size:26px;
+	line-height:54px;
+	color:#333
+}
+div#toolbar-box div.t,
+div#toolbar-box div.b,
+div#element-box div.t,
+div#element-box div.b,
+div#submenu-box div.t,
+div#submenu-box div.b{display:none}
+div#element-box div.m,
+div#toolbar-box div.m,
+div#element-box div.current{border:0;}
+div#element-box div.m{padding:0 !important;position: relative !important;}
+div#element-box div.current{padding:10px 0 0;border:0}
+div#content-box div#toolbar-box div.m{border-bottom:1px solid #ccc;padding:10px;margin:0;background:#fff;border-radius:0;-moz-border-radius:0;-webkit-border-radius:0;height:54px;}
+div#submenu-box{margin:0}
+div#submenu-box div.m{background:none;border:0;padding:0;}
+div#submenu-box{background:#f5f5f5;padding:0 !important;margin:0 0 15px;border:0;border-bottom:1px solid #ccc}
+div#submenu-box div#submenu-box{border-bottom:0;margin:0 0 0;}
+div#element-box,
+div#element-box div.m{background-color:#f8f8f8!important;}
+// #si-panel .pagination div.limit .selector {margin-left:5px;}
+// #si-panel .pagination div.limit select#limit {width:100%}
+
+/* JOOMLA 1.7 */
+#content-box .submenu-box{border:0;padding:0}
+div.pagetitle{height:48px;background-position:0 center;display:inline-block;margin-left:10px;padding-left:60px;line-height:54px;height:54px}
+div.pagetitle h2{position:relative;top:auto;display:inline-block;line-height:48px;line-height:54px;height:54px;font-size:26px;font-family:Arial;font-weight:700;color:#333;position:relative;top:0}
+body div.toolbar-list{margin-right:10px !important}
+body div#toolbar-box div.m{padding:5px 0;height:54px}
+/*JOOMLA 1.7*/
+#content-box div.pagetitle{line-height:54px;height:54px}
+#content-box div.pagetitle h2{line-height:54px;height:54px;font-size:26px;font-family:Arial;font-weight:700;color:#333;position:relative;top:0}
+
+body div.toolbar-list a{border-color:#fff}
+body div.toolbar-list li.divider{border-color:#ddd}
+
+div#element-box input,
+div#element-box .input,
+div#element-box .inputbox{
+	// font-family:Tahoma;
+	// font-size:11px;
+	background:#fff;
+	display:inline-block;
+	float:none;
+	min-height:18px;
+}
+
+
+/* ROCKETTHEME'S MISSION CONTROL hack */
+#mc-frame *{font-size:11px}
+#mc-frame h1{font-size:32px}
+#mc-frame div#content-box div#toolbar-box div.m{background:none;border:0;padding:0;height:auto!important;}
+#mc-frame #mc-component{margin-top:0;overflow:visible;padding:1px;}
+#mc-frame #mc-component .mc-form-frame{border-top:0;border-radius:0 0 6px 6px;-moz-border-radius:0 0 6px 6px;-webkit-border-radius:0 0 6px 6px}
+#mc-frame .nav-tabs > li {padding:0 }
+#mc-frame div.mc-wrapper > div#content-box {overflow:visible;}
+
+body #discuss-wrapper .footer-pagination {
+	display: block;
+	margin:0 auto;
+	text-align: center;
+	width: auto;
+	.container {
+		width: auto;
+		display: inline-block;
+		margin: 6px auto;
+		// background: #333;
+		div.limit select#limit {
+			width: 70px;
+			margin-bottom: 0;
+			margin-left: 2px;
+		}
+	}
+
+}
+
+// icons for j2.5 default admin template
+// ----------------
+body {
+	[class^="icon-48"],
+	[class*=" icon-48"] {
+		// width: 48px;
+		background-position: 10px center !important;
+	}
+	.icon-48-home {
+		background-image: url(@{media_uri}/../images/easydiscuss.png);
+		background-position: 0px center !important;
+	}
+	.icon-48-settings {
+		background-image: url(@{media_uri}/../images/icons-jar/settings.png);
+	}
+	.icon-48-discussions {
+		background-image: url(@{media_uri}/../images/icons-jar/discussions.png);
+	}
+	.icon-48-autoposting {
+		background-image: url(@{media_uri}/../images/icons-jar/autoposting.png);
+	}
+	.icon-48-category {
+		background-image: url(@{media_uri}/../images/icons-jar/category.png);
+	}
+	.icon-48-tags {
+		background-image: url(@{media_uri}/../images/icons-jar/tags.png);
+	}
+	.icon-48-roles {
+		background-image: url(@{media_uri}/../images/icons-jar/roles.png);
+	}
+	.icon-48-users {
+		background-image: url(@{media_uri}/../images/icons-jar/users.png);
+	}
+	.icon-48-acl {
+		background-image: url(@{media_uri}/../images/icons-jar/acl.png);
+	}
+	.icon-48-reports {
+		background-image: url(@{media_uri}/../images/icons-jar/reports.png);
+	}
+	.icon-48-subscriptions {
+		background-image: url(@{media_uri}/../images/icons-jar/subscriptions.png);
+	}
+	.icon-48-badges {
+		background-image: url(@{media_uri}/../images/icons-jar/badges.png);
+	}
+	.icon-48-points {
+		background-image: url(@{media_uri}/../images/icons-jar/points.png);
+	}
+	.icon-48-ranks {
+		background-image: url(@{media_uri}/../images/icons-jar/ranks.png);
+	}
+	.icon-48-customs {
+		background-image: url(@{media_uri}/../images/icons-jar/customfields.png);
+	}
+	.icon-48-spools {
+		background-image: url(@{media_uri}/../images/icons-jar/spools.png);
+	}
+	.icon-48-migrators {
+		background-image: url(@{media_uri}/../images/icons-jar/migrators.png);
+	}
+	.icon-48-post_types {
+		background-image: url(@{media_uri}/../images/icons-jar/post_types.png);
+	}
+
+	/*32*/
+	.icon-32-featured {
+		background-image: url(@{media_uri}/../images/icons-jar/feature.png);
+	}
+	.icon-32-star-empty {
+		background-image: url(@{media_uri}/../images/icons-jar/unfeature.png);
+	}
+	.icon-32-rules {
+		background-image: url(@{media_uri}/../images/icons-jar/rules.png);
+	}
+	.icon-32-arrow-left {
+		background-image: url(@{media_uri}/../images/icons-jar/home.png);
+	}
+}
+
+
+
+table.table-discuss td.order span {
+float: left;
+width: 20px;
+text-align: center;
+background-repeat: no-repeat;
+height: 13px;
+}
+
+#discuss-wrapper.w600 > .content {
+	margin-left: 0;
+}
+
+
+/**
+ * Hide system messages.
+ */
+#system-message{
+	display: none;
+}
+/*tinymce missing icon*/
+#discuss-wrapper .toggle-editor .icon-eye-open:before,
+#discuss-wrapper .toggle-editor .icon-eye:before {
+	content: "\f06e";
+}

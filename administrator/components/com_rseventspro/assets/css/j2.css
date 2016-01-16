@@ -1,0 +1,136 @@
+.rsextra {
+	float: left;
+    margin-left: 5px;
+    margin-top: 4px;
+}
+
+.rsemaillft {
+	float: left;
+    padding-top: 40px;
+}
+
+.rsemailrgt {
+	width: 60%;
+}
+
+.rswidth-50 {
+	width: 50%;
+}
+
+.rsfltlft {
+	float: left;
+}
+
+.rsfltrgt {
+	float: right;
+}
+
+.rswidth-20 {
+	width: 20%;
+}
+
+.rswidth-50 {
+	width: 50%;
+}
+
+#jform_gallery_tags_chzn, 
+#jformjgroups_chzn,
+#jform_jusers_chzn {
+	float: left;
+}
+
+#rsepro_results {
+	list-style: none outside none;
+    margin: 105px 0 0 140px;
+    width: 455px;
+	background: none repeat scroll 0 0 #F5F5F5;
+	border: 1px solid #E8E7E7;
+    height: auto;
+	position: absolute;
+	z-index: 999999;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+
+#rsepro_results li {
+}
+
+#rsepro_results li a {
+	padding: 4px;
+	text-decoration: none;
+	display: block;
+	line-height: 20px;
+}
+
+#rsepro_results li a:hover{
+	text-decoration: none;
+	background: #fff;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+
+.rswidth-50 fieldset,
+.span12 fieldset,
+.tabs fieldset {
+	background: none repeat scroll 0 0 #FFFFFF;
+}
+
+#rs_event_main fieldset label {
+	margin: 8px 0;
+}
+
+#rs_event_main input[type=checkbox] {
+	margin: 15px 0 0 5px !important;
+}
+
+.rs_calendar_icon {
+	right: 4px !important;
+}
+
+.rschosen {
+	width: 200px;
+}
+
+#categories_chzn {
+	float: left;
+}
+
+.rs_add_category {
+	margin-left: 5px !important;
+}
+
+ul#rs_list_files li {
+	padding-top: 0;
+}
+
+.rs_repeatblock {
+    float: right;
+    width: 165px;
+}
+
+#rs_select_top6 input, #rs_select_top7 input {
+	background: url(../images/inpbg.gif) repeat-x left center;
+	padding-left: 5px;
+	padding-right: 20px;
+	height: 20px;
+	border: 1px solid #e8e7e7;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	float: left;
+}
+
+#rs_select_top6 a, #rs_select_top7 a {
+	float: left;
+	margin-left: -25px;
+}
+
+#eventtickets {
+	vertical-align: sub !important;
+}
+
+.rsepro_selected a {
+	color: #FFFFFF !important;
+}

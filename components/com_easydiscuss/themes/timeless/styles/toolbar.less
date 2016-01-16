@@ -1,0 +1,232 @@
+/*------------------------------------*\
+	$toolbar-extend.less
+\*------------------------------------*/
+.discuss-head hr {
+	display: block;
+	border-top: 1px solid #333;
+	.box-shadow(0 1px 0 rgba(0,0,0,.1));
+	width: 100%;
+	height: 1px;
+	padding: 0;
+	margin: 0;
+}
+.discuss-toolbar-modern {
+	margin: 0;
+	// z-index: 2;
+	position: relative;
+	.navbar-inner {
+		padding: 0 10px 0 0;
+		background: none;
+
+		border: 1px solid @grayLighter;
+		border-bottom: none;
+
+		min-height: 30px;
+		.border-radius(10px 10px 0 0);
+		position: relative;
+		.box-shadow(none);
+
+	}
+	.divider-vertical {
+		display: none;
+	}
+	.profileLink {
+		span {
+			overflow: hidden;
+			text-align: center;
+			width: 80px;
+		}
+	}
+	.nav {
+		margin: 0;
+		padding: 0;
+		> li {
+			> a {
+				// .border-radius(14px 14px 0 0);
+				// .box-shadow(inset 1px 0 1px rgba(0,0,0,.5));
+				background: #fff;
+				padding: 6px 10px 4px;
+				text-shadow: none;
+				border-left: 1px solid @grayLighter;
+				border-right: 1px solid @grayLighter;
+				margin-left: -1px;
+				&:hover,
+				&:focus {
+					background: #fff;
+				}
+				[class^="icon-ed-"],
+				[class*=" icon-ed-"] {
+					.opacity(80);
+				}
+
+
+			}
+			&.active {
+				> a {
+					background: #363636;
+					color: white;
+					[class^="icon-ed-"],
+					[class*=" icon-ed-"] {
+						.opacity(100);
+					}
+					&:hover,
+					&:focus {
+						color: white;
+						background: #363636;
+					}
+				}
+			}
+			&:first-child {
+				> a {
+					.border-radius(10px 0 0 0);
+					margin-left: 0;
+					border-left: none;
+				}
+			}
+			&:last-child {
+				> a {
+					.border-radius(0 10px 0 0);
+				}
+			}
+		}
+	}//nav
+	.nav-alt {
+		> li {
+			> a {
+				border: none;
+				background: none;
+				color: #333;
+				.box-shadow(none);
+
+				border-left: 1px solid @grayLighter;
+				border-right: 1px solid @grayLighter;
+				margin-left: -1px;
+
+				&:hover,
+				&:focus {
+					background: none;
+
+				}
+				[class^="icon-ed-"],
+				[class*=" icon-ed-"] {
+					.opacity(70);
+					position: relative;
+					top: 2px;
+				}
+				.icon-ed-tb-user {
+					margin-right: 2px;
+				}
+				//fix width to prevent longer username
+				&.profileLink {
+					border: none;
+					span {
+						width: 100px;
+						display: block;
+						overflow: hidden;
+						text-overflow: ellipsis;
+						white-space: nowrap;
+					}
+				}
+				&.loginLink {
+					border-right: none;
+				}
+				.visible-phone {
+					// display: block !important;
+				}
+			}//a
+			&.active {
+				> a {
+					color: #555;
+					background: none;
+					.box-shadow(none);
+					font-weight: bold;
+					&:hover,
+					&:focus {
+						color: #555;
+						background: none;
+						.box-shadow(none);
+
+					}
+				}
+			}
+			&:last-child {
+				> a {
+					// border-right: 1px solid @grayLighter;
+				}
+			}
+		}
+		.visible-phone {
+			display: none;
+		}
+
+	}
+
+
+
+	+ .discuss-headers-wrapper {
+		z-index: 1;
+		// .border-radius(0 10px 10px 10px);
+		+ hr {
+			display: none;
+		}
+	}
+
+
+	&.narrow {
+
+		.nav {
+			> li {
+				> a {
+					.border-radius(14px 14px 0 0);
+					.box-shadow(inset 0 0 1px rgba(0,0,0,.5));
+					background: #333;
+					padding: 8px 16px 5px;
+					color: @white;
+					text-shadow: 0 1px 1px rgba(0,0,0,.55);
+					[class^="icon-ed-"],
+					[class*=" icon-ed-"] {
+						.opacity(80);
+						display: inline-block;
+					}
+					&:hover {
+						background: #333;
+					}
+					.visible-phone {
+						display: inline-block !important;
+					}
+					//fix width to prevent longer username
+					&.profileLink {
+						span {
+							display: inline-block;
+						}
+					}
+					[class^="icon-ed-"],
+					[class*=" icon-ed-"] {
+						.opacity(80);
+						display: none;
+					}
+				}
+			}
+		}
+		.nav-collapse .nav > li > a:hover{
+			background: #333;
+		}
+		.nav-collapse .dropdown-menu a:hover {
+			background: none;
+		}
+		+ .discuss-headers-wrapper {
+			z-index: 1;
+			.border-radius(10px 10px 10px 10px);
+		}
+
+		.profileLink {
+			span {
+				overflow: hidden;
+				text-align: left;
+				width: auto;
+			}
+		}
+	}
+}//toolbar
+
+

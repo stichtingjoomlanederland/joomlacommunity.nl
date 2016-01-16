@@ -1,0 +1,269 @@
+/*------------------------------------*\
+	$discuss-item
+\*------------------------------------*/
+/**
+* (each post or reply DOM )
+	Reusable post/item classes
+	DOM e.g.:
+		discuss-item
+			.discuss-item-hd
+			.discuss-item-left
+			.discuss-item-right
+				.discuss-story
+					.discuss-story-hd
+					.discuss-story-bd
+					.discuss-story-ft
+			.discuss-item-ft
+*/
+.discuss-item {
+	background: @white;
+	&:before {
+		content: '';
+		height: 1px;
+		display: block;
+		left: 2px;
+		right: 2px;
+		bottom: -3px;
+		position: absolute;
+		z-index: 3;
+		background: white;
+		border: 1px solid #CAD2D7;
+		border-top: none;
+		-webkit-border-radius: 0 0 5px 5px;
+		-moz-border-radius: 0 0 5px 5px;
+		border-radius: 0 0 5px 5px;
+	}
+	&:after {
+		content: '';
+		height: 1px;
+		display: block;
+		left: 4px;
+		right: 4px;
+		bottom: -5px;
+		position: absolute;
+		z-index: 3;
+		background: white;
+		border: 1px solid #CAD2D7;
+		border-top: none;
+		-webkit-border-radius: 0 0 5px 5px;
+		-moz-border-radius: 0 0 5px 5px;
+		border-radius: 0 0 5px 5px;
+		-webkit-box-shadow: 0 1px 3px rgba(10, 30, 47, 0.15);
+		-moz-box-shadow: 0 1px 3px rgba(10,30,47,0.15);
+		box-shadow: 0 1px 3px rgba(10, 30, 47, 0.15);
+	}​
+	.discuss-item-hd {
+
+	}
+	.discuss-item-bd {
+
+	}
+	.discuss-item-ft {
+
+	}
+	.discuss-item-left {
+		// + .discuss-item-right {
+		// 	margin-left: 0;
+		// }
+	}
+
+
+	.discuss-content {
+
+	}
+
+}//discuss-item
+&.discuss-view-categories,
+&.discuss-view-index { //specific for front page and categories listing only
+	.discuss-item {
+		.discuss-item-hd {
+
+		}
+		.discuss-item-bd {
+
+		}
+		.discuss-item-ft {
+
+		}
+		.discuss-item-left {
+			padding-top: 10px;
+			+ .discuss-item-right {
+				margin-left: 0;
+				padding-top: 0;
+			}
+		}
+
+
+		.discuss-content {
+
+		}
+
+	}//discuss-item
+
+	.discuss-list {
+		> li {
+			vertical-align: top;
+			clear: none;
+
+			// width: 29.914893617021%;
+			// *width: 29.86170212766%;
+			// margin-right: 2.3276595744681%;
+			// *margin-right: 2.2744680851064%;
+			width: 46.914893617021%;
+			*width: 46.86170212766%;
+			margin-right: 2.3276595744681%;
+			*margin-right: 2.2744680851064%;
+			display: inline-block;
+			+ li {
+				margin-top: 0px;
+			}
+		}
+		.discuss-item-left {
+			float: none;
+			width: auto;
+			+ .discuss-item-right {
+				margin-left: 0;
+				border-left: none;
+			}
+		}
+		.discuss-story-hd {
+			height: 60px;
+			margin-bottom: 30px;
+		}
+		.discuss-story-bd {
+			height: 130px;
+			overflow: hidden;
+			// display: none;
+			.discuss-tags {
+				margin: 0;
+			}
+		}
+		.discuss-intro-text {
+			font-size: 11px;
+			line-height: 20px;
+			max-height: 170px;
+			overflow: hidden;
+		}
+		.discuss-story-ft {
+			text-align: center;
+			height: 48px;
+			.discuss-status {
+				position: absolute;
+				top: -208px;
+				left: 10px;
+			}
+			.discuss-last-replied {
+				display: none;
+			}
+		}
+		.discuss-password {
+			margin-left: 2px;
+			input[type="password"] {
+				width: 50%;
+			}
+		}
+
+		.discuss-statistic {
+			.clearfix();
+			color: @gray;
+			font-size: 11px;
+			line-height: 40px;
+			height: 40px;
+			margin: 0 0 0 10px;
+
+			a {
+				color: @gray;
+				&:hover {
+					color: @graylight;
+					background: none;
+				}
+				+ a {
+					margin-left: 10px;
+				}
+			}
+		}
+		.discuss-user-footer{
+			padding: 0;
+			line-height: 40px;
+			height: 40px;
+			.discuss-avatar {
+				margin-right: 3px;
+				img {
+					width: 20px;
+					height: 20px;
+				}
+			}
+			.discuss-user-name {
+				display: inline-block;
+				width: auto;
+			}
+		}
+	}
+	
+	.discuss-post-title {
+		text-align: center;
+		font-size: 28px;
+		font-family: sans-serif;
+		height: 48px;
+	    line-height: 48px;
+	    margin: 0 0 10px 0;
+	    font-weight: 400;
+	    padding: 0 !important;
+
+	    overflow: hidden;
+	    .icon-lock,
+	    .icon-key {
+	    	position: relative;
+	    	top: -6px;
+	    }
+	}
+
+	.discuss-date {
+		color: #666;
+		.icon-ed-time,
+		.icon-user{
+			color: #666;
+			margin-right: 3px;
+		}
+	}
+	.label-unread {
+		top: -10px;
+	}
+	.discuss-protected {
+		h3 {
+			font-size: 12px;
+			margin: 0;
+			line-height: 20px;
+		}
+		.btn {
+			font-size: 11px;
+		}
+		.small {
+			display: none;
+		}
+		form {
+			margin-bottom: 5px;
+		}
+	}
+	&.w600 {
+		.discuss-list {
+			> li {
+				vertical-align: top;
+				clear: none;
+				width: 100%;
+				display: inline-block;
+				+ li {
+					margin-top: 0px;
+				}
+				.discuss-story-bd {
+					height: auto;
+				}
+			}
+		}
+	}//w600
+
+}//discuss-view-index
+
+.discuss-post-login {
+	background: white;
+}

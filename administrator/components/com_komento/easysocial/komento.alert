@@ -1,0 +1,40 @@
+[
+	{
+		"extension"	: "com_komento",
+		"element"	: "komento",
+		"rule"		: "comment",
+		"core"		: true,
+		"field"		: false,
+		"app"		: false,
+		"value"		: {
+			"system": 1,
+			"email"	: -1
+		}
+	},
+
+	{
+		"extension"	: "com_komento",
+		"element"	: "komento",
+		"rule"		: "reply",
+		"core"		: true,
+		"field"		: false,
+		"app"		: false,
+		"value"		: {
+			"system": 1,
+			"email"	: -1
+		}
+	},
+
+	{
+		"extension"	: "com_komento",
+		"element"	: "komento",
+		"rule"		: "like",
+		"core"		: true,
+		"field"		: false,
+		"app"		: false,
+		"value"		: {
+			"system": 1,
+			"email"	: -1
+		}
+	}
+]

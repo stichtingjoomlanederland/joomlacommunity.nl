@@ -1,0 +1,8 @@
+[
+    {
+        "script": [
+            "ui/position"
+        ],
+        "adapter": "Foundry"
+    }
+]

@@ -1,0 +1,171 @@
+/*------------------------------------*\
+	$Theme - Dark
+\*------------------------------------*/
+//
+// Variables
+// --------------------------------------------------
+
+// Global values
+// --------------------------------------------------
+
+@discussWrapperBackground:		#222;
+@discussWrapperPadding: 		10px;
+
+@discussBorderColor:			#333; //rgba(0,0,0,0.10)
+@discussPanelBackground: 		#000;
+
+
+// font
+// ----------------
+@discussTitleSize:				16px;
+
+// Item
+// ----------------
+@discussItemBackground:			#151515;
+@discussItemBorderRadius:		2px;
+@discussItemHdBorderColor:		@discussBorderColor;
+@discussItemRightBorderColor:	@discussBorderColor;
+
+// Story
+// ----------------
+@discussStoryFootBackground:	#111; //rgba(0,0,0,0.02)
+
+// Memberview
+// ----------------
+@discussMemberViewBackground: #232323;
+
+// Searchbar
+// ----------------
+@discussSearchBarBackground:	#1b1b1b;
+
+//.discuss-answer
+@discussAnswerBackground: #122201; //light green
+@discussAnswerBorder: #111;
+@discussAnswerBarHighlight: #29460a;
+@discussAnswerBarBackground: #142402;
+
+
+// Tabbox
+// ----------------
+@discussTabBoxBackground:	#111;
+@discussTabBoxBackgroundHighlight:	#222;
+
+
+@discussNoticeActiveBackground: #F5FCFF;
+
+// Forms
+// -------------------------
+@inputBorderRadius:             3px;
+
+// Orange navbar
+@navbarOrangeBackground:                #f6c244;
+@navbarOrangeBackgroundHighlight:       #fee49b;
+@navbarOrangeBorder:                    #d1b142;
+@navbarOrangeText:                      #310404;
+@navbarOrangeLinkColor:                 #310404;
+@navbarOrangeLinkColorHover:            @navbarOrangeLinkColor;
+@navbarOrangeLinkColorActive:           @navbarOrangeLinkColorHover;
+@navbarOrangeLinkBackgroundHover:       transparent;
+@navbarOrangeLinkBackgroundActive:      @navbarOrangeBackground;
+
+
+// Button
+// ----------------
+@btnTextShadow: 0 1px 1px rgba(255,255,255,.55);
+@btnTextShadowAlt: 0 1px 1px rgba(0,0,0,.55);
+
+
+// Modal
+// ----------------
+@modalFooterBackground:	darken(#000, 4%);
+
+
+// Message box
+// ----------------
+@discussMessageBackground: #23242b;
+@discussMessageBackgroundAlt: lighten(@grayLighter, 2%);
+
+
+// Role colors
+// ----------------
+@roleImportant: darken(spin(#F2BD87, -20), 20%);
+@roleWarning: darken(spin(@warningBackground, -20), 20%);
+@roleSuccess: darken(spin(@successBackground, -20), 20%);
+@roleInfo: darken(spin(@infoBackground, -20), 20%);
+@roleInverse: darken(spin(@btnInverseBackground, -20), 20%);
+
+// Statistic box
+// ----------------
+@discussStatisticColor: #ccc;
+@discussStatisticBackground: @grayLighter;
+@discussStatisticStatusBackground: #ffda6a;
+@discussStatisticStatusColor: darken(spin(@discussStatisticStatusBackground, -20), 35%);
+@discussStatisticResolvedBackground: #5BB75B;
+@discussStatisticResolvedColor: darken(spin(@discussStatisticResolvedBackground, -20), 25%);
+
+// ED Icon path
+// ----------------
+@discussIconSpritePath:          '@{site_base_uri}/../images/icon-sprite.png';
+@discussToolbarSpritePath:       '@{site_uri}/../images/icon-toolbar.png';
+
+// Timeline
+// ----------------
+@discussTimelineBackground: #555;
+
+// Label
+// ----------------
+@discussLabelNotificationBackground: #cc0000;
+@discussLabelNotificationColor:	#fff;
+@discussLabelUnreadBackground: #ccc;
+
+// Rank Bar
+// ----------------
+@discussRankBarBackground:	@gray;
+@discussRankProgressBackground:	#9c6;
+
+// @Dark
+// ----------------
+// Bootstrap Variables
+// ----------------
+// Grays
+// -------------------------
+@black:                 #f5f5f5;
+@grayDarker:            #eee;
+@grayDark:              #999;
+@gray:                  #555;
+@grayLight:             #333;
+@grayLighter:           #222;
+@white:                 #010101; //fff
+
+// Scaffolding
+// -------------------------
+@bodyBackground:        @white;
+@textColor:             @black;
+
+// Forms
+// -------------------------
+@inputBackground:               darken(@white, 5%);
+@inputBorder:                   #323232;
+@inputBorderRadius:             @baseBorderRadius;
+@inputDisabledBackground:       @grayLighter;
+@formActionsBackground:         #222;
+@inputHeight:                   @baseLineHeight + 10px; // base line-height + 8px vertical padding + 2px top/bottom border
+
+
+// Input placeholder text color
+// -------------------------
+@placeholderText:         @grayDark;
+
+
+// pagination
+// ----------------
+@paginationBackground: #333;
+@paginationActiveBackground: #111;
+@paginationBorder: #000;
+@paginationColor: #fff;
+
+
+// Composer
+// ----------------
+@composerEditingBackground: #444;
+@composerEditingBorder: #111;
