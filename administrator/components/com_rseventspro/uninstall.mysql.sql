@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS
 `#__rseventspro_countries`,
 `#__rseventspro_coupons`,
 `#__rseventspro_coupon_codes`,
+`#__rseventspro_discounts`,
 `#__rseventspro_emails`,
 `#__rseventspro_events`,
 `#__rseventspro_files`,
@@ -18,6 +19,7 @@ DROP TABLE IF EXISTS
 `#__rseventspro_tags`,
 `#__rseventspro_taxonomy`,
 `#__rseventspro_tickets`,
+`#__rseventspro_tmp`,
 `#__rseventspro_users`,
 `#__rseventspro_user_seats`,
 `#__rseventspro_user_tickets`;

@@ -1,8 +1,7 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
@@ -17,11 +16,13 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('can_unsubscribe'), $this->form->getInput('can_unsubscribe')); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('can_download'), $this->form->getInput('can_download')); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('can_upload'), $this->form->getInput('can_upload')); ?>
+	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('can_change_options'), $this->form->getInput('can_change_options')); ?>
 	<?php echo JHtml::_('rsfieldset.end'); ?>
 </div>
 <div class="span6 rswidth-50 rsfltlft">
 	<?php echo JHtml::_('rsfieldset.start', 'adminform', JText::_('COM_RSEVENTSPRO_GROUP_CATEGORY_PERMISSIONS')); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('can_create_categories'), $this->form->getInput('can_create_categories')); ?>
+	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('restricted_categories'), $this->form->getInput('restricted_categories')); ?>
 	<?php echo JHtml::_('rsfieldset.end'); ?>
 	
 	<?php echo JHtml::_('rsfieldset.start', 'adminform', JText::_('COM_RSEVENTSPRO_GROUP_TAG_PERMISSIONS')); ?>

@@ -1,17 +1,14 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
 //keep session alive while editing
 JHtml::_('behavior.keepalive');
-JHtml::_('behavior.tooltip');
-JHtml::_('behavior.formvalidation');
-?>
+JHtml::_('behavior.formvalidation'); ?>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=emails&tmpl=component'); ?>" method="post" name="adminForm" id="adminForm" class="form-validate form-horizontal" autocomplete="off">
 	<div class="row-fluid">

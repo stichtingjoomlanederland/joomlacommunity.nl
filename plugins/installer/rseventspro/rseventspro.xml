@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="installer" method="upgrade">
+	<name>plg_installer_rseventspro</name>
+	<creationDate>July 2015</creationDate>
+	<author>RSJoomla!</author>
+	<authorEmail>support@rsjoomla.com</authorEmail>
+	<authorUrl>https://www.rsjoomla.com</authorUrl>
+	<copyright>(c) 2015 www.rsjoomla.com</copyright>
+	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
+	<version>1.0.0</version>
+	<description>PLG_INSTALLER_RSEVENTSPRO_XML_DESCRIPTION</description>
+	<files>
+		<filename plugin="rseventspro">rseventspro.php</filename>
+		<filename>index.html</filename>
+	</files>
+	<languages folder="language">
+		<language tag="en-GB">en-GB/en-GB.plg_installer_rseventspro.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_installer_rseventspro.sys.ini</language>
+	</languages>
+</extension>

@@ -1,12 +1,10 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-jimport( 'joomla.application.component.model' );
 
 class rseventsproModelSettings extends JModelAdmin
 {
@@ -32,37 +30,6 @@ class rseventsproModelSettings extends JModelAdmin
 		$form = $this->loadForm('com_rseventspro.settings', 'settings', array('control' => 'jform', 'load_data' => $loadData));
 		if (empty($form))
 			return false;
-		
-		if (rseventsproHelper::ideal()) {
-			if (file_exists(JPATH_SITE.'/components/com_rseventspro/helpers/ideal/files/ing/cert.cer')) {
-				$ing_cer_label = '<span class="icon-ok"></span> '.JText::_('COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_CER');
-			} else {
-				$ing_cer_label = '<span class="icon-cancel"></span> '.JText::_('COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_CER');
-			}
-			
-			if (file_exists(JPATH_SITE.'/components/com_rseventspro/helpers/ideal/files/ing/priv.pem')) {
-				$ing_pem_label = '<span class="icon-ok"></span> '.JText::_('COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_PEM');
-			} else {
-				$ing_pem_label = '<span class="icon-cancel"></span> '.JText::_('COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_PEM');
-			}
-			
-			if (file_exists(JPATH_SITE.'/components/com_rseventspro/helpers/ideal/files/rabobank/cert.cer')) {
-				$rabo_cer_label = '<span class="icon-ok"></span> '.JText::_('COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_CER');
-			} else {
-				$rabo_cer_label = '<span class="icon-cancel"></span> '.JText::_('COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_CER');
-			}
-			
-			if (file_exists(JPATH_SITE.'/components/com_rseventspro/helpers/ideal/files/rabobank/priv.pem')) {
-				$rabo_pem_label = '<span class="icon-ok"></span> '.JText::_('COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_PEM');
-			} else {
-				$rabo_pem_label = '<span class="icon-cancel"></span> '.JText::_('COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_PEM');
-			}
-			
-			$form->setFieldAttribute('ideal_ing_cer','label', $ing_cer_label);
-			$form->setFieldAttribute('ideal_ing_pem','label', $ing_pem_label);
-			$form->setFieldAttribute('ideal_rabo_cer','label', $rabo_cer_label);
-			$form->setFieldAttribute('ideal_rabo_pem','label', $rabo_pem_label);
-		}
 		
 		return $form;
 	}
@@ -113,7 +80,7 @@ class rseventsproModelSettings extends JModelAdmin
 	 * @since	1.6
 	 */
 	public function getLayouts() {
-		$fields = array('general', 'dashboard', 'events', 'emails', 'maps', 'payments', 'sync');
+		$fields = array('general', 'dashboard', 'events', 'emails', 'maps', 'captcha', 'payments', 'sync', 'integrations');
 		if (rseventsproHelper::isGallery())
 			$fields[] = 'gallery';
 		
@@ -183,65 +150,7 @@ class rseventsproModelSettings extends JModelAdmin
 		}
 		
 		// Save iDeal files
-		if (rseventsproHelper::ideal()) {
-			jimport('joomla.filesystem.file');
-			$files = JFactory::getApplication()->input->files->get('jform');
-			
-			// ING
-			if (isset($files['ideal_ing_cer']) && !empty($files['ideal_ing_cer'])) {
-				$cer = $files['ideal_ing_cer'];
-				if ($cer['error'] == 0 && $cer['size'] > 0) {
-					if (strtolower(JFile::getExt($cer['name'])) == 'cer') {
-						JFile::upload($cer['tmp_name'], JPATH_SITE.'/components/com_rseventspro/helpers/ideal/files/ing/cert.cer');
-						$data['ideal_ing_cer'] = 1;
-					} else {
-						JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_CER_ERROR'),'error');
-					}
-				}
-			}
-			
-			if (isset($files['ideal_ing_pem']) && !empty($files['ideal_ing_pem'])) {
-				$pem = $files['ideal_ing_pem'];
-				if ($pem['error'] == 0 && $pem['size'] > 0) {
-					if (strtolower(JFile::getExt($pem['name'])) == 'pem') {
-						JFile::upload($pem['tmp_name'], JPATH_SITE.'/components/com_rseventspro/helpers/ideal/files/ing/priv.pem');
-						$data['ideal_ing_pem'] = 1;
-					} else {
-						JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_PEM_ERROR'),'error');
-					}
-				}
-			}
-			
-			// RABOBANK
-			if (isset($files['ideal_rabo_cer']) && !empty($files['ideal_rabo_cer'])) {
-				$cer = $files['ideal_rabo_cer'];
-				if ($cer['error'] == 0 && $cer['size'] > 0) {
-					if (strtolower(JFile::getExt($cer['name'])) == 'cer') {
-						JFile::upload($cer['tmp_name'], JPATH_SITE.'/components/com_rseventspro/helpers/ideal/files/rabobank/cert.cer');
-						$data['ideal_rabo_cer'] = 1;
-					} else {
-						JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_CER_ERROR'),'error');
-					}
-				}
-			}
-			
-			if (isset($files['ideal_rabo_pem']) && !empty($files['ideal_rabo_pem'])) {
-				$pem = $files['ideal_rabo_pem'];
-				if ($pem['error'] == 0 && $pem['size'] > 0) {
-					if (strtolower(JFile::getExt($pem['name'])) == 'pem') {
-						JFile::upload($pem['tmp_name'], JPATH_SITE.'/components/com_rseventspro/helpers/ideal/files/rabobank/priv.pem');
-						$data['ideal_rabo_pem'] = 1;
-					} else {
-						JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_CONF_PAYMENT_IDEAL_PEM_ERROR'),'error');
-					}
-				}
-			}
-		} else {
-			$data['ideal_ing_cer'] = 0;
-			$data['ideal_ing_pem'] = 0;
-			$data['ideal_rabo_cer'] = 0;
-			$data['ideal_rabo_pem'] = 0;
-		}
+		JFactory::getApplication()->triggerEvent('rseproIdealSaveSettings', array(array('data' => &$data)));
 		
 		$db		= $this->getDbo();
 		$query	= $db->getQuery(true);
@@ -276,12 +185,20 @@ class rseventsproModelSettings extends JModelAdmin
 	public function savetoken() {
 		$db		= $this->getDbo();
 		$query	= $db->getQuery(true);
+		$config	= $this->getConfig();
 		$token	= JFactory::getApplication()->input->getString('access_token');
 		
 		if (empty($token)) {
 			$this->setError(JText::_('COM_RSEVENTSPRO_FACEBOOK_NO_CONNECTION'));
 			return false;
 		}
+		
+		require_once JPATH_SITE.'/components/com_rseventspro/helpers/facebook/facebook.php';
+		$facebook = new RSEPROFacebook(array('appId'  => $config->facebook_appid, 'secret' => $config->facebook_secret, 'cookie' => true));
+		$facebook->setAccessToken($token);
+		$facebook->setExtendedAccessToken();
+		$newtoken = $facebook->getPersistentData('access_token');
+		$token = !empty($newtoken) ? $newtoken : $token;
 		
 		$query->clear()
 			->update($db->qn('#__rseventspro_config'))
@@ -305,6 +222,8 @@ class rseventsproModelSettings extends JModelAdmin
 		$query	= $db->getQuery(true);
 		$config = $this->getConfig();
 		$jform	= JFactory::getApplication()->input->get('jform', array(),'array');
+		$allowed= $config->facebook_pages;
+		$allowed= !empty($allowed) ? explode(',',$allowed) : '';
 		
 		if (empty($config->facebook_token)) {
 			$this->setError(JText::_('COM_RSEVENTSPRO_FACEBOOK_NO_CONNECTION'));
@@ -314,22 +233,63 @@ class rseventsproModelSettings extends JModelAdmin
 		require_once JPATH_SITE.'/components/com_rseventspro/helpers/facebook/facebook.php';
 		
 		$container	= array();
-		$facebook	= new RSFacebook(array('appId'  => $config->facebook_appid, 'secret' => $config->facebook_secret, 'cookie' => true));
-		$attachment =  array('access_token' => $config->facebook_token,'limit' => 100);
+		$facebook	= new RSEPROFacebook(array('appId'  => $config->facebook_appid, 'secret' => $config->facebook_secret, 'cookie' => true));
+		$attachment =  array('access_token' => $config->facebook_token,'limit' => 200);
 		
 		try {
-			$user	= $facebook->api('/me', 'GET', $attachment);
-			$uid 	= $user['id'];
+			$user		= $facebook->api('/me', 'GET', $attachment);
+			$uid 		= $user['id'];
+			$pages		= $facebook->api('/me/accounts?fields=id', 'GET', $attachment);
+			$fbpages	= array();
+			$fbpages[]	= $uid;
+			$allevents	= array();
+			
+			if (!empty($pages) && !empty($pages['data'])) {
+				foreach($pages['data'] as $page) {
+					if (!empty($allowed)) {
+						foreach ($allowed as $pid) {
+							$pid = trim($pid);
+							if ($pid == $page['id']) {
+								$fbpages[] = $page['id'];
+							}
+						}
+					} else {
+						$fbpages[] = $page['id'];
+					}
+				}
+			}
+			
+			// Get user events
 			$events	= $facebook->api('/me/events', 'GET', $attachment);
 			
 			if (!empty($events) && !empty($events['data'])) {
 				foreach ($events['data'] as $event) {
+					$allevents[$event['id']] = $event;
+				}
+			}
+			
+			// Get page events
+			if (!empty($fbpages)) {
+				foreach ($fbpages as $pageid) {
+					if ($pageEvents = $facebook->api('/'.$pageid.'/events', 'GET', $attachment)) {
+						if (!empty($pageEvents) && !empty($pageEvents['data'])) {
+							foreach ($pageEvents['data'] as $pageEvent) {
+								$allevents[$pageEvent['id']] = $pageEvent;
+							}
+						}
+					}
+				}
+			}
+			
+			// Parse events
+			if (!empty($allevents)) {
+				foreach ($allevents as $event) {
 					$eobj = $facebook->api($event['id'], 'GET', $attachment);
 					
 					if (empty($eobj)) {
 						continue;
 					}
-						
+					
 					$picture = $facebook->api(array('method' => 'fql.query','query' => 'select pic_big from event where eid = '.$event['id'].' '));
 					
 					$image = '';
@@ -338,7 +298,7 @@ class rseventsproModelSettings extends JModelAdmin
 					}
 					
 					if (!empty($eobj) && !empty($eobj['owner']) && !empty($eobj['owner']['id'])) {
-						if ($eobj['owner']['id'] != $uid) {
+						if (!in_array($eobj['owner']['id'], $fbpages)) {
 							continue;
 						}
 					}
@@ -347,10 +307,31 @@ class rseventsproModelSettings extends JModelAdmin
 					$ev->id				= @$eobj['id'];
 					$ev->name			= @$eobj['name'];
 					$ev->description	= @$eobj['description'];
-					$ev->start			= isset($eobj['start_time']) ? strtotime($eobj['start_time']) : time();
-					$ev->end			= isset($eobj['end_time']) ? strtotime($eobj['end_time']) : time() + 7200;
-					$ev->start			= JFactory::getDate($ev->start)->toSql();
-					$ev->end			= JFactory::getDate($ev->end)->toSql();
+					
+					if (isset($eobj['start_time'])) {
+						$startDate = new DateTime($eobj['start_time'], isset($eobj['timezone']) ? new DateTimeZone($eobj['timezone']) : null);
+					} else {
+						$startDate = new DateTime();
+					}
+					
+					$startDate->setTimezone(new DateTimeZone('UTC'));
+					$start = $startDate->format('Y-m-d H:i:s');
+					
+					if (isset($eobj['end_time'])) {
+						$endDate = new DateTime($eobj['end_time'], isset($eobj['timezone']) ? new DateTimeZone($eobj['timezone']) : null);
+						$endDate->setTimezone(new DateTimeZone('UTC'));
+						$end = $endDate->format('Y-m-d H:i:s');
+						
+						$allday = 0;
+					} else {
+						$end = JFactory::getDbo()->getNullDate();
+						
+						$allday = 1;
+					}
+					
+					$ev->start			= $start;
+					$ev->end			= $end;
+					$ev->allday			= $allday;
 					$ev->location		= isset($eobj['location']) ? $eobj['location'] : 'Facebook Location';
 					$ev->street			= isset($eobj['venue']['street']) ? $eobj['venue']['street'] : '';
 					$ev->city			= isset($eobj['venue']['city']) ? $eobj['venue']['city'] : '';
@@ -397,7 +378,7 @@ class rseventsproModelSettings extends JModelAdmin
 				$db->setQuery($query);
 				$indb = $db->loadResult();
 				
-				if(!empty($indb)) {
+				if (!empty($indb)) {
 					continue;
 				}
 				
@@ -428,6 +409,8 @@ class rseventsproModelSettings extends JModelAdmin
 					->set($db->qn('description').' = '.$db->q($event->description))
 					->set($db->qn('start').' = '.$db->q($event->start))
 					->set($db->qn('end').' = '.$db->q($event->end))
+					->set($db->qn('allday').' = '.$db->q($event->allday))
+					->set($db->qn('options').' = '.$db->q(rseventsproHelper::getDefaultOptions()))
 					->set($db->qn('completed').' = '.$db->q(1))
 					->set($db->qn('published').' = '.$db->q(1));
 				
@@ -458,21 +441,17 @@ class rseventsproModelSettings extends JModelAdmin
 					jimport('joomla.filesystem.file');
 					$path = JPATH_SITE.'/components/com_rseventspro/assets/images/events/';
 					
-					$file		= $event->image;
-					$file		= str_replace(array('http://','/'),array('','\\'),$file);
-					$ext		= JFile::getExt($file);
-					$filename	= JFile::getName(JFile::stripExt($file));
+					$ext		= 'jpg';
+					$filename	= $event->id;
 					
-					while(JFile::exists($path.$filename.'.'.$ext))
+					while (JFile::exists($path.$filename.'.'.$ext)) {
 						$filename .= rand(1,999);
+					}
 					
-					rseventsproHelper::resize($event->image, 0,							$path.$filename.'.'.$ext);
-					rseventsproHelper::resize($event->image, $config->icon_big_width,	$path.'thumbs/b_'.$filename.'.'.$ext);
-					rseventsproHelper::resize($event->image, $config->icon_small_width,	$path.'thumbs/s_'.$filename.'.'.$ext);
-					rseventsproHelper::resize($event->image, 188,						$path.'thumbs/e_'.$filename.'.'.$ext);
+					rseventsproHelper::resize($event->image, 0,	$path.$filename.'.'.$ext);
 					
 					$query->clear()
-						->insert($db->qn('#__rseventspro_events'))
+						->update($db->qn('#__rseventspro_events'))
 						->set($db->qn('icon').' = '.$db->q($filename.'.'.$ext))
 						->where($db->qn('id').' = '.$db->q($idevent));
 					
@@ -483,12 +462,12 @@ class rseventsproModelSettings extends JModelAdmin
 			}
 		}
 		
-		if (!$i) {
-			$this->setError(JText::_('COM_RSEVENTSPRO_NO_EVENTS_IMPORTED'));
+		if (!$container) {
+			$this->setError(JText::_('COM_RSEVENTSPRO_FACEBOOK_NO_EVENTS_FOUND'));
 			return false;
 		}
 		
-		$this->setState($this->getName() . '.fbevents', $i);
+		JFactory::getApplication()->enqueueMessage(JText::sprintf('COM_RSEVENTSPRO_FACEBOOK_IMPORTED_NEW_FOUND', $i, count($container)));
 		return true;
 	}
 	
@@ -499,25 +478,10 @@ class rseventsproModelSettings extends JModelAdmin
 	 * @since	1.6
 	 */
 	public function google() {
-		$config		= $this->getConfig();
-		$username	= $config->google_username;
-		$password	= $config->google_password;
-		
-		if (empty($username) || empty($password)) {
-			$this->setError(JText::_('COM_RSEVENTSPRO_EMPTY_GOOGLE_DETAILS'));
-			return false;
-		}
-		
 		require_once JPATH_SITE.'/components/com_rseventspro/helpers/google.php';
 		
-		$google		= new RSEPROGoogleCalendar($username,$password);
+		$google		= new RSEPROGoogle();
 		$response	= $google->parse();
-		$errors		= $google->getErrors();
-		
-		if (!empty($errors)) {
-			$this->setError(implode('<br/>',$errors));
-			return false;
-		}
 		
 		if (!$response) {
 			$this->setError(JText::_('COM_RSEVENTSPRO_NO_EVENTS_IMPORTED'));

@@ -1,8 +1,7 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
@@ -12,7 +11,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 <form action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro'); ?>" id="adminForm" name="adminForm" method="post">
 	<div style="text-align: right;">
 		<button type="button" class="btn btn-danger" onclick="Joomla.submitbutton('rseventspro.deletereports');"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_DELETE'); ?></button>
-		<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name)); ?>" class="btn btn-primary"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_BACK'); ?></a>
+		<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id)); ?>" class="btn btn-primary"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_BACK'); ?></a>
 	</div>
 	<br />
 

@@ -1,15 +1,29 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
 defined('_JEXEC') or die('Restricted access');
 
 class RSEventsProVersion {
-	public $revision = 5;
-	public $long = '1.0.0';
-	public $key = 'EV8PR413H1';
+	public $version  = '1.9.11';
+	public $key		 = 'EV8PR413H1';
+	// Unused
+	public $revision = null;
+	
+	// Get version
+	public function __toString() {
+		return $this->version;
+	}
+	
+	// Legacy, keep revision
+	public function __construct() {
+		list($j, $revision, $bugfix) = explode('.', $this->version);
+		$this->revision = $revision;
+	}
 }
+
+$version = new RSEventsProVersion();
+define('RSEPRO_RS_REVISION', $version->revision);

@@ -1,24 +1,13 @@
 <?php
 /**
- * @package     Joomla.Platform
- * @subpackage  Form
- *
- * @copyright   Copyright (C) 2005 - 2012 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE
- */
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
+* @license     GNU General Public License version 2 or later; see LICENSE
+*/
 
 defined('JPATH_PLATFORM') or die;
 
 JFormHelper::loadFieldClass('hidden');
-
-/**
- * Form Field class for the Joomla Platform.
- * Implements a combo box field.
- *
- * @package     Joomla.Platform
- * @subpackage  Form
- * @since       11.1
- */
 class JFormFieldRSChosen extends JFormFieldHidden
 {
 	/**
@@ -33,15 +22,25 @@ class JFormFieldRSChosen extends JFormFieldHidden
 		if (!class_exists('rseventsproHelper')) {
 			require_once JPATH_SITE.'/components/com_rseventspro/helpers/rseventspro.php';
 		}
+		if (!class_exists('JHTMLRSEventsPro')) {
+			require_once JPATH_SITE.'/components/com_rseventspro/helpers/html.php';
+		}
+		
+		// Load jQuery
+		rseventsproHelper::loadjQuery();
 		
 		// Load Chosen library
-		rseventsproHelper::chosen();
+		JHtml::_('rseventspro.chosen','.rschosen');
 		
 		if (!rseventsproHelper::isJ3()) {
-			$js = "window.addEvent('domready', function() { $$('.rschosen').chosen({ disable_search_threshold : 10 }); $$('.panel div.pane-slider')[0].setStyle('overflow','visible'); });";
-			$css = ".chzn-container { float: left; margin-bottom: 5px; } .rs200 { width: 200px; }";
-			JFactory::getDocument()->addScriptDeclaration($js);
-			JFactory::getDocument()->addStyleDeclaration($css);
+			$doc = JFactory::getDocument();
+			
+			$doc->addStyleDeclaration(".chzn-container { float: left; margin-bottom: 5px;}");
+			$doc->addScriptDeclaration(
+			"jQuery(document).ready(function() {
+				jQuery('#jform_params_categories').parents('div.pane-slider').css('overflow','visible');
+				jQuery('#jform_params_categories').parents('fieldset').css('overflow','visible');
+			});");
 		}
 	}
 	

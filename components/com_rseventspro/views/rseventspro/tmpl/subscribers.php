@@ -1,8 +1,7 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );?>
@@ -10,28 +9,30 @@ defined( '_JEXEC' ) or die( 'Restricted access' );?>
 
 <script type="text/javascript">
 function rs_clear() {
-	$('searchstring').value = '';
-	$('state').value = '-';
-	$('ticket').value = '-';
+	jQuery('#searchstring').val('');
+	jQuery('#state').val('-');
+	jQuery('#ticket').val('-');
 	document.adminForm.submit();
 }
 </script>
 
 <form method="post" action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribers&id='.rseventsproHelper::sef($this->row->id,$this->row->name)); ?>" name="adminForm" id="adminForm">
-	<div class="rs_subscribers">
-		<input type="text" name="search" id="searchstring" onchange="adminForm.submit();" value="<?php echo $this->filter_word; ?>" size="35" class="rs_edit_inp_small" placeholder="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SEARCH'); ?>" /> 
-		<button type="button" class="button btn btn-primary" onclick="adminForm.submit();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_GO'); ?></button> 
+	<div class="input-append">
+		<input type="text" name="search" id="searchstring" onchange="adminForm.submit();" value="<?php echo $this->filter_word; ?>" size="35" /> 
+		<button type="button" class="button btn" onclick="adminForm.submit();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SEARCH'); ?></button> 
 		<button type="button" class="button btn" onclick="rs_clear();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CLEAR'); ?></button>
-		<div class="rs_subscribers_right">
-			<?php echo $this->lists['tickets']; ?>
-			<?php echo $this->lists['state']; ?>
-		</div>
 	</div>
+
+	
+	<?php echo $this->lists['tickets']; ?>
+	<?php echo $this->lists['state']; ?>
+	
+
 	<div class="rs_clear"></div>
 	
 	<br /><br />
 	
-	<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->row->id,$this->row->name)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_BACK'); ?></a> <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?> <a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.exportguests&id='.rseventsproHelper::sef($this->row->id,$this->row->name)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_EXPORT_SUBSCRIBERS'); ?></a> <br />
+	<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->row->id,$this->row->name),false,rseventsproHelper::itemid($this->row->id)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_BACK'); ?></a> <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?> <a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.exportguests&id='.rseventsproHelper::sef($this->row->id,$this->row->name)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_EXPORT_SUBSCRIBERS'); ?></a> <br />
 	<div class="rs_clear"></div>
 	
 	<?php $count = count($this->data); ?>
@@ -41,25 +42,25 @@ function rs_clear() {
 	<li class="rs_event_detail">
 		<div class="rs_options" style="display:none;">
 			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=editsubscriber&id='.rseventsproHelper::sef($row->id,$row->name)); ?>">
-				<img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/edit.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_EDIT'); ?>" />
+				<i class="fa fa-pencil fa-fw"></i>
 			</a>
 			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.removesubscriber&id='.rseventsproHelper::sef($row->id,$row->name)); ?>"  onclick="return confirm('<?php echo JText::_('COM_RSEVENTSPRO_DELETE_SUBSCRIBER_CONFIRMATION'); ?>');">
-				<img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/delete.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_DELETE'); ?>" />
+				<i class="fa fa-trash fa-fw"></i>
 			</a>
 			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.approve&id='.rseventsproHelper::sef($row->id,$row->name)); ?>" title="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_APPROVE'); ?>">
-				<img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/ok.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_APPROVE'); ?>" />
+				<i class="fa fa-check fa-fw"></i>
 			</a>
 			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.pending&id='.rseventsproHelper::sef($row->id,$row->name)); ?>" title="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_PENDING'); ?>">
-				<img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/pending.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_PENDING'); ?>" />
+				<i class="fa fa-exclamation-triangle fa-fw"></i>
 			</a>
 			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.denied&id='.rseventsproHelper::sef($row->id,$row->name)); ?>" title="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_DENIED'); ?>">
-				<img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/denied.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_DENIED'); ?>" />
+				<i class="fa fa-minus-circle fa-fw"></i>
 			</a>
 		</div>
 		<div class="rs_event_details rs_inline">
 			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=editsubscriber&id='.rseventsproHelper::sef($row->id,$row->name)); ?>"><?php echo $row->name; ?></a> 
 			<?php if ($row->gateway) { ?>(<?php echo rseventsproHelper::getPayment($row->gateway); ?>)<?php } ?> <br />
-			<?php echo rseventsproHelper::date($row->date,null,true); ?> <br />
+			<?php echo rseventsproHelper::showdate($row->date,null,true); ?> <br />
 			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=editsubscriber&id='.rseventsproHelper::sef($row->id,$row->name)); ?>"><?php echo $row->email; ?></a> - <?php echo $this->getUser($row->idu); ?> - <?php echo $row->ip; ?>
 		</div>
 		<div class="rs_status"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS'); ?>: <?php echo $this->getStatus($row->state); ?></div>
@@ -83,23 +84,20 @@ function rs_clear() {
 </form>
 
 <script type="text/javascript">
-	window.addEvent('domready', function(){
+	jQuery(document).ready(function(){
 		<?php if ($this->total > $count) { ?>
-		$('rsepro_loadmore').addEvent('click', function(el) {
-			var lstart = $$('#rs_events_container > li');
-			rspagination('subscribers',lstart.length,<?php echo $this->row->id; ?>);
+		jQuery('#rsepro_loadmore').on('click', function() {
+			rspagination('subscribers',jQuery('#rs_events_container > li').length,<?php echo $this->row->id; ?>);
 		});
 		<?php } ?>
 		
 		<?php if (!empty($count)) { ?>
-		$$('#rs_events_container li').addEvents({
-			mouseenter: function(){ 
-				if (isset($(this).getElement('div.rs_options')))
-					$(this).getElement('div.rs_options').style.display = '';
+		jQuery('#rs_events_container li').on({
+			mouseenter: function() {
+				jQuery(this).find('div.rs_options').css('display','');
 			},
-			mouseleave: function(){      
-				if (isset($(this).getElement('div.rs_options')))
-					$(this).getElement('div.rs_options').style.display = 'none';
+			mouseleave: function() {
+				jQuery(this).find('div.rs_options').css('display','none');
 			}
 		});
 		<?php } ?>

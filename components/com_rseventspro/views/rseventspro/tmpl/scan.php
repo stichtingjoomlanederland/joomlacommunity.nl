@@ -1,14 +1,14 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
-defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
+defined( '_JEXEC' ) or die( 'Restricted access' ); 
+JText::script('COM_RSEVENTSPRO_SUBSCRIBER_CONFIRMED'); ?>
 
 <script type="text/javascript">
-window.addEvent('domready', function() {
+jQuery(document).ready(function() {
 	document.getElementById('ticket').focus();
 });
 </script>
@@ -25,15 +25,34 @@ window.addEvent('domready', function() {
 		<?php if (is_array($this->scan)) { ?>
 		<?php $subscriber	= $this->scan['subscriber']; ?>
 		<?php $tickets		= $this->scan['tickets']; ?>
+			<div class="subscriber_event">
+				<span><?php echo $this->event->name; ?> <small>(<?php echo rseventsproHelper::showdate($this->event->start).' - '.rseventsproHelper::showdate($this->event->end); ?>)</small></span>
+			</div>
+			
+			<hr />
+			
 			<div class="subscriber_image">
 				<?php echo rseventsproHelper::getAvatar($subscriber->idu,$subscriber->email); ?>
 			</div>
 		
 			<div class="subscriber_details">
 				<span><?php echo $subscriber->name; ?> <small>(<?php echo $subscriber->email; ?>)</small></span>
-				<span><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIPTION_DATE') . ' ' . rseventsproHelper::date($subscriber->date); ?></span>
+				<span><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIPTION_DATE') . ' ' . rseventsproHelper::showdate($subscriber->date); ?></span>
 				<span><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIPTION_IP') . ' ' . $subscriber->ip; ?></span>
 				<span><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS'). ' ' . $this->getStatus($subscriber->state); ?></span>
+			</div>
+			
+			<hr />
+			
+			<div class="subscriber_confirmation">
+				<span id="confirm<?php echo $subscriber->id; ?>">
+					<?php if ($subscriber->confirmed) { ?>
+						<span class="subscriber_confirmed"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_CONFIRMED'); ?></span>
+					<?php } else { ?>
+						<a href="javascript:void(0)" onclick="rsepro_confirm_subscriber(<?php echo $subscriber->id; ?>, '<?php echo JSession::getFormToken(); ?>')"><?php echo JText::_('COM_RSEVENTSPRO_CONFIRM_SUBSCRIBER'); ?></a>
+						<span id="subscriptionConfirm" style="display:none;"><br /><img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/loader.gif" alt="" /></span>
+					<?php } ?>
+				</span>
 			</div>
 			
 			<hr />

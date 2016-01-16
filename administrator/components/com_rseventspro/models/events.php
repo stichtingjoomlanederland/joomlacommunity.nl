@@ -1,49 +1,53 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-jimport( 'joomla.application.component.model' );
 
 class rseventsproModelEvents extends JModelLegacy
 {
-	var $_pastquery			= null;
-	var $_ongoingquery		= null;
-	var $_thisweekquery		= null;
-	var $_thismonthquery	= null;
-	var $_nextmonthquery	= null;
-	var $_upcomingquery		= null;
-	var $_formsquery		= null;
+	protected $_query			= null;
+	protected $_pastquery		= null;
+	protected $_ongoingquery	= null;
+	protected $_thisweekquery	= null;
+	protected $_thismonthquery	= null;
+	protected $_nextmonthquery	= null;
+	protected $_upcomingquery	= null;
+	protected $_formsquery		= null;
 	
-	var $_pastdata			= null;
-	var $_ongoingdata		= null;
-	var $_thisweekdata		= null;
-	var $_thismonthdata		= null;
-	var $_nextmonthdata		= null;
-	var $_upcomingdata		= null;
-	var $_formsdata			= null;
+	protected $_data			= null;
+	protected $_pastdata		= null;
+	protected $_ongoingdata		= null;
+	protected $_thisweekdata	= null;
+	protected $_thismonthdata	= null;
+	protected $_nextmonthdata	= null;
+	protected $_upcomingdata	= null;
+	protected $_formsdata		= null;
 	
-	var $_pasttotal			= 0;
-	var $_ongoingtotal		= 0;
-	var $_thisweektotal		= 0;
-	var $_thismonthtotal	= 0;
-	var $_nextmonthtotal	= 0;
-	var $_upcomingtotal		= 0;
-	var $_formstotal		= 0;
+	protected $_total			= 0;
+	protected $_pasttotal		= 0;
+	protected $_ongoingtotal	= 0;
+	protected $_thisweektotal	= 0;
+	protected $_thismonthtotal	= 0;
+	protected $_nextmonthtotal	= 0;
+	protected $_upcomingtotal	= 0;
+	protected $_formstotal		= 0;
 	
-	var $_id				= 0;
-	var $_db				= null;
-	var $_app				= null;
-	var $_input				= null;
-	var $_join				= null;
-	var $_where				= null;
-	var $_filters			= null;
-	var $_other				= null;
-	var $_pagination		= null;
-	var $_formspagination	= null;
+	protected $_id				= 0;
+	protected $_db				= null;
+	protected $_app				= null;
+	protected $_input			= null;
+	protected $_join			= null;
+	protected $offset			= null;
+	protected $_where			= null;
+	protected $_filters			= null;
+	protected $_other			= null;
+	protected $_pagination		= null;
+	protected $_formspagination	= null;
+	
+	protected $_operator		= 'AND';
 	
 	/**
 	 *	Main constructor
@@ -56,30 +60,43 @@ class rseventsproModelEvents extends JModelLegacy
 		$this->_input = $this->_app->input;
 		$config = JFactory::getConfig();
 		
+		$layout = $this->_input->get('layout');
+		$list	= rseventsproHelper::getConfig('backendlist','int',0);
+		
 		// Get pagination request variables
 		$limit = $this->_app->getUserStateFromRequest('com_rseventspro.events.limit', 'limit', $config->get('list_limit'), 'int');
 		$limitstart = $this->_input->getInt('lstart', 0);
+		
+		if ($layout == 'forms' || $list) {
+			$limitstart = $this->_input->getInt('limitstart', 0);
+		}
 		
 		// In case limit has been changed, adjust it
 		$limitstart = ($limit != 0 ? (floor($limitstart / $limit) * $limit) : 0);
 
 		$this->setState('com_rseventspro.events.limit', $limit);
-		$this->setState('com_rseventspro.events.limitstart', $limitstart);
+		$this->setState('com_rseventspro.events.limitstart', $limitstart);		
 		
-		$layout = $this->_input->get('layout');
+		$timezone = new DateTimeZone(rseventsproHelper::getTimezone());
+		$this->offset = $timezone->getOffset(new DateTime('now', new DateTimeZone('UTC')));
 		
 		if ($layout == 'default' || $layout == '' || $layout == 'items' || $layout == 'menu') {
 			$this->_filters		= $this->getFilters();
 			$this->_other		= $this->getOtherFilters();
+			$this->_operator	= $this->getOperator();
 			$this->_where		= $this->_buildWhere();
 			$this->_join		= $this->_buildJoin();
 			
-			$this->_pastquery		= $this->getPastEventsQuery();
-			$this->_ongoingquery	= $this->getOngoingEventsQuery();
-			$this->_thisweekquery	= $this->getThisWeekEventsQuery();
-			$this->_thismonthquery	= $this->getThisMonthEventsQuery();
-			$this->_nextmonthquery	= $this->getNextMonthEventsQuery();
-			$this->_upcomingquery	= $this->getUpcomingEventsQuery();
+			if ($list) {
+				$this->_query			= $this->getEventsQuery();
+			} else {			
+				$this->_pastquery		= $this->getPastEventsQuery();
+				$this->_ongoingquery	= $this->getOngoingEventsQuery();
+				$this->_thisweekquery	= $this->getThisWeekEventsQuery();
+				$this->_thismonthquery	= $this->getThisMonthEventsQuery();
+				$this->_nextmonthquery	= $this->getNextMonthEventsQuery();
+				$this->_upcomingquery	= $this->getUpcomingEventsQuery();
+			}
 		}
 		
 		if ($layout == 'forms') {
@@ -130,6 +147,7 @@ class rseventsproModelEvents extends JModelLegacy
 			}
 			
 			switch ($operator) {
+				default:
 				case 'contains':
 					$operator = 'LIKE';
 					$value	  = '%'.str_replace('%', '\%', $value).'%';
@@ -203,13 +221,11 @@ class rseventsproModelEvents extends JModelLegacy
 			}
 		}
 		
-		if (!is_null($archived = $this->_other['archived'])) {
-			if ($archived == 1)
-				$where[] = $this->_db->qn('e.published').' IN (0,1,2)';
-			elseif ($archived == 0)
-				$where[] = $this->_db->qn('e.published').' IN (0,1)';
-			elseif ($archived == 2)
-				$where[] = $this->_db->qn('e.published').' = 2';
+		if (!is_null($statuses = $this->_other['status'])) {
+			foreach ($statuses as $status) {
+				if ($status == '') continue;
+				$where[] = $this->_db->qn('e.published').' = '.(int) $status;
+			}
 		}
 		
 		if (!is_null($featured = $this->_other['featured'])) {
@@ -228,17 +244,13 @@ class rseventsproModelEvents extends JModelLegacy
 		$to		= $this->_other['end'];
 		
 		if (!is_null($from)) {
-			$from = rseventsproHelper::date($from,null,false,true);
-			$from->setTZByID($from->getTZID());
-			$from->convertTZ(new RSDate_Timezone('GMT'));
-			$from = $from->formatLikeDate('Y-m-d H:i:s');
+			$from = JFactory::getDate($from, rseventsproHelper::getTimezone());
+			$from = $from->format('Y-m-d H:i:s');
 		}
 		
 		if (!is_null($to)) {
-			$to = rseventsproHelper::date($to,null,false,true);
-			$to->setTZByID($to->getTZID());
-			$to->convertTZ(new RSDate_Timezone('GMT'));
-			$to = $to->formatLikeDate('Y-m-d H:i:s');
+			$to = JFactory::getDate($to, rseventsproHelper::getTimezone());
+			$to = $to->format('Y-m-d H:i:s');
 		}
 		
 		if (is_null($from) && !is_null($to)) {
@@ -286,80 +298,58 @@ class rseventsproModelEvents extends JModelLegacy
 			->select($this->_db->qn('id'))
 			->from($this->_db->qn('#__rseventspro_events'))
 			->where($this->_db->qn('allday').' = 1');
+
+		$todayUTC = JFactory::getDate();
+		$todayUTC->setTime(0,0,0);
+		$todayUTC = $todayUTC->format('Y-m-d H:i:s');
 		
-		$nowUTC = new RSDate();
-		$nowUTC->setTZByID($nowUTC->getTZID());
-		$nowUTC->convertTZ(new RSDate_Timezone('GMT'));
-		$nowUTC->setHourMinuteSecond(0,0,0);
-		$nowUTC = $nowUTC->formatLikeDate('Y-m-d H:i:s');
+		$today = JFactory::getDate();
+		$today->setTimezone(new DateTimeZone(rseventsproHelper::getTimezone()));
+		$today->setTime(0,0,0);
+		$today = $today->format('Y-m-d H:i:s');
 		
 		if ($type == 'past') {
-			$now   = new RSDate();
-			$now->setHourMinuteSecond(0,0,0);
-			$now->setTZByID($now->getTZID());
-			$now->convertTZ(new RSDate_Timezone('GMT'));
-			$now = $now->formatLikeDate('Y-m-d H:i:s');
-			
-			$query->where('('.$this->_db->qn('start').' < '.$this->_db->q($now).' AND '.$this->_db->qn('start').' < '.$this->_db->q($nowUTC).')');
+			$query->where('('.$this->_db->qn('start').' < '.$this->_db->q($today).' AND '.$this->_db->qn('start').' < '.$this->_db->q($todayUTC).')');
 		} elseif ($type == 'ongoing') {
-			$now   = new RSDate();
-			$now->setHourMinuteSecond(0,0,0);
-			$now->setTZByID($now->getTZID());
-			$now->convertTZ(new RSDate_Timezone('GMT'));
-			$now = $now->formatLikeDate('Y-m-d H:i:s');
-		
-			$query->where('('.$this->_db->qn('start').' = '.$this->_db->q($now).' OR '.$this->_db->qn('start').' = '.$this->_db->q($nowUTC).')');
+			$query->where('('.$this->_db->qn('start').' = '.$this->_db->q($today).' OR '.$this->_db->qn('start').' = '.$this->_db->q($todayUTC).')');
 		} elseif ($type == 'thisweek') {
-			$Calc	= new RSDate_Calc();
-			$endofweek = $Calc->endOfWeek();
-			$date = new RSDate($endofweek);
-			$date->addSeconds(86399);
-			$end_of_week = new RSDate($date);
-			$end_of_week = $end_of_week->formatLikeDate('Y-m-d H:i:s');
+			$now = JFactory::getDate();
+			$currentDayOfWeek = $now->format('N');
+			$daysToLastDayOfWeek = 7 - $currentDayOfWeek;
+			$now->modify('+'.$daysToLastDayOfWeek.' days');
+			$now->setTime(23,59,59);
+			$end_of_week = $now->toSql();
 			
-			$now   = new RSDate();
-			$now->addSeconds(86400);
-			$now->setHourMinuteSecond(0,0,0);
-			$now->setTZByID($now->getTZID());
-			$now->convertTZ(new RSDate_Timezone('GMT'));
-			$now = $now->formatLikeDate('Y-m-d H:i:s');
+			$tomorrow = JFactory::getDate(rseventsproHelper::showdate('now','Y-m-d H:i:s'));
+			$tomorrow->modify('+1 days');
+			$tomorrow->setTime(0,0,0);
 			
-			$query->where($this->_db->qn('start').' >= '.$this->_db->q($now));
-			$query->where($this->_db->qn('start').' <= '.$this->_db->q($end_of_week));
+			$query->where('DATE_ADD('.$this->_db->qn('start').', INTERVAL '.$this->offset.' SECOND) >= '.$this->_db->q($tomorrow->toSql()));
+			$query->where('DATE_ADD('.$this->_db->qn('start').', INTERVAL '.$this->offset.' SECOND) <= '.$this->_db->q($end_of_week));
 		} elseif ($type == "thismonth") {
-			$Calc	= new RSDate_Calc();
-			$endofweek = $Calc->endOfWeek();
-			$date = new RSDate($endofweek);
-			$date->addSeconds(86400);
-			$end_of_week = new RSDate($date);
-			$end_of_week->setTZByID($end_of_week->getTZID());
-			$end_of_week->convertTZ(new RSDate_Timezone('GMT'));
-			$end_of_week = $end_of_week->formatLikeDate('Y-m-d H:i:s');
+			$now = JFactory::getDate();
+			$now->setTime(23,59,59);
+			$end_of_month = $now->format('Y-m-t H:i:s');
 			
-			$Calc	= new RSDate_Calc();
-			$endofmonth = $Calc->endOfMonth();
-			$date = new RSDate($endofmonth);
-			$date->addSeconds(86399);
-			$end_of_month = new RSDate($date);
-			$end_of_month = $end_of_month->formatLikeDate('Y-m-d H:i:s');
+			$now = JFactory::getDate();
+			$currentDayOfWeek = $now->format('N');
+			$daysToLastDayOfWeek = 7 - $currentDayOfWeek + 1;
+			$now->modify('+'.$daysToLastDayOfWeek.' days');
+			$now->setTime(0,0,0);
+			$start = $now->toSql();
 			
-			
-			$query->where($this->_db->qn('start').' >= '.$this->_db->q($end_of_week));
-			$query->where($this->_db->qn('start').' <= '.$this->_db->q($end_of_month));
+			$query->where('DATE_ADD('.$this->_db->qn('start').', INTERVAL '.$this->offset.' SECOND) >= '.$this->_db->q($start));
+			$query->where('DATE_ADD('.$this->_db->qn('start').', INTERVAL '.$this->offset.' SECOND) <= '.$this->_db->q($end_of_month));
 		} elseif ($type == 'nextmonth') {
-			$Calc	= new RSDate_Calc();
-			$start	= new RSDate($Calc->beginOfNextMonth());
-			$start	= $start->formatLikeDate('Y-m-d H:i:s');
+			$now = JFactory::getDate();
+			$now->modify('first day of next month');
+			$now->setTime(0,0,0);
+			$start = $now->toSql();
+			$now->setTime(23,59,59);
+			$end = $now->format('Y-m-t H:i:s');
 			
-			$end	= $Calc->endOfNextMonth();
-			$end	= new RSDate($end);
-			$end->addSeconds(86399);
-			$end	= new RSDate($end);
-			$end	= $end->formatLikeDate('Y-m-d H:i:s');
-			
-			
-			$query->where($this->_db->qn('start').' >= '.$this->_db->q($start));
-			$query->where($this->_db->qn('start').' <= '.$this->_db->q($end));
+			$query->where('DATE_ADD('.$this->_db->qn('start').', INTERVAL '.$this->offset.' SECOND) >= '.$this->_db->q($start));
+			$query->where('DATE_ADD('.$this->_db->qn('start').', INTERVAL '.$this->offset.' SECOND) <= '.$this->_db->q($end));
 		}
 		
 		$this->_db->setQuery($query);
@@ -372,18 +362,11 @@ class rseventsproModelEvents extends JModelLegacy
 	}
 	
 	/**
-	 *	Method to get past events
+	 *	Method to get events
 	 *
 	 *	return JDatabaseQuery object;
 	 */
-	public function getPastEventsQuery() {
-		$now   = new RSDate();
-		$now->setTZByID($now->getTZID());
-		$now->convertTZ(new RSDate_Timezone('GMT'));
-		$now = $now->formatLikeDate('Y-m-d H:i:s');
-		
-		$include = $this->_getAllDayEvents('past');
-		
+	public function getEventsQuery() {
 		$query = $this->_db->getQuery(true);
 		$query->clear()
 			->select($this->_db->qn('e.id'))
@@ -392,17 +375,47 @@ class rseventsproModelEvents extends JModelLegacy
 		if ($this->_join)
 			$query->join('left', $this->_db->qn('#__rseventspro_locations','l').' ON '.$this->_db->qn('l.id').' = '.$this->_db->qn('e.location'));
 		
+		if (!empty($this->_where)) {
+			$query->where('('.implode(' '.$this->_operator.' ',$this->_where).')');
+		}
+		
+		$sortColumn = $this->getSortColumn();
+		$sortOrder 	= $this->getSortOrder();
+		
+		$query->order($this->_db->qn($sortColumn).' '.$this->_db->escape($sortOrder));
+		
+		return $query;
+	}
+	
+	
+	 /**
+	 *	Method to get past events
+	 *
+	 *	return JDatabaseQuery object;
+	 */
+	public function getPastEventsQuery() {
+		$now	 = rseventsproHelper::showdate('now','Y-m-d H:i:s');
+		$query	 = $this->_db->getQuery(true);
+		$include = $this->_getAllDayEvents('past');
+		
+		$query->clear()
+			->select($this->_db->qn('e.id'))
+			->from($this->_db->qn('#__rseventspro_events','e'));
+		
+		if ($this->_join) {
+			$query->join('left', $this->_db->qn('#__rseventspro_locations','l').' ON '.$this->_db->qn('l.id').' = '.$this->_db->qn('e.location'));
+		}
+		
 		if (!empty($include)) {
 			$query->where('(('.$this->_db->qn('e.end').' <> '.$this->_db->q($this->_db->getNullDate()));
-			$query->where($this->_db->qn('e.end').' <= '.$this->_db->q($now).') OR '.$this->_db->qn('e.id').' IN ('.implode(',',$include).'))');
+			$query->where('DATE_ADD('.$this->_db->qn('e.end').', INTERVAL '.$this->offset.' SECOND) <= '.$this->_db->q($now).') OR '.$this->_db->qn('e.id').' IN ('.implode(',',$include).'))');
 		} else {
 			$query->where($this->_db->qn('e.end').' <> '.$this->_db->q($this->_db->getNullDate()));
-			$query->where($this->_db->qn('e.end').' <= '.$this->_db->q($now));
+			$query->where('DATE_ADD('.$this->_db->qn('e.end').', INTERVAL '.$this->offset.' SECOND) <= '.$this->_db->q($now));
 		}
 		
 		if (!empty($this->_where)) {
-			foreach ($this->_where as $where)
-			$query->where($where);
+			$query->where('('.implode(' '.$this->_operator.' ',$this->_where).')');
 		}
 		
 		$sortColumn = $this->getSortColumn();
@@ -419,35 +432,30 @@ class rseventsproModelEvents extends JModelLegacy
 	 *	return JDatabaseQuery object;
 	 */
 	public function getOngoingEventsQuery() {
-		$now   = new RSDate();
-		$now->setTZByID($now->getTZID());
-		$now->convertTZ(new RSDate_Timezone('GMT'));
-		$now = $now->formatLikeDate('Y-m-d H:i:s');
-		
+		$now	 = rseventsproHelper::showdate('now','Y-m-d H:i:s');
+		$query	 = $this->_db->getQuery(true);
 		$include = $this->_getAllDayEvents('ongoing');
 		
-		$query = $this->_db->getQuery(true);
 		$query->clear()
 			->select($this->_db->qn('e.id'))
 			->from($this->_db->qn('#__rseventspro_events','e'));
 		
-		if ($this->_join)
+		if ($this->_join) {
 			$query->join('left', $this->_db->qn('#__rseventspro_locations','l').' ON '.$this->_db->qn('l.id').' = '.$this->_db->qn('e.location'));
-		
+		}
 		
 		if (!empty($include)) {
 			$query->where('(('.$this->_db->qn('e.end').' <> '.$this->_db->q($this->_db->getNullDate()));
-			$query->where($this->_db->qn('e.start').' <= '.$this->_db->q($now));
-			$query->where($this->_db->qn('e.end').' >= '.$this->_db->q($now).') OR '.$this->_db->qn('e.id').' IN ('.implode(',',$include).'))');
+			$query->where('DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) <= '.$this->_db->q($now));
+			$query->where('DATE_ADD('.$this->_db->qn('e.end').', INTERVAL '.$this->offset.' SECOND) >= '.$this->_db->q($now).') OR '.$this->_db->qn('e.id').' IN ('.implode(',',$include).'))');
 		} else {
 			$query->where($this->_db->qn('e.end').' <> '.$this->_db->q($this->_db->getNullDate()));
-			$query->where($this->_db->qn('e.start').' <= '.$this->_db->q($now));
-			$query->where($this->_db->qn('e.end').' >= '.$this->_db->q($now));
+			$query->where('DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) <= '.$this->_db->q($now));
+			$query->where('DATE_ADD('.$this->_db->qn('e.end').', INTERVAL '.$this->offset.' SECOND) >= '.$this->_db->q($now));
 		}
 		
 		if (!empty($this->_where)) {
-			foreach ($this->_where as $where)
-			$query->where($where);
+			$query->where('('.implode(' '.$this->_operator.' ',$this->_where).')');
 		}
 		
 		$sortColumn = $this->getSortColumn();
@@ -464,21 +472,17 @@ class rseventsproModelEvents extends JModelLegacy
 	 *	return JDatabaseQuery object;
 	 */
 	public function getThisWeekEventsQuery() {
-		$now   = new RSDate();
-		$now->setTZByID($now->getTZID());
-		$now->convertTZ(new RSDate_Timezone('GMT'));
-		$now = $now->formatLikeDate('Y-m-d H:i:s');
-		
+		$nowDate = JFactory::getDate();
+		$now	 = rseventsproHelper::showdate('now','Y-m-d H:i:s');
+		$exclude = array();
 		$include = $this->_getAllDayEvents('thisweek');
 		
-		$Calc	= new RSDate_Calc();
-		$endofweek = $Calc->endOfWeek();
-		$date = new RSDate($endofweek);
-		$date->addSeconds(86399);
-		$end_of_week = new RSDate($date);
-		$end_of_week = $end_of_week->formatLikeDate('Y-m-d H:i:s');
+		$currentDayOfWeek = $nowDate->format('N');
+		$daysToLastDayOfWeek = 7 - $currentDayOfWeek;
+		$nowDate->modify('+'.$daysToLastDayOfWeek.' days');
+		$nowDate->setTime(23,59,59);
+		$end_of_week = $nowDate->toSql();
 		
-		$exclude = array();
 		$this->_db->setQuery($this->_ongoingquery);
 		$ongoing = $this->_db->loadColumn();
 		if (!empty($ongoing)) {
@@ -499,15 +503,14 @@ class rseventsproModelEvents extends JModelLegacy
 		
 		if (!empty($include)) {
 			$query->where('(('.$this->_db->qn('e.end').' <> '.$this->_db->q($this->_db->getNullDate()));
-			$query->where('(('.$this->_db->qn('e.start').' <= '.$this->_db->q($now). ' AND '.$this->_db->qn('e.end').' >= '.$this->_db->q($now).') OR ('.$this->_db->qn('e.start').' >= '.$this->_db->q($now).' AND '.$this->_db->qn('e.start').' <= '.$this->_db->q($end_of_week).'))) OR '.$this->_db->qn('e.id').' IN ('.implode(',',$include).'))');
+			$query->where('((DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) <= '.$this->_db->q($now). ' AND DATE_ADD('.$this->_db->qn('e.end').', INTERVAL '.$this->offset.' SECOND) >= '.$this->_db->q($now).') OR (DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) >= '.$this->_db->q($now).' AND DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) <= '.$this->_db->q($end_of_week).'))) OR '.$this->_db->qn('e.id').' IN ('.implode(',',$include).'))');
 		} else {
 			$query->where($this->_db->qn('e.end').' <> '.$this->_db->q($this->_db->getNullDate()));
-			$query->where('(('.$this->_db->qn('e.start').' <= '.$this->_db->q($now). ' AND '.$this->_db->qn('e.end').' >= '.$this->_db->q($now).') OR ('.$this->_db->qn('e.start').' >= '.$this->_db->q($now).' AND '.$this->_db->qn('e.start').' <= '.$this->_db->q($end_of_week).'))');
+			$query->where('((DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) <= '.$this->_db->q($now). ' AND DATE_ADD('.$this->_db->qn('e.end').', INTERVAL '.$this->offset.' SECOND) >= '.$this->_db->q($now).') OR (DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) >= '.$this->_db->q($now).' AND DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) <= '.$this->_db->q($end_of_week).'))');
 		}
 		
 		if (!empty($this->_where)) {
-			foreach ($this->_where as $where)
-			$query->where($where);
+			$query->where('('.implode(' '.$this->_operator.' ',$this->_where).')');
 		}
 		
 		$sortColumn = $this->getSortColumn();
@@ -524,20 +527,14 @@ class rseventsproModelEvents extends JModelLegacy
 	 *	return JDatabaseQuery object;
 	 */
 	public function getThisMonthEventsQuery() {
-		$now   = new RSDate();
-		$now->setTZByID($now->getTZID());
-		$now->convertTZ(new RSDate_Timezone('GMT'));
-		$now = $now->formatLikeDate('Y-m-d H:i:s');
-		$Calc	= new RSDate_Calc();
-		$endofmonth = $Calc->endOfMonth();
-		$date = new RSDate($endofmonth);
-		$date->addSeconds(86399);
-		$end_of_month = new RSDate($date);
-		$end_of_month = $end_of_month->formatLikeDate('Y-m-d H:i:s');
+		$nowDate = JFactory::getDate();
+		$now	 = rseventsproHelper::showdate('now','Y-m-d H:i:s');
+		$nowDate->setTime(23,59,59);
+		$end_of_month = $nowDate->format('Y-m-t H:i:s');
 		
 		$include = $this->_getAllDayEvents('thismonth');
+		$exclude = array();		
 		
-		$exclude = array();
 		$this->_db->setQuery($this->_ongoingquery);
 		$ongoing = $this->_db->loadColumn();
 		$this->_db->setQuery($this->_thisweekquery);
@@ -565,15 +562,14 @@ class rseventsproModelEvents extends JModelLegacy
 		
 		if (!empty($include)) {
 			$query->where('(('.$this->_db->qn('e.end').' <> '.$this->_db->q($this->_db->getNullDate()));
-			$query->where('(('.$this->_db->qn('e.start').' <= '.$this->_db->q($now). ' AND '.$this->_db->qn('e.end').' >= '.$this->_db->q($now).') OR ('.$this->_db->qn('e.start').' >= '.$this->_db->q($now).' AND '.$this->_db->qn('e.start').' <= '.$this->_db->q($end_of_month).'))) OR '.$this->_db->qn('e.id').' IN ('.implode(',',$include).'))');
+			$query->where('((DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) <= '.$this->_db->q($now). ' AND DATE_ADD('.$this->_db->qn('e.end').', INTERVAL '.$this->offset.' SECOND) >= '.$this->_db->q($now).') OR (DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) >= '.$this->_db->q($now).' AND DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) <= '.$this->_db->q($end_of_month).'))) OR '.$this->_db->qn('e.id').' IN ('.implode(',',$include).'))');
 		} else {
 			$query->where($this->_db->qn('e.end').' <> '.$this->_db->q($this->_db->getNullDate()));
-			$query->where('(('.$this->_db->qn('e.start').' <= '.$this->_db->q($now). ' AND '.$this->_db->qn('e.end').' >= '.$this->_db->q($now).') OR ('.$this->_db->qn('e.start').' >= '.$this->_db->q($now).' AND '.$this->_db->qn('e.start').' <= '.$this->_db->q($end_of_month).'))');
+			$query->where('((DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) <= '.$this->_db->q($now). ' AND DATE_ADD('.$this->_db->qn('e.end').', INTERVAL '.$this->offset.' SECOND) >= '.$this->_db->q($now).') OR (DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) >= '.$this->_db->q($now).' AND DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) <= '.$this->_db->q($end_of_month).'))');
 		}
 		
 		if (!empty($this->_where)) {
-			foreach ($this->_where as $where)
-			$query->where($where);
+			$query->where('('.implode(' '.$this->_operator.' ',$this->_where).')');
 		}
 		
 		$sortColumn = $this->getSortColumn();
@@ -590,19 +586,16 @@ class rseventsproModelEvents extends JModelLegacy
 	 *	return JDatabaseQuery object;
 	 */
 	public function getNextMonthEventsQuery() {
-		$Calc	= new RSDate_Calc();
-		$start	= new RSDate($Calc->beginOfNextMonth());
-		$start	= $start->formatLikeDate('Y-m-d H:i:s');
-		
-		$end	= $Calc->endOfNextMonth();
-		$end	= new RSDate($end);
-		$end->addSeconds(86399);
-		$end	= new RSDate($end);
-		$end	= $end->formatLikeDate('Y-m-d H:i:s');
+		$nowDate = JFactory::getDate();
+		$nowDate->modify('first day of next month');
+		$nowDate->setTime(0,0,0);
+		$start = $nowDate->toSql();
+		$nowDate->setTime(23,59,59);
+		$end = $nowDate->format('Y-m-t H:i:s');
 		
 		$include = $this->_getAllDayEvents('nextmonth');
-		
 		$exclude = array();
+		
 		$this->_db->setQuery($this->_ongoingquery);
 		$ongoing = $this->_db->loadColumn();
 		$this->_db->setQuery($this->_thisweekquery);
@@ -637,15 +630,14 @@ class rseventsproModelEvents extends JModelLegacy
 		
 		if (!empty($include)) {
 			$query->where('(('.$this->_db->qn('e.end').' <> '.$this->_db->q($this->_db->getNullDate()));
-			$query->where('(('.$this->_db->qn('e.start').' <= '.$this->_db->q($start). ' AND '.$this->_db->qn('e.end').' >= '.$this->_db->q($start).') OR ('.$this->_db->qn('e.start').' >= '.$this->_db->q($start).' AND '.$this->_db->qn('e.start').' <= '.$this->_db->q($end).'))) OR '.$this->_db->qn('e.id').' IN ('.implode(',',$include).'))');
+			$query->where('((DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) <= '.$this->_db->q($start). ' AND DATE_ADD('.$this->_db->qn('e.end').', INTERVAL '.$this->offset.' SECOND) >= '.$this->_db->q($start).') OR (DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) >= '.$this->_db->q($start).' AND DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) <= '.$this->_db->q($end).'))) OR '.$this->_db->qn('e.id').' IN ('.implode(',',$include).'))');
 		} else {
 			$query->where($this->_db->qn('e.end').' <> '.$this->_db->q($this->_db->getNullDate()));
-			$query->where('(('.$this->_db->qn('e.start').' <= '.$this->_db->q($start). ' AND '.$this->_db->qn('e.end').' >= '.$this->_db->q($start).') OR ('.$this->_db->qn('e.start').' >= '.$this->_db->q($start).' AND '.$this->_db->qn('e.start').' <= '.$this->_db->q($end).'))');
+			$query->where('((DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) <= '.$this->_db->q($start). ' AND DATE_ADD('.$this->_db->qn('e.end').', INTERVAL '.$this->offset.' SECOND) >= '.$this->_db->q($start).') OR (DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) >= '.$this->_db->q($start).' AND DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) <= '.$this->_db->q($end).'))');
 		}
 		
 		if (!empty($this->_where)) {
-			foreach ($this->_where as $where)
-			$query->where($where);
+			$query->where('('.implode(' '.$this->_operator.' ',$this->_where).')');
 		}
 		
 		$sortColumn = $this->getSortColumn();
@@ -662,11 +654,11 @@ class rseventsproModelEvents extends JModelLegacy
 	 *	return JDatabaseQuery object;
 	 */
 	public function getUpcomingEventsQuery() {
-		$Calc	= new RSDate_Calc();		
-		$now   	= new RSDate();
-		$now->addMonths(2);
-		$start	= new RSDate($Calc->beginOfMonth($now->formatLikeDate('m'),$now->formatLikeDate('Y')));
-		$start	= $start->formatLikeDate('Y-m-d H:i:s');
+		$nowDate = JFactory::getDate();
+		$nowDate->modify('first day of this month');
+		$nowDate->modify('+2 months');
+		$nowDate->setTime(0,0,0);
+		$start = $nowDate->format('Y-m-d H:i:s');
 		
 		$query = $this->_db->getQuery(true);
 		$query->clear()
@@ -676,11 +668,10 @@ class rseventsproModelEvents extends JModelLegacy
 		if ($this->_join)
 			$query->join('left', $this->_db->qn('#__rseventspro_locations','l').' ON '.$this->_db->qn('l.id').' = '.$this->_db->qn('e.location'));
 		
-		$query->where($this->_db->qn('e.start').' >= '.$this->_db->q($start));
+		$query->where('DATE_ADD('.$this->_db->qn('e.start').', INTERVAL '.$this->offset.' SECOND) >= '.$this->_db->q($start));
 		
 		if (!empty($this->_where)) {
-			foreach ($this->_where as $where)
-			$query->where($where);
+			$query->where('('.implode(' '.$this->_operator.' ',$this->_where).')');
 		}
 		
 		$sortColumn = $this->getSortColumn();
@@ -705,6 +696,19 @@ class rseventsproModelEvents extends JModelLegacy
 			->order($this->_db->qn('FormId').' ASC');
 		
 		return $query;
+	}
+	
+	/**
+	 *	Method to get events data
+	 *
+	 *	return array;
+	 */
+	public function getEvents() {
+		if (empty($this->_data)) {
+			$this->_db->setQuery($this->_query, $this->getState('com_rseventspro.events.limitstart'), $this->getState('com_rseventspro.events.limit'));
+			$this->_data = $this->_db->loadColumn();
+		}		
+		return $this->_data;
 	}
 	
 	/**
@@ -796,7 +800,7 @@ class rseventsproModelEvents extends JModelLegacy
 		}
 		
 		if (empty($this->_formsdata)) {
-			$this->_db->setQuery($this->_formsquery,$this->getState('com_rseventspro.events.limitstart'),$this->getState('com_rseventspro.events.limit'));
+			$this->_db->setQuery((string) $this->_formsquery, $this->getState('com_rseventspro.events.limitstart'), $this->getState('com_rseventspro.events.limit'));
 			$this->_formsdata = $this->_db->loadObjectList();
 		}
 		return $this->_formsdata;
@@ -804,10 +808,34 @@ class rseventsproModelEvents extends JModelLegacy
 	
 	
 	protected function getCount($query) {
+		$version = new JVersion();
+		if ($version->isCompatible('3.0')) {
+			if ($query instanceof JDatabaseQuery
+				&& $query->type == 'select'
+				&& $query->group === null
+				&& $query->having === null)
+			{
+				$query = clone $query;
+				$query->clear('select')->clear('order')->clear('limit')->select('COUNT(*)');
+
+				$this->_db->setQuery($query);
+				return (int) $this->_db->loadResult();
+			}
+		}
+
+		// Otherwise fall back to inefficient way of counting all results.
 		$this->_db->setQuery($query);
 		$this->_db->execute();
 
-		return $this->_db->getNumRows();
+		return (int) $this->_db->getNumRows();
+	}
+	
+	public function getTotal() {
+		if (empty($this->_total)) {
+			$this->_total = $this->getCount($this->_query); 
+		}
+		
+		return $this->_total;
 	}
 	
 	public function getPastTotal() {
@@ -872,7 +900,7 @@ class rseventsproModelEvents extends JModelLegacy
 	public function getPagination() {
 		if (empty($this->_pagination)) {
 			jimport('joomla.html.pagination');
-			$this->_pagination = new JPagination(1, $this->getState('com_rseventspro.events.limitstart'), $this->getState('com_rseventspro.events.limit'));
+			$this->_pagination = new JPagination($this->getTotal(), $this->getState('com_rseventspro.events.limitstart'), $this->getState('com_rseventspro.events.limit'));
 		}
 		return $this->_pagination;
 	}
@@ -895,72 +923,87 @@ class rseventsproModelEvents extends JModelLegacy
 		}
 		
 		if (!empty($values)) {
+			$filter = JFilterInput::getInstance();
 			foreach ($values as $i => $value) {
 				if (empty($value)) {
 					if (isset($columns[$i])) unset($columns[$i]);
 					if (isset($operators[$i])) unset($operators[$i]);
 					if (isset($values[$i])) unset($values[$i]);
 				}
+				
+				$values[$i] = $filter->clean($value,'string');
 			}
-		}
-		
-		$columns = array_merge($columns);
-		$operators = array_merge($operators);
-		$values = array_merge($values);
-		
-		if ($this->_input->get('rs_remove') != '') {
-			unset($columns[$this->_input->get('rs_remove')]);
-			unset($operators[$this->_input->get('rs_remove')]);
-			unset($values[$this->_input->get('rs_remove')]);
-			$this->_app->setUserState('com_rseventspro.events.filter_columns',		array_merge($columns));
-			$this->_app->setUserState('com_rseventspro.events.filter_operators',	array_merge($operators));
-			$this->_app->setUserState('com_rseventspro.events.filter_values',		array_merge($values));
-		}
-		
-		if ($this->_input->getInt('rs_clear',0)) {
-			$this->_app->setUserState('com_rseventspro.events.filter_columns',		array());
-			$this->_app->setUserState('com_rseventspro.events.filter_operators',	array());
-			$this->_app->setUserState('com_rseventspro.events.filter_values',		array());
-			$columns = $operators = $values = array();
 		}
 		
 		return array(array_merge($columns), array_merge($operators), array_merge($values));
 	}
 	
 	public function getOtherFilters() {
-		$archived	= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_archived',	'filter_archived',	null);
-		$featured	= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_featured',	'filter_featured',	null);
-		$childs		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_child', 		'filter_child',		null);
-		$start		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_start', 		'filter_start',		null);
-		$end		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_end', 		'filter_end',		null);
+		$status		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_status',		'filter_status',	array(), 'array');
+		$featured	= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_featured',	'filter_featured',	array(), 'array');
+		$childs		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_child', 		'filter_child',		array(), 'array');
+		$start		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_start', 		'filter_start',		array(), 'array');
+		$end		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_end', 		'filter_end',		array(), 'array');
 		
-		if ($this->_input->getInt('rs_clear',0)) {
-			$this->_app->setUserState('com_rseventspro.events.filter_archived',	null);
-			$this->_app->setUserState('com_rseventspro.events.filter_featured',	null);
-			$this->_app->setUserState('com_rseventspro.events.filter_child',	null);
-			$this->_app->setUserState('com_rseventspro.events.filter_start',	null);
-			$this->_app->setUserState('com_rseventspro.events.filter_end',		null);
-			return array('archived' => null, 'featured' => null, 'childs' => null, 'start' => null, 'end' => null);
+		$status		= $status[0] == '' ? null : $status;
+		$featured	= $featured[0] == '' ? null : $featured[0];
+		$childs		= $childs[0] == '' ? null : $childs[0];
+		$start		= $start[0] == '' ? null : $start[0];
+		$end		= $end[0] == '' ? null : $end[0];
+		
+		if (is_array($status)) {
+			$status = array_unique($status);
+			
+			foreach ($status as $key => $option) {
+				if ($option == '') unset($status[$key]);
+			}	
 		}
 		
-		if ($this->_input->get('rs_remove') == 'archive') {
-			$this->_app->setUserState('com_rseventspro.events.filter_archived',	null);
-			return array('archived' => null, 'childs' => $childs, 'start' => $start, 'end' => $end);
-		} elseif ($this->_input->get('rs_remove') == 'child') {
-			$this->_app->setUserState('com_rseventspro.events.filter_child',	null);
-			return array('archived' => $archived, 'childs' => null, 'start' => $start, 'end' => $end);
-		} elseif ($this->_input->get('rs_remove') == 'start') {
-			$this->_app->setUserState('com_rseventspro.events.filter_start',	null);
-			return array('archived' => $archived, 'childs' => $childs, 'start' => null, 'end' => $end);
-		} elseif ($this->_input->get('rs_remove') == 'end') {
-			$this->_app->setUserState('com_rseventspro.events.filter_end',	null);
-			return array('archived' => $archived, 'childs' => $childs, 'start' => $start, 'end' => null);
-		} elseif ($this->_input->get('rs_remove') == 'featured') {
-			$this->_app->setUserState('com_rseventspro.events.filter_featured',	null);
-			return array('archived' => $archived, 'featured' => null, 'childs' => $childs, 'start' => $start, 'end' => $end);
+		return array('status' => $status, 'featured' => $featured, 'childs' => $childs, 'start' => $start, 'end' => $end);
+	}
+	
+	public function getConditionsNr() {
+		$filters	= $this->getFilters();
+		$other		= $this->getOtherFilters();
+		$columns	= isset($filters[0]) ? $filters[0] : array();
+		$count		= 0;
+		
+		foreach($columns as $column) {
+			if ($column == '') continue;
+			$count++;
 		}
 		
-		return array('archived' => $archived, 'featured' => $featured, 'childs' => $childs, 'start' => $start, 'end' => $end);
+		if (!is_null($other['status'])) {
+			foreach ($other['status'] as $status) {
+				if ($status == '') continue;
+				$count++;
+			}
+		}
+			
+		if (!is_null($other['featured'])) {
+			$count++;
+		}
+		
+		if (!is_null($other['childs'])) {
+			$count++;
+		}
+		
+		if (!is_null($other['start'])) {
+			$count++;
+		}
+		
+		if (!is_null($other['end'])) {
+			$count++;
+		}
+		
+		return $count;
+	}
+	
+	public function getOperator() {
+		$valid		= array('AND', 'OR');
+		$operator	= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_operator', 'filter_operator', 'AND');
+		
+		return !in_array($operator, $valid) ? 'AND' : $operator;		
 	}
 	
 	public function getSortColumn() {
@@ -975,7 +1018,7 @@ class rseventsproModelEvents extends JModelLegacy
 		return array(JHTML::_('select.option', 'events', JText::_('COM_RSEVENTSPRO_FILTER_NAME')), JHTML::_('select.option', 'description', JText::_('COM_RSEVENTSPRO_FILTER_DESCRIPTION')), 
 			JHTML::_('select.option', 'locations', JText::_('COM_RSEVENTSPRO_FILTER_LOCATION')) ,JHTML::_('select.option', 'categories', JText::_('COM_RSEVENTSPRO_FILTER_CATEGORY')),
 			JHTML::_('select.option', 'tags', JText::_('COM_RSEVENTSPRO_FILTER_TAG')), JHTML::_('select.option', 'featured', JText::_('COM_RSEVENTSPRO_FILTER_FEATURED')),
-			JHTML::_('select.option', 'archived', JText::_('COM_RSEVENTSPRO_FILTER_ARCHIVED')), JHTML::_('select.option', 'child', JText::_('COM_RSEVENTSPRO_FILTER_CHILD')), 
+			JHTML::_('select.option', 'status', JText::_('COM_RSEVENTSPRO_FILTER_STATUS')), JHTML::_('select.option', 'child', JText::_('COM_RSEVENTSPRO_FILTER_CHILD')), 
 			JHTML::_('select.option', 'start', JText::_('COM_RSEVENTSPRO_FILTER_FROM')), JHTML::_('select.option', 'end', JText::_('COM_RSEVENTSPRO_FILTER_TO'))
 		);
 	}
@@ -993,10 +1036,32 @@ class rseventsproModelEvents extends JModelLegacy
 		);
 	}
 	
+	public function getOrderingText() {
+		$ordering = $this->getOrdering();
+		foreach ($ordering as $order) {
+			if ($order->value == $this->getSortColumn()) {
+				return $order->text;
+			}
+		}
+		
+		return JText::_('COM_RSEVENTSPRO_ORDERING_START_DATE');
+	}
+	
 	public function getOrder() {
 		return array(JHTML::_('select.option', 'ASC', JText::_('COM_RSEVENTSPRO_GLOBAL_ASCENDING')), 
 			JHTML::_('select.option', 'DESC', JText::_('COM_RSEVENTSPRO_GLOBAL_DESCENDING'))
 		);
+	}
+	
+	public function getOrderText() {
+		$order = $this->getOrder();
+		foreach ($order as $direction) {
+			if ($direction->value == $this->getSortOrder()) {
+				return $direction->text;
+			}
+		}
+		
+		return JText::_('COM_RSEVENTSPRO_GLOBAL_DESCENDING');
 	}
 	
 	/**
@@ -1008,5 +1073,16 @@ class rseventsproModelEvents extends JModelLegacy
 		}
 		
 		return;
+	}
+	
+	/**
+	 * Method to get Tabs
+	 *
+	 * @return	mixed	The Joomla! Tabs.
+	 * @since	1.6
+	 */
+	public function getTabs() {
+		$tabs = new RSTabs('batch');
+		return $tabs;
 	}
 }

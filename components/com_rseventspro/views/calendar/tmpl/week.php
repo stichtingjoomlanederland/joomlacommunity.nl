@@ -1,21 +1,47 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-$count = count($this->events);
-?>
-
+$count = count($this->events); ?>
 
 <h1><?php echo JText::sprintf('COM_RSEVENTSPRO_EVENTS_FROM_TO',$this->from,$this->to); ?></h1>
 
+<div class="clearfix">
+	<a href="<?php echo $this->prev; ?>" class="btn pull-left"><i class="fa fa-chevron-left"></i> <?php echo JText::_('COM_RSEVENTSPRO_PREVIOUS_WEEK'); ?></a>
+	<a href="<?php echo $this->next; ?>" class="btn pull-right"><?php echo JText::_('COM_RSEVENTSPRO_NEXT_WEEK'); ?> <i class="fa fa-chevron-right"></i></a>
+</div>
+
+<?php $rss = $this->params->get('rss',1); ?>
+<?php $ical = $this->params->get('ical',1); ?>
+<?php if ($rss || $ical || $this->config->timezone) { ?>
+<div class="rs_rss">
+	<?php if ($this->config->timezone) { ?>
+	<a href="#timezoneModal" data-toggle="modal" class="<?php echo rseventsproHelper::tooltipClass(); ?> rsepro-timezone" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE')); ?>">
+		<i class="fa fa-clock-o"></i>
+	</a>
+	<?php } ?>
+	
+	<?php if ($rss) { ?>
+	<a href="<?php echo $this->rss; ?>" class="<?php echo rseventsproHelper::tooltipClass(); ?> rsepro-rss" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_RSS')); ?>">
+		<i class="fa fa-rss-square"></i>
+	</a>
+	<?php } ?>
+	<?php if ($ical) { ?>
+	<a href="<?php echo $this->ical; ?>" class="<?php echo rseventsproHelper::tooltipClass(); ?> rsepro-ical" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_ICS')); ?>">
+		<i class="fa fa-calendar"></i>
+	</a>
+	<?php } ?>
+</div>
+<?php } ?>
+
 <?php if (!empty($this->events)) { ?>
 <ul class="rs_events_container" id="rs_events_container">
-	<?php foreach($this->events as $eventid) { ?>
-	<?php $details = rseventsproHelper::details($eventid->id); ?>
+	<?php $eventIds = rseventsproHelper::getEventIds($this->events, 'id'); ?>
+	<?php $this->events = rseventsproHelper::details($eventIds); ?>
+	<?php foreach($this->events as $details) { ?>
 	<?php if (isset($details['event']) && !empty($details['event'])) $event = $details['event']; else continue; ?>
 	<?php $full = rseventsproHelper::eventisfull($event->id); ?>
 	<?php $ongoing = rseventsproHelper::ongoing($event->id); ?>
@@ -29,45 +55,84 @@ $count = count($this->events);
 		<div class="rs_options" style="display:none;">
 			<?php if ((!empty($this->permissions['can_edit_events']) || $event->owner == $this->user || $event->sid == $this->user || $this->admin) && !empty($this->user)) { ?>
 				<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=edit&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
-					<img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/edit.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_EDIT'); ?>" />
+					<i class="fa fa-pencil"></i>
 				</a>
 			<?php } ?>
 			<?php if ((!empty($this->permissions['can_delete_events']) || $event->owner == $this->user || $event->sid == $this->user || $this->admin) && !empty($this->user)) { ?>
 				<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.remove&id='.rseventsproHelper::sef($event->id,$event->name)); ?>" onclick="return confirm('<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_DELETE_CONFIRMATION'); ?>');">
-					<img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/delete.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_DELETE'); ?>" />
+					<i class="fa fa-trash"></i>
 				</a>
 			<?php } ?>
 		</div>
 		
+		<?php if (!empty($event->options['show_icon_list'])) { ?>
 		<div class="rs_event_image" itemprop="image">
-			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name)); ?>" class="rs_event_link">
-				<?php if (!empty($event->icon)) { ?>
-					<img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/events/thumbs/s_<?php echo $event->icon.'?nocache='.uniqid(''); ?>" alt="" width="<?php echo $this->config->icon_small_width; ?>" />
-				<?php } else { ?>
-					<img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/blank.png" alt="" width="70" />
-				<?php }  ?>
+			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)); ?>" class="rs_event_link thumbnail">
+				<img src="<?php echo JRoute::_('index.php?option=com_rseventspro&task=image&id='.rseventsproHelper::sef($event->id,$event->name), false); ?>" alt="" width="<?php echo $this->config->icon_small_width; ?>" />
 			</a>
 		</div>
+		<?php } ?>
 	
 		<div class="rs_event_details">
-			<span itemprop="name">
-				<a itemprop="url" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name)); ?>" class="rs_event_link<?php echo $full ? ' rs_event_full' : ''; ?><?php echo $ongoing ? ' rs_event_ongoing' : ''; ?>"><?php echo $event->name; ?></a> <?php if (!$event->completed) echo JText::_('COM_RSEVENTSPRO_GLOBAL_INCOMPLETE_EVENT'); ?> <?php if (!$event->published) echo JText::_('COM_RSEVENTSPRO_GLOBAL_UNPUBLISHED_EVENT'); ?>
-			</span>
-			<span>
+			<div itemprop="name">
+				<a itemprop="url" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)); ?>" class="rs_event_link<?php echo $full ? ' rs_event_full' : ''; ?><?php echo $ongoing ? ' rs_event_ongoing' : ''; ?>"><?php echo $event->name; ?></a> <?php if (!$event->completed) echo JText::_('COM_RSEVENTSPRO_GLOBAL_INCOMPLETE_EVENT'); ?> <?php if (!$event->published) echo JText::_('COM_RSEVENTSPRO_GLOBAL_UNPUBLISHED_EVENT'); ?>
+			</div>
+			<div>
 				<?php if ($event->allday) { ?>
-				<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_ON'); ?> <b><?php echo rseventsproHelper::date($event->start,$this->config->global_date,true); ?></b>
-				<?php } else { ?>
-				<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_FROM'); ?> <b><?php echo rseventsproHelper::date($event->start,rseventsproHelper::showMask('start',$event->options),true); ?></b> <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_TO_LOWERCASE'); ?> <b><?php echo rseventsproHelper::date($event->end,rseventsproHelper::showMask('end',$event->options),true); ?></b>
+				<?php if (!empty($event->options['start_date_list'])) { ?>
+				<span class="rsepro-event-on-block">
+				<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_ON'); ?> <b><?php echo rseventsproHelper::showdate($event->start,$this->config->global_date,true); ?></b>
+				</span>
 				<?php } ?>
-			</span>
-			<span>
-				<?php if ($event->locationid && $event->lpublished) { echo JText::_('COM_RSEVENTSPRO_GLOBAL_AT'); ?> <a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=location&id='.rseventsproHelper::sef($event->locationid,$event->location)); ?>"><?php echo $event->location; ?></a> <?php } ?>
-				<?php echo $categories.' '.$tags; ?>
-			</span>
+				<?php } else { ?>
+				
+				<?php if (!empty($event->options['start_date_list']) || !empty($event->options['start_time_list']) || !empty($event->options['end_date_list']) || !empty($event->options['end_time_list'])) { ?>
+				<?php if (!empty($event->options['start_date_list']) || !empty($event->options['start_time_list'])) { ?>
+				<?php if ((!empty($event->options['start_date_list']) || !empty($event->options['start_time_list'])) && empty($event->options['end_date_list']) && empty($event->options['end_time_list'])) { ?>
+				<span class="rsepro-event-starting-block">
+				<?php echo JText::_('COM_RSEVENTSPRO_EVENT_STARTING_ON'); ?>
+				<?php } else { ?>
+				<span class="rsepro-event-from-block">
+				<?php echo JText::_('COM_RSEVENTSPRO_EVENT_FROM'); ?> 
+				<?php } ?>
+				<b><?php echo rseventsproHelper::showdate($event->start,rseventsproHelper::showMask('list_start',$event->options),true); ?></b>
+				</span>
+				<?php } ?>
+				<?php if (!empty($event->options['end_date_list']) || !empty($event->options['end_time_list'])) { ?>
+				<?php if ((!empty($event->options['end_date_list']) || !empty($event->options['end_time_list'])) && empty($event->options['start_date_list']) && empty($event->options['start_time_list'])) { ?>
+				<span class="rsepro-event-ending-block">
+				<?php echo JText::_('COM_RSEVENTSPRO_EVENT_ENDING_ON'); ?>
+				<?php } else { ?>
+				<span class="rsepro-event-until-block">
+				<?php echo JText::_('COM_RSEVENTSPRO_EVENT_UNTIL'); ?>
+				<?php } ?>
+				<b><?php echo rseventsproHelper::showdate($event->end,rseventsproHelper::showMask('list_end',$event->options),true); ?></b>
+				</span>
+				<?php } ?>
+				<?php } ?>
+				
+				<?php } ?>
+			</div>
+			
+			<?php if (!empty($event->options['show_location_list']) || !empty($event->options['show_categories_list']) || !empty($event->options['show_tags_list'])) { ?>
+			<div>
+				<?php if ($event->locationid && $event->lpublished && !empty($event->options['show_location_list'])) { ?>
+				<span class="rsepro-event-location-block" itemprop="location" itemscope itemtype="http://schema.org/Place"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_AT'); ?> <a itemprop="url" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=location&id='.rseventsproHelper::sef($event->locationid,$event->location)); ?>"><span itemprop="name"><?php echo $event->location; ?></span></a>
+				<span itemprop="address" style="display:none;"><?php echo $event->address; ?></span>
+				</span> 
+				<?php } ?>
+				<?php if (!empty($event->options['show_categories_list'])) { ?>
+				<span class="rsepro-event-categories-block"><?php echo $categories; ?></span> 
+				<?php } ?>
+				<?php if (!empty($event->options['show_tags_list'])) { ?>
+				<span class="rsepro-event-tags-block"><?php echo $tags; ?></span> 
+				<?php } ?>
+			</div>
+			<?php } ?>
 		</div>
 		
-		<div style="display:none"><span itemprop="startDate"><?php echo rseventsproHelper::date($event->start,'Y-m-d H:i:s'); ?></span></div>
-		<div style="display:none"><span itemprop="endDate"><?php echo rseventsproHelper::date($event->end,'Y-m-d H:i:s'); ?></span></div>
+		<meta content="<?php echo rseventsproHelper::showdate($event->start,'Y-m-d H:i:s'); ?>" itemprop="startDate" />
+		<?php if (!$event->allday) { ?><meta content="<?php echo rseventsproHelper::showdate($event->end,'Y-m-d H:i:s'); ?>" itemprop="endDate" /><?php } ?>
 	</li>
 	<?php } ?>
 </ul>
@@ -82,27 +147,59 @@ $count = count($this->events);
 
 <span id="total" class="rs_hidden"><?php echo $this->total; ?></span>
 <span id="Itemid" class="rs_hidden"><?php echo JFactory::getApplication()->input->getInt('Itemid'); ?></span>
+<span id="langcode" class="rs_hidden"><?php echo rseventsproHelper::getLanguageCode(); ?></span>
 <span id="date" class="rs_hidden"><?php echo JFactory::getApplication()->input->getString('date'); ?></span>
 <?php } else echo JText::_('COM_RSEVENTSPRO_GLOBAL_NO_EVENTS'); ?>
 
+<?php if ($this->config->timezone) { ?>
+<div id="timezoneModal" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3><?php echo JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE'); ?></h3>
+	</div>
+	<div class="modal-body">
+		<form method="post" action="<?php echo htmlentities(JUri::getInstance(), ENT_COMPAT, 'UTF-8'); ?>" id="timezoneForm" name="timezoneForm" class="form-horizontal">
+			<div class="control-group">
+				<div class="control-label">
+					<label><?php echo JText::_('COM_RSEVENTSPRO_DEFAULT_TIMEZONE'); ?></label>
+				</div>
+				<div class="controls">
+					<span class="btn disabled"><?php echo $this->timezone; ?></span>
+				</div>
+			</div>
+			<div class="control-group">
+				<div class="control-label">
+					<label for="timezone"><?php echo JText::_('COM_RSEVENTSPRO_SELECT_TIMEZONE'); ?></label>
+				</div>
+				<div class="controls">
+					<?php echo JHtml::_('rseventspro.timezones','timezone'); ?>
+				</div>
+			</div>
+			<input type="hidden" name="task" value="timezone" />
+			<input type="hidden" name="return" value="<?php echo $this->timezoneReturn; ?>" />
+		</form>
+	</div>
+	<div class="modal-footer">
+		<button class="btn" data-dismiss="modal" aria-hidden="true"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
+		<button class="btn btn-primary" type="button" onclick="document.timezoneForm.submit();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button>
+	</div>
+</div>
+<?php } ?>
+
 <script type="text/javascript">
-	window.addEvent('domready', function(){
+	jQuery(document).ready(function() {
 		<?php if ($this->total > $count) { ?>
-		$('rsepro_loadmore').addEvent('click', function(el) {
-			var lstart = $$('#rs_events_container > li');
-			rspagination('week',lstart.length);
+		jQuery('#rsepro_loadmore').on('click', function() {
+			rspagination('week', jQuery('#rs_events_container > li').length);
 		});
 		<?php } ?>
-		
 		<?php if (!empty($count)) { ?>
-		$$('#rs_events_container li').addEvents({
-			mouseenter: function(){ 
-				if (isset($(this).getElement('div.rs_options')))
-					$(this).getElement('div.rs_options').style.display = '';
+		jQuery('#rs_events_container li').on({
+			mouseenter: function() {
+				jQuery(this).find('div.rs_options').css('display','');
 			},
-			mouseleave: function(){      
-				if (isset($(this).getElement('div.rs_options')))
-					$(this).getElement('div.rs_options').style.display = 'none';
+			mouseleave: function() {
+				jQuery(this).find('div.rs_options').css('display','none');
 			}
 		});
 		<?php } ?>

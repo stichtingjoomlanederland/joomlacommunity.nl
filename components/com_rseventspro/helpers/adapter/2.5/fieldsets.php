@@ -1,8 +1,7 @@
 <?php
 /**
-* @version 1.0.0
 * @package RSJoomla! Adapter
-* @copyright (C) 2012 www.rsjoomla.com
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/licenses/gpl-2.0.html
 */
 
@@ -58,9 +57,11 @@ abstract class JHtmlRSFieldset {
 	 *
 	 * @return  string  HTML to start a fieldset element
 	 */
-	public static function element($label, $input) {
+	public static function element($label, $input, $id = null) {
+		$id = $id ? ' id="'.$id.'"' : '';
+		
 		$html   = array();
-		$html[] = "\t\t".'<li>';
+		$html[] = "\t\t".'<li'.$id.'>';
 		$html[] = "\t\t\t".$label.$input;
 		$html[] = "\t\t".'</li>';
 		

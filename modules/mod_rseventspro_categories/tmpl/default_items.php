@@ -1,16 +1,18 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2012 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
 // no direct access
 defined('_JEXEC') or die('Restricted access'); ?>
 <?php $open = !$links ? 'target="_blank"' : ''; ?>
-<?php foreach ($list as $item) { ?>
-<?php $events = modRseventsProCategories::getCount($item->id); ?>
+<?php foreach ($list as $item) {
+if ($counter || $remove) {
+	$events = modRseventsProCategories::getCount($item->id, $params);
+}
+?>
 <li> 
 	<?php $levelup = $item->level - $startLevel - 1; ?>
 	<h<?php echo $params->get('item_heading',4) + $levelup; ?>>

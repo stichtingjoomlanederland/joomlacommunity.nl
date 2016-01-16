@@ -1,12 +1,10 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-jimport( 'joomla.application.component.model' );
 
 class rseventsproModelRseventspro extends JModelLegacy
 {	
@@ -26,14 +24,16 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$db		= JFactory::getDBO();
 		$query	= $db->getQuery(true);
 		
-		$query->clear();
-		$query->select('COUNT(u.'.$db->qn('id').') as subscribers, e.'.$db->qn('id').', e.'.$db->qn('name').', e.'.$db->qn('start').', e.'.$db->qn('end'))
-				->from($db->qn('#__rseventspro_events').' e')
-				->join('left',$db->qn('#__rseventspro_users').' u ON e.'.$db->qn('id').' = u.'.$db->qn('ide'))
-				->where('e.'.$db->qn('published').' = 1')
-				->where('e.'.$db->qn('start').' > '.$db->q(rseventsproHelper::date('now','Y-m-d H:i:s')))
-				->group('e.'.$db->qn('id'))
-				->order('e.'.$db->qn('start').' ASC');
+		$query->clear()
+			->select('COUNT('.$db->qn('u.id').') as subscribers')->select($db->qn('e.id'))->select($db->qn('e.name'))
+			->select($db->qn('e.start'))->select($db->qn('e.end'))->select($db->qn('e.allday'))
+			->from($db->qn('#__rseventspro_events','e'))
+			->join('LEFT',$db->qn('#__rseventspro_users','u').' ON '.$db->qn('e.id').' = '.$db->qn('u.ide'))
+			->where($db->qn('e.published').' = 1')
+			->where($db->qn('e.completed').' = 1')
+			->where($db->qn('e.start').' > '.$db->q(JFactory::getDate()->toSql()))
+			->group($db->qn('e.id'))
+			->order($db->qn('e.start').' ASC');
 		
 		$db->setQuery($query, 0, rseventsproHelper::getConfig('dashboard_upcoming_nr','int',5));
 		return $db->loadObjectList();
@@ -46,11 +46,12 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$db		= JFactory::getDBO();
 		$query	= $db->getQuery(true);
 		
-		$query->clear();
-		$query->select('e.'.$db->qn('id','eid').', e.'.$db->qn('name','ename').', u.'.$db->qn('id').', u.'.$db->qn('name').', u.'.$db->qn('date'))
-				->from($db->qn('#__rseventspro_users','u'))
-				->join('left',$db->qn('#__rseventspro_events','e').' ON e.'.$db->qn('id').' = u.'.$db->qn('ide'))
-				->order('u.'.$db->qn('date').' DESC');
+		$query->clear()
+			->select($db->qn('e.id','eid'))->select($db->qn('e.name','ename'))
+			->select($db->qn('u.id'))->select($db->qn('u.name'))->select($db->qn('u.date'))
+			->from($db->qn('#__rseventspro_users','u'))
+			->join('left',$db->qn('#__rseventspro_events','e').' ON '.$db->qn('e.id').' = '.$db->qn('u.ide'))
+			->order($db->qn('u.date').' DESC');
 		
 		$db->setQuery($query, 0, rseventsproHelper::getConfig('dashboard_subscribers_nr','int',5));
 		return $db->loadObjectList();
@@ -112,5 +113,31 @@ class rseventsproModelRseventspro extends JModelLegacy
 			break;
 		}
 		return $comments;
+	}
+	
+	public function getButtons() {
+		$app	 = JFactory::getApplication();
+		$buttons = array();
+		
+		$buttons[] = array('icon' => 'fa fa-calendar fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_EVENTS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=events'));
+		$buttons[] = array('icon' => 'fa fa-map-marker fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_LOCATIONS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=locations'));
+		$buttons[] = array('icon' => 'fa fa-book fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_CATEGORIES'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=categories'));
+		$buttons[] = array('icon' => 'fa fa-user fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_SUBSCRIPTIONS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=subscriptions'));
+		$buttons[] = array('icon' => 'fa fa-scissors fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_DISCOUNTS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=discounts'));
+		$buttons[] = array('icon' => 'fa fa-credit-card fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_PAYMENTS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=payments'));
+		$buttons[] = array('icon' => 'fa fa-users fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_GROUPS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=groups'));
+		$buttons[] = array('icon' => 'fa fa-upload fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_IMPORTS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=imports'));
+		$buttons[] = array('icon' => 'fa fa-archive fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_BACKUP'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=backup'));
+		$buttons[] = array('icon' => 'fa fa-envelope-o fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_EMAILS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=messages'));
+		$buttons[] = array('icon' => 'fa fa-bars fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_SETTINGS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=settings'));
+		$buttons[] = array('icon' => 'fa fa-bell-o fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_SUBMENU_UPDATE'), 'link' => JRoute::_('index.php?option=com_rseventspro&layout=update'));
+		
+		if (rseventsproHelper::getConfig('dashboard_sync')) {
+			$buttons[] = array('icon' => 'fa fa-facebook-official fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_SYNC_FACEBOOK'), 'link' => JRoute::_('index.php?option=com_rseventspro&task=settings.facebook'));
+		}
+		
+		$app->triggerEvent('rsepro_adminDashboard',array(array('buttons' => &$buttons)));
+		
+		return $buttons;
 	}
 }

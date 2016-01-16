@@ -1,19 +1,15 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
-defined( '_JEXEC' ) or die( 'Restricted access' ); 
-jimport( 'joomla.application.component.view');
+defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class rseventsproViewCalendar extends JViewLegacy
 {
 	public function display($tpl = null) {
-		JHTML::_('behavior.modal');
-		
 		$doc		= JFactory::getDocument();
 		$app		= JFactory::getApplication();
 		$user		= JFactory::getUser();
@@ -28,6 +24,23 @@ class rseventsproViewCalendar extends JViewLegacy
 		$this->params		= rseventsproHelper::getParams();
 		$this->permissions	= rseventsproHelper::permissions();
 		$this->config		= rseventsproHelper::getConfig();
+		$this->operator		= $this->get('Operator');
+		
+		$this->timezoneReturn	= base64_encode(JUri::getInstance());
+		$this->timezone			= JFactory::getConfig()->get('offset');
+		
+		$uri = JUri::getInstance();
+		$clone = clone ($uri);
+		
+		$clone->setVar('format','feed');
+		$clone->setVar('type','rss');
+		$this->rss = $clone->toString();
+		$clone->setVar('format','raw');
+		$clone->setVar('type','ical');
+		$this->ical = $clone->toString();
+		
+		$mid = $app->input->getInt('mid',0);
+		$mid = $mid ? '&mid='.$mid : '';
 		
 		// Add Joomla! menu metadata
 		if ($this->params->get('menu-meta_description'))
@@ -40,9 +53,7 @@ class rseventsproViewCalendar extends JViewLegacy
 			$doc->setMetadata('robots', $this->params->get('robots'));
 		
 		// Add custom scripts
-		$doc->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/scripts.js');
-		$doc->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/dom.js');
-		$doc->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/calendar.css');
+		$doc->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/calendar.css?v='.RSEPRO_RS_REVISION);
 		
 		// Get events
 		$events = $this->get('Events');
@@ -61,33 +72,19 @@ class rseventsproViewCalendar extends JViewLegacy
 		
 		if ($layout == 'default') {
 			require_once JPATH_SITE.'/components/com_rseventspro/helpers/calendar.php';
-			$lists		= array();
-			$doc->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/FloatingTips.js');
 			
 			// Get colors
 			$this->legend = $this->get('colors');
 			
 			if (!empty($this->legend)) {
-				$doc->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/fancyselect/fancyselect.js?v='.RSEPRO_RS_REVISION);
-				$doc->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/js/fancyselect/fancyselect.css?v='.RSEPRO_RS_REVISION);
-				
 				$this->selected = $this->get('selected');
 			}
 			
 			// Add search bar
 			if ($this->params->get('search',1)) {
-				$doc->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/select.js');
-				$doc->addCustomTag('<!--[if IE 7]>
-				<style type="text/css">
-					.elSelect { width: 200px; }
-					.optionsContainer { margin-top: -30px; }
-					.selectedOption { width: 165px !important; }
-				</style>
-				<![endif]-->');
-			
-				
-				$lists['filter_from']		= JHTML::_('select.genericlist', $this->get('FilterOptions'), 'filter_from[]', 'size="1"','value','text');
-				$lists['filter_condition']	= JHTML::_('select.genericlist', $this->get('FilterConditions'), 'filter_condition[]', 'size="1"','value','text');
+				if ($doc->getType() == 'html') {
+					$doc->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.filter.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
+				}
 				
 				$filters			= $this->get('filters');
 				$this->columns		= $filters[0];
@@ -95,9 +92,10 @@ class rseventsproViewCalendar extends JViewLegacy
 				$this->values		= $filters[2];
 			}
 			
-			//set the pathway
-			if (!$menu) 
+			// Set the pathway
+			if (!$menu) {
 				$pathway->addItem(JText::_('COM_RSEVENTSPRO_BC_CALENDAR'));
+			}
 			
 			$cmonth	= $app->input->getInt('month', '0');
 			$cyear	= $app->input->getInt('year', '0');
@@ -105,48 +103,61 @@ class rseventsproViewCalendar extends JViewLegacy
 			// Get a new instance of the calendar
 			$calendar = new RSEPROCalendar($this->events,$this->params);
 			
-			if ($cmonth && $cyear)
+			if ($cmonth && $cyear) {
 				$calendar->setDate($cmonth, $cyear);
+			}
 			
 			$this->calendar = $calendar;
-			$months = array();
-			$years = array();
+			$this->months	= array();
+			$this->years	= array();
 			
-			if (!empty($this->calendar->months))
-			foreach ($this->calendar->months as $i => $month) 
-				$months[] = JHTML::_('select.option', $i, $month);
+			if (!empty($this->calendar->months)) {
+				foreach ($this->calendar->months as $i => $month) {
+					$this->months[] = JHTML::_('select.option', $i, $month);
+				}
+			}
 			
-			for($j = 2008; $j <= 2023; $j++)
-				$years[] = JHTML::_('select.option', $j, $j);
+			$current_year = empty($this->calendar->cyear) ? gmdate('Y') : $this->calendar->cyear;
 			
-			$lists['month'] = JHTML::_('select.genericlist', $months, 'month', 'size="1" class="rs_cal_select" onchange="document.adminForm.submit()"','value','text',$this->calendar->cmonth);
-			$lists['year'] = JHTML::_('select.genericlist', $years, 'year', 'size="1" class="rs_cal_select" onchange="document.adminForm.submit()"','value','text',$this->calendar->cyear);
+			for($j = ($current_year - 5); $j <= ($current_year + 5); $j++) {
+				$this->years[] = JHTML::_('select.option', $j, $j);
+			}
 			
-			$this->lists  = $lists ;
 		} elseif ($layout == 'day') {
 			$date = $app->input->getString('date');
 			$date = str_replace(array('-',':'),'/',$date);
 			list($m,$d,$y) = explode('/',$date,3);
 			
-			$start = rseventsproHelper::date($y.'-'.$m.'-'.$d.' 00:00:00',null,false,true);
-			$start->setTZByID($start->getTZID());
-			$start->convertTZ(new RSDate_Timezone('GMT'));
+			$start = JFactory::getDate($y.'-'.$m.'-'.$d.' 00:00:00');
+			$this->date = rseventsproHelper::translatedate($start->format(rseventsproHelper::getConfig('global_date')));
+			$start->modify('-1 days');
+			$prev = $start->format('m-d-Y');
+			$start->modify('+2 days');
+			$next = $start->format('m-d-Y');
 			
-			$this->date = rseventsproHelper::translatedate($start->formatLikeDate(rseventsproHelper::getConfig('global_date')));
+			$this->next = rseventsproHelper::route('index.php?option=com_rseventspro&view=calendar&layout=day&date='.$next.$mid);
+			$this->prev = rseventsproHelper::route('index.php?option=com_rseventspro&view=calendar&layout=day&date='.$prev.$mid);
 		} elseif ($layout == 'week') {
 			$date = $app->input->getString('date');
 			$date	= str_replace(array('-',':'),'/',$date);
 			list($m,$d,$y) = explode('/',$date,3);
 			
-			$start = rseventsproHelper::date($y.'-'.$m.'-'.$d.' 00:00:00',null,false,true);
-			$start->setTZByID($start->getTZID());
-			$start->convertTZ(new RSDate_Timezone('GMT'));
-			$from = $start->formatLikeDate(rseventsproHelper::getConfig('global_date'));
-			$start->addDays(6);
-			$to	  = $start->formatLikeDate(rseventsproHelper::getConfig('global_date'));
+			$start	= JFactory::getDate($y.'-'.$m.'-'.$d.' 00:00:00');
+			$from	= $start->format(rseventsproHelper::getConfig('global_date'));
+			$start->modify('+6 days');
+			$to		= $start->format(rseventsproHelper::getConfig('global_date'));
 			
 			$this->from	= rseventsproHelper::translatedate($from);
 			$this->to	= rseventsproHelper::translatedate($to);
+			
+			$current = JFactory::getDate($y.'-'.$m.'-'.$d.' 00:00:00');
+			$current->modify('-7 days');
+			$prev = $current->format('m-d-Y');
+			$current->modify('+14 days');
+			$next = $current->format('m-d-Y');
+			
+			$this->next = rseventsproHelper::route('index.php?option=com_rseventspro&view=calendar&layout=week&date='.$next.$mid);
+			$this->prev = rseventsproHelper::route('index.php?option=com_rseventspro&view=calendar&layout=week&date='.$prev.$mid);
 		}
 		
 		parent::display($tpl);
@@ -194,13 +205,13 @@ class rseventsproViewCalendar extends JViewLegacy
 	}
 	
 	public function getDetailsBig($event) {
-		$details = $this->escape($event->name).'<br />';
+		$details = '';
 		
 		if ($event->allday) {
-			$details .= '<b>'.JText::_('COM_RSEVENTSPRO_GLOBAL_ON').'</b> '.rseventsproHelper::date($event->start,rseventsproHelper::getConfig('global_date'),true).'<br />';
+			$details .= '<b>'.JText::_('COM_RSEVENTSPRO_GLOBAL_ON').'</b> '.rseventsproHelper::showdate($event->start,rseventsproHelper::getConfig('global_date'),true).'<br />';
 		} else {
-			$details .= '<b>'.JText::_('COM_RSEVENTSPRO_CALENDAR_FROM').'</b> '.rseventsproHelper::date($event->start,null,true).'<br />';
-			$details .= '<b>'.JText::_('COM_RSEVENTSPRO_CALENDAR_TO').'</b> '.rseventsproHelper::date($event->end,null,true).'<br />';
+			$details .= '<b>'.JText::_('COM_RSEVENTSPRO_CALENDAR_FROM').'</b> '.rseventsproHelper::showdate($event->start,null,true).'<br />';
+			$details .= '<b>'.JText::_('COM_RSEVENTSPRO_CALENDAR_TO').'</b> '.rseventsproHelper::showdate($event->end,null,true).'<br />';
 		}
 		
 		return $details;

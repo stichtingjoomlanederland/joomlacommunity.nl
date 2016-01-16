@@ -15,21 +15,30 @@
  * under the License.
  */
 
-require_once JPATH_SITE.'/components/com_rseventspro/helpers/facebook/base_facebook.php';
+require_once "base_facebook.php";
 
 /**
  * Extends the BaseFacebook class with the intent of using
  * PHP sessions to store user ids and access tokens.
  */
-class RSFacebook extends BaseFacebook
+class RSEPROFacebook extends RSEPROBaseFacebook
 {
+  /**
+   * Cookie prefix
+   */
   const FBSS_COOKIE_NAME = 'fbss';
 
-  // We can set this to a high number because the main session
-  // expiration will trump this.
+  /**
+   * We can set this to a high number because the main session
+   * expiration will trump this.
+   */
   const FBSS_COOKIE_EXPIRE = 31556926; // 1 year
 
-  // Stores the shared session ID if one is set.
+  /**
+   * Stores the shared session ID if one is set.
+   *
+   * @var string
+   */
   protected $sharedSessionID;
 
   /**
@@ -38,11 +47,12 @@ class RSFacebook extends BaseFacebook
    * access token if during the course of execution
    * we discover them.
    *
-   * @param Array $config the application configuration. Additionally
+   * @param array $config the application configuration. Additionally
    * accepts "sharedSession" as a boolean to turn on a secondary
    * cookie for environments with a shared session (that is, your app
    * shares the domain with other apps).
-   * @see BaseFacebook::__construct in facebook.php
+   *
+   * @see BaseFacebook::__construct
    */
   public function __construct($config) {
     if (!session_id()) {
@@ -51,12 +61,30 @@ class RSFacebook extends BaseFacebook
     parent::__construct($config);
     if (!empty($config['sharedSession'])) {
       $this->initSharedSession();
+
+      // re-load the persisted state, since parent
+      // attempted to read out of non-shared cookie
+      $state = $this->getPersistentData('state');
+      if (!empty($state)) {
+        $this->state = $state;
+      } else {
+        $this->state = null;
+      }
+
     }
   }
 
+  /**
+   * Supported keys for persistent data
+   *
+   * @var array
+   */
   protected static $kSupportedKeys =
     array('state', 'code', 'access_token', 'user_id');
 
+  /**
+   * Initiates Shared Session
+   */
   protected function initSharedSession() {
     $cookie_name = $this->getSharedSessionCookieName();
     if (isset($_COOKIE[$cookie_name])) {
@@ -95,9 +123,15 @@ class RSFacebook extends BaseFacebook
 
   /**
    * Provides the implementations of the inherited abstract
-   * methods.  The implementation uses PHP sessions to maintain
+   * methods. The implementation uses PHP sessions to maintain
    * a store for authorization codes, user ids, CSRF states, and
    * access tokens.
+   */
+
+  /**
+   * {@inheritdoc}
+   *
+   * @see BaseFacebook::setPersistentData()
    */
   protected function setPersistentData($key, $value) {
     if (!in_array($key, self::$kSupportedKeys)) {
@@ -109,7 +143,12 @@ class RSFacebook extends BaseFacebook
     $_SESSION[$session_var_name] = $value;
   }
 
-  protected function getPersistentData($key, $default = false) {
+  /**
+   * {@inheritdoc}
+   *
+   * @see BaseFacebook::getPersistentData()
+   */
+  public function getPersistentData($key, $default = false) {
     if (!in_array($key, self::$kSupportedKeys)) {
       self::errorLog('Unsupported key passed to getPersistentData.');
       return $default;
@@ -120,6 +159,11 @@ class RSFacebook extends BaseFacebook
       $_SESSION[$session_var_name] : $default;
   }
 
+  /**
+   * {@inheritdoc}
+   *
+   * @see BaseFacebook::clearPersistentData()
+   */
   protected function clearPersistentData($key) {
     if (!in_array($key, self::$kSupportedKeys)) {
       self::errorLog('Unsupported key passed to clearPersistentData.');
@@ -127,9 +171,16 @@ class RSFacebook extends BaseFacebook
     }
 
     $session_var_name = $this->constructSessionVariableName($key);
-    unset($_SESSION[$session_var_name]);
+    if (isset($_SESSION[$session_var_name])) {
+      unset($_SESSION[$session_var_name]);
+    }
   }
 
+  /**
+   * {@inheritdoc}
+   *
+   * @see BaseFacebook::clearAllPersistentData()
+   */
   protected function clearAllPersistentData() {
     foreach (self::$kSupportedKeys as $key) {
       $this->clearPersistentData($key);
@@ -139,6 +190,9 @@ class RSFacebook extends BaseFacebook
     }
   }
 
+  /**
+   * Deletes Shared session cookie
+   */
   protected function deleteSharedSessionCookie() {
     $cookie_name = $this->getSharedSessionCookieName();
     unset($_COOKIE[$cookie_name]);
@@ -146,10 +200,23 @@ class RSFacebook extends BaseFacebook
     setcookie($cookie_name, '', 1, '/', '.'.$base_domain);
   }
 
+  /**
+   * Returns the Shared session cookie name
+   *
+   * @return string The Shared session cookie name
+   */
   protected function getSharedSessionCookieName() {
     return self::FBSS_COOKIE_NAME . '_' . $this->getAppId();
   }
 
+  /**
+   * Constructs and returns the name of the session key.
+   *
+   * @see setPersistentData()
+   * @param string $key The key for which the session variable name to construct.
+   *
+   * @return string The name of the session key.
+   */
   protected function constructSessionVariableName($key) {
     $parts = array('fb', $this->getAppId(), $key);
     if ($this->sharedSessionID) {

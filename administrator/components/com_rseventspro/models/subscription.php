@@ -1,12 +1,10 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-jimport( 'joomla.application.component.model' );
 
 class rseventsproModelSubscription extends JModelAdmin
 {
@@ -145,6 +143,7 @@ class rseventsproModelSubscription extends JModelAdmin
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
 		$active	= rseventsproHelper::getConfig('active_events');
+		$tz		= JFactory::getConfig()->get('offset');
 		
 		$query->clear()
 			->select($db->qn('id','value'))
@@ -153,14 +152,22 @@ class rseventsproModelSubscription extends JModelAdmin
 			->from($db->qn('#__rseventspro_events'))
 			->where($db->qn('registration').' = 1');
 		
+		$today = JFactory::getDate();
+		$today->setTime(0,0,0);
+		$today = $today->toSql();
+		
+		$today = JFactory::getDate($today, $tz);
+		$today->setTimezone(new DateTimezone('UTC'));
+		$today = $today->toSql();
+		
 		if ($active) {
-			$query->where('(('.$db->qn('end').' >= '.$db->q(JFactory::getDate()->toSql()).' AND '.$db->qn('end').' != '.$db->q($db->getNullDate()).') OR ('.$db->qn('end').' = '.$db->q($db->getNullDate()).' AND '.$db->qn('start').' >= '.$db->q(JFactory::getDate()->toSql()).'))');
+			$query->where('(('.$db->qn('end').' >= '.$db->q(JFactory::getDate()->toSql()).' AND '.$db->qn('end').' != '.$db->q($db->getNullDate()).') OR ('.$db->qn('end').' = '.$db->q($db->getNullDate()).' AND '.$db->qn('start').' >= '.$db->q($today).'))');
 		}
 		
 		$db->setQuery($query);
 		if ($events = $db->loadObjectList()) {
 			foreach ($events as $i => $event) {
-				$events[$i]->text = $event->text.' ('.rseventsproHelper::date($event->start).')';
+				$events[$i]->text = $event->text.' ('.rseventsproHelper::showdate($event->start).')';
 			}
 		}
 		
@@ -318,8 +325,7 @@ class rseventsproModelSubscription extends JModelAdmin
 			
 			// Send registration email
 			if (JFactory::getApplication()->input->getInt('registration',0))
-				rseventsproHelper::confirm($table->id,true);
-			
+				rseventsproHelper::confirm($table->id, true, false);
 		}
 		
 		// Send activation email
@@ -333,5 +339,24 @@ class rseventsproModelSubscription extends JModelAdmin
 		$this->setState($this->getName() . '.id', $table->id);
 		
 		return true;
+	}
+	
+	/**
+	 * Method to confirm subscriber.
+	 */
+	public function confirmsubscriber($pks) {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		
+		$query->clear()
+			->update('#__rseventspro_users')
+			->set($db->qn('confirmed').' = 1')
+			->where($db->qn('id').' IN ('.implode(',',$pks).')');
+		$db->setQuery($query);
+		if ($db->execute()) {
+			return 1;
+		}
+		
+		return 0;
 	}
 }

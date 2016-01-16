@@ -1,8 +1,7 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSSeo! 1.0.0
-* @copyright (C) 2009-2012 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -12,113 +11,13 @@ defined('_JEXEC') or die('Restricted access');?>
 <div class="row-fluid">
 	<div class="width-<?php echo $this->middle ? 30 : 70; ?> fltlft">
 		<div class="dashboard-container">
+			<?php foreach ($this->buttons as $button) { ?>
 			<div class="rsspan2">
 				<div class="dashboard-wraper">
 					<div class="dashboard-content"> 
-						<a href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=events'); ?>"> 
-							<img src="<?php echo JURI::root(); ?>administrator/components/com_rseventspro/assets/images/dashboard/events.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_EVENTS'); ?>" />
-							<span class="dashboard-title"><?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_EVENTS'); ?></span> 
-						</a> 
-					</div>
-				</div>
-			</div>
-			<div class="rsspan2">
-				<div class="dashboard-wraper">
-					<div class="dashboard-content"> 
-						<a href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=locations'); ?>"> 
-							<img src="<?php echo JURI::root(); ?>administrator/components/com_rseventspro/assets/images/dashboard/locations.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_LOCATIONS'); ?>" />
-							<span class="dashboard-title"><?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_LOCATIONS'); ?></span> 
-						</a> 
-					</div>
-				</div>
-			</div>
-			<div class="rsspan2">
-				<div class="dashboard-wraper">
-					<div class="dashboard-content"> 
-						<a href="<?php echo JRoute::_('index.php?option=com_categories&extension=com_rseventspro'); ?>"> 
-							<img src="<?php echo JURI::root(); ?>administrator/components/com_rseventspro/assets/images/dashboard/categories.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_CATEGORIES'); ?>" />
-							<span class="dashboard-title"><?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_CATEGORIES'); ?></span> 
-						</a> 
-					</div>
-				</div>
-			</div>
-			<div class="rsspan2">
-				<div class="dashboard-wraper">
-					<div class="dashboard-content"> 
-						<a href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=tags'); ?>"> 
-							<img src="<?php echo JURI::root(); ?>administrator/components/com_rseventspro/assets/images/dashboard/tags.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_TAGS'); ?>" />
-							<span class="dashboard-title"><?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_TAGS'); ?></span> 
-						</a> 
-					</div>
-				</div>
-			</div>
-			<div class="rsspan2">
-				<div class="dashboard-wraper">
-					<div class="dashboard-content"> 
-						<a href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=subscriptions'); ?>"> 
-							<img src="<?php echo JURI::root(); ?>administrator/components/com_rseventspro/assets/images/dashboard/subscriptions.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_SUBSCRIPTIONS'); ?>" />
-							<span class="dashboard-title"><?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_SUBSCRIPTIONS'); ?></span> 
-						</a> 
-					</div>
-				</div>
-			</div>
-			<div class="rsspan2">
-				<div class="dashboard-wraper">
-					<div class="dashboard-content"> 
-						<a href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=payments'); ?>"> 
-							<img src="<?php echo JURI::root(); ?>administrator/components/com_rseventspro/assets/images/dashboard/payments.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_PAYMENTS'); ?>" />
-							<span class="dashboard-title"><?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_PAYMENTS'); ?></span> 
-						</a> 
-					</div>
-				</div>
-			</div>
-			<div class="rsspan2">
-				<div class="dashboard-wraper">
-					<div class="dashboard-content"> 
-						<a href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=groups'); ?>"> 
-							<img src="<?php echo JURI::root(); ?>administrator/components/com_rseventspro/assets/images/dashboard/groups.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_GROUPS'); ?>" />
-							<span class="dashboard-title"><?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_GROUPS'); ?></span> 
-						</a> 
-					</div>
-				</div>
-			</div>
-			<div class="rsspan2">
-				<div class="dashboard-wraper">
-					<div class="dashboard-content"> 
-						<a href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=imports'); ?>"> 
-							<img src="<?php echo JURI::root(); ?>administrator/components/com_rseventspro/assets/images/dashboard/imports.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_IMPORTS'); ?>" />
-							<span class="dashboard-title"><?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_IMPORTS'); ?></span> 
-						</a> 
-					</div>
-				</div>
-			</div>
-			<div class="rsspan2">
-				<div class="dashboard-wraper">
-					<div class="dashboard-content"> 
-						<a href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=settings'); ?>"> 
-							<img src="<?php echo JURI::root(); ?>administrator/components/com_rseventspro/assets/images/dashboard/settings.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_SETTINGS'); ?>" />
-							<span class="dashboard-title"><?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_SETTINGS'); ?></span> 
-						</a> 
-					</div>
-				</div>
-			</div>
-			<?php if ($this->config->dashboard_sync) { ?>
-			<div class="rsspan2">
-				<div class="dashboard-wraper">
-					<div class="dashboard-content"> 
-						<a href="javascript:void(0)" onclick="Joomla.submitbutton('settings.google')"> 
-							<img src="<?php echo JURI::root(); ?>administrator/components/com_rseventspro/assets/images/dashboard/sync.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_SYNC_GOOGLE'); ?>" />
-							<span class="dashboard-title"><?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_SYNC_GOOGLE'); ?></span> 
-						</a> 
-					</div>
-				</div>
-			</div>
-			<div class="rsspan2">
-				<div class="dashboard-wraper">
-					<div class="dashboard-content"> 
-						<a href="javascript:void(0)" onclick="Joomla.submitbutton('settings.facebook')"> 
-							<img src="<?php echo JURI::root(); ?>administrator/components/com_rseventspro/assets/images/dashboard/sync.png" alt="<?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_SYNC_FACEBOOK'); ?>" />
-							<span class="dashboard-title"><?php echo JText::_('COM_RSEVENTSPRO_DASHBOARD_SYNC_FACEBOOK'); ?></span> 
+						<a href="<?php echo $button['link']; ?>"> 
+							<i class="<?php echo $button['icon']; ?>"></i>
+							<span class="dashboard-title"><?php echo $button['name']; ?></span> 
 						</a> 
 					</div>
 				</div>
@@ -150,7 +49,7 @@ defined('_JEXEC') or die('Restricted access');?>
 							<tr>
 								<td>
 									<a href="<?php echo JRoute::_('index.php?option=com_rseventspro&task=event.edit&id='.$event->id); ?>"><?php echo $event->name; ?></a>
-									(<?php echo rseventsproHelper::date($event->start,null,true); ?> - <?php echo rseventsproHelper::date($event->end,null,true); ?>)
+									(<?php echo rseventsproHelper::showdate($event->start,null,true); ?><?php if (!$event->allday) { ?> - <?php echo rseventsproHelper::showdate($event->end,null,true); } ?>)
 								</td>
 								<td><?php echo $event->subscribers; ?></td>
 							</tr>
@@ -185,7 +84,7 @@ defined('_JEXEC') or die('Restricted access');?>
 									<a href="<?php echo JRoute::_('index.php?option=com_rseventspro&task=event.edit&id='.$subscriber->eid); ?>"><?php echo $subscriber->ename; ?></a>
 								</td>
 								<td align="center"><a href="<?php echo JRoute::_('index.php?option=com_rseventspro&task=subscription.edit&id='.$subscriber->id); ?>"><?php echo $subscriber->name; ?></a></td>
-								<td align="center"><?php echo rseventsproHelper::date($subscriber->date,null,true); ?></td>
+								<td align="center"><?php echo rseventsproHelper::showdate($subscriber->date,null,true); ?></td>
 							</tr>
 						<?php }} ?>
 						</tbody>
@@ -218,7 +117,14 @@ defined('_JEXEC') or die('Restricted access');?>
 									<a href="<?php echo JRoute::_('index.php?option=com_rseventspro&task=subscription.edit&id='.$comment->id); ?>"><?php echo $comment->name; ?></a>
 								</td>
 								<td align="center"><?php echo $comment->comment; ?></td>
-								<td align="center"><?php echo rseventsproHelper::date($comment->date,null,true); ?></td>
+								<td align="center">
+									<?php 
+										if (strlen((int) $comment->date) == 10) {
+											$comment->date = @date('Y-m-d H:i:s',$comment->date);
+										}
+										echo rseventsproHelper::showdate($comment->date,null,true);
+									?>
+								</td>
 							</tr>
 						<?php }} ?>
 						</tbody>
@@ -239,11 +145,11 @@ defined('_JEXEC') or die('Restricted access');?>
 				<table class="dashboard-table">
 					<tr>
 						<td nowrap="nowrap"><strong><?php echo JText::_('COM_RSEVENTSPRO_PRODUCT_VERSION') ?>: </strong></td>
-						<td nowrap="nowrap"><b>RSEvents!Pro <?php echo RSEPRO_RS_VERSION; ?> Rev <?php echo RSEPRO_RS_REVISION; ?></b></td>
+						<td nowrap="nowrap"><b>RSEvents!Pro <?php echo $this->version; ?></b></td>
 					</tr>
 					<tr>
 						<td nowrap="nowrap"><strong><?php echo JText::_('COM_RSEVENTSPRO_COPYRIGHT_NAME') ?>: </strong></td>
-						<td nowrap="nowrap">&copy; 2007 - <?php echo date('Y'); ?> <a href="http://www.rsjoomla.com" target="_blank">RSJoomla.com</a></td>
+						<td nowrap="nowrap">&copy; 2007 - <?php echo gmdate('Y'); ?> <a href="http://www.rsjoomla.com" target="_blank">RSJoomla.com</a></td>
 					</tr>
 					<tr>
 						<td nowrap="nowrap"><strong><?php echo JText::_('COM_RSEVENTSPRO_LICENSE_NAME') ?>: </strong></td>

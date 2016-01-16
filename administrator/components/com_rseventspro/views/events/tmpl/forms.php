@@ -1,16 +1,15 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );?>
 
 <script type="text/javascript">
 	function rse_add_form(id,value) {
-		window.parent.document.getElementById('rse_form_name').innerHTML = value;
-		window.parent.document.getElementById('form').value = id;
+		window.parent.jQuery('.rsepro-event-form').html(value);
+		window.parent.jQuery('#form').val(id);
 		window.parent.SqueezeBox.close();
 	}
 </script>
@@ -36,10 +35,10 @@ defined( '_JEXEC' ) or die( 'Restricted access' );?>
 		<?php foreach($this->forms as $row) { ?>
 		<?php $form = rseventsproHelper::checkform($row->FormId,$this->eventID); ?>
 			<tr class="row<?php echo $k; ?>">
-				<td><?php echo $this->pagination->getRowOffset($i); ?></td>
+				<td><?php echo $this->fpagination->getRowOffset($i); ?></td>
 				<td>
 					<?php if (@$form['result']) { ?>
-					<a href="javascript:void(0);" onclick="rse_add_form('<?php echo $row->FormId; ?>','<?php echo $this->escape($row->FormName); ?>');"><?php echo $row->FormName; ?></a>
+					<a href="javascript:void(0);" onclick="rse_add_form('<?php echo $row->FormId; ?>','<?php echo addslashes($this->escape($row->FormName)); ?>');"><?php echo $row->FormName; ?></a>
 					<?php } else { ?>
 					<?php echo $row->FormName; ?>
 					<?php } ?>

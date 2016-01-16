@@ -1,24 +1,13 @@
 <?php
 /**
- * @package     Joomla.Platform
- * @subpackage  Form
- *
- * @copyright   Copyright (C) 2005 - 2012 Open Source Matters, Inc. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE
- */
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
+* @license     GNU General Public License version 2 or later; see LICENSE
+*/
 
 defined('JPATH_PLATFORM') or die;
 
 JFormHelper::loadFieldClass('list');
-
-/**
- * Form Field class for the Joomla Platform.
- * Implements a combo box field.
- *
- * @package     Joomla.Platform
- * @subpackage  Form
- * @since       11.1
- */
 class JFormFieldRSCombobox extends JFormFieldList
 {
 	/**
@@ -55,7 +44,7 @@ class JFormFieldRSCombobox extends JFormFieldList
 		$options = $this->getOptions();
 
 		// Build the list for the combo box.
-		$html[] = '<select size="1" id="rscombobox-' . $this->id . '" class="rscomboboxoptions" onchange="$(\''.$this->id.'\').value = this.value;">';
+		$html[] = '<select size="1" id="rscombobox-' . $this->id . '" class="rscomboboxoptions" onchange="document.getElementById(\''.$this->id.'\').value = this.value;">';
 		foreach ($options as $option) {
 			$html[] = '<option value="'. $option->value .'">' . $option->text . '</option>';
 		}

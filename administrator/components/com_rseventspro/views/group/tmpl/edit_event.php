@@ -1,12 +1,11 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
-<div class="span6 rswidth-50 rsfltlft">
+<div class="span4 rswidth-30 rsfltlft">
 	<?php echo JHtml::_('rsfieldset.start', 'adminform', JText::_('COM_RSEVENTSPRO_SHARING_OPTIONS')); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('enable_rating','event'), $this->form->getInput('enable_rating','event')); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('enable_fb_like','event'), $this->form->getInput('enable_fb_like','event')); ?>
@@ -15,8 +14,8 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('enable_linkedin','event'), $this->form->getInput('enable_linkedin','event')); ?>
 	<?php echo JHtml::_('rsfieldset.end'); ?>
 </div>
-<div class="span6 rswidth-50 rsfltlft">
-	<?php echo JHtml::_('rsfieldset.start', 'adminform', JText::_('COM_RSEVENTSPRO_EVENT_OPTIONS')); ?>
+<div class="span4 rswidth-30 rsfltlft">
+	<?php echo JHtml::_('rsfieldset.start', 'adminform', JText::_('COM_RSEVENTSPRO_EVENT_OPTIONS_DETAIL')); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('start_date','event'), $this->form->getInput('start_date','event')); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('start_time','event'), $this->form->getInput('start_time','event')); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('end_date','event'), $this->form->getInput('end_date','event')); ?>
@@ -32,6 +31,20 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('show_invite','event'), $this->form->getInput('show_invite','event')); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('show_postedby','event'), $this->form->getInput('show_postedby','event')); ?>
 	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('show_repeats','event'), $this->form->getInput('show_repeats','event')); ?>
+	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('show_hits','event'), $this->form->getInput('show_hits','event')); ?>
+	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('show_print','event'), $this->form->getInput('show_print','event')); ?>
+	<?php echo JHtml::_('rsfieldset.end'); ?>
+</div>
+<div class="span4 rswidth-30 rsfltlft">
+	<?php echo JHtml::_('rsfieldset.start', 'adminform', JText::_('COM_RSEVENTSPRO_EVENT_OPTIONS_LISTINGS')); ?>
+	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('start_date_list','event'), $this->form->getInput('start_date_list','event')); ?>
+	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('start_time_list','event'), $this->form->getInput('start_time_list','event')); ?>
+	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('end_date_list','event'), $this->form->getInput('end_date_list','event')); ?>
+	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('end_time_list','event'), $this->form->getInput('end_time_list','event')); ?>
+	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('show_location_list','event'), $this->form->getInput('show_location_list','event')); ?>
+	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('show_categories_list','event'), $this->form->getInput('show_categories_list','event')); ?>
+	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('show_tags_list','event'), $this->form->getInput('show_tags_list','event')); ?>
+	<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('show_icon_list','event'), $this->form->getInput('show_icon_list','event')); ?>
 	<?php echo JHtml::_('rsfieldset.end'); ?>
 </div>
 <div class="clr"></div>

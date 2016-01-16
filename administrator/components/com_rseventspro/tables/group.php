@@ -1,8 +1,7 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -30,7 +29,7 @@ class rseventsproTableGroup extends JTable
 			$registry = new JRegistry;
 			$registry->loadArray($this->jgroups);
 			$this->jgroups = (string) $registry;
-		}
+		} else $this->jgroups = '';
 		
 		if (isset($this->jusers) && is_array($this->jusers)) {
 			$registry = new JRegistry;
@@ -43,6 +42,12 @@ class rseventsproTableGroup extends JTable
 			$registry->loadArray($this->event);
 			$this->event = (string) $registry;
 		} else $this->event = '';
+		
+		if (isset($this->restricted_categories) && is_array($this->restricted_categories)) {
+			$registry = new JRegistry;
+			$registry->loadArray($this->restricted_categories);
+			$this->restricted_categories = (string) $registry;
+		} else $this->restricted_categories = '';
 		
 		// Check for required data
 		if (empty($this->jgroups) && empty($this->jusers)) {

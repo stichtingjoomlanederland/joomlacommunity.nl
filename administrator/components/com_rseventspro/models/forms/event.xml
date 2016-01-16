@@ -20,6 +20,11 @@
 	<field name="repeat_type" type="hidden" />
 	<field name="repeat_end" type="hidden" />
 	<field name="repeat_also" type="hidden" />
+	<field name="repeat_on_type" type="hidden" />
+	<field name="repeat_on_day" type="hidden" />
+	<field name="repeat_on_day_order" type="hidden" />
+	<field name="repeat_on_day_type" type="hidden" />
+	<field name="exclude_dates" type="hidden" />
 	<field name="start_registration" type="hidden" />
 	<field name="end_registration" type="hidden" />
 	<field name="unsubscribe_date" type="hidden" />
@@ -50,6 +55,7 @@
 	<field name="allday" type="hidden" />
 	<field name="ticketsconfig" type="hidden" />
 	<field name="featured" type="hidden" />
+	<field name="itemid" type="hidden" />
 	
 	<field name="created" type="hidden" filter="unset" />
 	<field name="icon" type="hidden" filter="unset" />

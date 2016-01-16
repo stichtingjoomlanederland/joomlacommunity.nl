@@ -1,12 +1,10 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-jimport( 'joomla.application.component.model' );
 
 class rseventsproModelSubscriptions extends JModelList
 {
@@ -21,7 +19,7 @@ class rseventsproModelSubscriptions extends JModelList
 		if (empty($config['filter_fields'])) {
 			$config['filter_fields'] = array(
 				'u.name', 'e.name', 'u.id',
-				'u.gateway', 'u.state'
+				'u.gateway', 'u.state', 'u.confirmed'
 			);
 		}
 		
@@ -64,7 +62,7 @@ class rseventsproModelSubscriptions extends JModelList
 		$query->select($db->qn('e.name','event'))->select($db->qn('e.start'))->select($db->qn('e.end'))->select($db->qn('u.id'))->select($db->qn('u.ide'));
 		$query->select($db->qn('u.idu'))->select($db->qn('u.name'))->select($db->qn('u.email'))->select($db->qn('u.date'))->select($db->qn('u.state'));
 		$query->select($db->qn('u.ip'))->select($db->qn('u.gateway'))->select($db->qn('u.SubmissionId'))->select($db->qn('u.discount'))->select($db->qn('u.early_fee'));
-		$query->select($db->qn('u.late_fee'))->select($db->qn('u.tax'))->select($db->qn('e.allday'));
+		$query->select($db->qn('u.late_fee'))->select($db->qn('u.tax'))->select($db->qn('u.confirmed'))->select($db->qn('e.allday'));
 		
 		// Select from table
 		$query->from($db->qn('#__rseventspro_users','u'));
@@ -120,19 +118,19 @@ class rseventsproModelSubscriptions extends JModelList
 				JHtmlSidebar::addFilter(
 					JText::_('COM_RSEVENTSPRO_SELECT_STATE'),
 					'filter_state',
-					JHtml::_('select.options', rseventsproHelper::getStatuses(), 'value', 'text', $this->getState('filter.state'), true)
+					JHtml::_('select.options', rseventsproHelper::getStatuses(), 'value', 'text', $this->getState('filter.state'), false)
 				);
 				JHtmlSidebar::addFilter(
 					JText::_('COM_RSEVENTSPRO_SELECT_EVENT'),
 					'filter_event',
-					JHtml::_('select.options', rseventsproHelper::getFilterEvents(true,true), 'value', 'text', $this->getState('filter.event'), true)
+					JHtml::_('select.options', rseventsproHelper::getFilterEvents(true,true), 'value', 'text', $this->getState('filter.event'), false)
 				);
 				
 				if ($this->getState('filter.event')) {
 					JHtmlSidebar::addFilter(
 						JText::_('COM_RSEVENTSPRO_SELECT_TICKET'),
 						'filter_ticket',
-						JHtml::_('select.options', $this->getFilterTickets(), 'value', 'text', $this->getState('filter.ticket'), true)
+						JHtml::_('select.options', $this->getFilterTickets(), 'value', 'text', $this->getState('filter.ticket'), false)
 					);
 				}
 			}
@@ -160,6 +158,7 @@ class rseventsproModelSubscriptions extends JModelList
 			JHtml::_('select.option', 'u.name', JText::_('COM_RSEVENTSPRO_SUBSCRIPTIONS_SORT_NAME')),
 			JHtml::_('select.option', 'e.name', JText::_('COM_RSEVENTSPRO_SUBSCRIPTIONS_SORT_EVENT_NAME')),
 			JHtml::_('select.option', 'u.gateway', JText::_('COM_RSEVENTSPRO_SUBSCRIPTIONS_SORT_GATEWAY')),
+			JHtml::_('select.option', 'u.confirmed', JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_HEAD_CONFIRMED')),
 			JHtml::_('select.option', 'u.state', JText::_('JSTATUS'))
 		);
 		$options['rightItems'] = array(
@@ -202,7 +201,8 @@ class rseventsproModelSubscriptions extends JModelList
 		$query->clear()
 			->select($db->qn('id','value'))->select($db->qn('name','text'))
 			->from($db->qn('#__rseventspro_tickets'))
-			->where($db->qn('ide').' = '.(int) $id);
+			->where($db->qn('ide').' = '.(int) $id)
+			->order($db->qn('order').' ASC');
 			
 		$db->setQuery($query);
 		return $db->loadObjectList();
@@ -214,5 +214,24 @@ class rseventsproModelSubscriptions extends JModelList
 	public function export() {
 		$query = $this->getListQuery();
 		rseventsproHelper::exportSubscribersCSV($query);
+	}
+	
+	/**
+	 *	Method to get event details
+	 */
+	public function getEvent() {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		$input	= JFactory::getApplication()->input;
+		$ticket	= $input->getString('ticket','');
+		$ids	= str_replace(rseventsproHelper::getConfig('barcode_prefix', 'string', 'RST-'),'',$ticket);
+		
+		$query->select($db->qn('e.name'))
+			->select($db->qn('e.start'))->select($db->qn('e.end'))
+			->from($db->qn('#__rseventspro_events','e'))
+			->join('LEFT',$db->qn('#__rseventspro_users','u').' ON '.$db->qn('e.id').' = '.$db->qn('u.ide'))
+			->where($db->qn('u.id').' = '.(int) $ids);
+		$db->setQuery($query);
+		return $db->loadObject();
 	}
 }

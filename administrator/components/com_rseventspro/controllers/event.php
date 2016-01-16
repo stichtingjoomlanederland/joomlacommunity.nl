@@ -1,13 +1,11 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2009-2012 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/licenses/gpl-2.0.html
 */
 
 defined('_JEXEC') or die('Restricted access');
-jimport('joomla.application.component.controller');
 
 class rseventsproControllerEvent extends JControllerForm
 {
@@ -106,32 +104,14 @@ class rseventsproControllerEvent extends JControllerForm
 		$model = $this->getModel();
 		
 		// Upload event icon
-		$success = $model->upload();
-		
-		echo '<script type="text/javascript">'."\n";
-		echo 'window.parent.hm(\'box\')'."\n";
-		
-		if ($success !== true) {
-			echo 'window.parent.$(\'rs_errors\').innerHTML = \'<p class="rs_error">'.$success.'</p>\''."\n";
+		if (!$model->upload()) {
+			$icon = '';
+			$this->setMessage($model->getError());
 		} else {
-			$eventicon = $model->getState('com_rseventspro.edit.icon');
-			
-			$image = @getimagesize(JPATH_SITE.'/components/com_rseventspro/assets/images/events/'.$eventicon);
-			$eimage = @getimagesize(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/e_'.$eventicon);
-			$ewidth = isset($eimage[0]) ? $eimage[0] : 800;
-			$eheight = isset($eimage[1]) ? $eimage[1] : 380;
-			$width = isset($image[0]) ? $image[0] : 800;
-			$height = isset($image[1]) ? $image[1] : 380;
-			$customheight = round(($height * ($width < 380 ? $width : 380)) / $width) + 50;
-			$modal_height = ($height > $width ? $customheight : 500) + 50;
-			
-			echo 'window.parent.$(\'rs_errors\').innerHTML = \'\''."\n";
-			echo 'window.parent.$(\'rs_icon_img\').set(\'src\',\''.JURI::root().'components/com_rseventspro/assets/images/events/thumbs/e_'.$eventicon.'?nocache='.uniqid('').'\')'."\n";
-			echo $eheight > $ewidth ? 'window.parent.$(\'rs_icon_img\').set(\'height\',\'180\')'."\n" : 'window.parent.$(\'rs_icon_img\').erase(\'height\')'."\n";
-			echo 'window.parent.rs_modal(\''.JRoute::_('index.php?option=com_rseventspro&view=event&layout=crop&tmpl=component&id='.JFactory::getApplication()->input->getInt('id'),false).'\',640,'.$modal_height.')'."\n";
+			$icon = '&icon='.base64_encode($model->getState('com_rseventspro.edit.icon'));
 		}
-		echo '</script>'."\n";
-		JFactory::getApplication()->close();
+		
+		return $this->setRedirect(JRoute::_('index.php?option=com_rseventspro&view=event&layout=upload&tmpl=component'.$icon.'&id='.JFactory::getApplication()->input->getInt('id'),false));
 	}
 	
 	/**
@@ -162,19 +142,10 @@ class rseventsproControllerEvent extends JControllerForm
 		$model = $this->getModel();
 		
 		// Crop the event icon
-		$success = $model->crop();
+		$model->crop();
 		
-		echo '<script type="text/javascript">'."\n";
-		echo 'window.parent.hm(\'box\')'."\n";
-		$eventicon = $model->getState('com_rseventspro.crop.icon');
-		$image = @getimagesize(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/e_'.$eventicon);
-		$width = isset($image[0]) ? $image[0] : 800;
-		$height = isset($image[1]) ? $image[1] : 380;
-		
-		echo 'window.parent.$(\'rs_icon_img\').set(\'src\',\''.JURI::root().'components/com_rseventspro/assets/images/events/thumbs/e_'.$eventicon.'?nocache='.uniqid('').'\')'."\n";
-		echo $height > $width ? 'window.parent.$(\'rs_icon_img\').set(\'height\',\'180\')'."\n" : 'window.parent.$(\'rs_icon_img\').erase(\'height\')'."\n";
-		echo '</script>'."\n";
-		JFactory::getApplication()->close();
+		$this->setMessage(JText::_('COM_RSEVENTSPRO_CROP_SAVED'));
+		return $this->setRedirect(JRoute::_('index.php?option=com_rseventspro&view=event&layout=upload&tmpl=component&icon='.base64_encode($model->getState('com_rseventspro.crop.icon')).'&id='.JFactory::getApplication()->input->getInt('id'),false));
 	}
 	
 	/**
@@ -189,10 +160,7 @@ class rseventsproControllerEvent extends JControllerForm
 		// Save the event file info
 		$success = $model->savefile();
 		
-		echo '<script type="text/javascript">'."\n";
-		echo 'window.parent.hm(\'box\')'."\n";
-		echo 'window.parent.$(\'rs_file_'.$model->getState('com_rseventspro.file.id').'\').set(\'text\',\''.$model->getState('com_rseventspro.file.name').'\')'."\n";
-		echo '</script>'."\n";
+		echo (int) $success;
 		JFactory::getApplication()->close();
 	}
 	
@@ -227,8 +195,23 @@ class rseventsproControllerEvent extends JControllerForm
 		$model->tickets();
 		
 		echo '<script type="text/javascript">'."\n";
-		echo 'window.parent.hm(\'box\')'."\n";
+		echo 'window.parent.SqueezeBox.close()'."\n";
 		echo '</script>'."\n";
+		JFactory::getApplication()->close();
+	}
+	
+	/**
+	 * Method to save tickets ordering
+	 *
+	 * @return	void
+	 */
+	public function ticketsorder() {
+		// Get the model
+		$model = $this->getModel();
+		
+		// Save the tickets ordering
+		$model->ticketsorder();
+		
 		JFactory::getApplication()->close();
 	}
 }

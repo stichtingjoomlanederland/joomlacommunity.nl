@@ -1,12 +1,10 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
-defined( '_JEXEC' ) or die( 'Restricted access' ); 
-jimport( 'joomla.application.component.controller' );
+defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class rseventsproController extends JControllerLegacy
 {	
@@ -142,8 +140,29 @@ class rseventsproController extends JControllerLegacy
 	 * @return void
 	 */
 	public function repeats() {
+		require_once JPATH_SITE . '/components/com_rseventspro/helpers/recurring.php';
+		
+		$input		= JFactory::getApplication()->input;
+		$registry	= new JRegistry;
+		
+		$registry->set('interval', $input->getInt('interval',0));
+		$registry->set('type', $input->getInt('type',0));
+		$registry->set('start', $input->getString('start'));
+		$registry->set('end', $input->getString('end'));
+		$registry->set('days', $input->get('days',array(),'array'));
+		$registry->set('also', $input->get('also',array(),'array'));
+		$registry->set('exclude', $input->get('exclude',array(),'array'));
+		
+		$registry->set('repeat_on_type', $input->getInt('repeat_on_type',0));
+		$registry->set('repeat_on_day', $input->getInt('repeat_on_day',0));
+		$registry->set('repeat_on_day_order', $input->getInt('repeat_on_day_order',0));
+		$registry->set('repeat_on_day_type', $input->getInt('repeat_on_day_type',0));
+		
+		$recurring = RSEventsProRecurring::getInstance($registry);
+		$dates = $recurring->getDates();
+		
 		echo 'RS_DELIMITER0';
-		echo rseventsproHelper::repeats();
+		echo count($dates);
 		echo 'RS_DELIMITER1';
 		JFactory::getApplication()->close();
 	}
@@ -155,8 +174,10 @@ class rseventsproController extends JControllerLegacy
 	 */
 	public function savedata() {
 		$type	= JFactory::getApplication()->input->get('type');
+		$format	= JFactory::getApplication()->input->get('format');
 		$data	= JFactory::getApplication()->input->get('jform',array(),'array');
 		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
 		
 		if ($type == 'location') {
 			$table = JTable::getInstance('Location', 'rseventsproTable');
@@ -170,9 +191,17 @@ class rseventsproController extends JControllerLegacy
 			$table->save($data);
 			$table->rebuildPath($table->id);
 			$table->rebuild($table->id, $table->lft, $table->level, $table->path);
-			echo $table->id;
+			echo json_encode(JHtml::_('category.options','com_rseventspro', array('filter.published' => array(1))));
 		} elseif ($type == 'ticket') {
 			$data = (object) $data;
+			
+			$query->select('MAX('.$db->qn('order').')')
+				->from($db->qn('#__rseventspro_tickets'))
+				->where($db->qn('ide').' = '.$db->q($data->ide));
+			$db->setQuery($query);
+			$ordering = (int) $db->loadResult();
+			$data->order = $ordering + 1;
+			
 			$groups = JFactory::getApplication()->input->get('groups',array(),'array');
 			if (!empty($groups)) {
 				$registry = new JRegistry;
@@ -180,9 +209,14 @@ class rseventsproController extends JControllerLegacy
 				$data->groups = $registry->toString();
 			}
 			$db->insertObject('#__rseventspro_tickets', $data, 'id');
-			echo 'RS_DELIMITER0';
-			echo $data->id;
-			echo 'RS_DELIMITER1';
+			
+			if ($format == 'raw') {
+				return $data->id;
+			} else {
+				echo 'RS_DELIMITER0';
+				echo $data->id;
+				echo 'RS_DELIMITER1';
+			}
 		} elseif ($type == 'coupon') {
 			$query = $db->getQuery(true);
 			$data = (object) $data;
@@ -194,17 +228,13 @@ class rseventsproController extends JControllerLegacy
 			}
 			
 			if (!empty($data->from) && $data->from != $db->getNullDate()) {
-				$start	= new RSDate($data->from);
-				$start->setTZByID(rseventsproHelper::getTimezone());
-				$start->convertTZ(new RSDate_Timezone('GMT'));
-				$data->from = $start->formatLikeDate('Y-m-d H:i:s');
+				$start = JFactory::getDate($data->from, rseventsproHelper::getTimezone());
+				$data->from = $start->format('Y-m-d H:i:s');
 			}
 			
 			if (!empty($data->to) && $data->to != $db->getNullDate()) {
-				$end	= new RSDate($data->to);
-				$end->setTZByID(rseventsproHelper::getTimezone());
-				$end->convertTZ(new RSDate_Timezone('GMT'));
-				$data->to = $end->formatLikeDate('Y-m-d H:i:s');
+				$end = JFactory::getDate($data->to, rseventsproHelper::getTimezone());
+				$data->to = $end->format('Y-m-d H:i:s');
 			}
 			
 			$db->insertObject('#__rseventspro_coupons', $data, 'id');
@@ -225,10 +255,91 @@ class rseventsproController extends JControllerLegacy
 				}
 			}
 			
-			echo 'RS_DELIMITER0';
-			echo $data->id;
-			echo 'RS_DELIMITER1';
+			if ($format == 'raw') {
+				return $data->id;
+			} else {
+				echo 'RS_DELIMITER0';
+				echo $data->id;
+				echo 'RS_DELIMITER1';
+			}
 		}
 		JFactory::getApplication()->close();
+	}
+	
+	public function loadfile() {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		$id		= JFactory::getApplication()->input->getInt('id');
+		
+		$query->select('*')
+			->from($db->qn('#__rseventspro_files'))
+			->where($db->qn('id').' = '.$id);
+		
+		$db->setQuery($query);
+		if ($file = $db->loadObject()) {
+			if ($file->permissions == '') {
+				$file->permissions = '000000';
+			}
+		}
+		
+		echo json_encode($file);
+		JFactory::getApplication()->close();
+	}
+	
+	// Create a backup of your events
+	public function backup() {
+		require_once JPATH_SITE.'/components/com_rseventspro/helpers/backup.php';
+		
+		$app	= JFactory::getApplication();
+		$step	= $app->input->getInt('step',0);
+		$backup = new RSEBackup;
+		$backup->process($step);
+		
+		$app->close();
+	}
+	
+	// Delete a backup
+	public function backupdelete() {
+		require_once JPATH_SITE.'/components/com_rseventspro/helpers/backup.php';
+		
+		$app	= JFactory::getApplication();
+		$file	= $app->input->getString('file');
+		$backup = new RSEBackup;
+		$backup->delete($file);
+		
+		$app->close();
+	}
+	
+	// Extract the uploaded archive
+	public function extract() {
+		require_once JPATH_SITE.'/components/com_rseventspro/helpers/backup.php';
+		
+		try {
+			$backup = new RSEBackup;
+			$backup->extract();
+			$extract = $backup->getRestoreFolder();
+		} catch(Exception $e) {
+			$this->setMessage($e->getMessage(),'error');
+			$this->setRedirect(JRoute::_('index.php?option=com_rseventspro&view=backup',false));
+		}
+		
+		$overwrite	= JFactory::getApplication()->input->getInt('overwrite',0);
+		$this->setRedirect(JRoute::_('index.php?option=com_rseventspro&view=backup'.($extract ? '&hash='.$extract : '').($overwrite ? '&overwrite=1' : ''),false));
+	}
+	
+	// Restore backup
+	public function restore() {
+		require_once JPATH_SITE.'/components/com_rseventspro/helpers/backup.php';
+		
+		$backup = new RSEBackup;
+		$backup->set('limit', 200);
+		$backup->restore($hash, $step);
+		
+		JFactory::getApplication()->close();
+	}
+	
+	// Trigger plugin functions
+	public function trigger() {
+		JFactory::getApplication()->triggerEvent('rsepro_adminTrigger');
 	}
 }

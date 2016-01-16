@@ -1,58 +1,56 @@
 <?php
 /**
-* @version 1.0.0
-* @package RSEvents!Pro 1.0.0
-* @copyright (C) 2011 www.rsjoomla.com
+* @package RSEvents!Pro
+* @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 
-<style type="text/css">
-	body { background:#F8F8F8 !important; }
-</style>
-
 <script type="text/javascript">
-	jQuery(function() {
-		jQuery('#rsepro_wrapper').css('height', jQuery(document).height() - 100);
-		jQuery('#rsepro_wrapper').droppable({
-			tolerance: 'fit'
-		});
-		
-		<?php foreach ($this->tickets as $ticket) { ?>
-		jQuery('#draggable<?php echo $ticket->id; ?>').draggable({ 
-			containment: '#rsepro_wrapper', 
-			scroll: false,
-			stack: '.draggable',
-			revert: 'invalid',
-			stop: function(event, ui) {
-				if (jQuery(this).draggable('option', 'revert') == 'invalid') {
-					jQuery('#left<?php echo $ticket->id; ?>').attr('value', ui.position.left);
-					jQuery('#top<?php echo $ticket->id; ?>').attr('value', ui.position.top);
+	jQuery(document).ready(function(){
+		if (jQuery(window).width() >= 768) {
+			jQuery('#rsepro_wrapper').css('height', jQuery(window).height() - 100);
+			jQuery('#rsepro_wrapper').droppable({tolerance: 'fit'});
+			
+			<?php foreach ($this->tickets as $ticket) { ?>
+			jQuery('#draggable<?php echo $ticket->id; ?>').draggable({ 
+				containment: '#rsepro_wrapper', 
+				scroll: false,
+				stack: '.draggable',
+				revert: 'invalid',
+				stop: function(event, ui) {
+					if (jQuery(this).draggable('option', 'revert') == 'invalid') {
+						jQuery('#left<?php echo $ticket->id; ?>').attr('value', ui.position.left);
+						jQuery('#top<?php echo $ticket->id; ?>').attr('value', ui.position.top);
+					}
+					jQuery(this).draggable('option','revert','invalid');
+				} 
+			});
+			
+			jQuery('#draggable<?php echo $ticket->id; ?>').droppable({
+				greedy: true,
+				tolerance: 'touch',
+				drop: function(event,ui){
+					ui.draggable.draggable('option','revert',true);
 				}
-				jQuery(this).draggable('option','revert','invalid');
-			} 
-		});
-		
-		jQuery('#draggable<?php echo $ticket->id; ?>').droppable({
-			greedy: true,
-			tolerance: 'touch',
-			drop: function(event,ui){
-				ui.draggable.draggable('option','revert',true);
-			}
-		});
-		
-		jQuery('#draggable<?php echo $ticket->id; ?>').resizable({
-			minHeight: 90, 
-			minWidth: 90,
-			containment: 'parent',
-			handles: 'e<?php if ($ticket->seats == 0) echo ',se'; ?>',
-			stop: function(event, ui) {
-				jQuery('#width<?php echo $ticket->id; ?>').attr('value', ui.size.width);
-				jQuery('#height<?php echo $ticket->id; ?>').attr('value', ui.size.height);
-			}
-		});
-		
-		<?php } ?>
+			});
+			
+			jQuery('#draggable<?php echo $ticket->id; ?>').resizable({
+				minHeight: 90, 
+				minWidth: 90,
+				containment: 'parent',
+				handles: 'e<?php if ($ticket->seats == 0) echo ',se'; ?>',
+				stop: function(event, ui) {
+					jQuery('#width<?php echo $ticket->id; ?>').attr('value', ui.size.width);
+					jQuery('#height<?php echo $ticket->id; ?>').attr('value', ui.size.height);
+				}
+			});
+			<?php } ?>
+		} else {
+			jQuery('.draggable').addClass('rsepro-draggable-off');
+			jQuery('#rsepro_wrapper').css('height', 'auto');
+			jQuery('#rsepro_wrapper').css('overflow', 'hidden');
+		}
 	});
 </script>
 
@@ -85,7 +83,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 <form action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro'); ?>" method="post" id="adminForm" name="adminForm">
 	<div style="text-align: center;">
 		<button type="submit" class="btn btn-primary"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button>
-		<button type="button" class="btn" onclick="window.parent.hm('box');"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
+		<button type="button" class="btn" onclick="window.parent.SqueezeBox.close();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
 	</div>
 	
 	<input type="hidden" name="task" value="rseventspro.tickets" />

@@ -1,1 +1,1670 @@
-var rsepro_timer;function isset () {    // http://kevin.vanzonneveld.net    // +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)    // +   improved by: FremyCompany    // +   improved by: Onno Marsman    // +   improved by: Rafał Kukawski    // *     example 1: isset( undefined, true);    // *     returns 1: false    // *     example 2: isset( 'Kevin van Zonneveld' );    // *     returns 2: true    var a = arguments,        l = a.length,        i = 0,        undef;    if (l === 0) {        throw new Error('Empty isset');    }    while (i !== l) {        if (a[i] === undef || a[i] === null) {            return false;        }        i++;    }    return true;}function rse_calculatetotal(tickets) {	var params = 'task=total&idevent=' + parseInt($('eventID').innerHTML);		if (!isset(tickets)) {		var ticketId = isset($('RSEProTickets')) ? $('RSEProTickets').value : $('ticket').value;		if ($('from').value == 0) {			var numberOfTickets = $('numberinp').value;		} else {			var numberOfTickets = $('number').value;		}				// Multiple tickets		if (isset($('hiddentickets'))) {			var ticketsstring = '';			$$('#hiddentickets input').each(function (el) {				ticketsstring += '&'+el.name+'='+el.value;			});						params += ticketsstring;		} else {			params += '&tickets['+ticketId+']='+numberOfTickets;		}	} else {		params += tickets;	}		if (isset($('coupon'))) params += '&coupon=' + $('coupon').value;	if (isset($('RSEProCoupon'))) params += '&coupon=' + $('RSEProCoupon').value;		if ($$('select[name=payment]').length) {		params += '&payment=' + $('payment').value;	} else if ($$('input[name=payment]').length) {		if (isset($$('input[name=payment]:checked')[0]))			params += '&payment=' + $$('input[name=payment]:checked')[0].value;	}		if ($$('select[name^=form[RSEProPayment]]').length) {		params += '&payment=' + $('RSEProPayment').value;	} else if ($$('input[name=form[RSEProPayment]]').length) {		if (isset($$('input[name=form[RSEProPayment]]:checked')[0]))			params += '&payment=' + $$('input[name=form[RSEProPayment]]:checked')[0].value	}		params += '&randomTime=' + Math.random();		var req = new Request({		method: 'post',		url: 'index.php?option=com_rseventspro',		data: params,		onSuccess: function(responseText, responseXML) {			var response = responseText;			var start = response.indexOf('RS_DELIMITER0') + 13;			var end = response.indexOf('RS_DELIMITER1');			response = response.substring(start, end);			response = response.split('|');						if (response[0] != 0) {				$('grandtotalcontainer').style.display = '';				$('grandtotal').innerHTML = response[0];			} else {				$('grandtotalcontainer').style.display = 'none';				$('grandtotal').innerHTML = 0;			}						if (response[1] != '') {				$('paymentinfocontainer').style.display = '';				$('paymentinfo').innerHTML = response[1];			} else {				$('paymentinfocontainer').style.display = 'none';				$('paymentinfo').innerHTML = '';			}					}	});	req.send();}function rs_stop() {	clearTimeout(rsepro_timer);}function rsepro_description_on(id) {	document.getElementById('rsehref'+id).style.display = 'none';	document.getElementById('rsedescription'+id).className = 'rsepro_extra_on';}function rsepro_description_off(id) {	document.getElementById('rsehref'+id).style.display = 'inline';	document.getElementById('rsedescription'+id).className = 'rsepro_extra_off';}function rs_add_option(theoption) {	$('rseprosearch').value = theoption;	$('rs_results').style.display = 'none';}function rs_add_filter() {	if ($('rseprosearch').value != '')		document.adminForm.submit();}function rs_clear_filters() {	$('rs_clear').value = 1;	document.adminForm.submit();}function rs_remove_filter(key) {	$('rs_remove').value = key;	document.adminForm.submit();}function rse_verify_coupon(ide, coupon) {	if (coupon == '')		return false;		var req = new Request({		method: 'post',		url: 'index.php?option=com_rseventspro',		data: 'task=verify&id=' + ide + '&coupon=' + coupon,		onSuccess: function(responseText, responseXML) {			var response = responseText;			var start = response.indexOf('RS_DELIMITER0') + 13;			var end = response.indexOf('RS_DELIMITER1');			response = response.substring(start, end);			alert(response);		}	});	req.send();}/** *	Search events */function rs_search() {	if ($('filter_from').value == 'description') return;	if ($('rseprosearch').value == '') return;		rsepro_timer = setTimeout( function() {		var req = new Request({			method: 'post',			url: 'index.php?option=com_rseventspro',			data: 'task=filter&type=' + $('filter_from').value + '&search=' + $('rseprosearch').value + '&condition=' + $('filter_condition').value,			onSuccess: function(responseText, responseXML) {				var response = responseText;				var start = response.indexOf('RS_DELIMITER0') + 13;				var end = response.indexOf('RS_DELIMITER1');				response = response.substring(start, end);								if (response != '') {					$('rs_results').innerHTML = response;					$('rs_results').style.display = 'block';				} else $('rs_results').style.display = 'none';			}		});		req.send();	}, 1000);}/** *	Events pagination */function rspagination(tpl,limitstart,ide) {	$('rs_loader').style.display = '';		if (tpl == 'day' || tpl == 'week')		var params = '&view=calendar&layout=items&tpl='+tpl+'&format=raw&limitstart='+ limitstart;	else		var params = 'view=rseventspro&layout=items&tpl='+tpl+'&format=raw&limitstart='+ limitstart;		if (isset($('parent')) && parseInt($('parent').innerHTML) > 0) params += '&parent=' + parseInt($('parent').innerHTML);	if (isset($('date')) && $('date').innerHTML != '') params += '&date=' + $('date').innerHTML;	if (ide) params += '&id=' + parseInt(ide);	params += '&Itemid=' + parseInt($('Itemid').innerHTML);	params += '&randomTime=' + Math.random();		var req = new Request({		method: 'post',		url: 'index.php?option=com_rseventspro',		data: params,		onSuccess: function(responseText, responseXML) {			var response = responseText;			var start = response.indexOf('RS_DELIMITER0') + 13;			var end = response.indexOf('RS_DELIMITER1');			response = response.substring(start, end);			var code = response.toDOM();						for (i=0; i< code.length; i++)				$('rs_events_container').appendChild(code[i]);						$('rs_loader').style.display = 'none';						if ($$('#rs_events_container li').length > 0 && (tpl == 'events' || tpl == 'locations' || tpl == 'subscribers' || tpl == 'day' || tpl == 'week')) 			{				$$('#rs_events_container li').addEvents({					mouseenter: function(){ 						if (isset($(this).getElement('div.rs_options')))							$(this).getElement('div.rs_options').style.display = '';					},					mouseleave: function(){      						if (isset($(this).getElement('div.rs_options')))							$(this).getElement('div.rs_options').style.display = 'none';					}				});			}						if ( ($('rs_events_container').getElements('li').length) >= parseInt($('total').innerHTML)) $('rsepro_loadmore').style.display = 'none';		}	});	req.send();}/** *	Rate event */function rsepro_feedback(val,id) {	for (var i=1; i<=5; i++)		document.getElementById('rsepro_feedback_' + i).onclick = function() { return false; }	$('rs_loading_img').style.display = '';		var req = new Request({		method: 'post',		url: 'index.php?option=com_rseventspro',		data: 'task=rseventspro.rate&id=' + id + '&feedback=' + val + '&randomTime='+Math.random(),		onSuccess: function(responseText, responseXML) {			var response = responseText;			var start = response.indexOf('RS_DELIMITER0') + 13;			var end = response.indexOf('RS_DELIMITER1');			response = response.substring(start, end);						response = response.split('|');			$('rs_loading_img').style.display = 'none';						if (parseInt(response[0]) > 0)				document.getElementById('rs_rating').innerHTML = '<li id="rsepro_current_rating" class="rsepro_feedback_selected_'+ parseInt(response[0]) +'">&nbsp;</li>';			$('rs_rating_info').innerHTML = response[1];						window.setTimeout(function () {				$('rs_rating_info').tween('opacity', '0');			},2000);		}	});	req.send();}/** *	Get ticket information */function rs_get_ticket(val) {	$('rs_loader').style.display = '';		var req = new Request({		method: 'post',		url: 'index.php?option=com_rseventspro',		data: 'task=tickets&id=' + val + '&randomTime='+Math.random(),		onSuccess: function(responseText, responseXML) {			var response = responseText;			var start = response.indexOf('RS_DELIMITER0') + 13;			var end = response.indexOf('RS_DELIMITER1');			response = response.substring(start, end);						response = response.split('|');			$('rs_loader').style.display = 'none';						if (parseInt(response[0]) == 0) {				$('numberinp').style.display = '';				$('number').style.display = 'none';				$('numberinp').value = 1;				$('from').value = 0;			} else {				$('numberinp').style.display = 'none';				$('number').style.display = '';				$('from').value = 1;				$('number').options.length = 0;				for(i=1; i <= parseInt(response[0]); i++)					$('number').options[i-1] = new Option(i,i);			}						$('tdescription').innerHTML = response[1];			rse_calculatetotal();		}	});	req.send();}/** *	Subscriber validation */function svalidation() {	ret = true;	msg = new Array();		if ($('name').value == '') { ret = false; $('name').className = 'rs_edit_inp_error_small'; msg.push(smessage[0]); } else { $('name').className = 'rs_edit_inp_small'; }	if ($('email').value == '') { ret = false; $('email').className = 'rs_edit_inp_error_small'; msg.push(smessage[1]); } else { $('email').className = 'rs_edit_inp_small'; }	if (isset($('hiddentickets')) && $('hiddentickets').innerHTML == '') { ret = false; msg.push(smessage[3]); }	if (isset($('rsepro_selected_tickets')) && $('rsepro_selected_tickets').innerHTML == '') { ret = false; msg.push(smessage[3]); }	if (!rse_validateEmail($('email').value)) { ret = false; $('email').className = 'rs_edit_inp_error_small'; msg.push(smessage[4]); } else { $('email').className = 'rs_edit_inp_small'; }	if (ret)		return true;	else {		alert(msg.join("\n"));		return false;	}}/** *	Email validation */	function rse_validateEmail(email) {	var regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;	return regex.test(email);}/** *	Add ticket to subscription */function rs_add_ticket() {	var container		= $('tickets');	var hidden_tickets	= $('hiddentickets');	var ticket			= isset($('RSEProTickets')) ? $('RSEProTickets') : $('ticket');	var ticket_number	= parseInt($('from').value) == 0 ? parseInt($('numberinp').value) : parseInt($('number').value);	var ticket_id		= ticket.value;	var ticket_name		= ticket.options[ticket.selectedIndex].text;		if (ticket_number == 0) ticket_number = 1;		if (parseInt($('from').value) == 1) {		var available_per_user = $('number').options.length;				if (isset(document.getElementById('tickets'+ticket_id))) {			if (parseInt(document.getElementById('tickets'+ticket_id).value) + ticket_number > available_per_user) {				alert(smessage[6].replace('%d',available_per_user));				return;			}		}	}		if (isset($('hiddentickets')) && typeof maxtickets != 'undefined' && typeof usedtickets != 'undefined') {		var total = 0;		$('hiddentickets').getElements('input').each(function (el){			total += parseInt(el.value);		});				total += ticket_number;		totalAvailable = parseInt(maxtickets) - parseInt(usedtickets);				if (total > totalAvailable) {			alert(smessage[5]);			return;		}	}		if (!isset(document.getElementById('tickets'+ticket_id))) {			input = document.createElement('input');		input.setAttribute('type', 'hidden');		input.setAttribute('name', 'tickets['+ticket_id+']');		input.setAttribute('id', 'tickets'+ticket_id);		input.setAttribute('value', ticket_number);		hidden_tickets.appendChild(input);				span = document.createElement('span');		span.setAttribute('id', 'content'+ticket_id);		span.innerHTML = '<span id="ticketq'+ ticket_id +'">' + ticket_number + '</span>' + ' x ' + ticket_name + ' <a href="javascript:void(0);" onclick="rs_remove_ticket('+ ticket_id +')"> ('+smessage[2]+')</a><br/>';				container.appendChild(span);	} else {		$('ticketq'+ticket_id).innerHTML = parseInt($('ticketq'+ticket_id).innerHTML) + parseInt(ticket_number);		$('tickets'+ticket_id).value = parseInt($('tickets'+ticket_id).value) + parseInt(ticket_number);	}		rse_calculatetotal();}/** *	Remove ticket from subscription */function rs_remove_ticket(theid) {	if (isset($('tickets'+theid))) {		var container		= $('tickets');		var hidden_tickets	= $('hiddentickets');				container.removeChild($('content'+theid));		hidden_tickets.removeChild($('tickets'+theid));				rse_calculatetotal();	}}/** *	Send message to guests validation */function rs_send_guests() {	ret = true;	if (document.getElementById('subject').value == '') {ret = false; document.getElementById('subject').className = 'rs_edit_inp_error_small'; } else { document.getElementById('subject').className = 'rs_edit_inp_small'; }		var people = document.getElementById('subscribers');		peopletrue = false;	for (i=0;i<people.length;i++)		if (people[i].selected)			peopletrue = true;		if (document.getElementById('denied').checked == false && document.getElementById('pending').checked == false && document.getElementById('accepted').checked == false && !peopletrue) {		ret = false;		document.getElementById('a_option').className = 'rs_error';		document.getElementById('d_option').className = 'rs_error';		document.getElementById('p_option').className = 'rs_error';	} else {		document.getElementById('a_option').className = '';		document.getElementById('d_option').className = '';		document.getElementById('p_option').className = '';	}	return ret;}/** *	Display Yahoo! or Google invite */function rs_load(type) {	if (type == 'gmail') {		document.getElementById('rs_gmail_u').style.display = '';		document.getElementById('rs_gmail_p').style.display = '';		document.getElementById('rs_gmail_b').style.display = '';		document.getElementById('rs_yahoo_u').style.display = 'none';		document.getElementById('rs_yahoo_p').style.display = 'none';		document.getElementById('rs_yahoo_b').style.display = 'none';		document.getElementById('ypassword').value = '';		document.getElementById('yusername').value = '';	} else {		document.getElementById('rs_yahoo_u').style.display = '';		document.getElementById('rs_yahoo_p').style.display = '';		document.getElementById('rs_yahoo_b').style.display = '';		document.getElementById('rs_gmail_u').style.display = 'none';		document.getElementById('rs_gmail_p').style.display = 'none';		document.getElementById('rs_gmail_b').style.display = 'none';		document.getElementById('gpassword').value = '';		document.getElementById('gusername').value = '';	}}/** *	Display Yahoo! or Google invite */function rs_load_close(type) {	if (type == 'gmail') {		document.getElementById('rs_gmail_u').style.display = 'none';		document.getElementById('rs_gmail_p').style.display = 'none';		document.getElementById('rs_gmail_b').style.display = 'none';		document.getElementById('gpassword').value = '';		document.getElementById('gusername').value = '';	} else {		document.getElementById('rs_yahoo_u').style.display = 'none';		document.getElementById('rs_yahoo_p').style.display = 'none';		document.getElementById('rs_yahoo_b').style.display = 'none';		document.getElementById('ypassword').value = '';		document.getElementById('yusername').value = '';	}}/** *	Invite validation */function rs_invite() {	ret = true;		if (document.getElementById('from').value == '') { ret = false; document.getElementById('from').className = 'rs_edit_inp_error_small'; } else { document.getElementById('from').className = 'rs_edit_inp_small'; }	if (document.getElementById('from_name').value == '') { ret = false; document.getElementById('from_name').className = 'rs_edit_inp_error_small'; } else { document.getElementById('from_name').className = 'rs_edit_inp_small'; }	if (document.getElementById('emails').value == '') { ret = false; document.getElementById('emails').className = 'rs_edit_txt_error'; } else { document.getElementById('emails').className = 'rs_edit_txt'; }		if (ret)		document.adminForm.submit();}/** *	Get Yahoo! or Gmail email addresses */function rs_connect(type) {	var iuser = '';	var ipass = '';		if (type == 'gmail') {		iuser = document.getElementById('gusername').value;		ipass = document.getElementById('gpassword').value;	} else if (type == 'yahoo') {		iuser = document.getElementById('yusername').value;		ipass = document.getElementById('ypassword').value;	}		if (iuser == '' || ipass == '') {		if (type == 'gmail') {			if (document.getElementById('gpassword').value == '')				document.getElementById('gpassword').className = 'rs_edit_inp_error_small';			if (document.getElementById('gusername').value == '')				document.getElementById('gusername').className = 'rs_edit_inp_error_small';		} else {			if (document.getElementById('ypassword').value == '')				document.getElementById('ypassword').className = 'rs_edit_inp_error_small';			if (document.getElementById('yusername').value == '')				document.getElementById('yusername').className = 'rs_edit_inp_error_small';		}		alert(invitemessage[0]);		return;	} else {		if (type == 'gmail') {			document.getElementById('gpassword').className = 'rs_edit_inp_small';			document.getElementById('gusername').className = 'rs_edit_inp_small';		} else {			document.getElementById('ypassword').className = 'rs_edit_inp_small';			document.getElementById('yusername').className = 'rs_edit_inp_small';		}	}		if (type == 'gmail')		document.getElementById('img_gmail').style.display = '';	else		document.getElementById('img_yahoo').style.display = '';		var req = new Request({		method: 'post',		url: 'index.php?option=com_rseventspro',		data: 'task=connect&type=' + type + '&username='+ iuser + '&password='+ ipass + '&randomTime='+Math.random(),		onSuccess: function(responseText, responseXML) {			var response = responseText;			var start = response.indexOf('RS_DELIMITER0') + 13;			var end = response.indexOf('RS_DELIMITER1');			response = response.substring(start, end);						if (document.getElementById('emails').value == '')				document.getElementById('emails').value = response;			else				document.getElementById('emails').value += "\n" + response;						if (type == 'gmail')				document.getElementById('img_gmail').style.display = 'none';			else				document.getElementById('img_yahoo').style.display = 'none';		}	});	req.send();}/** *	Verify captcha */function checkcaptcha() {	var req = new Request({		method: 'post',		url: 'index.php?option=com_rseventspro',		data: 'task=checkcaptcha&secret=' + document.getElementById('secret').value + '&randomTime='+Math.random(),		onSuccess: function(responseText, responseXML) {			var response = responseText;			var start = response.indexOf('RS_DELIMITER0') + 13;			var end = response.indexOf('RS_DELIMITER1');			response = response.substring(start, end);						if (parseInt(response)) {				document.getElementById('secret').className = 'rs_edit_inp_small';				rs_invite();			} else  {				document.getElementById('secret').className = 'rs_edit_inp_error_small';			}		}	});	req.send();}/** *	Reload captcha */	function reloadCaptcha() {	document.getElementById('captcha').src = document.getElementById('captcha').src + '?' + Math.random();}/** *	Add calendar filter */	function rs_calendar_add_filter(name) {	if (name != 0) {		$('filter_from').value = 'categories';		$('filter_condition').value = 'is';		$('rseprosearch').value = name;				}		$$('#rs_filters li input[value=categories]').each(function(el) {		el.getParent().dispose();	});		document.adminForm.submit();}/** *	Credit card validation */	function cc_validate(card_message,ccv_message) {	var ret = true;	var message = '';	var cc_number = document.getElementById('cc_number');	var cc_ccv = document.getElementById('cc_ccv');	var firstname = document.getElementById('firstname');	var lastname = document.getElementById('lastname');		if (cc_number.value.length < 13 || cc_number.value.length > 16) { ret = false; message += card_message+"\n"; cc_number.className += " rs_error"; } else { cc_number.className.replace(new RegExp(" rs_error\\b"), ''); }	if (cc_ccv.value.length < 3 || cc_ccv.value.length > 4) { ret = false; message += ccv_message+"\n"; cc_ccv.className += " rs_error"; } else { cc_ccv.className.replace(new RegExp(" rs_error\\b"), ''); }	if (firstname.value == '') { ret = false; firstname.className += " rs_error"; } else { firstname.className.replace(new RegExp(" rs_error\\b"), ''); }	if (lastname.value == '') { ret = false; lastname.className += " rs_error"; } else { lastname.className.replace(new RegExp(" rs_error\\b"), ''); }		if (message.length != 0)		alert(message);		return ret;}	/** *	Allow only numeric values */	function rs_check_card(what) {	what.value = what.value.replace(/[^0-9]+/g, '');}/** *	Credit card validation */	function rs_cc_form() {	var has_error = false;		var cc_number = document.getElementById('cc_number');	var cc_length = cc_number.value.length;	if (cc_length < 14 || cc_length > 19) {		if (cc_number.className.indexOf(' rs_error') == -1) cc_number.className += " rs_error";		has_error = true;	} else {		cc_number.className = cc_number.className.replace(new RegExp(" rs_error\\b"), '');	}		var csc_number = document.getElementById('cc_csc');	if (csc_number.value.length < 3) {		if (csc_number.className.indexOf(' rs_error') == -1) csc_number.className += " rs_error";		has_error = true;	} else {		csc_number.className = csc_number.className.replace(new RegExp(" rs_error\\b"), '');	}		var cc_fname   = document.getElementById('cc_fname');	if (cc_fname.value.length == 0) {		if (cc_fname.className.indexOf(' rs_error') == -1) cc_fname.className += " rs_error";		has_error = true;	} else {		cc_fname.className = cc_fname.className.replace(new RegExp(" rs_error\\b"), '');	}			var cc_lname   = document.getElementById('cc_lname');	if (cc_lname.value.length == 0) {		if (cc_lname.className.indexOf(' rs_error') == -1) cc_lname.className += " rs_error";		has_error = true;	} else {		cc_lname.className = cc_lname.className.replace(new RegExp(" rs_error\\b"), '');	}		return has_error ? false : true;}/** *	Calendar month change */	function rs_calendar(root,month,year,module) {	document.getElementById('rscalendarmonth'+module).style.display = 'none';	document.getElementById('rscalendar'+module).style.display = '';		var req = new Request({		method: 'post',		url: root + 'index.php?option=com_rseventspro',		data: 'view=calendar&layout=module&format=raw&month=' + month + '&year=' + year + '&mid=' + module + '&randomTime='+Math.random(),		onSuccess: function(responseText, responseXML) {			var response = responseText;			var start = response.indexOf('RS_DELIMITER0') + 13;			var end = response.indexOf('RS_DELIMITER1');			response = response.substring(start, end);						document.getElementById('rs_calendar_module'+module).innerHTML = response;			document.getElementById('rscalendarmonth'+module).style.display = '';			document.getElementById('rscalendar'+module).style.display = 'none';						$$('.hasTip').each(function(el) {				var title = el.get('title');				if (title) {					var parts = title.split('::', 2);					el.store('tip:title', parts[0]);					el.store('tip:text', parts[1]);				}			});			var JTooltips = new Tips($$('.hasTip'), { maxTitleChars: 50, fixed: false});		}	});	req.send();}/** *	Close ajax search window */	function rsepro_ajax_close() {	RSEProSearch.slideOut();}/** *	Ajax search */	function rsepro_search(root,itemid,opener) {	var req = new Request({		method: 'post',		url: root + 'index.php?option=com_rseventspro',		data: 'task=ajax&search=' + $('rsepro_ajax').value + '&iid=' + itemid + '&opener=' + opener + '&randomTime='+Math.random(),		onSuccess: function(responseText, responseXML) {			var response = responseText;			var start = response.indexOf('RS_DELIMITER0') + 13;			var end = response.indexOf('RS_DELIMITER1');			response = response.substring(start, end);						if (response != '') {				$('rsepro_ajax_list').set('html', response);				RSEProSearch.slideIn();			} else RSEProSearch.slideOut();		}	});	req.send();}/** *	Check dates for the search module */	function rs_check_dates() {	if (isset(document.getElementById('enablestart'))) {		if (document.getElementById('enablestart').checked) {			document.getElementById('rsstart').disabled = false;			document.getElementById('rsstart_img').style.display = '';		} else {			document.getElementById('rsstart').disabled = true;			document.getElementById('rsstart_img').style.display = 'none';		}	}			if (isset(document.getElementById('enableend'))) {		if (document.getElementById('enableend').checked) {			document.getElementById('rsend').disabled = false;			document.getElementById('rsend_img').style.display = '';		} else {			document.getElementById('rsend').disabled = true;			document.getElementById('rsend_img').style.display = 'none';		}	}}/** *	Check search module */	function rsepro_search_form_verification() {	if (document.getElementById('rskeyword').value == '')		return false;		return true;}/** *	Add selected location */	function rs_add_loc() {	if (isset($('rs_location_window'))) {		$('rs_location_window').reveal({duration: 'short'});		$('rs_new_location').innerHTML = $('rs_location').value;	}}/** *	Show more details */	function show_more() {	$('less').style.display = '';	$('more').style.display = 'none';	$('rs_repeats').style.height = 'auto';}/** *	Show less details */		function show_less() {	$('less').style.display = 'none';	$('more').style.display = '';	$('rs_repeats').style.height = '70px';}window.addEvent('domready', function(){	if (isset($('rs_repeats_control')))	{		if (parseInt($('rs_repeats').scrollHeight) > 70)			$('rs_repeats_control').style.display = '';	}});	var rs_tooltip=function(){	var id = 'rs_tt';	var top = 3;	var left = 3;	var maxw = 400;	var speed = 10;	var timer = 20;	var endalpha = 95;	var alpha = 0;	var tt,t,c,b,h;	var ie = document.all ? true : false;	return{		show:function(v,w){			if(tt == null){				tt = document.createElement('div');				tt.setAttribute('id',id);				t = document.createElement('div');				t.setAttribute('id',id + 'top');				c = document.createElement('div');				c.setAttribute('id',id + 'cont');				b = document.createElement('div');				b.setAttribute('id',id + 'bot');				tt.appendChild(t);				tt.appendChild(c);				tt.appendChild(b);				document.body.appendChild(tt);				tt.style.opacity = 0;				tt.style.filter = 'alpha(opacity=0)';				document.onmousemove = this.pos;			}			tt.style.display = 'block';			c.innerHTML = document.getElementById(v).innerHTML;			tt.style.width = w ? w + 'px' : 'auto';			if(!w && ie){				t.style.display = 'none';				b.style.display = 'none';				tt.style.width = tt.offsetWidth;				t.style.display = 'block';				b.style.display = 'block';			}			if(tt.offsetWidth > maxw){tt.style.width = maxw + 'px'}			h = parseInt(tt.offsetHeight) + top;			clearInterval(tt.timer);			tt.timer = setInterval(function(){rs_tooltip.fade(1)},timer);		},		pos:function(e){			var u = ie ? event.clientY + document.documentElement.scrollTop : e.pageY;			var l = ie ? event.clientX + document.documentElement.scrollLeft : e.pageX;			tt.style.top = (u - h) + 'px';			tt.style.left = (l + left) + 'px';		},		fade:function(d){			var a = alpha;			if((a != endalpha && d == 1) || (a != 0 && d == -1)){				var i = speed;				if(endalpha - a < speed && d == 1){					i = endalpha - a;				}else if(alpha < speed && d == -1){					i = a;				}				alpha = a + (i * d);				tt.style.opacity = alpha * .01;				tt.style.filter = 'alpha(opacity=' + alpha + ')';			}else{				clearInterval(tt.timer);				if(d == -1){tt.style.display = 'none'}			}		},		hide:function(){			clearInterval(tt.timer);			tt.timer = setInterval(function(){rs_tooltip.fade(-1)},timer);		}	};}();function rsepro_add_ticket(id, place, tname, tprice) {	if (window.dialogArguments) {		var thedocument = window.dialogArguments;	} else {		var thedocument = window.opener || window.parent;	}		var seat_container			= $('rsepro_seat_'+id+place);	var selected_container		= thedocument.$('rsepro_selected_tickets');	var selected_view_container	= thedocument.$('rsepro_selected_tickets_view');		available_per_user = eval('ticket_limit_'+id);	selected = thedocument.$$('#rsepro_selected_tickets input[name^=tickets['+id+']]').length;		// Check if we are allowed to buy multiple tickets 	if (thedocument.multitickets == 0) {		var ticketids = new Array();				// Get tickets		thedocument.$$('#rsepro_selected_tickets input[name^=tickets[]').each(function (el) {			theid = el.name.replace('tickets[','').replace('][]','');			if (ticketids.indexOf(theid) == -1) {				ticketids.push(theid);			}		});				// Get free tickets		thedocument.$$('#rsepro_selected_tickets input[name^=unlimited[]').each(function (el) {			theid = el.name.replace('unlimited[','').replace(']','');			if (ticketids.indexOf(theid) == -1) {				ticketids.push(theid);			}		});				if (ticketids.length > 0 && ticketids.indexOf(id) == -1) {			if (!thedocument.$$('#rsepro_selected_tickets input[name^=unlimited[]').length) {				$$('input[id^=rsepro_unlimited_]').each(function (el) {					el.value = '';				});			}						alert(thedocument.smessage[7]);			return;		}	}		// We are dealing with unlimited tickets	if (place == 0) {		if (isset(thedocument.$('ticket'+id+place))) {			if ($('rsepro_unlimited_'+id).value == 0 || $('rsepro_unlimited_'+id).value == '')				selected_container.removeChild(thedocument.$('ticket'+id+place));			else {				if (typeof thedocument.maxtickets != 'undefined' && typeof thedocument.usedtickets != 'undefined') {					var maxticketsAvailable = thedocument.maxtickets - thedocument.usedtickets;					var thetotal = parseInt($$('.rsepro_selected').length);					$$('input[id^=rsepro_unlimited_]').each(function (el) {						if (el.value != '')							thetotal += parseInt(el.value);					});										if (thetotal > maxticketsAvailable) {						alert(thedocument.smessage[5]);						return;					}				}								thedocument.$('ticket'+id+place).value = $('rsepro_unlimited_'+id).value;			}		} else {			if ($('rsepro_unlimited_'+id).value != 0 || $('rsepro_unlimited_'+id).value != '') {								if (typeof thedocument.maxtickets != 'undefined' && typeof thedocument.usedtickets != 'undefined') {					var maxticketsAvailable = thedocument.maxtickets - thedocument.usedtickets;					var thetotal = parseInt($$('.rsepro_selected').length);					$$('input[id^=rsepro_unlimited_]').each(function (el) {						if (el.value != '')							thetotal += parseInt(el.value);					});										if (thetotal > maxticketsAvailable) {						alert(thedocument.smessage[5]);						return;					}				}								input = thedocument.document.createElement('input');				input.setAttribute('type', 'hidden');				input.setAttribute('name', 'unlimited['+id+']');				input.setAttribute('id', 'ticket'+id+place);				input.setAttribute('value', $('rsepro_unlimited_'+id).value);				selected_container.appendChild(input);			}		}	} else {		if (seat_container.hasClass('rsepro_selected')) {			// Deselect ticket			seat_container.removeClass('rsepro_selected')						if (isset(thedocument.$('ticket'+id+place))) {				selected_container.removeChild(thedocument.$('ticket'+id+place));			}					} else {						if (typeof thedocument.maxtickets != 'undefined' && typeof thedocument.usedtickets != 'undefined') {				var maxticketsAvailable = thedocument.maxtickets - thedocument.usedtickets;				var thetotal = parseInt($$('.rsepro_selected').length);				$$('input[id^=rsepro_unlimited_]').each(function (el) {					if (el.value != '')						thetotal += parseInt(el.value);				});								if (thetotal >= maxticketsAvailable) {					alert(thedocument.smessage[5]);					return;				}			}						// Check for tickets quantity limit			if (selected + 1 > available_per_user) {				alert(thedocument.smessage[6].replace('%d',available_per_user));				return;			}						seat_container.addClass('rsepro_selected');			input = thedocument.document.createElement('input');			input.setAttribute('type', 'hidden');			input.setAttribute('name', 'tickets['+id+'][]');			input.setAttribute('id', 'ticket'+id+place);			input.setAttribute('value', place);			selected_container.appendChild(input);		}	}		if (!isset(thedocument.$('content'+id))) {		if (place == 0) {			selected_view_container.innerHTML += '<span id="content'+id+'"><span id="rsepro_quantity'+id+'">'+ $('rsepro_unlimited_'+id).value +'</span> x ' + tname + ' (' + tprice + ') <br /> </span>';		} else {			selected_view_container.innerHTML += '<span id="content'+id+'"><span id="rsepro_quantity'+id+'">'+ thedocument.$$('input[name^=tickets['+id+'][]]').length +'</span> x ' + tname + ' (' + tprice + ') <br /> </span>';		}	} else {		if (place == 0) {			if ($('rsepro_unlimited_'+id).value == 0)				selected_view_container.removeChild(thedocument.$('content'+id));			else 				thedocument.$('rsepro_quantity'+id).innerHTML = $('rsepro_unlimited_'+id).value;		} else {			if (thedocument.$$('input[name^=tickets['+id+'][]]').length == 0)				selected_view_container.removeChild(thedocument.$('content'+id));			else 				thedocument.$('rsepro_quantity'+id).innerHTML = thedocument.$$('input[name^=tickets['+id+'][]]').length;		}	}		var total = 0;	thedocument.$$('span[id^=rsepro_quantity]').each(function (el) {		total += parseInt(el.innerHTML);	});		if (total > 0)		thedocument.$('rsepro_cart').innerHTML = total + ' ' + Joomla.JText._('COM_RSEVENTSPRO_TICKETS');		thedocument.rsepro_update_total();}function rsepro_reset_tickets(text) {	if (window.dialogArguments) {		var thedocument = window.dialogArguments;	} else {		var thedocument = window.opener || window.parent;	}		$$('.rsepro_selected').removeClass('rsepro_selected');	$$('input[id^=rsepro_unlimited]').each(function (el){		el.value = '';	});		thedocument.$('rsepro_selected_tickets_view').innerHTML = '';	thedocument.$('rsepro_selected_tickets').innerHTML = '';	thedocument.$('rsepro_cart').innerHTML = text;	thedocument.rsepro_update_total();}function rsepro_update_total() {	tickets = '&dummy=1';	$$('span[id^=rsepro_quantity]').each(function (el){		tickets += '&tickets['+ parseInt(el.id.replace('rsepro_quantity','')) + ']='+parseInt(el.innerHTML);	});		rse_calculatetotal(tickets);}function ajaxValidationRSEventsPro(task, formId, data) {	if (task == 'beforeSend') {		data.params.push('cid=' + encodeURIComponent(document.getElementById('eventID').innerHTML));	}}function rsepro_validate_report() {	if (document.getElementById('jform_report').value == '') {		document.getElementById('jform_report').addClass('invalid');		return false;	}		document.getElementById('jform_report').removeClass('invalid');	return true;}
+jQuery(document).ready(function() {
+	if (jQuery('#rs_repeats_control').length) {
+		if (parseInt(jQuery('#rs_repeats').prop('scrollHeight')) > 70)
+			jQuery('#rs_repeats_control').css('display','');
+	}
+	
+	if (jQuery('#numberinp').length) {
+		jQuery('#numberinp').on('keyup', function() {
+			jQuery(this).val(jQuery(this).val().replace(/[^0-9]/g, ''));
+		});
+	}
+});
+
+function rse_calculatetotal(tickets,type) {
+	var params = 'task=total&idevent=' + parseInt(jQuery('#eventID').text());
+	rse_root = typeof rsepro_root != 'undefined' ? rsepro_root : '';
+	
+	if (typeof tickets != 'undefined') {
+		params += tickets;
+	} else {
+		var ticketId = jQuery('#RSEProTickets').length ? jQuery('#RSEProTickets').val() : jQuery('#ticket').val();
+		if (jQuery('#from').val() == 0) {
+			var numberOfTickets = jQuery('#numberinp').val();
+		} else {
+			var numberOfTickets = jQuery('#number').val();
+		}
+		
+		// Multiple tickets
+		if (jQuery('#hiddentickets').length) {
+			var ticketsstring = '';
+			jQuery('#hiddentickets input').each(function () {
+				ticketsstring += '&' + jQuery(this).prop('name') + '=' + jQuery(this).val();
+			});
+			
+			params += ticketsstring;
+		} else {
+			params += '&tickets['+ticketId+']='+numberOfTickets;
+		}
+	}
+	
+	if (jQuery('#coupon').length) {
+		params += '&coupon=' + jQuery('#coupon').val();
+	}
+	if (jQuery('#RSEProCoupon').length) {
+		params += '&coupon=' + jQuery('#RSEProCoupon').val();
+	}
+	
+	if (jQuery('select[name=payment]').length) {
+		params += '&payment=' + jQuery('#payment').val();
+	} else if (jQuery('input[name=payment]').length) {
+		if (jQuery('input[name=payment]:checked').length)
+			params += '&payment=' + jQuery('input[name=payment]:checked').val();
+	}
+	
+	if (jQuery('select[name^="form[RSEProPayment]"]').length) {
+		params += '&payment=' + jQuery('#RSEProPayment').val();
+	} else if (jQuery('input[name="form[RSEProPayment]"]').length) {
+		if (jQuery('input[name="form[RSEProPayment]"]:checked').length)
+			params += '&payment=' + jQuery('input[name="form[RSEProPayment]"]:checked').val();
+	}
+	
+	if (type == 'json') {
+		params += '&type=json';
+		jQuery.ajaxSetup({dataType: 'json'});
+	}
+	
+	params += '&randomTime=' + Math.random();
+	
+	jQuery.ajax({
+		url: rse_root + 'index.php?option=com_rseventspro',
+		type: 'post',
+		data: params
+	}).done(function( response ) {
+		if (type == 'json') {
+			if (typeof response.discount != 'undefined') {
+				jQuery('#rsepro-cart-discount').css('display','');
+				jQuery('#rsepro-cart-discount').find('td:nth-child(2)').text('- ' + response.discount);
+				jQuery('#rsepro-cart-discount').find('td:nth-child(1) span').html('<br /><small>' + response.discountname + '</small>');
+			} else {
+				jQuery('#rsepro-cart-discount').css('display','none');
+				jQuery('#rsepro-cart-discount').find('td:nth-child(2)').text('');
+				jQuery('#rsepro-cart-discount').find('td:nth-child(1) span').text('');
+			}
+			
+			if (typeof response.earlybooking != 'undefined') {
+				jQuery('#rsepro-cart-earlybooking').css('display','');
+				jQuery('#rsepro-cart-earlybooking').find('td:nth-child(2)').text('- ' + response.earlybooking);
+			} else {
+				jQuery('#rsepro-cart-earlybooking').css('display','none');
+				jQuery('#rsepro-cart-earlybooking').find('td:nth-child(2)').text('');
+			}
+			
+			if (typeof response.latefee != 'undefined') {
+				jQuery('#rsepro-cart-latefee').css('display','');
+				jQuery('#rsepro-cart-latefee').find('td:nth-child(2)').text(response.latefee);
+			} else {
+				jQuery('#rsepro-cart-latefee').css('display','none');
+				jQuery('#rsepro-cart-latefee').find('td:nth-child(2)').text('');
+			}
+			
+			if (typeof response.tax != 'undefined') {
+				jQuery('#rsepro-cart-tax').css('display','');
+				jQuery('#rsepro-cart-tax').find('td:nth-child(2)').text(response.tax);
+			} else {
+				jQuery('#rsepro-cart-tax').css('display','none');
+				jQuery('#rsepro-cart-tax').find('td:nth-child(2)').text('');
+			}
+			
+			if (typeof response.total != 'undefined') {
+				jQuery('#rsepro-cart-total').find('td:nth-child(2)').text(response.total);
+			}
+		} else {
+			var start = response.indexOf('RS_DELIMITER0') + 13;
+			var end = response.indexOf('RS_DELIMITER1');
+			response = response.substring(start, end);
+			response = response.split('|');
+			
+			if (response[0] != 0) {
+				jQuery('#grandtotalcontainer').css('display','');
+				jQuery('#grandtotal').html(response[0]);
+			} else {
+				jQuery('#grandtotalcontainer').css('display','none');
+				jQuery('#grandtotal').text(0);
+			}
+			
+			if (response[1] != '') {
+				jQuery('#paymentinfocontainer').css('display','');
+				jQuery('#paymentinfo').html(response[1]);
+			} else {
+				jQuery('#paymentinfocontainer').css('display','none');
+				jQuery('#paymentinfo').text('');
+			}
+		}
+	});
+}
+
+function rsepro_description_on(id) {
+	jQuery('#rsehref'+id).css('display','none');
+	jQuery('#rsedescription'+id).removeClass('rsepro_extra_off').addClass('rsepro_extra_on');
+}
+
+function rsepro_description_off(id) {
+	jQuery('#rsehref'+id).css('display','inline');
+	jQuery('#rsedescription'+id).removeClass('rsepro_extra_on').addClass('rsepro_extra_off');
+}
+
+function rs_add_option(theoption) {
+	jQuery('#rseprosearch').val(theoption);
+	jQuery('#rs_results').css('display','none');
+}
+
+function rs_add_filter() {
+	if (jQuery('#rseprosearch').val() != '')
+		document.adminForm.submit();
+}
+
+function rs_clear_filters() {
+	jQuery('#rs_clear').val(1);
+	document.adminForm.submit();
+}
+
+function rs_remove_filter(key) {
+	jQuery('#rs_remove').val(key);
+	document.adminForm.submit();
+}
+
+/**
+ *	Verify coupon
+ */
+function rse_verify_coupon(ide, coupon) {
+	if (coupon == '') {
+		return false;
+	}
+	
+	rse_root = typeof rsepro_root != 'undefined' ? rsepro_root : '';
+	
+	jQuery.ajax({
+		url: rse_root + 'index.php?option=com_rseventspro',
+		type: 'post',
+		dataType: 'html',
+		data: 'task=verify&id=' + ide + '&coupon=' + coupon
+	}).done(function( response ) {
+		var start = response.indexOf('RS_DELIMITER0') + 13;
+		var end = response.indexOf('RS_DELIMITER1');
+		response = response.substring(start, end);
+		alert(response);
+	});
+}
+
+/**
+ *	Events pagination
+ */
+function rspagination(tpl,limitstart,ide) {
+	jQuery('#rs_loader').css('display','');
+	
+	if (tpl == 'day' || tpl == 'week')
+		var params = 'view=calendar&layout=items&tpl='+tpl+'&format=raw&limitstart='+ limitstart;
+	else
+		var params = 'view=rseventspro&layout=items&tpl='+tpl+'&format=raw&limitstart='+ limitstart;
+	
+	if (parseInt(jQuery('#parent').text()) > 0) {
+		params += '&parent=' + parseInt(jQuery('#parent').text());
+	}
+	
+	if (jQuery('#date').text() != '') {
+		params += '&date=' + jQuery('#date').text();
+	}
+	
+	if (ide) {
+		params += '&id=' + parseInt(ide);
+	}
+	
+	params += '&Itemid=' + parseInt(jQuery('#Itemid').text());
+	params += '&randomTime=' + Math.random();
+	
+	if (jQuery('#langcode').length && jQuery('#langcode').val().length > 0) {
+		params += '&lang=' + jQuery('#langcode').text();
+	}
+	
+	rse_root = typeof rsepro_root != 'undefined' ? rsepro_root : '';
+	
+	jQuery.ajax({
+		url: rse_root + 'index.php?option=com_rseventspro',
+		type: 'post',
+		dataType: 'html',
+		data: params
+	}).done(function( response ) {
+		var start = response.indexOf('RS_DELIMITER0') + 13;
+		var end = response.indexOf('RS_DELIMITER1');
+		response = response.substring(start, end);
+		
+		jQuery('#rs_events_container').append(response);
+		jQuery('#rs_loader').css('display','none');
+		
+		if (jQuery('#rs_events_container li[class!="rsepro-month-year"]').length > 0 && (tpl == 'events' || tpl == 'locations' || tpl == 'subscribers' || tpl == 'day' || tpl == 'week')) {
+			jQuery('#rs_events_container li[class!="rsepro-month-year"]').on('mouseenter', function() {
+				jQuery(this).children('div.rs_options').css('display','');
+			});
+			
+			jQuery('#rs_events_container li[class!="rsepro-month-year"]').on('mouseleave', function() {
+				jQuery(this).children('div.rs_options').css('display','none');
+			});
+		}
+		
+		if ((jQuery('#rs_events_container').children('li[class!="rsepro-month-year"]').length) >= parseInt(jQuery('#total').text())) {
+			jQuery('#rsepro_loadmore').css('display','none');
+		}
+	});
+}
+
+/**
+ *	Deprecated
+ *	Rate event
+ */
+function rsepro_feedback(val,id) {}
+
+/**
+ *	Get ticket information
+ */
+function rs_get_ticket(what) {
+	if (jQuery(what).prop('id') == 'numberinp' || jQuery(what).prop('id') == 'number') {
+		return;
+	}
+	
+	jQuery('#rs_loader').css('display','');
+	var rse_root = typeof rsepro_root != 'undefined' ? rsepro_root : '';
+	var ticketId = jQuery('#RSEProTickets').length ? jQuery('#RSEProTickets').val() : jQuery('#ticket').val();
+	
+	jQuery.ajax({
+		url: rse_root + 'index.php?option=com_rseventspro',
+		type: 'post',
+		dataType: 'html',
+		data: 'task=tickets&id=' + ticketId + '&randomTime='+Math.random()
+	}).done(function( response ) {
+		var start = response.indexOf('RS_DELIMITER0') + 13;
+		var end = response.indexOf('RS_DELIMITER1');
+		response = response.substring(start, end);
+		response = response.split('|');
+		
+		jQuery('#rs_loader').css('display','none');
+		
+		if (parseInt(response[0]) == 0) {
+			jQuery('#numberinp').css('display','');
+			jQuery('#number').css('display','none');
+			jQuery('#numberinp').val(1);
+			jQuery('#from').val(0);
+		} else {
+			jQuery('#numberinp').css('display','none');
+			jQuery('#number').css('display','');
+			jQuery('#from').val(1);
+			
+			jQuery('#number option').remove();
+			for(i=1; i <= parseInt(response[0]); i++) {
+				jQuery('#number').append(jQuery('<option>', { 'text': i, 'value': i }));
+			}
+		}
+		
+		jQuery('#tdescription').html(response[1]);
+		
+		if (!jQuery('#rsepro-cart-details').length){
+			rse_calculatetotal();
+		}
+	});
+}
+
+/**
+ *	Subscriber validation
+ */
+function svalidation() {
+	ret = true;
+	msg = new Array();
+	
+	if (jQuery('#name').val() == '') {
+		ret = false; 
+		jQuery('#name').addClass('invalid'); 
+		msg.push(smessage[0]); 
+	} else {
+		jQuery('#name').removeClass('invalid');
+	}
+	
+	if (jQuery('#email').val() == '') { 
+		ret = false; 
+		jQuery('#email').addClass('invalid');
+		msg.push(smessage[1]); 
+	} else { 
+		jQuery('#email').removeClass('invalid'); 
+	}
+	
+	if (jQuery('#hiddentickets').length && jQuery('#hiddentickets').html() == '') {
+		ret = false; msg.push(smessage[3]); 
+	}
+	
+	if (jQuery('#rsepro_selected_tickets').length && jQuery('#rsepro_selected_tickets').html() == '') { 
+		ret = false; msg.push(smessage[3]); 
+	}
+	
+	if (!rse_validateEmail(jQuery('#email').val())) { 
+		ret = false; 
+		jQuery('#email').addClass('invalid');
+		msg.push(smessage[4]);
+	} else { 
+		jQuery('#email').removeClass('invalid');
+	}
+	
+	if (ret) {
+		return true;
+	} else {
+		alert(msg.join("\n"));
+		return false;
+	}
+}
+
+function rsepro_validate_subscription() {
+	ret = true;
+	msg = new Array();
+	
+	if (jQuery('#name').val() == '') {
+		ret = false; 
+		jQuery('#name').addClass('invalid'); 
+		msg.push(smessage[0]); 
+	} else {
+		jQuery('#name').removeClass('invalid');
+	}
+	
+	if (jQuery('#email').val() == '') { 
+		ret = false; 
+		jQuery('#email').addClass('invalid');
+		msg.push(smessage[1]); 
+	} else { 
+		jQuery('#email').removeClass('invalid'); 
+	}
+	
+	if (!rse_validateEmail(jQuery('#email').val())) { 
+		ret = false; 
+		jQuery('#email').addClass('invalid');
+		msg.push(smessage[4]);
+	} else { 
+		jQuery('#email').removeClass('invalid');
+	}
+	
+	if (jQuery('#rsepro-cart-details').length && jQuery('.rsepro-cart-ticket').length == 0) {
+		ret = false; 
+		msg.push(smessage[3]); 
+	}
+	
+	if (ret) {
+		return true;
+	} else {
+		alert(msg.join("\n"));
+		return false;
+	}
+}
+
+/**
+ *	Email validation
+ */	
+function rse_validateEmail(email) {
+	var regex = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	return regex.test(email);
+}
+
+/**
+ *	Add ticket to subscription
+ */
+function rs_add_ticket() {
+	var container		= jQuery('#tickets');
+	var hidden_tickets	= jQuery('#hiddentickets');
+	var ticket			= jQuery('#RSEProTickets').length ? jQuery('#RSEProTickets') : jQuery('#ticket');
+	var ticket_number	= parseInt(jQuery('#from').val()) == 0 ? parseInt(jQuery('#numberinp').val()) : parseInt(jQuery('#number').val());
+	var ticket_id		= ticket.val();
+	var ticket_name		= ticket.find('option:selected').text();
+	
+	if (ticket_number == 0) ticket_number = 1;
+	
+	if (parseInt(jQuery('#from').val()) == 1) {
+		var available_per_user = jQuery('#number option').length;
+		
+		if (jQuery('#tickets'+ticket_id).length) {
+			if (parseInt(jQuery('#tickets'+ticket_id).val()) + ticket_number > available_per_user) {
+				alert(smessage[6].replace('%d',available_per_user));
+				return;
+			}
+		}
+	}
+	
+	if (jQuery('#hiddentickets').length && typeof maxtickets != 'undefined' && typeof usedtickets != 'undefined') {
+		var total = 0;
+		jQuery('#hiddentickets input').each(function() {
+			total += parseInt(jQuery(this).val());
+		});
+		
+		total += ticket_number;
+		totalAvailable = parseInt(maxtickets) - parseInt(usedtickets);
+		
+		if (total > totalAvailable) {
+			alert(smessage[5]);
+			return;
+		}
+	}
+	
+	if (jQuery('#tickets'+ticket_id).length == 0) {
+		var input = jQuery('<input>', {
+			type: 'hidden',
+			name: 'tickets['+ticket_id+']',
+			id:	  'tickets'+ticket_id,
+			value: ticket_number
+		});
+		
+		var span = jQuery('<span>', {
+			id: 'content'+ticket_id,
+			html: '<span id="ticketq'+ ticket_id +'">' + ticket_number + '</span>' + ' x ' + ticket_name + ' <a href="javascript:void(0);" onclick="rs_remove_ticket('+ ticket_id +')"> ('+smessage[2]+')</a><br/>'
+		});
+		
+		hidden_tickets.append(input);
+		container.append(span);
+	} else {
+		jQuery('#ticketq'+ticket_id).html(parseInt(jQuery('#ticketq'+ticket_id).text()) + parseInt(ticket_number));
+		jQuery('#tickets'+ticket_id).val(parseInt(jQuery('#tickets'+ticket_id).val()) + parseInt(ticket_number));
+	}
+	
+	rse_calculatetotal();
+}
+
+/**
+ *	Remove ticket from subscription
+ */
+function rs_remove_ticket(theid) {
+	if (jQuery('#tickets'+theid).length) {
+		jQuery('#content'+theid).remove();
+		jQuery('#tickets'+theid).remove();
+		rse_calculatetotal();
+	}
+}
+
+/**
+ *	Send message to guests validation
+ */
+function rs_send_guests() {
+	var ret = true;
+	
+	if (jQuery('#subject').val() == '') {
+		ret = false; 
+		jQuery('#subject').addClass('invalid');
+	} else { 
+		jQuery('#subject').removeClass('invalid');
+	}
+	
+	if (jQuery('#denied').prop('checked') == false && jQuery('#pending').prop('checked') == false && jQuery('#accepted').prop('checked') == false && !jQuery('#subscribers :selected').length) {
+		ret = false;
+		jQuery('#a_option').addClass('invalid');
+		jQuery('#d_option').addClass('invalid');
+		jQuery('#p_option').addClass('invalid');
+		jQuery('#subscribers').addClass('invalid')
+	} else {
+		jQuery('#a_option').removeClass('invalid');
+		jQuery('#d_option').removeClass('invalid');
+		jQuery('#p_option').removeClass('invalid');
+		jQuery('#subscribers').removeClass('invalid')
+	}
+	
+	return ret;
+}
+
+/**
+ *	Invite validation
+ */
+function rs_invite() {
+	var ret = true;
+	
+	if (jQuery('#jform_from').val() == '') { 
+		ret = false; 
+		jQuery('#jform_from').addClass('invalid');
+	} else { 
+		jQuery('#jform_from').removeClass('invalid');
+	}
+	
+	if (jQuery('#jform_from_name').val() == '') { 
+		ret = false; 
+		jQuery('#jform_from_name').addClass('invalid');
+	} else { 
+		jQuery('#jform_from_name').removeClass('invalid');
+	}
+	
+	if (jQuery('#emails').val() == '') { 
+		ret = false; 
+		jQuery('#emails').addClass('invalid'); 
+	} else { 
+		jQuery('#emails').removeClass('invalid');
+	}
+	
+	if (ret) {
+		document.adminForm.submit();
+	}
+}
+
+/**
+ *	Get Gmail email addresses
+ */
+function rs_google_contacts(token) {
+	jQuery.ajax({
+		url: 'https://www.google.com/m8/feeds/contacts/default/full?alt=json&access_token=' + token.access_token,
+		dataType: 'json'
+	}).done(function( response ) {
+		jQuery(response.feed.entry).each(function() {
+			jQuery('#emails').append(jQuery(jQuery(this).prop('gd$email')).prop('address') + "\n");
+		});
+	});
+}
+
+/**
+ *	Verify captcha
+ */
+function checkcaptcha() {
+	rse_root = typeof rsepro_root != 'undefined' ? rsepro_root : '';
+	var params = 'task=checkcaptcha';
+	
+	if (jQuery('#g-recaptcha-response').length != 0) {
+		params += '&recaptcha=' + jQuery('#g-recaptcha-response').val();
+	} else if (jQuery('#secret').length != 0) {
+		params += '&secret=' + jQuery('#secret').val();
+	}
+	
+	params += '&randomTime='+Math.random();
+	
+	if (jQuery('#g-recaptcha-response').length != 0) {
+		if (jQuery('#g-recaptcha-response').val() == '') {
+			jQuery('#g-recaptcha-response').prev().addClass('invalid');
+			return;
+		} else {
+			jQuery('#g-recaptcha-response').prev().removeClass('invalid');
+		}
+	} else if (jQuery('#secret').length != 0) {
+		if (jQuery('#secret').val() == '') {
+			jQuery('#secret').addClass('invalid');
+			return;
+		} else {
+			jQuery('#secret').removeClass('invalid');
+		}
+	}
+	
+	jQuery.ajax({
+		url: rse_root + 'index.php?option=com_rseventspro',
+		type: 'post',
+		dataType: 'html',
+		data: params
+	}).done(function( response ) {
+		var start = response.indexOf('RS_DELIMITER0') + 13;
+		var end = response.indexOf('RS_DELIMITER1');
+		response = response.substring(start, end);
+		
+		if (parseInt(response)) {
+			if (jQuery('#g-recaptcha-response').length != 0) {
+				jQuery('#g-recaptcha-response').prev().removeClass('invalid');
+			} else if (jQuery('#secret').length != 0) {
+				jQuery('#secret').removeClass('invalid');
+			}
+			
+			rs_invite();
+		} else  {
+			if (jQuery('#g-recaptcha-response').length != 0) {
+				jQuery('#g-recaptcha-response').prev().addClass('invalid');
+				grecaptcha.reset();
+			} else if (jQuery('#secret').length != 0) {
+				jQuery('#secret').addClass('invalid');
+				reloadCaptcha();
+				jQuery('#secret').val('');
+			}
+		}
+	});
+}
+
+/**
+ *	Reload captcha
+ */	
+function reloadCaptcha() {
+	jQuery('#captcha').prop('src', jQuery('#captcha').prop('src') + '?' + Math.random());
+}
+
+/**
+ *	Add calendar filter
+ */	
+function rs_calendar_add_filter(name, search) {
+	if (name != 0) {
+		if (parseInt(search) == 1) {
+			jQuery('#rsepro-filter-from > ul > li > a[rel=categories]').click();
+			jQuery('#rsepro-filter-condition > ul > li > a[rel=is]').click();
+			jQuery('#rsepro-filter').val(name);
+			jQuery('.rsepro-filter-filters input[value=categories]').parent().parent().remove();
+			jQuery('#rsepro-filter-btn').click();
+		} else {
+			jQuery('#filter_from').val('categories');
+			jQuery('#filter_condition').val('is');
+			jQuery('#rseprosearch').val(name);
+			jQuery('#adminForm').submit();
+		}
+	} else {
+		if (parseInt(search) == 1) {
+			jQuery('input[name="filter_from[]"]').each(function() {
+				if (jQuery(this).val() == 'categories') {
+					jQuery(this).parents('li').remove();
+				}
+			});
+		} else {
+			jQuery('#filter_from').val('');
+			jQuery('#filter_condition').val('');
+			jQuery('#rseprosearch').val('');
+		}
+		jQuery('#adminForm').submit();
+	}
+}
+
+/**
+ *	Credit card validation
+ */	
+function cc_validate(card_message,ccv_message) {
+	var ret = true;
+	var message = '';
+	var cc_number = jQuery('#cc_number');
+	var cc_ccv = jQuery('#cc_ccv');
+	var firstname = jQuery('#firstname');
+	var lastname = jQuery('#lastname');
+	
+	if (cc_number.val().length < 13 || cc_number.val().length > 16) { 
+		ret = false; 
+		message += card_message + "\n"; 
+		cc_number.addClass('invalid');
+	} else { 
+		cc_number.removeClass('invalid');
+	}
+	
+	if (cc_ccv.val().length < 3 || cc_ccv.val().length > 4) { 
+		ret = false; 
+		message += ccv_message + "\n"; 
+		cc_ccv.addClass('invalid'); 
+	} else { 
+		cc_ccv.removeClass('invalid');
+	}
+	
+	if (firstname.val() == '') { 
+		ret = false; 
+		firstname.addClass('invalid');
+	} else { 
+		firstname.removeClass('invalid');
+	}
+	
+	if (lastname.val() == '') { 
+		ret = false; 
+		lastname.addClass('invalid');
+	} else { 
+		lastname.removeClass('invalid');
+	}
+	
+	if (message.length != 0) {
+		alert(message);
+	}
+	
+	return ret;
+}
+	
+/**
+ *	Allow only numeric values
+ */	
+function rs_check_card(what) {
+	what.value = what.value.replace(/[^0-9]+/g, '');
+}
+
+/**
+ *	Credit card validation
+ */	
+function rs_cc_form() {
+	var has_error  = false;
+	var cc_number  = jQuery('#cc_number');
+	var csc_number = jQuery('#cc_csc');
+	var cc_fname   = jQuery('#cc_fname');
+	var cc_lname   = jQuery('#cc_lname');
+	
+	if (cc_number.val().length < 14 || cc_number.val().length > 19) {
+		cc_number.addClass('invalid');
+		has_error = true;
+	} else {
+		cc_number.removeClass('invalid');
+	}	
+	
+	if (csc_number.val().length < 3) {
+		csc_number.addClass('invalid');
+		has_error = true;
+	} else {
+		csc_number.removeClass('invalid');
+	}
+	
+	if (cc_fname.val().length == 0) {
+		cc_fname.addClass('invalid');
+		has_error = true;
+	} else {
+		cc_fname.removeClass('invalid');
+	}
+	
+	if (cc_lname.val().length == 0) {
+		cc_lname.addClass('invalid');
+		has_error = true;
+	} else {
+		cc_lname.removeClass('invalid');
+	}
+	
+	return has_error ? false : true;
+}
+
+/**
+ *	Calendar month change
+ */	
+function rs_calendar(root,month,year,module) {
+	jQuery('#rscalendarmonth'+module).css('display','none');
+	jQuery('#rscalendar'+module).css('display','');
+	
+	jQuery.ajax({
+		url: root + 'index.php?option=com_rseventspro',
+		type: 'post',
+		dataType: 'html',
+		data: 'view=calendar&layout=module&format=raw&month=' + month + '&year=' + year + '&mid=' + module + '&randomTime='+Math.random()
+	}).done(function( response ) {
+		var start = response.indexOf('RS_DELIMITER0') + 13;
+		var end = response.indexOf('RS_DELIMITER1');
+		response = response.substring(start, end);
+		
+		jQuery('#rs_calendar_module'+module).html(response);
+		jQuery('#rscalendarmonth'+module).css('display','');
+		jQuery('#rscalendar'+module).css('display','none');
+		
+		if (response.indexOf('hasTooltip') > -1) {
+			jQuery('.hasTooltip').tooltip({"html": true,"container": "body"});
+		} else {
+			$$('.hasTip').each(function(el) {
+				var title = el.get('title');
+				if (title) {
+					var parts = title.split('::', 2);
+					el.store('tip:title', parts[0]);
+					el.store('tip:text', parts[1]);
+				}
+			});
+			var JTooltips = new Tips($$('.hasTip'), { maxTitleChars: 50, fixed: false});
+		}
+	});
+}
+
+/**
+ *	Add selected location
+ */	
+function rs_add_loc() {}
+
+/**
+ *	Show more details
+ */	
+function show_more() {
+	jQuery('#less').css('display','');
+	jQuery('#more').css('display','none');
+	jQuery('#rs_repeats').css('height','auto');
+}
+
+/**
+ *	Show less details
+ */		
+function show_less() {
+	jQuery('#less').css('display','none');
+	jQuery('#more').css('display','');
+	jQuery('#rs_repeats').css('height','70px');
+}
+
+function rsepro_add_ticket(id, place, tname, tprice) {
+	if (window.dialogArguments) {
+		var thedocument = window.dialogArguments;
+	} else {
+		var thedocument = window.opener || window.parent;
+	}
+	
+	var seat_container			= jQuery('#rsepro_seat_'+id+place);
+	var selected_container		= thedocument.jQuery('#rsepro_selected_tickets');
+	var selected_view_container	= thedocument.jQuery('#rsepro_selected_tickets_view');
+	
+	available_per_user = eval('ticket_limit_'+id);
+	selected = thedocument.jQuery('#rsepro_selected_tickets input[name^="tickets['+id+']"]').length;
+	
+	// Check if we are allowed to buy multiple tickets 
+	if (thedocument.multitickets == 0) {
+		var ticketids = new Array();
+		
+		// Get tickets
+		thedocument.jQuery('#rsepro_selected_tickets input[name^="tickets["]').each(function() {
+			theid = jQuery(this).prop('name').replace('tickets[','').replace('][]','');
+			if (ticketids.indexOf(theid) == -1) {
+				ticketids.push(theid);
+			}
+		});
+		
+		// Get free tickets
+		thedocument.jQuery('#rsepro_selected_tickets input[name^="unlimited["]').each(function() {
+			theid = jQuery(this).prop('name').replace('unlimited[','').replace(']','');
+			if (ticketids.indexOf(theid) == -1) {
+				ticketids.push(theid);
+			}
+		});
+		
+		if (ticketids.length > 0 && ticketids.indexOf(id) == -1) {
+			if (!thedocument.jQuery('#rsepro_selected_tickets input[name^="unlimited["]').length) {
+				jQuery('input[id^="rsepro_unlimited_"]').each(function() {
+					jQuery(this).val('');
+				});
+			}
+			
+			alert(thedocument.smessage[7]);
+			return;
+		}
+	}
+	
+	// We are dealing with unlimited tickets
+	if (place == 0) {
+		if (thedocument.jQuery('#ticket'+id+place).length) {
+			if (jQuery('#rsepro_unlimited_'+id).val() == 0 || jQuery('#rsepro_unlimited_'+id).val() == '') {
+				thedocument.jQuery('#ticket'+id+place).remove();
+			} else {
+				if (typeof thedocument.maxtickets != 'undefined' && typeof thedocument.usedtickets != 'undefined') {
+					var maxticketsAvailable = thedocument.maxtickets - thedocument.usedtickets;
+					var thetotal = parseInt(jQuery('.rsepro_selected').length);
+					jQuery('input[id^="rsepro_unlimited_"]').each(function() {
+						if (jQuery(this).val() != '')
+							thetotal += parseInt(jQuery(this).val());
+					});
+					
+					if (thetotal > maxticketsAvailable) {
+						alert(thedocument.smessage[5]);
+						return;
+					}
+				}
+				
+				// Check for tickets quantity limit
+				if (jQuery('#rsepro_unlimited_'+id).val() > available_per_user) {
+					jQuery('#rsepro_unlimited_'+id).val(available_per_user);
+					alert(thedocument.smessage[6].replace('%d',available_per_user));
+					return;
+				}
+				
+				thedocument.jQuery('#ticket'+id+place).val(jQuery('#rsepro_unlimited_'+id).val());
+			}
+		} else {
+			if (jQuery('#rsepro_unlimited_'+id).val() != 0 || jQuery('#rsepro_unlimited_'+id).val() != '') {
+				
+				if (typeof thedocument.maxtickets != 'undefined' && typeof thedocument.usedtickets != 'undefined') {
+					var maxticketsAvailable = thedocument.maxtickets - thedocument.usedtickets;
+					var thetotal = parseInt(jQuery('.rsepro_selected').length);
+					jQuery('input[id^="rsepro_unlimited_"]').each(function() {
+						if (jQuery(this).val() != '')
+							thetotal += parseInt(jQuery(this).val());
+					});
+					
+					if (thetotal > maxticketsAvailable) {
+						alert(thedocument.smessage[5]);
+						return;
+					}
+				}
+				
+				// Check for tickets quantity limit
+				if (jQuery('#rsepro_unlimited_'+id).val() > available_per_user) {
+					alert(thedocument.smessage[6].replace('%d',available_per_user));
+					jQuery('#rsepro_unlimited_'+id).val(available_per_user);
+					return;
+				}
+				
+				if (jQuery('#rsepro_unlimited_'+id).val() > 0) {
+					var input = jQuery('<input>', {
+						type: 'hidden',
+						name: 'unlimited['+id+']',
+						id: 'ticket'+id+place
+					}).val(jQuery('#rsepro_unlimited_'+id).val());
+					selected_container.append(input);
+				}
+			}
+		}
+	} else {
+		if (seat_container.hasClass('rsepro_selected')) {
+			// Deselect ticket
+			seat_container.removeClass('rsepro_selected')
+			
+			if (thedocument.jQuery('#ticket'+id+place).length) {
+				thedocument.jQuery('#ticket'+id+place).remove();
+			}
+			
+		} else {
+			
+			if (typeof thedocument.maxtickets != 'undefined' && typeof thedocument.usedtickets != 'undefined') {
+				var maxticketsAvailable = thedocument.maxtickets - thedocument.usedtickets;
+				var thetotal = parseInt(jQuery('.rsepro_selected').length);
+				jQuery('input[id^="rsepro_unlimited_"]').each(function() {
+					if (jQuery(this).val() != '')
+						thetotal += parseInt(jQuery(this).val());
+				});
+				
+				if (thetotal >= maxticketsAvailable) {
+					alert(thedocument.smessage[5]);
+					return;
+				}
+			}
+			
+			// Check for tickets quantity limit
+			if (selected + 1 > available_per_user) {
+				alert(thedocument.smessage[6].replace('%d',available_per_user));
+				return;
+			}
+			
+			seat_container.addClass('rsepro_selected');
+			
+			
+			var input = jQuery('<input>', {
+				type: 'hidden',
+				name: 'tickets['+id+'][]',
+				id: 'ticket'+id+place
+			}).val(place);
+			selected_container.append(input);
+		}
+	}
+	
+	if (thedocument.jQuery('#content'+id).length == 0) {
+		if (place == 0) {
+			if (jQuery('#rsepro_unlimited_'+id).val() > 0)
+				selected_view_container.append('<span id="content'+id+'"><span id="rsepro_quantity'+id+'">'+ jQuery('#rsepro_unlimited_'+id).val() +'</span> x ' + decodeURIComponent(tname) + ' (' + tprice + ') <br /> </span>');
+		} else {
+			selected_view_container.append('<span id="content'+id+'"><span id="rsepro_quantity'+id+'">'+ thedocument.jQuery('input[name^="tickets['+id+'][]"]').length +'</span> x ' + decodeURIComponent(tname) + ' (' + tprice + ') <span id="rsepro_seats'+id+'"></span><br /> </span>');
+		}
+	} else {
+		if (place == 0) {
+			if (jQuery('#rsepro_unlimited_'+id).val() == 0)
+				thedocument.jQuery('#content'+id).remove();
+			else 
+				thedocument.jQuery('#rsepro_quantity'+id).text(jQuery('#rsepro_unlimited_'+id).val());
+		} else {
+			if (thedocument.jQuery('input[name^="tickets['+id+'][]"]').length == 0)
+				thedocument.jQuery('#content'+id).remove();
+			else 
+				thedocument.jQuery('#rsepro_quantity'+id).text(thedocument.jQuery('input[name^="tickets['+id+'][]"]').length);
+		}
+	}
+	
+	if (thedocument.jQuery('#rsepro_seats' + id).length) {
+		var seats = [];
+		for (var t = 0; t < thedocument.jQuery('input[name^="tickets['+id+'][]"]').length; t++) {
+			seats.push(jQuery(thedocument.jQuery('input[name^="tickets['+id+'][]"]')[t]).val());
+		}
+		thedocument.jQuery('#rsepro_seats' + id).html(Joomla.JText._('COM_RSEVENTSPRO_SEATS').replace('%s', seats.join(', ')));
+	}
+	
+	var total = 0;
+
+	thedocument.jQuery('span[id^="rsepro_quantity"]').each(function() {
+		total += parseInt(jQuery(this).text());
+	});
+	
+	if (total > 0)
+		thedocument.jQuery('#rsepro_cart').html(total + ' ' + Joomla.JText._('COM_RSEVENTSPRO_TICKETS'));
+	else
+		thedocument.jQuery('#rsepro_cart').html(Joomla.JText._('COM_RSEVENTSPRO_SELECT_TICKETS'));
+	
+	thedocument.rsepro_update_total();
+}
+
+function rsepro_reset_tickets(text) {
+	if (window.dialogArguments) {
+		var thedocument = window.dialogArguments;
+	} else {
+		var thedocument = window.opener || window.parent;
+	}
+	
+	jQuery('.rsepro_selected').removeClass('rsepro_selected');
+	jQuery('input[id^="rsepro_unlimited"]').each(function() {
+		jQuery(this).val('');
+	});
+	
+	thedocument.jQuery('#rsepro_selected_tickets_view').html('');
+	thedocument.jQuery('#rsepro_selected_tickets').html('')
+	thedocument.jQuery('#rsepro_cart').html(text);
+	thedocument.rsepro_update_total();
+}
+
+function rsepro_update_total() {
+	tickets = '&dummy=1';
+
+	jQuery('span[id^="rsepro_quantity"]').each(function() {
+		tickets += '&tickets['+ parseInt(jQuery(this).prop('id').replace('rsepro_quantity','')) + ']='+parseInt(jQuery(this).text());
+	});
+	
+	rse_calculatetotal(tickets);
+}
+
+function ajaxValidationRSEventsPro(task, formId, data) {
+	if (task == 'beforeSend') {
+		data.params.push('cid=' + encodeURIComponent(document.getElementById('eventID').innerHTML));
+	}
+}
+
+function rsepro_validate_report() {
+	if (jQuery('#jform_report').val() == '') {
+		jQuery('#jform_report').addClass('invalid');
+		return false;
+	}
+	
+	jQuery('#jform_report').removeClass('invalid');
+	return true;
+}
+
+function rsepro_confirm_subscriber(id,token) {
+	rse_root = typeof rsepro_root != 'undefined' ? rsepro_root : '';
+	jQuery('#subscriptionConfirm').css('display','');
+	
+	jQuery.ajax({
+		url: rse_root + 'index.php?option=com_rseventspro',
+		type: 'post',
+		dataType: 'html',
+		data: 'task=rseventspro.confirmsubscriber&id=' + id + '&' + token + '=1&randomTime='+Math.random()
+	}).done(function( response ) {
+		var start = response.indexOf('RS_DELIMITER0') + 13;
+		var end = response.indexOf('RS_DELIMITER1');
+		response = response.substring(start, end);
+		
+		if (response == '1') {
+			jQuery('#confirm'+id).html(Joomla.JText._('COM_RSEVENTSPRO_SUBSCRIBER_CONFIRMED'));
+		}
+	});
+}
+
+function rsepro_add_single_ticket(what) {
+	var rse_root	= typeof rsepro_root != 'undefined' ? rsepro_root : '';
+	var ticket_id	= jQuery('#ticket').val();
+	
+	jQuery.ajax({
+		url: rse_root + 'index.php?option=com_rseventspro',
+		type: 'post',
+		dataType: 'json',
+		data: 'task=singleticket&id=' + ticket_id
+	}).done(function( response ) {
+		if (typeof response.seats != 'undefined') {
+			if (jQuery(what).prop('id') != 'numberinp' && jQuery(what).prop('id') !== 'number') {
+				if (parseInt(response.seats) == 0) {
+					jQuery('#numberinp').css('display','');
+					jQuery('#number').css('display','none');
+					jQuery('#numberinp').val(1);
+					jQuery('#from').val(0);
+				} else {
+					jQuery('#numberinp').css('display','none');
+					jQuery('#number').css('display','');
+					jQuery('#from').val(1);
+					
+					jQuery('#number option').remove();
+					for(i=1; i <= parseInt(response.seats); i++) {
+						jQuery('#number').append(jQuery('<option>', { 'text': i, 'value': i }));
+					}
+				}
+			}
+		}
+		
+		var quantity = parseInt(jQuery('#from').val()) == 0 ? parseInt(jQuery('#numberinp').val()) : parseInt(jQuery('#number').val());
+		var total	 = quantity * response.tprice;
+		total = number_format(total, response.payment_decimals, response.payment_decimal, response.payment_thousands);
+		
+		jQuery('.rsepro-cart-ticket').remove();
+		
+		var tr	= jQuery('<tr>').addClass('rsepro-cart-ticket');
+		var td1	= jQuery('<td>').html('<span>' + quantity + '</span> x ' + response.name + ' ( ' + response.price + ' )<br /> <small>' + response.description + '</small>');
+		var td2	= jQuery('<td>').text(response.mask.replace('{price}',total));
+		var td3	= jQuery('<td>');
+		
+		tr.append(td1);
+		tr.append(td2);
+		tr.append(td3);
+		tr.insertBefore(jQuery('#rsepro-cart-discount'));
+		
+		rse_calculatetotal('&tickets['+ ticket_id + ']=' + parseInt(quantity),'json');
+	});
+}
+
+function rsepro_add_multiple_tickets() {
+	var quantity	= parseInt(jQuery('#from').val()) == 0 ? parseInt(jQuery('#numberinp').val()) : parseInt(jQuery('#number').val());
+	var ticket_id	= jQuery('#ticket').val();
+	var rse_root	= typeof rsepro_root != 'undefined' ? rsepro_root : '';
+	
+	if (quantity == 0) {
+		quantity = 1;
+	}
+	
+	if (parseInt(jQuery('#from').val()) == 1) {
+		var available_per_user = jQuery('#number option').length;
+		
+		if (jQuery('#tickets'+ticket_id).length) {
+			if (parseInt(jQuery('#tickets'+ticket_id).val()) + quantity > available_per_user) {
+				alert(smessage[6].replace('%d',available_per_user));
+				return;
+			}
+		}
+	}
+	
+	if (jQuery('#rsepro-cart-details').length && typeof maxtickets != 'undefined' && typeof usedtickets != 'undefined') {
+		var total = 0;
+		jQuery('.rsepro-cart-ticket input').each(function() {
+			total += parseInt(jQuery(this).val());
+		});
+		
+		total += quantity;
+		totalAvailable = parseInt(maxtickets) - parseInt(usedtickets);
+		
+		if (total > totalAvailable) {
+			alert(smessage[5]);
+			return;
+		}
+	}
+	
+	jQuery.ajax({
+		url: rse_root + 'index.php?option=com_rseventspro',
+		type: 'post',
+		dataType: 'json',
+		data: 'task=ticket&id=' + ticket_id
+	}).done(function( response ) {
+		if (response) {
+			if (jQuery('#tickets'+ticket_id).length == 0) {
+				
+				var total	 = quantity * response.tprice;
+				total = number_format(total, response.payment_decimals, response.payment_decimal, response.payment_thousands);
+				
+				var tr	= jQuery('<tr>').addClass('rsepro-cart-ticket');
+				var td1	= jQuery('<td>').html('<span>' + quantity + '</span> x ' + response.name + ' ( ' + response.price + ' ) <br /> <small>' + response.description + '</small>');
+				var td2	= jQuery('<td>').text(response.mask.replace('{price}',total));
+				var td3	= jQuery('<td>');
+				
+				var remove = jQuery('<a>', {
+					href: 'javascript:void(0)'
+				}).text('(X)').on('click', function() {
+					jQuery(this).parent().parent().remove();
+					rsepro_multi_total();
+				});
+				
+				var input = jQuery('<input>', {
+					type: 'hidden',
+					name: 'tickets['+ticket_id+']',
+					id:	  'tickets'+ticket_id,
+					value: quantity
+				});
+				
+				td1.append(input);
+				td3.append(remove);
+				tr.append(td1);
+				tr.append(td2);
+				tr.append(td3);
+				tr.insertBefore(jQuery('#rsepro-cart-discount'));
+				
+			} else {
+				var ticketsQ = parseInt(jQuery('#tickets'+ticket_id).val()) + parseInt(quantity);
+				jQuery('#tickets'+ticket_id).parent().find('span').text(ticketsQ);
+				jQuery('#tickets'+ticket_id).val(ticketsQ);
+				
+				var total	 = ticketsQ * response.tprice;
+				total = number_format(total, response.payment_decimals, response.payment_decimal, response.payment_thousands);
+				jQuery('#tickets'+ticket_id).parent().parent().find('td:nth-child(2)').html(response.mask.replace('{price}',total));
+			}
+			
+			var tickets = new Array();
+			jQuery('#rsepro-cart-details input').each(function() {
+				tickets.push(jQuery(this).prop('name')+ '=' + jQuery(this).val());
+			});
+			
+			rse_calculatetotal('&'+tickets.join('&'),'json');
+		}
+	});
+}
+
+function rsepro_add_ticket_seats(id, place) {
+	if (window.dialogArguments) {
+		var thedocument = window.dialogArguments;
+	} else {
+		var thedocument = window.opener || window.parent;
+	}
+	
+	var rse_root				= typeof rsepro_root != 'undefined' ? rsepro_root : '';
+	var seat_container			= jQuery('#rsepro_seat_'+id+place);
+	
+	available_per_user = eval('ticket_limit_'+id);
+	selected = thedocument.jQuery('#rsepro-cart-details input[name^="tickets['+id+']"]').length;
+	
+	// Check if we are allowed to buy multiple tickets 
+	if (thedocument.multitickets == 0) {
+		var ticketids = new Array();
+		
+		// Get tickets
+		thedocument.jQuery('#rsepro-cart-details input[name^="tickets["]').each(function() {
+			theid = jQuery(this).prop('name').replace('tickets[','').replace('][]','');
+			if (ticketids.indexOf(theid) == -1) {
+				ticketids.push(theid);
+			}
+		});
+		
+		// Get free tickets
+		thedocument.jQuery('#rsepro-cart-details input[name^="unlimited["]').each(function() {
+			theid = jQuery(this).prop('name').replace('unlimited[','').replace(']','');
+			if (ticketids.indexOf(theid) == -1) {
+				ticketids.push(theid);
+			}
+		});
+		
+		if (ticketids.length > 0 && ticketids.indexOf(id) == -1) {
+			if (!thedocument.jQuery('#rsepro-cart-details input[name^="unlimited["]').length) {
+				jQuery('input[id^="rsepro_unlimited_"]').each(function() {
+					jQuery(this).val('');
+				});
+			}
+			
+			alert(thedocument.smessage[7]);
+			return;
+		}
+	}
+	
+	jQuery.ajax({
+		url: rse_root + 'index.php?option=com_rseventspro',
+		type: 'post',
+		dataType: 'json',
+		data: 'task=ticket&id=' + id
+	}).done(function( response ) {
+		// Are we dealing with unlimited tickets ?
+		if (place == 0) {
+			if (thedocument.jQuery('#ticket'+id+place).length) {
+				if (jQuery('#rsepro_unlimited_'+id).val() == 0 || jQuery('#rsepro_unlimited_'+id).val() == '') {
+					thedocument.jQuery('#ticket'+id+place).parent().parent().remove();
+				} else {
+					if (typeof thedocument.maxtickets != 'undefined' && typeof thedocument.usedtickets != 'undefined') {
+						var maxticketsAvailable = thedocument.maxtickets - thedocument.usedtickets;
+						var thetotal = parseInt(jQuery('.rsepro_selected').length);
+						jQuery('input[id^="rsepro_unlimited_"]').each(function() {
+							if (jQuery(this).val() != '')
+								thetotal += parseInt(jQuery(this).val());
+						});
+						
+						if (thetotal > maxticketsAvailable) {
+							alert(thedocument.smessage[5]);
+							return;
+						}
+					}
+					
+					// Check for tickets quantity limit
+					if (jQuery('#rsepro_unlimited_'+id).val() > available_per_user) {
+						jQuery('#rsepro_unlimited_'+id).val(available_per_user);
+						alert(thedocument.smessage[6].replace('%d',available_per_user));
+						return;
+					}
+					
+					thedocument.jQuery('#ticket'+id+place).val(jQuery('#rsepro_unlimited_'+id).val());
+					thedocument.jQuery('#ticket'+id+place).parent().find('span').text(jQuery('#rsepro_unlimited_'+id).val());
+					
+					var total	 = parseInt(jQuery('#rsepro_unlimited_'+id).val()) * response.tprice;
+					total = number_format(total, response.payment_decimals, response.payment_decimal, response.payment_thousands);
+					thedocument.jQuery('#ticket'+id+place).parent().parent().find('td:nth-child(2)').html(response.mask.replace('{price}',total));
+				}
+			} else {
+				if (jQuery('#rsepro_unlimited_'+id).val() != 0 || jQuery('#rsepro_unlimited_'+id).val() != '') {
+					
+					if (typeof thedocument.maxtickets != 'undefined' && typeof thedocument.usedtickets != 'undefined') {
+						var maxticketsAvailable = thedocument.maxtickets - thedocument.usedtickets;
+						var thetotal = parseInt(jQuery('.rsepro_selected').length);
+						jQuery('input[id^="rsepro_unlimited_"]').each(function() {
+							if (jQuery(this).val() != '')
+								thetotal += parseInt(jQuery(this).val());
+						});
+						
+						if (thetotal > maxticketsAvailable) {
+							alert(thedocument.smessage[5]);
+							return;
+						}
+					}
+					
+					// Check for tickets quantity limit
+					if (jQuery('#rsepro_unlimited_'+id).val() > available_per_user) {
+						alert(thedocument.smessage[6].replace('%d',available_per_user));
+						jQuery('#rsepro_unlimited_'+id).val(available_per_user);
+						return;
+					}
+					
+					if (jQuery('#rsepro_unlimited_'+id).val() > 0) {
+						var total	 = parseInt(jQuery('#rsepro_unlimited_'+id).val()) * response.tprice;
+						total = number_format(total, response.payment_decimals, response.payment_decimal, response.payment_thousands);
+						
+						var tr	= jQuery('<tr>').addClass('rsepro-cart-ticket');
+						var td1	= jQuery('<td>').html('<span>' + jQuery('#rsepro_unlimited_'+id).val() + '</span> x ' + response.name + ' ( ' + response.price + ' ) <br /> <small>' + response.description + '</small>');
+						var td2	= jQuery('<td>').text(response.mask.replace('{price}',total));
+						var td3	= jQuery('<td>');
+						
+						var remove = jQuery('<a>', {
+							href: 'javascript:void(0)'
+						}).text('(X)').on('click', function() {
+							jQuery(this).parent().parent().remove();
+							thedocument.rsepro_multi_seats_total();
+						});
+						
+						var input = jQuery('<input>', {
+							type: 'hidden',
+							name: 'unlimited['+id+']',
+							id: 'ticket'+id+place
+						}).val(jQuery('#rsepro_unlimited_'+id).val());
+						
+						td1.append(input);
+						td3.append(remove);
+						tr.append(td1);
+						tr.append(td2);
+						tr.append(td3);
+						tr.insertBefore(thedocument.jQuery('#rsepro-cart-discount'));
+					}
+				}
+			}
+		} else {
+			if (seat_container.hasClass('rsepro_selected')) {
+				// Deselect ticket
+				seat_container.removeClass('rsepro_selected')
+				
+				if (thedocument.jQuery('#rsepro-seat-'+id).length) {
+					if (thedocument.jQuery('#ticket'+id+place).length) {
+						thedocument.jQuery('#ticket'+id+place).remove();
+						var quantity = parseInt(thedocument.jQuery('#rsepro-seat-'+id+' td:nth-child(1)').find('span').text()) - 1;
+						var total = quantity * response.tprice;
+						total = number_format(total, response.payment_decimals, response.payment_decimal, response.payment_thousands);
+						thedocument.jQuery('#rsepro-seat-'+id+' td:nth-child(1)').find('span').text(quantity);
+						thedocument.jQuery('#rsepro-seat-'+id+' td:nth-child(2)').text(total);
+						thedocument.rsepro_multi_seats_total();
+					}
+					
+					if (thedocument.jQuery('#rsepro-seat-'+id+' input').length == 0) {
+						thedocument.jQuery('#rsepro-seat-'+id).remove();
+						thedocument.rsepro_multi_seats_total();
+					}
+				}
+			} else {
+				
+				if (typeof thedocument.maxtickets != 'undefined' && typeof thedocument.usedtickets != 'undefined') {
+					var maxticketsAvailable = thedocument.maxtickets - thedocument.usedtickets;
+					var thetotal = parseInt(jQuery('.rsepro_selected').length);
+					jQuery('input[id^="rsepro_unlimited_"]').each(function() {
+						if (jQuery(this).val() != '')
+							thetotal += parseInt(jQuery(this).val());
+					});
+					
+					if (thetotal >= maxticketsAvailable) {
+						alert(thedocument.smessage[5]);
+						return;
+					}
+				}
+				
+				// Check for tickets quantity limit
+				if (selected + 1 > available_per_user) {
+					alert(thedocument.smessage[6].replace('%d',available_per_user));
+					return;
+				}
+				
+				seat_container.addClass('rsepro_selected');
+				
+				if (thedocument.jQuery('#rsepro-seat-'+id).length) {
+					var quantity = parseInt(thedocument.jQuery('#rsepro-seat-'+id+' td:nth-child(1)').find('span').text()) + 1;
+					var total = quantity * response.tprice;
+					total = number_format(total, response.payment_decimals, response.payment_decimal, response.payment_thousands);
+					thedocument.jQuery('#rsepro-seat-'+id+' td:nth-child(1)').find('span').text(quantity);
+					thedocument.jQuery('#rsepro-seat-'+id+' td:nth-child(2)').text(total);
+					
+					var input = jQuery('<input>', {
+						type: 'hidden',
+						name: 'tickets['+id+'][]',
+						id: 'ticket'+id+place
+					}).val(place);
+					thedocument.jQuery('#rsepro-seat-'+id+' td:nth-child(1)').append(input);
+					
+				} else {
+					var total	 = 1 * response.tprice;
+					total = number_format(total, response.payment_decimals, response.payment_decimal, response.payment_thousands);
+					
+					var tr	= jQuery('<tr>', { id: 'rsepro-seat-'+id}).addClass('rsepro-cart-ticket');
+					var td1	= jQuery('<td>').html('<span>1</span> x ' + response.name + ' ( ' + response.price + ' ) <span id="rsepro-seats-'+id+'"></span> <br /> <small>' + response.description + '</small>');
+					var td2	= jQuery('<td>').text(response.mask.replace('{price}',total));
+					var td3	= jQuery('<td>');
+					
+					var remove = jQuery('<a>', {
+						href: 'javascript:void(0)'
+					}).text('(X)').on('click', function() {
+						jQuery(this).parent().parent().remove();
+						thedocument.rsepro_multi_seats_total();
+					});
+					
+					var input = jQuery('<input>', {
+						type: 'hidden',
+						name: 'tickets['+id+'][]',
+						id: 'ticket'+id+place
+					}).val(place);
+					
+					td1.append(input);
+					td3.append(remove);
+					tr.append(td1);
+					tr.append(td2);
+					tr.append(td3);
+					tr.insertBefore(thedocument.jQuery('#rsepro-cart-discount'));
+				}
+			}
+			
+			if (thedocument.jQuery('#rsepro-seats-'+id).length) {
+				var seats = [];
+				for (var t = 0; t < thedocument.jQuery('input[name^="tickets['+id+'][]"]').length; t++) {
+					seats.push(jQuery(thedocument.jQuery('input[name^="tickets['+id+'][]"]')[t]).val());
+				}
+				
+				thedocument.jQuery('#rsepro-seats-'+id).html(Joomla.JText._('COM_RSEVENTSPRO_SEATS').replace('%s', seats.join(', ')));
+			}
+		}
+	});
+	
+	thedocument.rsepro_multi_seats_total();
+}
+
+function rsepro_single_total() {
+	var quantity	= parseInt(jQuery('#from').val()) == 0 ? parseInt(jQuery('#numberinp').val()) : parseInt(jQuery('#number').val());
+	var ticket_id	= jQuery('#ticket').val();
+	
+	setTimeout(function () {
+		rse_calculatetotal('&tickets['+ ticket_id + ']=' + parseInt(quantity),'json');
+	},1000);
+}
+
+function rsepro_multi_total() {
+	var tickets = new Array();
+	
+	tickets.push('dummy=1');
+	jQuery('#rsepro-cart-details input').each(function() {
+		tickets.push(jQuery(this).prop('name')+ '=' + jQuery(this).val());
+	});
+	
+	rse_calculatetotal('&'+tickets.join('&'),'json');
+}
+
+function rsepro_multi_seats_total() {
+	setTimeout(function () {
+		var tickets = new Array();
+		tickets.push('dummy=1');
+	
+		jQuery('#rsepro-cart-details input[name^="unlimited"]').each(function() {
+			tickets.push('tickets['+jQuery(this).prop('name').replace('unlimited[','').replace(']','')+']='+jQuery(this).val())
+		});
+		
+		jQuery('#rsepro-cart-details tr[id^="rsepro-seat-"]').each(function() {
+			tickets.push('tickets['+jQuery(this).prop('id').replace('rsepro-seat-','')+']='+jQuery(this).find('input').length);
+		});
+		
+		rse_calculatetotal('&'+tickets.join('&'),'json');
+	},1000);
+}
+
+function rsepro_reset_tickets_seats() {
+	if (window.dialogArguments) {
+		var thedocument = window.dialogArguments;
+	} else {
+		var thedocument = window.opener || window.parent;
+	}
+	
+	jQuery('.rsepro_selected').removeClass('rsepro_selected');
+	jQuery('input[id^="rsepro_unlimited"]').each(function() {
+		jQuery(this).val('');
+	});
+	
+	thedocument.jQuery('#rsepro-cart-details .rsepro-cart-ticket').remove();
+	thedocument.rsepro_multi_seats_total();
+}
+
+function number_format(number, decimals, dec_point, thousands_sep) {
+  //  discuss at: http://phpjs.org/functions/number_format/
+  // original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
+  // improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+  // improved by: davook
+  // improved by: Brett Zamir (http://brett-zamir.me)
+  // improved by: Brett Zamir (http://brett-zamir.me)
+  // improved by: Theriault
+  // improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+  // bugfixed by: Michael White (http://getsprink.com)
+  // bugfixed by: Benjamin Lupton
+  // bugfixed by: Allan Jensen (http://www.winternet.no)
+  // bugfixed by: Howard Yeend
+  // bugfixed by: Diogo Resende
+  // bugfixed by: Rival
+  // bugfixed by: Brett Zamir (http://brett-zamir.me)
+  //  revised by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
+  //  revised by: Luke Smith (http://lucassmith.name)
+  //    input by: Kheang Hok Chin (http://www.distantia.ca/)
+  //    input by: Jay Klehr
+  //    input by: Amir Habibi (http://www.residence-mixte.com/)
+  //    input by: Amirouche
+  //   example 1: number_format(1234.56);
+  //   returns 1: '1,235'
+  //   example 2: number_format(1234.56, 2, ',', ' ');
+  //   returns 2: '1 234,56'
+  //   example 3: number_format(1234.5678, 2, '.', '');
+  //   returns 3: '1234.57'
+  //   example 4: number_format(67, 2, ',', '.');
+  //   returns 4: '67,00'
+  //   example 5: number_format(1000);
+  //   returns 5: '1,000'
+  //   example 6: number_format(67.311, 2);
+  //   returns 6: '67.31'
+  //   example 7: number_format(1000.55, 1);
+  //   returns 7: '1,000.6'
+  //   example 8: number_format(67000, 5, ',', '.');
+  //   returns 8: '67.000,00000'
+  //   example 9: number_format(0.9, 0);
+  //   returns 9: '1'
+  //  example 10: number_format('1.20', 2);
+  //  returns 10: '1.20'
+  //  example 11: number_format('1.20', 4);
+  //  returns 11: '1.2000'
+  //  example 12: number_format('1.2000', 3);
+  //  returns 12: '1.200'
+  //  example 13: number_format('1 000,50', 2, '.', ' ');
+  //  returns 13: '100 050.00'
+  //  example 14: number_format(1e-8, 8, '.', '');
+  //  returns 14: '0.00000001'
+
+  number = (number + '')
+    .replace(/[^0-9+\-Ee.]/g, '');
+  var n = !isFinite(+number) ? 0 : +number,
+    prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+    sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+    dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+    s = '',
+    toFixedFix = function (n, prec) {
+      var k = Math.pow(10, prec);
+      return '' + (Math.round(n * k) / k)
+        .toFixed(prec);
+    };
+  // Fix for IE parseFloat(0.55).toFixed(0) = 0;
+  s = (prec ? toFixedFix(n, prec) : '' + Math.round(n))
+    .split('.');
+  if (s[0].length > 3) {
+    s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+  }
+  if ((s[1] || '')
+    .length < prec) {
+    s[1] = s[1] || '';
+    s[1] += new Array(prec - s[1].length + 1)
+      .join('0');
+  }
+  return s.join(dec);
+}
+
+var rs_tooltip = function(){
+	var id = 'rs_tt';
+	var top = 3;
+	var left = 3;
+	var maxw = 400;
+	var speed = 10;
+	var timer = 20;
+	var endalpha = 95;
+	var alpha = 0;
+	var tt,t,c,b,h;
+	var ie = document.all ? true : false;
+	return{
+		show:function(v,w){
+			if(tt == null){
+				tt = document.createElement('div');
+				tt.setAttribute('id',id);
+				t = document.createElement('div');
+				t.setAttribute('id',id + 'top');
+				c = document.createElement('div');
+				c.setAttribute('id',id + 'cont');
+				b = document.createElement('div');
+				b.setAttribute('id',id + 'bot');
+				tt.appendChild(t);
+				tt.appendChild(c);
+				tt.appendChild(b);
+				document.body.appendChild(tt);
+				tt.style.opacity = 0;
+				tt.style.filter = 'alpha(opacity=0)';
+				document.onmousemove = this.pos;
+			}
+			tt.style.display = 'block';
+			c.innerHTML = document.getElementById(v).innerHTML;
+			tt.style.width = w ? w + 'px' : 'auto';
+			if(!w && ie){
+				t.style.display = 'none';
+				b.style.display = 'none';
+				tt.style.width = tt.offsetWidth;
+				t.style.display = 'block';
+				b.style.display = 'block';
+			}
+			if(tt.offsetWidth > maxw){tt.style.width = maxw + 'px'}
+			h = parseInt(tt.offsetHeight) + top;
+			clearInterval(tt.timer);
+			tt.timer = setInterval(function(){rs_tooltip.fade(1)},timer);
+		},
+		pos:function(e){
+			var u = ie ? event.clientY + document.documentElement.scrollTop : e.pageY;
+			var l = ie ? event.clientX + document.documentElement.scrollLeft : e.pageX;
+			tt.style.top = (u - h) + 'px';
+			tt.style.left = (l + left) + 'px';
+		},
+		fade:function(d){
+			var a = alpha;
+			if((a != endalpha && d == 1) || (a != 0 && d == -1)){
+				var i = speed;
+				if(endalpha - a < speed && d == 1){
+					i = endalpha - a;
+				}else if(alpha < speed && d == -1){
+					i = a;
+				}
+				alpha = a + (i * d);
+				tt.style.opacity = alpha * .01;
+				tt.style.filter = 'alpha(opacity=' + alpha + ')';
+			}else{
+				clearInterval(tt.timer);
+				if(d == -1){tt.style.display = 'none'}
+			}
+		},
+		hide:function(){
+			clearInterval(tt.timer);
+			tt.timer = setInterval(function(){rs_tooltip.fade(-1)},timer);
+		}
+	};
+}();
+
+function rsmAddEvent(obj, evType, fn) {
+	if (obj.addEventListener) {
+		obj.addEventListener(evType, fn, false);
+		return true;
+	} else if (obj.attachEvent){
+		var r = obj.attachEvent("on"+evType, fn);
+		return r;
+	} else {
+		return false;
+	}
+}
