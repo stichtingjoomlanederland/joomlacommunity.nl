@@ -1,0 +1,35 @@
+// Header
+.header {
+  margin-bottom: 20px;
+  height: 110px;
+  z-index: 5;
+  position: relative;
+
+  &.homepage {
+    height: 350px;
+  }
+
+  .subnav {
+    .navbar-sub {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    &.affix {
+      .navbar-sub {
+        background: none;
+      }
+    }
+
+    .nav > li > a {
+      color: #fff;
+    }
+  }
+
+  @media (min-width: @screen-xs) {
+    height: 150px;
+  }
+
+  @media (min-width: @screen-lg) {
+    margin-top: 55px;
+  }
+}
