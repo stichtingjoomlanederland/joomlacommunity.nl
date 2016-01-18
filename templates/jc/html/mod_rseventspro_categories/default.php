@@ -9,6 +9,6 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access'); ?>
 
-<div class="list-group <?php echo $suffix; ?>" style="margin-left: 25px;">
+<div class="list-group <?php echo $suffix; ?>">
 <?php require JModuleHelper::getLayoutPath('mod_rseventspro_categories', $params->get('layout', 'default').'_items'); ?>
 </div>
