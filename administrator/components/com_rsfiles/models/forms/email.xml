@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<field name="language" type="language" label="COM_RSFILES_CONF_LANGUAGE" description="COM_RSFILES_CONF_LANGUAGE_DESC" size="1" default="" onchange="document.adminForm.submit();" />
+	
+	<field name="admin_enable" type="radio" class="btn-group" label="COM_RSFILES_CONF_MESSAGE_ENABLE" description="COM_RSFILES_CONF_MESSAGE_ENABLE_DESC" default="0">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="upload_enable" type="radio" class="btn-group" label="COM_RSFILES_CONF_MESSAGE_ENABLE" description="COM_RSFILES_CONF_MESSAGE_ENABLE_DESC" default="1">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="report_enable" type="radio" class="btn-group" label="COM_RSFILES_CONF_MESSAGE_ENABLE" description="COM_RSFILES_CONF_MESSAGE_ENABLE_DESC" default="1">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="briefcaseupload_enable" type="radio" class="btn-group" label="COM_RSFILES_CONF_MESSAGE_ENABLE" description="COM_RSFILES_CONF_MESSAGE_ENABLE_DESC" default="1">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	
+	<field name="admin_to" type="text" label="COM_RSFILES_CONF_MESSAGE_TO" description="COM_RSFILES_CONF_MESSAGE_TO_DESC" size="50" class="input-xlarge" default="" />
+	<field name="upload_to" type="text" label="COM_RSFILES_CONF_MESSAGE_TO" description="COM_RSFILES_CONF_MESSAGE_TO_DESC" size="50" class="input-xlarge" default="" />
+	<field name="report_to" type="text" label="COM_RSFILES_CONF_MESSAGE_TO" description="COM_RSFILES_CONF_MESSAGE_TO_DESC" size="50" class="input-xlarge" default="" />
+	<field name="moderate_to" type="text" label="COM_RSFILES_CONF_MESSAGE_TO" description="COM_RSFILES_CONF_MESSAGE_TO_DESC" size="50" class="input-xlarge" default="" />
+	
+	<field name="admin_subject" type="text" label="COM_RSFILES_CONF_MESSAGE_SUBJECT" description="COM_RSFILES_CONF_MESSAGE_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="download_subject" type="text" label="COM_RSFILES_CONF_MESSAGE_SUBJECT" description="COM_RSFILES_CONF_MESSAGE_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="upload_subject" type="text" label="COM_RSFILES_CONF_MESSAGE_SUBJECT" description="COM_RSFILES_CONF_MESSAGE_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="report_subject" type="text" label="COM_RSFILES_CONF_MESSAGE_SUBJECT" description="COM_RSFILES_CONF_MESSAGE_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="briefcaseupload_subject" type="text" label="COM_RSFILES_CONF_MESSAGE_SUBJECT" description="COM_RSFILES_CONF_MESSAGE_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	<field name="moderate_subject" type="text" label="COM_RSFILES_CONF_MESSAGE_SUBJECT" description="COM_RSFILES_CONF_MESSAGE_SUBJECT_DESC" size="50" class="input-xlarge" default="" />
+	
+	<field name="admin_mode" type="radio" class="btn-group" label="COM_RSFILES_CONF_MESSAGE_MODE" description="COM_RSFILES_CONF_MESSAGE_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="download_mode" type="radio" class="btn-group" label="COM_RSFILES_CONF_MESSAGE_MODE" description="COM_RSFILES_CONF_MESSAGE_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="upload_mode" type="radio" class="btn-group" label="COM_RSFILES_CONF_MESSAGE_MODE" description="COM_RSFILES_CONF_MESSAGE_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="report_mode" type="radio" class="btn-group" label="COM_RSFILES_CONF_MESSAGE_MODE" description="COM_RSFILES_CONF_MESSAGE_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="briefcaseupload_mode" type="radio" class="btn-group" label="COM_RSFILES_CONF_MESSAGE_MODE" description="COM_RSFILES_CONF_MESSAGE_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	<field name="moderate_mode" type="radio" class="btn-group" label="COM_RSFILES_CONF_MESSAGE_MODE" description="COM_RSFILES_CONF_MESSAGE_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+	
+	<field name="admin_message" type="editor" class="inputbox" label="" description="" filter="JComponentHelper::filterText" buttons="true" hide="rscomments,rsfiles,readmore,pagebreak" />
+	<field name="download_message" type="editor" class="inputbox" label="" description="" filter="JComponentHelper::filterText" buttons="true" hide="rscomments,rsfiles,readmore,pagebreak" />
+	<field name="upload_message" type="editor" class="inputbox" label="" description="" filter="JComponentHelper::filterText" buttons="true" hide="rscomments,rsfiles,readmore,pagebreak" />
+	<field name="report_message" type="editor" class="inputbox" label="" description="" filter="JComponentHelper::filterText" buttons="true" hide="rscomments,rsfiles,readmore,pagebreak" />
+	<field name="briefcaseupload_message" type="editor" class="inputbox" label="" description="" filter="JComponentHelper::filterText" buttons="true" hide="rscomments,rsfiles,readmore,pagebreak" />
+	<field name="moderate_message" type="editor" class="inputbox" label="" description="" filter="JComponentHelper::filterText" buttons="true" hide="rscomments,rsfiles,readmore,pagebreak" />
+	
+</form>

@@ -1,0 +1,45 @@
+.icon-rsfiles32:before {
+    color: #3F2FBC;
+    content: "y";
+}
+
+.icon-up:before {
+    content: "R";
+}
+
+.icon-newfolder32:before {
+    content: ".";
+}
+
+.icon-synchronize:before {
+    content: "7";
+}
+
+.icon-statistics32:before {
+    content: "w";
+}
+
+.icon-close:before {
+    content: "I";
+}
+
+#newfolder {
+	margin-bottom: 0;
+}
+
+#rsfl_results {
+	height: 83px !important;
+}
+
+.rsextend {
+	margin-left: 10px;
+    vertical-align: top;
+}
+
+.rsf_inline {
+	display: inline;
+}
+
+.dashboard-info img {
+	vertical-align: sub;
+}

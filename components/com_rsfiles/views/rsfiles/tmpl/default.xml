@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_RSFILES_RSFILES_VIEW_DEFAULT_TITLE" >
+		<message>
+			<![CDATA[COM_RSFILES_RSFILES_VIEW_DEFAULT_DESCRIPTION]]>
+		</message>
+	</layout>
+	<fields name="params">
+		<fieldset name="basic" addfieldpath="/administrator/components/com_rsfiles/models/fields">
+			<field name="folder" type="rsfolders" label="COM_RSFILES_SET_ROOT_FOLDER" description="COM_RSFILES_SET_ROOT_FOLDER_DESC" />
+			<field name="start" type="calendar" label="COM_RSFILES_START_DATE" description="COM_RSFILES_START_DATE_DESC" class="input-large" size="22" format="%Y-%m-%d %H:%M:%S" filter="user_utc" />
+			<field name="end" type="calendar" label="COM_RSFILES_END_DATE" description="COM_RSFILES_END_DATE_DESC" class="input-large" size="22" format="%Y-%m-%d %H:%M:%S" filter="user_utc" />
+			<field name="order" type="list" label="COM_RSFILES_CONF_DEFAULT_ORDER" description="COM_RSFILES_CONF_DEFAULT_ORDER_DESC" default="name">
+				<option value="name">COM_RSFILES_CONF_DEFAULT_ORDER_NAME</option>
+				<option value="date">COM_RSFILES_CONF_DEFAULT_ORDER_DATE</option>
+				<option value="hits">COM_RSFILES_CONF_DEFAULT_ORDER_HITS</option>
+			</field>
+			<field name="order_way" type="list" label="COM_RSFILES_CONF_DEFAULT_ORDER_DIR" description="COM_RSFILES_CONF_DEFAULT_ORDER_DIR_DESC" default="asc">
+				<option value="asc">COM_RSFILES_ASCENDING</option>
+				<option value="desc">COM_RSFILES_DESCENDING</option>
+			</field>
+		</fieldset>
+	</fields>
+</metadata>

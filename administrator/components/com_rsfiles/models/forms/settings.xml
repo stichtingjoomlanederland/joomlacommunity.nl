@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset name="general">
+		<field name="license_code" type="text" label="COM_RSFILES_CONF_LICENSE_CODE" description="COM_RSFILES_CONF_LICENSE_CODE_DESC" size="70" class="input-xxlarge" default="" />
+		<field name="global_date" type="text" label="COM_RSFILES_CONF_GLOBAL_DATE" description="COM_RSFILES_CONF_GLOBAL_DATE_DESC" size="30" class="input-large" default="d/m/Y H:i:s" />
+		<field name="error_handling" type="list" label="COM_RSFILES_CONF_ERROR_HANDLING" description="COM_RSFILES_CONF_ERROR_HANDLING_DESC" class="input-large" default="0">
+			<option value="0">COM_RSFILES_CONF_ERROR_HANDLING_500</option>
+			<option value="1">COM_RSFILES_CONF_ERROR_HANDLING_403</option>
+			<option value="2">COM_RSFILES_CONF_ERROR_HANDLING_REDIRECT</option>
+		</field>
+		<field name="direct_download" type="radio" class="btn-group" label="COM_RSFILES_CONF_DIRECT_DOWNLOAD" description="COM_RSFILES_CONF_DIRECT_DOWNLOAD_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="load_backend_jquery" type="radio" class="btn-group" label="COM_RSFILES_CONF_LOAD_BACKEND_JQUERY" description="COM_RSFILES_CONF_LOAD_BACKEND_JQUERY_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="load_frontend_jquery" type="radio" class="btn-group" label="COM_RSFILES_CONF_LOAD_FRONTEND_JQUERY" description="COM_RSFILES_CONF_LOAD_FRONTEND_JQUERY_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="load_bootstrap" type="radio" class="btn-group" label="COM_RSFILES_CONF_LOAD_BOOTSTRAP" description="COM_RSFILES_CONF_LOAD_BOOTSTRAP_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="remove_days" type="text" label="COM_RSFILES_CONF_REMOVE_DAYS" description="COM_RSFILES_CONF_REMOVE_DAYS_DESC" size="5" class="input-mini" default="1" />
+	</fieldset>
+	
+	<fieldset name="files">
+		<field name="download_cancreate" type="groups" multiple="multiple" label="COM_RSFILES_CONF_DOWNLOAD_CANCREATE" description="COM_RSFILES_CONF_DOWNLOAD_CANCREATE_DESC" />
+		<field name="download_canupload" type="groups" multiple="multiple" label="COM_RSFILES_CONF_DOWNLOAD_CANUPLOAD" description="COM_RSFILES_CONF_DOWNLOAD_CANUPLOAD_DESC" />
+		<field name="download_description" type="editor" label="COM_RSFILES_CONF_DOWNLOAD_DESCRIPTION" description="COM_RSFILES_CONF_DOWNLOAD_DESCRIPTION_DESC" filter="JComponentHelper::filterText" buttons="true" hide="rscomments,rsfiles,readmore,pagebreak" />
+		
+		<field name="enable_briefcase" type="radio" class="btn-group" label="COM_RSFILES_CONF_ENABLE_BRIEFCASE" description="COM_RSFILES_CONF_ENABLE_BRIEFCASE_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="popular" type="text" label="COM_RSFILES_CONF_POPULAR" description="COM_RSFILES_CONF_POPULAR_DESC" size="10" class="input-small" default="10" />
+		<field name="new" type="text" label="COM_RSFILES_CONF_NEW" description="COM_RSFILES_CONF_NEW_DESC" size="10" class="input-small" default="5" />
+		<field name="allowed_files" type="textarea" label="COM_RSFILES_CONF_ALLOWED_FILES" description="COM_RSFILES_CONF_ALLOWED_FILES_DESC" class="input-xlarge" cols="20" rows="5" default="COM_RSFILES_CONF_ALLOWED_FILES_DEFAULT" translate_default="true" />
+		<field name="briefcase_allowed_files" type="textarea" label="COM_RSFILES_CONF_BRIEFCASE_ALLOWED_FILES" description="COM_RSFILES_CONF_BRIEFCASE_ALLOWED_FILES_DESC" class="input-xlarge" cols="20" rows="5" default="COM_RSFILES_CONF_ALLOWED_FILES_DEFAULT" translate_default="true" />
+		<field name="thumb_width" type="text" label="COM_RSFILES_CONF_THUMB_WIDTH" description="COM_RSFILES_CONF_THUMB_WIDTH_DESC" size="10" class="input-small" default="64" />
+		<field name="enable_upload" type="radio" class="btn-group" label="COM_RSFILES_CONF_ENABLE_UPLOAD" description="COM_RSFILES_CONF_ENABLE_UPLOAD_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="chunk_size" type="text" label="COM_RSFILES_CONF_CHUNK_SIZE" description="COM_RSFILES_CONF_CHUNK_SIZE_DESC" size="10" class="input-small" default="10240" />
+		<field name="max_upl_size" type="text" label="COM_RSFILES_CONF_MAX_UPL_SIZE" description="COM_RSFILES_CONF_MAX_UPL_SIZE_DESC" size="10" class="input-small" default="10240" />
+	</fieldset>
+	
+	<fieldset name="captcha">
+		<field name="captcha_enabled" type="list" label="COM_RSFILES_CONF_CAPTCHA_ENABLED" description="COM_RSFILES_CONF_CAPTCHA_ENABLED_DESC" default="0">
+			<option value="0">COM_RSFILES_CONF_CAPTCHA_ENABLED_0</option>
+			<option value="1">COM_RSFILES_CONF_CAPTCHA_ENABLED_1</option>
+			<option value="2">COM_RSFILES_CONF_CAPTCHA_ENABLED_2</option>
+			<option value="3">COM_RSFILES_CONF_CAPTCHA_ENABLED_3</option>
+		</field>
+		
+		<field name="spacer1" type="spacer" label="COM_RSFILES_BUILT_IN_CAPTCHA_SETTINGS" />
+		
+		<field name="captcha_characters" type="text" label="COM_RSFILES_CONF_CAPTCHA_CHARACTERS" description="COM_RSFILES_CONF_CAPTCHA_CHARACTERS_DESC" size="10" class="input-small" default="5" />
+		<field name="captcha_lines" type="radio" class="btn-group" label="COM_RSFILES_CONF_CAPTCHA_LINES" description="COM_RSFILES_CONF_CAPTCHA_LINES_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="captcha_case_sensitive" type="radio" class="btn-group" label="COM_RSFILES_CONF_CAPTCHA_CASE_SENSITIVE" description="COM_RSFILES_CONF_CAPTCHA_CASE_SENSITIVE_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		
+		<field name="spacer2" type="spacer" label="COM_RSFILES_RECAPTCHA_SETTINGS" />
+		
+		<field name="recaptcha_public_key" type="text" label="COM_RSFILES_CONF_RECAPTCHA_PUBLIC_KEY" description="COM_RSFILES_CONF_RECAPTCHA_PUBLIC_KEY_DESC" size="30" class="input-xlarge" default="" />
+		<field name="recaptcha_private_key" type="text" label="COM_RSFILES_CONF_RECAPTCHA_PRIVATE_KEY" description="COM_RSFILES_CONF_RECAPTCHA_PRIVATE_KEY_DESC" size="30" class="input-xlarge" default="" />
+		<field name="recaptcha_theme" type="list" label="COM_RSFILES_CONF_RECAPTCHA_THEME" description="COM_RSFILES_CONF_RECAPTCHA_THEME_DESC" default="red">
+			<option value="red">COM_RSFILES_CONF_RECAPTCHA_THEME_RED</option>
+			<option value="white">COM_RSFILES_CONF_RECAPTCHA_THEME_WHITE</option>
+			<option value="blacklass">COM_RSFILES_CONF_RECAPTCHA_THEME_BLACKGLASS</option>
+			<option value="clean">COM_RSFILES_CONF_RECAPTCHA_THEME_CLEAN</option>
+		</field>
+		
+		<field name="spacer3" type="spacer" label="COM_RSFILES_NEW_RECAPTCHA_SETTINGS" />
+		
+		<field name="recaptcha_new_site_key" class="input-xlarge" type="text" label="COM_RSFILES_NEW_RECAPTCHA_SITE_KEY" description="COM_RSFILES_NEW_RECAPTCHA_SITE_KEY_DESC" size="70" />
+		<field name="recaptcha_new_secret_key" class="input-xlarge" type="text" label="COM_RSFILES_NEW_RECAPTCHA_SECRET_KEY" description="COM_RSFILES_NEW_RECAPTCHA_SECRET_KEY_DESC" size="70" />
+		<field name="recaptcha_new_theme" type="list" default="light" label="COM_RSFILES_NEW_RECAPTCHA_THEME" description="COM_RSFILES_NEW_RECAPTCHA_THEME_DESC">
+			<option value="light">COM_RSFILES_NEW_RECAPTCHA_THEME_LIGHT</option>
+			<option value="dark">COM_RSFILES_NEW_RECAPTCHA_THEME_DARK</option>
+		</field>
+		<field name="recaptcha_new_type" type="list" default="image" label="COM_RSFILES_NEW_RECAPTCHA_TYPE" description="COM_RSFILES_NEW_RECAPTCHA_TYPE_DESC">
+			<option value="image">COM_RSFILES_NEW_RECAPTCHA_TYPE_IMAGE</option>
+			<option value="audio">COM_RSFILES_NEW_RECAPTCHA_TYPE_AUDIO</option>
+		</field>
+		
+	</fieldset>
+	
+	<fieldset name="listing" label="COM_RSFILES_CONF_LISTING">
+		<field name="nr_per_page" type="text" label="COM_RSFILES_CONF_NR_PER_PAGE" description="COM_RSFILES_CONF_NR_PER_PAGE_DESC" size="10" class="input-small" default="5" />
+		<field name="show_pagination_position" type="list" label="COM_RSFILES_CONF_SHOW_PAGINATION_POSITION" description="COM_RSFILES_CONF_SHOW_PAGINATION_POSITION_DESC" default="1">
+			<option value="0">COM_RSFILES_CONF_SHOW_PAGINATION_POSITION_UP</option>
+			<option value="1">COM_RSFILES_CONF_SHOW_PAGINATION_POSITION_DOWN</option>
+			<option value="2">COM_RSFILES_CONF_SHOW_PAGINATION_POSITION_UPDOWN</option>
+		</field>
+		<field name="file_path" type="radio" class="btn-group" label="COM_RSFILES_CONF_FILE_PATH" description="COM_RSFILES_CONF_FILE_PATH_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="enable_rss" type="radio" class="btn-group" label="COM_RSFILES_CONF_ENABLE_RSS" description="COM_RSFILES_CONF_ENABLE_RSS_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="show_search" type="radio" class="btn-group" label="COM_RSFILES_CONF_SHOW_SEARCH" description="COM_RSFILES_CONF_SHOW_SEARCH_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="show_folder_desc" type="radio" class="btn-group" label="COM_RSFILES_CONF_SHOW_FOLDER_DESC" description="COM_RSFILES_CONF_SHOW_FOLDER_DESC_DESC" default="1">
+			<option value="0">COM_RSFILES_HIDE</option>
+			<option value="1">COM_RSFILES_SHOW</option>
+		</field>
+		<field name="show_details" type="radio" class="btn-group" label="COM_RSFILES_CONF_SHOW_DETAILS" description="COM_RSFILES_CONF_SHOW_DETAILS_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="list_show_version" type="radio" class="btn-group" label="COM_RSFILES_CONF_SHOW_FILE_VERSION" description="COM_RSFILES_CONF_SHOW_FILE_VERSION_DESC" default="1">
+			<option value="0">COM_RSFILES_HIDE</option>
+			<option value="1">COM_RSFILES_SHOW</option>
+		</field>
+		<field name="list_show_license" type="radio" class="btn-group" label="COM_RSFILES_CONF_SHOW_LICENSE" description="COM_RSFILES_CONF_SHOW_LICENSE_DESC" default="1">
+			<option value="0">COM_RSFILES_HIDE</option>
+			<option value="1">COM_RSFILES_SHOW</option>
+		</field>
+		<field name="list_show_size" type="radio" class="btn-group" label="COM_RSFILES_CONF_SHOW_FILE_SIZE" description="COM_RSFILES_CONF_SHOW_FILE_SIZE_DESC" default="1">
+			<option value="0">COM_RSFILES_HIDE</option>
+			<option value="1">COM_RSFILES_SHOW</option>
+		</field>
+		<field name="list_show_date" type="radio" class="btn-group" label="COM_RSFILES_CONF_SHOW_DATE_ADDED" description="COM_RSFILES_CONF_SHOW_DATE_ADDED_DESC" default="1">
+			<option value="0">COM_RSFILES_HIDE</option>
+			<option value="1">COM_RSFILES_SHOW</option>
+		</field>
+	</fieldset>
+	
+	<fieldset name="download" label="COM_RSFILES_CONF_DOWNLOAD">
+		<field name="show_report" type="radio" class="btn-group" label="COM_RSFILES_CONF_SHOW_REPORT" description="COM_RSFILES_CONF_SHOW_REPORT_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="show_bookmark" type="radio" class="btn-group" label="COM_RSFILES_CONF_SHOW_BOOKMARK" description="COM_RSFILES_CONF_SHOW_BOOKMARK_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="show_email" type="radio" class="btn-group" label="COM_RSFILES_CONF_SHOW_EMAIL" description="COM_RSFILES_CONF_SHOW_EMAIL_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="show_descriptions" type="radio" class="btn-group" label="COM_RSFILES_CONF_SHOW_DESCRIPTIONS" description="COM_RSFILES_CONF_SHOW_DESCRIPTIONS_DESC" default="1">
+			<option value="0">COM_RSFILES_HIDE</option>
+			<option value="1">COM_RSFILES_SHOW</option>
+		</field>
+		<field name="show_file_size" type="radio" class="btn-group" label="COM_RSFILES_CONF_SHOW_FILE_SIZE" description="COM_RSFILES_CONF_SHOW_FILE_SIZE_DESC" default="1">
+			<option value="0">COM_RSFILES_HIDE</option>
+			<option value="1">COM_RSFILES_SHOW</option>
+		</field>
+		<field name="show_date_added" type="radio" class="btn-group" label="COM_RSFILES_CONF_SHOW_DATE_ADDED" description="COM_RSFILES_CONF_SHOW_DATE_ADDED_DESC" default="1">
+			<option value="0">COM_RSFILES_HIDE</option>
+			<option value="1">COM_RSFILES_SHOW</option>
+		</field>
+		<field name="show_date_updated" type="radio" class="btn-group" label="COM_RSFILES_CONF_SHOW_DATE_UPDATED" description="COM_RSFILES_CONF_SHOW_DATE_UPDATED_DESC" default="1">
+			<option value="0">COM_RSFILES_HIDE</option>
+			<option value="1">COM_RSFILES_SHOW</option>
+		</field>
+		<field name="show_license" type="radio" class="btn-group" label="COM_RSFILES_CONF_SHOW_LICENSE" description="COM_RSFILES_CONF_SHOW_LICENSE_DESC" default="1">
+			<option value="0">COM_RSFILES_HIDE</option>
+			<option value="1">COM_RSFILES_SHOW</option>
+		</field>
+		<field name="show_file_version" type="radio" class="btn-group" label="COM_RSFILES_CONF_SHOW_FILE_VERSION" description="COM_RSFILES_CONF_SHOW_FILE_VERSION_DESC" default="1">
+			<option value="0">COM_RSFILES_HIDE</option>
+			<option value="1">COM_RSFILES_SHOW</option>
+		</field>
+		<field name="show_hits" type="radio" class="btn-group" label="COM_RSFILES_CONF_SHOW_HITS" description="COM_RSFILES_CONF_SHOW_HITS_DESC" default="1">
+			<option value="0">COM_RSFILES_HIDE</option>
+			<option value="1">COM_RSFILES_SHOW</option>
+		</field>
+		<field name="show_number_of_downloads" type="radio" class="btn-group" label="COM_RSFILES_CONF_SHOW_NUMBER_OF_DOWNLOADS" description="COM_RSFILES_CONF_SHOW_NUMBER_OF_DOWNLOADS_DESC" default="1">
+			<option value="0">COM_RSFILES_HIDE</option>
+			<option value="1">COM_RSFILES_SHOW</option>
+		</field>
+	</fieldset>
+	
+	<fieldset name="emails">
+		<field name="email_from" type="text" label="COM_RSFILES_CONF_EMAIL_FROM" description="COM_RSFILES_CONF_EMAIL_FROM_DESC" size="30" class="input-xlarge" default="from@yoursite.com" />
+		<field name="email_from_name" type="text" label="COM_RSFILES_CONF_EMAIL_FROM_NAME" description="COM_RSFILES_CONF_EMAIL_FROM_NAME_DESC" size="30" class="input-xlarge" default="Your site" />
+		<field name="email_reply" type="text" label="COM_RSFILES_CONF_EMAIL_REPLY" description="COM_RSFILES_CONF_EMAIL_REPLY_DESC" size="30" class="input-xlarge" default="reply@yoursite.com" />
+		<field name="email_reply_name" type="text" label="COM_RSFILES_CONF_EMAIL_REPLY_NAME" description="COM_RSFILES_CONF_EMAIL_REPLY_NAME_DESC" size="30" class="input-xlarge" default="Your site" />
+		<field name="email_cc" type="text" label="COM_RSFILES_CONF_EMAIL_CC" description="COM_RSFILES_CONF_EMAIL_CC_DESC" size="30" class="input-xlarge" default="" />
+		<field name="email_bcc" type="text" label="COM_RSFILES_CONF_EMAIL_BCC" description="COM_RSFILES_CONF_EMAIL_BCC_DESC" size="30" class="input-xlarge" default="" />
+	</fieldset>
+	
+	<fieldset name="rsmail">
+		<field name="rsmail_integration" type="radio" class="btn-group" label="COM_RSFILES_CONF_ENABLE_RSMAIL_INTEGRATION" description="COM_RSFILES_CONF_ENABLE_RSMAIL_INTEGRATION_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="rsmail_list_id" type="rsmail" label="COM_RSFILES_CONF_RSMAIL_LIST" description="COM_RSFILES_CONF_RSMAIL_LIST_DESC" default="0" onchange="rsf_rsmail(this.value)" />
+		<field name="rsmail_field_name" type="list" label="COM_RSFILES_CONF_RSMAIL_NAME" description="COM_RSFILES_CONF_RSMAIL_NAME_DESC" default=""></field>
+	</fieldset>
+</form>

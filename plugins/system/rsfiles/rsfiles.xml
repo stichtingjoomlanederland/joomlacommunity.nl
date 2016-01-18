@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="system" method="upgrade">
+	<name>plg_system_rsfiles</name>
+	<creationDate>February 2014</creationDate>
+	<author>RSJoomla!</author>
+	<copyright>(C) 2010-2014 www.rsjoomla.com</copyright>
+	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
+	<authorEmail>support@rsjoomla.com</authorEmail>
+	<authorUrl>www.rsjoomla.com</authorUrl>
+	<version>1.0.1</version>
+	<description>PLG_RSFILES_XML_DESCRIPTION</description>
+	
+	<files>
+		<filename plugin="rsfiles">rsfiles.php</filename>
+		<filename>index.html</filename>
+	</files>
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.plg_system_rsfiles.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.plg_system_rsfiles.sys.ini</language>
+	</languages>
+	
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="fheader" type="radio" class="btn-group" default="0" description="PLG_RSFILES_FILE_HEADER_DESC" label="PLG_RSFILES_FILE_HEADER">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="list_show_version" type="radio" class="btn-group" label="PLG_RSFILES_SHOW_FILE_VERSION" description="PLG_RSFILES_SHOW_FILE_VERSION_DESC" default="1">
+					<option value="0">PLG_RSFILES_HIDE</option>
+					<option value="1">PLG_RSFILES_SHOW</option>
+				</field>
+				<field name="list_show_license" type="radio" class="btn-group" label="PLG_RSFILES_SHOW_LICENSE" description="PLG_RSFILES_SHOW_LICENSE_DESC" default="1">
+					<option value="0">PLG_RSFILES_HIDE</option>
+					<option value="1">PLG_RSFILES_SHOW</option>
+				</field>
+				<field name="list_show_size" type="radio" class="btn-group" label="PLG_RSFILES_SHOW_FILE_SIZE" description="PLG_RSFILES_SHOW_FILE_SIZE_DESC" default="1">
+					<option value="0">PLG_RSFILES_HIDE</option>
+					<option value="1">PLG_RSFILES_SHOW</option>
+				</field>
+				<field name="list_show_date" type="radio" class="btn-group" label="PLG_RSFILES_SHOW_DATE_ADDED" description="PLG_RSFILES_SHOW_DATE_ADDED_DESC" default="1">
+					<option value="0">PLG_RSFILES_HIDE</option>
+					<option value="1">PLG_RSFILES_SHOW</option>
+				</field>
+				<field name="order" type="list" label="PLG_RSFILES_DEFAULT_ORDER" description="PLG_RSFILES_DEFAULT_ORDER_DESC" default="name">
+					<option value="name">PLG_RSFILES_DEFAULT_ORDER_NAME</option>
+					<option value="date">PLG_RSFILES_DEFAULT_ORDER_DATE</option>
+					<option value="hits">PLG_RSFILES_DEFAULT_ORDER_HITS</option>
+				</field>
+				<field name="order_way" type="list" label="PLG_RSFILES_DEFAULT_ORDER_DIR" description="PLG_RSFILES_DEFAULT_ORDER_DIR_DESC" default="asc">
+					<option value="asc">PLG_RSFILES_ASCENDING</option>
+					<option value="desc">PLG_RSFILES_DESCENDING</option>
+				</field>
+				<field name="itemid" type="text" description="PLG_RSFILES_FILE_ITEMID_DESC" label="PLG_RSFILES_FILE_ITEMID" size="10" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

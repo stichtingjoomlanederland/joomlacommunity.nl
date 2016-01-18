@@ -1,0 +1,17 @@
+/**
+* @version 1.1.0
+* @package RSFiles! 1.1.0
+* @copyright (C) 2009 www.rsjoomla.com
+* @license GPL, http://www.gnu.org/copyleft/gpl.html
+*/
+
+.rsf_files a,
+.rsf_files a:hover,
+.rsf_files a:active,
+.rsf_files a:focus {
+	text-decoration: none !important;
+}
+
+.btn:hover {
+	background-position: 0 !important;
+}

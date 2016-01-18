@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<field name="published" type="list" label="COM_RSFILES_FILE_PUBLISHED" default="-">
+		<option value="-">COM_RSFILES_IGNORE</option>
+		<option value="0">JUNPUBLISHED</option>
+		<option value="1">JPUBLISHED</option>
+	</field>
+	<field name="FileStatistics" type="list" label="COM_RSFILES_FILE_FILE_STATISTICS" default="-">
+		<option value="-">COM_RSFILES_IGNORE</option>
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="IdLicense" type="licenses" label="COM_RSFILES_FILE_LICENSE" class="input-large">
+		<option value="-">COM_RSFILES_IGNORE</option>
+	</field>
+	<field name="DownloadMethod" type="list" label="COM_RSFILES_FILE_DOWNLOAD_METHOD" default="-">
+		<option value="-">COM_RSFILES_IGNORE</option>
+		<option value="0">COM_RSFILES_FILE_DOWNLOAD_METHOD_0</option>
+		<option value="1">COM_RSFILES_FILE_DOWNLOAD_METHOD_1</option>
+	</field>
+	<field name="show_preview" type="list" label="COM_RSFILES_FILE_SHOW_PREVIEW" default="-">
+		<option value="-">COM_RSFILES_IGNORE</option>
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="DownloadLimit" type="text" label="COM_RSFILES_FILE_DOWNLOAD_LIMIT" size="10" class="input-small" default="" />
+	<field name="CanEdit" type="groups" label="COM_RSFILES_FILE_CAN_EDIT" class="input-large" multiple="multiple" />
+	<field name="CanDelete" type="groups" label="COM_RSFILES_FILE_CAN_DELETE" class="input-large" multiple="multiple" />
+	<field name="CanView" type="groups" label="COM_RSFILES_FILE_CAN_VIEW" class="input-large" multiple="multiple" />
+	<field name="CanDownload" type="groups" label="COM_RSFILES_FILE_CAN_DOWNLOAD" class="input-large" multiple="multiple" />
+</form>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_RSFILES_BRIEFCASE_VIEW_TITLE" >
+		<message>
+			<![CDATA[COM_RSFILES_BRIEFCASE_VIEW_DESCRIPTION]]>
+		</message>
+	</layout>
+	<fields name="params">
+		<fieldset name="basic">
+			<field name="order" type="list" label="COM_RSFILES_CONF_DEFAULT_ORDER" description="COM_RSFILES_CONF_DEFAULT_ORDER_DESC" default="name">
+				<option value="name">COM_RSFILES_CONF_DEFAULT_ORDER_NAME</option>
+				<option value="date">COM_RSFILES_CONF_DEFAULT_ORDER_DATE</option>
+				<option value="hits">COM_RSFILES_CONF_DEFAULT_ORDER_HITS</option>
+			</field>
+			<field name="order_way" type="list" label="COM_RSFILES_CONF_DEFAULT_ORDER_DIR" description="COM_RSFILES_CONF_DEFAULT_ORDER_DIR_DESC" default="asc">
+				<option value="asc">COM_RSFILES_ASCENDING</option>
+				<option value="desc">COM_RSFILES_DESCENDING</option>
+			</field>
+		</fieldset>
+	</fields>
+</metadata>
