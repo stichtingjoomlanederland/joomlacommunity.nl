@@ -4,7 +4,7 @@ Het Nederlandstalige Joomla!-portal
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+How to install less and run gulp.
 
 ### Prerequisities
 
@@ -13,9 +13,8 @@ https://docs.npmjs.com/getting-started/installing-node
 
 ### Installing
 
-A step by step series of examples that tell you have to get a development env running
 
-The easiest way to install Less, is via npm, the node.js package manager, as so:
+Install less globally
 ```
 npm install -g less
 ```
