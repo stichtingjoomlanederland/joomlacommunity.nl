@@ -16,6 +16,7 @@ const targetDir         = 'build/';
 const targetCss         = 'css';
 const targetJs          = targetDir + 'js';
 
+/* TODO: willen we hier wat mee?
 var scripts = [
     bowerDir + '/modernizr/modernizr.js',
     jsDir + '/template.js'
@@ -31,7 +32,7 @@ gulp.task('mergeScripts', function() {
             })))
         .pipe(sourcemaps.write('../' + targetMap))
         .pipe(gulp.dest(targetJs));
-});
+});*/
 
 gulp.task( 'less', function () {
     gulp.src(lessDir + '/template.less')
@@ -46,5 +47,4 @@ gulp.task( 'less', function () {
 gulp.task('default', function(){
     gulp.start(['less']);
     gulp.watch(lessDir + '/**/*.less', ['less']);
-    //TODO: gulp.watch(jsDir + '/**/*.js', ['mergeScripts']);
 });
