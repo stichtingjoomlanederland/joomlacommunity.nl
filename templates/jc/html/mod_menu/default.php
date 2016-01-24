@@ -81,6 +81,12 @@ foreach ($list as $i => &$item) :
 			break;
 	endswitch;
 
+    // Expand button for touch devices
+    if ($item->parent)
+    {
+        echo '<span class="toggle-sub display-touch"></span>';
+    }
+
 	// The next item is deeper.
 	if ($item->deeper)
 	{

@@ -8,13 +8,13 @@ const cssnano           = require('gulp-cssnano');      // Minify CSS with cssna
 
 /*src folders*/
 const assetsDir         = 'src/';
-const bowerDir          = 'bower_components';
 const lessDir           = 'less';
-const jsDir             = assetsDir + 'js';
+//const bowerDir          = 'bower_components';
+//const jsDir             = assetsDir + 'js';
 /*build folders*/
 const targetDir         = 'build/';
 const targetCss         = 'css';
-const targetJs          = targetDir + 'js';
+//const targetJs          = targetDir + 'js';
 
 /* TODO: willen we hier wat mee?
 var scripts = [
@@ -38,10 +38,12 @@ gulp.task( 'less', function () {
     gulp.src(lessDir + '/template.less')
         .pipe(sourcemaps.init())
             .pipe(less())
+            .on("error", notify.onError("<%= error.message %>"))
             .pipe(autoprefixer('last 10 versions', 'ie 9'))
             .pipe(cssnano())
         .pipe(sourcemaps.write())
-        .pipe(gulp.dest(targetCss));
+        .pipe(gulp.dest(targetCss))
+        .pipe(notify('cssdev done'));
 });
 
 gulp.task('default', function(){

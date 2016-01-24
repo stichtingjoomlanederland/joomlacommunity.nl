@@ -16,6 +16,7 @@
 @sites:					#53BBB4;//#77C9C1;//#48cfad
 @forum:					#39ADD1;//#6FB3DC;//#4fc1e9
 @gebruikersgroepen:		#838CC7;//#9D99C0;//#ac92ec
+@jc-colors-array:       home, nieuws, downloads, documentatie, sites, forum, gebruikersgroepen;
 
 
 
@@ -353,9 +354,10 @@
 @grid-columns:              12;
 //** Padding between columns. Gets divided in half for the left and right.
 @grid-gutter-width:         30px;
+@padding-horizontal:        floor((@grid-gutter-width / 2));
 // Navbar collapse
 //** Point at which the navbar becomes uncollapsed.
-@grid-float-breakpoint:     @screen-sm-min;
+@grid-float-breakpoint:     @screen-lg-min;
 //** Point at which the navbar begins collapsing.
 @grid-float-breakpoint-max: (@grid-float-breakpoint - 1);
 
