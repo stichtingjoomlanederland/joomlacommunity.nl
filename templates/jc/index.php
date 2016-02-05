@@ -11,12 +11,8 @@ defined('_JEXEC') or die;
 // Load Perfect Template Helper
 include_once JPATH_THEMES . '/' . $this->template . '/templateDetails.php';
 
-// Needs cleanup
-$app         = JFactory::getApplication();
-$doc         = JFactory::getDocument();
-$kolomrechts = $this->countModules('rechts');
-$kolomlinks  = $this->countModules('links');
-if ($kolomrechts || $kolomlinks)
+// Determ col-size
+if ($this->countModules('rechts'))
 {
 	$maincols = 8;
 }
@@ -25,14 +21,12 @@ else
 	$maincols = 12;
 }
 
-// Detecting Active Variables
-$option   = $app->input->getCmd('option', '');
-$view     = $app->input->getCmd('view', '');
-$layout   = $app->input->getCmd('layout', '');
-$task     = $app->input->getCmd('task', '');
+// Remove after removing dumy text
+$app      = JFactory::getApplication();
 $itemid   = $app->input->getCmd('Itemid', '');
 $sitename = $app->getCfg('sitename');
 
+// Get title of active menu
 $menu_active = $app->getMenu()->getActive();
 $menu_route  = $menu_active->route;
 $menu_title  = $menu_active->title;

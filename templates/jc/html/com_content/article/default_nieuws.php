@@ -18,18 +18,17 @@ $urls    = json_decode($this->item->urls);
 $canEdit = $params->get('access-edit');
 $user    = JFactory::getUser();
 
-if (!$images)
-{
-	//$image = 'none';
-	$image = 'large';
-}
-elseif ($images->image_fulltext)
+if ($images->image_fulltext)
 {
 	$image = 'large';
 }
 elseif ($images->image_intro)
 {
 	$image = 'small';
+}
+else
+{
+	$image = '';
 }
 
 // Load the profile data from the database.
@@ -46,9 +45,7 @@ $profile->linkedin = $userparams->get('linkedin', '');
 <div class="well<?php if ($image == 'large'): ?> photoheader<?php endif; ?>">
 	<?php if ($image == 'large'): ?>
 		<div class="photobox">
-			<!--<img src="--><?php //echo($images->image_fulltext); ?><!--"/>-->
-			<?php $items = array('images/j3-voorbeeld.jpg', 'images/j3-voorbeeld-2.jpg', 'images/j3-voorbeeld-3.jpg', 'images/j3-voorbeeld-4.jpg'); ?>
-			<img src="<?php echo $items[array_rand($items)]; ?>">
+			<img src="<?php echo $images->image_fulltext; ?>">
 		</div>
 	<?php endif; ?>
 	<div class="row">
