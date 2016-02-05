@@ -176,7 +176,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 					<jdoc:include type="modules" name="footer-4" style="xhtml" />
 				</div>
 				<div class="col-2">
-					<jdoc:include type="modules" name="footer-4" style="xhtml" />
+					<jdoc:include type="modules" name="footer-5" style="xhtml" />
 				</div>
 			</div>
 		</div>
