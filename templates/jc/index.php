@@ -52,48 +52,47 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 	echo $analyticsData['script'];
 }
 ?>
+
 <div class="header <?php if ($itemid == 248): ?>homepage<?php endif; ?>">
-	<nav class="navbar navbar-default navbar-fixed-top navbar-main  visible-lg-block" role="navigation">
+	<nav class="navbar navbar-default navbar-main" role="navigation">
 		<div class="container">
-			<div class="navbar-logo">
-				<a class="logo" href=".">
-					<span class="name">JoomlaCommunity.nl
-						<span class="subline">het Nederlandstalige Joomla!-portal</span>
-					</span>
-				</a>
-			</div>
-			<div class="navbar-main-menu navbar-left">
-				<jdoc:include type="modules" name="mainmenu"/>
-			</div>
 
-			<jdoc:include type="modules" name="usermenu"/>
-			<form class="navbar-form navbar-right" role="search">
-				<div class="form-group ">
-					<input type="text" class="form-control input-sm" placeholder="Zoeken">
-				</div>
-			</form>
-		</div>
-	</nav>
-
-    <nav class="navbar navbar-default navbar-mobile hidden-lg" role="navigation">
-        <div class="container-fluid">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+            <?php //Brand and toggle get grouped for better mobile display ?>
+			<div class="navbar-header navbar-logo">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#jc-navbar-collapse-1" aria-expanded="false">
                     <span class="sr-only">Toggle navigation</span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand logo-navbar logo" href="#"><?php echo $sitename ?></a>
+				<a class="logo" href=".">
+					<span class="navbar-logo-name"><?php echo $sitename ?>
+						<span class="navbar-logo-subline"><?php echo JText::_('TPL_JC_SUBLINE') ?></span>
+					</span>
+				</a>
+			</div>
+
+			<div class="navbar-main-menu navbar-left">
+				<jdoc:include type="modules" name="mainmenu"/>
+			</div>
+
+            <?php // Collect the nav links, forms, and other content for toggling ?>
+            <div class="collapse navbar-collapse" id="jc-navbar-collapse-1">
+                <div class="navbar-mobile">
+                    <jdoc:include type="modules" name="mainmenu-mobile"/>
+                </div>
+
+                <jdoc:include type="modules" name="usermenu"/>
+
+                <form class="navbar-form navbar-right" role="search">
+                    <div class="form-group ">
+                        <input type="text" class="form-control input-sm" placeholder="Zoeken">
+                    </div>
+                </form>
             </div>
 
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                <jdoc:include type="modules" name="mainmenu-mobile"/>
-            </div>
-        </div>
-    </nav>
+		</div>
+	</nav>
 
 	<div class="pagetitle">
 		<?php if ($this->countModules('slider')) : ?>
@@ -109,7 +108,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 			</div>
 		<?php endif; ?>
 	</div>
-	<div data-spy="affix" data-offset-top="<?php if ($itemid == 248): ?>290<?php else: ?>90<?php endif; ?>" class="subnav">
+	<div class="subnav" data-spy="affix" data-offset-top="<?php if ($itemid == 248): ?>290<?php else: ?>90<?php endif; ?>">
 		<div class="container">
 			<nav class="navbar navbar-sub" role="navigation">
 				<jdoc:include type="modules" name="submenu"/>

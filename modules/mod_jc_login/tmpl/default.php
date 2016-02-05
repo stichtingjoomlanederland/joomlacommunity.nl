@@ -3,7 +3,7 @@ defined('_JEXEC') or die('Restricted access');
 $config 	= DiscussHelper::getConfig();
 
 if(!$profile->id) {
-	$login = ' Inloggen / Registeren';
+	$login = JText::_('Inloggen / Registeren');
 } else {
 	$login = $profile->getName();
 }
@@ -14,6 +14,7 @@ if(!$profile->id) {
 	<li class="dropdown">
 		<a data-toggle="dropdown" class="dropdown-toggle profile" href="#">
 			<img src="<?php echo $profile->getAvatar();?>" class="avatar">
+            <span class="dropdown-toggle-text"><?php echo $login; ?></span>
 		</a>
 
 		<ul class="dropdown-menu">
@@ -76,7 +77,7 @@ if(!$profile->id) {
 				<i class="ico"></i><a class="discuss-logout" href="<?php echo JRoute::_('index.php?option='.$userComponent->option.'&task='.$userComponent->logout. '&' . DiscussHelper::getToken() . '=1&return='.$return);?>"><span><?php echo JText::_( 'MOD_EASYDISCUSS_WELCOME_SIGN_OUT' );?></span></a>
 			</li>
 		<?php } else if( $params->get( 'enable_login') ) { ?>
-		<li style="padding: 15px; padding-bottom: 0px;">
+		<li style="padding: 15px; padding-bottom: 0;">
 			<form action="<?php echo JRoute::_( 'index.php', true, $params->get('usesecure')); ?>" method="post" name="login" id="form-login" >
 				<div class="form-group">
 					<input type="text" id="username" name="username" class="form-control" placeholder="Gebruikersnaam" style="margin-bottom:15px;">

@@ -1,0 +1,28 @@
+// variables are defined in variables.less
+
+// Loop through array of color names. Use color name as CSS selector.
+.apply-jc-color(@i) when (@i > 0) {
+  @jc-color-name: extract(@jc-colors-array, @i);
+  .apply-jc-color((@i - 1)); // next iteration
+  &.@{jc-color-name} { color : @@jc-color-name} // code for each iteration
+}
+
+.apply-jc-bg-color(@i) when (@i > 0) {
+  @jc-color-name: extract(@jc-colors-array, @i);
+  .apply-jc-bg-color((@i - 1));
+  &.@{jc-color-name} { .mixin-jc-bg-color(@switch; @@jc-color-name); }
+}
+
+.mixin-jc-bg-color(base; @color) {
+  background: @color;
+  color: #fff;
+}
+.mixin-jc-bg-color(sibling; @color) {
+  &:first-of-type + * {
+    background: @color;
+    color: #fff;
+  }
+  &:first-of-type + .active {
+    background-color: lighten(@color, 10%);
+  }
+}

@@ -1,3 +1,11 @@
+// apply a natural box layout model to all elements, but allowing components to change
+html {
+  box-sizing: border-box;
+}
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
 /* Site Body Styles */
 html {
   height: 100%;
@@ -10,11 +18,14 @@ body {
   zoom: 1;
 }
 
-.jPanelMenu-panel {
-  padding-top: 55px;
-  padding-bottom: 290px;
+/*
+::selection {
+	background: @jc-gray-dark;
+	color: @white;
 }
 
-#container {
-  position: relative;
+::-moz-selection {
+	background: @jc-gray-dark;
+	color: @white;
 }
+*/
