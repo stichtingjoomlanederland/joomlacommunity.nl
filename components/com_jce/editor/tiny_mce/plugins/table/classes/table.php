@@ -14,11 +14,11 @@ defined('_JEXEC') or die('RESTRICTED');
 require_once (WF_EDITOR_LIBRARIES . '/classes/plugin.php');
 
 class WFTablesPlugin extends WFEditorPlugin {
-    
+
     public function __construct() {
         parent::__construct(array('colorpicker' => true));
     }
-    
+
     public function getContext() {
         return JRequest::getWord('context', 'table');
     }
@@ -49,7 +49,7 @@ class WFTablesPlugin extends WFEditorPlugin {
         }
     }
 
-    public function getSettings() {
+    public function getSettings($settings = array()) {
         $profile = $this->getProfile();
 
         $settings = array(
@@ -58,15 +58,6 @@ class WFTablesPlugin extends WFEditorPlugin {
 
         return parent::getSettings($settings);
     }
-
-    /**
-     * Get default parameters
-     * @return string parameters
-     */
-    public function getDefaults() {        
-        return parent::getDefaults(array());
-    }
-
 }
 
 ?>

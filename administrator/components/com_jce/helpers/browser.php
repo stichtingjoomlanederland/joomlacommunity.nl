@@ -19,10 +19,10 @@ abstract class WFBrowserHelper {
         $model = new WFModel();
         return $model->getBrowserLink($element, $filter);
     }
-    
-    public static function getMediaFieldLink($element = null) {
-        $link = self::getBrowserLink('', 'images');
-        
+
+    public static function getMediaFieldLink($element = null, $filter = 'images') {
+        $link = self::getBrowserLink($element, $filter);
+
         return $link;
     }
 }

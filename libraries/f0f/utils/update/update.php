@@ -2,7 +2,7 @@
 /**
  * @package     FrameworkOnFramework
  * @subpackage  utils
- * @copyright   Copyright (C) 2010 - 2015 Nicholas K. Dionysopoulos / Akeeba Ltd. All rights reserved.
+ * @copyright   Copyright (C) 2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -654,6 +654,13 @@ ENDBLOCK;
 				$bestUpdate = $update;
 			}
 		}
+
+        // If the current version is newer or equal to the best one, unset it. Otherwise the user will be always prompted to update
+        if(version_compare($this->version, $bestVersion, 'ge'))
+        {
+            $bestUpdate = null;
+            $bestVersion = '0.0.0';
+        }
 
 		if (!is_null($bestUpdate))
 		{

@@ -1,4 +1,12 @@
 /**
+ * Akeeba Backup
+ *
+ * @package    akeeba
+ * @copyright  Copyright (c)2009-2016 Nicholas K. Dionysopoulos
+ * @license    GNU GPL version 3 or, at your option, any later version
+ **/
+
+/**
  * Setup (required for Joomla! 3)
  */
 if(typeof(akeeba) == 'undefined') {

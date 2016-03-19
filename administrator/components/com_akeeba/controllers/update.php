@@ -1,7 +1,7 @@
 <?php
 /**
  * @package AkeebaBackup
- * @copyright Copyright (c)2009-2014 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2009-2016 Nicholas K. Dionysopoulos
  * @license GNU General Public License version 3, or later
  */
 
@@ -257,7 +257,7 @@ class AkeebaControllerUpdate extends F0FController
 				throw new RuntimeException(JText::_('COM_AKEEBA_UPDATE_ERR_WRONGPACKAGETYPE'));
 			}
 
-			if (!$installer->install($updatePackagePath))
+			if (!$installer->install($installationDirectory))
 			{
 				$model->setState('name', $installer->get('name'));
 				$model->setState('message', $installer->message);

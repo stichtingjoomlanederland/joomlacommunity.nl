@@ -85,16 +85,16 @@ div.icon-wrapper {
  * Akeeba Live Update button styling
  */
 span.liveupdate-icon-notsupported {
-  color: #ccc;
+  color: #555555;
 }
 span.liveupdate-icon-crashed {
-  color: #ccc;
+  color: #555555;
 }
 span.liveupdate-icon-updates {
   font-weight: bold;
-  color: #ff0000;
+  color: #9d261d;
   font-size: 0.87em;
 }
 span.liveupdate-icon-noupdates {
-  color: #009900;
+  color: #46a546;
 }

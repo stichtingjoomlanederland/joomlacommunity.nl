@@ -3,7 +3,7 @@
  * Akeeba Engine
  * The modular PHP5 site backup engine
  *
- * @copyright Copyright (c)2006-2015 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -26,6 +26,21 @@ class Complexify
 	private static $MIN_COMPLEXITY = 66;
 
 	private static $MAX_COMPLEXITY = 120; //  25 chars, all charsets
+
+	private static $POOR_MAN_CHARSET = array(
+		' ',
+		'0123456789',
+		'qwertyuiopasdfghjklzxcvbnm',
+		'QWERTYUIOPASDFGHJKLZXCVBNM',
+		'!@#$%^&*()_+-=,.?',
+		'§±[]{};:\'\\|"<>/',
+		'£€¢¥',
+		'¡ﬁﬂ‹›·‚–—±´¨ˆ“‘„´ˇ¨ˆ”’«»`˜¯˘¿',
+		'ŒøÁØåßÅÍÎÏÓÔÒÚÆçÇÂ',
+		'™∞¶•ªº≠⁄‡°œ∑®†‰∏∂ƒ©˙˚¬…æ˝≈√∫˜≤≥÷`¸˛◊ı',
+		'ςερτυθιοπασδφγηξκλζχψωβνμάέήίόύώϊϋΐΰ',
+		'ΣΕΡΤΥΘΙΟΠΑΣΔΦΓΗΞΚΛΖΧΨΩΒΝΜΆΈΉΊΌΎΏΪΫ'
+	);
 
 	private static $CHARSETS = array(
 		// Commonly Used
@@ -263,6 +278,33 @@ class Complexify
 	}
 
 	/**
+	 * Determine the complexity added from a character set if it is used in a string
+	 *
+	 * @param   string $str String to check
+	 * @param   string $charset  String of characters of the character set.
+	 *
+	 * @return  int  0 if there are no characters from the character set, size of the character set if there are any
+	 *               characters used in the string
+	 */
+	private function additionalComplexityForCharsetPoorMans($str, $charset)
+	{
+		$strChars = str_split($str);
+		$setChars = str_split($charset);
+
+		$len = strlen($str);
+
+		foreach($strChars as $c)
+		{
+			if (in_array($c, $setChars))
+			{
+				return strlen($charset);
+			}
+		}
+
+		return 0;
+	}
+
+	/**
 	 * Check if a string is in the banned password list
 	 *
 	 * @param  string $str String to check
@@ -277,15 +319,32 @@ class Complexify
 			return false;
 		}
 
-		$str = mb_convert_case($str, MB_CASE_LOWER, $this->encoding);
+		if (function_exists('mb_convert_case'))
+		{
+			$str = mb_convert_case($str, MB_CASE_LOWER, $this->encoding);
+		}
+		else
+		{
+			$str = strtolower($str);
+		}
 
 		if ($this->banMode === 'strict')
 		{
 			for ($i = 0; $i < count($this->bannedPasswords); $i++)
 			{
-				if (mb_strpos($this->bannedPasswords[ $i ], $str, 0, $this->encoding) !== false)
+				if (function_exists('mb_strpos'))
 				{
-					return true;
+					if (mb_strpos($this->bannedPasswords[ $i ], $str, 0, $this->encoding) !== false)
+					{
+						return true;
+					}
+				}
+				else
+				{
+					if (strpos($this->bannedPasswords[ $i ], $str, 0) !== false)
+					{
+						return true;
+					}
 				}
 			}
 
@@ -315,9 +374,19 @@ class Complexify
 		if (!$this->inBanlist($password))
 		{
 			// Add character complexity
-			foreach (self::$CHARSETS as $charset)
+			if (function_exists('mb_strlen'))
 			{
-				$complexity += $this->additionalComplexityForCharset($password, $charset);
+				foreach (self::$CHARSETS as $charset)
+				{
+					$complexity += $this->additionalComplexityForCharset($password, $charset);
+				}
+			}
+			else
+			{
+				foreach (self::$POOR_MAN_CHARSET as $charset)
+				{
+					$complexity += $this->additionalComplexityForCharsetPoorMans($password, $charset);
+				}
 			}
 		}
 		else
@@ -327,16 +396,33 @@ class Complexify
 		}
 
 		// Use natural log to produce linear scale
-		$complexity = log(pow($complexity, mb_strlen($password, $this->encoding))) * (1 / $this->strengthScaleFactor);
+		if (function_exists('mb_strlen'))
+		{
+			$complexity = log(pow($complexity, mb_strlen($password, $this->encoding))) * (1 / $this->strengthScaleFactor);
+		}
+		else
+		{
+			$complexity = log(pow($complexity, strlen($password, $this->encoding))) * (1 / $this->strengthScaleFactor);
+		}
 
 		if ($complexity <= self::$MIN_COMPLEXITY)
 		{
 			array_push($error, 'toosimple');
 		}
 
-		if (mb_strlen($password, $this->encoding) < $this->minimumChars)
+		if (function_exists('mb_strlen'))
 		{
-			array_push($error, 'tooshort');
+			if (mb_strlen($password, $this->encoding) < $this->minimumChars)
+			{
+				array_push($error, 'tooshort');
+			}
+		}
+		else
+		{
+			if (strlen($password) < $this->minimumChars)
+			{
+				array_push($error, 'tooshort');
+			}
 		}
 
 		// Scale to percentage, so it can be used for a progress bar

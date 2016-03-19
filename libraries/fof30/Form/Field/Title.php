@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     FOF
- * @copyright   2010-2015 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL version 2 or later
  */
 
@@ -32,16 +32,18 @@ class Title extends Text implements FieldInterface
 	public function getRepeatable()
 	{
 		// Initialise
-		$slug_field  = isset($this->element['slug_field']) ? (string) $this->element['slug_field'] : $this->item->getFieldAlias('slug');
-		$slug_format = $this->element['slug_format'] ? (string) $this->element['slug_format'] : '(%s)';
-		$slug_class  = $this->element['slug_class']  ? (string) $this->element['slug_class']  : 'small';
+		$slug_field     = isset($this->element['slug_field']) ? (string)$this->element['slug_field'] :
+			$this->item->getFieldAlias('slug');
+		$slug_format    = $this->element['slug_format'] ? (string)$this->element['slug_format'] : '(%s)';
+		$slug_class     = $this->element['slug_class'] ? (string)$this->element['slug_class'] : 'small';
+		$slug_separator = isset($this->element['slug_separator']) ? (string)$this->element['slug_separator'] : '<br />';
 
 		// Get the regular display
 		$html = parent::getRepeatable();
 
 		$slug = $this->item->$slug_field;
 
-		$html .= '<br />' . '<span class="' . $slug_class . '">';
+		$html .= $slug_separator . '<span class="' . $slug_class . '">';
 		$html .= JText::sprintf($slug_format, $slug);
 		$html .= '</span>';
 

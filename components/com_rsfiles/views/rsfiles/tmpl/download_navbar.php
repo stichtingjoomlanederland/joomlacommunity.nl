@@ -8,7 +8,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 
 <div class="navbar navbar-info">
 	<div class="navbar-inner rsf_navbar">
-		<a class="btn btn-navbar" id="rsf_navbar_btn" data-toggle="collapse" data-target=".nav-collapse"><i class="rsicon-down"></i></a>
+		<a class="btn btn-navbar" id="rsf_navbar_btn" data-toggle="collapse" data-target=".rsf_navbar .nav-collapse"><i class="rsicon-down"></i></a>
 		<a class="brand visible-tablet visible-phone" href="javascript:void(0)"><?php echo JText::_('COM_RSFILES_NAVBAR'); ?></a>
 		<div class="nav-collapse collapse">
 			<div class="nav pull-left">

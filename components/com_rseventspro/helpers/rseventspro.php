@@ -132,7 +132,7 @@ class rseventsproHelper
 		// Load FontAwesome
 		self::loadFA();
 		
-		$doc->addScriptDeclaration("var rsepro_root = '".addslashes(JURI::root(true).'/')."';");
+		$doc->addScriptDeclaration("var rsepro_root = '".addslashes(JURI::root(true).'/'.($app->isAdmin() ? 'administrator/' : ''))."';");
 		
 		// Load admin or site scripts
 		if ($app->isAdmin()) {
@@ -3462,10 +3462,11 @@ class rseventsproHelper
 				->where($db->qn('user_id').' = '.(int) $uid);
 			
 			$db->setQuery($query);
-			$details = $db->loadObject();
+			if ($details = $db->loadObject()) {
+				return $details->firstname.' '.$details->middlename.' '.$details->lastname;
+			}
 			
-			$name = $details->firstname.' '.$details->middlename.' '.$details->lastname;
-			return !empty($name) ? $name : $user->name;
+			return $user->name;
 		} else return $user->name;
 	}
 	

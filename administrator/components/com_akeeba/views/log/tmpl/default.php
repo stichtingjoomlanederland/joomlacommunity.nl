@@ -1,7 +1,7 @@
 <?php
 /**
  * @package AkeebaBackup
- * @copyright Copyright (c)2009-2014 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2009-2016 Nicholas K. Dionysopoulos
  * @license GNU General Public License version 3, or later
  *
  * @since 1.3
@@ -13,7 +13,7 @@ if(empty($this->tag)) $this->tag = null;
 JHtml::_('formbehavior.chosen');
 
 ?>
-<?php if(count($this->logs)): ?>
+<?php if (isset($this->logs) && count($this->logs)): ?>
 <form name="adminForm" id="adminForm" action="index.php" method="post" class="form-inline">
 	<input name="option" value="com_akeeba" type="hidden" />
 	<input name="view" value="log" type="hidden" />

@@ -20,7 +20,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 
 <div class="control-group clearfix">
 	<div class="controls">
-		<?php echo JEditor::getInstance(JFactory::getConfig()->get('editor'))->display('jform[ticket_pdf_layout]',$this->escape($this->item->ticket_pdf_layout),'100%', '50%', 70, 10); ?>
+		<?php echo JEditor::getInstance(JFactory::getConfig()->get('editor'))->display('jform[ticket_pdf_layout]',$this->escape($this->item->ticket_pdf_layout),'100%', '50%', 70, 10, rseventsproHelper::getConfig('enable_buttons','bool')); ?>
 	</div>
 </div>
 

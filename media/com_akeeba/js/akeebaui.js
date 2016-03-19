@@ -1,11 +1,9 @@
 /**
  * Akeeba Backup
- * The modular PHP5 site backup software solution
- * This file contains the jQuery-based client-side user interface logic
- * @package akeebaui
- * @copyright Copyright (c)2009-2015 Nicholas K. Dionysopoulos
- * @license GNU GPL version 3 or, at your option, any later version
- * @version $Id$
+ *
+ * @package    akeeba
+ * @copyright  Copyright (c)2009-2016 Nicholas K. Dionysopoulos
+ * @license    GNU GPL version 3 or, at your option, any later version
  **/
 
 /**

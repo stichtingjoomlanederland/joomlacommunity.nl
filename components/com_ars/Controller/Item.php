@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaReleaseSystem
- * @copyright Copyright (c)2010-2015 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010 Nicholas K. Dionysopoulos
  * @license   GNU General Public License version 3, or later
  */
 
@@ -78,6 +78,16 @@ class Item extends DataController
 		// Only apply on HTML views
 		if (!in_array($this->input->getCmd('format', 'html'), ['html', 'feed']))
 		{
+			return;
+		}
+
+		$layout = $this->input->getCmd('layout', 'default');
+		$tmpl = $this->input->getCmd('tmpl', '');
+
+		if (($layout == 'modal') && ($tmpl == 'component'))
+		{
+			$this->onBeforeBrowseModal();
+
 			return;
 		}
 
@@ -178,6 +188,10 @@ class Item extends DataController
 		// Push the models to the view
 		$this->getView()->setDefaultModel($itemsModel);
 		$this->getView()->setModel('Releases', $releaseModel);
+	}
+
+	public function onBeforeBrowseModal()
+	{
 	}
 
 	/**

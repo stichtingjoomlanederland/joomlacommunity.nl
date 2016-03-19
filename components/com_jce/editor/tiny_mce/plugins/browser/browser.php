@@ -11,5 +11,5 @@
  */
 require_once(dirname( __FILE__ ).'/classes/browser.php');
 
-$plugin = new WFFileBrowserPlugin();//::getInstance();
+$plugin = new WFFileBrowserPlugin();
 $plugin->execute();

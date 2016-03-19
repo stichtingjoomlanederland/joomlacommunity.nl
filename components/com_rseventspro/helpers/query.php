@@ -748,7 +748,7 @@ class RSEventsQuery
 		$q1 = '('.$db->qn('e.end').' <> '.$db->q($this->getNullDate()).' AND '.$db->qn('e.start').' >= '.$db->q($start).' AND '.$db->qn('e.end').' <= '.$db->q($end).')';
 		
 		// Get regular events that starts between the 'start' and 'end' dates and ends after the 'end' date
-		$q2 = '('.$db->qn('e.end').' <> '.$db->q($this->getNullDate()).' AND '.$db->qn('e.start').' >= '.$db->q($start).' AND '.$db->qn('e.end').' >= '.$db->q($end).')';
+		$q2 = '('.$db->qn('e.end').' <> '.$db->q($this->getNullDate()).' AND '.$db->qn('e.start').' >= '.$db->q($start).' AND '.$db->qn('e.start').' <= '.$db->q($end).' AND '.$db->qn('e.end').' >= '.$db->q($end).')';
 		
 		// Get regular events that start before the 'start' date and ends between the 'start' and 'end' dates
 		$q3 = '('.$db->qn('e.end').' <> '.$db->q($this->getNullDate()).' AND '.$db->qn('e.start').' <= '.$db->q($start).' AND '.$db->qn('e.end').' >= '.$db->q($start).' AND '.$db->qn('e.end').' <= '.$db->q($end).')';

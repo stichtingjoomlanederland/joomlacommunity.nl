@@ -7,7 +7,7 @@
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
 	<authorEmail>support@rsjoomla.com</authorEmail>
 	<authorUrl>www.rsjoomla.com</authorUrl>
-	<version>1.15.10</version>
+	<version>1.15.11</version>
 	<description>RSFiles! is the perfect Joomla! download manager that allows you to manage and share folders!</description>
 	<scriptfile>script.rsfiles.php</scriptfile>
 	

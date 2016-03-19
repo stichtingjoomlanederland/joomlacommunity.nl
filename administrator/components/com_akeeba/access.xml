@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+ * @package   AkeebaBackup
+ * @copyright Copyright (c)2009-2016 Nicholas K. Dionysopoulos
+ * @license   GNU General Public License version 3, or later
+-->
 <access component="com_akeeba">
 	<section name="component">
 		<action name="core.admin" title="JACTION_ADMIN" description="JACTION_ADMIN_COMPONENT_DESC" />

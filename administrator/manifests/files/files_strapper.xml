@@ -7,8 +7,8 @@
     <authorUrl>https://www.akeebabackup.com</authorUrl>
     <copyright>(C) 2012-2013 Akeeba Ltd.</copyright>
     <license>GNU GPL v2 or later</license>
-    <version>2.5.1</version>
-    <creationDate>2015-12-21 11:41:04</creationDate>
+    <version>2.5.3</version>
+    <creationDate>2016-02-19</creationDate>
     <description>Namespaced jQuery, jQuery UI and Bootstrap for Akeeba products.</description>
 
     <!-- Fileset definition -->

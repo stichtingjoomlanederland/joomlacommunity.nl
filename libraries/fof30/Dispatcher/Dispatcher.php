@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     FOF
- * @copyright   2010-2015 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL version 2 or later
  */
 
@@ -166,7 +166,7 @@ class Dispatcher
 		$this->controller = $this->container->factory->controller($view, $this->config);
 		$status = $this->controller->execute($task);
 
-        if($status)
+        if($status !== false)
         {
             try
             {

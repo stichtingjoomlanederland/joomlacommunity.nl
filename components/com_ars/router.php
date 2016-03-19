@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaReleaseSystem
- * @copyright Copyright (c)2010-2015 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010 Nicholas K. Dionysopoulos
  * @license   GNU General Public License version 3, or later
  * @version   $Id$
  */
@@ -375,9 +375,16 @@ function arsBuildRouteHtml(&$query)
 
 			// Get release info
 			$releaseAlias = $release->alias;
-			$catId = $release->category->id;
-			$catAlias = $release->category->alias;
-			$catVgroup = $release->category->vgroup_id;
+			$catId = 0;
+			$catAlias = '';
+			$catVgroup = 0;
+
+			if (is_object($release->category))
+			{
+				$catId = $release->category->id;
+				$catAlias = $release->category->alias;
+				$catVgroup = $release->category->vgroup_id;
+			}
 
 			// Do we have a "category" menu?
 			if ($Itemid)

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" version="1.5.0" method="upgrade">
 	<name>Ars</name>
-	<creationDate>2015-12-22</creationDate>
+	<creationDate>2016-02-08</creationDate>
 	<author>Nicholas K. Dionysopoulos</author>
 	<authorEmail>nicholas@akeebabackup.com</authorEmail>
 	<authorUrl>http://www.akeebabackup.com</authorUrl>
-	<copyright>Copyright (c)2010-2015 Nicholas K. Dionysopoulos</copyright>
+	<copyright>Copyright (c)2010-2016 Nicholas K. Dionysopoulos</copyright>
 	<license>This component in released under the GNU/GPL v3 or later license</license>
-	<version>3.0.3</version>
+	<version>3.0.4</version>
 	<description>Akeeba Release System</description>
 
 	<!-- Public front end files -->

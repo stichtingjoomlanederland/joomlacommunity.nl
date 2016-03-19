@@ -438,7 +438,7 @@ class JSecurImage {
 	 * </code>
 	 *
 	 */
-	function JSecurImage()
+	function __construct()
 	{
 		// Initialize session or attach to existing
 		if ( session_id() == '' ) { // no session has been started yet, which is needed for validation
@@ -1108,7 +1108,7 @@ class JSecurImage {
 	function getCode()
 	{
 		$session = JFactory::getSession();
-		return $session->set('com_rsfiles.securimage.value', '');
+		return $session->get('com_rsfiles.securimage.value', '');
 	}
 
 	/**
@@ -1356,7 +1356,7 @@ class JSecurImageColor {
 	 * @param $green Green component 0-255
 	 * @param $blue Blue component 0-255
 	 */
-	function JSecurImageColor($red, $green = null, $blue = null)
+	function __construct($red, $green = null, $blue = null)
 	{
 		if ($green == null && $blue == null && preg_match('/^#[a-f0-9]{3,6}$/i', $red)) {
 			$col = substr($red, 1);

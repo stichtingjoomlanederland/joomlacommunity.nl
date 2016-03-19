@@ -2,7 +2,7 @@
 
 /**
  * @package AkeebaBackup
- * @copyright Copyright (c)2009-2014 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2009-2016 Nicholas K. Dionysopoulos
  * @license GNU General Public License version 3, or later
  *
  *

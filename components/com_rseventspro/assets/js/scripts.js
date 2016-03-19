@@ -234,11 +234,11 @@ function rspagination(tpl,limitstart,ide) {
 		
 		if (jQuery('#rs_events_container li[class!="rsepro-month-year"]').length > 0 && (tpl == 'events' || tpl == 'locations' || tpl == 'subscribers' || tpl == 'day' || tpl == 'week')) {
 			jQuery('#rs_events_container li[class!="rsepro-month-year"]').on('mouseenter', function() {
-				jQuery(this).children('div.rs_options').css('display','');
+				jQuery(this).find('div.rs_options').css('display','');
 			});
 			
 			jQuery('#rs_events_container li[class!="rsepro-month-year"]').on('mouseleave', function() {
-				jQuery(this).children('div.rs_options').css('display','none');
+				jQuery(this).find('div.rs_options').css('display','none');
 			});
 		}
 		
@@ -1320,19 +1320,19 @@ function rsepro_add_ticket_seats(id, place) {
 						var total	 = parseInt(jQuery('#rsepro_unlimited_'+id).val()) * response.tprice;
 						total = number_format(total, response.payment_decimals, response.payment_decimal, response.payment_thousands);
 						
-						var tr	= jQuery('<tr>').addClass('rsepro-cart-ticket');
-						var td1	= jQuery('<td>').html('<span>' + jQuery('#rsepro_unlimited_'+id).val() + '</span> x ' + response.name + ' ( ' + response.price + ' ) <br /> <small>' + response.description + '</small>');
-						var td2	= jQuery('<td>').text(response.mask.replace('{price}',total));
-						var td3	= jQuery('<td>');
+						var tr	= thedocument.jQuery('<tr>').addClass('rsepro-cart-ticket');
+						var td1	= thedocument.jQuery('<td>').html('<span>' + jQuery('#rsepro_unlimited_'+id).val() + '</span> x ' + response.name + ' ( ' + response.price + ' ) <br /> <small>' + response.description + '</small>');
+						var td2	= thedocument.jQuery('<td>').text(response.mask.replace('{price}',total));
+						var td3	= thedocument.jQuery('<td>');
 						
-						var remove = jQuery('<a>', {
+						var remove = thedocument.jQuery('<a>', {
 							href: 'javascript:void(0)'
 						}).text('(X)').on('click', function() {
 							jQuery(this).parent().parent().remove();
 							thedocument.rsepro_multi_seats_total();
 						});
 						
-						var input = jQuery('<input>', {
+						var input = thedocument.jQuery('<input>', {
 							type: 'hidden',
 							name: 'unlimited['+id+']',
 							id: 'ticket'+id+place
@@ -1343,6 +1343,7 @@ function rsepro_add_ticket_seats(id, place) {
 						tr.append(td1);
 						tr.append(td2);
 						tr.append(td3);
+						
 						tr.insertBefore(thedocument.jQuery('#rsepro-cart-discount'));
 					}
 				}
@@ -1399,7 +1400,7 @@ function rsepro_add_ticket_seats(id, place) {
 					thedocument.jQuery('#rsepro-seat-'+id+' td:nth-child(1)').find('span').text(quantity);
 					thedocument.jQuery('#rsepro-seat-'+id+' td:nth-child(2)').text(total);
 					
-					var input = jQuery('<input>', {
+					var input = thedocument.jQuery('<input>', {
 						type: 'hidden',
 						name: 'tickets['+id+'][]',
 						id: 'ticket'+id+place
@@ -1410,19 +1411,19 @@ function rsepro_add_ticket_seats(id, place) {
 					var total	 = 1 * response.tprice;
 					total = number_format(total, response.payment_decimals, response.payment_decimal, response.payment_thousands);
 					
-					var tr	= jQuery('<tr>', { id: 'rsepro-seat-'+id}).addClass('rsepro-cart-ticket');
-					var td1	= jQuery('<td>').html('<span>1</span> x ' + response.name + ' ( ' + response.price + ' ) <span id="rsepro-seats-'+id+'"></span> <br /> <small>' + response.description + '</small>');
-					var td2	= jQuery('<td>').text(response.mask.replace('{price}',total));
-					var td3	= jQuery('<td>');
+					var tr	= thedocument.jQuery('<tr>', { id: 'rsepro-seat-'+id}).addClass('rsepro-cart-ticket');
+					var td1	= thedocument.jQuery('<td>').html('<span>1</span> x ' + response.name + ' ( ' + response.price + ' ) <span id="rsepro-seats-'+id+'"></span> <br /> <small>' + response.description + '</small>');
+					var td2	= thedocument.jQuery('<td>').text(response.mask.replace('{price}',total));
+					var td3	= thedocument.jQuery('<td>');
 					
-					var remove = jQuery('<a>', {
+					var remove = thedocument.jQuery('<a>', {
 						href: 'javascript:void(0)'
 					}).text('(X)').on('click', function() {
 						jQuery(this).parent().parent().remove();
 						thedocument.rsepro_multi_seats_total();
 					});
 					
-					var input = jQuery('<input>', {
+					var input = thedocument.jQuery('<input>', {
 						type: 'hidden',
 						name: 'tickets['+id+'][]',
 						id: 'ticket'+id+place
