@@ -164,56 +164,19 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 		<div class="container">
 			<div class="row">
 				<div class="col-4">
-					<h4>JoomlaCommunity.nl</h4>
-					<p>JoomlaCommunity is de plaats voor het laatste Joomla nieuws, de nieuwste vertalingen van Joomla en andere extensies, een uitgebreide documentatie sectie en een behulpzaam forum om je wegwijs te maken in de Joomla wereld.</p>
+					<jdoc:include type="modules" name="footer-1" style="xhtml" />
 				</div>
 				<div class="col-2">
-					<h4>Algemeen</h4>
-					<ul class="list-unstyled">
-						<li><a href="http://www.joomlacommunity.eu/">Nieuws</a></li>
-						<li><a href="http://www.joomlacommunity.eu/over-joomla.html">Over Joomla</a></li>
-						<li><a href="http://www.joomlacommunity.eu/over-joomlacommunity.html">JoomlaCommunity.nl</a></li>
-						<li><a href="http://www.joomlacommunity.eu/boekenhoek.html">Boekenhoek</a></li>
-						<li><a href="http://www.joomlacommunity.eu/agenda.html">Agenda</a></li>
-						<li><a href="http://www.joomlacommunity.eu/gebruikersgroepen.html">Gebruikersgroepen</a></li>
-						<li><a href="http://www.joomlacommunity.eu/component/mailinglist/?task=archive">Nieuwsbrief</a>
-						</li>
-					</ul>
+					<jdoc:include type="modules" name="footer-2" style="xhtml" />
 				</div>
 				<div class="col-2">
-					<h4>Downloads</h4>
-					<ul class="list-unstyled">
-						<li><a href="http://download.joomlacommunity.eu/joomla-25.html">Joomla 2.5</a></li>
-						<li><a href="http://download.joomlacommunity.eu/joomla-15.html">Joomla 1.5</a></li>
-						<li><a href="http://download.joomlacommunity.eu/extensies-25-compatible.html">Extensies 2.5 native</a></li>
-						<li><a href="http://download.joomlacommunity.eu/extensies-15-native.html">Extensies 1.5 native</a></li>
-						<li><a href="http://download.joomlacommunity.eu/virtuemart.html">VirtueMart</a></li>
-						<li><a href="http://download.joomlacommunity.eu/overige.html">Overige</a></li>
-					</ul>
+					<jdoc:include type="modules" name="footer-3" style="xhtml" />
 				</div>
 				<div class="col-2">
-					<h4>Documentatie</h4>
-					<ul class="list-unstyled">
-						<li><a href="http://help.joomlacommunity.eu/algemeen.html">Joomla algemeen</a></li>
-						<li><a href="http://help.joomlacommunity.eu/joomla-15.html">Joomla 1.5</a></li>
-						<li><a href="http://help.joomlacommunity.eu/joomla-10.html">Joomla 1.0</a></li>
-						<li><a href="http://help.joomlacommunity.eu/helpbestanden-15.html">Helpbestanden 1.5</a></li>
-						<li><a href="http://help.joomlacommunity.eu/extensies.html">Extensies</a></li>
-						<li><a href="http://help.joomlacommunity.eu/virtuemart.html">VirtueMart</a></li>
-						<li><a href="http://help.joomlacommunity.eu/links.html">Links</a></li>
-					</ul>
+					<jdoc:include type="modules" name="footer-4" style="xhtml" />
 				</div>
 				<div class="col-2">
-					<h4>Forum</h4>
-					<ul class="list-unstyled">
-						<li><a href="http://forum.joomlacommunity.eu/forumdisplay.php?f=64">Mededelingen</a></li>
-						<li><a href="http://forum.joomlacommunity.eu/forumdisplay.php?f=4">Joomla 1.5</a></li>
-						<li><a href="http://forum.joomlacommunity.eu/forumdisplay.php?f=5">Joomla 1.0</a></li>
-						<li><a href="http://forum.joomlacommunity.eu/forumdisplay.php?f=92">Joomla 2.5</a></li>
-						<li><a href="http://forum.joomlacommunity.eu/forumdisplay.php?f=50">VirtueMart</a></li>
-						<li><a href="http://forum.joomlacommunity.eu/forumdisplay.php?f=69">Overig</a></li>
-						<li><a href="http://forum.joomlacommunity.eu/forumdisplay.php?f=72">Marktplaats</a></li>
-					</ul>
+					<jdoc:include type="modules" name="footer-5" style="xhtml" />
 				</div>
 			</div>
 		</div>
@@ -222,9 +185,8 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 		<div class="container">
 			<div class="row">
 				<div class="col-12">
-					<jdoc:include type="modules" name="footer"/>
 					<p class="">Copyright © 2008-<?php echo date('Y'); ?> Joomla!Community - Alle rechten voorbehouden</p>
-					<p class="pull-right">De naam Joomla!® en logo worden gebruikt onder een beperkte licentie met toestemming van Open Source Matters. JoomlaCommunity.eu is niet verbonden aan en is geen onderdeel van Open Source Matters, Inc, of het Joomla! project.</p>
+					<jdoc:include type="modules" name="copyright" />
 				</div>
 			</div>
 		</div>

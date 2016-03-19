@@ -24,8 +24,13 @@
 		<folder>less</folder>
 	</files>
 	<positions>
+		<position>copyright</position>
 		<position>debug</position>
-		<position>footer</position>
+		<position>footer-1</position>
+		<position>footer-2</position>
+		<position>footer-3</position>
+		<position>footer-4</position>
+		<position>footer-5</position>
 		<position>links</position>
 		<position>mainmenu</position>
 		<position>rechts</position>
