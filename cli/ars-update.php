@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaReleaseSystem
- * @copyright Copyright (c)2010-2014 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2016 Nicholas K. Dionysopoulos
  * @license   GNU General Public License version 3, or later
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -128,6 +128,12 @@ JLoader::import('joomla.application.cli');
 JLoader::import('joomla.application.component.helper');
 JLoader::import('cms.component.helper');
 
+if (version_compare(JVERSION, '3.4.9999', 'ge'))
+{
+	// Joomla! 3.5 and later does not load the configuration.php unless you explicitly tell it to.
+	JFactory::getConfig(JPATH_CONFIGURATION . '/configuration.php');
+}
+
 /**
  * Akeeba Release System Update application
  */
@@ -224,7 +230,7 @@ class ArsUpdate extends JApplicationCli
 		$this->set('cwd', getcwd());
 
 		// Work around Joomla! 3.4.7's JSession bug
-		if (version_compare(JVERSION, '3.4.7', 'ge'))
+		if (version_compare(JVERSION, '3.4.7', 'eq'))
 		{
 			JFactory::getSession()->restart();
 		}

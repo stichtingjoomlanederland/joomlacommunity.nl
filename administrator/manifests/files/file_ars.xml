@@ -4,11 +4,11 @@
     <author>Nicholas K. Dionysopoulos</author>
     <authorEmail>nicholas@akeebabackup.com</authorEmail>
     <authorUrl>https://www.akeebabackup.com</authorUrl>
-    <copyright>Copyright (c)2010-2015 Nicholas K. Dionysopoulos</copyright>
+    <copyright>Copyright (c)2010-2016 Nicholas K. Dionysopoulos</copyright>
     <license>GNU GPL v3 or later</license>
-    <version>3.0.3</version>
-    <creationDate>2015-12-22</creationDate>
-    <description>Akeeba Release System CLI scripts v.3.0.3</description>
+    <version>3.0.4</version>
+    <creationDate>2016-02-08</creationDate>
+    <description>Akeeba Release System CLI scripts v.3.0.4</description>
 
     <fileset>
         <files target="cli">

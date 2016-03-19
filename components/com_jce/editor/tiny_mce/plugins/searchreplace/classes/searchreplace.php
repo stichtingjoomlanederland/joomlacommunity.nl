@@ -37,12 +37,6 @@ class WFSearchReplacePlugin extends WFEditorPlugin {
         $tabs->addTab('find');
         $tabs->addTab('replace');
     }
-
-    public function getSettings() {
-        $settings = array();
-
-        return parent::getSettings($settings);
-    }
 }
 
 ?>

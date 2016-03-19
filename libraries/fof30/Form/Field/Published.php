@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     FOF
- * @copyright   2010-2015 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL version 2 or later
  */
 
@@ -136,11 +136,13 @@ class Published extends \JFormFieldList implements FieldInterface
 				case '1':
 				case 'yes':
 					$config[$configKey] = true;
+				break;
 
 				case 'false':
 				case '0':
 				case 'no':
 					$config[$configKey] = false;
+				break;
 
 				default:
 					$config[$configKey] = $default;

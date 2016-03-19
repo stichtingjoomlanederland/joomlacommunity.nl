@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2015 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
  * @license   GNU General Public License version 3, or later
  *
  * @since     3.0
@@ -13,7 +13,7 @@ namespace Akeeba\Engine\Util;
 defined('AKEEBAENGINE') or die();
 
 /**
- * AES implementation in PHP (c) Chris Veness 2005-2013.
+ * AES implementation in PHP (c) Chris Veness 2005-2016.
  * Right to use and adapt is granted for under a simple creative commons attribution
  * licence. No warranty of any form is offered.
  *
@@ -498,13 +498,14 @@ class Encrypt
 	 * @since  3.0.1
 	 * @author Nicholas K. Dionysopoulos
 	 *
-	 * @param string $plaintext The data to encrypt
-	 * @param string $password  Encryption password
-	 * @param int    $nBits     Encryption key size. Can be 128, 192 or 256
+	 * @param   string  $plaintext  The data to encrypt
+	 * @param   string  $password   Encryption password
+	 * @param   int     $nBits      Encryption key size. Can be 128, 192 or 256
+	 * @param   bool    $legacy     Enable legacy mode (insecure intialization vector)
 	 *
-	 * @return string The ciphertext
+	 * @return  string  The ciphertext
 	 */
-	public function AESEncryptCBC($plaintext, $password, $nBits = 128)
+	public function AESEncryptCBC($plaintext, $password, $nBits = 128, $legacy = false)
 	{
 		// standard allows 128/192/256 bit keys
 		if (!($nBits == 128 || $nBits == 192 || $nBits == 256))
@@ -517,13 +518,21 @@ class Encrypt
 			return false;
 		}
 
-		// Try to fetch cached key/iv or create them if they do not exist
+		// Try to fetch cached key or create it if it doesn't exist
 		$lookupKey = $password . '-' . $nBits;
+
+		// Create an IV
+		$rand = new RandomValue();
+		$iv = $rand->generate(16);
+
+		if ($legacy)
+		{
+			$iv = $this->createTheWrongIV($password);
+		}
 
 		if (array_key_exists($lookupKey, $this->passwords))
 		{
-			$key = $this->passwords[$lookupKey]['key'];
-			$iv = $this->passwords[$lookupKey]['iv'];
+			$key = $this->passwords[$lookupKey];
 		}
 		else
 		{
@@ -548,35 +557,23 @@ class Encrypt
 
 			$key = $newKey;
 
-			// Create an Initialization Vector (IV) based on the password, using the same technique as for the key
-			$nBytes = 16; // AES uses a 128 -bit (16 byte) block size, hence the IV size is always 16 bytes
-			$pwBytes = array();
-
-			for ($i = 0; $i < $nBytes; $i++)
-			{
-				$pwBytes[$i] = ord(substr($password, $i, 1)) & 0xff;
-			}
-
-			$iv = $this->Cipher($pwBytes, $this->KeyExpansion($pwBytes));
-			$newIV = '';
-
-			foreach ($iv as $int)
-			{
-				$newIV .= chr($int);
-			}
-
-			$iv = $newIV;
-
-			$this->passwords[$lookupKey]['key'] = $key;
-			$this->passwords[$lookupKey]['iv'] = $iv;
+			$this->passwords[$lookupKey] = $key;
 		}
 
 		$td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_CBC, '');
 		mcrypt_generic_init($td, $key, $iv);
 
+		// The ciphertext is the encrypted string...
 		$ciphertext = mcrypt_generic($td, $plaintext);
 		mcrypt_generic_deinit($td);
 
+		// ...plus the IV...
+		if (!$legacy)
+		{
+			$ciphertext .= 'JPIV' . $iv;
+		}
+
+		// ...plus the plaintext length.
 		$ciphertext .= pack('V', strlen($plaintext));
 
 		return $ciphertext;
@@ -617,8 +614,7 @@ class Encrypt
 
 		if (array_key_exists($lookupKey, $this->passwords))
 		{
-			$key = $this->passwords[$lookupKey]['key'];
-			$iv = $this->passwords[$lookupKey]['iv'];
+			$key = $this->passwords[$lookupKey];
 		}
 		else
 		{
@@ -643,6 +639,62 @@ class Encrypt
 
 			$key = $newKey;
 
+			$this->passwords[$lookupKey] = $key;
+		}
+
+		// Read the data size
+		$data_size = unpack('V', substr($ciphertext, -4));
+
+		// Try to get the IV from the data
+		$iv = substr($ciphertext, -24, 20);
+		$rightStringLimit = -4;
+
+		if (substr($iv, 0, 4) == 'JPIV')
+		{
+			// We have a stored IV. Retrieve it and tell mdecrypt to process the string minus the last 24 bytes
+			// (4 bytes for JPIV, 16 bytes for the IV, 4 bytes for the uncompressed string length)
+			$iv = substr($iv, 4);
+			$rightStringLimit = -24;
+		}
+		else
+		{
+			// No stored IV. Do it the dumb way.
+			$iv = $this->createTheWrongIV($password);
+		}
+
+		// Decrypt
+		$td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_CBC, '');
+		mcrypt_generic_init($td, $key, $iv);
+
+		$plaintext = mdecrypt_generic($td, substr($ciphertext, 0, $rightStringLimit));
+		mcrypt_generic_deinit($td);
+
+		// Trim padding, if necessary
+		if (strlen($plaintext) > $data_size)
+		{
+			$plaintext = substr($plaintext, 0, $data_size);
+		}
+
+		return $plaintext;
+	}
+
+	/**
+	 * That's the old way of craeting an IV that's definitely not cryptographically sound.
+	 *
+	 * DO NOT USE, EVER, UNLESS YOU WANT TO DECRYPT LEGACY DATA
+	 *
+	 * @param   string  $password  The raw password from which we create an IV in a super bozo way
+	 *
+	 * @return  string  A 16-byte IV string
+	 */
+	function createTheWrongIV($password)
+	{
+		static $ivs = array();
+
+		$key = md5($password);
+
+		if (!isset($ivs[$key]))
+		{
 			// Create an Initialization Vector (IV) based on the password, using the same technique as for the key
 			$nBytes = 16; // AES uses a 128 -bit (16 byte) block size, hence the IV size is always 16 bytes
 			$pwBytes = array();
@@ -660,28 +712,9 @@ class Encrypt
 				$newIV .= chr($int);
 			}
 
-			$iv = $newIV;
-
-			$this->passwords[$lookupKey]['key'] = $key;
-			$this->passwords[$lookupKey]['iv'] = $iv;
+			$ivs[$key] = $newIV;
 		}
 
-		// Read the data size
-		$data_size = unpack('V', substr($ciphertext, -4));
-
-		// Decrypt
-		$td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_CBC, '');
-		mcrypt_generic_init($td, $key, $iv);
-
-		$plaintext = mdecrypt_generic($td, substr($ciphertext, 0, -4));
-		mcrypt_generic_deinit($td);
-
-		// Trim padding, if necessary
-		if (strlen($plaintext) > $data_size)
-		{
-			$plaintext = substr($plaintext, 0, $data_size);
-		}
-
-		return $plaintext;
+		return $ivs[$key];
 	}
 }

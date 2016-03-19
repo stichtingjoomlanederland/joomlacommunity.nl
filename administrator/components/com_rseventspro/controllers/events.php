@@ -204,7 +204,7 @@ class rseventsproControllerEvents extends JControllerAdmin
 		$model	= $this->getModel();
 		$pks    = JFactory::getApplication()->input->get('cid', array(), 'array');
 		
-		if (!$model->batch($pks)) {
+		if (!$model->batchProcess($pks)) {
 			JError::raiseWarning(500, $model->getError());
 		} else {
 			JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_BATCH_COMPLETED'));

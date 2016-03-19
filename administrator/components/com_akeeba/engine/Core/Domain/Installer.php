@@ -3,7 +3,7 @@
  * Akeeba Engine
  * The modular PHP5 site backup engine
  *
- * @copyright Copyright (c)2006-2015 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -154,12 +154,15 @@ class Installer extends Part
 	{
 		$config = Factory::getConfiguration();
 
-		$lbl_version = AKEEBA_VERSION . ' (' . AKEEBA_DATE . ')';
+		$version = defined('AKEEBABACKUP_VERSION') ? AKEEBABACKUP_VERSION : AKEEBA_VERSION;
+		$date    = defined('AKEEBABACKUP_DATE') ? AKEEBABACKUP_DATE : AKEEBA_DATE;
+		$pro     = defined('AKEEBABACKUP_PRO') ? AKEEBABACKUP_PRO : AKEEBA_PRO;
 
-		$lbl_coreorpro = (AKEEBA_PRO == 1) ? 'Professional' : 'Core';
+		$lbl_version   = $version . ' (' . $date . ')';
+		$lbl_coreorpro = ($pro == 1) ? 'Professional' : 'Core';
 
 		$description = $config->get('volatile.core.description', '');
-		$comment = $config->get('volatile.core.comment', '');
+		$comment     = $config->get('volatile.core.comment', '');
 
 		$config->set('volatile.core.description', null);
 		$config->set('volatile.core.comment', null);
@@ -189,7 +192,7 @@ ENDHTML;
 
 	protected function createExtrainfo()
 	{
-		$abversion = AKEEBA_VERSION;
+		$abversion = defined('AKEEBABACKUP_VERSION') ? AKEEBABACKUP_VERSION : AKEEBA_VERSION;
 		$host = Platform::getInstance()->get_host();
 		$backupdate = gmdate('Y-m-d H:i:s');
 		$phpversion = PHP_VERSION;

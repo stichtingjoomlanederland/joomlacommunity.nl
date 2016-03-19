@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaReleaseSystem
- * @copyright Copyright (c)2010-2015 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010 Nicholas K. Dionysopoulos
  * @license   GNU General Public License version 3, or later
  */
 
@@ -61,6 +61,8 @@ JFactory::getApplication()->setHeader('X-Akeeba-Expire-After', 300);
 require_once JPATH_SITE . '/components/com_ars/router.php';
 ComArsRouter::$routeRaw  = false;
 ComArsRouter::$routeHtml = false;
+
+$jVersion = new JVersion;
 
 ?><?php echo $tag; ?>
 <!-- Update stream generated automatically by Akeeba Release System on <?= gmdate('Y-m-d H:i:s') ?> GMT -->

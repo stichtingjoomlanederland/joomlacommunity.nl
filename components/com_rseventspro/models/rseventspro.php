@@ -386,7 +386,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 			}
 			
 			$where = '(' . implode(') OR (', $wheres) . ')';
-			$query->where($where);
+			$query->where('('.$where.')');
 		}
 
 		if (!empty($exclude))

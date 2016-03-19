@@ -1,9 +1,8 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: nikosdion
- * Date: 28/1/15
- * Time: 19:49
+ * @package     FOF
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license     GNU GPL version 2 or later
  */
 
 namespace FOF30\View\Engine;

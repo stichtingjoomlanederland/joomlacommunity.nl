@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2009-2014 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2009-2016 Nicholas K. Dionysopoulos
  * @license   GNU General Public License version 3, or later
  *
  * @since     1.3
@@ -217,6 +217,12 @@ else
 	}
 }
 
+if (version_compare(JVERSION, '3.4.9999', 'ge'))
+{
+	// Joomla! 3.5 and later does not load the configuration.php unless you explicitly tell it to.
+	JFactory::getConfig(JPATH_CONFIGURATION . '/configuration.php');
+}
+
 /**
  * Base class for a Joomla! command line application. Adapted from JCli / JApplicationCli
  */
@@ -323,7 +329,7 @@ class AkeebaCliBase
 		}
 
 		// Work around Joomla! 3.4.7's JSession bug
-		if (version_compare(JVERSION, '3.4.7', 'ge'))
+		if (version_compare(JVERSION, '3.4.7', 'eq'))
 		{
 			JFactory::getSession()->restart();
 		}

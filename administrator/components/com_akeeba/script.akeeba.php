@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    AkeebaBackup
- * @copyright  Copyright (c)2009-2014 Nicholas K. Dionysopoulos
+ * @copyright  Copyright (c)2009-2016 Nicholas K. Dionysopoulos
  * @license    GNU General Public License version 3, or later
  *
  */
@@ -73,7 +73,8 @@ class Com_AkeebaInstallerScript extends F0FUtilsInstallscript
 	protected $installation_queue = array(
 		// modules => { (folder) => { (module) => { (position), (published) } }* }*
 		'modules' => array(
-			'admin' => array(),
+			'admin' => array(
+			),
 			'site'  => array()
 		),
 		// plugins => { (folder) => { (element) => (published) }* }*
@@ -95,12 +96,12 @@ class Com_AkeebaInstallerScript extends F0FUtilsInstallscript
 	 */
 	protected $uninstallation_queue = array(
 		// modules => { (folder) => { (module) }* }*
-		/*
 		'modules' => array(
-			'admin' => array(),
+			'admin' => array(
+				'akeebabackup'
+			),
 			'site'  => array()
 		),
-		*/
 		// plugins => { (folder) => { (element) }* }*
 		'plugins' => array(
 			'system' => array(
@@ -214,6 +215,9 @@ class Com_AkeebaInstallerScript extends F0FUtilsInstallscript
 			// Additional ANGIE installers which are not used in Core
 			'administrator/components/com_akeeba/assets/installers/angie-generic.jpa',
 			'administrator/components/com_akeeba/assets/installers/angie-generic.ini',
+			// Integrity check
+			'administrator/components/com_akeeba/fileslist.php',
+			'administrator/components/com_akeeba/controllers/checkfile.php',
 		),
 		'folders' => array(
 			// Plugins
@@ -239,6 +243,8 @@ class Com_AkeebaInstallerScript extends F0FUtilsInstallscript
 			'administrator/components/com_akeeba/views/upload',
 			'administrator/components/com_akeeba/engine/Dump/Reverse',
 			'administrator/components/com_akeeba/engine/Postproc/Connector',
+			// Integrity check
+			'administrator/components/com_akeeba/views/checkfiles',
 		)
 	);
 

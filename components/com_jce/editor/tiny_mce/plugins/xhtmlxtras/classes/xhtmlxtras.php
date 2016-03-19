@@ -27,8 +27,8 @@ class WFXHTMLXtrasPlugin extends WFEditorPlugin {
      */
     public function display() {
         parent::display();
-        
-        $document   = WFDocument::getInstance();  
+
+        $document   = WFDocument::getInstance();
         $element    = $this->getElementName();
 
         $document->setTitle(WFText::_('WF_' . strtoupper($element) . '_TITLE'));
@@ -37,7 +37,7 @@ class WFXHTMLXtrasPlugin extends WFEditorPlugin {
         $document->addStyleSheet(array('xhtmlxtras'), 'plugins');
 
         $document->addScriptDeclaration('XHTMLXtrasDialog.settings=' . json_encode($this->getSettings()) . ';');
-        
+
         $tabs = WFTabs::getInstance(array('base_path' => WF_EDITOR_PLUGIN));
 
         $tabs->addTab('standard', 1, array('plugin' => $this));
@@ -45,10 +45,6 @@ class WFXHTMLXtrasPlugin extends WFEditorPlugin {
         if ($element == 'attributes') {
             $tabs->addTab('events');
         }
-    }
-
-    public function getSettings() {
-        return parent::getSettings();
     }
 }
 

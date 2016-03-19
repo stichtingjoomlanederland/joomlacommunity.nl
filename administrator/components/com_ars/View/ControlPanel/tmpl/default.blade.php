@@ -1,7 +1,7 @@
 <?php
 /**
  * package   AkeebaReleaseSystem
- * copyright Copyright (c)2010-2014 Nicholas K. Dionysopoulos
+ * copyright Copyright (c)2010-2016 Nicholas K. Dionysopoulos
  * license   GNU General Public License version 3, or later
  */
 
@@ -36,7 +36,10 @@ render it. --}}
 @yield('phpVersionWarning', '')
 
 @if($this->needsMenuItem)
-<div class="alert alert-warning">
+<div class="alert alert-info">
+	<h4>
+		@lang('COM_ARS_MISSING_CATEGORIES_MENU_HEAD')
+	</h4>
 	@lang('COM_ARS_MISSING_CATEGORIES_MENU')
 </div>
 @endif

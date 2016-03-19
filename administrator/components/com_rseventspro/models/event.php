@@ -718,7 +718,7 @@ class rseventsproModelEvent extends JModelAdmin
 		return true;
 	}
 	
-	public function batch($pks) {
+	public function batchProcess($pks) {
 		// Sanitize the ids.
 		$pks = (array) $pks;
 		JArrayHelper::toInteger($pks);

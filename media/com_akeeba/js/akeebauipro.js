@@ -4,7 +4,7 @@
  * This file contains the jQuery-based client-side user interface logic for
  * the features available only in the Pro version
  * @package akeebaui
- * @copyright Copyright (c)2009-2015 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2009-2016 Nicholas K. Dionysopoulos
  * @license GNU GPL version 3 or, at your option, any later version
  * @version 1.0
  **/

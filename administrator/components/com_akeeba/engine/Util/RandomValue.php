@@ -2,7 +2,7 @@
 /**
  * Akeeba Engine
  * The modular PHP5 site backup engine
- * @copyright Copyright (c)2006-2015 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  */
@@ -17,7 +17,7 @@ defined('AKEEBAENGINE') or die();
  * The following is the license file accompanying the original file.
  *
  * ********************************************************************************
- * Copyright (c) 2011-2013, Aura for PHP
+ * Copyright (c) 2011-2016, Aura for PHP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without

@@ -3,7 +3,7 @@
  * Akeeba Engine
  * The modular PHP5 site backup engine
  *
- * @copyright Copyright (c)2006-2015 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -124,6 +124,7 @@ class FileSystem
 		{
 			$host = Platform::getInstance()->get_host();
 			$version = defined('AKEEBA_VERSION') ? AKEEBA_VERSION : 'svn';
+			$version = defined('AKEEBABACKUP_VERSION') ? AKEEBABACKUP_VERSION : $version;
 			$platformVars = Platform::getInstance()->getPlatformVersion();
 
 			$siteName = Platform::getInstance()->get_site_name();

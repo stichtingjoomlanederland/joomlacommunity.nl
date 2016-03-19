@@ -23,11 +23,6 @@ class WFCharacterMapPlugin extends WFEditorPlugin {
         $document->addScript(array('charmap'), 'plugins');
         $document->addStyleSheet(array('charmap'), 'plugins');
     }
-
-    public function getSettings() {
-        $settings = array();
-        return parent::getSettings($settings);
-    }
 }
 
 ?>

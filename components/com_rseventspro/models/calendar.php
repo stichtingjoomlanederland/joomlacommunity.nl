@@ -262,7 +262,7 @@ class rseventsproModelCalendar extends JModelLegacy
 		}
 		
 		$endofmonth = JFactory::getDate($year.'-'.$month.'-01 00:00:00')->format($year.'-'.$month.'-t H:i:s');
-		$endMonth	= JFactory::getDate($endofmonth);
+		$endMonth	= JFactory::getDate($endofmonth, rseventsproHelper::getTimezone());
 		$weekend	= $this->getWeekdays($weekstart,true);
 		$day		= $endMonth->format('w');
 		

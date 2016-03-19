@@ -8,6 +8,6 @@
 // Protect from unauthorized access
 defined('_JEXEC') or die;
 
-define('AKEEBASTRAPPER_VERSION', '2.5.1');
-define('AKEEBASTRAPPER_DATE', '2015-12-21 11:41:04');
+define('AKEEBASTRAPPER_VERSION', '2.5.3');
+define('AKEEBASTRAPPER_DATE', '2016-02-19');
 define('AKEEBASTRAPPER_MEDIATAG', md5(AKEEBASTRAPPER_VERSION . AKEEBASTRAPPER_DATE));

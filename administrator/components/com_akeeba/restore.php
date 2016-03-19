@@ -4,7 +4,7 @@
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
@@ -129,7 +129,7 @@ function debugMsg($msg)
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
@@ -962,7 +962,7 @@ if(!function_exists('json_decode'))
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
@@ -1225,7 +1225,7 @@ abstract class AKAbstractObject
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
@@ -1581,7 +1581,7 @@ abstract class AKAbstractPart extends AKAbstractObject
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
@@ -2132,7 +2132,7 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
@@ -2190,7 +2190,7 @@ abstract class AKAbstractPostproc extends AKAbstractObject
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
@@ -2211,7 +2211,7 @@ abstract class AKAbstractPartObserver
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
@@ -2326,7 +2326,7 @@ class AKPostprocDirect extends AKAbstractPostproc
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
@@ -2858,7 +2858,7 @@ class AKPostprocFTP extends AKAbstractPostproc
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
@@ -3476,7 +3476,7 @@ class AKPostprocSFTP extends AKAbstractPostproc
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
@@ -4238,7 +4238,7 @@ class AKPostprocHybrid extends AKAbstractPostproc
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
@@ -4991,7 +4991,7 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
@@ -5281,7 +5281,7 @@ class AKUnarchiverZIP extends AKUnarchiverJPA
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
@@ -5947,7 +5947,7 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
@@ -6126,7 +6126,7 @@ class AKCoreTimer extends AKAbstractObject
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
@@ -6210,7 +6210,7 @@ class AKUtilsLister extends AKAbstractObject
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
@@ -6677,7 +6677,7 @@ class AKText extends AKAbstractObject
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
@@ -6928,14 +6928,14 @@ class AKFactory {
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
  */
 
 /**
- * AES implementation in PHP (c) Chris Veness 2005-2013.
+ * AES implementation in PHP (c) Chris Veness 2005-2016.
  * Right to use and adapt is granted for under a simple creative commons attribution
  * licence. No warranty of any form is offered.
  *
@@ -7268,8 +7268,7 @@ class AKEncryptionAES
 		$lookupKey = $password.'-'.$nBits;
 		if(array_key_exists($lookupKey, self::$passwords))
 		{
-			$key	= self::$passwords[$lookupKey]['key'];
-			$iv		= self::$passwords[$lookupKey]['iv'];
+			$key	= self::$passwords[$lookupKey];
 		}
 		else
 		{
@@ -7284,26 +7283,33 @@ class AKEncryptionAES
 			foreach($key as $int) { $newKey .= chr($int); }
 			$key = $newKey;
 
-			// Create an Initialization Vector (IV) based on the password, using the same technique as for the key
-			$nBytes = 16;  // AES uses a 128 -bit (16 byte) block size, hence the IV size is always 16 bytes
-			$pwBytes = array();
-			for ($i=0; $i<$nBytes; $i++) $pwBytes[$i] = ord(substr($password,$i,1)) & 0xff;
-			$iv = self::Cipher($pwBytes, self::KeyExpansion($pwBytes));
-			$newIV = '';
-			foreach($iv as $int) { $newIV .= chr($int); }
-			$iv = $newIV;
-
-			self::$passwords[$lookupKey]['key'] = $key;
-			self::$passwords[$lookupKey]['iv'] = $iv;
+			self::$passwords[$lookupKey] = $key;
 		}
 
 		// Read the data size
 		$data_size = unpack('V', substr($ciphertext,-4) );
 
+		// Try to get the IV from the data
+		$iv = substr($ciphertext, -24, 20);
+		$rightStringLimit = -4;
+
+		if (substr($iv, 0, 4) == 'JPIV')
+		{
+			// We have a stored IV. Retrieve it and tell mdecrypt to process the string minus the last 24 bytes
+			// (4 bytes for JPIV, 16 bytes for the IV, 4 bytes for the uncompressed string length)
+			$iv = substr($iv, 4);
+			$rightStringLimit = -24;
+		}
+		else
+		{
+			// No stored IV. Do it the dumb way.
+			$iv = self::createTheWrongIV($password);
+		}
+
 		// Decrypt
 		$td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_CBC, '');
 		mcrypt_generic_init($td, $key, $iv);
-		$plaintext = mdecrypt_generic($td, substr($ciphertext,0,-4));
+		$plaintext = mdecrypt_generic($td, substr($ciphertext,0,$rightStringLimit));
 		mcrypt_generic_deinit($td);
 
 		// Trim padding, if necessary
@@ -7314,13 +7320,43 @@ class AKEncryptionAES
 
 		return $plaintext;
 	}
+
+	/**
+	 * That's the old way of craeting an IV that's definitely not cryptographically sound.
+	 *
+	 * DO NOT USE, EVER, UNLESS YOU WANT TO DECRYPT LEGACY DATA
+	 *
+	 * @param   string  $password  The raw password from which we create an IV in a super bozo way
+	 *
+	 * @return  string  A 16-byte IV string
+	 */
+	public static function createTheWrongIV($password)
+	{
+		static $ivs = array();
+
+		$key = md5($password);
+
+		if (!isset($ivs[$key]))
+		{
+			$nBytes = 16;  // AES uses a 128 -bit (16 byte) block size, hence the IV size is always 16 bytes
+			$pwBytes = array();
+			for ($i=0; $i<$nBytes; $i++) $pwBytes[$i] = ord(substr($password,$i,1)) & 0xff;
+			$iv = self::Cipher($pwBytes, self::KeyExpansion($pwBytes));
+			$newIV = '';
+			foreach($iv as $int) { $newIV .= chr($int); }
+
+			$ivs[$key] = $newIV;
+		}
+
+		return $ivs[$key];
+	}
 }
 
 /**
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart
@@ -7518,7 +7554,7 @@ function masterSetup()
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
- * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
  * @package     akeebabackup
  * @subpackage  kickstart

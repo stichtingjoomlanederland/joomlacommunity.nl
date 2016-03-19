@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2009-2014 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2009-2016 Nicholas K. Dionysopoulos
  * @license   GNU General Public License version 3, or later
  *
  * @since     1.3
@@ -21,7 +21,7 @@ class AkeebaControllerCpanel extends F0FController
 {
 	public function execute($task)
 	{
-		if (!in_array($task, array('switchprofile', 'disablephpwarning', 'updateinfo', 'fastcheck', 'applydlid', 'resetSecretWord')))
+		if (!in_array($task, array('switchprofile', 'disablephpwarning', 'updateinfo', 'applydlid', 'resetSecretWord')))
 		{
 			$task = 'browse';
 		}
@@ -208,19 +208,6 @@ ENDRESULT;
 		}
 
 		echo '###' . $result . '###';
-
-		// Cut the execution short
-		JFactory::getApplication()->close();
-	}
-
-	public function fastcheck()
-	{
-		/** @var AkeebaModelCpanels $model */
-		$model = $this->getThisModel();
-
-		$result = $model->fastCheckFiles();
-
-		echo '###' . ($result ? 'true' : 'false') . '###';
 
 		// Cut the execution short
 		JFactory::getApplication()->close();

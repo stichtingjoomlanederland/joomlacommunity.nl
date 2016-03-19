@@ -1,4 +1,34 @@
 <?php die();?>
+Akeeba Backup 4.5.5
+================================================================================
+! The file integrity check feature would fail on some hosts due to Joomla!'s installer being broken. The feature was removed.
+
+Akeeba Backup 4.5.4
+================================================================================
+# [HIGH] The Quickicon plugin was missing a folder, making it impossible to configure which backup profile it should use for one click backups.
+# [HIGH] The icon module for Joomla! 1.6/1.7 was causing problems in Joomla! 3. This module is now removed.
+# [MEDIUM] Built-in update would fail under Joomla! 1.5/1.6/1.7/2.5
+# [LOW] Under Joomla! 1.5/1.6/1.7/2.5 the "Update available" message would be displayed even if running the latest version
+
+Akeeba Backup 4.5.3
+================================================================================
+! The System – Akeeba Backup Update Check plugin caused Admin Tools to fail with a white page
+
+Akeeba Backup 4.5.2
+================================================================================
+! Joomla! 3.5 breaks CLI scripts, workaround applied
++ Backup check quick icon module for Joomla! 1.6/1.7
++ The backup check quick icon now launches a single click backup
++ Added option to automatically exclude hosting web stats (e.g. Webalyzer)
+~ Improved display of backup check quick icon module
+~ Disable CLI script workaround necessary only under Joomla! 3.4.7 on all other versions of Joomla!
+# [HIGH] Static Initialization Vector (derived from the encryption key) for Rijndael-128 encryption in JPS files and app settings weakened the encryption strength
+# [HIGH] ANGIE for Drupal 7: Fixed fatal error in setup page
+# [MEDIUM] Some servers with problematic libcurl implementations are unable to use Dropbox API v2, always receiving an error message.
+# [MEDIUM] Upload to OneDrive occasionally fails when their API doesn't report the folder creation correctly
+# [MEDIUM] ANGIE for Wordpress: Fixed data replacement in case-sensitive filesystems
+# [LOW] A fatal error is recorded in the PHP error log if you try to access a front-end view which doesn't exist
+
 Akeeba Backup 4.5.1
 ================================================================================
 # [HIGH] Joomla! 3.4.7 has a major bug which prevents CLI (CRON) scripts from executing

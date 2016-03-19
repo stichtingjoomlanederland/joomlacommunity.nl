@@ -1096,10 +1096,9 @@ class com_rsfilesInstallerScript
 		<?php } ?>
 	<?php } ?>
 	
-	<h2>Changelog v1.15.10</h2>
+	<h2>Changelog v1.15.11</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> {rsfiles path=""} did not return the main root anymore.</li>
-		<li><span class="version-fixed">Fix</span> The ordering syntax from the system plugin was not working properly.</li>
+		<li><span class="version-fixed">Fix</span> The RSFiles! navbar target was changed, due to conflicts between other navbars.</li>
 	</ul>
 	<a class="com-rsfiles-button" href="index.php?option=com_rsfiles">Start using RSFiles!</a>
 	<a class="com-rsfiles-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/81-rsfiles.html" target="_blank">Read the RSFiles! User Guide</a>

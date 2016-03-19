@@ -18,7 +18,7 @@ class WFStylePlugin extends WFEditorPlugin {
     public function __construct() {
         parent::__construct(array('colorpicker' => true));
     }
-    
+
     /**
      * Display the plugin
      */
@@ -48,7 +48,7 @@ class WFStylePlugin extends WFEditorPlugin {
         $tabs->addTab('positioning');
     }
 
-    public function getSettings() {
+    public function getSettings($settings = array()) {
         $profile = $this->getProfile();
 
         $settings = array(

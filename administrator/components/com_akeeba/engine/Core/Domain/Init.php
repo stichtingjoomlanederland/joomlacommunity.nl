@@ -3,7 +3,7 @@
  * Akeeba Engine
  * The modular PHP5 site backup engine
  *
- * @copyright Copyright (c)2006-2015 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -137,8 +137,11 @@ class Init extends Part
 		$registry = Factory::getConfiguration();
 
 		// Write log file's header
+		$version = defined('AKEEBABACKUP_VERSION') ? AKEEBABACKUP_VERSION : AKEEBA_VERSION;
+		$date    = defined('AKEEBABACKUP_DATE') ? AKEEBABACKUP_DATE : AKEEBA_DATE;
+
 		Factory::getLog()->log(LogLevel::INFO, "--------------------------------------------------------------------------------");
-		Factory::getLog()->log(LogLevel::INFO, "Akeeba Backup " . AKEEBA_VERSION . ' (' . AKEEBA_DATE . ')');
+		Factory::getLog()->log(LogLevel::INFO, "Akeeba Backup " . $version . ' (' . $date . ')');
 		Factory::getLog()->log(LogLevel::INFO, "Got backup?");
 		Factory::getLog()->log(LogLevel::INFO, "--------------------------------------------------------------------------------");
 

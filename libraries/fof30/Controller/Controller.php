@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     FOF
- * @copyright   2010-2015 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL version 2 or later
  */
 
@@ -237,6 +237,13 @@ class Controller
 		foreach ($rMethods as $rMethod)
 		{
 			$mName = $rMethod->getName();
+
+			// If the developer screwed up and declared one of the helper method public do NOT make them available as
+			// tasks.
+			if ((substr($mName, 0, 8) == 'onBefore') || (substr($mName, 0, 7) == 'onAfter') || substr($mName, 0, 1) == '_')
+			{
+				continue;
+			}
 
 			// Add default display method if not explicitly declared.
 			if (!in_array($mName, $xMethods) || $mName == 'display' || $mName == 'main')

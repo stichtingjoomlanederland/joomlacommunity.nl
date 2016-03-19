@@ -1,7 +1,7 @@
 <?php
 /**
  * package   AkeebaReleaseSystem
- * copyright Copyright (c)2010-2015 Nicholas K. Dionysopoulos
+ * copyright Copyright (c)2010 Nicholas K. Dionysopoulos
  * license   GNU General Public License version 3, or later
  */
 
@@ -34,7 +34,7 @@ $options[] = JHtml::_('select.option', '', 'JALL');
             <label for="enabled">
                 @lang('JSEARCH_FILTER_LABEL')
             </label>
-            @jhtml('select.genericlist', $options, 'enabled', ['onclick' => 'this.form.submit()', 'class' => 'form-control'], 'value', 'text', $this->getModel()->getState('enabled'), false, true)
+            @jhtml('select.genericlist', $options, 'enabled', ['onchange' => 'this.form.submit()', 'class' => 'form-control'], 'value', 'text', $this->getModel()->getState('enabled'), false, true)
         </span>
 
         <span class="form-group">

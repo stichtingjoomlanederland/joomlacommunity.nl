@@ -3,7 +3,7 @@
  * Akeeba Engine
  * The modular PHP5 site backup engine
  *
- * @copyright Copyright (c)2006-2015 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -259,7 +259,10 @@ class EngineParameters
 					{
 						$this->enginePartPaths[$section][] = Factory::getFilesystemTools()->TranslateWinPath($p . '/Config');
 
-						if (defined('AKEEBA_PRO') && AKEEBA_PRO)
+						$pro     = defined('AKEEBA_PRO') && AKEEBA_PRO;
+						$pro     = defined('AKEEBABACKUP_PRO') ? (AKEEBABACKUP_PRO ? true : false) : $pro;
+
+						if ($pro)
 						{
 							$this->enginePartPaths[$section][] = Factory::getFilesystemTools()->TranslateWinPath($p . '/Config/Pro');
 						}

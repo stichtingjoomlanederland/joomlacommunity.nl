@@ -1,7 +1,7 @@
 <?php
 /**
  * @package AkeebaBackup
- * @copyright Copyright (c)2009-2014 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2009-2016 Nicholas K. Dionysopoulos
  * @license GNU General Public License version 3, or later
  *
  * @since 1.3
@@ -106,23 +106,6 @@ if (version_compare(PHP_VERSION, '5.3.3', 'lt')):
 		</p>
 	</div>
 <?php endif; ?>
-
-<div id="fastcheckNotice" class="alert alert-danger" style="display: none">
-	<h3><?php echo JText::_('COM_AKEEBA_CPANEL_ERR_CORRUPT_HEAD') ?></h3>
-	<p>
-		<?php echo JText::_('COM_AKEEBA_CPANEL_ERR_CORRUPT_INFO') ?>
-	</p>
-	<p>
-		<?php echo JText::_('COM_AKEEBA_CPANEL_ERR_CORRUPT_MOREINFO') ?>
-	</p>
-	<p>
-		<a href="index.php?option=com_akeeba&view=checkfiles" class="btn btn-large btn-primary">
-			<?php echo JText::_('COM_AKEEBA_CPANEL_CORRUPT_RUNFILES') ?>
-		</a>
-	</p>
-</div>
-
-<div id="restOfCPanel">
 
 <?php if (!$this->fixedpermissions): ?>
 <div id="notfixedperms" class="alert alert-error">
@@ -425,8 +408,6 @@ if (version_compare(PHP_VERSION, '5.3.3', 'lt')):
 	</div>
 </div>
 
-</div>
-
 <?php
 if($this->statsIframe)
 {
@@ -453,19 +434,6 @@ if($this->statsIframe)
 			});
 			<?php endif; ?>
 
-			$.ajax('index.php?option=com_akeeba&view=cpanel&task=fastcheck&tmpl=component', {
-				success: function (msg, textStatus, jqXHR)
-				{
-					// Get rid of junk before and after data
-					var match = msg.match(/###([\s\S]*?)###/);
-					data = match[1];
-
-					if (data == 'false')
-					{
-						$('#fastcheckNotice').show('fast');
-					}
-				}
-			});
 		});
 	})(akeeba.jQuery);
 </script>

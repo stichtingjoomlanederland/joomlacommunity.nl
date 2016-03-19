@@ -15,30 +15,25 @@ defined( 'WF_EDITOR' ) or die('RESTRICTED');
 require_once( WF_EDITOR_LIBRARIES . '/classes/plugin.php' );
 
 
-class WFClipboardPlugin extends WFEditorPlugin 
+class WFClipboardPlugin extends WFEditorPlugin
 {
 	public function display()
 	{
 		parent::display();
 
 		$document = WFDocument::getInstance();
-                
+
                 // get command, eg: mcePaste, mcePasteText
                 $cmd = JRequest::getCmd('cmd', 'paste');
-                
+
                 // remove mce prefix
                 $cmd = str_replace('mce', '', $cmd);
-                
+
                 // set title
                 $document->setTitle(WFText::_('WF_' . strtoupper($cmd) . '_TITLE'));
 
 		$document->addScript(array('clipboard'), 'plugins');
 		$document->addStyleSheet(array('clipboard'), 'plugins');
-	}
-	
-	public function getSettings($settings = array())
-	{		
-		return parent::getSettings($settings);
 	}
 }
 ?>

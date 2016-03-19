@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2009-2014 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2009-2016 Nicholas K. Dionysopoulos
  * @license   GNU General Public License version 3, or later
  * @since     1.3
  */
@@ -504,18 +504,6 @@ class AkeebaModelCpanels extends F0FModel
 		$dbInstaller->updateSchema();
 
 		return $this;
-	}
-
-	/**
-	 * Perform a fast check of Akeeba Backup's files
-	 *
-	 * @return bool False if some of the files are missing or tampered with
-	 */
-	public function fastCheckFiles()
-	{
-		$checker = new F0FUtilsFilescheck('com_akeeba', AKEEBA_VERSION, AKEEBA_DATE);
-
-		return $checker->fastCheck();
 	}
 
 	/**

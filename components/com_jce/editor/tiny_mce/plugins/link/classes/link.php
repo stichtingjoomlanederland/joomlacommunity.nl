@@ -76,7 +76,7 @@ class WFLinkPlugin extends WFEditorPlugin {
         // add link scripts last
         $document->addScript(array('link'), 'plugins');
     }
-    
+
     public function getLinks() {
 
         static $links;
@@ -87,7 +87,7 @@ class WFLinkPlugin extends WFEditorPlugin {
 
         return $links;
     }
-    
+
     public function getSearch($type = 'link') {
         static $search;
 
@@ -102,7 +102,7 @@ class WFLinkPlugin extends WFEditorPlugin {
         return $search[$type];
     }
 
-    public function getSettings() {
+    public function getSettings($settings = array()) {
         $profile = $this->getProfile();
 
         $settings = array(

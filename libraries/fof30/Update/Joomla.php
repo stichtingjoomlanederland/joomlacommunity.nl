@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     FOF
- * @copyright   2010-2015 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL version 2 or later
  */
 
@@ -107,28 +107,19 @@ class Joomla extends Extension
 				$lts_minimum = '2.5';
 				break;
 
+			case '2.5':
+				$ret['lts'] = true;
+				$sts_minimum = false;
+				$lts_minimum = '2.5';
+				break;
+
 			default:
 				$majorVersion = (int)substr($jVersion, 0, 1);
 				$minorVersion = (int)substr($jVersion, 2, 1);
 
-				if ($minorVersion == 5)
-				{
-					$ret['lts'] = true;
-					// This is an LTS release, it can be superseded by .0 through .4 STS releases on the next branch...
-					$sts_minimum = ($majorVersion + 1) . '.0';
-					$sts_maximum = ($majorVersion + 1) . '.4.9999';
-					// ...or a .5 LTS on the next branch
-					$lts_minimum = ($majorVersion + 1) . '.5';
-				}
-				else
-				{
-					$ret['lts'] = false;
-					// This is an STS release, it can be superseded by a .1/.2/.3/.4 STS release on the same branch...
-					$sts_minimum = $majorVersion . '.1';
-					$sts_maximum = $majorVersion . '.4.9999';
-					// ...or a .5 LTS on the same branch
-					$lts_minimum = $majorVersion . '.5';
-				}
+				$ret['lts'] = true;
+				$sts_minimum = false;
+				$lts_minimum = $majorVersion . '.0';
 				break;
 		}
 
@@ -255,6 +246,7 @@ class Joomla extends Extension
 		$test = strtolower($version);
 		$alphaQualifierPosition = strpos($test, 'alpha-');
 		$betaQualifierPosition = strpos($test, 'beta-');
+		$betaQualifierPosition2 = strpos($test, '-beta');
 		$rcQualifierPosition = strpos($test, 'rc-');
 		$rcQualifierPosition2 = strpos($test, 'rc');
 		$devQualifiedPosition = strpos($test, 'dev');
@@ -276,6 +268,17 @@ class Joomla extends Extension
 				$betaRevision = 1;
 			}
 			$test = substr($test, 0, $betaQualifierPosition) . '.b' . $betaRevision;
+		}
+		elseif ($betaQualifierPosition2 !== false)
+		{
+			$betaRevision = substr($test, $betaQualifierPosition2 + 5);
+
+			if (!$betaRevision)
+			{
+				$betaRevision = 1;
+			}
+
+			$test = substr($test, 0, $betaQualifierPosition2) . '.b' . $betaRevision;
 		}
 		elseif ($rcQualifierPosition !== false)
 		{
