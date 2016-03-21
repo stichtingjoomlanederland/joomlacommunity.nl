@@ -50,15 +50,16 @@ else
 			<?php endif; ?>
 
 			<div class="item-meta">
-				<a href="#" class="auteur-image">
-					<?php if (!empty($profile->getAvatar())) : ?>
-						<img src="<?php echo $profile->getAvatar(); ?>" class="img-circle">
-					<?php else: ?>
-						<img src="media/com_easydiscuss/images/default.png" class="img-circle">
-					<?php endif; ?>
-				</a>
-
 				<div class="auteur-info">
+					<p>
+						<a href="<?php echo $profile->getLink(); ?>">
+							<?php if (!empty($profile->getAvatar())) : ?>
+								<img src="<?php echo $profile->getAvatar(); ?>" class="img-circle" width="80">
+							<?php else: ?>
+								<img src="media/com_easydiscuss/images/default.png" class="img-circle" width="80">
+							<?php endif; ?>
+						</a>
+					</p>
 					<?php echo JHtml::_('link', $profile->getLink(), $profile->user->get('name')); ?>
 				</div>
 
