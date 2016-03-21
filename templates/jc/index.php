@@ -75,14 +75,8 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
                 <div class="navbar-mobile">
                     <jdoc:include type="modules" name="mainmenu-mobile"/>
                 </div>
-
                 <jdoc:include type="modules" name="usermenu"/>
-
-                <form class="navbar-form navbar-right" role="search">
-                    <div class="form-group ">
-                        <input type="text" class="form-control input-sm" placeholder="Zoeken">
-                    </div>
-                </form>
+				<jdoc:include type="modules" name="search"/>
             </div>
 
 		</div>
