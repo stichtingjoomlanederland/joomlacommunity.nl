@@ -18,17 +18,17 @@ $urls    = json_decode($this->item->urls);
 $canEdit = $params->get('access-edit');
 $user    = JFactory::getUser();
 
-if ($images->image_fulltext)
+if (isset($images->image_fulltext))
 {
 	$image = 'large';
 }
-elseif ($images->image_intro)
+elseif (isset($images->image_intro))
 {
 	$image = 'small';
 }
 else
 {
-	$image = '';
+	$image = 'none';
 }
 
 // Load the profile data from the database.
@@ -53,7 +53,6 @@ $profile->linkedin = $userparams->get('linkedin', '');
 			<?php if ($image == 'small'): ?>
 				<div class="photoboxsmall<?php if ($images->float_intro == 'right'): ?> logo<?php endif; ?>">
 					<img src="<?php echo($images->image_intro); ?>"/>
-					<!--<img src="http://placehold.it/1600x600"/>-->
 				</div>
 			<?php endif; ?>
 			<div class="item-meta">
@@ -80,7 +79,7 @@ $profile->linkedin = $userparams->get('linkedin', '');
 				<div class="item-auteur">
 					<strong>Door</strong>
 					<p>
-						<?php echo $profile->nickname; ?>
+						<?php echo JHtml::_('link', $profile->getLink(), $profile->user->get('name')); ?>
 					</p>
 				</div>
 				<div class="item-share full">
@@ -132,22 +131,22 @@ $profile->linkedin = $userparams->get('linkedin', '');
 			<ul class="list-inline share-buttons">
 				<?php if ($profile->twitter): ?>
 					<li class="share-twitter">
-						<a href="<?php echo($profile->twitter); ?>"><span class="icon jc-twitter"></span></a>
+						<a href="<?php echo($profile->twitter); ?>" target="_blank"><span class="icon jc-twitter"></span></a>
 					</li>
 				<?php endif; ?>
 				<?php if ($profile->facebook): ?>
 					<li class="share-facebook">
-						<a href="<?php echo($profile->facebook); ?>"><span class="icon jc-facebook"></span></a>
+						<a href="<?php echo($profile->facebook); ?>" target="_blank"><span class="icon jc-facebook"></span></a>
 					</li>
 				<?php endif; ?>
 				<?php if ($profile->linkedin): ?>
 					<li class="share-linkedin">
-						<a href="<?php echo($profile->linkedin); ?>"><span class="icon jc-linkedin"></span></a>
+						<a href="<?php echo($profile->linkedin); ?>" target="_blank"><span class="icon jc-linkedin"></span></a>
 					</li>
 				<?php endif; ?>
 				<?php if ($profile->website): ?>
 					<li class="share-website">
-						<a href="<?php echo($profile->website); ?>"><span class="icon jc-website"></span></a>
+						<a href="<?php echo($profile->website); ?>" target="_blank"><span class="icon jc-website"></span></a>
 					</li>
 				<?php endif; ?>
 			</ul>
