@@ -4,18 +4,18 @@
 	<author>http://stackideas.com</author>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<creationDate>2013-07-04 21:03:15</creationDate>
+	<creationDate>2014-10-20 12:58:46</creationDate>
 	<copyright>Copyright 2009 - 2011 StackIdeas. All rights reserved.</copyright>
 	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
 	<version>3.0</version>
 	<description>This translation is for nl_NL</description>
 	<fileset>
 		<files folder="admin" target="administrator/language/nl-NL">
-			<filename>nl-NL.com_komento.ini</filename>
-			<filename>nl-NL.com_komento.sys.ini</filename>
+			<filename>nl-NL.com_easydiscuss.ini</filename>
+			<filename>nl-NL.com_easydiscuss.sys.ini</filename>
 		</files>
 		<files folder="site" target="language/nl-NL">
-			<filename>nl-NL.com_komento.ini</filename>
+			<filename>nl-NL.com_easydiscuss.ini</filename>
 		</files>
 	</fileset>
 </extension>
