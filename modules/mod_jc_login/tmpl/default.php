@@ -78,7 +78,7 @@ if(!$profile->id) {
 			</li>
 		<?php } else if( $params->get( 'enable_login') ) { ?>
 		<li style="padding: 15px; padding-bottom: 0;">
-			<form action="<?php echo JRoute::_( 'index.php', true, $params->get('usesecure')); ?>" method="post" name="login" id="form-login" >
+			<form action="<?php echo JRoute::_('index.php', true, $params->get('usesecure')); ?>" method="post" name="login" id="form-login" >
 				<div class="form-group">
 					<input type="text" id="username" name="username" class="form-control" placeholder="Gebruikersnaam" style="margin-bottom:15px;">
 				</div>

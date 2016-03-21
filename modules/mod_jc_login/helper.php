@@ -27,7 +27,7 @@ class modJcLoginHelper
 			$item = $menu->getItem($itemid);
 			if ($item)
 			{
-				$url = JRoute::_($item->link.'&Itemid='.$itemid, false);
+				$url = $item->link;
 			}
 			else
 			{
@@ -40,7 +40,7 @@ class modJcLoginHelper
 		{
 			// Proceeed to the front page of EasyDiscuss.
 			$itemid = DiscussRouter::getItemId();
-			$url = JRoute::_('index.php?option=com_easydiscuss&Itemid='.$itemid, false);
+			$url = JRoute::_('index.php?option=com_easydiscuss', false);
 		}
 
 		return base64_encode($url);
