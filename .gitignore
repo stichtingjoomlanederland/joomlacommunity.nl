@@ -34,5 +34,5 @@ Thumbs.db
 Desktop.ini
 
 # Tools #
-/bower_components
-/node_modules
+bower_components
+node_modules
