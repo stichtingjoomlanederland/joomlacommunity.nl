@@ -110,6 +110,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 	<div class="container">
 		<jdoc:include type="modules" name="test" style="xhtml"/>
 
+		<!--
 		<?php if ($itemid == 122): ?>
 			<?php include 'dummy/nieuws_alt.php'; ?>
 		<?php elseif ($itemid == 124): ?>
@@ -124,17 +125,9 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 			<?php include 'dummy/documentatie_artikel.php'; ?>
 		<?php elseif ($itemid == 260): ?>
 			<?php include 'dummy/documentatie_artikel_2.php'; ?>
-		<?php elseif ($itemid == 468): ?>
-			<?php include 'dummy/downloads_core.php'; ?>
 		<?php elseif ($itemid == 492): ?>
 			<?php include 'dummy/styleguide.php'; ?>
-		<?php elseif ($itemid == 241): ?>
-			<?php include 'dummy/downloads.php'; ?>
-		<?php elseif ($itemid == 250): ?>
-			<?php include 'dummy/downloads_extensies.php'; ?>
-		<?php elseif ($itemid == 251): ?>
-			<?php include 'dummy/downloads_extensie.php'; ?>
-		<?php endif; ?>
+		<?php endif; ?>-->
 
 		<div class="row">
 			<jdoc:include type="modules" name="top-a" style="panel"/>
