@@ -53,7 +53,8 @@ else
 				<div class="auteur-info">
 					<p>
 						<a href="<?php echo $profile->getLink(); ?>">
-							<?php if (!empty($profile->getAvatar())) : ?>
+							<?php $avatar = $profile->getAvatar(); ?>
+							<?php if (!empty($avatar)) : ?>
 								<img src="<?php echo $profile->getAvatar(); ?>" class="img-circle" width="80">
 							<?php else: ?>
 								<img src="media/com_easydiscuss/images/default.png" class="img-circle" width="80">
