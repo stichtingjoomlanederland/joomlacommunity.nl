@@ -20,7 +20,7 @@ if($item->vgroup_id == 1) {
 <div class="well" id="<?php echo $this->escape($item->alias) ?>">
 	<div class="row">
 		<div class="col-7">
-			<h2><?php if($item->vgroup_id == 1):?><span class="jc-joomla"></span> <?php endif;?><?php echo $this->escape($item->title); ?> <?php echo $this->escape($item->release->version) ?> <small><?php echo JHTML::_('date', $released, JText::_('j F Y')) ?></small></h2>
+			<h2><?php if($item->vgroup_id == 1):?><span class="icon-joomla"></span> <?php endif;?><?php echo $this->escape($item->title); ?> <?php echo $this->escape($item->release->version) ?> <small><?php echo JHTML::_('date', $released, JText::_('j F Y')) ?></small></h2>
 			<?php echo $item->description ?>
 		</div>
 		<div class="col-5">

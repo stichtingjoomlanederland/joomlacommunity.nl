@@ -22,18 +22,18 @@ $info    = $params->get('info_block_position', 0);
 
 
 
-<div class="well">				
+<div class="well">
 	<div class="page-header">
 		<div class="pull-right">
-			<span class="label label-joomla2"><span class="jc-joomla"></span> Joomla 2.5</span>
-			<span class="label label-joomla3"><span class="jc-joomla"></span> Joomla 3.0</span>
+			<span class="label label-joomla2"><span class="icon-joomla"></span> Joomla 2.5</span>
+			<span class="label label-joomla3"><span class="icon-joomla"></span> Joomla 3.0</span>
 		</div>
 		<?php if ($params->get('show_title')) : ?>
 			<h1>
 				<?php echo $this->escape($this->item->title); ?>
 			</h1>
 		<?php endif; ?>
-	</div>			
+	</div>
 	<div class="item-content">
 		<?php echo $this->item->text; ?>
 	</div>
@@ -45,7 +45,7 @@ $info    = $params->get('info_block_position', 0);
 		Aan dit artikel hebben bijgedragen: <a href="#">Marieke</a>, <a href="#">Marijke</a></p>
 	</div>
 </div>
-	
+
 
 <!-- Modal -->
 <div class="modal fade" id="verbetering">
@@ -99,4 +99,4 @@ if (!empty($this->item->pagination) && $this->item->pagination) {
 }
 ?>
 
-<?php echo $this->item->event->afterDisplayContent; ?> 
+<?php echo $this->item->event->afterDisplayContent; ?>

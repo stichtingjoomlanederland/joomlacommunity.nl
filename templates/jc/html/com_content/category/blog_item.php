@@ -89,13 +89,13 @@ else
 				<div class="item-share">
 					<ul class="list-inline share-buttons">
 						<li class="share-twitter">
-							<a href="#"><span class="icon jc-twitter"></span>12</a>
+							<a href="#"><span class="icon icon-twitter"></span>12</a>
 						</li>
 						<li class="share-facebook">
-							<a href="https://www.facebook.com/sharer/sharer.php?u=http://www.joomlacommunity.eu/nieuws/joomla-versies/886-joomla-2510-vrijgegeven.html" target="_blank"><span class="icon jc-facebook"></span>6</a>
+							<a href="https://www.facebook.com/sharer/sharer.php?u=http://www.joomlacommunity.eu/nieuws/joomla-versies/886-joomla-2510-vrijgegeven.html" target="_blank"><span class="icon icon-facebook"></span>6</a>
 						</li>
 						<li class="share-googleplus">
-							<a href="#"><span class="icon jc-googleplus"></span>4</a>
+							<a href="#"><span class="icon icon-googleplus"></span>4</a>
 						</li>
 					</ul>
 				</div>
@@ -123,6 +123,11 @@ else
 					<?php endif; ?>
 				</div>
 				<div class="item-content">
+					<?php if ($canEdit) : ?>
+						<div class="edit-buttons">
+							<?php echo JLayoutHelper::render('joomla.content.icons', array('params' => $params, 'item' => $this->item, 'print' => false)); ?>
+						</div>
+					<?php endif; ?>
 					<?php echo $this->item->introtext; ?>
 				</div>
 				<?php if ($params->get('show_readmore') && $this->item->readmore) :

@@ -5,20 +5,20 @@
 	.header {
 		background-color: @color;
 	}
-	
+
 	.footer {
 		border-top-color: @color;
 	}
-	
+
 	// Navbar
 	.navbar-main .navbar-logo-name {
 		color: #333;
 	}
-	
+
 	.navbar-main .navbar-logo .logo:hover .navbar-logo-name {
 		color: @color;
 	}
-	
+
 	// Subnav
 	.subnav {
 		background-color: @color;
@@ -39,7 +39,7 @@
 			}
 		}
 	}
-	
+
 	// Content
 	.content {
 		a {
@@ -48,43 +48,61 @@
 				color: darken(@color,@darker);
 			}
 		}
-		
+
 		a.btn {
 			color: #fff;
 			&.btn-default {
 				color: darken(@color,@dark);
 			}
 		}
-		
+
+		.btn-group {
+			a {
+				color: #000;
+
+				&.btn {
+					border:1px solid #CDCDCD;
+
+					&:hover {
+						border:1px solid #CDCDCD;
+					}
+				}
+			}
+
+			[class*=" icon-"], [class^=icon-] {
+				margin-right: 10px;
+			}
+		}
+
 		h2 a {
 /* 			color: inherit; */
 		}
 	}
-	
+
 	// Item
 	.item-content a {
 		&:hover {
 			border-bottom-color: darken(@color,@dark);
 		}
 	}
-	
+
 	// Pagination
 	.pagination > .active > a {
 		background: @color;
 		border-color: darken(@color,@dark);
 		color: lighten(@color,@lighter);
 	}
-	
+
 	// Search
 	.sb-search {
 		@color-transp: hsla(hue(darken(@color,@dark)), saturation(darken(@color,@dark)), lightness(darken(@color,@dark)), 0.001);
 		#gradient > .horizontal(@color-transp; darken(@color,@dark); 0; 10%;);
 	}
-	
+
 	.sb-icon-search {
 		background: @color;
 	}
-	
+
 	.sb-search.sb-search-open .sb-icon-search,
 	.no-js .sb-search .sb-icon-search {
 		background: darken(@color,@darker);
@@ -94,42 +112,42 @@
 // JC Panel
 .jc-panel(@color) {
 	.panel-variant(@color; #fff; @color; @color);
-	
+
 	.date-icon {
 		background-color: @color;
 	}
-	
+
 	.panel-hover {
 		&:hover {
 			background-color: darken(@color,@dark);
 		}
 	}
-	
-	.panel-heading {	
+
+	.panel-heading {
 		.panel-title {
 			color: inherit;
 			a {
 				color: inherit;
 			}
-			
+
 			small {
 				color: inherit;
 			}
 		}
 	}
-	
+
 	a:hover{
 		.date-icon {
 			background-color: darken(@color,@dark);
 		}
-		
+
 		.list-group-item-text {
 			color: darken(@color,@dark);
 		}
 	}
-	
+
 	.list-group-item.active {
 		border-color: lighten(@color,@light);
 		background-color: lighten(@color,@lighter);
 	}
-}	
+}

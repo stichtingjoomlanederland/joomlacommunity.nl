@@ -21,16 +21,16 @@ $download_url = AKRouter::_('index.php?option=com_ars&view=download&format=raw&i
 		<li class="list-group-item">
 			<span class="info">
 				<?php
-					$versions = json_decode($item->environments); 
+					$versions = json_decode($item->environments);
 					if($versions):
 					foreach($versions as $version):
 				?>
 				<?php if($version == 1):?>
-				<span class="label label-joomla1"><span class="jc-joomla"></span> Joomla 1.5</span>
+				<span class="label label-joomla1"><span class="icon-joomla"></span> Joomla 1.5</span>
 				<?php elseif($version == 2):?>
-				<span class="label label-joomla2"><span class="jc-joomla"></span> Joomla 2.5</span>
+				<span class="label label-joomla2"><span class="icon-joomla"></span> Joomla 2.5</span>
 				<?php elseif($version == 3):?>
-				<span class="label label-joomla3"><span class="jc-joomla"></span> Joomla 3.0</span>
+				<span class="label label-joomla3"><span class="icon-joomla"></span> Joomla 3.0</span>
 				<?php endif;?>
 				<?php endforeach;?>
 				<?php endif;?>
@@ -46,7 +46,7 @@ $download_url = AKRouter::_('index.php?option=com_ars&view=download&format=raw&i
 			<?php echo JText::_('LBL_ITEMS_HITS') ?>
 		</li>
 		<li class="list-group-item">
-			<a href="<?php echo $download_url ?>" rel="nofollow" class="btn btn-block btn-success"><span class="glyphicon glyphicon-download"></span> Download</a>
+			<a href="<?php echo $download_url ?>" rel="nofollow" class="btn btn-block btn-success"><span class="icon-download"></span> Download</a>
 		</li>
 	</ul>
 </div>

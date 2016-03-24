@@ -6,35 +6,12 @@ const autoprefixer      = require('gulp-autoprefixer'); // It will parse CSS and
 const notify			= require('gulp-notify');       // Send messages to Mac Notification Center, Linux notifications or Windows >= 8 (using native toaster).
 const cssnano           = require('gulp-cssnano');      // Minify CSS with cssnano.
 
-/*src folders*/
-const assetsDir         = 'src/';
+/* src folders */
 const lessDir           = 'less';
-//const bowerDir          = 'bower_components';
-//const jsDir             = assetsDir + 'js';
-/*build folders*/
-const targetDir         = 'build/';
 const targetCss         = 'css';
-//const targetJs          = targetDir + 'js';
 
-/* TODO: willen we hier wat mee?
-var scripts = [
-    bowerDir + '/modernizr/modernizr.js',
-    jsDir + '/template.js'
-];
-
-gulp.task('mergeScripts', function() {
-    gulp.src(scripts)
-        .pipe(sourcemaps.init({loadMaps: true}))
-        .pipe(concat('scripts.js'))
-        .pipe(uglify()
-            .on("error", notify.onError(function (error) {
-                return error.message;
-            })))
-        .pipe(sourcemaps.write('../' + targetMap))
-        .pipe(gulp.dest(targetJs));
-});*/
-
-gulp.task( 'less', function () {
+/* Gulp tasks */
+gulp.task('less', function () {
     gulp.src(lessDir + '/template.less')
         .pipe(sourcemaps.init())
             .pipe(less())
@@ -43,7 +20,7 @@ gulp.task( 'less', function () {
             .pipe(cssnano())
         .pipe(sourcemaps.write())
         .pipe(gulp.dest(targetCss))
-        .pipe(notify('cssdev done'));
+        .pipe(notify('LESS compiled successfully'));
 });
 
 gulp.task('default', function(){
