@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="file" version="1.6" method="upgrade" client="site">
+    <name><![CDATA[ars - nl-NL]]></name>
+    <author><![CDATA[AkeebaBackup.com]]></author>
+    <authorurl>http://www.akeebabackup.com</authorurl>
+	<copyright>Copyright (C)2015 AkeebaBackup.com. All rights reserved.</copyright>
+	<license>http://www.gnu.org/licenses/gpl-3.0.html GNU/GPL</license>
+    <version>/Users/nikosdion/Projects/akeeba/ars/build/..</version>
+    <creationDate>04 Nov 2015</creationDate>
+    <description><![CDATA[Dutch (Netherlands) translation file for Akeeba Release System]]></description>
+	<fileset>
+		<files folder="backend" target="administrator/language/nl-NL">
+			<filename>nl-NL.com_ars.ini</filename>
+			<filename>nl-NL.com_ars.sys.ini</filename>
+			<filename>nl-NL.plg_ars_bleedingedgediff.ini</filename>
+			<filename>nl-NL.plg_ars_bleedingedgediff.sys.ini</filename>
+			<filename>nl-NL.plg_content_arsdlid.ini</filename>
+			<filename>nl-NL.plg_content_arsdlid.sys.ini</filename>
+			<filename>nl-NL.plg_content_arslatest.ini</filename>
+			<filename>nl-NL.plg_content_arslatest.sys.ini</filename>
+			<filename>nl-NL.plg_editors-xtd_arslink.ini</filename>
+			<filename>nl-NL.plg_editors-xtd_arslink.sys.ini</filename>
+			<filename>nl-NL.plg_system_arsjed.ini</filename>
+			<filename>nl-NL.plg_system_arsjed.sys.ini</filename>
+		</files>
+		<files folder="frontend" target="language/nl-NL">
+			<filename>nl-NL.com_ars.ini</filename>
+			<filename>nl-NL.mod_arsdlid.ini</filename>
+			<filename>nl-NL.mod_arsdlid.sys.ini</filename>
+			<filename>nl-NL.mod_arsdownloads.ini</filename>
+			<filename>nl-NL.mod_arsdownloads.sys.ini</filename>
+		</files>
+	</fileset>
+</extension>
