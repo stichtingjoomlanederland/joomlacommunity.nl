@@ -126,6 +126,11 @@ $showArticleInformation = ($params->get('show_create_date') && $params->get('sho
 					<?php endif; ?>
 				</div>
 				<div class="item-content">
+					<?php if ($canEdit) : ?>
+						<div class="edit-buttons">
+							<?php echo JLayoutHelper::render('joomla.content.icons', array('params' => $params, 'item' => $this->item, 'print' => false)); ?>
+						</div>
+					<?php endif; ?>
 					<?php echo $this->item->text; ?>
 				</div>
 			</div>
