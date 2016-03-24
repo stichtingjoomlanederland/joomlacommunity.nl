@@ -53,7 +53,7 @@ $showArticleInformation = ($params->get('show_create_date') && $params->get('sho
 	<?php endif; ?>
 	<div class="row">
 		<?php if ($showArticleInformation != false) : ?>
-			<div class="col-sm-3 col-lg-2">
+			<div class="col-2">
 				<?php if ($image == 'small'): ?>
 					<div class="photoboxsmall<?php if ($images->float_intro == 'right'): ?> logo<?php endif; ?>">
 						<img src="<?php echo($images->image_intro); ?>"/>
@@ -112,7 +112,7 @@ $showArticleInformation = ($params->get('show_create_date') && $params->get('sho
 				</div>
 			</div>
 		<?php endif; ?>
-		<div class="<?php echo ($showArticleInformation ? 'col-sm-9 col-md-8' : 'col-md-12'); ?>">
+		<div class="<?php echo ($showArticleInformation ? 'col-8' : 'col-12'); ?>">
 			<div class="item">
 				<div class="page-header">
 					<?php if ($params->get('show_title')) : ?>

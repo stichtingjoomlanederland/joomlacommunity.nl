@@ -42,7 +42,7 @@ else
 		</div>
 	<?php endif; ?>
 	<div class="row">
-		<div class="col-3">
+		<div class="col-2">
 			<?php if ($image == 'small'): ?>
 				<div class="photoboxsmall<?php if ($images->float_intro == 'right'): ?> logo<?php endif; ?>">
 					<img src="<?php echo($images->image_intro); ?>"/>
@@ -103,7 +103,7 @@ else
 			</div>
 		</div>
 
-		<div class="col-9">
+		<div class="col-8">
 			<div class="item">
 				<div class="page-header">
 					<?php if ($params->get('show_title')) : ?>
