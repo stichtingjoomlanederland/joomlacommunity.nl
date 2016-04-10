@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="2.5.0" method="upgrade">
+	<name>com_rsform</name>
+	<creationDate>February 2015</creationDate>
+	<author>RSJoomla!</author>
+	<authorEmail>support@rsjoomla.com</authorEmail>
+	<authorUrl>www.rsjoomla.com</authorUrl>
+	<copyright>(C) 2007-2015 www.rsjoomla.com</copyright>
+	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
+	<version>1.51.13</version>
+	<description>COM_RSFORM_INSTALL_DESC</description>
+	<scriptfile>script.rsform.php</scriptfile>
+
+	<updateservers>
+        <server type="extension" priority="1" name="RSForm! Pro">https://www.rsjoomla.com/updates/com_rsform/Component/com_rsform.xml</server>
+    </updateservers>
+	
+	<install>
+		<sql>
+			<!-- MySQL -->
+			<file driver="mysql" charset="utf8">sql/mysql/calculations.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/component_type_fields.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/component_type_fields.data.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/component_types.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/component_types.data.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/components.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/condition_details.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/conditions.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/config.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/config.data.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/directory.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/directory_fields.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/emails.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/forms.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/mappings.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/posts.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/properties.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/submission_columns.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/submission_values.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/submissions.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/translations.sql</file>
+			<!-- form samples -->
+			<file driver="mysql" charset="utf8">sql/mysql/samples.sql</file>
+		</sql>
+	</install>
+
+	<uninstall>
+		<sql>
+			<!-- MySQL -->
+			<file driver="mysql" charset="utf8">sql/mysql/uninstall.sql</file>
+		</sql>
+	</uninstall>
+
+	<files folder="site">
+		<folder>assets</folder>
+		<folder>controller</folder>
+		<folder>controllers</folder>
+		<folder>helpers</folder>
+		<folder>models</folder>
+		<folder>uploads</folder>
+		<folder>views</folder>
+		<filename>controller.php</filename>
+		<filename>index.html</filename>
+		<filename>router.php</filename>
+		<filename>rsform.php</filename>
+	</files>
+	
+	<media destination="com_rsform" folder="media">
+		<folder>css</folder>
+		<folder>js</folder>
+		<filename>index.html</filename>
+	</media>
+
+	<languages folder="site/language">
+		<language tag="en-GB">en-GB/en-GB.com_rsform.ini</language>
+	</languages>
+
+	<administration>
+		<menu img="components/com_rsform/assets/images/rsformpro.gif">RSFormPro</menu>
+		<submenu>
+			  <menu view="forms">COM_RSFORM_MANAGE_FORMS</menu>
+			  <menu view="submissions">COM_RSFORM_MANAGE_SUBMISSIONS</menu>
+			  <menu view="directory">COM_RSFORM_MANAGE_DIRECTORY_SUBMISSIONS</menu>
+			  <menu view="configuration">COM_RSFORM_CONFIGURATION</menu>
+			  <menu view="backuprestore">COM_RSFORM_BACKUP_RESTORE</menu>
+			  <menu view="updates">COM_RSFORM_UPDATES</menu>
+		</submenu>
+		
+		<files folder="admin">			
+			<folder>assets</folder>
+			<folder>controllers</folder>
+			<folder>helpers</folder>
+			<folder>layouts</folder>
+			<folder>models</folder>
+			<folder>sql</folder>
+			<folder>tables</folder>
+			<folder>views</folder>
+			<filename>admin.rsform.php</filename>
+			<filename>config.xml</filename>
+			<filename>controller.php</filename>
+			<filename>index.html</filename>
+			<filename>rsform.php</filename>
+			<filename>toolbar.rsform.php</filename>
+		</files>
+		
+		<languages folder="admin/language">
+			<language tag="en-GB">en-GB/en-GB.com_rsform.ini</language>
+			<language tag="en-GB">en-GB/en-GB.com_rsform.sys.ini</language>
+		</languages>
+	</administration>
+</extension>

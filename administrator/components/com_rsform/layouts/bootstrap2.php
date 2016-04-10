@@ -1,0 +1,55 @@
+<?php
+/**
+* @package RSForm! Pro
+* @copyright (C) 2007-2014 www.rsjoomla.com
+* @license GPL, http://www.gnu.org/copyleft/gpl.html
+*/
+
+// no direct access
+defined( '_JEXEC' ) or die( 'Restricted access' );
+
+//tooltips classes
+$tooltipClass = RSFormProHelper::isJ('3.0') ? ' hasTooltip' : ' hasTip';
+?>
+<?php if ($showFormTitle) { ?>
+<h2>{global:formtitle}</h2>
+<?php } ?>
+{error}
+<?php foreach ($fieldsets as $page_num => $fields) { ?>
+<!-- Do not remove this ID, it is used to identify the page so that the pagination script can work correctly -->
+<fieldset class="form-horizontal formContainer" id="rsform_{global:formid}_page_<?php echo $page_num; ?>">
+<?php
+		foreach ($fields['visible'] as $field) {
+			// handle special hidden fields
+			
+			if ($this->getProperty($field['data'], 'LAYOUTHIDDEN', false)) {
+				continue;
+			}
+			// retrieve the componentTypeId to check if is free text
+			$componentTypeId = $this->getComponentType($field['data']['componentId'], $formId);
+			
+			$fieldName = $this->getProperty($field['data'], 'NAME');
+?>
+	<div class="control-group rsform-block rsform-block-<?php echo JFilterOutput::stringURLSafe($fieldName)?>{<?php echo $fieldName; ?>:errorClass}">
+<?php if ($componentTypeId != RSFORM_FIELD_FREETEXT) { ?>
+		<label class="control-label formControlLabel<?php echo (!$field['pagebreak'] ? $tooltipClass : ''); ?>"<?php if (!$field['pagebreak']) {?> title="{<?php echo $fieldName; ?>:description}" for="<?php echo $fieldName; ?>"<?php } ?>><?php if ($field['pagebreak']) { ?> &nbsp;<?php } else { ?>{<?php echo $fieldName; ?>:caption}<?php echo ($field['required'] ? '<strong class="formRequired">'.$requiredMarker.'</strong>' : ''); } ?></label>
+		<div class="controls formControls">
+<?php } ?>
+			{<?php echo $fieldName; ?>:body}<?php if (!$field['pagebreak'] && $componentTypeId != RSFORM_FIELD_FREETEXT) { ?> <span class="formValidation">{<?php echo $fieldName; ?>:validation}</span><?php } else { echo "\n"; } ?>
+<?php if ($componentTypeId != RSFORM_FIELD_FREETEXT) {?>			
+		</div>
+<?php } ?>
+	</div>
+<?php
+		}
+		if (!empty($fields['hidden'])) {
+			foreach ($fields['hidden'] as $field) {
+				$fieldName = $this->getProperty($field['data'], 'NAME'); ?>
+	{<?php echo $fieldName; ?>:body}
+<?php
+			}
+		}
+?>
+</fieldset>
+<?php 
+}

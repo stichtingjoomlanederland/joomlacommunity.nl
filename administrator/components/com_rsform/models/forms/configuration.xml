@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>  
+	<fieldset name="configuration" label="RSFP_CONFIG">
+		<field name="global.codemirror" type="radio" class="btn-group" description="RSFP_ENABLE_SYNTAX_HIGHLIGHTING_DESC" label="RSFP_ENABLE_SYNTAX_HIGHLIGHTING" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="global.date_mask" type="text" description="RSFP_GLOBAL_DATE_MASK_DESC" label="RSFP_GLOBAL_DATE_MASK" size="70" />
+	</fieldset>
+	<fieldset name="security" label="RSFP_SECURITY">
+		<field name="global.filtering" type="list" description="RSFP_GLOBAL_XSS_FILTER_DESC" label="RSFP_GLOBAL_XSS_FILTER" size="1" >
+			<option value="joomla">RSFP_XSS_USE_JOOMLA</option>
+			<option value="rsform">RSFP_XSS_USE_RSFORM</option>
+			<option value="none">RSFP_XSS_NO_FILTERING</option>
+		</field>
+		<field name="allow_unsafe" type="radio" class="btn-group" description="RSFP_ALLOW_UNSAFE_DESC" label="RSFP_ALLOW_UNSAFE" default="0" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+	</fieldset>
+	<fieldset name="backup" label="RSFP_BACKUP_SETTINGS">
+		<field name="request_timeout" type="text" default="0" description="RSFP_REQUEST_TIMEOUT_DESC" label="RSFP_REQUEST_TIMEOUT" />
+		<field name="backup.mask" type="text" default="0" description="RSFP_BACKUP_MASK_DESC" label="RSFP_BACKUP_MASK" />
+	</fieldset>
+	<fieldset name="calculations" label="RSFP_CALCULATIONS">
+		<field name="calculations.thousands" type="text" description="RSFP_THOUSANDS_SEPARATOR_DESC" label="RSFP_THOUSANDS_SEPARATOR" size="70" />
+		<field name="calculations.decimal" type="text" description="RSFP_DECIMAL_SEPARATOR_DESC" label="RSFP_DECIMAL_SEPARATOR" size="70" />
+		<field name="calculations.nodecimals" type="text" description="RSFP_DECIMALS_DESC" label="RSFP_DECIMALS" size="70" />
+	</fieldset>
+	<fieldset name="updates" label="RSFP_UPDATE">
+		<field name="global.register.code" type="text" description="RSFP_CODE_DESC" label="RSFP_CODE" size="70" />
+	</fieldset>
+</form>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="RSFP_SUBMISSION_LAYOUT">
+		<message>
+			<![CDATA[RSFP_SUBMISSION_LAYOUT_DESC]]>
+		</message>
+	</layout>
+	<config>
+	<fields name="params">
+		<fieldset name="basic">
+			<field name="formId" type="forms" default="" label="Form" description="Form" addfieldpath="/administrator/components/com_rsform/models/fields" />
+			<field name="lang" type="lang" default="" label="RSFP_SHOW_SUBMISSIONS_LANGUAGE" description="RSFP_SHOW_SUBMISSIONS_LANGUAGE_DESC" addfieldpath="/administrator/components/com_rsform/models/fields" />
+			<field name="enable_submissions" type="radio" class="btn-group" default="0" label="RSFP_ENABLE_SUBMISSIONS" description="RSFP_ENABLE_SUBMISSIONS_DESC">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="show_search" type="radio" class="btn-group" default="0" label="RSFP_ENABLE_SUBMISSIONS_SEARCH" description="RSFP_ENABLE_SUBMISSIONS_SEARCH_DESC">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="sort_submissions" type="radio" class="btn-group" default="0" label="RSFP_SORT_SUBMISSIONS" description="RSFP_SORT_SUBMISSIONS_DESC">
+				<option value="0">RSFP_DESC</option>
+				<option value="1">RSFP_ASC</option>
+			</field>
+			
+			<field name="@spacer" type="spacer" default="" label="" description="" />
+			<field name="userId" type="text" default="0" label="RSFP_SHOW_SUBMISSIONS_FOR_USERID" description="RSFP_SHOW_SUBMISSIONS_FOR_USERID_DESC" />
+			<field name="show_confirmed" type="radio" class="btn-group" default="0" label="RSFP_SHOW_CONFIRMED_SUBMISSIONS" description="RSFP_SHOW_CONFIRMED_SUBMISSIONS_DESC">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field filter="raw" name="template_module" type="textarea" default="&lt;table width=&quot;100%&quot;&gt;{formdata}&lt;/table&gt;" label="RSFP_HTML_LAYOUT" description="RSFP_HTML_LAYOUT_DESC" cols="60" rows="7"/>
+			<field filter="raw" name="template_formdatarow" type="textarea" default="&lt;tr&gt;&lt;td&gt;{details}{FullName:value}{/details}&lt;/td&gt;&lt;td&gt;{Email:value}&lt;/td&gt;&lt;td&gt;{detailspdf}Download PDF{/detailspdf}&lt;/td&gt;&lt;/tr&gt;" label="RSFP_ROW_LAYOUT" description="RSFP_ROW_LAYOUT_DESC" cols="60" rows="7" />
+			<field filter="raw" name="template_formdetail" type="textarea" default="&lt;table width=&quot;100%&quot;&gt;&lt;tr&gt;&lt;td&gt;{FullName:value}&lt;/td&gt;&lt;td&gt;{Email:value}&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;" label="RSFP_DETAILS_LAYOUT" description="RSFP_DETAILS_LAYOUT_DESC" cols="60" rows="7" />
+		</fieldset>
+	</fields>
+	</config>
+</metadata>

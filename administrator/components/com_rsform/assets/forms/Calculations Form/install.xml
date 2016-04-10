@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RSinstall type="rsformbackup">
+<name>RSform backup</name>
+<creationDate>2013-08-21</creationDate>
+<author>admin</author>
+<copyright>(C) 2013 http://localhost/j315/</copyright>
+<authorEmail>octavian@rsjoomla.com</authorEmail>
+<authorUrl>http://localhost/j315/</authorUrl>
+<version>1.4.0</version>
+<revision>48</revision>
+<description>RSForm! Pro Backup</description>
+<tasks>
+	<task type="eval"><![CDATA[$GLOBALS['ComponentIds'] = array();]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_components` (`ComponentId`,`FormId`,`ComponentTypeId`,`Order`,`Published`) VALUES ('','{FormId}','5','4','1' )]]></task>
+	<task type="eval"><![CDATA[$GLOBALS['q_ComponentId'] = $db->insertid();]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','NAME','Storage' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','CAPTION','Storage' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','ITEMS','16GB|16GB - $399[p+399][c]\r\n32GB|32GB - $499[p+499]\r\n64GB|64GB - $599[p+599]' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','DESCRIPTION','' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','REQUIRED','NO' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','VALIDATIONMESSAGE','Invalid Input' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','FLOW','VERTICAL' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','ADDITIONALATTRIBUTES','' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','EMAILATTACH','' )]]></task>
+	<task type="eval"><![CDATA[$GLOBALS['ComponentIds']['Storage'] = $GLOBALS['q_ComponentId'];]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_components` (`ComponentId`,`FormId`,`ComponentTypeId`,`Order`,`Published`) VALUES ('','{FormId}','5','5','1' )]]></task>
+	<task type="eval"><![CDATA[$GLOBALS['q_ComponentId'] = $db->insertid();]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','NAME','Color' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','CAPTION','Color' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','ITEMS','Black|Black[p0]\r\nWhite|White +$39[c][p+39]' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','DESCRIPTION','' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','REQUIRED','NO' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','VALIDATIONMESSAGE','Invalid Input' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','FLOW','VERTICAL' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','ADDITIONALATTRIBUTES','' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','EMAILATTACH','' )]]></task>
+	<task type="eval"><![CDATA[$GLOBALS['ComponentIds']['Color'] = $GLOBALS['q_ComponentId'];]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_components` (`ComponentId`,`FormId`,`ComponentTypeId`,`Order`,`Published`) VALUES ('','{FormId}','3','7','1' )]]></task>
+	<task type="eval"><![CDATA[$GLOBALS['q_ComponentId'] = $db->insertid();]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','NAME','Quantity' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','CAPTION','Quantity' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','ITEMS','1[p1]\r\n2[p2]\r\n3[p3]\r\n4[p4]\r\n5[p5]\r\n6[p6]\r\n7[p7]\r\n8[p8]\r\n9[p9]\r\n10[p10]' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','DESCRIPTION','' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','REQUIRED','NO' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','VALIDATIONMESSAGE','Invalid Input' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','SIZE','' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','MULTIPLE','NO' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','ADDITIONALATTRIBUTES','' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','EMAILATTACH','' )]]></task>
+	<task type="eval"><![CDATA[$GLOBALS['ComponentIds']['Quantity'] = $GLOBALS['q_ComponentId'];]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_components` (`ComponentId`,`FormId`,`ComponentTypeId`,`Order`,`Published`) VALUES ('','{FormId}','1','8','1' )]]></task>
+	<task type="eval"><![CDATA[$GLOBALS['q_ComponentId'] = $db->insertid();]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','NAME','Total' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','CAPTION','Total' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','DEFAULTVALUE','0.00' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','DESCRIPTION','' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','REQUIRED','NO' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','VALIDATIONRULE','none' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','VALIDATIONEXTRA','' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','VALIDATIONMESSAGE','Invalid Input' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','SIZE','20' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','MAXSIZE','' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','ADDITIONALATTRIBUTES','readonly=\"readonly\"' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','EMAILATTACH','' )]]></task>
+	<task type="eval"><![CDATA[$GLOBALS['ComponentIds']['Total'] = $GLOBALS['q_ComponentId'];]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_components` (`ComponentId`,`FormId`,`ComponentTypeId`,`Order`,`Published`) VALUES ('','{FormId}','10','1','1' )]]></task>
+	<task type="eval"><![CDATA[$GLOBALS['q_ComponentId'] = $db->insertid();]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','NAME','Customer Info Title' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','TEXT','<legend>Customer Information</legend>' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','EMAILATTACH','' )]]></task>
+	<task type="eval"><![CDATA[$GLOBALS['ComponentIds']['Customer Info Title'] = $GLOBALS['q_ComponentId'];]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_components` (`ComponentId`,`FormId`,`ComponentTypeId`,`Order`,`Published`) VALUES ('','{FormId}','1','2','1' )]]></task>
+	<task type="eval"><![CDATA[$GLOBALS['q_ComponentId'] = $db->insertid();]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','NAME','Email' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','CAPTION','Email' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','DEFAULTVALUE','' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','DESCRIPTION','' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','REQUIRED','YES' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','VALIDATIONRULE','email' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','VALIDATIONEXTRA','' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','VALIDATIONMESSAGE','Please specify your email address.' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','SIZE','20' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','MAXSIZE','' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','ADDITIONALATTRIBUTES','' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','EMAILATTACH','' )]]></task>
+	<task type="eval"><![CDATA[$GLOBALS['ComponentIds']['Email'] = $GLOBALS['q_ComponentId'];]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_components` (`ComponentId`,`FormId`,`ComponentTypeId`,`Order`,`Published`) VALUES ('','{FormId}','13','9','1' )]]></task>
+	<task type="eval"><![CDATA[$GLOBALS['q_ComponentId'] = $db->insertid();]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','NAME','Submit' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','LABEL','Confirm my order' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','CAPTION','' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','RESET','NO' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','RESETLABEL','' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','PREVBUTTON','PREV' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','DISPLAYPROGRESSMSG','<div>\r\n <p><em>Page <strong>{page}</strong> of {total}</em></p>\r\n <div class=\"rsformProgressContainer\">\r\n  <div class=\"rsformProgressBar\" style=\"width: {percent}%;\"></div>\r\n </div>\r\n</div>' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','DISPLAYPROGRESS','NO' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','BUTTONTYPE','TYPEINPUT' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','ADDITIONALATTRIBUTES','' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','EMAILATTACH','' )]]></task>
+	<task type="eval"><![CDATA[$GLOBALS['ComponentIds']['Submit'] = $GLOBALS['q_ComponentId'];]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_components` (`ComponentId`,`FormId`,`ComponentTypeId`,`Order`,`Published`) VALUES ('','{FormId}','10','6','1' )]]></task>
+	<task type="eval"><![CDATA[$GLOBALS['q_ComponentId'] = $db->insertid();]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','NAME','Total Title' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','TEXT','<legend>Current Total</legend>' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','EMAILATTACH','' )]]></task>
+	<task type="eval"><![CDATA[$GLOBALS['ComponentIds']['Total Title'] = $GLOBALS['q_ComponentId'];]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_components` (`ComponentId`,`FormId`,`ComponentTypeId`,`Order`,`Published`) VALUES ('','{FormId}','10','3','1' )]]></task>
+	<task type="eval"><![CDATA[$GLOBALS['q_ComponentId'] = $db->insertid();]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','NAME','Phone Title' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','TEXT','<legend>Personalize Your Phone</legend>' )]]></task>
+	<task type="query"><![CDATA[INSERT  INTO `#__rsform_properties` (`PropertyId`,`ComponentId`,`PropertyName`,`PropertyValue`) VALUES ('','{ComponentId}','EMAILATTACH','' )]]></task>
+	<task type="eval"><![CDATA[$GLOBALS['ComponentIds']['Phone Title'] = $GLOBALS['q_ComponentId'];]]></task>
+	<task type="query"><![CDATA[INSERT IGNORE INTO `#__rsform_posts` (`form_id`,`enabled`,`method`,`silent`,`url`) VALUES ('{FormId}','0','1','1','http://' )]]></task>
+	<task type="query"><![CDATA[INSERT IGNORE INTO `#__rsform_calculations` (`id`,`formId`,`total`,`expression`,`ordering`) VALUES ('','{FormId}','Total','( {Storage:value} + {Color:value} ) * {Quantity:value}','1' )]]></task>
+	<task type="query"><![CDATA[UPDATE `#__rsform_forms` SET `FormLayout` = '<h2>{global:formtitle}</h2>\r\n{error}\r\n<!-- Do not remove this ID, it is used to identify the page so that the pagination script can work correctly -->\r\n<fieldset class=\"formHorizontal formContainer\" id=\"rsform_3_page_0\">\r\n	{Customer Info Title:body}\r\n	<div class=\"rsform-block rsform-block-email\">\r\n		<div class=\"formControlLabel\">{Email:caption}<strong class=\"formRequired\">(*)</strong></div>\r\n		<div class=\"formControls\">\r\n		<div class=\"formBody\">{Email:body}<span class=\"formValidation\">{Email:validation}</span></div>\r\n		<p class=\"formDescription\">{Email:description}</p>\r\n		</div>\r\n	</div>\r\n	{Phone Title:body}\r\n	<div class=\"rsform-block rsform-block-storage\">\r\n		<div class=\"formControlLabel\">{Storage:caption}</div>\r\n		<div class=\"formControls\">\r\n		<div class=\"formBody\">{Storage:body}<span class=\"formValidation\">{Storage:validation}</span></div>\r\n		<p class=\"formDescription\">{Storage:description}</p>\r\n		</div>\r\n	</div>\r\n	<div class=\"rsform-block rsform-block-color\">\r\n		<div class=\"formControlLabel\">{Color:caption}</div>\r\n		<div class=\"formControls\">\r\n		<div class=\"formBody\">{Color:body}<span class=\"formValidation\">{Color:validation}</span></div>\r\n		<p class=\"formDescription\">{Color:description}</p>\r\n		</div>\r\n	</div>\r\n	{Total Title:body}\r\n	<div class=\"rsform-block rsform-block-quantity\">\r\n		<div class=\"formControlLabel\">{Quantity:caption}</div>\r\n		<div class=\"formControls\">\r\n		<div class=\"formBody\">{Quantity:body}<span class=\"formValidation\">{Quantity:validation}</span></div>\r\n		<p class=\"formDescription\">{Quantity:description}</p>\r\n		</div>\r\n	</div>\r\n	<div class=\"rsform-block rsform-block-total\">\r\n		<div class=\"formControlLabel\">{Total:caption}</div>\r\n		<div class=\"formControls\">\r\n		<div class=\"formBody\">{Total:body}<span class=\"formValidation\">{Total:validation}</span></div>\r\n		<p class=\"formDescription\">{Total:description}</p>\r\n		</div>\r\n	</div>\r\n	<div class=\"rsform-block rsform-block-submit\">\r\n		<div class=\"formControlLabel\">{Submit:caption}</div>\r\n		<div class=\"formControls\">\r\n		<div class=\"formBody\">{Submit:body}<span class=\"formValidation\">{Submit:validation}</span></div>\r\n		<p class=\"formDescription\">{Submit:description}</p>\r\n		</div>\r\n	</div>\r\n</fieldset>\r\n', `FormLayoutName` = 'responsive', `FormLayoutAutogenerate` = '0', `ShowThankyou` = '1', `Thankyou` = '<p>Thank you for your order!</p>\r\n<table class=\"adminlist table\">\r\n<thead>\r\n<tr><th>Product</th><th>Quantity</th><th>Unit Price</th></tr>\r\n</thead>\r\n<tbody>\r\n<tr>\r\n	<td>Phone {Storage:value}</td>\r\n	<td>{Quantity:value}</td>\r\n	<td>${Storage:price}</td>\r\n</tr>\r\n<tr>\r\n	<td>Color: <em>{Color:value}</em></td>\r\n	<td></td>\r\n	<td>${Color:price}</td>\r\n</tr>\r\n<tr>\r\n	<td colspan=\"2\" style=\"text-align: right;\"><strong>Total:</strong></td>\r\n	<td>${Total:value}</td>\r\n</tr>\r\n</tbody>\r\n</table>', `ShowContinue` = '1' WHERE `FormId` = {FormId}]]></task>
+</tasks>
+</RSinstall>
