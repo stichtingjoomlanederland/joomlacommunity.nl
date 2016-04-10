@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>  
+	<fieldset name="country_block" label="COM_RSFIREWALL_BLOCK_COUNTRY" description="COM_RSFIREWALL_BLOCK_COUNTRY_DESC">
+		<field name="geoip_upload" label="COM_RSFIREWALL_UPLOAD_GEOIP_DB" description="COM_RSFIREWALL_UPLOAD_GEOIP_DB_DESC" type="file" size="40" />
+		<field name="blocked_continents" label="COM_RSFIREWALL_SELECT_CONTINENT_TO_BLOCK" description="COM_RSFIREWALL_SELECT_CONTINENT_TO_BLOCK_DESC" type="checkboxes" multiple="multiple">
+			<option onchange="checkCountries(this);" value="--">COM_RSFIREWALL_OTHER</option>
+			<option onchange="checkCountries(this);" value="AF">Africa</option>
+			<option onchange="checkCountries(this);" value="AN">Antarctica</option>
+			<option onchange="checkCountries(this);" value="AS">Asia</option>
+			<option onchange="checkCountries(this);" value="EU">Europe</option>
+			<option onchange="checkCountries(this);" value="NA">North America</option>
+			<option onchange="checkCountries(this);" value="OC">Oceania</option>
+			<option onchange="checkCountries(this);" value="SA">South America</option>
+		</field>
+		<field name="blocked_countries_checkall" label="COM_RSFIREWALL_SELECT_COUNTRY_TO_BLOCK" type="checkboxes">
+			<option value="checkall" onclick="checkAllCountries(this.checked)">JGLOBAL_CHECK_ALL</option>
+		</field>
+		<field name="blocked_countries" label="" description="COM_RSFIREWALL_SELECT_COUNTRY_TO_BLOCK_DESC" type="checkboxes" multiple="multiple">
+			<option value="A1">Anonymous Proxy</option>
+			<option value="O1">Other Country</option>
+			<option value="A2">Satellite Provider</option>
+			<option value="AF">Afghanistan</option>
+			<option value="AX">Aland Islands</option>
+			<option value="AL">Albania</option>
+			<option value="DZ">Algeria</option>
+			<option value="AS">American Samoa</option>
+			<option value="AD">Andorra</option>
+			<option value="AO">Angola</option>
+			<option value="AI">Anguilla</option>
+			<option value="AQ">Antarctica</option>
+			<option value="AG">Antigua and Barbuda</option>
+			<option value="AR">Argentina</option>
+			<option value="AM">Armenia</option>
+			<option value="AW">Aruba</option>
+			<option value="AP">Asia/Pacific Region</option>
+			<option value="AU">Australia</option>
+			<option value="AT">Austria</option>
+			<option value="AZ">Azerbaijan</option>
+			<option value="BS">Bahamas</option>
+			<option value="BH">Bahrain</option>
+			<option value="BD">Bangladesh</option>
+			<option value="BB">Barbados</option>
+			<option value="BY">Belarus</option>
+			<option value="BE">Belgium</option>
+			<option value="BZ">Belize</option>
+			<option value="BJ">Benin</option>
+			<option value="BM">Bermuda</option>
+			<option value="BT">Bhutan</option>
+			<option value="BO">Bolivia</option>
+			<option value="BA">Bosnia and Herzegovina</option>
+			<option value="BW">Botswana</option>
+			<option value="BV">Bouvet Island</option>
+			<option value="BR">Brazil</option>
+			<option value="IO">British Indian Ocean Territory</option>
+			<option value="BN">Brunei Darussalam</option>
+			<option value="BG">Bulgaria</option>
+			<option value="BF">Burkina Faso</option>
+			<option value="BI">Burundi</option>
+			<option value="KH">Cambodia</option>
+			<option value="CM">Cameroon</option>
+			<option value="CA">Canada</option>
+			<option value="CV">Cape Verde</option>
+			<option value="KY">Cayman Islands</option>
+			<option value="CF">Central African Republic</option>
+			<option value="TD">Chad</option>
+			<option value="CL">Chile</option>
+			<option value="CN">China</option>
+			<option value="CX">Christmas Island</option>
+			<option value="CC">Cocos (Keeling) Islands</option>
+			<option value="CO">Colombia</option>
+			<option value="KM">Comoros</option>
+			<option value="CG">Congo</option>
+			<option value="CD">Congo, The Democratic Republic of the</option>
+			<option value="CK">Cook Islands</option>
+			<option value="CR">Costa Rica</option>
+			<option value="CI">Cote d'Ivoire</option>
+			<option value="HR">Croatia</option>
+			<option value="CU">Cuba</option>
+			<option value="CY">Cyprus</option>
+			<option value="CZ">Czech Republic</option>
+			<option value="DK">Denmark</option>
+			<option value="DJ">Djibouti</option>
+			<option value="DM">Dominica</option>
+			<option value="DO">Dominican Republic</option>
+			<option value="EC">Ecuador</option>
+			<option value="EG">Egypt</option>
+			<option value="SV">El Salvador</option>
+			<option value="GQ">Equatorial Guinea</option>
+			<option value="ER">Eritrea</option>
+			<option value="EE">Estonia</option>
+			<option value="ET">Ethiopia</option>
+			<option value="EU">Europe</option>
+			<option value="FK">Falkland Islands (Malvinas)</option>
+			<option value="FO">Faroe Islands</option>
+			<option value="FJ">Fiji</option>
+			<option value="FI">Finland</option>
+			<option value="FR">France</option>
+			<option value="GF">French Guiana</option>
+			<option value="PF">French Polynesia</option>
+			<option value="TF">French Southern Territories</option>
+			<option value="GA">Gabon</option>
+			<option value="GM">Gambia</option>
+			<option value="GE">Georgia</option>
+			<option value="DE">Germany</option>
+			<option value="GH">Ghana</option>
+			<option value="GI">Gibraltar</option>
+			<option value="GR">Greece</option>
+			<option value="GL">Greenland</option>
+			<option value="GD">Grenada</option>
+			<option value="GP">Guadeloupe</option>
+			<option value="GU">Guam</option>
+			<option value="GT">Guatemala</option>
+			<option value="GG">Guernsey</option>
+			<option value="GN">Guinea</option>
+			<option value="GW">Guinea-Bissau</option>
+			<option value="GY">Guyana</option>
+			<option value="HT">Haiti</option>
+			<option value="HM">Heard Island and McDonald Islands</option>
+			<option value="VA">Holy See (Vatican City State)</option>
+			<option value="HN">Honduras</option>
+			<option value="HK">Hong Kong</option>
+			<option value="HU">Hungary</option>
+			<option value="IS">Iceland</option>
+			<option value="IN">India</option>
+			<option value="ID">Indonesia</option>
+			<option value="IR">Iran, Islamic Republic of</option>
+			<option value="IQ">Iraq</option>
+			<option value="IE">Ireland</option>
+			<option value="IM">Isle of Man</option>
+			<option value="IL">Israel</option>
+			<option value="IT">Italy</option>
+			<option value="JM">Jamaica</option>
+			<option value="JP">Japan</option>
+			<option value="JE">Jersey</option>
+			<option value="JO">Jordan</option>
+			<option value="KZ">Kazakhstan</option>
+			<option value="KE">Kenya</option>
+			<option value="KI">Kiribati</option>
+			<option value="KP">Korea, Democratic People's Republic of</option>
+			<option value="KR">Korea, Republic of</option>
+			<option value="KW">Kuwait</option>
+			<option value="KG">Kyrgyzstan</option>
+			<option value="LA">Lao People's Democratic Republic</option>
+			<option value="LV">Latvia</option>
+			<option value="LB">Lebanon</option>
+			<option value="LS">Lesotho</option>
+			<option value="LR">Liberia</option>
+			<option value="LY">Libyan Arab Jamahiriya</option>
+			<option value="LI">Liechtenstein</option>
+			<option value="LT">Lithuania</option>
+			<option value="LU">Luxembourg</option>
+			<option value="MO">Macao</option>
+			<option value="MK">Macedonia, Former Yugoslav Republic of</option>
+			<option value="MG">Madagascar</option>
+			<option value="MW">Malawi</option>
+			<option value="MY">Malaysia</option>
+			<option value="MV">Maldives</option>
+			<option value="ML">Mali</option>
+			<option value="MT">Malta</option>
+			<option value="MH">Marshall Islands</option>
+			<option value="MQ">Martinique</option>
+			<option value="MR">Mauritania</option>
+			<option value="MU">Mauritius</option>
+			<option value="YT">Mayotte</option>
+			<option value="MX">Mexico</option>
+			<option value="FM">Micronesia, Federated States of</option>
+			<option value="MD">Moldova, Republic of</option>
+			<option value="MC">Monaco</option>
+			<option value="MN">Mongolia</option>
+			<option value="ME">Montenegro</option>
+			<option value="MS">Montserrat</option>
+			<option value="MA">Morocco</option>
+			<option value="MZ">Mozambique</option>
+			<option value="MM">Myanmar</option>
+			<option value="NA">Namibia</option>
+			<option value="NR">Nauru</option>
+			<option value="NP">Nepal</option>
+			<option value="NL">Netherlands</option>
+			<option value="AN">Netherlands Antilles</option>
+			<option value="NC">New Caledonia</option>
+			<option value="NZ">New Zealand</option>
+			<option value="NI">Nicaragua</option>
+			<option value="NE">Niger</option>
+			<option value="NG">Nigeria</option>
+			<option value="NU">Niue</option>
+			<option value="NF">Norfolk Island</option>
+			<option value="MP">Northern Mariana Islands</option>
+			<option value="NO">Norway</option>
+			<option value="OM">Oman</option>
+			<option value="PK">Pakistan</option>
+			<option value="PW">Palau</option>
+			<option value="PS">Palestinian Territory</option>
+			<option value="PA">Panama</option>
+			<option value="PG">Papua New Guinea</option>
+			<option value="PY">Paraguay</option>
+			<option value="PE">Peru</option>
+			<option value="PH">Philippines</option>
+			<option value="PN">Pitcairn</option>
+			<option value="PL">Poland</option>
+			<option value="PT">Portugal</option>
+			<option value="PR">Puerto Rico</option>
+			<option value="QA">Qatar</option>
+			<option value="RE">Reunion</option>
+			<option value="RO">Romania</option>
+			<option value="RU">Russian Federation</option>
+			<option value="RW">Rwanda</option>
+			<option value="SH">Saint Helena</option>
+			<option value="KN">Saint Kitts and Nevis</option>
+			<option value="LC">Saint Lucia</option>
+			<option value="PM">Saint Pierre and Miquelon</option>
+			<option value="VC">Saint Vincent and the Grenadines</option>
+			<option value="WS">Samoa</option>
+			<option value="SM">San Marino</option>
+			<option value="ST">Sao Tome and Principe</option>
+			<option value="SA">Saudi Arabia</option>
+			<option value="SN">Senegal</option>
+			<option value="RS">Serbia</option>
+			<option value="SC">Seychelles</option>
+			<option value="SL">Sierra Leone</option>
+			<option value="SG">Singapore</option>
+			<option value="SK">Slovakia</option>
+			<option value="SI">Slovenia</option>
+			<option value="SB">Solomon Islands</option>
+			<option value="SO">Somalia</option>
+			<option value="ZA">South Africa</option>
+			<option value="GS">South Georgia and the South Sandwich Islands</option>
+			<option value="ES">Spain</option>
+			<option value="LK">Sri Lanka</option>
+			<option value="SD">Sudan</option>
+			<option value="SR">Suriname</option>
+			<option value="SJ">Svalbard and Jan Mayen</option>
+			<option value="SZ">Swaziland</option>
+			<option value="SE">Sweden</option>
+			<option value="CH">Switzerland</option>
+			<option value="SY">Syrian Arab Republic</option>
+			<option value="TW">Taiwan</option>
+			<option value="TJ">Tajikistan</option>
+			<option value="TZ">Tanzania, United Republic of</option>
+			<option value="TH">Thailand</option>
+			<option value="TL">Timor-Leste</option>
+			<option value="TG">Togo</option>
+			<option value="TK">Tokelau</option>
+			<option value="TO">Tonga</option>
+			<option value="TT">Trinidad and Tobago</option>
+			<option value="TN">Tunisia</option>
+			<option value="TR">Turkey</option>
+			<option value="TM">Turkmenistan</option>
+			<option value="TC">Turks and Caicos Islands</option>
+			<option value="TV">Tuvalu</option>
+			<option value="UG">Uganda</option>
+			<option value="UA">Ukraine</option>
+			<option value="AE">United Arab Emirates</option>
+			<option value="GB">United Kingdom</option>
+			<option value="US">United States</option>
+			<option value="UM">United States Minor Outlying Islands</option>
+			<option value="UY">Uruguay</option>
+			<option value="UZ">Uzbekistan</option>
+			<option value="VU">Vanuatu</option>
+			<option value="VE">Venezuela</option>
+			<option value="VN">Vietnam</option>
+			<option value="VG">Virgin Islands, British</option>
+			<option value="VI">Virgin Islands, U.S.</option>
+			<option value="WF">Wallis and Futuna</option>
+			<option value="EH">Western Sahara</option>
+			<option value="YE">Yemen</option>
+			<option value="ZM">Zambia</option>
+			<option value="ZW">Zimbabwe</option>
+		</field>
+	</fieldset>
+	<fieldset name="backend_password" label="COM_RSFIREWALL_BACKEND_PASSWORD" description="COM_RSFIREWALL_BACKEND_PASSWORD_DESC">
+		<field name="backend_password_enabled" type="radio" class="btn-group" description="COM_RSFIREWALL_ENABLE_BACKEND_PASSWORD_DESC" label="COM_RSFIREWALL_ENABLE_BACKEND_PASSWORD" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="backend_password" type="password" label="COM_RSFIREWALL_TYPE_BACKEND_PASSWORD" description="COM_RSFIREWALL_TYPE_BACKEND_PASSWORD_DESC" size="30" />
+		<field name="backend_password2" type="password" label="COM_RSFIREWALL_RETYPE_BACKEND_PASSWORD" description="COM_RSFIREWALL_RETYPE_BACKEND_PASSWORD_DESC" size="30" />
+	</fieldset>
+	<fieldset name="system_check" label="COM_RSFIREWALL_SYSTEM_CHECK" description="COM_RSFIREWALL_SYSTEM_CHECK_DESC">
+		<field name="offset" type="text"  description="COM_RSFIREWALL_NUM_OF_FILES_FOLDERS_DESC" label="COM_RSFIREWALL_NUM_OF_FILES_FOLDERS" />
+		<field name="ignore_files_folders" type="filemanager" button="COM_RSFIREWALL_OPEN_FILE_MANAGER" allowfiles="1" allowfolders="1" description="COM_RSFIREWALL_IGNORE_FILES_FOLDERS_DESC" label="COM_RSFIREWALL_IGNORE_FILES_FOLDERS" filter="raw" cols="20" rows="10"  />
+		<field name="log_system_check" type="radio" class="btn-group" description="COM_RSFIREWALL_ENABLE_SYSTEM_CHECK_LOGGING_DESC" label="COM_RSFIREWALL_ENABLE_SYSTEM_CHECK_LOGGING" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="file_permissions" default="644" type="text" description="COM_RSFIREWALL_FILE_PERMISSIONS_DESC" label="COM_RSFIREWALL_FILE_PERMISSIONS" />
+		<field name="folder_permissions" default="755" type="text" description="COM_RSFIREWALL_FOLDER_PERMISSIONS_DESC" label="COM_RSFIREWALL_FOLDER_PERMISSIONS" />
+		<field name="request_timeout" type="text"  default="0" description="COM_RSFIREWALL_REQUEST_TIMEOUT_DESC" label="COM_RSFIREWALL_REQUEST_TIMEOUT" />
+		<field name="google_safebrowsing_api_key" type="text" default="" description="COM_RSFIREWALL_GOOGLE_SAFE_BROWSING_DESC" label="COM_RSFIREWALL_GOOGLE_SAFE_BROWSING_LABEL"/>
+	</fieldset>
+	<fieldset name="active_scanner" label="COM_RSFIREWALL_ACTIVE_SCANNER" description="COM_RSFIREWALL_ACTIVE_SCANNER_DESC">
+		<field name="active_scanner_status" type="radio" class="btn-group" description="COM_RSFIREWALL_ENABLE_ACTIVE_SCANNER_DESC" label="COM_RSFIREWALL_ENABLE_ACTIVE_SCANNER" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="active_scanner_status_backend" type="radio" class="btn-group" description="COM_RSFIREWALL_ENABLE_ACTIVE_SCANNER_BACKEND_DESC" label="COM_RSFIREWALL_ENABLE_ACTIVE_SCANNER_BACKEND" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="enable_extra_logging" type="radio" class="btn-group" description="COM_RSFIREWALL_ENABLE_EXTRA_LOGGING_DESC" label="COM_RSFIREWALL_ENABLE_EXTRA_LOGGING" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="verify_generator" type="radio" class="btn-group" description="COM_RSFIREWALL_VERIFY_GENERATOR_DESC" label="COM_RSFIREWALL_VERIFY_GENERATOR" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="verify_emails" type="radio" class="btn-group" description="COM_RSFIREWALL_VERIFY_EMAILS_DESC" label="COM_RSFIREWALL_VERIFY_EMAILS" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="monitor_core" type="radio" class="btn-group" description="COM_RSFIREWALL_MONITOR_CORE_DESC" label="COM_RSFIREWALL_MONITOR_CORE" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="monitor_files" type="filemanager" button="COM_RSFIREWALL_OPEN_FILE_MANAGER" allowfiles="1" description="COM_RSFIREWALL_MONITOR_FILES_DESC" label="COM_RSFIREWALL_MONITOR_FILES" filter="raw" cols="20" rows="10" />
+		<field name="check_proxy_ip_headers" type="rscheckboxes" multiple="multiple" description="COM_RSFIREWALL_CHECK_PROXY_IP_HEADERS_DESC" label="COM_RSFIREWALL_CHECK_PROXY_IP_HEADERS" size="1">
+			<option value="HTTP_X_REAL_IP">HTTP_X_REAL_IP</option>
+			<option value="HTTP_CLIENT_IP">HTTP_CLIENT_IP</option>
+			<option value="HTTP_TRUE_CLIENT_IP">HTTP_TRUE_CLIENT_IP</option>
+			<option value="HTTP_X_FWD_IP_ADDR">HTTP_X_FWD_IP_ADDR</option>
+			<option value="HTTP_X_FORWARDED_FOR">HTTP_X_FORWARDED_FOR</option>
+			<option value="HTTP_X_FORWARDED">HTTP_X_FORWARDED</option>
+			<option value="HTTP_FORWARDED_FOR">HTTP_FORWARDED_FOR</option>
+			<option value="HTTP_FORWARDED">HTTP_FORWARDED</option>
+			<option value="HTTP_VIA">HTTP_VIA</option>
+			<option value="HTTP_X_COMING_FROM">HTTP_X_COMING_FROM</option>
+			<option value="HTTP_COMING_FROM">HTTP_COMING_FROM</option>
+		</field>
+		<field name="spacer_php" type="spacer" class="text" label="COM_RSFIREWALL_PHP_PROTECTIONS" />
+		<field name="lfi" type="radio" class="btn-group" description="COM_RSFIREWALL_LFI_INCLUSION_DESC" label="COM_RSFIREWALL_LFI_INCLUSION" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="rfi" type="radio" class="btn-group" description="COM_RSFIREWALL_RFI_INCLUSION_DESC" label="COM_RSFIREWALL_RFI_INCLUSION" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="enable_php_for" type="rscheckboxes" multiple="multiple" description="COM_RSFIREWALL_ENABLE_PROTECTIONS_FOR_DESC" label="COM_RSFIREWALL_ENABLE_PROTECTIONS_FOR" size="1">
+			<option value="post">COM_RSFIREWALL_POST_DATA</option>
+			<option value="get">COM_RSFIREWALL_GET_DATA</option>
+		</field>
+		<field name="spacer_sql" type="spacer" class="text" label="COM_RSFIREWALL_SQL_PROTECTIONS" />
+		<field name="enable_sql_for" type="rscheckboxes" multiple="multiple" description="COM_RSFIREWALL_ENABLE_PROTECTIONS_FOR_DESC" label="COM_RSFIREWALL_ENABLE_PROTECTIONS_FOR" size="1">
+			<option value="post">COM_RSFIREWALL_POST_DATA</option>
+			<option value="get">COM_RSFIREWALL_GET_DATA</option>
+		</field>
+		<field name="spacer_js" type="spacer" class="text" label="COM_RSFIREWALL_JS_PROTECTIONS" />
+		<field name="filter_js" type="radio" class="btn-group" description="COM_RSFIREWALL_FILTER_JS_DESC" label="COM_RSFIREWALL_FILTER_JS" size="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="enable_js_for" type="rscheckboxes" multiple="multiple" description="COM_RSFIREWALL_ENABLE_PROTECTIONS_FOR_DESC" label="COM_RSFIREWALL_ENABLE_PROTECTIONS_FOR" size="1">
+			<option value="post">COM_RSFIREWALL_POST_DATA</option>
+			<option value="get">COM_RSFIREWALL_GET_DATA</option>
+		</field>
+		<field name="spacer_dos" type="spacer" class="text" label="COM_RSFIREWALL_DOS" />
+		<field name="verify_agents" type="rscheckboxes" multiple="multiple" description="COM_RSFIREWALL_VERIFY_USER_AGENTS_DESC" label="COM_RSFIREWALL_VERIFY_USER_AGENTS" size="1">
+			<option value="empty">COM_RSFIREWALL_EMPTY_USER_AGENTS</option>
+			<option value="perl">perl</option>
+			<option value="curl">cURL</option>
+			<option value="java">Java</option>
+		</field>
+		<field name="abusive_ips" type="radio" class="btn-group" default="0" description="COM_RSFIREWALL_ABUSIVE_IPS_DESC" label="COM_RSFIREWALL_ABUSIVE_IPS" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="deny_referer" type="textarea" description="COM_RSFIREWALL_DENY_REFERER_DESC" label="COM_RSFIREWALL_DENY_REFERER"  filter="raw" cols="20" rows="10"  />
+		<field name="spacer_automatic_blacklisting" type="spacer" class="text" label="COM_RSFIREWALL_AUTOMATIC_BLACKLISTING" />
+		<field name="enable_autoban" type="radio" class="btn-group" description="COM_RSFIREWALL_ENABLE_AUTOBAN_DESC" label="COM_RSFIREWALL_ENABLE_AUTOBAN" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="enable_autoban_login" type="radio" class="btn-group" description="COM_RSFIREWALL_ENABLE_AUTOBAN_LOGIN_DESC" label="COM_RSFIREWALL_ENABLE_AUTOBAN_LOGIN" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="autoban_attempts" type="text"  description="COM_RSFIREWALL_AUTOBAN_ATTEMPTS_DESC" label="COM_RSFIREWALL_AUTOBAN_ATTEMPTS" />
+		<field name="spacer_captcha" type="spacer" class="text" label="COM_RSFIREWALL_CAPTCHA" />
+		<field name="enable_backend_captcha" type="radio" class="btn-group" description="COM_RSFIREWALL_ENABLE_BACKEND_CAPTCHA_DESC" label="COM_RSFIREWALL_ENABLE_BACKEND_CAPTCHA" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="backend_captcha" type="text"  description="COM_RSFIREWALL_BACKEND_CAPTCHA_DESC" label="COM_RSFIREWALL_BACKEND_CAPTCHA" />
+		<field name="spacer_backend_login" type="spacer" class="text" label="COM_RSFIREWALL_BACKEND_LOGIN" />
+		<field name="capture_backend_login" type="radio" class="btn-group" description="COM_RSFIREWALL_CAPTURE_BACKEND_LOGIN_ATTEMPTS_DESC" label="COM_RSFIREWALL_CAPTURE_BACKEND_LOGIN_ATTEMPTS" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="capture_backend_password" type="radio" class="btn-group" description="COM_RSFIREWALL_STORE_USERNAME_PASSWORD_ATTEMPT_DESC" label="COM_RSFIREWALL_STORE_USERNAME_PASSWORD_ATTEMPT" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="spacer_uploads" type="spacer" class="text" label="COM_RSFIREWALL_UPLOADS" />
+		<field name="filter_uploads" type="radio" class="btn-group" description="COM_RSFIREWALL_FILTER_UPLOADS_DESC" label="COM_RSFIREWALL_FILTER_UPLOADS" size="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="verify_multiple_exts" type="radio" class="btn-group" description="COM_RSFIREWALL_VERIFY_MULTIPLE_EXTS_DESC" label="COM_RSFIREWALL_VERIFY_MULTIPLE_EXTS" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="verify_upload" type="radio" class="btn-group" description="COM_RSFIREWALL_VERIFY_FILES_DESC" label="COM_RSFIREWALL_VERIFY_FILES" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="verify_upload_blacklist_exts" type="textarea" description="COM_RSFIREWALL_DENY_EXTENSIONS_DESC" label="COM_RSFIREWALL_DENY_EXTENSIONS"  filter="raw" cols="20" rows="10"  />
+		<field name="spacer_lockdown" type="spacer" class="text" label="COM_RSFIREWALL_LOCKDOWN" />
+		<field name="monitor_users" type="users" multiple="multiple" label="COM_RSFIREWALL_MONITOR_USERS" description="COM_RSFIREWALL_MONITOR_USERS_DESC" />
+		<field name="disable_installer" type="radio" class="btn-group" description="COM_RSFIREWALL_DISABLE_ACCESS_TO_INSTALLER_DESC" label="COM_RSFIREWALL_DISABLE_ACCESS_TO_INSTALLER" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="disable_new_admin_users" type="radio" class="btn-group" description="COM_RSFIREWALL_DISABLE_CREATION_OF_NEW_ADMINS_DESC" label="COM_RSFIREWALL_DISABLE_CREATION_OF_NEW_ADMINS" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+	</fieldset>
+	<fieldset name="logging" label="COM_RSFIREWALL_LOGGING_UTILITY" description="COM_RSFIREWALL_LOGGING_UTILITY_DESC">
+		<field name="log_emails" type="textarea" label="COM_RSFIREWALL_SEND_EMAILS" description="COM_RSFIREWALL_SEND_EMAILS_DESC" filter="raw" cols="60" rows="3" />
+		<field name="log_alert_level" type="rscheckboxes" multiple="multiple" label="COM_RSFIREWALL_ALERT_LEVELS" description="COM_RSFIREWALL_ALERT_LEVELS_DESC">
+			<option value="low">COM_RSFIREWALL_LEVEL_LOW</option>
+			<option value="medium">COM_RSFIREWALL_LEVEL_MEDIUM</option>
+			<option value="high">COM_RSFIREWALL_LEVEL_HIGH</option>
+			<option value="critical">COM_RSFIREWALL_LEVEL_CRITICAL</option>
+		</field>
+		<field name="log_history" type="text" description="COM_RSFIREWALL_DAYS_LOG_HISTORY_DESC" label="COM_RSFIREWALL_DAYS_LOG_HISTORY" />
+		<field name="log_hour_limit" type="text" description="COM_RSFIREWALL_LOG_HOUR_LIMIT_DESC" label="COM_RSFIREWALL_LOG_HOUR_LIMIT" />
+		<field name="log_overview" type="text" description="COM_RSFIREWALL_NUMBER_EVENTS_SYSTEM_OVERVIEW_DESC" label="COM_RSFIREWALL_NUMBER_EVENTS_SYSTEM_OVERVIEW" />
+		<field name="ipv4_whois" type="text" description="COM_RSFIREWALL_IPV4_WHOIS_DESC" label="COM_RSFIREWALL_IPV4_WHOIS" />
+		<field name="ipv6_whois" type="text" description="COM_RSFIREWALL_IPV6_WHOIS_DESC" label="COM_RSFIREWALL_IPV6_WHOIS" />
+	</fieldset>
+	<fieldset name="import" label="COM_RSFIREWALL_IMPORT_CONFIGURATION">
+		<field name="configuration_upload" label="COM_RSFIREWALL_UPLOAD_CONFIGURATION_JSON" description="COM_RSFIREWALL_UPLOAD_CONFIGURATION_JSON_DESC" type="file" size="40" />
+		<field name="configuration_update_code" default="1" type="radio" class="btn-group" description="COM_RSFIREWALL_CONFIGURATION_UPDATE_CODE_DESC" label="COM_RSFIREWALL_CONFIGURATION_UPDATE_CODE" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+	</fieldset>
+	<fieldset name="updates" label="COM_RSFIREWALL_UPDATES">
+		<field name="code" type="text" description="COM_RSFIREWALL_LICENSE_CODE_DESC" label="COM_RSFIREWALL_LICENSE_CODE" size="70" />
+	</fieldset>
+	<fieldset name="permissions" label="JCONFIG_PERMISSIONS_LABEL" description="JCONFIG_PERMISSIONS_DESC">
+		<field name="rules" type="rules" label="JCONFIG_PERMISSIONS_LABEL" filter="rules" component="com_rsfirewall" section="component">
+			<action name="core.admin" title="JACTION_ADMIN" description="JACTION_ADMIN_COMPONENT_DESC" />
+			<action name="core.manage" title="JACTION_MANAGE" description="JACTION_MANAGE_COMPONENT_DESC" />
+			<action name="check.run" title="COM_RSFIREWALL_PERMISSION_SYSTEM_CHECK" description="COM_RSFIREWALL_PERMISSION_SYSTEM_CHECK_DESC" />
+			<action name="dbcheck.run" title="COM_RSFIREWALL_PERMISSION_DB_CHECK" description="COM_RSFIREWALL_PERMISSION_DB_CHECK_DESC" />
+			<action name="logs.view" title="COM_RSFIREWALL_PERMISSION_VIEW_LOGS" description="COM_RSFIREWALL_PERMISSION_VIEW_LOGS_DESC" />
+			<action name="lists.maange" title="COM_RSFIREWALL_PERMISSION_MANAGE_LISTS" description="COM_RSFIREWALL_PERMISSION_MANAGE_LISTS_DESC" />
+			<action name="exceptions.manage" title="COM_RSFIREWALL_PERMISSION_MANAGE_EXCEPTIONS" description="COM_RSFIREWALL_PERMISSION_MANAGE_EXCEPTIONS_DESC" />
+			<action name="feeds.manage" title="COM_RSFIREWALL_PERMISSION_MANAGE_FEEDS" description="COM_RSFIREWALL_PERMISSION_MANAGE_FEEDS_DESC" />
+			<action name="updates.view" title="COM_RSFIREWALL_PERMISSION_VIEW_UPDATES" description="COM_RSFIREWALL_PERMISSION_VIEW_UPDATES_DESC" />
+		</field>
+	</fieldset>
+</form>

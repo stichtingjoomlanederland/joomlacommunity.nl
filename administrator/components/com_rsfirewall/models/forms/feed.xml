@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<field name="url" type="text" class="inputbox" description="COM_RSFIREWALL_FEED_URL_DESC" label="COM_RSFIREWALL_FEED_URL" required="true" size="64" />
+	<field name="limit" type="text" class="inputbox" description="COM_RSFIREWALL_FEED_SHOW_NEWEST_DESC" label="COM_RSFIREWALL_FEED_SHOW_NEWEST" required="true" size="16" />
+	<field name="published" type="radio" class="btn-group" label="JPUBLISHED" size="1" default="0">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="id" type="hidden" />
+</form>

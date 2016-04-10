@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="2.5.0" method="upgrade">
+	<name>RSFirewall!</name>
+	<creationDate>May 2015</creationDate>
+	<author>RSJoomla!</author>
+	<authorEmail>support@rsjoomla.com</authorEmail>
+	<authorUrl>www.rsjoomla.com</authorUrl>
+	<copyright>(C) 2009-2015 www.rsjoomla.com</copyright>
+	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
+	<version>2.10.1</version>
+	<description>COM_RSFIREWALL_INSTALL_DESC</description>
+	<scriptfile>script.rsfirewall.php</scriptfile>
+
+	<updateservers>
+        <server type="extension" priority="1" name="RSFirewall!">https://www.rsjoomla.com/updates/com_rsfirewall/Component/com_rsfirewall.xml</server>
+    </updateservers>
+	
+	<install>
+		<sql>
+			<!-- MySQL -->
+			<file driver="mysql" charset="utf8">sql/mysql/configuration.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/configuration.data.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/exceptions.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/feeds.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/feeds.data.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/hashes.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/hashes.data.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/ignored.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/lists.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/logs.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/offenders.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/signatures.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/signatures.data.sql</file>
+			<file driver="mysql" charset="utf8">sql/mysql/snapshots.sql</file>
+			
+			<!-- SQL Server -->
+			<file driver="sqlazure" charset="utf8">sql/sqlazure/configuration.sql</file>
+			<file driver="sqlazure" charset="utf8">sql/sqlazure/configuration.data.sql</file>
+			<file driver="sqlazure" charset="utf8">sql/sqlazure/exceptions.sql</file>
+			<file driver="sqlazure" charset="utf8">sql/sqlazure/feeds.sql</file>
+			<file driver="sqlazure" charset="utf8">sql/sqlazure/feeds.data.sql</file>
+			<file driver="sqlazure" charset="utf8">sql/sqlazure/hashes.sql</file>
+			<file driver="sqlazure" charset="utf8">sql/sqlazure/hashes.data.sql</file>
+			<file driver="sqlazure" charset="utf8">sql/sqlazure/ignored.sql</file>
+			<file driver="sqlazure" charset="utf8">sql/sqlazure/lists.sql</file>
+			<file driver="sqlazure" charset="utf8">sql/sqlazure/logs.sql</file>
+			<file driver="sqlazure" charset="utf8">sql/sqlazure/offenders.sql</file>
+			<file driver="sqlazure" charset="utf8">sql/sqlazure/signatures.sql</file>
+			<file driver="sqlazure" charset="utf8">sql/sqlazure/signatures.data.sql</file>
+			<file driver="sqlazure" charset="utf8">sql/sqlazure/snapshots.sql</file>
+		</sql>
+	</install>
+
+	<uninstall>
+		<sql>
+			<!-- MySQL -->
+			<file driver="mysql" charset="utf8">sql/mysql/uninstall.sql</file>
+			
+			<!-- SQL Server -->
+			<file driver="sqlazure" charset="utf8">sql/sqlazure/uninstall.sql</file>
+		</sql>
+	</uninstall>
+
+	<files folder="site">
+		<folder>views</folder>
+		<filename>controller.php</filename> 
+		<filename>index.html</filename> 
+		<filename>rsfirewall.php</filename>
+	</files>
+	
+	<media destination="com_rsfirewall" folder="media">
+		<folder>images</folder>
+		<filename>index.html</filename>
+	</media>
+	
+	<languages folder="site/language">
+		<language tag="en-GB">en-GB/en-GB.com_rsfirewall.ini</language>
+	</languages>
+
+	<administration>
+		<menu img="components/com_rsfirewall/assets/images/rsfirewall.gif">RSFirewall</menu>
+		<submenu>
+			  <menu link="option=com_rsfirewall">COM_RSFIREWALL_OVERVIEW</menu>
+			  <menu view="check">COM_RSFIREWALL_SYSTEM_CHECK</menu>
+			  <menu view="dbcheck">COM_RSFIREWALL_DATABASE_CHECK</menu>
+			  <menu view="logs">COM_RSFIREWALL_SYSTEM_LOGS</menu>
+			  <menu view="configuration">COM_RSFIREWALL_FIREWALL_CONFIGURATION</menu>
+			  <menu view="lists">COM_RSFIREWALL_LISTS</menu>
+			  <menu view="exceptions">COM_RSFIREWALL_EXCEPTIONS</menu>
+			  <menu view="feeds">COM_RSFIREWALL_RSS_FEEDS_CONFIGURATION</menu>
+			  <menu view="updates">COM_RSFIREWALL_UPDATES</menu>
+		</submenu>
+		
+		<files folder="admin">
+			<folder>assets</folder>
+			<folder>controllers</folder>
+			<folder>helpers</folder>
+			<folder>models</folder>
+			<folder>sql</folder>
+			<folder>tables</folder>
+			<folder>views</folder>
+			<filename>controller.php</filename>
+			<filename>index.html</filename>
+			<filename>rsfirewall.php</filename>
+		</files>
+		<languages folder="admin/language">
+			<language tag="en-GB">en-GB/en-GB.com_rsfirewall.ini</language>
+			<language tag="en-GB">en-GB/en-GB.com_rsfirewall.sys.ini</language>
+		</languages>
+	</administration>
+</extension>

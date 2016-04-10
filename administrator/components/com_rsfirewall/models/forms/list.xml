@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<field name="ip" type="text" class="inputbox" description="COM_RSFIREWALL_IP_ADDRESS_DESC" label="COM_RSFIREWALL_IP_ADDRESS" required="true" size="64" filter="trim"/>
+	<field name="type" type="radio" class="btn-group" description="COM_RSFIREWALL_LIST_TYPE_DESC" label="COM_RSFIREWALL_LIST_TYPE" size="1" default="0">
+		<option value="0">COM_RSFIREWALL_LIST_TYPE_0</option>
+		<option value="1">COM_RSFIREWALL_LIST_TYPE_1</option>
+	</field>
+	<field name="reason" type="textarea" class="inputbox" cols="70" rows="20" description="COM_RSFIREWALL_LIST_REASON_DESC" label="COM_RSFIREWALL_LIST_REASON" filter="raw" />
+	<field name="published" type="radio" class="btn-group" label="JPUBLISHED" size="1" default="0">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="id" type="hidden" />
+</form>
