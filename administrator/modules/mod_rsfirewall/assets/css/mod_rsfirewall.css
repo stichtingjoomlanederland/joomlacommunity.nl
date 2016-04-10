@@ -1,0 +1,38 @@
+/* container */
+
+#mod_rsfirewall_container div {
+	margin: 1%;
+	padding: 1%;
+	clear: left;
+	overflow: hidden;
+}
+
+.mod-rsfirewall-float-left {
+	float: left;
+}
+
+.mod-rsfirewall-eq-width {
+	width: 100px;
+}
+
+#mod-rsfirewall-firewall-version {
+	float: left;
+}
+
+#mod-rsfirewall-joomla-version {
+	float: left;
+}
+
+.icon-16-spacer {
+	padding-left: 20px;
+}
+
+.mod-rsfirewall-break-word {
+	word-wrap: break-word;
+	-ms-word-break: break-all;
+	word-break: break-all;
+	word-break: break-word;
+	-webkit-hyphens: auto;
+	-moz-hyphens: auto;
+	hyphens: auto;
+}

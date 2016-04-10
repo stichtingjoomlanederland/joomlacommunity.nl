@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5.0" type="library" method="upgrade">
+	<name>TCPDF</name>
+	<libraryname>tcpdf</libraryname>
+	<author>Nicola Asuni</author>
+	<creationDate>28 January 2011</creationDate>
+	<copyright>http://www.tcpdf.org</copyright>
+	<license>GNU General Public License</license>
+	<authorEmail></authorEmail>
+	<authorUrl>http://www.tcpdf.org</authorUrl>
+	<version>2.5.0</version>
+	<description><![CDATA[Class for generating PDF files on-the-fly without requiring external extensions.]]></description>
+	<files>
+		<folder>cache</folder>
+		<folder>config</folder>
+		<folder>fonts</folder>
+		<folder>images</folder>
+		<folder>include</folder>
+		<filename>CHANGELOG.TXT</filename>
+		<filename>html_entity_decode_php4.php</filename>
+		<filename>index.html</filename>
+		<filename>LICENSE.TXT</filename>
+		<filename>README.TXT</filename>
+		<filename>tcpdf.php</filename>
+		<filename>tcpdf_autoconfig.php</filename>
+		<filename>tcpdf_barcodes_1d.php</filename>
+		<filename>tcpdf_barcodes_2d.php</filename>
+		<filename>tcpdf_import.php</filename>
+		<filename>tcpdf_parser.php</filename>
+		<filename>unicode_data.php</filename>
+	</files>
+</extension>

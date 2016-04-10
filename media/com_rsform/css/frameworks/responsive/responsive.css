@@ -1,0 +1,697 @@
+/* responsive - desktop/default version */
+
+.formResponsive .rsformProgress p {
+    display: none;
+}
+
+.formResponsive .rsformProgressContainer {
+    height: 18px;
+    margin-bottom: 18px;
+    overflow: hidden;
+    background-color: #f7f7f7;
+    background-image: -moz-linear-gradient(top, #f5f5f5, #f9f9f9);
+    background-image: -ms-linear-gradient(top, #f5f5f5, #f9f9f9);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#f5f5f5), to(#f9f9f9));
+    background-image: -webkit-linear-gradient(top, #f5f5f5, #f9f9f9);
+    background-image: -o-linear-gradient(top, #f5f5f5, #f9f9f9);
+    background-image: linear-gradient(top, #f5f5f5, #f9f9f9);
+    background-repeat: repeat-x;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    filter: progid:dximagetransform.microsoft.gradient(startColorstr='#f5f5f5', endColorstr='#f9f9f9', GradientType=0);
+    -webkit-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.formResponsive .rsformProgressContainer .rsformProgressBar {
+    width: 0;
+    height: 18px;
+    font-size: 12px;
+    color: #ffffff;
+    text-align: center;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    background-color: #0e90d2;
+    background-image: -moz-linear-gradient(top, #149bdf, #0480be);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#149bdf), to(#0480be));
+    background-image: -webkit-linear-gradient(top, #149bdf, #0480be);
+    background-image: -o-linear-gradient(top, #149bdf, #0480be);
+    background-image: linear-gradient(top, #149bdf, #0480be);
+    background-image: -ms-linear-gradient(top, #149bdf, #0480be);
+    background-repeat: repeat-x;
+    filter: progid:dximagetransform.microsoft.gradient(startColorstr='#149bdf', endColorstr='#0480be', GradientType=0);
+    -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.15);
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-transition: width 0.6s ease;
+    -moz-transition: width 0.6s ease;
+    -ms-transition: width 0.6s ease;
+    -o-transition: width 0.6s ease;
+    transition: width 0.6s ease;
+}
+
+.formResponsive .formHorizontal input,
+.formResponsive .formHorizontal textarea,
+.formResponsive .formHorizontal select,
+.formResponsive .formHorizontal .formValidation,
+.formResponsive .formHorizontal .uneditable-input,
+.formResponsive .formHorizontal .input-prepend,
+.formResponsive .formHorizontal .input-append {
+    display: inline-block;
+    *display: inline;
+    margin-bottom: 0;
+    *zoom: 1;
+}
+
+.formResponsive .formHorizontal .hide {
+    display: none;
+}
+
+.formResponsive .formHorizontal .rsform-block {
+    margin-bottom: 18px;
+    *zoom: 1;
+}
+
+.formResponsive .formHorizontal .rsform-block:before,
+.formResponsive .formHorizontal .rsform-block:after {
+    display: table;
+    content: "";
+}
+
+.formResponsive .formHorizontal .rsform-block:after {
+    clear: both;
+}
+
+.formResponsive .formHorizontal .formControlLabel {
+    float: left;
+    width: 140px;
+    padding-top: 5px;
+    text-align: right;
+}
+
+.formResponsive .formHorizontal .formControls {
+    *display: inline-block;
+    *padding-left: 20px;
+    margin-left: 160px;
+    *margin-left: 0;
+}
+
+.formResponsive .formHorizontal .formControls:first-child {
+    *padding-left: 160px;
+}
+
+.formResponsive .formHorizontal p.formDescription {
+    margin-top: 9px;
+    margin-bottom: 0;
+}
+
+.formResponsive .formHorizontal .form-actions {
+    padding-left: 160px;
+}
+
+.formResponsive {
+    margin: 0 0 18px;
+}
+
+.formResponsive fieldset {
+    padding: 0;
+    margin: 0;
+    border: 0;
+}
+
+.formResponsive select,
+.formResponsive textarea,
+.formResponsive input[type="text"],
+.formResponsive input[type="number"],
+.formResponsive input[type="email"],
+.formResponsive input[type="tel"],
+.formResponsive input[type="url"],
+.formResponsive input[type="password"] {
+    display: inline-block;
+    height: 18px;
+    padding: 4px;
+    margin-bottom: 9px;
+    font-size: 13px;
+    line-height: 18px;
+    color: #555555;
+    box-sizing: content-box;
+}
+
+.formResponsive input,
+.formResponsive textarea {
+    width: 210px;
+}
+
+.formResponsive textarea {
+    height: auto;
+}
+
+.formResponsive textarea,
+.formResponsive input[type="text"],
+.formResponsive input[type="number"],
+.formResponsive input[type="email"],
+.formResponsive input[type="tel"],
+.formResponsive input[type="url"],
+.formResponsive input[type="password"] {
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -webkit-transition: border linear 0.2s, box-shadow linear 0.2s;
+    -moz-transition: border linear 0.2s, box-shadow linear 0.2s;
+    -ms-transition: border linear 0.2s, box-shadow linear 0.2s;
+    -o-transition: border linear 0.2s, box-shadow linear 0.2s;
+    transition: border linear 0.2s, box-shadow linear 0.2s;
+}
+
+.formResponsive textarea:focus,
+.formResponsive input[type="text"]:focus,
+.formResponsive input[type="number"]:focus,
+.formResponsive input[type="email"]:focus,
+.formResponsive input[type="tel"]:focus,
+.formResponsive input[type="url"]:focus,
+.formResponsive input[type="password"]:focus,
+.formResponsive select:focus {
+    border-color: rgba(82, 168, 236, 0.8);
+    outline: 0;
+    outline: thin dotted \9;
+    /* IE6-9 */
+
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+    -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+}
+
+.formResponsive input[type="radio"],
+.formResponsive input[type="checkbox"] {
+    margin: 3px 0;
+    *margin-top: 0;
+    /* IE7 */
+
+    line-height: normal;
+    cursor: pointer;
+}
+
+.formResponsive input[type="submit"],
+.formResponsive button[type="submit"],
+.formResponsive input[type="reset"],
+.formResponsive button[type="reset"],
+.formResponsive input[type="button"],
+.formResponsive button[type="button"],
+.formResponsive input[type="radio"],
+.formResponsive input[type="checkbox"] {
+    width: auto;
+}
+
+.formResponsive select,
+.formResponsive input[type="file"] {
+    height: 28px;
+    /* In IE7, the height of the select element cannot be changed by height, only font-size */
+
+    *margin-top: 4px;
+    /* For IE7, add top margin to align select with labels */
+
+    line-height: 28px;
+}
+
+.formResponsive select {
+    width: 220px;
+    border: 1px solid #bbb;
+}
+
+.formResponsive select.rsform-select-box-small {
+    width: 70px;
+}
+
+.formResponsive select[multiple],
+.formResponsive select[size] {
+    height: auto;
+}
+
+.formResponsive select:focus,
+.formResponsive input[type="file"]:focus,
+.formResponsive input[type="radio"]:focus,
+.formResponsive input[type="checkbox"]:focus {
+    outline: thin dotted #333;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px;
+}
+
+.formResponsive input[type="radio"],
+.formResponsive input[type="checkbox"] {
+    /*min-height: 18px;*/
+    padding-left: 18px;
+    float: left;
+    margin-right: 5px;
+}
+
+.formResponsive .formBody {
+    float: none;
+}
+
+.formResponsive label {
+    height: 18px;
+    margin: 3px 5px 3px 0;
+    float: left;
+    padding: 0px;
+}
+
+.formResponsive input[type="button"],
+.formResponsive button[type="button"],
+.formResponsive input[type="submit"],
+.formResponsive button[type="submit"],
+.formResponsive input[type="reset"],
+.formResponsive button[type="reset"] {
+    border-color: #ccc;
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+}
+
+.formResponsive input[type="button"],
+.formResponsive button[type="button"],
+.formResponsive input[type="submit"],
+.formResponsive button[type="submit"],
+.formResponsive input[type="reset"],
+.formResponsive button[type="reset"] {
+    display: inline-block;
+    *display: inline;
+    padding: 4px 10px 4px;
+    margin-bottom: 0;
+    *margin-left: .3em;
+    font-size: 13px;
+    line-height: 18px;
+    *line-height: 20px;
+    color: #333333;
+    text-align: center;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+    vertical-align: middle;
+    cursor: pointer;
+    background-color: #f5f5f5;
+    *background-color: #e6e6e6;
+    background-image: -ms-linear-gradient(top, #ffffff, #e6e6e6);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#e6e6e6));
+    background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);
+    background-image: -o-linear-gradient(top, #ffffff, #e6e6e6);
+    background-image: linear-gradient(top, #ffffff, #e6e6e6);
+    background-image: -moz-linear-gradient(top, #ffffff, #e6e6e6);
+    background-repeat: repeat-x;
+    border: 1px solid #cccccc;
+    *border: 0;
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+    border-color: #e6e6e6 #e6e6e6 #bfbfbf;
+    border-bottom-color: #b3b3b3;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffffff', endColorstr='#e6e6e6', GradientType=0);
+    filter: progid:dximagetransform.microsoft.gradient(enabled=false);
+    *zoom: 1;
+    -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+    -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.formResponsive input[type="button"].rsform-button-prev,
+.formResponsive button[type="button"].rsform-button-prev {
+    color: #fff;
+    background-color: #f0ad4e;
+    border-color: #eea236;
+    background-image: none;
+    text-shadow: none;
+}
+
+.formResponsive input[type="button"].rsform-button-prev:focus,
+.formResponsive button[type="button"].rsform-button-prev:focus,
+.formResponsive input[type="button"].rsform-button-prev.focus,
+.formResponsive button[type="button"].rsform-button-prev.focus {
+    color: #fff;
+    background-color: #ec971f;
+    border-color: #985f0d;
+}
+
+.formResponsive input[type="button"].rsform-button-prev:hover,
+.formResponsive button[type="button"].rsform-button-prev:hover {
+    color: #fff;
+    background-color: #ec971f;
+    border-color: #d58512;
+}
+
+.formResponsive input[type="button"].rsform-button-prev:active,
+.formResponsive button[type="button"].rsform-button-prev:active,
+.formResponsive input[type="button"].rsform-button-prev.active,
+.formResponsive button[type="button"].rsform-button-prev.active {
+    color: #fff;
+    background-color: #ec971f;
+    border-color: #d58512;
+}
+
+/* next */
+.formResponsive input[type="button"].rsform-button-next,
+.formResponsive button[type="button"].rsform-button-next {
+    color: #fff;
+    background-color: #5cb85c;
+    border-color: #4cae4c;
+    background-image: none;
+    text-shadow: none;
+}
+
+.formResponsive input[type="button"].rsform-button-next:focus,
+.formResponsive button[type="button"].rsform-button-next:focus,
+.formResponsive input[type="button"].rsform-button-next.focus,
+.formResponsive button[type="button"].rsform-button-next.focus {
+    color: #fff;
+    background-color: #449d44;
+    border-color: #255625;
+}
+
+.formResponsive button[type="button"].rsform-button-next:hover,
+.formResponsive input[type="button"].rsform-button-next:hover {
+    color: #fff;
+    background-color: #449d44;
+    border-color: #398439;
+}
+
+.formResponsive input[type="button"].rsform-button-next:active,
+.formResponsive button[type="button"].rsform-button-next:active,
+.formResponsive input[type="button"].rsform-button-next.active,
+.formResponsive button[type="button"].rsform-button-next.active {
+    color: #fff;
+    background-color: #449d44;
+    border-color: #398439;
+}
+
+.formResponsive input[type="button"]:hover,
+.formResponsive button[type="button"]:hover,
+.formResponsive input[type="reset"]:hover,
+.formResponsive button[type="reset"]:hover,
+.formResponsive input[type="submit"]:hover,
+.formResponsive button[type="submit"]:hover,
+.formResponsive input[type="button"]:active,
+.formResponsive button[type="button"]:active,
+.formResponsive input[type="reset"]:active,
+.formResponsive button[type="reset"]:active,
+.formResponsive input[type="submit"]:active,
+.formResponsive button[type="submit"]:active,
+.formResponsive input[type="button"].active,
+.formResponsive button[type="button"].active,
+.formResponsive input[type="reset"].active,
+.formResponsive button[type="reset"].active,
+.formResponsive input[type="submit"].active,
+.formResponsive button[type="submit"].active,
+.formResponsive input[type="button"].disabled,
+.formResponsive button[type="button"].disabled,
+.formResponsive input[type="reset"].disabled,
+.formResponsive button[type="reset"].disabled,
+.formResponsive input[type="submit"].disabled,
+.formResponsive button[type="submit"].disabled,
+.formResponsive input[type="button"][disabled],
+.formResponsive button[type="button"][disabled],
+.formResponsive input[type="reset"][disabled],
+.formResponsive button[type="reset"][disabled],
+.formResponsive input[type="submit"][disabled],
+.formResponsive button[type="submit"][disabled] {
+    background-color: #e6e6e6;
+    *background-color: #d9d9d9;
+}
+
+.formResponsive input[type="button"]:active,
+.formResponsive button[type="button"]:active,
+.formResponsive input[type="reset"]:active,
+.formResponsive button[type="reset"]:active,
+.formResponsive input[type="submit"]:active,
+.formResponsive button[type="submit"]:active,
+.formResponsive input[type="button"].active,
+.formResponsive button[type="button"].active,
+.formResponsive input[type="reset"].active,
+.formResponsive button[type="reset"].active,
+.formResponsive input[type="submit"].active,
+.formResponsive button[type="submit"].active {
+    background-color: #cccccc \9;
+}
+
+.formResponsive input[type="button"]:first-child,
+.formResponsive button[type="button"]:first-child,
+.formResponsive input[type="reset"]:first-child,
+.formResponsive button[type="reset"]:first-child,
+.formResponsive input[type="submit"]:first-child,
+.formResponsive button[type="submit"]:first-child {
+    *margin-left: 0;
+}
+
+.formResponsive input[type="button"]:hover,
+.formResponsive button[type="button"]:hover,
+.formResponsive input[type="reset"]:hover,
+.formResponsive button[type="reset"]:hover,
+.formResponsive input[type="submit"]:hover,
+.formResponsive button[type="submit"]:hover {
+    color: #333333;
+    text-decoration: none;
+    background-color: #e6e6e6;
+    *background-color: #d9d9d9;
+    /* Buttons in IE7 don't get borders, so darken on hover */
+
+    background-position: 0 -15px;
+    -webkit-transition: background-position 0.1s linear;
+    -moz-transition: background-position 0.1s linear;
+    -ms-transition: background-position 0.1s linear;
+    -o-transition: background-position 0.1s linear;
+    transition: background-position 0.1s linear;
+}
+
+.formResponsive input[type="button"]:focus,
+.formResponsive button[type="button"]:focus,
+.formResponsive input[type="reset"]:focus,
+.formResponsive button[type="reset"]:focus,
+.formResponsive input[type="submit"]:focus,
+.formResponsive button[type="submit"]:focus {
+    outline: thin dotted #333;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px;
+}
+
+.formResponsive input[type="button"].active,
+.formResponsive button[type="button"].active,
+.formResponsive input[type="reset"].active,
+.formResponsive button[type="reset"].active,
+.formResponsive input[type="submit"].active,
+.formResponsive button[type="submit"].active,
+.formResponsive input[type="button"]:active,
+.formResponsive button[type="button"]:active,
+.formResponsive input[type="reset"]:active,
+.formResponsive button[type="reset"]:active,
+.formResponsive input[type="submit"]:active,
+.formResponsive button[type="submit"]:active {
+    background-color: #e6e6e6;
+    background-color: #d9d9d9 \9;
+    background-image: none;
+    outline: 0;
+    -webkit-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
+    -moz-box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.formResponsive input[type="button"].disabled,
+.formResponsive button[type="button"].disabled,
+.formResponsive input[type="reset"].disabled,
+.formResponsive button[type="reset"].disabled,
+.formResponsive input[type="submit"].disabled,
+.formResponsive button[type="submit"].disabled,
+.formResponsive input[type="button"][disabled],
+.formResponsive button[type="button"][disabled],
+.formResponsive input[type="reset"][disabled],
+.formResponsive button[type="reset"][disabled],
+.formResponsive input[type="submit"][disabled],
+.formResponsive button[type="submit"][disabled] {
+    cursor: default;
+    background-color: #e6e6e6;
+    background-image: none;
+    opacity: 0.65;
+    filter: alpha(opacity=65);
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+
+.formResponsive input[type="submit"],
+.formResponsive button[type="submit"] {
+    background-color: #0074cc;
+    *background-color: #0055cc;
+    background-image: -ms-linear-gradient(top, #0088cc, #0055cc);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0055cc));
+    background-image: -webkit-linear-gradient(top, #0088cc, #0055cc);
+    background-image: -o-linear-gradient(top, #0088cc, #0055cc);
+    background-image: -moz-linear-gradient(top, #0088cc, #0055cc);
+    background-image: linear-gradient(top, #0088cc, #0055cc);
+    background-repeat: repeat-x;
+    border-color: #0055cc #0055cc #003580;
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+    filter: progid:dximagetransform.microsoft.gradient(startColorstr='#0088cc', endColorstr='#0055cc', GradientType=0);
+    filter: progid:dximagetransform.microsoft.gradient(enabled=false);
+    color: #ffffff;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+
+.formResponsive input[type="submit"]:hover,
+.formResponsive button[type="submit"]:hover,
+.formResponsive input[type="submit"]:active,
+.formResponsive button[type="submit"]:active,
+.formResponsive input[type="submit"].active,
+.formResponsive button[type="submit"].active,
+.formResponsive input[type="submit"].disabled,
+.formResponsive button[type="submit"].disabled,
+.formResponsive input[type="submit"][disabled],
+.formResponsive button[type="submit"][disabled] {
+    background-color: #0055cc;
+    *background-color: #004ab3;
+    color: #ffffff;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+
+.formResponsive input[type="submit"]:active,
+.formResponsive button[type="submit"]:active,
+.formResponsive input[type="submit"].active,
+.formResponsive button[type="submit"].active {
+    background-color: #004099 \9;
+}
+
+.formResponsive input[type="reset"],
+.formResponsive button[type="reset"] {
+    background-color: #da4f49;
+    *background-color: #bd362f;
+    background-image: -ms-linear-gradient(top, #ee5f5b, #bd362f);
+    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ee5f5b), to(#bd362f));
+    background-image: -webkit-linear-gradient(top, #ee5f5b, #bd362f);
+    background-image: -o-linear-gradient(top, #ee5f5b, #bd362f);
+    background-image: -moz-linear-gradient(top, #ee5f5b, #bd362f);
+    background-image: linear-gradient(top, #ee5f5b, #bd362f);
+    background-repeat: repeat-x;
+    border-color: #bd362f #bd362f #802420;
+    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+    filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ee5f5b', endColorstr='#bd362f', GradientType=0);
+    filter: progid:dximagetransform.microsoft.gradient(enabled=false);
+    color: #ffffff;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+
+.formResponsive input[type="reset"]:hover,
+.formResponsive button[type="reset"]:hover,
+.formResponsive input[type="reset"]:active,
+.formResponsive button[type="reset"]:active,
+.formResponsive input[type="reset"].active,
+.formResponsive button[type="reset"].active,
+.formResponsive input[type="reset"].disabled,
+.formResponsive button[type="reset"].disabled,
+.formResponsive input[type="reset"][disabled],
+.formResponsive button[type="reset"][disabled] {
+    background-color: #bd362f;
+    *background-color: #a9302a;
+    color: #ffffff;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+}
+
+.formResponsive input[type="reset"]:active,
+.formResponsive button[type="reset"]:active,
+.formResponsive input[type="reset"].active,
+.formResponsive button[type="reset"].active {
+    background-color: #942a25 \9;
+}
+
+.formResponsive .formError {
+    color: #b94a48;
+    padding-left: 5px;
+    vertical-align: middle;
+    font-size: 13px;
+    font-weight: normal;
+    margin: 3px 5px 3px 0;
+    height: 18px;
+    display: block;
+}
+
+.formResponsive input.rsform-error,
+.formResponsive textarea.rsform-error,
+.formResponsive select.rsform-error
+{
+    color: #b94a48;
+    border-color: #b94a48;
+}
+
+.formResponsive input.rsform-error:focus,
+.formResponsive textarea.rsform-error:focus,
+.formResponsive select.rsform-error:focus {
+    border-color: #953b39;
+    -webkit-box-shadow: 0 0 6px #d59392;
+    -moz-box-shadow: 0 0 6px #d59392;
+    box-shadow: 0 0 6px #d59392;
+}
+
+.formResponsive input.rsform-calendar-button {
+    margin-bottom: 3px;
+}
+
+.formResponsive .formControls .formBody .rsformgrid2 {
+    width:16.66666%;
+    float:left;
+}
+.formResponsive .formControls .formBody .rsformgrid3 {
+    width:25%;
+    float:left;
+}
+.formResponsive .formControls .formBody .rsformgrid4 {
+    width:33.33333%;
+    float:left;
+}
+.formResponsive .formControls .formBody .rsformgrid6 {
+    width:50%;
+    float:left;
+}
+.formResponsive .formControls .formBody .rsformgrid12 {
+    width:100%;
+    float:left;
+}
+/* responsive - mobile versions */
+
+@media screen and (max-width: 650px) {
+    .formResponsive .formHorizontal input[type="checkbox"],
+    .formResponsive .formHorizontal input[type="radio"] {
+        border: 1px solid #ccc;
+    }
+    .formResponsive .formHorizontal .rsform-block {
+        float: none;
+        width: auto;
+        padding-top: 0;
+        text-align: left;
+    }
+    .formResponsive .formHorizontal .formControls {
+        margin-left: 0;
+    }
+
+    .formResponsive input[type="text"],
+    .formResponsive input[type="password"],
+    .formResponsive textarea,
+    .formResponsive select {
+        width: 100% !important;
+    }
+    .formResponsive .formHorizontal .formControlLabel {
+        float: none;
+        width: auto;
+        padding-top: 0;
+        text-align: left;
+    }
+
+    .formResponsive .formControls .formBody .rsformgrid2,
+    .formResponsive .formControls .formBody .rsformgrid3,
+    .formResponsive .formControls .formBody .rsformgrid4,
+    .formResponsive .formControls .formBody .rsformgrid6,
+    .formResponsive .formControls .formBody .rsformgrid12 {
+        width: 100%;
+        float:none;
+    }
+}

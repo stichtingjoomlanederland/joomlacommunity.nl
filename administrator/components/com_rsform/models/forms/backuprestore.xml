@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<field name="backup" type="file" description="RSFP_BACKUP_ARCHIVE_DESC" label="RSFP_BACKUP_ARCHIVE" />
+	<field name="overwrite" type="radio" default="0" class="btn-group" description="RSFP_OVERWRITE_FORMS_DESC" label="RSFP_OVERWRITE_FORMS">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="keepid" type="radio" default="0" class="btn-group" description="RSFP_BACKUP_KEEP_ID_DESC" label="RSFP_BACKUP_KEEP_ID_LABEL">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="submissions" type="radio" default="1" class="btn-group" description="RSFP_BACKUP_SUBMISSIONS_DESC" label="RSFP_BACKUP_SUBMISSIONS">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	<field name="name" type="input" default="backup-{domain}-{date}" label="RSFP_BACKUP_NAME_LABEL" description="RSFP_BACKUP_NAME_DESC"/>
+</form>

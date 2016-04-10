@@ -1,0 +1,9 @@
+.com-rsform-css-30-fix input {
+	float: none !important;
+}
+
+.com-rsform-css-30-fix label
+{
+	float: none !important;
+	display: inline !important;
+}

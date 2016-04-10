@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="system" method="upgrade">
+	<name>System - RSForm! Pro reCAPTCHA v2</name>
+	<author>RSJoomla!</author>
+	<creationDate>December 2014</creationDate>
+	<copyright>(C) 2014-2015 www.rsjoomla.com</copyright>
+	<license>GNU General Public License</license>
+	<authorEmail>support@rsjoomla.com</authorEmail>
+	<authorUrl>www.rsjoomla.com</authorUrl>
+	<version>1.51.1</version>
+	<description><![CDATA[PLG_SYSTEM_RSFPRECAPTCHAV2_DESC]]></description>
+	<scriptfile>script.php</scriptfile>
+	
+	<updateservers>
+        <server type="extension" priority="1" name="RSForm! Pro - reCAPTCHA v2 Plugin">https://www.rsjoomla.com/updates/com_rsform/Plugins/plg_recaptchav2.xml</server>
+    </updateservers>
+	
+	<install>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/mysql/install.sql</file>
+		</sql>
+	</install>
+	<uninstall>
+		<sql>
+			<file driver="mysql" charset="utf8">sql/mysql/uninstall.sql</file>
+		</sql>
+	</uninstall>
+
+	<files>
+		<folder>sql</folder>
+		<filename plugin="rsfprecaptchav2">rsfprecaptchav2.php</filename>
+		<filename>index.html</filename>
+	</files>
+	<languages folder="language">
+		<language tag="en-GB">en-GB/en-GB.plg_system_rsfprecaptchav2.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_system_rsfprecaptchav2.sys.ini</language>
+	</languages>
+</extension>
