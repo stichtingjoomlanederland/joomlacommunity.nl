@@ -99,13 +99,13 @@ $showArticleInformation = ($params->get('show_create_date') && $params->get('sho
 						<strong>Share</strong>
 						<ul class="list-inline share-buttons">
 							<li class="share-twitter">
-								<a href="#"><span class="icon jc-twitter"></span></a>
+								<a href="#"><span class="icon icon-twitter"></span></a>
 							</li>
 							<li class="share-facebook">
-								<a href="https://www.facebook.com/sharer/sharer.php?u=http://www.joomlacommunity.eu/nieuws/joomla-versies/886-joomla-2510-vrijgegeven.html" target="_blank"><span class="icon jc-facebook"></span></a>
+								<a href="https://www.facebook.com/sharer/sharer.php?u=http://www.joomlacommunity.eu/nieuws/joomla-versies/886-joomla-2510-vrijgegeven.html" target="_blank"><span class="icon icon-facebook"></span></a>
 							</li>
 							<li class="share-googleplus">
-								<a href="#"><span class="icon jc-googleplus"></span></a>
+								<a href="#"><span class="icon icon-googleplus"></span></a>
 							</li>
 						</ul>
 					</div>
@@ -126,6 +126,11 @@ $showArticleInformation = ($params->get('show_create_date') && $params->get('sho
 					<?php endif; ?>
 				</div>
 				<div class="item-content">
+					<?php if ($canEdit) : ?>
+						<div class="edit-buttons">
+							<?php echo JLayoutHelper::render('joomla.content.icons', array('params' => $params, 'item' => $this->item, 'print' => false)); ?>
+						</div>
+					<?php endif; ?>
 					<?php echo $this->item->text; ?>
 				</div>
 			</div>
@@ -145,22 +150,22 @@ $showArticleInformation = ($params->get('show_create_date') && $params->get('sho
 			<ul class="list-inline share-buttons">
 				<?php if ($profile->twitter): ?>
 					<li class="share-twitter">
-						<a href="<?php echo($profile->twitter); ?>" target="_blank"><span class="icon jc-twitter"></span></a>
+						<a href="<?php echo($profile->twitter); ?>" target="_blank"><span class="icon icon-twitter"></span></a>
 					</li>
 				<?php endif; ?>
 				<?php if ($profile->facebook): ?>
 					<li class="share-facebook">
-						<a href="<?php echo($profile->facebook); ?>" target="_blank"><span class="icon jc-facebook"></span></a>
+						<a href="<?php echo($profile->facebook); ?>" target="_blank"><span class="icon icon-facebook"></span></a>
 					</li>
 				<?php endif; ?>
 				<?php if ($profile->linkedin): ?>
 					<li class="share-linkedin">
-						<a href="<?php echo($profile->linkedin); ?>" target="_blank"><span class="icon jc-linkedin"></span></a>
+						<a href="<?php echo($profile->linkedin); ?>" target="_blank"><span class="icon icon-linkedin"></span></a>
 					</li>
 				<?php endif; ?>
 				<?php if ($profile->website): ?>
 					<li class="share-website">
-						<a href="<?php echo($profile->website); ?>" target="_blank"><span class="icon jc-website"></span></a>
+						<a href="<?php echo($profile->website); ?>" target="_blank"><span class="icon icon-website"></span></a>
 					</li>
 				<?php endif; ?>
 			</ul>

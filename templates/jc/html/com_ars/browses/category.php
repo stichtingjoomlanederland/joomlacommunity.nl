@@ -30,23 +30,23 @@ $model = FOFModel::getTmpInstance('Releases','ArsModel')
 $allItems = $model->getItemList();
 
 if($allItems) {
-	
+
 	$latest = $allItems[0];
-	
+
 	// Get files
 	$model = FOFModel::getTmpInstance('Items','ArsModel')
 		->published(1)
 		->access_user(JFactory::getUser()->id)
 		->release($latest->id);
-	
+
 	$allItems = $model->getItemList();
 	$download = $allItems[0];
-	$environments = json_decode($download->environments); 
-	
+	$environments = json_decode($download->environments);
+
 	// Get versions
 	$model = FOFModel::getTmpInstance('Environments','ArsModel');
 	$versions = $model->getItemList();
-	
+
 	if ($environments) {
 		$joomlaversions = array();
 		foreach($versions as $version) {
@@ -55,12 +55,12 @@ if($allItems) {
 			}
 		}
 	}
-	
+
 	// Correct title for Joomla core
 	if($item->vgroup_id == 1) {
 		$item->title = 'Joomla';
 	}
-	
+
 	// New & updated badges
 	$new 				= false;
 	$new_datediff 		= time() - strtotime($item->created);
@@ -79,7 +79,7 @@ if($allItems) {
 <a href="<?php echo $this->escape($route) ?>#<?php echo $this->escape($item->alias) ?>" class="list-group-item">
 	<?php if($environments):?>
 	<?php foreach($joomlaversions as $version):?>
-		<span class="badge badge-<?php echo $version->xmltitle?>" data-toggle="tooltip" data-placement="top" data-html="false" title="<?php echo $version->title?>"><span class="jc-joomla"></span></span>
+		<span class="badge badge-<?php echo $version->xmltitle?>" data-toggle="tooltip" data-placement="top" data-html="false" title="<?php echo $version->title?>"><span class="icon-joomla"></span></span>
 	<?php endforeach;?>
 	<?php endif;?>
 	<?php echo $this->escape($item->title) ?> <?php echo $this->escape($download->version) ?>
