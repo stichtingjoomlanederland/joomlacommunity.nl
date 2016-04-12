@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="content" method="upgrade">
+	<name>Content - RSForm! Pro</name>
+	<author>RSJoomla!</author>
+	<creationDate>June 2015</creationDate>
+	<copyright>(C) 2007-2015 www.rsjoomla.com</copyright>
+	<license>GNU General Public License</license>
+	<authorEmail>support@rsjoomla.com</authorEmail>
+	<authorUrl>www.rsjoomla.com</authorUrl>
+	<version>1.51.0</version>
+	<scriptfile>script.php</scriptfile>
+	
+	<updateservers>
+        <server type="extension" priority="1" name="RSForm! Pro - Content Plugin">https://www.rsjoomla.com/updates/com_rsform/Plugins/plg_content.xml</server>
+    </updateservers>
+	
+	<description><![CDATA[PLG_CONTENT_RSFORM_DESC]]></description>
+	<files>
+		<filename plugin="rsform">rsform.php</filename>
+		<filename>index.html</filename>
+	</files>
+	<languages folder="language/en-GB">
+		<language tag="en-GB">en-GB.plg_content_rsform.ini</language>
+		<language tag="en-GB">en-GB.plg_content_rsform.sys.ini</language>
+	</languages>
+</extension>

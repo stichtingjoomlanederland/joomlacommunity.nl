@@ -1189,6 +1189,7 @@ class RSEvent
 		$registry->set('interval', $row->repeat_interval);
 		$registry->set('type', $row->repeat_type);
 		$registry->set('start', $row->start);
+		$registry->set('endd', $row->end);
 		$registry->set('end', $row->repeat_end);
 		$registry->set('days', $days);
 		
@@ -1210,7 +1211,9 @@ class RSEvent
 		$registry->set('repeat_on_day_type', $row->repeat_on_day_type);
 		
 		$recurring = RSEventsProRecurring::getInstance($registry);
-		$dates = $recurring->getDates();
+		$recurringDates = $recurring->getDates();
+		$dates = $recurringDates['start'];
+		$ends  = $recurringDates['end'];
 		
 		if (!empty($dates)) {
 			// Get the old children list
@@ -1233,11 +1236,13 @@ class RSEvent
 					$object = new stdClass();
 					if (in_array($date,$children)) {
 						$object->date = $date;
+						$object->end  = $ends[$date];
 						$object->task = 'update';
 						$object->id = @$childs[$date]->id;
 						$dates[$j] = $object;
 					} else {
 						$object->date = $date;
+						$object->end  = $ends[$date];
 						$object->task = 'insert';
 						$object->id = '';
 						$dates[$j] = $object;
@@ -1247,6 +1252,7 @@ class RSEvent
 				foreach ($dates as $k => $date) {
 					$object = new stdClass();
 					$object->date = $date;
+					$object->end  = $ends[$date];
 					$object->task = 'insert';
 					$object->id = '';
 					$dates[$k] = $object;
@@ -1257,6 +1263,7 @@ class RSEvent
 				foreach ($diff as $dif) {
 					$object = new stdClass();
 					$object->date = $dif;
+					$object->end  = $ends[$dif];
 					$object->id = @$childs[$dif]->id;
 					$object->task = 'remove';
 					array_push($dates,$object);

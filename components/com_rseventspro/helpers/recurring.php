@@ -26,11 +26,12 @@ class RSEventsProRecurring {
 		return self::$instances[$hash];
 	}
 	
-	public static function getDates() {
+	public static function getDates($onlystart = false) {
 		$dates	= array();
 		$repeat	= self::$data->get('interval',0);
 		$type	= self::$data->get('type',0);
 		$start	= self::$data->get('start','');
+		$endd	= self::$data->get('endd','');
 		$end	= self::$data->get('end','');
 		$days	= self::$data->get('days',array());
 		$also	= self::$data->get('also',array());
@@ -46,10 +47,16 @@ class RSEventsProRecurring {
 			$start = $start.':00';
 		}
 		
+		if (JFactory::getApplication()->input->get('task') == 'repeats') {
+			$start = JFactory::getDate($start, rseventsproHelper::getTimezone())->toSql();
+		}
+		
 		list($repeat_end,$repeat_end_time) = explode(' ',$end,2);
 		
 		$start	= new DateTime($start, new DateTimezone('UTC'));
+		$endd	= new DateTime($endd, new DateTimezone('UTC'));
 		$stop	= new DateTime($repeat_end.' 23:59:59', new DateTimezone('UTC'));
+		$diff	= $endd->format('U') - $start->format('U');
 		
 		$start->setTimezone(new DateTimezone(rseventsproHelper::getTimezone()));
 		$stop->setTimezone(new DateTimezone(rseventsproHelper::getTimezone()));
@@ -209,6 +216,14 @@ class RSEventsProRecurring {
 		
 		// Remove duplicates
 		$dates = array_unique($dates);
+		$ends  = array();
+		
+		foreach ($dates as $date) {
+			$cDate = new DateTime($date, new DateTimezone(rseventsproHelper::getTimezone()));
+			$cDate->modify('+'.$diff.' seconds');
+			$cDate->setTimezone(new DateTimezone('UTC'));
+			$ends[] = $cDate->format('Y-m-d H:i:s');
+		}
 		
 		// Convert dates to UTC timezone
 		if ($dates) {
@@ -229,9 +244,21 @@ class RSEventsProRecurring {
 				$also[$i] = $date->format('Y-m-d H:i:s');
 			}
 			
-			$dates = array_merge($dates, $also);
-			$dates = array_unique($dates);
+			foreach ($also as $alsoDate) {
+				if (!in_array($alsoDate,$dates)) {
+					$dates[]	= $alsoDate;
+					
+					$endAlso = new DateTime($alsoDate, new DateTimezone('UTC'));
+					$endAlso->modify('+'.$diff.' seconds');
+					$ends[]	= $endAlso->format('Y-m-d H:i:s');
+				}
+			}
 		}
+		
+		$dates	= array_unique($dates);
+		$dates	= array_merge(array(),$dates);
+		$ends	= array_unique($ends);
+		$ends	= array_merge(array(),$ends);
 		
 		// Exclude dates
 		if (!empty($exclude)) {
@@ -246,13 +273,22 @@ class RSEventsProRecurring {
 			foreach ($dates as $d => $day) {
 				if (in_array($day,  $exclude)) {
 					unset($dates[$d]);
+					unset($ends[$d]);
 				}
 			}
 		}
 		
-		$dates = array_unique($dates);
+		$dates	= array_unique($dates);
+		$dates	= array_merge(array(),$dates);
+		$ends	= array_unique($ends);
+		$ends	= array_merge(array(),$ends);
 		
-		return $dates;
+		foreach ($dates as $x => $date) {
+			$ends[$date] = $ends[$x];
+			unset($ends[$x]);
+		}
+		
+		return $onlystart ? $dates : array('start' => $dates , 'end' => $ends);
 	}
 	
 	protected static function createRepeatScenario($order, $type) {

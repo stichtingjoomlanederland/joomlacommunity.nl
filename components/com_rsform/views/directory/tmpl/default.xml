@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="RSFP_SUBMISSIONS_DIRECTORY_LAYOUT">
+		<message>
+			<![CDATA[RSFP_SUBMISSIONS_DIRECTORY_LAYOUT_DESC]]>
+		</message>
+	</layout>
+	<config>
+	<fields name="params">
+		<fieldset name="basic">
+			<field name="formId" type="forms" directory="true" default="" label="RSFP_SUBM_DIR_FORM" description="RSFP_SUBM_DIR_FORM" addfieldpath="/administrator/components/com_rsform/models/fields" />
+			<field name="lang" type="lang" default="" label="RSFP_SUBM_DIR_LANGUAGE" description="RSFP_SUBM_DIR_LANGUAGE_DESC" addfieldpath="/administrator/components/com_rsform/models/fields" />
+			<field name="enable_directory" type="radio" class="btn-group" default="0" label="RSFP_SUBM_DIR_ENABLE_DIRECTORY" description="RSFP_SUBM_DIR_ENABLE_DIRECTORY_DESC">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="show_confirmed" type="radio" class="btn-group" default="0" label="RSFP_SUBM_DIR_CONFIRMED" description="RSFP_SUBM_DIR_CONFIRMED_DESC">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="userId" type="text" default="0" label="RSFP_SUBM_DIR_USERID" description="RSFP_SUBM_DIR_USERID_DESC" />
+			<field name="display_num" type="list" default="10" label="RSFP_SUBM_DIR_ITEMS" description="RSFP_SUBM_DIR_ITEMS_DESC">
+				<option value="5">5</option>
+				<option value="10">10</option>
+				<option value="15">15</option>
+				<option value="20">20</option>
+				<option value="25">25</option>
+				<option value="30">30</option>
+				<option value="50">50</option>
+				<option value="100">100</option>
+				<option value="0">JALL</option>
+			</field>
+		</fieldset>
+	</fields>
+	</config>
+</metadata>

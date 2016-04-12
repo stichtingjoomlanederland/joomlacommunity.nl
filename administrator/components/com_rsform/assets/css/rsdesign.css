@@ -1,0 +1,150 @@
+/*Dashboard Style */
+table.rsproduct {
+	border-top: 1px solid #ccc;
+	border-left: 1px solid #ccc;	
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+
+}
+table.rsproduct tr th, #info {
+	background: #cee1f5;
+	border-bottom: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	padding: 7px;
+}
+
+table.rsproduct tr td {
+	border-bottom: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	padding: 7px;
+}
+
+table.rsproduct a {
+	color: #0B55C4;
+	text-decoration: none;
+}
+
+table.rsproduct a:hover {
+	text-decoration: underline;
+}
+
+table.rsproduct td#rs_logo_bg {
+	background: #f6f6f6;
+}
+
+table.rsproduct #rs_code {
+	padding: 5px;  
+	font-size: 15px;
+	text-shadow: 0px 1px 0px #fff;  
+	outline: none;  		
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+
+
+/*Widths*/
+.rs_100{width:100% !important;}
+.rs_75 {width:75% !important;}
+.rs_50 {width:50% !important;}
+.rs_40 {width:40% !important;}
+.rs_35 {width:35% !important;}
+.rs_30 {width:30% !important;}
+.rs_25 {width:25% !important;}
+.rs_20 {width:20% !important;}
+.rs_15 {width:15% !important;}
+.rs_10,#dateFrom, #dateTo {width:10% !important;}
+.rs_5  {width:5% !important;}
+
+/*Inputs Select Textarea */
+
+.rs_inp, #dateFrom, #dateTo {
+	padding: 4px 6px;
+	border: 1px solid #e2e1e1;
+	border-radius: 5px 0px 0px 5px 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	width: 90%;
+	font-size:14px;
+	margin:0px !important;
+}
+
+.rs_sel{
+	padding: 7px 5px;
+	border: 1px solid #e2e1e1;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	width: auto;
+	font-size:14px;
+}
+
+.rs_textarea {
+	padding: 7px 5px;
+	min-height:220px;
+	font-size: 13px;
+	font-family: Arial, Helvetica, sans-serif !important;
+	border: 1px solid #e2e1e1;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	box-sizing: border-box;
+}
+
+textarea.rs_textarea:focus {
+	background-color: #fff;
+}
+
+
+.rs_clickable {cursor:pointer;}
+.rs_leftspace {margin-left:5px;}
+.rs_rightspace {margin-right:5px;}
+.rs_fixed {position:fixed; top:1px;}
+
+/*Joomla 1.5 label cells are grey*/
+/* table.admintable, table.adminform, table.admintable tr td.key { background:#FFFFFF !important; border:1px solid #FFFFFF !important;} */
+.jpane-slider {background:#FFFFFF !important;}
+
+table.rsc_groups_options tr td {padding:5px;}
+.rs_clear {clear:both;display:block;}
+.rs_bold {font-weight:bold;}
+
+.rs_label {
+	width:25%;
+	display:block;
+	float:left;
+	padding-left:2%; 
+	font-size: 14px;
+    font-weight: bold;
+    text-shadow: 1px 1px 0 #4f4f4f4;
+}
+
+.rs_chk { float:left;margin-left:1%;}
+.rs_input_row {margin:2px 0px;float:left; width:100%;}
+.rs_input_row label{clear:none; padding-top:3px;float:left;}
+
+.rs_error{
+	background-color: #FFDFDF;
+	border:1px solid #FF6F6F;
+	padding:7px;
+	display:block;
+	width:94%;
+}
+
+.rs_success{
+	background-color: #CFFFDA;
+	border: 1px solid #4FFF77;
+	padding:7px;
+	display:block;
+	width:94%;
+}
+.calendar {
+	line-height:12px;
+}
+
+@media (max-width: 480px) {
+	#search.rs_10 {
+		width: 100% !important;
+	}
+}

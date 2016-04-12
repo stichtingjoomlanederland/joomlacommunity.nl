@@ -1354,7 +1354,7 @@ class rseventsproHelper
 			
 			foreach ($headers as $i => $header) {
 				if (isset($values[$header])) {
-					$values[$header] = ereg_replace("\015(\012)?", "\012", $values[$header]);
+					$values[$header] = preg_replace("\015(\012)?", "\012", $values[$header]);
 					if (strpos($values[$header],"\n") !== false)
 						$values[$header] = str_replace("\n",' ',$values[$header]);
 					
@@ -1755,14 +1755,6 @@ class rseventsproHelper
 		$clone		= clone($row);
 		$parent		= $eventID;
 		
-		$startDST	= new DateTime($row->start, new DateTimezone('UTC'));
-		$endDST		= new DateTime($row->end, new DateTimezone('UTC'));		
-		
-		list($h, $m, $s) = explode(':', $endDST->format('H:i:s'), 3);
-		
-		$startDST->setTimezone(new DateTimezone(rseventsproHelper::getTimezone()));
-		$endDST->setTimezone(new DateTimezone(rseventsproHelper::getTimezone()));
-		
 		// Get the event icon
 		$query->clear()
 			->select($db->qn('icon'))
@@ -1778,23 +1770,13 @@ class rseventsproHelper
 			$dates = array();
 			$newobject = new stdClass();
 			$newobject->date = $row->start;
+			$newobject->end = $row->end;
 			$newobject->task = 'insert';
 			$newobject->id = '';
 			$dates[] = $newobject;
 		}
 		
 		if (!empty($dates)) {
-			
-			if (!$clone->allday) {
-				$theend = new DateTime($row->end, new DateTimezone('UTC'));
-			}
-			
-			$thestart = new DateTime($row->start, new DateTimezone('UTC'));
-			
-			if (!$clone->allday) {
-				$duration	= $theend->format('U') - $thestart->format('U');
-			}
-			
 			// Get event categories, groups, tags
 			$query->clear()
 				->select($db->qn('type'))->select($db->qn('id'))
@@ -1869,6 +1851,9 @@ class rseventsproHelper
 				
 				// Get the date
 				$date = $object->date;
+				
+				// Get the end date
+				$dateend = $object->end;
 				
 				// Get the id
 				$id = $object->id;
@@ -1981,17 +1966,12 @@ class rseventsproHelper
 						JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/'.$oldicon);
 				}
 				
-				$cstart = new DateTime($date, new DateTimezone(rseventsproHelper::getTimezone()));
+				$cstart		= new DateTime($date, new DateTimezone(rseventsproHelper::getTimezone()));
+				$clonestart	= $cstart->format('Y-m-d H:i:s');
 				
 				if (!$clone->allday) {
-					$cend = new DateTime($date, new DateTimezone('UTC'));
-					$cend->modify('+'.$duration.' seconds');
-				}
-				
-				$clonestart				= $cstart->format('Y-m-d H:i:s');
-				
-				if (!$clone->allday) {
-					$cloneend			= $cend->format('Y-m-d H:i:s');
+					$cend		= new DateTime($dateend, new DateTimezone(rseventsproHelper::getTimezone()));
+					$cloneend	= $cend->format('Y-m-d H:i:s');
 				}
 				
 				$clone->id				= $task == 'insert' ? null : $id;

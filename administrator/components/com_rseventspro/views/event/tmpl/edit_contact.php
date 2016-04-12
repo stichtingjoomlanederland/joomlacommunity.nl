@@ -13,12 +13,7 @@ JHtml::_('behavior.modal', 'a.modal_jform_owner'); ?>
 		<label for="jform_owner"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_THEOWNER'); ?></label>
 	</div>
 	<div class="controls">
-		<div class="input-append">
-			<input type="text" readonly="" value="<?php echo $this->eventClass->getOwner(); ?>" id="jform_owner_name">
-			<a rel="{handler: 'iframe', size: {x: 800, y: 500}}" href="<?php echo JRoute::_('index.php?option=com_users&view=users&layout=modal&tmpl=component&field=jform_owner_name'); ?>" class="btn btn-primary modal_jform_owner">
-			<i class="fa fa-user fa-inverse"></i></a>
-		</div>
-		<input type="hidden" value="<?php echo $this->escape($this->item->owner); ?>" name="jform[owner]" id="jform_owner">
+		<?php echo $this->form->getInput('owner'); ?>
 	</div>
 </div>
 

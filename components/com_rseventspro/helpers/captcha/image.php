@@ -5,12 +5,10 @@
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-	
-	
+
 class RSCaptcha {
 
-	function RSCaptcha()
-	{
+	public function __construct() {
 		$session = JFactory::getSession();
 	
 		/*===============================================================
@@ -130,7 +128,6 @@ class RSCaptcha {
 		header("Content-Disposition:inline ; filename=secure.jpg");
 		/* output image */
 		imagejpeg($img);
-		jexit();
+		die();
 	}
 }
-?>

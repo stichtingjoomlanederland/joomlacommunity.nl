@@ -941,9 +941,9 @@ class com_rseventsproInstallerScript
 		</p>
 		<?php } ?>
 	<?php } ?>
-	<h2>Changelog v1.9.14</h2>
+	<h2>Changelog v1.9.20</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> Search module query was returning wrong results.</li>
+		<li><span class="version-fixed">Fix</span> Workaround for Joomla! 3.5.1 JMail breaking backwards compatibility.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Start using RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the RSEvents!Pro User Guide</a>

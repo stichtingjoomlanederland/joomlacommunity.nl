@@ -126,10 +126,11 @@ class rseventsproEmails
 			'body'		=> $body
 		);
 		
-		$text			= rseventsproEmails::placeholders($replacer, $ide, $to);
-		$text['cc']		= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
-		$text['bcc']	= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
-		$text['body']	= str_replace(array('{from}','{fromname}'),array($from, $fromName), $text['body']);
+		$text			 = rseventsproEmails::placeholders($replacer, $ide, $to);
+		$text['cc']		 = isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
+		$text['bcc']	 = isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto'] = isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
+		$text['body']	 = str_replace(array('{from}','{fromname}'),array($from, $fromName), $text['body']);
 		
 		$mailer	= JFactory::getMailer();
 		$mailer->sendMail($from , $fromName , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
@@ -191,10 +192,11 @@ class rseventsproEmails
 		
 		JFactory::getApplication()->triggerEvent('rseproRegistrationEmail', array(array('ids' => $ids, 'data' => &$replacer)));
 		
-		$text			= rseventsproEmails::placeholders($replacer, $ide, $name, $optionals, $ids);
-		$text['cc']		= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
-		$text['bcc']	= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
-		$text['body']	= str_replace('{PaymentURL}',$paymentURL,$text['body']);
+		$text			 = rseventsproEmails::placeholders($replacer, $ide, $name, $optionals, $ids);
+		$text['cc']		 = isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
+		$text['bcc']	 = isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto'] = isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
+		$text['body']	 = str_replace('{PaymentURL}',$paymentURL,$text['body']);
 		
 		$mailer	= JFactory::getMailer();
 		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
@@ -239,10 +241,11 @@ class rseventsproEmails
 		
 		JFactory::getApplication()->triggerEvent('rseproActivationEmail', array(array('ids' => $ids, 'data' => &$replacer)));
 		
-		$text		= rseventsproEmails::placeholders($replacer, $ide, $name, $optionals, $ids);
-		$text['cc']	= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
-		$text['bcc']= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
-		$attachment = rseventsproEmails::pdfAttachement($to,$ide,$name,$optionals,$ids);
+		$text				= rseventsproEmails::placeholders($replacer, $ide, $name, $optionals, $ids);
+		$text['cc']			= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
+		$text['bcc']		= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto']	= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
+		$attachment			= rseventsproEmails::pdfAttachement($to,$ide,$name,$optionals,$ids);
 		
 		$mailer	= JFactory::getMailer();
 		if ($mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , $attachment , $text['replyto'], $text['replyname'])) {
@@ -307,9 +310,10 @@ class rseventsproEmails
 		
 		JFactory::getApplication()->triggerEvent('rseproUnsubscribeEmail', array(array('ids' => $ids, 'data' => &$replacer)));
 		
-		$text		= rseventsproEmails::placeholders($replacer,$ide,$name, null, $ids);
-		$text['cc']	= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
-		$text['bcc']= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text			 = rseventsproEmails::placeholders($replacer,$ide,$name, null, $ids);
+		$text['cc']		 = isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
+		$text['bcc']	 = isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto'] = isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		
 		$mailer	= JFactory::getMailer();
 		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
@@ -353,9 +357,10 @@ class rseventsproEmails
 		
 		JFactory::getApplication()->triggerEvent('rseproDeniedEmail', array(array('ids' => $ids, 'data' => &$replacer)));
 		
-		$text		= rseventsproEmails::placeholders($replacer,$ide,$name,null,$ids);
-		$text['cc']	= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
-		$text['bcc']= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text			 = rseventsproEmails::placeholders($replacer,$ide,$name,null,$ids);
+		$text['cc']		 = isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
+		$text['bcc']	 = isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto'] = isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		
 		$mailer	= JFactory::getMailer();
 		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
@@ -397,9 +402,10 @@ class rseventsproEmails
 			'body'		=> $body
 		);
 		
-		$text		= rseventsproEmails::placeholders($replacer,$ide,$name);
-		$text['cc']	= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
-		$text['bcc']= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text			 = rseventsproEmails::placeholders($replacer,$ide,$name);
+		$text['cc']		 = isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
+		$text['bcc']	 = isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto'] = isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		
 		$mailer	= JFactory::getMailer();
 		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
@@ -442,9 +448,10 @@ class rseventsproEmails
 			'body'		=> $body
 		);
 		
-		$text		= rseventsproEmails::placeholders($replacer, $ide, $name);
-		$text['cc']	= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
-		$text['bcc']= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text			 = rseventsproEmails::placeholders($replacer, $ide, $name);
+		$text['cc']		 = isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
+		$text['bcc']	 = isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto'] = isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		
 		$mailer	= JFactory::getMailer();
 		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
@@ -479,9 +486,10 @@ class rseventsproEmails
 			'body'		=> $body
 		);
 		
-		$text		= rseventsproEmails::placeholders($replacer,$ide,$name);
-		$text['cc']	= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
-		$text['bcc']= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text			 = rseventsproEmails::placeholders($replacer,$ide,$name);
+		$text['cc']		 = isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
+		$text['bcc']	 = isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto'] = isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		
 		$mailer	= JFactory::getMailer();
 		$mailer->sendMail($text['from'], $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
@@ -528,6 +536,7 @@ class rseventsproEmails
 		$text			= rseventsproEmails::placeholders($replacer,$ide,'');
 		$text['cc']		= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
 		$text['bcc']	= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto']= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		$approve		= rseventsproHelper::route(JURI::root().'index.php?option=com_rseventspro&task=activate&key='.md5('event'.$ide));
 		$text['body']	= str_replace('{EventApprove}',$approve,$text['body']);
 		
@@ -567,9 +576,10 @@ class rseventsproEmails
 			'body'		=> $body
 		);
 		
-		$text		= rseventsproEmails::placeholders($replacer,$ide,'');
-		$text['cc']	= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
-		$text['bcc']= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text			 = rseventsproEmails::placeholders($replacer,$ide,'');
+		$text['cc']		 = isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
+		$text['bcc']	 = isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto'] = isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		
 		// html
 		if ($mode) {
@@ -632,9 +642,10 @@ class rseventsproEmails
 			'body'		=> $body
 		);
 		
-		$text		= rseventsproEmails::placeholders($replacer, $ide, $name);
-		$text['cc']	= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
-		$text['bcc']= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text			 = rseventsproEmails::placeholders($replacer, $ide, $name);
+		$text['cc']		 = isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
+		$text['bcc']	 = isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto'] = isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		
 		$mailer	= JFactory::getMailer();
 		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
@@ -678,9 +689,10 @@ class rseventsproEmails
 		
 		JFactory::getApplication()->triggerEvent('rseproNotifyEmail', array(array('ids' => $ids, 'data' => &$replacer)));
 		
-		$text		= rseventsproEmails::placeholders($replacer,$ide,'',$optionals, $ids);
-		$text['cc']	= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
-		$text['bcc']= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text			 = rseventsproEmails::placeholders($replacer,$ide,'',$optionals, $ids);
+		$text['cc']		 = isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
+		$text['bcc']	 = isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto'] = isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		
 		if ($additional_data) {
 			$text['body']		= str_replace(array_keys($additional_data), array_values($additional_data), $text['body']);
@@ -726,9 +738,10 @@ class rseventsproEmails
 			'body'		=> $body
 		);
 		
-		$text		= rseventsproEmails::placeholders($replacer,$ide,'');
-		$text['cc']	= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
-		$text['bcc']= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text			 = rseventsproEmails::placeholders($replacer,$ide,'');
+		$text['cc']		 = isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
+		$text['bcc']	 = isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto'] = isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		
 		if ($additional_data) {
 			$text['body']		= str_replace(array_keys($additional_data), array_values($additional_data), $text['body']);
@@ -843,6 +856,7 @@ class rseventsproEmails
 		$text			= rseventsproEmails::placeholders($replacer, $subscriber->ide, $subscriber->name, $optionals);
 		$text['cc']		= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
 		$text['bcc']	= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto']= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		$text['body']	= str_replace('{Status}',rseventsproHelper::getStatuses($subscriber->state),$text['body']);
 		$text['body']	= str_replace('{PaymentURL}',$paymentURL,$text['body']);
 		

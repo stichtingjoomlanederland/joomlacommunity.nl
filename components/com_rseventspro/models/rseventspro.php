@@ -340,12 +340,12 @@ class rseventsproModelRseventspro extends JModelLegacy
 			$q1 = '('.$this->_db->qn('e.end').' <> '.$this->_db->q($this->_db->getNullDate()).' AND '.$this->_db->qn('e.start').' >= '.$this->_db->q($start).' AND '.$this->_db->qn('e.end').' <= '.$this->_db->q($end).')';
 			
 			// Get regular events that starts between the 'start' and 'end' dates and ends after the 'end' date
-			$q2 = '('.$this->_db->qn('e.end').' <> '.$this->_db->q($this->_db->getNullDate()).' AND '.$this->_db->qn('e.start').' >= '.$this->_db->q($start).' AND '.$this->_db->qn('e.end').' >= '.$this->_db->q($end).')';
+			$q2 = '('.$this->_db->qn('e.end').' <> '.$this->_db->q($this->_db->getNullDate()).' AND '.$this->_db->qn('e.start').' >= '.$this->_db->q($start).' AND '.$this->_db->qn('e.start').' <= '.$this->_db->q($end).' AND '.$this->_db->qn('e.end').' >= '.$this->_db->q($end).')';
 			
 			// Get regular events that start before the 'start' date and ends between the 'start' and 'end' dates
 			$q3 = '('.$this->_db->qn('e.end').' <> '.$this->_db->q($this->_db->getNullDate()).' AND '.$this->_db->qn('e.start').' <= '.$this->_db->q($start).' AND '.$this->_db->qn('e.end').' >= '.$this->_db->q($start).' AND '.$this->_db->qn('e.end').' <= '.$this->_db->q($end).')';
 			
-			// Get regular event that start before the 'start' date and ends after the 'end' date
+			// Get regular events that start before the 'start' date and ends after the 'end' date
 			$q4 = '('.$this->_db->qn('e.end').' <> '.$this->_db->q($this->_db->getNullDate()).' AND '.$this->_db->qn('e.start').' <= '.$this->_db->q($start).' AND '.$this->_db->qn('e.end').' >= '.$this->_db->q($end).')';
 			
 			// Get all day events between 'start' and 'end' dates

@@ -24,6 +24,7 @@ class rseventsproViewEvent extends JViewLegacy
 		if ($this->layout == 'edit') {
 			require_once JPATH_SITE.'/components/com_rseventspro/helpers/events.php';
 			
+			$this->form			= $this->get('Form');
 			$this->eventClass	= RSEvent::getInstance($this->item->id);
 			$this->tickets		= $this->eventClass->getTickets();
 			$this->coupons		= $this->eventClass->getCoupons();

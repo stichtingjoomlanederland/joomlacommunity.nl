@@ -6,7 +6,7 @@
 	<field name="end" type="hidden" />
 	<field name="description" type="editor" filter="JComponentHelper::filterText" buttons="true" />
 	<field name="location" type="hidden" />
-	<field name="owner" type="hidden" />
+	<field name="owner" type="user" />
 	<field name="URL" type="hidden" />
 	<field name="email" type="hidden" />
 	<field name="phone" type="hidden" />

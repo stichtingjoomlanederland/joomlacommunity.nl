@@ -325,7 +325,7 @@ class rseventsproController extends JControllerLegacy
 		$registry->set('repeat_on_day_type', $input->getInt('repeat_on_day_type',0));
 		
 		$recurring = RSEventsProRecurring::getInstance($registry);
-		$dates = $recurring->getDates();
+		$dates = $recurring->getDates(true);
 		
 		echo 'RS_DELIMITER0';
 		echo count($dates);

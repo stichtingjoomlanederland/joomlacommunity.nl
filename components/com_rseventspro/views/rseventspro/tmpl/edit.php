@@ -229,7 +229,7 @@ JText::script('COM_RSEVENTSPRO_LATE_FEE_BIGGER_ERROR'); ?>
 			</div>
 		</div>
 		<div class="modal-footer">
-			<img id="rsepro-add-category-loader" src="<?php echo JUri::root(); ?>administrator/components/com_rseventspro/assets/images/loader.gif" alt="" class="pull-left" style="display: none;" />
+			<img id="rsepro-add-category-loader" src="<?php echo JUri::root(); ?>components/com_rseventspro/assets/images/loader.gif" alt="" class="pull-left" style="display: none;" />
 			<button class="btn btn-primary rsepro-event-add-category"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_ADD_CATEGORY_ADD'); ?></button>
 			<button class="btn" data-dismiss="modal" aria-hidden="true"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
 		</div>

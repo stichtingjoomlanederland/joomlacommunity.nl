@@ -129,7 +129,7 @@ class rseventsproViewCalendar extends JViewLegacy
 			list($m,$d,$y) = explode('/',$date,3);
 			
 			$start = JFactory::getDate($y.'-'.$m.'-'.$d.' 00:00:00');
-			$this->date = rseventsproHelper::translatedate($start->format(rseventsproHelper::getConfig('global_date')));
+			$this->date = rseventsproHelper::translatedate($start->format(rseventsproHelper::getConfig('global_date'), false, false));
 			$start->modify('-1 days');
 			$prev = $start->format('m-d-Y');
 			$start->modify('+2 days');
@@ -143,9 +143,9 @@ class rseventsproViewCalendar extends JViewLegacy
 			list($m,$d,$y) = explode('/',$date,3);
 			
 			$start	= JFactory::getDate($y.'-'.$m.'-'.$d.' 00:00:00');
-			$from	= $start->format(rseventsproHelper::getConfig('global_date'));
+			$from	= $start->format(rseventsproHelper::getConfig('global_date'), false, false);
 			$start->modify('+6 days');
-			$to		= $start->format(rseventsproHelper::getConfig('global_date'));
+			$to		= $start->format(rseventsproHelper::getConfig('global_date'), false, false);
 			
 			$this->from	= rseventsproHelper::translatedate($from);
 			$this->to	= rseventsproHelper::translatedate($to);

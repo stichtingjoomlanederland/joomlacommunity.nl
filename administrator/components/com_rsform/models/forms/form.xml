@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>  
+	<fieldset name="info" label="RSFP_CONFIG">
+		<field name="Published" type="radio" class="btn-group" label="JPUBLISHED" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="FormTitle" type="text" label="RSFP_FORM_TITLE" translatable="true" size="70" />
+		<field name="FormName" type="text" label="RSFP_FORM_NAME" translatable="true" size="70" />
+		<field name="AjaxValidation" type="radio" class="btn-group" label="RSFP_AJAX_VALIDATION" size="1" >
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+	</fieldset>
+</form>

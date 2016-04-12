@@ -30,7 +30,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 <?php if ($this->files) { ?>
 <legend>
 	<?php echo JText::_('COM_RSEVENTSPRO_EVENT_FILES'); ?> 
-	<img id="rsepro-file-loader" src="<?php echo JUri::root(); ?>administrator/components/com_rseventspro/assets/images/loader.gif" style="display: none;" />
+	<img id="rsepro-file-loader" src="<?php echo JUri::root(); ?>components/com_rseventspro/assets/images/loader.gif" style="display: none;" />
 </legend>
 <ul class="unstyled rsepro-event-files">
 <?php foreach ($this->files as $file) { ?>
