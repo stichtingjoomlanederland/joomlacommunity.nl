@@ -96,18 +96,16 @@ $showArticleInformation = ($params->get('show_create_date') && $params->get('sho
 					<?php endif; ?>
 
 					<div class="item-share full">
-						<strong>Share</strong>
-						<ul class="list-inline share-buttons">
-							<li class="share-twitter">
-								<a href="#"><span class="icon icon-twitter"></span></a>
-							</li>
-							<li class="share-facebook">
-								<a href="https://www.facebook.com/sharer/sharer.php?u=http://www.joomlacommunity.eu/nieuws/joomla-versies/886-joomla-2510-vrijgegeven.html" target="_blank"><span class="icon icon-facebook"></span></a>
-							</li>
-							<li class="share-googleplus">
-								<a href="#"><span class="icon icon-googleplus"></span></a>
-							</li>
-						</ul>
+						<?php
+						$data = array(
+							'title'      => 'Share',
+							'facebook'   => true,
+							'twitter'    => true,
+							'googleplus' => true,
+							'item'       => $this->item
+						);
+						echo JLayoutHelper::render('template.snippet-share-page', $data);
+						?>
 					</div>
 				</div>
 			</div>
