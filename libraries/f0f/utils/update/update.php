@@ -930,7 +930,7 @@ ENDBLOCK;
 		$minVersion     = $isCli ? '3.0.0' : '1.5.5';
 		$errorQualifier = $isCli ? ' using an unattended CLI CRON script ' : ' ';
 
-		if (version_compare('JVERSION', $minVersion, 'lt'))
+		if (version_compare(JVERSION, $minVersion, 'lt'))
 		{
 			return "Extension updates{$errorQualifier}only work with Joomla! $minVersion and later.";
 		}

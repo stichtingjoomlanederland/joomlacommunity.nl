@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<extension type="package" version="3.4" method="upgrade">
-<name>Dutch Language Pack</name>
-<packagename>nl-NL</packagename>
-<version>3.4.4.1</version>
-<creationDate>2015-09-07</creationDate>
-<author>Dutch Translation Team</author>
-<packager>JoomlaCommunity</packager>
-<packagerurl>http://www.joomlacommunity.eu</packagerurl>
-<description>3.4 Joomla Dutch Language Package</description>
-<files>
-<file type="language" client="site" id="nl-NL">site_nl-NL.zip</file>
-<file type="language" client="administrator" id="nl-NL">admin_nl-NL.zip</file>
-</files>
-<updateservers>
-	<server type="collection" priority="1" name="Accredited Joomla! Translations">http://update.joomla.org/language/translationlist_3.xml</server>
-    <server type="collection" priority="2" name="Dutch Language Updates">http://download.joomlacommunity.eu/downloads/updates/translationlist_3.xml</server>
-</updateservers>
-</extension> 
+<extension type="package" version="3.5" method="upgrade">
+  <name>Nederlands (nl-NL) taalpakket</name>
+  <packagename>nl-NL</packagename>
+  <version>3.5.0.1</version>
+  <creationDate>Februari 2016</creationDate>
+  <author>Dutch Translation Team</author>
+  <authorEmail>taal@joomlacommunity.eu</authorEmail>
+  <authorUrl>http://joomlacode.org/gf/project/nederlands/</authorUrl>
+  <description>Nederlands taalpakket</description>
+  <files>
+    <folder type="language" client="site" id="nl-NL">site_nl-NL</folder>
+    <folder type="language" client="administrator" id="nl-NL">admin_nl-NL</folder>
+  </files>
+  <updateservers>
+    <server type="collection" priority="1" name="Accredited Joomla! Translations">http://update.joomla.org/language/translationlist_3.xml</server>
+  </updateservers>
+</extension>

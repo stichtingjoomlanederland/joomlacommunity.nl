@@ -190,3 +190,26 @@ function akeeba_onedrive_oauth_callback(data)
 		myWindow.close();
 	})(akeeba.jQuery);
 }
+
+//=============================================================================
+//Akeeba Backup Pro - Google Drive integration
+//=============================================================================
+function akconfig_googledrive_openoauth()
+{
+	(function($) {
+		window.open('index.php?option=com_akeeba&view=config&task=dpeoauthopen&engine=googledrive','akeeba_googledrive_window','width=1010,height=500');
+	})(akeeba.jQuery);
+}
+
+function akeeba_googledrive_oauth_callback(data)
+{
+	(function($) {
+		// Update the tokens
+		$(document.getElementById('var[engine.postproc.googledrive.access_token]')).val(data.access_token);
+		$(document.getElementById('var[engine.postproc.googledrive.refresh_token]')).val(data.refresh_token);
+
+		// Close the window
+		myWindow = window.open("", "akeeba_googledrive_window");
+		myWindow.close();
+	})(akeeba.jQuery);
+}

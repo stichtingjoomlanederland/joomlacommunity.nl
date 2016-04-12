@@ -45,7 +45,7 @@ class com_rsfilesInstallerScript
 		
 		$db->setQuery("SELECT `id` FROM `#__rsfiles_emails` WHERE `type` = 'briefcaseupload' AND `lang` = 'en-GB'");
 		if (!$db->loadResult()) {
-			$db->setQuery("INSERT IGNORE INTO `#__rsfiles_emails` (`id`, `type`, `lang`, `enable`, `mode`, `to`, `subject`, `message`) VALUES('', 'briefcaseupload', 'en-GB', 1, 1, '', 'New files uploaded.', '<p>Hello {name},</p>\r\n<p>New files have been uploaded to your briefcase folder by {uploader}.</p>\r\n<p>Here are the uploaded files:</p>\r\n<p>{files}</p>')");
+			$db->setQuery("INSERT IGNORE INTO `#__rsfiles_emails` (`id`, `type`, `lang`, `enable`, `mode`, `to`, `subject`, `message`) VALUES('', 'briefcaseupload', 'en-GB', 1, 1, '', 'New files uploaded.', '<p>Hello {name},</p>\r\n<p>New files have been uploaded to your briefcase folder by {uploader}.</p>\r\n<p>Here are the uploaded files:</p>\r\n<p>{file}</p>')");
 			$db->execute();
 		}
 		
@@ -1096,9 +1096,9 @@ class com_rsfilesInstallerScript
 		<?php } ?>
 	<?php } ?>
 	
-	<h2>Changelog v1.15.11</h2>
+	<h2>Changelog v1.15.13</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> The RSFiles! navbar target was changed, due to conflicts between other navbars.</li>
+		<li><span class="version-fixed">Fix</span> Workaround for Joomla! 3.5.1 JMail breaking backwards compatibility.</li>
 	</ul>
 	<a class="com-rsfiles-button" href="index.php?option=com_rsfiles">Start using RSFiles!</a>
 	<a class="com-rsfiles-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/81-rsfiles.html" target="_blank">Read the RSFiles! User Guide</a>

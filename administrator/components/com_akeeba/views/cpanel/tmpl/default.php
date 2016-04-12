@@ -9,6 +9,8 @@
  * The main page of the Akeeba Backup component is where all the fun takes place :)
  */
 
+/** @var $this AkeebaViewCpanel */
+
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
@@ -65,6 +67,12 @@ if (!\Akeeba\Engine\Factory::getConfiguration()->get('akeeba.flag.confwiz', 0))
 	echo $this->loadAnyTemplate('admin:com_akeeba/config/confwiz_modal');
 }
 ?>
+
+<?php if(!$this->checkMbstring):?>
+<div class="alert alert-danger">
+    <?php echo JText::sprintf('COM_AKEEBA_CPANL_ERR_MBSTRING', PHP_VERSION)?>
+</div>
+<?php endif;?>
 
 <?php if (!empty($this->frontEndSecretWordIssue)): ?>
 <div class="alert alert-danger">

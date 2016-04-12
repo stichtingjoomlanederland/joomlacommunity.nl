@@ -8,7 +8,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class RSFilesVersion
 {
-	public $version  = '1.15.11';
+	public $version  = '1.15.13';
 	public $key 	 = 'RK238DSJ41';
 	// Unused
 	public $revision = null;

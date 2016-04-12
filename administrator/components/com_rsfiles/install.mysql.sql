@@ -131,7 +131,7 @@ CREATE TABLE IF NOT EXISTS `#__rsfiles_statistics` (
 
 INSERT IGNORE INTO `#__rsfiles_emails` (`id`, `type`, `lang`, `enable`, `mode`, `to`, `subject`, `message`) VALUES(1, 'admin', 'en-GB', 1, 1, '', 'Admin Email', '<p>Hello ,</p>\r\n<p>Someone has downloaded the file {filename}.</p>\r\n<p><strong>Details :</strong></p>\r\n<p>Ip: {ip}</p>\r\n<p>Username : {username}</p>');
 INSERT IGNORE INTO `#__rsfiles_emails` (`id`, `type`, `lang`, `enable`, `mode`, `to`, `subject`, `message`) VALUES(2, 'download', 'en-GB', 1, 1, '', 'Download email', '<p>Hello {email},</p>\r\n<p>You can download the file from here : {downloadurl}</p>');
-INSERT IGNORE INTO `#__rsfiles_emails` (`id`, `type`, `lang`, `enable`, `mode`, `to`, `subject`, `message`) VALUES(3, 'upload', 'en-GB', 1, 1, '', 'A new user has uploaded a file.', '<p>The user {username} has uploaded a new file.</p>\r\n<p>{files}</p>');
+INSERT IGNORE INTO `#__rsfiles_emails` (`id`, `type`, `lang`, `enable`, `mode`, `to`, `subject`, `message`) VALUES(3, 'upload', 'en-GB', 1, 1, '', 'A new user has uploaded a file.', '<p>The user {username} has uploaded a new file.</p>\r\n<p>{file}</p>');
 INSERT IGNORE INTO `#__rsfiles_emails` (`id`, `type`, `lang`, `enable`, `mode`, `to`, `subject`, `message`) VALUES(4, 'report', 'en-GB', 0, 1, '', 'Someone submitted a new file report.', '<p>A new report for {filename} was added. Here are the details :</p>\r\n<p>Username : {username}</p>\r\n<p>IP: {ip}</p>\r\n<p>Report: {report}</p>');
 
 

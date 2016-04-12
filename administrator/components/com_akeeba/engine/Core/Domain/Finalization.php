@@ -89,17 +89,11 @@ class Finalization extends Part
 
 		if (is_array($customHandlers) && !empty($customHandlers))
 		{
-			// Pop the second update_statistics call
-			$oldItem = array_pop($this->action_queue);
-
 			foreach ($customHandlers as $handler)
 			{
 				$this->action_handlers[] = $handler;
 			}
-
-			// Push the second update_statistics call
-			$this->action_handlers[] = $oldItem;
-		}
+        }
 
 		// Do we have a custom action queue set in volatile.core.finalization.action_queue?
 		$customQueue = $configuration->get('volatile.core.finalization.action_queue', null);

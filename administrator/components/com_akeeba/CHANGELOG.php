@@ -1,4 +1,19 @@
 <?php die();?>
+Akeeba Backup 4.6.1
+================================================================================
+! Update failure on ancient servers lacking UTF8MB4 support
+
+Akeeba Backup 4.6.0
+================================================================================
+! Fatal exceptions when using PDOMySQL under certain conditions, e.g. installing the component when the SQL mode is set to strict
++ UTF8MB4 support for our own database tables (requires Joomla! 3.5 and a PHP/MySQL environment with UTF8MB4 support)
++ Google Drive integration
++ ANGIE: Warning message when you're trying to use a complex database password which may cause database restoration failure.
++ ANGIE: Improved UTF8MB4 support detection
++ ANGIE: Ability to downgrade UTF8MB4 data to UTF8
++ Added warning if the mbstring PHP extension is not installed
+# [MEDIUM] Fixed recording of backup end time when a post-processing engine is used
+
 Akeeba Backup 4.5.5
 ================================================================================
 ! The file integrity check feature would fail on some hosts due to Joomla!'s installer being broken. The feature was removed.

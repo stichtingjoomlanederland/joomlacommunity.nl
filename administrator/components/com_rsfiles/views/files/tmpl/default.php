@@ -24,11 +24,25 @@ Joomla.submitbutton = function(task) {
 			RSFiles.Sync.start();
 		} else return false;
 	} else if (task == 'briefcase.add') {
-		SqueezeBox.open('<?php echo JURI::root(); ?>administrator/index.php?option=com_users&view=users&layout=modal&tmpl=component&field=addusers',{handler: 'iframe',size: {x: 800, y: 600}});
+		SqueezeBox.open('<?php echo JURI::root(); ?>administrator/index.php?option=com_users&view=users&layout=modal&tmpl=component&field=addusers', {
+			handler : 'iframe',
+			size: {x: 800, y: 600},
+			iframeOptions: {
+				onload : 'rsf_attachUsersModalEvents(this)'
+			}
+		});
 		return false;
 	} else {
 		Joomla.submitform(task);
 	}
+}
+
+function rsf_attachUsersModalEvents(what) {
+	jQuery(what).contents().find('a.button-select').each(function() {
+		jQuery(this).on('click', function() {
+			jSelectUser_addusers(jQuery(this).data('user-value'), jQuery(this).data('user-name'));
+		});
+	});
 }
 
 function change_root(val) {

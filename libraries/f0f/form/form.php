@@ -519,6 +519,39 @@ class F0FForm extends JForm
 			return false;
 		}
 	}
+	
+	/**
+	 * Method to remove a header from the form definition.
+	 *
+	 * @param   string  $name   The name of the form field for which remove.
+	 * @param   string  $group  The optional dot-separated form group path on which to find the field.
+	 *
+	 * @return  boolean  True on success, false otherwise.
+	 *
+	 * @throws  UnexpectedValueException
+	 */
+	public function removeHeader($name, $group = null)
+	{
+		// Make sure there is a valid JForm XML document.
+		if (!($this->xml instanceof SimpleXMLElement))
+		{
+			throw new UnexpectedValueException(sprintf('%s::getFieldAttribute `xml` is not an instance of SimpleXMLElement', get_class($this)));
+		}
+
+		// Find the form field element from the definition.
+		$element = $this->findHeader($name, $group);
+
+		// If the element exists remove it from the form definition.
+		if ($element instanceof SimpleXMLElement)
+		{
+			$dom = dom_import_simplexml($element);
+			$dom->parentNode->removeChild($dom);
+
+			return true;
+		}
+
+		return false;
+	}
 
 	/**
 	 * Proxy for {@link F0FFormHelper::loadFieldType()}.

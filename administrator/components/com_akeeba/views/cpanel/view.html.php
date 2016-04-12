@@ -117,7 +117,15 @@ class AkeebaViewCpanel extends F0FViewHtml
 	 */
 	public $newSecretWord = '';
 
-	protected function onBrowse($tpl = null) {
+    /**
+     * Is the mbstring extension installed and enabled? This is required by Joomla and Akeeba Backup to correctly work
+     * 
+     * @var bool
+     */
+    public $checkMbstring = true;
+
+	protected function onBrowse($tpl = null)
+    {
 		// Used in F0F 2.0, where this actually works as expected
 		$this->onAdd($tpl);
 	}
@@ -139,21 +147,21 @@ class AkeebaViewCpanel extends F0FViewHtml
 
 		$statmodel = new AkeebaModelStatistics();
 
-		$this->profileid = $model->getProfileID(); // Active profile ID
-		$this->profilelist = $model->getProfilesList(); // List of available profiles
+		$this->profileid         = $model->getProfileID();               // Active profile ID
+		$this->profilelist       = $model->getProfilesList();            // List of available profiles
 		$this->quickIconProfiles = $model->getQuickIconProfiles();
-		$this->statuscell = $statusHelper->getStatusCell(); // Backup status
-		$this->detailscell = $statusHelper->getQuirksCell(); // Details (warnings)
-		$this->statscell = $statmodel->getLatestBackupDetails();
+		$this->statuscell        = $statusHelper->getStatusCell();       // Backup status
+		$this->detailscell       = $statusHelper->getQuirksCell();       // Details (warnings)
+		$this->statscell         = $statmodel->getLatestBackupDetails();
+		$this->fixedpermissions  = $model->fixMediaPermissions();        // Fix media/com_akeeba permissions
+        $this->checkMbstring     = $model->checkMbstring();
 
-		$this->fixedpermissions = $model->fixMediaPermissions(); // Fix media/com_akeeba permissions
-
-		$this->needsdlid = $model->needsDownloadID();
+		$this->needsdlid            = $model->needsDownloadID();
 		$this->needscoredlidwarning = $model->mustWarnAboutDownloadIDInCore();
-		$this->extension_id = $model->getState('extension_id', 0, 'int');
+		$this->extension_id         = $model->getState('extension_id', 0, 'int');
 
 		$this->frontEndSecretWordIssue = $model->getFrontendSecretWordError();
-		$this->newSecretWord = $session->get('newSecretWord', null, 'akeeba.cpanel');
+		$this->newSecretWord           = $session->get('newSecretWord', null, 'akeeba.cpanel');
 
 		// Should I ask for permission to display desktop notifications?
 		JLoader::import('joomla.application.component.helper');

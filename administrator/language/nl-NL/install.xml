@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="3.4" client="administrator" type="language" method="upgrade">
+<extension version="3.5" client="administrator" type="language" method="upgrade">
 	<name>Nederlands (NL)</name>
 	<tag>nl-NL</tag>
-	<version>3.4.4.1</version>
-	<creationDate>2015-09-07</creationDate>
+	<version>3.5.0</version>
+	<creationDate>2016-02-23</creationDate>
 	<author>Dutch Translation Team</author>
 	<authorEmail>taal@joomlacommunity.eu</authorEmail>
 	<authorUrl>http://joomlacode.org/gf/project/nederlands/</authorUrl>
-	<copyright>Copyright (C) 2005 - 2015 Dutch Translation Team en Open Source Matters. All rights reserved.</copyright>
+	<copyright>Copyright (C) 2005 - 2016 Dutch Translation Team en Open Source Matters. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
-	<description>Nederlands taalbestand Joomla! 3.4 (beheergedeelte)</description>
+	<description>Nederlands taalbestand Joomla! 3.5 (beheergedeelte)</description>
 	<files>
-		<filename>index.html</filename>
 		<filename>nl-NL.com_admin.ini</filename>
 		<filename>nl-NL.com_admin.sys.ini</filename>
 		<filename>nl-NL.com_ajax.ini</filename>
@@ -73,20 +72,16 @@
 		<filename>nl-NL.com_weblinks.sys.ini</filename>
 		<filename>nl-NL.com_wrapper.ini</filename>
 		<filename>nl-NL.com_wrapper.sys.ini</filename>
-
-		<filename>nl-NL.lib_joomla.ini</filename>
-
-		<filename>nl-NL.localise.php</filename>
 		<filename>nl-NL.ini</filename>
+		<filename>nl-NL.lib_joomla.ini</filename>
+		<filename>nl-NL.localise.php</filename>
 		<filename>nl-NL.mod_custom.ini</filename>
 		<filename>nl-NL.mod_custom.sys.ini</filename>
 		<filename>nl-NL.mod_feed.ini</filename>
 		<filename>nl-NL.mod_feed.sys.ini</filename>
 		<filename>nl-NL.mod_latest.ini</filename>
 		<filename>nl-NL.mod_latest.sys.ini</filename>
-
 		<filename>nl-NL.mod_logged.ini</filename>
-
 		<filename>nl-NL.mod_logged.sys.ini</filename>
 		<filename>nl-NL.mod_login.ini</filename>
 		<filename>nl-NL.mod_login.sys.ini</filename>
@@ -124,12 +119,9 @@
 		<filename>nl-NL.plg_content_contact.sys.ini</filename>
 		<filename>nl-NL.plg_content_emailcloak.ini</filename>
 		<filename>nl-NL.plg_content_emailcloak.sys.ini</filename>
-		<filename>nl-NL.plg_content_finder.ini</filename>
+		<filename>nl-NL.plg_content_emailcloak.sys.ini</filename>
 		<filename>nl-NL.plg_content_finder.sys.ini</filename>
-		<filename>nl-NL.plg_content_geshi.ini</filename>
-		<filename>nl-NL.plg_content_geshi.sys.ini</filename>
 		<filename>nl-NL.plg_content_joomla.ini</filename>
-
 		<filename>nl-NL.plg_content_joomla.sys.ini</filename>
 		<filename>nl-NL.plg_content_loadmodule.ini</filename>
 		<filename>nl-NL.plg_content_loadmodule.sys.ini</filename>
@@ -149,6 +141,8 @@
 		<filename>nl-NL.plg_editors-xtd_article.sys.ini</filename>
 		<filename>nl-NL.plg_editors-xtd_image.ini</filename>
 		<filename>nl-NL.plg_editors-xtd_image.sys.ini</filename>
+		<filename>nl-NL.plg_editors-xtd_module.ini</filename>
+		<filename>nl-NL.plg_editors-xtd_module.sys.ini</filename>
 		<filename>nl-NL.plg_editors-xtd_pagebreak.ini</filename>
 		<filename>nl-NL.plg_editors-xtd_pagebreak.sys.ini</filename>
 		<filename>nl-NL.plg_editors-xtd_readmore.ini</filename>
@@ -197,13 +191,9 @@
 		<filename>nl-NL.plg_system_languagefilter.sys.ini</filename>
 		<filename>nl-NL.plg_system_log.ini</filename>
 		<filename>nl-NL.plg_system_log.sys.ini</filename>
-
 		<filename>nl-NL.plg_system_logout.ini</filename>
-
 		<filename>nl-NL.plg_system_logout.sys.ini</filename>
-
 		<filename>nl-NL.plg_system_p3p.ini</filename>
-
 		<filename>nl-NL.plg_system_p3p.sys.ini</filename>
 		<filename>nl-NL.plg_system_redirect.ini</filename>
 		<filename>nl-NL.plg_system_redirect.sys.ini</filename>
@@ -211,6 +201,10 @@
 		<filename>nl-NL.plg_system_remember.sys.ini</filename>
 		<filename>nl-NL.plg_system_sef.ini</filename>
 		<filename>nl-NL.plg_system_sef.sys.ini</filename>
+		<filename>nl-NL.plg_system_stats.ini</filename>
+		<filename>nl-NL.plg_system_stats.sys.ini</filename>
+		<filename>nl-NL.plg_system_updatenotification.ini</filename>
+		<filename>nl-NL.plg_system_updatenotification.sys.ini</filename>
 		<filename>nl-NL.plg_twofactorauth_totp.ini</filename>
 		<filename>nl-NL.plg_twofactorauth_totp.sys.ini</filename>
 		<filename>nl-NL.plg_twofactorauth_yubikey.ini</filename>
@@ -226,7 +220,7 @@
 		<filename>nl-NL.tpl_isis.ini</filename>
 		<filename>nl-NL.tpl_isis.sys.ini</filename>
 		<filename file="meta">nl-NL.xml</filename>
-
 		<filename file="meta">install.xml</filename>
 	</files>
+	<params />
 </extension>

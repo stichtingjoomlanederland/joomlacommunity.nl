@@ -27,21 +27,6 @@ class Complexify
 
 	private static $MAX_COMPLEXITY = 120; //  25 chars, all charsets
 
-	private static $POOR_MAN_CHARSET = array(
-		' ',
-		'0123456789',
-		'qwertyuiopasdfghjklzxcvbnm',
-		'QWERTYUIOPASDFGHJKLZXCVBNM',
-		'!@#$%^&*()_+-=,.?',
-		'§±[]{};:\'\\|"<>/',
-		'£€¢¥',
-		'¡ﬁﬂ‹›·‚–—±´¨ˆ“‘„´ˇ¨ˆ”’«»`˜¯˘¿',
-		'ŒøÁØåßÅÍÎÏÓÔÒÚÆçÇÂ',
-		'™∞¶•ªº≠⁄‡°œ∑®†‰∏∂ƒ©˙˚¬…æ˝≈√∫˜≤≥÷`¸˛◊ı',
-		'ςερτυθιοπασδφγηξκλζχψωβνμάέήίόύώϊϋΐΰ',
-		'ΣΕΡΤΥΘΙΟΠΑΣΔΦΓΗΞΚΛΖΧΨΩΒΝΜΆΈΉΊΌΎΏΪΫ'
-	);
-
 	private static $CHARSETS = array(
 		// Commonly Used
 		////////////////////
@@ -278,33 +263,6 @@ class Complexify
 	}
 
 	/**
-	 * Determine the complexity added from a character set if it is used in a string
-	 *
-	 * @param   string $str String to check
-	 * @param   string $charset  String of characters of the character set.
-	 *
-	 * @return  int  0 if there are no characters from the character set, size of the character set if there are any
-	 *               characters used in the string
-	 */
-	private function additionalComplexityForCharsetPoorMans($str, $charset)
-	{
-		$strChars = str_split($str);
-		$setChars = str_split($charset);
-
-		$len = strlen($str);
-
-		foreach($strChars as $c)
-		{
-			if (in_array($c, $setChars))
-			{
-				return strlen($charset);
-			}
-		}
-
-		return 0;
-	}
-
-	/**
 	 * Check if a string is in the banned password list
 	 *
 	 * @param  string $str String to check
@@ -319,32 +277,15 @@ class Complexify
 			return false;
 		}
 
-		if (function_exists('mb_convert_case'))
-		{
-			$str = mb_convert_case($str, MB_CASE_LOWER, $this->encoding);
-		}
-		else
-		{
-			$str = strtolower($str);
-		}
+		$str = mb_convert_case($str, MB_CASE_LOWER, $this->encoding);
 
 		if ($this->banMode === 'strict')
 		{
 			for ($i = 0; $i < count($this->bannedPasswords); $i++)
 			{
-				if (function_exists('mb_strpos'))
+				if (mb_strpos($this->bannedPasswords[ $i ], $str, 0, $this->encoding) !== false)
 				{
-					if (mb_strpos($this->bannedPasswords[ $i ], $str, 0, $this->encoding) !== false)
-					{
-						return true;
-					}
-				}
-				else
-				{
-					if (strpos($this->bannedPasswords[ $i ], $str, 0) !== false)
-					{
-						return true;
-					}
+					return true;
 				}
 			}
 
@@ -374,19 +315,9 @@ class Complexify
 		if (!$this->inBanlist($password))
 		{
 			// Add character complexity
-			if (function_exists('mb_strlen'))
+			foreach (self::$CHARSETS as $charset)
 			{
-				foreach (self::$CHARSETS as $charset)
-				{
-					$complexity += $this->additionalComplexityForCharset($password, $charset);
-				}
-			}
-			else
-			{
-				foreach (self::$POOR_MAN_CHARSET as $charset)
-				{
-					$complexity += $this->additionalComplexityForCharsetPoorMans($password, $charset);
-				}
+				$complexity += $this->additionalComplexityForCharset($password, $charset);
 			}
 		}
 		else
@@ -396,33 +327,16 @@ class Complexify
 		}
 
 		// Use natural log to produce linear scale
-		if (function_exists('mb_strlen'))
-		{
-			$complexity = log(pow($complexity, mb_strlen($password, $this->encoding))) * (1 / $this->strengthScaleFactor);
-		}
-		else
-		{
-			$complexity = log(pow($complexity, strlen($password, $this->encoding))) * (1 / $this->strengthScaleFactor);
-		}
+		$complexity = log(pow($complexity, mb_strlen($password, $this->encoding))) * (1 / $this->strengthScaleFactor);
 
 		if ($complexity <= self::$MIN_COMPLEXITY)
 		{
 			array_push($error, 'toosimple');
 		}
 
-		if (function_exists('mb_strlen'))
+		if (mb_strlen($password, $this->encoding) < $this->minimumChars)
 		{
-			if (mb_strlen($password, $this->encoding) < $this->minimumChars)
-			{
-				array_push($error, 'tooshort');
-			}
-		}
-		else
-		{
-			if (strlen($password) < $this->minimumChars)
-			{
-				array_push($error, 'tooshort');
-			}
+			array_push($error, 'tooshort');
 		}
 
 		// Scale to percentage, so it can be used for a progress bar
@@ -443,7 +357,19 @@ class Complexify
 	public static function isStrongEnough($password, $throwExceptions = true)
 	{
 		$complexify = new self();
-		$res = $complexify->evaluateSecurity($password);
+
+		$res = (object) array(
+			'valid' => strlen($password) >= 32,
+			'complexity' => 50,
+			'errors' => (strlen($password) >= 32) ? array() : array('tooshort')
+		);
+
+		if (function_exists('mb_strlen') && function_exists('mb_convert_encoding') &&
+			function_exists('mb_substr') && function_exists('mb_convert_case'))
+		{
+			$res = $complexify->evaluateSecurity($password);
+		}
+
 
 		if ($res->valid)
 		{

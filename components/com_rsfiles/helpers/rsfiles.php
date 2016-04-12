@@ -2692,4 +2692,18 @@ class rsfilesHelper {
 			return round($size);
 		}
 	}
+	
+	public static function sendMail($from, $fromName, $recipient, $subject, $body, $mode = false, $cc = null, $bcc = null, $attachment = null, $replyTo = null, $replyToName = null) {
+		jimport('joomla.mail.helper');
+		
+		$mailer	= JFactory::getMailer();
+		
+		$recipient		= array_filter(preg_split('/[;,]+/', $recipient), array('JMailHelper', 'isEmailAddress'));
+		$cc 			= !is_null($cc) ? array_filter(preg_split('/[;,]+/', $cc), array('JMailHelper', 'isEmailAddress')) : null;
+		$bcc			= !is_null($bcc) ? array_filter(preg_split('/[;,]+/', $bcc), array('JMailHelper', 'isEmailAddress')) : null;
+		$replyTo		= !is_null($replyTo) ? array_filter(preg_split('/[;,]+/', $replyTo), array('JMailHelper', 'isEmailAddress')) : null;
+		$replyToName	= !is_null($replyToName) ? array_filter(preg_split('/[;,]+/', $replyToName)) : null;
+		
+		return $mailer->sendMail($from, $fromName, $recipient, $subject, $body, $mode, $cc, $bcc, $attachment, $replyTo, $replyToName);
+	}
 }

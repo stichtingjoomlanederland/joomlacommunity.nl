@@ -691,8 +691,7 @@ class rsfilesModelRsfiles extends JModelLegacy
 										$good	= array($fileurl, $approveurl);
 										$body	= str_replace($bad, $good, $body);
 										
-										$mailer	= JFactory::getMailer();
-										$mailer->sendMail($config->email_from, $config->email_from_name, $email, $subject, $body, $moderation_email->mode, $cc, $bcc, null, $config->email_reply, $config->email_reply_name);
+										rsfilesHelper::sendMail($config->email_from, $config->email_from_name, $email, $subject, $body, $moderation_email->mode, $cc, $bcc, null, $config->email_reply, $config->email_reply_name);
 									}
 								}
 							}
@@ -716,12 +715,11 @@ class rsfilesModelRsfiles extends JModelLegacy
 						$subject	= $upload_email->subject;
 						$body		= $upload_email->message;
 						
-						$bad	= array('{name}','{username}', '{files}');
-						$good	= array($user->get('name'), $user->get('username'), $anchor);
+						$bad	= array('{name}','{username}', '{files}', '{file}');
+						$good	= array($user->get('name'), $user->get('username'), $anchor, $anchor);
 						$body	= str_replace($bad, $good, $body);
 						
-						$mailer	= JFactory::getMailer();
-						$mailer->sendMail($config->email_from, $config->email_from_name, $upload_email->to, $subject, $body, $upload_email->mode, $cc, $bcc, null, $config->email_reply, $config->email_reply_name);
+						rsfilesHelper::sendMail($config->email_from, $config->email_from_name, $upload_email->to, $subject, $body, $upload_email->mode, $cc, $bcc, null, $config->email_reply, $config->email_reply_name);
 					}
 				}
 			}
@@ -743,12 +741,11 @@ class rsfilesModelRsfiles extends JModelLegacy
 							$subject	= $briefcaseupload_email->subject;
 							$body		= $briefcaseupload_email->message;
 							
-							$bad	= array('{name}','{uploader}', '{files}');
-							$good	= array($owner->get('name'), $user->get('name'), $anchor);
+							$bad	= array('{name}','{uploader}', '{files}', '{file}');
+							$good	= array($owner->get('name'), $user->get('name'), $anchor, $anchor);
 							$body	= str_replace($bad, $good, $body);
 							
-							$mailer	= JFactory::getMailer();
-							$mailer->sendMail($config->email_from, $config->email_from_name, $to, $subject, $body, $briefcaseupload_email->mode, $cc, $bcc, null, $config->email_reply, $config->email_reply_name);
+							rsfilesHelper::sendMail($config->email_from, $config->email_from_name, $to, $subject, $body, $briefcaseupload_email->mode, $cc, $bcc, null, $config->email_reply, $config->email_reply_name);
 						}
 					}
 				}
@@ -926,8 +923,7 @@ class rsfilesModelRsfiles extends JModelLegacy
 									$good	= array($fileurl, $approveurl);
 									$body	= str_replace($bad, $good, $body);
 									
-									$mailer	= JFactory::getMailer();
-									$mailer->sendMail($config->email_from, $config->email_from_name, $email, $subject, $body, $moderation_email->mode, $cc, $bcc, null, $config->email_reply, $config->email_reply_name);
+									rsfilesHelper::sendMail($config->email_from, $config->email_from_name, $email, $subject, $body, $moderation_email->mode, $cc, $bcc, null, $config->email_reply, $config->email_reply_name);
 								}
 							}
 						}
@@ -955,8 +951,7 @@ class rsfilesModelRsfiles extends JModelLegacy
 						$good	= array($user->get('name'), $user->get('username'), $filepaths);
 						$body	= str_replace($bad, $good, $body);
 						
-						$mailer	= JFactory::getMailer();
-						$mailer->sendMail($config->email_from, $config->email_from_name, $upload_email->to, $subject, $body, $upload_email->mode, $cc, $bcc, null, $config->email_reply, $config->email_reply_name);
+						rsfilesHelper::sendMail($config->email_from, $config->email_from_name, $upload_email->to, $subject, $body, $upload_email->mode, $cc, $bcc, null, $config->email_reply, $config->email_reply_name);
 					}
 				}
 			}
@@ -1316,8 +1311,7 @@ class rsfilesModelRsfiles extends JModelLegacy
 					$good 	= array($filename, $filepath , $ip, $username, $email, $name);
 					$body	= str_replace($bad, $good, $body);
 					
-					$mailer	= JFactory::getMailer();
-					$mailer->sendMail($config->email_from, $config->email_from_name, $admin_email->to, $subject, $body, $admin_email->mode, $cc, $bcc, null, $config->email_reply, $config->email_reply_name);
+					rsfilesHelper::sendMail($config->email_from, $config->email_from_name, $admin_email->to, $subject, $body, $admin_email->mode, $cc, $bcc, null, $config->email_reply, $config->email_reply_name);
 				}
 			}
 			exit();
@@ -1474,8 +1468,7 @@ class rsfilesModelRsfiles extends JModelLegacy
 			$good 	= array($to , $url, $toname);
 			$body	= str_replace($bad, $good, $body);
 			
-			$mailer	= JFactory::getMailer();
-			$mailer->sendMail($config->email_from, $config->email_from_name, $to, $subject, $body, $download_email->mode, $cc, $bcc, null, $config->email_reply, $config->email_reply_name);
+			rsfilesHelper::sendMail($config->email_from, $config->email_from_name, $to, $subject, $body, $download_email->mode, $cc, $bcc, null, $config->email_reply, $config->email_reply_name);
 			
 			return true;
 		} else {
@@ -1956,8 +1949,7 @@ class rsfilesModelRsfiles extends JModelLegacy
 					$good	= array($user->get('username'), $ip, $report, $file);
 					$body	= str_replace($bad, $good, $body);
 					
-					$mailer	= JFactory::getMailer();
-					$mailer->sendMail($config->email_from, $config->email_from_name, $report_email->to, $subject, $body, $report_email->mode, $cc, $bcc, null, $config->email_reply, $config->email_reply_name);
+					rsfilesHelper::sendMail($config->email_from, $config->email_from_name, $report_email->to, $subject, $body, $report_email->mode, $cc, $bcc, null, $config->email_reply, $config->email_reply_name);
 				}
 			}
 			

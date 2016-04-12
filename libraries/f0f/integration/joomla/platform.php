@@ -538,9 +538,16 @@ class F0FIntegrationJoomlaPlatform extends F0FPlatform implements F0FPlatformInt
 	{
 		if (!$this->isCli())
 		{
+			$app = JFactory::getApplication();
+
+			if (method_exists($app, 'triggerEvent'))
+			{
+				return $app->triggerEvent($event, $data);
+			}
+
 			// IMPORTANT: DO NOT REPLACE THIS INSTANCE OF JDispatcher WITH ANYTHING ELSE. WE NEED JOOMLA!'S PLUGIN EVENT
 			// DISPATCHER HERE, NOT OUR GENERIC EVENTS DISPATCHER
-			if (version_compare($this->version, '3.0', 'ge'))
+			if (class_exists('JEventDispatcher'))
 			{
 				$dispatcher = JEventDispatcher::getInstance();
 			}

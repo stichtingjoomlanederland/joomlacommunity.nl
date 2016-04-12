@@ -23,7 +23,7 @@ CREATE TABLE `#__ak_profiles` (
 `filters` longtext,
 `quickicon` tinyint(3) NOT NULL DEFAULT '1',
 PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8;
+) DEFAULT COLLATE utf8_general_ci;
             ]]></query>
         </action>
 
@@ -65,7 +65,7 @@ CREATE TABLE `#__ak_stats` (
 	PRIMARY KEY (`id`),
 	KEY `idx_fullstatus` (`filesexist`,`status`),
 	KEY `idx_stale` (`status`,`origin`)
-) DEFAULT CHARACTER SET utf8;
+) DEFAULT COLLATE utf8_general_ci;
             ]]></query>
         </action>
 
@@ -77,8 +77,8 @@ CREATE TABLE `#__ak_storage` (
 	`tag` varchar(255) NOT NULL,
 	`lastupdate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	`data` longtext,
-	PRIMARY KEY (`tag`)
-) DEFAULT CHARACTER SET utf8;
+	PRIMARY KEY (`tag`(100))
+) DEFAULT COLLATE utf8_general_ci;
             ]]></query>
         </action>
 
@@ -101,5 +101,17 @@ ADD COLUMN `quickicon` tinyint(3) NOT NULL DEFAULT '1'
 AFTER `filters`
             ]]></query>
         </action>
+
+        <!-- Shorten the primary key before upgrading to utf8mb4 (in Joomla! 3.5+) -->
+        <action table="#__ak_storage" canfail="1">
+            <condition type="utf8mb4upgrade" />
+            <query><![CDATA[
+ALTER TABLE `#__ak_storage` DROP PRIMARY KEY;
+            ]]></query>
+            <query><![CDATA[
+ALTER TABLE `#__ak_storage` ADD PRIMARY KEY (`tag`(100));
+            ]]></query>
+        </action>
+
     </sql>
 </schema>

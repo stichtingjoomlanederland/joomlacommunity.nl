@@ -583,4 +583,15 @@ class AkeebaModelCpanels extends F0FModel
 
 		return '';
 	}
+
+    /**
+     * Checks if the mbstring extension is installed and enabled
+     *
+     * @return bool
+     */
+    public function checkMbstring()
+    {
+        return function_exists('mb_strlen') && function_exists('mb_convert_encoding') &&
+		function_exists('mb_substr') && function_exists('mb_convert_case');
+    }
 }

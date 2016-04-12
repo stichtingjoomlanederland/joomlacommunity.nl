@@ -85,6 +85,11 @@ class F0FDatabaseDriverJoomla extends F0FDatabase implements F0FDatabaseInterfac
 		}
 	}
 
+	public function disconnect()
+	{
+		$this->close();
+	}
+
 	public function open()
 	{
 		if (method_exists($this->dbo, 'open'))
@@ -97,6 +102,26 @@ class F0FDatabaseDriverJoomla extends F0FDatabase implements F0FDatabaseInterfac
 		}
 	}
 
+	public function connect()
+	{
+		$this->open();
+	}
+
+	public function connected()
+	{
+		if (method_exists($this->dbo, 'connected'))
+		{
+			return $this->dbo->connected();
+		}
+
+		return true;
+	}
+
+	public function escape($text, $extra = false)
+	{
+		return $this->dbo->escape($text, $extra);
+	}
+
 	public function execute()
 	{
 		if (method_exists($this->dbo, 'execute'))
@@ -105,6 +130,96 @@ class F0FDatabaseDriverJoomla extends F0FDatabase implements F0FDatabaseInterfac
 		}
 
 		return $this->dbo->query();
+	}
+
+	public function getAffectedRows()
+	{
+		if (method_exists($this->dbo, 'getAffectedRows'))
+		{
+			return $this->dbo->getAffectedRows();
+		}
+
+		return 0;
+	}
+
+	public function getCollation()
+	{
+		if (method_exists($this->dbo, 'getCollation'))
+		{
+			return $this->dbo->getCollation();
+		}
+
+		return 'utf8_general_ci';
+	}
+
+	public function getConnection()
+	{
+		if (method_exists($this->dbo, 'getConnection'))
+		{
+			return $this->dbo->getConnection();
+		}
+
+		return null;
+	}
+
+	public function getCount()
+	{
+		if (method_exists($this->dbo, 'getCount'))
+		{
+			return $this->dbo->getCount();
+		}
+
+		return 0;
+	}
+
+	public function getDateFormat()
+	{
+		if (method_exists($this->dbo, 'getDateFormat'))
+		{
+			return $this->dbo->getDateFormat();
+		}
+
+		return 'Y-m-d H:i:s';;
+	}
+
+	public function getMinimum()
+	{
+		if (method_exists($this->dbo, 'getMinimum'))
+		{
+			return $this->dbo->getMinimum();
+		}
+
+		return '5.0.40';
+	}
+
+	public function getNullDate()
+	{
+		if (method_exists($this->dbo, 'getNullDate'))
+		{
+			return $this->dbo->getNullDate();
+		}
+
+		return '0000-00-00 00:00:00';
+	}
+
+	public function getNumRows($cursor = null)
+	{
+		if (method_exists($this->dbo, 'getNumRows'))
+		{
+			return $this->dbo->getNumRows($cursor);
+		}
+
+		return 0;
+	}
+
+	public function getQuery($new = false)
+	{
+		if (method_exists($this->dbo, 'getQuery'))
+		{
+			return $this->dbo->getQuery($new);
+		}
+
+		return null;
 	}
 
 	public function getTableColumns($table, $typeOnly = true)
@@ -117,6 +232,266 @@ class F0FDatabaseDriverJoomla extends F0FDatabase implements F0FDatabaseInterfac
 		$result = $this->dbo->getTableFields(array($table), $typeOnly);
 
 		return $result[$table];
+	}
+
+	public function getTableKeys($tables)
+	{
+		if (method_exists($this->dbo, 'getTableKeys'))
+		{
+			return $this->dbo->getTableKeys($tables);
+		}
+
+		return array();
+	}
+
+	public function getTableList()
+	{
+		if (method_exists($this->dbo, 'getTableList'))
+		{
+			return $this->dbo->getTableList();
+		}
+
+		return array();
+	}
+
+	public function getVersion()
+	{
+		if (method_exists($this->dbo, 'getVersion'))
+		{
+			return $this->dbo->getVersion();
+		}
+
+		return '5.0.40';
+	}
+
+	public function insertid()
+	{
+		if (method_exists($this->dbo, 'insertid'))
+		{
+			return $this->dbo->insertid();
+		}
+
+		return null;
+	}
+
+	public function insertObject($table, &$object, $key = null)
+	{
+		if (method_exists($this->dbo, 'insertObject'))
+		{
+			return $this->dbo->insertObject($table, $object, $key);
+		}
+
+		return null;
+	}
+
+	public function loadAssoc()
+	{
+		if (method_exists($this->dbo, 'loadAssoc'))
+		{
+			return $this->dbo->loadAssoc();
+		}
+
+		return null;
+	}
+
+	public function loadAssocList($key = null, $column = null)
+	{
+		if (method_exists($this->dbo, 'loadAssocList'))
+		{
+			return $this->dbo->loadAssocList($key, $column);
+		}
+
+		return null;
+	}
+
+	public function loadObject($class = 'stdClass')
+	{
+		if (method_exists($this->dbo, 'loadObject'))
+		{
+			return $this->dbo->loadObject($class);
+		}
+
+		return null;
+	}
+
+	public function loadObjectList($key = '', $class = 'stdClass')
+	{
+		if (method_exists($this->dbo, 'loadObjectList'))
+		{
+			return $this->dbo->loadObjectList($key, $class);
+		}
+
+		return null;
+	}
+
+	public function loadResult()
+	{
+		if (method_exists($this->dbo, 'loadResult'))
+		{
+			return $this->dbo->loadResult();
+		}
+
+		return null;
+	}
+
+	public function loadRow()
+	{
+		if (method_exists($this->dbo, 'loadRow'))
+		{
+			return $this->dbo->loadRow();
+		}
+
+		return null;
+	}
+
+	public function loadRowList($key = null)
+	{
+		if (method_exists($this->dbo, 'loadRowList'))
+		{
+			return $this->dbo->loadRowList($key);
+		}
+
+		return null;
+	}
+
+	public function lockTable($tableName)
+	{
+		if (method_exists($this->dbo, 'lockTable'))
+		{
+			return $this->dbo->lockTable($this);
+		}
+
+		return $this;
+	}
+
+	public function quote($text, $escape = true)
+	{
+		if (method_exists($this->dbo, 'quote'))
+		{
+			return $this->dbo->quote($text, $escape);
+		}
+
+		return $text;
+	}
+
+	public function select($database)
+	{
+		if (method_exists($this->dbo, 'select'))
+		{
+			return $this->dbo->select($database);
+		}
+
+		return false;
+	}
+
+	public function setQuery($query, $offset = 0, $limit = 0)
+	{
+		if (method_exists($this->dbo, 'setQuery'))
+		{
+			return $this->dbo->setQuery($query, $offset, $limit);
+		}
+
+		return false;
+	}
+
+	public function transactionCommit($toSavepoint = false)
+	{
+		if (method_exists($this->dbo, 'transactionCommit'))
+		{
+			$this->dbo->transactionCommit($toSavepoint);
+		}
+	}
+
+	public function transactionRollback($toSavepoint = false)
+	{
+		if (method_exists($this->dbo, 'transactionRollback'))
+		{
+			$this->dbo->transactionRollback($toSavepoint);
+		}
+	}
+
+	public function transactionStart($asSavepoint = false)
+	{
+		if (method_exists($this->dbo, 'transactionStart'))
+		{
+			$this->dbo->transactionStart($asSavepoint);
+		}
+	}
+
+	public function unlockTables()
+	{
+		if (method_exists($this->dbo, 'unlockTables'))
+		{
+			return $this->dbo->unlockTables();
+		}
+
+		return $this;
+	}
+
+	public function updateObject($table, &$object, $key, $nulls = false)
+	{
+		if (method_exists($this->dbo, 'updateObject'))
+		{
+			return $this->dbo->updateObject($table, $object, $key, $nulls);
+		}
+
+		return false;
+	}
+
+	public function getLog()
+	{
+		if (method_exists($this->dbo, 'getLog'))
+		{
+			return $this->dbo->getLog();
+		}
+
+		return array();
+	}
+
+	public function dropTable($table, $ifExists = true)
+	{
+		if (method_exists($this->dbo, 'dropTable'))
+		{
+			return $this->dbo->dropTable($table, $ifExists);
+		}
+
+		return $this;
+	}
+
+	public function getTableCreate($tables)
+	{
+		if (method_exists($this->dbo, 'getTableCreate'))
+		{
+			return $this->dbo->getTableCreate($tables);
+		}
+
+		return array();
+	}
+
+	public function renameTable($oldTable, $newTable, $backup = null, $prefix = null)
+	{
+		if (method_exists($this->dbo, 'renameTable'))
+		{
+			return $this->dbo->renameTable($oldTable, $newTable, $backup, $prefix);
+		}
+
+		return $this;
+	}
+
+	public function setUtf()
+	{
+		if (method_exists($this->dbo, 'setUtf'))
+		{
+			return $this->dbo->setUtf();
+		}
+
+		return false;
+	}
+
+
+	protected function freeResult($cursor = null)
+	{
+		return false;
 	}
 
 	/**
