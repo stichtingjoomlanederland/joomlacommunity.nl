@@ -36,3 +36,8 @@ Desktop.ini
 # Tools #
 bower_components
 node_modules
+
+# Config files
+media/com_easydiscuss/config/
+media/com_komento/config/
+media/foundry/3.1/config/
