@@ -1,0 +1,7 @@
+[
+    {
+        "table": "#__discuss_users",
+        "column": "auth",
+        "query": "ALTER TABLE `#__discuss_users` ADD `auth` VARCHAR(255) NOT NULL;"
+    }
+]

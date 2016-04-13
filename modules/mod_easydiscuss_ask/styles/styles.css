@@ -1,0 +1,54 @@
+.discuss-mod.discuss-ask {
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+}
+
+.discuss-ask__header,
+.discuss-ask__content,
+.discuss-ask__footer {
+    padding: 5px;
+    font-size: 12px;
+}
+
+.discuss-ask-status {
+    border-radius: 5px;
+    vertical-align: middle;
+    padding: 0.2em 0.6em;
+    text-align: center;
+    display: inline;
+    font-size: 75%;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.online {
+    background-color: #d3f1d7;
+    border: 1px solid #39b54a;
+    color: #39b54a;
+}
+
+.offline {
+    background-color: #ffffff;
+    border: 1px solid #d9534f;
+    color: #d9534f;
+}
+
+.discuss-ask__content a span {
+    vertical-align: middle;
+    color: #FFFFFF !important;
+    padding: 5px;
+}
+
+.discuss-ask__content a {
+    background: #6daf51;
+    display:block;
+    text-align: center;
+    padding: 5px;
+}
+
+.discuss-ask--support {
+    background-color: #f1f1f1;
+    padding: 5px;
+}

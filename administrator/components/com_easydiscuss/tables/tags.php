@@ -13,7 +13,9 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussTags extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussTags extends EasyDiscussTable
 {
 	/*
 	 * The id of the tag
@@ -194,10 +196,8 @@ class DiscussTags extends JTable
 	{
 		parent::bind( $data );
 
-		if( empty( $this->created ) )
-		{
-			$date			= DiscussHelper::getDate();
-			$this->created	= $date->toMySQL();
+		if (!$this->created) {
+			$this->created = ED::date()->toSql();
 		}
 
 		jimport( 'joomla.filesystem.filter.filteroutput');

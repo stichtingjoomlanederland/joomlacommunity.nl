@@ -29,7 +29,7 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 
 		ob_start();
 		?>
-		<div style="display:none;" id="new_category_error" class="alert alert-error"></div>
+		<div style="display:none;" id="new_category_error" class="o-alert o-alert--error"></div>
 		<p><?php echo JText::_( 'COM_EASYDISCUSS_DIALOG_MOVE_CONTENT' ); ?></p>
 		<p>
 			<?php echo $categories; ?>

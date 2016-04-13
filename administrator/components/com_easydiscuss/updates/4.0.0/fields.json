@@ -1,0 +1,27 @@
+[
+    {
+        "table": "#__discuss_customfields",
+        "column": "required",
+        "query": "ALTER TABLE `#__discuss_customfields` ADD `required` TINYINT(3) NOT NULL AFTER `published`;"
+    },
+    {
+        "table": "#__discuss_customfields",
+        "column": "tooltips",
+        "query": "ALTER TABLE `#__discuss_customfields` ADD `tooltips` TEXT NOT NULL AFTER `title`;"
+    },
+    {
+        "table": "#__discuss_customfields",
+        "index": "idx_published_ordering",
+        "query": "ALTER TABLE `#__discuss_customfields` ADD INDEX `idx_published_ordering` (`published`, `ordering`);"
+    },
+    {
+        "table": "#__discuss_customfields_rule",
+        "index": "idx_access",
+        "query": "ALTER TABLE `#__discuss_customfields_rule` ADD INDEX `idx_access` (`field_id`, `content_type`, `acl_id`, `content_id`);"
+    },
+    {
+        "table": "#__discuss_customfields",
+        "column": "section",
+        "query": "ALTER TABLE `#__discuss_customfields` ADD `section` INT(1) NOT NULL DEFAULT '1' AFTER `published`;"
+    }
+]

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,9 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
-
-jimport('joomla.application.component.controller');
+defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussControllerCustomFields extends EasyDiscussController
 {
@@ -19,289 +17,210 @@ class EasyDiscussControllerCustomFields extends EasyDiscussController
 	{
 		parent::__construct();
 
+		$this->checkAccess('discuss.manage.customfields');
 
-		$this->registerTask( 'orderup' , 'orderup' );
-		$this->registerTask( 'orderdown' , 'orderdown' );
+		$this->registerTask('orderup', 'reorder');
+		$this->registerTask('orderdown', 'reorder');
 
-		$this->registerTask( 'add' , 'edit' );
-		$this->registerTask( 'apply' , 'save' );
-		$this->registerTask( 'savePublishNew' , 'save' );
-		$this->registerTask( 'customfields.edit', 'edit' );
+		$this->registerTask('publish', 'togglePublish');
+		$this->registerTask('unpublish', 'togglePublish');
+
+		$this->registerTask('save', 'save');
+		$this->registerTask('apply', 'save');
+		$this->registerTask('save2new', 'save');
 	}
 
-	public function edit()
-	{
-		$mainframe	= JFactory::getApplication();
-		$mainframe->redirect( 'index.php?option=com_easydiscuss&view=customfields&layout=form' );
-		return;
-	}
-
+	/**
+	 * Saves a custom field
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function save()
 	{
-		$mainframe	= JFactory::getApplication();
+		// Check for request forgeries
+		ED::checkToken();
 
-		$message	= '';
-		$type		= 'message';
+		// Get the posted data
+		$post = JRequest::get('post');
+	
+		// This could be an edited field
+		$id = $this->input->get('id', 0, 'int');
 
-		if( JRequest::getMethod() == 'POST' )
-		{
-			$post	= JRequest::get( 'post' );
+		// Determines the active tab
+		$active = $this->input->get('active', 'general', 'word');
 
-			if(empty($post['title']))
-			{
-				DiscussHelper::setMessageQueue( JText::_('COM_EASYDISCUSS_INVALID_CUSTOMFIELDS_TITLE') , DISCUSS_QUEUE_ERROR );
+		// Default redirection url
+		$redirect = 'index.php?option=com_easydiscuss&view=customfields&active=' . $active;
+		
 
-				$url  = 'index.php?option=com_easydiscuss&view=customfields';
-				$mainframe->redirect(JRoute::_($url, false));
-				return;
-			}
 
-			$my							= JFactory::getUser();
-			$post['created_user_id']	= $my->id;
-			$customId					= JRequest::getVar( 'custom_id' , '' );
-			$field						= DiscussHelper::getTable( 'CustomFields' );
-			$field->load( $customId );
+		// Bind the posted data with the library
+		$field = ED::field($id);
+		$field->bind($post);
 
-			$currentOrder = $field->rebuild();
 
-			switch( $post['type'] )
-			{
-				case 'text':
-					$post['params'] = serialize( $post['textValue'] );
-				break;
+		// Bind the field options
+		$options = $this->input->get('options', '', 'default');
+		$field->bindOptions($options);
 
-				case 'area':
-					$post['params'] = serialize( $post['textAreaValue'] );
-				break;
-
-				case 'check':
-					$post['params'] = serialize( $post['checkBoxValue'] );
-				break;
-
-				case 'radio':
-					$post['params'] = serialize( $post['radioBtnValue'] );
-				break;
-
-				case 'select':
-					$post['params'] = serialize( $post['selectValue'] );
-				break;
-
-				case 'multiple':
-					$post['params'] = serialize( $post['multipleValue'] );
-				break;
-
-				default:
-				break;
-			}
-
-			$field->bind( $post );
-
-			$message	= JText::_( 'COM_EASYDISCUSS_CUSTOMFIELDS_SAVED' );
-
-			if (!$field->store())
-			{
-				JError::raiseError(500, $field->getError() );
-			}
-
-			// Save customfields ACL
-			$model = $this->getModel( 'CustomFields' );
-
-			// Pass in the custom field id and the form information
-			$model->saveCustomFieldRule( $field->id, $post );
-
-		}
-		else
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_FORM_METHOD');
-			$type		= 'error';
+		// Validation
+		if (!$field->validate()) {
+			
+			// Set the error
+			ED::setMessage($field->getError(), 'error');
+			
+			return $this->app->redirect($redirect . '&layout=form');
 		}
 
-		// ****After Saved****
-
-		$task 	= $this->getTask();
-
-		DiscussHelper::setMessageQueue( $message , $type );
-
-		if( $task == 'savePublishNew' )
-		{
-			$mainframe->redirect( 'index.php?option=com_easydiscuss&view=customfields&layout=form' );
-			return $mainframe->close();
+		// Try to save the field now
+		if (!$field->save()) {
+			ED::setMessage($field->getError(), 'error');
+			return $this->app->redirect($redirect);
 		}
 
-		if( $task == 'apply' )
-		{
-			$mainframe->redirect( 'index.php?option=com_easydiscuss&view=customfields&layout=form&id=' . $field->id );
-			return $mainframe->close();
+		// Build the redirection options based on the task.
+		$task = $this->getTask();
+
+		if ($task == 'apply') {
+			$redirect .= '&layout=form&id=' . $field->id;
 		}
 
-		$mainframe->redirect( 'index.php?option=com_easydiscuss&view=customfields' );
-		return $mainframe->close();
+		if ($task == 'save2new') {
+			$redirect .= '&layout=form';
+		}
+
+		// Set the message
+		ED::setMessage('COM_EASYDISCUSS_CUSTOMFIELDS_SAVED', 'success');
+
+		return $this->app->redirect($redirect);
 	}
 
-	public function cancel()
-	{
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=customfields' );
-
-		return;
-	}
-
-	public function remove()
-	{
-		$customs		= JRequest::getVar( 'cid' , '' , 'POST' );
-
-		$message	= '';
-		$type		= 'message';
-
-		if( empty( $customs ) )
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_CUSTOMFIELDS_ID');
-			$type		= 'error';
-		}
-		else
-		{
-			$table		= DiscussHelper::getTable( 'CustomFields' );
-
-			foreach( $customs as $custom )
-			{
-				$table->load( $custom );
-
-				$ruleModel = $this->getModel( 'CustomFields' );
-				$ruleModel->deleteCustomFieldsValue( $custom, 'field' );
-				$ruleModel->deleteCustomFieldsRule( $custom );
-
-				if( !$table->delete() )
-				{
-					$message	= JText::_( 'COM_EASYDISCUSS_REMOVE_CUSTOMFIELDS_ERROR' );
-					$type		= 'error';
-					DiscussHelper::setMessageQueue( $message , $type );
-					$this->setRedirect( 'index.php?option=com_easydiscuss&view=customfields' );
-					return;
-				}
-			}
-
-			$message	= JText::_('COM_EASYDISCUSS_CUSTOMFIELDS_DELETED');
-		}
-		DiscussHelper::setMessageQueue( $message , $type );
-
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=customfields');
-	}
-
-	public function publish()
-	{
-		$customs	= JRequest::getVar( 'cid' , array(0) , 'POST' );
-
-		$message	= '';
-		$type		= 'message';
-
-		if( count( $customs ) <= 0 )
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_CUSTOMFIELDS_ID');
-			$type		= 'error';
-		}
-		else
-		{
-			$model		= $this->getModel( 'CustomFields' );
-
-			if( $model->publish( $customs , 1 ) )
-			{
-				$message	= JText::_('COM_EASYDISCUSS_CUSTOMFIELDS_PUBLISHED');
-			}
-			else
-			{
-				$message	= JText::_('COM_EASYDISCUSS_CUSTOMFIELDS_PUBLISHED_ERROR');
-				$type		= 'error';
-			}
-
-		}
-		DiscussHelper::setMessageQueue( $message , $type );
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=customfields' );
-	}
-
-	public function unpublish()
-	{
-		$customs		= JRequest::getVar( 'cid' , array(0) , 'POST' );
-
-		$message	= '';
-		$type		= 'message';
-
-		if( count( $customs ) <= 0 )
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_CUSTOMFIELDS_ID');
-			$type		= 'error';
-		}
-		else
-		{
-			$model		= $this->getModel( 'CustomFields' );
-
-			if( $model->publish( $customs , 0 ) )
-			{
-				$message	= JText::_('COM_EASYDISCUSS_CUSTOMFIELDS_UNPUBLISHED');
-			}
-			else
-			{
-				$message	= JText::_('COM_EASYDISCUSS_CUSTOMFIELDS_UNPUBLISHED_ERROR');
-				$type		= 'error';
-			}
-
-		}
-		DiscussHelper::setMessageQueue( $message , $type );
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=customfields' );
-	}
-
-	public function orderdown()
+	/**
+	 * Deletes a custom field
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function delete()
 	{
 		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
+		ED::checkToken();
 
-		self::orderCustomfields(1);
+		// Get the list of fields to be deleted
+		$ids = $this->input->get('cid', '', 'default');
+
+		$redirect = 'index.php?option=com_easydiscuss&view=customfields';
+		
+		foreach ($ids as $id) {
+			$id = (int) $id;
+			
+			$field = ED::field($id);
+			$state = $field->delete();
+
+			if (!$state) {
+				ED::setMessage($field->getError(), 'error');
+
+				return $this->app->redirect($redirect);
+			}
+		}
+
+		// Set the message
+		ED::setMessage('COM_EASYDISCUSS_CUSTOMFIELDS_DELETED', 'success');
+
+		$this->app->redirect($redirect);
 	}
 
-	public function orderup()
+	/**
+	 * Toggles a field publish state
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function togglePublish()
 	{
 		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
+		ED::checkToken();
 
-		self::orderCustomfields(-1);
+		// Get the current task
+		$task = $this->getTask();
+
+		$redirect = 'index.php?option=com_easydiscuss&view=customfields';
+
+		// Get the ids
+		$ids = $this->input->get('cid', array(), 'default');	
+
+		if (!$ids) {
+			ED::setMessage('COM_EASYDISCUSS_INVALID_CUSTOMFIELDS_ID');
+			return $this->app->redirect($redirect);
+		}
+
+		foreach ($ids as $id) {
+			$field = ED::field($id);
+
+			$field->$task();
+		}
+
+		$message = 'COM_EASYDISCUSS_CUSTOMFIELDS_PUBLISHED_SUCCESS';
+
+		if ($task == 'unpublish') {
+			$message = 'COM_EASYDISCUSS_CUSTOMFIELDS_UNPUBLISHED';
+		}
+
+		ED::setMessage($message, 'success');
+		
+		return $this->app->redirect($redirect);
 	}
 
-	public function orderCustomfields( $direction )
+	/**
+	 * Allows re-ordering of custom field
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function reorder()
 	{
 		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
+		ED::checkToken();
 
-		$app	= JFactory::getApplication();
+		// Get the direction
+		$task = $this->getTask();
+
+		// Get the direction
+		$direction = $task == 'orderup' ? 'up' : 'down';
 
 		// Initialize variables
-		$db		= DiscussHelper::getDBO();
-		$cid	= JRequest::getVar( 'cid', array(), 'post', 'array' );
+		$cid = $this->input->get('cid', array(), 'default');
 
-		if (isset( $cid[0] ))
-		{
-			$row = DiscussHelper::getTable( 'CustomFields' );
-			$row->load( (int) $cid[0] );
-			$row->move($direction);
-		}
+		// Get the field id
+		$id = (int) $cid[0];
 
-		$app->redirect( 'index.php?option=com_easydiscuss&view=customfields');
-		exit;
+		$field = ED::field($cid[0]);
+		$field->move($direction);
+
+		return $this->app->redirect('index.php?option=com_easydiscuss&view=customfields');
 	}
 
 	public function saveOrder()
 	{
 		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
-
-		$app	= JFactory::getApplication();
-
-		$row = DiscussHelper::getTable( 'CustomFields' );
+		ED::checkToken();
+		$row = ED::table('CustomFields');
 		$row->rebuildOrdering();
 
-		$message	= JText::_('COM_EASYDISCUSS_CUSTOMFIELDS_ORDERING_SAVED');
-		$type		= 'message';
+		$message = JText::_('COM_EASYDISCUSS_CUSTOMFIELDS_ORDERING_SAVED');
+		$type = 'message';
 
-		DiscussHelper::setMessageQueue( $message , $type );
+		ED::setMessage($message, $type);
 
-		$app->redirect( 'index.php?option=com_easydiscuss&view=customfields' );
-		exit;
+		return $this->app->redirect('index.php?option=com_easydiscuss&view=customfields');
 	}
 }

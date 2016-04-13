@@ -1,0 +1,1 @@
+ALTER TABLE `jos_discuss_mailq` ADD `ashtml` tinyint(1) NOT NULL;

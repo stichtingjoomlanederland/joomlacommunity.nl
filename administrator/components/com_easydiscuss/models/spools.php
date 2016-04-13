@@ -146,7 +146,7 @@ class EasyDiscussModelSpools extends EasyDiscussAdminModel
 		$mainframe			= JFactory::getApplication();
 
 		$filter_order		= $mainframe->getUserStateFromRequest( 'com_easydiscuss.spools.filter_order', 		'filter_order', 	'created', 'cmd' );
-		$filter_order_Dir	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.spools.filter_order_Dir',	'filter_order_Dir',	'', 'word' );
+		$filter_order_Dir	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.spools.filter_order_Dir',	'filter_order_Dir',	'desc', 'word' );
 
 		$orderby 	= ' ORDER BY '.$filter_order.' '.$filter_order_Dir;
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension type="plugin" version="3.0" group="content" method="upgrade">
+<extension version="2.5" type="plugin" group="content" method="upgrade">
 	<name>Content - EasyDiscuss</name>
 	<author>imarklee</author>
 	<creationDate>25/11/2011</creationDate>
@@ -7,7 +7,7 @@
 	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>stackideas.com</authorUrl>
-	<version>3.1.1</version>
+	<version>4.0.0</version>
 	<description>This plugin adds a discussion at the bottom of the article allowing the articles to be linked to EasyDiscuss</description>
 	<files>
 		<filename plugin="easydiscuss">easydiscuss.php</filename>
@@ -16,61 +16,11 @@
 		<folder>images</folder>
 		<folder>tmpl</folder>
 	</files>
-	<params addpath="/administrator/components/com_easydiscuss/elements">
-		<param type="textarea" rows="5" cols="20" name="allowed_components" label="Allow comments on component" description="Specify which components are allowed separated by a comma. Eg: com_content,com_easyblog" default="com_content,com_easyblog" />
-		<param type="categories" name="category_storage" label="Where should the article be stored?" description="Select which category should the article be stored in." /> 
-		<param type="text" name="include_category" label="Fetch articles from these categories" description="Separate each category with a comma e.g: 1,2,3. Leave blank for all categories" />
-		<param type="list" default="1" name="readmore_in_post" label="Show read more in post" description="If enabled, a read more link will be appended to the discussion post.">
-			<option value="1">Yes</option>
-			<option value="0">No</option>
-		</param>
-		<param type="list" default="1" name="frontpage_tools" label="Frontpage tools" description="Show or hide the frontpage tools.">
-			<option value="1">Show</option>
-			<option value="0">Hide</option>
-		</param>
-		<param type="list" default="1" name="frontpage_show_discussion" label="Show discussion link" description="If enabled, a discussion link will be displayed in the front page">
-			<option value="1">Yes</option>
-			<option value="0">No</option>
-		</param>
-		<param type="list" default="1" name="frontpage_show_hits" label="Show hits" description="If enabled, the hits will be displayed in the frontpage.">
-			<option value="1">Yes</option>
-			<option value="0">No</option>
-		</param>
-		<param type="list" default="1" name="frontpage_alignment" label="Frontpage alignment" description="Set the position of the hits and discuss links on the frontpage.">
-			<option value="left">Left</option>
-			<option value="right">Right</option>
-			<option value="center">Center</option>
-		</param>
-		<param type="text" default="5" name="items_count" size="5" label="Total replies to display" description="Set the number of items to be displayed in the responses section." />
-		<param type="list" default="1" name="allow_reply" label="Allow reply" description="If enabled, users will be able to submit a reply directly.">
-			<option value="1">Yes</option>
-			<option value="0">No</option>
-		</param>
-		<param type="list" default="1" name="allow_likes" label="Allow likes" description="If enabled, users will be able to like the content.">
-			<option value="1">Yes</option>
-			<option value="0">No</option>
-		</param>
-		<param type="list" default="1" name="show_online_users" label="Show online users" description="If enabled, users that are viewing the content will also be displayed.">
-			<option value="1">Yes</option>
-			<option value="0">No</option>
-		</param>
-		<param type="list" default="1" name="login_provider" label="Login provider" description="Select which login to use for the login link.">
-			<option value="joomla">Joomla</option>
-			<option value="cb">Community Builder</option>
-			<option value="jomsocial">JomSocial</option>
-		</param>
-		<param type="list" default="1" name="registration_provider" label="Show online users" description="If enabled, users that are viewing the content will also be displayed.">
-			<option value="joomla">Joomla</option>
-			<option value="cb">Community Builder</option>
-			<option value="jomsocial">JomSocial</option>
-		</param>
-	</params>
-	
 	<config>
 		<fields name="params">
 			<fieldset name="basic" addfieldpath="/administrator/components/com_easydiscuss/elements/fields">
 				<field type="textarea" rows="5" cols="20" name="allowed_components" label="Allow comments on component" description="Specify which components are allowed separated by a comma. Eg: com_content,com_easyblog" default="com_content,com_easyblog" />
-				<field type="modal_categories" name="category_storage" label="Where should the article be stored?" description="Select which category should the article be stored in." /> 
+				<field type="modal_categories" name="category_storage" label="Where should the article be stored?" description="Select which category should the article be stored in." />
 				<field name="include_category" type="category" extension="com_content" multiple="true" size="10" default="all" label="Fetch articles from these categories" description="Select the category that you want the plugin to appear in." />
 				<field name="exclude_category" type="category" extension="com_content" multiple="true" size="10" label="Exclude articles from these categories" description="Select the category that you do not want the plugin to appear in." />
 				<field type="text" name="exclude_articles" label="Exclude article id's" description="Separate each article id with a comma e.g: 1,2,3. Leave blank to not exclude any articles" />
@@ -116,14 +66,15 @@
 					<option value="joomla">Joomla</option>
 					<option value="cb">Community Builder</option>
 					<option value="jomsocial">JomSocial</option>
+					<option value="easysocial">EasySocial</option>
 				</field>
-				<field type="list" default="1" name="registration_provider" label="Show online users" description="If enabled, users that are viewing the content will also be displayed.">
+				<field type="list" default="1" name="registration_provider" label="Registration Provider" description="If enabled, users that are viewing the content will also be displayed.">
 					<option value="joomla">Joomla</option>
 					<option value="cb">Community Builder</option>
 					<option value="jomsocial">JomSocial</option>
+					<option value="easysocial">EasySocial</option>
 				</field>
 			</fieldset>
 		</fields>
-	</config>			
-	
+	</config>
 </extension>

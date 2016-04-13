@@ -11,8 +11,9 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
+ED::import('admin:/tables/table');
 
-class DiscussPostAssignment extends JTable
+class DiscussPostAssignment extends EasyDiscussTable
 {
 	public $id			= null;
 	public $post_id		= null;
@@ -49,9 +50,8 @@ class DiscussPostAssignment extends JTable
 
 	public function store( $updateNulls = false )
 	{
-		if( empty($this->created) || $this->created == '0000-00-00 00:00:00' )
-		{
-			$this->created	= DiscussHelper::getDate()->toMySQL();
+		if (empty($this->created) || $this->created == '0000-00-00 00:00:00') {
+			$this->created = ED::date()->toSql();
 		}
 
 		return parent::store();

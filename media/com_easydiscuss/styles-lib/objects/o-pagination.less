@@ -1,0 +1,96 @@
+// Pagination
+// ----------------
+
+.o-pagination-wrap {
+  line-height: 1;
+  font-size: @fd-base-font-size;
+}
+//
+// Pagination (multiple pages)
+// --------------------------------------------------
+.o-pagination {
+  display: inline-block;
+  padding-left: 0;
+  margin: 0;
+  border-radius: @fd-ui-radius;
+
+  > li {
+    display: inline; // Remove list-style and block-level defaults
+    > a,
+    > span {
+      position: relative;
+      float: left; // Collapse white-space
+      padding: @padding-base-vertical @padding-base-horizontal;
+      line-height: @line-height-base;
+      text-decoration: none;
+      color: @fd-pagination-color;
+      background-color: @fd-pagination-bg;
+      border: 1px solid @fd-pagination-border;
+      margin-left: -1px;
+    }
+    &:first-child {
+      > a,
+      > span {
+        margin-left: 0;
+        .border-left-radius(@fd-ui-radius);
+      }
+    }
+    &:last-child {
+      > a,
+      > span {
+        .border-right-radius(@fd-ui-radius);
+      }
+    }
+  }
+
+  > li > a,
+  > li > span {
+    &:hover,
+    &:focus {
+      z-index: 3;
+      color: @fd-pagination-hover-color;
+      background-color: @fd-pagination-hover-bg;
+      border-color: @fd-pagination-hover-border;
+    }
+  }
+
+  > .active > a,
+  > .active > span {
+    &,
+    &:hover,
+    &:focus {
+      z-index: 2;
+      color: @fd-pagination-active-color;
+      background-color: @fd-pagination-active-bg;
+      border-color: @fd-pagination-active-border;
+      cursor: default;
+    }
+  }
+
+  > .disabled {
+    > span,
+    > span:hover,
+    > span:focus,
+    > a,
+    > a:hover,
+    > a:focus {
+      color: @fd-pagination-disabled-color;
+      background-color: @fd-pagination-disabled-bg;
+      border-color: @fd-pagination-disabled-border;
+      // cursor: @cursor-disabled;
+    }
+  }
+}
+
+// Sizing
+// --------------------------------------------------
+
+// // Large
+// .pagination-lg {
+//   .pagination-size(@padding-large-vertical; @padding-large-horizontal; @font-size-large; @line-height-large; @border-radius-large);
+// }
+
+// // Small
+// .pagination-sm {
+//   .pagination-size(@padding-small-vertical; @padding-small-horizontal; @font-size-small; @line-height-small; @border-radius-small);
+// }

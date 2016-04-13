@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,132 +11,95 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-require_once( DISCUSS_ROOT . '/views.php' );
+require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewFavourites extends EasyDiscussView
 {
+	/**
+	 * Allows caller to mark a post as favourite
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function favourite()
 	{
-		$my			= JFactory::getUser();
-		$ajax		= DiscussHelper::getHelper( 'ajax' );
-		$config		= DiscussHelper::getConfig();
-
 		// Get the post.
-		$postId	 	= JRequest::getInt( 'postid' );
-		$post		= DiscussHelper::getTable( 'Post' );
-		$post->load( $postId );
+		$postId	= $this->input->get('postid', 0, 'int');
 
-		// Is this a reply?
-		if( $post->isReply() )
-		{
-			$ajax->reject();
-			return $ajax->send();
-		}
+        // Load the post object
+        $post = ED::post($postId);
 
-		// Is the backend option enabled?
-		if( !$config->get( 'main_favorite' ) )
-		{
-			// show error msg
-			$ajax->reject();
-			return $ajax->send();
-		}
+        if (!$post->canFav()) {
+        	return $this->ajax->reject();
+        }
 
-		// Is it a valid user?
-		if( !$my->id )
-		{
-			$ajax->reject();
-			return $ajax->send();
-		}
+		// Here we need to load the favourite library
+		$favourite = ED::favourite();
 
-		// Get favourite table
-		$favModel	= DiscussHelper::getModel( 'Favourites' );
-
-		// Check to see is it favourited previously
-		// If the status is false means there is no record in the database, not yet favourited.
-		$status		= $favModel->isFav( $post->id, $my->id );
-
-		// Determine what action to take
-		$type		= $status ? 'removeFav' : 'addFav';
-
-		if( $type == 'addFav' )
-		{
-			DiscussHelper::getHelper( 'easysocial' )->favouriteStream( $post );
-			DiscussHelper::getHelper( 'Points' )->assign( 'easydiscuss.favourite.discussion' , $my->id );
-		}
-		else
-		{
-			DiscussHelper::getHelper( 'Points' )->assign( 'easydiscuss.unfavourite.discussion' , $my->id );
-		}
-
-		// Is the process run successfully?
-		$result		= $favModel->$type( $post->id, $my->id );
-
-		if( !$result )
-		{
-			$ajax->reject();
-			return $ajax->send();
-		}
-
-		// Tell the js controller what action you took
-		$action		= $type == 'addFav';
+		// Lets library do the work
+		$result = $favourite->favourite($post);
 
 
-		//Count total favourites
-		$favCount	= $post->getMyFavCount();
+		return $this->ajax->resolve($result);
 
-		// True = just added favourite
-		// False = just removed favourite
-		$ajax->resolve( $action, $favCount );
-		return $ajax->send();
 	}
 
-	public function remove()
+	/**
+	 * Processes a unfavourite request
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function unfavourite()
 	{
-		$my			= JFactory::getUser();
-		$ajax		= DiscussHelper::getHelper( 'ajax' );
-		$config		= DiscussHelper::getConfig();
-
 		// Get the post.
-		$postId	 	= JRequest::getInt( 'postid' );
-		$post		= DiscussHelper::getTable( 'Post' );
-		$post->load( $postId );
+		$postId = $this->input->get('postid', 0, 'int');
 
-		// Is this a reply?
-		if( $post->isReply() )
-		{
-			$ajax->reject();
-			return $ajax->send();
-		}
+        // Load the new post object
+        $post = ED::post($postId);
 
-		// Is the backend option enabled?
-		if( !$config->get( 'main_favorite' ) )
-		{
-			// show error msg
-			$ajax->reject();
-			return $ajax->send();
-		}
+		if (!$post->canFav()) {
+			return $this->ajax->reject();
+        }
 
-		// Is it a valid user?
-		if( !$my->id )
-		{
-			$ajax->reject();
-			return $ajax->send();
-		}
+		// Here we need to load the favourite library
+		$favourite = ED::favourite();
 
-		// Get favourite table
-		$favModel	= DiscussHelper::getModel( 'Favourites' );
-		$result		= $favModel->removeFav( $post->id, $my->id );
+		// Lets library do the work
+		$result = $favourite->unfavourite($post);
+		
+		// Return the result
+		return $this->ajax->resolve($result);
+	}
 
-		if( !$result )
-		{
-			$ajax->reject();
-			return $ajax->send();
-		}
+	/**
+	 * Processes the popbox request
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function popbox()
+	{
+		// Get the post.
+		$postId = $this->input->get('postid', 0, 'int');
 
-		// Update JomSocial Status
-		// code..
+		$user = ED::user();
 
-		$ajax->resolve( $postId );
-		return $ajax->send();
+		// Here we need to load the favourite library
+		$result = ED::favourite()->getFavourite($postId, $user->id);
+
+		$theme = ED::themes();
+		$theme->set('result', $result);
+		$theme->set('action', 'COM_EASYDISCUSS_POPBOX_FAVOURITE');
+
+		$output = $theme->output('site/favourites/popbox');
+
+		return $this->ajax->resolve($output);
 	}
 }

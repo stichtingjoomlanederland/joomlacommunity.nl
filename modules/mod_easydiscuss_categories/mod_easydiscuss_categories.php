@@ -1,8 +1,8 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
+ * @package     mod_easydiscuss_categories
+ * @copyright   Copyright (C) 2016 Stack Ideas Private Limited. All rights reserved.
+ * @license     GNU/GPL, see LICENSE.php
  *
  * EasyDiscuss is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -10,20 +10,29 @@
  * other free or open source software licenses.
  * See COPYRIGHT.php for copyright notices and details.
  */
-// no direct access
+
 defined('_JEXEC') or die('Restricted access');
 
-require_once JPATH_ROOT . '/components/com_easydiscuss/helpers/helper.php';
-require_once DISCUSS_HELPERS . '/string.php';
+// Load ED engine
+$path = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php';
+if (!JFile::exists($path)) {
+    return;
+}
+
+require_once($path);
 require_once dirname( __FILE__ ) . '/helper.php';
 
-$lang	= JFactory::getLanguage();
-$lang->load('mod_easydiscuss_categories', JPATH_ROOT);
+ED::init();
 
-$categories	= modEasydiscussCategoriesHelper::getData($params);
-$selected	= '';
+// Load language
+JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
 
-$document	= JFactory::getDocument();
-DiscussHelper::loadStylesheet("module", "mod_easydiscuss_categories");
+$categories = modEasydiscussCategoriesHelper::getData($params);
 
-require( JModuleHelper::getLayoutPath( 'mod_easydiscuss_categories' ) );
+
+$tpl = 'default';
+if ($params->get('layouttype') == 'tree') {
+    $tpl = 'tree';
+}
+
+require( JModuleHelper::getLayoutPath( 'mod_easydiscuss_categories', $tpl ) );

@@ -1,0 +1,62 @@
+<?php
+/**
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Restricted access');
+
+require_once dirname( __FILE__ ) . '/model.php';
+
+class EasyDiscussModelOAuth extends EasyDiscussAdminModel
+{
+	/**
+	 * Retrieves a list of sites that is configured
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getSites()
+	{
+		$db = $this->db;
+
+
+		$query = 'SELECT * FROM ' . $db->qn('#__discuss_oauth');
+		$query .= ' WHERE ' . $db->qn('access_token') . ' != ""';
+
+		$db->setQuery($query);
+
+		$sites = $db->loadObjectList();
+
+		return $sites;
+	}
+
+	/**
+	 * Determines if the post id was posted previously
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function isAutoposted($postId, $oauthId)
+	{
+		$db = $this->db;
+
+		$query = 'SELECT COUNT(1) FROM ' . $db->qn('#__discuss_oauth_posts');
+		$query .= ' WHERE ' . $db->qn('post_id') . '=' . $db->Quote($postId);
+		$query .= ' AND ' . $db->qn('oauth_id') . '=' . $db->Quote($oauthId);
+
+		$db->setQuery($query);
+		$exists = $db->loadResult() > 0;
+
+		return $exists;
+	}
+}

@@ -11,83 +11,65 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-require_once( DISCUSS_ROOT . '/views.php' );
+require_once( DISCUSS_ROOT . '/views/views.php' );
 
 class EasyDiscussViewProfile extends EasyDiscussView
 {
-	function display( $tmpl = null )
+	function display($tmpl = null)
 	{
-
-		$config = DiscussHelper::getConfig();
-
-		if( !$config->get( 'main_rss') )
-		{
+		if (!$this->config->get('main_rss')) {
 			return;
 		}
 
-		$userid		= JRequest::getInt( 'id' , null );
-		$user		= JFactory::getUser( $userid );
+		$userid = $this->input->get('id', null);
+		$user = ED::user($userid);
 
-		$document		= JFactory::getDocument();
-		$document->link	= DiscussRouter::_('index.php?option=com_easydiscuss&view=profile&id=' . $user->id );
+		$this->doc->link = EDR::_('index.php?option=com_easydiscuss&view=profile&id=' . $user->id);
 
-		$profile	= DiscussHelper::getTable( 'Profile' );
-		$profile->load( $user->id );
+		$this->doc->setTitle($user->getName());
+		$this->doc->setDescription($user->getDescription());
 
-		$document->setTitle( $profile->getName() );
-		$document->setDescription( $profile->getDescription() );
+		$model = ED::model('Posts');
+		$posts = $model->getPostsBy('user', $user->id);
 
-		$jConfig = DiscussHelper::getJConfig();
+		$posts = ED::formatPost($posts);
 
-		$model	= $this->getModel( 'Posts' );
-		$posts	= $model->getPostsBy( 'user' , $profile->id );
-
-		$posts	= DiscussHelper::formatPost($posts);
-
-		foreach( $posts as $row )
-		{
+		foreach ($posts as $row) {
 
 			// Assign to feed item
-			$title	= $this->escape( $row->title );
-			$title	= html_entity_decode( $title );
+			$title = $this->escape($row->title);
+			$title = html_entity_decode($title);
 
 			// load individual item creator class
-			$item				= new JFeedItem();
-			$item->title		= $title;
-			$item->link			= JRoute::_('index.php?option=com_easydiscuss&view=post&id=' . $row->id );
-			$item->description	= $row->content;
-			$item->date			= DiscussHelper::getDate( $row->created )->toMySQL();
+			$item = new JFeedItem();
+			$item->title = $title;
+			$item->link = JRoute::_('index.php?option=com_easydiscuss&view=post&id=' . $row->id);
+			$item->description = $row->getContent();
+			$item->date = ED::date($row->created)->toSql();
 
-			if( !empty( $row->tags ) )
-			{
-				$tagData	= array();
-				foreach( $row->tags as $tag )
-				{
-					$tagData[] = '<a href="' . JRoute::_('index.php?option=com_easydiscuss&view=tags&id=' . $tag->id ) . '">' . $tag->title . '</a>';
+			if (!empty($row->tags)) {
+				$tagData = array();
+				foreach ($row->tags as $tag) {
+					$tagData[] = '<a href="' . JRoute::_('index.php?option=com_easydiscuss&view=tags&id=' . $tag->id) . '">' . $tag->title . '</a>';
 				}
-				$row->tags	= implode(', ', $tagData);
-			}
-			else
-			{
-				$row->tags	= '';
+
+				$row->tags = implode(', ', $tagData);
 			}
 
-			$item->category		= $row->tags;
-			$item->author		= $row->user->getName();
+			$item->category = $row->tags;
+			$item->author = $user->getName();
 
-			if( $jConfig->get( 'feed_email' ) != 'none' )
-			{
-				if( $jConfig->get( 'feed_email' ) == 'author' )
-				{
-					$item->authorEmail	= $row->user->email;
-				}
-				else
-				{
-					$item->authorEmail	= $jConfig->get( 'mailfrom' );
+			if ($this->jconfig->get('feed_email') != 'none') {
+
+				// default email
+				$item->authorEmail = $this->jconfig->get('mailfrom');
+
+				if ($this->jconfig->get('feed_email') == 'author') {
+					$item->authorEmail = $row->user->email;
 				}
 			}
 
-			$document->addItem( $item );
+			$this->doc->addItem($item);
 		}
 	}
 }

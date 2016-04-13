@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -13,238 +13,207 @@ defined('_JEXEC') or die('Restricted access');
 
 class EasyDiscussControllerTags extends EasyDiscussController
 {
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 
-		$this->registerTask( 'add' , 'edit' );
+		$this->checkAccess('discuss.manage.tags');
+
 		$this->registerTask('unpublish', 'unpublish');
-		$this->registerTask( 'savePublishNew' , 'save' );
+		$this->registerTask('apply', 'save');
+		$this->registerTask('save2new', 'save');
 	}
 
-	function save()
+	public function save()
 	{
-		$mainframe	= JFactory::getApplication();
+		$message = '';
+		$type = 'success';
+		$task = $this->getTask();
+		$url = 'index.php?option=com_easydiscuss&view=tags';
 
-		$message	= '';
-		$type		= 'message';
+		// Retrive the post. 
+		if (JRequest::getMethod() == 'POST') {
+			
+			$post = JRequest::get('post');
 
-		$task 		= $this->getTask();
+			// Retrieve the tagId.
+			$tagId = $this->input->get('tagid', '', 'var');
 
-		if( JRequest::getMethod() == 'POST' )
-		{
-			$post				= JRequest::get( 'post' );
-
-			if(empty($post['title']))
-			{
-				DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_INVALID_TAG' ) , DISCUSS_QUEUE_ERROR );
-				$url  = 'index.php?option=com_easydiscuss&view=tags';
-				$mainframe->redirect(JRoute::_($url, false));
-				return;
+			// Validation.
+			if (empty($post['title'])) {
+				ED::setMessage(JText::_('COM_EASYDISCUSS_EMPTY_TAG_TITLE'), 'error');
+				if (!$tagId) {
+					return $this->app->redirect(EDR::_($url . '&layout=form', false));
+				}
+				return $this->app->redirect(EDR::_($url . '&layout=form&id=' . $tagId, false));
 			}
 
-			$user				= JFactory::getUser();
-			$post['user_id']	= $user->id;
-			$tagId				= JRequest::getVar( 'tagid' , '' );
-			$tag				= JTable::getInstance( 'tags', 'Discuss' );
+			// Retrieve the current user_id
+			$post['user_id'] = $this->my->id;
 
-			if( !empty( $tagId ) )
-			{
-				$tag->load( $tagId );
-			}
-			else
-			{
-				$tagModel 	= $this->getModel( 'Tags' );
-				$result 	= $tagModel->searchTag($tag->title);
+			$tag = ED::table('tags');
 
-				if(!empty($result))
-				{
-					DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_TAG_EXISTS' ) , DISCUSS_QUEUE_ERROR );
-					$mainframe->redirect( 'index.php?option=com_easydiscuss&view=tags' );
+			// If the tagId is provided, then it is a edit.
+			if (!empty($tagId)) {
+				// Load the tagId.
+				$tag->load($tagId);
+
+			} else {
+				// If the tagId is not provided, then we'll need to search tags with similar name.
+				// If found, return.
+				$tagModel = ED::model('Tags');
+				$result = $tagModel->searchTag($tag->title);
+
+				if (!empty($result)) {
+					ED::setMessage(JText::_('COM_EASYDISCUSS_TAG_EXISTS'), 'error');
+					$this->app->redirect($url);
 				}
 			}
 
-			$tag->bind( $post );
+			$tag->bind($post);
 
 			$tag->title = JString::trim($tag->title);
 			$tag->alias = JString::trim($tag->alias);
 
-			if (!$tag->store())
-			{
-				JError::raiseError(500, $tag->getError() );
-			}
-			else
-			{
-				$message	= JText::_( 'COM_EASYDISCUSS_TAG_SAVED' );
+			$status = $tag->store();
+
+			if (!$status) {
+				JError::raiseError(500, $tag->getError());
+			} else {
+				$message = JText::_('COM_EASYDISCUSS_TAG_SAVED');
 			}
 
-			$mergeTo	= isset($post['mergeTo']) ? (int) $post['mergeTo'] : 0;
+			$mergeTo = isset($post['mergeTo']) ? (int) $post['mergeTo'] : 0;
 
-			$mergeToTag	= DiscussHelper::getTable( 'Tags' );
+			$mergeToTag	= ED::table('Tags');
 			$mergeToTag->load($mergeTo);
 
-			if( $mergeToTag->id > 0 && $tag->id > 0 )
-			{
+			if ($mergeToTag->id > 0 && $tag->id > 0) {
 				// Move to merge tag id
-				$db		= DiscussHelper::getDBO();
+				$db	= ED::db();
 
 				// Find posts tagged in both id
 				$query	= 'SELECT a.id FROM #__discuss_posts_tags AS a'
 						. ' LEFT JOIN #__discuss_posts_tags AS b ON b.post_id = a.post_id'
-						. ' WHERE a.tag_id = ' . $db->quote( $tag->id )
-						. ' AND b.tag_id = ' . $db->quote( $mergeToTag->id )
+						. ' WHERE a.tag_id = ' . $db->quote($tag->id)
+						. ' AND b.tag_id = ' . $db->quote($mergeToTag->id)
 						. ' GROUP BY a.post_id';
-				$db->setQuery( $query );
-				$excludeIds		= $db->loadResultArray();
+				$db->setQuery($query);
+				$excludeIds = $db->loadResultArray();
 
 				// Do not update post having both tags, let $table->delete() handle them
 				$query	= 'UPDATE `#__discuss_posts_tags`'
 						. ' SET `tag_id` = ' . $db->quote($mergeToTag->id)
 						. ' WHERE `tag_id` = ' . $db->quote($tag->id);
 
-				if( count($excludeIds) > 0 )
-				{
+				if (count($excludeIds) > 0) {
 					JArrayHelper::toInteger($excludeIds);
 
 					$query .= ' AND `id` NOT IN (' . implode(',', $excludeIds) . ')';
 				}
 
-				$db->setQuery( $query );
+				$db->setQuery($query);
 				$db->query();
 
 				$tag->delete();
 			}
-		}
-		else
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_FORM_METHOD');
-			$type		= 'error';
+		} else {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_FORM_METHOD');
+			$type = 'error';
 		}
 
-		DiscussHelper::setMessageQueue( $message , $type );
+		ED::setMessage($message, $type);
 
-		if( $task == 'savePublishNew' )
-		{
-			$mainframe->redirect( 'index.php?option=com_easydiscuss&view=tag' );
-			$mainframe->close();
+		if ($task == 'save2new') {
+			return $this->app->redirect($url . '&layout=form');
 		}
 
-		$mainframe->redirect( 'index.php?option=com_easydiscuss&view=tags' );
+		if ($task == 'apply') {
+			return $this->app->redirect($url . '&layout=form&id=' . $tag->id);
+		}
+
+		return $this->app->redirect($url);
 	}
 
-	function cancel()
+	public function cancel()
 	{
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=tags' );
-
-		return;
+		return $this->app->redirect('index.php?option=com_easydiscuss&view=tags');
 	}
 
-	function edit()
+	public function remove()
 	{
-		JRequest::setVar( 'view', 'tag' );
-		JRequest::setVar( 'tagid' , JRequest::getVar( 'tagid' , '' , 'REQUEST' ) );
+		$tags = $this->input->get('cid', '', 'POST');
 
-		parent::display();
-	}
-
-	function remove()
-	{
-		$tags	= JRequest::getVar( 'cid' , '' , 'POST' );
-
-		$message	= '';
-		$type		= 'success';
-
-		if( empty( $tags ) )
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_TAG_ID');
-			$type		= 'error';
-		}
-		else
-		{
-			$table		= JTable::getInstance( 'Tags' , 'Discuss' );
-			foreach( $tags as $tag )
-			{
-				$table->load( $tag );
-
-				if( !$table->delete() )
-				{
-					$message	= JText::_( 'COM_EASYDISCUSS_REMOVE_TAG_ERROR' );
-					$type		= 'error';
-					DiscussHelper::setMessageQueue( $message , $type );
-					$this->setRedirect( 'index.php?option=com_easydiscuss&view=tags' );
-					return;
-				}
-			}
-
-			$message	= JText::_('COM_EASYDISCUSS_TAG_DELETED');
+		if (empty($tags)) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_TAG_ID'), 'error');
+			return $this->app->redirect('index.php?option=com_easydiscuss&view=tags');
 		}
 
-		DiscussHelper::setMessageQueue( $message , $type );
+		$table = ED::table('Tags');
 
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=tags' );
-	}
+		foreach ($tags as $tag) {
+			$table->load($tag);
 
-	function publish()
-	{
-		$tags	= JRequest::getVar( 'cid' , array(0) , 'POST' );
-
-		$message	= '';
-		$type		= 'success';
-
-		if( count( $tags ) <= 0 )
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_TAG_ID');
-			$type		= 'error';
-		}
-		else
-		{
-			$model		= $this->getModel( 'Tags' );
-
-			if( $model->publish( $tags , 1 ) )
-			{
-				$message	= JText::_('COM_EASYDISCUSS_TAG_PUBLISHED');
-			}
-			else
-			{
-				$message	= JText::_('COM_EASYDISCUSS_TAG_PUBLISH_ERROR');
-				$type		= 'error';
+			if (!$table->delete()) {
+				ED::setMessage(JText::_('COM_EASYDISCUSS_REMOVE_TAG_ERROR'), 'error');
+				return $this->app->redirect('index.php?option=com_easydiscuss&view=tags');
 			}
 
 		}
-		DiscussHelper::setMessageQueue( $message , $type );
 
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=tags' );
+		ED::setMessage(JText::_('COM_EASYDISCUSS_TAG_DELETED'), 'success');
+
+		return $this->app->redirect('index.php?option=com_easydiscuss&view=tags');
 	}
 
-	function unpublish()
+	public function publish()
 	{
-		$tags	= JRequest::getVar( 'cid' , array(0) , 'POST' );
+		$tags = $this->input->get('cid', array(0), 'POST');
+		$message = '';
+		$type = 'success';
 
-		$message	= '';
-		$type		= 'success';
+		if (count($tags) <= 0) {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_TAG_ID');
+			$type = 'error';
+		} else {
+			$model = ED::model('Tags');
 
-		if( count( $tags ) <= 0 )
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_TAG_ID');
-			$type		= 'error';
-		}
-		else
-		{
-			$model		= $this->getModel( 'Tags' );
-
-			if( $model->publish( $tags , 0 ) )
-			{
-				$message	= JText::_('COM_EASYDISCUSS_TAG_UNPUBLISHED');
-			}
-			else
-			{
-				$message	= JText::_('COM_EASYDISCUSS_TAG_UNPUBLISH_ERROR');
-				$type		= 'error';
+			if ($model->publish($tags, 1)) {
+				$message = JText::_('COM_EASYDISCUSS_TAG_PUBLISHED');
+			} else {
+				$message = JText::_('COM_EASYDISCUSS_TAG_PUBLISH_ERROR');
+				$type = 'error';
 			}
 
 		}
-		DiscussHelper::setMessageQueue( $message , $type );
 
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=tags' );
+		ED::setMessage($message, $type);
+
+		$this->app->redirect('index.php?option=com_easydiscuss&view=tags');
+	}
+
+	public function unpublish()
+	{
+		$tags = $this->input->get('cid', array(0), 'POST');
+		$message = '';
+		$type = 'success';
+
+		if (count($tags) <= 0) {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_TAG_ID');
+			$type = 'error';
+		} else {
+			$model = ED::model('Tags');
+
+			if ($model->publish($tags, 0)) {
+				$message = JText::_('COM_EASYDISCUSS_TAG_UNPUBLISHED');
+			} else {
+				$message = JText::_('COM_EASYDISCUSS_TAG_UNPUBLISH_ERROR');
+				$type = 'error';
+			}
+		}
+
+		ED::setMessage($message, $type);
+
+		$this->app->redirect('index.php?option=com_easydiscuss&view=tags');
 	}
 }

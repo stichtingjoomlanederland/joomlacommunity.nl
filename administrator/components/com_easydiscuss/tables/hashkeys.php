@@ -11,7 +11,9 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussHashKeys extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussHashKeys extends EasyDiscussTable
 {
 	public $id		= null;
 	public $uid		= null;
@@ -80,6 +82,6 @@ class DiscussHashKeys extends JTable
 	 */
 	public function generate()
 	{
-		return JString::substr( md5( $this->uid . $this->type . DiscussHelper::getDate()->toMySQL() ) , 0 , 12 );
+		return JString::substr( md5( $this->uid . $this->type . ED::date()->toSql() ) , 0 , 12 );
 	}
 }

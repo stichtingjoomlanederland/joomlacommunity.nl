@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,95 +9,40 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-jimport( 'joomla.application.component.view');
-
-require_once( dirname( dirname( dirname( __FILE__ ) ) ) . '/views.php' );
+require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
 class EasyDiscussViewCustomFields extends EasyDiscussAdminView
 {
-	public function getAdvanceOption()
+	/**
+	 * Retrieves a list of available options for a custom field type
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getOptions()
 	{
-		$ajax 		= DiscussHelper::getHelper( 'Ajax' );
-		$active		= JRequest::getVar( 'activeType' );
-		$id			= JRequest::getInt( 'customId' );
+		// Get the active field type
+		$type = $this->input->get('type', '', 'word');
 
+		// This custom field could have been edited.
+		$id = $this->input->get('id', 0, 'int');
 
-		// $active IS BASED ON WHAT THE USER SELECTED IN THE SELECT LIST
-		if( empty($active) )
-		{
-			$ajax->reject();
-			return $ajax->send();
+		if (!$type) {
+			return $this->ajax->reject(JText::_('Invalid field type provided'));
 		}
 
-		$field 	= DiscussHelper::getTable( 'CustomFields' );
+		$field = ED::field($id);
+		$field->setType($type);
 
-		if( !empty($id) )
-		{
-			$field->load( $id );
-		}
+		$theme = ED::themes();
+		$theme->set('field', $field);
 
-		$result = $field->getAdvanceOption( $active );
+		$output = $theme->output('admin/fields/options');
 
-		$ajax->resolve( $result['addButton'], $result['html'], $result['count'] );
-		return $ajax->send();
-	}
-
-	public function addFieldOption()
-	{
-		$ajax 		= DiscussHelper::getHelper( 'Ajax' );
-		$addField	= JRequest::getVar( 'activeType' );
-		$count		= JRequest::getInt( 'fieldCount' );
-
-		if( !empty($id) )
-		{
-			//Get previous value
-			$field 	= DiscussHelper::getTable( 'CustomFields' );
-			$field->load( $id );
-		}
-
-		if( empty($addField) )
-		{
-			$ajax->reject();
-			return $ajax->send();
-		}
-
-		switch( $addField )
-		{
-			case 'radiobtn':
-				$fieldName = 'radioBtnValue[]';
-			break;
-			case 'checkbox':
-				$fieldName = 'checkBoxValue[]';
-			break;
-			case 'selectlist':
-				$fieldName = 'selectValue[]';
-			break;
-			case 'multiplelist':
-				$fieldName = 'multipleValue[]';
-			break;
-			default:
-			break;
-		}
-
-		// We need to add 1 from the previous count for the next item
-		$count++;
-		//We do not want add button for text and textarea
-		if( $addField != 'text' || $addField != 'area' )
-		{
-			//New field
-			$html 	= '<li class="remove'.$addField.'_'.$count.'">'
-					. '<div class="span10 remove'.$addField.'_'.$count.'">'
-					. '<div class="input-append remove'.$addField.'_'.$count.'">'
-					. '<input type="text" class="input-full '.$addField.'" id="'.$addField.'_'.$count.'" name="'. $fieldName .'" value="" />'
-					. '<button type="button" id="'.$count.'" class="btn btn-danger btn-customfield-remove" name="Remove" data-removetype="'.$addField.'"><i class="icon-remove"></i></button>'
-					. '</div>'
-					. '</div>'
-					. '</li>';
-		}
-
-		$ajax->resolve( $html, $count );
-		return $ajax->send();
+		return $this->ajax->resolve($output);
 	}
 }

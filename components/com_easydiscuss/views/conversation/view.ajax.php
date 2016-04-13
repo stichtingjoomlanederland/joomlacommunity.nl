@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,351 +9,280 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once( DISCUSS_ROOT . '/views.php' );
+require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewConversation extends EasyDiscussView
 {
 	/**
-	 * Loads a list of new messages via ajax.
+	 * Retrieves the list of conversations
 	 *
-	 * @since	3.0
+	 * @since	4.0
 	 * @access	public
-	 * @param	null
+	 * @param	string
+	 * @return	
 	 */
-	public function load()
+	public function getConversations()
 	{
-		$my		= JFactory::getUser();
-		$ajax	= DiscussHelper::getHelper( 'Ajax' );
+		// Require user to be logged in
+		ED::requireLogin();
 
-		$config	= DiscussHelper::getConfig();
+		// Get the conversation type
+		$type = $this->input->get('type', '', 'word');
 
-		if( $my->id <= 0 || !$config->get( 'main_conversations_notification') || !$config->get( 'main_conversations' ) )
-		{
-			$ajax->fail( JText::_( 'COM_EASYDISCUSS_NOT_ALLOWED' ) );
-			return;
+		$options = array();
+
+		if ($type == 'archives') {
+			$options['archives'] = true;
 		}
 
-		// @TODO: Show only x amount of items
+		// Retrieve a list of conversations
+		$model = ED::model('Conversation');
+		$lists = $model->getConversations($this->my->id, $options);
+
+		$activeConversation = null;
+
+		// Get the first list as active conversation
+		if ($lists && count($lists) > 0) {
+			$activeConversation = $lists[0];
+		}
+
+		// Mark the discussion as read since it is already opened
+		if ($activeConversation) {
+			$activeConversation->setRead($this->my->id);
+		}
+
+		$theme = ED::themes();
+		$theme->set('lists', $lists);
+		$theme->set('activeConversation', $activeConversation);
+
+		$lists = $theme->output('site/conversations/default.lists');
+
+
+		return $this->ajax->resolve($lists);
+	}
+
+	/**
+	 * Retrieves the contents of a conversation
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getConversation()
+	{
+		// Require user to be logged in
+		ED::requireLogin();
+
+		// Get the conversation
+		$id = $this->input->get('id', 0, 'int');
+		$conversation = ED::conversation($id);
+
+		$messages = $conversation->getMessages();
+		$contents = '';
+
+		foreach ($messages as $message) {
+			// Get the contents
+			$theme = ED::themes();
+			$theme->set('message', $message);
+			$contents .= $theme->output('site/conversations/message');
+		}
+
+		$title = $conversation->getParticipant()->getName();
+
+		return $this->ajax->resolve($title, $contents);
+	}
+
+	/**
+	 * Renders the popbox for the toolbar
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function popbox()
+	{
+		// Require user to be logged in
+		ED::requireLogin();
+
+		// Check if this feature has been enabled.
+		if (!$this->config->get('main_conversations_notification') || !$this->config->get('main_conversations')) {
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+		}
+
+		// Show only x amount of items
 		// Get a list of conversations to be displayed in the drop down.
-		$model			= DiscussHelper::getModel( 'Conversation' );
-		$conversations	= $model->getConversations( $my->id , array( 'limit' => $config->get( 'main_conversations_notification_items' ) ) );
+		$model = ED::model('Conversation');
+		$conversations = $model->getConversations($this->my->id, array('limit' => $this->config->get('main_conversations_notification_items')));
 
-		// Format messages
-		DiscussHelper::formatConversations( $conversations );
+		$theme = ED::themes();
+		$theme->set('conversations', $conversations);
 
-		$theme = new DiscussThemes();
-		$theme->set( 'conversations'	, $conversations );
+		$output = $theme->output('site/conversations/popbox');
 
-		$output	= $theme->fetch( 'toolbar.conversation.item.php' );
-
-		$ajax->success( $output );
+		return $this->ajax->resolve($output);
 	}
 
 	/**
 	 * Returns the number of new messages for a particular user.
 	 *
-	 * @since	3.0
+	 * @since	4.0
 	 * @access	public
 	 */
 	public function count()
 	{
-		$my	    = JFactory::getUser();
-		$ajax	= DiscussHelper::getHelper( 'Ajax' );
-
-		if( $my->id <= 0 )
-		{
-			$ajax->fail( 'COM_EASYDISCUSS_NOT_ALLOWED' );
-			return;
+		if ($this->my->guest) {
+			return $this->ajax->fail('COM_EASYDISCUSS_NOT_ALLOWED');
 		}
 
-		$model	= DiscussHelper::getModel( 'Conversation' );
-		$count	= $model->getCount( $my->id , array( 'filter' => 'unread' ) );
+		$model = ED::model('Conversation');
+		$count = $model->getCount($this->my->id, array('filter' => 'unread'));
 
-		$ajax->success( $count );
+		return $this->ajax->resolve($count);
+	}
+
+	/**
+	 * Displays a confirmation dialog before deleting a conversation
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function confirmDelete()
+	{
+		// Check if the user is
+		if ($this->my->id <= 0) {
+			return $this->ajax->fail('COM_EASYDISCUSS_NOT_ALLOWED');
+		}
+
+		// Get the post id from the REQUEST data
+		$id = $this->input->get('id', 0, 'int');
+
+		$theme = ED::themes();
+
+		$theme->set('id', $id);
+		$contents = $theme->output('site/conversations/dialogs/delete');
+
+		return $this->ajax->resolve($contents);
 	}
 
 	/**
 	 * Confirm deletion of a message.
 	 *
-	 * @since	3.0
+	 * @since	4.0
 	 * @access	public
 	 */
-	public function confirmDelete( $id )
+	public function confirmArchive()
 	{
-		$my = JFactory::getUser();
-
-		if( $my->id <= 0 )
-		{
-			$ajax->fail( 'COM_EASYDISCUSS_NOT_ALLOWED' );
-			return;
-		}
-
-		$ajax		= new Disjax();
-		$theme		= new DiscussThemes();
-
-		$theme->set( 'id'	, $id );
-		$content	= $theme->fetch( 'delete.conversation.php' , array('dialog'=> true ) );
-
-		$options			= new stdClass();
-		$options->content	= $content;
-
-		$options->title		= JText::_( 'COM_EASYDISCUSS_DELETE_CONVERSATION' );
-
-		$buttons			= array();
-
-		$button				= new stdClass();
-		$button->title		= JText::_( 'COM_EASYDISCUSS_BUTTON_NO' );
-		$button->action		= 'disjax.closedlg();';
-		$buttons[]			= $button;
-
-		$button				= new stdClass();
-		$button->title		= JText::_( 'COM_EASYDISCUSS_BUTTON_YES' );
-		$button->form		= '#deletePostForm';
-		$button->className	= 'btn-primary';
-		$buttons[]			= $button;
-
-		$options->buttons	= $buttons;
-
-		$ajax->dialog( $options );
-		$ajax->send();
-	}
-
-	/**
-	 * Method responsible to save a reply.
-	 *
-	 * @since	3.0
-	 * @access	public
-	 * @param	null
-	 */
-	public function reply()
-	{
-		$ajax	= DiscussHelper::getHelper( 'Ajax' );
-		$config	= DiscussHelper::getConfig();
-		$my		= JFactory::getUser();
-
 		// Ensure that the user is logged in.
-		if( $my->id <= 0 )
-		{
-			$ajax->fail( 'COM_EASYDISCUSS_NOT_ALLOWED' );
-			return;
-		}
+		ED::requireLogin();
 
-		// Obtain the message id from post.
-		$id				= JRequest::getInt( 'id' , 0 );
+		// Get the conversation id from the REQUEST data
+		$id = $this->input->get('id', 0, 'int');
 
-		// Load current conversation
-		$conversation	= DiscussHelper::getTable( 'Conversation' );
-		$state			= $conversation->load( $id );
+		$theme = ED::themes();
+		$theme->set('id', $id);
+		$contents = $theme->output('site/conversations/dialogs/archive');
 
-		// Test for valid message id.
-		if( !$state )
-		{
-			// @TODO: Throw some error here;
-			exit;
-		}
-
-		// Test if the current user is involved in this conversation.
-		if( !$conversation->isInvolved( $my->id ) )
-		{
-			exit;
-		}
-
-		// Get message meta here.
-		$content	= JRequest::getVar( 'message' );
-
-		if( empty($content) )
-		{
-			$ajax->reject( 'COM_EASYDISCUSS_CONVERSATION_EMPTY_CONTENT' );
-			return;
-		}
-
-
-		$model		= DiscussHelper::getModel( 'Conversation' );
-		$reply		= $model->insertReply( $conversation->id , $content , $my->id );
-		$data		= array( $reply );
-
-		// Format conversation replies.
-		DiscussHelper::formatConversationReplies( $data );
-
-		$replyObj	= $data[ 0 ];
-		$reply 		= new stdClass();
-		// Send notification to the recipient.
-		$conversation->notify( $replyObj );
-
-		// Use for ejs theme file.
-		$reply->id 				= $replyObj->id;
-		$reply->conversation_id = $replyObj->conversation_id;
-		$reply->message 		= $replyObj->message;
-		$reply->created 		= $replyObj->created;
-		$reply->created_by 		= $replyObj->created_by;
-		$reply->lastreplied 	= $replyObj->lastreplied;
-		$reply->authorName		= $replyObj->creator->getName();
-		$reply->authorLink		= $replyObj->creator->getLink();
-		$reply->authorAvatar	= $replyObj->creator->getAvatar();
-		$reply->className		= $replyObj->creator->id == $my->id ? 'by-me' : 'by-user';
-
-		// Since the ajax called could be within the same milisecond, the lapsed should always be 1 second ago.
-		$reply->lapsed			= JText::sprintf( 'COM_EASYDISCUSS_X_SECOND_AGO' , 1 );
-
-		$ajax->resolve( $reply );
-		$ajax->send();
+		return $this->ajax->resolve($contents);
 	}
 
-
 	/**
-	 * Displays the conversation dialog
+	 * Displays the conversation composer
 	 *
-	 * @since	3.0
+	 * @since	4.0
 	 * @access	public
+	 * @param	string
+	 * @return	
 	 */
-	public function write( $userId )
+	public function compose()
 	{
-		$my 		= JFactory::getUser();
+		// Ensure that the user is logged in
+		ED::requireLogin();
+
+		if (!$this->config->get('main_conversations')) {
+			return JError::raiseError(500);
+		}
+
+		// Get the recipient id
+		$userId = $this->input->get('id', 0, 'int');
 
 		// Do not allow guests to access here.
-		if( !$my->id || !$userId )
-		{
-			exit;
+		if (!$this->my->id || !$userId) {
+			return $this->ajax->fail('COM_EASYDISCUSS_NOT_ALLOWED');
 		}
 
-		$ajax		= new Disjax();
-		$theme		= new DiscussThemes();
-		$recipient	= DiscussHelper::getTable( 'Profile' );
-		$recipient->load( $userId );
+		$theme = ED::themes();
+		$recipient = ED::profile($userId);
 
-		$theme->set( 'recipient'	, $recipient );
+		$theme->set('recipient', $recipient);
+		$contents = $theme->output('site/conversations/dialogs/compose');
 
-		$content	= $theme->fetch( 'ajax.conversation.write.php' , array('dialog'=> true ) );
-
-		$options			= new stdClass();
-		$options->content	= $content;
-		$options->title		= JText::_( 'COM_EASYDISCUSS_DIALOG_TITLE_NEW_CONVERSATION' );
-
-		$buttons			= array();
-
-		$button				= new stdClass();
-		$button->title		= JText::_( 'COM_EASYDISCUSS_BUTTON_CANCEL' );
-		$button->action		= 'disjax.closedlg();';
-		$buttons[]			= $button;
-
-		$button				= new stdClass();
-		$button->title		= JText::_( 'COM_EASYDISCUSS_BUTTON_SEND' );
-		$button->action		= 'discuss.conversation.send();';
-		$button->className	= 'btn-primary';
-		$buttons[]			= $button;
-
-		$options->buttons	= $buttons;
-
-		$options->width 	= 650;
-
-		$ajax->dialog( $options );
-
-		return $ajax->send();
+		return $this->ajax->resolve($contents);
 	}
 
 	/**
-	 * Save a conversation
+	 * Displays the message sent confirmation
 	 *
-	 * @since	3.0
+	 * @since	4.0
 	 * @access	public
+	 * @param	string
+	 * @return	
 	 */
-	public function save()
+	public function sent()
 	{
-		$config 	= DiscussHelper::getConfig();
-		$app 		= JFactory::getApplication();
-		$my 		= JFactory::getUser();
-		$ajax		= new Disjax();
+		// Ensure that the user is logged in
+		ED::requireLogin();
 
-		$content 		= JRequest::getVar( 'contents' );
-		$recipientId	= JRequest::getInt( 'recipient' );
-
-		// Test for valid recipients.
-		if( !$recipientId )
-		{
-			return $ajax->send();
+		if (!$this->config->get('main_conversations')) {
+			return JError::raiseError(500);
 		}
 
-		// Test for empty contents here.
-		if( empty( $content ) )
-		{
-			exit;
+		$userId = $this->input->get('id', 0, 'int');
+
+		$theme = ED::themes();
+		$recipient = ED::profile($userId);
+
+		$theme->set('recipient', $recipient);
+		$contents = $theme->output('site/conversations/dialogs/sent');
+
+		return $this->ajax->resolve($contents);
+	}
+
+	/**
+	 * Marks conversation as unread
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function unread()
+	{
+		ED::requireLogin();
+		ED::checkToken();
+
+
+		// Get the conversation object
+		$id = $this->input->get('id', 0, 'int');
+		$conversation = ED::conversation($id);
+
+		if (!$id || !$conversation->id) {
+			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'));
 		}
 
-		// Do not allow user to send a message to himself, it's crazy.
-		if( $recipientId == $my->id )
-		{
-			echo JText::_( 'You should not start a conversation with your self.' );
-			return $ajax->send();
+		// Test if user has access
+		if (!$conversation->canAccess()) {
+			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
 		}
 
-		// Initialize conversation table.
-		$conversation 	= DiscussHelper::getTable( 'Conversation' );
+		// Mark it as unread
+		$conversation->unread();
 
-		// Check if this conversation already exist in the system.
-		$state 			= $conversation->loadByRelation( $my->id , $recipientId );
-
-		$model 		= DiscussHelper::getModel( 'Conversation' );
-
-		// If the conversation does not exist, we need to create the conversation and add a recipient.
-		if( !$state )
-		{
-			$date 		= DiscussHelper::getDate()->toMySQL();
-			$conversation->created 		= $date;
-			$conversation->created_by	= $my->id;
-			$conversation->lastreplied 	= $date;
-
-			$conversation->store();
-
-			// Add participant to this conversation.
-
-			$model->addParticipant( $conversation->id , $recipientId , $my->id );
-		}
-		else
-		{
-			// Set last replied date if this is a reply.
-			$conversation->lastreplied 	= DiscussHelper::getDate()->toMySQL();
-			$conversation->store();
-		}
-
-		// Initialize message table.
-		$message 					= DiscussHelper::getTable( 'ConversationMessage' );
-		$message->message 			= $content;
-		$message->conversation_id 	= $conversation->id;
-		$message->created 			= DiscussHelper::getDate()->toMySQL();
-		$message->created_by 		= $my->id;
-		$message->store();
-
-		// Add message map so that recipient can view the message.
-		$model->addMessageMap( $conversation->id , $message->id , $recipientId , $my->id );
-
-		// Format conversation replies.
-		$data		= array( $message );
-		DiscussHelper::formatConversationReplies( $data );
-		$reply 		= $data[ 0 ];
-
-		// Send notification to the recipient.
-		$conversation->notify( $reply );
-
-		$options			= new stdClass();
-		$options->content	= JText::_( 'COM_EASYDISCUSS_CONVERSATION_MESSAGE_SUCCESSFULLY_SENT' );
-		$options->title		= JText::_( 'COM_EASYDISCUSS_DIALOG_TITLE_NEW_CONVERSATION' );
-
-		$buttons			= array();
-
-		$button				= new stdClass();
-		$button->title		= JText::_( 'COM_EASYDISCUSS_BUTTON_CLOSE' );
-		$button->action		= 'disjax.closedlg();';
-		$buttons[]			= $button;
-
-		$options->buttons	= $buttons;
-
-		$options->width 	= 500;
-
-		$ajax 		= DiscussHelper::getHelper( 'Ajax' );
-
-		$ajax->resolve( $options );
-		return $ajax->send();
+		return $this->ajax->resolve();
 	}
 }

@@ -1,19 +1,17 @@
 <?php
 /**
- * @package		Easydiscuss
- * @copyright	Copyright (C) 2012 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * Easydiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
 defined('_JEXEC') or die('Restricted access');
 
-jimport('joomla.application.component.controller');
+require_once(__DIR__ . '/controller.php');
 
 class EasydiscussControllerComments extends EasyDiscussController
 {
@@ -25,80 +23,68 @@ class EasydiscussControllerComments extends EasyDiscussController
 	/**
 	 * Converts a comment into a discussion reply
 	 *
-	 * @since	1.0
+	 * @since	4.0
 	 * @access	public
 	 * @param	string
 	 * @return	
 	 */
 	public function convert()
 	{
-		JRequest::checkToken('request') or jexit( 'Invalid Token' );
+		ED::checkToken();
 
-		// Get the Joomla app
-		$app 		= JFactory::getApplication();
+		// Get the comment and post id from the request.
+		$id = $this->input->get('id', 0, 'int');
+		$postId = $this->input->get('postId', 0, 'int');
 
-		// Get the comment id from the request.
-		$id			= JRequest::getInt( 'id' );
+		// Load the comment table
+		$comment = ED::table('Comment');
+		$comment->load($id);
 
-		// Load the comment
-		$comment 	= DiscussHelper::getTable( 'Comment' );
-		$comment->load( $id );
-
-		if( !$id || !$comment->id )
-		{
-			// Throw error here.
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_COMMENTS_INVALID_COMMENT_ID_PROVIDED' ) , DISCUSS_QUEUE_ERROR );
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss' , false ) );
-			$app->close();
+		// Throws error if the comment id is not provided.
+		if (!$id || !$comment->id) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_COMMENTS_INVALID_COMMENT_ID_PROVIDED'), 'error');
+			return;
 		}
 
-		// Get the post id from the request.
-		$postId 	= JRequest::getInt( 'postId' );
-		$post 		= DiscussHelper::getTable( 'Post' );
-		$post->load( $postId );
+		// Load the post library
+		$post = ED::post($postId);
 
-		if( !$postId || !$post->id )
-		{
-			// Throw error here.
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_COMMENTS_INVALID_POST_ID_PROVIDED' ) , DISCUSS_QUEUE_ERROR );
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss' , false ) );
-			$app->close();
+		// Throws error if the post id is not provided.
+		if (!$postId || !$post->id) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_COMMENTS_INVALID_POST_ID_PROVIDED'), 'error');
+			return;
 		}
 
-		if( !$comment->canConvert() )
-		{
-			// Throw error here.
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_COMMENTS_NOT_ALLOWED_TO_CONVERT' ) , DISCUSS_QUEUE_ERROR );
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=post&id=' . $post->id , false ) );
-			$app->close();
+		// If this post is not a question, we'll need to get the parent id.
+		if (!$post->isQuestion()) {
+			$parent = $post->getParent();
+
+			// Re-assign $post to be the parent.
+			$post = ED::post($parent->id);
 		}
 
-		// Create a new reply.
-		$reply 				= DiscussHelper::getTable( 'Post' );
-		$reply->title 		= $post->title;
-		$reply->content		= $comment->comment;
-		$reply->published	= 1;
-		$reply->created 	= $comment->created;
-		$reply->parent_id 	= $post->id;
-		$reply->user_id 	= $comment->user_id;
-		$reply->user_type 	= 'member';
-		$reply->category_id = $post->category_id;
+		// For contents, we need to get the raw data.
+        $data['content'] = $comment->comment;
+        $data['parent_id'] = $post->id;
+        $data['user_id'] = $comment->user_id;
 
-		$state 	= $reply->store();
+        // Load the post library
+        $post = ED::post();
+        $post->bind($data);
 
-		if( !$state )
-		{
-			// Throw error here.
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_COMMENTS_ERROR_SAVING_REPLY' ) , DISCUSS_QUEUE_ERROR );
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=post&id=' . $post->id , false ) );
-			$app->close();
+        // Try to save the post now
+        $state = $post->save();
+		
+		// Throws error if the store process hits error
+		if (!$state) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_COMMENTS_ERROR_SAVING_REPLY'), 'error');
+			return;
 		}
 
-		// Once the reply is stored, delete the comment
+		// Once the reply is successfully stored, delete the particular comment.
 		$comment->delete();
 
-		DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_COMMENTS_SUCCESS_CONVERTED_COMMENT_TO_REPLY' ) , DISCUSS_QUEUE_SUCCESS );
-		$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=post&id=' . $post->id , false ) );
-		$app->close();
+		ED::setMessage(JText::_('COM_EASYDISCUSS_COMMENTS_SUCCESS_CONVERTED_COMMENT_TO_REPLY'), 'success');
+		return;
 	}
 }

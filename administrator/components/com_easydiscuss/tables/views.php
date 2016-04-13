@@ -11,7 +11,9 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussViews extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussViews extends EasyDiscussTable
 {
 	public $id		= null;
 	public $user_id	= null;
@@ -46,17 +48,16 @@ class DiscussViews extends JTable
 		return parent::bind( $result );
 	}
 
-	public function updateView( $userId , $url )
+	public function updateView($userId, $url)
 	{
-		if( !$this->loadByUser( $userId ) )
-		{
-			// Store a new record for the user.
-			$this->set( 'user_id'	, $userId );
+		// Store a new record for the user if it doesn't exist yet.
+		if (!$this->loadByUser($userId)) {
+			$this->user_id = $userId;
 		}
 
-		$this->set( 'hash'		, $this->getHash( $url ) );
-		$this->set( 'created'	, DiscussHelper::getDate()->toMySQL() );
-		$this->set( 'ip'		, $_SERVER['REMOTE_ADDR' ] );
+		$this->hash = $this->getHash($url);
+		$this->created = ED::date()->toSql();
+		$this->ip = @$_SERVER['REMOTE_ADDR'];
 
 		return $this->store();
 	}

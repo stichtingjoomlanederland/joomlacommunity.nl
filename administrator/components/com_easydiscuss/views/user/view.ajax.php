@@ -11,27 +11,24 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-require_once DISCUSS_ADMIN_ROOT . '/views.php';
+require_once DISCUSS_ADMIN_ROOT . '/views/views.php';
 
 class EasyDiscussViewUser extends EasyDiscussAdminView
 {
 	public function insertBadge()
 	{
-		$userId	= JRequest::getInt( 'userId' );
-		$id 	= JRequest::getInt( 'id' );
+		$userId = $this->input->get('userId', 0, 'int');
+		$id = $this->input->get('id', 0, 'int');
 		$ajax	= DiscussHelper::getHelper( 'Ajax' );
 
 		// This shouldn't even be happening at all.
-		if( !$id || !$userId )
-		{
+		if( !$id || !$userId ) {
 			return $ajax->reject( JText::_( 'COM_EASYDISCUSS_INVALID_ID' ) );
 		}
 
-		$profile 	= DiscussHelper::getTable( 'Profile' );
-		$profile->load( $userId );
+		$profile = ED::user($userId);
 
-		if( !$profile->addBadge( $id ) )
-		{
+		if (!$profile->addBadge($id)) {
 			return $ajax->reject( $profile->getError() );
 		}
 
@@ -52,101 +49,84 @@ class EasyDiscussViewUser extends EasyDiscussAdminView
 		$ajax->resolve( $html );
 	}
 
-	public function saveMessage( $referenceId , $message )
+	/**
+     * Add user's badge custom message
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+	public function customMessage()
 	{
-		$ajax 		= new Disjax();
+		$badgeId = $this->input->get('badgeId');
+		$customMessage = $this->input->get('customMessage','error', 'raw');
+		$userId = $this->input->get('userId');
 
-		$badgeUser 	= DiscussHelper::getTable( 'BadgesUsers' );
-		$badgeUser->load( $referenceId );
-		$badgeUser->custom 	= $message;
+		if (!$badgeId) {
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_INVALID_ID'));
+		}
 
-		$badgeUser->store();
+		// Load the user's badge
+		$badge = ED::table('BadgesUsers');
+        $badge->loadByUser($userId, $badgeId);
 
-		ob_start();
-		?>
-		<p><?php echo JText::_( 'Custom message has been assigned to the badge.');?></p>
-		<?php
-		$content 	= ob_get_contents();
-		ob_end_clean();
-
-		$options			= new stdClass();
-		$options->content	= $content;
-		$options->title		= JText::_( 'Custom Message' );
-
-		$buttons			= array();
-
-		$button				= new stdClass();
-		$button->title		= JText::_( 'Close' );
-		$button->action		= 'disjax.closedlg();';
-		$buttons[]			= $button;
-
-		$options->buttons	= $buttons;
-
-		$ajax->dialog( $options );
-		$ajax->send();
-
+		$badge->custom = $customMessage;
+		$state = $badge->store();
+        
+        if ($state) {
+            return $this->ajax->resolve(true, JText::_('COM_EASYDISCUSS_USER_BADGE_CUSTOM_MESSAGE'));
+        }
+		return $this->ajax->reject(false, 'error');
 	}
 
-	public function customMessage( $id )
-	{
-		$ajax 				= new Disjax();
-		$theme				= new DiscussThemes();
-
-		$badgeUser 	= DiscussHelper::getTable( 'BadgesUsers' );
-		$badgeUser->load( $id );
-
-		ob_start();
-		?>
-		<p><?php echo JText::_( 'COM_EASYDISCUSS_BADGE_CUSTOM_MESSAGE_DESC');?></p>
-
-		<textarea id="customMessage" style="width:98%;height: 100px;" class="mt-20"><?php echo $badgeUser->custom;?></textarea>
-		<?php
-		$content 	= ob_get_contents();
-		ob_end_clean();
-
-		$options			= new stdClass();
-		$options->content	= $content;
-		$options->title		= JText::_( 'Custom Message' );
-
-		$buttons			= array();
-
-		$button				= new stdClass();
-		$button->title		= JText::_( 'Close' );
-		$button->action		= 'disjax.closedlg();';
-		$buttons[]			= $button;
-
-		$button				= new stdClass();
-		$button->title		= JText::_( 'Submit' );
-		$button->action		= 'saveMessage("' . $id . '" );';
-		$button->className	= 'btn-primary';
-		$buttons[]			= $button;
-
-		$options->buttons	= $buttons;
-
-		$ajax->dialog( $options );
-		$ajax->send();
-	}
-
+	/**
+     * Delete user's badge
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
 	public function deleteBadge()
 	{
-		$userId	= JRequest::getInt( 'userId' );
-		$id 	= JRequest::getInt( 'id' );
-		$ajax	= DiscussHelper::getHelper( 'Ajax' );
+		$userId = $this->input->get('userId');
+		$badgeId = $this->input->get('badgeId');
 
+		// Checks the userId or badgeId is not provided.
+		if (!$userId || !$badgeId) {
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_INVALID_ID'));
+		}
+
+		$badge = ED::table('BadgesUsers');
+		$badge->loadByUser($userId, $badgeId);
+
+		$state = $badge->delete();
+
+		return $this->ajax->resolve(true, JText::_('COM_EASYDISCUSS_USER_BADGE_REMOVED'));
+	}
+
+	/**
+     * Remove user's avatar
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+	public function removeAvatar()
+	{
+		$userId	= $this->input->get('userid');
+	
 		// This shouldn't even be happening at all.
-		if( !$id || !$userId )
-		{
-			return $ajax->reject( JText::_( 'COM_EASYDISCUSS_INVALID_ID' ) );
+		if (!$userId) {
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_INVALID_ID'));
 		}
 
-		$badge 	= DiscussHelper::getTable( 'BadgesUsers' );
-		$badge->loadByUser( $userId , $id );
+		$user = ED::user($userId);
 
-		if( !$badge->delete() )
-		{
-			return $ajax->reject( $badge->getError() );
-		}
-
-		$ajax->resolve();
+		$state = $user->deleteAvatar();
+ 
+		return $this->ajax->resolve($user->getAvatar(), JText::_('COM_EASYDISCUSS_USER_AVATAR_REMOVED'));	
 	}
 }

@@ -12,7 +12,9 @@
  */
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussSubscribe extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussSubscribe extends EasyDiscussTable
 {
 	public $id			= null;
 	public $userid		= null;
@@ -38,31 +40,33 @@ class DiscussSubscribe extends JTable
 
 	public function store($updateNulls = false)
 	{
-		if( empty($this->email) && $this->userid ) {
-			$user = JFactory::getUser( $this->userid );
-			$this->fullname = $user->email();
+
+		if ($this->userid) {
+			$profile = ED::user($this->userid);
+
+			if (empty($this->email)) {
+				$this->email = $profile->user->email();
+			}
+
+			if (empty($this->fullname)) {
+				$this->fullname = $profile->getName();
+			}
 		}
 
-		if( empty($this->fullname) && $this->userid ) {
-			$profile = DiscussHelper::getTable( 'Profile' );
-			$profile->load( $this->userid );
-			$this->fullname = $profile->getName();
-		}
-
-		if( empty($this->member) ) {
+		if (empty($this->member)) {
 			$this->member = $this->userid ? 1 : 0;
 		}
 
-		if( empty($this->interval) ) {
+		if (empty($this->interval)) {
 			$this->interval = 'instant';
 		}
 
-		if( empty($this->created) ) {
-			$this->created = DiscussHelper::getDate()->toMySQL();
+		if (empty($this->created)) {
+			$this->created = ED::date()->toSql();
 		}
 
-		if( empty($this->sent_out) ) {
-			$this->sent_out = DiscussHelper::getDate()->toMySQL();
+		if (empty($this->sent_out)) {
+			$this->sent_out = ED::date()->toSql();
 		}
 
 		return parent::store( $updateNulls );

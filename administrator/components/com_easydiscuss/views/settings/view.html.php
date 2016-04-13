@@ -1,97 +1,122 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyBlog is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once DISCUSS_ADMIN_ROOT . '/views.php';
+require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
 class EasyDiscussViewSettings extends EasyDiscussAdminView
 {
+	/**
+	 * Renders the settings form
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function display($tpl = null)
 	{
-		// @rule: Test for user access if on 1.6 and above
-		if( DiscussHelper::getJoomlaVersion() >= '1.6' )
-		{
-			if(!JFactory::getUser()->authorise('discuss.manage.settings' , 'com_easydiscuss') )
-			{
-				JFactory::getApplication()->redirect( 'index.php' , JText::_( 'JERROR_ALERTNOAUTHOR' ) , 'error' );
-				JFactory::getApplication()->close();
-			}
-		}
-		// Initialise variables
-		$config			= DiscussHelper::getConfig();
-		$jconfig		= DiscussHelper::getJConfig();
-		$defaultSAId	= DiscussHelper::getDefaultSAIds();
-		$joomlaVersion	= DiscussHelper::getJoomlaVersion();
-		$joomlaGroups	= DiscussHelper::getJoomlaUserGroups();
+		$this->checkAccess('discuss.manage.settings');
 
-		$this->assignRef( 'config'			, $config );
-		$this->assignRef( 'jconfig'			, $jconfig );
-		$this->assignRef( 'defaultSAId'		, $defaultSAId );
-		$this->assignRef( 'defaultLength'	, $defaultLength );
-		$this->assignRef( 'joomlaversion'	, $joomlaVersion );
-		$this->assignRef( 'joomlaGroups'	, $joomlaGroups );
+		// Determines which layout that we should show currently.
+		$layout = $this->getLayout();
 
-		if( $this->getLayout() == 'default' )
-		{
-			$app	= JFactory::getApplication();
-			$app->redirect( 'index.php?option=com_easydiscuss&view=settings&layout=default_main_workflow&child=general' );
+		if ($layout == 'default') {
+			$layout = 'general';
 		}
 
-		parent::display($tpl);
+		// Set the title and the description of the page
+		$title = JText::_('COM_EASYDISCUSS_SETTINGS_' . strtoupper($layout) . '_TITLE');
+		$desc = JText::_('COM_EASYDISCUSS_SETTINGS_' . strtoupper($layout) . '_DESC');
+
+		$this->title($title);
+		$this->desc($desc);
+
+		JToolBarHelper::apply();
+
+		// Get the tabs
+		$contents = $this->getContents($layout);
+
+		$this->set('contents', $contents);
+
+		parent::display('settings/wrapper');
 	}
 
-	public function getEmailsTemplate()
+	/**
+	 * Renders the tabs
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getContents($layout)
 	{
-		$html	= '';
-		$path	= DISCUSS_SITE_THEMES . '/simplistic/emails';
-		$emails	= JFolder::files( $path , 'email.*'  );
+		$path = DISCUSS_ADMIN_ROOT . '/themes/default/settings/' . $layout;
 
-		ob_start();
-		foreach($emails as $email)
-		{
-		?>
-			<li class="unstyled file-list">
-				<!-- <li style="float:left; margin-right:5px;"> -->
+		$files = JFolder::files($path, '.php');
+		$tabs = array();
 
-				<!-- [ -->
-				<?php
-				if(is_writable( DISCUSS_SITE_THEMES . '/simplistic/emails/' . $email))
-				{
-				?>
-					<a class="modal" rel="{handler: 'iframe', size: {x: 700, y: 500}}" href="index.php?option=com_easydiscuss&view=settings&layout=editEmailTemplate&file=<?php echo $email; ?>&tmpl=component&browse=1">
-						<?php echo JText::_($email); ?>
-						<?php //echo JText::_('COM_EASYDISCUSS_EDIT');?>
-						<i class="icon-edit"></i>
-					</a>
-				<?php
-				}
-				else
-				{
-				?>
-					<?php echo JText::_($email); ?> <span style="color:red; font-weight:bold;"><?php echo JText::_('COM_EASYDISCUSS_UNWRITABLE');?></span>
-				<?php
-				}
-				?>
-				<!-- ] -->
+		foreach ($files as $file) {
 
-				<!-- </li> -->
-			</li>
-		<?php
+			if ($file == 'default.php') {
+				continue;
+			}
+
+			$tab = str_ireplace('.php', '', $file);
+			$tabs[$file] = $tab;
 		}
-		$html = ob_get_contents();
-		ob_end_clean();
 
-		return $html;
+		// We need to sort the tabs to ensure that general.php should always be the first item.
+		usort($tabs, array($this, "resortTabs"));
+
+		$defaultSAId = ED::getDefaultSAIds();
+		$joomlaVersion = ED::getJoomlaVersion();
+		$joomlaGroups = ED::getJoomlaUserGroups();
+
+		// Get the active tab
+		$active = $this->input->get('active', '', 'string');
+		$active = str_ireplace('ed-', '', $active);
+
+		$theme = ED::themes();
+
+		$theme->set('active', $active);
+		$theme->set('layout', $layout);
+		$theme->set('tabs', $tabs);
+		$theme->set('defaultSAId', $defaultSAId);
+		$theme->set('joomlaVersion', $joomlaVersion);
+		$theme->set('joomlaGroups', $joomlaGroups);
+		$theme->set('layout', $layout);
+
+		$output = $theme->output('admin/settings/contents');
+
+		return $output;
+	}
+
+	/**
+	 * Resort the tabs
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function resortTabs($a, $b)
+	{
+		if ($a == 'general') {
+			return 0;
+		}
+
+		return 1;
 	}
 
 	public function getCategories()
@@ -108,7 +133,7 @@ class EasyDiscussViewSettings extends EasyDiscussAdminView
 	public function editEmailTemplate()
 	{
 		$file		= JRequest::getVar('file', '', 'GET');
-		$filepath	= DISCUSS_SITE_THEMES . '/simplistic/emails/' . $file;
+		$filepath	= DISCUSS_THEMES . '/wireframe/emails/' . $file;
 		$content	= '';
 		$html		= '';
 		$msg		= JRequest::getVar('msg', '', 'GET');
@@ -157,103 +182,5 @@ class EasyDiscussViewSettings extends EasyDiscussAdminView
 		ob_end_clean();
 
 		echo $html;
-	}
-
-	public function getThemes( $selectedTheme = 'default' )
-	{
-		$html	= '<select name="layout_site_theme" class="full-width">';
-
-		$themes	= $this->get( 'Themes' );
-
-		for( $i = 0; $i < count( $themes ); $i++ )
-		{
-			$theme		= JString::strtolower( $themes[ $i ] );
-
-			if ( $theme != 'dashboard' ) {
-				$selected	= ( $selectedTheme == $theme ) ? ' selected="selected"' : '';
-				$html		.= '<option' . $selected . '>' . $theme . '</option>';
-			}
-		}
-
-		$html	.= '</select>';
-
-		return $html;
-	}
-
-	public function getEditorList( $selected, $name = 'layout_editor' )
-	{
-		$db		= DiscussHelper::getDBO();
-
-		// compile list of the editors
-		if(DiscussHelper::getJoomlaVersion() >= '1.6')
-		{
-			$query = 'SELECT `element` AS value, `name` AS text'
-					.' FROM `#__extensions`'
-					.' WHERE `folder` = "editors"'
-					.' AND `type` = "plugin"'
-					.' AND `enabled` = 1'
-					.' ORDER BY ordering, name'
-					;
-		}
-		else
-		{
-			$query = 'SELECT element AS value, name AS text'
-					.' FROM #__plugins'
-					.' WHERE folder = "editors"'
-					.' AND published = 1'
-					.' ORDER BY ordering, name'
-					;
-		}
-
-		$db->setQuery($query);
-		$editors = $db->loadObjectList();
-
-		if(count($editors) > 0)
-		{
-			if(DiscussHelper::getJoomlaVersion() >= '1.6')
-			{
-				$lang = JFactory::getLanguage();
-				for($i = 0; $i < count($editors); $i++)
-				{
-					$editor =& $editors[$i];
-					$lang->load($editor->text . '.sys', JPATH_ADMINISTRATOR, null, false, false);
-					$editor->text   = JText::_($editor->text);
-				}
-			}
-		}
-
-		$bbcode = new stdClass();
-		$bbcode->value  = 'bbcode';
-		$bbcode->text   = JText::_( 'Built-in BBCode' );
-
-		array_unshift( $editors, $bbcode);
-
-		return JHTML::_('select.genericlist',  $editors , $name, 'class="full-width" size="1"', 'value', 'text', $selected );
-	}
-
-	public function getCategorySelection( $selected, $name )
-	{
-		$categorySelection = array();
-		$selectType = array( 'select', 'multitier' );
-
-		foreach( $selectType as $stype)
-		{
-			$selection = new stdClass();
-			$selection->value  = $stype;
-			$selection->text   = JText::_( 'COM_EASYDISCUSS_DISCUSSION_CATEGORY_SELECTION_TYPE_' . strtoupper( $stype ) );
-			$categorySelection[] = $selection;
-		}
-
-		return JHTML::_('select.genericlist',  $categorySelection , $name, 'class="full-width" size="1"', 'value', 'text', $selected );
-	}
-
-	public function registerToolbar()
-	{
-		JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_SETTINGS' ), 'settings' );
-
-		JToolBarHelper::custom( 'home', 'arrow-left', '', JText::_( 'COM_EASYDISCUSS_TOOLBAR_HOME' ), false);
-		JToolBarHelper::divider();
-		JToolBarHelper::apply();
-		JToolBarHelper::cancel();
 	}
 }

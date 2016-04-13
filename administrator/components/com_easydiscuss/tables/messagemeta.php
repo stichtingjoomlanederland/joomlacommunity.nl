@@ -12,7 +12,9 @@
  */
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussMessageMeta extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussMessageMeta extends EasyDiscussTable
 {
 	/**
 	 * The unique id for the message.

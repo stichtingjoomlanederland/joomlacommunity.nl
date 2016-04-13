@@ -1,95 +1,145 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyDiscuss is free software. This version may have been modified pursuant
+* EasyBlog is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once DISCUSS_ADMIN_ROOT . '/views.php';
+require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
 class EasyDiscussViewAcls extends EasyDiscussAdminView
 {
+	/**
+	 * Displays the default ACL listings
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function display($tpl = null)
 	{
-		// @rule: Test for user access if on 1.6 and above
-		if( DiscussHelper::getJoomlaVersion() >= '1.6' )
-		{
-			if(!JFactory::getUser()->authorise('discuss.manage.acls' , 'com_easydiscuss') )
-			{
-				JFactory::getApplication()->redirect( 'index.php' , JText::_( 'JERROR_ALERTNOAUTHOR' ) , 'error' );
-				JFactory::getApplication()->close();
-			}
-		}
+		$this->checkAccess('discuss.manage.acls');
 
-		// Initialise variables
-		$document	= JFactory::getDocument();
-		$mainframe	= JFactory::getApplication();
-		$model		= $this->getModel( 'Acl' );
-		$config		= DiscussHelper::getConfig();
-
-		$type = $mainframe->getUserStateFromRequest( 'com_easydiscuss.acls.filter_type', 'filter_type', 'group', 'word' );
+		// Determines if we should filter by acl type
+		$type = $this->getUserState('acls.filter_type', 'filter_type', 'group', 'word');
 
 		// Filtering
 		$filter = new stdClass();
-		$filter->type 	= $this->getFilterType($type);
-		$filter->search = $mainframe->getUserStateFromRequest( 'com_easydiscuss.acls.search', 'search', '', 'string' );
+		// $filter->type = $this->getFilterType($type);
+		$filter->search = $this->getUserState('acls.search', 'search', '', 'string');
 
 		// Sorting
 		$sort = new stdClass();
-		$sort->order			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.acls.filter_order', 'filter_order', 'a.`id`', 'cmd' );
-		$sort->orderDirection	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.acls.filter_order_Dir', 'filter_order_Dir', '', 'word' );
+		$sort->order = $this->getUserState('acls.filter_order', 'filter_order', 'a.`id`', 'cmd');
+		$sort->orderDirection = $this->getuserState('acls.filter_order_Dir', 'filter_order_Dir', '', 'word');
 
-		$rulesets	= $model->getRuleSets($type);
-		$pagination	= $model->getPagination($type);
+		$model = ED::model('Acl', true);
+		$rulesets = $model->getRuleSets($type);
+		$pagination = $model->getPagination($type);
 
-		if( $type == 'assigned' )
-		{
-			$document->setTitle( JText::_("COM_EASYDISCUSS_ACL_ASSIGN_USER") );
-			JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_ACL_ASSIGN_USER' ), 'acl' );
+		$this->title('COM_EASYDISCUSS_ACL_TITLE');
+		$this->desc('COM_EASYDISCUSS_ACL_DESC');
+
+		if ($rulesets) {
+			foreach ($rulesets as &$ruleset) {
+				$ruleset->editLink = 'index.php?option=com_easydiscuss&view=acls&layout=form&id=' . $ruleset->id . '&type=' . $type;
+			}
 		}
-		else
-		{
-			$document->setTitle( JText::_("COM_EASYDISCUSS_ACL_JOOMLA_USER_GROUP") );
-			JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_ACL_JOOMLA_USER_GROUP' ), 'acl' );
-		}
 
-		$this->assignRef( 'config', $config );
-		$this->assignRef( 'rulesets', $rulesets );
-		$this->assignRef( 'filter', $filter );
-		$this->assignRef( 'sort', $sort );
-		$this->assignRef( 'type', $type );
-		$this->assignRef( 'pagination', $pagination );
+		$this->set('rulesets', $rulesets);
+		$this->set('filter', $filter);
+		$this->set('sort', $sort);
+		$this->set('type', $type);
+		$this->set('pagination', $pagination);
 
-		parent::display($tpl);
+		parent::display('acls/default');
 	}
 
-	public function getFilterType( $filter_type='*', $group='COM_EASYDISCUSS_JOOMLA_GROUP', $assigned='COM_EASYDISCUSS_ASSIGNED' )
+	/**
+	 * Displays the acl form
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function form($tpl = null)
 	{
-		$filter[] = JHTML::_('select.option', '', '- '. JText::_( 'COM_EASYDISCUSS_ACL_SELECT_TYPE' ) .' -' );
-		$filter[] = JHTML::_('select.option', 'group', JText::_( $group ) );
-		$filter[] = JHTML::_('select.option', 'assigned', JText::_( $assigned ) );
+		$this->checkAccess('discuss.manage.acls');
 
-		return JHTML::_('select.genericlist', $filter, 'filter_type', ' size="1" onchange="submitform( );"', 'value', 'text', $filter_type );
+		$id = $this->input->get('id', 0, 'int');
+
+		if (!$id) {
+			ED::setMessage('COM_EASYDISCUSS_INVALID_ACL_ID', 'error');
+			return $this->app->redirect('index.php?option=com_easydiscuss&view=acls');
+		}
+
+		$model = ED::model('Acl');
+
+		// Get ruleset
+		$ruleset = $model->getRuleSet('group', $id);
+		$keys = array_keys($ruleset->rules);
+
+		// We should only display tabs that exists
+		$tabs = array();
+
+		if ($keys) {
+			foreach ($keys as $key) {
+				$tab = new stdClass();
+				$tab->title = JText::_('COM_EASYDISCUSS_ACL_TAB_' . strtoupper($key));
+				$tab->id = str_ireplace(array('.', ' ', '_'), '-', strtolower($key));
+
+				$tabs[] = $tab;
+			}
+		}
+
+		$this->title($ruleset->name);
+		$this->desc('COM_EASYDISCUSS_ACL_DESC');
+
+		$this->set('tabs', $tabs);
+		$this->set('ruleset', $ruleset);
+
+		parent::display('acls/form');
 	}
 
+	/**
+	 * Registers the toolbar
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function registerToolbar()
 	{
-		JToolBarHelper::custom( 'home', 'arrow-left', '', JText::_( 'COM_EASYDISCUSS_TOOLBAR_HOME' ), false);
+		$layout = $this->getLayout();
 
-		$mainframe	= JFactory::getApplication();
-		$type		= $mainframe->getUserStateFromRequest( 'com_easydiscuss.acls.filter_type', 'filter_type', 'group', 'word' );
 
-		if( $type=='assigned' )
-		{
+		if ($layout == 'form') {
+			JToolBarHelper::apply();
+			JToolBarHelper::save();
+			JToolBarHelper::divider();
+			JToolBarHelper::cancel();
+
+			return;
+		}
+
+		// Determines which filter type
+		$type = $this->getUserState('acls.filter_type', 'filter_type', 'group', 'word');
+
+		if ($type == 'assigned') {
 			JToolBarHelper::divider();
 			JToolbarHelper::addNew();
 			JToolbarHelper::deleteList();
+
+			return;
 		}
 	}
 }

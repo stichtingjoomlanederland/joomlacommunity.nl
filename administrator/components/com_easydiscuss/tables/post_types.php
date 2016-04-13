@@ -12,7 +12,9 @@
  */
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussPost_types extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussPost_types extends EasyDiscussTable
 {
 	public $id			= null;
 	public $title		= null;
@@ -56,13 +58,15 @@ class DiscussPost_types extends JTable
 
 	public function delete($pk = null)
 	{
-		$state	= parent::delete($pk);
+		// TODO: Remove all relationship to this post type.
+		
+		$state = parent::delete($pk);
 		return $state;
 	}
 
-	public function updateTopicPostType( $oldValue )
+	public function updateTopicPostType($oldValue)
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::getDBO();
 
 		$query = 'update `#__discuss_posts` set `post_type` = ' . $db->Quote( $this->alias );
 		$query .= ' where `post_type` = ' . $db->Quote( $oldValue );

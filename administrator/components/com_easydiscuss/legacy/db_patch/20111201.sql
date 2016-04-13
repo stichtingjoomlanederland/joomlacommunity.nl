@@ -1,0 +1,1 @@
+ALTER TABLE `jos_discuss_posts` ADD `password` TEXT NULL;

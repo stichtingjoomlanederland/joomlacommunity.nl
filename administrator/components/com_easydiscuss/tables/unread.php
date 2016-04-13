@@ -13,7 +13,9 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussUnread extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussUnread extends EasyDiscussTable
 {
 	public $id			= null;
 	public $user_id		= null;

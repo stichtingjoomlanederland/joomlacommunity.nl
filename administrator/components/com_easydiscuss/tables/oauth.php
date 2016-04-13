@@ -11,7 +11,9 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussOauth extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussOauth extends EasyDiscussTable
 {
 	public $id				= null;
 	public $type			= null;

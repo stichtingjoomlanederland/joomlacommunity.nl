@@ -1,23 +1,17 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
 defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.controller');
-
-require_once DISCUSS_HELPERS . '/date.php';
-require_once DISCUSS_HELPERS . '/input.php';
-require_once DISCUSS_HELPERS . '/filter.php';
 
 class EasyDiscussControllerPost_types extends EasyDiscussController
 {
@@ -25,124 +19,132 @@ class EasyDiscussControllerPost_types extends EasyDiscussController
 	{
 		parent::__construct();
 
-		// Need to explicitly define this in Joomla 3.0
-		$this->registerTask( 'unpublish'	, 'unpublish' );
-		$this->registerTask( 'publish'		, 'unpublish' );
-		$this->registerTask( 'new'			, 'edit' );
-		$this->registerTask( 'cancel'		, 'cancel' );
+		$this->checkAccess('discuss.manage.posttypes');
+		$this->registerTask('add', 'edit');
+		$this->registerTask('publish', 'unpublish');
+		$this->registerTask('unpublish', 'unpublish');
+		$this->registerTask('apply', 'save');
+		$this->registerTask('savepublishnew', 'save');
 	}
 
 	public function edit()
 	{
-		$mainframe	= JFactory::getApplication();
-
-		// It goes to the view.html.php function form()
-		$mainframe->redirect( 'index.php?option=com_easydiscuss&view=post_types&layout=form' );
+		$this->app->redirect('index.php?option=com_easydiscuss&view=types&layout=form');
 	}
 
 	public function cancel()
 	{
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=post_types' );
-
-		return;
-	}
-
-	public function remove()
-	{
-		JRequest::checkToken('request') or jexit( 'Invalid Token' );
-		$ids		= JRequest::getVar( 'cid' );
-
-		foreach( $ids as $id )
-		{
-			$postTypes = DiscussHelper::getTable( 'Post_types' );
-			$postTypes->load( $id );
-			$postTypes->delete();
-		}
-
-		$app	= JFactory::getApplication();
-
-		DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_POST_TYPES_DELETED' ) , DISCUSS_QUEUE_SUCCESS );
-		$app->redirect( 'index.php?option=com_easydiscuss&view=post_types' );
+		return $this->app->redirect('index.php?option=com_easydiscuss&view=types');
 	}
 
 	public function unpublish()
 	{
-		JRequest::checkToken('request') or jexit( 'Invalid Token' );
+		ED::checkToken();
+		$postTypes = ED::table('Post_types');
+		$ids = $this->input->get('cid', '', 'var');
+		$state = $this->input->get('task', '', 'var') == 'publish' ? 1 : 0;
 
-		$app	= JFactory::getApplication();
-		$postTypes	= DiscussHelper::getTable( 'Post_types' );
-		$ids	= JRequest::getVar( 'cid' );
-		$state	= JRequest::getVar( 'task' ) == 'publish' ? 1 : 0;
-
-		foreach( $ids as $id )
-		{
+		foreach ($ids as $id) {
 			$id	= (int) $id;
-
-			$postTypes->load( $id );
-			$postTypes->set( 'published' , $state );
+			$postTypes->load($id);
+			$postTypes->set('published', $state);
 			$postTypes->store();
 		}
 
-		$message	= $state ? JText::_( 'COM_EASYDISCUSS_POST_TYPES_PUBLISHED' ) : JText::_( 'COM_EASYDISCUSS_POST_TYPES_UNPUBLISHED' );
+		$message = $state ? JText::_('COM_EASYDISCUSS_POST_TYPES_PUBLISHED') : JText::_('COM_EASYDISCUSS_POST_TYPES_UNPUBLISHED');
 
-		DiscussHelper::setMessageQueue( $message , DISCUSS_QUEUE_SUCCESS );
+		ED::setMessage($message, 'success');
 
-		$app->redirect( 'index.php?option=com_easydiscuss&view=post_types' );
+		$this->app->redirect('index.php?option=com_easydiscuss&view=types');
 	}
 
 	public function apply()
 	{
-		// This is the save button, not save and close
 		$this->save();
 	}
 
 	public function save()
 	{
-		JRequest::checkToken('request') or jexit( 'Invalid Token' );
+		ED::checkToken();
 
-		$app	= JFactory::getApplication();
-		$postTypes	= DiscussHelper::getTable( 'Post_types' );
-		$doc 	= JFactory::getDocument();
+		$post = $this->input->getArray('post');
 
-		$data	= JRequest::get( 'POST' );
-		$postTypes->load( $data['id'] );
+		$id = $this->input->get('id', 0, 'int');
+		$isNew = $id ? false : true;
 
-		$oldTitle	= $postTypes->title;
+		$postTypes = ED::table('Post_types');
+		$postTypes->load($id);
 
-		$postTypes->bind( $data );
+		$oldTitle = $postTypes->title;
 
-		if( !$postTypes->created )
-		{
-			$postTypes->created = DiscussHelper::getDate()->toMySQL();
+		// Binds the new data.
+		$postTypes->bind($post);
+
+		if (!$postTypes->created) {
+			$postTypes->created = ED::date()->toSql();
 		}
 
-		if ($postTypes->title != $oldTitle || $oldTitle == '')
-		{
-			$postTypes->alias	= DiscussHelper::getAlias($postTypes->title);
-
-			//since we using the alias to join with discuss_posts.post_type, we need to update the value there as well.
-			$postTypes->updateTopicPostType( $oldTitle );
+		if ($postTypes->title != $oldTitle || $oldTitle == '') {
+			$postTypes->alias = ED::getAlias($postTypes->title, 'posttypes');
 		}
 
 		$postTypes->published = 1;
 
+		if ($postTypes->store()) {
+			//since we using the alias to join with discuss_posts.post_type, we need to update the value there as well.
+			$postTypes->updateTopicPostType($oldTitle);
+		}
+
 		// Get the current task
-		$task 		= $this->getTask();
+		$task = $this->getTask();
 
-		$postTypes->store();
-
-		if( $task == 'apply' )
-		{
-			$redirect = 'index.php?option=com_easydiscuss&view=post_types&layout=form&id=' . $postTypes->id;
-		}
-		else
-		{
-			$redirect = 'index.php?option=com_easydiscuss&view=post_types';
+		if ($task == 'apply') {
+			$redirect = 'index.php?option=com_easydiscuss&view=types&layout=form&id=' . $postTypes->id;
+		} else {
+			$redirect = 'index.php?option=com_easydiscuss&view=types';
 		}
 
-		$message	= !empty( $postTypes->id ) ? JText::_( 'COM_EASYDISCUSS_POST_TYPES_UPDATED' ) : JText::_( 'COM_EASYDISCUSS_POST_TYPES_CREATED' );
+		$message = !empty($postTypes->id) ? JText::_('COM_EASYDISCUSS_POST_TYPES_UPDATED') : JText::_('COM_EASYDISCUSS_POST_TYPES_CREATED');
 
-		DiscussHelper::setMessageQueue( $message , DISCUSS_QUEUE_SUCCESS );
-		$app->redirect( $redirect );
+		ED::setMessage($message, 'success');
+		$this->app->redirect($redirect);
+		$this->app->close();
+	}
+
+	/**
+	 * Allows deletion of post types
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function remove()
+	{
+		// Check for request forgeries
+		ED::checkToken();
+
+		// Get the categories
+		$ids = $this->input->get('cid', '', 'default');
+
+		$redirect = 'index.php?option=com_easydiscuss&view=types';
+
+		foreach ($ids as $id) {
+			$id = (int) $id;
+
+			$types = ED::table('post_types');
+
+			// Try to delete the category
+			$state = $types->delete($id);
+
+			if (!$state) {
+				ED::setMessage($types->getError(), 'error');
+				return $this->app->redirect($redirect);
+			}
+		}
+
+		ED::setMessage('COM_EASYDISCUSS_CATEGORIES_DELETE_SUCCESS', 'success');
+
+		return $this->app->redirect($redirect);
 	}
 }

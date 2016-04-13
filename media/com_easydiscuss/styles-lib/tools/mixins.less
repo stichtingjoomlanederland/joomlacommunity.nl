@@ -1,0 +1,126 @@
+// Custom mixins
+// ----------------
+.fd-no-focus-outline() {
+	outline: none !important;
+	&::-moz-focus-inner {
+		border: 0 !important;
+	}
+}
+
+.fd-reset-list() {
+	width: auto;
+	margin: 0;
+	padding: 0;
+	border: none;
+	background: none;
+	clear: none;
+	float: none;
+	list-style: none;
+	list-style-image: none;
+	overflow: visible;
+	&:before,
+	&:after {
+		display: none;
+	}
+}
+
+// DISPLAY: AS TABLE
+.fd-table() {
+	display: table;
+	width: 100%;
+}
+.fd-table-cell() {
+	display: table-cell;
+	vertical-align: top;
+}
+
+
+// .space {width: 11px;}
+
+// .space-xs {width: @b-space-xs;}
+// .space-s {width: @b-space-s;}
+// .space, .space-m {width: @b-space;}
+// .space-l {width: @b-space-l;}
+// .space-xl {width: @b-space-xl;}
+
+
+// Contrast text color base on background
+// Example:
+// @bgcolor: #303030;
+// body {
+//     background-color: @bgcolor !important;
+//     .getContrast(@bgcolor) !important;
+// }
+// .getContrast(@color) when (iscolor(@color)) {
+// 	.return_contrast_color(@yiq) when (@yiq >= 128) { color: rgba(0, 0, 0, 0.8); }
+// 	.return_contrast_color(@yiq) when (@yiq < 128)  { color: rgba(255, 255, 255, 0.8); }
+// 	@r: red(@color);
+// 	@g: green(@color);
+// 	@b: blue(@color);
+// 	@yiq: ((@r*299)+(@g*587)+(@b*114))/1000;
+// 	.return_contrast_color(@yiq);
+// }
+
+// WebKit-style focus
+.tab-focus() {
+  // Default
+  outline: thin dotted;
+  // WebKit
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px;
+}
+
+
+// Custom mixins
+// ----------------
+.fd-no-focus-outline() {
+  outline: none !important;
+  &::-moz-focus-inner {
+    border: 0 !important;
+  }
+}
+
+.fd-reset-list() {
+  width: auto;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  clear: none;
+  float: none;
+  list-style: none;
+  list-style-image: none;
+  overflow: visible;
+  &:before,
+  &:after {
+    display: none;
+  }
+}
+
+// DISPLAY: AS TABLE
+.fd-table() {
+  display: table;
+  width: 100%;
+}
+.fd-table-cell() {
+  display: table-cell;
+  vertical-align: top;
+}
+
+.transform_(@transform) {
+  -webkit-transform: @transform;
+   -moz-transform: @transform;
+     -o-transform: @transform;
+      transform: @transform;
+}
+
+.transform-style(@transform-style) {
+  -webkit-transform-style: @transform-style;
+   -moz-transform-style: @transform-style;
+     -o-transform-style: @transform-style;
+      transform-style: @transform-style;
+}
+
+.no-transition() {
+  .transition(~"none")
+}

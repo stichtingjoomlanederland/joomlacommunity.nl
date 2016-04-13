@@ -37,7 +37,7 @@ class EasyDiscussViewFeatured extends EasyDiscussView
 
 		$category		= JRequest::getInt( 'category_id' , 0 );
 
-		$postModel		= $this->getModel('Posts');
+		$postModel		= ED::model('Posts');
 
 		$featuredposts		= '';
 		$featuredpostsHTML	= '';

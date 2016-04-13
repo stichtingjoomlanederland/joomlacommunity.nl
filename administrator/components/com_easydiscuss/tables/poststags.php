@@ -13,7 +13,9 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussPostsTags extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussPostsTags extends EasyDiscussTable
 {
 	/*
 	 * The id of the tag
@@ -104,33 +106,6 @@ class DiscussPostsTags extends JTable
 	}
 
 	/**
-	 * Overrides parent's bind method to add our own logic.
-	 *
-	 * @param Array $data
-	 **/
-// 	function bind( $data )
-// 	{
-// 		parent::bind( $data );
-//
-// 		if( empty( $this->created ) )
-// 		{
-// 			$date			= DiscussHelper::getDate();
-// 			$this->created	= $date->toMySQL();
-// 		}
-//
-// 		jimport( 'joomla.filesystem.filter.filteroutput');
-//
-// 		$i	= 1;
-// 		while( $this->aliasExists() || empty($this->alias) )
-// 		{
-// 			$this->alias	= empty($this->alias) ? $this->title : $this->alias . '-' . $i;
-// 			$i++;
-// 		}
-//
-// 		$this->alias 	= JFilterOutput::stringURLSafe( $this->alias );
-// 	}
-
-	/**
 	 * Overrides parent's delete method to add our own logic.
 	 *
 	 * @return boolean
@@ -172,4 +147,21 @@ class DiscussPostsTags extends JTable
 			return false;
 		}
 	}
+
+
+	// method to delete all the blog post that associated with the current tag
+	public function clearTags($postId)
+	{
+		$db = ED::db();
+
+		$query = "delete from " . $db->nameQuote('#__discuss_posts_tags');
+		$query .= " where " . $db->nameQuote('post_id') . ' = ' . $db->Quote($postId);
+
+		$db->setQuery( $query );
+		$state = $db->query();
+
+		return $state;
+	}
+
+
 }

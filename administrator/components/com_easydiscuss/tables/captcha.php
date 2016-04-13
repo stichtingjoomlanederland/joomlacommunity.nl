@@ -11,63 +11,16 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
+ED::import('admin:/tables/table');
 
-
-class DiscussCaptcha extends JTable
+class DiscussCaptcha extends EasyDiscussTable
 {
-	public $id			= null;
-	public $response	= null;
-	public $created		= null;
+	public $id = null;
+	public $response = null;
+	public $created = null;
 
-	/**
-	 * Constructor for this class.
-	 *
-	 * @return
-	 * @param object $db
-	 */
-	function __construct(& $db )
+	public function __construct(&$db)
 	{
-		parent::__construct( '#__discuss_captcha' , 'id' , $db );
-	}
-
-	// public function bind( $data = array() )
-	// {
-	// 	return parent::bind( $data );
-	// }
-
-	// function load( $key = null, $permalink = false )
-	// {
-	// 	if( !$permalink )
-	// 	{
-	// 		return parent::load( $key );
-	// 	}
-
-	// 	return parent::load( $key );
-	// }
-
-	/**
-	 * Verify response
-	 * @param	$response	The response code given.
-	 * @return	boolean		True on success, false otherwise.
-	 **/
-	function verify( $response )
-	{
-		return $this->response == $response;
-	}
-
-
-	/**
-	 * Delete the outdated entries.
-	 */
-	function clear()
-	{
-	    $db 	= DiscussHelper::getDBO();
-	    $date 	= DiscussHelper::getDate();
-
-	    $query  = 'DELETE FROM `#__discuss_captcha` WHERE `created` <= DATE_SUB( ' . $db->Quote( $date->toMySQL() ) . ', INTERVAL 12 HOUR )';
-	    $db->setQuery($query);
-	    $db->query();
-
-	    return true;
+		parent::__construct('#__discuss_captcha', 'id', $db);
 	}
 }

@@ -1,35 +1,35 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyDiscuss is free software. This version may have been modified pursuant
+* EasyBlog is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once DISCUSS_HELPERS . '/image.php';
-require_once DISCUSS_HELPERS . '/integrate.php';
+ED::import('admin:tables/table');
 
-class DiscussProfile extends JTable
+class DiscussProfile extends EasyDiscussTable
 {
-	public $id			= null;
-	public $nickname	= null;
-	public $avatar		= null;
+	public $id = null;
+	public $nickname = null;
+	public $avatar = null;
 	public $description	= null;
-	public $url			= null;
-	public $params		= null;
-	public $user		= null;
-	public $alias		= null;
-	public $points		= null;
-	public $latitude	= null;
-	public $longitude	= null;
-	public $location	= null;
-	public $signature	= null;
-	public $site 		= null;
+	public $url = null;
+	public $params = null;
+	public $user = null;
+	public $alias = null;
+	public $points = null;
+	public $latitude = null;
+	public $longitude = null;
+	public $location = null;
+	public $signature = null;
+	public $site = null;
+	public $auth = null;
 
 	/**
 	* Determines if the user's profile has been edited or not.
@@ -65,57 +65,55 @@ class DiscussProfile extends JTable
 	{
 		parent::__construct( '#__discuss_users' , 'id' , $db );
 
-		$this->numPostCreated	= 0;
-		$this->numPostAnswered	= 0;
-		$this->profileLink		= '';
-		$this->avatarLink		= '';
+		$this->numPostCreated = 0;
+		$this->numPostAnswered = 0;
+		$this->profileLink = '';
+		$this->avatarLink = '';
+
+		$this->config = ED::config();
+
 
 	}
 
-	public function bind( $data , $ignore = array() )
+	public function bind($data , $ignore = array())
 	{
 		parent::bind( $data );
 
-		$this->url	= $this->_appendHTTP( $this->url );
+		$this->url	= $this->_appendHTTP($this->url);
 
 		$this->user	= JFactory::getUser($this->id);
 
 		//default to nickname for blogger alias if empty
-		if(empty($this->alias))
-		{
-			$this->alias	= $this->nickname;
+		if (empty($this->alias)) {
+			$this->alias = $this->nickname;
 		}
 
-		if ( empty($this->alias) )
-		{
-			$this->alias	= $this->user->username;
+		if (empty($this->alias)) {
+			$this->alias = $this->user->username;
 		}
 
-		$this->alias	= DiscussHelper::permalinkSlug($this->alias);
-
+		$this->alias = DiscussHelper::permalinkSlug($this->alias);
 		return true;
 	}
 
 	public function _createDefault( $id )
 	{
-		$db		= DiscussHelper::getDBO();
+		$db = ED::db();
 
-		$user	= JFactory::getUser($id);
+		$date = ED::date();
+		$user = JFactory::getUser($id);
 
-		$date	= DiscussHelper::getDate();
-
-		if( $user->id )
-		{
-			$obj				= new stdClass();
-			$obj->id			= $user->id;
-			$obj->nickname		= $user->name;
-			$obj->avatar		= 'default.png';
-			$obj->description	= '';
-			$obj->url			= '';
-			$obj->params		= '';
+		if ($user->id) {
+			$obj = new stdClass();
+			$obj->id = $user->id;
+			$obj->nickname = $user->name;
+			$obj->avatar = 'default.png';
+			$obj->description = '';
+			$obj->url = '';
+			$obj->params = '';
 
 			//default to username for blogger alias
-			$obj->alias			= DiscussHelper::permalinkSlug( $user->username );
+			$obj->alias = DiscussHelper::permalinkSlug( $user->username );
 
 			$isCreated = $db->insertObject('#__discuss_users', $obj);
 			if ($isCreated) {
@@ -127,30 +125,25 @@ class DiscussProfile extends JTable
 
 	public function init( $id = null )
 	{
-		if( is_array($id) )
-		{
+		if (is_array($id)) {
 			$tmpArr = array();
-			foreach( $id as $uid )
-			{
-				if( !isset( self::$instances[ $uid ] ) )
-				{
+
+			foreach ($id as $uid) {
+				if (!isset(self::$instances[$uid])) {
 					$tmpArr[] = $uid;
 				}
 			}
 
-			if( empty($tmpArr) )
-			{
+			if (empty($tmpArr)) {
 				return;
 			}
-			if( count($tmpArr) == 1 )
-			{
+
+			if (count($tmpArr) == 1) {
 				$id = array_pop( $tmpArr );
 				self::load( $id );
-			}
-			else
-			{
-				$db 	= DiscussHelper::getDBO();
-				$ids    = implode(',', $tmpArr);
+			} else {
+				$db = ED::db();
+				$ids = implode(',', $tmpArr);
 
 				$query  = 'select a.*';
 
@@ -161,15 +154,15 @@ class DiscussProfile extends JTable
 				$query .= ' where a.`id` IN (' . $ids . ')';
 
 				$db->setQuery($query);
-				$results    = $db->loadObjectList();
+				$results = $db->loadObjectList();
 
 				// $numPostCreated	 = self::getNumTopicPostedGroup( $tmpArr );
 				// $numPostAnswered = self::getNumTopicAnsweredGroup( $tmpArr );
 
-				foreach( $results as $row )
-				{
-					$user   = new DiscussProfile( $db );
-					$user->bind( $row );
+				foreach ($results as $row) {
+
+					$user   = new DiscussProfile($db);
+					$user->bind($row);
 
 					// $user->numPostCreated	= isset( $numPostCreated[$row->id] ) ? $numPostCreated[$row->id] : 0;
 					// $user->numPostAnswered	= isset( $numPostAnswered[$row->id] ) ? $numPostAnswered[$row->id] : 0;
@@ -195,50 +188,49 @@ class DiscussProfile extends JTable
 	 */
 	public function load( $id = null , $reset = true , $reload = false )
 	{
-		if( !isset( self::$instances[ $id ] ) )
-		{
+		if (!isset(self::$instances[$id])) {
 			$createNew  = false;
+			$user = JFactory::getUser($id);
 
-			if( !empty( $id ) )
-			{
+			if ($id && $user->guest) {
+				//do not process any further;
+				$this->user = $user;
+				self::$instances[ $id ]	= $this;
+
+				return self::$instances[ $id ];
+			}
+
+			if (!empty($id)) {
 				$state = parent::load( $id );
 
-				if( !$state )
-				{
+				if (!$state) {
 					$this->_createDefault($id);
 					$createNew  = true;
 				}
 			}
 
-			if(! $createNew )
-			{
+			if (!$createNew) {
 				$this->numPostCreated	= $this->getNumTopicPosted();
 				$this->numPostAnswered	= $this->getNumTopicAnswered();
 			}
 
-			$user	= JFactory::getUser($id);
 			$this->user	= $user;
 
 			self::$instances[ $id ]	= $this;
-		}
-		else
-		{
+		} else {
 			// At times we might want to reload the user's data.
-			if( $reload )
-			{
+			if ($reload) {
 				parent::load( $id );
 
 				$this->numPostCreated	= $this->getNumTopicPosted();
 				$this->numPostAnswered	= $this->getNumTopicAnswered();
 
-				$user	= JFactory::getUser($id);
+				$user = JFactory::getUser($id);
 				$this->user	= $user;
 
 				$users[ $id ]		= $this;
-			}
-			else
-			{
-				$this->bind( self::$instances[ $id ] );
+			} else {
+				$this->bind(self::$instances[$id]);
 			}
 		}
 
@@ -247,6 +239,12 @@ class DiscussProfile extends JTable
 
 	public function store( $updateNulls = false )
 	{
+		// we need to check if the user exists in joomla or not before we can store this record.
+		$juser = $this->user;
+		if ($juser->guest && !$this->id && !$this->nickname) {
+			return;
+		}
+
 		$tmpNumPostCreated	= $this->numPostCreated;
 		$tmpNumPostAnswered	= $this->numPostAnswered;
 		$tmpProfileLink		= $this->profileLink;
@@ -257,8 +255,7 @@ class DiscussProfile extends JTable
 
 		$result	= parent::store();
 
-		if($result)
-		{
+		if ($result) {
 			$this->numPostCreated	= $tmpNumPostCreated;
 			$this->numPostAnswered	= $tmpNumPostAnswered;
 			$this->profileLink		= $tmpProfileLink;
@@ -269,38 +266,55 @@ class DiscussProfile extends JTable
 
 	public function setUser( $my )
 	{
-		$this->load( $my->id );
+		$this->load($my->id);
 		$this->user = $my;
 	}
 
-	public function getLink( $anchor = '' )
+	/**
+	 * Retrieves the user's link
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getPermalink($anchor = '', $external = false)
 	{
-		if(!isset($this->profileLink) || empty($this->profileLink))
-		{
-			$integrate	= new DiscussIntegrate;
-			$field		= $integrate->getField($this);
+		static $items = array();
 
-			$config 	= DiscussHelper::getConfig();
+		$key = $this->id . $anchor . (int) $external;
 
-			if( !$config->get( 'layout_avatarLinking' ) )
-			{
-				// Always enforce to use EasyDiscuss profile linking if needed.
-				$this->profileLink 	= DiscussRouter::_('index.php?option=com_easydiscuss&view=profile&id='.$this->id, false) . $anchor;
+		if (!isset($items[$key])) {
+			$field = ED::integrate()->getField($this);
+
+			$config = ED::config();
+
+			if (!$config->get('layout_avatarLinking')) {
+				$items[$key] = EDR::_('view=profile&id=' . $this->id, false) . $anchor;
+			} else {
+				$items[$key] = $field['profileLink'];
 			}
-			else
-			{
-				$this->profileLink	=  $field[ 'profileLink' ];
-			}
-
 		}
 
-		return $this->profileLink;
+		return $items[$key];
+	}
+
+	/**
+	 * Deprecated. Use @getPermalink instead
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getLink($anchor = '')
+	{
+		return $this->getPermalink($anchor);
 	}
 
 	public function getLinkHTML( $defaultGuestName = '' )
 	{
-		if ($this->id == 0)
-		{
+		if ($this->id == 0) {
 			return $this->getName($defaultGuestName);
 		}
 		return '<a href="'.$this->getLink().'" title="'.$this->getName().'">'.$this->getName().'</a>';
@@ -312,56 +326,147 @@ class DiscussProfile extends JTable
 	 * @since	3.0
 	 * @access	public
 	 */
-	public function addBadge( $badgeId )
+	public function addBadge($badgeId)
 	{
 		// Check if there's already a badge assigned to the user.
-		$badgeUser 	= DiscussHelper::getTable( 'BadgesUsers' );
+		$badgeUser = ED::table('BadgesUsers');
+		$exists = $badgeUser->loadByUser($this->id , $badgeId);
 
-		$exists 	= $badgeUser->loadByUser( $this->id , $badgeId );
-
-		if( $exists )
-		{
-			$this->setError( 'Badge is already assigned to the user.' );
+		if ($exists) {
+			$this->setError('COM_EASYDISCUSS_BADGE_ALREADY_ASSIGN_TO_USER');
 			return false;
 		}
 
-		$badgeUser->badge_id 	= $badgeId;
-		$badgeUser->user_id 	= $this->id;
-		$badgeUser->created 	= DiscussHelper::getDate()->toMySQL();
-		$badgeUser->published 	= 1;
+		$badgeUser->badge_id = $badgeId;
+		$badgeUser->user_id = $this->id;
+		$badgeUser->created = ED::date()->toMySQL();
+		$badgeUser->published = 1;
 
 		return $badgeUser->store();
 	}
 
-	public function addPoint( $point )
+	public function addPoint($point)
 	{
-		$this->points	+= $point;
+		$this->points += $point;
 	}
 
-	public function getName( $default = '' )
+	/**
+	 * Retrieves the name of the user
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getName($default = '')
 	{
-		if($this->id == 0)
-		{
+		if ($this->id == 0) {
 			return $default ? $default : JText::_('COM_EASYDISCUSS_GUEST');
 		}
 
-		$config			= DiscussHelper::getConfig();
-		$displayname	= $config->get('layout_nameformat');
+		$config = ED::config();
+		$displayName = $config->get('layout_nameformat');
 
-		switch($displayname)
-		{
-			case "name" :
-				$name = $this->user->name;
-				break;
-			case "username" :
-				$name = $this->user->username;
-				break;
-			case "nickname" :
-			default :
-				$name = (empty($this->nickname)) ? $this->user->name : $this->nickname;
-				break;
+		if ($displayName == 'name') {
+			$name = $this->user->name;
 		}
+
+		if ($displayName == 'username') {
+			$name = $this->user->username;
+		}
+
+		if ($displayName == 'nickname') {
+			$name = $this->nickname;
+
+			if (!$name) {
+				$name = $this->user->name;
+			}
+		}
+
 		return $name;
+	}
+
+	public function getNameInitial()
+	{
+		$name = $this->getName();
+
+		if (! $this->id && isset($this->poster_name) && $this->poster_name) {
+			$name = $this->poster_name;
+		}
+
+		$initial = new stdClass();
+		$initial->text = '';
+		$initial->code = '';
+
+		$text = '';
+		if (JString::is_ascii($name)) {
+			//lets split the name based on empty space
+			$segments = explode(' ', $name);
+
+			if (count($segments) >= 2) {
+				$tmp = array();
+				$tmp[] = substr($segments[0], 0, 1);
+				$tmp[] = substr($segments[count($segments) - 1], 0, 1);
+
+				$text = implode('', $tmp);
+				$initial->text = $text;
+			} else {
+				$initial->text = substr($name, 0, 1);
+			}
+
+			$initial->text = strtoupper($initial->text);
+			$text = $initial->text;
+
+		} else {
+			$initial->text = JString::substr($name, 0, 1);
+
+			$text = ($this->id) ? $this->user->email : '';
+			if (!$text && isset($this->poster_email)) {
+				$text = $this->poster_email;
+				$text = strtoupper($text);
+			}
+		}
+
+		// get the color code
+		$initial->code = $this->getNameInitialCode($text);
+
+		return $initial;
+
+	}
+
+	private function getNameInitialCode($text)
+	{
+		if (! $this->id) {
+			// guest always return 1;
+			return '1';
+		}
+
+		$char = substr($text, 0, 1);
+		$codes = array(1 => array('A','B','C','D','E'),
+					   2 => array('F','G','H','I','J'),
+					   3 => array('K','L','M','N','O'),
+					   4 => array('P','Q','R','S','T'),
+					   5 => array('U','V','W','X','Y','Z'));
+
+
+		foreach($codes as $key => $sets) {
+			if (in_array($char, $sets)) {
+				return $key;
+			}
+		}
+
+		// if nothing found, just return 1
+		return '1';
+	}
+
+	public function getUsername()
+	{
+		return $this->user->username;
+	}
+
+	public function getEmail()
+	{
+		return $this->user->email;
 	}
 
 	public function getId(){
@@ -370,63 +475,81 @@ class DiscussProfile extends JTable
 
 	public function getOriginalAvatar()
 	{
-		jimport( 'joomla.filesystem.file' );
-		$config 	= DiscussHelper::getConfig();
+		jimport('joomla.filesystem.file');
+		$config = ED::config();
 
-		if( $config->get( 'layout_avatarIntegration') == 'jfbconnect' )
-		{
-			$integrate = new DiscussIntegrate;
+		if ($config->get('layout_avatarIntegration') == 'jfbconnect') {
+			$integrate = new EasyDiscussIntegrate;
 			$hasAvatar = $integrate->jfbconnect($this);
 
-			if($hasAvatar) {
+			if ($hasAvatar) {
 				return false;
 			}
 		}
-		else if( $config->get( 'layout_avatarIntegration') != 'default' )
-		{
+
+		if ($config->get( 'layout_avatarIntegration') != 'default') {
 			return false;
 		}
 
-		$path 	= JPATH_ROOT . '/' . trim( $config->get( 'main_avatarpath' ) , DIRECTORY_SEPARATOR );
+		$path = JPATH_ROOT . '/' . trim($config->get('main_avatarpath'), DIRECTORY_SEPARATOR);
 
 		// If original image doesn't exist, skip this
-		if( !JFile::exists( $path . '/original_' . $this->avatar ) )
-		{
+		if (!JFile::exists($path . '/original_' . $this->avatar)) {
 			return false;
 		}
 
-		$path	= trim( $config->get( 'main_avatarpath') , '/' ) . '/' . 'original_' . $this->avatar;
-		$uri	= rtrim( JURI::root() , '/' );
-		$uri	.= '/' . $path;
+		$path = trim($config->get('main_avatarpath'), '/') . '/' . 'original_' . $this->avatar;
+		$uri = rtrim(JURI::root(), '/');
+		$uri .= '/' . $path;
+
 		return $uri;
 	}
 
+	/**
+	 * Retrieve the author's avatar
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function getAvatar( $isThumb = true )
 	{
-		$config 	= DiscussHelper::getConfig();
-		$db 		= DiscussHelper::getDBO();
+		$config = ED::config();
+		$db = ED::db();
+
 		static $avatar;
 
-		if(! $config->get('layout_avatar') )
-		{
+		// Ensure that avatars are enabled
+		if (!$config->get('layout_avatar')) {
 			return false;
 		}
 
-		$key    = $this->id . '_' . (int) $isThumb;
-		if(! isset($avatar[$key]) )
-		{
-			$integrate	= new DiscussIntegrate;
-			$field		= $integrate->getField($this, $isThumb);
-			//$this->avatarLink	=  $field[ 'avatarLink' ];
-			$avatar[ $key ] = $field[ 'avatarLink' ];
+		$key = $this->id . '_' . (int) $isThumb;
+
+		if (!isset($avatar[$key])) {
+			$field = ED::integrate()->getField($this, $isThumb);
+
+			$avatar[$key] = $field['avatarLink'];
 		}
 
-		$this->avatarLink   = $avatar[ $key ];
+		$this->avatarLink = $avatar[$key];
+
 		return $this->avatarLink;
 	}
 
+	public function getNickname()
+	{
+		return $this->nickname;
+	}
+
 	public function getDescription(){
-		return $this->description;
+
+		if ($this->config->get('layout_editor') == 'bbcode') {
+			return nl2br(ED::parser()->bbcode($this->description));
+		}
+
+		return trim($this->description);
 	}
 
 	public function getWebsite(){
@@ -454,14 +577,32 @@ class DiscussProfile extends JTable
 		return $returnStr;
 	}
 
-	public function getRSS()
+	/**
+	 * Retrieves the rss feed for a user
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getRSS($atom = false)
 	{
-		return DiscussHelper::getHelper( 'Feeds' )->getFeedURL( 'index.php?option=com_easydiscuss&view=profile&id=' . $this->id );
+		$url = 'index.php?option=com_easydiscuss&view=profile&id=' . $this->id;
+
+		return ED::feeds()->getFeedURL($url, $atom);
 	}
 
+	/**
+	 * Retrieves the atom rss feed for a user
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function getAtom()
 	{
-		return DiscussHelper::getHelper( 'Feeds' )->getFeedURL( 'index.php?option=com_easydiscuss&view=profile&id=' . $this->id, true );
+		return $this->getRSS(true);
 	}
 
 	/**
@@ -472,19 +613,20 @@ class DiscussProfile extends JTable
 	 */
 	public function getTotalFavourites()
 	{
-		$db 	= DiscussHelper::getDBO();
+		$db = ED::db();
 
-		$query 		= array();
-		$query[]	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_favourites' ) . ' AS a';
-		$query[]	= 'INNER JOIN ' . $db->nameQuote( '#__discuss_posts' ) . ' AS b';
-		$query[]	= 'ON a.' . $db->nameQuote( 'post_id' ) . ' = b.' . $db->nameQuote( 'id' );
-		$query[]	= 'WHERE ' . $db->nameQuote( 'created_by' ) . '=' . $db->Quote( $this->id );
-		$query[]	= 'AND b.' . $db->nameQuote( 'published' ) . '=' . $db->Quote( 1 );
-		$query 		= implode( ' ' , $query );
+		$query = array();
+		$query[] = 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_favourites' ) . ' AS a';
+		$query[] = 'INNER JOIN ' . $db->nameQuote( '#__discuss_posts' ) . ' AS b';
+		$query[] = 'ON a.' . $db->nameQuote( 'post_id') . ' = b.' . $db->nameQuote('id');
+		$query[] = 'WHERE ' . $db->nameQuote( 'created_by') . '=' . $db->Quote($this->id);
+		$query[] = 'AND b.' . $db->nameQuote( 'published') . '=' . $db->Quote(1);
+
+		$query = implode(' ' , $query);
 
 		$db->setQuery( $query );
 
-		$total 		= $db->loadResult();
+		$total = $db->loadResult();
 
 		return $total;
 	}
@@ -497,26 +639,31 @@ class DiscussProfile extends JTable
 	 */
 	public function getNumTopicPosted()
 	{
-		static $cache 	= array();
+		static $cache = array();
 
-		if( empty( $this->id ) )
-			return '0';
+		if (empty($this->id)) {
+			return 0;
+		}
 
-		$index	= $this->id;
+		$index = $this->id;
 
-		if( !isset( $cache[ $index ] ) )
-		{
-			$db = DiscussHelper::getDBO();
+		if (!isset($cache[$index])) {
+			$db = ED::db();
 
-			$query	= 'SELECT COUNT(1) AS CNT FROM `#__discuss_posts`';
-			$query	.= ' WHERE `user_id` = ' . $db->Quote($this->id);
-			$query	.= ' AND `parent_id` = 0';
-			$query	.= ' AND `published` = 1';
+			$query	= 'SELECT count(1) AS CNT FROM ' . $db->nameQuote('#__discuss_posts')
+					.' WHERE ' . $db->nameQuote('user_id') . '=' . $db->Quote($this->id)
+					.' AND ' . $db->nameQuote('parent_id') . '=' . $db->Quote('0')
+					.' AND ' . $db->nameQuote('published') . '=' . $db->Quote('1');
+
+			// If the post is anonymous we shouldn't show to public.
+			if (ED::user()->id != $this->id) {
+				$query .=' AND ' . $db->nameQuote('anonymous') . '=' . $db->Quote('0');
+			}
 
 			$db->setQuery($query);
-			$data	= $db->loadResult();
+			$data = $db->loadResult();
 
-			$cache[ $index ]	= $data;
+			$cache[$index] = $data;
 		}
 
 		return $cache[ $index ];
@@ -530,7 +677,7 @@ class DiscussProfile extends JTable
 	 */
 	public function getNumTopicPostedGroup( $userIds )
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		$ids    = implode( ',', $userIds );
 
@@ -560,7 +707,7 @@ class DiscussProfile extends JTable
 	 */
 	public function getNumTopicAnsweredGroup( $userIds )
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		$ids    = implode( ',', $userIds );
 
@@ -602,7 +749,10 @@ class DiscussProfile extends JTable
 
 		if( !isset( $cache[ $index ] ) )
 		{
-			$db = DiscussHelper::getDBO();
+			$db = ED::db();
+
+			$my = JFactory::getUser();
+			$respectAnonymous = ($my->id == $this->id) ? false : true;
 
 			$query	= 'SELECT COUNT(a.`id`) AS CNT FROM `#__discuss_posts` AS a ';
 			$query	.= ' INNER JOIN #__discuss_posts AS b ';
@@ -611,6 +761,10 @@ class DiscussProfile extends JTable
 			$query	.= ' WHERE a.`user_id` = ' . $db->Quote($this->id);
 			$query	.= ' AND a.`published` = 1';
 			$query	.= ' AND b.`published` = 1';
+
+			if ($respectAnonymous) {
+				$query	.= ' AND a.`anonymous` = 0';
+			}
 
 			$db->setQuery($query);
 
@@ -621,26 +775,33 @@ class DiscussProfile extends JTable
 	}
 
 	/**
-	 * Retrieve the count of topics that is posted by the user and it isn't resolved yet.
-	 *
-	 * @since	2.0
-	 * @access	public
-	 */
+     * Get number of unresolved posts
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
 	public function getNumTopicUnresolved()
 	{
-		static $cache 	= array();
+		static $cache = array();
 
-		$index 	= $this->id;
+		$index = $this->id;
 
-		if( !isset( $cache[ $index ] ) )
-		{
-			$db = DiscussHelper::getDBO();
+		if (!isset($cache[$index])) {
+			$db = ED::db();
 
 			$query	= 'SELECT COUNT(a.`id`) AS CNT FROM `#__discuss_posts` AS a ';
 			$query	.= ' WHERE a.`user_id` = ' . $db->Quote($this->id);
 			$query	.= ' AND a.`published` = 1';
 			$query	.= ' AND a.`isresolve` = 0';
 			$query	.= ' AND a.`parent_id` = 0';
+
+			// If the post is anonymous we shouldn't show to public.
+			if (ED::user()->id != $this->id) {
+				$query .=' AND a.' . $db->nameQuote('anonymous') . '=' . $db->Quote('0');
+			}
+
 			$db->setQuery($query);
 
 			$result	= $db->loadResult();
@@ -665,7 +826,7 @@ class DiscussProfile extends JTable
 
 		if( !isset( $cache[ $index ] ) )
 		{
-			$db 	= DiscussHelper::getDBO();
+			$db 	= ED::db();
 			$query	= 'SELECT COUNT(1) FROM `#__discuss_posts` AS a ';
 			$query	.= ' WHERE a.`user_id` = ' . $db->Quote($this->id);
 			$query	.= ' AND a.`published` = 1';
@@ -677,6 +838,113 @@ class DiscussProfile extends JTable
 		}
 
 		return $cache[ $index ];
+	}
+
+	/**
+	 * Returns the total number of posts a user has made on the site.
+	 *
+	 * @since	3.0
+	 * @access	public
+	 */
+	public function getTotalQuestions()
+	{
+		static $cache = array();
+
+		if (!isset($cache[$this->id])) {
+			$model = ED::model('Users');
+
+			$total = $model->getTotalQuestions($this->id);
+			$cache[$this->id] = $total ? $total : '0';
+		}
+
+
+		return $cache[$this->id];
+	}
+
+	/**
+	 * Retrieves the total number of replies the user made
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getTotalReplies()
+	{
+		static $cache = array();
+
+		if (!isset($cache[$this->id])) {
+			$model = ED::model('Users');
+			$cache[$this->id] = $model->getTotalReplies($this->id);
+		}
+
+		return $cache[$this->id];
+	}
+
+	/**
+	 * Retrieves the total number of assigned post the user made
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getTotalAssigned()
+	{
+		static $cache = array();
+
+		if (!isset($cache[$this->id])) {
+			$model = ED::model('Assigned');
+			$cache[$this->id] = $model->getTotalAssigned($this->id) ? $model->getTotalAssigned($this->id) : '0';
+		}
+
+		return $cache[$this->id];
+	}
+
+	/**
+	 * Retrieves the total number of resolved post the user made
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getTotalResolved()
+	{
+		static $cache = array();
+
+		if (!isset($cache[$this->id])) {
+			$model = ED::model('Assigned');
+			$cache[$this->id] = $model->getTotalSolved($this->id) ? $model->getTotalSolved($this->id) : '0';
+		}
+
+		return $cache[$this->id];
+	}
+
+	/**
+	 * Retrieves the total number of subscription the user made
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getTotalSubscriptions()
+	{
+		static $cache = array();
+
+		if (!isset($cache[$this->id])) {
+			$model = ED::model('Subscribe');
+			$results = $model->getTotalSubscriptions($this->id) ? $model->getTotalSubscriptions($this->id) : '0';
+
+			$cache[$this->id] = 0;
+
+			if ($results) {
+				$cache[$this->id] = $results->total;
+			}
+		}
+
+		return $cache[$this->id];
 	}
 
 	/**
@@ -693,7 +961,7 @@ class DiscussProfile extends JTable
 
 		if( !isset( $cache[ $index ] ) )
 		{
-			$db		= DiscussHelper::getDBO();
+			$db		= ED::db();
 			$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_tags' ) . ' '
 					. 'WHERE ' . $db->nameQuote( 'user_id' ) . '=' . $db->Quote( $this->id ) . ' '
 					. 'AND ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( 1 );
@@ -706,28 +974,41 @@ class DiscussProfile extends JTable
 		return $cache[ $index ];
 	}
 
+	/**
+	 * Retrieve the joined date of a user
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function getDateJoined()
 	{
-		$config	= DiscussHelper::getConfig();
+		$date = ED::date($this->user->registerDate);
 
-		$date	= DiscussDateHelper::getDate($this->user->registerDate);
-		return $date->toFormat( '%d/%m/%Y');
+		return $date->display(ED::config()->get('layout_dateformat', JText::_('DATE_FORMAT_LC1')));
 	}
 
-	public function getLastOnline( $front = false )
+	/**
+	 * Get last online date
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getLastOnline($front = false)
 	{
-		$config	= DiscussHelper::getConfig();
+		$date = ED::date($this->user->lastvisitDate);
+		$config = ED::config();
+		$timelapse = $config->get('layout_timelapse', 1);
+		$format = $config->get('layout_dateformat', JText::_('DATE_FORMAT_LC1'));
 
-		$date 	= DiscussDateHelper::dateWithOffSet($this->user->lastvisitDate);
+		if ($front && $timelapse) {
+			return $date->toLapsed($this->user->lastvisitDate);
+		}
 
-		if( $front )
-		{
-			return $date->toFormat( '%l.%M %P, %d/%m/%Y');
-		}
-		else
-		{
-			return $date->toFormat( '%d/%m/%Y');
-		}
+		return $date->display($format);
 	}
 
 	public function getURL( $raw = false , $xhtml = false )
@@ -753,17 +1034,22 @@ class DiscussProfile extends JTable
 	{
 		static	$loaded	= array();
 
-		if( !isset( $loaded[ $this->id ] ) )
-		{
-			$db		= DiscussHelper::getDBO();
+		if (! $this->id) {
+			//guest, also return false
+			return false;
+		}
+
+		if (!isset($loaded[$this->id])) {
+			$db		= ED::db();
 			$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__session' ) . ' '
 					. 'WHERE ' . $db->nameQuote( 'userid' ) . '=' . $db->Quote( $this->id ) . ' '
 					. 'AND ' . $db->nameQuote( 'client_id') . '<>' . $db->Quote( 1 );
 			$db->setQuery( $query );
 
-			$loaded[ $this->id ]	= $db->loadResult() > 0 ? true : false;
+			$loaded[$this->id]	= $db->loadResult() > 0 ? true : false;
 		}
-		return $loaded[ $this->id ];
+
+		return $loaded[$this->id];
 	}
 
 	/**
@@ -776,34 +1062,26 @@ class DiscussProfile extends JTable
 	{
 		static $loaded = array();
 
-		if(! isset( $loaded[$this->id] ) )
-		{
-			$db		= DiscussHelper::getDBO();
-			$query	= 'SELECT * FROM ' . $db->nameQuote( '#__discuss_badges_users' ) . ' AS a '
-					. 'INNER JOIN ' . $db->nameQuote( '#__discuss_badges' ) . ' AS b '
-					. 'ON a.' . $db->nameQuote( 'badge_id' ) . '=b.' . $db->nameQuote( 'id' ) . ' '
-					. 'WHERE a.' . $db->nameQuote( 'user_id' ) . '=' . $db->Quote( $this->id ) . ' '
-					. 'AND b.' . $db->nameQuote( 'published' ) . '=' . $db->Quote( 1 );
-			$db->setQuery( $query );
+		if (!isset($loaded[$this->id])) {
 
-			$result	= $db->loadObjectList();
-			$badges	= array();
+			$model = ED::model('Badges');
+			$result = $model->getSiteBadges(array('user' => $this->id));
 
-			if( !$result )
-			{
+			if (!$result) {
 				return $result;
 			}
 
-			foreach( $result as $res )
-			{
-				$badge	= DiscussHelper::getTable( 'Badges' );
-				$badge->bind( $res );
+			$badges	= array();
 
-				$badge->custom 	= $res->custom;
-				$badges[]	= $badge;
+			foreach ($result as $res) {
+				$badge = ED::table('Badges');
+				$badge->bind($res);
+
+				// $badge->custom = $res->custom;
+				$badges[] = $badge;
 			}
 
-			$loaded[$this->id]  = $badges;
+			$loaded[$this->id] = $badges;
 		}
 
 		return $loaded[$this->id];
@@ -811,7 +1089,7 @@ class DiscussProfile extends JTable
 
 	public function getTotalBadges()
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_badges_users' ) . ' AS a '
 				. 'INNER JOIN ' . $db->nameQuote( '#__discuss_badges' ) . ' AS b '
 				. 'ON a.' . $db->nameQuote( 'badge_id' ) . '=b.' . $db->nameQuote( 'id' ) . ' '
@@ -824,7 +1102,7 @@ class DiscussProfile extends JTable
 
 	public function updatePoints()
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 		$query	= 'SELECT ' . $db->nameQuote( 'points' ) . ' FROM '
 				. $db->nameQuote( '#__discuss_users' ) . ' WHERE '
 				. $db->nameQuote( 'id' ) . '=' . $db->Quote( $this->id );
@@ -833,29 +1111,41 @@ class DiscussProfile extends JTable
 		$this->points	= $db->loadResult();
 	}
 
+	public function resetPoints()
+	{
+		$db		= ED::db();
+		$query	= 'UPDATE ' . $db->nameQuote( '#__discuss_users' )
+				. ' SET ' . $db->nameQuote('points') . ' = ' . $db->Quote(0)
+   				. ' WHERE ' . $db->nameQuote('id') . '=' . $db->Quote($this->id);
+		$db->setQuery($query);
+		$db->query();
+	}
+
 	public function getSignature( $raw = false )
 	{
-		if( !array_key_exists('signature', $this->_data) )
-		{
-			if( $raw )
-			{
+		if (!array_key_exists('signature', $this->_data)) {
+			if ($this->config->get('layout_editor') == 'bbcode') {
+				$this->_data['signature'] = nl2br(ED::parser()->bbcode($this->signature));
+			} else {
 				$this->_data['signature'] = trim($this->signature);
-			}
-			else
-			{
-				$this->_data['signature'] = nl2br( EasyDiscussParser::bbcode( $this->signature ) );
 			}
 		}
 
 		return $this->_data['signature'];
 	}
 
+	/**
+	 * Retrieve's user points
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function getPoints()
 	{
-		$aup = DiscussHelper::getHelper('Aup');
-
-		if ($aup->exists()) {
-			return $aup->getUserPoints($this->id);
+		if (ED::aup()->exists()) {
+			return ED::aup()->getUserPoints($this->id);
 		}
 
 		return $this->points;
@@ -863,61 +1153,66 @@ class DiscussProfile extends JTable
 
 	public function getRole()
 	{
-		$user 			= JFactory::getUser( $this->id );
-		$userGroupId = DiscussHelper::getUserGroupId( $user );
+		static $_cache = array();
 
-		$role	= DiscussHelper::getTable( 'Role' );
+		$key = $this->id;
 
-		$title	= $role->getTitle( $userGroupId );
-		return $title;
+		if (! isset($_cache[$key])) {
+			$user = JFactory::getUser($this->id);
+			$userGroupId = DiscussHelper::getUserGroupId($user);
+
+			$role = ED::table('Role');
+			$title	= $role->getTitle($userGroupId);
+			$_cache[$key] = $title;
+		}
+
+		return $_cache[$key];
 	}
 
 	public function getRoleLabelClassname()
 	{
-		$user 			= JFactory::getUser( $this->id );
-		$userGroupId = DiscussHelper::getUserGroupId( $user );
+		$user = JFactory::getUser($this->id);
+		$userGroupId = ED::getUserGroupId($user);
 
-		$role	= DiscussHelper::getTable( 'Role' );
-		$color	= $role->getRoleColor( $userGroupId );
+		$role = ED::table('Role');
+		$color = $role->getRoleColor($userGroupId);
 
-		$classname = 'role-' . $color;
+		$classname = $color;
+
 		return $classname;
 	}
 
 	public function getRoleId()
 	{
-		$userGroupId = DiscussHelper::getUserGroupId( $this->user );
+		if (! $this->id) {
+			return '0';
+		}
 
-		$role	= DiscussHelper::getTable( 'Role' );
+		$userGroupId = ED::getUserGroupId( $this->user );
+
+		$role	= ED::table( 'Role' );
 		$roleid	= $role->getRoleId( $userGroupId );
 		return $roleid;
 	}
 
-	public function read( $postId )
+	public function read($postId)
 	{
-		$posts  = array();
-		$doAdd  = false;
+		$posts = array();
+		$doAdd = true;
 
-		if( empty( $this->id ) )
+		if (empty($this->id))
 			return false;
 
-		if( $this->posts_read )
-		{
-			$posts  = unserialize( $this->posts_read );
-			if(! in_array($postId, $posts) )
-			{
-				$doAdd = true;
+		if ($this->posts_read) {
+			$posts = unserialize($this->posts_read);
+			if (in_array($postId, $posts)) {
+				$doAdd = false;
 			}
 		}
-		else
-		{
-			$doAdd = true;
-		}
 
-		if( $doAdd )
-		{
+		if ($doAdd) {
 			$posts[] = $postId;
-			$this->posts_read   = serialize( $posts );
+			$this->posts_read = serialize($posts);
 			$this->store();
 		}
 
@@ -927,37 +1222,35 @@ class DiscussProfile extends JTable
 	/**
 	 * Deletes the user's avatar
 	 *
-	 * @since	1.0
+	 * @since	4.0
 	 * @access	public
 	 * @param	string
 	 * @return
 	 */
 	public function deleteAvatar()
 	{
-		$config		= DiscussHelper::getConfig();
+		$config	= ED::config();
 
-		$path	= $config->get('main_avatarpath');
-		$path	= rtrim( $path , '/');
-		$path 	= JPATH_ROOT . '/' . $path;
+		$path = $config->get('main_avatarpath');
+		$path = rtrim( $path , '/');
+		$path = JPATH_ROOT . '/' . $path;
 
-		$original	= $path . '/original_' . $this->avatar;
-		$path 		= $path . '/' . $this->avatar;
+		$original = $path . '/original_' . $this->avatar;
+		$path = $path . '/' . $this->avatar;
 
-		jimport( 'joomla.filesystem.file' );
+		jimport('joomla.filesystem.file');
 
 		// Test if the original file exists.
-		if( JFile::exists( $original ) )
-		{
-			JFile::delete( $original );
+		if (JFile::exists($original)) {
+			JFile::delete($original);
 		}
 
 		// Test if the avatar file exists.
-		if( JFile::exists( $path ) )
-		{
-			JFile::delete( $path );
+		if (JFile::exists($path)) {
+			JFile::delete($path);
 		}
 
-		$this->avatar 	= '';
+		$this->avatar = '';
 
 		$this->store();
 	}
@@ -972,6 +1265,101 @@ class DiscussProfile extends JTable
 		else
 		{
 			return false;
+		}
+	}
+
+	/**
+	 * Retrieve user id from jfbconnect table
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getJfbconnectUserId($userId)
+	{
+		$db = ED::db();
+
+		// Get columns
+		$columns = $db->getTableColumns('#__jfbconnect_user_map');
+
+		// Set the default column
+		$query = 'SELECT `fb_user_id` AS `id`';
+
+		// If it is new version
+		if (in_array('provider_user_id', $columns)) {
+			$query = 'SELECT `provider_user_id` AS `id`';
+		}
+
+		$query .= ' FROM `#__jfbconnect_user_map` WHERE `j_user_id`=' . $db->Quote($userId);
+
+		$db->setQuery( $query );
+		$id = $db->loadResult();
+
+		return $id;
+	}
+
+		/**
+	 * This determines if the user should be moderated when they make a new posting
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function moderateUsersPost()
+	{
+		static $items = array();
+
+		if (!isset($items[$this->id])) {
+			$config = ED::config();
+
+			$enabled = $config->get('main_moderation_automated');
+			$limit = $config->get('moderation_threshold');
+
+			if (!$enabled && !$limit) {
+				$items[$this->id] = false;
+
+				return $items[$this->id];
+			}
+
+			$model = ED::model('Users');
+
+			// By default they should be moderated unless they exceeded the moderation threshold
+			$items[$this->id] = true;
+
+			// If exceeded, they shouldn't be moderated
+			if ($model->exceededModerationThreshold($this->id)) {
+				$items[$this->id] = false;
+			}
+		}
+
+		return true;
+	}
+
+	public function hasLocation()
+	{
+		if (!$this->location || !$this->latitude || !$this->longitude) {
+			return false;
+		}
+
+		return true;
+	}
+
+	public function getPostsNumCount($filter = 'questions')
+	{
+		if ($filter == 'questions') {
+			return $this->getNumTopicPosted();
+		}
+
+		if ($filter == 'unresolved') {
+			return $this->getNumTopicUnresolved();
+		}
+
+		if ($filter == 'favourites' || $filter == 'assigned' || $filter == 'replies') {
+			$functionName = 'getTotal' . ucfirst($filter);
+
+			return $this->$functionName();
 		}
 	}
 }

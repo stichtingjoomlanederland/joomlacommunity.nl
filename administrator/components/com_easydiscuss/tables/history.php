@@ -12,7 +12,9 @@
  */
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussHistory extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussHistory extends EasyDiscussTable
 {
 	public $id		= null;
 	public $user_id	= null;

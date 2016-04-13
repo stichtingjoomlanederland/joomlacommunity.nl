@@ -18,15 +18,8 @@ class EasyDiscussViewReplies extends EasyDiscussAdminView
 {
 	public function display($tpl = null)
 	{
-		// @rule: Test for user access if on 1.6 and above
-		if( DiscussHelper::getJoomlaVersion() >= '1.6' )
-		{
-			if(!JFactory::getUser()->authorise('discuss.manage.replies' , 'com_easydiscuss') )
-			{
-				JFactory::getApplication()->redirect( 'index.php' , JText::_( 'JERROR_ALERTNOAUTHOR' ) , 'error' );
-				JFactory::getApplication()->close();
-			}
-		}
+		$this->checkAccess('discuss.manage.replies');
+
 		// Initialise variables
 		$mainframe	= JFactory::getApplication();
 
@@ -37,7 +30,7 @@ class EasyDiscussViewReplies extends EasyDiscussAdminView
 		$order			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.replies.filter_order',		'filter_order',		'a.id',		'cmd' );
 		$orderDirection	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.replies.filter_order_Dir',	'filter_order_Dir',	'',			'word' );
 
-		$postModel		= $this->getModel('Replies');
+		$postModel		= ED::model('Replies');
 
 		$posts			= $postModel->getPosts();
 		$pagination		= $postModel->getPagination();

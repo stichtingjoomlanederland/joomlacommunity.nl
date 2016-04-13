@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,40 +9,54 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once( DISCUSS_ROOT . '/views.php' );
-
-require_once DISCUSS_HELPERS . '/date.php';
+require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewFavourites extends EasyDiscussView
 {
-	function display($tpl = null)
+	/**
+	 * Renders the favourites listing page
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function display($tpl = null)
 	{
-		$config 	= DiscussHelper::getConfig();
-		$app 		= JFactory::getApplication();
-
-		if( !$config->get( 'main_favorite' ) )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_FEATURE_IS_DISABLED' ) , DISCUSS_QUEUE_ERROR );
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss' , false ) );
-			$app->close();
+		// Ensure that this feature is enabled
+		if (!$this->config->get('main_favorite')) {
+			ED::setMessage('COM_EASYDISCUSS_FEATURE_IS_DISABLED', 'error');
+			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss', false));
 		}
 
-		DiscussHelper::setPageTitle( JText::_( 'COM_EASYDISCUSS_FAVOURITES_TITLE' ) );
+		ED::setPageTitle('COM_EASYDISCUSS_FAVOURITES_TITLE');
+		ED::setMeta();
 
-		// @task: Add view
+		// Load the user's profile
+		$profile = ED::profile($this->my->id);
+
+		// If profile is invalid, throw an error.
+		if (!$profile->id || !$this->my->id) {
+			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_USER_ACCOUNT_NOT_FOUND'));
+		}
+
+		// Get user badges
+		$badges = $profile->getBadges();
+
+		// Add view
 		$this->logView();
 
-		DiscussHelper::setMeta();
+		$model = ED::model('Posts');
 
-		$postModel 	= DiscussHelper::getModel( 'Posts' );
-		$posts		= $postModel->getData( true , 'latest' , null , 'favourites' );
-		$posts		= DiscussHelper::formatPost($posts);
+		$posts = $model->getData(true, 'latest', null, 'favourites');
+		$posts = ED::formatPost($posts);
 
-		$theme 	= new DiscussThemes();
-		$theme->set( 'posts'	, $posts );
-
-		echo $theme->fetch( 'favourites.php' );
+		$this->set('posts', $posts);
+		$this->set('profile', $profile);
+		$this->set('badges', $badges);	
+		
+		parent::display('favourites/default');
 	}
 }

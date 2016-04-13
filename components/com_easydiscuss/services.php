@@ -1,89 +1,82 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-$config = DiscussHelper::getConfig();
+$config = ED::config();
 
-if (JRequest::getCmd('task', '', 'GET') == 'cron')
-{
-	$mailq	= DiscussHelper::getMailQueue();
+if (JRequest::getCmd('task', '', 'GET') == 'cron') {
 
-	if(JRequest::getCmd('job', '', 'GET') == 'subscription' && $config->get('main_sitesubscription'))
-	{
-		//process the site subscription
-		//daily - index.php?option=com_easydiscuss&task=cron&job=subscription&interval=daily
-		//weekly - index.php?option=com_easydiscuss&task=cron&job=subscription&interval=weekly
-		//monthly - index.php?option=com_easydiscuss&task=cron&job=subscription&interval=monthly
-		//all - index.php?option=com_easydiscuss&task=cron&job=subscription&interval=all
+	// $mailq = ED::getMailQueue();
 
-		$interval	= JRequest::getCmd('interval', 'daily', 'GET');
+	// if (JRequest::getCmd('job', '', 'GET') == 'subscription' && $config->get('main_sitesubscription')) {
+	// 	//process the site subscription
+	// 	//daily - index.php?option=com_easydiscuss&task=cron&job=subscription&interval=daily
+	// 	//weekly - index.php?option=com_easydiscuss&task=cron&job=subscription&interval=weekly
+	// 	//monthly - index.php?option=com_easydiscuss&task=cron&job=subscription&interval=monthly
+	// 	//all - index.php?option=com_easydiscuss&task=cron&job=subscription&interval=all
 
-		$subs = DiscussHelper::getSiteSubscriptionClass();
+	// 	$interval	= JRequest::getCmd('interval', 'daily', 'GET');
 
-		if($interval == 'all')
-		{
-			$processIntervals = array('daily', 'weekly', 'monthly');
+	// 	$subs = DiscussHelper::getSiteSubscriptionClass();
 
-			foreach($processIntervals as $processInterval)
-			{
-				$subs->interval = $processInterval;
-				$subs->process();
-			}
-		}
-		else
-		{
-			$subs->interval = $interval;
-			$subs->process();
-		}
+	// 	if($interval == 'all')
+	// 	{
+	// 		$processIntervals = array('daily', 'weekly', 'monthly');
 
-		echo ucfirst($interval).' subscription processed.';
-	}
-	else
-	{
-		$mailq->sendOnPageLoad();
+	// 		foreach($processIntervals as $processInterval)
+	// 		{
+	// 			$subs->interval = $processInterval;
+	// 			$subs->process();
+	// 		}
+	// 	}
+	// 	else
+	// 	{
+	// 		$subs->interval = $interval;
+	// 		$subs->process();
+	// 	}
 
-		echo 'Email batch process finished.';
-	}
+	// 	echo ucfirst($interval).' subscription processed.';
+	// } else {
+	// 	$mailq->sendOnPageLoad();
 
-	if( $config->get('main_email_parser') )
-	{
-		// @rule: Process incoming email rules
-		$mailq->parseEmails();
-	}
+	// 	echo 'Email batch process finished.';
+	// }
 
-	// Run any archiving or maintenance calls
-	if( $config->get( 'prune_notifications_cron' ) )
-	{
-		DiscussHelper::getHelper( 'Maintain' )->pruneNotifications();
-	}
+	// // @rule: Process incoming email rules
+	// if ($config->get('main_email_parser')) {
+	// 	$mailq->parseEmails();
+	// }
+
+	// // Run any archiving or maintenance calls
+	// if ($config->get('prune_notifications_cron')) {
+	// 	ED::maintenance()->pruneNotifications();
+	// }
+
+	// Process remote storage tasks
+	ED::cron()->execute();
 
 	// Maintainance bit
-	DiscussHelper::getHelper( 'Maintain' )->run();
+	ED::maintenance()->run();
 
+	echo 'Done.';
 	exit;
 }
 
 // Prune notification items.
-if( $config->get( 'prune_notifications_onload' ) )
-{
-	DiscussHelper::getHelper( 'Maintain' )->pruneNotifications();
+if ($config->get('prune_notifications_onload')) {
+	ED::maintenance()->pruneNotifications();
 }
 
-/*
- * Processing email batch sending.
- */
-if ($config->get('main_mailqueueonpageload'))
-{
-	$mailq	= DiscussHelper::getMailQueue();
+if ($config->get('main_mailqueueonpageload')) {
+	$mailq = ED::getMailQueue();
 	$mailq->sendOnPageLoad();
 }

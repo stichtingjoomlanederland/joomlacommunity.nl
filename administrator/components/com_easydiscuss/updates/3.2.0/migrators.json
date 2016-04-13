@@ -1,0 +1,7 @@
+[
+    {
+        "table"     : "#__discuss_migrators",
+        "index"     : "idx_external_id",
+        "query"     : "ALTER TABLE `#__discuss_migrators` ADD INDEX `idx_external_id` (`external_id`);"
+    }
+]

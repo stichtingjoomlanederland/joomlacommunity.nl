@@ -13,7 +13,9 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussFavourites extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussFavourites extends EasyDiscussTable
 {
 	public $id			= null;
 	public $created_by	= null;
@@ -25,5 +27,51 @@ class DiscussFavourites extends JTable
 	{
 		parent::__construct( '#__discuss_favourites' , 'id' , $db );
 	}
+
+    /**
+     * Return false if the user is already favourite something
+     * Else return the existing id
+     *
+     * @since   4.0
+     * @access  public
+     * @param   
+     * @return  
+     */
+    public function favExists()
+    {
+        $db = ED::db();
+
+        $query = 'select `id` from `#__discuss_favourites`';
+        $query  .= ' where `type` = ' . $db->Quote($this->type);
+        $query  .= ' and `post_id` = ' . $db->Quote($this->post_id);
+        $query  .= ' and `created_by` = ' . $db->Quote($this->created_by);
+
+        $db->setQuery($query);
+        $result = $db->loadResult();
+
+        return (empty($result)) ? false : $result;
+    }
+
+    /**
+     * Loads a like object given the post id and the user id.
+     *
+     * @since   4.0
+     * @access  public
+     * @param
+     * @return 
+     */
+    public function loadByPost($content_id, $userId)
+    {
+        $db = ED::db();
+        $query  = 'SELECT * FROM ' . $db->nameQuote($this->_tbl) . ' '
+                . 'WHERE ' . $db->nameQuote('type') . '=' . $db->Quote('post') . ' '
+                . 'AND ' . $db->nameQuote('post_id') . '=' . $db->Quote($content_id) . ' '
+                . 'AND ' . $db->nameQuote('created_by') . '=' . $db->Quote($userId);
+
+        $db->setQuery($query);
+        $data = $db->loadObject();
+
+        return parent::bind($data);
+    }
 
 }

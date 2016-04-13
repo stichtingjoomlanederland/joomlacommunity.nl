@@ -11,7 +11,9 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussPostLabel extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussPostLabel extends EasyDiscussTable
 {
 	public $id				= null;
 	public $post_id			= null;
@@ -47,14 +49,12 @@ class DiscussPostLabel extends JTable
 
 	public function store( $updateNulls = false )
 	{
-		if( empty($this->created) || $this->created == '0000-00-00 00:00:00' )
-		{
-			$this->created	= DiscussHelper::getDate()->toMySQL();
+		if (empty($this->created) || $this->created == '0000-00-00 00:00:00') {
+			$this->created = ED::date()->toSql();
 		}
 
-		if( empty($this->creator_id) )
-		{
-			$this->creator_id	= JFactory::getUser()->id;
+		if (!$this->creator_id) {
+			$this->creator_id = JFactory::getUser()->id;
 		}
 
 		return parent::store();

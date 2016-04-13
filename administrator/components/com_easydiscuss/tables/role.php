@@ -1,28 +1,28 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussRole extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussRole extends EasyDiscussTable
 {
-	public $id				= null;
-	public $title			= null;
-	public $description		= null;
-	public $usergroup_id	= null;
-	public $colorcode		= null;
-	public $published		= null;
-	public $ordering		= null;
-	public $created_time	= null;
+	public $id = null;
+	public $title = null;
+	public $description	= null;
+	public $usergroup_id = null;
+	public $colorcode = null;
+	public $published = null;
+	public $ordering = null;
+	public $created_time = null;
 	public $created_user_id	= null;
 
 	/**
@@ -31,9 +31,9 @@ class DiscussRole extends JTable
 	 * @return
 	 * @param object $db
 	 */
-	public function __construct(& $db )
+	public function __construct(& $db)
 	{
-		parent::__construct( '#__discuss_roles' , 'id' , $db );
+		parent::__construct('#__discuss_roles', 'id', $db);
 	}
 
 	/**
@@ -43,15 +43,13 @@ class DiscussRole extends JTable
 	 **/
 	public function bind( $data , $ignore = array() )
 	{
-		parent::bind( $data );
+		parent::bind($data);
 
-		if( empty($this->created_time) || $this->created_time == '0000-00-00 00:00:00' )
-		{
-			$this->created_time = DiscussHelper::getDate()->toMySQL();
+		if (!$this->created_time || $this->created_time == '0000-00-00 00:00:00') {
+			$this->created_time = ED::date()->toSql();
 		}
 
-		if( empty($this->created_user_id) )
-		{
+		if (empty($this->created_user_id)) {
 			$this->created_user_id = JFactory::getUser()->id;
 		}
 	}
@@ -161,9 +159,10 @@ class DiscussRole extends JTable
 		return $role->id;
 	}
 
-	public function getRoleColor( $groups = array() )
+	public function getRoleColor($groups = array())
 	{
-		$role = $this->getRole( $groups );
+		$role = $this->getRole($groups);
+		
 		return $role->colorcode;
 	}
 

@@ -1,168 +1,331 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once DISCUSS_ADMIN_ROOT . '/views.php';
+require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
 class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 {
+	/**
+	 * Displays the auto posting form
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function display($tpl = null)
 	{
-		// @rule: Test for user access if on 1.6 and above
-		if( DiscussHelper::getJoomlaVersion() >= '1.6' )
-		{
-			if(!JFactory::getUser()->authorise('discuss.manage.autoposting' , 'com_easydiscuss') )
-			{
-				JFactory::getApplication()->redirect( 'index.php' , JText::_( 'JERROR_ALERTNOAUTHOR' ) , 'error' );
-				JFactory::getApplication()->close();
+		// If user access this page manually, automatically redirect to the facebook page
+		$this->app->redirect('index.php?option=com_easydiscuss&view=autoposting&layout=facebook');
+
+		parent::display('autoposting/default');
+	}
+
+	/**
+	 * Renders the facebook auto posting form
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function facebook($tpl = null)
+	{
+		// Set page title
+		$this->title('COM_EASYDISCUSS_AUTOPOST_FACEBOOK');
+
+		// Generate a default callback url
+		$callback = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=autoposting&layout=facebook', false, true);
+
+		// Get the oauth library
+		$client = ED::oauth()->getConsumer('facebook', $this->config->get('main_autopost_facebook_id'), $this->config->get('main_autopost_facebook_secret'), $callback);
+
+		// Load the oauth table
+		$table = ED::table('Oauth');
+		$table->loadByType('facebook');
+
+		// Register buttons here
+		JToolBarHelper::apply();
+
+		// Determines if facebook has already been associated
+		$associated	= (bool) $table->id && $table->access_token;
+
+		// Get a list of pages
+		$pages = array();
+		$storedPages = array();
+
+		if ($associated && $table->access_token) {
+			$pages = $this->getFacebookPage($client, $table->access_token);
+
+			// Get a list of stored pages
+			$storedPages = $this->config->get('main_autopost_facebook_page_id', array());
+
+			if ($storedPages) {
+				$storedPages = explode(',', $storedPages);
 			}
 		}
 
-		$config = DiscussHelper::getConfig();
+		// Get a list of groups
+		$groups = array();
+		$storedGroups = array();
 
-		$this->assignRef( 'config' , $config );
+		if ($associated && $table->access_token) {
+			$groups = $this->getFacebookGroup($client, $table->access_token);
 
-		$layout = $this->getLayout();
+			// Get a list of stored groups
+			$storedGroups = $this->config->get('main_autopost_facebook_group_id', array());
 
-		if( method_exists( $this , $layout ) )
-		{
-			$this->$layout( $tpl );
-			return;
+			if ($storedGroups) {
+				$storedGroups = explode(',', $storedGroups);
+			}
 		}
 
-		$facebookSetup	= $this->setuped( 'facebook' );
-		$twitterSetup	= $this->setuped( 'twitter' );
+		$authorizationURL = 'index.php?option=com_easydiscuss&controller=autoposting&task=request&type=facebook';
 
-		$this->assignRef( 'twitterSetup'	, $twitterSetup );
-		$this->assignRef( 'facebookSetup'	, $facebookSetup );
-		parent::display($tpl);
+		$this->set('authorizationURL', $authorizationURL);
+		$this->set('associated', $associated);
+		$this->set('groups', $groups);
+		$this->set('storedGroups', $storedGroups);
+		$this->set('pages', $pages);
+		$this->set('storedPages', $storedPages);
+
+		parent::display('autoposting/facebook');
 	}
 
-	public function form( $tpl = null )
+	/**
+	 * Renders the twitter auto posting form
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function twitter($tpl = null)
 	{
-		$type	= JRequest::getVar( 'type' );
-		$config	= DiscussHelper::getConfig();
+		// Set page attributes
+		$this->title('COM_EASYDISCUSS_AUTOPOST_TWITTER');
 
-		$callback	= DiscussRouter::getRoutedURL( 'index.php?option=com_easydiscuss&view=autoposting' , false, true );
-		$oauth	= DiscussHelper::getHelper( 'OAuth' )->getConsumer( 'facebook' , $config->get( 'main_autopost_facebook_id') , $config->get( 'main_autopost_facebook_secret') , $callback );
+		// Register buttons here
+		JToolBarHelper::apply();
+		
+		// Generate callback url
+		$callback = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=autoposting', false, true);
 
-		$oauth	= DiscussHelper::getTable( 'OAuth' );
-		if( $type == 'twitter' )
-		{
-			$oauth->loadByType( 'twitter' );
-		}
-		else
-		{
-			$oauth->loadByType( 'facebook' );
-		}
-		$associated	= (bool) $oauth->id;
+		// Get the oauth library
+		$client = ED::oauth()->getClient('Twitter');
 
-		$this->assignRef( 'associated'	, $associated );
-		$this->assignRef( 'config'		, $config );
-		$this->assignRef( 'type'		, $type );
+		// Load the oauth table
+		$table = ED::table('OAuth');
+		$table->loadByType('twitter');
 
-		parent::display($tpl);
+		// Determines if twitter has already been associated
+		$associated = (bool) $table->id && $table->access_token;
+
+		$authorizationURL = 'index.php?option=com_easydiscuss&controller=autoposting&task=request&type=twitter';
+
+		$this->set('authorizationURL', $authorizationURL);
+		$this->set('associated', $associated);
+
+		parent::display('autoposting/twitter');
 	}
 
-	public function setuped( $type )
+	/**
+	 * Renders the twitter auto posting form
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function linkedin($tpl = null)
 	{
-		$db		= DiscussHelper::getDBO();
+		// Set page attributes
+		$this->title('COM_EASYDISCUSS_AUTOPOST_LINKEDIN');
 
-		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_oauth' ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'type' ) . '=' . $db->Quote( $type ) . ' '
-				. 'AND ' . $db->nameQuote( 'access_token' ) . ' IS NOT NULL';
-		$db->setQuery( $query );
+		// Register buttons here
+		JToolBarHelper::apply();
+		
+		// Get the oauth library
+		$client = ED::oauth()->getClient('Linkedin');
 
-		$exists	= $db->loadResult();
+		// Load the oauth table
+		$table = ED::table('OAuth');
+		$table->loadByType('linkedin');
 
-		return $exists > 0;
+		// Determines if twitter has already been associated
+		$associated = (bool) $table->id && $table->access_token;
+
+		$authorizationURL = 'index.php?option=com_easydiscuss&controller=autoposting&task=request&type=linkedin';
+
+		// Get linkedin companies
+		$storedCompanies = array();
+		$companies = array();
+
+		// Try to get the companies the user manages.
+		if ($associated) {
+			$client->setAccess($table->access_token);
+			$companies = $client->getCompanies();
+
+			// Get a list of stored groups
+			$storedCompanies = $this->config->get('main_autopost_linkedin_company_id', array());
+
+			if ($storedCompanies) {
+				$storedCompanies = explode(',', $storedCompanies);
+			}
+		}
+
+		$this->set('storedCompanies', $storedCompanies);
+		$this->set('companies', $companies);
+		$this->set('authorizationURL', $authorizationURL);
+		$this->set('associated', $associated);
+
+		parent::display('autoposting/linkedin');
 	}
 
-	public function facebook( $tpl = null )
+	/**
+	 * Renders the telegram auto posting settings form
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function telegram($tpl = null)
 	{
-		$step	= JRequest::getVar( 'step' );
-		$config	= DiscussHelper::getConfig();
+		// Set page attributes
+		$this->title('COM_EASYDISCUSS_AUTOPOST_TELEGRAM');
 
-		$callback	= DiscussRouter::getRoutedURL( 'index.php?option=com_easydiscuss&view=autoposting' , false, true );
-		$oauth	= DiscussHelper::getHelper( 'OAuth' )->getConsumer( 'facebook' , $config->get( 'main_autopost_facebook_id') , $config->get( 'main_autopost_facebook_secret') , $callback );
+		// Register buttons here
+		JToolBarHelper::apply();
 
-		$oauth	= DiscussHelper::getTable( 'OAuth' );
-		$oauth->loadByType( 'facebook' );
-
-		$associated	= (bool) $oauth->id;
-
-		if( $step == '3' )
-		{
-			//this mean we completed the final steps. reset step to empty.
-			$mainframe  =& JFactory::getApplication();
-			$mainframe->redirect( 'index.php?option=com_easydiscuss&view=autoposting&layout=form&type=facebook');
-			$mainframe->close();
-		}
-
-		$this->assignRef( 'associated' , $associated );
-		$this->assignRef( 'config'	, $config );
-		$this->assignRef( 'step'	, $step );
-
-		parent::display($tpl);
+		parent::display('autoposting/telegram');
 	}
 
-
-	public function twitter( $tpl = null )
+	/**
+	 * Renders the slack auto posting settings form
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function slack($tpl = null)
 	{
-		$step	= JRequest::getVar( 'step' );
-		$config	= DiscussHelper::getConfig();
+		// Set page attributes
+		$this->title('COM_EASYDISCUSS_AUTOPOST_SLACK');
 
-		$callback	= DiscussRouter::getRoutedURL( 'index.php?option=com_easydiscuss&view=autoposting' , false, true );
-		$oauth		= DiscussHelper::getHelper( 'OAuth' )->getConsumer( 'twitter' , $config->get( 'main_autopost_twitter_id') , $config->get( 'main_autopost_twitter_secret') , $callback );
-
-		$oauth	= DiscussHelper::getTable( 'OAuth' );
-		$oauth->loadByType( 'twitter' );
-
-		$associated	= (bool) $oauth->id;
-
-		if( $step == '3' )
-		{
-			//this mean we completed the final steps. reset step to empty.
-			$mainframe  =& JFactory::getApplication();
-			$mainframe->redirect( 'index.php?option=com_easydiscuss&view=autoposting&layout=form&type=twitter');
-			$mainframe->close();
-		}
-
-		$this->assignRef( 'associated' , $associated );
-		$this->assignRef( 'config'	, $config );
-		$this->assignRef( 'step'	, $step );
-
-		parent::display($tpl);
+		// Register buttons here
+		JToolBarHelper::apply();
+		
+		parent::display('autoposting/slack');
 	}
 
-	public function registerToolbar()
+	/**
+	 * Renders the wunderlist auto posting settings form
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function wunderlist($tpl = null)
 	{
-		JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_AUTOPOST' ), 'autoposting' );
+		// Set page attributes
+		$this->title('COM_EASYDISCUSS_AUTOPOST_WUNDERLIST');
 
-		if( $this->getLayout() == 'default' )
-		{
-			JToolBarHelper::custom( 'home', 'arrow-left', '', JText::_( 'COM_EASYDISCUSS_TOOLBAR_HOME' ), false);
+		// Register buttons here
+		JToolBarHelper::apply();
+		
+		// Get the oauth library
+		$client = ED::oauth()->getClient('Wunderlist');
+
+		// Load the oauth table
+		$table = ED::table('OAuth');
+		$table->loadByType('wunderlist');
+
+		// Determines if twitter has already been associated
+		$associated = (bool) $table->id && $table->access_token;
+
+		$authorizationURL = 'index.php?option=com_easydiscuss&controller=autoposting&task=request&type=wunderlist';
+
+		// Get linkedin companies
+		$lists = array();
+		$storedLists = array();
+
+		if ($associated) {
+			$client->setAccess($table->access_token);
+			$lists = $client->getLists();
+
+			// Get a list of stored lists
+			$storedLists = $this->config->get('main_autopost_wunderlist_list_id', array());
+
+			if ($storedLists) {
+				$storedLists = explode(',', $storedLists);
+			}
 		}
-		else if( $this->getLayout() == 'form' )
-		{
-			JToolBarHelper::back( JText::_( 'COM_EASYDISCUSS_BACK' ) , 'index.php?option=com_easydiscuss&view=autoposting');
-			JToolBarHelper::divider();
-			JToolBarHelper::custom( 'save','save.png','save_f2.png', JText::_( 'COM_EASYDISCUSS_SAVE_BUTTON' ) , false);
-			JToolBarHelper::cancel();
-		}
-		else
-		{
-			JToolBarHelper::back( JText::_( 'COM_EASYDISCUSS_BACK' ) , 'index.php?option=com_easydiscuss&view=autoposting');
-		}
+
+		$this->set('lists', $lists);
+		$this->set('storedLists', $storedLists);
+		$this->set('authorizationURL', $authorizationURL);
+		$this->set('associated', $associated);
+
+		parent::display('autoposting/wunderlist');
 	}
+
+
+	/**
+	 * Fetch Facebook groups
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getFacebookGroup($client, $token)
+	{
+		$client->setAccess($token);
+
+		// Get groups that are available
+		$groups = array();
+
+		try {
+			$groups = $client->getGroups();
+		} catch(Exception $e) {
+		}
+
+		return $groups;	
+	}
+
+	/**
+	 * Fetch Facebook groups
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	 public function getFacebookPage($client, $token)
+	 {
+	 	$client->setAccess($token);
+
+	 	// Get pages that are available
+	 	$pages = array();
+
+	 	try {
+	 		$pages = $client->getPages();
+	 	} catch(Exception $e){	 		
+	 	}
+
+	 	return $pages;
+	 }
 }

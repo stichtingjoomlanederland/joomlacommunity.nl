@@ -21,41 +21,117 @@ class EasyDiscussModelBadges extends EasyDiscussAdminModel
 	 *
 	 * @var array
 	 */
-	var $_data = null;
+	public $_data = null;
 
 	/**
 	 * Pagination object
 	 *
 	 * @var object
 	 */
-	var $_pagination = null;
+	public $_pagination = null;
 
 	/**
 	 * Configuration data
 	 *
 	 * @var int	Total number of rows
 	 **/
-	var $_total;
+	public $_total;
+
+	/**
+	 * Parent ID
+	 *
+	 * @var integer
+	 */
+	public $_parent	= null;
+	public $_isaccept	= null;
 
 	/**
 	 * Constructor
 	 *
 	 * @since 1.5
 	 */
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 
-		$mainframe 	= JFactory::getApplication();
-
 		//get the number of events from database
-		$limit		= $mainframe->getUserStateFromRequest('com_easydiscuss.badges.limit', 'limit', $mainframe->getCfg('list_limit') , 'int');
-		//$limit			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.badges.limit', 'limit', DiscussHelper::getListLimit(), 'int');
-
-		$limitstart	= JRequest::getVar('limitstart', 0, '', 'int');
+		$limit = $this->app->getUserStateFromRequest('com_easydiscuss.badges.limit', 'limit', $this->app->getCfg('list_limit') , 'int');
+		$limitstart = $this->input->get('limitstart', '0', 'int');
 
 		$this->setState('limit', $limit);
 		$this->setState('limitstart', $limitstart);
+	}
+
+	/**
+	 * Delete badges based on user id
+	 *
+	 * @access public
+	 *
+	 * @param
+	 * @return state
+	 */
+	public function removeBadges( $userId = null )
+	{
+		$db = DiscussHelper::getDBO();
+
+		$query = 'DELETE FROM ' . $db->nameQuote( '#__discuss_badges_users' )
+				. ' WHERE ' . $db->nameQuote( 'user_id' ) . '=' . $db->Quote( $userId );
+
+		$db->setQuery( $query );
+
+		if( !$db->query() )
+		{
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Retrieved a list of all badges available from the site.
+	 * Retrieved a list of all user's achieved badges from the site.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	Array
+	 * @return	Array	Array of DiscussBadges Object
+	 */
+	public function getSiteBadges($options = array())
+	{
+		$db = $this->db;
+		$query = array();
+
+		if (isset($options['user'])) {
+			$query[] = 'SELECT a.*, b.`custom` FROM ' . $db->nameQuote('#__discuss_badges') . ' AS a';
+			$query[] = 'INNER JOIN ' . $db->nameQuote('#__discuss_badges_users') . ' AS b';
+			$query[] = 'ON b.`badge_id` = a.`id`';
+			$query[] = 'AND b.`published` = ' . $db->Quote('1');
+			$query[] = 'AND b.`user_id` = ' . $db->Quote($options['user']);
+		} else {
+			$query[] = 'SELECT a.* FROM ' . $db->nameQuote('#__discuss_badges') . ' AS a';
+		}
+
+		$query[] = 'WHERE a.`published` = ' . $db->Quote('1');
+
+		$query = implode(' ', $query);
+		$db->setQuery($query);
+		$result = $db->loadObjectList();
+
+		if (!$result) {
+			return $result;
+		}
+
+		// Binds the badges into badge table
+		$badges = array();
+		foreach ($result as $row) {
+			$badge = ED::table('Badges');
+			$badge->bind($row);
+
+			// We'll need to re-assign the badge description if the custom message was set at the backend.
+			$badge->description = isset($row->custom) ? ($row->custom != '') ? $row->custom : $badge->description : $badge->description;
+			$badges[] = $badge;
+		}
+
+		return $badges;
 	}
 
 	public function getBadges( $exclusion = false )
@@ -81,13 +157,12 @@ class EasyDiscussModelBadges extends EasyDiscussAdminModel
 		return $query;
 	}
 
-	function _buildQueryWhere( $exclusion = false )
+	public function _buildQueryWhere( $exclusion = false )
 	{
-		$mainframe		= JFactory::getApplication();
 		$db				= DiscussHelper::getDBO();
 
-		$filter_state	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.badges.filter_state', 'filter_state', '', 'word' );
-		$search			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.badges.search', 'search', '', 'string' );
+		$filter_state	= $this->app->getUserStateFromRequest( 'com_easydiscuss.badges.filter_state', 'filter_state', '', 'word' );
+		$search			= $this->app->getUserStateFromRequest( 'com_easydiscuss.badges.search', 'search', '', 'string' );
 		$search			= $db->getEscaped( trim(JString::strtolower( $search ) ) );
 
 		$where = array();
@@ -136,12 +211,10 @@ class EasyDiscussModelBadges extends EasyDiscussAdminModel
 		return $where;
 	}
 
-	function _buildQueryOrderBy()
+	public function _buildQueryOrderBy()
 	{
-		$mainframe			= JFactory::getApplication();
-
-		$filter_order		= $mainframe->getUserStateFromRequest( 'com_easydiscuss.badges.filter_order', 		'filter_order', 	'a.created', 'cmd' );
-		$filter_order_Dir	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.badges.filter_order_Dir',	'filter_order_Dir',	'ASC', 'word' );
+		$filter_order		= $this->app->getUserStateFromRequest( 'com_easydiscuss.badges.filter_order', 		'filter_order', 	'a.created', 'cmd' );
+		$filter_order_Dir	= $this->app->getUserStateFromRequest( 'com_easydiscuss.badges.filter_order_Dir',	'filter_order_Dir',	'ASC', 'word' );
 
 		$orderby 	= ' ORDER BY '.$filter_order.' '.$filter_order_Dir;
 
@@ -156,9 +229,10 @@ class EasyDiscussModelBadges extends EasyDiscussAdminModel
 	public function getBadgesHistory( $userId )
 	{
 		$db		= DiscussHelper::getDBO();
-		$query	= 'SELECT * FROM ' . $db->nameQuote( '#__discuss_users_history' ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'user_id' ) . '=' . $db->Quote( $userId ) . ' '
-				. 'LIMIT 0,20';
+		$query	= 'SELECT * FROM ' . $db->nameQuote('#__discuss_users_history') . ' '
+				. 'WHERE ' . $db->nameQuote('user_id') . '=' . $db->Quote($userId) . ' '
+				. 'ORDER BY ' . $db->nameQuote('id') . ' DESC '
+				. 'LIMIT 0,30 ';
 
 		$db->setQuery( $query );
 		$result	= $db->loadObjectList();
@@ -172,7 +246,7 @@ class EasyDiscussModelBadges extends EasyDiscussAdminModel
 	 * @access public
 	 * @return integer
 	 */
-	function &getPagination()
+	public function &getPagination()
 	{
 		// Lets load the content if it doesn't already exist
 		if ( empty( $this->_pagination ) )
@@ -190,7 +264,7 @@ class EasyDiscussModelBadges extends EasyDiscussAdminModel
 	 * @access public
 	 * @return integer
 	 */
-	function getTotal()
+	public function getTotal()
 	{
 		// Load total number of rows
 		if( empty($this->_total) )

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,33 +11,39 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-require_once( DISCUSS_ROOT . '/views.php' );
+require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewNotifications extends EasyDiscussView
 {
-	public function display( $tpl = null )
+	public function display($tpl = null)
 	{
-		$my		= JFactory::getUser();
+		$my = ED::user();
 
-		if( !$my->id )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_PLEASE_LOGIN_FIRST' ) , 'error' );
-			JFactory::getApplication()->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss' , false ) );
+		if (!$my->id) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_PLEASE_LOGIN_FIRST'), 'error');
+			$this->app->redirect(EDR::getRoutedURL('index.php?option=com_easydiscuss', false, false));
 		}
 
-		$model	= $this->getModel( 'Notification' );
-		$this->setPathway( JText::_( 'COM_EASYDISCUSS_BREADCRUMBS_NOTIFICATIONS') );
-		
-		// Make this configurable?
-		$limit	= 100;
+		$model = ED::model('Notification');
+		$this->setPathway(JText::_( 'COM_EASYDISCUSS_BREADCRUMBS_NOTIFICATIONS'));
 
-		$notifications	= $model->getNotifications( $my->id , false , $limit );
-		
-		DiscussHelper::getHelper( 'Notifications' )->format( $notifications , true );
+		$limit = $this->config->get('main_notifications_limit', 5);
 
-		$theme	= new DiscussThemes();
-		$theme->set( 'notifications' , $notifications );
+		// Get all notifications of the particular user given read and unread notifications.
+		$notifications = $model->getNotifications($my->id, false, $limit);
 
-		echo $theme->fetch( 'notifications.php' );
+		// Get the total unread notifications
+		$totalNotifications = $model->getTotalNotifications($my->id);
+
+		ED::Notifications()->format($notifications, true);
+
+		// Get pagination
+		$pagination = $model->getPagination();
+
+		$this->set('notifications', $notifications);
+		$this->set('totalNotifications', $totalNotifications);
+		$this->set('pagination', $pagination);
+	
+		parent::display('notifications/default');
 	}
 }

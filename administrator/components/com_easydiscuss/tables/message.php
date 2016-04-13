@@ -12,7 +12,9 @@
  */
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussMessage extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussMessage extends EasyDiscussTable
 {
 	/**
 	 * The unique id for the message.
@@ -73,7 +75,7 @@ class DiscussMessage extends JTable
 	}
 
 	/**
-	 * Override paren's delete implementation. Real deletion only occurs when 
+	 * Override paren's delete implementation. Real deletion only occurs when
 	 * both the state records in {#__discuss_messages_states} has `deleted` marked as true.
 	 *
 	 * @since	3.0
@@ -82,8 +84,8 @@ class DiscussMessage extends JTable
 	 */
 	public function delete( $userId )
 	{
-		$model	= DiscussHelper::getModel( 'Messaging' );
-		
+		$model	= ED::model( 'Messaging' );
+
 		return $model->delete( $this->id , $userId );
 	}
 
@@ -96,7 +98,7 @@ class DiscussMessage extends JTable
 	 */
 	public function isParticipant( $userId )
 	{
-		$model 	= DiscussHelper::getModel( 'Messaging' );
+		$model 	= ED::model( 'Messaging' );
 		return $model->isParticipant( $userId , $this->id );
 	}
 
@@ -113,7 +115,7 @@ class DiscussMessage extends JTable
 
 		// Now we need to create the necessary user states for
 		// the author and the recipient.
-		$model 	= DiscussHelper::getModel( 'Messaging' );
+		$model 	= ED::model( 'Messaging' );
 		$model->initStates( $this );
 
 		return $state;

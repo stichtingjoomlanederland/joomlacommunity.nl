@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.0" client="site" method="upgrade">
+	<name>EasyDiscuss - Tag Cloud</name>
+	<author>Stack Ideas Sdn Bhd</author>
+	<creationDate>8th April 2016</creationDate>
+	<copyright>Copyright 2009 - 2016 StackIdeas. All rights reserved.</copyright>
+	<license>GPL License v2</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://www.stackideas.com</authorUrl>
+	<version>4.0.1</version>
+	<description><![CDATA[This module will list down tags created through EasyDiscuss in a tag cloud layout.]]></description>
+	<languages>
+		<language tag="en-GB">en-GB.mod_easydiscuss_tag_cloud.ini</language>
+	</languages>
+	<files>
+		<folder>styles</folder>
+		<folder>tmpl</folder>
+		<filename>helper.php</filename>
+		<filename>index.html</filename>
+		<filename module="mod_easydiscuss_tag_cloud">mod_easydiscuss_tag_cloud.php</filename>
+		<filename>mod_easydiscuss_tag_cloud.xml</filename>
+	</files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="order" type="list" default="postcount" label="Ordering" description="Retrieve the tag cloud base on post count or title (useful when you are limiting the number of tags in the tag cloud)." >
+					<option value="postcount">Postcount</option>
+					<option value="title">Title</option>
+				</field>
+				<field name="sort" type="list" default="desc" label="Sorting" description="Retrieve the tag cloud in either ascending or descending order (useful when you are limiting the number of tags in the tag cloud)." >
+					<option value="asc">Ascending</option>
+					<option value="desc">Descending</option>
+				</field>
+				<field name="count" type="text" default="0" label="Count" description="The number of items to display (set it to 0 if tags limiting if not required)." />
+				<field name="shuffleTags" type="list" default="1" label="Shuffle Tags" description="Shuffling the tags inside the tag cloud." >
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field>
+				<field name="minsize" type="text" default="10" label="Minimum Tag size (px)" description="The minimum tag font size." />
+				<field name="maxsize" type="text" default="30" label="Maximum Tag size (px)" description="The maximum tag font size." />
+			</fieldset>
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING
+					</option>
+				</field>
+				<field name="cache_time" type="text" default="900" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

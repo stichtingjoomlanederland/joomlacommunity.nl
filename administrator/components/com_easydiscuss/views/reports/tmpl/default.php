@@ -85,31 +85,30 @@ EasyDiscuss(function($){
 </script>
 
 <form action="index.php" method="post" name="adminForm" id="adminForm">
-	<div class="row-fluid">
+	<div class="app-content-head">
 		<div class="span12 panel-title">
-			<h2><?php echo JText::_( 'COM_EASYDISCUSS_REPORTS_TITLE' );?></h2>
-			<p style="margin: 0 0 15px;">
-				<?php echo JText::_( 'COM_EASYDISCUSS_REPORTS_DESC' );?>
+		<h2><?php echo JText::_( 'COM_EASYDISCUSS_REPORTS_TITLE' );?></h2>
+		<div>
+			<?php echo JText::_( 'COM_EASYDISCUSS_REPORTS_DESC' );?>
 			</p>
 		</div>
 	</div>
 
-	<div class="row-fluid filter-bar">
-		<div class="pa-10">
-			<div class="span12">
-				<div class="pull-left form-inline">
-					<input type="text" name="search" id="search" value="<?php echo $this->escape( $this->search ); ?>" class="input-medium" onchange="document.adminForm.submit();" placeholder="<?php echo JText::_( 'COM_EASYDISCUSS_SEARCH' , true );?>"/>
+	<div class="app-content-filter">
+		<div class="row-table">
+				<div class="col-cell form-inline">
+					<input type="text" name="search" id="search" value="<?php echo $this->escape( $this->search ); ?>" class="form-control" onchange="document.adminForm.submit();" placeholder="<?php echo JText::_( 'COM_EASYDISCUSS_SEARCH' , true );?>"/>
 					<button class="btn btn-success" type="submit" onclick="this.form.submit();"><?php echo JText::_( 'COM_EASYDISCUSS_SEARCH' ); ?></button>
-					<button class="btn" type="submit" onclick="this.form.getElementById('search').value='';this.form.submit();"><?php echo JText::_( 'COM_EASYDISCUSS_RESET' ); ?></button>
+					<button class="btn btn-default" type="submit" onclick="this.form.getElementById('search').value='';this.form.submit();"><?php echo JText::_( 'COM_EASYDISCUSS_RESET' ); ?></button>
 				</div>
 
-				<div class="pull-right">
+				<div class="col-cell text-right">
 					<?php echo JText::_( 'COM_EASYDISCUSS_FILTER' ); ?>: <?php echo $this->state; ?>
 				</div>
-			</div>
 		</div>
 	</div>
 
+	<div class="app-content-table">
 		<table class="table table-striped table-discuss">
 			<thead>
 				<tr>
@@ -153,7 +152,7 @@ EasyDiscuss(function($){
 					{
 						$actions[] = JHTML::_('select.option',  'E', JText::_( 'COM_EASYDISCUSS_EMAIL_AUTHOR' ) );
 					}
-					$actionsDropdown	= JHTML::_('select.genericlist',   $actions, 'report-action-' . $row->id, ' style="width:250px;margin: 0;" size="1" onchange="admin.reports.change(\''. $row->id .'\');"', 'value', 'text', '*' );
+					$actionsDropdown	= JHTML::_('select.genericlist',   $actions, 'report-action-' . $row->id, ' style="width:250px;margin: 0;"  onchange="admin.reports.change(\''. $row->id .'\');"', 'value', 'text', '*' );
 
 
 					$viewLink = JURI::root() . 'index.php?option=com_easydiscuss&view=post&id=' . $row->id;
@@ -234,6 +233,7 @@ EasyDiscuss(function($){
 				</tr>
 			</tfoot>
 		</table>
+	</div>
 
 
 

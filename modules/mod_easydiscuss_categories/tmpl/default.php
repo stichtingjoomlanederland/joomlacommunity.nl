@@ -13,43 +13,22 @@
 
 defined('_JEXEC') or die('Restricted access');
 ?>
-<script type="text/javascript">
-EasyDiscuss.ready(function($)
-{
-	$( '[data-show-child]' ).on( 'click' , function()
-	{
-		var parentId	= $( this ).data( 'id' ),
-			childs 		= $( '[data-ed-parent-id="' + parentId + '"]' );
-
-		// Display all child items
-		$( childs ).show();
-
-		// Replace the icon now.
-		$( this ).parent().addClass( 'expanded' );
-	});
-
-	$( '[data-hide-child]' ).on( 'click' , function()
-	{
-		var parentId	= $( this ).data( 'id' ),
-			childs 		= $( '[data-ed-parent-id="' + parentId + '"]' );
-
-		// Display all child items
-		$( childs ).hide();
-
-		// Replace the icon now.
-		$( this ).parent().removeClass( 'expanded' );
-	});
-});
-</script>
-
-<div class="discuss-mod discuss-mod-categories discuss-categories<?php echo $params->get( 'moduleclass_sfx' ) ?>">
-	<?php if( $categories ){ ?>
-	<ul class="toggleModuleCategories unstyled">
-		<?php echo modEasydiscussCategoriesHelper::accessNestedCategories( $categories , $selected , $params ); ?>
-	</ul>
-	<?php } else { ?>
-	<div class="no-item">
-		<?php echo JText::_('MOD_DISCUSSIONSCATEGORIES_NO_ENTRIES'); ?>
-	</div>
-	<?php } ?>
+<div id="ed" class="ed-mod discuss-mod-categories discuss-categories<?php echo $params->get('moduleclass_sfx') ?>">
+    <div class="ed-list--vertical">
+    <?php if ($categories) { ?>
+        <?php foreach ($categories as $category) { ?>
+            <div class="ed-list__item">
+                <div class="ed-list__item-group">
+                    <div class="ed-list__item-group-hd">
+                    <?php require(JModuleHelper::getLayoutPath('mod_easydiscuss_categories', 'tree_item')); ?>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+    <?php } else { ?>
+        <div class="no-item">
+            <?php echo JText::_('MOD_DISCUSSIONSCATEGORIES_NO_ENTRIES'); ?>
+        </div>
+    <?php } ?>
+    </div>
 </div>

@@ -90,7 +90,7 @@ class EasyDiscussViewTags extends EasyDiscussView
 			return;
 		}
 
-		$model	= $this->getModel( 'Subscribe' );
+		$model	= ED::model('Subscribe');
 		$sid	= '';
 
 

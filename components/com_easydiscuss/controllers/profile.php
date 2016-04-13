@@ -1,314 +1,275 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
+* @package      EasyDiscuss
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-defined('_JEXEC') or die('Restricted access');
-
-jimport('joomla.application.component.controller');
-require_once JPATH_ROOT . '/components/com_easydiscuss/helpers/helper.php';
+require_once(__DIR__ . '/controller.php');
 
 class EasyDiscussControllerProfile extends EasyDiscussController
 {
-	/**
-	 * Display the view
-	 *
-	 * @since 0.1
-	 */
-	function display($cachable = false, $urlparams = false)
+    /**
+     * To Display the view
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+	public function display($cachable = false, $urlparams = false)
 	{
-		$document	= JFactory::getDocument();
-		$viewType	= $document->getType();
-		$viewName	= JRequest::getCmd( 'view', $this->getName() );
-		$view 		= $this->getView( $viewName,'',  $viewType);
+		$document = JFactory::getDocument();
+		$viewType = $document->getType();
+		$viewName = JRequest::getCmd( 'view', $this->getName() );
+		$view = $this->getView( $viewName,'',  $viewType);
 		$view->display();
 	}
 
-	function saveProfile()
+	public function saveProfile()
 	{
 		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
+		ED::checkToken();
 
-		$mainframe	= JFactory::getApplication();
-		$config		= DiscussHelper::getConfig();
+		$mainframe = $this->app;
+		$config = ED::config();
 
-		$post		= JRequest::get( 'post' );
+		$post = $this->input->getArray('post');
 
-		array_walk($post, array($this, '_trim') );
+		array_walk($post, array($this, '_trim'));
 
-		if(! $this->_validateProfileFields($post))
-		{
-			$this->setRedirect( DiscussRouter::_('index.php?option=com_easydiscuss&view=profile&layout=edit' , false ) );
+		if (!$this->_validateProfileFields($post)) {
+			$this->setRedirect(EDR::_('view=profile&layout=edit' , false ) );
 			return;
 		}
 
-		$my			= JFactory::getUser();
-		$my->name	= $post['fullname'];
+		$my	= $this->my;
 
-
+		$my->name = $post['fullname'];
 		// We check for password2 instead off password because apparently it is still autofill the form although is autocomplete="off"
-		if(!empty($post['password2']))
-		{
+		if (!empty($post['password2'])) {
 			$my->password = $post['password'];
 			$my->bind($post);
 		}
 
 		// Cheap fix: Do not allow user to override `edited` field.
 		// Ideally, this should just be passed as ignore into the table.
-		if( isset( $post['edited' ] ) )
-		{
-			unset( $post[ 'edited' ] );
+		if (isset($post['edited'])) {
+			unset($post['edited']);
+		}
+
+		$address = $post['address1'];
+
+		if (isset($post['address']) && !empty($post['address'])) {
+			$address = $post['address'];
 		}
 
 		// column mapping.
-		$post['location'] = $post['address'];
+		$post['location'] = $address;
 
-		$profile	= DiscussHelper::getTable( 'Profile' );
-		$profile->load( $my->id );
-		$profile->bind( $post );
+		if (isset($post['alias'])) {
+
+			// perform alias checking here.
+			$alias = $this->checkAlias($post['alias']);
+
+			if (!$alias) {
+				$this->setRedirect(EDR::_('view=profile&layout=edit'));
+				return;
+			}
+		}
+
+		$post['signature'] = $this->input->get('signature', '', 'raw');
+		$post['description'] = $this->input->get('description', '', 'raw');
+
+		$profile = ED::table('Profile');
+		$profile->load($my->id);
+		$profile->bind($post);
 
 		//save avatar
 		$file = JRequest::getVar( 'Filedata', '', 'files', 'array' );
-		if(! empty($file['name']))
-		{
-			$newAvatar			= $this->_upload( $profile );
+
+		if (! empty($file['name'])) {
+			$newAvatar = $this->_upload( $profile );
 
 			// @rule: If this is the first time the user is changing their profile picture, give a different point
-			if( $profile->avatar == 'default.png' )
-			{
+			if ($profile->avatar == 'default.png') {
+
 				// @rule: Process AUP integrations
-				DiscussHelper::getHelper( 'Aup' )->assign( DISCUSS_POINTS_NEW_AVATAR , $my->id , $newAvatar );
-			}
-			else
-			{
+				ED::Aup()->assign(DISCUSS_POINTS_NEW_AVATAR, $my->id, $newAvatar);
+			} else {
 				// @rule: Process AUP integrations
-				DiscussHelper::getHelper( 'Aup' )->assign( DISCUSS_POINTS_UPDATE_AVATAR , $my->id , $newAvatar );
+				ED::Aup()->assign(DISCUSS_POINTS_UPDATE_AVATAR, $my->id, $newAvatar);
 			}
 
 			// @rule: Badges when they change their profile picture
-			DiscussHelper::getHelper( 'History' )->log( 'easydiscuss.new.avatar' , $my->id , JText::_( 'COM_EASYDISCUSS_BADGES_HISTORY_UPDATED_AVATAR') );
+			ED::history()->log('easydiscuss.new.avatar', $my->id, JText::_('COM_EASYDISCUSS_BADGES_HISTORY_UPDATED_AVATAR'));
 
-			DiscussHelper::getHelper( 'Badges' )->assign( 'easydiscuss.new.avatar' , $my->id );
-			DiscussHelper::getHelper( 'Points' )->assign( 'easydiscuss.new.avatar' , $my->id );
+			ED::badges()->assign('easydiscuss.new.avatar', $my->id);
+			ED::points()->assign('easydiscuss.new.avatar', $my->id);
 
 			// Reset the points
 			$profile->updatePoints();
 
-			$profile->avatar    = $newAvatar;
+			$profile->avatar = $newAvatar;
 		}
 
-		//save params
-		$userparams	= DiscussHelper::getRegistry('');
+		// Save user params
+		$userparams	= ED::registry();
 
-		if ( isset($post['facebook']) )
-		{
-			$userparams->set( 'facebook', $post['facebook'] );
-		}
-		if ( isset($post['show_facebook']) )
-		{
-			$userparams->set( 'show_facebook', $post['show_facebook']);
-		}
+		// Assign all the params in an array
+		$userParamsArr = array(
+						'facebook',
+						'show_facebook',
+						'twitter',
+						'show_twitter',
+						'linkedin',
+						'show_linkedin',
+						'skype',
+						'show_skype',
+						'website',
+						'show_website');
 
-
-		if ( isset($post['twitter']) )
-		{
-			$userparams->set( 'twitter', $post['twitter'] );
-		}
-
-		if ( isset($post['show_twitter']) )
-		{
-			$userparams->set( 'show_twitter', $post['show_twitter']);
-		}
-		if ( isset($post['linkedin']) )
-		{
-			$userparams->set( 'linkedin', $post['linkedin'] );
-		}
-		if ( isset($post['show_linkedin']) )
-		{
-			$userparams->set( 'show_linkedin', $post['show_linkedin']);
-		}
-		if ( isset($post['skype']) )
-		{
-			$userparams->set( 'skype', $post['skype'] );
-		}
-		if ( isset($post['show_skype']) )
-		{
-			$userparams->set( 'show_skype', $post['show_skype']);
-		}
-		if ( isset($post['website']) )
-		{
-			$userparams->set( 'website', $post['website'] );
-		}
-		if ( isset($post['show_website']) )
-		{
-			$userparams->set( 'show_website', $post['show_website']);
+		foreach ($userParamsArr as $key) {
+			if (isset($post[$key])) {
+				$userparams->set($key, $post[$key]);
+			}
 		}
 
-		$profile->params	= $userparams->toString();
+		$profile->params = $userparams->toString();
 
 		// Save site details
-		$siteDetails	= DiscussHelper::getRegistry('');
-		if ( isset($post['siteUrl']) )
-		{
-			$siteDetails->set( 'siteUrl', $post['siteUrl'] );
-		}
-		if ( isset($post['siteUsername']) )
-		{
-			$siteDetails->set( 'siteUsername', $post['siteUsername'] );
-		}
-		if ( isset($post['sitePassword']) )
-		{
-			$siteDetails->set( 'sitePassword', $post['sitePassword'] );
-		}
-		if ( isset($post['ftpUrl']) )
-		{
-			$siteDetails->set( 'ftpUrl', $post['ftpUrl'] );
-		}
-		if ( isset($post['ftpUsername']) )
-		{
-			$siteDetails->set( 'ftpUsername', $post['ftpUsername'] );
-		}
-		if ( isset($post['ftpPassword']) )
-		{
-			$siteDetails->set( 'ftpPassword', $post['ftpPassword'] );
-		}
-		if ( isset($post['optional']) )
-		{
-			$siteDetails->set( 'optional', $post['optional'] );
+		$siteDetails = ED::registry();
+
+		// Assign the site details into an array
+		$siteDetailsArr = array(
+						'siteUrl',
+						'siteUsername',
+						'sitePassword',
+						'ftpUrl',
+						'ftpUsername',
+						'ftpPassword',
+						'optional');
+
+		foreach ($siteDetailsArr as $key) {
+			if (isset($post[$key])) {
+				$siteDetails->set($key, $post[$key]);
+			}
 		}
 
-		$profile->site	= $siteDetails->toString();
+		$profile->site = $siteDetails->toString();
 
-		if( $profile->store() && $my->save(true) )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_PROFILE_SAVED' )  , 'info');
+		if ($profile->store() && $my->save(true)) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_PROFILE_SAVED'), 'info');
 
 			// @rule: Badges when they change their profile picture
-			DiscussHelper::getHelper( 'History' )->log( 'easydiscuss.update.profile' , $my->id , JText::_( 'COM_EASYDISCUSS_BADGES_HISTORY_UPDATED_PROFILE') );
-			DiscussHelper::getHelper( 'Badges' )->assign( 'easydiscuss.update.profile' , $my->id );
+			ED::history()->log('easydiscuss.update.profile', $my->id, JText::_('COM_EASYDISCUSS_BADGES_HISTORY_UPDATED_PROFILE'));
+			ED::badges()->assign('easydiscuss.update.profile', $my->id);
 
 			// Only give points the first time the user edits their profile.
-			if( !$profile->edited )
-			{
-				DiscussHelper::getHelper( 'Points' )->assign( 'easydiscuss.update.profile' , $my->id );
+			if (!$profile->edited) {
+				ED::points()->assign('easydiscuss.update.profile', $my->id);
 
 				// Reload profile again because the points might already update the user's point.
-				$updatedProfile 		= DiscussHelper::getTable( 'Profile' );
-				$updatedProfile->load( $my->id , false , true );
+				$updatedProfile = ED::table('Profile');
+				$updatedProfile->load($my->id, false, true);
 				$updatedProfile->edited = true;
 				$updatedProfile->store();
 			}
-		}
-		else
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_PROFILE_SAVE_ERROR' )  , 'error');
-			$this->setRedirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=profile&layout=edit' , false ) );
+		} else {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_PROFILE_SAVE_ERROR'), 'error');
+			$this->app->redirect(EDR::_('view=profile&layout=edit', false));
 			return;
 		}
 
-		$this->setRedirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=profile&layout=edit' , false ) );
+		$this->app->redirect(EDR::_('view=profile&layout=edit', false));
+		return;
 	}
 
-	function _trim(&$text)
+	public function _trim(&$text)
 	{
 		$text = JString::trim($text);
 	}
 
-	function _validateProfileFields($post)
+	public function _validateProfileFields($post)
 	{
-		$mainframe	= JFactory::getApplication();
-		$valid		= true;
-
-
-		if(JString::strlen($post['fullname']) == 0)
-		{
-			$message	= JText::_( 'COM_EASYDISCUSS_REALNAME_EMPTY' );
-			DiscussHelper::setMessageQueue( $message , DISCUSS_QUEUE_ERROR );
+		if (JString::strlen($post['fullname']) == 0) {
+			$message = JText::_('COM_EASYDISCUSS_REALNAME_EMPTY');
+			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
 			return false;
 		}
 
-		if(JString::strlen($post['nickname']) == 0)
-		{
-			$message	= JText::_( 'COM_EASYDISCUSS_NICKNAME_EMPTY'  );
-			DiscussHelper::setMessageQueue( $message , DISCUSS_QUEUE_ERROR );
+		if (JString::strlen($post['nickname']) == 0) {
+			$message = JText::_('COM_EASYDISCUSS_NICKNAME_EMPTY');
+			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
 			return false;
 		}
 
-		if( !empty( $post[ 'password' ] ) )
-		{
-			if( JString::strlen( $post[ 'password' ] ) < 4 )
-			{
-				$message	= JText::_( 'COM_EASYDISCUSS_PROFILE_PASSWORD_TOO_SHORT' );
-				DiscussHelper::setMessageQueue( $message , DISCUSS_QUEUE_ERROR );
-				return false;			
-			}
-		}
-		
-		if(!empty($post['password2']))
-		{			
-			if ( $post['password'] != $post['password2'] )
-			{
-				$message	= JText::_( 'COM_EASYDISCUSS_PROFILE_PASSWORD_NOT_MATCH' );
-				DiscussHelper::setMessageQueue( $message , DISCUSS_QUEUE_ERROR );
+		if (!empty($post['password'])) {
+
+			if (JString::strlen($post['password']) < 4) {
+				$message = JText::_('COM_EASYDISCUSS_PROFILE_PASSWORD_TOO_SHORT');
+				ED::setMessage($message, DISCUSS_QUEUE_ERROR);
 				return false;
 			}
 		}
 
-		return $valid;
+		if (!empty($post['password2'])) {
+
+			if ($post['password'] != $post['password2']) {
+				$message = JText::_('COM_EASYDISCUSS_PROFILE_PASSWORD_NOT_MATCH');
+				ED::setMessage($message, DISCUSS_QUEUE_ERROR);
+				return false;
+			}
+		}
+
+		return true;
 	}
 
-	function _upload( $profile, $type = 'profile' )
+	public function _upload($profile, $type = 'profile')
 	{
 		$newAvatar  = '';
 
 		//can do avatar upload for post in future.
-
-		$newAvatar  = DiscussHelper::uploadAvatar($profile);
+		$newAvatar  = ED::uploadAvatar($profile);
 
 		return $newAvatar;
 	}
 
 	public function removePicture()
 	{
-		$my 		= JFactory::getUser();
+		$my = JFactory::getUser();
 
-		if( !$my->id )
-		{
-			return $this->setRedirect( DiscussRouter::_( 'index.php?option=com_easydiscuss' , false ) );
+		if (!$my->id) {
+			return $this->setRedirect(EDR::_('index.php?option=com_easydiscuss', false));
 		}
 
-		$profile	= DiscussHelper::getTable( 'Profile' );
-		$profile->load( $my->id );
-		
+		$profile = ED::user($my->id);
+
 		// Delete the user's avatar.
 		$profile->deleteAvatar();
 
-		DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_PROFILE_AVATAR_REMOVED_SUCCESSFULLY' ) , DISCUSS_QUEUE_SUCCESS );
+		ED::setMessage(JText::_('COM_EASYDISCUSS_PROFILE_AVATAR_REMOVED_SUCCESSFULLY'), DISCUSS_QUEUE_SUCCESS);
 
-		$url 	= DiscussRouter::_( 'index.php?option=com_easydiscuss&view=profile&layout=edit' , false );
+		$url = EDR::_('view=profile&layout=edit', false);
 
-		$this->setRedirect( $url );
+		$this->setRedirect($url);
 	}
 
 	public function disableUser()
 	{
 		// Only allow site admin to disable this.
-		if( !DiscussHelper::isSiteAdmin() )
-		{
-			return $this->setRedirect( DiscussRouter::_( 'index.php?option=com_easydiscuss' , false ) );
+		if (!ED::isSiteAdmin()) {
+			return $this->setRedirect( EDR::_( 'index.php?option=com_easydiscuss' , false ) );
 		}
 
-		$userId = JRequest::getInt('id');
-
-		$db = DiscussHelper::getDBO();
+		$userId = $this->input->get('id', 0, 'int');
+		$db = ED::db();
 		$query = 'UPDATE ' . $db->nameQuote( '#__users' )
 				. ' SET ' . $db->nameQuote( 'block' ) . '=' . $db->quote( 1 )
 				. ' WHERE ' . $db->nameQuote( 'id' ) . '=' . $db->quote( $userId );
@@ -316,13 +277,38 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 		$db->setQuery( $query );
 		$result = $db->query();
 
-		if( !$result )
-		{
-			return $this->setRedirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=profile&id=' . $userId , false ) );
+		if (!$result) {
+			return $this->setRedirect(EDR::_( 'index.php?option=com_easydiscuss&view=profile&id=' . $userId , false));
 		}
 
-		$message	= JText::_( 'COM_EASYDISCUSS_USER_DISABLED' );
-		DiscussHelper::setMessageQueue( $message , DISCUSS_QUEUE_SUCCESS );
-		$this->setRedirect( DiscussRouter::_( 'index.php?option=com_easydiscuss' , false ) );
+		$message = JText::_('COM_EASYDISCUSS_USER_DISABLED');
+		ED::setMessageQueue($message , DISCUSS_QUEUE_SUCCESS);
+		$this->setRedirect(EDR::_( 'index.php?option=com_easydiscuss' , false ));
+	}
+
+		/**
+	 * Checks if an alias is valid
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function checkAlias($alias)
+	{
+		$db = ED::db();
+		$query	= 'SELECT `alias` FROM `#__discuss_users` WHERE `alias` = ' . $db->quote($alias) . ' '
+				. 'AND ' . $db->nameQuote('id') . '!=' . $db->Quote($this->my->id);
+		$db->setQuery( $query );
+
+		$exists = $db->loadResult();
+
+		if ($exists != NULL) {
+			$message = JText::_('COM_EASYDISCUSS_ALIAS_NOT_AVAILABLE');
+			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
+			return false;
+		}
+
+		return true;
 	}
 }

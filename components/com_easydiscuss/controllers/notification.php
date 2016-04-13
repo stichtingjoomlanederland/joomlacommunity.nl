@@ -1,71 +1,73 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussControllerNotification extends EasyDiscussController
 {
 	/**
-	 * Allows user to mark notification items as read
-	 **/
+	 * Mark a single notification item as read
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function markread()
 	{
-		$id		= JRequest::getInt( 'id' );
-		$my		= JFactory::getUser();
+		// Ensure that the user is logged in
+		ED::requireLogin();
 
-		$notification	= DiscussHelper::getTable( 'Notifications' );
-		$notification->load( $id );
+		// Get the notification id
+		$id = $this->input->get('id', '', 'int');
 
-		if( !$my->id )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_PLEASE_LOGIN_FIRST' ) , 'error' );
-			JFactory::getApplication()->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss' , false ) );
+		$notification = ED::table('Notifications');
+		$notification->load($id);
+
+		$redirect = EDR::_('', false);
+
+		if ($notification->target != $this->my->id) {
+			ED::setMessage('COM_EASYDISCUSS_NOT_ALLOWED_TO_MARK_READ', 'error');
+
+			return $this->app->redirect($redirect);
 		}
 
-		if( $notification->target != $my->id )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_NOT_ALLOWED_TO_MARK_READ' ) , 'error' );
-			JFactory::getApplication()->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss' , false ) );
-		}
-
-		$notification->state	= 0;
+		$notification->state = 0;
 		$notification->store();
 
-		DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_NOTIFICATION_MARKED_AS_READ' ) );
-		JFactory::getApplication()->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=notifications' , false ) );
+		ED::setMessage('COM_EASYDISCUSS_NOTIFICATION_MARKED_AS_READ');
+
+		$redirect = EDR::_('view=notifications', false);
+		return $this->app->redirect($redirect);
 	}
 
 	/**
-	 * Allows user to mark all their notification items as read
-	 **/
+	 * Marks all discussion as read
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function markreadall()
 	{
-		$my		= JFactory::getUser();
+		// Ensure that the user is logged in
+		ED::requireLogin();
 
-		if( !$my->id )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_PLEASE_LOGIN_FIRST' ) , 'error' );
-			JFactory::getApplication()->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss' , false ) );
-		}
+		$redirect = EDR::_('view=notifications', false);
 
-		$db		= DiscussHelper::getDBO();
-		$query	= 'UPDATE ' . $db->nameQuote( '#__discuss_notifications' ) . ' '
-				. 'SET ' . $db->nameQuote( 'state' ) . '=' . $db->Quote( 0 ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'target' ) . '=' . $db->Quote( $my->id );
-		$db->setQuery( $query );
-		$db->Query();
+		$model = ED::model('Notification');
+		$model->markAllRead();
 
-		DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_ALL_NOTIFICATIONS_MARKED_AS_READ' ) );
-		JFactory::getApplication()->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=notifications' , false ) );
+		ED::setMessage('COM_EASYDISCUSS_ALL_NOTIFICATIONS_MARKED_AS_READ');
+		$this->app->redirect($redirect);
 	}
 }

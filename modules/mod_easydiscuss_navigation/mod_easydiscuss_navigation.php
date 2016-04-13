@@ -12,26 +12,25 @@
  */
 defined('_JEXEC') or die('Restricted access');
 
-$path	= JPATH_ROOT . '/components/com_easydiscuss/helpers/helper.php';
+$path = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php';
 
 jimport( 'joomla.filesystem.file' );
 
-if( !JFile::exists( $path ) )
-{
+if (!JFile::exists($path)) {
 	return;
 }
 
-require_once( $path );
+require_once($path);
 
-// Load theme css here.
-DiscussHelper::loadStylesheet("module", "mod_easydiscuss_navigation");
-DiscussHelper::loadHeaders();
+ED::init();
 
 // Load component's language file.
 JFactory::getLanguage()->load( 'com_easydiscuss' , JPATH_ROOT );
-JFactory::getLanguage()->load( 'mod_easydiscuss_navigation' , JPATH_ROOT );
 
-$my 		= JFactory::getUser();
+
+$my = ED::user();
+$config = ED::config();
+
 // We need to detect if the user is browsing a particular category
 $active 	= '';
 $view 		= JRequest::getVar( 'view' );
@@ -39,27 +38,27 @@ $layout 	= JRequest::getVar( 'layout' );
 $option 	= JRequest::getVar( 'option' );
 $id 		= JRequest::getInt( 'category_id' );
 
-if( $option == 'com_easydiscuss' && $view == 'post')
-{
+if ($option == 'com_easydiscuss' && $view == 'post') {
 	$postId = JRequest::getInt( 'id', 0 );
 	// update user's post read flag
-	if( !empty( $my->id ) && !empty( $postId ) )
-	{
-		$profile	= DiscussHelper::getTable( 'Profile' );
-		$profile->load( $my->id );
-		$profile->read( $postId );
+	if ( !empty($my->id) && !empty($postId)) {
+		$my->read( $postId );
 	}
 }
 
-$model			= DiscussHelper::getModel( 'Categories' );
+$model			= ED::model( 'Categories' );
 $categories		= $model->getCategoryTree();
 
-$notificationModel		= DiscussHelper::getModel( 'Notification' );
-$totalNotifications		= $notificationModel->getTotalNotifications( $my->id );
 
-if( $option == 'com_easydiscuss' && $view == 'categories' && $layout == 'listings' && $id )
-{
-	$active		= $id;
+$notificationsCount = 0;
+
+if ($my->id) {
+    $notificationModel = ED::model( 'Notification' );
+    $notificationsCount = $notificationModel->getTotalNotifications( $my->id );
+}
+
+if ($option == 'com_easydiscuss' && $view == 'categories' && $layout == 'listings' && $id) {
+	$active	= $id;
 }
 
 require( JModuleHelper::getLayoutPath( 'mod_easydiscuss_navigation' ) );

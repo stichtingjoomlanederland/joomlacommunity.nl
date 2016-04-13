@@ -42,46 +42,46 @@ EasyDiscuss
 <form action="index.php" method="post" name="adminForm" id="adminForm">
 	<div class="row-fluid">
 		<div class="span6">
-			<div class="widget accordion-group">
-				<div class="whead accordion-heading">
+			<div class="panel">
+				<div class="panel-head">
 					<a href="javascript:void(0);" data-foundry-toggle="collapse" data-target="#option01">
 					<h6><?php echo JText::_('COM_EASYDISCUSS_LABEL'); ?></h6>
 					<i class="icon-chevron-down"></i>
 					</a>
 				</div>
 
-				<div id="option01" class="accordion-body collapse in">
-					<div class="wbody">
-						<div class="si-form-row">
-							<div class="span5 form-row-label">
+				<div id="option01" class="panel-body">
+					<div class="form-horizontal">
+						<div class="form-group">
+							<div class="col-md-5 control-label">
 								<label><?php echo JText::_( 'COM_EASYDISCUSS_LABEL_TITLE' ); ?></label>
 							</div>
-							<div class="span7">
+							<div class="col-md-7">
 								<input type="text" class="input-large" name="title" size="55" maxlength="255" value="<?php echo $this->label->title;?>" />
 							</div>
 						</div>
-						<div class="si-form-row">
-							<div class="span5 form-row-label">
+						<div class="form-group">
+							<div class="col-md-5 control-label">
 								<label><?php echo JText::_( 'COM_EASYDISCUSS_LABEL_DESCRIPTION' ); ?></label>
 							</div>
-							<div class="span7">
-								<textarea name="description" class="full-width"><?php echo $this->label->description; ?></textarea>
+							<div class="col-md-7">
+								<textarea name="description" class="form-control"><?php echo $this->label->description; ?></textarea>
 							</div>
 						</div>
-						<div class="si-form-row">
-							<div class="span5 form-row-label">
+						<div class="form-group">
+							<div class="col-md-5 control-label">
 								<label><?php echo JText::_( 'COM_EASYDISCUSS_PUBLISHED' ); ?></label>
 							</div>
-							<div class="span7">
+							<div class="col-md-7">
 								<?php echo $this->renderCheckbox( 'published' , $this->label->published ); ?>
 							</div>
 						</div>
-						<div class="si-form-row">
-							<div class="span5 form-row-label">
+						<div class="form-group">
+							<div class="col-md-5 control-label">
 								<label><?php echo JText::_( 'Created' ); ?></label>
 							</div>
-							<div class="span7">
-								<input type="text" id="datepicker" class="full-width" name="created_time" value="<?php echo DiscussDateHelper::toFormat($this->label->created, '%A, %B %d %Y'); ?>" />
+							<div class="col-md-7">
+								<input type="text" id="datepicker" class="form-control" name="created_time" value="<?php echo DiscussDateHelper::toFormat($this->label->created, '%A, %B %d %Y'); ?>" />
 							</div>
 						</div>
 					</div>

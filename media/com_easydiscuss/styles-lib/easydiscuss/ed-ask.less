@@ -1,0 +1,183 @@
+// Easydiscuss Ask
+// ----------------
+// Ask Layout
+.ed-ask {
+    &__hd,
+    &__bd {
+
+    }
+    &__hd {
+        position: relative;
+        
+    }
+    &__bd {
+        background-color: @fd-ui-shade;
+        
+        border: 1px solid @fd-ui-border-color;
+        border-top: none;
+
+        border-bottom-left-radius: @fd-ui-radius;
+        border-bottom-right-radius: @fd-ui-radius;
+
+        padding: @fd-base-spacing--lg;
+    }
+
+    &__input-title { // .from-control
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        height: 60px;
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0;
+        &::-moz-placeholder,
+        &:-ms-input-placeholder,
+        &:-webkit-input-placeholder {
+            font-weight: bold;
+        }
+
+    }
+}
+
+.ed-ask-similar-menu {
+    position: absolute;
+    padding: 0;
+    border: 1px solid @fd-ui-border-color;
+    // border-radius: @fd-ui-radius;
+    background-color: @fd-ui-bg;
+    left: 0;
+    right: 0;
+    top: 100%;
+    margin-top: @fd-base-spacing;
+    .box-shadow(0 4px 8px rgba(0,0,0,.2));
+    z-index: 2;
+
+    
+    &__arrow {
+        &:after,
+        &:before {
+            bottom: 100%;
+            left: 50%;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        &:after {
+            border-color: rgba(255, 255, 255, 0);
+            border-bottom-color: @fd-ui-bg;
+            border-width: 10px;
+            margin-left: -10px;
+        }
+        &:before {
+            border-color: rgba(194, 225, 245, 0);
+            border-bottom-color: @fd-ui-border-color;
+            border-width: 11px;
+            margin-left: -11px;
+        }
+    }
+
+    &__scroll {
+        max-height: 280px;
+        overflow-y: scroll;
+    }
+
+    &__title {
+        font-size: @fd-base-font-size--xl;
+        font-weight: bold;
+    }
+
+    &__date {
+        font-size: @fd-base-font-size;
+    }
+
+    &__progress-wrap {
+        width: 320px;
+    }
+
+    &__progress { // Override bs3
+        height: 12px;
+        margin-bottom: 0;
+    }
+    &__progress-txt {
+        color: @fd-ui-meta-color;
+        margin-left: @fd-base-spacing;
+        font-size: @fd-base-font-size;
+        line-height: @fd-base-font-size;
+        font-weight: bold;
+    }
+
+    &__btn-close {
+        position: absolute;
+        right: -10px;
+        bottom: -10px;
+        background-color: @fd-ui-bg--inverse;
+        color: @fd-ui-text-color--inverse;
+        border: 1px solid @fd-ui-border-color;
+        border-radius: 50%;
+        display: block;
+        font-size: 12px;
+        width: 20px;
+        height: 20px;
+        line-height: 19px;
+        position: absolute;
+        text-align: center;
+        i {
+            line-height: 16px;
+        }
+        &:hover {
+            background-color: @fd-ui-bg--inverse;
+            color: @fd-ui-text-color--inverse;
+        }
+    }
+}
+.ed-ask-similar-menu__item {
+    padding: @fd-base-spacing--lg;
+    + .ed-ask-similar-menu__item {
+        border-top: 1px solid @fd-ui-border-color;
+    }
+}
+
+.ed-reply-form {
+    &__hd,
+    &__bd {
+
+    }
+    &__hd {
+        
+        
+    }
+    &__bd {
+        background-color: @fd-ui-shade;
+        
+        border: 1px solid @fd-ui-border-color;
+        // border-top: none;
+
+        // border-bottom-left-radius: @fd-ui-radius;
+        // border-bottom-right-radius: @fd-ui-radius;
+        border-radius: @fd-ui-radius;
+
+        padding: @fd-base-spacing--lg;
+    }
+    &__title {
+        margin-bottom: @fd-base-spacing;
+        font-weight: bold;
+    }
+
+    &__input-title { // .from-control
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        height: 60px;
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0;
+        &::-moz-placeholder,
+        &:-ms-input-placeholder,
+        &:-webkit-input-placeholder {
+            font-weight: bold;
+        }
+
+    }
+}

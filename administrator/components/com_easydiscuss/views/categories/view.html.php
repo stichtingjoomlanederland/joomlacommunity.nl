@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,82 +9,127 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once DISCUSS_ADMIN_ROOT . '/views.php';
+require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
 class EasyDiscussViewCategories extends EasyDiscussAdminView
 {
+	/**
+	 * Renders the category listing at the back end
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function display($tpl = null)
 	{
-		// @rule: Test for user access if on 1.6 and above
-		if( DiscussHelper::getJoomlaVersion() >= '1.6' )
-		{
-			if(!JFactory::getUser()->authorise('discuss.manage.categories' , 'com_easydiscuss') )
-			{
-				JFactory::getApplication()->redirect( 'index.php' , JText::_( 'JERROR_ALERTNOAUTHOR' ) , 'error' );
-				JFactory::getApplication()->close();
-			}
-		}
-		// Initialise variables
-		$document		= JFactory::getDocument();
-		$user			= JFactory::getUser();
-		$mainframe		= JFactory::getApplication();
+		// Set page attributes
+		$this->title('COM_EASYDISCUSS_CATEGORIES_TITLE');
 
-		$filter_state	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.categories.filter_state', 		'filter_state', 	'*', 'word' );
-		$search			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.categories.search', 			'search', 			'', 'string' );
-
-		$search			= trim(JString::strtolower( $search ) );
-		$order			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.categories.filter_order', 		'filter_order', 	'lft', 'cmd' );
-		$orderDirection	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.categories.filter_order_Dir',	'filter_order_Dir',	'asc', 'word' );
-
-		// Get data from the model
-		$model			= $this->getModel( 'Categories' );
-		$categories		= $model->getData();
-		$ordering		= array();
-
-		JTable::addIncludePath( DISCUSS_TABLES );
-		$category		= JTable::getInstance( 'Category' , 'Discuss' );
-
-		for( $i = 0 ; $i < count( $categories ); $i++ )
-		{
-			$category	= $categories[ $i ];
-
-			$category->count	= $model->getUsedCount( $category->id, false, true );
-			$category->child_count	= $model->getChildCount( $category->id );
-
-			// Preprocess the list of items to find ordering divisions.
-			$ordering[$category->parent_id][] = $category->id;
-		}
-		$pagination 	= $this->get( 'Pagination' );
-
-		$this->addPathway( 'Home' , 'index.php?option=com_easydiscuss' );
-		$this->addPathway( JText::_( 'COM_EASYDISCUSS_BREADCRUMBS_CATEGORIES' ) );
-
-		$this->assignRef( 'categories' 	, $categories );
-		$this->assignRef( 'pagination'	, $pagination );
-		$this->assignRef( 'ordering'	, $ordering );
-
-		$this->assign( 'state'			, JHTML::_('grid.state', $filter_state ) );
-		$this->assign( 'search'			, $search );
-		$this->assign( 'order'			, $order );
-		$this->assign( 'orderDirection'	, $orderDirection );
-
-		parent::display($tpl);
-	}
-
-	public function registerToolbar()
-	{
-		JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_CATEGORIES_TITLE' ), 'category' );
-
-		JToolBarHelper::custom( 'home', 'arrow-left', '', JText::_( 'COM_EASYDISCUSS_TOOLBAR_HOME' ), false);
+		JToolbarHelper::addNew();
 		JToolBarHelper::divider();
-		JToolBarHelper::makeDefault( 'makeDefault' );
+		JToolBarHelper::makeDefault('makeDefault');
 		JToolBarHelper::divider();
 		JToolbarHelper::publishList();
 		JToolbarHelper::unpublishList();
 		JToolBarHelper::divider();
-		JToolbarHelper::addNew();
 		JToolbarHelper::deleteList();
+
+		$filter_state = $this->getUserState('categories.filter_state', 'filter_state', '*', 'word');
+
+		// Search
+		$search = $this->getUserState('categories.search', 'search', '', 'string');
+		$search = trim(strtolower($search));
+
+		// Ordering
+		$order = $this->getUserState('categories.filter_order', 'filter_order', 'lft', 'cmd');
+		$orderDirection = $this->getUserState('categories.filter_order_Dir', 'filter_order_Dir', 'asc', 'word');
+
+		// Get data from the model
+		$model = ED::model('Categories');
+		$rows = $model->getData();
+		$categories = array();
+		$ordering = array();
+
+		foreach ($rows as $row) {
+
+			$category = ED::table('Category');
+			$category->bind($row);
+
+			$category->depth = $row->depth;
+			$category->count = $model->getUsedCount($category->id, false, true);
+			$category->child_count = $model->getChildCount($category->id);
+
+			$category->link = 'index.php?option=com_easydiscuss&view=categories&layout=form&id='. $category->id;
+
+			$category->user = JFactory::getUser($category->created_by);
+			$categories[] = $category;
+			$ordering[$category->parent_id][] = $category->id;
+		}
+
+
+
+		$pagination = $model->getPagination();
+
+		$this->set('categories', $categories);
+		$this->set('pagination', $pagination);
+		$this->set('ordering', $ordering);
+		$this->set('state', $filter_state);
+		$this->set('search', $search);
+		$this->set('order', $order);
+		$this->set('orderDirection', $orderDirection);
+
+		parent::display('categories/default');
+	}
+
+	/**
+	 * Renders the category form
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function form($tpl = null)
+	{
+		$this->checkAccess('discuss.manage.categories');
+
+		$id = $this->input->get('id', 0, 'int');
+
+		$category = ED::category($id);
+
+		// Set the new category as publish.
+		if (!$category->id) {
+			$category->set('published', true);
+		}
+
+		$this->title('COM_EASYDISCUSS_CATEGORIES_ADD_CATEGORY_TITLE');
+
+		if ($category->id) {
+			$this->title('COM_EASYDISCUSS_EDIT_CATEGORY_TITLE');
+		}
+
+		JToolbarHelper::apply();
+		JToolbarHelper::save();
+		JToolbarHelper::save2new();
+		JToolBarHelper::cancel();
+
+		// // Get assigned group acl
+		$parentList = ED::populateCategories('', '', 'select', 'parent_id', $category->parent_id, false, false, false, false, '', array($category->id));
+
+		// Get the default WYSIWYG editor
+		$editor = JFactory::getEditor($this->jconfig->get('editor'));
+
+		// Get active tab
+		$active = $this->input->get('active', 'general', 'word');
+
+		$this->set('active', $active);
+		$this->set('editor', $editor);
+		$this->set('category', $category);
+		$this->set('categories', $parentList);
+
+		parent::display('categories/form');
 	}
 }

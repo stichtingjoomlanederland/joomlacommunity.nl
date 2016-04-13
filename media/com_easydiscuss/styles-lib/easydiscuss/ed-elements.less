@@ -1,0 +1,106 @@
+// EasyDiscuss Elements
+// Objects are too tiny and not need to categories. If extend too many only categories it.
+// 
+// ----------------
+.ed-head {
+    position: relative;
+    .clearfix();
+    &__title {
+        margin-top: 0;
+    }
+    &__desp {
+
+    }
+    
+    // You're under my control
+    .ed-subscribe {
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
+}
+&.w640,
+&.w480 {
+    .ed-head {
+        .ed-subscribe {
+            position: relative;
+        }
+    }
+}
+
+.ed-subscribe {
+    font-size: @fd-base-font-size;
+    &__icon {
+        color: @fd-ui-text-color;
+    }
+}
+
+.ed-unsubscribe-link {
+    font-size: @fd-base-font-size;
+    // &__icon {
+    //     color: @fd-ui-text-color;
+    // }
+}
+
+// Modifier for o-label
+.ed-label-new {
+    background-color: @fd-brand-info;
+    position: relative;
+    &:before {
+        position: absolute;
+        content: '';
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 4px 6px 4px 0;
+        border-color: transparent #5bc0de transparent transparent;
+
+        top: 4px;
+        left: -4px;
+    }
+}
+
+.ed-filter-bar {
+    .clearfix();
+
+    .selectize-input {
+        padding-right: 36px; // Reserve space for caret
+        min-width: 100px;
+        input {
+            width: 4px !important;
+        }
+    }
+
+}
+&.w480 {
+    .ed-filter-bar {
+        &__sort-action {
+            float: none;
+        }
+    }
+}
+
+// Search keywords highlight
+.ed-search-hightlight {
+    background-color: #FFF8C7;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+.ed-search-type {
+    font-weight: bold;
+    font-size: @fd-base-font-size;
+    color: @fd-ui-meta-color;
+}
+
+
+// Password protected note
+.ed-pass-note {
+    &__title {
+        font-weight: bold;
+        font-size: @fd-base-font-size--xl;
+    }
+    &__desp {
+        font-size: @fd-base-font-size;
+        margin-bottom: @fd-base-spacing;
+    }
+}

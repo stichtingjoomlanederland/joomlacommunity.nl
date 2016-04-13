@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -13,90 +13,49 @@ defined('_JEXEC') or die('Restricted access');
 
 jimport( 'joomla.application.component.view');
 
-require_once JPATH_ROOT . '/components/com_easydiscuss/helpers/helper.php';
-require_once DISCUSS_HELPERS . '/input.php';
-require_once DISCUSS_CLASSES . '/themes.php';
-require_once DISCUSS_CLASSES . '/composer.php';
-require_once DISCUSS_HELPERS . '/parser.php';
-require_once DISCUSS_HELPERS . '/string.php';
-require_once DISCUSS_HELPERS . '/filter.php';
-require_once DISCUSS_HELPERS . '/integrate.php';
-require_once DISCUSS_HELPERS . '/user.php';
-require_once DISCUSS_HELPERS . '/router.php';
-
-require_once( DISCUSS_ROOT . '/views.php' );
+require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewPost extends EasyDiscussView
 {
     protected $err  = null;
 
     /**
-     * Displays a dialog with a category selection.
+     * Displays a dialog to allow users to move the post
      *
-     * @since   3.0
+     * @since   4.0
      * @access  public
+     * @param   string
+     * @return
      */
-    public function movePost( $id )
+    public function move()
     {
-        $ajax   = new Disjax();
-        $my     = JFactory::getUser();
-        $post   = DiscussHelper::getTable( 'Post' );
-        $state  = $post->load( $id );
+        $id = $this->input->get('id', 0, 'int');
+        $post = ED::post($id);
 
-        if( !$state || !$id || $post->parent_id )
-        {
-            echo JText::_( 'COM_EASYDISCUSS_SYSTEM_INVALID_ID' );
-            return $ajax->send();
+        if (!$post->id || !$id) {
+            echo JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID');
+            return $this->ajax->send();
         }
 
-        // Load the category of the post.
-        $category   = DiscussHelper::getTable( 'Category' );
-        $category->load( $post->category_id );
-
-        // Load the access.
-        $access     = $post->getAccess( $category );
-
-        if( !$my->id || !$access->canMove() )
-        {
-            echo JText::_( 'COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS' );
-            return $ajax->send();
+        // Ensure that the user really can move the post
+        if (!$post->canMove()) {
+            return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
         }
 
         // Get list of categories.
-        $categories         = DiscussHelper::populateCategories( '' , '' , 'select' , 'category_id', $post->category_id , true, true , true , true );
+        $categories = ED::populateCategories('', '', 'select', 'category_id', $post->category_id, true, true, true, true, '', array($category->id));
 
-        $theme              = new DiscussThemes();
-        $theme->set( 'categories'   , $categories );
-        $theme->set( 'id'           , $id );
+        $theme = ED::themes();
+        $theme->set('categories', $categories);
+        $theme->set('id', $id);
 
-        $content            = $theme->fetch( 'ajax.post.move.php' , array('dialog'=> true ) );
+        $contents = $theme->output('site/post/dialogs/move');
 
-        $options            = new stdClass();
-        $options->content   = $content;
-        $options->title     = JText::_( 'COM_EASYDISCUSS_MOVE_POST_TITLE' );
-
-        $buttons            = array();
-
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_CLOSE' );
-        $button->action     = 'disjax.closedlg();';
-        $buttons[]          = $button;
-
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_MOVE' );
-        $button->form       = '#frmMovePost';
-        $button->className  = 'btn-primary';
-        $buttons[]          = $button;
-
-        $options->buttons   = $buttons;
-
-        $ajax->dialog( $options );
-        $ajax->send();
-
+        return $this->ajax->resolve($contents);
     }
 
     /**
-     * Displays al ist of moderators on the site.
+     * Displays a list of moderators on the site.
      *
      * @since   3.2
      * @access  public
@@ -105,79 +64,43 @@ class EasyDiscussViewPost extends EasyDiscussView
      */
     public function getModerators()
     {
-        $ajax           = DiscussHelper::getHelper('Ajax');
-
-        if (!EDC::isSiteAdmin() && !EDC::isModerator()) {
+        if (!ED::isSiteAdmin() && !ED::isModerator()) {
             return;
         }
 
-        $postId         = JRequest::getString('id');
-        $categoryId     = JRequest::getString('category_id');
-        $moderators     = DiscussHelper::getHelper( 'Moderator' )->getModeratorsDropdown( $categoryId );
+        $postId = $this->input->get('id', 0, 'int');
+        $categoryId = $this->input->get('category_id', 0, 'int');
+        $moderators = ED::moderator()->getModeratorsDropdown($categoryId);
 
-        $html   = '';
-        if( !empty($moderators) )
-        {
-            $theme  = new DiscussThemes();
-            $theme->set( 'moderators' , $moderators );
-            $theme->set( 'postId' , $postId );
-            $html   = $theme->fetch( 'post.assignment.item.php' );
-        }
-        else
-        {
-            $html = '<li class="pa-10">' . JText::_( 'COM_EASYDISCUSS_NO_MODERATOR_FOUND' ) . '</li>';
+        $contents = '';
+
+        if (!empty($moderators)) {
+            $theme = ED::themes();
+            $theme->set('moderators', $moderators);
+            $theme->set('postId', $postId);
+            $contents = $theme->output('site/post/post.assignment.item');
+        } else {
+            $contents = JText::_('COM_EASYDISCUSS_NO_MODERATOR_FOUND');
         }
 
-        $ajax->success( $html );
+        $this->ajax->resolve($contents);
     }
 
     public function similarQuestion()
     {
-        $ajax   = DiscussHelper::getHelper( 'Ajax' );
-        $config = DiscussHelper::getConfig();
+        $query = $this->input->get('query', '', 'string');
+        $posts = ED::getSimilarQuestion($query);
 
-        // if enabled
-        $html   = '';
-        $query  = JRequest::getString( 'query' );
-        $posts  = DiscussHelper::getSimilarQuestion( $query );
+        $contents = '';
 
-        if( !empty( $posts ) )
-        {
-            foreach( $posts as &$post)
-            {
-                $post->title    = DiscussHelper::wordFilter($post->title);
+        if (!empty($posts)) {
 
-            }
-            $theme  = new DiscussThemes();
-            $theme->set( 'posts' , $posts );
-            $html   = $theme->fetch( 'ajax.similar.question.list.php' , array('dialog'=> true ) );
+            $theme = ED::themes();
+            $theme->set('posts', $posts);
+            $contents = $theme->output('site/dialogs/ajax.similar.question.list');
         }
 
-        //$ajax->EasyDiscuss.$('#div').html( 'value' );
-        $ajax->success( $html );
-    }
-
-    public function selectCategory()
-    {
-        $ajax       = new Disjax();
-        $theme      = new DiscussThemes();
-        $content    = $theme->fetch( 'ajax.selectcategory.php' , array('dialog'=> true ) );
-
-        $options            = new stdClass();
-        $options->content   = $content;
-        $options->title     = JText::_( 'COM_EASYDISCUSS_DIALOG_TITLE_FORM_ERROR' );
-
-        $buttons            = array();
-
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_CLOSE' );
-        $button->action     = 'disjax.closedlg();';
-        $buttons[]          = $button;
-
-        $options->buttons   = $buttons;
-
-        $ajax->dialog( $options );
-        $ajax->send();
+        return $this->ajax->resolve($contents);
     }
 
     public function checklogin()
@@ -185,17 +108,17 @@ class EasyDiscussViewPost extends EasyDiscussView
         $my = JFactory::getUser();
         $ajax   = new Disjax();
 
-        if(empty($my->id))
+        if(empty($this->my->id))
         {
-            $config     = DiscussHelper::getConfig();
+            $config     = ED::getConfig();
             $tpl        = new DiscussThemes();
             $session    = JFactory::getSession();
 
-            $acl        = DiscussHelper::getHelper( 'ACL', '0' );
+            $acl        = ED::getHelper( 'ACL', '0' );
 
-            $defaultUserType = $acl->allowed('add_reply') ? 'guest' : 'member';
+            $defaultUserType = $this->acl->allowed('add_reply') ? 'guest' : 'member';
             $return     = DiscussRouter::_('index.php?option=com_easydiscuss&view=ask', false);
-            $token      = DiscussHelper::getToken();
+            $token      = ED::getToken();
 
             $guest = new stdClass();
             if($session->has( 'guest_reply_authentication', 'discuss' ))
@@ -208,7 +131,7 @@ class EasyDiscussViewPost extends EasyDiscussView
             }
 
             $twitter    = '';
-            if($config->get('integration_twitter_consumer_secret_key'))
+            if($this->config->get('integration_twitter_consumer_secret_key'))
             {
                 require_once DISCUSS_HELPERS . '/twitter.php';
                 $twitter = DiscussTwitterHelper::getAuthentication();
@@ -240,39 +163,43 @@ class EasyDiscussViewPost extends EasyDiscussView
         $ajax->send();
     }
 
-    public function deletePostForm( $id = null , $type = null , $url = null )
+    /**
+     * Displays the delete dialog
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function confirmDelete()
     {
-        $ajax       = new Disjax();
-        $theme      = new DiscussThemes();
+        $id = $this->input->get('id', 0, 'int');
+        $post = ED::post($id);
 
-        $theme->set( 'id'   , $id );
-        $theme->set( 'type' , $type );
-        $theme->set( 'url'  , base64_encode( $url ) );
-        $content    = $theme->fetch( 'ajax.delete.php' , array('dialog'=> true ) );
+        if (!$id || !$post->id) {
+            return $this->ajax->reject();
+        }
 
-        $options            = new stdClass();
-        $options->content   = $content;
+        if (!$post->canDelete()) {
+            return $this->ajax->reject();
+        }
 
-        $title              = $type == 'reply' ? 'COM_EASYDISCUSS_REPLY_DELETE_TITLE' : 'COM_EASYDISCUSS_ENTRY_DELETE_TITLE';
-        $options->title     = JText::_( $title );
+        // Get the return url
+        $return = EDR::_('view=forums', false);
 
-        $buttons            = array();
+        if ($post->isReply()) {
+            $return = EDR::_('view=post&id=' . $post->parent_id, false);
+        }
 
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_NO' );
-        $button->action     = 'disjax.closedlg();';
-        $buttons[]          = $button;
 
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_YES' );
-        $button->form       = '#deletePostForm';
-        $button->className  = 'btn-primary';
-        $buttons[]          = $button;
+        $theme = ED::themes();
+        $theme->set('post', $post);
+        $theme->set('id', $id);
+        $theme->set('return', base64_encode($return));
 
-        $options->buttons   = $buttons;
+        $contents = $theme->output('site/post/dialogs/delete');
 
-        $ajax->dialog( $options );
-        $ajax->send();
+        return $this->ajax->resolve($contents);
     }
 
     /**
@@ -282,68 +209,33 @@ class EasyDiscussViewPost extends EasyDiscussView
      * @access  public
      * @param   int     The unique post id.
      */
-    public function confirmAccept( $id = null )
+    public function confirmAccept()
     {
-        $ajax       = new Disjax();
-        $theme      = new DiscussThemes();
+        $id = $this->input->get('id', 0, 'int');
 
-        $theme->set( 'id'   , $id );
-        $content    = $theme->fetch( 'ajax.accept.php' , array('dialog'=> true ) );
+        $theme = ED::themes();
+        $theme->set('id', $id);
+        $contents = $theme->output('site/post/dialogs/accept.answer');
 
-        $options            = new stdClass();
-        $options->content   = $content;
-
-        $options->title     = JText::_( 'COM_EASYDISCUSS_REPLY_ACCEPT_TITLE' );
-
-        $buttons            = array();
-
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_NO' );
-        $button->action     = 'disjax.closedlg();';
-        $buttons[]          = $button;
-
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_YES' );
-        $button->form       = '#acceptPostForm';
-        $button->className  = 'btn-primary';
-        $buttons[]          = $button;
-
-        $options->buttons   = $buttons;
-
-        $ajax->dialog( $options );
-        $ajax->send();
+        return $this->ajax->resolve($contents);
     }
 
-    public function confirmReject( $id = null )
+    /**
+     * Displays a confirmation dialog to reject a reply item as an answer.
+     *
+     * @since   3.0
+     * @access  public
+     * @param   int     The unique post id.
+     */
+    public function confirmReject()
     {
-        $ajax       = new Disjax();
-        $theme      = new DiscussThemes();
+        $id = $this->input->get('id', 0, 'int');
 
-        $theme->set( 'id'   , $id );
-        $content    = $theme->fetch( 'ajax.reject.php' , array('dialog'=> true ) );
+        $theme = ED::themes();
+        $theme->set('id', $id);
+        $contents = $theme->output('site/post/dialogs/reject.answer');
 
-        $options            = new stdClass();
-        $options->content   = $content;
-
-        $options->title     = JText::_( 'COM_EASYDISCUSS_REPLY_REJECT_TITLE' );
-
-        $buttons            = array();
-
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_NO' );
-        $button->action     = 'disjax.closedlg();';
-        $buttons[]          = $button;
-
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_YES' );
-        $button->form       = '#rejectPostForm';
-        $button->className  = 'btn-primary';
-        $buttons[]          = $button;
-
-        $options->buttons   = $buttons;
-
-        $ajax->dialog( $options );
-        $ajax->send();
+        return $this->ajax->resolve($contents);
     }
 
     public function ajaxRefreshTwitter()
@@ -389,16 +281,16 @@ class EasyDiscussViewPost extends EasyDiscussView
         if(empty($email))
         {
             $disjax->script("EasyDiscuss.$('#usertype_status .msg_in').html('".JText::_('COM_EASYDISCUSS_PLEASE_INSERT_YOUR_EMAIL_ADDRESS_TO_PROCEED')."');");
-            $disjax->script("EasyDiscuss.$('#usertype_status .msg_in').addClass('alert alert-error');");
+            $disjax->script("EasyDiscuss.$('#usertype_status .msg_in').addClass('o-alert o-alert--error');");
             $disjax->script("EasyDiscuss.$('#edialog-guest-reply').removeAttr('disabled');");
             $disjax->send();
             return false;
         }
 
-        if(DiscussEmailHelper::isValidInetAddress($email)==false)
+        if (ED::string()->isValidEmail($email)==false)
         {
             $disjax->script('EasyDiscuss.$(\'#usertype_status .msg_in\').html(\''.JText::_('COM_EASYDISCUSS_INVALID_EMAIL_ADDRESS').'\');');
-            $disjax->script('EasyDiscuss.$(\'#usertype_status .msg_in\').addClass(\'alert alert-error\');');
+            $disjax->script('EasyDiscuss.$(\'#usertype_status .msg_in\').addClass(\'o-alert o-alert--error\');');
 
             $disjax->script("EasyDiscuss.$('#edialog-guest-reply').removeAttr('disabled');");
         }
@@ -436,7 +328,7 @@ class EasyDiscussViewPost extends EasyDiscussView
         if(empty($username) || empty($password))
         {
             $disjax->script("EasyDiscuss.$('#usertype_status .msg_in').html('".JText::_('COM_EASYDISCUSS_PLEASE_INSERT_YOUR_USERNAME_AND_PASSWORD')."');");
-            $disjax->script("EasyDiscuss.$('#usertype_status .msg_in').addClass('alert alert-error');");
+            $disjax->script("EasyDiscuss.$('#usertype_status .msg_in').addClass('o-alert o-alert--error');");
             $disjax->script("EasyDiscuss.$('#edialog-member-reply').prop('disabled', false);");
             $disjax->send();
             return false;
@@ -454,7 +346,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 
             if (!JError::isError($result))
             {
-                $token = DiscussHelper::getToken();
+                $token = ED::getToken();
                 $disjax->script( 'EasyDiscuss.$(".easydiscuss-token").val("' . $token . '");');
                 $disjax->script('disjax.closedlg();');
                 $disjax->script( 'discuss.reply.submit();' );
@@ -464,17 +356,17 @@ class EasyDiscussViewPost extends EasyDiscussView
                 $error = JError::getError();
 
                 $disjax->script('EasyDiscuss.$(\'#usertype_status .msg_in\').html(\''.$error->message.'\');');
-                $disjax->script('EasyDiscuss.$(\'#usertype_status .msg_in\').addClass(\'alert alert-error\');');
+                $disjax->script('EasyDiscuss.$(\'#usertype_status .msg_in\').addClass(\'o-alert o-alert--error\');');
                 $disjax->script('EasyDiscuss.$(\'#edialog-member-reply\').prop(\'disabled\', false);');
             }
         }
         else
         {
-            $token = DiscussHelper::getToken();
+            $token = ED::getToken();
             $disjax->script( 'discuss.login.token = "'.$token.'";' );
 
             $disjax->script('EasyDiscuss.$(\'#usertype_status .msg_in\').html(\''.JText::_('COM_EASYDISCUSS_MEMBER_LOGIN_INVALID_TOKEN').'\');');
-            $disjax->script('EasyDiscuss.$(\'#usertype_status .msg_in\').addClass(\'alert alert-error\');');
+            $disjax->script('EasyDiscuss.$(\'#usertype_status .msg_in\').addClass(\'o-alert o-alert--error\');');
 
             $disjax->script( 'EasyDiscuss.$(\'#edialog-reply\').prop(\'disabled\', false);' );
         }
@@ -507,7 +399,7 @@ class EasyDiscussViewPost extends EasyDiscussView
         if(empty($twitterUserId) || empty($twitterOauthToken) || empty($twitterOauthTokenSecret))
         {
             $disjax->script('EasyDiscuss.$(\'#usertype_status .msg_in\').html(\''.JText::_('COM_EASYDISCUSS_TWITTER_REQUIRES_AUTHENTICATION').'\');');
-            $disjax->script('EasyDiscuss.$(\'#usertype_status .msg_in\').addClass(\'alert alert-error\');');
+            $disjax->script('EasyDiscuss.$(\'#usertype_status .msg_in\').addClass(\'o-alert o-alert--error\');');
             $disjax->script('EasyDiscuss.$(\'#edialog-twitter-reply\').attr(\'disabled\', \'\');');
         }
         else
@@ -524,344 +416,141 @@ class EasyDiscussViewPost extends EasyDiscussView
     }
 
     /**
-     * Lock a specific discussion given the post id.
+     * Allows caller to lock a post
      *
-     * @since   3.0
+     * @since   4.0
      * @access  public
-     * @param   int     The post's id.
+     * @param   string
+     * @return
      */
-    public function ajaxLockPost( $id = null )
+    public function lock()
     {
-        $ajax   = new Disjax();
-        $config = DiscussHelper::getConfig();
+        // Get the post id from the request
+        $id = $this->input->get('id', 0, 'int');
 
-        if( !$id )
-        {
-            $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID') );
-            $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-            $ajax->send();
-            return;
+        if (!$id) {
+            return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'));
         }
 
-        $post       = DiscussHelper::getTable( 'Post' );
-        $post->load( $id );
+        // load the post lib
+        $post = ED::post($id);
 
-        $category   = DiscussHelper::getTable( 'Category' );
-        $category->load( $post->category_id );
-
-        $access     = $post->getAccess( $category );
-
-        $isMine     = DiscussHelper::isMine($post->user_id);
-        $isAdmin    = DiscussHelper::isSiteAdmin();
-        $acl        = DiscussHelper::getHelper( 'ACL' );
-
-        if( !$access->canLock() )
-        {
-            $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS') );
-            $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-            $ajax->send();
-            return;
+        // Check if the current user is allowed to lock this post
+        if (!$post->canLock()) {
+            return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
         }
 
-        //update isresolve flag
-        $post->islock   = 1;
+        // Because we know that the user can lock the post now.
+        $state = $post->lock();
 
-        if ( !$post->store() )
-        {
-            $ajax->assign( 'dc_main_notifications' , $post->getError() );
-            $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-            $ajax->send();
-            return;
+        if (!$state) {
+            return $this->ajax->reject($post->getError());
         }
 
-        // @rule: Add notifications for the thread starter
-        $my     = JFactory::getUser();
-        if( $post->get( 'user_id') != $my->id && $config->get( 'main_notifications_locked' ))
-        {
-            $notification   = DiscussHelper::getTable( 'Notifications' );
-            $notification->bind( array(
-                    'title' => JText::sprintf( 'COM_EASYDISCUSS_LOCKED_DISCUSSION_NOTIFICATION_TITLE' , $post->title ),
-                    'cid'   => $post->get( 'id' ),
-                    'type'  => DISCUSS_NOTIFICATIONS_LOCKED,
-                    'target'    => $post->get( 'user_id' ),
-                    'author'    => $my->id,
-                    'permalink' => 'index.php?option=com_easydiscuss&view=post&id=' . $post->get( 'id' )
-                ) );
-            $notification->store();
-        }
-
-        $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_POST_LOCKED') );
-        $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-success" );' );
-        $ajax->script( 'EasyDiscuss.$( ".discuss-item" ).addClass("is-locked");' );
-
-        // For flatt theme
-        $ajax->script( 'EasyDiscuss.$( ".discuss-action-bar" ).addClass("is-locked");' );
-        $ajax->send();
-        return;
+        return $this->ajax->resolve(JText::_('COM_EASYDISCUSS_POST_LOCKED'));
     }
 
     /**
-     * Unlocks a discussion.
+     * Allows caller to unlock a post
      *
-     * @since   3.0
+     * @since   4.0
      * @access  public
-     * @param   int     The post's unique id.
+     * @param   string
+     * @return
      */
-    public function ajaxUnlockPost( $id = null )
+    public function unlock()
     {
-        $ajax   = new Disjax();
-        $config = DiscussHelper::getConfig();
+        // Get the post id from the request
+        $id = $this->input->get('id', 0, 'int');
 
-        if( !$id )
-        {
-            $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID') );
-            $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-            $ajax->send();
-            return;
+        if (!$id) {
+            return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'));
         }
 
-        $post           = DiscussHelper::getTable( 'Post' );
-        $post->load( $id );
+        // load the post lib
+        $post = ED::post($id);
 
-        $isMine     = DiscussHelper::isMine($post->user_id);
-        $isAdmin    = DiscussHelper::isSiteAdmin();
-        $acl        = DiscussHelper::getHelper( 'ACL' );
-        $isModerator    = DiscussHelper::getHelper( 'Moderator' )->isModerator( $post->category_id );
-
-        if ( !$isMine && !$isAdmin && !$acl->allowed('lock_discussion', '0') )
-        {
-            if( !$isModerator )
-            {
-                $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS') );
-                $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-                $ajax->send();
-                return;
-            }
+        if (!$post->canLock()) {
+            return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
         }
 
-        //update isresolve flag
-        $post->islock   = 0;
+        $state = $post->unlock();
 
-        if ( !$post->store() )
-        {
-            $ajax->assign( 'dc_main_notifications' , $post->getError() );
-            $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-            $ajax->send();
-            return;
+        if (!$state) {
+            return $this->ajax->reject($post->getError());
         }
 
-        // @rule: Add notifications for the thread starter
-        $my     = JFactory::getUser();
-        if( $post->get( 'user_id') != $my->id && $config->get( 'main_notifications_locked' ) )
-        {
-            $notification   = DiscussHelper::getTable( 'Notifications' );
-            $notification->bind( array(
-                    'title' => JText::sprintf( 'COM_EASYDISCUSS_UNLOCKED_DISCUSSION_NOTIFICATION_TITLE' , $post->title ),
-                    'cid'   => $post->get( 'id' ),
-                    'type'  => DISCUSS_NOTIFICATIONS_UNLOCKED,
-                    'target'    => $post->get( 'user_id' ),
-                    'author'    => $my->id,
-                    'permalink' => 'index.php?option=com_easydiscuss&view=post&id=' . $post->get( 'id' )
-                ) );
-            $notification->store();
-        }
-
-        $ajax->script( 'window.location.reload();');
-        $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_POST_UNLOCKED') );
-        $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-success" );' );
-        $ajax->script( 'EasyDiscuss.$( ".discuss-item").removeClass("is-locked");' );
-
-        // For flatt theme
-        $ajax->script( 'EasyDiscuss.$( ".discuss-action-bar" ).removeClass("is-locked");' );
-        $ajax->send();
-        return;
+        return $this->ajax->resolved(JText::_('COM_EASYDISCUSS_POST_UNLOCKED'));
     }
 
     /**
-     * Mark's a discussion as resolve.
+     * Allows caller to mark a post as resolved
      *
-     * @since   3.0
+     * @since   4.0
      * @access  public
-     *
+     * @param   string
+     * @return
      */
-    public function resolve( $id = null )
+    public function resolve()
     {
-        $ajax   = new Disjax();
-        $config = DiscussHelper::getConfig();
+        // Get the post id
+        $id = $this->input->get('id', 0, 'int');
 
-        if( !$id )
-        {
-            $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID') );
-            $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-            $ajax->send();
-            return;
+        if (!$id) {
+            return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'));
         }
 
-        $post       = DiscussHelper::getTable( 'Post' );
-        $post->load( $id );
+        // load the post lib
+        $post = ED::post($id);
 
-        $isMine     = DiscussHelper::isMine($post->user_id);
-        $isAdmin    = DiscussHelper::isSiteAdmin();
-        $isModerator = DiscussHelper::getHelper( 'Moderator' )->isModerator( $post->category_id );
-
-        if ( !$isMine && !$isAdmin )
-        {
-            if( !$isModerator )
-            {
-                $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS') );
-                $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-                $ajax->send();
-                return;
-            }
+        // Ensure that the user can really resolve this
+        if (!$post->canResolve()) {
+            return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
         }
 
-        $post->isresolve    = DISCUSS_ENTRY_RESOLVED;
+        // Try to resolve it now
+        $state = $post->markResolved();
 
-        // When post is resolve state, other post status must remove
-        $post->post_status  = DISCUSS_POST_STATUS_OFF;
-
-        if ( !$post->store() )
-        {
-            $ajax->assign( 'dc_main_notifications' , $post->getError() );
-            $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-            $ajax->send();
-            return;
+        if (!$state) {
+            return $this->ajax->reject($post->getError());
         }
 
-        $my     = JFactory::getUser();
-
-        // @rule: Badges only applicable when they resolve their own post.
-        if( $post->get( 'user_id' ) == $my->id )
-        {
-            // Add logging for user.
-            DiscussHelper::getHelper( 'History' )->log( 'easydiscuss.resolved.discussion' , $my->id , JText::sprintf( 'COM_EASYDISCUSS_BADGES_HISTORY_RESOLVED_OWN_DISCUSSION' , $post->title ), $post->id );
-
-            DiscussHelper::getHelper( 'Badges' )->assign( 'easydiscuss.resolved.discussion' , $my->id );
-            DiscussHelper::getHelper( 'Points' )->assign( 'easydiscuss.resolved.discussion' , $my->id );
-
-            // Assign badge for EasySocial
-            DiscussHelper::getHelper( 'EasySocial' )->assignBadge( 'resolve.reply' , $my->id , JText::sprintf( 'COM_EASYDISCUSS_BADGES_HISTORY_RESOLVED_OWN_DISCUSSION' , $post->title ) );
-        }
-
-        // @rule: Add notifications for the thread starter
-        $my     = JFactory::getUser();
-        if( $post->get( 'user_id') != $my->id && $config->get( 'main_notifications_resolved' ) )
-        {
-            $notification   = DiscussHelper::getTable( 'Notifications' );
-            $notification->bind( array(
-                    'title' => JText::sprintf( 'COM_EASYDISCUSS_RESOLVED_DISCUSSION_NOTIFICATION_TITLE' , $post->title ),
-                    'cid'   => $post->get( 'id' ),
-                    'type'  => DISCUSS_NOTIFICATIONS_RESOLVED,
-                    'target'    => $post->get( 'user_id' ),
-                    'author'    => $my->id,
-                    'permalink' => 'index.php?option=com_easydiscuss&view=post&id=' . $post->get( 'id' )
-                ) );
-            $notification->store();
-        }
-
-        // Add resolved button to the view.
-        ob_start();
-        ?>
-        <a id="post_unresolve_link" href="javascript:void(0);" onclick="discuss.post.unresolve('<?php echo $postId; ?>');EasyDiscuss.$(this).parents('.discuss-status').hide();" class="resolved-button float-r">
-            <?php echo JText::_('COM_EASYDISCUSS_RESOLVED'); ?>
-        </a>
-        <?php
-
-        $contents   = ob_get_contents();
-        ob_end_clean();
-
-        $ajax->append( 'discuss-status' , $contents );
-        $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_ENTRY_RESOLVED') );
-
-
-        $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-success" );' );
-
-
-        // Add Status
-        $ajax->script( 'EasyDiscuss.$(".discussQuestion").addClass("is-resolved");' );
-
-        // For flatt theme
-        $ajax->script( 'EasyDiscuss.$( ".discuss-action-bar" ).addClass("is-resolved");' );
-
-        // Remove other status
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass("label-post_status-on-hold");' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus").removeClass("label-post_status-accepted");' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus").removeClass("label-post_status-working-on");' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus").removeClass("label-post_status-reject");' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus").html("");' );
-
-        $ajax->send();
-        return;
+        return $this->ajax->resolve(JText::_('COM_EASYDISCUSS_ENTRY_RESOLVED'));
     }
 
-
     /**
-     * Ajax Call
-     * Set as unresolve
+     * Allows caller to unresolve a post
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
      */
-    public function unresolve( $postId = null )
+    public function unresolve()
     {
-        $ajax   = new Disjax();
+        // Get the post id
+        $id = $this->input->get('id', 0, 'int');
 
-        if(empty($postId))
-        {
-            $ajax->assign( 'dc_main_notifications .msg_in' , JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID') );
-            $ajax->script( 'EasyDiscuss.$( "#reports-msg .msg_in" ).addClass( "alert alert-error" );' );
-            $ajax->send();
-            $ajax->success();
-            return;
+        if (!$id) {
+            return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'));
         }
 
-        $post   = DiscussHelper::getTable( 'Post' );
-        $post->load( $postId );
+        // load the post lib
+        $post = ED::post($id);
 
-        $isMine     = DiscussHelper::isMine($post->user_id);
-        $isAdmin    = DiscussHelper::isSiteAdmin();
-        $isModerator = DiscussHelper::getHelper( 'Moderator' )->isModerator( $post->category_id );
-
-        if ( !$isMine && !$isAdmin )
-        {
-            if( !$isModerator )
-            {
-                $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS') );
-                $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-                $ajax->send();
-                return;
-            }
+        // Ensure that the user can really resolve this
+        if (!$post->canResolve()) {
+            return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
         }
 
         //update isresolve flag
-        $post->isresolve    = DISCUSS_ENTRY_UNRESOLVED;
+        $state = $post->markUnresolve();
 
-
-        if ( !$post->store() )
-        {
-            $ajax->assign( 'dc_main_notifications .msg_in' , $post->getError() );
-            $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications .msg_in" ).addClass( "alert alert-error" );' );
-            $ajax->send();
-            $ajax->success();
-            return;
+        if (!$state) {
+            return $this->ajax->reject($post->getError());
         }
 
-        // now we clear off all the accepted answers.
-        $post->clearAccpetedReply();
-
-        // Clear resolved buttons.
-        $ajax->script( 'EasyDiscuss.$(".discuss-status #post_unresolve_link").remove();' );
-        //$ajax->assign( 'dc_main_notifications .msg_in' , JText::_('COM_EASYDISCUSS_ENTRY_UNRESOLVED') );
-        $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_ENTRY_UNRESOLVED') );
-        $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications .msg_in" ).addClass( "dc_success" );' );
-        $ajax->script( 'EasyDiscuss.$( "#title_' . $postId . ' span.resolved" ).remove();' );
-
-        // Update the state of the item and remove 'is-resolved'
-        $ajax->script( 'EasyDiscuss.$(".discussQuestion").removeClass("is-resolved");' );
-
-        // For flatt theme
-        $ajax->script( 'EasyDiscuss.$( ".discuss-action-bar" ).removeClass("is-resolved");' );
-
-        $ajax->send();
-        $ajax->success();
-        return;
+        return $this->ajax->resolve(JText::_('COM_EASYDISCUSS_ENTRY_UNRESOLVED'));
     }
 
 
@@ -875,7 +564,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 
         if(! empty($postId))
         {
-            $postTable          = DiscussHelper::getTable( 'Post' );
+            $postTable          = ED::table('Post' );
             $postTable->load( $postId );
 
             $djax->value('reply_content_' . $postId, $postTable->content);
@@ -885,892 +574,196 @@ class EasyDiscussViewPost extends EasyDiscussView
         return;
     }
 
+    /**
+     * This is triggered when user tries to edit their reply
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function update()
+    {
+        // Get the post id
+        $id = $this->input->get('id', 0, 'int');
+
+        // Get the reply seq currently being edited
+        $seq = $this->input->get('seq', 0, 'int');
+
+        // Get the posted data
+        $data = JRequest::get('POST');
+
+        // For contents, we need to get the raw data.
+        $data['content'] = $this->input->get('dc_content', '', 'raw');
+
+        $post = ED::post($id);
+        $post->bind($data);
+
+        // Check if it is valid
+        $valid = $post->validate($data);
+
+        // if one of the validate is not pass through
+        if ($valid === false) {
+            $output['message'] = $post->getError();
+            $output['type'] = 'error';
+
+            echo $this->showJsonContents($output);
+            return false;
+        }
+
+        // Try to save the post now
+        $state = $post->save();
+
+        // Save the reply
+        if (!$state) {
+            $output['message'] = $post->getError();
+            $output['type'] = 'error';
+
+            echo $this->showJsonContents($output);
+            return false;
+        }
+
+        // We need the composer for editing purposes
+        $opts = array('editing', $post);
+        $composer = ED::composer($opts);
+
+        // Get the post's parent
+        $question = $post->getParent();
+        $questionCategory = $question->getCategory();
+
+        // Prepare the reply permalink
+        $post->permalink = EDR::getReplyRoute($question->id, $post->id);
+        $post->seq = $seq;
+
+        // Get the output so we can append the reply into the list of replies
+        $namespace = 'site/post/default.reply.item';
+
+        $poll = $post->getPoll();
+
+        $theme = ED::themes();
+        $theme->set('composer', $composer);
+        $theme->set('post', $post);
+        $theme->set('poll', $poll);
+
+        $html = $theme->output($namespace);
+
+        // Prepare the result object
+        $output = array();
+        $output['message'] = JText::_('Reply edited successfully');
+        $output['type'] = 'success.edit';
+        $output['html'] = $html;
+        $output['id'] = $post->id;
+
+        echo $this->showJsonContents($output);
+        exit;
+    }
 
     /**
-     * Process new reply submission called via an iframe.
+     * Allows caller to submit a new reply to a discussion
      *
-     * @since   2.0
+     * @since   4.0
      * @access  public
+     * @param   string
+     * @return
      */
-    public function ajaxSubmitReply()
+    public function reply()
     {
         // Process when a new reply is made from bbcode / wysiwyg editor
-        $my         = JFactory::getUser();
-        $config     = DiscussHelper::getConfig();
-        $ajax       = new Disjax();
-        $acl        = DiscussHelper::getHelper( 'ACL' );
-        $post       = JRequest::get( 'POST' );
+        $data = JRequest::get('POST');
+        $output = array();
 
-        // @task: User needs to be logged in, in order to submit a new reply.
-        if( !$acl->allowed('add_reply', '0') && $my->id == 0 )
-        {
-            // Append result
-            $output = array();
-            $output[ 'message' ]    = JText::_('COM_EASYDISCUSS_PLEASE_KINDLY_LOGIN_INORDER_TO_REPLY');
-            $output[ 'type' ]       = 'error';
+        // For contents, we need to get the raw data.
+        $data['content'] = $this->input->get('dc_content', '', 'raw');
 
-            echo $this->_outputJson( $output );
+        // Load the post library
+        $post = ED::post();
+        $post->bind($data);
+
+        // check the reply validate is it pass or not
+        $valid = $post->validate($data, 'replying');
+
+        // if one of the validate is not pass through
+        if ($valid === false) {
+            $output['message'] = $post->getError();
+            $output['type'] = 'error';
+
+            echo $this->showJsonContents($output);
             return false;
         }
 
-        if( !$acl->allowed('add_reply', '0') )
-        {
-            // Append result
-            $output = array();
-            $output[ 'message' ]    = JText::_('COM_EASYDISCUSS_ENTRY_NO_PERMISSION_TO_REPLY');
-            $output[ 'type' ]       = 'error';
+        // Try to save the post now
+        $state = $post->save();
 
-            echo $this->_outputJson( $output );
+        // Save the reply
+        if (!$state) {
+            $output['message'] = $post->getError();
+            $output['type'] = 'error';
+
+            echo $this->showJsonContents($output);
             return false;
         }
 
-        if( !isset( $post[ 'parent_id' ] ) )
-        {
-            // Append result
-            $output = array();
-            $output[ 'message' ]    = JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID');
-            $output[ 'type' ]       = 'error';
-
-            echo $this->_outputJson( $output );
-            return false;
-        }
-
-        $question       = DiscussHelper::getTable( 'Post' );
-        $state          = $question->load( $post[ 'parent_id' ] );
-
-        if( !$state )
-        {
-            // Append result
-            $output = array();
-            $output[ 'message' ]    = JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID');
-            $output[ 'type' ]       = 'error';
-
-            echo $this->_outputJson( $output );
-            return false;
-        }
-
-        // Ensure that the user really has access to the discussion
-        if ($question->private && $my->id != $question->user_id && !DiscussHelper::isSiteAdmin() && !DiscussHelper::isModerator($post->category_id, $my->id)) {
-            // Append result
-            $output = array();
-            $output[ 'message' ]    = JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS');
-            $output[ 'type' ]       = 'error';
-
-            echo $this->_outputJson( $output );
-            return false;
-        }
-
-        $questionCategory   = DiscussHelper::getTable( 'Category' );
-        $questionCategory->load( $question->category_id );
-
-        $questionAccess     = $question->getAccess( $questionCategory );
-
-        if( !$questionAccess->canReply() )
-        {
-            // Append result
-            $output = array();
-            $output[ 'message' ]    = JText::_('COM_EASYDISCUSS_ENTRY_NO_PERMISSION_TO_REPLY');
-            $output[ 'type' ]       = 'error';
-
-            echo $this->_outputJson( $output );
-            return false;
-        }
-
-        if( empty( $post[ 'dc_reply_content' ] ) )
-        {
-            // Append result
-            $output = array();
-            $output[ 'message' ]    = JText::_('COM_EASYDISCUSS_ERROR_REPLY_EMPTY');
-            $output[ 'type' ]       = 'error';
-
-            echo $this->_outputJson( $output );
-            return false;
-        }
-
-        if( empty($my->id) )
-        {
-            if(empty($post['user_type']))
-            {
-                // Append result
-                $output = array();
-                $output[ 'message' ]    = JText::_('COM_EASYDISCUSS_INVALID_USER_TYPE');
-                $output[ 'type' ]       = 'error';
-
-                echo $this->_outputJson( $output );
-                return false;
-            }
-
-            if(!DiscussUserHelper::validateUserType($post['user_type']))
-            {
-                $output = array();
-                $output[ 'message' ]    = JText::sprintf('COM_EASYDISCUSS_THIS_USERTYPE_HAD_BEEN_DISABLED', $post['user_type']);
-                $output[ 'type' ]       = 'error';
-
-                echo $this->_outputJson( $output );
-                return false;
-            }
-
-            if( empty($post['poster_name']) || empty($post['poster_email']) )
-            {
-                $output = array();
-                $output[ 'message' ]    = JText::sprintf('COM_EASYDISCUSS_GUEST_SIGN_IN_DESC');
-                $output[ 'type' ]       = 'error';
-
-                echo $this->_outputJson( $output );
-                return false;
-            }
-        }
-        else
-        {
-            $post['user_type']      = 'member';
-            $post['poster_name']    = '';
-            $post['poster_email']   = '';
-        }
-
-        // get id if available
-        $id     = 0;
-
-        // set alias
-        $post['alias']  = DiscussHelper::getAlias( $post['title'], 'post' );
-
-        // set post owner
-        $post['user_id']            = $my->id;
-
-        $content    = JRequest::getVar( 'dc_reply_content', '', 'post', 'none' , JREQUEST_ALLOWRAW );
-        $content    = DiscussHelper::getHelper( 'String ')->unhtmlentities($content);
-
-        // Rebind the post data
-        $post[ 'dc_reply_content' ] = $content;
-        $post[ 'content_type' ]     = DiscussHelper::getEditorType( 'reply' );
-
-        // Set the ip address
-        $post[ 'ip' ]   = JRequest::getVar( 'REMOTE_ADDR' , '' , 'SERVER' );
-
-        // bind the table
-        $table      = DiscussHelper::getTable( 'Post' );
-        $table->bind( $post , true );
-
-        // Set the category id for the reply since we might need to use this for acl checks.
-        $table->category_id     = $question->category_id;
-
-        if($config->get('main_moderatepost', 0) && !DiscussHelper::isModerateThreshold( $my->id ) && !DiscussHelper::isSiteAdmin( $post->user_id ) && !DiscussHelper::isModerator($post->category_id, $my->id) )
-        {
-            $table->published   = DISCUSS_ID_PENDING;
-        }
-        else
-        {
-            $table->published   = DISCUSS_ID_PUBLISHED;
-        }
-
-        require_once DISCUSS_CLASSES . '/recaptcha.php';
-
-        if( DiscussRecaptcha::isRequired() )
-        {
-            $obj = DiscussRecaptcha::recaptcha_check_answer( $config->get('antispam_recaptcha_private') , $_SERVER['REMOTE_ADDR'] , $post['recaptcha_challenge_field'] , $post['recaptcha_response_field'] );
-
-            if(!$obj->is_valid)
-            {
-                $output = array();
-                $output[ 'message' ]    = JText::_('COM_EASYDISCUSS_POST_INVALID_RECAPTCHA_RESPONSE');
-                $output[ 'type' ]       = 'error.captcha';
-
-                echo $this->_outputJson( $output );
-                return false;
-            }
-        }
-        else if( $config->get( 'antispam_easydiscuss_captcha' ) )
-        {
-            $runCaptcha = DiscussHelper::getHelper( 'Captcha' )->showCaptcha();
-
-            if( $runCaptcha )
-            {
-                $response = JRequest::getVar( 'captcha-response' );
-                $captchaId = JRequest::getInt( 'captcha-id' );
-
-                $discussCaptcha = new stdClass();
-                $discussCaptcha->captchaResponse = $response;
-                $discussCaptcha->captchaId = $captchaId;
-
-                $state = DiscussHelper::getHelper( 'Captcha' )->verify( $discussCaptcha );
-
-                if( !$state )
-                {
-                    $output = array();
-                    $output[ 'message' ]    = JText::sprintf('COM_EASYDISCUSS_INVALID_CAPTCHA');
-                    $output[ 'type' ]       = 'error';
-
-                    echo $this->_outputJson( $output );
-                    return false;
-                }
-            }
-        }
-
-        if( $config->get( 'antispam_akismet' ) && ( $config->get('antispam_akismet_key') ) )
-        {
-            require_once DISCUSS_CLASSES . '/akismet.php';
-
-            $data = array(
-                            'author'    => $my->name,
-                            'email'     => $my->email,
-                            'website'   => DISCUSS_JURIROOT ,
-                            'body'      => $post['dc_reply_content'] ,
-                            'alias'     => ''
-                        );
-
-            $akismet = new Akismet( DISCUSS_JURIROOT , $config->get( 'antispam_akismet_key' ) , $data );
-
-            if( !$akismet->errorsExist() )
-            {
-                if( $akismet->isSpam() )
-                {
-                    $output = array();
-                    $output[ 'message' ]    = JText::_('COM_EASYDISCUSS_AKISMET_SPAM_DETECTED');
-                    $output[ 'type' ]       = 'error';
-
-                    echo $this->_outputJson( $output );
-                    return false;
-                }
-            }
-        }
-
-        // hold last inserted ID in DB
-        $lastId = null;
-
-        // @rule: Bind parameters
-        $table->bindParams( $post );
-
-        $isNew  = true;
-
-        // @trigger: onBeforeSave
-        DiscussEventsHelper::importPlugin( 'content' );
-        DiscussEventsHelper::onContentBeforeSave('reply', $table , $isNew);
-
-        if ( !$table->store() )
-        {
-            $output = array();
-            $output[ 'message' ]    = JText::_('COM_EASYDISCUSS_ERROR_SUBMIT_REPLY');
-            $output[ 'type' ]       = 'error';
-
-            echo $this->_outputJson( $output );
-            return false;
-        }
-
-        // Process poll items.
-        if( $config->get( 'main_polls_replies' ) )
-        {
-            $polls          = JRequest::getVar( 'pollitems' );
-
-            if( !is_array( $polls ) )
-            {
-                $polls      = array( $polls );
-            }
-
-            // If the post is being edited and
-            // there is only 1 poll item which is also empty,
-            // we need to delete existing polls tied to this post.
-            //if( count( $polls ) == 1 && empty( $polls[0] ) && !$isNew )
-            if( !$isNew )
-            {
-                $post->removePoll();
-            }
-
-            if( count( $polls ) > 0 )
-            {
-                $hasPolls       = false;
-
-                foreach( $polls as $poll )
-                {
-                    // As long as there is 1 valid poll, we need to store them.
-                    if( !empty( $poll ) )
-                    {
-                        $hasPolls   = true;
-                        break;
-                    }
-                }
-
-                if( $hasPolls )
-                {
-                    $pollItems      = JRequest::getVar( 'pollitems' );
-
-                    // Check if the multiple polls checkbox is it checked?
-                    $multiplePolls  = JRequest::getVar( 'multiplePolls' , '0' );
-
-                    if( $pollItems )
-                    {
-                        // As long as we need to create the poll answers, we need to create the main question.
-                        $pollTitle  = JRequest::getVar( 'poll_question' , '' );
-
-                        // Since poll question are entirely optional.
-                        $pollQuestion   = DiscussHelper::getTable( 'PollQuestion' );
-                        $pollQuestion->loadByPost( $table->id );
-
-                        $pollQuestion->post_id  = $table->id;
-                        $pollQuestion->title    = $pollTitle;
-                        $pollQuestion->multiple = $config->get( 'main_polls_multiple' ) ? $multiplePolls : false;
-                        $pollQuestion->store();
-
-                        if( !$isNew )
-                        {
-                            // Try to detect which poll items needs to be removed.
-                            $remove = JRequest::getVar( 'pollsremove' );
-
-                            if( !empty( $remove ) )
-                            {
-                                $remove = explode( ',' , $remove );
-
-                                foreach( $remove as $id )
-                                {
-                                    $id     = (int) $id;
-                                    $poll   = DiscussHelper::getTable( 'Poll' );
-                                    $poll->load( $id );
-                                    $poll->delete();
-                                }
-                            }
-                        }
-
-                        foreach( $pollItems as $item )
-                        {
-                            $value  = (string) $item;
-
-                            if( trim( $value ) == '' )
-                                continue;
-
-                            $poll   = DiscussHelper::getTable( 'Poll' );
-
-                            if( !$poll->loadByValue( $value , $table->id , $multiplePolls ) )
-                            {
-
-                                $poll->set( 'value'         , $value );
-                                $poll->set( 'post_id'       , $table->get( 'id' ) );
-
-                                $poll->store();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // Process custom fields
-        $this->saveCustomFieldsValue( $table->id );
-
-        // @trigger: onAfterSave
-        DiscussEventsHelper::onContentAfterSave('reply', $table , $isNew);
-
-        // @rule: Add notifications for the thread starter
-        if( $table->published && $config->get( 'main_notifications_reply') )
-        {
-            // Get all users that are subscribed to this post
-            $model          = $this->getModel( 'Posts' );
-            $participants   = $model->getParticipants( $table->parent_id );
-
-            // Add the thread starter into the list of participants.
-            $participants[] = $question->get( 'user_id' );
-
-            // Notify all subscribers
-            foreach( $participants as $participant )
-            {
-                if( $participant != $my->id )
-                {
-                    $notification   = DiscussHelper::getTable( 'Notifications' );
-
-                    $notification->bind( array(
-                            'title'     => JText::sprintf( 'COM_EASYDISCUSS_REPLY_DISCUSSION_NOTIFICATION_TITLE' , $question->get( 'title' ) ),
-                            'cid'       => $question->get( 'id' ),
-                            'type'      => DISCUSS_NOTIFICATIONS_REPLY,
-                            'target'    => $participant,
-                            'author'    => $table->get( 'user_id' ),
-                            'permalink' => 'index.php?option=com_easydiscuss&view=post&id=' . $question->get( 'id' )
-                        ) );
-                    $notification->store();
-                }
-            }
-
-            // @rule: Detect if any names are being mentioned in the post
-            $names          = DiscussHelper::getHelper( 'String' )->detectNames( $table->content );
-
-            if( $names )
-            {
-                foreach( $names as $name )
-                {
-                    $name           = JString::str_ireplace( '@' , '' , $name );
-                    $id             = DiscussHelper::getUserId( $name );
-
-                    if( !$id || $id == $table->get( 'user_id') )
-                    {
-                        continue;
-                    }
-
-                    $notification   = DiscussHelper::getTable( 'Notifications' );
-
-                    $notification->bind( array(
-                            'title'     => JText::sprintf( 'COM_EASYDISCUSS_MENTIONED_REPLY_NOTIFICATION_TITLE' , $question->get( 'title' ) ),
-                            'cid'       => $question->get( 'id' ),
-                            'type'      => DISCUSS_NOTIFICATIONS_MENTIONED,
-                            'target'    => $id,
-                            'author'    => $table->get( 'user_id' ),
-                            'permalink' => 'index.php?option=com_easydiscuss&view=post&id=' . $question->get( 'id' )
-                        ) );
-                    $notification->store();
-                }
-            }
-        }
-
-        if( $table->published && !$question->private)
-        {
-            // Create notification item in EasySocial
-            DiscussHelper::getHelper( 'EasySocial' )->notify( 'new.reply' , $table , $question );
-
-            // @rule: Badges
-            DiscussHelper::getHelper( 'History' )->log( 'easydiscuss.new.reply' , $table->user_id , JText::sprintf( 'COM_EASYDISCUSS_BADGES_HISTORY_NEW_REPLY', $question->title), $table->id );
-            DiscussHelper::getHelper( 'Badges' )->assign( 'easydiscuss.new.reply' , $table->user_id );
-            DiscussHelper::getHelper( 'Points' )->assign( 'easydiscuss.new.reply' , $table->user_id, $table);
-
-            // Assign badge for EasySocial
-            DiscussHelper::getHelper( 'EasySocial' )->assignBadge( 'reply.question' , $table->user_id , JText::sprintf( 'COM_EASYDISCUSS_BADGES_HISTORY_NEW_REPLY' , $question->title ) );
-
-            // @rule: AUP integrations
-            DiscussHelper::getHelper( 'Aup' )->assign( DISCUSS_POINTS_NEW_REPLY , $table->user_id , $question->title );
-
-            // @rule: ranking
-            DiscussHelper::getHelper( 'ranks' )->assignRank( $table->user_id, $config->get( 'main_ranking_calc_type' ) );
-        }
-
-        // Bind file attachments
-        if( $acl->allowed( 'add_attachment' , '0' ) )
-        {
-            if ( !$table->bindAttachments() && $table->getError())
-            {
-                $output = array();
-                $output[ 'message' ]    = $table->getError();
-                $output[ 'type' ]       = 'error';
-
-                echo $this->_outputJson( $output );
-                return false;
-            }
-        }
-
-        $replier     = new stdClass();
-
-        if($my->id > 0)
-        {
-            $replier->id    = $my->id;
-            $replier->name  = $my->name;
-        }
-        else
-        {
-            $replier->id    = 0;
-            $replier->name  = JText::_('COM_EASYDISCUSS_GUEST'); // TODO: user the poster_name
-        }
-
-        //load porfile info and auto save into table if user is not already exist in discuss's user table.
-        $creator = DiscussHelper::getTable( 'Profile' );
-        $creator->load( $replier->id);
-
-        $table->user = $creator;
-
-        $voteModel = $this->getModel('votes');
-
-        // clean up bad code
-        $table->content_raw = $table->content;
-        //$table->content       = DiscussHelper::parseContent( $table->content );
-
-        // @rule: URL References
-        $table->references  = $table->getReferences();
-
-        // Since this is a new reply, it's impossible that it has been voted before.
-        $table->voted       = false;
-
-        // get total vote for this reply
-        $table->totalVote   = $table->sum_totalvote;
-
-        $result['status']   = 'success';
-        $result['title']    = JText::_('COM_EASYDISCUSS_SUCCESS_SUBMIT_REPLY');
-        $result['id']       = $table->id;
-        $result['message']  = JText::_('COM_EASYDISCUSS_REPLY_SAVED');
-
-        $table->title       = DiscussHelper::wordFilter( $table->title);
-        $table->content     = DiscussHelper::wordFilter( $table->content);
-
-        // Legacy fix when switching from WYSIWYG editor to bbcode.
-        $table->content     = EasyDiscussParser::html2bbcode( $table->content );
-
-        $table->content     = DiscussHelper::formatContent( $table , true );
-
-        //all access control goes here.
-        $canDelete      = false;
-        $isMainLocked   = false;
-
-        if( DiscussHelper::isSiteAdmin() || $acl->allowed('delete_reply', '0') || $table->user_id == $my->id )
-        {
-            $canDelete  = true;
-        }
-
-        $parent         = DiscussHelper::getTable( 'Post' );
-        $parent->load( $table->parent_id );
-
-        $isMainLocked   = $parent->islock;
-
-        //default value
-        $table->isVoted         = 0;
-        $table->total_vote_cnt  = 0;
-        $table->likesAuthor     = '';
-        $table->minimize        = 0;
-
-        if ( $config->get( 'main_content_trigger_replies' ) )
-        {
-            $tempContent = $table->content;
-            $table->content = str_replace( '@', '&#64;', $tempContent);
-
-            // process content plugins
-            DiscussEventsHelper::importPlugin( 'content' );
-            DiscussEventsHelper::onContentPrepare('reply', $table);
-
-            $table->event = new stdClass();
-
-            $results    = DiscussEventsHelper::onContentBeforeDisplay('reply', $table);
-            $table->event->beforeDisplayContent = trim(implode("\n", $results));
-
-            $results    = DiscussEventsHelper::onContentAfterDisplay('reply', $table);
-            $table->event->afterDisplayContent  = trim(implode("\n", $results));
-        }
-
-        $tpl    = new DiscussThemes();
-
-        $category       = DiscussHelper::getTable( 'Category' );
-        $category->load( $question->category_id );
-
-        $table->access  = $table->getAccess( $category );
-
-        // Since the reply dont have any comments yet.
-        $table->comments    = array();
-
-        $tpl->set('category', $category);
-        $tpl->set( 'post'           , $table );
-        $tpl->set( 'question'       , $parent );
-        $tpl->set( 'isMine'         , DiscussHelper::isMine( $parent->user_id) );
-        $tpl->set( 'isAdmin'        , DiscussHelper::isSiteAdmin() );
-        $tpl->set( 'isMainLocked'   , $isMainLocked);
-
-        $recaptcha  = '';
-        $enableRecaptcha    = $config->get('antispam_recaptcha', 0);
-        $publicKey          = $config->get('antispam_recaptcha_public');
-
-
-        $html   = ( $table->published == DISCUSS_ID_PENDING ) ? $tpl->fetch( 'post.reply.item.moderation.php' ) : $tpl->fetch( 'post.reply.item.php' );
-
-        //send notification to all comment's subscribers that want to receive notification immediately
-        $notify = DiscussHelper::getNotification();
-        $excludeEmails = array();
-
-        $attachments    = $table->getAttachments();
-        $emailData['attachments']   = $attachments;
-        $emailData['postTitle']     = $parent->title;
-        $emailData['comment']       = DiscussHelper::parseContent( $table->content );
-        $emailData['commentAuthor'] = ($my->id) ? $creator->getName() : $table->poster_name;
-        $emailData['postLink']      = DiscussRouter::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $parent->id, false, true);
-
-        $emailContent   = $table->content;
-
-        $isEditing = $isNew == true ? false : true;
-        $emailContent = DiscussHelper::bbcodeHtmlSwitcher( $table, 'reply', $isEditing );
-
-        $emailContent   = $question->trimEmail( $emailContent );
-
-        $emailData['replyContent']  = $emailContent;
-        $emailData['replyAuthor' ]  = ($my->id) ? $creator->getName() : $table->poster_name;
-        $emailData['replyAuthorAvatar' ] = $creator->getAvatar();
-        $emailData['post_id']       = $parent->id;
-        $emailData['cat_id']        = $parent->category_id;
-
-        $subscriberEmails           = array();
-
-        if( ($config->get('main_sitesubscription') ||  $config->get('main_postsubscription') ) && $config->get('notify_subscriber') && $table->published == DISCUSS_ID_PUBLISHED)
-        {
-            $emailData['emailTemplate'] = 'email.subscription.reply.new.php';
-            $emailData['emailSubject']  = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $parent->id , $parent->title);
-
-            $posterEmail        = $post['poster_email'] ? $post['poster_email'] : $my->email;
-
-            // Get the emails of user who subscribe to this post only
-            // This does not send to subscribers whom subscribe to site and category
-            $subcribersEmails   = DiscussHelper::getHelper( 'Mailer' )->notifyThreadSubscribers( $emailData, array($posterEmail, $my->email) );
-
-            $excludeEmails[]    = $posterEmail;
-            $excludeEmails      = array_merge( $excludeEmails, $subcribersEmails);
-            $excludeEmails      = array_unique( $excludeEmails );
-        }
-
-        //notify post owner.
-        $postOwnerId    = $parent->user_id;
-        $postOwner      = JFactory::getUser( $postOwnerId );
-        $ownerEmail     = $postOwner->email;
-
-        if( $parent->user_type != 'member' )
-        {
-            $ownerEmail     = $parent->poster_email;
-        }
-
-        // Notify Owner
-        // if reply under moderation, send owner a notification.
-        if( $config->get( 'notify_owner' ) && $table->published == DISCUSS_ID_PUBLISHED && ($postOwnerId != $replier->id) && !in_array( $ownerEmail , $excludeEmails ) && !empty( $ownerEmail ) )
-        {
-
-            $emailData['owner_email'] = $ownerEmail;
-            $emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $parent->id , $parent->title);
-            $emailData['emailTemplate'] = 'email.post.reply.new.php';
-            DiscussHelper::getHelper( 'Mailer' )->notifyThreadOwner( $emailData );
-
-            // Notify Participants
-            $excludeEmails[] = $ownerEmail;
-            $excludeEmails   = array_unique( $excludeEmails );
-        }
-
-        if( $config->get( 'notify_participants' ) && $table->published  == DISCUSS_ID_PUBLISHED )
-        {
-            $emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $parent->id , $parent->title);
-            $emailData['emailTemplate'] = 'email.post.reply.new.php';
-            DiscussHelper::getHelper( 'Mailer' )->notifyThreadParticipants( $emailData, $excludeEmails );
-        }
-
-
-        if( $table->published == DISCUSS_ID_PENDING )
-        {
-            // Notify admins.
-
-            // Generate hashkeys to map this current request
-            $hashkey        = DiscussHelper::getTable( 'Hashkeys' );
-            $hashkey->uid   = $table->id;
-            $hashkey->type  = DISCUSS_REPLY_TYPE;
-            $hashkey->store();
-
-            require_once DISCUSS_HELPERS . '/router.php';
-            $approveURL     = DiscussHelper::getExternalLink('index.php?option=com_easydiscuss&controller=posts&task=approvePost&key=' . $hashkey->key );
-            $rejectURL      = DiscussHelper::getExternalLink('index.php?option=com_easydiscuss&controller=posts&task=rejectPost&key=' . $hashkey->key );
-            $emailData[ 'moderation' ]  = '<div style="display:inline-block;width:100%;padding:20px;border-top:1px solid #ccc;padding:20px 0 10px;margin-top:20px;line-height:19px;color:#555;font-family:\'Lucida Grande\',Tahoma,Arial;font-size:12px;text-align:left">';
-            $emailData[ 'moderation' ] .= '<a href="' . $approveURL . '" style="display:inline-block;padding:5px 15px;background:#fc0;border:1px solid #caa200;border-bottom-color:#977900;color:#534200;text-shadow:0 1px 0 #ffe684;font-weight:bold;box-shadow:inset 0 1px 0 #ffe064;-moz-box-shadow:inset 0 1px 0 #ffe064;-webkit-box-shadow:inset 0 1px 0 #ffe064;border-radius:2px;moz-border-radius:2px;-webkit-border-radius:2px;text-decoration:none!important">' . JText::_( 'COM_EASYDISCUSS_EMAIL_APPROVE_REPLY' ) . '</a>';
-            $emailData[ 'moderation' ] .= ' ' . JText::_( 'COM_EASYDISCUSS_OR' ) . ' <a href="' . $rejectURL . '" style="color:#477fda">' . JText::_( 'COM_EASYDISCUSS_REJECT' ) . '</a>';
-            $emailData[ 'moderation' ] .= '</div>';
-
-            $emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_MODERATE', $parent->title);
-            $emailData['emailTemplate'] = 'email.post.reply.moderation.php';
-
-            DiscussHelper::getHelper( 'Mailer' )->notifyAdministrators( $emailData, array(), $config->get( 'notify_admin' ), $config->get( 'notify_moderator' ) );
-
-        } elseif( $table->published == DISCUSS_ID_PUBLISHED && !$question->private) {
-
-            $emailData['emailTemplate'] = 'email.post.reply.new.php';
-            $emailData['emailSubject']  = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $parent->id , $parent->title);
-            $emailData['post_id'] = $parent->id;
-
-            DiscussHelper::getHelper( 'Mailer' )->notifyAdministrators( $emailData, $excludeEmails, $config->get( 'notify_admin_onreply' ), $config->get( 'notify_moderator_onreply' ) );
-        }
-
-        // @rule: Jomsocial activity integrations
-        if( $table->published == DISCUSS_ID_PUBLISHED && !$question->private)
-        {
-            DiscussHelper::getHelper( 'jomsocial' )->addActivityReply( $table );
-            DiscussHelper::getHelper( 'easysocial')->replyDiscussionStream( $table );
-        }
-
-        $autoSubscribed = false;
-
-        if( $config->get('main_autopostsubscription') && $config->get('main_postsubscription') && $table->user_type != 'twitter')
-        {
-            //automatically subscribe this user into this post.
-            $subscription_info = array();
-            $subscription_info['type']      = 'post';
-            $subscription_info['userid']    = ( !empty($table->user_id) ) ? $table->user_id : '0';
-            $subscription_info['email']     = ( !empty($table->user_id) ) ? $my->email : $table->poster_email;;
-            $subscription_info['cid']       = $parent->id;
-            $subscription_info['member']    = ( !empty($table->user_id) ) ? '1':'0';
-            $subscription_info['name']      = ( !empty($table->user_id) ) ? $my->name : $table->poster_name;
-            $subscription_info['interval']  = 'instant';
-
-            $model  = $this->getModel( 'Subscribe' );
-            $sid     = '';
-
-            if( $subscription_info['userid'] == 0)
-            {
-                $sid = $model->isPostSubscribedEmail($subscription_info);
-                if( empty( $sid ) )
-                {
-                    if( $model->addSubscription($subscription_info))
-                    {
-                        $autoSubscribed = true;
-                    }
-                }
-            }
-            else
-            {
-                $sid = $model->isPostSubscribedUser($subscription_info);
-                if( empty( $sid['id'] ))
-                {
-                    //add new subscription.
-                    if( $model->addSubscription($subscription_info) )
-                    {
-                        $autoSubscribed = true;
-                    }
-                }
-            }
-        }
-
-        // Append result
-        $output                 = array();
-        $output[ 'message' ]    = ($autoSubscribed) ? JText::_( 'COM_EASYDISCUSS_SUCCESS_REPLY_POSTED_AND_SUBSCRIBED' ) : JText::_( 'COM_EASYDISCUSS_SUCCESS_REPLY_POSTED' );
-        $output[ 'type' ]       = 'success';
-        $output[ 'html' ]       = $html;
-
+        // We need the composer for editing purposes
+        $opts = array('editing', $post);
+        $composer = ED::composer($opts);
+
+        // Get the post's parent
+        $question = $post->getParent();
+        $questionCategory = $question->getCategory();
+
+        // Prepare the reply permalink
+        $post->permalink = EDR::getReplyRoute($question->id, $post->id);
+        $post->seq = $question->getTotalReplies();
+
+        // Get the output so we can append the reply into the list of replies
+        $namespace = $post->isPending() ? 'default.reply.item.moderation' : 'default.reply.item';
+        $namespace = 'site/post/' . $namespace;
+
+        $poll = $post->getPoll();
+
+        $theme = ED::themes();
+        $theme->set('composer', $composer);
+        $theme->set('post', $post);
+        $theme->set('poll', $poll);
+
+        $html = $theme->output($namespace);
+
+        // Prepare the result object
+        $output = array();
+        $output['message'] = JText::_('COM_EASYDISCUSS_SUCCESS_REPLY_POSTED');
+        $output['type'] = 'success';
+        $output['html'] = $html;
 
         // Perhaps the viewer is unable to view the replies.
         if (!$questionCategory->canViewReplies()) {
-            $output['message']  = JText::_('COM_EASYDISCUSS_REPLY_SUCCESS_BUT_UNABLE_TO_VIEW_REPLIES');
+            $output['message'] = JText::_('COM_EASYDISCUSS_REPLY_SUCCESS_BUT_UNABLE_TO_VIEW_REPLIES');
         }
 
-        if(  $enableRecaptcha && !empty( $publicKey ) && $recaptcha )
-        {
-            $output[ 'type' ]   = 'success.captcha';
+        // Reload captcha if necessary
+        $recaptcha = '';
+        $enableRecaptcha = $this->config->get('antispam_recaptcha', 0);
+        $publicKey = $this->config->get('antispam_recaptcha_public');
+
+        if ($enableRecaptcha && !empty($publicKey) && $recaptcha) {
+            $output['type'] = 'success.captcha';
         }
 
-        echo $this->_outputJson( $output );
-    }
-
-    private function _outputJson( $output = null )
-    {
-        return '<script type="text/json" id="ajaxResponse">' . $this->json_encode( $output ) . '</script>';
+        echo $this->showJsonContents($output);
+        exit;
     }
 
     /**
-     * Delete post
-     * and delete all reply as well
+     * Generates the output for json calls
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
      */
-    public function ajaxDeleteReply( $postId = null )
+    private function showJsonContents($output = null)
     {
-        $djax   = new Disjax();
-        $my     = JFactory::getUser();
-
-        if(empty($postId))
-        {
-            $options = new stdClass();
-            $options->title = JText::_('COM_EASYDISCUSS_ERROR_DELETE_REPLY_TITLE');
-            $options->content = JText::_('COM_EASYDISCUSS_MISSING_POST_ID');
-
-            $buttons            = array();
-            $button             = new stdClass();
-            $button->title      = JText::_( 'COM_EASYDISCUSS_OK' );
-            $button->action     = 'disjax.closedlg();';
-            $button->className  = 'btn-primary';
-            $buttons[]          = $button;
-            $options->buttons   = $buttons;
-
-            $djax->dialog( $options );
-            $djax->send();
-            return;
-        }
-
-        // bind the table
-        $postTable      = DiscussHelper::getTable( 'Post' );
-        $postTable->load( $postId );
-
-        $isMine     = DiscussHelper::isMine($postTable->user_id);
-        $isAdmin    = DiscussHelper::isSiteAdmin();
-
-        if ( !$isMine && !$isAdmin )
-        {
-            $options = new stdClass();
-            $options->title = JText::_('COM_EASYDISCUSS_ERROR_DELETE_REPLY_TITLE');
-            $options->content = JText::_('COM_EASYDISCUSS_NO_PERMISSION_TO_DELETE');
-
-            $buttons            = array();
-            $button             = new stdClass();
-            $button->title      = JText::_( 'COM_EASYDISCUSS_OK' );
-            $button->action     = 'disjax.closedlg();';
-            $button->className  = 'btn-primary';
-            $buttons[]          = $button;
-            $options->buttons   = $buttons;
-
-            $djax->dialog( $options );
-            $djax->send();
-            return;
-        }
-
-        //chekc if the parent being locked. if yes, do not allow delete.
-        $parentId       = $postTable->parent_id;
-        $parentTable    = DiscussHelper::getTable( 'Post' );
-        $parentTable->load( $parentId );
-
-        if($parentTable->islock)
-        {
-            $options = new stdClass();
-            $options->title = JText::_('COM_EASYDISCUSS_ERROR_DELETE_REPLY_TITLE');
-            $options->content = JText::_('COM_EASYDISCUSS_MAIN_POST_BEING_LOCKED');
-
-            $buttons            = array();
-            $button             = new stdClass();
-            $button->title      = JText::_( 'COM_EASYDISCUSS_OK' );
-            $button->action     = 'disjax.closedlg();';
-            $button->className  = 'btn-primary';
-            $buttons[]          = $button;
-            $options->buttons   = $buttons;
-
-            $djax->dialog( $options );
-            $djax->send();
-            return;
-        }
-
-        // @trigger: onBeforeDelete
-        DiscussEventsHelper::importPlugin( 'content' );
-        DiscussEventsHelper::onContentBeforeDelete('reply', $postTable);
-
-        if( !$postTable->delete() )
-        {
-            $options = new stdClass();
-            $options->title = JText::_('COM_EASYDISCUSS_ERROR_DELETE_REPLY_TITLE');
-            $options->content = JText::_('COM_EASYDISCUSS_ERROR_DELETE_REPLY');
-
-            $buttons            = array();
-            $button             = new stdClass();
-            $button->title      = JText::_( 'COM_EASYDISCUSS_OK' );
-            $button->action     = 'disjax.closedlg();';
-            $button->className  = 'btn-primary';
-            $buttons[]          = $button;
-            $options->buttons   = $buttons;
-
-            $djax->dialog( $options );
-            $djax->send();
-            return;
-        }
-        else
-        {
-            // @trigger: onAfterDelete
-            DiscussEventsHelper::onContentAfterDelete('reply', $postTable);
-
-            // @rule: Process AUP integrations
-            DiscussHelper::getHelper( 'Aup' )->assign( DISCUSS_POINTS_DELETE_REPLY , $postTable->user_id , $parentTable->title );
-
-            DiscussHelper::getHelper( 'Points' )->assign( 'easydiscuss.remove.reply' , $my->id );
-
-            $djax->script('EasyDiscuss.$("#dc_reply_' . + $postId .'").fadeOut(\'500\');');
-            $djax->script('EasyDiscuss.$("#dc_reply_' . + $postId .'").remove();');
-
-            $options = new stdClass();
-            $options->title = JText::_('COM_EASYDISCUSS_SUCCESS_DELETE_REPLY_TITLE');
-            $options->content = JText::_('COM_EASYDISCUSS_SUCCESS_DELETE_REPLY');
-
-            $buttons            = array();
-            $button             = new stdClass();
-            $button->title      = JText::_( 'COM_EASYDISCUSS_OK' );
-            $button->action     = 'disjax.closedlg();';
-            $button->className  = 'btn-primary';
-            $buttons[]          = $button;
-            $options->buttons   = $buttons;
-
-            $djax->dialog( $options );
-            $djax->send();
-        }
-
-        $djax->send();
-        return;
+        $json = ED::json();
+        return '<script type="text/json" id="ajaxResponse">' . $json->encode($output) . '</script>';
     }
 
     /**
@@ -1778,16 +771,16 @@ class EasyDiscussViewPost extends EasyDiscussView
      */
     public function ajaxGetEditForm( $postId = null )
     {
-        $config     = DiscussHelper::getConfig();
+        $config     = ED::getConfig();
         $djax       = new Disjax();
         $my         = JFactory::getUser();
         $id         = $postId;
 
-        $postTable  = DiscussHelper::getTable( 'Post' );
+        $postTable  = ED::table('Post' );
         $postTable->load( $id );
 
-        $isMine     = DiscussHelper::isMine($postTable->user_id);
-        $isAdmin    = DiscussHelper::isSiteAdmin();
+        $isMine     = ED::isMine($postTable->user_id);
+        $isAdmin    = ED::isSiteAdmin();
 
         if ( !$isMine && !$isAdmin )
         {
@@ -1829,7 +822,7 @@ class EasyDiscussViewPost extends EasyDiscussView
         else
         {
             // get post tags
-            $postsTagsModel = $this->getModel('PostsTags');
+            $postsTagsModel = ED::model('PostsTags');
 
             $tags = $postsTagsModel->getPostTags( $id );
 
@@ -1840,22 +833,22 @@ class EasyDiscussViewPost extends EasyDiscussView
             $result['id']       = $postTable->id;
 
             // select top 20 tags.
-            $tagmodel   = $this->getModel( 'Tags' );
+            $tagmodel   = ED::model( 'Tags' );
             $tags       = $tagmodel->getTagCloud('20','post_count','DESC');
 
             //recaptcha integration
             $recaptcha  = '';
-            $enableRecaptcha    = $config->get('antispam_recaptcha');
-            $publicKey          = $config->get('antispam_recaptcha_public');
-            $skipRecaptcha      = $config->get('antispam_skip_recaptcha');
+            $enableRecaptcha    = $this->config->get('antispam_recaptcha');
+            $publicKey          = $this->config->get('antispam_recaptcha_public');
+            $skipRecaptcha      = $this->config->get('antispam_skip_recaptcha');
 
-            $model      = DiscussHelper::getModel( 'Posts' );
-            $postCount  = count( $model->getPostsBy( 'user' , $my->id ) );
+            $model      = ED::model( 'Posts' );
+            $postCount  = count( $model->getPostsBy( 'user' , $this->my->id ) );
 
             if( $enableRecaptcha && !empty( $publicKey ) && $postCount < $skipRecaptcha )
             {
                 require_once DISCUSS_CLASSES . '/recaptcha.php';
-                $recaptcha  = getRecaptchaData( $publicKey , $config->get('antispam_recaptcha_theme') , $config->get('antispam_recaptcha_lang') , null, $config->get('antispam_recaptcha_ssl') );
+                $recaptcha  = getRecaptchaData( $publicKey , $this->config->get('antispam_recaptcha_theme') , $this->config->get('antispam_recaptcha_lang') , null, $this->config->get('antispam_recaptcha_ssl') );
             }
 
             $tpl    = new DiscussThemes();
@@ -1880,24 +873,24 @@ class EasyDiscussViewPost extends EasyDiscussView
 
     public function ajaxReloadRecaptcha($divId = null, $reId = 'recaptcha-image')
     {
-        $config     = DiscussHelper::getConfig();
+        $config     = ED::getConfig();
         $mainframe  = JFactory::getApplication();
         $my         = JFactory::getUser();
         $djax       = new Disjax();
 
         //recaptcha integration
         $recaptcha  = '';
-        $enableRecaptcha    = $config->get('antispam_recaptcha', 0);
-        $publicKey          = $config->get('antispam_recaptcha_public');
-        $skipRecaptcha      = $config->get('antispam_skip_recaptcha');
+        $enableRecaptcha    = $this->config->get('antispam_recaptcha', 0);
+        $publicKey          = $this->config->get('antispam_recaptcha_public');
+        $skipRecaptcha      = $this->config->get('antispam_skip_recaptcha');
 
-        $model      = DiscussHelper::getModel( 'Posts' );
-        $postCount  = count( $model->getPostsBy( 'user' , $my->id ) );
+        $model      = ED::model( 'Posts' );
+        $postCount  = count( $model->getPostsBy( 'user' , $this->my->id ) );
 
         if( $enableRecaptcha && !empty( $publicKey ) && $postCount < $skipRecaptcha )
         {
             require_once DISCUSS_CLASSES . '/recaptcha.php';
-            $recaptcha  = getRecaptchaData( $publicKey , $config->get('antispam_recaptcha_theme') , $config->get('antispam_recaptcha_lang') , null, $config->get('antispam_recaptcha_ssl'), $reId );
+            $recaptcha  = getRecaptchaData( $publicKey , $this->config->get('antispam_recaptcha_theme') , $this->config->get('antispam_recaptcha_lang') , null, $this->config->get('antispam_recaptcha_ssl'), $reId );
 
             $djax->assign($divId, $recaptcha);
         }
@@ -1915,17 +908,17 @@ class EasyDiscussViewPost extends EasyDiscussView
     {
         $my     = JFactory::getUser();
         //$postId   = JRequest::getInt( 'postId' );
-        $db     = DiscussHelper::getDBO();
+        $db     = ED::getDBO();
 
         $query  = ' SELECT '.$db->nameQuote('id').' FROM '.$db->nameQuote('#__discuss_favourites');
-        $query  .= ' WHERE '.$db->nameQuote('user_id'). ' = '.$db->quote($my->id);
+        $query  .= ' WHERE '.$db->nameQuote('user_id'). ' = '.$db->quote($this->my->id);
         $query  .= ' AND '.$db->nameQuote('post_id'). ' = '.$db->quote($postId);
 
 
         $db->setQuery($query);
         $result = $db->loadResult();
 
-        $ajax = DiscussHelper::getHelper( 'ajax' );
+        $ajax = ED::getHelper( 'ajax' );
 
         if(empty( $result ))
         {
@@ -1940,102 +933,61 @@ class EasyDiscussViewPost extends EasyDiscussView
         $ajax->send();
     }
 
-
     /**
-     * Displays a form to confirm to feature a discussion.
+     * Displays confirmation to feature a post
      *
-     * @since   3.0
+     * @since   4.0
      * @access  public
-     *
+     * @param   string
+     * @return
      */
-    public function confirmFeature( $postId )
+    public function feature()
     {
-        $ajax       = new Disjax();
-        $theme      = new DiscussThemes();
+        $id = $this->input->get('id', 0, 'int');
+        $theme = ED::themes();
 
-        $theme->set( 'id'   , $postId );
-        $content    = $theme->fetch( 'ajax.feature.php' , array('dialog'=> true ) );
+        $theme->set('id', $id);
+        $contents = $theme->output('site/post/dialogs/feature');
 
-        $options    = new stdClass();
-        $options->content   = $content;
-
-        $options->title     = JText::_( 'COM_EASYDISCUSS_CONFIRM_FEATURE_TITLE' );
-
-        $buttons            = array();
-
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_NO' );
-        $button->action     = 'disjax.closedlg();';
-        $buttons[]          = $button;
-
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_YES' );
-        $button->form       = '#frmFeature';
-        $button->className  = 'btn-primary';
-        $buttons[]          = $button;
-
-        $options->buttons   = $buttons;
-
-        $ajax->dialog( $options );
-        $ajax->send();
+        return $this->ajax->resolve($contents);
     }
 
     /**
-     * Displays a form to confirm to feature a discussion.
+     * Displays confirmation to unfeature a post
      *
-     * @since   3.0
+     * @since   4.0
      * @access  public
-     *
+     * @param   string
+     * @return
      */
-    public function confirmUnfeature( $postId )
+    public function unfeature()
     {
-        $ajax       = new Disjax();
-        $theme      = new DiscussThemes();
+        $id = $this->input->get('id', 0, 'int');
+        $theme = ED::themes();
 
-        $theme->set( 'id'   , $postId );
-        $content    = $theme->fetch( 'ajax.unfeature.php' , array('dialog'=> true ) );
+        $theme->set('id', $id);
+        $contents = $theme->output('site/post/dialogs/unfeature');
 
-        $options            = new stdClass();
-        $options->content   = $content;
-
-        $options->title     = JText::_( 'COM_EASYDISCUSS_CONFIRM_UNFEATURE_TITLE' );
-
-        $buttons            = array();
-
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_NO' );
-        $button->action     = 'disjax.closedlg();';
-        $buttons[]          = $button;
-
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_YES' );
-        $button->form       = '#frmUnfeature';
-        $button->className  = 'btn-primary';
-        $buttons[]          = $button;
-
-        $options->buttons   = $buttons;
-
-        $ajax->dialog( $options );
-        $ajax->send();
+        return $this->ajax->resolve($contents);
     }
 
     public function ajaxSetFavouritePost( $postId )
     {
         $my     = JFactory::getUser();
         //$postId   = JRequest::getInt( 'postId' );
-        $date   = DiscussHelper::getDate();
-        $get    = DiscussHelper::getTable( 'Favourites' );
+        $date   = ED::date();
+        $get    = ED::table('Favourites' );
 
         // Set your favourite post here..
         $favArray               = array();
-        $favArray['user_id']    = $my->id;
+        $favArray['user_id']    = $this->my->id;
         $favArray['post_id']    = $postId;
         $favArray['created']    = $date->toMySQL();
 
         $get->bind( $favArray );
         $get->store();
 
-        $ajax = DiscussHelper::getHelper( 'ajax' );
+        $ajax = ED::getHelper( 'ajax' );
         $ajax->success();
         $ajax->send();
     }
@@ -2044,63 +996,22 @@ class EasyDiscussViewPost extends EasyDiscussView
     {
         $my     = JFactory::getUser();
         //$postId   = JRequest::getInt( 'postId' );
-        $date   = DiscussHelper::getDate();
-        $get    = DiscussHelper::getTable( 'Favourites' );
+        $date   = ED::date();
+        $get    = ED::table('Favourites' );
 
         // Set your favourite post here..
         $favArray               = array();
-        $favArray['user_id']    = $my->id;
+        $favArray['user_id']    = $this->my->id;
         $favArray['post_id']    = $postId;
         $favArray['created']    = $date->toMySQL();
 
-        $key = $get->load( '0', $my->id, $postId );
+        $key = $get->load( '0', $this->my->id, $postId );
         $get->delete( $key );
 
-        $ajax = DiscussHelper::getHelper( 'ajax' );
+        $ajax = ED::getHelper( 'ajax' );
         $ajax->success();
         $ajax->send();
     }
-
-    /**
-     * Displays the report form dialog
-     *
-     * @since   3.0
-     */
-    public function reportForm( $id = null )
-    {
-        $config = DiscussHelper::getConfig();
-        $my   = JFactory::getUser();
-        $disjax = new Disjax();
-
-        $template   = new DiscussThemes();
-        $template->set( 'id' , $id );
-        $html       = $template->fetch( 'ajax.report.php' , array('dialog'=> true ) );
-
-        $options            = new stdClass();
-        $options->title     = JText::_('COM_EASYDISCUSS_REPORT_ABUSE');
-        $options->content   = $html;
-
-
-        $buttons            = array();
-
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_CANCEL' );
-        $button->action     = 'disjax.closedlg();';
-        $buttons[]          = $button;
-
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_SUBMIT' );
-        $button->form       = '#reportForm';
-        $button->className  = 'btn-primary';
-        $buttons[]          = $button;
-
-        $options->buttons   = $buttons;
-
-        $disjax->dialog($options);
-
-        $disjax->send();
-    }
-
 
     private function _fieldValidate($post = null)
     {
@@ -2151,7 +1062,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 
     private function _validateCommentFields($post = null)
     {
-        $config = DiscussHelper::getConfig();
+        $config = ED::getConfig();
 
         if(JString::strlen($post['comment']) == 0)
         {
@@ -2160,7 +1071,7 @@ class EasyDiscussViewPost extends EasyDiscussView
             return false;
         }
 
-        if($config->get('main_comment_tnc') == true)
+        if($this->config->get('main_comment_tnc') == true)
         {
             if(empty($post['tnc']))
             {
@@ -2219,7 +1130,7 @@ class EasyDiscussViewPost extends EasyDiscussView
         $disjax     = new Disjax();
         $mainframe  = JFactory::getApplication();
         $my         = JFactory::getUser();
-        $config     = DiscussHelper::getConfig();
+        $config     = ED::getConfig();
         $msg        = '';
         $msgClass   = 'dc_success';
 
@@ -2232,18 +1143,18 @@ class EasyDiscussViewPost extends EasyDiscussView
         {
             $disjax->script( 'discuss.spinner.hide( "dialog_loading" );' );
             $disjax->assign( 'dc_subscribe_notification .msg_in' , JText::_('COM_EASYDISCUSS_INVALID_EMAIL') );
-            $disjax->script( 'EasyDiscuss.$( "#dc_subscribe_notification .msg_in" ).addClass( "alert alert-error" );' );
+            $disjax->script( 'EasyDiscuss.$( "#dc_subscribe_notification .msg_in" ).addClass( "o-alert o-alert--error" );' );
             $disjax->send();
             return;
         }
 
         $subscription_info = array();
         $subscription_info['type'] = $type;
-        $subscription_info['userid'] = $my->id;
+        $subscription_info['userid'] = $this->my->id;
         $subscription_info['email'] = $email;
         $subscription_info['cid'] = $cid;
-        $subscription_info['member'] = ($my->id)? '1':'0';
-        $subscription_info['name'] = ($my->id)? $my->name : $name;
+        $subscription_info['member'] = ($this->my->id)? '1':'0';
+        $subscription_info['name'] = ($this->my->id)? $my->name : $name;
         $subscription_info['interval'] = $interval;
 
         //validation
@@ -2251,7 +1162,7 @@ class EasyDiscussViewPost extends EasyDiscussView
         {
             $disjax->script( 'discuss.spinner.hide( "dialog_loading" );' );
             $disjax->assign( 'dc_subscribe_notification .msg_in' , JText::_('COM_EASYDISCUSS_EMAIL_IS_EMPTY') );
-            $disjax->script( 'EasyDiscuss.$( "#dc_subscribe_notification .msg_in" ).addClass( "alert alert-error" );' );
+            $disjax->script( 'EasyDiscuss.$( "#dc_subscribe_notification .msg_in" ).addClass( "o-alert o-alert--error" );' );
             $disjax->send();
             return;
         }
@@ -2260,16 +1171,16 @@ class EasyDiscussViewPost extends EasyDiscussView
         {
             $disjax->script( 'discuss.spinner.hide( "dialog_loading" );' );
             $disjax->assign( 'dc_subscribe_notification .msg_in' , JText::_('COM_EASYDISCUSS_NAME_IS_EMPTY') );
-            $disjax->script( 'EasyDiscuss.$( "#dc_subscribe_notification .msg_in" ).addClass( "alert alert-error" );' );
+            $disjax->script( 'EasyDiscuss.$( "#dc_subscribe_notification .msg_in" ).addClass( "o-alert o-alert--error" );' );
             $disjax->send();
             return;
         }
 
-        $model  = $this->getModel( 'Subscribe' );
+        $model  = ED::model( 'Subscribe' );
         $sid    = '';
 
 
-        if($my->id == 0)
+        if($this->my->id == 0)
         {
             $sid = $model->isPostSubscribedEmail($subscription_info);
             if($sid != '')
@@ -2278,7 +1189,7 @@ class EasyDiscussViewPost extends EasyDiscussView
                 // show message.
                 $disjax->script( 'discuss.spinner.hide( "dialog_loading" );' );
                 $disjax->assign( 'dc_subscribe_notification .msg_in' , JText::_('COM_EASYDISCUSS_ALREADY_SUBSCRIBED_TO_POST') );
-                $disjax->script( 'EasyDiscuss.$( "#dc_subscribe_notification .msg_in" ).addClass( "dc_alert" );' );
+                $disjax->script( 'EasyDiscuss.$( "#dc_subscribe_notification .msg_in" ).addClass( "o-alert o-alert--error" );' );
                 $disjax->send();
                 return;
 
@@ -2288,7 +1199,7 @@ class EasyDiscussViewPost extends EasyDiscussView
                 if(!$model->addSubscription($subscription_info))
                 {
                     $msg = JText::sprintf('COM_EASYDISCUSS_SUBSCRIPTION_FAILED');
-                    $msgClass = 'alert alert-error';
+                    $msgClass = 'o-alert o-alert--error';
                 }
             }
         }
@@ -2303,7 +1214,7 @@ class EasyDiscussViewPost extends EasyDiscussView
                 if(!$model->updatePostSubscription($sid['id'], $subscription_info))
                 {
                     $msg = JText::sprintf('COM_EASYDISCUSS_SUBSCRIPTION_FAILED');
-                    $msgClass = 'alert alert-error';
+                    $msgClass = 'o-alert o-alert--error';
                 }
             }
             else
@@ -2312,7 +1223,7 @@ class EasyDiscussViewPost extends EasyDiscussView
                 if(!$model->addSubscription($subscription_info))
                 {
                     $msg = JText::sprintf('COM_EASYDISCUSS_SUBSCRIPTION_FAILED');
-                    $msgClass = 'alert alert-error';
+                    $msgClass = 'o-alert o-alert--error';
                 }
             }
         }
@@ -2334,12 +1245,12 @@ class EasyDiscussViewPost extends EasyDiscussView
     {
         $disjax     = new disjax();
 
-        $voteModel  = $this->getModel('votes');
+        $voteModel  = ED::model('votes');
         $total      = $voteModel->getTotalVotes( $postid );
 
         if(!empty($total))
         {
-            $voters = DiscussHelper::getVoters($postid, $limit);
+            $voters = ED::getVoters($postid, $limit);
             $msg    = JText::sprintf('COM_EASYDISCUSS_VOTES_BY', $voters->voters);
 
             if($voters->shownVoterCount < $total)
@@ -2365,7 +1276,7 @@ class EasyDiscussViewPost extends EasyDiscussView
         $controller = new EasyDiscussControllerAttachment();
 
         $msg        = JText::_('COM_EASYDISCUSS_ATTACHMENT_DELETE_FAILED');
-        $msgClass   = 'alert alert-error';
+        $msgClass   = 'o-alert o-alert--error';
         if($controller->deleteFile($id))
         {
             $msg        = JText::_('COM_EASYDISCUSS_ATTACHMENT_DELETE_SUCCESS');
@@ -2382,10 +1293,10 @@ class EasyDiscussViewPost extends EasyDiscussView
 
     public function nameSuggest( $part )
     {
-        $ajax       = DiscussHelper::getHelper( 'Ajax' );
-        $db         = DiscussHelper::getDBO();
-        $config     = DiscussHelper::getConfig();
-        $property   = $config->get( 'layout_nameformat' );
+        $ajax       = ED::getHelper( 'Ajax' );
+        $db         = ED::getDBO();
+        $config     = ED::getConfig();
+        $property   = $this->config->get( 'layout_nameformat' );
 
         $query      = 'SELECT a.`id`,a.`' . $property . '` AS title FROM '
                     . $db->nameQuote( '#__users' ) . ' AS a '
@@ -2411,48 +1322,74 @@ class EasyDiscussViewPost extends EasyDiscussView
     }
 
     /**
-     * Displays the embed video dialog
+     * Renders the video embed dialog form
      *
-     * @since   2.0
+     * @since   4.0
      * @access  public
-     * @param   null
+     * @param   string
+     * @return
      */
-    public function showVideoDialog( $element = null , $caretPosition = null )
+    public function showVideoDialog()
     {
-        $theme = new DiscussThemes();
-        $content    = $theme->fetch( 'ajax.video.form.php' , array('dialog'=> true ) );
+        $element = $this->input->get('editorName', '', 'word');
+        $caretPosition = $this->input->get('caretPosition', '', 'int');
 
-        $ajax               = new Disjax();
+        $theme = ED::themes();
+        $theme->set('element', $element);
+        $theme->set('caretPosition', $caretPosition);
 
-        $options            = new stdClass();
-        $options->content   = $content;
-        $options->title     = JText::_( 'COM_EASYDISCUSS_BBCODE_INSERT_VIDEO' );
+        $output = $theme->output('site/composer/dialogs/video');
 
-        $buttons            = array();
+        return $this->ajax->resolve($output);
+    }
 
-        // Add buttons
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_CANCEL' );
-        $button->action     = 'disjax.closedlg();';
-        $buttons[]          = $button;
+    /**
+     * Renders the photo url dialog form
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function showPhotoDialog()
+    {
+        $element = $this->input->get('editorName', '', 'word');
+        $caretPosition = $this->input->get('caretPosition', '', 'int');
 
-        // Add buttons
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_INSERT' );
-        $button->action     = 'insertVideoCode( EasyDiscuss.$("#videoURL").val() , "' . $caretPosition . '" , "' . $element . '" );';
-        $button->className  = 'btn-primary';
-        $buttons[]          = $button;
+        $theme = ED::themes();
+        $theme->set('element', $element);
+        $theme->set('caretPosition', $caretPosition);
 
-        // Set buttons for this dialog
-        $options->buttons   = $buttons;
+        $output = $theme->output('site/composer/dialogs/photo');
 
-        $ajax->dialog( $options );
-        $ajax->send();
+        return $this->ajax->resolve($output);
+    }
+
+    /**
+     * Renders the insert link url dialog form
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function showLinkDialog()
+    {
+        $element = $this->input->get('editorName', '', 'word');
+        $caretPosition = $this->input->get('caretPosition', '', 'int');
+
+        $theme = ED::themes();
+        $theme->set('element', $element);
+        $theme->set('caretPosition', $caretPosition);
+
+        $output = $theme->output('site/composer/dialogs/link');
+
+        return $this->ajax->resolve($output);
     }
 
     public function ajaxSaveLabel()
     {
-        $ajax   = DiscussHelper::getHelper( 'Ajax' );
+        $ajax   = ED::getHelper( 'Ajax' );
 
         if( !JRequest::checkToken() )
         {
@@ -2462,7 +1399,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 
         $postId     = JRequest::getInt( 'postId', 'post' );
         $labelId    = JRequest::getInt( 'labelId', 'post' );
-        $post       = DiscussHelper::getTable( 'Post' );
+        $post       = ED::table('Post' );
 
         if( !$post->load( $postId ) )
         {
@@ -2470,9 +1407,11 @@ class EasyDiscussViewPost extends EasyDiscussView
             return $ajax->send();
         }
 
-        $category   = DiscussHelper::getTable( 'Category' );
-        $category->load( $post->category_id );
-        $access     = $post->getAccess($category);
+        $category = ED::category($post->category_id);
+
+        // load post library to check
+        $postLib = ED::post();
+        $access = $postLib->getAccess($category);
 
         if( !$access->canLabel() )
         {
@@ -2480,13 +1419,13 @@ class EasyDiscussViewPost extends EasyDiscussView
             return $ajax->send();
         }
 
-        $postLabel = DiscussHelper::getTable( 'PostLabel' );
+        $postLabel = ED::table('PostLabel' );
         $postLabel->load($post->id);
 
         // Add new record if assignee was changed
         if( $postLabel->post_label_id != $labelId )
         {
-            $newpostLabel = DiscussHelper::getTable( 'PostLabel' );
+            $newpostLabel = ED::table('PostLabel' );
 
             $newpostLabel->post_id          = $post->id;
             $newpostLabel->post_label_id    = (int) $labelId;
@@ -2498,7 +1437,7 @@ class EasyDiscussViewPost extends EasyDiscussView
             }
         }
 
-        // $labels = DiscussHelper::getModel( 'Labels' )->getLabels();
+        // $labels = ED::model( 'Labels' )->getLabels();
 
         // $theme   = new DiscussThemes();
         // $theme->set( 'post'      , $post );
@@ -2510,61 +1449,51 @@ class EasyDiscussViewPost extends EasyDiscussView
 
     public function ajaxModeratorAssign()
     {
-        $ajax   = DiscussHelper::getHelper( 'Ajax' );
+        ED::checkToken();
 
-        if( !JRequest::checkToken() )
-        {
-            $ajax->fail( JText::_( 'Invalid Token' ) );
-            return $ajax->send();
+        $postId = $this->input->get('postId', 'post', 'int');
+        $moderatorId = $this->input->get('moderatorId', 'post', 'int');
+
+        // Load the new post object
+        $post = ED::post($postId);
+
+        if (!$postId) {
+            return $this->ajax->reject('COM_EASYDISCUSS_ASSIGN_MODERATORS_SHOW_UNABLE_LOAD_POST_ID');
         }
 
-        $postId = JRequest::getInt( 'postId', 'post' );
-        $userId = JRequest::getInt( 'userId', 'post' );
-        $post   = DiscussHelper::getTable( 'Post' );
-
-        if( !$post->load( $postId ) )
-        {
-            $ajax->fail( 'Cannot load Post ID' );
-            return $ajax->send();
-        }
-
-        $category = DiscussHelper::getTable( 'Category' );
-        $category->load( $post->category_id );
+        $category = ED::category($post->category_id);
         $access = $post->getAccess($category);
 
-        if( !$access->canAssign() )
-        {
-            $ajax->fail( 'Permission denied' );
-            return $ajax->send();
+        if (!$access->canAssign()) {
+            return $this->ajax->reject('COM_EASYDISCUSS_ASSIGN_MODERATORS_SHOW_PERMISSION_DENIED');
         }
 
-        $assignment = DiscussHelper::getTable( 'PostAssignment' );
+        $assignment = ED::table('PostAssignment');
         $assignment->load($post->id);
 
         // Add new record if assignee was changed
-        if( $assignment->assignee_id != $userId )
-        {
-            $newAssignment = DiscussHelper::getTable( 'PostAssignment' );
-
-            $newAssignment->post_id     = $post->id;
-            $newAssignment->assignee_id = (int) $userId;
+        if ($assignment->assignee_id != $moderatorId) {
+            $newAssignment = ED::table('PostAssignment');
+            $newAssignment->post_id = $postId;
+            $newAssignment->assignee_id = (int) $moderatorId;
             $newAssignment->assigner_id = (int) JFactory::getUser()->id;
 
-            if( !$newAssignment->store() )
-            {
-                $ajax->fail( 'Storing failed' );
-                return $ajax->send();
+            if (!$newAssignment->store()) {
+                return $this->ajax->reject('COM_EASYDISCUSS_ASSIGN_MODERATORS_SHOW_STORING_FAILED');
             }
         }
 
-        $moderators = DiscussHelper::getHelper( 'Moderator' )->getModeratorsDropdown( $post->category_id );
+        // send notification to moderator when admin assigned post to them
+        $post->notifyAssignedModerator($moderatorId, $post->id);
 
-        $theme  = new DiscussThemes();
-        $theme->set( 'post'         , $post );
-        $theme->set( 'moderators'   , $moderators );
-        $html   = $theme->fetch( 'post.assignment.php' );
+        $moderators = ED::moderator()->getModeratorsDropdown($post->category_id);
 
-        $ajax->success( $html );
+        $theme = ED::themes();
+        $theme->set('post', $post);
+        $theme->set('moderators', $moderators);
+        $contents = $theme->output('site/post/post.assignment');
+
+        return $this->ajax->resolve($contents);
     }
 
     /**
@@ -2577,74 +1506,78 @@ class EasyDiscussViewPost extends EasyDiscussView
      */
     public function getUpdateCount()
     {
-        $ajax   = DiscussHelper::getHelper( 'Ajax' );
+        $ajax = ED::ajax();
 
-        $id     = JRequest::getInt( 'id', 0 );
+        $id     = $this->input->get('id', 0, 'int');;
 
-        if( $id === 0 )
-        {
+        if ($id === 0) {
             $ajax->reject();
             return $ajax->send();
         }
 
-        $postsModel     = DiscussHelper::getModel( 'posts' );
+        $model = ED::model('posts');
 
-        $totalReplies   = (int) $postsModel->getTotalReplies( $id );
+        $totalReplies = (int) $model->getTotalReplies($id);
+        $totalComments = (int) $model->getTotalComments($id, 'thread');
 
-        $totalComments  = (int) $postsModel->getTotalComments( $id, 'thread' );
-
-        $ajax->resolve( $totalReplies, $totalComments );
+        $ajax->resolve($totalReplies, $totalComments);
         return $ajax->send();
     }
 
     /**
-     * Get comments based on pagination load more
+     * Get comments for particular post
      *
-     * @since   3.0
+     * @since   4.0
      * @access  public
-     * @param   null
-     * @author  Jason Rey <jasonrey@stackideas.com>
+     * @param   string
+     * @return
      */
     public function getComments()
     {
-        $theme  = new DiscussThemes();
-        $ajax   = DiscussHelper::getHelper( 'Ajax' );
-        $model  = DiscussHelper::getModel( 'Posts' );
-        $config = DiscussHelper::getConfig();
 
-        $id     = JRequest::getInt( 'id', 0 );
+        $model  = ED::model('Posts');
+        $config = ED::getConfig();
 
-        $start  = JRequest::getInt( 'start', 0 );
+        // Get the post id
+        $id = $this->input->get('id', 0, 'int');
 
-        $total  = $model->getTotalComments( $id );
+        // Get the total of the current comment list
+        $start = $this->input->get('start', 0, 'int');
 
-        if( $start >= $total )
-        {
-            return $ajax->reject();
+        // Get the total comments for this post
+        $total = $model->getTotalComments($id);
+
+        // If the current comment is more than the total comment, return false
+        if ($start >= $total) {
+            return $this->ajax->reject();
         }
 
-        $comments = $model->getComments( $id, $config->get( 'main_comment_pagination_count' ), $start );
+        $limit = $this->config->get('main_comment_pagination_count');
 
-        if( empty( $comments ) )
-        {
-            return $ajax->reject();
+        // Get the comments based on the start value
+        $comments = $model->getComments($id, $limit, $start);
+
+        if (empty($comments)) {
+            return $this->ajax->reject();
         }
 
-        $count = count( $comments );
+        $count = count($comments);
 
-        $nextCycle = ( $start + $count ) < $total;
+        $nextCycle = ($start + $count) < $total;
 
-        $comments = DiscussHelper::formatComments( $comments );
+        $comments = ED::formatComments($comments);
 
-        $html = '';
+        $contents = '';
 
-        foreach( $comments as $comment )
-        {
-            $theme->set( 'comment', $comment );
-            $html .= $theme->fetch( 'post.reply.comment.item.php' );
+        $theme = ED::themes();
+
+        foreach($comments as $comment) {
+            $theme->set('id', $id);
+            $theme->set('comment', $comment);
+            $contents .= $theme->output('site/comments/default.item');
         }
 
-        return $ajax->resolve( $html, $nextCycle );
+        return $this->ajax->resolve($contents, $nextCycle);
     }
 
     /**
@@ -2658,13 +1591,13 @@ class EasyDiscussViewPost extends EasyDiscussView
     public function getReplies()
     {
         $theme  = new DiscussThemes();
-        $ajax   = DiscussHelper::getHelper( 'Ajax' );
-        $model  = DiscussHelper::getModel( 'Posts' );
-        $config = DiscussHelper::getConfig();
+        $ajax   = ED::getHelper( 'Ajax' );
+        $model  = ED::model( 'Posts' );
+        $config = ED::getConfig();
 
         $id     = JRequest::getInt( 'id', 0 );
 
-        $sort   = JRequest::getString( 'sort', DiscussHelper::getDefaultRepliesSorting() );
+        $sort   = JRequest::getString( 'sort', ED::getDefaultRepliesSorting() );
 
         $start  = JRequest::getInt( 'start', 0 );
 
@@ -2675,7 +1608,7 @@ class EasyDiscussViewPost extends EasyDiscussView
             return $ajax->reject();
         }
 
-        $replies = $model->getReplies( $id, $sort, $start, $config->get( 'layout_replies_list_limit' ) );
+        $replies = $model->getReplies( $id, $sort, $start, $this->config->get( 'layout_replies_list_limit' ) );
 
         if( empty( $replies ) )
         {
@@ -2687,12 +1620,12 @@ class EasyDiscussViewPost extends EasyDiscussView
         $nextCycle = ( $start + $count ) < $total;
 
         // Load the category
-        $post       = DiscussHelper::getTable( 'Posts' );
+        $post       = ED::table('Posts' );
         $post->load( $id );
-        $category   = DiscussHelper::getTable( 'Category' );
+        $category   = ED::table('Category' );
         $category->load( (int) $post->category_id );
 
-        $replies = DiscussHelper::formatReplies( $replies, $category );
+        $replies = ED::formatReplies( $replies, $category );
 
         $html = '';
 
@@ -2708,51 +1641,46 @@ class EasyDiscussViewPost extends EasyDiscussView
     }
 
     /**
-     * Triggered when edit reply button is clicked so that we can return the correct output
-     * to the caller.
+     * Allows caller to generate an edit reply form
      *
-     * @since   1.0
+     * @since   4.0
      * @access  public
-     * @param   null
+     * @param   string
      * @return
      */
     public function editReply()
     {
-        // Load up our own ajax library.
-        $ajax   = DiscussHelper::getHelper( 'Ajax' );
-        $id     = JRequest::getInt( 'id', 0 );
-        $config = DiscussHelper::getConfig();
+        $id = $this->input->get('id', 0, 'int');
+        $seq = $this->input->get('seq', 0, 'int');
 
-        if( $id === 0 )
-        {
-            $ajax->reject();
-            return $ajax->send();
+        if ($id === 0) {
+            return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'));
         }
 
-        // Load the post table out.
-        $post       = DiscussHelper::getTable( 'Post' );
-        $state      = $post->load($id);
+        // Load the post table
+        $post = ED::post($id);
 
-        $post->content_raw = $post->content;
+        // Set the reply seq. We do not know which reply currently being edited
+        $post->seq = $seq;
 
-        // TODO: Determine if this person can edit this post
-        $composer               = new DiscussComposer( 'editing' , $post );
-        $composer->renderMode   = "explicit";
+        // Determine if this person can edit this post
+        if (!$post->canEdit()) {
+            return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
+        }
 
-        $ajax->resolve($composer->id, $composer->getComposer());
+        // Load up the composer and retrieve the form
+        $composer = ED::composer(array('editing', $post));
+        $form = $composer->getComposer();
 
-        return $ajax->send();
+        return $this->ajax->resolve($form);
     }
 
 
-    public function checkEmpty( $post , $ajax )
+    public function checkEmpty($post)
     {
         // do checking here!
-        if( empty( $post[ 'content' ] ) )
-        {
-            $ajax->reject('error', JText::_('COM_EASYDISCUSS_ERROR_REPLY_EMPTY'));
-            $ajax->send();
-
+        if (empty($post['dc_content'])) {
+            return $this->ajax->reject('error', JText::_('COM_EASYDISCUSS_ERROR_REPLY_EMPTY'));
             exit;
         }
     }
@@ -2765,55 +1693,37 @@ class EasyDiscussViewPost extends EasyDiscussView
      * @param   string
      * @return
      */
-    public function checkCaptcha( $post )
+    public function checkCaptcha($post)
     {
-        $config     = DiscussHelper::getConfig();
-        $my         = JFactory::getUser();
-
-        $ajax   = DiscussHelper::getHelper( 'Ajax' );
-
-
         // Get recaptcha configuration
-        $recaptcha  = $config->get( 'antispam_recaptcha');
-        $public     = $config->get( 'antispam_recaptcha_public');
-        $private    = $config->get( 'antispam_recaptcha_private');
+        $recaptcha = $this->config->get('antispam_recaptcha');
+        $public = $this->config->get('antispam_recaptcha_public');
+        $private = $this->config->get('antispam_recaptcha_private');
 
-        require_once DISCUSS_CLASSES . '/recaptcha.php';
+        if (DiscussRecaptcha::isRequired()) {
+            $obj = DiscussRecaptcha::recaptcha_check_answer($private, $_SERVER['REMOTE_ADDR'], $post['recaptcha_challenge_field'], $post['recaptcha_response_field']);
 
-        if( DiscussRecaptcha::isRequired() )
-        {
-            $obj = DiscussRecaptcha::recaptcha_check_answer( $private , $_SERVER['REMOTE_ADDR'] , $post['recaptcha_challenge_field'] , $post['recaptcha_response_field'] );
-
-            if(!$obj->is_valid)
-            {
-                $ajax->reloadCaptcha();
-                $ajax->reject('error', JText::_('COM_EASYDISCUSS_POST_INVALID_RECAPTCHA_RESPONSE'));
-                $ajax->send();
-
-                return false;
+            if (!$obj->is_valid) {
+                $this->ajax->reloadCaptcha();
+                return $this->ajax->reject('error', JText::_('COM_EASYDISCUSS_POST_INVALID_RECAPTCHA_RESPONSE'));
             }
-        }
-        else if ( $config->get( 'antispam_easydiscuss_captcha' ) )
-        {
-            $runCaptcha = DiscussHelper::getHelper( 'Captcha' )->showCaptcha();
+        } else if ($this->config->get('antispam_easydiscuss_captcha')) {
 
-            if( $runCaptcha )
-            {
-                $response = JRequest::getVar( 'captcha-response' );
-                $captchaId = JRequest::getInt( 'captcha-id' );
+            $runCaptcha = ED::captcha()->showCaptcha();
+
+            if ($runCaptcha) {
+
+                $response = $this->input->get('captcha-response', '', 'var');
+                $captchaId = $this->input->get('captcha-id', '', 'int');
 
                 $discussCaptcha = new stdClass();
                 $discussCaptcha->captchaResponse = $response;
                 $discussCaptcha->captchaId = $captchaId;
 
-                $state = DiscussHelper::getHelper( 'Captcha' )->verify( $discussCaptcha );
+                $state = ED::captcha()->verify($discussCaptcha);
 
-                if( !$state )
-                {
-                    $ajax->reject('error', JText::_('COM_EASYDISCUSS_INVALID_CAPTCHA'));
-                    $ajax->send();
-
-                    return false;
+                if (!$state) {
+                    return $this->ajax->reject('error', JText::_('COM_EASYDISCUSS_INVALID_CAPTCHA'));
                 }
             }
         }
@@ -2829,87 +1739,77 @@ class EasyDiscussViewPost extends EasyDiscussView
      * @param   string
      * @return
      */
-    public function processPolls( $post )
+    public function processPolls($post)
     {
-        $config         = DiscussHelper::getConfig();
-
         // Process poll items
-        $includePolls   = JRequest::getBool( 'pollitems' , false );
+        $includePolls = $this->input->get('pollitems', false, 'bool');
 
         // Process poll items here.
-        if( $includePolls && $config->get( 'main_polls') )
-        {
-            $pollItems      = JRequest::getVar( 'pollitems' );
-            $pollItemsOri   = JRequest::getVar( 'pollitemsOri' );
+        if ($includePolls && $this->config->get('main_polls')) {
+            $pollItems = $this->input->get('pollitems', '', 'var');
+            $pollItemsOri = $this->input->get('pollitemsOri', '', 'var');
 
             // Delete polls if necessary since this post doesn't contain any polls.
-            //if( !$isNew && !$includePolls )
-            if( count( $pollItems ) == 1 && empty( $pollItems[0] ) && !$isNew )
-            {
+            if (count($pollItems) == 1 && empty($pollItems[0]) && !$isNew) {
                 $post->removePoll();
             }
 
             // Check if the multiple polls checkbox is it checked?
-            $multiplePolls  = JRequest::getVar( 'multiplePolls' , '0' );
+            $multiplePolls = $this->input->get('multiplePolls', '0', 'var');
 
-            if( $pollItems )
-            {
+            if ($pollItems) {
+
                 // As long as we need to create the poll answers, we need to create the main question.
-                $pollTitle  = JRequest::getVar( 'poll_question' , '' );
+                $pollTitle = $this->input->get('poll_question', '', 'var');
 
                 // Since poll question are entirely optional.
-                $pollQuestion   = DiscussHelper::getTable( 'PollQuestion' );
-                $pollQuestion->loadByPost( $post->id );
+                $pollQuestion = ED::table('PollQuestion');
+                $pollQuestion->loadByPost($post->id);
 
-                $pollQuestion->post_id  = $post->id;
-                $pollQuestion->title    = $pollTitle;
-                $pollQuestion->multiple = $config->get( 'main_polls_multiple' ) ? $multiplePolls : false;
+                $pollQuestion->post_id = $post->id;
+                $pollQuestion->title = $pollTitle;
+                $pollQuestion->multiple = $this->config->get('main_polls_multiple') ? $multiplePolls : false;
                 $pollQuestion->store();
 
-                if( !$isNew )
-                {
+                if (!$isNew) {
+
                     // Try to detect which poll items needs to be removed.
-                    $remove = JRequest::getVar( 'pollsremove' );
+                    $remove = $this->input->get('pollsremove', '', 'var');
 
-                    if( !empty( $remove ) )
-                    {
-                        $remove = explode( ',' , $remove );
+                    if (!empty($remove)) {
+                        $remove = explode(',', $remove);
 
-                        foreach( $remove as $id )
-                        {
-                            $id     = (int) $id;
-                            $poll   = DiscussHelper::getTable( 'Poll' );
-                            $poll->load( $id );
+                        foreach ($remove as $id) {
+                            $id = (int) $id;
+                            $poll = ED::table('Poll');
+                            $poll->load($id);
                             $poll->delete();
                         }
                     }
                 }
 
-                for( $i = 0; $i < count($pollItems); $i++ )
-                {
-                    $item    = $pollItems[$i];
-                    $itemOri = isset( $pollItemsOri[$i] ) ? $pollItemsOri[$i] : '';
+                for ( $i = 0; $i < count($pollItems); $i++) {
+                    $item = $pollItems[$i];
+                    $itemOri = isset($pollItemsOri[$i]) ? $pollItemsOri[$i] : '';
 
-                    $value      = (string) $item;
-                    $valueOri   = (string) $itemOri;
+                    $value = (string) $item;
+                    $valueOri = (string) $itemOri;
 
-                    if( trim( $value ) == '' )
+                    if (trim($value) == '')
                         continue;
 
-                    $poll   = DiscussHelper::getTable( 'Poll' );
+                    $poll = ED::table('Poll');
 
-                    if( empty( $valueOri ) && !empty( $value ) )
-                    {
+                    if (empty($valueOri) && !empty($value)) {
                         // this is a new item.
-                        $poll->set( 'value'         , $value );
-                        $poll->set( 'post_id'       , $post->get( 'id' )  );
+                        $poll->set('value', $value);
+                        $poll->set('post_id', $post->get('id'));
                         $poll->store();
                     }
-                    else if( !empty( $valueOri ) && !empty( $value )  )
-                    {
+                    else if (!empty($valueOri) && !empty($value)) {
                         // update existing value.
-                        $poll->loadByValue( $valueOri , $post->get( 'id' ) );
-                        $poll->set( 'value'         , $value );
+                        $poll->loadByValue($valueOri, $post->get('id'));
+                        $poll->set('value', $value );
                         $poll->store();
                     }
 
@@ -2919,269 +1819,222 @@ class EasyDiscussViewPost extends EasyDiscussView
         }
     }
 
-    /**
-     * Triggers when an edited reply is saved.
-     *
-     * @since   3.0
-     * @param   null
-     * @return  null
-     */
+
     public function saveReply()
     {
-        // Load ajax library
-        $ajax       = DiscussHelper::getHelper( 'Ajax' );
-        $config     = DiscussHelper::getConfig();
-
         // Get the posted data
-        $data   = JRequest::get( 'post' );
+        $data = $this->input->get('post', '', 'default');
 
         // Prepare the output data
-        $output         = array();
-        $output['id']   = $data[ 'post_id' ];
-        $acl            = DiscussHelper::getHelper( 'ACL' );
-        $my             = JFactory::getUser();
+        $output = array();
+        $output['id'] = $data[ 'post_id' ];
 
         // Check for empty content
-        $this->checkEmpty( $data , $ajax );
+        $this->checkEmpty($data);
 
         // Rebind the post data because it may contain HTML codes
-        $data[ 'content' ]      = JRequest::getVar( 'content', '', 'post', 'none' , JREQUEST_ALLOWRAW );
-        $data[ 'content_type' ] = DiscussHelper::getEditorType( 'reply' );
+        $data['content'] = $this->input->get('dc_content', '', 'post', 'none', JREQUEST_ALLOWRAW);
+        $data['content_type'] = ED::getEditorType('reply');
 
-        // Load up the post table
-        $post       = DiscussHelper::getTable( 'Post' );
-        $post->load( $data[ 'post_id' ] );
+        // Load up the post lib
+        $post = ED::post($data['post_id']);
 
         // Bind the post table with the data
-        $post->bind( $data );
+        $post->bind($data);
 
         // Check if the post data is valid
-        if( !$post->id || !$data[ 'post_id' ] )
-        {
-            $ajax->reject( 'error' , JText::_( 'COM_EASYDISCUSS_SYSTEM_INVALID_ID' ) );
-            return $ajax->send();
+        if (!$post->id || !$data['post_id']) {
+            return $this->ajax->reject('error', JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'));
         }
 
         // Only allow users with proper access
-        $isModerator = DiscussHelper::getHelper( 'Moderator' )->isModerator( $post->category_id );
+        $isModerator = ED::moderator()->isModerator($post->category_id);
 
         // Do not allow unauthorized access
-        if( !DiscussHelper::isSiteAdmin() && $post->user_id != $my->id && !$acl->allowed( 'edit_reply' , 0 ) && !$isModerator )
-        {
-            $ajax->reject('error', JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
-            $ajax->send();
+        if (!ED::isSiteAdmin() && $post->user_id != $this->my->id && !$this->acl->allowed('edit_reply', 0) && !$isModerator) {
+            return $this->ajax->reject('error', JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
         }
 
         // Get the new content from the post data
-        $post->content      = $data[ 'content' ];
+        $post->content = $data['content'];
 
         // Validate captcha
-        $this->checkCaptcha( $data );
+        $this->checkCaptcha($data);
 
         // @rule: Bind parameters
-        if( $config->get( 'reply_field_references' ) )
-        {
+        if ($this->config->get('reply_field_references')) {
             $post->bindParams($data);
         }
 
         // Bind file attachments
-        if ($acl->allowed('add_attachment', '0')) {
+        if ($this->acl->allowed('add_attachment', '0')) {
             $post->bindAttachments();
         }
 
         // Determines if this is a new post.
-        $isNew  = false;
+        $isNew = false;
 
         // @trigger: onBeforeSave
-        DiscussEventsHelper::importPlugin( 'content' );
-        DiscussEventsHelper::onContentBeforeSave( 'post' , $post , $isNew );
+        ED::events()->importPlugin('content');
+        ED::events()->onContentBeforeSave('post', $post, $isNew);
 
         // Try to store the post now
-        if( !$post->store() )
-        {
-            $ajax->reject('error', JText::_('COM_EASYDISCUSS_ERROR') );
-            $ajax->send();
+        if (!$post->store()) {
+            return $this->ajax->reject('error', JText::_('COM_EASYDISCUSS_ERROR'));
         }
 
         // Process polls
-        $this->processPolls( $post );
+        $this->processPolls($post);
 
-        // Process custom fields
-        $this->saveCustomFieldsValue( $post->id );
+
 
         // @trigger: onAfterSave
-        DiscussEventsHelper::onContentAfterSave( 'post', $post, $isNew);
+        ED::events()->onContentAfterSave('post', $post, $isNew);
 
         // Filter for badwords
-        $post->title    = DiscussHelper::wordFilter( $post->title );
-        $post->content  = DiscussHelper::wordFilter( $post->content );
+        $post->title = ED::badwords()->filter($post->title);
+        $post->content = ED::badwords()->filter($post->content);
 
         // Determines if the user is allowed to delete this post
-        $canDelete  = false;
+        $canDelete = false;
 
-        if( DiscussHelper::isSiteAdmin() || $acl->allowed('delete_reply', '0') || $post->user_id == $my->id )
-        {
-            $canDelete  = true;
+        if (ED::isSiteAdmin() || $this->acl->allowed('delete_reply', '0') || $post->user_id == $this->my->id) {
+            $canDelete = true;
         }
 
         // URL References
-        $post->references   = $post->getReferences();
+        $post->references = $post->getReferences();
 
         // Get the voted state
-        $voteModel          = DiscussHelper::getModel( 'Votes' );
-        $post->voted        = $voteModel->hasVoted( $post->id );
+        $voteModel = ED::model('Votes');
+        $post->voted = $voteModel->hasVoted($post->id);
 
         // Get total votes for this post
-        $post->totalVote    = $post->sum_totalvote;
+        $post->totalVote = $post->sum_totalvote;
 
         // Load profile info
-        $creator    = DiscussHelper::getTable( 'Profile' );
-        $creator->load( $post->user_id );
+        $creator = ED::user($post->user_id);
 
         // Assign creator
-        $post->user     = $creator;
+        $post->user = $creator;
+
+        //raw content
+        $tmp = $post->content;
 
         // Format the content.
-        $tmp                = $post->content;
-        $post->content_raw  = $post->content;
-        $post->content      = DiscussHelper::formatContent( $post );
+        $post->preview = ED::formatContent($post);
 
         // Once the formatting is done, we need to escape the raw content
-        $post->content_raw  = DiscussHelper::getHelper( 'String' )->escape( $tmp );
+        $post->content = ED::string()->escape($tmp);
 
         // Store the default values
         //default value
-        $post->isVoted          = 0;
-        $post->total_vote_cnt   = 0;
-        $post->likesAuthor      = '';
-        $post->minimize         = 0;
+        $post->isVoted = 0;
+        $post->total_vote_cnt = 0;
+        $post->likesAuthor = '';
+        $post->minimize = 0;
 
         // Trigger reply
         $post->triggerReply();
 
         // Load up parent's post
-        $question       = DiscussHelper::getTable( 'Post' );
-        $question->load( $post->parent_id );
+        $question = ED::post($post->parent_id);
 
-        $recaptcha          = '';
-        $enableRecaptcha    = $config->get('antispam_recaptcha');
-        $publicKey          = $config->get('antispam_recaptcha_public');
-        $skipRecaptcha      = $config->get('antispam_skip_recaptcha');
+        $recaptcha = '';
+        $enableRecaptcha = $this->config->get('antispam_recaptcha');
+        $publicKey = $this->config->get('antispam_recaptcha_public');
+        $skipRecaptcha = $this->config->get('antispam_skip_recaptcha');
 
-        $model      = DiscussHelper::getModel( 'Posts' );
-        $postCount  = count( $model->getPostsBy( 'user' , $my->id ) );
+        $model = ED::model('Posts');
+        $postCount = count($model->getPostsBy('user', $this->my->id));
 
-        if( $enableRecaptcha && !empty( $publicKey ) && $postCount < $skipRecaptcha )
-        {
-            require_once DISCUSS_CLASSES . '/recaptcha.php';
-            $recaptcha  = getRecaptchaData( $publicKey , $config->get('antispam_recaptcha_theme') , $config->get('antispam_recaptcha_lang') , null, $config->get('antispam_recaptcha_ssl'), 'edit-reply-recaptcha' .  $post->id);
+        if ($enableRecaptcha && !empty($publicKey) && $postCount < $skipRecaptcha) {
+            $recaptcha  = DiscussRecaptcha::getRecaptchaData($publicKey, $this->config->get('antispam_recaptcha_theme'), $this->config->get('antispam_recaptcha_lang'), null, $this->config->get('antispam_recaptcha_ssl'), 'edit-reply-recaptcha' .  $post->id);
         }
 
         // Get the post access object here.
-        $category       = DiscussHelper::getTable( 'Category' );
-        $category->load( $post->category_id );
+        $category = ED::category($post->category_id);
 
-        $access         = $post->getAccess( $category );
-        $post->access   = $access;
+        $access = $post->getAccess($category);
+        $post->access = $access;
 
         // Get comments for the post
-        $commentLimit       = $config->get( 'main_comment_pagination' ) ? $config->get( 'main_comment_pagination_count' ) : null;
-        $comments           = $post->getComments( $commentLimit );
-        $post->comments     = DiscussHelper::formatComments( $comments );
+        $commentLimit = $this->config->get('main_comment_pagination') ? $this->config->get('main_comment_pagination_count') : null;
+        $comments = $post->getComments($commentLimit);
+        $post->comments = ED::formatComments($comments);
 
 
-        $theme  = new DiscussThemes();
+        $theme = ED::themes();
 
-        $theme->set('question' , $question);
-        $theme->set('post'     , $post);
-        $theme->set('category' , $category);
+        $theme->set('question', $question);
+        $theme->set('post', $post);
+        $theme->set('category', $category);
 
         // Get theme file output
-        $contents   = $theme->fetch( 'post.reply.item.php' );
+        $contents = $theme->output('site/post/default');
 
-        $ajax->resolve( $contents );
-        return $ajax->send();
+        return $this->ajax->resolve($contents);
     }
 
-    public function saveCustomFieldsValue( $id = null )
+    public function saveCustomFieldsValue()
     {
-        if( !empty($id) )
-        {
+        $id = $this->input->get('id', 0, 'int');
+
+        if (!empty($id)) {
+
             //Clear off previous records before storing
-            $ruleModel = DiscussHelper::getModel( 'CustomFields' );
-            $ruleModel->deleteCustomFieldsValue( $id, 'update' );
+            $ruleModel = ED::model('CustomFields');
+            $ruleModel->deleteCustomFieldsValue($id, 'update');
 
-            $post = DiscussHelper::getTable( 'Post' );
-            $post->load( $id );
+            $post = ED::table('Post');
+            $post->load($id);
 
-            // Process custom fields.
-            $fieldIds = JRequest::getVar( 'customFields' );
+            // Process custom fields
+            $fieldIds = $this->input->get('customFields', '', 'var');
 
-            if( !empty($fieldIds) )
-            {
-                foreach( $fieldIds as $fieldId )
-                {
-                    $fields = JRequest::getVar( 'customFieldValue_'.$fieldId );
+            if (!empty($fieldIds)) {
 
-                    if( !empty($fields) )
-                    {
+                foreach ($fieldIds as $fieldId) {
+
+                    $fields = $this->input->get('customFieldValue_' . $fieldId);
+
+                    if (!empty($fields)) {
+
                         // Cater for custom fields select list
                         // To detect if there is no value selected for the select list custom fields
-                        if( in_array( 'defaultList', $fields ) )
-                        {
-                            $tempKey = array_search( 'defaultList', $fields );
+
+                        if (in_array('defaultList', $fields)) {
+                            $tempKey = array_search('defaultList', $fields);
                             $fields[ $tempKey ] = '';
                         }
                     }
 
-                    $post->bindCustomFields( $fields, $fieldId );
+                    $post->bindCustomFields($fields, $fieldId);
                 }
             }
         }
     }
 
     /**
-     * Displays the branch confirmation form
+     * Displays confirmation to branch a reply
      *
-     * @since   1.0
+     * @since   4.0
      * @access  public
      * @param   string
      * @return
      */
-    public function branchForm( $id )
+    public function branchForm()
     {
-        $ajax   = new Disjax();
+        $id = $this->input->get('id', 0, 'int');
 
-        $model      = DiscussHelper::getModel( 'Posts' );
+        // $model = ED::model('Posts');
+        // $posts = $model->getDiscussions(array('limit' => DISCUSS_NO_LIMIT, 'exclude' => array($id)));
 
-        $posts      = $model->getDiscussions( array( 'limit' => DISCUSS_NO_LIMIT , 'exclude' => array( $id ) ) );
+        $theme = ED::themes();
+        $theme->set('id', $id);
+        $contents = $theme->output('site/post/dialogs/branch');
 
-        $theme  = new DiscussThemes();
-        $theme->set( 'id' , $id );
-
-        $content            = $theme->fetch( 'ajax.post.branch.php' , array('dialog'=> true ) );
-
-        $options            = new stdClass();
-        $options->content   = $content;
-        $options->title     = JText::_( 'COM_EASYDISCUSS_BRANCH_POST_TITLE' );
-
-        $buttons            = array();
-
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_CLOSE' );
-        $button->action     = 'disjax.closedlg();';
-        $buttons[]          = $button;
-
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_BRANCH' );
-        $button->form       = '#frmBranch';
-        $button->className  = 'btn-primary';
-        $buttons[]          = $button;
-
-        $options->buttons   = $buttons;
-
-        $ajax->dialog( $options );
-        $ajax->send();
+        return $this->ajax->resolve($contents);
     }
 
     /**
@@ -3192,442 +2045,118 @@ class EasyDiscussViewPost extends EasyDiscussView
      * @param   string
      * @return
      */
-    public function mergeForm( $id )
+    public function mergeForm()
     {
-        $ajax   = new Disjax();
+        $id = $this->input->get('id', 0, 'int');
 
-        $model      = DiscussHelper::getModel( 'Posts' );
+        $model = ED::model('Posts');
+        $posts = $model->getDiscussions(array('limit' => DISCUSS_NO_LIMIT, 'exclude' => array($id)));
 
-        $posts      = $model->getDiscussions( array( 'limit' => DISCUSS_NO_LIMIT , 'exclude' => array( $id ) ) );
+        $theme  = ED::themes();
+        $theme->set('posts', $posts);
+        $theme->set('id', $id);
+        $theme->set('current', $id);
 
-        $theme  = new DiscussThemes();
-        $theme->set( 'posts'    , $posts );
-        $theme->set( 'current'  , $id );
+        $contents = $theme->output('site/post/dialogs/merge');
 
-        $content            = $theme->fetch( 'ajax.post.merge.php' , array('dialog'=> true ) );
-
-        $options            = new stdClass();
-        $options->content   = $content;
-        $options->title     = JText::_( 'COM_EASYDISCUSS_MERGE_POST_TITLE' );
-
-        $buttons            = array();
-
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_CLOSE' );
-        $button->action     = 'disjax.closedlg();';
-        $buttons[]          = $button;
-
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_MERGE' );
-        $button->form       = '#frmMergePost';
-        $button->className  = 'btn-primary';
-        $buttons[]          = $button;
-
-        $options->buttons   = $buttons;
-
-        $ajax->dialog( $options );
-        $ajax->send();
+        return $this->ajax->resolve($contents);
     }
 
-    public function ajaxOnHoldPost( $id = null )
+    /**
+     * Renders the ban user form
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function banForm()
     {
-        $ajax   = new Disjax();
-        $config = DiscussHelper::getConfig();
+        $id = $this->input->get('id', 0, 'int');
 
-        if( !$id )
-        {
-            $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID') );
-            $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-            $ajax->send();
-            return;
+        // Load the new post object
+        $post = ED::post($id);
+
+        // if (!$post->canBanAuthor()) {
+        //     return $this->ajax->reject();
+        // }
+
+        $theme = ED::themes();
+        $theme->set('post', $post);
+
+        $contents = $theme->output('site/post/dialogs/ban.user');
+
+        return $this->ajax->resolve($contents);
+    }
+
+    /**
+     * Allows caller to set the status of the post
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function status()
+    {
+        // Get the id of the post
+        $id = $this->input->get('id', 0, 'int');
+        $status = $this->input->get('status', 'none', 'word');
+
+        if (!$id) {
+            return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'));
         }
 
-        $post           = DiscussHelper::getTable( 'Post' );
-        $post->load( $id );
+        // Load up the post
+        $post = ED::post($id);
 
-        $isMine     = DiscussHelper::isMine($post->user_id);
-        $isAdmin    = DiscussHelper::isSiteAdmin();
-        $acl        = DiscussHelper::getHelper( 'ACL' );
-        $isModerator    = DiscussHelper::getHelper( 'Moderator' )->isModerator( $post->category_id );
-
-        if ( !$isMine && !$isAdmin && !$acl->allowed('mark_on_hold', '0') )
-        {
-            if( !$isModerator )
-            {
-                $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS') );
-                $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-                $ajax->send();
-                return;
-            }
+        if (!$post->canSetStatus($status)) {
+            return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
         }
 
-        // Turn on the on-hold status,
-        // DISCUSS_POST_STATUS_ON_HOLD = 1
-        $post->post_status = DISCUSS_POST_STATUS_ON_HOLD;
+        $state = $post->setStatus($status);
 
-        // When it is on hold, other status must turn off
-        $post->isresolve = 0;
-
-        if ( !$post->store() )
-        {
-            $ajax->assign( 'dc_main_notifications' , $post->getError() );
-            $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-            $ajax->send();
-            return;
+        if (!$state) {
+            return $this->ajax->reject($post->getError());
         }
 
         // @rule: Add notifications for the thread starter
-        $my     = JFactory::getUser();
-        if( $post->get( 'user_id') != $my->id )
-        {
-            $notification   = DiscussHelper::getTable( 'Notifications' );
-            $notification->bind( array(
-                    'title' => JText::sprintf( 'COM_EASYDISCUSS_ON_HOLD_DISCUSSION_NOTIFICATION_TITLE' , $post->title ),
-                    'cid'   => $post->get( 'id' ),
-                    'type'  => 'onHold',
-                    'target'    => $post->get( 'user_id' ),
-                    'author'    => $my->id,
-                    'permalink' => 'index.php?option=com_easydiscuss&view=post&id=' . $post->get( 'id' )
-                ) );
+        if ($post->user_id != $this->my->id) {
+            $notification = ED::table('Notifications');
+            $notification->bind(array(
+                    'title' => JText::sprintf('COM_EASYDISCUSS_ON_HOLD_DISCUSSION_NOTIFICATION_TITLE', $post->title),
+                    'cid' => $post->id,
+                    'type' => 'onHold',
+                    'target' => $post->user_id,
+                    'author' => $this->my->id,
+                    'permalink' => 'index.php?option=com_easydiscuss&view=post&id=' . $post->id
+                ));
             $notification->store();
         }
 
-        $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_POST_ON_HOLD') );
-        $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-success" );' );
+        $message = JText::_("COM_EASYDISCUSS_POST_NO_STATUS");
 
-        // Remove other status
-        $ajax->script( 'EasyDiscuss.$( ".discuss-item" ).removeClass( "is-resolved" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-on-hold" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-accept" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-working-on" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-reject" );' );
-
-        // Add status
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).addClass("label-post_status-on-hold");' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).html("' . JText::_( "COM_EASYDISCUSS_POST_STATUS_ON_HOLD" ) . '");' );
-        $ajax->send();
-        return;
-    }
-
-    public function ajaxAcceptedPost( $id = null )
-    {
-        $ajax   = new Disjax();
-        $config = DiscussHelper::getConfig();
-
-        if( !$id )
-        {
-            $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID') );
-            $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-            $ajax->send();
-            return;
+        // Set the success message
+        if ($status == 'hold') {
+            $status = JText::_("COM_EASYDISCUSS_POST_STATUS_ON_HOLD");
+            $message = JText::_('COM_EASYDISCUSS_POST_ON_HOLD');
         }
 
-        $post       = DiscussHelper::getTable( 'Post' );
-        $post->load( $id );
-
-        $isMine         = DiscussHelper::isMine($post->user_id);
-        $isAdmin        = DiscussHelper::isSiteAdmin();
-        $acl            = DiscussHelper::getHelper( 'ACL' );
-        $isModerator    = DiscussHelper::getHelper( 'Moderator' )->isModerator( $post->category_id );
-
-        if ( !$isMine && !$isAdmin && !$acl->allowed('mark_accepted', '0') )
-        {
-            if( !$isModerator )
-            {
-                $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS') );
-                $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-                $ajax->send();
-                return;
-            }
+        if ($status == 'accepted') {
+            $status = JText::_("COM_EASYDISCUSS_POST_STATUS_ON_HOLD");
+            $message = JText::_('COM_EASYDISCUSS_POST_ACCEPTED');
         }
 
-        // Turn on the accepted status,
-        // DISCUSS_POST_STATUS_ACCEPTED = 2
-        $post->post_status = DISCUSS_POST_STATUS_ACCEPTED;
-
-        // Other status must turn off
-        $post->isresolve = 0;
-
-        if ( !$post->store() )
-        {
-            $ajax->assign( 'dc_main_notifications' , $post->getError() );
-            $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-            $ajax->send();
-            return;
+        if ($status == 'working') {
+            $status = JText::_("COM_EASYDISCUSS_POST_STATUS_ON_HOLD");
+            $message = JText::_('COM_EASYDISCUSS_POST_WORKING_ON');
         }
 
-        // @rule: Add notifications for the thread starter
-        $my     = JFactory::getUser();
-
-        if( $post->get( 'user_id') != $my->id )
-        {
-            $notification   = DiscussHelper::getTable( 'Notifications' );
-            $notification->bind( array(
-                    'title' => JText::sprintf( 'COM_EASYDISCUSS_ACCEPTED_DISCUSSION_NOTIFICATION_TITLE' , $post->title ),
-                    'cid'   => $post->get( 'id' ),
-                    'type'  => 'accepted',
-                    'target'    => $post->get( 'user_id' ),
-                    'author'    => $my->id,
-                    'permalink' => 'index.php?option=com_easydiscuss&view=post&id=' . $post->get( 'id' )
-                ) );
-            $notification->store();
+        if ($status == 'rejected') {
+            $status = JText::_("COM_EASYDISCUSS_POST_STATUS_ON_HOLD");
+            $message = JText::_('COM_EASYDISCUSS_POST_REJECT');
         }
 
-        // Remove other status
-        $ajax->script( 'EasyDiscuss.$( ".discuss-item" ).removeClass( "is-resolved" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-on-hold" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-accept" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-working-on" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-reject" );' );
-
-        $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_POST_ACCEPTED') );
-        $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-success" );' );
-
-        // Add status
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).addClass("label-post_status-accept");' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).html("' . JText::_( "COM_EASYDISCUSS_POST_STATUS_ACCEPTED" ) . '");' );
-        $ajax->send();
-        return;
-    }
-
-    public function ajaxWorkingOnPost( $id = null )
-    {
-        $ajax   = new Disjax();
-        $config = DiscussHelper::getConfig();
-
-        if( !$id )
-        {
-            $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID') );
-            $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-            $ajax->send();
-            return;
-        }
-
-        $post       = DiscussHelper::getTable( 'Post' );
-        $post->load( $id );
-
-        $isMine     = DiscussHelper::isMine($post->user_id);
-        $isAdmin    = DiscussHelper::isSiteAdmin();
-        $acl        = DiscussHelper::getHelper( 'ACL' );
-        $isModerator    = DiscussHelper::getHelper( 'Moderator' )->isModerator( $post->category_id );
-
-        if ( !$isMine && !$isAdmin && !$acl->allowed('mark_working_on', '0') )
-        {
-            if( !$isModerator )
-            {
-                $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS') );
-                $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).html( "alert alert-error" );' );
-                $ajax->send();
-                return;
-            }
-        }
-
-        // Turn on the accepted status,
-        // DISCUSS_POST_STATUS_WORKING_ON = 3
-        $post->post_status = DISCUSS_POST_STATUS_WORKING_ON;
-
-        // Other status must turn off
-        $post->isresolve = 0;
-
-        if ( !$post->store() )
-        {
-            $ajax->assign( 'dc_main_notifications' , $post->getError() );
-            $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-            $ajax->send();
-            return;
-        }
-
-        // @rule: Add notifications for the thread starter
-        $my     = JFactory::getUser();
-        if( $post->get( 'user_id') != $my->id  )
-        {
-            $notification   = DiscussHelper::getTable( 'Notifications' );
-            $notification->bind( array(
-                    'title' => JText::sprintf( 'COM_EASYDISCUSS_WORKING_ON_DISCUSSION_NOTIFICATION_TITLE' , $post->title ),
-                    'cid'   => $post->get( 'id' ),
-                    'type'  => 'workingOn',
-                    'target'    => $post->get( 'user_id' ),
-                    'author'    => $my->id,
-                    'permalink' => 'index.php?option=com_easydiscuss&view=post&id=' . $post->get( 'id' )
-                ) );
-            $notification->store();
-        }
-
-        // Remove other status
-        $ajax->script( 'EasyDiscuss.$( ".discuss-item" ).removeClass( "is-resolved" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-on-hold" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-accept" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-working-on" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-reject" );' );
-
-
-        $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_POST_WORKING_ON') );
-        $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-success" );' );
-
-        // Add status
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).addClass("label-post_status-working-on");' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).html("' . JText::_( "COM_EASYDISCUSS_POST_STATUS_WORKING_ON" ) . '");' );
-        $ajax->send();
-        return;
-    }
-
-    public function ajaxRejectPost( $id = null )
-    {
-        $ajax   = new Disjax();
-        $config = DiscussHelper::getConfig();
-
-        if( !$id )
-        {
-            $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID') );
-            $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-            $ajax->send();
-            return;
-        }
-
-        $post       = DiscussHelper::getTable( 'Post' );
-        $post->load( $id );
-
-        $isMine     = DiscussHelper::isMine($post->user_id);
-        $isAdmin    = DiscussHelper::isSiteAdmin();
-        $acl        = DiscussHelper::getHelper( 'ACL' );
-        $isModerator    = DiscussHelper::getHelper( 'Moderator' )->isModerator( $post->category_id );
-
-        if ( !$isMine && !$isAdmin && !$acl->allowed('mark_reject', '0') )
-        {
-            if( !$isModerator )
-            {
-                $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS') );
-                $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-                $ajax->send();
-                return;
-            }
-        }
-
-        // Turn on the accepted status,
-        // DISCUSS_POST_STATUS_REJECT = 4
-        $post->post_status = DISCUSS_POST_STATUS_REJECT;
-
-        // Other status must turn off
-        $post->isresolve = 0;
-
-        if ( !$post->store() )
-        {
-            $ajax->assign( 'dc_main_notifications' , $post->getError() );
-            $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-            $ajax->send();
-            return;
-        }
-
-        // @rule: Add notifications for the thread starter
-        $my     = JFactory::getUser();
-        if( $post->get( 'user_id') != $my->id )
-        {
-            $notification   = DiscussHelper::getTable( 'Notifications' );
-            $notification->bind( array(
-                    'title' => JText::sprintf( 'COM_EASYDISCUSS_REJECT_DISCUSSION_NOTIFICATION_TITLE' , $post->title ),
-                    'cid'   => $post->get( 'id' ),
-                    'type'  => 'reject',
-                    'target'    => $post->get( 'user_id' ),
-                    'author'    => $my->id,
-                    'permalink' => 'index.php?option=com_easydiscuss&view=post&id=' . $post->get( 'id' )
-                ) );
-            $notification->store();
-        }
-
-        // Remove other status
-        $ajax->script( 'EasyDiscuss.$( ".discuss-item" ).removeClass( "is-resolved" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-on-hold" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-accept" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-working-on" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-reject" );' );
-
-        $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_POST_REJECT') );
-        $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-success" );' );
-
-        // Add status
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).addClass("label-post_status-reject");' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).html("' . JText::_( "COM_EASYDISCUSS_POST_STATUS_REJECT" ) . '");' );
-        $ajax->send();
-        return;
-    }
-
-    public function ajaxNoStatusPost( $id = null )
-    {
-        $ajax   = new Disjax();
-        $config = DiscussHelper::getConfig();
-
-        if( !$id )
-        {
-            $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID') );
-            $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-            $ajax->send();
-            return;
-        }
-
-        $post           = DiscussHelper::getTable( 'Post' );
-        $post->load( $id );
-
-        $isMine     = DiscussHelper::isMine($post->user_id);
-        $isAdmin    = DiscussHelper::isSiteAdmin();
-        $acl        = DiscussHelper::getHelper( 'ACL' );
-        $isModerator    = DiscussHelper::getHelper( 'Moderator' )->isModerator( $post->category_id );
-
-        if ( !$isMine && !$isAdmin && !$acl->allowed('mark_no_status', '0') )
-        {
-            if( !$isModerator )
-            {
-                $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS') );
-                $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-                $ajax->send();
-                return;
-            }
-        }
-
-        // Turn on the on-hold status,
-        // DISCUSS_POST_STATUS_OFF = 0
-        $post->post_status = DISCUSS_POST_STATUS_OFF;
-
-        if ( !$post->store() )
-        {
-            $ajax->assign( 'dc_main_notifications' , $post->getError() );
-            $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-error" );' );
-            $ajax->send();
-            return;
-        }
-
-        // @rule: Add notifications for the thread starter
-        $my     = JFactory::getUser();
-        if( $post->get( 'user_id') != $my->id )
-        {
-            $notification   = DiscussHelper::getTable( 'Notifications' );
-            $notification->bind( array(
-                    'title' => JText::sprintf( 'COM_EASYDISCUSS_NO_STATUS_DISCUSSION_NOTIFICATION_TITLE' , $post->title ),
-                    'cid'   => $post->get( 'id' ),
-                    'type'  => 'unhold',
-                    'target'    => $post->get( 'user_id' ),
-                    'author'    => $my->id,
-                    'permalink' => 'index.php?option=com_easydiscuss&view=post&id=' . $post->get( 'id' )
-                ) );
-            $notification->store();
-        }
-
-        // Remove other status
-        $ajax->script( 'EasyDiscuss.$( ".discuss-item" ).removeClass( "is-resolved" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-on-hold" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-accept" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-working-on" );' );
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).removeClass( "label-post_status-reject" );' );
-
-        $ajax->assign( 'dc_main_notifications' , JText::_('COM_EASYDISCUSS_POST_NO_STATUS') );
-        $ajax->script( 'EasyDiscuss.$( "#dc_main_notifications" ).addClass( "alert alert-success" );' );
-
-        $ajax->script( 'EasyDiscuss.$( ".postStatus" ).html("");' );
-        $ajax->send();
-        return;
+        return $this->ajax->resolve($status, $message);
     }
 }

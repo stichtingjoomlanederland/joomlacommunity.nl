@@ -27,7 +27,7 @@ class EasydiscussControllerConversation extends JController
 	public function save()
 	{
 		JRequest::checkToken('request') or jexit( 'Invalid Token' );
-		
+
 		$config 		= DiscussHelper::getConfig();
 		$recipientId 	= JRequest::getInt( 'recipient' , 0 );
 		$app 			= JFactory::getApplication();
@@ -45,21 +45,21 @@ class EasydiscussControllerConversation extends JController
 		$content 	= JRequest::getVar( 'message' );
 
 		// Store the new message.
-		$message 	= DiscussHelper::getTable( 'Message' );
-		$message->created_by 	= JFactory::getUser()->id;
-		$message->recipient		= $recipientId;
-		$message->created 		= DiscussHelper::getDate()->toMySQL();
-		$message->lastreplied	= DiscussHelper::getDate()->toMySQL();
+		$message = ED::table('Message');
+		$message->created_by = JFactory::getUser()->id;
+		$message->recipient = $recipientId;
+		$message->created = ED::date()->toMySQL();
+		$message->lastreplied = ED::date()->toSql();
 		$message->store();
 
 		// Store the message meta.
-		$meta 		= DiscussHelper::getTable( 'MessageMeta' );
-		$meta->message_id	= $message->id;
-		$meta->title 		= $title;
-		$meta->message 		= $content;
-		$meta->created		= DiscussHelper::getDate()->toMySQL();
-		$meta->created_by	= JFactory::getUser()->id;
-		$meta->isparent 	= true;
+		$meta = ED::table('MessageMeta');
+		$meta->message_id = $message->id;
+		$meta->title = $title;
+		$meta->message = $content;
+		$meta->created = ED::date()->toSql();
+		$meta->created_by = JFactory::getUser()->id;
+		$meta->isparent = true;
 		$meta->store();
 
 
@@ -86,7 +86,7 @@ class EasydiscussControllerConversation extends JController
 	public function delete()
 	{
 		JRequest::checkToken( 'request' ) or jexit( 'Invalid Token' );
-		
+
 		// Detect the message id.
 		$id 	= JRequest::getInt( 'id' , 0 );
 
@@ -133,7 +133,7 @@ class EasydiscussControllerConversation extends JController
 	public function unread()
 	{
 		JRequest::checkToken( 'request' , 'get' ) or jexit( 'Invalid Token' );
-		
+
 		$id 	= JRequest::getInt( 'id' );
 		$app 	= JFactory::getApplication();
 
@@ -157,7 +157,7 @@ class EasydiscussControllerConversation extends JController
 			$app->close();
 		}
 
-		$model 	= DiscussHelper::getModel( 'Messaging' );
+		$model 	= ED::model( 'Messaging' );
 		$model->markUnread( $message->id , $my->id );
 
 		DiscussHelper::setMessageQueue( JText::_( 'The message is now marked as unread.' ) , DISCUSS_QUEUE_SUCCESS );

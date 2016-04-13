@@ -1,0 +1,12 @@
+[
+    {
+        "table": "#__discuss_subscription",
+        "column": "sort",
+        "query": "ALTER TABLE `#__discuss_subscription` ADD `sort` VARCHAR(25) NOT NULL DEFAULT 'recent';"
+    },
+    {
+        "table": "#__discuss_subscription",
+        "column": "count",
+        "query": "ALTER TABLE `#__discuss_subscription` ADD `count` INT(11) NOT NULL DEFAULT '10';"
+    }
+]

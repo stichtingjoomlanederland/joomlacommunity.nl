@@ -1,313 +1,273 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once DISCUSS_ROOT . '/views.php';
-require_once DISCUSS_CLASSES . '/composer.php';
+require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewAsk extends EasyDiscussView
 {
 	/**
-	 *	Method is called when the new form is called.
+	 * Displays the post new question form
 	 *
-	 * @since	1.0
+	 * @since	4.0
 	 * @access	public
+	 * @param	string
+	 * @return
 	 */
 	public function display($tpl = null)
 	{
-		$app	= JFactory::getApplication();
-		$doc	= JFactory::getDocument();
-		$my		= JFactory::getUser();
-		$acl	= DiscussHelper::getHelper( 'ACL' );
-		$config	= DiscussHelper::getConfig();
-
 		// Load post item
-		$id		= JRequest::getInt( 'id' , 0 );
-		$post	= DiscussHelper::getTable( 'Post' );
-		$post->load( $id );
+		$id = $this->input->get('id', 0, 'int');
 
-		$post->content_raw = $post->content;
+		// There is a possibility that this post is being edited so we try to load it first.
+		$post = ED::post($id);
 
-		$editing	= (bool) $post->id;
+		// Determines if we are editing a post.
+		$editing = (bool) $post->id;
 
-		if( ! $editing )
-		{
-			// try to get from session if there are any.
-			$this->getSessionData( $post );
-			$post->content_raw = $post->content;
+		// Try to get from session if there are any because the user might hit an error and we need to reload the values
+		if (!$editing) {
+			$this->getSessionData($post);
 		}
+		
+		// If caller passed in a category id, we need to select the category for them
+		$categoryId = $this->input->get('category', $post->category_id, 'int');
+		$category = ED::category($categoryId);
 
-		$categoryId	= JRequest::getInt( 'category' , $post->category_id );
-
-		// Load category item.
-		$category 	= DiscussHelper::getTable( 'Category' );
-		$category->load( $categoryId );
+		// If caller passed in a cluster id, we need to associate this post with the cluster id.
+		$clusterId = $this->input->get('group_id', 0, 'int');
 
 		// Check if user is allowed to post a discussion, we also need to check against the category acl
-		if( empty($my->id) && !$acl->allowed('add_question', 0 ) )
-		{
-			DiscussHelper::setMessageQueue( JText::_('COM_EASYDISCUSS_PLEASE_KINDLY_LOGIN_TO_CREATE_A_POST') );
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=index' , false ) );
-
-			$app->close();
-			return;
+		if ($this->my->guest && !$this->acl->allowed('add_question', 0)) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_PLEASE_KINDLY_LOGIN_TO_CREATE_A_POST'), 'error');
+			return $this->app->redirect(EDR::_('view=forums', false));
 		}
 
-		if( $my->id != 0 && !$acl->allowed('add_question', '0') && !$category->canPost() )
-		{
-			$app->redirect( DiscussRouter::_('index.php?option=com_easydiscuss&view=index' , false ) , JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS') );
-			$app->close();
-			return;
+		// Ensure that logged in users can really post
+		if (!$this->my->guest && !$this->acl->allowed('add_question', '0') && !$category->canPost()) {
+			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false), JText::_('COM_EASYDISCUSS_NOT_ALLOWED_TO_POST_QUESTION'));
+		}
+
+		// Set the page title.
+		$title = JText::_('COM_EASYDISCUSS_TITLE_ASK');
+
+		if ($id && $post->id) {
+			$title = JText::sprintf('COM_EASYDISCUSS_TITLE_EDIT_QUESTION', $post->getTitle());
 		}
 
 		// Set the breadcrumbs.
-		$this->setPathway( JText::_( 'COM_EASYDISCUSS_BREADCRUMBS_ASK') );
+		ED::setPageTitle($title);
+		$this->setPathway('COM_EASYDISCUSS_BREADCRUMBS_ASK');
 
-		// Set the page title.
-		$title	= JText::_( 'COM_EASYDISCUSS_TITLE_ASK' );
+		if ($editing) {
+			$isModerator = ED::moderator()->isModerator($post->category_id);
 
-		if( $id && $post->id )
-		{
-			$title 	= JText::sprintf( 'COM_EASYDISCUSS_TITLE_EDIT_QUESTION' , $post->getTitle() );
-		}
-
-		// Set the page title
-		DiscussHelper::setPageTitle( $title );
-
-
-		if( $editing )
-		{
-			$isModerator = DiscussHelper::getHelper( 'Moderator' )->isModerator( $post->category_id );
-			if( !DiscussHelper::isMine( $post->user_id ) && !DiscussHelper::isSiteAdmin() && !$acl->allowed( 'edit_question' ) && !$isModerator)
-			{
-				$app->redirect( DiscussRouter::_('index.php?option=com_easydiscuss&view=post&id='.$postid , false ) , JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS') );
-				$app->close();
+			if (!ED::isMine($post->user_id) && !ED::isSiteAdmin() && !$this->acl->allowed('edit_question') && !$isModerator) {
+				return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=post&id='.$postid, false), JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
 			}
 
-			$tagsModel	= DiscussHelper::getModel( 'PostsTags' );
-			$post->tags	= $tagsModel->getPostTags( $post->id );
+			$tagsModel = ED::model('PostsTags');
+			$post->tags	= $tagsModel->getPostTags($post->id);
 		}
-		else
-		{
-			if( $categoryId )
-			{
-				// set the default category
-				$post->category_id = $categoryId;
-			}
+
+		// If this is a new post form and a category id is given, we should set it to the default.
+		if ($categoryId) {
+			$post->category_id = $categoryId;
 		}
 
 		$attachments = $post->getAttachments();
 
-		if( isset( $post->sessiondata ) )
-		{
-			$attachments    = '';
+		// If there was an error on the form, reset the attachments
+		if (isset($post->sessiondata)) {
+			$attachments = '';
 		}
 
+		$model = ED::model('Posts');
 
-		$model		= DiscussHelper::getModel( 'Posts' );
-		$postCount	= count( $model->getPostsBy( 'user' , $my->id ) );
+		// @TODO: Very bad! Fix this
+		$postCount = count($model->getPostsBy('user', $this->my->id));
 
-
-		$onlyPublished = ( empty( $post->id ) ) ? true : false;
+		$onlyPublished = (empty($post->id)) ? true : false;
 
 		// @rule: If there is a category id passed through the query, respect it first.
-		$showPrivateCat		= ( empty($post->id) && $my->id == 0 ) ? false : true;
+		$showPrivateCat = (!$post->id && $this->my->guest) ? false : true;
 
-		// [model:category]
-		$categoryModel		= $this->getModel( 'Category' );
+		$categoryModel = ED::model('Category');
+		$defaultCategory = $categoryModel->getDefaultCategory();
 
-		$defaultCategory	= $categoryModel->getDefaultCategory();
-
-		if( $categoryId == 0 && $defaultCategory !== false )
-		{
-			$categoryId 		= $defaultCategory->id;
+		if ($categoryId == 0 && $defaultCategory !== false) {
+			$categoryId = $defaultCategory->id;
 		}
 
-		$nestedCategories	= '';
-		$categories			= '';
+		// Category container cannot be selected when creating a discussion.
+		if ($category->isContainer()) {
 
-		if( $config->get( 'layout_category_selection' ) == 'multitier' )
-		{
-			$categoriesModel	= $this->getModel( 'Categories');
-			$categories			= $categoriesModel->getCategories( array('acl_type' => DISCUSS_CATEGORY_ACL_ACTION_SELECT) );
-		}
-		else
-		{
-			$nestedCategories	= DiscussHelper::populateCategories('', '', 'select', 'category_id', $categoryId , true, $onlyPublished, $showPrivateCat , true );
-		}
+			// We must assign this category with its child.
+			$childCategory = $category->getChildIds($categoryId);
 
-		// if nested categories return null result
-		if ($my->id != 0 && empty($nestedCategories)) {
-			$app->redirect( DiscussRouter::_('index.php?option=com_easydiscuss&view=index' , false ) , JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS') );
-			$app->close();
-			return;
+			if (count($childCategory) > 0) {
+				$categoryId = $childCategory[0];
+			} else {
+				$categoryId = ($defaultCategory !== false) ? $defaultCategory->id : '';
+			}
 		}
 
-		// if( $config->get( 'layout_editor' ) == 'bbcode' )
-		// {
-		// 	// Legacy fix when switching from WYSIWYG editor to bbcode.
-		// 	$post->content	= EasyDiscussParser::html2bbcode( $post->content );
-		// }
-		// else
-		// {
-		// 	$post->content = DiscussHelper::parseContent( $post->content, true );
-		// }
+		// Generate the categories dropdown
+		// We know this dropdown need to check for 'select' category permission
+		// So, we add DISCUSS_CATEGORY_ACL_ACTION_SELECT
+		$categories = ED::populateCategories('', '', 'select', 'category_id', $categoryId , true, $onlyPublished, $showPrivateCat , true, 'form-control', '',  DISCUSS_CATEGORY_ACL_ACTION_SELECT);
+
+		// If there are no categories, there is a possibility that the user doesn't have access
+		if (!$categories) {
+
+			ED::setMessage('COM_EASYDISCUSS_NOT_ALLOWED_TO_POST_QUESTION');
+
+			$redirect = EDR::_('view=forums', false);
+
+			return $this->app->redirect($redirect);
+		}
 
 		$editor = '';
-		if( $config->get('layout_editor' ) != 'bbcode' )
-		{
-			$editor	= JFactory::getEditor( $config->get('layout_editor' ) );
+
+		if ($this->config->get('layout_editor') != 'bbcode') {
+			$editor	= JFactory::getEditor($this->config->get('layout_editor'));
 		}
 
 		// Get list of moderators from the site.
 		$moderatorList = array();
-		if( $config->get('main_assign_user') )
-		{
-			$moderatorList	= DiscussHelper::getHelper( 'Moderator' )->getSelectOptions( $post->category_id );
+
+		if ($this->config->get('main_assign_user')) {
+			$moderatorList = ED::moderator()->getSelectOptions($post->category_id);
 		}
 
 		// Get post types list
-		$postTypesModel = DiscussHelper::getModel( 'Post_types' );
-		$postTypes = $postTypesModel->getTypes();
+		$postTypesModel = ED::model('PostTypes');
+		$postTypes = $postTypesModel->getTypes(true);
 
-		$composer = new DiscussComposer("creating", $post);
-
-		// Set the discussion object.
-		$access		= $post->getAccess( $category );
-
-		$theme 		= new DiscussThemes();
+		// Get the composer library
+		$operation = $post->isNew() ? 'creating' : 'editing';
+		$composer = ED::composer($operation, $post);
 
 		// Test if reference is passed in query string.
-		$reference 		= JRequest::getWord( 'reference' );
-		$referenceId	= JRequest::getInt( 'reference_id' , 0 );
-		$redirect		= JRequest::getVar( 'redirect' , '' );
+		$reference = $this->input->get('reference', '', 'word');
+		$referenceId = $this->input->get('reference_id', 0, 'int');
+		$redirect = $this->input->get('redirect', '', 'default');
 
-		$theme->set( 'redirect'			, $redirect );
-		$theme->set( 'reference'		, $reference );
-		$theme->set( 'referenceId'		, $referenceId );
+		// Get a list of tags on the site
+		$tagsModel = ED::model('Tags');
+		$tags = $tagsModel->getTags();
+
+		// Get post priorities
+		$priorities = array();
+		
+		if ($this->config->get('post_priority')) {
+			$prioritiesModel = ED::model('Priorities');
+			$priorities = $prioritiesModel->getPriorities();
+		}
+
+		// Determines if captcha should be enabled
+		$captcha = ED::captcha();
+
+		// Prepare the cancel link
+		$cancel = EDR::_('view=forums');
+
+		if ($post->id) {
+			$cancel = $post->getPermalink();
+		}
+
+		$this->set('cancel', $cancel);
+		$this->set('post', $post);
+		$this->set('categories', $categories);
+		$this->set('postTypes', $postTypes);
+		$this->set('captcha', $captcha);
+		$this->set('tags', $tags);
+		$this->set('priorities', $priorities);
+		$this->set('redirect', $redirect);
 
 
-		$theme->set( 'isEditMode'		, $editing );
-		$theme->set( 'post'				, $post );
-		$theme->set( 'composer'			, $composer );
-		$theme->set( 'nestedCategories'	, $nestedCategories );
-		$theme->set( 'attachments'		, $attachments );
-		$theme->set( 'editor'			, $editor );
-		$theme->set( 'moderatorList'	, $moderatorList );
-		$theme->set( 'categories'		, $categories );
-		$theme->set( 'access'			, $access );
-		$theme->set( 'postTypes'		, $postTypes );
 
-		// Deprecated since 3.0. Will be removed in 4.0
-		$theme->set( 'config'			, $config );
+		// $this->set('reference', $reference);
+		// $this->set('referenceId', $referenceId);
+		// $this->set('isEditMode', $editing);
+		$this->set('composer', $composer);
+		$this->set('attachments', $attachments);
+		$this->set('editor', $editor);
+		$this->set('moderatorList', $moderatorList);
+		$this->set('clusterId', $clusterId);
 
-		echo $theme->fetch( 'form.new.php' );
+		parent::display('ask/default');
 	}
 
-	private function getSessionData( &$post )
+	private function getSessionData(&$post)
 	{
 		// Get form values from session.
-		$data		= DiscussHelper::getSession('NEW_POST_TOKEN');
+		$data = ED::getSession('NEW_POST_TOKEN');
 
-		if( !empty( $data ) )
-		{
+		if (!empty($data)) {
+
 			// Try to bind the data from the object.
-			$post->bind( $data , true );
+			$post->bind($data, true);
 
-			//$post->polls			= array();
-			$post->tags				= array();
-			$post->attachments		= array();
+			$post->tags	= array();
+			$post->attachments = array();
 
-			if( isset( $data[ 'tags' ] ) )
-			{
-				foreach( $data[ 'tags' ] as $tag )
-				{
-					$obj 			= new stdClass();
-					$obj->title		= $tag;
+			if (isset($data['tags'])) {
 
-					$post->tags[]	= $obj;
+				foreach ($data['tags'] as $tag) {
+					$obj = new stdClass();
+					$obj->title	= $tag;
+
+					$post->tags[] = $obj;
 				}
 			}
 
-			if( isset($data['polls']) && isset($data['pollitems']) && is_array($data['pollitems']) )
-			{
+			if (isset($data['polls']) && isset($data['pollitems']) && is_array($data['pollitems'])) {
+
 				$polls = array();
-				foreach( $data['pollitems'] as $key => $value )
-				{
-					$poll		 = DiscussHelper::getTable( 'Poll' );
-					$poll->id 	 = $key;
+
+				foreach ($data['pollitems'] as $key => $value) {
+					$poll = ED::table('Poll');
+					$poll->id = $key;
 					$poll->value = $value;
 
-					$polls[]	= $poll;
+					$polls[] = $poll;
 				}
-				$post->setPolls( $polls );
+
+				$post->setPolls($polls);
 			}
 
-			$poll 	= DiscussHelper::getTable( 'PollQuestion' );
-			$poll->title    	= isset( $data['poll_question'] ) ? $data['poll_question'] : '';
-			$poll->multiple    	= isset( $data['multiplePolls'] ) ? $data['multiplePolls'] : false;
+			$poll = ED::table('PollQuestion');
+			$poll->title = isset($data['poll_question']) ? $data['poll_question'] : '';
+			$poll->multiple = isset($data['multiplePolls']) ? $data['multiplePolls'] : false;
 
-
-			$post->setPollQuestions( $poll );
-
+			// $post->setPollQuestions($poll);
 
 			// Process custom fields.
 			$customfields = array();
-			$fieldIds 	  = isset( $data['customFields'] ) ? $data['customFields'] : '';
-			if( !empty($fieldIds) )
-			{
-				foreach( $fieldIds as $fieldId )
-				{
-					$fields	= isset( $data['customFieldValue_'.$fieldId ] ) ? $data['customFieldValue_'.$fieldId ] : '';
-					//$post->bindCustomFields( $fields, $fieldId );
-					//$customfields[] = array( $fieldId => $fields[0] );
-					$customfields[] = array( $fieldId => $fields );
+			$fieldIds = isset($data['customFields']) ? $data['customFields'] : '';
+
+			if (!empty($fieldIds)) {
+
+				foreach ($fieldIds as $fieldId) {
+
+					$fields	= isset($data['customFieldValue_'.$fieldId]) ? $data['customFieldValue_'.$fieldId] : '';
+
+					$customfields[] = array($fieldId => $fields);
 				}
 
-				$post->setCustomFields( $customfields );
+				$post->setCustomFields($customfields);
 			}
 
-// 			$attachmentsTmp = $data['attachments'];
-//
-// 			if( $attachmentsTmp )
-// 			{
-// 				$attachments	= array();
-//
-// 				for( $i = 0; $i < count($attachmentsTmp['name']); $i++ )
-// 				{
-//
-// 					$row = new stdClass();
-//
-// 					$row->title = $attachmentsTmp['name'][$i];
-// 					$row->mime  = $attachmentsTmp['type'][$i];
-// 					$row->type  = 'question';
-//
-// 					$table	= JTable::getInstance( 'Attachments' , 'Discuss' );
-// 					$table->bind( $row );
-//
-// 					$type = explode("/", $row->mime);
-// 					$table->attachmentType = $type[0];
-//
-// 					$attachments[]	= $table;
-// 				}
-//
-// 				$post->setAttachments($attachments);
-// 			}
-
-
-
-
-			$post->bindParams( $data );
+			$post->bindParams($data);
 
 			$post->sessiondata = true;
 		}

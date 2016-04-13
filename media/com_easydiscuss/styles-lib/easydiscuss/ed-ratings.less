@@ -1,0 +1,40 @@
+// ED Ratings
+// ----------------
+
+.ed-ratings {
+    display: table;
+    table-layout: fixed;
+    width: auto;
+    font-size: @fd-base-font-size;
+    &__note-col,
+    &__star-col {
+        padding-right: @fd-base-spacing--sm;
+    }
+    &__value {
+        background-color: @fd-ui-shade;
+        border-radius: 16px;
+        color: @fd-ui-text-color;
+        // width: 25px;
+        padding: @fd-base-spacing--sm @fd-base-spacing;
+        text-align: center;
+        text-decoration: none !important;
+        font-weight: bold;
+        font-size: @fd-base-font-size--xs;
+    }
+}
+.ed-rating {
+    color: @fd-brand-warning;
+}
+
+.ed_ratings__state-voted {
+    display: none;
+}
+.is-voted {
+    .ed-ratings__value {
+        background-color: @fd-brand-success;
+        color: @fd-ui-text-color--inverse;
+    }
+    .ed_ratings__state-voted {
+        display: inline-block;
+    }
+}

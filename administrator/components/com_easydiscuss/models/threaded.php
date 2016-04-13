@@ -215,30 +215,37 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 		return $this->_pagination;
 	}
 
-	function publish( &$posts = array(), $publish = 1 )
+	/**
+	 * Method to publish or unpublish posts
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @return	array
+	 */
+	public function publishThread($ids = array(), $publish = 1)
 	{
-		if( count( $posts ) > 0 )
-		{
-			$db		= DiscussHelper::getDBO();
-
-			$ids	= implode( ',' , $posts );
-
-			$query	= 'UPDATE ' . $db->nameQuote( '#__discuss_posts' ) . ' '
-					. 'SET ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( $publish ) . ' '
-					. 'WHERE ' . $db->nameQuote( 'id' ) . ' IN (' . $ids . ')';
-			$db->setQuery( $query );
-
-			if( !$db->query() )
-			{
-				$this->setError($this->_db->getErrorMsg());
-				return false;
-			}
-			return true;
+		if (!$ids) {
+			return false;
 		}
-		return false;
+
+		$db = ED::db();
+		$ids = implode(',', $ids);
+
+		$query = 'UPDATE ' . $db->nameQuote('#__discuss_thread') . ' '
+				. 'SET ' . $db->nameQuote('published') . '=' . $db->Quote($publish) . ' '
+				. 'WHERE ' . $db->nameQuote('post_id') . ' IN (' . $ids . ')';
+
+		$db->setQuery($query);
+
+		if (!$db->query()) {
+			$this->setError($db->getErrorMsg());
+
+			return false;
+		}
+
+		return true;
 	}
-
-
+	
 	function getAllPosts()
 	{
 		$db = DiscussHelper::getDBO();

@@ -12,7 +12,9 @@
  */
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussConfigs extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussConfigs extends EasyDiscussTable
 {
 	/*
 	 * The key of the current config

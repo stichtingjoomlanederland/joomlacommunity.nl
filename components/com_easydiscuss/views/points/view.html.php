@@ -1,19 +1,17 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
 defined('_JEXEC') or die('Restricted access');
 
-require_once( DISCUSS_ROOT . '/views.php' );
-require_once( DISCUSS_HELPERS . '/url.php' );
+require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewPoints extends EasyDiscussView
 {
@@ -23,52 +21,44 @@ class EasyDiscussViewPoints extends EasyDiscussView
 	 * @since	2.0
 	 * @access	public
 	 */
-	public function history( $tmpl = null )
+	public function display($tmpl = null)
 	{
-		$app	= JFactory::getApplication();
-		$id 	= JRequest::getInt( 'id' );
+		$id = $this->input->get('id');
+		$dateContainer = '';
 
-		if( !$id )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'Unable to locate the id of the user.' ) , DISCUSS_QUEUE_ERROR );
-			$app->redirect( 'index.php?option=com_easydiscuss' );
-			$app->close();
+		if (!$id) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_NOT_LOCATED_USER_ID'), 'error');
+			return $this->app->redirect(EDR::_('view=index'));
 		}
-		
-		$model 		= DiscussHelper::getModel( 'Points' , true );
-		$history	= $model->getPointsHistory( $id );
 
-		foreach( $history as $item )
-		{
-			$date = DiscussDateHelper::dateWithOffSet( $item->created );
-			$item->created = $date->toFormat( '%A, %b %e %Y' );
+		$model = ED::model('Points', true);
+		$history = $model->getPointsHistory($id);
+		$user = ED::user($id);
 
-			$points = DiscussHelper::getHelper('Points')->getPoints( $item->command );
+		foreach ($history as $item) {
+			$points = ED::points()->getPoints($item->command);
 
-			if( $points )
-			{
-				if( $points[0]->rule_limit < 0 )
-				{
+			if ($points) {
+
+				if ($points[0]->rule_limit < 0) {
 					$item->class = 'badge-important';
 					$item->points = $points[0]->rule_limit;
-				}
-				else
-				{	
+				} else {
 					$item->class = 'badge-info';
 					$item->points = '+'.$points[0]->rule_limit;
 				}
-			}
-			else
-			{
-				$item->class 	= 'badge-info';
-				$item->points	= '+';
+			} else {
+				$item->class = 'badge-info';
+				$item->points = '+';
 			}
 		}
 
-		$theme		= new DiscussThemes();
+		$history = ED::points()->group($history);
 
-		$theme->set( 'history' , $history );
-		echo $theme->fetch( 'points.history.php' );
+		$this->set('history', $history);
+		$this->set('dateContainer', $dateContainer);
+		$this->set('user', $user);
+
+		parent::display('points/default');
 	}
-
 }

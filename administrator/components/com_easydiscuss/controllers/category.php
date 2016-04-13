@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,9 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
-
-jimport('joomla.application.component.controller');
+defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussControllerCategory extends EasyDiscussController
 {
@@ -19,19 +17,18 @@ class EasyDiscussControllerCategory extends EasyDiscussController
 	{
 		parent::__construct();
 
-		$this->registerTask( 'add' , 'edit' );
-
+		$this->checkAccess('discuss.manage.categories');
+		$this->registerTask('add', 'edit');
 		$this->registerTask('publish', 'publish');
 		$this->registerTask('unpublish', 'unpublish');
-
-		$this->registerTask( 'apply' , 'save' );
-		$this->registerTask( 'savepublishnew' , 'save' );
+		$this->registerTask('apply', 'save');
+		$this->registerTask('save2new', 'save');
 	}
 
 	public function orderdown()
 	{
 		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
+		ED::checkToken();
 
 		EasyDiscussControllerCategory::orderCategory(1);
 	}
@@ -39,378 +36,248 @@ class EasyDiscussControllerCategory extends EasyDiscussController
 	public function orderup()
 	{
 		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
+		ED::checkToken();
 
 		EasyDiscussControllerCategory::orderCategory(-1);
 	}
 
-	public function orderCategory( $direction )
+	public function orderCategory($direction)
 	{
 		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
-
-		$mainframe  = JFactory::getApplication();
+		ED::checkToken();
 
 		// Initialize variables
-		$db		= DiscussHelper::getDBO();
-		$cid	= JRequest::getVar( 'cid', array(), 'post', 'array' );
+		$db = ED::db();
+		$cid = $this->input->get('cid', array(), 'post', 'array');
 
-		if (isset( $cid[0] ))
-		{
-			$row = JTable::getInstance('Category', 'Discuss');
-			$row->load( (int) $cid[0] );
-			$row->move($direction);
+		if (isset($cid[0])) {
+			$id = (int) $cid[0];
+			$category = ED::category($id);
+			$category->move($direction);
 		}
 
-		$mainframe->redirect( 'index.php?option=com_easydiscuss&view=categories');
+		$this->app->redirect('index.php?option=com_easydiscuss&view=categories');
 		exit;
 	}
 
 	public function saveOrder()
 	{
 		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
+		ED::checkToken();
 
-		$mainframe  = JFactory::getApplication();
+		$model = ED::model('Category');
+		$model->rebuildOrdering();
 
-		$row = JTable::getInstance('Category', 'Discuss');
-		$row->rebuildOrdering();
+		$message = JText::_('COM_EASYDISCUSS_CATEGORIES_ORDERING_SAVED');
 
-		$message	= JText::_('COM_EASYDISCUSS_CATEGORIES_ORDERING_SAVED');
-
-		DiscussHelper::setMessageQueue( $message , DISCUSS_QUEUE_SUCCESS );
-		$mainframe->redirect( 'index.php?option=com_easydiscuss&view=categories' );
-		exit;
+		ED::setMessage($message, 'success');
+		return $this->app->redirect('index.php?option=com_easydiscuss&view=categories');
 	}
 
 	public function removeAvatar()
 	{
 		// Check for request forgeries
-		JRequest::checkToken( 'get' ) or jexit( 'Invalid Token' );
+		ED::checkToken('get');
 
-		$id			= JRequest::getInt( 'id' );
-		$category	= DiscussHelper::getTable( 'Category' );
-		$category->load( $id );
+		$id = $this->input->get('id', 0, 'int');
 
-		$state		= $category->removeAvatar( true );
+		$category = ED::category($id);
+		$state = $category->deleteAvatar(true);
 
-		DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_CATEGORY_AVATAR_REMOVED') , DISCUSS_QUEUE_SUCCESS );
+		ED::setMessage(JText::_('COM_EASYDISCUSS_CATEGORY_AVATAR_REMOVED'), 'success');
 
-		JFactory::getApplication()->redirect( 'index.php?option=com_easydiscuss&view=category&catid=' . $category->id );
+		return $this->app->redirect('index.php?option=com_easydiscuss&view=categories&layout=form&id=' . $category->id);
 	}
 
-	public function saveOrderOri()
-	{
-		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
-
-		$mainframe  = JFactory::getApplication();
-		$cid		= JRequest::getVar( 'cid', array(0), 'post', 'array' );
-		$order		= JRequest::getVar( 'order', array (0), 'post', 'array' );
-		$total		= count($cid);
-		$conditions	= array ();
-		$groupings	= array();
-
-		JArrayHelper::toInteger($cid, array(0));
-		JArrayHelper::toInteger($order, array(0));
-
-		$row = JTable::getInstance('Category', 'Discuss');
-
-		// Update the ordering for items in the cid array
-		for ($i = 0; $i < $total; $i ++)
-		{
-			$row->load( (int) $cid[$i] );
-
-			$groupings[] = $row->parent_id;
-
-			if ($row->ordering != $order[$i]) {
-				$row->ordering = $order[$i];
-				if (!$row->store()) {
-					JError::raiseError( 500, $db->getErrorMsg() );
-					return false;
-				}
-				// remember to updateOrder this group
-				$condition = 'id = '.(int) $row->id;
-				$found = false;
-				foreach ($conditions as $cond)
-					if ($cond[1] == $condition) {
-						$found = true;
-						break;
-					}
-				if (!$found)
-					$conditions[] = array ($row->id, $condition);
-			}
-		}
-
-		// execute updateOrder for each group
-		foreach ($conditions as $cond)
-		{
-			$row->load($cond[0]);
-			$row->reorder($cond[1]);
-		}
-
-		$message	= JText::_('COM_EASYDISCUSS_CATEGORIES_ORDERING_SAVED');
-
-		DiscussHelper::setMessageQueue( $message , DISCUSS_QUEUE_SUCCESS );
-
-		$mainframe->redirect( 'index.php?option=com_easydiscuss&view=categories' );
-		exit;
-	}
-
+	/**
+	 * Triggered when we need to store a new category or save an existing category
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function save()
 	{
 		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
+		ED::checkToken();
 
-		$mainframe	= JFactory::getApplication();
+		// Default redirection URL
+		$url = 'index.php?option=com_easydiscuss&view=categories';
+		$urlCatForm = 'index.php?option=com_easydiscuss&view=categories&layout=form';
 
-		$task 		= $this->getTask();
+		// Get posted data
+		$post = $this->input->getArray('post');
 
-		$message	= '';
-		$type		= 'success';
+		// If this is an edited category
+		$id = $this->input->get('id', 0, 'int');
+		$isNew = $id ? false : true;
 
-		if( JRequest::getMethod() == 'POST' )
-		{
-			$post				= JRequest::get( 'post' );
+		// Load the category
+		$category = ED::category($id);
 
-			if(empty($post['title']))
-			{
-				DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_CATEGORIES_INVALID_CATEGORY') , DISCUSS_QUEUE_ERROR );
+		// Ensure that the data posted is valid
+		$user = ED::user();
+		$post['created_by'] = $user->id;
 
-				$url  = 'index.php?option=com_easydiscuss&view=categories';
-				$mainframe->redirect(JRoute::_($url, false));
-				return;
-			}
+		// We need to allow description to contain raw codes
+		$post['description'] = $this->input->post->get('description', '', 'raw');
 
-			$category			= JTable::getInstance( 'Category', 'Discuss' );
-			$user				= JFactory::getUser();
-			$post['created_by']	= $user->id;
-			$catId				= JRequest::getVar( 'catid' , '' );
+		// This determines if we should update the ordering during the save
+		$updateOrdering = true;
 
-			$isNew				= (empty($catId)) ? true : false;
-			$alterOrdering		= true;
-
-			if( !empty( $catId ) )
-			{
-				$category->load( $catId );
-				$newParentId  = $post['parent_id'];
-
-				if( $category->parent_id != $newParentId)
-				{
-					$alterOrdering  = true;
-				}
-				else
-				{
-					$alterOrdering  = false;
-				}
-
-				$post['id'] = $catId;
-			}
-
-			$category->bind( $post );
-
-			// Description might contain html codes
-			$description 			= JRequest::getVar( 'description' , '' , 'post' , 'string' , JREQUEST_ALLOWRAW );
-			$category->description 	= $description;
-
-			// Bind params
-			$params 			= DiscussHelper::getRegistry('');
-			$params->set( 'show_description' , $post['show_description'] );
-			$params->set( 'maxlength' , $post['maxlength'] );
-			$params->set( 'maxlength_size' , $post['maxlength_size'] );
-			$params->set( 'cat_notify_custom' , $post['cat_notify_custom'] );
-			$params->set( 'cat_email_parser' , $post['cat_email_parser'] );
-			$params->set( 'cat_email_parser_password' , $post['cat_email_parser_password'] );
-			$params->set( 'cat_email_parser_switch' , $post['cat_email_parser_switch'] );
-
-			$category->params 	= $params->toString();
-
-			if (!$category->store( $alterOrdering ))
-			{
-				JError::raiseError(500, $category->getError() );
-				exit;
-			}
-
-			//save the category acl
-			$category->deleteACL();
-			$category->saveACL( $post );
-
-
-			$file = JRequest::getVar( 'Filedata', '', 'files', 'array' );
-			if(! empty($file['name']))
-			{
-				$newAvatar			= DiscussHelper::uploadCategoryAvatar($category, true);
-				$category->avatar	= $newAvatar;
-				$category->store(); //now update the avatar.
-			}
-
-			// now we need to rerun the category ordering incase admin assign the correct category tree as a child of another category.
-			$category->rebuildOrdering();
-
-			$message	= JText::_( 'COM_EASYDISCUSS_CATEGORIES_SAVED_SUCCESS' );
-		}
-		else
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_REQUEST');
-			$type		= 'error';
+		if (!$isNew && $category->parent_id == $post['parent_id']) {
+			$updateOrdering = false;
 		}
 
-		DiscussHelper::setMessageQueue( $message , $type );
+		// Bind the posted data
+		$category->bind($post);
 
-		if( $task == 'savePublishNew' )
-		{
-			$mainframe->redirect( 'index.php?option=com_easydiscuss&view=category' );
-			$mainframe->close();
+		// Set the category params
+		$params = new JRegistry();
+		$params->set('show_description', $post['show_description']);
+		$params->set('maxlength', $post['maxlength']);
+		$params->set('maxlength_size', $post['maxlength_size']);
+		$params->set('cat_notify_custom', $post['cat_notify_custom']);
+		$params->set('cat_email_parser', $post['cat_email_parser']);
+		$params->set('cat_email_parser_password', $post['cat_email_parser_password']);
+		$params->set('cat_email_parser_switch', $post['cat_email_parser_switch']);
+
+		// Set the params to category
+		$category->set('params', $params->toString());
+
+		// Determine the redirection if the validate is fail
+		$validateRedirection = $isNew ? $urlCatForm : $urlCatForm . '&id=' . $category->id;
+
+		// We need to ensure that the category is valid
+		if (!$category->validate()) {
+            ED::setMessage($category->getError(), 'error');
+			return $this->app->redirect($validateRedirection);
 		}
 
-		if( $task == 'apply' )
-		{
-			$mainframe->redirect( 'index.php?option=com_easydiscuss&view=category&catid=' . $category->id );
-			$mainframe->close();
+		// Try to save the category
+		$state = $category->save($updateOrdering);
+
+		if (!$state) {
+			return JError::raiseError(500, $category->getError());
 		}
 
-		$mainframe->redirect( 'index.php?option=com_easydiscuss&view=categories' );
-		$mainframe->close();
+		// Process the avatar
+		$file = $this->input->files->get('Filedata', array(), 'array');
+
+		if (!empty($file['name'])) {
+			$newAvatar = ED::uploadCategoryAvatar($category, true);
+			$category->set('avatar', $newAvatar);
+			$category->save();
+		}
+
+		// Set the message
+		ED::setMessage(JText::_('COM_EASYDISCUSS_CATEGORIES_SAVED_SUCCESS'), 'success');
+
+		// Build the redirection options based on the task.
+		$task = $this->getTask();
+
+		if ($task == 'save2new') {
+			return $this->app->redirect($urlCatForm);
+		}
+
+		if ($task == 'apply') {
+			return $this->app->redirect($urlCatForm . '&id=' . $category->id);
+		}
+
+		return $this->app->redirect($url);
 	}
 
-	public function cancel()
-	{
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=categories' );
-
-		return;
-	}
-
-	public function edit()
-	{
-		JRequest::setVar( 'view', 'category' );
-		JRequest::setVar( 'catid' , JRequest::getVar( 'catid' , '' , 'REQUEST' ) );
-
-		parent::display();
-	}
-
+	/**
+	 * Allows deletion of category
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function remove()
 	{
 		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
+		ED::checkToken();
 
-		$categories	= JRequest::getVar( 'cid' , '' , 'POST' );
+		// Get the categories
+		$ids = $this->input->get('cid', '', 'default');
 
-		$message	= '';
-		$type		= 'success';
+		$redirect = 'index.php?option=com_easydiscuss&view=categories';
 
-		if( empty( $categories ) )
-		{
-			$message	= JText::_('COM_EASYDISCUSS_CATEGORIES_INVALID_CATEGORY');
-			$type		= 'error';
-		}
-		else
-		{
-			$table		= JTable::getInstance( 'Category' , 'Discuss' );
-			foreach( $categories as $category )
-			{
-				$table->load( $category );
+		foreach ($ids as $id) {
+			$id = (int) $id;
 
-				if($table->getPostCount())
-				{
-					$message	= JText::sprintf('COM_EASYDISCUSS_CATEGORIES_DELETE_ERROR_POST_NOT_EMPTY', $table->title);
-					$type		= 'error';
-					$this->setRedirect( 'index.php?option=com_easydiscuss&view=categories' , $message , $type );
-					return;
-				}
+			$category = ED::category($id);
 
-				if($table->getChildCount())
-				{
-					$message	= JText::sprintf('COM_EASYDISCUSS_CATEGORIES_DELETE_ERROR_CHILD_NOT_EMPTY', $table->title);
-					$type		= 'error';
-					$this->setRedirect( 'index.php?option=com_easydiscuss&view=categories' , $message , $type );
-					return;
-				}
+			// Try to delete the category
+			$state = $category->delete();
 
-				if( !$table->delete() )
-				{
-					$message	= JText::_( 'COM_EASYDISCUSS_CATEGORIES_DELETE_ERROR' );
-					$type		= 'error';
-					$this->setRedirect( 'index.php?option=com_easydiscuss&view=categories' , $message , $type );
-					return;
-				}
+			if (!$state) {
+				ED::setMessage($category->getError(), 'error');
+				return $this->app->redirect($redirect);
 			}
-			$message	= JText::_('COM_EASYDISCUSS_CATEGORIES_DELETE_SUCCESS');
 		}
 
-		DiscussHelper::setMessageQueue( $message , $type );
+		ED::setMessage('COM_EASYDISCUSS_CATEGORIES_DELETE_SUCCESS', 'success');
 
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=categories' );
+		return $this->app->redirect($redirect);
 	}
 
 	public function publish()
 	{
 		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
+		ED::checkToken();
 
-		$categories	= JRequest::getVar( 'cid' , array(0) , 'POST' );
+		$categories = $this->input->get('cid', array(0), 'POST');
+		$message = '';
+		$type = 'message';
 
-		$message	= '';
-		$type		= 'message';
+		if (count($categories) <= 0) {
+			$message = JText::_('COM_EASYDISCUSS_CATEGORIES_INVALID_CATEGORY');
+			$type = 'error';
+		} else {
 
-		if( count( $categories ) <= 0 )
-		{
-			$message	= JText::_('COM_EASYDISCUSS_CATEGORIES_INVALID_CATEGORY');
-			$type		= 'error';
-		}
-		else
-		{
-			$model		= $this->getModel( 'Categories' );
+			$model = ED::model('Categories');
 
-			if( $model->publish( $categories , 1 ) )
-			{
-				$message	= JText::_('COM_EASYDISCUSS_CATEGORIES_PUBLISHED_SUCCESS');
+			if ($model->publish($categories, 1)) {
+				$message = JText::_('COM_EASYDISCUSS_CATEGORIES_PUBLISHED_SUCCESS');
+			} else {
+				$message = JText::_('COM_EASYDISCUSS_CATEGORIES_PUBLISHED_ERROR');
+				$type = 'error';
 			}
-			else
-			{
-				$message	= JText::_('COM_EASYDISCUSS_CATEGORIES_PUBLISHED_ERROR');
-				$type		= 'error';
-			}
-
 		}
 
-
-		DiscussHelper::setMessageQueue( $message , $type );
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=categories' );
+		ED::setMessage($message, $type);
+		return $this->app->redirect('index.php?option=com_easydiscuss&view=categories');
 	}
 
 	public function unpublish()
 	{
 		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
+		ED::checkToken();
 
-		$categories	= JRequest::getVar( 'cid' , array(0) , 'POST' );
+		$categories = $this->input->get('cid', array(0), 'POST');
+		$message = '';
+		$type = 'success';
 
-		$message	= '';
-		$type		= 'success';
+		if (count($categories) <= 0) {
+			$message = JText::_('COM_EASYDISCUSS_CATEGORIES_INVALID_CATEGORY');
+			$type = 'error';
+		} else {
+			$model = ED::model('Categories');
 
-		if( count( $categories ) <= 0 )
-		{
-			$message	= JText::_('COM_EASYDISCUSS_CATEGORIES_INVALID_CATEGORY');
-			$type		= 'error';
-		}
-		else
-		{
-			$model		= $this->getModel( 'Categories' );
-
-			if( $model->publish( $categories , 0 ) )
-			{
-				$message	= JText::_('COM_EASYDISCUSS_CATEGORIES_UNPUBLISHED_SUCCESS');
-			}
-			else
-			{
-				$message	= JText::_('COM_EASYDISCUSS_CATEGORIES_UNPUBLISHED_ERROR');
-				$type		= 'error';
+			if ($model->publish($categories, 0)) {
+				$message = JText::_('COM_EASYDISCUSS_CATEGORIES_UNPUBLISHED_SUCCESS');
+			} else {
+				$message = JText::_('COM_EASYDISCUSS_CATEGORIES_UNPUBLISHED_ERROR');
+				$type = 'error';
 			}
 		}
 
-
-		DiscussHelper::setMessageQueue( $message , $type );
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=categories' );
+		ED::setMessage($message, $type);
+		return $this->app->redirect('index.php?option=com_easydiscuss&view=categories');
 	}
 
 	/*
@@ -418,27 +285,27 @@ class EasyDiscussControllerCategory extends EasyDiscussController
 	 */
 	public function makeDefault()
 	{
-		$cid = JRequest::getVar( 'cid' );
+		$cid = $this->input->get('cid', '', 'var');
 
-		if( is_array( $cid ) )
-		{
+		if (is_array($cid)) {
 			$cid = (int) $cid[0];
 		}
 
-		$model = $this->getModel( 'Categories' );
-		$model->updateDefault( $cid );
+		$model = ED::model('Categories');
+		$catContainerIds = $model->getCatContainer();
 
+		foreach ($catContainerIds as $catContainerId) {
 
-		DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_CATEGORY_SET_DEFAULT' ) , DISCUSS_QUEUE_SUCCESS );
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=categories' );
-	}
+			// Check whether that category id is it already set as container
+			if ($catContainerId->id == $cid) {
+				ED::setMessage(JText::_('COM_EASYDISCUSS_CATEGORY_FAIL_TO_SET_AS_DEFAUL_CATEGORY'), 'error');
+				return $this->app->redirect('index.php?option=com_easydiscuss&view=categories');
+			}
+		}
 
-	// Workaround for Joomla 3.0 on issue
-	// $this->getModel() doesn't work properly
-	public function getModel($name = '', $prefix = '', $config = array())
-	{
-		require_once JPATH_ROOT . '/administrator/components/com_easydiscuss/models/categories.php';
+		$model->updateDefault($cid);
 
-		return parent::getModel('Categories', 'EasyDiscussModel');
+		ED::setMessage(JText::_('COM_EASYDISCUSS_CATEGORY_SET_DEFAULT'), 'success');
+		$this->app->redirect('index.php?option=com_easydiscuss&view=categories');
 	}
 }

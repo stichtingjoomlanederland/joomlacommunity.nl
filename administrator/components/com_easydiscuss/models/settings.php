@@ -24,32 +24,47 @@ class EasyDiscussModelSettings extends EasyDiscussAdminModel
 
 		if( is_null( $themes ) )
 		{
-			$themes	= JFolder::folders( DISCUSS_SITE_THEMES );
+			$themes	= JFolder::folders( DISCUSS_THEMES );
 		}
 
 		return $themes;
 	}
 
-	function save( $data )
+	/**
+	 * Saves the settings
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function save($data)
 	{
-		$config	= JTable::getInstance( 'Configs' , 'Discuss' );
-		$config->load( 'config' );
+		$config = ED::table('Configs');
+		$config->load('config');
 
-		$registry 		= DiscussHelper::getRegistry();
-		$registry->loadString( $this->_getParams() );
+		$registry = new JRegistry();
+		$registry->loadString($this->_getParams());
 
-		foreach( $data as $index => $value )
-		{
-			$registry->set( $index , $value );
+		foreach ($data as $index => $value) {
+
+			// If the value is an array, we would assume that it should be comma separated
+			if (is_array($value)) {
+				$value = implode(',', $value);
+			}
+
+			$registry->set($index, $value);
 		}
+
 		// Get the complete INI string
-		$config->params	= $registry->toString( 'INI' , 'discuss' );
+		$config->name = 'config';
+		$config->params	= $registry->toString('INI');
 
 		// Save it
-		if(!$config->store() )
-		{
+		if (!$config->store()) {
 			return false;
 		}
+
 		return true;
 	}
 

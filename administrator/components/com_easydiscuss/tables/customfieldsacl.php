@@ -11,8 +11,9 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
+ED::import('admin:/tables/table');
 
-class DiscussCustomFieldsAcl extends JTable
+class DiscussCustomFieldsAcl extends EasyDiscussTable
 {
 	public $id				= null;
 	public $action			= null;

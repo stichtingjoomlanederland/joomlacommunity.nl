@@ -1,70 +1,94 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
 defined('_JEXEC') or die('Restricted access');
 
-require_once( DISCUSS_ROOT . '/views.php' );
+require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewBadges extends EasyDiscussView
 {
-	public function display( $tmpl = null )
+	/**
+	 * Renders a list of badges available in EasyDiscuss
+	 * and badges achived by the particular user.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function display($tmpl = null)
 	{
-		$doc		= JFactory::getDocument();
-		DiscussHelper::setPageTitle( JText::_( 'COM_EASYDISCUSS_BADGES_TITLE' ) );
+		$id = $this->input->get('userid', null);
 
-		$mainframe	= JFactory::getApplication();
-		$my			= JFactory::getUser();
+		$model = ED::Model('Badges');
+		$options = '';
 
-		$config		= DiscussHelper::getConfig();
+		$profile = ED::user($id);
 
-		$this->setPathway( JText::_( 'COM_EASYDISCUSS_BADGES' ) );
+		$title = JText::_('COM_EASYDISCUSS_BADGES_TITLE');
+		ED::setPageTitle(JText::_('COM_EASYDISCUSS_BADGES_TITLE'));
 
-		// [model:badges]
-		$model		= $this->getModel( 'Badges' );
+		if ($id) {
+			$title = JText::sprintf('COM_EASYDISCUSS_BADGES_USER_TITLE', $profile->getName());
+			if ($this->my->id == $profile->id) {
+				$title = JText::_('COM_EASYDISCUSS_BADGES_USER_TITLE_MY_BADGE');
+			}
 
-		$badges		= $model->getBadges();
+			ED::setPageTitle($title);
 
-
-
-		$theme		= new DiscussThemes();
-		$theme->set( 'badges' , $badges );
-
-		echo $theme->fetch( 'badges.php' );
-	}
-
-	public function listings()
-	{
-		$app		= JFactory::getApplication();
-		$config		= DiscussHelper::getConfig();
-		$id			= JRequest::getInt( 'id' );
-
-		if( empty( $id ) )
-		{
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=badges' , false ) , JText::_( 'COM_EASYDISCUSS_INVALID_BADGE' ) );
-			$app->close();
+			$options = array('user' => $id);
 		}
 
-		$badge		= DiscussHelper::getTable( 'Badges' );
-		$badge->load( $id );
+		$badges = $model->getSiteBadges($options);
 
-		$this->setPathway( JText::_( 'COM_EASYDISCUSS_BADGES' ) , DiscussRouter::_( 'index.php?option=com_easydiscuss&view=badges' ) );
-		$this->setPathway( JText::_( $badge->get( 'title') ) );
+		$this->setPathway(JText::_('COM_EASYDISCUSS_BADGES'));
 
-		DiscussHelper::setPageTitle( JText::sprintf( 'COM_EASYDISCUSS_VIEWING_BADGE_TITLE' , $this->escape( $badge->title ) ) );
-		$users		= $badge->getUsers();
+		$this->set('title', $title);
+		$this->set('badges', $badges);
 
-		$theme		= new DiscussThemes();
-		$theme->set( 'badge'	, $badge );
-		$theme->set( 'users'	, $users );
-		echo $theme->fetch( 'badge.php' );
+		// This user is used for my achived badge.
+		$this->set('user', $this->my->id);
+
+		parent::display('badges/default');
+	}
+
+	/**
+	 * Retrieves information about a single badge
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function listings()
+	{
+		$id = $this->input->get('id');
+
+		if (!$id) {
+			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=badges', false), JText::_('COM_EASYDISCUSS_INVALID_BADGE'));
+		}
+
+		$badge = ED::table('Badges');
+		$badge->load($id);
+
+		$this->setPathway(JText::_('COM_EASYDISCUSS_BADGES'), EDR::_('index.php?option=com_easydiscuss&view=badges'));
+		$this->setPathway(JText::_($badge->get('title')));
+
+		ED::setPageTitle(JText::sprintf('COM_EASYDISCUSS_VIEWING_BADGE_TITLE', $this->escape($badge->title)));
+
+		$users = $badge->getUsers();
+
+		$this->set('badge', $badge);
+		$this->set('users', $users);
+
+		parent::display('badges/item');
 	}
 }

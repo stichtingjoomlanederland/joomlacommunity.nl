@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+    <layout title="COM_EASYDISCUSS_MENU_MYPOSTS_LAYOUT">
+        <message><![CDATA[COM_EASYDISCUSS_MENU_MYPOSTS_LAYOUT_DESC]]></message>
+        <view>my posts</view>
+    </layout>
+    <state>
+        <name><![CDATA[COM_EASYDISCUSS_MENU_MYPOSTS_LAYOUT]]></name>
+        <description><![CDATA[COM_EASYDISCUSS_MENU_MYPOSTS_LAYOUT_DESC]]></description>
+    </state>
+</metadata>

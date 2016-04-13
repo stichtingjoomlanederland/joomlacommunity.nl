@@ -1,229 +1,202 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
 
 defined('_JEXEC') or die('Restricted access');
 
-require_once DISCUSS_HELPERS . '/date.php';
-require_once DISCUSS_HELPERS . '/input.php';
-
 class EasyDiscussControllerReports extends EasyDiscussController
 {
-	function publish()
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->checkAccess('discuss.manage.reports');
+    }
+
+	public function publish()
 	{
-		$post	= JRequest::getVar( 'cid' , array(0) , 'POST' );
+		$posts = $this->input->get('cid', array(), 'array');
+		$message = '';
+		$type = 'success';
 
-		$message	= '';
-		$type		= 'success';
+		if (count($posts) <= 0) {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
+			$type = 'error';
+		} else {
+			$model = ED::model('Reports');
 
-		if( count( $post ) <= 0 )
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
-			$type		= 'error';
-		}
-		else
-		{
-			$model		= $this->getModel( 'Reports' );
-
-			if( $model->publish( $post , 1 ) )
-			{
-				$message	= JText::_('COM_EASYDISCUSS_POST_PUBLISHED');
+			if ($model->publishPost($posts , 1)) {
+				$message = JText::_('COM_EASYDISCUSS_POST_PUBLISHED');
+			} else {
+				$message = JText::_('COM_EASYDISCUSS_ERROR_PUBLISHING_POST');
+				$type = 'error';
 			}
-			else
-			{
-				$message	= JText::_('COM_EASYDISCUSS_ERROR_PUBLISHING_POST');
-				$type		= 'error';
-			}
-
 		}
 
-		DiscussHelper::setMessageQueue( $message , $type );
-
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=reports' );
+		ED::setMessage($message, $type);
+		$this->app->redirect('index.php?option=com_easydiscuss&view=reports');
 	}
 
-	function unpublish()
+	public function unpublish()
 	{
-		$post	= JRequest::getVar( 'cid' , array(0) , 'POST' );
+		$posts = $this->input->get('cid', array(), 'array');
+		$message = '';
+		$type = 'success';
 
-		$message	= '';
-		$type		= 'success';
+		if (count($posts) <= 0) {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
+			$type = 'error';
+		} else {
+			$model = ED::model('Reports');
 
-		if( count( $post ) <= 0 )
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
-			$type		= 'error';
-		}
-		else
-		{
-			$model		= $this->getModel( 'Reports' );
-
-			if( $model->publish( $post , 0 ) )
-			{
-				$message	= JText::_('COM_EASYDISCUSS_POST_UNPUBLISHED');
+			if ($model->publishPost($posts , 0)) {
+				$message = JText::_('COM_EASYDISCUSS_POST_UNPUBLISHED');
+			} else {
+				$message = JText::_('COM_EASYDISCUSS_ERROR_UNPUBLISHING_POST');
+				$type = 'error';
 			}
-			else
-			{
-				$message	= JText::_('COM_EASYDISCUSS_ERROR_UNPUBLISHING_POST');
-				$type		= 'error';
-			}
-
 		}
 
-		DiscussHelper::setMessageQueue( $message , $type );
-
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=reports' );
+		ED::setMessage($message, $type);
+		$this->app->redirect('index.php?option=com_easydiscuss&view=reports');
 	}
 
-	function togglePublish()
+	/**
+	 * Publish/unpublish post.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function togglePublish()
 	{
-		$postId		= JRequest::getInt( 'post_id' , '0' , 'POST' );
-		$postVal	= JRequest::getInt( 'post_val' , '0' , 'POST' );
+		$postId = $this->input->get('post_id', array(), 'array');
+		$postVal = $this->input->get('post_val', 0, 'int');
 
-		$model		= $this->getModel( 'Reports' );
-		$message	= '';
-		$type		= 'success';
+		$model = ED::model('Reports');
+		$message = '';
+		$type = 'success';
 
-		if(empty($postId))
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
-			$type		= 'error';
+		if (empty($postId)) {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
+			$type = 'error';
 		}
 
-		if($postVal && !empty($postId))
-		{
-			if( $model->publish( array($postId) , 1 ) )
-			{
-				$message	= JText::_('COM_EASYDISCUSS_POST_PUBLISHED');
+		if ($postVal && !empty($postId)) {
+			if ($model->publishPost($postId , 1)) {
+				$message = JText::_('COM_EASYDISCUSS_POST_PUBLISHED');
+			} else {
+				$message = JText::_('COM_EASYDISCUSS_ERROR_PUBLISHING_POST');
+				$type = 'error';
 			}
-			else
-			{
-				$message	= JText::_('COM_EASYDISCUSS_ERROR_PUBLISHING_POST');
-				$type		= 'error';
-			}
-		}
-		else
-		{
-			if( $model->publish( array($postId) , 0 ) )
-			{
-				$message	= JText::_('COM_EASYDISCUSS_POST_UNPUBLISHED');
-			}
-			else
-			{
-				$message	= JText::_('COM_EASYDISCUSS_ERROR_UNPUBLISHING_POST');
-				$type		= 'error';
+		} else {
+			if ($model->publishPost($postId, 0)) {
+				$message = JText::_('COM_EASYDISCUSS_POST_UNPUBLISHED');
+			} else {
+				$message = JText::_('COM_EASYDISCUSS_ERROR_UNPUBLISHING_POST');
+				$type = 'error';
 			}
 		}
-		DiscussHelper::setMessageQueue( $message , $type );
 
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=reports' );
+		ED::setMessage($message, $type);
+		$this->app->redirect('index.php?option=com_easydiscuss&view=reports');
 	}
 
-	function removeReports()
+	/**
+	 * Remove reports of a discussion.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function removeReports()
 	{
-		$postId		= JRequest::getInt( 'post_id' , '0' , 'POST' );
+		$postId = $this->input->get('post_id', 0, 'int');
 
-		$model		= $this->getModel( 'Reports' );
-		$message	= '';
-		$type		= 'success';
+		$model = ED::model('Reports');
+		$message = '';
+		$type = 'success';
 
-		if(empty($postId))
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
-			$type		= 'error';
+		if (empty($postId)) {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
+			$type = 'error';
+		} else {
+			$model->removeReports($postId);
+			$message = JText::_('COM_EASYDISCUSS_REPORT_ABUSE_REMOVED');
 		}
 
-		$model->removeReports($postId);
-
-
-		$message	= JText::_('COM_EASYDISCUSS_REPORT_ABUSE_REMOVED');
-		DiscussHelper::setMessageQueue( $message , $type );
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=reports' );
+		ED::setMessage($message, $type);
+		$this->app->redirect('index.php?option=com_easydiscuss&view=reports');
 	}
 
-	function edit()
+	public function edit()
 	{
-		JRequest::setVar( 'view', 'post' );
-		JRequest::setVar( 'id' , JRequest::getVar( 'id' , '' , 'REQUEST' ) );
-		JRequest::setVar( 'source' , 'reports' );
+		$id = $this->input->getInt('id', 0);
+
+		$this->input->set('view', 'post');
+		$this->input->set('id', $id);
+		$this->input->set('source', 'reports');
 
 		parent::display();
 	}
 
-	function remove()
+	public function remove()
 	{
-		$post	= JRequest::getVar( 'cid' , array(0) , 'POST' );
+		$post = $this->input->get('cid', array(0), 'POST');
+		$post = $this->get('cid', array(), 'ARRAY');
 
-		$message	= '';
-		$type		= 'success';
+		$message = '';
+		$type = 'success';
 
-		if( count( $post ) <= 0 )
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
-			$type		= 'error';
-		}
-		else
-		{
-			$model		= $this->getModel( 'Reports' );
+		if (count($post) <= 0) {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
+			$type = 'error';
+		} else {
+			$model = ED::model('Reports');
 
-			for($i = 0; $i < count($post); $i++)
-			{
+			for ($i = 0; $i < count($post); $i++) {
 				$pid = $post[$i];
 				$model->removePostReports($pid);
 			}
+
+			$message = JText::_('COM_EASYDISCUSS_POST_DELETED');
 		}
 
-		$message	= JText::_('COM_EASYDISCUSS_POST_DELETED');
-		DiscussHelper::setMessageQueue( $message , $type );
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=reports' );
+		ED::setMessage($message, $type);
+		$this->app->redirect('index.php?option=com_easydiscuss&view=reports');
 	}
 
-	function deletePost()
+	public function deletePost()
 	{
-		$id 		= JRequest::getInt( 'post_id' , 0 );
-		$model		= $this->getModel( 'Reports' );
-		$message	= '';
-		$type		= '';
+		$id = $this->input->get('post_id', 0, 'int');
 
-		// Check for errors.
-		if(empty($id))
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
-			$type		= 'error';
-			DiscussHelper::setMessageQueue( $message , $type );
-
-			return $this->setRedirect( 'index.php?option=com_easydiscuss&view=reports' );
+		if (!$id) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_POST_ID'), 'error');
+			return $this->app->redirect('index.php?option=com_easydiscuss&view=reports');
 		}
-
-		$post 	= DiscussHelper::getTable( 'Post' );
-		$post->load( $id );
-
-		$isReplies 	= $post->parent_id != 0;
-
-		// Try to delete the post.
-		$post->delete();
-
-		// Remove the report item.
-		$model->removePostReports($postId);
-
-		$message	= JText::_('COM_EASYDISCUSS_POST_DELETED');
 		
-		if($repliesDeleted)
-		{
-			$message	= JText::_('COM_EASYDISCUSS_POST_DELETED_WITH_REPLIES');
+		$model = ED::model('Reports');
+		$status = $model->removePostReports($id);
+
+		// Let the post library handle the delete post.
+		if ($status) {
+			$post = ED::post($id);
+			$status = $post->delete();
 		}
 
-		DiscussHelper::setMessageQueue( $message , $type );
+		$message = JText::_('COM_EASYDISCUSS_POST_DELETED');
+		ED::setMessage(JText::_('COM_EASYDISCUSS_POST_DELETED'), 'success');
 
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=reports' );
+		$this->app->redirect('index.php?option=com_easydiscuss&view=reports');
 	}
 }

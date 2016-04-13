@@ -129,13 +129,9 @@ class EasyDiscussModelPoints extends EasyDiscussAdminModel
 	 * Get a list of user badge history
 	 *
 	 **/
-	public function getPointsHistory( $userId )
+	public function getPointsHistory($userId)
 	{
-		$db		= DiscussHelper::getDBO();
-		// $query	= 'SELECT * FROM ' . $db->nameQuote( '#__discuss_users_history' )
-		// 		. ' WHERE ' . $db->nameQuote( 'user_id' ) . '=' . $db->Quote( $userId )
-		// 		. ' ORDER BY `created` DESC'
-		// 		. ' LIMIT 0,20';
+		$db = ED::db();
 
 		$my = JFactory::getUser();
 
@@ -148,19 +144,17 @@ class EasyDiscussModelPoints extends EasyDiscussAdminModel
 		$parentCats = array();
 		$childCats = array();
 
-		$parentCats = DiscussHelper::getAccessibleCategories();
+		$parentCats = ED::getAccessibleCategories();
 
-		foreach( $parentCats as $parentCat )
-		{
+		foreach ($parentCats as $parentCat) {
 			$viewableCats[] = $parentCat->id;
 		}
 
 		// Second get the child cats that are accessible
-		foreach( $parentCats as $parentCat )
-		{
-			$childCats = DiscussHelper::getAccessibleCategories( $parentCat->id );
-			foreach( $childCats as $childCat )
-			{
+		foreach ($parentCats as $parentCat) {
+			$childCats = ED::getAccessibleCategories($parentCat->id);
+
+			foreach ($childCats as $childCat) {
 				$viewableCats[] = $childCat->id;
 			}
 		}
@@ -193,7 +187,7 @@ class EasyDiscussModelPoints extends EasyDiscussAdminModel
 
 
 
-		$db->setQuery( $query );
+		$db->setQuery($query);
 		$result	= $db->loadObjectList();
 
 		return $result;

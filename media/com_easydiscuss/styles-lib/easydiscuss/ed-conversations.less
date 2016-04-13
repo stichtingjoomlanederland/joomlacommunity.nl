@@ -1,0 +1,395 @@
+.ed-convo {
+    display: table;
+    table-layout: fixed;
+    width: 100%;
+    font-size: @fd-base-font-size;
+
+    border: 1px solid @fd-ui-border-color;
+    // padding: @fd-base-spacing 0;
+
+    &__sidebar,
+    &__content {
+        display: table-cell;
+        vertical-align: top;
+
+
+    }
+
+    &__sidebar {
+        width: 280px;
+        border-right: 1px solid @fd-ui-border-color;
+
+        &-hd {
+            .clearfix();
+            // padding: 8px 8px 8px 0;
+            border-bottom: 1px solid @fd-ui-border-color;
+            height: 40px;
+            // padding-left: @fd-base-spacing--xl;
+
+        }
+
+        &-item { // links
+            width: 100%;
+            display: block;
+            position: relative;
+            // background-color: darken(@fd-ui-shade, 2%);
+            padding: @fd-base-spacing--xl @fd-base-spacing;
+            
+            &:hover {
+                background-color: @fd-ui-shade;
+
+                .ed-convo__sidebar-action {
+                    display: block;
+                }
+            }
+
+        }
+
+        &-action {
+            position: absolute;
+            top: @fd-base-spacing--sm;
+            right: @fd-base-spacing;
+            z-index: 2;
+            display: none; // hide by default
+            > a {
+                color: #333;
+            }
+            // background-color: red;   
+        }
+    }
+
+    &__content {
+        // padding-top: @fd-base-spacing--xl;
+        position: relative;
+        &-hd {
+            .clearfix();
+            padding: @fd-base-spacing @fd-base-spacing--xl @fd-base-spacing @fd-base-spacing--xl;
+            border-bottom: 1px solid @fd-ui-border-color;
+            font-size: @fd-base-font-size; // Fontsize will affect height.
+            // padding-left: @fd-base-spacing--xl;
+            height: 40px;
+            &-title {
+                float: left;
+            }
+        }
+
+        &-action {
+            float: right;
+            // position: absolute;
+            // right: @fd-base-spacing--xl;
+            // top: @fd-base-spacing - 2;
+        }
+
+        // Only when the conversation has active conversation
+        &.has-active {
+            .conversation-actions {
+                display: inline-block;
+            }
+
+            .reply-button {
+                display: inline-block;
+            }
+        }
+
+        .reply-button {
+            display: none;
+        }
+
+        .conversation-actions {
+            display: none;
+        }
+    }
+}
+
+.ed-convo-sidebar-toggle {
+    display: none;
+}
+
+// Responsive 
+&.w640,
+&.w480 {
+    .ed-convo {
+        &__sidebar,
+        &__content {
+            display: block;
+        }
+        &__sidebar {
+            display: none;
+            width: 100%;
+            border-right: none;
+            border-bottom: 1px solid @fd-ui-border-color;
+            &-scroll-area {
+                height: auto !important;
+            }
+
+            &.is-open {
+                display: block;
+            }
+        }
+        
+    }
+    .ed-convo-sidebar-toggle {
+        display: block;
+    }
+}
+&.w480 {
+    .ed-convo {
+        &__content {
+            .conversation-actions {
+                margin-top: @fd-base-spacing--lg;
+                display: block;
+            }
+            &-hd {
+                height: auto;
+                &-title {
+                    float: none;
+                }
+            }
+            &-action {
+                margin-top: @fd-base-spacing;
+                float: none;
+                
+            }
+        }
+        
+    }
+}
+
+// Override .o-nav.o-nav--block
+.ed-convo-sidebar-tab {
+    text-align: center;
+    > li {
+        > a {
+            font-size: @fd-base-font-size;
+            color: @fd-ui-text-color;
+            padding: @fd-base-spacing @fd-base-spacing;
+            height: 39px;
+            
+            &:hover {
+                color: darken(@fd-ui-text-color, 2%);
+                background-color: @fd-ui-shade;    
+            }
+        }
+        &.active {
+            > a {
+                color: @fd-ui-text-link-color;
+                background-color: @fd-ui-shade;       
+            }
+        }
+    }
+    >:not(:first-child) {
+        border-left: 1px solid @fd-ui-border-color;
+    }
+    
+}
+
+// Temporary port from .ed-list
+.ed-convo-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    >:not(:first-child) {
+        border-top: 1px solid @fd-ui-border-color;
+    }
+
+    &.is-loading {
+        .ed-convo-list-items {
+            display: none;
+        }
+    }
+
+    .o-loading {
+        color: #666;
+        margin-top: 100px;
+        border: 0;
+    }
+
+    .o-empty {
+        margin-top: 150px;
+        background: none;
+        border: 0;
+
+        .o-empty__text {
+            color: #666;    
+        }
+        
+    }
+}
+
+// elements
+.ed-convo-text {
+    font-size: @fd-base-font-size;
+    color: @fd-base-text-color;
+}
+.ed-convo-attachments {
+    font-size: @fd-base-font-size;
+    color: @fd-base-text-color;
+    background-color: @fd-ui-shade;
+    padding: @fd-base-spacing;
+}
+.ed-convo-meta {
+    font-size: @fd-base-font-size--xs;
+    color: @fd-ui-meta-color;
+}
+
+// Sidebar
+.ed-convo__sidebar-scroll-area,
+.ed-convo__content-scroll-area {
+    overflow-y: scroll;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+}
+
+// Status
+.ed-convo__sidebar-item {
+    color: @fd-ui-text-link-color;
+    &.is-unread {
+        background-color: @fd-ui-bg--unread;
+    }
+    &.is-active {
+        background-color: @fd-ui-shade;
+        // color: #fff;
+        .ed-convo-text,
+        .ed-convo-meta {
+            // color: #fff;
+        }
+    }
+
+    // Capitalize author's name
+    .ed-user-name {
+        text-transform: capitalize;
+    }
+
+    .o-avatar {
+        width: 24px;
+        height: 24px;
+    }
+
+    .ed-convo-text {
+        color: #666;
+    }
+}
+
+
+// Messages section
+.ed-convo-messages {
+    padding-left: @fd-base-spacing--xl;
+    padding-right: @fd-base-spacing--xl;
+
+    // Loading
+    .o-loading {
+        margin-top: 200px;
+
+        i {
+            font-size: 48px;
+            color: #666;
+        }
+    }
+
+    .is-loading,
+    .is-empty {
+        .message-list {
+            display: none;
+        }
+    }
+
+    .message-list {
+        display: block;
+    }
+
+    .o-empty {
+        background: none;
+        margin-top: 100px;
+    }
+
+    &__item {
+        position: relative;
+
+        .ed-user-name {
+            font-size: @fd-base-font-size--xl;
+            font-weight: bold;
+            text-transform: capitalize;
+        }
+
+        &-content {
+            padding-right: 60px; // Reserve space for time
+        }
+    }
+    &__time {
+        position: absolute;
+        right: 0;
+        top: 0;
+        font-size: @fd-base-font-size;
+    }
+    &__date {
+        color: @fd-ui-meta-color;
+    }
+}
+.ed-convo-messages__item {
+    + .ed-convo-messages__item {
+        margin-top: @fd-base-spacing--xl;
+    }
+}
+
+// Composer section
+.ed-convo-reply {
+    position: relative;
+    width: 100%;
+}
+.ed-convo-composer {
+    border-top: 1px solid @fd-ui-border-color;
+    // border-bottom: 1px solid @fd-ui-border-color;
+    // background-color: @fd-ui-shade;
+    // border-radius: @fd-ui-radius;
+    padding-bottom: @fd-base-spacing--lg;
+
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    .clearfix();
+    &__textarea {
+        height: 80px;
+    }
+    &__ft {
+        padding-left: @fd-base-spacing--lg;
+        padding-right: @fd-base-spacing--lg;
+    }
+}
+
+// Composer layout
+
+// A layer to prevent trigger the markitup buttons #1589
+.ed-convo-selectize-dummy {
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    z-index: 2;
+    height: 200px;
+    display: none;
+}
+.has-dropdown {
+    .ed-convo-selectize-dummy {
+        display: block;
+    }
+}
+.ed-messaging {
+    .selectize-control {
+        z-index: 3;
+    }
+    .form-group {
+        position: relative;
+    }
+}
+.ed-convo-markitup {
+    border: 1px solid @fd-ui-border-color;
+    border-bottom: none;
+}
+
+// Composer dialog
+.ed-convo-dialog {
+    border: 1px solid @fd-ui-border-color;
+    border-bottom: none;
+}

@@ -12,7 +12,9 @@
  */
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussBadgesUsers extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussBadgesUsers extends EasyDiscussTable
 {
 	public $id			= null;
 	public $badge_id	= null;
@@ -20,7 +22,7 @@ class DiscussBadgesUsers extends JTable
 	public $created		= null;
 	public $published	= null;
 	public $custom 		= null;
-	
+
 	/**
 	 * Constructor for this class.
 	 *
@@ -32,22 +34,21 @@ class DiscussBadgesUsers extends JTable
 		parent::__construct( '#__discuss_badges_users' , 'id' , $db );
 	}
 
-	public function loadByUser( $userId , $badgeId )
+	public function loadByUser($userId, $badgeId)
 	{
-		$db		= DiscussHelper::getDBO();
+		$db = ED::db();
 
-		$query	= 'SELECT * FROM ' . $db->nameQuote( $this->_tbl ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'user_id' ) . ' = ' . $db->Quote( $userId ) . ' '
-				. 'AND ' . $db->nameQuote( 'badge_id' ) . ' = ' . $db->Quote( $badgeId );
-		$db->setQuery( $query );
+		$query 	= 'SELECT * FROM ' . $db->nameQuote($this->_tbl)
+				. ' WHERE ' . $db->nameQuote('user_id') . ' = ' . $db->Quote($userId)
+				. ' AND ' . $db->nameQuote('badge_id') . ' = ' . $db->Quote($badgeId);
 
-		$row	= $db->loadObject();
+		$db->setQuery($query);
+		$row = $db->loadObject();
 
-		if( !$row )
-		{
+		if (!$row) {
 			return false;
 		}
-		
-		return parent::bind( $row );
+
+		return parent::bind($row);
 	}
 }

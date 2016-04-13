@@ -1,0 +1,68 @@
+.ed-avatar {
+    border-radius: 100%;
+    display: inline-block;
+    padding: 2px;
+    position: relative;
+    
+    &:before,
+    &:after {
+        content: '';
+        display: block;
+        position: absolute;
+    }
+    &:before {
+        // background-color: #fff;
+        width: 10px;
+        height: 10px;
+        bottom: -4px;
+        right: -5px;
+    }
+    &:after {
+        width: 12px;
+        height: 12px;
+        bottom: -2px;
+        right: -5px;
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: contain;
+        // background-image: url(/templates/delta/images/badge.svg);
+        // fill: red;
+        // background-image: url(/templates/delta/images/badge.svg), none;
+        // .icon-no-fill("/templates/delta/images/badge.svg", "#FF0000");
+        // .icon-fill("/templates/delta/images/badge.svg", "#000000", "#FF0000");
+    }
+    img {
+        border-radius: 100%;
+    }
+}
+.ed-avatar--default,
+.ed-avatar--user {
+    border: 2px solid #CDD1D6;
+    &:before,
+    &:after {
+        display: none;
+    }
+
+}
+.ed-avatar--premium {
+    border: 2px solid #CEA72F;
+    &:before,
+    &:after {
+        display: none;
+    }
+}
+.ed-avatar--support {
+    border: 2px solid #3FB450;
+    &:after {
+        -webkit-filter: hue-rotate(0deg) saturate(-4); 
+        filter: hue-rotate(0deg) saturate(-4); 
+    }
+}
+.ed-avatar--empty {
+   display: inline-block;
+   min-height: 32px;
+   &:before,
+   &:after {
+    display: none;
+   } 
+}

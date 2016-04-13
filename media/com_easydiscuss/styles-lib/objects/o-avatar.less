@@ -1,0 +1,238 @@
+//
+// Avatar
+// --------------------------------------------------
+
+/*
+
+DOM:
+
+<div class="o-avatar o-avatar--[size]">
+    <img src="avatar/default.jpg"/>
+</div>
+
+<a class="o-avatar o-avatar--[size] o-avatar-border--[size]">
+    <img src="avatar/default.jpg"/>
+</a>
+
+Available classes:
+
+.o-avatar
+default: 40x40
+
+Avatar size (Optional):
+.o-avatar-[sm/md/lg]
+
+sm: 24x24
+md: 32x32
+lg: 64x64
+xl: 120x120
+
+Avatar shape (Optional):
+.o-avatar-rounded
+
+
+Avatar border size (Optional): // Expeimental will remove if not necessary
+.o-avatar-border-[sm/md/lg]
+
+If border color applied need to define border size as well.
+Wrong: "o-avatar o-avatar-primary"
+Correct: "o-avatar o-avatar-primary o-avatar-border-sm"
+
+*/
+// This wrapper for indicator status
+
+.o-avatar-status {
+    position: relative;
+    display: inline-block;
+    &__indicator {
+        position: absolute;
+        top: -4px;
+        right: -6px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background-color: @fd-brand-success;
+        border: 2px solid #fff;
+    }
+
+    &.is-offline {
+        .o-avatar-status__indicator {
+            background-color: @fd-brand-danger;
+        }
+    }
+}
+
+
+.o-avatar {
+    display: inline-block;
+    // line-height: @baseLineHeight;
+    border-radius: 2px;
+    vertical-align: middle;
+    // .transition(all .2s ease-in-out);
+
+    overflow: hidden;
+    // background-color: @esAvatarBackground;
+    -webkit-border-radius: 2px;
+    padding:0;
+    margin: 0px;
+
+    // Avatar default size
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    
+    font-size: 20px;
+
+    img {
+        display: block;
+        max-width: none;
+        width: 100%;
+        height: 100%;
+        // background: @esAvatarBackground;
+        image-rendering: optimizeQuality;
+        border-radius: 2px;
+    }
+
+}
+
+// Avatar Size
+.o-avatar--xs { // small
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    font-size: 8px;
+}
+.o-avatar--sm { // small
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    font-size: 12px;
+}
+.o-avatar--md { // medium
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    font-size: 16px;
+}
+.o-avatar--lg { // large
+    width: 64px;
+    height: 64px;
+    line-height: 64px;
+    font-size: 32px;
+}
+.o-avatar--xl { // xlarge
+    width: 120px;
+    height: 120px;
+    line-height: 120px;
+    font-size: 60px;
+}
+
+
+
+/**
+* Experimental purpose use as your own risk.
+*/
+// Avatar shape
+.o-avatar-rounded {
+    border-radius: 50%;
+    img {
+        border-radius: 50%;
+    }
+}
+
+.o-avatar-list-unstyled {
+    border: 0;
+    margin: 0;
+    img {
+        width: 100%;
+        height: 100%;
+    }
+}
+.o-avatar--inset {
+    border: 0;
+    margin: 0;
+    img {
+        .box-shadow(inset 0px 1px 2px rgba(0,0,0,0.3));
+        border-radius: 3px;
+    }
+}
+
+// Avatar border size
+// If css border apply, <img> size might get affected http://screencast.com/t/ObeZ2vIi
+// Hance we need to use background width with padding to replace border width.
+[class^="o-avatar-border"],
+[class*=" o-avatar-border"] {
+    background-color: @fd-ui-border-color;
+    &:hover {
+        background-color: darken(@fd-ui-border-color, 10%);
+    }
+}
+
+
+// Border size
+.o-avatar-border--sm {
+    padding: 1px;
+}
+.o-avatar-border--md {
+    padding: 2px;
+}
+.o-avatar-border--lg {
+    padding: 4px;
+}
+
+
+
+
+.o-avatar-list {
+    &__item {
+        display: inline-block;
+        margin-right: @fd-base-spacing;
+        margin-bottom: @fd-base-spacing;
+    }
+    // .o-avatar {
+    //     margin-bottom: @fd-base-spacing;
+    // }
+    // >:not(:first-child) {
+    //     margin-left: @fd-base-spacing;
+    // }
+}
+
+// Modifier for text only
+.o-avatar {
+    &--text {
+        border-radius: 50%;
+        color: #fff;
+        text-align: center;
+    }
+
+    &--bg-1 {
+        background-color: @palette-red-100;
+        &:hover {
+            background-color: @palette-red-100;
+        }
+    }
+    &--bg-2 {
+        background-color: @palette-purple-100;
+        &:hover {
+            background-color: @palette-purple-100;
+        }
+    }
+    &--bg-3 {
+        background-color: @palette-blue-100;
+        &:hover {
+            background-color: @palette-blue-100;
+        }
+    }
+    &--bg-4 {
+        background-color: @palette-teal-100;
+        &:hover {
+            background-color: @palette-teal-100;
+        }
+    }
+    &--bg-5 {
+        background-color: @palette-orange-200;
+        &:hover {
+            background-color: @palette-orange-200;
+        }
+    }
+}

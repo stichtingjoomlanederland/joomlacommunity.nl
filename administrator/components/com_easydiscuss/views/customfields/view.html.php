@@ -1,165 +1,142 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once DISCUSS_ADMIN_ROOT . '/views.php';
+require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
 class EasyDiscussViewCustomFields extends EasyDiscussAdminView
 {
+	/**
+	 * Renders the custom fields listing
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function display($tpl = null)
 	{
-		// @rule: Test for user access if on 1.6 and above
-		if( DiscussHelper::getJoomlaVersion() >= '1.6' )
-		{
-			if(!JFactory::getUser()->authorise('discuss.manage.customfields' , 'com_easydiscuss') )
-			{
-				JFactory::getApplication()->redirect( 'index.php' , JText::_( 'JERROR_ALERTNOAUTHOR' ) , 'error' );
-				JFactory::getApplication()->close();
-			}
-		}
-		$this->addPathway( 'Home' , 'index.php?option=com_easydiscuss' );
-		$this->addPathway( 'Custom Fields' , '' );
+		$this->checkAccess('discuss.manage.customfields');
 
-		// Initialise variables
-		$mainframe		= JFactory::getApplication();
+		// Set page attributes
+		$this->title('COM_EASYDISCUSS_CUSTOMFIELDS_MAIN_TITLE');
 
-		$filter_state	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.customs.filter_state', 	'filter_state', 	'*', 'word' );
-		$search			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.customs.search', 		'search', 			'', 'string' );
+		JToolbarHelper::addNew();
+		JToolbarHelper::publishList();
+		JToolbarHelper::unpublishList();
+		JToolBarHelper::divider();
+		JToolbarHelper::deleteList();
 
-		$search			= trim(JString::strtolower( $search ) );
-		$order			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.customs.filter_order', 		'filter_order', 	'a.ordering', 'cmd' );
-		$orderDirection	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.customs.filter_order_Dir',	'filter_order_Dir',	'asc', 'word' );
+		// States
+		$filter = $this->getUserState('fields.filter_state', 'filter_state', '*', 'word');
 
+		// Search queries
+		$search = $this->getUserState('fields.search', 'search', '', 'string');
+		$search = trim(strtolower($search));
 
-		$ordering		= array();
+		// Ordering
+		$order = $this->getUserState('fields.filter_order', 'filter_order', 'a.ordering', 'cmd');
+		$orderDirection = $this->getUserState('fields.filter_order_Dir', 'filter_order_Dir', 'asc', 'word');
+
 		// Get data from the model
-		$customs		= $this->get( 'Data' );
+		$model = ED::model('CustomFields');
+		$result = $model->getData();
+		$fields = array();
 
-		if( count( $customs )> 0 )
-		{
-			foreach( $customs as $item )
-			{
-				$ordering[0][] = $item->id;
+		// By default we do not enable ordering
+		$allowOrdering = false;
+
+		if ($order == 'a.ordering') {
+			$allowOrdering = true;
+		}
+
+		$ordering = array();
+
+		if ($result) {
+			foreach ($result as $row) {
+				$field = ED::field($row);
+
+				$ordering[] = $field->id;
+
+				$field->orderingIndex = array_search($field->id, $ordering) + 1;
+
+				$fields[] = $field;
 			}
 		}
 
+		$pagination = $model->getPagination();
 
+		$joomlaGroups = ED::getJoomlaUserGroups();
 
-		$pagination		= $this->get( 'Pagination' );
-		$this->state	= $this->get('State');
+		$saveOrder = $order == 'a.ordering' && $orderDirection == 'asc';
+		$ordering = $order == 'a.ordering';
 
-		$joomlaGroups	= DiscussHelper::getJoomlaUserGroups();
+		$this->title('COM_EASYDISCUSS_CUSTOM_FIELDS_TITLE');
+		$this->desc('COM_EASYDISCUSS_CUSTOM_FIELDS_DESC');
 
-		$this->assignRef( 'customs' 	, $customs );
-		$this->assignRef( 'pagination'	, $pagination );
-		$this->assignRef( 'ordering'	, $ordering );
+		// dump($allowOrdering);
+		$this->set('allowOrdering', $allowOrdering);
+		$this->set('ordering', $ordering);
+		$this->set('originalOrders', array());
+		$this->set('saveOrder', $saveOrder);
+		$this->set('fields', $fields);
+		$this->set('pagination', $pagination);
+		$this->set('ordering', $ordering);
+		$this->set('filter', $filter);
+		$this->set('search', $search);
+		$this->set('order', $order);
+		$this->set('orderDirection', $orderDirection);
+		$this->set('joomlaGroups', $joomlaGroups);
 
-		$this->assign( 'state'			, JHTML::_('grid.state', $filter_state ) );
-		$this->assign( 'search'			, $search );
-		$this->assign( 'order'			, $order );
-		$this->assign( 'orderDirection'	, $orderDirection );
-		$this->assign( 'joomlaGroups'	, $joomlaGroups );
-
-		parent::display($tpl);
+		parent::display('fields/default');
 	}
 
+	/**
+	 * Renders the custom field form
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function form()
 	{
-		$app 		= JFactory::getApplication();
-		$id			= JRequest::getInt( 'id' , '' );
+		$this->checkAccess('discuss.manage.customfields');
 
-		$field 		= DiscussHelper::getTable( 'CustomFields' );
-		$field->load( $id );
+		// Get the field id
+		$id = $this->input->get('id', 0, 'int');
 
-		$this->addPathway( 'Home' , 'index.php?option=com_easydiscuss' );
-		$this->addPathway( 'Custom Fields' , 'index.php?option=com_easydiscuss&view=customfields' );
+		// Load the custom field
+		$field = ED::field($id);
 
-		$field->title	= JString::trim($field->title);
+		// Set page attributes
+		$this->title('COM_EASYDISCUSS_EDITING_CUSTOMFIELDS');
 
-		$this->id	= $field;
-		if( !$field )
-		{
-			JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_ADD_NEW_CUSTOMFIELDS' ), 'customs' );
-			$this->addPathway( 'New Field' , '' );
-		}
-		else
-		{
-			JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_EDITING_CUSTOMFIELDS' ), 'customs' );
-			$this->addPathway( 'Editing Field' , '' );
+		if ($field->id || is_null($field->id)) {
+			$this->title('COM_EASYDISCUSS_ADD_NEW_CUSTOMFIELDS');
 		}
 
-		JHTML::_( 'behavior.modal' );
+		JToolbarHelper::apply();
+		JToolbarHelper::save();
+		JToolBarHelper::save2new();
+		JToolBarHelper::divider();
+		JToolBarHelper::cancel();
 
-		// Set default values for new entries.
-		if( empty( $field->created_time ) )
-		{
-			$date			= DiscussHelper::getHelper( 'Date' )->dateWithOffSet();
+		// Get active tab
+		$active = $this->input->get('active', 'general', 'word');
 
-			$field->created_time	= $date->toFormat();
-			$field->published	= true;
-		}
+		$this->set('active', $active);
+		$this->set('field', $field);
 
-		$customAclItems		= JTable::getInstance( 'CustomFieldsACL' , 'Discuss' );
-		$customFieldsAcl	= $customAclItems->getCustomFieldsACL();
-		$assignedGroupACL	= $field->getAssignedACL( 'group' );
-		$assignedUserACL	= $field->getAssignedACL( 'user' );
-
-		$joomlaGroups	= DiscussHelper::getJoomlaUserGroups();
-
-		$this->assignRef( 'field'				, $field );
-		$this->assignRef( 'assignedGroupACL'	, $assignedGroupACL );
-		$this->assignRef( 'assignedUserACL'		, $assignedUserACL );
-		$this->assignRef( 'customFieldsAcl'		, $customFieldsAcl );
-		$this->assignRef( 'joomlaGroups'		, $joomlaGroups );
-
-		parent::display();
-	}
-
-	public function registerToolbar()
-	{
-		$layout 	= $this->getLayout();
-
-		if( $layout == 'form' )
-		{
-			JToolBarHelper::back( JText::_( 'COM_EASYDISCUSS_BACK' ) , 'index.php?option=com_easydiscuss&view=customfields' );
-			JToolBarHelper::divider();
-
-			JToolbarHelper::apply();
-			JToolbarHelper::save();
-
-			if( DiscussHelper::getJoomlaVersion() > '1.6' )
-			{
-				JToolBarHelper::save2new( 'savePublishNew' );
-			}
-			else
-			{
-				JToolBarHelper::save( 'savePublishNew' , JText::_( 'COM_EASYDISCUSS_SAVE_AND_NEW' ) );
-			}
-
-			JToolBarHelper::divider();
-			JToolBarHelper::cancel();
-
-		}
-		else
-		{
-			JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_CUSTOMFIELDS_MAIN_TITLE' ), 'customs' );
-			JToolBarHelper::custom( 'home', 'arrow-left', '', JText::_( 'COM_EASYDISCUSS_TOOLBAR_HOME' ), false);
-			JToolBarHelper::divider();
-			JToolbarHelper::publishList();
-			JToolbarHelper::unpublishList();
-			JToolBarHelper::divider();
-			JToolbarHelper::addNew('customfields.edit');
-			JToolbarHelper::deleteList();
-		}
+		parent::display('fields/form');
 	}
 }

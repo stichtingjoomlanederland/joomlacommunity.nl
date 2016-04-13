@@ -11,7 +11,9 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussMailQueue extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussMailQueue extends EasyDiscussTable
 {
 	/*
 	 * The id of the mail queue
@@ -71,5 +73,30 @@ class DiscussMailQueue extends JTable
 	public function __construct(& $db )
 	{
 		parent::__construct( '#__discuss_mailq' , 'id' , $db );
+	}
+
+	/**
+	 * Retrieves the body of the email.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getBody()
+	{
+		// if this object is not valid, do not futher process this item.
+		if (!$this->id) {
+			return false;
+		}
+
+		$body = $this->body;
+
+		// If the body is not empty, we should just use this
+		if (!empty($this->body)) {
+			return $body;
+		}
+
+		return false;
 	}
 }

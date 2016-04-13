@@ -24,12 +24,15 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
 <div class="row-fluid">
 	<div class="span12 panel-title">
-		<p><?php echo JText::_( 'COM_EASYDISCUSS_BADGES_RULE_INSTALL_INFO' ); ?></p>
-		<fieldset style="padding: 15px;">
-			<legend><?php echo JText::_( 'COM_EASYDISCUSS_BADGES_INSTALL_RULE' ); ?></legend>
-			<input type="file" name="rule" size="50" />
-			<input type="submit" class="button" value="<?php echo JText::_( 'COM_EASYDISCUSS_UPLOAD_AND_INSTALL' );?>" />
-		</fieldset>
+			<div class="panel">
+				<div class="panel-body">
+					<p><?php echo JText::_( 'COM_EASYDISCUSS_BADGES_RULE_INSTALL_INFO' ); ?></p>
+					<fieldset style="padding: 15px;">
+						<legend><?php echo JText::_( 'COM_EASYDISCUSS_BADGES_INSTALL_RULE' ); ?></legend>
+						<input type="file" name="rule" size="50" />
+						<input type="submit" class="button" value="<?php echo JText::_( 'COM_EASYDISCUSS_UPLOAD_AND_INSTALL' );?>" />
+					</fieldset>
+				</div>
 	</div>
 </div>
 

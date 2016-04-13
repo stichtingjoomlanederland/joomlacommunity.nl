@@ -12,7 +12,9 @@
  */
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussRules extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussRules extends EasyDiscussTable
 {
 	public $id			= null;
 	public $command		= null;

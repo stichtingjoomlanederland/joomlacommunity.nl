@@ -11,8 +11,9 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
+ED::import('admin:/tables/table');
 
-class DiscussCategoryAclItem extends JTable
+class DiscussCategoryAclItem extends EasyDiscussTable
 {
 	/*
 	 * The id of the category acl item

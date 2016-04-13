@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -17,194 +17,149 @@ class EasyDiscussControllerRoles extends EasyDiscussController
 	{
 		parent::__construct();
 
-		$this->registerTask( 'add' , 'edit' );
-		$this->registerTask( 'savePublishNew' , 'save' );
+		$this->checkAccess('discuss.manage.roles');
+
+		$this->registerTask('add', 'edit');
+		$this->registerTask('savePublishNew', 'save');
 	}
 
 	public function save()
 	{
-		$mainframe	= JFactory::getApplication();
+		$message = '';
+		$type = 'success';
+		$task = $this->getTask();
 
-		$message	= '';
-		$type		= 'success';
+		if (JRequest::getMethod() == 'POST') {
+			$post = JRequest::get('post');
 
-		$task 		= $this->getTask();
+			if (empty($post['title'])) {
+				$this->app->enqueueMessage(JText::_('COM_EASYDISCUSS_INVALID_ROLES'), 'error');
 
-
-		if( JRequest::getMethod() == 'POST' )
-		{
-			$post	= JRequest::get( 'post' );
-
-			if(empty($post['title']))
-			{
-				$mainframe->enqueueMessage(JText::_('COM_EASYDISCUSS_INVALID_ROLES'), 'error');
-
-				$url  = 'index.php?option=com_easydiscuss&view=roles';
-				$mainframe->redirect(JRoute::_($url, false));
-				return;
+				$url = 'index.php?option=com_easydiscuss&view=roles';
+				return $this->app->redirect(JRoute::_($url, false));
 			}
 
-			$my			= JFactory::getUser();
-			$post['created_user_id']	= $my->id;
-			$roleId	= JRequest::getVar( 'role_id' , '' );
-			$role		= DiscussHelper::getTable( 'Role' );
+			$post['created_user_id'] = $this->my->id;
+			$roleId = $this->input->get('role_id', '', 'var');
+			$role = ED::table('Role');
 
-			$role->load( $roleId );
-
-			$role->bind( $post );
+			$role->load($roleId);
+			$role->bind($post);
 
 			$role->title = JString::trim($role->title);
 
-			if (!$role->store())
-			{
-				JError::raiseError(500, $role->getError() );
+			if (!$role->store()) {
+				JError::raiseError(500, $role->getError());
+			} else {
+				$message = JText::_('COM_EASYDISCUSS_ROLE_SAVED');
 			}
-			else
-			{
-				$message	= JText::_( 'COM_EASYDISCUSS_ROLE_SAVED' );
-			}
-		}
-		else
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_FORM_METHOD');
-			$type		= 'error';
+		} else {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_FORM_METHOD');
+			$type = 'error';
 		}
 
-		DiscussHelper::setMessageQueue( $message , $type );
+		ED::setMessage($message, $type);
 
-		if( $task == 'savePublishNew' )
-		{
-			$mainframe->redirect( 'index.php?option=com_easydiscuss&view=roles&task=roles.edit' );
-			$mainframe->close();
+		if ($task == 'savePublishNew') {
+			return $this->app->redirect('index.php?option=com_easydiscuss&view=roles&task=roles.edit');
 		}
 
-		$mainframe->redirect( 'index.php?option=com_easydiscuss&view=roles' );
+		$this->app->redirect('index.php?option=com_easydiscuss&view=roles');
 	}
 
 	public function cancel()
 	{
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=roles' );
-
-		return;
-	}
-
-	public function edit()
-	{
-		JRequest::setVar( 'view', 'role' );
-		JRequest::setVar( 'roleid' , JRequest::getVar( 'roleid' , '' , 'REQUEST' ) );
-
-		parent::display();
+		return $this->app->redirect('index.php?option=com_easydiscuss&view=roles');
 	}
 
 	public function remove()
 	{
-		$roles		= JRequest::getVar( 'cid' , '' , 'POST' );
+		$roles = $this->input->get('cid', '', 'POST');
+		$message = '';
+		$type = 'success';
 
-		$message	= '';
-		$type		= 'success';
+		if (empty($roles)) {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_ROLE_ID');
+			$type = 'error';
+		} else {
+			$table = ED::table('Role');
 
-		if( empty( $roles ) )
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_ROLE_ID');
-			$type		= 'error';
-		}
-		else
-		{
-			$table		= DiscussHelper::getTable( 'Role' );
-			foreach( $roles as $role )
-			{
-				$table->load( $role );
+			foreach($roles as $role) {
+				
+				$table->load($role);
 
-				if( !$table->delete() )
-				{
-					$message	= JText::_( 'COM_EASYDISCUSS_REMOVE_ROLE_ERROR' );
-					$type		= 'error';
+				if (!$table->delete()) {
+					$message = JText::_('COM_EASYDISCUSS_REMOVE_ROLE_ERROR');
+					$type = 'error';
 
-					DiscussHelper::setMessageQueue( $message , $type );
+					ED::setMessage($message, $type);
 
-					$this->setRedirect( 'index.php?option=com_easydiscuss&view=roles' );
-					return;
+					return $this->app->redirect('index.php?option=com_easydiscuss&view=roles');
 				}
 			}
 
-			$message	= JText::_('COM_EASYDISCUSS_ROLE_DELETED');
+			$message = JText::_('COM_EASYDISCUSS_ROLE_DELETED');
 		}
 
-		DiscussHelper::setMessageQueue( $message , $type );
+		ED::setMessage($message, $type);
 
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=roles' );
+		$this->app->redirect('index.php?option=com_easydiscuss&view=roles');
 	}
 
 	public function publish()
 	{
-		$roles	= JRequest::getVar( 'cid' , array(0) , 'POST' );
+		$roles = $this->input->get('cid', array(0), 'POST');
+		$message = '';
+		$type = 'success';
 
-		$message	= '';
-		$type		= 'success';
+		if (count($roles) <= 0){
+			$message = JText::_('COM_EASYDISCUSS_INVALID_ROLE_ID');
+			$type = 'error';
+		} else {
+			$model = ED::model('Roles');
 
-		if( count( $roles ) <= 0 )
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_ROLE_ID');
-			$type		= 'error';
-		}
-		else
-		{
-			$model		= $this->getModel( 'Roles' );
-
-			if( $model->publish( $roles , 1 ) )
-			{
-				$message	= JText::_('COM_EASYDISCUSS_ROLE_PUBLISHED_MSG');
+			if ($model->publish($roles, 1)) {
+				$message = JText::_('COM_EASYDISCUSS_ROLE_PUBLISHED_MSG');
+			} else {
+				$message = JText::_('COM_EASYDISCUSS_ROLE_PUBLISH_ERROR');
+				$type = 'error';
 			}
-			else
-			{
-				$message	= JText::_('COM_EASYDISCUSS_ROLE_PUBLISH_ERROR');
-				$type		= 'error';
-			}
-
 		}
 
-		DiscussHelper::setMessageQueue( $message , $type );
+		ED::setMessage($message, $type);
 
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=roles' );
+		$this->app->redirect('index.php?option=com_easydiscuss&view=roles');
 	}
 
 	public function unpublish()
 	{
-		$roles		= JRequest::getVar( 'cid' , array(0) , 'POST' );
+		$roles = $this->input->get('cid', array(0), 'POST');
+		$message = '';
+		$type = 'success';
 
-		$message	= '';
-		$type		= 'success';
+		if (count($roles) <= 0) {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_ROLE_ID');
+			$type = 'error';
+		} else {
+			$model = ED::model('Roles');
 
-		if( count( $roles ) <= 0 )
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_ROLE_ID');
-			$type		= 'error';
-		}
-		else
-		{
-			$model		= $this->getModel( 'Roles' );
-
-			if( $model->publish( $roles , 0 ) )
-			{
-				$message	= JText::_('COM_EASYDISCUSS_ROLE_UNPUBLISHED');
+			if ($model->publish($roles, 0)) {
+				$message = JText::_('COM_EASYDISCUSS_ROLE_UNPUBLISHED');
+			} else {
+				$message = JText::_('COM_EASYDISCUSS_ROLE_UNPUBLISH_ERROR');
+				$type = 'error';
 			}
-			else
-			{
-				$message	= JText::_('COM_EASYDISCUSS_ROLE_UNPUBLISH_ERROR');
-				$type		= 'error';
-			}
-
 		}
 
-		DiscussHelper::setMessageQueue( $message , $type );
+		ED::setMessage($message, $type);
 
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=roles' );
+		$this->app->redirect('index.php?option=com_easydiscuss&view=roles');
 	}
 
 	public function orderdown()
 	{
 		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
+		ED::checkToken();
 
 		self::orderRole(1);
 	}
@@ -212,47 +167,40 @@ class EasyDiscussControllerRoles extends EasyDiscussController
 	public function orderup()
 	{
 		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
+		ED::checkToken();
 
 		self::orderRole(-1);
 	}
 
-	public function orderRole( $direction )
+	public function orderRole($direction)
 	{
 		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
-
-		$app	= JFactory::getApplication();
+		ED::checkToken();
 
 		// Initialize variables
-		$db		= DiscussHelper::getDBO();
-		$cid	= JRequest::getVar( 'cid', array(), 'post', 'array' );
+		$db	= ED::db();
+		$cid = $this->input->get('cid', array(), 'post', 'array');
 
-		if (isset( $cid[0] ))
-		{
-			$row = DiscussHelper::getTable( 'Role' );
+		if (isset($cid[0])) {
+			$row = ED::table('Role');
 			$row->load( (int) $cid[0] );
 			$row->move($direction);
 		}
 
-		$app->redirect( 'index.php?option=com_easydiscuss&view=roles');
-		exit;
+		return $this->app->redirect('index.php?option=com_easydiscuss&view=roles');
 	}
 
 	public function saveOrder()
 	{
 		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
+		ED::checkToken();
 
-		$app	= JFactory::getApplication();
-
-		$row = DiscussHelper::getTable( 'Role' );
+		$row = ED::table('Role');
 		$row->rebuildOrdering();
 
-		$message	= JText::_('COM_EASYDISCUSS_ROLES_ORDERING_SAVED');
-		$type		= 'message';
-		DiscussHelper::setMessageQueue( $message , $type );
-		$app->redirect( 'index.php?option=com_easydiscuss&view=roles' );
-		exit;
+		$message = JText::_('COM_EASYDISCUSS_ROLES_ORDERING_SAVED');
+		$type = 'message';
+		ED::setMessage($message, $type);
+		return $this->app->redirect('index.php?option=com_easydiscuss&view=roles');
 	}
 }

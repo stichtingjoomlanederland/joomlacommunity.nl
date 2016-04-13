@@ -24,7 +24,7 @@ class modEasydiscussLatestRepliesHelper
 			jimport( 'joomla.application.component.model' );
 			JLoader::import( 'posts' , DISCUSS_MODELS );
 		}
-		$model	= DiscussHelper::getModel( 'Posts' );
+		$model	= ED::model( 'Posts' );
 		$result	= $model->getReplies('allreplies', 'latest' ,null , $count);
 
 		if( !$result )
@@ -36,12 +36,21 @@ class modEasydiscussLatestRepliesHelper
 
 		$replies = array();
 
-		foreach( $result as $item )
-		{
-			$item->content	= EasyDiscussParser::bbcode( $item->content );
+		//preload users
+		$users = array();
+		foreach ($result as $item) {
+			$users[] = $item->user_id;
+		}
 
+		ED::user($users);
+
+		foreach ($result as $item) {
+
+			$item->profile	= ED::user($item->user_id);
+
+			$item->content	= ED::parser()->bbcode( $item->content );
+			$item->content 	= strip_tags( html_entity_decode(DiscussHelper::wordFilter($item->content) ) );
 			$item->title   = DiscussHelper::wordFilter( $item->title);
-			$item->content = DiscussHelper::wordFilter( $item->content);
 
 			$replies[]		= $item;
 		}

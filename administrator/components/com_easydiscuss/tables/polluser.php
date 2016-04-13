@@ -11,7 +11,9 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussPollUser extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussPollUser extends EasyDiscussTable
 {
 	public $id			= null;
 	public $poll_id		= null;

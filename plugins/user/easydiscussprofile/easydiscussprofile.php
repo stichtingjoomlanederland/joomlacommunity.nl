@@ -1,31 +1,45 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-
-defined('_JEXEC') or die;
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyBlog is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
 jimport('joomla.utilities.date');
+jimport('joomla.filesystem.file');
 
 class plgUserEasydiscussProfile extends JPlugin
 {
+	public function exists()
+	{
+		$file = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php';
+
+		if (JFile::exists($file)) {
+			require_once($file);
+			return true;
+		}
+
+		return false;
+	}
+
 	public function __construct(& $subject, $config)
 	{
 		parent::__construct($subject, $config);
 		$this->loadLanguage();
-		require_once JPATH_ROOT . '/components/com_easydiscuss/helpers/helper.php';
 	}
 
 	public function onContentPrepareData($context, $data)
 	{
+		if (!$this->exists()) {
+			return;
+		}
+
 		// Check we are manipulating a valid form.
 		if (!in_array($context, array('com_users.profile', 'com_users.user', 'com_users.registration', 'com_admin.profile')))
 		{
@@ -79,6 +93,10 @@ class plgUserEasydiscussProfile extends JPlugin
 
 	public function onContentPrepareForm($form, $data)
 	{
+		if (!$this->exists()) {
+			return;
+		}
+
 		if (!($form instanceof JForm))
 		{
 			$this->_subject->setError('JERROR_NOT_A_FORM');
@@ -153,6 +171,10 @@ class plgUserEasydiscussProfile extends JPlugin
 
 	public function onUserAfterSave($data, $isNew, $result, $error)
 	{
+		if (!$this->exists()) {
+			return;
+		}
+
 		$userId	= JArrayHelper::getValue($data, 'id', 0, 'int');
 
 		if ($userId && $result && isset($data['easydiscussprofile']) && (count($data['easydiscussprofile'])))
@@ -163,8 +185,7 @@ class plgUserEasydiscussProfile extends JPlugin
 				// ...
 
 				// Save into profile table
-				$profile	= DiscussHelper::getTable( 'Profile' );
-				$profile->load( $userId );
+				$profile = ED::user($userId);
 
 				$profile->nickname		= $data['easydiscussprofile']['nickname'];;
 				$profile->description	= $data['easydiscussprofile']['description'];
@@ -194,6 +215,11 @@ class plgUserEasydiscussProfile extends JPlugin
 
 				$profile->params	= $userparams->toString();
 
+				if( !$profile->id )
+				{
+					$profile->id 	= $userId;
+				}
+
 				if( !$profile->store() )
 				{
 					throw new Exception($profile->getError());
@@ -212,6 +238,9 @@ class plgUserEasydiscussProfile extends JPlugin
 
 	public function onUserAfterDelete($user, $success, $msg)
 	{
+		if (!$this->exists()) {
+			return;
+		}
 		// Easydiscuss User Plugin will take care of this
 
 		return true;

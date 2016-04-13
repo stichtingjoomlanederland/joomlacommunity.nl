@@ -11,7 +11,9 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussCategoryAclMap extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussCategoryAclMap extends EasyDiscussTable
 {
 	/*
 	 * The id of the category acl

@@ -1,72 +1,62 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyBlog is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-defined('_JEXEC') or die('Restricted access');
+// Setup checks
+require_once(__DIR__ . '/setup.php');
 
-// Load constants
-require_once JPATH_ROOT . '/components/com_easydiscuss/constants.php';
-require_once JPATH_ROOT . '/components/com_easydiscuss/helpers/helper.php';
+// Include the main engine file
+require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
+
+jimport('joomla.filesystem.file');
 
 // Require the base controller
-require_once JPATH_COMPONENT . '/controllers/controller.php';
+require_once(DISCUSS_ADMIN_ROOT . '/controllers/controller.php');
 
-// Call ajax library
-require_once( DISCUSS_CLASSES . '/disjax.php' );
-
-// Process AJAX calls here
-DiscussHelper::getHelper( 'Ajax' )->process();
-
-// Set the tables path
-JTable::addIncludePath( DISCUSS_TABLES );
+// AJAX calls
+ED::ajax()->process();
 
 // Get the task
-$task	= JRequest::getCmd( 'task' , 'display' );
+$app = JFactory::getApplication();
+$input = $app->input;
+$task = $input->get('task', 'display', 'cmd');
 
 // We treat the view as the controller. Load other controller if there is any.
-$controller	= JRequest::getCmd( 'controller' , '' );
+$controller = $input->get('controller', '', 'cmd');
 
-if( !empty( $controller ) )
-{
-	$controller	= JString::strtolower( $controller );
-	$path		= JPATH_COMPONENT . '/controllers/' . $controller . '.php';
+if ($controller) {
 
-	jimport( 'joomla.filesystem.file' );
-
+	$controller = strtolower($controller);
+	$file = DISCUSS_ADMIN_ROOT . '/controllers/' . $controller . '.php';
+	
 	// Test if the controller really exists
-	if( JFile::exists( $path ) )
-	{
-		require_once( $path );
+	if (!JFile::exists($file)) {
+		return JError::raiseError(500, JText::_('Invalid Controller name "' . $controller . '".<br /> File "' . $path . '" does not exists in this context.'));
 	}
-	else
-	{
-		JError::raiseError( 500 , JText::_( 'Invalid Controller name "' . $controller . '".<br /> File "' . $path . '" does not exists in this context.' ) );
-	}
+
+	require_once($file);
 }
 
-$class	= 'EasyDiscussController' . JString::ucfirst( $controller );
+$class = 'EasyDiscussController' . ucfirst($controller);
 
 // Test if the object really exists in the current context
-if( class_exists( $class ) )
-{
-	$controller	= new $class();
-}
-else
-{
-	JError::raiseError( 500 , 'Invalid Controller Object. Class definition does not exists in this context.' );
+if (!class_exists($class)) {
+	return JError::raiseError(500, 'Invalid Controller Object. Class definition does not exists in this context.');
 }
 
+$controller	= new $class();
+
 // Task's are methods of the controller. Perform the Request task
-$controller->execute( $task );
+$controller->execute($task);
 
 // Redirect if set by the controller
 $controller->redirect();

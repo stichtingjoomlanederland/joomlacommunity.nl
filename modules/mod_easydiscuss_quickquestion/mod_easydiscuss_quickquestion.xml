@@ -1,29 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="module" version="3.0" client="site" method="upgrade">
-	<name>Quick Question</name>
-	<author>StackIdeas</author>
-	<creationDate>January 2012</creationDate>
-	<copyright>Copyright 2012 Stack Ideas. All rights reserved.</copyright>
-	<license>GPL License</license>
+	<name>EasyDiscuss - Quick Question Module</name>
+	<author>Stack Ideas Sdn Bhd</author>
+	<creationDate>8th April 2016</creationDate>
+	<copyright>Copyright (C) 2009 - 2016 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>3.2.1</version>
-	<description>Quickly ask a question with minimal interface</description>
+	<version>4.0.1</version>
+	<description><![CDATA[This module provides form to quickly ask a question with minimal interface.]]></description>
+	<files>
+		<folder>styles</folder>
+		<folder>tmpl</folder>
+		<filename module="mod_easydiscuss_quickquestion">mod_easydiscuss_quickquestion.php</filename>
+		<filename>mod_easydiscuss_quickquestion.xml</filename>
+	</files>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easydiscuss_quickquestion.ini</language>
 	</languages>
-	<files>
-		<filename module="mod_easydiscuss_quickquestion">mod_easydiscuss_quickquestion.php</filename>
-		<folder>tmpl</folder>
-		<folder>styles</folder>
-	</files>
-	<params>
-	</params>
-	<params group="advanced">
-		<param name="cache" type="list" default="0" label="Caching" description="Select whether to cache the content of this module">
-			<option value="1">Use global</option>
-			<option value="0">No caching</option>
-		</param>
-		<param name="cache_time" type="text" default="900" label="Cache Time" description="The time before the module is recached" />
-	</params>
+	<config>
+		<fields name="params">
+			<fieldset name="advanced">
+				<field name="layout" type="modulelayout" label="JFIELD_ALT_LAYOUT_LABEL" description="JFIELD_ALT_MODULE_LAYOUT_DESC" />
+				<field name="moduleclass_sfx" type="textarea" rows="3" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC">
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+			</fieldset>
+		</fields>
+	</config>
 </extension>

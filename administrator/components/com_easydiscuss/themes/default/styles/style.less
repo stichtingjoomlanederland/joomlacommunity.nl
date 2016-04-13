@@ -19,3 +19,28 @@
 // custom hack for template
 // ----------------
 @import "custom";
+
+
+
+@media (max-width: 900px) {
+  html > body.com_easydiscuss {
+    position: relative;
+    left: 0;
+  }
+  html > body.com_easydiscuss,
+  html > body.com_easydiscuss div#discuss-wrapper .app-sidebar {
+    -webkit-transition: ease .5s;
+    transition: ease .5s;
+  }
+  html.show-sidebar {
+    overflow: hidden;
+  }
+  html.show-sidebar > body.com_easydiscuss,
+  html.show-sidebar > body.com_easydiscuss .header-stick,
+  html.show-sidebar > body.com_easydiscuss .navbar-fixed-top {
+    left: 85% !important;
+  }
+  html.show-sidebar > body.com_easydiscuss div#discuss-wrapper .app-sidebar {
+    left: 0 !important;
+  }
+}

@@ -12,7 +12,9 @@
  */
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussConversationMap extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussConversationMap extends EasyDiscussTable
 {
 	/**
 	 * The unique id for the current record

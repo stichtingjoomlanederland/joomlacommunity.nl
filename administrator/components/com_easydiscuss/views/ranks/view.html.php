@@ -1,41 +1,37 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyBlog is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once DISCUSS_ADMIN_ROOT . '/views.php';
+require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
 class EasyDiscussViewRanks extends EasyDiscussAdminView
 {
 	public function display($tpl = null)
 	{
-		// @rule: Test for user access if on 1.6 and above
-		if( DiscussHelper::getJoomlaVersion() >= '1.6' )
-		{
-			if(!JFactory::getUser()->authorise('discuss.manage.ranks' , 'com_easydiscuss') )
-			{
-				JFactory::getApplication()->redirect( 'index.php' , JText::_( 'JERROR_ALERTNOAUTHOR' ) , 'error' );
-				JFactory::getApplication()->close();
-			}
-		}
-		$model	= $this->getModel( 'Ranks' );
-		$ranks	= $model->getRanks();
+		$this->checkAccess('discuss.manage.ranks');
 
-		$config = DiscussHelper::getConfig();
 
-		$this->assign( 'ranks'	, $ranks );
-		$this->assign( 'config'	, $config );
+		$model = ED::model('Ranks', true);
+		$ranks = $model->getRanks();
 
-		parent::display($tpl);
+		$this->title('COM_EASYDISCUSS_SETTINGS_RANKS_TITLE');
+		$this->desc('COM_EASYDISCUSS_SETTINGS_RANKS_DESC');
+
+		$rankingType = $this->config->get('main_ranking_calc_type') == 'points' ? JText::_('COM_EASYDISCUSS_RANKING_POINTS') : JText::_('COM_EASYDISCUSS_RANKING_POSTS');
+
+		$this->set('rankingType', $rankingType);
+		$this->set('ranks', $ranks);
+
+		parent::display('ranks/default');
 	}
 
 	public function registerToolbar()

@@ -11,263 +11,161 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-require_once( DISCUSS_ROOT . '/views.php' );
+require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewProfile extends EasyDiscussView
 {
 	public function tab()
 	{
-		// always reset the limitstart.
-		JRequest::setVar( 'limitstart', 0 );
+		$type = $this->input->get('type');
+		$profileId = $this->input->get('id');
 
-		$type		= JRequest::getVar( 'type' );
-		$profileId	= JRequest::getVar( 'id' );
+		JRequest::setVar('limitstart', 0);
+		JRequest::setVar('viewtype', $type);
 
-		$ajax		= DiscussHelper::getHelper( 'ajax' );
+		$model = ED::model('Posts');
+		$tagsModel = ED::model('Tags');
+		$assignedModel = ED::model('Assigned');
 
-		$model		= DiscussHelper::getModel('Posts');
-		$tagsModel	= DiscussHelper::getModel( 'Tags' );
-		$config 	= DiscussHelper::getConfig();
-
-		$template	= new DiscussThemes();
-		$html		= '';
+		$theme = ED::themes();
+		$contents = '';
 		$pagination	= null;
 
-		switch( $type )
-		{
-			case 'tags':
-				$tags	= $tagsModel->getTagCloud( '' , '' , '' , $profileId );
+		if ($type == 'easyblog') {
+			$helperFile = JPATH_ADMINISTRATOR . '/components/com_easyblog/includes/easyblog.php';
 
-				$template->set( 'tags'	, $tags );
-				$html	= $template->fetch( 'profile.tags.php' );
-				break;
+			if (!$this->easyblog()) {
+				$contents = JText::_( 'COM_EASYDISCUSS_EASYBLOG_DOES_NOT_EXIST' );
+			} else {
+				$blogModel = EB::model('Blog');
+				$blogs = $blogModel->getBlogsBy('blogger', $profileId);
+				$blogs = EB::formatter('list', $blogs);
+				$ebConfig = EB::config();
+				$user = JFactory::getUser($profileId);
 
-			case 'questions':
+				// Load EasyBlog's language file
+				JFactory::getLanguage()->load('com_easyblog', JPATH_ROOT);
 
-				$posts		= $model->getPostsBy( 'user' , $profileId );
-				$posts 		= DiscussHelper::formatPost($posts);
-				$pagination	= $model->getPagination();
-
-				$template->set( 'posts'	, $posts );
-				$html	= $template->fetch( 'profile.questions.php' );
-				break;
-
-			case 'unresolved':
-
-				$posts		= $model->getUnresolvedFromUser( $profileId );
-				$posts 		= DiscussHelper::formatPost($posts);
-				$pagination	= $model->getPagination();
-
-				$posts = Discusshelper::getPostStatusAndTypes( $posts );
-
-				$template->set( 'posts'	, $posts );
-				$html	= $template->fetch( 'profile.unresolved.php' );
-				break;
-
-			case 'favourites':
-
-				if( !$config->get( 'main_favorite' ) )
-				{
-					return false;
+				foreach ($blogs as $blog) {
+					$theme->set('item', $blog);
+					$theme->set('title', $blog->title);
+					$theme->set('permalink', $blog->getPermalink());
+					$contents .= $theme->output('site/profile/simple.item');
 				}
+			}
 
-				$posts 		= $model->getData( true , 'latest' , null , 'favourites' , '' , null , 'all', $profileId );
-				$posts 		= DiscussHelper::formatPost( $posts );
-
-				$posts = Discusshelper::getPostStatusAndTypes( $posts );
-
-				$template->set( 'posts', $posts );
-				$html 		= $template->fetch( 'profile.favourites.php' );
-				break;
-
-			case 'replies':
-
-				$posts		= $model->getRepliesFromUser( $profileId );
-				$posts 		= DiscussHelper::formatPost($posts);
-				$pagination	= $model->getPagination();
-
-				$posts = Discusshelper::getPostStatusAndTypes( $posts );
-
-				$template->set( 'posts'	, $posts );
-				$html	= $template->fetch( 'profile.replies.php' );
-				break;
-
-			case 'tabEasyBlog':
-
-				$helperFile = JPATH_ADMINISTRATOR . '/components/com_easyblog/includes/easyblog.php';
-
-				if( !JFile::exists( $helperFile ) )
-				{
-					$html 	= JText::_( 'COM_EASYDISCUSS_EASYBLOG_DOES_NOT_EXIST' );
-				}
-				else
-				{
-					require_once( $helperFile );
-
-					$blogModel = EB::model('Blog');
-					$blogs = $blogModel->getBlogsBy('blogger', $profileId);
-					$blogs = EB::formatter('list', $blogs);
-					$ebConfig = EB::config();
-
-					$user 		= JFactory::getUser( $profileId );
-					$template->set( 'user'		, $user );
-					$template->set( 'ebConfig' , $ebConfig );
-					$template->set( 'blogs' , $blogs );
-
-					// Load EasyBlog's language file
-					JFactory::getLanguage()->load( 'com_easyblog' , JPATH_ROOT );
-
-					$html	= $template->fetch( 'profile.blogs.php' );
-				}
-
-				break;
-
-			case 'tabKomento':
-				$helperFile = JPATH_ROOT . '/components/com_komento/helpers/helper.php';
-
-				if( !JFile::exists( $helperFile ) )
-				{
-					$html = JText::_( 'COM_EASYDISCUSS_KOMENTO_DOES_NOT_EXIST' );
-				}
-				else
-				{
-					require_once( $helperFile );
-
-					$commentsModel	= Komento::getModel( 'comments' );
-					$commentHelper	= Komento::getHelper( 'comment' );
-
-					$options = array(
-						'sort'		=> 'latest',
-						'userid'	=> $profileId,
-						'threaded'	=> 0
-					);
-
-					$comments = $commentsModel->getComments( 'all', 'all', $options );
-
-					foreach( $comments as &$comment )
-					{
-						$comment = $commentHelper->process( $comment );
-					}
-
-					$feedUrl = Komento::getHelper( 'router' )->getFeedUrl( 'all', 'all', $profileId );
-
-					JFactory::getLanguage()->load( 'com_komento', JPATH_ROOT );
-
-					$template->set( 'feedUrl', $feedUrl );
-					$template->set( 'comments', $comments );
-
-					$html	= $template->fetch( 'profile.comments.php' );
-				}
-
-				break;
-
-			case 'subscriptions':
-
-				$subModel	= DiscussHelper::getModel( 'subscribe' );
-				$rows		= $subModel->getSubscriptions();
-				$subs		= array();
-
-				if( $rows )
-				{
-					foreach($rows as $row)
-					{
-						$obj			= new stdClass();
-						$obj->id		= $row->id;
-						$obj->type		= $row->type;
-						$obj->unsublink	= Discusshelper::getUnsubscribeLink($row, false);
-
-						switch($row->type)
-						{
-							case 'site':
-								$obj->title	= '';
-								$obj->link	= '';
-								break;
-							case 'post':
-								$post		= DiscussHelper::getTable( 'Post' );
-								$post->load( $row->cid );
-								$obj->title	= $post->title;
-								$obj->link	= DiscussRouter::_( 'index.php?option=com_easydiscuss&view=post&id=' . $post->id );
-								break;
-							case 'category':
-								$category	= DiscussHelper::getTable( 'Category' );
-								$category->load( $row->cid );
-								$obj->title	= $category->title;
-								$obj->link	= DiscussRouter::getCategoryRoute( $category->id );
-								break;
-							case 'user':
-								$profile	= DiscussHelper::getTable( 'Profile' );
-								$profile->load( $row->cid );
-								$obj->title	= $profile->getName();
-								$obj->link	= $profile->getLink();
-								break;
-							default:
-								unset($obj);
-								break;
-						}
-
-						if (!empty($obj))
-						{
-							$obj->title	= DiscussStringHelper::escape($obj->title);
-							$subs[$row->type][]	= $obj;
-							unset($obj);
-						}
-					}
-				}
-
-				$template->set( 'subscriptions'	, $subs );
-				$html	= $template->fetch( 'profile.subscriptions.php' );
-
-				break;
-
-			default:
-				break;
-
+			$this->ajax->resolve($contents, $pagination, JText::_('COM_EASYDISCUSS_EMPTY_LIST'));
+			return $this->ajax->send();
 		}
 
-		if( $pagination )
-		{
-			$filterArr				= array();
-			$filterArr['viewtype']	= $type;
-			$filterArr['id']		= $profileId;
+		if ($type == 'komento') {
+			if (!$this->komento()) {
+				$contents = JText::_('COM_EASYDISCUSS_KOMENTO_DOES_NOT_EXIST');
+			} else {
+				$commentsModel = Komento::getModel('comments');
+				$commentHelper = Komento::getHelper('comment');
+
+				$options = array(
+					'sort' => 'latest',
+					'userid' => $profileId,
+					'threaded' => 0
+				);
+
+				$comments = $commentsModel->getComments('all', 'all', $options);
+				$contents = '';
+
+				foreach($comments as &$comment) {
+					$comment = $commentHelper->process($comment);
+
+					$theme->set('item', $comment);
+					$contents .= $theme->output('site/profile/komento.item');
+				}
+			}
+
+			$pagination = $commentsModel->getPagination();
+			$this->ajax->resolve($contents, $pagination, JText::_('COM_EASYDISCUSS_EMPTY_LIST'));
+			return $this->ajax->send();
+		}
+
+		if ($type == 'unresolved') {
+			$posts = $model->getUnresolvedFromUser($profileId);
+			$pagination = $model->getPagination();
+		}
+
+		if ($type == 'questions') {
+			$options = array('filter' => $type, 'userId' => $profileId, 'includeAnonymous' => false);
+
+			// If the post is anonymous we shouldn't show to public.
+			if (ED::user()->id == $profileId) {
+				$options['includeAnonymous'] = true;
+			}
+
+			$posts = $model->getDiscussions($options);
+			$pagination = $model->getPagination();
+		}
+
+		if ($type == 'favourites') {
+			$posts = $model->getData(true, 'latest', null, 'favourites', '', null, 'all', $profileId);
+		}
+
+		if ($type == 'assigned') {
+			// retrieve the assiged post
+			$posts = $assignedModel->getPosts();
+			$pagination = $assignedModel->getPagination();
+		}
+
+		if ($type == 'replies') {
+			$posts = $model->getRepliesFromUser($profileId);
+			$pagination	= $model->getPagination();
+		}
+
+		// preload post items
+		ED::post($posts);
+
+		$posts = ED::formatPost($posts);
+
+		foreach ($posts as $post) {
+			$theme->set('post', $post);
+			$contents .= $theme->output('site/profile/item');
+		}
+
+		if ($pagination) {
+			$filterArr = array();
+			$filterArr['viewtype'] = $type;
+			$filterArr['id'] = $profileId;
 
 			$pagination = $pagination->getPagesLinks('profile', $filterArr, true);
 		}
 
-		$ajax->success( $html, $pagination );
-		$ajax->send();
+		$this->ajax->resolve($contents, $pagination);
+		return $this->ajax->send();
 
 	}
 
 	public function easyblog()
 	{
-		$helperFile = JPATH_ROOT . '/components/com_easyblog/helpers/helper.php';
+		$helperFile = JPATH_ADMINISTRATOR . '/components/com_easyblog/includes/easyblog.php';
 
-		if( !Jfile::exists($helperFile) )
-		{
-			return JText::_( 'COM_EASYDISCUSS_EASYBLOG_DOES_NOT_EXIST' );
+		if (!Jfile::exists($helperFile)) {
+			return false;
 		}
 
-		require_once $blogHelper;
-
+		require_once($helperFile);
+		return true;
 
 	}
 
 	public function komento()
 	{
-		$komentoAPI = JPATH_ROOT . '/components/com_komento/configuration.php';
+		$helperFile = JPATH_ROOT . '/components/com_komento/helpers/helper.php';
+		$exists = JFile::exists($helperFile);
 
-		if( !JFile::exists($komentoAPI) )
-		{
-			return '';
+		if (!$exists) {
+		 return false;
 		}
 
-		require_once $komentoAPI;
-		require_once JPATH_ROOT . '/components/com_komento/views/profile/view.html.php';
-
-		Komento::getHelper( 'document' )->loadHeaders();
-
-		$view = new KomentoViewProfile;
-		$view->display();
+		require_once($helperFile);
+		return true;
 	}
 
 	public function filter( $viewtype = 'user-post', $profileId = null)
@@ -280,17 +178,16 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		$sort		= 'latest';
 		$data		= null;
 		$pagination	= null;
-		$model		= $this->getModel('Posts');
-		$tagsModel	= $this->getModel( 'Tags' );
+		$model		= ED::model('Posts');
+		$tagsModel	= ED::model( 'Tags' );
 
 
 		switch( $viewtype )
 		{
 			case 'user-achievements':
 
-				$profile	= DiscussHelper::getTable( 'Profile' );
-				$profile->load( $profileId );
-				$data		= $profile->getBadges();
+				$profile = ED::user($profileId);
+				$data = $profile->getBadges();
 
 				break;
 
@@ -319,7 +216,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 					break;
 				}
 
-				$model		= $this->getModel('Posts');
+				$model		= ED::model('Posts');
 				$data		= $model->getPostsBy( 'user' , $profileId );
 				$data		= DiscussHelper::formatPost($data);
 				$pagination	= $model->getPagination();
@@ -382,107 +279,174 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		$ajax->send();
 	}
 
+	/**
+	 * Method to avatar crop
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function cropPhoto()
 	{
-		$my 		= JFactory::getUser();
-		$ajax 		= DiscussHelper::getHelper( 'Ajax' );
-
-		if( !$my->id )
-		{
-			$ajax->reject( JText::_( 'You are not allowed here' ) );
-			return $ajax->send();
+		if (!$this->my->id) {
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
 		}
 
-		$config 	= DiscussHelper::getConfig();
-		$profile 	= DiscussHelper::getTable( 'Profile' );
-		$profile->load( $my->id );
+		$this->my = ED::user($this->my->id);
 
-		$path 		= rtrim( $config->get( 'main_avatarpath') , DIRECTORY_SEPARATOR );
-		$path 		= JPATH_ROOT . '/' . $path;
+		$path = rtrim($this->config->get('main_avatarpath'), DIRECTORY_SEPARATOR);
+		$path = JPATH_ROOT . '/' . $path;
 
-		$photoPath 		= $path . '/' . $profile->avatar;
-		$originalPath 	= $path . '/' . 'original_' . $profile->avatar;
+		$photoPath = $path . '/' . $this->my->avatar;
+		$originalPath = $path . '/' . 'original_' . $this->my->avatar;
 		// @rule: Delete existing image first.
-		if( JFile::exists( $photoPath ) )
-		{
-			JFile::delete( $photoPath );
+		if (JFile::exists($photoPath)) {
+			JFile::delete($photoPath);
 		}
 
-		$x1 = JRequest::getInt( 'x1' );
-		$y1 = JRequest::getInt( 'y1' );
-		$width = JRequest::getInt( 'width' );
-		$height = JRequest::getInt( 'height' );
+		$x1 = $this->input->get('x');
+		$y1 = $this->input->get('y');
+		$width = $this->input->get('w');
+		$height = $this->input->get('h');
 
-		if (is_null($x1) &&
-		    is_null($y1) &&
-		    is_null($width) &&
-		    is_null($height))
-		{
-			$ajax->reject( JText::_('Unable to crop because cropping parameters are incomplete!'));
-			return $ajax->send();
+		if (is_null($x1) && is_null($y1) && is_null($width) && is_null($height)) {
+			return $this->ajax->reject( JText::_('COM_EASYDISCUSS_AVATAR_UNABLE_TO_CROP'));
 		}
 
-		require_once DISCUSS_CLASSES . '/simpleimage.php';
-		$image 		= new SimpleImage();
-		$image->load( $originalPath );
+		$image = ED::simpleimage();
+		$image->load($originalPath);
 
-		$image->crop( $width , $height , $x1 , $y1 );
+		$image->crop($width, $height, $x1, $y1);
 
-		$image->resize( 160, 160 );
+		$image->resize(160, 160);
 
-		$image->save( $photoPath );
+		$image->save($photoPath);
 
+		$path = trim($this->config->get('main_avatarpath') , '/') . '/' . $this->my->avatar;
+		$uri = rtrim(JURI::root() , '/');
+		$uri .= '/' . $path;
 
-		$path	= trim( $config->get( 'main_avatarpath') , '/' ) . '/' . $profile->avatar;
-		$uri	= rtrim( JURI::root() , '/' );
-		$uri	.= '/' . $path;
-
-		$ajax->resolve($uri, 'Avatar cropped successfully!');
-
-		return $ajax->send();
+		return $this->ajax->resolve($uri, 'COM_EASYDISCUSS_AVATAR_CROPPED_SUCCESSFULLY');
 	}
 
-	public function ajaxCheckAlias($alias)
+	/**
+	 * Method to remove the avatar
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function removeAvatar()
 	{
-		$disjax		= new disjax();
-		$my			= JFactory::getUser();
+		if (!$this->my->id) {
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+		}
 
-		// do not let unregistered user
-		if ( $my->id <= 0 )
-		{
-			return false;
+		$theme = ED::themes();
+
+		$namespace = 'site/user/dialog.photo.delete';
+		$output = $theme->output($namespace);
+
+		return $this->ajax->resolve($output);
+	}
+
+	/**
+	 * Checks if an alias is valid
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function ajaxCheckAlias()
+	{
+		$alias = $this->input->get('alias', '', 'default');
+
+		// Only allow registered users
+		if ($this->my->guest) {
+			return;
 		}
 
 		// satinize input
 		$filter	= JFilterInput::getInstance();
-		$alias	= $filter->clean( $alias, 'ALNUM' );
+		$alias = $filter->clean($alias, 'STRING');
 
 		// check for existance
-		$db		= DiscussHelper::getDBO();
+		$db = ED::db();
 		$query	= 'SELECT `alias` FROM `#__discuss_users` WHERE `alias` = ' . $db->quote($alias) . ' '
-				. 'AND ' . $db->nameQuote( 'id' ) . '!=' . $db->Quote( $my->id );
+				. 'AND ' . $db->nameQuote( 'id' ) . '!=' . $db->Quote( $this->my->id );
 		$db->setQuery( $query );
-		$result	= $db->loadResult();
 
-		// prepare output
-		if ( $result )
-		{
-			$html	= JText::_('COM_EASYDISCUSS_ALIAS_NOT_AVAILABLE');
-			$class	= 'failed';
-		}
-		else
-		{
-			$html	= JText::_('COM_EASYDISCUSS_ALIAS_AVAILABLE');
-			$class 	= 'success';
-		}
+		$exists = $db->loadResult();
 
-		$options = new stdClass();
+        $message = JText::_('COM_EASYDISCUSS_ALIAS_AVAILABLE');
 
-		// fill in the value
-		$disjax->assign( 'profile-alias' , $alias );
-		$disjax->script( 'EasyDiscuss.$( "#alias-status" ).html("'.$html.'").removeClass("failed").removeClass("success").addClass( "'.$class.'" );' );
-		$disjax->value( 'profile-alias' , $alias );
+        if ($exists) {
+        	$message = JText::_('COM_EASYDISCUSS_ALIAS_NOT_AVAILABLE');
+        }
 
-		$disjax->send();
+		return $this->ajax->resolve($exists, $message);
 	}
+
+	/**
+     * Mark all post as read
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+	public function ajaxMarkAllRead()
+	{
+		if ($this->my->guest) {
+			return;
+		}
+
+		// Get all unread post
+		$model = ED::model('Posts');
+		$posts = $model->getUnread($this->my->id);
+
+		if (!$posts) {
+			return $this->ajax->resolve(JText::_('COM_EASYDISCUSS_NO_UNREAD_POSTS'));
+		}
+
+		$user = ED::user($this->my->id);
+
+		// Mark them as read
+		foreach ($posts as $post){
+			$user->read($post->id);
+		}
+
+		return $this->ajax->resolve(JText::_('COM_EASYDISCUSS_MARKED_READ_POSTS'));
+	}
+
+	/**
+     * show user mini header in popbox style
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+	public function popbox()
+	{
+
+		$id = $this->input->get('id', 0, 'int');
+
+		// guest should not allowed.
+		if (! $id) {
+			return $this->ajax->fail(JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'));
+		}
+
+		$user = ED::user($id);
+
+		$theme = ED::themes();
+		$theme->set('user', $user);
+		$contents = $theme->output('site/html/user.popbox');
+
+		return $this->ajax->resolve($contents);
+	}
+
 }

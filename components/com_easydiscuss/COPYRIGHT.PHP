@@ -1,7 +1,6 @@
 <?php
 defined('_JEXEC') or die('Restricted access');
 ?>
-
 EasyDiscuss derives from copyrighted works licensed under the GNU General
 Public License.  This version has been modified pursuant to the
 GNU General Public License as of September 15, 2005, and as distributed,

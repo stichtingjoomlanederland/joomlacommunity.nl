@@ -11,82 +11,93 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-require_once DISCUSS_ADMIN_ROOT . '/views.php';
+require_once DISCUSS_ADMIN_ROOT . '/views/views.php';
 
 class EasyDiscussViewUser extends EasyDiscussAdminView
 {
 	public function display($tpl = null)
 	{
+		$this->checkAccess('discuss.manage.users');
+
 		// Initialise variables
-		$config		= DiscussHelper::getConfig();
+		$config = ED::config();
 
-		$id			= JRequest::getInt('id');
-		$profile	= JTable::getInstance( 'Profile' , 'Discuss' );
-		$profile->load( $id );
+		$id = $this->input->get('id', 0, 'int');
 
-		$userparams	= DiscussHelper::getRegistry( $profile->get('params') );
-		$siteDetails = DiscussHelper::getRegistry( $profile->get('site') );
+		$profile = ED::user($id);
 
+		$userparams	= ED::getRegistry($profile->get('params'));
+		$siteDetails = ED::getRegistry($profile->get('site'));
 
-		$avatarIntegration = $config->get( 'layout_avatarIntegration', 'default' );
+		$avatarIntegration = $config->get('layout_avatarIntegration', 'default');
 
-		$user		= JFactory::getUser( $id );
-		$isNew		= ($user->id == 0) ? true : false;
+		$user = JFactory::getUser($id);
+		$isNew = ($user->id == 0) ? true : false;
 
-		$badges		= $profile->getBadges();
+		$badges = $profile->getBadges();
 
-		$model		= $this->getModel( 'Badges' );
-		$history	= $model->getBadgesHistory( $profile->id );
+		$model = ED::model('Badges');
+		$history = $model->getBadgesHistory($profile->id);
 
-		$params		= $user->getParameters(true);
+		$params = $user->getParameters(true);
 
 		// Badge id's that are assigned to the user.
-		$badgeIds	= '';
+		$badgeIds = '';
 
-		for( $i = 0; $i < count( $badges ); $i++ )
-		{
-			$badgeIds	.= $badges[$i]->id;
+		for ($i = 0; $i < count($badges); $i++) {
+			$badgeIds .= $badges[$i]->id;
 
-			if( next( $badges ) !== false )
-			{
-				$badgeIds	.= ',';
+			if (next($badges) !== false) {
+				$badgeIds .= ',';
 			}
 
-			$badgeUser 	= DiscussHelper::getTable( 'BadgesUsers' );
-			$badgeUser->loadByUser( $id , $badges[ $i ]->id );
+			$badgeUser = ED::table('BadgesUsers');
+			$badgeUser->loadByUser($id, $badges[$i]->id);
 
-			$badges[ $i ]->reference_id 	= $badgeUser->id;
-			$badges[ $i ]->custom 			= $badgeUser->custom;
+			$badges[$i]->reference_id = $badgeUser->id;
+			$badges[$i]->custom = $badgeUser->custom;
 		}
 
+		// Get active tab
+		$active = $this->input->get('active', 'account', 'word');
 
-		$this->assign( 'badgeIds'				, $badgeIds );
+		if ($this->config->get('layout_avatar')) {
+			$maxSizeInMB = (int) $this->config->get( 'main_upload_maxsize', 0 );
+		}
 
-		$this->assignRef( 'badges'				, $badges );
-		$this->assignRef( 'history'				, $history );
-		$this->assignRef( 'config'				, $config );
-		$this->assignRef( 'profile'				, $profile );
-		$this->assignRef( 'user'				, $user );
-		$this->assignRef( 'isNew'				, $isNew );
-		$this->assignRef( 'params'				, $params );
-		$this->assignRef( 'avatarIntegration'	, $avatarIntegration );
-		$this->assignRef( 'userparams'			, $userparams );
-		$this->assignRef( 'siteDetails'			, $siteDetails );
+		// Get editor for signature.
+		$opt = array('defaults', $profile->getSignature(true));
+		$composer = ED::composer($opt);
 
-		parent::display($tpl);
+		$this->set('maxSizeInMB', $maxSizeInMB);
+		$this->set('active', $active);
+		$this->set('badgeIds', $badgeIds);
+		$this->set('badges', $badges);
+		$this->set('history', $history);
+		$this->set('config', $config);
+		$this->set('profile', $profile);
+		$this->set('user', $user);
+		$this->set('isNew', $isNew);
+		$this->set('params', $params);
+		$this->set('avatarIntegration', $avatarIntegration);
+		$this->set('userparams', $userparams);
+		$this->set('siteDetails', $siteDetails);
+		$this->set('composer', $composer);
+
+		parent::display('user/default');
 	}
 
 	public function registerToolbar()
 	{
-		$id		= JRequest::getInt('id');
-		$user	= JTable::getInstance( 'User' , 'JTable' );
-		$user->load( $id );
+		$id	= JRequest::getInt('id');
+		$user = JTable::getInstance('User', 'JTable');
+		$user->load($id);
 
-		$title	= ($user->id == 0) ? JText::_('COM_EASYDISCUSS_NEW_USER') : JText::sprintf( 'COM_EASYDISCUSS_EDITING_USER' , $user->name );
+		$title = ($user->id == 0) ? JText::_('COM_EASYDISCUSS_NEW_USER') : JText::sprintf('COM_EASYDISCUSS_EDITING_USER', $user->name);
 
-		JToolBarHelper::title( $title , 'users' );
+		JToolBarHelper::title($title, 'users');
 
-		JToolBarHelper::back( JText::_( 'COM_EASYDISCUSS_BACK' ) , 'index.php?option=com_easydiscuss&view=users' );
+		JToolBarHelper::back(JText::_('COM_EASYDISCUSS_BACK'), 'index.php?option=com_easydiscuss&view=users');
 		JToolBarHelper::divider();
 
 		JToolBarHelper::apply();

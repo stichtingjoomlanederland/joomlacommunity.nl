@@ -11,23 +11,19 @@
 */
 defined('_JEXEC') or die('Restricted access');
 ?>
-<div class="row-fluid ">
-	<div class="span12">
-		<h3><?php echo JText::_( 'User History' ); ?></h3>
-		<hr />
-		<ul class="user-history unstyled">
-			<?php if( $this->history ){ ?>
-				<?php foreach( $this->history as $history ){ ?>
-					<li class="mb-10">
-						<span><?php echo $history->created;?> - </span>
-						<span><?php echo $history->title; ?></span>
-					</li>
-				<?php } ?>
-			<?php } else { ?>
-				<li>
-					<div class="small"><?php echo JText::_( 'COM_EASYDISCUSS_NO_HISTORY_GENERATED_YET' );?></div>
-				</li>
-			<?php } ?>
-		</ul>
-	</div>
-</div>
+<h3><?php echo JText::_( 'User History' ); ?></h3>
+<hr />
+<ul class="user-history unstyled">
+	<?php if( $this->history ){ ?>
+		<?php foreach( $this->history as $history ){ ?>
+			<li class="mb-10">
+				<span><?php echo $history->created;?> - </span>
+				<span><?php echo $history->title; ?></span>
+			</li>
+		<?php } ?>
+	<?php } else { ?>
+		<li>
+			<div class="small"><?php echo JText::_( 'COM_EASYDISCUSS_NO_HISTORY_GENERATED_YET' );?></div>
+		</li>
+	<?php } ?>
+</ul>

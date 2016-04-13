@@ -1,90 +1,62 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once( DISCUSS_ROOT . '/views.php' );
-require_once DISCUSS_CLASSES . '/composer.php';
+require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewPost extends EasyDiscussView
 {
-	public function display( $tpl = null )
+	/**
+	 * Renders the post view for a discussion
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function display($tpl = null)
 	{
-		$app 		= JFactory::getApplication();
-		$doc 		= JFactory::getDocument();
-		$config		= DiscussHelper::getConfig();
-
 		// Sorting and filters.
-		$sort = JRequest::getWord('sort', DiscussHelper::getDefaultRepliesSorting() );
-		$filteractive	= JRequest::getString('filter', 'allposts');
-		$id				= JRequest::getInt( 'id' );
-		$acl			= DiscussHelper::getHelper( 'ACL' );
+		$sort = $this->input->get('sort', ED::getDefaultRepliesSorting(), 'word');
+		$filteractive = $this->input->get('filter', 'allposts', 'string');
+		$pagination = $this->config->get('layout_replies_pagination');
+
+		// Get the post id
+		$id = $this->input->get('id', 0, 'int');
 
 		// Add noindex for print view by default.
-		if( JRequest::getInt( 'print' ) == 1 )
-		{
-			$doc->setMetadata( 'robots' , 'noindex,follow' );
+		$print = $this->input->get('print', 0, 'int');
+
+		// If this is a print request, we wouldn't want crawlers to index this page
+		if ($print) {
+			$this->doc->setMetadata('robots', 'noindex,follow');
 		}
 
-		// Get current logged in user.
-		$my 		= JFactory::getUser();
+		// New way of loading a post object
+		$post = ED::post($id);
 
-		// Determine if the logged in user is an admin.
-		$isAdmin	= DiscussHelper::isSiteAdmin();
-
-		// Load the post table out.
-		$post	= DiscussHelper::getTable( 'Post' );
-		$state	= $post->load( $id );
-
-		// Need raw content for later use
-		$post->content_raw = $post->content;
-
-		// If id is not found, we need to redirect gracefully.
-		if( !$state || !$post->published || !$id )
-		{
+		// Ensure that the viewer can view the post
+		if (!$post->canView($this->my->id)) {
 			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_SYSTEM_POST_NOT_FOUND'));
 		}
 
-		if ($post->private && $my->id != $post->user_id && !$isAdmin && !DiscussHelper::isModerator( $post->category_id, $my->id)) {
-			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_SYSTEM_POST_NOT_FOUND'));
-		}
-
-		// Check whether this is a valid discussion
-		if( $post->parent_id != 0 || ($post->published == DISCUSS_ID_PENDING && ( !$isAdmin && $post->user_id != $my->id )) )
-		{
-			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_SYSTEM_POST_NOT_FOUND'));
-		}
-
-		// check the discussion is under moderation
-		if( $post->published == 4 && !DiscussHelper::isModerator( $post->category_id, $my->id) && !$isAdmin)
-		{
- 			DiscussHelper::setMessageQueue( JText::_('COM_EASYDISCUSS_NOTICE_POST_SUBMITTED_UNDER_MODERATION')  , 'error' );
-			$app->redirect( DiscussRouter::_('index.php?option=com_easydiscuss&view=index', false)) ;
-			$app->close();
-		}
-
-		// Load the category.
-		$category	= DiscussHelper::getTable( 'Category' );
-		$category->load( (int) $post->category_id );
-
-		if ($post->category_id && !$category->canAccess()) {
-			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_SYSTEM_POST_NOT_FOUND'));
-		}
+		// Get the posts' category
+		$category = $post->getCategory();
 
 		// Add pathway for category here.
-		DiscussHelper::getHelper( 'Pathway' )->setCategoryPathway( $category );
+		ED::breadcrumbs()->insertCategory($category);
 
 		// Set breadcrumbs for this discussion.
-		$this->setPathway( $this->escape( $post->title ) );
+		$this->setPathway($this->escape($post->getTitle()));
 
 		// Mark as viewed for notifications.
 		$this->logView();
@@ -93,430 +65,268 @@ class EasyDiscussViewPost extends EasyDiscussView
 		$post->hit();
 
 		// Set page headers
-		$this->setPageHeaders( $post );
+		$this->setPageHeaders($post);
 
 		// Before sending the title and content to be parsed, we need to store this temporarily in case it needs to be accessed.
-		$post->title_clear 	= $post->title;
-
-		// Filter badwords
-		$post->title		= DiscussHelper::wordFilter( $post->title );
-		$post->content		= DiscussHelper::wordFilter( $post->content );
-
+		$post->title_clear = $post->title;
 
 		// Get the tags for this discussion
-		$postsTagsModel	= $this->getModel('PostsTags');
-		$tags 			= $postsTagsModel->getPostTags( $id );
+		$tags = $post->getTags();
 
 		// Get adsense codes here.
-		$adsense 		= DiscussHelper::getAdsense();
-
-		$postsModel 	= DiscussHelper::getModel( 'Posts' );
+		$adsense = ED::adsense()->html();
 
 		// Get the answer for this discussion.
-		$answer			= $postsModel->getAcceptedReply( $post->id );
+		$model = ED::model('Posts');
+		$answer = $model->getAcceptedReply($post->id);
 
 		// Format the answer object.
-		if( $answer )
-		{
-			$answer 	= DiscussHelper::formatReplies( $answer , $category );
-			$answer 	= $answer[0];
+		if ($answer) {
+			$answer = ED::formatReplies($answer, $category, $pagination, true);
+			$answer = $answer[0];
 		}
 
 		// Get a list of replies for this post.
-		$data 			= $this->getReplies( $category , $post , $sort , $answer );
-		$replies 		= $data->replies;
-		$totalReplies	= $data->total;
-		$hasMoreReplies	= $data->more;
-		$readMoreURI	= $data->readmore;
+		$limitReplies = $post->config->get('layout_replies_list_limit');
+		$limitstart = $this->app->input->get('limitstart', 0);
+
+		$replies = $post->getReplies(true, $limitReplies, $sort, $limitstart);
+
+		$emptyMessage = JText::_('COM_EASYDISCUSS_NO_REPLIES_YET');
+
+		// Display proper empty message if the user are not allowed to view replies.
+		if (empty($replies) && $post->getTotalReplies() > 0) {
+			$emptyMessage = JText::_('COM_EASYDISCUSS_VIEW_REPLIES_NOT_ALLOWED');
+		}
 
 		// Get comments for the post
-		$commentLimit			= $config->get( 'main_comment_pagination' ) ? $config->get( 'main_comment_pagination_count' ) : null;
-		$post->comments 		= false;
+		$post->comments = array();
 
-		if( $config->get( 'main_commentpost' ) )
-		{
-			$comments				= $post->getComments( $commentLimit );
-			$post->comments 		= DiscussHelper::formatComments( $comments );
+		if ($this->config->get('main_commentpost')) {
+			$commentLimit = $this->config->get('main_comment_pagination') ? $this->config->get('main_comment_pagination_count') : null;
+			$post->comments = $post->getComments($commentLimit);
+
+			// get post comments count
+			$post->commentsCount = $post->getTotalComments();
 		}
 
+		// Update the read status for this post
+		$post->markRead();
 
-		// get reply comments count
-		$post->commentsCount	= $post->getTotalComments();
+		// Load social button lib
+		$socialbuttons = ED::sharer()->html($post);
 
-		// Get the post access object here.
-		$access			= $post->getAccess( $category );
-		$post->access	= $access;
+		// Get the post owner id
+		$owner = $post->getOwner()->id;
 
-		// Add custom values.
-		$postOwner		= $post->getOwner();
-		$profileTable	= DiscussHelper::getTable( 'Profile' );
+		// Get the post access rule
+		$access = $post->getAccess();
 
-		if ($postOwner->id) {
-			$profileTable->load( $postOwner->id );
+		// Render new composer
+		$opts = array('replying', $post);
+		$composer = ED::composer($opts);
+
+		// Get the post created date
+		$date = ED::date($post->created);
+
+		$post->date = $date->display(ED::config()->get('layout_dateformat', JText::_('DATE_FORMAT_LC1')));
+
+		// Get the pagination for replies
+		if ($pagination) {
+			$pagination = $model->getPagination();
 		}
 
-		$post->user 	= $profileTable;
+		// Get the poll of the post
+		$poll = $post->getPoll();
 
-		// update user's post read flag
-		if( $my->id != 0 )
-		{
-			$profile	= DiscussHelper::getTable( 'Profile' );
-			$profile->load( $my->id );
-			$profile->read( $post->id );
+		$this->set('poll', $poll);
+		$this->set('pagination', $pagination);
+		$this->set('post', $post);
+		$this->set('replies', $replies);
+		$this->set('print', $print);
+		$this->set('composer', $composer);
+		$this->set('adsense', $adsense);
+		$this->set('tags', $tags);
+		$this->set('owner', $owner);
+		$this->set('access', $access);
+		$this->set('answer', $answer);
+		$this->set('sort', $sort);
+		$this->set('date', $date);
+		$this->set('socialbuttons', $socialbuttons);
+		$this->set('emptyMessage', $emptyMessage);
+
+		// If this post is password protected, we need to display the form to enter password
+		if ($post->isProtected() && !ED::isSiteAdmin() && $this->my->id != $owner) {
+			parent::display('post/default.protected');
+			return;
 		}
 
-		$badgesTable		= DiscussHelper::getTable( 'Profile' );
-		$badgesTable->load( $post->user->id );
-		$postBadges			= $badgesTable->getBadges();
-
-		// Get Likes model here.
-		$post->likesAuthor	= DiscussHelper::getHelper( 'Likes' )->getLikesHTML( $post->id , $my->id , 'post' );
-
-		$post->isVoted		= DiscussHelper::getHelper( 'Post' )->isVoted( $post->id );
-
-		// Format the content.
-		$post->content 		= DiscussHelper::formatContent( $post );
-
-		// Test if trigger is necessary here.
-		if ( $config->get( 'main_content_trigger_posts' ) )
-		{
-			// Move aside the original content_raw
-			$content_raw_temp = $post->content_raw;
-
-			// Add the br tags in the content, we do it here so that the content triggers's javascript will not get added with br tags
-			$post->content_raw = DiscussHelper::formatContent( $post );
-
-			$post->event		= new stdClass();
-
-			// Triger onContentPrepare here. Since it doesn't have any return value, just ignore this.
-			DiscussHelper::triggerPlugins( 'content' , 'onContentPrepare' , $post );
-
-			$post->event->afterDisplayTtle		= DiscussHelper::triggerPlugins( 'content' , 'onContentAfterTitle' , $post , true );
-			$post->event->beforeDisplayContent	= DiscussHelper::triggerPlugins( 'content' , 'onContentBeforeDisplay' , $post , true );
-			$post->event->afterDisplayContent 	= DiscussHelper::triggerPlugins( 'content' , 'onContentAfterDisplay' , $post , true );
-
-			// Assign the processed content back
-			$post->content = $post->content_raw;
-
-			// Move back the original content_raw
-			$post->content_raw = $content_raw_temp;
-		}
-
-		$theme 			= new DiscussThemes();
-
-		// Get list of moderators from the site.
-		$moderators = array();
-
-		$composer 		= new DiscussComposer( "replying" , $post );
-
-		// Set the discussion object.
-		$theme->set( 'post'					, $post );
-		$theme->set( 'composer'             , $composer );
-		$theme->set( 'replies'				, $replies );
-		$theme->set( 'answer'				, $answer );
-		$theme->set( 'sort'					, $sort );
-		$theme->set( 'adsense'				, $adsense );
-		$theme->set( 'tags'					, $tags );
-		$theme->set( 'totalReplies'			, $totalReplies );
-		$theme->set( 'hasMoreReplies'		, $hasMoreReplies );
-		$theme->set( 'access'				, $access );
-		$theme->set( 'category'				, $category );
-		$theme->set( 'moderators'			, $moderators );
-		$theme->set( 'readMoreURI'			, $readMoreURI );
-		$theme->set( 'postBadges'			, $postBadges );
-
-		echo $theme->fetch( 'post.php' );
+		parent::display('post/default');
 	}
 
+
+
+	/**
+	 * Displays the edit form for reply only
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function edit($tpl = null)
 	{
-		$app	= JFactory::getApplication();
-		$doc	= JFactory::getDocument();
-		$my		= JFactory::getUser();
-		$acl	= DiscussHelper::getHelper( 'ACL' );
-		$config	= DiscussHelper::getConfig();
-
 		// Load post item
-		$id		= JRequest::getInt( 'id' , 0 );
+		$id = $this->input->get('id', 0, 'int');
+        $seq = $this->input->get('seq', 0, 'int');
 
-		if( empty($id) )
-		{
-			DiscussHelper::setMessageQueue( JText::_('COM_EASYDISCUSS_INVALID_POST_ID') );
-		 	return;
+		if (!$id) {
+			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_SYSTEM_POST_NOT_FOUND'));
 		}
 
-		$post	= DiscussHelper::getTable( 'Post' );
-		$post->load( $id );
+		// There is a possibility that this post is being edited so we try to load it first.
+		$post = ED::post($id);
 
-		$post->content_raw = $post->content;
+		$threadUrl = EDR::_('index.php?option=com_easydiscuss&view=post&id=' . $post->parent_id, false);
 
-		$editing	= (bool) $post->id;
-
-		if( ! $editing )
-		{
-			// try to get from session if there are any.
-			$this->getSessionData( $post );
+		if (! $post->isReply()) {
+			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_SYSTEM_POST_NOT_FOUND'));
 		}
 
 
-		$categoryId	= JRequest::getInt( 'category' , $post->category_id );
-
-		// Load category item.
-		$category 	= DiscussHelper::getTable( 'Category' );
-		$category->load( $categoryId );
-
-		// Check if user is allowed to post a discussion, we also need to check against the category acl
-		if( empty($my->id) && !$acl->allowed('add_question', 0 ) )
-		{
-			DiscussHelper::setMessageQueue( JText::_('COM_EASYDISCUSS_PLEASE_KINDLY_LOGIN_TO_CREATE_A_POST') );
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=index' , false ) );
-
-			$app->close();
-			return;
+		if (! $post->canEdit()) {
+			return $this->app->redirect($threadUrl, JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
 		}
 
-		if( $my->id != 0 && !$acl->allowed('add_question', '0') && !$category->canPost() )
-		{
-			$app->redirect( DiscussRouter::_('index.php?option=com_easydiscuss&view=index' , false ) , JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS') );
-			$app->close();
-			return;
-		}
-
-		// Set the breadcrumbs.
-		$this->setPathway( JText::_( 'COM_EASYDISCUSS_BREADCRUMBS_ASK') );
+		// Try to get from session if there are any because the user might hit an error and we need to reload the values
+		$this->getSessionData($post);
 
 		// Set the page title.
-		$title	= JText::_( 'COM_EASYDISCUSS_TITLE_ASK' );
+		$title = JText::_('COM_EASYDISCUSS_TITLE_EDIT_REPLY');
 
-		if( $id && $post->id )
-		{
-			$title 	= JText::sprintf( 'COM_EASYDISCUSS_TITLE_EDIT_QUESTION' , $post->getTitle() );
-		}
+		// Set the breadcrumbs.
+		ED::setPageTitle($title);
+		// $this->setPathway('COM_EASYDISCUSS_BREADCRUMBS_ASK');
 
-		// Set the page title
-		DiscussHelper::setPageTitle( $title );
+		$tagsModel = ED::model('PostsTags');
+		$post->tags	= $tagsModel->getPostTags($post->id);
 
-		if( $editing )
-		{
-			$isModerator = DiscussHelper::getHelper( 'Moderator' )->isModerator( $post->category_id );
-			if( !DiscussHelper::isMine( $post->user_id ) && !DiscussHelper::isSiteAdmin() && !$acl->allowed( 'edit_question' ) && !$isModerator)
-			{
-				$app->redirect( DiscussRouter::_('index.php?option=com_easydiscuss&view=post&id='.$postid , false ) , JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS') );
-				$app->close();
-			}
-
-			$tagsModel	= DiscussHelper::getModel( 'PostsTags' );
-			$post->tags	= $tagsModel->getPostTags( $post->id );
-		}
-		else
-		{
-			if( $categoryId )
-			{
-				// set the default category
-				$post->category_id = $categoryId;
-			}
-		}
 
 		$attachments = $post->getAttachments();
 
-		if( isset( $post->sessiondata ) )
-		{
-			$attachments    = '';
+		// If there was an error on the form, reset the attachments
+		if (isset($post->sessiondata)) {
+			$attachments = '';
 		}
 
+		$model = ED::model('Posts');
 
-		$model		= DiscussHelper::getModel( 'Posts' );
-		$postCount	= count( $model->getPostsBy( 'user' , $my->id ) );
-
-
-		$onlyPublished = ( empty( $post->id ) ) ? true : false;
-
-		// @rule: If there is a category id passed through the query, respect it first.
-		$showPrivateCat		= ( empty($post->id) && $my->id == 0 ) ? false : true;
-
-		// [model:category]
-		$categoryModel		= $this->getModel( 'Category' );
-
-		$defaultCategory	= $categoryModel->getDefaultCategory();
-
-		if( $categoryId == 0 && $defaultCategory !== false )
-		{
-			$categoryId 		= $defaultCategory->id;
-		}
-
-		$nestedCategories	= '';
-		$categories			= '';
-
-		if( $config->get( 'layout_category_selection' ) == 'multitier' )
-		{
-			$categoriesModel	= $this->getModel( 'Categories');
-			$categories			= $categoriesModel->getCategories( array('acl_type' => DISCUSS_CATEGORY_ACL_ACTION_SELECT) );
-		}
-		else
-		{
-			$nestedCategories	= DiscussHelper::populateCategories('', '', 'select', 'category_id', $categoryId , true, $onlyPublished, $showPrivateCat , true );
-		}
-
-		if( $config->get( 'layout_reply_editor' ) == 'bbcode' )
-		{
-			// Legacy fix when switching from WYSIWYG editor to bbcode.
-			$post->content	= EasyDiscussParser::html2bbcode( $post->content );
-		}
-
-		$editor = '';
-		if( $config->get('layout_editor' ) != 'bbcode' )
-		{
-			$editor	= JFactory::getEditor( $config->get('layout_editor' ) );
-		}
-
-		// Get list of moderators from the site.
-		$moderatorList = array();
-		if( $config->get('main_assign_user') )
-		{
-			$moderatorList	= DiscussHelper::getHelper( 'Moderator' )->getSelectOptions( $post->category_id );
-		}
-
-		$composer = new DiscussComposer("editing", $post);
-
-		// Set the discussion object.
-		$access		= $post->getAccess( $category );
-
-		$theme 		= new DiscussThemes();
+		$composer = ED::composer(array('editing', $post));
 
 		// Test if reference is passed in query string.
-		$reference 		= JRequest::getWord( 'reference' );
-		$referenceId	= JRequest::getInt( 'reference_id' , 0 );
-		$redirect		= JRequest::getVar( 'redirect' , '' );
+		$reference = $this->input->get('reference', '', 'word');
+		$referenceId = $this->input->get('reference_id', 0, 'int');
+		$redirect = $this->input->get('redirect', '', 'default');
 
-		$theme->set( 'redirect'			, $redirect );
-		$theme->set( 'reference'		, $reference );
-		$theme->set( 'referenceId'		, $referenceId );
-		$theme->set( 'isEditMode'		, $editing );
-		$theme->set( 'post'				, $post );
-		$theme->set( 'composer'			, $composer );
-		$theme->set( 'parent'			, $composer->parent );
-		$theme->set( 'nestedCategories'	, $nestedCategories );
-		$theme->set( 'attachments'		, $attachments );
-		$theme->set( 'editor'			, $editor );
-		$theme->set( 'moderatorList'	, $moderatorList );
-		$theme->set( 'categories'		, $categories );
-		$theme->set( 'access'			, $access );
+		// Prepare the cancel link
+		$cancel = $threadUrl;
 
-		// Deprecated since 3.0. Will be removed in 4.0
-		$theme->set( 'config'			, $config );
+		$this->set('cancel', $cancel);
+		$this->set('post', $post);
+		$this->set('composer', $composer);
+		$this->set('attachments', $attachments);
+		$this->set('redirect', $redirect);
 
-		echo $theme->fetch( 'form.reply.wysiwyg.php' );
+		parent::display('post/default.edit');
 	}
 
-	private function setPageHeaders( $post )
+	private function getSessionData(&$post)
+	{
+		// Get form values from session.
+		$data = ED::getSession('NEW_POST_TOKEN');
+
+		if (!empty($data)) {
+
+			// Try to bind the data from the object.
+			$post->bind($data, true);
+
+			$post->tags	= array();
+			$post->attachments = array();
+
+			if (isset($data['tags'])) {
+
+				foreach ($data['tags'] as $tag) {
+					$obj = new stdClass();
+					$obj->title	= $tag;
+
+					$post->tags[] = $obj;
+				}
+			}
+
+			if (isset($data['polls']) && isset($data['pollitems']) && is_array($data['pollitems'])) {
+
+				$polls = array();
+
+				foreach ($data['pollitems'] as $key => $value) {
+					$poll = ED::table('Poll');
+					$poll->id = $key;
+					$poll->value = $value;
+
+					$polls[] = $poll;
+				}
+
+				$post->setPolls($polls);
+			}
+
+			$poll = ED::table('PollQuestion');
+			$poll->title = isset($data['poll_question']) ? $data['poll_question'] : '';
+			$poll->multiple = isset($data['multiplePolls']) ? $data['multiplePolls'] : false;
+
+			// $post->setPollQuestions($poll);
+
+			// Process custom fields.
+			$customfields = array();
+			$fieldIds = isset($data['customFields']) ? $data['customFields'] : '';
+
+			if (!empty($fieldIds)) {
+
+				foreach ($fieldIds as $fieldId) {
+
+					$fields	= isset($data['customFieldValue_'.$fieldId]) ? $data['customFieldValue_'.$fieldId] : '';
+
+					$customfields[] = array($fieldId => $fields);
+				}
+
+				$post->setCustomFields($customfields);
+			}
+
+			$post->bindParams($data);
+
+			$post->sessiondata = true;
+		}
+	}
+
+
+
+	/**
+	 * Sets the page headers for this post
+	 *
+	 * @since	4.0
+	 * @access	private
+	 * @param	string
+	 * @return
+	 */
+	private function setPageHeaders(EasyDiscussPost $post)
 	{
 		// Set page title.
-		DiscussHelper::setPageTitle( $post->getTitle() );
+		ED::setPageTitle($post->getTitle());
 
-		$doc 	= JFactory::getDocument();
-		$doc->setMetadata( 'keywords'		, $post->title );
-		$doc->setMetadata( 'description'	, preg_replace( '/\s+/', ' ', (substr( strip_tags( EasyDiscussParser::bbcode($post->content) ), 0, 160 ) ) ) );
+		$description = preg_replace('/\s+/', ' ', (JString::substr(strip_tags(ED::parser()->bbcode($post->getContent())), 0, 160)));
+
+		$this->doc->setMetadata('keywords', $post->getTitle());
+		$this->doc->setMetadata('description', $description);
 
 		// Set canonical link to avoid URL duplication.
-		$doc->addHeadLink( DISCUSS_JURIROOT . DiscussRouter::getPostRoute( $post->id ) , 'canonical' , 'rel' );
-	}
-
-	private function getReplies( $category , $post , $sort , $answer )
-	{
-		$config 		= DiscussHelper::getConfig();
-		$postsModel 	= DiscussHelper::getModel( 'Posts' );
-
-		$my 			= JFactory::getUser();
-
-		// Get a list of replies for this discussion
-		$replies 		= array();
-		$hasMoreReplies	= false;
-		$totalReplies 	= 0;
-		$readMoreURI	= '';
-
-		$totalReplies	= $postsModel->getTotalReplies( $post->id );
-
-		if( $category->canViewReplies() )
-		{
-			$repliesLimit	= $config->get('layout_replies_list_limit');
-
-			$hasMoreReplies	= false;
-
-			$limitstart		= null;
-			$limit			= null;
-
-			if( $repliesLimit && !JRequest::getBool('viewallreplies') )
-			{
-				$limit		= $repliesLimit;
-
-				$hasMoreReplies = ( $totalReplies - $repliesLimit ) > 0;
-			}
-
-			$replies 		= $postsModel->getReplies( $post->id, $sort, $limitstart, $limit );
-
-			if( count( $replies ) > 0 )
-			{
-				$repliesIds = array();
-				$authorIds  = array();
-
-				foreach( $replies as $reply )
-				{
-					$repliesIds[]	= $reply->id;
-					$authorIds[]    = $reply->user_id;
-				}
-
-				if( $answer )
-				{
-					if( is_array( $answer ) )
-					{
-						$answer = $answer[0];
-					}
-
-					$repliesIds[]   = $answer->id;
-					$authorIds[]    = $answer->user_id;
-				}
-
-				$post->loadBatch( $repliesIds );
-				$post->setAttachmentsData( 'replies', $repliesIds);
-
-				// here we include the discussion id into the array as well.
-				$repliesIds[]   = $post->id;
-				$authorIds[]    = $post->user_id;
-
-				$post->setLikeAuthorsBatch( $repliesIds );
-				DiscussHelper::getHelper( 'Post' )->setIsLikedBatch( $repliesIds );
-
-				$post->setPollQuestionsBatch( $repliesIds );
-				$post->setPollsBatch( $repliesIds );
-
-				$post->setLikedByBatch( $repliesIds, $my->id );
-				$post->setVoterBatch( $repliesIds );
-				$post->setHasVotedBatch( $repliesIds );
-
-				$post->setTotalCommentsBatch( $repliesIds );
-				$commentLimit	= $config->get( 'main_comment_pagination' ) ? $config->get( 'main_comment_pagination_count' ) : null;
-				$post->setCommentsBatch( $repliesIds, $commentLimit );
-
-				// Reduce SQL queries by pre-loading all author object.
-				$authorIds  = array_unique($authorIds);
-				$profile	= DiscussHelper::getTable( 'Profile' );
-				$profile->init( $authorIds );
-			}
-
-			$readMoreURI	= JURI::getInstance()->toString();
-			$delimiteter	= JString::strpos($readMoreURI, '&') ? '&' : '?';
-			$readMoreURI	= $hasMoreReplies ? $readMoreURI . $delimiteter . 'viewallreplies=1' : $readMoreURI;
-
-			// Format the reply items.
-			$replies		= DiscussHelper::formatReplies( $replies , $category );
-		}
-
-		$data 			= new stdClass();
-		$data->replies 	= $replies;
-		$data->total 	= $totalReplies;
-		$data->more 	= $hasMoreReplies;
-		$data->readmore	= $readMoreURI;
-
-		return $data;
+		$this->doc->addHeadLink(JURI::root() . EDR::getPostRoute($post->id), 'canonical', 'rel');
 	}
 }

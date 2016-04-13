@@ -1,74 +1,84 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyBlog is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once( DISCUSS_ROOT . '/views.php' );
-require_once DISCUSS_HELPERS . '/router.php';
+require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewUsers extends EasyDiscussView
 {
-	function display( $tmpl = null )
+	public function isFeatureAvailable()
 	{
-		$document	= JFactory::getDocument();
-		$config = DiscussHelper::getConfig();
+		if (!$this->config->get('main_user_listings')) {
+			return false;
+		}
 
-		$doc		= JFactory::getDocument();
-		DiscussHelper::setPageTitle( JText::_( 'COM_EASYDISCUSS_MEMBERS_TITLE' ) );
+		return true;
+	}
 
-		$this->setPathway( JText::_( 'COM_EASYDISCUSS_BREADCRUMBS_MEMBERS' ) );
+	/**
+	 * Renders users listing
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function display($tmpl = null)
+	{
+		// Set the page attributes
+		ED::setPageTitle('COM_EASYDISCUSS_MEMBERS_TITLE');
+		$this->setPathway('COM_EASYDISCUSS_BREADCRUMBS_MEMBERS');
 
-		$model		= $this->getModel( 'Users' );
+		// If being searched
+		$search = $this->input->get('search', '', 'string');
 
-		$userQuery		= JRequest::getString( 'userQuery' , '' );
-			
-		$result		= $model->getData( $userQuery );
-			
+		// Get the list of users
+		$model = ED::model('Users');
+		$users = $model->getData($search);
 		$pagination	= $model->getPagination();
 
-		$sort			= JRequest::getString('sort', 'latest');
-		$filteractive	= JRequest::getString('filter', 'allposts');
+		// Format the result
+		$users = ED::formatUsers($users);
 
-		$users			= DiscussHelper::formatUsers( $result );
-		$sort			= JRequest::getCmd('sort', 'name');
+		// Other options
+		$sort = $this->input->get('sort', 'name', 'cmd');
+		$filter = $this->input->get('filter', 'allposts', 'string');
 
-		$uids = $config->get( 'main_exclude_members' );
 
-		if( !empty($uids) )
-		{
+		// @TODO: We neeed to switch this to mysql expression
+		// Really really bad implementation!
+		// Get a list of users to be excluded.
+		$excluded = $this->config->get('main_exclude_members');
+
+		if (!empty($excluded)) {
 			// Remove white space
-			$uids = str_replace(' ', '', $uids);
+			$uids = str_replace(' ', '', $excluded);
 			$excludeId = explode(',', $uids);
 
 			$temp = array();
-			foreach( $users as $user )
-			{
-				if( !in_array($user->id, $excludeId) )
-				{
+
+			foreach ($users as $user) {
+				if( !in_array($user->id, $excludeId)) {
 					$temp[] = $user;
 				}
 			}
-
 			$users = $temp;
 		}
 
+		$this->set('users', $users);
+		$this->set('pagination', $pagination);
+		$this->set('sort', $sort);
+		$this->set('search', $search);
 
-
-		$theme			= new DiscussThemes();
-		$theme->set( 'users'		, $users );
-		$theme->set( 'pagination'	, $pagination );
-		$theme->set( 'sort'			, $sort );
-		$theme->set( 'userQuery'		, $userQuery );
-
-		echo $theme->fetch( 'users.php' );
+		parent::display('users/default');
 	}
 }

@@ -1,269 +1,258 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-
-defined('_JEXEC') or die('Restricted access');
-
-require_once DISCUSS_HELPERS . '/date.php';
-require_once DISCUSS_HELPERS . '/input.php';
-require_once DISCUSS_HELPERS . '/filter.php';
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussControllerPosts extends EasyDiscussController
 {
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 
-		$this->registerTask( 'unfeature'		, 'toggleFeatured' );
-		$this->registerTask( 'feature'			, 'toggleFeatured' );
+		$this->checkAccess('discuss.manage.posts');
 
-		$this->registerTask( 'savePublishNew'	, 'submit' );
-		$this->registerTask( 'apply'			, 'submit' );
-		$this->registerTask( 'save'				, 'submit' );
-
-		$this->registerTask( 'unpublish'		, 'unpublish' );
+		$this->registerTask('unfeature', 'toggleFeatured');
+		$this->registerTask('feature', 'toggleFeatured');
+		$this->registerTask('savePublishNew', 'save');
+		$this->registerTask('apply', 'save');
+		$this->registerTask('save', 'save');
+		$this->registerTask('unpublish', 'unpublish');
 	}
 
 	public function movePosts()
 	{
 		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
+		ED::checkToken();
 
-		$cid 			= JRequest::getVar( 'cid' );
-		$newCategoryId	= JRequest::getInt( 'move_category' );
-		$newCategory 	= DiscussHelper::getTable( 'Category' );
-		$newCategory->load( $newCategoryId );
+		$cid = $this->input->get('cid');
+		$newCategoryId = $this->input->get('move_category');
+		$newCategory = ED::Category($newCategoryId);
 
 
-		if( !$newCategoryId || !$newCategory->id )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_PLEASE_SELECT_CATEGORY') , DISCUSS_QUEUE_ERROR );
-			return $this->setRedirect( 'index.php?option=com_easydiscuss&view=posts' );
+		if (!$newCategoryId || !$newCategory->id) {
+			ED::setMessageQueue(JText::_('COM_EASYDISCUSS_PLEASE_SELECT_CATEGORY'), DISCUSS_QUEUE_ERROR);
+			return $this->setRedirect('index.php?option=com_easydiscuss&view=posts');
 		}
 
-		if( !is_array( $cid ) )
-		{
-			$cid 	= array( $cid );
+		if (!is_array($cid)) {
+			$cid = array($cid);
 		}
 
-		foreach( $cid as $id )
-		{
-			$post 	= DiscussHelper::getTable( 'Post' );
-			$post->load( $id );
+		foreach ($cid as $id) {
+			$post = ED::post($id);
 
-			$post->category_id 	= $newCategory->id;
-			$post->store();
+			$post->category_id = $newCategory->id;
+			$post->save();
 
 			// The category_id for the replies should change too
-			$post->moveChilds( $post->id, $post->category_id );
+			$post->moveReplies($post->id, $post->category_id);
 		}
 
-		$message 	= JText::sprintf( 'COM_EASYDISCUSS_POSTS_MOVED_SUCCESSFULLY' , $newCategory->title );
+		$message = JText::sprintf('COM_EASYDISCUSS_POSTS_MOVED_SUCCESSFULLY', $newCategory->title);
 
-		DiscussHelper::setMessageQueue( $message , DISCUSS_QUEUE_SUCCESS );
+		ED::setMessageQueue($message, DISCUSS_QUEUE_SUCCESS);
 
 		$this->setRedirect( 'index.php?option=com_easydiscuss&view=posts' );
 	}
 
-	function toggleFeatured()
+	/**
+	 * Process the toggle featured.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function toggleFeatured()
 	{
+		$app = $this->app;
+		$records = $this->input->get('cid', '', 'array');
+		$message = '';
+		$task = $this->input->get('task');
 
-		$mainframe	= JFactory::getApplication();
-		$records	= JRequest::getVar( 'cid' , '' );
-		$message	= '';
-		$task		= JRequest::getVar( 'task' );
+		if ($records) {
+			foreach ($records as $record) {
+				$post = ED::Post($record);
 
-		foreach( $records as $record )
-		{
-			$post = JTable::getInstance( 'Posts' , 'Discuss' );
-			$post->load( $record );
+				// Toggle the feature for this post.
+				$task = $post->featured ? 'unfeature' : 'feature';
 
-			$post->featured	= $task == 'feature';
+				// Run the task
+				$post->$task();
+			}
 
-			$post->store();
+			$message = JText::_('COM_EASYDISCUSS_DISCUSSIONS_FEATURED');
+
+			if (!$post->featured) {
+				$message = JText::_('COM_EASYDISCUSS_DISCUSSIONS_UNFEATURED');
+			}
+
+			ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
+
+		} else {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
+			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
 		}
 
-		$message = JText::_( 'COM_EASYDISCUSS_DISCUSSIONS_FEATURED' );
-
-		if( $task == 'unfeature' )
-		{
-			$message = JText::_( 'COM_EASYDISCUSS_DISCUSSIONS_UNFEATURED' );
-		}
-
-		DiscussHelper::setMessageQueue( $message , DISCUSS_QUEUE_SUCCESS );
-
-		$mainframe->redirect( 'index.php?option=com_easydiscuss&view=posts' );
-		$mainframe->close();
+		$app->redirect('index.php?option=com_easydiscuss&view=posts');
+		$app->close();
 	}
 
-	function publish()
+	/**
+	 * Process the toggle publish.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function publish()
 	{
-		$config	= DiscussHelper::getConfig();
-		$post	= JRequest::getVar( 'cid' , array(0) , 'POST' );
-		$pid	= JRequest::getString( 'pid' , '' , 'POST' );
+		$config = $this->config;
+		$items = $this->input->get('cid', '', 'array');
+		$pid = $this->input->get('pid', '');
+		$message = '';
 
-		$message	= '';
-		$type		= 'message';
+		if (count($items) <= 0) {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
+			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
+		} else {
+			// @task: Tell the world that we're publishing post by sending notification.
+			foreach ($items as $item) {
+				$post = ED::table('Posts');
+				$post->load($item);
 
-		if( count( $post ) <= 0 )
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
-			$type		= 'error';
-		}
-		else
-		{
-			//send notification:
-			//so we are publising posts.
-			foreach( $post as $postId)
-			{
-				$item	= JTable::getInstance( 'posts', 'Discuss' );
-				$item->load( $postId );
+				if ($post->published == DISCUSS_ID_PENDING) {
+					$callback = EDR::getRoutedUrl('index.php?option=com_easydiscuss&view=post&id=' . $post->id, false, true);
+					$sites = array('facebook', 'twitter');
 
-				if( $item->published == DISCUSS_ID_PENDING)
-				{
+					foreach ($sites as $site) {
+						if ($config->get('main_autopost_' . $site)) {
+							$oauth = ED::table('Oauth');
+							$exists = $oauth->loadByType($site);
 
-					$callback	= DiscussRouter::getRoutedUrl( 'index.php?option=com_easydiscuss&view=post&id=' . $item->id , false , true );
+							$oauthPost = ED::table('OauthPosts');
 
-					$sites		= array( 'facebook' , 'twitter' );
+							if ($exists && !empty($oauth->access_token) && !$oauthPost->exists($post->id, $$oauth->id)) {
+								$consumer = ED::getHelper('Oauth')->getConsumer($site, $config->get('main_autopost_' . $site . '_id'), $config->get('main_autopost_' . $site . '_secret'), $callback);
+								$consumer->setAccess($oauth->access_token);
 
-					foreach( $sites as $site )
-					{
-						if( $config->get( 'main_autopost_' . $site ) )
-						{
-							$oauth	= DiscussHelper::getTable( 'Oauth' );
-							$exists	= $oauth->loadByType( $site );
+								$consumer->share($post);
 
-							$oauthPost	= DiscussHelper::getTable( 'OauthPosts' );
-
-							if( $exists && !empty( $oauth->access_token ) && !$oauthPost->exists( $item->id , $oauth->id ) )
-							{
-								$consumer	= DiscussHelper::getHelper( 'OAuth' )->getConsumer( $site , $config->get( 'main_autopost_' . $site . '_id') , $config->get( 'main_autopost_' . $site . '_secret') , $callback );
-								$consumer->setAccess( $oauth->access_token );
-
-								$consumer->share( $item );
-
-								// @rule: Store this as sent
-								$oauthPost->set( 'post_id' , $item->id );
-								$oauthPost->set( 'oauth_id', $oauth->id );
+								// @rule: Store this as sent.
+								$oauthPost->set('post_id', $post->id);
+								$oauthPost->set('oauth_id', $oauth->id);
 
 								$oauthPost->store();
 							}
 						}
 					}
 
-					// @rule: Send out notifications when the pending moderation items are being published.
-					DiscussHelper::sendNotification( $item , $item->parent_id, true, $item->user_id, $item->published);
+					// @rule: Send out notification when the pending moderation items are being published.
+					ED::sendNotification($post, $post->parent_id, true, $post->user_id, $post->published);
 
-					// only if the post is a discussion
-					if( $config->get( 'integration_pingomatic' ) && empty( $item->parent_id ) )
-					{
-						$pingo = DiscussHelper::getHelper( 'Pingomatic' );
-						$pingo->ping( $item->title, DiscussRouter::getRoutedURL( 'index.php?option=com_easydiscuss&view=post&id=' . $item->id, true, true ) );
+					if ($config->get('integration_pingomatic') && empty($post->parent_id)) {
+						$pingo = ED::getHelper('Pingomatic');
+						$pingo->ping($post->title, EDR::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $post->id, true, true));
 					}
 
-					$user 		= JFactory::getUser( $item->user_id );
+					$user = JFactory::getUser($post->user_id);
 
-					if( $item->parent_id )
-					{
-						DiscussHelper::getHelper( 'jomsocial' )->addActivityReply( $item );
-						DiscussHelper::getHelper( 'easysocial')->replyDiscussionStream( $item );
-					}
-					else
-					{
-						DiscussHelper::getHelper( 'jomsocial' )->addActivityQuestion( $item );
-						DiscussHelper::getHelper( 'easysocial')->createDiscussionStream( $item );
+					// @task: Add activity stream into the following extensions
+					if ($post->parent_id) {
+						ED::getHelper('jomsocial')->addActivityReply($post);
+						ED::getHelper('easysocial')->replyDiscussionStream($post);
+					} else {
+						ED::getHelper('jomsocial')->addActivityQuestion($post);
+						ED::getHelper('easysocial')->createDiscussionStream($post);
 					}
 
+					if ($user->id) {
+						// Add logs for user
+						ED::getHelper('History')->log('easydiscuss.new.discussion', $user->id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_NEW_POST', $post->title), $post->id);
 
-					if( $user->id )
-					{
-						// Add logging for user.
-						DiscussHelper::getHelper( 'History' )->log( 'easydiscuss.new.discussion' , $user->id , JText::sprintf( 'COM_EASYDISCUSS_BADGES_HISTORY_NEW_POST' , $item->title ), $item->id );
-
-						DiscussHelper::getHelper( 'Badges' )->assign( 'easydiscuss.new.discussion' , $user->id );
-						DiscussHelper::getHelper( 'Points' )->assign( 'easydiscuss.new.discussion' , $user->id );
+						// Add badges and points for user
+						ED::getHelper('Badges')->assign('easydiscuss.new.discussion', $user->id);
+						ED::getHelper('Points')->assign('easydiscuss.new.discussion', $user->id);
 
 						// Assign badge for EasySocial
-						DiscussHelper::getHelper( 'EasySocial' )->assignBadge( 'create.question' , $user->id , JText::sprintf( 'COM_EASYDISCUSS_BADGES_HISTORY_NEW_POST' , $item->title ) );
-						
-						// assign new ranks.
-						DiscussHelper::getHelper( 'ranks' )->assignRank( $user->id, $config->get( 'main_ranking_calc_type' ) );
+						ED::getHelper('easysocial')->assignBadge('create.question', $user->id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_NEW_POST', $post->title));
 
-						// aup
-						DiscussHelper::getHelper( 'Aup' )->assign( DISCUSS_POINTS_NEW_DISCUSSION , $user->id , $item->title );
+						// Assign new ranks
+						ED::getHelper('ranks')->assignRank($user->id, $config->get('main_ranking_calc_type'));
+
+						// Assign AUP
+						ED::getHelper('Aup')->assign(DISCUSS_POINTS_NEW_DISCUSSION, $user->id, $post->title);
 					}
 				}
 			}
 
-			//$model		= $this->getModel( 'Posts' );
-			$model = DiscussHelper::getModel( 'Posts', true );
+			$model = ED::model('Posts');
+			$published = $model->publishPosts($items, 1);
 
-			if( $model->publish( $post , 1 ) )
-			{
-				$message	= JText::_('COM_EASYDISCUSS_POSTS_PUBLISHED');
+			if ($published) {
+				$message = JText::_('COM_EASYDISCUSS_POSTS_PUBLISHED');
+				ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
+			} else {
+				$message = JText::_('COM_EASYDISCUSS_ERROR_PUBLISHING');
+				ED::setMessage($message, DISCUSS_QUEUE_ERROR);
 			}
-			else
-			{
-				$message	= JText::_('COM_EASYDISCUSS_ERROR_PUBLISHING');
-				$type		= 'error';
-			}
-
 		}
 
 		$pidLink = '';
-		if(! empty($pid))
+
+		if (!empty($pid)) {
 			$pidLink = '&pid=' . $pid;
+		}
 
-		DiscussHelper::setMessageQueue( $message , $type );
-
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=posts' . $pidLink );
+		$this->setRedirect('index.php?option=com_easydiscuss&view=posts' . $pidLink);
 	}
 
-	function unpublish()
+	/**
+	 * Process the toggle unpublish.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function unpublish()
 	{
-		$post	= JRequest::getVar( 'cid' , array(0) , 'POST' );
-		$pid	= JRequest::getString( 'pid' , '' , 'POST' );
+		$posts = $this->input->get('cid', '', 'array');
+		$pid = $this->input->get('pid', '');
+		$message = '';
 
-		$message	= '';
-		$type		= 'message';
+		if (count($posts) <= 0) {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
+			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
+		} else {
+			$model = ED::model('Posts');
+			$unpublish = $model->publishPosts($posts, 0);
 
-		if( count( $post ) <= 0 )
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
-			$type		= 'error';
-		}
-		else
-		{
-			$model		= $this->getModel( 'Posts' );
-
-			if( $model->publish( $post , 0 ) )
-			{
-				$message	= JText::_('COM_EASYDISCUSS_POSTS_UNPUBLISHED');
+			if ($unpublish) {
+				$message = JText::_('COM_EASYDISCUSS_POSTS_UNPUBLISHED');
+				ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
+			} else {
+				$message = JText::_('COM_EASYDISCUSS_ERROR_UNPUBLISHING');
+				ED::setMessage($message, DISCUSS_QUEUE_ERROR);
 			}
-			else
-			{
-				$message	= JText::_('COM_EASYDISCUSS_ERROR_UNPUBLISHING');
-				$type		= 'error';
-			}
-
 		}
 
 		$pidLink = '';
-		if(! empty($pid))
+
+		if(! empty($pid)) {
 			$pidLink = '&pid=' . $pid;
+		}
 
-		DiscussHelper::setMessageQueue( $message , $type );
-
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=posts' . $pidLink );
+		$this->setRedirect('index.php?option=com_easydiscuss&view=posts' . $pidLink);
 	}
 
 	function edit()
@@ -276,81 +265,82 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		parent::display();
 	}
 
+	function addNew()
+	{
+		JRequest::setVar('view', 'post');
+		parent::display();
+	}
+
 	/**
 	 * Remove discussions from the site.
 	 *
-	 * @since	1.0
+	 * @since	4.0
 	 * @access	public
 	 */
 	public function remove()
 	{
-		$post	= JRequest::getVar( 'cid' , array(0) , 'POST' );
-		$pid	= JRequest::getString( 'pid' , '' , 'POST' );
+		$post = $this->input->get('cid' , array(), 'POST');
+		$pid = $this->input->get('pid', '', 'default');
 
-		$message	= '';
-		$type		= 'message';
+		$message = '';
+		$type = 'success';
 
-		if( count( $post ) <= 0 )
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
-			$type		= 'error';
-		}
-		else
-		{
-			$model		= $this->getModel( 'Posts' );
+		if (count($post) <= 0) {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
+			$type = 'error';
+		} else {
+
+			$model = ED::model('Post');
 
 			//check if any of the 'to be' remove entry was a answered reply.
 			// If yes, revert the main post to unresolved.
-			if( ! empty( $pid ) )
-			{
-				// we know this is the replies.
-				$model->revertAnwered( $post );
-			}
+			// if (! empty($pid)) {
+			// 	// we know this is the replies.
+			// 	$model->revertAnwered( $post );
+			// }
 
-			if( $post )
-			{
-				foreach( $post as $id )
-				{
-					$discussion = DiscussHelper::getTable( 'Post' );
-					$discussion->load( $id );
+			if ($post) {
+				foreach ($post as $id) {
+					// $discussion = DiscussHelper::getTable( 'Post' );
+					// $discussion->load( $id );
 
-					// Delete all notification associated with this post
-					$notificationModel = DiscussHelper::getModel( 'Notification' );
-					$notificationModel->deleteNotifications( $id );
+					// // Delete all notification associated with this post
+					// $notificationModel = ED::model('Notification');
+					// $notificationModel->deleteNotifications( $id );
 
-					$discussion->delete();
+					// $discussion->delete();
+
+					$post = ED::post($id);
+					$post->delete();
 				}
 
-				$message	= ( empty( $pid ) ) ? JText::_('COM_EASYDISCUSS_POSTS_DELETED') : JText::_('COM_EASYDISCUSS_REPLIES_DELETED');
+				$message = (empty($pid)) ? JText::_('COM_EASYDISCUSS_POSTS_DELETED') : JText::_('COM_EASYDISCUSS_REPLIES_DELETED');
 
 				// @rule: Trigger AUP points
-				if( !empty( $pid ) )
-				{
-					DiscussHelper::getHelper( 'Aup' )->assign( DISCUSS_POINTS_DELETE_DISCUSSION , $post->user_id , $post->title );
+				if ( !empty($pid)) {
+					ED::getHelper('Aup')->assign( DISCUSS_POINTS_DELETE_DISCUSSION , $post->user_id , $post->title);
 				}
-			}
-			else
-			{
-				$message	= ( empty( $pid ) ) ? JText::_('COM_EASYDISCUSS_ERROR_DELETING_POST') : JText::_('COM_EASYDISCUSS_ERROR_DELETING_REPLY');
-				$type		= 'error';
+
+			} else {
+				$message = (empty($pid)) ? JText::_('COM_EASYDISCUSS_ERROR_DELETING_POST') : JText::_('COM_EASYDISCUSS_ERROR_DELETING_REPLY');
+				$type = 'error';
 			}
 
 		}
 
 		$pidLink = '';
-		if(! empty($pid))
+		if (! empty($pid)) {
 			$pidLink = '&pid=' . $pid;
+		}
 
-		DiscussHelper::setMessageQueue( $message , $type );
+		ED::setMessageQueue( $message , $type );
 
 		$this->setRedirect( 'index.php?option=com_easydiscuss&view=posts' . $pidLink );
 	}
 
 	function add()
 	{
-		$mainframe	= JFactory::getApplication();
-
-		$mainframe->redirect( 'index.php?option=com_easydiscuss&controller=posts&task=edit' );
+		$this->app->redirect('index.php?option=com_easydiscuss&view=post');
 	}
 
 	function cancelSubmit()
@@ -365,9 +355,105 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		$this->setRedirect( JRoute::_('index.php?option=com_easydiscuss&view=' . $source . $pidLink, false) );
 	}
 
-	function save()
+	/**
+	 * This occurs when the user tries to create a new discussion or edits an existing discussion
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
+	public function save()
 	{
-		$this->submit();
+	    // Check for request forgeries
+	    ED::checkToken();
+
+	    // Get the id if available
+	    $id = $this->input->get('id', 0, 'int');
+
+	    // Get the date POST
+	    $data = JRequest::get('post');;
+
+	    // Load the post library
+	    $post = ED::post($id);
+
+	    $isNew = $post->isNew();
+
+	    // Get the redirect URL
+	    $redirectUrl = EDR::_('view=ask', false);
+
+	    if (!$isNew) {
+	        $redirectUrl = EDR::_('view=ask&id=' . $post->id, false);
+	    }
+
+	    // Check the permissions to post a new question
+	    if (!$post->canPostNewDiscussion()) {
+	        ED::setMessage($post->getError(), 'error');
+	        return $this->app->redirect(EDR::_('', false));
+	    }
+
+	    // If this post is being edited, check for perssion if the user is able to edit or not.
+	    if ($post->id && !$post->canEdit()) {
+	        ED::setMessage($post->getError(), 'error');
+	        return $this->app->redirect(EDR::_('view=post&id='.$id, false));
+	    }
+
+	    // For contents, we need to get the raw data.
+	    $data['content'] = $this->input->get('dc_content', '', 'raw');
+
+	    // Bind the posted data
+	    $post->bind($data);
+
+	    // Validate the posted data to ensure that we can really proceed
+	    if (!$post->validate($data)) {
+
+	        $files = $this->input->get('filedata', array(), 'FILES');
+	        $data['attachments'] = $files;
+
+	        ED::storeSession($data, 'NEW_POST_TOKEN');
+	        ED::setMessage($post->getError(), 'error');
+
+	        return $this->app->redirect(EDR::getAskRoute($redirectUrl, false));
+	    }
+
+	    // Save
+	    // Need to check all the error and make sure it is standardized
+	    if (!$post->save()) {
+	        ED::setMessage($post->getError(), 'error');
+	        return $this->app->redirect(EDR::getAskRoute($redirectUrl, false));
+	    }
+
+	    $message = ($isNew)? JText::_('COM_EASYDISCUSS_POST_STORED') : JText::_('COM_EASYDISCUSS_EDIT_SUCCESS');
+	    $state = 'success';
+
+	    // Let's set our custom message here.
+	    if (!$post->isPending()){
+	        ED::setMessageQueue($message, $state);
+	    }
+
+	    $redirect = $this->input->get('redirect', '');
+
+	    if (!empty($redirect)) {
+	        $redirect = base64_decode($redirect);
+	        return $this->app->redirect($redirect);
+	    }
+
+	    $task = $this->getTask();
+
+		switch($task) {
+			case 'apply':
+				$redirect = 'index.php?option=com_easydiscuss&view=post&layout=edit&id=' . $post->id;
+				break;
+			case 'save':
+				$redirect = 'index.php?option=com_easydiscuss&view=posts';
+				break;
+			case 'savePublishNew':
+			default:
+				$redirect = 'index.php?option=com_easydiscuss&view=post';
+				break;
+		}
+
+	    $this->app->redirect($redirect);
 	}
 
 
@@ -379,275 +465,24 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	 */
 	public function resetVotes()
 	{
-		JRequest::checkToken('request') or jexit( 'Invalid Token' );
+		// Check for request forgeries
+	    ED::checkToken();
 
-		$cid = JRequest::getVar( 'cid' );
+		$cid = $this->input->get('cid');
 
-		foreach( $cid as $id )
-		{
-			$post = DiscussHelper::getTable( 'Post' );
-			$post->load( $id );
+		foreach ($cid as $id) {
+			$post = ED::Post($id);
 
-			if( !$post->id )
-			{
-				DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_POST_RESET_VOTES_ERROR' ) , DISCUSS_QUEUE_ERROR );
-				return $this->setRedirect( 'index.php?option=com_easydiscuss&view=posts' );
+			if (!$post->id) {
+				ED::setMessageQueue(JText::_('COM_EASYDISCUSS_POST_RESET_VOTES_ERROR'), DISCUSS_QUEUE_ERROR);
+				return $this->setRedirect('index.php?option=com_easydiscuss&view=posts');
 			}
 
 			$post->resetVotes();
 		}
 
-		DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_POST_RESET_VOTES_SUCCESS' ) , DISCUSS_QUEUE_SUCCESS );
+		ED::setMessageQueue(JText::_('COM_EASYDISCUSS_POST_RESET_VOTES_SUCCESS'), DISCUSS_QUEUE_SUCCESS);
 
 		$this->setRedirect( 'index.php?option=com_easydiscuss&view=posts' );
-	}
-
-	/**
-	 * update posts
-	 */
-	public function submit()
-	{
-		if( JRequest::getMethod() == 'POST' )
-		{
-			JRequest::checkToken('request') or jexit( 'Invalid Token' );
-
-			$user = JFactory::getUser();
-
-			// get all forms value
-			$post	= JRequest::get( 'post' );
-
-			// get id if available
-			$id		= JRequest::getInt('id', 0);
-
-			// get post parent id
-			$parent	= JRequest::getInt('parent_id', 0);
-
-			// the source where page come from
-			$source	= JRequest::getVar('source', 'posts');
-
-			// Get raw content from request as we may need to respect the html codes.
-			$content	= JRequest::getVar( 'dc_reply_content' , '' , 'post' , 'none' , JREQUEST_ALLOWRAW );
-
-			// Ensure that the posted content is respecting the correct values.
-			$post[ 'dc_reply_content' ]	= $content;
-
-			// get config
-			$config	= DiscussHelper::getConfig();
-
-			$post['alias']	= (empty($post['alias']))? DiscussHelper::getAlias( $post['title'], 'post', $id) : DiscussHelper::getAlias( $post['alias'], 'post', $id );
-
-			//clear tags if editing a post.
-			$previousTags = array();
-			if(!empty($id))
-			{
-				$postsTagsModel = $this->getModel('PostsTags');
-
-				$tmppreviousTags = $postsTagsModel->getPostTags( $id );
-				if(!empty($tmppreviousTags))
-				{
-					foreach($tmppreviousTags as $previoustag)
-					{
-						$previousTags[] = $previoustag->id;
-					}
-				}
-
-				$postsTagsModel->deletePostTag( $id );
-			}
-
-			// bind the table
-			$postTable		= JTable::getInstance( 'posts', 'Discuss' );
-			$postTable->load( $id );
-
-			//get previous post status before binding.
-			$prevPostStatus = $postTable->published;
-
-			$postTable->bind( $post , true );
-
-			// hold last inserted ID in DB
-			$lastId = null;
-
-			// @rule: Bind parameters
-			$postTable->bindParams( $post );
-
-
-			if ($config->get('main_private_post') && isset($post['private'])) {
-
-				$postTable->private 	= $post['private'];
-			}
-
-			// @trigger: onBeforeSave
-			$isNew	= (bool) $postTable->id;
-			DiscussEventsHelper::importPlugin( 'content' );
-			DiscussEventsHelper::onContentBeforeSave('post', $post, $isNew);
-
-			if ( !$postTable->store() )
-			{
-				JError::raiseError(500, $postTable->getError() );
-			}
-
-			//Clear off previous records before storing
-			$ruleModel = DiscussHelper::getModel( 'CustomFields' );
-			$ruleModel->deleteCustomFieldsValue( $postTable->id, 'update' );
-
-			// Process custom fields.
-			$fieldIds = JRequest::getVar( 'customFields' );
-			if( !empty($fieldIds) )
-			{
-				foreach( $fieldIds as $fieldId )
-				{
-					$fields	= JRequest::getVar( 'customFieldValue_'.$fieldId );
-
-					if( !empty($fields) )
-					{
-						// Cater for custom fields select list
-						// To detect if there is no value selected for the select list custom fields
-						if( in_array( 'defaultList', $fields ) )
-						{
-							$tempKey = array_search( 'defaultList', $fields );
-							$fields[ $tempKey ] = '';
-						}
-					}
-
-					$postTable->bindCustomFields( $fields, $fieldId );
-				}
-			}
-
-			// @trigger: onAfterSave
-			DiscussEventsHelper::onContentAfterSave('post', $post, $isNew);
-
-
-			// The category_id for the replies should change too
-			$postTable->moveChilds( $postTable->id, $postTable->category_id );
-
-			$lastId		= $postTable->id;
-
-			// Bind file attachments
-			$postTable->bindAttachments();
-
-			$message	= JText::_( 'COM_EASYDISCUSS_POST_SAVED' );
-
-			$date = DiscussHelper::getDate();
-
-			//@task: Save tags
-			$tags			= JRequest::getVar( 'tags' , '' , 'POST' );
-
-			if( !empty( $tags ) )
-			{
-				$tagModel	= $this->getModel( 'Tags' );
-
-				foreach ( $tags as $tag )
-				{
-					if ( !empty( $tag ) )
-					{
-						$tagTable	= JTable::getInstance( 'Tags' , 'Discuss' );
-
-						//@task: Only add tags if it doesn't exist.
-						if( !$tagTable->exists( $tag ) )
-						{
-							$tagInfo['title']		= JString::trim( $tag );
-							$tagInfo['alias']		= DiscussHelper::getAlias( $tag, 'tag' );
-							$tagInfo['created']		= $date->toMySQL();
-							$tagInfo['published']	= 1;
-							$tagInfo['user_id']		= $user->id;
-
-							$tagTable->bind($tagInfo);
-							$tagTable->store();
-
-						}
-						else
-						{
-							$tagTable->load( $tag , true );
-						}
-
-						$postTagInfo = array();
-
-						//@task: Store in the post tag
-						$postTagTable	= JTable::getInstance( 'PostsTags' , 'Discuss' );
-						$postTagInfo['post_id']	= $postTable->id;
-						$postTagInfo['tag_id']	= $tagTable->id;
-
-						$postTagTable->bind( $postTagInfo );
-						$postTagTable->store();
-					}
-				}
-			}
-
-			$isNew  = ( empty($id) ) ? true : false;
-			if( ( $isNew || $prevPostStatus == DISCUSS_ID_PENDING ) && $postTable->published == DISCUSS_ID_PUBLISHED )
-			{
-				$owner = ( $isNew ) ? $user->id : $postTable->user_id;
-				DiscussHelper::sendNotification( $postTable , $parent, $isNew, $owner, $prevPostStatus);
-
-				// auto subscription
-				if( $config->get('main_autopostsubscription') && $config->get('main_postsubscription') && $postTable->user_type != 'twitter' && !empty($postTable->parent_id))
-				{
-					// process only if this is a reply
-					//automatically subscribe this user into this reply
-					$replier = JFactory::getUser($postTable->user_id);
-
-					$subscription_info = array();
-					$subscription_info['type']		= 'post';
-					$subscription_info['userid']	= ( !empty($postTable->user_id) ) ? $postTable->user_id : '0';
-					$subscription_info['email']		= ( !empty($postTable->user_id) ) ? $replier->email : $postTable->poster_email;;
-					$subscription_info['cid']		= $postTable->parent_id;
-					$subscription_info['member']	= ( !empty($postTable->user_id) ) ? '1':'0';
-					$subscription_info['name']		= ( !empty($postTable->user_id) ) ? $replier->name : $postTable->poster_name;
-					$subscription_info['interval']	= 'instant';
-
-					//get frontend subscribe table
-					$susbcribeModel	= DiscussHelper::getModel( 'Subscribe' );
-					$sid = '';
-					if( $subscription_info['userid'] == 0)
-					{
-						$sid = $susbcribeModel->isPostSubscribedEmail($subscription_info);
-						if( empty( $sid ) )
-						{
-							$susbcribeModel->addSubscription($subscription_info);
-						}
-					}
-					else
-					{
-						$sid = $susbcribeModel->isPostSubscribedUser($subscription_info);
-						if( empty( $sid['id'] ))
-						{
-							//add new subscription.
-							$susbcribeModel->addSubscription($subscription_info);
-						}
-					}
-				}
-
-				// only if the post is a discussion
-				if( $config->get( 'integration_pingomatic' ) && empty( $postTable->parent_id ) )
-				{
-					$pingo	= DiscussHelper::getHelper( 'Pingomatic' );
-					$urls	= DiscussRouter::getRoutedURL( 'index.php?option=com_easydiscuss&view=post&id=' . $postTable->id, true, true );
-					$pingo->ping( $postTable->title,  $urls);
-				}
-			}
-
-			$pid = '';
-			if(! empty($parent))
-				$pid = '&pid=' . $parent;
-
-			$task = $this->getTask();
-
-			switch( $task )
-			{
-				case 'apply':
-					$redirect 	= 'index.php?option=com_easydiscuss&view=post&id=' . $postTable->id;
-					break;
-				case 'save':
-					$redirect 	= 'index.php?option=com_easydiscuss&view=posts';
-					break;
-				case 'savePublishNew':
-				default:
-					$redirect 	= 'index.php?option=com_easydiscuss&view=post';
-					break;
-			}
-
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_DISCUSSION_SAVED' ) , DISCUSS_QUEUE_SUCCESS );
-
-			$this->setRedirect( $redirect );
-		}
 	}
 }

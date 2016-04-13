@@ -1,21 +1,21 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyDiscuss is free software. This version may have been modified pursuant
+* EasyBlog is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once( DISCUSS_ROOT . '/views.php' );
+require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewIndex extends EasyDiscussView
 {
-	function ajaxRemoveSubscription( $type = null, $subscribeId = null )
+	public function ajaxRemoveSubscription( $type = null, $subscribeId = null )
 	{
 		$ajax		= new disjax();
 		$my			= JFactory::getUser();
@@ -92,6 +92,40 @@ class EasyDiscussViewIndex extends EasyDiscussView
 	/**
 	 * Display subscription form for users who wants to subscribe to the discussion.
 	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string	The type of subscription.
+	 * @param	int		The unique id of the subscription type. 0 for site.
+	 * @return	string
+	 */
+	public function subscribe()
+	{
+        $type = $this->input->get('type', 'site', 'cmd');
+        $cid = $this->input->get('id', 0, 'int');
+        $url = EDR::_('view=index', false); 
+
+        $model = ED::model('Subscribe');
+        $interval = '';
+        $subscription = $model->isSiteSubscribed($type, $this->my->email, $cid);
+        if ($subscription) {
+        	$interval = $subscription->interval;
+        }
+
+        $theme = ED::themes();
+        $theme->set('type', $type);
+        $theme->set('cid', $cid);
+        $theme->set('url', base64_encode($url));
+        $theme->set('subscription', $subscription);
+        $theme->set('interval', $interval);
+
+        $contents = $theme->output('site/toolbar/dialogs/subscribe');
+
+        return $this->ajax->resolve($contents);
+	}
+
+	/**
+	 * Display subscription form for users who wants to subscribe to the discussion.
+	 *
 	 * @since	3.0
 	 * @access	public
 	 * @param	string	The type of subscription.
@@ -105,7 +139,7 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		$my				= JFactory::getUser();
 		$theme			= new DiscussThemes();
 		$options		= new stdClass();
-		$model			= DiscussHelper::getModel( 'Subscribe' );
+		$model			= ED::model( 'Subscribe' );
 		$interval		= false;
 		$subscription	= false;
 
@@ -115,7 +149,7 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		{
 			return;
 		}
-		
+
 		$theme->set( 'cid', $cid );
 		$theme->set( 'type', $type );
 
@@ -213,7 +247,7 @@ class EasyDiscussViewIndex extends EasyDiscussView
 	function ajaxReadmoreSearch( $limitstart = null, $sorting = null, $type = null, $parentId = null, $filter = null, $category = null )
 	{
 		$ajax		= new Disjax();
-		$model		= $this->getModel( 'Posts' );
+		$model		= ED::model('Posts');
 		$limitstart	= (int) $limitstart;
 		$mainframe	= JFactory::getApplication();
 
@@ -242,7 +276,7 @@ class EasyDiscussViewIndex extends EasyDiscussView
 	function ajaxReadmoreQuestions( $limitstart = null, $sorting = null, $type = null, $parentId = null, $filter = null, $category = '', $query = '' )
 	{
 		$ajax		= new Disjax();
-		$model		= $this->getModel( 'Posts' );
+		$model		= ED::model('Posts');
 		$limitstart	= (int) $limitstart;
 		$mainframe	= JFactory::getApplication();
 
@@ -272,7 +306,7 @@ class EasyDiscussViewIndex extends EasyDiscussView
 	function ajaxReadmoreTags( $limitstart = null, $sorting = null, $type = null, $uniqueId = null, $filter = null, $category = null )
 	{
 		$ajax		= new Disjax();
-		$model		= $this->getModel( 'Posts' );
+		$model		= ED::model('Posts');
 		$limitstart	= (int) $limitstart;
 		$mainframe	= JFactory::getApplication();
 
@@ -299,7 +333,7 @@ class EasyDiscussViewIndex extends EasyDiscussView
 	function ajaxReadmoreUserQuestions( $limitstart = null, $sorting = null, $type = null, $uniqueId = null, $filter = null, $category = null )
 	{
 		$ajax		= new Disjax();
-		$model		= $this->getModel( 'Posts' );
+		$model		= ED::model('Posts');
 		$limitstart	= (int) $limitstart;
 		$mainframe	= JFactory::getApplication();
 
@@ -327,7 +361,7 @@ class EasyDiscussViewIndex extends EasyDiscussView
 	function ajaxReadmoreReplies( $limitstart = null, $sorting = null, $type = 'questions' , $parentId = null, $filter = null, $category = null )
 	{
 		$ajax		= new Disjax();
-		$model		= $this->getModel( 'Posts' );
+		$model		= ED::model('Posts');
 		$limitstart	= (int) $limitstart;
 		$mainframe	= JFactory::getApplication();
 		$config		= DiscussHelper::getConfig();
@@ -394,39 +428,28 @@ class EasyDiscussViewIndex extends EasyDiscussView
 	 * @since	3.2
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function filter()
 	{
-		$filterType = JRequest::getVar( 'filter' );
-		$sort 		= JRequest::getVar( 'sort', 'latest' );
-		$categoryId = JRequest::getVar( 'id', '0' );
+		$filterType = $this->input->get('filter', '', 'default');
+		$sort = $this->input->get('sort', 'latest', 'default');
+		// $categoryId = $this->input->get('id', 0, 'int');
+		//
+		$categoryId = 0;
 
-		if( !$categoryId )
-		{
-			$categoryId 	= array();
-		}
-		else
-		{
-			$categoryId		= explode( ',' , $categoryId );
-		}
+		$view = $this->input->get('view', 'index', 'cmd');
 
-
-		$view	= JRequest::getVar( 'view', 'index' );
-
-		$ajax	= DiscussHelper::getHelper( 'ajax' );
-
+		// What?
 		JRequest::setVar('filter', $filterType);
 
-
-		$postModel	= DiscussHelper::getModel( 'Posts' );
-
-		$registry	= DiscussHelper::getRegistry();
+		$postModel = ED::model('Posts');
+		$registry = new JRegistry();
 
 		// Get the pagination limit
-		$limit			= $registry->get( 'limit' );
-		$limit			= ( $limit == '-2' ) ? DiscussHelper::getListLimit() : $limit;
-		$limit			= ( $limit == '-1' ) ? DiscussHelper::getJConfig()->get('list_limit') : $limit;
+		$limit = $registry->get('limit');
+		$limit = ($limit == '-2') ? ED::getListLimit() : $limit;
+		$limit = ($limit == '-1') ? ED::jconfig()->get('list_limit') : $limit;
 
 		// Get normal discussion posts.
 		$options 	= array(
@@ -437,91 +460,50 @@ class EasyDiscussViewIndex extends EasyDiscussView
 						'featured'	=> false
 					);
 
-		$posts		= $postModel->getDiscussions( $options );
+		if ($categoryId) {
+			$options['category'] = explode(',', $categoryId);
+		}
 
-		//$posts		= $postModel->getData( false , $sort , null , $filterType , $categoryId, null, '');
+		$posts = $postModel->getDiscussions($options);
 
+		// preload post items
+		ED::post($posts);
 
-		$posts		= DiscussHelper::formatPost($posts);
+		$posts = ED::formatPost($posts);
 
 		$pagination = '';
-		$pagination 	= $postModel->getPagination( 0 , $sort , $filterType , $categoryId, false );
+		// $pagination = $postModel->getPagination(0, $sort, $filterType, $categoryId, false);
+		$pagination = $postModel->getPagination();
 
 
-		$filtering = array( 'category_id' => $categoryId,
-							'filter' => $filterType,
+		$filtering = array( 'filter' => $filterType,
 							'sort' => $sort);
 
-		$pagination		= $pagination->getPagesLinks( $view , $filtering, true);
-
-		$html 			= '';
-		$empty 			= '';
-
-		if( count( $posts ) > 0 )
-		{
-			$template	= new DiscussThemes();
-
-			$badgesTable	= DiscussHelper::getTable( 'Profile' );
-			$onlineUsers = Discusshelper::getModel( 'Users' )->getOnlineUsers();
-
-			foreach( $posts as $post )
-			{
-				$badgesTable->load( $post->user->id );
-				$post->badges = $badgesTable->getBadges();
-
-				// Translate post status from integer to string
-				switch( $post->post_status )
-				{
-					case '0':
-						$post->post_status_class = '';
-						$post->post_status = '';
-						break;
-					case '1':
-						$post->post_status_class = '-on-hold';
-						$post->post_status = JText::_( 'COM_EASYDISCUSS_POST_STATUS_ON_HOLD' );
-						break;
-					case '2':
-						$post->post_status_class = '-accept';
-						$post->post_status = JText::_( 'COM_EASYDISCUSS_POST_STATUS_ACCEPTED' );
-						break;
-					case '3':
-						$post->post_status_class = '-working-on';
-						$post->post_status = JText::_( 'COM_EASYDISCUSS_POST_STATUS_WORKING_ON' );
-						break;
-					case '4':
-						$post->post_status_class = '-reject';
-						$post->post_status = JText::_( 'COM_EASYDISCUSS_POST_STATUS_REJECT' );
-						break;
-					default:
-						$post->post_status_class = '';
-						$post->post_status = '';
-						break;
-				}
-
-				$alias = $post->post_type;
-				$modelPostTypes = DiscussHelper::getModel( 'Post_types' );
-
-				// Get each post's post status title
-				$title = $modelPostTypes->getTitle( $alias );
-				$post->post_type = $title;
-
-				// Get each post's post status suffix
-				$suffix = $modelPostTypes->getSuffix( $alias );
-				$post->suffix = $suffix;
-
-				$template->set( 'post'	, $post );
-				$html		.= $template->fetch( 'frontpage.post.php' );
-			}
-		}
-		else
-		{
-			$template	= new DiscussThemes();
-			$html 	.= $template->fetch( 'frontpage.empty.php' );
+		if ($category_id) {
+			$filtering['category_id'] = $category_id;
 		}
 
-		// This post is already favourite
-		$ajax->resolve( $html, $pagination );
-		$ajax->send();
+		$pagination = $pagination->getPagesLinks($view, $filtering, true);
+
+		if (!$posts) {
+			return $this->ajax->resolve('');
+		}
+
+		$theme = ED::themes();
+		$contents = '';
+
+		foreach ($posts as $post) {
+
+			$profile = $post->getOwner();
+
+			$post->badges = $profile->getBadges();
+
+			$theme->set('post', $post);
+			$contents .= $theme->output('site/posts/item');
+		}
+
+		$this->ajax->resolve($contents, $pagination);
+		return $this->ajax->send();
 	}
 
 	public function sort( $sort = null, $filter = null, $categoryId = null )
@@ -537,7 +519,7 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		//todo: check against the config
 		$showAllPosts	= 'all';
 
-		$postModel	= $this->getModel('Posts');
+		$postModel	= ED::model('Posts');
 		$posts		= $postModel->getData( true , $sort , null , $filter , $categoryId, null, $showAllPosts );
 		$pagination	= $postModel->getPagination( '0' , $sort, $filter, $categoryId, $showAllPosts );
 		$posts		= DiscussHelper::formatPost($posts);
@@ -608,7 +590,7 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		$ajax	= DiscussHelper::getHelper( 'Ajax' );
 		$id		= JRequest::getInt( 'id' );
 
-		$model	= $this->getModel( 'categories' );
+		$model	= ED::model('categories');
 		$items	= $model->getChildCategories( $id , true, true );
 
 		if( !$items )

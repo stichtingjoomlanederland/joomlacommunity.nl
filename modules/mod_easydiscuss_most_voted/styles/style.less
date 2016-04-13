@@ -1,0 +1,21 @@
+// Pointing to /media/com_easydiscuss/styles/modules.less
+@import "modules";
+
+/*MODULE BASIC RESET*/
+div.discuss-mod .clear{clear:both}
+div.discuss-mod  img.avatar{border:1px solid #ccc}
+div.discuss-mod  a:hover img.avatar{border:1px solid #bbb;border-bottom-color:#aaa}
+div.discuss-mod .bold{font-weight:bold}
+div.discuss-mod .list-item .item{display:inline-block;width:100%;}
+
+div.discuss-mod.most-voted-discussions .list-item .item{display:inline-block;width:100%}
+div.discuss-mod.most-voted-discussions .list-item .item + .item{padding-top:10px;margin-top:10px;border-top:1px solid #ddd}
+div.discuss-mod.most-voted-discussions .item-title + .item-meta{margin-top:5px;}
+div.discuss-mod.most-voted-discussions .item-stat{width:40px;height:40px;border:1px solid #ccc;border-bottom-color:#aaa;background:#eee;float:left;
+	border-radius:2px;moz-border-radius:2px;-webkit-border-radius:2px;
+	box-shadow:0 1px 0 rgba(255,255,255,0.5) inset;}
+div.discuss-mod.most-voted-discussions .item-stat .stat-link{text-decoration:none!important;color:#555;}
+div.discuss-mod.most-voted-discussions .item-stat .stat-link div{text-align:center !important;}
+div.discuss-mod.most-voted-discussions .item-stat .stat-link div.count{font:700 14px/20px Arial;height:20px;margin-top:2px;}
+div.discuss-mod.most-voted-discussions .item-stat .stat-link div.trait{font:100 8px/12px Arial;height:12px;text-transform:uppercase;color:#777;}
+div.discuss-mod.most-voted-discussions .item-stat + .item-story{margin-left:50px;}

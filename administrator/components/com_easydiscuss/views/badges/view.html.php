@@ -1,77 +1,158 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyBlog is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once DISCUSS_ADMIN_ROOT . '/views.php';
+require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
 class EasyDiscussViewBadges extends EasyDiscussAdminView
 {
+	/**
+	 * Renders the output of badges listings
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function display($tpl = null)
 	{
-		// @rule: Test for user access if on 1.6 and above
-		if( DiscussHelper::getJoomlaVersion() >= '1.6' )
-		{
-			if(!JFactory::getUser()->authorise('discuss.manage.badges' , 'com_easydiscuss') )
-			{
-				JFactory::getApplication()->redirect( 'index.php' , JText::_( 'JERROR_ALERTNOAUTHOR' ) , 'error' );
-				JFactory::getApplication()->close();
-			}
-		}
-		// Initialise variables
-		$document	= JFactory::getDocument();
-		$user		= JFactory::getUser();
-		$mainframe	= JFactory::getApplication();
+		$this->checkAccess('discuss.manage.badges');
 
-		if( $this->getLayout() == 'install' )
-		{
-			return $this->installLayout();
-		}
+		JToolbarHelper::addNew();
+		JToolBarHelper::divider();
+		JToolbarHelper::publishList();
+		JToolbarHelper::unpublishList();
+		JToolBarHelper::divider();
+		JToolbarHelper::deleteList();
+		JToolbarHelper::divider();
+		JToolBarHelper::custom( 'rules' , 'rules' , '' , JText::_( 'COM_EASYDISCUSS_MANAGE_RULES_BUTTON' ) , false );
+		JToolBarHelper::custom('assign', 'assign', '' , JText::_('COM_EASYDISCUSS_BADGES_MASS_ASSIGN_BUTTON'), false);
 
-		if( $this->getLayout() == 'managerules' )
-		{
-			return $this->manageRules();
-		}
+		// Get the states
+		$filter = $this->getUserState('badges.filter_state', 'filter_state', '*', 'word');
 
-		$filter_state	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.badges.filter_state', 	'filter_state', 	'*', 'word' );
-		$search			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.badges.search', 			'search', 			'', 'string' );
+		// Search requests
+		$search = $this->getUserState('badges.search', 'search', '', 'string');
+		$search = trim(strtolower($search));
 
-		$search			= trim(JString::strtolower( $search ) );
-		$order			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.badges.filter_order', 		'filter_order', 	'a.id', 'cmd' );
-		$orderDirection	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.badges.filter_order_Dir',	'filter_order_Dir',	'', 'word' );
+		// Ordering
+		$order = $this->getUserState('badges.filter_order', 'filter_order', 'a.id', 'cmd');
+		$orderDirection = $this->getUserState('badges.filter_order_Dir', 'filter_order_Dir', 'word');
 
-		$exclusion 		= JRequest::getVar( 'exclude' ,'' );
+		// Exclusions
+		$exclusion = $this->input->get('exclude', '', 'default');
 
-		$model 			= $this->getModel( 'Badges' );
-		$badges 		= $model->getBadges( $exclusion );
-
-		$pagination		= $this->get( 'Pagination' );
+		$model = ED::model('Badges', true);
+		$badges = $model->getBadges($exclusion);
+		$pagination = $model->getPagination();
 
 		// Determines if the current request is shown in a modal window.
-		$browse 		= JRequest::getInt( 'browse' , 0 );
-		$browseFunction	= JRequest::getVar( 'browseFunction' , '' );
+		$browse = $this->input->get('browse', 0, 'int');
+		$browseFunction = $this->input->get('browseFunction', '', 'default');
 
-		$this->assign( 'browseFunction'	, $browseFunction );
-		$this->assign( 'browse'		, $browse );
-		$this->assign( 'badges'		, $badges );
-		$this->assign( 'pagination'	, $pagination );
+		if (!$browse) {
+			$this->title('COM_EASYDISCUSS_BADGES_TITLE');
+		}
 
-		$this->assign( 'state'			, $this->getFilterState($filter_state));
-		$this->assign( 'search'			, $search );
-		$this->assign( 'order'			, $order );
-		$this->assign( 'orderDirection'	, $orderDirection );
+		if ($badges) {
+			foreach ($badges as &$badge) {
 
-		parent::display($tpl);
+				$badge->date = ED::date($badge->created);
+				$badge->totalUsers = $this->getTotalUsers($badge->id);
+
+				if ($browse) {
+					$badge->editLink = 'javascript:parent.' . $browseFunction . '(' . $badge->id . ')';
+				} else {
+					$badge->editLink = JRoute::_('index.php?option=com_easydiscuss&view=badges&layout=form&id=' . $badge->id);
+				}
+			}
+		}
+
+		$this->set('filter', $filter);
+		$this->set('browseFunction', $browseFunction);
+		$this->set('browse', $browse);
+		$this->set('badges', $badges);
+		$this->set('pagination', $pagination);
+		$this->set('search', $search);
+		$this->set('order', $order);
+		$this->set('orderDirection', $orderDirection);
+
+		parent::display('badges/default');
 	}
+
+	/**
+	 * Renders the badge form
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function form($tpl = null)
+	{
+		$this->checkAccess('discuss.manage.badges');
+
+		$this->title('COM_EASYDISCUSS_BADGES_TITLE');
+
+		JToolBarHelper::apply();
+		JToolBarHelper::save();
+		JToolBarHelper::save2new();
+		JToolBarHelper::cancel();
+
+		$id = $this->input->get('id', 0, 'int');
+
+		$badge = ED::table('Badges');
+		$badge->load($id);
+
+		if (!$badge->created) {
+			$date = ED::date();
+			$badge->created	= $date->toMySQL();
+		}
+
+		// There could be some errors here.
+		if (JRequest::getMethod() == 'POST') {
+
+			$post = JRequest::get('post');
+			$badge->bind($post);
+
+			// Description might contain html codes
+			$description = JRequest::getVar('description' , '' , 'post' , 'string' , JREQUEST_ALLOWRAW );
+			$badge->description = $description;
+		}
+
+
+		// Get the editor
+		$editor = JFactory::getEditor($this->jconfig->get('editor'));
+
+		$model	= ED::model('Badges');
+		$rules	= $model->getRules();
+		$badges	= $this->getBadges();
+
+		$this->set('editor', $editor);
+		$this->set('badges', $badges);
+		$this->set('rules', $rules);
+		$this->set('badge', $badge);
+
+		parent::display('badges/form');
+	}
+
+	public function getBadges()
+	{
+		$exclude = array('.svn', 'CVS', '.DS_Store', '__MACOSX', 'index.html');
+		$badges	= JFolder::files(DISCUSS_BADGES_PATH, '.', false, false, $exclude);
+
+		return $badges;
+	}
+
 
 	public function getTotalUsers( $badgeId )
 	{
@@ -83,18 +164,13 @@ class EasyDiscussViewBadges extends EasyDiscussAdminView
 		return $db->loadResult();
 	}
 
-	public function registerToolbar()
+	public function assign()
 	{
-		JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_BADGES' ), 'badges' );
+		$this->checkAccess('discuss.manage.badges');
+		$this->title('COM_EASYDISCUSS_BADGES_MASS_ASSIGN_TITLE');
+		
+		JToolBarHelper::cancel();
 
-		JToolBarHelper::custom( 'home', 'arrow-left', '', JText::_( 'COM_EASYDISCUSS_TOOLBAR_HOME' ), false);
-		JToolBarHelper::divider();
-		JToolBarHelper::custom( 'rules' , 'rules' , '' , JText::_( 'COM_EASYDISCUSS_MANAGE_RULES_BUTTON' ) , false );
-		JToolBarHelper::divider();
-		JToolbarHelper::publishList();
-		JToolbarHelper::unpublishList();
-		JToolBarHelper::divider();
-		JToolbarHelper::addNew();
-		JToolbarHelper::deleteList();
+		parent::display('badges/assign');
 	}
 }

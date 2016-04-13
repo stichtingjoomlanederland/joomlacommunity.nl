@@ -1,0 +1,61 @@
+/*------------------------------------*\
+    $Theme - EasyDiscuss Zinc Patch
+\*------------------------------------*/
+
+.ed-post-item {
+
+    &__hd,
+    &__bd,
+    &__ft,
+    &__sub-hd {
+        border-left: 0;
+        border-right: 0;
+        border-bottom: 0;
+        border-radius: 0;
+    }
+    .ed-user-rank {
+        text-align: center;
+    }
+    .ed-user-role-label {
+        .text-overflow(); // #1691
+        display: inline-block;
+        width: 64px; // Follow avatar width
+        text-align: center;
+    }
+}
+.ed-post-who-view__ft {
+    border-radius: 0;
+}
+.has-body {
+    .ed-post-item__bd {
+        border-bottom: 0;
+    }
+}
+.ed-board-stats {
+    &__hd,
+    &__bd {
+        border-left: 0;
+        border-right: 0;
+    }
+}
+
+.ed-post-who-view,
+.ed-reply-item {
+    &__hd,
+    &__bd,
+    &__ft {
+        border: 0;
+        border-radius: 0;
+    }
+}
+.ed-reply-item__comments-wrap,
+.ed-cat-panel,
+.ed-cat-panel__bd {
+    border: 0;
+}
+
+.view-index {
+    .ed-posts-list > *:not(:first-child) {
+        margin-top: 0;
+    }
+}

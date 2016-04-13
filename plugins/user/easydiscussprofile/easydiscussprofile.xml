@@ -7,7 +7,7 @@
 	<license>GPL License</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://www.stackideas.com</authorUrl>
-	<version>3.0.5</version>
+	<version>1.0.0</version>
 	<description>Easydiscuss Profile on Joomla user registration</description>
 
 	<files>
@@ -125,7 +125,7 @@
 					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_NAME_PROFILE_REQUIRE_USER"
 				/>
 
-				<field name="profile-require_NICKNAME" type="list"
+				<field name="profile-require_nickname" type="list"
 
 					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_NICKNAME_DESC"
 					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_NICKNAME_LABEL"
@@ -135,7 +135,7 @@
 					<option value="0">JDISABLED</option>
 				</field>
 
-				<field name="profile-require_DESCRIPTION" type="list"
+				<field name="profile-require_description" type="list"
 
 					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_DESCRIPTION_DESC"
 					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_DESCRIPTION_LABEL"
@@ -145,7 +145,7 @@
 					<option value="0">JDISABLED</option>
 				</field>
 
-				<field name="profile-require_SIGNATURE" type="list"
+				<field name="profile-require_signature" type="list"
 
 					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_SIGNATURE_DESC"
 					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_SIGNATURE_LABEL"
@@ -155,7 +155,7 @@
 					<option value="0">JDISABLED</option>
 				</field>
 
-				<field name="profile-require_FACEBOOK" type="list"
+				<field name="profile-require_facebook" type="list"
 
 					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_FACEBOOK_DESC"
 					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_FACEBOOK_LABEL"
@@ -165,7 +165,7 @@
 					<option value="0">JDISABLED</option>
 				</field>
 
-				<field name="profile-require_TWITTER" type="list"
+				<field name="profile-require_twitter" type="list"
 
 					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_TWITTER_DESC"
 					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_TWITTER_LABEL"
@@ -175,7 +175,7 @@
 					<option value="0">JDISABLED</option>
 				</field>
 
-				<field name="profile-require_LINKEDIN" type="list"
+				<field name="profile-require_linkedin" type="list"
 
 					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_LINKEDIN_DESC"
 					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_LINKEDIN_LABEL"
@@ -185,7 +185,7 @@
 					<option value="0">JDISABLED</option>
 				</field>
 
-				<field name="profile-require_SKYPE" type="list"
+				<field name="profile-require_skype" type="list"
 
 					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_SKYPE_DESC"
 					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_SKYPE_LABEL"
@@ -204,7 +204,7 @@
 					<option value="1">JOPTION_OPTIONAL</option>
 					<option value="0">JDISABLED</option>
 				</field>
-				<field 	name="profile-require_favoritebook"
+				<field 	name="profile-require_location"
 					type="list"
 
 					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_LOCATION_LABEL"

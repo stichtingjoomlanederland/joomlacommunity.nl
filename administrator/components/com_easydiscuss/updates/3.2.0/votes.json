@@ -1,0 +1,12 @@
+[
+    {
+        "table"     : "#__discuss_votes",
+        "column"    : "session_id",
+        "query"     : "ALTER TABLE `#__discuss_votes` ADD `session_id` VARCHAR(200) DEFAULT NULL;"
+    },
+    {
+        "table"     : "#__discuss_votes",
+        "index"     : "discuss_user_id",
+        "query"     : "alter table `#__discuss_votes` add index `discuss_user_id` (`user_id`);"
+    }
+]

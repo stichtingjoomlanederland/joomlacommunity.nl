@@ -1,129 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Categories</name>
-	<author>StackIdeas</author>
-	<creationDate>23/05/2011</creationDate>
-	<copyright>Copyright 2009 - 2011 Stack Ideas. All rights reserved.</copyright>
-	<license>GPL License</license>
+	<author>Stack Ideas Sdn Bhd</author>
+	<creationDate>8th April 2016</creationDate>
+	<copyright>Copyright 2009 - 2016 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
+	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://www.stackideas.com</authorUrl>
-	<version>3.2.1</version>
-	<description>Displays a list of categories from the site.</description>
+	<version>4.0.1</version>
+	<description><![CDATA[This module will display a list of categories in EasyDiscuss.]]></description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easydiscuss_categories.ini</language>
 	</languages>
 	<files>
-		<filename module="mod_easydiscuss_categories">mod_easydiscuss_categories.php</filename>
+		<folder>styles</folder>
+		<folder>tmpl</folder>
 		<filename>helper.php</filename>
 		<filename>index.html</filename>
-		<folder>tmpl</folder>
-		<folder>styles</folder>
+		<filename module="mod_easydiscuss_categories">mod_easydiscuss_categories.php</filename>
+		<filename>mod_easydiscuss_categories.xml</filename>
 	</files>
-	<params>
-		<param name="moduleclass_sfx" type="text" default="" label="Module Class Suffix" description="PARAMMODULECLASSSUFFIX" />
-		<param name="@spacer" type="spacer" default="" label="" description="" />
-		<param name="layouttype" type="list" default="flat" label="Layout type" description="Select what to display in the module">
-			<option value="tree">Category Tree (With subcategories)</option>
-			<option value="flat">Flat layout (With subcategories)</option>
-			<option value="flatmain">Flat layout (Without subcategories)</option>
-		</param>
-		<param name="count" type="text" default="5" label="Count" description="The number of items to display (set it to 0 if post limiting if not required)." />
-		<param name="order" type="list" default="default" label="Ordering" description="Retrieve the tag cloud base on post count or title (useful when you are limiting the number of tags in the tag cloud).">
-			<option value="default">Default</option>
-			<option value="alphabet">Alphabetical</option>
-			<option value="latest">Latest</option>
-			<option value="popular">Popular</option>
-		</param>
-		<param name="sort" type="list" default="desc" label="Sorting" description="Display categories in either ascending or descending order.">
-			<option value="asc">Ascending</option>
-			<option value="desc">Descending</option>
-		</param>
-		<param name="count" type="text" default="0" label="Count" description="The number of items to display (set it to 0 if categories limiting if not required)." />
-		<param name="hideemptypost" type="list" default="1" label="Hide categories with no post" description="Hide categories without post.">
-			<option value="0">No</option>
-			<option value="1">Yes</option>
-		</param>
-		<param name="exclude_child_categories" type="list" default="1" label="Exclude child categories" description="Display or hide categories including child categories.">
-			<option value="0">No</option>
-			<option value="1">Yes</option>
-		</param>
-		<param name="showcavatar" type="list" default="1" label="Show category avatar" description="Display category avatar.">
-			<option value="0">No</option>
-			<option value="1">Yes</option>
-		</param>
-		<param name="showpostcnt" type="list" default="1" label="Show post count" description="Display post count.">
-			<option value="0">No</option>
-			<option value="1">Yes</option>
-		</param>
-	</params>
-	<params group="advanced">
-		<param name="cache" type="list" default="0" label="Caching" description="Select whether to cache the content of this module">
-			<option value="1">Use global</option>
-			<option value="0">No caching</option>
-		</param>
-		<param name="cache_time" type="text" default="900" label="Cache Time" description="The time before the module is recached" />
-	</params>
-
-
 	<config>
 		<fields name="params">
 			<fieldset name="basic">
-				<field name="layouttype" type="list" default="flat" label="Layout type" description="Select what to display in the module">
-					<option value="tree">Category Tree (With subcategories)</option>
-					<option value="flat">Flat layout (With subcategories)</option>
-					<option value="flatmain">Flat layout (Without subcategories)</option>
+				<field name="layouttype" type="list" default="flat" label="MOD_DISCUSSIONSCATEGORIES_LAYOUT_TYPE" description="MOD_DISCUSSIONSCATEGORIES_LAYOUT_TYPE_DESC">
+					<option value="tree">Category Tree</option>
+					<option value="flat">Flat layout</option>
 				</field>
-				<field name="count" type="text" default="5" label="Count" description="The number of items to display (set it to 0 if post limiting if not required)." />
-				<field
-					name="order"
-					type="list"
-					default="default"
-					label="Ordering"
-					description="Retrieve the tag cloud base on post count or title (useful when you are limiting the number of tags in the tag cloud)." >
+				<field name="count" type="text" default="5" label="MOD_DISCUSSIONSCATEGORIES_ITEM_COUNT" description="MOD_DISCUSSIONSCATEGORIES_ITEM_COUNT_DESC" />
+				<field name="order" type="list" default="default" label="MOD_DISCUSSIONSCATEGORIES_ITEM_ORDER" description="MOD_DISCUSSIONSCATEGORIES_ITEM_ORDER_DESC" >
 					<option value="default">Default</option>
 					<option value="alphabet">Alphabetical</option>
 					<option value="latest">Latest</option>
 					<option value="popular">Popular</option>
 				</field>
-				<field
-					name="sort"
-					type="list"
-					default="desc"
-					label="Sorting"
-					description="Display categories in either ascending or descending order." >
+				<field name="sort" type="radio" class="btn-group" default="asc" label="MOD_DISCUSSIONSCATEGORIES_ITEM_SORTING" description="MOD_DISCUSSIONSCATEGORIES_ITEM_SORTING_DESC">
 					<option value="asc">Ascending</option>
 					<option value="desc">Descending</option>
 				</field>
-				<field
-					name="hideemptypost"
-					type="list"
-					default="1"
-					label="Hide categories with no post"
-					description="Hide categories without post." >
-					<option value="0">No</option>
-					<option value="1">Yes</option>
+				<field name="hideemptypost" type="radio" class="btn-group" default="0" label="MOD_DISCUSSIONSCATEGORIES_HIDE_CATEGORY_WITHOUT_POST" description="MOD_DISCUSSIONSCATEGORIES_HIDE_CATEGORY_WITHOUT_POST_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
 				</field>
-				<field
-					name="exclude_child_categories"
-					type="list"
-					default="1"
-					label="Exclude child categories"
-					description="Display or hide categories including child categories." >
-					<option value="0">No</option>
-					<option value="1">Yes</option>
+				<field name="exclude_child_categories" type="radio" class="btn-group" default="0" label="MOD_DISCUSSIONSCATEGORIES_EXCLUDE_SUBCATEGORIES" description="MOD_DISCUSSIONSCATEGORIES_EXCLUDE_SUBCATEGORIES_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
 				</field>
-				<field
-					name="showcavatar"
-					type="list"
-					default="1"
-					label="Show category avatar"
-					description="Display category avatar." >
-					<option value="0">No</option>
-					<option value="1">Yes</option>
+				<field name="showcavatar" type="radio" class="btn-group" default="1" label="MOD_DISCUSSIONSCATEGORIES_SHOW_AVATAR" description="MOD_DISCUSSIONSCATEGORIES_SHOW_AVATAR_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
 				</field>
-				<field name="showpostcnt" type="list" default="1" label="Show post count" description="Display post count.">
-					<option value="0">No</option>
-					<option value="1">Yes</option>
+				<field name="showpostcnt" type="radio" class="btn-group" default="1" label="MOD_DISCUSSIONSCATEGORIES_SHOW_POSTCOUNT" description="MOD_DISCUSSIONSCATEGORIES_SHOW_POSTCOUNT_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
 				</field>
 			</fieldset>
 			<fieldset name="advanced">
@@ -136,5 +65,4 @@
 			</fieldset>
 		</fields>
 	</config>
-
 </extension>

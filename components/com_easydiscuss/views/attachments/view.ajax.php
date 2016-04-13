@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,111 +11,72 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-require_once( DISCUSS_ROOT . '/views.php' );
+require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewAttachments extends EasyDiscussView
 {
 	/**
-	 * Displays a confirmation dialog to delete an attachment.
+	 * Displays confirmation dialog to delete an attachment
 	 *
-	 * @since	3.0
+	 * @since	4.0
 	 * @access	public
-	 * @param	int 	The id of the attachment.
+	 * @param	string
+	 * @return	
 	 */
-	public function confirmDelete( $id )
+	public function confirmDelete()
 	{
-		$ajax	= new Disjax();
-		$user	= JFactory::getUser();
+		$id = $this->input->get('id', 0, 'int');
 
 		// @rule: Do not allow empty id or guests to delete files.
-		if( empty( $id ) || empty( $user->id ) )
-		{
-			return false;
+		if (!$id || empty( $this->my->id)) {
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
 		}
 
-		$attachment	= DiscussHelper::getTable( 'Attachments' );
-		$attachment->load( $id );
+		$attachment = ED::attachment($id);
 
 		// Ensure that only post owner or admin can delete it.
-		if( !$attachment->deleteable() )
-		{
-			return false;
+		if (!$attachment->canDelete()) {
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_NOT_ALLOWED_DELETE_ATTACHEMENT_HERE'));
 		}
 
-		$theme				= new DiscussThemes();
-		$theme->set( 'id' , $id );
-		$content			= $theme->fetch( 'ajax.attachment.delete.php' , array('dialog'=> true ) );
+		$theme = ED::themes();
+		$theme->set('id', $id);
+		$contents = $theme->output('site/attachments/dialogs/delete.confirmation');
 
-		$options			= new stdClass();
-		$options->content	= $content;
-		$options->title		= JText::_( 'COM_EASYDISCUSS_ATTACHMENT_DELETE_CONFIRMATION_TITLE' );
-
-		$buttons			= array();
-
-		$button				= new stdClass();
-		$button->title		= JText::_( 'COM_EASYDISCUSS_BUTTON_CANCEL' );
-		$button->action		= 'disjax.closedlg();';
-		$buttons[]			= $button;
-
-		$button				= new stdClass();
-		$button->title		= JText::_( 'COM_EASYDISCUSS_BUTTON_DELETE' );
-		$button->action		= "disjax.loadingDialog();disjax.load('attachments','delete','" . $id . "');";
-		$button->className	= 'btn-danger';
-		$buttons[]			= $button;
-
-		$options->buttons	= $buttons;
-
-		$ajax->dialog( $options );
-		$ajax->send();
+		return $this->ajax->resolve($contents);
 	}
 
-	public function delete( $id )
+	/**
+	 * Deletes the attachment item
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function delete()
 	{
-		$ajax	= new Disjax();
-		$user	= JFactory::getUser();
+		$id = $this->input->get('id', 0, 'int');
 
 		// @rule: Do not allow empty id or guests to delete files.
-		if( empty( $id ) || empty( $user->id ) )
-		{
-			return false;
+		if (!$id || empty($this->my->id)) {
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
 		}
 
-		$attachment	= DiscussHelper::getTable( 'Attachments' );
-		$attachment->load( $id );
+		$attachment = ED::attachment($id);
 
 		// Ensure that only post owner or admin can delete it.
-		if( !$attachment->deleteable() )
-		{
-			return false;
+		if (!$attachment->canDelete()) {
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_NOT_ALLOWED_DELETE_ATTACHEMENT_HERE'));
 		}
 
-		// Ensure that only post owner or admin can delete it.
-		if( !$attachment->delete() )
-		{
-			return false;
-		}
+		// Delete the attachment
+		$attachment->delete();
 
-		$theme				= new DiscussThemes();
-		$content 			= JText::_( 'COM_EASYDISCUSS_ATTACHMENT_DELETED_SUCCESSFULLY' );
+		$theme = ED::themes();
+		$theme->set('id', $id);
+		$contents = $theme->output('site/attachments/dialogs/delete.success');
 
-		$options			= new stdClass();
-
-		$options->content	= $content;
-		$options->title		= JText::_( 'COM_EASYDISCUSS_ATTACHMENT_DELETE_CONFIRMATION_TITLE' );
-
-		$buttons			= array();
-
-		$button				= new stdClass();
-		$button->title		= JText::_( 'COM_EASYDISCUSS_BUTTON_CLOSE' );
-		$button->action		= 'disjax.closedlg();';
-		$buttons[]			= $button;
-
-		$options->buttons	= $buttons;
-
-		$ajax->script( 'EasyDiscuss.$("#attachment-' . $attachment->id . '" ).trigger("itemRemoved").remove();' );
-
-		$ajax->dialog( $options );
-
-		$ajax->send();
+		return $this->ajax->resolve($contents);
 	}
 }

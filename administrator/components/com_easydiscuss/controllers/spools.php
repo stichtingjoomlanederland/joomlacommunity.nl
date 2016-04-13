@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -13,62 +13,58 @@ defined('_JEXEC') or die('Restricted access');
 
 class EasyDiscussControllerSpools extends EasyDiscussController
 {
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
+
+		$this->checkAccess('discuss.manage.spools');
 	}
 
 	public function purge()
 	{
-		JRequest::checkToken() or jexit( 'Invalid Token' );
+		ED::checkToken();
 
-		$db 	= DiscussHelper::getDBO();
-		$query	= 'DELETE FROM ' . $db->nameQuote( '#__discuss_mailq' );
+		$db = ED::db();
+		$query = 'DELETE FROM ' . $db->nameQuote('#__discuss_mailq');
 
-		$db->setQuery( $query );
+		$db->setQuery($query);
 		$db->Query();
 
-		DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_MAILS_PURGED' ) , DISCUSS_QUEUE_SUCCESS );
+		ED::setMessage(JText::_('COM_EASYDISCUSS_MAILS_PURGED'), 'success');
 
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=spools' );
+		return $this->app->redirect('index.php?option=com_easydiscuss&view=spools');
 	}
 
-	function remove()
+	public function remove()
 	{
 		// Check for request forgeries
-		JRequest::checkToken() or jexit( 'Invalid Token' );
+		ED::checkToken();
 
-		$mails		= JRequest::getVar( 'cid' , '' , 'POST' );
+		$mails = $this->input->get('cid', '', 'POST');
+		$message = '';
+		$type = 'success';
 
-		$message	= '';
-		$type		= 'success';
+		if (empty($mails)) {
+			$message = JText::_('COM_EASYDISCUSS_NO_MAIL_ID_PROVIDED');
+			$type = 'error';
+		} else {
+			$table = ED::table('MailQueue');
 
-		if( empty( $mails ) )
-		{
-			$message	= JText::_('COM_EASYDISCUSS_NO_MAIL_ID_PROVIDED');
-			$type		= 'error';
-		}
-		else
-		{
-			$table		= DiscussHelper::getTable( 'MailQueue' );
+			foreach($mails as $id) {
 
-			foreach( $mails as $id )
-			{
-				$table->load( $id );
+				$table->load($id);
 
-				if( !$table->delete() )
-				{
-					DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_SPOOLS_DELETE_ERROR' ) , DISCUSS_QUEUE_ERROR );
-
-					$this->setRedirect( 'index.php?option=com_easydiscuss&view=spools' );
-					return;
+				if (!$table->delete()) {
+					ED::setMessage(JText::_('COM_EASYDISCUSS_SPOOLS_DELETE_ERROR'), 'error');
+					return $this->app->redirect('index.php?option=com_easydiscuss&view=spools');
 				}
 			}
-			$message	= JText::_('COM_EASYDISCUSS_SPOOLS_EMAILS_DELETED');
+
+			$message = JText::_('COM_EASYDISCUSS_SPOOLS_EMAILS_DELETED');
 		}
 
-		DiscussHelper::setMessageQueue( $message, $type );
+		ED::setMessage($message, $type);
 
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=spools' );
+		$this->app->redirect('index.php?option=com_easydiscuss&view=spools');
 	}
 }

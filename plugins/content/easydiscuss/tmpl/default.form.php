@@ -12,19 +12,25 @@
  */
 defined('_JEXEC') or die('Restricted access');
 ?>
-<script type="text/javascript">
-EasyDiscuss.ready(function(){
-	discuss.composer.init("<?php echo $composer->classname ?>");
-});
-</script>
+<div class="ed-post-reply-form">
 
-<div class="discuss-user-reply" >
-	<div class="row-fluid">
-		<a name="respond" id="respond"></a>
+    <?php if ($post->isLocked()) { ?>
+    <div class="o-alert o-alert--notice mt-20">
+        <i class="icon-lock"></i>
+        <?php if (ED::isModerator($post->category_id)) { ?>
+            <?php echo JText::_('COM_EASYDISCUSS_POST_IS_CURRENTLY_LOCKED_BUT_MODERATOR'); ?>
+        <?php } else { ?>
+            <?php echo JText::_('COM_EASYDISCUSS_POST_IS_CURRENTLY_LOCKED'); ?>
+        <?php } ?>
+    </div>
+    <?php } ?>
 
-		<legend class="discuss-component-title"><?php echo JText::_('COM_EASYDISCUSS_ENTRY_YOUR_RESPONSE'); ?></legend>
-		<hr class="mv-5" style="margin-bottom: 20px;" />
-
-		<?php echo $composer->getComposer(); ?>
-	</div>
+    <?php if (!$post->isLocked() || ED::isModerator($post->category_id)) { ?>
+    <div class="discuss-user-reply" >
+        <div class="fd-cf">
+            <a name="respond" id="respond"></a>
+            <?php echo $composer->getComposer(); ?>
+        </div>
+    </div>
+    <?php } ?>
 </div>

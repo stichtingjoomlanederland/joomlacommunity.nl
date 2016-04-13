@@ -13,7 +13,9 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussLabel extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussLabel extends EasyDiscussTable
 {
 	public $id			= null;
 	public $title		= null;
@@ -45,13 +47,11 @@ class DiscussLabel extends JTable
 	{
 		parent::bind( $data );
 
-		if( empty( $this->created ) )
-		{
-			$this->created = DiscussHelper::getDate()->toMySQL();
+		if (!$this->created) {
+			$this->created = ED::date()->toSql();
 		}
 
-		if( empty( $this->creator ) )
-		{
+		if (!$this->creator) {
 			$this->creator = JFactory::getUser()->id;
 		}
 	}

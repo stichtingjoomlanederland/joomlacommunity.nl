@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,88 +11,82 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-require_once(DISCUSS_ROOT . '/views.php');
+require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewTags extends EasyDiscussView
 {
 	public function display($tmpl = null)
 	{
-		$config = DiscussHelper::getConfig();
-		$jConfig = DiscussHelper::getJConfig();
-
-		if (!$config->get('main_rss')) {
+		if (!$this->config->get('main_rss')) {
 			return;
 		}
 
-		$filteractive	= JRequest::getString('filter', 'allposts');
-		$sort			= JRequest::getString('sort', 'latest');
+		$filteractive = $this->input->get('filter', 'allposts', 'string');
+		$sort = $this->input->get('sort', 'latest', 'string');
 
 		if ($filteractive == 'unanswered' && ($sort == 'active' || $sort == 'popular')) {
 			//reset the active to latest.
 			$sort = 'latest';
 		}
 
-		$doc = JFactory::getDocument();
-		$doc->link = JRoute::_('index.php?option=com_easydiscuss&view=index');
+		$this->doc->link = JRoute::_('index.php?option=com_easydiscuss&view=index');
 
 		// Load up the tag
-		$tag = JRequest::getInt('id', 0);
-		$table = DiscussHelper::getTable('Tags');
+		$tag = $this->input->get('id', 0, 'int');
+
+		$table = ED::table('Tags');
 		$table->load($tag);
 
 		// Set the title of the document
-		$doc->setTitle($table->title);
-		$doc->setDescription(JText::sprintf('COM_EASYDISCUSS_DISCUSSIONS_TAGGED_IN', $table->title));
+		$this->doc->setTitle($table->title);
+		$this->doc->setDescription(JText::sprintf('COM_EASYDISCUSS_DISCUSSIONS_TAGGED_IN', $table->title));
 
-		$postModel	= $this->getModel('Posts');
-		$posts		= $postModel->getTaggedPost( $tag , $sort, $filteractive );
-		$pagination	= $postModel->getPagination( '0' , $sort, $filteractive);
-		$jConfig 	= DiscussHelper::getJConfig();
-		$posts		= DiscussHelper::formatPost($posts);
+		$postModel = ED::model('Posts');
+		$posts = $postModel->getTaggedPost($tag, $sort, $filteractive);
+		$pagination	= $postModel->getPagination('0', $sort, $filteractive);
+		$posts = ED::formatPost($posts);
 
 		foreach ($posts as $row) {
-			
+
 			// Assign to feed item
-			$title = $this->escape( $row->title );
-			$title = html_entity_decode( $title );
+			$title = $this->escape($row->title);
+			$title = html_entity_decode($title);
 
 			// load individual item creator class
-			$item				= new JFeedItem();
-			$item->title 		= $title;
-			$item->link 		= JRoute::_('index.php?option=com_easydiscuss&view=post&id=' . $row->id );
-			$item->description 	= $row->content;
-			$item->date			= DiscussHelper::getDate( $row->created )->toMySQL();
+			$item = new JFeedItem();
+			$item->title = $title;
+			$item->link = JRoute::_('index.php?option=com_easydiscuss&view=post&id=' . $row->id);
+			$item->description = $row->content;
+			$item->date = ED::date($row->created)->toMySQL();
 
-			if( !empty( $row->tags ) )
-			{
-				$tagData	= array();
-				foreach( $row->tags as $tag )
-				{
-					$tagData[] = '<a href="' . JRoute::_('index.php?option=com_easydiscuss&view=tags&id=' . $tag->id ) . '">' . $tag->title . '</a>';
+			if (!empty($row->tags)) {
+				
+				$tagData = array();
+				
+				foreach ($row->tags as $tag) {
+					$tagData[] = '<a href="' . JRoute::_('index.php?option=com_easydiscuss&view=tags&id=' . $tag->id) . '">' . $tag->title . '</a>';
 				}
-				$row->tags	= implode(', ', $tagData);
-			}
-			else
-			{
-				$row->tags	= '';
-			}
 
-			$item->category		= $row->tags;
-			$item->author		= $row->user->getName();
+				$row->tags = implode(', ', $tagData);
+			}
+			
+			$row->tags	= '';
 
-			if( $jConfig->get( 'feed_email' ) != 'none' )
-			{
-				if( $jConfig->get( 'feed_email' ) == 'author' )
-				{
-					$item->authorEmail	= $row->user->email;
-				}
-				else
-				{
-					$item->authorEmail	= $jConfig->get( 'mailfrom' );
+			$user = ED::user($row->user_id);
+
+			$item->category = $row->tags;
+			$item->author = $user->getName();
+
+			if ($this->jconfig->get('feed_email') != 'none') {
+
+				$item->authorEmail = $this->jconfig->get('mailfrom');
+
+				if ($this->jconfig->get('feed_email') == 'author') {
+					$item->authorEmail = $user->email;
 				}
 			}
 
-			$doc->addItem($item);
+			$this->doc->addItem($item);
 		}
 	}
 }

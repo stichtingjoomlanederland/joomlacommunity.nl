@@ -1,0 +1,154 @@
+/**
+* @package      EasyDiscuss
+* @copyright    Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      Proprietary Use License http://stackideas.com/licensing.html
+* @author       Stack Ideas Sdn Bhd
+**/
+
+@media (max-width: @app-breakpoint) {
+
+    html {
+        > body.com_easydiscuss {
+            position: relative;
+
+            div#ed .app-sidebar {
+                -webkit-transition: none;
+                transition: none;
+            }
+        }
+
+        &.show-easydiscuss-sidebar {
+            overflow: hidden;
+
+            > body.com_easydiscuss,
+            > body.com_easydiscuss .header-stick,
+            > body.com_easydiscuss .navbar-fixed-top {
+                left: 300px !important;
+            }
+
+            > body.com_easydiscuss div#ed .app-sidebar {
+                left: 0 !important;
+            }
+        }
+    }
+
+    @panel-head-grad-start : 50%;
+
+    header.header {
+        position: relative;
+        padding: 15px;
+
+        .page-title {
+            font-size: 20px;
+            text-align: center;
+
+            span {
+                display: none !important;
+            }
+        }
+
+        .container-logo {
+            display: none !important;
+        }
+    }
+
+    div.subhead-collapse.collapse {
+        height: 0 !important;
+        overflow: hidden;
+        margin: 0;
+
+        &.in {
+            height: auto !important;
+        }
+
+        .subhead {
+            padding: 20px;
+            border-bottom: 1px solid @app-border-color;
+
+            .btn-wrapper {
+                display: block;
+                float: none !important;
+                margin: 0;
+
+                + .btn-wrapper {
+                    margin-top: 15px;
+                }
+            }
+
+            .btn {
+                width: 100% !important;
+                margin: 0;
+                padding: 8px 0;
+            }
+        }
+    }
+
+    .container-nav {
+        display: block !important;
+        visibility: visible !important;
+        position: absolute;
+        right: 0;
+        left: 0;
+        top: 0;
+        bottom: 0;
+
+        @container-nav-button-size: 36px;
+
+        > a {
+            // background: rgba(0, 0, 0, 0.25);
+            border-radius: 50%;
+            cursor: pointer;
+            color: #fff !important;
+            height: @container-nav-button-size;
+            text-align: center;
+
+            position: absolute;
+            top: 50%;
+            margin-top: -@container-nav-button-size / 2;
+
+            &.nav-sidebar-toggle {
+                left: @app-gutter-width;
+                padding-top: 0;
+            }
+
+            &.nav-subhead-toggle {
+                right: @app-gutter-width;
+            }
+
+            span {
+                display: none;
+            }
+
+            i {
+                display: inline-block;
+                font: normal normal normal 14px/1 FontAwesome;
+                text-rendering: auto;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+                background: none;
+
+                font-size: 18px;
+                line-height: @container-nav-button-size;
+                vertical-align: top;
+            }
+
+            .fa-bars:before {
+                content: "\f0c9";
+            }
+
+            .fa-cog:before {
+                content: "\f013";
+            }
+        }
+    }
+
+    .app-sidebar {
+        position: fixed !important;
+        left: -300px !important;
+        top: 0 !important;
+        width: 300px !important;
+        height: 100% !important;
+        overflow-y: scroll !important;
+    }
+
+}

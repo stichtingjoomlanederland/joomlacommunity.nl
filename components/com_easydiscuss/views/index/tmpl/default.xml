@@ -35,8 +35,9 @@
 			<field name="filter" type="list" default="allposts" description="Filter by type" label="Filter">
 				<option value="allposts">JALL</option>
 				<option value="featured">Featured</option>
-				<option value="new">New</option>
+				<option value="unread">New</option>
 				<option value="unanswered">Unanswered</option>
+				<option value="unresolved">Unresolved</option>
 			</field>
 			<field name="sort" type="list" default="latest" description="Sort by type" label="Sorting">
 				<option value="latest">Latest</option>

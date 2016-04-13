@@ -19,15 +19,8 @@ class EasyDiscussViewLabels extends EasyDiscussAdminView
 
 	public function display($tpl = null)
 	{
-		// @rule: Test for user access if on 1.6 and above
-		if( DiscussHelper::getJoomlaVersion() >= '1.6' )
-		{
-			if(!JFactory::getUser()->authorise('discuss.manage.labels' , 'com_easydiscuss') )
-			{
-				JFactory::getApplication()->redirect( 'index.php' , JText::_( 'JERROR_ALERTNOAUTHOR' ) , 'error' );
-				JFactory::getApplication()->close();
-			}
-		}
+		$this->checkAccess('discuss.manage.labels');
+
 		$task	= JRequest::getCmd('task');
 		if( $task == 'labels.edit')
 		{
@@ -64,6 +57,8 @@ class EasyDiscussViewLabels extends EasyDiscussAdminView
 
 	public function diplayLabel()
 	{
+		$this->checkAccess('discuss.manage.labels');
+
 		// Initialise variables
 		$mainframe	= JFactory::getApplication();
 
@@ -78,16 +73,13 @@ class EasyDiscussViewLabels extends EasyDiscussAdminView
 		$this->label	= $label;
 
 		// Set default values for new entries.
-		if( empty( $label->created ) )
-		{
-			$date			= DiscussHelper::getDate();
-			$date->setOffSet( $mainframe->getCfg('offset') );
-
-			$label->created	= $date->toFormat();
+		if (empty($label->created)) {
+			$date = ED::date();
+			$label->created = $date->display();
 			$label->published	= true;
 		}
 
-		$this->assignRef( 'label', $label );
+		$this->assignRef('label', $label);
 
 		parent::display('edit');
 	}

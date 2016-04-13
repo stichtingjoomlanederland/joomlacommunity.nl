@@ -1,19 +1,17 @@
 <?php
 /**
- * @package		Easydiscuss
- * @copyright	Copyright (C) 2012 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * Easydiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-defined('_JEXEC') or die('Restricted access');
-
-jimport('joomla.application.component.controller');
+require_once(__DIR__ . '/controller.php');
 
 class EasydiscussControllerConversation extends EasyDiscussController
 {
@@ -21,209 +19,206 @@ class EasydiscussControllerConversation extends EasyDiscussController
 	{
 		parent::__construct();
 
-		$this->registerTask( 'unarchive' , 'archive' );
+		$this->registerTask('unarchive', 'archive');
 	}
 
 	/**
-	 * Stores a private message composed by the user.
+	 * Determines if conversations are enabled
 	 *
-	 * @since	3.0
+	 * @since	4.0
 	 * @access	public
-	 * @param	null
+	 * @param	string
+	 * @return	
+	 */
+	public function isFeatureAvailable()
+	{
+		if (!$this->config->get('main_conversations')) {
+			return false;
+		}
+
+		return true;
+	}
+	
+	/**
+	 * Allows user to reply to a conversation
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function reply()
+	{
+		// Check for request forgeries
+		ED::checkToken();
+
+		// Ensure that the user is logged in.
+		if ($this->my->id <= 0) {
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+		}
+
+		// Obtain the message id from post.
+		$id	= $this->input->get('id', 0, 'int');
+
+		// Load current conversation
+		$conversation = ED::conversation($id);
+
+		// Test for valid message id.
+		if (!$conversation->id) {
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_CONVERSATION_INVALID'));
+		}
+
+		// Test if the current user is involved in this conversation.
+		if (!$conversation->isInvolved()) {
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_CONVERSATION_INVALID'));
+		}
+
+		// Get message meta here.
+		$content = $this->input->get('message', '', 'default');
+
+		if (empty($content)) {
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_CONVERSATION_EMPTY_CONTENT'));
+		}
+
+		$message = $conversation->reply($content);
+
+		$theme = ED::themes();
+		$theme->set('message', $message);
+		$contents = $theme->output('site/conversations/message');
+
+		$message = JText::_('COM_EASYDISCUSS_CONVERSATION_MESSAGE_SENT_SUCCESSFULLY');
+
+		return $this->ajax->resolve($contents, $message);
+	}
+
+	/**
+	 * Stores a new conversation
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
 	 */
 	public function save()
 	{
-		JRequest::checkToken('request') or jexit( 'Invalid Token' );
-		
-		$config 		= DiscussHelper::getConfig();
-		$recipientId 	= JRequest::getInt( 'recipient' , 0 );
-		$app 			= JFactory::getApplication();
-		$my 			= JFactory::getUser();
+		// Ensure that the user is logged in
+		ED::requireLogin();
+
+		// Check for request forgeries
+		ED::checkToken();
+
+		// Get the recipient id
+		$recipientId = $this->input->get('recipient', 0, 'int');
+
+		// Default redirection
+		$redirect = EDR::_('view=conversation&layout=compose', false);
 
 		// Test for valid recipients.
-		if( !$recipientId )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_MESSAGING_INVALID_RECIPIENT' ) );
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=conversation&layout=compose' , false ) );
-			$app->close();
+		if (!$recipientId) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_MESSAGING_INVALID_RECIPIENT'));
+			return $this->app->redirect($redirect);
 		}
 
 		// Do not allow user to send a message to himself, it's crazy.
-		if( $recipientId == $my->id )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'You should not start a conversation with your self.' ) );
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=conversation&layout=compose' , false ) );
-			$app->close();
-		}
-
-		// Initialize conversation table.
-		$conversation 	= DiscussHelper::getTable( 'Conversation' );
-
-		// Check if this conversation already exist in the system.
-		$state 			= $conversation->loadByRelation( $my->id , $recipientId );
-
-		if( !$state )
-		{
-			$date 		= DiscussHelper::getDate()->toMySQL();
-			$conversation->created 		= $date;
-			$conversation->created_by	= $my->id;
-			$conversation->lastreplied 	= $date;
-			
-			$conversation->store();
+		if ($recipientId == $this->my->id) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_CONVERSATION_CANNOT_TALK_TO_SELF'));
+			return $this->app->redirect($redirect);
 		}
 
 		// Get message from query.
-		$content 	= JRequest::getVar( 'message' );
+		$message = $this->input->get('message', '', 'default');
 
-		// Initialize message table.
-		$message 					= DiscussHelper::getTable( 'ConversationMessage' );
-		$message->message 			= $content;
-		$message->conversation_id 	= $conversation->id;
-		$message->created 			= DiscussHelper::getDate()->toMySQL();
-		$message->created_by 		= $my->id;
-		$message->store();
+		// Create a new conversation
+		$conversation = ED::conversation();
+		$conversation->create($this->my->id, $recipientId, $message);
 
-		// Add participant to this conversation.
-		$model 		= DiscussHelper::getModel( 'Conversation' );
-		$model->addParticipant( $conversation->id , $recipientId , $my->id );
-
-		// Add message map so that recipient can view the message.
-		$model->addMessageMap( $conversation->id , $message->id , $recipientId , $my->id );
-
-
-		// @TODO: Add notification for recipient to let them know they received a message.
-
-		// @TODO: Add points for user.
-
-		// @TODO: Add badge for user.
+		if ($this->isAjax) {
+			return $this->ajax->resolve();
+		}
 
 		// Set message queue.
-		DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_MESSAGE_SENT' ) );
-		$app->redirect( DiscussRouter::getMessageRoute( $conversation->id , false ) );
+		ED::setMessage(JText::_('COM_EASYDISCUSS_MESSAGE_SENT'));
 
+		$redirect = EDR::_('view=conversation&id=' . $conversation->id, false);
+		return $this->app->redirect($redirect);
 	}
 
 	/**
 	 * Archives a conversation
 	 *
-	 * @since	3.0
+	 * @since	4.0
 	 * @access	public
+	 * @param	string
+	 * @return	
 	 */
 	public function archive()
 	{
-		JRequest::checkToken( 'request' ) or jexit( 'Invalid Token' );
-	
-		// Determine the task
-		$task 		= $this->getTask();
+		// Check for request forgeries
+		ED::checkToken();
 
 		// Detect the message id.
-		$id 		= JRequest::getInt( 'id' , 0 );
-		$app 		= JFactory::getApplication();
-		$my 		= JFactory::getUser();
+		$id = $this->input->get('id', 0, 'int');
 
-		// Retrieve model
-		$model 		= DiscussHelper::getModel( 'Conversation' );
+		// Default redirection
+		$redirect = EDR::_('view=conversation', false);
 
-		// Test if user has access
-		if( !$model->hasAccess( $id , $my->id ) )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_NOT_ALLOWED' ) , DISCUSS_QUEUE_ERROR );
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=conversation' , false ) );
-			$app->close();
+		// Load up the conversation
+		$conversation = ED::conversation($id);
+
+		if (!$id || !$conversation->id) {
+			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'));
 		}
 
-		// Try to archive / unarchive the conversation.
-		$state 		= $task == 'archive' ? DISCUSS_CONVERSATION_ARCHIVED : DISCUSS_CONVERSATION_PUBLISHED;
-		$model->archive( $id , $my->id , $state );
+		// Test if user has access
+		if (!$conversation->canAccess()) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'), 'error');
+			return $this->app->redirect($redirect);
+		}
 
-		$message 	= $task == 'archive' ? 'COM_EASYDISCUSS_CONVERSATION_IS_NOW_ARCHIVED' : 'COM_EASYDISCUSS_CONVERSATION_IS_NOW_UNARCHIVED';
-		DiscussHelper::setMessageQueue( JText::_( $message ) , DISCUSS_QUEUE_SUCCESS );
+		// Archive the conversation now
+		$conversation->archive();
 
-		$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=conversation' , false ) );
-		$app->close();
+		ED::setMessage('COM_EASYDISCUSS_CONVERSATION_IS_NOW_ARCHIVED', 'success');
+
+		return $this->app->redirect($redirect);
 	}
 
 	/**
-	 * Delete's a message.
+	 * Allows a user to delete a conversation
 	 *
-	 * @since	3.0
+	 * @since	4.0
 	 * @access	public
+	 * @param	string
+	 * @return	
 	 */
 	public function delete()
 	{
-		JRequest::checkToken( 'request' ) or jexit( 'Invalid Token' );
-		
-		// Detect the message id.
-		$id 		= JRequest::getInt( 'id' , 0 );
-		$app 		= JFactory::getApplication();
-		$my 		= JFactory::getUser();
+		// Requires user to be logged in
+		ED::requireLogin();
 
-		// Retrieve model
-		$model 		= DiscussHelper::getModel( 'Conversation' );
+		// Check for request forgeries
+		ED::checkToken();
+
+		// Get the conversation object
+		$id = $this->input->get('id', 0, 'int');
+		$conversation = ED::conversation($id);
+
+		$redirect = EDR::_('view=conversation', false);
+
+		if (!$id || !$conversation->id) {
+			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'));
+		}
 
 		// Test if user has access
-		if( !$model->hasAccess( $id , $my->id ) )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_NOT_ALLOWED' ) , DISCUSS_QUEUE_ERROR );
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=conversation' , false ) );
-			$app->close();
+		if (!$conversation->canAccess()) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'), 'error');
+			return $this->app->redirect($redirect);
 		}
 
-		// Try to delete the message.
-		$model->delete( $id , $my->id );
+		// Delete the conversation now
+		$conversation->delete();
 
-		DiscussHelper::setMessageQueue( JText::_( 'The conversation is deleted.' ) , DISCUSS_QUEUE_SUCCESS );
-		$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=conversation' , false ) );
-		$app->close();
-	}
-
-	/**
-	 * Marks a message as unread
-	 *
-	 * @since	3.0
-	 * @access	public
-	 */
-	public function unread()
-	{
-		JRequest::checkToken( 'request' , 'get' ) or jexit( 'Invalid Token' );
-		
-		$id 	= JRequest::getInt( 'id' );
-		$app 	= JFactory::getApplication();
-
-		// Test for valid recipients.
-		if( !$id )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_MESSAGING_INVALID_ID' ) , DISCUSS_QUEUE_ERROR );
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=conversation' , false ) );
-			$app->close();
-		}
-
-		// Only registered users are allowed to use conversation.
-		$my 		= JFactory::getUser();
-		if( !$my->id )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_NOT_ALLOWED' ) , DISCUSS_QUEUE_ERROR );
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=conversation' , false ) );
-			$app->close();
-		}
-
-		// Retrieve model.
-		$model 		= DiscussHelper::getModel( 'Conversation' );
-
-		// Test if user has access
-		if( !$model->hasAccess( $id , $my->id ) )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_NOT_ALLOWED' ) , DISCUSS_QUEUE_ERROR );
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=conversation' , false ) );
-			$app->close();
-		}
-
-		// Mark the conversation as unread.
-		$model->markAsUnread( $id , $my->id );
-
-
-		DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_CONVERSATION_MARKED_AS_UNREAD' ) , DISCUSS_QUEUE_SUCCESS );
-		$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=conversation' , false ) );
-		$app->close();
+		ED::setMessage('COM_EASYDISCUSS_CONVERSATION_DELETED_SUCCESSFULLY', 'success');
+		return $this->app->redirect($redirect);
 	}
 }

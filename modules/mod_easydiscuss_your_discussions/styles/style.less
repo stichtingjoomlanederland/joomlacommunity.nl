@@ -1,0 +1,208 @@
+// Pointing to /media/com_easydiscuss/styles/modules.less
+@import "modules";
+
+#ed-your-discussions {
+	// background: red;
+	.discuss-post-title {
+		margin-bottom: 4px;
+	}
+	.item {
+		padding: 0px;
+	}
+	.item-title {
+		font-weight: bold;
+		margin-right: 0;
+		text-decoration: none;
+	}
+	.discuss-last-replied {
+		img {
+			width: 16px;
+			height: 16px;
+			vertical-align: top;
+		}
+		a {
+			text-decoration: none;
+		}
+	}
+	.list-item .item + .item{
+		padding-top:10px;
+		margin-top:14px;
+		border-top:1px solid #ddd
+	}
+	.small {
+		font-size: 11px;
+		margin: 0;
+		padding: 0;
+	}
+	//label
+	.label {
+		border-radius: 3px 3px 3px 3px;
+		padding: 1px 4px 2px;
+	}
+	.label, .badge {
+		background-color: #999999;
+		color: #FFFFFF;
+		font-size: 10.998px;
+		font-weight: bold;
+		line-height: 14px;
+		text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+		vertical-align: baseline;
+		white-space: nowrap;
+	}
+	.label-info {
+		background-color: #3A87AD;
+	}
+	.label-warning {
+	    background-color: #F89406;
+	}
+
+	//layout
+	.dc-mod-hd {
+
+	}
+	.dc-mod-bd {
+		padding: 5px 0 5px;
+	}
+	.dc-mod-ft {
+		background: rgba(0,0,0,.05);
+		.border-radius(2px);
+		padding: 4px 6px;
+		.clearfix();
+		// font-size: 11px;
+	}
+	.discuss-statistic {
+		float: left;
+		> a {
+			color: #a8a8a8;
+			margin-right: 5px;
+			text-decoration: none;
+		}
+	}
+	.discuss-last-replied {
+		float: right;
+	}
+
+	//icons
+	[class^="edy-icon-"],
+	[class*=" edy-icon-"] {
+		background-image: none;
+		vertical-align: baseline;
+		height: auto;
+	}
+	// icon mixins
+	// ----------------
+	// =Icon -add in custom icon (@element)
+	@sprite-px: 12px; //icon grid
+	.spriteGrid(@x, @y) {
+		background-position: -((@x*@sprite-px)-@sprite-px) -((@y*@sprite-px)-@sprite-px);
+	}
+	.spriteSize(@size) {
+		width: @size;
+		height: @size;
+		line-height:@size;
+	}
+	[class^="edy-icon-"],
+	[class*=" edy-icon-"] {
+		width:@sprite-px;
+		height:@sprite-px;
+		line-height:@sprite-px;
+		background-image: url('../images/icons.png') !important;
+		background-repeat: no-repeat;
+		display: inline-block;
+		vertical-align: text-top;
+	}
+
+	.edy-icon-locked {
+		.spriteGrid(1, 1);
+	}
+	.edy-icon-resolved {
+		.spriteGrid(2, 1);
+	}
+	.edy-icon-featured {
+		.spriteGrid(3, 1);
+	}
+	.edy-icon-favorited {
+		.spriteGrid(4, 1);
+	}
+	.edy-icon-category {
+		.spriteGrid(5, 1);
+	}
+	.edy-icon-clock {
+		.spriteGrid(6, 1);
+	}
+	.edy-icon-views {
+		.spriteGrid(7, 1);
+	}
+	.edy-icon-replies {
+		.spriteGrid(8, 1);
+	}
+	.edy-icon-favors {
+		.spriteGrid(9, 1);
+	}
+	.edy-icon-votes {
+		.spriteGrid(10, 1);
+	}
+
+	.discuss-status {
+		display: inline-block;
+	}
+
+	//state
+	.item {
+		.edy-state,
+		.label-post_type,
+		.label-post_status,
+		.dc-discuss-status {
+			display: none;
+		}
+
+		&.is-read {
+			.label-unread {
+				display: none;
+			}
+		}
+		&.is-post_type {
+			.label-post_type {
+				display: inline-block;
+			}
+		}
+		&.is-post_status {
+			.label-post_status {
+				display: inline-block;
+			}
+		}
+		&.is-locked {
+			.edy-icon-locked.edy-state {
+				display: inline-block;
+			}
+		}
+		&.is-resolved {
+			.edy-icon-resolved.edy-state {
+				display: inline-block;
+			}
+		}
+		&.is-featured {
+			.edy-icon-featured.edy-state {
+				display: inline-block;
+			}
+		}
+		&.is-favourited {
+			.edy-icon-favorited.edy-state {
+				display: inline-block;
+			}
+		}
+
+		// &.is-post_type,
+		&.is-post_status,
+		&.is-locked,
+		&.is-resolved,
+		&.is-featured,
+		&.is-favourited {
+			.dc-discuss-status {
+				display: block;
+			}
+		}
+	}
+
+
+}

@@ -1,261 +1,238 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
 jimport('joomla.application.component.controller');
 
-require_once DISCUSS_HELPERS . '/date.php';
-require_once DISCUSS_HELPERS . '/input.php';
-
 class EasyDiscussControllerAutoposting extends EasyDiscussController
 {
-	function apply()
+	public function __construct()
 	{
-		$mainframe	= JFactory::getApplication();
-		$result		= $this->_store();
-		$active		= JRequest::getString( 'active' , '' );
+		parent::__construct();
 
-		DiscussHelper::setMessageQueue( $result[ 'message' ] , $result[ 'type' ] );
-
-		$mainframe->redirect( 'index.php?option=com_easydiscuss&view=settings&active=' . $active );
+		$this->registerTask('apply', 'save');
 	}
 
-	function save()
+	/**
+	 * Saves the oauth settings
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function save()
 	{
-		$mainframe	= JFactory::getApplication();
-		$current	= JRequest::getInt( 'step' );
-		$layout		= JRequest::getString( 'layout' );
-		$result		= $this->_store();
-		$step		= $current + 1;
+		// Get the type of oauth we are saving
+		$type = $this->input->get('type');
 
-		$oauth		= DiscussHelper::getTable( 'Oauth' );
-		$signedOn	= $oauth->loadByType( $layout );
+		$model = ED::model('Settings');
+		
+		// Get posted data from request
+		$post = JRequest::get('post');
 
-		if( $result['type'] == 'completed' && !$signedOn )
-		{
-			DiscussHelper::setMessageQueue( JText::sprintf( 'COM_EASYDISCUSS_AUTOPOST_LOGIN_SIGNIN_BUTTON' , $layout ) , DISCUSS_QUEUE_ERROR );
-			$mainframe->redirect( 'index.php?option=com_easydiscuss&view=autoposting&layout=' . $layout . '&step=' . $current );
-			$mainframe->close();
+		// Unset unecessary data.
+		unset($post['task']);
+		unset($post['option']);
+		unset($post['layout']);
+		unset($post['controller']);
+		unset($post['step']);
+
+		// Ensure that the page id is set
+		if (!isset($post['main_autopost_' . $type . '_page_id'])) {
+			$post['main_autopost_' . $type . '_page_id'] = '';
 		}
 
-		if( $result['type'] == 'completed' )
-		{
-			DiscussHelper::setMessageQueue( $result[ 'message' ] , DISCUSS_QUEUE_SUCCESS );
+		$options = array();
+
+		foreach ($post as $key => $value) {
+			$options[$key] = $value;
 		}
 
-		$mainframe->redirect( 'index.php?option=com_easydiscuss&view=autoposting&layout=' . $layout . '&step=' . $step );
+		// Try to save the settings
+		$model->save($options);
+
+		ED::setMessage(COM_EASYDISCUSS_CONFIGURATION_SAVED, 'success');
+
+		$redirect = JRoute::_('index.php?option=com_easydiscuss&view=autoposting&layout=' . $type, false);
+
+		return $this->app->redirect($redirect);
 	}
 
-	function _store()
-	{
-		$mainframe	= JFactory::getApplication();
-
-		$message	= '';
-		$type		= 'message';
-
-		if( JRequest::getMethod() == 'POST' )
-		{
-			$model		= $this->getModel( 'Settings' );
-			$post		= JRequest::get( 'post' );
-
-			$postArray	= JRequest::get( 'post' );
-			$saveData	= array();
-			$layout		= $postArray[ 'layout' ];
-			$step		= $postArray[ 'step' ];
-
-			// Unset unecessary data.
-			unset( $postArray['task'] );
-			unset( $postArray['option'] );
-			unset( $postArray['layout'] );
-			unset( $postArray['controller'] );
-			unset( $postArray['step'] );
-
-			if( !isset( $postArray[ 'main_autopost_' . $layout . '_page_id'] ) )
-			{
-				$postArray[ 'main_autopost_' . $layout . '_page_id' ] = '';
-			}
-
-			if( empty($postArray ) )
-			{
-				// Nothing else to be configured. Assuming that this is the final step.
-				return array( 'message' => JText::sprintf( 'COM_EASYDISCUSS_AUTOPOST_LINKED_SUCCESSFULLY' , ucfirst( $layout ) ) , 'type' => 'completed' );
-			}
-
-			foreach( $postArray as $index => $value )
-			{
-				$saveData[ $index ]	= $value;
-			}
-
-			if( $model->save( $saveData ) )
-			{
-				$message	= JText::_( 'COM_EASYDISCUSS_CONFIGURATION_SAVED' );
-
-				if( $step == 2 || $step == 'completed')
-				{
-					return array( 'message' => JText::sprintf( 'COM_EASYDISCUSS_AUTOPOST_SETTING_SAVED_SUCCESSFULLY' , ucfirst( $layout ) ) , 'type' => 'completed' );
-				}
-			}
-			else
-			{
-				$message	= JText::_( 'COM_EASYDISCUSS_CONFIGURATION_SAVE_ERROR' );
-				$type		= 'error';
-			}
-		}
-		else
-		{
-			$message	= JText::_('COM_EASYDISCUSS_INVALID_FORM_METHOD');
-			$type		= 'error';
-		}
-
-		return array( 'message' => $message , 'type' => $type);
-	}
-
+	/**
+	 * This is the first step of authorization request to oauth providers.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function request()
 	{
-		$config		= DiscussHelper::getConfig();
-		$type		= JRequest::getCmd( 'type' );
-		$step		= JRequest::getInt( 'step' );
-		$key		= $config->get( 'main_autopost_' . $type . '_id' );
-		$secret		= $config->get( 'main_autopost_' . $type . '_secret' );
+		// Get the oauth type
+		$type = $this->input->get('type', '', 'cmd');
 
-		$callback	= rtrim( JURI::root() , '/' ) . '/administrator/index.php?option=com_easydiscuss&controller=autoposting&task=grant&type=' . $type;
-		$consumer	= DiscussHelper::getHelper( 'OAuth' )->getConsumer( $type , $key , $secret , $callback );
-		$request	= $consumer->getRequestToken();
-		$redirect	= JRoute::_( 'index.php?option=com_easydiscuss&view=autoposting&layout=' . $type . '&step=' . $step , false );
+		// Get the oauth client
+		$client = ED::oauth()->getClient($type);
 
-		if( empty( $request->token ) || empty( $request->secret ) )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_AUTOPOST_INVALID_OAUTH_KEY' ) , DISCUSS_QUEUE_ERROR );
-			$this->setRedirect( $redirect );
+		// Get the application key and secret
+		$callback = $client->getCallbackUrl();
+
+		// Generate a request token
+		$request = $client->getRequestToken();
+
+		// We want to redirect all requests back to the correct form
+		$redirect = JRoute::_('index.php?option=com_easydiscuss&view=autoposting&layout=' . $type, false);
+
+		// Request token must not be empty otherwise we can't exchange for an access token.
+		if (empty($request->token) || empty($request->secret)) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_AUTOPOST_INVALID_OAUTH_KEY') , DISCUSS_QUEUE_ERROR);
+			$this->setRedirect($redirect);
 			return;
 		}
 
-		$oauth				= DiscussHelper::getTable( 'Oauth' );
-		$oauth->type		= $type;
+		// Store the request token temporarily on the table.
+		$oauth = ED::table('Oauth');
+
+		// Try to load the record first
+		$oauth->load(array('type' => $type));
 
 		// Bind the request tokens
-		$param				= DiscussHelper::getRegistry('');
-		$param->set( 'token' , $request->token );
-		$param->set( 'secret' , $request->secret );
+		$param = new JRegistry();
+		$param->set('token', $request->token);
+		$param->set('secret', $request->secret);
 
-		$oauth->request_token	= $param->toString();
-
+		// Now we need to store this new record
+		$oauth->type = $type;
+		$oauth->request_token = $param->toString();
 		$oauth->store();
 
-		$this->setRedirect( $consumer->getAuthorizationURL( $request->token , false ) );
+		// Get the correct redirection url to the appropriate oauth client's url.
+		$destination = $client->getAuthorizationUrl($request);
+
+		$this->app->redirect($destination);
+		
+		return $this->app->close();
 	}
 
-
+	/**
+	 * Revokes the access which was granted by the respective oauth providers
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function revoke()
 	{
-		$mainframe	= JFactory::getApplication();
-		$type		= JRequest::getCmd( 'type' );
-		$config		= DiscussHelper::getConfig();
+		$type = $this->input->get('type', '', 'cmd');
 
-		$oauth	= DiscussHelper::getTable( 'Oauth' );
-		$oauth->loadByType( $type );
+		// Get the client
+		$client = ED::oauth()->getClient($type);
 
-		// Revoke the access through the respective client first.
-		$callback	= rtrim( JURI::root() , '/' ) . '/administrator/index.php?option=com_easydiscuss&controller=autoposting&task=grant&type=' . $type;
-		$key		= $config->get( 'main_autopost_' . $type . '_id' );
-		$secret		= $config->get( 'main_autopost_' . $type . '_secret' );
+		$table = ED::table('OAuth');
+		$table->load(array('type' => $type));
 
-		$consumer	= DiscussHelper::getHelper( 'OAuth' )->getConsumer( $type , $key , $secret , $callback );
-		$consumer->setAccess( $oauth->access_token );
+		// Set the access
+		$client->setAccess($table->access_token);
 
+		// Default redirection url
+		$redirect = JRoute::_('index.php?option=com_easydiscuss&view=autoposting&layout=' . $type, false);
 
-		$redirect	= JRoute::_( 'index.php?option=com_easydiscuss&view=autoposting&layout=' . $type . '&step=1', false );
-
-		if( !$consumer->revokeApp() )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_ERROR_REVOKING_APP') , DISCUSS_QUEUE_ERROR );
-			$this->setRedirect( $redirect );
+		if (!$client->revokeApp()) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_ERROR_REVOKING_APP'), DISCUSS_QUEUE_ERROR);
+			$this->setRedirect($redirect);
 			return;
 		}
 
-		$oauth->delete();
+		$table->delete();
 
-		DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_APP_REVOKED_SUCCESS') , DISCUSS_QUEUE_SUCCESS );
-		$this->setRedirect( $redirect );
+		ED::setMessage(JText::_('COM_EASYDISCUSS_APP_REVOKED_SUCCESS'), DISCUSS_QUEUE_SUCCESS);
+		return $this->app->redirect($redirect);
 	}
 
-
+	/**
+	 * This is when the oauth sites redirect the authorization back here.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function grant()
 	{
-		$type		= JRequest::getCmd( 'type' );
-		$mainframe	= JFactory::getApplication();
-		$config		= DiscussHelper::getConfig();
-		$key		= $config->get( 'main_autopost_' . $type . '_id' );
-		$secret		= $config->get( 'main_autopost_' . $type . '_secret' );
-		$my			= JFactory::getUser();
+		// Since the callback urls contains the "type" in the query string, we know which client we should be using.
+		$type = $this->input->get('type', '', 'cmd');
 
-		$oauth		= DiscussHelper::getTable( 'Oauth' );
-		$loaded		= $oauth->loadByType( $type );
-		$denied		= JRequest::getVar( 'denied' , '' );
-		$redirect	= JRoute::_( 'index.php?option=com_easydiscuss&view=autoposting&layout=' . $type . '&step=2' , false );
+		$table = ED::table('OAuth');
+		$table->load(array('type' => $type));
 
-		if( !empty( $denied ) )
-		{
-			$oauth->delete();
+		// Set the default redirection page
+		$redirect = JRoute::_('index.php?option=com_easydiscuss&view=autoposting&layout=' . $type, false);
 
-			DiscussHelper::setMessageQueue( JText::sprintf( 'Denied by %1s' , $type ) , DISCUSS_QUEUE_ERROR );
-			$this->setRedirect( $redirect );
-			return;
+		// Determines if the user cancelled the operation.
+		$denied = $this->input->get('denied', '', 'default');
+
+		if ($denied) {
+			$table->delete();
+
+			ED::setMessage(JText::sprintf('Operation was denied by %1$s', $type), 'error');
+			return $this->app->redirect($redirect);
 		}
 
-		if( !$loaded )
-		{
-			JError::raiseError( 500 , JText::_( 'COM_EASYDISCUSS_AUTOPOST_UNABLE_LOCATE_REQUEST_TOKEN' ) );
+		// Get the client
+		$client = ED::oauth()->getClient($type);
+
+		// Get the verifier code
+		$verifier = $client->getVerifier();
+
+		// If there is no verifier, we have a problem with this authentication.
+		if (!$verifier) {
+			
+			// Delete the record since this request already failed.
+			$table->delete();
+
+			JError::raiseError(500 , JText::_('COM_EASYDISCUSS_AUTOPOST_INVALID_VERIFIER_CODE'));
 		}
 
-		$request	= DiscussHelper::getRegistry( $oauth->request_token );
-		$callback	= rtrim( JURI::root() , '/' ) . '/administrator/index.php?option=com_easydiscuss&controller=autoposting&task=grant&type=' . $type;
-		$consumer	= DiscussHelper::getHelper( 'OAuth' )->getConsumer( $type , $key , $secret , $callback );
-		$verifier	= $consumer->getVerifier();
+		// Get the request tokens
+		$request = json_decode($table->request_token);
 
-		if( empty( $verifier ) )
-		{
-			// Since there is a problem with the oauth authentication, we need to delete the existing record.
-			$oauth->delete();
+		// Try to get the access tokens now.
+		$access = $client->getAccessTokens($request->token, $request->secret, $verifier);
 
-			JError::raiseError( 500 , JText::_( 'COM_EASYDISCUSS_AUTOPOST_INVALID_VERIFIER_CODE' ) );
+		if (!$access || !$access->token || !$access->secret) {
+			$table->delete();
+			ED::setMessage(JText::_('COM_EASYDISCUSS_AUTOPOST_ERROR_RETRIEVE_ACCESS'), DISCUSS_QUEUE_ERROR);
+
+			return $this->app->redirect($redirect);
 		}
 
-		$access		= $consumer->getAccess( $request->get( 'token' ) , $request->get( 'secret' ) , $verifier );
+		$registry = new JRegistry();
+		$registry->set('token', $access->token);
+		$registry->set('secret', $access->secret);
+		$registry->set('expires', $access->expires);
 
-		if( !$access || empty( $access->token ) || empty( $access->secret ) )
-		{
-			// Since there is a problem with the oauth authentication, we need to delete the existing record.
-			$oauth->delete();
+		$table->access_token = $registry->toString();
+		$table->params = $access->params;
+		$table->store();
 
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_AUTOPOST_ERROR_RETRIEVE_ACCESS' ) , DISCUSS_QUEUE_ERROR );
+		ED::setMessage('COM_EASYDISCUSS_AUTOPOST_ACCOUNT_ASSOCIATED_SUCCESSFULLY', DISCUSS_QUEUE_SUCCESS);
 
-			$this->setRedirect( $redirect );
-			return;
-		}
-
-		$param		= DiscussHelper::getRegistry('');
-		$param->set( 'token' 	, $access->token );
-		$param->set( 'secret'	, $access->secret );
-
-		$oauth->access_token	= $param->toString();
-		$oauth->params			= $access->params;
-		$oauth->store();
-
-		DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_AUTOPOST_ACCOUNT_ASSOCIATED_SUCCESSFULLY' ) , DISCUSS_QUEUE_SUCCESS );
-
-		$this->setRedirect( $redirect );
-		return;
+		// We need to close the popup now.
+		echo '<script type="text/javascript">';
+		echo "window.opener.doneLogin();";
+		echo "window.close();";
+		echo '</script>';
+		exit;
 	}
 }

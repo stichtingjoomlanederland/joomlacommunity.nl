@@ -1,0 +1,51 @@
+/**
+ * Flag object.
+ *
+ * Very similar to the media object, only the flag object allows for vertical alignment.
+ */
+.o-flag {
+    display: table;
+    width: 100%;
+}
+
+.o-flag__image,
+.o-flag__body {
+    display: table-cell;
+    vertical-align: middle;
+
+    
+
+}
+
+.o-flag--top {
+    vertical-align: top;
+}
+
+.o-flag--bottom {
+    vertical-align: bottom;
+}
+
+.o-flag__image {
+    padding-right: @fd-base-spacing;
+    width: 1%;
+
+    > img {
+        display: block;
+        max-width: none;
+    }
+
+    // .o-flag--rev & {
+    //     padding-right: 0;
+    //     padding-left: 10px;
+    // }
+
+}
+
+.o-flag--rev .o-flag__image {
+  padding-right: 0;
+  padding-left: @fd-base-spacing;
+}
+
+.o-flag__body {
+    width: 100%;
+}

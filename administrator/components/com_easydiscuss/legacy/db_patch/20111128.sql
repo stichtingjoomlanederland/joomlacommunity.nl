@@ -1,0 +1,3 @@
+INSERT INTO `jos_discuss_ranks` (`id`, `title`, `start`, `end` ) values ('1', 'New Member', '1', '50') ON DUPLICATE KEY UPDATE `id` = `id`;
+INSERT INTO `jos_discuss_ranks` (`id`, `title`, `start`, `end` ) values ('2', 'Regular Member', '51', '150') ON DUPLICATE KEY UPDATE `id` = `id`;
+INSERT INTO `jos_discuss_ranks` (`id`, `title`, `start`, `end` ) values ('3', 'Expert Member', '151', '300') ON DUPLICATE KEY UPDATE `id` = `id`;

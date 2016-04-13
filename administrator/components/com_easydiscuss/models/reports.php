@@ -42,24 +42,21 @@ class EasyDiscussModelReports extends EasyDiscussAdminModel
 	 *
 	 * @since 1.5
 	 */
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 
-		$mainframe 	= JFactory::getApplication();
-
 		//get the number of events from database
-		$limit		= $mainframe->getUserStateFromRequest('com_easydiscuss.reports.limit', 'limit', $mainframe->getCfg('list_limit') , 'int');
-		$limitstart	= JRequest::getVar('limitstart', 0, '', 'int');
+		$limit		= $this->app->getUserStateFromRequest('com_easydiscuss.reports.limit', 'limit', $this->app->getCfg('list_limit') , 'int');
+		$limitstart = $this->input->get('limitstart', 0, 'int');
 
 		$this->setState('limit', $limit);
 		$this->setState('limitstart', $limitstart);
 	}
 
-	function getReports()
+	public function getReports()
 	{
-		if(empty($this->_data) )
-		{
+		if (empty($this->_data)) {
 			$query			= $this->_buildQuery();
 
 			$this->_data	= $this->_getList( $query, $this->getState('limitstart'), $this->getState('limit') );
@@ -68,7 +65,7 @@ class EasyDiscussModelReports extends EasyDiscussAdminModel
 		return $this->_data;
 	}
 
-	function _buildQuery()
+	public function _buildQuery()
 	{
 		$db			= DiscussHelper::getDBO();
 
@@ -90,7 +87,7 @@ class EasyDiscussModelReports extends EasyDiscussAdminModel
 		return $query;
 	}
 
-	function _buildQueryWhere()
+	public function _buildQueryWhere()
 	{
 		$mainframe		= JFactory::getApplication();
 		$db				= DiscussHelper::getDBO();
@@ -126,7 +123,7 @@ class EasyDiscussModelReports extends EasyDiscussAdminModel
 		return $where;
 	}
 
-	function _buildQueryOrderBy()
+	public function _buildQueryOrderBy()
 	{
 		$mainframe			= JFactory::getApplication();
 
@@ -144,7 +141,7 @@ class EasyDiscussModelReports extends EasyDiscussAdminModel
 	 * @access public
 	 * @return integer
 	 */
-	function getTotal()
+	public function getTotal()
 	{
 		// Load total number of rows
 		if( empty($this->_total) )
@@ -161,7 +158,7 @@ class EasyDiscussModelReports extends EasyDiscussAdminModel
 	 * @access public
 	 * @return integer
 	 */
-	function &getPagination()
+	public function getPagination()
 	{
 		// Lets load the content if it doesn't already exist
 		if ( empty( $this->_pagination ) )
@@ -173,30 +170,30 @@ class EasyDiscussModelReports extends EasyDiscussAdminModel
 		return $this->_pagination;
 	}
 
-	function publish(&$posts = array(), $publish = 1)
+	/**
+	 * Publish/unpublish post.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function publishPost($ids = array(), $publish = 1)
 	{
-		if( count( $posts ) > 0 )
-		{
-			$db		= DiscussHelper::getDBO();
-
-			$ids	= implode( ',' , $posts );
-
-			$query	= 'UPDATE ' . $db->nameQuote( '#__discuss_posts' ) . ' '
-					. 'SET ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( $publish ) . ' '
-					. 'WHERE ' . $db->nameQuote( 'id' ) . ' IN (' . $ids . ')';
-			$db->setQuery( $query );
-
-			if( !$db->query() )
-			{
-				$this->setError($this->_db->getErrorMsg());
-				return false;
-			}
-			return true;
+		if (!$ids) {
+			return false;
 		}
-		return false;
+
+		// Let the post library do the work.
+		foreach ($ids as $id) {
+			$post = ED::post($id);
+			$post->publish($publish);
+		}
+
+		return true;
 	}
 
-	function getReasons( $postId )
+	public function getReasons( $postId )
 	{
 		$db		= DiscussHelper::getDBO();
 
@@ -209,22 +206,29 @@ class EasyDiscussModelReports extends EasyDiscussAdminModel
 		return $result;
 	}
 
-	function removeReports($postId)
+	/**
+	 * Remove report.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function removeReports($postId)
 	{
-		$db		= DiscussHelper::getDBO();
+		$db = $this->db;
 
 		$query  = 'DELETE FROM `#__discuss_reports` WHERE `post_id` = ' . $db->Quote($postId);
 		$db->setQuery($query);
 
-		if( $db->query() )
-		{
-			//now update post record
+		if ($db->query()) {
+			// Now update post record
 			$query	= 'UPDATE `#__discuss_posts` SET `isreport` = ' . $db->Quote('0');
 			$query	.= ' , `published` = ' . $db->Quote('1');
 			$query	.= ' WHERE `id` = ' . $db->Quote($postId);
 			$db->setQuery($query);
-			if(! $db->query())
-			{
+
+			if (!$db->query()) {
 				$this->setError($this->_db->getErrorMsg());
 				return false;
 			}
@@ -238,7 +242,7 @@ class EasyDiscussModelReports extends EasyDiscussAdminModel
 		return true;
 	}
 
-	function removePostReports($postId)
+	public function removePostReports($postId)
 	{
 		$db		= DiscussHelper::getDBO();
 
@@ -250,23 +254,15 @@ class EasyDiscussModelReports extends EasyDiscussAdminModel
 		return true;
 	}
 
-	function deleteReplies($parent_id)
+	public function deleteReplies($parent_id)
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 
-		$query	= 'select `id` from `#__discuss_posts` where `parent_id` = ' . $db->Quote($parent_id);
+		$query = "delete from `#__discuss_posts` where `parent_id` = " . $db->Quote($parent_id);
 		$db->setQuery($query);
 
-		$result	= $db->loadObjectList();
+		$db->query();
 
-		if(count($result) > 0)
-		{
-			for($i = 0; $i < count($result); $i++)
-			{
-				$obj = $result[$i];
-				$this->removePostReports($obj->id);
-			}
-		}
 		return true;
 	 }
 

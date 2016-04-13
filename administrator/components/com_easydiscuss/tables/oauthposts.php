@@ -11,7 +11,9 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussOauthPosts extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussOauthPosts extends EasyDiscussTable
 {
 	public $id			= null;
 	public $post_id		= null;
@@ -20,19 +22,5 @@ class DiscussOauthPosts extends JTable
 	public function __construct(& $db )
 	{
 		parent::__construct( '#__discuss_oauth_posts' , 'id' , $db );
-	}
-
-	public function exists( $postId , $oauthId )
-	{
-		$postId	= (int) $postId;
-
-		$db		= DiscussHelper::getDBO();
-		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( $this->_tbl ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'post_id' ) . '=' . $db->Quote( $postId ) . ' '
-				. 'AND ' . $db->nameQuote( 'oauth_id' ) . '=' . $db->Quote( $oauthId );
-		$db->setQuery( $query );
-		$result	= $db->loadResult();
-
-		return $result > 0;
 	}
 }

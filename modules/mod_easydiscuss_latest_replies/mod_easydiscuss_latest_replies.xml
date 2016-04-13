@@ -1,45 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Latest Replies</name>
-	<author>StackIdeas</author>
-	<creationDate>24/05/2011</creationDate>
-	<copyright>Copyright 2009 - 2011 Stack Ideas. All rights reserved.</copyright>
-	<license>GPL License</license>
+	<author>Stack Ideas Sdn Bhd</author>
+	<creationDate>8th April 2016</creationDate>
+	<copyright>Copyright 2009 - 2016 Stack Ideas. All rights reserved.</copyright>
+	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://www.stackideas.com</authorUrl>
-	<version>3.1.1</version>
-	<description>Displays the latest replies.</description>
+	<version>4.0.1</version>
+	<description><![CDATA[This module will displays the latest replies from all the discussion in Easydiscuss.]]></description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easydiscuss_latest_replies.ini</language>
 	</languages>
 	<files>
-		<filename module="mod_easydiscuss_latest_replies">mod_easydiscuss_latest_replies.php</filename>
+		<folder>images</folder>
+		<folder>styles</folder>
+		<folder>tmpl</folder>
 		<filename>helper.php</filename>
 		<filename>index.html</filename>
-		<folder>tmpl</folder>
-		<folder>styles</folder>
+		<filename module="mod_easydiscuss_latest_replies">mod_easydiscuss_latest_replies.php</filename>
+		<filename>mod_easydiscuss_latest_replies.xml</filename>
 	</files>
-	<params>
-		<param name="moduleclass_sfx" type="text" default="" label="Module Class Suffix" description="PARAMMODULECLASSSUFFIX" />
-		<param name="@spacer" type="spacer" default="" label="" description="" />
-		<param name="count" type="text" default="5" label="Count" description="The number of items to display (set it to 0 if post limiting if not required)." />
-		<param name="maxlength" type="text" default="200" label="Max length" description="The maximum length of the content that should be displayed" />
-	</params>
-	<params group="advanced">
-		<param name="cache" type="list" default="0" label="Caching" description="Select whether to cache the content of this module">
-			<option value="1">Use global</option>
-			<option value="0">No caching</option>
-		</param>
-		<param name="cache_time" type="text" default="900" label="Cache Time" description="The time before the module is recached" />
-	</params>
-
-
 	<config>
 		<fields name="params">
 			<fieldset name="basic">
 				<field name="count" type="text" default="5" label="Count" description="The number of replies to display (set it to 0 if post limiting if not required)." />
 				<field name="maxlength" type="text" default="200" label="Max length" description="The maximum length of the content that should be displayed" />
+				<field name="show_replies_avatar" type="list" default="1" label="Show avatar" description="Show avatar of the replies">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+				<field name="replies_avatar_size" type="text" default="48" label="Avatar size" description="Height or width in pixel" />
 			</fieldset>
+
 			<fieldset name="advanced">
 				<field
 					name="moduleclass_sfx" type="text"
@@ -66,5 +59,4 @@
 			</fieldset>
 		</fields>
 	</config>
-
 </extension>

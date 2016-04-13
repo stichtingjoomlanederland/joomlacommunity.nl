@@ -13,75 +13,77 @@
 defined('_JEXEC') or die('Restricted access');
 ?>
 <script type="text/javascript">
-EasyDiscuss
-.require()
-.script( 'toolbar' )
-.done(function($){
+ed.require(['edq', 'site/src/toolbar', 'site/src/discuss'], function($, App, discuss) {
 
-	$( '#discuss-navigation' ).implement( EasyDiscuss.Controller.Toolbar );
+    var toolbarSelector = '[data-mod-navigation]';
+
+    // Implement the abstract
+    App.execute(toolbarSelector, {
+        "notifications": {
+            "interval": <?php echo $config->get('main_notifications_interval') * 1000; ?>,
+            "enabled": <?php echo $my->id && $config->get('main_notifications') ? 'true' : 'false';?>
+        }
+    });
 
 });
 </script>
-<div id="discuss-navigation" class="discuss-mod">
-	<div class="navbar">
-		<div class="discuss-navigation-title"><?php echo JText::_( 'MOD_NAVIGATION_FORUMS' );?>:</div>
 
-		<ul class="nav nav-pills">
-			<li>
-				<a href="<?php echo DiscussRouter::_('index.php?option=com_easydiscuss&view=categories'); ?>"><?php echo JText::_( 'MOD_NAVIGATION_ALL' ); ?></a>
-			</li>
 
-			<?php foreach( $categories as $category ){ ?>
-				<?php
-					$totalNew 	= ( $my->id > 0 ) ? $category->getUnreadCount() : '0';
-					$postCount	= $category->getPostCount();
-				?>
 
-				<?php if( $params->get( 'display_empty_category' ) ){ ?>
-					<li class="category-item<?php echo $category->id == $active ? ' active' : '';?>">
-						<a href="<?php echo DiscussRouter::getCategoryRoute( $category->id );?>" data-category="<?php echo $category->id;?>"><?php echo JText::_( $category->title ); ?></a>
+<div id="ed" class="ed-mod m-navigation ">
+    <div class="o-grid t-lg-mb--md">
+        <div class="o-grid__cell">
+            <div class="o-flag">
+                <div class="o-flag__image o-flag--top">
+                    <div class="m-navigation-title"><?php echo JText::_( 'MOD_NAVIGATION_FORUMS' );?>:</div>
+                </div>
+                <div class="o-flag__body">
+                    <ol class="g-list-inline g-list-inline--dashed ed-navbar__footer-submenu" data-ed-navbar-submenu>
+                        <li>
+                            <a href="<?php echo EDR::_('index.php?option=com_easydiscuss&view=categories'); ?>"><?php echo JText::_( 'MOD_NAVIGATION_ALL' ); ?></a>
+                        </li>
 
-						<?php if( $totalNew > 0 ){ ?>
-						<div class="discuss-notice-bubble"><?php echo $totalNew; ?></div>
-						<?php } ?>
-					</li>
-				<?php }else{ ?>
-					<?php if( $postCount > 0 ){ ?>
-						<li class="category-item<?php echo $category->id == $active ? ' active' : '';?>">
-							<a href="<?php echo DiscussRouter::getCategoryRoute( $category->id );?>" data-category="<?php echo $category->id;?>"><?php echo JText::_( $category->title ); ?></a>
+                        <?php foreach( $categories as $category ){ ?>
+                            <?php
+                                $totalNew   = ( $my->id > 0 ) ? $category->getUnreadCount() : '0';
+                                $postCount  = $category->getTotalPosts();
 
-							<?php if( $totalNew > 0 ){ ?>
-							<div class="discuss-notice-bubble"><?php echo $totalNew; ?></div>
-							<?php } ?>
-						</li>
-					<?php } ?>
-				<?php } ?>
-			<?php } ?>
-		</ul>
+                                if (!$params->get('display_empty_category') && $postCount <= 0) {
+                                    continue;
+                                }
+                            ?>
+                                <li class="<?php echo ($totalNew) ? 'has-counter' : ''; ?>">
+                                    <a href="<?php echo EDR::getCategoryRoute( $category->id );?>" class="m-navigation__link">
+                                        <?php echo JText::_( $category->title ); ?>
+                                        <span class="m-navigation__link-bubble"><?php echo $totalNew;?></span>
+                                    </a>
+                                </li>
+                        <?php } ?>
+                    </ol>
 
-		<?php if( $my->id > 0 && $params->get( 'display_notification_button' ) ){ ?>
-		<ul class="nav nav-right">
-			<li class="dropdown_ dc-mod-dropdown">
-				<a class="btn-notification notificationLink" href="javascript:void(0);">
-					<em class="icon-dc-mod-list"></em>
-					<span id="mod-notification-count" style="display: <?php echo $totalNotifications > 0 ? 'inline-block' : 'none';?>" class="discuss-notice-bubble"><?php echo $totalNotifications; ?></span>
-				</a>
-				<!-- @Javascript Parent wrapper with overflow hidden issue need to fix -->
-				<ul class="dropdown-menu dropdown-menu-large notificationDropDown" style="display: none;">
-					<li>
-						<div class="discuss-notice-menu">
-							<ul class="unstyled notification-result notificationResult">
-								<li class="loading-indicator notificationLoader"><i><?php echo JText::_( 'COM_EASYDISCUSS_LOADING' );?></i></li>
-							</ul>
+                </div>
+            </div>
+        </div>
+        <?php //if( $my->id > 0 && $params->get( 'display_notification_button' ) ){ ?>
+        <div class="o-grid__cell o-grid__cell--auto-size">
+            <a href="javascript:void(0);" class="btn btn-primary btn-xs pull-right <?php echo $notificationsCount ? 'has-new' : '';?>"
+                data-ed-notifications-wrapper
+                data-ed-popbox="ajax://site/views/notifications/popbox"
+                data-ed-popbox-position="<?php echo JFactory::getDocument()->getDirection() == 'rtl' ? 'bottom-left' : 'bottom-right';?>"
+                data-ed-popbox-toggle="click"
+                data-ed-popbox-offset="4"
+                data-ed-popbox-type="navbar-notifications"
+                data-ed-popbox-component="popbox--navbar"
+                data-ed-popbox-cache="0"
 
-							<div class="modal-footer pt-0 pb-5">
-								<a class="btn btn-link small" href="<?php echo DiscussRouter::_( 'index.php?option=com_easydiscuss&view=notifications' );?>"><?php echo JText::_( 'COM_EASYDISCUSS_VIEW_ALL_NOTIFICATIONS' );?></a>
-							</div>
-						</div>
-					</li>
-				</ul>
-			</li>
-		</ul>
-		<?php } ?>
-	</div>
+                data-ed-provide="tooltip"
+                data-original-title="<?php echo JText::_('MOD_NAVIGATION_NOTIFICATIONS');?>"
+            >
+            <i class="fa fa-bell"></i></a>
+        </div>
+        <?php //} ?>
+    </div>
+
+
+
 </div>

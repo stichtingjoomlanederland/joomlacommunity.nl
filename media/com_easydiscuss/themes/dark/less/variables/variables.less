@@ -1,0 +1,273 @@
+/**
+* Dark Theme variables
+*/
+@ed-title-font-size: 1.2em;
+
+
+
+@fd-base-bg-color: #333;
+@fd-base-text-color: #fefefe;
+
+
+
+// Brand color
+@fd-brand-primary: #428bca; // blue
+@fd-brand-success: #39b54a; // green
+@fd-brand-danger: #d9534f; // red
+@fd-brand-default: #333; // white
+@fd-brand-info: #5BC0DE; // cyan
+@fd-brand-warning: #EC971F; // orange
+
+// Components UI
+//
+// Define common padding and border radius sizes and more. 
+// UI variables 
+
+
+@fd-ui-font-size: @fd-base-font-size;
+
+// For bright UI
+@fd-ui-bg: #333;
+@fd-ui-shade: #444;
+@fd-ui-bg--unread: #273744;
+@fd-ui-bg--active: #4D789A;
+@fd-ui-bg--answer: #213831;
+
+@fd-ui-text-color: #f5f5f5;
+@fd-ui-meta-color: #eee;
+
+@fd-ui-text-link-color: @fd-brand-primary;
+
+// For dark UI
+@fd-ui-bg--inverse: #fff;
+@fd-ui-shade--inverse: #f1f1f1;
+
+@fd-ui-text-color--inverse: #333;
+@fd-ui-meta-color--inverse: #888;
+
+
+@fd-ui-border-width: 1px;
+@fd-ui-border-color: #555; // For non form element use #e1e1e1;
+@fd-ui-border-color-2: lighter(@fd-ui-border-color,1%);
+
+
+@fd-ui-radius: 3px;
+@fd-ui-radius--lg: 5px;
+@fd-ui-radius--sm: 2px;
+
+@fd-ui-line-height--lg:         4 / 3;
+@fd-ui-line-height--sm:         1.5;
+@fd-ui-line-height-computed: 1.5;
+
+
+@fd-navbar-bg: #222;
+@fd-navbar-link-bg--active: #424242;
+@fd-navbar-color: #eee;
+@fd-navbar-border-color--top: transparent;
+@fd-navbar-border-color--bottom: transparent;
+@fd-navbar-icon-color: @fd-ui-shade--inverse;
+
+@fd-title-font-size: @fd-base-font-size--xl;
+
+//== Pagination
+//
+//##
+
+@fd-pagination-color:                     @fd-ui-meta-color;
+@fd-pagination-bg:                        @fd-ui-bg;
+@fd-pagination-border:                    @fd-ui-border-color;
+
+@fd-pagination-hover-color:               @link-hover-color;
+@fd-pagination-hover-bg:                  @gray-lighter;
+@fd-pagination-hover-border:              @fd-ui-border-color;
+
+@fd-pagination-active-color:              @fd-ui-meta-color;
+@fd-pagination-active-bg:                 @fd-ui-shade;
+@fd-pagination-active-border:             @fd-ui-border-color;
+
+@fd-pagination-disabled-color:            @fd-ui-meta-color;
+@fd-pagination-disabled-bg:               @fd-ui-bg;
+@fd-pagination-disabled-border:           @fd-ui-border-color;
+
+
+// Buttons
+// @btn-border-width: 1px;
+// @btn-border-radius: @fd-ui-radius;
+// @btn-bg: @fd-brand-default;
+// @btn-padding-x: @fd-base-spacing;
+// @btn-padding-y: @fd-base-spacing--sm;
+
+@btn-default-bg: @fd-brand-default;
+@btn-default-color: #fefefe; // default #333
+@btn-default-border: lighten(@fd-brand-default, 10%);
+
+// @btn-primary-bg: @fd-brand-primary;
+// @btn-primary-color: @fd-ui-color;
+// @btn-primary-border-color: @fd-brand-primary;
+
+// // Form
+@input-border: @fd-ui-border-color;
+
+// //** `<input>` background color
+// @fd-input-bg:                       #fff;
+@input-bg: @fd-ui-bg;
+@input-color: @fd-ui-text-color;
+// //** `<input disabled>` background color
+@input-bg-disabled:              @fd-ui-shade;
+
+// //** Text color for `<input>`s
+// @fd-input-color:                    @palette-grey-500;
+// //** `<input>` border color
+// @fd-input-border:                   #ccc;
+
+// // TODO: Rename `@fd-input-border-radius` to `@fd-input-border-radius-base` in v4
+// //** Default `.form-control` border radius
+// // This has no effect on `<select>`s in some browsers, due to the limited stylability of `<select>`s in CSS.
+// @fd-input-border-radius:            @fd-ui-radius;
+// //** Large `.form-control` border radius
+// // @fd-input-border-radius-large:      @border-radius-large;
+// //** Small `.form-control` border radius
+// // @fd-input-border-radius-small:      @border-radius-small;
+
+// //** Border color for inputs on focus
+// @fd-input-border-focus:             #66afe9;
+
+// //** Placeholder text color
+// @fd-input-color-placeholder:        #999;
+
+// //** Default `.form-control` height
+// // @fd-input-height-base:              (@line-height-computed + (@padding-base-vertical * 2) + 2);
+// @fd-input-height-base:              1.2em; // 22px
+// //** Large `.form-control` height
+// @fd-input-height-large:             1.5em;
+// //** Small `.form-control` height
+// @fd-input-height-small:             1.1em;
+
+// //** `.form-group` margin
+// @form-group-margin-bottom:       15px;
+
+// // @legend-color:                   @gray-dark;
+// @legend-border-color:            #e5e5e5;
+
+// //** Background color for textual input addons
+// // @fd-input-group-addon-bg:           @gray-lighter;
+// //** Border color for textual input addons
+// @fd-input-group-addon-border-color: @fd-input-border;
+
+// //** Disabled cursor for form controls and buttons.
+// @cursor-disabled:                not-allowed;
+
+//== Labels
+//
+//##
+
+//** Default label background color
+@label-default-bg:            @gray-light;
+//** Primary label background color
+@label-primary-bg:            @fd-brand-primary;
+//** Success label background color
+@label-success-bg:            @fd-brand-success;
+//** Info label background color
+@label-info-bg:               @fd-brand-info;
+//** Warning label background color
+@label-warning-bg:            @fd-brand-warning;
+//** Danger label background color
+@label-danger-bg:             @fd-brand-danger;
+
+//** Clean label background color
+@label-clean-bg:             @fd-ui-bg;
+
+//** Default label text color
+@label-color:                 #fff;
+//** Default text color of a linked label
+@label-link-hover-color:      #fff;
+
+
+//== Form states and alerts
+//
+//## Define colors for form feedback states and, by default, alerts.
+
+// @state-success-text:             darken(spin(@state-success-bg, -10), 35%);
+// @state-success-bg:               #62C970;
+// @state-success-border:           darken(spin(@state-success-bg, -10), 5%);
+
+// @state-info-text:                darken(spin(@state-info-bg, -10), 37%);
+// @state-info-bg:                  #6EC3DD;
+// @state-info-border:              darken(spin(@state-info-bg, -10), 7%);
+
+// @state-warning-text:             darken(spin(@state-warning-bg, -10), 35%);
+// @state-warning-bg:               #FFD27F;
+// @state-warning-border:           darken(spin(@state-warning-bg, -10), 5%);
+
+// @state-danger-text:              darken(spin(@state-danger-bg, -10), 35%);
+// @state-danger-bg:                #ff8a80;
+// @state-danger-border:            darken(spin(@state-danger-bg, -10), 5%);
+
+@state-success-text:             #3c763d;
+@state-success-bg:               #dff0d8;
+@state-success-border:           darken(spin(@state-success-bg, -10), 5%);
+
+@state-info-text:                #31708f;
+@state-info-bg:                  #d9edf7;
+@state-info-border:              darken(spin(@state-info-bg, -10), 7%);
+
+@state-warning-text:             #8a6d3b;
+@state-warning-bg:               #fcf8e3;
+@state-warning-border:           darken(spin(@state-warning-bg, -10), 5%);
+
+@state-danger-text:              #a94442;
+@state-danger-bg:                #f2dede;
+@state-danger-border:            darken(spin(@state-danger-bg, -10), 5%);
+
+//== Alerts
+//
+//## Define alert colors, border radius, and padding.
+
+@alert-padding:               15px;
+@alert-border-radius:         @border-radius-base;
+@alert-link-font-weight:      bold;
+
+@alert-success-bg:            @state-success-bg;
+@alert-success-text:          @state-success-text;
+@alert-success-border:        @state-success-border;
+
+@alert-info-bg:               @state-info-bg;
+@alert-info-text:             @state-info-text;
+@alert-info-border:           @state-info-border;
+
+@alert-warning-bg:            @state-warning-bg;
+@alert-warning-text:          @state-warning-text;
+@alert-warning-border:        @state-warning-border;
+
+@alert-danger-bg:             @state-danger-bg;
+@alert-danger-text:           @state-danger-text;
+@alert-danger-border:         @state-danger-border;
+
+// // Panel
+// @panel-line-height: @fd-ui-line-height--sm;
+// @panel-bg: @fd-ui-bg;
+// @panel-border-radius: @fd-ui-radius;
+// @panel-body-padding: @fd-base-spacing;
+// @panel-heading-padding: @fd-base-spacing;
+// @panel-footer-padding: @fd-base-spacing;
+// @panel-footer-bg: @fd-ui-shade;
+// @panel-border: @fd-ui-border-width solid @fd-ui-border-color;
+
+// @panel-default-text:          @fd-ui-color;
+// @panel-default-border:        @fd-ui-border-color;
+// @panel-default-heading-bg:    @fd-ui-shade;
+
+
+//== Chart
+// @fd-ui-chart-bg: #e2f5fd;
+// @fd-ui-chart-text-color: @palette-grey-600;
+
+@selectize-color-text: @fd-ui-text-color;
+@selectize-color-border: @fd-ui-border-color;
+@selectize-color-highlight: rgba(125,168,208,0.2);
+@selectize-color-input: @fd-ui-bg;
+@selectize-color-input-full: @selectize-color-input;
+@selectize-color-disabled: #fafafa;
+@selectize-color-item: @fd-ui-shade;
+@selectize-color-item-text: @selectize-color-text;
+@selectize-color-item-border: @fd-ui-border-color;

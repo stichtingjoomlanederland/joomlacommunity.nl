@@ -1,0 +1,23 @@
+[
+	{
+		"index": 1,
+		"title": "COM_EASYDISCUSS_INSTALLER_STEP_REQUIREMENTS",
+		"template": "requirements"
+	}, {
+		"index": 2,
+		"title": "COM_EASYDISCUSS_INSTALLATION_METHOD",
+		"template": "installing.source"
+	}, {
+		"index": 3,
+		"title": "COM_EASYDISCUSS_INSTALLATION_EXTRACTING_AND_INSTALLING",
+		"template": "installing"
+	}, {
+		"index": 4,
+		"title": "COM_EASYDISCUSS_INSTALLATION_ADDONS",
+		"template": "addons"
+	}, 	{
+		"index": 5,
+		"title": "COM_EASYDISCUSS_INSTALLATION_MAINTENANCE",
+		"template": "maintenance"
+	}
+]

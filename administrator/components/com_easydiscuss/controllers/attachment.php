@@ -1,44 +1,41 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
 
 defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.controller');
 jimport('joomla.filesystem.file');
-require_once JPATH_ROOT . '/components/com_easydiscuss/constants.php';
+require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/constants.php');
 
 class EasyDiscussControllerAttachment extends EasyDiscussController
 {
 	function displayFile()
 	{
-		$id		= JRequest::getVar('id', '', 'GET');
-		$config	= DiscussHelper::getConfig();
+		$id = $this->input->get('id', '', 'GET');
 
-		if(empty($id))
-		{
+		if (empty($id)) {
 			return false;
 		}
 
-		$attachment	= JTable::getInstance( 'Attachments' , 'Discuss' );
-		if(!$attachment->load( $id ))
-		{
+		$attachment	= JTable::getInstance('Attachments', 'Discuss');
+		
+		if (!$attachment->load($id)) {
 			return false;
 		}
 
-		$path = $config->get( 'attachment_path' );
+		$path = $this->config->get('attachment_path');
 		$file = JPATH_ROOT . '/media/com_easydiscuss/' . $path  . '/' . $attachment->path;
-		if (!JFile::exists($file))
-		{
+		
+		if (!JFile::exists($file)) {
 			return false;
 		}
 
@@ -55,12 +52,9 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 		header("Pragma: private");
 		header("Expires: " . date(DATE_RFC822,strtotime(" 2 day")));
 
-		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])
-		       &&
-		  (strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == filemtime($file))) {
+		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && (strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == filemtime($file))) {
 		  // send the last mod time of the file back
-		  header('Last-Modified: '.gmdate('D, d M Y H:i:s', filemtime($file)).' GMT',
-		  true, 304);
+		  header('Last-Modified: '.gmdate('D, d M Y H:i:s', filemtime($file)).' GMT', true, 304);
 		}
 
 		ob_clean();
@@ -71,33 +65,30 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 
 	function getFile()
 	{
-		$id		= JRequest::getVar('id', '', 'GET');
-		$config	= DiscussHelper::getConfig();
+		$id = $this->input->get('id', '', 'GET');
 
-		if(empty($id))
-		{
+		if (empty($id)) {
 			return false;
 		}
 
-		$attachment	= JTable::getInstance( 'Attachments' , 'Discuss' );
-		if(!$attachment->load( $id ))
-		{
+		$attachment	= JTable::getInstance('Attachments', 'Discuss');
+		
+		if (!$attachment->load($id)) {
 			return false;
 		}
 
-		$path = $config->get( 'attachment_path' );
+		$path = $this->config->get('attachment_path');
 		$file = JPATH_ROOT . '/media/com_easydiscuss' . $path . '/' . $attachment->path;
-		if (!JFile::exists($file))
-		{
+		
+		if (!JFile::exists($file)) {
 			return false;
 		}
 
 		$type = explode("/", $attachment->mime);
 
-
 		header('Content-Description: File Transfer');
 		header('Content-Type: ' . $attachment->mime);
-		header("Content-Disposition: attachment; filename=\"".basename($attachment->title)."\";" );
+		header("Content-Disposition: attachment; filename=\"".basename($attachment->title)."\";");
 		header('Content-Transfer-Encoding: binary');
 		// header('Expires: 0');
 		// header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
@@ -109,12 +100,9 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 		header("Pragma: private");
 		header("Expires: " . date(DATE_RFC822,strtotime(" 2 day")));
 
-		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])
-		       &&
-		  (strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == filemtime($file))) {
+		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && (strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == filemtime($file))) {
 		  // send the last mod time of the file back
-		  header('Last-Modified: '.gmdate('D, d M Y H:i:s', filemtime($file)).' GMT',
-		  true, 304);
+		  header('Last-Modified: '.gmdate('D, d M Y H:i:s', filemtime($file)).' GMT', true, 304);
 		}
 
 		ob_clean();
@@ -125,25 +113,21 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 
 	function deleteFile($id)
 	{
-		$config	= DiscussHelper::getConfig();
-
-		if(empty($id))
-		{
+		if (empty($id)) {
 			return false;
 		}
 
-		$attachment	= JTable::getInstance( 'Attachments' , 'Discuss' );
-		if(!$attachment->load( $id ))
-		{
+		$attachment	= JTable::getInstance('Attachments', 'Discuss');
+		if (!$attachment->load($id)) {
 			return false;
 		}
 
-		$path = $config->get( 'attachment_path' );
+		$path = $this->config->get('attachment_path');
 		$file = JPATH_ROOT . 'media/com_easydiscuss/' . $path . '/' . $attachment->path;
-		if (JFile::exists($file))
-		{
-			if (!JFile::delete($file))
-			{
+		
+		if (JFile::exists($file)) {
+			
+			if (!JFile::delete($file)) {
 				return false;
 			}
 		}

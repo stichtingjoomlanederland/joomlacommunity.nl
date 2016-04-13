@@ -13,7 +13,7 @@
 defined('_JEXEC') or die('Restricted access');
 ?>
 <?php include dirname( __FILE__ ) . '/default.scripts.php'; ?>
-<div id="discuss-wrapper">
+<div id="ed" data-ed-wrapper>
 
 	<div class="likes-wrapper mb-20">
 		<?php include dirname(__FILE__) . '/default.likes.php' ; ?>
@@ -25,7 +25,7 @@ defined('_JEXEC') or die('Restricted access');
 
 	<a name="replies"></a>
 
-	<div class="discuss-component-title row-fluid mb-10 mt-10">
+	<div class="discuss-component-title row-fluid t-lg-mb--lg">
 		<div class="pull-left">
 			<?php echo JText::sprintf('COM_EASYDISCUSS_PLUGIN_TOTAL_RESPONSE' , $totalReplies ); ?>
 		</div>
@@ -45,21 +45,12 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
 	<?php } ?>
 
-	<?php if( $hasMoreReplies ) { ?>
-	<div style="text-align:center;">
 
-		<span>
-			<a href="<?php echo $readMoreURI; ?>">
-			<?php if( $system->config->get( 'layout_replies_pagination' ) ) { ?>
-				<a class="replyLoadMore btn btn-small" href="javascript:void(0);"><?php echo JText::_( 'COM_EASYDISCUSS_REPLY_LOAD_MORE' ); ?></a>
-			<?php } else { ?>
-				<a href="<?php echo $readMoreURI; ?>"><?php echo JText::sprintf('COM_EASYDISCUSS_READ_ALL_REPLIES', $totalReplies); ?></a>
-			<?php } ?>
-			</a>
-		</span>
-
-	</div>
-	<?php } ?>
+    <?php if ($replies && $pagination) { ?>
+        <div class="ed-pagination">
+            <?php echo $pagination->getPagesLinks();?>
+        </div>
+    <?php } ?>
 
 	<?php if( $params->get( 'allow_reply' , true ) ){ ?>
 		<?php include dirname(__FILE__) . '/default.form.php'; ?>
@@ -69,6 +60,6 @@ defined('_JEXEC') or die('Restricted access');
 
 	<input type="hidden" class="easydiscuss-token" value="<?php echo DiscussHelper::getToken();?>" />
 	<input type="hidden" name="pagelimit" id="pagelimit" value="<?php echo $params->get( 'items_count' ); ?>" />
-	<input type="hidden" name="total-responses" id="total-responses" value="<?php echo $count;?>" />
+	<input type="hidden" name="total-responses" id="total-responses" value="<?php echo $totalReplies;?>" />
 
 </div>

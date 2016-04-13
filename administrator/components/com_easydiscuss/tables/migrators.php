@@ -11,7 +11,9 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-class DiscussMigrators extends JTable
+ED::import('admin:/tables/table');
+
+class DiscussMigrators extends EasyDiscussTable
 {
 	public $id			= null;
 	public $internal_id	= null;

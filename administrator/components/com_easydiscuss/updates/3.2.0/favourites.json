@@ -1,0 +1,7 @@
+[
+    {
+        "table"     : "#__discuss_favourites",
+        "index"     : "idx_fav_postid",
+        "query"     : "ALTER TABLE `#__discuss_favourites` ADD INDEX `idx_fav_postid` (`post_id`);"
+    }
+]

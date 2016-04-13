@@ -1,0 +1,121 @@
+//
+// Tabs
+// --------------------------------------------------
+/*
+DOM:
+<ul class="o-tabs">
+    <li class="o-tabs__item">
+        <a href="#" class="o-tabs__link">Foo</a>
+    </li>
+    <li class="o-tabs__item">
+        <a href="#" class="o-tabs__link">Bar</a>
+    </li>
+    <li class="o-tabs__item">
+        <a href="#" class="o-tabs__link">Baz</a>
+    </li>
+</ul>
+*/
+/**
+ * 1. Reset any residual styles (most likely from lists).
+ * 2. Tables for layout!
+ * 3. Force all `table-cell` children to have equal widths.
+ * 4. Force the object to be the full width of its parent. Combined with [2],
+ *    this makes the object behave in a quasi-`display: block;` manner.
+ */
+.o-tabs {
+    margin:  0; /* [1] */
+    padding: 0; /* [1] */
+    list-style: none; /* [1] */
+    display: table; /* [2] */
+    table-layout: fixed; /* [3] */
+    width: 100%; /* [4] */
+    text-align: center;
+
+    font-size: @fd-base-font-size;
+}
+
+.o-tabs__item {
+    display: table-cell; /* [2] */
+}
+
+.o-tabs__link {
+    display: block;
+}
+
+// Modifier for sidetab (backend)
+.o-tabs--side {
+
+    .o-tabs__item {
+        display: block;
+        text-align: left;
+        color: @fd-ui-meta-color;
+        border: 1px solid @fd-ui-border-color;
+        margin-bottom: @fd-base-spacing--sm;
+        &.active {
+            .o-tabs__link {
+                color: @fd-ui-text-color;
+                border-left: 2px solid @fd-brand-success;
+
+            }
+        }
+    }
+
+    .o-tabs__link {
+        display: block;
+        background-color: white;
+        color: @fd-ui-meta-color;
+        padding: @fd-base-spacing @fd-base-spacing--lg;
+        border-left: 2px solid transparent;
+        :hover {
+            background-color: @fd-ui-shade;
+        }
+    }
+
+
+}
+
+// Modifier for styling
+.o-tabs--ed {
+    width: auto;
+    border-collapse: separate;
+    border-spacing: 0 @fd-base-spacing;
+    .o-tabs__item {
+        color: @fd-ui-meta-color;
+        margin: 0 @fd-base-spacing;
+        padding: 0 @fd-base-spacing;
+    }
+    .o-tabs__link {
+        color: @fd-ui-meta-color;
+        padding: 0 @fd-base-spacing--sm;
+        .fd-no-focus-outline();
+    }
+
+    .active {
+        
+        font-weight: bold;
+        .o-tabs__link {
+            color: @fd-ui-text-color;
+            border-bottom: 2px solid @fd-brand-primary;
+        }
+    }
+}
+
+&.w480 {
+    .o-tabs--ed {
+        width: 100%;
+    }
+}
+
+
+// Tabbable tabs
+// -------------------------
+
+// Hide tabbable panes to start, show them when `.active`
+.tab-content {
+    > .tab-pane {
+        display: none;
+    }
+    > .active {
+        display: block;
+    }
+}

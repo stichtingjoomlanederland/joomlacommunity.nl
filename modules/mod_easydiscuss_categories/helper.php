@@ -1,7 +1,7 @@
 <?php
 /**
- * @package     EasyDiscuss
- * @copyright   Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+ * @package     mod_easydiscuss_categories
+ * @copyright   Copyright (C) 2016 Stack Ideas Private Limited. All rights reserved.
  * @license     GNU/GPL, see LICENSE.php
  *
  * EasyDiscuss is free software. This version may have been modified pursuant
@@ -10,230 +10,142 @@
  * other free or open source software licenses.
  * See COPYRIGHT.php for copyright notices and details.
  */
+
 defined('_JEXEC') or die('Restricted access');
 
 class modEasydiscussCategoriesHelper
 {
-	public static function getData( $params )
-	{
-		$db				= DiscussHelper::getDBO();
-		$my				= JFactory::getUser();
-
-		$order			= $params->get('order', 'popular');
-		$sort			= $params->get('sort', 'desc');
-		$count			= (INT)trim($params->get('count', 0));
-		$hideEmptyPost	= $params->get('hideemptypost', '0');
-		$excludeChild	= $params->get( 'exclude_child_categories', '1' );
-		$top_level		= 1;
-
-		// get all private categories id
-		$queryExclude   = '';
-		$excludeCats	= DiscussHelper::getPrivateCategories();
-		if(! empty($excludeCats))
-		{
-			$queryExclude .= ' AND a.`id` NOT IN (' . implode(',', $excludeCats) . ')';
-		}
-
-		$query  = 'SELECT '
-				. 'a.' . $db->nameQuote('id') . ', '
-				. 'a.' . $db->nameQuote('title') . ', '
-				. 'a.' . $db->nameQuote('avatar') . ', '
-				. 'a.' . $db->nameQuote('alias') . ', '
-				. 'a.' . $db->nameQuote('parent_id') . ', '
-				. $db->quote($top_level) . ' AS level, '
-				. 'COUNT(b.' . $db->nameQuote('id') . ') AS ' . $db->nameQuote('discussioncount') . ', '
-				. '( SELECT COUNT(id) FROM ' . $db->nameQuote( '#__discuss_category' ) . ' '
-				. 'WHERE lft < a.lft AND rgt > a.rgt AND a.lft != ' . $db->Quote( 0 ) . ' ) AS depth' . ' '
-				. 'FROM ' . $db->nameQuote('#__discuss_category') . ' AS ' . $db->nameQuote('a') . ' '
-				. 'LEFT JOIN ' . $db->nameQuote('#__discuss_posts') . ' AS ' . $db->nameQuote('b') . ' '
-				. 'ON b.' . $db->nameQuote('category_id') . ' = a.' . $db->nameQuote('id') . ' '
-				. 'AND b.' . $db->nameQuote( 'parent_id' ) . '=' . $db->Quote( 0 ) . ' '
-				. 'AND b.' . $db->nameQuote( 'published' ) . '=' . $db->Quote( 1 ) . ' '
-				. 'WHERE a.' . $db->nameQuote('published'). ' = ' . $db->quote(1) . ' '
-				. 'AND a.' . $db->nameQuote('parent_id') . ' = ' . $db->quote(0);
+    public static function getData($params)
+    {
+        $db = ED::db();
 
 
+        $hideEmptyPost = $params->get('hideemptypost', '0');
+        $displayType = $params->get('layouttype', 'flat');
+
+        $order = $params->get('order', 'default');
+        $sort = $params->get('sort', 'asc');
+        $count = (INT)trim($params->get('count', 0));
+
+        $options = array();
+        $options['ordering'] = $order;
+        $options['sorting'] = $sort;
+
+        $excludeChild = $params->get('exclude_child_categories', false);
+
+        if ($excludeChild) {
+            $options['showSubCategories'] = false;
+        } else {
+            $options['showSubCategories'] = true;
+        }
+
+        $options['showPostCount'] = true;
+        $options['limit'] = $count;
+
+        $categories = array();
+
+        if ($displayType == 'tree') {
+            // if this is a tree, we will limit the count manually
+            $options['limit'] = 0;
+        } else {
+            // if this is a flat layout, we do not 'sort based on the parent'
+            $options['sortParentChild'] = false;
+        }
+
+        $catsModel = ED::model('categories');
+        $categories = $catsModel->getCategoryTree(array(), $options);
+
+        $model = ED::model('category');
 
 
+        // we need to manually do some grouping here.
+        $parents = array();
 
-		$query	.= $queryExclude;
+        if ($categories) {
+            // get parents
+            foreach ($categories as $category) {
+                if ($params->get('hideemptypost', false) && $category->postCount <= 0) {
+                    continue;
+                }
 
-		if(!$hideEmptyPost)
-		{
-			$query  .= ' GROUP BY a.`id`';
-		}
-		else
-		{
-			$query  .= ' GROUP BY a.`id` HAVING (COUNT(b.`id`) > 0)';
-		}
+                // Get the total subcategories based on permission
+                $totalSubcategories = 0;
+                $model->getTotalViewableChilds($category->id, $totalSubcategories);
+                $category->totalSubcategories = $totalSubcategories;
 
-		switch($order)
-		{
-			case 'popular' :
-				$orderBy    = ' ORDER BY `discussioncount` ';
-				break;
-			case 'alphabet' :
-				$orderBy = ' ORDER BY a.`title` ';
-				break;
-			case 'latest' :
-				$orderBy = ' ORDER BY a.`created` ';
-				break;
-			default :
-				$orderBy = ' ORDER BY a.`lft` ';
-				break;
-		}
-		$query  .= $orderBy.$sort;
+                if ($displayType == 'tree') {
+                    if (!$category->parent_id && !$category->depth) {
+                        $parents[$category->id] = $category;
+                    }
+                } else {
+                    $parents[] = $category;
+                }
+            }
 
-		if(!empty($count))
-		{
-			$query  .= ' LIMIT ' . $count;
-		}
+            if ($displayType == 'tree') {
+                // now assign childs into parents
+                foreach ($parents as $parent) {
 
-		$db->setQuery( $query );
-		$result = $db->loadObjectList();
+                    $parentid = $parent->id;
+                    $lft = $parent->lft;
+                    $rgt = $parent->rgt;
 
-		$categories = array();
-		if( !$excludeChild )
-		{
-			modEasydiscussCategoriesHelper::getChildCategories( $result , $params , $categories , ++$top_level );
-		}
-		else
-		{
-			$categories = $result;
-		}
+                    $childs = array();
 
-		// Since running the iteration will invert the ordering, we'll need to reverse it back.
-		$categories = array_reverse( $categories );
+                    foreach ($categories as $category) {
+                        if ($category->lft > $lft && $category->lft < $rgt) {
 
-		return $categories;
-	}
+                            if ($params->get('hideemptypost', false) && $category->postCount <= 0) {
+                                continue;
+                            }
 
-	public static function getChildCategories( &$result , $params , &$categories, $level = 1 )
-	{
-		$db				= DiscussHelper::getDBO();
-		$my				= JFactory::getUser();
-		$mainframe		= JFactory::getApplication();
-		$order			= $params->get('order', 'popular');
-		$sort			= $params->get('sort', 'desc');
-		$count			= (INT)trim($params->get('count', 0));
-		$hideEmptyPost	= $params->get('hideemptypost', '0');
+                            $childs[] = $category;
+                        }
+                    }
 
-		$queryExclude   = '';
-		$excludeCats	= DiscussHelper::getPrivateCategories();
-		if(! empty($excludeCats))
-		{
-			$queryExclude .= ' AND a.`id` NOT IN (' . implode(',', $excludeCats) . ')';
-		}
+                    $parent->childs = $childs;
+                }
+            }
+        }
 
-		foreach($result as $row )
-		{
+        // var_dump(count($parents));exit;
 
-			$categories[ $row->id ] = $row;
-			$categories[ $row->id ]->childs = array();
+        if ($displayType == 'tree' && $count) {
+            $parents = array_slice($parents, 0, $count);
+        }
 
-			$query  = 'SELECT a.`id`, a.`title`, a.`parent_id`, a.`alias`, a.`avatar`, COUNT(b.`id`) AS `discussioncount`' . ', '
-					. $db->quote($level) . ' AS level,'
-					. ' ( SELECT COUNT(id) FROM ' . $db->nameQuote( '#__discuss_category' )
-					. ' WHERE lft < a.lft AND rgt > a.rgt AND a.lft != ' . $db->Quote( 0 ) . ' ) AS depth'
-					. ' FROM ' . $db->nameQuote( '#__discuss_category' ) . ' AS `a`'
-					. ' LEFT JOIN '. $db->nameQuote( '#__discuss_posts' ) . ' AS b'
-					. ' ON a.`id` = b.`category_id`'
-					. ' AND b.`parent_id` = ' . $db->Quote( '0' )
-					. ' AND b.`published` = ' . $db->Quote( '1' );
+        return $parents;
+    }
 
-			$query  .= ' WHERE a.`published` = 1';
-			$query  .= ' AND a.`parent_id`=' . $db->Quote( $row->id );
-			$query   .= $queryExclude;
+    public static function printTree($child, $level, $params)
+    {
 
-			if(!$hideEmptyPost)
-			{
-				$query  .= ' GROUP BY a.`id`';
-			}
-			else
-			{
-				$query  .= ' GROUP BY a.`id` HAVING (COUNT(b.`id`) > 0)';
-			}
+        $wrapperStart = '<ul class="ed-tree__list">';
+        $wrapperEnd = '</ul>';
 
-			switch($order)
-			{
-				case 'popular' :
-					$orderBy = ' ORDER BY `discussioncount` ';
-					break;
-				case 'alphabet' :
-					$orderBy = ' ORDER BY a.`title` ';
-					break;
-				case 'latest' :
-				default :
-					$orderBy = ' ORDER BY a.`created` ';
-					break;
-			}
-			$query  .= $orderBy.$sort;
+        $addWrapper = false;
+        $tree = '';
 
-			$db->setQuery( $query );
+        foreach ( $child as $item ) {
+            if ($item->parent_id == $level ) {
 
-			$records = $db->loadObjectList();
+                $addWrapper = true;
 
-			if( $records )
-			{
-				modEasydiscussCategoriesHelper::getChildCategories( $records , $params , $categories[ $row->id ]->childs, ++$level );
-			}
-		}
-	}
+                $output = '';
+                $category = $item;
 
-	public static function _getMenuItemId(&$params)
-	{
-		$itemid = DiscussRouter::getItemId('categories');
-		return $itemid;
-	}
+                ob_start();
+                    require(JModuleHelper::getLayoutPath('mod_easydiscuss_categories', 'tree_item'));
+                    $output = ob_get_contents();
+                ob_end_clean();
 
-	public static function getAvatar($category)
-	{
-		$categorytable = DiscussHelper::getTable( 'Category' );
-		$categorytable->bind($category);
+                $tree = $tree . '<li class="ed-tree__item">' . $output . self::printTree($child, $item->id, $params) . "</li>";
+            }
+        }
 
-		return $categorytable->getAvatar();
-	}
-
-	public static function accessNestedCategories( &$categories , $selected , $params , $level = null )
-	{
-		$itemid = modEasydiscussCategoriesHelper::_getMenuItemId($params);
-
-		foreach($categories as $category)
-		{
-			if( is_null( $level ) )
-			{
-				$level 	= 0;
-			}
-
-			$css = '';
-
-			if($category->id == $selected)
-			{
-				$css = 'font-weight: bold;';
-			}
-
-			if( $params->get( 'layouttype' ) == 'tree' )
-			{
-				// $category->level	-= 1;
-				$padding	= $level * 30;
-			}
-
-			ob_start();
-			include( JModuleHelper::getLayoutPath('mod_easydiscuss_categories', 'item') );
-			$contents 	= ob_get_contents();
-			ob_end_clean();
-
-			echo $contents;
-			
-			if( $params->get( 'layouttype' ) == 'tree' || $params->get( 'layouttype' ) == 'flat' )
-			{
-				if( isset( $category->childs ) && is_array( $category->childs ) )
-				{
-					modEasydiscussCategoriesHelper::accessNestedCategories( $category->childs , $selected, $params ,  $level + 1 );
-				}
-			}
-		}
-	}
+        $tree = $addWrapper ? $wrapperStart . $tree . $wrapperEnd : $tree;
+        return $tree;
+    }
 }
 
 

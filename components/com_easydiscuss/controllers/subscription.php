@@ -21,175 +21,155 @@ class EasyDiscussControllerSubscription extends EasyDiscussController
 	/**
 	 * Processes user subscription.
 	 *
-	 * @since	3.0
+	 * @since	4.0
 	 * @access	public
 	 * @param	null
 	 */
 	public function subscribe()
 	{
-		JRequest::checkToken('request') or jexit( 'Invalid Token' );
-
-		$app 	= JFactory::getApplication();
-		$my		= JFactory::getUser();
-		$config	= DiscussHelper::getConfig();
+		ED::checktoken();
 
 		// Get variables from post.
-		$type 	= JRequest::getVar( 'type' , null );
-		$name 	= JRequest::getVar( 'subscribe_name' , '' );
-		$email	= JRequest::getVar( 'subscribe_email' , '' );
-		$interval 	= JRequest::getVar( 'subscription_interval' ,'' );
-		$cid 		= JRequest::getInt( 'cid' , 0 );
+		$type = $this->input->get('type', null);
+		$name = $this->input->get('subscribe_name', '', 'string');
+		$email = $this->input->get('subscribe_email', '', 'string');
+		// $interval = $this->input->get('subscription_interval' ,'weekly', 'string');
+		$cid = $this->input->get('cid', 0, 'int');
+		$redirect = $this->input->get('redirect', '');
 
-		$redirect	= JRequest::getVar( 'redirect' , '' );
+		// default interval to weekly for site / cat, post to daily
+		$interval = $type == 'post' ? 'instant' :'weekly';
 
-		if( empty( $redirect ) )
-		{
-			$redirect   = DiscussRouter::_( 'index.php?option=com_easydiscuss' , false );
+		if (empty($redirect)) {
+			$redirect = EDR::_('index.php?option=com_easydiscuss', false);
 
 			if ($type == 'category' && $cid) {
-				$redirect = DiscussRouter::getCategoryRoute($cid, false);
+				$redirect = EDR::getCategoryRoute($cid, false);
 			}
-		}
-		else
-		{
-			$redirect   = base64_decode($url);
+		} else {
+			$redirect = base64_decode($url);
 		}
 
 		// Apply filtering on the name.
-		$filter 	= JFilterInput::getInstance();
-		$name 		= $filter->clean( $name , 'STRING' );
-		$email 		= JString::trim( $email );
-		$name 		= JString::trim( $name );
+		$filter = JFilterInput::getInstance();
+		$name = $filter->clean($name, 'STRING');
+		$email = JString::trim($email);
+		$name = JString::trim($name);
 
-		if( !JMailHelper::isEmailAddress($email) )
-		{
-			DiscussHelper::setMessageQueue( JText::_('COM_EASYDISCUSS_INVALID_EMAIL') , 'error' );
-			$app->redirect( $redirect );
-			$app->close();
+		if (!JMailHelper::isEmailAddress($email)) {
+			ED::setMessageQueue(JText::_('COM_EASYDISCUSS_INVALID_EMAIL'), 'error');
+			$this->app->redirect($redirect);
+			$this->app->close();
 		}
 
 		// Check for empty email
-		if( empty( $email ) )
-		{
-			DiscussHelper::setMessageQueue( JText::_('COM_EASYDISCUSS_EMAIL_IS_EMPTY') , 'error' );
-			$app->redirect( $redirect );
-			$app->close();
+		if (empty($email)) {
+			ED::setMessageQueue(JText::_('COM_EASYDISCUSS_EMAIL_IS_EMPTY'), 'error');
+			$this->app->redirect($redirect);
+			$this->app->close();
 		}
 
 		// Check for empty name
-		if( empty( $name ) )
-		{
-			DiscussHelper::setMessageQueue( JText::_('COM_EASYDISCUSS_NAME_IS_EMPTY') , 'error' );
-			$app->redirect( $redirect );
-			$app->close();
+		if (empty($name)) {
+			ED::setMessageQueue(JText::_('COM_EASYDISCUSS_NAME_IS_EMPTY'), 'error');
+			$this->app->redirect($redirect);
+			$this->app->close();
 		}
 
-		$model 			= DiscussHelper::getModel( 'Subscribe' );
-		$subscription	= $model->isSiteSubscribed( $type , $email , $cid );
+		$model = ED::model('Subscribe');
+		$subscription = $model->isSiteSubscribed($type, $email, $cid);
 
 		$data = array();
-		$data['type']		= $type;
-		$data['userid']		= $my->id;
-		$data['email']		= $email;
-		$data['cid']		= $cid;
-		$data['member']		= ($my->id)? '1':'0';
-		$data['name']		= ($my->id)? $my->name : $name;
-		$data['interval']	= $interval;
+		$data['type'] = $type;
+		$data['userid'] = $this->my->id;
+		$data['email'] = $email;
+		$data['cid'] = $cid;
+		$data['member'] = ($this->my->id)? true:false;
+		$data['name'] = ($this->my->id)? $this->my->name : $name;
+		$data['interval'] = $interval;
 
-		if( $subscription )
-		{
+
+		if ($subscription) {
 			// Perhaps the user tried to change the subscription interval.
-			if( $subscription->interval == $interval )
-			{
-				DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_SUBSCRIPTION_UPDATED_SUCCESSFULLY' ) , 'success' );
-				$app->redirect( $redirect );
-				return $app->close();
+			if ($subscription->interval == $interval) {
+				ED::setMessageQueue(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_UPDATED_SUCCESSFULLY'), 'success');
+				$this->app->redirect($redirect);
+				return $this->app->close();
 			}
 
 			// User changed their subscription interval.
-			if( !$model->updateSiteSubscription( $subscription->id , $data ) )
-			{
+			if (!$model->updateSiteSubscription($subscription->id, $data)) {
 				//if($model->updateSiteSubscription($subRecord['id'], $subscription_info))
-				DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_SUBSCRIPTION_FAILED' ) , 'error' );
-				$app->redirect( $redirect );
+				ED::setMessageQueue(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_FAILED'), 'error');
+				$app->redirect($redirect);
 				return $app->close();
 			}
 
 			// If the user already has an existing subscription, just let them know that their subscription is already updated.
-			$intervalMessage 	= JText::_( 'COM_EASYDISCUSS_SUBSCRIPTION_INTERVAL_' . strtoupper( $interval ) );
+			$intervalMessage = JText::_('COM_EASYDISCUSS_SUBSCRIPTION_INTERVAL_' . strtoupper($interval));
 
-			DiscussHelper::setMessageQueue( JText::sprintf( 'COM_EASYDISCUSS_SUBSCRIPTION_UPDATED' , $intervalMessage ) , 'success' );
-			$app->redirect( $redirect );
-			return $app->close();
+			ED::setMessageQueue(JText::sprintf('COM_EASYDISCUSS_SUBSCRIPTION_UPDATED', $intervalMessage), 'success');
+			$this->app->redirect($redirect);
+			return $this->app->close();
 		}
 
-		// Only new records are added here.
-		if( !$model->addSubscription( $data ) )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_SUBSCRIPTION_FAILED' ) , 'error' );
-			$app->redirect( $redirect );
-			return $app->close();
+		// If there is no subscription record for this user, add it here
+		if (!$model->addSubscription($data)) {
+			ED::setMessageQueue(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_FAILED' ), 'error');
+			$this->app->redirect($redirect);
+			return $this->app->close();
 		}
 
-		DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_SUBSCRIPTION_UPDATED_SUCCESSFULLY' ) , 'success' );
-		$app->redirect( $redirect );
-		return $app->close();
+		ED::setMessageQueue(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_UPDATED_SUCCESSFULLY'), 'success');
+		$this->app->redirect($redirect);
+		return $this->app->close();
 	}
 
 	function unsubscribe()
 	{
 		$my = JFactory::getUser();
 
-		$redirectLInk = 'index.php?option=com_easydiscuss&view=profile#Subscriptions';
+		$redirectLInk = 'index.php?option=com_easydiscuss&view=subscription';
 
-		if( $my->id == 0)
-		{
+		if ($my->id == 0) {
 			$redirectLInk = 'index.php?option=com_easydiscuss&view=index';
 		}
 
-
-		//type=site - subscription type
-		//sid=1 - subscription id
-		//uid=42 - user id
-		//token=0fd690b25dd9e4d2dc47a252d025dff4 - md5 subid.subdate
 		$data = base64_decode(JRequest::getVar('data', ''));
 
-		$param = DiscussHelper::getRegistry($data);
-		$param->type	= $param->get('type', '');
-		$param->sid		= $param->get('sid', '');
-		$param->uid		= $param->get('uid', '');
-		$param->token	= $param->get('token', '');
+		$param = ED::registry($data);
+		$param->type = $param->get('type', '');
+		$param->sid = $param->get('sid', '');
+		$param->uid = $param->get('uid', '');
+		$param->token = $param->get('token', '');
 
-		$subtable = DiscussHelper::getTable( 'Subscribe' );
+		$subtable = ED::table('Subscribe');
 		$subtable->load($param->sid);
 
-		$token		= md5($subtable->id.$subtable->created);
+		$token = md5($subtable->id.$subtable->created);
 		$paramToken = md5($param->sid.$subtable->created);
 
-		if (empty($subtable->id))
-		{
-			DiscussHelper::setMessageQueue( JText::_('COM_EASYDISCUSS_SUBSCRIPTION_NOT_FOUND') , 'error');
-			$this->setRedirect(DiscussRouter::_($redirectLInk, false));
+		if (empty($subtable->id)) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_NOT_FOUND'), 'error');
+			$this->setRedirect(EDR::_($redirectLInk, false));
 			return false;
 		}
 
-		if($token != $paramToken)
-		{
-			DiscussHelper::setMessageQueue( JText::_('COM_EASYDISCUSS_SUBSCRIPTION_UNSUBSCRIBE_FAILED') , 'error');
-			$this->setRedirect(DiscussRouter::_($redirectLInk, false));
+		if ($token != $paramToken) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_UNSUBSCRIBE_FAILED'), 'error');
+			$this->setRedirect(EDR::_($redirectLInk, false));
 			return false;
 		}
 
-		if(!$subtable->delete($param->sid))
-		{
-			DiscussHelper::setMessageQueue( JText::_('COM_EASYDISCUSS_SUBSCRIPTION_UNSUBSCRIBE_FAILED_ERROR_DELETING_RECORDS') , 'error');
-			$this->setRedirect(DiscussRouter::_($redirectLInk, false));
+		if (!$subtable->delete($param->sid)) {
+			ED::setMessage( JText::_('COM_EASYDISCUSS_SUBSCRIPTION_UNSUBSCRIBE_FAILED_ERROR_DELETING_RECORDS'), 'error');
+			$this->setRedirect(EDR::_($redirectLInk, false));
 			return false;
 		}
 
 
-		DiscussHelper::setMessageQueue( JText::_('COM_EASYDISCUSS_SUBSCRIPTION_UNSUBSCRIBE_SUCCESS') );
-		$this->setRedirect(DiscussRouter::_($redirectLInk, false));
+		ED::setMessage(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_UNSUBSCRIBE_SUCCESS'));
+		$this->setRedirect(EDR::_($redirectLInk, false));
 		return true;
 	}
 }

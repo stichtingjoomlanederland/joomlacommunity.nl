@@ -1,222 +1,125 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once( DISCUSS_ROOT . '/views.php' );
+require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewTags extends EasyDiscussView
 {
-	public function display( $tmpl = null )
+	public function display($tmpl = null)
 	{
-		$doc		= JFactory::getDocument();
-		DiscussHelper::setPageTitle( JText::_( 'COM_EASYDISCUSS_TAGS_TITLE' ) );
+		// Set the page title
+		ED::setPageTitle('COM_EASYDISCUSS_TAGS_TITLE');
 
-		$user		= JFactory::getUser();
-		$id			= JRequest::getInt( 'id' );
+		// Set the breadcrumbs
+		$this->setPathway('COM_EASYDISCUSS_TOOLBAR_TAGS');
 
-		if( $id )
-		{
-			return $this->tag( $tmpl );
+		// Determines if we should display a single tag result.
+		$id = $this->input->get('id', 0, 'int');
+
+		if ($id) {
+			return $this->tag($tmpl);
 		}
 
-		$model 		= DiscussHelper::getModel( 'Tags' );
-		$tagCloud	= $model->getTagCloud( '', '' , '' );
+		$model = ED::model("Tags");
+		$tags = $model->getTagCloud('', '', '');
 
+		$this->set('tags', $tags);
 
-		$this->setPathway( JText::_('COM_EASYDISCUSS_TOOLBAR_TAGS') );
-
-		$tpl	= new DiscussThemes();
-		$tpl->set( 'tagCloud', $tagCloud );
-		$tpl->set( 'user', $user );
-
-		echo $tpl->fetch( 'tags.list.php' );
+		parent::display('tags/default');
 	}
 
-	public function tag( $tmpl = null )
+	/**
+	 * Displays a list of discussions from a particular tag
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function tag($tmpl = null)
 	{
-		//initialise variables
-		$mainframe	= JFactory::getApplication();
-		$doc	= JFactory::getDocument();
-		$user		= JFactory::getUser();
-		$config		= DiscussHelper::getConfig();
-		$tag		= JRequest::getInt( 'id' , 0 );
+		// Get the tag id
+		$id = $this->input->get('id', 0, 'int');
 
-		if( empty($tag) )
-		{
+		if (!$id) {
 			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_INVALID_TAG'));
 		}
 
-		DiscussHelper::setMeta();
+		$tag = ED::table('Tags');
+		$tag->load($id);
 
-		$table			= DiscussHelper::getTable( 'Tags' );
-		$table->load( $tag );
+		// Set meta tags.
+		ED::setMeta();
 
-		$doc		= JFactory::getDocument();
-		DiscussHelper::setPageTitle( JText::sprintf( 'COM_EASYDISCUSS_VIEWING_TAG_TITLE' , $this->escape( $table->title ) ) );
+		// Set the page title
+		ED::setPageTitle(JText::sprintf('COM_EASYDISCUSS_VIEWING_TAG_TITLE', $this->escape($tag->title)));
+		$this->setPathway($tag->title);
 
-		$this->setPathway( JText::_( $table->title ) );
-		$concatCode		= DiscussHelper::getJConfig()->getValue( 'sef' ) ? '?' : '&';
-		$doc->addHeadLink( JRoute::_( 'index.php?option=com_easydiscuss&view=tags&id=' . $tag ) . $concatCode . 'format=feed&type=rss' , 'alternate' , 'rel' , array('type' => 'application/rss+xml', 'title' => 'RSS 2.0') );
-		$doc->addHeadLink( JRoute::_( 'index.php?option=com_easydiscuss&view=tags&id=' . $tag ) . $concatCode . 'format=feed&type=atom' , 'alternate' , 'rel' , array('type' => 'application/atom+xml', 'title' => 'Atom 1.0') );
+		$concatCode = ED::jconfig()->getValue('sef') ? '?' : '&';
+		$this->doc->addHeadLink(JRoute::_( 'index.php?option=com_easydiscuss&view=tags&id=' . $tag ) . $concatCode . 'format=feed&type=rss' , 'alternate' , 'rel' , array('type' => 'application/rss+xml', 'title' => 'RSS 2.0') );
+		$this->doc->addHeadLink(JRoute::_( 'index.php?option=com_easydiscuss&view=tags&id=' . $tag ) . $concatCode . 'format=feed&type=atom' , 'alternate' , 'rel' , array('type' => 'application/atom+xml', 'title' => 'Atom 1.0') );
 
-		$filteractive	= JRequest::getString('filter', 'allposts');
-		$sort			= JRequest::getString('sort', 'latest');
+		$filteractive = JRequest::getString('filter', 'allposts');
+		$sort = JRequest::getString('sort', 'latest');
 
-		if($filteractive == 'unanswered' && ($sort == 'active' || $sort == 'popular'))
-		{
+		if ($filteractive == 'unanswered' && ($sort == 'active' || $sort == 'popular')) {
 			//reset the active to latest.
 			$sort = 'latest';
 		}
 
-		$postModel 	= DiscussHelper::getModel( 'Posts' );
-
-		$posts		= $postModel->getTaggedPost($tag, $sort, $filteractive);
-		$pagination	= $postModel->getPagination($sort, $filteractive);
-
+		// Get the list of posts for this tag
+		$postModel = ED::model('Posts');
+		$posts = $postModel->getTaggedPost($tag->id, $sort, $filteractive);
+		$pagination = $postModel->getPagination($sort, $filteractive);
 
 		$authorIds  = array();
 		$topicIds 	= array();
 
-		if(count( $posts ) > 0 )
-		{
-			foreach( $posts as $item )
-			{
-				$authorIds[]  = $item->user_id;
-				$topicIds[]   = $item->id;
+		if (count($posts) > 0 ) {
+			
+			foreach ($posts as $item) {
+				$authorIds[] = $item->user_id;
+				$topicIds[] = $item->id;
 			}
 		}
 
-		$lastReplyUser      = $postModel->setLastReplyBatch( $topicIds );
-		$authorIds			= array_merge( $lastReplyUser, $authorIds );
+		$lastReplyUser = $postModel->setLastReplyBatch($topicIds);
+		$authorIds = array_merge($lastReplyUser, $authorIds);
 
 		// Reduce SQL queries by pre-loading all author object.
-		$authorIds  = array_unique($authorIds);
-		$profile	= DiscussHelper::getTable( 'Profile' );
-		$profile->init( $authorIds );
+		$authorIds = array_unique($authorIds);
+		ED::user($authorIds);
 
-		$postLoader   = DiscussHelper::getTable('Posts');
-		$postLoader->loadBatch( $topicIds );
+		$postLoader = ED::table('Posts');
+		$postLoader->loadBatch($topicIds);
 
-		$postTagsModel		= DiscussHelper::getModel( 'PostsTags' );
-		$postTagsModel->setPostTagsBatch( $topicIds );
+		$postTagsModel = ED::model('PostsTags');
+		$postTagsModel->setPostTagsBatch($topicIds);
 
+		// Format the posts now
+		$posts = ED::formatPost($posts, false , true);
+		$posts = ED::getPostStatusAndTypes($posts);
 
-		$posts		= DiscussHelper::formatPost($posts, false , true);
-		$currentTag	= $table->title;
-		
-		$posts = Discusshelper::getPostStatusAndTypes( $posts );
+		$this->set('tag', $tag);
+		$this->set('rssLink', JRoute::_('index.php?option=com_easydiscuss&view=tags&id=' . $tag . '&format=feed'));
+		$this->set('posts', $posts);
+		$this->set('paginationType', DISCUSS_TAGS_TYPE);
+		$this->set('pagination', $pagination);
+		$this->set('sort', $sort);
+		$this->set('filter', $filteractive);
+		$this->set('showEmailSubscribe', true);
+		$this->set('parent_id', $tag);
 
-		$tpl			= new DiscussThemes();
-		$tpl->set( 'rssLink'	, JRoute::_( 'index.php?option=com_easydiscuss&view=tags&id=' . $tag . '&format=feed' ) );
-		$tpl->set( 'posts'	, $posts );
-		$tpl->set( 'paginationType'	, DISCUSS_TAGS_TYPE );
-		$tpl->set( 'pagination'	, $pagination );
-		$tpl->set( 'sort'		, $sort );
-		$tpl->set( 'filter'		, $filteractive );
-		$tpl->set( 'showEmailSubscribe'	, true );
-		$tpl->set( 'currentTag'	, $currentTag );
-		$tpl->set( 'parent_id'	, $tag );
-		$tpl->set( 'config'	, $config );
-
-		echo $tpl->fetch( 'tag.php' );
-	}
-
-	function tags( $tmpl = null )
-	{
-		//initialise variables
-		$mainframe	= JFactory::getApplication();
-		$document	= JFactory::getDocument();
-		$user		= JFactory::getUser();
-		$config		= DiscussHelper::getConfig();
-		$tags		= JRequest::getVar( 'ids' );
-
-		if( is_null($tags) || $tags == '' )
-		{
-			$mainframe->enqueueMessage(JText::_('COM_EASYDISCUSS_INVALID_TAG'), 'error');
-			$mainframe->redirect(DiscussRouter::_('index.php?option=com_easydiscuss&view=index'));
-		}
-
-		$tags = explode('+', $tags);
-
-		if( count($tags) < 2 )
-		{
-			$tags = explode(' ', $tags[0]);
-		}
-
-		$dirtyTags	= $tags;
-		unset($tags);
-		$tags	= array();
-
-		foreach ($dirtyTags as $dirtyTag) {
-			$dirtyTag = (int) $dirtyTag;
-			if( !empty($dirtyTag) ) {
-				$tags[] = $dirtyTag;
-			}
-		}
-
-		if( empty($tags) )
-		{
-			$mainframe->enqueueMessage(JText::_('COM_EASYDISCUSS_INVALID_TAG'), 'error');
-			$mainframe->redirect(DiscussRouter::_('index.php?option=com_easydiscuss&view=index'));
-		}
-
-		$this->setPathway( JText::_( 'COM_EASYDISCUSS_TAGS' ) , DiscussRouter::_( 'index.php?option=com_easydiscuss&view=tags' ) );
-		DiscussHelper::setMeta();
-
-		$tagNames	= array();
-		foreach ($tags as $tag)
-		{
-			$table		= DiscussHelper::getTable( 'Tags' );
-			$table->load( $tag );
-			$tagNames[]	= JText::_( $table->title );
-		}
-
-		$this->setPathway( implode(' + ', $tagNames) );
-
-		$tagIDs		= implode('+', $tags);
-
-		$concatCode		= DiscussHelper::getJConfig()->getValue( 'sef' ) ? '?' : '&';
-		$document->addHeadLink( JRoute::_( 'index.php?option=com_easydiscuss&view=tags&ids=' . $tagIDs ) . $concatCode . 'format=feed&type=rss' , 'alternate' , 'rel' , array('type' => 'application/rss+xml', 'title' => 'RSS 2.0') );
-		$document->addHeadLink( JRoute::_( 'index.php?option=com_easydiscuss&view=tags&ids=' . $tagIDs ) . $concatCode . 'format=feed&type=atom' , 'alternate' , 'rel' , array('type' => 'application/atom+xml', 'title' => 'Atom 1.0') );
-
-		$filteractive	= JRequest::getString('filter', 'allposts');
-		$sort			= JRequest::getString('sort', 'latest');
-
-		if($filteractive == 'unanswered' && ($sort == 'active' || $sort == 'popular'))
-		{
-			//reset the active to latest.
-			$sort = 'latest';
-		}
-
-		$postModel	= $this->getModel('Posts');
-		$posts		= $postModel->getTaggedPost($tags, $sort, $filteractive);
-		$pagination	= $postModel->getPagination($sort, $filteractive);
-		$posts		= DiscussHelper::formatPost($posts);
-		$tagModel	= $this->getModel('Tags');
-		$currentTag	= $tagModel->getTagNames($tags);
-
-		$tpl			= new DiscussThemes();
-		$tpl->set( 'rssLink'	, JRoute::_( 'index.php?option=com_easydiscuss&view=tags&id=' . $tag . '&format=feed' ) );
-		$tpl->set( 'posts'		, $posts );
-		$tpl->set( 'paginationType'	, DISCUSS_TAGS_TYPE );
-		$tpl->set( 'pagination'	, $pagination );
-		$tpl->set( 'sort'		, $sort );
-		$tpl->set( 'filter'		, $filteractive );
-		$tpl->set( 'showEmailSubscribe'	, true );
-		$tpl->set( 'currentTag'	, $currentTag );
-		$tpl->set( 'parent_id'	, 0 );
-		$tpl->set( 'config'		, $config );
-
-		echo $tpl->fetch( 'tag.php' );
+		parent::display('tags/item');
 	}
 }

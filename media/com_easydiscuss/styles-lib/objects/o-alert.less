@@ -1,0 +1,177 @@
+//
+// Alert
+// --------------------------------------------------
+
+//
+// Alerts
+// --------------------------------------------------
+
+
+// Base styles
+// -------------------------
+
+.o-alert {
+  padding: @fd-base-spacing @fd-base-spacing--lg;
+  margin-bottom: @line-height-computed;
+  border: 1px solid transparent;
+  border-radius: @alert-border-radius;
+  text-shadow: none;
+  position: relative;
+  overflow: hidden;
+  font-size: @fd-base-font-size--xs;
+
+  // Headings for larger alerts
+  h4 {
+    margin-top: 0;
+    // Specified for the h4 to prevent conflicts of changing @headings-color
+    color: inherit;
+  }
+
+  // Provide class for links that match alerts
+  .o-alert-link {
+    font-weight: @alert-link-font-weight;
+  }
+
+  // Improve alignment and spacing of inner content
+  > p,
+  > ul {
+    margin-bottom: 0;
+  }
+
+  > p + p {
+    margin-top: 5px;
+  }
+}
+
+.o-alert--icon {
+  &:before {
+    position: absolute;
+    top: -@fd-base-spacing;
+    left: 0;
+    font-family: FontAwesome;
+    font-weight: normal;
+    font-style: normal;
+    display: inline-block;
+    text-decoration: inherit;
+
+    font-size: 72px;
+    line-height: 1;
+    opacity: .1;
+    content: "\f00c";
+  }
+}
+
+.o-alert__close {
+    color: #000;
+    float: right;
+    font-size: 21px;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0.3;
+    text-shadow: 0 1px 0 #fff;
+}
+button.o-alert__close {
+    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+    border: 0 none;
+    cursor: pointer;
+    padding: 0;
+}
+
+// Dismissible alerts
+//
+// Expand the right padding and account for the close button's positioning.
+.o-alert--dismissible {
+  padding-right: (@alert-padding + 20);
+
+  // Adjust close link position
+  .o-alert__close {
+    position: relative;
+    top: -2px;
+    right: -21px;
+    color: inherit;
+  }
+}
+
+// Alternate styles
+//
+// Generate contextual modifier classes for colorizing the alert.
+
+.o-alert--success {
+  .alert-variant(@alert-success-bg; @alert-success-border; @alert-success-text);
+
+  &.o-alert--icon {
+    &:before {
+      color: @alert-success-text;
+      content: "\f00c";
+    }
+  }
+}
+
+.o-alert--info {
+  .alert-variant(@alert-info-bg; @alert-info-border; @alert-info-text);
+
+  &.o-alert--icon {
+    &:before {
+      color: @alert-info-text;
+      content: "\f1cd";
+    }
+  }
+}
+
+.o-alert--warning {
+  .alert-variant(@alert-warning-bg; @alert-warning-border; @alert-warning-text);
+
+  &.o-alert--icon {
+    &:before {
+      color: @alert-warning-text;
+      content: "\f071";
+    }
+  }
+}
+
+.o-alert--danger,
+.o-alert--error {
+  .alert-variant(@alert-danger-bg; @alert-danger-border; @alert-danger-text);
+
+  &.o-alert--icon {
+    &:before {
+      color: @alert-danger-text;
+      content: "\f0e7";
+      left: 8px;
+    }
+  }
+}
+
+
+
+// Mixins for outline styles
+.alert-variant-o(@background; @border; @text-color) {
+  background-color: lighten(@background, 42%);
+  border-color: @border;
+  color: darken(@text-color, 20%);
+  overflow: hidden;
+
+  hr {
+    border-top-color: darken(@border, 5%);
+  }
+  .alert-link {
+    color: darken(@text-color, 10%);
+  }
+}
+
+.o-alert--success-o {
+  .alert-variant-o(@alert-success-bg; @alert-success-border; @alert-success-bg);
+}
+
+.o-alert--info-o {
+  .alert-variant-o(@alert-info-bg; @alert-info-border; @alert-info-bg);
+}
+
+.o-alert--warning-o {
+  .alert-variant-o(@alert-warning-bg; @alert-warning-border; @alert-warning-bg);
+}
+
+.o-alert--danger-o,
+.o-alert--error-o {
+  .alert-variant-o(@alert-danger-bg; @alert-danger-border; @alert-danger-bg);
+}

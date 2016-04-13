@@ -99,7 +99,7 @@ class EasyDiscussModelLabels extends EasyDiscussAdminModel
 		$orderby	= $this->_buildQueryOrderBy();
 		$db			= DiscussHelper::getDBO();
 
-		$query	= 'SELECT a.* FROM `#__discuss_posts_labels` AS a '
+		$query	= 'SELECT * FROM ' . $db->nameQuote( '#__discuss_posts_labels' )
 				. $where . ' '
 				. $orderby;
 
@@ -108,10 +108,11 @@ class EasyDiscussModelLabels extends EasyDiscussAdminModel
 
 	protected function _buildQueryWhere()
 	{
-		$mainframe		= JFactory::getApplication();
 		$db				= DiscussHelper::getDBO();
 
-		$filter_state	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.labels.filter_state', 'filter_state', '', 'word' );
+		$filter_state	= $this->app->getUserStateFromRequest( 'com_easydiscuss.labels.filter_state', 'filter_state', '', 'word' );
+		$search			= $this->app->getUserStateFromRequest( 'com_easydiscuss.labels.search', 'search', '', 'string' );
+		$search			= $db->getEscaped( trim(JString::strtolower( $search ) ) );
 
 		$where = array();
 
@@ -125,6 +126,11 @@ class EasyDiscussModelLabels extends EasyDiscussAdminModel
 			{
 				$where[] = $db->nameQuote( 'a.published' ) . '=' . $db->Quote( '0' );
 			}
+		}
+
+		if ($search)
+		{
+			$where[] = ' LOWER( title ) LIKE \'%' . $search . '%\' ';
 		}
 
 		$where 		= ( count( $where ) ? ' WHERE ' . implode( ' AND ', $where ) : '' );
@@ -171,8 +177,14 @@ class EasyDiscussModelLabels extends EasyDiscussAdminModel
 	 * @access public
 	 * @return array
 	 */
-	public function publish( &$labels = array(), $publish = 1 )
+	public function publish( $labels = array(), $publish = 1 )
 	{
+		if( is_integer($labels) ) {
+			$labels = array($labels);
+		} elseif ( !is_array($labels) || count($labels) < 1 ) {
+			return false;
+		}
+
 		if( count( $labels ) > 0 )
 		{
 			$db		= DiscussHelper::getDBO();
@@ -193,4 +205,69 @@ class EasyDiscussModelLabels extends EasyDiscussAdminModel
 		}
 		return false;
 	}
+
+
+	public function searchLabel($title)
+	{
+		$db		= DiscussHelper::getDBO();
+		$query	= 'SELECT ' . $db->nameQuote('id') . ' '
+				. 'FROM ' 	. $db->nameQuote('#__discuss_posts_labels') . ' '
+				. 'WHERE ' 	. $db->nameQuote('title') . ' = ' . $db->quote($title) . ' '
+				. 'LIMIT 1';
+		$db->setQuery($query);
+
+		$result	= $db->loadObject();
+
+		return $result;
+	}
+
+	public function getLabelTitle($id)
+	{
+		$db		= DiscussHelper::getDBO();
+		$query	= 'SELECT ' . $db->nameQuote('title') . ' '
+				. 'FROM ' 	. $db->nameQuote('#__discuss_posts_labels') . ' '
+				. 'WHERE ' 	. $db->nameQuote('id') . ' = ' . $db->quote($id) . ' '
+				. 'LIMIT 1';
+		$db->setQuery($query);
+
+		$result	= $db->loadResult();
+
+		return $result;
+	}
+
+	/**
+	 * Method to get total labels
+	 *
+	 * @access public
+	 * @return integer
+	 */
+	public function getTotalLabels( $ignoreUnpublish = false )
+	{
+		$db		= DiscussHelper::getDBO();
+		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_posts_labels' );
+
+		$query .= $ignoreUnpublish ? '' : ' WHERE `published` = 1';
+
+		$db->setQuery( $query );
+		$result	= $db->loadResult();
+
+		return (empty($result)) ? 0 : $result;
+	}
+
+	public function getLabels()
+	{
+		$db		= DiscussHelper::getDBO();
+		$query	= ' SELECT `id`, `title` '
+				. ' FROM #__discuss_posts_labels '
+				. ' WHERE `published` = 1 '
+				. ' ORDER BY `ordering`';
+
+		$db->setQuery($query);
+		$result = $db->loadObjectList();
+
+		return $result;
+	}
+
+
+
 }

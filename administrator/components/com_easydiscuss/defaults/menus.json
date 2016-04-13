@@ -1,0 +1,323 @@
+[
+    {
+        "title": "COM_EASYDISCUSS_SIDEBAR_HOME",
+        "icon": "fa-dashboard"
+    },
+    {
+        "access": "discuss.manage.setting",
+        "title": "COM_EASYDISCUSS_SIDEBAR_SETTINGS",
+        "link": "index.php?option=com_easydiscuss&view=settings",
+        "view": "settings",
+        "icon": "fa-cog",
+        "childs":
+        [
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_SETTINGS_ANTISPAM",
+                "url":
+                {
+                    "layout"    : "antispam"
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_MODERATION",
+                "url": {
+                    "layout": "moderation"
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_GENERAL",
+                "url": {
+                    "layout": ""
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_CONVERSATIONS",
+                "url": {
+                    "layout": "conversations"
+                 }
+             },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_COMMENTS",
+                "url": {
+                    "layout": "comments"
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_SETTINGS_EMAIL_PARSER",
+                "url": {
+                    "layout": "email"
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_SETTINGS_SEO",
+                "url": {
+                    "layout": "seo"
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_LOCATION",
+                "url": {
+                    "layout": "location"
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_SETTINGS_TABS",
+                "url": {
+                    "layout": "tabs"
+                }
+            }, 
+            {
+                "title"     : "COM_EASYDISCUSS_SIDEBAR_SETTINGS_LAYOUT",
+                "url"       :
+                {
+                    "layout"    : "layout"
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_SETTINGS_SUBSCRIPTIONS",
+                "url": {
+                    "layout": "subscriptions"
+                }
+            },
+            {
+                "title"     : "COM_EASYDISCUSS_SIDEBAR_SETTINGS_NOTIFICATIONS",
+                "url"       :
+                {
+                    "layout"    : "notifications"
+                }
+            },
+            {
+                "title"     : "COM_EASYDISCUSS_SIDEBAR_SETTINGS_INTEGRATIONS",
+                "url"       :
+                {
+                    "layout"    : "integrations"
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_SETTINGS_STORAGE",
+                "url": {
+                    "layout": "storage"
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_SETTINGS_VOTING",
+                "url": {
+                    "layout": "voting"
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_SETTINGS_ADVANCED",
+                "url": {
+                    "layout": "system"
+                }
+            }
+        ]
+    },
+    {
+        "access": "discuss.manage.posts",
+        "title": "COM_EASYDISCUSS_SIDEBAR_DISCUSSIONS",
+        "view": "posts",
+        "icon": "fa-file-text-o"
+    },
+    {
+        "access": "discuss.manage.autoposting",
+        "title": "COM_EASYDISCUSS_SIDEBAR_AUTO_POSTING",
+        "view": "autoposting",
+        "icon": "fa-facebook-official",
+        "childs":
+        [
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_AUTO_POSTING_FACEBOOK",
+                "url": {
+                    "layout": "facebook"
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_AUTO_POSTING_TWITTER",
+                "url": {
+                    "layout": "twitter"
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_AUTO_POSTING_LINKEDIN",
+                "url": {
+                    "layout": "linkedin"
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_AUTO_POSTING_TELEGRAM",
+                "url": {
+                    "layout": "telegram"
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_AUTO_POSTING_WUNDERLIST",
+                "url": {
+                    "layout": "wunderlist"
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_AUTO_POSTING_SLACK",
+                "url": {
+                    "layout": "slack"
+                }
+            }
+        ]
+    },
+    {
+        "access": "discuss.manage.categories",
+        "title": "COM_EASYDISCUSS_SIDEBAR_CATEGORIES",
+        "view": "categories",
+        "icon": "fa-list-alt"
+    },
+    {
+        "access": "discuss.manage.tags",
+        "title": "COM_EASYDISCUSS_SIDEBAR_TAGS",
+        "view": "tags",
+        "icon": "fa-tags"
+    },
+    {
+        "access": "discuss.manage.users",
+        "title": "COM_EASYDISCUSS_SIDEBAR_USERS",
+        "view": "users",
+        "icon": "fa-users"
+    },
+    {
+        "access": "discuss.manage.roles",
+        "title": "COM_EASYDISCUSS_SIDEBAR_ROLES",
+        "view": "roles",
+        "icon": "fa-user-secret"
+    },
+    {
+        "access": "discuss.manage.acls",
+        "title": "COM_EASYDISCUSS_SIDEBAR_ACL",
+        "view": "acls",
+        "icon": "fa-lock"
+    },
+    {
+        "access": "discuss.manage.reports",
+        "title": "COM_EASYDISCUSS_SIDEBAR_REPORTS",
+        "view": "reports",
+        "icon": "fa-flag"
+    },
+    {
+        "access": "discuss.manage.subscriptions",
+        "title": "COM_EASYDISCUSS_SIDEBAR_SUBSCRIPTIONS",
+        "view": "subscription",
+        "icon": "fa-bell"
+    },
+    {
+        "access": "discuss.manage.badges",
+        "title" : "COM_EASYDISCUSS_SIDEBAR_BADGES",
+        "view"  : "badges",
+        "icon"  : "fa-certificate"
+    },
+    {
+        "access": "discuss.manage.types",
+        "title": "COM_EASYDISCUSS_SIDEBAR_POST_TYPES",
+        "view": "types",
+        "icon": "fa-ticket"
+    },
+    {
+        "access":"discuss.manage.priorities",
+        "title": "COM_EASYDISCUSS_SIDEBAR_PRIORITIES",
+        "view":"priorities",
+        "icon": "fa-tasks"
+    },
+    {
+        "access": "discuss.manage.points",
+        "title": "COM_EASYDISCUSS_SIDEBAR_POINTS",
+        "view": "points",
+        "icon": "fa-gamepad"
+    },
+    {
+        "access": "discuss.manage.ranks",
+        "title": "COM_EASYDISCUSS_SIDEBAR_RANKS",
+        "view": "ranks",
+        "icon": "fa-trophy"
+    },
+    {
+        "access": "discuss.manage.bans",
+        "title": "COM_EASYDISCUSS_SIDEBAR_BANS",
+        "view": "bans",
+        "icon": "fa-exclamation-triangle"
+    },
+    {
+        "access": "discuss.manage.customfields",
+        "title": "COM_EASYDISCUSS_SIDEBAR_CUSTOMFIELDS",
+        "view": "customfields",
+        "icon": "fa-table"
+    },
+    {
+        "access": "discuss.manage.themes",
+        "title": "COM_EASYDISCUSS_SIDEBAR_THEMES",
+        "view": "themes",
+        "icon": "fa-paint-brush"
+    },
+    {
+        "access": "discuss.manage.languages",
+        "title": "COM_EASYDISCUSS_SIDEBAR_LANGUAGES",
+        "view": "languages",
+        "icon": "fa-language"
+    },
+    {
+        "access": "discuss.manage.emails",
+        "title": "COM_EASYDISCUSS_SIDEBAR_EMAIL_TEMPLATES",
+        "view": "emails",
+        "icon": "fa-envelope-o"
+    },
+    {
+        "access": "discuss.manage.spools",
+        "title": "COM_EASYDISCUSS_SIDEBAR_EMAIL_ACTIVITIES",
+        "view": "spools",
+        "icon": "fa-paper-plane-o"
+    },
+    {
+        "access": "discuss.manage.migrators",
+        "title": "COM_EASYDISCUSS_SIDEBAR_MIGRATORS",
+        "view": "migrators",
+        "icon": "fa-truck",
+        "childs":
+        [
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_MIGRATORS_KUNENA",
+                "url": {
+                    "layout": "kunena"
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_MIGRATORS_JOMSOCIAL_GROUPS",
+                "url": {
+                    "layout": "jomsocial"
+                }
+            },   
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_MIGRATORS_VBULLETIN",
+                "url": {
+                    "layout": "vbulletin"
+                }
+            }  
+        ]
+    },
+    {
+        "access": "discuss.manage.maintenance",
+        "title": "COM_EASYDISCUSS_SIDEBAR_MAINTENANCE",
+        "view": "maintenance",
+        "icon": "fa-database",
+        "childs":
+        [
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_MAINTENANCE_SCRIPTS",
+                "url": {
+                    "layout": "scripts"
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_MAINTENANCE_DATABASE",
+                "url": {
+                    "layout": "database"
+                }
+            }
+        ]
+    }
+]

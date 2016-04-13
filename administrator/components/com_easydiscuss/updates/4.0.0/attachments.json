@@ -1,0 +1,7 @@
+[
+    {
+        "table": "#__discuss_attachments",
+        "column": "storage",
+        "query": "ALTER TABLE `#__discuss_attachments` ADD `storage` VARCHAR(255) NOT NULL DEFAULT 'joomla';"
+    }
+]

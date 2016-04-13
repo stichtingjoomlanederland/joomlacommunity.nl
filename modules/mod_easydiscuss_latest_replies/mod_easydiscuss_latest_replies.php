@@ -23,6 +23,8 @@ $lang->load('mod_easydiscuss_latest_replies', JPATH_ROOT);
 $replies	= modEasydiscussLatestRepliesHelper::getData($params);
 $itemid		= DiscussRouter::getItemId('post');
 
+JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
+
 $document	= JFactory::getDocument();
 DiscussHelper::loadStylesheet("module", "mod_easydiscuss_latest_replies");
 

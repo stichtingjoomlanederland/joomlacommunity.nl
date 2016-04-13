@@ -1,0 +1,144 @@
+/**
+* Easydiscuss btn counter group specific for likes and favor
+*/
+.ed-btn-counter-group {
+    font-size: @fd-base-font-size--xs;
+    display: inline-block; // To make it display same line by default
+    &__icon {
+        position: relative;
+        &:before {
+            top: 0;
+            left: 0;
+            font-family: FontAwesome;
+            font-size: 14px;
+            font-weight: normal;
+            font-style: normal;
+            display: inline-block;
+            text-decoration: inherit;
+
+            font-size: @fd-base-font-size;
+            width: 12px;
+
+            text-indent: 0;
+
+            // content: "\f164";
+        }
+    }
+
+    &__counter {
+        display: none; // Hide when there are no counter
+    }
+    &__loading {
+        display: none; // Loading icon hide by default.
+    }   
+
+    + .ed-btn-counter-group {
+        margin-left: @fd-base-spacing;
+    }
+}
+
+
+.has-counter {
+    .ed-btn-counter-group__counter {
+        display: inline-block;
+        color: @fd-ui-meta-color;
+        background-color: @fd-ui-bg;
+        border: 1px solid @fd-ui-border-color;
+        padding: 0 @fd-base-spacing--sm;
+        border-radius: @fd-ui-radius--sm;
+        position: relative;
+        margin-left: @fd-base-spacing--sm;
+        &:before,
+        &:after {
+            position: absolute;
+            content: '';
+            width: 0;
+            height: 0;
+            border-style: solid;
+        }
+        &:before {
+            border-width: 4px 6px 4px 0;
+            border-color: transparent @fd-ui-border-color transparent transparent;
+
+            top: 4px;
+            left: -6px;
+        }
+
+        &:after {
+            border-width: 4px 6px 4px 0;
+            border-color: transparent @fd-ui-bg transparent transparent;
+
+            top: 4px;
+            left: -4px;
+        }
+    }
+
+    .ed-btn-counter-group__note {
+        display: none;
+    }
+}
+
+
+.is-loading {
+    .btn {
+        // background-color: darken(@btn-success-bg, 10%) !important;
+        cursor: default;
+        .ed-btn-counter-group__icon {
+            // display: none;
+            // Showing loading icons
+            &:before {
+                // content: '\f00c';
+                content: "\f110";
+                -webkit-animation: fa-spin 1s infinite steps(8);
+                animation: fa-spin 1s infinite steps(8);
+            }
+        }
+        // .ed-btn-counter-group__loading {
+        //     display: inline-block;
+        // }
+        &:hover {
+            .ed-btn-counter-group__icon {
+                &:before {
+                    // content: '\f00d';
+                }
+            }
+        }
+    }
+}
+
+// Means users already liked/favor 
+.ed-btn-counter-group.is-active {
+    .btn {
+
+        // Showing tick icons to perform already liked/favor
+        .ed-btn-counter-group__icon {
+            &:before {
+                content: '\f00c';
+            }
+        }
+
+        // Hover showing remove icons to perform remove like/favor
+        &:hover {
+            .ed-btn-counter-group__icon {
+                &:before {
+                    content: '\f00d';
+                }
+            }
+        }
+    }
+    
+    .btn-ed-likes {
+        background-color: darken(@btn-success-bg, 10%) !important;
+    }
+    .btn-ed-favor {
+        background-color: darken(@btn-info-bg, 10%) !important;
+    }
+}
+
+.btn-ed-likes {
+  .button-variant(@btn-success-color; @btn-success-bg; @btn-success-border) !important;
+}
+
+.btn-ed-favor {
+  .button-variant(@btn-info-color; @btn-info-bg; @btn-info-border) !important;
+}

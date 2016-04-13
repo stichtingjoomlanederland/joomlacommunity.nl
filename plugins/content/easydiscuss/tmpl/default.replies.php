@@ -12,12 +12,10 @@
  */
 defined('_JEXEC') or die('Restricted access');
 ?>
-<div class="discuss-replies">
-	<ul class="unstyled discuss-list clearfix discussionReplies">
-		<?php if( $replies ){ ?>
-			<?php foreach( $replies as $reply ){ ?>
-				<?php include dirname(__FILE__) . '/default.replies.item.php' ; ?>
-			<?php } ?>
+<div class="discuss-replies ed-post-replies" data-ed-post-replies>
+	<?php if( $replies ){ ?>
+		<?php foreach( $replies as $reply ){ ?>
+            <?php echo ED::themes()->output('site/post/default.reply.item', array('post' => $reply, 'poll' => $reply->getPoll(), 'composer' => $composer)); ?>
 		<?php } ?>
-	</ul>
+	<?php } ?>
 </div>

@@ -14,37 +14,36 @@ defined('_JEXEC') or die('Restricted access');
 jimport('joomla.html.html');
 jimport('joomla.form.formfield');
 
-require_once JPATH_ROOT . '/components/com_easydiscuss/constants.php';
-require_once JPATH_ROOT . '/components/com_easydiscuss/helpers/helper.php';
-require_once DISCUSS_ADMIN_ROOT . '/models/categories.php';
+require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
 
 class JFormFieldModal_Categories extends JFormField
 {
 	protected $type = 'Modal_Categories';
 
 	protected function getInput()
-	{		
-		$model 		= DiscussHelper::getModel( 'Categories' , true );
-		$categories	= $model->getAllCategories();
+	{
+		$containersOnly = isset($this->element['containersonly']) ? true : false;
+		$multiple = isset($this->element['multipleitems']) ? true : false;
 
-		$multiple 	= $this->element[ 'multipleitems' ];
+		$model = ED::model('Categories');
+		$categories = $containersOnly ? $model->getCatContainer() : $model->getAllCategories();
 
-		if( !is_array( $this->value ) )
-		{
-			$this->value 	= array( $this->value );
+		if (!is_array($this->value)) {
+			$this->value = array($this->value);
 		}
 
 		ob_start();
 		?>
 		<select name="<?php echo $this->name;?><?php echo $multiple ? '[]' : '';?>" id="<?php echo $this->name;?>"<?php echo $multiple == 'true' ? ' multiple="multiple"' :'';?>>
-			<?php if( $categories ){ ?>	
-				<?php foreach( $categories as $category ){ ?>
-				<option value="<?php echo $category->id;?>"<?php echo in_array( $category->id , $this->value ) ? ' selected="selected"' : '';?>><?php echo JText::_( $category->title ); ?></option>
+			<option value="0"> Please select your category </option>
+			<?php if ($categories) { ?>
+				<?php foreach ($categories as $category) { ?>
+				<option value="<?php echo $category->id;?>"<?php echo in_array($category->id, $this->value) ? ' selected="selected"' : '';?>><?php echo JText::_($category->title); ?></option>
 				<?php } ?>
 			<?php } ?>
 		</select>
 		<?php
-		$html 		= ob_get_contents();
+		$html = ob_get_contents();
 		ob_end_clean();
 
 		return $html;

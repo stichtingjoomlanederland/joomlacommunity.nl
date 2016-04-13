@@ -1,81 +1,82 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyBlog is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-defined('_JEXEC') or die('Restricted access');
-
-require_once DISCUSS_ADMIN_ROOT . '/views.php';
+require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
 class EasyDiscussViewUsers extends EasyDiscussAdminView
 {
+	/**
+	 * Renders the user's listing
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function display($tpl = null)
 	{
-		// @rule: Test for user access if on 1.6 and above
-		if( DiscussHelper::getJoomlaVersion() >= '1.6' )
-		{
-			if(!JFactory::getUser()->authorise('discuss.manage.users' , 'com_easydiscuss') )
-			{
-				JFactory::getApplication()->redirect( 'index.php' , JText::_( 'JERROR_ALERTNOAUTHOR' ) , 'error' );
-				JFactory::getApplication()->close();
-			}
-		}
-		// Initialise variables
-		$user			= JFactory::getUser();
-		$mainframe		= JFactory::getApplication();
+		$this->checkAccess('discuss.manage.users');
 
-		$filter_state	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.users.filter_state', 	'filter_state', 	'*', 'word' );
-		$search			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.users.search', 			'search', 			'', 'string' );
 
-		$search			= trim(JString::strtolower( $search ) );
-		$order			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.users.filter_order', 	'filter_order', 	'id', 'cmd' );
-		$orderDirection	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.users.filter_order_Dir',	'filter_order_Dir',	'', 'word' );
+		// Set page attributes
+		$this->title('COM_EASYDISCUSS_USERS');
 
-		// Get data from the model
-		//$users			= $this->get( 'Users', true );
-		$users = DiscussHelper::getModel( 'Users' , true );
-		$users = $users->getUsers();
+		// Register toolbar items
+		JToolbarHelper::deleteList();
 
-		$pagination		= $this->get( 'Pagination' );
+		// Get the selected filter
+		$filter = $this->getUserState('users.filter_state', 'filter_state', '*', 'word');
 
-		if(DiscussHelper::getJoomlaVersion() >= '1.6')
-		{
-			if(count($users) > 0)
-			{
-				for($i = 0; $i < count($users); $i++)
-				{
-					$row = $users[$i];
-					$row->usergroups 	= $this->getGroupTitle( $row->id );
-				}
+		// Get the current search query
+		$search = $this->getUserState('users.search', 'search', '', 'string');
+		$search = trim(strtolower($search));
+
+		// Ordering options
+		$order = $this->getUserState('users.filter_order', 'filter_order', 'id', 'cmd');
+		$orderDirection = $this->getUserState('users.filter_order_Dir', 'filter_order_Dir', '', 'word');
+
+		$model = ED::model('Users');
+		$users = $model->getUsers();
+
+		// Get the pagination
+		$pagination = $model->getPagination();
+
+		if ($users) {
+			foreach ($users as &$user) {
+				$user->usergroups = $this->getGroupTitle($user->id);
+				$user->totalTopics = $this->getTotalTopicCreated($user->id);
 			}
 		}
 
+		$browse = $this->input->get('browse', 0, 'int');
+		$browseFunction = $this->input->get('browsefunction', 'selectUser', 'default');
+		$prefix = $this->input->get('prefix', '', 'cmd');
 
-		$this->assignRef( 'users' 		, $users );
-		$this->assignRef( 'pagination'	, $pagination );
+		$this->set('filter', $filter);
+		$this->set('search', $search);
+		$this->set('prefix', $prefix);
+		$this->set('users', $users);
+		$this->set('pagination', $pagination);
+		$this->set('browse', $browse);
+		$this->set('browsefunction', $browseFunction);
 
-		$browse			= JRequest::getInt( 'browse' , 0 );
-		$browsefunction = JRequest::getVar('browsefunction', 'selectUser');
-		$this->assign( 'browse' , $browse );
-		$this->assign( 'browsefunction' , $browsefunction );
+		$this->set('order', $order);
+		$this->set('orderDirection', $orderDirection);
 
-		$this->assign( 'state'			, JHTML::_('grid.state', $filter_state ) );
-		$this->assign( 'search'			, $search );
-		$this->assign( 'order'			, $order );
-		$this->assign( 'orderDirection'	, $orderDirection );
-
-		parent::display($tpl);
+		parent::display('users/default');
 	}
 
-	function getGroupTitle( $user_id )
+	public function getGroupTitle($user_id)
 	{
 		$db = DiscussHelper::getDBO();
 
@@ -102,15 +103,6 @@ class EasyDiscussViewUsers extends EasyDiscussAdminView
 		return $result;
 	}
 
-	public function registerToolbar()
-	{
-		JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_USERS' ), 'users' );
-
-		JToolBarHelper::custom( 'home', 'arrow-left', '', JText::_( 'COM_EASYDISCUSS_TOOLBAR_HOME' ), false);
-		JToolBarHelper::divider();
-		JToolbarHelper::deleteList();
-	}
-
 	public function browse()
 	{
 		$app			= JFactory::getApplication();
@@ -122,13 +114,12 @@ class EasyDiscussViewUsers extends EasyDiscussAdminView
 		$order			= $app->getUserStateFromRequest( 'com_easydiscuss.users.filter_order',		'filter_order',		'id',	'cmd' );
 		$orderDirection	= $app->getUserStateFromRequest( 'com_easydiscuss.users.filter_order_Dir',	'filter_order_Dir',	'',		'word' );
 
-		$userModel		= DiscussHelper::getModel( 'Users' );
+		$userModel		= ED::model( 'Users' );
 		$users			= $userModel->getUsers();
 
-		if(DiscussHelper::getJoomlaVersion() >= '1.6' && count($users) > 0)
-		{
-			for($i = 0; $i < count($users); $i++)
-			{
+		if (count($users) > 0) {
+			for ($i = 0; $i < count($users); $i++) {
+
 				$joomlaUser				= JFactory::getUser($users[$i]->id);
 				$userGroupsKeys			= array_keys($joomlaUser->groups);
 				$userGroups				= implode(', ', $userGroupsKeys);

@@ -1,202 +1,192 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once( DISCUSS_ROOT . '/views.php' );
+require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewConversation extends EasyDiscussView
 {
 	/**
-	 * Displays a list of messages for the current logged in user.
+	 * Determines if conversations are enabled
 	 *
-	 * @since	3.0
+	 * @since	4.0
 	 * @access	public
+	 * @param	string
+	 * @return	
 	 */
-	public function display( $tpl = null )
+	public function isFeatureAvailable()
 	{
-		$my 	= JFactory::getUser();
-		$app 	= JFactory::getApplication();
-
-		// Do not allow non logged in users to view anything in conversation.
-		if( !$my->id )
-		{
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=index' , false ) );
-			$app->close();
+		if (!$this->config->get('main_conversations')) {
+			return false;
 		}
 
-		// Retrieve a list of conversations
-		$model 			= DiscussHelper::getModel( 'Conversation' );
-		$conversations	= $model->getConversations( $my->id );
-		$pagination		= $model->getPagination();
-
-		$countInbox 		= $model->getCount( $my->id );
-		$countArchives		= $model->getCount( $my->id , array( 'archives' => true ) );
-
-
-		DiscussHelper::setPageTitle( JText::_( 'COM_EASYDISCUSS_CONVERSATIONS_TITLE' ) );
-
-		// Format messages
-		DiscussHelper::formatConversations( $conversations );
-
-		$theme 	= new DiscussThemes();
-		$theme->set( 'heading'			, JText::_( 'COM_EASYDISCUSS_CONVERSATIONS_HEADING' ) );
-		$theme->set( 'active'			, 'inbox' );
-		$theme->set( 'conversations' , $conversations );
-		$theme->set( 'pagination'	, $pagination );
-		$theme->set( 'countInbox'	, $countInbox );
-		$theme->set( 'countArchives'	, $countArchives );
-
-		echo $theme->fetch( 'conversation.list.php' );
+		return true;
 	}
 
 	/**
-	 * Displays a list of messages for the current logged in user.
+	 * Renders the conversation layout
 	 *
-	 * @since	3.0
+	 * @since	4.0
 	 * @access	public
+	 * @param	string
+	 * @return	
 	 */
-	public function archives()
+	public function display($tpl = null)
 	{
-		$my 	= JFactory::getUser();
-		$app 	= JFactory::getApplication();
-
 		// Do not allow non logged in users to view anything in conversation.
-		if( !$my->id )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_NOT_ALLOWED' ) , DISCUSS_QUEUE_ERROR );
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=index' , false ) );
-			$app->close();
+		ED::requireLogin();
+
+		// Check if the user has permission to use private message
+		if (!$this->acl->allowed('allow_privatemessage')) {
+			ED::setMessage('COM_EASYDISCUSS_NOT_ALLOWED_POST_PRIVATE_MESSAGE', 'error');
+			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss', false));
 		}
 
-		DiscussHelper::setPageTitle( JText::_( 'COM_EASYDISCUSS_CONVERSATIONS_ARCHIVE_TITLE' ) );
+		// Set page attributes
+		ED::setPageTitle('COM_EASYDISCUSS_CONVERSATIONS_TITLE');
+
+		// Get the conversation type
+		$type = $this->input->get('type', '', 'word');
+
+		$options = array();
+
+		if ($type == 'archives') {
+			$options['archives'] = true;
+		}
 
 		// Retrieve a list of conversations
-		$model 			= DiscussHelper::getModel( 'Conversation' );
-		$conversations	= $model->getConversations( $my->id , array( 'archives' => true ) );
-		$pagination		= $model->getPagination();
+		$model = ED::model('Conversation');
+		$lists = $model->getConversations($this->my->id, $options);
 
-		$countInbox 		= $model->getCount( $my->id );
-		$countArchives	= $model->getCount( $my->id , array( 'archives' => true ) );
+		// Get the active conversation
+		$id = $this->input->get('id', 0, 'int');
+		$activeConversation = null;
 
-		// Format messages
-		DiscussHelper::formatConversations( $conversations );
+		// If there was an id, we know the user wants to view an active conversation
+		if ($id) {
+			$conversation = ED::conversation($id);
 
-		$theme 	= new DiscussThemes();
+			if ($conversation->id) {
+				$activeConversation = $conversation;
+			}
+		}
 
-		$theme->set( 'heading'			, JText::_( 'COM_EASYDISCUSS_CONVERSATIONS_ARCHIVES' ) );
-		$theme->set( 'active'			, 'archives' );
-		$theme->set( 'conversations' 	, $conversations );
-		$theme->set( 'pagination'		, $pagination );
-		$theme->set( 'countInbox'		, $countInbox );
-		$theme->set( 'countArchives'	, $countArchives );
+		// If there is no id provided, we load up the first item
+		if (!$activeConversation && $lists && count($lists) > 0) {
+			$activeConversation = $lists[0];
+		}
 
-		echo $theme->fetch( 'conversation.list.php' );
+		// Mark the discussion as read since it is already opened
+		if ($activeConversation) {
+			$activeConversation->setRead($this->my->id);
+		}
+
+		$pagination = $model->getPagination();
+
+		$countInbox = $model->getCount($this->my->id);
+		$countArchives = $model->getCount($this->my->id, array('archives' => true));
+
+		$this->set('type', $type);
+		$this->set('activeConversation', $activeConversation);
+		$this->set('lists', $lists);
+		$this->set('pagination', $pagination);
+		$this->set('countInbox', $countInbox);
+		$this->set('countArchives', $countArchives);
+
+		parent::display('conversations/default');
 	}
 
 	/**
-	 * Displays the conversation.
+	 * Displays the single conversation page.
 	 *
-	 * @since	3.0
+	 * @since	4.0
 	 * @access	public
+	 * @param	string
+	 * @return	
 	 */
 	public function read()
 	{
-		$id 	= JRequest::getInt( 'id' );
-		$app 	= JFactory::getApplication();
-		$my 	= JFactory::getUser();
-
-		// Do not allow non logged in users to view anything in conversation.
-		if( !$my->id )
-		{
-			$returnURL = base64_encode( JRequest::getURI() );
-			//DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_NOT_ALLOWED' ) , DISCUSS_QUEUE_ERROR );
-			//$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=index' , false ) );
-			$app->redirect( DiscussHelper::getLoginLink( $returnURL ) );
-			$app->close();
+		$id = $this->input->get('id', 0, 'int');
+		
+		// Do not allow not logged in users to view anything in conversation.
+		if (!$this->my->id) {
+			$returnURL = base64_encode(JRequest::getURI());
+			$this->app->redirect(ED::getLoginLink($returnURL));
+			return $this->app->close();
 		}
 
 		// Try to load the conversation
-		$conversation 	= DiscussHelper::getTable( 'Conversation' );
-		$state 			= $conversation->load( $id );
+		$conversation = ED::table('Conversation');
+		$state = $conversation->load($id);
 
 		// The conversation id needs to be valid.
-		if( !$state )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_CONVERSATION_INVALID' ) , DISCUSS_QUEUE_ERROR );
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=index' , false ) );
-			$app->close();
+		if (!$state) {
+			ED::setMessageQueue(JText::_('COM_EASYDISCUSS_CONVERSATION_INVALID'), 'error');
+			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false));
 		}
-
+		
 		// Check if the current logged in user has access to this conversation.
-		$model 		= DiscussHelper::getModel( 'Conversation' );
+		$model = ED::model('Conversation');
 
-		if( !$model->hasAccess( $conversation->id , $my->id ) )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_NOT_ALLOWED' ) , DISCUSS_QUEUE_ERROR );
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=index' , false ) );
-			$app->close();
+		if (!$model->hasAccess($conversation->id, $this->my->id)) {
+			ED::setMessageQueue(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'), 'error');
+			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false));
 		}
+		
+		$result	= $model->getParticipants($conversation->id, $this->my->id);
+		$user = ED::profile();
+		$user->load($result[0]);
 
-		$doc 	= JFactory::getDocument();
-		$result	= $conversation->getParticipants( $my->id );
-		$user 	= DiscussHelper::getTable( 'Profile' );
-		$user->load( $result[0 ] );
-
-		DiscussHelper::setPageTitle( JText::sprintf( 'COM_EASYDISCUSS_VIEW_CONVERSATION_TITLE' , $this->escape( $user->getName() ) ) );
-
-		// Mark this message as read for the current logged in user.
-		$conversation->markAsRead( $my->id );
+		ED::setPageTitle(JText::sprintf( 'COM_EASYDISCUSS_VIEW_CONVERSATION_TITLE', $this->escape($user->getName())));
 
 
 
 		// Check if it is view all messages
-		$viewAll = JRequest::getVar( 'show' );
-		$count = JRequest::getInt( 'count' );
+		$show = $this->input->get('show');
+		$count = $this->input->get('count', 0, 'int');
 
 
-		if( $viewAll == 'all' )
-		{
+		if ($show == 'all') {
 			// For future use
 			$count = '';
 		}
 
-		if( $viewAll == 'previous' )
-		{
-			$count = JRequest::getInt( 'count' );
+		if ($show == 'previous') {
 			// Check if the value is integer, we do no want any weird values
-			if( isset($count) && is_int($count) )
-			{
+			if (isset($count) && is_int($count)) {
 				// Convert to absolute number
 				$count = abs($count);
 			}
 		}
 
 		// Get replies in the conversation
-		$replies 	= $model->getMessages( $conversation->id , $my->id, $viewAll, $count );
-
+		$replies = $model->getMessages($conversation->id, $this->my->id, $show, $count);
 
 		// Format conversation replies.
-		DiscussHelper::formatConversationReplies( $replies );
+		$model->formatConversationReplies($replies);
 
 		// Format the conversation object.
-		$data 		= array( $conversation );
-		DiscussHelper::formatConversations( $data );
+		$data = array($conversation);
+		$model->formatConversations($data);
 
-		$theme 	= new DiscussThemes();
-		$theme->set( 'replies'		, $replies );
-		$theme->set( 'conversation'	, $data[0] );
+		// To retrieve previous messages
+		$count += $this->config->get('main_messages_limit', 5);
 
-		echo $theme->fetch( 'conversation.read.php' );
+		$this->set('replies', $replies);
+		$this->set('conversation', $data[0]);
+		$this->set('count', $count);
+		$this->set('show', $show);
+
+		parent::display('conversations/conversation.read');
 	}
 
 	/**
@@ -207,45 +197,14 @@ class EasyDiscussViewConversation extends EasyDiscussView
 	 */
 	public function compose()
 	{
-		// Get recipient id from request.
-		$id 	= JRequest::getInt( 'id' );
-		$app 	= JFactory::getApplication();
-		$my 	= JFactory::getUser();
-
 		// Do not allow non logged in users to view anything in conversation.
-		if( !$my->id )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_NOT_ALLOWED' ) , DISCUSS_QUEUE_ERROR );
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=index' , false ) );
-			$app->close();
+		if (!$this->my->id) {
+			ED::setMessageQueue(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'), 'error');
+			return $this->app->redirect(EDR::_( 'index.php?option=com_easydiscuss&view=index', false));
+			return $this->app->close();
 		}
 
-		if( !$id )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_CONVERSATION_INVALID' ) , DISCUSS_QUEUE_ERROR );
-			$app->redirect( DiscussRouter::_( 'index.php?option=com_easydiscuss&view=index' , false ) );
-			$app->close();
-		}
 
-		$recipient 	= DiscussHelper::getTable( 'Profile' );
-		$recipient->load( $id );
-
-		// Initialize conversation table.
-		$conversation 	= DiscussHelper::getTable( 'Conversation' );
-
-		// Check if this conversation already exist in the system.
-		$state 			= $conversation->loadByRelation( $my->id , $recipient->id );
-
-		// If conversation already exists between both parties, just redirect to the reply in an existing conversation.
-		if( $state )
-		{
-			$app->redirect( DiscussRouter::getMessageRoute( $conversation->id , false ) . '#reply' );
-			$app->close();
-		}
-
-		$theme 	= new DiscussThemes();
-
-		$theme->set( 'recipient'	, $recipient );
-		echo $theme->fetch( 'conversation.compose.php' );
+		parent::display('conversations/compose');
 	}
 }

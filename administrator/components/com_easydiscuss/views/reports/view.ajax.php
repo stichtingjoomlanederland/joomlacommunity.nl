@@ -11,71 +11,106 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-require_once DISCUSS_ADMIN_ROOT . '/views.php';
-require_once DISCUSS_HELPERS . '/string.php';
+require_once DISCUSS_ADMIN_ROOT . '/views/views.php';
 
 class EasyDiscussViewReports extends EasyDiscussAdminView
 {
-	public function ajaxSubmitEmail( $data )
+	/**
+	 * Previews an reports
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function preview()
 	{
+		$id = $this->input->get('id', 0, 'int');
+
+		if (!$id) {
+			return $this->ajax->reject();
+		}
+		
+		$url = JURI::root() . 'administrator/index.php?option=com_easydiscuss&view=reports&layout=preview&tmpl=component&id=' . $id;		
+
+		$theme = ED::themes();
+		$theme->set('url', $url);
+
+		$output = $theme->output('admin/reports/dialog.reasons');
+
+		return $this->ajax->resolve($output);
+	}
+
+	public function submitEmail()
+	{
+		$ajax = ED::ajax();
 		$my		= JFactory::getUser();
-		$djax	= new Disjax();
-		$post	= DiscussStringHelper::ajaxPostToArray($data);
 
-		if($my->id == 0)
-		{
-			$djax->alert(JText::_('COM_EASYDISCUSS_YOU_DO_NOT_HAVE_PERMISION_TO_SUBMIT_REPORT'), JText::_('ERROR'), '450', 'auto');
-			$djax->send();
-			return;
+		$id = $this->input->get('id', '0', 'int');
+		$content = $this->input->get('content', '', 'raw');
+
+		if ($my->id == 0) {
+			$ajax->reject(JText::_('COM_EASYDISCUSS_YOU_DO_NOT_HAVE_PERMISION_TO_SUBMIT_REPORT'));
+			return $ajax->send();
 		}
 
-		// Load language files from front end.
-		JFactory::getLanguage()->load( 'com_easydiscuss' , JPATH_ROOT );
-
-		if(empty($post['post_id']))
-		{
-			$djax->alert(JText::_('COM_EASYDISCUSS_INVALID_POST_ID'), JText::_('ERROR'), '450', 'auto');
-			$djax->send();
-			return;
+		if (! $id) {
+			$ajax->reject(JText::_('COM_EASYDISCUSS_INVALID_POST_ID'));
+			return $ajax->send();
 		}
 
-		$postId			= (int) $post['post_id'];
-		$emailContent	= $post['content'];
+		$post = ED::table('Posts');
+		$post->load($id);
 
-		// Prepare email data
-		$postTbl	= JTable::getInstance( 'posts', 'Discuss' );
-		$postTbl->load($postId);
+		$moderator = ED::user($my->id);
+		$author = JFactory::getUser($post->user_id);
 
-		$moderator	= DiscussHelper::getTable( 'Profile' );
-		$moderator->load( $my->id );
+		$emailData = array();
+		$emailData['postAuthor'] = $moderator->getName();
+		$emailData['postAuthorAvatar'] = $moderator->getAvatar();
+		$emailData['postDate'] = ED::date()->toFormat($post->created);
+		$emailData['postLink'] = JURI::root() . 'index.php?option=com_easydiscuss&view=post&id=' . $post->id;
+		$emailData['postTitle'] = $post->title;
+		$emailData['messages'] = $content;
 
-		$creator	= JFactory::getUser($postTbl->user_id);
-		$date 		= DiscussHelper::getDate( $postTbl->created );
+		if (! empty($post->parent_id)) {
+			$parentTbl = ED::table('Posts');
+			$parentTbl->load( $post->parent_id );
 
-		$emailData						= array();
-		$emailData['postAuthor']		= $moderator->getName();
-		$emailData['postAuthorAvatar']	= $moderator->getAvatar();
-		$emailData['postDate']			= $date->toFormat();
-		$emailData['postLink']			= JURI::root() . 'index.php?option=com_easydiscuss&view=post&id=' . $postTbl->id;
-		$emailData['postTitle']			= $postTbl->title;
-		$emailData['messages']			= $emailContent;
-
-		if(! empty($postTbl->parent_id))
-		{
-			$parentTbl = JTable::getInstance( 'posts', 'Discuss' );
-			$parentTbl->load( $postTbl->parent_id );
-
-			$emailData['postTitle']		= $parentTbl->title;
-			$emailData['postLink']		= JURI::root() . 'index.php?option=com_easydiscuss&view=post&id=' . $parentTbl->id;
+			$emailData['postTitle'] = $parentTbl->title;
+			$emailData['postLink'] = JURI::root() . 'index.php?option=com_easydiscuss&view=post&id=' . $parentTbl->id;
 		}
 
-		$noti	= DiscussHelper::getNotification();
-		$noti->addQueue( $creator->email , JText::sprintf('COM_EASYDISCUSS_REQUIRED_YOUR_ATTENTION', $emailData['postTitle']), '', 'email.report.attention.php', $emailData);
+		$noti	= ED::getNotification();
+		$noti->addQueue( $author->email , JText::sprintf('COM_EASYDISCUSS_REQUIRED_YOUR_ATTENTION', $emailData['postTitle']), '', 'email.report.attention', $emailData);
 
-		$djax->assign('report-entry-msg-' . $postId, JText::_( 'COM_EASYDISCUSS_EMAIL_SENT_TO_AUTHOR' ) );
-		$djax->script('admin.reports.revertEmailForm("' . $postId . '");');
+		$ajax->resolve(JText::_( 'COM_EASYDISCUSS_EMAIL_SENT_TO_AUTHOR'));
+		return $ajax->send();
+	}
 
-		$djax->send();
-		return;
+
+	public function deleteConfirm()
+	{
+		$ajax = ED::ajax();
+		$my		= JFactory::getUser();
+
+		$postId = $this->input->get('id', 0, 'int');
+
+		if ($my->id == 0) {
+			$ajax->reject(JText::_('COM_EASYDISCUSS_YOU_DO_NOT_HAVE_PERMISION_TO_SUBMIT_REPORT'));
+			return $ajax->send();
+		}
+
+		if (!$postId) {
+			$ajax->reject(JText::_('COM_EASYDISCUSS_INVALID_POST_ID'));
+			return $ajax->send();
+		}
+
+		$theme = ED::themes();
+		$theme->set('id', $postId);
+		$contents = $theme->output('admin/reports/dialog.delete.post');
+
+		$ajax->resolve($contents);
+		return $ajax->send();
 	}
 }

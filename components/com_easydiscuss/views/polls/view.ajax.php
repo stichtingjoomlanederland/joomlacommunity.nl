@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,232 +9,138 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once( DISCUSS_ROOT . '/views.php' );
+require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewPolls extends EasyDiscussView
 {
 	/**
-	 * Ajax method to process voting on a poll.
+	 * Process a poll voting
 	 *
-	 * @since	3.0
+	 * @since	4.0
 	 * @access	public
+	 * @param	string
+	 * @return	
 	 */
 	public function vote()
 	{
-		$ajax		= DiscussHelper::getHelper( 'Ajax' );
-		$config		= DiscussHelper::getConfig();
+		// Get the choice id
+		$id	= $this->input->get('id', 0, 'int');
 
-		$id			= JRequest::getInt( 'id' );
-		$poll		= DiscussHelper::getTable( 'Poll' );
-		$poll->load( $id );
+		// Load the poll choice
+		$choice = ED::pollchoice($id);
 
-		$my			= JFactory::getUser();
-		$profile	= DiscussHelper::getTable( 'Profile' );
-		$profile->load( $my->id );
-
-		$post		= DiscussHelper::getTable( 'Post' );
-		$post->load( $poll->post_id );
-
-		if( ( $post->parent_id && !$config->get( 'main_polls_replies' ) ) ||
-			( !$post->parent_id && !$config->get( 'main_polls' ) ) ||
-			( !$poll->id ) ||
-			( !$config->get( 'main_polls_guests' ) && $my->id <= 0 )
-		)
-		{
-			echo JText::_( 'COM_EASYDISCUSS_NOT_ALLOWED' );
-			return $ajax->send();;
+		// Ensure that the poll choice is valid
+		if (!$id || !$choice->id) {
+			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
 		}
 
-		// Get user's session id.
-		$session 	= JFactory::getSession();
-		$sessionId 	= $session->getId();
+		// Get the poll
+		$poll = $choice->getPoll();
 
-		// @task: Test if user has voted before. If they have already voted on this item before, we need to update the counts.
-		$db		= DiscussHelper::getDBO();
-		$query	= 'SELECT ' . $db->nameQuote( 'multiple' )
-				. ' FROM '  . $db->nameQuote( '#__discuss_polls_question' )
-				. ' WHERE ' . $db->nameQuote( 'post_id' ) . ' = ' . $db->quote( $poll->get( 'post_id' ) );
-		$db->setQuery( $query );
-
-		$isMultiple 	= $db->loadResult();
-
-		// Initial vote count on poll item.
-		$count 			= $poll->count;
-
-		if( !$isMultiple )
-		{
-			// Legacy or multiple vote is not activated
-			if( $poll->hasVotedPoll( $my->id, $sessionId ) )
-			{
-				// Remove existing vote
-				$poll->removeExistingVote( $my->id , $poll->get( 'post_id' ), $sessionId );
-			}
-			else
-			{
-				// If this is a new poll, we need to update the counter.
-				$count	+= 1;
-			}
-
-			// @task: Add a new vote now
-			$pollUser = DiscussHelper::getTable( 'PollUser' );
-			$pollUser->set( 'poll_id'		, $id );
-			$pollUser->set( 'user_id'		, $my->id );
-			$pollUser->set( 'session_id'	, $sessionId );
-			$pollUser->store();
+		// Ensure that the user can really vote
+		if (!$poll->canVote()) {
+			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
 		}
-		else
-		{
-			// If user has voted on this item before, we need to unvote the particular poll item.
-			if( $poll->istheSamePoll( $my->id, $poll->id, $sessionId ) )
-			{
-				// The user unvoted on the poll item. We need to update the counter.
-				$count 	-= 1;
 
-				$poll->removeSamePoll( $my->id, $poll->id, $sessionId );
-			}
-			else
-			{
-				// If this is a new poll, we need to update the counter.
-				$count	+= 1;
-
-				// Add a new vote for the user.
-				$pollUser = DiscussHelper::getTable( 'PollUser' );
-
-				$pollUser->set( 'poll_id'		, $id );
-				$pollUser->set( 'user_id'		, $my->id );
-				$pollUser->set( 'session_id'	, $sessionId );
-
-				$pollUser->store();
-			}
-		}
-		$post = DiscussHelper::getTable( 'Post' );
-		$post->load( $poll->post_id );
-		$post->updatePollsCount();
-
-		// Update the poll count
-		$poll->count 	= $count;
-
-		// We need to update all the percentages.
-		$percentages 	= array();
+		// Vote for the choice now.
+		$choice->vote();
 
 		// Get a list of poll answers for this question.
-		$pollItems 	= $post->getPolls();
+		$result = array();
+		$choices = $poll->getChoices(true);
 
-		$result		= array();
-
-		foreach( $pollItems as $pollItem )
-		{
-			$obj 	= new stdClass();
-
-			$obj->id 			= $pollItem->id;
-			$obj->percentage 	= $pollItem->getPercentage();
-			$obj->count 		= $pollItem->count;
-			$obj->votes         = DiscussHelper::getHelper( 'String' )->getNoun('COM_EASYDISCUSS_VOTE_COUNT', $pollItem->count, true);
-
-			// Regenerate voters html
-			$output 	= '';
-			$voters		= $pollItem->getVoters();
-
-			foreach( $voters as $voter )
-			{
-				$theme 	= new DiscussThemes();
-				$theme->set( 'voter' , $profile );
-
-				$output .= $theme->fetch( 'poll.voters.php' );
-			}
-
-			$obj->voters 		= $output;
-
-			$result[]	= $obj;
+		foreach ($choices as $choice) {
+			$result[] = $choice->toData();
 		}
 
-		$ajax->resolve( $result );
-
-		return $ajax->send();
+		return $this->ajax->resolve($result);
 	}
 
 	/**
-	 * Retrieve a list of voters from the site in a dialog.
+	 * Retrieves a list of voters for a choice
 	 *
-	 * @since	3.0
+	 * @since	4.0
 	 * @access	public
-	 * @param	int		The unique id for the poll answer.
-	 * @return
+	 * @param	string
+	 * @return	
 	 */
-	public function getVoters( $pollId )
+	public function getVoters()
 	{
-		$ajax	= new Disjax();
+		$id = $this->input->get('id', 0, 'int');
 
-		$poll	= DiscussHelper::getTable( 'Poll' );
-		$poll->load( $pollId );
+		$choice = ED::pollchoice($id);
 
-		$voters		= $poll->getVoters();
+		if (!$id || !$choice->id) {
+			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+		}
 
-		$template	= new DiscussThemes();
-		$template->set( 'voters' , $voters );
+		$voters = $choice->getVoters();
 
-		$option				= new stdClass();
-		$option->title		= JText::_( 'COM_EASYDISCUSS_USERS_WHO_VOTED_THIS_POLL' );
-		$option->content	= $template->fetch( 'ajax.poll.voters.php' , array( 'dialog' => true ) );
+		$theme = ED::themes();
+		$theme->set('voters', $voters);
+		$contents = $theme->output('site/polls/voters');
 
-		$buttons			= array();
-		$button				= new stdClass();
-		$button->title		= JText::_( 'COM_EASYDISCUSS_OK' );
-		$button->action		= 'disjax.closedlg();';
-		$button->className	= 'btn-primary';
-		$buttons[]			= $button;
-		$option->buttons	= $buttons;
-
-		$ajax->dialog( $option );
-
-		$ajax->send();
+		return $this->ajax->resolve($contents);
 	}
 
-	public function lockPolls()
+	/**
+	 * Allows caller to lock polls
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function lock()
 	{
-		$ajax		= DiscussHelper::getHelper( 'Ajax' );
-		$id = JRequest::getInt( 'postId' );
+		$postId = $this->input->get('id', 0, 'int');
 
-		if( !empty($id) )
-		{
-			$post		= DiscussHelper::getTable( 'Post' );
-			$post->load( $id );
-			$isQuestion = $post->isQuestion();
-
-			$polls = $post->getPolls();
-
-			foreach($polls as $poll)
-			{
-				$pollsId[] = $poll->id;
-			}
-
-			$state = $post->lockPolls();
+		if (!$postId) {
+			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
 		}
-		return $ajax->resolve( '<i class="icon-lock"></i>' . JText::_( 'COM_EASYDISCUSS_POLL_IS_LOCKED' ), $isQuestion, $id, $pollsId );
+
+
+		$post = ED::post($postId);
+
+		// Ensure that the user is really allowed to lock the polls
+		if (!$post->canLockPolls()) {
+			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+		}
+
+		// Lock the polls
+		$post->lockPolls();
+
+		return $this->ajax->resolve();
 	}
 
-	public function unlockPolls()
+	/**
+	 * Allows caller to unlock polls
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function unlock()
 	{
-		$ajax		= DiscussHelper::getHelper( 'Ajax' );
-		$id = JRequest::getInt( 'postId' );
+		$postId = $this->input->get('id', 0, 'int');
 
-		if( !empty($id) )
-		{
-			$post		= DiscussHelper::getTable( 'Post' );
-			$post->load( $id );
-			$isQuestion = $post->isQuestion();
-
-			$polls = $post->getPolls();
-
-			foreach($polls as $poll)
-			{
-				$pollsId[] = $poll->id;
-			}
-
-			$state = $post->unlockPolls();
+		if (!$postId) {
+			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
 		}
-		return $ajax->resolve( $isQuestion, $id, $pollsId );
+
+		$post = ED::post($postId);
+
+		// Ensure that the user is really allowed to lock the polls
+		if (!$post->canLockPolls()) {
+			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+		}
+
+		// Lock the polls
+		$post->unlockPolls();
+
+		return $this->ajax->resolve();
 	}
 }

@@ -21,211 +21,233 @@ jimport('joomla.filesystem.folder');
 
 class com_EasyDiscussInstallerScript
 {
-	protected $message;
-	protected $status;
-	protected $sourcePath;
-
-	public function execute()
+	/**
+	 * Triggered after the installation is completed
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function postflight()
 	{
-		$jinstaller	= JInstaller::getInstance();
-		$installer = new EasyDiscussInstaller( $jinstaller );
-		$installer->execute();
+		ob_start();
+		?>
+<style type="text/css">
+#j-main-container > .adminform > tbody > tr:first-child {
+	display: none !important;
+}
+</style>
 
-		$this->messages	= $installer->getMessages();
+<table border="0" cellpadding="0" cellspacing="0" style="
+	background: #fff;
+	background: #25384b;
+	font: 12px/1.5 Arial, sans-serif;
+	color: rgba(255,255,255,.5);
+	width: 100%;
+	max-width: 100%;
+	border-radius: 4px;
+	overflow: hidden;
+	box-shadow: 0 1px 1px rgba(0,0,0,.08);
+	text-align: left;
+	margin: 0 auto 20px;
+	">
+	<tbody>
+		<tr>
+			<td style="padding: 40px; font-size: 12px;">
+				<div style="margin-bottom: 20px;">
+					<div style="display: table-cell; vertical-align: middle; padding-right: 15px">
+						<img src="<?php echo JURI::root();?>/administrator/components/com_easydiscuss/setup/assets/images/logo.png" height="48" style="height:48px !important;">
+					</div>
+					<div style="display: table-cell; vertical-align: middle;">
+						<b style="font-size: 26px; color: #fff; font-weight: normal; line-height: 1; margin: 5px 0;">EasyDiscuss</b>
+					</div>
+				</div>
+
+				<p style="font-size: 14px; color: rgba(255,255,255,.8);">
+					Thank you for your recent purchase of EasyDiscuss, the best Q&A component for Joomla! This is a confirmation message that the necessary setup files are already loaded on the site.</p>
+				<p style="font-size: 14px; color: rgba(255,255,255,.8);">You will need to proceed with the installation process by clicking on the button below.</p>
+
+				<br />
+
+				<a href="<?php echo JURI::root();?>administrator/index.php?option=com_easydiscuss&amp;install=true" style="
+						background-color: #6c5;
+						border-radius: 4px;
+						color: #fff;
+						display: inline-block;
+						font-weight: bold;
+						font-size: 16px;
+						padding: 10px 15px;
+						text-decoration: none !important;
+				">
+					Proceed With Installation &rarr;
+				</a>
+			</td>
+		</tr>
+	</tbody>
+</table>
+		<?php
+		$contents 	= ob_get_contents();
+		ob_end_clean();
+
+		echo $contents;
 	}
 
-	public function install($parent)
+
+	/**
+	 * Triggered before the installation is complete
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function preflight()
 	{
-		return $this->execute();
+		// During the preflight, we need to create a new installer file in the temporary folder
+		$file = JPATH_ROOT . '/tmp/easydiscuss.installation';
+
+		// Determines if the installation is a new installation or old installation.
+		$obj = new stdClass();
+		$obj->new = false;
+		$obj->step = 1;
+		$obj->status = 'installing';
+
+		$contents = json_encode($obj);
+
+		if (!JFile::exists($file)) {
+			JFile::write($file, $contents);
+		}
+
+		// remove old constant.php if exits.
+		$this->removeConstantFile();
+
+		if ($this->isUpgradeFrom3x()) {
+
+			// remove older helper files
+			$this->removeOldHelpers();
+		}
+
+		// now let check the eb config
+		$this->checkEDVersionConfig();
+
 	}
 
-	public function uninstall($parent)
+	/**
+	 * Responsible to check ed configs db version
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param
+	 * @return
+	 */
+	public function checkEDVersionConfig()
+	{
+		// if there is the config table but no dbversion, we know this upgrade is coming from pior 5.0. lets add on dbversion into config table.
+		if ($this->isUpgradeFrom3x()) {
+
+			// get current installed ed version.
+			$xmlfile = JPATH_ROOT. '/administrator/components/com_easydiscuss/easydiscuss.xml';
+
+			// set this to version prior 3.8.0 so that it will execute the db script from 3.9.0 as well incase
+			// this upgrade is from very old version.
+			$version = '3.1.0';
+
+			if (JFile::exists($xmlfile)) {
+				$contents = JFile::read($xmlfile);
+				$parser = simplexml_load_string($contents);
+				$version = $parser->xpath('version');
+				$version = (string) $version[0];
+			}
+
+			$db = JFactory::getDBO();
+
+			// ok, now we got the version. lets add this version into dbversion.
+			$query = 'INSERT INTO ' . $db->quoteName('#__discuss_configs') . ' (`name`, `params`) VALUES';
+			$query .= ' (' . $db->Quote('dbversion') . ',' . $db->Quote($version) . '),';
+			$query .= ' (' . $db->Quote('scriptversion') . ',' . $db->Quote($version) . ')';
+
+			$db->setQuery($query);
+			$db->query();
+		}
+	}
+
+	private function isUpgradeFrom3x()
+	{
+		static $isUpgrade = null;
+
+		if (is_null($isUpgrade)) {
+
+			$isUpgrade = false;
+
+			$db = JFactory::getDBO();
+
+			$jConfig = JFactory::getConfig();
+			$prefix = $jConfig->get('dbprefix');
+
+			$query = "SHOW TABLES LIKE '%" . $prefix . "discuss_configs%'";
+			$db->setQuery($query);
+
+			$result = $db->loadResult();
+
+			if ($result) {
+				// this is an upgrade. lets check if the upgrade from 3.x or not.
+				$query = 'SELECT ' . $db->quoteName('params') . ' FROM ' . $db->quoteName('#__discuss_configs') . ' WHERE ' . $db->quoteName('name') . '=' . $db->Quote('dbversion');
+				$db->setQuery($query);
+
+				$exists = $db->loadResult();
+				if (!$exists) {
+					$isUpgrade = true;
+				}
+			}
+		}
+
+		return $isUpgrade;
+	}
+
+	/**
+	 * Responsible to remove old constant.php file to avoid redefine of same constant error
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param
+	 * @return
+	 */
+	public function removeConstantFile()
+	{
+		$file = JPATH_ROOT. '/components/com_easydiscuss/constants.php';
+		if (JFile::exists($file)) {
+			JFile::delete($file);
+		}
+	}
+
+	/**
+	 * Responsible to remove old helper files
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param
+	 * @return
+	 */
+	public function removeOldHelpers()
+	{
+		// helpers
+		$path = JPATH_ROOT . '/components/com_easydiscuss/helpers';
+		if (JFolder::exists($path)) {
+			JFolder::delete($path);
+		}
+	}
+
+	public function uninstall()
 	{
 		// @TODO: Unpublish plugins / modules.
 	}
 
-	public function update($parent)
+	public function update()
 	{
-		return $this->execute();
+		// return $this->execute();
 	}
 
-	public function _validateEasyDiscussVersion()
-	{
-		$valid 			= true;
-		$parser         = null;
-		$version        = '';
-
-		$xmlFile        = JPATH_ROOT . '/administrator/components/com_easydiscuss/easydiscuss.xml';
-		if( JFile::exists( $xmlFile ) )
-		{
-
-			$jVerArr		= explode('.', JVERSION);
-			$joomlaVersion	= $jVerArr[0] . '.' . $jVerArr[1];
-
-			$contents	= JFile::read( $xmlFile );
-
-			if( $joomlaVersion >= '3.0' )
-			{
-				$parser 	= JFactory::getXML( $contents , false );
-				$version	= $parser->xpath( 'version' );
-			}
-			else
-			{
-				$parser 	= JFactory::getXMLParser('Simple');
-				$parser->loadString( $contents );
-
-				$element 	= $parser->document->getElementByPath( 'version' );
-				$version 	= $element->data();
-			}
-
-			if( $version < '3.0.0' )
-			{
-				$valid  = false;
-			}
 
 
-			// If the current installed version is lower than attachment bug patch 3.0.8598
-			if( $version < '3.0.8597' )
-			{
-				$valid = 'warning';
-			}
-		}
-
-		return $valid;
-	}
-
-	public function preflight($type, $parent)
-	{
-		//check if php version is supported before proceed with installation.
-		$temp = self::_validateEasyDiscussVersion();
-    	if( !$temp  )
-    	{
-			$mainframe = JFactory::getApplication();
-			$mainframe->enqueueMessage('WARNING: PLEASE REMEMBER TO BACKUP THE ATTACHMENTS FOLDER OR IT WILL BE DELETED.You can find it at JOOMLA/media/com_easydiscuss/attachments.<br /><br />', 'message');
-			$mainframe->enqueueMessage('Older version of EasyDiscuss detected. You will need to first perform the uninstall-and-reinstall steps to upgrade your older version of EasyDiscuss to version 3.0.x. Please be rest assured that uninstalling EasyDiscuss will not remove any data and all your records and configuration will remain intact.', 'message');
-
-			return false;
-		}
-
-		if( $temp === 'warning' )
-		{
-			$mainframe = JFactory::getApplication();
-			$mainframe->enqueueMessage('WARNING: Please install the latest patch 3.0.8598 (Bug: Attachments folder will be deleted if perform uninstallation prior of this patch), then only install EasyDiscuss 3.1.<br /><br />', 'message');
-
-			return false;
-		}
-
-		//get source path and version number from manifest file.
-		$installer	= JInstaller::getInstance();
-		$manifest	= $installer->getManifest();
-		$sourcePath	= $installer->getPath('source');
-
-		$this->message		= array();
-		$this->status		= true;
-		$this->sourcePath	= $sourcePath;
-
-		// if this is a uninstallation process, do not execute anything, just return true.
-		if( $type == 'install' || $type == 'update' || $type == 'discover_install')
-		{
-			require_once( $this->sourcePath . '/admin/install.default.php' );
-
-			//this is needed as joomla failed to remove it themselve during uninstallation or failed attempt of installation
-			EasyDiscussInstaller::removeAdminMenu();
-		}
-
-		return true;
-	}
-
-	public function postflight($type, $parent)
-	{
-		$message	= $this->message;
-		$status		= $this->status;
-
-
-		// if this is a uninstallation process, do not execute anything.
-		if( $type == 'install' || $type == 'update' || $type == 'discover_install')
-		{
-			require_once( $this->sourcePath . '/admin/install.default.php' );
-
-			// fix invalid admin menu id with Joomla 1.6 or above
-			EasyDiscussInstaller::fixMenuIds();
-
-			//check menu items.
-			EasyDiscussInstaller::checkMenu();
-		}
-
-		ob_start();
-		?>
-
-		<style type="text/css">
-		/**
-		 * Messages
-		 */
-
-		#easydiscuss-message {
-			color: red;
-			font-size:13px;
-			margin-bottom: 15px;
-			padding: 5px 10px 5px 35px;
-		}
-
-		#easydiscuss-message.error {
-			border-top: solid 2px #900;
-			border-bottom: solid 2px #900;
-			color: #900;
-		}
-
-		#easydiscuss-message.info {
-			border-top: solid 2px #06c;
-			border-bottom: solid 2px #06c;
-			color: #06c;
-		}
-
-		#easydiscuss-message.warning {
-			border-top: solid 2px #f90;
-			border-bottom: solid 2px #f90;
-			color: #c30;
-		}
-		</style>
-
-		<table width="100%" border="0">
-			<tr>
-				<td>
-					<div><img src="http://stackideas.com/images/easydiscuss/success_32.png" /></div>
-				</td>
-			</tr>
-			<?php
-				foreach($message as $msgString)
-				{
-					$msg = explode(":", $msgString);
-					switch(trim($msg[0]))
-					{
-						case 'Fatal Error':
-							$classname = 'error';
-							break;
-						case 'Warning':
-							$classname = 'warning';
-							break;
-						case 'Success':
-						default:
-							$classname = 'info';
-							break;
-					}
-					?>
-					<tr>
-						<td><div id="easydiscuss-message" class="<?php echo $classname; ?>"><?php echo $msg[0] . ' : ' . $msg[1]; ?></div></td>
-					</tr>
-					<?php
-				}
-			?>
-		</table>
-
-		<?php
-		$html = ob_get_contents();
-		@ob_end_clean();
-
-		echo $html;
-
-		return $status;
-	}
 }

@@ -1,0 +1,21 @@
+// Layout 
+.t-hidden {
+    display: none !important;
+}
+
+// Will remain not to insert prefix here, because some of the components still rely on .pull-xxxx to override.
+.pull-left {
+    float: left !important;
+}
+.pull-right {
+    float: right !important;
+}
+
+.t-xs-visible {
+    display: none;
+}
+&.w480 {
+    .t-xs-visible {
+        display: inline-block;
+    }    
+}

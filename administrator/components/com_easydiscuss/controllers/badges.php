@@ -15,10 +15,6 @@ defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.controller');
 
-require_once DISCUSS_HELPERS . '/date.php';
-require_once DISCUSS_HELPERS . '/input.php';
-require_once DISCUSS_HELPERS . '/filter.php';
-
 class EasyDiscussControllerBadges extends EasyDiscussController
 {
 	public function __construct()
@@ -26,73 +22,74 @@ class EasyDiscussControllerBadges extends EasyDiscussController
 		parent::__construct();
 
 		// Need to explicitly define this in Joomla 3.0
-		$this->registerTask( 'unpublish' , 'unpublish' );
-		$this->registerTask( 'publish' 			, 'unpublish' );
-		$this->registerTask( 'savePublishNew'	, 'save' );
+		$this->registerTask('unpublish', 'unpublish');
+		$this->registerTask('publish', 'unpublish');
+		$this->registerTask('savePublishNew', 'save');
+		$this->registerTask('assign', 'assign');
+	}
+
+	public function assign()
+	{
+		$this->app->redirect('index.php?option=com_easydiscuss&view=badges&layout=assign');
 	}
 
 	public function edit()
 	{
-		JRequest::setVar( 'view', 'badge' );
-		JRequest::setVar( 'id' , JRequest::getInt( 'id' , '' , 'REQUEST' ) );
+		JRequest::setVar('view', 'badge');
+		JRequest::setVar('id', JRequest::getInt('id', '', 'REQUEST'));
 
 		parent::display();
 	}
 
 	public function add()
 	{
-		$mainframe	= JFactory::getApplication();
-
-		$mainframe->redirect( 'index.php?option=com_easydiscuss&controller=badges&task=edit' );
+		$this->app->redirect('index.php?option=com_easydiscuss&view=badges&layout=form');
 	}
 
 	public function cancel()
 	{
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=badges' );
+		$this->app->redirect('index.php?option=com_easydiscuss&view=badges');
 
 		return;
 	}
 
 	public function remove()
 	{
-		JRequest::checkToken('request') or jexit( 'Invalid Token' );
-		$ids		= JRequest::getVar( 'cid' );
+		JRequest::checkToken('request') or jexit('Invalid Token');
+		$ids = $this->input->get('cid');
 
-		foreach( $ids as $id )
-		{
-			$badge	= DiscussHelper::getTable( 'Badges' );
-			$badge->load( $id );
+		foreach ($ids as $id) {
+			$badge = ED::table('Badges');
+			$badge->load($id);
 			$badge->delete();
 		}
 
-		$app	= JFactory::getApplication();
-
-		DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_BADGES_DELETED' ) , DISCUSS_QUEUE_SUCCESS );
-		$app->redirect( 'index.php?option=com_easydiscuss&view=badges' );
+		ED::setMessage(JText::_('COM_EASYDISCUSS_BADGES_DELETED'), DISCUSS_QUEUE_SUCCESS);
+		$this->app->redirect('index.php?option=com_easydiscuss&view=badges');
 	}
 
 	public function unpublish()
 	{
 		JRequest::checkToken('request') or jexit( 'Invalid Token' );
 
-		$app	= JFactory::getApplication();
-		$badge	= DiscussHelper::getTable( 'Badges' );
-		$ids	= JRequest::getVar( 'cid' );
-		$state	= JRequest::getVar( 'task' ) == 'publish' ? 1 : 0;
+		$badge = ED::table('Badges');
+		$ids = $this->input->get('cid', '', 'array');
+		$state = $this->input->get('task') == 'publish' ? 1 : 0;
 
-		foreach( $ids as $id )
-		{
-			$id	= (int) $id;
-			$badge->load( $id );
-			$badge->set( 'published' , $state );
+		foreach ($ids as $id) {
+			$id = (int) $id;
+
+			$badge->load($id);
+
+			$badge->set('published', $state);
 			$badge->store();
 		}
 
-		$message	= $state ? JText::_( 'COM_EASYDISCUSS_BADGES_PUBLISHED' ) : JText::_( 'COM_EASYDISCUSS_BADGES_UNPUBLISHED' );
+		$message = $state ? JText::_('COM_EASYDISCUSS_BADGES_PUBLISHED') : JText::_('COM_EASYDISCUSS_BADGES_UNPUBLISHED');
 
-		DiscussHelper::setMessageQueue( $message , DISCUSS_QUEUE_SUCCESS );
-		
-		$app->redirect( 'index.php?option=com_easydiscuss&view=badges' );
+		ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
+
+		$this->app->redirect('index.php?option=com_easydiscuss&view=badges');
 	}
 
 	/**
@@ -105,61 +102,112 @@ class EasyDiscussControllerBadges extends EasyDiscussController
 	{
 		JRequest::checkToken('request') or jexit( 'Invalid Token' );
 
-		$app	= JFactory::getApplication();
-		$badge	= DiscussHelper::getTable( 'Badges' );
-		$id		= JRequest::getInt( 'id' );
-		$doc 	= JFactory::getDocument();
+		$badge = ED::table('Badges');
+		$id = $this->input->get('id');
 
 		// Load the badge.
-		$badge->load( $id );
+		$badge->load($id);
 
-		$oldTitle	= $badge->title;
+		$oldTitle = $badge->title;
 
-		$post	= JRequest::get( 'POST' );
-		$badge->bind( $post );
+		$post = JRequest::get('POST');
+		$badge->bind($post);
 
 		// Description might contain html codes
-		$description 			= JRequest::getVar( 'description' , '' , 'post' , 'string' , JREQUEST_ALLOWRAW );
-		$badge->description 	= $description;
+		$description = JRequest::getVar( 'description' , '' , 'post' , 'string' , JREQUEST_ALLOWRAW );
+		$badge->description = $description;
 
-		if( !$badge->created )
-		{
-			$badge->created = DiscussHelper::getDate()->toMySQL();
+		if (!$badge->created) {
+			$badge->created = ED::date()->toSql();
 		}
 
 		// Set the badge alias if necessary.
-		if ($badge->title != $oldTitle || $oldTitle == '')
-		{
-			$badge->alias	= DiscussHelper::getAlias($badge->title);
+		if ($badge->title != $oldTitle || $oldTitle == '') {
+			$badge->alias = ED::getAlias($badge->title);
 		}
 
 		// Get the current task
-		$task 		= $this->getTask();
+		$task = $this->getTask();
 
 		// Test for rules here.
-		if( !$badge->title || !$badge->description || !$badge->description )
-		{
-			DiscussHelper::setMessageQueue( JText::_( 'COM_EASYDISCUSS_BADGE_SAVE_FAILED' ) , DISCUSS_QUEUE_ERROR );
+		if (!$badge->title || !$badge->description || !$badge->description) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_BADGE_SAVE_FAILED'), DISCUSS_QUEUE_ERROR);
 
-			JRequest::setVar( 'view' , 'badge' );
+			JRequest::setVar('view', 'badge');
 
 			return parent::display();
 		}
 
 		$badge->store();
 
-		if( $task == 'savePublishNew' )
-		{
+		$redirect = 'index.php?option=com_easydiscuss&view=badges';
+
+		if ($task == 'savePublishNew') {
 			$redirect = 'index.php?option=com_easydiscuss&controller=badges&task=edit';
 		}
-		else
-		{
-			$redirect = 'index.php?option=com_easydiscuss&view=badges';
+
+		$message = !empty($id) ? JText::_('COM_EASYDISCUSS_BADGE_UPDATED') : JText::_('COM_EASYDISCUSS_BADGE_CREATED');
+
+		ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
+		$this->app->redirect($redirect);
+	}
+
+	/**
+	 * Mass assign points for users
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function massAssign()
+	{
+		// Get the file from the request
+		$file = JRequest::getVar('package', '', 'FILES');
+
+		// Get the data from the file.
+		$data = ED::parseCSV($file['tmp_name'], false, false);
+
+		if (!$data) {
+
+			$message = JText::_('COM_EASYDISCUSS_BADGE_INVALID_CSV_FILE');
+			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
+
+			$this->app->redirect('index.php?option=com_easydiscuss&view=badges=$layout=assign');
+			return false;
 		}
 
-		$message	= !empty( $id ) ? JText::_( 'COM_EASYDISCUSS_BADGE_UPDATED' ) : JText::_( 'COM_EASYDISCUSS_BADGE_CREATED' );
+		// load up the badges library
+		$badges = ED::badges();
 
-		DiscussHelper::setMessageQueue( $message , DISCUSS_QUEUE_SUCCESS );
-		$app->redirect( $redirect );
+		// Let's assign the badge now
+		foreach ($data as $row) {
+			$userId = isset($row[0]) ? trim($row[0]) : false;
+			$badgeId = isset($row[1]) ? trim($row[1]) : false;
+			$dateAchieved = isset($row[2]) ? trim($row[2]) : ED::date()->toSql();
+
+			$badge = ED::table('badges');
+			$badge->load($badgeId);
+
+			// If user id and badge id is empty, skip this.
+			if (!$userId || !$badgeId || !$badge->id) {
+				continue;
+			}
+
+			// Checks whether this user is already achieve this badge. If true, then skip this.
+			$badgeUser = ED::table('BadgesUsers');
+			if ($badgeUser->loadByUser($userId, $badgeId)) {
+				continue;
+			}
+
+			// Create the badge & let badge library handle it.
+			ED::badges()->create($userId, $badgeId, $dateAchieved);
+		}
+
+		$redirect = 'index.php?option=com_easydiscuss&view=badges&layout=assign';
+		$message = JText::_('COM_EASYDISCUSS_BADGE_ASSIGNED_SUCESS');
+
+		ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
+		$this->app->redirect($redirect);
 	}
 }

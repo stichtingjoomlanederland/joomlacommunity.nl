@@ -1,0 +1,12 @@
+[
+    {
+        "table"     : "#__discuss_mailq",
+        "column"    : "ashtml",
+        "query"     : "ALTER TABLE `#__discuss_mailq` ADD `ashtml` tinyint(1) NOT NULL;"
+    },
+    {
+        "table"     : "#__discuss_mailq",
+        "index"     : "idx_mailq_pending",
+        "query"     : "ALTER TABLE `#__discuss_mailq` ADD INDEX `idx_mailq_pending` (`status`, `created`);"
+    }
+]

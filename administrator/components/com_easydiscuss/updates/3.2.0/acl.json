@@ -1,0 +1,7 @@
+[
+    {
+        "table"     : "#__discuss_acl",
+        "column"    : "public",
+        "query"     : "ALTER TABLE `#__discuss_acl` ADD `public` TINYINT(1) DEFAULT 0;"
+    }
+]

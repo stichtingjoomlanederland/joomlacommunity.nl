@@ -78,7 +78,9 @@
 	<menu name="postTypes" class="icon-flag" title="COM_EASYDISCUSS_SIDEBAR_POST_TYPES" url="index.php?option=com_easydiscuss&amp;view=post_types" />
 	<menu name="points" class="icon-certificate" title="COM_EASYDISCUSS_SIDEBAR_POINTS" url="index.php?option=com_easydiscuss&amp;view=points" />
 	<menu name="ranks" class="icon-rocket" title="COM_EASYDISCUSS_SIDEBAR_RANKS" url="index.php?option=com_easydiscuss&amp;view=ranks" />
+	<menu name="bans" class="icon-ban" title="COM_EASYDISCUSS_SIDEBAR_BANS" url="index.php?option=com_easydiscuss&amp;view=bans" />
 	<menu name="customfields" class="icon-table" title="COM_EASYDISCUSS_SIDEBAR_CUSTOMFIELDS" url="index.php?option=com_easydiscuss&amp;view=customfields" />
+	<menu name="themes" class="icon-table" title="COM_EASYDISCUSS_SIDEBAR_THEMES" url="index.php?option=com_easydiscuss&amp;view=themes" />
 	<menu name="spools" class="icon-inbox" title="COM_EASYDISCUSS_SIDEBAR_EMAIL_ACTIVITIES" url="index.php?option=com_easydiscuss&amp;view=spools" />
 	<menu name="migrators" class="icon-exchange" title="COM_EASYDISCUSS_SIDEBAR_MIGRATORS" url="#">
 		<submenu name="kunena" title="COM_EASYDISCUSS_SIDEBAR_MIGRATORS_KUNENA" url="index.php?option=com_easydiscuss&amp;view=migrators&amp;layout=default_kunena" />

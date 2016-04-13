@@ -1,0 +1,17 @@
+[
+    {
+        "table"     : "#__discuss_badges",
+        "index"     : "discuss_badges_alias",
+        "query"     : "ALTER TABLE `#__discuss_badges` ADD INDEX `discuss_badges_alias` (`alias`);"
+    },
+    {
+        "table"     : "#__discuss_badges",
+        "index"     : "discuss_badges_published",
+        "query"     : "ALTER TABLE `#__discuss_badges` ADD INDEX `discuss_badges_published` (`published`);"
+    },
+    {
+        "table"     : "#__discuss_badges_users",
+        "column"    : "custom",
+        "query"     : "ALTER TABLE `#__discuss_badges_users` ADD `custom` TEXT NOT NULL;"
+    }
+]

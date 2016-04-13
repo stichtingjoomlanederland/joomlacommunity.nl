@@ -20,31 +20,28 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 	 *
 	 * @var integer
 	 */
-	var $_total = null;
+	public $_total = null;
 
 	/**
 	 * Pagination object
 	 *
 	 * @var object
 	 */
-	var $_pagination = null;
+	public $_pagination = null;
 
 	/**
 	 * Category data array
 	 *
 	 * @var array
 	 */
-	var $_data = null;
+	public $_data = null;
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 
-
-		$mainframe	= JFactory::getApplication();
-
-		$limit		= $mainframe->getUserStateFromRequest( 'com_easydiscuss.tags.limit', 'limit', $mainframe->getCfg('list_limit'), 'int');
-		$limitstart	= JRequest::getVar('limitstart', 0, '', 'int');
+		$limit		= $this->app->getUserStateFromRequest( 'com_easydiscuss.tags.limit', 'limit', $this->app->getCfg('list_limit'), 'int');
+		$limitstart	= $this->input->get('limitstart', 0, 'int');
 
 		$this->setState('limit', $limit);
 		$this->setState('limitstart', $limitstart);
@@ -56,7 +53,7 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 	 * @access public
 	 * @return integer
 	 */
-	function getTotal()
+	public function getTotal()
 	{
 		// Lets load the content if it doesn't already exist
 		if (empty($this->_total))
@@ -74,7 +71,7 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 	 * @access public
 	 * @return integer
 	 */
-	function getPagination()
+	public function getPagination()
 	{
 		// Lets load the content if it doesn't already exist
 		if (empty($this->_pagination))
@@ -92,12 +89,12 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 	 * @access private
 	 * @return string
 	 */
-	function _buildQuery()
+	public function _buildQuery()
 	{
 		// Get the WHERE and ORDER BY clauses for the query
 		$where		= $this->_buildQueryWhere();
 		$orderby	= $this->_buildQueryOrderBy();
-		$db			= DiscussHelper::getDBO();
+		$db			= ED::db();
 
 		$query	= 'SELECT * FROM ' . $db->nameQuote( '#__discuss_tags' )
 				. $where . ' '
@@ -106,10 +103,10 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		return $query;
 	}
 
-	function _buildQueryWhere()
+	public function _buildQueryWhere()
 	{
 		$mainframe			= JFactory::getApplication();
-		$db					= DiscussHelper::getDBO();
+		$db					= ED::db();
 
 		$filter_state 		= $mainframe->getUserStateFromRequest( 'com_easydiscuss.tags.filter_state', 'filter_state', '', 'word' );
 		$search 			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.tags.search', 'search', '', 'string' );
@@ -139,7 +136,7 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		return $where;
 	}
 
-	function _buildQueryOrderBy()
+	public function _buildQueryOrderBy()
 	{
 		$mainframe			= JFactory::getApplication();
 
@@ -157,7 +154,7 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 	 * @access public
 	 * @return array
 	 */
-	function getData( $usePagination = true)
+	public function getData( $usePagination = true)
 	{
 		// Lets load the content if it doesn't already exist
 		if (empty($this->_data))
@@ -178,11 +175,11 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 	 * @access public
 	 * @return array
 	 */
-	function publish( &$tags = array(), $publish = 1 )
+	public function publish( &$tags = array(), $publish = 1 )
 	{
 		if( count( $tags ) > 0 )
 		{
-			$db		= DiscussHelper::getDBO();
+			$db		= ED::db();
 
 			$ids	= implode( ',' , $tags );
 
@@ -201,9 +198,9 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		return false;
 	}
 
-	function searchTag($title)
+	public function searchTag($title)
 	{
-		$db	= DiscussHelper::getDBO();
+		$db	= ED::db();
 
 		$query	= 'SELECT ' . $db->nameQuote('id') . ' '
 				. 'FROM ' 	. $db->nameQuote('#__discuss_tags') . ' '
@@ -216,24 +213,94 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		return $result;
 	}
 
+	public function getTagName($id)
+	{
+		$db	= ED::db();
+
+		$query	= 'SELECT ' . $db->nameQuote('title') . ' '
+				. 'FROM ' 	. $db->nameQuote('#__discuss_tags') . ' '
+				. 'WHERE ' 	. $db->nameQuote('id') . ' = ' . $db->quote($id) . ' '
+				. 'LIMIT 1';
+		$db->setQuery($query);
+
+		$result	= $db->loadResult();
+
+		return $result;
+	}
+
+	public function getTagNames($ids)
+	{
+		$names = array();
+		foreach ($ids as $id)
+		{
+			$names[] = $this->getTagName($id);
+		}
+
+		$names = implode(' + ', $names);
+
+		return $names;
+	}
+
+	public function isExist( $tagName, $excludeTagIds = '0' )
+	{
+		$db = ED::db();
+
+		$query  = 'SELECT COUNT(1) FROM #__discuss_tags';
+		$query  .= ' WHERE `title` = ' . $db->Quote($tagName);
+		if($excludeTagIds != '0')
+			$query  .= ' AND `id` != ' . $db->Quote($excludeTagIds);
+
+		$db->setQuery($query);
+		$result = $db->loadResult();
+
+		return (empty($result)) ? 0 : $result;
+	}
 
 	/**
-	 * Returns the number of blog entries created within this category.
+	 * Method to get total tags created so far iregardless the status.
 	 *
-	 * @return int	$result	The total count of entries.
-	 * @param boolean	$published	Whether to filter by published.
+	 * @access public
+	 * @return integer
 	 */
-	function getUsedCount( $tagId , $published = false )
+	public function getTotalTags( $userId = 0)
 	{
-		$db			= DiscussHelper::getDBO();
+		$db		= ED::db();
+		$where	= array();
 
-		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_posts_tags' ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'tag_id' ) . '=' . $db->Quote( $tagId );
+		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_tags' );
 
-		if( $published )
-		{
-			$query	.= ' AND ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( 1 );
+		if(! empty($userId))
+			$where[]  = '`user_id` = ' . $db->Quote($userId);
+
+		$extra	= ( count( $where ) ? ' WHERE ' . implode( ' AND ', $where ) : '' );
+		$query	= $query . $extra;
+
+
+		$db->setQuery( $query );
+
+		$result	= $db->loadResult();
+
+		return (empty($result)) ? 0 : $result;
+	}
+
+	/**
+	 * Returns the number of discussion entries created within this tag.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getUsedCount($tagId, $published = false)
+	{
+		$db = $this->db;
+		$query = 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__discuss_posts_tags') . ' '
+				. 'WHERE ' . $db->nameQuote('tag_id') . '=' . $db->Quote($tagId);
+
+		if ($published) {
+			$query .= ' AND ' . $db->nameQuote('published') . '=' . $db->Quote(1);
 		}
+		// echo $query; exit;
 
 		$db->setQuery( $query );
 		$result	= $db->loadResult();
@@ -241,9 +308,9 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		return $result;
 	}
 
-	function getTagCloud($limit='', $order='title', $sort='asc' , $userId = '' )
+	public function getTagCloud($limit='', $order='title', $sort='asc' , $userId = '' )
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		$query	=   'select a.`id`, a.`title`, a.`alias`, a.`created`, count(c.`id`) as `post_count`';
 		$query	.=  ' from #__discuss_tags as a';
@@ -251,13 +318,23 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		$query	.=  '    on a.`id` = b.`tag_id`';
 		$query	.=  '    left join #__discuss_posts as c';
 		$query	.=  '    on b.post_id = c.id';
+		$query	.=  '    and c.`private`=' . $db->Quote(0);
 		$query	.=  '    and c.`published` = ' . $db->Quote('1');
+
+		$exclude = DiscussHelper::getPrivateCategories();
+
+		if (!empty($exclude)) {
+			$query .= ' AND c.`category_id` NOT IN(' . implode(',', $exclude) . ')';
+		}
+
+
 		$query	.= 	' where a.`published` = ' . $db->Quote('1');
 
 		if( !empty( $userId ) )
 		{
 			$query	.= ' AND a.`user_id`=' . $db->Quote( $userId );
 		}
+
 
 		$query	.=  ' group by (a.`id`)';
 
@@ -294,4 +371,42 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		$result = $db->loadObjectList();
 		return $result;
 	}
+
+	public function getTags($count="")
+	{
+		$db		= ED::db();
+
+		$query	=   ' SELECT `id`, `title`, `alias` ';
+		$query	.=  ' FROM #__discuss_tags ';
+		$query	.=  ' WHERE `published` = 1 ';
+		$query	.=  ' ORDER BY `title`';
+
+		if(!empty($count))
+		{
+			$query	.=  ' LIMIT ' . $count;
+		}
+
+
+		$db->setQuery($query);
+		$result = $db->loadObjectList();
+
+		return $result;
+	}
+
+	public function suggestTags($text)
+	{
+		$db	= ED::db();
+
+		$query = "select `id`, `title` from `#__discuss_tags`";
+		$query .= " where `published` = " . $db->Quote('1');
+		$query .= " and `title` LIKE " . $db->Quote('%' . $text . '%');
+		$query .= " order by `title`";
+
+		$db->setQuery($query);
+		$result	= $db->loadObjectList();
+
+		return $result;
+	}
+
+
 }

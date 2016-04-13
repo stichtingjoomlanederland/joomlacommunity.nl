@@ -1,208 +1,197 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once( DISCUSS_ROOT . '/views.php' );
-require_once( DISCUSS_HELPERS . '/url.php' );
+require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewProfile extends EasyDiscussView
 {
-	/**
-	 * Displays the user's profile.
-	 *
-	 * @since	2.0
-	 * @access	public
-	 */
-	function display( $tmpl = null )
+	public function display($tmpl = null)
 	{
-		$doc 		= JFactory::getDocument();
-		$app 		= JFactory::getApplication();
-		$id 		= JRequest::getInt( 'id' , null );
-		$my 		= JFactory::getUser( $id );
-		$config 	= DiscussHelper::getConfig();
-
 		// Custom parameters.
-		$sort = JRequest::getString('sort', 'latest');
-		$filteractive = JRequest::getWord('filter', 'allposts');
-		$viewType = JRequest::getWord('viewtype', 'questions');
+		$sort = $this->input->get('sort', 'latest', 'string');
+		$filter = $this->input->get('filter', 'allposts', 'word');
+		$viewType = $this->input->get('viewtype', 'questions', 'word');
 
-		$profile		= DiscussHelper::getTable( 'Profile' );
-		$profile->load( $my->id );
+		// Get the current user that should be displayed
+		$id = $this->input->get('id', null, 'int');
+		$user = JFactory::getUser($id);
+
+		// Load the user's profile
+		$profile = ED::user($user->id);
 
 		// If profile is invalid, throw an error.
-		if( !$profile->id )
-		{
-			// Show login form.
-			$theme 	= new DiscussThemes();
-
-			$theme->set( 'redirect' , DiscussRouter::_( 'index.php?option=com_easydiscuss&view=profile' , false ) );
-			echo $theme->fetch( 'login.form.php' );
-
-			return;
+		if (!$profile->id) {
+			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_USER_ACCOUNT_NOT_FOUND'));
 		}
 
-		$params 	= DiscussHelper::getRegistry( $profile->params );
-		$fields 	= array( 'facebook' , 'linkedin' , 'twitter', 'website' );
+		$socialUrls = array();
 
-		foreach( $fields as $site )
-		{
-			if( $params->get( $site  , '' ) != '' )
-			{
-				if( $site == 'facebook' || $site == 'linkedin' || $site == 'twitter' )
-				{
-					$name	= $params->get( $site );
-					$url 	= 'www.' . $site . '.com/' . $name;
-					$params->set( $site , DiscussUrlHelper::clean( $url ) );
-				}
-				if( $site == 'website' )
-				{
-					$url	= $params->get( $site );
-					$params->set( $site , DiscussUrlHelper::clean( $url ) );
+		if (!empty($profile->params)) {
+
+			$socialParams = json_decode($profile->params);
+
+			$fields = array('facebook', 'linkedin', 'twitter', 'website', 'skype');
+
+			foreach ($fields as $field) {
+				if ($socialParams->$field) {
+
+					$value = $socialParams->$field;
+					$showProfile = 'show_' . $field;
+
+					// Determine if the field should appear on profile page
+					if (isset($socialParams->$showProfile) && $socialParams->$showProfile) {
+
+						if ($field == 'facebook' || $field == 'linkedin' || $field == 'twitter') {
+
+							$value = ED::url()->clean($value);
+						}
+
+						// To fix missing website icon in profile page.
+						if ($field == 'website') {
+							$field = 'link';
+						}
+
+						$socialUrls[$field] = $value;
+					}
 				}
 			}
 		}
 
-		// Set the title for the page.
-		DiscussHelper::setPageTitle( JText::sprintf( 'COM_EASYDISCUSS_PROFILE_PAGE_TITLE' , $profile->getName() ) );
+		// Set the page properties
+		ED::setPageTitle(JText::sprintf('COM_EASYDISCUSS_PROFILE_PAGE_TITLE', $profile->getName()));
+		$this->setPathway(JText::_($profile->getName()));
 
-		// Set the pathway
-		$this->setPathway( JText::_( $profile->getName() ) );
-
-		$postsModel		= DiscussHelper::getModel( 'Posts' );
-		$tagsModel 		= DiscussHelper::getModel( 'Tags' );
-
-		$posts			= array();
-		$replies		= array();
-		$tagCloud		= array();
-		$badges 		= array();
-		$unresolved		= array();
-
-		$pagination 	= null;
-		$filterArr  	= array();
-		$filterArr['viewtype'] 		= $viewType;
-		$filterArr['id'] 			= $profile->id;
-
-		switch( $viewType)
-		{
-			case 'replies':
-				$replies	= $postsModel->getRepliesFromUser( $profile->id );
-				$pagination	= $postsModel->getPagination();
-				$pagination	= $pagination->getPagesLinks('profile', $filterArr, true);
-				$replies	= DiscussHelper::formatPost( $replies );
-				break;
-			case 'unresolved':
-				$unresolved	= $postsModel->getUnresolvedFromUser( $profile->id );
-				$pagination	= $postsModel->getPagination();
-				$pagination	= $pagination->getPagesLinks('profile', $filterArr, true);
-				$unresolved	= DiscussHelper::formatPost( $unresolved );
-				break;
-			case 'questions':
-			default:
-				$posts		= $postsModel->getPostsBy( 'user' , $profile->id );
-				$pagination	= $postsModel->getPagination();
-				$pagination	= $pagination->getPagesLinks('profile', $filterArr, true);
-				$posts		= DiscussHelper::formatPost( $posts );
-				break;
+		// Attach gmaps api
+		if ($this->config->get('layout_profile_showlocation')) {
+			$this->doc->addScript('//maps.googleapis.com/maps/api/js?sensor=true');
 		}
 
-		// Get user badges
-		$badges			= $profile->getBadges();
+		// Load up the models and get data
+		$postsModel = ED::model('Posts');
 
-		// @rule: Clear up any notifications that are visible for the user.
-		$notifications	= DiscussHelper::getModel( 'Notification' );
-		$notifications->markRead( $profile->id , false , array( DISCUSS_NOTIFICATIONS_PROFILE , DISCUSS_NOTIFICATIONS_BADGE ) );
+		$badges = $profile->getBadges();
 
-		$tpl		= new DiscussThemes();
+		if ($viewType == 'replies') {
+			$posts	= $postsModel->getRepliesFromUser($profile->id);
+		}
 
-		// EasyBlog integrations
-		$easyblogExists		= $this->easyblogExists();
-		$blogCount		 	= 0;
+		if ($viewType == 'unresolved') {
+			$posts	= $postsModel->getUnresolvedFromUser($profile->id);
+			$pagination = $postsModel->getPagination();
+		}
 
-		if ($easyblogExists && $config->get('integrations_easyblog_profile')) {
+		if ($viewType == 'questions') {
+			$options = array('filter' => $viewType, 'userId' => $profile->id, 'includeAnonymous' => false);
+
+			// If the post is anonymous we shouldn't show to public.
+			if (ED::user()->id == $profile->id) {
+				$options['includeAnonymous'] = true;
+			}
+
+			$posts = $postsModel->getDiscussions($options);
+			$pagination = $postsModel->getPagination();
+		}
+
+		if ($viewType == 'assigned') {
+			$assignedModel = ED::model('Assigned');
+			$posts = $assignedModel->getPosts($profile->id);
+ 		}
+
+ 		if ($viewType == 'favourites') {
+			$posts = $postsModel->getData(true, 'latest', null, 'favourites', '', null, 'all', $profileId);
+		}
+
+		$posts = ED::formatPost($posts);
+
+		$filterArr = array('viewtype' => $viewType, "id" => $profile->id);
+		$pagination	= $postsModel->getPagination();
+		$pagination	= $pagination->getPagesLinks('profile', $filterArr, true);
+
+		// Check for integrations
+		// EasyBlog
+		$easyblogExists	= $this->easyblogExists();
+		$blogCount = 0;
+
+		if ($easyblogExists && $this->config->get('integrations_easyblog_profile')) {
 			$bloggerModel = EB::model('Blogger');
 			$blogCount = $bloggerModel->getTotalBlogCreated($profile->id);
 		}
 
-		$komentoExists		= $this->komentoExists();
-		$commentCount		= 0;
+		// Komento
+		$komentoExists = $this->komentoExists();
+		$commentCount = 0;
 
-		if ($komentoExists && $config->get('integrations_komento_profile')) {
-			$commentsModel	= Komento::getModel('comments');
-			$commentCount 	= $commentsModel->getTotalComment( $profile->id );
+		if ($komentoExists && $this->config->get('integrations_komento_profile')) {
+			$commentsModel = Komento::getModel('comments');
+			$commentCount = $commentsModel->getTotalComment($profile->id);
 		}
 
-		$posts = Discusshelper::getPostStatusAndTypes( $posts );
+		// Get the content title for current view type.
+		$tabsText = $this->getTabsTitle($viewType);
 
-		$favPosts = $postsModel->getData( 'true', 'latest', 'null', 'favourites' );
-		$favPosts = DiscussHelper::formatPost( $favPosts );
+		// Get the post count based on the current view type.
+		$tabsPostsCount = $profile->getPostsNumCount($viewType);
 
-		$tpl->set( 'sort'			, $sort );
-		$tpl->set( 'filter'			, $filteractive );
-		$tpl->set( 'tagCloud'		, $tagCloud );
-		$tpl->set( 'paginationType'	, DISCUSS_USERQUESTIONS_TYPE );
-		$tpl->set( 'parent_id'		, $profile->id );
-		$tpl->set( 'pagination'		, $pagination );
-		$tpl->set( 'posts'			, $posts );
-		$tpl->set( 'badges'			, $badges );
-		$tpl->set( 'favPosts'		, $favPosts );
-		$tpl->set( 'profile'		, $profile );
-		$tpl->set( 'replies'		, $replies );
-		$tpl->set( 'unresolved'		, $unresolved );
-		$tpl->set( 'params'			, $params );
-		$tpl->set( 'viewType'		, $viewType );
-		$tpl->set( 'easyblogExists'	, $easyblogExists );
-		$tpl->set( 'komentoExists'	, $komentoExists );
-		$tpl->set( 'blogCount'		, $blogCount );
-		$tpl->set( 'commentCount'	, $commentCount );
+		// Combine the text to form a title.
+		$tabsTitle = $tabsText . ' (' . $tabsPostsCount . ')';
 
-		$filterArr  = array();
-		$filterArr['filter']	= $filteractive;
-		$filterArr['id']		= $profile->id;
-		$filterArr['sort']		= $sort;
-		$filterArr['viewtype']	= $viewType;
+		$posts = ED::getPostStatusAndTypes($posts);
 
-		$tpl->set( 'filterArr'		, $filterArr );
-		$tpl->set( 'page'			, 'profile' );
+		$favPosts = $postsModel->getData('true', 'latest', 'null', 'favourites');
+		$favPosts = ED::formatPost($favPosts);
 
-		echo $tpl->fetch( 'profile.php' );
+		$this->set('sort', $sort);
+		$this->set('pagination', $pagination);
+		$this->set('posts', $posts);
+		$this->set('badges', $badges);
+		$this->set('favPosts', $favPosts);
+		$this->set('profile', $profile);
+		$this->set('socialUrls', $socialUrls);
+		$this->set('viewType', $viewType);
+		$this->set('easyblogExists', $easyblogExists);
+		$this->set('komentoExists', $komentoExists );
+		$this->set('blogCount', $blogCount );
+		$this->set('commentCount', $commentCount);
+		$this->set('tabsTitle', $tabsTitle);
+
+		parent::display('profile/default');
 	}
 
 	public function easyblogExists()
 	{
-		$helperFile 	= JPATH_ROOT . '/components/com_easyblog/helpers/helper.php';
-		$exists 		= JFile::exists( $helperFile );
+		$file = JPATH_ADMINISTRATOR . '/components/com_easyblog/includes/easyblog.php';
+		$exists = JFile::exists($file);
 
-		if( $exists )
-		{
-			require_once( $helperFile );
-
-			return true;
+		if (!$exists) {
+			return false;
 		}
-		return false;
+
+		require_once($file);
+		return true;
 	}
+
 
 	public function komentoExists()
 	{
-		$helperFile 	= JPATH_ROOT . '/components/com_komento/helpers/helper.php';
-		$exists 		= JFile::exists( $helperFile );
+		$helperFile = JPATH_ROOT . '/components/com_komento/helpers/helper.php';
+		$exists = JFile::exists( $helperFile );
 
-		if( $exists )
-		{
-			require_once( $helperFile );
-
-			return true;
+		if (!$exists) {
+		 return false;
 		}
-		return false;
+
+		require_once($helperFile);
+		return true;
 	}
 
 	/**
@@ -212,91 +201,104 @@ class EasyDiscussViewProfile extends EasyDiscussView
 	 * @access	public
 	 * @return
 	 */
-	public function edit( $tmpl = null )
+	public function edit($tmpl = null)
 	{
-		require_once DISCUSS_HELPERS . '/integrate.php';
-
-		$document	= JFactory::getDocument();
-		$mainframe	= JFactory::getApplication();
-		$user		= JFactory::getUser();
-		$config		= DiscussHelper::getConfig();
-
-		if(empty($user->id))
-		{
-			$mainframe->enqueueMessage(JText::_('COM_EASYDISCUSS_YOU_MUST_LOGIN_FIRST'), 'error');
-			$mainframe->redirect(DiscussRouter::_('index.php?option=com_easydiscuss&view=index'));
-			return false;
+		if ($this->my->guest) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_YOU_MUST_LOGIN_FIRST'), 'error');
+			$this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=index'));
+			return $this->app->close();
 		}
 
-		$this->setPathway( JText::_('COM_EASYDISCUSS_PROFILE') , DiscussRouter::_( 'index.php?option=com_easydiscuss&view=profile&id=' . $user->id ) );
-		$this->setPathway( JText::_('COM_EASYDISCUSS_EDIT_PROFILE') );
+		// Set page properties
+		$this->setPathway(JText::_('COM_EASYDISCUSS_PROFILE'), EDR::_('index.php?option=com_easydiscuss&view=profile&id=' . $this->my->id));
+		$this->setPathway(JText::_('COM_EASYDISCUSS_EDIT_PROFILE'));
 
 		//load porfile info and auto save into table if user is not already exist in discuss's user table.
-		$profile = DiscussHelper::getTable( 'Profile' );
-		$profile->load($user->id);
+		$userparams = new JRegistry($this->profile->get('params'));
+		$siteDetails = new JRegistry($this->profile->get('site'));
 
-		$userparams	= DiscussHelper::getRegistry($profile->get('params'));
-		$siteDetails = DiscussHelper::getRegistry($profile->get('site'));
-		$maxSize	= ini_get( 'upload_max_filesize' );
+		// Get configured max size
+		$configMaxSize = $this->config->get('main_upload_maxsize', 0);
 
-		$configMaxSize  = $config->get( 'main_upload_maxsize', 0 );
-		if( $configMaxSize > 0 )
-		{
-			// Backend settings is MB
-			$configMaxSize = $configMaxSize * 1024 * 1204;
+		if ($configMaxSize > 0) {
+
+			// Convert MB size to Bytes
+			// The magic number is 1048576, http://digital.ni.com/public.nsf/allkb/0F8C8B70234EBE308625708B00424DAD
+			$configMaxSize = $configMaxSize * 1048576;
 
 			// We convert to bytes because the function is accepting bytes
-			$configMaxSize  = DiscussHelper::getHelper( 'String' )->bytesToSize($configMaxSize);
+			$configMaxSize  = ED::string()->bytesToSize($configMaxSize);
 		}
 
-		$avatar_config_path = $config->get('main_avatarpath');
+		$avatar_config_path = $this->config->get('main_avatarpath');
 		$avatar_config_path = rtrim($avatar_config_path, '/');
 		$avatar_config_path = JString::str_ireplace('/', DIRECTORY_SEPARATOR, $avatar_config_path);
 
-		$croppable 				= false;
-		$allowJFBCAvatarEdit    = false;
+		$croppable = false;
+		$allowJFBCAvatarEdit = false;
 
-		if( $config->get( 'layout_avatarIntegration') == 'default' )
-		{
-			$original 	= JPATH_ROOT . '/' . rtrim( $config->get( 'main_avatarpath' ) , '/' ) . '/' . 'original_' . $profile->avatar;
+		if ($this->config->get('layout_avatarIntegration') == 'default') {
+			$original 	= JPATH_ROOT . '/' . rtrim($this->config->get( 'main_avatarpath' ) , '/' ) . '/' . 'original_' . $this->profile->avatar;
 
-			if( JFile::exists( $original ) )
-			{
-				$size 		= getimagesize( $original );
+			if (JFile::exists($original)) {
+				$size = getimagesize( $original );
 
-				$width 		= $size[0];
-				$height 	= $size[1];
+				$width = $size[0];
+				$height = $size[1];
 
-				$configAvatarWidth = $config->get('layout_avatarwidth', 160);
-				$configAvatarHeight = $config->get('layout_avatarheight', 160);
+				// image ratio always 1:1
+				$configAvatarWidth = $this->config->get('layout_avatarwidth', 160);
+				$configAvatarHeight = $configAvatarWidth;
 
-				if( $width >= $configAvatarWidth && $height >= $configAvatarHeight ) {
+				if ($width >= $configAvatarWidth && $height >= $configAvatarHeight) {
 					$croppable = true;
 				}
 			}
-		} else if( $config->get( 'layout_avatarIntegration') == 'jfbconnect' )
-		{
-			$integrate	= new DiscussIntegrate;
-			$hasAvatar = $integrate->jfbconnect( $profile );
+		}
 
-			if(! $hasAvatar) {
-				$croppable 				= true;
-				$allowJFBCAvatarEdit 	= true;
+		if ($this->config->get('layout_avatarIntegration') == 'jfbconnect') {
+			$hasAvatar = ED::integrate()->jfbconnect($this->profile);
+
+			if (!$hasAvatar) {
+				$croppable = true;
+				$allowJFBCAvatarEdit = true;
 			}
 		}
 
-		$tpl	= new DiscussThemes();
-		$tpl->set( 'croppable'			, $croppable );
-		$tpl->set( 'allowJFBCAvatarEdit', $allowJFBCAvatarEdit );
-		$tpl->set( 'size'				, $maxSize );
-		$tpl->set( 'user'				, $user );
-		$tpl->set( 'profile'			, $profile );
-		$tpl->set( 'config'				, $config );
-		$tpl->set( 'configMaxSize'		, $configMaxSize );
-		$tpl->set( 'avatarIntegration'	, $config->get( 'layout_avatarIntegration', 'default' ) );
-		$tpl->set( 'userparams'			, $userparams );
-		$tpl->set( 'siteDetails'		, $siteDetails );
+		$avatar = $this->profile->avatar;
 
-		echo $tpl->fetch( 'form.user.edit.php' );
+		if (!$avatar || $avatar == 'default.png') {
+			$avatar = false;
+		}
+
+		// Get editor for signature.
+		$opt = array('defaults', '');
+		$composer = ED::composer($opt);
+
+		$this->set('avatar', $avatar);
+		$this->set('croppable', $croppable);
+		$this->set('allowJFBCAvatarEdit', $allowJFBCAvatarEdit);
+		$this->set('user', $this->my->id);
+		$this->set('profile', $this->profile);
+		$this->set('configMaxSize', $configMaxSize );
+		$this->set('userparams', $userparams);
+		$this->set('siteDetails', $siteDetails);
+		$this->set('composer', $composer);
+
+		parent::display('user/edit');
+	}
+
+	public function getTabsTitle($viewType)
+	{
+		if (!$viewType) {
+			$viewType = 'questions';
+		}
+
+		$text1 = JText::_('COM_EASYDISCUSS_MY_POSTS');
+		$text2 = JText::_('COM_EASYDISCUSS_PROFILE_TAB_' . strtoupper($viewType));
+
+		$text = $text1 . ' - ' . $text2;
+
+		return $text;
 	}
 }

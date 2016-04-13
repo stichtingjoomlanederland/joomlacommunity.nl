@@ -1,24 +1,18 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-
-defined('_JEXEC') or die('Restricted access');
-
-// Include main constants and helpers
-require_once JPATH_ROOT . '/components/com_easydiscuss/constants.php';
-require_once JPATH_ROOT . '/components/com_easydiscuss/helpers/helper.php';
-require_once JPATH_ROOT . '/components/com_content/helpers/route.php';
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyBlog is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
 jimport( 'joomla.plugin.plugin' );
+jimport('joomla.filesystem.file');
 
 class plgContentEasyDiscuss extends JPlugin
 {
@@ -38,9 +32,33 @@ class plgContentEasyDiscuss extends JPlugin
 	}
 
 	/**
+	 * Tests if EasyBlog exists
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	private function exists()
+	{
+		static $exists = null;
+
+		if (is_null($exists)) {
+			$file = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php';
+			$exists = JFile::exists($file);
+
+			if ($exists) {
+				require_once($file);
+			}
+		}
+
+		return $exists;
+	}
+
+	/**
 	 * Needed to update the content of the discussion whenever the article is being edited and saved.
 	 */
-	function onAfterContentSave( &$article, $isNew )
+	public function onAfterContentSave( &$article, $isNew )
 	{
 		// If the current page is easydiscuss, we want to skip this altogether.
 		// We also need to skip this when the plugins are being triggered in the discussion replies otherwise it will
@@ -68,7 +86,7 @@ class plgContentEasyDiscuss extends JPlugin
 	 * onContentAfterDisplay trigger for Joomla 1.6 onwards.
 	 *
 	 **/
-	function onContentAfterDisplay( $context , &$article, &$params, $page = 0 )
+	public function onContentAfterDisplay( $context , &$article, &$params, $page = 0 )
 	{
 		return $this->onAfterDisplayContent( $article , $params , $page );
 	}
@@ -83,23 +101,16 @@ class plgContentEasyDiscuss extends JPlugin
 		return $this->onAfterDisplayContent( $blog , $params , 0 , __FUNCTION__ );
 	}
 
+
+
 	/**
 	 * Triggered after the content is displayed.
 	 *
 	 */
-	function onAfterDisplayContent( &$article, &$articleParams, $limitstart , $trigger = '' )
+	public function onAfterDisplayContent( &$article, &$articleParams, $limitstart , $trigger = '' )
 	{
-		// If the current page is easydiscuss, we want to skip this altogether.
-		// We also need to skip this when the plugins are being triggered in the discussion replies otherwise it will
-		// be in an infinite loop generating all contents.
-		if( $this->extension == 'com_easydiscuss' || $this->loaded || ( isset( $article->easydiscuss ) && $article->easydiscuss == true ) || ( $this->extension == 'com_content' && !$article->state ) )
-		{
-			return;
-		}
-
-		if( $this->extension == 'com_easyblog' && empty($trigger) )
-		{
-			return;
+		if (! $this->exists()) {
+			return false;
 		}
 
 		$app	= JFactory::getApplication();
@@ -108,33 +119,48 @@ class plgContentEasyDiscuss extends JPlugin
 		$allowed	= $params->get( 'allowed_components' , 'com_content,com_easyblog');
 		$allowed	= explode( ',' , $allowed );
 
-		if( !in_array( $this->extension , $allowed ) || !$article->id )
-		{
+		if (!in_array($this->extension, $allowed) || !$article->id) {
 			return '';
+		}
+
+		// If the current page is easydiscuss, we want to skip this altogether.
+		// We also need to skip this when the plugins are being triggered in the discussion replies otherwise it will
+		// be in an infinite loop generating all contents.
+		if ($this->extension == 'com_easydiscuss' ||
+			$this->loaded ||
+			(isset($article->easydiscuss) && $article->easydiscuss == true) ||
+			($this->extension == 'com_content' && !$article->state)) {
+			return;
+		}
+
+		if ($this->extension == 'com_easyblog') {
+			$inputs = ED::request();
+			$view = $inputs->get('view', '', 'cmd');
+			$id = $inputs->get('id', 0, 'int');
+
+			if ($view != 'entry' || !$id) {
+				return;
+			}
 		}
 
 		// @rule: Test for exclusions on the categories
 		$excludedCategories	= $params->get( 'exclude_category' );
 
-		if( !is_array( $excludedCategories ) )
-		{
+		if (!is_array($excludedCategories)) {
 			$excludedCategories	= explode(',' , $excludedCategories);
 		}
 
-		if( in_array( $article->catid , $excludedCategories ) )
-		{
+		if (in_array($article->catid , $excludedCategories)) {
 			return '';
 		}
 
 		// @rule: Test for exclusions on the article id.
-		$excludedArticles	= trim( $params->get( 'exclude_articles' ) );
+		$excludedArticles	= trim($params->get( 'exclude_articles'));
 
-		if( !empty( $excludedArticles ) )
-		{
-			$excludedArticles	= explode( ',' , $excludedArticles );
+		if (!empty($excludedArticles)) {
+			$excludedArticles	= explode(',' , $excludedArticles);
 
-			if( in_array( $article->id , $excludedArticles ) )
-			{
+			if (in_array($article->id , $excludedArticles)) {
 				return '';
 			}
 		}
@@ -142,63 +168,54 @@ class plgContentEasyDiscuss extends JPlugin
 		// @rule: Test for inclusions on the categories
 		$allowedCategories	= $params->get( 'include_category' );
 
-		if( is_array( $allowedCategories ) )
-		{
+		if (is_array($allowedCategories)) {
 			$allowedCategories	= implode(',' , $allowedCategories);
 		}
 
-		$allowedCategories 	= trim( $allowedCategories );
+		$allowedCategories 	= trim($allowedCategories);
 
-		if( $allowedCategories != 'all' && !empty( $allowedCategories ) && $this->extension == 'com_content' )
-		{
-			$allowedCategories 	= explode( ',' , $allowedCategories );
+		if ($allowedCategories != 'all' && !empty($allowedCategories) && $this->extension == 'com_content') {
+			$allowedCategories 	= explode(',' , $allowedCategories);
 
-			if( !in_array( $article->catid , $allowedCategories ) )
-			{
+			if (!in_array($article->catid , $allowedCategories)) {
 				return '';
 			}
 		}
 
 		// Get the mapping
-		$ref		= DiscussHelper::getTable( 'PostsReference' );
-		$exists 	= $ref->loadByExtension( $article->id , $this->extension );
+		$ref = ED::table('PostsReference');
+		$exists = $ref->loadByExtension($article->id, $this->extension);
 
-		if( !$exists )
-		{
+		if (!$exists) {
 			// Map the article into EasyDiscuss
 			$this->mapExisting( $article );
 
-			$ref		= DiscussHelper::getTable( 'PostsReference' );
-			$ref->loadByExtension( $article->id , $this->extension );
+			$ref = ED::table('PostsReference');
+			$ref->loadByExtension($article->id, $this->extension);
 		}
 
 		// Load the discussion item
-		$post		= DiscussHelper::getTable( 'Post' );
-		$post->load( $ref->post_id );
+		$post = ED::post($ref->post_id);
 
-		if( !$post->published )
-		{
+		if (!$post->published) {
 			return;
 		}
 
 		// Load css file
 		$this->attachHeaders();
 
-		if( $this->isFrontpage() )
-		{
+		if ($this->isFrontpage()) {
 			$this->addFrontpageTools( $article , $post );
-		}
-		else
-		{
+
+		} else {
 			$this->loaded	= true;
 
 			// Show normal discussions data
 			$html = $this->addResponses( $article , $post );
 
-			if( $this->extension == 'com_easyblog' )
-			{
-				return $html;
-			}
+			// if ($this->extension == 'com_easyblog') {
+			// 	return $html;
+			// }
 		}
 
 		return '';
@@ -207,7 +224,7 @@ class plgContentEasyDiscuss extends JPlugin
 	/**
 	 * Retrieves Joomla's version
 	 */
-	function getJoomlaVersion()
+	public function getJoomlaVersion()
 	{
 		$jVerArr   = explode('.', JVERSION);
 		$jVersion  = $jVerArr[0] . '.' . $jVerArr[1];
@@ -248,12 +265,10 @@ class plgContentEasyDiscuss extends JPlugin
 
 		if( !$loaded )
 		{
-			DiscussHelper::loadHeaders();
-			DiscussHelper::loadThemeCss();
+			ED::init();
 
 			$doc 	= JFactory::getDocument();
 			$path 	= rtrim( JURI::root() , '/' ) . '/plugins/content/easydiscuss/css/styles.css';
-
 			$doc->addStyleSheet( $path );
 
 			$loaded 	= true;
@@ -288,40 +303,34 @@ class plgContentEasyDiscuss extends JPlugin
 	 **/
 	public function addFrontpageTools( &$article , &$post )
 	{
-		$params 	= $this->getParams();
+		$params = $this->getParams();
 
 		// Just return if it's not needed.
-		if( !$params->get( 'frontpage_tools' , true ) )
-		{
+		if (!$params->get( 'frontpage_tools', true)) {
 			return $article;
 		}
 
-		$total		= $post->getReplyCount();
-		$url		= $this->getArticleURL( $article );
-		$hits 		= $this->getArticleHits( $article );
-		$config 	= DiscussHelper::getConfig();
-		$my 		= JFactory::getUser();
+		$total = $post->getTotalReplies();
+		$url = $this->getArticleURL( $article );
+		$hits = $this->getArticleHits( $article );
+		$config = ED::config();
+		$my = JFactory::getUser();
 
 		ob_start();
-		include( $this->getTemplatePath( 'frontpage.php' ) );
+		include($this->getTemplatePath('frontpage.php'));
 		$contents 	= ob_get_contents();
 		ob_end_clean();
 
 		// EasyBlog specifically uses 'text'
-		if( $this->extension == 'com_easyblog' )
-		{
-			$article->text		.= $contents;
+		if ($this->extension == 'com_easyblog') {
+			$article->text .= $contents;
 			return $article;
 		}
 
-		if( $this->getJoomlaVersion() >= '1.6' )
-		{
-			$article->introtext		.= $contents;
-		}
-		else
-		{
-			$article->text 			.= $contents;
-		}
+
+		$article->introtext .= $contents;
+
+
 		return $article;
 	}
 
@@ -336,7 +345,8 @@ class plgContentEasyDiscuss extends JPlugin
 	 */
 	public function formatDate( $format , $dateString )
 	{
-		return DiscussDateHelper::toFormat($dateString, $format);
+		$output = ED::date($dateString)->display($format);
+		return $output;
 	}
 
 	/**
@@ -349,78 +359,72 @@ class plgContentEasyDiscuss extends JPlugin
 	 */
 	public function addResponses( &$article , &$post )
 	{
-		$params 	= $this->getParams();
-		$count		= $post->getReplyCount();
-
-		require_once DISCUSS_HELPERS . '/vote.php';
-
-		if( !class_exists( 'EasyDiscussModelPosts' ) )
-		{
-			require_once DISCUSS_MODELS . '/posts.php';
+		if (! $this->exists()) {
+			return false;
 		}
 
-		$model 		= DiscussHelper::getModel( 'Posts' );
+		$params = $this->getParams();
 
-		$repliesLimit	= $params->get( 'items_count' , 5 );
-		$totalReplies	= $model->getTotalReplies( $post->id );
+		$model = ED::model('Posts');
+		$config = ED::config();
+		$my = JFactory::getUser();
+		$acl = ED::acl();
+
+		// Get composer
+		$opts = array('replying', $post);
+		$composer = ED::composer($opts);
+
+		$repliesLimit = $params->get( 'items_count' , 5 );
+
+		$totalReplies = $post->getTotalReplies();
 
 		$hasMoreReplies	= false;
 
 		$limitstart		= null;
 		$limit			= null;
 
-		if( $repliesLimit )
-		{
-			$limit		= $repliesLimit;
-
-			$hasMoreReplies = ( $totalReplies - $repliesLimit ) > 0;
+		if ($repliesLimit) {
+			$limit = $repliesLimit;
 		}
 
-		$replies 	= $model->getReplies( $post->id , 'latest' , $limitstart , $limit );
 
-		$config 	= DiscussHelper::getConfig();
-		$my 		= JFactory::getUser();
-		$acl 		= DiscussHelper::getHelper( 'ACL' );
+		$sort = ED::request()->get('sort', ED::getDefaultRepliesSorting(), 'word');
+		$limitstart = ED::request()->get('limitstart', 0);
 
-		$readMoreURI	= '';
 
-		$readMoreURI	= JURI::getInstance()->toString();
-		$delimiteter	= JString::strpos($readMoreURI, '&') ? '&' : '?';
-		$readMoreURI	= $hasMoreReplies ? $readMoreURI . $delimiteter . 'viewallreplies=1' : $readMoreURI;
-		
-		// Get the likes authors.
-		$post->likesAuthor	= DiscussHelper::getHelper( 'Likes' )->getLikesHTML( $post->id , $my->id , 'post' );
+		$replies = $post->getReplies(true, $limit, $sort, $limitstart);
+		// Get the pagination for replies
+		$pagination = $model->getPagination();
 
-		// Get composer
-		require_once DISCUSS_CLASSES . '/composer.php';
-		$composer = new DiscussComposer( "replying" , $post );
-
-		$sort			= JRequest::getString('sort', DiscussHelper::getDefaultRepliesSorting() );
 
 		$isMainLocked 	= false;
 		$canDeleteReply = false;
 
 		// Load the category.
-		$category	= DiscussHelper::getTable( 'Category' );
+		$category = ED::table('Category');
 		$category->load( (int) $post->category_id );
 
-		$canReply   	= ((($my->id != 0) || ($my->id == 0 && $config->get('main_allowguestpost' ) ) ) && $acl->allowed('add_reply', '0') ) ? true : false;
-		$replies 		= DiscussHelper::formatReplies( $replies , $category );
+		$canReply = ((($my->id != 0) || ($my->id == 0 && $config->get('main_allowguestpost' ) ) ) && $acl->allowed('add_reply', '0') ) ? true : false;
 
-		$system 		= new stdClass();
-		$system->config	= DiscussHelper::getConfig();
-		$system->my 	= $my;
-		$system->acl 	= $acl;
+		$system = new stdClass();
+		$system->config	= ED::config();
+		$system->my = $my;
+		$system->acl = $acl;
 
 		ob_start();
 		include( dirname(__FILE__) . '/tmpl/default.php' );
 		$contents	= ob_get_contents();
 		ob_end_clean();
 
-		$article->text	.= $contents;
+		// add bbcode settings
+        $bbcodeSettings = ED::themes()->output('admin/structure/settings');
+        $scripts = ED::scripts()->getScripts();
 
+        $htmlContent = $bbcodeSettings . $contents . $scripts;
 
-		return $contents;
+		$article->text	.= $htmlContent;
+
+		return $htmlContent;
 	}
 
 	/**
@@ -444,28 +448,15 @@ class plgContentEasyDiscuss extends JPlugin
 				$category	= JTable::getInstance( 'Category' , 'JTable' );
 				$category->load( $article->catid );
 
-				if( $this->getJoomlaVersion() < '1.6' )
-				{
-					$section	= JTable::getInstance( 'Section' , 'JTable' );
-					$section->load( $article->sectionid );
-
-					 $url	= ContentHelperRoute::getArticleRoute( $article->id . ':' . $article->alias , $article->catid . ':' . $category->alias , $article->sectionid . ':' . $section->alias );
-				}
-				else
-				{
-					$url		= ContentHelperRoute::getArticleRoute( $article->id . ':' . $article->alias , $article->catid . ':' . $category->alias );
-				}
-
+				$url = JRoute::_(ContentHelperRoute::getArticleRoute($article->id . ':' . $article->alias , $article->catid));
 				$url = $url . '#discuss-' . $article->id;
 
 				return $uri->toString( array('scheme', 'host', 'port')) . '/' . ltrim( $url , '/' );
 
 			 break;
 			 case 'com_easyblog':
-				require_once( JPATH_ROOT . '/components/com_easyblog/constants.php' );
-				require_once( EBLOG_HELPERS . '/helper.php' );
-
-				return EasyBlogRouter::getRoutedURL( 'index.php?option=com_easyblog&view=entry&id=' . $article->id, false, true );
+				require_once(JPATH_ADMINISTRATOR . '/components/com_easyblog/includes/easyblog.php');
+				return EBR::getRoutedURL('index.php?option=com_easyblog&view=entry&id=' . $article->id, false, true);
 			 break;
 			 case 'com_k2':
 				require_once( JPATH_ROOT . '/components/com_k2/helpers/route.php' );
@@ -493,9 +484,11 @@ class plgContentEasyDiscuss extends JPlugin
 	 */
 	private function getArticleHits( &$article )
 	{
-		$db 	= DiscussHelper::getDBO();
+		$db 	= ED::db();
+
 		$query	= 'SELECT ' . $db->nameQuote( 'hits' ) . ' FROM ' . $db->nameQuote( '#__content' ) . ' '
 				. 'WHERE ' . $db->nameQuote( 'id' ) . '=' . $db->Quote( $article->id );
+
 		$db->setQuery( $query );
 		$hits 	= (int) $db->loadResult();
 
@@ -504,25 +497,27 @@ class plgContentEasyDiscuss extends JPlugin
 
 	public function mapExisting( &$article )
 	{
-		// @rule: If article is not published, do not try to process anything
-		if( $this->extension == 'com_easydiscuss' || ( !$article->state && $this->extension == 'com_content') )
-		{
+		if (! $this->exists()) {
 			return false;
 		}
 
-		$ref	= DiscussHelper::getTable( 'PostsReference' );
+		// @rule: If article is not published, do not try to process anything
+		if ($this->extension == 'com_easydiscuss' || (!$article->state && $this->extension == 'com_content')) {
+			return false;
+		}
+
+		$ref = ED::table('PostsReference');
 		$exists	= $ref->loadByExtension( $article->id , $this->extension );
 		$isNew	= !$exists;
 
 		// @rule: Only append discussions that are already added into the reference table.
 		$post	= $this->createDiscussion( $article , $isNew );
 
-		if( !$exists )
-		{
+		if (!$exists) {
 			// @rule: Store the references
-			$ref->set( 'post_id' , $post->get( 'id' ) );
-			$ref->set( 'reference_id', $article->id );
-			$ref->set( 'extension', $this->extension );
+			$ref->set('post_id' , $post->id);
+			$ref->set('reference_id', $article->id);
+			$ref->set('extension', $this->extension);
 			$ref->store();
 		}
 	}
@@ -541,61 +536,60 @@ class plgContentEasyDiscuss extends JPlugin
 	 */
 	public function createDiscussion( &$article , $isNew = true )
 	{
-		$post	= DiscussHelper::getTable( 'Post' );
+		if (! $this->exists()) {
+			return false;
+		}
+
+        $post = ED::post();
 		$params = $this->getParams();
 
-		if( !$isNew )
-		{
+		if( !$isNew ) {
 			// Get the mapping
 			$ref		= DiscussHelper::getTable( 'PostsReference' );
 			$ref->loadByExtension( $article->id , $this->extension );
 
 			// Load the discussion item
-			$post->load( $ref->post_id );
+			$post->load($ref->post_id);
 		}
 
-		// @rule: Set the category
-		$post->set( 'category_id' , $params->get( 'category_storage' , 1 ) );
 
-		// @rule: Set the discussion title
-		$post->set( 'title' , $article->title );
+		$data = array();
+
+		$data['category_id'] = $params->get('category_storage', 1);
+		$data['title'] = $article->title;
 
 		// @rule: Set the creation date
-		$post->set( 'created', $article->created );
+		$data['created'] = $article->created;
 
 		// @rule: Set the publishing state
-		$post->set( 'published' , DISCUSS_ID_PUBLISHED );
+		$data['published'] = DISCUSS_ID_PUBLISHED;
 
 		// @rule: Set the modified date
-		$post->set( 'modified', $article->modified );
+		$data['modified'] = $article->modified;
 
 		// @rule: Set the user id
-		$post->set( 'user_id' , $article->created_by );
+		$data['user_id'] = $article->created_by;
 
 		// @rule: Set the user type
-		$post->set( 'user_type', 'member' );
+		$data['user_type'] = 'member';
 
 		// @rule: Set the hits
-		$post->set( 'hits'		, $article->hits );
+		$data['hits'] = $article->hits;
 
 		// @rule: We only take the introtext part.
 		$text	= $article->introtext;
 
-		// Replace the text with proper bbcodes replacements.
-		require_once DISCUSS_HELPERS . '/parser.php';
-
-		$config 	= DiscussHelper::getConfig();
+		$config = ED::config();
 		$contentType = 'html';
 
-		if( $config->get( 'layout_editor') == 'bbcode' )
-		{
-			$text	= EasyDiscussParser::html2bbcode( $text );
+		if ($config->get( 'layout_editor') == 'bbcode') {
+			$text	= ED::parser()->html2bbcode($text);
 			$contentType = 'bbcode';
 		}
 
 		// @rule: Add a read more text that links to the article.
-		if( $params->get( 'readmore_in_post' , true ) )
-		{
+		if ($params->get('readmore_in_post' , true)) {
+
 			$url	= $this->getArticleURL( $article );
 
 			ob_start();
@@ -603,14 +597,19 @@ class plgContentEasyDiscuss extends JPlugin
 			$readmore = ob_get_contents();
 			ob_end_clean();
 
-			$text	.= $readmore;
+			$text .= $readmore;
 		}
 
-		$post->set( 'content', $text );
+		$data['content'] = $text;
+		$data['content_type'] = $contentType;
 
-		$post->set( 'content_type', $contentType );
+		$post->bind($data);
+		$state = $post->save();
 
-		$post->store();
+		// if ($state) {
+		// 	$id = $post->id;
+		// 	$post = ED::post($id);
+		// }
 
 		return $post;
 	}
@@ -631,23 +630,27 @@ class plgContentEasyDiscuss extends JPlugin
 		{
 			case 'cb':
 				$url 	= JRoute::_( 'index.php?option=com_comprofiler&task=registers');
-			break;
+				break;
 
 			case 'jomsocial':
 				include_once JPATH_ROOT . '/components/com_community/libraries/core.php';
 				$url 	= CRoute::_( 'index.php?option=com_community&view=register' );
-			break;
+				break;
+
+			case 'easysocial':
+
+				if (ED::easysocial()->exists()) {
+					$link 	= FRoute::registration();
+				} else {
+					$link 	= $default;
+				}
+
+				break;
 
 			default:
-				if( DiscussHelper::getJoomlaVersion() >= '1.6' )
-				{
-					$url 	= JRoute::_( 'index.php?option=com_users&view=registration' );
-				}
-				else
-				{
-					$url 	= JRoute::_( 'index.php?option=com_user&view=register' );
-				}
-			break;
+
+				$url 	= JRoute::_( 'index.php?option=com_users&view=registration' );
+				break;
 		}
 
 		return $url;
@@ -671,24 +674,33 @@ class plgContentEasyDiscuss extends JPlugin
 		$article->load( $id );
 
 		$return 	= base64_encode( $this->getArticleURL( $article ) );
+		$default 	= JRoute::_( 'index.php?option=com_users&view=login&return=' . $return );
 
 		switch( $params->get( 'login_provider' , 'joomla' ) )
 		{
 			case 'jomsocial':
 				include_once JPATH_ROOT . '/components/com_community/libraries/core.php';
 				$url 	= CRoute::_( 'index.php?option=com_community' );
-			break;
-			case 'cb':
-			default:
-				if( DiscussHelper::getJoomlaVersion() >= '1.6' )
+				break;
+
+			case 'easysocial':
+
+				$easysocial 	= DiscussHelper::getHelper( 'EasySocial' );
+
+				if( $easysocial->exists() )
 				{
-					$url 	= JRoute::_( 'index.php?option=com_users&view=login&return=' . $return );
+					$link 	= FRoute::login();
 				}
 				else
 				{
-					$url 	= JRoute::_( 'index.php?option=com_user&view=login&return=' . $return );
+					$link 	= $default;
 				}
-			break;
+				break;
+
+			case 'cb':
+			default:
+				$url 	= $default;
+				break;
 		}
 
 		return $url;
