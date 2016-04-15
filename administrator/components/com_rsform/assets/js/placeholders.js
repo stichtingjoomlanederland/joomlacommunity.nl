@@ -2,8 +2,7 @@
 
 	var RSPlaceholder = function ($el, options) {
 
-		this._defaults = {
-		};
+		this._defaults = {};
 
 		this.element = $el;
 
@@ -40,21 +39,22 @@
 				$html += '<li><a href="javascript:void(0)" class="rsfp-dropdown-placeholder" data-value="' + this + '">' + this + '</a></li>'
 			});
 
-			$(element).after('<div class="rsfp-dropdown-list-container"><button class="placeholders-input-append" id="' + $(element).attr('id') + '-list"><span class="rsficon rsficon-caret-down"></span></button><ul class="rsfp-drodown-list" data-target="' + $(element).attr('id') + '-list">' + $html + '</ul></div>');
+			$(element).after('<div class="rsfp-dropdown-list-container"><button class="placeholders-input-append" id="' + $(element).attr('id') + '-list">&#9660;</button><ul class="rsfp-drodown-list" data-target="' + $(element).attr('id') + '-list">' + $html + '</ul></div>');
 
 			this.initDropdowns($('#' + $(element).attr('id') + '-list'));
 		};
 
 		this.initDropdowns = function (element) {
 
-			$id = $(element).attr('id');
-			$(element).click(function (e) {
-				e.preventDefault();
-				$id = $(element).attr('id');
-				$('.rsfp-drodown-list').hide();
+			var $id = $(element).attr('id'),
 				$dropdown = $('[data-target="' + $id + '"]');
+
+			$(element).on('click', function (e) {
+				e.preventDefault();
+				$('.rsfp-drodown-list').hide();
 				$dropdown.toggle();
 			});
+
 
 			$('html').click(function (e) {
 				if (e.target.className !== 'placeholders-input-append') {
@@ -62,7 +62,7 @@
 				}
 			});
 
-			$('[data-target="' + $id + '"]').find('li > a').on('click', function () {
+			$dropdown.find('li > a').on('click', function () {
 				var $inputField = $(this).parents('.rsfp-dropdown-list-container').siblings('input');
 				var $val = $inputField.val();
 				$val += $inputField.val() ? $inputField.attr('data-delimiter') + $(this).attr('data-value') : $(this).attr('data-value');

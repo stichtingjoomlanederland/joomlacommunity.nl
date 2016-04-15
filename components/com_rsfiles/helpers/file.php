@@ -145,6 +145,7 @@ class RSFiles {
 			$object->lastmodified 		= $type == 'external' ? rsfilesHelper::showDate($object->time) : rsfilesHelper::showDate(filemtime($this->fullpath));
 			$object->reports			= $this->getReport();
 			$object->show_preview		= isset($entry->show_preview) ? $entry->show_preview : 1;
+			$object->publish_down		= isset($entry->publish_down) ? $entry->publish_down : '';
 			
 			if (JFactory::getApplication()->isSite()) {
 				$object->filelicense 	= empty($entry->IdLicense) ? '' : '<a class="rs_modal" rel="{handler: \'iframe\'}" href="'.JRoute::_('index.php?option=com_rsfiles&layout=license&tmpl=component&id='.rsfilesHelper::sef($entry->IdLicense,$entry->LicenseName).$itemid,false).'">'.$entry->LicenseName.'</a>';

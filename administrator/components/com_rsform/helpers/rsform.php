@@ -1233,8 +1233,6 @@ class RSFormProHelper
 			RSFormProHelper::loadTheme($form);
 
 		RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/front.css', array(), true, true));
-		if ($doc->getDirection() == 'rtl')
-			RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/front-rtl.css', array(), true, true));
 		RSFormProAssets::addScript(JHtml::script('com_rsform/script.js', false, true, true));
 
 		// calendars
@@ -1297,6 +1295,9 @@ class RSFormProHelper
 		} else {
 			$layoutErrorClass[$layoutName] = '';
 		}
+		
+		if ($doc->getDirection() == 'rtl')
+			RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/front-rtl.css', array(), true, true));
 
 		$hasAjax = (bool) $form->AjaxValidation;
 

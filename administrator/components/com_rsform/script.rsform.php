@@ -878,11 +878,13 @@ class com_rsformInstallerScript
 			<?php } ?>
 			<?php } ?>
 		<?php } ?>
-		<h2>Changelog v1.51.13</h2>
+		<h2>Changelog v1.51.14</h2>
 		<ul class="version-history">
-			<li><span class="version-fixed">Fix</span> Workaround for Joomla! 3.5.1 JMail breaking backwards compatibility.</li>
-			<li><span class="version-fixed">Fix</span> Bootstrap 3 checkboxes did not generate the correct markup.</li>
-			<li><span class="version-fixed">Fix</span> An error would show up when using accented characters for JYES and JNO.</li>
+			<li><span class="version-upgraded">Upg</span> Configuring emails should be more intuitive now.</li>
+			<li><span class="version-upgraded">Upg</span> RTL improvements to Form Layouts.</li>
+			<li><span class="version-fixed">Fix</span> Calendar formats were not parsed correctly in some cases.</li>
+			<li><span class="version-fixed">Fix</span> Placeholder dropdowns did not work correctly on Google Chrome.</li>
+			<li><span class="version-fixed">Fix</span> Placeholder dropdowns added an incorrect delimiter to &quot;Reply To&quot; fields.</li>
 		</ul>
 		<a class="com-rsform-button" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="com-rsform-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/21-rsform-pro-user-guide.html" target="_blank">Read the RSForm! Pro User Guide</a>

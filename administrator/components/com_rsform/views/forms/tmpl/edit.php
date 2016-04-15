@@ -76,53 +76,53 @@ JHTML::_('behavior.calendar');
 
 				<div id="propertiescontent">
 					<div id="formlayoutdiv">
-						<p><?php echo $this->loadTemplate('layout'); ?></p>
+						<?php echo $this->loadTemplate('layout'); ?>
 					</div><!-- formlayout -->
 					<div id="formthemediv">
-						<p><?php echo $this->loadTemplate('theme'); ?></p>
+						<?php echo $this->loadTemplate('theme'); ?>
 					</div><!-- formthemediv -->
 					<div id="cssandjavascriptdiv">
-						<p><?php echo $this->loadTemplate('cssjs'); ?></p>
+						<?php echo $this->loadTemplate('cssjs'); ?>
 					</div><!-- cssandjavascript -->
 					<?php $this->triggerEvent('rsfp_bk_onAfterShowFormDesignTabs'); ?>
 					<div id="editformdiv">
-						<p><?php echo $this->loadTemplate('form'); ?></p>
+						<?php echo $this->loadTemplate('form'); ?>
 					</div><!-- editform -->
 					<div id="editformattributesdiv">
-						<p><?php echo $this->loadTemplate('formattr'); ?></p>
+						<?php echo $this->loadTemplate('formattr'); ?>
 					</div><!-- editformattributes -->
 					<div id="metatagsdiv">
-						<p><?php echo $this->loadTemplate('meta'); ?></p>
+						<?php echo $this->loadTemplate('meta'); ?>
 					</div><!-- metatags -->
 					<?php $this->triggerEvent('rsfp_bk_onAfterShowFormFormTabs'); ?>
 					<div id="useremailsdiv">
-						<p><?php echo $this->loadTemplate('user'); ?></p>
+						<?php echo $this->loadTemplate('user'); ?>
 					</div><!-- useremails -->
 					<div id="adminemailsdiv">
-						<p><?php echo $this->loadTemplate('admin'); ?></p>
+						<?php echo $this->loadTemplate('admin'); ?>
 					</div><!-- adminemails -->
 					<div id="emailsdiv">
-						<p><?php echo $this->loadTemplate('emails'); ?></p>
+						<?php echo $this->loadTemplate('emails'); ?>
 					</div><!-- emails -->
 					<?php $this->triggerEvent('rsfp_bk_onAfterShowFormEmailsTabs'); ?>
 					<div id="scriptsdiv">
-						<p><?php echo $this->loadTemplate('scripts'); ?></p>
+						<?php echo $this->loadTemplate('scripts'); ?>
 					</div><!-- scripts -->
 					<div id="emailscriptsdiv">
-						<p><?php echo $this->loadTemplate('emailscripts'); ?></p>
+						<?php echo $this->loadTemplate('emailscripts'); ?>
 					</div><!-- emailscripts -->
 					<?php $this->triggerEvent('rsfp_bk_onAfterShowFormScriptsTabs'); ?>
 					<div id="mappingsdiv">
-						<p><?php echo $this->loadTemplate('mappings'); ?></p>
+						<?php echo $this->loadTemplate('mappings'); ?>
 					</div><!-- mappings -->
 					<div id="conditionsdiv">
-						<p><?php echo $this->loadTemplate('conditions'); ?></p>
+						<?php echo $this->loadTemplate('conditions'); ?>
 					</div>
 					<div id="postscriptdiv">
-						<p><?php echo $this->loadTemplate('post'); ?></p>
+						<?php echo $this->loadTemplate('post'); ?>
 					</div><!-- postscriptdiv -->
 					<div id="calculationsdiv">
-						<p><?php echo $this->loadTemplate('calculations'); ?></p>
+						<?php echo $this->loadTemplate('calculations'); ?>
 					</div><!-- calculationsdiv -->
 					<?php $this->triggerEvent('rsfp_bk_onAfterShowFormEditTabs'); ?>
 				</div>

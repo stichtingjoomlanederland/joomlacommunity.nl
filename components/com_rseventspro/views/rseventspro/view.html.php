@@ -792,7 +792,7 @@ class rseventsproViewRseventspro extends JViewLegacy
 		} elseif ($layout == 'scan') {
 			$this->event		= $this->get('event');
 			
-			if ($this->admin || $this->event->owner == $user->get('id')) {
+			if ($this->event->id && ($this->admin || $this->event->owner == $user->get('id'))) {
 				$this->scan			= rseventsproHelper::getScan();
 				
 				//set the pathway

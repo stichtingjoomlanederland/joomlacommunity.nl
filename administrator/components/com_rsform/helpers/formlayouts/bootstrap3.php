@@ -16,6 +16,11 @@ class RSFormProFormLayoutBootstrap3 extends RSFormProFormLayout
 	public function loadFramework() {
 		// Load the CSS files
 		$this->addStyleSheet('com_rsform/frameworks/bootstrap3/bootstrap.min.css');
+		
+		// Load the RTL file if needed
+		if (JFactory::getDocument()->direction == 'rtl') {
+			$this->addStyleSheet('com_rsform/frameworks/bootstrap3/bootstrap-rtl.css');
+		}
 
 		// Load jQuery
 		$this->addjQuery();

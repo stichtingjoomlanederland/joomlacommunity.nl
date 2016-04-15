@@ -571,6 +571,16 @@ class RSFormModelForms extends JModelLegacy
 
 		$post = JRequest::get('post', JREQUEST_ALLOWRAW);
 		$post['FormId'] = $post['formId'];
+		
+		// Normalize separators
+		$post['UserEmailReplyTo'] 	= str_replace(';', ',', $post['UserEmailReplyTo']);
+		$post['UserEmailTo'] 		= str_replace(';', ',', $post['UserEmailTo']);
+		$post['UserEmailCC'] 		= str_replace(';', ',', $post['UserEmailCC']);
+		$post['UserEmailBCC'] 		= str_replace(';', ',', $post['UserEmailBCC']);
+		$post['AdminEmailReplyTo'] 	= str_replace(';', ',', $post['AdminEmailReplyTo']);
+		$post['AdminEmailTo'] 		= str_replace(';', ',', $post['AdminEmailTo']);
+		$post['AdminEmailCC'] 		= str_replace(';', ',', $post['AdminEmailCC']);
+		$post['AdminEmailBCC'] 		= str_replace(';', ',', $post['AdminEmailBCC']);
 
 		$form = JTable::getInstance('RSForm_Forms', 'Table');
 		unset($form->Thankyou);
@@ -877,6 +887,12 @@ class RSFormModelForms extends JModelLegacy
 	{
 		$row	= JTable::getInstance('RSForm_Emails', 'Table');
 		$post 	= JRequest::get('post', JREQUEST_ALLOWRAW);
+		
+		$post['replyto'] 	= str_replace(';', ',', $post['replyto']);
+		$post['to'] 		= str_replace(';', ',', $post['to']);
+		$post['cc'] 		= str_replace(';', ',', $post['cc']);
+		$post['bcc'] 		= str_replace(';', ',', $post['bcc']);
+		
 		if (!$row->bind($post))
 		{
 			JError::raiseWarning(500, $row->getError());
@@ -901,6 +917,8 @@ class RSFormModelForms extends JModelLegacy
 			JError::raiseWarning(500, $row->getError());
 			return false;
 		}
+		
+		JFactory::getApplication()->enqueueMessage(JText::_('RSFP_CHANGES_SAVED'));
 
 		return $row;
 	}

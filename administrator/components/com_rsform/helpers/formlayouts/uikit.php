@@ -15,7 +15,11 @@ class RSFormProFormLayoutUIkit extends RSFormProFormLayout
 
 	public function loadFramework() {
 		// Load the CSS files
-		$this->addStyleSheet('com_rsform/frameworks/uikit/uikit.min.css');
+		if (JFactory::getDocument()->direction == 'rtl') {
+			$this->addStyleSheet('com_rsform/frameworks/uikit/uikit-rtl.css');
+		} else {
+			$this->addStyleSheet('com_rsform/frameworks/uikit/uikit.min.css');
+		}
 		$this->addStyleSheet('com_rsform/frameworks/uikit/tooltip.min.css');
 		$this->addStyleSheet('com_rsform/frameworks/uikit/form-advanced.min.css');
 		$this->addStyleSheet('com_rsform/frameworks/uikit/progress.min.css');

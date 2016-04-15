@@ -1354,7 +1354,7 @@ class rseventsproHelper
 			
 			foreach ($headers as $i => $header) {
 				if (isset($values[$header])) {
-					$values[$header] = preg_replace("\015(\012)?", "\012", $values[$header]);
+					$values[$header] = preg_replace("/\015(\012)?/", "\012", $values[$header]);
 					if (strpos($values[$header],"\n") !== false)
 						$values[$header] = str_replace("\n",' ',$values[$header]);
 					
