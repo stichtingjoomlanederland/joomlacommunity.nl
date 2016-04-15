@@ -35,6 +35,9 @@ class RSFormProYUICalendar
 		RSFormProAssets::addScript(JHtml::script('com_rsform/calendar/calendar.js', false, true, true));
 		RSFormProAssets::addScript(JHtml::script('com_rsform/calendar/script.js', false, true, true));
 		RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/calendar/calendar.css', array(), true, true));
+		if (JFactory::getDocument()->direction == 'rtl') {
+			RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/calendar/calendar-rtl.css', array(), true, true));
+		}
 		
 		$out = "\n";
 		
@@ -72,6 +75,8 @@ class RSFormProYUICalendar
 	public static function processDateFormat($dateFormat) {
 		// handle the date formats
 		$formats   = preg_split("/[^a-z0-9]/i", $dateFormat);
+		$formats = array_filter($formats);
+		$formats = array_values($formats);
 		// handle the date splitters
 		$splitters = preg_split("/[a-z0-9]/i", $dateFormat);
 		$splitters = array_filter($splitters);
@@ -96,7 +101,7 @@ class RSFormProYUICalendar
 			$dateFormat = implode('', $newFormats);
 		}
 		
-		return $dateFormat;
+		return trim($dateFormat);
 	}
 	
 	public static function setCalendarOptions($config) {

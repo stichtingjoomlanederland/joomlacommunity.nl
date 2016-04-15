@@ -81,6 +81,8 @@ class RSFormProJQueryCalendar
 	public static function processDateFormat($dateFormat) {
 		// handle the date formats
 		$formats   = preg_split("/[^a-z0-9]/i", $dateFormat);
+		$formats = array_filter($formats);
+		$formats = array_values($formats);
 		// handle the date splitters
 		$splitters = preg_split("/[a-z0-9]/i", $dateFormat);
 		$splitters = array_filter($splitters);
@@ -105,7 +107,7 @@ class RSFormProJQueryCalendar
 			$dateFormat = implode('', $newFormats);
 		}
 		
-		return $dateFormat;
+		return trim($dateFormat);
 	}
 	
 	public static function setCalendarOptions($config) {

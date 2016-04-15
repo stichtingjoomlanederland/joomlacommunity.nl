@@ -13,46 +13,65 @@ defined('_JEXEC') or die('Restricted access');
 		<td valign="top" align="left">
 			<fieldset>
 				<legend><?php echo JText::_('RSFP_USER_EMAILS'); ?></legend>
+				<div class="alert alert-info"><?php echo JText::_('RSFP_EMAILS_DESC'); ?></div>
+				<legend><?php echo JText::_('RSFP_EMAILS_LEGEND_SENDER'); ?></legend>
 				<table width="100%" class="com-rsform-table-props">
 					<tr>
-						<td colspan="2"><div class="alert alert-info"><?php echo JText::_('RSFP_EMAILS_DESC'); ?></div></td>
-					</tr>
-					<tr>
-						<td width="25%" align="right" nowrap="nowrap" class="key"><span style="color: red"><?php echo JText::_('RSFP_EMAILS_FROM'); ?></span></td>
+						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_EMAILS_FROM'); ?> *</td>
 						<td>
-							<input name="UserEmailFrom" class="rs_inp rs_80" id="UserEmailFrom" value="<?php echo $this->escape($this->form->UserEmailFrom); ?>" size="35"  data-delimiter=" " data-filter-type="include" data-filter="value,global" data-placeholders="display" />
+							<input name="UserEmailFrom" placeholder="<?php echo JText::_('RSFP_EMAILS_FROM_PLACEHOLDER'); ?>" class="rs_inp rs_80" id="UserEmailFrom" value="<?php echo $this->escape($this->form->UserEmailFrom); ?>" size="35"  data-delimiter=" " data-filter-type="include" data-filter="value,global" data-placeholders="display" />
 						</td>
 					</tr>
 					<tr>
-						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo RSFormProHelper::translateIcon(); ?>  <span style="color: red"><?php echo JText::_('RSFP_EMAILS_FROM_NAME'); ?></td>
+						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo RSFormProHelper::translateIcon(); ?> <?php echo JText::_('RSFP_EMAILS_FROM_NAME'); ?> *</td>
 						<td>
-							<input name="UserEmailFromName" class="rs_inp rs_80" id="UserEmailFromName" value="<?php echo $this->escape($this->form->UserEmailFromName); ?>" size="35"  data-delimiter=" " data-placeholders="display" />
+							<input name="UserEmailFromName" placeholder="<?php echo JText::_('RSFP_EMAILS_FROM_NAME_PLACEHOLDER'); ?>" class="rs_inp rs_80" id="UserEmailFromName" value="<?php echo $this->escape($this->form->UserEmailFromName); ?>" size="35"  data-delimiter=" " data-placeholders="display" />
+						</td>
+					</tr>
+				</table>
+				<legend><?php echo JText::_('RSFP_EMAILS_LEGEND_RECIPIENT'); ?></legend>
+				<table width="100%" class="com-rsform-table-props">
+					<tr>
+						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_EMAILS_TO'); ?> *</td>
+						<td>
+							<input name="UserEmailTo" placeholder="<?php echo JText::_('RSFP_EMAILS_TO_PLACEHOLDER'); ?>" class="rs_inp rs_80" id="UserEmailTo" value="<?php echo $this->escape($this->form->UserEmailTo); ?>"  data-delimiter="," data-filter-type="include" data-filter="value,global" data-placeholders="display" />
 						</td>
 					</tr>
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_EMAILS_REPLY_TO'); ?></td>
 						<td>
-							<input name="UserEmailReplyTo" class="rs_inp rs_80" id="UserEmailReplyTo" value="<?php echo $this->escape($this->form->UserEmailReplyTo); ?>"  data-delimiter=" " data-filter-type="include" data-filter="value,global" data-placeholders="display" />
-						</td>
-					</tr>
-					<tr>
-						<td width="25%" align="right" nowrap="nowrap" class="key"><span style="color: red"><?php echo JText::_('RSFP_EMAILS_TO'); ?></span></td>
-						<td>
-							<input name="UserEmailTo" class="rs_inp rs_80" id="UserEmailTo" value="<?php echo $this->escape($this->form->UserEmailTo); ?>"  data-delimiter="," data-filter-type="include" data-filter="value,global" data-placeholders="display" />
+							<input name="UserEmailReplyTo" placeholder="<?php echo JText::_('RSFP_EMAILS_REPLY_TO_PLACEHOLDER'); ?>" class="rs_inp rs_80" id="UserEmailReplyTo" value="<?php echo $this->escape($this->form->UserEmailReplyTo); ?>"  data-delimiter="," data-filter-type="include" data-filter="value,global" data-placeholders="display" />
 						</td>
 					</tr>
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_EMAILS_CC'); ?></td>
-						<td><input name="UserEmailCC" class="rs_inp rs_80" id="UserEmailCC" value="<?php echo $this->escape($this->form->UserEmailCC); ?>"  data-delimiter="," data-filter-type="include" data-filter="value,global" data-placeholders="display" /></td>
+						<td><input name="UserEmailCC" placeholder="<?php echo JText::_('RSFP_EMAILS_CC_PLACEHOLDER'); ?>" class="rs_inp rs_80" id="UserEmailCC" value="<?php echo $this->escape($this->form->UserEmailCC); ?>"  data-delimiter="," data-filter-type="include" data-filter="value,global" data-placeholders="display" /></td>
 					</tr>
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_EMAILS_BCC'); ?></td>
-						<td><input name="UserEmailBCC" class="rs_inp rs_80" id="UserEmailBCC" value="<?php echo $this->escape($this->form->UserEmailBCC); ?>"  data-delimiter="," data-filter-type="include" data-filter="value,global" data-placeholders="display" /></td>
+						<td><input name="UserEmailBCC" placeholder="<?php echo JText::_('RSFP_EMAILS_BCC_PLACEHOLDER'); ?>" class="rs_inp rs_80" id="UserEmailBCC" value="<?php echo $this->escape($this->form->UserEmailBCC); ?>"  data-delimiter="," data-filter-type="include" data-filter="value,global" data-placeholders="display" /></td>
+					</tr>
+				</table>
+				<legend><?php echo JText::_('RSFP_EMAILS_LEGEND_CONTENTS'); ?></legend>
+				<table width="100%" class="com-rsform-table-props">
+					<tr>
+						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo RSFormProHelper::translateIcon(); ?> <?php echo JText::_('RSFP_EMAILS_SUBJECT'); ?> *</td>
+						<td><input name="UserEmailSubject" placeholder="<?php echo JText::_('RSFP_EMAILS_SUBJECT_PLACEHOLDER'); ?>" class="rs_inp rs_80" id="UserEmailSubject" value="<?php echo $this->escape($this->form->UserEmailSubject); ?>"  data-delimiter=" " data-placeholders="display" /></td>
 					</tr>
 					<tr>
-						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo RSFormProHelper::translateIcon(); ?>  <span style="color: red"><?php echo JText::_('RSFP_EMAILS_SUBJECT'); ?></span></td>
-						<td><input name="UserEmailSubject" class="rs_inp rs_80" id="UserEmailSubject" value="<?php echo $this->escape($this->form->UserEmailSubject); ?>"  data-delimiter=" " data-placeholders="display" /></td>
+						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo RSFormProHelper::translateIcon(); ?> <?php echo JText::_('RSFP_EMAILS_TEXT'); ?> *</td>
+						<td>
+							<button class="pull-left btn" id="rsform_edit_user_email" onclick="openRSModal('<?php echo JRoute::_('index.php?option=com_rsform&task=richtext.show&opener=UserEmailText&formId='.$this->form->FormId.'&tmpl=component'.(!$this->form->UserEmailMode ? '&noEditor=1' : '')); ?>')" type="button"><span class="rsficon rsficon-pencil-square"></span><span class="inner-text"><?php echo JText::_('RSFP_EMAILS_EDIT_TEXT'); ?></span></button>
+							<button class="pull-left btn" onclick="openRSModal('<?php echo JRoute::_('index.php?option=com_rsform&task=richtext.preview&opener=UserEmailText&formId='.$this->form->FormId.'&tmpl=component'); ?>', 'RichtextPreview')" type="button"><span class="rsficon rsficon-eye"></span><span class="inner-text"><?php echo JText::_('RSFP_PREVIEW'); ?></span></button>
+						</td>
 					</tr>
+					<tr>
+						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_EMAILS_MODE'); ?></td>
+						<td><?php echo $this->lists['UserEmailMode']; ?></td>
+					</tr>
+				</table>
+				<legend><?php echo JText::_('RSFP_EMAILS_LEGEND_ATTACHMENTS'); ?></legend>
+				<table width="100%" class="com-rsform-table-props">
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_EMAILS_ATTACH_FILE'); ?></td>
 						<td><?php echo $this->lists['UserEmailAttach'];?></td>
@@ -75,17 +94,6 @@ defined('_JEXEC') or die('Restricted access');
 									</tr>
 								<?php } ?>
 							</table>
-						</td>
-					</tr>
-					<tr>
-						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_EMAILS_MODE'); ?></td>
-						<td><?php echo $this->lists['UserEmailMode']; ?></td>
-					</tr>
-					<tr>
-						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo RSFormProHelper::translateIcon(); ?>  <span style="color: red"><?php echo JText::_('RSFP_EMAILS_TEXT'); ?></span></td>
-						<td>
-							<button class="pull-left btn" id="rsform_edit_user_email" onclick="openRSModal('<?php echo JRoute::_('index.php?option=com_rsform&task=richtext.show&opener=UserEmailText&formId='.$this->form->FormId.'&tmpl=component'.(!$this->form->UserEmailMode ? '&noEditor=1' : '')); ?>')" type="button"><span class="rsficon rsficon-pencil-square"></span><span class="inner-text"><?php echo JText::_('RSFP_EMAILS_EDIT_TEXT'); ?></span></button>
-							<button class="pull-left btn" onclick="openRSModal('<?php echo JRoute::_('index.php?option=com_rsform&task=richtext.preview&opener=UserEmailText&formId='.$this->form->FormId.'&tmpl=component'); ?>', 'RichtextPreview')" type="button"><span class="rsficon rsficon-eye"></span><span class="inner-text"><?php echo JText::_('RSFP_PREVIEW'); ?></span></button>
 						</td>
 					</tr>
 				</table>

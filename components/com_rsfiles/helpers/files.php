@@ -243,8 +243,8 @@ class RSFilesFiles
 					if (!$element->published) continue;
 					
 					// The file has availability overdue
-					if (!empty($thefile->publish_down) && $thefile->publish_down != $this->_db->getNullDate()) {
-						$publish_down = JFactory::getDate($thefile->publish_down)->toUnix();
+					if (!empty($element->publish_down) && $element->publish_down != $this->_db->getNullDate()) {
+						$publish_down = JFactory::getDate($element->publish_down)->toUnix();
 						if (JFactory::getDate()->toUnix() > $publish_down) continue;
 					}
 					

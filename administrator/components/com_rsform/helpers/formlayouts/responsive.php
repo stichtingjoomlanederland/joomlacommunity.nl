@@ -16,5 +16,9 @@ class RSFormProFormLayoutResponsive extends RSFormProFormLayout
     public function loadFramework() {
         // Load the CSS files
         $this->addStyleSheet('com_rsform/frameworks/responsive/responsive.css');
+		
+		if (JFactory::getDocument()->getDirection() == 'rtl') {
+			$this->addStyleSheet('com_rsform/frameworks/responsive/responsive-rtl.css');
+		}
     }
 }
