@@ -32,7 +32,6 @@ else
 }
 
 // Load the profile data from the database.
-require_once JPATH_ROOT . '/components/com_easydiscuss/helpers/helper.php';
 $profile = DiscussHelper::getTable('Profile');
 $profile->load($this->item->created_by);
 $userparams        = DiscussHelper::getRegistry($profile->params);
