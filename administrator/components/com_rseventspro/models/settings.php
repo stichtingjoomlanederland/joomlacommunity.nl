@@ -13,7 +13,7 @@ class rseventsproModelSettings extends JModelAdmin
 	 * @since	1.6
 	 */
 	protected $text_prefix = 'COM_RSEVENTSPRO';
-	
+
 	/**
 	 * Method to get the record form.
 	 *
@@ -25,15 +25,15 @@ class rseventsproModelSettings extends JModelAdmin
 	 */
 	public function getForm($data = array(), $loadData = true) {
 		$jinput = JFactory::getApplication()->input;
-		
+
 		// Get the form.
 		$form = $this->loadForm('com_rseventspro.settings', 'settings', array('control' => 'jform', 'load_data' => $loadData));
 		if (empty($form))
 			return false;
-		
+
 		return $form;
 	}
-	
+
 	/**
 	 * Method to get the data that should be injected in the form.
 	 *
@@ -42,16 +42,16 @@ class rseventsproModelSettings extends JModelAdmin
 	 */
 	protected function loadFormData() {
 		$data = (array) $this->getConfig();
-		
+
 		if (isset($data['gallery_params'])) {
 			$registry = new JRegistry;
 			$registry->loadString($data['gallery_params']);
 			$data['gallery'] = $registry->toArray();
 		}
-		
+
 		return $data;
 	}
-	
+
 	/**
 	 * Method to get Tabs
 	 *
@@ -62,7 +62,7 @@ class rseventsproModelSettings extends JModelAdmin
 		$tabs = new RSTabs('settings');
 		return $tabs;
 	}
-	
+
 	/**
 	 * Method to get the configuration data.
 	 *
@@ -72,7 +72,7 @@ class rseventsproModelSettings extends JModelAdmin
 	public function getConfig() {
 		return rseventsproHelper::getConfig();
 	}
-	
+
 	/**
 	 * Method to get the available layouts.
 	 *
@@ -83,10 +83,10 @@ class rseventsproModelSettings extends JModelAdmin
 		$fields = array('general', 'dashboard', 'events', 'emails', 'maps', 'captcha', 'payments', 'sync', 'integrations');
 		if (rseventsproHelper::isGallery())
 			$fields[] = 'gallery';
-		
+
 		return $fields;
 	}
-	
+
 	/**
 	 * Method to get the social info.
 	 *
@@ -95,36 +95,39 @@ class rseventsproModelSettings extends JModelAdmin
 	 */
 	public function getSocial() {
 		$options = array('cb' => false, 'js' => false, 'kunena' => false, 'fireboard' => false,
-				'jcomments' => false, 'jomcomment' => false, 'rscomments' => false, 'k2' => false
+				'jcomments' => false, 'jomcomment' => false, 'rscomments' => false, 'k2' => false, 'easydiscuss' => false
 		);
-		
+
 		if (file_exists(JPATH_SITE.'/components/com_comprofiler/comprofiler.php'))
 			$options['cb'] = true;
-		
+
 		if (file_exists(JPATH_SITE.'/components/com_community/community.php'))
 			$options['js'] = true;
-		
+
 		if (file_exists(JPATH_SITE.'/components/com_kunena/kunena.php'))
 			$options['kunena'] = true;
-		
+
 		if (file_exists(JPATH_SITE.'/components/com_fireboard/fireboard.php'))
 			$options['fireboard'] = true;
-			
+
 		if (file_exists(JPATH_SITE.'/components/com_jcomments/jcomments.php'))
 			$options['jcomments'] = true;
-		
+
 		if (file_exists(JPATH_SITE.'/plugins/content/jom_comment_bot/jom_comment_bot.php'))
 			$options['jomcomment'] = true;
-			
+
 		if (file_exists(JPATH_SITE.'/components/com_rscomments/helpers/rscomments.php'))
 			$options['rscomments'] = true;
-		
+
 		if (file_exists(JPATH_SITE.'/components/com_k2/k2.php'))
 			$options['k2'] = true;
-		
+
+		if (file_exists(JPATH_SITE.'/components/com_easydiscuss/easydiscuss.php'))
+			$options['easydiscuss'] = true;
+
 		return $options;
 	}
-	
+
 	/**
 	 * Method to save configuration.
 	 *
@@ -138,27 +141,27 @@ class rseventsproModelSettings extends JModelAdmin
 			if (!empty($gallery)) {
 				if (is_array($gallery['thumb_resolution']))
 					$gallery['thumb_resolution'] = implode(',',$gallery['thumb_resolution']);
-				
+
 				if (is_array($gallery['full_resolution']))
 					$gallery['full_resolution'] = implode(',',$gallery['full_resolution']);
-				
+
 				$registry = new JRegistry;
 				$registry->loadArray($gallery);
 				$data['gallery_params'] = $registry->toString();
 				unset($data['gallery']);
 			}
 		}
-		
+
 		// Save iDeal files
 		JFactory::getApplication()->triggerEvent('rseproIdealSaveSettings', array(array('data' => &$data)));
-		
+
 		$db		= $this->getDbo();
 		$query	= $db->getQuery(true);
-		
+
 		$query->clear()
 			->select('*')
 			->from($db->qn('#__rseventspro_config'));
-		
+
 		$db->setQuery($query);
 		if ($configuration = $db->loadObjectList()) {
 			foreach($configuration as $config) {
@@ -172,10 +175,10 @@ class rseventsproModelSettings extends JModelAdmin
 				}
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Method to save Facebook token.
 	 *
@@ -187,30 +190,30 @@ class rseventsproModelSettings extends JModelAdmin
 		$query	= $db->getQuery(true);
 		$config	= $this->getConfig();
 		$token	= JFactory::getApplication()->input->getString('access_token');
-		
+
 		if (empty($token)) {
 			$this->setError(JText::_('COM_RSEVENTSPRO_FACEBOOK_NO_CONNECTION'));
 			return false;
 		}
-		
+
 		require_once JPATH_SITE.'/components/com_rseventspro/helpers/facebook/facebook.php';
 		$facebook = new RSEPROFacebook(array('appId'  => $config->facebook_appid, 'secret' => $config->facebook_secret, 'cookie' => true));
 		$facebook->setAccessToken($token);
 		$facebook->setExtendedAccessToken();
 		$newtoken = $facebook->getPersistentData('access_token');
 		$token = !empty($newtoken) ? $newtoken : $token;
-		
+
 		$query->clear()
 			->update($db->qn('#__rseventspro_config'))
 			->set($db->qn('value').' = '.$db->q(trim($token)))
 			->where($db->qn('name').' = '.$db->q('facebook_token'));
-		
+
 		$db->setQuery($query);
 		$db->execute();
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Method to import Facebook events.
 	 *
@@ -224,18 +227,18 @@ class rseventsproModelSettings extends JModelAdmin
 		$jform	= JFactory::getApplication()->input->get('jform', array(),'array');
 		$allowed= $config->facebook_pages;
 		$allowed= !empty($allowed) ? explode(',',$allowed) : '';
-		
+
 		if (empty($config->facebook_token)) {
 			$this->setError(JText::_('COM_RSEVENTSPRO_FACEBOOK_NO_CONNECTION'));
 			return false;
 		}
-		
+
 		require_once JPATH_SITE.'/components/com_rseventspro/helpers/facebook/facebook.php';
-		
+
 		$container	= array();
 		$facebook	= new RSEPROFacebook(array('appId'  => $config->facebook_appid, 'secret' => $config->facebook_secret, 'cookie' => true));
 		$attachment =  array('access_token' => $config->facebook_token,'limit' => 200);
-		
+
 		try {
 			$user		= $facebook->api('/me', 'GET', $attachment);
 			$uid 		= $user['id'];
@@ -243,7 +246,7 @@ class rseventsproModelSettings extends JModelAdmin
 			$fbpages	= array();
 			$fbpages[]	= $uid;
 			$allevents	= array();
-			
+
 			if (!empty($pages) && !empty($pages['data'])) {
 				foreach($pages['data'] as $page) {
 					if (!empty($allowed)) {
@@ -258,16 +261,16 @@ class rseventsproModelSettings extends JModelAdmin
 					}
 				}
 			}
-			
+
 			// Get user events
 			$events	= $facebook->api('/me/events', 'GET', $attachment);
-			
+
 			if (!empty($events) && !empty($events['data'])) {
 				foreach ($events['data'] as $event) {
 					$allevents[$event['id']] = $event;
 				}
 			}
-			
+
 			// Get page events
 			if (!empty($fbpages)) {
 				foreach ($fbpages as $pageid) {
@@ -280,55 +283,55 @@ class rseventsproModelSettings extends JModelAdmin
 					}
 				}
 			}
-			
+
 			// Parse events
 			if (!empty($allevents)) {
 				foreach ($allevents as $event) {
 					$eobj = $facebook->api($event['id'], 'GET', $attachment);
-					
+
 					if (empty($eobj)) {
 						continue;
 					}
-					
+
 					$picture = $facebook->api(array('method' => 'fql.query','query' => 'select pic_big from event where eid = '.$event['id'].' '));
-					
+
 					$image = '';
 					if (!empty($picture) && !empty($picture[0])) {
 						$image = isset($picture[0]['pic_big']) ? $picture[0]['pic_big'] : '';
 					}
-					
+
 					if (!empty($eobj) && !empty($eobj['owner']) && !empty($eobj['owner']['id'])) {
 						if (!in_array($eobj['owner']['id'], $fbpages)) {
 							continue;
 						}
 					}
-					
+
 					$ev					= new stdClass();
 					$ev->id				= @$eobj['id'];
 					$ev->name			= @$eobj['name'];
 					$ev->description	= @$eobj['description'];
-					
+
 					if (isset($eobj['start_time'])) {
 						$startDate = new DateTime($eobj['start_time'], isset($eobj['timezone']) ? new DateTimeZone($eobj['timezone']) : null);
 					} else {
 						$startDate = new DateTime();
 					}
-					
+
 					$startDate->setTimezone(new DateTimeZone('UTC'));
 					$start = $startDate->format('Y-m-d H:i:s');
-					
+
 					if (isset($eobj['end_time'])) {
 						$endDate = new DateTime($eobj['end_time'], isset($eobj['timezone']) ? new DateTimeZone($eobj['timezone']) : null);
 						$endDate->setTimezone(new DateTimeZone('UTC'));
 						$end = $endDate->format('Y-m-d H:i:s');
-						
+
 						$allday = 0;
 					} else {
 						$end = JFactory::getDbo()->getNullDate();
-						
+
 						$allday = 1;
 					}
-					
+
 					$ev->start			= $start;
 					$ev->end			= $end;
 					$ev->allday			= $allday;
@@ -340,67 +343,67 @@ class rseventsproModelSettings extends JModelAdmin
 					$ev->lat			= isset($eobj['venue']['latitude']) ? $eobj['venue']['latitude'] : '';
 					$ev->lon			= isset($eobj['venue']['longitude']) ? $eobj['venue']['longitude'] : '';
 					$ev->image			= $image;
-					
-					$container[] = $ev; 
+
+					$container[] = $ev;
 				}
 			}
 		} catch (Exception $e) {
 			$this->setError($e->getMessage());
 			return false;
 		}
-		
+
 		$i = 0;
 		if (!empty($container))
 		{
 			$idcategory = isset($jform['facebook_category']) ? $jform['facebook_category'] : $config->facebook_category;
-			
+
 			if (empty($idcategory))
 			{
 				$query->clear()
 					->insert($db->qn('#__rseventspro_categories'))
 					->set($db->qn('name').' = '.$db->q('Facebook events'));
-				
+
 				$db->setQuery($query);
 				$db->execute();
 				$idcategory = $db->insertid();
 			}
-			
+
 			foreach ($container as $event) {
 				$idlocation = isset($jform['facebook_location']) ? $jform['facebook_location'] : $config->facebook_location;
-				
+
 				// Check if the current event was already added
 				$query->clear()
 					->select('COUNT(id)')
 					->from($db->qn('#__rseventspro_sync'))
 					->where($db->qn('id').' = '.$db->q($event->id))
 					->where($db->qn('from').' = '.$db->q('facebook'));
-				
+
 				$db->setQuery($query);
 				$indb = $db->loadResult();
-				
+
 				if (!empty($indb)) {
 					continue;
 				}
-				
+
 				if (empty($idlocation)) {
 					$address = $event->street;
 					if (!empty($event->city))		$address .= ' , '.$event->city;
 					if (!empty($event->state))		$address .= ' , '.$event->state;
 					if (!empty($event->country))	$address .= ' , '.$event->country;
-					
-					
+
+
 					$query->clear()
 						->insert($db->qn('#__rseventspro_locations'))
 						->set($db->qn('name').' = '.$db->q($event->location))
 						->set($db->qn('address').' = '.$db->q($address))
 						->set($db->qn('coordinates').' = '.$db->q($event->lat.','.$event->lon))
 						->set($db->qn('published').' = '.$db->q(1));
-					
+
 					$db->setQuery($query);
 					$db->execute();
 					$idlocation = $db->insertid();
 				}
-				
+
 				$query->clear()
 					->insert($db->qn('#__rseventspro_events'))
 					->set($db->qn('location').' = '.$db->q($idlocation))
@@ -413,64 +416,64 @@ class rseventsproModelSettings extends JModelAdmin
 					->set($db->qn('options').' = '.$db->q(rseventsproHelper::getDefaultOptions()))
 					->set($db->qn('completed').' = '.$db->q(1))
 					->set($db->qn('published').' = '.$db->q(1));
-				
+
 				$db->setQuery($query);
 				$db->execute();
 				$idevent = $db->insertid();
-				
+
 				$query->clear()
 					->insert($db->qn('#__rseventspro_taxonomy'))
 					->set($db->qn('ide').' = '.$db->q($idevent))
 					->set($db->qn('id').' = '.$db->q($idcategory))
 					->set($db->qn('type').' = '.$db->q('category'));
-				
+
 				$db->setQuery($query);
 				$db->execute();
-				
+
 				$query->clear()
 					->insert($db->qn('#__rseventspro_sync'))
 					->set($db->qn('id').' = '.$db->q($event->id))
 					->set($db->qn('ide').' = '.$db->q($idevent))
 					->set($db->qn('from').' = '.$db->q('facebook'));
-				
+
 				$db->setQuery($query);
 				$db->execute();
-				
+
 				//create the thumb
 				if (!empty($event->image)) {
 					jimport('joomla.filesystem.file');
 					$path = JPATH_SITE.'/components/com_rseventspro/assets/images/events/';
-					
+
 					$ext		= 'jpg';
 					$filename	= $event->id;
-					
+
 					while (JFile::exists($path.$filename.'.'.$ext)) {
 						$filename .= rand(1,999);
 					}
-					
+
 					rseventsproHelper::resize($event->image, 0,	$path.$filename.'.'.$ext);
-					
+
 					$query->clear()
 						->update($db->qn('#__rseventspro_events'))
 						->set($db->qn('icon').' = '.$db->q($filename.'.'.$ext))
 						->where($db->qn('id').' = '.$db->q($idevent));
-					
+
 					$db->setQuery($query);
 					$db->execute();
 				}
 				$i++;
 			}
 		}
-		
+
 		if (!$container) {
 			$this->setError(JText::_('COM_RSEVENTSPRO_FACEBOOK_NO_EVENTS_FOUND'));
 			return false;
 		}
-		
+
 		JFactory::getApplication()->enqueueMessage(JText::sprintf('COM_RSEVENTSPRO_FACEBOOK_IMPORTED_NEW_FOUND', $i, count($container)));
 		return true;
 	}
-	
+
 	/**
 	 * Method to import Google events.
 	 *
@@ -479,15 +482,15 @@ class rseventsproModelSettings extends JModelAdmin
 	 */
 	public function google() {
 		require_once JPATH_SITE.'/components/com_rseventspro/helpers/google.php';
-		
+
 		$google		= new RSEPROGoogle();
 		$response	= $google->parse();
-		
+
 		if (!$response) {
 			$this->setError(JText::_('COM_RSEVENTSPRO_NO_EVENTS_IMPORTED'));
 			return false;
 		}
-		
+
 		$this->setState($this->getName() . '.gcevents', $response);
 		return true;
 	}
