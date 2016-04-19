@@ -111,9 +111,12 @@ class EasyDiscussControllerPosts extends EasyDiscussController
         $state = 'success';
 
         // Let's set our custom message here.
-        if (!$post->isPending()){
-            ED::setMessageQueue($message, $state);
+        if ($post->isPending()){
+            $message = JText::_('COM_EASYDISCUSS_NOTICE_POST_SUBMITTED_UNDER_MODERATION');
+            $state = 'info';
         }
+
+        ED::setMessageQueue($message, $state);
 
         $redirect = $this->input->get('redirect', '');
 
@@ -125,10 +128,6 @@ class EasyDiscussControllerPosts extends EasyDiscussController
         $redirectionOption = $this->config->get('main_post_redirection');
 
         switch($redirectionOption) {
-
-            case 'default':
-                $redirect = EDR::getPostRoute($post->id, false);
-            break;
 
             case 'home':
                 $redirect = EDR::_('view=index', false);
@@ -142,8 +141,15 @@ class EasyDiscussControllerPosts extends EasyDiscussController
                 $redirect = EDR::getCategoryRoute($post->category_id, false);
             break;
 
+            case 'default':
             default:
-                $redirect = EDR::getPostRoute($post->id, false);
+                if ($post->isPending()){
+                    $redirect = EDR::_('view=index', false);
+
+                } else {
+                    $redirect = EDR::getPostRoute($post->id, false);
+                }
+
             break;
         }
 
@@ -522,53 +528,24 @@ class EasyDiscussControllerPosts extends EasyDiscussController
             return $this->app->redirect($redirect, JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'), 'error');
         }
 
-        $hashkey = EDR::table('HashKeys');
+        $hashkey = ED::table('HashKeys');
 
         if (!$hashkey->loadByKey($key)) {
             return $this->app->redirect($redirect, JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'), 'error');
         }
 
-        $post = EDR::table('Post');
-        $post->load($hashkey->uid);
-        $post->published = DISCUSS_ID_PUBLISHED;
-
-        $category = ED::category($post->category_id);
-
-        // Process auto posting for posts that are really published and is in a public category and without reply.
-        if ($post->published == DISCUSS_ID_PUBLISHED && $category->canPublicAccess() && $post->parent_id == '0') {
-            $post->autopost();
-        }
-
-        // @trigger: onBeforeSave
-        $isNew = (bool) $post->id;
-        ED::events()->importPlugin('content');
-        ED::events()->onContentBeforeSave('post', $post, $isNew);
-
-        if (!$post->store()) {
-            JError::raiseError(500, $post->getError());
-        }
-
-        // @rule: Send out notifications when the pending moderation items are being published.
-        ED::sendNotification($post, $post->parent_id, true, $post->user_id, DISCUSS_ID_PENDING);
-
-        // @trigger: onAfterSave
-        ED::events()->onContentAfterSave('post', $post, $isNew);
-
-        // Add to jomsocial/easysocial stream
-        if (!empty($post->parent_id)) {
-            ED::jomsocial()->addActivityReply($post);
-            ED::easysocial()->replyDiscussionStream($post);
-        } else {
-            ED::jomsocial()->addActivityQuestion($post);
-            ED::easysocial()->createDiscussionStream($post);
-        }
+        $post = ED::post($hashkey->uid);
+        $state = $post->publish(1);
 
         // Delete the unused hashkey now.
         $hashkey->delete();
 
         $message = $hashkey->type == DISCUSS_REPLY_TYPE ? JText::_('COM_EASYDISCUSS_MODERATE_REPLY_PUBLISHED') : JText::_('COM_EASYDISCUSS_MODERATE_POST_PUBLISHED');
         $pid = $hashkey->type == DISCUSS_REPLY_TYPE ? $post->parent_id : $post->id;
-        return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=post&id=' . $pid, false), $message, 'success');
+
+        ED::setMessage($message, 'success');
+
+        return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=post&id=' . $pid, false));
     }
 
     public function rejectPost()
@@ -586,29 +563,18 @@ class EasyDiscussControllerPosts extends EasyDiscussController
             return $this->app->redirect($redirect, JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'), 'error');
         }
 
-        $post = ED::table('Post');
-        $post->load($hashkey->uid);
-        $post->published = DISCUSS_ID_UNPUBLISHED;
-
-        // @trigger: onBeforeSave
-        $isNew = (bool) $post->id;
-
-        ED::events()->importPlugin('content');
-        ED::events()->onContentBeforeSave('post', $post, $isNew);
-
-        if (!$post->store()) {
-            JError::raiseError(500, $post->getError());
-        }
-
-        // @trigger: onAfterSave
-        ED::events()->onContentAfterSave('post', $post, $isNew);
+        $post = ED::post($hashkey->uid);
+        $state = $post->publish(0);
 
         // Delete the unused hashkey now.
         $hashkey->delete();
 
         $message = $hashkey->type == DISCUSS_REPLY_TYPE ? JText::_('COM_EASYDISCUSS_MODERATE_REPLY_UNPUBLISHED') : JText::_('COM_EASYDISCUSS_MODERATE_POST_UNPUBLISHED');
         $pid = $hashkey->type == DISCUSS_REPLY_TYPE ? $post->parent_id : $post->id;
-        return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=post&id=' . $pid, false), $message, 'success');
+
+        ED::setMessage($message, 'success');
+
+        return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false));
     }
 
     /**

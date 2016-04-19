@@ -321,6 +321,9 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		$query	.=  '    and c.`private`=' . $db->Quote(0);
 		$query	.=  '    and c.`published` = ' . $db->Quote('1');
 
+		// Do not include cluster item here.
+		$query .= ' AND c.`cluster_id` = ' . $db->Quote(0);
+
 		$exclude = DiscussHelper::getPrivateCategories();
 
 		if (!empty($exclude)) {

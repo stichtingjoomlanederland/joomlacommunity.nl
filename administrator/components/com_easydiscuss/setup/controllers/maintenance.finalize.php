@@ -77,7 +77,11 @@ class EasyDiscussControllerMaintenanceFinalize extends EasyDiscussSetupControlle
 			// we need to check if the site has komento installed or not. if yes, we CANNOT remove the foundry
 			// as komento still using foundry 3.1.
 			$komento = JPATH_ROOT . '/administrator/components/com_komento/komento.php';
-			if (! JFile::exists($komento)) {
+
+			// We also need to check if user are using easyblog 3.9 and below, do not remove foundry 3.1.
+			$easyblog = JPATH_ROOT .'/components/com_easyblog/helpers/helper.php';
+
+			if (!JFile::exists($komento) && !JFile::exists($easyblog)) {
 				return JFolder::delete($folder);
 			}
 		}

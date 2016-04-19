@@ -2,7 +2,7 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Similar Discussions Module</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>8th April 2016</creationDate>
+	<creationDate>15th April 2016</creationDate>
 	<copyright>Copyright (C) 2009 - 2016 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>support@stackideas.com</authorEmail>

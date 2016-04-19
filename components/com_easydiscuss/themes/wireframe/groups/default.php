@@ -33,12 +33,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                         <div class="o-col ed-forum-item__col-avatar center">
                             <div>
-                                <?php echo JText::_('COM_EASYDISCUSS_FORUMS_POSTED_BY'); ?>
+                                <?php echo JText::_('COM_EASYDISCUSS_GROUPS_POSTED_BY'); ?>
                             </div>
                         </div>
                         <div class="o-col ed-forum-item__col-avatar center">
                             <div>
-                                <?php echo JText::_('COM_EASYDISCUSS_FORUMS_LAST_REPLY'); ?>
+                                <?php echo JText::_('COM_EASYDISCUSS_GROUPS_LAST_REPLY'); ?>
                             </div>
                         </div>
                     </div>
@@ -48,9 +48,9 @@ defined('_JEXEC') or die('Unauthorized Access');
                 </div>
                 <div class="ed-forum__ft">
                     <a href="<?php echo EDR::getGroupsRoute($thread->group->id,'listing'); ?>">
-                        <?php echo JText::_('COM_EASYDISCUSS_FORUMS_VIEW_ALL_POST'); ?> &rarr;
+                        <?php echo JText::_('COM_EASYDISCUSS_GROUPS_VIEW_ALL_POST'); ?> &rarr;
                     </a>
-                    <!-- <span class="pull-right"><?php //echo JText::sprintf('COM_EASYDISCUSS_FORUMS_COUNT_POST', count($thread->posts), $thread->category->getTotalPosts()); ?></span> -->
+                    <!-- <span class="pull-right"><?php //echo JText::sprintf('COM_EASYDISCUSS_GROUPS_COUNT_POST', count($thread->posts), $thread->category->getTotalPosts()); ?></span> -->
                 </div>
             </div>
         <?php } ?>        
@@ -59,7 +59,7 @@ defined('_JEXEC') or die('Unauthorized Access');
         <div class="ed-forum">
             <div class="ed-forum__empty">
                 <div class="o-row">
-                    <?php echo JText::_('COM_EASYDISCUSS_FORUMS_EMPTY_THREAD');?>
+                    <?php echo JText::_('COM_EASYDISCUSS_GROUPS_EMPTY_THREAD');?>
                 </div>
             </div>
         </div>

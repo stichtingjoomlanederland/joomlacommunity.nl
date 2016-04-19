@@ -17,13 +17,13 @@ defined('_JEXEC') or die('Restricted access');
 <div class="row-fluid">
 	<div class="span6">
 		<div class="panel">
-			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_DETAILS'); ?>
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_POINTS_DETAILS'); ?>
 
 			<div id="option01" class="panel-body">
 				<div class="form-horizontal">
 					<div class="form-group">
 						 <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_POINT_TITLE'); ?>
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_POINTS_TITLE'); ?>
                         </div>
 						<div class="col-md-7">
 							<input type="text" class="full-width inputbox" name="title" value="<?php echo $point->get( 'title' );?>" />
@@ -40,7 +40,7 @@ defined('_JEXEC') or die('Restricted access');
 					</div>
 					<div class="form-group">
 						 <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_CREATION_DATE'); ?>
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_POINTS_CREATION_DATE'); ?>
                         </div>
 						<div class="col-md-7">
 							<?php echo ED::date()->format($point->created, ED::config()->get('layout_dateformat')); ?>
@@ -48,7 +48,7 @@ defined('_JEXEC') or die('Restricted access');
 					</div>
 					<div class="form-group">
 						 <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_POINT_ACTION'); ?>
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_POINTS_ACTION'); ?>
                         </div>
 						<div class="col-md-7">
 							<select name="rule_id" onchange="showDescription( this.value );" class="form-control" >

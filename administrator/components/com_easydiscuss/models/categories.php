@@ -175,6 +175,9 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 			$query	= 'UPDATE ' . $db->nameQuote('#__discuss_category') . ' '
 					. 'SET ' . $db->nameQuote('published') . '=' . $db->Quote($publish) . ' '
 					. 'WHERE ' . $db->nameQuote('id') . ' IN (' . $ids . ')';
+					if ($publish = 0) {
+						$query .= 'AND ' . $db->nameQuote('default') . ' = ' . $db->Quote(0) . '';
+					}
 			$db->setQuery($query);
 
 			if (!$db->query()) {
@@ -232,6 +235,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		$limit = isset($options['limit']) ? $options['limit'] : null;
 		$includeFeatured = isset($options['includeFeatured']) ? $options['includeFeatured'] : true;
 		$featuredSticky = isset($options['featuredSticky']) ? $options['featuredSticky'] : false;
+		$includeCluster = isset($options['includeCluster']) ? $options['includeCluster'] : null;
 
 		$exclude = isset($options['exclude']) ? $options['exclude'] : array();
 
@@ -249,12 +253,28 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 			$query .=  " a.`replied` as `lastupdate`, a.vote as `total_vote_cnt`,";
 			$query .= ' DATEDIFF('. $db->Quote($date->toMySQL()) . ', a.`created`) as `noofdays`, ';
 			$query .= ' DATEDIFF(' . $db->Quote($date->toMySQL()) . ', a.`created`) as `daydiff`, TIMEDIFF(' . $db->Quote($date->toMySQL()). ', a.`created`) as `timediff`,';
+
+			if ($my->id) {
+				$query .= " (SELECT COUNT(1) FROM " . $db->nameQuote('#__discuss_votes') . " WHERE `post_id` = a.`post_id` AND `user_id` = " . $db->Quote($my->id) . ") AS `isVoted`,";
+			} else {
+				$query .= " 0 as `isVoted`,";
+			}
+
+			// $query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`,";
+			$query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`,";
+			$query .= " (select cc.`anonymous` from `#__discuss_posts` as cc where cc.`parent_id` = a.`post_id` order by cc.`id` desc limit 1) as `last_user_anonymous`,";
+
 			$query .= " a.`post_status`, a.`post_type`";
+
 			$query .= " from " . $db->nameQuote('#__discuss_thread') . " as a";
 			$query .= " where a.`published` = " . $db->Quote('1');
 
 			if (!$includeFeatured) {
 				$query .= " and a.featured = 0";
+			}
+
+			if (!$includeCluster) {
+				$query .= " and a.`cluster_id` = " . $db->Quote(0);
 			}
 
 			// category ACL:
@@ -844,6 +864,8 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 	public function preloadCategories($cats)
 	{
 		$db = $this->db;
+
+		$cats = array_unique($cats);
 
 		$query = "select * from " . $db->nameQuote('#__discuss_category');
 		$query .= " where id IN (" . implode(',', $cats) . ")";

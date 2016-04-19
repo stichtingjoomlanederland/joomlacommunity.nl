@@ -32,8 +32,17 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		// Check for request forgeries
 		ED::checkToken();
 
-		$cid = $this->input->get('cid');
+		$cid = $this->input->get('cid', '', 'array');
 		$newCategoryId = $this->input->get('move_category');
+
+		if (! $cid) {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
+			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
+
+			return $this->setRedirect('index.php?option=com_easydiscuss&view=posts');
+		}
+
+
 		$newCategory = ED::Category($newCategoryId);
 
 
@@ -48,12 +57,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		foreach ($cid as $id) {
 			$post = ED::post($id);
-
-			$post->category_id = $newCategory->id;
-			$post->save();
-
-			// The category_id for the replies should change too
-			$post->moveReplies($post->id, $post->category_id);
+			$post->move($newCategory->id);
 		}
 
 		$message = JText::sprintf('COM_EASYDISCUSS_POSTS_MOVED_SUCCESSFULLY', $newCategory->title);
@@ -127,76 +131,15 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		} else {
 			// @task: Tell the world that we're publishing post by sending notification.
 			foreach ($items as $item) {
-				$post = ED::table('Posts');
-				$post->load($item);
 
-				if ($post->published == DISCUSS_ID_PENDING) {
-					$callback = EDR::getRoutedUrl('index.php?option=com_easydiscuss&view=post&id=' . $post->id, false, true);
-					$sites = array('facebook', 'twitter');
-
-					foreach ($sites as $site) {
-						if ($config->get('main_autopost_' . $site)) {
-							$oauth = ED::table('Oauth');
-							$exists = $oauth->loadByType($site);
-
-							$oauthPost = ED::table('OauthPosts');
-
-							if ($exists && !empty($oauth->access_token) && !$oauthPost->exists($post->id, $$oauth->id)) {
-								$consumer = ED::getHelper('Oauth')->getConsumer($site, $config->get('main_autopost_' . $site . '_id'), $config->get('main_autopost_' . $site . '_secret'), $callback);
-								$consumer->setAccess($oauth->access_token);
-
-								$consumer->share($post);
-
-								// @rule: Store this as sent.
-								$oauthPost->set('post_id', $post->id);
-								$oauthPost->set('oauth_id', $oauth->id);
-
-								$oauthPost->store();
-							}
-						}
-					}
-
-					// @rule: Send out notification when the pending moderation items are being published.
-					ED::sendNotification($post, $post->parent_id, true, $post->user_id, $post->published);
-
-					if ($config->get('integration_pingomatic') && empty($post->parent_id)) {
-						$pingo = ED::getHelper('Pingomatic');
-						$pingo->ping($post->title, EDR::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $post->id, true, true));
-					}
-
-					$user = JFactory::getUser($post->user_id);
-
-					// @task: Add activity stream into the following extensions
-					if ($post->parent_id) {
-						ED::getHelper('jomsocial')->addActivityReply($post);
-						ED::getHelper('easysocial')->replyDiscussionStream($post);
-					} else {
-						ED::getHelper('jomsocial')->addActivityQuestion($post);
-						ED::getHelper('easysocial')->createDiscussionStream($post);
-					}
-
-					if ($user->id) {
-						// Add logs for user
-						ED::getHelper('History')->log('easydiscuss.new.discussion', $user->id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_NEW_POST', $post->title), $post->id);
-
-						// Add badges and points for user
-						ED::getHelper('Badges')->assign('easydiscuss.new.discussion', $user->id);
-						ED::getHelper('Points')->assign('easydiscuss.new.discussion', $user->id);
-
-						// Assign badge for EasySocial
-						ED::getHelper('easysocial')->assignBadge('create.question', $user->id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_NEW_POST', $post->title));
-
-						// Assign new ranks
-						ED::getHelper('ranks')->assignRank($user->id, $config->get('main_ranking_calc_type'));
-
-						// Assign AUP
-						ED::getHelper('Aup')->assign(DISCUSS_POINTS_NEW_DISCUSSION, $user->id, $post->title);
-					}
-				}
+				// $post = ED::table('Posts');
+				// $post->load($item);
+				$post = ED::post($item);
+				$published = $post->publish(1);
 			}
 
-			$model = ED::model('Posts');
-			$published = $model->publishPosts($items, 1);
+			// $model = ED::model('Posts');
+			// $published = $model->publishPosts($items, 1);
 
 			if ($published) {
 				$message = JText::_('COM_EASYDISCUSS_POSTS_PUBLISHED');
@@ -234,8 +177,15 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
 			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
 		} else {
-			$model = ED::model('Posts');
-			$unpublish = $model->publishPosts($posts, 0);
+
+			// @task: Tell the world that we're publishing post by sending notification.
+			foreach ($posts as $item) {
+
+				// $post = ED::table('Posts');
+				// $post->load($item);
+				$post = ED::post($item);
+				$unpublish = $post->publish('0');
+			}
 
 			if ($unpublish) {
 				$message = JText::_('COM_EASYDISCUSS_POSTS_UNPUBLISHED');
@@ -255,7 +205,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		$this->setRedirect('index.php?option=com_easydiscuss&view=posts' . $pidLink);
 	}
 
-	function edit()
+	public function edit()
 	{
 		JRequest::setVar( 'view', 'post' );
 		JRequest::setVar( 'id' , JRequest::getVar( 'id' , '' , 'REQUEST' ) );
@@ -265,7 +215,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		parent::display();
 	}
 
-	function addNew()
+	public function addNew()
 	{
 		JRequest::setVar('view', 'post');
 		parent::display();
@@ -338,12 +288,12 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		$this->setRedirect( 'index.php?option=com_easydiscuss&view=posts' . $pidLink );
 	}
 
-	function add()
+	public function add()
 	{
 		$this->app->redirect('index.php?option=com_easydiscuss&view=post');
 	}
 
-	function cancelSubmit()
+	public function cancelSubmit()
 	{
 		$source	= JRequest::getVar('source', 'posts');
 		$pid	= JRequest::getString( 'parent_id' , '' , 'POST' );

@@ -17,7 +17,9 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 {
 	public function migrate()
 	{
-		// Get the total number of items
+		$config = ED::config();
+
+		// Get the total number of Kunena items
 		$total = $this->getTotalKunenaPosts();
 
 		// Get all Kunena Posts that is not yet migrated
@@ -25,6 +27,8 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 		// Determines if there is still items to be migrated
 		$balance = $total - count($items);
+
+		$status = '';
 
 		// If there's nothing to load just skip this
 		if (!$items) {
@@ -36,15 +40,17 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 			$post = ED::post();
 
 			// Map the item to discuss post
-			$this->mapKunenaItem($item, $post);
+			$state = $this->mapKunenaItem($item, $post);
 
-			// Map the replies
-			$this->mapKunenaItemChilds($item, $post);
+			// If everything okay, migrate the replies
+			if ($state) {
+				$this->mapKunenaItemChilds($item, $post);
+			}
 
-			$this->ajax->append('[data-progress-status]', JText::_('COM_EASYDISCUSS_MIGRATOR_MIGRATED_KUNENA') . ': ' . $item->id . JText::_('COM_EASYDISCUSS_MIGRATOR_EASYDISCUSS') . ': ' . $post->id . '<br />');
+			$status .= JText::_('COM_EASYDISCUSS_MIGRATOR_MIGRATED_KUNENA') . ': ' . $item->id . JText::_('COM_EASYDISCUSS_MIGRATOR_EASYDISCUSS') . ': ' . $post->id . '<br />';
 
-			// adding poll items to this thread - will add this later
-			//$this->mapKunenaItemPolls($item, $post);
+			// adding poll items to this thread
+			$this->mapKunenaItemPolls($item, $post);
 			
 		}
 
@@ -62,17 +68,17 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 				$model->resetPoints();
 			}
 
-			$this->ajax->append('[data-progress-status]', JText::_('COM_EASYDISCUSS_MIGRATOR_FINISHED'));
 		}
 
-		return $this->ajax->resolve($hasmore);
+		return $this->ajax->resolve($hasmore, $status);
+
 	}
 
 	public function mapKunenaItemPolls($kItem, $item)
 	{
 		$db	= $this->db;
 
-		$query = 'select * from `#__kunena_polls` where `threadid` = ' . $db->Quote($kItem->id);
+		$query = 'select * from `#__kunena_polls` where `threadid` = ' . $db->Quote($kItem->thread);
 
 		// echo $query;
 
@@ -81,44 +87,40 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 		if ($kPolls) {
 			foreach ($kPolls as $kPoll) {
-				$pollQuestion	= DiscussHelper::getTable( 'PollQuestion');
+				$pollQuestion = ED::table( 'PollQuestion');
 
-				$pollQuestion->post_id 	= $item->id;
-				$pollQuestion->title 	= $kPoll->title;
+				$pollQuestion->post_id = $item->id;
+				$pollQuestion->title = $kPoll->title;
 				$pollQuestion->multiple = 0;
-				$pollQuestion->locked 	= 0;
+				$pollQuestion->locked = 0;
 
 				$pollQuestion->store();
 
 				// get the poll options.
 				$query = 'select * from `#__kunena_polls_options` where `pollid` = ' . $db->Quote( $kPoll->id );
-				$db->setQuery( $query );
+				$db->setQuery($query);
 				$kPollsOptions = $db->loadObjectList();
 
-				if( $kPollsOptions )
-				{
-					foreach( $kPollsOptions as $kPollOption )
-					{
-						$poll	= DiscussHelper::getTable( 'Poll' );
+				if ($kPollsOptions) {
+					foreach ($kPollsOptions as $kPollOption) {
+						$poll = ED::table('Poll');
 
-						$poll->post_id 			= $item->id;
-						$poll->value 			= $kPollOption->text;
-						$poll->count 			= $kPollOption->votes;
+						$poll->post_id = $item->id;
+						$poll->value = $kPollOption->text;
+						$poll->count = $kPollOption->votes;
 
 						$poll->store();
 
 						// now we need to insert the users who vote for this option.
-						$query = 'select * from `#__kunena_polls_users` where `pollid` = ' . $db->Quote( $kPoll->id );
-						$query .= ' and `lastvote` = ' . $db->Quote( $kPollOption->id );
+						$query = 'select * from `#__kunena_polls_users` where `pollid` = ' . $db->Quote($kPoll->id);
+						$query .= ' and `lastvote` = ' . $db->Quote($kPollOption->id);
 
-						$db->setQuery( $query );
+						$db->setQuery($query);
 						$kPollsUsers = $db->loadObjectList();
 
-						if( $kPollsUsers )
-						{
-							foreach( $kPollsUsers as $kPollUser )
-							{
-								$pollUser	= DiscussHelper::getTable( 'PollUser' );
+						if ($kPollsUsers) {
+							foreach ($kPollsUsers as $kPollUser) {
+								$pollUser = ED::table('PollUser');
 
 								$pollUser->poll_id = $poll->id;
 								$pollUser->user_id = $kPollUser->userid;
@@ -166,6 +168,7 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 			// For contents, we need to get the raw data.
 	        $data['content'] = $content;
 	        $data['parent_id'] = $post->id;
+	        $data['user_id'] = $kChildItem->userid;
 
 	        // Load the post library
 	        $post = ED::post();
@@ -224,8 +227,7 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 		// Validate the posted data to ensure that we can really proceed
         if (!$post->validate($data)) {
-
-            //failed
+        	return false;
         }
 
         $post->save();
@@ -252,13 +254,12 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 				$config = ED::config();
 
 				$storagePath = ED::attachment()->getStoragePath();
-
 				$storage = $storagePath . '/' . $hash;
 				$kStorage = JPATH_ROOT . '/' . rtrim($kAttachment->folder, '/')  . '/' . $kAttachment->filename;
 
 				// create folder if it not exists
-				if (!JFolder::exists($folderPath)) {
-					JFolder::create($folderPath);
+				if (!JFolder::exists($storagePath)) {
+					JFolder::create($storagePath);
 					JFile::copy(DISCUSS_ROOT . '/index.html', $hash . '/index.html');
 				}
 
@@ -266,11 +267,9 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 					
 					JFile::copy($kStorage, $storage);
 
-					if (ED::image()->isImage($kAttachment->filename)) {
-						
-						require_once DISCUSS_CLASSES . '/simpleimage.php';
-						
-						$image = new SimpleImage;
+					if (ED::image()->isImage($kStorage)) {
+
+						$image = ED::simpleimage();;
 
 						@$image->load($kStorage);
 						@$image->resizeToFill(160, 120);
@@ -285,10 +284,10 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 			}
 		}
 
-		//perform cleanup
-
         // Add this to migrators table
 		$this->added('com_kunena', $post->id, $item->id, 'post');
+
+		return true;
 	}
 
 	public function getKunenaAttachments($kItem)

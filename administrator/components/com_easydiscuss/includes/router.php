@@ -238,8 +238,10 @@ class EDR
         $category_id = isset($query['category_id']) ? $query['category_id'] : null;
 
 		if (!empty($Itemid)) {
-			$loaded[$key] = JRoute::_($url, $xhtml, $ssl);
-			return $loaded[$key];
+			if (self::isEasyDiscussMenuItem($Itemid)) {
+				$loaded[$key] = JRoute::_($url, $xhtml, $ssl);
+				return $loaded[$key];
+			}
 		}
 
         if ($lang) {
@@ -269,6 +271,12 @@ class EDR
 					if (isset($item->id)) {
 						$tmpId = $item->id;
 					}
+				}
+			}
+
+			if ($tmpId) {
+				if (! self::isEasyDiscussMenuItem($tmpId)) {
+					$tmpId = '';
 				}
 			}
 
@@ -476,7 +484,6 @@ class EDR
 	{
 		static $loaded = array();
 
-
 		if(! isset( $loaded[$currentId] ) )
 		{
 
@@ -519,6 +526,39 @@ class EDR
 		}
 
 		return $loaded[$sig];
+	}
+
+	/**
+	 * Generates a permalink given a string
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public static function normalizePermalink($string)
+	{
+		$config = ED::config();
+		$permalink = '';
+
+		if (EDR::isSefEnabled() && $config->get('main_sef_unicode')) {
+			$permalink = JFilterOutput::stringURLUnicodeSlug($string);
+			return $permalink;
+		}
+
+		// Replace accents to get accurate string
+		$string = EDR::replaceAccents($string);
+
+		// no unicode supported.
+		$permalink = JFilterOutput::stringURLSafe($string);
+
+		// check if anything return or not. If not, then we give a date as the alias.
+		if (trim(str_replace('-','',$permalink)) == '') {
+			$date = ED::date();
+			$permalink = $date->format("%Y-%m-%d-%H-%M-%S");
+		}
+
+		return $permalink;
 	}
 
 	public static function replaceAccents( $string )
@@ -600,10 +640,10 @@ class EDR
 	{
 		static $loaded = array();
 
-		if(! isset( $loaded[$id] ) )
-		{
-			$table	= DiscussHelper::getTable( 'Tags' );
-			$table->load( $id );
+		if (! isset($loaded[$id])) {
+
+			$table	= ED::table('Tags');
+			$table->load($id);
 
 			$loaded[$id] = ED::permalinkSlug($table->alias, $id);
 		}
@@ -1101,7 +1141,26 @@ class EDR
         return $langSEF;
     }
 
+	/**
+	 * check if this itemId belong to EasyDiscuss or not.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public static function isEasyDiscussMenuItem($itemId)
+	{
+		$menuItems = self::getMenus();
 
+		foreach($menuItems as $mItem) {
+			if ($mItem->id == $itemId) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	/**
 	 * Retrieve all menu's from the site associated with EasyDiscuss
@@ -1111,9 +1170,10 @@ class EDR
 	 * @param	string
 	 * @return
 	 */
-    public static function getMenus($view, $layout = null, $id = null, $lang = null)
+    public static function getMenus($view = null, $layout = null, $id = null, $lang = null)
 	{
 		static $_cache = null;
+		static $_cacheFlat = null;
         static $selection = array();
 
 		if (is_null($_cache)) {
@@ -1163,7 +1223,15 @@ class EDR
 						$_cache[$menu->view][$menu->layout][$row->language][] = $menu;
 	                }
                 }
+
+                $_cacheFlat[] = $menu;
+
 			}
+		}
+
+		// we know we just want the all menu items for EasyDiscuss. lets just return form the cache.
+		if (is_null($view) && is_null($layout) && is_null($id) && is_null($lang)) {
+			return $_cacheFlat;
 		}
 
         // Always ensure that layout is lowercased

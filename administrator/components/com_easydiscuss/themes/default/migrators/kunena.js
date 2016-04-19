@@ -16,9 +16,6 @@ ed.require(['edq'], function($) {
 		// Ensure that the progress is always reset to empty just in case the user runs it twice.
 		$('[data-progress-status]').html('');
 
-		// clear the stats.
-		$('[data-progress-stat]').html('');
-
 		//show the loading icon
 		$('[data-progress-loading]').removeClass('hide');
 
@@ -31,7 +28,10 @@ ed.require(['edq'], function($) {
 
 		EasyDiscuss.ajax('admin/views/migrators/migrate', {
 			"component": "com_kunena"
-		}).done(function(result) {
+		}).done(function(result, status) {
+
+			// Append the current status
+			$('[data-progress-status]').append(status);
 
 			// If there's still items to render, run a recursive loop until it doesn't have any more items;
 			if (result == true) {
@@ -44,6 +44,7 @@ ed.require(['edq'], function($) {
 
 			migrateButton.removeAttr('disabled');
 			migrateButton.html('<i class="fa fa-check"></i> <?php echo JText::_('COM_EASYDISCUSS_COMPLETED', true);?>');
+			$('[data-progress-status]').append('<?php echo JText::_('COM_EASYDISCUSS_COMPLETED', true);?>');
 
 			if (result == 'noitem'){
 				migrateButton.removeAttr('disabled');

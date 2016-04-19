@@ -27,10 +27,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 
         <div class="ed-post-item__hd">
 
-            <div class="o-row">
-                <div class="o-col">
+            <div class="o-grid">
+                <div class="o-grid__cell">
                     <h2 class="ed-post-item__title t-lg-mb--md">
-                        <span class="o-label o-label--success-o ed-state-resolved"><?php echo JText::_('COM_EASYDISCUSS_RESOLVED');?></span>
 
                         <?php if ($this->config->get('post_priority') && $post->getPriority()) { ?>
                         <i class="fa fa-file"
@@ -43,7 +42,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                         <a href="<?php echo $post->getPermalink();?>"><?php echo $post->getTitle();?></a>
                     </h2>
 
-                    <div class="ed-post-item__status pull-left t-lg-mr--md">
+                    <div class="ed-post-item__status t-lg-mr--md">
                         <i class="fa fa-star ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_FEATURED_DESC');?>"></i>
 
                         <i class="fa fa-lock ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_LOCKED_DESC');?>"></i>
@@ -55,6 +54,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                     <div class="t-mt--sm">
                         <ol class="g-list-inline ed-post-item__post-meta">
+                            <?php if ($post->isResolved()) { ?>
+                            <li>
+                                <span class="o-label o-label--success-o ed-state-resolved"><?php echo JText::_('COM_EASYDISCUSS_RESOLVED');?></span>
+                            </li>
+                            <?php } ?>
                             <!-- post status here: accepted, onhold, working rejected -->
                             <?php if ($post->isPostRejected()) { ?>
                                 <li><span class="o-label o-label--info-o"><?php echo JText::_('COM_EASYDISCUSS_POST_STATUS_REJECT');?></span></li>

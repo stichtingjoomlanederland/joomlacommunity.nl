@@ -34,8 +34,8 @@ class EasyDiscussViewBadges extends EasyDiscussAdminView
 		JToolBarHelper::divider();
 		JToolbarHelper::deleteList();
 		JToolbarHelper::divider();
-		JToolBarHelper::custom( 'rules' , 'rules' , '' , JText::_( 'COM_EASYDISCUSS_MANAGE_RULES_BUTTON' ) , false );
-		JToolBarHelper::custom('assign', 'assign', '' , JText::_('COM_EASYDISCUSS_BADGES_MASS_ASSIGN_BUTTON'), false);
+		JToolBarHelper::custom( 'rules' , 'cog' , '' , JText::_( 'COM_EASYDISCUSS_MANAGE_RULES_BUTTON' ) , false );
+		JToolBarHelper::custom('assign', 'checkbox-checked', '' , JText::_('COM_EASYDISCUSS_BADGES_MASS_ASSIGN_BUTTON'), false);
 
 		// Get the states
 		$filter = $this->getUserState('badges.filter_state', 'filter_state', '*', 'word');

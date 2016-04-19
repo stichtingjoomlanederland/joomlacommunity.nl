@@ -25,9 +25,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<table class="app-table app-table-middle table table-striped" data-ed-table>
 			<thead>
 				<tr>
-					<td width="1%">
-						<?php echo $this->html('table.checkall'); ?>
-					</td>
+					<td width="1%">&nbsp;</td>
 					<td style="text-align:left;">
 						<?php echo JText::_('COM_EASYDISCUSS_GROUP_NAME'); ?>
 					</td>
@@ -42,9 +40,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php $i = 0; ?>
 				<?php foreach ($rulesets as $ruleset) { ?>
 				<tr>
-					<td class="center">
-						<?php echo $this->html('table.checkbox', $i++, $ruleset->id); ?>
-					</td>
+					<td class="center">&nbsp;</td>
 					<td align="left">
 						<?php echo str_repeat('<span class="gi">|&mdash;</span>', $ruleset->level); ?>
 						<a href="<?php echo $ruleset->editLink;?>"><?php echo $ruleset->name; ?></a>

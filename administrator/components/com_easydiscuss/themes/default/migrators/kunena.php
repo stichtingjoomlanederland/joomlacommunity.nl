@@ -31,14 +31,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 							<div class="col-md-5 control-label">
 								<label><?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_RESET_HITS'); ?></label>
-								<i class="fa fa-question-circle pull-right" data-ed-provide="popover" data-content="Set a blog title for your blog. The blog title would appear right above the toolbar." data-title="Blog Title" data-placement="top" data-html="true" data-original-title="" title=""></i>
+								<i class="fa fa-question-circle pull-right" data-ed-provide="popover" data-content="<?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_RESET_HITS_DESC'); ?>" data-title="Blog Title" data-placement="top" data-html="true" data-original-title="" title=""></i>
 							</div>
-							<div class="col-md-7"
-								rel="ed-popover"
-								data-placement="left"
-								data-original-title="<?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_RESET_HITS'); ?>"
-								data-content="<?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_RESET_HITS_DESC'); ?>"
-							>
+							<div>
 								<?php echo $this->html('form.boolean', 'migrator_reset_points', $this->config->get('migrator_reset_points'));?>
 							</div>
 
@@ -66,16 +61,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 		        	<div data-progress-empty><?php echo JText::_('COM_EASYDISCUSS_MIGRATOR_NO_PROGRESS_YET'); ?></div>
 		        	<div data-progress-status style="overflow:auto; height:98%;max-height: 300px;"></div>
 				</div>
-			</div>
-
-			<div class="panel">
-				<div class="panel-head">
-	        		<b><?php echo JText::_('COM_EASYDISCUSS_MIGRATOR_STATISTIC');?></b>
-	        	</div>
-
-	        	<div class="panel-body">
-	        		<div data-progress-stat style="overflow:auto; height:98%;"></div>
-	        	</div>
 			</div>
 		</div>
 	</div>

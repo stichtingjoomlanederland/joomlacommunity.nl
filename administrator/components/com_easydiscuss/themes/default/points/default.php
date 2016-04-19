@@ -32,7 +32,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<?php echo $this->html('table.checkall'); ?>
 					</td>
 					<td style="text-align: left;">
-						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_POINT_TITLE'), 'a.title', $orderDirection, $order); ?>
+						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_POINTS_TITLE'), 'a.title', $orderDirection, $order); ?>
 					</td>
 					<td width="1%" class="center">
 						<?php echo JText::_( 'COM_EASYDISCUSS_PUBLISHED' ); ?>

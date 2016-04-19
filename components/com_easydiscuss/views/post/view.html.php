@@ -49,6 +49,17 @@ class EasyDiscussViewPost extends EasyDiscussView
 			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_SYSTEM_POST_NOT_FOUND'));
 		}
 
+		// Determine if user are allowed to view the discussion item that belong to another cluster.
+		if ($post->isCluster()) {
+			$esLib = ED::easysocial();
+
+			$cluster = $esLib->getCluster($post->cluster_id, $post->getClusterType());
+
+			if (!$cluster->canViewItem()) {
+				return JError::raiseError(404, JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
+			}
+		}
+
 		// Get the posts' category
 		$category = $post->getCategory();
 
@@ -327,6 +338,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 		$this->doc->setMetadata('description', $description);
 
 		// Set canonical link to avoid URL duplication.
-		$this->doc->addHeadLink(JURI::root() . EDR::getPostRoute($post->id), 'canonical', 'rel');
+		$url = EDR::getPostRoute($post->id);
+		$this->doc->addHeadLink($this->escape($url), 'canonical', 'rel');
 	}
 }

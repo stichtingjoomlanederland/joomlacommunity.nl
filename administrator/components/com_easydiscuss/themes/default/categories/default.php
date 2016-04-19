@@ -44,10 +44,12 @@ $originalOrders	= array();
 					<td width="5%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_CATEGORIES_PUBLISHED'); ?>
 					</td>
+					<?php if (count($categories) > 1) { ?>
 					<td width="10%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_ORDER'), 'lft', 'desc', $order); ?>
 						<?php echo JHTML::_('grid.order', $categories); ?>
 					</td>
+					<?php } ?>
 					<td width="5%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_CATEGORIES_ENTRIES'); ?>
 					</td>
@@ -83,11 +85,12 @@ $originalOrders	= array();
 						<td class="center">
 							<?php echo $this->html('table.state', 'categories', $category, 'published'); ?>
 						</td>
-
+						<?php if (count($categories) > 1) { ?>
 						<td class="order">
 							<?php echo $this->html( 'table.ordering', 'order', $orderkey + 1, count($ordering[$category->parent_id]), true); ?>
 							<?php $originalOrders[] = $orderkey + 1; ?>
 						</td>
+						<?php } ?>
 						<td class="center">
 							<?php echo $category->count;?>
 						</td>

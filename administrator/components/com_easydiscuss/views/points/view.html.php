@@ -93,7 +93,7 @@ class EasyDiscussViewPoints extends EasyDiscussAdminView
 
 		JToolBarHelper::custom( 'home', 'arrow-left', '', JText::_( 'COM_EASYDISCUSS_TOOLBAR_HOME' ), false);
 		JToolBarHelper::divider();
-		JToolBarHelper::custom( 'rules' , 'rules' , '' , JText::_( 'COM_EASYDISCUSS_MANAGE_RULES_BUTTON' ) , false );
+		JToolBarHelper::custom( 'rules' , 'cog' , '' , JText::_( 'COM_EASYDISCUSS_MANAGE_RULES_BUTTON' ) , false );
 		JToolBarHelper::divider();
 		JToolbarHelper::publishList();
 		JToolbarHelper::unpublishList();

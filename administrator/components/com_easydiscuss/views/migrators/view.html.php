@@ -125,12 +125,13 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 
 	public function communityPollsExists()
 	{
-		return JFile::exists( JPATH_ROOT . '/administrator/components/com_communitypolls/communitypolls.xml' );
+		return JFile::exists(JPATH_ROOT . '/administrator/components/com_communitypolls/communitypolls.xml');
 	}
 
 	public function registerToolbar()
 	{
-		JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_MIGRATORS' ), 'migrators' );
-		JToolBarHelper::back( 'COM_EASYDISCUSS_BACK' , 'index.php?option=com_easydiscuss');
+		JToolBarHelper::title(JText::_('COM_EASYDISCUSS_MIGRATORS'), 'migrators');
+		JToolBarHelper::custom('home', 'arrow-left', '', JText::_('COM_EASYDISCUSS_TOOLBAR_HOME'), false);
+		JToolBarHelper::custom('migrators.purge', 'delete.png', 'delete_f2.png', JText::_('COM_DISCUSS_PURGE_HISTORY') , false);
 	}
 }

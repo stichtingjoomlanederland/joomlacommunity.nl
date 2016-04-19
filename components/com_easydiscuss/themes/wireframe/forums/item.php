@@ -13,18 +13,18 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 
 <?php foreach ($thread as $post) { ?>
-    <div class="ed-forum-item 
+    <div class="ed-forum-item
         <?php echo $post->isSeen($this->my->id) ? ' is-read' : '';?>
         <?php echo $post->isFeatured() ? ' is-featured' : '';?>
         <?php echo $post->isLocked() ? ' is-locked' : '';?>
         <?php echo $post->isProtected() ? ' is-protected' : '';?>
         <?php echo $this->config->get('layout_enableintrotext') || $this->config->get('main_master_tags') ? ' has-body' : '';?>"
     >
-        <div class="o-row xo-row--unset">
+        <div class="o-row">
 
             <?php if ($this->config->get('post_priority')) { ?>
             <div class="o-col-sm o-col--top ed-forum-item__col-post-type">
-                <i class="fa fa-file ed-forum-item__priority-icon" 
+                <i class="fa fa-file ed-forum-item__priority-icon"
                     style="<?php echo $post->getPriority() ? 'color:' . $post->getPriority()->color : '';?>"
                     <?php if ($post->getPriority()) { ?>
                     data-ed-provide="tooltip"
@@ -36,12 +36,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 
             <div class="o-col o-col--top">
 
-                <?php if ($post->isResolved()) { ?>
-                <span class="o-label o-label--success-o"><?php echo JText::_('COM_EASYDISCUSS_RESOLVED'); ?></span>&nbsp;
-                <?php } ?>
-
-                
-
                 <h2 class="ed-forum-item__title">
                     <?php if ($post->isFeatured()) { ?><i class="fa fa-star t-mr--sm"></i><?php } ?>
                     <?php if ($post->isLocked()) { ?><i class="fa fa-lock t-mr--sm"></i><?php } ?>
@@ -52,6 +46,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                 <div class="t-mt--sm">
                     <ol class="g-list-inline ed-post-item__post-meta">
+                        <?php if ($post->isResolved()) { ?>
+                        <li>
+                            <span class="o-label o-label--success-o"><?php echo JText::_('COM_EASYDISCUSS_RESOLVED'); ?></span>
+                        </li>
+                        <?php } ?>
                         <!-- post status here: accepted, onhold, working rejected -->
                         <?php if ($post->isPostRejected()) { ?>
                             <li><span class="o-label o-label--info-o"><?php echo JText::_('COM_EASYDISCUSS_POST_STATUS_REJECT');?></span></li>
@@ -93,7 +92,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <div class="ed-forum-item__meta"><?php echo ED::date()->toLapsed($post->created); ?></div>
             </div>
 
-            <div class="o-col-sm ed-forum-item__col-avatar center">
+            <div class="o-col-sm ed-forum-item__col-avatar t-text--center">
                 <?php if (!$post->isAnonymous()) { ?>
                     <?php echo $this->html('user.avatar', $post->getOwner(), array('rank' => false, 'status' => true, 'size' => 'sm')); ?>
                 <?php } ?>
@@ -102,14 +101,10 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <?php } ?>
             </div>
 
-            <div class="o-col-sm ed-forum-item__col-avatar center">
+            <div class="o-col-sm ed-forum-item__col-avatar t-text--center">
 
             <?php if ($post->getLastReplier()) { ?>
-                <?php if (!$post->isLastReplyAnonymous()) { ?>
-                    <?php echo $this->html('user.avatar', $post->getLastReplier(), array('rank' => false, 'status' => true, 'size' => 'sm')); ?>
-                <?php } else { ?>
-                    <?php echo $this->output('site/html/user.anonymous') ?>
-                <?php } ?>    
+                <?php echo $this->html('user.avatar', $post->getLastReplier(), array('rank' => false, 'status' => true, 'size' => 'sm')); ?>
             <?php } else { ?>
                 <?php echo JText::_('COM_EASYDISCUSS_FORUMS_NO_REPLIES'); ?>
             <?php } ?>

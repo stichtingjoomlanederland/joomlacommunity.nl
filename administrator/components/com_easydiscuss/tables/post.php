@@ -221,27 +221,24 @@ class DiscussPost extends EasyDiscussTable
 	/**
 	 * Must only be bind when using POST data
 	 **/
-	public function bind( $data , $post = false )
+	public function bind($data, $post = false)
 	{
-		parent::bind( $data );
+		parent::bind($data);
 
-		if( $post )
-		{
+		if ($post) {
 			$my = JFactory::getUser();
 
-			if ( $this->id == 0 )
-			{
-				// This is to check if superadmin assign blog author during blog creation.
-				if(empty($this->user_id))
-				{
-					$this->user_id	= $my->id;
+			if ($this->id == 0) {
+				// This is to check if superadmin assign blog author during blog creation. need to further check on this.
+				if(empty($this->user_id) && $this->user_type != 'guest') {
+					$this->user_id = $my->id;
 				}
 			}
 
 			// Default joomla date obj
-			$date				= ED::date();
-			$now				= $date->toMySQL();
-			$config				= ED::config();
+			$date = ED::date();
+			$now = $date->toMySQL();
+			$config = ED::config();
 
 			//$this->content		= isset( $data[ 'dc_reply_content' ] ) ? $data[ 'dc_reply_content' ] : '';
 			//$this->created		= !empty( $this->created ) && $this->created != '0000-00-00 00:00:00' ? $this->created : $now;
@@ -249,9 +246,9 @@ class DiscussPost extends EasyDiscussTable
 			//$this->modified		= $now;
 
 			// Default values to 0
-			$this->num_likes		= $this->num_likes ? $this->num_likes : 0;
-			$this->num_negvote		= $this->num_negvote ? $this->num_negvote : 0;
-			$this->sum_totalvote	= $this->sum_totalvote ? $this->sum_totalvote : 0;
+			$this->num_likes = $this->num_likes ? $this->num_likes : 0;
+			$this->num_negvote = $this->num_negvote ? $this->num_negvote : 0;
+			$this->sum_totalvote = $this->sum_totalvote ? $this->sum_totalvote : 0;
 		}
 
 		return true;

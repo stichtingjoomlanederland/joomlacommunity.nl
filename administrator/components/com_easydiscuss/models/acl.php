@@ -74,7 +74,7 @@ class EasyDiscussModelAcl extends EasyDiscussAdminModel
 			$sql .= ' WHERE `published` = 1';
 			$sql .= ' and `public` = 1';
 			$sql .= ' ORDER BY `id` ASC';
-		} 
+		}
 		else {
 			$sql = 'SELECT * FROM ' . $db->nameQuote('#__discuss_acl').' WHERE `published` = 1 ORDER BY `id` ASC';
 		}
@@ -137,7 +137,7 @@ class EasyDiscussModelAcl extends EasyDiscussAdminModel
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getRuleSet($type, $cid)
 	{
@@ -189,6 +189,11 @@ class EasyDiscussModelAcl extends EasyDiscussAdminModel
 
 		if ($rows) {
 			foreach ($rows as $row) {
+
+				if (! isset($rules[$row->acl_id])) {
+					continue;
+				}
+
 				$group = $rules[$row->acl_id]->group;
 
 				$ruleset->rules[$group][$row->acl_id]->value = $row->status;
@@ -204,7 +209,7 @@ class EasyDiscussModelAcl extends EasyDiscussAdminModel
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getTabs()
 	{
@@ -224,7 +229,7 @@ class EasyDiscussModelAcl extends EasyDiscussAdminModel
 		foreach ($result as $row) {
 
 
-			
+
 			$tabs[] = $tab;
 		}
 
@@ -336,12 +341,12 @@ class EasyDiscussModelAcl extends EasyDiscussAdminModel
 			if ($search) {
 				$where[] = ' LOWER( name ) LIKE \'%' . $search . '%\' ';
 			}
-		} 
+		}
 		else {
 			if ($type == 'group') {
 				$where[] = 'a.`id` = ' . $db->quote($cid);
 
-			} 
+			}
 			else if($type == 'assigned') {
 				$where[] = 'a.`id` = '.$db->quote($cid);
 				$where[] = 'b.`type` = '.$db->quote($type);
@@ -367,7 +372,7 @@ class EasyDiscussModelAcl extends EasyDiscussAdminModel
 		if($type == 'group') {
 			$orderby = ' GROUP BY a.id';
 			$orderby .= ' ORDER BY a.lft ASC';
-		} 
+		}
 		else {
 			$orderby = ' ORDER BY ' . $filter_order . ' ' . $filter_order_Dir;
 		}

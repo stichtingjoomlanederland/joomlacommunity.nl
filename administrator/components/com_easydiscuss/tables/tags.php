@@ -68,18 +68,20 @@ class DiscussTags extends EasyDiscussTable
 	{
 		static $loaded  = array();
 
-		$sig    = $id  . (int) $loadByTitle;
+		$sig    = $id  . $loadByTitle;
 		$doBind = true;
 
-		if( ! isset( $loaded[ $sig ] ) )
-		{
-			if( !$loadByTitle)
-			{
-				parent::load( $id );
-				$loaded[ $sig ] = $this;
-			}
-			else
-			{
+		if (! isset($loaded[$sig])) {
+			if( !$loadByTitle) {
+
+				if (ED::cache()->exists($id, 'tag')) {
+					$data = ED::cache()->get($id, 'tag');
+					$loaded[$sig] = $data;
+				} else {
+					parent::load($id);
+					$loaded[$sig] = $this;
+				}
+			} else {
 
 				$db		= DiscussHelper::getDBO();
 
@@ -107,12 +109,9 @@ class DiscussTags extends EasyDiscussTable
 			}
 		}
 
-		if( $doBind )
-		{
-			return parent::bind( $loaded[ $sig ] );
-		}
-		else
-		{
+		if ($doBind) {
+			return parent::bind($loaded[$sig]);
+		} else {
 			return $this->id;
 		}
 	}

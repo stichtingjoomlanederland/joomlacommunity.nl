@@ -29,44 +29,47 @@ class EasyDiscussModelPostsTags extends EasyDiscussAdminModel
 
 	public function setPostTagsBatch( $ids )
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
-		if( count( $ids ) > 0 )
-		{
+		if (count($ids) > 0) {
 
-			$query	= 'SELECT a.`id`, a.`title`, a.`alias`, b.`post_id`';
+			$query	= 'SELECT a.*, b.`post_id`';
 			$query .= ' FROM `#__discuss_tags` AS a';
 			$query .= ' LEFT JOIN `#__discuss_posts_tags` AS b';
 			$query .= ' ON a.`id` = b.`tag_id`';
-			if( count( $ids ) == 1 )
-			{
-				$query .= ' WHERE b.`post_id` = '.$db->Quote( $ids[0] );
-			}
-			else
-			{
+			if (count( $ids ) == 1) {
+				$query .= ' WHERE b.`post_id` = ' . $db->Quote($ids[0]);
+
+			} else {
 				$query .= ' WHERE b.`post_id` IN (' . implode(',', $ids) . ')';
 			}
 
 			$db->setQuery( $query );
 			$result = $db->loadObjectList();
 
-			if( count( $result ) > 0 )
-			{
-				foreach( $result as $item )
-				{
-					self::$_postTags[ $item->post_id ][] = $item;
+			if (count($result) > 0) {
+				foreach ($result as $item) {
+					$postId = $item->post_id;
+
+					self::$_postTags[$postId][] = $item;
+
+					// now lets cache the tag;
+					$tag = ED::table('Tags');
+
+					// prepare data to bind
+					unset($item->post_id);
+					$tag->bind($item);
+
+					$cache = ED::cache();
+					$cache->set($tag, 'tag');
 				}
 			}
 
-			foreach( $ids as $id )
-			{
-				if(! isset( self::$_postTags[ $id ] ) )
-				{
-					self::$_postTags[ $id ] = array();
+			foreach ($ids as $id) {
+				if (! isset(self::$_postTags[$id])) {
+					self::$_postTags[$id] = array();
 				}
 			}
-
-
 		}
 	}
 
@@ -78,15 +81,13 @@ class EasyDiscussModelPostsTags extends EasyDiscussAdminModel
 	 */
 	public function getPostTags($postId)
 	{
-		if( isset( self::$_postTags[ $postId ] ) )
-		{
+		if (isset(self::$_postTags[$postId])) {
 			return self::$_postTags[ $postId ];
 		}
 
+		$db = ED::db();
 
-		$db = DiscussHelper::getDBO();
-
-		$query	= 'SELECT a.`id`, a.`title`, a.`alias`';
+		$query	= 'SELECT a.*';
 		$query .= ' FROM `#__discuss_tags` AS a';
 		$query .= ' LEFT JOIN `#__discuss_posts_tags` AS b';
 		$query .= ' ON a.`id` = b.`tag_id`';
@@ -95,12 +96,22 @@ class EasyDiscussModelPostsTags extends EasyDiscussAdminModel
 
 		$db->setQuery($query);
 
-		if($db->getErrorNum() > 0)
-		{
+		if($db->getErrorNum() > 0) {
 			JError::raiseError( $db->getErrorNum() , $db->getErrorMsg() . $db->stderr());
 		}
 
 		$result	= $db->loadObjectList();
+
+		if ($result) {
+			foreach ($result as $item) {
+
+				$tag = ED::table('Tags');
+				$tag->bind($item);
+
+				$cache = ED::cache();
+				$cache->set($tag, 'tags');
+			}
+		}
 
 		self::$_postTags[ $postId ] = $result;
 		return $result;

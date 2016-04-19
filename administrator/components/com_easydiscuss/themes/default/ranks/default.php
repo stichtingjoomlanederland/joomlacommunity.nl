@@ -25,7 +25,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<?php if (!$this->config->get('main_ranking')) { ?>
 							<?php echo JText::_('COM_EASYDISCUSS_RANKING_DISABLED_BY_ADMIN'); ?>
 						<?php } else { ?>
-							<?php echo JText::sprintf('COM_EASYDISCUSS_RANKING_NOTE', $rankingType); ?>	
+							<?php echo JText::sprintf('COM_EASYDISCUSS_RANKING_NOTE', $rankingType); ?>
 						<?php } ?>
 					</div>
 					<div class="row-table">
@@ -33,7 +33,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 							<input type="text" class="form-control" id="newtitle" name="newtitle" value="" placeholder="<?php echo JText::_( 'COM_EASYDISCUSS_RANKING_TITLE' );?>" />
 						</div>
 						<div class="col-cell cell-tight">
-							<input class="btn btn-primary" type="button" onclick="admin.rank.add();" value="<?php echo JText::_('COM_EASYDISCUSS_RANKING_ADD'); ?>" />
+							<input class="btn btn-primary" type="button" data-rank-add value="<?php echo JText::_('COM_EASYDISCUSS_RANKING_ADD'); ?>" />
 							</div>
 						</div>
 						<div id="sys-msg" style="color:red;"></div>
@@ -53,17 +53,17 @@ defined('_JEXEC') or die('Unauthorized Access');
 						</thead>
 						<tbody id="rank-list">
 							<?php if ($ranks) { ?>
-								<?php $i = 0; ?>
+								<?php $i = 1; ?>
 								<?php foreach ($ranks as $rank) { ?>
 								<tr id="rank-<?php echo $rank->id; ?>">
 									<td width="1">
 										<?php echo $i++; ?>
 										<input type="hidden" name="id[]" value="<?php echo $rank->id; ?>" />
 									</td>
-									<td style="text-align: center;"><input onchange="admin.rank.checktitle(this)" type="text" name="title[]" value="<?php echo $rank->title; ?>" class="form-control"/></td>
-									<td style="text-align: center;"><input onchange="admin.rank.checkvalue(this)" style="text-align: center;" type="text" name="start[]" value="<?php echo $rank->start; ?>" class="form-control"/></td>
-									<td style="text-align: center;"><input onchange="admin.rank.checkvalue(this)" style="text-align: center;" type="text" name="end[]" value="<?php echo $rank->end; ?>" class="form-control"/></td>
-									<td style="text-align: center;"><a href="javascript:void(0);" onclick="admin.rank.remove(<?php echo $rank->id; ?>)" class="btn btn-danger"><?php echo JText::_('COM_EASYDISCUSS_RANKING_DELETE'); ?></a></td>
+									<td style="text-align: center;"><input data-title-text type="text" name="title[]" value="<?php echo $rank->title; ?>" class="form-control"/></td>
+									<td style="text-align: center;"><input data-start-text style="text-align: center;" type="text" name="start[]" value="<?php echo $rank->start; ?>" class="form-control"/></td>
+									<td style="text-align: center;"><input data-end-text style="text-align: center;" type="text" name="end[]" value="<?php echo $rank->end; ?>" class="form-control"/></td>
+									<td style="text-align: center;"><a href="javascript:void(0);" data-remove-button data-id="<?php echo $rank->id;?>" class="btn btn-danger"><?php echo JText::_('COM_EASYDISCUSS_RANKING_DELETE'); ?></a></td>
 								</tr>
 								<?php
 										$itemCnt = $rank->id;

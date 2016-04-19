@@ -49,7 +49,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                         <div class="o-flag__body">
                             <a class="ed-user-name t-lg-mb--sm" href="<?php echo $post->getOwner()->getPermalink();?>">
-                                <?php echo $post->getOwner()->getName();?>
+                                <?php echo $post->getOwner()->getName($post->poster_name); ?>
                             </a>
                             <span class="o-label o-label--success-o ed-state-answer"><?php echo JText::_('COM_EASYDISCUSS_ENTRY_ACCEPTED_ANSWER'); ?></span>
                             

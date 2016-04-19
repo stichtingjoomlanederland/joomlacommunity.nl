@@ -60,6 +60,22 @@
     }
 }
 
+.ed-entry {
+    .ed-post-item__status {
+        display: none; // Hide by default
+    }
+    &.is-locked,
+    &.is-featured,
+    &.is-protected,
+    &.is-private {
+        .ed-post-item__status {
+            display: inline-block;
+            margin-right: @fd-base-spacing--sm;
+        }    
+    }
+}
+
+
 .ed-post-item {
     position: relative;
     width: 100%;

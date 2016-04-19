@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Restricted access');
 				<fieldset style="padding: 15px;">
 					<legend><?php echo JText::_('COM_EASYDISCUSS_BADGES_INSTALL_RULE'); ?></legend>
 					<input type="file" name="rule" size="50" />
-					<button class="btn btn-sm btn-primary installUpload"><?php echo JText::_('COM_EASYDISCUSS_UPLOAD_AND_INSTALL')?> &raquo;</button>
+					<button class="btn btn-sm btn-primary t-lg-mt--lg installUpload"><?php echo JText::_('COM_EASYDISCUSS_UPLOAD_AND_INSTALL')?> &raquo;</button>
 				</fieldset>
 			</div>
 		</div>	

@@ -69,6 +69,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 							<?php echo $this->html('form.boolean', 'main_sef_unicode', $this->config->get('main_sef_unicode')); ?>
 						</div>
 					</div>
+
 					<div class="form-group">
                         <div class="col-md-5 control-label">
                             <?php echo $this->html('form.label', 'COM_EASYDISCUSS_MAIN_SEO_USER_PERMALINK_FORMAT'); ?>
@@ -79,6 +80,56 @@ defined('_JEXEC') or die('Unauthorized Access');
 								<option value="username"<?php echo $this->config->get('main_sef_user') == 'username' ? ' selected="selected"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_MAIN_SEO_USERNAME'); ?></option>
 								<option value="realname"<?php echo $this->config->get('main_sef_user') == 'realname' ? ' selected="selected"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_MAIN_SEO_REALNAME'); ?></option>
 							</select>
+						</div>
+					</div>
+					
+				</div>
+			</div>
+		</div>
+
+		<div class="panel">
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_SEO_POST_PERMALINK'); ?>
+
+			<div class="panel-body">
+				<div class="form-horizontal">
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_WORKFLOW_SEF_FORMAT'); ?>
+                        </div>
+		
+
+						<div class="col-md-7">
+							<div class="form-control-static"><?php echo JText::_('COM_EASYDISCUSS_SETTINGS_WORKFLOW_SEF_FORMAT_NOTICE');?></div>
+
+							<div class="ed-radio">
+								<input type="radio" value="default" id="defaultEntry" name="main_sef"<?php echo $this->config->get('main_sef') == 'default' ? ' checked="checked"' : '';?>>
+								<label for="defaultEntry">
+									<?php echo JText::_('COM_EASYDISCUSS_SETTINGS_WORKFLOW_SEF_FORMAT_TITLE_TYPE');?>
+								</label>
+								<p class="list-group-item-text">
+									http://yoursite.com/menu/view/title
+								</p>
+							</div>
+
+							<div class="ed-radio">
+								<input type="radio" value="category" id="categoryEntry" name="main_sef"<?php echo $this->config->get('main_sef') == 'category' ? ' checked="checked"' : '';?>>
+								<label for="categoryEntry">
+									<?php echo JText::_('COM_EASYDISCUSS_SETTINGS_WORKFLOW_SEF_FORMAT_CATEGORY_TYPE');?>
+								</label>
+								<p class="list-group-item-text">
+									http://yoursite.com/menu/category/title
+								</p>
+							</div>
+
+							<div class="ed-radio">
+								<input type="radio" value="simple" id="simpleEntry" name="main_sef"<?php echo $this->config->get('main_sef') == 'simple' ? ' checked="checked"' : '';?>>
+								<label for="simpleEntry">
+									<?php echo JText::_('COM_EASYDISCUSS_SETTINGS_WORKFLOW_SEF_FORMAT_SIMPLE_TYPE');?>
+								</label>
+								<p class="list-group-item-text">
+									http://yoursite.com/menu/title
+								</p>
+							</div>
 						</div>
 					</div>
 				</div>

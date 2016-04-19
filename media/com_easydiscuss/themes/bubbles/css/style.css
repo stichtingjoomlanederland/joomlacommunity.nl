@@ -684,6 +684,20 @@ DOM
     <div class="">test</div>
 </div>
 */
+  /*
+DOM:
+<div class="component-xxx is-empty">
+    <div class="o-empty">
+        <div class="o-empty__content">
+            <i class="o-empty__icon fa fa-book"></i>
+            <div class="o-empty__text">Looks like you haven't post anything.</div>
+            <div class="o-empty__action t-mt--xl">
+                <a href="" class="btn btn-primary btn-lg">Ask Question</a>
+            </div>    
+        </div>
+    </div>
+</div>
+*/
   /**
 * #COMPONENTS
 */
@@ -836,20 +850,6 @@ t-xl-pt--lg = trumps-extralarge-paddingtop--large
 */
   /**
 * #STATS
-*/
-  /*
-DOM:
-<div class="component-xxx is-empty">
-    <div class="o-empty">
-        <div class="o-empty__content">
-            <i class="o-empty__icon fa fa-book"></i>
-            <div class="o-empty__text">Looks like you haven't post anything.</div>
-            <div class="o-empty__action t-mt--xl">
-                <a href="" class="btn btn-primary btn-lg">Ask Question</a>
-            </div>    
-        </div>
-    </div>
-</div>
 */
 }
 #ed *,
@@ -3255,6 +3255,71 @@ fieldset[disabled] #ed .btn-link:focus {
   border-right-width: 0;
   border-left-color: #ffffff;
   bottom: -10px;
+}
+#ed .o-loading {
+  display: inline-block;
+  text-align: center;
+  position: relative;
+  display: none;
+  width: 100%;
+  height: 100%;
+}
+#ed .o-loading__content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+#ed .o-loading__icon {
+  font-size: 40px;
+  color: #888888;
+}
+#ed .is-loading .o-loading {
+  display: inline-block;
+}
+#ed .o-empty {
+  width: 100%;
+  min-height: 200px;
+  display: inline-block;
+  text-align: center;
+  background-color: #ffffff;
+  position: relative;
+  display: none;
+}
+#ed .o-empty--height-no {
+  min-height: 0;
+}
+#ed .o-empty--bg-no {
+  background-color: transparent;
+}
+#ed .o-empty--bordered {
+  border: 1px solid #dddddd;
+}
+#ed .o-empty__content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+#ed .o-empty__icon {
+  font-size: 40px;
+  color: #888888;
+}
+#ed .o-empty__icon--sm {
+  font-size: 28px;
+  color: #888888;
+}
+#ed .o-empty__text {
+  color: #333333;
+}
+#ed .o-empty__action {
+  margin-top: 20px;
+}
+#ed.w480 .o-empty--height-no {
+  min-height: 80px;
+}
+#ed .is-empty .o-empty {
+  display: inline-block;
 }
 #ed h1,
 #ed h2,
@@ -9437,7 +9502,6 @@ a#ed .badge:focus {
 }
 #ed .ed-post-item__title {
   font-size: 14px;
-  width: 100%;
   display: inline-block;
 }
 #ed .ed-post-item__title > a {
@@ -9849,6 +9913,9 @@ a#ed .badge:focus {
   top: 0;
   width: 80px;
 }
+#ed.w480 .ed-polls {
+  min-width: 250px;
+}
 #ed .ed-ratings {
   display: table;
   table-layout: fixed;
@@ -10085,6 +10152,7 @@ a#ed .badge:focus {
   width: 100%;
   height: 100%;
   overflow: auto;
+  overflow-x: hidden;
   background: #ffffff;
   border: 1px solid #dddddd;
   border-radius: 0 0 3px 3px;
@@ -10129,26 +10197,8 @@ a#ed .badge:focus {
 #ed .ed-dialog-content .radio {
   margin: 0;
 }
-#ed .ed-dialog-content .control-label {
-  width: 125px;
-  text-align: right;
-  padding: 0 5px;
-}
 #ed .ed-dialog-content .form-control {
   margin: 0;
-}
-#ed .ed-dialog-content .form-group {
-  display: table;
-  width: 100%;
-  margin: 0;
-}
-#ed .ed-dialog-content .form-group + .form-group {
-  margin-top: 10px;
-}
-#ed .ed-dialog-content .form-group > label:after {
-  color: #999;
-  content: ':';
-  margin: 0 0 0 5px;
 }
 #ed .ed-dialog-footer-content {
   text-align: right;
@@ -10172,6 +10222,15 @@ a#ed .badge:focus {
   width: 100%;
   height: 100%;
   border: 0;
+}
+@media (max-width: 780px) {
+  #ed .ed-dialog-modal {
+    width: 98% !important;
+  }
+  #ed .ed-dialog-body {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: scroll;
+  }
 }
 #ed .is-locked .fa-lock {
   display: inline-block;
@@ -10202,6 +10261,16 @@ a#ed .badge:focus {
 }
 #ed .is-lockpoll .poll-locked {
   display: inline-block;
+}
+#ed .ed-entry .ed-post-item__status {
+  display: none;
+}
+#ed .ed-entry.is-locked .ed-post-item__status,
+#ed .ed-entry.is-featured .ed-post-item__status,
+#ed .ed-entry.is-protected .ed-post-item__status,
+#ed .ed-entry.is-private .ed-post-item__status {
+  display: inline-block;
+  margin-right: 4px;
 }
 #ed .ed-post-item {
   position: relative;
@@ -10913,9 +10982,8 @@ a#ed .badge:focus {
 }
 #ed .ed-forums-cat-header__breadcrumb {
   font-size: 11px;
-}
-#ed .ed-forums-cat-header__btn {
-  margin-top: 8px;
+  margin-top: 4px;
+  clear: both;
 }
 #ed .ed-forums-cat-header .is-active a {
   color: #333333;
@@ -13445,70 +13513,17 @@ fieldset[disabled] #ed .btn-ed-favor.active {
 #ed .t-bdl-no {
   border-left: none !important;
 }
-#ed .o-loading {
-  display: inline-block;
-  text-align: center;
-  position: relative;
-  display: none;
-  width: 100%;
-  height: 100%;
+#ed .t-text--left {
+  text-align: left !important;
 }
-#ed .o-loading__content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+#ed .t-text--center {
+  text-align: center !important;
 }
-#ed .o-loading__icon {
-  font-size: 40px;
-  color: #888888;
+#ed .t-text--right {
+  text-align: right !important;
 }
-#ed .is-loading .o-loading {
-  display: inline-block;
-}
-#ed .o-empty {
-  width: 100%;
-  min-height: 200px;
-  display: inline-block;
-  text-align: center;
-  background-color: #ffffff;
-  position: relative;
-  display: none;
-}
-#ed .o-empty--height-no {
-  min-height: 0;
-}
-#ed .o-empty--bg-no {
-  background-color: transparent;
-}
-#ed .o-empty--bordered {
-  border: 1px solid #dddddd;
-}
-#ed .o-empty__content {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-#ed .o-empty__icon {
-  font-size: 40px;
-  color: #888888;
-}
-#ed .o-empty__icon--sm {
-  font-size: 28px;
-  color: #888888;
-}
-#ed .o-empty__text {
-  color: #333333;
-}
-#ed .o-empty__action {
-  margin-top: 20px;
-}
-#ed.w480 .o-empty--height-no {
-  min-height: 80px;
-}
-#ed .is-empty .o-empty {
-  display: inline-block;
+#ed .t-text--justify {
+  text-align: justify !important;
 }
 /**
 * #Misc
@@ -13629,6 +13644,10 @@ fieldset[disabled] #ed .btn-ed-favor.active {
 #ed .ed-post-item__hd {
   position: relative;
 }
+#ed .ed-post-item__hd .ed-user-name,
+#ed .ed-post-item__hd .ed-posted-in {
+  vertical-align: top;
+}
 #ed .ed-post-item__hd,
 #ed .ed-post-item__bd,
 #ed .ed-post-item__ft,
@@ -13640,6 +13659,14 @@ fieldset[disabled] #ed .btn-ed-favor.active {
   background-color: #fafafa;
 }
 #ed .ed-post-item .ed-user-rank {
+  text-align: center;
+}
+#ed .ed-post-item .ed-user-role-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: inline-block;
+  width: 64px;
   text-align: center;
 }
 #ed .ed-post-who-view__ft {

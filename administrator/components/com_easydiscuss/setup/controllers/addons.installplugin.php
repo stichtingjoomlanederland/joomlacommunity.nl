@@ -72,7 +72,10 @@ class EasyDiscussControllerAddonsInstallPlugin extends EasyDiscussSetupControlle
 
             // set the state to 0 means 'installed'.
             $plugin->state = 0;
-            $plugin->enabled = ($group == 'easyblog' && $element == 'autoarticle') ? false : true;
+
+            // We put the content plugin to unpublish first.
+            $plugin->enabled = ($group == 'content' && $element == 'easydiscuss') ? false : true;
+            
             $plugin->store();
         }
 

@@ -9,7 +9,13 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		if (action == 'showMove') {
 
 			EasyDiscuss.dialog({
-				content: EasyDiscuss.ajax("admin/views/posts/showMoveDialog")
+				content: EasyDiscuss.ajax("admin/views/posts/showMoveDialog"),
+	            bindings: {
+	                "{moveButton} click": function() {
+	                	Joomla.submitbutton('movePosts');
+                        EasyDiscuss.dialog().close();
+	                }
+	            }
 			});
 
 			return;
@@ -34,4 +40,41 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 			$.Joomla( 'submitform' , [action] )
 		}
 	});
+
+
+	$('[data-moderate-dialog]').on('click', function() {
+
+		var id = $(this).data('id');
+
+        EasyDiscuss.dialog({
+            content: EasyDiscuss.ajax('admin/views/posts/showApproveDialog', { "id": id }),
+            bindings: {
+                "{approveButton} click": function() {
+                    EasyDiscuss.ajax('admin/controllers/posts/publish', {
+                        "cid": [id]
+                    }).done(function(content) {
+
+                        // // Hide the dialog
+                        EasyDiscuss.dialog().close();
+                        // refresh current page
+                        location.reload();
+                    });
+                },
+
+                "{rejectButton} click": function() {
+                    EasyDiscuss.ajax('admin/controllers/posts/unpublish', {
+                        "cid": [id]
+                    }).done(function(content) {
+
+                        // // Hide the dialog
+                        EasyDiscuss.dialog().close();
+                        // refresh current page
+                        location.reload();
+                    });
+                }
+            }
+        });
+
+	});
+
 });

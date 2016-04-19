@@ -2,7 +2,7 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Board Statistic</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>8th April 2016</creationDate>
+	<creationDate>15th April 2016</creationDate>
 	<copyright>Copyright 2009 - 2016 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>

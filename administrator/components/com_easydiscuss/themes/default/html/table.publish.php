@@ -12,16 +12,18 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <?php if ($post->published == DISCUSS_ID_PENDING) { ?>
-    <a 
-        href="javascript:void(0);" 
-        onclick="admin.post.moderate.dialog('<?php echo $post->id;?>');">
+    <a
+        href="javascript:void(0);"
+        data-moderate-dialog
+        data-id="<?php echo $post->id;?>"
+    >
         <img src="<?php echo rtrim( JURI::root() , '/' );?>/administrator/components/com_easydiscuss/themes/default/images/moderate.png" />
     </a>
 <?php } else { ?>
-    <a 
-        class="ed-state-<?php echo $post->published ? 'published' : 'unpublished';?> badge" 
-        title="" 
-        onclick="return listItemTask('cb<?php echo $index;?>','<?php echo ($post->published) ? 'unpublish' : 'publish';?>')" 
+    <a
+        class="ed-state-<?php echo $post->published ? 'published' : 'unpublished';?> badge"
+        title=""
+        onclick="return listItemTask('cb<?php echo $index;?>','<?php echo ($post->published) ? 'unpublish' : 'publish';?>')"
         href="#toggle">
         <i class="fa fa-<?php echo $post->published ? 'check' : 'times';?>"></i>
     </a>

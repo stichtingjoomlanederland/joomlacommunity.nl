@@ -31,7 +31,7 @@ class EasyDiscussViewMypost extends EasyDiscussView
 
 		$postsModel = ED::model('Posts');
 
-		$options = array('filter' => 'questions', 'userId' => $profile->id);
+		$options = array('filter' => 'questions', 'userId' => $profile->id, 'includeCluster' => true);
 		$posts = $postsModel->getDiscussions($options);
 
 		$posts = ED::formatPost($posts);

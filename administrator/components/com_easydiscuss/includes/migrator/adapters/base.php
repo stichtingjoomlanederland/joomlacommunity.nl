@@ -21,7 +21,7 @@ class EasyDiscussMigratorBase
 
 	public function added($component, $internalId, $externalId, $type)
 	{
-		$migrator	= ED::table('Migrators');
+		$migrator = ED::table('Migrators');
 		$migrator->set('component', $component);
 		$migrator->set('external_id', $externalId);
 		$migrator->set('internal_id', $internalId);

@@ -114,6 +114,8 @@ class EasyDiscussViewGroups extends EasyDiscussView
 		$groupId = $this->input->get('group_id', 0, 'int');
 		$registry = new JRegistry();
 
+		$lib = ED::easysocial();
+
 		// Try to detect if there's any category id being set in the menu parameter.
 		$activeMenu = $this->app->getMenu()->getActive();
 
@@ -160,31 +162,12 @@ class EasyDiscussViewGroups extends EasyDiscussView
 
 		$threads = array();
 
+		// Format the posts.
 		if ($posts) {
-
-			// Preload the post id's.
-			ED::post($posts);
-
-			// Format normal entries
-			$posts = ED::formatPost($posts);
-
-			// Grouping the posts based on categories.
-			foreach ($posts as $post) {
-
-				if (!isset($threads[$post->category_id])) {
-					$thread = new stdClass();
-					$thread->category = ED::category($post->category_id);
-					$thread->posts = array();
-
-					$threads[$post->category_id] = $thread;
-				}
-
-				$threads[$post->category_id]->posts[] = $post;
-			}
+			$threads = $lib->formatGroupPosts($posts);
 		}
 
 		// Get the current active category
-		$activeGroup = null;
 		$breadcrumbs = null;
 
 		// WIP : breadcrumbs
@@ -196,7 +179,6 @@ class EasyDiscussViewGroups extends EasyDiscussView
 		$pagination = $model->getPagination();
 
 		$this->set('breadcrumbs', $breadcrumbs);
-		$this->set('activeGroup', $activeGroup);
 		$this->set('threads', $threads);
 		$this->set('pagination', $pagination);
 		$this->set('includeChild', false);

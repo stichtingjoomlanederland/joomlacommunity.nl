@@ -7,6 +7,10 @@
 .ed-post-item {
     &__hd {
         position: relative;
+        .ed-user-name,
+        .ed-posted-in {
+            vertical-align: top;
+        }
     }
     &__hd,
     &__bd,
@@ -22,6 +26,13 @@
     }
 
     .ed-user-rank {
+        text-align: center;
+    }
+
+    .ed-user-role-label {
+        .text-overflow(); // #1691
+        display: inline-block;
+        width: 64px; // Follow avatar width
         text-align: center;
     }
     

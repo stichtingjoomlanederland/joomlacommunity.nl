@@ -320,7 +320,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		// Get the stream template
 		$template->setActor($post->user_id, SOCIAL_TYPE_USER);
 		$template->setContext($post->id, $contextType, $post);
-		$template->setContent($post->content);		
+		$template->setContent($post->content);
 		$template->setVerb('create');
 		$template->setAccess('core.view');
 
@@ -651,135 +651,144 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 * @param	string
 	 * @return
 	 */
-	public function notify( $action , $post , $question = null , $comment = null , $actor = null )
+	public function notify($action, $post, $question = null, $comment = null, $actor = null)
 	{
-		if( !$this->exists() )
-		{
+		if (!$this->exists()) {
 			return;
 		}
 
+		if ($post->isCluster()) {
+			return $this->notifyCluster($action, $post, $question, $comment, $actor);
+		}
+
 		// We don't want to notify via e-mail
-		$emailOptions 	= false;
-		$recipients 	= array();
-		$rule 			= '';
+		$emailOptions = false;
+		$recipients = array();
+		$rule = '';
 
-		$recipients 	= $this->getRecipients( $action , $post );
+		$recipients = $this->getRecipients($action, $post);
 
-		if( $action == 'new.discussion' )
-		{
-			if( !$this->config->get( 'integration_easysocial_notify_create' ) )
-			{
+		if ($action == 'new.discussion') {
+
+			if (!$this->config->get('integration_easysocial_notify_create')) {
 				return;
 			}
 
-			if( !$recipients )
-			{
+			if (!$recipients) {
 				return;
 			}
 
-			$permalink 		= DiscussRouter::_( 'index.php?option=com_easydiscuss&view=post&id=' . $post->id );
-			$image 			= '';
+			$permalink = EDR::_('view=post&id=' . $post->id);
+			$image = '';
 
-			$options 	= array( 'actor_id' => $post->user_id , 'uid' => $post->id , 'title' => JText::sprintf( 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_NEW_POST' , $post->title ) , 'type' => 'discuss' , 'url' => $permalink );
+			$options = array('actor_id' => $post->user_id, 'uid' => $post->id, 'title' => JText::sprintf('COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_NEW_POST', $post->title), 'type' => 'discuss', 'url' => $permalink);
 
-			$rule 		= 'discuss.create';
+			$rule = 'discuss.create';
 		}
 
-		if( $action == 'new.reply' )
-		{
-			if( !$this->config->get( 'integration_easysocial_notify_reply' ) )
-			{
+		if ($action == 'new.reply') {
+
+			if (!$this->config->get('integration_easysocial_notify_reply')) {
 				return;
 			}
 
-			if( !$recipients )
-			{
+			if (!$recipients) {
 				return;
 			}
 
-			$permalink	 	= DiscussRouter::_( 'index.php?option=com_easydiscuss&view=post&id=' . $question->id );
+			$permalink = EDR::_('view=post&id=' . $question->id);
 
-			$options 	= array( 'actor_id' => $post->user_id , 'uid' => $post->id , 'title' => JText::sprintf( 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_REPLY' , $question->title ) , 'type' => 'discuss' , 'url' => $permalink );
+			$options = array('actor_id' => $post->user_id, 'uid' => $post->id, 'title' => JText::sprintf('COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_REPLY', $question->title), 'type' => 'discuss', 'url' => $permalink);
 
-			$rule 		= 'discuss.reply';
+			$rule = 'discuss.reply';
 		}
 
-		if( $action == 'new.comment' )
-		{
-			if( !$this->config->get( 'integration_easysocial_notify_comment' ) )
-			{
+		if ($action == 'new.comment') {
+
+			if (!$this->config->get('integration_easysocial_notify_comment')) {
 				return;
 			}
 
 			// The recipient should only be the post owner
-			$recipients 	= array( $post->user_id );
+			$recipients = array($post->user_id);
 
-			$permalink	 	= DiscussRouter::_( 'index.php?option=com_easydiscuss&view=post&id=' . $question->id ) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+			$permalink = EDR::_('view=post&id=' . $question->id) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
 
-			$content 	= JString::substr( $comment->comment , 0 , 25 ) . '...';
-			$options 	= array( 'actor_id' => $comment->user_id , 'uid' => $comment->id , 'title' => JText::sprintf( 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_COMMENT' , $content ) , 'type' => 'discuss' , 'url' => $permalink );
+			$content = JString::substr($comment->comment, 0, 25) . '...';
+			$options = array('actor_id' => $comment->user_id, 'uid' => $comment->id, 'title' => JText::sprintf('COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_COMMENT', $content), 'type' => 'discuss', 'url' => $permalink);
 
-			$rule 		= 'discuss.comment';
+			$rule = 'discuss.comment';
 		}
 
-		if( $action == 'accepted.answer' )
-		{
-			if( !$this->config->get( 'integration_easysocial_notify_accepted' ) )
-			{
+		if ($action == 'accepted.answer') {
+
+			if (!$this->config->get('integration_easysocial_notify_accepted')) {
 				return;
 			}
 
 			// The recipient should only be the post owner
-			$recipients 	= array( $post->user_id );
+			$recipients = array($post->user_id);
 
-			$permalink	 	= DiscussRouter::_( 'index.php?option=com_easydiscuss&view=post&id=' . $question->id ) . '#answer';
+			$permalink = EDR::_('view=post&id=' . $question->id) . '#answer';
 
-			$options 	= array( 'actor_id' => $actor , 'uid' => $post->id , 'title' => JText::sprintf( 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_ACCEPTED_ANSWER' , $question->title ) , 'type' => 'discuss' , 'url' => $permalink );
+			$options = array('actor_id' => $actor, 'uid' => $post->id, 'title' => JText::sprintf('COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_ACCEPTED_ANSWER', $question->title), 'type' => 'discuss', 'url' => $permalink);
 
-			$rule 		= 'discuss.accepted';
+			$rule = 'discuss.accepted';
 		}
 
-		if( $action == 'accepted.answer.owner' )
-		{
-			if( !$this->config->get( 'integration_easysocial_notify_accepted' ) )
-			{
+		if ($action == 'accepted.answer.owner') {
+
+			if (!$this->config->get('integration_easysocial_notify_accepted')) {
 				return;
 			}
 
 			// The recipient should only be the post owner
-			$recipients 	= array( $question->user_id );
+			$recipients = array($question->user_id);
 
-			$permalink	 	= DiscussRouter::_( 'index.php?option=com_easydiscuss&view=post&id=' . $question->id ) . '#answer';
+			$permalink = EDR::_('view=post&id=' . $question->id) . '#answer';
 
-			$options 	= array( 'actor_id' => $actor , 'uid' => $post->id , 'title' => JText::sprintf( 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_ACCEPTED_ANSWER_OWNER' , $question->title ) , 'type' => 'discuss' , 'url' => $permalink );
+			$options = array('actor_id' => $actor, 'uid' => $post->id, 'title' => JText::sprintf('COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_ACCEPTED_ANSWER_OWNER', $question->title), 'type' => 'discuss', 'url' => $permalink);
 
-			$rule 		= 'discuss.accepted.owner';
+			$rule = 'discuss.accepted.owner';
 		}
 
-		if( $action == 'new.likes' )
-		{
-			if( !$this->config->get( 'integration_easysocial_notify_likes' ) )
-			{
+		if ($action == 'new.likes') {
+
+			if (!$this->config->get('integration_easysocial_notify_likes')) {
 				return;
 			}
 
 			// The recipient should only be the post owner
-			$recipients 	= array($post->user_id);
+			$recipients = array($post->user_id);
 
-			$permalink	 	= DiscussRouter::_( 'index.php?option=com_easydiscuss&view=post&id=' . $question->id ) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+			$permalink = EDR::_('view=post&id=' . $question->id) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
 
-			$options 	= array( 'actor_id' => JFactory::getUser()->id , 'uid' => $post->id , 'title' => JText::_( 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_LIKES' ) , 'type' => 'discuss' , 'url' => $permalink );
+			$options = array('actor_id' => JFactory::getUser()->id, 'uid' => $post->id, 'title' => JText::_('COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_LIKES'), 'type' => 'discuss', 'url' => $permalink);
 
-			$rule 		= 'discuss.likes';
+			$rule = 'discuss.likes';
 		}
 
-		if( empty( $rule ) )
-		{
+		if (empty($rule)) {
 			return false;
 		}
 
 		// Send notifications to the receivers when they unlock the badge
-		Foundry::notify( $rule , $recipients , $emailOptions , $options );
+		ES::notify($rule, $recipients, $emailOptions, $options);
+	}
+
+
+	/**
+	 * Notify cluster members when discussion is created.
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function notifyCluster($action, $post, $question = null, $comment = null, $actor = null)
+	{
+		// TODO: alert all group members when creating new discussion.
+
 	}
 
 	/**
@@ -867,6 +876,13 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		return $state;
 	}
 
+	public function getCluster($id, $type = 'group')
+	{
+		$type = 'load' . ucfirst($type);
+
+		return $this->$type($id);
+	}
+
 	public function getPostsGroups($options = array())
 	{
 		$model = ED::model('groups');
@@ -897,7 +913,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 			$threads[$post->group_id]->posts[] = $post;
 		}
 
-		return $threads;		
+		return $threads;
 	}
 
 	public function renderMiniHeader($clusterId, $view = 'groups')
@@ -919,7 +935,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		$themes = ED::themes();
 
 		$output = '';
-		
+
 		ob_start();
 		echo '<div id="fd" class="es" style="margin-bottom: 15px;">';
 		echo $themes->output('site/groups/header.easysocial', array('group' => $group, 'view' => $view));

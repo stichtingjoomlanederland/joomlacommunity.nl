@@ -185,7 +185,13 @@ class EasyDiscussCategory extends EasyDiscuss
 		$total = $this->getTotalPosts();
 
 		if ($total) {
-			$this->setError('COM_EASYDISCUSS_CATEGORIES_DELETE_ERROR_POST_NOT_EMPTY');
+			$this->setError(JText::sprintf('COM_EASYDISCUSS_CATEGORIES_DELETE_ERROR_POST_NOT_EMPTY', $this->table->title));
+			return false;
+		}
+
+		// Do not delete if this is a default category
+		if ($this->table->default) {
+			$this->setError(JText::sprintf('COM_EASYDISCUSS_CATEGORIES_DELETE_ERROR_DEFAULT_CATEGORY', $this->table->title));
 			return false;
 		}
 
@@ -277,6 +283,26 @@ class EasyDiscussCategory extends EasyDiscuss
 		}
 
 		return $tmp;
+	}
+
+	/**
+	 * Retrieves alias for the category
+	 *
+	 * @since	5.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getAlias()
+	{
+		$config = ED::config();
+		$alias = $this->table->alias;
+
+		if ($config->get('main_sef_unicode') || !EDR::isSefEnabled()) {
+			$alias = $this->table->id . ':' . $this->table->alias;
+		}
+
+		return $alias;
 	}
 
 	/**
@@ -675,9 +701,9 @@ class EasyDiscussCategory extends EasyDiscuss
 		if ($external) {
 			$url = EDR::getRoutedURL($url, false, true);
 		} else {
-			$url = EDR::_($url, $xhtml);	
+			$url = EDR::_($url, $xhtml);
 		}
-		
+
 
 		return $url;
 	}

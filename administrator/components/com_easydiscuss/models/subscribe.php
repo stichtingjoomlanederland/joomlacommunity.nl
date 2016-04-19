@@ -244,7 +244,7 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 					. ' AND ds.`type` = ' . $db->Quote('site');
 
 			$query  .= $timeQuery;
-			$query .= 'AND ' . $db->quoteName('state') . ' = ' . $db-Quote(1);
+			$query .= 'AND ' . $db->quoteName('state') . ' = ' . $db->Quote(1);
 
 			$db->setQuery($query);
 
@@ -875,7 +875,7 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 		}
 
 		return true;
-	}	
+	}
 
 	public function subscribeToggle($userId)
 	{

@@ -93,6 +93,10 @@ class EasyDiscussViewForums extends EasyDiscussView
 		// Get all the posts in this category and it's childs
 		$posts = $model->getCategoryTreePosts($parents, $options);
 
+		//preload posts
+		ED::post($posts);
+
+
 		$threads = array();
 
 		if ($posts) {
