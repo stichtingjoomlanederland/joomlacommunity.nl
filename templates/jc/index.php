@@ -126,6 +126,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 			<?php include 'dummy/documentatie_artikel_2.php'; ?>
 		<?php elseif ($itemid == 492): ?>
 			<?php include 'dummy/styleguide.php'; ?>
+      	<?php elseif ($itemid == 468): ?>
 		<?php endif; ?>
 
 		<div class="row">
