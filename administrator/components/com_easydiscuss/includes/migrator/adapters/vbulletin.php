@@ -30,6 +30,8 @@ class EasyDiscussMigratorVbulletin extends EasyDiscussMigratorBase
 		// Determines if there is still items to be migrated
 		$balance = $total - count($items);
 
+		$status = '';
+
 		// If there's nothing to load just skip this
 		if (!$items) {
 			return $this->ajax->resolve('noitem');
@@ -45,7 +47,7 @@ class EasyDiscussMigratorVbulletin extends EasyDiscussMigratorBase
 			// Map the replies
 			$this->mapVbulletinItemChilds($item, $post, $prefix);
 
-			$this->ajax->append('[data-progress-status]', JText::_('COM_EASYDISCUSS_MIGRATOR_MIGRATED_VBULLETIN') . ': ' . $item->postid . JText::_('COM_EASYDISCUSS_MIGRATOR_EASYDISCUSS') . ': ' . $post->id . '<br />');
+			$status .= JText::_('COM_EASYDISCUSS_MIGRATOR_MIGRATED_VBULLETIN') . ': ' . $item->postid . JText::_('COM_EASYDISCUSS_MIGRATOR_EASYDISCUSS') . ': ' . $post->id . '<br />';
 		}
 
 		$hasmore = false;
@@ -54,15 +56,12 @@ class EasyDiscussMigratorVbulletin extends EasyDiscussMigratorBase
 			$hasmore = true;
 		}
 
-		if (!$hasmore) {
-			$this->ajax->append('[data-progress-status]', JText::_('COM_EASYDISCUSS_MIGRATOR_FINISHED'));
-		}
-
-		return $this->ajax->resolve($hasmore);
+		return $this->ajax->resolve($hasmore, $status);
 	}
 
 	public function mapVbulletinItemChilds($item, $parent, $prefix)
 	{
+		
 		// try to get the childs
 		$items = $this->getVbulletinPosts($prefix, null, $item->postid);
 
@@ -72,6 +71,13 @@ class EasyDiscussMigratorVbulletin extends EasyDiscussMigratorBase
 
 		foreach ($items as $childItem) {
 			
+			$userColumn = 'username';
+			$user = null;
+
+			if ($childItem->{$userColumn}) {
+				$user = $this->getDiscussUser($childItem->{$userColumn}, $prefix);
+			}
+
 			// Load the post library
 			$post = ED::post($parent->id);
 
@@ -81,6 +87,19 @@ class EasyDiscussMigratorVbulletin extends EasyDiscussMigratorBase
 
 				// Re-assign $post to be the parent.
 				$post = ED::post($parent->id);
+			}
+
+			if (empty($childItem->{$userColumn}) || empty($user)) {
+				$data['user_id'] = 0;
+				$data['user_type'] = DISCUSS_POSTER_GUEST;
+				$postername = $childItem->username ? $childItem->username : 'guest';
+				$data['poster_name'] = $postername;
+				$data['poster_email'] = '';
+			} else {
+				$data['user_id'] = $user->id;
+				$data['user_type'] = DISCUSS_POSTER_MEMBER;
+				$data['poster_name'] = $user->name;
+				$data['poster_email'] = $user->email;
 			}
 
 			// For contents, we need to get the raw data.
@@ -102,19 +121,37 @@ class EasyDiscussMigratorVbulletin extends EasyDiscussMigratorBase
 
 		$data = array();
 
+		$userColumn = 'username';
+		$user = null;
+
+		if ($item->{$userColumn}) {
+			$user = $this->getDiscussUser($item->{$userColumn}, $prefix);
+		}
+
+		if (empty($item->{$userColumn}) || empty($user)) {
+			$data['user_id'] = 0;
+			$data['user_type'] = DISCUSS_POSTER_GUEST;
+			$postername = $item->username ? $item->username : 'guest';
+			$data['poster_name'] = $postername;
+			$data['poster_email'] = '';
+
+		} else {
+			$data['user_id'] = $user->id;
+			$data['user_type'] = DISCUSS_POSTER_MEMBER;
+			$data['poster_name'] = $user->name;
+			$data['poster_email'] = $user->email;
+		}
+
 		// Create category if this item's category does not exist on the site
 		$categoryId = $this->migrateCategory($item, $prefix);
 
 		$data['content'] = $item->pagetext;
 		$data['title'] = $item->title;
 		$data['category_id'] = $categoryId;
-		$data['user_id'] = $this->getDefaultSuperUserId();
-		$data['user_type'] = DISCUSS_POSTER_MEMBER;
 		$data['hits'] = $item->hits;
 		$data['created'] = ED::date($item->created)->toMySQL();
 		$data['modified'] = ED::date($item->created)->toMySQL();
 		$data['replied'] = ED::date($item->replied)->toMySQL();
-		$data['poster_name'] = $item->username;
 		$data['ip'] = $item->ipaddress;
 		$data['content_type'] = 'bbcode';
 		$data['parent_id'] = 0;
@@ -130,8 +167,6 @@ class EasyDiscussMigratorVbulletin extends EasyDiscussMigratorBase
         }
 
         $post->save();
-
-		//perform cleanup
 
         // Add this to migrators table
 		$this->added('vbulletin', $post->id, $item->postid, 'post');
@@ -219,5 +254,22 @@ class EasyDiscussMigratorVbulletin extends EasyDiscussMigratorBase
 			}
 		}
 		return $items;
+	}
+
+	public function getDiscussUser($vbUserKeyValue, $prefix)
+	{
+		$db = ED::db();
+		
+		// currently we not sure there are how many way of bridging the user from vbulletin to joomla.
+		// for now, we assume the username is the key to communicate btw vbulletin and joomla
+		$column = 'username';
+
+		$query = 'SELECT b.* FROM ' . $db->nameQuote( '#__users' ) . ' AS b'
+				. ' WHERE b.' . $db->nameQuote($column) . '=' . $db->Quote($vbUserKeyValue);
+
+		$db->setQuery($query);
+		$result = $db->loadObject();
+
+		return $result;
 	}
 }

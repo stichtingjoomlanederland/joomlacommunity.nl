@@ -57,7 +57,7 @@ class EasyDiscussRanks extends EasyDiscuss
 
 		$query = 'select `id`, `title`, `end` from `#__discuss_ranks`';
 		$query .= ' where ( (' . $this->db->Quote($curUserScore) . ' >= `start` and ' . $this->db->Quote($curUserScore) . ' <= `end` ) OR ' . $this->db->Quote($curUserScore) . ' > `end` )';
-		
+
 		if (!empty($userRank->rank_id)) {
 			$query .= ' and `id` > ' . $this->db->Quote($userRank->rank_id);
 		}
@@ -108,8 +108,9 @@ class EasyDiscussRanks extends EasyDiscuss
 		}
 
 		static $scores = array();
+		static $max = null;
 
-		$index = $userId . $percentage;
+		$index = $userId . (int) $percentage;
 
 		if (!isset($scores[$index])) {
 
@@ -132,10 +133,13 @@ class EasyDiscussRanks extends EasyDiscuss
 
 			if ($percentage) {
 
-				$query  = 'SELECT MAX(`end`) FROM `#__discuss_ranks`';
-				$this->db->setQuery($query);
+				if (is_null($max)) {
+					$query  = 'SELECT MAX(`end`) FROM `#__discuss_ranks`';
+					$this->db->setQuery($query);
 
-				$maxResult = $this->db->loadResult();
+					$maxResult = $this->db->loadResult();
+					$max = $maxResult; // cache
+				}
 
 				// Initial value
 				$scores[$index] = '0';
@@ -166,7 +170,7 @@ class EasyDiscussRanks extends EasyDiscuss
 	public function getRank($userId = '')
 	{
 		$this->db = ED::db();
-		
+
 		if (!$this->config->get('main_ranking')) {
 			return;
 		}

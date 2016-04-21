@@ -36,12 +36,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                         <div class="o-col-sm"></div>
 
-                        <div class="o-col-sm ed-forum-item__col-avatar center">
+                        <div class="o-col-sm ed-forum-item__col-avatar t-text--center">
                             <div>
                                 <?php echo JText::_('COM_EASYDISCUSS_FORUMS_POSTED_BY'); ?>
                             </div>
                         </div>
-                        <div class="o-col-sm ed-forum-item__col-avatar center">
+                        <div class="o-col-sm ed-forum-item__col-avatar t-text--center">
                             <div>
                                 <?php echo JText::_('COM_EASYDISCUSS_FORUMS_LAST_REPLY'); ?>
                             </div>

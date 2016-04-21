@@ -12,10 +12,6 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="ed-forums">
-    <?php if ($activeGroup) { ?>
-        <?php echo $this->output('site/groups/active', array('activeGroup' => $activeGroup)); ?>
-    <?php } ?>
-
     <div class="ed-list">        
         <?php if (!empty($threads)) { ?>
             <?php foreach ($threads as $thread) { ?>

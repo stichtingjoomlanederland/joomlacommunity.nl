@@ -37,7 +37,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<td width="3%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_PUBLISHED'); ?>
 					</td>
-					<td width="8%" class="center">
+					<td width="12%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_CUSTOMFIELDS_TYPE') , 'type', $orderDirection, $order); ?>
 					</td>
 					<td width="8%" class="center">

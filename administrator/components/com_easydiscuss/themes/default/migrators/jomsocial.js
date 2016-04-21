@@ -31,7 +31,10 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 		EasyDiscuss.ajax('admin/views/migrators/migrate', {
 			"component": "com_community"
-		}).done(function(result) {
+		}).done(function(result, status) {
+
+			// Append the current status
+			$('[data-progress-status]').append(status);
 
 			// If there's still items to render, run a recursive loop until it doesn't have any more items;
 			if (result == true) {
@@ -44,6 +47,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 			migrateButton.removeAttr('disabled');
 			migrateButton.html('<i class="fa fa-check"></i> <?php echo JText::_('COM_EASYDISCUSS_COMPLETED', true);?>');
+			$('[data-progress-status]').append('<?php echo JText::_('COM_EASYDISCUSS_COMPLETED', true);?>');
 
 			if (result == 'noitem'){
 				migrateButton.removeAttr('disabled');

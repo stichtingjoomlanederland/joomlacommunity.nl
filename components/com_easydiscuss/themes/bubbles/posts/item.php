@@ -32,7 +32,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                         <?php echo $this->html('user.avatar', $post->getOwner(), array('rank' => true, 'status' => true, 'size' => 'lg')); ?>
 
                         <?php if($this->config->get('layout_profile_roles') && $post->getOwner()->getRole() ) { ?>
-                            <span class="ed-user-role-label is-inverse"><?php echo $post->getOwner()->getRole(); ?></span>
+                            <span class="ed-user-role-label o-label o-label--<?php echo $post->getOwner()->getRoleLabelClassname()?>"><?php echo $post->getOwner()->getRole(); ?></span>
                         <?php } ?>
 
                         <?php if( $this->config->get('main_ranking')){ ?>
@@ -76,12 +76,12 @@ defined('_JEXEC') or die('Unauthorized Access');
                                     <a href="javascript:void(0);" class="ed-user-name t-fs--sm"><?php echo JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');?></a>
                                 <?php } ?>
 
-                                <span class="t-fs--sm"><?php echo JText::_('COM_EASYDISCUSS_POSTED_IN');?>
+                                <span class="ed-posted-in t-fs--sm"><?php echo JText::_('COM_EASYDISCUSS_POSTED_IN');?>
                                 </span>
                             </div>
                             
 
-                            <ol class="g-list-inline g-list-inline--dashed ed-post-meta-cat pull-left t-lg-mt--sm t-lg-ml--sm">
+                            <ol class="g-list-inline g-list-inline--dashed ed-post-meta-cat pull-left t-lg-ml--sm">
                                 <li><a href="<?php echo $post->getCategory()->getPermalink();?>" class=""><?php echo $post->getCategory()->title;?></a></li>
                                 <?php if ($post->hasAttachments()) { ?>
                                 <li><i class="fa fa-file"></i></li>

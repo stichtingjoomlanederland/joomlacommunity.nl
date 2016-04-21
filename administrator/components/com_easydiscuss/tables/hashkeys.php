@@ -46,7 +46,8 @@ class DiscussHashKeys extends EasyDiscussTable
 
 	public function loadByKey( $key )
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
+
 		$query	= 'SELECT * FROM ' . $db->nameQuote( $this->_tbl ) .  ' WHERE '
 				. $db->nameQuote( 'key' ) . '=' . $db->Quote( $key );
 		$db->setQuery( $query );

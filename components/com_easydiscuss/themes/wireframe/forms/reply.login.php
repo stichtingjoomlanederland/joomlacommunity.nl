@@ -47,7 +47,7 @@ defined('_JEXEC') or die('Restricted access');
 
 			<input type="hidden" value="com_users"  name="option">
 			<input type="hidden" value="user.login" name="task">
-			<input type="hidden" name="return" value="<?php echo base64_encode(EDR::getPostRoute($post->id , false)); ?>" />
+			<input type="hidden" name="return" value="<?php echo base64_encode('index.php?option=com_easydiscuss&view=post&id=' . $post->id); ?>" />
 			<?php echo JHTML::_( 'form.token' ); ?>
 		</form>
 	</div>

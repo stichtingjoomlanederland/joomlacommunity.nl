@@ -32,17 +32,17 @@ defined('_JEXEC') or die('Restricted access');
 					<td class="center">
 						<?php echo $i++; ?>
 					</td>
-					<td class="center">
+					<td>
 						<?php echo $this->escape($row->reason); ?>
 					</td>
-					<td class="center">
+					<td class="center" align="center">
 						<?php if ($row->created_by == '0') : ?>
 							<?php echo JText_('COM_EASYDISCUSS_GUEST'); ?>
 						<?php else : ?>
 							<?php echo $row->user->name; ?>
 						<?php endif; ?>
 					</td>
-					<td class="center">
+					<td class="center" align="center">
 						<?php echo ED::date($row->created)->toSql(); ?>
 					</td>
 				</tr>

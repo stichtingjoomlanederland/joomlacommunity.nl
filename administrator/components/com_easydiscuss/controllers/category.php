@@ -102,6 +102,9 @@ class EasyDiscussControllerCategory extends EasyDiscussController
 		// Check for request forgeries
 		ED::checkToken();
 
+		$message = JText::_('COM_EASYDISCUSS_CATEGORIES_SAVED_SUCCESS');
+		$type = 'success';
+
 		// Default redirection URL
 		$url = 'index.php?option=com_easydiscuss&view=categories';
 		$urlCatForm = 'index.php?option=com_easydiscuss&view=categories&layout=form';
@@ -128,6 +131,13 @@ class EasyDiscussControllerCategory extends EasyDiscussController
 
 		if (!$isNew && $category->parent_id == $post['parent_id']) {
 			$updateOrdering = false;
+		}
+
+		// If this is default category, strict it to publish
+		if (!$isNew && $category->default == 1 && $post['published'] == 0) {
+			$post['published'] = '1';
+			$message = JText::_('COM_EASYDISCUSS_CATEGORY_SAVED_PUBLISH_DEFAULT_CATEGORY');
+			$type = 'info';
 		}
 
 		// Bind the posted data
@@ -172,7 +182,7 @@ class EasyDiscussControllerCategory extends EasyDiscussController
 		}
 
 		// Set the message
-		ED::setMessage(JText::_('COM_EASYDISCUSS_CATEGORIES_SAVED_SUCCESS'), 'success');
+		ED::setMessage($message, $type);
 
 		// Build the redirection options based on the task.
 		$task = $this->getTask();
@@ -232,7 +242,7 @@ class EasyDiscussControllerCategory extends EasyDiscussController
 
 		$categories = $this->input->get('cid', array(0), 'POST');
 		$message = '';
-		$type = 'message';
+		$type = 'success';
 
 		if (count($categories) <= 0) {
 			$message = JText::_('COM_EASYDISCUSS_CATEGORIES_INVALID_CATEGORY');
@@ -270,6 +280,17 @@ class EasyDiscussControllerCategory extends EasyDiscussController
 
 			if ($model->publish($categories, 0)) {
 				$message = JText::_('COM_EASYDISCUSS_CATEGORIES_UNPUBLISHED_SUCCESS');
+
+				// Check if there is default category amongs selected categories
+				foreach ($categories as $cat) {
+					$category = ED::category($cat);
+
+					if ($category->default) {
+						$message = JText::_('COM_EASYDISCUSS_CATEGORY_FAIL_TO_SET_AS_UNPUBLISH_DEFAULT_CATEGORY');
+						$type = 'info';
+					}
+				}
+
 			} else {
 				$message = JText::_('COM_EASYDISCUSS_CATEGORIES_UNPUBLISHED_ERROR');
 				$type = 'error';
@@ -291,16 +312,25 @@ class EasyDiscussControllerCategory extends EasyDiscussController
 			$cid = (int) $cid[0];
 		}
 
+		// Load the category
+		$category = ED::category($cid);
+
 		$model = ED::model('Categories');
 		$catContainerIds = $model->getCatContainer();
 
 		foreach ($catContainerIds as $catContainerId) {
 
 			// Check whether that category id is it already set as container
-			if ($catContainerId->id == $cid) {
-				ED::setMessage(JText::_('COM_EASYDISCUSS_CATEGORY_FAIL_TO_SET_AS_DEFAUL_CATEGORY'), 'error');
+			if ($catContainerId->id == $category->id) {
+				ED::setMessage(JText::_('COM_EASYDISCUSS_CATEGORY_FAIL_TO_SET_AS_DEFAULT_CATEGORY'), 'error');
 				return $this->app->redirect('index.php?option=com_easydiscuss&view=categories');
 			}
+		}
+
+		// If the category is not published, don't set it as default.
+		if (!$category->published) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_CATEGORY_FAIL_TO_SET_AS_DEFAULT_CATEGORY_UNPUBLISHED'), 'error');
+			return $this->app->redirect('index.php?option=com_easydiscuss&view=categories');
 		}
 
 		$model->updateDefault($cid);

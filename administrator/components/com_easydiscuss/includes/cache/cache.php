@@ -28,35 +28,53 @@ class EasyDiscussCache extends EasyDiscuss
 	private $like = array();
 	private $poll = array();
 
-	private $types = array('post', 'category', 'tag');
+	private $types = array('post', 'category', 'tag', 'repliesCount', 'attachmentCount', 'pollsCount');
 
 	public function cachePosts($items, $options = array())
 	{
 		$_cacheReplies = isset($options['cacheReplies']) ? $options['cacheReplies'] : true;
-		$_cacheTags = isset($options['cacheTags']) ? $options['cacheTags'] : true;
+		$_cachePostTags = isset($options['cachePostTags']) ? $options['cachePostTags'] : true;
 		$_cacheCategories = isset($options['cacheCategories']) ? $options['cacheCategories'] : true;
 
+		$_cacheLikes = isset($options['cacheLikes']) ? $options['cacheLikes'] : true;
+		$_cacheLastReplies = isset($options['cacheLastReplies']) ? $options['cacheLastReplies'] : true;
+		$_cacheRepliesCount = isset($options['cacheRepliesCount']) ? $options['cacheRepliesCount'] : true;
+		$_cachePolls = isset($options['cachePolls']) ? $options['cachePolls'] : true;
+
 		// lets preload the post's related items here
+		$postIds = array();
 		$catIds = array();
+		$tagIds = array();
+		$authorIds = array();
 
 		foreach ($items as $item) {
 			// $post = ED::post($item);
+			$postIds[] = $item->id;
+
+
+			$authorIds[] = $item->user_id;
+			if (isset($item->last_user_id) && $item->last_user_id) {
+				$authorIds[] = $item->last_user_id;
+			}
 
 			// just cache the data object into post.
 			$this->set($item, 'post');
 
-			// we need to batch load the tags, replies,
-			if ($_cacheReplies) {
-
-			}
-
-			if ($_cacheTags) {
-                //test
-			}
-
 			if ($_cacheCategories) {
 				$catIds[] = $item->category_id;
 			}
+		}
+
+
+
+		if ($authorIds) {
+			//preload user
+			ED::user($authorIds);
+		}
+
+		if ($_cachePostTags) {
+			$postTagsModel = ED::model('PostsTags');
+			$postTagsModel->setPostTagsBatch($postIds);
 		}
 
 		if ($catIds) {
@@ -65,7 +83,11 @@ class EasyDiscussCache extends EasyDiscuss
 
 			if ($results) {
 				foreach ($results as $item) {
-					$this->set($item, 'category');
+
+					$category = ED::table('Category');
+					$category->bind($item);
+
+					$this->set($category, 'category');
 				}
 			}
 		}
@@ -123,38 +145,23 @@ class EasyDiscussCache extends EasyDiscuss
 		// return $this->fallback($id, $type);
 	}
 
-	// /**
-	//  * Retrieves a fallback
-	//  *
-	//  * @since	5.0
-	//  * @access	public
-	//  * @param	string
-	//  * @return
-	//  */
-	// public function fallback($id, $type)
-	// {
-	// 	// if ($type == 'team') {
-	// 	// 	$table = EB::table('Teamblog');
-	// 	// 	$table->load($id);
-	// 	// }
+	/**
+	 * Retrieves a fallback
+	 *
+	 * @since	5.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function fallback($id, $type)
+	{
+		$table = ED::table($type);
+		$table->load($id);
 
-	// 	// if ($type == 'author') {
-	// 	// 	$table = EB::user($id);
-	// 	// }
+		$this->set($table, $type);
 
-	// 	// if ($type != 'team' && $type != 'author') {
-
-	// 	// 	$table = EB::table($type);
-	// 	// 	$table->load($id);
-	// 	// }
-
-	// 	$table = ED::table($type);
-	// 	$table->load($id);
-
-	// 	$this->set($table, $type);
-
-	// 	return $table;
-	// }
+		return $table;
+	}
 
 	/**
 	 * check if the cache for the object type exists or not
@@ -162,7 +169,7 @@ class EasyDiscussCache extends EasyDiscuss
 	 * @since	5.0
 	 * @access	public
 	 * @param	string, string
-	 * @type 	'post', 'category', 'meta', 'tag', 'author', 'revision'
+	 * @type 	'post', 'category', 'tags'
 	 * @return  boolean
 	 */
 	public function exists($id, $type = 'post')

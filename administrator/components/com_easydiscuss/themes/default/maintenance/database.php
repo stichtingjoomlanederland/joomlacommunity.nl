@@ -18,7 +18,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <a href="javascript:void(0);" class="btn btn-success" data-start><?php echo JText::_('COM_EASYDISCUSS_MAINTENANCE_DATABASE_START'); ?></a>
 
                     <div class="mt-20" data-progress style="display: none;">
-                        <div class="eb-progress-wrap">
+                        <div class="ed-progress-wrap">
                             <div class="progress progress-info" data-progress-box>
                                 <div class="progress-bar" style="width: 0%" data-progress-bar></div>
                                 <div class="progress-result" data-progress-percentage >0%</div>

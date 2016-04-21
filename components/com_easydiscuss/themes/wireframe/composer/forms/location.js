@@ -1,4 +1,4 @@
-ed.require(['edq', 'easydiscuss', 'site/vendors/gmaps', 'selectize'], function($, EasyDiscuss, GMaps) {
+ed.require(['edq', 'easydiscuss', 'site/vendors/gmaps', 'selectize', 'https://maps.google.com/maps/api/js?language=<?php echo $this->config->get('main_location_language');?>'], function($, EasyDiscuss, GMaps) {
 
     // Apply selectize on location input
     var composer = $('[<?php echo $editorId;?>]');
@@ -21,26 +21,6 @@ ed.require(['edq', 'easydiscuss', 'site/vendors/gmaps', 'selectize'], function($
             removeLocation.click();
         }
     });
-
-    // Render google maps
-    var uid = $.uid('ext');
-
-    window[uid] = function() {
-        $.___GoogleMaps.resolve();
-    };
-
-    // Try to initialize google maps
-    if (!$.___GoogleMaps) {
-
-        $.___GoogleMaps = $.Deferred();
-
-        // If google maps doesn't exist yet.
-        if (window.google === undefined || window.google.maps === undefined) {
-            ed.require(['https://maps.googleapis.com/maps/api/js?language=en&callback=' + uid]);
-        } else {
-            $.___GoogleMaps.resolve();
-        }
-    }
 
     var removeAddressButton = $('[data-ed-location-remove]');
 
@@ -131,56 +111,52 @@ ed.require(['edq', 'easydiscuss', 'site/vendors/gmaps', 'selectize'], function($
 
 
     // Defer instantiation of controller until Google Maps library is loaded.
-    $.___GoogleMaps.done(function() {
+    var geocoder = new google.maps.Geocoder();
+    var hasGeolocation = navigator.geolocation !== undefined;
 
-        var geocoder = new google.maps.Geocoder();
-        var hasGeolocation = navigator.geolocation !== undefined;
+    var autoDetectButton = $('[data-ed-location-detect]');
 
-        var autoDetectButton = $('[data-ed-location-detect]');
+    <?php if ($post->hasLocation()) { ?>
+    // If the post has a location we need to render the map
+    renderMap("<?php echo $post->latitude;?>", "<?php echo $post->longitude;?>");
+    <?php } ?>
+    
+    autoDetectButton.on('click', function() {
+    
+    autoDetectButton.html('<i class="fa fa-spinner"></i>');
+        navigator.geolocation.getCurrentPosition(function(position) {
 
-        <?php if ($post->hasLocation()) { ?>
-        // If the post has a location we need to render the map
-        renderMap("<?php echo $post->latitude;?>", "<?php echo $post->longitude;?>");
-        <?php } ?>
-        
-        autoDetectButton.on('click', function() {
-        
-        autoDetectButton.html('<i class="fa fa-spinner"></i>');
-            navigator.geolocation.getCurrentPosition(function(position) {
+            var latitude = position.coords.latitude;
+            var longitude = position.coords.longitude;
+            
+            geocoder.geocode({
+                location: new google.maps.LatLng(latitude, longitude)
+            }, function(result) {
 
-                var latitude = position.coords.latitude;
-                var longitude = position.coords.longitude;
-                
-                geocoder.geocode({
-                    location: new google.maps.LatLng(latitude, longitude)
-                }, function(result) {
+                var locations = [];
+                var control = addressInput[0].selectize;
 
-                    var locations = [];
-                    var control = addressInput[0].selectize;
+                $.each(result, function(i, row) {
 
-                    $.each(result, function(i, row) {
-
-                        // Format the output
-                        locations.push({
-                            'latitude': row.geometry.location.lat(),
-                            'longitude': row.geometry.location.lng(),
-                            'name': row.address_components[0].long_name,
-                            'address': row.formatted_address,
-                            'fulladdress': row.formatted_address,
-                            'reloadmap': "1"
-                        });
-
+                    // Format the output
+                    locations.push({
+                        'latitude': row.geometry.location.lat(),
+                        'longitude': row.geometry.location.lng(),
+                        'name': row.address_components[0].long_name,
+                        'address': row.formatted_address,
+                        'fulladdress': row.formatted_address,
+                        'reloadmap': "1"
                     });
-                    autoDetectButton.html('<i class="fa fa-location-arrow"></i>');
-                    control.addOption(locations);
 
-                    // Open up the suggestions
-                    control.open();
                 });
+                autoDetectButton.html('<i class="fa fa-location-arrow"></i>');
+                control.addOption(locations);
 
-            }, function() {
-
+                // Open up the suggestions
+                control.open();
             });
+
+        }, function() {
 
         });
 

@@ -36,6 +36,13 @@ class EasyDiscussPost extends EasyDiscuss
     public $isNew = null;
     public $prevPostStatus = null;
     public $isModerate = null;
+    public $num_replies = null;
+    public $likeCnt = null;
+
+    public $last_user_id = null;
+    public $last_poster_name = null;
+    public $last_poster_email = null;
+    public $last_user_anonymous = null;
 
     public $content_raw = null;
     public $cat_parent_id = null;
@@ -110,13 +117,16 @@ class EasyDiscussPost extends EasyDiscuss
                 $this->noofdays = $post->noofdays;
             }
 
-            if (isset($post->post_type_suffix)) {
-                $this->post_type_suffix = $post->post_type_suffix;
+            if(property_exists($post, 'post_type_suffix')) {
+                $this->post_type_suffix = $post->post_type_suffix === null ? '' : $post->post_type_suffix;
             }
 
-            if (isset($post->post_type_title)) {
-                $this->post_type_title = $post->post_type_title;
+            if(property_exists($post, 'post_type_title')) {
+                $this->post_type_title = $post->post_type_title === null ? '' : $post->post_type_title;
             }
+
+            if (isset($post->num_replies)) { $this->num_replies = $post->num_replies;}
+            if (isset($post->likeCnt)) { $this->likeCnt = $post->likeCnt;}
 
             if (isset($post->category)) { $this->category = $post->category;}
             if (isset($post->lastupdate)) { $this->lastupdate = $post->lastupdate;}
@@ -128,9 +138,12 @@ class EasyDiscussPost extends EasyDiscuss
             if (isset($post->attachments_cnt)) { $this->attachments_cnt = $post->attachments_cnt;}
             if (isset($post->isVoted)) { $this->isVoted = $post->isVoted;}
 
-            if (isset($post->isNew)) {
-                $this->isNew = $post->isNew;
-            }
+            if (isset($post->isNew)) {$this->isNew = $post->isNew;}
+            if (isset($post->last_user_id)) {$this->last_user_id = $post->last_user_id;}
+            if (isset($post->last_poster_name)) {$this->last_poster_name = $post->last_poster_name;}
+            if (isset($post->last_poster_email)) {$this->last_poster_email = $post->last_poster_email;}
+            if (isset($post->last_user_anonymous)) {$this->last_user_anonymous = $post->last_user_anonymous;}
+
             if (isset($post->prevPostStatus)) { $this->prevPostStatus = $post->prevPostStatus;}
             if (isset($post->isModerate)) { $this->isModerate = $post->isModerate;}
             if (isset($post->cat_parent_id)) { $this->cat_parent_id = $post->cat_parent_id;}
@@ -154,6 +167,7 @@ class EasyDiscussPost extends EasyDiscuss
         }
 
         if ($ids) {
+            // posts
             $model = ED::model('Posts');
             $posts = $model->loadBatchPosts($ids);
         }
@@ -827,13 +841,19 @@ class EasyDiscussPost extends EasyDiscuss
      */
     public function publish($publish = true)
     {
+        // If this post is being published, we need to check if this post is being approved or not.
+        if ($publish) {
+            $this->prevPostStatus = $this->post->published;
+        }
+
         $this->post->published = $publish;
 
-        $state = $this->post->store();
+        $options = array('ignorePreSave' => true);
 
-        if ($state) {
-            $this->updateThread(array('published' => $publish));
-        }
+        $state = $this->save($options);
+
+
+        $this->updateThread(array('published' => $publish));
 
         return $state;
     }
@@ -1724,9 +1744,12 @@ class EasyDiscussPost extends EasyDiscuss
         $key = $this->post->id;
 
         if (!isset($items[$key])) {
+            if (isset($this->polls_cnt)) {
+                $items[$key] = $this->polls_cnt;
 
-            if (isset($this->post->polls_cnt)) {
+            } else if (isset($this->post->polls_cnt)) {
                 $items[$key] = $this->post->polls_cnt;
+
             } else {
                 $model = ED::model('Posts');
                 $items[$key] = $model->hasPolls($this->post->id);
@@ -1752,17 +1775,30 @@ class EasyDiscussPost extends EasyDiscuss
         $key = $this->post->id;
 
         if (!isset($items[$key])) {
-
-            $model = ED::model('Posts');
-
-            if (isset($this->post->attachments_cnt)) {
+            if (isset($this->attachments_cnt)) {
+                $items[$key] = $this->attachments_cnt;
+            } else if (isset($this->post->attachments_cnt)) {
                 $items[$key] = $this->post->attachments_cnt;
             } else {
+                $model = ED::model('Posts');
                 $items[$key] = $model->hasAttachments($this->post->id, DISCUSS_QUESTION_TYPE);
             }
         }
 
         return $items[$key];
+    }
+
+    /**
+     * Determines if this post is belong to cluster
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function isCluster()
+    {
+        return $this->cluster_id;
     }
 
     /**
@@ -2083,6 +2119,19 @@ class EasyDiscussPost extends EasyDiscuss
     }
 
     /**
+     * Get the cluster type
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function getClusterType()
+    {
+        return $this->cluster_type;
+    }
+
+    /**
      * Retrieves the duration string of the post
      *
      * @alternative for previous ->duration
@@ -2129,7 +2178,7 @@ class EasyDiscussPost extends EasyDiscuss
         $contribution->type = $this->cluster_type;
 
         return $contribution;
-     }    
+     }
 
     /**
      * Generates the permalink for the post
@@ -2170,6 +2219,38 @@ class EasyDiscussPost extends EasyDiscuss
         }
 
         return $links[$key];
+    }
+
+    /**
+     * Retrieves the alias of a post
+     *
+     * @since   5.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function getAlias()
+    {
+        static $permalinks = array();
+
+        if (!isset($permalinks[$this->id])) {
+
+            $main_sef = $this->config->get('main_sef');
+
+            // Default permalink
+            $permalink = $this->post->alias;
+
+            // Ensure that the permalink is valid.
+            $permalink = EDR::normalizePermalink($permalink);
+
+            if ($this->config->get('main_sef_unicode') || !EDR::isSefEnabled()) {
+                $permalink = $this->id . '-' . $permalink;
+            }
+
+            $permalinks[$this->id] = $permalink;
+        }
+
+        return $permalinks[$this->id];
     }
 
     /**
@@ -2236,31 +2317,65 @@ class EasyDiscussPost extends EasyDiscuss
 
         if (! isset($_cache[$key])) {
 
-            // Get the total number of replies
-            $totalReplies = $this->getTotalReplies();
+            // // Get the total number of replies
+            // $totalReplies = $this->getTotalReplies();
 
-            if (!$totalReplies) {
-                $_cache[$key] = '0';
-                return;
+            // if (!$totalReplies) {
+            //     $_cache[$key] = '0';
+            //     return;
+            // }
+
+            // // Get the last reply item
+            // $model = ED::model('Posts');
+            // $reply = $model->getLastReply($this->post->id);
+
+            // if (!$reply) {
+            //     $_cache[$key] = '0';
+            //     return;
+            // }
+
+            // $post = ED::post($reply);
+
+            // // Get the user that last replied
+            // // $user = ED::user($reply->user_id);
+            // // $user->poster_name = $reply->user_id ? $user->getName() : $reply->poster_name;
+            // // $user->poster_email = $reply->user_id ? $user->user->email : $reply->poster_email;
+
+            // $user = $post->getOwner();
+
+            $user = null;
+            if (isset($this->last_user_id)) {
+                if ($this->last_user_id) {
+
+                    $showAsAnonymous = ($this->last_user_anonymous && ($this->last_user_id != $this->my->id || !ED::isSiteAdmin())) ? true : false;
+
+                    if ($showAsAnonymous) {
+                        $user = ED::user(0);
+                        $user->name = JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');
+                    }
+
+                    $user = ED::user($this->last_user_id);
+                } else {
+                    if ($this->last_poster_name) {
+                        $user = ED::user(0);
+                        $user->name = $this->last_poster_name;
+                    } else {
+                        $user = '0';
+                    }
+                }
+            } else {
+                // Get the last reply item
+                $model = ED::model('Posts');
+                $reply = $model->getLastReply($this->post->id);
+
+                if (!$reply) {
+                    $_cache[$key] = '0';
+                    return $_cache[$key];
+                }
+
+                $post = ED::post($reply);
+                $user = $post->getOwner();
             }
-
-            // Get the last reply item
-            $model = ED::model('Posts');
-            $reply = $model->getLastReply($this->post->id);
-
-            if (!$reply) {
-                $_cache[$key] = '0';
-                return;
-            }
-
-            $post = ED::post($reply);
-
-            // Get the user that last replied
-            // $user = ED::user($reply->user_id);
-            // $user->poster_name = $reply->user_id ? $user->getName() : $reply->poster_name;
-            // $user->poster_email = $reply->user_id ? $user->user->email : $reply->poster_email;
-
-            $user = $post->getOwner();
 
             $_cache[$key] = $user;
 
@@ -2324,7 +2439,6 @@ class EasyDiscussPost extends EasyDiscuss
         $key = $this->post->id;
 
         if (!isset($favorites[$key])) {
-
             if (isset($this->totalFavourites)) {
                 $favorites[$key] = $this->totalFavourites;
             } else {
@@ -2569,8 +2683,12 @@ class EasyDiscussPost extends EasyDiscuss
 
             $items[$this->post->id] = 0;
 
-            if (isset($this->post->num_replies)) {
+            if (isset($this->num_replies)) {
+                $items[$this->post->id] = $this->num_replies;
+
+            } else if (isset($this->post->num_replies)) {
                 $items[$this->post->id] = $this->post->num_replies;
+
             } else {
                 $model = ED::model('Posts');
                 $items[$this->post->id] = $model->getTotalReplies($this->post->id);
@@ -2603,7 +2721,7 @@ class EasyDiscussPost extends EasyDiscuss
      */
     public function getTotalVotes()
     {
-        $votes = array();
+        static $votes = array();
 
         if (!isset($votes[$this->post->id])) {
             if (isset($this->total_vote_cnt)) {
@@ -2627,9 +2745,17 @@ class EasyDiscussPost extends EasyDiscuss
      */
     public function getTotalLikes()
     {
-        $likes = ED::model('likes')->getTotalLikes($this->post->id);
+        static $likes = array();
 
-        return $likes;
+        if (!isset($likes[$this->post->id])) {
+            if (isset($this->likeCnt)) {
+                $likes[$this->post->id] = $this->likeCnt;
+            } else {
+                $likes[$this->post->id] = ED::model('likes')->getTotalLikes($this->post->id);
+            }
+        }
+
+        return $likes[$this->post->id];
     }
     /**
      * Get the voters to a discussion
@@ -3208,14 +3334,24 @@ class EasyDiscussPost extends EasyDiscuss
      */
     public function getPostType()
     {
-        if (isset($this->post_type)) {
-            $posttype = $this->post_type;
-        } else {
-            $model = ED::model('Posttypes');
-            $posttype = $model->getTitle($this->post->post_type);
+        static $_title = array();
+
+        if (! isset($_title[$this->post->id])) {
+
+            $posttype = '';
+
+            if (isset($this->post_type_title)) {
+                $posttype = $this->post_type_title;
+            } else {
+                $model = ED::model('Posttypes');
+                $posttype = $model->getTitle($this->post->post_type);
+            }
+
+            $_title[$this->post->id] = $posttype;
         }
 
-        return $posttype;
+
+        return $_title[$this->post->id];
     }
 
     /**
@@ -3310,7 +3446,7 @@ class EasyDiscussPost extends EasyDiscuss
         // Moderate all posts
         if ($this->config->get('main_moderatepost') && !$isAdmin && !$isModerator) {
             $this->post->published = DISCUSS_ID_PENDING;
-            $this->isModerator = true;
+            $this->isModerate = true;
         }
 
         // Determines if the user should still be moderated
@@ -3645,6 +3781,7 @@ class EasyDiscussPost extends EasyDiscuss
         // Call the model to create the polls
         $model = ED::model('Polls');
         $model->create($this->post->id, $question, $choices, $remove, $multiple, $original);
+        $this->updateThread(array('has_polls' => '1'));
 
         return true;
     }
@@ -4083,10 +4220,10 @@ class EasyDiscussPost extends EasyDiscuss
         } else {
 
             // If this is a private post, do not notify anyone
-            if (!$this->post->private && $this->getCategory()->canAccess()) {
+            if ((!$this->post->private && $this->getCategory()->canAccess()) && !$this->isCluster()) {
                 // Notify site subscribers
 
-                if (($this->isNew() || $this->prevPostStatus == DISCUSS_ID_PENDING) && $this->post->published == DISCUSS_ID_PUBLISHED && !$this->config->get('notify_all')) {
+                if (($this->isNew() || $this->prevPostStatus == DISCUSS_ID_PENDING) && $this->isPublished() && !$this->config->get('notify_all')) {
                     if ($this->config->get('main_sitesubscription')) {
                         ED::Mailer()->notifySubscribers($emailData, array($this->my->email));
                     }
@@ -4098,7 +4235,7 @@ class EasyDiscussPost extends EasyDiscuss
                 }
 
                 // Notify EVERYBODY
-                if ($this->config->get('notify_all') && !$this->isModerate) {
+                if ($this->config->get('notify_all') && ((!$this->isModerate && $this->isNew() && $this->isPublished()) || $this->prevPostStatus == DISCUSS_ID_PENDING)) {
                     ED::Mailer()->notifyAllMembers($emailData, array($this->my->email));
                 }
             }
@@ -4108,6 +4245,15 @@ class EasyDiscussPost extends EasyDiscuss
         if (($this->isNew() || $this->prevPostStatus == DISCUSS_ID_PENDING)) {
             ED::Mailer()->notifyAdministrators($emailData, array($this->my->email), $this->config->get('notify_admin'), $this->config->get('notify_moderator'));
         }
+
+        // Notify thread owner if the post is being approved.
+        if ($this->prevPostStatus == DISCUSS_ID_PENDING) {
+            $emailData['owner_email'] = $this->getOwner()->getEmail();
+            $emailData['emailTemplate'] = 'email.subscription.site.approve';
+            $emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_QUESTION_ASKED_APPROVED', $this->post->title);
+
+            ED::Mailer()->notifyThreadOwner($emailData, array());
+        }        
 
     }
 
@@ -4193,7 +4339,7 @@ class EasyDiscussPost extends EasyDiscuss
             }
 
             // Add notification to subscribers
-            ED::easysocial()->notify('new.discussion', $this->post);
+            ED::easysocial()->notify('new.discussion', $this);
 
             // Add logging for user.
             ED::History()->log('easydiscuss.new.discussion', $this->my->id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_NEW_POST', $this->post->title ), $this->post->id);
@@ -4227,8 +4373,10 @@ class EasyDiscussPost extends EasyDiscuss
         // Get any save options if available.
         $this->saveOptions = $options;
 
-        // This allows us to perform necessary logics before the post is really saved
-        $this->preSave();
+        if (!isset($this->saveOptions['ignorePreSave'])) {
+            // This allows us to perform necessary logics before the post is really saved
+            $this->preSave();
+        }
 
         // Now we can store this in the db
         $state = $this->post->store();
@@ -4760,8 +4908,13 @@ class EasyDiscussPost extends EasyDiscuss
     public function deletePolls()
     {
         $model = ED::model('Polls');
+        $state = $model->deletePolls($this->post->id);
 
-        return $model->deletePolls($this->post->id);
+        if ($state) {
+            $this->updateThread(array('has_polls' => '-1'));
+        }
+
+        return $state;
     }
 
     /**
@@ -5226,7 +5379,13 @@ class EasyDiscussPost extends EasyDiscuss
         $items = array();
 
         foreach($columns as $key => $val) {
-            $items[] = $db->nameQuote($key) . " = " . $db->Quote($val);
+            if ($val === '-1') {
+                $items[] = $db->nameQuote($key) . " = " . $db->nameQuote($key) . " - 1";
+            } else if ($val === '+1') {
+                $items[] = $db->nameQuote($key) . " = " . $db->nameQuote($key) . " + 1";
+            } else {
+                $items[] = $db->nameQuote($key) . " = " . $db->Quote($val);
+            }
         }
 
         $items = implode(',', $items);

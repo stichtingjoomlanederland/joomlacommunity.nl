@@ -61,18 +61,14 @@ class DiscussCategory extends EasyDiscussTable
 			if (!$permalink) {
 
 				// lets check if we cache this category or not.
-				if (!is_array($key)) {
-					// if (ED::cache()->exists('category', $key)) {
-					// 	$data = ED::cache()->get('category', $key);
-					// 	parent::bind($data);
-					// } else {
-						parent::load($key);
-					// }
+				if (ED::cache()->exists($key, 'category')) {
+					$data = ED::cache()->get($key, 'category');
+					$loaded[$sig] = $data;
 				} else {
-					parent::load( $key );
+					parent::load($key);
+					$loaded[$sig] = $this;
 				}
 
-				$loaded[$sig] = $this;
 			} else {
 
 				$db = ED::db();
@@ -94,9 +90,10 @@ class DiscussCategory extends EasyDiscussTable
 
 				parent::load( $id );
 				$loaded[$sig]   = $this;
+
+				$doBind = false;
 			}
 
-			$doBind = false;
 		}
 
 		if ( $doBind ) {

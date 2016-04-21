@@ -33,7 +33,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	                        <div class="col-md-5 control-label">
 	                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_PRIORITY_COLOR'); ?>
 	                        </div>
-	                        <div class="col-md-3">
+	                        <div class="col-md-6">
 								<div class="input-group colorpicker-component colorpicker-element" data-ed-priority-colorpicker>
 									<input type="text" name="color" maxlength="255" value="<?php echo $priority->color;?>" class="form-control" />
 									<span class="input-group-addon"><i></i></span>

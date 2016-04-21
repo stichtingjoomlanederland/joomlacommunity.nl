@@ -18,35 +18,28 @@ class EasyDiscussMigratorJomsocial extends EasyDiscussMigratorBase
 	public function migrate()
 	{
 		// Get the total group
-		$total = $this->getTotalGroups();
+		$total = $this->getTotalJomsocialPosts();
 
-		// First, we need to get the groups
-		$groups = $this->getJomSocialGroups();
+		// Now we migrate those discussion from every group
+		$items = $this->getJomsocialPosts(10);
 
 		// Determines if there is still items to be migrated
-		$balance = $total - count($groups);
+		$balance = $total - count($items);
+
+		$status = '';
 
 		// Once we get the group, create a category for each group.
-		foreach ($groups as $group) {
-			$category = ED::table('category');
-			$category = $this->createCategory($group, $category);
+		foreach ($items as $item) {
 
-			// Now we migrate those discussion from every group
-			$items = $this->getJomsocialPosts($group);
+			// Get Jomsocial group
+			$group = $this->getJomsocialGroup($item);
 
-			// If no item, continue with other group.
-			if (!$items) {
-				continue;
-			}
-
-			$this->ajax->append('[data-progress-status]', JText::_('COM_EASYDISCUSS_MIGRATOR_MIGRATING_JOMSOCIAL_GROUP') . ': ' . $group->id . '<br />');
+			$category = $this->createCategory($group);
 
 			// Migrate the items to Easydiscuss
-			$this->migrateDiscussion($items, $category);
+			$state = $this->migrateDiscussion($item, $category);
 
-			// Add this to migrators table
-    		$this->added('com_community', $category->id, $group->id, 'group');
-
+			$status .= JText::_('COM_EASYDISCUSS_MIGRATOR_MIGRATING_JOMSOCIAL_DISCUSSION') . ': ' . $item->id . '<br />';
 		}
 
 		$hasmore = false;
@@ -55,60 +48,53 @@ class EasyDiscussMigratorJomsocial extends EasyDiscussMigratorBase
 			$hasmore = true;
 		}
 
-		if (!$hasmore) {
-			$this->ajax->append('[data-progress-status]', JText::_('COM_EASYDISCUSS_MIGRATOR_FINISHED'));
-		}
-
-		return $this->ajax->resolve($hasmore);
+		return $this->ajax->resolve($hasmore, $status);
 	}
 
-	public function migrateDiscussion($items, $category)
+	public function migrateDiscussion($item, $category)
 	{
 		$config = ED::config();
 
-		foreach ($items as $item) {
-			$post = ED::post();
+		$post = ED::post();
 
-			$message = $item->message;
+		$message = $item->message;
 
-			// Convert content to bbcode
-			if ($config->get('layout_editor') == 'bbcode') {
-				$message = ED::parser()->html2bbcode( $message );
-			}
-
-			$data['content'] = $message;
-			$data['title'] = $item->title;
-			$data['category_id'] = $category->id;
-			$data['user_id'] = $item->creator;
-			$data['user_type'] = DISCUSS_POSTER_MEMBER;
-			$data['created'] = ED::date($item->created)->toMySQL();
-			$data['modified'] = ED::date($item->created)->toMySQL();
-			$data['replied'] = ED::date($item->lastreplied)->toMySQL();
-			$data['content_type'] = 'bbcode';
-			$data['parent_id'] = 0;
-			$data['islock'] = $item->lock;
-
-			$state = DISCUSS_ID_PUBLISHED;
-			$data['published'] = $state;
-
-			$post->bind($data);
-
-			// Validate the posted data to ensure that we can really proceed
-	        if (!$post->validate($data)) {
-
-	            //failed
-	        }
-
-	        $post->save();
-
-            // Add this to migrators table
-    		$this->added('com_community', $post->id, $item->id, 'post');
-
-    		$this->ajax->append('[data-progress-status]', JText::_('COM_EASYDISCUSS_MIGRATOR_MIGRATED_JOMSOCIAL_GROUP_DISCUSSION') . ': ' . $item->id . JText::_('COM_EASYDISCUSS_MIGRATOR_EASYDISCUSS_POST') . ': ' . $post->id . '<br />');
-
-	        // Map the comment to replies in Easydiscuss
-	        $this->migrateReplies($item, $post);
+		// Convert content to bbcode
+		if ($config->get('layout_editor') == 'bbcode') {
+			$message = ED::parser()->html2bbcode( $message );
 		}
+
+		$data['content'] = $message;
+		$data['title'] = $item->title;
+		$data['category_id'] = $category->id;
+		$data['user_id'] = $item->creator;
+		$data['user_type'] = DISCUSS_POSTER_MEMBER;
+		$data['created'] = ED::date($item->created)->toMySQL();
+		$data['modified'] = ED::date($item->created)->toMySQL();
+		$data['replied'] = ED::date($item->lastreplied)->toMySQL();
+		$data['content_type'] = 'bbcode';
+		$data['parent_id'] = 0;
+		$data['islock'] = $item->lock;
+
+		$state = DISCUSS_ID_PUBLISHED;
+		$data['published'] = $state;
+
+		$post->bind($data);
+
+		// Validate the posted data to ensure that we can really proceed
+        if (!$post->validate($data)) {
+            return false;
+        }
+
+        if ($post->save()) {
+        	// Map the comment to replies in Easydiscuss
+        	$this->migrateReplies($item, $post);
+        }
+
+        // Add this to migrators table
+		$this->added('com_community', $post->id, $item->id, 'post');
+
+		return true;
 	}
 
 	public function migrateReplies($item = null, $post = null)
@@ -136,6 +122,7 @@ class EasyDiscussMigratorJomsocial extends EasyDiscussMigratorBase
 			// For contents, we need to get the raw data.
 	        $data['content'] = $reply->comment;
 	        $data['parent_id'] = $post->id;
+	        $data['user_id'] = $reply->post_by;
 
 	        // Load the post library
 	        $post = ED::post();
@@ -165,20 +152,40 @@ class EasyDiscussMigratorJomsocial extends EasyDiscussMigratorBase
 		return $result;
 	}
 
-	public function getJomsocialPosts($group)
+	public function getTotalJomsocialPosts()
 	{
 		$db	= $this->db;
-		$query	= 'SELECT * FROM ' . $db->nameQuote('#__community_groups_discuss') . ' '
-				. 'WHERE ' . $db->nameQuote('groupid') . '=' . $db->Quote($group->id);
+		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__community_groups_discuss') . ' as a';
+		$query .= ' WHERE NOT EXISTS (';
+		$query .= ' SELECT external_id FROM `#__discuss_migrators` AS b WHERE b.`external_id` = a.`id` and `component` = ' . $db->Quote('com_community');
+		$query .= ' AND ' . $db->nameQuote('type') . '=' . $db->Quote('post');
+		$query .= ' )';
+
+		$db->setQuery($query);
+		$item = $db->loadResult();
+
+		return $item;
+	}
+
+	public function getJomsocialPosts($limit = 10)
+	{
+		$db	= $this->db;
+		$query	= 'SELECT * FROM ' . $db->nameQuote('#__community_groups_discuss') . ' as a';
+		$query .= ' WHERE NOT EXISTS (';
+		$query .= ' SELECT external_id FROM `#__discuss_migrators` AS b WHERE b.`external_id` = a.`id` and `component` = ' . $db->Quote('com_community');
+		$query .= ' AND ' . $db->nameQuote('type') . '=' . $db->Quote('post');
+		$query .= ' )';
+		$query .= 'LIMIT ' . $limit;
+
 		$db->setQuery($query);
 		$item = $db->loadObjectList();
 
 		return $item;
 	}
 
-	public function createCategory($group, &$category)
+	public function createCategory($group)
 	{
-		$title = JString::strtolower($category->title);
+		$title = JString::strtolower($group->name);
 
 		// Check if the category exists
 		$query = 'select * from `#__discuss_category`';
@@ -186,7 +193,7 @@ class EasyDiscussMigratorJomsocial extends EasyDiscussMigratorBase
 		$query .= ' LIMIT 1';
 
 		$this->db->setQuery($query);
-		$result = $this->db->loadResult();
+		$result = $this->db->loadObject();
 
 		// If easydiscuss category doesn't exist, create a new category using Kunena's category data
 		if ($result) {
@@ -206,33 +213,14 @@ class EasyDiscussMigratorJomsocial extends EasyDiscussMigratorBase
 		return $category;
 	}
 
-	public function getJomSocialGroups()
+	public function getJomSocialGroup($item)
 	{
 		$db = $this->db;
-		$query = 'SELECT * FROM ' . $db->nameQuote('#__community_groups') . ' AS a';
-		$query .= ' WHERE NOT EXISTS (';
-		$query .= ' SELECT external_id FROM `#__discuss_migrators` AS b WHERE b.`external_id` = a.`id` and `component` = ' . $db->Quote('com_community');
-		$query .= ' AND ' . $db->nameQuote('type') . '=' . $db->Quote('group');
-		$query .= ' )';
-		$query .= ' LIMIT 1';
+		$query = 'SELECT * FROM ' . $db->nameQuote('#__community_groups');
+		$query .= ' WHERE  ' . $db->nameQuote('id') . '=' . $db->Quote($item->groupid);
 		$db->setQuery($query);
-		$result = $db->loadObjectList();
+		$result = $db->loadObject();
 
 		return $result;
 	}
-
-	public function getTotalGroups()
-	{
-		$db = $this->db;
-		$query = 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__community_groups') . ' AS a';
-		$query .= ' WHERE NOT EXISTS (';
-		$query .= ' SELECT external_id FROM `#__discuss_migrators` AS b WHERE b.`external_id` = a.`id` and `component` = ' . $db->Quote('com_community');
-		$query .= ' AND ' . $db->nameQuote('type') . '=' . $db->Quote('group');
-		$query .= ' )';
-		$db->setQuery($query);
-		$result = $db->loadResult();
-
-		return $result;
-	}
-
 }

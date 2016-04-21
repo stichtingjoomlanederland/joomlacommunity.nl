@@ -26,7 +26,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             <thead>
                 <tr>
                     <th width="5" class="center">
-                        <input type="checkbox" name="toggle" class="discussCheckAll" />
+                        <?php echo $this->html('table.checkall'); ?>
                     </th>
 
                     <th class="title" nowrap="nowrap" style="text-align:left;">

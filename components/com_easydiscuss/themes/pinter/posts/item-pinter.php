@@ -169,7 +169,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <div class="">
                                 <a href="<?php echo $post->getOwner()->getLink();?>" class="ed-user-name"><?php echo $post->getOwner()->getName();?></a>
                                 <?php if($this->config->get('layout_profile_roles') && $post->getOwner()->getRole() ) { ?>
-                                    <span class="ed-user-role-label is-inverse"><?php echo $post->getOwner()->getRole(); ?></span>
+                                    <span class="ed-user-role-label o-label o-label--<?php echo $post->getOwner()->getRoleLabelClassname()?>"><?php echo $post->getOwner()->getRole(); ?></span>
                                 <?php } ?>
                             </div>
 

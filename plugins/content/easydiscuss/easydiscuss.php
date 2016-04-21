@@ -20,7 +20,7 @@ class plgContentEasyDiscuss extends JPlugin
 	var $view		= null;
 	var $loaded		= null;
 
-	public function plgContentEasyDiscuss( &$subject , $params )
+	public function __construct( &$subject , $params )
 	{
 		$this->extension	= JRequest::getString( 'option' );
 		$this->view			= JRequest::getString( 'view' );
@@ -60,12 +60,29 @@ class plgContentEasyDiscuss extends JPlugin
 	 */
 	public function onAfterContentSave( &$article, $isNew )
 	{
+
+		if (! $this->exists()) {
+			return false;
+		}
+
 		// If the current page is easydiscuss, we want to skip this altogether.
 		// We also need to skip this when the plugins are being triggered in the discussion replies otherwise it will
 		// be in an infinite loop generating all contents.
 		if( $this->extension == 'com_easydiscuss' || $this->loaded || ( isset( $article->easydiscuss ) && $article->easydiscuss == true ) || ( isset($article->state) && !$article->state && $this->extension == 'com_content') )
 		{
 			return;
+		}
+
+		$params = $this->getParams();
+
+		$allowed	= $params->get( 'allowed_components' , 'com_content,com_easyblog');
+		$allowed	= explode( ',' , $allowed );
+
+		//include com_easydiscuss
+		$allowed[] = 'com_easydiscuss';
+
+		if (!in_array($this->extension, $allowed)) {
+			return false;
 		}
 
 		$this->mapExisting( $article );
@@ -77,7 +94,7 @@ class plgContentEasyDiscuss extends JPlugin
 	 * onContentAfterSave trigger for Joomla 1.6 onwards.
 	 *
 	 **/
-	public function onContentAfterSave($context, &$article, $isNew)
+	public function onContentAfterSave($context, $article, $isNew)
 	{
 		return $this->onAfterContentSave( $article , $isNew );
 	}
@@ -443,6 +460,8 @@ class plgContentEasyDiscuss extends JPlugin
 		{
 			 case 'com_content':
 
+			 	require_once( JPATH_ROOT . '/components/com_content/helpers/route.php' );
+
 				JTable::addIncludePath( JPATH_ROOT . '/libraries/joomla/database/table' );
 
 				$category	= JTable::getInstance( 'Category' , 'JTable' );
@@ -502,7 +521,7 @@ class plgContentEasyDiscuss extends JPlugin
 		}
 
 		// @rule: If article is not published, do not try to process anything
-		if ($this->extension == 'com_easydiscuss' || (!$article->state && $this->extension == 'com_content')) {
+		if( $this->extension == 'com_easydiscuss' || (!$article->state && $this->extension == 'com_content')) {
 			return false;
 		}
 
@@ -543,13 +562,15 @@ class plgContentEasyDiscuss extends JPlugin
         $post = ED::post();
 		$params = $this->getParams();
 
-		if( !$isNew ) {
+		if (!$isNew) {
 			// Get the mapping
-			$ref		= DiscussHelper::getTable( 'PostsReference' );
+			$ref = ED::table('PostsReference');
 			$ref->loadByExtension( $article->id , $this->extension );
 
+			// var_dump($ref->post_id);exit;
+
 			// Load the discussion item
-			$post->load($ref->post_id);
+			$post = ED::post($ref->post_id);
 		}
 
 

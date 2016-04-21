@@ -551,6 +551,20 @@ DOM
     <div class="">test</div>
 </div>
 */
+  /*
+DOM:
+<div class="component-xxx is-empty">
+    <div class="o-empty">
+        <div class="o-empty__content">
+            <i class="o-empty__icon fa fa-book"></i>
+            <div class="o-empty__text">Looks like you haven't post anything.</div>
+            <div class="o-empty__action t-mt--xl">
+                <a href="" class="btn btn-primary btn-lg">Ask Question</a>
+            </div>    
+        </div>
+    </div>
+</div>
+*/
   /**
 * #COMPONENTS
 */
@@ -3127,6 +3141,71 @@ fieldset[disabled] #ed .btn-link:focus {
   border-right-width: 0;
   border-left-color: #ffffff;
   bottom: -10px;
+}
+#ed .o-loading {
+  display: inline-block;
+  text-align: center;
+  position: relative;
+  display: none;
+  width: 100%;
+  height: 100%;
+}
+#ed .o-loading__content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+#ed .o-loading__icon {
+  font-size: 40px;
+  color: #888888;
+}
+#ed .is-loading .o-loading {
+  display: inline-block;
+}
+#ed .o-empty {
+  width: 100%;
+  min-height: 200px;
+  display: inline-block;
+  text-align: center;
+  background-color: #ffffff;
+  position: relative;
+  display: none;
+}
+#ed .o-empty--height-no {
+  min-height: 0;
+}
+#ed .o-empty--bg-no {
+  background-color: transparent;
+}
+#ed .o-empty--bordered {
+  border: 1px solid #cccccc;
+}
+#ed .o-empty__content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+#ed .o-empty__icon {
+  font-size: 40px;
+  color: #888888;
+}
+#ed .o-empty__icon--sm {
+  font-size: 28px;
+  color: #888888;
+}
+#ed .o-empty__text {
+  color: #333333;
+}
+#ed .o-empty__action {
+  margin-top: 20px;
+}
+#ed.w480 .o-empty--height-no {
+  min-height: 80px;
+}
+#ed .is-empty .o-empty {
+  display: inline-block;
 }
 #ed h1,
 #ed h2,
@@ -9309,7 +9388,6 @@ a#ed .badge:focus {
 }
 #ed .ed-post-item__title {
   font-size: 14px;
-  width: 100%;
   display: inline-block;
 }
 #ed .ed-post-item__title > a {
@@ -9721,6 +9799,9 @@ a#ed .badge:focus {
   top: 0;
   width: 80px;
 }
+#ed.w480 .ed-polls {
+  min-width: 250px;
+}
 #ed .ed-ratings {
   display: table;
   table-layout: fixed;
@@ -9957,6 +10038,7 @@ a#ed .badge:focus {
   width: 100%;
   height: 100%;
   overflow: auto;
+  overflow-x: hidden;
   background: #ffffff;
   border: 1px solid #cccccc;
   border-radius: 0 0 3px 3px;
@@ -10001,26 +10083,8 @@ a#ed .badge:focus {
 #ed .ed-dialog-content .radio {
   margin: 0;
 }
-#ed .ed-dialog-content .control-label {
-  width: 125px;
-  text-align: right;
-  padding: 0 5px;
-}
 #ed .ed-dialog-content .form-control {
   margin: 0;
-}
-#ed .ed-dialog-content .form-group {
-  display: table;
-  width: 100%;
-  margin: 0;
-}
-#ed .ed-dialog-content .form-group + .form-group {
-  margin-top: 10px;
-}
-#ed .ed-dialog-content .form-group > label:after {
-  color: #999;
-  content: ':';
-  margin: 0 0 0 5px;
 }
 #ed .ed-dialog-footer-content {
   text-align: right;
@@ -10044,6 +10108,15 @@ a#ed .badge:focus {
   width: 100%;
   height: 100%;
   border: 0;
+}
+@media (max-width: 780px) {
+  #ed .ed-dialog-modal {
+    width: 98% !important;
+  }
+  #ed .ed-dialog-body {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: scroll;
+  }
 }
 #ed .is-locked .fa-lock {
   display: inline-block;
@@ -10074,6 +10147,16 @@ a#ed .badge:focus {
 }
 #ed .is-lockpoll .poll-locked {
   display: inline-block;
+}
+#ed .ed-entry .ed-post-item__status {
+  display: none;
+}
+#ed .ed-entry.is-locked .ed-post-item__status,
+#ed .ed-entry.is-featured .ed-post-item__status,
+#ed .ed-entry.is-protected .ed-post-item__status,
+#ed .ed-entry.is-private .ed-post-item__status {
+  display: inline-block;
+  margin-right: 4px;
 }
 #ed .ed-post-item {
   position: relative;
@@ -10785,9 +10868,8 @@ a#ed .badge:focus {
 }
 #ed .ed-forums-cat-header__breadcrumb {
   font-size: 11px;
-}
-#ed .ed-forums-cat-header__btn {
-  margin-top: 8px;
+  margin-top: 4px;
+  clear: both;
 }
 #ed .ed-forums-cat-header .is-active a {
   color: #333333;
@@ -12406,12 +12488,27 @@ textarea#ed .inputbox {
 #ed.is-outdated .app-alert.outdated-version {
   display: block;
 }
-#ed .eb-progress-wrap {
-  position: relative;
+#ed .ed-progress-wrap {
+  margin-right: 50px;
 }
-#ed .eb-progress-wrap .progress-bar {
+#ed .ed-progress-wrap .progress {
+  position: relative;
+  overflow: visible;
+}
+#ed .ed-progress-wrap .progress .bar {
+  border-radius: 3px;
+}
+#ed .ed-progress-wrap .progress-result {
   position: absolute;
-  left: 10px;
+  right: -50px;
+  width: 50px;
+  text-align: right;
+  font-weight: bold;
+}
+#ed .center,
+#ed .table td.center,
+#ed .table th.center {
+  text-align: center !important;
 }
 #ed .app-table {
   border-collapse: separate;
@@ -13571,6 +13668,18 @@ textarea#ed .inputbox {
 }
 #ed .t-bdl-no {
   border-left: none !important;
+}
+#ed .t-text--left {
+  text-align: left !important;
+}
+#ed .t-text--center {
+  text-align: center !important;
+}
+#ed .t-text--right {
+  text-align: right !important;
+}
+#ed .t-text--justify {
+  text-align: justify !important;
 }
 /**
 * #Misc

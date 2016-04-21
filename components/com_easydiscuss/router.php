@@ -1,9 +1,9 @@
 <?php
 /**
-* @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
-* @license		GNU/GPL, see LICENSE.php
-* EasyDiscuss is free software. This version may have been modified pursuant
+* @package      EasyDiscuss
+* @copyright    Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
+* Komento is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -18,11 +18,11 @@ class EasyDiscussRouter extends EasyDiscuss
 	public function build(&$query)
 	{
 		$segments = array();
+		$config = ED::config();
 
 		// Get the current query menu
 		$menu = JFactory::getApplication()->getMenu();
 		$active = isset($query['Itemid']) ? $menu->getItem($query['Itemid']) : $menu->getActive();
-
 
 		// Forums view
 		if (isset($query['view']) && $query['view'] == 'forums') {
@@ -52,22 +52,33 @@ class EasyDiscussRouter extends EasyDiscuss
 		}
 
 		// Post view
-		if (isset($query['view']) && $query['view'] == 'post') {
+		if (isset($query['view']) && $query['view'] == 'post' && isset($query['id'])) {
 
-			// var_dump($query);exit;
+			$main_sef = $config->get('main_sef');
 
-			// We don't want to include the view for the entry links.
+			if ($main_sef != 'simple' && $main_sef != 'category') {
+				$segments[] = $query['view'];
+			}
+
+			// Get the post from the cache
+			$postId = (int) $query['id'];
+
+			$post = ED::post($postId);
+
+			// If use the category based permalink, we need to generate the category alias
+			if ($main_sef == 'category') {
+				$aliases = EDR::getCategoryAliases($post->getCategory()->id);
+
+				foreach ($aliases as $alias) {
+					$segments[]	= $alias;
+				}
+			}
+
+			// Since the cache library is already using the post library to re-render the post table data, just use the permalink.
+			$segments[] = $post->getAlias();
+
+			unset($query['id']);
 			unset($query['view']);
-
-			if (isset($query['id'])) {
-				$segments[]	= EDR::getPostAlias($query['id']);
-				unset($query['id']);
-			}
-
-			if (isset($query['layout'])) {
-				$segments[] = $query['layout'];
-				unset($query['layout']);
-			}
 		}
 
 		// Profile view
@@ -143,7 +154,6 @@ class EasyDiscussRouter extends EasyDiscuss
 				$segments[]	= EDR::getUserAlias($query['id']);
 				unset($query['id']);
 			}
-
 		}
 
 		// Tags view
@@ -293,56 +303,51 @@ class EasyDiscussRouter extends EasyDiscuss
 		$menu = $app->getMenu();
 		$item = $menu->getActive();
 
-
-        // var_dump($item);
-
-
-        // var_dump($segments);exit;
-
 		// We need to get a list of valid views
 		$views = array('attachments', 'categories', 'index', 'forums','conversation',
 						'post', 'profile', 'search', 'tag', 'tags', 'users', 'notifications',
-						'badges', 'ask', 'subscriptions', 'featured', 'favourites', 'assigned',
-						'points','dashboard');
+						'badges', 'ask', 'subscription', 'featured', 'favourites', 'assigned',
+						'points','dashboard', 'mypost');
 
-		// @rule: For view=post&id=xxx we do not include
+		// If user chooses to use the simple sef setup, we need to add the proper view
+		if (($config->get('main_sef') == 'simple' && count($segments) == 1) ||
+			($config->get('main_sef') == 'category' && count($segments) >= 2)) {
 
-		if (isset($segments[0]) && !in_array($segments[0], $views)) {
-			$vars['view']	= 'post';
+			if (!in_array($segments[0], $views)) {
+				if (count($segments) >= 2) {	
+					// we just assign the first segment to be a post
+					$segments[0] = 'post';
 
-			$count	= count($segments);
-
-			if( $count >= 1 )
-			{
-				// Submission
-				$index = 0;
-				if( $segments[ $index ] == 'submit' )
-				{
-					$vars['layout']	= $segments[ $index ];
-					$index += 1;
-				}
-
-				if (isset($segments[$index])) {
-
-					$postId = 0;
-					$postId = EDR::decodeAlias($segments[$index], 'Post');
-
-					$vars['id']	= $postId;
-					$index += 1;
-				}
-
-				if( isset( $segments[ $index ] ) )
-				{
-					if( $segments[ $index ] == 'edit' )
-					{
-						$vars['layout'] = $segments[ $index ];
-					}
-					else
-					{
-						$vars['sort'] = $segments[ $index ];
-					}
+				} else {
+					array_unshift($segments, 'post');
 				}
 			}
+		}
+
+		// Post View
+		if (isset($segments[0]) && $segments[0] == 'post') {
+			
+			$count = count($segments);
+			$postId = '';
+
+			// perform manual split on the string.
+			if ($config->get('main_sef_unicode')) {
+				$permalinkSegment = $segments[($count - 1)];
+				$permalinkArr = explode(':', $permalinkSegment);
+				$postId = $permalinkArr[0];
+			} else {
+				$index = ($count - 1);
+				$alias = $segments[$index];
+				
+				$postId = EDR::decodeAlias($alias, 'Post');
+			}
+
+			if ($postId) {
+				$vars['id']	= $postId;
+			}
+
+			$vars['view'] = 'post';
+			
 		}
 
         /*
@@ -370,12 +375,12 @@ class EasyDiscussRouter extends EasyDiscuss
 		}
 
 		if (isset($segments[0]) && $segments[0] == 'index') {
-			$count	= count($segments);
+			$count = count($segments);
 
 			if ($count > 1) {
-				$vars['view']	= $segments[0];
+				$vars['view'] = $segments[0];
 
-				$segments = DiscussRouter::encodeSegments( $segments );
+				$segments = EDR::encodeSegments($segments);
 
 				if (in_array( $segments[1] , array('allposts','unanswered', 'unresolved', 'unread', 'resolved'))) {
 					$vars['filter'] = $segments[1];
@@ -389,66 +394,64 @@ class EasyDiscussRouter extends EasyDiscuss
 
 		if (isset($segments[0]) && $segments[0] == 'points') {
 
-			// $segments = DiscussRouter::encodeSegments($segments);
-
 			// Get the current view
-			$vars['view']	= $segments[ 0 ];
+			$vars['view'] = $segments[0];
 
 			// Get the user's id.
-			$alias 	= $segments[1];
+			$alias = $segments[1];
 
 			$id = (int) $alias;
 
-			if (! $id) {
+			if (!$id) {
 
 				if ($config->get('main_sef_user') == 'realname' || $config->get('main_sef_user') == 'username') {
-					$tmp 	= explode('-', $alias);
-					$id 	= $tmp[0];
+					$tmp = explode('-', $alias);
+					$id = $tmp[0];
+				}
+
+				if (!$id) {
+					// Username might contains ":" character
+					$alias = JString::str_ireplace(':', '-', $alias);
+					$id = ED::getUserId($alias);
 				}
 
 				if (!$id) {
 					// Username might contains "-" character
-					$alias 	= JString::str_ireplace( ':' , '-' , $alias );
-					$id = DiscussHelper::getUserId( $alias );
+					$alias = JString::str_ireplace('-', ' ', $alias);
+					$id = ED::getUserId($alias);
 				}
-
-				if (!$id) {
-					// Username might contains "-" character
-					$alias 	= JString::str_ireplace( '-' , ' ' , $alias );
-					$id = DiscussHelper::getUserId( $alias );
-				}
-
 			}
 
 			$vars['id']	= $id;
 		}
 
 		if (isset($segments[0]) && $segments[0] == 'categories') {
-			$count	= count($segments);
+			
+			$count = count($segments);
 
 			if ($count > 1) {
-				$vars['view'] = $segments[ 0 ];
+				$vars['view'] = $segments[0];
 
-				$segments = DiscussRouter::encodeSegments( $segments );
+				$segments = EDR::encodeSegments($segments);
 
-
-				if (isset( $segments[ 1 ] ) && $segments[ 1 ] == 'listings') {
+				if (isset($segments[1]) && $segments[1] == 'listings') {
+					
 					// Get the last item since the category might be recursive.
-					$cid		= $segments[2];
+					$cid = $segments[2];
 					$catId = EDR::decodeAlias($cid, 'Category');
 
-					$vars['layout']		= $segments[ 1 ];
-					$vars['category_id']  = $catId;
+					$vars['layout']	= $segments[1];
+					$vars['category_id'] = $catId;
 				} else {
 
 					// Get the last item since the category might be recursive.
 					$cid = $segments[1];
 
 					$catId = EDR::decodeAlias($cid, 'Category');
-					$vars['category_id']  = $catId;
+					$vars['category_id'] = $catId;
 				}
 
-				if (isset( $segments[3])) {
+				if (isset($segments[3])) {
 					$vars['filter']	= $segments[3];
 
 					if (isset($segments[4])) {
@@ -459,10 +462,10 @@ class EasyDiscussRouter extends EasyDiscuss
 		}
 
 		if (isset($segments[0]) && $segments[0] == 'tags') {
-			$count	= count($segments);
+			$count = count($segments);
 
 			if ($count > 1) {
-				$segments = DiscussRouter::encodeSegments($segments);
+				$segments = EDR::encodeSegments($segments);
 
 				$vars['id'] = EDR::decodeAlias($segments[ 1 ], 'Tags');
 
@@ -484,37 +487,34 @@ class EasyDiscussRouter extends EasyDiscuss
 			$count	= count($segments);
 
 			if ($count > 1) {
-				$segments	= DiscussRouter::encodeSegments($segments);
+				$segments = EDR::encodeSegments($segments);
 
 				if ($segments[1] == 'edit') {
 					$vars['layout'] = 'edit';
 				} else {
-					$user	= 0;
-					// $id		= DiscussHelper::getUserId($segments[1]);
+					$user = 0;
 					$id = 0;
 
 					if ($config->get('main_sef_unicode')) {
-						// var_dump($segments[1], $id);exit;
 						$id = EDR::decodeAlias($segments[1], 'Profile');
 					}
 
-					if (! $id) {
+					if (!$id) {
 						if ($config->get('main_sef_user') == 'realname' || $config->get('main_sef_user') == 'username') {
 
-							$id 	= explode('-', $segments[1]);
-							$id 	= $id[0];
+							$id = explode('-', $segments[1]);
+							$id = $id[0];
 						}
 
 						// Username might contains "-" character
 						if ($id) {
-							$user	= JFactory::getUser($id);
+							$user = JFactory::getUser($id);
 						}
 
 						if (!$user) {
-
-							$segments[1] = JString::str_ireplace( '-' , ' ' , $segments[1] );
-							$id	= DiscussHelper::getUserId( $segments[1] );
-							$user = JFactory::getUser( $id );
+							$segments[1] = JString::str_ireplace('-', ' ', $segments[1]);
+							$id	= ED::getUserId($segments[1]);
+							$user = JFactory::getUser($id);
 						}
 
 						$id = $user->id;
@@ -532,39 +532,39 @@ class EasyDiscussRouter extends EasyDiscuss
 		}
 
 		if (isset($segments[0]) && $segments[0] == 'users') {
-			$count	= count($segments);
+			$count = count($segments);
 
 			if ($count > 1) {
-                $vars['sort'] = $segments[ 1 ];
+                $vars['sort'] = $segments[1];
 			}
 
 			$vars['view'] = $segments[0];
 		}
 
 		if (isset($segments[0]) && $segments[0] == 'badges') {
-			$count	= count($segments);
+			$count = count($segments);
 
 			if ($count > 1) {
 				if ($segments[1] == 'mybadges') {
 					$vars['layout'] = 'mybadges';
 				} else {
-					$segments		= DiscussRouter::encodeSegments($segments);
+					$segments = EDR::encodeSegments($segments);
 
 					$vars['id'] = EDR::decodeAlias($segments[1], 'Badges');
 					$vars['layout'] = 'listings';
 				}
 			}
-			$vars['view']	= $segments[0];
+			$vars['view'] = $segments[0];
 		}
 
 		if (isset($segments[0]) && $segments[0] == 'ask') {
-			$vars['view']	= $segments[0];
+			$vars['view'] = $segments[0];
 
 			// in ED 4.0, we no longer translate category
 		}
 
 		if (isset($segments[0]) && $segments[0] == 'search') {
-			$vars['view']	= $segments[0];
+			$vars['view'] = $segments[0];
 
 			if (isset($segments[1])) {
 				$vars['query'] = $segments[1];
@@ -573,7 +573,7 @@ class EasyDiscussRouter extends EasyDiscuss
 		}
 
 		if (isset($segments[0]) && $segments[0] == 'mypost') {
-			$vars['view']	= $segments[0];
+			$vars['view'] = $segments[0];
 
 			if (isset($segments[1])) {
 				$vars['query'] = $segments[1];
@@ -614,7 +614,10 @@ class EasyDiscussRouter extends EasyDiscuss
 		unset( $segments );
 		return $vars;
 	}
+
 }
+
+
 
 
 /**

@@ -400,7 +400,8 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_posts' ) . ' '
 				. 'WHERE ' . $db->nameQuote( 'category_id' ) . ' IN (' . implode( ',' , $allowedCategories ) . ') '
 				. 'AND ' . $db->nameQuote( 'parent_id' ) . '=' . $db->Quote( 0 ) . ' '
-				. 'AND ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( DISCUSS_ID_PUBLISHED );
+				. 'AND ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( DISCUSS_ID_PUBLISHED )
+				. 'AND ' . $db->nameQuote('cluster_id') . '=' . $db->Quote(0);
 		$db->setQuery($query);
 
 		$count 	= $db->loadResult();
@@ -563,11 +564,17 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 		}
 
 		// If user didn't set any groups, we should set everything to be enabled by default.
+		// and for moderate, we only want to assign to super user.
 		foreach ($rules as $rule) {
 
 			$groups = ED::getJoomlaUserGroups();
 
 			foreach ($groups as $group) {
+
+				// we only want to assign moderation to super admin group.
+				if ($rule->action == 'moderate' && $group->id != '8') {
+					continue;
+				}
 
 				$table = ED::table('CategoryAclMap');
 				$table->category_id = $categoryId;
@@ -1117,6 +1124,6 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 			$model->getTotalViewableChilds($category->id, $count);
 		}
 
-		return $count;	
+		return $count;
     }
 }

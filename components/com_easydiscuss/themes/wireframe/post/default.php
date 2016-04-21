@@ -47,34 +47,41 @@ defined('_JEXEC') or die('Unauthorized Access');
 
         <div class="ed-post-item__hd">
 
-            <div class="o-row">
-                <div class="o-col">
+            <div class="o-grid o-grid--center">
+                <div class="o-grid__cell">
                     <h2 class="ed-post-item__title t-lg-mb--md">
-                        <span class="o-label o-label--success-o ed-state-resolved"><?php echo JText::_('COM_EASYDISCUSS_RESOLVED');?></span>
 
                         <?php if ($this->config->get('post_priority') && $post->getPriority()) { ?>
-                        <i class="fa fa-file"
+                        <i class="fa fa-file t-lg-mr--sm"
                             style="<?php echo $post->getPriority() ? 'color:' . $post->getPriority()->color : '';?>"
                             data-ed-provide="tooltip"
                             data-original-title="<?php echo JText::_($post->getPriority()->title);?>"
                         ></i>
                         <?php } ?>
 
-                        <a href="<?php echo $post->getPermalink();?>"><?php echo $post->getTitle();?></a>
+                        <a href="<?php echo $post->getPermalink();?>">
+                            <div class="ed-post-item__status">
+                                <i class="fa fa-star ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_FEATURED_DESC');?>"></i>
+
+                                <i class="fa fa-lock ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_LOCKED_DESC');?>"></i>
+
+                                <i class="fa fa-key ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_PROTECTED_DESC');?>"></i>
+
+                                <i class="fa fa-eye ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_PRIVATE_DESC');?>"></i>
+                            </div>
+
+                            <span class="o-label o-label--success-o ed-state-resolved"><?php echo JText::_('COM_EASYDISCUSS_RESOLVED');?></span>
+
+                            <?php echo $post->getTitle();?>
+                        </a>
                     </h2>
 
-                    <div class="ed-post-item__status pull-left t-lg-mr--md">
-                        <i class="fa fa-star ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_FEATURED_DESC');?>"></i>
+                    <?php if ($post->hasStatus() || $post->getPostType()) { ?>
 
-                        <i class="fa fa-lock ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_LOCKED_DESC');?>"></i>
+                        <ol class="g-list-inline ed-post-item__post-meta t-mt--sm">
+                            <?php //if ($post->isResolved()) { ?>
 
-                        <i class="fa fa-key ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_PROTECTED_DESC');?>"></i>
-
-                        <i class="fa fa-eye ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_PRIVATE_DESC');?>"></i>
-                    </div>
-
-                    <div class="t-mt--sm">
-                        <ol class="g-list-inline ed-post-item__post-meta">
+                            <?php //} ?>
                             <?php if ($post->hasStatus()) { ?>
                             <li><span class="o-label o-label--info-o">
                                 <!-- post status here: accepted, onhold, working rejected -->
@@ -97,13 +104,15 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <?php if ($post->getPostType()) { ?>
                                 <li><span class="o-label o-label--clean-o <?php echo $post->getTypeSuffix(); ?>"><?php echo $post->getPostType(); ?></span></li>
                             <?php } ?>
-                            
+
                         </ol>
-                    </div>
+                    <?php } ?>
                 </div>
 
                 <?php if ($this->config->get('main_allowquestionvote') && $this->acl->allowed('vote_discussion')) { ?>
+                <div class="o-grid__cell o-grid__cell--auto-size">
                     <?php echo $this->output('site/post/default.vote', array('post' => $post)); ?>
+                </div>
                 <?php } ?>
 
             </div>
@@ -270,7 +279,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
         <?php if ($replies && $pagination) { ?>
             <div class="ed-pagination">
-                <?php echo $pagination->getPagesLinks();?>
+                <?php echo $pagination->getPagesLinks('post', array('id' => $post->id), true);?>
             </div>
         <?php } ?>
 

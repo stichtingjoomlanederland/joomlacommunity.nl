@@ -54,16 +54,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 		        	<div data-progress-status style="overflow:auto; height:98%;max-height: 300px;"></div>
 				</div>
 			</div>
-
-			<div class="panel">
-				<div class="panel-head">
-	        		<b><?php echo JText::_('COM_EASYDISCUSS_MIGRATOR_STATISTIC');?></b>
-	        	</div>
-
-	        	<div class="panel-body">
-	        		<div data-progress-stat style="overflow:auto; height:98%;"></div>
-	        	</div>
-			</div>
 		</div>
 	</div>
 

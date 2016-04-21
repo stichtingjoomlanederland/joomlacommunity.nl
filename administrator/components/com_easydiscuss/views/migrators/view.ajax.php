@@ -1,9 +1,9 @@
 <?php
 /**
-* @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
-* @license		GNU/GPL, see LICENSE.php
-* EasyDiscuss is free software. This version may have been modified pursuant
+* @package      EasyDiscuss
+* @copyright    Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
+* Komento is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -12,7 +12,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 require_once DISCUSS_ADMIN_ROOT . '/views/views.php';
-jimport( 'joomla.utilities.utility' );
+jimport('joomla.utilities.utility');
 
 class EasyDiscussViewMigrators extends EasyDiscussAdminView
 {
@@ -52,53 +52,20 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 				$migrator->migrate($prefix);
 
 		        break;
-		 //    case 'com_lyftenbloggie':
-		 //    	//migrate lyftenbloggie tags
-		 //    	$migrateComment	= isset($post['lyften_comment']) ? $post['lyften_comment'] : '0';
 
-			// 	$this->_migrateLyftenTags();
-		 //        $this->_processLyftenBloggie( $migrateComment );
-		 //        break;
-		 //    case 'com_wordpress':
-
-			// 	$wpBlogId	= $this->input->get('blogId', '', 'int');
-
-			// 	$migrator = EB::migrator()->getAdapter('wordpress');
-		 //        $migrator->migrate( $wpBlogId );
-		 //        break;
-
-		 //    case 'xml_blogger':
-		 //    	$fileName 	= $this->input->get('xmlFile', '', 'string');
-		 //    	$authorId 	= $this->input->get('authorId', '', 'int');
-		 //    	$categoryId 	= $this->input->get('categoryId', '', 'int');
-
-		 //    	$migrator = EB::migrator()->getAdapter('blogger_xml');
-
-		 //    	$migrator->migrate( $fileName, $authorId, $categoryId );
-			// 	break;
-
-			// case 'com_k2':
-		 //    	$migrateComment	= $this->input->get('migrateComment', '', 'bool');
-		 //    	$migrateAll		= $this->input->get('migrateAll', '', 'bool');
-		 //    	$catId	= $this->input->get('categoryId', 0, 'int');
-
-		 //    	$migrator = EB::migrator()->getAdapter('k2');
-		 //    	$migrator->migrate($migrateComment, $migrateAll, $catId);
-
-			// 	break;
-
-			// case 'com_zoo':
-		 //    	$applicationId 	= $this->input->get('applicationId', '', 'int');
-
-		 //    	$migrator = EB::migrator()->getAdapter('zoo');
-		 //    	$migrator->migrate($applicationId);
-			// 	break;
-
-		 //    default:
-		 //        break;
+		    default:
+		        break;
 		}
 	}
 
+	/**
+     * Check whether the vBulletin prefix exist
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
 	public function checkPrefix()
 	{
 		$db = ED::db();
@@ -119,6 +86,13 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 
 		$this->ajax->resolve($prefix);
 	}
+
+
+
+
+
+
+
 
 	public function communitypolls()
 	{
@@ -463,88 +437,7 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 		return $categories;
 	}
 
-	public function jomsocialgroups()
-	{
-		$ajax		= new Disjax();
 
-		$groups 	= $this->getJomSocialGroups();
-
-		// @task: Add some logging
-		$this->log( $ajax , JText::sprintf( 'COM_EASYDISCUSS_MIGRATORS_JOMSOCIAL_TOTAL_GROUPS' , count( $groups ) ) , 'jomsocialgroups' );
-
-
-		$json	= new Services_JSON();
-		$items	= array();
-
-		foreach( $groups as $group )
-		{
-			$items[]	= $group->id;
-		}
-
-		$data	= $json->encode( $items );
-
-		// @task: Start migration process, passing back to the AJAX methods
-		$ajax->script( 'runMigrationCategory("jomsocialgroups", ' . $data . ');' );
-
-		return $ajax->send();
-	}
-
-	public function getJomSocialGroups()
-	{
-		$db 	= DiscussHelper::getDBO();
-		$query	= 'SELECT * FROM ' . $db->nameQuote( '#__community_groups' );
-		$db->setQuery( $query );
-		$result 	= $db->loadObjectList();
-
-		return $result;
-	}
-
-	public function showMigrationButton( &$ajax )
-	{
-		$ajax->script( 'EasyDiscuss.$(".migrator-button").show();' );
-	}
-
-	public function jomsocialgroupsCategoryItem( $current , $groups )
-	{
-		$ajax	= new Disjax();
-
-		$group 		= $this->getJomSocialGroup( $current );
-
-		// @task: Skip the category if it has already been migrated.
-		if( $this->migrated( 'com_community' , $current , 'groups') && $groups != 'done' )
-		{
-			$data	= $this->json_encode( $groups );
-			$this->log( $ajax , JText::sprintf( 'COM_EASYDISCUSS_MIGRATORS_JOMSOCIAL_GROUP_MIGRATED_SKIPPING' , $group->name ) , 'jomsocialgroups' );
-			$ajax->script( 'runMigrationCategory("jomsocialgroups" , ' . $data . ');' );
-			return $ajax->send();
-		}
-
-		// @task: Create the category
-		$category	= DiscussHelper::getTable( 'Category' );
-		$this->mapJomsocialCategory( $group , $category );
-		$this->log( $ajax , JText::sprintf( 'COM_EASYDISCUSS_MIGRATORS_JOMSOCIAL_GROUP_MIGRATED' , $group->name ) , 'jomsocialgroups' );
-
-		$data	= $this->json_encode( $groups );
-
-		// @task: If categories is no longer an array, then it most likely means that there's nothing more to process.
-		if( $groups == 'done' )
-		{
-			$this->log( $ajax , JText::_( 'COM_EASYDISCUSS_MIGRATORS_CATEGORY_MIGRATION_COMPLETED' ) , 'jomsocialgroups' );
-
-			$posts		= $this->getJomsocialPostsIds();
-			$data		= $this->json_encode( $posts );
-
-			$this->log( $ajax , JText::sprintf( 'COM_EASYDISCUSS_MIGRATORS_JOMSOCIAL_TOTAL_DISCUSSIONS' , count( $posts ) ) , 'jomsocialgroups' );
-
-			// @task: Run migration for post items.
-			$ajax->script( 'runMigrationItem("jomsocialgroups" , ' . $data . ');' );
-			return $ajax->send();
-		}
-
-		$ajax->script( 'runMigrationCategory("jomsocialgroups" , ' . $data . ');' );
-
-		$ajax->send();
-	}
 
 	public function communitypollsCategoryItem()
 	{
@@ -590,47 +483,6 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 
 
 
-
-	public function jomsocialgroupsPostItem( $current , $items )
-	{
-		$ajax	= new Disjax();
-
-		// @task: Map main discussion from group with EasyDiscuss
-		$discussion	= $this->getJomsocialPost( $current );
-		$item		= DiscussHelper::getTable( 'Post' );
-
-		// @task: Skip the category if it has already been migrated.
-		if( $this->migrated( 'com_community' , $current , 'discussions') && $items != 'done' )
-		{
-			$data	= $this->json_encode( $items );
-			$this->log( $ajax , JText::sprintf( 'COM_EASYDISCUSS_MIGRATORS_POST_MIGRATED_SKIPPING' , $discussion->title ) , 'jomsocialgroups' );
-			$ajax->script( 'runMigrationItem("jomsocialgroups" , ' . $data . ');' );
-			return $ajax->send();
-		}
-
-
-		$this->log( $ajax , JText::sprintf( 'COM_EASYDISCUSS_MIGRATORS_POST_MIGRATED' , $discussion->title ) , 'jomsocialgroups' );
-		$this->mapJomsocialItem( $discussion , $item );
-
-		// @task: Once the post is migrated successfully, we'll need to migrate the child items.
-		$this->log( $ajax , JText::sprintf( 'COM_EASYDISCUSS_MIGRATORS_POST_REPLIES_MIGRATED' , $discussion->title ) , 'jomsocialgroups' );
-		$this->mapJomsocialItemChilds( $discussion , $item );
-
-
-		// @task: If categories is no longer an array, then it most likely means that there's nothing more to process.
-		if( !is_array( $items ) )
-		{
-			$this->log( $ajax , JText::_( 'COM_EASYDISCUSS_MIGRATORS_MIGRATION_COMPLETED' ) , 'jomsocialgroups' );
-			$this->showMigrationButton( $ajax );
-			return $ajax->send();
-		}
-
-		$data	= $this->json_encode( $items );
-
-		$ajax->script( 'runMigrationItem("jomsocialgroups" , ' . $data . ');' );
-
-		$ajax->send();
-	}
 
 	public function communitypollsPostItem()
 	{
@@ -763,26 +615,6 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 
 
 	
-
-
-
-	private function mapJomsocialItemChilds( $discussion , &$parent )
-	{
-		$items	= $this->getJomSocialPosts( $discussion );
-
-		if( !$items )
-		{
-			return false;
-		}
-
-		foreach( $items as $discussChildItem )
-		{
-			$item	= DiscussHelper::getTable( 'Post' );
-			$this->mapJomsocialItem( $discussChildItem , $item , $parent );
-		}
-	}
-
-
 	private function getCPNewCategory( $cpItem )
 	{
 		$db		= DiscussHelper::getDBO();
@@ -791,21 +623,6 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 				. 'WHERE ' . $db->nameQuote( 'external_id' ) . ' = ' . $db->Quote( $cpItem->category ) . ' '
 				. 'AND ' . $db->nameQuote( 'type' ) . ' = ' . $db->Quote( 'category' ) . ' '
 				. 'AND ' . $db->nameQuote( 'component' ) . ' = ' . $db->Quote( 'com_communitypolls' );
-
-		$db->setQuery( $query );
-		$categoryId	= $db->loadResult();
-
-		return $categoryId;
-	}
-
-	private function getJomsocialNewCategory( $discussion )
-	{
-		$db		= DiscussHelper::getDBO();
-		$query	= 'SELECT ' . $db->nameQuote( 'internal_id' ) . ' '
-				. 'FROM ' . $db->nameQuote( '#__discuss_migrators' ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'external_id' ) . ' = ' . $db->Quote( $discussion->groupid ) . ' '
-				. 'AND ' . $db->nameQuote( 'type' ) . ' = ' . $db->Quote( 'groups' ) . ' '
-				. 'AND ' . $db->nameQuote( 'component' ) . ' = ' . $db->Quote( 'com_community' );
 
 		$db->setQuery( $query );
 		$categoryId	= $db->loadResult();
@@ -825,19 +642,6 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 		return $db->loadObjectList();
 	}
 
-	private function getKunenaPostsIds()
-	{
-		$db		= DiscussHelper::getDBO();
-
-		$query	= 'SELECT a.`id` FROM ' . $db->nameQuote( '#__kunena_messages' ) . ' as a'
-				. ' inner join `#__kunena_topics` as t on a.`thread` = t.`id` and a.`id` = t.`first_post_id`'
-				. ' where not exists ( select b.`external_id` from `#__discuss_migrators` as b where a.`id` = b.`external_id` and b.`component` = ' . $db->Quote( 'com_kunena' ) . ' and b.`type` = ' . $db->Quote( 'post') . ')';
-
-		$db->setQuery( $query );
-
-		return $db->loadResultArray();
-	}
-
 	private function getCPPostsIds()
 	{
 		$db		= DiscussHelper::getDBO();
@@ -846,28 +650,6 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 		return $db->loadResultArray();
 	}
 
-	private function getJomsocialPostsIds()
-	{
-		$db		= DiscussHelper::getDBO();
-		$query	= 'SELECT `id` FROM ' . $db->nameQuote( '#__community_groups_discuss' ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'parentid' ) . '=' . $db->Quote( 0 );
-		$db->setQuery( $query );
-		return $db->loadResultArray();
-	}
-
-	private function getKunenaPost( $id )
-	{
-		$db		= DiscussHelper::getDBO();
-		$query	= 'SELECT a.*, b.`hits` as `threadhits`, b.`last_post_time` as `threadlastreplied`, b.`subject` as `threadsubject` FROM ' . $db->nameQuote( '#__kunena_messages' ) . ' as a'
-				. ' LEFT JOIN ' . $db->nameQuote( '#__kunena_topics' ) . ' as b'
-				. ' on a.`thread` = b.`id`'
-				. ' WHERE a.' . $db->nameQuote( 'id' ) . '=' . $db->Quote( $id );
-
-		$db->setQuery( $query );
-		$item	= $db->loadObject();
-
-		return $item;
-	}
 
 	private function getCPPost( $id )
 	{
@@ -891,50 +673,6 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 		return $item;
 	}
 
-	private function getJomsocialPost( $id )
-	{
-		$db		= DiscussHelper::getDBO();
-		$query	= 'SELECT * FROM ' . $db->nameQuote( '#__community_groups_discuss' ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'id' ) . '=' . $db->Quote( $id );
-		$db->setQuery( $query );
-		$item	= $db->loadObject();
-
-		return $item;
-	}
-
-	private function getJomsocialPosts( $discussion = null , $category = null )
-	{
-		$db		= DiscussHelper::getDBO();
-		$query	= 'SELECT * FROM ' . $db->nameQuote( '#__community_wall' );
-
-		$query	.= ' WHERE ' . $db->nameQuote( 'contentid' ) . ' = ' . $db->Quote( $discussion->id );
-		$query	.= ' AND ' . $db->nameQuote( 'type' ) . '=' . $db->Quote( 'discussions' );
-
-
-		$db->setQuery( $query );
-
-		$result	= $db->loadObjectList();
-
-		if( !$result )
-		{
-			return false;
-		}
-
-		return $result;
-	}
-
-
-
-	private function getJomSocialGroup( $id )
-	{
-		require_once JPATH_ROOT . '/components/com_community/libraries/core.php';
-
-		JTable::addIncludePath( JPATH_ROOT . '/components/com_community/tables' );
-		$group 	= JTable::getInstance( 'Group' , 'CTable' );
-		$group->load( $id );
-
-		return $group;
-	}
 
 	private function getCPCategory( $id )
 	{
@@ -990,366 +728,6 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 		return $result;
 	}
 
-	public function vBulletin()
-	{
-		$ajax		= new Disjax();
-
-		// @task: Get list of categories from vBulletin first.
-		$categories	= $this->getVBulletinCategories();
-
-		// @task: Add some logging
-		$this->log( $ajax , JText::sprintf( 'COM_EASYDISCUSS_MIGRATORS_VBULLETIN_TOTAL_CATEGORIES' , count( $categories ) ) , 'vBulletin' );
-
-		$json	= new Services_JSON();
-		$items	= array();
-
-
-		if( $categories )
-		{
-			foreach( $categories as $category )
-			{
-				$items[]	= $category->forumid;
-			}
-		}
-
-		$data	= $json->encode( $items );
-		// @task: Start migration process, passing back to the AJAX methods
-		// goto this function vBulletinCategoryItem()
-		$ajax->script( 'runMigrationCategory("vBulletin", ' . $data . ');' );
-		return $ajax->send();
-	}
-
-
-	/*
-	 * Get parent categories
-	 */
-	public function getVBulletinCategories()
-	{
-		// Need to change the prefix
-		$db		= DiscussHelper::getDBO();
-		$prefix = DiscussHelper::getConfig()->get( 'migrator_vBulletin_prefix' );
-
-		$query	= 'SELECT `forumid` FROM ' . $db->nameQuote( $prefix . 'forum' )
-				. ' where `parentid` <= ' . $db->Quote( '0' )
-				. ' ORDER BY ' . $db->nameQuote( 'displayorder' ) . ' ASC';
-		$db->setQuery( $query );
-		$result	= $db->loadObjectList();
-
-		if( !$result )
-		{
-			return false;
-		}
-
-		return $result;
-	}
-
-	public function vBulletinCategoryItem( $current = "" , $categories = "" )
-	{
-		$ajax		= new Disjax();
-		$vCategory	= $this->getVBulletinCategory( $current );
-
-
-		// @task: If categories is no longer an array, then it most likely means that there's nothing more to process.
-		if( $current == 'done' )
-		{
-			$this->log( $ajax , JText::_( 'COM_EASYDISCUSS_MIGRATORS_CATEGORY_MIGRATION_COMPLETED' ) , 'vBulletin' );
-
-			// Get all posts
-			$posts		= $this->getVBulletinPostsIds( true );
-
-			// total number of posts
-			$data		= $this->json_encode( $posts );
-
-			$this->log( $ajax , JText::sprintf( 'COM_EASYDISCUSS_MIGRATORS_VBULLETIN_TOTAL_POSTS' , $posts ) , 'vBulletin' );
-
-			// @task: Run migration for post items.
-			$ajax->script( 'runMigrationItem("vBulletin" , ' . $data . ');' );
-			return $ajax->send();
-		}
-
-		// perform some clean up here.
-		$vCategory->title = strip_tags( $vCategory->title );
-
-		// @task: Skip the category if it has already been migrated.
-		if( $this->migrated( 'vBulletin' , $current , 'category') )
-		{
-			$data	= $this->json_encode( $categories );
-			$this->log( $ajax , JText::sprintf( 'COM_EASYDISCUSS_MIGRATORS_VBULLETIN_CATEGORY_MIGRATED_SKIPPING' , $vCategory->title ) , 'vBulletin' );
-			$ajax->script( 'runMigrationCategory("vBulletin" , ' . $data . ');' );
-			return $ajax->send();
-		}
-
-		// @task: Create the category
-		$category	= DiscussHelper::getTable( 'Category' );
-		$this->mapVBulletinCategory( $vCategory , $category );
-
-
-		// process childs categories here.
-		$this->processVBulletinCategoryTree( $vCategory, $category );
-
-
-		$this->log( $ajax , JText::sprintf( 'COM_EASYDISCUSS_MIGRATORS_VBULLETIN_CATEGORY_MIGRATED' , $vCategory->title ) , 'vBulletin' );
-
-		$data	= $this->json_encode( $categories );
-		$ajax->script( 'runMigrationCategory("vBulletin" , ' . $data . ');' );
-		$ajax->send();
-	}
-
-
-	private function processVBulletinCategoryTree( $vCategory, $category )
-	{
-		$ajax	= new Disjax();
-
-		$db = DiscussHelper::getDBO();
-		$prefix = DiscussHelper::getConfig()->get( 'migrator_vBulletin_prefix' );
-
-
-		$query	= 'SELECT * FROM ' . $db->nameQuote( $prefix . 'forum' ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'parentid' ) . '=' . $db->Quote( $vCategory->forumid )
-				. ' ORDER BY ' . $db->nameQuote( 'displayorder' ) . ' ASC';
-
-		$db->setQuery( $query );
-
-		$db->setQuery( $query );
-		$result	= $db->loadObjectList();
-
-		if( $result )
-		{
-			foreach( $result as $vItemCat )
-			{
-				$subcategory	= DiscussHelper::getTable( 'Category' );
-
-				$migratedId = $this->migrated( 'vBulletin' , $vItemCat->forumid , 'category');
-
-				if( ! $migratedId )
-				{
-					$this->mapVBulletinCategory( $vItemCat, $subcategory, $category->id );
-					//$this->log( $ajax , JText::sprintf( 'COM_EASYDISCUSS_MIGRATORS_KUNENA_CATEGORY_MIGRATED' , $kItemCat->name ) , 'kunena' );
-				}
-				else
-				{
-					$subcategory->load( $migratedId );
-				}
-
-				$this->processVBulletinCategoryTree( $vItemCat, $subcategory );
-			}
-		}
-		else
-		{
-			return false;
-		}
-
-	}
-
-	public function getVBulletinCategory( $id )
-	{
-		$db		= DiscussHelper::getDBO();
-		$prefix = DiscussHelper::getConfig()->get( 'migrator_vBulletin_prefix' );
-
-		$query	= 'SELECT * FROM ' . $db->nameQuote( $prefix . 'forum' ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'forumid' ) . '=' . $db->Quote( $id );
-		$db->setQuery( $query );
-
-		return $db->loadObject();
-	}
-
-	private function mapVBulletinCategory( $vCategory , &$category, $parentId = 0 )
-	{
-		$parentId = ( $parentId ) ? $parentId : 0;
-
-		// @task: Since vBulletin does not store the creator of the category, we'll need to assign a default owner.
-		$category->set( 'created_by'	, DiscussHelper::getDefaultSAIds() );
-		$category->set( 'title'			, strip_tags( $vCategory->title ) );
-		$category->set( 'description'	, $vCategory->description );
-		$category->set( 'published'		, 1 );
-		$category->set( 'parent_id'		, $parentId );
-
-		// @TODO: Detect if it has a parent id and migrate according to the category tree.
-		$category->store( true );
-
-		$this->added( 'vBulletin' , $category->id , $vCategory->forumid , 'category' );
-	}
-
-
-	private function getVBulletinPostsIds( $countOnly = false )
-	{
-		// Get the posts
-		$db		= DiscussHelper::getDBO();
-		$prefix = DiscussHelper::getConfig()->get( 'migrator_vBulletin_prefix' );
-
-
-		// $query	= 'SELECT a.`postid` FROM ' . $db->nameQuote( $prefix . 'post' ) . ' as a'
-		// 		. ' where not exists ( select b.`external_id` from `#__discuss_migrators` as b where a.`postid` = b.`external_id` and b.`component` = ' . $db->Quote( 'vBulletin' ) . ' and b.`type` = ' . $db->Quote( 'post') . ')'
-		// 		. ' and a.`parentid` = ' . $db->Quote( '0' );
-
-		$query	= 'SELECT ';
-		if ($countOnly) {
-			$query .= ' count(1)';
-		} else {
-			$query .= ' a.`postid`';
-		}
-		$query .= ' FROM ' . $db->nameQuote( $prefix . 'post' ) . ' as a';
-		$query .= ' inner join ' . $db->nameQuote( $prefix . 'thread' ) . ' as t on a.`postid` = t.`firstpostid`';
-		$query .= ' where not exists ( select b.`external_id` from `#__discuss_migrators` as b where a.`postid` = b.`external_id` and b.`component` = ' . $db->Quote( 'vBulletin' ) . ' and b.`type` = ' . $db->Quote( 'post') . ')';
-
-		if (! $countOnly) {
-			$query .= ' limit 25';
-		}
-
-		$db->setQuery( $query );
-		$result = $countOnly ? $db->loadResult() : $db->loadResultArray();
-		// $result = array();
-
-		return $result;
-	}
-
-	public function vBulletinPostItem( $total )
-	{
-		$ajax	= new Disjax();
-
-		// @task: If categories is no longer an array, then it most likely means that there's nothing more to process.
-		if( $total == 'done' )
-		{
-			$this->log( $ajax , JText::_( 'COM_EASYDISCUSS_MIGRATORS_MIGRATION_COMPLETED' ) , 'vBulletin' );
-
-			$this->showMigrationButton( $ajax );
-			return $ajax->send();
-		}
-
-		// lets get the thread items
-		$items = $this->getVBulletinPostsIds();
-
-		if (!$items) {
-			// no more items
-			$this->log( $ajax , JText::_( 'COM_EASYDISCUSS_MIGRATORS_MIGRATION_COMPLETED' ) , 'vBulletin' );
-			$this->showMigrationButton( $ajax );
-			return $ajax->send();
-		}
-
-		foreach ($items as $current) {
-
-			// @task: Map vBulletin post item with EasyDiscuss items.
-			$vItem	= $this->getVBulletinPost( $current );
-			$item	= DiscussHelper::getTable( 'Post' );
-
-			$this->log( $ajax , JText::sprintf( 'COM_EASYDISCUSS_MIGRATORS_POST_MIGRATED' , $vItem->postid ) , 'vBulletin' );
-			$this->mapVBulletinItem( $vItem , $item );
-
-			// @task: Once the post is migrated successfully, we'll need to migrate the child items.
-			$this->log( $ajax , JText::sprintf( 'COM_EASYDISCUSS_MIGRATORS_POST_REPLIES_MIGRATED' , $vItem->postid ) , 'vBulletin' );
-			$this->mapVBulletinItemChilds( $vItem , $item );
-		}
-
-		$ajax->script( 'runMigrationItem("vBulletin" , "' . $total . '");' );
-		$ajax->send();
-	}
-
-	private function getVBulletinPostOri( $id )
-	{
-		$db		= DiscussHelper::getDBO();
-		$prefix = DiscussHelper::getConfig()->get( 'migrator_vBulletin_prefix' );
-
-		$query	= 'SELECT * FROM ' . $db->nameQuote( $prefix . 'post' ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'postid' ) . '=' . $db->Quote( $id );
-		$db->setQuery( $query );
-		$item	= $db->loadObject();
-
-		// Get the post's category id here
-		$query = 'SELECT * FROM ' . $db->nameQuote( $prefix . 'thread' )
-				. ' WHERE ' . $db->nameQuote( 'threadid' ) . '=' . $db->quote( $item->threadid );
-
-		$db->setQuery( $query );
-		$thread = $db->loadObject();
-
-
-		$item->catid = $thread->forumid;
-		$item->hits  = $thread->views;
-		$item->created  = $thread->dateline;
-		$item->replied  = $thread->lastpost;
-
-		return $item;
-	}
-
-	private function getVBulletinPost( $id )
-	{
-		$db		= DiscussHelper::getDBO();
-		$prefix = DiscussHelper::getConfig()->get( 'migrator_vBulletin_prefix' );
-
-		$query = 'select a.*, b.`forumid`, b.`views`, b.`dateline`, b.`lastpost` ';
-		$query .= ' from ' . $db->nameQuote( $prefix . 'post' ) . ' as a';
-		$query .= ' left join ' . $db->nameQuote( $prefix . 'thread' )  . ' as b';
-		$query .= ' 	on a.`threadid` = b.`threadid`';
-		$query .= ' where a.`postid` = ' . $db->Quote( $id );
-
-		// echo $query;exit;
-
-		$db->setQuery( $query );
-		$item	= $db->loadObject();
-
-		if( $item )
-		{
-			$item->catid 	= $item->forumid;
-			$item->hits  	= $item->views;
-			$item->created  = $item->dateline;
-			$item->replied  = $item->lastpost;
-		}
-
-		return $item;
-	}
-
-	private function mapVBulletinItem( $vItem , &$item , &$parent = null )
-	{
-		$config = DiscussHelper::getConfig();
-
-		$userColumn 		= 'username';
-		$user 				= null;
-
-		if( $vItem->{$userColumn} )
-		{
-			$user 	= $this->getDiscussUser( $vItem->{$userColumn} );
-		}
-
-		$item->set( 'content'		, $vItem->pagetext );
-		$item->set( 'title' 		, $vItem->title );
-		$item->set( 'category_id' 	, $this->getDiscussCategory( $vItem ) );
-		$item->set( 'hits'			, $vItem->hits );
-		$item->set( 'content_type'	, 'bbcode');
-		$item->set( 'created'	 	, DiscussHelper::getDate( $vItem->created )->toMySQL() );
-		$item->set( 'modified' 		, DiscussHelper::getDate( $vItem->created )->toMySQL() );
-		$item->set( 'replied' 		, DiscussHelper::getDate( $vItem->replied )->toMySQL() );
-		$item->set( 'parent_id'		, 0 );
-
-		// @task: If this is a child post, we definitely have the item's id.
-		if( $parent )
-		{
-			$item->set( 'parent_id'	, $parent->id );
-		}
-
-		$item->set( 'islock'		, 0 );
-		$item->set( 'published'		, DISCUSS_ID_PUBLISHED );
-		$item->set( 'ip'			, $vItem->ipaddress );
-
-		if( empty( $vItem->{$userColumn} ) || empty( $user ) )
-		{
-			$item->set( 'user_id'		, '0' );
-			$item->set( 'user_type' 	, DISCUSS_POSTER_GUEST );
-			$postername = $vItem->username ? $vItem->username : 'guest';
-			$item->set( 'poster_name'	, $postername );
-			$item->set( 'poster_email'	, '' );
-		}
-		else
-		{
-			$item->set( 'user_id'		, $user->id );
-			$item->set( 'user_type' 	, DISCUSS_POSTER_MEMBER );
-			$item->set( 'poster_name'	, $user->name );
-			$item->set( 'poster_email'	, $user->email );
-		}
-
-		$item->store();
-
-		$this->added( 'vBulletin' , $item->id , $vItem->postid , 'post' );
-	}
-
 	private function getDiscussCategory( $vItem )
 	{
 		static $cache = array();
@@ -1391,68 +769,6 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 		return $result;
 	}
 
-	private function mapVBulletinItemChilds( $vItem , &$parent )
-	{
-		$db = DiscussHelper::getDBO();
-		$items	= $this->getVBulletinPosts( $vItem );
-		$prefix = DiscussHelper::getConfig()->get( 'migrator_vBulletin_prefix' );
-
-		if( empty($items) || !$items )
-		{
-			return false;
-		}
-
-		foreach( $items as $vChildItem )
-		{
-			$item	= DiscussHelper::getTable( 'Post' );
-
-			// Get the post's category id here
-			$query = 'SELECT * FROM ' . $db->nameQuote( $prefix . 'thread' )
-					. ' WHERE ' . $db->nameQuote( 'threadid' ) . '=' . $db->quote( $vChildItem->threadid );
-
-			$db->setQuery( $query );
-			$thread = $db->loadObject();
-
-			$vChildItem->catid = $thread->forumid;
-			$vChildItem->hits  = $thread->views;
-			$vChildItem->created  = $vChildItem->dateline;
-			$vChildItem->replied  = $vChildItem->dateline;
-
-			$this->mapVBulletinItem( $vChildItem , $item , $parent );
-		}
-	}
-
-	private function getVBulletinPosts( $vItem = null , $vCategory = null )
-	{
-		$db		= DiscussHelper::getDBO();
-		$prefix = DiscussHelper::getConfig()->get( 'migrator_vBulletin_prefix' );
-
-		// $query	= 'SELECT * FROM ' . $db->nameQuote( $prefix . 'post' );
-		// $query	.= ' WHERE ' . $db->nameQuote( 'threadid' ) . ' = ' . $db->Quote( $vItem->threadid );
-		// $query	.= ' AND ' . $db->nameQuote( 'postid') . '!=' . $db->Quote( $vItem->postid );
-		//
-
-
-		$query	= 'SELECT a.*, b.`forumid` as `catid`, b.`views` as `hits`';
-		$query .= ' FROM ' . $db->nameQuote( $prefix . 'post' ) . ' as a';
-		$query .= ' INNER JOIN ' . $db->nameQuote( $prefix . 'thread' ) . ' as b on a.`threadid` = b.`threadid`';
-		$query .= ' WHERE a.' . $db->nameQuote( 'threadid' ) . ' = ' . $db->Quote( $vItem->threadid );
-		$query .= ' AND a.' . $db->nameQuote( 'postid') . '!=' . $db->Quote( $vItem->postid );
-
-		// $query .= ' limit 10';
-
-		// echo $query;exit;
-
-		$db->setQuery( $query );
-		$result	= $db->loadObjectList();
-
-		if( !$result )
-		{
-			return false;
-		}
-
-		return $result;
-	}
 
 
 }

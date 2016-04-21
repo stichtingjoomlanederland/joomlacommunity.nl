@@ -21,10 +21,16 @@ class EasyDiscussLikes extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function unlike(EasyDiscussPost $post)
 	{
+		// If the post is not published, we shouldn't allow them to like
+		if (!$post->isPublished()) {
+			return false;
+		}
+
+
 		// If the user previously did not like the post, they shouldn't be able to unlike the post
 		$liked = $post->isLikedBy($this->my->id);
 
@@ -33,12 +39,8 @@ class EasyDiscussLikes extends EasyDiscuss
 		}
 
 		// If this is an unlike request, we need to remove it.
-		$this->removeLikes($post->id, $this->my->id);		
-
-		// If the post is not published, we shouldn't allow them to like
-		if (!$post->isPublished()) {
-			return false;
-		}
+		$this->removeLikes($post->id, $this->my->id);
+		$post->updateThread(array('num_likes' => '-1'));
 
 		if ($post->user_id != $this->my->id) {
 			if ($post->isQuestion()) {
@@ -74,7 +76,7 @@ class EasyDiscussLikes extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function like(EasyDiscussPost $post)
 	{
@@ -92,6 +94,7 @@ class EasyDiscussLikes extends EasyDiscuss
 
 		// Add the likes
 		$this->addLikes($post->id, 'post', $this->my->id);
+		$post->updateThread(array('num_likes' => '+1'));
 
 		// Add activity in jomsocial and easysocial
 		if ($post->user_id != $this->my->id) {
@@ -138,7 +141,7 @@ class EasyDiscussLikes extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function button(EasyDiscussPost $post)
 	{
@@ -196,9 +199,9 @@ class EasyDiscussLikes extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
-	private function notifyPostOwner(EasyDiscussPost $post) 
+	private function notifyPostOwner(EasyDiscussPost $post)
 	{
 		// Add notifications to the post owner.
 		if ($post->user_id != $this->my->id) {
@@ -276,7 +279,7 @@ class EasyDiscussLikes extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public static function getLikes($contentId, $userId = null, $type = DISCUSS_ENTITY_TYPE_POST, $preloadedObj = null)
 	{
@@ -312,7 +315,7 @@ class EasyDiscussLikes extends EasyDiscuss
 		if (is_null($userId)) {
 			$userId = JFactory::getUser()->id;
 		}
-		
+
 		if (is_null($preloadedObj)) {
 
 			// Load up the likes model
@@ -345,12 +348,12 @@ class EasyDiscussLikes extends EasyDiscuss
 
 		if ($total == 1) {
 			$break = $total;
-		
+
 		} else {
-			
+
 			if ($max >= $total) {
 				$break = $total - 1;
-			
+
 			} else if($max < $total) {
 				$break = $max;
 			}
@@ -364,12 +367,12 @@ class EasyDiscussLikes extends EasyDiscuss
 
 		if (count($remain) > 1) {
 			$returnString = JText::sprintf('COM_EASYDISCUSS_AND_OTHERS_LIKE_THIS', $stringFront, count($remain));
-		
+
 		} else if(count($remain) == 1) {
 			$returnString = JText::sprintf('COM_EASYDISCUSS_AND_LIKE_THIS', $stringFront, $remain[0]);
-		
+
 		} else {
-			
+
 			if ($list[0]->user_id == $userId) {
 				$returnString = JText::sprintf('COM_EASYDISCUSS_LIKE_THIS', $stringFront);
 			} else {

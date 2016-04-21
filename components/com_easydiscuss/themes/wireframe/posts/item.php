@@ -26,20 +26,23 @@ defined('_JEXEC') or die('Unauthorized Access');
             <div class="o-grid__cell t-lg-pr--lg t-xs-pr--no">
 
                 <h2 class="ed-post-item__title t-lg-mb--md">
-                    <a href="<?php echo $post->getPermalink();?>"><?php echo $post->getTitle();?></a>
 
-                    <?php if ($post->isFeatured() || $post->isLocked() || $post->isProtected() || $post->isPrivate()) { ?>
-                    <div class="ed-post-item__status t-ml--sm">
-                        <i class="fa fa-star ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_FEATURED_DESC');?>"></i>
+                    <a href="<?php echo $post->getPermalink();?>">
+                        <?php if ($post->isFeatured() || $post->isLocked() || $post->isProtected() || $post->isPrivate()) { ?>
+                        <div class="ed-post-item__status pull-left t-lg-mr--md">
+                            <i class="fa fa-star ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_FEATURED_DESC');?>"></i>
 
-                        <i class="fa fa-lock ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_LOCKED_DESC');?>"></i>
+                            <i class="fa fa-lock ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_LOCKED_DESC');?>"></i>
 
-                        <i class="fa fa-key ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_PROTECTED_DESC');?>"></i>
+                            <i class="fa fa-key ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_PROTECTED_DESC');?>"></i>
 
-                        <i class="fa fa-eye ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_PRIVATE_DESC');?>"></i>
+                            <i class="fa fa-eye ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_PRIVATE_DESC');?>"></i>
 
-                    </div>
-                    <?php } ?>
+                        </div>
+                        <?php } ?>
+                        <?php echo $post->getTitle();?>
+                    </a>
+
                 </h2>
 
                 <?php if ($post->isResolved() || $post->isPostRejected() || $post->isPostOnhold() || $post->isPostAccepted() || $post->isPostWorkingOn() || $post->getTypeTitle()) { ?>

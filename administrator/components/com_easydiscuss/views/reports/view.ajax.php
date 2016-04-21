@@ -21,7 +21,7 @@ class EasyDiscussViewReports extends EasyDiscussAdminView
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function preview()
 	{
@@ -30,8 +30,8 @@ class EasyDiscussViewReports extends EasyDiscussAdminView
 		if (!$id) {
 			return $this->ajax->reject();
 		}
-		
-		$url = JURI::root() . 'administrator/index.php?option=com_easydiscuss&view=reports&layout=preview&tmpl=component&id=' . $id;		
+
+		$url = JURI::root() . 'administrator/index.php?option=com_easydiscuss&view=reports&layout=preview&tmpl=component&id=' . $id;
 
 		$theme = ED::themes();
 		$theme->set('url', $url);

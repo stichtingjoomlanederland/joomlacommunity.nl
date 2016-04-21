@@ -260,8 +260,12 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$my = $this->my;
 
 		$query = 'select b.*, a.`has_polls` as `polls_cnt`, a.`num_fav` as `totalFavourites`, a.`num_replies`, a.`num_attachments` as attachments_cnt,';
-		$query	.= ' a.`num_likes` as `likeCnt`, a.`sum_totalvote` as `VotedCnt`,';
-		$query	.=  " a.`replied` as `lastupdate`, a.vote as `total_vote_cnt`,";
+		$query .= ' a.`num_likes` as `likeCnt`, a.`sum_totalvote` as `VotedCnt`,';
+		$query .=  " a.`replied` as `lastupdate`, a.vote as `total_vote_cnt`,";
+
+		// $query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`, ";
+		$query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`, (select cc.anonymous from `#__discuss_posts` as cc where cc.parent_id = a.post_id order by id desc limit 1) as last_user_anonymous,";
+
 
 		$query	.= ' DATEDIFF('. $db->Quote($date->toMySQL()) . ', a.`created`) as `noofdays`, ';
 		$query	.= ' DATEDIFF(' . $db->Quote($date->toMySQL()) . ', a.`created`) as `daydiff`, TIMEDIFF(' . $db->Quote($date->toMySQL()). ', a.`created`) as `timediff`,';
@@ -530,6 +534,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$private = isset($options['private']) ? $options['private'] : null;
 		$includeChilds = isset($options['includeChilds']) ? $options['includeChilds'] : true;
 		$clusterId = isset($options['cluster_id']) ? $options['cluster_id'] : null;
+		$includeCluster = isset($options['includeCluster']) ? $options['includeCluster'] : null;
 		$includeAnonymous = isset($options['includeAnonymous']) ? $options['includeAnonymous'] : true;
 		$respectSearch = isset($options['respectSearch']) ? $options['respectSearch'] : true;
 
@@ -543,6 +548,8 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$query = "select SQL_CALC_FOUND_ROWS b.*, a.`has_polls` as `polls_cnt`, a.`num_fav` as `totalFavourites`, a.`num_replies`, a.`num_attachments` as attachments_cnt,";
 		$query	.= " a.`num_likes` as `likeCnt`, a.`sum_totalvote` as `VotedCnt`,";
 		$query	.=  " a.`replied` as `lastupdate`, a.vote as `total_vote_cnt`,";
+
+		$query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`, (select cc.anonymous from `#__discuss_posts` as cc where cc.parent_id = a.post_id order by id desc limit 1) as last_user_anonymous,";
 
 		$query	.= ' DATEDIFF('. $db->Quote($date->toMySQL()) . ', a.`created`) as `noofdays`, ';
 		$query	.= ' DATEDIFF(' . $db->Quote($date->toMySQL()) . ', a.`created`) as `daydiff`, TIMEDIFF(' . $db->Quote($date->toMySQL()). ', a.`created`) as `timediff`,';
@@ -759,6 +766,11 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		if ($clusterId) {
 			$where[] = "a.`cluster_id` = " . $clusterId;
+			$includeCluster = true;
+		}
+
+		if (!$includeCluster) {
+			$where[] = "a.`cluster_id` = " . $db->Quote(0);
 		}
 
 		if (!$includeAnonymous) {
@@ -1658,7 +1670,6 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		return $result;
 	}
 
-
 	public function getTotalReplies($id)
 	{
 		$db	= ED::db();
@@ -1848,6 +1859,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		{
 			$query .= ' AND t.`featured` = ' . $db->Quote('1');
 		}
+
+		// Do not include cluster item here.
+		$query .= ' AND t.`cluster_id` = ' . $db->Quote(0);
 
 		$orderby = '';
 		switch($sort)

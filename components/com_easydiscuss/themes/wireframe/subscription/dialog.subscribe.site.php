@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <dialog>
     <width>400</width>
-    <height><?php echo (! $this->my->guest) ? '145' : '200'; ?></height>
+    <height><?php echo (! $this->my->guest) ? '175' : '230'; ?></height>
     <selectors type="json">
     {
         "{closeButton}" : "[data-close-button]",
@@ -83,19 +83,19 @@ defined('_JEXEC') or die('Unauthorized Access');
             </div>
             <?php } else {  ?>
             <div class="form-horizontal">
-                <div class="control-group">
-                    <label class="control-label" for="subscribe_email"><?php echo JText::_('COM_EASYDISCUSS_SUBSCRIBE_YOUR_EMAIL');?> : </label>
-                    <div class="controls">
-                        <input type="text" class="form-control" id="subscribe_email" name="subscribe_email" value="" />
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="subscribe_email"><?php echo JText::_('COM_EASYDISCUSS_SUBSCRIBE_YOUR_EMAIL');?> : </label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control input-sm" id="subscribe_email" name="subscribe_email" value="" />
                     </div>
                 </div>
             </div>
 
             <div class="form-horizontal">
-                <div class="control-group">
-                    <label class="control-label" for="subscribe_name"><?php echo JText::_('COM_EASYDISCUSS_NAME');?> : </label>
-                    <div class="controls">
-                        <input type="text" class="form-control" id="subscribe_name" name="subscribe_name" value="" />
+                <div class="form-group">
+                    <label class="col-sm-4 control-label" for="subscribe_name"><?php echo JText::_('COM_EASYDISCUSS_NAME');?> : </label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control input-sm" id="subscribe_name" name="subscribe_name" value="" />
                     </div>
                 </div>
             </div>

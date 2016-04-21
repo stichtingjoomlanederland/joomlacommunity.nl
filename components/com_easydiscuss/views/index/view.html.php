@@ -136,10 +136,10 @@ class EasyDiscussViewIndex extends EasyDiscussView
 			//preload posts
 			ED::post($tmpPostsArr);
 
-			foreach ($tmpPostsArr as $tmpArr) {
-				$authorIds[] = $tmpArr->user_id;
-				$topicIds[] = $tmpArr->id;
-			}
+			// foreach ($tmpPostsArr as $tmpArr) {
+			// 	$authorIds[] = $tmpArr->user_id;
+			// 	$topicIds[] = $tmpArr->id;
+			// }
 		}
 
 		$pagination = $postModel->getPagination();
@@ -150,16 +150,16 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		// $postTagsModel = ED::model( 'PostsTags' );
 		// $postTagsModel->setPostTagsBatch( $topicIds );
 
-		$model = ED::model('Posts');
+		// $model = ED::model('Posts');
 		// $lastReplyUser = $model->setLastReplyBatch( $topicIds );
-		$lastReplyUser = array();
+		// $lastReplyUser = array();
 
-		// Reduce SQL queries by pre-loading all author object.
-		$authorIds = array_merge($lastReplyUser, $authorIds);
-		$authorIds = array_unique($authorIds);
+		// // Reduce SQL queries by pre-loading all author object.
+		// $authorIds = array_merge($lastReplyUser, $authorIds);
+		// $authorIds = array_unique($authorIds);
 
-		//preload users.
-		ED::user($authorIds);
+		// //preload users.
+		// ED::user($authorIds);
 
 		// Format featured entries.
 		$featured = ED::formatPost($featured);

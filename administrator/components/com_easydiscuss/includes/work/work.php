@@ -218,10 +218,17 @@ class EasyDiscussWork extends EasyDiscuss
         	}
         }
 
+        $isEverydayWork = false;
+
         $workDayLabel = '';
         $workExceptionLabel = '';
         if ($workdays) {
             $workDayLabel = $workdays[0] . ' ' . JText::_('COM_EASYDISCUSS_WORK_TO') . ' ' . $workdays[count($workdays)-1];
+
+            if (count($workdays) == 7) {
+                $workDayLabel = JText::_('COM_EASYDISCUSS_WORK_EVERYDAY');
+                $isEverydayWork = true;
+            }
 
             if ($exception) {
                 if (count($exception) > 1) {
@@ -247,6 +254,8 @@ class EasyDiscussWork extends EasyDiscuss
 		$theme->set('isHoliday', $this->isHoliday);
 		$theme->set('isOffday', $this->isOffday);
 		$theme->set('holiday', $this->holidays);
+
+        $theme->set('isEverydayWork', $isEverydayWork);
 
 		$content = $theme->output('site/work/status');
 		echo $content;

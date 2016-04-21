@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Unauthorized Access');
     <div class="popbox-holiday-wrap__note t-lg-mt--md">
         <div class="popbox-holiday-wrap__note-title"><?php echo JText::_('COM_EASYDISCUSS_WORK_OFFICIAL_WORKING_HOURS'); ?></div>
         <div class="popbox-holiday-wrap__note-time">
-            <?php echo $workDayLabel; ?> <?php echo ($workExceptionLabel) ? $workExceptionLabel : ''; ?><br />
+            <?php echo $workDayLabel; ?> <?php echo ($workExceptionLabel) ? $workExceptionLabel : ''; ?><?php echo !$isEverydayWork ? '<br />' : ' '; ?>
             <?php echo $workTimeLabel; ?>
         </div>
     </div>

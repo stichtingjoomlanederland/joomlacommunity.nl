@@ -21,7 +21,7 @@ class EasyDiscussFavourite extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function unfavourite(EasyDiscussPost $post)
 	{
@@ -39,6 +39,7 @@ class EasyDiscussFavourite extends EasyDiscuss
 
 		// Remove the favourite
 		$this->removeFav($post->id, 'post', $this->my->id);
+		$post->updateThread(array('num_fav' => '-1'));
 
 		if ($post->user_id != $this->my->id) {
 			if ($post->isQuestion()) {
@@ -66,7 +67,7 @@ class EasyDiscussFavourite extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function favourite(EasyDiscussPost $post)
 	{
@@ -84,6 +85,7 @@ class EasyDiscussFavourite extends EasyDiscuss
 
 		// Add the favourite
 		$this->addFav($post->id, 'post', $this->my->id);
+		$post->updateThread(array('num_fav' => '+1'));
 
 		// Add activity in jomsocial and easysocial
 		if ($post->user_id != $this->my->id) {
@@ -117,7 +119,7 @@ class EasyDiscussFavourite extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function button(EasyDiscussPost $post)
 	{
@@ -175,9 +177,9 @@ class EasyDiscussFavourite extends EasyDiscuss
 	//  * @since	4.0
 	//  * @access	public
 	//  * @param	string
-	//  * @return	
+	//  * @return
 	//  */
-	// private function notifyPostOwner(EasyDiscussPost $post) 
+	// private function notifyPostOwner(EasyDiscussPost $post)
 	// {
 	// 	// Add notifications to the post owner.
 	// 	if ($post->user_id != $this->my->id) {
@@ -205,7 +207,7 @@ class EasyDiscussFavourite extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public static function addFav($contentId, $type, $userId = null)
 	{
@@ -248,7 +250,7 @@ class EasyDiscussFavourite extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public static function removeFav($contentId, $type = DISCUSS_ENTITY_TYPE_POST, $userId = null)
 	{
@@ -274,7 +276,7 @@ class EasyDiscussFavourite extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public static function getFavourite($contentId, $userId = null, $type = DISCUSS_ENTITY_TYPE_POST, $preloadedObj = null)
 	{
@@ -341,12 +343,12 @@ class EasyDiscussFavourite extends EasyDiscuss
 
 		if ($total == 1) {
 			$break = $total;
-		
+
 		} else {
-			
+
 			if ($max >= $total) {
 				$break = $total - 1;
-			
+
 			} else if($max < $total) {
 				$break = $max;
 			}
@@ -360,12 +362,12 @@ class EasyDiscussFavourite extends EasyDiscuss
 
 		if (count($remain) > 1) {
 			$returnString = JText::sprintf('COM_EASYDISCUSS_AND_OTHERS_FAVOURITE_THIS', $stringFront, count($remain));
-		
+
 		} else if(count($remain) == 1) {
 			$returnString = JText::sprintf('COM_EASYDISCUSS_AND_FAVOURITE_THIS', $stringFront, $remain[0]);
-		
+
 		} else {
-			
+
 			if ($list[0]->user_id == $userId) {
 				$returnString = JText::sprintf('COM_EASYDISCUSS_FAVOURITE_THIS', $stringFront);
 			} else {
