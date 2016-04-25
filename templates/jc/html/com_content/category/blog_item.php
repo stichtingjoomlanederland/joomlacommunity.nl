@@ -10,6 +10,7 @@
 defined('_JEXEC') or die;
 
 // Inlcude easydiscuss helper for avatar
+require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
 $profile = DiscussHelper::getTable('Profile');
 $profile->load($this->item->created_by);
 
