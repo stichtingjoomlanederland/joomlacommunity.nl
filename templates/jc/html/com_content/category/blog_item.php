@@ -13,7 +13,6 @@ defined('_JEXEC') or die;
 // Required for use of the DiscussHelper
 require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
 $profile = DiscussHelper::getTable('Profile');
-$profile->load($id);
 $profile->load($this->item->created_by);
 $userparams        = DiscussHelper::getRegistry($profile->params);
 $profile->twitter  = $userparams->get('twitter', '');
