@@ -9,10 +9,17 @@
 
 defined('_JEXEC') or die;
 
-// Inlcude easydiscuss helper for avatar
+// Load the profile data from the database.
+// Required for use of the DiscussHelper
 require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
 $profile = DiscussHelper::getTable('Profile');
+$profile->load($id);
 $profile->load($this->item->created_by);
+$userparams        = DiscussHelper::getRegistry($profile->params);
+$profile->twitter  = $userparams->get('twitter', '');
+$profile->website  = $userparams->get('website', '');
+$profile->facebook = $userparams->get('facebook', '');
+$profile->linkedin = $userparams->get('linkedin', '');
 
 // Create a shortcut for params.
 $params = $this->item->params;
@@ -52,12 +59,7 @@ else
 				<div class="auteur-info">
 					<p>
 						<a href="<?php echo $profile->getLink(); ?>">
-							<?php $avatar = $profile->getAvatar(); ?>
-							<?php if (!empty($avatar)) : ?>
-								<img src="<?php echo $profile->getAvatar(); ?>" class="img-circle" width="80">
-							<?php else: ?>
-								<img src="media/com_easydiscuss/images/default.png" class="img-circle" width="80">
-							<?php endif; ?>
+							<img class="img-circle" width="80px" src="<?php echo $profile->getAvatar(); ?>"/>
 						</a>
 					</p>
 					<?php echo JHtml::_('link', $profile->getLink(), $profile->user->get('name')); ?>
@@ -85,21 +87,18 @@ else
 					</p>
 				</div>
 
-				<!-- @TODO Integrate social stats
-				<div class="item-share">
-					<ul class="list-inline share-buttons">
-						<li class="share-twitter">
-							<a href="#"><span class="icon icon-twitter"></span>12</a>
-						</li>
-						<li class="share-facebook">
-							<a href="https://www.facebook.com/sharer/sharer.php?u=http://www.joomlacommunity.eu/nieuws/joomla-versies/886-joomla-2510-vrijgegeven.html" target="_blank"><span class="icon icon-facebook"></span>6</a>
-						</li>
-						<li class="share-googleplus">
-							<a href="#"><span class="icon icon-googleplus"></span>4</a>
-						</li>
-					</ul>
+				<div class="item-share full">
+					<?php
+					$data = array(
+						'title'      => 'Share',
+						'facebook'   => true,
+						'twitter'    => true,
+						'googleplus' => true,
+						'item'       => $this->item
+					);
+					echo JLayoutHelper::render('template.snippet-share-page', $data);
+					?>
 				</div>
-			-->
 			</div>
 		</div>
 
