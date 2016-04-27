@@ -40,6 +40,7 @@ node_modules
 # Config files
 media/com_easydiscuss/config/
 media/com_komento/config/
+media/com_komento/resources/*.js*
 media/foundry/3.1/config/
 
 # Backup files
