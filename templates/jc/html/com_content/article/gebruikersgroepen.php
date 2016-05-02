@@ -11,6 +11,9 @@ defined('_JEXEC') or die;
 
 JHtml::addIncludePath(JPATH_COMPONENT . '/helpers');
 
+// Includee easydiscuss helper to load profile information
+require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
+
 // Create shortcuts to some parameters.
 $params  = $this->item->params;
 $images  = json_decode($this->item->images);
@@ -32,6 +35,8 @@ else
 }
 
 // Load the profile data from the database.
+// Required for use of the DiscussHelper
+require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
 $profile = DiscussHelper::getTable('Profile');
 $profile->load($this->item->created_by);
 $userparams        = DiscussHelper::getRegistry($profile->params);
@@ -133,7 +138,7 @@ $showArticleInformation = true;
 	<div class="row articleinfo">
 		<div class="col-sm-2 author-img">
 			<a href="<?php echo $profile->getLink(); ?>">
-				<img class="img-circle" src="<?php echo $profile->getAvatar(); ?>"/>
+                <img class="img-circle" src="<?php echo $profile->getAvatar(); ?>"/>
 			</a>
 		</div>
 		<div class="col-sm-10">
