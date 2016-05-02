@@ -12,6 +12,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 </div>
 <?php } ?>
 <div class="row-fluid">
+  
 		<?php if ($this->config->show_folder_desc == 1 && !empty($this->fdescription)) { ?>
   <?php echo $this->fdescription; ?>
 		<?php } ?>
