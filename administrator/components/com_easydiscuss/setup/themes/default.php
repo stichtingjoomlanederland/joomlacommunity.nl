@@ -20,7 +20,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<title><?php echo JText::_('COM_EASYDISCUSS_INSTALLER_INSTALLATION_TITLE'); ?> - <?php echo JText::_('COM_EASYDISCUSS_INSTALLER_INSTALLATION_STEP_TITLE');?> <?php echo $active; ?></title>
 	<link href="<?php echo ED_SETUP_URL;?>/assets/images/logo.png" rel="shortcut icon" type="image/vnd.microsoft.icon"/>
 
-	<link type="text/css" href="http://fonts.googleapis.com/css?family=Roboto:400,400italic,700,700italic,500italic,500,300italic,300" rel="stylesheet">
+	<link type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:400,400italic,700,700italic,500italic,500,300italic,300" rel="stylesheet">
 	<link type="text/css" href="<?php echo ED_SETUP_URL;?>/assets/icons/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 	<link type="text/css" href="<?php echo ED_SETUP_URL;?>/assets/icons/ionicons/css/ionicons.min.css" rel="stylesheet">
 	<link type="text/css" href="<?php echo ED_SETUP_URL;?>/assets/styles/theme.css" rel="stylesheet" />

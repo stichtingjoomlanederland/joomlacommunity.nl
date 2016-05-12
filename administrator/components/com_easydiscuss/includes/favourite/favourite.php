@@ -103,6 +103,9 @@ class EasyDiscussFavourite extends EasyDiscuss
 			}
 		}
 
+		// Add stream for EasySocial
+		ED::easysocial()->favouriteStream($post);
+
 		// Get the like's text.
 		$text = $this->html($post->id, $this->my->id, 'post');
 
@@ -169,37 +172,6 @@ class EasyDiscussFavourite extends EasyDiscuss
 
 		return $output;
 	}
-
-
-	// /**
-	//  * Notifies the post owner when someone likes his post
-	//  *
-	//  * @since	4.0
-	//  * @access	public
-	//  * @param	string
-	//  * @return
-	//  */
-	// private function notifyPostOwner(EasyDiscussPost $post)
-	// {
-	// 	// Add notifications to the post owner.
-	// 	if ($post->user_id != $this->my->id) {
-	// 		$notification = ED::table('Notifications');
-	// 		$text = $post->isQuestion() ? 'COM_EASYDISCUSS_LIKE_DISCUSSION_NOTIFICATION_TITLE' : 'COM_EASYDISCUSS_LIKE_REPLY_NOTIFICATION_TITLE';
-	// 		$title = $question->title;
-	// 		$likeType = $post->isQuestion() ? DISCUSS_NOTIFICATIONS_LIKES_DISCUSSION : DISCUSS_NOTIFICATIONS_LIKES_REPLIES;
-
-	// 		$notification->bind(array(
-	// 				'title'	=> JText::sprintf($text, $title),
-	// 				'cid' => $question->id,
-	// 				'type' => $likeType,
-	// 				'target' => $post->user_id,
-	// 				'author' => $this->my->id,
-	// 				'permalink'	=> 'index.php?option=com_easydiscuss&view=post&id=' . $question->id
-	// 			));
-
-	// 		$notification->store();
-	// 	}
-	// }
 
 	/**
 	 * Favourite a post

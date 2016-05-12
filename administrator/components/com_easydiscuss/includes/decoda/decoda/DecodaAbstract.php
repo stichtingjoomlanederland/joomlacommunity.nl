@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Unauthorized Access');
  * @link        http://milesj.me/code/php/decoda
  */
 
-abstract class DecodaAbstract {
+abstract class EdDecodaAbstract {
 
 	/**
 	 * Configuration.
@@ -78,7 +78,7 @@ abstract class DecodaAbstract {
 	 * @param Decoda $parser
 	 * @return void
 	 */
-	public function setParser(Decoda $parser) {
+	public function setParser(EdDecoda $parser) {
 		$this->_parser = $parser;
 	}
 

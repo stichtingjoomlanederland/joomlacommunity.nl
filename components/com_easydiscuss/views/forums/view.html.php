@@ -87,15 +87,14 @@ class EasyDiscussViewForums extends EasyDiscussView
 						'limit' => $this->config->get('layout_post_category_limit', $limit),
 						'includeFeatured' => true,
 						'featuredSticky' => true,
-						'includeChild' => $categoryId ? false : true
+						'includeChilds' => $categoryId ? false : true
 					);
 
 		// Get all the posts in this category and it's childs
 		$posts = $model->getCategoryTreePosts($parents, $options);
 
-		//preload posts
+		// Preload posts
 		ED::post($posts);
-
 
 		$threads = array();
 
@@ -144,10 +143,9 @@ class EasyDiscussViewForums extends EasyDiscussView
 				}
 			}
 
-
 			ED::setPageTitle($activeCategory->title);
 		}
-
+		
 		// Get the pagination
 		$pagination = $model->getPagination();
 
@@ -156,110 +154,9 @@ class EasyDiscussViewForums extends EasyDiscussView
 		$this->set('activeCategory', $activeCategory);
 		$this->set('pagination', $pagination);
 		$this->set('threads', $threads);
-		$this->set('includeChild', true);
+		// $this->set('includeChilds', true);
 
 		parent::display('forums/default');
-	}
-
-	public function listings()
-	{
-		$categoryId = $this->input->get('category_id', 0, 'int');
-		$registry = new JRegistry();
-
-		// Try to detect if there's any category id being set in the menu parameter.
-		$activeMenu = $this->app->getMenu()->getActive();
-
-		// If there is an active menu, render the params
-		if ($activeMenu && !$categoryId) {
-			$registry->loadString($activeMenu->params);
-
-			if ($registry->get('category_id')) {
-				$categoryId	= $registry->get('category_id');
-			}
-		}
-
-		// Get the pagination limit
-		$limit = $registry->get('limit',5);
-		$limit = ($limit == '-2') ? ED::getListLimit() : $limit;
-		$limit = ($limit == '-1') ? $this->jconfig->get('list_limit') : $limit;
-
-		// Add view to this page.
-		$this->logView();
-
-
-		// // Set the meta of the page.
-		// ED::setMeta();
-
-		// Add rss feed into headers
-		ED::feeds()->addHeaders('index.php?option=com_easydiscuss&view=forums&category_id=' . $categoryId . '&layout=listings');
-
-		// Get list of categories on the site.
-		$model = ED::model('Posts');
-
-		$options = array(
-						'sort' => $registry->get('sort'),
-						'limitstart' => $this->input->get('limitstart', 0),
-						'filter' => $registry->get('filter'),
-						'category' => $categoryId,
-						'limit' => $this->config->get('layout_post_category_limit', $limit),
-						'userId' => $this->my->id,
-						'includeChilds' => false
-					);
-
-		// Get all the posts in this category and it's childs
-		$posts = $model->getDiscussions($options);
-
-		$threads = array();
-
-		if ($posts) {
-
-			// Preload the post id's.
-			ED::post($posts);
-
-			// Format normal entries
-			$posts = ED::formatPost($posts);
-
-			// Grouping the posts based on categories.
-			foreach ($posts as $post) {
-
-				if (!isset($threads[$post->category_id])) {
-					$thread = new stdClass();
-					$thread->category = ED::category($post->category_id);
-					$thread->posts = array();
-
-					$threads[$post->category_id] = $thread;
-				}
-
-				$threads[$post->category_id]->posts[] = $post;
-			}
-		}
-
-		// Get the current active category
-		$activeCategory = ED::category($categoryId);
-		$breadcrumbs = $activeCategory->getBreadcrumbs();
-
-		if ($breadcrumbs) {
-			foreach ($breadcrumbs as $bdc) {
-				$this->setPathway($bdc->title, $bdc->link);
-			}
-
-			$this->setPathway(JText::_('COM_EASYDISCUSS_FORUMS_BREADCRUMB_LAYOUT'));
-		}
-
-		ED::setPageTitle($activeCategory->title);
-
-		// Get the pagination
-		$pagination = $model->getPagination();
-
-		$this->set('listing', true);
-		$this->set('breadcrumbs', $breadcrumbs);
-		$this->set('activeCategory', $activeCategory);
-		$this->set('threads', $threads);
-		$this->set('pagination', $pagination);
-		$this->set('includeChild', false);
-
-		parent::display('forums/listings');
-
 	}
 
 	public function getBreadcrumbs()

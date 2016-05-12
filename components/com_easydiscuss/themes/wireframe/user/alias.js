@@ -19,6 +19,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
                 status.removeClass('o-alert--danger-o')
                 status.removeClass('o-alert--success-o')
+                status.removeClass('t-hidden')
                 status.addClass(className);
 
                 status.show();

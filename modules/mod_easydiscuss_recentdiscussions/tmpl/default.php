@@ -24,7 +24,7 @@ defined('_JEXEC') or die('Restricted access');
             $postcontent = ($params->get('max_content', 0)) ? JString::substr(strip_tags($postcontent), 0, $params->get('max_content')) . '...' : $postcontent;
         ?>
         <div class="ed-list__item">
-            <div class="o-flag">
+            <div class="">
                 <?php if ($params->get('show_avatar', 1)) { ?>
                     <div class="o-flag__img t-lg-mr--md">
                         <div class="ed-mod__section">
@@ -35,16 +35,15 @@ defined('_JEXEC') or die('Restricted access');
                                         <?php echo ED::themes()->html('user.avatar', $post->getOwner(), array('rank' => false, 'status' => true)); ?>
                                     </div>
                                     <div class="o-flag__body">
-                                        <div class="">
+                                        <a href="<?php echo $post->getOwner()->getLink();?>" class="ed-user-name"><?php echo $post->getOwner()->getName();?></a>
 
-                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 <?php } ?>
-                <div class="o-flag__body">
+                <div class="">
                     <div class="m-your-discussions__content
                     <?php echo $post->isSeen(ED::user()->id) ? ' is-read' : '';?>
                     <?php echo $post->isFeatured() ? ' is-featured' : '';?>
@@ -82,7 +81,7 @@ defined('_JEXEC') or die('Restricted access');
 
                         <div class="m-list--inline m-list--has-divider t-lg-mb-sm">
                             <?php if ($params->get('showhits', 1)) { ?>
-                                <div class="m-list__item">
+                                <div class="m-list__item t-fs--sm">
                                     <div class="">
                                         <?php echo JText::sprintf('MOD_EASYDISCUSS_RECENTDISCUSSIONS_HITS_COUNT', $post->getHits()); ?>
                                     </div>
@@ -90,7 +89,7 @@ defined('_JEXEC') or die('Restricted access');
                             <?php } ?>
 
                             <?php if ($params->get('showtotalvotes', 1)) { ?>
-                                <div class="m-list__item">
+                                <div class="m-list__item t-fs--sm">
                                     <div class="">
                                         <?php echo JText::sprintf('MOD_EASYDISCUSS_RECENTDISCUSSIONS_VOTES_COUNT', $post->getTotalVotes()); ?>
                                     </div>
@@ -98,7 +97,7 @@ defined('_JEXEC') or die('Restricted access');
                             <?php } ?>
 
                             <?php if ($params->get('showreplycount')) { ?>
-                            <div class="m-list__item">
+                            <div class="m-list__item t-fs--sm">
                                 <div class="">
                                     <?php echo JText::sprintf('MOD_EASYDISCUSS_RECENTDISCUSSIONS_REPLIES', $post->getTotalReplies()); ?>
                                 </div>
@@ -108,20 +107,17 @@ defined('_JEXEC') or die('Restricted access');
 
                         <div class="m-list--inline m-list--has-divider t-lg-mb-sm">
 
-                            <?php if ($params->get('showcategory', 1)) { ?>
-                                <div class="m-list__item">
+                            <?php if ($params->get('show_category', 1)) { ?>
+                                <div class="m-list__item t-fs--sm">
                                     <?php echo JText::sprintf('MOD_EASYDISCUSS_RECENTDISCUSSIONS_POSTED_IN_CATEGORY', $post->getCategory()->getPermalink(), $post->getCategory()->getTitle()); ?>
                                 </div>
                             <?php } ?>
-                            <?php if ($params->get('showdate', 1)) { ?>
-                                <div class="m-list__item">
+                            <?php if ($params->get('show_date', 1)) { ?>
+                                <div class="m-list__item t-fs--sm">
                                     <?php echo JText::sprintf('MOD_EASYDISCUSS_RECENTDISCUSSIONS_POSTED_ON', ED::date($post->created)->format(ED::config()->get('layout_dateformat'))); ?>
                                 </div>
                             <?php } ?>
                         </div>
-
-
-
 
                         <?php if ($params->get('showpoststatus', 1)) { ?>
                             <div class="">

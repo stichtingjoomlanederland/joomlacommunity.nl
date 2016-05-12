@@ -522,7 +522,19 @@ class EasyDiscussMailer extends EasyDiscuss
 	protected static function _prepareBody( $data )
 	{
 		$config = ED::config();
+		$app = JFactory::getApplication();
+
 		$type = $config->get('notify_html_format') ? 'html' : 'text';
+
+
+		// Set the logo for the generic email template
+		$override = JPATH_ROOT . '/templates/' . $app->getTemplate() . '/html/com_easydiscuss/emails/logo.png';
+		$logo = rtrim( JURI::root() , '/' ) . '/components/com_easydiscuss/themes/wireframe/images/emails/logo.png';
+
+		if (JFile::exists($override)) {
+			$logo 	= rtrim( JURI::root() , '/' ) . '/templates/' . $app->getTemplate() . '/html/com_easydiscuss/emails/logo.png';
+		}
+
 
 		$template = $data['emailTemplate'];
 		$replyBreaker = false;
@@ -532,14 +544,16 @@ class EasyDiscussMailer extends EasyDiscuss
 			$replyBreaker = self::getReplyBreaker();
 		}
 
+		$template = str_ireplace('.php', '', $template);
 		// If this uses html, we need to switch the template file
 		if ($type == 'html') {
-			$template = str_ireplace('.php', '.html', $template);
-		} else {
-			$template = str_ireplace('.php', '', $template);
+			$template = $template . '.html';
 		}
 
 		$theme	= ED::themes();
+
+		$theme->set('logo', $logo);
+
 
 		foreach ($data as $key => $val) {
 			$theme->set($key, $val);

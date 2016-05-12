@@ -135,6 +135,9 @@ class EasyDiscussCompiler extends EasyDiscuss
 		// Base contents
 		$contents = '';
 
+		// Always add index.html into the exclusion
+		$exclusion[] = 'index.html';
+
 		foreach ($folders as $folder) {
 
 			if (is_file($folder)) {
@@ -167,6 +170,7 @@ class EasyDiscussCompiler extends EasyDiscuss
 					$loaded[$file] = true;
 				}
 			}
+
 		}
 
 		return $contents;
@@ -197,13 +201,13 @@ class EasyDiscussCompiler extends EasyDiscuss
 					);
 
 			// Get contents from all scripts
-			$contents = $this->getContents($paths, array('jquery.joomla'));
+			$contents = $this->getContents($paths, array('jquery.joomla.js'));
 
 			// Get contents without jquery
 			// @TODO: We also need to perform this
 			// 3. Search / replace "vendors/jquery" to "vendors/jquery.joomla"
-			$contentsBasic = $this->getContents($paths, array('jquery.js'));
-			$contentsBasic = str_ireplace("'vendors/jquery'", "'vendors/jquery.joomla'", $contentsBasic);
+			$contentsBasic = $this->getContents($paths, array('edjquery.js'));
+			$contentsBasic = str_ireplace("'vendors/edjquery'", "'vendors/jquery.joomla'", $contentsBasic);
 
 			// Get contents with
 			$files[JPATH_ROOT . '/media/com_easydiscuss/scripts/site/' . $this->getFileName($version)] = $contents;

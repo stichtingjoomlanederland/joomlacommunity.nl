@@ -1,0 +1,7 @@
+[
+    {
+        "table": "#__discuss_ranks_users",
+        "index": "idx_userrank",
+        "query": "ALTER TABLE `#__discuss_ranks_users` ADD INDEX `idx_userrank` (`user_id`, `rank_id`);"
+    }
+]

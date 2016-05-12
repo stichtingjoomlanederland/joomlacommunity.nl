@@ -34,8 +34,15 @@
 	padding: 0 !important;
 	font: 11px Verdana, Arial, Helvetica, sans-serif;
 	border-radius: 0 !important;
-	border-bottom: 1px solid @fd-ui-border-color !important;
+	// border-bottom: 1px solid @fd-ui-border-color !important;
 }
+
+.ed-convo-dialog {
+	.markItUpContainer {
+		border-bottom: 1px solid @fd-ui-border-color !important;		
+	}
+}
+
 .markItUpExpanding {
 	&.has-error {
 		border: 1px solid @state-danger-text;
@@ -300,9 +307,8 @@
 
 	    		text-indent: 0;
 
-
 	    	}
-	    }
+	    }	
 	}
 
 	.markitup-bold a,
@@ -317,7 +323,7 @@
 	.markitup-quote a,
 	.markitup-code a,
 	.markitup-gist a {
-		background: none;
+		background: none !important;
 	}
 	.markitup-bold a {
 		

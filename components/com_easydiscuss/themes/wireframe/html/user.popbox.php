@@ -49,11 +49,7 @@ defined('_JEXEC') or die('Unauthorized Access');
         </div>
     </div>
     <div class="popbox--user-ft">
-        <?php if (!$this->my->guest && $this->my->id != $user->id && $this->config->get('main_conversations') && $this->config->get('layout_toolbar_conversation') && $this->acl->allowed('allow_privatemessage')) { ?>
-        <a class="btn btn-default btn-xs pull-right" data-ed-conversations-api data-userid="<?php echo $user->id;?>" href="javascript:void(0);">
-            <i class="fa fa-envelope"></i> <?php echo JText::_('COM_EASYDISCUSS_BUTTON_SEND'); ?>
-        </a>
-        <?php } ?>
+        <?php echo $this->html('user.pm', $user->id, 'popbox'); ?>
     </div>
 
 </div>

@@ -101,22 +101,11 @@ function processThemeFolder(src) {
             .pipe(filter(['**/style.less']))
             .pipe(debugTheme('less'))
             .pipe(less())
-            // .pipe(cssnano({discardComments: {removeAll: false}}))
-            
-            
-
             .pipe(rename('style.css'))
             
-
-            
             // Output original
-            // .pipe(rename({dirname: ''}))
             .pipe(gulp.dest(dest + '/css'))
-
-            // .pipe(cloneSink.tap())
-            
-            // .pipe(minifyCSS({keepSpecialComments : 0}))
-            .pipe(debug())
+            // .pipe(debug())
 
             .pipe(cssnano({discardComments: {removeAll: true}}))
 
@@ -136,35 +125,10 @@ function processThemeFolder(src) {
                   
             .pipe(cssnano({discardComments: {removeAll: true}}))
 
-            // .pipe(rename('styles.min.css'))
-            // .pipe(filter(['**/rtl.min']))
 
             .pipe(rename({suffix: '.min'}))
             .pipe(gulp.dest(dest + '/css'))
 
-            
-            
-
-            // .pipe(cssnano({discardComments: {removeAll: true}}))
-
-            // .pipe(rename('styles.min.css'))
-
-            // .pipe(rename({suffix: '.min'}))
-            // .pipe(gulp.dest(dest + '/css'))
-
-        // gulp.src([dest+'/**/style.css'])
-        //     .pipe(debugTheme('minify'))
-        //     .pipe(minifyCSS())
-
-        //     .pipe(rename('styles.min.css'))
-        //     .pipe(gulp.dest(dest + '/css'))
-        
-        // gulp
-        //     .src([src + '/img/**/*.{png,jpg,gif}'])
-        //     .pipe(changed(dest + '/img'))
-        //     .pipe(debugTheme('img'))
-        //     .pipe(imagemin())
-        //     .pipe(gulp.dest(dest + '/img'))
     ).on('change', reload);
 
 }
@@ -190,6 +154,23 @@ gulp.task('nunjucks', function() {
       .pipe(nunjucksRender())
       // output files in folder
       .pipe(gulp.dest('themes-preview/output'));
+});
+
+gulp.task('rtl', function () {
+  gulp.src('themes/wireframe/less/style-rtl.less')
+    
+    .pipe(plumber(plumberErrorHandler))
+    .pipe(less())
+
+    .pipe(rtlcss()) // Convert to RTL. 
+    .pipe(rename('style-rtl.css'))
+    .pipe(gulp.dest('themes/wireframe/css/'))
+    .pipe(cssnano({discardComments: {removeAll: true}, zindex: false}))
+
+
+    .pipe(rename({suffix: '.min'}))
+    .pipe(gulp.dest('themes/wireframe/css/'))
+
 });
 
 

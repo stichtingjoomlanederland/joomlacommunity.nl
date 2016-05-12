@@ -64,11 +64,6 @@ defined('_JEXEC') or die('Unauthorized Access');
                         </a>
                         <?php } ?>
 
-                        <?php if ($this->config->get('main_conversations') && $this->acl->allowed('allow_privatemessage') && $this->my->id != $profile->id) { ?>
-                        <a href="javascript:void(0);" data-ed-profile-compose data-userid="<?php echo $profile->id; ?>">
-                            <i class="fa fa-envelope-o ed-subscribe__icon"></i> <?php echo JText::_('COM_EASYDISCUSS_BUTTON_SEND');?>
-                        </a>
-                        <?php } ?>
                     </div>
                     <div class="ed-statistic pull-right">
                         <div class="ed-statistic__item">
@@ -99,6 +94,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                             </a>
                         </div>
 
+                        <?php echo $this->html('user.pm', $profile->id, 'list'); ?>
                     </div>
                 </div>
             </div>
@@ -109,10 +105,13 @@ defined('_JEXEC') or die('Unauthorized Access');
             <div class="ed-profile__bio-desp">
                 <?php echo $profile->getDescription(); ?>
             </div>
+
+            <?php if ($this->config->get('main_signature_visibility')) { ?>
             <div class="ed-profile__bio-signature">
                 <?php echo $profile->getSignature(); ?>
             </div>
-
+            <?php } ?>
+            
         </div>
 
         <div class="ed-user-profile__ft">

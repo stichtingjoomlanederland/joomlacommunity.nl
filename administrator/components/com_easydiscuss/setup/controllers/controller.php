@@ -120,38 +120,20 @@ class EasyDiscussSetupController
 		// If this is an update, we want to tell the server that this is being updated from which version
 		$version = $this->getVersion();
 
-		// for beta we temporary hard code the version.
+		// We need to pass the api keys to the server
+		curl_setopt($resource, CURLOPT_POST, true);
+		curl_setopt($resource, CURLOPT_POSTFIELDS, 'from=' . $version);
+		curl_setopt($resource, CURLOPT_URL, ED_MANIFEST);
+		curl_setopt($resource, CURLOPT_TIMEOUT, 120);
+		curl_setopt($resource, CURLOPT_RETURNTRANSFER, true);
 
-		// // We need to pass the api keys to the server
-		// curl_setopt($resource, CURLOPT_POST, true);
-		// curl_setopt($resource, CURLOPT_POSTFIELDS, 'from=' . $version);
-		// curl_setopt($resource, CURLOPT_URL, ED_MANIFEST);
-		// curl_setopt($resource, CURLOPT_TIMEOUT, 120);
-		// curl_setopt($resource, CURLOPT_RETURNTRANSFER, true);
+		$result = curl_exec($resource);
+		curl_close($resource);
 
-		// $result = curl_exec($resource);
-		// curl_close($resource);
+		if (!$result) {
+			return false;
+		}
 
-		// if (!$result) {
-		// 	return false;
-		// }
-
-
-		$result = '{
-  "title": "com_easydiscuss",
-  "version": "4.0.1",
-  "changelog": "http://stackideas.com/changelog/easydiscuss",
-  "install": "http://stackideas.com/updater/components/download",
-  "md5": [
-    "864bec42e89de68276d0b491693863aa",
-    "2d905bc9641bc9fe13d7e1ee88b96905",
-    "9c807f6038f86a72257c319242e54dbc",
-    "95f5a78730ca3075652dd2a2513cd8db",
-    "d27797e8fc50837baac4b070dd7760ae",
-    "980de5cf845dd806cb16a4821d890867"
-  ],
-  "news": []
-}';
 
 		$obj = json_decode($result);
 

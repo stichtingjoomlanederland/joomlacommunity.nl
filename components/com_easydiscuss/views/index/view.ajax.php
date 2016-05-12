@@ -102,7 +102,7 @@ class EasyDiscussViewIndex extends EasyDiscussView
 	{
         $type = $this->input->get('type', 'site', 'cmd');
         $cid = $this->input->get('id', 0, 'int');
-        $url = EDR::_('view=index', false); 
+        $url = EDR::_('view=index', false);
 
         $model = ED::model('Subscribe');
         $interval = '';
@@ -479,9 +479,9 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		$filtering = array( 'filter' => $filterType,
 							'sort' => $sort);
 
-		if ($category_id) {
-			$filtering['category_id'] = $category_id;
-		}
+		// if ($category_id) {
+		// 	$filtering['category_id'] = $category_id;
+		// }
 
 		$pagination = $pagination->getPagesLinks($view, $filtering, true);
 

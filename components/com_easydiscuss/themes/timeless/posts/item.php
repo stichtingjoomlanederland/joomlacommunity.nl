@@ -23,7 +23,7 @@ defined('_JEXEC') or die('Unauthorized Access');
     <div class="ed-post-item__hd">
 
         <div class="o-row">
-            
+
             <div class="o-col-sm">
                 <div class="o-flag">
 
@@ -52,7 +52,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                         <h2 class="ed-post-item__title t-lg-mb--md">
                             <a href="<?php echo $post->getPermalink();?>"><?php echo $post->getTitle();?></a>
-                            
+
                             <?php if ($post->isFeatured() || $post->isLocked() || $post->isProtected() || $post->isPrivate()) { ?>
                             <div class="ed-post-item__status t-ml--sm">
                                 <i class="fa fa-star ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_FEATURED_DESC');?>"></i>
@@ -66,7 +66,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                             </div>
                             <?php } ?>
                         </h2>
-                        
+
                         <div class="o-col">
                             <div class="pull-left">
                                 <?php if (!$post->isAnonymous()) { ?>
@@ -79,7 +79,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                                 <span class="t-fs--sm"><?php echo JText::_('COM_EASYDISCUSS_POSTED_IN');?>
                                 </span>
                             </div>
-                            
+
 
                             <ol class="g-list-inline g-list-inline--dashed ed-post-meta-cat pull-left t-lg-mt--sm t-lg-ml--sm">
                                 <li><a href="<?php echo $post->getCategory()->getPermalink();?>" class=""><?php echo $post->getCategory()->title;?></a></li>
@@ -93,7 +93,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                         </div>
 
 
-                        
+
 
 
                         <ol class="g-list-inline ed-post-item__post-meta">
@@ -133,11 +133,11 @@ defined('_JEXEC') or die('Unauthorized Access');
                                 <li data-breadcrumb="·">
                                     <?php if (!$post->isLastReplyAnonymous()) { ?>
                                         <a href="<?php echo EDR::_('view=post&id=' . $post->id . '&sort=latest'); ?>">
-                                            <i class="fa fa-reply"></i> <?php echo JText::sprintf('COM_EASYDISCUSS_LAST_REPLIED_BY', $post->getLastReplier()->getName(), ED::date()->toLapsed($post->replied)); ?>
+                                            <i class="fa fa-reply"></i> <?php echo JText::sprintf('COM_EASYDISCUSS_LAST_REPLIED_BY', $post->getLastReplier()->getName(), ED::date()->toLapsed($post->lastupdate)); ?>
                                         </a>
                                     <?php } else { ?>
                                         <a href="<?php echo EDR::_('view=post&id=' . $post->id . '&sort=latest'); ?>">
-                                            <i class="fa fa-reply"></i> <?php echo JText::sprintf('COM_EASYDISCUSS_LAST_REPLIED_BY', JText::_('COM_EASYDISCUSS_ANONYMOUS_USER'), ED::date()->toLapsed($post->replied)); ?>
+                                            <i class="fa fa-reply"></i> <?php echo JText::sprintf('COM_EASYDISCUSS_LAST_REPLIED_BY', JText::_('COM_EASYDISCUSS_ANONYMOUS_USER'), ED::date()->toLapsed($post->lastupdate)); ?>
                                         </a>
                                     <?php } ?>
                                 </li>
@@ -153,7 +153,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <?php } ?>
 
                             <?php if ($this->config->get('main_master_tags')) { ?>
-                                <?php if ($this->config->get('main_tags') && $post->getTags()) { ?>
+                                <?php if ($post->getTags()) { ?>
                                 <ol class="g-list-inline ed-post-meta-tag">
                                     <?php foreach ($post->getTags() as $tag) { ?>
                                     <li>
@@ -179,7 +179,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             </div>
 
             <div class="o-col t-hidden">
-                
+
                 <div class="ed-statistic pull-right">
                     <div class="ed-statistic__item">
                         <a href="<?php echo $post->getPermalink();?>">
@@ -193,12 +193,12 @@ defined('_JEXEC') or die('Unauthorized Access');
         </div>
     </div>
 
-    
+
 
     <div class="ed-post-item__ft t-hidden">
 
         <div class="o-row">
-            
+
             <div class="o-col-sm">
                 <ol class="g-list-inline g-list-inline--dashed pull-right ed-post-meta-cat">
                     <li><a href="<?php echo $post->getCategory()->getPermalink();?>" class=""><?php echo $post->getCategory()->title;?></a></li>

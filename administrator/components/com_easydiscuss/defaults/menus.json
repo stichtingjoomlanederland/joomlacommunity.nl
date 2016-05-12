@@ -4,7 +4,7 @@
         "icon": "fa-dashboard"
     },
     {
-        "access": "discuss.manage.setting",
+        "access": "discuss.manage.settings",
         "title": "COM_EASYDISCUSS_SIDEBAR_SETTINGS",
         "link": "index.php?option=com_easydiscuss&view=settings",
         "view": "settings",
@@ -65,7 +65,7 @@
                 "url": {
                     "layout": "tabs"
                 }
-            }, 
+            },
             {
                 "title"     : "COM_EASYDISCUSS_SIDEBAR_SETTINGS_LAYOUT",
                 "url"       :
@@ -81,7 +81,7 @@
             },
             {
                 "title"     : "COM_EASYDISCUSS_SIDEBAR_SETTINGS_NOTIFICATIONS",
-                "url"       :
+                "url"       : 
                 {
                     "layout"    : "notifications"
                 }
@@ -91,6 +91,13 @@
                 "url"       :
                 {
                     "layout"    : "integrations"
+                }
+            },
+            {
+                "title"     : "COM_EASYDISCUSS_SIDEBAR_SETTINGS_SOCIAL_INTEGRATIONS",
+                "url"       :
+                {
+                    "layout"    : "social"
                 }
             },
             {
@@ -290,13 +297,19 @@
                 "url": {
                     "layout": "jomsocial"
                 }
-            },   
+            },
             {
                 "title": "COM_EASYDISCUSS_SIDEBAR_MIGRATORS_VBULLETIN",
                 "url": {
                     "layout": "vbulletin"
                 }
-            }  
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_MIGRATORS_DISCUSSIONS",
+                "url": {
+                    "layout": "discussions"
+                }
+            }
         ]
     },
     {

@@ -31,35 +31,31 @@ class EasyDiscussControllerDiscuss extends EasyDiscussController
 	 */
 	public function compileStylesheet()
 	{
+		// We should only compile the default theme instead of compiling everything.
+		$config = ED::config();
+		$theme = $config->get('layout_site_theme');
+
 		// Get a list of themes first
-		$path = DISCUSS_MEDIA . '/themes';
+		$path = DISCUSS_MEDIA . '/themes/' . $theme;
 
-		// Get a list of themes
-		$themes = JFolder::folders($path, '.', false, true);
+		// Get the cache folder and clear it
+		$cachePath = $path . '/less/cache';
 
-		foreach ($themes as $theme) {
-			// Get the cache folder and clear it
-			$cachePath = $theme . '/less/cache';
+		// Delete the theme's cache folder
+		JFolder::delete($cachePath);
 
-			// Delete the theme's cache folder
-			JFolder::delete($cachePath);
+		// Re-create an empty cache folder
+		JFolder::create($cachePath);
 
-			// Re-create an empty cache folder
-			JFolder::create($cachePath);
+		// Recompile the theme's less file now
+		$stylesheet = ED::stylesheet();
 
-			// Get the theme's name
-			$themeName = basename($theme);
-
-			// Recompile the theme's less file now
-			$stylesheet = ED::stylesheet();
-
-			// For now, admin theme is hardcoded
-			if ($themeName == 'admin') {
-				$stylesheet->compileAdminStylesheet();
-			} else {
-				$stylesheet->compileSiteStylesheet($themeName);
-			}
-		}
+		// For now, admin theme is hardcoded
+		// if ($theme == 'admin') {
+		// 	$stylesheet->compileAdminStylesheet();
+		// } else {
+			$stylesheet->compileSiteStylesheet($theme);
+		// }
 
 		ED::setMessage('COM_EASYDISCUSS_STYLESHEET_STYLESHEET_PURGED', 'success');
 		return $this->app->redirect('index.php?option=com_easydiscuss');

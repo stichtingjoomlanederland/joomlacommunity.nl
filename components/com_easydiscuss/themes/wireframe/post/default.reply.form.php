@@ -14,7 +14,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 <div class="ed-post-reply-form">
 
     <?php if ($post->isLocked()) { ?>
-    <div class="o-alert o-alert--notice mt-20">
+    <div class="o-alert o-alert--warning t-lg-mb--no">
         <i class="icon-lock"></i>
         <?php if (ED::isModerator($post->category_id)) { ?>
             <?php echo JText::_('COM_EASYDISCUSS_POST_IS_CURRENTLY_LOCKED_BUT_MODERATOR'); ?>
@@ -29,7 +29,7 @@ defined('_JEXEC') or die('Unauthorized Access');
         <div class="fd-cf">
             <a name="respond" id="respond"></a>
 
-            <?php if ($access->canReply() && !$post->isUserBanned()) { ?>
+            <?php if ($access->canReply() && !$post->isUserBanned() && $post->canReply()) { ?>
                 <?php echo $composer->getComposer(); ?>
             <?php } else { ?>
 

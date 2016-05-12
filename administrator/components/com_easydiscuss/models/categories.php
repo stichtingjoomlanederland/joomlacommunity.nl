@@ -236,10 +236,11 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		$includeFeatured = isset($options['includeFeatured']) ? $options['includeFeatured'] : true;
 		$featuredSticky = isset($options['featuredSticky']) ? $options['featuredSticky'] : false;
 		$includeCluster = isset($options['includeCluster']) ? $options['includeCluster'] : null;
+		$private = isset($options['private']) ? $options['private'] : null;
 
 		$exclude = isset($options['exclude']) ? $options['exclude'] : array();
 
-		$includeChild = isset($options['includeChild']) ? $options['includeChild'] : true;
+		$includeChilds = isset($options['includeChilds']) ? $options['includeChilds'] : true;
 
 		if (! is_array($ids)) {
 			$ids = array($ids);
@@ -248,6 +249,18 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		$joins = array();
 
 		foreach($ids as $catId) {
+
+			// $includeChilds = true;
+
+			// $catModel = ED::model('Categories');
+			$children = $this->getCategoriesTree($catId, array('idOnly' => true, 'includeChilds' => $includeChilds));
+
+			if (! $children) {
+				continue;
+			}
+
+			// var_dump($includeChilds, $children);
+
 			$query = "select $catId as `cat_parent_id`, a.`post_id`, a.`has_polls` as `polls_cnt`, a.`num_fav` as `totalFavourites`, a.`num_replies`, a.`num_attachments` as attachments_cnt,";
 			$query .= " a.`num_likes` as `likeCnt`, a.`sum_totalvote` as `VotedCnt`,";
 			$query .=  " a.`replied` as `lastupdate`, a.vote as `total_vote_cnt`,";
@@ -262,7 +275,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 
 			// $query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`,";
 			$query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`,";
-			$query .= " (select cc.`anonymous` from `#__discuss_posts` as cc where cc.`parent_id` = a.`post_id` order by cc.`id` desc limit 1) as `last_user_anonymous`,";
+			$query .= " (select cc.`anonymous` from `#__discuss_posts` as cc where cc.`thread_id` = a.`id` and cc.created = a.replied limit 1) as `last_user_anonymous`,";
 
 			$query .= " a.`post_status`, a.`post_type`";
 
@@ -273,16 +286,25 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 				$query .= " and a.featured = 0";
 			}
 
+			if (!ED::isSiteAdmin() && !ED::isModerator() && !$private) {
+				$query .= " and a.`private` = " . $db->Quote(0);
+			}
+
 			if (!$includeCluster) {
 				$query .= " and a.`cluster_id` = " . $db->Quote(0);
 			}
 
-			// category ACL:
-			$catOptions = array('include' => $catId,
-								'includeChilds' => $includeChild);
 
-			$catAccessSQL = ED::category()->genCategoryAccessSQL('a.category_id', $catOptions);
-			$query .= " and " . $catAccessSQL;
+			// category ACL:
+			// $catOptions = array('include' => $catId,
+			// 					'includeChilds' => $includeChild);
+
+			// $catAccessSQL = ED::category()->genCategoryAccessSQL('a.category_id', $catOptions);
+			// $query .= " and " . $catAccessSQL;
+
+
+			$query .= " and a.`category_id` in (" . implode(',', $children) . ")";
+
 
 			$orderby = " order by";
 
@@ -303,6 +325,13 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 			$joins[] = $query;
 		}
 
+
+		// check if there is ant joins or not. if no mean nothing to search. just return empty array.
+		if (! $joins) {
+			return array();
+		}
+
+
 		$joinQuery = "(" . implode(") UNION ALL (", $joins) . ")";
 
 		$query = "select b.*, th.*,";
@@ -316,7 +345,8 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		// Join with category table.
 		$query	.= "	LEFT JOIN " . $db->nameQuote('#__discuss_category') . " AS e ON b.`category_id` = e.`id`";
 
-// echo $query;exit;
+		// echo $query;
+
 		$db->setQuery($query);
 		$results = $db->loadObjectList();
 
@@ -381,6 +411,13 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 
 		$query .= $catAccessSQL;
 		$query .= $childCatAccessSQL;
+
+
+		$filterLanguage = JFactory::getApplication()->getLanguageFilter();
+		if ($filterLanguage) {
+			$query .= " and " . ED::getLanguageQuery('a.language');
+		}
+
 
 		switch($orderConfig) {
 			case 'popular' :
@@ -708,6 +745,118 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 	 * @access	public
 	 * @param	int 	If there's a parent id provided, it would load sub categories.
 	 */
+	public function getCategoriesTree($categoryId, $options = array(), $acl = DISCUSS_CATEGORY_ACL_ACTION_VIEW)
+	{
+		static $_cache = array();
+
+
+		$idOnly = isset($options['idOnly']) ? $options['idOnly'] : false;
+		$includeChilds = isset($options['includeChilds']) ? $options['includeChilds'] : true;
+		$ignorePermission = isset($options['ignorePermission']) ? $options['ignorePermission'] : false;
+
+		$sig = (string) $idOnly;
+
+		if (is_array($categoryId) && $categoryId) {
+			$sig .= implode('-', $categoryId);
+		} else if($categoryId) {
+			$sig .= (string) $categoryId;
+		}
+
+
+		if (! isset($_cache[$sig])) {
+
+			$gid = array();
+
+			$db = ED::db();
+
+			if ($this->my->guest) {
+				$gid = JAccess::getGroupsByUser(0, false);
+			} else {
+				$gid = JAccess::getGroupsByUser($this->my->id, false);
+			}
+
+			$gids = '';
+
+			if (count($gid) > 0) {
+				foreach ($gid as $id) {
+					$gids .= (empty($gids)) ? $id : ',' . $id;
+				}
+			} else {
+				$gids = '1'; // this this user as guest
+			}
+
+			$sql = "SELECT acat.* ";
+
+			if ($idOnly) {
+				$sql = "SELECT acat.`id` ";
+			}
+
+			$tableAlias = 'pcat';
+
+			if ($includeChilds) {
+				$sql .= " FROM " . $db->nameQuote('#__discuss_category') . " AS pcat";
+				$sql .= "	INNER JOIN " . $db->nameQuote('#__discuss_category') . " AS acat ON (pcat.`lft` <= acat.`lft` AND pcat.`rgt` >= acat.`rgt`)";
+			} else {
+				$sql .= " FROM " . $db->nameQuote('#__discuss_category') . " AS acat";
+
+				$tableAlias = 'acat';
+			}
+
+			if (! $categoryId) {
+				$sql .=	" WHERE $tableAlias.`parent_id` = " . $db->Quote(0);
+
+			} else {
+
+				if (is_array($categoryId)) {
+					if (count($categoryId) == 1) {
+						$sql .=	" WHERE $tableAlias.`id` = " . $db->Quote($categoryId[0]);
+					} else {
+						$sql .=	" WHERE $tableAlias.`id` IN (" . implode(',', $categoryId) . ")";
+					}
+				} else {
+					$sql .=	" WHERE $tableAlias.`id` = " . $db->Quote($categoryId);
+				}
+
+			}
+
+
+			if (! $ignorePermission) {
+				$sql .= " AND (";
+				$sql .= " 	( acat.`private` = 0 ) OR";
+				$sql .= " 	( (acat.`private` = 1) AND (" . $this->my->id . " > 0) ) OR";
+				// joomla groups.
+				$sql .= " 	( (acat.`private` = 2) AND ( (select count(1) from " . $db->nameQuote('#__discuss_category_acl_map') . " as cacl";
+				$sql .= "										WHERE cacl.`category_id` = acat.id AND cacl.`acl_id` = $acl AND cacl.type = 'group' AND cacl.`content_id` in (" . $gids . ")) > 0 ) )";
+				$sql .= " )";
+			}
+
+			// echo $sql;
+			// echo '<br /><br />';
+
+			$db->setQuery($sql);
+
+			$resuts = array();
+			if ($idOnly) {
+				$results = $db->loadColumn();
+			} else {
+				$results = $db->loadObjectList();
+			}
+
+			$_cache[$sig] = $results;
+
+		}
+
+
+		return $_cache[$sig];
+	}
+
+	/**
+	 * Retrieves a list of parent categories from the site.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	int 	If there's a parent id provided, it would load sub categories.
+	 */
 	public function getParentCategoriesOnly($contentId = 0, $options = array())
 	{
 		$db = $this->db;
@@ -724,7 +873,14 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		}
 
 		$query .= ' from `#__discuss_category` as a';
-		$query .= ' where a.parent_id = ' . $db->Quote($contentId);
+
+		if (is_array($contentId)) {
+			$query .= ' where a.parent_id IN (' . implode(',', $contentId) . ')';
+		} else {
+			$query .= ' where a.parent_id = ' . $db->Quote($contentId);
+		}
+
+
 		$query .=  ' and a.`published` = ' . $db->Quote('1');
 
 		$filterLanguage = JFactory::getApplication()->getLanguageFilter();
@@ -794,10 +950,18 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 
 
 
-	public function getAllCategories()
+	public function getAllCategories($options = array())
 	{
+		$isPublishedOnly = isset($options['published']) ? $options['published'] : null;
+
 		$db = $this->db;
-		$query = 'SELECT `id`, `title` FROM `#__discuss_category` ORDER BY `title`';
+		$query = 'SELECT `id`, `title` FROM `#__discuss_category`';
+
+		if ($isPublishedOnly) {
+			$query .= ' WHERE `published` = 1';
+		}
+
+		$query .= ' ORDER BY `title`';
 		$db->setQuery($query);
 
 		$result = $db->loadObjectList();

@@ -25,14 +25,10 @@ class EasyDiscussSharerButtonGoogle extends EasyDiscuss
 		$dataURL = EDR::getRoutedURL('view=post&id=' . $row->id, false, true);
 
 		$googleHTML = '';
-		$size = 'tall';
-		$width = '50px';
 
-		if ($position == 'horizontal') {
-			$size = 'medium'; 
-			$width = '60px';	
-		}
-		
+		$size = 'medium';
+		$width = '60px';
+
 		$googleHTML	.= '<div class="social-button google-plusone" style="width:' . $width . '">';
 		$googleHTML	.= '<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>';
 		$googleHTML	.= '<g:plusone size="' . $size . '" href="' . $dataURL . '"></g:plusone>';

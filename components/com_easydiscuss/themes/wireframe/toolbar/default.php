@@ -64,6 +64,16 @@ defined('_JEXEC') or die('Unauthorized Access');
         <ul class="o-nav ed-navbar__o-nav">
             <?php if ($this->my->id) { ?>
                 <?php if ($this->config->get('main_conversations') && $showConversation && $this->acl->allowed('allow_privatemessage')) { ?>
+                    <?php if ($useEasySocialConversations) { ?>
+                <li>
+                    <a href="<?php echo ED::easysocial()->getConversationsRoute();?>" class="ed-navbar__icon-link <?php echo $conversationsCount ? 'has-new' : '';?>"
+                        data-original-title="<?php echo JText::_('COM_EASYDISCUSS_CONVERSATIONS');?>"
+                    >
+                        <i class="fa fa-envelope"></i>
+                        <span class="ed-navbar__link-text"><?php echo JText::_('COM_EASYDISCUSS_CONVERSATIONS');?></span>
+                    </a>
+                </li>
+                    <?php } else { ?>
                 <li>
                     <a href="javascript:void(0);" class="ed-navbar__icon-link <?php echo $conversationsCount ? 'has-new' : '';?>"
                         data-ed-conversations-wrapper
@@ -83,6 +93,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     	<span class="ed-navbar__link-bubble" data-ed-conversations-counter><?php echo $conversationsCount;?></span>
                     </a>
                 </li>
+                    <?php } ?>
                 <?php } ?>
 
                 <?php if ($showNotification) { ?>
@@ -144,7 +155,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                                 <div class="popbox-dropdown-nav">
 
                                     <div class="popbox-dropdown-nav__item <?php echo $active == 'profile' ? ' is-active' : '';?>">
-                                        <a href="<?php echo ED::getEditProfileLink();?>" class="popbox-dropdown-nav__link">
+                                        <a href="<?php echo $this->profile->getEditProfileLink();?>" class="popbox-dropdown-nav__link">
                                             <div class="o-flag">
                                                 <div class="o-flag__image o-flag--top">
                                                     <i class="popbox-dropdown-nav__icon fa fa-cog"></i>
@@ -227,6 +238,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                                             </div>
                                         </a>
                                     </div>
+                                    
                                     <?php if ($this->acl->allowed('manage_holiday')) { ?>
                                     <div class="popbox-dropdown-nav__item <?php echo $active == 'dashboard' ? ' is-active' : '';?>">
                                         <a href="<?php echo EDR::_('view=dashboard');?>" class="popbox-dropdown-nav__link">
@@ -287,7 +299,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             <li>
                 <a href="javascript:void(0);" class="ed-navbar__icon-link"
                     data-ed-popbox
-                    data-ed-popbox-position="bottom-right"
+                    data-ed-popbox-position="<?php echo JFactory::getDocument()->getDirection() == 'rtl' ? 'bottom-left' : 'bottom-right';?>"
                     data-ed-popbox-offset="4"
                     data-ed-popbox-type="navbar-signin"
                     data-ed-popbox-component="popbox--navbar"
@@ -305,7 +317,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <div class="o-flag o-flag--rev">
                                 <div class="o-flag__body">
                                     <div class="popbox-dropdown__title"><?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_SIGN_IN_HEADING');?></div>
-                                    <div class="popbox-dropdown__meta"><?php echo JText::sprintf('COM_EASYDISCUSS_TOOLBAR_NEW_USERS', '<a href="'. ED::getRegistrationLink() .'">' . JText::_('COM_EASYDISCUSS_TOOLBAR_REGISTER') . '</a>');?></div>
+                                    <div class="popbox-dropdown__meta"><?php echo JText::sprintf('COM_EASYDISCUSS_TOOLBAR_NEW_USERS_REGISTRATION', ED::getRegistrationLink());?></div>
                                 </div>
                             </div>
                         </div>
@@ -365,7 +377,7 @@ defined('_JEXEC') or die('Unauthorized Access');
     <div class="ed-navbar__footer">
         <div class="o-row">
             <div class="o-col">
-                <a href="javascript:void(0);" class="btn btn-sm btn-default ed-navbar-submenu-toggle" data-ed-navbar-submenu-toggle>Toggle Sub Menu</a>
+                <a href="javascript:void(0);" class="btn btn-sm btn-default ed-navbar-submenu-toggle" data-ed-navbar-submenu-toggle><?php echo JText::_('COM_EASYDISCUSS_TOGGLE_SUBMENU');?></a>
             	<ol class="g-list-inline g-list-inline--dashed ed-navbar__footer-submenu" data-ed-navbar-submenu>
             	    <li class="<?php echo $active == 'forums' ? ' is-active' : '';?>">
             	    	<a href="<?php echo EDR::_('view=forums');?>" class="ed-navbar__footer-link"><?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_FORUMS');?></a>

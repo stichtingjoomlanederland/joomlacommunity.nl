@@ -137,7 +137,7 @@ class AkismetHttpClient extends AkismetObject {
 
 
 	// Constructor
-	function AkismetHttpClient($host, $blogUrl, $apiKey, $port = 80) {
+	function __construct($host, $blogUrl, $apiKey, $port = 80) {
 		$this->host = $host;
 		$this->port = $port;
 		$this->blogUrl = $blogUrl;
@@ -236,7 +236,7 @@ class Akismet extends AkismetObject {
 	 * @param 	String[]	$comment	A formatted comment array to be examined by the Akismet service
 	 * @return	Akismet
 	 */
-	function Akismet($blogUrl, $apiKey, $comment = array()) {
+	function __construct($blogUrl, $apiKey, $comment = array()) {
 		$this->blogUrl = $blogUrl;
 		$this->apiKey  = $apiKey;
 		$this->setComment($comment);

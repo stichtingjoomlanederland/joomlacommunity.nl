@@ -73,7 +73,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 </div>
 
                 <?php if ($this->config->get('main_master_tags')) { ?>
-                    <?php if ($this->config->get('main_tags') && $post->getTags()) { ?>
+                    <?php if ($post->getTags()) { ?>
                     <ol class="g-list-inline ed-post-meta-tag t-lg-mt--md">
                         <?php foreach ($post->getTags() as $tag) { ?>
                         <li>

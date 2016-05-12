@@ -21,10 +21,10 @@ defined('_JEXEC') or die('Restricted access');
 <form autocomplete="off" action="<?php echo JRoute::_('index.php');?>" method="post" enctype="multipart/form-data" data-ed-holiday-form>
 <div class="ed-dashboard-form">
     <div class="ed-dashboard-form__hd">
-        <div class="o-col">
+        <div class="o-col-sm">
             <i class="fa fa-calendar-o"></i> <?php echo JText::_('COM_EASYDISCUSS_HOLIDAY'); ?>    
         </div>
-        <div class="o-col">
+        <div class="o-col-sm">
             <a href="<?php echo EDR::_('view=dashboard'); ?>" class="btn btn-default btn-sm pull-right"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CANCEL'); ?></a>
         </div>  
     </div>
@@ -61,10 +61,10 @@ defined('_JEXEC') or die('Restricted access');
                     <div class="form-group ed-dashboard-j-calendar">
                         <div class="o-grid">
                             <div class="o-grid__cell o-grid__cell--auto-size t-lg-pr--lg">
-                                <label for="startDate" class="t-lg-mt--md"><?php echo JText::_('COM_EASYDISCUSS_HOLIDAY_START_DATE_FIELD'); ?>:</label>
+                                <label for="start" class="t-lg-mt--md"><?php echo JText::_('COM_EASYDISCUSS_HOLIDAY_START_DATE_FIELD'); ?>:</label>
                             </div>
                             <div class="o-grid__cell">
-                                <?php echo JHTML::_('calendar', $holiday->start, 'startDate', 'startDate', '%Y-%m-%d', array('data-ed-holiday-start' => '', 'class' => 'form-control')); ?>        
+                                <?php echo JHTML::_('calendar', $holiday->start, 'start', 'start', '%Y-%m-%d', array('data-ed-holiday-start' => '', 'class' => 'form-control')); ?>        
                             </div>
                         </div>
                     </div>
@@ -74,10 +74,10 @@ defined('_JEXEC') or die('Restricted access');
                     <div class="form-group ed-dashboard-j-calendar">
                         <div class="o-grid">
                             <div class="o-grid__cell o-grid__cell--auto-size t-lg-pr--lg">
-                                <label for="endDate" class="t-lg-mt--md"><?php echo JText::_('COM_EASYDISCUSS_HOLIDAY_END_DATE_FIELD'); ?>:</label>
+                                <label for="end" class="t-lg-mt--md"><?php echo JText::_('COM_EASYDISCUSS_HOLIDAY_END_DATE_FIELD'); ?>:</label>
                             </div>
                             <div class="o-grid__cell">
-                                <?php echo JHTML::_('calendar', $holiday->end, 'endDate', 'endDate', '%Y-%m-%d', array('data-ed-holiday-end' => '', 'class' => 'form-control')); ?>
+                                <?php echo JHTML::_('calendar', $holiday->end, 'end', 'end', '%Y-%m-%d', array('data-ed-holiday-end' => '', 'class' => 'form-control')); ?>
                             </div>
                         </div>
                         

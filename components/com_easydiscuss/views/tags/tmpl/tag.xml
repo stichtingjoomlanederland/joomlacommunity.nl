@@ -10,7 +10,7 @@
 		<name><![CDATA[COM_EASYDISCUSS_MENU_TAG_LAYOUT]]></name>
 		<description><![CDATA[COM_EASYDISCUSS_MENU_TAG_LAYOUT_DESC]]></description>
 		<url addpath="/administrator/components/com_easydiscuss/elements">
-			<param name="id" type="tags" label="Tag Id" default="0" description="Choose a tag..." />
+			<param name="id" type="tags" label="COM_EASYDISCUSS_MENU_TAG_LAYOUT_SELECT_TAG" default="0" description="COM_EASYDISCUSS_MENU_TAG_LAYOUT_SELECT_TAG_DESC" />
 		</url>
 		<params>
 		</params>
@@ -22,9 +22,9 @@
 			addfieldpath="/administrator/components/com_easydiscuss/elements/fields">
 
 			<field name="id" type="modal_tags"
-				label="Tag Id"
+				label="COM_EASYDISCUSS_MENU_TAG_LAYOUT_SELECT_TAG"
 				required="true"
-				description="Choose a tag..."
+				description="COM_EASYDISCUSS_MENU_TAG_LAYOUT_SELECT_TAG_DESC"
 			/>
 		</fieldset>
 	</fields>

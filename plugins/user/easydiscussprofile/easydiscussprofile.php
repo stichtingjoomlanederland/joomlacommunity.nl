@@ -212,6 +212,10 @@ class plgUserEasydiscussProfile extends JPlugin
 				{
 					$userparams->set( 'skype', $data['easydiscussprofile']['skype'] );
 				}
+				if ( isset($data['easydiscussprofile']['website']) )
+				{
+					$userparams->set( 'website', $data['easydiscussprofile']['website'] );
+				}
 
 				$profile->params	= $userparams->toString();
 

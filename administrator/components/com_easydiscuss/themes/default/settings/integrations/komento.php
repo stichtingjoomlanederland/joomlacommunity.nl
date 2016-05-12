@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Restricted access');
 	<div class="col-md-6">
 		<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_KOMENTO_INTEGRATIONS'); ?>
-			<a href="http://stackideas.com/komento.html" class="btn btn-success"><?php echo JText::_('COM_EASYDISCUSS_LEARN_MORE_ABOUT_KOMENTO'); ?></a>
+			<a href="http://stackideas.com/komento/" class="btn btn-success t-lg-ml--lg t-lg-mt--lg"><?php echo JText::_('COM_EASYDISCUSS_LEARN_MORE_ABOUT_KOMENTO'); ?></a>
 
 			<div class="panel-body">
 				<div class="form-horizontal">

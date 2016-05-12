@@ -136,7 +136,7 @@ if( $this->profile->id != 0)
 						</div>
 						<?php } ?>
 
-						<?php if ($this->config->get('main_master_tags') && $this->config->get('main_tags') && $post->getTags()) { ?>
+						<?php if ($this->config->get('main_master_tags') && $post->getTags()) { ?>
 							<?php $tags = $post->getTags(); ?>
 							<div class="discuss-tags">
 								<?php foreach ($tags as $tag) { ?>

@@ -11,158 +11,105 @@
 */
 defined('_JEXEC') or die('Restricted access');
 ?>
-<div class="app-content-head">
-	<h2><?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIAL_FACEBOOK_TITLE' );?></h2>
-	<div>
-		<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIAL_FACEBOOK_DESC' );?>
-	</div>
-</div>
 
-<div class="app-content-body">
-	<div class="row">
-		<div class="col-md-6">
-			<div class="panel">
-				<div class="panel-head">
-					<a href="javascript:void(0);" data-foundry-toggle="collapse" data-target="#option01">
-					<h6><?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_TITLE' ); ?></h6>
-					<i class="icon-chevron-down"></i>
-					</a>
-				</div>
+<div class="row">
+	<div class="col-md-6">
+		<div class="panel">
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_TITLE'); ?>
 
-				<div id="option01" class="panel-body">
-					<div class="form-horizontal">
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<label>
-									<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_ADMIN_ID' ); ?>
-								</label>
-							</div>
-							<div class="col-md-7"
-								rel="ed-popover"
-								data-placement="left"
-								data-original-title="<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_ADMIN_ID' ); ?>"
-								data-content="<?php echo JText::_('COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_ADMIN_ID_DESC'); ?>"
-							>
-								<input type="text" name="integration_facebook_like_admin" class="form-control" value="<?php echo $this->config->get('integration_facebook_like_admin');?>" size="40" />
-								<a href="http://stackideas.com/docs/easydiscuss/facebook/obtaining-your-facebook-account-id.html" target="_blank" style="margin-left:5px;"><?php echo JText::_('COM_EASYDISCUSS_WHAT_IS_THIS'); ?></a>
-							</div>
+			<div class="panel-body">
+				<div class="form-horizontal">
+					<div class="form-group">
+						<div class="col-md-6 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_ADMIN_ID'); ?>
 						</div>
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<label>
-									<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_APP_ID' ); ?>
-								</label>
-							</div>
-							<div class="col-md-7"
-								rel="ed-popover"
-								data-placement="left"
-								data-original-title="<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_APP_ID' ); ?>"
-								data-content="<?php echo JText::_('COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_APP_ID_DESC'); ?>"
-							>
-								<input type="text" name="integration_facebook_like_appid" class="form-control" value="<?php echo $this->config->get('integration_facebook_like_appid');?>" size="40" />
-								<a href="http://stackideas.com/docs/easydiscuss/facebook/obtaining-your-facebook-application-settings.html" target="_blank" style="margin-left:5px;"><?php echo JText::_('COM_EASYDISCUSS_WHAT_IS_THIS'); ?></a>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<label>
-									<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_ENABLE_SCRIPTS' ); ?>
-								</label>
-							</div>
-							<div class="col-md-7"
-								rel="ed-popover"
-								data-placement="left"
-								data-original-title="<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_ENABLE_SCRIPTS' ); ?>"
-								data-content="<?php echo JText::_('COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_ENABLE_SCRIPTS_DESC'); ?>"
-							>
-								<?php echo $this->renderCheckbox( 'integration_facebook_scripts' , $this->config->get( 'integration_facebook_scripts' ) );?>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<label>
-									<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_ENABLE_LIKES' ); ?>
-								</label>
-							</div>
-							<div class="col-md-7"
-								rel="ed-popover"
-								data-placement="left"
-								data-original-title="<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_ENABLE_LIKES' ); ?>"
-								data-content="<?php echo JText::_('COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_ENABLE_LIKES_DESC'); ?>"
-							>
-								<?php echo $this->renderCheckbox( 'integration_facebook_like' , $this->config->get( 'integration_facebook_like' ) );?>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<label>
-									<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_SHOW_SEND' ); ?>
-								</label>
-							</div>
-							<div class="col-md-7"
-								rel="ed-popover"
-								data-placement="left"
-								data-original-title="<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_SHOW_SEND' ); ?>"
-								data-content="<?php echo JText::_('COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_SHOW_SEND_DESC'); ?>"
-							>
-								<?php echo $this->renderCheckbox( 'integration_facebook_like_send' , $this->config->get( 'integration_facebook_like_send' ) );?>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<label>
-									<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_SHOW_FACES' ); ?>
-								</label>
-							</div>
-							<div class="col-md-7"
-								rel="ed-popover"
-								data-placement="left"
-								data-original-title="<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_SHOW_FACES' ); ?>"
-								data-content="<?php echo JText::_('COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_SHOW_FACES_DESC'); ?>"
-							>
-								<?php echo $this->renderCheckbox( 'integration_facebook_like_faces' , $this->config->get( 'integration_facebook_like_faces' ) );?>
-							</div>
-						</div>
-
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<label>
-									<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_VERB' ); ?>
-								</label>
-							</div>
-							<div class="col-md-7"
-								rel="ed-popover"
-								data-placement="left"
-								data-original-title="<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_VERB' ); ?>"
-								data-content="<?php echo JText::_('COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_VERB_DESC'); ?>"
-							>
-								<select name="integration_facebook_like_verb" class="form-control" >
-									<option<?php echo $this->config->get( 'integration_facebook_like_verb' ) == 'like' ? ' selected="selected"' : ''; ?> value="like"><?php echo JText::_('COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_VERB_LIKES');?></option>
-									<option<?php echo $this->config->get( 'integration_facebook_like_verb' ) == 'recommend' ? ' selected="selected"' : ''; ?> value="recommend"><?php echo JText::_('COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_VERB_RECOMMENDS');?></option>
-								</select>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<label>
-									<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_THEMES' ); ?>
-								</label>
-							</div>
-							<div class="col-md-7"
-								rel="ed-popover"
-								data-placement="left"
-								data-original-title="<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_THEMES' ); ?>"
-								data-content="<?php echo JText::_('COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_THEMES_DESC'); ?>"
-							>
-								<select name="integration_facebook_like_theme" class="form-control">
-									<option<?php echo $this->config->get( 'integration_facebook_like_theme' ) == 'light' ? ' selected="selected"' : ''; ?> value="light"><?php echo JText::_('COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_THEMES_LIGHT');?></option>
-									<option<?php echo $this->config->get( 'integration_facebook_like_theme' ) == 'dark' ? ' selected="selected"' : ''; ?> value="dark"><?php echo JText::_('COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_THEMES_DARK');?></option>
-								</select>
-							</div>
+						<div class="col-md-6">
+							<?php echo $this->html('form.textbox', 'integration_facebook_like_admin', $this->config->get('integration_facebook_like_admin')); ?>
+							<a href="http://stackideas.com/docs/easydiscuss/facebook/obtaining-your-facebook-account-id.html" target="_blank" style="margin-left:5px;">
+								<?php echo JText::_('COM_EASYDISCUSS_WHAT_IS_THIS'); ?>
+							</a>
 						</div>
 					</div>
+
+					<div class="form-group">
+						<div class="col-md-6 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_APP_ID'); ?>
+						</div>
+						<div class="col-md-6">
+							<?php echo $this->html('form.textbox', 'integration_facebook_like_appid', $this->config->get('integration_facebook_like_appid')); ?>
+							<a href="http://stackideas.com/docs/easydiscuss/facebook/obtaining-your-facebook-application-settings.html" target="_blank" style="margin-left:5px;">
+								<?php echo JText::_('COM_EASYDISCUSS_WHAT_IS_THIS'); ?>
+							</a>
+						</div>
+					</div>
+
+
+					<div class="form-group">
+						<div class="col-md-6 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_ENABLE_SCRIPTS'); ?>
+						</div>
+						<div class="col-md-6">
+							<?php echo $this->html('form.boolean', 'integration_facebook_scripts', $this->config->get('integration_facebook_scripts')); ?>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-md-6 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_ENABLE_LIKES'); ?>
+						</div>
+						<div class="col-md-6">
+							<?php echo $this->html('form.boolean', 'integration_facebook_like', $this->config->get('integration_facebook_like')); ?>
+						</div>
+					</div>
+
+
+					<div class="form-group">
+						<div class="col-md-6 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_SHOW_SEND'); ?>
+						</div>
+						<div class="col-md-6">
+							<?php echo $this->html('form.boolean', 'integration_facebook_like_send', $this->config->get('integration_facebook_like_send')); ?>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-md-6 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_SHOW_FACES'); ?>
+						</div>
+						<div class="col-md-6">
+							<?php echo $this->html('form.boolean', 'integration_facebook_like_faces', $this->config->get('integration_facebook_like_faces')); ?>
+						</div>
+					</div>
+
+
+					<div class="form-group">
+						<div class="col-md-6 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_VERB'); ?>
+						</div>
+	                    <div class="col-md-6">
+	                        <?php echo $this->html('form.dropdown', 'integration_facebook_like_verb',
+	                        						array('like' => 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_VERB_LIKES', 'recommend' => 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_VERB_RECOMMENDS'),
+	                        						$this->config->get('integration_facebook_like_verb')); ?>
+	                    </div>
+
+					</div>
+
+					<div class="form-group">
+						<div class="col-md-6 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_THEMES'); ?>
+						</div>
+	                    <div class="col-md-6">
+	                        <?php echo $this->html('form.dropdown', 'integration_facebook_like_theme',
+	                        						array('light' => 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_THEMES_LIGHT', 'dark' => 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_THEMES_DARK'),
+	                        						$this->config->get('integration_facebook_like_theme')); ?>
+	                    </div>
+
+					</div>
+
 				</div>
 			</div>
+
 		</div>
+
 	</div>
 </div>

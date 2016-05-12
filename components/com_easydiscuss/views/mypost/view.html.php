@@ -17,6 +17,9 @@ class EasyDiscussViewMypost extends EasyDiscussView
 {
 	public function display($tpl = null)
 	{
+		// Ensure that the user is logged in
+		ED::requireLogin();
+		
 		ED::setPageTitle(JText::_('COM_EASYDISCUSS_PAGETITLE_MYPOST'));
 
 		$this->setPathway( JText::_('COM_EASYDISCUSS_BREADCRUMB_MYPOST'));
@@ -31,7 +34,7 @@ class EasyDiscussViewMypost extends EasyDiscussView
 
 		$postsModel = ED::model('Posts');
 
-		$options = array('filter' => 'questions', 'userId' => $profile->id, 'includeCluster' => true);
+		$options = array('filter' => 'questions', 'userId' => $profile->id, 'includeCluster' => true, 'private' => true);
 		$posts = $postsModel->getDiscussions($options);
 
 		$posts = ED::formatPost($posts);

@@ -72,7 +72,13 @@ class EasyDiscussMigratorBase
 		$category->created_by = $this->getDefaultSuperUserId();
 
 		// Now, try to save the category
-		$category->store();
+		$state = $category->store();
+
+		// now update the permission for this category.
+		if ($state) {
+			$model = ED::model('Category');
+			$model->updateACL($category->id, array(), null, true);
+		}
 
 		return $category->id;
 	}

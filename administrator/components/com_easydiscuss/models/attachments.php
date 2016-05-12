@@ -57,13 +57,12 @@ class EasyDiscussModelAttachments extends EasyDiscussAdminModel
      * @param	string
      * @return	
      */
-    public function getPostAttachments($postId, $type = 'post')
+    public function getPostAttachments($postId)
     {
     	$db = $this->db;
 
         $query  = 'SELECT * FROM ' . $db->qn( '#__discuss_attachments' ) . ' '
                 . 'WHERE ' . $db->qn('uid') . '=' . $db->Quote($postId) . ' '
-                . 'AND ' . $db->qn('type') . '=' . $db->Quote($type) . ' '
                 . 'AND ' . $db->nameQuote('published') . '=' . $db->Quote(1);
 
     	$db->setQuery($query);

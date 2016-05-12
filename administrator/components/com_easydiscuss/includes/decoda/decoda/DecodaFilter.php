@@ -43,7 +43,7 @@ defined('_JEXEC') or die('Unauthorized Access');
  * @parent				- (array) List of Decoda keys that this tag can only be a direct child of
  * @children			- (array) List of Decoda keys for all the tags that can only be a direct descendant
  */
-abstract class DecodaFilter extends DecodaAbstract {
+abstract class EdDecodaFilter extends EdDecodaAbstract {
 
 	/**
 	 * Type constants.
@@ -206,7 +206,7 @@ abstract class DecodaFilter extends DecodaAbstract {
 	 * @param Decoda $decoda
 	 * @return void
 	 */
-	public function setupHooks(Decoda $decoda) {
+	public function setupHooks(EdDecoda $decoda) {
 		return;
 	}
 

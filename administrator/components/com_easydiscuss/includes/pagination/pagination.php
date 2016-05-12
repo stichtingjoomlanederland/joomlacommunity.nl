@@ -21,23 +21,23 @@ class EasyDiscussPagination extends JPagination
 		$limitstart = '';
 		$limit = '';
 		$prefix = '';
-		
+
 		if (isset($opts[0])) {
 			$total = $opts[0];
 		}
 
 		if (isset($opts[1])) {
-			$limitstart = $opts[1];	
+			$limitstart = $opts[1];
 		}
-		
+
 		if (isset($opts[2])) {
-			$limit = $opts[2];	
+			$limit = $opts[2];
 		}
-		
+
 		if (isset($opts[3])) {
-			$prefix = $opts[3];	
+			$prefix = $opts[3];
 		}
-		
+
 		parent::__construct($total, $limitstart, $limit, $prefix);
 	}
 
@@ -61,8 +61,7 @@ class EasyDiscussPagination extends JPagination
 		$data	= $this->getData();
 
 		// Nothing to paginate.
-		if( !$data->pages )
-		{
+		if (!$data->pages) {
 			return;
 		}
 
@@ -113,7 +112,7 @@ class EasyDiscussPagination extends JPagination
 				if( !empty( $page->link ) )
 				{
 					$limitstart  = ( !empty($page->base) ) ? '&limitstart=' . $page->base : '';
-					$page->link   = DiscussRouter::_( $curPageLink . $limitstart);
+					$page->link   = EDR::_( $curPageLink . $limitstart);
 				}
 			}
 
@@ -121,14 +120,14 @@ class EasyDiscussPagination extends JPagination
 			if( !empty( $data->next->link ) )
 			{
 				$limitstart  = ( !empty($data->next->base) ) ? '&limitstart=' . $data->next->base : '';
-				$data->next->link   = DiscussRouter::_( $curPageLink . $limitstart);
+				$data->next->link   = EDR::_( $curPageLink . $limitstart);
 			}
 
 			// older link
 			if( !empty( $data->previous->link ) )
 			{
 				$limitstart  = ( !empty($data->previous->base) ) ? '&limitstart=' . $data->previous->base : '';
-				$data->previous->link   = DiscussRouter::_( $curPageLink . $limitstart);
+				$data->previous->link   = EDR::_( $curPageLink . $limitstart);
 			}
 
 		}

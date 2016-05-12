@@ -15,17 +15,9 @@ class EasyDiscussMailQueue extends EasyDiscuss
 {
 	function sendOnPageLoad()
 	{
-		$db 	= DiscussHelper::getDBO();
-		$config	= DiscussHelper::getConfig();
-		$max	= (int) $config->get('main_mailqueuenumber');
-
-		// Delete existing mails that has already been sent.
-		$query		= 'DELETE FROM ' . $db->nameQuote( '#__discuss_mailq' ) . ' WHERE '
-					. $db->nameQuote( 'status' ) . '=' . $db->Quote( 1 )
-					. ' AND DATEDIFF(NOW(), `created`) >= 30';
-
-		$db->setQuery( $query );
-		$db->Query();
+		$db = ED::db();
+		$config	= ED::config();
+		$max = (int) $config->get('main_mailqueuenumber');
 
 		$query  = 'SELECT `id` FROM `#__discuss_mailq` WHERE `status` = 0';
 		$query  .= ' ORDER BY `created` ASC';
@@ -35,89 +27,65 @@ class EasyDiscussMailQueue extends EasyDiscuss
 
 		$result = $db->loadObjectList();
 
-		if(! empty($result))
-		{
-			foreach($result as $mail)
-			{
-				$mailq	= DiscussHelper::getTable( 'MailQueue' );
+		if (!empty($result)) {
+
+			foreach($result as $mail) {
+
+				$mailq = ED::table('MailQueue');
 				$mailq->load($mail->id);
 
-				// update the status to 1 == proccessed
- 				$mailq->status  = 1;
- 				if( $mailq->store() )
-				{
-					if( DiscussHelper::getJoomlaVersion() > '1.6' )
-					{
-						$mail   	= JFactory::getMailer();
-						$result 	= $mail->sendMail($mailq->mailfrom, $mailq->fromname, $mailq->recipient, $mailq->subject, $mailq->body , $mailq->ashtml );
-
-						// This code is to record all the activities from crons.
-						// Need to create a table for this
-						// $date = JFactory::getDate();
-
-						// $data 				= new stdClass();
-						// $data->id 			= null;
-						// $data->recipient 	= $mailq->recipient;
-						// $data->subject 		= $mailq->subject;
-						// $data->body 		= $mailq->body;
-						// $data->status 		= $mailq->status;
-						// $data->created 		= $date->toMySQL();
-
-						// $db->insertObject( '#__discuss_cron_logs', $data, id );
-
-	 				}
-					else
-					{
-						JUtility::sendMail($mailq->mailfrom, $mailq->fromname, $mailq->recipient, $mailq->subject, $mailq->body , $mailq->ashtml );
-					}
-
+				if (ED::getJoomlaVersion() > '1.6') {
+					$mail = JFactory::getMailer();
+					$state = $mail->sendMail($mailq->mailfrom, $mailq->fromname, $mailq->recipient, $mailq->subject, $mailq->body, $mailq->ashtml);
+				} else {
+					$state = JUtility::sendMail($mailq->mailfrom, $mailq->fromname, $mailq->recipient, $mailq->subject, $mailq->body, $mailq->ashtml);
 				}
 
-				//end foreach
+				// update the status to 1 == proccessed
+				if ($state) {
+	 				$mailq->status = 1;
+				}
+
+				$mailq->store();
 			}
 		}
-
 	}
 
 	public function parseEmails()
 	{
-		require_once DISCUSS_CLASSES . '/mailbox.php';
-		$config = DiscussHelper::getConfig();
+		$config = ED::getConfig();
 
 
 		// Default email parser
-		$mailer	= new DiscussMailer();
-		$state	= $mailer->connect( $config->get( 'main_email_parser_username' ), $config->get( 'main_email_parser_password' ) );
 
-		if( $state )
-		{
-			self::processEmails( $mailer );
+		$mailbox = ED::Mailbox();
+		$state	= $mailbox->connect( $config->get( 'main_email_parser_username' ), $config->get( 'main_email_parser_password' ) );
+
+		if ($state) {
+			self::processEmails( $mailbox );
 		}
 
 		// Category email parser
 		$model = ED::model('Categories');
 		$cats = $model->getAllCategories();
 
-		if( is_array($cats) )
-		{
-			foreach( $cats as $cat )
-			{
-				$category = DiscussHelper::getTable( 'Category' );
-				$category->load( $cat->id );
+		if (is_array($cats)) {
+			foreach ($cats as $cat) {
+
+				$category = ED::category($cat->id);
 
 				$enable = explode( ',' , $category->getParam( 'cat_email_parser_switch') );
 
-				if( $enable[0] )
-				{
+				if ($enable[0]) {
 					$catMail = explode( ',' , $category->getParam( 'cat_email_parser') );
 					$catPass = explode( ',' , $category->getParam( 'cat_email_parser_password') );
 
-					$mailer	= new DiscussMailer();
-					$state	= $mailer->connect( $catMail[0], $catPass[0] );
 
-					if( $state )
-					{
-						self::processEmails( $mailer, $category );
+					$mailbox = ED::Mailbox();
+					$state	= $mailbox->connect( $catMail[0], $catPass[0] );
+
+					if ($state) {
+						self::processEmails($mailbox, $category);
 					}
 				}
 
@@ -131,10 +99,16 @@ class EasyDiscussMailQueue extends EasyDiscuss
 	/*
 	 * Connect from parseEmails
 	 */
-	private function processEmails( $mailer = '', $category = '' )
+	private function processEmails($mailer = '', $category = '')
 	{
+		// Bind file attachments
+		jimport( 'joomla.filesystem.file' );
+		jimport( 'joomla.filesystem.folder' );
+		jimport( 'joomla.utilities.utility' );
+
+
 		// @task: Only search for messages that are new.
-		$unread	= $mailer->searchMessages( 'UNSEEN' );
+		$unread	= $mailer->searchMessages('UNSEEN');
 
 		// If there is no unread emails, just skip this altogether
 		if (!$unread) {
@@ -142,8 +116,8 @@ class EasyDiscussMailQueue extends EasyDiscuss
 			return false;
 		}
 
-		$config = DiscussHelper::getConfig();
-		$acl = DiscussHelper::getHelper( 'ACL' );
+		$config = $this->config;
+		$acl = $this->acl;
 		$filter = JFilterInput::getInstance();
 		$total = 0;
 
@@ -154,7 +128,17 @@ class EasyDiscussMailQueue extends EasyDiscuss
 			// Get the message info
 			$info = $mailer->getMessageInfo($sequence);
 			$from = $info->from;
-			$senderName = $from[0]->personal;
+
+			$senderName = 'Unknown';
+			if (isset($info->from)) {
+				$from = $info->from;
+
+				if (isset($from[0]->personal)) {
+					$senderName = $from[0]->personal;
+				} else if (isset($from[0]->mailbox)) {
+					$senderName = $from[0]->mailbox;
+				}
+			}
 
 			// Get the subject of the email and clean it to avoid any unclose html tags
 			$subject = $filter->clean($info->subject);
@@ -163,10 +147,12 @@ class EasyDiscussMailQueue extends EasyDiscuss
 			preg_match('/\[\#(.*)\]/is', $subject, $matches);
 
 			$isReply = !empty( $matches );
-			$message = new DiscussMailerMessage( $mailer->stream , $sequence );
+			$message = ED::MailerMessage($mailer->stream, $sequence);
 
 			// Load up the post object
-			$post = DiscussHelper::getTable('Post');
+			$post = ED::post();
+
+			$data = array();
 
 			// Get the html output
 			$html = $message->getHTML();
@@ -205,14 +191,16 @@ class EasyDiscussMailQueue extends EasyDiscuss
 				$subject = JText::_('COM_EASYDISCUSS_EMAIL_NO_SUBJECT');
 			}
 
-			$post->set( 'content' 	, $html );
-			$post->set( 'content_type', $contentType);
-			$post->set( 'title'		, $subject );
-			$post->set('alias', DiscussHelper::getAlias($title, 'post'));
-			$post->set( 'published'	, DISCUSS_ID_PUBLISHED );
-			$post->set( 'created', ED::date()->toSql());
-			$post->set( 'replied', ED::date()->toSql());
-			$post->set( 'modified', ED::date()->toSql());
+
+			$data['content'] = $html;
+			$data['content_type'] = $contentType;
+			$data['title'] = $subject;
+			$data['alias'] = ED::getAlias($subject, 'post');
+			$data['published'] = DISCUSS_ID_PUBLISHED;
+			$data['created'] = ED::date()->toSql();
+			$data['replied'] = ED::date()->toSql();
+			$data['modified'] = ED::date()->toSql();
+
 
 
 			// If this is a reply, and the site isn't configured to parse replies, skip this
@@ -222,53 +210,50 @@ class EasyDiscussMailQueue extends EasyDiscuss
 
 			//add this for category email parser
 			if (!empty($category)) {
-
-				$post->category_id=$category->id;
+				$data['category_id'] = $category->id;
 
 			} else {
 				// By default, set the category to the one pre-configured at the back end.
-				$post->category_id = $config->get('main_email_parser_category');
+				$data['category_id'] = $config->get('main_email_parser_category');
 			}
 
 			if ($isReply) {
-				$parentId	= (int) $matches[1];
-				$post->set( 'parent_id' , $parentId );
+				$parentId = (int) $matches[1];
+				$data['parent_id'] = $parentId;
 
 				// Trim content, get text before the defined line
 				if( $replyBreaker ) {
-					if( $pos = JString::strpos($post->content, $replyBreaker) ) {
-						$post->content = JString::substr($post->content, 0, $pos);
+					if( $pos = JString::strpos($data['content'], $replyBreaker) ) {
+						$data['content'] = JString::substr($data['content'], 0, $pos);
 					}
 				}
 
 				// Since this is a reply, we need to determine the correct category for it based on the parent discussion.
-				$parent = DiscussHelper::getTable('Post');
+				$parent = ED::table('Post');
 				$parent->load($parentId);
 
-				$post->category_id = $parent->category_id;
+				$data['category_id'] = $parent->category_id;
 			}
 
 			// @rule: Map the sender's email with the user in Joomla?
 			$replyToEmail	= $info->fromemail;
 
 			// Lookup for the user based on their email address.
-			$user = DiscussHelper::getUserByEmail($replyToEmail);
+			$user = ED::getUserByEmail($replyToEmail);
 
 			if ($user instanceof JUser) {
-
-				$post->user_id = $user->id;
-				$post->user_type = DISCUSS_POSTER_MEMBER;
+				$data['user_id'] = $user->id;
+				$data['user_type'] = DISCUSS_POSTER_MEMBER;
 			} else {
 				// Guest posts
-				$post->user_type = DISCUSS_POSTER_GUEST;
-				$post->poster_name = $senderName;
-				$post->poster_email = $replyToEmail;
+				$data['user_type'] = DISCUSS_POSTER_GUEST;
+				$data['poster_name'] = $senderName;
+				$data['poster_email'] = $replyToEmail;
 			}
 
 			// check if guest can post question or not. if not skip the processing.
-			if ($post->get( 'user_type') == DISCUSS_POSTER_GUEST) {
-
-				$acl = DiscussHelper::getHelper( 'ACL', '0' );
+			if ($data['user_type'] == DISCUSS_POSTER_GUEST) {
+				$acl = ED::acl();
 
 				if (!$acl->allowed('add_question')) {
 					continue;
@@ -277,290 +262,81 @@ class EasyDiscussMailQueue extends EasyDiscuss
 
 			// If the system is configured to moderate all emails, then we should update the state accordingly
 			if ($config->get('main_email_parser_moderation')) {
-				$post->set('published', DISCUSS_ID_PENDING);
+				$data['published'] = DISCUSS_ID_PENDING;
 			}
 
-			// @rule: Process the post
-			$post->store();
+			// bind the data
+	        $post->bind($data);
 
-			// prepare email content and information.
-			$profile = ED::user($user->id);
+	        $saveOptions = array('ignorePreSave' => true);
+	        if ($config->get('main_email_parser_moderation')) {
+	        	$saveOptions['forceModerate'] = true;
+	        }
 
-			// For use within the emails.
-			$emailData					= array();
-			$emailData['postTitle']		= $post->title;
-			$emailData['postAuthor']	= $profile->id ? $profile->getName() : $post->poster_name;
-			$emailData['postAuthorAvatar' ] = $profile->getAvatar();
-			$emailData['postLink']		= DiscussRouter::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $post->id, false, true);
-
-			$emailContent 	= $post->content;
-
-
-			if( $post->content_type != 'html' )
-			{
-				// the content is bbcode. we need to parse it.
-				$emailContent	= ED::parser()->bbcode( $emailContent );
-				$emailContent	= ED::parser()->removeBrTag( $emailContent );
-			}
-
-			// If post is html type we need to strip off html codes.
-			if( $post->content_type == 'html' )
-			{
-				$emailContent 			= strip_tags( $post->content );
-			}
-
-			// Notify moderators when there's a new pending post
-			if ($post->published == DISCUSS_ID_PENDING) {
-
-				// Generate hashkeys to map this current request
-				$hashkey = DiscussHelper::getTable('HashKeys');
-				$hashkey->uid = $post->id;
-				$hashkey->type = DISCUSS_QUESTION_TYPE;
-				$hashkey->store();
-
-				// Prepare the email template.
-				$approveURL = DiscussHelper::getExternalLink('index.php?option=com_easydiscuss&controller=posts&task=approvePost&key=' . $hashkey->key );
-				$rejectURL = DiscussHelper::getExternalLink('index.php?option=com_easydiscuss&controller=posts&task=rejectPost&key=' . $hashkey->key );
-				$emailData[ 'moderation' ]	= '<div style="display:inline-block;width:100%;padding:20px;border-top:1px solid #ccc;padding:20px 0 10px;margin-top:20px;line-height:19px;color:#555;font-family:\'Lucida Grande\',Tahoma,Arial;font-size:12px;text-align:left">';
-				$emailData[ 'moderation' ] .= '<a href="' . $approveURL . '" style="display:inline-block;padding:5px 15px;background:#fc0;border:1px solid #caa200;border-bottom-color:#977900;color:#534200;text-shadow:0 1px 0 #ffe684;font-weight:bold;box-shadow:inset 0 1px 0 #ffe064;-moz-box-shadow:inset 0 1px 0 #ffe064;-webkit-box-shadow:inset 0 1px 0 #ffe064;border-radius:2px;moz-border-radius:2px;-webkit-border-radius:2px;text-decoration:none!important">' . JText::_( 'COM_EASYDISCUSS_EMAIL_APPROVE_POST' ) . '</a>';
-				$emailData[ 'moderation' ] .= ' ' . JText::_( 'COM_EASYDISCUSS_OR' ) . ' <a href="' . $rejectURL . '" style="color:#477fda">' . JText::_( 'COM_EASYDISCUSS_REJECT' ) . '</a>';
-				$emailData[ 'moderation' ] .= '</div>';
-				$emailData['postContent']	= $post->content;
-				$emailData['emailTemplate']	= 'email.subscription.site.moderate.php';
-				$emailData['emailSubject']	= JText::sprintf('COM_EASYDISCUSS_NEW_QUESTION_MODERATE', $post->id , $post->title);
-
-				// Notify the moderators now
-				DiscussHelper::getHelper('Mailer')->notifyAdministrators($emailData, array($replyToEmail), $config->get('notify_admin'), $config->get('notify_moderator'));
-
-			} elseif($post->published == DISCUSS_ID_PUBLISHED) {
-
-					//$emailData['attachments']	= $attachments;
-					$emailData['postContent']	= $post->content;
-					$emailData['emailTemplate']	= 'email.subscription.site.new.php';
-					$emailData['emailSubject']	= JText::sprintf('COM_EASYDISCUSS_NEW_QUESTION_ASKED', $post->id , $post->title);
-
-					DiscussHelper::getHelper( 'Mailer' )->notifyAdministrators( $emailData, array(), $config->get( 'notify_admin' ), $config->get( 'notify_moderator' ) );
-				}
+	        $post->save($saveOptions);
+			// @task: Increment the count.
+			$total	+= 1;
 
 			$attachments	= array();
 			$attachments	= $message->getAttachment();
 
-			// process attached images
-			if (!empty($attachments))
-			{
-				$config				= DiscussHelper::getConfig();
-				$main_image_path	= rtrim('images/easydiscuss_images/', '/');
+			if ($attachments) {
 
-				$file 	= JPATH_ROOT . DIRECTORY_SEPARATOR . $main_image_path;
+				$tmp_dir = JPATH_ROOT . '/' . 'tmp' . '/';
+				$allowed = explode( ',', $config->get('main_attachment_extension'));
 
-				if( !JFolder::exists($file) )
-				{
-					JFolder::create( $file );
-				}
 
-				$senderMail	= $info->fromemail;
-				$user 		= DiscussHelper::getUserByEmail( $senderMail );
-				$userid 	= $user->get( 'id' );
+				foreach ($attachments as $file) {
 
-				$rel_upload_path	= $main_image_path . '/' . $userid;
+					if (strpos($file['name'], '/') !== FALSE) {
+						$file['name'] = substr($file['name'], strrpos($file['name'],'/')+1 );
 
-				$userUploadPath		= JPATH_ROOT . DIRECTORY_SEPARATOR . $main_image_path . DIRECTORY_SEPARATOR . $userid;
-				$userUploadPath		= JPath::clean($userUploadPath);
-
-				$dir				= $userUploadPath . DIRECTORY_SEPARATOR;
-				$tmp_dir			= JPATH_ROOT . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR;
-
-				$uri				= JURI::base().$main_image_path.'/'.$userid.'/';
-
-				if(! JFolder::exists($dir))
-				{
-					JFolder::create($dir);
-				}
-
-				foreach ($attachments as $attachment)
-				{
-					// clean up file name
-					if(strpos($attachment['name'], '/') !== FALSE)
-					{
-						$attachment['name'] = substr($attachment['name'], strrpos($attachment['name'],'/')+1 );
-					}
-					elseif(strpos($attachment['name'], '\\' !== FALSE))
-					{
-						$attachment['name'] = substr($attachment['name'], strrpos($attachment['name'],'\\')+1 );
+					} elseif(strpos($attachment['name'], '\\' !== FALSE)) {
+						$file['name'] = substr($file['name'], strrpos($file['name'],'\\')+1 );
 					}
 
 					// @task: check if the attachment has file extension. ( assuming is images )
-					$imgExts        = array( 'jpg', 'png', 'gif', 'JPG', 'PNG', 'GIF', 'jpeg', 'JPEG' );
-					$imageSegment   = explode('.', $attachment['name']);
+					$imgExts = array( 'jpg', 'png', 'gif', 'JPG', 'PNG', 'GIF', 'jpeg', 'JPEG' );
+					$imageSegment = explode('.', $file['name']);
 
-					if( ! in_array( $imageSegment[ count( $imageSegment ) - 1 ], $imgExts ) )
-					{
-						$attachment['name'] = $attachment['name'] . '.jpg';
-					}
-
-					// @task: Store the file into a temporary location first.
-					$attachment['tmp_name']	= $tmp_dir . $attachment['name'];
-
-
-					JFile::write( $attachment['tmp_name'], $attachment['data']);
-
-					$atmTitle = $attachment['name'];
-					$atmURL	= $uri.$attachment['name'];
-
-					// Bind file attachments
-					jimport( 'joomla.filesystem.file' );
-					jimport( 'joomla.filesystem.folder' );
-					jimport( 'joomla.utilities.utility' );
-
-					// @rule: Create default media path
-					$path   = DISCUSS_MEDIA . '/' . trim( $config->get( 'attachment_path' ) , DIRECTORY_SEPARATOR );
-
-					if( !JFolder::exists( $path ) )
-					{
-						JFolder::create( $path );
-						JFile::copy( DISCUSS_ROOT . '/index.html' , $path . '/index.html' );
+					if (! in_array($imageSegment[ count( $imageSegment ) - 1 ], $imgExts)) {
+						$file['name'] = $file['name'] . '.jpg';
 					}
 
 					$maxSize	= (double) $config->get( 'attachment_maxsize' ) * 1024 * 1024;
-					$extension  = JFile::getExt( $attachment['name'] );
+					$extension  = JFile::getExt( $file['name'] );
 
 					// Skip empty data's.
-					if( !$extension )
-					{
+					if (!isset($extension) || !$extension || !in_array(strtolower($extension), $allowed)) {
+						echo 'Invalid extension.';
 						continue;
 					}
 
-					$allowed	= explode( ',' , $config->get( 'main_attachment_extension' ) );
+					// store into tmp folder 1st
+					$file['tmp_name']	= $tmp_dir . $file['name'];
+					JFile::write( $file['tmp_name'], $file['data']);
 
-					// @rule: Check for allowed extensions
-					if( !isset( $extension ) || !in_array( strtolower($extension) , $allowed ) )
-					{
-						echo 'Invalid extension.';
-					}
-					else
-					{
-						$size   	= $attachment['size'];
-						$name		= $attachment['name'];
-						$mime		= $attachment['mime'];
-						$tmpName 	= $attachment['tmp_name'];
+					// Check the mime contains the attachment type, if not we insert our own
+					$mime = $attachment['mime'];
+					$imgExts = array( 'jpg', 'png', 'gif', 'JPG', 'PNG', 'GIF', 'jpeg', 'JPEG' );
 
-						// Check the mime contains the attachment type, if not we insert our own
-						$imgExts        = array( 'jpg', 'png', 'gif', 'JPG', 'PNG', 'GIF', 'jpeg', 'JPEG' );
-						if( in_array( $mime, $imgExts ) )
-						{
-							$mime = 'image/' . $mime;
-						}
-						else
-						{
-							$mime = 'application/' . $mime;
-						}
-
-						// @rule: File size should not exceed maximum allowed size
-						if( !empty( $size ) && $size < $maxSize )
-						{
-							$hash = ED::getHash($name . ED::date()->toSql());
-							$attachment     = DiscussHelper::getTable( 'Attachments' );
-
-							$attachment->set( 'path'		, $hash );
-							$attachment->set( 'title'		, $name );
-							$attachment->set( 'uid' 		, $post->id );
-							$attachment->set( 'type'		, ( $isReply ? 'replies' : 'questions' ) );
-							$attachment->set( 'created'		, ED::date()->toSql());
-							$attachment->set( 'published'	, true );
-							$attachment->set( 'mime'		, $mime );
-							$attachment->set( 'size'		, $size );
-
-
-							if( !JFile::copy( $tmpName , $path . '/' . $hash ) )
-							{
-								echo 'Copy failed from tmp to attachment folder';
-							}
-
-							$attachment->store();
-
-							// Create a thumbnail if attachment is an image
-							if( DiscussHelper::getHelper( 'Image' )->isImage($name) )
-							{
-
-								require_once DISCUSS_CLASSES . '/simpleimage.php';
-								$image	= new SimpleImage;
-
-								$image->load($tmpName);
-								$image->resizeToFill( 160 , 120 );
-
-								$image->save($path . '/' . $hash . '_thumb', $image->image_type);
-
-							}
-
-							// @task: Once the attachment is processed, delete the temporary file.
-							JFile::delete( $tmpName );
-						}
-						else
-						{
-
-							echo 'Invalid extension ' . $name;
-						}
+					if (in_array($mime, $imgExts)) {
+						$mime = 'image/' . $mime;
+					} else {
+						$mime = 'application/' . $mime;
 					}
 
-				}
+		            $file['type'] = $mime;
+		            $file['error'] = '';
+
+		            // Upload an attachment
+		            $attachment = ED::attachment();
+		            $attachment->upload($post, $file);
+
+	        	}
 			}
 
-			// Send notification email to the subscribers in the thread.
-			if( $isReply && $post->get( 'published') == DISCUSS_ID_PUBLISHED )
-			{
-				self::replyNotifyUsers( $post , $user , $senderName );
-			}
-
-			// @task: Increment the count.
-			$total	+= 1;
-
-			// @rule: Only send autoresponders when it's a new post.
-			if( !$isReply && $config->get( 'main_email_parser_receipt' ) && $post->get( 'published' ) == DISCUSS_ID_PUBLISHED )
-			{
-				$sendAsHTML	= (bool) $config->get( 'notify_html_format' );
-
-				$theme		= new DiscussThemes();
-				$postId		= $post->get( 'id' );
-
-				if( $isReply )
-				{
-					$postId	= $parentId;
-				}
-
-				$url		= DiscussRouter::getRoutedURL( 'index.php?option=com_easydiscuss&view=post&id=' . $postId , false , true );
-
-
-				$emailData 				= array();
-				$emailData['postLink']	= $url;
-
-				if ($post->get( 'user_type') == DISCUSS_POSTER_GUEST) {
-					$emailData[ 'postAuthor' ]	= $senderName;
-				} else {
-					$profile = ED::user($user->id);
-					$emailData['postAuthor' ]	= $profile->getName();
-				}
-
-				require_once DISCUSS_CLASSES . '/notification.php';
-				$notification	= new DNotification();
-				$output 		= $notification->getEmailTemplateContent( 'email.accepted.responder.php' , $emailData );
-
-				$app		= JFactory::getApplication();
-
-				if( !$sendAsHTML )
-				{
-					$output	= strip_tags( $output );
-				}
-
-				// @rule: Send confirmation message.
-				JUtility::sendMail( $app->getCfg( 'mailfrom' ) , $app->getCfg( 'fromname' ) , $replyToEmail , '[#' . $post->id . ']: ' . $subject , $output , $sendAsHTML );
-			}
-
-			if( !$isReply && $post->get( 'published' ) == DISCUSS_ID_PUBLISHED )
-			{
-				// Send email to subscribers about new post has created
-				Discusshelper::sendNotification( $post , $post->parent_id, true, $post->user_id, DISCUSS_ID_PENDING );
-			}
-
+			// all done. now mark this email as 'read'
 			$mailer->markAsRead($mailer, $sequence);
 
 			echo JText::sprintf( 'COM_EASYDISCUSS_EMAIL_PARSED' , $total );

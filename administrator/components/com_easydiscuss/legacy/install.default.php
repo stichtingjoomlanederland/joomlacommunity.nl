@@ -366,7 +366,7 @@ class EasyDiscussInstaller
 				. ' ("27", "ban_user", "1", "COM_EASYDISCUSS_ACL_OPTION_BAN_USER_DESC", "1", "0", "0"),'
 				. ' ("28", "vote_discussion", "0", "COM_EASYDISCUSS_ACL_OPTION_VOTE_DISCUSSION_DESC", "1", "0", "0"),'
 				. ' ("29", "delete_own_comment", "0", "COM_EASYDISCUSS_ACL_OPTION_EDIT_OWN_COMMENT_DESC", "1", "0", "0"),'
-				. ' ("30", "allow_privatemessage", "0", "COM_EASYDISCUSS_ACL_OPTION_ALLOW_PRIVATEMESSAGE_DESC", "1", "0", "0"),'
+				. ' ("30", "allow_privatemessage", "1", "COM_EASYDISCUSS_ACL_OPTION_ALLOW_PRIVATEMESSAGE_DESC", "1", "0", "0"),'
 				. ' ("31", "manage_holiday", "0", "COM_EASYDISCUSS_ACL_OPTION_MANAGE_HOLIDAY_DESC", "1", "0", "0"),'
 				. ' ("32", "exclude_frontend_statistics", "1", "COM_EASYDISCUSS_ACL_OPTION_EXCLUDE_FRONTEND_STATISTICS_DESC", "1", "0", "1")';
 

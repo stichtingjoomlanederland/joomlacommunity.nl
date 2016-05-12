@@ -62,6 +62,8 @@ defined('_JEXEC') or die('Unauthorized Access');
         						</select>
         					</div>
 						</div>
+
+						<?php if ($categories) { ?>
 						<div class="form-group">
 	                        <div class="col-md-5 control-label">
 	                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_PARENT_CATEGORY'); ?>
@@ -70,6 +72,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 								<?php echo $categories; ?>
 							</div>
 						</div>
+						<?php } ?>
 
 						<?php if($this->config->get('layout_categoryavatar', true)) : ?>
 						<div class="form-group">
@@ -136,7 +139,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_CATEGORIES_EDIT_POST_MAX_LENGTH_SIZE'); ?>
 	                        </div>
 	                        <div class="col-md-7">
-								<input type="text" class="form-control form-control-sm text-center" name="maxlength_size" id="maxlength_size" value="<?php echo $category->getParam( 'maxlength_size' , 1000 );?>" />
+								<input type="text" class="form-control form-control-sm text-center t-lg-mr--md" name="maxlength_size" id="maxlength_size" value="<?php echo $category->getParam( 'maxlength_size' , 1000 );?>" />
 								<span><?php echo JText::_( 'COM_EASYDISCUSS_CHARACTERS' ); ?></span>
 							</div>
 						</div>

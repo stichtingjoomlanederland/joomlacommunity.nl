@@ -21,10 +21,15 @@ defined('_JEXEC') or die('Unauthorized Access');
 
     <div class="ed-reply-form__bd">
 
-        <?php if ($operation == 'replying') { ?>
+        <?php if ($operation == 'replying' || $operation == 'editing') { ?>
+                
             <div class="ed-reply-form__title">
-            	<?php echo JText::_('COM_EASYDISCUSS_ENTRY_YOUR_RESPONSE'); ?>
+                <div class="o-avatar o-avatar--sm t-lg-mr--sm">
+                     <img alt="<?php echo $my->getName(); ?>" src="<?php echo $my->getAvatar(); ?>">
+                </div>
+                <?php echo ($operation == 'replying') ? JText::_('COM_EASYDISCUSS_ENTRY_YOUR_RESPONSE') : JText::_('COM_EASYDISCUSS_EDIT_YOUR_RESPONSE'); ?>
             </div>
+
         <?php } ?>
 
 		<form data-ed-composer-form name="dc_submit" autocomplete="off" class="" action="<?php echo JRoute::_('index.php');?>" method="post">

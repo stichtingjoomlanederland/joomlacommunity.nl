@@ -12,7 +12,7 @@
     {
         "table": "#__discuss_subscription",
         "index": "idx_email_cron",
-        "query": "ALTER TABLE `#__discuss_subscription` ADD INDEX `idx_email_cron` (`state`, `type`, `interval`, `email`);"
+        "query": "ALTER TABLE `#__discuss_subscription` ADD INDEX `idx_email_cron` (`state`, `type` (25), `interval` (25), `email`);"
     },
     {
         "table": "#__discuss_subscription",

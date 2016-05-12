@@ -39,14 +39,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="o-col t-lg-pr--md t-xs-pr--no">
 				<div class="form-group">
 				    <label for="username"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_USERNAME'); ?></label>
-				    <input type="text" class="form-control" id="username" value="<?php echo $profile->getUsername(); ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_USERNAME_PLACEHOLDER'); ?>">
+				    <input <?php echo $changeUsername; ?> type="text" class="form-control" name="username" id="username" value="<?php echo $profile->getUsername(); ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_USERNAME_PLACEHOLDER'); ?>">
 				</div>
 			</div>
 
 			<div class="o-col t-lg-pr--md t-xs-pr--no">
 				<div class="form-group">
 				    <label for="email"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_EMAIL'); ?></label>
-				    <input type="text" class="form-control" id="email" value="<?php echo $profile->getEmail(); ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_EMAIL_PLACEHOLDER'); ?>">
+				    <input type="text" class="form-control" name="email" id="email" value="<?php echo $profile->getEmail(); ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_EMAIL_PLACEHOLDER'); ?>">
 				</div>
 			</div>
 		</div>
@@ -55,19 +55,19 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="o-col t-lg-pr--md t-xs-pr--no">
 				<div class="form-group">
 				    <label for="password"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_PASSWORD'); ?></label>
-				    <input type="password" class="form-control" id="password" value="" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_PASSWORD_PLACEHOLDER'); ?>">
+				    <input type="password" class="form-control" name="password" id="password" value="" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_PASSWORD_PLACEHOLDER'); ?>">
 				</div>
 			</div>
 
 			<div class="o-col t-lg-pr--md t-xs-pr--no">
 				<div class="form-group">
 				    <label for="password2"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_RETYPE_PASSWORD'); ?></label>
-				    <input type="password" class="form-control" id="password2" value="" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_RETYPE_PASSWORD_PLACEHOLDER'); ?>">
+				    <input type="password" class="form-control" name="password2" id="password2" value="" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_RETYPE_PASSWORD_PLACEHOLDER'); ?>">
 				</div>
 			</div>
 		</div>
 
-
+		<?php if ($this->config->get('main_signature_visibility')) { ?>
 		<div class="form-group">
 		    <label for="signature"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_SIGNATURE'); ?> </label>
 			<div class="ed-editor ed-editor--<?php echo $composer->getEditorClass();?>" <?php echo $composer->uid;?>>
@@ -75,13 +75,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 	        		<?php echo $composer->renderEditor('signature', $profile->getSignature(true)); ?>
 	        	</div>
 			</div>	
-		</div>	
+		</div>
+		<?php } ?>
 
 		<div class="form-group">
 		    <label for="description"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_DESCRIPTION'); ?></label>
 			<div class="ed-editor ed-editor--<?php echo $composer->getEditorClass();?>" <?php echo $composer->uid;?>>
 				<div class="ed-editor-widget ed-editor-widget--no-pad">
-	        		<?php echo $composer->renderEditor('description', $profile->getDescription()); ?>
+	        		<?php echo $composer->renderEditor('description', $profile->getDescription(true)); ?>
 	        	</div>
 			</div>
 		</div>

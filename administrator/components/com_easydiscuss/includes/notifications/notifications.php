@@ -74,8 +74,8 @@ class EasyDiscussNotifications extends EasyDiscuss
 			}
 
 			// Set the permalink
-			$item->permalink = $item->permalink . '#' . $item->type . '-' . $item->cid;
-
+			$item->permalink = EDR::_($item->permalink);
+			
 			// Get the author string
 			$item->authorHTML = $this->getAuthorHTML($item->author);
 
@@ -403,6 +403,7 @@ class EasyDiscussNotifications extends EasyDiscuss
 	public function getEmailTemplateContent($template, $data)
 	{
 		$config = ED::config();
+		$app = JFactory::getApplication();
 		$output = '';
 
 		if (!isset($data['unsubscribeLink'])) {
@@ -420,6 +421,15 @@ class EasyDiscussNotifications extends EasyDiscuss
 			$template .= '.html';
 		}
 
+
+		// Set the logo for the generic email template
+		$override = JPATH_ROOT . '/templates/' . $app->getTemplate() . '/html/com_easydiscuss/emails/logo.png';
+		$logo = rtrim( JURI::root() , '/' ) . '/components/com_easydiscuss/themes/wireframe/images/emails/logo.png';
+
+		if (JFile::exists($override)) {
+			$logo 	= rtrim( JURI::root() , '/' ) . '/templates/' . $app->getTemplate() . '/html/com_easydiscuss/emails/logo.png';
+		}
+
 		$theme = ED::themes();
 
 		foreach ($data as $key => $val) {
@@ -431,6 +441,8 @@ class EasyDiscussNotifications extends EasyDiscuss
 
 		$theme = ED::themes();
 		$jConfig = ED::jconfig();
+
+		$theme->set('logo', $logo);
 
 		$theme->set('emailTitle', $config->get('notify_email_title', $jConfig->get('sitename')));
 		$theme->set('contents', $contents);

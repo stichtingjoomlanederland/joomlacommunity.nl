@@ -12,11 +12,9 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="ed-forums">
-
     <?php if ($activeCategory) { ?>
         <?php echo $this->output('site/forums/active', array('activeCategory' => $activeCategory, 'listing' => $listing)); ?>
     <?php } ?>
-
     <div class="ed-list">
     <?php if (!empty($threads)) { ?>
         <?php foreach ($threads as $thread) { ?>
@@ -52,9 +50,11 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <?php echo $this->output('site/forums/item', array('thread' => $thread->posts)); ?>
                 </div>
                 <div class="ed-forum__ft">
-                    <a href="<?php echo EDR::getForumsRoute($thread->category->id,'listing'); ?>">
-                        <?php echo JText::_('COM_EASYDISCUSS_FORUMS_VIEW_ALL_POST'); ?> &rarr;
-                    </a>
+                    <?php if (!$thread->category->container) { ?>
+                        <a href="<?php echo EDR::getCategoryRoute($thread->category->id); ?>">
+                            <?php echo JText::_('COM_EASYDISCUSS_FORUMS_VIEW_ALL_POST'); ?> &rarr;
+                        </a>
+                    <?php } ?>
                     <span class="pull-right"><?php echo JText::sprintf('COM_EASYDISCUSS_FORUMS_COUNT_POST', count($thread->posts), $thread->category->getTotalPosts()); ?></span>
                 </div>
             </div>

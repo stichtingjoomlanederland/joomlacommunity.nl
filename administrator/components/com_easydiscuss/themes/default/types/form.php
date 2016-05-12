@@ -16,7 +16,7 @@ defined('_JEXEC') or die('Restricted access');
 <form action="index.php" method="post" name="adminForm" id="adminForm">
 	<div class="app-tabs">
 		<ul class="app-tabs-list g-list-unstyled">
-            <li class="tabItem <?php echo $active == 'general' ? ' active' : '';?>">
+            <li class="tabItem active">
                 <a href="#general" data-ed-toggle="tab">
                     <?php echo JText::_('COM_EASYDISCUSS_POST_TYPES_TAB_GENERAL');?>
                 </a>

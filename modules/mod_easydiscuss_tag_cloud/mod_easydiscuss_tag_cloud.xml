@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Tag Cloud</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>15th April 2016</creationDate>
+	<creationDate>9th May 2016</creationDate>
 	<copyright>Copyright 2009 - 2016 StackIdeas. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://www.stackideas.com</authorUrl>
-	<version>4.0.1</version>
+	<version>4.0.5</version>
 	<description><![CDATA[This module will list down tags created through EasyDiscuss in a tag cloud layout.]]></description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easydiscuss_tag_cloud.ini</language>
@@ -23,21 +23,21 @@
 	<config>
 		<fields name="params">
 			<fieldset name="basic">
-				<field name="order" type="list" default="postcount" label="Ordering" description="Retrieve the tag cloud base on post count or title (useful when you are limiting the number of tags in the tag cloud)." >
-					<option value="postcount">Postcount</option>
-					<option value="title">Title</option>
+				<field name="order" type="list" default="postcount" label="MOD_EASYDISCUSSTAGCLOUD_ORDERING" description="MOD_EASYDISCUSSTAGCLOUD_ORDERING_DESC" >
+					<option value="postcount">MOD_EASYDISCUSSTAGCLOUD_ORDERING_POSTCOUNT</option>
+					<option value="title">MOD_EASYDISCUSSTAGCLOUD_ORDERING_TITLE</option>
 				</field>
-				<field name="sort" type="list" default="desc" label="Sorting" description="Retrieve the tag cloud in either ascending or descending order (useful when you are limiting the number of tags in the tag cloud)." >
-					<option value="asc">Ascending</option>
-					<option value="desc">Descending</option>
+				<field name="sort" type="list" default="desc" label="MOD_EASYDISCUSSTAGCLOUD_SORTING" description="MOD_EASYDISCUSSTAGCLOUD_SORTING_DESC" >
+					<option value="asc">MOD_EASYDISCUSSTAGCLOUD_SORTING_ASCENDING</option>
+					<option value="desc">MOD_EASYDISCUSSTAGCLOUD_SORTING_DESCENDING</option>
 				</field>
-				<field name="count" type="text" default="0" label="Count" description="The number of items to display (set it to 0 if tags limiting if not required)." />
-				<field name="shuffleTags" type="list" default="1" label="Shuffle Tags" description="Shuffling the tags inside the tag cloud." >
-					<option value="0">No</option>
-					<option value="1">Yes</option>
+				<field name="count" type="text" default="0" label="MOD_EASYDISCUSSTAGCLOUD_COUNT" description="MOD_EASYDISCUSSTAGCLOUD_COUNT_DESC" />
+				<field name="shuffleTags" type="list" default="1" label="MOD_EASYDISCUSSTAGCLOUD_SHUFFLE_TAGS" description="MOD_EASYDISCUSSTAGCLOUD_SHUFFLE_TAGS_DESC" >
+					<option value="0">MOD_EASYDISCUSSTAGCLOUD_SHUFFLE_TAGS_NO</option>
+					<option value="1">MOD_EASYDISCUSSTAGCLOUD_SHUFFLE_TAGS_YES</option>
 				</field>
-				<field name="minsize" type="text" default="10" label="Minimum Tag size (px)" description="The minimum tag font size." />
-				<field name="maxsize" type="text" default="30" label="Maximum Tag size (px)" description="The maximum tag font size." />
+				<field name="minsize" type="text" default="10" label="MOD_EASYDISCUSSTAGCLOUD_MINIMUM_TAG_SIZE" description="MOD_EASYDISCUSSTAGCLOUD_MINIMUM_TAG_SIZE_DESC" />
+				<field name="maxsize" type="text" default="30" label="MOD_EASYDISCUSSTAGCLOUD_MAXIMUM_TAG_SIZE" description="MOD_EASYDISCUSSTAGCLOUD_MAXIMUM_TAG_SIZE_DESC" />
 			</fieldset>
 			<fieldset name="advanced">
 				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />

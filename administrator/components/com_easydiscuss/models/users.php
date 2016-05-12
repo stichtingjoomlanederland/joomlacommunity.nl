@@ -43,7 +43,8 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 	 */
 	public function exceededModerationThreshold($userId = null)
 	{
-		$userId = JFactory::getUser($userId);
+		$limit = ED::config()->get('moderation_threshold', 0);
+
 		$db = $this->db;
 
 		$query  = 'SELECT COUNT(1) as `CNT` FROM `#__discuss_posts` AS a';
@@ -237,12 +238,11 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 
 	public function getTotalUsers()
 	{
+		$db = ED::db();
+		$query = 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__users') . ' AS u';
+		$query .= ' WHERE u.' . $db->nameQuote( 'block' ) . '=' . $db->Quote( 0 );
 
-		$db			= DiscussHelper::getDBO();
-		$query 		= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__users' ) . ' AS u';
-		$query 		.= ' WHERE u.' . $db->nameQuote( 'block' ) . '=' . $db->Quote( 0 );
-
-		$db->setQuery( $query );
+		$db->setQuery($query);
 
 		$result = $db->loadResult();
 
@@ -258,11 +258,9 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 	public function getPagination()
 	{
 		// Lets load the content if it doesn't already exist
-		if (empty($this->_pagination))
-		{
-			// jimport('joomla.html.pagination');
-			// $this->_pagination = new JPagination( $this->getTotal(), $this->getState('limitstart'), $this->getState('limit') );
-			$this->_pagination = ED::pagination( $this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
+		if (empty($this->_pagination)) {
+			jimport('joomla.html.pagination');
+			$this->_pagination = ED::getPagination($this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
 		}
 
 		return $this->_pagination;
@@ -619,18 +617,61 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 		}
 
 		$respectAnonymous = ($this->my->id && $this->my->id == $userId) ? false : true;
+		$respectPrivacy = ($this->my->id == $userId) ? false : true;
+
+		$includeCluster = false;
 
 		$db = $this->db;
-		$query = "SELECT COUNT(1) FROM `#__discuss_posts` WHERE `parent_id` !=" . $db->Quote(0);
-		$query .= " AND `user_id`=" . $db->Quote($userId);
-		$query .= " AND `published`=" . $db->Quote(1);
+		$query 	= 'SELECT COUNT(a.`id`) ';
+		$query	.= ' FROM ' . $db->nameQuote( '#__discuss_posts' ) . ' AS a ';
+		$query	.= ' INNER JOIN ' . $db->nameQuote( '#__discuss_posts' ) . ' AS b ';
+		$query	.= ' ON a.' . $db->nameQuote( 'parent_id' ) . ' = b.' . $db->nameQuote( 'id' );
+
+		$query 	.= ' WHERE a.`user_id` = ' . $db->Quote($userId);
+		$query	.= ' AND a.`parent_id` != ' . $db->Quote('0');
+
 		if ($respectAnonymous) {
-			$query .= " AND `anonymous`=" . $db->Quote(0);
+			$query 	.= ' AND a.`anonymous` = 0';
 		}
+
+		if (!$includeCluster) {
+			$query .= ' AND b.`cluster_id` = 0';
+		}
+
+		$query	.= ' AND b.' . $db->nameQuote( 'published' ) . ' = ' . $db->Quote( 1 );
+		$query	.= ' AND b.`parent_id` = ' . $db->Quote('0');
+
+		if ($respectPrivacy) {
+
+			// category ACL:
+			$catOptions = array();
+			$catOptions['idOnly'] = true;
+			$catOptions['includeChilds'] = true;
+
+			$catModel = ED::model('Categories');
+			$catIds = $catModel->getCategoriesTree(0, $catOptions);
+
+			// if there is no categories return, means this user has no permission to view all the categories.
+			// if that is the case, just return empty array.
+			if (! $catIds) {
+				return array();
+			}
+
+			$query .= " and b.`category_id` IN (" . implode(',', $catIds) . ")";
+
+		}
+
+
+		// $query	.= ' GROUP BY b.`id`';
 
 		$db->setQuery($query);
 
 		$total = $db->loadResult();
+
+		// Return 0 if there is no replies found.
+		if (!$total) {
+			return 0;
+		}
 
 		return $total;
 	}

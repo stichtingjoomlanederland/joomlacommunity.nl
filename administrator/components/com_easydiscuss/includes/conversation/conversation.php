@@ -383,13 +383,11 @@ class EasyDiscussConversation extends EasyDiscuss
 		$model = ED::model('Conversation');
 		$result = $model->insertReply($this->table->id, $contents, $this->my->id);
 
-		$reply = $this->getMessage($result);
-
-
 		// Send notification to the recipient.
-		// $conversation->notify($replyObj);
-		
+		$this->notify($result);
 
+		$reply = $this->getMessage($result);
+		
 		return $reply;
 	}
 

@@ -79,6 +79,7 @@
 .ed-post-item {
     position: relative;
     width: 100%;
+    background-color: @fd-ui-bg;
 
     &__full {
         border: 1px solid @fd-ui-border-color;
@@ -176,6 +177,9 @@
 }
 
 .ed-post-content {
+    img {
+        max-width: 100%;
+    }
     .ed-post-title {
         // margin-top: @fd-base-spacing--lg;
     }
@@ -185,6 +189,7 @@
 }
 
 .ed-post-who-view {
+    background-color: @fd-ui-bg;
     &__hd,
     &__bd,
     &__ft {
@@ -277,9 +282,9 @@
         // color: @fd-brand-primary;
     }
 }
-.ed-post-meta-tag {
-    >:not(:first-child) {
-        margin-left: @fd-base-spacing;
+.ed-post-meta-tag { // override g-list-inline
+    > li {
+        margin-right: @fd-base-spacing;
     }
 }
 .ed-post-meta-cat {

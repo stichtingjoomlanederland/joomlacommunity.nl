@@ -53,6 +53,13 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 
 		        break;
 
+		    case 'com_discussions':
+				$migrator = ED::migrator()->getAdapter('discussions');
+
+				$migrator->migrate();
+
+		        break;
+
 		    default:
 		        break;
 		}
@@ -87,13 +94,6 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 		$this->ajax->resolve($prefix);
 	}
 
-
-
-
-
-
-
-
 	public function communitypolls()
 	{
 		$ajax 	= DiscussHelper::getHelper( 'Ajax' );
@@ -112,332 +112,6 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 
 		$ajax->resolve( $items );
 	}
-
-
-	/**
-	 * Migrates discusions from com_discussions
-	 *
-	 * @since	5.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
-	public function discussions()
-	{
-		$ajax = new Disjax();
-
-		$categories = $this->getDiscussionCategories();
-
-		$this->log($ajax, JText::sprintf('Total categories found: <strong>%1s</strong>', count($categories)), 'discussions');
-
-		$items = array();
-
-		foreach ($categories as $category) {
-			$items[] = $category->id;
-		}
-
-		$data = json_encode($items);
-		$ajax->script('runMigrationCategory("discussions",' . $data . ');');
-
-		return $ajax->send();
-	}
-
-	public function discussionsPostItem($current, $items)
-	{
-		$ajax = new Disjax();
-
-		// @task: If categories is no longer an array, then it most likely means that there's nothing more to process.
-		if( $current == 'done' ) {
-			echo 'done';exit;
-			$this->log( $ajax , JText::_( 'COM_EASYDISCUSS_MIGRATORS_MIGRATION_COMPLETED' ) , 'discussions' );
-
-			// lets check if there is any new replies or not.
-			$posts = $this->getKunenaReplies( true );
-			$this->log( $ajax , JText::sprintf( 'COM_EASYDISCUSS_MIGRATORS_KUNENA_TOTAL_POSTS' , $posts ) , 'discussions' );
-
-			$ajax->script( 'runMigrationReplies("discussions");' );
-
-			return $ajax->send();
-		}
-
-		// Get the discussion object
-		$oldItem = $this->getDiscussionPost($current);
-		$item = DiscussHelper::getTable('Post');
-
-		// @task: Skip the category if it has already been migrated.
-		if ($this->migrated('com_discussions', $current, 'post')) {
-
-			$data = json_encode($items);
-			$this->log($ajax, JText::sprintf('Post <strong>%1s</strong> has already been migrated. <strong>Skipping this</strong>...', $oldItem->id), 'discussions');
-			$ajax->script('runMigrationItem("discussions", ' . $data . ');');
-			return $ajax->send();
-		}
-
-		$this->log($ajax, JText::sprintf('Migrating post <strong>%1s</strong>.', $oldItem->id), 'discussions');
-		$this->mapDiscussionItem($oldItem, $item);
-
-		// @task: Once the post is migrated successfully, we'll need to migrate the child items.
-		$this->log($ajax, JText::sprintf('Migrating replies for post <strong>%1s</strong>.' , $oldItem->id), 'discussions');
-		$this->mapDiscussionItemChilds($oldItem, $item);
-
-
-		// @task: If categories is no longer an array, then it most likely means that there's nothing more to process.
-		if (!$items) {
-			$this->log($ajax, JText::_('<strong>Migration process completed</strong>.'), 'discussions');
-			$this->showMigrationButton($ajax);
-			return $ajax->send();
-		}
-
-		$data = json_encode($items);
-		$ajax->script('runMigrationItem("discussions" , ' . $data . ');' );
-
-		$ajax->send();
-	}
-
-	private function mapDiscussionItem($oldItem, &$item, $parent = null)
-	{
-		$item->bind($oldItem);
-
-		// Unset the id
-		$item->id = null;
-
-		$item->title = $oldItem->subject;
-		$item->content = $oldItem->message;
-		$item->category_id = $this->getDiscussionNewCategory($oldItem);
-		$item->user_type = DISCUSS_POSTER_MEMBER;
-		$item->created = $oldItem->date;
-		$item->modified = $item->created;
-		$item->replied = $oldItem->counter_replies;
-		$item->poster_name = $oldItem->name;
-		$item->poster_email = $oldItem->email;
-		$item->content_type = 'bbcode';
-		$item->parent_id = 0;
-		$item->islock = $oldItem->locked;
-
-		if ($parent) {
-			$item->parent_id = $parent->id;
-		}
-
-		if (!$item->user_id) {
-			$item->user_type = DISCUSS_POSTER_GUEST;
-		}
-
-		// Save the item
-		$state = $item->store();
-
-		$this->added('com_discussions', $item->id, $oldItem->id, 'post' );
-	}
-
-	private function mapDiscussionItemChilds($oldItem, $parent)
-	{
-		$items = $this->getDiscussionPosts($oldItem->id);
-
-		if (!$items) {
-			return false;
-		}
-
-		foreach ($items as $oldItemChild) {
-			$newItem = DiscussHelper::getTable('Post');
-
-			$this->mapDiscussionItem($oldItemChild, $newItem, $parent);
-		}
-	}
-
-	private function getDiscussionNewCategory($oldItem)
-	{
-		$db		= DiscussHelper::getDBO();
-		$query	= 'SELECT ' . $db->nameQuote( 'internal_id' ) . ' '
-				. 'FROM ' . $db->nameQuote( '#__discuss_migrators' ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'external_id' ) . ' = ' . $db->Quote( $oldItem->cat_id ) . ' '
-				. 'AND ' . $db->nameQuote( 'type' ) . ' = ' . $db->Quote( 'category' ) . ' '
-				. 'AND ' . $db->nameQuote( 'component' ) . ' = ' . $db->Quote( 'com_discussions' );
-
-		$db->setQuery( $query );
-		$categoryId	= $db->loadResult();
-
-		return $categoryId;
-	}
-
-	private function getDiscussionPost($id)
-	{
-		$db		= DiscussHelper::getDBO();
-		$query = 'SELECT * FROM ' . $db->qn('#__discussions_messages');
-		$query .= ' WHERE ' . $db->qn('id') . '=' . $db->Quote($id);
-
-		$db->setQuery($query);
-		$item	= $db->loadObject();
-
-		return $item;
-	}
-
-
-	public function discussionsCategoryItem($current = "", $categories = "")
-	{
-		$ajax = new Disjax();
-
-		// Get the discussions category
-		$oldCategory = $this->getDiscussionCategory($current);
-
-		// @task: If categories is no longer an array, then it most likely means that there's nothing more to process.
-		if ($current == 'done') {
-			// category migration done. let reset the ordering here.
-			$catTbl = DiscussHelper::getTable( 'Category' );
-			$catTbl->rebuildOrdering();
-
-			$this->log($ajax, JText::_('<strong>Category migration completed</strong>'), 'discussions');
-
-			// Get a list of post id's from com_discussions
-			$posts = $this->getDiscussionPostsIds();
-
-			$data = implode( '|', $posts );
-			$data = json_encode($data);
-
-			$this->log($ajax, JText::sprintf('Total posts found: <strong>%1s</strong>', count($posts)), 'discussions');
-
-			if (count($posts) <= 0) {
-				$ajax->script('runMigrationItem("discussions" , "done");');
-			} else {
-				$ajax->script('runMigrationItem("discussions" , ' . $data . ');' );
-			}
-
-			return $ajax->send();
-		}
-
-		// @task: Skip the category if it has already been migrated.
-		$migratedId = $this->migrated('com_discussions', $current, 'category');
-		$category = DiscussHelper::getTable('Category');
-
-		if (!$migratedId) {
-			$this->mapDiscussionCategory($oldCategory, $category);
-			$this->log($ajax , JText::sprintf('Migrated category <strong>%1s</strong>', $oldCategory->name), 'discussions');
-		} else {
-			$category->load($migratedId);
-		}
-
-		// Migrate all child categories if needed
-		$this->processDiscussionCategoryTree($oldCategory, $category);
-
-		if ($migratedId) {
-			$data = json_encode($categories);
-			$this->log($ajax , JText::sprintf('Category <strong>%1s</strong> has already been migrated. <strong>Skipping this</strong>...', $oldCategory->name), 'discussions');
-			$ajax->script('runMigrationCategory("discussions" , ' . $data . ');' );
-
-			return $ajax->send();
-		}
-
-		$data = json_encode($categories);
-		$ajax->script('runMigrationCategory("discussions", ' . $data . ');');
-
-		return $ajax->send();
-	}
-
-	private function getDiscussionPostsIds()
-	{
-		$db = DiscussHelper::getDBO();
-
-		$query = 'SELECT * FROM ' . $db->qn('#__discussions_messages');
-		$query .= ' WHERE ' . $db->qn('parent_id') . '=' . $db->Quote(0);
-
-		$db->setQuery($query);
-
-		$result = $db->loadColumn();
-
-		return $result;
-	}
-
-	private function getDiscussionPosts($parent = null)
-	{
-		$db = DiscussHelper::getDBO();
-
-		$query = 'SELECT * FROM ' . $db->qn('#__discussions_messages');
-
-		if ($parent == null) {
-
-			$query .= ' WHERE ' . $db->qn('parent_id') . '=' . $db->Quote(0);
-		} else {
-			$query .= ' WHERE ' . $db->qn('parent_id') . '=' . $db->Quote($parent);
-		}
-
-
-		$db->setQuery($query);
-
-		$result = $db->loadObjectList();
-
-		return $result;
-	}
-
-	private function processDiscussionCategoryTree($oldCategory, $category)
-	{
-		$ajax = new Disjax();
-
-		$db = DiscussHelper::getDBO();
-		$query = 'SELECT * FROM ' . $db->qn('#__discussions_categories')
-				.' WHERE ' . $db->qn('parent_id') . '=' . $db->Quote($oldCategory->id)
-				.' ORDER BY ' . $db->qn('ordering') . ' ASC';
-
-		$db->setQuery($query);
-		$result	= $db->loadObjectList();
-
-		if (!$result) {
-			return false;
-		}
-
-		foreach ($result as $childCategory) {
-			$subcategory = DiscussHelper::getTable('Category');
-			$migratedId = $this->migrated('com_discussions', $childCategory->id, 'category');
-
-			if (!$migratedId) {
-				$this->mapDiscussionCategory($childCategory, $subcategory, $category->id);
-			} else {
-				$subcategory->load($migratedId);
-			}
-
-			$this->processDiscussionCategoryTree($childCategory, $subcategory);
-		}
-	}
-
-	private function mapDiscussionCategory($oldCategory, &$category, $parentId = 0)
-	{
-		$parentId = ($parentId) ? $parentId : 0;
-
-		$category->title = $oldCategory->name;
-		$category->description = $oldCategory->description;
-		$category->published = $oldCategory->published;
-		$category->parent_id = $parentId;
-		$category->created_by = DiscussHelper::getDefaultSAIds();
-
-		// Save the new category
-		$category->store(true);
-
-		$this->added('com_discussions', $category->id, $oldCategory->id, 'category');
-	}
-
-	private function getDiscussionCategory($id)
-	{
-		$db = JFactory::getDBO();
-		$query = 'SELECT * FROM ' . $db->qn('#__discussions_categories');
-		$query .= ' WHERE ' . $db->qn('id') . '=' . $db->Quote($id);
-		$query .= ' AND ' . $db->qn('parent_id') . '=' . $db->Quote(0);
-
-		$db->setQuery($query);
-		$category = $db->loadObject();
-
-		return $category;
-	}
-
-	private function getDiscussionCategories()
-	{
-		$db = JFactory::getDBO();
-		$query = 'SELECT * FROM ' . $db->qn('#__discussions_categories');
-
-		$db->setQuery($query);
-
-		$categories = $db->loadObjectList();
-
-		return $categories;
-	}
-
-
 
 	public function communitypollsCategoryItem()
 	{
@@ -478,12 +152,6 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 		$ajax->resolve( $categories , false );
 	}
 
-
-
-
-
-
-
 	public function communitypollsPostItem()
 	{
 		$ajax 	= DiscussHelper::getHelper( 'Ajax' );
@@ -510,9 +178,6 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 		return $ajax->resolve( $items );
 	}
 
-
-
-	
 	private function json_encode( $data )
 	{
 		$json	= new Services_JSON();
@@ -727,48 +392,4 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 
 		return $result;
 	}
-
-	private function getDiscussCategory( $vItem )
-	{
-		static $cache = array();
-
-		$key = 'category' . $vItem->catid;
-
-		if (! isset($cache[$key])) {
-			$db		= DiscussHelper::getDBO();
-			$query	= 'SELECT ' . $db->nameQuote( 'internal_id' ) . ' '
-					. 'FROM ' . $db->nameQuote( '#__discuss_migrators' ) . ' '
-					. 'WHERE ' . $db->nameQuote( 'external_id' ) . ' = ' . $db->Quote( $vItem->catid ) . ' '
-					. 'AND ' . $db->nameQuote( 'type' ) . ' = ' . $db->Quote( 'category' ) . ' '
-					. 'AND ' . $db->nameQuote( 'component' ) . ' = ' . $db->Quote( 'vBulletin' );
-
-			$db->setQuery( $query );
-			$categoryId	= $db->loadResult();
-
-			$cache[$key] = $categoryId;
-		}
-
-		return $cache[$key];
-	}
-
-	private function getDiscussUser( $vbUserKeyValue )
-	{
-		$db = DiscussHelper::getDBO();
-		$prefix = DiscussHelper::getConfig()->get( 'migrator_vBulletin_prefix' );
-
-		// currently we not sure there are how many way of bridging the user from vbulletin to joomla.
-		// for now, we assume the username is the key to communicate btw vbulletin and joomla
-		$column 		= 'username';
-
-		$query = 'SELECT b.* FROM ' . $db->nameQuote( '#__users' ) . ' AS b'
-				. ' WHERE b.' . $db->nameQuote( $column ) . '=' . $db->Quote( $vbUserKeyValue );
-
-		$db->setQuery( $query );
-		$result = $db->loadObject();
-
-		return $result;
-	}
-
-
-
 }

@@ -52,13 +52,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     </a>
                 </div>
 
-                <?php if (!$this->my->guest && $this->my->id != $user->id && $this->config->get('main_conversations') && $this->acl->allowed('allow_privatemessage')) { ?>
-                <div class="ed-statistic__item">
-                    <a href="javascript:void(0);" data-ed-conversations-api data-userid="<?php echo $user->id;?>">
-                        <i class="fa fa-comments ed-statistic__item-icon"></i>
-                    </a>
-                </div>
-                <?php } ?>
+                <?php echo $this->html('user.pm', $user->id, 'list'); ?>
 
                 <?php if ($this->config->get('main_rss')) { ?>
                 <div class="ed-statistic__item">

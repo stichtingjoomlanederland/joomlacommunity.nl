@@ -29,7 +29,6 @@ class EasyDiscussSharerButtonFacebook extends EasyDiscuss
 			$language = array('en', 'GB');
 		}
 
-		$layout	= $config->get('integration_facebook_like_layout');
 		$faces = $config->get('integration_facebook_like_faces') ? 'true' : 'false';
 		$width = $config->get('integration_facebook_like_width');
 		$verb = $config->get('integration_facebook_like_verb' );
@@ -45,14 +44,11 @@ class EasyDiscussSharerButtonFacebook extends EasyDiscuss
 		$url = EDR::getRoutedURL('view=post&id=' . $row->id, true, true);
 		$html = '';
 
-		$layout = 'box_count';
 
-		if ($position == 'horizontal') {
-			$layout = 'button_count';
-		}
+		$layout = 'button_count';
 
 		$html = '<div class="social-button facebook-like">';
-		
+
 		if ($config->get('integration_facebook_scripts')) {
 			$html .= '<div id="fb-root"></div><script src="https://connect.facebook.net/' . $locale . '/all.js#xfbml=1"></script>';
 		}

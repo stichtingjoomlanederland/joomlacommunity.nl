@@ -61,13 +61,23 @@ if (JRequest::getCmd('task', '', 'GET') == 'cron') {
 	// 	ED::maintenance()->pruneNotifications();
 	// }
 
+	$mailq = ED::mailqueue();
+
+	// Process pending emails.
+	$mailq->sendOnPageLoad();
+
+	if ($config->get('main_email_parser')) {
+		$mailq->parseEmails();
+	}
+
+
 	// Process remote storage tasks
 	ED::cron()->execute();
 
 	// Maintainance bit
 	ED::maintenance()->run();
 
-	echo 'Done.';
+	echo 'Cronjob Processed.';
 	exit;
 }
 

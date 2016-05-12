@@ -10,7 +10,7 @@
 		<name><![CDATA[COM_EASYDISCUSS_MENU_POST_LAYOUT]]></name>
 		<description><![CDATA[COM_EASYDISCUSS_MENU_POST_LAYOUT_DESC]]></description>
 		<url addpath="/administrator/components/com_easydiscuss/elements">
-			<param name="id" type="posts" label="Post Id" default="0" description="Choose a post..." />
+			<param name="id" type="posts" label="COM_EASYDISCUSS_MENU_POST_LAYOUT_POST_TITLE" default="0" description="COM_EASYDISCUSS_MENU_POST_LAYOUT_POST_TITLE_DESC" />
 		</url>
 		<params>
 		</params>
@@ -22,9 +22,9 @@
 			addfieldpath="/administrator/components/com_easydiscuss/elements/fields">
 
 			<field name="id" type="modal_posts"
-				label="Post Id"
+				label="COM_EASYDISCUSS_MENU_POST_LAYOUT_POST_TITLE"
 				required="true"
-				description="Choose a post..."
+				description="COM_EASYDISCUSS_MENU_POST_LAYOUT_POST_TITLE_DESC"
 			/>
 		</fieldset>
 	</fields>

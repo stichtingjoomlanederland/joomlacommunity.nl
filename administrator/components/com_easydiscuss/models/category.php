@@ -324,6 +324,7 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 
 	}
 
+
 	/**
 	 * Retrieves total number of posts from a category
 	 *
@@ -334,79 +335,37 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 	 */
 	public function getTotalPosts($categoryId)
 	{
-		$db = $this->db;
-		$my = JFactory::getUser();
+		static $_cache = array();
 
-		$queryExclude = '';
-		$excludeCats = array();
+		$options = array();
+		$options['idOnly'] = true;
 
-		// We need to determine if the user is a guest.
-		// If it is a guest, we need to retrieve all private categories.
-		if (!$my->id) {
+		if ($this->app->isAdmin()) {
+			$options['ignorePermission'] = true;
+		}
 
-			$query 		= 'SELECT a.' . $db->nameQuote( 'id' ) . ',' . $db->nameQuote( 'private' );
-			$query 		.= ' FROM ' . $db->nameQuote( '#__discuss_category' ) . ' AS a';
-			$query 		.= ' WHERE a.' . $db->nameQuote( 'private' ) . '=' . $db->Quote( 1 );
+		if (! isset($_cache[$categoryId])) {
 
-			$db->setQuery($query);
-			$result = $db->loadObjectList();
+			$db = $this->db;
 
+			$model = ED::model('Categories');
+			$children = $model->getCategoriesTree($categoryId, $options);
 
-			for ($i=0; $i < count($result); $i++) {
+			if ($children) {
+				$query = "select count(1) from `#__discuss_thread` as a";
+				$query .= " where a.`published` = " . $db->Quote('1');
+				$query .= " and a.`cluster_id` = " . $db->Quote(0);
+				$query .= " and a.`category_id` in (" . implode(',', $children) . ")";
 
-				$item = $result[$i];
-				$item->childs = null;
-
-				ED::buildNestedCategories($item->id, $item);
-
-				$catIds = array();
-				$catIds[] = $item->id;
-				ED::accessNestedCategoriesId($item, $catIds);
-
-				$excludeCats = array_merge($excludeCats, $catIds);
+				$db->setQuery($query);
+				$_cache[$categoryId] = $db->loadResult();
+			} else {
+				$_cache[$categoryId] = '0';
 			}
+
 		}
 
-		$model = ED::model('Categories');
-		$childs = $model->getChildIds($categoryId);
-		$total = count($childs);
-
-		$subcategories = array();
-		$subcategories[] = $categoryId;
-
-		if ($childs) {
-			for ($i = 0; $i < $total; $i++) {
-				$subcategories[] = $childs[$i];
-			}
-		}
-
-		$filtered = array_diff($subcategories, $excludeCats);
-
-		// just a temp fix when DiscussHelper::getPrivateCategories()
-		// failed to get correct result and it will cause the following
-		// query fails with error 500.
-		if (empty($filtered)) {
-			return;
-		}
-
-		$allowedCategories 	= array();
-
-		foreach ($filtered as $filteredCategory) {
-			if ($filteredCategory) {
-				$allowedCategories[] = $db->Quote($filteredCategory);
-			}
-		}
-
-		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_posts' ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'category_id' ) . ' IN (' . implode( ',' , $allowedCategories ) . ') '
-				. 'AND ' . $db->nameQuote( 'parent_id' ) . '=' . $db->Quote( 0 ) . ' '
-				. 'AND ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( DISCUSS_ID_PUBLISHED )
-				. 'AND ' . $db->nameQuote('cluster_id') . '=' . $db->Quote(0);
-		$db->setQuery($query);
-
-		$count 	= $db->loadResult();
-
-		return $count;
+		return $_cache[$categoryId];
 	}
 
 	public function getTotalPostCount($catIds)

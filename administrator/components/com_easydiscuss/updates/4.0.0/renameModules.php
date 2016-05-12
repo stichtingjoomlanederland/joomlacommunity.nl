@@ -23,9 +23,10 @@ class EasyDiscussMaintenanceScriptRenameModules extends EasyDiscussMaintenanceSc
         $db = ED::db();
 
         // mod_recentdiscussions -> mod_easydiscuss_recentdiscussions
+        // mod_ask -> mod_easydiscuss_ask
         
-        $oldNames = array('mod_recentdiscussions');
-        $newNames = array('mod_easydiscuss_recentdiscussions');
+        $oldNames = array('mod_recentdiscussions', 'mod_ask');
+        $newNames = array('mod_easydiscuss_recentdiscussions', 'mod_easydiscuss_ask');
 
         for ($i=0; $i<count($oldNames); $i++) {
 

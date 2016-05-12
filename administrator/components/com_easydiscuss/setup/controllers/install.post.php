@@ -33,9 +33,6 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 			return $this->output($this->getResultObj('COM_EASYDISCUSS_INSTALLATION_DEVELOPER_MODE', true));
 		}
 
-		// this is for beta release only. to be removed
-		$this->updateBeta();
-
 		// ACL rules needs to be created first before anything else
 		$results[] = $this->updateACL();
 
@@ -66,6 +63,14 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 		// Create sample post
 		$results[] = $this->createSamplePost();
 
+		// Change the default value for new features and theme
+		// Only for 3.x-4.0
+		if ($this->isUpgradeFrom3x()) {
+
+			// update default values
+			$this->changeDefaultValue();
+		}
+
 		$message = '';
 
 		foreach ($results as $obj) {
@@ -82,7 +87,26 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 		return $this->output();
 	}
 
-	public function updateBeta()
+	public function isUpgradeFrom3x()
+	{
+		$db = ED::db();
+
+		$query = array();
+		$query[] = 'SELECT ' . $db->quoteName('params') . ' FROM ' . $db->quoteName('#__discuss_configs');
+		$query[] = 'WHERE ' . $db->quoteName('name') . '=' . $db->Quote('scriptversion');
+		$query = implode(' ', $query);
+
+		$db->setQuery($query);
+		$scriptversion = $db->loadResult();
+
+		if ((int)$scriptversion == 3) {
+			return true;
+		} 
+		
+		return false;
+	}
+
+	public function changeDefaultValue()
 	{
 		$this->engine();
 
@@ -91,20 +115,29 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 			return;
 		}
 
-		// remove themes
-		// $folders = array(
-		// 				JPATH_ROOT . '/components/com_easydiscuss/themes/dark',
-		// 				JPATH_ROOT . '/components/com_easydiscuss/themes/flatt',
-		// 				JPATH_ROOT . '/components/com_easydiscuss/themes/pinter',
-		// 				JPATH_ROOT . '/components/com_easydiscuss/themes/simplistic',
-		// 				JPATH_ROOT . '/components/com_easydiscuss/themes/timeless',
-		// 				JPATH_ROOT . '/components/com_easydiscuss/themes/zinc'
-		// 			);
+		$model = ED::model('Settings');
 
+		$configData = $model->_getParams();
+
+		$registry = new JRegistry();
+		$registry->loadString($configData);
+
+		// If the user is updating from the previous version,
+		// we need to turn off the features by default.
+		$registry->set('main_mentions', 0);
+		$registry->set('post_priority', 0);
+		$registry->set('main_ban', 0);
+		$registry->set('main_hits_session', 0);
+		$registry->set('main_ratings', 0);
+		$registry->set('main_work_schedule', 0);
+		$registry->set('integrations_github', 0);
+		$registry->set('main_anonymous_posting', 0);
+
+		// Now we update the default theme
+		// remove themes as simplistic no longer support
 		$folders = array(
 						JPATH_ROOT . '/components/com_easydiscuss/themes/simplistic'
 					);
-
 
 		// Go through each folders and remove them
 		foreach ($folders as $folder) {
@@ -115,25 +148,15 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 			}
 		}
 
-		// update settings:
+		$currentTheme = $registry->get('layout_site_theme', '');
 
-		$model = ED::model('Settings');
-
-		$configData = $model->_getParams();
-
-		$registry = new JRegistry();
-		$registry->loadString($configData);
-
-		// set system enviroment to development
-		// $registry->set('system_environment', 'production');
-
-		$registry->set('layout_site_theme', 'wireframe');
-		$registry->set('layout_site_theme_base', 'wireframe');
-
+		if ($currentTheme == 'simplistic') {
+			$registry->set('layout_site_theme', 'wireframe');
+			$registry->set('layout_site_theme_base', 'wireframe');
+		}
 
 		$config = ED::table('Configs');
 		$config->load('config');
-
 
 		$config->name = 'config';
 		$config->params	= $registry->toString('INI');
@@ -742,7 +765,7 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 						$allowedAcl = array(1, 2, 3, 4);
 					} else {
 						// other groups
-						$allowedAcl = array(1, 2, 3, 4, 25, 26);
+						$allowedAcl = array(1, 2, 3, 4, 25, 26, 30);
 					}
 
 					$groups[$id] = $allowedAcl;

@@ -131,6 +131,7 @@
 .ed-editor-tab {
     clear: both;
     font-size: @fd-base-font-size--xs;
+    border-top: 1px solid @fd-ui-border-color;
     &__content {
         padding: @fd-base-spacing;
         color: @fd-ui-meta-color;
@@ -181,3 +182,8 @@
         }
     }
 }
+
+.input-group-addon--captcha { // Override input-group-addon
+    width: 120px;
+}
+

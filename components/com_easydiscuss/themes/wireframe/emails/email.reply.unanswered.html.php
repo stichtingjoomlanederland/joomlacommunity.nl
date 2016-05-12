@@ -1,35 +1,98 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-
+* @package      EasyDiscuss
+* @copyright    Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
 defined('_JEXEC') or die('Restricted access');
 ?>
-<br />
-<hr style="clear:both;margin:10px 0 15px;padding:0;border:0;border-top:1px solid #ddd" />
-<br style="clear:both" />
-<?php echo JText::sprintf( 'COM_EASYDISCUSS_EMAILTEMPLATE_MARKED_UNRESOLVED' , $postTitle ); ?>
-<br />
-<?php echo JText::_( 'COM_EASYDISCUSS_EMAILTEMPLATE_VIEW_DISCUSSION_LINK_BELOW' );?>
-<div style="padding:20px;border-top:1px solid #ccc;padding:20px 0 10px;margin-top:20px;line-height:19px;color:#555;font-family:'Lucida Grande',Tahoma,Arial;font-size:12px;text-align:left">
-	<div>
-	<!--[if mso]>
-	  <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="<?php echo $postLink;?>" style="height:30px;padding-left:15px;padding-right:15px;v-text-anchor:middle;" arcsize="7%" strokecolor="#caa200" fillcolor="#ffcc00">
-	    <w:anchorlock/>
-	    <center style="color:#534200;font-family:sans-serif;font-size:13px;font-weight:bold;"><?php echo JText::_( 'COM_EASYDISCUSS_EMAILTEMPLATE_READ_THIS_DISCUSSION' );?> &nbsp; &raquo;</center>
-	  </v:roundrect>
-	<![endif]-->
-	<![if !mso]>
-	<a href="<?php echo $postLink;?>"
-	style="background-color:#ffcc00;border:1px solid #caa200;padding-left:15px;padding-right:15px;border-radius:2px;color:#534200;display:inline-block;font-family:sans-serif;font-size:13px;font-weight:bold;line-height:30px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;" target="_blank"><?php echo JText::_( 'COM_EASYDISCUSS_EMAILTEMPLATE_READ_THIS_DISCUSSION' );?> &nbsp; &raquo;</a>
-	<![endif]>
-	</div>
-</div>
+<!-- title section -->
+<tr>
+    <td style="text-align: center;padding: 40px 10px 0;">
+        <div style="margin-bottom:15px;">
+            <div style="font-family:Arial;font-size:32px;font-weight:normal;color:#333;display:block; margin: 4px 0">
+                <?php echo JText::_('COM_EASYDISCUSS_EMAILS_NEW_REPLY_MARKED_UNRESOLVED') ?>
+            </div>
+            <div style="font-size:12px; color: #798796;font-weight:normal">
+                <?php echo JText::sprintf('COM_EASYDISCUSS_EMAIL_TEMPLATE_MARKED_UNRESOLVED', $postTitle); ?>
+            </div>
+        </div>
+    </td>
+</tr>
+
+<!-- content section -->
+<tr>
+    <td style="text-align: center;font-size:12px;color:#888">
+        <div style="margin:30px auto;text-align:center;display:block">
+            <img src="/media/com_easydiscuss/images/spacer.gif" alt="<?php echo JText::_( 'divider' );?>" />
+        </div>
+        <table align="center" border="0" cellpadding="0" cellspacing="0" style="table-layout:fixed;width:100%;">
+        <tr>
+        <td align="center">
+            <table width="540" cellspacing="0" cellpadding="0" border="0" align="center" style="table-layout:fixed;margin: 0 auto;">
+                <tr>
+                    <td>
+                        <p style="text-align:left;">
+                            <?php echo JText::_('COM_EASYDISCUSS_EMAILS_HELLO'); ?>
+                        </p>
+
+                        <p style="text-align:left;">
+                            <?php echo JText::sprintf('COM_EASYDISCUSS_EMAIL_TEMPLATE_YOUR_REPLY_MARKED_UNRESOLVED_NOTIFICATION', $postTitle); ?>
+                        </p>
+                    </td>
+                </tr>
+            </table>
+            <table width="540" cellspacing="0" cellpadding="0" border="0" align="center" style="table-layout:fixed;margin: 20px auto 0;background-color:#f8f9fb;padding:15px 20px;">
+                <tbody>
+                    <tr>
+                        <td valign="top">
+							<?php echo $replyContent; ?>
+                        </td>
+                    </tr>
+					<?php if (isset($attachments) && $attachments) { ?>
+					<tr>
+						<td>
+							<div class="discuss-attachments mv-15">
+								<h5><?php echo JText::_( 'COM_EASYDISCUSS_ATTACHMENTS' ); ?>:</h5>
+
+								<ul class="thumbnails">
+								<?php foreach( $attachments as $attachment ) { ?>
+									<li class="attachment-item thumbnail thumbnail-small attachment-type-<?php echo $attachment->attachmentType; ?>" id="attachment-<?php echo $attachment->id;?>" data-attachment-item>
+										<?php echo $attachment->toHTML( true );?>
+									</li>
+								<?php } ?>
+								</ul>
+
+							</div>
+						</td>
+					</tr>
+					<?php } ?>
+                </tbody>
+            </table>
+        </td>
+        </tr>
+        </table>
+        <a style="
+                display:inline-block;
+                text-decoration:none;
+                font-weight:bold;
+                margin-top: 20px;
+                padding:10px 15px;
+                line-height:20px;
+                color:#fff;font-size: 12px;
+                background-color: #428bca;
+                border-color: #357ebd;
+
+
+                border-style: solid;
+                border-width: 1px;
+
+                border-radius:3px; -moz-border-radius:3px; -webkit-border-radius:3px;
+                " href="<?php echo $postLink;?>"><?php echo JText::_('COM_EASYDISCUSS_EMAILTEMPLATE_READ_THIS_DISCUSSION');?></a>
+    </td>
+</tr>

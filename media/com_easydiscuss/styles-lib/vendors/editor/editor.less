@@ -1,0 +1,24 @@
+// Patch for all Joomla Editor 
+
+// Apply for ED editor only
+.ed-editor {
+    
+    // CKE
+    .cke_editor_dc_content,
+    .cke_editor_dc_content * {
+        box-sizing: content-box;
+    }
+
+    // JCE
+    .mceEditor * {
+        box-sizing: content-box;
+    }
+    .mceFirst {
+        background-color: @fd-ui-shade;
+    }
+    .defaultSkin .mceIframeContainer {
+        border-top: 1px solid @fd-ui-border-color;
+        border-bottom: 1px solid @fd-ui-border-color;
+    }   
+    
+}

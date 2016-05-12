@@ -68,6 +68,10 @@ class EasyDiscussIntegrate extends EasyDiscuss
 				case 'easysocial':
 					$socialFields = self::easysocial( $profile );
 					break;
+				case 'jomwall':
+					$socialFields = self::jomwall($profile);
+					break;
+
 				case 'easydiscuss' :
 				default :
 					$socialFields = self::easydiscuss( $profile );
@@ -78,7 +82,13 @@ class EasyDiscussIntegrate extends EasyDiscuss
 				$socialFields = self::easydiscuss( $profile );
 			}
 
-			$avatarData = array('avatarLink' => $socialFields[0], 'profileLink' => $socialFields[1]);
+			$editProfileLink = '';
+
+			if (isset($socialFields[2]) && $socialFields[2]) {
+				$editProfileLink = $socialFields[2];
+			}
+
+			$avatarData = array('avatarLink' => $socialFields[0], 'profileLink' => $socialFields[1], 'editProfileLink' => $editProfileLink);
 			$field[$index] = $avatarData;
 		}
 
@@ -103,10 +113,37 @@ class EasyDiscussIntegrate extends EasyDiscuss
 			return false;
 		}
 
+		$config = ED::config();
+
 		$avatarLink = ES::user($profile->id)->getAvatar(SOCIAL_AVATAR_MEDIUM);
 		$profileLink = ES::user($profile->id)->getPermalink();
 
-		return array($avatarLink, $profileLink);
+		$editProfileLink = '';
+
+		if ($config->get('integration_easysocial_toolbar_profile')) {
+			$editProfileLink = ESR::profile(array('layout' => 'edit'));
+		}
+
+		return array($avatarLink, $profileLink, $editProfileLink);
+	}
+
+	private static function jomwall( $profile, $isThumb = true )
+	{
+		$file = JPATH_ROOT . '/components/com_awdwall/helpers/user.php';
+
+		if (!JFile::exists($file)) {
+			return false;
+		}
+
+		require_once($file);
+
+		$avatarLink = AwdwallHelperUser::getBigAvatar51($profile->id);
+		$Itemid = AwdwallHelperUser::getComItemId();
+		$profileLink = AwdwallHelperUser::getUserProfileUrl($profile->id,$Itemid);
+
+		$editProfileLink = JRoute::_('index.php?option=com_awdwall&view=mywall&wuid='. $profile->id .'&Itemid=' . $Itemid, false);
+		
+		return array($avatarLink, $profileLink, $editProfileLink);
 	}
 
 	private static function k2($profile)
@@ -182,19 +219,25 @@ class EasyDiscussIntegrate extends EasyDiscuss
 		$avatarLink = ($isThumb) ? $user->getThumbAvatar() : $user->getAvatar();
 
 		$profileLink = CRoute::_('index.php?option=com_community&view=profile&userid=' . $profile->id);
+		$editProfileLink = CRoute::_('index.php?option=com_community&view=profile&task=edit');
 
-		return array($avatarLink, $profileLink);
+		return array($avatarLink, $profileLink, $editProfileLink);
 	}
 
 	private static function kunena($profile)
 	{
+		if (!class_exists('KunenaFactory')) {
+			return false;
+		}
+
 		$userKNN = KunenaFactory::getUser($profile->id);
 		$avatarLink = $userKNN->getAvatarURL('kavatar');
 
 		$profileKNN = KunenaFactory::getProfile($profile->id);
 		$profileLink = $profileKNN->getProfileURL($profile->id, '');
+		$editProfileLink = $profileKNN->getEditProfileURL($profile->id);
 
-		return array($avatarLink, $profileLink);
+		return array($avatarLink, $profileLink, $editProfileLink);
 	}
 
 	private static function communitybuilder($profile , $isThumb = true)
@@ -205,6 +248,8 @@ class EasyDiscussIntegrate extends EasyDiscuss
 		cbimport('cb.database');
 		cbimport('cb.tables');
 		cbimport('cb.tabs');
+
+		global $_CB_framework;
 
 		$user = CBuser::getInstance($profile->id);
 
@@ -225,10 +270,11 @@ class EasyDiscussIntegrate extends EasyDiscuss
 			$avatarLink = str_ireplace('tn' , '' ,$avatarLink);
 		}
 
+		$profileLink = $_CB_framework->userProfileUrl($profile->id);
 
-		$profileLink = cbSef( 'index.php?option=com_comprofiler&amp;task=userProfile&amp;user='. $profile->id);
+		$editProfileLink = $_CB_framework->userProfileEditUrl();
 
-		return array($avatarLink, $profileLink);
+		return array($avatarLink, $profileLink, $editProfileLink);
 	}
 
 	private static function gravatar($profile)
@@ -404,6 +450,8 @@ class EasyDiscussIntegrate extends EasyDiscuss
 		$profileEB = EB::table('Profile');
 		$profileEB->load($profile->id);
 
-		return array($profileEB->getAvatar(), $profileEB->getPermalink());
+		$editProfileLink = EB::getEditProfileLink();
+
+		return array($profileEB->getAvatar(), $profileEB->getPermalink(), $editProfileLink);
 	}
 }

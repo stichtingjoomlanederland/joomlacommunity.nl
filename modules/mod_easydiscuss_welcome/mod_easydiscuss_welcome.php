@@ -23,13 +23,10 @@ require_once ($path);
 
 $my	= ED::user();
 $isLoggedIn	= ED::modules()->getLoginStatus();
+
 $return = ED::modules()->getReturnURL($params, $isLoggedIn);
 
 $config = ED::config();
-
-$document = JFactory::getDocument();
-// $document->addStyleSheet( rtrim( JURI::root() , '/' ) . '/modules/mod_easydiscuss_welcome/assets/css/styles.css' );
-//ED::loadStylesheet("module", "mod_easydiscuss_welcome");
 
 $badges	= $my->getBadges();
 

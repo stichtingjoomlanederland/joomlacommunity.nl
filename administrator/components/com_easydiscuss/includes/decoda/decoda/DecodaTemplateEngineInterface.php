@@ -24,7 +24,7 @@ defined('_JEXEC') or die('Unauthorized Access');
  * @link        http://milesj.me/code/php/decoda
  */
 
-interface DecodaTemplateEngineInterface {
+interface EdDecodaTemplateEngineInterface {
 
 	/**
 	 * Return the current filter.
@@ -60,7 +60,7 @@ interface DecodaTemplateEngineInterface {
 	 * @param DecodaFilter $filter
 	 * @return void
 	 */
-	public function setFilter(DecodaFilter $filter);
+	public function setFilter(EdDecodaFilter $filter);
 
 	/**
 	 * Sets the path to the tag templates.

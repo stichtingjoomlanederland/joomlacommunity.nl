@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Latest Replies</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>15th April 2016</creationDate>
+	<creationDate>9th May 2016</creationDate>
 	<copyright>Copyright 2009 - 2016 Stack Ideas. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://www.stackideas.com</authorUrl>
-	<version>4.0.1</version>
+	<version>4.0.5</version>
 	<description><![CDATA[This module will displays the latest replies from all the discussion in Easydiscuss.]]></description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easydiscuss_latest_replies.ini</language>
@@ -24,13 +24,12 @@
 	<config>
 		<fields name="params">
 			<fieldset name="basic">
-				<field name="count" type="text" default="5" label="Count" description="The number of replies to display (set it to 0 if post limiting if not required)." />
-				<field name="maxlength" type="text" default="200" label="Max length" description="The maximum length of the content that should be displayed" />
-				<field name="show_replies_avatar" type="list" default="1" label="Show avatar" description="Show avatar of the replies">
+				<field name="count" type="text" default="5" label="MOD_EASYDISCUSS_LATEST_REPLIES_COUNT" description="MOD_EASYDISCUSS_LATEST_REPLIES_COUNT_DESC" />
+				<field name="maxlength" type="text" default="200" label="MOD_EASYDISCUSS_LATEST_REPLIES_MAX_LENGTH" description="MOD_EASYDISCUSS_LATEST_REPLIES_MAX_LENGTH_DESC" />
+				<field name="show_replies_avatar" type="list" default="1" label="MOD_EASYDISCUSS_LATEST_REPLIES_SHOW_AVATAR" description="MOD_EASYDISCUSS_LATEST_REPLIES_SHOW_AVATAR_DESC">
 					<option value="1">Yes</option>
 					<option value="0">No</option>
 				</field>
-				<field name="replies_avatar_size" type="text" default="48" label="Avatar size" description="Height or width in pixel" />
 			</fieldset>
 
 			<fieldset name="advanced">

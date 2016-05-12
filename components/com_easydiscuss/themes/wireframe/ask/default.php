@@ -106,7 +106,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <?php echo $composer->renderTabs(); ?>
                 </div>
 
-                <?php if ($this->config->get('main_master_tags') && $this->config->get('main_tags') && $this->acl->allowed('add_tag')) { ?>
+                <?php if ($this->config->get('main_master_tags') && $this->acl->allowed('add_tag')) { ?>
                     <?php echo $this->output('site/composer/forms/tags', array('post' => $post)); ?>
                 <?php } ?>
 

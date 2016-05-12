@@ -72,6 +72,10 @@ class EasyDiscussViewSettings extends EasyDiscussAdminView
 				continue;
 			}
 
+			if ($layout == 'social' && $file == 'social.buttons.php') {
+				continue;
+			}
+
 			$tab = str_ireplace('.php', '', $file);
 			$tabs[$file] = $tab;
 		}
@@ -97,6 +101,11 @@ class EasyDiscussViewSettings extends EasyDiscussAdminView
 		$theme->set('joomlaGroups', $joomlaGroups);
 		$theme->set('layout', $layout);
 
+		if ($layout == 'email') {
+			$categories = $this->getCategories();
+			$theme->set('categories', $categories);
+		}
+
 		$output = $theme->output('admin/settings/contents');
 
 		return $output;
@@ -121,9 +130,10 @@ class EasyDiscussViewSettings extends EasyDiscussAdminView
 
 	public function getCategories()
 	{
-		$db			= DiscussHelper::getDBO();
-		$query		= 'SELECT * FROM ' . $db->nameQuote( '#__discuss_category' ) . ' '
-					. 'WHERE ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( 1 );
+		$db = ED::db();
+		$query = 'SELECT * FROM ' . $db->nameQuote( '#__discuss_category' ) . ' '
+			 . 'WHERE ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( 1 );
+
 		$db->setQuery( $query );
 		$categories	= $db->loadObjectList();
 

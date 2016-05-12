@@ -17,15 +17,15 @@ $license = $input->get('license', '', 'default');
 $(document).ready( function(){
 
 	<?php if( $reinstall ){ ?>
-		eb.ajaxUrl	= "<?php echo JURI::root();?>administrator/index.php?option=com_easydiscuss&ajax=1&reinstall=1&license=<?php echo $license;?>";
+		ed.ajaxUrl	= "<?php echo JURI::root();?>administrator/index.php?option=com_easydiscuss&ajax=1&reinstall=1&license=<?php echo $license;?>";
 	<?php } elseif($update){ ?>
-		eb.ajaxUrl	= "<?php echo JURI::root();?>administrator/index.php?option=com_easydiscuss&ajax=1&update=1&license=<?php echo $license;?>";
+		ed.ajaxUrl	= "<?php echo JURI::root();?>administrator/index.php?option=com_easydiscuss&ajax=1&update=1&license=<?php echo $license;?>";
 	<?php } else { ?>
-		eb.ajaxUrl	= "<?php echo JURI::root();?>administrator/index.php?option=com_easydiscuss&ajax=1&license=<?php echo $license;?>";
+		ed.ajaxUrl	= "<?php echo JURI::root();?>administrator/index.php?option=com_easydiscuss&ajax=1&license=<?php echo $license;?>";
 	<?php } ?>
 
 	// Immediately proceed with installation
-	eb.installation.download();
+	ed.installation.download();
 });
 
 </script>

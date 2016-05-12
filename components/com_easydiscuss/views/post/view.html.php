@@ -51,9 +51,13 @@ class EasyDiscussViewPost extends EasyDiscussView
 
 		// Determine if user are allowed to view the discussion item that belong to another cluster.
 		if ($post->isCluster()) {
-			$esLib = ED::easysocial();
+			$easysocial = ED::easysocial();
 
-			$cluster = $esLib->getCluster($post->cluster_id, $post->getClusterType());
+			if (!$easysocial->isGroupAppExists()) {
+				return JError::raiseError(404, JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
+			}
+
+			$cluster = $easysocial->getCluster($post->cluster_id, $post->getClusterType());
 
 			if (!$cluster->canViewItem()) {
 				return JError::raiseError(404, JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));

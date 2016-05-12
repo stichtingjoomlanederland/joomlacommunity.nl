@@ -25,17 +25,13 @@ class EasyDiscussSharerButtonGoogleShare extends EasyDiscuss
 		$dataURL = EDR::getRoutedURL('view=post&id=' . $row->id, false, true);
 
 		$googleShare = '';
-		$size = 'tall';
-		$width = '50px';
-		
-		if ($position == 'horizontal') {
-			$size = 'medium';
-			$width = '170px';
-		}
+
+		$size = 'medium';
+		$width = '170px';
 
 		$googleShare .= '<div class="social-button google-share" style="width:' . $width . '">';
 		$googleShare .= '<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>';
-		$googleShare .= '<g:plus action="share" size="' . $size . '" href="' . $dataURL . '"></g:plus>';
+		$googleShare .= '<g:plus action="share" height=24"" size="' . $size . '" href="' . $dataURL . '"></g:plus>';
 		$googleShare .= '</div>';
 
 		return $googleShare;

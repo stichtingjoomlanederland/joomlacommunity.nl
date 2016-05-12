@@ -1,0 +1,6 @@
+[
+    {
+        "table": "#__discuss_acl",
+        "query": "UPDATE `#__discuss_users` SET `public`='1' WHERE `action`='vote_discussion';"
+    }
+]

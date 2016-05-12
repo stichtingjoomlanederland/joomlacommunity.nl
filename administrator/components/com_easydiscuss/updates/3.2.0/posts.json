@@ -62,7 +62,7 @@
     {
         "table"     : "#__discuss_posts",
         "column"    : "private",
-        "query"     : "ALTER TABLE `#__discuss_posts` ADD `private` TINYINT(3) NOT NULL DEFAULT 0 COMMENT `Determines if the discussion should be a private ticket or not.` , ADD INDEX (`private`) ;"
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD `private` TINYINT(3) NOT NULL DEFAULT 0 COMMENT 'Determines if the discussion should be a private ticket or not.' , ADD INDEX (`private`) ;"
     },
     {
         "table"     : "#__discuss_posts",

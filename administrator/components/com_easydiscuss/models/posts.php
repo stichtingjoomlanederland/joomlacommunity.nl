@@ -256,15 +256,16 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 	public function loadBatchPosts($ids)
 	{
-		$db = $this->db();
+		$db = ED::db();
 		$my = $this->my;
+		$date = ED::date();
 
 		$query = 'select b.*, a.`has_polls` as `polls_cnt`, a.`num_fav` as `totalFavourites`, a.`num_replies`, a.`num_attachments` as attachments_cnt,';
 		$query .= ' a.`num_likes` as `likeCnt`, a.`sum_totalvote` as `VotedCnt`,';
 		$query .=  " a.`replied` as `lastupdate`, a.vote as `total_vote_cnt`,";
 
 		// $query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`, ";
-		$query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`, (select cc.anonymous from `#__discuss_posts` as cc where cc.parent_id = a.post_id order by id desc limit 1) as last_user_anonymous,";
+		$query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`, (select cc.anonymous from `#__discuss_posts` as cc where cc.`thread_id` = a.`id` and cc.created = a.replied limit 1) as `last_user_anonymous`,";
 
 
 		$query	.= ' DATEDIFF('. $db->Quote($date->toMySQL()) . ', a.`created`) as `noofdays`, ';
@@ -549,7 +550,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$query	.= " a.`num_likes` as `likeCnt`, a.`sum_totalvote` as `VotedCnt`,";
 		$query	.=  " a.`replied` as `lastupdate`, a.vote as `total_vote_cnt`,";
 
-		$query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`, (select cc.anonymous from `#__discuss_posts` as cc where cc.parent_id = a.post_id order by id desc limit 1) as last_user_anonymous,";
+		$query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`, (select cc.anonymous from `#__discuss_posts` as cc where cc.`thread_id` = a.`id` and cc.created = a.replied limit 1) as `last_user_anonymous`,";
 
 		$query	.= ' DATEDIFF('. $db->Quote($date->toMySQL()) . ', a.`created`) as `noofdays`, ';
 		$query	.= ' DATEDIFF(' . $db->Quote($date->toMySQL()) . ', a.`created`) as `daydiff`, TIMEDIFF(' . $db->Quote($date->toMySQL()). ', a.`created`) as `timediff`,';
@@ -595,31 +596,21 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$where = array();
 		$where[] = "a.`published` = " . $db->Quote('1');
 
+		if (!ED::isSiteAdmin() && !ED::isModerator() && !$private && $filter != 'mine') {
+			$where[] = "a.`private` = " . $db->Quote(0);
+		}
+
+		if ($clusterId) {
+			$where[] = "a.`cluster_id` = " . $clusterId;
+			$includeCluster = true;
+		}
+
+		if (!$includeCluster) {
+			$where[] = "a.`cluster_id` = " . $db->Quote(0);
+		}
+
 		if ($user_id) {
 			$where[] = "a.`user_id` = " . $db->Quote((int) $user_id);
-		}
-
-		if ($filteractive == 'featured' || $featured === true) {
-			$where[] = "a.`featured` = " . $db->Quote('1');
-		}
-		else if ($featured === false && $filter != 'resolved') {
-			$where[] = "a.`featured` = " . $db->Quote('0');
-		}
-
-		if ($filteractive == 'myposts') {
-			$where[] = "a.`user_id`= " . $db->Quote($my->id);
-		}
-
-		if ($filteractive == 'userposts' && !empty($userId)) {
-			$where[] = "a.`user_id`= " . $db->Quote($userId);
-		}
-
-		if ($filteractive == 'questions' && !empty($userId)) {
-			$where[] = "a.`user_id`= " . $db->Quote($userId);
-		}
-
-		if ($filteractive == 'new') {
-			$where[] = "DATEDIFF( " . $db->Quote(ED::date()->toSql()) . ", a.`created` ) <= " . $db->Quote($config->get('layout_daystostaynew'));
 		}
 
 		if (!empty($exclude)) {
@@ -689,9 +680,6 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$where[] = "a.`answered` = " . $db->Quote('0');
 		}
 
-		if (!ED::isSiteAdmin() && !ED::isModerator() && !$private && $filter != 'mine') {
-			$where[] = "a.`private` = " . $db->Quote(0);
-		}
 
 		if ($search) {
 			$where[] = "LOWER( a.`title` ) LIKE " . $db->Quote('%' . $search . '%');
@@ -699,14 +687,51 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		// category ACL:
 		$catOptions = array();
+		$catOptions['idOnly'] = true;
 
 		if ($category) {
-			$catOptions['include'] = $category;
+			// $catOptions['include'] = $category;
 			$catOptions['includeChilds'] = $includeChilds;
+		} else {
+			$catOptions['includeChilds'] = true;
 		}
 
-		$catAccessSQL = ED::category()->genCategoryAccessSQL('a.category_id', $catOptions);
-		$where[] = $catAccessSQL;
+		// $catAccessSQL = ED::category()->genCategoryAccessSQL('a.category_id', $catOptions);
+		// $where[] = $catAccessSQL;
+		$catModel = ED::model('Categories');
+		$catIds = $catModel->getCategoriesTree($category, $catOptions);
+
+		// if there is no categories return, means this user has no permission to view all the categories.
+		// if that is the case, just return empty array.
+		if (! $catIds) {
+			return array();
+		}
+
+		$where[] = "a.category_id IN (" . implode(',', $catIds) . ")";
+
+		if ($filteractive == 'featured' || $featured === true) {
+			$where[] = "a.`featured` = " . $db->Quote('1');
+		}
+		else if ($featured === false && $filter != 'resolved') {
+			$where[] = "a.`featured` = " . $db->Quote('0');
+		}
+
+		if ($filteractive == 'myposts') {
+			$where[] = "a.`user_id`= " . $db->Quote($my->id);
+		}
+
+		if ($filteractive == 'userposts' && !empty($userId)) {
+			$where[] = "a.`user_id`= " . $db->Quote($userId);
+		}
+
+		if ($filteractive == 'questions' && !empty($userId)) {
+			$where[] = "a.`user_id`= " . $db->Quote($userId);
+		}
+
+		if ($filteractive == 'new') {
+			$where[] = "DATEDIFF( " . $db->Quote(ED::date()->toSql()) . ", a.`created` ) <= " . $db->Quote($config->get('layout_daystostaynew'));
+		}
+
 
 		$filterLanguage = JFactory::getApplication()->getLanguageFilter();
 		if ($filterLanguage) {
@@ -754,8 +779,10 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 					$orderby = " ORDER BY a.`featured` DESC, a.`created` DESC"; //used in getsticky and getlastreply
 					break;
 				case 'oldest':
-				case 'replylatest':
 					$orderby = " ORDER BY a.`created` ASC"; //used in discussion replies
+					break;
+				case 'replylatest':
+					$orderby = " ORDER BY a.`created` DESC"; //used in discussion replies
 					break;
 				case 'latest':
 				default:
@@ -764,14 +791,6 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			}
 		}
 
-		if ($clusterId) {
-			$where[] = "a.`cluster_id` = " . $clusterId;
-			$includeCluster = true;
-		}
-
-		if (!$includeCluster) {
-			$where[] = "a.`cluster_id` = " . $db->Quote(0);
-		}
 
 		if (!$includeAnonymous) {
 			$where[] = "b.`anonymous` != " . $db->Quote(1);
@@ -844,13 +863,16 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$queryExclude	= '';
 		$excludeCats	= array();
 
+		// We do not want to include anything from cluster here.
+		$includeCluster = false;
+
 		$date = ED::date();
 
 		// We do not need to check for private categories for replies since replies are posted in that particular discussion.
-		if( !$reply )
-		{
-			$excludeCats = DiscussHelper::getPrivateCategories();
-		}
+		// if( !$reply )
+		// {
+		// 	$excludeCats = DiscussHelper::getPrivateCategories();
+		// }
 
 		if (! empty($excludeCats)) {
 			$queryExclude .= ' AND a.`category_id` NOT IN (' . implode(',', $excludeCats) . ')';
@@ -950,6 +972,28 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$where 	.= ' AND a.`private`=' . $db->Quote(0);
 		}
 
+		if (!$includeCluster) {
+			$where .= ' AND a.`cluster_id` = ' . $db->Quote(0);
+		}
+
+
+		// category ACL:
+		$catOptions = array();
+		$catOptions['idOnly'] = true;
+		$catOptions['includeChilds'] = true;
+
+		$catModel = ED::model('Categories');
+		$catIds = $catModel->getCategoriesTree(0, $catOptions);
+
+		// if there is no categories return, means this user has no permission to view all the categories.
+		// if that is the case, just return empty array.
+		if (! $catIds) {
+			$where .= " and `category_id` = 0";
+		} else {
+			$where .= " and `category_id` IN (" . implode(',', $catIds) . ")";
+		}
+
+
 		$query	.= $where;
 		$query	.= $queryExclude;
 
@@ -994,10 +1038,12 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 				case 'featured':
 					$orderby	= ' ORDER BY a.`featured` DESC, a.`created` DESC'; //used in getsticky and getlastreply
 					break;
-				case 'oldest':
-				case 'replylatest':
-					$orderby	= ' ORDER BY a.`created` ASC'; //used in discussion replies
-					break;
+			    case 'oldest':
+			     	$orderby 	= " ORDER BY a.`created` ASC"; //used in discussion replies
+			     	break;
+			    case 'replylatest':
+			     	$orderby 	= " ORDER BY a.`created` DESC"; //used in discussion replies
+			     	break;
 				case 'latest':
 				default:
 					$orderby	= ' ORDER BY a.`replied` DESC'; //used in getsticky and get created date
@@ -1382,6 +1428,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$this->_isaccept = false;
 
 		$isReplies = ($id == 'allreplies') ? false : true;
+
 		$query = $this->_buildQuery($sort, '', '', 'all', $isReplies);
 
 		$result = '';
@@ -1408,6 +1455,64 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		return $result;
 	}
+
+
+	/**
+	 * Retrieves site wide latest replies
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+
+	public function getRecentReplies($count = 5)
+	{
+		$db = ED::db();
+
+		$count = (int) $count;
+
+		if (! $count) {
+			$count = 5;
+		}
+
+		$query = "select a.* from `#__discuss_posts` as a";
+		$query .= " inner join `#__discuss_thread` as b on a.thread_id = b.id and b.published = 1";
+		$query .= ' where a.`published` = 1';
+		$query .= " and a.`parent_id` > 0";
+
+		$catOptions = array();
+		$catOptions['idOnly'] = true;
+		$catOptions['includeChilds'] = true;
+
+		// $catAccessSQL = ED::category()->genCategoryAccessSQL('a.category_id', $catOptions);
+		// $where[] = $catAccessSQL;
+		$catModel = ED::model('Categories');
+		$catIds = $catModel->getCategoriesTree(0, $catOptions);
+
+		// if there is no categories return, means this user has no permission to view all the categories.
+		// if that is the case, just return empty array.
+		if (! $catIds) {
+			return array();
+		}
+
+		$query .= " and b.`category_id` IN (" . implode(',', $catIds) . ")";
+
+
+		if (!ED::isSiteAdmin() && !ED::isModerator()) {
+			$query	.= ' AND b.`private`=' . $db->Quote(0);
+		}
+
+
+		$query .= " order by a.`id` desc";
+		$query .= " limit $count";
+
+		$db->setQuery($query);
+		$results = $db->loadObjectList();
+
+		return $results;
+	}
+
 
 	/**
 	 * Method to publish or unpublish posts
@@ -1746,17 +1851,19 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 	 * @param	int		$tagId	The tag id.
 	 * @return	array	$rows	An array of blog objects.
 	 */
-	public function getTaggedPost( $tagId = 0, $sort	= 'latest', $filter = '', $limitStart = '' )
+	public function getTaggedPost($tagId = 0, $sort = 'latest', $filter = '', $limitStart = '')
 	{
-		if( $tagId ==	0 )
+		if ($tagId == 0) {
 			return false;
+		}
 
-		if( is_array($tagId) && empty($tagId) )
+		if (is_array($tagId) && empty($tagId)) {
 			return false;
+		}
 
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 		$limit = (int) $this->getState('limit');
-		$limitstart = (empty($limitStart) ) ? $this->getState('limitstart') : $limitStart;
+		$limitstart = (empty($limitStart)) ? $this->getState('limitstart') : $limitStart;
 
 		$limitstart = abs($limitstart);
 
@@ -1764,7 +1871,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$limit = 0;
 		}
 
-		$filteractive	= (empty($filter)) ? JRequest::getString('filter', 'allposts') : $filter;
+		$filteractive = (empty($filter)) ? JRequest::getString('filter', 'allposts') : $filter;
 
 		$date = ED::date();
 
@@ -1802,11 +1909,10 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		$queryWhere = '';
 
-		if( is_array($tagId) )
-		{
+		if (is_array($tagId)) {
 			$queryWhere = ' WHERE a.tag_id IN (' . implode(',', $tagId) . ')';
 
-		}else{
+		} else {
 			$queryWhere = ' WHERE a.tag_id = ' . $db->Quote( $tagId );
 		}
 
@@ -1831,7 +1937,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$query	.= ' INNER JOIN `#__discuss_posts` AS b on t.post_id = b.id';
 			$query	.= ' INNER JOIN `#__discuss_posts_tags` AS a ON a.post_id = b.id';
 			$query	.= ' INNER JOIN `#__discuss_tags` AS tg ON tg.id = a.tag_id';
-			$query	.= ' INNER JOIN `#__discuss_category` AS e ON e.id = a.category_id';
+			$query	.= ' INNER JOIN `#__discuss_category` AS e ON e.id = t.category_id';
 
 
 		}else{
@@ -2039,8 +2145,8 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$query	.= '	AND c.`tag_id` = ' . $db->Quote($tagId);
 		}
 
-		$query	.= ' WHERE a.`parent_id` = ' . $db->Quote(0);
-		$query	.= ' AND a.`published`=' . $db->Quote(1);
+		$query	.= ' WHERE a.`published` = ' . $db->Quote(1);
+		$query	.= ' AND a.`parent_id`=' . $db->Quote(0);
 
 		// @rule: Should not calculate resolved posts
 		$query	.= ' AND a.`isresolve`=' . $db->Quote(0);
@@ -2508,9 +2614,31 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$query	.= ' AND b.`parent_id` = ' . $db->Quote('0');
 		$query	.= ' AND b.' . $db->nameQuote('published') . ' = ' . $db->Quote(1);
 
+		// We do not want to include anything from cluster here.
+		$query .= ' AND b.' . $db->nameQuote('cluster_id') . ' = ' . $db->Quote(0);
+
 		// If the post is anonymous we shouldn't show to public.
 		if ($this->my->id != $userId) {
+
 			$query	.= ' AND b.' . $db->nameQuote('anonymous') . ' = ' . $db->Quote(0);
+
+			$query .= ' AND b.' . $db->nameQuote('private') . ' = ' . $db->Quote(0);
+
+			// category ACL:
+			$catOptions = array();
+			$catOptions['idOnly'] = true;
+			$catOptions['includeChilds'] = true;
+
+			$catModel = ED::model('Categories');
+			$catIds = $catModel->getCategoriesTree(0, $catOptions);
+
+			// if there is no categories return, means this user has no permission to view all the categories.
+			// if that is the case, just return empty array.
+			if (! $catIds) {
+				return array();
+			}
+
+			$query .= " and b.`category_id` IN (" . implode(',', $catIds) . ")";
 		}
 
 		// Check for category language
@@ -2539,6 +2667,8 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$date = ED::date();
 
 		$respectAnonymous = ($this->my->id && $this->my->id == $userId) ? false : true;
+		$respectPrivacy = ($this->my->id == $userId) ? false : true;
+		$includeCluster = false;
 
 		$limitstart = $this->getState('limitstart');
 		$limit 		= $this->getState('limit');
@@ -2551,10 +2681,17 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$query	.= ' b.`user_type`, b.`poster_name`, b.`poster_email`, b.`num_likes`,';
 		$query	.= ' b.`num_negvote`, b.`sum_totalvote`, b.`answered`,';
 		$query	.= ' b.`post_status`, b.`post_type`, pt.`title` AS `post_type_title`,pt.`suffix` AS `post_type_suffix`,';
+
 		$query	.= ' count(a.id) as `num_replies`,';
+
 		$query	.= ' c.`title` as `category`, b.`password`';
+
+
+
 		$query	.= ' FROM ' . $db->nameQuote( '#__discuss_posts' ) . ' AS a ';
 		$query	.= ' INNER JOIN ' . $db->nameQuote( '#__discuss_posts' ) . ' AS b ';
+
+
 		$query	.= ' ON a.' . $db->nameQuote( 'parent_id' ) . ' = b.' . $db->nameQuote( 'id' );
 		$query	.= ' LEFT JOIN ' . $db->nameQuote( '#__discuss_category' ) . ' AS c';
 		$query	.= ' ON c.' . $db->nameQuote( 'id' ) . ' = b.' . $db->nameQuote( 'category_id' );
@@ -2564,11 +2701,37 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$query	.= ' AND a.' . $db->nameQuote( 'published' ) . ' = ' . $db->Quote( 1 );
 
 		$query	.= ' AND a.`parent_id` != ' . $db->Quote('0');
+
 		if ($respectAnonymous) {
 			$query 	.= ' AND a.`anonymous` = 0';
 		}
+
+		if (!$includeCluster) {
+			$query .= ' AND b.`cluster_id` = 0';
+		}
+
 		$query	.= ' AND b.' . $db->nameQuote( 'published' ) . ' = ' . $db->Quote( 1 );
 		$query	.= ' AND b.`parent_id` = ' . $db->Quote('0');
+
+		if ($respectPrivacy) {
+
+			// category ACL:
+			$catOptions = array();
+			$catOptions['idOnly'] = true;
+			$catOptions['includeChilds'] = true;
+
+			$catModel = ED::model('Categories');
+			$catIds = $catModel->getCategoriesTree(0, $catOptions);
+
+			// if there is no categories return, means this user has no permission to view all the categories.
+			// if that is the case, just return empty array.
+			if (! $catIds) {
+				return array();
+			}
+
+			$query .= " and b.`category_id` IN (" . implode(',', $catIds) . ")";
+
+		}
 
 		$query	.= ' GROUP BY b.`id`';
 
@@ -2587,6 +2750,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		return $this->_data;
 	}
+
 
 	public function getUserReplies( $postId, $excludeLastReplyUser	= false )
 	{

@@ -245,15 +245,16 @@
 	}
 }
 
-.selectize-control.rtl {
-	&.single .selectize-input:after {
-		left: @selectize-arrow-offset;
-		right: auto;
-	}
-	.selectize-input > input {
-		margin: @selectize-caret-margin-rtl !important;
-	}
-}
+// Not to use build in rtl from selectize
+// .selectize-control.rtl {
+// 	&.single .selectize-input:after {
+// 		left: @selectize-arrow-offset;
+// 		right: auto;
+// 	}
+// 	.selectize-input > input {
+// 		margin: @selectize-caret-margin-rtl !important;
+// 	}
+// }
 
 .selectize-control .selectize-input.disabled {
 	opacity: @selectize-opacity-disabled;

@@ -38,7 +38,8 @@ class EasyDiscussControllerSubscription extends EasyDiscussController
 		$redirect = $this->input->get('redirect', '');
 
 		// default interval to weekly for site / cat, post to daily
-		$interval = $type == 'post' ? 'instant' :'weekly';
+		// if the email digest is disabled, make a 'instant' as a default interval
+		$interval = ($type == 'post' || !$this->config->get('main_email_digest')) ? 'instant' :'weekly';
 
 		if (empty($redirect)) {
 			$redirect = EDR::_('index.php?option=com_easydiscuss', false);

@@ -17,6 +17,9 @@ class EasyDiscussViewAssigned extends EasyDiscussView
 {
 	public function display($tpl = null)
 	{
+		// Ensure that the user is logged in
+		ED::requireLogin();
+		
 		ED::setPageTitle(JText::_('COM_EASYDISCUSS_PAGETITLE_ASSIGNED'));
 
 		$this->setPathway( JText::_('COM_EASYDISCUSS_BREADCRUMB_ASSIGNED'));

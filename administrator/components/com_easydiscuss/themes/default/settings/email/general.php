@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<div class="col-md-6">
 		<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_MAIL_PARSER'); ?>
-            <a href="http://stackideas.com/docs/easydiscuss/administrators/cronjobs" class="btn btn-success" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_DOCS_CRONJOB'); ?> &rarr;</a>
+            <a href="http://stackideas.com/docs/easydiscuss/administrators/cronjobs" class="btn btn-success t-lg-ml--lg t-lg-mt--lg" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_DOCS_CRONJOB'); ?> &rarr;</a>
 
 			<div id="option01" class="panel-body">
 				<div class="form-horizontal">
@@ -28,7 +28,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <?php echo $this->html('form.label', 'COM_EASYDISCUSS_MAIN_TEST_EMAIL_PARSER'); ?>
                         </div>
                         <div class="col-md-7">
-							<button type="button" class="btn btn-default" onclick="testParser();"><?php echo JText::_('COM_EASYDISCUSS_TEST_CONNECTION_BUTTON');?></button>
+							<button type="button" class="btn btn-default" onclick="return;" data-eparser-test><?php echo JText::_('COM_EASYDISCUSS_TEST_CONNECTION_BUTTON');?></button>
 							<span id="test-result"></span>
 						</div>
 					</div>
@@ -159,7 +159,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                         </div>
                         <div class="col-md-7">
 							<select name="main_email_parser_category" class="form-control">
-								<?php foreach( $this->getCategories() as $category ){ ?>
+								<?php foreach( $categories as $category ){ ?>
 								<option value="<?php echo $category->id; ?>"<?php echo $this->config->get('main_email_parser_category') == $category->id ? ' selected="selected"' : '';?>><?php echo $category->title; ?></option>
 								<?php } ?>
 							</select>

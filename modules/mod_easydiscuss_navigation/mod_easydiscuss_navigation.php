@@ -1,7 +1,7 @@
 <?php
 /**
  * @package		mod_easydiscuss_navigation
- * @copyright	Copyright (C) 2010 - 2012 Stack Ideas Sdn Bhd. All rights reserved.
+ * @copyright	Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
  * @license		GNU/GPL, see LICENSE.php
  *
  * EasyDiscuss is free software. This version may have been modified pursuant
@@ -14,7 +14,7 @@ defined('_JEXEC') or die('Restricted access');
 
 $path = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php';
 
-jimport( 'joomla.filesystem.file' );
+jimport('joomla.filesystem.file');
 
 if (!JFile::exists($path)) {
 	return;
@@ -25,40 +25,30 @@ require_once($path);
 ED::init();
 
 // Load component's language file.
-JFactory::getLanguage()->load( 'com_easydiscuss' , JPATH_ROOT );
-
+JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
 
 $my = ED::user();
 $config = ED::config();
 
 // We need to detect if the user is browsing a particular category
-$active 	= '';
-$view 		= JRequest::getVar( 'view' );
-$layout 	= JRequest::getVar( 'layout' );
-$option 	= JRequest::getVar( 'option' );
-$id 		= JRequest::getInt( 'category_id' );
+$active = '';
+$view = JRequest::getVar('view');
+$layout = JRequest::getVar('layout');
+$option = JRequest::getVar('option');
+$id = JRequest::getInt('category_id');
 
-if ($option == 'com_easydiscuss' && $view == 'post') {
-	$postId = JRequest::getInt( 'id', 0 );
-	// update user's post read flag
-	if ( !empty($my->id) && !empty($postId)) {
-		$my->read( $postId );
-	}
-}
-
-$model			= ED::model( 'Categories' );
-$categories		= $model->getCategoryTree();
-
+$model = ED::model('Categories');
+$categories = $model->getCategoryTree();
 
 $notificationsCount = 0;
 
 if ($my->id) {
-    $notificationModel = ED::model( 'Notification' );
-    $notificationsCount = $notificationModel->getTotalNotifications( $my->id );
+    $notificationModel = ED::model('Notification');
+    $notificationsCount = $notificationModel->getTotalNotifications($my->id);
 }
 
-if ($option == 'com_easydiscuss' && $view == 'categories' && $layout == 'listings' && $id) {
+if ($option == 'com_easydiscuss' && $view == 'forums' && $layout == 'listings' && $id) {
 	$active	= $id;
 }
 
-require( JModuleHelper::getLayoutPath( 'mod_easydiscuss_navigation' ) );
+require(JModuleHelper::getLayoutPath('mod_easydiscuss_navigation'));

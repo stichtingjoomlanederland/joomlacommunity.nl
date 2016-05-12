@@ -63,14 +63,15 @@ defined('_JEXEC') or die('Restricted access');
 	            		<?php echo $post->content; ?>
 	            	</div>
             	<?php } ?>
-            	<?php if ($params->get('showdate', 1)) { ?>
-	                <div class="">
-	                	<?php echo JText::sprintf('MOD_EASYDISCUSS_RECENT_REPLIES_POSTED_ON', ED::date($post->created)->format(ED::config()->get('layout_dateformat'))); ?>
+
+            	<?php if ($params->get('showcategory', 1)) { ?>
+	                <div class="t-fs--sm">
+	                	<?php echo JText::sprintf('MOD_EASYDISCUSS_RECENT_REPLIES_POSTED_IN_CATEGORY', $post->getCategory()->getPermalink(), $post->getCategory()->getTitle()); ?>
 	                </div>
                 <?php } ?>
-                <?php if ($params->get('showcategory', 1)) { ?>
-	                <div class="">
-	                	<?php echo JText::sprintf('MOD_EASYDISCUSS_RECENT_REPLIES_POSTED_IN_CATEGORY', $post->getCategory()->getPermalink(), $post->getCategory()->getTitle()); ?>
+            	<?php if ($params->get('showdate', 1)) { ?>
+	                <div class="t-fs--sm">
+	                	<?php echo JText::sprintf('MOD_EASYDISCUSS_RECENT_REPLIES_POSTED_ON', ED::date($post->created)->format(ED::config()->get('layout_dateformat'))); ?>
 	                </div>
                 <?php } ?>
 

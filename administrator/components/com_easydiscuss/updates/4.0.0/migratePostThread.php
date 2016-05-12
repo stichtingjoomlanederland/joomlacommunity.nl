@@ -47,16 +47,29 @@ class EasyDiscussMaintenanceScriptMigratePostThread extends EasyDiscussMaintenan
                 // step 3: re-sync data into thread table.
                 $query = "update `#__discuss_thread` as a set";
                 $query .= " a.`num_replies` = (select count(1) from `#__discuss_posts` as b1 where b1.`parent_id` = a.`post_id` and b1.`published` = 1),";
-                $query .= " a.`last_user_id` = (select b2.`user_id` from `#__discuss_posts` as b2 where b2.`thread_id` = a.`id` and b2.`published` = 1 order by b2.`id` desc limit 1),";
-                $query .= " a.`last_poster_name` = (select b3.`poster_name` from `#__discuss_posts` as b3 where b3.`thread_id` = a.`id` and b3.`published` = 1 order by b3.`id` desc limit 1),";
-                $query .= " a.`last_poster_email` = (select b4.`poster_email` from `#__discuss_posts` as b4 where b4.`thread_id` = a.`id` and b4.`published` = 1 order by b4.`id` desc limit 1),";
                 $query .= " a.`num_fav` = (select count(1) from `#__discuss_favourites` as b5 where b5.`post_id` = a.`post_id`),";
                 $query .= " a.`num_attachments` = (select count(1) from `#__discuss_attachments` as b6 where b6.`uid` = a.`post_id` and b6.`type` = " . $db->Quote(DISCUSS_QUESTION_TYPE) . " and b6.`published` = 1),";
                 $query .= " a.`has_polls` = (select count(1) from `#__discuss_polls` as b7 where b7.`post_id` = a.`post_id`),";
                 $query .= " a.`vote` = (select count(1) from `#__discuss_votes` as b8 where b8.`post_id` = a.`post_id`)";
                 $db->setQuery($query);
                 $state = $db->query();
+
+
+                // step 4: update last user_id
+                $query = "update `#__discuss_thread` as a";
+                $query .= " inner join `#__discuss_posts` as b";
+                $query .= "  on a.`id` = b.`thread_id` and b.`id` = (select max(id) from `#__discuss_posts` as c where c.`thread_id` = a.`id`)";
+                // $query .= "  on a.`id` = b.`thread_id` and a.`replied` = b.`created`";
+                $query .= "    set a.`last_user_id` = b.`user_id`,";
+                $query .= "    a.`last_poster_name` = b.`poster_name`,";
+                $query .= "    a.`last_poster_email` = b.`poster_email`";
+                $query .= " where b.parent_id > 0";
+
+                $db->setQuery($query);
+                $state = $db->query();
+
             }
+
         }
 
         return $state;

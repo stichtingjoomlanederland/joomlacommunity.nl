@@ -21,7 +21,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                         <div class="o-col o-col--8">
                             <div class="ed-forum__hd-title">
                                 <h2 class="ed-forum-item__title">
-                                    <a href="<?php echo EDR::getGroupsRoute($thread->group->id); ?>">
+                                    <a href="<?php echo EDR::getGroupsRoute($thread->group->id, 'listing'); ?>">
                                         <img src="<?php echo $thread->group->getAvatar();?>" alt="<?php echo $this->html('string.escape', $thread->group->title);?>" width="24" />
                                         <?php echo strtoupper($thread->group->title); ?>
                                     </a>

@@ -113,6 +113,7 @@ defined('_JEXEC') or die('Restricted access');
 								$avatarIntegration[] = JHTML::_('select.option', 'jomsocial', JText::_( 'Jomsocial' ) );
 								$avatarIntegration[] = JHTML::_('select.option', 'k2', JText::_( 'k2' ) );
 								$avatarIntegration[] = JHTML::_('select.option', 'kunena', JText::_( 'Kunena' ) );
+                                $avatarIntegration[] = JHTML::_('select.option', 'jomwall', JText::_('JomWall'));
 								$avatarIntegration[] = JHTML::_('select.option', 'phpbb', JText::_( 'PhpBB' ) );
 								$showdet = JHTML::_('select.genericlist', $avatarIntegration, 'layout_avatarIntegration', 'class="form-control"  ', 'value', 'text', $this->config->get('layout_avatarIntegration' , 'default' ) );
 								echo $showdet;

@@ -21,16 +21,28 @@
         top: @fd-base-spacing;
         color: @fd-ui-meta-color;
         .fd-no-focus-outline();
-
+    
         &.collapsed {
-            .fa {
+            .ed-list__toggle-icon {
                 // Updated cheveron icon to up
                 &:before {
-                    content: "\f077";   
+                    content: "\f078";   
                 }
             }
         }
-    } 
+    }
+    &__toggle-icon {
+        &:before {
+            content: "\f077";
+
+            font-family: FontAwesome;
+            font-size: 14px;
+            font-weight: normal;
+            font-style: normal;
+            display: inline-block;
+            text-decoration: inherit;
+        }
+    }
 }
 
 

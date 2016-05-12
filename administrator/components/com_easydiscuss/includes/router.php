@@ -298,10 +298,22 @@ class EDR
 				$defaultMenu = self::getMenus('forums', null, null, $lang);
 			}
 
-			// var_dump($defaultMenu);exit;
-
 			// let easydiscuss to determine the best menu itemid.
 			switch($view) {
+
+				case 'index':
+					$menu = self::getMenus($view, null, null, $lang);
+					if ($menu) {
+						$tmpId = $menu->id;
+					}
+
+					// if ($tmpId && (($menu->segments->category_id == $category_id) || (!$layout && !$category_id))) {
+					if ($tmpId) {
+						$dropSegment = true;
+					}
+
+					break;
+
 
 				case 'forums':
 					$menu = self::getMenus($view, $layout, $category_id, $lang);
@@ -328,6 +340,7 @@ class EDR
 					// }
 
 					$menu = self::getMenus($view, $layout, $category_id, $lang);
+
 					if ($menu) {
 						$tmpId = $menu->id;
 					}
@@ -1255,7 +1268,6 @@ class EDR
 
         $key = $view . $layout . $id . $languageTag;
 
-
        // Get the current selection of menus from the cache
         if (!isset($selection[$key])) {
 
@@ -1370,7 +1382,7 @@ class EDR
             }
 
             $checkId = 'id';
-            if ($view == 'forums') {
+            if ($view == 'forums' || $view == 'categories') {
 				$checkId = 'category_id';
             }
 

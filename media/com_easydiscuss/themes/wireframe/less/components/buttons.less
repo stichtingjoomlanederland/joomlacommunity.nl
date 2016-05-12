@@ -1,13 +1,19 @@
-// Variables/ Settings
-// @lib-path: '../../../../lib';
-// @import "@{lib-path}/bootstrap/less/variables";
-// @import "../variables/variables";
-// @import "../variables/palette";
+/**
+* Easydiscuss social buttons
+*/
 
-.btn-ed {
-  // color: @black;
+.discuss-post-share {
+
+    margin: 10px 0px 10px 0px;
+    .clearfix();
+
+    .social-button {
+        display: inline-block;
+        float:left;
+        vertical-align: top;
+    }
 }
 
-.ed-container {
-    .make-grid();
+.discuss-post-share .social-button + .social-button {
+    margin-left: 5px;
 }

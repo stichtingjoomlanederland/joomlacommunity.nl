@@ -22,6 +22,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 		    <label for="alias"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_ALIAS'); ?></label>
 		    <input type="text" class="form-control" value="<?php echo $profile->alias; ?>" id="alias" name="alias" data-ed-alias-input>
 
+		    <div class="t-mb--no t-hidden" data-ed-alias-status></div>
+
 			<div class="ed-profile-alias" data-ed-alias-loading>
 			  <div class="o-loading">
 			      <div class="o-loading__content">
@@ -30,9 +32,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 			  </div>
 			</div>
 
-			<div class="o-alert t-mb--no t-lg-mt--lg t-hidden" data-ed-alias-status></div>
-
             <a href="javascript:void(0)" class="btn btn-success btn-sm t-lg-mt--md" data-ed-check-alias><?php echo JText::_('COM_EASYDISCUSS_CHECK_AVAILABILITY');?></a>
+
 		</div>
 	</div>
 </div>

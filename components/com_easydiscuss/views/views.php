@@ -117,6 +117,12 @@ class EasyDiscussView extends EasyDiscussParentView
 			// Initialize whatever that is necessary
 			ED::init('site');
 
+            // If integrations with ES conversations is enabled, we need to render it's scripts
+            $easysocial = ED::easysocial();
+            if ($this->config->get('integration_easysocial_messaging') && $easysocial->exists()) {
+                $easysocial->init();
+            }
+
             $bbcodeSettings = $this->theme->output('admin/structure/settings');
 
 			// Get the contents of the view.

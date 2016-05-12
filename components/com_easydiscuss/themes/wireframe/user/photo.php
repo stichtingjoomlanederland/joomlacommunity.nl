@@ -17,6 +17,20 @@ defined('_JEXEC') or die('Unauthorized Access');
 	    <div class="ed-form-panel__"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_AVATAR_EDIT'); ?></div>
 	</div>
 	<div class="ed-form-panel__bd">
+		<?php if($this->config->get('layout_avatarIntegration') == 'gravatar') { ?>
+		<div class="o-flag">
+			<div class="o-flag__image">
+				<div class="o-avatar o-avatar--xl t-lg-mr--lg" >
+				    <img src="<?php echo $profile->getAvatar(false); ?>" data-ed-avatar/>
+				    <div class="ed-avatar-crop-preview" data-ed-avatar-preview></div>
+				</div>		
+			</div>
+		</div>		
+		<p>
+			<?php echo JText::sprintf('COM_EASYDISCUSS_AVATARS_INTEGRATED_WITH', 'http://gravatar.com');?><br />
+			<?php echo JText::sprintf('COM_EASYDISCUSS_GRAVATAR_EMAIL', $profile->getEmail());?>
+		</p>
+		<?php } else { ?>
 		<div class="form-group">
 		    <label for="exampleInputEmail1"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_AVATAR_DESC'); ?></label>
 		    <input type="file" size="25" name="Filedata" id="file-upload">
@@ -54,7 +68,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<?php } ?>
 		</div>
 		
-		
 		<div role="alert" class="o-alert o-alert--success o-alert--icon t-lg-mt--lg t-hidden" data-ed-avatar-crop-alert>
 		      <?php echo JText::_('COM_EASYDISCUSS_AVATAR_CROP_HAS_BEEN_UPDATED'); ?>
 		  </div>
@@ -62,5 +75,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="t-lg-mt--lg"><?php echo JText::_('COM_EASYDISCUSS_AVATAR_CROP_SELECT_AREA');?></div>
 			<img src="<?php echo $profile->getOriginalAvatar(); ?>" data-ed-original-avatar/>
 		</div>
+		<?php } ?>
 	</div>
 </div>

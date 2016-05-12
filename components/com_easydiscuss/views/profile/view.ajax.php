@@ -98,6 +98,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 			// If the post is anonymous we shouldn't show to public.
 			if (ED::user()->id == $profileId) {
 				$options['includeAnonymous'] = true;
+				$options['private'] = true;
 			}
 
 			$posts = $model->getDiscussions($options);
@@ -110,7 +111,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 
 		if ($type == 'assigned') {
 			// retrieve the assiged post
-			$posts = $assignedModel->getPosts();
+			$posts = $assignedModel->getPosts($profileId);
 			$pagination = $assignedModel->getPagination();
 		}
 
@@ -432,11 +433,10 @@ class EasyDiscussViewProfile extends EasyDiscussView
      */
 	public function popbox()
 	{
-
 		$id = $this->input->get('id', 0, 'int');
 
 		// guest should not allowed.
-		if (! $id) {
+		if (!$id) {
 			return $this->ajax->fail(JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'));
 		}
 

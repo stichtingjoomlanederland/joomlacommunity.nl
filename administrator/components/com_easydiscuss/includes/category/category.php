@@ -697,6 +697,7 @@ class EasyDiscussCategory extends EasyDiscuss
 	public function getPermalink($xhtml = true, $external = false)
 	{
 		$url = 'view=forums&category_id=' . $this->table->id;
+		// $url = 'view=categories&layout=listings&category_id=' . $this->table->id;
 
 		if ($external) {
 			$url = EDR::getRoutedURL($url, false, true);
@@ -736,7 +737,7 @@ class EasyDiscussCategory extends EasyDiscuss
 	 * @param	string
 	 * @return
 	 */
-	public function getTotalPosts()
+	public function getTotalPosts($options = array())
 	{
 		static $items = array();
 
@@ -976,7 +977,7 @@ class EasyDiscussCategory extends EasyDiscuss
 		}
 	}
 
-	public static function getChildCategories($parentId , $isPublishedOnly = false, $includePrivate = true, $exclusion = array())
+	public function getChildCategories($parentId , $isPublishedOnly = false, $includePrivate = true, $exclusion = array())
 	{
 		static $categories = array();
 
@@ -992,9 +993,10 @@ class EasyDiscussCategory extends EasyDiscuss
 
 			$sortConfig = $config->get('layout_ordering_category','latest');
 
-			$query  = 'SELECT a.`id`, a.`title`, a.`alias`, a.`private`,a.`default`, a.`container`';
+			// $query  = 'SELECT a.`id`, a.`title`, a.`alias`, a.`private`,a.`default`, a.`container`';
+			$query = 'SELECT a.*';
 			$query .= ' FROM `#__discuss_category` as a';
-			$query .= ' WHERE a.parent_id = ' . $db->Quote($parentId);
+			$query .= ' WHERE a.`parent_id` = ' . $db->Quote($parentId);
 
 			if ($isPublishedOnly) {
 				$query	.=  ' AND a.`published` = ' . $db->Quote('1');

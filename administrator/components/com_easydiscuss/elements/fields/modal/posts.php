@@ -14,8 +14,7 @@ defined('_JEXEC') or die('Restricted access');
 jimport('joomla.html.html');
 jimport('joomla.form.formfield');
 
-require_once JPATH_ROOT . '/components/com_easydiscuss/constants.php';
-require_once JPATH_ROOT . '/components/com_easydiscuss/helpers/helper.php';
+require_once JPATH_ROOT . '/administrator/components/com_easydiscuss/includes/easydiscuss.php';
 
 class JFormFieldModal_Posts extends JFormField
 {
@@ -23,13 +22,13 @@ class JFormFieldModal_Posts extends JFormField
 
 	protected function getInput()
 	{
-		$mainframe	= JFactory::getApplication();
-		$doc		= JFactory::getDocument();
-		$db			= DiscussHelper::getDBO();
+		$mainframe = JFactory::getApplication();
+		$doc = JFactory::getDocument();
+		$db = ED::db();
 
-		$options	= array();
-		$attr		= '';
-		$postsList	= array();
+		$options = array();
+		$attr = '';
+		$postsList = array();
 
 		// Initialize some field attributes.
 		$attr .= $this->element['class'] ? ' class="'.(string) $this->element['class'].'"' : '';
@@ -59,9 +58,9 @@ class JFormFieldModal_Posts extends JFormField
 			array_push($postsList,$optgroup);
 
 			foreach ($data as $row) {
-				$opt		= new stdClass();
-				$opt->id	= $row->id;
-				$opt->title	= '(' . $row->id . ') ' . $row->title;;
+				$opt = new stdClass();
+				$opt->id = $row->id;
+				$opt->title	= '(' . $row->id . ') '.  $row->title;;
 
 				array_push($postsList,$opt);
 			}

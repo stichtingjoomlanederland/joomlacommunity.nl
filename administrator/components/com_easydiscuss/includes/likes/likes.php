@@ -121,9 +121,14 @@ class EasyDiscussLikes extends EasyDiscuss
 			}
 
 			ED::easysocial()->notify('new.likes', $post, $question);
-			ED::jomsocial()->addActivityLikes($post, $question);
-			ED::easysocial()->likesStream($post, $question);
 		}
+
+		// Add likes activity
+		ED::jomsocial()->addActivityLikes($post, $question);
+		ED::easysocial()->likesStream($post, $question);
+
+		// Notify post owner
+		$this->notifyPostOwner($post);
 
 		// Get the like's text.
 		$text = $this->html($post->id, $this->my->id, 'post');
@@ -203,24 +208,52 @@ class EasyDiscussLikes extends EasyDiscuss
 	 */
 	private function notifyPostOwner(EasyDiscussPost $post)
 	{
-		// Add notifications to the post owner.
-		if ($post->user_id != $this->my->id) {
-			$notification = ED::table('Notifications');
-			$text = $post->isQuestion() ? 'COM_EASYDISCUSS_LIKE_DISCUSSION_NOTIFICATION_TITLE' : 'COM_EASYDISCUSS_LIKE_REPLY_NOTIFICATION_TITLE';
-			$title = $question->title;
-			$likeType = $post->isQuestion() ? DISCUSS_NOTIFICATIONS_LIKES_DISCUSSION : DISCUSS_NOTIFICATIONS_LIKES_REPLIES;
-
-			$notification->bind(array(
-					'title'	=> JText::sprintf($text, $title),
-					'cid' => $question->id,
-					'type' => $likeType,
-					'target' => $post->user_id,
-					'author' => $this->my->id,
-					'permalink'	=> 'index.php?option=com_easydiscuss&view=post&id=' . $question->id
-				));
-
-			$notification->store();
+		if (!$this->config->get('notify_owner_like')) {
+			return;
 		}
+
+		// Do not process notification if post owner like their own post.
+		if ($post->user_id == $this->my->id) {
+			return;
+		}
+
+		$question = $post->isQuestion() ? $post : $post->getParent();
+
+		// Add notifications to the post owner.
+		$notification = ED::table('Notifications');
+		$text = $post->isQuestion() ? 'COM_EASYDISCUSS_LIKE_DISCUSSION_NOTIFICATION_TITLE' : 'COM_EASYDISCUSS_LIKE_REPLY_NOTIFICATION_TITLE';
+		$title = $question->title;
+		$likeType = $post->isQuestion() ? DISCUSS_NOTIFICATIONS_LIKES_DISCUSSION : DISCUSS_NOTIFICATIONS_LIKES_REPLIES;
+
+		$notification->bind(array(
+				'title'	=> JText::sprintf($text, $title),
+				'cid' => $question->id,
+				'type' => $likeType,
+				'target' => $post->user_id,
+				'author' => $this->my->id,
+				'permalink'	=> 'index.php?option=com_easydiscuss&view=post&id=' . $question->id
+			));
+
+		$notification->store();
+
+		// Add email notification to the post owner.
+		$notify	= ED::getNotification();
+
+		$profile = ED::user($my->id);
+
+		$emailText = $post->isQuestion() ? 'POST' : 'REPLY';
+
+		$emailSubject = JText::sprintf('COM_EASYDISCUSS_USER_LIKED_YOUR_' . $emailText, $profile->getName(), $title);
+		$emailTemplate = 'email.like.post';
+
+		$emailData = array();
+		$emailData['emailContent'] = JText::sprintf('COM_EASYDISCUSS_EMAIL_TEMPLATE_LIKES_' . $emailText, $profile->getName(), $title);
+		$emailData['replyContent'] = $post->content;
+		$emailData['postLink'] = EDR::getRoutedURL('view=post&id=' . $question->id, false, true);
+
+		$recipient = JFactory::getUser($post->user_id);
+
+		$notify->addQueue($recipient->email, $emailSubject, '', $emailTemplate, $emailData);		
 	}
 
 	public static function addLikes($contentId, $type, $userId = null)

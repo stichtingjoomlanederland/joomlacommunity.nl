@@ -1,74 +1,50 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-
+* @package      EasyDiscuss
+* @copyright    Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
+* Komento is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
 defined('_JEXEC') or die('Restricted access');
-
-$avatarSize			= $params->get( 'replies_avatar_size', '' );
-$useAvatarResize	= ( empty( $avatarSize ) ) ? '' : ' style="width: ' . $avatarSize . 'px;" ';
 ?>
-<div class="discuss-mod latest-replies<?php echo $params->get( 'moduleclass_sfx' ) ?>">
-<?php if( $replies ){ ?>
-	<div class="list-item">
+<div id="ed" class="ed-mod m-leaderboard <?php echo $params->get('moduleclass_sfx');?>">
+    <div class="ed-list--vertical has-dividers--bottom-space">
 
-			<?php for($i = 0 ; $i < count( $replies ); $i++) {
-					$reply  = $replies[$i];
+    <?php foreach($replies as $reply) { ?>
+        <div class="ed-list__item">
 
-			?>
-			<div class="item">
-				<div class="item-user">
-					<?php if( $params->get( 'show_replies_avatar' , 1 ) ){ ?>
-					<a class="item-avatar float-l" href="<?php echo $reply->profile->getLink(); ?>">
-						<img class="avatar" src="<?php echo $reply->profile->getAvatar(); ?>" <?php echo $useAvatarResize; ?> title="<?php echo JText::sprintf( 'MOD_LATESTREPLIES_REPLIED_BY', $reply->profile->getName() ); ?>" />
-					</a>
-					<?php } ?>
+            <div class="o-flag">
+            <?php if ($params->get('show_replies_avatar')) { ?>
+                <div class="o-flag__img t-lg-mr--md">
+                    <a class="o-avatar" href="<?php echo $reply->profile->getPermalink(); ?>">
+                        <img src="<?php echo $reply->profile->getAvatar(); ?>">
+                    </a>
+                </div>
+            <?php } ?>
+                <div class="o-flag__body">
+                    <a href="<?php echo EDR::_('index.php?option=com_easydiscuss&view=post&id='.$reply->parent_id); ?>" class="m-post-title t-lg-mb--sm">
+                        <?php echo ED::string()->escape($reply->question->title); ?>
+                    </a>
+                    <div class="m-list--inline t-lg-mb-sm">
+                        <div class="m-list__item">
+                             <div class="m-post-meta t-fs--sm"> <?php echo JText::sprintf( 'MOD_LATESTREPLIES_REPLIED_BY' , '<a href="' . $reply->profile->getLink() . '">' . $reply->profile->getName() . '</a>' );?></div>
+                        </div>                        
+                    </div>   
+                </div>
+            </div>
 
+            <div class="m-list__item">
+            	<?php echo $reply->content;?>
+            </div>
 
-				</div>
-
-				<div class="item-story">
-					<div class="item-question">
-						<a href="<?php echo DiscussRouter::_( 'index.php?option=com_easydiscuss&view=post&id='.$reply->parent_id ); ?>">
-						<?php echo DiscussStringHelper::escape($reply->title); ?>
-						</a>
-					</div>
-					<div class="small"><?php echo JText::sprintf( 'MOD_LATESTREPLIES_REPLIED_BY' , '<a href="' . $reply->profile->getLink() . '">' . $reply->profile->getName() . '</a>' );?></div>
-					<div class="item-answer small">
-						<?php
-						$content	= $reply->content;
-						$content	= JString::substr( strip_tags( $reply->content ) , 0 , $params->get( 'maxlength' , 200 ) );
-						echo ED::parser()->filter( $content );
-
-						?>
-					</div>
-
-					<div class="item-info push-top small">
-						<span>
-							<img src="<?php echo JURI::root(); ?>modules/mod_easydiscuss_latest_replies/images/clock.png" width="16" height="16">
-							<?php echo DiscussDateHelper::getLapsedTime($reply->created); ?>
-						</span>
-					</div>
-					<?php
-						unset($reply);
-						unset($content);
-					?>
-				</div>
-			</div>
-			<?php } //end foreach ?>
-
-	</div>
-	<?php } else { ?>
-	<div class="no-item">
-		<?php echo JText::_('MOD_EASYDISCUSS_NO_ENTRIES'); ?>
-	</div>
-	<?php } //end if ?>
+            <div class="m-list__item">
+                 <div class="m-post-meta t-fs--sm"><?php echo ED::date()->toLapsed($reply->created); ?></div>
+            </div>
+        </div>
+    <?php } ?>
+    </div>
 </div>

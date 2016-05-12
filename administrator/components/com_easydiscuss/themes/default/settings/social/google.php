@@ -11,45 +11,26 @@
 */
 defined('_JEXEC') or die('Restricted access');
 ?>
-<div class="app-content-head">
-	<h2><?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIAL_GOOGLE_TITLE' );?></h2>
-	<div>
-		<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIAL_GOOGLE_DESC' );?>
-	</div>
-</div>
+<div class="row">
+	<div class="col-md-6">
+		<div class="panel">
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_SOCIAL_GOOGLE_TITLE'); ?>
 
-<div class="app-content-body">
-	<div class="row">
-		<div class="col-md-6">
-			<div class="panel">
-				<div class="panel-head">
-					<a href="javascript:void(0);" data-foundry-toggle="collapse" data-target="#option01">
-					<h6><?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_GOOGLE_PLUS_ONE_TITLE' ); ?></h6>
-					<i class="icon-chevron-down"></i>
-					</a>
-				</div>
 
-				<div id="option01" class="panel-body">
-					<div class="form-horizontal">
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<label>
-									<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_GOOGLE_PLUS_ONE_ENABLE' ); ?>
-								</label>
-							</div>
-							<div class="col-md-7"
-								rel="ed-popover"
-								data-placement="left"
-								data-original-title="<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_GOOGLE_PLUS_ONE_ENABLE' ); ?>"
-								data-content="<?php echo JText::_('COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_GOOGLE_PLUS_ONE_ENABLE_DESC'); ?>"
-							>
-								<?php echo $this->renderCheckbox( 'integration_googleone' , $this->config->get( 'integration_googleone' ) );?>
-							</div>
+			<div class="panel-body">
+				<div class="form-horizontal">
+					<div class="form-group">
+						<div class="col-md-6 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_GOOGLE_PLUS_ONE_ENABLE'); ?>
+						</div>
+						<div class="col-md-6">
+							<?php echo $this->html('form.boolean', 'integration_googleone', $this->config->get('integration_googleone')); ?>
 						</div>
 					</div>
 				</div>
 			</div>
+
 		</div>
+
 	</div>
 </div>
-

@@ -26,7 +26,6 @@ class EasyDiscussToolbar extends EasyDiscuss
         	$active = 'index';
         }
 
-
         $showToolbar = isset($options['showToolbar']) ? $options['showToolbar'] : $this->config->get('layout_enabletoolbar');
         $showHeader = isset($options['showHeader']) ? $options['showHeader'] : $this->config->get('layout_headers');
         $showSearch = isset($options['showSearch']) ? $options['showSearch'] : $this->config->get('layout_toolbar_searchbar');
@@ -48,11 +47,11 @@ class EasyDiscussToolbar extends EasyDiscuss
         $headers->title = JText::_($this->config->get('main_title'));
         $headers->desc = JText::_($this->config->get('main_description'));
 
-
-        if (!$showToolbar && !$showHeader) {
-            //skip these all together since no toolbar will be loaded.
-            return;
-        }
+        // temporary commented this is because if toolbar and header disable together, that error message will not show out on the page
+        // if (!$showToolbar && !$showHeader) {
+        //     //skip these all together since no toolbar will be loaded.
+        //     return;
+        // }
 
         $query = '';
 
@@ -168,13 +167,21 @@ class EasyDiscussToolbar extends EasyDiscuss
         // Message queue
         $messageObject = ED::getMessageQueue();
 
+        // Determines if we should use easysocial conversations
+        $useEasySocialConversations = false;
+
+        if (ED::easysocial()->exists() && $this->config->get('integration_easysocial_messaging')) {
+            $useEasySocialConversations = true;
+        }
+
+
         $theme = ED::themes();
         $theme->set('active', $active);
         $theme->set('messageObject', $messageObject);
         $theme->set('conversationsCount', $conversationsCount);
         $theme->set('notificationsCount', $notificationsCount);
         $theme->set('return', $return );
-
+        $theme->set('useEasySocialConversations', $useEasySocialConversations);
         $theme->set('categoryId', $activeCategory);
         $theme->set('views', $views);
         $theme->set('headers', $headers);

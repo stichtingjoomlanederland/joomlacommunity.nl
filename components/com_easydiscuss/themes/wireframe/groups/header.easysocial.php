@@ -16,6 +16,7 @@ defined('_JEXEC') or die('Unauthorized Access');
         <b></b>
         <b></b>
     </div>
+
     <div class="es-header-mini-avatar">
         <a class="es-avatar es-avatar-md" href="<?php echo $group->getPermalink();?>">
             <img alt="<?php echo $this->html('string.escape', $group->getName());?>" src="<?php echo $group->getAvatar(SOCIAL_AVATAR_SQUARE);?>" />
@@ -43,14 +44,14 @@ defined('_JEXEC') or die('Unauthorized Access');
             </ul>
             <div class="fd-small info-actions">
                 <a href="<?php echo ESR::groups(array('layout' => 'item', 'type' => 'info', 'id' => $group->getAlias()));?>"><?php echo JText::_('COM_EASYSOCIAL_GROUPS_MORE_ABOUT_THIS_GROUP'); ?></a>
-            </div>  
+            </div>
         </div>
 
         <?php if ($group->isMember() && $view == 'groups') { ?>
         <div class="es-header-mini-apps-action" data-appscroll-viewport>
             <ul class="fd-nav es-nav-apps" data-appscroll-content>
                 <li>
-                    <a class="btn btn-primary pull-right" style="width: 100%; height: auto;"href="<?php echo EDR::_('view=ask&group_id=' . $group->id);?>">
+                    <a class="btn btn-primary pull-right" style="width: 100%; height: auto;"href="<?php echo EDR::_('view=ask&group_id=' . $group->id .'&redirect=' . $returnUrl);?>">
                         <i class="fa fa-pencil"></i>&nbsp; <?php echo JText::_('COM_EASYDISCUSS_NEW_POST');?>
                     </a>
                 </li>

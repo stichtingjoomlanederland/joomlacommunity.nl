@@ -160,9 +160,23 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'));
 		}
 
+		if ($type == 'post') {
+			
+			// Load the post
+			$post = ED::post($cid);
+
+			if (!$post->id) {
+				return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'));
+			}
+
+			if (!$post->canSubscribe()) {
+				return $this->ajax->reject(JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'));
+			}
+		}
 
 		// default interval to weekly for site / cat, post to daily
-		$interval = $type == 'post' ? 'instant' :'weekly';
+		// if the email digest is disabled, make a 'instant' as a default interval
+		$interval = ($type == 'post' || !$this->config->get('main_email_digest')) ? 'instant' :'weekly';
 
 
 		// Apply filtering on the name.

@@ -21,7 +21,7 @@ class EasyDiscussViewSpools extends EasyDiscussAdminView
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function preview()
 	{
@@ -33,8 +33,8 @@ class EasyDiscussViewSpools extends EasyDiscussAdminView
 
 		$mailq = ED::table('Mailqueue');
 		$mailq->load($id);
-		
-		$url = JURI::root() . 'administrator/index.php?option=com_easydiscuss&view=spools&layout=preview&tmpl=component&id=' . $mailq->id;		
+
+		$url = JURI::root() . 'administrator/index.php?option=com_easydiscuss&view=spools&layout=preview&tmpl=component&id=' . $mailq->id;
 
 		$theme = ED::themes();
 		$theme->set('url', $url);

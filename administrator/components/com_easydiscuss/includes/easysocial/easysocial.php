@@ -88,25 +88,25 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	{
 		static $loaded 	= false;
 
-		if( !$loaded )
-		{
-			require_once( self::$file );
+		if (!$loaded) {
 
-			$document 	= JFactory::getDocument();
+			require_once(self::$file);
 
-			if( $document->getType() == 'html' )
-			{
-				// We also need to render the styling from EasySocial.
-				$doc 		= Foundry::document();
-				$doc->init();
+			$doc = JFactory::getDocument();
 
-				$page 		= Foundry::page();
+			// We also need to render the styling from EasySocial.
+			if ($doc->getType() == 'html') {
+				
+				$fdoc = ES::document();
+				$fdoc->init();
+
+				$page = ES::page();
 				$page->processScripts();
 			}
 
-			Foundry::language()->load( 'com_easysocial' , JPATH_ROOT );
+			ES::language()->load('com_easysocial', JPATH_ROOT);
 
-			$loaded 	= true;
+			$loaded = true;
 		}
 
 		return $loaded;
@@ -168,6 +168,25 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	}
 
 	/**
+	 * Retrieves the conversations link in EasySocial
+	 *
+	 * @since	4.0.5
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getConversationsRoute($xhtml = true)
+	{
+		if (!$this->exists()) {
+			return;
+		}
+
+		$link = ESR::conversations(array(), $xhtml);
+
+		return $link;
+	}
+
+	/**
 	 * Returns the comment counter
 	 *
 	 * @since	1.0
@@ -177,8 +196,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 */
 	public function getCommentCount( $blog )
 	{
-		if( !$this->exists() )
-		{
+		if (!$this->exists()) {
 			return;
 		}
 
@@ -485,20 +503,19 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 * @param	string
 	 * @return
 	 */
-	public function favouriteStream( $post )
+	public function favouriteStream($post)
 	{
-		if( !$this->exists() || !$this->config->get( 'integration_easysocial_activity_favourite' ) )
-		{
+		if (!$this->exists() || !$this->config->get('integration_easysocial_activity_favourite')) {
 			return;
 		}
 
-		$stream 	= Foundry::stream();
-		$template 	= $stream->getTemplate();
+		$stream = ES::stream();
+		$template = $stream->getTemplate();
 
 		// Get the stream template
-		$template->setActor( Foundry::user()->id , SOCIAL_TYPE_USER );
-		$template->setContext( $post->id , 'discuss' , $post );
-		$template->setContent( $post->title );
+		$template->setActor(ES::user()->id, SOCIAL_TYPE_USER);
+		$template->setContext($post->id, 'discuss', $post);
+		$template->setContent($post->title);
 
 		$template->setVerb( 'favourite' );
 
@@ -622,6 +639,34 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	}
 
 	/**
+	 * Retrieve the pm button
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getPmHtml($targetId, $layout = 'list')
+	{
+		if (!$this->exists()) {
+			return;
+		}
+
+		// Initialize scripts
+		$this->init();
+
+		$user = ES::user($targetId);
+
+		$namespace = $layout == 'list' ? 'user.pm' : 'user.popbox.pm';
+
+		$theme = ED::themes();
+		$theme->set('user', $user);
+		$output = $theme->output('site/easysocial/' . $namespace);
+
+		return $output;
+	}
+
+	/**
 	 * Retrieves the popbox code for avatars
 	 *
 	 * @since	1.0
@@ -696,7 +741,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 				return;
 			}
 
-			$permalink = EDR::_('view=post&id=' . $question->id);
+			$permalink = EDR::_('view=post&id=' . $post->parent_id . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id);
 
 			$options = array('actor_id' => $post->user_id, 'uid' => $post->id, 'title' => JText::sprintf('COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_REPLY', $question->title), 'type' => 'discuss', 'url' => $permalink);
 
@@ -787,8 +832,49 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 */
 	public function notifyCluster($action, $post, $question = null, $comment = null, $actor = null)
 	{
-		// TODO: alert all group members when creating new discussion.
+		$model = ES::model('Groups');
 
+		$group = ES::group($post->isCluster());
+
+		$options = array('exclude' => $post->user_id, 'state' => SOCIAL_GROUPS_MEMBER_PUBLISHED);
+		$targets = $model->getMembers($group->id , $options);
+
+		if (!$targets) {
+			return;
+		}
+
+		// TODO: alert all group members when creating new discussion.
+		$actor = ES::user($post->user_id);
+		$params = new stdClass();
+		$params->actor = $actor->getName();
+		$params->userName = $actor->getName();
+		$params->userLink = $actor->getPermalink(false, true);
+		$params->userAvatar = $actor->getAvatar(SOCIAL_AVATAR_LARGE);
+		$params->groupName = $group->getName();
+		$params->groupAvatar = $group->getAvatar();
+		$params->groupLink = $group->getPermalink(false, true);
+		$params->title = $post->getTitle();
+		$params->content = $post->getIntro();
+		$params->permalink = $post->getPermalink();
+
+		// Send notification e-mail to the target
+		$options = new stdClass();
+		$options->title = 'COM_EASYSOCIAL_EMAILS_GROUP_NEW_DISCUSSION_SUBJECT';
+		$options->template = 'apps/group/easydiscuss/discussion.create';
+		$options->params = $params;
+
+		// Set the system alerts
+		$system = new stdClass();
+		$system->uid = $group->id;
+		$system->title = JText::sprintf('COM_EASYSOCIAL_GROUPS_NOTIFICATION_NEW_DISCUSSION', $actor->getName(), $group->getName());
+		$system->actor_id = $actor->id;
+		$system->target_id = $group->id;
+		$system->context_type = 'groups';
+		$system->type = SOCIAL_TYPE_GROUP;
+		$system->url = $params->permalink;
+		$system->context_ids = $post->id;
+
+		ES::notify('easydiscuss.discussion.create', $targets, $options, $system);
 	}
 
 	/**
@@ -864,14 +950,20 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		return $state;
 	}
 
-	public function deleteDiscussStream($post)
+	public function deleteDiscussStream($post, $cluster = false)
 	{
 		if (!$this->exists() || !$this->config->get('integration_easysocial_activity_new_question')) {
 			return;
 		}
 
 		$stream = Foundry::stream();
-		$state = $stream->delete($post->id, 'discuss');
+
+		if ($cluster) {
+			// If group post, delete the group app stream instead.
+			$state = $stream->delete($post->id, 'easydiscuss');
+		} else {
+			$state = $stream->delete($post->id, 'discuss');
+		}
 
 		return $state;
 	}
@@ -929,6 +1021,8 @@ class EasyDiscussEasySocial extends EasyDiscuss
 			return;
 		}
 
+		$returnUrl = base64_encode(JRequest::getURI());
+
 		// Initialize EasySocial's css files
 		$this->init();
 
@@ -938,7 +1032,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 		ob_start();
 		echo '<div id="fd" class="es" style="margin-bottom: 15px;">';
-		echo $themes->output('site/groups/header.easysocial', array('group' => $group, 'view' => $view));
+		echo $themes->output('site/groups/header.easysocial', array('group' => $group, 'view' => $view, 'returnUrl' => $returnUrl));
 		echo '</div>';
 		$contents = ob_get_contents();
 		ob_end_clean();
@@ -959,7 +1053,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 	public function isGroupAppExists()
 	{
-		if (!$this->exists()) {
+		if (!$this->exists() || !$this->my->id) {
 			return false;
 		}
 
@@ -984,5 +1078,18 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		}
 
 		return false;
+	}
+
+	public function decodeAlias($alias)
+	{
+		$id = $alias;
+
+        if (strpos($alias , ':' ) !== false) {
+            $parts = explode(':', $alias , 2 );
+
+            $id = $parts[0];
+        }
+
+		return $id;
 	}
 }

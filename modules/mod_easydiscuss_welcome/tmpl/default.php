@@ -136,9 +136,8 @@ defined('_JEXEC') or die('Restricted access');
 		</ul>
 
 		<div class="account-register">
-			<span><?php echo JText::_('MOD_EASYDISCUSS_WELCOME_FORGOT_YOUR');?></span>
-			<a href="<?php echo JRoute::_('index.php?option=com_users&view=reset'); ?>"><?php echo JText::_('MOD_EASYDISCUSS_WELCOME_PASSWORD');?></a> <b><?php echo JText::_('MOD_EASYDISCUSS_WELCOME_OR');?></b>
-			<a href="<?php echo JRoute::_('index.php?option=com_users&view=remind'); ?>"><?php echo JText::_('MOD_EASYDISCUSS_WELCOME_USERNAME');?></a>?<br>
+			<?php echo JText::sprintf('MOD_EASYDISCUSS_WELCOME_FORGOT_PASSOWRD_OR_USERNAME', JRoute::_('index.php?option=com_users&view=reset'), JRoute::_('index.php?option=com_users&view=remind')) ?>
+			<br>
 			<?php if ($allowRegister) { ?>
 				<a href="<?php echo JRoute::_('index.php?option=com_users&view=registration'); ?>"><?php echo JText::_('MOD_EASYDISCUSS_WELCOME_CREATE_ACCOUNT');?></a>
 			<?php } ?>

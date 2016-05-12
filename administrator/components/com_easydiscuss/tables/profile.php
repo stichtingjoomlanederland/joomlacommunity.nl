@@ -300,6 +300,35 @@ class DiscussProfile extends EasyDiscussTable
 	}
 
 	/**
+	 * Retrieves the user's edit profile link
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getEditProfileLink($anchor = '')
+	{
+		static $items = array();
+
+		$key = $this->id . $anchor;
+
+		if (!isset($items[$key])) {
+			$field = ED::integrate()->getField($this);
+
+			$config = ED::config();
+
+			$items[$key] = EDR::_('view=profile&layout=edit');
+
+			if ($config->get('layout_avatarLinking') && $field['editProfileLink']) {
+				$items[$key] = $field['editProfileLink'];
+			}
+		}
+
+		return $items[$key];
+	}
+
+	/**
 	 * Deprecated. Use @getPermalink instead
 	 *
 	 * @since	4.0
@@ -540,10 +569,15 @@ class DiscussProfile extends EasyDiscussTable
 
 	public function getNickname()
 	{
-		return $this->nickname;
+		$nickname = $this->nickname ? $this->nickname : $this->user->name;
+		return $nickname;
 	}
 
-	public function getDescription(){
+	public function getDescription($raw = false){
+
+		if ($raw) {
+			return $this->description;
+		}
 
 		if ($this->config->get('layout_editor') == 'bbcode') {
 			return nl2br(ED::parser()->bbcode($this->description));
@@ -615,12 +649,39 @@ class DiscussProfile extends EasyDiscussTable
 	{
 		$db = ED::db();
 
+		$my = ED::user();
+		$respectPrivacy = ($my->id == $this->id) ? false : true;
+
+
 		$query = array();
 		$query[] = 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_favourites' ) . ' AS a';
 		$query[] = 'INNER JOIN ' . $db->nameQuote( '#__discuss_posts' ) . ' AS b';
 		$query[] = 'ON a.' . $db->nameQuote( 'post_id') . ' = b.' . $db->nameQuote('id');
 		$query[] = 'WHERE ' . $db->nameQuote( 'created_by') . '=' . $db->Quote($this->id);
 		$query[] = 'AND b.' . $db->nameQuote( 'published') . '=' . $db->Quote(1);
+		$query[] = 'AND b.' . $db->nameQuote('cluster_id') . '=' . $db->Quote(0);
+
+		if ($respectPrivacy) {
+
+			// category ACL:
+			$catOptions = array();
+			$catOptions['idOnly'] = true;
+			$catOptions['includeChilds'] = true;
+
+			$catModel = ED::model('Categories');
+			$catIds = $catModel->getCategoriesTree(0, $catOptions);
+
+			// if there is no categories return, means this user has no permission to view all the categories.
+			// if that is the case, just return empty array.
+			if (! $catIds) {
+				return array();
+			}
+
+			$query[] = " and b.`category_id` IN (" . implode(',', $catIds) . ")";
+
+			// var_dump($catIds);
+		}
+
 
 		$query = implode(' ' , $query);
 
@@ -647,6 +708,11 @@ class DiscussProfile extends EasyDiscussTable
 
 		$index = $this->id;
 
+		$my = ED::user();
+
+		$respectPrivacy = ($my->id == $this->id) ? false : true;
+
+
 		if (!isset($cache[$index])) {
 			$db = ED::db();
 
@@ -655,9 +721,37 @@ class DiscussProfile extends EasyDiscussTable
 					.' AND ' . $db->nameQuote('parent_id') . '=' . $db->Quote('0')
 					.' AND ' . $db->nameQuote('published') . '=' . $db->Quote('1');
 
+			// Do not include anything from cluster.
+			$query .= ' AND '. $db->nameQuote('cluster_id') . '=' . $db->Quote('0');
+
 			// If the post is anonymous we shouldn't show to public.
 			if (ED::user()->id != $this->id) {
 				$query .=' AND ' . $db->nameQuote('anonymous') . '=' . $db->Quote('0');
+			}
+
+			if (ED::user()->id != $this->id) {
+				$query .=' AND ' . $db->nameQuote('private') . '=' . $db->Quote('0');
+			}
+
+
+			if ($respectPrivacy) {
+
+				// category ACL:
+				$catOptions = array();
+				$catOptions['idOnly'] = true;
+				$catOptions['includeChilds'] = true;
+
+				$catModel = ED::model('Categories');
+				$catIds = $catModel->getCategoriesTree(0, $catOptions);
+
+				// if there is no categories return, means this user has no permission to view all the categories.
+				// if that is the case, just return empty array.
+				if (! $catIds) {
+					return array();
+				}
+
+				$query .= " and `category_id` IN (" . implode(',', $catIds) . ")";
+
 			}
 
 			$db->setQuery($query);
@@ -791,15 +885,45 @@ class DiscussProfile extends EasyDiscussTable
 		if (!isset($cache[$index])) {
 			$db = ED::db();
 
+			$my = JFactory::getUser();
+			$respectPrivacy = ($my->id == $this->id) ? false : true;
+
 			$query	= 'SELECT COUNT(a.`id`) AS CNT FROM `#__discuss_posts` AS a ';
 			$query	.= ' WHERE a.`user_id` = ' . $db->Quote($this->id);
 			$query	.= ' AND a.`published` = 1';
 			$query	.= ' AND a.`isresolve` = 0';
 			$query	.= ' AND a.`parent_id` = 0';
 
+			// Do not include anything from cluster.
+			$query .= ' AND a.'. $db->nameQuote('cluster_id') . '=' . $db->Quote('0');
+
 			// If the post is anonymous we shouldn't show to public.
 			if (ED::user()->id != $this->id) {
 				$query .=' AND a.' . $db->nameQuote('anonymous') . '=' . $db->Quote('0');
+			}
+
+			if (ED::user()->id != $this->id) {
+				$query .=' AND a.' . $db->nameQuote('private') . '=' . $db->Quote('0');
+			}
+
+			if ($respectPrivacy) {
+
+				// category ACL:
+				$catOptions = array();
+				$catOptions['idOnly'] = true;
+				$catOptions['includeChilds'] = true;
+
+				$catModel = ED::model('Categories');
+				$catIds = $catModel->getCategoriesTree(0, $catOptions);
+
+				// if there is no categories return, means this user has no permission to view all the categories.
+				// if that is the case, just return empty array.
+				if (! $catIds) {
+					return array();
+				}
+
+				$query .= " and a.`category_id` IN (" . implode(',', $catIds) . ")";
+
 			}
 
 			$db->setQuery($query);
@@ -875,7 +999,7 @@ class DiscussProfile extends EasyDiscussTable
 
 		if (!isset($cache[$this->id])) {
 			$model = ED::model('Users');
-			$cache[$this->id] = $model->getTotalReplies($this->id);
+		$cache[$this->id] = $model->getTotalReplies($this->id);
 		}
 
 		return $cache[$this->id];
@@ -894,8 +1018,11 @@ class DiscussProfile extends EasyDiscussTable
 		static $cache = array();
 
 		if (!isset($cache[$this->id])) {
+
 			$model = ED::model('Assigned');
-			$cache[$this->id] = $model->getTotalAssigned($this->id) ? $model->getTotalAssigned($this->id) : '0';
+			$total = $model->getTotalAssigned($this->id);
+
+			$cache[$this->id] = $total ? $total : '0';
 		}
 
 		return $cache[$this->id];
@@ -1124,10 +1251,15 @@ class DiscussProfile extends EasyDiscussTable
 	public function getSignature( $raw = false )
 	{
 		if (!array_key_exists('signature', $this->_data)) {
-			if ($this->config->get('layout_editor') == 'bbcode') {
-				$this->_data['signature'] = nl2br(ED::parser()->bbcode($this->signature));
+
+			if ($raw) {
+				$this->_data['signature'] = $this->signature;
 			} else {
-				$this->_data['signature'] = trim($this->signature);
+				if ($this->config->get('layout_editor') == 'bbcode') {
+					$this->_data['signature'] = nl2br(ED::parser()->bbcode($this->signature));
+				} else {
+					$this->_data['signature'] = trim($this->signature);
+				}
 			}
 		}
 
@@ -1317,7 +1449,7 @@ class DiscussProfile extends EasyDiscussTable
 			$enabled = $config->get('main_moderation_automated');
 			$limit = $config->get('moderation_threshold');
 
-			if (!$enabled && !$limit) {
+			if (($enabled && !$limit) || (!$enabled)) {
 				$items[$this->id] = false;
 
 				return $items[$this->id];
@@ -1334,7 +1466,7 @@ class DiscussProfile extends EasyDiscussTable
 			}
 		}
 
-		return true;
+		return $items[$this->id];
 	}
 
 	public function hasLocation()

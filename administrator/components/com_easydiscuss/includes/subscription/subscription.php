@@ -68,6 +68,10 @@ class EasyDiscussSubscription extends EasyDiscuss
 
 	public function processDigest($max = 5)
 	{
+		// If the feature is disabled, stop here.
+		if (!$this->config->get('main_email_digest')) {
+			return false;
+		}
 
 		$now = ED::date()->toSql();
 

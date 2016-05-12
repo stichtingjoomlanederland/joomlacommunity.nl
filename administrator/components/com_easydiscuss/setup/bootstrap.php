@@ -45,7 +45,7 @@ define('ED_VERIFIER', 'http://stackideas.com/updater/verify');
 define('ED_MANIFEST', 'http://stackideas.com/updater/manifests/easydiscuss');
 define('ED_SETUP_URL', JURI::base() . 'components/com_easydiscuss/setup');
 define('ED_TMP', $path . '/tmp');
-define('ED_BETA', true);
+define('ED_BETA', false);
 
 
 // If this is in developer mode, we need to set the session

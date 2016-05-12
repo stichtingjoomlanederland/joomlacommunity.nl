@@ -49,7 +49,7 @@ class EasyDiscussParser extends EasyDiscuss
 						 '/\[i\](.*?)\[\/i\]/ims',
 						 '/\[u\](.*?)\[\/u\]/ims',
 						 // '/\[img\](.*?)\[\/img\]/ims',
-						 '/\[img\]((http|https):\/\/([a-z0-9._\/-]+)\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF))\[\/img]/ims',
+						 '/\[img\]((http|https):\/\/([a-z0-9.\*_\/-]+)\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF))\[\/img]/ims',
 						 '/\[quote]([^\[\/quote\]].*?)\[\/quote\]/ims',
 						 '/\[quote](.*?)\[\/quote\]/ims'
 		);

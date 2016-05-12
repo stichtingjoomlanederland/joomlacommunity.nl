@@ -24,6 +24,31 @@ class EasyDiscussRouter extends EasyDiscuss
 		$menu = JFactory::getApplication()->getMenu();
 		$active = isset($query['Itemid']) ? $menu->getItem($query['Itemid']) : $menu->getActive();
 
+		$lang = null;
+
+		if (isset($query['lang']) && $query['lang']) {
+			$lang = $query['lang'];
+		}
+
+		// Groups view
+		if (isset($query['view']) && $query['view'] == 'groups') {
+			$segments[] = $query['view'];
+			unset($query['view']);
+
+			if (isset($query['group_id']) && $query['group_id']) {
+				$alias = ED::easysocial()->loadGroup($query['group_id'])->getAlias();
+
+				$segments[] = $alias;
+
+				unset($query['group_id']);
+			}
+
+			if (isset($query['layout']) && $query['layout']) {
+				$segments[] = $query['layout'];
+				unset($query['layout']);
+			}
+		}
+
 		// Forums view
 		if (isset($query['view']) && $query['view'] == 'forums') {
 
@@ -117,6 +142,17 @@ class EasyDiscussRouter extends EasyDiscuss
 		// Recent topics view
 		if (isset($query['view']) && $query['view'] == 'index') {
 
+			// $includeViewAlias = true;
+
+			// $aMenu = EDR::getMenus('index', null, null, $lang);
+			// if ($aMenu && $aMenu->segments->view == 'index') {
+			// 	$includeViewAlias = false;
+			// }
+
+			// if ($includeViewAlias) {
+			// 	$segments[] = $query['view'];
+			// }
+
 			$segments[] = $query['view'];
 			unset($query['view']);
 
@@ -135,6 +171,14 @@ class EasyDiscussRouter extends EasyDiscuss
 		if (isset($query['view']) && $query['view'] == 'ask') {
 			$segments[] = $query['view'];
 			unset( $query['view'] );
+
+			if (isset($query['group_id']) && $query['group_id']) {
+				$alias = ED::easysocial()->loadGroup($query['group_id'])->getAlias();
+
+				$segments[] = $alias;
+
+				unset($query['group_id']);
+			}
 
 			// in ED 4.0, we no longer translate category in ask page.
 
@@ -235,6 +279,24 @@ class EasyDiscussRouter extends EasyDiscuss
 		if (isset($query['view']) && $query['view'] == 'categories') {
 			$segments[]	= $query['view'];
 			unset($query['view']);
+
+			// It may contain a category id
+			if (isset($query['category_id']) && $query['category_id']) {
+				$aliases = EDR::getCategoryAliases($query['category_id']);
+
+				foreach ($aliases as $alias) {
+					$segments[]	= $alias;
+				}
+
+				unset($query['category_id']);
+			}
+
+			if (isset($query['layout'])) {
+				// $segments[]	= $query['layout'];
+				unset($query['layout']);
+			}
+
+
 		}
 
 		// Conversations view
@@ -307,16 +369,24 @@ class EasyDiscussRouter extends EasyDiscuss
 		$views = array('attachments', 'categories', 'index', 'forums','conversation',
 						'post', 'profile', 'search', 'tag', 'tags', 'users', 'notifications',
 						'badges', 'ask', 'subscription', 'featured', 'favourites', 'assigned',
-						'points','dashboard', 'mypost');
+						'points','dashboard', 'mypost', 'groups');
+
+		$repliesSorting = array('oldest', 'latest', 'voted', 'likes');
 
 		// If user chooses to use the simple sef setup, we need to add the proper view
-		if (($config->get('main_sef') == 'simple' && count($segments) == 1) ||
-			($config->get('main_sef') == 'category' && count($segments) >= 2)) {
+		if ($config->get('main_sef') == 'simple' || $config->get('main_sef') == 'category') {
 
+			// we need to identify if this link is a post link or not.
 			if (!in_array($segments[0], $views)) {
-				if (count($segments) >= 2) {	
-					// we just assign the first segment to be a post
-					$segments[0] = 'post';
+				if (count($segments) >= 2) {
+
+					if (in_array($segments[count($segments) - 1], $repliesSorting)) {
+						// this is a post.
+						array_unshift($segments, 'post');
+					} else {
+						// we just assign the first segment to be a post
+						$segments[0] = 'post';
+					}
 
 				} else {
 					array_unshift($segments, 'post');
@@ -326,28 +396,62 @@ class EasyDiscussRouter extends EasyDiscuss
 
 		// Post View
 		if (isset($segments[0]) && $segments[0] == 'post') {
-			
+
 			$count = count($segments);
 			$postId = '';
+			$idx = $count - 1;
+
+			// second elements
+			if (in_array($segments[count($segments) - 1], $repliesSorting)) {
+				$idx = 1;
+
+				$vars['sort'] = $segments[count($segments) - 1];
+			}
 
 			// perform manual split on the string.
 			if ($config->get('main_sef_unicode')) {
-				$permalinkSegment = $segments[($count - 1)];
+				$permalinkSegment = $segments[$idx];
 				$permalinkArr = explode(':', $permalinkSegment);
 				$postId = $permalinkArr[0];
 			} else {
-				$index = ($count - 1);
-				$alias = $segments[$index];
-				
+				$alias = $segments[$idx];
 				$postId = EDR::decodeAlias($alias, 'Post');
+			}
+
+			// If we still can't find the post id, we can assume it's on the second last
+			if (!$postId) {
+				$idx = $count - 2;
+
+				if (isset($segments[$idx])) {
+					$alias = $segments[$idx];
+					$postId = EDR::decodeAlias($alias, 'Post');					
+				}
 			}
 
 			if ($postId) {
 				$vars['id']	= $postId;
 			}
 
+
 			$vars['view'] = 'post';
-			
+		}
+
+		if (isset($segments[0]) && $segments[0] == 'groups') {
+			$vars['view'] = $segments[0];
+
+			$easysocial = ED::easysocial();
+
+			$count = count($segments);
+
+			if ($count > 1) {
+				if (isset($segments[$count-1]) && $segments[$count-1] == 'listings') {
+
+					$alias = $segments[$count-2];
+					$vars['group_id'] = $easysocial->decodeAlias($alias);
+
+					$vars['layout'] = 'listings';
+				}
+			}
 		}
 
         /*
@@ -426,38 +530,30 @@ class EasyDiscussRouter extends EasyDiscuss
 		}
 
 		if (isset($segments[0]) && $segments[0] == 'categories') {
-			
+
 			$count = count($segments);
 
 			if ($count > 1) {
 				$vars['view'] = $segments[0];
 
+				$vars['layout']	= 'listings';
+
 				$segments = EDR::encodeSegments($segments);
 
-				if (isset($segments[1]) && $segments[1] == 'listings') {
-					
-					// Get the last item since the category might be recursive.
-					$cid = $segments[2];
-					$catId = EDR::decodeAlias($cid, 'Category');
+				// Get the last item since the category might be recursive.
+				$cid = $segments[count($segments) - 1];
 
-					$vars['layout']	= $segments[1];
-					$vars['category_id'] = $catId;
-				} else {
+				$catId = EDR::decodeAlias($cid, 'Category');
+				$vars['category_id'] = $catId;
 
-					// Get the last item since the category might be recursive.
-					$cid = $segments[1];
 
-					$catId = EDR::decodeAlias($cid, 'Category');
-					$vars['category_id'] = $catId;
-				}
+				// if (isset($segments[3])) {
+				// 	$vars['filter']	= $segments[3];
 
-				if (isset($segments[3])) {
-					$vars['filter']	= $segments[3];
-
-					if (isset($segments[4])) {
-						$vars['sort'] = $segments[4];
-					}
-				}
+				// 	if (isset($segments[4])) {
+				// 		$vars['sort'] = $segments[4];
+				// 	}
+				// }
 			}
 		}
 
@@ -559,6 +655,14 @@ class EasyDiscussRouter extends EasyDiscuss
 
 		if (isset($segments[0]) && $segments[0] == 'ask') {
 			$vars['view'] = $segments[0];
+
+			$count = count($segments);
+
+			if ($count > 1) {
+				$easysocial = ED::easysocial();
+				$alias = $segments[$count-1];
+				$vars['group_id'] = $easysocial->decodeAlias($alias);
+			}
 
 			// in ED 4.0, we no longer translate category
 		}

@@ -113,14 +113,10 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 		$this->title('Discussions');
 		$this->desc('Migrate forum posts from your Discussion extension.');
 
+		$exists = JFile::exists(JPATH_ADMINISTRATOR . '/components/com_discussions/discussions.php');
+		$this->set('exists', $exists);
+
 		parent::display('migrators/discussions');
-	}
-
-	public function discussionsExists()
-	{
-		$file = JPATH_ADMINISTRATOR . '/components/com_discussions/discussions.php';
-
-		return JFile::exists($file);
 	}
 
 	public function communityPollsExists()

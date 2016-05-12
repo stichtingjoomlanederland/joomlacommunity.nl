@@ -11,7 +11,7 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<div class="ed-post-item ed-post-item--flex__cell 
+<div class="ed-post-item ed-post-item--flex__cell
     <?php echo $post->isSeen($this->my->id) ? ' is-read' : '';?>
     <?php echo $post->isFeatured() ? ' is-featured' : '';?>
     <?php echo $post->isLocked() ? ' is-locked' : '';?>
@@ -19,7 +19,7 @@ defined('_JEXEC') or die('Unauthorized Access');
     <?php echo $post->isPrivate() ? ' is-private' : '';?>
     <?php echo $this->config->get('layout_enableintrotext') || $post->getTags() ? ' has-body' : '';?>
     "
->   
+>
     <div class="ed-post-item__content">
     <div class="ed-post-item__hd">
 
@@ -28,7 +28,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                 <h2 class="ed-post-item__title t-lg-mb--md">
                     <a href="<?php echo $post->getPermalink();?>"><?php echo $post->getTitle();?></a>
-                    
+
                     <?php if ($post->isFeatured() || $post->isLocked() || $post->isProtected() || $post->isPrivate()) { ?>
                     <div class="ed-post-item__status t-ml--sm">
                         <i class="fa fa-star ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_FEATURED_DESC');?>"></i>
@@ -81,11 +81,11 @@ defined('_JEXEC') or die('Unauthorized Access');
                         <li data-breadcrumb="·">
                             <?php if (!$post->isLastReplyAnonymous()) { ?>
                                 <a href="<?php echo EDR::_('view=post&id=' . $post->id . '&sort=latest'); ?>">
-                                    <i class="fa fa-reply"></i> <?php echo JText::sprintf('COM_EASYDISCUSS_LAST_REPLIED_BY', $post->getLastReplier()->getName(), ED::date()->toLapsed($post->replied)); ?>
+                                    <i class="fa fa-reply"></i> <?php echo JText::sprintf('COM_EASYDISCUSS_LAST_REPLIED_BY', $post->getLastReplier()->getName(), ED::date()->toLapsed($post->lastupdate)); ?>
                                 </a>
                             <?php } else { ?>
                                 <a href="<?php echo EDR::_('view=post&id=' . $post->id . '&sort=latest'); ?>">
-                                    <i class="fa fa-reply"></i> <?php echo JText::sprintf('COM_EASYDISCUSS_LAST_REPLIED_BY', JText::_('COM_EASYDISCUSS_ANONYMOUS_USER'), ED::date()->toLapsed($post->replied)); ?>
+                                    <i class="fa fa-reply"></i> <?php echo JText::sprintf('COM_EASYDISCUSS_LAST_REPLIED_BY', JText::_('COM_EASYDISCUSS_ANONYMOUS_USER'), ED::date()->toLapsed($post->lastupdate)); ?>
                                 </a>
                             <?php } ?>
                         </li>
@@ -138,7 +138,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             <?php } ?>
 
             <?php if ($this->config->get('main_master_tags')) { ?>
-                <?php if ($this->config->get('main_tags') && $post->getTags()) { ?>
+                <?php if ($post->getTags()) { ?>
                 <ol class="g-list-inline ed-post-meta-tag t-lg-mt--md">
                     <?php foreach ($post->getTags() as $tag) { ?>
                     <li>
@@ -190,9 +190,9 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <div class="">
                                 <a href="javascript:void(0);" class="ed-user-name"><?php echo JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');?></a>
                             </div>
-                        </div>                        
+                        </div>
                     </div>
-                </div>                
+                </div>
             <?php } ?>
             <div class="o-col-sm">
                 <ol class="g-list-inline g-list-inline--dashed pull-right ed-post-meta-cat">

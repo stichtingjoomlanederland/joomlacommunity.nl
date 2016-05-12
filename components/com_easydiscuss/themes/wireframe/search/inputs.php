@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
     <div class="ed-search-results-choices t-lg-mt--lg t-lg-mb--lg">
         <div class="o-col t-lg-pr--md t-xs-pr--no">
-            <div class="ed-search-results-choices__title">Filter by tags:</div>
+            <div class="ed-search-results-choices__title"><?php echo JText::_('COM_EASYDISCUSS_SEARCH_FILTER_BY_TAGS');?></div>
             <?php
                 $tagLabels = '';
                 if ($tagFilters) {
@@ -35,7 +35,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
         </div>
         <div class="o-col">
-            <div class="ed-search-results-choices__title">Filter by categories:</div>
+            <div class="ed-search-results-choices__title"><?php echo JText::_('COM_EASYDISCUSS_SEARCH_FILTER_BY_CATEGORY');?></div>
             <?php
                 $catLabels = '';
                 if ($catFilters) {

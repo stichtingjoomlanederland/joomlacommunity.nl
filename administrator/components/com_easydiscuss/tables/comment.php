@@ -33,12 +33,6 @@ class DiscussComment extends EasyDiscussTable
 	public $lft = null;
 	public $rgt = null;
 
-	/**
-	 * Constructor for this class.
-	 *
-	 * @return
-	 * @param object $db
-	 */
 	public function __construct(& $db)
 	{
 		parent::__construct('#__discuss_comments', 'id', $db);
@@ -86,6 +80,30 @@ class DiscussComment extends EasyDiscussTable
 		}
 
 		return true;
+	}
+
+	/**
+	 * Generates an array of data for REST api
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function toData()
+	{
+		$post = ED::post($this->post_id);
+		$permalink = $post->getPermalink(true, true, true);
+
+		$data = new stdClass();
+		$data->id = $this->id;
+		$data->permalink = $permalink;
+		$data->comment = $this->comment;
+		$data->ip = $this->ip;
+		$data->name = $this->name;
+		$data->user_id = $this->user_id;
+		
+		return $data;
 	}
 
 	public function canDeleteComment($pk = null, $joins = null)

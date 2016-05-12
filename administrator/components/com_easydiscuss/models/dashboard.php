@@ -262,9 +262,11 @@ class EasyDiscussModelDashboard extends EasyDiscussAdminModel
 	 */
 	public function getCategoryPie()
 	{
+		$options = array('published' => true);
+
 		// get all categories on site
 		$categories = ED::model('categories');
-		$categoriesTotal = $categories->getAllCategories();
+		$categoriesTotal = $categories->getAllCategories($options);
 
 		$color = $this->pieColors();
 		$array = array();

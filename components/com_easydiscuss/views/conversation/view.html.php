@@ -48,8 +48,16 @@ class EasyDiscussViewConversation extends EasyDiscussView
 		// Check if the user has permission to use private message
 		if (!$this->acl->allowed('allow_privatemessage')) {
 			ED::setMessage('COM_EASYDISCUSS_NOT_ALLOWED_POST_PRIVATE_MESSAGE', 'error');
-			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss', false));
+			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false));
 		}
+
+		// If configured to use EasySocial conversations, redirect them to the correct page.
+		$easysocial = ED::easysocial();
+
+        if ($easysocial->exists() && $this->config->get('integration_easysocial_messaging')) {
+        	$this->app->redirect($easysocial->getConversationsRoute(false));
+        	return;
+        }
 
 		// Set page attributes
 		ED::setPageTitle('COM_EASYDISCUSS_CONVERSATIONS_TITLE');

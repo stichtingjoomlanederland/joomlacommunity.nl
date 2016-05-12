@@ -22,6 +22,8 @@ if (!JFile::exists($path)) {
 require_once($path);
 require_once dirname( __FILE__ ) . '/helper.php';
 
+ED::init();
+
 JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
 
 $posts = modRecentRepliesHelper::getData($params);

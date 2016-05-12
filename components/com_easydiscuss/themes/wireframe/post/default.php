@@ -214,6 +214,10 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <?php echo ED::ratings()->html($post); ?>
             <?php } ?>
 
+
+            <?php echo $socialbuttons; ?>
+
+
             <?php echo $this->output('site/post/default.signature', array('post' => $post)); ?>
         </div>
 
@@ -279,7 +283,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 
         <?php if ($replies && $pagination) { ?>
             <div class="ed-pagination">
-                <?php echo $pagination->getPagesLinks('post', array('id' => $post->id), true);?>
+                <?php
+                    if (ED::getDefaultRepliesSorting() == $sort) {
+                        $sort = '';
+                    }
+                ?>
+                <?php echo $pagination->getPagesLinks('post', array('id' => $post->id, 'sort' => $sort), true);?>
             </div>
         <?php } ?>
 

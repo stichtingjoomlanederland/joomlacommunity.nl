@@ -132,6 +132,10 @@ class EasyDiscussComposer extends EasyDiscuss
 		// Render the captcha image
 		$captcha = ED::captcha();
 
+		// Load the actor
+		$my = ED::user();
+
+		$theme->set('my', $my);
 		$theme->set('captcha', $captcha);
 		$theme->set('editorId', $this->uid);
 		$theme->set('composer', $this);

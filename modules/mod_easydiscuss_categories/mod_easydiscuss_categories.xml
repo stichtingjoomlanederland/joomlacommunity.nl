@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Categories</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>15th April 2016</creationDate>
+	<creationDate>9th May 2016</creationDate>
 	<copyright>Copyright 2009 - 2016 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://www.stackideas.com</authorUrl>
-	<version>4.0.1</version>
+	<version>4.0.5</version>
 	<description><![CDATA[This module will display a list of categories in EasyDiscuss.]]></description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easydiscuss_categories.ini</language>
@@ -24,15 +24,15 @@
 		<fields name="params">
 			<fieldset name="basic">
 				<field name="layouttype" type="list" default="flat" label="MOD_DISCUSSIONSCATEGORIES_LAYOUT_TYPE" description="MOD_DISCUSSIONSCATEGORIES_LAYOUT_TYPE_DESC">
-					<option value="tree">Category Tree</option>
-					<option value="flat">Flat layout</option>
+					<option value="tree">MOD_DISCUSSIONSCATEGORIES_LAYOUT_TYPE_CATEGORY_TREE</option>
+					<option value="flat">MOD_DISCUSSIONSCATEGORIES_LAYOUT_TYPE_FLAT_LAYOUT</option>
 				</field>
 				<field name="count" type="text" default="5" label="MOD_DISCUSSIONSCATEGORIES_ITEM_COUNT" description="MOD_DISCUSSIONSCATEGORIES_ITEM_COUNT_DESC" />
 				<field name="order" type="list" default="default" label="MOD_DISCUSSIONSCATEGORIES_ITEM_ORDER" description="MOD_DISCUSSIONSCATEGORIES_ITEM_ORDER_DESC" >
-					<option value="default">Default</option>
-					<option value="alphabet">Alphabetical</option>
-					<option value="latest">Latest</option>
-					<option value="popular">Popular</option>
+					<option value="default">MOD_DISCUSSIONSCATEGORIES_ITEM_ORDER_DEFAULT</option>
+					<option value="alphabet">MOD_DISCUSSIONSCATEGORIES_ITEM_ORDER_ALPHABETICAL</option>
+					<option value="latest">MOD_DISCUSSIONSCATEGORIES_ITEM_ORDER_LATEST</option>
+					<option value="popular">MOD_DISCUSSIONSCATEGORIES_ITEM_ORDER_POPULAR</option>
 				</field>
 				<field name="sort" type="radio" class="btn-group" default="asc" label="MOD_DISCUSSIONSCATEGORIES_ITEM_SORTING" description="MOD_DISCUSSIONSCATEGORIES_ITEM_SORTING_DESC">
 					<option value="asc">Ascending</option>

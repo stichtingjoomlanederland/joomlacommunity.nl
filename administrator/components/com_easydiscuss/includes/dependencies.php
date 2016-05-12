@@ -60,6 +60,29 @@ class EasyDiscuss
 			$this->my = JFactory::getUser();
 			$this->acl = ED::acl();
 			$this->isSiteAdmin = ED::isSiteAdmin();
+
+			// 1. Detect if this is an api call
+			if ($this->doc->getType() == 'json') {
+
+				$userId = $this->input->get('userId', '', 'int');
+				$auth = $this->input->get('auth', '', 'default');
+
+				$isValid = false;
+				if ($userId && $auth) {
+					$user = ED::user($userId);
+
+					if ($auth == $user->auth) {
+						$isValid = true;
+					}
+				}
+
+				if ($isValid) {
+					$this->my = JFactory::getUser($user->id);
+					$this->acl = ED::acl($user->id);
+					$this->isSiteAdmin = ED::isSiteAdmin($user->id);
+				}
+			}
+
 		}
 	}
 

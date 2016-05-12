@@ -79,11 +79,11 @@ defined('_JEXEC') or die('Unauthorized Access');
                         <li data-breadcrumb="·">
                             <?php if (!$post->isLastReplyAnonymous()) { ?>
                                 <a href="<?php echo EDR::_('view=post&id=' . $post->id . '&sort=latest'); ?>">
-                                    <i class="fa fa-reply"></i> <?php echo JText::sprintf('COM_EASYDISCUSS_LAST_REPLIED_BY', $post->getLastReplier()->getName(), ED::date()->toLapsed($post->replied)); ?>
+                                    <i class="fa fa-reply"></i> <?php echo JText::sprintf('COM_EASYDISCUSS_LAST_REPLIED_BY', $post->getLastReplier()->getName(), ED::date()->toLapsed($post->lastupdate)); ?>
                                 </a>
                             <?php } else { ?>
                                 <a href="<?php echo EDR::_('view=post&id=' . $post->id . '&sort=latest'); ?>">
-                                    <i class="fa fa-reply"></i> <?php echo JText::sprintf('COM_EASYDISCUSS_LAST_REPLIED_BY', JText::_('COM_EASYDISCUSS_ANONYMOUS_USER'), ED::date()->toLapsed($post->replied)); ?>
+                                    <i class="fa fa-reply"></i> <?php echo JText::sprintf('COM_EASYDISCUSS_LAST_REPLIED_BY', JText::_('COM_EASYDISCUSS_ANONYMOUS_USER'), ED::date()->toLapsed($post->lastupdate)); ?>
                                 </a>
                             <?php } ?>
                         </li>
@@ -139,7 +139,7 @@ defined('_JEXEC') or die('Unauthorized Access');
         <?php } ?>
 
         <?php if ($this->config->get('main_master_tags')) { ?>
-            <?php if ($this->config->get('main_tags') && $post->getTags()) { ?>
+            <?php if ($post->getTags()) { ?>
             <ol class="g-list-inline ed-post-meta-tag">
                 <?php foreach ($post->getTags() as $tag) { ?>
                 <li>

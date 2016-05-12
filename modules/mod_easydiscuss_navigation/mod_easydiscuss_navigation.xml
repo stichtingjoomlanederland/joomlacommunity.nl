@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Navigation</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>15th April 2016</creationDate>
+	<creationDate>9th May 2016</creationDate>
 	<copyright>Copyright 2009 - 2016 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>4.0.1</version>
+	<version>4.0.5</version>
 	<description>
 		<![CDATA[
 			A nice module that provides category navigation in the site.
@@ -26,11 +26,11 @@
 	<config>
 		<fields name="params">
 			<fieldset name="basic">
-				<field name="display_empty_category" type="list" default="1" label="Display empty category" description="If enabled, empty category will be displayed.">
+				<field name="display_empty_category" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_NAVIGATION_DISPLAY_EMPTY_CATEGORY" description="MOD_EASYDISCUSS_NAVIGATION_DISPLAY_EMPTY_CATEGORY_DESC">
 					<option value="1">Yes</option>
 					<option value="0">No</option>
 				</field>
-				<field name="display_notification_button" type="list" default="1" label="Display notification button" description="If enabled, the notification button will be displayed.">
+				<field name="display_notification_button" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_NAVIGATION_DISPLAY_NOTIFICATION_BUTTON" description="MOD_EASYDISCUSS_NAVIGATION_DISPLAY_NOTIFICATION_BUTTON_DESC">
 					<option value="1">Yes</option>
 					<option value="0">No</option>
 				</field>

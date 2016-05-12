@@ -195,7 +195,7 @@ class EasyDiscussRanks extends EasyDiscuss
 			$query[] = 'INNER JOIN ' . $this->db->nameQuote('#__discuss_ranks') . ' AS b';
 			$query[] = 'ON a.' . $this->db->nameQuote('rank_id') . '= b.' . $this->db->nameQuote('id');
 			$query[] = 'WHERE a.' . $this->db->nameQuote('user_id') . '=' . $this->db->Quote($user->id);
-			$query[] = 'ORDER BY b.`id` DESC LIMIT 1';
+			$query[] = 'ORDER BY a.`rank_id` DESC LIMIT 1';
 
 			$query = implode(' ', $query);
 

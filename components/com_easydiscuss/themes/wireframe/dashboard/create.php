@@ -15,10 +15,10 @@ defined('_JEXEC') or die('Restricted access');
 <form autocomplete="off" action="<?php echo JRoute::_('index.php');?>" method="post" enctype="multipart/form-data" data-ed-holiday-form>
 <div class="ed-dashboard-form">
     <div class="ed-dashboard-form__hd">
-        <div class="o-col">
+        <div class="o-col-sm">
             <i class="fa fa-calendar-o"></i> <?php echo JText::_('COM_EASYDISCUSS_HOLIDAY'); ?>    
         </div>
-        <div class="o-col">
+        <div class="o-col-sm">
             <a href="<?php echo EDR::_('view=dashboard'); ?>" class="btn btn-text pull-right"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CANCEL'); ?></a>
         </div>  
     </div>

@@ -12,27 +12,26 @@
  */
 defined('_JEXEC') or die('Restricted access');
 
-require_once DISCUSS_ADMIN_ROOT . '/views.php';
+require_once DISCUSS_ADMIN_ROOT . '/views/views.php';
 
 class EasyDiscussViewSettings extends EasyDiscussAdminView
 {
-	public function testParser( $server , $port , $service , $ssl , $user , $pass , $validate )
+	public function testParser()
 	{
-		$ajax	= new Disjax();
+		$server = $this->input->get('server', '');
+		$port = $this->input->get('port', '');
+		$service = $this->input->get('service', '');
+		$ssl = $this->input->get('ssl', '');
+		$user = $this->input->get('user', '');
+		$pass = $this->input->get('pass', '');
+		$validate = $this->input->get('validate', '');
 
 		// Variable check
-		if($server=='' || $port=='' || $user=='' || $pass=='')
-		{
-			$result	= 'Credentials incomplete.';
-
-			$ajax->assign( 'test-result' , JText::_( 'Please complete the information') );
-			return $ajax->send();
+		if (!$server || !$port || !$user || !$pass) {
+			return $this->ajax->reject(JText::_( 'COM_EASYDISCUSS_EMAIL_PARSER_PLEASE_COMPLETE_INFO'));
 		}
 
-		require_once DISCUSS_CLASSES . '/mailbox.php';
-		$result		= DiscussMailer::testConnect( $server , $port , $service , $ssl , 'INBOX' , $user , $pass  );
-		$ajax->assign( 'test-result' , $result );
-
-		return $ajax->send();
+		$result	= ED::Mailbox()->testConnect( $server , $port , $service , $ssl , 'INBOX' , $user , $pass  );
+		return $this->ajax->resolve($result);
 	}
 }

@@ -22,6 +22,6 @@ ed.require(['edq'], function($) {
     });
 });
 </script>
-<div id="ed">
+<div id="ed" data-ed-wrapper>
 <?php echo ED::toolbar()->render($modToolbar); ?>
 </div>

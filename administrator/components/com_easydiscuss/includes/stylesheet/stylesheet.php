@@ -127,10 +127,6 @@ class EasyDiscussStylesheet extends EasyDiscuss
 			$theme = $this->config->get('layout_site_theme');
 		}
 
-		if ($theme == 'simplistic') {
-			$theme = 'wireframe';
-		}
-
 		$options = array(
 					'source' => DISCUSS_MEDIA . '/themes/' . $theme . '/less/style.less',
 					'output' => DISCUSS_MEDIA . '/themes/' . $theme . '/css/style.css',

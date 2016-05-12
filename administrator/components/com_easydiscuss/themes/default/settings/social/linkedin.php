@@ -11,46 +11,25 @@
 */
 defined('_JEXEC') or die('Restricted access');
 ?>
-<div class="app-content-head">
-	<h2><?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIAL_LINKEDIN_TITLE' );?></h2>
-	<div>
-		<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIAL_LINKEDIN_DESC' );?>
-	</div>
-</div>
 
-<div class="app-content-body">
-	<div class="row">
-		<div class="col-md-6">
-			<div class="panel">
-				<div class="panel-head">
-					<a href="javascript:void(0);" data-foundry-toggle="collapse" data-target="#option01">
-					<h6><?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_LINKEDIN_TITLE' ); ?></h6>
-					<i class="icon-chevron-down"></i>
-					</a>
-				</div>
-
-				<div id="option01" class="panel-body">
-					<div class="form-horizontal">
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<label>
-									<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_LINKEDIN_ENABLE_BUTTON' ); ?>
-								</label>
-							</div>
-							<div class="col-md-7"
-								rel="ed-popover"
-								data-placement="left"
-								data-original-title="<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_LINKEDIN_ENABLE_BUTTON' ); ?>"
-								data-content="<?php echo JText::_('COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_LINKEDIN_ENABLE_BUTTON_DESC'); ?>"
-							>
-								<?php echo $this->renderCheckbox( 'integration_linkedin' , $this->config->get( 'integration_linkedin' ) );?>
-							</div>
+<div class="row">
+	<div class="col-md-6">
+		<div class="panel">
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_SOCIAL_LINKEDIN_TITLE'); ?>
+			<div class="panel-body">
+				<div class="form-horizontal">
+					<div class="form-group">
+						<div class="col-md-6 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_LINKEDIN_ENABLE_BUTTON'); ?>
+						</div>
+						<div class="col-md-6">
+							<?php echo $this->html('form.boolean', 'integration_linkedin', $this->config->get('integration_linkedin')); ?>
 						</div>
 					</div>
 				</div>
 			</div>
+
 		</div>
+
 	</div>
 </div>
-
-

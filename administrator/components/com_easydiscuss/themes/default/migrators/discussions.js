@@ -1,58 +1,59 @@
-ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
+ed.require(['edq'], function($) {
+		
+	var migrateButton = $('[data-ed-migrate]');
 
-function appendLog(type, message) {
-	EasyDiscuss.$( '#migrator-' + type + '-log' ).append( '<li>' + message + '</li>');
-}
+	migrateButton.on('click', function() {
 
-function runMigration(type) {
-	// Hide migration button.
-	EasyDiscuss.$('.migrator-button').hide();
+		// Hide the button
+		//migrateButton.hide();
 
-	disjax.load('migrators', type);
-}
+		// Update the buttons message
+		migrateButton.html('<i class="fa fa-cog fa-spin"></i> <?php echo JText::_('COM_EASYDISCUSS_MIGRATING', true);?>');
 
-function runMigrationCategory(type, categories) {
-	
-	if (categories === 'done') {
-		disjax.load('migrators' , type + 'CategoryItem' , current , categories );
-		return;
+		// Hide the no progress message
+		$('[data-progress-empty]').addClass('hide');
+
+		// Ensure that the progress is always reset to empty just in case the user runs it twice.
+		$('[data-progress-status]').html('');
+
+		//show the loading icon
+		$('[data-progress-loading]').removeClass('hide');
+
+		//process the migration
+		window.migrateArticle();
+		
+	});
+
+	window.migrateArticle = function() {
+
+		EasyDiscuss.ajax('admin/views/migrators/migrate', {
+			"component": "com_discussions"
+		}).done(function(result, status) {
+
+			// Append the current status
+			$('[data-progress-status]').append(status);
+
+			// If there's still items to render, run a recursive loop until it doesn't have any more items;
+			if (result == true) {
+				window.migrateArticle();
+				return;
+			}
+
+			//remove loading icon.
+			$('[data-progress-loading]').addClass('hide');
+
+			migrateButton.removeAttr('disabled');
+			migrateButton.html('<i class="fa fa-check"></i> <?php echo JText::_('COM_EASYDISCUSS_COMPLETED', true);?>');
+			$('[data-progress-status]').append('<?php echo JText::_('COM_EASYDISCUSS_COMPLETED', true);?>');
+
+			if (result == 'noitem'){
+				migrateButton.removeAttr('disabled');
+				migrateButton.html('<?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_RUN_MIGRATION_TOOL', true);?>');
+				$('[data-progress-status]').html('<?php echo JText::_('COM_EASYDISCUSS_NO_ITEM', true);?>');
+			}
+		});
+
+		
 	}
-
-	// Removes the first element
-	var current	= categories.shift();
-
-	if (categories.length == 0 && !current) {
-		return;
-	}
-
-	if (categories.length == 0) {
-		categories	= 'done';
-	}
-
-	disjax.load( 'migrators' , type + 'CategoryItem' , current , categories );
-}
-
-function runMigrationItem(type, itemstr) {
-
-	if (itemstr == 'done') {
-		disjax.load( 'migrators' , type + 'PostItem' , 'done' , itemstr );
-		return;
-	}
-
-	var items 	= itemstr.split( '|' );
-	var current	= items.shift();
-	var nextstr = items.join( '|' );
-
-	if (items.length == 0) {
-		nextstr	= 'done';
-	}
-
-	disjax.load( 'migrators' , type + 'PostItem' , current , nextstr );
-}
-
-
-function runMigrationReplies(type) {
-	disjax.load( 'migrators' , type + 'PostReplies' );
-}
 
 });

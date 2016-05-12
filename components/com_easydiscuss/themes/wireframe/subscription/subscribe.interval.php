@@ -14,10 +14,19 @@ defined('_JEXEC') or die('Unauthorized Access');
 <div class="ed-my-subscribe-select" data-ed-susbcribe-select>
     <div class="ed-my-subscribe-select__title"><?php echo JText::_('COM_EASYDISCUSS_SUBSCRIBE_INTERVAL'); ?></div>
     <select data-ed-subscription-settings data-method="updateSubscribeInterval">
-        <option value="instant" <?php echo $subscribe->interval == 'instant' ? 'selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_SUBSCRIBE_INSTANT'); ?></option>
-        <option value="daily" <?php echo $subscribe->interval == 'daily' ? 'selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_SUBSCRIBE_DAILY'); ?></option>
-        <option value="weekly" <?php echo $subscribe->interval == 'weekly' ? 'selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_SUBSCRIBE_WEEKLY'); ?></option>
-        <option value="monthly" <?php echo $subscribe->interval == 'monthly' ? 'selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_SUBSCRIBE_MONTHLY'); ?></option>                                        
+        <option value="instant" <?php echo $subscribe->interval == 'instant' ? 'selected="selected"' : ''; ?> disabled><?php echo JText::_('COM_EASYDISCUSS_SUBSCRIBE_INSTANT'); ?></option>
+
+        <?php if (!$this->config->get('main_email_digest') && $subscribe->interval != 'instant') { ?>
+          <option value="<?php echo $subscribe->interval; ?>" selected="selected">
+            <?php echo JText::_('COM_EASYDISCUSS_SUBSCRIBE_' . strtoupper($subscribe->interval)); ?>
+          </option>
+        <?php } ?>
+
+        <?php if ($this->config->get('main_email_digest')) {  ?>
+          <option value="daily" <?php echo $subscribe->interval == 'daily' ? 'selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_SUBSCRIBE_DAILY'); ?></option>
+          <option value="weekly" <?php echo $subscribe->interval == 'weekly' ? 'selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_SUBSCRIBE_WEEKLY'); ?></option>
+          <option value="monthly" <?php echo $subscribe->interval == 'monthly' ? 'selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_SUBSCRIBE_MONTHLY'); ?></option>                                        
+        <?php } ?>
     </select>
     <div class="loading-bar loader" style="display:none;" data-ed-subscribe-select-loading>
         <div class="discuss-loader">

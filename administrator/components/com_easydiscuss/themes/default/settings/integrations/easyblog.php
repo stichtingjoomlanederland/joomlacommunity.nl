@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<div class="col-md-6">
 		<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_EASYBLOG_INTEGRATIONS'); ?>
-			<p><a href="http://stackideas.com/easyblog.html" class="btn btn-success"><?php echo JText::_('COM_EASYDISCUSS_LEARN_MORE_ABOUT_EASYBLOG'); ?></a></p>
+			<p><a href="http://stackideas.com/easyblog/" class="btn btn-success t-lg-ml--lg t-lg-mt--lg"><?php echo JText::_('COM_EASYDISCUSS_LEARN_MORE_ABOUT_EASYBLOG'); ?></a></p>
 
 			<div class="panel-body">
 				<div class="form-horizontal">

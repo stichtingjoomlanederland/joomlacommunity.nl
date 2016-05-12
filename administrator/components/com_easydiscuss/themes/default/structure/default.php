@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <?php echo JText::_('COM_EASYDISCUSS_OUTDATED_VERSION');?>
             </div>
             <div class="col-cell cell-tight">
-                <a href="<?php echo JRoute::_('index.php?option=com_easydiscuss&view=settings&layout=system');?>" class="btn btn-default"><?php echo JText::_('COM_EASYDISCUSS_UPDATE_NOW_BUTTON');?></a>
+                <a href="<?php echo JRoute::_('index.php?option=com_easydiscuss&setup=true&update=true');?>" class="btn btn-default"><?php echo JText::_('COM_EASYDISCUSS_UPDATE_NOW_BUTTON');?></a>
             </div>
         </div>
     </div>
@@ -66,7 +66,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <?php } ?>
 
                 <div class="app-content-body">
-                    
+
 
                     <?php echo $contents; ?>
                 </div>

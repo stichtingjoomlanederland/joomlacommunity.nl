@@ -12,7 +12,7 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="ed-tags-item">
-	<h2><?php echo JText::sprintf('COM_EASYDISCUSS_TAG', JText::_($tag->title)); ?></h2>
+	<h2><?php echo JText::sprintf('COM_EASYDISCUSS_TAG', $tagTitle); ?></h2>
 
 	<div class="ed-posts-list" data-list-item itemscope itemtype="http://schema.org/ItemList">
 		<?php if ($posts) { ?>

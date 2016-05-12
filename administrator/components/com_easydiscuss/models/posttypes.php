@@ -131,7 +131,11 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 		$query = $this->_buildQuery($frontend);
 
 		// You need this in order limit to work.
-		$this->_data = $this->_getList($query, $this->getState('limitstart'), $this->getState('limit'));
+		if ($frontend) {
+			$this->_data = $this->_getList($query);
+		} else {
+			$this->_data = $this->_getList($query, $this->getState('limitstart'), $this->getState('limit'));
+		}
 
 		return $this->_data;
 	}
@@ -198,7 +202,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 		$result	= $db->loadResult();
 
 		return $result;
-	}	
+	}
 
 	public function setPostTagsBatch( $ids )
 	{

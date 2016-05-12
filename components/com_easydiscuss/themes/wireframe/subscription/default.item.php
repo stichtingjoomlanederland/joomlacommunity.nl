@@ -26,24 +26,31 @@ defined('_JEXEC') or die('Unauthorized Access');
                         <span><?php echo JText::_('COM_EASYDISCUSS_STAT_TOTAL_REPLIES'); ?></span>
                         </a>
                     </div>
+
                     <div class="ed-statistic__item">
                         <a href="<?php echo $post->permalink; ?>">
                         <span class="ed-statistic__item-count"><?php echo $post->viewCount; ?></span>
                         <span><?php echo JText::_('COM_EASYDISCUSS_STAT_TOTAL_HITS'); ?></span>
                         </a>
                     </div>
-                    <div class="ed-statistic__item">
-                        <a href="<?php echo $post->permalink; ?>">
-                        <span class="ed-statistic__item-count"><?php echo $post->voteCount; ?></span>
-                        <span><?php echo JText::_('COM_EASYDISCUSS_STAT_TOTAL_VOTES'); ?></span>
-                        </a>
-                    </div>
-                    <div class="ed-statistic__item">
-                        <a href="<?php echo $post->permalink; ?>">
-                        <span class="ed-statistic__item-count"><?php echo $post->likeCount; ?></span>
-                        <span><?php echo JText::_('COM_EASYDISCUSS_STAT_TOTAL_LIKES'); ?></span>
-                        </a>
-                    </div>
+
+                    <?php if ($this->config->get('main_allowquestionvote')) { ?>
+                        <div class="ed-statistic__item">
+                            <a href="<?php echo $post->permalink; ?>">
+                            <span class="ed-statistic__item-count"><?php echo $post->voteCount; ?></span>
+                            <span><?php echo JText::_('COM_EASYDISCUSS_STAT_TOTAL_VOTES'); ?></span>
+                            </a>
+                        </div>
+                    <?php } ?>
+
+                    <?php if ($this->config->get('main_likes_discussions')) { ?>
+                        <div class="ed-statistic__item">
+                            <a href="<?php echo $post->permalink; ?>">
+                            <span class="ed-statistic__item-count"><?php echo $post->likeCount; ?></span>
+                            <span><?php echo JText::_('COM_EASYDISCUSS_STAT_TOTAL_LIKES'); ?></span>
+                            </a>
+                        </div>
+                    <?php } ?>
                 </div>
             </div>
         </div>

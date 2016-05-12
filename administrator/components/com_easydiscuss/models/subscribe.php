@@ -72,10 +72,10 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 	public function getPagination()
 	{
 		// Lets load the content if it doesn't already exist
-		if (empty($this->_pagination))
-		{
+		if (empty($this->_pagination)) {
 			jimport('joomla.html.pagination');
-			$this->_pagination = ED::getPagination($this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
+			$this->_pagination = new JPagination($this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
+			//$this->_pagination = ED::getPagination($this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
 		}
 
 		return $this->_pagination;
@@ -981,9 +981,13 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
             $ids[] = $sub->id;
         }
 
-        $query = "update `#__discuss_subscriptions` set `sent_out` = " . $db->Quote($now);
+        $query = "update `#__discuss_subscription` set `sent_out` = " . $db->Quote($now);
         $query .= " where `id` IN (" . implode(',', $ids) . ")";
 
+        $db->setQuery($query);
+        $db->query();
+
+        return true;
     }
 
 
@@ -1047,8 +1051,39 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
         return $results;
 	}
 
+	/**
+     * Performs checking if the interval all set to instant
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+	public function allInstantSubscription($userId)
+	{
+		$db = ED::db();
 
+		$query  = '';
 
+		$query	.= 'SELECT count(1)';
+		$query	.= '  FROM `#__discuss_subscription` a';
+		$query	.= '    left join `#__users` b on a.`userid` = b.`id`';
+		$query .= '    left join `#__discuss_category` c on a.`cid` = c.`id`';
 
+		$query	.= ' WHERE a.`interval` != ' . $db->Quote('instant') ;
 
+		if ($userId) {
+			$query	.= ' AND a.`userid` = ' . $userId;
+		}
+
+		$db->setQuery($query);
+
+		$result = $db->loadResult();
+
+		if ($result) {
+			return false;
+		}
+
+		return true;
+	}
 }

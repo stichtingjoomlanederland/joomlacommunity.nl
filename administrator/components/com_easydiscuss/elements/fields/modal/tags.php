@@ -14,8 +14,7 @@ defined('_JEXEC') or die('Restricted access');
 jimport('joomla.html.html');
 jimport('joomla.form.formfield');
 
-require_once JPATH_ROOT . '/components/com_easydiscuss/constants.php';
-require_once JPATH_ROOT . '/components/com_easydiscuss/helpers/helper.php';
+require_once JPATH_ROOT . '/administrator/components/com_easydiscuss/includes/easydiscuss.php';
 
 class JFormFieldModal_Tags extends JFormField
 {
@@ -23,42 +22,42 @@ class JFormFieldModal_Tags extends JFormField
 
 	protected function getInput()
 	{
-		$mainframe	= JFactory::getApplication();
-		$doc		= JFactory::getDocument();
-		$db			= DiscussHelper::getDBO();
+		$mainframe = JFactory::getApplication();
+		$doc = JFactory::getDocument();
+		$db = ED::db();
 
-		$options	= array();
-		$attr		= '';
-		$tagsList	= array();
+		$options = array();
+		$attr = '';
+		$tagsList = array();
 
 		// Initialize some field attributes.
 		$attr .= $this->element['class'] ? ' class="'.(string) $this->element['class'].'"' : '';
 
 		// To avoid user's confusion, readonly="true" should imply disabled="true".
-		if ( (string) $this->element['readonly'] == 'true' || (string) $this->element['disabled'] == 'true') {
+		if ((string) $this->element['readonly'] == 'true' || (string) $this->element['disabled'] == 'true') {
 			$attr .= ' disabled="disabled"';
 		}
 
-		$attr	.= $this->element['size'] ? ' size="'.(int) $this->element['size'].'"' : '';
-		$attr	.= $this->multiple ? ' multiple="multiple"' : '';
+		$attr .= $this->element['size'] ? ' size="'.(int) $this->element['size'].'"' : '';
+		$attr .= $this->multiple ? ' multiple="multiple"' : '';
 
 		// Initialize JavaScript field attributes.
-		$attr	.= $this->element['onchange'] ? ' onchange="'.(string) $this->element['onchange'].'"' : '';
+		$attr .= $this->element['onchange'] ? ' onchange="'.(string) $this->element['onchange'].'"' : '';
 
-		$query	= 'SELECT `id`, `title` FROM `#__discuss_tags`';
-		$query	.= ' WHERE `published` = ' . $db->Quote('1');
+		$query = 'SELECT `id`, `title` FROM `#__discuss_tags`';
+		$query .= ' WHERE `published` = ' . $db->Quote('1');
 
 		$db->setQuery($query);
 		$data = $db->loadObjectList();
 
-		if(count($data) > 0)
-		{
+		if(count($data) > 0) {
+
 			$optgroup = JHTML::_('select.optgroup','Select tag','id','title');
 			array_push($tagsList,$optgroup);
 
 			foreach ($data as $row) {
-				$opt		= new stdClass();
-				$opt->id	= $row->id;
+				$opt = new stdClass();
+				$opt->id = $row->id;
 				$opt->title	= '(' . $row->id . ') ' . $row->title;;
 
 				array_push($tagsList,$opt);

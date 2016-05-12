@@ -22,12 +22,8 @@ defined('_JEXEC') or die('Restricted access');
 			<?php } ?>
 
 			<?php if (($totalGuests && $params->get('showguest')) && $onlineUsers) { ?>
-				<?php echo JText::_('MOD_WHOS_ONLINE_AND'); ?>
+				<?php echo JText::sprintf('MOD_WHOS_ONLINE_OTHER_GUESTS', $totalGuests); ?>				
 			<?php } ?>
-
-			<?php if ($totalGuests) { ?>
-				<?php echo JText::sprintf('MOD_WHOS_ONLINE_OTHER_GUESTS', $totalGuests); ?>
-			<?php } ?>    
         </div>
     </div>
 </div>

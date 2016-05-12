@@ -37,7 +37,7 @@ ed.require(['edq', 'chosen'], function($) {
     // Bind chosen tags
     selector.on('change', checkCount);
 
-    <?php if ($this->config->get('main_allowcreatetag') && $this->acl->allowed('add_tag')) { ?>
+    <?php if ($this->acl->allowed('add_tag')) { ?>
     // Bind the search field so user's can add custom tags that don't exist.
     $('.search-field').bind('keyup', function(e) {
 

@@ -86,6 +86,14 @@ class EasyDiscussViewPost extends EasyDiscussView
         $this->ajax->resolve($contents);
     }
 
+    /**
+     * Renders similar questions when user types in the title box
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return  
+     */
     public function similarQuestion()
     {
         $query = $this->input->get('query', '', 'string');
@@ -94,7 +102,6 @@ class EasyDiscussViewPost extends EasyDiscussView
         $contents = '';
 
         if (!empty($posts)) {
-
             $theme = ED::themes();
             $theme->set('posts', $posts);
             $contents = $theme->output('site/dialogs/ajax.similar.question.list');

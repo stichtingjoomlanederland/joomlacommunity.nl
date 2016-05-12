@@ -23,7 +23,7 @@ class EasyDiscussImage extends EasyDiscuss
 	 */
 	public function isImage($filePath)
 	{
-		$images = array('image/jpeg', 'image/png', 'image/jpg');
+		$images = array('image/jpeg', 'image/png', 'image/jpg', 'image/gif');
 
 		$info = getimagesize($filePath);
 

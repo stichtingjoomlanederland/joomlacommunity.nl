@@ -46,7 +46,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             <?php if ($post->getLastReplier()) { ?> 
             <li class="current">
                 <div class="">
-                    <span><?php echo JText::_('COM_EASYDISCUSS_VIEW_LAST_REPLY'); ?>: </span>
+                    <span><?php echo JText::_('COM_EASYDISCUSS_LAST_REPLIER'); ?>: </span>
                     <?php if (!$post->isLastReplyAnonymous()) { ?>
                         <?php echo $this->html('user.avatar', $post->getLastReplier(), array('rank' => false, 'size' => 'sm')); ?>
                     <?php } else { ?>

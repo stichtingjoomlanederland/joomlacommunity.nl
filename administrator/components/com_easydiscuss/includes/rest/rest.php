@@ -22,7 +22,7 @@ class EasyDiscussRest extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function auth()
 	{
@@ -45,7 +45,7 @@ class EasyDiscussRest extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getUser()
 	{
@@ -64,7 +64,7 @@ class EasyDiscussRest extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function success($message = '', $data = array())
 	{
@@ -79,7 +79,7 @@ class EasyDiscussRest extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function error($string)
 	{

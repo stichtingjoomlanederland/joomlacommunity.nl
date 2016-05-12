@@ -77,6 +77,10 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 		// pagination. work in progress
 		$pagination = $model->getPagination()->getPagesLinks('subscription', array('filter' => $filter));
 
+		// Check if this user has all instant interval
+		$allInstantSubscription = $model->allInstantSubscription($profile->id);
+
+		$this->set('allInstantSubscription', $allInstantSubscription);
 		$this->set('siteSubscribe', $siteSubscribe);
 		$this->set('isSiteActive', $isSiteActive);
 		$this->set('siteInterval', $siteInterval);

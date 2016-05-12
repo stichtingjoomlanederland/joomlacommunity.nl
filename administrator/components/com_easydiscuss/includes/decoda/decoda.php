@@ -11,13 +11,12 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-if (!class_exists('Decoda')) {
+if (!class_exists('EdDecoda')) {
 	require_once(__DIR__ . '/decoda/Decoda.php');
 }
 
-class EasyDiscussDecoda extends Decoda
+class EasyDiscussDecoda extends EdDecoda
 {
-
     public function initHook($type)
     {
         require_once(__DIR__ . '/decoda/hooks/' . $type . '.php');

@@ -24,11 +24,13 @@ class EasyDiscussSharerButtonLinkedin extends EasyDiscuss
 		$button = $config->get('integration_linkedin_button');
 		$dataURL = EDR::getRoutedURL('view=post&id=' . $row->id, false, true);
 
-		$counter = ' data-counter="top"';
+		// $counter = ' data-counter="top"';
 
-		if ($position == 'horizontal') {
-			$counter = ' data-counter="right"';
-		}
+		// if ($position == 'horizontal') {
+		// 	$counter = ' data-counter="right"';
+		// }
+
+		$counter = ' data-counter="right"';
 
 		$html = '';
 		$html = '<div class="social-button linkedin-share">';

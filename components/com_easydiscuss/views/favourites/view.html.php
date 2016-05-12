@@ -28,7 +28,7 @@ class EasyDiscussViewFavourites extends EasyDiscussView
 		// Ensure that this feature is enabled
 		if (!$this->config->get('main_favorite')) {
 			ED::setMessage('COM_EASYDISCUSS_FEATURE_IS_DISABLED', 'error');
-			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss', false));
+			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false));
 		}
 
 		ED::setPageTitle('COM_EASYDISCUSS_FAVOURITES_TITLE');

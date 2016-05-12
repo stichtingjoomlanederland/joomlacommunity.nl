@@ -36,7 +36,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 </a>
             </li>
 
-            <li class="<?php echo ($sort == 'oldest' || $sort == 'replylatest') ? 'active' : '';?> sortItem o-tabs__item ">
+            <li class="<?php echo (!$sort || $sort == 'oldest' || $sort == 'replylatest') ? 'active' : '';?> sortItem o-tabs__item ">
                 <a class="o-tabs__link" href="<?php echo EDR::_('view=post&id=' . $post->id . '&sort=oldest'); ?>#filter-sort">
                     <?php echo JText::_('COM_EASYDISCUSS_SORT_OLDEST'); ?>
                 </a>

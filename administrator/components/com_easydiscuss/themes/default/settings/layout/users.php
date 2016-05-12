@@ -59,6 +59,15 @@ defined('_JEXEC') or die('Restricted access');
                             <?php echo $this->html('form.boolean', 'main_signature_visibility', $this->config->get('main_signature_visibility'));?>
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_ALLOW_PUBLIC_USERS_TO_VIEW_PROFILE'); ?>
+                        </div>
+                        <div class="col-md-7">
+                            <?php echo $this->html('form.boolean', 'main_profile_public', $this->config->get('main_profile_public'));?>
+                        </div>
+                    </div> 
                 </div>
             </div>
         </div>

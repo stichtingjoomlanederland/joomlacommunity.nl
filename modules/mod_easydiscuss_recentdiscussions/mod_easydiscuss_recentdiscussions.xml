@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Recent Discussions</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>15th April 2016</creationDate>
+	<creationDate>9th May 2016</creationDate>
 	<copyright>Copyright 2009 - 2016 Stack Ideas. All rights reserved.</copyright>
 	<license>GPL License</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://www.stackideas.com</authorUrl>
-	<version>4.0.1</version>
+	<version>4.0.5</version>
 	<description>Displays a recent list of discussions from the site.</description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easydiscuss_recentdiscussions.ini</language>
@@ -44,13 +44,18 @@
 				</field>
 				<field name="max_title" type="text" default="50" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_TRUNCATE_TITLE" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_TRUNCATE_TITLE_DESC" />
 				<field name="max_content" type="text" default="80" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_TRUNCATE_CONTENT" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_TRUNCATE_CONTENT_DESC" />
-
-
 				<field name="show_avatar" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_AVATAR" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_AVATAR_DESC">
 					<option value="1">JYES</option>
 					<option value="0">JNO</option>
 				</field>
-
+				<field name="show_category" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_CATEGORY" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_CATEGORY_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="show_date" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_DATE" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_DATE_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
 				<field name="showpoststate" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_POST_STATE" description="MOD_EASYDISCUSS_RECENTDISCUSSIONS_SHOW_POST_STATE_DESC">
 					<option value="1">JYES</option>
 					<option value="0">JNO</option>

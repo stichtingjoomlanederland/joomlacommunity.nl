@@ -31,32 +31,49 @@ class EasyDiscussThemesHelperUser
 		return $output;
 	}
 
-	// /**
-	//  * Generates a user avatar html tag
-	//  *
-	//  * @since	4.0
-	//  * @access	public
-	//  * @param	string
-	//  * @return
-	//  */
-	// public static function avatar(DiscussProfile $user, $option = array())
-	// {
-	// 	$rank = isset($options['rank']) ? $options['rank'] : false;
-	// 	$role = isset($options['role']) ? $options['role'] : false;
-	// 	$status = isset($options['status']) ? $options['status'] : false;
-	// 	$type = isset($options['type']) ? $options['type'] : false;
+	/**
+	 * Generates the private messaging button for the user
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public static function pm($targetId = null, $layout = 'list')
+	{
+		$config = ED::config();
+		$acl = ED::acl();
+		$my = JFactory::getUser();
 
-	// 	$theme = ED::themes();
-	// 	$theme->set('user', $user);
-	// 	$theme->set('rank', $rank);
-	// 	$theme->set('role', $role);
-	// 	$theme->set('status', $status);
-	// 	$theme->set('type', $type);
+		// Guests cannot use PM feature
+		if ($my->guest || !$config->get('main_conversations') || !$acl->allowed('allow_privatemessage')) {
+			return;
+		}
 
-	// 	$output = $theme->output('site/html/user.avatar');
+		// They shouldn't be able to pm themselves
+		if ($my->id == $targetId) {
+			return;
+		}
 
-	// 	return $output;
-	// }
+		// If configured to use EasySocial, use the html provided by EasySocial
+		$easysocial = ED::easysocial();
+		if ($config->get('integration_easysocial_messaging') && $easysocial->exists()) {
+			$output = $easysocial->getPmHtml($targetId, $layout);
+
+			return $output;
+		}
+
+		$user = ED::user($targetId);
+
+		$theme = ED::themes();
+		$theme->set("user", $user);
+		
+		$namespace = $layout == 'list' ? 'user.pm' : 'user.popbox.pm';
+
+		$output = $theme->output('site/html/' . $namespace);
+
+		return $output;
+	}
 
 	/**
 	 * Generates a user avatar html tag

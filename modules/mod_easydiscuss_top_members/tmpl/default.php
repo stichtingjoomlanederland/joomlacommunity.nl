@@ -30,12 +30,12 @@ defined('_JEXEC') or die('Restricted access');
                     <div class="m-list--inline m-list--has-divider t-lg-mb-sm">
                         <div class="m-list__item">
                             <?php if ($params->get('showpost')) { ?>
-                                <div class="m-post-meta t-fs--sm"><?php echo $user->getNumTopicPosted(); ?> <?php echo JText::_('MOD_EASYDISCUSS_TOP_MEMBERS_POSTS'); ?></div>
+                                <div class="m-post-meta t-fs--sm"><?php echo JText::sprintf('MOD_EASYDISCUSS_TOP_MEMBERS_POSTS', $user->getNumTopicPosted()); ?></div>
                             <?php } ?>
                         </div>
                         <div class="m-list__item">
                             <?php if ($params->get('showanswered')) { ?>
-                                <div class="m-post-meta t-fs--sm"><?php echo $user->getNumTopicAnswered(); ?> <?php echo JText::_('MOD_EASYDISCUSS_TOP_MEMBERS_REPLIES'); ?></div>
+                                <div class="m-post-meta t-fs--sm"><?php echo JText::sprintf('MOD_EASYDISCUSS_TOP_MEMBERS_REPLIES', $user->getNumTopicAnswered()); ?></div>
                             <?php } ?>
                         </div>
                     </div>

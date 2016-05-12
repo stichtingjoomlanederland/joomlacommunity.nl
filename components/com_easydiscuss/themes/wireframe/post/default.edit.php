@@ -23,6 +23,9 @@ defined('_JEXEC') or die('Unauthorized Access');
             <div class="ed-reply-form__bd">
 
                 <div class="ed-reply-form__title">
+                    <div class="o-avatar o-avatar--sm t-lg-mr--sm">
+                         <img alt="Super User" src="/media/com_easydiscuss/images/default_avatar.png">
+                     </div>
                     <?php echo JText::_('COM_EASYDISCUSS_EDIT_YOUR_RESPONSE'); ?>
                 </div>
 

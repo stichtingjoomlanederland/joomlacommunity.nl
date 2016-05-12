@@ -25,33 +25,29 @@ defined('_JEXEC') or die('Unauthorized Access');
  */
 
 // Constants
-if (!defined('DECODA')) {
-	define('DECODA', dirname(__FILE__) . '/');
+if (!defined('ED_DECODA')) {
+	define('ED_DECODA', dirname(__FILE__) . '/');
 }
 
-if (!defined('DECODA_HOOKS')) {
-	define('DECODA_HOOKS', DECODA . 'hooks/');
+if (!defined('ED_DECODA_HOOKS')) {
+	define('ED_DECODA_HOOKS', ED_DECODA . 'hooks/');
 }
 
-if (!defined('DECODA_CONFIG')) {
-	define('DECODA_CONFIG', DECODA . 'config/');
+if (!defined('ED_DECODA_FILTERS')) {
+	define('ED_DECODA_FILTERS', ED_DECODA . 'filters/');
 }
 
-if (!defined('DECODA_FILTERS')) {
-	define('DECODA_FILTERS', DECODA . 'filters/');
-}
-
-if (!defined('DECODA_EMOTICONS')) {
-	define('DECODA_EMOTICONS', DECODA . 'emoticons/');
+if (!defined('ED_DECODA_EMOTICONS')) {
+	define('ED_DECODA_EMOTICONS', ED_DECODA . 'emoticons/');
 }
 
 // Includes
-include_once DECODA . 'DecodaAbstract.php';
-include_once DECODA . 'DecodaHook.php';
-include_once DECODA . 'DecodaFilter.php';
-include_once DECODA . 'DecodaTemplateEngineInterface.php';
+include_once ED_DECODA . 'DecodaAbstract.php';
+include_once ED_DECODA . 'DecodaHook.php';
+include_once ED_DECODA . 'DecodaFilter.php';
+include_once ED_DECODA . 'DecodaTemplateEngineInterface.php';
 
-class Decoda {
+class EdDecoda {
 
 	/**
 	 * Tag type constants.
@@ -201,7 +197,7 @@ class Decoda {
 	 * @return Decoda
 	 * @chainable
 	 */
-	public function addFilter(DecodaFilter $filter) {
+	public function addFilter(EdDecodaFilter $filter) {
 		$filter->setParser($this);
 
 		$class = str_replace('Filter', '', get_class($filter));
@@ -227,7 +223,7 @@ class Decoda {
 	 * @return Decoda
 	 * @chainable
 	 */
-	public function addHook(DecodaHook $hook) {
+	public function addHook(EdDecodaHook $hook) {
 		$hook->setParser($this);
 
 		$class = str_replace('Hook', '', get_class($hook));
@@ -361,6 +357,8 @@ class Decoda {
 	 * @return DecodaFilter
 	 */
 	public function getFilter($filter) {
+		$filter = 'Ed' . $filter;
+		
 		return isset($this->_filters[$filter]) ? $this->_filters[$filter] : null;
 	}
 
@@ -431,20 +429,20 @@ class Decoda {
 	 * @return void
 	 */
 	public function loadFile($class) {
+		
 		if (class_exists($class) || interface_exists($class)) {
 			return;
 		}
 
-		if( !JFile::exists( DECODA_FILTERS . $class . '.php' ) && !JFile::exists( DECODA_HOOKS . $class . '.php' ) )
-		{
+		if (!JFile::exists(ED_DECODA_FILTERS . $class . '.php') && !JFile::exists(ED_DECODA_HOOKS . $class . '.php')) {
 			return;
 		}
 
 		if (strpos($class, 'Filter') !== false) {
-			include_once DECODA_FILTERS . $class . '.php';
+			include_once ED_DECODA_FILTERS . $class . '.php';
 
 		} else if (strpos($class, 'Hook') !== false) {
-			include_once DECODA_HOOKS . $class . '.php';
+			include_once ED_DECODA_HOOKS . $class . '.php';
 		}
 	}
 
@@ -595,7 +593,7 @@ class Decoda {
 			$this->_tags = array();
 		}
 
-		$this->addFilter(new EmptyFilter());
+		$this->addFilter(new EdEmptyFilter());
 
 		return $this;
 	}
@@ -690,7 +688,7 @@ class Decoda {
 	 * @return Decoda
 	 * @chainable
 	 */
-	public function setTemplateEngine(DecodaTemplateEngineInterface $templateEngine) {
+	public function setTemplateEngine(EdDecodaTemplateEngineInterface $templateEngine) {
 		$this->_templateEngine = $templateEngine;
 
 		return $this;

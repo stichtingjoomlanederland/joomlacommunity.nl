@@ -27,6 +27,11 @@ class EasyDiscussCron extends EasyDiscuss
 		$hooks = JFolder::files(__DIR__ . '/hooks', '.', false, true);
 
 		foreach ($hooks as $hook) {
+
+			// We do not want to process index.html
+			if (basename($hook) == 'index.html') {
+				continue;
+			}
 			
 			include_once($hook);
 

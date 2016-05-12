@@ -17,8 +17,6 @@ ed.define('abstract', ['edq'], function($) {
 		// Allows child classes to attach definitionas
 		this.attach = function(identifier, definition) {
 			this.definitions["identifier"] = definition;
-
-			console.log(this.definitions);
 		};
 	};
 
@@ -29,6 +27,8 @@ ed.define('abstract', ['edq'], function($) {
 
 		// Scoping issues
 		var self = this;
+
+		// console.log(wrapper, this, self);
 
 		// Extend the default options
 		this.options = $.extend({}, this.data.opts, overrideOptions);
@@ -47,7 +47,7 @@ ed.define('abstract', ['edq'], function($) {
 		this.construct();
 
 		// Once we are done with the temporary data, we should just remove it
-		delete this.data;
+		// delete this.data;
 
 		return this;
 	};

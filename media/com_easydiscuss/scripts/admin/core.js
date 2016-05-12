@@ -5,7 +5,7 @@ ed.require.config({
 
         // EasyDiscuss version of jquery
         'easydiscuss': 'vendors/easydiscuss',
-        'edjquery': 'vendors/jquery',
+        'edjquery': 'vendors/edjquery',
         'jquery.utils': 'vendors/jquery.utils',
         'jquery.uri': 'vendors/jquery.uri',
         'jquery.server': 'vendors/jquery.server',

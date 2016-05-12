@@ -238,7 +238,7 @@
         "group": "moderation",
         "desc": "COM_EASYDISCUSS_ACL_OPTION_BAN_USER_DESC",
         "published": 1,
-        "default" : 1,
+        "default" : 0,
         "public": 0,
         "id": 27
     },
@@ -265,7 +265,7 @@
         "group": "profile",
         "desc": "COM_EASYDISCUSS_ACL_OPTION_ALLOW_PRIVATEMESSAGE_DESC",
         "published": 1,
-        "default" : 0,
+        "default" : 1,
         "public": 0,
         "id": 30
     },

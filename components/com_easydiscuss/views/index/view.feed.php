@@ -37,8 +37,8 @@ class EasyDiscussViewIndex extends EasyDiscussView
 			// Assign to feed item
 			$title = $this->escape($row->title);
 			$title = html_entity_decode($title);
-			$category = ED::table('Category');
-			$category->load($row->category_id);
+			
+			$category = $row->getCategory();
 
 			// load individual item creator class
 			$item = new JFeedItem();

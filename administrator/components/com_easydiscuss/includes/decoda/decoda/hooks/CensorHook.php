@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Unauthorized Access');
  * @link        http://milesj.me/code/php/decoda
  */
 
-class CensorHook extends DecodaHook {
+class CensorHook extends EdDecodaHook {
 
 	/**
 	 * List of words to censor.

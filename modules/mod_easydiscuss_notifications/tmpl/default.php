@@ -15,8 +15,8 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 
 <script type="text/javascript">
+<?php if ($my->id > 0) { ?>
 ed.require(['edq', 'site/src/toolbar', 'site/src/discuss'], function($, App, discuss) {
-
     var toolbarSelector = '[data-mod-notification]';
 
     // Implement the abstract
@@ -30,8 +30,8 @@ ed.require(['edq', 'site/src/toolbar', 'site/src/discuss'], function($, App, dis
             "enabled": <?php echo $my->id && $config->get('main_conversations') && $config->get('main_conversations_notification') ? 'true' : 'false';?>
         }
     });
-
 });
+<?php } ?>
 </script>
 
 <div id="ed" class="ed-mod m-notification">
@@ -107,7 +107,7 @@ ed.require(['edq', 'site/src/toolbar', 'site/src/discuss'], function($, App, dis
 	                            <div class="o-flag o-flag--rev">
 	                                <div class="o-flag__body">
 	                                    <div class="popbox-dropdown__title"><?php echo JText::_('MOD_NOTIFICATIONS_SIGN_IN_HEADING');?></div>
-	                                    <div class="popbox-dropdown__meta"><?php echo JText::sprintf('MOD_NOTIFICATIONS_NEW_USERS', '<a href="'. ED::getRegistrationLink() .'">' . JText::_('MOD_NOTIFICATIONS_REGISTER') . '</a>');?></div>
+	                                    <div class="popbox-dropdown__meta"><?php echo JText::sprintf('MOD_NOTIFICATIONS_NEW_USERS_REGISTRATION', ED::getRegistrationLink());?></div>
 	                                </div>
 	                            </div>
 	                        </div>

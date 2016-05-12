@@ -86,13 +86,11 @@ class EasyDiscussViewGroups extends EasyDiscussView
 		}
 
 		// Get the current active category
-		$activeGroup = null;
 		$breadcrumbs = null;
 		$header = null;
 
 		// WIP : breadcrumbs
-		if ($groupId) {
-			$header = $lib->renderMiniHeader($groupId);			
+		if ($groupId) {	
 			// $breadcrumbs = $activeCategory->getBreadcrumbs();
 		}
 
@@ -100,11 +98,9 @@ class EasyDiscussViewGroups extends EasyDiscussView
 		$pagination = $model->getPagination();
 
 		$this->set('breadcrumbs', $breadcrumbs);
-		$this->set('activeGroup', $activeGroup);
 		$this->set('pagination', $pagination);
 		$this->set('threads', $threads);
 		$this->set('includeChild', true);
-		$this->Set('header', $header);
 
 		parent::display('groups/default');
 	}

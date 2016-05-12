@@ -2919,10 +2919,12 @@ class ED
 	 */
 	public static function requireLogin()
 	{
+		$app = JFactory::getApplication();
 		$user = JFactory::getUser();
 
 		if ($user->guest) {
-			return $this->app->redirect(EDR::_('view=index', false));
+			ED::setMessageQueue(JText::_( 'COM_EASYDISCUSS_SIGNIN_PLEASE_LOGIN' ), 'info');
+			return $app->redirect(EDR::_('view=index', false));
 		}
 	}
 
@@ -3212,29 +3214,15 @@ class ED
 
 	public static function getDefaultRepliesSorting()
 	{
-		$config 		= DiscussHelper::getConfig();
-		$defaultFilter  = $config->get( 'layout_replies_sorting' );
+		$config = ED::config();
+		$defaultFilter = $config->get('layout_replies_sorting');
 
-		switch( $defaultFilter )
-		{
-			case 'voted':
-				if( ! $config->get( 'main_allowvote') )
-				{
-					$defaultFilter  = 'replylatest';
-				}
-			break;
-			case 'likes':
-				if( ! $config->get( 'main_likes_replies') )
-				{
-					$defaultFilter  = 'replylatest';
-				}
-			break;
-			case 'latest':
-			break;
-			case 'oldest':
-			default:
-				$defaultFilter  = 'replylatest';
-			break;
+		if ($defaultFilter == 'voted' && !$config->get('main_allowvote')) {
+			$defaultFilter = 'oldest';
+		}
+
+		if ($defaultFilter == 'likes' && !$config->get('main_likes_replies')) {
+			$defaultFilter = 'oldest';
 		}
 
 		return $defaultFilter;
@@ -3629,6 +3617,27 @@ class ED
 		}
 
 		return $cache;
+	}
+
+	/**
+	 * cache for post related items.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public static function rest()
+	{
+		static $rest = null;
+
+		if (!$rest) {
+			require_once(__DIR__ . '/rest/rest.php');
+
+			$rest = new EasyDiscussRest();
+		}
+
+		return $rest;
 	}
 
 

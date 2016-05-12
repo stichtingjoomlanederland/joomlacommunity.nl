@@ -26,12 +26,12 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 
 		// Select top 20 tags.
 		$tagmodel = ED::model('Tags');
-		$populartags = $tagmodel->getTagCloud('20','post_count','DESC');
+		$tags = $tagmodel->getTagCloud('20','post_count','DESC');
 
 		$categoryModel = ED::model('Category');
 		$defaultCategory = $categoryModel->getDefaultCategory();
 
-		$nestedCategories = ED::populateCategories('', '', 'select', 'category_id', $defaultCategory->id, true, true);
+		$nestedCategories = ED::populateCategories('', '', 'select', 'category_id', $defaultCategory->id, true, true, true, true, 'form-control');
 
 		// Get the composer library
 		$operation = $post->isNew() ? 'creating' : 'editing';
@@ -42,7 +42,7 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 
 		$this->set('post', $post);
 		$this->set('creatorName', $creatorName);
-		$this->set('populartags', $populartags);
+		$this->set('tags', $tags);
 		$this->set('nestedCategories', $nestedCategories);
 		$this->set('operation', $operation);
 		$this->set('composer', $composer);
@@ -76,7 +76,7 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 		$populartags = $tagmodel->getTagCloud('20','post_count','DESC');
 
 		$repliesCnt = $postModel->getPostRepliesCount($post->id);
-		$nestedCategories = ED::populateCategories('', '', 'select', 'category_id', $post->category_id, true, true);
+		$nestedCategories = ED::populateCategories('', '', 'select', 'category_id', $post->category_id, true, true, true, true, 'form-control');
 
 		// Get's the creator's name
 		$creatorName = $post->poster_name;
@@ -85,6 +85,10 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 			$author = ED::user($post->user_id);
 			$creatorName = $author->getName();
 		}
+
+		// Get a list of tags on the site
+		$tagsModel = ED::model('Tags');
+		$tags = $tagsModel->getTags();		
 
 		// Render new composer
 		// Get the composer library
@@ -100,6 +104,7 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 		$this->set('nestedCategories', $nestedCategories);
 		$this->set('operation', $operation);
 		$this->set('composer', $composer);
+		$this->set('tags', $tags);
 
 		//load require javascript string
 		//ED::loadString(JRequest::getVar('view'));

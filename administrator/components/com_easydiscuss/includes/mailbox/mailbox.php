@@ -21,7 +21,7 @@ class EasyDiscussMailbox extends EasyDiscuss
 	private $initiated		= false;
 	private $mailbox_params	= '';
 	private $flags			= '';
-	private $config			= array();
+	// private $config			= array();
 	private $username		= '';
 	private $password		= '';
 
@@ -44,7 +44,8 @@ class EasyDiscussMailbox extends EasyDiscuss
 	 */
 	public function __construct()
 	{
-		$this->config 			= DiscussHelper::getConfig();
+        parent::__construct();
+
 
 		$this->enabled			= $this->config->get( 'main_email_parser' );
 		$this->server			= $this->config->get( 'main_email_parser_server' );
@@ -76,8 +77,6 @@ class EasyDiscussMailbox extends EasyDiscuss
 	 */
 	public function connect( $username = '', $password = '' )
 	{
-		$config = DiscussHelper::getConfig();
-
 		if (!$this->initiated)
 		{
 			$this->init();
@@ -90,12 +89,14 @@ class EasyDiscussMailbox extends EasyDiscuss
 		}
 
 
+
+
 		/*
 		 * Connect to mailbox
 		 */
 		// if( !empty($username) && !empty($password) )
 		// {
-			echo JText::sprintf( 'COM_EASYDISCUSS_CONNECTING_TO', $username );
+			// echo JText::sprintf( 'COM_EASYDISCUSS_CONNECTING_TO', $username );
 			$this->stream	= imap_open( $this->mailbox_params, $username, $password );
 		// }
 		// else
@@ -113,15 +114,14 @@ class EasyDiscussMailbox extends EasyDiscuss
 		return true;
 	}
 
-	public static function testConnect($server, $port, $service, $ssl, $mailbox, $user, $pass )
+	public function testConnect($server, $port, $service, $ssl, $mailbox, $user, $pass )
 	{
 		$flags	= '';
 		$flags	= $service ? $flags.'/'.$service : $flags;
 		$flags	= $ssl ? $flags.'/ssl' : $flags;
 		$flags	= true ? $flags.'/novalidate-cert' : $flags;
 
-		if( !function_exists('imap_open') || !function_exists('imap_fetchheader') || !function_exists('imap_body') )
-		{
+		if (!function_exists('imap_open') || !function_exists('imap_fetchheader') || !function_exists('imap_body')) {
 			$result	= '<span style="color:red;">Failed, imap is not compiled with PHP</span>';
 			return $result;
 		}
@@ -130,21 +130,16 @@ class EasyDiscussMailbox extends EasyDiscuss
 		$stream	= @imap_open('{'.$server.':'.$port.$flags.'}', $user, $pass);
 		$result	= imap_errors();
 
-		if ($stream === false)
-		{
-			if (is_array($result))
-			{
+		if ($stream === false) {
+			if (is_array($result)) {
 				$result	= $result[0];
 			}
-			if ($result === false)
-			{
+
+			if ($result === false) {
 				$result = 'Failed';
 			}
-		}
-		else
-		{
+		} else {
 			$result	= '<span style="color:green">Success</span>';
-
 			imap_close($stream);
 		}
 
@@ -198,7 +193,7 @@ class EasyDiscussMailbox extends EasyDiscuss
 
 	public function getMessageInfo($sequence)
 	{
-		$headers	= imap_headerinfo($this->stream, $sequence);
+		$headers	= @imap_headerinfo($this->stream, $sequence);
 
 		if (empty($headers))
 		{
@@ -240,21 +235,22 @@ class EasyDiscussMailbox extends EasyDiscuss
 
 		if (!$from)
 		{
-			$from	= $header->from[0]->mailbox . '@' . $header->from[0]->host;
+			$from	= $headers->from[0]->mailbox . '@' . $headers->from[0]->host;
 		}
 		if (!$from)
 		{
-			$from	= $header->sender[0]->mailbox . '@' . $header->sender[0]->host;
+			$from	= $headers->sender[0]->mailbox . '@' . $headers->sender[0]->host;
 		}
 		if (!$from)
 		{
-			$from	= $header->reply_to[0]->mailbox . '@' . $header->reply_to[0]->host;
+			$from	= $headers->reply_to[0]->mailbox . '@' . $headers->reply_to[0]->host;
 		}
 
 		$headers->fromemail	= $from;
 
 		return $headers;
 	}
+
 
 	/**
 	 * Get the number of messages in the current mailbox
@@ -331,7 +327,7 @@ class EasyDiscussMailbox extends EasyDiscuss
 		{
 			$mailbox->setMessageFlag($sequence, '\Seen');
 		}
-	}	
+	}
 
 	// Clears flags on messages
 	public function clearMessageFlag( $sequence, $flag, $options=0 )
@@ -394,219 +390,5 @@ class EasyDiscussMailbox extends EasyDiscuss
 	public function unsubscribe($mailbox)
 	{
 		return imap_unsubscribe($this->stream, $mailbox);
-	}
-}
-
-/**
- * PHP IMAP Class for Mailbox Messages
- */
-class DiscussMailerMessage extends JObject
-{
-	protected $stream		= null;
-	protected $sequence		= 0;
-	protected $structure	= null;
-	protected $body			= null;
-	protected $plain_data	= '';
-	protected $html_data	= '';
-	protected $parameters	= array();
-	protected $attachment	= array();
-
-	public function __construct($stream, $sequence)
-	{
-		$this->stream	= $stream;
-		$this->sequence	= $sequence;
-
-		if (!$this->fetchStructure())
-		{
-			return false;
-		}
-
-		// If there are no parts, and the sub type is text, we want to just get the contents
-		if (!isset($this->structure->parts)) {
-			$this->getParts($this->structure, 0);
-
-			return;
-		}
-
-		// count and see if it's multipart message
-		$count	= count($this->structure->parts);
-
-		if ($count > 0)
-		{
-			for ($i=0; $i<$count; $i++)
-			{
-				$section = $i + 1;
-				$this->getParts($this->structure->parts[$i], $section);
-			}
-		}
-		else
-		{
-			$this->getParts($this->structure);
-		}
-
-		return parent::__construct();
-	}
-
-	private function fetchStructure()
-	{
-		$this->structure	= @imap_fetchstructure($this->stream, $this->sequence);
-
-		return $this->structure;
-	}
-
-	private function fetchBody($section)
-	{
-		if ($section)
-		{
-			$data	= @imap_fetchbody($this->stream, $this->sequence, $section);
-		}
-		else
-		{
-			$data	= @imap_body($this->stream, $this->sequence);
-		}
-
-		return $data;
-	}
-
-	private function getParts($part, $section=0)
-	{
-		$partData	= $this->fetchBody($section);
-
-		$this->extractPart($part, $partData);
-
-
-		// Sub parts
-		if (!empty($part->parts))
-		{
-			foreach($part->parts as $index => $subpart)
-			{
-				$this->getParts($subpart, $section.'.'.($index+1));
-			}
-		}
-
-		return; // nothing
-	}
-
-	private function extractPart($part, $data)
-	{
-		switch ($part->encoding)
-		{
-			case '0': // 7bit
-			case '1': // 8 bit
-			case '2': // binary
-				break;
-			case '3': // base 64
-				//$this->body	= base64_decode($this->body);
-				$data	= base64_decode($data);
-				break;
-			case '4': // quoted-printable
-				//$this->body	= quoted_printable_decode($this->body);
-				$data	= quoted_printable_decode($data);
-				break;
-			case '5': // other
-			default:
-				break;
-		}
-
-		$params		= self::getformatedParams($part);
-
-		$encoding	= 'UTF-8';
-		if (isset($params['charset']))
-		{
-			$encoding	= $params['charset'];
-		}
-
-		$type		= $part->type;
-		$subtype	= strtolower($part->subtype);
-		$id			= isset($part->id) ? $part->id : '';
-
-
-		/*
-		 * Text
-		 */
-		if ($type == 0 && $subtype == 'plain')
-		{
-			$this->plain_data	.= self::stringToUTF8($encoding, trim($data));
-		}
-		elseif ($type == 0 && $subtype == 'html')
-		{
-			$this->html_data	.= self::stringToUTF8($encoding, trim($data));
-		}
-		elseif ($type == 2)
-		{
-			$this->plain_data	.= self::stringToUTF8($encoding, trim($data));
-		}
-		/*
-		 * Images
-		 */
-		elseif ($type == 5)
-		{
-			$image			= array();
-			$image['mime']	= $subtype; // GIF
-			$image['data']	= $data; // binary
-			$image['name']	= isset($params['name']) ? $params['name'] : $params['filename']; // 35D.gif
-			$image['id']	= $id; // <35D@goomoji.gmail>
-			$image['size']	= $part->bytes;
-
-			$this->attachment[]	= $image;
-		}
-
-		return;
-	}
-
-	private static function getformatedParams($part)
-	{
-		$parameters	= array();
-
-		if (!$part->parameters)
-		{
-			return $parameters;
-		}
-
-		if ($part->ifparameters)
-		{
-			foreach($part->parameters as $param)
-			{
-				$parameters[strtolower($param->attribute)] = $param->value;
-			}
-		}
-		if ($part->ifdparameters)
-		{
-			foreach($part->dparameters as $param)
-			{
-				$parameters[strtolower($param->attribute)] = $param->value;
-			}
-		}
-
-		return $parameters;
-	}
-
-	private static function stringToUTF8($in_charset, $string)
-	{
-		if (function_exists('iconv'))
-		{
-			return iconv($in_charset, 'UTF-8', $string);
-		}
-
-		return $string;
-	}
-
-	public function getHTML()
-	{
-		if ($this->html_data) {
-			return $this->html_data;
-		}
-
-		return $this->getPlain();
-	}
-
-	public function getPlain()
-	{
-		return $this->plain_data;
-	}
-
-	public function getAttachment()
-	{
-		return $this->attachment;
 	}
 }

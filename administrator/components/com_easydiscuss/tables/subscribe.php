@@ -45,7 +45,7 @@ class DiscussSubscribe extends EasyDiscussTable
 			$profile = ED::user($this->userid);
 
 			if (empty($this->email)) {
-				$this->email = $profile->user->email();
+				$this->email = $profile->user->email;
 			}
 
 			if (empty($this->fullname)) {

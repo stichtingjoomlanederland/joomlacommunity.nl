@@ -15,10 +15,10 @@ defined('_JEXEC') or die('Restricted access');
 
 <div class="ed-dashboard">
     <div class="ed-dashboard__hd">
-        <div class="o-col">
+        <div class="o-col-sm">
             <i class="fa fa-calendar-o"></i> <?php echo JText::_('COM_EASYDISCUSS_HOLIDAY'); ?>    
         </div>
-        <div class="o-col">
+        <div class="o-col-sm">
             <a href="<?php echo EDR::_('view=dashboard&layout=form'); ?>" class="btn btn-primary pull-right"><?php echo JText::_('COM_EASYDISCUSS_NEW_HOLIDAY'); ?></a>
         </div>    
     </div>

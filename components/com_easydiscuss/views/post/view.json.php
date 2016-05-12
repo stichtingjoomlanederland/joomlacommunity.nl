@@ -16,6 +16,47 @@ require_once(DISCUSS_ROOT . '/views/views.php');
 class EasyDiscussViewPost extends EasyDiscussView
 {
     /**
+     * Renders a post view via REST api
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return  
+     */
+    public function display($tpl = null)
+    {
+        // Get the user object
+        $rest = ED::rest();
+        $user = $rest->getUser();
+
+        // Get the post 
+        $id = $this->input->get('id', 0, 'int');
+        $post = ED::post($id);
+
+        // Ensure that the viewer can view the post
+        if (!$post->canView($this->my->id)) {
+            return $rest->error('COM_EASYDISCUSS_SYSTEM_POST_NOT_FOUND');
+        }
+
+        // Determine if user are allowed to view the discussion item that belong to another cluster.
+        if ($post->isCluster()) {
+            $easysocial = ED::easysocial();
+
+            $cluster = $easysocial->getCluster($post->cluster_id, $post->getClusterType());
+
+            if (!$cluster->canViewItem()) {
+                return $rest->error('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS');
+            }
+        }
+
+        $obj = $post->toData();
+
+        $this->set('post', $obj);
+
+        return parent::display();
+    }
+
+    /**
      * Allows API to submit a new discussion
      *
      * @since   4.0
@@ -34,7 +75,7 @@ class EasyDiscussViewPost extends EasyDiscussView
         $data = JRequest::get('post');
 
         // For contents, we need to get the raw data.
-        $data['content'] = $this->input->get('dc_content', '', 'raw');
+        $data['content'] = $this->input->get('content', '', 'raw');
         $data['user_id'] = $user->id;
 
         $post = ED::post();
@@ -68,29 +109,42 @@ class EasyDiscussViewPost extends EasyDiscussView
      */
     public function reply()
     {
+        // Get user object
         $rest = ED::rest();
-
         $user = $rest->getUser();
 
-        // Required fields
-        $content = $this->input->get('content', '', 'default');
-        $postId = $this->input->get('post_id', '', 'int');
+        // Process when a new reply is made from bbcode / wysiwyg editor
+        $data = JRequest::get('POST');
 
-        if (!$content) {
-            return $rest->error("Invalid content provided");
+        // For contents, we need to get the raw data.
+        $data['content'] = $this->input->get('content', '', 'raw');
+
+        $reply = ED::post();
+        $reply->bind($data);
+
+        // Get the parent object
+        $post = $reply->getParent();
+        
+        // Validate the data that is being submitted
+        $valid = $reply->validate($data, 'replying');
+
+        // if one of the validate is not pass through
+        if ($valid === false) {
+            return $rest->error($reply->getError());
         }
 
-        if (!$postId) {
-            return $rest->error("Invalid post id provided. You cannot reply to an unknown post.");
+        // Try to save the reply object now.
+        $state = $reply->save();
+
+        if ($state === false) {
+            return $rest->error($reply->getError());
         }
 
-        $reply = ED::table('Post');
-        $reply->parent_id = $postId;
-        $reply->content = $content;
-        $reply->user_id = $user->id;
-        $reply->published = true;
-        $reply->store();
 
-        $rest->success('Reply submitted successfully', $reply->toRest());
+        $data = array('post' => $post->toData(), 'reply' => $reply->toData());
+
+        $rest->success('COM_EASYDISCUSS_SUCCESS_REPLY_POSTED', $data);
+
+        return parent::display();
     }
 }

@@ -76,6 +76,7 @@ class EasyDiscussControllerReports extends EasyDiscussController
 			$date = ED::date($post->created);
 
 			$emailData = array();
+			$emailData['postTitle'] = $post->title;
 			$emailData['postContent'] = $post->content;
 			$emailData['postAuthor'] = $owner->name;
 			$emailData['postAuthorAvatar'] = $owner->avatar;

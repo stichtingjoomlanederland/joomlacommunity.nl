@@ -23,7 +23,7 @@ defined('_JEXEC') or die('Unauthorized Access');
  * @link        http://milesj.me/code/php/decoda
  */
 
-class DecodaPhpEngine implements DecodaTemplateEngineInterface {
+class EdDecodaPhpEngine implements EdDecodaTemplateEngineInterface {
 
 	/**
 	 * Current path.
@@ -59,7 +59,7 @@ class DecodaPhpEngine implements DecodaTemplateEngineInterface {
 	 */
 	public function getPath() {
 		if (empty($this->_path)) {
-			$this->setPath(DECODA . '/templates/');
+			$this->setPath(ED_DECODA . '/templates/');
 		}
 
 		return $this->_path;
@@ -107,7 +107,7 @@ class DecodaPhpEngine implements DecodaTemplateEngineInterface {
 	 * @param DecodaFilter $filter
 	 * @return DecodaTemplateEngineInterface
 	 */
-	public function setFilter(DecodaFilter $filter) {
+	public function setFilter(EdDecodaFilter $filter) {
 		$this->_filter = $filter;
 
 		return $this;

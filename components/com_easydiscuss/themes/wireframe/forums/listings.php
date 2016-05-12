@@ -12,17 +12,14 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="ed-forums">
-    <?php if ($activeCategory) { ?>
-        <?php echo $this->output('site/forums/active', array('activeCategory' => $activeCategory, 'listing' => $listing)); ?>
-    <?php } ?>
-
+    <?php echo $this->output('site/forums/active', array('activeCategory' => $activeCategory, 'listing' => $listing, 'childs' => $childs)); ?>
     <div class="ed-list">
         <?php if (!empty($threads)) { ?>
             <?php foreach ($threads as $thread) { ?>
                 <div class="ed-forum">
                     <div class="ed-forum__hd">
                         <div class="o-row">
-                            <div class="o-col o-col--8">
+                            <div class="o-col-sm o-col--8">
                                 <div class="ed-forum__hd-title">
                                     <h2 class="ed-forum-item__title">
                                         <?php echo strtoupper(JText::_("COM_EASYDISCUSS_FORUMS_TOPICS")); ?>
@@ -30,12 +27,12 @@ defined('_JEXEC') or die('Unauthorized Access');
                                 </div>
                             </div>
 
-                            <div class="o-col"></div>
+                            <div class="o-col-sm"></div>
 
-                            <div class="o-col ed-forum-item__col-avatar center">
+                            <div class="o-col-sm ed-forum-item__col-avatar center">
                                 <div class=""><?php echo JText::_('COM_EASYDISCUSS_FORUMS_POSTED_BY'); ?></div>
                             </div>
-                            <div class="o-col ed-forum-item__col-avatar center">
+                            <div class="o-col-sm ed-forum-item__col-avatar center">
                                 <div class=""><?php echo JText::_('COM_EASYDISCUSS_FORUMS_LAST_REPLY'); ?></div>
                             </div>
                         </div>

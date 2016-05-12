@@ -52,12 +52,8 @@ class EasyDiscussViewComment extends EasyDiscussView
 			return $this->ajax->reject( JText::_('COM_EASYDISCUSS_COMMENTS_INVALID_POST_ID'));
 		}
 
-		$category = ED::Category($post->category_id);
-
-		$access = $post->getAccess();
-		
 		// Test if the user is allowed to add comment or not.
-		if (!$access->canComment()) {
+		if (!$post->canComment()) {
 			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_COMMENTS_NOT_ALLOWED'));
 		}
 

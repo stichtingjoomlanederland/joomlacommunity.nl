@@ -23,7 +23,9 @@ defined('_JEXEC') or die('Unauthorized Access');
         data-ed-popbox-component="popbox--navbar"
         data-ed-popbox-target="[data-ed-support-dropdown]"
     >
-        <?php echo $label; ?>
+        <span class="t-inline-block">
+            <?php echo $label; ?>
+        </span>
     </a>
 
     <div class="t-hidden" data-ed-support-dropdown>

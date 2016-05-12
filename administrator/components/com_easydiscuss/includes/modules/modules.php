@@ -94,17 +94,14 @@ class EasyDiscussModules extends EasyDiscuss
 		if ($itemid = $params->get($type)) {
 			$menu = JFactory::getApplication()->getMenu();
 			$item = $menu->getItem($itemid);
-			
+
 			if ($item) {
-				$url = JRoute::_($item->link.'&Itemid='.$itemid, false);
+				$url = $item->link . '&Itemid=' . $itemid;
 			} else {
-				// stay on the same page
-				$uri = JFactory::getURI();
-				$url = $uri->toString(array('path', 'query', 'fragment'));
+                $url = JUri::getInstance()->toString();
 			}
 		} else {
-			// Proceeed to the front page of EasyDiscuss.
-			$url = EDR::_('index.php?option=com_easydiscuss', false);
+			$url = 'index.php?option=com_easydiscuss';
 		}
 
 		return base64_encode($url);

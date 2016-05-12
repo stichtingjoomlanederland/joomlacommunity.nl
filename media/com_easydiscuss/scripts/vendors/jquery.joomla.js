@@ -1,6 +1,6 @@
-// ed.define('jquery.joomla', function() {
+ed.define('edjquery', function() {
 
-// 	var $ = window.jQuery;
+	var $ = window.jQuery;
 
-// 	return $;
-// });
+	return $;
+});

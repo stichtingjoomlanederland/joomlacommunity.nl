@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Unauthorized Access');
  * @link        http://milesj.me/code/php/decoda
  */
 
-abstract class DecodaHook extends DecodaAbstract {
+abstract class EdDecodaHook extends EdDecodaAbstract {
 
 	/**
 	 * Process the content after the parsing has finished.
@@ -53,7 +53,7 @@ abstract class DecodaHook extends DecodaAbstract {
 	 * @param Decoda $decoda
 	 * @return void
 	 */
-	public function setupFilters(Decoda $decoda) {
+	public function setupFilters(EdDecoda $decoda) {
 		return;
 	}
 

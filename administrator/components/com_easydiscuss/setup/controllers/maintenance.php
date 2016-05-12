@@ -17,7 +17,7 @@ class EasyDiscussControllerMaintenance extends EasyDiscussSetupController
 {
 	public function maintenance()
 	{
-		// Hardcoded to sync 100 users at a time.
+		// Hardcoded to sync 10018702 users at a time.
 		dump('sync users');
 	}
 }
