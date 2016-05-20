@@ -39,6 +39,16 @@ RSFirewall.addArrow = function(item) {
 	RSFirewall.$(item).addClass('com-rsfirewall-current-item');
 };
 
+RSFirewall.$(document).ready(function () {
+    RSFirewall.$('#jform_blocked_countries input, #jform_blocked_continents input, #jform_blocked_countries_checkall input').on('click', function (element) {
+        if ((element.target.value == 'US' || element.target.value == 'checkall' || element.target.value == 'NA') && element.target.checked) {
+            RSFirewall.$('#us-country-blocked').removeClass('com-rsfirewall-hidden')
+        } else if ((element.target.value == 'US' || element.target.value == 'checkall' || element.target.value == 'NA') && !element.target.checked) {
+            RSFirewall.$('#us-country-blocked').addClass('com-rsfirewall-hidden');
+        }
+    });
+});
+
 /* Database */
 RSFirewall.Database = {};
 RSFirewall.Database.Check = {
@@ -1115,5 +1125,5 @@ RSFirewall.ignore = {
 				}
 			}
 		})
-	},
+	}
 };

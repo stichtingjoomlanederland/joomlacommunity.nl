@@ -25,10 +25,6 @@ class RSFirewallViewUpdates extends JViewLegacy
 		
 		$this->addToolBar();
 		
-		$this->hash 	= $this->get('hash');
-		$this->jversion = $this->get('joomlaVersion');
-		$this->version	= (string) new RSFirewallVersion;
-		
 		$this->sidebar	= $this->get('SideBar');
 		
 		parent::display($tpl);

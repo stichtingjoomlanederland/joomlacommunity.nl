@@ -7,6 +7,8 @@
  */
 
 defined('_JEXEC') or die('Restricted access');
+$blocked_countries = $this->config->get('blocked_countries');
+$class = in_array('US', $blocked_countries) ? '' : 'com-rsfirewall-hidden';
 
 // set description if required
 if (isset($this->fieldset->description) && !empty($this->fieldset->description)) { ?>
@@ -26,13 +28,16 @@ if (isset($this->fieldset->description) && !empty($this->fieldset->description))
 		<?php } ?>
 	<?php } ?>
 <?php } ?>
+	<div class="alert alert-danger <?php echo $class ?>" id="us-country-blocked">
+        <?php echo JText::_('COM_RSFIREWALL_YOU_BANNED_US'); ?>
+	</div>
 <?php
 $this->field->startFieldset();
 foreach ($this->fields as $field) {
 	if ($field->fieldname == 'geoip_upload' && $this->geoip->native) {
 		continue;
 	}
-	
+
 	$this->field->showField($field->hidden ? '' : $field->label, $field->input);
 }
 $this->field->endFieldset();

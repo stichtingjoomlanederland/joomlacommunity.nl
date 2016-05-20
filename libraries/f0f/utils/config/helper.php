@@ -39,6 +39,7 @@ class F0FUtilsConfigHelper
 		$sql = $db->getQuery(true)
 				  ->select($db->qn('params'))
 				  ->from($db->qn('#__extensions'))
+				  ->where($db->qn('type') . ' = ' . $db->q('component'))
 				  ->where($db->qn('element') . " = " . $db->q($component));
 		$db->setQuery($sql);
 		$config_ini = $db->loadResult();

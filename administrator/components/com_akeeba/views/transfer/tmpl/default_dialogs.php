@@ -19,15 +19,15 @@ defined('_JEXEC') or die();
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="ftpdialogLabel">
-					<?php echo JText::_('CONFIG_UI_FTPBROWSER_TITLE') ?>
+					<?php echo JText::_('COM_AKEEBA_CONFIG_UI_FTPBROWSER_TITLE') ?>
 				</h4>
 			</div>
 			<div class="modal-body">
 				<p class="instructions alert alert-info hidden-xs">
-					<?php echo JText::_('FTPBROWSER_LBL_INSTRUCTIONS'); ?>
+					<?php echo JText::_('COM_AKEEBA_FTPBROWSER_LBL_INSTRUCTIONS'); ?>
 				</p>
 				<div class="error alert alert-danger" id="ftpBrowserErrorContainer">
-					<h2><?php echo JText::_('FTPBROWSER_LBL_ERROR'); ?></h2>
+					<h2><?php echo JText::_('COM_AKEEBA_FTPBROWSER_LBL_ERROR'); ?></h2>
 
 					<p id="ftpBrowserError"></p>
 				</div>
@@ -42,7 +42,7 @@ defined('_JEXEC') or die();
 					<?php echo JText::_('JTOOLBAR_CANCEL') ?>
 				</button>
 				<button type="button" id="ftpdialogOkButton" class="btn btn-primary">
-					<?php echo JText::_('BROWSER_LBL_USE') ?>
+					<?php echo JText::_('COM_AKEEBA_BROWSER_LBL_USE') ?>
 				</button>
 			</div>
 		</div>
@@ -55,15 +55,15 @@ defined('_JEXEC') or die();
 			<div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 				<h4 class="modal-title" id="sftpdialogLabel">
-					<?php echo JText::_('CONFIG_UI_SFTPBROWSER_TITLE') ?>
+					<?php echo JText::_('COM_AKEEBA_CONFIG_UI_SFTPBROWSER_TITLE') ?>
 				</h4>
 			</div>
 			<div class="modal-body">
 				<p class="instructions alert alert-info">
-					<?php echo JText::_('SFTPBROWSER_LBL_INSTRUCTIONS'); ?>
+					<?php echo JText::_('COM_AKEEBA_SFTPBROWSER_LBL_INSTRUCTIONS'); ?>
 				</p>
 				<div class="error alert alert-danger" id="sftpBrowserErrorContainer">
-					<h2><?php echo JText::_('SFTPBROWSER_LBL_ERROR'); ?></h2>
+					<h2><?php echo JText::_('COM_AKEEBA_SFTPBROWSER_LBL_ERROR'); ?></h2>
 
 					<p id="sftpBrowserError"></p>
 				</div>
@@ -78,7 +78,7 @@ defined('_JEXEC') or die();
 					<?php echo JText::_('JTOOLBAR_CANCEL') ?>
 				</button>
 				<button type="button" id="sftpdialogOkButton" class="btn btn-primary">
-					<?php echo JText::_('BROWSER_LBL_USE') ?>
+					<?php echo JText::_('COM_AKEEBA_BROWSER_LBL_USE') ?>
 				</button>
 			</div>
 		</div>

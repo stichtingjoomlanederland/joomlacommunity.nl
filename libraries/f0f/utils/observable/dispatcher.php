@@ -209,6 +209,9 @@ class F0FUtilsObservableDispatcher extends F0FUtilsObject
 
             $this->_observers[] = $observer;
 
+            // Required in PHP 7 since foreach() doesn't advance the internal array counter, see http://php.net/manual/en/migration70.incompatible.php
+            end($this->_observers);
+
             $methods = array();
 
             foreach(get_class_methods($observer) as $obs_method)

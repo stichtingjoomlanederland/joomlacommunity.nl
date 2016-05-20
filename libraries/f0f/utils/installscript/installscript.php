@@ -660,6 +660,7 @@ abstract class F0FUtilsInstallscript
 		$query = $db->getQuery(true);
 		$query->select('extension_id')
 			->from('#__extensions')
+			->where($db->qn('type') . ' = ' . $db->q('component'))
 			->where($db->qn('element') . ' = ' . $db->q($this->componentName));
 		$db->setQuery($query);
 		$ids = $db->loadColumn();
@@ -726,6 +727,7 @@ abstract class F0FUtilsInstallscript
 		$query = $db->getQuery(true);
 		$query->select('extension_id')
 			->from('#__extensions')
+			->where($db->qn('type') . ' = ' . $db->q('component'))
 			->where($db->qn('element') . ' = ' . $db->q($this->componentName));
 		$db->setQuery($query);
 
@@ -1627,6 +1629,7 @@ abstract class F0FUtilsInstallscript
 			->join('LEFT', '#__extensions AS e ON m.component_id = e.extension_id')
 			->where('m.parent_id = 1')
 			->where('m.client_id = 1')
+			->where($db->qn('e') . '.' . $db->qn('type') . ' = ' . $db->q('component'))
 			->where('e.element = ' . $db->quote($option));
 
 		$db->setQuery($query);
@@ -1644,6 +1647,7 @@ abstract class F0FUtilsInstallscript
 		$query->clear()
 			->select('e.extension_id')
 			->from('#__extensions AS e')
+			->where('e.type = ' . $db->quote('component'))
 			->where('e.element = ' . $db->quote($option));
 		$db->setQuery($query);
 		$component_id = $db->loadResult();
@@ -1943,6 +1947,7 @@ abstract class F0FUtilsInstallscript
 			->set($db->qn('published') . ' = ' . $db->q(1))
 			->where('m.parent_id = 1')
 			->where('m.client_id = 1')
+			->where('e.type = ' . $db->quote('component'))
 			->where('e.element = ' . $db->quote($option));
 
 		$db->setQuery($query);
@@ -2310,6 +2315,7 @@ abstract class F0FUtilsInstallscript
 		$query = $db->getQuery(true);
 		$query->select('extension_id')
 			->from('#__extensions')
+			->where($db->qn('type') . ' = ' . $db->q('component'))
 			->where($db->qn('element') . ' = ' . $db->q($this->componentName));
 		$db->setQuery($query);
 
@@ -2355,6 +2361,7 @@ abstract class F0FUtilsInstallscript
 		$query = $db->getQuery(true);
 		$query->select('extension_id')
 			->from('#__extensions')
+			->where($db->qn('type') . ' = ' . $db->q('component'))
 			->where($db->qn('element') . ' = ' . $db->q($this->componentName));
 		$db->setQuery($query);
 

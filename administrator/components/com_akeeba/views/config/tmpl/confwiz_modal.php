@@ -32,7 +32,7 @@ $extraClass = version_compare(JVERSION, '3.0.0', 'ge') ? '' : 'akeeba-bootstrap'
 			<a href="index.php?option=com_akeeba&view=confwiz"
 			   class="btn btn-large btn-success">
 				<span class="icon icon-lightning"></span>
-				<?php echo JText::_('AKEEBA_CONFWIZ'); ?>
+				<?php echo JText::_('COM_AKEEBA_CONFWIZ'); ?>
 			</a>
 		</p>
 		<p>

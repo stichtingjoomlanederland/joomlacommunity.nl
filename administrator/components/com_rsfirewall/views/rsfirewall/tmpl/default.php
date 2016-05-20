@@ -7,6 +7,7 @@
  */
 
 defined('_JEXEC') or die('Restricted access');
+
 ?>
 <form action="<?php echo JRoute::_('index.php?option=com_rsfirewall');?>" method="post" name="adminForm" id="adminForm">
 	<div id="j-sidebar-container" class="span2">

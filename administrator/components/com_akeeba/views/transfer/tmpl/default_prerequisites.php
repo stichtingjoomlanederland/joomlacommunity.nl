@@ -38,7 +38,7 @@ defined('_JEXEC') or die();
 				<?php if (empty($this->latestBackup)): ?>
 					<a href="index.php?option=com_akeeba&view=backup" class="btn btn-success"
 					   id="akeeba-transfer-btn-backup">
-						<?php echo JText::_('BACKUP_LABEL_START'); ?>
+						<?php echo JText::_('COM_AKEEBA_BACKUP_LABEL_START'); ?>
 					</a>
 				<?php endif; ?>
 			</td>

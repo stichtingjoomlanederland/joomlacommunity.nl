@@ -33,42 +33,42 @@ else
 
 <form name="adminForm" id="adminForm" method="post" action="index.php" class="form-horizontal form-horizontal-wide">
 
-<div id="dialog" title="<?php echo JText::_('CONFIG_UI_BROWSER_TITLE') ?>">
+<div id="dialog" title="<?php echo JText::_('COM_AKEEBA_CONFIG_UI_BROWSER_TITLE') ?>">
 </div>
 
 <div >
 	<?php if($this->securesettings == 1): ?>
 	<div class="alert alert-success">
-		<?php echo JText::_('CONFIG_UI_SETTINGS_SECURED'); ?>
+		<?php echo JText::_('COM_AKEEBA_CONFIG_UI_SETTINGS_SECURED'); ?>
 	</div>
 	<div class="ak_clr"></div>
 	<?php elseif($this->securesettings == 0): ?>
 	<div class="alert alert-error">
-		<?php echo JText::_('CONFIG_UI_SETTINGS_NOTSECURED'); ?>
+		<?php echo JText::_('COM_AKEEBA_CONFIG_UI_SETTINGS_NOTSECURED'); ?>
 	</div>
 	<div class="ak_clr"></div>
 	<?php endif; ?>
 
 	<div class="alert alert-info">
-		<strong><?php echo JText::_('CPANEL_PROFILE_TITLE'); ?></strong>:
+		<strong><?php echo JText::_('COM_AKEEBA_CPANEL_PROFILE_TITLE'); ?></strong>:
 		#<?php echo $this->profileid; ?> <?php echo $this->profilename; ?>
 	</div>
 
 	<div class="alert">
-		<?php echo JText::_('CONFIG_WHERE_ARE_THE_FILTERS'); ?>
+		<?php echo JText::_('COM_AKEEBA_CONFIG_WHERE_ARE_THE_FILTERS'); ?>
 	</div>
 </div>
 
 <div class="well">
 	<h4>
-		<?php echo JText::_('PROFILE_LABEL_DESCRIPTION') ?>
+		<?php echo JText::_('COM_AKEEBA_PROFILES_LABEL_DESCRIPTION') ?>
 	</h4>
 
 	<div class="control-group">
 		<label class="control-label" for="profilename" rel="popover"
-			data-original-title="<?php echo JText::_('PROFILE_LABEL_DESCRIPTION') ?>"
-			data-content="<?php echo JText::_('PROFILE_LABEL_DESCRIPTION_TOOLTIP') ?>">
-			<?php echo JText::_('PROFILE_LABEL_DESCRIPTION') ?>
+			data-original-title="<?php echo JText::_('COM_AKEEBA_PROFILES_LABEL_DESCRIPTION') ?>"
+			data-content="<?php echo JText::_('COM_AKEEBA_PROFILES_LABEL_DESCRIPTION_TOOLTIP') ?>">
+			<?php echo JText::_('COM_AKEEBA_PROFILES_LABEL_DESCRIPTION') ?>
 		</label>
 		<div class="controls">
 			<input type="text" name="profilename" id="profilename" value="<?php echo $this->escape($this->profilename); ?>" />
@@ -100,15 +100,15 @@ else
 <script type="text/javascript" language="javascript">
 	akeeba.jQuery(document).ready(function($){
 		// Push some translations
-        akeeba.Configuration.translations['UI-BROWSE'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('CONFIG_UI_BROWSE')) ?>';
-        akeeba.Configuration.translations['UI-CONFIG'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('CONFIG_UI_CONFIG')) ?>';
-        akeeba.Configuration.translations['UI-REFRESH'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('CONFIG_UI_REFRESH')) ?>';
-        akeeba.Configuration.translations['UI-FTPBROWSER-TITLE'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('CONFIG_UI_FTPBROWSER_TITLE')) ?>';
-        akeeba.Configuration.translations['UI-ROOT'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('FILTERS_LABEL_UIROOT')) ?>';
-        akeeba.Configuration.translations['UI-TESTFTP-OK'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('CONFIG_DIRECTFTP_TEST_OK')) ?>';
-        akeeba.Configuration.translations['UI-TESTFTP-FAIL'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('CONFIG_DIRECTFTP_TEST_FAIL')) ?>';
-        akeeba.Configuration.translations['UI-TESTSFTP-OK'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('CONFIG_DIRECTSFTP_TEST_OK')) ?>';
-        akeeba.Configuration.translations['UI-TESTSFTP-FAIL'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('CONFIG_DIRECTSFTP_TEST_FAIL')) ?>';
+        akeeba.Configuration.translations['UI-BROWSE'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_CONFIG_UI_BROWSE')) ?>';
+        akeeba.Configuration.translations['UI-CONFIG'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_CONFIG_UI_CONFIG')) ?>';
+        akeeba.Configuration.translations['UI-REFRESH'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_CONFIG_UI_REFRESH')) ?>';
+        akeeba.Configuration.translations['UI-FTPBROWSER-TITLE'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_CONFIG_UI_FTPBROWSER_TITLE')) ?>';
+        akeeba.Configuration.translations['UI-ROOT'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_FILEFILTERS_LABEL_UIROOT')) ?>';
+        akeeba.Configuration.translations['UI-TESTFTP-OK'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_CONFIG_DIRECTFTP_TEST_OK')) ?>';
+        akeeba.Configuration.translations['UI-TESTFTP-FAIL'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_CONFIG_DIRECTFTP_TEST_FAIL')) ?>';
+        akeeba.Configuration.translations['UI-TESTSFTP-OK'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_CONFIG_DIRECTSFTP_TEST_OK')) ?>';
+        akeeba.Configuration.translations['UI-TESTSFTP-FAIL'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_CONFIG_DIRECTSFTP_TEST_FAIL')) ?>';
 
         // Push some custom URLs
         akeeba.Configuration.URLs['browser'] = '<?php echo AkeebaHelperEscape::escapeJS('index.php?view=browser&tmpl=component&processfolder=1&folder=') ?>';
@@ -209,10 +209,10 @@ else
         akeeba.System.params.errorCallback = function( message ) {
 			var dialog_element = new Element('div');
 			var dlgHead = new Element('h3');
-			dlgHead.set('html','<?php echo AkeebaHelperEscape::escapeJS(JText::_('CONFIG_UI_AJAXERRORDLG_TITLE')) ?>');
+			dlgHead.set('html','<?php echo AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_CONFIG_UI_AJAXERRORDLG_TITLE')) ?>');
 			dlgHead.inject(dialog_element);
 			var dlgPara = new Element('p');
-			dlgPara.set('html','<?php echo AkeebaHelperEscape::escapeJS(JText::_('CONFIG_UI_AJAXERRORDLG_TEXT')) ?>');
+			dlgPara.set('html','<?php echo AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_CONFIG_UI_AJAXERRORDLG_TEXT')) ?>');
 			dlgPara.inject(dialog_element);
 			var dlgPre = new Element('pre');
 			dlgPre.set('html', message);

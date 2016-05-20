@@ -150,7 +150,7 @@ class AkeebaModelSftpbrowsers extends F0FModel
 
 		if (!is_resource($handle))
 		{
-			$this->setError(JText::_('SFTPBROWSER_ERROR_NOACCESS'));
+			$this->setError(JText::_('COM_AKEEBA_SFTPBROWSER_ERROR_NOACCESS'));
 
 			return false;
 		}

@@ -55,10 +55,15 @@ class RSEventsProiCal {
 				
 				$start	= JFactory::getDate($event->start);
 				$end	= JFactory::getDate($event->end);
-				
 				$vevent = $v->newComponent('vevent');
-				$vevent->setProperty('dtstart', array($start->format('Y'), $start->format('m'), $start->format('d'), $start->format('H'), $start->format('i'), $start->format('s'), 'tz' => 'Z'));
-				if (!$event->allday) $vevent->setProperty('dtend', array($end->format('Y'), $end->format('m'), $end->format('d'), $end->format('H'), $end->format('i'), $end->format('s'), 'tz' => 'Z'));
+				
+				if ($event->allday) {
+					$vevent->setProperty('dtstart', rseventsproHelper::showdate($event->start,'Ymd'), array("VALUE" => "DATE"));
+				} else {
+					$vevent->setProperty('dtstart', array($start->format('Y'), $start->format('m'), $start->format('d'), $start->format('H'), $start->format('i'), $start->format('s'), 'tz' => 'Z'));
+					$vevent->setProperty('dtend', array($end->format('Y'), $end->format('m'), $end->format('d'), $end->format('H'), $end->format('i'), $end->format('s'), 'tz' => 'Z'));
+				}
+				
 				$vevent->setProperty('LOCATION', $event->locationname. ' (' .$event->address . ')' );
 				$vevent->setProperty('summary', $event->name ); 
 				$vevent->setProperty('description', $description);

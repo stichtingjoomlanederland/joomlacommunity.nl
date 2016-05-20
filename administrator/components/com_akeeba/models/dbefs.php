@@ -93,7 +93,7 @@ class AkeebaModelDbefs extends F0FModel
 			if(!empty($definition['port'])) $root.=':'.$definition['port'];
 			$root.='/'.$definition['database'];
 
-			if($name == '[SITEDB]') $root = JText::_('DBFILTER_LABEL_SITEDB');
+			if($name == '[SITEDB]') $root = JText::_('COM_AKEEBA_DBFILTER_LABEL_SITEDB');
 
 			$entry = new stdClass();
 			$entry->value = $name;

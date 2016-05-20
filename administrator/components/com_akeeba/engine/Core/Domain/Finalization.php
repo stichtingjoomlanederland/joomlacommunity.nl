@@ -357,7 +357,7 @@ class Finalization extends Part
 			if (empty($subject))
 			{
 				// Get the default subject
-				$subject = Platform::getInstance()->translate('EMAIL_SUBJECT_OK');
+				$subject = Platform::getInstance()->translate('COM_AKEEBA_COMMON_EMAIL_SUBJECT_OK');
 			}
 			else
 			{
@@ -368,8 +368,8 @@ class Finalization extends Part
 			// Do we need a default body?
 			if (empty($body))
 			{
-				$body = Platform::getInstance()->translate('EMAIL_BODY_OK');
-				$info_source = Platform::getInstance()->translate('EMAIL_BODY_INFO');
+				$body = Platform::getInstance()->translate('COM_AKEEBA_COMMON_EMAIL_BODY_OK');
+				$info_source = Platform::getInstance()->translate('COM_AKEEBA_COMMON_EMAIL_BODY_INFO');
 				$body .= "\n\n" . sprintf($info_source, $profile_number, $num_parts) . "\n\n";
 				$body .= $parts_list;
 			}

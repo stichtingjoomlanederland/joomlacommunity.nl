@@ -108,21 +108,6 @@ class plgSystemRSFPRSEventspro extends JPlugin {
 		}
 	}
 	
-	// Before store submissions
-	public function rsfp_f_onBeforeStoreSubmissions($args) {
-		if (!self::canRun()) return;
-		
-		$exists = RSFormProHelper::componentExists($args['formId'], $this->newComponents);
-		if (!empty($exists)) {
-			$jinput	= JFactory::getApplication()->input;
-			$cid 	= $jinput->getInt('cid');
-			
-			if ($cid && $jinput->get('option') == 'com_rseventspro' && $this->_getHasForm($cid, $args['formId'])) {
-				$this->updateRSForm($args['SubmissionId'], $args['post']);
-			}
-		}
-	}
-	
 	// After store submissions
 	public function rsfp_f_onAfterStoreSubmissions($args) {
 		if (!self::canRun()) return;
@@ -134,6 +119,7 @@ class plgSystemRSFPRSEventspro extends JPlugin {
 			
 			if ($cid && $jinput->get('option') == 'com_rseventspro' && $this->_getHasForm($cid, $args['formId'])) {
 				$this->result = rseventsproHelper::saveRegistration($args['SubmissionId']);
+				$this->updateRSForm($args['SubmissionId'], $args['formId']);
 			}
 		}
 	}
@@ -1121,7 +1107,7 @@ class plgSystemRSFPRSEventspro extends JPlugin {
 	}
 	
 	// Update the RSForm!Pro submission
-	protected function updateRSForm($SubmissionId, &$formpost) {
+	protected function updateRSForm($SubmissionId, $formId) {
 		if (!self::canRun()) return;
 		
 		$db			= JFactory::getDbo();
@@ -1230,8 +1216,27 @@ class plgSystemRSFPRSEventspro extends JPlugin {
 		$payment = $post['RSEProPayment'];
 		$payment = is_array($payment) ? $payment[0] : $payment;
 		
-		$formpost['RSEProTickets'] = $thestring;
-		$formpost['RSEProPayment'] = rseventsproHelper::getPayment($payment);
+		// Update tickets
+		$query->clear()
+			->update($db->qn('#__rsform_submission_values'))
+			->set($db->qn('FieldValue').' = '.$db->q($thestring))
+			->where($db->qn('FieldName').' = '.$db->q('RSEProTickets'))
+			->where($db->qn('FormId').' = '.$db->q($formId))
+			->where($db->qn('SubmissionId').' = '.$db->q($SubmissionId));
+		
+		$db->setQuery($query);
+		$db->execute();
+		
+		// Update payment method
+		$query->clear()
+			->update($db->qn('#__rsform_submission_values'))
+			->set($db->qn('FieldValue').' = '.$db->q(rseventsproHelper::getPayment($payment)))
+			->where($db->qn('FieldName').' = '.$db->q('RSEProPayment'))
+			->where($db->qn('FormId').' = '.$db->q($formId))
+			->where($db->qn('SubmissionId').' = '.$db->q($SubmissionId));
+		
+		$db->setQuery($query);
+		$db->execute();
 	}
 	
 	// Get details for overriding the RSEvents!Pro emails

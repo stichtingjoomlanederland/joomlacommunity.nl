@@ -753,11 +753,12 @@ class com_rsfirewallInstallerScript
 			<b class="install-not-ok">Error installing!</b>
 			<?php } ?>
 		</p>
-		<h2>Changelog v2.10.1</h2>
+		<h2>Changelog v2.10.2</h2>
 		<ul class="version-history">
-			<li><span class="version-new">New</span> Check your website's status in Google Safe Browsing lists.</li>
-			<li><span class="version-new">New</span> View and remove files that have been ignored during the System Check through "Accept changes".</li>
+			<li><span class="version-upgraded">Upg</span> A log entry will be created when a change is attempted on a protected user.</li>
+			<li><span class="version-upgraded">Upg</span> A log entry will be created when the creation of a new administrator is blocked.</li>
 			<li><span class="version-upgraded">Upg</span> Malware database updated.</li>
+			<li><span class="version-fixed">Fix</span> Old log entries were not deleted according to the settings.</li>
 		</ul>
 		<a class="com-rsfirewall-button" href="index.php?option=com_rsfirewall">Start using RSFirewall!</a>
 		<a class="com-rsfirewall-button" href="https://www.rsjoomla.com/support/documentation/rsfirewall-user-guide.html" target="_blank">Read the RSFirewall! User Guide</a>

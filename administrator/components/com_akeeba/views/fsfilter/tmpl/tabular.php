@@ -14,21 +14,21 @@ defined('_JEXEC') or die();
 </div>
 
 <div class="alert alert-info">
-	<strong><?php echo JText::_('CPANEL_PROFILE_TITLE'); ?></strong>
+	<strong><?php echo JText::_('COM_AKEEBA_CPANEL_PROFILE_TITLE'); ?></strong>
 	#<?php echo $this->profileid; ?> <?php echo $this->profilename; ?>
 </div>
 
 <div class="well form-inline">
 	<div>
-		<label><?php echo JText::_('FSFILTER_LABEL_ROOTDIR') ?></label>
+		<label><?php echo JText::_('COM_AKEEBA_FILEFILTERS_LABEL_ROOTDIR') ?></label>
 		<span><?php echo $this->root_select; ?></span>
 	</div>
 	<div id="addnewfilter">
-		<?php echo JText::_('FSFILTER_LABEL_ADDNEWFILTER') ?>
-		<button class="btn" onclick="akeeba.Fsfilters.addNew('directories'); return false;"><?php echo JText::_('FSFILTER_TYPE_DIRECTORIES') ?></button>
-		<button class="btn" onclick="akeeba.Fsfilters.addNew('skipfiles'); return false;"><?php echo JText::_('FSFILTER_TYPE_SKIPFILES') ?></button>
-		<button class="btn" onclick="akeeba.Fsfilters.addNew('skipdirs'); return false;"><?php echo JText::_('FSFILTER_TYPE_SKIPDIRS') ?></button>
-		<button class="btn" onclick="akeeba.Fsfilters.addNew('files'); return false;"><?php echo JText::_('FSFILTER_TYPE_FILES') ?></button>
+		<?php echo JText::_('COM_AKEEBA_FILEFILTERS_LABEL_ADDNEWFILTER') ?>
+		<button class="btn" onclick="akeeba.Fsfilters.addNew('directories'); return false;"><?php echo JText::_('COM_AKEEBA_FILEFILTERS_TYPE_DIRECTORIES') ?></button>
+		<button class="btn" onclick="akeeba.Fsfilters.addNew('skipfiles'); return false;"><?php echo JText::_('COM_AKEEBA_FILEFILTERS_TYPE_SKIPFILES') ?></button>
+		<button class="btn" onclick="akeeba.Fsfilters.addNew('skipdirs'); return false;"><?php echo JText::_('COM_AKEEBA_FILEFILTERS_TYPE_SKIPDIRS') ?></button>
+		<button class="btn" onclick="akeeba.Fsfilters.addNew('files'); return false;"><?php echo JText::_('COM_AKEEBA_FILEFILTERS_TYPE_FILES') ?></button>
 	</div>
 </div>
 
@@ -37,8 +37,8 @@ defined('_JEXEC') or die();
 		<table id="ak_list_table" class="table table-striped">
 			<thead>
 				<tr>
-					<td width="250px"><?php echo JText::_('FILTERS_LABEL_TYPE') ?></td>
-					<td><?php echo JText::_('FILTERS_LABEL_FILTERITEM') ?></td>
+					<td width="250px"><?php echo JText::_('COM_AKEEBA_FILEFILTERS_LABEL_TYPE') ?></td>
+					<td><?php echo JText::_('COM_AKEEBA_FILEFILTERS_LABEL_FILTERITEM') ?></td>
 				</tr>
 			</thead>
 			<tbody id="ak_list_contents">
@@ -68,20 +68,20 @@ akeeba.jQuery(document).ready(function($){
     akeeba.System.params.errorCallback = function( message ) {
 		var dialog_element = $("#dialog");
 		dialog_element.html(''); // Clear the dialog's contents
-		dialog_element.dialog('option', 'title', '<?php echo AkeebaHelperEscape::escapeJS(JText::_('CONFIG_UI_AJAXERRORDLG_TITLE')) ?>');
-		$(document.createElement('p')).html('<?php echo AkeebaHelperEscape::escapeJS(JText::_('CONFIG_UI_AJAXERRORDLG_TEXT')) ?>').appendTo(dialog_element);
+		dialog_element.dialog('option', 'title', '<?php echo AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_CONFIG_UI_AJAXERRORDLG_TITLE')) ?>');
+		$(document.createElement('p')).html('<?php echo AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_CONFIG_UI_AJAXERRORDLG_TEXT')) ?>').appendTo(dialog_element);
 		$(document.createElement('pre')).html( message ).appendTo(dialog_element);
 		dialog_element.dialog('open');
 	};
 	// Push translations
-    akeeba.Fsfilters.translations['UI-ROOT'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('FILTERS_LABEL_UIROOT')) ?>';
-    akeeba.Fsfilters.translations['UI-ERROR-FILTER'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('FILTERS_LABEL_UIERRORFILTER')) ?>';
+    akeeba.Fsfilters.translations['UI-ROOT'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_FILEFILTERS_LABEL_UIROOT')) ?>';
+    akeeba.Fsfilters.translations['UI-ERROR-FILTER'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_FILEFILTERS_LABEL_UIERRORFILTER')) ?>';
 <?php
 	$filters = array('directories', 'skipfiles', 'skipdirs', 'files');
 	foreach($filters as $type)
 	{
 		echo "\takeeba.Fsfilters.translations['UI-FILTERTYPE-".strtoupper($type)."'] = '".
-			AkeebaHelperEscape::escapeJS(JText::_('FSFILTER_TYPE_'.strtoupper($type))).
+			AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_FILEFILTERS_TYPE_'.strtoupper($type))).
 			"';\n";
 	}
 ?>

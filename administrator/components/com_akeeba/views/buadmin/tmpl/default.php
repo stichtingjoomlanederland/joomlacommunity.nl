@@ -17,13 +17,19 @@ JHtml::_('behavior.modal');
 JHtml::_('bootstrap.popover', '.akeebaCommentPopover', array(
 	'animation'	=> true,
 	'html'		=> true,
-	'title'		=> JText::_('STATS_LABEL_COMMENT'),
+	'title'		=> JText::_('COM_AKEEBA_BUADMIN_LABEL_COMMENT'),
 	'placement'	=> 'bottom'
 ));
 
 JFactory::getDocument()->addStyleSheet('https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css');
 
-$dateFormat = \Akeeba\Engine\Util\Comconfig::getValue('dateformat', '');
+if (!class_exists('AkeebaHelperParams'))
+{
+	require_once JPATH_ADMINISTRATOR . '/components/com_akeeba/helpers/params.php';
+}
+
+$params = new AkeebaHelperParams();
+$dateFormat = $params->get('dateformat', '');
 $dateFormat = trim($dateFormat);
 $dateFormat = !empty($dateFormat) ? $dateFormat : JText::_('DATE_FORMAT_LC4');
 
@@ -86,7 +92,7 @@ else:
 ?>
 <div class="alert alert-info">
 	<button class="close" data-dismiss="alert">×</button>
-	<h4 class="alert-heading"><?php echo JText::_('BUADMIN_LABEL_HOWDOIRESTORE_LEGEND') ?></h4>
+	<h4 class="alert-heading"><?php echo JText::_('COM_AKEEBA_BUADMIN_LABEL_HOWDOIRESTORE_LEGEND') ?></h4>
 
 	<?php echo JText::sprintf('COM_AKEEBA_BUADMIN_LABEL_HOWDOIRESTORE_TEXT_' . $proKey,
 			'https://www.akeebabackup.com/videos/1212-akeeba-backup-core/1618-abtc04-restore-site-new-server.html',
@@ -107,20 +113,20 @@ else:
 <?php
 	// Construct the array of sorting fields
 	$sortFields = array(
-	'id'          => JText::_('STATS_LABEL_ID'),
-	'description' => JText::_('STATS_LABEL_DESCRIPTION'),
-	'backupstart' => JText::_('STATS_LABEL_START'),
-	'profile_id'  => JText::_('STATS_LABEL_PROFILEID'),
+	'id'          => JText::_('COM_AKEEBA_BUADMIN_LABEL_ID'),
+	'description' => JText::_('COM_AKEEBA_BUADMIN_LABEL_DESCRIPTION'),
+	'backupstart' => JText::_('COM_AKEEBA_BUADMIN_LABEL_START'),
+	'profile_id'  => JText::_('COM_AKEEBA_BUADMIN_LABEL_PROFILEID'),
 	);
 	JHtml::_('formbehavior.chosen', 'select');
 
 	?>
 	<div id="filter-bar" class="btn-toolbar">
 		<div class="filter-search btn-group pull-left">
-			<input type="text" name="description" placeholder="<?php echo JText::_('STATS_LABEL_DESCRIPTION'); ?>"
+			<input type="text" name="description" placeholder="<?php echo JText::_('COM_AKEEBA_BUADMIN_LABEL_DESCRIPTION'); ?>"
 			       id="filter_description"
 			       value="<?php echo $this->escape($this->getModel()->getState('description', '')); ?>"
-			       title="<?php echo JText::_('STATS_LABEL_DESCRIPTION'); ?>"/>
+			       title="<?php echo JText::_('COM_AKEEBA_BUADMIN_LABEL_DESCRIPTION'); ?>"/>
 		</div>
 		<div class="btn-group pull-left hidden-phone">
 			<button class="btn" type="submit" title="<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>"><i
@@ -183,25 +189,25 @@ else:
 	<th width="20"><input type="checkbox" name="toggle" value=""
 						  onclick="Joomla.checkAll(this);"/></th>
 	<th width="20" class="hidden-phone">
-		<?php echo JHTML::_('grid.sort', 'STATS_LABEL_ID', 'id', $this->lists->order_Dir, $this->lists->order, 'default'); ?>
+		<?php echo JHTML::_('grid.sort', 'COM_AKEEBA_BUADMIN_LABEL_ID', 'id', $this->lists->order_Dir, $this->lists->order, 'default'); ?>
 	</th>
 	<th>
-		<?php echo JHTML::_('grid.sort', 'STATS_LABEL_DESCRIPTION', 'description', $this->lists->order_Dir, $this->lists->order, 'default'); ?>
+		<?php echo JHTML::_('grid.sort', 'COM_AKEEBA_BUADMIN_LABEL_DESCRIPTION', 'description', $this->lists->order_Dir, $this->lists->order, 'default'); ?>
 	</th>
 	<th  class="hidden-phone">
-		<?php echo JHTML::_('grid.sort', 'STATS_LABEL_PROFILEID', 'profile_id', $this->lists->order_Dir, $this->lists->order, 'default'); ?>
+		<?php echo JHTML::_('grid.sort', 'COM_AKEEBA_BUADMIN_LABEL_PROFILEID', 'profile_id', $this->lists->order_Dir, $this->lists->order, 'default'); ?>
 	</th>
 	<th width="5%">
-		<?php echo JText::_('STATS_LABEL_DURATION') ?>
+		<?php echo JText::_('COM_AKEEBA_BUADMIN_LABEL_DURATION') ?>
 	</th>
 	<th width="40">
-		<?php echo JText::_('STATS_LABEL_STATUS'); ?>
+		<?php echo JText::_('COM_AKEEBA_BUADMIN_LABEL_STATUS'); ?>
 	</th>
 	<th width="80" class="hidden-phone">
-		<?php echo JText::_('STATS_LABEL_SIZE'); ?>
+		<?php echo JText::_('COM_AKEEBA_BUADMIN_LABEL_SIZE'); ?>
 	</th>
 	<th class="hidden-phone">
-		<?php echo JText::_('STATS_LABEL_MANAGEANDDL'); ?>
+		<?php echo JText::_('COM_AKEEBA_BUADMIN_LABEL_MANAGEANDDL'); ?>
 	</th>
 </tr>
 
@@ -221,7 +227,7 @@ else:
 		$check = JHTML::_('grid.id', ++$i, $record['id']);
 
 		$backupId = isset($record['backupid']) ? $record['backupid'] : '';
-		$originLanguageKey = 'STATS_LABEL_ORIGIN_' . strtoupper($record['origin']);
+		$originLanguageKey = 'COM_AKEEBA_BUADMIN_LABEL_ORIGIN_' . strtoupper($record['origin']);
 		$originDescription = JText::_($originLanguageKey);
 
 		switch (strtolower($record['origin']))
@@ -310,7 +316,7 @@ else:
 		}
 
 		// Label class based on status
-		$status = JText::_('STATS_LABEL_STATUS_' . $record['meta']);
+		$status = JText::_('COM_AKEEBA_BUADMIN_LABEL_STATUS_' . $record['meta']);
 		$statusClass = '';
 		switch ($record['meta'])
 		{
@@ -339,7 +345,7 @@ else:
 
 		if (empty($record['description']))
 		{
-			$record['description'] = JText::_('STATS_LABEL_NODESCRIPTION');
+			$record['description'] = JText::_('COM_AKEEBA_BUADMIN_LABEL_NODESCRIPTION');
 		}
 		?>
 		<tr class="row<?php echo $id; ?>">
@@ -349,13 +355,13 @@ else:
 			</td>
 			<td>
 				<span class="fa fa-fw <?php echo $originIcon ?> akeebaCommentPopover" rel="popover"
-					  title="<?php echo JText::_('STATS_LABEL_ORIGIN'); ?>"
+					  title="<?php echo JText::_('COM_AKEEBA_BUADMIN_LABEL_ORIGIN'); ?>"
 					data-content="<?php echo htmlentities($originDescription) ?>"
 					></span>
 				<?php echo $info_link ?>
 				<a href="<?php echo $edit_link; ?>"><?php echo $this->escape($record['description']) ?></a>
 				<br/>
-				<div class="akeeba-buadmin-startdate" title="<?php echo JText::_('STATS_LABEL_START') ?>">
+				<div class="akeeba-buadmin-startdate" title="<?php echo JText::_('COM_AKEEBA_BUADMIN_LABEL_START') ?>">
 					<small>
 						<span class="fa fa-fw fa-calendar"></span>
 						<?php echo $startTime->format($dateFormat); ?>
@@ -382,7 +388,7 @@ else:
 			</td>
 			<td>
 				<span class="label <?php echo $statusClass; ?> akeebaCommentPopover" rel="popover"
-					  title="<?php echo JText::_('STATS_LABEL_STATUS')?>"
+					  title="<?php echo JText::_('COM_AKEEBA_BUADMIN_LABEL_STATUS')?>"
 					  data-content="<?php echo $status ?>"
 					>
 					<span class="fa fa-fw <?php echo $statusIcon; ?>"></span>

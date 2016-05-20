@@ -72,7 +72,7 @@ class AkeebaModelFtpbrowsers extends F0FModel
 
 		if ($con === false)
 		{
-			$this->setError(JText::_('FTPBROWSER_ERROR_HOSTNAME'));
+			$this->setError(JText::_('COM_AKEEBA_FTPBROWSER_ERROR_HOSTNAME'));
 
 			return false;
 		}
@@ -82,7 +82,7 @@ class AkeebaModelFtpbrowsers extends F0FModel
 
 		if ($result === false)
 		{
-			$this->setError(JText::_('FTPBROWSER_ERROR_USERPASS'));
+			$this->setError(JText::_('COM_AKEEBA_FTPBROWSER_ERROR_USERPASS'));
 
 			return false;
 		}
@@ -97,7 +97,7 @@ class AkeebaModelFtpbrowsers extends F0FModel
 
 			if ($result === false)
 			{
-				$this->setError(JText::_('FTPBROWSER_ERROR_NOACCESS'));
+				$this->setError(JText::_('COM_AKEEBA_FTPBROWSER_ERROR_NOACCESS'));
 
 				return false;
 			}
@@ -118,7 +118,7 @@ class AkeebaModelFtpbrowsers extends F0FModel
 
 		if ($list === false)
 		{
-			$this->setError(JText::_('FTPBROWSER_ERROR_UNSUPPORTED'));
+			$this->setError(JText::_('COM_AKEEBA_FTPBROWSER_ERROR_UNSUPPORTED'));
 
 			return false;
 		}

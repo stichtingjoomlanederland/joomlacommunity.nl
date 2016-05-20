@@ -53,9 +53,9 @@ akeeba.jQuery(document).ready(function($)
                                     .appendTo(testHolder);
 
                 var results    = JSON.parse(result.Results);
-                var successTxt = Joomla.JText._('AKEEBA_ALICE_SUCCESSS');
-                var warningTxt = Joomla.JText._('AKEEBA_ALICE_WARNING');
-                var errorTxt   = Joomla.JText._('AKEEBA_ALICE_ERROR');
+                var successTxt = Joomla.JText._('COM_AKEEBA_ALICE_SUCCESSS');
+                var warningTxt = Joomla.JText._('COM_AKEEBA_ALICE_WARNING');
+                var errorTxt   = Joomla.JText._('COM_AKEEBA_ALICE_ERROR');
 
 				jQuery.each(results, function(idx, item){
 					var test = jQuery(document.createElement('div'))

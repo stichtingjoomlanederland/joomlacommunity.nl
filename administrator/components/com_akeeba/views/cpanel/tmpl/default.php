@@ -16,7 +16,6 @@ defined('_JEXEC') or die();
 
 use Akeeba\Engine\Platform;
 use Akeeba\Engine\Factory;
-use Akeeba\Engine\Util\Comconfig;
 
 Platform::getInstance()->load_version_defines();
 $lang = JFactory::getLanguage();
@@ -58,6 +57,12 @@ $script = <<<JS
 JS;
 JFactory::getDocument()->addScriptDeclaration($script,'text/javascript');
 
+if (!class_exists('AkeebaHelperParams'))
+{
+	require_once JPATH_ADMINISTRATOR . '/components/com_akeeba/helpers/params.php';
+}
+
+$params = new AkeebaHelperParams();
 ?>
 
 <?php
@@ -101,10 +106,10 @@ if (version_compare(PHP_VERSION, '5.3.3', 'lt')):
 	$akeebaCommonDateObsolescence = new JDate('2015-05-14 00:00:00', 'GMT');
 	?>
 	<div id="phpVersionCheck" class="alert alert-warning">
-		<h3><?php echo JText::_('AKEEBA_COMMON_PHPVERSIONTOOOLD_WARNING_TITLE'); ?></h3>
+		<h3><?php echo JText::_('COM_AKEEBA_COMMON_PHPVERSIONTOOOLD_WARNING_TITLE'); ?></h3>
 		<p>
 			<?php echo JText::sprintf(
-				'AKEEBA_COMMON_PHPVERSIONTOOOLD_WARNING_BODY',
+				'COM_AKEEBA_COMMON_PHPVERSIONTOOOLD_WARNING_BODY',
 				PHP_VERSION,
 				$akeebaCommonDatePHP->format(JText::_('DATE_FORMAT_LC1')),
 				$akeebaCommonDateObsolescence->format(JText::_('DATE_FORMAT_LC1')),
@@ -117,18 +122,18 @@ if (version_compare(PHP_VERSION, '5.3.3', 'lt')):
 
 <?php if (!$this->fixedpermissions): ?>
 <div id="notfixedperms" class="alert alert-error">
-	<h3><?php echo JText::_('AKEEBA_CPANEL_WARN_WARNING') ?></h3>
-	<p><?php echo JText::_('AKEEBA_CPANEL_WARN_PERMS_L1') ?></p>
-	<p><?php echo JText::_('AKEEBA_CPANEL_WARN_PERMS_L2') ?></p>
+	<h3><?php echo JText::_('COM_AKEEBA_CONTROLPANEL_WARN_WARNING') ?></h3>
+	<p><?php echo JText::_('COM_AKEEBA_CONTROLPANEL_WARN_PERMS_L1') ?></p>
+	<p><?php echo JText::_('COM_AKEEBA_CONTROLPANEL_WARN_PERMS_L2') ?></p>
 	<ol>
-		<li><?php echo JText::_('AKEEBA_CPANEL_WARN_PERMS_L3A') ?></li>
-		<li><?php echo JText::_('AKEEBA_CPANEL_WARN_PERMS_L3B') ?></li>
+		<li><?php echo JText::_('COM_AKEEBA_CONTROLPANEL_WARN_PERMS_L3A') ?></li>
+		<li><?php echo JText::_('COM_AKEEBA_CONTROLPANEL_WARN_PERMS_L3B') ?></li>
 	</ol>
-	<p><?php echo JText::_('AKEEBA_CPANEL_WARN_PERMS_L4') ?></p>
+	<p><?php echo JText::_('COM_AKEEBA_CONTROLPANEL_WARN_PERMS_L4') ?></p>
 </div>
 <?php endif; ?>
 
-<?php if(!version_compare(PHP_VERSION, '5.3.0', 'ge') && Comconfig::getValue('displayphpwarning', 1)): ?>
+<?php if(!version_compare(PHP_VERSION, '5.3.0', 'ge') && $params->getValue('displayphpwarning', 1)): ?>
 <div class="alert">
 	<a class="close" data-dismiss="alert" href="#">×</a>
 	<p><strong><?php echo JText::_('COM_AKEEBA_CONFIG_LBL_OUTDATEDPHP_HEADER') ?></strong><br/>
@@ -159,7 +164,7 @@ if (version_compare(PHP_VERSION, '5.3.3', 'lt')):
 		<span>
 			<?php echo JText::_('COM_AKEEBA_CPANEL_MSG_PASTEDLID') ?>
 		</span>
-		<input type="text" name="dlid" placeholder="<?php echo JText::_('CONFIG_DOWNLOADID_LABEL')?>" class="input-xlarge">
+		<input type="text" name="dlid" placeholder="<?php echo JText::_('COM_AKEEBA_CONFIG_DOWNLOADID_LABEL')?>" class="input-xlarge">
 		<button type="submit" class="btn btn-success">
 			<span class="icon icon-<?php echo version_compare(JVERSION, '3.0.0', 'ge') ? 'checkbox' : 'ok icon-white' ?>"></span>
 			<?php echo JText::_('COM_AKEEBA_CPANEL_MSG_APPLYDLID') ?>
@@ -182,12 +187,12 @@ if (version_compare(PHP_VERSION, '5.3.3', 'lt')):
 			<input type="hidden" name="task" value="switchprofile" />
 			<input type="hidden" name="<?php echo JFactory::getSession()->getFormToken()?>" value="1" />
 			<label>
-				<?php echo JText::_('CPANEL_PROFILE_TITLE'); ?>: #<?php echo $this->profileid; ?>
+				<?php echo JText::_('COM_AKEEBA_CPANEL_PROFILE_TITLE'); ?>: #<?php echo $this->profileid; ?>
 			</label>
 			<?php echo JHTML::_('select.genericlist', $this->profilelist, 'profileid', 'onchange="document.forms.adminForm.submit()" class="advancedSelect"', 'value', 'text', $this->profileid); ?>
 			<button class="btn hidden-phone" onclick="this.form.submit(); return false;">
 				<span class="icon-retweet"></span>
-				<?php echo JText::_('CPANEL_PROFILE_BUTTON'); ?>
+				<?php echo JText::_('COM_AKEEBA_CPANEL_PROFILE_BUTTON'); ?>
 			</button>
 		</form>
 
@@ -210,12 +215,12 @@ if (version_compare(PHP_VERSION, '5.3.3', 'lt')):
 		<div class="ak_clr"></div>
 		<?php endif; ?>
 
-		<h3><?php echo JText::_('CPANEL_HEADER_BASICOPS'); ?></h3>
+		<h3><?php echo JText::_('COM_AKEEBA_CPANEL_HEADER_BASICOPS'); ?></h3>
 
 		<div class="icon">
 			<a href="index.php?option=com_akeeba&view=backup">
 				<div class="ak-icon ak-icon-backup">&nbsp;</div>
-				<span><?php echo JText::_('BACKUP'); ?></span>
+				<span><?php echo JText::_('COM_AKEEBA_BACKUP'); ?></span>
 			</a>
 		</div>
 
@@ -229,21 +234,21 @@ if (version_compare(PHP_VERSION, '5.3.3', 'lt')):
 		<div class="icon">
 			<a href="index.php?option=com_akeeba&view=buadmin">
 				<div class="ak-icon ak-icon-manage">&nbsp;</div>
-				<span><?php echo JText::_('BUADMIN'); ?></span>
+				<span><?php echo JText::_('COM_AKEEBA_BUADMIN'); ?></span>
 			</a>
 		</div>
 
 		<div class="icon">
 			<a href="index.php?option=com_akeeba&view=config">
 				<div class="ak-icon ak-icon-configuration">&nbsp;</div>
-				<span><?php echo JText::_('CONFIGURATION'); ?></span>
+				<span><?php echo JText::_('COM_AKEEBA_CONFIG'); ?></span>
 			</a>
 		</div>
 
 		<div class="icon">
 			<a href="index.php?option=com_akeeba&view=profiles">
 				<div class="ak-icon ak-icon-profiles">&nbsp;</div>
-				<span><?php echo JText::_('PROFILES'); ?></span>
+				<span><?php echo JText::_('COM_AKEEBA_PROFILES'); ?></span>
 			</a>
 		</div>
 
@@ -254,7 +259,7 @@ if (version_compare(PHP_VERSION, '5.3.3', 'lt')):
 		<div class="icon">
 			<a href="index.php?option=com_akeeba&view=log">
 				<div class="ak-icon ak-icon-viewlog">&nbsp;</div>
-				<span><?php echo JText::_('VIEWLOG'); ?></span>
+				<span><?php echo JText::_('COM_AKEEBA_LOG'); ?></span>
 			</a>
 		</div>
 
@@ -262,7 +267,7 @@ if (version_compare(PHP_VERSION, '5.3.3', 'lt')):
 		<div class="icon">
 			<a href="index.php?option=com_akeeba&view=alices">
 				<div class="ak-icon ak-icon-viewlog">&nbsp;</div>
-				<span><?php echo JText::_('AKEEBA_ALICE'); ?></span>
+				<span><?php echo JText::_('COM_AKEEBA_ALICE'); ?></span>
 			</a>
 		</div>
 		<?php endif; ?>
@@ -274,7 +279,7 @@ if (version_compare(PHP_VERSION, '5.3.3', 'lt')):
 		<div class="icon">
 			<a href="index.php?option=com_akeeba&view=schedule">
 				<div class="ak-icon ak-icon-scheduling">&nbsp;</div>
-				<span><?php echo JText::_('AKEEBA_SCHEDULE'); ?></span>
+				<span><?php echo JText::_('COM_AKEEBA_SCHEDULE'); ?></span>
 			</a>
 		</div>
 
@@ -282,14 +287,14 @@ if (version_compare(PHP_VERSION, '5.3.3', 'lt')):
 		<div class="icon">
 			<a href="index.php?option=com_akeeba&view=discover">
 				<div class="ak-icon ak-icon-import">&nbsp;</div>
-				<span><?php echo JText::_('DISCOVER'); ?></span>
+				<span><?php echo JText::_('COM_AKEEBA_DISCOVER'); ?></span>
 			</a>
 		</div>
 
 		<div class="icon">
 			<a href="index.php?option=com_akeeba&view=s3import">
 				<div class="ak-icon ak-icon-s3import">&nbsp;</div>
-				<span><?php echo JText::_('S3IMPORT'); ?></span>
+				<span><?php echo JText::_('COM_AKEEBA_S3IMPORT'); ?></span>
 			</a>
 		</div>
 		<?php endif; ?>
@@ -302,14 +307,14 @@ if (version_compare(PHP_VERSION, '5.3.3', 'lt')):
 		<div class="icon">
 			<a href="index.php?option=com_akeeba&view=multidb">
 				<div class="ak-icon ak-icon-multidb">&nbsp;</div>
-				<span><?php echo JText::_('MULTIDB'); ?></span>
+				<span><?php echo JText::_('COM_AKEEBA_MULTIDB'); ?></span>
 			</a>
 		</div>
 
 		<div class="icon">
 			<a href="index.php?option=com_akeeba&view=eff">
 				<div class="ak-icon ak-icon-extradirs">&nbsp;</div>
-				<span><?php echo JText::_('EXTRADIRS'); ?></span>
+				<span><?php echo JText::_('COM_AKEEBA_INCLUDEFOLDER'); ?></span>
 			</a>
 		</div>
 		<?php endif; ?>
@@ -317,14 +322,14 @@ if (version_compare(PHP_VERSION, '5.3.3', 'lt')):
 		<div class="icon">
 			<a href="index.php?option=com_akeeba&view=fsfilter">
 				<div class="ak-icon ak-icon-fsfilter">&nbsp;</div>
-				<span><?php echo JText::_('FSFILTERS'); ?></span>
+				<span><?php echo JText::_('COM_AKEEBA_FILEFILTERS'); ?></span>
 			</a>
 		</div>
 
 		<div class="icon">
 			<a href="index.php?option=com_akeeba&view=dbef">
 				<div class="ak-icon ak-icon-dbfilter">&nbsp;</div>
-				<span><?php echo JText::_('DBEF'); ?></span>
+				<span><?php echo JText::_('COM_AKEEBA_DBFILTER'); ?></span>
 			</a>
 		</div>
 
@@ -332,14 +337,14 @@ if (version_compare(PHP_VERSION, '5.3.3', 'lt')):
 			<div class="icon">
 				<a href="index.php?option=com_akeeba&view=regexfsfilter">
 					<div class="ak-icon ak-icon-regexfiles">&nbsp;</div>
-					<span><?php echo JText::_('REGEXFSFILTERS'); ?></span>
+					<span><?php echo JText::_('COM_AKEEBA_REGEXFSFILTERS'); ?></span>
 				</a>
 			</div>
 
 			<div class="icon">
 				<a href="index.php?option=com_akeeba&view=regexdbfilter">
 					<div class="ak-icon ak-icon-regexdb">&nbsp;</div>
-					<span><?php echo JText::_('REGEXDBFILTERS'); ?></span>
+					<span><?php echo JText::_('COM_AKEEBA_REGEXDBFILTERS'); ?></span>
 				</a>
 			</div>
 		<?php endif; ?>
@@ -350,7 +355,7 @@ if (version_compare(PHP_VERSION, '5.3.3', 'lt')):
 
 	<div class="span4">
 
-		<h3><?php echo JText::_('CPANEL_LABEL_STATUSSUMMARY')?></h3>
+		<h3><?php echo JText::_('COM_AKEEBA_CPANEL_LABEL_STATUSSUMMARY')?></h3>
 		<div>
 			<?php echo $this->statuscell ?>
 
@@ -364,7 +369,7 @@ if (version_compare(PHP_VERSION, '5.3.3', 'lt')):
 
 			<?php if(!defined('AKEEBA_PRO')) { $show_donation = 1; } else { $show_donation = (AKEEBA_PRO != 1); } ?>
 			<p class="ak_version">
-				<?php echo JText::_('AKEEBA').' '.($show_donation?'Core':'Professional ').' '.AKEEBA_VERSION.' ('.AKEEBA_DATE.')' ?>
+				<?php echo JText::_('COM_AKEEBA').' '.($show_donation?'Core':'Professional ').' '.AKEEBA_VERSION.' ('.AKEEBA_DATE.')' ?>
 			</p>
 			<!-- CHANGELOG :: BEGIN -->
 			<?php if($show_donation): ?>
@@ -394,7 +399,7 @@ if (version_compare(PHP_VERSION, '5.3.3', 'lt')):
 			</a>
 		</div>
 
-		<h3><?php echo JText::_('BACKUP_STATS') ?></h3>
+		<h3><?php echo JText::_('COM_AKEEBA_BACKUP_STATS') ?></h3>
 		<div><?php echo $this->statscell ?></div>
 
 	</div>
@@ -409,9 +414,9 @@ if (version_compare(PHP_VERSION, '5.3.3', 'lt')):
 			<br/>If you use Akeeba Backup Core, please post a rating and a review at the <a href="http://extensions.joomla.org/extensions/extension/access-a-security/site-security/akeeba-backup">Joomla! Extensions Directory</a>.
 			<?php endif; ?>
 			<br/><br/>
-			<strong><?php echo JText::_('TRANSLATION_CREDITS')?></strong>:
-			<em><?php echo JText::_('TRANSLATION_LANGUAGE') ?></em> &bull;
-			<a href="<?php echo JText::_('TRANSLATION_AUTHOR_URL') ?>"><?php echo JText::_('TRANSLATION_AUTHOR') ?></a>
+			<strong><?php echo JText::_('COM_AKEEBA_INFORMATION_TRANSLATION_CREDITS')?></strong>:
+			<em><?php echo JText::_('COM_AKEEBA_INFORMATION_TRANSLATION_LANGUAGE') ?></em> &bull;
+			<a href="<?php echo JText::_('COM_AKEEBA_INFORMATION_TRANSLATION_AUTHOR_URL') ?>"><?php echo JText::_('COM_AKEEBA_INFORMATION_TRANSLATION_AUTHOR') ?></a>
 		</p>
 	</div>
 </div>

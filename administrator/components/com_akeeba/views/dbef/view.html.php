@@ -30,12 +30,12 @@ class AkeebaViewDbef extends F0FViewHtml
 		// Add custom submenus
 		$toolbar = F0FToolbar::getAnInstance($this->input->get('option','com_foobar','cmd'), $this->config);
 		$toolbar->appendLink(
-			JText::_('FILTERS_LABEL_NORMALVIEW'),
+			JText::_('COM_AKEEBA_FILEFILTERS_LABEL_NORMALVIEW'),
 			JUri::base().'index.php?option=com_akeeba&view=dbef&task=normal',
 			($task == 'normal')
 		);
 		$toolbar->appendLink(
-			JText::_('FILTERS_LABEL_TABULARVIEW'),
+			JText::_('COM_AKEEBA_FILEFILTERS_LABEL_TABULARVIEW'),
 			JUri::base().'index.php?option=com_akeeba&view=dbef&task=tabular',
 			($task == 'tabular')
 		);

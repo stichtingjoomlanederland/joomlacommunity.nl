@@ -12,7 +12,7 @@ defined('_JEXEC') or die();
 
 if (!defined('F0F_INCLUDED'))
 {
-    define('F0F_INCLUDED', 'rev45C6E76');
+    define('F0F_INCLUDED', 'revAA17947');
 
 	// Register the F0F autoloader
     require_once __DIR__ . '/autoloader/fof.php';

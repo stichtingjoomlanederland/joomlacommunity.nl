@@ -72,7 +72,7 @@ class AkeebaControllerCheck extends F0FController
 		if (!$febEnabled)
 		{
 			@ob_end_clean();
-			echo '403 ' . JText::_('ERROR_NOT_ENABLED');
+			echo '403 ' . JText::_('COM_AKEEBA_COMMON_ERR_NOT_ENABLED');
 			flush();
 			JFactory::getApplication()->close();
 		}

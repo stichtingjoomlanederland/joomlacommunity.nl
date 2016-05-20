@@ -49,7 +49,7 @@ class Mysql extends Base
 	/**
 	 * Implements the constructor of the class
 	 *
-	 * @return Mysql
+	 * @return  Mysql
 	 */
 	public function __construct()
 	{
@@ -58,6 +58,8 @@ class Mysql extends Base
 
 	/**
 	 * Applies the SQL compatibility setting
+	 * 
+	 * @return  void
 	 */
 	protected function enforceSQLCompatibility()
 	{
@@ -85,12 +87,13 @@ class Mysql extends Base
 	/**
 	 * Performs one more step of dumping database data
 	 *
-	 * @return void
+	 * @return  void
 	 */
 	protected function stepDatabaseDump()
 	{
 		// Initialize local variables
 		$db = $this->getDB();
+
 		if ($this->getError())
 		{
 			return;
@@ -120,8 +123,8 @@ class Mysql extends Base
 		$tableName = $this->nextTable;
 		$this->setStep($tableName);
 		$this->setSubstep('');
-		$tableAbstract = trim($this->table_name_map[$tableName]);
-		$dump_records = $this->tables_data[$tableName]['dump_records'];
+		$tableAbstract = trim($this->table_name_map[ $tableName ]);
+		$dump_records  = $this->tables_data[ $tableName ]['dump_records'];
 
 		// If it is the first run, find number of rows and get the CREATE TABLE command
 		if ($this->nextRange == 0)
@@ -133,11 +136,11 @@ class Mysql extends Base
 
 			$outCreate = '';
 
-			if (is_array($this->tables_data[$tableName]))
+			if (is_array($this->tables_data[ $tableName ]))
 			{
-				if (array_key_exists('create', $this->tables_data[$tableName]))
+				if (array_key_exists('create', $this->tables_data[ $tableName ]))
 				{
-					$outCreate = $this->tables_data[$tableName]['create'];
+					$outCreate = $this->tables_data[ $tableName ]['create'];
 				}
 			}
 
@@ -145,23 +148,23 @@ class Mysql extends Base
 			{
 				// The CREATE command wasn't cached. Time to create it. The $type and $dependencies
 				// variables will be thrown away.
-				$type = 'table';
+				$type         = 'table';
 				$dependencies = array();
-				$outCreate = $this->get_create($tableAbstract, $tableName, $type, $dependencies);
+				$outCreate    = $this->get_create($tableAbstract, $tableName, $type, $dependencies);
 			}
 
 			// Create drop statements if required (the key is defined by the scripting engine)
 			if (Factory::getEngineParamsProvider()->getScriptingParameter('db.dropstatements', 0))
 			{
-				if (array_key_exists('create', $this->tables_data[$tableName]))
+				if (array_key_exists('create', $this->tables_data[ $tableName ]))
 				{
-					$dropStatement = $this->createDrop($this->tables_data[$tableName]['create']);
+					$dropStatement = $this->createDrop($this->tables_data[ $tableName ]['create']);
 				}
 				else
 				{
-					$type = 'table';
+					$type            = 'table';
 					$createStatement = $this->get_create($tableAbstract, $tableName, $type, $dependencies);
-					$dropStatement = $this->createDrop($createStatement);
+					$dropStatement   = $this->createDrop($createStatement);
 				}
 
 				if (!empty($dropStatement))
@@ -190,11 +193,11 @@ class Mysql extends Base
 			{
 				// We should not dump any data
 				Factory::getLog()->log(LogLevel::INFO, "Skipping dumping data of " . $tableAbstract);
-				$this->maxRange = 0;
+				$this->maxRange  = 0;
 				$this->nextRange = 1;
-				$outData = '';
-				$numRows = 0;
-				$dump_records = false;
+				$outData         = '';
+				$numRows         = 0;
+				$dump_records    = false;
 			}
 
 			// Output any data preamble commands, e.g. SET IDENTITY_INSERT for SQL Server
@@ -202,6 +205,7 @@ class Mysql extends Base
 			{
 				Factory::getLog()->log(LogLevel::DEBUG, "Writing data dump preamble for " . $tableAbstract);
 				$preamble = $this->getDataDumpPreamble($tableAbstract, $tableName, $this->maxRange);
+
 				if (!empty($preamble))
 				{
 					if (!$this->writeDump($preamble))
@@ -220,12 +224,15 @@ class Mysql extends Base
 
 		// Check if we have more work to do on this table
 		$configuration = Factory::getConfiguration();
-		$batchsize = intval($configuration->get('engine.dump.common.batchsize', 1000));
+		$batchsize     = intval($configuration->get('engine.dump.common.batchsize', 1000));
 
 		if ($batchsize <= 0)
 		{
 			$batchsize = 1000;
 		}
+
+		$dbRoot                    = $configuration->get('volatile.database.root', '[SITEDB]');
+		$lastTableWithLargeColumns = $configuration->get('volatile.database.last_large_col_table', '');
 
 		if (($this->nextRange < $this->maxRange))
 		{
@@ -233,8 +240,8 @@ class Mysql extends Base
 
 			// Get the number of rows left to dump from the current table
 			$sql = $db->getQuery(true)
-					  ->select('*')
-					  ->from($db->nameQuote($tableAbstract));
+			          ->select('*')
+			          ->from($db->nameQuote($tableAbstract));
 
 			if (!is_null($this->table_autoincrement['field']))
 			{
@@ -255,22 +262,24 @@ class Mysql extends Base
 				// If we have an auto_increment value and the table has over $batchsize records use the indexed select instead of a plain limit
 				if (!is_null($this->table_autoincrement['field']) && !is_null($this->table_autoincrement['value']))
 				{
-					Factory::getLog()->log(LogLevel::INFO, "Continuing dump of " . $tableAbstract . " from record #{$this->nextRange} using auto_increment column {$this->table_autoincrement['field']} and value {$this->table_autoincrement['value']}");
+					Factory::getLog()
+					       ->log(LogLevel::INFO, "Continuing dump of " . $tableAbstract . " from record #{$this->nextRange} using auto_increment column {$this->table_autoincrement['field']} and value {$this->table_autoincrement['value']}");
 					$sql->where($db->qn($this->table_autoincrement['field']) . ' > ' . $db->q($this->table_autoincrement['value']));
 					$db->setQuery($sql, 0, $batchsize);
 				}
 				else
 				{
-					Factory::getLog()->log(LogLevel::INFO, "Continuing dump of " . $tableAbstract . " from record #{$this->nextRange}");
+					Factory::getLog()
+					       ->log(LogLevel::INFO, "Continuing dump of " . $tableAbstract . " from record #{$this->nextRange}");
 					$db->setQuery($sql, $this->nextRange, $batchsize);
 				}
 			}
 
-			$this->query = '';
-			$numRows = 0;
+			$this->query  = '';
+			$numRows      = 0;
 			$use_abstract = Factory::getEngineParamsProvider()->getScriptingParameter('db.abstractnames', 1);
 
-			$filters = Factory::getFilters();
+			$filters    = Factory::getFilters();
 			$mustFilter = $filters->hasFilterType('dbobject', 'children');
 
 			try
@@ -286,13 +295,13 @@ class Mysql extends Base
 			while (is_array($myRow = $db->fetchAssoc()) && ($numRows < ($this->maxRange - $this->nextRange)))
 			{
 				$this->createNewPartIfRequired();
-				$numRows++;
+				$numRows ++;
 				$numOfFields = count($myRow);
 
 				// On MS SQL Server there's always a RowNumber pseudocolumn added at the end, screwing up the backup (GRRRR!)
 				if ($db->getDriverType() == 'mssql')
 				{
-					$numOfFields--;
+					$numOfFields --;
 				}
 
 				// If row-level filtering is enabled, please run the filtering
@@ -303,7 +312,7 @@ class Mysql extends Base
 							'table' => $tableAbstract,
 							'row'   => $myRow
 						),
-						$configuration->get('volatile.database.root', '[SITEDB]'),
+						$dbRoot,
 						'dbobject',
 						'children'
 					);
@@ -311,12 +320,30 @@ class Mysql extends Base
 					if ($isFiltered)
 					{
 						// Update the auto_increment value to avoid edge cases when the batch size is one
-						if (!is_null($this->table_autoincrement['field']) && isset($myRow[$this->table_autoincrement['field']]))
+						if (!is_null($this->table_autoincrement['field']) && isset($myRow[ $this->table_autoincrement['field'] ]))
 						{
-							$this->table_autoincrement['value'] = $myRow[$this->table_autoincrement['field']];
+							$this->table_autoincrement['value'] = $myRow[ $this->table_autoincrement['field'] ];
 						}
 
 						continue;
+					}
+				}
+
+				// Check whether any column contains large amounts of data which could create restoration issues
+				if ($lastTableWithLargeColumns != $tableName)
+				{
+					foreach ($myRow as $columnName => $columnData)
+					{
+						$columnSize = strlen($columnData);
+
+						if ($columnSize >= 1024 * 1024)
+						{
+							Factory::getLog()
+							       ->log(LogLevel::WARNING, "Table column $columnName of table $tableAbstract contains $columnSize bytes of data. It could cause restoration issues");
+							$this->setWarning("Table column $columnName of table $tableAbstract contains $columnSize bytes of data. It could cause restoration issues");
+
+							$configuration->set('volatile.database.last_large_col_table', $tableName);
+						}
 					}
 				}
 
@@ -325,7 +352,7 @@ class Mysql extends Base
 					($this->extendedInserts && empty($this->query)) //...on extended INSERTs if there are no other data, yet
 				)
 				{
-					$newQuery = true;
+					$newQuery  = true;
 					$fieldList = $this->getFieldListSQL(array_keys($myRow), $numOfFields);
 
 					if ($numOfFields > 0)
@@ -353,7 +380,7 @@ class Mysql extends Base
 					foreach ($myRow as $value)
 					{
 						// The ID of the field, used to determine placement of commas
-						$fieldID++;
+						$fieldID ++;
 
 						if ($fieldID > $numOfFields)
 						{
@@ -367,7 +394,7 @@ class Mysql extends Base
 							if ($fieldID == 1)
 							{
 								// Compare the ID to the currently running
-								$statistics = Factory::getStatistics();
+								$statistics           = Factory::getStatistics();
 								$isCurrentBackupEntry = ($value == $statistics->getId());
 							}
 							elseif ($fieldID == 6)
@@ -386,7 +413,7 @@ class Mysql extends Base
 						{
 							// Accommodate for runtime magic quotes
 							$value = @get_magic_quotes_runtime() ? stripslashes($value) : $value;
-							$value = $db->Quote($value);
+							$value = $db->quote($value);
 							if ($this->postProcessValues)
 							{
 								$value = $this->postProcessQuotedValue($value);
@@ -410,7 +437,7 @@ class Mysql extends Base
 					{
 						// Check the existing query size
 						$query_length = strlen($this->query);
-						$data_length = strlen($outData);
+						$data_length  = strlen($outData);
 
 						if (($query_length + $data_length) > $this->packetSize)
 						{
@@ -478,7 +505,7 @@ class Mysql extends Base
 				// Update the auto_increment value to avoid edge cases when the batch size is one
 				if (!is_null($this->table_autoincrement['field']))
 				{
-					$this->table_autoincrement['value'] = $myRow[$this->table_autoincrement['field']];
+					$this->table_autoincrement['value'] = $myRow[ $this->table_autoincrement['field'] ];
 				}
 
 				unset($myRow);
@@ -486,7 +513,8 @@ class Mysql extends Base
 				// Check for imminent timeout
 				if ($timer->getTimeLeft() <= 0)
 				{
-					Factory::getLog()->log(LogLevel::DEBUG, "Breaking dump of $tableAbstract after $numRows rows; will continue on next step");
+					Factory::getLog()
+					       ->log(LogLevel::DEBUG, "Breaking dump of $tableAbstract after $numRows rows; will continue on next step");
 
 					break;
 				}
@@ -549,6 +577,7 @@ class Mysql extends Base
 				$this->setSubstep('');
 				$this->nextTable = '';
 				$this->nextRange = 0;
+				$configuration->set('volatile.database.last_large_col_table', $tableName);
 			}
 			elseif (count($this->tables) != 0)
 			{
@@ -564,11 +593,11 @@ class Mysql extends Base
 	/**
 	 * Gets the row count for table $tableAbstract. Also updates the $this->maxRange variable.
 	 *
-	 * @param string $tableAbstract The abstract name of the table (works with canonical names too, though)
+	 * @param   string  $tableAbstract  The abstract name of the table (works with canonical names too, though)
 	 *
-	 * @return integer Row count of the table
+	 * @return  void
 	 */
-	protected function  getRowCount($tableAbstract)
+	protected function getRowCount($tableAbstract)
 	{
 		$db = $this->getDB();
 
@@ -578,14 +607,12 @@ class Mysql extends Base
 		}
 
 		$sql = $db->getQuery(true)
-				  ->select('COUNT(*)')
-				  ->from($db->nameQuote($tableAbstract));
+		          ->select('COUNT(*)')
+		          ->from($db->nameQuote($tableAbstract));
 
 		$db->setQuery($sql);
 		$this->maxRange = $db->loadResult();
 		Factory::getLog()->log(LogLevel::DEBUG, "Rows on " . $tableAbstract . " : " . $this->maxRange);
-
-		return $this->maxRange;
 	}
 
 // =============================================================================
@@ -594,9 +621,9 @@ class Mysql extends Base
 
 	/**
 	 * Scans the database for tables to be backed up and sorts them according to
-	 * their dependencies on one another.
+	 * their dependencies on one another. Updates $this->dependencies.
 	 *
-	 * @return void Updates $this->dependencies
+	 * @return  void
 	 */
 	protected function getTablesToBackup()
 	{
@@ -649,9 +676,9 @@ class Mysql extends Base
 
 	/**
 	 * Generates a mapping between table names as they're stored in the database
-	 * and their abstract representation.
+	 * and their abstract representation. Updates $this->table_name_map
 	 *
-	 * @return void Updates $this->table_name_map
+	 * @return  void
 	 */
 	protected function  get_tables_mapping()
 	{
@@ -826,9 +853,9 @@ class Mysql extends Base
 
 	/**
 	 * Populates the _tables array with the metadata of each table and generates
-	 * dependency information for views and merge tables
+	 * dependency information for views and merge tables. Updates $this->tables_data.
 	 *
-	 * @return void Updates $this->tables_data
+	 * @return  void
 	 */
 	protected function get_tables_data()
 	{
@@ -982,7 +1009,7 @@ class Mysql extends Base
 		{
 			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Listing MySQL entities");
 			// Get a list of procedures
-			$sql = 'SHOW PROCEDURE STATUS WHERE `Db`=' . $db->Quote($this->database);
+			$sql = 'SHOW PROCEDURE STATUS WHERE `Db`=' . $db->quote($this->database);
 			$db->setQuery($sql);
 
 			try
@@ -1127,9 +1154,10 @@ class Mysql extends Base
 	}
 
 	/**
-	 * Populates the _tables array with the metadata of each table
+	 * Populates the _tables array with the metadata of each table.
+	 * Updates $this->tables_data and $this->tables.
 	 *
-	 * @return void Updates $this->tables_data and $this->tables
+	 * @return  void
 	 */
 	protected function get_tables_data_without_dependencies()
 	{
@@ -1167,12 +1195,12 @@ class Mysql extends Base
 	/**
 	 * Gets the CREATE TABLE command for a given table/view/procedure/function/trigger
 	 *
-	 * @param string $table_abstract The abstracted name of the entity
-	 * @param string $table_name     The name of the table
-	 * @param string $type           The type of the entity to scan. If it's found to differ, the correct type is returned.
-	 * @param array  $dependencies   The dependencies of this table
+	 * @param   string  $table_abstract  The abstracted name of the entity
+	 * @param   string  $table_name      The name of the table
+	 * @param   string  $type            The type of the entity to scan. If it's found to differ, the correct type is returned.
+	 * @param   array   $dependencies    The dependencies of this table
 	 *
-	 * @return string The CREATE command, w/out newlines
+	 * @return  string  The CREATE command, w/out newlines
 	 */
 	protected function get_create($table_abstract, $table_name, &$type, &$dependencies)
 	{
@@ -1209,6 +1237,7 @@ class Mysql extends Base
 		}
 
 		$db->setQuery($sql);
+
 		try
 		{
 			$temp = $db->loadRowList();
@@ -1451,7 +1480,7 @@ class Mysql extends Base
 	/**
 	 * Process all table dependencies
 	 *
-	 * @return void
+	 * @return  void
 	 */
 	protected function process_dependencies()
 	{
@@ -1472,10 +1501,10 @@ class Mysql extends Base
 	 * appear after it. It's a complicated chicken-and-egg problem. Just make
 	 * sure you don't have any bloody circular references!!
 	 *
-	 * @param string $table_name Canonical name of the table to push
-	 * @param array  $stack      When called recursive, other views/tables previously processed in order to detect *ahem* dependency loops...
+	 * @param   string  $table_name  Canonical name of the table to push
+	 * @param   array   $stack       When called recursive, other views/tables previously processed in order to detect *ahem* dependency loops...
 	 *
-	 * @return void
+	 * @return  void
 	 */
 	protected function  push_table($table_name, $stack = array(), $currentRecursionDepth = 0)
 	{
@@ -1579,9 +1608,9 @@ class Mysql extends Base
 	/**
 	 * Creates a drop query from a CREATE query
 	 *
-	 * @param $query string The CREATE query to process
+	 * @param   string  $query  The CREATE query to process
 	 *
-	 * @return string The DROP statement
+	 * @return  string  The DROP statement
 	 */
 	protected function createDrop($query)
 	{
@@ -1726,9 +1755,9 @@ class Mysql extends Base
 
 	/**
 	 * Try to find an auto_increment field for the table being currently backed up and populate the
-	 * $this->table_autoincrement table.
+	 * $this->table_autoincrement table. Updates $this->table_autoincrement.
 	 *
-	 * @return void Updates $this->table_autoincrement
+	 * @return  void
 	 */
 	protected function setAutoIncrementInfo()
 	{

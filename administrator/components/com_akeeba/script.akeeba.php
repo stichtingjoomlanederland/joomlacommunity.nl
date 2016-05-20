@@ -218,6 +218,8 @@ class Com_AkeebaInstallerScript extends F0FUtilsInstallscript
 			// Integrity check
 			'administrator/components/com_akeeba/fileslist.php',
 			'administrator/components/com_akeeba/controllers/checkfile.php',
+			// Post-install messages helper
+			'administrator/components/com_akeeba/helpers/postinstall.php',
 		),
 		'folders' => array(
 			// Plugins
@@ -409,6 +411,9 @@ class Com_AkeebaInstallerScript extends F0FUtilsInstallscript
 
 			// Obsolete remains of the legacy Live Update system
 			'administrator/components/com_akeeba/assets/xmlslurp',
+
+			// Obsolete Comconfig helper class
+			'administrator/components/com_akeeba/platform/joomla25/Util',
 		)
 	);
 
@@ -549,6 +554,8 @@ class Com_AkeebaInstallerScript extends F0FUtilsInstallscript
 		parent::postflight($type, $parent);
 
 		$this->uninstallObsoletePostinstallMessages();
+
+		$this->removeFOFUpdateSites();
 
 		// Make sure the two plugins folders exist in Core release and are empty
 		if (!$this->isPaid)
@@ -777,7 +784,10 @@ HTML;
 		$jlang->load('com_akeeba' . '.override', $paths[1], 'en-GB', true);
 
 		// Load the version file
-		@include_once JPATH_ADMINISTRATOR . '/components/com_akeeba/version.php';
+		if (!defined('AKEEBA_PRO'))
+		{
+			@include_once JPATH_ADMINISTRATOR . '/components/com_akeeba/version.php';
+		}
 
 		if (!defined('AKEEBA_PRO'))
 		{
@@ -882,5 +892,25 @@ HTML;
 				\Akeeba\Engine\Platform::getInstance()->save_configuration($profile);
 			}
 		}
+	}
+
+	/**
+	 * Remove FOF 2.x update sites
+	 */
+	private function removeFOFUpdateSites()
+	{
+		$db = F0FPlatform::getInstance()->getDbo();
+		$query = $db->getQuery(true)
+					->delete($db->qn('#__update_sites_extensions'))
+					->where($db->qn('location') . ' = ' . $db->q('http://cdn.akeebabackup.com/updates/fof.xml'));
+		try
+		{
+			$db->setQuery($query)->execute();
+		}
+		catch (\Exception $e)
+		{
+			// Do nothing on failure
+		}
+
 	}
 }

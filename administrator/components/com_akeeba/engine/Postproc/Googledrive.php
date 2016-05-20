@@ -37,7 +37,7 @@ class Googledrive extends Base
 
 	public function __construct()
 	{
-		$this->can_download_to_browser = true;
+		$this->can_download_to_browser = false;
 		$this->can_delete = true;
 		$this->can_download_to_file = true;
 	}
@@ -334,38 +334,6 @@ HTML;
 		}
 
 		return true;
-	}
-
-	/**
-	 * Returns a public download URL or starts a browser-side download of a remote file.
-	 * In the case of a public download URL, a string is returned. If a browser-side
-	 * download is initiated, it returns true. In any other case (e.g. unsupported, not
-	 * found, etc) it returns false.
-	 *
-	 * @param $remotePath string The file to download
-	 *
-	 * @return string|bool
-	 */
-	public function downloadToBrowser($remotePath)
-	{
-		// Get settings
-		$settings = $this->initialiseConnector();
-
-		if ($settings === false)
-		{
-			return false;
-		}
-
-		try
-		{
-			$fileId = $this->googleDrive->getIdForFile($remotePath, false);
-		}
-		catch (\Exception $e)
-		{
-			return false;
-		}
-
-		return $this->googleDrive->getSignedUrl($fileId);
 	}
 
 	public function delete($path)

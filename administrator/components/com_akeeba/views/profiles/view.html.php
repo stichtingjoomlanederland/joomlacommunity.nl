@@ -49,7 +49,7 @@ class AkeebaViewProfiles extends F0FViewHtml
 		// Get Sort By fields
 		$this->sortFields = array(
 			'id'          => JText::_('JGRID_HEADING_ID'),
-			'description' => JText::_('PROFILE_COLLABEL_DESCRIPTION'),
+			'description' => JText::_('COM_AKEEBA_PROFILES_COLLABEL_DESCRIPTION'),
 		);
 
 		return parent::onBrowse($tpl);

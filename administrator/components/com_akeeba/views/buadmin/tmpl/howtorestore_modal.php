@@ -18,7 +18,7 @@ $proKey = (defined('AKEEBA_PRO') && AKEEBA_PRO) ? 'PRO' : 'CORE';
 	<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
 		<h3>
-			<?php echo JText::_('BUADMIN_LABEL_HOWDOIRESTORE_LEGEND') ?>
+			<?php echo JText::_('COM_AKEEBA_BUADMIN_LABEL_HOWDOIRESTORE_LEGEND') ?>
 		</h3>
 	</div>
 	<div class="modal-body">

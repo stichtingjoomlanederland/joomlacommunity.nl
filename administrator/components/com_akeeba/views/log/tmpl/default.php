@@ -19,13 +19,13 @@ JHtml::_('formbehavior.chosen');
 	<input name="view" value="log" type="hidden" />
 	<input type="hidden" name="<?php echo JFactory::getSession()->getFormToken()?>" value="1" />
 	<fieldset>
-		<label for="tag"><?php echo JText::_('LOG_CHOOSE_FILE_TITLE'); ?></label>
+		<label for="tag"><?php echo JText::_('COM_AKEEBA_LOG_CHOOSE_FILE_TITLE'); ?></label>
 		<?php echo JHtml::_('select.genericlist', $this->logs, 'tag', 'onchange="submitform();" class="advancedSelect"', 'value', 'text', $this->tag) ?>
 
 		<?php if(!empty($this->tag)): ?>
 		<button class="btn btn-primary" onclick="window.location='<?php echo JUri::base(); ?>index.php?option=com_akeeba&view=log&task=download&tag=<?php echo urlencode($this->tag); ?>'; return false;">
 			<i class="icon-download-alt icon-white"></i>
-			<?php echo JText::_('LOG_LABEL_DOWNLOAD'); ?>
+			<?php echo JText::_('COM_AKEEBA_LOG_LABEL_DOWNLOAD'); ?>
 		</button>
 		<?php endif; ?>
 
@@ -42,6 +42,6 @@ JHtml::_('formbehavior.chosen');
 </form>
 <?php else: ?>
 <div class="alert alert-error alert-block">
-	<?php echo JText::_('LOG_NONE_FOUND') ?>
+	<?php echo JText::_('COM_AKEEBA_LOG_NONE_FOUND') ?>
 </div>
 <?php endif; ?>

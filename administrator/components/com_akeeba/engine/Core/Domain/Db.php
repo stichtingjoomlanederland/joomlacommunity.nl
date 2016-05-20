@@ -13,6 +13,7 @@ namespace Akeeba\Engine\Core\Domain;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
+use Akeeba\Engine\Platform;
 use Psr\Log\LogLevel;
 use Akeeba\Engine\Base\Part;
 use Akeeba\Engine\Factory;
@@ -272,6 +273,7 @@ class Db extends Part
 		$this->databases_ini = '';
 
 		$blankOutPass = Factory::getConfiguration()->get('engine.dump.common.blankoutpass', 0);
+		$siteRoot     = Factory::getConfiguration()->get('akeeba.platform.newroot', '');
 
 		// Loop through databases list
 		foreach ($this->dumpedDatabases as $definition)
@@ -281,6 +283,13 @@ class Db extends Part
 			$dboInstance = Factory::getDatabase($definition);
 			$type = $dboInstance->name;
 			$tech = $dboInstance->getDriverType();
+
+			// If the database is a sqlite one, we have to process the database name which contains the path
+			// At the moment we only handle the case where the db file is UNDER site root
+			if ($tech == 'sqlite')
+			{
+				$definition['database'] = str_replace($siteRoot, '#SITEROOT#', $definition['database']);
+			}
 
 			if ($blankOutPass)
 			{

@@ -76,15 +76,15 @@ class AkeebaHelperStatus extends JObject
 
 		if($status && empty($quirks))
 		{
-			$html = '<p class="alert alert-success">'.JText::_('STATUS_OK').'</p>';
+			$html = '<p class="alert alert-success">'.JText::_('COM_AKEEBA_CPANEL_LBL_STATUS_OK').'</p>';
 		}
 		elseif($status && !empty($quirks))
 		{
-			$html = '<p class="alert">'.JText::_('STATUS_WARNING').'</p>';
+			$html = '<p class="alert">'.JText::_('COM_AKEEBA_CPANEL_LBL_STATUS_WARNING').'</p>';
 		}
 		else
 		{
-			$html = '<p class="alert alert-error">'.JText::_('STATUS_ERROR').'</p>';
+			$html = '<p class="alert alert-error">'.JText::_('COM_AKEEBA_CPANEL_LBL_STATUS_ERROR').'</p>';
 		}
 		return $html;
 	}
@@ -110,7 +110,7 @@ class AkeebaHelperStatus extends JObject
 		}
 		else
 		{
-			$html = '<p>'.JText::_('QNONE').'</p>';
+			$html = '<p>'.JText::_('COM_AKEEBA_CPANEL_WARNING_QNONE').'</p>';
 		}
 
 		return $html;

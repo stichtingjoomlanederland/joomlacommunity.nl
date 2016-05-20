@@ -46,7 +46,7 @@ $token = JFactory::getSession()->getFormToken();
 	<input type="hidden" name="<?php echo JFactory::getSession()->getFormToken()?>" value="1" />
 
 	<div class="alert alert-info">
-		<strong><?php echo JText::_('CPANEL_PROFILE_TITLE'); ?></strong>:
+		<strong><?php echo JText::_('COM_AKEEBA_CPANEL_PROFILE_TITLE'); ?></strong>:
 		#<?php echo $this->profileid; ?> <?php echo $this->profilename; ?>
 	</div>
 
@@ -95,7 +95,7 @@ $token = JFactory::getSession()->getFormToken();
 				</th>
 				<th width="20%"></th>
 				<th>
-					<?php echo JHTML::_('grid.sort', 'PROFILE_COLLABEL_DESCRIPTION', 'description', $this->lists->order_Dir, $this->lists->order, 'browse'); ?>
+					<?php echo JHTML::_('grid.sort', 'COM_AKEEBA_PROFILES_COLLABEL_DESCRIPTION', 'description', $this->lists->order_Dir, $this->lists->order, 'browse'); ?>
 				</th>
 			</tr>
 			<tr>
@@ -107,7 +107,7 @@ $token = JFactory::getSession()->getFormToken();
 						<input type="text" name="description" id="description"
 							   value="<?php echo $this->escape($this->getModel()->getState('description', '')); ?>" size="30"
 							   class="input-small" onchange="document.adminForm.submit();"
-							   placeholder="<?php echo JText::_('PROFILE_COLLABEL_DESCRIPTION') ?>"
+							   placeholder="<?php echo JText::_('COM_AKEEBA_PROFILES_COLLABEL_DESCRIPTION') ?>"
 							/>
 						<button class="btn btn-mini" onclick="this.form.submit();">
 							<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>
@@ -140,7 +140,7 @@ $token = JFactory::getSession()->getFormToken();
 				<td>
 					<button class="btn btn-mini btn-primary" onclick="window.location='index.php?option=com_akeeba&task=switchprofile&profileid=<?php echo $profile->id ?>&returnurl=<?php echo $configurl ?>&<?php echo $token ?>=1'; return false;">
 						<i class="icon-cog icon-white"></i>
-						<?php echo JText::_('CONFIG_UI_CONFIG'); ?>
+						<?php echo JText::_('COM_AKEEBA_CONFIG_UI_CONFIG'); ?>
 					</button>
 					&nbsp;
 					<button class="btn btn-mini" onclick="window.location='index.php?option=com_akeeba&view=profile&task=read&id=<?php echo $profile->id ?>&basename=<?php echo $exportBaseName?>&format=json&<?php echo $token ?>=1'; return false;">

@@ -60,6 +60,8 @@ class Sqlite extends Base
 
     public function __construct(array $options)
     {
+	    $this->driverType = 'sqlite';
+	    
         parent::__construct($options);
 
         if (!is_object($this->connection))
@@ -299,7 +301,19 @@ class Sqlite extends Base
 		return $tables;
 	}
 
-	/**
+    /**
+     * There's no point on return "a list of tables" inside a SQLite database: we are simple going to
+     * copy the whole database file in the new location
+     *
+     * @param bool $abstract
+     * @return array
+     */
+    public function getTables($abstract = true)
+    {
+        return array();
+    }
+
+    /**
 	 * Get the version of the database connector.
 	 *
 	 * @return  string  The database connector version.

@@ -22,7 +22,7 @@ $getText = $editor->getContent('comment');
 
 	<div class="control-group">
 		<label class="control-label" for="description">
-			<?php echo JText::_('STATS_LABEL_DESCRIPTION'); ?>
+			<?php echo JText::_('COM_AKEEBA_BUADMIN_LABEL_DESCRIPTION'); ?>
 		</label>
 		<div class="controls">
 			<input type="text" name="description" maxlength="255" size="50"
@@ -31,7 +31,7 @@ $getText = $editor->getContent('comment');
 	</div>
 	<div class="control-group">
 		<label class="control-label" for="comment">
-			<?php echo JText::_('STATS_LABEL_DESCRIPTION'); ?>
+			<?php echo JText::_('COM_AKEEBA_BUADMIN_LABEL_DESCRIPTION'); ?>
 		</label>
 		<div class="controls">
 			<?php echo $editor->display( 'comment',  $this->record['comment'], '550', '400', '60', '20', array() ) ; ?>

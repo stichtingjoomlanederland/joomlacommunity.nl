@@ -70,7 +70,7 @@ if ($showUploadRemote)
 		<?php if ($record['multipart'] < 2): ?>
 			<a class="btn btn-mini" href="javascript:confirmDownload('<?php echo $thisID ?>', '<?php echo $thisPart ?>');">
 				<span class="fa fa-fw fa-download"></span>
-				<?php echo JText::_('STATS_LOG_DOWNLOAD'); ?>
+				<?php echo JText::_('COM_AKEEBA_BUADMIN_LOG_DOWNLOAD'); ?>
 			</a>
 		<?php else: ?>
 			<div>
@@ -78,7 +78,7 @@ if ($showUploadRemote)
 			</div>
 			<?php for ($count = 0; $count < $record['multipart']; $count++):
 				$thisPart = urlencode($count);
-				$label = JText::sprintf('STATS_LABEL_PART', $count);
+				$label = JText::sprintf('COM_AKEEBA_BUADMIN_LABEL_PART', $count);
 				?>
 				<?php if ($count > 0): ?>
 				&bull;
@@ -99,17 +99,17 @@ if ($showUploadRemote)
 	   rel="{handler: 'iframe', size: {x: 450, y: 280}, onClose: function(){window.location='index.php?option=com_akeeba&view=buadmin'}}"
 		>
 		<span class="fa fa-fw fa-cloud"></span>
-		<?php echo JText::_('STATS_LABEL_REMOTEFILEMGMT'); ?>
+		<?php echo JText::_('COM_AKEEBA_BUADMIN_LABEL_REMOTEFILEMGMT'); ?>
 	</a>
 </div>
 <?php elseif ($showUploadRemote): ?>
 	<a class="btn btn-primary modal akeeba_upload"
 	   href="index.php?option=com_akeeba&view=upload&tmpl=component&task=start&id=<?php echo $record['id'] ?>"
 	   rel="{handler: 'iframe', size: {x: 350, y: 200}, onClose: function(){window.location='index.php?option=com_akeeba&view=buadmin'}}"
-	   title="<?php echo JText::sprintf('AKEEBA_TRANSFER_DESC', JText::_("ENGINE_POSTPROC_{$postProcEngine}_TITLE")) ?>"
+	   title="<?php echo JText::sprintf('COM_AKEEBA_TRANSFER_DESC', JText::_("ENGINE_POSTPROC_{$postProcEngine}_TITLE")) ?>"
 		>
 		<span class="fa fa-fw fa-cloud-upload"></span>
-		<?php echo JText::_('AKEEBA_TRANSFER_TITLE') ?>
+		<?php echo JText::_('COM_AKEEBA_TRANSFER_TITLE') ?>
 		(<em><?php echo $postProcEngine ?></em>)
 	</a>
 <?php endif; ?>
@@ -121,7 +121,7 @@ if ($showUploadRemote)
 	   rel="{handler: 'clone', target: '#akeeba-buadmin-download-<?php echo $record['id'] ?>', size: {x: 450, y: 280}}"
 		>
 		<span class="fa fa-fw fa-download"></span>
-		<?php echo JText::_('STATS_LOG_DOWNLOAD'); ?>
+		<?php echo JText::_('COM_AKEEBA_BUADMIN_LOG_DOWNLOAD'); ?>
 	</a>
 	<?php endif; ?>
 
@@ -132,7 +132,7 @@ if ($showUploadRemote)
 	   data-content="<?php echo $this->escape($record['backupid']); ?>"
 		>
 		<span class="fa fa-fw fa-list"></span>
-		<?php echo JText::_('VIEWLOG'); ?>
+		<?php echo JText::_('COM_AKEEBA_LOG'); ?>
 	</a>
 	<?php endif; ?>
 

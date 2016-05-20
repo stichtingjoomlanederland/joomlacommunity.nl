@@ -732,7 +732,12 @@ class EngineParameters
 
 		foreach ($groupdefs as $group_ini => $definition)
 		{
-			$group_name = Platform::getInstance()->translate($definition['information']['description']);
+			$group_name = '';
+
+			if (isset($definition['information']) && isset($definition['information']['description']))
+			{
+				$group_name = Platform::getInstance()->translate($definition['information']['description']);
+			}
 
 			// Skip no-name groups
 			if (empty($group_name))

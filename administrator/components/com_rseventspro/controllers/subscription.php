@@ -37,9 +37,10 @@ class rseventsproControllerSubscription extends JControllerForm
 	 *	Method to get user email address.
 	 */
 	public function email() {
-		echo 'RS_DELIMITER0';
-		echo JFactory::getUser(JFactory::getApplication()->input->getInt('id'))->get('email');
-		echo 'RS_DELIMITER1';
+		$id		= JFactory::getApplication()->input->getInt('id');
+		$user	= JFactory::getUser($id);
+		
+		echo json_encode(array('id' => $user->get('id'), 'name' => $user->get('name'), 'username' => $user->get('username'), 'email' => $user->get('email')));
 		JFactory::getApplication()->close();
 	}
 }

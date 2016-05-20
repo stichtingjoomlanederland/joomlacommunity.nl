@@ -171,13 +171,16 @@ class RSEventsQuery
 		$query .= $db->qn('e.completed').' = '.$db->q(1);
 		
 		// The events state
-		if ($this->params->get('archived',0)) {
-			$state = '1,2';
-		} else if ($listType == 'archived') {
+		if ($listType == 'archived') {
 			$state = '2';
-		} else { 
-			$state = '1';
+		} else {
+			if ($this->params->get('archived',0)) {
+				$state = '1,2';
+			} else { 
+				$state = '1';
+			}
 		}
+		
 		$query .= ' AND '.$db->qn('e.published').' IN ('.$state.')';
 		
 		// Exclude events that the current user has no permission 

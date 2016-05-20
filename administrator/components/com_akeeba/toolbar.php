@@ -29,7 +29,7 @@ class AkeebaToolbar extends F0FToolbar
 
 	public function onCpanelsAdd()
 	{
-		JToolBarHelper::title(JText::_('AKEEBA').' :: <small>'.JText::_('AKEEBA_CONTROLPANEL').'</small>','akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').' :: <small>'.JText::_('COM_AKEEBA_CONTROLPANEL').'</small>','akeeba');
 
 		// $this->_renderDefaultSubmenus('cpanel');
 	}
@@ -37,7 +37,7 @@ class AkeebaToolbar extends F0FToolbar
 	public function onBackups()
 	{
 		// Add some buttons
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 		JToolBarHelper::spacer();
 
 		// $this->_renderDefaultSubmenus('backup');
@@ -46,15 +46,15 @@ class AkeebaToolbar extends F0FToolbar
 	public function onConfwizsAdd()
 	{
 		// Set the toolbar title
-		JToolBarHelper::title(JText::_('AKEEBA').':: <small>'.JText::_('AKEEBA_CONFWIZ').'</small>','akeeba');
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').':: <small>'.JText::_('COM_AKEEBA_CONFWIZ').'</small>','akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 	}
 
 	public function onProfilesBrowse()
 	{
-		JToolBarHelper::title(JText::_('AKEEBA').': <small>'.JText::_('PROFILES').'</small>','akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_PROFILES').'</small>','akeeba');
 
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 		JToolBarHelper::spacer();
 		JToolBarHelper::addNew();
 		JToolBarHelper::custom('copy', 'copy.png', 'copy_f2.png', 'COM_AKEEBA_LBL_BATCH_COPY', false);
@@ -66,19 +66,19 @@ class AkeebaToolbar extends F0FToolbar
 	public function onProfilesEdit()
 	{
 		parent::onEdit();
-		JToolBarHelper::title(JText::_('AKEEBA').': <small>'.JText::_('PROFILE_PAGETITLE_EDIT').'</small>','akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_PROFILES_PAGETITLE_EDIT').'</small>','akeeba');
 	}
 
 	public function onProfilesAdd()
 	{
 		parent::onAdd();
-		JToolBarHelper::title(JText::_('AKEEBA').': <small>'.JText::_('PROFILE_PAGETITLE_NEW').'</small>','akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_PROFILES_PAGETITLE_NEW').'</small>','akeeba');
 	}
 
 	public function onConfigsAdd()
 	{
 		// Toolbar buttons
-		JToolBarHelper::title(JText::_('AKEEBA').':: <small>'.JText::_('CONFIGURATION').'</small>','akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').':: <small>'.JText::_('COM_AKEEBA_CONFIG').'</small>','akeeba');
 		JToolBarHelper::preferences('com_akeeba', '500', '660');
 		JToolBarHelper::spacer();
 		JToolBarHelper::apply();
@@ -92,7 +92,7 @@ class AkeebaToolbar extends F0FToolbar
 		$icon = version_compare(JVERSION, '3.0.0', 'ge') ? 'lightning' : 'default';
 
 		$bar = JToolbar::getInstance('toolbar');
-		$bar->appendButton('Link', $icon, '<strong>' . JText::_('AKEEBA_CONFWIZ') . '</strong>', 'index.php?option=com_akeeba&view=confwiz');
+		$bar->appendButton('Link', $icon, '<strong>' . JText::_('COM_AKEEBA_CONFWIZ') . '</strong>', 'index.php?option=com_akeeba&view=confwiz');
 
 		$js = <<< JS
 ;;
@@ -122,23 +122,23 @@ JS;
 		{
 			case 'default':
 			default:
-				JToolBarHelper::title(JText::_('AKEEBA').': <small>'.JText::_('BUADMIN').'</small>','akeeba');
+				JToolBarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_BUADMIN').'</small>','akeeba');
 				break;
 		}
 
 		JToolBarHelper::spacer();
 		JToolBarHelper::deleteList();
-		JToolBarHelper::custom( 'deletefiles', 'delete.png', 'delete_f2.png', JText::_('STATS_LABEL_DELETEFILES'), true );
+		JToolBarHelper::custom( 'deletefiles', 'delete.png', 'delete_f2.png', JText::_('COM_AKEEBA_BUADMIN_LABEL_DELETEFILES'), true );
 		JToolBarHelper::spacer();
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 
 		//$this->_renderDefaultSubmenus('buadmin');
 	}
 
 	public function onBuadminsEdit()
 	{
-		JToolBarHelper::title(JText::_('AKEEBA').': <small>'.JText::_('BUADMIN').'</small>','akeeba');
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_BUADMIN').'</small>','akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 		JToolBarHelper::save();
 		JToolBarHelper::cancel();
 
@@ -147,42 +147,42 @@ JS;
 
 	public function onDiscoversBrowse()
 	{
-		JToolBarHelper::title(JText::_('AKEEBA').': <small>'.JText::_('DISCOVER').'</small>','akeeba');
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_DISCOVER').'</small>','akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 	}
 
 	public function onDiscoversDiscover()
 	{
-		JToolBarHelper::title(JText::_('AKEEBA').': <small>'.JText::_('DISCOVER').'</small>','akeeba');
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_DISCOVER').'</small>','akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 	}
 
 	public function onS3importsBrowse()
 	{
-		JToolBarHelper::title(JText::_('AKEEBA').': <small>'.JText::_('S3IMPORT').'</small>','akeeba');
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_S3IMPORT').'</small>','akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 	}
 
 	public function onS3importsDltoserver()
 	{
-		JToolBarHelper::title(JText::_('AKEEBA').': <small>'.JText::_('S3IMPORT').'</small>','akeeba');
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_S3IMPORT').'</small>','akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 	}
 
 	public function onRemotefilesListactions()
 	{
-		JToolBarHelper::title(JText::_('AKEEBA_REMOTEFILES'),'akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA_REMOTEFILES'),'akeeba');
 	}
 
 	public function onRemotefilesDltoserver()
 	{
-		JToolBarHelper::title(JText::_('AKEEBA_REMOTEFILES'),'akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA_REMOTEFILES'),'akeeba');
 	}
 
 	public function onLogsBrowse()
 	{
-		JToolBarHelper::title(JText::_('AKEEBA').': <small>'.JText::_('VIEWLOG').'</small>','akeeba');
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_LOG').'</small>','akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 		JToolBarHelper::spacer();
 
 		// $this->_renderDefaultSubmenus('log');
@@ -191,64 +191,64 @@ JS;
 	public function onFsfiltersBrowse()
 	{
 		// Add toolbar buttons
-		JToolBarHelper::title(JText::_('AKEEBA').': <small>'.JText::_('FSFILTERS').'</small>','akeeba');
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_FILEFILTERS').'</small>','akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 	}
 
 	public function onDbefsBrowse()
 	{
 		// Add toolbar buttons
-		JToolBarHelper::title(JText::_('AKEEBA').': <small>'.JText::_('DBEF').'</small>','akeeba');
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_DBFILTER').'</small>','akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 	}
 
 	public function onMultidbsBrowse()
 	{
 		// Add toolbar buttons
-		JToolBarHelper::title(JText::_('AKEEBA').': <small>'.JText::_('MULTIDB').'</small>','akeeba');
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_MULTIDB').'</small>','akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 	}
 
 	public function onRegexfsfiltersBrowse()
 	{
 		// Add toolbar buttons
-		JToolBarHelper::title(JText::_('AKEEBA').': <small>'.JText::_('REGEXFSFILTERS').'</small>','akeeba');
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_REGEXFSFILTERS').'</small>','akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 	}
 
 	public function onRegexdbfiltersBrowse()
 	{
 		// Add toolbar buttons
-		JToolBarHelper::title(JText::_('AKEEBA').': <small>'.JText::_('REGEXDBFILTERS').'</small>','akeeba');
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_REGEXDBFILTERS').'</small>','akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 	}
 
 	public function onEffsBrowse()
 	{
-		JToolBarHelper::title(JText::_('AKEEBA').': <small>'.JText::_('EXTRADIRS').'</small>','akeeba');
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_INCLUDEFOLDER').'</small>','akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 		JToolBarHelper::spacer();
 	}
 
 	public function onRestores()
 	{
-		JToolBarHelper::title(JText::_('AKEEBA').': <small>'.JText::_('RESTORATION').'</small>','akeeba');
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_RESTORE').'</small>','akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 		JToolBarHelper::spacer();
 	}
 
 	public function onSchedules()
 	{
 		// Set the toolbar title
-		JToolBarHelper::title(JText::_('AKEEBA').':: <small>'.JText::_('AKEEBA_SCHEDULE').'</small>','akeeba');
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').':: <small>'.JText::_('COM_AKEEBA_SCHEDULE').'</small>','akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 	}
 
 	public function onTransfers()
 	{
 		// Set the toolbar title
-		JToolBarHelper::title(JText::_('AKEEBA').': <small>'.JText::_('COM_AKEEBA_TRANSFER').'</small>','akeeba');
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_TRANSFER').'</small>','akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 
 		$icon = version_compare(JVERSION, '3.0.0', 'ge') ? 'loop' : 'restore';
 
@@ -259,18 +259,18 @@ JS;
 	public function onUpdates()
 	{
 		// Set the toolbar title
-		JToolBarHelper::title(JText::_('AKEEBA').':: <small>'.JText::_('LIVEUPDATE').'</small>','akeeba');
-		JToolBarHelper::back('AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolBarHelper::title(JText::_('COM_AKEEBA').':: <small>'.JText::_('LIVEUPDATE').'</small>','akeeba');
+		JToolBarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 	}
 
 	private function _renderDefaultSubmenus($active = '')
 	{
 		$submenus = array(
-			'cpanel'		=>	'AKEEBA_CONTROLPANEL',
-			'config'		=>	'CONFIGURATION',
-			'backup'		=>	'BACKUP',
-			'buadmin'		=>	'BUADMIN',
-			'log'			=>	'VIEWLOG',
+			'cpanel'		=>	'COM_AKEEBA_CONTROLPANEL',
+			'config'		=>	'COM_AKEEBA_CONFIG',
+			'backup'		=>	'COM_AKEEBA_BACKUP',
+			'buadmin'		=>	'COM_AKEEBA_BUADMIN',
+			'log'			=>	'COM_AKEEBA_LOG',
 		);
 
 		foreach($submenus as $view => $key) {

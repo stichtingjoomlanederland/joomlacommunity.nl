@@ -41,7 +41,7 @@ class AkeebaViewBackup extends F0FViewHtml
 		$tz                  = $user->getParam('timezone', $tzDefault);
 		$dateNow             = new JDate('now', $tz);
 		$default_description =
-			JText::_('BACKUP_DEFAULT_DESCRIPTION') . ' ' . $dateNow->format(JText::_('DATE_FORMAT_LC2'), true);
+			JText::_('COM_AKEEBA_BACKUP_DEFAULT_DESCRIPTION') . ' ' . $dateNow->format(JText::_('DATE_FORMAT_LC2'), true);
 		$default_description = AkeebaHelperEscape::escapeJS($default_description, "'");
 
 		$backup_description = $model->getState('description', $default_description);
@@ -140,12 +140,17 @@ class AkeebaViewBackup extends F0FViewHtml
 		$this->profilelist = $cpanelmodel->getProfilesList(); // List of available profiles
 
 		// Should I ask for permission to display desktop notifications?
-		JLoader::import('joomla.application.component.helper');
-		$this->desktop_notifications = \Akeeba\Engine\Util\Comconfig::getValue('desktop_notifications', '0') ? 1 : 0;
+		if (!class_exists('AkeebaHelperParams'))
+		{
+			require_once JPATH_ADMINISTRATOR . '/components/com_akeeba/helpers/params.php';
+		}
+
+		$params = new AkeebaHelperParams();
+		$this->desktop_notifications = $params->get('desktop_notifications', '0') ? 1 : 0;
 
 		// Set the toolbar title
-		$subtitle = JText::_('BACKUP');
-		JToolBarHelper::title(JText::_('AKEEBA') . ':: <small>' . $subtitle . '</small>', 'akeeba');
+		$subtitle = JText::_('COM_AKEEBA_BACKUP');
+		JToolBarHelper::title(JText::_('COM_AKEEBA') . ':: <small>' . $subtitle . '</small>', 'akeeba');
 
 		return true;
 	}

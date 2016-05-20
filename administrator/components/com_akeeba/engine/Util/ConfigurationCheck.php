@@ -29,20 +29,20 @@ class ConfigurationCheck
 	 */
 	protected $configurationChecks = array
 	(
-		array('code' => '001', 'severity' => 'critical', 'callback' => array(null, 'q001'), 'description' => 'Q001'),
-		array('code' => '003', 'severity' => 'critical', 'callback' => array(null, 'q003'), 'description' => 'Q003'),
-		array('code' => '004', 'severity' => 'critical', 'callback' => array(null, 'q004'), 'description' => 'Q004'),
+		array('code' => '001', 'severity' => 'critical', 'callback' => array(null, 'q001'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q001'),
+		array('code' => '003', 'severity' => 'critical', 'callback' => array(null, 'q003'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q003'),
+		array('code' => '004', 'severity' => 'critical', 'callback' => array(null, 'q004'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q004'),
 
-		array('code' => '101', 'severity' => 'high', 'callback' => array(null, 'q101'), 'description' => 'Q101'),
-		array('code' => '103', 'severity' => 'high', 'callback' => array(null, 'q103'), 'description' => 'Q103'),
-		array('code' => '104', 'severity' => 'high', 'callback' => array(null, 'q104'), 'description' => 'Q104'),
+		array('code' => '101', 'severity' => 'high', 'callback' => array(null, 'q101'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q101'),
+		array('code' => '103', 'severity' => 'high', 'callback' => array(null, 'q103'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q103'),
+		array('code' => '104', 'severity' => 'high', 'callback' => array(null, 'q104'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q104'),
 
-		array('code' => '201', 'severity' => 'high', 'callback' => array(null, 'q201'), 'description' => 'Q201'),
-		array('code' => '202', 'severity' => 'medium', 'callback' => array(null, 'q202'), 'description' => 'Q202'),
-		array('code' => '204', 'severity' => 'medium', 'callback' => array(null, 'q204'), 'description' => 'Q204'),
+		array('code' => '201', 'severity' => 'high', 'callback' => array(null, 'q201'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q201'),
+		array('code' => '202', 'severity' => 'medium', 'callback' => array(null, 'q202'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q202'),
+		array('code' => '204', 'severity' => 'medium', 'callback' => array(null, 'q204'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q204'),
 
-		array('code' => '203', 'severity' => 'low', 'callback' => array(null, 'q203'), 'description' => 'Q203'),
-		array('code' => '401', 'severity' => 'low', 'callback' => array(null, 'q401'), 'description' => 'Q401'),
+		array('code' => '203', 'severity' => 'low', 'callback' => array(null, 'q203'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q203'),
+		array('code' => '401', 'severity' => 'low', 'callback' => array(null, 'q401'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q401'),
 	);
 
 	/**
@@ -138,7 +138,7 @@ class ConfigurationCheck
 
 		if (empty($description))
 		{
-			$description = 'Q' . $code;
+			$description = 'COM_AKEEBA_CPANEL_WARNING_Q' . $code;
 		}
 
 		$newConfigurationCheck = array(

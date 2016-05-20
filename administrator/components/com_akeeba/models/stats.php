@@ -102,11 +102,16 @@ class AkeebaModelStats extends F0FModel
 			return false;
 		}
 
-		$params = JComponentHelper::getParams('com_akeeba');
-
 		$lastrun = $this->getCommonVariable('stats_lastrun', 0);
 
 		// Data collection is turned off
+		if (!class_exists('AkeebaHelperParams'))
+		{
+			require_once JPATH_ADMINISTRATOR . '/components/com_akeeba/helpers/params.php';
+		}
+
+		$params = new AkeebaHelperParams();
+
 		if (!$params->get('stats_enabled', 1))
 		{
 			return false;

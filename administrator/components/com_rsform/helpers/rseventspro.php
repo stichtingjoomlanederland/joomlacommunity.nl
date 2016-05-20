@@ -8,6 +8,12 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 ?>
+
+<style>
+#rseproemailsdiv {
+	overflow: hidden;
+}
+</style>
 <table class="admintable">
 <tr>
 	<td valign="top" align="left" width="60%">
@@ -41,7 +47,7 @@ defined('_JEXEC') or die('Restricted access');
 		
 		$content = '<table width="100%">';
 		$content .= '<tr>';
-		$content .= '<td width="60%">';
+		$content .= '<td width="60%" valign="top">';
 		
 		$content .= '<table class="admintable" width="100%" cellpadding="5">';
 		foreach ($email as $field) {

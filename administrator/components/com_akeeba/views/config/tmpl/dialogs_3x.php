@@ -10,12 +10,12 @@
 defined('_JEXEC') or die();
 
 ?>
-<div class="akeeba-bootstrap" id="ftpdialog" title="<?php echo JText::_('CONFIG_UI_FTPBROWSER_TITLE') ?>" style="display:none;">
+<div class="akeeba-bootstrap" id="ftpdialog" title="<?php echo JText::_('COM_AKEEBA_CONFIG_UI_FTPBROWSER_TITLE') ?>" style="display:none;">
 	<p class="instructions alert alert-info">
-		<?php echo JText::_('FTPBROWSER_LBL_INSTRUCTIONS'); ?>
+		<?php echo JText::_('COM_AKEEBA_FTPBROWSER_LBL_INSTRUCTIONS'); ?>
 	</p>
 	<div class="error alert alert-error" id="ftpBrowserErrorContainer">
-		<h2><?php echo JText::_('FTPBROWSER_LBL_ERROR'); ?></h2>
+		<h2><?php echo JText::_('COM_AKEEBA_FTPBROWSER_LBL_ERROR'); ?></h2>
 		<p id="ftpBrowserError"></p>
 	</div>
 	<ul id="ak_crumbs" class="breadcrumb"></ul>
@@ -27,12 +27,12 @@ defined('_JEXEC') or die();
 	</div>
 </div>
 
-<div class="akeeba-bootstrap" id="sftpdialog" title="<?php echo JText::_('CONFIG_UI_SFTPBROWSER_TITLE') ?>" style="display:none;">
+<div class="akeeba-bootstrap" id="sftpdialog" title="<?php echo JText::_('COM_AKEEBA_CONFIG_UI_SFTPBROWSER_TITLE') ?>" style="display:none;">
 	<p class="instructions alert alert-info">
-		<?php echo JText::_('SFTPBROWSER_LBL_INSTRUCTIONS'); ?>
+		<?php echo JText::_('COM_AKEEBA_SFTPBROWSER_LBL_INSTRUCTIONS'); ?>
 	</p>
 	<div class="error alert alert-error" id="sftpBrowserErrorContainer">
-		<h2><?php echo JText::_('SFTPBROWSER_LBL_ERROR'); ?></h2>
+		<h2><?php echo JText::_('COM_AKEEBA_SFTPBROWSER_LBL_ERROR'); ?></h2>
 		<p id="sftpBrowserError"></p>
 	</div>
 	<ul id="ak_scrumbs" class="breadcrumb"></ul>

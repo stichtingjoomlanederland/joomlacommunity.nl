@@ -13,8 +13,7 @@ defined('_JEXEC') or die('Restricted access');
 		<?php echo $this->sidebar; ?>
 	</div>
 	<div id="j-main-container" class="span10">
-		<p><strong><?php echo JText::_('COM_RSFIREWALL_UPDATE_CHECKING'); ?></strong></p>
-		<iframe src="https://www.rsjoomla.com/index.php?option=com_rsmembership&amp;task=checkupdate&amp;sess=<?php echo $this->hash; ?>&amp;revision=<?php echo urlencode($this->version); ?>&amp;version=<?php echo urlencode($this->jversion); ?>&amp;tmpl=component" style="border:0px solid;width:100%;height:22px;" scrolling="no" frameborder="no"></iframe>
-		<iframe src="https://www.rsjoomla.com/latest.html?tmpl=component" style="border:0px solid;width:100%;height:380px;" scrolling="no" frameborder="no"></iframe>
+		<p><?php echo JText::_('COM_RSFIREWALL_UPDATE_INSTRUCTIONS'); ?></p>
+		<p><a href="https://www.rsjoomla.com/support/documentation/rsfirewall-user-guide/installing-and-uninstalling/updating-rsfirewall.html#joomla" class="btn btn-primary" target="_blank"><?php echo JText::_('COM_RSFIREWALL_UPDATE_CLICK_HERE_TO_READ'); ?></a></p>
 	</div>
 </form>

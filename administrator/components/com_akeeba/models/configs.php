@@ -31,7 +31,7 @@ class AkeebaModelConfigs extends F0FModel
 
 			if ($check == $folder)
 			{
-				JError::raiseWarning(503, JText::_('CONFIG_OUTDIR_ROOT'));
+				JError::raiseWarning(503, JText::_('COM_AKEEBA_CONFIG_OUTDIR_ROOT'));
 				$data['akeeba.basic.output_directory'] = '[DEFAULT_OUTPUT]';
 			}
 		}
@@ -67,7 +67,7 @@ class AkeebaModelConfigs extends F0FModel
 		// Check for bad settings
 		if (substr($config['host'], 0, 6) == 'ftp://')
 		{
-			return JText::_('CONFIG_FTPTEST_BADPREFIX');
+			return JText::_('COM_AKEEBA_CONFIG_FTPTEST_BADPREFIX');
 		}
 
 		// Perform the FTP connection test
@@ -107,7 +107,7 @@ class AkeebaModelConfigs extends F0FModel
 		// Check for bad settings
 		if (substr($config['host'], 0, 7) == 'sftp://')
 		{
-			return JText::_('CONFIG_SFTPTEST_BADPREFIX');
+			return JText::_('COM_AKEEBA_CONFIG_SFTPTEST_BADPREFIX');
 		}
 
 		// Perform the FTP connection test

@@ -53,6 +53,27 @@ JHtml::_('behavior.modal'); ?>
 		}
 	}
 	
+	function rsepro_OpenUsersModal() {
+		SqueezeBox.open('index.php?option=com_users&view=users&layout=modal&tmpl=component&field=jform_jusers<?php echo !empty($this->excludes) ? ('&excluded=' . base64_encode(json_encode($this->excludes))) : ''; ?>', {
+			handler : 'iframe',
+			size : {
+				x : 800,
+				y : 500
+			},
+			iframeOptions: {
+				onload : 'rsepro_attachUsersModalEvents(this)'
+			}
+		});
+	}
+	
+	function rsepro_attachUsersModalEvents(what) {
+		jQuery(what).contents().find('a.button-select').each(function() {
+			jQuery(this).on('click', function() {
+				jSelectUser_jform_jusers(jQuery(this).data('user-value'), jQuery(this).data('user-name'));
+			});
+		});
+	}
+	
 	function jSelectUser_jform_jusers(id, name) {
 		if (id == '') {
 			SqueezeBox.close();
@@ -84,7 +105,7 @@ JHtml::_('behavior.modal'); ?>
 <form action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=group&layout=edit&id='.(int) $this->item->id); ?>" method="post" name="adminForm" id="adminForm" autocomplete="off" class="form-validate form-horizontal">
 	<div class="row-fluid">
 		<div class="span12">
-			<?php $extra = '<span class="rsextra"><a class="modal" rel="{handler: \'iframe\', size: {x: 800, y: 500}}" href="'.JRoute::_('index.php?option=com_users&view=users&layout=modal&tmpl=component&field=jform_jusers'.(!empty($this->excludes) ? ('&excluded=' . base64_encode(json_encode($this->excludes))) : '')).'">'.JText::_('COM_RSEVENTSPRO_GROUP_ADD_USERS').'</a>'; ?>
+			<?php $extra = '<span class="rsextra"><a href="javascript:void(0)" onclick="rsepro_OpenUsersModal();">'.JText::_('COM_RSEVENTSPRO_GROUP_ADD_USERS').'</a>'; ?>
 			<?php $extra .= ' / <a href="javascript:void(0);" onclick="removeusers();">'.JText::_('COM_RSEVENTSPRO_GROUP_REMOVE_USERS').'</a></span>'; ?>
 			
 			<?php echo JHtml::_('rsfieldset.start', 'adminform rsfieldsetfix'); ?>

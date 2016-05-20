@@ -42,7 +42,7 @@ class AkeebaControllerUpdate extends F0FController
 		/** @var AkeebaModelUpdates $model */
 		$model = $this->getThisModel();
 		$model->getUpdates(true);
-		$msg = JText::_('AKEEBA_COMMON_UPDATE_INFORMATION_RELOADED');
+		$msg = JText::_('COM_AKEEBA_COMMON_UPDATE_INFORMATION_RELOADED');
 
 		$url = 'index.php?option=' . $this->input->getCmd('option', '');
 

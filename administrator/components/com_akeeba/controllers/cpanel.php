@@ -34,7 +34,6 @@ class AkeebaControllerCpanel extends F0FController
 
 		if ($result)
 		{
-			$params = JComponentHelper::getParams('com_akeeba');
 			$model  = $this->getThisModel();
 			$view   = $this->getThisView();
 
@@ -45,6 +44,13 @@ class AkeebaControllerCpanel extends F0FController
 			$aeconfig = Factory::getConfiguration();
 
 			// Invalidate stale backups
+			if (!class_exists('AkeebaHelperParams'))
+			{
+				require_once JPATH_ADMINISTRATOR . '/components/com_akeeba/helpers/params.php';
+			}
+
+			$params = new AkeebaHelperParams();
+
 			Factory::resetState(array(
 				'global' => true,
 				'log'    => false,
@@ -87,7 +93,7 @@ class AkeebaControllerCpanel extends F0FController
 
 		if (!is_numeric($newProfile) || ($newProfile <= 0))
 		{
-			$this->setRedirect(JUri::base() . 'index.php?option=com_akeeba', JText::_('PANEL_PROFILE_SWITCH_ERROR'), 'error');
+			$this->setRedirect(JUri::base() . 'index.php?option=com_akeeba', JText::_('COM_AKEEBA_CPANEL_PROFILE_SWITCH_ERROR'), 'error');
 
 			return true;
 		}
@@ -104,7 +110,7 @@ class AkeebaControllerCpanel extends F0FController
 		{
 			$url = JUri::base() . 'index.php?option=com_akeeba';
 		}
-		$this->setRedirect($url, JText::_('PANEL_PROFILE_SWITCH_OK'));
+		$this->setRedirect($url, JText::_('COM_AKEEBA_CPANEL_PROFILE_SWITCH_OK'));
 	}
 
 	public function disablephpwarning()
@@ -233,18 +239,15 @@ ENDRESULT;
 		{
 			$msg = null;
 			$msgType = null;
+			
+			if (!class_exists('AkeebaHelperParams'))
+			{
+				require_once JPATH_ADMINISTRATOR . '/components/com_akeeba/helpers/params.php';
+			}
 
-			JLoader::import('joomla.application.component.helper');
-			$params = JComponentHelper::getParams('com_akeeba');
+			$params = new AkeebaHelperParams();
 			$params->set('update_dlid', $dlid);
-
-			$db = F0FPlatform::getInstance()->getDbo();
-
-			$sql = $db->getQuery(true)
-				->update($db->qn('#__extensions'))
-				->set($db->qn('params') . ' = ' . $db->q($params->toString('JSON')))
-				->where($db->qn('element') . " = " . $db->q('com_akeeba'));
-			$db->setQuery($sql)->execute();
+			$params->save();
 		}
 
 		// Redirect back to the control panel
@@ -274,6 +277,13 @@ ENDRESULT;
 			$this->_csrfProtection();
 		}
 
+		if (!class_exists('AkeebaHelperParams'))
+		{
+			require_once JPATH_ADMINISTRATOR . '/components/com_akeeba/helpers/params.php';
+		}
+
+		$params = new AkeebaHelperParams();
+
 		$session = JFactory::getSession();
 		$newSecret = $session->get('newSecretWord', null, 'akeeba.cpanel');
 
@@ -284,43 +294,12 @@ ENDRESULT;
 			$session->set('newSecretWord', $newSecret, 'akeeba.cpanel');
 		}
 
-		JLoader::import('joomla.application.component.helper');
-		$params = JComponentHelper::getParams('com_akeeba');
 		$params->set('frontend_secret_word', $newSecret);
-
-		$db = F0FPlatform::getInstance()->getDbo();
-
-		$sql = $db->getQuery(true)
-				  ->update($db->qn('#__extensions'))
-				  ->set($db->qn('params') . ' = ' . $db->q($params->toString('JSON')))
-				  ->where($db->qn('element') . " = " . $db->q('com_akeeba'));
-
-		try
-		{
-			$db->setQuery($sql)->execute();
-
-			$result = true;
-		}
-		catch (Exception $e)
-		{
-			$result = false;
-		}
-
-		if ($db->getErrorNum())
-		{
-			$result = false;
-		}
+		$params->save();
 
 		$msg = JText::sprintf('COM_AKEEBA_CPANEL_MSG_FESECRETWORD_RESET', $newSecret);
-		$msgType = null;
-
-		if (!$result)
-		{
-			$msg = JText::_('COM_AKEEBA_CPANEL_ERR_FESECRETWORD_RESET');
-			$msgType = 'error';
-		}
 
 		$url = 'index.php?option=com_akeeba';
-		$this->setRedirect($url, $msg, $msgType);
+		$this->setRedirect($url, $msg);
 	}
 }

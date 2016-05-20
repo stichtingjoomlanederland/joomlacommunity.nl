@@ -24,7 +24,6 @@ class RSFirewallViewRsfirewall extends JViewLegacy
 	
 	public function display($tpl = null) {
 		$this->addToolBar();
-		
 		$model = $this->getModel('RSFirewall');
 		if (!$model->isPluginEnabled()) {
 			$app = JFactory::getApplication();
@@ -39,7 +38,7 @@ class RSFirewallViewRsfirewall extends JViewLegacy
 		$this->code			= $this->get('code');
 		$this->feeds		= $this->get('feeds');
 		$this->files		= $this->get('modifiedFiles');
-		
+
 		if ($this->canViewLogs) {
 			$this->logNum 		 = $this->get('logOverviewNum');
 			$this->lastLogs 	 = $this->get('lastLogs');

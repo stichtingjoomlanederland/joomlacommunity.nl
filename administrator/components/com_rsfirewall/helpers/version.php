@@ -10,7 +10,7 @@ defined('_JEXEC') or die('Restricted access');
 
 class RSFirewallVersion
 {
-	public $version = '2.10.1';
+	public $version = '2.10.2';
 	public $key		= 'FW6AL534B2';
 	// Unused
 	public $revision = null;

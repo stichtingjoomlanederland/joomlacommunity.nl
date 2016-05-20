@@ -168,7 +168,7 @@ JFactory::getDocument()->addScriptDeclaration($js);
 						   placeholder="public_html"/>
 					<!--
 					<button class="btn" type="button" id="akeeba-transfer-ftp-directory-browse">
-						<?php echo JText::_('CONFIG_UI_BROWSE'); ?>
+						<?php echo JText::_('COM_AKEEBA_CONFIG_UI_BROWSE'); ?>
 					</button>
 					<button class="btn" type="button" id="akeeba-transfer-ftp-directory-detect">
 						<?php echo JText::_('COM_AKEEBA_TRANSFER_BTN_FTP_DETECT'); ?>

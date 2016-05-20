@@ -33,23 +33,25 @@ JHtml::_('behavior.modal'); ?>
 	
 	function jSelectUser_jform_idu(id, title) {
 		if (jQuery('#jform_idu_id').val() != id) {
-			jQuery.ajax({
-				url: 'index.php?option=com_rseventspro',
-				type: 'post',
-				data: 'task=subscription.email&id=' + id
-			}).done(function(response) {
-				var start = response.indexOf('RS_DELIMITER0') + 13;
-				var end = response.indexOf('RS_DELIMITER1');
-				response = response.substring(start, end);
-				
-				jQuery('#jform_idu_id').val(id);
-				jQuery('#jform_idu_name').val(title);
-				jQuery('#jform_idu').val(title);
-				jQuery('#jform_name').val(title);
-				jQuery('#jform_email').val(response);
-			});			
+			rsepro_get_user_details(id);
 		}
+		
 		SqueezeBox.close();
+	}
+	
+	function rsepro_get_user_details(id) {
+		jQuery.ajax({
+			url: 'index.php?option=com_rseventspro',
+			type: 'post',
+			dataType : 'json',
+			data: 'task=subscription.email&id=' + id
+		}).done(function(response) {
+			jQuery('#jform_idu_id').val(id);
+			jQuery('#jform_idu_name').val(response.name);
+			jQuery('#jform_idu').val(response.name);
+			jQuery('#jform_name').val(response.name);
+			jQuery('#jform_email').val(response.email);
+		});
 	}
 	
 	function rsepro_select_event(id) {
@@ -61,6 +63,12 @@ JHtml::_('behavior.modal'); ?>
 			jQuery('#eventtickets').prop('href','index.php?option=com_rseventspro&view=subscription&layout=tickets&tmpl=component&id='+id);
 		}
 	}
+	
+	jQuery(document).ready(function(){
+		jQuery('#jform_idu_id').on('change', function() {
+			rsepro_get_user_details(jQuery(this).val());
+		});
+	});
 </script>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=subscription&layout=edit&id='.(int) $this->item->id); ?>" method="post" name="adminForm" id="adminForm" autocomplete="off" class="form-validate form-horizontal">

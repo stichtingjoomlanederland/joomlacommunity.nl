@@ -384,6 +384,9 @@ ENDBLOCK;
 			return;
 		}
 
+		// Remove obsolete update sites that don't match our extension ID but match our name or update site location
+		$this->removeObsoleteUpdateSites();
+
 		// Create the update site definition we want to store to the database
 		$update_site = array(
 				'name'		=> $this->updateSiteName,
@@ -413,70 +416,160 @@ ENDBLOCK;
 		// Get the update sites for our extension
 		$updateSiteIds = $this->getUpdateSiteIds();
 
-		if (!count($updateSiteIds))
+		if (empty($updateSiteIds))
+		{
+			$updateSiteIds = array();
+		}
+
+		/** @var boolean $needNewUpdateSite Do I need to create a new update site? */
+		$needNewUpdateSite = true;
+
+		/** @var int[] $deleteOldSites Old Site IDs to delete */
+		$deleteOldSites = array();
+
+		// Loop through all update sites
+		foreach ($updateSiteIds as $id)
+		{
+			$query = $db->getQuery(true)
+						->select('*')
+						->from($db->qn('#__update_sites'))
+						->where($db->qn('update_site_id') . ' = ' . $db->q($id));
+			$db->setQuery($query);
+			$aSite = $db->loadObject();
+
+			if (empty($aSite))
+			{
+				// Update site is now up-to-date, don't need to refresh it anymore.
+				continue;
+			}
+
+			// We have an update site that looks like ours
+			if ($needNewUpdateSite && ($aSite->name == $update_site['name']) && ($aSite->location == $update_site['location']))
+			{
+				$needNewUpdateSite = false;
+				$mustUpdate = false;
+
+				// Is it enabled? If not, enable it.
+				if (!$aSite->enabled)
+				{
+					$mustUpdate = true;
+					$aSite->enabled = 1;
+				}
+
+				// Do we have the extra_query property (J 3.2+) and does it match?
+				if (property_exists($aSite, 'extra_query') && isset($update_site['extra_query'])
+					&& ($aSite->extra_query != $update_site['extra_query']))
+				{
+					$mustUpdate = true;
+					$aSite->extra_query = $update_site['extra_query'];
+				}
+
+				// Update the update site if necessary
+				if ($mustUpdate)
+				{
+					$db->updateObject('#__update_sites', $aSite, 'update_site_id', true);
+				}
+
+				continue;
+			}
+
+			// In any other case we need to delete this update site, it's obsolete
+			$deleteOldSites[] = $aSite->update_site_id;
+		}
+
+		if (!empty($deleteOldSites))
+		{
+			try
+			{
+				$obsoleteIDsQuoted = array_map(array($db, 'quote'), $deleteOldSites);
+
+				// Delete update sites
+				$query = $db->getQuery(true)
+							->delete('#__update_sites')
+							->where($db->qn('update_site_id') . ' IN (' . implode(',', $obsoleteIDsQuoted) . ')');
+				$db->setQuery($query)->execute();
+
+				// Delete update sites to extension ID records
+				$query = $db->getQuery(true)
+							->delete('#__update_sites_extensions')
+							->where($db->qn('update_site_id') . ' IN (' . implode(',', $obsoleteIDsQuoted) . ')');
+				$db->setQuery($query)->execute();
+			}
+			catch (\Exception $e)
+			{
+				// Do nothing on failure
+				return;
+			}
+
+		}
+
+		// Do we still need to create a new update site?
+		if ($needNewUpdateSite)
 		{
 			// No update sites defined. Create a new one.
 			$newSite = (object)$update_site;
 			$db->insertObject('#__update_sites', $newSite);
 
-			$id = $db->insertid();
-
+			$id                  = $db->insertid();
 			$updateSiteExtension = (object)array(
-					'update_site_id'	=> $id,
-					'extension_id'		=> $this->extension_id,
+				'update_site_id' => $id,
+				'extension_id'   => $this->extension_id,
 			);
 			$db->insertObject('#__update_sites_extensions', $updateSiteExtension);
 		}
-		else
+	}
+
+	/**
+	 * Removes any update sites which go by the same name or the same location as our update site but do not match the
+	 * extension ID.
+	 */
+	public function removeObsoleteUpdateSites()
+	{
+		$db = $this->getDbo();
+
+		// Get update site IDs
+		$updateSiteIDs = $this->getUpdateSiteIds();
+
+		// Find update sites where the name OR the location matches BUT they are not one of the update site IDs
+		$query = $db->getQuery(true)
+					->select($db->qn('update_site_id'))
+					->from($db->qn('#__update_sites'))
+					->where(
+						'((' . $db->qn('name') . ' = ' . $db->q($this->updateSiteName) . ') OR ' .
+						'(' . $db->qn('location') . ' = ' . $db->q($this->updateSite) . '))'
+					);
+
+		if (!empty($updateSiteIDs))
 		{
-			// Loop through all update sites
-			foreach ($updateSiteIds as $id)
+			$updateSitesQuoted = array_map(array($db, 'quote'), $updateSiteIDs);
+			$query->where($db->qn('update_site_id') . ' NOT IN (' . implode(',', $updateSitesQuoted) . ')');
+		}
+
+		try
+		{
+			$ids = $db->setQuery($query)->loadColumn();
+
+			if (!empty($ids))
 			{
+				$obsoleteIDsQuoted = array_map(array($db, 'quote'), $ids);
+
+				// Delete update sites
 				$query = $db->getQuery(true)
-							->select('*')
-							->from($db->qn('#__update_sites'))
-							->where($db->qn('update_site_id') . ' = ' . $db->q($id));
-				$db->setQuery($query);
-				$aSite = $db->loadObject();
+							->delete('#__update_sites')
+							->where($db->qn('update_site_id') . ' IN (' . implode(',', $obsoleteIDsQuoted) . ')');
+				$db->setQuery($query)->execute();
 
-				if (empty($aSite))
-				{
-					// Update site not defined. Create a new one.
-					$update_site['update_site_id'] = $id;
-					$newSite = (object)$update_site;
-					$db->insertObject('#__update_sites', $newSite);
-
-					// Update site is now up-to-date, don't need to refresh it anymore.
-					continue;
-				}
-
-				// Is it enabled – Joomla! 3.3 and earlier didn't include the Update Sites Manager (another one of my
-				// personal contributions to Joomla!...)
-				if ($aSite->enabled)
-				{
-					// Does the name and location match?
-					if (($aSite->name == $update_site['name']) && ($aSite->location == $update_site['location']))
-					{
-						// Do we have the extra_query property (J 3.2+) and does it match?
-						if (property_exists($aSite, 'extra_query') && isset($update_site['extra_query']))
-						{
-							if ($aSite->extra_query == $update_site['extra_query'])
-							{
-								continue;
-							}
-						}
-						else
-						{
-							// Joomla! 3.1 or earlier. Updates may or may not work.
-							continue;
-						}
-					}
-				}
-
-				$update_site['update_site_id'] = $id;
-				$newSite = (object)$update_site;
-				$db->updateObject('#__update_sites', $newSite, 'update_site_id', true);
+				// Delete update sites to extension ID records
+				$query = $db->getQuery(true)
+							->delete('#__update_sites_extensions')
+							->where($db->qn('update_site_id') . ' IN (' . implode(',', $obsoleteIDsQuoted) . ')');
+				$db->setQuery($query)->execute();
 			}
+		}
+		catch (\Exception $e)
+		{
+			// Do nothing on failure
+			return;
 		}
 	}
 

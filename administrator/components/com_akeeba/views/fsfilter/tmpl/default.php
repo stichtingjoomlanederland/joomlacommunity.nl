@@ -14,21 +14,21 @@ defined('_JEXEC') or die();
 </div>
 
 <div class="alert alert-info">
-	<strong><?php echo JText::_('CPANEL_PROFILE_TITLE'); ?></strong>
+	<strong><?php echo JText::_('COM_AKEEBA_CPANEL_PROFILE_TITLE'); ?></strong>
 	#<?php echo $this->profileid; ?> <?php echo $this->profilename; ?>
 </div>
 
 <div class="form-inline well">
 	<div>
-		<label><?php echo JText::_('FSFILTER_LABEL_ROOTDIR') ?></label>
+		<label><?php echo JText::_('COM_AKEEBA_FILEFILTERS_LABEL_ROOTDIR') ?></label>
 		<span><?php echo $this->root_select; ?></span>
 		<button class="btn btn-danger" onclick="akeeba.Fsfilters.nuke(); return false;">
 			<i class="icon-fire icon-white"></i>
-			<?php echo JText::_('FSFILTER_LABEL_NUKEFILTERS'); ?>
+			<?php echo JText::_('COM_AKEEBA_FILEFILTERS_LABEL_NUKEFILTERS'); ?>
 		</button>
 		<a class="btn btn-small" href="index.php?option=com_akeeba&view=fsfilter&task=tabular">
 			<i class="icon-list"></i>
-			<?php echo JText::_('FILTERS_LABEL_VIEWALL')?>
+			<?php echo JText::_('COM_AKEEBA_FILEFILTERS_LABEL_VIEWALL')?>
 		</a>
 	</div>
 </div>
@@ -40,12 +40,12 @@ defined('_JEXEC') or die();
 
 <div id="ak_main_container">
 	<fieldset id="ak_folder_container">
-		<legend><?php echo JText::_('FSFILTER_LABEL_DIRS'); ?></legend>
+		<legend><?php echo JText::_('COM_AKEEBA_FILEFILTERS_LABEL_DIRS'); ?></legend>
 		<div id="folders"></div>
 	</fieldset>
 
 	<fieldset id="ak_files_container">
-		<legend><?php echo JText::_('FSFILTER_LABEL_FILES'); ?></legend>
+		<legend><?php echo JText::_('COM_AKEEBA_FILEFILTERS_LABEL_FILES'); ?></legend>
 		<div id="files"></div>
 	</fieldset>
 </div>
@@ -71,14 +71,14 @@ akeeba.jQuery(document).ready(function($){
     akeeba.System.params.errorCallback = function( message ) {
 		var dialog_element = $("#dialog");
 		dialog_element.html(''); // Clear the dialog's contents
-		dialog_element.dialog('option', 'title', '<?php echo AkeebaHelperEscape::escapeJS(JText::_('CONFIG_UI_AJAXERRORDLG_TITLE')) ?>');
-		$(document.createElement('p')).html('<?php echo AkeebaHelperEscape::escapeJS(JText::_('CONFIG_UI_AJAXERRORDLG_TEXT')) ?>').appendTo(dialog_element);
+		dialog_element.dialog('option', 'title', '<?php echo AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_CONFIG_UI_AJAXERRORDLG_TITLE')) ?>');
+		$(document.createElement('p')).html('<?php echo AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_CONFIG_UI_AJAXERRORDLG_TEXT')) ?>').appendTo(dialog_element);
 		$(document.createElement('pre')).html( message ).appendTo(dialog_element);
 		dialog_element.dialog('open');
 	};
 	// Push translations
-    akeeba.Fsfilters.translations['UI-ROOT'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('FILTERS_LABEL_UIROOT')) ?>';
-    akeeba.Fsfilters.translations['UI-ERROR-FILTER'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('FILTERS_LABEL_UIERRORFILTER')) ?>';
+    akeeba.Fsfilters.translations['UI-ROOT'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_FILEFILTERS_LABEL_UIROOT')) ?>';
+    akeeba.Fsfilters.translations['UI-ERROR-FILTER'] = '<?php echo AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_FILEFILTERS_LABEL_UIERRORFILTER')) ?>';
 <?php
 	$filters = array('directories', 'skipfiles', 'skipdirs', 'files', 'directories_all', 'skipfiles_all', 'skipdirs_all',
 	            'files_all', 'applytoalldirs', 'applytoallfiles');
@@ -86,7 +86,7 @@ akeeba.jQuery(document).ready(function($){
 	foreach($filters as $type)
 	{
 		echo "\takeeba.Fsfilters.translations['UI-FILTERTYPE-".strtoupper($type)."'] = '".
-			AkeebaHelperEscape::escapeJS(JText::_('FSFILTER_TYPE_'.strtoupper($type))).
+			AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_FILEFILTERS_TYPE_'.strtoupper($type))).
 			"';\n";
 	}
 ?>

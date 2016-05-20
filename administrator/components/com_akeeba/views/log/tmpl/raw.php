@@ -49,7 +49,7 @@ JLoader::import('joomla.filesystem.file');
 if(!JFile::exists($logName))
 {
 	// Oops! The log doesn't exist!
-	echo '<p>'.JText::_('LOG_ERROR_LOGFILENOTEXISTS').'</p>';
+	echo '<p>'.JText::_('COM_AKEEBA_LOG_ERROR_LOGFILENOTEXISTS').'</p>';
 	return;
 }
 else
@@ -59,7 +59,7 @@ else
 	if ($fp === FALSE)
 	{
 		// Oops! The log isn't readable?!
-		echo '<p>'.JText::_('LOG_ERROR_UNREADABLE').'</p>';
+		echo '<p>'.JText::_('COM_AKEEBA_LOG_ERROR_UNREADABLE').'</p>';
 		return;
 	}
 

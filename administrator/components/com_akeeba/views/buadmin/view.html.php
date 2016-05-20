@@ -50,13 +50,13 @@ class AkeebaViewBuadmin extends F0FViewHtml
 		if (AKEEBA_PRO && ($task == 'default'))
 		{
 			$bar = JToolBar::getInstance('toolbar');
-			$bar->appendButton('Link', 'restore', JText::_('DISCOVER'), 'index.php?option=com_akeeba&view=discover');
-			JToolBarHelper::publish('restore', JText::_('STATS_LABEL_RESTORE'));
+			$bar->appendButton('Link', 'restore', JText::_('COM_AKEEBA_DISCOVER'), 'index.php?option=com_akeeba&view=discover');
+			JToolBarHelper::publish('restore', JText::_('COM_AKEEBA_BUADMIN_LABEL_RESTORE'));
 		}
 
 		if (($task == 'default'))
 		{
-			JToolBarHelper::editList('showcomment', JText::_('STATS_LOG_EDITCOMMENT'));
+			JToolBarHelper::editList('showcomment', JText::_('COM_AKEEBA_BUADMIN_LOG_EDITCOMMENT'));
 
 			$pModel                  = F0FModel::getTmpInstance('Profiles', 'AkeebaModel');
 			$enginesPerPprofile      = $pModel->getPostProcessingEnginePerProfile();
@@ -65,7 +65,7 @@ class AkeebaViewBuadmin extends F0FViewHtml
 		JToolBarHelper::spacer();
 
 		// "Show warning first" download button. Joomlantastic!
-		$confirmationText = AkeebaHelperEscape::escapeJS(JText::_('STATS_LOG_DOWNLOAD_CONFIRM'), "'\n");
+		$confirmationText = AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_BUADMIN_LOG_DOWNLOAD_CONFIRM'), "'\n");
 		$baseURI          = JUri::base();
 		$js               = <<<JS
 
@@ -127,7 +127,7 @@ JS;
 		$profiles = $profilesModel->getItemList(true, 'id');
 
 		$profilesList = array(
-			JHtml::_('select.option', '', '–' . JText::_('STATS_LABEL_PROFILEID') . '–')
+			JHtml::_('select.option', '', '–' . JText::_('COM_AKEEBA_BUADMIN_LABEL_PROFILEID') . '–')
 		);
 
 		if (!empty($profiles))

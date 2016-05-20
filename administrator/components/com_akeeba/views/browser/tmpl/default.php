@@ -10,7 +10,7 @@
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
-$rootDirWarning = AkeebaHelperEscape::escapeJS(JText::_('CONFIG_UI_ROOTDIR'));
+$rootDirWarning = AkeebaHelperEscape::escapeJS(JText::_('COM_AKEEBA_CONFIG_UI_ROOTDIR'));
 JFactory::getDocument()->addScriptDeclaration(<<<JS
 
 	;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
@@ -50,8 +50,8 @@ JS
 				<input type="hidden" name="tmpl" value="component" />
 				<div class="input-prepend">
 					<span class="add-on"
-						alt="<?php echo $this->writable ? JText::_('WRITABLE') : JText::_('UNWRITABLE'); ?>"
-						title="<?php echo $this->writable ? JText::_('WRITABLE') : JText::_('UNWRITABLE'); ?>"
+						alt="<?php echo $this->writable ? JText::_('COM_AKEEBA_CPANEL_LBL_WRITABLE') : JText::_('COM_AKEEBA_CPANEL_LBL_UNWRITABLE'); ?>"
+						title="<?php echo $this->writable ? JText::_('COM_AKEEBA_CPANEL_LBL_WRITABLE') : JText::_('COM_AKEEBA_CPANEL_LBL_UNWRITABLE'); ?>"
 					>
 						<i class="icon-<?php echo $this->writable ? 'ok' : 'ban-circle' ?>"></i>
 					</span>
@@ -60,11 +60,11 @@ JS
 				<input type="hidden" name="folderraw" id="folderraw" value="<?php echo $this->folder_raw ?>"/>
 				<button class="btn btn-primary" onclick="document.form.adminForm.submit(); return false;">
 					<i class="icon-share icon-white"></i>
-					<?php echo JText::_('BROWSER_LBL_GO'); ?>
+					<?php echo JText::_('COM_AKEEBA_BROWSER_LBL_GO'); ?>
 				</button>
 				<button class="btn btn-success" onclick="akeeba_browser_useThis(); return false;">
 					<i class="icon-check icon-white"></i>
-					<?php echo JText::_('BROWSER_LBL_USE'); ?>
+					<?php echo JText::_('COM_AKEEBA_BROWSER_LBL_USE'); ?>
 				</button>
 				<input type="hidden" name="<?php echo JFactory::getSession()->getFormToken()?>" value="1" />
 			</form>
@@ -106,7 +106,7 @@ JS
 						<?php $linkbase = JUri::base()."index.php?option=com_akeeba&view=browser&tmpl=component&folder="; ?>
 						<a class="btn btn-mini btn-inverse" href="<?php echo $linkbase.urlencode($this->parent); ?>">
 							<i class="icon-arrow-up icon-white"></i>
-							<?php echo JText::_('BROWSER_LBL_GOPARENT') ?>
+							<?php echo JText::_('COM_AKEEBA_BROWSER_LBL_GOPARENT') ?>
 						</a>
 					</td>
 				</tr>
@@ -121,15 +121,15 @@ JS
 		<?php else: ?>
 			<?php if(!$this->exists): ?>
 			<div class="alert alert-error">
-				<?php echo JText::_('BROWSER_ERR_NOTEXISTS'); ?>
+				<?php echo JText::_('COM_AKEEBA_BROWSER_ERR_NOTEXISTS'); ?>
 			</div>
 			<?php elseif(!$this->inRoot): ?>
 			<div class="alert">
-				<?php echo JText::_('BROWSER_ERR_NONROOT'); ?>
+				<?php echo JText::_('COM_AKEEBA_BROWSER_ERR_NONROOT'); ?>
 			</div>
 			<?php elseif($this->openbasedirRestricted): ?>
 			<div class="alert alert-error">
-				<?php echo JText::_('BROWSER_ERR_BASEDIR'); ?>
+				<?php echo JText::_('COM_AKEEBA_BROWSER_ERR_BASEDIR'); ?>
 			</div>
 			<?php else: ?>
 			<table class="table table-striped">
@@ -138,7 +138,7 @@ JS
 						<?php $linkbase = JUri::base()."index.php?option=com_akeeba&view=browser&tmpl=component&folder="; ?>
 						<a class="btn btn-mini btn-inverse" href="<?php echo $linkbase.urlencode($this->parent); ?>">
 							<i class="icon-arrow-up icon-white"></i>
-							<?php echo JText::_('BROWSER_LBL_GOPARENT') ?>
+							<?php echo JText::_('COM_AKEEBA_BROWSER_LBL_GOPARENT') ?>
 						</a>
 					</td>
 				</tr>

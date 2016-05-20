@@ -15,7 +15,6 @@ namespace Akeeba\Engine\Platform;
 defined('AKEEBAENGINE') or die();
 
 use Akeeba\Engine\Finalization\TestExtract;
-use Akeeba\Engine\Util\Comconfig;
 use Psr\Log\LogLevel;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
@@ -41,6 +40,9 @@ class Joomla25 extends BasePlatform
 
 	public $platformName = 'joomla25';
 
+	/** @var \AkeebaHelperParams */
+	public $params = null;
+
 	function __construct()
 	{
 		$configOverrides = array();
@@ -54,6 +56,13 @@ class Joomla25 extends BasePlatform
 
 		// Apply the configuration overrides, please
 		$this->configOverrides = $configOverrides;
+
+		if (!class_exists('AkeebaHelperParams'))
+		{
+			require_once JPATH_ADMINISTRATOR . '/components/com_akeeba/helpers/params.php';
+		}
+
+		$this->params = new \AkeebaHelperParams();
 	}
 
 
@@ -401,6 +410,23 @@ class Joomla25 extends BasePlatform
 	{
 		$jconfig = \JFactory::getConfig();
 		$driver = $jconfig->get('dbtype');
+		$driver = strtolower($driver);
+
+		// Prime with a default return value, favoring PDO MySQL if available
+		$defaultDriver = '\\Akeeba\\Engine\\Driver\\Pdomysql';
+
+		if (!class_exists('\PDO'))
+		{
+			// Second best choice is MySQLi
+			$defaultDriver = '\\Akeeba\\Engine\\Driver\\Mysqli';
+
+			// Third best choice is MySQL
+			if (!function_exists('mysqli_connect') && function_exists('mysql_connect'))
+			{
+				$defaultDriver = '\\Akeeba\\Engine\\Driver\\Mysql';
+			}
+		}
+
 
 		// Let's see what driver Joomla! uses...
 		if ($use_platform)
@@ -416,10 +442,9 @@ class Joomla25 extends BasePlatform
 					{
 						return '\\Akeeba\\Engine\\Driver\\Mysql';
 					}
-					else
-					{
-						return '\\Akeeba\\Engine\\Driver\\Joomla';
-					}
+
+					return '\\Akeeba\\Engine\\Driver\\Joomla';
+
 					break;
 
 				case 'mysqli':
@@ -427,69 +452,73 @@ class Joomla25 extends BasePlatform
 					{
 						return '\\Akeeba\\Engine\\Driver\\Mysqli';
 					}
-					else
-					{
-						return '\\Akeeba\\Engine\\Driver\\Joomla';
-					}
-					break;
 
-				case 'sqlsrv':
-				case 'sqlazure':
 					return '\\Akeeba\\Engine\\Driver\\Joomla';
+
 					break;
 
-				case 'postgresql':
-					return '\\Akeeba\\Engine\\Driver\\Joomla';
-					break;
-
-				case 'pdomysql':
-					return '\\Akeeba\\Engine\\Driver\\Joomla';
-					break;
-
-				// Some custom driver. Uh oh!
+				// Any other case, use our platform-specific driver
 				default:
+					return '\\Akeeba\\Engine\\Driver\\Joomla';
+
 					break;
 			}
 		}
 
 		// Is this a subcase of mysqli or mysql drivers?
-		if (strtolower(substr($driver, 0, 6)) == 'mysqli')
-		{
-			return '\\Akeeba\\Engine\\Driver\\Mysqli';
-		}
-		elseif (strtolower(substr($driver, 0, 5)) == 'mysql')
-		{
-			return '\\Akeeba\\Engine\\Driver\\Mysql';
-		}
-		elseif (strtolower(substr($driver, 0, 6)) == 'sqlsrv')
-		{
-			return '\\Akeeba\\Engine\\Driver\\Sqlsrv';
-		}
-		elseif (strtolower(substr($driver, 0, 8)) == 'sqlazure')
-		{
-			return '\\Akeeba\\Engine\\Driver\\Sqlazure';
-		}
-		elseif (strtolower(substr($driver, 0, 10)) == 'postgresql')
-		{
-			return '\\Akeeba\\Engine\\Driver\\Postgresql';
-		}
-		elseif (strtolower(substr($driver, 0, 8)) == 'pdomysql')
+		if (substr($driver, 0, 8) == 'pdomysql')
 		{
 			return '\\Akeeba\\Engine\\Driver\\Pdomysql';
 		}
-
-		// If we're still here, we have to guesstimate the correct driver. All bets are off.
-		// And you'd better be using MySQL!!!
-		if (function_exists('mysqli_connect'))
+		elseif (substr($driver, 0, 6) == 'mysqli')
 		{
-			// MySQLi available. Let's use it.
 			return '\\Akeeba\\Engine\\Driver\\Mysqli';
 		}
-		else
+		elseif (substr($driver, 0, 5) == 'mysql')
 		{
-			// MySQLi is not available; let's use standard MySQL.
 			return '\\Akeeba\\Engine\\Driver\\Mysql';
 		}
+		elseif (substr($driver, 0, 6) == 'sqlsrv')
+		{
+			return '\\Akeeba\\Engine\\Driver\\Sqlsrv';
+		}
+		elseif (substr($driver, 0, 8) == 'sqlazure')
+		{
+			return '\\Akeeba\\Engine\\Driver\\Sqlazure';
+		}
+		elseif (substr($driver, 0, 10) == 'postgresql')
+		{
+			return '\\Akeeba\\Engine\\Driver\\Postgresql';
+		}
+
+		// Sometimes we get driver names in the form of foomysql instead of mysqlfoo. Let's look for that too.
+		if (substr($driver, -8) == 'pdomysql')
+		{
+			return '\\Akeeba\\Engine\\Driver\\Pdomysql';
+		}
+		elseif (substr($driver, -6) == 'mysqli')
+		{
+			return '\\Akeeba\\Engine\\Driver\\Mysqli';
+		}
+		elseif (substr($driver, -5) == 'mysql')
+		{
+			return '\\Akeeba\\Engine\\Driver\\Mysql';
+		}
+		elseif (substr($driver, -6) == 'sqlsrv')
+		{
+			return '\\Akeeba\\Engine\\Driver\\Sqlsrv';
+		}
+		elseif (substr($driver, -8) == 'sqlazure')
+		{
+			return '\\Akeeba\\Engine\\Driver\\Sqlazure';
+		}
+		elseif (substr($driver, -10) == 'postgresql')
+		{
+			return '\\Akeeba\\Engine\\Driver\\Postgresql';
+		}
+
+		// I give up! You'd better be usign a MySQL db server.
+		return $defaultDriver;
 	}
 
 	/**
@@ -638,8 +667,7 @@ class Joomla25 extends BasePlatform
 	 */
 	public function get_platform_configuration_option($key, $default)
 	{
-		// Get the component configuration option WITHOUT using the ever-changing Joomla! API...
-		return Comconfig::getValue($key, $default);
+		return $this->params->get($key, $default);
 	}
 
 	/**
@@ -726,106 +754,141 @@ class Joomla25 extends BasePlatform
 	{
 		Factory::getLog()->log(LogLevel::DEBUG, "-- Fetching mailer object");
 
-		$mailer = Platform::getInstance()->getMailer();
+		/** @var \JMail $mailer */
+		try
+		{
+			$mailer = Platform::getInstance()->getMailer();
+		}
+		catch (\Exception $e)
+		{
+			$mailer = null;
+		}
 
 		if ( !is_object($mailer))
 		{
-			Factory::getLog()->log(LogLevel::WARNING, "Could not send email to $to - Reason: Mailer object is not an object; please check your system settings");
+			Factory::getLog()->log(LogLevel::WARNING, "Could not send email to $to - Joomla! cannot send e-mails. Please check your From EMail and From Name fields in Global Configuration.");
 
 			return false;
 		}
 
 		Factory::getLog()->log(LogLevel::DEBUG, "-- Creating email message");
 
-		$recipient = array($to);
-		$mailer->addRecipient($recipient);
-		$mailer->setSubject($subject);
-		$mailer->setBody($body);
-
-		if ( !empty($attachFile))
+		try
 		{
-			Factory::getLog()->log(LogLevel::WARNING, "-- Attaching $attachFile");
+			$recipient = array($to);
 
-			if ( !file_exists($attachFile) || !(is_file($attachFile) || is_link($attachFile)))
+			$mailer->addRecipient($recipient);
+			$mailer->setSubject($subject);
+			$mailer->setBody($body);
+		}
+		catch (\Exception $e)
+		{
+			Factory::getLog()->log(LogLevel::WARNING, "Could not send email to $to - Problem setting up the email. Joomla! reports error: " . $e->getMessage());
+
+			return false;
+		}
+
+		try
+		{
+			if ( !empty($attachFile))
 			{
-				Factory::getLog()->log(LogLevel::WARNING, "The file does not exist, or it's not a file; no email sent");
+				Factory::getLog()->log(LogLevel::WARNING, "-- Attaching $attachFile");
 
-				return false;
-			}
-
-			if ( !is_readable($attachFile))
-			{
-				Factory::getLog()->log(LogLevel::WARNING, "The file is not readable; no email sent");
-
-				return false;
-			}
-
-			$filesize = @filesize($attachFile);
-			if ($filesize)
-			{
-				// Check that we have AT LEAST 2.5 times free RAM as the filesize (that's how much we'll need)
-				if ( !function_exists('ini_get'))
+				if ( !file_exists($attachFile) || !(is_file($attachFile) || is_link($attachFile)))
 				{
-					// Assume 8Mb of PHP memory limit (worst case scenario)
-					$totalRAM = 8388608;
-				}
-				else
-				{
-					$totalRAM = ini_get('memory_limit');
-					if (strstr($totalRAM, 'M'))
-					{
-						$totalRAM = (int)$totalRAM * 1048576;
-					}
-					elseif (strstr($totalRAM, 'K'))
-					{
-						$totalRAM = (int)$totalRAM * 1024;
-					}
-					elseif (strstr($totalRAM, 'G'))
-					{
-						$totalRAM = (int)$totalRAM * 1073741824;
-					}
-					else
-					{
-						$totalRAM = (int)$totalRAM;
-					}
-					if ($totalRAM <= 0)
-					{
-						// No memory limit? Cool! Assume 1Gb of available RAM (which is absurdely abundant as of March 2011...)
-						$totalRAM = 1086373952;
-					}
-				}
-				if ( !function_exists('memory_get_usage'))
-				{
-					$usedRAM = 8388608;
-				}
-				else
-				{
-					$usedRAM = memory_get_usage();
-				}
-
-				$availableRAM = $totalRAM - $usedRAM;
-
-				if ($availableRAM < 2.5 * $filesize)
-				{
-					Factory::getLog()->log(LogLevel::WARNING, "The file is too big to be sent by email. Please use a smaller Part Size for Split Archives setting.");
-					Factory::getLog()->log(LogLevel::DEBUG, "Memory limit $totalRAM bytes -- Used memory $usedRAM bytes -- File size $filesize -- Attachment requires approx. " . (2.5 * $filesize) . " bytes");
+					Factory::getLog()->log(LogLevel::WARNING, "The file does not exist, or it's not a file; no email sent");
 
 					return false;
 				}
-			}
-			else
-			{
-				Factory::getLog()->log(LogLevel::WARNING, "Your server fails to report the file size of $attachFile. If the backup crashes, please use a smaller Part Size for Split Archives setting");
-			}
 
-			$mailer->addAttachment($attachFile);
+				if ( !is_readable($attachFile))
+				{
+					Factory::getLog()->log(LogLevel::WARNING, "The file is not readable; no email sent");
+
+					return false;
+				}
+
+				$filesize = @filesize($attachFile);
+
+				if ($filesize)
+				{
+					// Check that we have AT LEAST 2.5 times free RAM as the filesize (that's how much we'll need)
+					if ( !function_exists('ini_get'))
+					{
+						// Assume 8Mb of PHP memory limit (worst case scenario)
+						$totalRAM = 8388608;
+					}
+					else
+					{
+						$totalRAM = ini_get('memory_limit');
+						if (strstr($totalRAM, 'M'))
+						{
+							$totalRAM = (int)$totalRAM * 1048576;
+						}
+						elseif (strstr($totalRAM, 'K'))
+						{
+							$totalRAM = (int)$totalRAM * 1024;
+						}
+						elseif (strstr($totalRAM, 'G'))
+						{
+							$totalRAM = (int)$totalRAM * 1073741824;
+						}
+						else
+						{
+							$totalRAM = (int)$totalRAM;
+						}
+						if ($totalRAM <= 0)
+						{
+							// No memory limit? Cool! Assume 1Gb of available RAM (which is absurdely abundant as of March 2011...)
+							$totalRAM = 1086373952;
+						}
+					}
+					if ( !function_exists('memory_get_usage'))
+					{
+						$usedRAM = 8388608;
+					}
+					else
+					{
+						$usedRAM = memory_get_usage();
+					}
+
+					$availableRAM = $totalRAM - $usedRAM;
+
+					if ($availableRAM < 2.5 * $filesize)
+					{
+						Factory::getLog()->log(LogLevel::WARNING, "The file is too big to be sent by email. Please use a smaller Part Size for Split Archives setting.");
+						Factory::getLog()->log(LogLevel::DEBUG, "Memory limit $totalRAM bytes -- Used memory $usedRAM bytes -- File size $filesize -- Attachment requires approx. " . (2.5 * $filesize) . " bytes");
+
+						return false;
+					}
+				}
+				else
+				{
+					Factory::getLog()->log(LogLevel::WARNING, "Your server fails to report the file size of $attachFile. If the backup crashes, please use a smaller Part Size for Split Archives setting");
+				}
+
+				$mailer->addAttachment($attachFile);
+			}
+		}
+		catch (\Exception $e)
+		{
+			Factory::getLog()->log(LogLevel::WARNING, "Could not send email to $to - Problem attaching file. Joomla! reports error: " . $e->getMessage());
+
+			return false;
 		}
 
 		Factory::getLog()->log(LogLevel::DEBUG, "-- Sending message");
 
-		$result = $mailer->Send();
+		try
+		{
+			$result = $mailer->Send();
+		}
+		catch (\Exception $e)
+		{
+			$result = $e;
+		}
 
-		if ($result instanceof \JException)
+		if ($result instanceof \Exception)
 		{
 			Factory::getLog()->log(LogLevel::WARNING, "Could not email $to:");
 			Factory::getLog()->log(LogLevel::WARNING, $result->getMessage());
@@ -835,12 +898,10 @@ class Joomla25 extends BasePlatform
 
 			return $ret;
 		}
-		else
-		{
-			Factory::getLog()->log(LogLevel::DEBUG, "-- Email sent");
 
-			return true;
-		}
+		Factory::getLog()->log(LogLevel::DEBUG, "-- Email sent");
+
+		return true;
 	}
 
 	/**

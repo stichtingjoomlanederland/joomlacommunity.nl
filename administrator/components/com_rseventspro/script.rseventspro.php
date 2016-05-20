@@ -941,10 +941,10 @@ class com_rseventsproInstallerScript
 		</p>
 		<?php } ?>
 	<?php } ?>
-	<h2>Changelog v1.9.21</h2>
+	<h2>Changelog v1.9.24</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> Exporting subscribers that had RSForm!Pro submissions caused a warning to appear in the CSV file.</li>
-		<li><span class="version-fixed">Fix</span> Adjusted the end dates for the recurring events.</li>
+		<li><span class="version-fixed">Fix</span> The archived options from the Events menu item were conflicting with each other.</li>
+		<li><span class="version-fixed">Fix</span> ICAL export for all day events fixed.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Start using RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the RSEvents!Pro User Guide</a>

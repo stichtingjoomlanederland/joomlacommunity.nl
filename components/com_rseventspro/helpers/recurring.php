@@ -132,16 +132,15 @@ class RSEventsProRecurring {
 				//Months
 				case 3:
 					while ($start <= $stop) {
-						$currentMonthStart = $start->format('n');
-						$nextMonthStart = $currentMonthStart + 1;
+						//$nextMonthStart = (int) $start->format('n') + 1;
 						
 						$start->modify('+'.$repeat.' months');
 						
-						if ($nextMonthStart > 1 && $nextMonthStart < 12) {
+						/* if ($nextMonthStart > 1 && $nextMonthStart < 12) {
 							while ($start->format('n') != $nextMonthStart) {
 								$start->modify('-1 days');
 							}
-						}
+						} */
 						
 						if ($start > $stop) break;
 						

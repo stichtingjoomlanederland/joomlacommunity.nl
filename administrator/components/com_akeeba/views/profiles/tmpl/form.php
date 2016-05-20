@@ -33,7 +33,7 @@ else
 	
 	<div class="control-group">
 		<label class="control-label" for="description">
-			<?php echo JHTML::_('tooltip', JText::_('PROFILE_LABEL_DESCRIPTION_TOOLTIP'), '', '', JText::_('PROFILE_LABEL_DESCRIPTION')) ?>
+			<?php echo JHTML::_('tooltip', JText::_('COM_AKEEBA_PROFILES_LABEL_DESCRIPTION_TOOLTIP'), '', '', JText::_('COM_AKEEBA_PROFILES_LABEL_DESCRIPTION')) ?>
 		</label>
 		<div class="controls">
 			<input type="text" name="description" class="span6" id="description" value="<?php echo $description; ?>" />

@@ -164,8 +164,13 @@ class AkeebaViewCpanel extends F0FViewHtml
 		$this->newSecretWord           = $session->get('newSecretWord', null, 'akeeba.cpanel');
 
 		// Should I ask for permission to display desktop notifications?
-		JLoader::import('joomla.application.component.helper');
-		$this->desktop_notifications = \Akeeba\Engine\Util\Comconfig::getValue('desktop_notifications', '0') ? 1 : 0;
+		if (!class_exists('AkeebaHelperParams'))
+		{
+			require_once JPATH_ADMINISTRATOR . '/components/com_akeeba/helpers/params.php';
+		}
+
+		$params = new AkeebaHelperParams();
+		$this->desktop_notifications = $params->get('desktop_notifications', '0') ? 1 : 0;
 
 		$this->statsIframe = F0FModel::getTmpInstance('Stats', 'AkeebaModel')->collectStatistics(true);
 

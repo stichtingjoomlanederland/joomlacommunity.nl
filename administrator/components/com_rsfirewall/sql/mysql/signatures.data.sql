@@ -94,4 +94,5 @@ INSERT IGNORE INTO `#__rsfirewall_signatures` (`signature`, `type`, `reason`) VA
 ('^\\$password\\=@\\$_REQUEST\\[''password''\\];', 'regexm', 'Possible PHP Injection'),
 ('eval\\(\\$[a-zA-Z0-9]+\\(\\$[a-zA-Z0-9]+\\(\\$[a-zA-Z0-9]+', 'regex', 'PHP Injection - Obfuscated code'),
 ('if\\(\\$_POST\\[''golden''\\]\\=\\="Done"\\)', 'regex', 'PHP Injection - File uploader'),
-('chr\\(\\([0-9]+\\-[0-9]+\\)\\)', 'regex', 'Possible PHP Injection - Obfuscated code');
+('chr\\(\\([0-9]+\\-[0-9]+\\)\\)', 'regex', 'Possible PHP Injection - Obfuscated code'),
+('eval\\/\\*(.*)\\*\\/\\(', 'regexis', 'Obfuscated eval()');

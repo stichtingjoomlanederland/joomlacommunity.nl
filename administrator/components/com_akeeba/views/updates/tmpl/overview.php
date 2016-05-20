@@ -40,7 +40,7 @@ if ($this->updateInfo['hasUpdate'])
 		<span>
 			<?php echo JText::_('COM_AKEEBA_CPANEL_MSG_PASTEDLID') ?>
 		</span>
-		<input type="text" name="dlid" placeholder="<?php echo JText::_('CONFIG_DOWNLOADID_LABEL')?>" class="input-xlarge">
+		<input type="text" name="dlid" placeholder="<?php echo JText::_('COM_AKEEBA_CONFIG_DOWNLOADID_LABEL')?>" class="input-xlarge">
 		<button type="submit" class="btn btn-success">
 			<span class="icon icon-<?php echo version_compare(JVERSION, '3.0.0', 'ge') ? 'checkbox' : 'ok icon-white' ?>"></span>
 			<?php echo JText::_('COM_AKEEBA_CPANEL_MSG_APPLYDLID') ?>
@@ -100,7 +100,7 @@ if ($this->updateInfo['hasUpdate'])
 			&nbsp;
 			<a href="<?php echo $this->updateInfo['downloadURL'] ?>" class="btn btn-small">
 				<span class="icon icon-download-alt"></span>
-				<?php echo JText::_('STATS_LOG_DOWNLOAD') ?>
+				<?php echo JText::_('COM_AKEEBA_BUADMIN_LOG_DOWNLOAD') ?>
 			</a>
 		</td>
 	</tr>
@@ -112,7 +112,7 @@ if ($this->updateInfo['hasUpdate'])
 			<?php if ($this->updateInfo['hasUpdate'] && $this->needsFTPCredentials): ?>
 			<div class="well">
 				<p>
-					<strong><?php echo JText::_('RESTORE_LABEL_FTPOPTIONS'); ?></strong>
+					<strong><?php echo JText::_('COM_AKEEBA_RESTORE_LABEL_FTPOPTIONS'); ?></strong>
 				</p>
 				<p>
 					<?php echo JText::_('COM_AKEEBA_UPDATE_ERR_FTPINFOMISSING'); ?>
