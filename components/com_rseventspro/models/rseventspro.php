@@ -175,7 +175,7 @@ class rseventsproModelRseventspro extends JModelLegacy
             ->where($this->_db->quoteName('parent.parent_id') . '=' . (int) $catparent)
             ->where($this->_db->quoteName('node.lft') . '>=' . $this->_db->quoteName('parent.lft'))
             ->where($this->_db->quoteName('node.lft') . '<=' . $this->_db->quoteName('parent.rgt'))
-            ->order($this->_db->quoteName($ordering) .'  ' . $this->_db->escape($direction));
+            ->order($this->_db->quoteName('node.'.$ordering) .'  ' . $this->_db->escape($direction));
 		
 		if (JLanguageMultilang::isEnabled()) {
 			$query->where('language IN ('.$this->_db->q(JFactory::getLanguage()->getTag()).','.$this->_db->q('*').')');
