@@ -143,7 +143,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 				<div class="content-3 col-sm-6">
 					<jdoc:include type="modules" name="home-sidebar-c" style="panel"/>
 				</div>
-
+				<?php include 'dummy/home.php'; ?>
 			<?php else: ?>
 				<div class="content-<?php echo($this->countModules('rechts') ? 8 : 12); ?>">
 					<?php if (count(JFactory::getApplication()->getMessageQueue())) : ?>
