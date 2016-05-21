@@ -96,12 +96,6 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 			<?php include 'dummy/nieuws_artikel.php'; ?>
 		<?php elseif ($helper->getItemId() == 98): ?>
 			<?php include 'dummy/nieuws.php'; ?>
-		<?php elseif ($helper->getItemId() == 242): ?>
-			<?php include 'dummy/documentatie.php'; ?>
-		<?php elseif ($helper->getItemId() == 259): ?>
-			<?php include 'dummy/documentatie_artikel.php'; ?>
-		<?php elseif ($helper->getItemId() == 260): ?>
-			<?php include 'dummy/documentatie_artikel_2.php'; ?>
 		<?php elseif ($helper->getItemId() == 492): ?>
 			<?php include 'dummy/styleguide.php'; ?>
 		<?php elseif ($helper->getItemId() == 468): ?>
