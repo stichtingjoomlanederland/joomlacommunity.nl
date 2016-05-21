@@ -26,7 +26,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 }
 ?>
 
-<div class="header <?php if ($helper->getItemId() == 248): ?>homepage<?php endif; ?>">
+<div class="header<?php echo $helper->isHome() ? ' homepage': '' ;?>">
 	<nav class="navbar navbar-default navbar-main" role="navigation">
 		<div class="container">
 
@@ -75,7 +75,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 			</div>
 		<?php endif; ?>
 	</div>
-	<div class="subnav" data-spy="affix" data-offset-top="<?php if ($helper->getItemId() == 248): ?>290<?php else: ?>90<?php endif; ?>">
+	<div class="subnav" data-spy="affix" data-offset-top="<?php echo $helper->isHome() ? 290 : 90 ;?>">
 		<div class="container">
 			<nav class="navbar navbar-sub" role="navigation">
 				<jdoc:include type="modules" name="submenu"/>
@@ -94,9 +94,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 		<?php elseif ($helper->getItemId() == 124): ?>
 			<?php include 'dummy/nieuws_artikel.php'; ?>
 		<?php elseif ($helper->getItemId() == 98): ?>
-			<?php include 'dummy/nieuws.php'; ?>
-		<?php elseif ($helper->getItemId() == 248): ?>
-			<?php include 'dummy/home.php'; ?>
+			<?php include 'dummy/nieuws.php'; ?>			
 		<?php elseif ($helper->getItemId() == 242): ?>
 			<?php include 'dummy/documentatie.php'; ?>
 		<?php elseif ($helper->getItemId() == 259): ?>
@@ -112,16 +110,20 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 			<jdoc:include type="modules" name="top-a" style="panel"/>
 		</div>
 		<div class="row">
-			<div class="content-<?php echo ($this->countModules('rechts') ? 8 : 12 ); ?>">
-				<?php if (count(JFactory::getApplication()->getMessageQueue())) : ?>
-				<jdoc:include type="message" />
-				<?php endif; ?>
-				<jdoc:include type="component"/>
-			</div>
-			<?php if ($this->countModules('rechts')) : ?>
-				<div class="content-4">
-					<jdoc:include type="modules" name="rechts" style="panel"/>
+			<?php if($helper->isHome() == true) : ?>
+				<?php include 'dummy/home.php'; ?>
+			<?php else: ?>
+				<div class="content-<?php echo ($this->countModules('rechts') ? 8 : 12 ); ?>">
+					<?php if (count(JFactory::getApplication()->getMessageQueue())) : ?>
+						<jdoc:include type="message" />
+					<?php endif; ?>
+					<jdoc:include type="component"/>
 				</div>
+				<?php if ($this->countModules('rechts')) : ?>
+					<div class="content-4">
+						<jdoc:include type="modules" name="rechts" style="panel"/>
+					</div>
+				<?php endif; ?>
 			<?php endif; ?>
 		</div>
 	</div>
