@@ -9,7 +9,7 @@
 defined('_JEXEC') or die;
 
 // Load Perfect Template Helper
-include_once JPATH_THEMES . '/' . $this->template . '/helper.php';
+include_once JPATH_THEMES . '/' . $this->template . '/helpers/helper.php';
 
 ?>
 <!DOCTYPE html>
