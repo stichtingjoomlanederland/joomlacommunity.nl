@@ -8565,6 +8565,12 @@ img.avatar {
 .list-group .list-group-item {
   padding-right: 10px;
 }
+.list-group .list-group-item:hover {
+  background-color: #f5f5f5;
+}
+.list-group .list-group-item:hover .list-group-item-text {
+  color: #d9534f;
+}
 .list-group .list-group-item .info {
   float: right;
 }
@@ -8585,6 +8591,23 @@ img.avatar {
   line-height: 20px;
   font-weight: 600;
   display: block;
+}
+.list-group .list-group-item-heading a,
+.list-group .list-group-item-heading a:hover,
+.list-group .list-group-item-heading a:focus {
+  color: #333333;
+  text-decoration: none;
+}
+.list-group .list-group-item-anchor:before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+  content: " ";
+  background: transparent;
+  z-index: 2;
 }
 .list-group .list-group-item-text {
   line-height: inherit;

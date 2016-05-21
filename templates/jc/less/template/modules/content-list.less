@@ -5,6 +5,13 @@
   .list-group-item {
     padding-right: 10px;
 
+    &:hover {
+      background-color: @list-group-hover-bg;
+      .list-group-item-text {
+        color: @brand-danger;
+      }
+    }
+
     .info {
       float: right;
     }
@@ -27,6 +34,31 @@
       line-height: 20px;
       font-weight: 600;
       display: block;
+    }
+  }
+
+  .list-group-item-heading {
+    a {
+      &,
+      &:hover,
+      &:focus {
+        color: @gray-dark;
+        text-decoration: none;
+      }
+    }
+  }
+
+  .list-group-item-anchor {
+    &:before {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      display: block;
+      content: " ";
+      background: transparent;
+      z-index: 2;
     }
   }
 
