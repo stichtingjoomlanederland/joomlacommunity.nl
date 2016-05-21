@@ -113,7 +113,9 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 		</div>
 		<div class="row">
 			<div class="content-<?php echo ($this->countModules('rechts') ? 8 : 12 ); ?>">
-				<jdoc:include type="message"/>
+				<?php if (count(JFactory::getApplication()->getMessageQueue())) : ?>
+				<jdoc:include type="message" />
+				<?php endif; ?>
 				<jdoc:include type="component"/>
 			</div>
 			<?php if ($this->countModules('rechts')) : ?>
