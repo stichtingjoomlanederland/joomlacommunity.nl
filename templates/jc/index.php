@@ -125,6 +125,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 						</p>
 						<a class="btn btn-default btn-block" href="#">Lees meer over Joomla!</a>
 					</div>
+					<?php /*
 					<div class="row">
 						<div class="col-sm-6">
 							<div class="thumbnail">
@@ -134,7 +135,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 								</div>
 							</div>
 						</div>
-					</div>
+					</div>                    */ ?>
 					<jdoc:include type="modules" name="home-sidebar-a__bottom" style="panel"/>
 				</div>
 				<div class="content-3 col-sm-6">
@@ -143,7 +144,6 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 				<div class="content-3 col-sm-6">
 					<jdoc:include type="modules" name="home-sidebar-c" style="panel"/>
 				</div>
-				<?php include 'dummy/home.php'; ?>
 			<?php else: ?>
 				<div class="content-<?php echo($this->countModules('rechts') ? 8 : 12); ?>">
 					<?php if (count(JFactory::getApplication()->getMessageQueue())) : ?>
