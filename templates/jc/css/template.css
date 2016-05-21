@@ -7353,8 +7353,8 @@ ol.linenums li {
 .nav > li > a:hover.taalpakketten {
   color: #E0AB18;
 }
-.nav > li.active > a.documentatie,
-.nav > li > a:hover.documentatie {
+.nav > li.active > a.aan-de-slag,
+.nav > li > a:hover.aan-de-slag {
   color: #51B46D;
 }
 .nav > li.active > a.sites,
@@ -7520,11 +7520,11 @@ img.avatar {
 .navbar-mobile .parent > a.taalpakketten:first-of-type + .active {
   background-color: #ebbd40;
 }
-.navbar-mobile .parent > a.documentatie:first-of-type + * {
+.navbar-mobile .parent > a.aan-de-slag:first-of-type + * {
   background: #51B46D;
   color: #fff;
 }
-.navbar-mobile .parent > a.documentatie:first-of-type + .active {
+.navbar-mobile .parent > a.aan-de-slag:first-of-type + .active {
   background-color: #75c38b;
 }
 .navbar-mobile .parent > a.sites:first-of-type + * {
@@ -7809,81 +7809,81 @@ img.avatar {
 .taalpakketten .no-js .sb-search .sb-icon-search {
   background: #bb8f14;
 }
-.documentatie .header {
+.aan-de-slag .header {
   background-color: #51B46D;
 }
-.documentatie .footer {
+.aan-de-slag .footer {
   border-top-color: #51B46D;
 }
-.documentatie .navbar-main .navbar-logo-name {
+.aan-de-slag .navbar-main .navbar-logo-name {
   color: #333;
 }
-.documentatie .navbar-main .navbar-logo .logo:hover .navbar-logo-name {
+.aan-de-slag .navbar-main .navbar-logo .logo:hover .navbar-logo-name {
   color: #51B46D;
 }
-.documentatie .subnav {
+.aan-de-slag .subnav {
   background-color: #51B46D;
 }
-.documentatie .subnav.affix {
+.aan-de-slag .subnav.affix {
   background-color: #51B46D;
 }
-.documentatie .subnav .nav > li > a:hover,
-.documentatie .subnav .nav > li > a:focus {
+.aan-de-slag .subnav .nav > li > a:hover,
+.aan-de-slag .subnav .nav > li > a:focus {
   background-color: #48a864;
 }
-.documentatie .subnav .nav > li.active > a,
-.documentatie .subnav .nav > li.active > a:hover,
-.documentatie .subnav .nav > li.active > a:focus {
+.aan-de-slag .subnav .nav > li.active > a,
+.aan-de-slag .subnav .nav > li.active > a:hover,
+.aan-de-slag .subnav .nav > li.active > a:focus {
   background-color: #429a5b;
 }
-.documentatie .content a {
+.aan-de-slag .content a {
   color: #48a864;
 }
-.documentatie .content a:hover {
+.aan-de-slag .content a:hover {
   color: #429a5b;
 }
-.documentatie .content a.btn {
+.aan-de-slag .content a.btn {
   color: #fff;
 }
-.documentatie .content a.btn.btn-default {
+.aan-de-slag .content a.btn.btn-default {
   color: #48a864;
 }
-.documentatie .content .btn-group a {
+.aan-de-slag .content .btn-group a {
   color: #000;
 }
-.documentatie .content .btn-group a.btn {
+.aan-de-slag .content .btn-group a.btn {
   border: 1px solid #CDCDCD;
 }
-.documentatie .content .btn-group a.btn:hover {
+.aan-de-slag .content .btn-group a.btn:hover {
   border: 1px solid #CDCDCD;
 }
-.documentatie .content .btn-group [class*=" icon-"],
-.documentatie .content .btn-group [class^=icon-] {
+.aan-de-slag .content .btn-group [class*=" icon-"],
+.aan-de-slag .content .btn-group [class^=icon-] {
   margin-right: 10px;
 }
-.documentatie .content h2 a {
+.aan-de-slag .content h2 a {
   /* 			color: inherit; */
 }
-.documentatie .item-content a:hover {
+.aan-de-slag .item-content a:hover {
   border-bottom-color: #48a864;
 }
-.documentatie .pagination > .active > a {
+.aan-de-slag .pagination > .active > a {
   background: #51B46D;
   border-color: #48a864;
   color: #bce2c7;
 }
-.documentatie .sb-search {
+.aan-de-slag .sb-search {
   background-image: -webkit-linear-gradient(left, rgba(72, 168, 100, 0.001) 0, #48a864 10%);
   background-image: -o-linear-gradient(left, rgba(72, 168, 100, 0.001) 0, #48a864 10%);
   background-image: linear-gradient(to right, rgba(72, 168, 100, 0.001) 0, #48a864 10%);
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#0048a864', endColorstr='#ff48a864', GradientType=1);
 }
-.documentatie .sb-icon-search {
+.aan-de-slag .sb-icon-search {
   background: #51B46D;
 }
-.documentatie .sb-search.sb-search-open .sb-icon-search,
-.documentatie .no-js .sb-search .sb-icon-search {
+.aan-de-slag .sb-search.sb-search-open .sb-icon-search,
+.aan-de-slag .no-js .sb-search .sb-icon-search {
   background: #429a5b;
 }
 .sites .header {
@@ -8246,46 +8246,46 @@ img.avatar {
   border-color: #eaba37;
   background-color: #f4dd9d;
 }
-.panel-documentatie {
+.panel-aan-de-slag {
   border-color: #51B46D;
 }
-.panel-documentatie > .panel-heading {
+.panel-aan-de-slag > .panel-heading {
   color: #fff;
   background-color: #51B46D;
   border-color: #51B46D;
 }
-.panel-documentatie > .panel-heading + .panel-collapse > .panel-body {
+.panel-aan-de-slag > .panel-heading + .panel-collapse > .panel-body {
   border-top-color: #51B46D;
 }
-.panel-documentatie > .panel-heading .badge {
+.panel-aan-de-slag > .panel-heading .badge {
   color: #51B46D;
   background-color: #fff;
 }
-.panel-documentatie > .panel-footer + .panel-collapse > .panel-body {
+.panel-aan-de-slag > .panel-footer + .panel-collapse > .panel-body {
   border-bottom-color: #51B46D;
 }
-.panel-documentatie .date-icon {
+.panel-aan-de-slag .date-icon {
   background-color: #51B46D;
 }
-.panel-documentatie .panel-hover:hover {
+.panel-aan-de-slag .panel-hover:hover {
   background-color: #48a864;
 }
-.panel-documentatie .panel-heading .panel-title {
+.panel-aan-de-slag .panel-heading .panel-title {
   color: inherit;
 }
-.panel-documentatie .panel-heading .panel-title a {
+.panel-aan-de-slag .panel-heading .panel-title a {
   color: inherit;
 }
-.panel-documentatie .panel-heading .panel-title small {
+.panel-aan-de-slag .panel-heading .panel-title small {
   color: inherit;
 }
-.panel-documentatie a:hover .date-icon {
+.panel-aan-de-slag a:hover .date-icon {
   background-color: #48a864;
 }
-.panel-documentatie a:hover .list-group-item-text {
+.panel-aan-de-slag a:hover .list-group-item-text {
   color: #48a864;
 }
-.panel-documentatie .list-group-item.active {
+.panel-aan-de-slag .list-group-item.active {
   border-color: #6ec085;
   background-color: #bce2c7;
 }
@@ -8537,7 +8537,7 @@ img.avatar {
   background: #E0AB18;
   color: #fff;
 }
-.well.documentatie {
+.well.aan-de-slag {
   background: #51B46D;
   color: #fff;
 }
@@ -9229,3 +9229,4 @@ h3 a:hover {
 .panel-gebruikersgroepen li a {
   padding: 10px 15px;
 }
+/*# sourceMappingURL=template.css.map */
