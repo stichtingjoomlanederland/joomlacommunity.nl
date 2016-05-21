@@ -62,18 +62,18 @@ function modChrome_panel($module, &$params, &$attribs)
 	{
 		if ($params->get('bootstrap_size'))
 		{
-			echo "<div class=\"col-lg-" . htmlspecialchars($params->get('bootstrap_size')) . "\">";
+			echo '<div class="col-lg-' . htmlspecialchars($params->get('bootstrap_size')) . '">';
 		}
-		echo "<div class=\"panel " . htmlspecialchars($params->get('moduleclass_sfx')) . "\">";
+		echo '<div class="panel ' . htmlspecialchars($params->get('moduleclass_sfx')) . '">';
 		if ($module->showtitle)
 		{
-			echo "<div class=\"panel-heading\"><h3 class=\"panel-title\">" . $module->title . "</h3></div>";
+			echo '<div class="panel-heading">' . $module->title . '</div>';
 		}
-		echo $module->content;
-		echo "</div>";
+		echo '<div class="panel-body">' . $module->content . '</div>';
+		echo '</div>';
 		if ($params->get('bootstrap_size'))
 		{
-			echo "</div>";
+			echo '</div>';
 		}
 	}
 }

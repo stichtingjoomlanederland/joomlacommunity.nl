@@ -26,18 +26,19 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 }
 ?>
 
-<div class="header<?php echo $helper->isHome() ? ' homepage': '' ;?>">
+<div class="header<?php echo $helper->isHome() ? ' homepage' : ''; ?>">
 	<nav class="navbar navbar-default navbar-main" role="navigation">
 		<div class="container">
 
-            <?php //Brand and toggle get grouped for better mobile display ?>
+			<?php //Brand and toggle get grouped for better mobile display ?>
 			<div class="navbar-header navbar-logo">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#jc-navbar-collapse-1" aria-expanded="false">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+				        data-target="#jc-navbar-collapse-1" aria-expanded="false">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
 				<a class="logo" href=".">
 					<span class="navbar-logo-name"><?php echo $helper->getSitename(); ?>
 						<span class="navbar-logo-subline"><?php echo JText::_('TPL_JC_SUBLINE') ?></span>
@@ -49,21 +50,21 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 				<jdoc:include type="modules" name="mainmenu"/>
 			</div>
 
-            <?php // Collect the nav links, forms, and other content for toggling ?>
-            <div class="collapse navbar-collapse" id="jc-navbar-collapse-1">
-                <div class="navbar-mobile">
-                    <jdoc:include type="modules" name="mainmenu-mobile"/>
-                </div>
-                <jdoc:include type="modules" name="usermenu"/>
+			<?php // Collect the nav links, forms, and other content for toggling ?>
+			<div class="collapse navbar-collapse" id="jc-navbar-collapse-1">
+				<div class="navbar-mobile">
+					<jdoc:include type="modules" name="mainmenu-mobile"/>
+				</div>
+				<jdoc:include type="modules" name="usermenu"/>
 				<jdoc:include type="modules" name="search"/>
-            </div>
+			</div>
 
 		</div>
 	</nav>
 
 	<div class="pagetitle">
 		<?php if ($this->countModules('slider')) : ?>
-			<jdoc:include type="modules" name="slider" />
+			<jdoc:include type="modules" name="slider"/>
 		<?php else: ?>
 			<div class="container">
 				<div class="paginatitel pull-left">
@@ -75,7 +76,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 			</div>
 		<?php endif; ?>
 	</div>
-	<div class="subnav" data-spy="affix" data-offset-top="<?php echo $helper->isHome() ? 290 : 90 ;?>">
+	<div class="subnav" data-spy="affix" data-offset-top="<?php echo $helper->isHome() ? 290 : 90; ?>">
 		<div class="container">
 			<nav class="navbar navbar-sub" role="navigation">
 				<jdoc:include type="modules" name="submenu"/>
@@ -94,7 +95,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 		<?php elseif ($helper->getItemId() == 124): ?>
 			<?php include 'dummy/nieuws_artikel.php'; ?>
 		<?php elseif ($helper->getItemId() == 98): ?>
-			<?php include 'dummy/nieuws.php'; ?>			
+			<?php include 'dummy/nieuws.php'; ?>
 		<?php elseif ($helper->getItemId() == 242): ?>
 			<?php include 'dummy/documentatie.php'; ?>
 		<?php elseif ($helper->getItemId() == 259): ?>
@@ -103,19 +104,50 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 			<?php include 'dummy/documentatie_artikel_2.php'; ?>
 		<?php elseif ($helper->getItemId() == 492): ?>
 			<?php include 'dummy/styleguide.php'; ?>
-      	<?php elseif ($helper->getItemId() == 468): ?>
+		<?php elseif ($helper->getItemId() == 468): ?>
 		<?php endif; ?>
 
 		<div class="row">
 			<jdoc:include type="modules" name="top-a" style="panel"/>
 		</div>
 		<div class="row">
-			<?php if($helper->isHome() == true) : ?>
-				<?php include 'dummy/home.php'; ?>
+			<?php if ($helper->isHome() == true) : ?>
+				<div class="content-6 col-sm-12">
+					<div class="well">
+						<h2 class="page-header">Maak je eigen website met Joomla!™</h2>
+						<p>
+							<img class="pull-right" style="width:100px;margin-left:10px;margin-top:5px;"
+							     src="images/joomla.png"/>Joomla is een bekroond content management systeem (CMS), dat
+							je de mogelijkheid biedt websites en krachtige online applicaties te bouwen. Door de vele
+							mogelijkheden, waaronder het eenvoudige gebruik en uitbreidings- mogelijkheden, behoort
+							Joomla! tot een van de meest populaire webbouw pakketten ter wereld. Bovendien is Joomla!
+							een open source pakket en is voor iedereen vrij beschikbaar.
+						</p>
+						<a class="btn btn-default btn-block" href="#">Lees meer over Joomla!</a>
+					</div>
+					<div class="row">
+						<div class="col-sm-6">
+							<div class="thumbnail">
+								<img src="http://placehold.it/320x180" alt="...">
+								<div class="caption">
+									<h3>Joomla Hidden Secrets</h3>
+								</div>
+							</div>
+						</div>
+					</div>
+					<jdoc:include type="modules" name="home-sidebar-a__bottom" style="panel"/>
+				</div>
+				<div class="content-3 col-sm-6">
+					<jdoc:include type="modules" name="home-sidebar-b" style="panel"/>
+				</div>
+				<div class="content-3 col-sm-6">
+					<jdoc:include type="modules" name="home-sidebar-c" style="panel"/>
+				</div>
+
 			<?php else: ?>
-				<div class="content-<?php echo ($this->countModules('rechts') ? 8 : 12 ); ?>">
+				<div class="content-<?php echo($this->countModules('rechts') ? 8 : 12); ?>">
 					<?php if (count(JFactory::getApplication()->getMessageQueue())) : ?>
-						<jdoc:include type="message" />
+						<jdoc:include type="message"/>
 					<?php endif; ?>
 					<jdoc:include type="component"/>
 				</div>
@@ -134,19 +166,19 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 		<div class="container">
 			<div class="row">
 				<div class="col-4">
-					<jdoc:include type="modules" name="footer-1" style="xhtml" />
+					<jdoc:include type="modules" name="footer-1" style="xhtml"/>
 				</div>
 				<div class="col-2">
-					<jdoc:include type="modules" name="footer-2" style="xhtml" />
+					<jdoc:include type="modules" name="footer-2" style="xhtml"/>
 				</div>
 				<div class="col-2">
-					<jdoc:include type="modules" name="footer-3" style="xhtml" />
+					<jdoc:include type="modules" name="footer-3" style="xhtml"/>
 				</div>
 				<div class="col-2">
-					<jdoc:include type="modules" name="footer-4" style="xhtml" />
+					<jdoc:include type="modules" name="footer-4" style="xhtml"/>
 				</div>
 				<div class="col-2">
-					<jdoc:include type="modules" name="footer-5" style="xhtml" />
+					<jdoc:include type="modules" name="footer-5" style="xhtml"/>
 				</div>
 			</div>
 		</div>
@@ -155,8 +187,9 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 		<div class="container">
 			<div class="row">
 				<div class="col-12">
-					<p class="">Copyright © 2008-<?php echo date('Y'); ?> Joomla!Community - Alle rechten voorbehouden</p>
-					<jdoc:include type="modules" name="copyright" />
+					<p class="">Copyright © 2008-<?php echo date('Y'); ?> Joomla!Community - Alle rechten
+						voorbehouden</p>
+					<jdoc:include type="modules" name="copyright"/>
 				</div>
 			</div>
 		</div>
