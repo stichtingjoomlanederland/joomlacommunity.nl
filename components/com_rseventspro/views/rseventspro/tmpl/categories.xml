@@ -8,9 +8,10 @@
 	
 	<fields name="params">
 		<fieldset name="basic">
+			<field name="catparent" type="category" extension="com_rseventspro" published="1" show_root="true" label="COM_RSEVENTSPRO_CATEGORIES_PARENT" description="COM_RSEVENTSPRO_CATEGORIES_PARENT_DESC"/>
 			<field name="ordering" type="list" default="title" label="COM_RSEVENTSPRO_ORDERING" description="COM_RSEVENTSPRO_ORDERING_DESC">
-				<option value="title">COM_RSEVENTSPRO_CATEGORIES_VIEW_ORDERING_TITLE</option>
-				<option value="lft">COM_RSEVENTSPRO_CATEGORIES_VIEW_ORDERING_ORDER</option>
+				<option value="node.title">COM_RSEVENTSPRO_CATEGORIES_VIEW_ORDERING_TITLE</option>
+				<option value="node.lft">COM_RSEVENTSPRO_CATEGORIES_VIEW_ORDERING_ORDER</option>
 			</field>
 			
 			<field name="order" type="list" default="ASC" label="COM_RSEVENTSPRO_DIRECTION" description="COM_RSEVENTSPRO_DIRECTION_DESC">

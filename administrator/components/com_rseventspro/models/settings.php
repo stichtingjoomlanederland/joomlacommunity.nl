@@ -95,7 +95,7 @@ class rseventsproModelSettings extends JModelAdmin
 	 */
 	public function getSocial() {
 		$options = array('cb' => false, 'js' => false, 'kunena' => false, 'fireboard' => false,
-				'jcomments' => false, 'jomcomment' => false, 'rscomments' => false, 'k2' => false
+			'jcomments' => false, 'jomcomment' => false, 'rscomments' => false, 'k2' => false, 'easydiscuss' => false
 		);
 		
 		if (file_exists(JPATH_SITE.'/components/com_comprofiler/comprofiler.php'))
@@ -121,6 +121,9 @@ class rseventsproModelSettings extends JModelAdmin
 		
 		if (file_exists(JPATH_SITE.'/components/com_k2/k2.php'))
 			$options['k2'] = true;
+
+		if (file_exists(JPATH_SITE.'/components/com_easydiscuss/easydiscuss.php'))
+			$options['easydiscuss'] = true;
 		
 		return $options;
 	}

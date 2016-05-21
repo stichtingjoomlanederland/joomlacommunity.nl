@@ -147,7 +147,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 	 *
 	 *	@return SQL query
 	 */
-	protected function _buildCategoriesQuery() {
+        protected function _buildCategoriesQuery() {
 		$query	= $this->_db->getQuery(true);
 		$params	= rseventsproHelper::getParams();
 		$user	= JFactory::getUser();
@@ -155,21 +155,33 @@ class rseventsproModelRseventspro extends JModelLegacy
 		
 		$ordering	= $params->get('ordering','title');
 		$direction	= $params->get('order','ASC');
-		
+        $catparent     = $params->get('catparent');
+
 		$query->clear()
-			->select($this->_db->qn('id'))->select($this->_db->qn('title'))
-			->select($this->_db->qn('description'))->select($this->_db->qn('level'))
-			->from($this->_db->qn('#__categories'))
-			->where($this->_db->qn('extension').' = '.$this->_db->q('com_rseventspro'))
-			->where($this->_db->qn('published').' = 1')
-			->order($this->_db->qn($ordering).' '.$this->_db->escape($direction));
+			->select(
+                $this->_db->quoteName(
+                    array(
+                        'node.id',
+                        'node.title',
+                        'node.description',
+                        'node.level',
+                    )
+                )
+            )
+			->from($this->_db->quoteName('#__categories', 'node'))
+            ->from($this->_db->quoteName('#__categories', 'parent'))
+            ->where($this->_db->quoteName('node.extension') . ' = ' . $this->_db->quote('com_rseventspro'))
+            ->where($this->_db->quoteName('parent.published').' = 1')
+            ->where($this->_db->quoteName('parent.parent_id') . '=' . (int) $catparent)
+            ->where($this->_db->quoteName('node.lft') . '>=' . $this->_db->quoteName('parent.lft'))
+            ->where($this->_db->quoteName('node.lft') . '<=' . $this->_db->quoteName('parent.rgt'))
+            ->order($this->_db->quoteName($ordering) .'  ' . $this->_db->escape($direction));
 		
 		if (JLanguageMultilang::isEnabled()) {
 			$query->where('language IN ('.$this->_db->q(JFactory::getLanguage()->getTag()).','.$this->_db->q('*').')');
 		}
 		
-		$query->where('access IN ('.$groups.')');
-		
+		$query->where('node.access IN ('.$groups.')');
 		return (string) $query;
 	}
 	
