@@ -69,7 +69,6 @@ function modChrome_panel($module, &$params, &$attribs)
 		{
 			echo '<div class="panel-heading">' . $module->title . '</div>';
 		}
-		//echo '<div class="panel-body">' . $module->content . '</div>';
 		echo $module->content;
 		echo '</div>';
 		if ($params->get('bootstrap_size'))
