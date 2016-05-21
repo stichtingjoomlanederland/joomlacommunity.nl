@@ -7270,7 +7270,7 @@ ol.linenums li {
   position: relative;
 }
 .navbar-logo {
-  height: 55px;
+  height: 60px;
   overflow: hidden;
 }
 .logo {
@@ -7282,7 +7282,7 @@ ol.linenums li {
 }
 .navbar-logo .logo {
   display: block;
-  height: 55px;
+  height: 60px;
   margin: 0 auto;
 }
 .navbar-logo .logo:hover,
@@ -7311,7 +7311,7 @@ ol.linenums li {
 @media (max-width: 480px) {
   .navbar-logo-name {
     font-size: 18px;
-    line-height: 55px;
+    line-height: 60px;
   }
 }
 .navbar-logo-subline {
@@ -7371,7 +7371,7 @@ ol.linenums li {
 }
 .navbar-main-menu {
   display: block;
-  height: 55px;
+  height: 60px;
   font-size: 15px;
   padding-left: 10px;
 }
@@ -7401,7 +7401,7 @@ img.avatar {
   margin-bottom: 0;
   position: fixed;
   right: 0;
-  top: 55px;
+  top: 60px;
   z-index: 1020;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
@@ -7452,10 +7452,10 @@ img.avatar {
     left: 0;
     z-index: 1030;
     border-radius: 0;
-    height: 55px;
+    height: 60px;
   }
   .navbar-main .nav > li > a {
-    line-height: 55px;
+    line-height: 60px;
     padding: 0 6px;
   }
 }
