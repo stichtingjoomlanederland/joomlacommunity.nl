@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * @package     perfecttemplate
  * @copyright   Copyright (c) Perfect Web Team / perfectwebteam.nl
  * @license     GNU General Public License version 3 or later
@@ -11,30 +11,60 @@ defined('_JEXEC') or die();
 // Define the base-path of this template
 define('TEMPLATE_BASE', dirname(__FILE__));
 
-/*
+// Instantiate the helper class
+$helper = new ThisTemplateHelper();
+
+// changes to HEAD
+$helper->setMetadata($this);
+$helper->setFavicon();
+$helper->unloadCss();
+$helper->unloadJs();
+$helper->loadCss();
+$helper->loadJs();
+
+// Font
+//$helper->localstorageFont('PerfectFont');
+
+// Analytics
+$analyticsData = $helper->getAnalytics($this);
+
+// changes to Body
+$pageclass  = $helper->getPageClass();
+$debug      = $helper->settings['debug'];
+
+/**
  * ThisTemplate class
  */
-
 class ThisTemplateHelper
 {
-	/*
+	/**
+	 * Template settings
+	 */
+	public $settings = array(
+		'debug'       => true,
+		'unset_css'   => array('com_finder', 'foundry'),
+		'analytics'   => 0, // 0 = none, GA = Universal Google Analytics, GTM = Google Tag Manager, Mix = Mixpanel
+		'analyticsid' => '',
+	);
+
+	/**
 	 * Document instance
 	 */
 	protected $doc = null;
-	/*
+	/**
 	 * Application instance
 	 */
 	protected $app = null;
-	/*
+	/**
 	 * JInput instance
 	 */
 	protected $input = null;
-	/*
+	/**
 	 * Menu instance
 	 */
 	protected $menu = null;
 
-	/*
+	/**
 	 * Constructor called when instantiating this class
 	 */
 	public function __construct()
@@ -52,11 +82,13 @@ class ThisTemplateHelper
 		$this->doc->setGenerator(JFactory::getConfig()->get('config.sitename'));
 	}
 
-	/*
+	/**
 	 * Method to manually override the META-generator
 	 *
 	 * @access public
+	 *
 	 * @param string $generator
+	 *
 	 * @return null
 	 */
 	public function setGenerator($generator)
@@ -93,11 +125,13 @@ class ThisTemplateHelper
 		$this->doc->addHeadLink('templates/' . $this->template . '/images/xtouch-icon.png', 'apple-touch-icon', 'rel', array('type' => 'image/png'));
 	}
 
-	/*
+	/**
 	 * Method to return the current Menu Item ID
 	 *
 	 * @access public
+	 *
 	 * @param null
+	 *
 	 * @return int
 	 */
 	public function getItemId()
@@ -105,11 +139,13 @@ class ThisTemplateHelper
 		return $this->input->getInt('Itemid');
 	}
 
-	/*
+	/**
 	 * Method to fetch the current path
 	 *
 	 * @access public
+	 *
 	 * @param string $output Output type
+	 *
 	 * @return mixed
 	 */
 	public function getPath($output = 'array')
@@ -127,27 +163,47 @@ class ThisTemplateHelper
 		return $path;
 	}
 
-	/*
+	/**
 	 * Method to get the current sitename
 	 *
 	 * @access public
+	 *
 	 * @param null
+	 *
 	 * @return string
 	 */
 	public function getSitename()
 	{
-		return JFactory::getConfig()->get('config.sitename');
+		return JFactory::getConfig()->get('sitename');
 	}
 
-	/*
+	/**
+	 * Method to get the title of active menu
+	 *
+	 * @access public
+	 *
+	 * @param null
+	 *
+	 * @return string
+	 */
+	public function getActiveMenuTitle()
+	{
+		$activeMenu = $this->menu->getActive();
+
+		return $activeMenu->title;
+	}
+
+	/**
 	 * Generate a list of useful CSS classes for the body
 	 *
 	 * @param null
+	 *
 	 * @return bool
 	 */
 	public function getBodySuffix()
 	{
 		$classes   = array();
+		$classes[] = $this->getSubSite();
 		$classes[] = 'option-' . str_replace('_', '-', $this->input->getCmd('option'));
 		$classes[] = 'view-' . $this->input->getCmd('view');
 		//$classes[] = 'layout-' . $this->input->getCmd('layout');
@@ -166,6 +222,19 @@ class ThisTemplateHelper
 	}
 
 	/**
+	 * get Subsite from active menu
+	 *
+	 * @return mixed
+	 */
+	public function getSubSite()
+	{
+		$activeMenu = $this->menu->getActive();
+		$route_parts = explode('/', $activeMenu->route);
+
+		return $route_parts[0];
+	}
+
+	/**
 	 * get PageClass set with Menu Item
 	 *
 	 * @return mixed
@@ -178,19 +247,19 @@ class ThisTemplateHelper
 		return $pageclass;
 	}
 
-	/*
+	/**
 	 * Method to determine whether the current page is the Joomla! homepage
 	 *
 	 * @access public
+	 *
 	 * @param null
+	 *
 	 * @return bool
 	 */
 	public function isHome()
 	{
-		// Fetch the active menu-item
 		$activeMenu = $this->menu->getActive();
 
-		// Return whether this active menu-item is home or not
 		return (boolean) ($activeMenu) ? $activeMenu->home : false;
 	}
 
@@ -199,7 +268,7 @@ class ThisTemplateHelper
 	 */
 	public function unloadCss()
 	{
-		$unset_css = array('com_finder', 'foundry');
+		$unset_css = $this->settings['unset_css'];
 		foreach ($this->doc->_styleSheets as $name => $style)
 		{
 			foreach ($unset_css as $css)
@@ -299,11 +368,13 @@ class ThisTemplateHelper
 		$this->doc->addScriptDeclaration($javascript);
 	}
 
-	/*
+	/**
 	 * Method to detect a certain browser type
 	 *
 	 * @access public
+	 *
 	 * @param string $shortname
+	 *
 	 * @return string
 	 */
 	public function isBrowser($shortname = 'ie6')
@@ -425,51 +496,4 @@ class ThisTemplateHelper
 		}
 	}
 
-	public function getPagelayout($template)
-	{
-		$SidebarA = false;
-		$SidebarB = false;
-
-		if ($template->countModules('sidebar-a'))
-		{
-			$SidebarA = true;
-		}
-
-		if ($template->countModules('sidebar-b'))
-		{
-			$SidebarB = true;
-		}
-
-		if ($this->isHome())
-		{
-			$SidebarA = false;
-			$SidebarB = false;
-		}
-
-		if ($SidebarA == true)
-		{
-			return '2column-left';
-		}
-
-		if ($SidebarB == true)
-		{
-			return '2column-right';
-		}
-
-		if ($SidebarA == true && $SidebarB == true)
-		{
-			return '3column';
-		}
-
-		if ($SidebarA == false && $SidebarB == false)
-		{
-			return 'home';
-		}
-
-		return $template->params->get('pagelayout', '1column');
-	}
-
 }
-
-// Instantiate the helper class
-$helper = new ThisTemplateHelper();

@@ -9,29 +9,8 @@
 defined('_JEXEC') or die;
 
 // Load Perfect Template Helper
-include_once JPATH_THEMES . '/' . $this->template . '/templateDetails.php';
+include_once JPATH_THEMES . '/' . $this->template . '/helper.php';
 
-// Determ col-size
-if ($this->countModules('rechts'))
-{
-	$maincols = 8;
-}
-else
-{
-	$maincols = 12;
-}
-
-// Remove after removing dumy text
-$app      = JFactory::getApplication();
-$itemid   = $app->input->getCmd('Itemid', '');
-$sitename = $app->getCfg('sitename');
-
-// Get title of active menu
-$menu_active = $app->getMenu()->getActive();
-$menu_route  = $menu_active->route;
-$menu_title  = $menu_active->title;
-$route_parts = explode('/', $menu_route);
-$subsite     = $route_parts[0];
 ?>
 <!DOCTYPE html>
 <html class="html no-js" lang="<?php echo $this->language; ?>" dir="<?php echo $this->direction; ?>">
@@ -39,7 +18,7 @@ $subsite     = $route_parts[0];
 	<jdoc:include type="head"/>
 </head>
 
-<body class="base <?php echo($subsite); ?> <?php echo $helper->getBodySuffix(); ?>">
+<body class="base <?php echo $helper->getBodySuffix(); ?>">
 <?php
 if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 {
@@ -47,7 +26,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 }
 ?>
 
-<div class="header <?php if ($itemid == 248): ?>homepage<?php endif; ?>">
+<div class="header <?php if ($helper->getItemId() == 248): ?>homepage<?php endif; ?>">
 	<nav class="navbar navbar-default navbar-main" role="navigation">
 		<div class="container">
 
@@ -60,7 +39,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
                     <span class="icon-bar"></span>
                 </button>
 				<a class="logo" href=".">
-					<span class="navbar-logo-name"><?php echo $sitename ?>
+					<span class="navbar-logo-name"><?php echo $helper->getSitename(); ?>
 						<span class="navbar-logo-subline"><?php echo JText::_('TPL_JC_SUBLINE') ?></span>
 					</span>
 				</a>
@@ -88,7 +67,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 		<?php else: ?>
 			<div class="container">
 				<div class="paginatitel pull-left">
-					<h3><?php echo($menu_title); ?></h3>
+					<h3><?php echo $helper->getActiveMenuTitle(); ?></h3>
 				</div>
 				<div class="banner pull-right">
 					<img src="images/banner.png"/>
@@ -96,7 +75,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 			</div>
 		<?php endif; ?>
 	</div>
-	<div class="subnav" data-spy="affix" data-offset-top="<?php if ($itemid == 248): ?>290<?php else: ?>90<?php endif; ?>">
+	<div class="subnav" data-spy="affix" data-offset-top="<?php if ($helper->getItemId() == 248): ?>290<?php else: ?>90<?php endif; ?>">
 		<div class="container">
 			<nav class="navbar navbar-sub" role="navigation">
 				<jdoc:include type="modules" name="submenu"/>
@@ -110,30 +89,30 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 	<div class="container">
 		<jdoc:include type="modules" name="test" style="xhtml"/>
 
-		<?php if ($itemid == 122): ?>
+		<?php if ($helper->getItemId() == 122): ?>
 			<?php include 'dummy/nieuws_alt.php'; ?>
-		<?php elseif ($itemid == 124): ?>
+		<?php elseif ($helper->getItemId() == 124): ?>
 			<?php include 'dummy/nieuws_artikel.php'; ?>
-		<?php elseif ($itemid == 98): ?>
+		<?php elseif ($helper->getItemId() == 98): ?>
 			<?php include 'dummy/nieuws.php'; ?>
-		<?php elseif ($itemid == 248): ?>
+		<?php elseif ($helper->getItemId() == 248): ?>
 			<?php include 'dummy/home.php'; ?>
-		<?php elseif ($itemid == 242): ?>
+		<?php elseif ($helper->getItemId() == 242): ?>
 			<?php include 'dummy/documentatie.php'; ?>
-		<?php elseif ($itemid == 259): ?>
+		<?php elseif ($helper->getItemId() == 259): ?>
 			<?php include 'dummy/documentatie_artikel.php'; ?>
-		<?php elseif ($itemid == 260): ?>
+		<?php elseif ($helper->getItemId() == 260): ?>
 			<?php include 'dummy/documentatie_artikel_2.php'; ?>
-		<?php elseif ($itemid == 492): ?>
+		<?php elseif ($helper->getItemId() == 492): ?>
 			<?php include 'dummy/styleguide.php'; ?>
-      	<?php elseif ($itemid == 468): ?>
+      	<?php elseif ($helper->getItemId() == 468): ?>
 		<?php endif; ?>
 
 		<div class="row">
 			<jdoc:include type="modules" name="top-a" style="panel"/>
 		</div>
 		<div class="row">
-			<div class="content-<?php echo($maincols); ?>">
+			<div class="content-<?php echo ($this->countModules('rechts') ? 8 : 12 ); ?>">
 				<jdoc:include type="message"/>
 				<jdoc:include type="component"/>
 			</div>
