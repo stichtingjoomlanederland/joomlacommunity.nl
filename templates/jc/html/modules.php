@@ -36,22 +36,24 @@ function modChrome_no($module, &$params, &$attribs)
 
 function modChrome_well($module, &$params, &$attribs)
 {
+	$headerTag   = htmlspecialchars($params->get('header_tag', 'h3'));
+
 	if ($module->content)
 	{
 		if ($params->get('bootstrap_size'))
 		{
-			echo "<div class=\"col-lg-" . htmlspecialchars($params->get('bootstrap_size')) . "\">";
+			echo '<div class="col-lg-' . htmlspecialchars($params->get('bootstrap_size')) . '">';
 		}
-		echo "<div class=\"well " . htmlspecialchars($params->get('moduleclass_sfx')) . "\">";
+		echo '<div class="well ' . htmlspecialchars($params->get('moduleclass_sfx')) . '">';
 		if ($module->showtitle)
 		{
-			echo "<div class=\"page-header\"><strong>" . $module->title . "</strong></div>";
+			echo '<div class="page-header ' . $headerTag . '"><strong>' . $module->title . '</strong></div>';
 		}
 		echo $module->content;
-		echo "</div>";
+		echo '</div>';
 		if ($params->get('bootstrap_size'))
 		{
-			echo "</div>";
+			echo '</div>';
 		}
 	}
 }
