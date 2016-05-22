@@ -107,18 +107,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 		<div class="row">
 			<?php if ($helper->isHome() == true) : ?>
 				<div class="content-6 col-sm-12">
-					<div class="well">
-						<h2 class="page-header">Maak je eigen website met Joomla!™</h2>
-						<p>
-							<img class="pull-right" style="width:100px;margin-left:10px;margin-top:5px;"
-							     src="images/joomla.png"/>Joomla is een bekroond content management systeem (CMS), dat
-							je de mogelijkheid biedt websites en krachtige online applicaties te bouwen. Door de vele
-							mogelijkheden, waaronder het eenvoudige gebruik en uitbreidings- mogelijkheden, behoort
-							Joomla! tot een van de meest populaire webbouw pakketten ter wereld. Bovendien is Joomla!
-							een open source pakket en is voor iedereen vrij beschikbaar.
-						</p>
-						<a class="btn btn-default btn-block" href="#">Lees meer over Joomla!</a>
-					</div>
+					<jdoc:include type="modules" name="home-sidebar-a__top" style="well"/>
 					<?php /*
 					<div class="row">
 						<div class="col-sm-6">
