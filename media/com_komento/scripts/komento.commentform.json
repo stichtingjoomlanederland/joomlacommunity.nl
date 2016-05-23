@@ -1,9 +1,0 @@
-[
-    {
-        "library": [
-            "dialog",
-            "markitup"
-        ],
-        "adapter": "Komento"
-    }
-]
