@@ -1,0 +1,16 @@
+﻿.rsc_emoticon_image {
+	vertical-align: inherit;
+}
+
+#rsc_comments_tbl tr td{
+	vertical-align:middle;
+}
+
+@media (max-width: 480px) {
+	.control-label{
+		float:none !important;
+	}
+	.controls .btn-group .btn {
+		width:auto !important;
+	}
+}
