@@ -10,7 +10,7 @@ jimport( 'joomla.plugin.plugin');
 
 class plgContentRSComments extends JPlugin
 {
-	public function plgContentRSComments(&$subject, $config) {
+	public function __construct(&$subject, $config) {
 		parent::__construct($subject, $config);
 	}
 

@@ -437,7 +437,7 @@ class JSecurImage {
 	 * </code>
 	 *
 	 */
-	function JSecurImage()
+	function __construct()
 	{
 		// Initialize session or attach to existing
 		if ( session_id() == '' ) { // no session has been started yet, which is needed for validation
