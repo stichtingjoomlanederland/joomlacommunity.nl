@@ -39,18 +39,13 @@ $query = $db->getQuery(true)
 $db->setQuery($query);
 $db->execute();
 
-// Load F0F
-if ( !defined('F0F_INCLUDED'))
-{
-	include_once JPATH_SITE . '/libraries/f0f/include.php';
-}
-
-if ( !defined('F0F_INCLUDED') || !class_exists('F0FLess', true))
+// Load FOF if not already loaded
+if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
 {
 	return;
 }
 
-F0FUtilsCacheCleaner::clearPluginsCache();
+\FOF30\Utils\CacheCleaner::clearPluginsCache();
 
 // Timezone fix; avoids errors printed out by PHP 5.3.3+ (thanks Yannick!)
 if (function_exists('date_default_timezone_get') && function_exists('date_default_timezone_set'))
@@ -77,7 +72,7 @@ if (function_exists('date_default_timezone_get') && function_exists('date_defaul
  */
 
 // Make sure Akeeba Backup is installed, or quit
-$akeeba_installed = @file_exists(JPATH_ADMINISTRATOR . '/components/com_akeeba/engine/Factory.php');
+$akeeba_installed = @file_exists(JPATH_ADMINISTRATOR . '/components/com_akeeba/Engine/Factory.php');
 
 if ( !$akeeba_installed)
 {
@@ -114,7 +109,7 @@ if ($continueLoadingIcon)
 	}
 	try
 	{
-		@include_once JPATH_ADMINISTRATOR . '/components/com_akeeba/engine/Factory.php';
+		@include_once JPATH_ADMINISTRATOR . '/components/com_akeeba/Engine/Factory.php';
 		if ( !class_exists('\Akeeba\Engine\Factory', false))
 		{
 			$continueLoadingIcon = false;
@@ -138,7 +133,7 @@ if ( !$continueLoadingIcon)
 	$db->setQuery($query);
 	$db->execute();
 
-	F0FUtilsCacheCleaner::clearPluginsCache();
+	\FOF30\Utils\CacheCleaner::clearPluginsCache();
 
 	return;
 }
@@ -192,7 +187,29 @@ class plgQuickiconAkeebabackup extends JPlugin
 			return;
 		}
 
-		Platform::addPlatform('joomla25', JPATH_ADMINISTRATOR . '/components/com_akeeba/platform/joomla25');
+		$container = \FOF30\Container\Container::getInstance('com_akeeba');
+
+		// Necessary defines for Akeeba Engine
+		if ( !defined('AKEEBAENGINE'))
+		{
+			define('AKEEBAENGINE', 1);
+			define('AKEEBAROOT',  $container->backEndPath . '/BackupEngine');
+			define('ALICEROOT', $container->backEndPath . '/AliceEngine');
+
+			// Make sure we have a profile set throughout the component's lifetime
+			$session    = $container->session;
+			$profile_id = $session->get('profile', null, 'akeeba');
+
+			if (is_null($profile_id))
+			{
+				$session->set('profile', 1, 'akeeba');
+			}
+
+			// Load Akeeba Engine
+			require_once $container->backEndPath . '/BackupEngine/Factory.php';
+		}
+
+		Platform::addPlatform('joomla3x', JPATH_ADMINISTRATOR . '/components/com_akeeba/BackupPlatform/Joomla3x');
 
 		$url = JUri::base();
 		$url = rtrim($url, '/');
@@ -206,7 +223,7 @@ class plgQuickiconAkeebabackup extends JPlugin
 		}
 
 		$ret = array(
-			'link'  => 'index.php?option=com_akeeba&view=backup&autostart=1&returnurl=' . urlencode($url) . '&profileid=' . $profileId . "&$token=1",
+			'link'  => 'index.php?option=com_akeeba&view=Backup&autostart=1&returnurl=' . urlencode($url) . '&profileid=' . $profileId . "&$token=1",
 			'image' => 'akeeba-black',
 			'text'  => JText::_('PLG_QUICKICON_AKEEBABACKUP_OK'),
 			'id'    => 'plg_quickicon_akeebabackup',
@@ -217,7 +234,6 @@ class plgQuickiconAkeebabackup extends JPlugin
 		{
 			$ret['image'] = $url . '/../media/com_akeeba/icons/akeeba-48.png';
 		}
-
 
 		if ($this->params->get('enablewarning', 0) == 0)
 		{
@@ -239,8 +255,9 @@ class plgQuickiconAkeebabackup extends JPlugin
 				'by'    => 'backupstart',
 				'order' => 'DESC'
 			);
-			require_once JPATH_ADMINISTRATOR . '/components/com_akeeba/models/statistics.php';
-			$model = new AkeebaModelStatistics();
+
+			/** @var \Akeeba\Backup\Admin\Model\Statistics $model */
+			$model = $container->factory->model('Statistics')->tmpInstance();
 			$list  = $model->getStatisticsListWithMeta(false, $filters, $ordering);
 
 			if ( !empty($list))
@@ -333,7 +350,7 @@ CSS;
 		$db->setQuery($query);
 		$db->execute();
 
-		F0FUtilsCacheCleaner::clearPluginsCache();
+		\FOF30\Utils\CacheCleaner::clearPluginsCache();
 
 		return array($ret);
 	}

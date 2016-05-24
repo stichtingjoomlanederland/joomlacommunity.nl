@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
  * @package   AkeebaBackup
- * @copyright Copyright (c)2009-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
  * @license   GNU General Public License version 3, or later
 -->
 <config>
@@ -96,25 +96,9 @@
 	</fieldset>
 
 	<fieldset name="liveupdate" label="COM_AKEEBA_CONFIG_LIVEUPDATE_HEADER_LABEL" description="COM_AKEEBA_CONFIG_LIVEUPDATE_HEADER_DESC">
-		<field name="update_method" type="radio" default="joomla"
-			   label="COM_AKEEBA_CONFIG_LIVEUPDATE_METHOD_LABEL"
-			   description="COM_AKEEBA_CONFIG_LIVEUPDATE_METHOD_DESC"
-			   class="btn-group">
-			<option value="joomla">COM_AKEEBA_CONFIG_LIVEUPDATE_METHOD_JOOMLA</option>
-			<option value="classic">COM_AKEEBA_CONFIG_LIVEUPDATE_METHOD_CLASSIC</option>
-		</field>
-
 		<field name="update_dlid" type="text" default="" size="30"
 			   label="COM_AKEEBA_CONFIG_DOWNLOADID_LABEL"
 			   description="COM_AKEEBA_CONFIG_DOWNLOADID_DESC"/>
-
-		<field name="displayphpwarning" type="radio" default="1"
-			   label="COM_AKEEBA_CONFIG_LIVEUPDATE_DISPLAYPHPWARNING_LABEL"
-			   description="COM_AKEEBA_CONFIG_LIVEUPDATE_DISPLAYPHPWARNING_DESC"
-			   class="btn-group">
-			<option value="0">JNo</option>
-			<option value="1">JYes</option>
-		</field>
 
 		<field name="autoupdateCli" type="list" default="1"
 			   label="COM_AKEEBA_CONFIG_AUTOUPDATE_SETTINGS_LABEL"
