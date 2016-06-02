@@ -1,7 +1,7 @@
 <?php
 /**
  * @package		ACL Manager for Joomla
- * @copyright 	Copyright (c) 2011-2014 Sander Potjer
+ * @copyright 	Copyright (c) 2011-2016 Sander Potjer
  * @license 	GNU General Public License version 3 or later
  */
 
@@ -32,9 +32,9 @@ class AclmanagerController extends JControllerLegacy
 		$doc = JFactory::getDocument();
 		$layout	= JFactory::getApplication()->input->get('layout',null);
 		if ($layout =='print') {
-			$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_aclmanager/assets/css/print.css?v=246');
+			$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_aclmanager/assets/css/print.css?v=247');
 		} else {
-			$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_aclmanager/assets/css/aclmanager.css?v=246');
+			$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_aclmanager/assets/css/aclmanager.css?v=247');
 		}
 	}
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package		ACL Manager for Joomla
- * @copyright 	Copyright (c) 2011-2014 Sander Potjer
+ * @copyright 	Copyright (c) 2011-2016 Sander Potjer
  * @license 	GNU General Public License version 3 or later
  */
 
@@ -24,13 +24,13 @@ class ContentModelFeatured extends ContentModelFeaturedCore
 			$this->getState(
 				'list.select',
 				'a.id, a.title, a.alias, a.checked_out, a.checked_out_time, a.catid, a.state, a.access, a.created, a.created_by, a.hits,' .
-					'a.featured, a.language, a.created_by_alias, a.publish_up, a.publish_down'
+				'a.featured, a.language, a.created_by_alias, a.publish_up, a.publish_down'
 			)
 		);
 		$query->from('#__content AS a');
 
 		// Join over the language
-		$query->select('l.title AS language_title')
+		$query->select('l.title AS language_title, l.image AS language_image')
 			->join('LEFT', $db->quoteName('#__languages') . ' AS l ON l.lang_code = a.language');
 
 		// Join over the content table.
@@ -117,7 +117,7 @@ class ContentModelFeatured extends ContentModelFeaturedCore
 			}
 			else
 			{
-				$search = $db->quote('%' . $db->escape($search, true) . '%');
+				$search = $db->quote('%' . str_replace(' ', '%', $db->escape(trim($search), true) . '%'));
 				$query->where('a.title LIKE ' . $search . ' OR a.alias LIKE ' . $search);
 			}
 		}

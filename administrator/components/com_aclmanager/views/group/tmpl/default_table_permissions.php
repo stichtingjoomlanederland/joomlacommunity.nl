@@ -1,7 +1,7 @@
 <?php
 /**
  * @package		ACL Manager for Joomla
- * @copyright 	Copyright (c) 2011-2014 Sander Potjer
+ * @copyright 	Copyright (c) 2011-2016 Sander Potjer
  * @license 	GNU General Public License version 3 or later
  */
 
@@ -57,8 +57,8 @@ $hidden = false;
 						<span class="hasTip" title="<?php echo htmlspecialchars(JText::_($action->title).'::'.JText::_($action->description), ENT_COMPAT, 'UTF-8'); ?>"><?php echo JText::_($action->title); ?></span>
 					</td>
 					<?php $assetcheck = AclmanagerHelper::assetAction($asset,$action->name,$id,0);?>
-					<td class="rule <?php echo($assetcheck->class);?>" data-assetid="<?php echo($asset->id);?>" data-action="<?php echo($action->title);?>" data-parentid="<?php echo($asset->parent);?>" data-groupid="<?php echo($id);?>" data-su="<?php echo($assetcheck->su);?>" data-third="1">
-						<input type="hidden" id="jformrules_<?php echo($asset->id);?>_<?php echo($action->title);?>_<?php echo($id);?>" name="jform[rules][<?php echo($asset->id);?>][<?php echo($action->name);?>][<?php echo($id);?>]" data-assetcheck="<?php echo($assetcheck->check);?>"  value="<?php echo($assetcheck->value);?>" />
+					<td class="rule <?php echo($assetcheck->class);?>" data-assetid="<?php echo($asset->id);?>" data-action="<?php echo(JFilterOutput::stringURLSafe($action->name));?>" data-parentid="<?php echo($asset->parent);?>" data-groupid="<?php echo($id);?>" data-su="<?php echo($assetcheck->su);?>" data-third="1">
+						<input type="hidden" id="jformrules_<?php echo($asset->id);?>_<?php echo(JFilterOutput::stringURLSafe($action->name));?>_<?php echo($id);?>" name="jform[rules][<?php echo($asset->id);?>][<?php echo($action->name);?>][<?php echo($id);?>]" data-assetcheck="<?php echo($assetcheck->check);?>"  value="<?php echo($assetcheck->value);?>" />
 						<?php if($asset->config):?>
 						<a class="<?php echo($assetcheck->icon);?>">
 						<?php if($layout == 'print'):?>

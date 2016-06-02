@@ -2,12 +2,12 @@
 <extension type="component" version="1.6" method="upgrade">
 	<name>COM_ACLMANAGER</name>
 	<author>Sander Potjer</author>
-	<creationDate>2014-09-30</creationDate>
-	<copyright>Copyright (C) 2011-2014 Sander Potjer Webdevelopment. All rights reserved.</copyright>
+	<creationDate>2016-05-05</creationDate>
+	<copyright>Copyright (C) 2011-2016 Sander Potjer Webdevelopment. All rights reserved.</copyright>
 	<license>http://www.gnu.org/licenses/gpl-3.0.html GNU/GPL</license>
 	<authorEmail>info@aclmanager.net</authorEmail>
 	<authorUrl>http://www.aclmanager.net</authorUrl>
-	<version>2.4.6</version>
+	<version>2.4.7</version>
 	<description>Joomla ACL simplified</description>
 
 	<administration>
@@ -69,6 +69,8 @@
 			<language tag="nb-NO">nb-NO/nb-NO.com_aclmanager.sys.ini</language>
 			<language tag="nl-NL">nl-NL/nl-NL.com_aclmanager.ini</language>
 			<language tag="nl-NL">nl-NL/nl-NL.com_aclmanager.sys.ini</language>
+			<language tag="nl-BE">nl-BE/nl-BE.com_aclmanager.ini</language>
+			<language tag="nl-BE">nl-BE/nl-BE.com_aclmanager.sys.ini</language>
 			<language tag="pl-PL">pl-PL/pl-PL.com_aclmanager.ini</language>
 			<language tag="pl-PL">pl-PL/pl-PL.com_aclmanager.sys.ini</language>
 			<language tag="pt-BR">pt-BR/pt-BR.com_aclmanager.ini</language>

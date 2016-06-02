@@ -1,7 +1,7 @@
 <?php
 /**
  * @package		ACL Manager for Joomla
- * @copyright 	Copyright (c) 2011-2014 Sander Potjer
+ * @copyright 	Copyright (c) 2011-2016 Sander Potjer
  * @license 	GNU General Public License version 3 or later
  */
 
@@ -472,6 +472,13 @@ class AclmanagerHelper
 				}
 			}
 		}
+
+		// Temporary way to add core.options
+		$extra['JACTION_OPTIONS']    = array();
+		$extra['JACTION_OPTIONS'][0] = 'core.options';
+		$extra['JACTION_OPTIONS'][1] = 'JACTION_OPTIONS_COMPONENT_DESC';
+		$extra['JACTION_OPTIONS'][2] = 'coreoptions';
+		array_splice($actions, 4, 0, $extra);
 
 		return $actions;
 	}

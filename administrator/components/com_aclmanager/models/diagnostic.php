@@ -1,7 +1,7 @@
 <?php
 /**
  * @package		ACL Manager for Joomla
- * @copyright 	Copyright (c) 2011-2014 Sander Potjer
+ * @copyright 	Copyright (c) 2011-2016 Sander Potjer
  * @license 	GNU General Public License version 3 or later
  */
 
@@ -53,12 +53,17 @@ class AclmanagerModelDiagnostic extends JModelList
 			$query->select(
 				$this->getState(
 					'list.select',
-					'a.id AS id, a.asset_id AS asset_id, a.parent_id AS parent_id, a.level AS level')
+					'a.id AS id, a.asset_id AS asset_id, a.parent_id AS parent_id, a.level AS level, a.extension AS extension')
 			);
 			$query->from('#__categories AS a');
 			$db->setQuery($query);
 			$categories = $db->loadObjectList('asset_id');
-			$categories_id = $db->loadObjectList('id');
+
+			// Prepare category data
+			foreach ($categories as $category) {
+				$categories_id[$category->id] = $category;
+				$categories_extensions[] = $category->extension;
+			}
 
 			// Get content
 			$query	= $db->getQuery(true);
@@ -127,7 +132,7 @@ class AclmanagerModelDiagnostic extends JModelList
 						$issuecount++;
 					}
 				// Category
-				} elseif (($asset->type == 'category') && (($asset->component == 'com_content') || ($asset->component == 'com_contact') || ($asset->component == 'com_newsfeeds') || ($asset->component == 'com_weblinks') || ($asset->component == 'com_banners') || ($asset->component == 'com_users'))) {
+				} elseif ($asset->type == 'category' && in_array($asset->component, $categories_extensions)) {
 					if(!isset($categories[$asset->id])) {
 						$asset->correct_parent = '';
 						$asset->correct_level = '';
@@ -213,12 +218,17 @@ class AclmanagerModelDiagnostic extends JModelList
 			$query->select(
 				$this->getState(
 					'list.select',
-					'a.id AS id, a.asset_id AS asset_id, a.parent_id AS parent_id, a.level AS level')
+					'a.id AS id, a.asset_id AS asset_id, a.parent_id AS parent_id, a.level AS level, a.extension AS extension')
 			);
 			$query->from('#__categories AS a');
 			$db->setQuery($query);
 			$categories = $db->loadObjectList('asset_id');
-			$categories_id = $db->loadObjectList('id');
+
+			// Prepare category data
+			foreach ($categories as $category) {
+				$categories_id[$category->id] = $category;
+				$categories_extensions[] = $category->extension;
+			}
 
 			// Get content
 			$query	= $db->getQuery(true);
@@ -284,7 +294,7 @@ class AclmanagerModelDiagnostic extends JModelList
 						}
 					}
 				// Category
-				} elseif (($asset->type == 'category') && (($asset->component == 'com_content') || ($asset->component == 'com_contact') || ($asset->component == 'com_newsfeeds') || ($asset->component == 'com_weblinks') || ($asset->component == 'com_banners') || ($asset->component == 'com_users'))) {
+				} elseif ($asset->type == 'category' && in_array($asset->component, $categories_extensions)) {
 					if(isset($categories[$asset->id])) {
 						$catinfo = $categories[$asset->id];
 					}
@@ -307,7 +317,7 @@ class AclmanagerModelDiagnostic extends JModelList
 						}
 					}
 
-					if (($asset->rules == '') || ($asset->rules == '{"core.create":[],"core.delete":[],"core.edit":[],"core.edit.state":[]}') || ($asset->rules == $category_asset)) {
+					if (($asset->rules == '') || ($asset->rules == '{}') || ($asset->rules == '{"core.create":[],"core.delete":[],"core.edit":[],"core.edit.state":[]}') || ($asset->rules == $category_asset)) {
 						$xmlfile = JPATH_ADMINISTRATOR.'/components/'.$asset->component.'/access.xml';
 						if(is_file($xmlfile)){
 							$actions = JAccess::getActionsFromFile($xmlfile, "/access/section[@name='category']/");
@@ -331,7 +341,7 @@ class AclmanagerModelDiagnostic extends JModelList
 						$asset->correct_parent = $catinfo->asset_id;
 						$asset->correct_level = ($catinfo->level + 2);
 					}
-					if (($asset->rules == '') || ($asset->rules == $category_asset)) {
+					if (($asset->rules == '') || ($asset->rules == '{}') || ($asset->rules == $category_asset)) {
 						$asset->correct_rules = $article_asset;
 					}
 					// Prevent parent_id = 0
@@ -514,7 +524,11 @@ class AclmanagerModelDiagnostic extends JModelList
 		$query->where('a.id <> 1');
 		$db->setQuery($query);
 		$categories = $db->loadObjectList();
-		$categories_id = $db->loadObjectList('catid');
+
+		// Prepare category data
+		foreach ($categories as $category) {
+			$categories_id[$category->catid] = $category;
+		}
 
 		// Loop categories
 		foreach($categories as $category) {

@@ -116,7 +116,7 @@ class AclmanagerModelHome extends JModelList
 		// Get Users of Group
 		if($group) {
 			$acl		= JFactory::getACL();
-			$groupusers = $acl->getUsersByGroup($group);
+			$groupusers = $acl->getUsersByGroup($group,false);
 			if($groupusers) {
 				$query->where('id IN (' . implode(',', array_map('intval', $groupusers)) . ')');
 			} else {
@@ -127,7 +127,7 @@ class AclmanagerModelHome extends JModelList
 		// Get Groups of User
 		if($user) {
 			$acl		= JFactory::getACL();
-			$usergroups	= $acl->getGroupsByUser($user);
+			$usergroups	= $acl->getGroupsByUser($user,false);
 			if($usergroups) {
 				$query->where('a.id IN (' . implode(',', array_map('intval', $usergroups)) . ')');
 			} else {
