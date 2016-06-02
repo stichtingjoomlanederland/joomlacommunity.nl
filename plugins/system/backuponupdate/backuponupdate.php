@@ -20,8 +20,13 @@ if (!file_exists(JPATH_ADMINISTRATOR . '/components/com_akeeba'))
 	return;
 }
 
-// Load FOF
-if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+// Load F0F
+if (!defined('F0F_INCLUDED'))
+{
+	include_once JPATH_SITE . '/libraries/f0f/include.php';
+}
+
+if (!defined('F0F_INCLUDED') || !class_exists('F0FLess', true))
 {
 	return;
 }
@@ -32,14 +37,15 @@ if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/inclu
 // about it, you don't get this feature (unless you are a developer who can
 // come here and edit the code). Fair enough.
 JLoader::import('joomla.filesystem.file');
-$db = JFactory::getDbo();
+$db = JFactory::getDBO();
 
 // Is Akeeba Backup enabled?
+$qn = version_compare(JVERSION, '2.5.0', 'lt') ? 'nameQuote' : 'qn';
 $query = $db->getQuery(true)
-            ->select($db->qn('enabled'))
-            ->from($db->qn('#__extensions'))
-            ->where($db->qn('element') . ' = ' . $db->q('com_akeeba'))
-            ->where($db->qn('type') . ' = ' . $db->q('component'));
+            ->select($db->$qn('enabled'))
+            ->from($db->$qn('#__extensions'))
+            ->where($db->$qn('element') . ' = ' . $db->quote('com_akeeba'))
+            ->where($db->$qn('type') . ' = ' . $db->quote('component'));
 $db->setQuery($query);
 $enabled = $db->loadResult();
 
@@ -49,7 +55,7 @@ if (!$enabled)
 }
 
 // Is it the Pro release?
-@include_once(JPATH_ADMINISTRATOR . '/components/com_akeeba/version.php');
+include_once JPATH_ADMINISTRATOR . '/components/com_akeeba/version.php';
 
 if (!defined('AKEEBA_PRO'))
 {
@@ -75,10 +81,18 @@ class plgSystemBackuponupdate extends JPlugin
 			return;
 		}
 
+		if (version_compare(JVERSION, '2.5.0', 'lt'))
+		{
+			$this->autoDisable();
+
+			return;
+		}
+
 		// Get the input variables
 		$ji        = new JInput();
 		$component = $ji->getCmd('option', '');
 		$task      = $ji->getCmd('task', '');
+		$view      = $ji->getCmd('view', '');
 		$backedup  = $ji->getInt('is_backed_up', 0);
 
 		// Perform a redirection on Joomla! Update download or install task, unless we have already backed up the site
@@ -97,11 +111,74 @@ class plgSystemBackuponupdate extends JPlugin
 
 			// Get the redirect URL
 			$token        = JFactory::getSession()->getToken();
-			$redirect_url = JUri::base() . 'index.php?option=com_akeeba&view=Backup&autostart=1&returnurl=' . urlencode($return_url) . '&profileid=' . $profileId . "&$token=1";
+			$redirect_url = JUri::base() . 'index.php?option=com_akeeba&view=backup&autostart=1&returnurl=' . urlencode($return_url) . '&profileid=' . $profileId . "&$token=1";
 
 			// Perform the redirection
 			$app = JFactory::getApplication();
 			$app->redirect($redirect_url);
+		}
+	}
+
+	public function autoDisable()
+	{
+		$this->loadLanguage();
+		$pluginName = JText::_('PLG_SYSTEM_BACKUPONUPDATE_TITLE');
+
+		if ($pluginName == 'PLG_SYSTEM_BACKUPONUPDATE_TITLE')
+		{
+			$pluginName = 'System - Backup on update';
+		}
+
+		$msg = JText::sprintf('PLG_SYSTEM_BACKUPONUPDATE_MSG_AUTODISABLE', $pluginName);
+
+		if ($msg == 'PLG_SYSTEM_AKEEBAUPDATECHECK_MSG')
+		{
+			$msg = sprintf('The plugin %s will only work on Joomla! 2.5. Since it is incompatible with your version of Joomla! it will now disable itself.', $pluginName);
+		}
+
+		JFactory::getApplication()->enqueueMessage($msg, 'warning');
+
+		$db = JFactory::getDbo();
+
+		// Let's get the information of the update plugin
+		$query = $db->getQuery(true)
+		            ->select('*')
+		            ->from($db->nameQuote('#__extensions'))
+		            ->where($db->nameQuote('folder') . ' = ' . $db->quote('system'))
+		            ->where($db->nameQuote('element') . ' = ' . $db->quote('backuponupdate'))
+		            ->where($db->nameQuote('type') . ' = ' . $db->quote('plugin'))
+		            ->order($db->nameQuote('ordering') . ' ASC');
+		$db->setQuery($query);
+
+		$plugin = $db->loadObject();
+
+		if (!is_object($plugin))
+		{
+			return;
+		}
+
+		// Otherwise, try to enable it and report false (so the user knows what he did wrong)
+		$pluginObject = (object) array(
+				'extension_id' => $plugin->extension_id,
+				'enabled'      => 0
+		);
+
+		try
+		{
+			$db->updateObject('#__extensions', $pluginObject, 'extension_id');
+		}
+		catch (Exception $e)
+		{
+		}
+
+		if (!class_exists('F0FUtilsCacheCleaner'))
+		{
+			include_once JPATH_SITE . '/libraries/f0f/include.php';
+		}
+
+		if (class_exists('F0FUtilsCacheCleaner'))
+		{
+			F0FUtilsCacheCleaner::clearPluginsCache();
 		}
 	}
 }

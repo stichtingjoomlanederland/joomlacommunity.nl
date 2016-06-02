@@ -1,32 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="3.3.0" type="component" method="upgrade">
+<extension version="2.5" type="component" method="upgrade">
 	<name>Akeeba</name>
-	<creationDate>2016-05-31</creationDate>
+	<creationDate>2016-05-16</creationDate>
 	<author>Nicholas K. Dionysopoulos</author>
 	<authorEmail>nicholas@dionysopoulos.me</authorEmail>
 	<authorUrl>http://www.akeebabackup.com</authorUrl>
-	<copyright>Copyright (c)2006-2016 Akeeba Ltd / Nicholas K. Dionysopoulos</copyright>
+	<copyright>Copyright (c)2006-2016 Nicholas K. Dionysopoulos</copyright>
 	<license>GNU GPL v3 or later</license>
-	<version>5.1.0.b2</version>
-	<description>Akeeba Backup Pro - Full Joomla! site backup solution, Professional Edition</description>
+	<version>4.7.2</version>
+	<description>Akeeba Backup Core - Full Joomla! site backup solution, Core Edition.</description>
 
 	<!-- Public front end files -->
 	<files folder="frontend">
-		<folder>Controller</folder>
-		<folder>Dispatcher</folder>
-		<folder>Model</folder>
 		<filename>akeeba.php</filename>
+		<filename>dispatcher.php</filename>
+		<folder>controllers</folder>
+		<folder>models</folder>
 	</files>
 
 	<!-- Front end translation files -->
 	<languages folder="language/frontend">
 		<language tag="en-GB">en-GB/en-GB.com_akeeba.ini</language>
 	</languages>
-	
+
 	<!-- Media files -->
 	<media destination="com_akeeba" folder="media">
-		<folder>css</folder>
 		<folder>js</folder>
+		<folder>theme</folder>
 		<folder>icons</folder>
 		<filename>changelog.png</filename>
 	</media>
@@ -39,26 +39,26 @@
 
 		<!-- Back-end files -->
 		<files folder="backend">
-			<folder>AliceEngine</folder>
-			<folder>backup</folder>
-			<folder>BackupEngine</folder>
-			<folder>Controller</folder>
-			<folder>BackupPlatform</folder>
-			<folder>Dispatcher</folder>
-			<folder>Helper</folder>
-			<folder>Master</folder>
-			<folder>Model</folder>
-			<folder>sql</folder>
-			<folder>Toolbar</folder>
-			<folder>View</folder>
-
 			<filename>akeeba.php</filename>
+			<filename>dispatcher.php</filename>
 			<filename>fof.xml</filename>
 			<filename>restore.php</filename>
+			<filename>toolbar.php</filename>
 			<filename>version.php</filename>
 			<filename>config.xml</filename>
 			<filename>access.xml</filename>
 			<filename>CHANGELOG.php</filename>
+
+            <folder>assets</folder>
+            <folder>backup</folder>
+            <folder>controllers</folder>
+            <folder>engine</folder>
+            <folder>helpers</folder>
+            <folder>models</folder>
+            <folder>platform</folder>
+            <folder>sql</folder>
+			<folder>tables</folder>
+			<folder>views</folder>
 		</files>
 
 		<!-- Back-end translation files -->
@@ -70,5 +70,10 @@
 	</administration>
 
 	<!-- Installation / uninstallation script file -->
-	<scriptfile>script.com_akeeba.php</scriptfile>
+	<scriptfile>script.akeeba.php</scriptfile>
+	
+	<!-- Update servers -->
+	<updateservers>
+		<server type="extension" priority="1" name="Akeeba Backup Core">http://cdn.akeebabackup.com/updates/pkgakeebacore.xml</server>
+	</updateservers>
 </extension>

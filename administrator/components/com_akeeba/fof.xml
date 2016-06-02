@@ -1,25 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2009-2016 Nicholas K. Dionysopoulos
  * @license   GNU General Public License version 3, or later
 -->
 <fof>
-    <common>
-        <container>
-            <option name="componentNamespace">Akeeba\Backup</option>
-            <option name="factoryClass">FOF30\Factory\BasicFactory</option>
-            <option name="scaffolding">0</option>
-            <option name="saveScaffolding">0</option>
-        </container>
-    </common>
-
-    <backend>
-        <model name="Profiles">
-            <behaviors>Filters</behaviors>
-        </model>
-        <model name="Stats">
-            <behaviors>Filters</behaviors>
-        </model>
-    </backend>
+    <!-- Currently empty, only used for the autoloader to recognise this component as F0F-powered -->
 </fof>
