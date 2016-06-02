@@ -1,0 +1,237 @@
+                                wbAMP changelog                                 
+
+                        (2016-05-18 21:14 - build #490)                         
+
+
+
+--------------------------------------------------------------------------------
+ [ 2016-05-18 ] Version 1.3.1.490
+--------------------------------------------------------------------------------
+
+
+    [bug]    AMP page for URLs ending with a trailing slash give a 404
+
+
+--------------------------------------------------------------------------------
+ [ 2016-05-18 ] Version 1.3.0.485
+--------------------------------------------------------------------------------
+
+
+    [new]    Added connector to sh404SEF 404 error page with similar URLs,
+             when in standalone mode
+    [new]    Added error page display when running in standalone mode
+    [new]    Now adding shortlink information to page, obtained from sh404SEF
+             when present
+    [new]    Added a standalone mode: creates a site that is fully AMPlified,
+             with no regular HTML counterpart - closes #47
+    [new]    Added a development mode, to setup AMP before letting Google know
+             - closes #74
+    [new]    Added a system check for presence of publisher name and logo URL
+             - closes #71
+    [new]    Added theme selector
+    [new]    Added ability to use color and layouts themes for the AMP output
+    [new]    Added API to collect alternate layouts for rendering the page
+    [new]    Added mobile-style, hamburger icon and sliding-in menu - closes
+             #79
+
+    [chg]    Also make sure page title and description are collected from
+             sh404SEF, available
+    [chg]    Added support for sh404SEF robots tag
+    [chg]    Now disabling Joomla caching on AMP pages, to be sure our
+             template overrides are used
+    [chg]    Restored user ability to zoom - closes #76
+    [chg]    Updated default theme CSS, vertical centering in header and
+             footer
+
+    [bug]    emailcloak=off not removed under some circumstances, on community
+             edition
+    [bug]    Correct ordering of wbAMP, shLib and sh404SEF not always forced
+             by installation script
+    [bug]    Invalid dateModified date created if no modification date exist
+             in Joomla! content
+    [bug]    404 on AMP URLS with right-to-left languages aliases, or URL
+             encoded content
+    [bug]    rel=amphtml are absolute but not fully qualified - closes #73
+
+
+--------------------------------------------------------------------------------
+ [ 2016-04-20 ] Version 1.2.0.400
+--------------------------------------------------------------------------------
+
+
+    [new]    Now disabling NewRelic agent if detected on the server, as it
+             breaks AMP validation by inserting scrip tags in page - closes
+             #70
+    [new]    New design for tooltips, now permanently displayed instead of
+             having to hover a setting label
+    [new]    Added custom ads network handling, so that you can use any
+             AMP-approved ads network - closes #64
+    [new]    Added an editor plugin, to easily enter AMP tags in any Joomla
+             content - closes #54
+    [new]    Added templates overrides for some com_tags output, as Joomla
+             output is not valid AMP - closes #63
+    [new]    Add email and mailto links protection in AMP pages - Closes #5
+    [new]    Added a fallback image setting, used when no other image has been
+             set or found in an AMP page.
+    [new]    Added date_modified and date_published custom meta tags, to allow
+             manually setting those dates. Closes #49
+    [new]    Added configuration checks to display most common issues
+             preventing AMP validation in the plugins settings - closes #51
+
+    [chg]    Remove CDATA in some script tags, as amp-analytics and
+             amp-social-share (incorrectly) don't accept them
+    [chg]    Now removing some tag based on whether their parent is on a
+             white/black list
+    [chg]    Now also removing html elements when they don't have a require
+             attribute
+    [chg]    Now allowing application/json scripts, to account for manually
+             created content - closes #69
+    [chg]    More system checks: custom css - closes #65
+    [chg]    Remove useless #13 characters added at some end of lines by PHP
+    [chg]    Updated per tag valid attributes rules per latest AMP spec. Same
+             for amp-* tags list
+    [chg]    Updated valid list of rel attributes with current AMP spec
+    [chg]    Updated Spanish, German and Dutch translations
+    [chg]    Stricter validation, now enforcing no itemtype attribute on
+             article, section and aside HTML tags - closes #53
+    [chg]    Now forcing wbAMP system plugin ordering to -99, so as to be
+             before any other template plugins that may highjack the site
+             template otherwise
+
+    [bug]    Replace <br></br> tags created by PHP, causing double lines when
+             displayed in browsers, with <br /> - fixes #62
+    [bug]    Do not prepend base URL on tel: and other links
+    [bug]    Do not prepend base URL on mailto links
+    [bug]    Script tag not always removed - Closes #56
+    [bug]    Should not use JSON_PRETTY_PRINT on PHP 5.3, causes AMP
+             validation error
+    [bug]    Not fixing plugins ordering at installation if plugins have the
+             same ordering
+    [bug]    Publisher logo are not made absolute if entered as relative
+
+
+--------------------------------------------------------------------------------
+ [ 2016-03-09 ] Version 1.1.1.316
+--------------------------------------------------------------------------------
+
+
+    [bug]    Packaging error in Community version, com_content plugin is not
+             installed
+
+
+--------------------------------------------------------------------------------
+ [ 2016-03-09 ] Version 1.1.0.312
+--------------------------------------------------------------------------------
+
+
+    [new]    Full Romanian translation, partial Dutch translation
+    [new]    Added option to select default document type, NewsArticle or
+             BlogPosting, and custom meta tag to override the default - closes
+             #40
+    [new]    Can set a tag in content to change document type, for instance
+             "BlogPosting" instead of default "NewsArticle"
+    [new]    Added an "All categories" option in com_content categories
+             selection parameter. Closes #20
+    [new]    Uniform syntax for showing/hiding content on AMP pages:
+             wbamp-hide/wbamp-show - closes #30
+    [new]    Added a Joomla template to override the overrides in your
+             template - Includes default styling for Joomla content
+    [new]    Added Portuguese translation
+    [new]    Generalize automatically finding size of images if not specified
+             by user - closes #31
+    [new]    Added a simple API for other extensions to get info about AMP
+             status and request - closes #28
+
+    [chg]    Prev/Next buttons may overlap at low width when the display title
+             - closes #41
+    [chg]    Clear up Article itemtype markup created by Joomla, would cause
+             validation error in Google Structured Data test tool
+    [chg]    BR tag not cleaned for invalid attribute. Expanded attributes
+             white list in accordance to amphtml project rules - closes #42
+    [chg]    Improved CSS for prev/next buttons on articles and pagination
+    [chg]    AMP URL should have a trailing slash if original URL has it -
+             closes #39
+    [chg]    Now styling Joomla readmore button. Closes #38
+    [chg]    Updated CSS for logo and header text
+    [chg]    Italian translation now complete
+    [chg]    Add nocache headers if not explicitly set to cache pages. May
+             help bypass CDN inserting content in page, breaking AMP
+             validation - closes #25
+
+    [bug]    Name attribute used twice in wbam-meta definition for an author.
+             Changed to "content"
+    [bug]    Missing implementation of set_url_scheme function, cause fatal
+             error when content has an iframe and scheme is not set
+    [bug]    Rss feeds are not cleaned of custom wbamp tags - closes #23
+
+
+--------------------------------------------------------------------------------
+ [ 2016-02-29 ] Version 1.0.3.233
+--------------------------------------------------------------------------------
+
+
+    [new]    Added Italian and Portuguese (partial) translations, updated
+             existing ones
+    [new]    Added amp-user-notification - Closes #12
+    [new]    Added support for amp-dailymotion tag (Dailymotion video) -
+             Closes #8
+    [new]    Added ability to use a custom html module as site header Closes
+             #3
+    [new]    Added new tag, {wbam-no-scrub}, prevents removal of wbamp tags
+             (useful to display documentation on wbAMP!)
+
+    [chg]    Added labels on disabled fields in community edition on - closes
+             #21
+    [chg]    Updated Vine support - closes #19
+    [chg]    Added whitelist-based attribute filtering - closes #17
+    [chg]    Implemented whitelist based filtering, on top of blacklist, more
+             reliable for validation - closes #14
+    [chg]    Updated French, German and Russian translations
+    [chg]    Changed default width/height of youtube videos, to 16:9
+    [chg]    Added rules to remove plusone and g:plusone tags in content, in
+             case there some hardcoded directly in content
+    [chg]    Prevent execution of some methods in admin
+    [chg]    Optimization: don't scrub tags from documents if not html
+
+    [bug]    Typo in link to wbAMP page on community edition
+    [bug]    Added raw filters to custom css, custom links, user notification,
+             allow raw input to the page
+    [bug]    Fix CSS when adding an image header Fixes #7
+    [bug]    Fix CSS when adding an image header Fixes #7
+
+
+--------------------------------------------------------------------------------
+ [ 2016-02-23 ] Version 1.0.2.194
+--------------------------------------------------------------------------------
+
+
+    [new]    Added full French translation, partial German and Russian
+
+    [chg]    Some minor name changes to accomodate JED requirements
+
+    [bug]    Hide content tags don't work on AMP pages
+
+
+--------------------------------------------------------------------------------
+ [ 2016-02-23 ] Version 1.0.1.181
+--------------------------------------------------------------------------------
+
+
+    [new]    Added support for K2 content items
+
+    [chg]    Added files for translations (no translation yet -
+             BG,DE,ES,FR,NL,RO,RU,SV)
+    [chg]    Improved K2 category handling, now can extract it from item id
+    [chg]    Now using default Weeblr theme in backend
+    [chg]    Refactored auto-embedding of URL, more reliabel with fancy URLs
+    [chg]    Added test for sh404SEF presence in SEF test and message
+    [chg]    Now also postprocessing module used to create carousel content
+    [chg]    Updated to latest boilerplate code
+    [chg]    Now using the first image found in content to represent the page,
+             if none set by user or otherwise
+    [chg]    Move init code to system plugin constructor, needed for wbAmp
+             compat
+
+    [bug]    Should not remove wbamp-embed tags on non-amp pages
+    [bug]    Not always removing wbamp-meta tags
+    [bug]    Make sure user created footer module is AMP-compliant

@@ -1,0 +1,582 @@
+/**
+ * wbAMP - Accelerated Mobile Pages for Joomla!
+ *
+ * @author      Yannick Gaultier
+ * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
+ * @package     wbAmp
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @version     1.3.1.490
+ * @date        2016-05-18
+ */
+
+/*************************************
+*
+* Menu
+*
+**************************************/
+.wbamp-container.wbamp-menu {
+  margin: @margin-menu;
+  padding: @padding-menu;
+  font-family: @fonts-menu;
+  color: @colors-text-menu;
+  background: @colors-background-menu;
+  font-size: @fonts-menu-size;
+}
+
+.wbamp-menu {
+  ul {
+    list-style-type: none;
+    padding: 1em;
+    margin: 0;
+  }
+
+  li a, li a:visited {
+    display: inline-block;
+    width: 100%;
+    text-decoration: none;
+    color: @colors-text-menu;
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
+    padding-left: 1em;
+    margin-left: -1em;
+    padding-right: 1em;
+    margin-right: -1em;
+  }
+
+  li a:hover,
+  li.active a:hover {
+    background: @colors-background-menu-hover;
+    color: @colors-text-menu-hover
+  }
+
+  li.active a {
+    background: @colors-background-menu-active;
+    color: @colors-text-menu-active
+  }
+
+  li ul {
+    padding: 0 0 0 1em;
+  }
+
+  li ul a,
+  li.active ul a {
+    background: @colors-background-menu;
+    color: @colors-text-menu;
+    padding-left: 2em;
+    margin-left: -2em;
+  }
+}
+
+/*************************************
+*
+* Menu control
+*
+**************************************/
+.wbamp-wrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.wbamp-container.wbamp-menu-slide {
+  line-height: @menu-button-height;
+  background: @colors-background-content;
+}
+
+nav.wbamp-menu-slide {
+
+  float: left;
+  position: absolute;
+  top: 0;
+  min-width: @menu-min-width;
+  max-width: 90%;
+  box-sizing: border-box;
+
+  &:hover {
+    height: 100%;
+    z-index: 1000;
+    background: @colors-background-menu;
+    top: 0;
+    bottom: 0;
+  }
+
+  & .menu-open {
+    display: inline-block;
+    text-align: left;
+    height: @menu-button-height;
+    line-height: @menu-button-height;
+    padding: 0.3em 0.5em;
+    margin: 0;
+    border: none;
+    background: @colors-background-menu;
+    border-radius: 0;
+  }
+
+  & .menu-icon-bar {
+    display: block;
+    width: 1.5em;
+    height: 0.20em;
+    margin: 0;
+    padding: 0;
+    background-color: @colors-menu-button;
+    box-shadow: none;
+  }
+
+  &:hover .menu-icon-bar {
+    background-color: @colors-menu-button-open;
+  }
+
+  & .menu-icon-bar + .menu-icon-bar {
+    margin-top: 0.25em;
+  }
+
+  &:hover .menu-open {
+    outline: none;
+  }
+
+  & .menu-content {
+    position: relative;
+    height: 0;
+    width: 0;
+    background: @colors-background-menu;
+    overflow: hidden;
+  }
+
+  &:hover .menu-content {
+    width: 100%;
+    height: auto;
+    border-top: 1px solid @colors-menu-container-border;
+    transition: width @menu-transition-duration;
+    -webkit-transition: width @menu-transition-duration;
+  }
+
+  & + .menu-close {
+    display: none;
+    float: right;
+    position: relative;
+    margin: 0.5em 0.5em 0 0;
+    padding: 0.25em 0.5em;
+    border: none;
+    background: none;
+    border-radius: 0.1em;
+    color: @colors-text-menu-active;
+    background: @colors-background-menu;
+
+  }
+
+  & + .menu-close:before {
+    content: '\D7';
+    font-size: 1.5em;
+  }
+
+  &:hover + .menu-close {
+    display: block;
+    transition: @menu-transition-close-duration;
+  }
+}
+
+/*************************************
+*
+* Ad
+*
+**************************************/
+.wbamp-container.wbamp-ad {
+  margin: @margin-ad;
+  padding: @padding-ad;
+  font-family: @fonts-ad;
+  background: @colors-background-ad;
+  color: @colors-text-ad;
+}
+
+.wbamp-ad .wbamp-amp-tag {
+  line-height: 0.2;
+}
+
+/*************************************
+*
+* Social buttons
+*
+**************************************/
+
+.wbamp-container.wbamp-header + .wbamp-container.wbamp-social-buttons {
+  border-bottom: 1px solid #DDDDDD;
+}
+
+.wbamp-container.wbamp-content + .wbamp-container.wbamp-social-buttons {
+  border-top: 1px solid #DDDDDD;
+}
+
+.wbamp-container.wbamp-social-buttons {
+  padding: @padding-social-buttons;
+  background: @colors-background-social-buttons;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.wbamp-social-buttons {
+  ul {
+    list-style: none;
+    margin: @margin-social-buttons;
+    padding: 0.4em 0;
+  }
+  li {
+    display: inline-block;
+    vertical-align: middle;
+    padding: 0 0.2em;
+    margin: 0 0.35em;
+  }
+  span {
+    display: inline-block;
+    vertical-align: middle;
+    margin: 0 0.35em;
+  }
+}
+
+.wbamp-social-buttons.wbamp-rounded {
+  span {
+    border-radius: 50%;
+  }
+}
+
+.wbamp-social-buttons.wbamp-squared {
+  span {
+    border-radius: 0.2em;
+  }
+}
+
+.wbamp-social-icon {
+  width: 2em;
+  height: 2em;
+  text-align: center;
+}
+
+// colored theme
+.wbamp-icons-colors {
+  & .wbamp-social-icon {
+    fill: @colors-text-social-buttons;
+  }
+  & .wbamp-social-icon:hover {
+    fill: #333333;
+  }
+  & .wbamp-facebook {
+    background: #3067a3;
+  }
+  & .wbamp-twitter {
+    background: #03B3EE;
+  }
+  & .wbamp-google-plus {
+    background: #e15440;
+  }
+  & .wbamp-linked-in {
+    background: #0071a1;
+  }
+
+}
+
+// white theme
+.wbamp-icons-white {
+  & .wbamp-social-icon {
+    fill: #333333;
+  }
+  & .wbamp-social-icon:hover {
+    fill: #777777;
+  }
+  & .wbamp-facebook {
+    background: #FFFFFF;
+  }
+  & .wbamp-twitter {
+    background: #FFFFFF;
+  }
+  & .wbamp-google-plus {
+    background: #FFFFFF;
+  }
+  & .wbamp-linked-in {
+    background: #FFFFFF;
+  }
+}
+
+// Dark theme
+.wbamp-icons-dark {
+  & .wbamp-social-icon {
+    fill: #FFFFFF;
+  }
+  & .wbamp-social-icon:hover {
+    background: #777777;
+  }
+  & .wbamp-facebook {
+    background: #333333;
+  }
+  & .wbamp-twitter {
+    background: #333333;
+  }
+  & .wbamp-google-plus {
+    background: #333333;
+  }
+  & .wbamp-linked-in {
+    background: #333333;
+  }
+}
+
+// Dark theme
+.wbamp-icons-light {
+  & .wbamp-social-icon {
+    fill: #FFFFFF;
+  }
+  & .wbamp-social-icon:hover {
+    background: #333333;
+    fill: #FFFFFF;
+  }
+  & .wbamp-facebook {
+    background: #777777;
+  }
+  & .wbamp-twitter {
+    background: #777777;
+  }
+  & .wbamp-google-plus {
+    background: #777777;
+  }
+  & .wbamp-linked-in {
+    background: #777777;
+  }
+}
+
+/*************************************
+*
+* Error page
+*
+**************************************/
+
+.wbamp-container.wbamp-content.wbamp-error {
+  padding-top: 3em;
+  min-height: 80%;
+  box-sizing: border-box;
+}
+
+.wbamp-error-title {
+  font-family: @fonts-error-title;
+  color: @colors-text-error-title;
+  background: @colors-background-error-title;
+  font-size: @fonts-error-size-title;
+  text-align: center;
+}
+
+.wbamp-error-image {
+  padding: 0;
+  margin: 2em auto;
+  width: 95%;
+  height: 200px;
+  background-image: @image-background-error;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.wbamp-error-body {
+  font-family: @fonts-error-body;
+  color: @colors-text-error-body;
+  background: @colors-background-error-body;
+  font-size: @fonts-error-size-body;
+  margin-top: 2em;
+}
+
+.wbamp-error-footer {
+  font-family: @fonts-error-footer;
+  color: @colors-text-error-footer;
+  background: @colors-background-error-footer;
+  font-size: @fonts-error-size-footer;
+  margin-top: 1em;
+  text-align: center;
+}
+
+/*************************************
+*
+* AMP Specific
+*
+**************************************/
+
+.wbamp-container amp-user-notification {
+  box-sizing: border-box;
+}
+
+.wbamp-container amp-user-notification.amp-active {
+  padding: 0.5em;
+}
+
+.wbamp-container amp-user-notification.amp-active button {
+  padding: 0.35em 0.5em;
+  margin: 0 0.5em;
+  font-size: 1em;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.2em;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.wbamp-container.wbamp-notification-light {
+  amp-user-notification {
+    background: #ffffff;
+  }
+
+  button {
+    background: #6e97cc;
+    color: #FFFFFF;
+  }
+}
+
+.wbamp-container.wbamp-notification-dark {
+  amp-user-notification {
+    background: #000000;
+    color: #FFFFFF;
+  }
+
+  button {
+    background: #ffac2f;
+    color: #333333;
+  }
+}
+
+/*************************************
+*
+* Joomla default markup styling: article info block
+*
+**************************************/
+.wbamp-container.wbamp-content {
+
+  .wbamp-info-block {
+    color: @colors-text-info-block;
+    background: @colors-background-info-block;
+    font-family: @fonts-info-block;
+    font-size: @fonts-size-info-block;
+  }
+
+  .wbamp-info-block a, .wbamp-info-block a:visited, .wbamp-info-block a:focus {
+    color: @colors-text-info-block;
+  }
+
+  .wbamp-info-block a:hover {
+    color: @colors-text-info-block-hover;
+  }
+
+  .wbamp-info-block p, .content_rating p {
+    margin-top: 0;
+    margin-bottom: 0;
+    line-height: 1;
+  }
+
+  .content_rating p, .content_rating amp-img {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1em;
+  }
+
+  .content_rating p {
+    line-height: 1em;
+    height: 1em;
+    margin-right: 0.4em;
+  }
+
+  .content_rating amp-img {
+    line-height: 1em;
+    margin-right: 0.2em;
+  }
+  .content_rating p.unseen {
+    color: @colors-text-info-block;
+    background: @colors-background-info-block;
+    font-family: @fonts-info-block;
+    font-size: @fonts-size-info-block;
+  }
+
+  .content_rating amp-img {
+    display: inline-block;
+  }
+}
+
+/*************************************
+*
+* Joomla default markup styling: article pagination
+*
+**************************************/
+.wbamp-container.wbamp-content {
+
+  ul.pager.pagenav {
+    margin: 1em 0;
+    padding: 0;
+    font-size: 0.8em;
+    overflow: auto;
+    li {
+      display: inline-block;
+    }
+
+    li a {
+      float: right;
+      padding: 0.4em 1em;
+      text-decoration: none;
+      font-family: @fonts-pagination;
+      font-size: @fonts-pagination-size;
+      background: @colors-background-pagination;
+      color: @colors-text-pagination;
+    }
+
+    li:hover a, li:hover a:visited, li:hover a:focus {
+      color: @colors-text-pagination-hover;
+      background: @colors-background-pagination-hover;
+    }
+
+    li.previous {
+      & a:before {
+        content: "\AB";
+        margin-right: 0.25em;
+        font-size: 1.5em;
+        line-height: 1;
+      }
+    }
+
+    li.next {
+      float: right;
+      & a:after {
+        content: "\BB";
+        margin-left: 0.25em;
+        font-size: 1.5em;
+        line-height: 1;
+      }
+    }
+  }
+}
+
+/*************************************
+*
+* Joomla default markup styling: readmore link
+*
+**************************************/
+.wbamp-container.wbamp-content {
+
+  a.readmore, a.readmore:visited, a.readmore:focus,
+  p.readmore a.btn, p.readmore a.btn:visited, p.readmore a.btn:focus {
+    background: @colors-background-readmore;
+    color: @colors-text-readmore;
+    text-decoration: none;
+    padding: 0.25em 1em;
+  }
+
+  a.readmore:hover, p.readmore a.btn:hover {
+    background: @colors-background-readmore-hover;
+    color: @colors-text-readmore-hover;
+  }
+
+  a.readmore[rel="prev"]:after, p.readmore a[rel="prev"]:after {
+    content: "\AB";
+    margin-right: 0.25em;
+    font-size: 1.5em;
+    line-height: 1;
+  }
+  a.readmore[rel="next"]:after, p.readmore a[rel="next"]:after {
+    content: "\BB";
+    margin-left: 0.25em;
+    font-size: 1.5em;
+    line-height: 1;
+  }
+}
+

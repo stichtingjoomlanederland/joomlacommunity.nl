@@ -1,0 +1,66 @@
+/**
+ * Shlib - programming library
+ *
+ * @author      Yannick Gaultier
+ * @copyright   (c) Yannick Gaultier 2015
+ * @package     shlib
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @version     0.3.1.522
+ * @date        2016-05-17
+ */
+
+/*! Copyright Weeblr llc @_YEAR_@ - Licence: http://www.gnu.org/copyleft/gpl.html GNU/GPL */
+
+@spinner-css-size: 24px;
+@spinner-css-stroke: 4px;
+@spinner-css-color-main: rgba(50, 125, 203, 0.5);
+@spinner-css-color-spinning: #327dcb;
+@spinner-css-duration: 0.6s;
+
+.wbl-spinner-css {
+  width: @spinner-css-size;
+  height: @spinner-css-size;
+  border: @spinner-css-stroke @spinner-css-color-main solid;
+  border-top: @spinner-css-stroke @spinner-css-color-spinning solid;
+  border-radius: 50%;
+  webkit-animation: wbl-spinner .6s infinite linear;
+  animation: wbl-spinner-kf @spinner-css-duration infinite linear;
+}
+
+@keyframes wbl-spinner-kf {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(60deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  75% {
+    transform: rotate(300deg);
+  }
+  100% {
+    transform: rotate(359deg);
+  }
+}
+
+.wbl-spinner-css.wbl-spinner-light {
+  border-top-color: #6e97cc;
+}
+
+.wbl-spinner-css.wbl-spinner-dark {
+  border-top-color: #327dcb;
+}
+
+.wbl-spinner-css.wbl-spinner-warning {
+  border-top-color: #ffac2f;
+}
+
+.wbl-spinner-css.wbl-spinner-white {
+  border-top-color: #ffffff;
+}
+
+.wbl-spinner-css.wbl-spinner-black {
+  border-top-color: #282828;
+}

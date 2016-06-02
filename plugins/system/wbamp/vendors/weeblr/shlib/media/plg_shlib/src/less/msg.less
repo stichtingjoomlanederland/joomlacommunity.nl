@@ -1,0 +1,213 @@
+/**
+ * Shlib - programming library
+ *
+ * @author      Yannick Gaultier
+ * @copyright   (c) Yannick Gaultier 2015
+ * @package     shlib
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @version     0.3.1.522
+ * @date        2016-05-17
+ */
+
+/*! Copyright Weeblr llc @_YEAR_@ - Licence: http://www.gnu.org/copyleft/gpl.html GNU/GPL */
+
+/* Shared definitions **************************************************************************************************/
+@import 'shared.less';
+/* Shared definitions **************************************************************************************************/
+
+/* Colors **************************************************************************************************************/
+@wb_clr_background_main: #F3F3F5;
+@wb_clr_background_button: transparent;
+@wb_clr_background_info: #6E97E5;
+@wb_clr_background_error: #FFAC2F;
+@wb_clr_background_warning: #D02750;
+@wb_clr_background_notice: #B4DA97;
+
+@wb_clr_outline_light: #DDDDDD;
+@wb_clr_outline_extra_light: #BBBBBB;
+@wb_clr_outline_strong: #7E7E7E;
+
+@wb_clr_button_close: #777777;
+@wb_clr_button_close_hover: #282828;
+@wb_clr_button_collapse: #FFFFFF;
+@wb_clr_button_collapse_hover: #282828;
+
+@wb_clr_text_title: #282828;
+@wb_clr_text_body: #FFFFFF;
+@wb_clr_text_medium: #777777;
+
+@wb_clr_text_alert: #D02750;
+/*
+@wb_clr_text_title: #6E97CC;
+@wb_clr_text_title_strong: #327DCB;
+
+
+@wb_clr_text_footer: #282828;
+@wb_clr_text_action_main: #FFFFFF;
+@wb_clr_text_action_light: #FFFFFF;
+@wb_clr_text_action_disabled: #FFFFFF;
+@wb_clr_text_menu_main: #393C4F;
+@wb_clr_text_side_menu_main: #282828;
+@wb_clr_text_menu_light: #BBBBBB;
+@wb_clr_text_link_hover: #282828;
+
+@wb_clr_text_tooltip_main: #FFFFFF;
+@wb_clr_text_tooltip_light: #BBBBBB;
+*/
+
+.wb-clr-alert {
+  color: @wb_clr_text_alert !important;
+  font-weight: bold;
+}
+/* Colors **************************************************************************************************************/
+
+/* Message list */
+
+/* Individual messages */
+.wbl-container-msg-one {
+  cursor: default;
+  margin-bottom: 0.5em;
+  padding: 1em;
+  background: @wb_clr_background_main;
+}
+
+.wbl-container-msg-one-toggle:hover {
+  cursor: pointer;
+}
+
+.wbl-container-msg-one-info {
+  background: @wb_clr_background_info;
+}
+
+.wbl-container-msg-one-error {
+  background: @wb_clr_background_error;
+}
+
+.wbl-container-msg-one-warning {
+  background: @wb_clr_background_warning;
+}
+
+.wbl-container-msg-one-notice {
+  background: @wb_clr_background_notice;
+}
+
+.wbl-msg-button-close {
+  float: right;
+  background: none;
+  border: none;
+  border-radius: 0;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: @wb_clr_button_close;
+  z-index: 10;
+}
+
+.wbl-msg-button-close:hover {
+  color: @wb_clr_button_close_hover;
+}
+
+span.wbl-msg-title {
+  color: @wb_clr_text_title;
+  font-size: 1.25em;
+  font-weight: bold;
+}
+
+div.wbl-msg-body {
+  display: none;
+}
+
+div.wbl-msg-body.wbl-body-visible {
+  padding-top: 0.5em;
+}
+
+span.wbl-msg-body {
+  color: @wb_clr_text_body;
+  font-size: 1.1em;
+}
+
+span.wbl-msg-body a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.wbl-msg-body-collapse-button {
+  position: relative;
+  width: 2em;
+  margin: 0 0 0 -1em;
+  min-height: 1em; /* IE */
+  padding: 0;
+  background: @wb_clr_background_button;
+  color: @wb_clr_button_collapse;
+  font-size: 2em;
+  font-weight: bold;
+  border: none;
+  border-radius: 0;
+}
+
+.wbl-msg-body-collapse-button.wbl-collapse-button-left {
+  left: 25%;
+}
+
+.wbl-msg-body-collapse-button.wbl-collapse-button-center {
+  left: 50%;
+}
+
+.wbl-msg-body-collapse-button.wbl-collapse-button-right {
+  left: 75%;
+}
+
+.wbl-msg-body-collapse-button:focus,
+.wbl-msg-button-close:focus {
+  outline: none;
+}
+
+.wbl-container-msg-one:hover .wbl-msg-body-collapse-button {
+  color: @wb_clr_button_collapse_hover;
+}
+
+.wbl-msg-body.wbl-body-visible + .wbl-msg-body-collapse-button {
+  margin-top: 0.5em;
+}
+
+.wbl-msg-body + .wbl-msg-body-collapse-button:after,
+.wbl-msg-body + .wbl-msg-body-collapse-button + .wbl-msg-body-collapse-button:after {
+  content: "\2304";
+}
+
+.wbl-msg-body.wbl-body-visible + .wbl-msg-body-collapse-button:after,
+.wbl-msg-body.wbl-body-visible + .wbl-msg-body-collapse-button + .wbl-msg-body-collapse-button:after {
+  content: "\2303";
+}
+
+/** Element rotation ************************************************************/
+.wbl-spin {
+  -webkit-animation: wbl-spin 1s infinite linear;
+  animation: wbl-spin 1s infinite linear;
+}
+
+.wbl-pulse {
+  -webkit-animation: wbl-spin 1s infinite steps(8);
+  animation: wbl-spin 1s infinite steps(8);
+}
+
+@-webkit-keyframes wbl-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}
+
+@keyframes wbl-spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(359deg);
+    transform: rotate(359deg);
+  }
+}

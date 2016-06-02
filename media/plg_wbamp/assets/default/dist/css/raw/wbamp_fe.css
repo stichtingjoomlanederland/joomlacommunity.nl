@@ -1,0 +1,254 @@
+/**
+ * wbAMP - Accelerated Mobile Pages for Joomla!
+ *
+ * @author       Yannick Gaultier
+ * @copyright    (c) Yannick Gaultier - Weeblr llc - 2016
+ * @package      wbAmp
+ * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @version      1.3.1.490
+ * @date        2016-05-18
+ */
+/*************************************
+*
+* Page/Global
+*
+**************************************/
+/*************************************
+*
+* Content
+*
+**************************************/
+/*************************************
+*
+* Header
+*
+**************************************/
+/*************************************
+*
+* Footer
+*
+**************************************/
+/*************************************
+*
+* AMP tags
+*
+**************************************/
+/*************************************
+*
+* Actual less code
+*
+**************************************/
+/**
+ * wbAMP - Accelerated Mobile Pages for Joomla!
+ *
+ * @author      Yannick Gaultier
+ * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
+ * @package     wbAmp
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @version     1.3.1.490
+ * @date        2016-05-18
+ */
+/*************************************
+*
+* Global HTML CSS
+*
+**************************************/
+body {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  line-height: 1.8;
+  background: #F3F3F5;
+  color: #333333;
+  padding-bottom: 100px;
+}
+blockquote {
+  padding: 16px;
+  margin: 8px 0 24px 0;
+  border-left: 2px solid #87a6bc;
+  color: #4f748e;
+  background: #e9eff3;
+}
+blockquote p:last-child {
+  margin-bottom: 0;
+}
+/*************************************
+*
+* Containers - Generic
+*
+**************************************/
+.wbamp-container {
+  margin: 0 auto;
+  padding: 0;
+  border: none;
+  box-sizing: border-box;
+  max-width: 479px;
+}
+.wbamp-container.wbamp-header,
+.wbamp-container.wbamp-footer,
+.wbamp-container.wbamp-ad {
+  text-align: center;
+}
+/*************************************
+*
+* Header
+*
+**************************************/
+.wbamp-container.wbamp-header-module {
+  margin: 0 auto;
+  padding: 0;
+}
+.wbamp-container.wbamp-header-module:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.wbamp-container.wbamp-header-module amp-img {
+  display: inline-block;
+  margin-left: 0.25em;
+  margin-right: 0.25em;
+}
+.wbamp-container.wbamp-header {
+  margin: 0 auto;
+  padding: 0;
+  font-family: "Open Sans", sans-serif;
+  font-size: 1.2em;
+  background: #6e97cc;
+  color: #FFFFFF;
+  min-height: 100px;
+  vertical-align: middle;
+  text-align: center;
+}
+.wbamp-container.wbamp-header:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.wbamp-container.wbamp-header.wbamp-header-image {
+  line-height: 1em;
+}
+.wbamp-container.wbamp-header.wbamp-header-no-background {
+  background-image: none;
+}
+.wbamp-header a,
+.wbamp-header a:visited {
+  text-decoration: none;
+  color: #FFFFFF;
+  min-height: 1.8em;
+}
+.wbamp-site-logo {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  line-height: 100px;
+}
+.wbamp-header-text {
+  font-size: 2em;
+}
+.wbamp-header-image.wbamp-header-site-name amp-img {
+  vertical-align: middle;
+}
+.wbamp-header-image.wbamp-header-site-name .wbamp-header-text {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 0.25em;
+  line-height: 1.8;
+}
+@media only screen and (max-width: 767px) {
+  .wbamp-header-image.wbamp-header-site-name .wbamp-header-text {
+    margin-left: 0;
+  }
+}
+/*************************************
+*
+* Content
+*
+**************************************/
+.wbamp-container.wbamp-content {
+  margin: 0 auto 0;
+  padding: 0.25em 1em;
+  font-family: 'Roboto', sans-serif;
+  font-size: 0.9em;
+  background: #FFFFFF;
+  color: #333333;
+}
+.wbamp-content {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+.wbamp-container.wbamp-content a {
+  color: #333333;
+  text-decoration: underline;
+}
+.wbamp-container.wbamp-content a:visited,
+.wbamp-container.wbamp-content a:focus {
+  color: #BBBBBB;
+}
+.wbamp-container.wbamp-content a:hover {
+  color: #777777;
+}
+.wbamp-container.wbamp-content h1 {
+  font-family: "Roboto", sans-serif;
+  font-size: 1.75em;
+  background: none;
+  color: #333333;
+}
+.wbamp-container.wbamp-content h2 {
+  font-family: "Roboto", sans-serif;
+  font-size: 1.35em;
+  background: none;
+  color: #333333;
+}
+.wbamp-container.wbamp-content h3 {
+  font-family: "Roboto", sans-serif;
+  font-size: 1em;
+  background: none;
+  color: #333333;
+}
+/*************************************
+*
+* Footer
+*
+**************************************/
+.wbamp-container.wbamp-footer {
+  min-height: 0;
+  margin: 0 auto 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  background: #6e97cc;
+  color: #FFFFFF;
+  font-size: 0.8em;
+  vertical-align: middle;
+}
+.wbamp-container.wbamp-footer .custom {
+  display: inline-block;
+  line-height: 0;
+}
+/*************************************
+*
+* AMP Specific
+*
+**************************************/
+.amp-wp-enforced-sizes {
+  /** Our sizes fallback is 100vw, and we have a padding on the container; the max-width here prevents the element from overflowing. **/
+  max-width: 100%;
+}
+.wbamp-amp-tag {
+  margin: 0;
+  padding: 0.25em 1em;
+  text-align: center;
+}
+amp-img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+.wbamp-amp-tag.wbamp-carousel {
+  margin: 0;
+  padding: 0;
+}
+.wbamp-amp-tag.wbamp-carousel amp-img {
+  margin-left: 0;
+  margin-right: 0;
+}

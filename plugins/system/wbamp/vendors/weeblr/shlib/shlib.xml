@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" version="1.6" group="system" method="upgrade">
+	<name>plg_system_shlib</name>
+	<author>Yannick Gaultier</author>
+	<creationDate>2016-05-17</creationDate>
+	<copyright>(c) Yannick Gaultier 2015</copyright>
+	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
+	<authorEmail>yannick@weeblr.com</authorEmail>
+  <authorUrl>http://weeblr.com</authorUrl>
+	<version>0.3.1.522</version>
+	<description>PLG_SYSTEM_SHLIB_DESC</description>
+	<scriptfile>installation.script.php</scriptfile>
+
+	<files>
+		<filename plugin="shlib">shlib.php</filename>
+		<filename plugin="shlib">installation.script.php</filename>
+		<filename plugin="shlib">index.html</filename>
+		<folder>shl_packages</folder>
+        <folder>layouts</folder>
+	</files>
+	<media destination="plg_shlib" folder="media/plg_shlib">
+        <folder>src/less</folder>
+        <folder>src/js</folder>
+        <folder>src/img</folder>
+        <folder>dist/css</folder>
+        <folder>dist/js</folder>
+        <folder>dist/img</folder>
+    </media>
+	<params>
+		<param name="log_error" type="radio" class="btn-group" default="0" label="Log error message"
+			description="If set to Yes, error messages will be logged to a file (in the /logs directory)">
+			<option value="0">No</option>
+			<option value="1">Yes</option>
+		</param>
+		<param name="log_alert" type="radio" class="btn-group" default="0" label="Log alert message"
+			description="If set to Yes, alert messages will be logged">
+			<option value="0">No</option>
+			<option value="1">Yes</option>
+		</param>
+		<param name="log_debug" type="radio" class="btn-group" default="0" label="Log debug message"
+			description="If set to Yes, debugging messages will be logged">
+			<option value="0">No</option>
+			<option value="1">Yes</option>
+		</param>
+		<param name="log_info" type="radio" class="btn-group" default="0"
+			label="Log information message" description="If set to Yes, informational messages will be logged">
+			<option value="0">No</option>
+			<option value="1">Yes</option>
+		</param>
+
+        <field type="spacer" name="spacer1" hr="true" />
+
+        <field name="assets_mode" type="radio" default="1" class="btn-group"
+               label="Assets mode" description="In development mode, CSSS and javascript files are not minified, the source files are used. In production mode, files are versioned, minified and gzipped">
+            <option value="0">Development</option>
+            <option value="1">Production</option>
+        </field>
+        <field name="assets_bundling" type="radio" default="1" class="btn-group"
+               label="Assets bundling" description="If assets bundling is enabled, all CSS and javascripts files provided by shLib are bundled into a single (one css, one js) file, versioned, minified and gzipped.">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </field>
+
+        <field type="spacer" name="spacer2" hr="true" />
+
+		<param name="sharedmemory_cache_handler" type="list"
+			label="Shared memory cache PHP engine"
+			description="Select desired PHP shared memory cache engine. The engine may be used by shLib query cache (see below) or by other extensions such as sh404SEF"
+			default="apc">
+			<option value="apc">APC</option>
+			<option value="memcache">Memcache</option>
+			<option value="memcached">Memcached</option>
+			<option value="wincache">Wincache</option>
+		</param>
+		<param name="enable_query_cache" type="radio" default="0" class="btn-group"
+			label="Enable db query cache"
+			description="If set to Yes, and appropriate PHP libraries are installed on the server, a transparent database query cache will be activated">
+			<option value="0">No</option>
+			<option value="1">Yes</option>
+		</param>
+		<param name="enable_joomla_query_cache" type="radio" default="0" class="btn-group"
+			label="Enable Joomla! db query cache"
+			description="If set to Yes, and db query cache above is on, a databases query cache will also be activated for db operations performed through the Joomla! database layer">
+			<option value="0">No</option>
+			<option value="1">Yes</option>
+		</param>
+		<param name="sharedmemory_cache_host" type="text" default="127.0.0.1"
+			label="Shared memory server host"
+			description="Only for standalone cache servers such as memcache/memcached. Enter host address of the server (no http:// in front of it)" />
+		<param name="sharedmemory_cache_port" type="text" default="11211"
+			label="Shared memory server port"
+			description="Only for standalone cache servers such as memcache/memcached. Enter the port the server is listening to" />
+	</params>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="log_error" type="radio" default="0" class="btn-group"
+					label="Log error message"
+					description="If set to Yes, error messages will be logged to a file (in the /logs directory)">
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field>
+				<field name="log_alert" type="radio" default="0" class="btn-group"
+					label="Log alert message" description="If set to Yes, alert messages will be logged">
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field>
+				<field name="log_debug" type="radio" default="0" class="btn-group"
+					label="Log debug message" description="If set to Yes, debugging messages will be logged">
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field>
+				<field name="log_info" type="radio" default="0" class="btn-group"
+					label="Log information message" description="If set to Yes, informational messages will be logged">
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field>
+                <field type="spacer" name="spacer1" hr="true" />
+                <field name="assets_mode" type="radio" default="1" class="btn-group"
+                       label="Assets mode" description="In development mode, CSSS and javascript files are not minified, the source files are used. In production mode, files are versioned, minified and gzipped">
+                    <option value="0">Dev.</option>
+                    <option value="1">Production</option>
+                </field>
+                <field name="assets_bundling" type="radio" default="1" class="btn-group"
+                       label="Assets bundling" description="If assets bundling is enabled, all CSS and javascripts files provided by shLib are bundled into a single (one css, one js) file, versioned, minified and gzipped.">
+                    <option value="0">No</option>
+                    <option value="1">Yes</option>
+                </field>
+			</fieldset>
+			<fieldset name="advanced">
+				<field name="sharedmemory_cache_handler" type="list"
+					label="Shared memory PHP engine"
+					description="Select desired PHP shared memory cache engine. The engine may be used by shLib query cache (see below) or by other extensions such as sh404SEF"
+					default="apc">
+					<option value="apc">APC</option>
+					<option value="memcache">Memcache</option>
+					<option value="memcached">Memcached</option>
+					<option value="wincache">Wincache</option>
+				</field>
+				<field name="sharedmemory_cache_host" type="text" default="127.0.0.1"
+					label="Shared memory server host"
+					description="Only for standalone cache servers such as memcache/memcached. Enter host address of the server (no http:// in front of it)" />
+				<field name="sharedmemory_cache_port" type="text" default="11211"
+					label="Shared memory server port"
+					description="Only for standalone cache servers such as memcache/memcached. Enter the port the server is listening to" />
+				<field name="enable_query_cache" type="radio" default="0" class="btn-group"
+					label="Enable db query cache"
+					description="If set to Yes, and appropriate PHP libraries are installed on the server, a transparent database query cache will be activated for db operations performed using shLIb db class">
+					<option value="0">No</option>
+					<option value="1">Yes</option>
+				</field>
+                <field name="enable_joomla_query_cache" type="hidden" default="0"/>
+			</fieldset>
+		</fields>
+	</config>
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.plg_system_shlib.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.plg_system_shlib.sys.ini</language>
+	</languages>
+</extension>

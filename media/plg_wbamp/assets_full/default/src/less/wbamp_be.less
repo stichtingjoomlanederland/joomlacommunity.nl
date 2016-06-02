@@ -1,0 +1,74 @@
+/**
+ * wbAMP - Accelerated Mobile Pages for Joomla!
+ *
+ * @author       Yannick Gaultier
+ * @copyright    (c) Yannick Gaultier - Weeblr llc - 2016
+ * @package      wbAmp
+ * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @version      1.3.1.490
+ * @date        2016-05-18
+ */
+
+@phone: ~"only screen and (max-width: 479px)";
+@tablet: ~"only screen and (max-width: 767px)";
+
+/**
+Editor plugin
+*/
+@wbamp-help-frame-height: 300px;
+
+.wbamp-editor-help-text {
+  color: #bbbbbb;
+  margin-top: 0.5em;
+  font-size: 0.85em;
+}
+
+.wbamp-editor-tabs-container {
+  margin: 1em 0;
+  padding-top: 1em;
+  border-top: 1px solid #dddddd;
+}
+
+.wbamp-editor-tab.current {
+  display: block;
+}
+
+div.wbamp-help-frame {
+  margin-bottom: 1em;
+  box-sizing: border-box;
+}
+
+.wbamp-help-frame-loader-container {
+  display: none;
+  float: left;
+  position: absolute;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  height: @wbamp-help-frame-height;
+  background: #FFFFFF;
+  border: 1px solid #dddddd;
+}
+
+.wbamp-help-frame-loader {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -35%);
+}
+
+iframe.wbamp-help-frame,
+.shmodal-body iframe.wbamp-help-frame {
+  display: none;
+  width: 100%;
+  height: @wbamp-help-frame-height;
+  border: 1px solid #dddddd;
+}
+
+#wbamp-editor-help-button.displayed:before {
+  content: '\D7';
+  margin-right: 0.5em;
+}
+
+

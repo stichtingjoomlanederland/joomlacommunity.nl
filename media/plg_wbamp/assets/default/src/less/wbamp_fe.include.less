@@ -1,0 +1,238 @@
+/**
+ * wbAMP - Accelerated Mobile Pages for Joomla!
+ *
+ * @author      Yannick Gaultier
+ * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
+ * @package     wbAmp
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
+ * @version     1.3.1.490
+ * @date        2016-05-18
+ */
+
+/*************************************
+*
+* Global HTML CSS
+*
+**************************************/
+body {
+  font-family: @fonts-page;
+  font-size: 16px;
+  line-height: 1.8;
+  background: @colors-background-page;
+  color: @colors-text-page;
+  padding-bottom: 100px;
+}
+
+blockquote {
+  padding: 16px;
+  margin: 8px 0 24px 0;
+  border-left: 2px solid @colors-blockquote-border;
+  color: @colors-blockquote;
+  background: @colors-blockquote-background;
+}
+
+blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/*************************************
+*
+* Containers - Generic
+*
+**************************************/
+.wbamp-container {
+  margin: 0 auto;
+  padding: 0;
+  border: none;
+  box-sizing: border-box;
+  max-width: @content-max-width;
+}
+
+.wbamp-container.wbamp-header,
+.wbamp-container.wbamp-footer,
+.wbamp-container.wbamp-ad {
+  text-align: center;
+}
+
+/*************************************
+*
+* Header
+*
+**************************************/
+.wbamp-container.wbamp-header-module {
+  margin: @margin-header;
+  padding: @padding-header;
+  &:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+  amp-img {
+    display: inline-block;
+    margin-left: 0.25em;
+    margin-right: 0.25em;
+  }
+}
+
+.wbamp-container.wbamp-header {
+  margin: @margin-header;
+  padding: @padding-header;
+  font-family: @fonts-header;
+  font-size: @fonts-size-header;
+  background: @colors-background-header;
+  color: @colors-text-header;
+  min-height: @min-height-header;
+  vertical-align: middle;
+  text-align: center;
+  &:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+}
+
+.wbamp-container.wbamp-header.wbamp-header-image {
+  line-height: 1em;
+}
+
+.wbamp-container.wbamp-header.wbamp-header-no-background {
+  background-image: none;
+}
+
+.wbamp-header a,
+.wbamp-header a:visited {
+  text-decoration: none;
+  color: @colors-text-header;
+  min-height: 1.8em;
+}
+
+.wbamp-site-logo {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  line-height: @min-height-header;
+}
+
+.wbamp-header-text {
+  font-size: 2em;
+}
+
+.wbamp-header-image.wbamp-header-site-name amp-img {
+  vertical-align: middle;
+}
+
+.wbamp-header-image.wbamp-header-site-name .wbamp-header-text {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 0.25em;
+  line-height: 1.8;
+  @media @tablet {
+    margin-left: 0
+  }
+}
+
+/*************************************
+*
+* Content
+*
+**************************************/
+.wbamp-container.wbamp-content {
+  margin: @margin-content;
+  padding: @padding-content;
+  font-family: @fonts-content;
+  font-size: @fonts-size-content;
+  background: @colors-background-content;
+  color: @colors-text-content;
+}
+
+.wbamp-content {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.wbamp-container.wbamp-content {
+  a {
+    color: @colors-text-content-a;
+    text-decoration: @colors-text-content-a-decoration;
+  }
+  a:visited, a:focus {
+    color: @colors-text-content-a-visited;
+  }
+  a:hover {
+    color: @colors-text-content-a-hover;
+  }
+  h1 {
+    font-family: @fonts-content-h1;
+    font-size: @fonts-size-content-h1;
+    background: @colors-background-content-h1;
+    color: @colors-text-content-h1;
+  }
+  h2 {
+    font-family: @fonts-content-h2;
+    font-size: @fonts-size-content-h2;
+    background: @colors-background-content-h2;
+    color: @colors-text-content-h2;
+  }
+  h3 {
+    font-family: @fonts-content-h3;
+    font-size: @fonts-size-content-h3;
+    background: @colors-background-content-h3;
+    color: @colors-text-content-h3;
+  }
+}
+
+/*************************************
+*
+* Footer
+*
+**************************************/
+.wbamp-container.wbamp-footer {
+  min-height: @min-height-footer;
+  margin: @margin-footer;
+  padding: @padding-footer;
+  font-family: @fonts-footer;
+  font-size: @fonts-size-footer;
+  background: @colors-background-footer;
+  color: @colors-text-footer;
+  font-size: @fonts-size-footer;
+  vertical-align: middle;
+
+  .custom {
+    display: inline-block;
+    line-height: @min-height-footer;
+  }
+}
+
+/*************************************
+*
+* AMP Specific
+*
+**************************************/
+.amp-wp-enforced-sizes {
+  /** Our sizes fallback is 100vw, and we have a padding on the container; the max-width here prevents the element from overflowing. **/
+  max-width: 100%;
+}
+
+.wbamp-amp-tag {
+  margin: @margin-amp-tag;
+  padding: @padding-amp-tag;
+  text-align: center;
+}
+
+amp-img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.wbamp-amp-tag.wbamp-carousel {
+  margin: 0;
+  padding: 0;
+  amp-img {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
