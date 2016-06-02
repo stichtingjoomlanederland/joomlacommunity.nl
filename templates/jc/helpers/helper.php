@@ -19,6 +19,7 @@ $helper->setMetadata($this);
 $helper->setFavicon();
 $helper->unloadCss();
 $helper->unloadJs();
+$helper->unsetSqueezeBox();
 $helper->loadCss();
 $helper->loadJs();
 
@@ -317,6 +318,25 @@ class ThisTemplateHelper
 		{
 			$this->doc->_script['text/javascript'] = preg_replace('%jQuery\(window\)\.on\(\'load\'\,\s*function\(\)\s*\{\s*new\s*JCaption\(\'img.caption\'\);\s*}\s*\);\s*%', '', $this->doc->_script['text/javascript']);
 			$this->doc->_script['text/javascript'] = preg_replace("%\s*jQuery\(document\)\.ready\(function\(\)\{\s*jQuery\('\.hasTooltip'\)\.tooltip\(\{\"html\":\s*true,\"container\":\s*\"body\"\}\);\s*\}\);\s*%", '', $this->doc->_script['text/javascript']);
+
+			// Unset completly if empty
+			if (empty($this->doc->_script['text/javascript']))
+			{
+				unset($this->doc->_script['text/javascript']);
+			}
+		}
+	}
+
+	/**
+	 * unset Squeezebox
+	 *
+	 */
+	public function unsetSqueezeBox()
+	{
+
+		if (isset($this->doc->_script['text/javascript']))
+		{
+			$this->doc->_script['text/javascript'] = preg_replace('%jQuery\(function\(\$\) {\s*SqueezeBox.initialize\(\{\}\);\s*SqueezeBox.assign\(\$\(\'a.modal\'\).get\(\), \{\s*parse: \'rel\'\s*\}\);\s*\}\);\s*function jModalClose\(\) \{\s*SqueezeBox.close\(\);\s*\}%', '', $this->doc->_script['text/javascript']);
 
 			// Unset completly if empty
 			if (empty($this->doc->_script['text/javascript']))
