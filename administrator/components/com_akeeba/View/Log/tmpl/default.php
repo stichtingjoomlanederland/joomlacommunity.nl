@@ -1,0 +1,45 @@
+<?php
+/**
+ * @package   AkeebaBackup
+ * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @license   GNU General Public License version 3, or later
+ */
+
+defined('_JEXEC') or die();
+
+/** @var  \Akeeba\Backup\Admin\View\Log\Html  $this */
+
+?>
+<?php if(isset($this->logs) && count($this->logs)): ?>
+<form name="adminForm" id="adminForm" action="index.php" method="post" class="form-inline">
+	<input name="option" value="com_akeeba" type="hidden" />
+	<input name="view" value="Log" type="hidden" />
+	<input type="hidden" name="<?php echo \JFactory::getSession()->getFormToken(); ?>" value="1" />
+	<fieldset>
+		<label for="tag"><?php echo \JText::_('COM_AKEEBA_LOG_CHOOSE_FILE_TITLE'); ?></label>
+		<?php echo \JHtml::_('select.genericlist', $this->logs, 'tag', 'onchange="submitform();" class="advancedSelect"', 'value', 'text', $this->tag); ?>
+
+		<?php if(!empty($this->tag)): ?>
+			<a class="btn btn-primary" href="<?php echo $this->escape(JUri::base()); ?>index.php?option=com_akeeba&view=Log&task=download&tag=<?php echo $this->escape($this->tag); ?>">
+				<span class="icon-download icon-white"></span>
+				<?php echo \JText::_('COM_AKEEBA_LOG_LABEL_DOWNLOAD'); ?>
+			</a>
+		<?php endif; ?>
+
+		<?php if(!empty($this->tag)): ?>
+		<br/>
+		<hr/>
+		<iframe
+			src="<?php echo JUri::base(); ?>index.php?option=com_akeeba&view=Log&task=iframe&format=raw&tag=<?php echo urlencode($this->tag); ?>"
+			width="99%" height="400px">
+		</iframe>
+		<?php endif; ?>
+	</fieldset>
+</form>
+<?php endif; ?>
+
+<?php if ( ! (isset($this->logs) && count($this->logs))): ?>
+<div class="alert alert-error alert-block">
+	<?php echo JText::_('COM_AKEEBA_LOG_NONE_FOUND') ?>
+</div>
+<?php endif; ?>
