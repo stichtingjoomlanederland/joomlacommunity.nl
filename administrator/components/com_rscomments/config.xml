@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+	<fieldset name="general_conf" label="COM_RSCOMMENTS_GENERAL_CONFIG" addfieldpath="/administrator/components/com_rscomments/models/fields">
+		<field name="global_register_code" type="text" class="input-xxlarge" description="COM_RSCOMMENTS_LICENSE_CODE_DESC" label="COM_RSCOMMENTS_LICENSE_CODE" size="70" />
+		<field name="date_format" type="text" default="d.m.Y H:i" class="input-xlarge" description="COM_RSCOMMENTS_DATE_TIME_DESC" label="COM_RSCOMMENTS_DATE_TIME" size="70" />
+		<field name="enable_rss" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_RSS" description="COM_RSCOMMENTS_ENABLE_RSS_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="load_bootstrap" type="radio" class="btn-group" default="0" size="1" label="COM_RSCOMMENTS_LOAD_BOOTSTRAP" description="COM_RSCOMMENTS_LOAD_BOOTSTRAP_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="backend_jquery" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_BACKEND_JQUERY" description="COM_RSCOMMENTS_ENABLE_BACKEND_JQUERY_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="frontend_jquery" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_FRONTEND_JQUERY" description="COM_RSCOMMENTS_ENABLE_FRONTEND_JQUERY_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="fontawesome" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_FONT_AWESOME" description="COM_RSCOMMENTS_ENABLE_FONT_AWESOME_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="scripts" type="scripts" />
+	</fieldset>
+	
+	<fieldset name="comments_form_layout_conf" label="COM_RSCOMMENTS_CONF_COMMENT_FORM_LAYOUT" addfieldpath="/administrator/components/com_rscomments/models/fields">
+		<field name="template" type="folderlist" directory="/components/com_rscomments/designs" hide_none="1" hide_default="1" default="default" filter="." label="COM_RSCOMMENTS_TEMPLATE" description="COM_RSCOMMENTS_TEMPLATE_DESC" />
+		<field name="comment_form_position" type="list" class="" default="0" label="COM_RSCOMMENTS_COMMENT_FORM_POSITION" description="COM_RSCOMMENTS_COMMENT_FORM_POSITION_DESC">
+			<option value="1">COM_RSCOMMENTS_COMMENT_FORM_POSITION_ABOVE</option>
+			<option	value="0">COM_RSCOMMENTS_COMMENT_FORM_POSITION_BELOW</option>
+		</field>
+		<field name="authorname" type="authorname" default="name" label="COM_RSCOMMENTS_AUTHOR_NAME" description="COM_RSCOMMENTS_AUTHOR_NAME_DESC" />
+		<field name="show_labels" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_SHOW_LABELS" description="COM_RSCOMMENTS_SHOW_LABELS_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="enable_location" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_LOCATION" description="COM_RSCOMMENTS_ENABLE_LOCATION_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="enable_title_field" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_SUBJECT_FIELD" description="COM_RSCOMMENTS_SUBJECT_FIELD_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="enable_website_field" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_WEBSITE_FIELD" description="COM_RSCOMMENTS_WEBSITE_FIELD_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="nofollow_rel" type="radio" class="btn-group" default="0" size="1" label="COM_RSCOMMENTS_WEBSITE_NOFOLLOW_REL" description="COM_RSCOMMENTS_WEBSITE_NOFOLLOW_REL_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="enable_smiles" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_SMILES" description="COM_RSCOMMENTS_ENABLE_SMILES_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="enable_bbcode" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_BBCODE" description="COM_RSCOMMENTS_ENABLE_BBCODE_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="enable_votes" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_VOTES" description="COM_RSCOMMENTS_ENABLE_VOTES_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="enable_subscription" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLESUBSCRIPTION" description="COM_RSCOMMENTS_ENABLESUBSCRIPTION_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="show_subcription_checkbox" type="radio" class="btn-group" default="0" size="1" label="COM_RSCOMMENTS_SHOW_SUBSCRIBE_CHECKBOX" description="COM_RSCOMMENTS_SHOW_SUBSCRIBE_CHECKBOX_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="terms" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_COMMENTS_TERMS" description="COM_RSCOMMENTS_COMMENTS_TERMS_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="enable_upload" type="radio" class="btn-group" default="0" size="1" label="COM_RSCOMMENTS_ENABLE_UPLOAD" description="COM_RSCOMMENTS_ENABLE_UPLOAD_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="max_size" type="text" class="input-small" description="COM_RSCOMMENTS_MAX_SIZE_DESC" label="COM_RSCOMMENTS_MAX_SIZE" size="70" filter="integer" default="10" />
+		<field name="allowed_extensions" type="textarea" class="input-xlarge" description="COM_RSCOMMENTS_ALLOWED_EXTENSIONS_DESC" label="COM_RSCOMMENTS_ALLOWED_EXTENSIONS" rows="8" default="COM_RSCOMMENTS_ALLOWED_EXTENSIONS_DEFAULT_VALUES" translate_default="true" />
+		<field name="min_comm_len" type="text" class="input-small" description="COM_RSCOMMENTS_MIN_COMMENT_LENGTH_DESC" label="COM_RSCOMMENTS_MIN_COMMENT_LENGTH" size="70" filter="integer" default="10" />
+		<field name="max_comm_len" type="text" class="input-small" description="COM_RSCOMMENTS_MAX_COMMENT_LENGTH_DESC" label="COM_RSCOMMENTS_MAX_COMMENT_LENGTH" size="70" filter="integer" default="1000" />
+		<field name="show_counter" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_SHOW_COUNTER" description="COM_RSCOMMENTS_SHOW_COUNTER_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="form_accordion" type="radio" class="btn-group" default="0" size="1" label="COM_RSCOMMENTS_ENABLE_FORM_ACCORDION" description="COM_RSCOMMENTS_ENABLE_FORM_ACCORDION_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="show_form" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_ENABLE_FORM_ACCORDION_POSITION" description="COM_RSCOMMENTS_ENABLE_FORM_ACCORDION_POSITION_DESC">
+			<option	value="0">COM_RSCOMMENTS_CLOSED</option>
+			<option value="1">COM_RSCOMMENTS_OPEN</option>
+		</field>
+	</fieldset>
+	
+	<fieldset name="comments_list_conf" label="COM_RSCOMMENTS_CONF_COMMENT_LIST_OF_COMMENTS" addfieldpath="/administrator/components/com_rscomments/models/fields">
+		<field name="nr_comments" type="text" class="input-small" description="COM_RSCOMMENTS_NR_COMMENTS_DESC" label="COM_RSCOMMENTS_NR_COMMENTS" size="70" filter="integer" default="10" />
+		<field name="categories" type="category" extension="com_content" label="COM_RSCOMMENTS_DISABLED_CATEGORIES" description="COM_RSCOMMENTS_DISABLED_CATEGORIES_DESC" multiple="multiple" />
+		<field name="avatar" type="avatarslist" label="COM_RSCOMMENTS_ENABLE_AVATAR" description="COM_RSCOMMENTS_ENABLE_AVATAR_DESC" default="" />
+		<field name="avatar_size" type="text" label="COM_RSCOMMENTS_AVATAR_SIZE" description="COM_RSCOMMENTS_AVATAR_SIZE_DESC" default="60" />
+		<field name="user_social_link" type="sociallists" label="COM_RSCOMMENTS_SHOW_SOCIAL_LINK" description="COM_RSCOMMENTS_SHOW_SOCIAL_LINK_DESC" default="" />
+		<field name="default_order" type="list" class="" default="0" size="1" label="COM_RSCOMMENTS_COMMENTS_ORDER" description="COM_RSCOMMENTS_COMMENTS_ORDER_DESC">
+			<option value="DESC">COM_RSCOMMENTS_ORDER_NEWEST</option>
+			<option	value="ASC">COM_RSCOMMENTS_ORDER_OLDEST</option>
+		</field>
+		<field name="show_no_comments" type="radio" class="btn-group" default="1" label="COM_RSCOMMENTS_SHOW_NO_COMMENTS" description="COM_RSCOMMENTS_SHOW_NO_COMMENTS_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="enable_modified" type="radio" class="btn-group" default="1" label="COM_RSCOMMENTS_ENABLE_MODIFIED" description="COM_RSCOMMENTS_ENABLE_MODIFIED_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="enable_reports" type="radio" class="btn-group" default="1" label="COM_RSCOMMENTS_ENABLE_REPORTS" description="COM_RSCOMMENTS_ENABLE_REPORTS_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="enable_captcha_reports" type="radio" class="btn-group" default="1" label="COM_RSCOMMENTS_ENABLE_CAPTCHA_REPORTS" description="COM_RSCOMMENTS_ENABLE_CAPTCHA_REPORTS_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="enable_email_reports" type="radio" class="btn-group" default="0" label="COM_RSCOMMENTS_ENABLE_EMAIL_REPORTS" description="COM_RSCOMMENTS_ENABLE_EMAIL_REPORTS_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="report_emails" type="text" class="input-xxlarge" description="COM_RSCOMMENTS_REPORT_EMAILS_DESC" label="COM_RSCOMMENTS_REPORT_EMAILS" size="70" />
+		<field name="email_notification" type="radio" class="btn-group" default="0" label="COM_RSCOMMENTS_EMAIL_NOTIFICATION" description="COM_RSCOMMENTS_EMAIL_NOTIFICATION_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="notification_emails" type="text" class="input-xxlarge" description="COM_RSCOMMENTS_NOTIFICATION_EMAILS_DESC" label="COM_RSCOMMENTS_NOTIFICATION_EMAILS" size="70" />
+	</fieldset>
+	
+	<fieldset name="captcha_conf" label="COM_RSCOMMENTS_CAPTCHA_CONFIG" addfieldpath="/administrator/components/com_rscomments/models/fields">
+		<field name="captcha" type="list" class="btn-group" default="0" size="1" label="COM_RSCOMMENTS_USE_CAPTCHA" description="COM_RSCOMMENTS_USE_CAPTCHA_DESC">
+			<option value="0">COM_RSCOMMENTS_BUILTIN_CAPTCHA</option>
+			<option	value="1">COM_RSCOMMENTS_RECAPTCHA</option>
+			<option	value="2">COM_RSCOMMENTS_NEW_RECAPTCHA</option>
+		</field>
+		
+		<field name="spacer1" type="spacer" label="COM_RSCOMMENTS_BUILT_IN_CAPTCHA_SETTINGS" />
+		
+		<field name="captcha_chars" type="text" class="input-small" description="COM_RSCOMMENTS_CAPTCHA_CHARS_DESC" label="COM_RSCOMMENTS_CAPTCHA_CHARS" size="70" filter="integer" default="5" />
+		<field name="captcha_lines" type="radio" class="btn-group" default="1" size="1" label="COM_RSCOMMENTS_CAPTCHA_LINES" description="COM_RSCOMMENTS_CAPTCHA_LINES_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="captcha_cases" type="radio" class="btn-group" default="0" size="1" label="COM_RSCOMMENTS_CAPTCHA_CASES" description="COM_RSCOMMENTS_CAPTCHA_CASES_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		
+		<field name="spacer2" type="spacer" label="COM_RSCOMMENTS_RECAPTCHA_SETTINGS" />
+		
+		<field name="rec_public" type="text" class="input-xlarge" description="COM_RSCOMMENTS_REC_PUBLICK_DESC" label="COM_RSCOMMENTS_REC_PUBLICK" size="70" />
+		<field name="rec_private" type="text" class="input-xlarge" description="COM_RSCOMMENTS_REC_PRIVATEK_DESC" label="COM_RSCOMMENTS_REC_PRIVATEK" size="70" />
+		<field name="rec_themes" type="list" class="btn-group" default="red" label="COM_RSCOMMENTS_REC_THEME" description="COM_RSCOMMENTS_REC_THEME_DESC">
+			<option value="red">COM_RSCOMMENTS_REC_RED</option>
+			<option	value="white">COM_RSCOMMENTS_REC_WHITE</option>
+			<option	value="blackglass">COM_RSCOMMENTS_REC_BLACKGLASS</option>
+			<option	value="clean">COM_RSCOMMENTS_REC_CLEAN</option>
+		</field>
+		
+		<field name="spacer3" type="spacer" label="COM_RSCOMMENTS_NEW_RECAPTCHA_SETTINGS" />
+		
+		<field name="recaptcha_new_site_key" class="input-xlarge" type="text" label="COM_RSCOMMENTS_NEW_RECAPTCHA_SITE_KEY" description="COM_RSCOMMENTS_NEW_RECAPTCHA_SITE_KEY_DESC" size="70" />
+		<field name="recaptcha_new_secret_key" class="input-xlarge" type="text" label="COM_RSCOMMENTS_NEW_RECAPTCHA_SECRET_KEY" description="COM_RSCOMMENTS_NEW_RECAPTCHA_SECRET_KEY_DESC" size="70" />
+		<field name="recaptcha_new_theme" type="list" default="light" label="COM_RSCOMMENTS_NEW_RECAPTCHA_THEME" description="COM_RSCOMMENTS_NEW_RECAPTCHA_THEME_DESC">
+			<option value="light">COM_RSCOMMENTS_NEW_RECAPTCHA_THEME_LIGHT</option>
+			<option value="dark">COM_RSCOMMENTS_NEW_RECAPTCHA_THEME_DARK</option>
+		</field>
+		<field name="recaptcha_new_type" type="list" default="image" label="COM_RSCOMMENTS_NEW_RECAPTCHA_TYPE" description="COM_RSCOMMENTS_NEW_RECAPTCHA_TYPE_DESC">
+			<option value="image">COM_RSCOMMENTS_NEW_RECAPTCHA_TYPE_IMAGE</option>
+			<option value="audio">COM_RSCOMMENTS_NEW_RECAPTCHA_TYPE_AUDIO</option>
+		</field>
+		
+	</fieldset>
+	
+	<fieldset name="filters_conf" label="COM_RSCOMMENTS_FILTERS_CONFIG" addfieldpath="/administrator/components/com_rscomments/models/fields">
+		<field name="akismet_key" type="text" class="input-xlarge" description="COM_RSCOMMENTS_AKISMET_KEY_DESC" label="COM_RSCOMMENTS_AKISMET_KEY" size="70" />
+		<field name="flood_interval" type="text" class="input-small" description="COM_RSCOMMENTS_FLOOD_INTERVAL_DESC" label="COM_RSCOMMENTS_FLOOD_INTERVAL" size="70" default="30" />
+		<field name="word_length" type="text" class="input-small" description="COM_RSCOMMENTS_WORD_LENGTH_DESC" label="COM_RSCOMMENTS_WORD_LENGTH" size="70" default="15"/>
+		<field name="negative_count" type="text" class="input-small" description="COM_RSCOMMENTS_NEGATIVE_COUNT_DESC" label="COM_RSCOMMENTS_NEGATIVE_COUNT" size="70" default="10"/>
+		<field name="no_follow" type="radio" class="btn-group" default="0" size="1" description="COM_RSCOMMENTS_NOFOLLOW_LINKS_DESC" label="COM_RSCOMMENTS_NOFOLLOW_LINKS">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
+		<field name="forbiden_names" type="textarea" class="input-xlarge" description="COM_RSCOMMENTS_FORBIDEN_NAMES_DESC" label="COM_RSCOMMENTS_FORBIDEN_NAMES" rows="8" default="" />
+		<field name="censored_words" type="textarea" class="input-xlarge" description="COM_RSCOMMENTS_CENSORED_WORDS_DESC" label="COM_RSCOMMENTS_CENSORED_WORDS" rows="8" default="" />
+		<field name="replace_censored" type="text" class="input-xlarge" description="COM_RSCOMMENTS_REPLACE_CENSORED_DESC" label="COM_RSCOMMENTS_REPLACE_CENSORED" default="******" />
+		<field name="blocked_users" type="textarea" class="input-xlarge" description="COM_RSCOMMENTS_BLOCK_USERS_DESC" label="COM_RSCOMMENTS_BLOCK_USERS" rows="8" default="" />
+		<field name="blocked_ips" type="textarea" class="input-xlarge" description="COM_RSCOMMENTS_BLOCK_IPS_DESC" label="COM_RSCOMMENTS_BLOCK_IPS" rows="8" default="" />
+	</fieldset>
+	
+	<fieldset name="permissions" label="JCONFIG_PERMISSIONS_LABEL" description="JCONFIG_PERMISSIONS_DESC">
+		<field name="rules" type="rules" label="JCONFIG_PERMISSIONS_LABEL" class="inputbox" validate="rules" filter="rules" component="com_rscomments" section="component"/>
+	</fieldset>
+</config>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset name="general" label="COM_RSCOMMENTS_GROUP_DETAILS">
+		<field name="GroupName" type="text" label="COM_RSCOMMENTS_GROUP_NAME" description="COM_RSCOMMENTS_GROUP_NAME_DESC" required="true" class="input-large" />
+		<field name="gid" type="usergroup" label="COM_RSCOMMENTS_GROUP_ID" description="COM_RSCOMMENTS_GROUP_ID_DESC" />
+		<field name="IdGroup" type="hidden" />
+	</fieldset>
+	
+	<fields name="permissions">
+		<fieldset name="commenting" label="COM_RSCOMMENTS_COMMENTING">
+			<field name="new_comments" type="radio" class="btn-group" label="COM_RSCOMMENTS_POST_NEW_COMMENTS" description="COM_RSCOMMENTS_POST_NEW_COMMENTS_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="edit_own_comment" type="radio" class="btn-group" label="COM_RSCOMMENTS_EDIT_OWN_COMMENT" description="COM_RSCOMMENTS_EDIT_OWN_COMMENT_DESC" default="0">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="delete_own_comment" type="radio" class="btn-group" label="COM_RSCOMMENTS_DELETE_OWN_COMMENT" description="COM_RSCOMMENTS_DELETE_OWN_COMMENT_DESC" default="0">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="edit_comments" type="radio" class="btn-group" label="COM_RSCOMMENTS_EDIT_COMMENTS" description="COM_RSCOMMENTS_EDIT_COMMENTS_DESC" default="0">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="delete_comments" type="radio" class="btn-group" label="COM_RSCOMMENTS_DELETE_COMMENTS" description="COM_RSCOMMENTS_DELETE_COMMENTS_DESC" default="0">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="bbcode" type="radio" class="btn-group" label="COM_RSCOMMENTS_ENABLE_BBCODE" description="COM_RSCOMMENTS_ENABLE_BBCODE_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="vote_comments" type="radio" class="btn-group" label="COM_RSCOMMENTS_VOTE_COMMENTS" description="COM_RSCOMMENTS_VOTE_COMMENTS_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="auto_subscribe_thread" type="radio" class="btn-group" label="COM_RSCOMMENTS_AUTO_SUBSCRIBE_TO_THREAD" description="COM_RSCOMMENTS_AUTO_SUBSCRIBE_TO_THREAD_DESC" default="0">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="close_thread" type="radio" class="btn-group" label="COM_RSCOMMENTS_CLOSE_THREAD" description="COM_RSCOMMENTS_CLOSE_THREAD_DESC" default="0">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="enable_reply" type="radio" class="btn-group" label="COM_RSCOMMENTS_ENABLE_REPLY" description="COM_RSCOMMENTS_ENABLE_REPLY_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+		</fieldset>
+		
+		<fieldset name="publishing" label="COM_RSCOMMENTS_PUBLISHING">
+			<field name="publish_comments" type="radio" class="btn-group" label="COM_RSCOMMENTS_PUBLISHING" description="COM_RSCOMMENTS_PUBLISH_COMMENTS_DESC" default="0">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="autopublish" type="radio" class="btn-group" label="COM_RSCOMMENTS_AUTOPUBLISH" description="COM_RSCOMMENTS_AUTOPUBLISH_DESC" default="0">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+		</fieldset>
+		
+		<fieldset name="security" label="COM_RSCOMMENTS_SECURITY">
+			<field name="show_emails" type="radio" class="btn-group" label="COM_RSCOMMENTS_SHOW_EMAILS" description="COM_RSCOMMENTS_SHOW_EMAILS_DESC" default="0">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="view_ip" type="radio" class="btn-group" label="COM_RSCOMMENTS_VIEW_IP" description="COM_RSCOMMENTS_VIEW_IP_DESC" default="0">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="captcha" type="radio" class="btn-group" label="COM_RSCOMMENTS_ENABLE_CAPTCHA" description="COM_RSCOMMENTS_ENABLE_CAPTCHA_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="censored" type="radio" class="btn-group" label="COM_RSCOMMENTS_CENSORED" description="COM_RSCOMMENTS_CENSORED_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="flood_control" type="radio" class="btn-group" label="COM_RSCOMMENTS_FLOOD_CONTROL" description="COM_RSCOMMENTS_FLOOD_CONTROL_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="check_names" type="radio" class="btn-group" label="COM_RSCOMMENTS_CHECK_NAMES" description="COM_RSCOMMENTS_CHECK_NAMES_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+		</fieldset>
+		
+		<fieldset name="bbcode" label="COM_RSCOMMENTS_GROUPS_SETTINGS_BBCODE">
+			<field name="bb_bold" type="radio" class="btn-group" label="COM_RSCOMMENTS_BB_BOLD" description="COM_RSCOMMENTS_BB_BOLD_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="bb_italic" type="radio" class="btn-group" label="COM_RSCOMMENTS_BB_ITALIC" description="COM_RSCOMMENTS_BB_ITALIC_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="bb_underline" type="radio" class="btn-group" label="COM_RSCOMMENTS_BB_UNDERLINE" description="COM_RSCOMMENTS_BB_UNDERLINE_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="bb_stroke" type="radio" class="btn-group" label="COM_RSCOMMENTS_BB_STROKE" description="COM_RSCOMMENTS_BB_STROKE_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="bb_quote" type="radio" class="btn-group" label="COM_RSCOMMENTS_BB_QUOTE" description="COM_RSCOMMENTS_BB_QUOTE_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="bb_lists" type="radio" class="btn-group" label="COM_RSCOMMENTS_BB_LISTS" description="COM_RSCOMMENTS_BB_LISTS_DESC" default="1">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="bb_image" type="radio" class="btn-group" label="COM_RSCOMMENTS_BB_IMAGE" description="COM_RSCOMMENTS_BB_IMAGE_DESC" default="0">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="bb_url" type="radio" class="btn-group" label="COM_RSCOMMENTS_BB_URL" description="COM_RSCOMMENTS_BB_URL_DESC" default="0">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="bb_code" type="radio" class="btn-group" label="COM_RSCOMMENTS_BB_CODE" description="COM_RSCOMMENTS_BB_CODE_DESC" default="0">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+			<field name="bb_videos" type="radio" class="btn-group" label="COM_RSCOMMENTS_BB_VIDEOS" description="COM_RSCOMMENTS_BB_VIDEOS_DESC" default="0">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+		</fieldset>
+	</fields>
+</form>

@@ -1,0 +1,238 @@
+.rscDetails li {
+	margin-bottom: 15px !important;
+}
+
+.rscDetails li label {
+    display: block;
+}
+
+.rsc_avatar {
+	float:left;
+}
+
+.rsc_name {
+	float:left;
+}
+
+.rsc_options {
+	float:right;
+	margin-top: 6px;
+}
+
+.rsc_comment_container {
+	clear: both;
+	margin-bottom: 14px;
+	width: 100%;
+}
+
+.rsc_avatar_container_on {
+    float: left;
+    width: 12%;
+}
+
+.rsc_avatar_container_off{
+	visibility:hidden;
+}
+
+.rsc_cloud_comment_on, 
+.rsc_cloud_comment_off {
+	background: #FFFFFF url(cloud/gradient.png) repeat-x left bottom;
+	border: solid 1px #959595;
+	float: left;
+	padding: 1%;
+	margin-left: 12px;
+	width: 95%;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+.rsc_cloud_comment_off {
+	width:96%;
+}
+
+.rsc_right_container_on {
+	float: right;
+	width: 87%;
+}
+
+.rsc_right_container_off{
+	float: right;
+	width: 100%;
+}
+
+.rsc_cloud_container {
+	position: relative;
+}
+
+.rsc_author {
+	clear: both;
+	padding-left: 14px;
+	display: block;
+}
+
+.rsc_clear {
+	display: block;
+	clear: both;
+	font-size: 1px;
+	height: 1px;
+}
+
+.rsc_subject {
+	display: block;
+	font-weight: bold;
+	color: #B8002E;
+	float: left;
+}
+
+.rsc_voting { 
+	float: right; 
+}
+
+.rsc_attachment a {
+	line-height:16px;
+}
+
+.rsc_attachment img{
+	display:block;
+	float:left;
+}
+
+.rsc_author strong {
+	float:left;
+}
+
+.rsc_author small {
+	float: right;
+}
+
+#commentlen {
+	margin-left:142px;
+}
+
+.rsc_rq ,
+.rsc_reply, 
+.rsc_button {
+	display:block; 
+	float:left; 
+	width:100px;
+	text-align:center !important;
+	color:#4f4f4f;
+	border:1px solid #959595;
+	padding:3px 6px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	cursor: pointer;
+}
+
+.rsc_rq:hover,
+.rsc_reply:hover,
+.rsc_button:hover {
+	background:#DFDFDF !important;
+}
+
+.rsc_rq a,
+.rsc_reply a {
+	text-decoration:none !important;
+}
+
+.rsc_rq a:hover,
+.rsc_rq a:focus,
+.rsc_rq a:active,
+.rsc_reply a:hover,
+.rsc_reply a:focus,
+.rsc_reply a:active {
+	background: none repeat scroll 0 0 transparent !important;
+	color: #095197;
+}
+
+.rsc_reply{
+	margin:0px 3px;
+}
+
+.rsc_buttons_container {
+	float:right;
+}
+
+.rsc_comment_box_form {
+	width:100%;
+}
+
+.rsc_comment_box {
+	width:100%;
+}
+
+#rsc_loading_top, #rsc_loading_form {
+    float: left;
+    margin-right: 14px;
+    margin-top: 8px;
+}
+
+.rsc_button {
+	margin:0px 8px;
+}
+
+.rsc_input {
+	height:18px;
+}
+
+.rsc_options a:hover,
+.rsc_options a:active,
+.rsc_options a:focus  {
+	background: none repeat scroll 0 0 transparent !important;
+	color: #095197 !important;
+}
+
+.rsc_voting a:hover,
+.rsc_voting a:active,
+.rsc_voting a:focus  {
+	background: none repeat scroll 0 0 transparent !important;
+	color: #095197 !important;
+}
+
+.rsc_author a:hover,
+.rsc_author a:active,
+.rsc_author a:focus  {
+	background: none repeat scroll 0 0 transparent !important;
+	color: #095197 !important;
+}
+
+#rsc_global_pagination {
+	width: 100%;
+	margin-bottom: 15px;
+}
+
+#rsc_global_pagination  a {
+	display: inline;
+	float: none;
+	text-decoration: none !important;
+}
+
+.rsc_message {
+	background: #FFFFE0;
+	border-bottom: 2px solid #C7C7C7;
+	border-top: 2px solid #C7C7C7;
+	font-weight: bold;
+	padding: 7px;
+	text-align:center !important;
+	margin-bottom: 5px;
+}
+
+.rsc_modified {
+	background: #efefef !important;
+	background: -moz-linear-gradient(top,  #efefef 0%, #ebebeb 50%, #e6e6e6 51%, #fefefe 100%) !important;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#efefef), color-stop(50%,#ebebeb), color-stop(51%,#e6e6e6), color-stop(100%,#fefefe)) !important;
+	background: -webkit-linear-gradient(top,  #efefef 0%,#ebebeb 50%,#e6e6e6 51%,#fefefe 100%) !important;
+	background: -o-linear-gradient(top,  #efefef 0%,#ebebeb 50%,#e6e6e6 51%,#fefefe 100%) !important;
+	background: -ms-linear-gradient(top,  #efefef 0%,#ebebeb 50%,#e6e6e6 51%,#fefefe 100%) !important;
+	background: linear-gradient(top,  #efefef 0%,#ebebeb 50%,#e6e6e6 51%,#fefefe 100%) !important;
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#efefef', endColorstr='#fefefe',GradientType=0 ) !important;
+	border-color: #ABBBCC #A7B6C7 #A1AFBF;
+	border-style: solid;
+	border-width: 1px;
+	border-radius: 6px;
+	-moz-border-radius: 6px;
+	-webkit-border-radius: 6px;
+	display: inline;
+	padding: 5px;
+}

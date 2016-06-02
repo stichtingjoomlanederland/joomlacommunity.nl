@@ -7,7 +7,7 @@
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>contact@nielsvanderveer.me</authorEmail>
 	<authorUrl>www.nielsvanderveer.me</authorUrl>
-	<version>1.0.0</version>
+	<version>1.1.0</version>
 	<description>MOD_JOOMLAVERSIONS_XML_DESCRIPTION</description>
 	<files>
 		<filename module="mod_joomlaversions">mod_joomlaversions.php</filename>
@@ -20,6 +20,9 @@
 		<language tag="en-GB">en-GB/en-GB.mod_joomlaversions.ini</language>
 		<language tag="en-GB">en-GB/en-GB.mod_joomlaversions.sys.ini</language>
 	</languages>
+	<updateservers>
+		<server type="extension" priority="2" name="mod_joomlaversions update server">https://raw.githubusercontent.com/n9iels/mod_joomlaversions/master/update.xml</server>
+	</updateservers>
 	<config>
 		<fields name="params">
 			<fieldset name="basic">
@@ -32,11 +35,15 @@
 				/>
 				<field
 					name="prefixes"
-					type="text"
+					type="list"
 					default="3"
 					label="MOD_JOOMLAVERSIONS_FIELD_PREFIXES_LABEL"
-				    description="MOD_JOOMLAVERSIONS_FIELD_PREFIXES_DESC"
-				/>
+					description="MOD_JOOMLAVERSIONS_FIELD_PREFIXES_DESC"
+				    multiple="true"
+				>
+					<option value="2">MOD_JOOMLAVERSIONS_FIELD_PREFIXES_J2</option>
+					<option value="3">MOD_JOOMLAVERSIONS_FIELD_PREFIXES_J3</option>
+				</field>
 			</fieldset>
 			<fieldset name="advanced">
 				<field

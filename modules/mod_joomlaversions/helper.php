@@ -88,7 +88,7 @@ class ModJoomlaVersionsHelper
 	{
 		// Get input variables
 		$url      = JFactory::getApplication()->input->get('update_url', null, 'raw');
-		$prefixes = explode(",", JFactory::getApplication()->input->get('prefixes', null, 'raw'));
+		$prefixes = JFactory::getApplication()->input->get('prefixes', null, 'raw');
 
 		// Get response
 		$response = self::getLatest(self::getJoomlaVersions($url), $prefixes);

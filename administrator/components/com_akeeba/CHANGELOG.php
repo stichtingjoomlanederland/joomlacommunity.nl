@@ -1,28 +1,13 @@
 <?php die();?>
-Akeeba Backup 4.7.2
-================================================================================
-! Multipart backups are broken
-+ Automatic detection and working around of temporary data load failure
-# [HIGH] The backup would immediately fail in many cases due to a partially backported feature from Akeeba Backup 5
-# [MEDIUM] Sometimes the back-end wouldn't load complaining that a class is already loaded
-
-Akeeba Backup 4.7.1
-================================================================================
-! Too many update sites were being removed while trying to set up the 5.0 update site
-
-Akeeba Backup 4.7.0
+Akeeba Backup 4.6.2
 ================================================================================
 + Improved detection and removal of duplicate update sites
-- Google Drive: Removed "Download to browser" feature since it's not supported
 ~ Remove obsolete FOF 2.x update site if it exists
-~ More rigorous handling of database driver interconnect
-~ ANGIE (restoration script): Reset APC cache after the restoration is complete (NB! Only if you use ANGIE's Remove Installation Directory feature)
 # [HIGH] Joomla! "Conservative" cache bug: you could not enter the Download ID when prompted
 # [HIGH] Joomla! "Conservative" cache bug: you could not apply the proposed Secret Word when prompted
 # [HIGH] Joomla! "Conservative" cache bug: component Options (e.g. Download ID, Secret Word, front-end backup feature) would be forgotten on the next page load
 # [HIGH] Joomla! "Conservative" cache bug: the "How do I restore" popup can never be made to not display
 # [MEDIUM] Fixed Rackspace CloudFiles when using a region different then London
-# [LOW] The "How to restore" modal would appear every time you saved the component's Options
 
 Akeeba Backup 4.6.1
 ================================================================================

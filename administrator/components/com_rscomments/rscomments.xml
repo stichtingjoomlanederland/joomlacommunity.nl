@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="2.5" method="upgrade">
+	<name>com_rscomments</name>
+	<creationDate>03.10.2012</creationDate>
+	<author>www.rsjoomla.com</author>
+	<copyright>(C) 2010 www.rsjoomla.com</copyright>
+	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
+	<authorEmail>support@rsjoomla.com</authorEmail>
+	<authorUrl>www.rsjoomla.com</authorUrl>
+	<version>1.13.5</version>
+	<description>With RSComments! you can add commenting to articles, blogs and other Joomla! extensions on your website.</description>
+	<scriptfile>script.rscomments.php</scriptfile>
+
+	<updateservers>
+		<server type="extension" priority="1" name="RSComments!">https://www.rsjoomla.com/updates/com_rscomments/Component/com_rscomments_2.5-3.0.xml</server>
+	</updateservers>
+	
+	<install>
+		<sql>
+			<file driver="mysql" charset="utf8">install.sql</file>
+		</sql>
+	</install>
+
+	<uninstall>
+		<sql>
+			<file driver="mysql" charset="utf8">uninstall.sql</file>
+		</sql>
+	</uninstall>
+
+	<files folder="site">
+		<folder>assets</folder>
+		<folder>controllers</folder>
+		<folder>designs</folder>
+		<folder>helpers</folder>
+		<folder>models</folder>
+		<folder>views</folder>
+		<filename>controller.php</filename>
+		<filename>index.html</filename>
+		<filename>router.php</filename>
+		<filename>rscomments.php</filename>
+	</files>
+
+	<languages>
+		<language tag="en-GB">languages/site/en-GB.com_rscomments.ini</language>
+	</languages>
+
+	<administration>
+		<menu img="../administrator/components/com_rscomments/assets/images/rscomments.gif">COM_RSCOMMENTS</menu>
+		<submenu>
+			<menu link="option=com_rscomments">COM_RSCOMMENTS_MENU_OVERVIEW</menu>
+			<menu link="option=com_rscomments&amp;view=comments">COM_RSCOMMENTS_MENU_COMMENTS</menu>
+			<menu link="option=com_rscomments&amp;view=emoticons">COM_RSCOMMENTS_MENU_EMOTICONS</menu>
+			<menu link="option=com_rscomments&amp;view=subscriptions">COM_RSCOMMENTS_MENU_SUBSCRIPTIONS</menu>
+			<menu link="option=com_rscomments&amp;view=groups">COM_RSCOMMENTS_MENU_GROUPS</menu>
+			<menu link="option=com_rscomments&amp;view=import">COM_RSCOMMENTS_MENU_IMPORT</menu>
+			<menu link="option=com_rscomments&amp;view=messages">COM_RSCOMMENTS_MENU_MESSAGES</menu>
+			<menu link="option=com_rscomments&amp;view=updates">COM_RSCOMMENTS_MENU_UPDATES</menu>
+		</submenu>
+		
+		<files folder="admin">
+			<filename>install.sql</filename>
+			<filename>uninstall.sql</filename>
+			
+			<folder>assets</folder>
+			<folder>controllers</folder>
+			<folder>helpers</folder>
+			<folder>models</folder>
+			<folder>tables</folder>
+			<folder>views</folder>
+			<filename>access.xml</filename>
+			<filename>config.xml</filename>
+			<filename>controller.php</filename>
+			<filename>index.html</filename>
+			<filename>rscomments.php</filename>
+		</files>
+
+		<languages>
+			<language tag="en-GB">languages/admin/en-GB.com_rscomments.ini</language>
+			<language tag="en-GB">languages/admin/en-GB.com_rscomments.sys.ini</language>
+		</languages>
+
+	</administration>
+</extension>

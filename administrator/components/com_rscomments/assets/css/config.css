@@ -1,0 +1,16 @@
+.form-horizontal .control-group .control-label {
+	width: 185px; 
+	word-wrap: break-word;
+} 
+.rs_title label {
+	font-size: 18px;
+	sline-height: 20px;
+	margin: 12px 0;
+	font-weight: bold;
+	width:204px;
+}
+
+ul.config-option-list > li > label {
+    width: 135px;
+    word-wrap: break-word;
+}
