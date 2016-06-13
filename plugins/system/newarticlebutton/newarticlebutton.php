@@ -3,30 +3,30 @@ defined('_JEXEC') or die;
 
 class PlgSystemNewArticleButton extends JPlugin
 {
-    protected $autoloadLanguage = true;
+	protected $autoloadLanguage = true;
 
-    public function onBeforeRender()
-    {
-        // get information
-        $doc    = JFactory::getDocument();
-        $user   = JFactory::getUser();
-        $option = JRequest::getCmd( 'option' );
-        $view   = JRequest::getCmd( 'view' );
+	public function onBeforeRender()
+	{
+		// get information
+		$doc    = JFactory::getDocument();
+		$user   = JFactory::getUser();
+		$option = JRequest::getCmd( 'option' );
+		$view   = JRequest::getCmd( 'view' );
 
-        // check if user is guest
-        if($user->guest) {
-            return true;
-        }
+		// check if user is guest
+		if($user->guest) {
+			return true;
+		}
 
-        // check if user can edit
-        if(!$user->authorise('core.edit.own', 'com_content')) {
-            return true;
-        }
+		// check if user can edit
+		if(!$user->authorise('core.create', 'com_content')) {
+			return true;
+		}
 
-        // check if current page is a category blog
-        if ($option == 'com_content' && $view == 'category')
-        {
-            $catid   = JRequest::getVar('id');
+		// check if current page is a category blog
+		if ($option == 'com_content' && $view == 'category')
+		{
+			$catid   = JRequest::getVar('id');
 
 			// Get category name
 			$db    = JFactory::getDbo();
@@ -39,10 +39,10 @@ class PlgSystemNewArticleButton extends JPlugin
 			$db->setQuery($query);
 			$catname = $db->loadResult();
 
-        	$editurl = JRoute::_('index.php?option=com_content&view=form&layout=edit&catid=' . $catid);
+			$editurl = JRoute::_('index.php?option=com_content&view=form&layout=edit&catid=' . $catid);
 
-            // create output
-            $output = '<a href="' . $editurl . '" class="btn btn-success btn-new-article"><span class="fa fa-plus"></span>';
+			// create output
+			$output = '<a href="' . $editurl . '" class="btn btn-success btn-new-article"><span class="fa fa-plus"></span>';
 
 			// Button text
 			if (!empty($this->params->get('buttontext'))) {
@@ -58,11 +58,11 @@ class PlgSystemNewArticleButton extends JPlugin
 			}
 
 			$output .= '</a>';
-            $output .= $doc->getBuffer('component');
+			$output .= $doc->getBuffer('component');
 
-            // place button
-            $doc->setBuffer($output, "component");
-        }
-    }
+			// place button
+			$doc->setBuffer($output, "component");
+		}
+	}
 }
 ?>
