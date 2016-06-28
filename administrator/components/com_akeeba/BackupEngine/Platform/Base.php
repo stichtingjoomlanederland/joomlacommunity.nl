@@ -15,9 +15,10 @@ namespace Akeeba\Engine\Platform;
 defined('AKEEBAENGINE') or die();
 
 use Akeeba\Engine\Base\Object;
+use Akeeba\Engine\Factory;
+use Akeeba\Engine\Platform\Exception\DecryptionException;
 use Akeeba\Engine\Util\ParseIni;
 use Psr\Log\LogLevel;
-use Akeeba\Engine\Factory;
 
 abstract class Base implements PlatformInterface
 {
@@ -29,6 +30,9 @@ abstract class Base implements PlatformInterface
 
 	/** @var array Configuration overrides */
 	public $configOverrides = array();
+
+	/** @var bool Should I throw an exception when settings decryption fails? */
+	public $decryptionException = false;
 
 	/** @var string The name of the table where backup profiles are stored */
 	public $tableNameProfiles = '#__ak_profiles';
@@ -74,17 +78,17 @@ abstract class Base implements PlatformInterface
 		}
 
 		// Get an INI format registry dump
-		$registry = Factory::getConfiguration();
+		$registry     = Factory::getConfiguration();
 		$dump_profile = $registry->exportAsINI();
 
 		// Encrypt the registry dump if required
 		$secureSettings = Factory::getSecureSettings();
-		$dump_profile = $secureSettings->encryptSettings($dump_profile);
+		$dump_profile   = $secureSettings->encryptSettings($dump_profile);
 
 		$sql = $db->getQuery(true)
-			->update($db->qn($this->tableNameProfiles))
-			->set($db->qn('configuration') . ' = ' . $db->q($dump_profile))
-			->where($db->qn('id') . ' = ' . $db->q($profile_id));
+		          ->update($db->qn($this->tableNameProfiles))
+		          ->set($db->qn('configuration') . ' = ' . $db->q($dump_profile))
+		          ->where($db->qn('id') . ' = ' . $db->q($profile_id));
 		$db->setQuery($sql);
 
 		try
@@ -102,9 +106,11 @@ abstract class Base implements PlatformInterface
 	/**
 	 * Loads the current configuration off the database table
 	 *
-	 * @param    int $profile_id The profile where to read the configuration from, defaults to current profile
+	 * @param   int  $profile_id  The profile where to read the configuration from, defaults to current profile
 	 *
-	 * @return    bool    True if everything was read properly
+	 * @return  bool  True if everything was read properly
+	 *
+	 * @throws  DecryptionException  When the settings cannot be decrypted
 	 */
 	public function load_configuration($profile_id = null)
 	{
@@ -121,82 +127,102 @@ abstract class Base implements PlatformInterface
 		$registry = Factory::getConfiguration();
 		$registry->reset();
 
-		// Load the INI format local configuration dump off the database
-		if ($db->connected())
+		// Is the database connected?
+		if (!$db->connected())
 		{
-			$sql = $db->getQuery(true)
-				->select($db->qn('configuration'))
-				->from($db->qn($this->tableNameProfiles))
-				->where($db->qn('id') . ' = ' . $db->q($profile_id));
+			return false;
+		}
 
-			$db->setQuery($sql);
-			$ini_data_local = $db->loadResult();
-			if (empty($ini_data_local) || is_null($ini_data_local))
+		// Load the INI format local configuration dump off the database
+		$sql = $db->getQuery(true)
+		          ->select($db->qn('configuration'))
+		          ->from($db->qn($this->tableNameProfiles))
+		          ->where($db->qn('id') . ' = ' . $db->q($profile_id));
+
+		$db->setQuery($sql);
+		$databaseData = $db->loadResult();
+
+		if (empty($databaseData) || is_null($databaseData))
+		{
+			// No configuration was saved yet - store the defaults
+			$this->save_configuration($profile_id);
+
+			return $this->load_configuration($profile_id);
+		}
+
+		// Configuration found. Convert to array format.
+		if (function_exists('get_magic_quotes_runtime'))
+		{
+			if (@get_magic_quotes_runtime())
 			{
-				// No configuration was saved yet - store the defaults
-				$this->save_configuration($profile_id);
+				$databaseData = stripslashes($databaseData);
 			}
-			else
+		}
+
+		// Decrypt the data if required
+		$secureSettings = Factory::getSecureSettings();
+		$noData         = empty($databaseData);
+		$databaseData   = $secureSettings->decryptSettings($databaseData);
+		$dataArray      = ParseIni::parse_ini_file($databaseData, true, true);
+		$parsedData     = array();
+
+		// Did the decryption fail and we were asked to throw an exception?
+		if ($this->decryptionException && !$noData)
+		{
+			// No decrypted data
+			if (empty($databaseData))
 			{
-				// Configuration found. Convert to array format.
-				if (function_exists('get_magic_quotes_runtime'))
-				{
-					if (@get_magic_quotes_runtime())
-					{
-						$ini_data_local = stripslashes($ini_data_local);
-					}
-				}
-				// Decrypt the data if required
-				$secureSettings = Factory::getSecureSettings();
-				$ini_data_local = $secureSettings->decryptSettings($ini_data_local);
-
-				$ini_data_local = ParseIni::parse_ini_file($ini_data_local, true, true);
-				$ini_data = array();
-
-				foreach ($ini_data_local as $section => $row)
-				{
-					if ($section == 'volatile')
-					{
-						continue;
-					}
-
-					if (is_array($row) && !empty($row))
-					{
-						foreach ($row as $key => $value)
-						{
-							$ini_data["$section.$key"] = $value;
-						}
-					}
-				}
-				unset($ini_data_local);
-
-				// Import the configuration array
-				$protected_keys = $registry->getProtectedKeys();
-				$registry->resetProtectedKeys();
-				$registry->mergeArray($ini_data, false, false);
-
-				// Old profiles have advanced.proc_engine instead of advanced.postproc_engine. Migrate them.
-				$procEngine = $registry->get('akeeba.advanced.proc_engine', null);
-
-				if (!empty($procEngine))
-				{
-					$registry->set('akeeba.advanced.postproc_engine', $procEngine);
-					$registry->set('akeeba.advanced.proc_engine', null);
-				}
-
-				$registry->setProtectedKeys($protected_keys);
+				throw new DecryptionException;
 			}
+
+			// Corrupt data
+			if (!strstr($databaseData, '[akeeba]'))
+			{
+				throw new DecryptionException;
+			}
+		}
+
+		unset($databaseData);
+
+		foreach ($dataArray as $section => $row)
+		{
+			if ($section == 'volatile')
+			{
+				continue;
+			}
+
+			if (is_array($row) && !empty($row))
+			{
+				foreach ($row as $key => $value)
+				{
+					$parsedData["$section.$key"] = $value;
+				}
+			}
+		}
+
+		unset($dataArray);
+
+		// Import the configuration array
+		$protected_keys = $registry->getProtectedKeys();
+		$registry->resetProtectedKeys();
+		$registry->mergeArray($parsedData, false, false);
+
+		// Old profiles have advanced.proc_engine instead of advanced.postproc_engine. Migrate them.
+		$procEngine = $registry->get('akeeba.advanced.proc_engine', null);
+
+		if (!empty($procEngine))
+		{
+			$registry->set('akeeba.advanced.postproc_engine', $procEngine);
+			$registry->set('akeeba.advanced.proc_engine', null);
 		}
 
 		// Apply config overrides
 		if (is_array($this->configOverrides) && !empty($this->configOverrides))
 		{
-			$protected_keys = $registry->getProtectedKeys();
-			$registry->resetProtectedKeys();
 			$registry->mergeArray($this->configOverrides, false, false);
-			$registry->setProtectedKeys($protected_keys);
 		}
 
+		$registry->setProtectedKeys($protected_keys);
 		$registry->activeProfile = $profile_id;
 	}
 

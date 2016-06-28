@@ -12,7 +12,6 @@ defined('_JEXEC') or die();
 
 use Akeeba\Backup\Admin\Model\Profiles;
 use Akeeba\Backup\Admin\Model\Statistics;
-use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use DateTimeZone;
 use FOF30\View\DataView\Html as BaseView;
@@ -131,7 +130,7 @@ class Html extends BaseView
 	 *
 	 * @var  bool
 	 */
-	public $promptForConfigurationWizard = false;
+	public $promptForBackupRestoration = false;
 
 	/**
 	 * Sorting order options
@@ -255,7 +254,7 @@ JS;
 		$this->dateFormat = !empty($dateFormat) ? $dateFormat : JText::_('DATE_FORMAT_LC4');
 
 		// Should I show the prompt for the configuration wizard?
-		$this->promptForConfigurationWizard = Factory::getConfiguration()->get('akeeba.flag.confwiz', 0) == 0;
+		$this->promptForBackupRestoration = $this->container->params->get('show_howtorestoremodal', 1) != 0;
 
 		// Construct the array of sorting fields
 		$this->sortFields = array(

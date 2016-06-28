@@ -87,11 +87,12 @@ class FileFilters extends Model
 
 		// Get a listing of folders and process it
 		$folders = Factory::getFileLister()->getFolders($directory);
-		asort($folders);
 		$folders_out = array();
 
 		if (!empty($folders))
 		{
+			asort($folders);
+
 			foreach ($folders as $folder)
 			{
 				$folder = Factory::getFilesystemTools()->TranslateWinPath($folder);
@@ -130,11 +131,12 @@ class FileFilters extends Model
 
 		// Get a listing of files and process it
 		$files = Factory::getFileLister()->getFiles($directory);
-		asort($files);
 		$files_out = array();
 
 		if (!empty($files))
 		{
+			asort($files);
+
 			foreach ($files as $file)
 			{
 				// Filter out files whose names result to an empty JSON representation

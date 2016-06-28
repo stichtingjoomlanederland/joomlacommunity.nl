@@ -10,6 +10,7 @@ namespace Akeeba\Backup\Admin\Dispatcher;
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
+use Akeeba\Backup\Admin\Model\ControlPanel;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use FOF30\Container\Container;
@@ -114,10 +115,25 @@ class Dispatcher extends BaseDispatcher
 		}
 
 		// Load the Akeeba Engine configuration
-		Platform::addPlatform('joomla3x', JPATH_COMPONENT_ADMINISTRATOR . '/BackupPlatform/Joomla3x');
-		$akeebaEngineConfig = Factory::getConfiguration();
-		Platform::getInstance()->load_configuration();
-		unset($akeebaEngineConfig);
+		try
+		{
+			Platform::addPlatform('joomla3x', JPATH_COMPONENT_ADMINISTRATOR . '/BackupPlatform/Joomla3x');
+			$akeebaEngineConfig = Factory::getConfiguration();
+			Platform::getInstance()->load_configuration();
+			unset($akeebaEngineConfig);
+		}
+		catch (\Exception $e)
+		{
+			// Maybe the tables are not installed?
+			/** @var ControlPanel $cPanelModel */
+			$cPanelModel = $this->container->factory->model('ControlPanel')->tmpInstance();
+			$cPanelModel->checkAndFixDatabase();
+
+			$msg = \JText::_('COM_AKEEBA_CONTROLPANEL_MSG_REBUILTTABLES');
+			$app = \JFactory::getApplication();
+			$app->enqueueMessage($msg, 'warning');
+			$app->redirect('index.php', 307);
+		}
 
 		// Prevents the "SQLSTATE[HY000]: General error: 2014" due to resource sharing with Akeeba Engine
 		// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -104,6 +104,8 @@ class rseventsproModelSubscriptions extends JModelList
 		$listDirn = $db->escape($this->getState('list.direction', 'desc'));
 		$query->order($db->qn($listOrdering).' '.$listDirn);
 		
+		JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
+		
 		return $query;
 	}
 	
@@ -158,7 +160,6 @@ class rseventsproModelSubscriptions extends JModelList
 			JHtml::_('select.option', 'u.name', JText::_('COM_RSEVENTSPRO_SUBSCRIPTIONS_SORT_NAME')),
 			JHtml::_('select.option', 'e.name', JText::_('COM_RSEVENTSPRO_SUBSCRIPTIONS_SORT_EVENT_NAME')),
 			JHtml::_('select.option', 'u.gateway', JText::_('COM_RSEVENTSPRO_SUBSCRIPTIONS_SORT_GATEWAY')),
-			JHtml::_('select.option', 'u.confirmed', JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_HEAD_CONFIRMED')),
 			JHtml::_('select.option', 'u.state', JText::_('JSTATUS'))
 		);
 		$options['rightItems'] = array(
@@ -214,24 +215,5 @@ class rseventsproModelSubscriptions extends JModelList
 	public function export() {
 		$query = $this->getListQuery();
 		rseventsproHelper::exportSubscribersCSV($query);
-	}
-	
-	/**
-	 *	Method to get event details
-	 */
-	public function getEvent() {
-		$db		= JFactory::getDbo();
-		$query	= $db->getQuery(true);
-		$input	= JFactory::getApplication()->input;
-		$ticket	= $input->getString('ticket','');
-		$ids	= str_replace(rseventsproHelper::getConfig('barcode_prefix', 'string', 'RST-'),'',$ticket);
-		
-		$query->select($db->qn('e.name'))
-			->select($db->qn('e.start'))->select($db->qn('e.end'))
-			->from($db->qn('#__rseventspro_events','e'))
-			->join('LEFT',$db->qn('#__rseventspro_users','u').' ON '.$db->qn('e.id').' = '.$db->qn('u.ide'))
-			->where($db->qn('u.id').' = '.(int) $ids);
-		$db->setQuery($query);
-		return $db->loadObject();
 	}
 }

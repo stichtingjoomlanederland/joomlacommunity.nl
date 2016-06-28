@@ -14,10 +14,10 @@ namespace Akeeba\Engine\Core\Domain;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Psr\Log\LogLevel;
 use Akeeba\Engine\Base\Part;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
+use Psr\Log\LogLevel;
 
 /**
  * Installer deployment
@@ -196,12 +196,14 @@ ENDHTML;
 		$host = Platform::getInstance()->get_host();
 		$backupdate = gmdate('Y-m-d H:i:s');
 		$phpversion = PHP_VERSION;
+		$rootPath = Platform::getInstance()->get_site_root();
 		$ret = <<<ENDINI
 ; Akeeba Backup $abversion - Extra information used during restoration
 host="$host"
 backup_date="$backupdate"
 akeeba_version="$abversion"
 php_version="$phpversion"
+root="$rootPath"
 ENDINI;
 
 		return $ret;

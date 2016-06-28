@@ -1,6 +1,6 @@
 jQuery(document).ready(function() {
 	if (jQuery('#rs_repeats_control').length) {
-		if (parseInt(jQuery('#rs_repeats').prop('scrollHeight')) > 70)
+		if (parseInt(jQuery('#rs_repeats').prop('scrollHeight')) > 75)
 			jQuery('#rs_repeats_control').css('display','');
 	}
 	
@@ -173,12 +173,48 @@ function rse_verify_coupon(ide, coupon) {
 	}
 	
 	rse_root = typeof rsepro_root != 'undefined' ? rsepro_root : '';
+	params	 = 'task=verify&id=' + ide + '&coupon=' + coupon;
+	
+	if (multitickets) {
+		jQuery('#rsepro-cart-details input').each(function() {
+			params += '&' + jQuery(this).prop('name')+ '=' + jQuery(this).val();
+		});
+	} else {
+		if (jQuery('#rsepro-cart-details input[name^="unlimited"]').length || jQuery('#rsepro-cart-details tr[id^="rsepro-seat-"]').length) {
+			jQuery('#rsepro-cart-details input[name^="unlimited"]').each(function() {
+				params += '&tickets['+jQuery(this).prop('name').replace('unlimited[','').replace(']','')+']='+jQuery(this).val();
+			});
+			
+			jQuery('#rsepro-cart-details tr[id^="rsepro-seat-"]').each(function() {
+				params += '&tickets['+jQuery(this).prop('id').replace('rsepro-seat-','')+']='+jQuery(this).find('input').length;
+			});
+		} else {
+			var ticketId		= jQuery('#RSEProTickets').length ? jQuery('#RSEProTickets').val() : jQuery('#ticket').val();
+			var numberOfTickets = jQuery('#from').val() == 0 ? jQuery('#numberinp').val() : jQuery('#number').val();
+		
+			params += '&tickets['+ticketId+']='+numberOfTickets;
+		}
+	}
+	
+	if (jQuery('select[name=payment]').length) {
+		params += '&payment=' + jQuery('#payment').val();
+	} else if (jQuery('input[name=payment]').length) {
+		if (jQuery('input[name=payment]:checked').length)
+			params += '&payment=' + jQuery('input[name=payment]:checked').val();
+	}
+	
+	if (jQuery('select[name^="form[RSEProPayment]"]').length) {
+		params += '&payment=' + jQuery('#RSEProPayment').val();
+	} else if (jQuery('input[name="form[RSEProPayment]"]').length) {
+		if (jQuery('input[name="form[RSEProPayment]"]:checked').length)
+			params += '&payment=' + jQuery('input[name="form[RSEProPayment]"]:checked').val();
+	}
 	
 	jQuery.ajax({
 		url: rse_root + 'index.php?option=com_rseventspro',
 		type: 'post',
 		dataType: 'html',
-		data: 'task=verify&id=' + ide + '&coupon=' + coupon
+		data: params
 	}).done(function( response ) {
 		var start = response.indexOf('RS_DELIMITER0') + 13;
 		var end = response.indexOf('RS_DELIMITER1');
@@ -1503,6 +1539,26 @@ function rsepro_reset_tickets_seats() {
 	
 	thedocument.jQuery('#rsepro-cart-details .rsepro-cart-ticket').remove();
 	thedocument.rsepro_multi_seats_total();
+}
+
+function rsepro_confirm_ticket(id, code, object) {
+	jQuery('#subscriptionConfirm').css('display','');
+	rse_root = typeof rsepro_root != 'undefined' ? rsepro_root : '';
+	
+	jQuery.ajax({
+		url: rse_root + 'index.php?option=com_rseventspro',
+		type: 'post',
+		dataType: 'json',
+		data: 'task=rseventspro.confirm&id='+ id + '&code=' + code
+	}).done(function( response ) {
+		if (response.status) {
+			if (jQuery('#subscriptionConfirm').length) {
+				jQuery(object).parent().text(Joomla.JText._('COM_RSEVENTSPRO_SUBSCRIBER_CONFIRMED'));
+			} else {
+				jQuery(object).parent().html('<span class="label label-success">' + response.message + '</span>');
+			}
+		}
+	});
 }
 
 function number_format(number, decimals, dec_point, thousands_sep) {

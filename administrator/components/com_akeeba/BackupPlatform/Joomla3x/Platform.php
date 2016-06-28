@@ -295,8 +295,11 @@ class Joomla3x extends BasePlatform
 		}
 		$id = (int)$id;
 
-		$sql = 'SELECT `description` FROM `#__ak_profiles` WHERE `id` = ' . $id;
 		$db  = Factory::getDatabase($this->get_platform_database_options());
+		$sql = $db->getQuery(true)
+		          ->select($db->qn('description'))
+		          ->from($db->qn('#__ak_profiles'))
+		          ->where($db->qn('id') . ' = ' . $db->q($id));
 		$db->setQuery($sql);
 
 		return $db->loadResult();

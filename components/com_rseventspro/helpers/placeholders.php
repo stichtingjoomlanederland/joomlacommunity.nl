@@ -54,7 +54,6 @@ class RSEventsProPlaceholders {
 			'{Gateway}' 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_GATEWAY',
 			'{IP}' 				=> 'COM_RSEVENTSPRO_PLACEHOLDER_IP',
 			'{Coupon}' 			=> 'COM_RSEVENTSPRO_PLACEHOLDER_COUPON',
-			'{barcodetext}' 	=> 'COM_RSEVENTSPRO_PLACEHOLDER_BARCODE_TEXT',
 			'{PaymentURL}' 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_PAYMENT_URL'
 		);
 		
@@ -72,9 +71,7 @@ class RSEventsProPlaceholders {
 			'{EarlyDiscount}' 	=> 'COM_RSEVENTSPRO_PLACEHOLDER_EARLY_DISCOUNT',
 			'{Gateway}' 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_GATEWAY',
 			'{IP}' 				=> 'COM_RSEVENTSPRO_PLACEHOLDER_IP',
-			'{Coupon}' 			=> 'COM_RSEVENTSPRO_PLACEHOLDER_COUPON',
-			'{barcode}'		 	=> 'COM_RSEVENTSPRO_PLACEHOLDER_BARCODE',
-			'{barcodetext}' 	=> 'COM_RSEVENTSPRO_PLACEHOLDER_BARCODE_TEXT'
+			'{Coupon}' 			=> 'COM_RSEVENTSPRO_PLACEHOLDER_COUPON'
 		);
 		
 		return array_merge(self::$globals, $activation);
@@ -83,7 +80,15 @@ class RSEventsProPlaceholders {
 	public static function unsubscribe() {
 		$unsubscribe = array(
 			'{user}'			=> 'COM_RSEVENTSPRO_PLACEHOLDER_USER',
-			'{barcodetext}' 	=> 'COM_RSEVENTSPRO_PLACEHOLDER_BARCODE_TEXT'
+			'{TicketInfo}' 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_TICKETS_INFO',
+			'{TicketsTotal}' 	=> 'COM_RSEVENTSPRO_PLACEHOLDER_TICKETS_TOTAL',
+			'{Discount}' 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_DISCOUNT',
+			'{Tax}' 			=> 'COM_RSEVENTSPRO_PLACEHOLDER_TAX',
+			'{LateFee}' 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_LATE_FEE',
+			'{EarlyDiscount}' 	=> 'COM_RSEVENTSPRO_PLACEHOLDER_EARLY_DISCOUNT',
+			'{Gateway}' 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_GATEWAY',
+			'{IP}' 				=> 'COM_RSEVENTSPRO_PLACEHOLDER_IP',
+			'{Coupon}' 			=> 'COM_RSEVENTSPRO_PLACEHOLDER_COUPON'
 		);
 		
 		return array_merge(self::$globals, $unsubscribe);
@@ -92,7 +97,15 @@ class RSEventsProPlaceholders {
 	public static function denied() {
 		$denied = array(
 			'{user}'			=> 'COM_RSEVENTSPRO_PLACEHOLDER_USER',
-			'{barcodetext}' 	=> 'COM_RSEVENTSPRO_PLACEHOLDER_BARCODE_TEXT'
+			'{TicketInfo}' 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_TICKETS_INFO',
+			'{TicketsTotal}' 	=> 'COM_RSEVENTSPRO_PLACEHOLDER_TICKETS_TOTAL',
+			'{Discount}' 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_DISCOUNT',
+			'{Tax}' 			=> 'COM_RSEVENTSPRO_PLACEHOLDER_TAX',
+			'{LateFee}' 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_LATE_FEE',
+			'{EarlyDiscount}' 	=> 'COM_RSEVENTSPRO_PLACEHOLDER_EARLY_DISCOUNT',
+			'{Gateway}' 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_GATEWAY',
+			'{IP}' 				=> 'COM_RSEVENTSPRO_PLACEHOLDER_IP',
+			'{Coupon}' 			=> 'COM_RSEVENTSPRO_PLACEHOLDER_COUPON'
 		);
 		
 		return array_merge(self::$globals, $denied);
@@ -103,8 +116,7 @@ class RSEventsProPlaceholders {
 			'{user}'			=> 'COM_RSEVENTSPRO_PLACEHOLDER_USER',
 			'{from}'			=> 'COM_RSEVENTSPRO_PLACEHOLDER_FROM',
 			'{fromname}'		=> 'COM_RSEVENTSPRO_PLACEHOLDER_FROM_NAME',
-			'{message}'			=> 'COM_RSEVENTSPRO_PLACEHOLDER_INVITE_MESSAGE',
-			'{barcodetext}' 	=> 'COM_RSEVENTSPRO_PLACEHOLDER_BARCODE_TEXT'
+			'{message}'			=> 'COM_RSEVENTSPRO_PLACEHOLDER_INVITE_MESSAGE'
 		);
 		
 		return array_merge(self::$globals, $invite);

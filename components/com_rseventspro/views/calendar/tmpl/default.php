@@ -5,7 +5,16 @@
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); 
-$nofollow = $this->params->get('nofollow',0) ? 'rel="nofollow"' : ''; ?>
+$nofollow = $this->params->get('nofollow',0) ? 'rel="nofollow"' : ''; 
+JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
+
+<script type="text/javascript">
+	var rseproMask 		= '<?php echo $this->escape($this->mask); ?>';
+	var rseproCurrency  = '<?php echo $this->escape($this->currency); ?>';
+	var rseproDecimals	= '<?php echo $this->escape($this->decimals); ?>';
+	var rseproDecimal 	= '<?php echo $this->escape($this->decimal); ?>';
+	var rseproThousands	= '<?php echo $this->escape($this->thousands); ?>';
+</script>
 
 <?php if ($this->params->get('show_page_heading', 1)) { ?>
 <?php $title = $this->params->get('page_heading', ''); ?>
@@ -29,6 +38,7 @@ $nofollow = $this->params->get('nofollow',0) ? 'rel="nofollow"' : ''; ?>
 							<a data-toggle="dropdown" class="dropdown-toggle" href="#" rel="events"><span><?php echo JText::_('COM_RSEVENTSPRO_FILTER_NAME'); ?></span> <i class="caret"></i></a>
 							<ul class="dropdown-menu">
 								<?php foreach ($this->get('filteroptions') as $option) { ?>
+								<?php if (!$this->maxPrice && $option->value == 'price') continue; ?>
 								<li><a href="javascript:void(0);" rel="<?php echo $option->value; ?>"><?php echo $option->text; ?></a></li>
 								<?php } ?>
 							</ul>
@@ -44,6 +54,20 @@ $nofollow = $this->params->get('nofollow',0) ? 'rel="nofollow"' : ''; ?>
 						<li id="rsepro-search" class="navbar-search center">
 							<input type="text" id="rsepro-filter" name="rsepro-filter" value="" size="35" />
 						</li>
+						<li id="rsepro-filter-featured" class="dropdown" style="display: none;">
+							<a data-toggle="dropdown" class="dropdown-toggle" href="#" rel="1"><span><?php echo JText::_('JYES'); ?></span> <i class="caret"></i></a>
+							<ul class="dropdown-menu">
+								<li><a href="javascript:void(0);" rel="1"><?php echo JText::_('JYES'); ?></a></li>
+								<li><a href="javascript:void(0);" rel="0"><?php echo JText::_('JNO'); ?></a></li>
+							</ul>
+						</li>
+						<?php if ($this->maxPrice) { ?>
+						<li id="rsepro-filter-price" class="dropdown" style="display: none;">
+							<span id="price-field-min" class="label rsepro-min-price"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_FREE'); ?></span>
+							<input id="price-field" type="text" value="" data-slider-min="0" data-slider-max="<?php echo $this->maxPrice; ?>" data-slider-step="1" data-slider-value="[0,<?php echo $this->maxPrice; ?>]" />
+							<span id="price-field-max" class="label rsepro-max-price"><?php echo rseventsproHelper::currency($this->maxPrice, false, 0); ?></span> 
+						</li>
+						<?php } ?>
 						<li class="divider-vertical"></li>
 						<li class="center">
 							<div class="btn-group">
@@ -57,7 +81,7 @@ $nofollow = $this->params->get('nofollow',0) ? 'rel="nofollow"' : ''; ?>
 		</div>
 		
 		<ul class="rsepro-filter-filters inline unstyled">
-			<li class="rsepro-filter-operator" <?php echo count($this->columns) > 1 ? '' : 'style="display:none"'; ?>>
+			<li class="rsepro-filter-operator" <?php echo $this->showCondition > 1 ? '' : 'style="display:none"'; ?>>
 				<div class="btn-group">
 					<a data-toggle="dropdown" class="btn btn-small dropdown-toggle" href="#"><span><?php echo ucfirst(JText::_('COM_RSEVENTSPRO_GLOBAL_'.$this->operator)); ?></span> <i class="caret"></i></a>
 					<ul class="dropdown-menu">
@@ -67,6 +91,41 @@ $nofollow = $this->params->get('nofollow',0) ? 'rel="nofollow"' : ''; ?>
 				</div>
 				<input type="hidden" name="filter_operator" value="<?php echo $this->operator; ?>" />
 			</li>
+			
+			<?php if (!is_null($price = $this->extra['price'])) { ?>
+				<li id="<?php echo sha1('price'); ?>">
+					<?php list($min, $max) = explode(',',$price,2); ?>
+					<div class="btn-group">
+						<span class="btn btn-small"><?php echo JText::_('COM_RSEVENTSPRO_FILTER_PRICE'); ?></span>
+						<span class="btn btn-small"><?php echo ($min == 0 ? JText::_('COM_RSEVENTSPRO_GLOBAL_FREE') : rseventsproHelper::currency($min, false, 0)).' - '.rseventsproHelper::currency($max, false, 0); ?></span>
+						<input type="hidden" name="filter_price[]" value="<?php echo $this->escape($price); ?>">
+						<a href="javascript:void(0)" class="btn btn-small rsepro-close">
+							<i class="icon-delete"></i>
+						</a>
+					</div>
+				</li>
+				
+				<li class="rsepro-filter-conditions" <?php echo $this->showCondition > 1 ? '' : 'style="display: none;"'; ?>>
+					<a class="btn btn-small"><?php echo ucfirst(JText::_('COM_RSEVENTSPRO_GLOBAL_'.$this->operator));?></a>
+				</li>
+			<?php } ?>
+			
+			<?php if (!is_null($featured = $this->extra['featured'])) { ?>
+				<li id="<?php echo sha1('featured'); ?>">
+					<div class="btn-group">
+						<span class="btn btn-small"><?php echo JText::_('COM_RSEVENTSPRO_FILTER_FEATURED'); ?></span>
+						<span class="btn btn-small"><?php echo $featured == 0 ? JText::_('JNO') : JText::_('JYES'); ?></span>
+						<input type="hidden" name="filter_featured[]" value="<?php echo $this->escape($featured); ?>">
+						<a href="javascript:void(0)" class="btn btn-small rsepro-close">
+							<i class="icon-delete"></i>
+						</a>
+					</div>
+				</li>
+				
+				<li class="rsepro-filter-conditions" <?php echo $this->showCondition > 1 ? '' : 'style="display: none;"'; ?>>
+					<a class="btn btn-small"><?php echo ucfirst(JText::_('COM_RSEVENTSPRO_GLOBAL_'.$this->operator));?></a>
+				</li>
+			<?php } ?>
 			
 			<?php if (!empty($this->columns)) { ?>
 			<?php for ($i=0; $i < count($this->columns); $i++) { ?>
@@ -96,11 +155,15 @@ $nofollow = $this->params->get('nofollow',0) ? 'rel="nofollow"' : ''; ?>
 		<input type="hidden" name="filter_from[]" value="">
 		<input type="hidden" name="filter_condition[]" value="">
 		<input type="hidden" name="search[]" value="">
+		<input type="hidden" name="filter_featured[]" value="">
+		<input type="hidden" name="filter_price[]" value="">
 	</div>
 	<?php } else { ?>
 	<input type="hidden" name="filter_from[]" id="filter_from" value="" />
 	<input type="hidden" name="filter_condition[]" id="filter_condition" value="" />
 	<input type="hidden" name="search[]" id="rseprosearch" value="" />
+	<input type="hidden" name="filter_featured[]" value="">
+	<input type="hidden" name="filter_price[]" value="">
 	<?php } ?>
 
 	
@@ -179,6 +242,7 @@ $nofollow = $this->params->get('nofollow',0) ? 'rel="nofollow"' : ''; ?>
 								<ul class="rsepro-calendar-events<?php echo $this->params->get('fullname',0) ? ' rsepro-full-name' : ''; ?>">
 								<?php $j = 0; ?>
 								<?php $limit = (int) $this->params->get('limit',3); ?>
+								<?php $count = count($day->events); ?>
 								<?php foreach ($day->events as $event) { ?>
 								<?php if ($limit > 0 && $j >= $limit) break; ?>
 								<?php $evcolor = $this->getColour($event); ?>
@@ -186,12 +250,19 @@ $nofollow = $this->params->get('nofollow',0) ? 'rel="nofollow"' : ''; ?>
 								<?php $style = empty($evcolor) ? 'border-left: 3px solid #809FFF;' : 'border-left: 3px solid '.$evcolor; ?>
 								<?php $style = $this->params->get('colors',0) ? 'style="'.$style.'"' : ''; ?>
 									<li class="event" <?php echo $style; ?>>
-										<a <?php echo $nofollow; ?> data-toggle="popover" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event,$this->calendar->events[$event]->name),false,rseventsproHelper::itemid($event)); ?>" class="rsttip rse_event_link <?php echo $full ? ' rs_event_full' : ''; ?>" <?php if ($this->params->get('color',0)) { ?> style="color:<?php echo $this->getColour($event); ?>;" <?php } ?> data-content="<?php echo $this->getDetailsBig($this->calendar->events[$event]); ?>" title="<?php echo $this->escape($this->calendar->events[$event]->name); ?>">
+										<a <?php echo $nofollow; ?> data-toggle="popover" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event,$this->calendar->events[$event]->name),false,rseventsproHelper::itemid($event)); ?>" class="rsttip rse_event_link <?php echo $full ? ' rs_event_full' : ''; ?>" <?php if ($this->params->get('color',0)) { ?> style="color:<?php echo $this->getColour($event); ?>;" <?php } ?> data-content="<?php echo rseventsproHelper::calendarTooltip($event); ?>" title="<?php echo $this->escape($this->calendar->events[$event]->name); ?>">
 											<i class="fa fa-calendar"></i>
 											<span class="event-name"><?php echo $this->escape($this->calendar->events[$event]->name); ?></span>
 										</a>
 									</li>
 								<?php $j++; ?>
+								<?php } ?>
+								<?php if ($count > $limit) { ?>
+								<li class="day-events">
+									<a <?php echo $nofollow; ?> href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&view=calendar&layout=day&date='.$unixdate->format('m-d-Y')); ?>">
+										<?php echo JText::_('COM_RSEVENTSPRO_CALENDAR_VIEW_MORE'); ?>
+									</a>
+								</li>
 								<?php } ?>
 								</ul>
 							<?php } else { ?>
@@ -199,6 +270,7 @@ $nofollow = $this->params->get('nofollow',0) ? 'rel="nofollow"' : ''; ?>
 								<ul class="rsepro-calendar-events">
 									<li class="event">
 										<a <?php echo $nofollow; ?> href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&view=calendar&layout=day&date='.$unixdate->format('m-d-Y'));?>" class="rsttip" data-content="<?php echo $this->getDetailsSmall($day->events); ?>">
+											<i class="fa fa-calendar"></i> 
 											<?php echo count($day->events).' '.JText::plural('COM_RSEVENTSPRO_CALENDAR_EVENTS',count($day->events)); ?>
 										</a>
 									</li>

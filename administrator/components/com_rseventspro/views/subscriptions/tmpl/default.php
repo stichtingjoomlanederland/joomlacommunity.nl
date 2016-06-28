@@ -45,7 +45,6 @@ $listDirn	= $this->escape($this->state->get('list.direction')); ?>
 				<th width="15%" class="nowrap center hidden-phone"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_HEAD_TOTAL'); ?></th>
 				<th width="10%" class="nowrap center hidden-phone"><?php echo JHtml::_('grid.sort', 'COM_RSEVENTSPRO_SUBSCRIBERS_HEAD_PAYMENT', 'u.gateway', $listDirn, $listOrder); ?></th>
 				<th width="5%" class="nowrap center hidden-phone"><?php echo JHtml::_('grid.sort', 'COM_RSEVENTSPRO_SUBSCRIBERS_HEAD_STATUS', 'u.state', $listDirn, $listOrder); ?></th>
-				<th width="5%" class="nowrap center hidden-phone"><?php echo JHtml::_('grid.sort', 'COM_RSEVENTSPRO_SUBSCRIBERS_HEAD_CONFIRMED', 'u.confirmed', $listDirn, $listOrder); ?></th>
 				<th width="1%" class="nowrap center hidden-phone"><?php echo JHtml::_('grid.sort', 'JGRID_HEADING_ID', 'u.id', $listDirn, $listOrder); ?></th>
 			</thead>
 			<tbody id="rseprocontainer">
@@ -79,9 +78,6 @@ $listDirn	= $this->escape($this->state->get('list.direction')); ?>
 						</td>
 						<td class="center hidden-phone">
 							<?php echo $this->getStatus($item->state); ?>
-						</td>
-						<td class="center hidden-phone">
-							<?php echo $item->confirmed ? JText::_('JYES') : JText::_('JNO'); ?>
 						</td>
 						<td class="center hidden-phone">
 							<?php echo (int) $item->id; ?>

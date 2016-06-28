@@ -16,11 +16,12 @@ class RSEBackup {
 	 *	List the tables needed
 	 */
 	protected $tables = array(
-		'#__rseventspro_groups',		
+		'#__rseventspro_confirmed',
+		'#__rseventspro_groups',
 		'#__rseventspro_locations',
 		'#__rseventspro_tags',
 		'#__rseventspro_payments',
-		'#__categories',		
+		'#__categories',
 		'#__rseventspro_events',
 		'#__rseventspro_coupons',
 		'#__rseventspro_coupon_codes',
@@ -384,6 +385,8 @@ class RSEBackup {
 									}
 								}
 								
+								$app->triggerEvent('rsepro_restoreProcess', array(array('hash' => $hash, 'table' => $table, 'column' => $column, 'value' => &$value)));
+								
 								$values[] = $this->db->qn($column). ' = '.$this->db->q($value);
 							}
 							
@@ -455,6 +458,11 @@ class RSEBackup {
 	// Set custom variables
 	public function set($name, $value) {
 		$this->{$name} = $value;
+	}
+	
+	// Get custom variables
+	public function get($name) {
+		return $this->{$name};
 	}
 	
 	// Compute the total rows that need to be added

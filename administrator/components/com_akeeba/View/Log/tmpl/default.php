@@ -19,20 +19,29 @@ defined('_JEXEC') or die();
 		<label for="tag"><?php echo \JText::_('COM_AKEEBA_LOG_CHOOSE_FILE_TITLE'); ?></label>
 		<?php echo \JHtml::_('select.genericlist', $this->logs, 'tag', 'onchange="submitform();" class="advancedSelect"', 'value', 'text', $this->tag); ?>
 
-		<?php if(!empty($this->tag)): ?>
+		<?php if (!empty($this->tag)): ?>
 			<a class="btn btn-primary" href="<?php echo $this->escape(JUri::base()); ?>index.php?option=com_akeeba&view=Log&task=download&tag=<?php echo $this->escape($this->tag); ?>">
 				<span class="icon-download icon-white"></span>
 				<?php echo \JText::_('COM_AKEEBA_LOG_LABEL_DOWNLOAD'); ?>
 			</a>
-		<?php endif; ?>
 
-		<?php if(!empty($this->tag)): ?>
-		<br/>
-		<hr/>
-		<iframe
-			src="<?php echo JUri::base(); ?>index.php?option=com_akeeba&view=Log&task=iframe&format=raw&tag=<?php echo urlencode($this->tag); ?>"
-			width="99%" height="400px">
-		</iframe>
+			<br/>
+			<hr/>
+			<div class="iframe-holder">
+			<?php if ($this->logTooBig):?>
+				<p class="alert alert-info">
+					<?php echo JText::sprintf('COM_AKEEBA_LOG_SIZE_WARNING', number_format($this->logSize / (1024 * 1024), 2))?>
+				</p>
+				<span class="btn btn-inverse" id="showlog">
+					<?php echo JText::_('COM_AKEEBA_LOG_SHOW_LOG')?>
+				</span>
+			<?php else:?>
+				<iframe
+					src="index.php?option=com_akeeba&view=Log&task=iframe&format=raw&tag=<?php echo urlencode($this->tag); ?>"
+					width="99%" height="400px">
+				</iframe>
+			<?php endif;?>
+			</div>
 		<?php endif; ?>
 	</fieldset>
 </form>

@@ -48,10 +48,11 @@ class Systemcachefiles extends Base
 		}
 
 		$this->filter_data[$root] = array(
-			'#/Thumbs.db$#',
-			'#^Thumbs.db$#',
-			'#/.DS_Store$#i',
-			'#^.DS_Store$#i'
+			'#/Thumbs\.db$#',
+			'#^Thumbs\.db$#',
+			'#/\.DS_Store$#i',
+			'#^\.DS_Store$#i',
+			'#^core\.[\d]{1,10}$#i',
 		);
 	}
 }

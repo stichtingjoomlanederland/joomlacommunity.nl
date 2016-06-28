@@ -12,8 +12,8 @@ namespace Akeeba\Engine\Driver;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Factory;
 use Akeeba\Engine\Driver\Query\Mysql as QueryMysql;
+use Akeeba\Engine\Factory;
 
 /**
  * MySQL classic driver for Akeeba Engine

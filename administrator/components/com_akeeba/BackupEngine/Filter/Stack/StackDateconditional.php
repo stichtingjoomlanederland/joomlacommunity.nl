@@ -10,12 +10,11 @@
 
 namespace Akeeba\Engine\Filter\Stack;
 
+use Akeeba\Engine\Factory;
 use Akeeba\Engine\Filter\Base;
 
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
-
-use Akeeba\Engine\Factory;
 
 /**
  * Date conditional filter

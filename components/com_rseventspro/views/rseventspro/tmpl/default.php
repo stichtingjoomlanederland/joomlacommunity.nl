@@ -5,7 +5,16 @@
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
-defined('_JEXEC') or die('Restricted access');?>
+defined('_JEXEC') or die('Restricted access');
+JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
+
+<script type="text/javascript">
+	var rseproMask 		= '<?php echo $this->escape($this->mask); ?>';
+	var rseproCurrency  = '<?php echo $this->escape($this->currency); ?>';
+	var rseproDecimals	= '<?php echo $this->escape($this->decimals); ?>';
+	var rseproDecimal 	= '<?php echo $this->escape($this->decimal); ?>';
+	var rseproThousands	= '<?php echo $this->escape($this->thousands); ?>';
+</script>
 
 <?php if ($this->params->get('show_page_heading', 1)) { ?>
 <?php $title = $this->params->get('page_heading', ''); ?>
@@ -30,10 +39,11 @@ defined('_JEXEC') or die('Restricted access');?>
 	</div>
 <?php } ?>
 
-<?php $rss = $this->params->get('rss',1); ?>
-<?php $ical = $this->params->get('ical',1); ?>
-<?php if ($rss || $ical || $this->config->timezone) { ?>
 <div class="rs_rss">
+	<?php JFactory::getApplication()->triggerEvent('rsepro_showCartIcon'); ?>
+	<?php $rss = $this->params->get('rss',1); ?>
+	<?php $ical = $this->params->get('ical',1); ?>
+	<?php if ($rss || $ical || $this->config->timezone) { ?>
 	<?php if ($this->config->timezone) { ?>
 	<a href="#timezoneModal" data-toggle="modal" class="<?php echo rseventsproHelper::tooltipClass(); ?> rsepro-timezone" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE')); ?>">
 		<i class="fa fa-clock-o"></i>
@@ -50,8 +60,8 @@ defined('_JEXEC') or die('Restricted access');?>
 		<i class="fa fa-calendar"></i>
 	</a>
 	<?php } ?>
+	<?php } ?>
 </div>
-<?php } ?>
 
 <?php if ($this->params->get('search',1)) { ?>
 <form method="post" action="<?php echo $this->escape(JRoute::_(JURI::getInstance(),false)); ?>" name="adminForm" id="adminForm">
@@ -70,6 +80,7 @@ defined('_JEXEC') or die('Restricted access');?>
 							<a data-toggle="dropdown" class="dropdown-toggle" href="#" rel="events"><span><?php echo JText::_('COM_RSEVENTSPRO_FILTER_NAME'); ?></span> <i class="caret"></i></a>
 							<ul class="dropdown-menu">
 								<?php foreach ($this->get('filteroptions') as $option) { ?>
+								<?php if (!$this->maxPrice && $option->value == 'price') continue; ?>
 								<li><a href="javascript:void(0);" rel="<?php echo $option->value; ?>"><?php echo $option->text; ?></a></li>
 								<?php } ?>
 							</ul>
@@ -85,6 +96,20 @@ defined('_JEXEC') or die('Restricted access');?>
 						<li id="rsepro-search" class="navbar-search center">
 							<input type="text" id="rsepro-filter" name="rsepro-filter" value="" size="35" />
 						</li>
+						<li id="rsepro-filter-featured" class="dropdown" style="display: none;">
+							<a data-toggle="dropdown" class="dropdown-toggle" href="#" rel="1"><span><?php echo JText::_('JYES'); ?></span> <i class="caret"></i></a>
+							<ul class="dropdown-menu">
+								<li><a href="javascript:void(0);" rel="1"><?php echo JText::_('JYES'); ?></a></li>
+								<li><a href="javascript:void(0);" rel="0"><?php echo JText::_('JNO'); ?></a></li>
+							</ul>
+						</li>
+						<?php if ($this->maxPrice) { ?>
+						<li id="rsepro-filter-price" class="dropdown" style="display: none;">
+							<span id="price-field-min" class="label rsepro-min-price"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_FREE'); ?></span>
+							<input id="price-field" type="text" value="" data-slider-min="0" data-slider-max="<?php echo $this->maxPrice; ?>" data-slider-step="1" data-slider-value="[0,<?php echo $this->maxPrice; ?>]" />
+							<span id="price-field-max" class="label rsepro-max-price"><?php echo rseventsproHelper::currency($this->maxPrice, false, 0); ?></span> 
+						</li>
+						<?php } ?>
 						<li class="divider-vertical"></li>
 						<li class="center">
 							<div class="btn-group">
@@ -98,7 +123,7 @@ defined('_JEXEC') or die('Restricted access');?>
 		</div>
 		
 		<ul class="rsepro-filter-filters inline unstyled">
-			<li class="rsepro-filter-operator" <?php echo count($this->columns) > 1 ? '' : 'style="display:none"'; ?>>
+			<li class="rsepro-filter-operator" <?php echo $this->showCondition > 1 ? '' : 'style="display:none"'; ?>>
 				<div class="btn-group">
 					<a data-toggle="dropdown" class="btn btn-small dropdown-toggle" href="#"><span><?php echo ucfirst(JText::_('COM_RSEVENTSPRO_GLOBAL_'.$this->operator)); ?></span> <i class="caret"></i></a>
 					<ul class="dropdown-menu">
@@ -108,6 +133,41 @@ defined('_JEXEC') or die('Restricted access');?>
 				</div>
 				<input type="hidden" name="filter_operator" value="<?php echo $this->operator; ?>" />
 			</li>
+			
+			<?php if (!is_null($price = $this->extra['price'])) { ?>
+				<li id="<?php echo sha1('price'); ?>">
+					<?php list($min, $max) = explode(',',$price,2); ?>
+					<div class="btn-group">
+						<span class="btn btn-small"><?php echo JText::_('COM_RSEVENTSPRO_FILTER_PRICE'); ?></span>
+						<span class="btn btn-small"><?php echo ($min == 0 ? JText::_('COM_RSEVENTSPRO_GLOBAL_FREE') : rseventsproHelper::currency($min, false, 0)).' - '.rseventsproHelper::currency($max, false, 0); ?></span>
+						<input type="hidden" name="filter_price[]" value="<?php echo $this->escape($price); ?>">
+						<a href="javascript:void(0)" class="btn btn-small rsepro-close">
+							<i class="icon-delete"></i>
+						</a>
+					</div>
+				</li>
+				
+				<li class="rsepro-filter-conditions" <?php echo $this->showCondition > 1 ? '' : 'style="display: none;"'; ?>>
+					<a class="btn btn-small"><?php echo ucfirst(JText::_('COM_RSEVENTSPRO_GLOBAL_'.$this->operator));?></a>
+				</li>
+			<?php } ?>
+			
+			<?php if (!is_null($featured = $this->extra['featured'])) { ?>
+				<li id="<?php echo sha1('featured'); ?>">
+					<div class="btn-group">
+						<span class="btn btn-small"><?php echo JText::_('COM_RSEVENTSPRO_FILTER_FEATURED'); ?></span>
+						<span class="btn btn-small"><?php echo $featured == 0 ? JText::_('JNO') : JText::_('JYES'); ?></span>
+						<input type="hidden" name="filter_featured[]" value="<?php echo $this->escape($featured); ?>">
+						<a href="javascript:void(0)" class="btn btn-small rsepro-close">
+							<i class="icon-delete"></i>
+						</a>
+					</div>
+				</li>
+				
+				<li class="rsepro-filter-conditions" <?php echo $this->showCondition > 1 ? '' : 'style="display: none;"'; ?>>
+					<a class="btn btn-small"><?php echo ucfirst(JText::_('COM_RSEVENTSPRO_GLOBAL_'.$this->operator));?></a>
+				</li>
+			<?php } ?>
 			
 			<?php if (!empty($this->columns)) { ?>
 			<?php for ($i=0; $i < count($this->columns); $i++) { ?>
@@ -137,6 +197,8 @@ defined('_JEXEC') or die('Restricted access');?>
 		<input type="hidden" name="filter_from[]" value="">
 		<input type="hidden" name="filter_condition[]" value="">
 		<input type="hidden" name="search[]" value="">
+		<input type="hidden" name="filter_featured[]" value="">
+		<input type="hidden" name="filter_price[]" value="">
 	</div>
 </form>
 <?php } else { ?>
@@ -186,16 +248,16 @@ defined('_JEXEC') or die('Restricted access');?>
 		<?php if (!empty($event->options['show_icon_list'])) { ?>
 		<div class="rs_event_image" itemprop="image">
 			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)); ?>" class="rs_event_link thumbnail">
-				<img src="<?php echo JRoute::_('index.php?option=com_rseventspro&task=image&id='.rseventsproHelper::sef($event->id,$event->name), false); ?>" alt="" width="<?php echo $this->config->icon_small_width; ?>" />
+				<img src="<?php echo rseventsproHelper::thumb($event->id, $this->config->icon_small_width); ?>" alt="" width="<?php echo $this->config->icon_small_width; ?>" />
 			</a>
 		</div>
 		<?php } ?>
 		
 		<div class="rs_event_details">
-			<div itemprop="name">
+			<div itemprop="name" class="rsepro-title-block">
 				<a itemprop="url" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)); ?>" class="rs_event_link<?php echo $full ? ' rs_event_full' : ''; ?><?php echo $ongoing ? ' rs_event_ongoing' : ''; ?>"><?php echo $event->name; ?></a> <?php if (!$event->completed) echo JText::_('COM_RSEVENTSPRO_GLOBAL_INCOMPLETE_EVENT'); ?> <?php if (!$event->published) echo JText::_('COM_RSEVENTSPRO_GLOBAL_UNPUBLISHED_EVENT'); ?>
 			</div>
-			<div>
+			<div class="rsepro-date-block">
 				<?php if ($event->allday) { ?>
 				<?php if (!empty($event->options['start_date_list'])) { ?>
 				<span class="rsepro-event-on-block">
@@ -233,7 +295,7 @@ defined('_JEXEC') or die('Restricted access');?>
 			</div>
 			
 			<?php if (!empty($event->options['show_location_list']) || !empty($event->options['show_categories_list']) || !empty($event->options['show_tags_list'])) { ?>
-			<div>
+			<div class="rsepro-event-taxonomies-block">
 				<?php if ($event->locationid && $event->lpublished && !empty($event->options['show_location_list'])) { ?>
 				<span class="rsepro-event-location-block" itemprop="location" itemscope itemtype="http://schema.org/Place"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_AT'); ?> <a itemprop="url" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=location&id='.rseventsproHelper::sef($event->locationid,$event->location)); ?>"><span itemprop="name"><?php echo $event->location; ?></span></a>
 				<span itemprop="address" style="display:none;"><?php echo $event->address; ?></span>
@@ -245,6 +307,12 @@ defined('_JEXEC') or die('Restricted access');?>
 				<?php if (!empty($event->options['show_tags_list'])) { ?>
 				<span class="rsepro-event-tags-block"><?php echo $tags; ?></span> 
 				<?php } ?>
+			</div>
+			<?php } ?>
+			
+			<?php if (!empty($event->small_description)) { ?>
+			<div class="rsepro-small-description-block">
+				<?php echo $event->small_description; ?>
 			</div>
 			<?php } ?>
 			

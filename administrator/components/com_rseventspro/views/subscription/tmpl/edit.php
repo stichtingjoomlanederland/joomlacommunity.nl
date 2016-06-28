@@ -69,6 +69,9 @@ JHtml::_('behavior.modal'); ?>
 			rsepro_get_user_details(jQuery(this).val());
 		});
 	});
+	
+	
+	
 </script>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=subscription&layout=edit&id='.(int) $this->item->id); ?>" method="post" name="adminForm" id="adminForm" autocomplete="off" class="form-validate form-horizontal">
@@ -79,7 +82,6 @@ JHtml::_('behavior.modal'); ?>
 			<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('name'), $this->form->getInput('name')); ?>
 			<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('email'), $this->form->getInput('email')); ?>
 			<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('state'), $this->form->getInput('state')); ?>
-			<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('confirmed'), $this->form->getInput('confirmed')); ?>
 			<?php if ($this->item->state == 1) { ?>
 			<?php $extra = '<a href="'.JRoute::_('index.php?option=com_rseventspro&task=subscription.activation&id='.$this->item->id).'" class="rsextra">'.JText::_('COM_RSEVENTSPRO_SEND_ACTIVATION_EMAIL').'</a>'; ?>
 			<?php echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', $extra); ?>
@@ -106,13 +108,37 @@ JHtml::_('behavior.modal'); ?>
 			<?php $tickets = rseventsproHelper::getUserTickets($this->item->id); ?>
 			<?php $purchasedtickets = ''; ?>
 			<?php if ($tickets) {
+					$purchasedtickets .= '<table class="table">';
+					$purchasedtickets .= '<thead>';
+					$purchasedtickets .= '<tr>';
+					$purchasedtickets .= '<th>'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET').'</th>';
+					if (rseventsproHelper::pdf() && $this->item->state == 1) {
+						$purchasedtickets .= '<th align="center" class="center">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF').'</th>';
+						$purchasedtickets .= '<th align="center" class="center">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF_CODE').'</th>';
+						$purchasedtickets .= '<th align="center" class="center">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF_CONFIRMED').'</th>';
+					}
+					$purchasedtickets .= '</tr>';
+					$purchasedtickets .= '</thead>';
 					foreach ($tickets as $ticket) {
-						if ($ticket->price > 0) {
-							$purchasedtickets .= $ticket->quantity.' x '.$ticket->name.' ('.rseventsproHelper::currency($ticket->price).')<br />';
-						} else {
-							$purchasedtickets .= $ticket->quantity.' x '.$ticket->name.' ('.JText::_('COM_RSEVENTSPRO_GLOBAL_FREE').')<br />';
+						for ($j = 1; $j <= $ticket->quantity; $j++) {
+							$purchasedtickets .= '<tr>';
+							$purchasedtickets .= '<td>'.$ticket->name.' ('.($ticket->price > 0 ?rseventsproHelper::currency($ticket->price) : JText::_('COM_RSEVENTSPRO_GLOBAL_FREE')).')'.'</td>';
+							if (rseventsproHelper::pdf() && $this->item->state == 1) {
+								$code	= md5($this->item->id.$ticket->id.$j);
+								$code	= substr($code,0,4).substr($code,-4);
+								$code	= rseventsproHelper::getConfig('barcode_prefix', 'string', 'RST-').$this->item->id.'-'.$code;
+								$confirmed = rseventsproHelper::confirmed($this->item->id, $code);
+								
+								$purchasedtickets .= '<td align="center" class="center">'.($ticket->layout ? '<a class="rsextra" href="'.JRoute::_('index.php?option=com_rseventspro&view=pdf&id='.$this->item->id.'&ide='.$this->item->ide.'&tid='.$ticket->id.'&position='.$j).'"><i class="fa fa-file-pdf-o"></i> '.$ticket->name.'</a>' : '-').'</td>';
+								$purchasedtickets .= '<td align="center" class="center">'.$code.'</td>';
+								$purchasedtickets .= '<td align="center" class="center">';
+								$purchasedtickets .= $confirmed ? '<span class="label label-success">'.JText::_('JYES').'</span>' : '<span><a href="javascript:void(0)" class="label '.rseventsproHelper::tooltipClass().'" title="'.rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF_CONFIRMED_DESC')).'" onclick="rsepro_confirm_ticket(\''.$this->item->id.'\',\''.$code.'\', this)">'.JText::_('JNO').'</a></span>';
+								$purchasedtickets .= '</td>';
+							}
+							$purchasedtickets .= '</tr>';
 						}
 					}
+					$purchasedtickets .= '</table>';
 				}
 			?>
 			<?php echo JHtml::_('rsfieldset.element', '<label title="'.rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKETS_DESC')).'" class="'.rseventsproHelper::tooltipClass().'">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKETS').'</label>', '<span class="rsextra">'.$purchasedtickets.'</span>'); ?>
@@ -137,10 +163,6 @@ JHtml::_('behavior.modal'); ?>
 			<?php if ($event->ticketsconfig && rseventsproHelper::hasSeats($this->item->id)) echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', '<span class="rsextra"><a class="modal" rel="{handler: \'iframe\', size: {x:'.rseventsproHelper::getConfig('seats_width','int','1280').',y:'.rseventsproHelper::getConfig('seats_height','int','800').'}}" href="'.JRoute::_('index.php?option=com_rseventspro&view=subscription&layout=seats&tmpl=component&id='.$this->item->id).'">'.JText::_('COM_RSEVENTSPRO_SEATS_CONFIGURATION').'</a></span>'); ?>
 			
 			<?php echo JHtml::_('rsfieldset.element', '<label>'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TOTAL').'</label>', '<span class="rsextra">'.rseventsproHelper::currency(rseventsproHelper::total($this->item->id)).'</span>'); ?>
-			
-			<?php if (rseventsproHelper::pdf() && $this->item->state == 1 && $event->ticket_pdf == 1 && !empty($event->ticket_pdf_layout)) { ?>
-			<?php echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', '<a class="rsextra" href="'.JRoute::_('index.php?option=com_rseventspro&view=pdf&id='.$this->item->id).'">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF').'</a>'); ?>
-			<?php } ?>
 			
 			<?php } else { ?>
 			<?php JText::script('COM_RSEVENTSPRO_SUBSCRIBER_PLEASE_SELECT_TICKET'); ?>

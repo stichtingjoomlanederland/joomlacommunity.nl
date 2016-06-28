@@ -132,8 +132,7 @@ if ($showUploadRemote)
 	<?php endif; ?>
 
 	<?php if($showViewLog): ?>
-	<a class="btn btn-small akeebaCommentPopover" <?php echo ($record['meta'] == 'ok') ? '' : 'disabled="disabled" onclick="return false;"'; ?>
-
+	<a class="btn btn-small akeebaCommentPopover" <?php echo ($record['meta'] != 'obsolete') ? '' : 'disabled="disabled" onclick="return false;"'; ?>
 	   href="index.php?option=com_akeeba&view=Log&tag=<?php echo $this->escape($record['tag']); ?>.<?php echo $this->escape($record['backupid']); ?>&profileid=<?php echo (int)$record['profile_id']; ?>"
 	   title="<?php echo \JText::_('COM_AKEEBA_BUADMIN_LBL_LOGFILEID'); ?>"
 	   data-content="<?php echo $this->escape($record['backupid']); ?>">

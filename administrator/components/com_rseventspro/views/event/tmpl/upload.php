@@ -10,7 +10,7 @@ $maxHeight = $this->height > $this->width ? $this->customheight : 550; ?>
 <script type="text/javascript">
 jQuery(document).ready(function (){
 	var $parent = window.parent.jQuery;
-	<?php if ($this->icon) { ?>$parent('#rsepro-photo').prop('src','<?php echo JURI::root(); ?>index.php?option=com_rseventspro&task=image&id=<?php echo $this->item->id; ?>&width=188&uniqueid=<?php echo uniqid(''); ?>');<?php } ?>
+	<?php if ($this->icon) { ?>$parent('#rsepro-photo').prop('src','<?php echo rseventsproHelper::thumb($this->item->id, 188).'?uniqueid='.uniqid(''); ?>');<?php } ?>
 	$parent('#rsepro-image-loader').css('display','none');
 	$parent('#rsepro-image-frame').css('display','');
 	<?php if ($this->item->icon) { ?>
@@ -52,7 +52,7 @@ jQuery(document).ready(function (){
 					$parent('#rsepro-delete-icon-btn').css('display','none');
 					$parent('#rsepro-image-frame').prop('src','<?php echo JRoute::_('index.php?option=com_rseventspro&view=event&layout=upload&tmpl=component&id='.$this->item->id,false); ?>');
 					$parent('#aspectratiolabel').css('display', 'none');
-					$parent('#rsepro-photo').prop('src','<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/profile_pic.png');
+					$parent('#rsepro-photo').prop('src','<?php echo rseventsproHelper::defaultImage(); ?>');
 				}
 			});
 		}

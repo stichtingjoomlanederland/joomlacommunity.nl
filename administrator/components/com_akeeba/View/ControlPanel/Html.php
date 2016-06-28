@@ -152,10 +152,28 @@ class Html extends BaseView
 		/** @var ControlPanel $model */
 		$model = $this->getModel();
 
-		$statusHelper = Status::getInstance();
+		$statusHelper      = Status::getInstance();
+		$this->statsIframe = '';
 
-		/** @var UsageStatistics $usageStatsModel */
-		$usageStatsModel  = $this->container->factory->model('UsageStatistics')->tmpInstance();
+		try
+		{
+			/** @var UsageStatistics $usageStatsModel */
+			$usageStatsModel   = $this->container->factory->model('UsageStatistics')->tmpInstance();
+			
+			if (
+				is_object($usageStatsModel)
+				&& class_exists('Akeeba\\Backup\\Admin\\Model\\UsageStatistics')
+				&& ($usageStatsModel instanceof UsageStatistics)
+				&& method_exists($usageStatsModel, 'collectStatistics')
+			)
+			{
+				$this->statsIframe = $usageStatsModel->collectStatistics(true);
+			}
+		}
+		catch (\Exception $e)
+		{
+			// Don't give a crap if usage stats ain't loaded
+		}
 
 		$this->getProfileList();
 		$this->getProfileIdAndName();
@@ -172,7 +190,6 @@ class Html extends BaseView
 		$this->frontEndSecretWordIssue      = $model->getFrontendSecretWordError();
 		$this->newSecretWord                = $this->container->session->get('newSecretWord', null, 'akeeba.cpanel');
 		$this->desktopNotifications         = $this->container->params->get('desktop_notifications', '0') ? 1 : 0;
-		$this->statsIframe                  = $usageStatsModel->collectStatistics(true);
 		$this->formattedChangelog           = $this->formatChangelog();
 		$this->promptForConfigurationWizard = Factory::getConfiguration()->get('akeeba.flag.confwiz', 0) == 0;
 		$this->countWarnings                = count(Factory::getConfigurationChecks()->getDetailedStatus());

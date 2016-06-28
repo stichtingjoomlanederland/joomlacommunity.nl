@@ -187,6 +187,11 @@ class SecureSettings
 			$key = $this->getKey();
 		}
 
+		if (empty($key))
+		{
+			return '';
+		}
+
 		$encrypted = substr($encrypted, 12);
 
 		switch ($mode)
@@ -200,6 +205,11 @@ class SecureSettings
 			case 'CTR128':
 				$decrypted = Factory::getEncryption()->AESDecryptCtr($encrypted, $key, 128);
 				break;
+		}
+
+		if (empty($decrypted))
+		{
+			$decrypted = '';
 		}
 
 		return $decrypted;

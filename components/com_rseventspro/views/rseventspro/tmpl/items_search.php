@@ -37,16 +37,16 @@ defined('_JEXEC') or die('Restricted access');?>
 	<?php if (!empty($event->options['show_icon_list'])) { ?>
 	<div class="rs_event_image">
 		<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)); ?>" class="rs_event_link thumbnail">
-			<img src="<?php echo JRoute::_('index.php?option=com_rseventspro&task=image&id='.rseventsproHelper::sef($event->id,$event->name), false); ?>" alt="" width="<?php echo $this->config->icon_small_width; ?>" />
+			<img src="<?php echo rseventsproHelper::thumb($event->id, $this->config->icon_small_width); ?>" alt="" width="<?php echo $this->config->icon_small_width; ?>" />
 		</a>
 	</div>
 	<?php } ?>
 	
 	<div class="rs_event_details">
-		<div>
+		<div class="rsepro-title-block">
 			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)); ?>" class="rs_event_link<?php echo $full ? ' rs_event_full' : ''; ?><?php echo $ongoing ? ' rs_event_ongoing' : ''; ?>"><?php echo $event->name; ?></a> <?php if (!$event->completed) echo JText::_('COM_RSEVENTSPRO_GLOBAL_INCOMPLETE_EVENT'); ?> <?php if (!$event->published) echo JText::_('COM_RSEVENTSPRO_GLOBAL_UNPUBLISHED_EVENT'); ?>
 		</div>
-		<div>
+		<div class="rsepro-date-block">
 			<?php if ($event->allday) { ?>
 			<?php if (!empty($event->options['start_date_list'])) { ?>
 			<span class="rsepro-event-on-block">
@@ -83,7 +83,7 @@ defined('_JEXEC') or die('Restricted access');?>
 			<?php } ?>
 		</div>
 		<?php if (!empty($event->options['show_location_list']) || !empty($event->options['show_categories_list']) || !empty($event->options['show_tags_list'])) { ?>
-		<div>
+		<div class="rsepro-event-taxonomies-block">
 			<?php if ($event->locationid && $event->lpublished && !empty($event->options['show_location_list'])) { ?>
 			<span class="rsepro-event-location-block" itemprop="location" itemscope itemtype="http://schema.org/Place"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_AT'); ?> <a itemprop="url" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=location&id='.rseventsproHelper::sef($event->locationid,$event->location)); ?>"><span itemprop="name"><?php echo $event->location; ?></span></a>
 			<span itemprop="address" style="display:none;"><?php echo $event->address; ?></span>
@@ -95,6 +95,12 @@ defined('_JEXEC') or die('Restricted access');?>
 			<?php if (!empty($event->options['show_tags_list'])) { ?>
 			<span class="rsepro-event-tags-block"><?php echo $tags; ?></span> 
 			<?php } ?>
+		</div>
+		<?php } ?>
+		
+		<?php if (!empty($event->small_description)) { ?>
+		<div class="rsepro-small-description-block">
+			<?php echo $event->small_description; ?>
 		</div>
 		<?php } ?>
 	</div>

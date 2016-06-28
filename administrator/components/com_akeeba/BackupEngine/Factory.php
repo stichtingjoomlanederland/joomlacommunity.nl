@@ -339,24 +339,31 @@ class Factory
 
 		if (empty($config->activeProfile))
 		{
-			// Only bother loading a configuration if none has been already loaded
-			$statList = Platform::getInstance()->get_statistics_list(array(
-					'filters'  => array(
-						array('field' => 'tag', 'value' => $tag)
-					), 'order' => array(
-						'by' => 'id', 'order' => 'DESC'
-					)
-				)
-			);
+			$profile = Platform::getInstance()->get_active_profile();
 
-			if (is_array($statList))
+			if (empty($profile) || ($profile <= 1))
 			{
-				$stat = array_pop($statList);
-				$profile = $stat['profile_id'];
+				// Only bother loading a configuration if none has been already loaded
+				$statList = Platform::getInstance()->get_statistics_list(array(
+						'filters'  => array(
+							array('field' => 'tag', 'value' => $tag)
+						), 'order' => array(
+							'by' => 'id', 'order' => 'DESC'
+						)
+					)
+				);
 
-				Platform::getInstance()->load_configuration($profile);
+				if (is_array($statList))
+				{
+					$stat = array_pop($statList);
+					$profile = $stat['profile_id'];
+				}
 			}
+
+			Platform::getInstance()->load_configuration($profile);
 		}
+
+		$profile = $config->activeProfile;
 
 		Factory::getLog()->open($loadTag);
 		Factory::getLog()->log(LogLevel::DEBUG, "Kettenrad :: Attempting to load from database ($tag) [$loadTag]");
@@ -375,7 +382,7 @@ class Factory
 
 				// Switch the engine
 				Factory::getConfiguration()->reset();
-				Platform::getInstance()->load_configuration();
+				Platform::getInstance()->load_configuration($profile);
 				$config = Factory::getConfiguration();
 				$config->set('akeeba.core.usedbstorage', ($newEngine == 'db'));
 				Platform::getInstance()->save_configuration();
@@ -386,7 +393,7 @@ class Factory
 			// There is no serialized factory. Nuke the in-memory factory.
 			Factory::getLog()->log(LogLevel::DEBUG, " -- Stored Akeeba Factory ($tag) [$loadTag] not found - hard reset");
 			self::nuke();
-			Platform::getInstance()->load_configuration();
+			Platform::getInstance()->load_configuration($profile);
 		}
 
 		Factory::getLog()->log(LogLevel::DEBUG, " -- Loaded stored Akeeba Factory ($tag) [$loadTag]");

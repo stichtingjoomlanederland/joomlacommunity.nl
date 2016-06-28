@@ -25,16 +25,16 @@ defined('_JEXEC') or die();
 	}
 </script>
 
-<?php if($this->promptForConfigurationWizard): ?>
+<?php if($this->promptForBackupRestoration): ?>
 <?php echo $this->loadAnyTemplate('admin:com_akeeba/Manage/howtorestore_modal'); ?>
 <?php endif; ?>
 
-<?php if ( ! ($this->promptForConfigurationWizard)): ?>
+<?php if ( ! ($this->promptForBackupRestoration)): ?>
 <div class="alert alert-info">
 	<button class="close" data-dismiss="alert">×</button>
 	<h4 class="alert-heading"><?php echo \JText::_('COM_AKEEBA_BUADMIN_LABEL_HOWDOIRESTORE_LEGEND'); ?></h4>
 
-	<?php echo \JText::sprintf('COM_AKEEBA_BUADMIN_LABEL_HOWDOIRESTORE_TEXT_' . ((defined('AKEEBA_PRO') && AKEEBA_PRO) ? 'PRO' : 'CORE'),
+	<?php echo \JText::sprintf('COM_AKEEBA_BUADMIN_LABEL_HOWDOIRESTORE_TEXT_PRO',
 			'https://www.akeebabackup.com/videos/1212-akeeba-backup-core/1618-abtc04-restore-site-new-server.html',
 			'index.php?option=com_akeeba&view=Transfer',
 			'https://www.akeebabackup.com/latest-kickstart-core.zip'

@@ -15,7 +15,8 @@ $files		= $details['files'];
 $repeats	= $details['repeats'];
 $full		= rseventsproHelper::eventisfull($this->event->id);
 $ongoing	= rseventsproHelper::ongoing($this->event->id); 
-$featured 	= $event->featured ? ' rs_featured_event' : ''; ?>
+$featured 	= $event->featured ? ' rs_featured_event' : ''; 
+$description= empty($event->description) ? $event->small_description : $event->description;?>
 
 <!-- Initialize map -->
 <?php if (!empty($this->options['show_map']) && !empty($event->coordinates) && rseventsproHelper::getConfig('enable_google_maps','int')) { ?>
@@ -55,10 +56,10 @@ jQuery(document).ready(function (){
   "@type": "Event",
   "name": "<?php echo $this->escape($event->name); ?>",
   "startDate" : "<?php echo rseventsproHelper::showdate($event->start,'Y-m-d H:i:s'); ?>",
-  <?php if (!$event->allday) { ?>"endDate" : "<?php echo rseventsproHelper::showdate($event->end,'Y-m-d H:i:s'); ?>",<?php } ?>
+  <?php if (!$event->allday) { ?>"endDate" : "<?php echo rseventsproHelper::showdate($event->end,'Y-m-d H:i:s'); ?>",<?php echo "\n"; } ?>
   "url" : "<?php echo $this->root.rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)); ?>",
   "image" : "<?php echo $this->escape($this->root.$details['image_b']); ?>",
-  "description": "<?php echo strip_tags($event->description); ?>",
+  "description": "<?php echo strip_tags($description); ?>",
   "location" :
   {
     "@type" : "Place",
@@ -389,8 +390,8 @@ jQuery(document).ready(function (){
 	<!--//end FB / Twitter / Gplus sharing -->
 
 	<!-- Description -->
-	<?php if (!empty($this->options['show_description']) && !empty($event->description)) { ?>
-		<span class="description"><?php echo $event->description; ?></span>
+	<?php if (!empty($this->options['show_description']) && !empty($description)) { ?>
+		<span class="description"><?php echo $description; ?></span>
 		<div class="rs_clear"></div>
 	<?php } ?>
 	<!--//end Description -->
@@ -413,6 +414,7 @@ jQuery(document).ready(function (){
 	<h3><?php echo JText::_('COM_RSEVENTSPRO_EVENT_REPEATS'); ?></h3>
 	<ul class="rs_repeats" id="rs_repeats">
 	<?php foreach ($repeats as $repeat) { ?>
+	<?php if ($repeat->id == $event->id) continue; ?>
 		<li>
 			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($repeat->id,$repeat->name),false,rseventsproHelper::itemid($repeat->id)); ?>"><?php echo $repeat->name; ?></a>
 			<?php $dateMask = $repeat->allday ? rseventsproHelper::getConfig('global_date') : null; ?>

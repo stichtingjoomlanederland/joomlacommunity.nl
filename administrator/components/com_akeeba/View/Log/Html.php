@@ -12,6 +12,7 @@ defined('_JEXEC') or die();
 
 use Akeeba\Backup\Admin\Model\Log;
 use Akeeba\Backup\Admin\View\ViewTraits\ProfileIdAndName;
+use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use FOF30\View\DataView\Html as BaseView;
 use JHtml;
@@ -38,6 +39,25 @@ class Html extends BaseView
 	public $tag;
 
 	/**
+	 * Is the select log too big for being
+	 *
+	 * @var bool
+	 */
+	public $logTooBig = false;
+
+	/**
+	 * Size of the log file
+	 * 
+	 * @var int
+	 */
+	public $logSize = 0;
+
+	/**
+	 * Big log file threshold: 2Mb
+	 */
+	const bigLogSize = 2097152;
+
+	/**
 	 * The main page of the log viewer. It allows you to select a profile to display. When you do it displays the IFRAME
 	 * with the actual log content and the button to download the raw log file.
 	 *
@@ -58,6 +78,37 @@ class Html extends BaseView
 		}
 
 		$this->tag = $tag;
+
+		// Let's check if the file is too big to display
+		if ($this->tag)
+		{
+			$file = Factory::getLog()->getLogFilename($this->tag);
+
+			if (@file_exists($file))
+			{
+				$this->logSize   = filesize($file);
+				$this->logTooBig = ($this->logSize >= self::bigLogSize);
+			}
+		}
+
+		if ($this->logTooBig)
+		{
+			$src = 'index.php?option=com_akeeba&view=Log&task=download&attachment=0&tag=' . urlencode($this->tag);
+			$js  = <<<JS
+
+;// Prevent broken 3PD Javascript from causing errors
+akeeba.jQuery(document).ready(function ($){
+    $('#showlog').click(function(){
+        $('<iframe width="99%" src="$src" height="400px"/>').appendTo('.iframe-holder');
+        $(this).hide();
+    })
+});
+
+JS;
+
+			$this->addJavascriptInline($js);
+		}
+
 
 		$this->getProfileIdAndName();
 

@@ -100,6 +100,16 @@ class Joomlaskipfiles extends Base
 			$this->treatDirectory(JPATH_ROOT . '/log'),
 			'log',
 			$this->treatDirectory(Platform::getInstance()->get_site_root() . '/log'),
+
+			// Joomla! 3.6 is loads of fun. It changed the logs folder location.
+			$this->treatDirectory(JPATH_ADMINISTRATOR . '/logs'),
+			'administrator/logs',
+			$this->treatDirectory(Platform::getInstance()->get_site_root() . '/administrator/logs'),
+
+			// Also in case a Joomla! 3.6 site admin cocks up, let's try a singular folder name.
+			$this->treatDirectory(JPATH_ADMINISTRATOR . '/log'),
+			'administrator/log',
+			$this->treatDirectory(Platform::getInstance()->get_site_root() . '/administrator/log'),
 		);
 
 		parent::__construct();

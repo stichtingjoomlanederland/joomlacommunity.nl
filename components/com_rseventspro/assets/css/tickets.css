@@ -32,6 +32,7 @@
 	padding: 10px;
 	margin: 10px;
 	position: relative;
+	overflow-y: scroll;
 }
 
 .rsepro_ticket_container {
@@ -51,6 +52,7 @@
 .rsepro_ticket_seats {
 	width: 100%;
 	margin-top: 5px;
+	overflow: hidden;
 }
 
 .rsepro_ticket_seat {
@@ -137,4 +139,16 @@
 
 #all {
 	max-width: none !important;
+}
+
+.ui-resizable-s {
+	border-bottom: 2px solid;
+    bottom: 0;
+    cursor: s-resize;
+    display: block;
+    font-size: 0.1px;
+    height: 1%;
+    position: absolute;
+    right: 0;
+    width: 100%;
 }

@@ -246,6 +246,8 @@ class rseventsproModelSubscription extends JModelAdmin
 		$db->setQuery($query);
 		$state = (int) $db->loadResult();
 		
+		JFactory::getApplication()->triggerEvent('rsepro_adminBeforeStoreSubscription', array(array('table' => $table)));
+		
 		// Store the data.
 		if (!$table->store()) {
 			$this->setError($table->getError());
@@ -342,21 +344,28 @@ class rseventsproModelSubscription extends JModelAdmin
 	}
 	
 	/**
-	 * Method to confirm subscriber.
+	 * Method to confirm subscriber ticket.
 	 */
-	public function confirmsubscriber($pks) {
+	public function confirm($id, $code) {
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
 		
-		$query->clear()
-			->update('#__rseventspro_users')
-			->set($db->qn('confirmed').' = 1')
-			->where($db->qn('id').' IN ('.implode(',',$pks).')');
+		$query->select($db->qn('id'))
+			->from('#__rseventspro_confirmed')
+			->where($db->qn('ids').' = '.$db->q($id))
+			->where($db->qn('code').' = '.$db->q($code));
 		$db->setQuery($query);
-		if ($db->execute()) {
-			return 1;
+		if (!$db->loadResult()) {
+			$query->clear()
+				->insert('#__rseventspro_confirmed')
+				->set($db->qn('ids').' = '.$db->q($id))
+				->set($db->qn('code').' = '.$db->q($code));
+			$db->setQuery($query);
+			if ($db->execute()) {
+				return json_encode(array('status' => true, 'message' => JText::_('JYES')));
+			}
 		}
 		
-		return 0;
+		return json_encode(array('status' => false));
 	}
 }

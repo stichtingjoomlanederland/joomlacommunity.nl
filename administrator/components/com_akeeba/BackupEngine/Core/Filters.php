@@ -14,11 +14,11 @@ namespace Akeeba\Engine\Core;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Psr\Log\LogLevel;
-use Akeeba\Engine\Factory;
 use Akeeba\Engine\Base\Object;
+use Akeeba\Engine\Factory;
+use Akeeba\Engine\Filter\Base as FilterBase;
 use Akeeba\Engine\Platform;
-use \Akeeba\Engine\Filter\Base as FilterBase;
+use Psr\Log\LogLevel;
 
 /**
  * Akeeba filtering feature

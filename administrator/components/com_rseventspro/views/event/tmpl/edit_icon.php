@@ -7,10 +7,10 @@
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
 if ($this->item->icon && file_exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/'.$this->item->icon)) {
-	$iconsrc = JURI::root().'index.php?option=com_rseventspro&task=image&id='.$this->item->id.'&width=188';
+	$iconsrc = rseventsproHelper::thumb($this->item->id, 188);
 } else {
-	$iconsrc = JURI::root().'components/com_rseventspro/assets/images/profile_pic.png';
+	$iconsrc = rseventsproHelper::defaultImage();
 }
 
 ?>
-<img id="rsepro-photo" src="<?php echo $iconsrc; ?>" alt="" />
+<img id="rsepro-photo" src="<?php echo $iconsrc; ?>" alt="" width="188" />

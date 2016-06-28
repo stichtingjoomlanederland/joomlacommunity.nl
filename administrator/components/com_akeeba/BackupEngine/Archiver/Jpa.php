@@ -14,8 +14,8 @@ namespace Akeeba\Engine\Archiver;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Psr\Log\LogLevel;
 use Akeeba\Engine\Factory;
+use Psr\Log\LogLevel;
 
 if ( !function_exists('akstringlen'))
 {

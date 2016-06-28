@@ -13,6 +13,7 @@ defined('_JEXEC') or die();
 use Akeeba\Backup\Admin\Controller\Mixin\CustomACL;
 use Akeeba\Backup\Admin\Controller\Mixin\PredefinedTaskList;
 use Akeeba\Backup\Admin\Model\Log as LogModel;
+use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use FOF30\Controller\Controller;
 
@@ -94,12 +95,18 @@ class Log extends Controller
 			$tag = null;
 		}
 
+		$asAttachment = $this->input->getBool('attachment', true);
+
 		@ob_end_clean(); // In case some braindead plugin spits its own HTML
 		header("Cache-Control: no-cache, must-revalidate"); // HTTP/1.1
 		header("Expires: Sat, 26 Jul 1997 05:00:00 GMT"); // Date in the past
 		header("Content-Description: File Transfer");
 		header('Content-Type: text/plain');
-		header('Content-Disposition: attachment; filename="Akeeba Backup Debug Log.txt"');
+
+		if ($asAttachment)
+		{
+			header('Content-Disposition: attachment; filename="Akeeba Backup Debug Log.txt"');
+		}
 
 		/** @var LogModel $model */
 		$model = $this->getModel();

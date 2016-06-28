@@ -14,11 +14,11 @@ namespace Akeeba\Engine\Util;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Psr\Log\LoggerInterface;
-use Psr\Log\LogLevel;
-use Psr\Log\InvalidArgumentException;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
+use Psr\Log\InvalidArgumentException;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 
 /**
  * Writes messages to the backup log file

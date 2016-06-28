@@ -23,7 +23,7 @@ if (!empty($this->data))
 		echo '<td align="center" class="center hidden-phone" style="vertical-align: middle;"><div class="btn-group">'.JHTML::_('jgrid.published', $row->published, $i, 'events.').JHtml::_('rseventspro.featured', $row->featured, $i).'</div></td>';
 		echo '<td class="hidden-phone">';
 		echo '<div class="rs_event_img">';
-		echo '<img src="'.JURI::root().'index.php?option=com_rseventspro&task=image&id='.$row->id.'&width=70&nocache='.uniqid('').'" alt="" width="70" />';
+		echo '<img src="'.rseventsproHelper::thumb($row->id, 70).'?nocache='.uniqid('').'" alt="" width="70" />';
 		echo '</div>';
 		echo '</td>';
 		echo '<td class="has-context">';

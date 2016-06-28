@@ -118,10 +118,9 @@ JS;
 		{
 			$bar = JToolbar::getInstance('toolbar');
 			$bar->appendButton('Link', 'restore', JText::_('COM_AKEEBA_DISCOVER'), 'index.php?option=com_akeeba&view=Discover');
-
-			JToolbarHelper::publish('restore', JText::_('COM_AKEEBA_BUADMIN_LABEL_RESTORE'));
 		}
 
+		JToolbarHelper::publish('restore', JText::_('COM_AKEEBA_BUADMIN_LABEL_RESTORE'));
 		JToolbarHelper::editList('showcomment', JText::_('COM_AKEEBA_BUADMIN_LOG_EDITCOMMENT'));
 		JToolbarHelper::spacer();
 		JToolbarHelper::deleteList();

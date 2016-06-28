@@ -12,8 +12,8 @@ namespace Akeeba\Engine\Driver;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Driver\Query\Postgresql as QueryPostgresql;
 use Akeeba\Engine\Driver\Query\Base as QueryBase;
+use Akeeba\Engine\Driver\Query\Postgresql as QueryPostgresql;
 
 /**
  * PostgreSQL driver for Akeeba Engine

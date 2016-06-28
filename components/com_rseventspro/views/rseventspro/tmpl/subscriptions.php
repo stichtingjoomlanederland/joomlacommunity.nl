@@ -48,8 +48,18 @@ defined( '_JEXEC' ) or die( 'Restricted access' );?>
 		</span>
 	</span>
 	<?php if ($this->pdf) { ?>
-	<?php if ($subscription->state == 1 && $subscription->ticket_pdf == 1 && !empty($subscription->ticket_pdf_layout)) { ?>
-	<span><a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=ticket&from=subscriptions&format=raw&id='.rseventsproHelper::sef($subscription->ids,$subscription->iname)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_MY_SUBSCRIPTION_DOWNLOAD_TICKET'); ?></a></span>
+	<?php if ($subscription->state == 1) { ?>
+	<span>
+		<?php if ($subscription->tickets) { ?>
+		<?php foreach ($subscription->tickets as $ticket) { ?>
+			<?php if (!$ticket->layout) continue; ?>
+			<?php for($i=1; $i <= $ticket->quantity; $i++) { ?>
+				<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=ticket&from=subscriptions&format=raw&id='.$subscription->ids.'&ide='.$ticket->ide.'&tid='.$ticket->id.'&position='.$i); ?>">
+					<i class="fa fa-file-pdf-o"></i> <?php echo $ticket->name; ?>
+				</a> <br />
+			<?php } ?>
+		<?php }} ?>	
+	</span>
 	<?php } else { ?>
 	<span>-</span>
 	<?php } ?>

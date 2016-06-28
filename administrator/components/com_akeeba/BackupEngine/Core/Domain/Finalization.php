@@ -14,10 +14,10 @@ namespace Akeeba\Engine\Core\Domain;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Psr\Log\LogLevel;
 use Akeeba\Engine\Base\Part;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
+use Psr\Log\LogLevel;
 
 /**
  * Backup finalization domain

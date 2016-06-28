@@ -52,18 +52,25 @@ class rseventsproTableSubscription extends JTable
 		$query	= $db->getQuery(true);
 		
 		// Remove the tickets
-		$query->clear();
-		$query->delete();
-		$query->from($db->qn('#__rseventspro_user_tickets'));
-		$query->where($db->qn('ids').' = '.(int) $pk);
+		$query->clear()
+			->delete($db->qn('#__rseventspro_user_tickets'))
+			->where($db->qn('ids').' = '.(int) $pk);
 		
 		$db->setQuery($query);
 		$db->execute();
 		
-		$query->clear();
-		$query->delete();
-		$query->from($db->qn('#__rseventspro_user_seats'));
-		$query->where($db->qn('ids').' = '.(int) $pk);
+		// Remove ticket seats
+		$query->clear()
+			->delete($db->qn('#__rseventspro_user_seats'))
+			->where($db->qn('ids').' = '.(int) $pk);
+		
+		$db->setQuery($query);
+		$db->execute();
+		
+		// Remove confirmed tickets
+		$query->clear()
+			->delete($db->qn('#__rseventspro_confirmed'))
+			->where($db->qn('ids').' = '.(int) $pk);
 		
 		$db->setQuery($query);
 		$db->execute();
@@ -96,6 +103,7 @@ class rseventsproTableSubscription extends JTable
 			$db->execute();
 		}
 		
+		JFactory::getApplication()->triggerEvent('rsepro_beforeDeleteSubscription', array(array('id' => $pk)));
 		
 		return parent::delete($pk, $children);
 	}

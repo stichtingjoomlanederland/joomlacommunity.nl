@@ -210,9 +210,11 @@ class rseventsproViewEvents extends JViewLegacy
 		$query	= $db->getQuery(true);
 		
 		$query->clear()
-			->select('COUNT('.$db->qn('id').')')
-			->from($db->qn('#__rseventspro_users'))
-			->where($db->qn('ide').' = '.(int) $id);
+			->select('COUNT('.$db->qn('u.id').')')
+			->from($db->qn('#__rseventspro_users','u'))
+			->where($db->qn('u.ide').' = '.(int) $id);
+		
+		JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query, 'rule' => 'u.ide')));
 		
 		$db->setQuery($query);
 		return (int) $db->loadResult();

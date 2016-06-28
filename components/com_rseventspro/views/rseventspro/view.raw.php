@@ -79,14 +79,26 @@ class rseventsproViewRseventspro extends JViewLegacy
 				}
 			} elseif ($layout == 'ticket') {
 				if ($jinput->get('from') == 'subscriber') {
-					$query->clear()
-						->select($db->qn('e.owner'))
-						->from($db->qn('#__rseventspro_events','e'))
-						->join('left', $db->qn('#__rseventspro_users','u').' ON '.$db->qn('u.ide').' = '.$db->qn('e.id'))
-						->where($db->qn('u.id').' = '.$jinput->getInt('id'));
+					$ide = $jinput->getInt('ide',0);
 					
-					$db->setQuery($query);
-					$userid = (int) $db->loadResult();
+					if ($ide) {
+						$query->clear()
+							->select($db->qn('owner'))
+							->from($db->qn('#__rseventspro_events'))
+							->where($db->qn('id').' = '.$db->q($ide));
+						
+						$db->setQuery($query);
+						$userid = (int) $db->loadResult();
+					} else {
+						$query->clear()
+							->select($db->qn('e.owner'))
+							->from($db->qn('#__rseventspro_events','e'))
+							->join('left', $db->qn('#__rseventspro_users','u').' ON '.$db->qn('u.ide').' = '.$db->qn('e.id'))
+							->where($db->qn('u.id').' = '.$jinput->getInt('id'));
+						
+						$db->setQuery($query);
+						$userid = (int) $db->loadResult();
+					}
 				} else {
 					$query->clear()
 						->select($db->qn('idu'))

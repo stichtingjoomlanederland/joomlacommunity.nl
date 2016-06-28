@@ -16,8 +16,6 @@ use Akeeba\Engine\Filter\Base;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Factory;
-
 /**
  * Files exclusion filter based on regular expressions
  */

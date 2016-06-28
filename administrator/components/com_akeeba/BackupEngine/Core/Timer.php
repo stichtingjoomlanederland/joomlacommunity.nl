@@ -14,9 +14,9 @@ namespace Akeeba\Engine\Core;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Psr\Log\LogLevel;
 use Akeeba\Engine\Base\Object;
 use Akeeba\Engine\Factory;
+use Psr\Log\LogLevel;
 
 /**
  * Timer class

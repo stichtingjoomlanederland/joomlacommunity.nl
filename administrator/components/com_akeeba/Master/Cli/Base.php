@@ -84,6 +84,46 @@ ENDWARNING;
 // Required by the CMS
 define('DS', DIRECTORY_SEPARATOR);
 
+/**
+ * Timezone fix
+ *
+ * This piece of code was originally put here because some PHP 5.3 servers forgot to declare a default timezone.
+ * Unfortunately it's still required because some hosts STILL do that crap, or use invalid timezones...
+ */
+if (function_exists('date_default_timezone_get') && function_exists('date_default_timezone_set'))
+{
+	if (function_exists('error_reporting'))
+	{
+		$oldLevel = error_reporting(0);
+	}
+
+	$serverTimezone = @date_default_timezone_get();
+
+	// Do I have no timezone set?
+	if (empty($serverTimezone) || !is_string($serverTimezone))
+	{
+		$serverTimezone = 'UTC';
+	}
+
+	// Do I have an invalid timezone?
+	try
+	{
+		$testTimeZone = new DateTimeZone($serverTimezone);
+	}
+	catch (\Exception $e)
+	{
+		$serverTimezone = 'UTC';
+	}
+
+	// Set the default timezone to a correct thing
+	@date_default_timezone_set($serverTimezone);
+
+	if (function_exists('error_reporting'))
+	{
+		error_reporting($oldLevel);
+	}
+}
+
 // Load system defines
 if (!isset($curdir))
 {
@@ -136,11 +176,8 @@ JLoader::import('joomla.filter.input');
 JLoader::import('joomla.filter.filterinput');
 JLoader::import('joomla.factory');
 
-if (version_compare(JVERSION, '3.4.9999', 'ge'))
-{
-	// Joomla! 3.5 and later does not load the configuration.php unless you explicitly tell it to.
-	JFactory::getConfig(JPATH_CONFIGURATION . '/configuration.php');
-}
+// Load the configuration file to grab database information
+JFactory::getConfig(JPATH_CONFIGURATION . '/configuration.php');
 
 if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
 {

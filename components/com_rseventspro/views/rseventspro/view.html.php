@@ -37,16 +37,6 @@ class rseventsproViewRseventspro extends JViewLegacy
 		// Load RSEvents!Pro plugins
 		rseventsproHelper::loadPlugins();
 		
-		// Add Joomla! 2.5 menu metadata
-		if ($this->params->get('menu-meta_description'))
-			$this->document->setDescription($this->params->get('menu-meta_description'));
-
-		if ($this->params->get('menu-meta_keywords'))
-			$this->document->setMetadata('keywords', $this->params->get('menu-meta_keywords'));
-
-		if ($this->params->get('robots'))
-			$this->document->setMetadata('robots', $this->params->get('robots'));
-		
 		// Add search bar
 		if ($this->params->get('search',1)) {
 			if ($this->document->getType() == 'html') {
@@ -73,6 +63,8 @@ class rseventsproViewRseventspro extends JViewLegacy
 			$this->columns		= $filters[0];
 			$this->operators	= $filters[1];
 			$this->values		= $filters[2];
+			$this->extra		= $this->get('ExtraFilters');
+			$this->showCondition= $this->get('Conditions');
 			$this->category		= $this->get('EventCategory');
 			$this->tag			= $this->get('EventTag');
 			$this->location		= $this->get('EventLocation');
@@ -103,6 +95,17 @@ class rseventsproViewRseventspro extends JViewLegacy
 					$this->document->setTitle(JText::sprintf('COM_RSEVENTSPRO_EVENTS_TAG_TITLE_SEO',$this->tag));
 				}
 			}
+			
+			// Price slider assets
+			$this->document->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/bootstrap-slider.css');
+			$this->document->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/bootstrap-slider.js');
+			$this->maxPrice = $this->get('MaxPrice');
+			
+			$this->mask		= empty($this->config->payment_mask) ? '%p %c' : $this->config->payment_mask;
+			$this->currency	= empty($this->config->payment_currency_sign) ? $this->config->payment_currency : $this->config->payment_currency_sign;
+			$this->decimals	= $this->config->payment_decimals;
+			$this->decimal	= $this->config->payment_decimal;
+			$this->thousands= $this->config->payment_thousands;
 			
 			//set the pathway
 			if (!$menu) 
@@ -179,7 +182,7 @@ class rseventsproViewRseventspro extends JViewLegacy
 			$app->triggerEvent('rsepro_addCustomScripts');
 			
 			if (rseventsproHelper::getConfig('enable_google_maps')) {
-				$this->document->addScript('https://maps.google.com/maps/api/js?sensor=false&amp;libraries=geometry');
+				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry'.($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
 				if ($this->document->getType() == 'html') {
 					$this->document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
 				}
@@ -287,7 +290,7 @@ class rseventsproViewRseventspro extends JViewLegacy
 		} elseif ($layout == 'location') {
 			
 			if (rseventsproHelper::getConfig('enable_google_maps')) {
-				$this->document->addScript('https://maps.google.com/maps/api/js?sensor=false&amp;libraries=geometry');
+				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry'.($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
 				if ($this->document->getType() == 'html') {
 					$this->document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
 				}
@@ -310,7 +313,7 @@ class rseventsproViewRseventspro extends JViewLegacy
 			}
 			
 			if (rseventsproHelper::getConfig('enable_google_maps','int')) {
-				$this->document->addScript('https://maps.google.com/maps/api/js?sensor=false&amp;libraries=geometry');
+				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry'.($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
 				if ($this->document->getType() == 'html') {
 					$this->document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
 				}
@@ -334,7 +337,7 @@ class rseventsproViewRseventspro extends JViewLegacy
 		} elseif ($layout == 'map') {
 		
 			if (rseventsproHelper::getConfig('enable_google_maps')) {
-				$this->document->addScript('https://maps.google.com/maps/api/js?sensor=false&amp;libraries=geometry');
+				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry'.($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
 				if ($this->document->getType() == 'html') {
 					$this->document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
 				}
@@ -395,7 +398,7 @@ class rseventsproViewRseventspro extends JViewLegacy
 				
 				// Load maps
 				if (rseventsproHelper::getConfig('enable_google_maps','int')) {
-					$this->document->addScript('https://maps.google.com/maps/api/js?sensor=false&amp;libraries=geometry');
+					$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry'.($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
 					if ($this->document->getType() == 'html') {
 						$this->document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
 					}
@@ -457,7 +460,7 @@ class rseventsproViewRseventspro extends JViewLegacy
 			
 			$thankyou = false;
 			if ($this->event->form) {
-				$formparams = JFactory::getSession()->get('com_rsform.formparams.'.$this->event->form);
+				$formparams = JFactory::getSession()->get('com_rsform.formparams.formId'.$this->event->form);
 				if (isset($formparams->formProcessed)) 
 					$thankyou = true;
 			}
@@ -824,6 +827,21 @@ class rseventsproViewRseventspro extends JViewLegacy
 		}
 		
 		$this->lists	= $lists;
+		
+		// Add menu metadata
+		if ($this->params->get('page_title'))
+			$this->document->setTitle($this->params->get('page_title'));
+		
+		if ($this->params->get('menu-meta_description'))
+			$this->document->setDescription($this->params->get('menu-meta_description'));
+
+		if ($this->params->get('menu-meta_keywords'))
+			$this->document->setMetadata('keywords', $this->params->get('menu-meta_keywords'));
+
+		if ($this->params->get('robots'))
+			$this->document->setMetadata('robots', $this->params->get('robots'));
+		
+		$app->triggerEvent('rsepro_siteDisplayLayout', array(array('view' => &$this)));
 		
 		parent::display($tpl);
 	}

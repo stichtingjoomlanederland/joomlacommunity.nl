@@ -121,6 +121,9 @@ JHtml::_('behavior.modal', 'a.rsepro-tickets-config'); ?>
 	</div>
 </div>
 
+<?php $cart = false; ?>
+<?php JFactory::getApplication()->triggerEvent('rsepro_isCart', array(array('cart' => &$cart))); ?>
+<?php if (!$cart) { ?>
 <div class="control-group">
 	<div class="control-label">
 		<label><?php echo JText::_('COM_RSEVENTSPRO_EVENT_REGISTRATION_FORM'); ?></label>
@@ -151,6 +154,7 @@ JHtml::_('behavior.modal', 'a.rsepro-tickets-config'); ?>
 		<input type="text" id="jform_paypal_email" name="jform[paypal_email]" class="span3" value="<?php echo $this->escape($this->item->paypal_email); ?>" />
 	</div>
 </div>
+<?php } ?>
 <?php } ?>
 
 <div class="form-actions">

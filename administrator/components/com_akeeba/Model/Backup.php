@@ -230,6 +230,7 @@ class Backup extends Model
 	 * State variables expected (MUST be set):
 	 * backupid		The ID of the backup.
 	 * tag			The backup tag, e.g. "frontend".
+	 * profile      (optional) The profile ID of the backup.
 	 *
 	 * @param   bool  $requireBackupId  Should the backup ID be required?
 	 *
@@ -237,23 +238,62 @@ class Backup extends Model
 	 */
 	public function stepBackup($requireBackupId = true)
 	{
-		$tag      = $this->getState('tag', null, 'string');
+		// Get the tag. If not specified use the AKEEBA_BACKUP_ORIGIN constant.
+		$tag = $this->getState('tag', null, 'string');
+
+		if (is_null($tag) && defined('AKEEBA_BACKUP_ORIGIN'))
+		{
+			$tag = AKEEBA_BACKUP_ORIGIN;
+		}
+
+		// Get the Backup ID. If not specified use the AKEEBA_BACKUP_ID constant.
 		$backupId = $this->getState('backupid', null, 'string');
 
+		if (is_null($backupId) && defined('AKEEBA_BACKUP_ID'))
+		{
+			$backupId = AKEEBA_BACKUP_ID;
+		}
+
+		// Get the profile from the session, the AKEEBA_PROFILE constant or the model state – in this order
+		$session = $this->container->session;
+		$profile = $session->get('profile', null);
+		$profile = defined('AKEEBA_PROFILE') ? AKEEBA_PROFILE : $profile;
+		$profile = $this->getState('profile', $profile, 'int');
+		$profile = max(0, (int) $profile);
+
+		if (empty($profile))
+		{
+			$profile = $this->getLastBackupProfile($tag, $backupId);
+		}
+
+		// Set the active profile
+		$session->set('profile', $profile);
+
+		if (!defined('AKEEBA_PROFILE'))
+		{
+			define('AKEEBA_PROFILE', $profile);
+		}
+
+		// Run a backup step
 		$ret_array = array(
 			'Error' => '',
 		);
 
 		try
 		{
+			// Reload the configuration
+			Platform::getInstance()->load_configuration($profile);
+
+			// Load the engine from storage
 			Factory::loadState($tag, $backupId, $requireBackupId);
+
+			// Set the backup ID and run a backup step
 			$kettenrad = Factory::getKettenrad();
 			$kettenrad->setBackupId($backupId);
-
 			$kettenrad->tick();
 			$ret_array = $kettenrad->getStatusArray();
 
-			// So as not to have duplicate warnings reports
+			// Prevent duplicate reporting of warnings
 			$kettenrad->resetWarnings();
 		}
 		catch (\Exception $e)
@@ -321,5 +361,49 @@ class Backup extends Model
 
 		$push = new PushMessages();
 		$push->message($pushSubject, $pushDetails);
+	}
+
+	/**
+	 * Get the profile used to take the last backup for the specified tag
+	 *
+	 * @param   string  $tag       The backup tag a.k.a. backup origin (backend, frontend, json, ...)
+	 * @param   string  $backupId  (optional) The Backup ID
+	 *
+	 * @return  int  The profile ID of the latest backup taken with the specified tag / backup ID
+	 */
+	protected function getLastBackupProfile($tag, $backupId = null)
+	{
+		$filters  = array(
+			array('field' => 'tag', 'value' => $tag)
+		);
+
+		if (!empty($backupId))
+		{
+			$filters[] = array('field' => 'backupid', 'value' => $backupId);
+		}
+
+		$statList = Platform::getInstance()->get_statistics_list(array(
+				'filters'  => $filters,
+				'order' => array(
+					'by' => 'id', 'order' => 'DESC'
+				)
+			)
+		);
+
+		if (is_array($statList))
+		{
+			$stat = array_pop($statList);
+
+			return (int) $stat['profile_id'];
+		}
+
+		// Backup entry not found. If backupId was specified, try without a backup ID
+		if (!empty($backupId))
+		{
+			return $this->getLastBackupProfile($tag);
+		}
+
+		// Else, return the default backup profile
+		return 1;
 	}
 }

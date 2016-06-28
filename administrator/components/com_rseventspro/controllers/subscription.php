@@ -43,4 +43,20 @@ class rseventsproControllerSubscription extends JControllerForm
 		echo json_encode(array('id' => $user->get('id'), 'name' => $user->get('name'), 'username' => $user->get('username'), 'email' => $user->get('email')));
 		JFactory::getApplication()->close();
 	}
+	
+	/*
+	 *	Method to confirm a ticket
+	 */
+	public function confirm() {
+		// Get the model
+		$model = $this->getModel();
+		// Get the subscription id
+		$id = JFactory::getApplication()->input->getInt('id',0);
+		// Get the ticket code
+		$code = JFactory::getApplication()->input->getString('code');
+		
+		echo $model->confirm($id, $code);
+		
+		JFactory::getApplication()->close();
+	}
 }

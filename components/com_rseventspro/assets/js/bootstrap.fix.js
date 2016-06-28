@@ -62,4 +62,20 @@ if (window.MooTools) {
 			e.hide = null;
 		});
 	});
+	
+	window.addEvent('domready', function(){
+		if (typeof jQuery != 'undefined' && typeof MooTools != 'undefined' ) {
+			Element.implement({
+				slide: function(how, mode){
+					return this;
+				},
+				hide: function () {
+					return this;
+				},
+				show: function (v) {
+					return this;
+				}
+			});
+		}
+	});
 }

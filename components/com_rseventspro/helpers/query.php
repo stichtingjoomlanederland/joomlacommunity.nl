@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class RSEventsQuery
+class RSEventsProQuery
 {
 	/**
 	 * Array to hold the object instances
@@ -28,6 +28,13 @@ class RSEventsQuery
 	 * @var    array
 	 */
 	protected $filters;
+	
+	/**
+	 * Extra events filters
+	 *
+	 * @var    array
+	 */
+	protected $extra;
 	
 	/**
 	 * Query selectors
@@ -93,6 +100,13 @@ class RSEventsQuery
 	protected $userevents = true;
 	
 	/**
+	 * Filter events by price
+	 *
+	 * @var    boolean
+	 */
+	protected $filterPrice = true;
+	
+	/**
 	 * Class constructor
 	 *
 	 * @param   mixed  $params  Query params
@@ -101,22 +115,23 @@ class RSEventsQuery
 	public function __construct($params) {
 		$this->params	= $params;
 		$this->filters	= $this->filters();
+		$this->extra	= $this->extraFilters();
 		$this->operator	= $this->operator();
 	}
 	
 	/**
-	 * Returns a reference to a RSEventsQuery object
+	 * Returns a reference to a RSEventsProQuery object
 	 *
 	 * @param   mixed  $params  Query params
 	 *
-	 * @return  RSEventsQuery   RSEventsQuery object
+	 * @return  RSEventsProQuery   RSEventsProQuery object
 	 *
 	 */
 	public static function getInstance($params) {
 		$hash = md5(serialize($params));
 		
 		if (!isset(self::$instances[$hash])) {
-			$classname = 'RSEventsQuery';
+			$classname = 'RSEventsProQuery';
 			self::$instances[$hash] = new $classname($params);
 		}
 		
@@ -161,6 +176,9 @@ class RSEventsQuery
 		
 		// Join over the locations table
 		$query .= ' LEFT JOIN '.$db->qn('#__rseventspro_locations','l').' ON '.$db->qn('l.id').' = '.$db->qn('e.location');
+		
+		// Join over the tickets table
+		$query .= ' LEFT JOIN '.$db->qn('#__rseventspro_tickets','tickets').' ON '.$db->qn('tickets.ide').' = '.$db->qn('e.id');
 		
 		$query .= ' WHERE 1';
 		
@@ -334,14 +352,17 @@ class RSEventsQuery
 				// List next week events
 				
 				$start = JFactory::getDate('now', $tzoffset);
-				$start->modify('monday next week');
+				$start->modify('next monday');
 				$start->setTime(0,0,0);
 				$start = $start->toSql();
 				
 				$end = JFactory::getDate('now', $tzoffset);
-				$end->modify('sunday next week');
-				$end->setTime(23,59,59);
-				$end = $end->toSql();
+				
+				if ($end->format('N') == 7) {
+					$end->modify('next sunday');
+				} else {
+					$end->modify('sunday next week');
+				}
 				
 				$where[] = $this->betweenQuery($start, $end);
 			} else if ($listType == 'thisweekend') {
@@ -369,14 +390,22 @@ class RSEventsQuery
 				// List events from next weekend
 				
 				$start = JFactory::getDate('now', $tzoffset);
-				$start->modify('saturday next week');
+				
+				if ($start->format('N') == 7) {
+					$start->modify('next saturday');
+				} else {
+					$start->modify('saturday next week');
+				}
+				
 				$start->setTime(0,0,0);
 				$start = $start->toSql();
 				
 				$end = JFactory::getDate('now', $tzoffset);
-				$end->modify('sunday next week');
-				$end->setTime(23,59,59);
-				$end = $end->toSql();
+				if ($end->format('N') == 7) {
+					$end->modify('next sunday');
+				} else {
+					$end->modify('sunday next week');
+				}
 				
 				$where[] = $this->betweenQuery($start, $end);
 			} else if ($listType == 'thismonth') {
@@ -468,8 +497,8 @@ class RSEventsQuery
 		}
 		
 		// Fix ordering for when the menu item is a categories menu item
-		if ($order == 'title')	$order = 'name';
-		if ($order == 'lft')	$order = 'start';
+		if ($order == 'title' || $order == 'c.title')	$order = 'name';
+		if ($order == 'lft' || $order == 'c.lft')		$order = 'start';
 		
 		$order		= isset($this->order) ? $this->order : 'e.'.$order;
 		$direction	= isset($this->direction) ? $this->direction : $direction;
@@ -571,6 +600,16 @@ class RSEventsQuery
 	}
 	
 	/**
+	 * Method to filter or not by price
+	 *
+	 * @return  void
+	 *
+	 */
+	public function price($value) {
+		$this->filterPrice = (bool) $value;
+	}
+	
+	/**
 	 * Method to get the events filters
 	 *
 	 * @return   array  Filters
@@ -610,6 +649,37 @@ class RSEventsQuery
 		}
 		
 		return array(array_merge($columns), array_merge($operators), array_merge($values));
+	}
+	
+	protected function extraFilters() {
+		$app	= JFactory::getApplication();
+		$input	= $app->input;
+		$itemid = $input->getInt('Itemid');
+		$parent	= $input->getInt('parent');
+		
+		$status		= $app->getUserStateFromRequest('com_rseventspro.events.filter_status'.$itemid.$parent,		'filter_status',	array(), 'array');
+		$featured	= $app->getUserStateFromRequest('com_rseventspro.events.filter_featured'.$itemid.$parent,	'filter_featured',	array(), 'array');
+		$childs		= $app->getUserStateFromRequest('com_rseventspro.events.filter_child'.$itemid.$parent, 		'filter_child',		array(), 'array');
+		$start		= $app->getUserStateFromRequest('com_rseventspro.events.filter_start'.$itemid.$parent, 		'filter_start',		array(), 'array');
+		$end		= $app->getUserStateFromRequest('com_rseventspro.events.filter_end'.$itemid.$parent, 		'filter_end',		array(), 'array');
+		$price		= $app->getUserStateFromRequest('com_rseventspro.events.filter_price'.$itemid.$parent, 		'filter_price',		array(), 'array');
+		
+		$status		= $status[0]	== '' ? null : $status;
+		$featured	= $featured[0] 	== '' ? null : $featured[0];
+		$childs		= $childs[0] 	== '' ? null : $childs[0];
+		$start		= $start[0] 	== '' ? null : $start[0];
+		$end		= $end[0] 		== '' ? null : $end[0];
+		$price		= $price[0] 	== '' ? null : $price[0];
+		
+		if (is_array($status)) {
+			$status = array_unique($status);
+			
+			foreach ($status as $key => $option) {
+				if ($option == '') unset($status[$key]);
+			}	
+		}
+		
+		return array('status' => $status, 'featured' => $featured, 'childs' => $childs, 'start' => $start, 'end' => $end, 'price' => $price);
 	}
 	
 	/**
@@ -722,6 +792,20 @@ class RSEventsQuery
 			}
 		}
 		
+		// Add conditions from the extra Events filter
+		if (!is_null($featured = $this->extra['featured'])) {
+			if ($featured == 1) {
+				$where[] = '('.$db->qn('e.featured').' = 1)';
+			} elseif ($featured == 0) {
+				$where[] = '('.$db->qn('e.featured').' = 0)';
+			}
+		}
+		
+		if (!is_null($price = $this->extra['price']) && $this->filterPrice) {
+			list($min, $max) = explode(',',$price);
+			$where[] = '('.$db->qn('tickets.price').' >= '.$db->q($min).' AND '.$db->qn('tickets.price').' <= '.$db->q($max).')';
+		}
+		
 		return !empty($where) ? ' AND ('.implode(' '.$this->operator.' ',$where).')' : '';
 	}
 	
@@ -791,4 +875,9 @@ class RSEventsQuery
 		
 		return !empty($select) ? implode(', ',$select) : $db->qn('e.id');
 	}
+}
+
+// Keep this class for legacy
+class RSEventsQuery extends RSEventsProQuery {
+	
 }
