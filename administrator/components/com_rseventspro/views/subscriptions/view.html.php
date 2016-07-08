@@ -21,9 +21,9 @@ class rseventsproViewSubscriptions extends JViewLegacy
 		
 		if ($this->layout == 'scan') {
 			JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_EVENT_SCAN_TICKET'),'rseventspro48');
+			JToolBar::getInstance('toolbar')->appendButton( 'Link', 'back', JText::_('COM_RSEVENTSPRO_GLOBAL_BACK_BTN'), JRoute::_('index.php?option=com_rseventspro&view=subscriptions'));
 			
 			$this->scan			= rseventsproHelper::getScan();
-			$this->event		= $this->get('Event');
 		} else {
 			$this->items 		= $this->get('Items');
 			$this->pagination 	= $this->get('Pagination');
@@ -33,6 +33,8 @@ class rseventsproViewSubscriptions extends JViewLegacy
 			
 			$this->addToolBar();
 		}
+		
+		JFactory::getApplication()->triggerEvent('rsepro_adminSubscriptionsDisplayLayout', array(array('view' => &$this)));
 
 		parent::display($tpl);
 	}
@@ -54,7 +56,6 @@ class rseventsproViewSubscriptions extends JViewLegacy
 		}
 		
 		JToolBar::getInstance('toolbar')->appendButton( 'Link', 'lamp', JText::_('COM_RSEVENTSPRO_EVENT_SCAN_TICKET'), JRoute::_('index.php?option=com_rseventspro&view=subscriptions&layout=scan'));
-		JToolBarHelper::custom('subscriptions.confirmsubscriber','approve','approve',JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_CONFIRM'));
 		JToolBarHelper::custom('rseventspro','rseventspro32','rseventspro32',JText::_('COM_RSEVENTSPRO_GLOBAL_NAME'),false);
 		
 		if (rseventsproHelper::isJ3()) {

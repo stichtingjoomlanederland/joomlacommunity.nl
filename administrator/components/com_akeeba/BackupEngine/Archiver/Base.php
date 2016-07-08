@@ -14,11 +14,11 @@ namespace Akeeba\Engine\Archiver;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Util\Filesystem;
-use Psr\Log\LogLevel;
+use Akeeba\Engine\Base\Object as BaseObject;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
-use Akeeba\Engine\Base\Object as BaseObject;
+use Akeeba\Engine\Util\Filesystem;
+use Psr\Log\LogLevel;
 
 if ( !defined('AKEEBA_CHUNK'))
 {

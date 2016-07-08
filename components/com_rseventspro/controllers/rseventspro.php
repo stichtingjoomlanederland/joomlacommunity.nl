@@ -632,7 +632,7 @@ class rseventsproControllerRseventspro extends JControllerLegacy
 		}
 		
 		echo '<script type="text/javascript">'."\n";
-		echo 'window.parent.hm(\'box\')'."\n";
+		echo 'window.parent.SqueezeBox.close()'."\n";
 		echo '</script>'."\n";
 		JFactory::getApplication()->close();
 	}
@@ -690,15 +690,15 @@ class rseventsproControllerRseventspro extends JControllerLegacy
 	}
 	
 	// Confirm a subscriber
-	public function confirmsubscriber() {
-		JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
-		
+	public function confirm() {
 		// Get the model
 		$model = $this->getModel();
+		// Get the subscription id
+		$id = JFactory::getApplication()->input->getInt('id',0);
+		// Get code
+		$code = JFactory::getApplication()->input->getString('code');
 		
-		echo 'RS_DELIMITER0';
-		echo $model->confirmsubscriber();
-		echo 'RS_DELIMITER1';
+		echo $model->confirm($id, $code);
 		JFactory::getApplication()->close();
 	}
 	

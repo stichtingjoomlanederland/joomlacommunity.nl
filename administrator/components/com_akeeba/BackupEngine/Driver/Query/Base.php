@@ -15,9 +15,9 @@ namespace Akeeba\Engine\Driver\Query;
 defined('AKEEBAENGINE') or die();
 
 use Akeeba\Engine\Driver\Base as DriverBase;
-use Akeeba\Engine\Driver\QueryException;
 use Akeeba\Engine\Driver\Query\Element as QueryElement;
 use Akeeba\Engine\Driver\Query\Limitable as QueryLimitable;
+use Akeeba\Engine\Driver\QueryException;
 
 /**
  * Query Building Class.

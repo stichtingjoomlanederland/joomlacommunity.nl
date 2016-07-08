@@ -63,6 +63,27 @@ class rseventsproTableDiscount extends JTable
 			return false;
 		}
 		
+		// Make sure the entered code is unique in the discounts table
+		$query = $db->getQuery(true)->select($db->qn('id'))
+			->from($db->qn('#__rseventspro_discounts'))
+			->where($db->qn('code').' = '.$db->q($this->code))
+			->where($db->qn('id').' <> '.$db->q($this->id));
+		$db->setQuery($query);
+		if ((int) $db->loadResult()) {
+			$this->setError(JText::_('COM_RSEVENTSPRO_DISCOUNT_UNIQUE_CODE_ERROR'));
+			return false;
+		}
+		
+		// Search for coupon code within other codes
+		$query = $db->getQuery(true)->select($db->qn('id'))
+			->from($db->qn('#__rseventspro_coupon_codes'))
+			->where($db->qn('code').' = '.$db->q($this->code));
+		$db->setQuery($query);
+		if ((int) $db->loadResult()) {
+			$this->setError(JText::_('COM_RSEVENTSPRO_DISCOUNT_UNIQUE_CODE_EVENT_ERROR'));
+			return false;
+		}
+		
 		return true;
 	}
 }

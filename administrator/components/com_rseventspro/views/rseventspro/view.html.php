@@ -17,34 +17,21 @@ class rseventsproViewRseventspro extends JViewLegacy
 	protected $comments;
 	
 	public function display($tpl = null) {		
-		$layout = $this->getLayout();	
+		$this->version		= (string) new RSEventsProVersion();	
+		$this->config		= rseventsproHelper::getConfig();
+		$this->code			= $this->config->global_code;
+		$this->middle		= $this->config->dashboard_upcoming || $this->config->dashboard_subscribers || ($this->config->dashboard_comments && !in_array($this->config->event_comment,array(0,1)));
+		$this->events		= $this->get('Events');
+		$this->subscribers	= $this->get('Subscribers');
+		$this->comments		= $this->get('Comments');
+		$this->buttons		= $this->get('Buttons');
 		
-		$this->version = (string) new RSEventsProVersion();
-		
-		if ($layout == 'update') {
-			$this->sidebar = rseventsproHelper::isJ3() ? JHtmlSidebar::render() : '';
-			$jversion = new JVersion();
-			$this->jversion = $jversion->getShortVersion();
-		} else {
-			$this->config		= rseventsproHelper::getConfig();
-			$this->code			= $this->config->global_code;
-			$this->middle		= $this->config->dashboard_upcoming || $this->config->dashboard_subscribers || ($this->config->dashboard_comments && !in_array($this->config->event_comment,array(0,1)));
-			$this->events		= $this->get('Events');
-			$this->subscribers	= $this->get('Subscribers');
-			$this->comments		= $this->get('Comments');
-			$this->buttons		= $this->get('Buttons');
-		}
-		
-		$this->addToolBar($layout);
+		$this->addToolBar();
 		parent::display($tpl);
 	}
 	
-	protected function addToolBar($layout) {
-		if ($layout == 'update') {
-			JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_UPDATE'),'rseventspro48');
-		} else {
-			JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_GLOBAL_NAME'),'rseventspro48');
-		}
+	protected function addToolBar() {
+		JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_GLOBAL_NAME'),'rseventspro48');
 		
 		if (JFactory::getUser()->authorise('core.admin', 'com_rseventspro'))
 			JToolBarHelper::preferences('com_rseventspro');

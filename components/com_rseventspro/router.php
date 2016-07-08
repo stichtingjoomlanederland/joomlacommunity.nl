@@ -199,6 +199,11 @@ function rseventsproBuildRoute(&$query)
 						
 						if (isset($query['id']))
 							$segments[] = $query['id'];
+						
+						if (isset($query['ide'])) {
+							$segments[] = $query['ide'];
+							unset($query['ide']);
+						}
 					break;
 					
 					case 'unsubscribe':
@@ -345,6 +350,11 @@ function rseventsproBuildRoute(&$query)
 				
 				if (isset($query['id']))
 					$segments[] = $query['id'];
+				
+				if (isset($query['ide'])) {
+					$segments[] = $query['ide'];
+					unset($query['ide']);
+				}
 			break;
 			
 			case 'rseventspro.approve':
@@ -352,6 +362,11 @@ function rseventsproBuildRoute(&$query)
 				
 				if (isset($query['id']))
 					$segments[] = $query['id'];
+				
+				if (isset($query['ide'])) {
+					$segments[] = $query['ide'];
+					unset($query['ide']);
+				}
 			break;
 			
 			case 'rseventspro.pending':
@@ -359,6 +374,11 @@ function rseventsproBuildRoute(&$query)
 				
 				if (isset($query['id']))
 					$segments[] = $query['id'];
+				
+				if (isset($query['ide'])) {
+					$segments[] = $query['ide'];
+					unset($query['ide']);
+				}
 			break;
 			
 			case 'rseventspro.denied':
@@ -366,6 +386,11 @@ function rseventsproBuildRoute(&$query)
 				
 				if (isset($query['id']))
 					$segments[] = $query['id'];
+				
+				if (isset($query['ide'])) {
+					$segments[] = $query['ide'];
+					unset($query['ide']);
+				}
 			break;
 			
 			case 'rseventspro.unsubscribe':
@@ -380,6 +405,11 @@ function rseventsproBuildRoute(&$query)
 				
 				if (isset($query['id']))
 					$segments[] = $query['id'];
+				
+				if (isset($query['ide'])) {
+					$segments[] = $query['ide'];
+					unset($query['ide']);
+				}
 			break;
 			
 			case 'rseventspro.remove':
@@ -449,6 +479,8 @@ function rseventsproBuildRoute(&$query)
 		$segments[] = 'mygate-callback';
 		unset($query['rsemygate']);
 	}
+	
+	JFactory::getApplication()->triggerEvent('rsepro_buildRoute', array(array('query' => &$query, 'segments' => &$segments)));
 	
 	unset($query['view'], $query['layout'], $query['controller'], $query['task'], $query['id'], $query['pid'], $query['date'], $query['key'], $query['tmpl'], $query['method'], $query['hash']);
 	
@@ -531,9 +563,6 @@ function rseventsproParseRoute($segments)
 			$query['view']		= 'rseventspro';
 			$query['layout']	= 'show';
 			$query['id']		= isset($segments[1]) ? str_replace(':','-',$segments[1]) : null;
-			if (isset($segments[2]) && str_replace(':','-',$segments[2]) == 'mygate-callback') {
-				$query['rsemygate'] = 1;
-			}
 		break;
 		
 		case JText::_('COM_RSEVENTSPRO_LOCATION_SEF'):
@@ -637,6 +666,7 @@ function rseventsproParseRoute($segments)
 			$query['view']		= 'rseventspro';
 			$query['layout']	= 'editsubscriber';
 			$query['id']	= isset($segments[1]) ? str_replace(':','-',$segments[1]) : null;
+			$query['ide']	= isset($segments[2]) ? str_replace(':','-',$segments[2]) : null;
 		break;
 		
 		case JText::_('COM_RSEVENTSPRO_VIEW_UNSUBSCRIBE_SEF'):
@@ -661,21 +691,25 @@ function rseventsproParseRoute($segments)
 		case JText::_('COM_RSEVENTSPRO_DELETE_SUBSCRIBER_SEF'):
 			$query['task']			= 'rseventspro.removesubscriber';
 			$query['id']			= isset($segments[1]) ? str_replace(':','-',$segments[1]) : null;
+			$query['ide']			= isset($segments[2]) ? str_replace(':','-',$segments[2]) : null;
 		break;
 		
 		case JText::_('COM_RSEVENTSPRO_APPORVE_SEF'):
 			$query['task']			= 'rseventspro.approve';
 			$query['id']			= isset($segments[1]) ? str_replace(':','-',$segments[1]) : null;
+			$query['ide']			= isset($segments[2]) ? str_replace(':','-',$segments[2]) : null;
 		break;
 		
 		case JText::_('COM_RSEVENTSPRO_PENDING_SEF'):
 			$query['task']			= 'rseventspro.pending';
 			$query['id']			= isset($segments[1]) ? str_replace(':','-',$segments[1]) : null;
+			$query['ide']			= isset($segments[2]) ? str_replace(':','-',$segments[2]) : null;
 		break;
 		
 		case JText::_('COM_RSEVENTSPRO_DENIED_SEF'):
 			$query['task']			= 'rseventspro.denied';
 			$query['id']			= isset($segments[1]) ? str_replace(':','-',$segments[1]) : null;
+			$query['ide']			= isset($segments[2]) ? str_replace(':','-',$segments[2]) : null;
 		break;
 		
 		case JText::_('COM_RSEVENTSPRO_UNSUBSCRIBE_SEF'):
@@ -686,6 +720,7 @@ function rseventsproParseRoute($segments)
 		case JText::_('COM_RSEVENTSPRO_UNSUBSCRIBEUSER_SEF'):
 			$query['task']			= 'rseventspro.unsubscribeuser';
 			$query['id']			= isset($segments[1]) ? str_replace(':','-',$segments[1]) : null;
+			$query['ide']			= isset($segments[2]) ? str_replace(':','-',$segments[2]) : null;
 		break;
 		
 		case JText::_('COM_RSEVENTSPRO_DELETE_SEF'):
@@ -815,14 +850,28 @@ function rseventsproParseRoute($segments)
 		break;
 	}
 	
+	JFactory::getApplication()->triggerEvent('rsepro_parseRoute', array(array('query' => &$query, 'segments' => $segments)));
+	
+	foreach ($segments as $segment) {
+		$segment = str_replace(':','-',$segment);
+		if ($segment == 'mygate-callback') {
+			$query['rsemygate'] = 1;
+			break;
+		}
+	}
+	
 	return $query;
 }
 
 function getAllRseproRoutes()
 {
-	return array(JText::_('COM_RSEVENTSPRO_CALENDAR_SEF'), JText::_('COM_RSEVENTSPRO_CALENDAR_DAY_SEF'), JText::_('COM_RSEVENTSPRO_CALENDAR_WEEK_SEF'), JText::_('COM_RSEVENTSPRO_EVENTS_SEF'), 
-				JText::_('COM_RSEVENTSPRO_EVENT_SEF'), JText::_('COM_RSEVENTSPRO_LOCATION_SEF'), JText::_('COM_RSEVENTSPRO_EDIT_EVENT_SEF'), JText::_('COM_RSEVENTSPRO_ADD_EVENT_SEF'), JText::_('COM_RSEVENTSPRO_CATEGORY_SEF'), JText::_('COM_RSEVENTSPRO_TAG_SEF'), JText::_('COM_RSEVENTSPRO_JOIN_SEF'), JText::_('COM_RSEVENTSPRO_INVITE_SEF'), JText::_('COM_RSEVENTSPRO_MESSAGE_SEF'), JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_SEF'),JText::_('COM_RSEVENTSPRO_EXPORT_SEF'), JText::_('COM_RSEVENTSPRO_UNSUBSCRIBE_SEF'), JText::_('COM_RSEVENTSPRO_WIRE_SEF'),JText::_('COM_RSEVENTSPRO_CAPTCHA_SEF'), JText::_('COM_RSEVENTSPRO_DELETE_SEF'), JText::_('COM_RSEVENTSPRO_REMINDER_SEF'), JText::_('COM_RSEVENTSPRO_POSTREMINDER_SEF'), JText::_('COM_RSEVENTSPRO_EDIT_LOCATION_SEF'), JText::_('COM_RSEVENTSPRO_VIEW_SUBSCRIBER_SEF'), JText::_('COM_RSEVENTSPRO_EXPORT_SUBSCRIBERS_SEF'), JText::_('COM_RSEVENTSPRO_DELETE_SUBSCRIBER_SEF'), JText::_('COM_RSEVENTSPRO_APPORVE_SEF'), JText::_('COM_RSEVENTSPRO_PENDING_SEF'), JText::_('COM_RSEVENTSPRO_DENIED_SEF'), JText::_('COM_RSEVENTSPRO_FILE_SEF'), JText::_('COM_RSEVENTSPRO_UPLOAD_SEF'), JText::_('COM_RSEVENTSPRO_CROP_SEF'),JText::_('COM_RSEVENTSPRO_LOCATION_LIST_SEF'), JText::_('COM_RSEVENTSPRO_ACTIVATE_SEF'), JText::_('COM_RSEVENTSPRO_PAYMENT_SEF'), JText::_('COM_RSEVENTSPRO_PAYMENT_PROCESS_SEF'), JText::_('COM_RSEVENTSPRO_VIEW_UNSUBSCRIBE_SEF'), JText::_('COM_RSEVENTSPRO_UNSUBSCRIBEUSER_SEF'), JText::_('COM_RSEVENTSPRO_DOWNLOAD_TICKET_SEF'), JText::_('COM_RSEVENTSPRO_SEARCH_SEF'), JText::_('COM_RSEVENTSPRO_DELETE_ICON_SEF'), JText::_('COM_RSEVENTSPRO_CLEAR_SEF'), JText::_('COM_RSEVENTSPRO_FORMS_SEF'), JText::_('COM_RSEVENTSPRO_PARENT_SEF'), 
-				JText::_('COM_RSEVENTSPRO_TICKETS_SEF'), JText::_('COM_RSEVENTSPRO_SEATS_SEF'), JText::_('COM_RSEVENTSPRO_REPORT_SEF'), JText::_('COM_RSEVENTSPRO_REPORTS_SEF'), JText::_('COM_RSEVENTSPRO_SCAN_SEF'),
-				JText::_('COM_RSEVENTSPRO_USER_SEATS_SEF'), JText::_('COM_RSEVENTSPRO_PRINT_SEF'), JText::_('COM_RSEVENTSPRO_EVENT_IMAGE_SEF'), JText::_('COM_RSEVENTSPRO_PLACEHOLDERS_SEF')
-				);
+	$routes = array(JText::_('COM_RSEVENTSPRO_CALENDAR_SEF'), JText::_('COM_RSEVENTSPRO_CALENDAR_DAY_SEF'), JText::_('COM_RSEVENTSPRO_CALENDAR_WEEK_SEF'), JText::_('COM_RSEVENTSPRO_EVENTS_SEF'), 
+		JText::_('COM_RSEVENTSPRO_EVENT_SEF'), JText::_('COM_RSEVENTSPRO_LOCATION_SEF'), JText::_('COM_RSEVENTSPRO_EDIT_EVENT_SEF'), JText::_('COM_RSEVENTSPRO_ADD_EVENT_SEF'), JText::_('COM_RSEVENTSPRO_CATEGORY_SEF'), JText::_('COM_RSEVENTSPRO_TAG_SEF'), JText::_('COM_RSEVENTSPRO_JOIN_SEF'), JText::_('COM_RSEVENTSPRO_INVITE_SEF'), JText::_('COM_RSEVENTSPRO_MESSAGE_SEF'), JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_SEF'),JText::_('COM_RSEVENTSPRO_EXPORT_SEF'), JText::_('COM_RSEVENTSPRO_UNSUBSCRIBE_SEF'), JText::_('COM_RSEVENTSPRO_WIRE_SEF'),JText::_('COM_RSEVENTSPRO_CAPTCHA_SEF'), JText::_('COM_RSEVENTSPRO_DELETE_SEF'), JText::_('COM_RSEVENTSPRO_REMINDER_SEF'), JText::_('COM_RSEVENTSPRO_POSTREMINDER_SEF'), JText::_('COM_RSEVENTSPRO_EDIT_LOCATION_SEF'), JText::_('COM_RSEVENTSPRO_VIEW_SUBSCRIBER_SEF'), JText::_('COM_RSEVENTSPRO_EXPORT_SUBSCRIBERS_SEF'), JText::_('COM_RSEVENTSPRO_DELETE_SUBSCRIBER_SEF'), JText::_('COM_RSEVENTSPRO_APPORVE_SEF'), JText::_('COM_RSEVENTSPRO_PENDING_SEF'), JText::_('COM_RSEVENTSPRO_DENIED_SEF'), JText::_('COM_RSEVENTSPRO_FILE_SEF'), JText::_('COM_RSEVENTSPRO_UPLOAD_SEF'), JText::_('COM_RSEVENTSPRO_CROP_SEF'),JText::_('COM_RSEVENTSPRO_LOCATION_LIST_SEF'), JText::_('COM_RSEVENTSPRO_ACTIVATE_SEF'), JText::_('COM_RSEVENTSPRO_PAYMENT_SEF'), JText::_('COM_RSEVENTSPRO_PAYMENT_PROCESS_SEF'), JText::_('COM_RSEVENTSPRO_VIEW_UNSUBSCRIBE_SEF'), JText::_('COM_RSEVENTSPRO_UNSUBSCRIBEUSER_SEF'), JText::_('COM_RSEVENTSPRO_DOWNLOAD_TICKET_SEF'), JText::_('COM_RSEVENTSPRO_SEARCH_SEF'), JText::_('COM_RSEVENTSPRO_DELETE_ICON_SEF'), JText::_('COM_RSEVENTSPRO_CLEAR_SEF'), JText::_('COM_RSEVENTSPRO_FORMS_SEF'), JText::_('COM_RSEVENTSPRO_PARENT_SEF'), 
+		JText::_('COM_RSEVENTSPRO_TICKETS_SEF'), JText::_('COM_RSEVENTSPRO_SEATS_SEF'), JText::_('COM_RSEVENTSPRO_REPORT_SEF'), JText::_('COM_RSEVENTSPRO_REPORTS_SEF'), JText::_('COM_RSEVENTSPRO_SCAN_SEF'),
+		JText::_('COM_RSEVENTSPRO_USER_SEATS_SEF'), JText::_('COM_RSEVENTSPRO_PRINT_SEF'), JText::_('COM_RSEVENTSPRO_EVENT_IMAGE_SEF'), JText::_('COM_RSEVENTSPRO_PLACEHOLDERS_SEF')
+	);
+	
+	JFactory::getApplication()->triggerEvent('rsepro_allRoutes', array(array('routes' => &$routes)));
+	
+	return $routes;
 }

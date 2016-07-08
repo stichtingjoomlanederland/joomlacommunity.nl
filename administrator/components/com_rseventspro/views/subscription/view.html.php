@@ -46,6 +46,9 @@ class rseventsproViewSubscription extends JViewLegacy
 			
 			$this->addToolBar();
 		}
+		
+		JFactory::getApplication()->triggerEvent('rsepro_adminSubscriptionDisplayLayout', array(array('view' => &$this)));
+		
 		parent::display($tpl);
 	}
 	
@@ -68,7 +71,6 @@ class rseventsproViewSubscription extends JViewLegacy
 		$query->clear()
 			->select($db->qn('id'))->select($db->qn('name'))->select($db->qn('allday'))
 			->select($db->qn('start'))->select($db->qn('end'))
-			->select($db->qn('ticket_pdf'))->select($db->qn('ticket_pdf_layout'))
 			->select($db->qn('ticketsconfig'))
 			->from($db->qn('#__rseventspro_events'))
 			->where($db->qn('id').' = '.(int) $id);

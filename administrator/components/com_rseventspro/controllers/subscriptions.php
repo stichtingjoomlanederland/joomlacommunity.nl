@@ -81,36 +81,4 @@ class rseventsproControllerSubscriptions extends JControllerAdmin
 		$model = parent::getModel('Subscriptions', 'rseventsproModel');
 		$model->export();
 	}
-	
-	/**
-	 * Method to confirm subscription.
-	 *
-	 * @return	void
-	 * @since	1.6
-	 */
-	public function confirmsubscriber() {
-		JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
-		
-		// Get the model
-		$model = $this->getModel();
-		
-		$pks	= JFactory::getApplication()->input->get('cid',array(),'array');
-		$id		= JFactory::getApplication()->input->getInt('id',0);
-		
-		if (!empty($id)) {
-			$pks = array($id);
-		}
-		
-		JArrayHelper::toInteger($pks);
-		
-		echo 'RS_DELIMITER0';
-		echo $model->confirmsubscriber($pks);
-		echo 'RS_DELIMITER1';
-		
-		if (!empty($id)) {
-			JFactory::getApplication()->close();
-		}
-		
-		$this->setRedirect('index.php?option=com_rseventspro&view=subscriptions');
-	}
 }

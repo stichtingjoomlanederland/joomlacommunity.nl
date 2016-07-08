@@ -14,18 +14,18 @@ $tags = (isset($this->details['tags']) && !empty($this->details['tags'])) ? JTex
 	<?php if (!empty($event->options['show_icon_list'])) { ?>
 	<div class="rsepro_plugin_image">
 		<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name).$this->itemid); ?>" class="rs_event_link thumbnail">
-			<img src="<?php echo JRoute::_('index.php?option=com_rseventspro&task=image&id='.rseventsproHelper::sef($event->id,$event->name).$this->itemid, false); ?>" alt="" width="<?php echo $this->config->icon_small_width; ?>" />
+			<img src="<?php echo rseventsproHelper::thumb($event->id, $this->config->icon_small_width); ?>" alt="" width="<?php echo $this->config->icon_small_width; ?>" />
 		</a>
 	</div>
 	<?php } ?>
 	
 	<div class="rsepro_plugin_content">
-		<div>
+		<div class="rsepro-title-block">
 			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name).$this->itemid); ?>" class="rsepro_plugin_link">
 				<?php echo $event->name; ?>
 			</a>
 		</div>
-		<div>
+		<div class="rsepro-date-block">
 			<?php if ($event->allday) { ?>
 			<?php if (!empty($event->options['start_date_list'])) { ?>
 			<span class="rsepro-event-on-block">
@@ -62,7 +62,7 @@ $tags = (isset($this->details['tags']) && !empty($this->details['tags'])) ? JTex
 			<?php } ?>
 		</div>
 		<?php if (!empty($event->options['show_location_list']) || !empty($event->options['show_categories_list']) || !empty($event->options['show_tags_list'])) { ?>
-		<div>
+		<div class="rsepro-event-taxonomies-block">
 			<?php if ($event->locationid && $event->lpublished && !empty($event->options['show_location_list'])) { ?>
 			<span class="rsepro-event-location-block" itemprop="location" itemscope itemtype="http://schema.org/Place"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_AT'); ?> <a itemprop="url" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=location&id='.rseventsproHelper::sef($event->locationid,$event->location)); ?>"><span itemprop="name"><?php echo $event->location; ?></span></a>
 			<span itemprop="address" style="display:none;"><?php echo $event->address; ?></span>
@@ -74,6 +74,11 @@ $tags = (isset($this->details['tags']) && !empty($this->details['tags'])) ? JTex
 			<?php if (!empty($event->options['show_tags_list'])) { ?>
 			<span class="rsepro-event-tags-block"><?php echo $tags; ?></span> 
 			<?php } ?>
+		</div>
+		<?php } ?>
+		<?php if (!empty($event->small_description)) { ?>
+		<div class="rsepro-small-description-block">
+			<?php echo $event->small_description; ?>
 		</div>
 		<?php } ?>
 	</div>

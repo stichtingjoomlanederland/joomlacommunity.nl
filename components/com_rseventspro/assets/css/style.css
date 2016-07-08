@@ -12,7 +12,7 @@
 
 .rs_event_image {
 	float: left;
-	padding: 5px;
+	padding: 5px 5px 0;
 }
 
 .rs_event_details {
@@ -30,7 +30,7 @@
 }
 
 .rs_event_detail:hover {
-	background: none repeat scroll 0 0 #FFFFFF !important;
+	background: #eee none repeat scroll 0 0 !important;
 }
 
 .rs_read_more {
@@ -832,6 +832,31 @@ ul.rs_files li{
 
 #rsepro-directions-panel table {
     width: 100%;
+}
+
+#rsepro-filter-price {
+    padding: 11px 15px;
+}
+
+.rsepro-min-price {
+	margin-right: 15px;
+}
+
+.rsepro-max-price {
+	margin-left: 15px;
+}
+
+.rsepro-small-description-block {
+    text-align: justify;
+}
+
+.rsepro-title-block {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.rs_event_details > div {
+    margin-bottom: 5px;
 }
 
 @media (max-width: 767px) {

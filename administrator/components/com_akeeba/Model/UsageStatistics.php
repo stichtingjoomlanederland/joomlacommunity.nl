@@ -30,9 +30,16 @@ class UsageStatistics extends Model
 	public function checkAndFixCommonTables()
 	{
 		// Install or update database
-		$container   = $this->container;
-		$dbInstaller = new Installer($container->db, $container->backEndPath . '/sql/common');
-		$dbInstaller->updateSchema();
+		try
+		{
+
+		}
+		catch (\Exception $e)
+		{
+			$container   = $this->container;
+			$dbInstaller = new Installer($container->db, $container->backEndPath . '/sql/common');
+			$dbInstaller->updateSchema();
+		}
 
 		return $this;
 	}
@@ -75,21 +82,27 @@ class UsageStatistics extends Model
 	 */
 	public function collectStatistics($useIframe)
 	{
+		// Is data collection turned off?
+		if (!$this->container->params->get('stats_enabled', 1))
+		{
+			return false;
+		}
+
 		// Do not collect statistics on localhost
-		if (
+		// -- Actually, using Akeeba Backup on localhost is a perfectly legitimate use case
+/*		if (
 			(strpos(JUri::root(), 'localhost') !== false) ||
 			(strpos(JUri::root(), '127.0.0.1') !== false)
 		)
 		{
 			return false;
-		}
+		}*/
 
 		// Make sure the common tables are installed
 		$this->checkAndFixCommonTables();
 
 		// Make sure there is a site ID set
-		$siteId = $this->getSiteId();
-
+		$siteId    = $this->getSiteId();
 		$container = $this->container;
 
 		// UsageStats file is missing, no need to continue
@@ -100,7 +113,7 @@ class UsageStatistics extends Model
 
 		if (!class_exists('AkeebaUsagestats', false))
 		{
-			require_once $container->backEndPath . '/Master/Stats/usagestats.php';
+			@include_once $container->backEndPath . '/Master/Stats/usagestats.php';
 		}
 
 		// UsageStats file is missing, no need to continue
@@ -111,19 +124,16 @@ class UsageStatistics extends Model
 
 		$lastrun = $this->getCommonVariable('stats_lastrun', 0);
 
-		// Is data collection is turned off?
-		if (!$this->container->params->get('stats_enabled', 1))
-		{
-			return false;
-		}
-
 		// It's not time to collect the stats
 		if (time() < ($lastrun + 3600 * 24))
 		{
 			return false;
 		}
 
-		@include_once $container->backEndPath . '/version.php';
+		if (!defined('AKEEBA_VERSION'))
+		{
+			@include_once $container->backEndPath . '/version.php';
+		}
 
 		if (!defined('AKEEBA_VERSION'))
 		{
@@ -132,7 +142,15 @@ class UsageStatistics extends Model
 		}
 
 		$db    = $container->db;
-		$stats = new AkeebaUsagestats();
+
+		try
+		{
+			$stats = new AkeebaUsagestats();
+		}
+		catch (\Exception $e)
+		{
+			return false;
+		}
 
 		$stats->setSiteId($siteId);
 

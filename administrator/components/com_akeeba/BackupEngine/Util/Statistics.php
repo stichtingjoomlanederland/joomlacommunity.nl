@@ -13,10 +13,10 @@ namespace Akeeba\Engine\Util;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Psr\Log\LogLevel;
 use Akeeba\Engine\Base\Object;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
+use Psr\Log\LogLevel;
 
 class Statistics extends Object
 {

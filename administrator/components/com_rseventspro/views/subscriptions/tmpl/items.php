@@ -30,7 +30,6 @@ if (!empty($this->items)) {
 		echo '<td class="center hidden-phone">'.rseventsproHelper::currency(rseventsproHelper::total($item->id)).'</td>';
 		echo '<td class="center hidden-phone">'.($payment ? $payment : '-').'</td>';
 		echo '<td class="center hidden-phone">'.$this->getStatus($item->state).'</td>';
-		echo '<td class="center hidden-phone">'.($item->confirmed ? JText::_('JYES') : JText::_('JNO')).'</td>';
 		echo '<td class="center hidden-phone">'.$item->id.'</td>';
 		echo '</tr>';
 	}

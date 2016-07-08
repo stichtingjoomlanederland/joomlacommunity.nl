@@ -20,7 +20,7 @@ defined('_JEXEC') or die();
 		</h3>
 	</div>
 	<div class="modal-body">
-        <?php echo \JText::sprintf('COM_AKEEBA_BUADMIN_LABEL_HOWDOIRESTORE_TEXT_' . ((defined('AKEEBA_PRO') && AKEEBA_PRO) ? 'PRO' : 'CORE'),
+        <?php echo \JText::sprintf('COM_AKEEBA_BUADMIN_LABEL_HOWDOIRESTORE_TEXT_PRO',
                 'https://www.akeebabackup.com/videos/1212-akeeba-backup-core/1618-abtc04-restore-site-new-server.html',
                 'index.php?option=com_akeeba&view=Transfer',
                 'https://www.akeebabackup.com/latest-kickstart-core.zip'

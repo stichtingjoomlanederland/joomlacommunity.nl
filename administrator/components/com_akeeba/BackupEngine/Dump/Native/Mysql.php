@@ -14,9 +14,9 @@ namespace Akeeba\Engine\Dump\Native;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Psr\Log\LogLevel;
 use Akeeba\Engine\Dump\Base;
 use Akeeba\Engine\Factory;
+use Psr\Log\LogLevel;
 
 /**
  * A generic MySQL database dump class.
@@ -329,24 +329,6 @@ class Mysql extends Base
 					}
 				}
 
-				// Check whether any column contains large amounts of data which could create restoration issues
-				if ($lastTableWithLargeColumns != $tableName)
-				{
-					foreach ($myRow as $columnName => $columnData)
-					{
-						$columnSize = strlen($columnData);
-
-						if ($columnSize >= 1024 * 1024)
-						{
-							Factory::getLog()
-							       ->log(LogLevel::WARNING, "Table column $columnName of table $tableAbstract contains $columnSize bytes of data. It could cause restoration issues");
-							$this->setWarning("Table column $columnName of table $tableAbstract contains $columnSize bytes of data. It could cause restoration issues");
-
-							$configuration->set('volatile.database.last_large_col_table', $tableName);
-						}
-					}
-				}
-
 				if (
 					(!$this->extendedInserts) || // Add header on simple INSERTs, or...
 					($this->extendedInserts && empty($this->query)) //...on extended INSERTs if there are no other data, yet
@@ -377,7 +359,7 @@ class Mysql extends Base
 				// Fix 1.2a - NULL values were being skipped
 				if ($numOfFields > 0)
 				{
-					foreach ($myRow as $value)
+					foreach ($myRow as $fieldName => $value)
 					{
 						// The ID of the field, used to determine placement of commas
 						$fieldID ++;
@@ -411,13 +393,35 @@ class Mysql extends Base
 						}
 						else
 						{
+							// Check whether any column contains large amounts of data which could create restoration issues
+							if ($lastTableWithLargeColumns != $tableName)
+							{
+								$columnSize = strlen($value);
+
+								if ($columnSize >= 1024 * 1024)
+								{
+									Factory::getLog()
+									       ->log(LogLevel::WARNING, "Column $fieldName of table $tableAbstract contains $columnSize bytes of data. This may cause restoration issues.");
+									$this->setWarning("Column $fieldName of table $tableAbstract contains $columnSize bytes of data. This may cause restoration issues.");
+
+									$configuration->set('volatile.database.last_large_col_table', $tableName);
+									$lastTableWithLargeColumns = $tableName;
+								}
+							}
+
 							// Accommodate for runtime magic quotes
-							$value = @get_magic_quotes_runtime() ? stripslashes($value) : $value;
+							if (function_exists('get_magic_quotes_runtime'))
+							{
+								$value = @get_magic_quotes_runtime() ? stripslashes($value) : $value;
+							}
+
 							$value = $db->quote($value);
+
 							if ($this->postProcessValues)
 							{
 								$value = $this->postProcessQuotedValue($value);
 							}
+
 							$outData .= $value;
 						}
 
@@ -577,7 +581,7 @@ class Mysql extends Base
 				$this->setSubstep('');
 				$this->nextTable = '';
 				$this->nextRange = 0;
-				$configuration->set('volatile.database.last_large_col_table', $tableName);
+				$configuration->set('volatile.database.last_large_col_table', '');
 			}
 			elseif (count($this->tables) != 0)
 			{

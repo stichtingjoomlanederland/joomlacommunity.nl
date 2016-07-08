@@ -15,6 +15,14 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_config` (
   PRIMARY KEY (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `#__rseventspro_confirmed` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ids` int(11) NOT NULL,
+  `code` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `ids` (`ids`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `#__rseventspro_countries` (
   `name` varchar(255) NOT NULL,
   UNIQUE KEY `name` (`name`)
@@ -87,6 +95,7 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_events` (
   `start` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `end` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `description` text NOT NULL,
+  `small_description` text NOT NULL,
   `location` int(2) NOT NULL,
   `owner` int(11) NOT NULL,
   `URL` varchar(500) NOT NULL,
@@ -251,6 +260,8 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_tickets` (
   `description` text NOT NULL,
   `position` text NOT NULL,
   `groups` text NOT NULL,
+  `attach` tinyint(1) NOT NULL,
+  `layout` longtext NOT NULL,
   `order` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
@@ -455,6 +466,9 @@ INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('modal_widt
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('modal_heigth', '600');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('timezone', '0');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('fontawesome', '1');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('canonical', '1');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('default_image', 'blank.png');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('google_map_api', '');
 
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Afghanistan');
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Akrotiri');

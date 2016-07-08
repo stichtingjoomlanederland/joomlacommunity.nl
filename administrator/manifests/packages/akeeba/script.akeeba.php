@@ -257,8 +257,6 @@ class Pkg_AkeebaInstallerScript
 	 */
 	private function enableExtensions()
 	{
-		$db = JFactory::getDbo();
-
 		foreach ($this->extensionsToEnable as $ext)
 		{
 			$this->enableExtension($ext[0], $ext[1], $ext[2], $ext[3]);
@@ -275,13 +273,20 @@ class Pkg_AkeebaInstallerScript
 	 */
 	private function enableExtension($type, $name, $client = 1, $group = null)
 	{
-		$db = JFactory::getDbo();
+		try
+		{
+			$db    = JFactory::getDbo();
+			$query = $db->getQuery(true)
+			            ->update('#__extensions')
+			            ->set($db->qn('enabled') . ' = ' . $db->q(1))
+			            ->where('type = ' . $db->quote($type))
+			            ->where('element = ' . $db->quote($name));
+		}
+		catch (\Exception $e)
+		{
+			return;
+		}
 
-		$query = $db->getQuery(true)
-					->update('#__extensions')
-					->set($db->qn('enabled') . ' = ' . $db->q(1))
-		            ->where('type = ' . $db->quote($type))
-		            ->where('element = ' . $db->quote($name));
 
 		switch ($type)
 		{
@@ -307,10 +312,9 @@ class Pkg_AkeebaInstallerScript
 				break;
 		}
 
-		$db->setQuery($query);
-
 		try
 		{
+			$db->setQuery($query);
 			$db->execute();
 		}
 		catch (\Exception $e)

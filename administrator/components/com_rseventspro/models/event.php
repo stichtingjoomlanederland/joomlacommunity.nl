@@ -335,7 +335,12 @@ class rseventsproModelEvent extends JModelAdmin
 			->where($db->qn('id').' = '.$id);
 		
 		$db->setQuery($query);
-		return $db->execute();
+		$response = $db->execute();
+		
+		if ($response)
+			JFactory::getApplication()->triggerEvent('rsepro_afterDeleteTicket', array(array('id' => $id)));
+		
+		return $response;
 	}
 	
 	/**
@@ -382,6 +387,7 @@ class rseventsproModelEvent extends JModelAdmin
 		$path	= JPATH_SITE.'/components/com_rseventspro/assets/images/events/';
 		$empty  = empty($local) && $icon['size'] == 0;
 		$type	= '';
+		$config = rseventsproHelper::getConfig();
 		
 		if ($icon['size'] > 0 && $icon['error'] == 0) {
 			$type = 'upload';
@@ -407,6 +413,29 @@ class rseventsproModelEvent extends JModelAdmin
 			if ($eventicon = $db->loadResult()) {
 				if (JFile::exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/'.$eventicon)) {
 					JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/'.$eventicon);
+				}
+				
+				$extension	= JFile::getExt($eventicon);
+				$name		= JFile::stripExt($eventicon);
+				
+				// Delete small icon
+				if (file_exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/'.$config->icon_small_width.'/'.md5($config->icon_small_width.$name).'.'.$extension)) {
+					JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/'.$config->icon_small_width.'/'.md5($config->icon_small_width.$name).'.'.$extension);
+				}
+				
+				// Delete big icon
+				if (file_exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/'.$config->icon_big_width.'/'.md5($config->icon_big_width.$name).'.'.$extension)) {
+					JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/'.$config->icon_big_width.'/'.md5($config->icon_big_width.$name).'.'.$extension);
+				}
+				
+				// Delete event listing icon from backend
+				if (file_exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/70/'.md5('70'.$name).'.'.$extension)) {
+					JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/70/'.md5('70'.$name).'.'.$extension);
+				}
+				
+				// Delete event edit icon
+				if (file_exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/188/'.md5('188'.$name).'.'.$extension)) {
+					JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/188/'.md5('188'.$name).'.'.$extension);
 				}
 			}
 			

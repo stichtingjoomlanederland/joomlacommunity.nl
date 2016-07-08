@@ -14,8 +14,8 @@ namespace Akeeba\Engine\Util;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Psr\Log\LogLevel;
 use Akeeba\Engine\Factory;
+use Psr\Log\LogLevel;
 
 /**
  * Temporary files management class. Handles creation, tracking and cleanup.

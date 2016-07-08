@@ -27,6 +27,14 @@ trait ActivateProfile
 
 		$this->container->session->set('profile', $profile, 'akeeba');
 
+		/**
+		 * DO NOT REMOVE!
+		 *
+		 * The Model will only try to load the configuration after nuking the factory. This causes Profile 1 to be
+		 * loaded first. Then it figures out it needs to load a different profile and it does – but the protected keys
+		 * are NOT replaced, meaning that certain configuration parameters are not replaced. Most notably, the chain.
+		 * This causes backups to behave weirdly. So, DON'T REMOVE THIS UNLESS WE REFACTOR THE MODEL.
+		 */
 		Platform::getInstance()->load_configuration($profile);
 	}
 

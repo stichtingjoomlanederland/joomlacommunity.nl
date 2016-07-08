@@ -24,9 +24,12 @@ jQuery(document).ready(function() {
 		<div class="subscriber_container well">
 		<?php if (is_array($this->scan)) { ?>
 		<?php $subscriber	= $this->scan['subscriber']; ?>
-		<?php $tickets		= $this->scan['tickets']; ?>
+		<?php $ticket		= $this->scan['ticket']; ?>
+		<?php $total		= $this->scan['total']; ?>
+		<?php $code			= $this->scan['code']; ?>
+		<?php $confirmed	= $this->scan['confirmed']; ?>
 			<div class="subscriber_event">
-				<span><?php echo $this->event->name; ?> <small>(<?php echo rseventsproHelper::showdate($this->event->start).' - '.rseventsproHelper::showdate($this->event->end); ?>)</small></span>
+				<h3><?php echo $this->event->name; ?> <small>(<?php echo $this->event->allday ? rseventsproHelper::showdate($this->event->start) : rseventsproHelper::showdate($this->event->start).' - '.rseventsproHelper::showdate($this->event->end); ?>)</small></h3>
 			</div>
 			
 			<hr />
@@ -45,11 +48,11 @@ jQuery(document).ready(function() {
 			<hr />
 			
 			<div class="subscriber_confirmation">
-				<span id="confirm<?php echo $subscriber->id; ?>">
-					<?php if ($subscriber->confirmed) { ?>
+				<span>
+					<?php if ($confirmed) { ?>
 						<span class="subscriber_confirmed"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_CONFIRMED'); ?></span>
 					<?php } else { ?>
-						<a href="javascript:void(0)" onclick="rsepro_confirm_subscriber(<?php echo $subscriber->id; ?>, '<?php echo JSession::getFormToken(); ?>')"><?php echo JText::_('COM_RSEVENTSPRO_CONFIRM_SUBSCRIBER'); ?></a>
+						<a href="javascript:void(0)" onclick="rsepro_confirm_ticket(<?php echo $subscriber->id; ?>, '<?php echo $code; ?>', this);"><?php echo JText::_('COM_RSEVENTSPRO_CONFIRM_SUBSCRIBER'); ?></a>
 						<span id="subscriptionConfirm" style="display:none;"><br /><img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/loader.gif" alt="" /></span>
 					<?php } ?>
 				</span>
@@ -57,47 +60,37 @@ jQuery(document).ready(function() {
 			
 			<hr />
 			
-			<?php if (!empty($tickets)) { ?>
-			<?php $total = 0; ?>
-			
 			<div class="subscriber_info">
 				<span class="subscriber_left">
-					<?php foreach ($tickets as $ticket) { ?>
-					<?php if ($ticket->price > 0) { ?>
-					<?php $total += $ticket->quantity * $ticket->price; ?>
-					<?php echo $ticket->quantity; ?> x <?php echo $ticket->name; ?> (<?php echo rseventsproHelper::currency($ticket->price); ?>) <br />
-					<?php } else { ?>
-					<?php echo $ticket->quantity; ?> x <?php echo $ticket->name; ?> (<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>) <br />
-					<?php } ?>
-					<?php } ?>
+					<?php 
+						if ($ticket) {
+							echo $ticket->name.' ('.($ticket->price > 0 ? rseventsproHelper::currency($ticket->price) : JText::_('COM_RSEVENTSPRO_GLOBAL_FREE')).')';
+						}
+					?>
 				</span>
-				<?php if ($subscriber->discount) $total = $total - $subscriber->discount; ?>
+				
 				<span class="subscriber_right">
-					<span><b><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIPTION_PAYMENT'); ?></b> <?php echo rseventsproHelper::getPayment($subscriber->gateway); ?>
+					<span><b><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIPTION_PAYMENT'); ?></b> <?php echo rseventsproHelper::getPayment($subscriber->gateway); ?></span>
 					
 					<?php if ($subscriber->early_fee) { ?>
-					<span><b><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_EARLY_FEE'); ?></b> <?php echo rseventsproHelper::currency($subscriber->early_fee); ?>
-					<?php $total = $total - $subscriber->early_fee; ?>
+					<span><b><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_EARLY_FEE'); ?></b> <?php echo rseventsproHelper::currency($subscriber->early_fee); ?></span>
 					<?php } ?>
 					
 					<?php if ($subscriber->late_fee) { ?>
-					<span><b><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_LATE_FEE'); ?></b> <?php echo rseventsproHelper::currency($subscriber->late_fee); ?>
-					<?php $total = $total + $subscriber->late_fee; ?>
+					<span><b><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_LATE_FEE'); ?></b> <?php echo rseventsproHelper::currency($subscriber->late_fee); ?></span>
 					<?php } ?>
 					
 					<?php if ($subscriber->tax) { ?>
-					<span><b><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_TAX'); ?></b> <?php echo rseventsproHelper::currency($subscriber->tax); ?>
-					<?php $total = $total + $subscriber->tax; ?>	
+					<span><b><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_TAX'); ?></b> <?php echo rseventsproHelper::currency($subscriber->tax); ?></span>
 					<?php } ?>
 					
 					<?php if ($subscriber->discount) { ?>
-					<span><b><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_DISCOUNT'); ?></b> <?php echo rseventsproHelper::currency($subscriber->discount); ?>
+					<span><b><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_DISCOUNT'); ?></b> <?php echo rseventsproHelper::currency($subscriber->discount); ?></span>
 					<?php } ?>
 					
-					<span><b><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_TOTAL'); ?></b> <?php echo rseventsproHelper::currency($total); ?>
+					<span><b><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_TOTAL'); ?></b> <?php echo rseventsproHelper::currency($total); ?></span>
 				</span>
 			</div>
-			<?php } ?>
 			
 			<?php } else { ?> 
 			<b><?php echo $this->scan; ?></b>

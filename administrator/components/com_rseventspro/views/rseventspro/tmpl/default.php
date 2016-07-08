@@ -81,7 +81,11 @@ defined('_JEXEC') or die('Restricted access');?>
 						<?php foreach ($this->subscribers as $subscriber) { ?>
 							<tr>
 								<td>
-									<a href="<?php echo JRoute::_('index.php?option=com_rseventspro&task=event.edit&id='.$subscriber->eid); ?>"><?php echo $subscriber->ename; ?></a>
+									<?php if ($subscriber->events) { ?>
+									<?php foreach ($subscriber->events as $event) { ?>
+									<a href="<?php echo JRoute::_('index.php?option=com_rseventspro&task=event.edit&id='.$event->id); ?>"><?php echo $event->name; ?></a> <br />
+									<?php } ?>
+									<?php } ?>
 								</td>
 								<td align="center"><a href="<?php echo JRoute::_('index.php?option=com_rseventspro&task=subscription.edit&id='.$subscriber->id); ?>"><?php echo $subscriber->name; ?></a></td>
 								<td align="center"><?php echo rseventsproHelper::showdate($subscriber->date,null,true); ?></td>

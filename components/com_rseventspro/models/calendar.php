@@ -56,7 +56,7 @@ class rseventsproModelCalendar extends JModelLegacy
 		$date		= $this->_app->input->getString('date');
 		$layout 	= $this->_app->input->get('layout');
 		$tpl		= $this->_app->input->get('tpl');
-		$query		= RSEventsQuery::getInstance($params);
+		$query		= RSEventsProQuery::getInstance($params);
 		
 		$query->select(array('e.id', 'e.name', 'e.start', 'e.end', 'e.allday'));
 		
@@ -356,10 +356,81 @@ class rseventsproModelCalendar extends JModelLegacy
 		return $registry;
 	}
 	
+	// Get extra filters
+	public function getExtraFilters() {
+		$itemid 	= $this->_app->input->getInt('Itemid');
+		
+		$status		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_status'.$itemid,		'filter_status',	array(), 'array');
+		$featured	= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_featured'.$itemid,	'filter_featured',	array(), 'array');
+		$childs		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_child'.$itemid, 		'filter_child',		array(), 'array');
+		$start		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_start'.$itemid, 		'filter_start',		array(), 'array');
+		$end		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_end'.$itemid, 		'filter_end',		array(), 'array');
+		$price		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_price'.$itemid, 		'filter_price',		array(), 'array');
+		
+		$status		= $status[0] 	== '' ? null : $status;
+		$featured	= $featured[0] 	== '' ? null : $featured[0];
+		$childs		= $childs[0] 	== '' ? null : $childs[0];
+		$start		= $start[0] 	== '' ? null : $start[0];
+		$end		= $end[0] 		== '' ? null : $end[0];
+		$price		= $price[0] 	== '' ? null : $price[0];
+		
+		if (is_array($status)) {
+			$status = array_unique($status);
+			
+			foreach ($status as $key => $option) {
+				if ($option == '') unset($status[$key]);
+			}	
+		}
+		
+		return array('status' => $status, 'featured' => $featured, 'childs' => $childs, 'start' => $start, 'end' => $end, 'price' => $price);
+	}
+	
+	public function getConditions() {
+		$filters	= $this->getFilters();
+		$other		= $this->getExtraFilters();
+		$columns	= isset($filters[0]) ? $filters[0] : array();
+		$count		= 0;
+		
+		foreach($columns as $column) {
+			if ($column == '') continue;
+			$count++;
+		}
+		
+		if (!is_null($other['status'])) {
+			foreach ($other['status'] as $status) {
+				if ($status == '') continue;
+				$count++;
+			}
+		}
+			
+		if (!is_null($other['featured'])) {
+			$count++;
+		}
+		
+		if (!is_null($other['childs'])) {
+			$count++;
+		}
+		
+		if (!is_null($other['start'])) {
+			$count++;
+		}
+		
+		if (!is_null($other['end'])) {
+			$count++;
+		}
+		
+		if (!is_null($other['price'])) {
+			$count++;
+		}
+		
+		return $count;
+	}
+	
 	public function getFilterOptions() { 
 		return array(JHTML::_('select.option', 'events', JText::_('COM_RSEVENTSPRO_FILTER_NAME')), JHTML::_('select.option', 'description', JText::_('COM_RSEVENTSPRO_FILTER_DESCRIPTION')), 
 			JHTML::_('select.option', 'locations', JText::_('COM_RSEVENTSPRO_FILTER_LOCATION')) ,JHTML::_('select.option', 'categories', JText::_('COM_RSEVENTSPRO_FILTER_CATEGORY')),
-			JHTML::_('select.option', 'tags', JText::_('COM_RSEVENTSPRO_FILTER_TAG'))
+			JHTML::_('select.option', 'tags', JText::_('COM_RSEVENTSPRO_FILTER_TAG')), JHTML::_('select.option', 'featured', JText::_('COM_RSEVENTSPRO_FILTER_FEATURED')), 
+			JHTML::_('select.option', 'price', JText::_('COM_RSEVENTSPRO_FILTER_PRICE'))
 		);
 	}
 	
@@ -367,5 +438,27 @@ class rseventsproModelCalendar extends JModelLegacy
 		return array(JHTML::_('select.option', 'is', JText::_('COM_RSEVENTSPRO_FILTER_CONDITION_IS')), JHTML::_('select.option', 'isnot', JText::_('COM_RSEVENTSPRO_FILTER_CONDITION_ISNOT')),
 			JHTML::_('select.option', 'contains', JText::_('COM_RSEVENTSPRO_FILTER_CONDITION_CONTAINS')),JHTML::_('select.option', 'notcontain', JText::_('COM_RSEVENTSPRO_FILTER_CONDITION_NOTCONTAINS'))
 		);
+	}
+	
+	public function getMaxPrice() {
+		require_once JPATH_SITE.'/components/com_rseventspro/helpers/query.php';
+		
+		$db			= JFactory::getDbo();
+		$mid		= $this->_app->input->getInt('mid',0);
+		$params		= $mid ? $this->getModuleParams() : rseventsproHelper::getParams();
+		$query		= RSEventsProQuery::getInstance($params);
+		
+		$query->select(array('e.id'));
+		
+		list($start, $end) = $this->getStartEndCurrentMonth($params->get('startday',1));
+		$where = $query->betweenQuery($start, $end, true);
+		$where = substr_replace($where,'',0,5);
+		
+		$query->where($where);
+		$query->userevents(false);
+		$query->price(false);
+		
+		$db->setQuery('SELECT MAX('.$db->qn('price').') FROM '.$db->qn('#__rseventspro_tickets').' WHERE '.$db->qn('ide').' IN ('.$query->toString().')');
+		return round($db->loadResult());
 	}
 }

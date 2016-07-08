@@ -35,82 +35,98 @@ class rseventsproController extends JControllerLegacy
 	public function verify() {
 		$db			= JFactory::getDbo();
 		$query		= $db->getQuery(true);
-		$id			= JFactory::getApplication()->input->getInt('id');
-		$coupon		= JFactory::getApplication()->input->getString('coupon');
+		$input		= JFactory::getApplication()->input;
+		$id			= $input->getInt('id');
+		$coupon		= $input->getString('coupon');
+		$payment	= $input->getString('payment');
 		$nowunix	= JFactory::getDate()->toUnix();
 		$available	= false;
 		$data		= false;
+		$tickets	= array();
+		$total		= 0;
 		
 		$query->clear()
-			->select($db->qn('cc.id'))->select($db->qn('cc.used'))->select($db->qn('c.from'))
-			->select($db->qn('c.to'))->select($db->qn('c.usage'))
-			->from($db->qn('#__rseventspro_coupon_codes','cc'))
-			->join('left', $db->qn('#__rseventspro_coupons','c').' ON '.$db->qn('cc.idc').' = '.$db->qn('c.id'))
-			->where($db->qn('c.ide').' = '.$id)
-			->where($db->qn('cc.code').' = '.$db->q($coupon));
-		
+			->select($db->qn('ticketsconfig'))
+			->from($db->qn('#__rseventspro_events'))
+			->where($db->qn('id').' = '.$db->q($id));
 		$db->setQuery($query);
-		$data = $db->loadObject();
+		$ticketsconfig = $db->loadResult();
 		
-		if (empty($data)) {
-			$query->clear()
-				->select($db->qn('used'))->select($db->qn('from'))
-				->select($db->qn('to'))->select($db->qn('usage'))
-				->select($db->qn('events'))
-				->from($db->qn('#__rseventspro_discounts'))
-				->where($db->qn('code').' = '.$db->q($coupon));
-			$db->setQuery($query);
-			if ($discount = $db->loadObject()) {
-				$registry = new JRegistry;
-				$registry->loadString($discount->events);
-				$events = $registry->toArray();
+		if ($ticketsconfig) {
+			$thetickets	= $input->get('tickets', array(), 'array');
+			$unlimited	= $input->get('unlimited', array(), 'array');
+			
+			foreach ($thetickets as $tid => $theticket) {
+				$tickets[$tid] = count($theticket);
+			}
+			
+			if (!empty($unlimited)) {
+				JArrayHelper::toInteger($unlimited);
+				foreach ($unlimited as $unlimitedid => $quantity)
+					$tickets[$unlimitedid] = $quantity;
+			}
+		} else {
+			$tickets = $input->get('tickets',array(),'array');
+		}
+		
+		if ($tickets) {
+			foreach ($tickets as $tid => $quantity) {
+				$query->clear()
+					->select($db->qn('price'))
+					->from($db->qn('#__rseventspro_tickets'))
+					->where($db->qn('id').' = '.(int) $tid);
 				
-				// Event assignment is set to All events
-				if ($discount->apply_to == 1) {
-					$data = $discount;
-				} else if ($discount->apply_to == 2) {
-					// Event assignment is set to Selected events
-					if (in_array($id,$events)) {
-						$data = $discount;
-					}
-				} else {
-					// Event assignment is set to All except those selected
-					if (!in_array($id,$events)) {
-						$data = $discount;
-					}
+				$db->setQuery($query);
+				if ($price = $db->loadResult()) {
+					$total += (int) $quantity * $price;
 				}
 			}
 		}
 		
-		if ($data) {
+		$global = rseventsproHelper::globalDiscount($id, $total, $tickets, $payment);
+		
+		if ($global) {
 			$available = true;
-			if (!empty($data->usage) && !empty($data->used))
-				if ($data->used >= $data->usage)
-					$available = false;
+		} else {
+			$query->clear()
+				->select($db->qn('cc.id'))->select($db->qn('cc.used'))->select($db->qn('c.from'))
+				->select($db->qn('c.to'))->select($db->qn('c.usage'))
+				->from($db->qn('#__rseventspro_coupon_codes','cc'))
+				->join('left', $db->qn('#__rseventspro_coupons','c').' ON '.$db->qn('cc.idc').' = '.$db->qn('c.id'))
+				->where($db->qn('c.ide').' = '.$id)
+				->where($db->qn('cc.code').' = '.$db->q($coupon));
 			
-			if ($available) {
-				if ($data->from == $db->getNullDate()) $data->from = '';
-				if ($data->to == $db->getNullDate()) $data->to = '';
-				
-				if (empty($data->from) && empty($data->to)) {
-					$available = true;
-				} elseif (!empty($data->from) && empty($data->to)) {
-					$fromunix = JFactory::getDate($data->from)->toUnix();
-					if ($fromunix <= $nowunix)
-						$available = true;
-					else $available = false;
-				} elseif (empty($data->from) && !empty($data->to)) {
-					$tounix = JFactory::getDate($data->to)->toUnix();
-					if ($tounix <= $nowunix)
+			$db->setQuery($query);
+			if ($data = $db->loadObject()) {
+				$available = true;
+				if (!empty($data->usage) && !empty($data->used))
+					if ($data->used >= $data->usage)
 						$available = false;
-					else $available = true;
-				} else {
-					$fromunix = JFactory::getDate($data->from)->toUnix();
-					$tounix = JFactory::getDate($data->to)->toUnix();
+				
+				if ($available) {
+					if ($data->from == $db->getNullDate()) $data->from = '';
+					if ($data->to == $db->getNullDate()) $data->to = '';
 					
-					if (($fromunix <= $nowunix && $tounix >= $nowunix) || ($fromunix >= $nowunix && $tounix <= $nowunix))
+					if (empty($data->from) && empty($data->to)) {
 						$available = true;
-					else $available = false;
+					} elseif (!empty($data->from) && empty($data->to)) {
+						$fromunix = JFactory::getDate($data->from)->toUnix();
+						if ($fromunix <= $nowunix)
+							$available = true;
+						else $available = false;
+					} elseif (empty($data->from) && !empty($data->to)) {
+						$tounix = JFactory::getDate($data->to)->toUnix();
+						if ($tounix <= $nowunix)
+							$available = false;
+						else $available = true;
+					} else {
+						$fromunix = JFactory::getDate($data->from)->toUnix();
+						$tounix = JFactory::getDate($data->to)->toUnix();
+						
+						if (($fromunix <= $nowunix && $tounix >= $nowunix) || ($fromunix >= $nowunix && $tounix <= $nowunix))
+							$available = true;
+						else $available = false;
+					}
 				}
 			}
 		}
@@ -243,6 +259,9 @@ class rseventsproController extends JControllerLegacy
 		$method 	= $app->input->getString('method');
 		$hash		= $app->input->getString('hash');
 		$currency	= rseventsproHelper::getConfig('payment_currency');
+		$total		= 0;
+		$info		= array();
+		$cart		= false;
 		
 		$query->clear()
 			->select($db->qn('u.id'))->select($db->qn('u.ide'))->select($db->qn('u.idu'))->select($db->qn('u.name'))
@@ -260,20 +279,23 @@ class rseventsproController extends JControllerLegacy
 		}
 		
 		if ($details->state == 1 || $details->state == 2) {
-			$query->clear()
-				->select($db->qn('id'))->select($db->qn('name'))
-				->from($db->qn('#__rseventspro_events'))
-				->where($db->qn('id').' = '.$db->q($details->ide));
-			$db->setQuery($query);
-			$event = $db->loadObject();
-			
 			if ($details->state == 1) {
 				$this->setMessage(JText::_('COM_RSEVENTSPRO_SUBSCRIPTION_STATE_COMPLETE'));
 			} else {
 				$this->setMessage(JText::_('COM_RSEVENTSPRO_SUBSCRIPTION_STATE_DENIED'));
 			}
 			
-			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id, $event->name),false,rseventsproHelper::itemid($event->id)));
+			if ($details->ide) {
+				$query->clear()
+					->select($db->qn('id'))->select($db->qn('name'))
+					->from($db->qn('#__rseventspro_events'))
+					->where($db->qn('id').' = '.$db->q($details->ide));
+				$db->setQuery($query);
+				$event = $db->loadObject();
+				return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id, $event->name),false,rseventsproHelper::itemid($event->id)));
+			}
+			
+			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro',false));
 		}
 		
 		$query->clear()
@@ -286,7 +308,37 @@ class rseventsproController extends JControllerLegacy
 		$db->setQuery($query);
 		$tickets = $db->loadObjectList();
 		
-		$app->triggerEvent('rsepro_showForm',array(array('method'=>&$method, 'details'=>&$details, 'tickets'=>&$tickets, 'currency'=>&$currency)));
+		if ($details->ide) {
+			foreach ($tickets as $ticket) {
+				if ($ticket->price > 0) {
+					$info[] = $ticket->quantity. ' x '.$ticket->name.' ('.rseventsproHelper::currency($ticket->price). ')';
+					$total += $ticket->price * $ticket->quantity;
+				} else {
+					$info[] = $ticket->quantity. ' x '.$ticket->name.' ('.JText::_('COM_RSEVENTSPRO_GLOBAL_FREE'). ')';
+				}
+			}
+			
+			if (!empty($details->discount) && !empty($total)) {
+				$total = $total - $details->discount;
+			}
+			
+			if (!empty($details->early_fee) && !empty($total)) {
+				$total = $total - $details->early_fee;
+			}
+			
+			if (!empty($details->late_fee) && !empty($total)) {
+				$total = $total + $details->late_fee;
+			}
+			
+			if (!empty($details->tax)) {
+				$total = $total + $details->tax;
+			}
+		} else {
+			$app->triggerEvent('rsepro_paymentForm', array(array('id' => $details->id, 'total' => &$total, 'info' => &$info)));
+			$cart = true;
+		}
+		
+		$app->triggerEvent('rsepro_showForm', array(array('method' => &$method, 'details' => &$details, 'tickets' => &$tickets, 'total' => $total, 'info' => $info, 'cart' => $cart, 'currency' => &$currency)));
 	}
 	
 	/**
@@ -295,9 +347,10 @@ class rseventsproController extends JControllerLegacy
 	 * @return 
 	 */
 	public function process() {
-		$app = JFactory::getApplication();
-		$data = $app->input->get->request;
-		$app->triggerEvent('rsepro_processForm',array(array('data'=>&$data)));
+		$app	= JFactory::getApplication();
+		$data	= $app->input->get->request;
+		
+		$app->triggerEvent('rsepro_processForm',array(array('data' => &$data)));
 	}
 	
 	/**
@@ -503,10 +556,12 @@ class rseventsproController extends JControllerLegacy
 		
 		if (rseventsproHelper::admin() || ($user->get('id') == $event->owner && !$user->get('guest')) || $sid == $event->sid) {
 			$query->clear()
-				->select('DISTINCT '.$db->qn('email'))->select($db->qn('name'))
-				->from($db->qn('#__rseventspro_users'))
-				->where($db->qn('ide').' = '.(int) $id)
-				->where($db->qn('state').' IN (0,1)');
+				->select('DISTINCT '.$db->qn('u.email'))->select($db->qn('u.name'))
+				->from($db->qn('#__rseventspro_users','u'))
+				->where($db->qn('u.ide').' = '.(int) $id)
+				->where($db->qn('u.state').' IN (0,1)');
+			
+			JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
 			
 			$db->setQuery($query);
 			$subscribers = $db->loadObjectList();
@@ -592,10 +647,12 @@ class rseventsproController extends JControllerLegacy
 			
 			//get subscribers 
 			$query->clear()
-				->select('DISTINCT '.$db->qn('email'))->select($db->qn('name'))
-				->from($db->qn('#__rseventspro_users'))
-				->where($db->qn('ide').' = '.(int) $row->id)
-				->where($db->qn('state').' IN (0,1)');
+				->select('DISTINCT '.$db->qn('u.email'))->select($db->qn('u.name'))
+				->from($db->qn('#__rseventspro_users','u'))
+				->where($db->qn('u.ide').' = '.(int) $row->id)
+				->where($db->qn('u.state').' IN (0,1)');
+			
+			JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
 			
 			$db->setQuery($query);
 			$subscribers = $db->loadObjectList();
@@ -648,10 +705,12 @@ class rseventsproController extends JControllerLegacy
 			
 			if ($endunix < $now && (rseventsproHelper::admin() || ($user->get('id') == $event->owner && !$user->get('guest')) || $event->sid == $sid)) {
 				$query->clear()
-					->select('DISTINCT '.$db->qn('email'))->select($db->qn('name'))
-					->from($db->qn('#__rseventspro_users'))
-					->where($db->qn('ide').' = '.(int) $id)
-					->where($db->qn('state').' = 1');
+					->select('DISTINCT '.$db->qn('u.email'))->select($db->qn('u.name'))
+					->from($db->qn('#__rseventspro_users','u'))
+					->where($db->qn('u.ide').' = '.(int) $id)
+					->where($db->qn('u.state').' = 1');
+				
+				JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
 				
 				$db->setQuery($query);
 				$subscribers = $db->loadObjectList();
@@ -740,10 +799,12 @@ class rseventsproController extends JControllerLegacy
 					
 					if ($endunix < $now) {
 						$query->clear()
-							->select('DISTINCT '.$db->qn('email'))->select($db->qn('name'))
-							->from($db->qn('#__rseventspro_users'))
-							->where($db->qn('ide').' = '.(int) $event->id)
-							->where($db->qn('state').' = 1');
+							->select('DISTINCT '.$db->qn('u.email'))->select($db->qn('u.name'))
+							->from($db->qn('#__rseventspro_users','u'))
+							->where($db->qn('u.ide').' = '.(int) $event->id)
+							->where($db->qn('u.state').' = 1');
+						
+						JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
 						
 						$db->setQuery($query);
 						$subscribers = $db->loadObjectList();
@@ -816,6 +877,7 @@ class rseventsproController extends JControllerLegacy
 		$discount	= 0;
 		$info		= array();
 		$return		= array();
+		$discounts	= array();
 		$cname		= '';
 		$couponid	= 0;
 		
@@ -902,18 +964,29 @@ class rseventsproController extends JControllerLegacy
 				$cname = $db->loadResult();
 			}
 			
+			if ($event->discounts && $discount) {
+				$discounts[] = (object) array('discount' => $discount, 'name' => $cname);
+			}
+			
 			// Check for a global discount, and if found ignore the event discount
 			if ($event->discounts) {
 				if ($globalDiscount = rseventsproHelper::globalDiscount($idevent, $total, $eventtickets, $payment)) {
-					$discount = $globalDiscount['discount'];
-					$cname = $globalDiscount['name'];
+					$discounts[] = (object) array('discount' => $globalDiscount['discount'], 'name' => $globalDiscount['name']);
 				}
 			}
 			
-			// Update the total after the discount
-			$total = $total - $discount;
+			// Sort discounts
+			usort($discounts, array('rseventsproHelper', 'sort_discounts'));
+			
+			if (is_array($discounts) && isset($discounts[0])) {
+				$discount	= $discounts[0]->discount;
+				$cname		= $discounts[0]->name;
+			}
 			
 			if ($discount) {
+				// Update the total after the discount
+				$total = $total - $discount;
+				
 				$info[] = JText::sprintf('COM_RSEVENTSPRO_DISCOUNT_ADDED',rseventsproHelper::currency($discount));
 				$return['discount'] = rseventsproHelper::currency($discount);
 				$return['discountname'] = $cname;
@@ -1133,5 +1206,10 @@ class rseventsproController extends JControllerLegacy
 	// Trigger plugin functions
 	public function trigger() {
 		JFactory::getApplication()->triggerEvent('rsepro_frontTrigger');
+	}
+	
+	// Cron for rules
+	public function rules() {
+		rseventsproHelper::rules();
 	}
 }

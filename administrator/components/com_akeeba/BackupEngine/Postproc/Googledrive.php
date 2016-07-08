@@ -13,10 +13,10 @@ namespace Akeeba\Engine\Postproc;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Psr\Log\LogLevel;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use Akeeba\Engine\Postproc\Connector\GoogleDrive as ConnectorGoogleDrive;
+use Psr\Log\LogLevel;
 
 class Googledrive extends Base
 {

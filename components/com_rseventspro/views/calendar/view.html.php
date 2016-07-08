@@ -43,6 +43,9 @@ class rseventsproViewCalendar extends JViewLegacy
 		$mid = $mid ? '&mid='.$mid : '';
 		
 		// Add Joomla! menu metadata
+		if ($this->params->get('page_title'))
+			$doc->setTitle($this->params->get('page_title'));
+		
 		if ($this->params->get('menu-meta_description'))
 			$doc->setDescription($this->params->get('menu-meta_description'));
 
@@ -90,7 +93,20 @@ class rseventsproViewCalendar extends JViewLegacy
 				$this->columns		= $filters[0];
 				$this->operators	= $filters[1];
 				$this->values		= $filters[2];
+				$this->extra		= $this->get('ExtraFilters');
+				$this->showCondition= $this->get('Conditions');
+				
+				// Price slider assets
+				$this->document->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/bootstrap-slider.css');
+				$this->document->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/bootstrap-slider.js');
+				$this->maxPrice = $this->get('MaxPrice');
 			}
+			
+			$this->mask		= empty($this->config->payment_mask) ? '%p %c' : $this->config->payment_mask;
+			$this->currency	= empty($this->config->payment_currency_sign) ? $this->config->payment_currency : $this->config->payment_currency_sign;
+			$this->decimals	= $this->config->payment_decimals;
+			$this->decimal	= $this->config->payment_decimal;
+			$this->thousands= $this->config->payment_thousands;
 			
 			// Set the pathway
 			if (!$menu) {

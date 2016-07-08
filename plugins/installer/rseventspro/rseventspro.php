@@ -14,7 +14,7 @@ class plgInstallerRSEventspro extends JPlugin
 		$uri 	= JUri::getInstance($url);
 		$parts 	= explode('/', $uri->getPath());
 		
-		if ($uri->getHost() == 'www.rsjoomla.com' && in_array('com_rseventspro', $parts)) {
+		if ($uri->getHost() == 'www.rsjoomla.com' && (in_array('com_rseventspro', $parts) || in_array('pkg_rseventspro_cart', $parts))) {
 			if (!file_exists(JPATH_SITE.'/components/com_rseventspro/helpers/rseventspro.php')) {
 				return;
 			}

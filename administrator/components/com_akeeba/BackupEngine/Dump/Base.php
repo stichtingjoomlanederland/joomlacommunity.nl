@@ -13,11 +13,11 @@ namespace Akeeba\Engine\Dump;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Psr\Log\LogLevel;
 use Akeeba\Engine\Base\Part;
+use Akeeba\Engine\Driver\Base as DriverBase;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
-use Akeeba\Engine\Driver\Base as DriverBase;
+use Psr\Log\LogLevel;
 
 abstract class Base extends Part
 {

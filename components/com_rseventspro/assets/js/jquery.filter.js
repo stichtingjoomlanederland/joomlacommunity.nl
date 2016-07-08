@@ -78,6 +78,25 @@
 				submitForm();
 			});
 		}
+		
+		// Do we have a price selector ? 
+		if ($('#rsepro-navbar #rsepro-filter-price').length) {
+			var inputID = $('#rsepro-navbar #rsepro-filter-price').find('input').prop('id');
+			
+			$('#' + inputID).slider({
+				tooltip : 'hide'
+			});
+			
+			$('#' + inputID).on('slide', function(event) {
+				if (event.value[0] == 0) {
+					$('#' + inputID + '-min').html(Joomla.JText._('COM_RSEVENTSPRO_GLOBAL_FREE'));
+				} else {
+					$('#' + inputID + '-min').html(filterFormatPrice(event.value[0]));
+				}
+				
+				$('#' + inputID + '-max').html(filterFormatPrice(event.value[1]));
+			});
+		}
 	};
 	
 	// Init the filter select lists
@@ -313,6 +332,28 @@
 			}
 			
 			liid = 'end_date';
+			
+		} else if (filterValue == 'price') {
+			var inputID = $('#rsepro-navbar #rsepro-filter-price').find('input').prop('id');
+			emptyInp = $('#' + inputID).val() == '';
+			
+			if (!emptyInp) {
+				var priceValues = $('#' + inputID).val().split(',');
+				var minValue = priceValues[0] == 0 ? Joomla.JText._('COM_RSEVENTSPRO_GLOBAL_FREE') :filterFormatPrice(priceValues[0]);
+				var maxValue = filterFormatPrice(priceValues[1]);
+				if ($('.rsepro-filter-filters input[name="filter_price[]"]').length) {
+					$($('.rsepro-filter-filters input[name="filter_price[]"]').parent().find('span:eq(1)')).text(minValue + ' - ' + maxValue);
+					$('.rsepro-filter-filters input[name="filter_price[]"]').val($('#' + inputID).val());
+					submitForm();
+					return;
+				} else {
+					div.append($('<span>').addClass('btn btn-small').text($('#rsepro-filter-from').find('a span').text()));
+					div.append($('<span>').addClass('btn btn-small').text(minValue + ' - ' + maxValue));
+					div.append($('<input>', {'type': 'hidden', 'name': 'filter_price[]', 'value': $('#' + inputID).val()}));
+				}
+			}
+			
+			liid = 'price';
 		}
 		
 		// Set the ID 
@@ -396,56 +437,68 @@
 		$('#adminForm').submit();
 	}
 	
+	function filterFormatNumber(number, decimals, dec_point, thousands_sep) {
+		var n = number, prec = decimals;
+		n = !isFinite(+n) ? 0 : +n;
+		prec = !isFinite(+prec) ? 0 : Math.abs(prec);
+		var sep = (typeof thousands_sep == "undefined") ? ',' : thousands_sep;
+		var dec = (typeof dec_point == "undefined") ? '.' : dec_point;
+
+		var s = (prec > 0) ? n.toFixed(prec) : Math.round(n).toFixed(prec); //fix for IE parseFloat(0.55).toFixed(0) = 0;
+
+		var abs = Math.abs(n).toFixed(prec);
+		var _, i;
+
+		if (abs >= 1000) {
+			_ = abs.split(/\D/);
+			i = _[0].length % 3 || 3;
+
+			_[0] = s.slice(0,i + (n < 0)) +
+				_[0].slice(i).replace(/(\d{3})/g, sep+'$1');
+
+			s = _.join(dec);
+		} else {
+			s = s.replace('.', dec);
+		}
+
+		return s;
+	}
+	
+	function filterFormatPrice(price) {
+		var price	= filterFormatNumber(price, 0, rseproDecimal, rseproThousands);
+		var mask	= rseproMask.replace('%p', price).replace('%c', rseproCurrency);
+		
+		return mask;
+	}
+	
 })(jQuery);
 
 function rsepro_select($, val) {
+	// Hide all
+	$('#rsepro-filter-price').css('display','none');
+	$('#rsepro-filter-condition').css('display','none');
+	$('#rsepro-search').css('display','none');
+	$('#rsepro-filter-featured').css('display','none');
+	$('#rsepro-filter-child').css('display','none');
+	$('#rsepro-filter-status').css('display','none');
+	$('#rsepro-filter-start').css('display','none');
+	$('#rsepro-filter-end').css('display','none');
+	
+	// Show only specific filters
 	if (val == 'events' || val == 'description' || val == 'locations' || val == 'categories' || val == 'tags') {
 		$('#rsepro-filter-condition').css('display','');
 		$('#rsepro-search').css('display','');
-		$('#rsepro-filter-featured').css('display','none');
-		$('#rsepro-filter-child').css('display','none');
-		$('#rsepro-filter-status').css('display','none');
-		$('#rsepro-filter-start').css('display','none');
-		$('#rsepro-filter-end').css('display','none');
 	} else if (val == 'featured') {
-		$('#rsepro-filter-condition').css('display','none');
-		$('#rsepro-search').css('display','none');
 		$('#rsepro-filter-featured').css('display','');
-		$('#rsepro-filter-child').css('display','none');
-		$('#rsepro-filter-status').css('display','none');
-		$('#rsepro-filter-start').css('display','none');
-		$('#rsepro-filter-end').css('display','none');
 	} else if (val == 'status') {
-		$('#rsepro-filter-condition').css('display','none');
-		$('#rsepro-search').css('display','none');
-		$('#rsepro-filter-featured').css('display','none');
-		$('#rsepro-filter-child').css('display','none');
 		$('#rsepro-filter-status').css('display','');
-		$('#rsepro-filter-start').css('display','none');
-		$('#rsepro-filter-end').css('display','none');
 	} else if (val == 'child') {
-		$('#rsepro-filter-condition').css('display','none');
-		$('#rsepro-search').css('display','none');
-		$('#rsepro-filter-featured').css('display','none');
 		$('#rsepro-filter-child').css('display','');
-		$('#rsepro-filter-status').css('display','none');
-		$('#rsepro-filter-start').css('display','none');
-		$('#rsepro-filter-end').css('display','none');
 	} else if (val == 'start') {
-		$('#rsepro-filter-condition').css('display','none');
-		$('#rsepro-search').css('display','none');
-		$('#rsepro-filter-featured').css('display','none');
-		$('#rsepro-filter-child').css('display','none');
-		$('#rsepro-filter-status').css('display','none');
 		$('#rsepro-filter-start').css('display','');
-		$('#rsepro-filter-end').css('display','none');
 	} else if (val == 'end') {
-		$('#rsepro-filter-condition').css('display','none');
-		$('#rsepro-search').css('display','none');
-		$('#rsepro-filter-featured').css('display','none');
-		$('#rsepro-filter-child').css('display','none');
-		$('#rsepro-filter-status').css('display','none');
-		$('#rsepro-filter-start').css('display','none');
 		$('#rsepro-filter-end').css('display','');
+	} else if (val == 'price') {
+		$('#rsepro-filter-price').css('display','');
 	}
 }

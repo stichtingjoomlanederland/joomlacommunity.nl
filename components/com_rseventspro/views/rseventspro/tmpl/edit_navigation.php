@@ -22,10 +22,6 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	<li class="rsepro-ticket rsepro-hide"<?php echo $this->item->registration ? ' style="display:block;"' : ''; ?> id="ticket_<?php echo $ticket->id; ?>"><a href="javascript:void(0);" data-target="#rsepro-edit-ticket<?php echo $ticket->id; ?>" data-toggle="tab"><?php echo $ticket->name; ?></a></li>
 	<?php }} ?>
 	
-	<?php if (rseventsproHelper::pdf()) { ?>
-	<li class="rsepro-hide"<?php echo $this->item->registration ? ' style="display:block;"' : ''; ?>><a href="javascript:void(0);" data-target="#rsepro-edit-tab5" data-toggle="tab"><?php echo JText::_('COM_RSEVENTSPRO_TICKET_PDF'); ?> <span class="fa fa-file-o"></span></a></li>
-	<?php } ?>
-	
 	<?php JFactory::getApplication()->triggerEvent('rsepro_addMenuOptionRegistration'); ?>
 	
 	<li class="rsepro-hide"<?php echo $this->item->discounts && $this->item->registration ? ' style="display:block;"' : ''; ?>><a href="javascript:void(0);" data-target="#rsepro-edit-tab6" data-toggle="tab"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TAB_DISCOUNTS'); ?> <span class="fa fa-scissors"></span></a></li>

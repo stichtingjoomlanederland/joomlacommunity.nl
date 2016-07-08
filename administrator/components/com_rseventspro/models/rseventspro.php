@@ -52,9 +52,24 @@ class rseventsproModelRseventspro extends JModelLegacy
 			->from($db->qn('#__rseventspro_users','u'))
 			->join('left',$db->qn('#__rseventspro_events','e').' ON '.$db->qn('e.id').' = '.$db->qn('u.ide'))
 			->order($db->qn('u.date').' DESC');
-		
 		$db->setQuery($query, 0, rseventsproHelper::getConfig('dashboard_subscribers_nr','int',5));
-		return $db->loadObjectList();
+		$subscribers = $db->loadObjectList();
+		
+		if ($subscribers) {
+			JFactory::getApplication()->triggerEvent('rsepro_adminSubscribersDashboard', array(array('subscribers' => &$subscribers)));
+			
+			foreach ($subscribers as $subscriber) {
+				if (!isset($subscriber->events)) {
+					$subscriber->events = array();
+				}
+				
+				if ($subscriber->eid) {
+					$subscriber->events[] = (object) array('id' => $subscriber->eid, 'name' => $subscriber->ename);
+				}
+			}
+		}
+		
+		return $subscribers;
 	}
 	
 	/**
@@ -130,7 +145,6 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$buttons[] = array('icon' => 'fa fa-archive fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_BACKUP'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=backup'));
 		$buttons[] = array('icon' => 'fa fa-envelope-o fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_EMAILS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=messages'));
 		$buttons[] = array('icon' => 'fa fa-bars fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_SETTINGS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=settings'));
-		$buttons[] = array('icon' => 'fa fa-bell-o fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_SUBMENU_UPDATE'), 'link' => JRoute::_('index.php?option=com_rseventspro&layout=update'));
 		
 		if (rseventsproHelper::getConfig('dashboard_sync')) {
 			$buttons[] = array('icon' => 'fa fa-facebook-official fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_SYNC_FACEBOOK'), 'link' => JRoute::_('index.php?option=com_rseventspro&task=settings.facebook'));

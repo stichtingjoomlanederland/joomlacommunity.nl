@@ -111,7 +111,8 @@ class rseventsproModelRseventspro extends JModelLegacy
 		require_once JPATH_SITE.'/components/com_rseventspro/helpers/query.php';
 		
 		$params = rseventsproHelper::getParams();
-		$query	= RSEventsQuery::getInstance($params);
+		$query	= RSEventsProQuery::getInstance($params);
+		$query->group('e.id');
 		
 		return $query->toString();
 	}
@@ -147,41 +148,39 @@ class rseventsproModelRseventspro extends JModelLegacy
 	 *
 	 *	@return SQL query
 	 */
-        protected function _buildCategoriesQuery() {
+	protected function _buildCategoriesQuery() {
 		$query	= $this->_db->getQuery(true);
 		$params	= rseventsproHelper::getParams();
 		$user	= JFactory::getUser();
 		$groups	= implode(',', $user->getAuthorisedViewLevels());
 		
-		$ordering	= $params->get('ordering','title');
+		$parent		= (int) $params->get('parent', '0');
+		$ordering	= $params->get('ordering','c.title');
 		$direction	= $params->get('order','ASC');
-        $catparent     = $params->get('catparent');
-
-		$query->clear()
-			->select(
-                $this->_db->quoteName(
-                    array(
-                        'node.id',
-                        'node.title',
-                        'node.description',
-                        'node.level',
-                    )
-                )
-            )
-			->from($this->_db->quoteName('#__categories', 'node'))
-            ->from($this->_db->quoteName('#__categories', 'parent'))
-            ->where($this->_db->quoteName('node.extension') . ' = ' . $this->_db->quote('com_rseventspro'))
-            ->where($this->_db->quoteName('parent.published').' = 1')
-            ->where($this->_db->quoteName('parent.parent_id') . '=' . (int) $catparent)
-            ->where($this->_db->quoteName('node.lft') . '>=' . $this->_db->quoteName('parent.lft'))
-            ->where($this->_db->quoteName('node.lft') . '<=' . $this->_db->quoteName('parent.rgt'))
-            ->order($this->_db->quoteName('node.'.$ordering) .'  ' . $this->_db->escape($direction));
 		
-		if (JLanguageMultilang::isEnabled()) {
-			$query->where('language IN ('.$this->_db->q(JFactory::getLanguage()->getTag()).','.$this->_db->q('*').')');
+		$query->clear()
+			->select($this->_db->qn('c.id'))->select($this->_db->qn('c.title'))
+			->select($this->_db->qn('c.description'))->select($this->_db->qn('c.level'))
+			->from($this->_db->qn('#__categories','c'))
+			->where($this->_db->qn('c.extension').' = '.$this->_db->q('com_rseventspro'))
+			->where($this->_db->qn('c.published').' = 1')
+			->order($this->_db->qn($ordering).' '.$this->_db->escape($direction));
+		
+		
+		if ($parent) {
+			$query->from($this->_db->qn('#__categories', 'p'))
+				->where($this->_db->qn('p.published').' = 1')
+				->where($this->_db->qn('p.parent_id') . '=' . (int) $parent)
+				->where($this->_db->qn('c.lft') . '>=' . $this->_db->qn('p.lft'))
+				->where($this->_db->qn('c.lft') . '<=' . $this->_db->qn('p.rgt'));
 		}
 		
-		$query->where('node.access IN ('.$groups.')');
+		if (JLanguageMultilang::isEnabled()) {
+			$query->where($this->_db->qn('c.language').' IN ('.$this->_db->q(JFactory::getLanguage()->getTag()).','.$this->_db->q('*').')');
+		}
+		
+		$query->where('c.access IN ('.$groups.')');
+		
 		return (string) $query;
 	}
 	
@@ -226,6 +225,9 @@ class rseventsproModelRseventspro extends JModelLegacy
 			$query->where($this->_db->qn('ut.idt').' = '.(int) $ticket);
 		
 		$query->order($this->_db->qn('u.date').' DESC');
+		
+		JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
+		
 		return (string) $query;
 	}
 	
@@ -239,12 +241,14 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$params			= rseventsproHelper::getParams();
 		$enablestart	= $this->_app->input->getInt('enablestart');
 		$enableend		= $this->_app->input->getInt('enableend');
+		$enableprice	= $this->_app->input->getInt('enableprice');
 		$order			= $params->get('ordering','start');
 		$direction		= $params->get('order','ASC');
 		
 		if ($this->_app->input->get('format') != 'raw') {
 			$this->_app->setUserState('rsepro.search.estart',$enablestart);
 			$this->_app->setUserState('rsepro.search.eend',$enableend);
+			$this->_app->setUserState('rsepro.search.eprice',$enableprice);
 		}
 		
 		$categories	= $this->_app->getUserStateFromRequest('rsepro.search.categories', 'rscategories');
@@ -254,6 +258,8 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$start		= $this->_app->getUserStateFromRequest('rsepro.search.start', 'rsstart');
 		$end		= $this->_app->getUserStateFromRequest('rsepro.search.end', 'rsend');
 		$archive	= $this->_app->getUserStateFromRequest('rsepro.search.archive', 'rsarchive');
+		$price		= $this->_app->getUserStateFromRequest('rsepro.search.price', 'rsprice');
+		$eprice		= $this->_app->getUserStateFromRequest('rsepro.search.eprice', 'enableprice');
 		$search		= $this->_app->getUserStateFromRequest('rsepro.search.search', 'rskeyword');
 		$repeat		= $this->_app->input->getInt('repeat',1);
 		$exclude	= rseventsproHelper::excludeEvents();
@@ -265,6 +271,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 			->join('left',$this->_db->qn('#__rseventspro_locations','l').' ON '.$this->_db->qn('l.id').' = '.$this->_db->qn('e.location'))
 			->join('left',$this->_db->qn('#__rseventspro_taxonomy','tx').' ON '.$this->_db->qn('tx.ide').' = '.$this->_db->qn('e.id'))
 			->join('left',$this->_db->qn('#__categories','c').' ON '.$this->_db->qn('c.id').' = '.$this->_db->qn('tx.id'))
+			->join('left',$this->_db->qn('#__rseventspro_tickets','t').' ON '.$this->_db->qn('t.ide').' = '.$this->_db->qn('e.id'))
 			->where($this->_db->qn('e.completed').' = 1')
 			->where($this->_db->qn('c.extension').' = '.$this->_db->q('com_rseventspro'))
 			->group($this->_db->qn('e.id'));
@@ -357,7 +364,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 			// Get regular events that start before the 'start' date and ends between the 'start' and 'end' dates
 			$q3 = '('.$this->_db->qn('e.end').' <> '.$this->_db->q($this->_db->getNullDate()).' AND '.$this->_db->qn('e.start').' <= '.$this->_db->q($start).' AND '.$this->_db->qn('e.end').' >= '.$this->_db->q($start).' AND '.$this->_db->qn('e.end').' <= '.$this->_db->q($end).')';
 			
-			// Get regular events that start before the 'start' date and ends after the 'end' date
+			// Get regular event that start before the 'start' date and ends after the 'end' date
 			$q4 = '('.$this->_db->qn('e.end').' <> '.$this->_db->q($this->_db->getNullDate()).' AND '.$this->_db->qn('e.start').' <= '.$this->_db->q($start).' AND '.$this->_db->qn('e.end').' >= '.$this->_db->q($end).')';
 			
 			// Get all day events between 'start' and 'end' dates
@@ -400,12 +407,19 @@ class rseventsproModelRseventspro extends JModelLegacy
 			$where = '(' . implode(') OR (', $wheres) . ')';
 			$query->where('('.$where.')');
 		}
+		
+		if ($eprice) {
+			list($min, $max) = explode(',',$price,2);
+			
+			$query->where($this->_db->qn('t.price').' >= '.$this->_db->q((int) $min));
+			$query->where($this->_db->qn('t.price').' <= '.$this->_db->q((int) $max));
+		}
 
 		if (!empty($exclude))
 			$query->where($this->_db->qn('e.id').' NOT IN ('.implode(',',$exclude).')');
 		
-		if ($order == 'title')	$order = 'name';
-		if ($order == 'lft')	$order = 'start';
+		if ($order == 'title' || $order == 'c.title')	$order = 'name';
+		if ($order == 'lft' || $order == 'c.lft')		$order = 'start';
 		
 		if (rseventsproHelper::getConfig('featured','int'))
 			$query->order($this->_db->qn('e.featured').' DESC, '.$this->_db->qn('e.'.$order).' '.$this->_db->escape($direction));
@@ -608,7 +622,8 @@ class rseventsproModelRseventspro extends JModelLegacy
 	public function getFilterOptions() { 
 		return array(JHTML::_('select.option', 'events', JText::_('COM_RSEVENTSPRO_FILTER_NAME')), JHTML::_('select.option', 'description', JText::_('COM_RSEVENTSPRO_FILTER_DESCRIPTION')), 
 			JHTML::_('select.option', 'locations', JText::_('COM_RSEVENTSPRO_FILTER_LOCATION')) ,JHTML::_('select.option', 'categories', JText::_('COM_RSEVENTSPRO_FILTER_CATEGORY')),
-			JHTML::_('select.option', 'tags', JText::_('COM_RSEVENTSPRO_FILTER_TAG'))
+			JHTML::_('select.option', 'tags', JText::_('COM_RSEVENTSPRO_FILTER_TAG')), JHTML::_('select.option', 'featured', JText::_('COM_RSEVENTSPRO_FILTER_FEATURED')), 
+			JHTML::_('select.option', 'price', JText::_('COM_RSEVENTSPRO_FILTER_PRICE'))
 		);
 	}
 	
@@ -629,6 +644,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 	// Get current subscriber details
 	public function getSubscriber() {
 		$id		= $this->_app->input->getInt('id',0);
+		$ide	= $this->_app->input->getInt('ide',0);
 		$query	= $this->_db->getQuery(true);
 		
 		// Get subscriber details
@@ -642,7 +658,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 		
 		// Get user tickets
 		$query->clear()
-			->select($this->_db->qn('ut.quantity'))->select($this->_db->qn('t.name'))->select($this->_db->qn('t.price'))
+			->select($this->_db->qn('ut.quantity'))->select($this->_db->qn('t').'.*')
 			->from($this->_db->qn('#__rseventspro_user_tickets','ut'))
 			->join('left',$this->_db->qn('#__rseventspro_tickets','t').' ON '.$this->_db->qn('t.id').' = '.$this->_db->qn('ut.idt'))
 			->where($this->_db->qn('ut.ids').' = '.$id);
@@ -653,9 +669,9 @@ class rseventsproModelRseventspro extends JModelLegacy
 		// Get event details
 		$query->clear()
 			->select($this->_db->qn('id'))->select($this->_db->qn('name'))->select($this->_db->qn('owner'))
-			->select($this->_db->qn('ticketsconfig'))->select($this->_db->qn('ticket_pdf'))->select($this->_db->qn('ticket_pdf_layout'))
+			->select($this->_db->qn('ticketsconfig'))
 			->from($this->_db->qn('#__rseventspro_events'))
-			->where($this->_db->qn('id').' = '.(int) $subscription->ide);
+			->where($this->_db->qn('id').' = '.(int) $ide);
 		
 		$this->_db->setQuery($query);
 		$event = $this->_db->loadObject();
@@ -684,10 +700,12 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$query	= $this->_db->getQuery(true);
 		
 		$query->clear()
-			->select('COUNT('.$this->_db->qn('id').')')
-			->from($this->_db->qn('#__rseventspro_users'))
-			->where($this->_db->qn('ide').' = '.$id)
-			->where($this->_db->qn('idu').' = '.$this->_user->get('id'));
+			->select('COUNT('.$this->_db->qn('u.id').')')
+			->from($this->_db->qn('#__rseventspro_users','u'))
+			->where($this->_db->qn('u.ide').' = '.$id)
+			->where($this->_db->qn('u.idu').' = '.$this->_user->get('id'));
+		
+		JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
 		
 		$this->_db->setQuery($query);
 		$issubscribed = $this->_db->loadResult();
@@ -703,11 +721,13 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$query	= $this->_db->getQuery(true);
 		
 		$query->clear()
-			->select($this->_db->qn('id'))->select($this->_db->qn('name'))
-			->select($this->_db->qn('date'))->select($this->_db->qn('state'))
-			->from($this->_db->qn('#__rseventspro_users'))
-			->where($this->_db->qn('ide').' = '.$id)
-			->where($this->_db->qn('idu').' = '.$this->_user->get('id'));
+			->select($this->_db->qn('u.id'))->select($this->_db->qn('u.name'))
+			->select($this->_db->qn('u.date'))->select($this->_db->qn('u.state'))
+			->from($this->_db->qn('#__rseventspro_users','u'))
+			->where($this->_db->qn('u.ide').' = '.$id)
+			->where($this->_db->qn('u.idu').' = '.$this->_user->get('id'));
+		
+		JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
 		
 		$this->_db->setQuery($query);
 		$subscriptions = $this->_db->loadObjectList();
@@ -730,7 +750,6 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$query->clear()
 			->select($this->_db->qn('u.state'))->select($this->_db->qn('u.URL'))->select($this->_db->qn('u.date','subscribe_date'))->select($this->_db->qn('u.id','ids'))
 			->select($this->_db->qn('u.name','iname'))->select($this->_db->qn('e.id'))->select($this->_db->qn('e.name'))
-			->select($this->_db->qn('e.ticket_pdf'))->select($this->_db->qn('e.ticket_pdf_layout')) 
 			->from($this->_db->qn('#__rseventspro_users','u'))
 			->join('left',$this->_db->qn('#__rseventspro_events','e').' ON '.$this->_db->qn('e.id').' = '.$this->_db->qn('u.ide'))
 			->where($this->_db->qn('e.completed').' = 1')
@@ -748,6 +767,20 @@ class rseventsproModelRseventspro extends JModelLegacy
 		if ($subscriptions = $this->_db->loadObjectList()) {
 			foreach ($subscriptions as $i => &$subscription) {
 				$subscription->URL = base64_decode($subscription->URL);
+				$subscription->tickets = array();
+				
+				$query->clear()
+					->select($this->_db->qn('t.id'))->select($this->_db->qn('t.name'))
+					->select($this->_db->qn('t.layout'))->select($this->_db->qn('ut.quantity'))
+					->from($this->_db->qn('#__rseventspro_tickets','t'))
+					->join('LEFT', $this->_db->qn('#__rseventspro_user_tickets','ut').' ON '.$this->_db->qn('t.id').' = '.$this->_db->qn('ut.idt'))
+					->where($this->_db->qn('ut.ids').' = '.$this->_db->q($subscription->ids));
+				$this->_db->setQuery($query);
+				if ($tickets = $this->_db->loadObjectList()) {
+					foreach ($tickets as $ticket) {
+						$subscription->tickets[$ticket->id] = (object) array('id' => $ticket->id, 'ide' => $subscription->id, 'quantity' => $ticket->quantity, 'name' => $ticket->name, 'layout' => !empty($ticket->layout));
+					}
+				}
 			}
 		}
 		
@@ -846,28 +879,32 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$return = array();
 		
 		$query->clear()
-			->select($this->_db->qn('id'))->select($this->_db->qn('name'))->select($this->_db->qn('email'))
-			->from($this->_db->qn('#__rseventspro_users'))
-			->where($this->_db->qn('ide').' = '.$id)
-			->where($this->_db->qn('state').' = 0');
+			->select($this->_db->qn('u.id'))->select($this->_db->qn('u.name'))->select($this->_db->qn('u.email'))
+			->from($this->_db->qn('#__rseventspro_users','u'))
+			->where($this->_db->qn('u.ide').' = '.$id)
+			->where($this->_db->qn('u.state').' = 0');
+		
+		$this->_app->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
 		
 		$this->_db->setQuery($query);
 		$pending = $this->_db->loadObjectList();
 		
 		$query->clear()
-			->select($this->_db->qn('id'))->select($this->_db->qn('name'))->select($this->_db->qn('email'))
-			->from($this->_db->qn('#__rseventspro_users'))
-			->where($this->_db->qn('ide').' = '.$id)
-			->where($this->_db->qn('state').' = 1');
+			->select($this->_db->qn('u.id'))->select($this->_db->qn('u.name'))->select($this->_db->qn('u.email'))
+			->from($this->_db->qn('#__rseventspro_users','u'))
+			->where($this->_db->qn('u.ide').' = '.$id)
+			->where($this->_db->qn('u.state').' = 1');
+		
+		$this->_app->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
 		
 		$this->_db->setQuery($query);
 		$accepted = $this->_db->loadObjectList();
 		
 		$query->clear()
-			->select($this->_db->qn('id'))->select($this->_db->qn('name'))->select($this->_db->qn('email'))
-			->from($this->_db->qn('#__rseventspro_users'))
-			->where($this->_db->qn('ide').' = '.$id)
-			->where($this->_db->qn('state').' = 2');
+			->select($this->_db->qn('u.id'))->select($this->_db->qn('u.name'))->select($this->_db->qn('u.email'))
+			->from($this->_db->qn('#__rseventspro_users','u'))
+			->where($this->_db->qn('u.ide').' = '.$id)
+			->where($this->_db->qn('u.state').' = 2');
 			
 		$this->_db->setQuery($query);
 		$denied = $this->_db->loadObjectList();
@@ -927,7 +964,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 		
 		$return	= array();
 		$params = rseventsproHelper::getParams();
-		$query	= RSEventsQuery::getInstance($params);
+		$query	= RSEventsProQuery::getInstance($params);
 		$select = array('e.id', 'e.name', 'e.start', 'e.owner', 'e.end', 'e.allday', 'l.id' => 'lid', 'l.name' => 'lname', 'l.address', 'l.coordinates');
 		$query->select($select);
 		$query->featured(false);
@@ -970,25 +1007,16 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$jform	= $this->_app->input->get('jform',array(),'array');
 		$task	= $this->_app->input->get('task');
 		$query	= $this->_db->getQuery(true);
-		$tasks	= array('approve','pending','denied','savesubscriber','removesubscriber');
+		$tasks	= array('approve','pending','denied','removesubscriber','savesubscriber');
 		
 		if (in_array($task,$tasks)) {
-			$theid = $id;
-			
-			if ($task == 'savesubscriber')
-				$theid = $jform['id'];
-			
-			$query->clear()
-				->select($this->_db->qn('ide'))
-				->from($this->_db->qn('#__rseventspro_users'))
-				->where($this->_db->qn('id').' = '.$theid);
-				
-			$this->_db->setQuery($query);
-			$id = (int) $this->_db->loadResult();
+			$id = $this->_app->input->getInt('ide',0);
 		} elseif ($task == 'message') {
 			$id = (int) $jform['id'];
 		} elseif ($task == 'saveticket' || $task == 'savecoupon') {
 			$id = (int) $jform['ide'];
+		} elseif ($task == 'savesubscriber') {
+			$id = $this->_app->input->getInt('ide',0);
 		}
 		
 		$event = RSEvent::getInstance($id);
@@ -1103,6 +1131,77 @@ class rseventsproModelRseventspro extends JModelLegacy
 		}
 		
 		return array(array_merge($columns), array_merge($operators), array_merge($values));
+	}
+	
+	// Get extra filters
+	public function getExtraFilters() {
+		$itemid 	= $this->_app->input->getInt('Itemid');
+		$parent		= $this->_app->input->getInt('parent');
+		
+		$status		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_status'.$itemid.$parent,		'filter_status',	array(), 'array');
+		$featured	= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_featured'.$itemid.$parent,	'filter_featured',	array(), 'array');
+		$childs		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_child'.$itemid.$parent, 		'filter_child',		array(), 'array');
+		$start		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_start'.$itemid.$parent, 		'filter_start',		array(), 'array');
+		$end		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_end'.$itemid.$parent, 		'filter_end',		array(), 'array');
+		$price		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_price'.$itemid.$parent, 		'filter_price',		array(), 'array');
+		
+		$status		= $status[0] 	== '' ? null : $status;
+		$featured	= $featured[0] 	== '' ? null : $featured[0];
+		$childs		= $childs[0] 	== '' ? null : $childs[0];
+		$start		= $start[0] 	== '' ? null : $start[0];
+		$end		= $end[0] 		== '' ? null : $end[0];
+		$price		= $price[0] 	== '' ? null : $price[0];
+		
+		if (is_array($status)) {
+			$status = array_unique($status);
+			
+			foreach ($status as $key => $option) {
+				if ($option == '') unset($status[$key]);
+			}	
+		}
+		
+		return array('status' => $status, 'featured' => $featured, 'childs' => $childs, 'start' => $start, 'end' => $end, 'price' => $price);
+	}
+	
+	public function getConditions() {
+		$filters	= $this->getFilters();
+		$other		= $this->getExtraFilters();
+		$columns	= isset($filters[0]) ? $filters[0] : array();
+		$count		= 0;
+		
+		foreach($columns as $column) {
+			if ($column == '') continue;
+			$count++;
+		}
+		
+		if (!is_null($other['status'])) {
+			foreach ($other['status'] as $status) {
+				if ($status == '') continue;
+				$count++;
+			}
+		}
+			
+		if (!is_null($other['featured'])) {
+			$count++;
+		}
+		
+		if (!is_null($other['childs'])) {
+			$count++;
+		}
+		
+		if (!is_null($other['start'])) {
+			$count++;
+		}
+		
+		if (!is_null($other['end'])) {
+			$count++;
+		}
+		
+		if (!is_null($other['price'])) {
+			$count++;
+		}
+		
+		return $count;
 	}
 	
 	public function getOperator() {
@@ -1300,6 +1399,8 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$this->_db->setQuery($query);
 		$state = $this->_db->loadResult();
 		
+		JFactory::getApplication()->triggerEvent('rsepro_adminBeforeStoreSubscription', array(array('table' => $table)));
+		
 		if ($table->store()) {
 			// Send activation email
 			if ($state != 1 && $data['state'] == 1)
@@ -1319,11 +1420,17 @@ class rseventsproModelRseventspro extends JModelLegacy
 	// Remove subscriber
 	public function removesubscriber() {
 		$table	= JTable::getInstance('Subscription','rseventsproTable');
-		$id		= $this->_app->input->getInt('id');
+		$ids	= $this->_app->input->getInt('id');
+		$ide	= $this->_app->input->getInt('ide');
 		
-		if (!$table->delete($id)) {
-			$this->setError($table->getError());
-			return false;
+		$unsubscribe = false;
+		$this->_app->triggerEvent('rsepro_unsubscribeUser', array(array('ids' => $ids, 'ide' => $ide, 'unsubscribe' => &$unsubscribe)));
+		
+		if (!$unsubscribe) {
+			if (!$table->delete($ids)) {
+				$this->setError($table->getError());
+				return false;
+			}
 		}
 		
 		return true;
@@ -1346,17 +1453,19 @@ class rseventsproModelRseventspro extends JModelLegacy
 				JArrayHelper::toInteger($people);
 				
 			$query->clear()
-				->select($this->_db->qn('email'))->select($this->_db->qn('name'))->select($this->_db->qn('ide'))
-				->from($this->_db->qn('#__rseventspro_users'))
-				->where($this->_db->qn('ide').' = '.(int) $jform['id']);
+				->select($this->_db->qn('u.email'))->select($this->_db->qn('u.name'))->select($this->_db->qn('u.ide'))
+				->from($this->_db->qn('#__rseventspro_users','u'))
+				->where($this->_db->qn('u.ide').' = '.(int) $jform['id']);
 			
 			if (empty($people) && !empty($send)) {
-				$query->where($this->_db->qn('state').' IN ('.implode(',',$send).')');
+				$query->where($this->_db->qn('u.state').' IN ('.implode(',',$send).')');
 			} elseif (empty($send) && !empty($people)) {
-				$query->where($this->_db->qn('id').' IN ('.implode(',',$people).')');
+				$query->where($this->_db->qn('u.idu').' IN ('.implode(',',$people).')');
 			} elseif (!empty($send) && !empty($people)) {
-				$query->where('('.$this->_db->qn('state').' IN ('.implode(',',$send).') OR '.$this->_db->qn('id').' IN ('.implode(',',$people).'))');
+				$query->where('('.$this->_db->qn('u.state').' IN ('.implode(',',$send).') OR '.$this->_db->qn('u.idu').' IN ('.implode(',',$people).'))');
 			}
+			
+			$this->_app->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
 			
 			$this->_db->setQuery($query);
 			$subscribers = $this->_db->loadObjectList();
@@ -1538,6 +1647,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$tickets		= array();
 		$eventtickets	= array();
 		$seats			= array();
+		$discounts		= array();
 		$state			= 0;
 		$tax			= 0;
 		
@@ -1780,62 +1890,74 @@ class rseventsproModelRseventspro extends JModelLegacy
 			}
 		}
 		
-		// Check for a global discount, and if found ignore the event discount
-		if ($event->discounts) {
-			$globalDiscount = rseventsproHelper::globalDiscount($id, $total, $eventtickets, $payment);
-		} else {
-			$globalDiscount = false;
+		if ($event->discounts && $discount) {
+			$discounts[] = (object) array('discount' => $discount, 'id' => $couponid, 'code' => '', 'global' => false);
 		}
 		
-		// Update the use of the coupon and add the coupon code to the users table
-		if ($globalDiscount) {
-			$discount = $globalDiscount['discount'];
+		// Check for a global discount
+		if ($event->discounts) {
+			if ($globalDiscount = rseventsproHelper::globalDiscount($id, $total, $eventtickets, $payment)) {
+				$discounts[] = (object) array('discount' => $globalDiscount['discount'], 'id' => $globalDiscount['id'], 'code' => $globalDiscount['code'], 'global' => true);
+			}
+		}
+		
+		// Sort discounts
+		usort($discounts, array('rseventsproHelper', 'sort_discounts'));
+		
+		// Select discount
+		if (isset($discounts[0])) {
+			$discount = $discounts[0]->discount;
 			
-			$query->clear()
-				->update($this->_db->qn('#__rseventspro_discounts'))
-				->set($this->_db->qn('used').' = '.$this->_db->qn('used').' + 1')
-				->where($this->_db->qn('id').' = '.(int) $globalDiscount['id']);
-			
-			$this->_db->setQuery($query);
-			$this->_db->execute();
-			
-			$query->clear()
-				->update($this->_db->qn('#__rseventspro_users'))
-				->set($this->_db->qn('coupon').' = '.$this->_db->q($globalDiscount['code']))
-				->where($this->_db->qn('id').' = '.(int) $ids);
-			
-			$this->_db->setQuery($query);
-			$this->_db->execute();
-		} else {
-			if ($couponid) {
+			// Update the use of the coupon and add the coupon code to the users table
+			if ($discounts[0]->global) {
 				$query->clear()
-					->update($this->_db->qn('#__rseventspro_coupon_codes'))
+					->update($this->_db->qn('#__rseventspro_discounts'))
 					->set($this->_db->qn('used').' = '.$this->_db->qn('used').' + 1')
-					->where($this->_db->qn('id').' = '.(int) $couponid);
+					->where($this->_db->qn('id').' = '.(int) $discounts[0]->id);
 				
 				$this->_db->setQuery($query);
 				$this->_db->execute();
 				
 				$query->clear()
-					->select($this->_db->qn('code'))
-					->from($this->_db->qn('#__rseventspro_coupon_codes'))
-					->where($this->_db->qn('id').' = '.(int) $couponid);
+					->update($this->_db->qn('#__rseventspro_users'))
+					->set($this->_db->qn('coupon').' = '.$this->_db->q($discounts[0]->code))
+					->where($this->_db->qn('id').' = '.(int) $ids);
 				
 				$this->_db->setQuery($query);
-				if ($couponcode = $this->_db->loadResult()) {
+				$this->_db->execute();
+			} else {
+				if ($discounts[0]->id) {
 					$query->clear()
-						->update($this->_db->qn('#__rseventspro_users'))
-						->set($this->_db->qn('coupon').' = '.$this->_db->q($couponcode))
-						->where($this->_db->qn('id').' = '.(int) $ids);
+						->update($this->_db->qn('#__rseventspro_coupon_codes'))
+						->set($this->_db->qn('used').' = '.$this->_db->qn('used').' + 1')
+						->where($this->_db->qn('id').' = '.(int) $discounts[0]->id);
 					
 					$this->_db->setQuery($query);
 					$this->_db->execute();
+					
+					$query->clear()
+						->select($this->_db->qn('code'))
+						->from($this->_db->qn('#__rseventspro_coupon_codes'))
+						->where($this->_db->qn('id').' = '.(int) $discounts[0]->id);
+					
+					$this->_db->setQuery($query);
+					if ($couponcode = $this->_db->loadResult()) {
+						$query->clear()
+							->update($this->_db->qn('#__rseventspro_users'))
+							->set($this->_db->qn('coupon').' = '.$this->_db->q($couponcode))
+							->where($this->_db->qn('id').' = '.(int) $ids);
+						
+						$this->_db->setQuery($query);
+						$this->_db->execute();
+					}
 				}
 			}
 		}
 		
 		// Update the total after the discount
-		$total = $total - $discount;
+		if ($discount) {
+			$total = $total - $discount;
+		}
 		
 		// If this is a free ticket subscription automatically approve the subscription
 		if ($total == 0 && $event->automatically_approve) {
@@ -1994,17 +2116,17 @@ class rseventsproModelRseventspro extends JModelLegacy
 	// Unsubscribe user from the unsubscribe layout
 	public function unsubscribeuser() {
 		$id		= $this->_app->input->getInt('id');
+		$ide	= $this->_app->input->getInt('ide');
 		$now	= JFactory::getDate()->toUnix();
 		$query	= $this->_db->getQuery(true);
 		$config	= rseventsproHelper::getConfig();
 		
 		$query->clear()
-			->select($this->_db->qn('e.id'))->select($this->_db->qn('e.name'))
-			->select($this->_db->qn('e.unsubscribe_date'))->select($this->_db->qn('e.sync'))
-			->select($this->_db->qn('e.notify_me_unsubscribe'))->select($this->_db->qn('e.owner'))
-			->from($this->_db->qn('#__rseventspro_events','e'))
-			->join('left',$this->_db->qn('#__rseventspro_users','u').' ON '.$this->_db->qn('u.ide').' = '.$this->_db->qn('e.id'))
-			->where($this->_db->qn('u.id').' = '.(int) $id);
+			->select($this->_db->qn('id'))->select($this->_db->qn('name'))
+			->select($this->_db->qn('unsubscribe_date'))->select($this->_db->qn('sync'))
+			->select($this->_db->qn('notify_me_unsubscribe'))->select($this->_db->qn('owner'))
+			->from($this->_db->qn('#__rseventspro_events'))
+			->where($this->_db->qn('id').' = '.(int) $ide);
 		
 		$this->_db->setQuery($query);
 		$event = $this->_db->loadObject();
@@ -2036,47 +2158,49 @@ class rseventsproModelRseventspro extends JModelLegacy
 				// Send unsubscribe email
 				rseventsproEmails::unsubscribe($subscription->email,$event->id,$subscription->name,$subscription->lang, $id);
 				
-				$query->clear()
-					->delete()
-					->from($this->_db->qn('#__rseventspro_users'))
-					->where($this->_db->qn('id').' = '.$id);
-					
-				$this->_db->setQuery($query);
-				$this->_db->execute();
+				$pluginUnsubscribe = false;
+				$this->_app->triggerEvent('rsepro_unsubscribeUser', array(array('unsubscribe' => &$pluginUnsubscribe, 'ide' => $ide, 'ids' => $subscription->id)));
 				
-				$query->clear()
-					->delete()
-					->from($this->_db->qn('#__rseventspro_user_tickets'))
-					->where($this->_db->qn('ids').' = '.$id);
-					
-				$this->_db->setQuery($query);
-				$this->_db->execute();
-				
-				$query->clear()
-					->delete()
-					->from($this->_db->qn('#__rseventspro_user_seats'))
-					->where($this->_db->qn('ids').' = '.$id);
-					
-				$this->_db->setQuery($query);
-				$this->_db->execute();
-				
-				// Delete RSForm!Pro submission
-				if (file_exists(JPATH_SITE.'/components/com_rsform/rsform.php') && $event->sync) {
+				if (!$pluginUnsubscribe) {
 					$query->clear()
-						->delete()
-						->from($this->_db->qn('#__rsform_submission_values'))
-						->where($this->_db->qn('SubmissionId').' = '.(int) $subscription->SubmissionId);
-					
+						->delete($this->_db->qn('#__rseventspro_users'))
+						->where($this->_db->qn('id').' = '.$id);
+						
 					$this->_db->setQuery($query);
 					$this->_db->execute();
 					
 					$query->clear()
-						->delete()
-						->from($this->_db->qn('#__rsform_submissions'))
-						->where($this->_db->qn('SubmissionId').' = '.(int) $subscription->SubmissionId);
-					
+						->delete($this->_db->qn('#__rseventspro_user_tickets'))
+						->where($this->_db->qn('ids').' = '.$id);
+						
 					$this->_db->setQuery($query);
 					$this->_db->execute();
+					
+					$query->clear()
+						->delete($this->_db->qn('#__rseventspro_user_seats'))
+						->where($this->_db->qn('ids').' = '.$id);
+						
+					$this->_db->setQuery($query);
+					$this->_db->execute();
+					
+					// Delete RSForm!Pro submission
+					if (file_exists(JPATH_SITE.'/components/com_rsform/rsform.php') && $event->sync) {
+						$query->clear()
+							->delete()
+							->from($this->_db->qn('#__rsform_submission_values'))
+							->where($this->_db->qn('SubmissionId').' = '.(int) $subscription->SubmissionId);
+						
+						$this->_db->setQuery($query);
+						$this->_db->execute();
+						
+						$query->clear()
+							->delete()
+							->from($this->_db->qn('#__rsform_submissions'))
+							->where($this->_db->qn('SubmissionId').' = '.(int) $subscription->SubmissionId);
+						
+						$this->_db->setQuery($query);
+						$this->_db->execute();
+					}
 				}
 				
 				// Notify the owner
@@ -2119,12 +2243,14 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$event = $this->_db->loadObject();
 		
 		$query->clear()
-			->select($this->_db->qn('id'))->select($this->_db->qn('name'))
-			->select($this->_db->qn('email'))->select($this->_db->qn('SubmissionId'))
-			->select($this->_db->qn('lang'))
-			->from($this->_db->qn('#__rseventspro_users'))
-			->where($this->_db->qn('ide').' = '.(int) $id)
-			->where($this->_db->qn('idu').' = '.(int) $this->_user->get('id'));
+			->select($this->_db->qn('u.id'))->select($this->_db->qn('u.name'))
+			->select($this->_db->qn('u.email'))->select($this->_db->qn('u.SubmissionId'))
+			->select($this->_db->qn('u.lang'))
+			->from($this->_db->qn('#__rseventspro_users','u'))
+			->where($this->_db->qn('u.ide').' = '.(int) $id)
+			->where($this->_db->qn('u.idu').' = '.(int) $this->_user->get('id'));
+		
+		$this->_app->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
 		
 		$this->_db->setQuery($query);
 		$subscription = $this->_db->loadObject();
@@ -2134,52 +2260,59 @@ class rseventsproModelRseventspro extends JModelLegacy
 			return array('id' => $event->id, 'name' => $event->name, 'message' => JText::_('COM_RSEVENTSPRO_USER_UNSUBSCRIBED_ERROR'));
 		
 		if (!empty($this->permissions['can_unsubscribe'])) {
-			JFactory::getApplication()->triggerEvent('rsepro_beforeUnsubscribe',array(array('subscription'=>$subscription)));
+			$this->_app->triggerEvent('rsepro_beforeUnsubscribe',array(array('subscription'=>$subscription)));
 			
 			// Send unsubscribe email
 			rseventsproEmails::unsubscribe($subscription->email,$id,$subscription->name,$subscription->lang,$subscription->id);
 			
-			$query->clear()
-				->delete()
-				->from($this->_db->qn('#__rseventspro_users'))
-				->where($this->_db->qn('id').' = '.$subscription->id);
-				
-			$this->_db->setQuery($query);
-			$this->_db->execute();
+			$pluginUnsubscribe = false;
+			$this->_app->triggerEvent('rsepro_unsubscribeUser', array(array('unsubscribe' => &$pluginUnsubscribe, 'ide' => $id, 'ids' => $subscription->id)));
 			
-			$query->clear()
-				->delete()
-				->from($this->_db->qn('#__rseventspro_user_tickets'))
-				->where($this->_db->qn('ids').' = '.$subscription->id);
-				
-			$this->_db->setQuery($query);
-			$this->_db->execute();
-			
-			$query->clear()
-				->delete()
-				->from($this->_db->qn('#__rseventspro_user_seats'))
-				->where($this->_db->qn('ids').' = '.$subscription->id);
-				
-			$this->_db->setQuery($query);
-			$this->_db->execute();
-			
-			// Delete RSForm!Pro submission
-			if (file_exists(JPATH_SITE.'/components/com_rsform/rsform.php') && $event->sync) {
+			if (!$pluginUnsubscribe) {
 				$query->clear()
-					->delete()
-					->from($this->_db->qn('#__rsform_submission_values'))
-					->where($this->_db->qn('SubmissionId').' = '.(int) $subscription->SubmissionId);
-				
+					->delete($this->_db->qn('#__rseventspro_users'))
+					->where($this->_db->qn('id').' = '.$subscription->id);
+					
 				$this->_db->setQuery($query);
 				$this->_db->execute();
 				
 				$query->clear()
-					->delete()
-					->from($this->_db->qn('#__rsform_submissions'))
-					->where($this->_db->qn('SubmissionId').' = '.(int) $subscription->SubmissionId);
-				
+					->delete($this->_db->qn('#__rseventspro_confirmed'))
+					->where($this->_db->qn('id').' = '.$subscription->id);
+					
 				$this->_db->setQuery($query);
 				$this->_db->execute();
+				
+				$query->clear()
+					->delete($this->_db->qn('#__rseventspro_user_tickets'))
+					->where($this->_db->qn('ids').' = '.$subscription->id);
+					
+				$this->_db->setQuery($query);
+				$this->_db->execute();
+				
+				$query->clear()
+					->delete($this->_db->qn('#__rseventspro_user_seats'))
+					->where($this->_db->qn('ids').' = '.$subscription->id);
+					
+				$this->_db->setQuery($query);
+				$this->_db->execute();
+				
+				// Delete RSForm!Pro submission
+				if (file_exists(JPATH_SITE.'/components/com_rsform/rsform.php') && $event->sync) {
+					$query->clear()
+						->delete($this->_db->qn('#__rsform_submission_values'))
+						->where($this->_db->qn('SubmissionId').' = '.(int) $subscription->SubmissionId);
+					
+					$this->_db->setQuery($query);
+					$this->_db->execute();
+					
+					$query->clear()
+						->delete($this->_db->qn('#__rsform_submissions'))
+						->where($this->_db->qn('SubmissionId').' = '.(int) $subscription->SubmissionId);
+					
+					$this->_db->setQuery($query);
+					$this->_db->execute();
+				}
 			}
 			
 			// Notify the owner
@@ -2253,6 +2386,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 	public function removeticket() {
 		$query	= $this->_db->getQuery(true);
 		$id		= $this->_app->input->getInt('id');
+		$response = false;
 		
 		if ($id) {
 			$query->clear()
@@ -2261,11 +2395,13 @@ class rseventsproModelRseventspro extends JModelLegacy
 				->where($this->_db->qn('id').' = '.$id);
 			
 			$this->_db->setQuery($query);
-			if ($this->_db->execute())
-				return true;
+			$response = $this->_db->execute();
+			
+			if ($response)
+				JFactory::getApplication()->triggerEvent('rsepro_afterDeleteTicket', array(array('id' => $id)));
 		}
 		
-		return false;
+		return $response;
 	}
 	
 	// Save event coupon
@@ -2471,6 +2607,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$path	= JPATH_SITE.'/components/com_rseventspro/assets/images/events/';
 		$id		= $this->_app->input->getInt('id');
 		$query	= $this->_db->getQuery(true);
+		$config = rseventsproHelper::getConfig();
 		
 		if (!empty($icon)) {
 			$ext = JFile::getExt($icon['name']);
@@ -2485,6 +2622,29 @@ class rseventsproModelRseventspro extends JModelLegacy
 					if ($eventicon = $this->_db->loadResult()) {
 						if (JFile::exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/'.$eventicon))
 							JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/'.$eventicon);
+						
+						$extension	= JFile::getExt($eventicon);
+						$name		= JFile::stripExt($eventicon);
+						
+						// Delete small icon
+						if (file_exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/'.$config->icon_small_width.'/'.md5($config->icon_small_width.$name).'.'.$extension)) {
+							JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/'.$config->icon_small_width.'/'.md5($config->icon_small_width.$name).'.'.$extension);
+						}
+						
+						// Delete big icon
+						if (file_exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/'.$config->icon_big_width.'/'.md5($config->icon_big_width.$name).'.'.$extension)) {
+							JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/'.$config->icon_big_width.'/'.md5($config->icon_big_width.$name).'.'.$extension);
+						}
+						
+						// Delete event listing icon from backend
+						if (file_exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/70/'.md5('70'.$name).'.'.$extension)) {
+							JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/70/'.md5('70'.$name).'.'.$extension);
+						}
+						
+						// Delete event edit icon
+						if (file_exists(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/188/'.md5('188'.$name).'.'.$extension)) {
+							JFile::delete(JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/188/'.md5('188'.$name).'.'.$extension);
+						}
 					}
 					
 					$file		= JFile::makeSafe($icon['name']);
@@ -2592,12 +2752,14 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$return	= array();
 		
 		$query->clear()
-			->select('DISTINCT(email)')
-			->select($this->_db->qn('idu'))
-			->select($this->_db->qn('name'))
-			->from($this->_db->qn('#__rseventspro_users'))
-			->where($this->_db->qn('ide').' = '.$id)
-			->where($this->_db->qn('state').' IN (0,1)');
+			->select('DISTINCT(u.email)')
+			->select($this->_db->qn('u.idu'))
+			->select($this->_db->qn('u.name'))
+			->from($this->_db->qn('#__rseventspro_users','u'))
+			->where($this->_db->qn('u.ide').' = '.$id)
+			->where($this->_db->qn('u.state').' IN (0,1)');
+		
+		JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
 		
 		$this->_db->setQuery($query);
 		if ($guests = $this->_db->loadObjectList()) {
@@ -2812,10 +2974,9 @@ class rseventsproModelRseventspro extends JModelLegacy
 	/**
 	 * Method to confirm subscriber.
 	 */
-	public function confirmsubscriber() {
+	public function confirm($id, $code) {
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
-		$id		= JFactory::getApplication()->input->getInt('id',0);
 		$admin	= rseventsproHelper::admin();
 		$user 	= $this->getUser();
 		
@@ -2829,16 +2990,24 @@ class rseventsproModelRseventspro extends JModelLegacy
 		
 		if ($admin || $event->owner == $user || $event->sid == $user) {
 			$query->clear()
-				->update('#__rseventspro_users')
-				->set($db->qn('confirmed').' = 1')
-				->where($db->qn('id').' = '.(int) $id);
+				->select($db->qn('id'))
+				->from('#__rseventspro_confirmed')
+				->where($db->qn('ids').' = '.$db->q($id))
+				->where($db->qn('code').' = '.$db->q($code));
 			$db->setQuery($query);
-			$db->execute();
-			
-			return 1;
+			if (!$db->loadResult()) {
+				$query->clear()
+					->insert('#__rseventspro_confirmed')
+					->set($db->qn('ids').' = '.$db->q($id))
+					->set($db->qn('code').' = '.$db->q($code));
+				$db->setQuery($query);
+				if ($db->execute()) {
+					return json_encode(array('status' => true, 'message' => JText::_('JYES')));
+				}
+			}
 		}
 		
-		return 0;
+		return json_encode(array('status' => false));
 	}
 	
 	public function getYesNo() {
@@ -2882,7 +3051,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 			$select[] = "( {$unit_value} * acos( cos( radians({$radius_start['lat']}) ) * cos( radians( SUBSTRING_INDEX(".$this->_db->qn('l.coordinates').", ',', 1) ) ) * cos( radians( SUBSTRING_INDEX(".$this->_db->qn('l.coordinates').", ',', -1) ) - radians({$radius_start['lng']}) ) + sin( radians({$radius_start['lat']}) ) * sin( radians( SUBSTRING_INDEX(".$this->_db->qn('l.coordinates').", ',', 1) ) ) ) ) AS ".$this->_db->qn("rs_rad_distance");
 		}
 		
-		$query	= RSEventsQuery::getInstance($params);
+		$query	= RSEventsProQuery::getInstance($params);
 		
 		$query->select($select);
 		$query->featured(false);
@@ -2915,7 +3084,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 				$single = (int) $event->eventsnr > 1 ? false : true;
 				
 				$url = rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id));
-				$src = JRoute::_('index.php?option=com_rseventspro&task=image&id='.rseventsproHelper::sef($event->id,$event->name), false);
+				$src = rseventsproHelper::thumb($event->id, rseventsproHelper::getConfig('icon_small_width', 'int'));
 				
 				$image = '<a class="thumbnail" href="'.$url.'">';
 				$image .= '<img class="media-object" src="'.$src.'" alt="" />';
@@ -3059,5 +3228,19 @@ class rseventsproModelRseventspro extends JModelLegacy
 		}
 		
 		return false;
+	}
+	
+	public function getMaxPrice() {
+		require_once JPATH_SITE.'/components/com_rseventspro/helpers/query.php';
+		
+		$db		= JFactory::getDbo();
+		$params = rseventsproHelper::getParams();
+		$query	= RSEventsProQuery::getInstance($params);
+		
+		$query->group('e.id');
+		$query->price(false);
+		
+		$db->setQuery('SELECT MAX('.$db->qn('price').') FROM '.$db->qn('#__rseventspro_tickets').' WHERE '.$db->qn('ide').' IN ('.$query->toString().')');
+		return round($db->loadResult());
 	}
 }

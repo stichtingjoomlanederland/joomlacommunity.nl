@@ -72,7 +72,7 @@
 	display: block;
 	position: relative;
 	padding: 5%;
-	background-color: #f8f8f8;
+	/* background-color: #f8f8f8; */
 }
 
 .rsepro-calendar table td.week>a {
@@ -166,6 +166,48 @@
 	position: relative;
 	overflow: visible !important;
 	display: inline-block !important;
+}
+
+.rsepro-calendar-tooltip-image {
+	float: left;
+	padding: 0 5px 5px 0;
+}
+
+.rsepro-calendar-tooltip-content {
+	display: inline-block;
+}
+
+.rsepro-calendar-events .popover {
+	max-width: 400px !important;
+}
+
+.rsepro-calendar-tooltip-description {
+	text-align: justify;
+}
+
+.curr-month .rsepro-calendar-day {
+	background-color: #e0e0e0;
+}
+
+.prev-month .rsepro-calendar-day,
+.next-month .rsepro-calendar-day {
+	background-color: #EDEDED;
+}
+
+.curr-month.curr-day .rsepro-calendar-day {
+	background-color: #c7c7c7;
+}
+
+.rsepro-calendar .has-events .day-events {
+    font-size: 12px;
+    margin-top: 5px;
+    text-align: center;
+}
+
+.rsepro-calendar table th {
+	background-color: #666;
+	border: 0 none;
+    color: #fff;
 }
 
 @media (max-width:480px) {

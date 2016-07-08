@@ -12,7 +12,7 @@ $open = !$links ? 'target="_blank"' : ''; ?>
 <ul class="rsepro_upcoming<?php echo $suffix; ?>">
 	<?php foreach ($events as $eventid) { ?>
 	<?php $details = rseventsproHelper::details($eventid->id); ?>
-	<?php $image = !empty($details['image_s']) ? $details['image_s'] : JURI::root().'components/com_rseventspro/assets/images/blank.png'; ?>
+	<?php $image = !empty($details['image_s']) ? $details['image_s'] : rseventsproHelper::defaultImage(); ?>
 	
 	<?php if (isset($details['event']) && !empty($details['event'])) $event = $details['event']; else continue; ?>
 	<li>

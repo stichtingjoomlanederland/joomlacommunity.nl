@@ -139,14 +139,6 @@ JText::script('COM_RSEVENTSPRO_LATE_FEE_BIGGER_ERROR'); ?>
 			
 			<?php echo $this->loadTemplate('tickets'); ?>
 			
-			<?php if (rseventsproHelper::pdf()) { ?>
-			<!-- Start Ticket PDF tab -->
-			<div class="tab-pane" id="rsepro-edit-tab5">
-				<?php echo $this->loadTemplate('ticketpdf'); ?>
-			</div>
-			<!-- End Ticket PDF tab -->
-			<?php } ?>
-			
 			<!-- Start Discounts tab -->
 			<div class="tab-pane" id="rsepro-edit-tab6">
 				<?php echo $this->loadTemplate('discounts'); ?>
@@ -291,5 +283,7 @@ JText::script('COM_RSEVENTSPRO_LATE_FEE_BIGGER_ERROR'); ?>
 			<button class="btn" data-dismiss="modal" aria-hidden="true"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
 		</div>
 	</div>
+	
+	<?php JFactory::getApplication()->triggerEvent('rsepro_eventNewFieldModal', array(array('view' => $this))); ?>
 	
 </div>

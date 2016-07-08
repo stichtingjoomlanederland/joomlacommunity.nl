@@ -89,7 +89,7 @@ $total		= 0; ?>
 <div class="rs_clear"></div>
 
 <?php if (!empty($this->payment->redirect)) { ?>
-<button type="button" class="button" onclick="document.location='<?php echo $this->payment->redirect; ?>'"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CONTINUE'); ?></button>
+<button type="button" class="btn" onclick="document.location='<?php echo $this->payment->redirect; ?>'"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CONTINUE'); ?></button>
  <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?>
 <?php } ?>
  <a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($data->ide,$event->name),false,rseventsproHelper::itemid($data->ide)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_BACK_TO_EVENT'); ?></a>

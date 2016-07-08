@@ -17,21 +17,23 @@ JHtml::_('behavior.formvalidation'); ?>
 		<?php if (!$this->social['cb']) { ?>jQuery('#jform_user_display option[value=3]').prop('disabled',true);<?php } ?>
 		<?php if (!$this->social['js']) { ?>jQuery('#jform_user_profile option[value=1]').prop('disabled',true);<?php } ?>
 		<?php if (!$this->social['cb']) { ?>jQuery('#jform_user_profile option[value=2]').prop('disabled',true);<?php } ?>
+		<?php if (!$this->social['easysocial']) { ?>jQuery('#jform_user_profile option[value=3]').prop('disabled',true);<?php } ?>
 		<?php if (!$this->social['js']) { ?>jQuery('#jform_event_owner option[value=2]').prop('disabled',true);<?php } ?>
 		<?php if (!$this->social['cb']) { ?>jQuery('#jform_event_owner option[value=3]').prop('disabled',true);<?php } ?>
 		<?php if (!$this->social['js']) { ?>jQuery('#jform_event_owner_profile option[value=1]').prop('disabled',true);<?php } ?>
 		<?php if (!$this->social['cb']) { ?>jQuery('#jform_event_owner_profile option[value=2]').prop('disabled',true);<?php } ?>
+		<?php if (!$this->social['easysocial']) { ?>jQuery('#jform_event_owner_profile option[value=3]').prop('disabled',true);<?php } ?>
 		<?php if (!$this->social['cb']) { ?>jQuery('#jform_user_avatar option[value=comprofiler]').prop('disabled',true);<?php } ?>
 		<?php if (!$this->social['js']) { ?>jQuery('#jform_user_avatar option[value=community]').prop('disabled',true);<?php } ?>
 		<?php if (!$this->social['k2']) { ?>jQuery('#jform_user_avatar option[value=k2]').prop('disabled',true);<?php } ?>
-		<?php if (!$this->social['easydiscuss']) { ?>jQuery('#jform_user_avatar option[value=easydiscuss]').prop('disabled',true);<?php } ?>
 		<?php if (!$this->social['kunena']) { ?>jQuery('#jform_user_avatar option[value=kunena]').prop('disabled',true);<?php } ?>
 		<?php if (!$this->social['fireboard']) { ?>jQuery('#jform_user_avatar option[value=fireboard]').prop('disabled',true);<?php } ?>
+		<?php if (!$this->social['easydiscuss']) { ?>jQuery('#jform_user_avatar option[value=easydiscuss]').prop('disabled',true);<?php } ?>
+		<?php if (!$this->social['easysocial']) { ?>jQuery('#jform_user_avatar option[value=easysocial]').prop('disabled',true);<?php } ?>
 		<?php if (!$this->social['rscomments']) { ?>jQuery('#jform_event_comment option[value=2]').prop('disabled',true);<?php } ?>
 		<?php if (!$this->social['jcomments']) { ?>jQuery('#jform_event_comment option[value=3]').prop('disabled',true);<?php } ?>
 		<?php if (!$this->social['jomcomment']) { ?>jQuery('#jform_event_comment option[value=4]').prop('disabled',true);<?php } ?>
-		<?php if (!$this->social['easydiscuss']) { ?>jQuery('#jform_event_comment option[value=4]').prop('disabled',true);<?php } ?>
-
+		
 		jQuery('#jform_user_display').trigger('liszt:updated');
 		jQuery('#jform_user_profile').trigger('liszt:updated');
 		jQuery('#jform_event_owner').trigger('liszt:updated');

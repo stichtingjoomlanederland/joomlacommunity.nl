@@ -293,6 +293,9 @@ class rseventsproController extends JControllerLegacy
 		$app	= JFactory::getApplication();
 		$step	= $app->input->getInt('step',0);
 		$backup = new RSEBackup;
+		
+		$app->triggerEvent('rsepro_backup', array(array('class' => &$backup)));
+		
 		$backup->process($step);
 		
 		$app->close();
@@ -316,6 +319,9 @@ class rseventsproController extends JControllerLegacy
 		
 		try {
 			$backup = new RSEBackup;
+			
+			JFactory::getApplication()->triggerEvent('rsepro_extract', array(array('class' => &$backup)));
+			
 			$backup->extract();
 			$extract = $backup->getRestoreFolder();
 		} catch(Exception $e) {
@@ -333,7 +339,10 @@ class rseventsproController extends JControllerLegacy
 		
 		$backup = new RSEBackup;
 		$backup->set('limit', 200);
-		$backup->restore($hash, $step);
+		
+		JFactory::getApplication()->triggerEvent('rsepro_restore', array(array('class' => &$backup)));
+		
+		$backup->restore();
 		
 		JFactory::getApplication()->close();
 	}

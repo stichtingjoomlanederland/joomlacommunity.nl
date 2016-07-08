@@ -13,10 +13,10 @@ namespace Akeeba\Engine\Postproc;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Psr\Log\LogLevel;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use Akeeba\Engine\Postproc\Connector\Dropbox2 as ConnectorDropboxV2;
+use Psr\Log\LogLevel;
 
 class Dropbox2 extends Base
 {

@@ -78,6 +78,9 @@ class Updates extends Update
 		}
 	}
 
+	/**
+	 * Refreshes the update sites, removing obsolete update sites in the process
+	 */
 	public function refreshUpdateSite()
 	{
 		// Remove any update sites for the old com_akeeba package
@@ -285,7 +288,7 @@ ENDBODY;
 		$update   = new \JUpdate();
 		$instance = \JTable::getInstance('update');
 		$instance->load($uid);
-		$update->loadFromXml($instance->detailsurl);
+		$update->loadFromXML($instance->detailsurl);
 
 		if (isset($update->get('downloadurl')->_data))
 		{
@@ -294,6 +297,22 @@ ENDBODY;
 		else
 		{
 			return "No download URL found inside XML manifest";
+		}
+
+		$extra_query = $instance->extra_query;
+
+		if ($extra_query)
+		{
+			if (strpos($url, '?') === false)
+			{
+				$url .= '?';
+			}
+			else
+			{
+				$url .= '&amp;';
+			}
+
+			$url .= $extra_query;
 		}
 
 		$config   = \JFactory::getConfig();
@@ -391,7 +410,6 @@ ENDBODY;
 	 */
 	private function setLastSend()
 	{
-		$params = $this->container->params;
 		$this->container->params->set('akeebasubs_autoupdate_lastsend', time());
 		$this->container->params->save();
 	}

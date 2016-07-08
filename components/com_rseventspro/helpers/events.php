@@ -1190,7 +1190,7 @@ class RSEvent
 		$registry->set('type', $row->repeat_type);
 		$registry->set('start', $row->start);
 		$registry->set('endd', $row->end);
-		$registry->set('end', $row->repeat_end);
+		$registry->set('end', rseventsproHelper::date($row->repeat_end,'Y-m-d H:i:s'));
 		$registry->set('days', $days);
 		
 		if (!empty($row->repeat_also)) {

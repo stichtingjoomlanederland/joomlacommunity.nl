@@ -5,6 +5,7 @@
 	<field name="start" type="hidden" />
 	<field name="end" type="hidden" />
 	<field name="description" type="editor" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="small_description" type="hidden" />
 	<field name="location" type="hidden" />
 	<field name="owner" type="user" />
 	<field name="URL" type="hidden" />

@@ -13,10 +13,10 @@ namespace Akeeba\Engine\Dump;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Psr\Log\LogLevel;
 use Akeeba\Engine\Base\Part;
-use Akeeba\Engine\Factory;
 use Akeeba\Engine\Dump\Base as DumpBase;
+use Akeeba\Engine\Factory;
+use Psr\Log\LogLevel;
 
 class Native extends Part
 {

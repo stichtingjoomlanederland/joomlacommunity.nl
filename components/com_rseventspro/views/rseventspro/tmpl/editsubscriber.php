@@ -79,14 +79,6 @@ function rs_validate_subscr() {
 			<?php echo $this->lists['status']; ?>
 		</div>
 	</div>
-	<div class="control-group">
-		<div class="control-label">
-			<label for="jform_confirmed"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_HEAD_CONFIRMED'); ?></label>
-		</div>
-		<div class="controls">
-			<?php echo $this->lists['confirmed']; ?>
-		</div>
-	</div>
 </fieldset>
 
 <div class="rs_clear"></div>
@@ -112,15 +104,43 @@ function rs_validate_subscr() {
 		<tr>
 			<td width="160"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKETS'); ?></td>
 			<td>
-				<?php foreach ($tickets as $ticket) { ?>
-					<?php if ($ticket->price > 0) { ?>
-					<?php echo $ticket->quantity.' x '.$ticket->name.' ('.rseventsproHelper::currency($ticket->price).')'; ?>
-					<?php $total += (int) $ticket->quantity * $ticket->price; ?>
-					<?php } else { ?>
-					<?php echo $ticket->quantity.' x '.$ticket->name.' ('.JText::_('COM_RSEVENTSPRO_GLOBAL_FREE').')'; ?>
-					<?php } ?>
-					<br />
-				<?php } ?>
+				<?php $purchasedtickets = ''; ?>
+				<?php if ($tickets) {
+						$purchasedtickets .= '<table class="table">';
+						$purchasedtickets .= '<thead>';
+						$purchasedtickets .= '<tr>';
+						$purchasedtickets .= '<th>'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET').'</th>';
+						if (rseventsproHelper::pdf() && $subscriber->state == 1) {
+							$purchasedtickets .= '<th align="center" class="center">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF').'</th>';
+							$purchasedtickets .= '<th align="center" class="center">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF_CODE').'</th>';
+							$purchasedtickets .= '<th align="center" class="center">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF_CONFIRMED').'</th>';
+						}
+						$purchasedtickets .= '</tr>';
+						$purchasedtickets .= '</thead>';
+						foreach ($tickets as $ticket) {
+							$total += (int) $ticket->quantity * $ticket->price;
+							for ($j = 1; $j <= $ticket->quantity; $j++) {
+								$purchasedtickets .= '<tr>';
+								$purchasedtickets .= '<td>'.$ticket->name.' ('.($ticket->price > 0 ?rseventsproHelper::currency($ticket->price) : JText::_('COM_RSEVENTSPRO_GLOBAL_FREE')).')'.'</td>';
+								if (rseventsproHelper::pdf() && $subscriber->state == 1) {
+									$code	= md5($subscriber->id.$ticket->id.$j);
+									$code	= substr($code,0,4).substr($code,-4);
+									$code	= rseventsproHelper::getConfig('barcode_prefix', 'string', 'RST-').$subscriber->id.'-'.$code;
+									$confirmed = rseventsproHelper::confirmed($subscriber->id, $code);
+									
+									$purchasedtickets .= '<td align="center" class="center">'.($ticket->layout ? '<a class="rsextra" href="'.JRoute::_('index.php?option=com_rseventspro&layout=ticket&from=subscriber&format=raw&id='.$subscriber->id.'&ide='.$subscriber->ide.'&tid='.$ticket->id.'&position='.$j).'"><i class="fa fa-file-pdf-o"></i> '.$ticket->name.'</a>' : '-').'</td>';
+									$purchasedtickets .= '<td align="center" class="center">'.$code.'</td>';
+									$purchasedtickets .= '<td align="center" class="center">';
+									$purchasedtickets .= $confirmed ? '<span class="label label-success">'.JText::_('JYES').'</span>' : '<span><a href="javascript:void(0)" class="label '.rseventsproHelper::tooltipClass().'" title="'.rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF_CONFIRMED_DESC')).'" onclick="rsepro_confirm_ticket(\''.$subscriber->id.'\',\''.$code.'\', this)">'.JText::_('JNO').'</a></span>';
+									$purchasedtickets .= '</td>';
+								}
+								$purchasedtickets .= '</tr>';
+							}
+						}
+						$purchasedtickets .= '</table>';
+					}
+					echo $purchasedtickets;
+				?>
 			</td>
 		</tr>
 		<?php } ?>
@@ -167,14 +187,6 @@ function rs_validate_subscr() {
 			<td width="160"><b><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_TOTAL'); ?></b></td>
 			<td><span id="total"><?php echo rseventsproHelper::currency($total); ?></span></td>
 		</tr>
-		<?php if ($this->pdf) { ?>
-		<?php if ($this->data['event']->ticket_pdf == 1 && !empty($this->data['event']->ticket_pdf_layout)) { ?>
-		<?php if ($subscriber->state == 1) { ?>
-		<tr>
-			<td width="160">&nbsp;</td>
-			<td><a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=ticket&from=subscriber&format=raw&id='.rseventsproHelper::sef($subscriber->id,$subscriber->name)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_MY_SUBSCRIPTION_DOWNLOAD_TICKET'); ?></a></td>
-		</tr>
-		<?php }}} ?>
 	</table>
 </fieldset>
 
@@ -215,4 +227,5 @@ function rs_validate_subscr() {
 	<input type="hidden" name="option" value="com_rseventspro" />
 	<input type="hidden" name="task" value="rseventspro.savesubscriber" />
 	<input type="hidden" name="jform[id]" value="<?php echo $subscriber->id; ?>" />
+	<input type="hidden" name="ide" value="<?php echo $event->id; ?>" />
 </form>

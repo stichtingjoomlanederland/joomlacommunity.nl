@@ -7,6 +7,23 @@
 defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 
 <script type="text/javascript">
+	function rsepro_reset_positions() {
+		left = 10;
+		jQuery('#rsepro_wrapper > div').css('top','10px');
+		jQuery('#rsepro_wrapper > div').css('width','90px');
+		jQuery('#rsepro_wrapper > div').each(function() {
+			var divid = jQuery(this).prop('id').replace('draggable','');
+			
+			jQuery(this).css('height', jQuery('#rsepro_ticket_seats' + divid).height() + 30);
+			jQuery(this).css('left', left + 'px');
+			jQuery('#left' + divid).val(left);
+			jQuery('#top' + divid).val(10);
+			jQuery('#width' + divid).val(90);
+			
+			left += 190;
+		});
+	}
+	
 	jQuery(document).ready(function(){
 		if (jQuery(window).width() >= 768) {
 			jQuery('#rsepro_wrapper').css('height', jQuery(window).height() - 100);
@@ -39,7 +56,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 				minHeight: 90, 
 				minWidth: 90,
 				containment: 'parent',
-				handles: 'e<?php if ($ticket->seats == 0) echo ',se'; ?>',
+				handles: 'e,s',
 				stop: function(event, ui) {
 					jQuery('#width<?php echo $ticket->id; ?>').attr('value', ui.size.width);
 					jQuery('#height<?php echo $ticket->id; ?>').attr('value', ui.size.height);
@@ -84,6 +101,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	<div style="text-align: center;">
 		<button type="submit" class="btn btn-primary"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button>
 		<button type="button" class="btn" onclick="window.parent.SqueezeBox.close();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
+		<button type="button" class="btn" onclick="rsepro_reset_positions();"><?php echo JText::_('COM_RSEVENTSPRO_RESET'); ?></button>
 	</div>
 	
 	<input type="hidden" name="task" value="rseventspro.tickets" />

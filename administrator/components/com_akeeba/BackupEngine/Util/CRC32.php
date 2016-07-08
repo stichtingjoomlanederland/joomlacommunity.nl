@@ -14,8 +14,8 @@ namespace Akeeba\Engine\Util;
 defined('AKEEBAENGINE') or die();
 
 use Akeeba\Engine\Base\Object;
-use Psr\Log\LogLevel;
 use Akeeba\Engine\Factory;
+use Psr\Log\LogLevel;
 
 /**
  * A handy class to abstract the calculation of CRC32 of files under various

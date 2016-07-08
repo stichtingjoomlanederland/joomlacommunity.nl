@@ -46,7 +46,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 			</td>
 			<td class="hidden-phone">
 				<div class="rs_event_img">
-					<img src="<?php echo JURI::root().'index.php?option=com_rseventspro&task=image&id='.$row->id.'&width=70&nocache='.uniqid(''); ?>" alt="" width="70" />
+					<img src="<?php echo rseventsproHelper::thumb($row->id, 70).'?nocache='.uniqid(''); ?>" alt="" width="70" />
 				</div>
 			</td>
 			<td class="has-context">
@@ -125,7 +125,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 			</td>
 			<td class="hidden-phone">
 				<div class="rs_event_img">
-					<img src="<?php echo JURI::root().'index.php?option=com_rseventspro&task=image&id='.$row->id.'&width=70&nocache='.uniqid(''); ?>" alt="" width="70" />
+					<img src="<?php echo rseventsproHelper::thumb($row->id, 70).'?nocache='.uniqid(''); ?>" alt="" width="70" />
 				</div>
 			</td>
 			<td class="nowrap has-context">
@@ -204,7 +204,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 			</td>
 			<td class="hidden-phone">
 				<div class="rs_event_img">
-					<img src="<?php echo JURI::root().'index.php?option=com_rseventspro&task=image&id='.$row->id.'&width=70&nocache='.uniqid(''); ?>" alt="" width="70" />
+					<img src="<?php echo rseventsproHelper::thumb($row->id, 70).'?nocache='.uniqid(''); ?>" alt="" width="70" />
 				</div>
 			</td>
 			<td class="nowrap has-context">
@@ -283,7 +283,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 			</td>
 			<td class="hidden-phone">
 				<div class="rs_event_img">
-					<img src="<?php echo JURI::root().'index.php?option=com_rseventspro&task=image&id='.$row->id.'&width=70&nocache='.uniqid(''); ?>" alt="" width="70" />
+					<img src="<?php echo rseventsproHelper::thumb($row->id, 70).'?nocache='.uniqid(''); ?>" alt="" width="70" />
 				</div>
 			</td>
 			<td class="nowrap has-context">
@@ -362,7 +362,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 			</td>
 			<td class="hidden-phone">
 				<div class="rs_event_img">
-					<img src="<?php echo JURI::root().'index.php?option=com_rseventspro&task=image&id='.$row->id.'&width=70&nocache='.uniqid(''); ?>" alt="" width="70" />
+					<img src="<?php echo rseventsproHelper::thumb($row->id, 70).'?nocache='.uniqid(''); ?>" alt="" width="70" />
 				</div>
 			</td>
 			<td class="nowrap has-context">
@@ -441,7 +441,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 			</td>
 			<td class="hidden-phone">
 				<div class="rs_event_img">
-					<img src="<?php echo JURI::root().'index.php?option=com_rseventspro&task=image&id='.$row->id.'&width=70&nocache='.uniqid(''); ?>" alt="" width="70" />
+					<img src="<?php echo rseventsproHelper::thumb($row->id, 70).'?nocache='.uniqid(''); ?>" alt="" width="70" />
 				</div>
 			</td>
 			<td class="nowrap has-context">

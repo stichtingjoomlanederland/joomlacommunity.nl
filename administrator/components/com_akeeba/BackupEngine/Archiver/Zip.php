@@ -14,9 +14,9 @@ namespace Akeeba\Engine\Archiver;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
+use Akeeba\Engine\Factory;
 use Akeeba\Engine\Util\CRC32;
 use Psr\Log\LogLevel;
-use Akeeba\Engine\Factory;
 
 class Zip extends Base
 {

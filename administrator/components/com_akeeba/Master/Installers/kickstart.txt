@@ -29,7 +29,7 @@
  */
 
 define('KICKSTART',1);
-define('VERSION', 'rev2949BCD');
+define('VERSION', '4.2.1');
 define('KICKSTARTPRO', '0');
 // Uncomment the following line to enable Kickstart's debug mode
 //define('KSDEBUG', 1);
@@ -10168,7 +10168,7 @@ function echoHeadJavascript()
 	 */
 
 	var akeeba_update = {version: '0'};
-	var akeeba_version = 'rev2949BCD';
+	var akeeba_version = '4.2.1';
 
 	function version_compare (v1, v2, operator) {
 		// BEGIN REDUNDANT
@@ -10418,7 +10418,7 @@ function echoPage()
 	</div>
 
 	<div id="header">
-		<div class="title">Akeeba Kickstart <?php echo $edition?> rev2949BCD</div>
+		<div class="title">Akeeba Kickstart <?php echo $edition?> 4.2.1</div>
 	</div>
 
 	<div id="update-notification" style="display: none">

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.1" type="plugin" group="system" method="upgrade">
+	<name>plg_system_bootstrap3_compatibility</name>
+	<author>Niels van der Veer</author>
+	<creationDate>Juni 2016</creationDate>
+	<copyright>(C) 2016 Niels van der Veer. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see	LICENSE.txt</license>
+	<authorEmail>contact@nielsvanderveer.me</authorEmail>
+	<authorUrl>www.nielsvanderveer.me</authorUrl>
+	<version>1.0.0</version>
+	<description>PLG_SYSTEM_BOOTSTRAP3_COMPATIBILITY_XML_DESC</description>
+	<files>
+		<filename plugin="bootstrap3compatibility">bootstrap3compatibility.php</filename>
+	</files>
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.plg_system_bootstrap3compatibility.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.plg_system_bootstrap3compatibility.sys.ini</language>
+	</languages>
+</extension>

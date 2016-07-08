@@ -137,6 +137,15 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 </div>
 <?php } ?>
 
+<div class="control-group">
+	<div class="control-label">
+		<label for="jform_small_description"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_SMALL_DESCRIPTION'); ?></label>
+	</div>
+	<div class="controls">
+		<textarea class="span10" name="jform[small_description]" id="jform_small_description" rows="10"><?php echo $this->escape($this->item->small_description); ?></textarea>
+	</div>
+</div>
+
 <div class="control-group clearfix">
 	<div class="controls">
 		<?php echo JEditor::getInstance(JFactory::getConfig()->get('editor'))->display('jform[description]',$this->escape($this->item->description),'100%', '50%', 20, 7, rseventsproHelper::getConfig('enable_buttons','bool')); ?>

@@ -141,7 +141,7 @@ abstract class JHTMLRSEventsPro
 				if ($allday) {
 					$thevalue = rseventsproHelper::showdate($value,'Y-m-d');
 				} else {
-					if ($option == 'com_menus' && $id == 'jform_params_from') {
+					if (($option == 'com_menus' || $option == 'com_modules') && $id == 'jform_params_from') {
 						$value = JFactory::getDate($value, $offset)->toSql();
 					}
 					

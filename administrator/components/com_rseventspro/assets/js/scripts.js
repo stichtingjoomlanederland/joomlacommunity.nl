@@ -522,6 +522,25 @@ function rsepro_discount_assignment() {
 	}
 }
 
+function rsepro_confirm_ticket(id, code, object) {
+	jQuery('#subscriptionConfirm').css('display','');
+	
+	jQuery.ajax({
+		url: 'index.php?option=com_rseventspro',
+		type: 'post',
+		dataType: 'json',
+		data: 'task=subscription.confirm&id='+ id + '&code=' + code
+	}).done(function( response ) {
+		if (response.status) {
+			if (jQuery('#subscriptionConfirm').length) {
+				jQuery(object).parent().text(Joomla.JText._('COM_RSEVENTSPRO_SUBSCRIBER_CONFIRMED'));
+			} else {
+				jQuery(object).parent().html('<span class="label label-success">' + response.message + '</span>');
+			}
+		}
+	});
+}
+
 /****** DEPRECATED ******/
 function rs_stop() {}
 function rs_search() {}

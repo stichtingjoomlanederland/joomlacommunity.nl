@@ -103,7 +103,6 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			'administrator/components/com_akeeba/Controller/RegExDatabaseFilters.php',
 			'administrator/components/com_akeeba/Controller/RegExFileFilters.php',
 			'administrator/components/com_akeeba/Controller/RemoteFiles.php',
-			'administrator/components/com_akeeba/Controller/Restore.php',
 			'administrator/components/com_akeeba/Controller/S3Import.php',
 			'administrator/components/com_akeeba/Controller/Upload.php',
 
@@ -114,7 +113,6 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			'administrator/components/com_akeeba/Model/RegExDatabaseFilters.php',
 			'administrator/components/com_akeeba/Model/RegExFileFilters.php',
 			'administrator/components/com_akeeba/Model/RemoteFiles.php',
-			'administrator/components/com_akeeba/Model/Restore.php',
 			'administrator/components/com_akeeba/Model/S3Import.php',
 			'administrator/components/com_akeeba/Model/Upload.php',
 			
@@ -143,7 +141,6 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			'administrator/components/com_akeeba/View/RegExDatabaseFilters',
 			'administrator/components/com_akeeba/View/RegExFileFilter',
 			'administrator/components/com_akeeba/View/RemoteFiles',
-			'administrator/components/com_akeeba/View/Restore',
 			'administrator/components/com_akeeba/View/S3Import',
 			'administrator/components/com_akeeba/View/Upload',
 			'administrator/components/com_akeeba/BackupEngine/Dump/Reverse',
@@ -375,11 +372,37 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 	function postflight($type, $parent)
 	{
 		// Let's install common tables
-		$container = \FOF30\Container\Container::getInstance('com_akeeba');
-		/** @var \Akeeba\Backup\Admin\Model\UsageStatistics $model */
-		$model = $container->factory->model('UsageStatistics')->tmpInstance();
+		$container = null;
+		$model     = null;
 
-		if (method_exists($model, 'checkAndFixCommonTables'))
+		if (class_exists('FOF30\\Container\\Container'))
+		{
+			try
+			{
+				$container = \FOF30\Container\Container::getInstance('com_akeeba');
+			}
+			catch (\Exception $e)
+			{
+				$container = null;
+			}
+		}
+
+		if (is_object($container) && class_exists('FOF30\\Container\\Container') && ($container instanceof \FOF30\Container\Container))
+		{
+			/** @var \Akeeba\Backup\Admin\Model\UsageStatistics $model */
+			try
+			{
+				$model = $container->factory->model('UsageStatistics')->tmpInstance();
+			}
+			catch (\Exception $e)
+			{
+				$model = null;
+			}
+		}
+
+		if (is_object($model) && class_exists('Akeeba\\Backup\\Admin\\Model\\UsageStatistics')
+			&& ($model instanceof Akeeba\Backup\Admin\Model\UsageStatistics)
+			&& method_exists($model, 'checkAndFixCommonTables'))
 		{
 			try
 			{
@@ -483,14 +506,41 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			</p>
 		</fieldset>
 	<?php
-		$container = \FOF30\Container\Container::getInstance('com_ats');
+		// Let's install common tables
+		$container = null;
+		$model     = null;
+
+		if (class_exists('FOF30\\Container\\Container'))
+		{
+			try
+			{
+				$container = \FOF30\Container\Container::getInstance('com_akeeba');
+			}
+			catch (\Exception $e)
+			{
+				$container = null;
+			}
+		}
+
+		if (is_object($container) && class_exists('FOF30\\Container\\Container') && ($container instanceof \FOF30\Container\Container))
+		{
+			/** @var \Akeeba\Backup\Admin\Model\UsageStatistics $model */
+			try
+			{
+				$model = $container->factory->model('UsageStatistics')->tmpInstance();
+			}
+			catch (\Exception $e)
+			{
+				$model = null;
+			}
+		}
 
 		/** @var \Akeeba\Backup\Admin\Model\UsageStatistics $model */
 		try
 		{
-			$model = $container->factory->model('UsageStatistics')->tmpInstance();
-
-			if (method_exists($model, 'collectStatistics'))
+			if (is_object($model) && class_exists('Akeeba\\Backup\\Admin\\Model\\UsageStatistics')
+				&& ($model instanceof Akeeba\Backup\Admin\Model\UsageStatistics)
+				&& method_exists($model, 'collectStatistics'))
 			{
 				$iframe = $model->collectStatistics(true);
 
