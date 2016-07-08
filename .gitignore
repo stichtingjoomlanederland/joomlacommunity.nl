@@ -23,6 +23,7 @@
 .settings
 .DS_Store
 .idea
+.config.codekit
 
 # OSX #
 ._*
