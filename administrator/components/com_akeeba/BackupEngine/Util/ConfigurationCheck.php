@@ -36,8 +36,9 @@ class ConfigurationCheck
 		array('code' => '101', 'severity' => 'high', 'callback' => array(null, 'q101'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q101'),
 		array('code' => '103', 'severity' => 'high', 'callback' => array(null, 'q103'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q103'),
 		array('code' => '104', 'severity' => 'high', 'callback' => array(null, 'q104'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q104'),
+		array('code' => '106', 'severity' => 'high', 'callback' => array(null, 'q106'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q106'),
 
-		array('code' => '201', 'severity' => 'high', 'callback' => array(null, 'q201'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q201'),
+		array('code' => '201', 'severity' => 'medium', 'callback' => array(null, 'q201'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q201'),
 		array('code' => '202', 'severity' => 'medium', 'callback' => array(null, 'q202'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q202'),
 		array('code' => '204', 'severity' => 'medium', 'callback' => array(null, 'q204'), 'description' => 'COM_AKEEBA_CPANEL_WARNING_Q204'),
 
@@ -393,13 +394,41 @@ class ConfigurationCheck
 	}
 
 	/**
-	 * Q201 - HIGH  - PHP 5.3.2 or lower detected
+	 * Q106 - HIGH  - Table name prefix contains uppercase characters
+	 *
+	 * @return  bool
+	 */
+	private function q106()
+	{
+		$filters = Factory::getFilters();
+		$databases = $filters->getInclusions('db');
+
+		foreach ($databases as $db)
+		{
+			if (!isset($db['prefix']))
+			{
+				continue;
+			}
+
+			if (preg_match('/[A-Z]/', $db['prefix']))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Q201 - MEDIUM - Outdated PHP version.
+	 *
+	 * We currently check for PHP lower than 5.5.
 	 *
 	 * @return  bool
 	 */
 	private function q201()
 	{
-		return version_compare(PHP_VERSION, '5.3.2', 'le');
+		return version_compare(PHP_VERSION, '5.5.0', 'lt');
 	}
 
 	/**

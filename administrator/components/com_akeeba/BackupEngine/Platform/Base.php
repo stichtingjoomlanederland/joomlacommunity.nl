@@ -93,12 +93,14 @@ abstract class Base implements PlatformInterface
 
 		try
 		{
-			$db->query();
+			$result = $db->query();
 		}
 		catch (\Exception $exc)
 		{
 			return false;
 		}
+
+		return ($result == true);
 
 		return true;
 	}
@@ -145,7 +147,13 @@ abstract class Base implements PlatformInterface
 		if (empty($databaseData) || is_null($databaseData))
 		{
 			// No configuration was saved yet - store the defaults
-			$this->save_configuration($profile_id);
+			$saved = $this->save_configuration($profile_id);
+
+			// If this is the case we probably don't have the necesary table. Throw an exception.
+			if (!$saved)
+			{
+				throw new \RuntimeException("Could not save data to backup profile #$profile_id", 500);
+			}
 
 			return $this->load_configuration($profile_id);
 		}

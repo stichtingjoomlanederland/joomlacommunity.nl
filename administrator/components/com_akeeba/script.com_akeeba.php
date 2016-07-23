@@ -255,6 +255,11 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			"administrator/components/com_akeeba/View/Upload/tmpl/done.blade.php",
 			"administrator/components/com_akeeba/View/Upload/tmpl/error.blade.php",
 			"administrator/components/com_akeeba/View/Upload/tmpl/uploading.blade.php",
+
+			// Dropbox v1 integration
+			'administrator/components/com_akeeba/BackupEngine/Postproc/dropbox.ini',
+			'administrator/components/com_akeeba/BackupEngine/Postproc/Dropbox.php',
+			'administrator/components/com_akeeba/BackupEngine/Postproc/Connector/Dropbox.php',
 		),
 		'folders' => array(
 			// Directories used up to version 4.1 (inclusive)
@@ -289,6 +294,8 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			// Obsolete Modules
 			'administrator/modules/mod_akadmin',
 
+			// Dropbox v1 integration
+			'administrator/components/com_akeeba/BackupEngine/Postproc/Connector/Dropbox',
 		)
 	);
 

@@ -62,6 +62,9 @@ class DataModel extends Model implements \JTableInterface
 	/** @var   array  A list of table fields, keyed per table */
 	protected static $tableFieldCache = array();
 
+	/** @var   array  A list of permutations of the prefix with upper/lowercase letters */
+	protected static $prefixCasePermutations = array();
+
 	/** @var   array  Table field name aliases, defined as aliasFieldName => actualFieldName */
 	protected $aliasFields = array();
 
@@ -735,6 +738,23 @@ class DataModel extends Model implements \JTableInterface
 			else
 			{
 				$checkName = $name;
+			}
+
+			// Iterate through all lower/uppercase permutations of the prefix if we have a prefix with at least one uppercase letter
+			if (!in_array($checkName, static::$tableCache) && preg_match('/[A-Z]/', $prefix) && (substr($name, 0, 3) == '#__'))
+			{
+				$prefixPermutations = $this->getPrefixCasePermutations();
+				$partialCheckName = substr($name, 3);
+
+				foreach ($prefixPermutations as $permutatedPrefix)
+				{
+					$checkName = $permutatedPrefix . $partialCheckName;
+					
+					if (in_array($checkName, static::$tableCache))
+					{
+						break;
+					}
+				}
 			}
 
 			if (!in_array($checkName, static::$tableCache))
@@ -4307,5 +4327,60 @@ class DataModel extends Model implements \JTableInterface
 		$fieldName = $this->getFieldAlias($fieldName);
 
 		return in_array($fieldName, $this->fieldsSkipChecks);
+	}
+
+	/**
+	 * Returns all lower and upper case permutations of the database prefix
+	 *
+	 * @return  array
+	 */
+	protected function getPrefixCasePermutations()
+	{
+		if (empty(self::$prefixCasePermutations))
+		{
+			$prefix = $this->getDbo()->getPrefix();
+			$suffix = '';
+
+			if (substr($prefix, -1) == '_')
+			{
+				$suffix = '_';
+				$prefix = substr($prefix, 0, -1);
+			}
+
+			$letters      = str_split($prefix, 1);
+			$permutations = array('');
+
+			foreach ($letters as $nextLetter)
+			{
+				$lower = strtolower($nextLetter);
+				$upper = strtoupper($nextLetter);
+				$ret = array();
+
+				foreach ($permutations as $perm)
+				{
+					$ret[] = $perm . $lower;
+
+					if ($lower != $upper)
+					{
+						$ret[] = $perm . $upper;
+					}
+
+					$permutations = $ret;
+				}
+			}
+
+			$permutations = array_merge(array(
+				strtolower($prefix),
+				strtoupper($prefix),
+			), $permutations);
+			$permutations = array_map(function ($x) use ($suffix)
+			{
+				return $x . $suffix;
+			}, $permutations);
+
+			self::$prefixCasePermutations = array_unique($permutations);
+		}
+
+		return self::$prefixCasePermutations;
 	}
 }

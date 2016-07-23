@@ -149,6 +149,11 @@ class Installer
 		$hasUtf8mb4Support = method_exists($this->db, 'hasUTF8mb4Support') && $this->db->hasUTF8mb4Support();
 		$tablesToConvert = array();
 
+		// If we have an uppercase db prefix we can expect CREATE TABLE fail because we cannot detect reliably
+		// the existence of database tables. See https://github.com/joomla/joomla-cms/issues/10928#issuecomment-228549658
+		$prefix = $this->db->getPrefix();
+		$canFailCreateTable = preg_match('/[A-Z]/', $prefix);
+
 		/** @var SimpleXMLElement $action */
 		foreach ($actions as $action)
 		{
@@ -271,6 +276,12 @@ class Installer
 					}
 					catch (Exception $e)
 					{
+						// Special consideration for CREATE TABLE commands on uppercase prefix databases.
+						if ($canFailCreateTable && stripos($query, 'CREATE TABLE') !== false)
+						{
+							$canFail = true;
+						}
+
 						// If we are not allowed to fail, throw back the exception we caught
 						if (!$canFail)
 						{

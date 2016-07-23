@@ -30,22 +30,23 @@ trait CustomACL
 	{
 		// Akeeba Backup-specific ACL checks. All views not listed here are limited by the akeeba.configure privilege.
 		$viewACLMap = [
-			'Backup'      => 'akeeba.backup',
-			'Upload'      => 'akeeba.backup',
-			'Manage'      => 'akeeba.download',
-			'Log'         => 'akeeba.download',
-			'S3Import'    => 'akeeba.download',
-			'Restore'     => 'akeeba.download',
-			'RemoteFiles' => 'akeeba.download',
-			'Discover'    => 'akeeba.download',
-			'Transfer'    => 'akeeba.download',
+			'ControlPanel' => 'core.manage',
+			'Backup'       => 'akeeba.backup',
+			'Upload'       => 'akeeba.backup',
+			'Manage'       => 'akeeba.download',
+			'Log'          => 'akeeba.download',
+			'S3Import'     => 'akeeba.download',
+			'Restore'      => 'akeeba.download',
+			'RemoteFiles'  => 'akeeba.download',
+			'Discover'     => 'akeeba.download',
+			'Transfer'     => 'akeeba.download',
 		];
 
 		$privilege = 'akeeba.configure';
 
 		if (array_key_exists($view, $viewACLMap))
 		{
-			$privilege = $viewACLMap[ $view ];
+			$privilege = $viewACLMap[$view];
 		}
 
 		// If an empty privilege is defined do not perform any ACL checks

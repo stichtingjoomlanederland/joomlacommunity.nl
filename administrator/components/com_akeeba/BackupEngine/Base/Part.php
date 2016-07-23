@@ -101,6 +101,9 @@ abstract class Part extends Object
 	/** @var  int  How much milliseconds should we wait to reach the min exec time */
 	protected $waitTimeMsec = 0;
 
+	/** @var  bool  Should I ignore the minimum execution time altogether? */
+	protected $ignoreMinimumExecutionTime = false;
+
 	/**
 	 * Public constructor
 	 *
@@ -317,8 +320,11 @@ abstract class Part extends Object
 				}
 
 				// Enforce minimum execution time
-				$timer = Factory::getTimer();
-				$this->waitTimeMsec = (int)$timer->enforce_min_exec_time(true, $serverSideSleep);
+				if (!$this->ignoreMinimumExecutionTime)
+				{
+					$timer = Factory::getTimer();
+					$this->waitTimeMsec = (int)$timer->enforce_min_exec_time(true, $serverSideSleep);
+				}
 			}
 		}
 
@@ -513,5 +519,21 @@ abstract class Part extends Object
 	public function getProgress()
 	{
 		return 0;
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public function isIgnoreMinimumExecutionTime()
+	{
+		return $this->ignoreMinimumExecutionTime;
+	}
+
+	/**
+	 * @param boolean $ignoreMinimumExecutionTime
+	 */
+	public function setIgnoreMinimumExecutionTime($ignoreMinimumExecutionTime)
+	{
+		$this->ignoreMinimumExecutionTime = $ignoreMinimumExecutionTime;
 	}
 }

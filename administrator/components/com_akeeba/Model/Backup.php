@@ -202,10 +202,18 @@ class Backup extends Model
 		 * the backup profile being used, therefore it will assume it's profile #1.
 		 *
 		 * The second tick() creates the backup record without doing much else, fixing this issue.
+		 * 
+		 * However, if you have conservative settings where the min exec time is MORE than the max exec time the second
+		 * tick would never run. Therefore we need to tell the first tick to ignore the time settings (since it only
+		 * takes a few milliseconds to execute anyway) and then apply the time settings on the second tick (which also
+		 * only takes a few milliseconds). This is why we have setIgnoreMinimumExecutionTime before and after the first
+		 * tick. DO NOT REMOVE THESE.
 		 *
 		 * THEREFORE, DO NOT REMOVE THE SECOND tick(), IT IS THERE ON PURPOSE!
 		 */
+		$kettenrad->setIgnoreMinimumExecutionTime(true);
 		$kettenrad->tick(); // Do not remove the first call to tick()!!!
+		$kettenrad->setIgnoreMinimumExecutionTime(false);
 		$kettenrad->tick(); // Do not remove the second call to tick()!!!
 		$ret_array = $kettenrad->getStatusArray();
 
