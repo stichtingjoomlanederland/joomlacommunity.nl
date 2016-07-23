@@ -749,7 +749,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 		
 		$query->clear()
 			->select($this->_db->qn('u.state'))->select($this->_db->qn('u.URL'))->select($this->_db->qn('u.date','subscribe_date'))->select($this->_db->qn('u.id','ids'))
-			->select($this->_db->qn('u.name','iname'))->select($this->_db->qn('e.id'))->select($this->_db->qn('e.name'))
+			->select($this->_db->qn('u.name','iname'))->select($this->_db->qn('u.SubmissionId'))->select($this->_db->qn('e.id'))->select($this->_db->qn('e.name'))
 			->from($this->_db->qn('#__rseventspro_users','u'))
 			->join('left',$this->_db->qn('#__rseventspro_events','e').' ON '.$this->_db->qn('e.id').' = '.$this->_db->qn('u.ide'))
 			->where($this->_db->qn('e.completed').' = 1')
@@ -2741,6 +2741,25 @@ class rseventsproModelRseventspro extends JModelLegacy
 		
 		$this->_db->setQuery($query);
 		$this->_db->execute();
+		
+		// Remove old thumbs
+		jimport('joomla.filesystem.folder');
+		jimport('joomla.filesystem.file');
+		
+		// Get file extension
+		$extension	= JFile::getExt($icon);
+		// Strip extension
+		$name		= JFile::stripExt($icon);
+		
+		if ($folders = JFolder::folders($thumbs)) {
+			JArrayHelper::toInteger($folders);
+			
+			foreach ($folders as $folder) {
+				if (file_exists($thumbs.$folder.'/'.md5($folder.$name).'.'.$extension)) {
+					JFile::delete($thumbs.$folder.'/'.md5($folder.$name).'.'.$extension);
+				}
+			}
+		}
 		
 		return true;
 	}

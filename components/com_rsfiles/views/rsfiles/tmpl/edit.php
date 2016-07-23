@@ -110,7 +110,7 @@ JHtml::_('behavior.formvalidation'); ?>
 							<label for="thumb" class="<?php echo rsfilesHelper::tooltipClass(); ?>" title="<?php echo rsfilesHelper::tooltipText(JText::_('COM_RSFILES_FILE_THUMB_DESC')); ?>"><?php echo JText::_('COM_RSFILES_FILE_THUMB'); ?></label>
 						</div>
 						<div class="controls">
-						<?php if (empty($this->item->FileThumb)) { ?>
+						<?php if (empty($this->item->FileThumb) || !file_exists(JPATH_SITE.'/components/com_rsfiles/images/thumbs/files/'.$this->item->FileThumb)) { ?>
 							<input type="file" id="thumb" name="thumb" size="50" />
 						<?php } else { ?>
 							<?php echo JHTML::_('image', JURI::root().'components/com_rsfiles/images/thumbs/files/'.$this->item->FileThumb.'?sid='.rand(), '','class="rsf_thumb" style="vertical-align: middle;"'); ?>
@@ -168,7 +168,7 @@ JHtml::_('behavior.formvalidation'); ?>
 							<label for="thumb" class="<?php echo rsfilesHelper::tooltipClass(); ?>" title="<?php echo rsfilesHelper::tooltipText(JText::sprintf('COM_RSFILES_FILE_PREVIEW_DESC', rsfilesHelper::previewExtensions(true))); ?>"><?php echo JText::_('COM_RSFILES_FILE_PREVIEW'); ?></label>
 						</div>
 						<div class="controls">
-						<?php if (empty($this->item->preview)) { ?>
+						<?php if (empty($this->item->preview) || !file_exists(JPATH_SITE.'/components/com_rsfiles/images/preview/'.$this->item->preview)) { ?>
 							<input type="file" id="preview" name="preview" size="50" /> <br />
 							<input type="checkbox" id="resize" name="resize" value="1" /> 
 							<label class="checkbox inline" for="resize"><?php echo JText::_('COM_RSFILES_FILE_PREVIEW_RESIZE'); ?></label> 

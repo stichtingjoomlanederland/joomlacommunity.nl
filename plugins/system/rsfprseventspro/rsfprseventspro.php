@@ -347,7 +347,7 @@ class plgSystemRSFPRSEventspro extends JPlugin {
 		
 		if ($args['data']['NAME'] == 'RSEProCoupon') {
 			
-			$args['out'] .= ' <a href="javascript:void(0)" onclick="rse_verify_coupon('.$id.',$(\'RSEProCoupon\').value)">';
+			$args['out'] .= ' <a href="javascript:void(0)" onclick="rse_verify_coupon('.$id.',document.getElementById(\'RSEProCoupon\').value)">';
 			$args['out'] .= '<img src="'.JURI::root().'components/com_rseventspro/assets/images/coupon.png" alt="'.JText::_('COM_RSEVENTSPRO_COUPON_VERIFY').'" style="vertical-align:middle" />';
 			$args['out'] .= '</a>';
 			

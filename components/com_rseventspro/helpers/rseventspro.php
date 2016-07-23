@@ -697,7 +697,7 @@ class rseventsproHelper
 			$thumb->w = (int) $width;
 		$thumb->q = 75;
 		$thumb->config_output_format = JFile::getExt($image);
-		$thumb->config_error_die_on_error = true;
+		$thumb->config_error_die_on_error = false;
 		$thumb->config_cache_disable_warning = true;
 		$thumb->config_allow_src_above_docroot = true;
 		$thumb->cache_filename = $path;
@@ -1166,6 +1166,7 @@ class rseventsproHelper
 			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_TOTAL').'"';
 			
 			if (file_exists(JPATH_SITE.'/components/com_rsform/rsform.php')) {
+				$query = $db->getQuery(true);
 				$query->clear()
 					->select($db->qn('form'))
 					->from($db->qn('#__rseventspro_events'))
@@ -3279,7 +3280,7 @@ class rseventsproHelper
 			$return[$event->id] = $container;
 		}
 		
-		return is_array($id) ? $return : $return[$id];
+		return is_array($id) ? $return : (isset($return[$id]) ? $return[$id] : array());
 	}
 	
 	protected static function getEventsOrdering() {
@@ -3299,6 +3300,10 @@ class rseventsproHelper
 	}
 	
 	protected static function getEventRepeats($ids) {
+		if (empty($ids)) {
+			return array();
+		}
+		
 		if (!is_array($ids)) {
 			$ids = array($ids);
 		}
@@ -3961,23 +3966,6 @@ class rseventsproHelper
 		$itemid = $itemid ? '&Itemid=999999999' : '';
 		
 		return $root.rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($id,$name).$itemid, false);
-	}
-	
-	// Set page title
-	public static function metatitle() {
-		$params	= rseventsproHelper::getParams();
-		$config = JFactory::getConfig();
-		$title	= $params->get('page_title', '');
-		
-		if (empty($title)) {
-			$title = $config->get('sitename');
-		} elseif ($config->get('sitename_pagetitles', 0) == 1) {
-			$title = JText::sprintf('JPAGETITLE', $config->get('sitename'), $title);
-		} elseif ($config->get('sitename_pagetitles', 0) == 2) {
-			$title = JText::sprintf('JPAGETITLE', $title, $config->get('sitename'));
-		}
-		
-		JFactory::getDocument()->setTitle($title);
 	}
 	
 	// Set tax
@@ -5799,7 +5787,7 @@ class rseventsproHelper
 		$thumb->q								= 90;
 		$thumb->iar								= 1;
 		$thumb->config_output_format			= $extension;
-		$thumb->config_error_die_on_error		= true;
+		$thumb->config_error_die_on_error		= false;
 		$thumb->config_cache_disable_warning	= true;
 		$thumb->config_allow_src_above_docroot	= true;
 		
@@ -6140,5 +6128,34 @@ class rseventsproHelper
 	public static function sort_discounts($a, $b) {
 		if ($a->discount == $b->discount) return 0;
 		return ($a->discount < $b->discount) ? 1 : -1;
+	}
+	
+	// Check for PDF layout
+	public static function hasPDFLayout($layout, $SubmissionId) {
+		if (rseventsproHelper::pdf()) {
+			// Search for a RSForm!Pro form
+			if ($SubmissionId) {
+				
+				try {
+					$db = JFactory::getDbo();
+					$query = $db->getQuery(true);
+					
+					$query->clear()
+						->select($db->qn('rr.ticketpdf'))->select($db->qn('rr.ticketpdf_layout'))
+						->from($db->qn('#__rsform_rseventspro','rr'))
+						->join('LEFT', $db->qn('#__rsform_submissions','rs').' ON '.$db->qn('rs.FormId').' = '.$db->qn('rr.form_id'))
+						->where($db->qn('rs.SubmissionId').' = '.$db->q($SubmissionId))
+						->where($db->qn('rr.published').' = '.$db->q(1));
+					$db->setQuery($query);
+					if ($object = $db->loadObject()) {
+						return $object->ticketpdf && $object->ticketpdf_layout;
+					}
+				} catch (Exception $e) { }
+			}
+			
+			return $layout;
+		}
+		
+		return false;
 	}
 }

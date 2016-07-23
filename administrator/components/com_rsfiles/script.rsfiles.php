@@ -1096,9 +1096,9 @@ class com_rsfilesInstallerScript
 		<?php } ?>
 	<?php } ?>
 	
-	<h2>Changelog v1.15.14</h2>
+	<h2>Changelog v1.15.15</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> Unpublishing files did not worked correctly.</li>
+		<li><span class="version-fixed">Fix</span> Check for file owner when overwriting an existing file.</li>
 	</ul>
 	<a class="com-rsfiles-button" href="index.php?option=com_rsfiles">Start using RSFiles!</a>
 	<a class="com-rsfiles-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/81-rsfiles.html" target="_blank">Read the RSFiles! User Guide</a>

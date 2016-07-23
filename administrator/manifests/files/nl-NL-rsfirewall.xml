@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<extension version="2.5" type="file" method="upgrade">
+<name>nl-NL-rsfirewall</name>
+<tag>nl-NL</tag>
+<version>2.10.2</version>
+<creationDate>2016-07-03</creationDate>
+<author>Connecting Connections</author>
+<authorEmail>info@con-con.nl</authorEmail>
+<authorUrl>https://con-con.nl</authorUrl>
+<copyright>Copyright (C) 2007 - 2016. All rights reserved.</copyright>
+<license>GNU/GPL http://www.gnu.org/licenses/gpl-3.0.html</license>
+<description><![CDATA[
+  <div align="center">
+    <table border="0" width="90%">
+	    <tr>
+		    <td width="100%" colspan="2">
+		      <div align="center"> <a href="https://con-con.nl" target="_blank"><img border="0" src="https://con-con.nl/images/conban.jpg" alt="Connecting Connections" /></a>
+				<h3>RSTickets! Taalpakket:</h3>
+		      </div>
+		      <hr />
+		    </td>
+	    </tr>
+	    <tr>
+		    <td width="18%"><u><b>Taal:</b></u></td>
+		    <td width="80%">Nederlands</td>
+	    </tr>
+	    <tr>
+		    <td width="18%"><u><b>Website deel:</b></u></td>
+		    <td width="80%">Administrator (Backend) en Website (Frontend)</td>
+	    </tr>
+	    <tr>
+		    <td width="18%"><u><b>Auteur:</b></u></td>
+		    <td width="80%">Connecting Connections</td>
+	    </tr>
+	    <tr>
+		    <td width="18%"><u><b>Website:</b></u></td>
+		    <td width="80%"><a href="https://con-con.nl" target="_blank">https://con-con.nl</a></td>
+	    </tr>
+	    <tr>
+		    <td width="18%"><u><b>Vertaling voor versie:</b></u></td>
+		    <td width="80%">2.10.2</td>
+	    </tr>
+	    <tr>
+		    <td width="100%" colspan="2">
+		      <p align="center"><b><u><font color="#008000">Indien je tips, opmerkingen, verbeteringen en dergelijk hebt kun je een mail sturen naar <a href="mailto:vertaling@con-con.nl">vertaling@con-con.nl</a> en zal deze zo snel mogelijk verwerkt en beantwoord worden.</font></u></b></td>
+	    </tr>
+		<tr>
+		    <td width="100%" colspan="2">
+		      <p align="center"><b><u><font color="#008000">Volg Connecting Connections op <a href="https://twitter.com/conconnl" target="_blank">Twitter</a> en blijf op de hoogte van alle updates.</font></u></b></td>
+	    </tr>
+	    <tr>
+		    <td width="100%" colspan="2">
+		      <p align="center"><b><font color="#008000">Controleer regelmatig de <a href="https://secure.avangate.com/affiliate.php?ACCOUNT=RSMDSOF&AFFILIATE=40572&PATH=http%3A%2F%2Fwww.rsjoomla.com" target="_blank">RSJoomla! downloadsite</a> voor een nieuwe versie van de vertaling voor deze extensie.<br /> Of kijk op onze <a href="http://con-con.nl/downloads/files.html?folder=Vertalingen" target="_blank">Download site</a>.</font></b></td>
+	    </tr>
+    </table>
+  </div>]]></description>
+      <fileset>
+        <!-- Backend Lang pack languages -->
+        <files folder="adminj25/nl-NL" target="administrator/language/nl-NL">
+<filename>nl-NL.com_rsfirewall.ini</filename>
+<filename>nl-NL.com_rsfirewall.sys.ini</filename>
+<filename>nl-NL.mod_rsfirewall.ini</filename>
+<filename>nl-NL.mod_rsfirewall.sys.ini</filename>
+<filename>nl-NL.plg_installer_rsfirewall.ini</filename>
+<filename>nl-NL.plg_installer_rsfirewall.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfirewall.sys.ini</filename>
+</files>
+		<!-- Frontend Lang pack languages -->
+		<files folder="sitej25/nl-NL" target="language/nl-NL">
+<filename>nl-NL.com_rsfirewall.ini</filename>
+<filename>nl-NL.mod_rsfirewall_protected.ini</filename>
+<filename>nl-NL.mod_rsfirewall_protected.sys.ini</filename>
+        </files>
+      </fileset>
+	<updateservers>
+		<server type="collection" priority="1" name="RSJoomla! Extensions Dutch Translations"><![CDATA[https://con-con.nl/index.php?option=com_ars&view=update&task=all&format=xml&dummy=extension.xml]]></server>
+	</updateservers>
+</extension>

@@ -461,4 +461,12 @@ class rseventsproModelCalendar extends JModelLegacy
 		$db->setQuery('SELECT MAX('.$db->qn('price').') FROM '.$db->qn('#__rseventspro_tickets').' WHERE '.$db->qn('ide').' IN ('.$query->toString().')');
 		return round($db->loadResult());
 	}
+	
+	public function getOperator() {
+		$itemid 	= $this->_app->input->getInt('Itemid');
+		$valid		= array('AND', 'OR');
+		$operator	= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_operator'.$itemid, 'filter_operator', 'AND');
+		
+		return !in_array($operator, $valid) ? 'AND' : $operator;		
+	}
 }

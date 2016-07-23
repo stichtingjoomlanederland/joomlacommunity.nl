@@ -558,6 +558,7 @@ class rseventsproModelEvent extends JModelAdmin
 		$input	= JFactory::getApplication()->input;
 		$id		= $input->getInt('id');
 		$path	= JPATH_SITE.'/components/com_rseventspro/assets/images/events/';
+		$thumbs = JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/';
 		
 		$query->clear()
 			->select($db->qn('icon'))
@@ -587,6 +588,25 @@ class rseventsproModelEvent extends JModelAdmin
 		
 		$db->setQuery($query);
 		$db->execute();
+		
+		// Remove old thumbs
+		jimport('joomla.filesystem.folder');
+		jimport('joomla.filesystem.file');
+		
+		// Get file extension
+		$extension	= JFile::getExt($icon);
+		// Strip extension
+		$name		= JFile::stripExt($icon);
+		
+		if ($folders = JFolder::folders($thumbs)) {
+			JArrayHelper::toInteger($folders);
+			
+			foreach ($folders as $folder) {
+				if (file_exists($thumbs.$folder.'/'.md5($folder.$name).'.'.$extension)) {
+					JFile::delete($thumbs.$folder.'/'.md5($folder.$name).'.'.$extension);
+				}
+			}
+		}
 		
 		return true;
 	}

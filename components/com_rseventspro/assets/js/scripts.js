@@ -176,9 +176,15 @@ function rse_verify_coupon(ide, coupon) {
 	params	 = 'task=verify&id=' + ide + '&coupon=' + coupon;
 	
 	if (multitickets) {
-		jQuery('#rsepro-cart-details input').each(function() {
-			params += '&' + jQuery(this).prop('name')+ '=' + jQuery(this).val();
-		});
+		if (jQuery('#rsepro-cart-details input').length) {
+			jQuery('#rsepro-cart-details input').each(function() {
+				params += '&' + jQuery(this).prop('name')+ '=' + jQuery(this).val();
+			});
+		} else {
+			jQuery('#hiddentickets input').each(function () {
+				params += '&' + jQuery(this).prop('name') + '=' + jQuery(this).val();
+			});
+		}
 	} else {
 		if (jQuery('#rsepro-cart-details input[name^="unlimited"]').length || jQuery('#rsepro-cart-details tr[id^="rsepro-seat-"]').length) {
 			jQuery('#rsepro-cart-details input[name^="unlimited"]').each(function() {
@@ -803,6 +809,8 @@ function rs_calendar(root,month,year,module) {
 		jQuery('#rscalendar'+module).css('display','none');
 		
 		if (response.indexOf('hasTooltip') > -1) {
+			jQuery('.tooltip').hide();
+			jQuery('.hasTooltip').tooltip('destroy');
 			jQuery('.hasTooltip').tooltip({"html": true,"container": "body"});
 		} else {
 			$$('.hasTip').each(function(el) {

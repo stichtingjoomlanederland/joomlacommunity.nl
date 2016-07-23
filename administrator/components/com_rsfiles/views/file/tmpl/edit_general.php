@@ -34,9 +34,8 @@ foreach ($fieldsets as $fieldset) {
 		
 		echo JHtml::_('rsfieldset.element', $field->label, $field->input.$extra);
 		
-		
 		if ($field->fieldname == 'DownloadLimit') {
-			if (empty($this->item->FileThumb)) {
+			if (empty($this->item->FileThumb) || !file_exists(JPATH_SITE.'/components/com_rsfiles/images/thumbs/files/'.$this->item->FileThumb)) {
 				echo JHtml::_('rsfieldset.element', '<label for="thumb" class="'.rsfilesHelper::tooltipClass().'" title="'.rsfilesHelper::tooltipText(JText::_('COM_RSFILES_FILE_THUMB_DESC')).'">'.JText::_('COM_RSFILES_FILE_THUMB').'</label>', '<input type="file" id="thumb" name="thumb" size="50" />');
 			} else {
 				$thumb = JHTML::_('image', JURI::root().'components/com_rsfiles/images/thumbs/files/'.$this->item->FileThumb.'?sid='.rand(), '','class="rsf_thumb" style="vertical-align: middle;"');
@@ -48,7 +47,7 @@ foreach ($fieldsets as $fieldset) {
 			}
 			
 			if ($this->type != 'folder') {
-				if (empty($this->item->preview)) {
+				if (empty($this->item->preview) || !file_exists(JPATH_SITE.'/components/com_rsfiles/images/preview/'.$this->item->preview)) {
 					$preview = '<input type="file" id="preview" name="preview" size="50" /> <br /><br />';
 					$preview .= '<input type="checkbox" id="resize" name="resize" value="1" /> <label class="checkbox inline" for="resize">'.JText::_('COM_RSFILES_FILE_PREVIEW_RESIZE').'</label> <input type="text" value="200" class="input-mini" size="5" name="resize_width" /> px';
 					echo JHtml::_('rsfieldset.element', '<label for="preview" class="'.rsfilesHelper::tooltipClass().'" title="'.rsfilesHelper::tooltipText(JText::sprintf('COM_RSFILES_FILE_PREVIEW_DESC',rsfilesHelper::previewExtensions(true))).'">'.JText::_('COM_RSFILES_FILE_PREVIEW').'</label>', '<span class="rs_extra">'.$preview.'</span>');

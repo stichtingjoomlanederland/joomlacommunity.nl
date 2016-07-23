@@ -13,8 +13,8 @@ class com_rseventsproInstallerScript
 		$app		= JFactory::getApplication();
 		$jversion	= new JVersion();
 		
-		if (!$jversion->isCompatible('2.5.5')) {
-			$app->enqueueMessage('Please upgrade to at least Joomla! 2.5.5 before continuing!', 'error');
+		if (!$jversion->isCompatible('3')) {
+			$app->enqueueMessage('You need to have a Joomla! 3.x version in order to install RSEvents!Pro', 'error');
 			return false;
 		}
 		
@@ -792,9 +792,9 @@ class com_rseventsproInstallerScript
 				}
 				
 				// Remove table fields
-				$db->setQuery("ALTER IGNORE TABLE `#__rseventspro_events` DROP `ticket_pdf`");
+				$db->setQuery("ALTER TABLE `#__rseventspro_events` DROP `ticket_pdf`");
 				$db->execute();
-				$db->setQuery("ALTER IGNORE TABLE `#__rseventspro_events` DROP `ticket_pdf_layout`");
+				$db->setQuery("ALTER TABLE `#__rseventspro_events` DROP `ticket_pdf_layout`");
 				$db->execute();
 			}
 			
@@ -935,23 +935,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.10.0</h2>
+	<h2>Changelog v1.10.7</h2>
 	<ul class="version-history">
-		<li><span class="version-new">Add</span> Cart compatibility.</li>
-		<li><span class="version-new">Add</span> Change default event image.</li>
-		<li><span class="version-new">Add</span> Show repeated events on child events.</li>
-		<li><span class="version-new">Add</span> Google Maps API key.</li>
-		<li><span class="version-new">Add</span> Price filtering available in events listing and search module.</li>
-		<li><span class="version-new">Add</span> Create template overrides for the calendar tooltip.</li>
-		<li><span class="version-new">Add</span> Small description for event listings.</li>
-		<li><span class="version-new">Add</span> Cron link for payment rules. (index.php?option=com_rseventspro&amp;task=rules)</li>
-		<li><span class="version-new">Add</span> Subscription specific placeholders (eg. {TicketInfo}, {TicketsTotal}, etc.) are also available in the denied and unsubscribe emails.</li>
-		<li><span class="version-new">Add</span> Tag cloud module.</li>
-		<li><span class="version-upgraded">Upd</span> Calendar layout.</li>
-		<li><span class="version-upgraded">Upd</span> The ticket PDF layout can now be set on each individual ticket.</li>
-		<li><span class="version-upgraded">Upd</span> Each purchased ticket generates its own barcode. (Eg. If you purchase 3 of the same ticket, then 3 barcodes will be generated.)</li>
-		<li><span class="version-upgraded">Upd</span> Event images are now stored on your server.</li>
-		<li><span class="version-fixed">Fix</span> Ticket price was showing with 3 decimals when editing event.</li>
+		<li><span class="version-new">ADD</span> Add sitename to the page meta title.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>

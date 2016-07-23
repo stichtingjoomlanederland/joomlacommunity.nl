@@ -17,6 +17,8 @@ class rseventsproViewCalendar extends JViewLegacy
 		$pathway	= $app->getPathWay();
 		$menus		= $app->getMenu();
 		$menu		= $menus->getActive();
+		$jconfig	= JFactory::getConfig();
+		$title		= null;
 		
 		// Get menu parameters , user permission etc.
 		$this->user			= $user->get('id');
@@ -43,8 +45,23 @@ class rseventsproViewCalendar extends JViewLegacy
 		$mid = $mid ? '&mid='.$mid : '';
 		
 		// Add Joomla! menu metadata
-		if ($this->params->get('page_title'))
-			$doc->setTitle($this->params->get('page_title'));
+		if ($menu && isset($menu->title)) {
+			$title = $menu->title;
+		}
+		
+		if ($this->params->get('page_title')) {
+			$title = $this->params->get('page_title');
+		}
+		
+		if ($title) {
+			if ($jconfig->get('sitename_pagetitles', 0) == 1) {
+				$title = JText::sprintf('JPAGETITLE', $jconfig->get('sitename'), $title);
+			} elseif ($jconfig->get('sitename_pagetitles', 0) == 2) {
+				$title = JText::sprintf('JPAGETITLE', $title, $jconfig->get('sitename'));
+			}
+			
+			$doc->setTitle($title);
+		}
 		
 		if ($this->params->get('menu-meta_description'))
 			$doc->setDescription($this->params->get('menu-meta_description'));

@@ -19,6 +19,8 @@ class rseventsproViewRseventspro extends JViewLegacy
 		$pathway	= $app->getPathWay();
 		$menus		= $app->getMenu();
 		$menu		= $menus->getActive();
+		$jconfig	= JFactory::getConfig();
+		$skipMeta	= false;
 		
 		// Get menu parameters , user permission etc.
 		$this->user			= $this->get('User');
@@ -36,6 +38,18 @@ class rseventsproViewRseventspro extends JViewLegacy
 		
 		// Load RSEvents!Pro plugins
 		rseventsproHelper::loadPlugins();
+		
+		if ($menu && isset($menu->title)) {
+			$title = $menu->title;
+			
+			if ($jconfig->get('sitename_pagetitles', 0) == 1) {
+				$title = JText::sprintf('JPAGETITLE', $jconfig->get('sitename'), $title);
+			} elseif ($jconfig->get('sitename_pagetitles', 0) == 2) {
+				$title = JText::sprintf('JPAGETITLE', $title, $jconfig->get('sitename'));
+			}
+			
+			$this->document->setTitle($title);
+		}
 		
 		// Add search bar
 		if ($this->params->get('search',1)) {
@@ -87,12 +101,26 @@ class rseventsproViewRseventspro extends JViewLegacy
 			// end detection
 			
 			if ($modifyTitle) {
+				$title = null;
 				if ($this->category) {
-					$this->document->setTitle(JText::sprintf('COM_RSEVENTSPRO_EVENTS_CATEGORY_TITLE_SEO',$this->category->title));
+					$skipMeta = true;
+					$title = JText::sprintf('COM_RSEVENTSPRO_EVENTS_CATEGORY_TITLE_SEO',$this->category->title);
 				} elseif ($this->location) {
-					$this->document->setTitle(JText::sprintf('COM_RSEVENTSPRO_EVENTS_LOCATION_TITLE_SEO',$this->location));
+					$skipMeta = true;
+					$title = JText::sprintf('COM_RSEVENTSPRO_EVENTS_LOCATION_TITLE_SEO',$this->location);
 				} elseif ($this->tag) {
-					$this->document->setTitle(JText::sprintf('COM_RSEVENTSPRO_EVENTS_TAG_TITLE_SEO',$this->tag));
+					$skipMeta = true;
+					$title = JText::sprintf('COM_RSEVENTSPRO_EVENTS_TAG_TITLE_SEO',$this->tag);
+				}
+				
+				if (!is_null($title)) {
+					if ($jconfig->get('sitename_pagetitles', 0) == 1) {
+						$title = JText::sprintf('JPAGETITLE', $jconfig->get('sitename'), $title);
+					} elseif ($jconfig->get('sitename_pagetitles', 0) == 2) {
+						$title = JText::sprintf('JPAGETITLE', $title, $jconfig->get('sitename'));
+					}
+					
+					$this->document->setTitle($title);
 				}
 			}
 			
@@ -379,6 +407,7 @@ class rseventsproViewRseventspro extends JViewLegacy
 			}
 			
 			// Get the event
+			$skipMeta				= true;
 			$this->event			= $this->get('event');
 			$this->cansubscribe		= $this->get('cansubscribe');
 			$this->issubscribed		= $this->get('issubscribed');
@@ -828,20 +857,31 @@ class rseventsproViewRseventspro extends JViewLegacy
 		
 		$this->lists	= $lists;
 		
-		// Add menu metadata
-		if ($this->params->get('page_title'))
-			$this->document->setTitle($this->params->get('page_title'));
-		
-		if ($this->params->get('menu-meta_description'))
-			$this->document->setDescription($this->params->get('menu-meta_description'));
-
-		if ($this->params->get('menu-meta_keywords'))
-			$this->document->setMetadata('keywords', $this->params->get('menu-meta_keywords'));
-
-		if ($this->params->get('robots'))
-			$this->document->setMetadata('robots', $this->params->get('robots'));
-		
 		$app->triggerEvent('rsepro_siteDisplayLayout', array(array('view' => &$this)));
+		
+		// Add menu metadata
+		if (!$skipMeta) {
+			if ($this->params->get('page_title')) {
+				$title = $this->params->get('page_title');
+				
+				if ($jconfig->get('sitename_pagetitles', 0) == 1) {
+					$title = JText::sprintf('JPAGETITLE', $jconfig->get('sitename'), $title);
+				} elseif ($jconfig->get('sitename_pagetitles', 0) == 2) {
+					$title = JText::sprintf('JPAGETITLE', $title, $jconfig->get('sitename'));
+				}
+				
+				$this->document->setTitle($title);
+			}
+			
+			if ($this->params->get('menu-meta_description'))
+				$this->document->setDescription($this->params->get('menu-meta_description'));
+
+			if ($this->params->get('menu-meta_keywords'))
+				$this->document->setMetadata('keywords', $this->params->get('menu-meta_keywords'));
+
+			if ($this->params->get('robots'))
+				$this->document->setMetadata('robots', $this->params->get('robots'));
+		}
 		
 		parent::display($tpl);
 	}

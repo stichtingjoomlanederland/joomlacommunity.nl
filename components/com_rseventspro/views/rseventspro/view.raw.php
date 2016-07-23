@@ -117,6 +117,8 @@ class rseventsproViewRseventspro extends JViewLegacy
 						
 						if ($id = $jinput->getInt('id'))
 							$this->buffer 		= $pdf->ticket($id);
+						
+						JFactory::getApplication()->close();
 					} else {
 						JFactory::getApplication()->close();
 					}

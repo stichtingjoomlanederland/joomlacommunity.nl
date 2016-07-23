@@ -664,12 +664,12 @@ class RSEventsProQuery
 		$end		= $app->getUserStateFromRequest('com_rseventspro.events.filter_end'.$itemid.$parent, 		'filter_end',		array(), 'array');
 		$price		= $app->getUserStateFromRequest('com_rseventspro.events.filter_price'.$itemid.$parent, 		'filter_price',		array(), 'array');
 		
-		$status		= $status[0]	== '' ? null : $status;
-		$featured	= $featured[0] 	== '' ? null : $featured[0];
-		$childs		= $childs[0] 	== '' ? null : $childs[0];
-		$start		= $start[0] 	== '' ? null : $start[0];
-		$end		= $end[0] 		== '' ? null : $end[0];
-		$price		= $price[0] 	== '' ? null : $price[0];
+		$status		= isset($status[0]) ? ($status[0] == '' ? null : $status) : null;
+		$featured	= isset($featured[0]) ? ($featured[0] 	== '' ? null : $featured[0]) : null;
+		$childs		= isset($childs[0]) ? ($childs[0] 	== '' ? null : $childs[0]) : null;
+		$start		= isset($start[0]) ? ($start[0] 	== '' ? null : $start[0]) : null;
+		$end		= isset($end[0]) ? ($end[0] 		== '' ? null : $end[0]) : null;
+		$price		= isset($price[0]) ? ($price[0] 	== '' ? null : $price[0]) : null;
 		
 		if (is_array($status)) {
 			$status = array_unique($status);
@@ -721,6 +721,10 @@ class RSEventsProQuery
 			switch ($column) {
 				case 'locations':
 					$column = 'l.name';
+				break;
+				
+				case 'description':
+					$column = 'e.description';
 				break;
 				
 				case 'categories':

@@ -500,6 +500,24 @@ class rsfilesModelRsfiles extends JModelLegacy
 		$thepath = urldecode($fullpath.$this->ds.$thefile);
 		$performInsert = file_exists($thepath);
 		
+		// Check for file owner, if the file exists and someone tries to overwrite it
+		if (!$briefcase && $overwrite && $performInsert) {
+			$filePath = str_replace($config->download_folder, '', $thepath);
+			$filePath = trim($filePath,$this->ds);
+			
+			$query->clear()
+				->select($db->qn('IdUser'))
+				->from($db->qn('#__rsfiles_files'))
+				->where($db->qn('FilePath').' = '.$db->q($filePath));
+			$db->setQuery($query);
+			$owner = (int) $db->loadResult();
+			
+			if ($owner != $user->get('id')) {
+				$this->setError(JText::sprintf('COM_RSFILES_UPLOAD_ERROR_6',$file));
+				return false;
+			}
+		}
+		
 		$canUpload = true;
 		if ($overwrite) {
 			$canUpload = true;

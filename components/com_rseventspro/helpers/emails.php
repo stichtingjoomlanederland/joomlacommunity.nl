@@ -898,6 +898,8 @@ class rseventsproEmails
 						$barcode	= rseventsproHelper::getConfig('barcode_prefix', 'string', 'RST-').$ids.'-'.$code;
 						$layout		= $ticket->layout;
 						
+						$app->triggerEvent('rseproTicketPDFLayout',array(array('ids' => $ids, 'ide' => $ide, 'layout' => &$layout)));
+						
 						$app->triggerEvent('rsepro_beforeReplacePDFLayout', array(array('layout' => &$layout, 'ids' => $ids, 'ide' => $ide, 'position' => $i)));
 						
 						$layout = rseventsproEmails::placeholders($layout, $ide, $name, $optionals);

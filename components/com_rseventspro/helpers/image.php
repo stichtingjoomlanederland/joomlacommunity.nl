@@ -109,8 +109,8 @@ class RSEventsProImage
 		$name		= $this->stripExt($image);
 		
 		// Check if the requested width for the image exists on the server
-		if (file_exists($local.'/'.$this->width.'/'.md5($width.$name).'.'.$extension)) {
-			return $abs.'/'.$this->width.'/'.md5($width.$name).'.'.$extension;
+		if (file_exists($local.'/'.$this->width.'/'.md5($this->width.$name).'.'.$extension)) {
+			return $abs.'/'.$this->width.'/'.md5($this->width.$name).'.'.$extension;
 		}
 		
 		// The file does not exist on the server. In this case, try to create the image
@@ -140,7 +140,9 @@ class RSEventsProImage
 			return $this->default;
 		}
 		
-		require_once JPATH_SITE.'/components/com_rseventspro/helpers/phpthumb/phpthumb.class.php';
+		if (!class_exists('phpThumb')) {
+			require_once JPATH_SITE.'/components/com_rseventspro/helpers/phpthumb/phpthumb.class.php';
+		}
 		
 		// Create a new instance of the phpThumb class
 		$thumb									= new phpThumb();
@@ -149,7 +151,7 @@ class RSEventsProImage
 		$thumb->q								= 90;
 		$thumb->iar								= 1;
 		$thumb->config_output_format			= $extension;
-		$thumb->config_error_die_on_error		= true;
+		$thumb->config_error_die_on_error		= false;
 		$thumb->config_cache_disable_warning	= true;
 		$thumb->config_allow_src_above_docroot	= true;
 		

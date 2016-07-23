@@ -17,8 +17,6 @@ require_once JPATH_COMPONENT.'/controller.php';
 JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_rseventspro/tables');
 // Initialize main helper
 rseventsproHelper::loadHelper();
-// Add the Joomla! 2.5 metat title to the menus
-rseventsproHelper::metatitle();
 // Set some task that are not available in the front-end
 rseventsproHelper::task();
 

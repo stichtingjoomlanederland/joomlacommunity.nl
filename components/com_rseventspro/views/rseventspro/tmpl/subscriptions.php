@@ -52,7 +52,8 @@ defined( '_JEXEC' ) or die( 'Restricted access' );?>
 	<span>
 		<?php if ($subscription->tickets) { ?>
 		<?php foreach ($subscription->tickets as $ticket) { ?>
-			<?php if (!$ticket->layout) continue; ?>
+			<?php $hasLayout = rseventsproHelper::hasPDFLayout($ticket->layout,$subscription->SubmissionId); ?>
+			<?php if (!$hasLayout) continue; ?>
 			<?php for($i=1; $i <= $ticket->quantity; $i++) { ?>
 				<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=ticket&from=subscriptions&format=raw&id='.$subscription->ids.'&ide='.$ticket->ide.'&tid='.$ticket->id.'&position='.$i); ?>">
 					<i class="fa fa-file-pdf-o"></i> <?php echo $ticket->name; ?>

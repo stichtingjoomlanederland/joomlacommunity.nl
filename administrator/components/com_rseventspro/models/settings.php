@@ -221,16 +221,16 @@ class rseventsproModelSettings extends JModelAdmin
 			return false;
 		}
 		
-		require_once JPATH_SITE.'/components/com_rseventspro/helpers/facebook/autoload.php';
+		try {			
+			require_once JPATH_SITE.'/components/com_rseventspro/helpers/facebook/autoload.php';
 		
-		$facebook = new Facebook\Facebook([
-			'app_id' => $config->facebook_appid,
-			'app_secret' => $config->facebook_secret,
-			'default_graph_version' => 'v2.6',
-			'default_access_token' => $token
-		]);
-		
-		try {
+			$facebook = new Facebook\Facebook(array(
+				'app_id' => $config->facebook_appid,
+				'app_secret' => $config->facebook_secret,
+				'default_graph_version' => 'v2.6',
+				'default_access_token' => $token
+			));
+			
 			$oAuth2Client	= $facebook->getOAuth2Client();
 			$accessToken	= $oAuth2Client->getLongLivedAccessToken($token);
 			$token			= $accessToken->getValue();
@@ -267,16 +267,16 @@ class rseventsproModelSettings extends JModelAdmin
 			return false;
 		}
 		
-		require_once JPATH_SITE.'/components/com_rseventspro/helpers/facebook/autoload.php';
-		
-		$facebook = new Facebook\Facebook([
-			'app_id' => $config->facebook_appid,
-			'app_secret' => $config->facebook_secret,
-			'default_graph_version' => 'v2.6',
-			'default_access_token' => $config->facebook_token
-		]);
-		
 		try {
+			require_once JPATH_SITE.'/components/com_rseventspro/helpers/facebook/autoload.php';
+			
+			$facebook = new Facebook\Facebook(array(
+				'app_id' => $config->facebook_appid,
+				'app_secret' => $config->facebook_secret,
+				'default_graph_version' => 'v2.6',
+				'default_access_token' => $config->facebook_token
+			));
+			
 			$fbRequest	= $facebook->get('me');
 			$user		= $fbRequest->getDecodedBody();
 			$uid 		= $user['id'];
