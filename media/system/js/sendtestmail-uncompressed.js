@@ -12,7 +12,7 @@ jQuery(document).ready(function ($)
 	$('#sendtestmail').click(function ()
 	{
 		var email_data = {
-			smtpauth  : $('input[name="jform[smtpauth]"]').val(),
+			smtpauth  : $('input[name="jform[smtpauth]"]:checked').val(),
 			smtpuser  : $('input[name="jform[smtpuser]"]').val(),
 			smtppass  : $('input[name="jform[smtppass]"]').val(),
 			smtphost  : $('input[name="jform[smtphost]"]').val(),
@@ -24,51 +24,28 @@ jQuery(document).ready(function ($)
 			mailonline: $('input[name="jform[mailonline]"]:checked').val()
 		};
 
+		// Remove js messages, if they exist.
+		Joomla.removeMessages();
+
 		$.ajax({
-				url: sendtestmail_url,
-				data: email_data
-			})
+			method: "POST",
+			url: document.getElementById('sendtestmail').getAttribute('data-ajaxuri'),
+			data: email_data,
+			dataType: "json"
+		})
+		.fail(function (jqXHR, textStatus, error) {
+			Joomla.renderMessages(Joomla.ajaxErrorsMessages(jqXHR, textStatus, error));
 
-		.done(function (response)
-		{
-			var data_response = $.parseJSON(response);
-			var msg = {};
-
-			if (data_response.data)
+			window.scrollTo(0, 0);
+		})
+		.done(function (response) {
+			// Render messages, if any.
+			if (typeof response.messages == 'object' && response.messages !== null)
 			{
-				if (typeof data_response.messages == 'object')
-				{
-					if (typeof data_response.messages.success != 'undefined' && data_response.messages.success.length > 0)
-					{
-						msg.success = [data_response.messages.success];
-					}
-				}
+				Joomla.renderMessages(response.messages);
 
+				window.scrollTo(0, 0);
 			}
-			else
-			{
-				if (typeof data_response.messages == 'object')
-				{
-					if (typeof data_response.messages.error != 'undefined' && data_response.messages.error.length > 0)
-					{
-						msg.error = [data_response.messages.error];
-					}
-
-					if (typeof data_response.messages.notice != 'undefined' && data_response.messages.notice.length > 0)
-					{
-						msg.notice = [data_response.messages.notice];
-					}
-
-					if (typeof data_response.messages.message != 'undefined' && data_response.messages.message.length > 0)
-					{
-						msg.message = [data_response.messages.message];
-					}
-				}
-			}
-
-			Joomla.renderMessages(msg);
 		});
-
-		window.scrollTo(0, 0);
 	});
 });
