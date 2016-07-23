@@ -188,8 +188,7 @@ class EasyDiscussString extends EasyDiscuss
 	 */
 	public function detectNames($text, $exclude = array())
 	{
-
-		$pattern = '/@[A-Z0-9][A-Z0-9\s-]+\#/i';
+		$pattern = '/@[A-Z0-9][A-Z0-9_-]+/i';
 
 		preg_match_all($pattern, $text, $matches);
 
@@ -272,45 +271,109 @@ class EasyDiscussString extends EasyDiscuss
 		}
 	}
 
+	/**
+	 * Converts hyperlink text into real hyperlinks
+	 *
+	 * @since	4.0.6
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public static function replaceUrl($tmp, $text)
 	{
-		$config = DiscussHelper::getConfig();
+
+		$config = ED::config();
 		$pattern = '@(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))@';
 
 		preg_match_all($pattern, $tmp, $matches);
 
 		$targetBlank = $config->get('main_link_new_window') ? ' target="_blank"' : '';
+		$noFollow = $config->get('main_link_rel_nofollow') ? ' rel="nofollow"' : '';
 
-		if (!isset($matches[0]) || !is_array($matches[0])) {
-			return;
+		// Do not proceed if there are no links to process
+		if (!isset($matches[0]) || !is_array($matches[0]) || empty($matches[0])) {
+			return $text;
 		}
 
-		// to avoid infinite loop, unique the matches
-		$links = $matches[0];
+		$tmplinks = $matches[0];
 
-		foreach ($links as &$link) {
-			$link = JString::strtolower($link);
-		}
+		$links = array();
+		$linksWithProtocols = array();
+		$linksWithoutProtocols = array();
 
-		$uniques = array_unique($links);
+		// We need to separate the link with and without protocols to avoid conflict when there are similar url present in the content.
+		if ($tmplinks) {
+			foreach($tmplinks as $link) {
 
-		foreach ($uniques as $match) {
-
-			$matchProtocol 	= $match;
-
-			if (stristr( $matchProtocol , 'http://' ) === false && stristr( $matchProtocol , 'https://' ) === false && stristr( $matchProtocol , 'ftp://' ) === false ) {
-				$matchProtocol	= 'http://' . $matchProtocol;
+				if (stristr( $link , 'http://' ) === false && stristr( $link , 'https://' ) === false && stristr( $link , 'ftp://' ) === false ) {
+					$linksWithoutProtocols[] = $link; 
+				} else if (stristr( $link , 'http://' ) !== false || stristr( $link , 'https://' ) !== false || stristr( $link , 'ftp://' ) === false ) {
+					$linksWithProtocols[] = $link; 
+				}
 			}
+		}
 
-			$text = JString::str_ireplace($match, $matchProtocol, $text);
+		// the idea is the first convert the url to [EDWURLx] and [EDWOURLx] where x is the index. This is to prevent same url get overwritten with wrong value.
+		$linkArrays = array();
+
+		// global indexing.
+		$idx = 1;
+
+		// lets process the one with protocol
+		if ($linksWithProtocols) {
+			$linksWithProtocols = array_unique($linksWithProtocols);
+
+			foreach($linksWithProtocols as $link) {
+
+				$mypattern = '[EDWURL' . $idx . ']';
+
+				$text = str_ireplace($link, $mypattern, $text);
+
+				$obj = new stdClass();
+				$obj->index = $idx;
+				$obj->link = $link;
+				$obj->newlink = $link;
+				$obj->customcode = $mypattern;
+
+				$linkArrays[] = $obj;
+
+				$idx++;
+			}
+		}
+
+		// Now we process the one without protocol
+		if ($linksWithoutProtocols) {
+			$linksWithoutProtocols = array_unique($linksWithoutProtocols);
+
+			foreach($linksWithoutProtocols as $link) {
+				$mypattern = '[EDWOURL' . $idx . ']';
+				$text = str_ireplace($link, $mypattern, $text);
+
+				$obj = new stdClass();
+				$obj->index = $idx;
+				$obj->link = $link;
+				$obj->newlink = 'http://'. $link;
+				$obj->customcode = $mypattern;
+
+				$linkArrays[] = $obj;
+
+				$idx++;
+			}
+		}
+
+		// Let's replace back the link now with the proper format based on the index given.
+		foreach ($linkArrays as $link) {
+			$text = str_ireplace($link->customcode, $link->newlink, $text);
 
 			$patternReplace = '@(?<![.*">])\b(?:(?:https?|ftp|file)://|[a-z]\.)[-A-Z0-9+&#/%=~_|$?!:,.]*[A-Z0-9+&#/%=~_|$]@i';
 
 			// Use preg_replace to only replace if the URL doesn't has <a> tag
-			$text = preg_replace($patternReplace, '<a href="\0" '.$targetBlank.'>\0</a>', $text);
+			$text = preg_replace($patternReplace, '<a href="\0" ' . $targetBlank . $noFollow . '>\0</a>', $text);
 		}
 
-		$text = JString::str_ireplace('&quot;', '"', $text);
+		// Not really sure why this is needed as it will cause some of the content to not rendered correctly. 
+		// We will comment this out for now. References : #1878
+		// $text = JString::str_ireplace('&quot;', '"', $text);
 
 		return $text;
 	}

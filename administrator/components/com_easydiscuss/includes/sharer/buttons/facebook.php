@@ -13,9 +13,20 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussSharerButtonFacebook extends EasyDiscuss
 {
+	public function enabled()
+	{
+		$config = ED::config();
+
+		if (!$config->get('integration_facebook_like')) {
+			return false;
+		}
+
+		return true;
+	}
+
 	public function html($row, $position = 'vertical')
 	{
-		$config	= ED::config();
+		$config = ED::config();
 
 		if (!$config->get('integration_facebook_like')) {
 			return '';
@@ -37,9 +48,6 @@ class EasyDiscussSharerButtonFacebook extends EasyDiscuss
 
 		$height	= ($faces == 'true') ? '70' : '30';
 		$locale	= $language[0] . '_' . JString::strtoupper($language[1]);
-
-		$fb = ED::facebook();
-		$fb->addOpenGraph($row);
 
 		$url = EDR::getRoutedURL('view=post&id=' . $row->id, true, true);
 		$html = '';

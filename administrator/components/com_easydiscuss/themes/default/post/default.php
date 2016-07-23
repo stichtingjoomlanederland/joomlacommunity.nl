@@ -11,11 +11,11 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-JHTML::_('behavior.modal', 'a.modal'); 
+JHTML::_('behavior.modal', 'a.modal');
 ?>
 <script type="text/javascript">
 ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
-	
+
 	$.Joomla('submitbutton', function(action) {
 
 		if (action == 'cancel') {
@@ -78,9 +78,18 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 							<div class="col-md-9">
 								<input type="text" maxlength="255" size="100" id="alias" name="alias" class="form-control" value="<?php echo $this->escape( $post->alias );?>" />
 							</div>
-						</div>	
+						</div>
+						<?php if ($operation == 'editing') { ?>
+						<div class="form-group">
+							<div class="col-md-3">
+							</div>
+							<div class="col-md-9">
+								<?php echo JText::_('COM_EASYDISCUSS_POST_ALIAS_CHANGE_NOTE'); ?>
+							</div>
+						</div>
+						<?php } ?>
 					</div>
-					
+
 
 					<?php if ($this->config->get('main_private_post', false)) { ?>
 					<div class="form-group">
@@ -145,16 +154,16 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 						        	</a>
 						    	</span>
 						  	</div>
-							
+
 							<input type="hidden" name="user_id" id="user_id" value="<?php echo $post->user_id;?>" />
-							
+
 						</div>
 					</div>
 					<div class="form-group">
 						<div class="col-md-3 control-label">
 							<label><?php echo JText::_( 'COM_EASYDISCUSS_PUBLISHED' ); ?></label>
 						</div>
-						<div class="col-md-9"> 
+						<div class="col-md-9">
 							<?php echo $this->html('form.boolean', 'published', $post->published); ?>
 						</div>
 					</div>

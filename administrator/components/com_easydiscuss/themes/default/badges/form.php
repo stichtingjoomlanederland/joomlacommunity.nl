@@ -41,7 +41,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 								<label><?php echo JText::_( 'COM_EASYDISCUSS_BADGE_PUBLISHED' );?></label>
 							</div>
 							<div class="col-md-8">
-								<?php echo $this->html('form.boolean', 'published', $this->config->get('published')); ?>
+								<?php echo $this->html('form.boolean', 'published', $badge->published); ?>
 							</div>
 						</div>
 						<div class="form-group">

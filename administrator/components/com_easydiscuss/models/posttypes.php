@@ -140,6 +140,27 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 		return $this->_data;
 	}
 
+
+/**
+	 * Total type
+	 *
+	 * @access public
+	 * @return array
+	 */
+	public function getTotalTypes()
+	{
+		$db = ED::db();
+
+		$query = 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__discuss_post_types');
+
+		$db->setQuery($query);
+
+		$result = $db->loadResult();
+
+		return $result;		
+	}	
+
+
 	/**
 	 * Retrieves the pagination.
 	 *

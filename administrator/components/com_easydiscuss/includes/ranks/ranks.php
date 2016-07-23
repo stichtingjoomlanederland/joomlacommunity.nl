@@ -144,11 +144,11 @@ class EasyDiscussRanks extends EasyDiscuss
 				// Initial value
 				$scores[$index] = '0';
 
-				if (!empty($maxResult)) {
-					if ($score >= $maxResult) {
+				if (!empty($max)) {
+					if ($score >= $max) {
 						$scores[$index] = 100;
 					} else {
-						$scorePercentage = round(($score / $maxResult) * 100);
+						$scorePercentage = round(($score / $max) * 100);
 						$scores[ $index ] = $scorePercentage;
 					}
 				}

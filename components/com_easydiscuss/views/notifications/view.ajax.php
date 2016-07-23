@@ -20,8 +20,6 @@ class EasyDiscussViewNotifications extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function popbox()
 	{
@@ -64,4 +62,22 @@ class EasyDiscussViewNotifications extends EasyDiscussView
 		
 		return $this->ajax->resolve($count);
 	}
+
+	/**
+	 * Marks all discussion as read
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function markreadall()
+	{
+		ED::requireLogin();
+
+		$model = ED::model('Notification');
+		$model->markAllRead();
+
+		return $this->ajax->resolve();
+	}	
 }

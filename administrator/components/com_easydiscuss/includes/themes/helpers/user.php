@@ -55,6 +55,15 @@ class EasyDiscussThemesHelperUser
 			return;
 		}
 
+		// If configured to use Jomsocial, use the html provided by Jomsocial
+		$jomsocial = ED::jomsocial();
+		if ($config->get('integration_jomsocial_messaging') && $jomsocial->exists()) {
+			
+			$output = $jomsocial->getPmHtml($targetId, $layout);
+
+			return $output;
+		}
+
 		// If configured to use EasySocial, use the html provided by EasySocial
 		$easysocial = ED::easysocial();
 		if ($config->get('integration_easysocial_messaging') && $easysocial->exists()) {
@@ -85,6 +94,8 @@ class EasyDiscussThemesHelperUser
 	 */
 	public static function avatar(DiscussProfile $user, $options = array())
 	{
+		$config = ED::config();
+
 		$rank = isset($options['rank']) ? $options['rank'] : false;
 		$role = isset($options['role']) ? $options['role'] : false;
 		$status = isset($options['status']) ? $options['status'] : false;
@@ -93,6 +104,13 @@ class EasyDiscussThemesHelperUser
 		// default to true
 		$popbox = isset($options['popbox']) ? $options['popbox'] : true;
 
+		// If the Jomsocial messaging integration enabled, we need to initialize the script.
+		$jomsocial = ED::jomsocial();
+
+		// Only init if these requirements are meet
+		if ($popbox && $config->get('integration_jomsocial_messaging') && $jomsocial->exists()) {
+			$jomsocial->init();
+		}
 
 		$theme = ED::themes();
 		$theme->set('user', $user);

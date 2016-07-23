@@ -68,6 +68,7 @@ class EasyDiscussControllerNotification extends EasyDiscussController
 		$model->markAllRead();
 
 		ED::setMessage('COM_EASYDISCUSS_ALL_NOTIFICATIONS_MARKED_AS_READ');
-		$this->app->redirect($redirect);
+		
+		return $this->app->redirect($redirect);
 	}
 }

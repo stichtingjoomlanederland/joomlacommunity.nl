@@ -1,4 +1,4 @@
-ed.require(['edq', 'easydiscuss', 'site/vendors/gmaps', 'selectize', 'https://maps.google.com/maps/api/js?language=<?php echo $this->config->get('main_location_language');?>'], function($, EasyDiscuss, GMaps) {
+ed.require(['edq', 'easydiscuss', 'site/vendors/gmaps', 'selectize', self.getGmapsUrl()], function($, EasyDiscuss, GMaps) {
 
     // Apply selectize on location input
     var composer = $('[<?php echo $editorId;?>]');
@@ -224,3 +224,15 @@ ed.require(['edq', 'easydiscuss', 'site/vendors/gmaps', 'selectize', 'https://ma
     });
 
 });
+
+function getGmapsUrl() {
+    var gmapsApiKey = "<?php echo $this->config->get('main_location_gmaps_key'); ?>";
+
+    var gmapsUrl = 'https://maps.google.com/maps/api/js?language=<?php echo $this->config->get("main_location_language");?>';
+
+    if (gmapsApiKey) {
+        var gmapsUrl = 'https://maps.google.com/maps/api/js?key='+ gmapsApiKey +'&language=<?php echo $this->config->get("main_location_language");?>';
+    }
+
+    return gmapsUrl;
+}

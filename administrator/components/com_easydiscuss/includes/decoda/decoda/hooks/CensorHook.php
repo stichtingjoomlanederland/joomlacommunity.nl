@@ -140,6 +140,11 @@ class CensorHook extends EdDecodaHook {
 		foreach ($letters as $letter) {
 			$regex .= preg_quote($letter, '/') .'{1,}';
 		}
+		
+		// Added by Nik. \b is for word boundary
+		// If the badword is in the middle of a word, don't censor it
+		// Example:  'awebadsome'. It shouldn't be awe***some.
+		$regex = '\b' . $regex . '\b';
 
 		$suffix = $this->config('suffix');
 

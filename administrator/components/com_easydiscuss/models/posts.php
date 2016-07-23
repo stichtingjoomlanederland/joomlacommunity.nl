@@ -505,6 +505,91 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		return $results;
 	}
 
+	public function getPostNavigation($post, $navigateType)
+	{
+		$db = $this->db;
+		$my = $this->my;
+		$config = $this->config;
+
+		$keys = array('prev','next');
+		$nav = new stdClass();
+
+		$sort = 'latest';
+
+		$mainQuery = "select a.`post_id` as `id`, a.`alias`, a.`title`";
+		$mainQuery .= " from `#__discuss_thread` as a";
+		$mainQuery .= " inner join `#__discuss_category` as e on a.`category_id` = e.`id`";
+		$mainQuery .= " where a.`published` = " . $db->Quote('1');
+
+
+		// category ACL:
+		$category = '';
+
+		if ($navigateType == 'category') {
+			$category = $post->category_id;
+		}
+
+
+		$catOptions = array();
+		$catOptions['idOnly'] = true;
+
+		if ($category) {
+			// do not include the posts from sub cats as we only want the post from this specific cat.
+			$catOptions['includeChilds'] = false;
+		} else {
+			$catOptions['includeChilds'] = true;
+		}
+
+		// $catAccessSQL = ED::category()->genCategoryAccessSQL('a.category_id', $catOptions);
+		// $where[] = $catAccessSQL;
+		$catModel = ED::model('Categories');
+		$catIds = $catModel->getCategoriesTree($category, $catOptions);
+
+		// if there is no categories return, means this user has no permission to view all the categories.
+		// if that is the case, just return empty array.
+		if (! $catIds) {
+			return array();
+		}
+
+		$mainQuery .= " and a.`category_id` IN (" . implode(',', $catIds) . ")";
+
+		$filterLanguage = JFactory::getApplication()->getLanguageFilter();
+		if ($filterLanguage) {
+			$mainQuery .= " and " . ED::getLanguageQuery('e.language');
+		}
+
+
+		foreach($keys as $key) {
+			$query = '';
+
+			if ($key == 'prev') {
+				$query .= " AND a.`replied` < " . $db->Quote($post->replied);
+				$query .= " ORDER BY a.`replied` DESC";
+			}
+
+			if ($key == 'next') {
+				$query .= " AND a.`replied` > " . $db->Quote($post->replied);
+				$query .= " ORDER BY a.`replied` ASC";
+			}
+
+			$sql = $mainQuery . $query;
+			$sql .= " limit 1";
+
+			// echo $sql;
+			// echo '<br><br>';
+
+			$db->setQuery($sql);
+
+			$result = $db->loadObject();
+			$nav->$key = $result;
+		}
+
+		// var_dump($post);
+		// exit;
+
+		return $nav;
+	}
+
 	/**
 	 * Retrieve a list of discussions
 	 *
@@ -628,11 +713,13 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$where[] = $excludePost;
 		}
 
-		// @since 3.0
 		if ($filteractive == 'unread') {
-			$readPosts	= $my->posts_read;
+			$viewer = ED::user();
+			$readPosts = $viewer->posts_read;
+			
 			if ($readPosts) {
-				$readPosts  = unserialize($readPosts);
+				$readPosts = unserialize($readPosts);
+				
 				if (count($readPosts) > 1) {
 					$extraSQL = implode( ',', $readPosts);
 					$where[] = " a.`post_id` NOT IN (" . $extraSQL . ")";
@@ -640,7 +727,8 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 					$where[] = " a.`post_id` != " . $db->Quote($readPosts[0]);
 				}
 			}
-			$where[]	= "a.`legacy` = 0";
+
+			$where[] = "a.`legacy` = 0";
 		}
 
 		if ($filteractive == 'unanswered') {
@@ -1204,25 +1292,20 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		}
 
 		// @since 3.0
-		if( $filteractive == 'unread' )
-		{
+		if ($filteractive == 'unread') {
 			$profile = ED::user($this->my->id);
-
-			$readPosts	= $profile->posts_read;
-			if( $readPosts )
-			{
-				$readPosts  = unserialize( $readPosts );
-				if( count( $readPosts ) > 1 )
-				{
-					$extraSQL	= implode( ',', $readPosts);
-					$where[]	= ' a.`id` NOT IN (' . $extraSQL . ')';
-				}
-				else
-				{
-					$where[]	= ' a.`id` != ' . $db->Quote( $readPosts[0] );
+			$readPosts = $profile->posts_read;
+			if ($readPosts) {
+				$readPosts = unserialize($readPosts);
+				
+				if (count($readPosts) > 1) {
+					$extraSQL = implode(',', $readPosts);
+					$where[] = ' a.`id` NOT IN (' . $extraSQL . ')';
+				} else {
+					$where[] = ' a.`id` != ' . $db->Quote($readPosts[0]);
 				}
 			}
-			$where[]	= ' a.`legacy` = 0';
+			$where[] = ' a.`legacy` = 0';
 		}
 
 		if( $filteractive == 'unanswered' )
@@ -1875,38 +1958,6 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		$date = ED::date();
 
-		// $query	= 'SELECT DATEDIFF('. $db->Quote($date->toMySQL()) . ', b.`created`) as `noofdays`, ';
-		// $query	.= ' DATEDIFF(' . $db->Quote($date->toMySQL()) . ', b.`created`) as `daydiff`, TIMEDIFF(' . $db->Quote($date->toMySQL()). ', b.`created`) as `timediff`,';
-
-
-		// // Include polls
-		// $query 	.= ' (SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_polls' ) . ' WHERE ' . $db->nameQuote( 'post_id' ) . ' = b.' . $db->nameQuote( 'id' ) . ') AS `polls_cnt`,';
-
-		// // Include favourites
-		// $query 	.= ' (SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_favourites' ) . ' WHERE ' . $db->nameQuote( 'post_id' ) . ' = b.' . $db->nameQuote( 'id' ) . ') AS `totalFavourites`,';
-
-		// // Include attachments
-		// $query 	.= ' (SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_attachments' ) . ' WHERE ' . $db->nameQuote( 'uid' ) . ' = b.' . $db->nameQuote( 'id' )
-		// 		. ' AND ' . $db->nameQuote( 'type' ) . '=' . $db->Quote( DISCUSS_QUESTION_TYPE )
-		// 		. ' AND ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( 1 ) . ') AS `attachments_cnt`,';
-
-
-		// //sorting criteria
-		// if($sort == 'likes')
-		// {
-		// 	$query	.= ' b.`num_likes` as `likeCnt`,';
-		// }
-
-		// if($sort == 'popular')
-		// {
-		// 	$query	.= ' count(c.id) as `PopularCnt`,';
-		// }
-
-		// if($sort == 'voted')
-		// {
-		// 	$query	.= ' b.`sum_totalvote` as `VotedCnt`,';
-		// }
-
 		$queryWhere = '';
 
 		if (is_array($tagId)) {
@@ -1957,12 +2008,11 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		$excludeCats = DiscussHelper::getPrivateCategories();
 
-		if(!empty($excludeCats)) {
+		if (!empty($excludeCats)) {
 			$query .= ' AND t.`category_id` NOT IN (' . implode(',', $excludeCats) . ')';
 		}
 
-		if($filteractive == 'featured')
-		{
+		if ($filteractive == 'featured') {
 			$query .= ' AND t.`featured` = ' . $db->Quote('1');
 		}
 
@@ -1994,23 +2044,14 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 				break;
 		}
 
-		if( is_array($tagId) )
-		{
+		if (is_array($tagId)) {
 			$orderby =  $orderby . ', count(t.post_id) DESC';
 		}
 
-		if($filteractive == 'unanswered')
-		{
+		if ($filteractive == 'unanswered') {
 			$groupby	= ' GROUP BY t.`post_id` HAVING(COUNT(c.id) = 0)';
-		}
-		else
-		{
+		} else {
 			$groupby	= ' GROUP BY t.`post_id`';
-		}
-
-		if( is_array($tagId) )
-		{
-			$groupby	= ' GROUP BY t.post_id HAVING (count(t.post_id) >= ' . count($tagId) . ')';
 		}
 
 		$query	.= $groupby . $orderby;
@@ -2027,9 +2068,10 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		$db->setQuery( $totalQuery );
 		$db->loadResult();
-		$this->_total	= $db->loadResult();
 
-		$this->_pagination	= DiscussHelper::getPagination( $this->_total, $this->getState('limitstart'), $this->getState('limit') );
+		$this->_total = $this->_getListCount($query);
+
+		$this->_pagination = ED::pagination($this->_total, $limitstart, $limit);		
 		return $rows;
 	}
 
@@ -2898,18 +2940,19 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 	 * @param	string
 	 * @return
 	 */
-	public function updateNewParent( $currentParent , $newParent )
+	public function updateNewParent($currentParent, $newParent, $threadId = null)
 	{
-		$db 		= DiscussHelper::getDBO();
+		$db = ED::db();
 
-		$query		= array();
+		$query = array();
 
-		$query[]	= 'UPDATE ' . $db->nameQuote( '#__discuss_posts' );
-		$query[]	= 'SET ' . $db->nameQuote( 'parent_id' ) . '=' . $db->Quote( $newParent );
-		$query[]	= 'WHERE ' . $db->nameQuote( 'parent_id' ) . '=' . $db->Quote( $currentParent );
+		$query[] = 'UPDATE ' . $db->nameQuote('#__discuss_posts');
+		$query[] = 'SET ' . $db->nameQuote('parent_id') . '=' . $db->Quote($newParent);
+		$query[] = ', ' . $db->nameQuote('thread_id') . '=' . $db->Quote($threadId);
+		$query[] = 'WHERE ' . $db->nameQuote('parent_id') . '=' . $db->Quote($currentParent);
 
-		$query 		= implode( ' ' , $query );
-		$db->setQuery( $query );
+		$query = implode(' ', $query);
+		$db->setQuery($query);
 		$db->Query();
 	}
 
@@ -3067,4 +3110,15 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		return $posts;
 	}
 
+	public function deleteThread($threadId)
+	{
+        $db = ED::db();
+
+        $query = "delete from " . $db->nameQuote('#__discuss_thread');
+        $query .= " where `id` = " . $db->Quote($threadId);
+
+        $db->setQuery($query);
+
+        return $db->query();
+	}
 }

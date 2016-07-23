@@ -26,7 +26,7 @@ ed.require(['edq'], function() {});
                     <?php require(JModuleHelper::getLayoutPath('mod_easydiscuss_categories', 'tree_item')); ?>
 
                     <?php if (!$params->get('exclude_child_categories', false) && $category->totalSubcategories) { ?>
-                        <a data-ed-toggle="collapse" href="#collapse-mod-cat-<?php echo $category->id; ?>" class="ed-list__toggle">
+                        <a data-ed-toggle="collapse" href="#collapse-mod-cat-<?php echo $category->id; ?>" class="ed-list__toggle collapsed">
                             <i class="ed-list__toggle-icon"></i>
                         </a>
                     <?php } ?>
@@ -34,7 +34,7 @@ ed.require(['edq'], function() {});
                     </div>
 
                     <?php if (!$params->get('exclude_child_categories', false) && $category->totalSubcategories) { ?>
-                        <div class="ed-list__item-group-bd collapse in" id="collapse-mod-cat-<?php echo $category->id; ?>">
+                        <div class="ed-list__item-group-bd collapse" id="collapse-mod-cat-<?php echo $category->id; ?>">
                             <div class="ed-tree">
                                 <?php echo modEasydiscussCategoriesHelper::printTree($category->childs, $category->id, $params); ?>
                             </div>

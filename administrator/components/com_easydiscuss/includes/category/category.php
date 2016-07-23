@@ -637,15 +637,15 @@ class EasyDiscussCategory extends EasyDiscuss
 	 */
 	public function getRSSLink()
 	{
-		$url = 'view=categories&category_id=' . $this->table->id;
+		return $this->getRSSPermalink();
+	}
+
+	public function getRSSPermalink($external = false)
+	{
+		$url = 'view=categories&category_id=' . $this->id;
 		$url = ED::feeds()->getFeedURL($url);
 
 		return $url;
-	}
-
-	public function getRSSPermalink( $external = false )
-	{
-		return DiscussRouter::_( 'index.php?option=com_easydiscuss&format=feed&type=rss&view=categories&category_id=' . $this->id );
 	}
 
 	/**

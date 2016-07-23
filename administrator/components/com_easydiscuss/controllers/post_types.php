@@ -25,6 +25,7 @@ class EasyDiscussControllerPost_types extends EasyDiscussController
 		$this->registerTask('unpublish', 'unpublish');
 		$this->registerTask('apply', 'save');
 		$this->registerTask('savepublishnew', 'save');
+		$this->registerTask('save2new', 'save');
 	}
 
 	public function edit()
@@ -98,7 +99,9 @@ class EasyDiscussControllerPost_types extends EasyDiscussController
 		// Get the current task
 		$task = $this->getTask();
 
-		if ($task == 'apply') {
+		if ($task == 'save2new') {
+			$redirect = 'index.php?option=com_easydiscuss&view=types&layout=form';
+		} else if ($task == 'apply') {
 			$redirect = 'index.php?option=com_easydiscuss&view=types&layout=form&id=' . $postTypes->id;
 		} else {
 			$redirect = 'index.php?option=com_easydiscuss&view=types';

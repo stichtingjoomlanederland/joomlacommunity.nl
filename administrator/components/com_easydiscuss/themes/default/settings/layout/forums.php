@@ -21,6 +21,24 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <div class="form-horizontal">
                     <div class="form-group">
                         <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_FORUMS_SHOW_EMPTY_POST_CATEGORIES'); ?>
+                        </div>
+                        <div class="col-md-7">
+                            <?php echo $this->html('form.boolean', 'layout_categories_with_nopost', $this->config->get('layout_categories_with_nopost', 0));?>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_FORUMS_SHOW_TAGS'); ?>
+                        </div>
+                        <div class="col-md-7">
+                            <?php echo $this->html('form.boolean', 'layout_categories_tags', $this->config->get('layout_categories_tags'));?>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-5 control-label">
                             <?php echo $this->html('form.label', 'COM_EASYDISCUSS_CATEGORIES_LIMIT'); ?>
                         </div>
                         <div class="col-md-7">

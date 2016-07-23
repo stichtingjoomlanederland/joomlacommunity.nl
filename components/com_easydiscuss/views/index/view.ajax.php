@@ -432,8 +432,13 @@ class EasyDiscussViewIndex extends EasyDiscussView
 	 */
 	public function filter()
 	{
-		$filterType = $this->input->get('filter', '', 'default');
+		$filterType = $this->input->get('filter', 'allposts', 'default');
 		$sort = $this->input->get('sort', 'latest', 'default');
+
+		if (!$filterType) {
+			$filterType = 'allposts';
+		}
+		
 		// $categoryId = $this->input->get('id', 0, 'int');
 		//
 		$categoryId = 0;
@@ -469,7 +474,7 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		// preload post items
 		ED::post($posts);
 
-		$posts = ED::formatPost($posts);
+		$posts = ED::formatPost($posts, false, true);
 
 		$pagination = '';
 		// $pagination = $postModel->getPagination(0, $sort, $filterType, $categoryId, false);

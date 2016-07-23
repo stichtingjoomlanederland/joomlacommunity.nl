@@ -15,7 +15,7 @@ $signature = trim($post->getOwner()->getSignature());
 
 <?php if ($this->config->get('main_signature_visibility') && !empty($signature) && !$post->isAnonymous()) { ?>
 <div class="ed-post-signature">
-	<?php if (ED::acl()->allowed('show_signature')) { ?>
+	<?php if (ED::acl($post->getOwner()->id)->allowed('show_signature')) { ?>
 			<div class="ed-signature"><?php echo $signature; ?>
             </div>
 	<?php } ?>

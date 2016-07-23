@@ -21,7 +21,9 @@ class EasyDiscussViewTags extends EasyDiscussView
 		ED::setPageTitle('COM_EASYDISCUSS_TAGS_TITLE');
 
 		// Set the breadcrumbs
-		$this->setPathway('COM_EASYDISCUSS_TOOLBAR_TAGS');
+		if (! EDR::isCurrentActiveMenu('tags')) {
+			$this->setPathway('COM_EASYDISCUSS_TOOLBAR_TAGS');
+		}
 
 		// Determines if we should display a single tag result.
 		$id = $this->input->get('id', 0, 'int');
@@ -63,7 +65,9 @@ class EasyDiscussViewTags extends EasyDiscussView
 
 		// Set the page title
 		ED::setPageTitle(JText::sprintf('COM_EASYDISCUSS_VIEWING_TAG_TITLE', $this->escape($tag->title)));
-		$this->setPathway($tag->title);
+		if (! EDR::isCurrentActiveMenu('tags', $tag->id)) {
+			$this->setPathway($tag->title);
+		}
 
 		$concatCode = ED::jconfig()->getValue('sef') ? '?' : '&';
 		$this->doc->addHeadLink(JRoute::_( 'index.php?option=com_easydiscuss&view=tags&id=' . $tag ) . $concatCode . 'format=feed&type=rss' , 'alternate' , 'rel' , array('type' => 'application/rss+xml', 'title' => 'RSS 2.0') );
@@ -86,7 +90,7 @@ class EasyDiscussViewTags extends EasyDiscussView
 		$topicIds 	= array();
 
 		if (count($posts) > 0 ) {
-			
+
 			foreach ($posts as $item) {
 				$authorIds[] = $item->user_id;
 				$topicIds[] = $item->id;
@@ -126,29 +130,42 @@ class EasyDiscussViewTags extends EasyDiscussView
 		parent::display('tags/item');
 	}
 
+	/**
+	 * Renders posts from a specific set of tags
+	 *
+	 * @since	4.0.6
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
 	public function tags($tmpl = null)
 	{
-		$tags = $this->input->getVar('ids');
+		$xtags = $this->input->getVar('ids');
 
-		if (!$tags) {
+		if (!$xtags) {
 			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_INVALID_TAG'));
 		}
 
 		$jConfig = ED::JConfig();
 		$config = ED::config();
 
-		$tags = explode(',', $tags);
-
-		$this->setPathway(JText::_('COM_EASYDISCUSS_TAGS'), EDR::_('view=tags'));
+		$tags = explode(',', $xtags);
 
 		ED::setMeta();
 
-		$tagNames	= array();
+		$tagNames = array();
 
 		foreach ($tags as $tag) {
 			$table = ED::table('Tags');
 			$table->load($tag);
 			$tagNames[] = JText::_($table->title);
+		}
+
+		// Set the page title for this layout
+		ED::setPageTitle(JText::sprintf('COM_EASYDISCUSS_TAGS_MULTIPLE_TAGS_TITLE', implode(' + ', $tagNames)));
+
+		if (! EDR::isCurrentActiveMenu('tags', $xtags, 'ids')) {
+			$this->setPathway(JText::_('COM_EASYDISCUSS_TAGS'), EDR::_('view=tags'));
 		}
 
 		$this->setPathway(implode(' + ', $tagNames));
@@ -189,5 +206,5 @@ class EasyDiscussViewTags extends EasyDiscussView
 		$this->set('config', $config);
 
 		echo parent::display('tags/item');
-	}	
+	}
 }

@@ -40,6 +40,21 @@ class EasyDiscussJomSocial extends EasyDiscuss
 		return true;
 	}
 
+	public function init()
+	{
+		// This used to load the CMessaging
+		$file = JPATH_ROOT . '/components/com_community/libraries/messaging.php';
+
+    	// Check if the file exists
+    	if (!JFile::exists($file)) {
+    		return;
+    	}
+
+		require_once($file);
+
+    	CMessaging::load();
+	}
+
 	private function getActivityAccess( $access = '', $type = 'category' )
 	{
 		if( empty($this->_access) )
@@ -495,4 +510,112 @@ class EasyDiscussJomSocial extends EasyDiscuss
 		CFactory::load ( 'libraries', 'activities' );
 		CActivityStream::add($obj);
 	}
+
+    /**
+     * Displays the toolbar of JomSocial
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function getToolbar()
+    {
+        if (!$this->config->get('integration_jomsocial_toolbar')) {
+            return;
+        }
+
+        // Allow third party to control the toolbar
+        $displayToolbar = $this->input->get('showJomsocialToolbar', true);
+        $format = $this->input->get('format', '', 'word');
+        $tmpl = $this->input->get('tmpl', '', 'word');
+
+        if ($tmpl == 'component' || !$displayToolbar) {
+            return;
+        }
+
+        // Ensure that JomSocial exists
+        if (!$this->exists()) {
+        	return;
+        }
+
+        // Ensure the library really exists on the site.
+        if (!class_exists('CToolbarLibrary') || !method_exists('CToolbarLibrary', 'getInstance')) {
+        	return;
+        }
+
+        $svg = '';
+
+        if (method_exists('CFactory', 'getPath')) {
+        	$svg = CFactory::getPath('template://assets/icon/joms-icon.svg');
+        }
+
+        // Load up the apps
+        $appsLib = CAppPlugins::getInstance();
+        $appsLib->loadApplications();
+        $appsLib->triggerEvent('onSystemStart', array());
+
+        // Get the toolbar library
+        $toolbar = CToolbarLibrary::getInstance();
+
+		$theme = ED::themes();
+        $theme->set('svg', $svg);
+        $theme->set('toolbar', $toolbar);
+        $contents = $theme->output('site/toolbar/toolbar.jomsocial');
+
+        return $contents;
+    }	
+
+    /**
+     * Retrieve the PM button
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function getPmHtml($targetId, $layout = 'list')
+    {
+    	if (!$this->exists()) {
+    		return;
+    	}
+
+    	$file = JPATH_ROOT . '/components/com_community/libraries/messaging.php';
+
+    	// Check if the file exists
+    	if (!JFile::exists($file)) {
+    		return;
+    	}
+
+    	$namespace = $layout == 'list' ? 'user.pm' : 'user.popbox.pm';
+
+    	require_once($file);
+
+    	CMessaging::load();
+
+    	$theme = ED::themes();
+    	$theme->set('targetId', $targetId);
+    	$output = $theme->output('site/jomsocial/' . $namespace);
+
+    	return $output;
+    }
+
+    /**
+     * Retrieves conversation link in Jomsocial
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function getConversationsRoute()
+    {
+    	if (!$this->exists()) {
+    		return;
+    	}
+
+    	$link = CRoute::_('index.php?option=com_community&view=inbox');
+
+    	return $link;
+    }
 }

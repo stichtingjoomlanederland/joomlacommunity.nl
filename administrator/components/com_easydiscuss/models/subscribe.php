@@ -478,24 +478,24 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 
 	public function addSubscription($subscription_info)
 	{
-		$config = DiscussHelper::getConfig();
+		$config = ED::config();
 		$my = JFactory::getUser();
 
-		if($config->get('main_allowguestsubscribe') || ($my->id && !$config->get('main_allowguestsubscribe')))
-		{
+		if ($config->get('main_allowguestsubscribe') || ($my->id && !$config->get('main_allowguestsubscribe'))) {
 			$date = ED::date();
 			$now = $date->toMySQL();
-			$subscriber	= JTable::getInstance( 'Subscribe', 'Discuss' );
+			$subscriber	= ED::table('Subscribe');
 
-			$subscriber->userid		= $subscription_info['userid'];
-			$subscriber->member		= $subscription_info['member'];
-			$subscriber->type		= $subscription_info['type'];
-			$subscriber->cid		= $subscription_info['cid'];
-			$subscriber->email		= $subscription_info['email'];
-			$subscriber->fullname	= $subscription_info['name'];
-			$subscriber->interval	= $subscription_info['interval'];
-			$subscriber->created	= $now;
-			$subscriber->sent_out	= $now;
+			$subscriber->userid = $subscription_info['userid'];
+			$subscriber->member = $subscription_info['member'];
+			$subscriber->type = $subscription_info['type'];
+			$subscriber->cid = $subscription_info['cid'];
+			$subscriber->email = $subscription_info['email'];
+			$subscriber->fullname = $subscription_info['name'];
+			$subscriber->interval = $subscription_info['interval'];
+			$subscriber->created = $now;
+			$subscriber->sent_out = $now;
+			
 			return $subscriber->store();
 		}
 

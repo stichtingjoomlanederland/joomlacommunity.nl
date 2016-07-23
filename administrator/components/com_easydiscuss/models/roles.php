@@ -207,4 +207,23 @@ class EasyDiscussModelRoles extends EasyDiscussAdminModel
 		}
 		return false;
 	}
+
+	/**
+	 * Total roles
+	 *
+	 * @access public
+	 * @return array
+	 */
+	public function getTotalRoles()
+	{
+		$db = ED::db();
+
+		$query = 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__discuss_roles');
+
+		$db->setQuery($query);
+
+		$result = $db->loadResult();
+
+		return $result;		
+	}	
 }

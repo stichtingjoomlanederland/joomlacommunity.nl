@@ -36,7 +36,7 @@ class DiscussVideoVimeo
 
 		if( $code )
 		{
-			return '<div class="ed-video ed-video--16by9"><iframe src="http://player.vimeo.com/video/' . $code . '" width="' . $width . '" height="' . $height . '" frameborder="0"></iframe></div>';
+			return '<div class="ed-video ed-video--16by9"><iframe src="https://player.vimeo.com/video/' . $code . '" width="' . $width . '" height="' . $height . '" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>';
 		}
 		return false;
 	}

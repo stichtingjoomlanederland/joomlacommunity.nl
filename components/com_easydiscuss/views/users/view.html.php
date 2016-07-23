@@ -35,11 +35,25 @@ class EasyDiscussViewUsers extends EasyDiscussView
 	public function display($tmpl = null)
 	{
 		// Set the page attributes
-		ED::setPageTitle('COM_EASYDISCUSS_MEMBERS_TITLE');
-		$this->setPathway('COM_EASYDISCUSS_BREADCRUMBS_MEMBERS');
+		$pageTitle = 'COM_EASYDISCUSS_MEMBERS_TITLE';
+
+		if (! EDR::isCurrentActiveMenu('users')) {
+			$this->setPathway('COM_EASYDISCUSS_BREADCRUMBS_MEMBERS');
+		}
 
 		// If being searched
 		$search = $this->input->get('search', '', 'string');
+
+		if ($search) {
+			$pageTitle = $pageTitle . ' - ' . $search;
+		}
+
+		// check if the public user have permission to access
+		if (!$this->my->id && !$this->config->get('main_profile_public')) {
+			ED::setMessage('COM_EASYDISCUSS_LOGIN_TO_VIEW_USER_LISTING_PAGE');
+			$redirect = EDR::_('view=index', false);
+			return $this->app->redirect($redirect);
+		}
 
 		// Get the list of users
 		$model = ED::model('Users');
@@ -73,6 +87,9 @@ class EasyDiscussViewUsers extends EasyDiscussView
 			}
 			$users = $temp;
 		}
+
+		// Append page title
+		ED::setPageTitle($pageTitle, $pagination);	
 
 		$this->set('users', $users);
 		$this->set('pagination', $pagination);

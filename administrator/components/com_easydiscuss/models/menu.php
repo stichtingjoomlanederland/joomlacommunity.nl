@@ -25,21 +25,56 @@ class EasyDiscussModelMenu extends EasyDiscussAdminModel
 	 */
 	public function getAssociatedMenus()
 	{
-		$db = ED::db();
+		static $_menus = null;
 
-		$query = array();
-		$query[] = 'SELECT * FROM ' . $db->qn('#__menu');
-		$query[] = 'WHERE ' . $db->qn('published') . '=' . $db->Quote(1);
-		$query[] = 'AND ' . $db->qn('client_id') . '=' . $db->Quote(0);
-		$query[] = 'AND ' . $db->qn('link') . ' LIKE ' . $db->Quote('index.php?option=com_easydiscuss%');
+		if (is_null($_menus)) {
 
-        $query = implode(' ', $query);
+			$db = ED::db();
 
-        $db->setQuery($query);
+			$query = array();
+			$query[] = 'SELECT * FROM ' . $db->qn('#__menu');
+			$query[] = 'WHERE ' . $db->qn('published') . '=' . $db->Quote(1);
+			$query[] = 'AND ' . $db->qn('client_id') . '=' . $db->Quote(0);
+			$query[] = 'AND ' . $db->qn('link') . ' LIKE ' . $db->Quote('index.php?option=com_easydiscuss%');
 
-        $result = $db->loadObjectList();
+	        $query = implode(' ', $query);
+	        $db->setQuery($query);
 
-        return $result;
+	        $_menus = $db->loadObjectList();
+		}
+
+        return $_menus;
+	}
+
+	/**
+	 * Retrieves all categories permalink links.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getCategoryPermalinks()
+	{
+		static $_categories = null;
+
+		if (is_null($_categories)) {
+
+            $_categories = array();
+
+			$db = ED::db();
+
+            $query = "select `id`, `alias` from `#__discuss_category`";
+	        $db->setQuery($query);
+
+            $results = $db->loadObjectList();
+
+            foreach ($results as $item) {
+                $_categories[] = ED::permalinkSlug($item->alias, $item->id);
+            }
+		}
+
+        return $_categories;
 	}
 
 

@@ -27,18 +27,20 @@ defined('_JEXEC') or die('Restricted access');
                     <a href="<?php echo $user->getLink(); ?>" class="m-post-title t-lg-mb--sm">
                         <?php echo $user->getName(); ?>
                     </a>
+                    <?php if ($params->get('showpost') || $params->get('showanswered')) { ?>
                     <div class="m-list--inline m-list--has-divider t-lg-mb-sm">
+                        <?php if ($params->get('showpost')) { ?>
                         <div class="m-list__item">
-                            <?php if ($params->get('showpost')) { ?>
-                                <div class="m-post-meta t-fs--sm"><?php echo JText::sprintf('MOD_EASYDISCUSS_TOP_MEMBERS_POSTS', $user->getNumTopicPosted()); ?></div>
-                            <?php } ?>
+                            <div class="m-post-meta t-fs--sm"><?php echo JText::sprintf('MOD_EASYDISCUSS_TOP_MEMBERS_POSTS', $user->getNumTopicPosted()); ?></div>
                         </div>
+                        <?php } ?>
+                        <?php if ($params->get('showanswered')) { ?>
                         <div class="m-list__item">
-                            <?php if ($params->get('showanswered')) { ?>
-                                <div class="m-post-meta t-fs--sm"><?php echo JText::sprintf('MOD_EASYDISCUSS_TOP_MEMBERS_REPLIES', $user->getNumTopicAnswered()); ?></div>
-                            <?php } ?>
+                            <div class="m-post-meta t-fs--sm"><?php echo JText::sprintf('MOD_EASYDISCUSS_TOP_MEMBERS_REPLIES', $user->getTotalReplies()); ?></div>
                         </div>
+                        <?php } ?>
                     </div>
+                    <?php } ?>
                     <?php if ($params->get('showlastonline')) { ?>
                         <div class="m-post-meta t-fs--sm"><i class="fa fa-clock-o t-lg-mr--sm"></i><?php echo $user->getLastOnline(true); ?></div>
                     <?php } ?>        

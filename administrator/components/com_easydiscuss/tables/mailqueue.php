@@ -15,64 +15,18 @@ ED::import('admin:/tables/table');
 
 class DiscussMailQueue extends EasyDiscussTable
 {
-	/*
-	 * The id of the mail queue
-	 * @var int
-	 */
-	public $id			= null;
+	public $id = null;
+	public $mailfrom = null;
+	public $fromname = null;
+	public $recipient = null;
+	public $subject = null;
+	public $body = null;
+	public $created = null;
+	public $ashtml = null;
 
-	/*
-	* sender email
-	* @var string
-	*/
-	public $mailfrom	= null;
-
-	/*
-	* sender name (optional)
-	* @var string
-	*/
-	public $fromname	= null;
-
-	/*
-	* recipient email
-	* @var string
-	*/
-	public $recipient	= null;
-
-	/*
-	* email subject
-	* @var string
-	*/
-	public $subject		= null;
-
-	/*
-	* email body
-	* @var string
-	*/
-	public $body		= null;
-
-	/*
-	* Created datetime of the tag
-	* @var datetime
-	*/
-	public $created		= null;
-
-	/*
-	* send as html or plaintext
-	* @var boolean
-	*/
-	public $ashtml		= null;
-
-
-	/**
-	 * Constructor for this class.
-	 *
-	 * @return
-	 * @param object $db
-	 */
-	public function __construct(& $db )
+	public function __construct(&$db)
 	{
-		parent::__construct( '#__discuss_mailq' , 'id' , $db );
+		parent::__construct('#__discuss_mailq', 'id', $db);
 	}
 
 	/**

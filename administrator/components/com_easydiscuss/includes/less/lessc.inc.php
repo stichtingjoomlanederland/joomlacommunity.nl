@@ -14,6 +14,8 @@ if (!class_exists('Less_Parser')) {
 	Less_Autoloader::register();
 }
 
+if (!class_exists('lessc')) {
+
 class lessc{
 
 	static public $VERSION = Less_Version::less_version;
@@ -270,4 +272,7 @@ class lessc{
 	protected function addParsedFile($file) {
 		$this->allParsedFiles[realpath($file)] = filemtime($file);
 	}
+}
+
+
 }

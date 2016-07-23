@@ -15,9 +15,17 @@ defined('_JEXEC') or die('Restricted access');
 	<div class="col-md-6">
 		<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_KOMENTO_INTEGRATIONS'); ?>
-			<a href="http://stackideas.com/komento/" class="btn btn-success t-lg-ml--lg t-lg-mt--lg"><?php echo JText::_('COM_EASYDISCUSS_LEARN_MORE_ABOUT_KOMENTO'); ?></a>
 
 			<div class="panel-body">
+				<div>
+				    <img width="64" align="left" src="<?php echo JURI::root();?>administrator/components/com_easydiscuss/themes/default/images/integrations/komento.png" style="margin-left: 20px;margin-right:25px; float: left;">
+				    
+				    <div class="small" style="overflow:hidden;">
+				        <?php echo JText::_('COM_EASYDISCUSS_KOMENTO_INFO');?><br /><br />
+				        <a target="_blank" class="btn btn-primary btn-sm t-lg-mb--lg" href="http://stackideas.com/komento"><?php echo JText::_('COM_EASYDISCUSS_LEARN_MORE_ABOUT_KOMENTO'); ?> &rarr;</a>
+				    </div>
+				</div>
+
 				<div class="form-horizontal">
 					<div class="form-group">
 						<div class="col-md-6 control-label">

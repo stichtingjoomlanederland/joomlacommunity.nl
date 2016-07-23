@@ -38,11 +38,6 @@ class EasyDiscussParser extends EasyDiscuss
 			$text = $this->replaceGist($text);
 		}
 
-		// Replace mentions
-		if ($this->config->get('main_mentions') && $this->my->id) {
-			$text = $this->replaceMentions($text);
-		}
-
 		// BBCode to find...
 		$bbcodeSearch = array(
 						 '/\[b\](.*?)\[\/b\]/ims',
@@ -90,6 +85,11 @@ class EasyDiscussParser extends EasyDiscuss
 
 		// Replace URLs ! important, we only do this url replacement after the bbcode url processed. @sam at 07 Jan 2013
 		$text = ED::string()->replaceUrl($tmp, $text);
+
+		// Replace mentions
+		if ($this->config->get('main_mentions') && $this->my->id) {
+			$text = $this->replaceMentions($text);
+		}		
 
 		// Replace smileys before anything else
 		$text = $this->replaceSmileys($text);
@@ -161,28 +161,28 @@ class EasyDiscussParser extends EasyDiscuss
 		// // we need to make sure no special characters at this points
 		// $text = htmlspecialchars_decode($text, ENT_QUOTES);
 
-		preg_match_all( '/\[url\="?(.*?)"?\](.*?)\[\/url\]/ims', $text, $matches );
+		preg_match_all('/\[url\="?(.*?)"?\](.*?)\[\/url\]/ims', $text, $matches);
 
-		if( !empty( $matches ) && isset( $matches[ 0 ] ) && !empty( $matches[ 0 ] ) )
-		{
+		if (!empty($matches) && isset($matches[0]) && !empty($matches[0])) {
+
 			// Get the list of url tags
-			$urlTags 	= $matches[ 0 ];
-			$urls 		= $matches[ 1 ];
-			$titles 	= $matches[ 2 ];
+			$urlTags = $matches[0];
+			$urls = $matches[1];
+			$titles = $matches[2];
 
-			$total 		= count( $urlTags );
+			$total = count($urlTags);
 
-			for( $i = 0; $i < $total; $i++ )
-			{
-				$url 	= $urls[ $i ];
+			for ($i = 0; $i < $total; $i++) {
 
-				if( stristr( $url , 'http://' ) === false && stristr( $url , 'https://' ) === false && stristr( $url , 'ftp://' ) === false )
-				{
-					$url	= 'http://' . $url;
+				$url = $urls[$i];
+
+				if (stristr($url, 'http://') === false && stristr($url, 'https://') === false && stristr($url, 'ftp://') === false) {
+					$url = 'http://' . $url;
 				}
 
-				$targetBlank	= $config->get( 'main_link_new_window' ) ? ' target="_blank"' : '';
-				$text			= str_ireplace( $urlTags[ $i ] , '<a href="' . $url . '"' . $targetBlank . '>' . $titles[ $i ] . '</a>' , $text );
+				$targetBlank = $config->get('main_link_new_window') ? ' target="_blank"' : '';
+				$noFollow = $config->get('main_link_rel_nofollow') ? ' rel="nofollow"' : '';
+				$text = str_ireplace($urlTags[$i], '<a href="' . $url . '"' . $targetBlank . $noFollow .'>' . $titles[ $i ] . '</a>', $text);
 			}
 		}
 

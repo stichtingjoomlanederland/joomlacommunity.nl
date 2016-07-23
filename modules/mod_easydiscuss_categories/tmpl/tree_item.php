@@ -17,13 +17,13 @@ defined('_JEXEC') or die('Restricted access');
     <div class="o-flag">
         <?php if ($params->get('showcavatar', true)) { ?>
         <div class="o-flag__image o-flag--top">
-            <a class="o-avatar o-avatar--md" href="<?php echo $category->getPermalink();?>">
+            <a class="o-avatar o-avatar--md" href="<?php echo EDR::getCategoryRoute($category->id);?>">
                 <img src="<?php echo $category->getAvatar();?>" alt="<?php echo ED::themes()->html('string.escape', $category->getTitle());?>" />
             </a>
         </div>
         <?php } ?>
         <div class="o-flag__body">
-            <a class="ed-cat-name" href="<?php echo $category->getPermalink();?>"><?php echo $category->getTitle();?></a>
+            <a class="ed-cat-name" href="<?php echo EDR::getCategoryRoute($category->id);?>"><?php echo $category->getTitle();?></a>
             <ol class="g-list-inline g-list-inline--delimited ed-cat-item-meta">
                 <?php if ($params->get('showpostcnt', true)) { ?>
                 <li><?php echo ED::themes()->getNouns('MOD_DISCUSSIONSCATEGORIES_ENTRY_COUNT', $category->getTotalPosts(), true);?></li>

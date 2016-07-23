@@ -45,11 +45,21 @@ ed.require(['edq', 'easydiscuss', 'site/vendors/gmaps', 'selectize'], function($
     // Try to initialize google maps
     if (!$.___GoogleMaps) {
 
+        // Get google maps api key.
+        var apiKey = '<?php echo $this->config->get("main_location_gmaps_key"); ?>';
+
+        var gmapsUrl = 'https://maps.googleapis.com/maps/api/js?language=en&callback=' + uid;
+
+        // Append api keys inside the url.
+        if (apiKey) {
+            var gmapsUrl = 'https://maps.googleapis.com/maps/api/js?key='+ apiKey +'&language=en&callback=' + uid;
+        }
+
         $.___GoogleMaps = $.Deferred();
 
         // If google maps doesn't exist yet.
         if (window.google === undefined || window.google.maps === undefined) {
-            ed.require(['https://maps.googleapis.com/maps/api/js?language=en&callback=' + uid]);
+            ed.require([gmapsUrl]);
         } else {
             $.___GoogleMaps.resolve();
         }

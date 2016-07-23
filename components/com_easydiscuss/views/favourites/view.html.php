@@ -50,12 +50,22 @@ class EasyDiscussViewFavourites extends EasyDiscussView
 
 		$model = ED::model('Posts');
 
-		$posts = $model->getData(true, 'latest', null, 'favourites');
+		$options = array(
+			'userId' => $this->my->id,
+			'filter' => 'favourites'
+			);
+
+		// $posts = $model->getData(true, 'latest', null, 'favourites');
+		$posts = $model->getDiscussions($options);
 		$posts = ED::formatPost($posts);
+
+		$pagination = $model->getPagination();
+		$pagination = $pagination->getPagesLinks();
 
 		$this->set('posts', $posts);
 		$this->set('profile', $profile);
-		$this->set('badges', $badges);	
+		$this->set('badges', $badges);
+		$this->set('pagination', $pagination);
 		
 		parent::display('favourites/default');
 	}

@@ -15,11 +15,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 <div class="ed-vote pull-right t-lg-mt--md t-lg-mb--md" data-id="<?php echo $post->id;?>" data-ed-post-vote>
     <div class="ed-vote__points" data-ed-vote-counter>
     	<?php echo $post->getTotalVotes(); ?>
-
     </div>
     <div class="ed-vote__text">
         <?php echo JText::_("COM_EASYDISCUSS_ENTRY_VOTES");?>
     </div>
+
+	<a href="javascript:void(0)" class="ed-vote__undo hide" data-ed-vote-undo><?php echo JText::_('COM_EASYDISCUSS_ENTRY_VOTES_UNDO_BUTTON'); ?></a>
+
+
 	<?php if ($post->canVote() && !$post->isVoted){ ?>
 		<a href="javascript:void(0);" class="ed-vote__up" data-ed-vote-button data-direction="up">
 			<i class="fa fa-chevron-up"></i>
@@ -31,4 +34,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             <i class="fa fa-chevron-down"></i>
         </a>
 	<?php } ?>
+
+
+
 </div>        

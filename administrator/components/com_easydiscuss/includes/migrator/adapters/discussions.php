@@ -132,12 +132,6 @@ class EasyDiscussMigratorDiscussions extends EasyDiscussMigratorBase
 		}
 
 		$post->bind($data);
-
-		// Validate the posted data to ensure that we can really proceed
-        if (!$post->validate($data)) {
-        	return false;
-        }
-
         $post->save();
 
         // Add this to migrators table

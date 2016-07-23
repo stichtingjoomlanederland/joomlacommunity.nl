@@ -43,7 +43,7 @@ class EasyDiscussViewComment extends EasyDiscussView
         }
 
         // Check the terms and condirion if it is enabled
-        if ($this->config->get('main_comment_tnc') && $acceptedTerms == 'false') {
+        if ($this->config->get('main_tnc_comment') && $acceptedTerms == 'false') {
 			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_TERMS_PLEASE_ACCEPT'));
 		}
 		
@@ -91,6 +91,10 @@ class EasyDiscussViewComment extends EasyDiscussView
 		if (!$comment->store()) {
 			return $this->ajax->reject($comment->getError());
 		}
+
+		// process tnc
+		$tnc = ED::tnc();
+		$tnc->storeTnc('comment');
 
 		// Get post duration.
 		$durationObj = new stdClass();

@@ -78,11 +78,11 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <?php if ($post->getLastReplier()) { ?>
                         <li data-breadcrumb="·">
                             <?php if (!$post->isLastReplyAnonymous()) { ?>
-                                <a href="<?php echo EDR::_('view=post&id=' . $post->id . '&sort=latest'); ?>">
+                                <a href="<?php echo EDR::_('view=post&id=' . $post->id . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK'). '-' . $post->lastReply->id); ?>">
                                     <i class="fa fa-reply"></i> <?php echo JText::sprintf('COM_EASYDISCUSS_LAST_REPLIED_BY', $post->getLastReplier()->getName(), ED::date()->toLapsed($post->lastupdate)); ?>
                                 </a>
                             <?php } else { ?>
-                                <a href="<?php echo EDR::_('view=post&id=' . $post->id . '&sort=latest'); ?>">
+                                <a href="<?php echo EDR::_('view=post&id=' . $post->id . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK'). '-' . $post->lastReply->id);  ?>">
                                     <i class="fa fa-reply"></i> <?php echo JText::sprintf('COM_EASYDISCUSS_LAST_REPLIED_BY', JText::_('COM_EASYDISCUSS_ANONYMOUS_USER'), ED::date()->toLapsed($post->lastupdate)); ?>
                                 </a>
                             <?php } ?>
@@ -130,7 +130,7 @@ defined('_JEXEC') or die('Unauthorized Access');
         </div>
     </div>
 
-    <?php if ($this->config->get('layout_enableintrotext') || $post->getTags()) { ?>
+    <?php if ($this->config->get('layout_enableintrotext') || ($post->getTags() && $this->config->get('layout_showtags'))) { ?>
     <div class="ed-post-item__bd">
         <?php if ($this->config->get('layout_enableintrotext')) { ?>
         <div class="ed-post-content">
@@ -138,7 +138,7 @@ defined('_JEXEC') or die('Unauthorized Access');
         </div>
         <?php } ?>
 
-        <?php if ($this->config->get('main_master_tags')) { ?>
+        <?php if ($this->config->get('main_master_tags') && $this->config->get('layout_showtags')) { ?>
             <?php if ($post->getTags()) { ?>
             <ol class="g-list-inline ed-post-meta-tag">
                 <?php foreach ($post->getTags() as $tag) { ?>

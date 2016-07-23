@@ -21,6 +21,11 @@ defined('_JEXEC') or die('Unauthorized Access');
         </div>
         <div class="o-flag__body">
             <a class="ed-cat-name" href="<?php echo EDR::getCategoryRoute($category->id); ?>"><?php echo $category->getTitle();?></a>
+            <?php if (!$this->config->get('layout_category_description_hidden')) { ?>
+            <ol class="g-list-inline g-list-inline--delimited ed-cat-item-meta">
+                <?php echo $category->getDescription(); ?>
+            </ol>
+            <?php } ?>
             <ol class="g-list-inline g-list-inline--delimited ed-cat-item-meta">
                 <li><?php echo $this->getNouns('COM_EASYDISCUSS_ENTRY_COUNT', $category->getTotalPosts(), true);?></li>
 

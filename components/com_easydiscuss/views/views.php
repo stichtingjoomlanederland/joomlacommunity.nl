@@ -161,6 +161,9 @@ class EasyDiscussView extends EasyDiscussParentView
             // Retrieve the toolbar for EasyDiscuss
             $toolbar = $this->getToolbar();
 
+			// Jomsocial toolbar
+            $jsToolbar = ED::jomsocial()->getToolbar();
+
             // Set the ajax url
             $ajaxUrl = JURI::root();
 
@@ -176,9 +179,7 @@ class EasyDiscussView extends EasyDiscussParentView
 			$theme->set('layout', $layout);
 			$theme->set('view', $view);
             $theme->set('ajaxUrl', $ajaxUrl);
-
-            // @TODO: JS toolbar integrations
-            $theme->set('jsToolbar', '');
+			$theme->set('jsToolbar', $jsToolbar);
 
 			$output = $theme->output('site/structure/default');
 

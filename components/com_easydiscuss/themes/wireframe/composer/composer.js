@@ -15,6 +15,16 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
         });
     }
 
+    var tncLink = $('[data-ed-reply-tnc-link]');
+
+    // show term and conditions
+    tncLink.on('click', function() {
+        EasyDiscuss.dialog({
+            content: EasyDiscuss.ajax('site/views/comment/showTnc', {
+            })
+        })
+    });    
+
 	// Reply submit
 	var replyButton = wrapper.find('[data-ed-reply-submit]');
 
@@ -173,6 +183,19 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
             }
         }
 
+        // Check for t&c if the system is enabled.
+        <?php if ($this->config->get('main_tnc_reply')) { ?>
+        var tnc = $('[data-ed-reply-tnc-checkbox]');
+
+        if (!tnc.is(':checked')) {
+            EasyDiscuss.dialog({
+                "content": '<?php echo JText::_("COM_EASYDISCUSS_TERMS_PLEASE_ACCEPT"); ?>'
+            });
+
+            return false;
+        };
+        <?php } ?>        
+
         return true;
     };
 
@@ -291,6 +314,11 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 
                 // Reset the form
                 formDom.reset();
+
+                // Prevent tnc from being reset.
+                var tnc = $('[data-ed-reply-tnc-checkbox]');
+                tnc.removeAttr('checked');
+                tnc.attr('checked', 'checked');
 
                 // Clear the form.
                 resetForm(form);

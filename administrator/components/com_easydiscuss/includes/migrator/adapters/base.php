@@ -72,7 +72,7 @@ class EasyDiscussMigratorBase
 		$category->created_by = $this->getDefaultSuperUserId();
 
 		// Now, try to save the category
-		$state = $category->store();
+		$state = $category->store(true);
 
 		// now update the permission for this category.
 		if ($state) {
@@ -93,8 +93,9 @@ class EasyDiscussMigratorBase
 			$saUserId = '42';
 
 			if (count($saUsers) > 0) {
-				$saUserId = $saUsers['0']->id;
+				$saUserId = $saUsers[0];
 			}
+			
 		}
 
 		return $saUserId;

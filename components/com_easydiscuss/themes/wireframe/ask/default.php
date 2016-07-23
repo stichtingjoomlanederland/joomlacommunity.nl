@@ -14,12 +14,13 @@ defined('_JEXEC') or die('Unauthorized Access');
 <form autocomplete="off" action="<?php echo JRoute::_('index.php');?>" method="post" enctype="multipart/form-data" data-ed-ask-form>
 
     <div class="ed-ask t-lg-mt--xl">
-
+    <div role="alert" class="o-alert o-alert--danger" data-ed-post-alert hidden></div>
         <div class="ed-ask__hd">
             <input type="text" name="title" placeholder="<?php echo JText::_('COM_EASYDISCUSS_POST_TITLE_EXAMPLE', true);?>"
                 class="form-control input-lg ed-ask__input-title"
                 autocomplete="off"
                 data-ed-post-title
+                data-minimum-title="<?php echo $minimumTitle;?>"
                 value="<?php echo $this->html('string.escape', $post->title);?>"
             >
             <div class="t-hidden ed-ask-similar-menu" data-ed-similar-questions>
@@ -44,7 +45,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             <div class="o-row">
 
                 <div class="o-col o-col--top t-lg-pr--md t-xs-pr--no">
-                    <div class="from-group">
+                    <div class="form-group">
                         <label for="category_id"><?php echo JText::_('COM_EASYDISCUSS_SELECT_A_CATEGORY');?></label>
                         <?php echo $categories; ?>
                     </div>
@@ -153,16 +154,37 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <?php } ?>
 
                 <div class="ed-editor__ft">
-                    <a class="btn btn-link t-pl--xs" href="<?php echo $cancel;?>">
-                        <?php echo JText::_('COM_EASYDISCUSS_CANCEL_AND_DISCARD');?>
-                    </a>
-                    <button class="btn btn-primary pull-right" type="button" data-ed-submit-button>
-                        <?php if ($post->id) { ?>
-                            <?php echo JText::_('COM_EASYDISCUSS_BUTTON_UPDATE_POST');?>
-                        <?php } else { ?>
-                            <?php echo JText::_('COM_EASYDISCUSS_BUTTON_SUBMIT');?>
-                        <?php } ?>
-                    </button>
+
+                    <?php if ($this->config->get('main_tnc_question')) { ?>
+                    <div class="pull-left">
+                        <div class="o- t-lg-mb--lg">
+                            
+                            <div class="o-checkbox o-checkbox--inline t-mr--md">
+                                <input type="checkbox" name="tnc-ask" id="tnc-ask" data-ed-ask-tnc-checkbox <?php echo ED::tnc()->hasAcceptedTnc('question') ? 'checked="checked"' : '' ?>/>
+                                <label for="tnc-ask">
+                                    <?php echo JText::_('COM_EASYDISCUSS_I_HAVE_READ_AND_AGREED');?> 
+                                    <a href="javascript:void(0);" style="text-decoration: underline;" data-ed-ask-tnc-link>
+                                        <?php echo JText::_('COM_EASYDISCUSS_TERMS_AND_CONDITIONS');?>
+                                    </a>  
+                                </label>
+                            </div>
+                            
+                        </div>    
+                    </div>
+                    <?php } ?>                   
+
+                    <div class="pull-right">
+                        <a class="btn btn-link t-lg-pl--xs" href="<?php echo $cancel;?>">
+                            <?php echo JText::_('COM_EASYDISCUSS_CANCEL_AND_DISCARD');?>
+                        </a>
+                        <button class="btn btn-primary pull-right" type="button" data-ed-submit-button>
+                            <?php if ($post->id) { ?>
+                                <?php echo JText::_('COM_EASYDISCUSS_BUTTON_UPDATE_POST');?>
+                            <?php } else { ?>
+                                <?php echo JText::_('COM_EASYDISCUSS_BUTTON_SUBMIT');?>
+                            <?php } ?>
+                        </button>
+                    </div>
                 </div>
             </div>
 

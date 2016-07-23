@@ -16,11 +16,13 @@
 .ed-posts-list > *:not(:first-child) {
     margin-top: 0;
 }
-.view-index {
-    .ed-post-item__post-meta {
-        float: right;
+
+&.view-index {
+    .ed-post-item__title {
+        padding-right: 40px; // #1935 Reserve space for replies counter 
     }
 }
+
 .ed-post-item {
     &__hd {
         position: relative;

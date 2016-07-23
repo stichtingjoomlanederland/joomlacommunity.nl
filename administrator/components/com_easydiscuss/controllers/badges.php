@@ -93,12 +93,38 @@ class EasyDiscussControllerBadges extends EasyDiscussController
 	}
 
 	/**
+	 * Method to save a badge and stay on same page
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function apply()
+	{
+		$id = $this->input->get('id');
+		$redirect = 'index.php?option=com_easydiscuss&view=badges&layout=form&id=' . $id;
+
+		return $this->save($redirect);
+	}
+
+	/**
+	 * Method to save a badge and open a new form afterwards
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function save2new()
+	{
+		$redirect = 'index.php?option=com_easydiscuss&view=badges&layout=form';
+		return $this->save($redirect);
+	}
+
+	/**
 	 * Method to save a badge
 	 *
 	 * @since	3.0
 	 * @access	public
 	 */
-	public function save()
+	public function save($redirect = 'index.php?option=com_easydiscuss&view=badges')
 	{
 		JRequest::checkToken('request') or jexit( 'Invalid Token' );
 
@@ -139,12 +165,6 @@ class EasyDiscussControllerBadges extends EasyDiscussController
 		}
 
 		$badge->store();
-
-		$redirect = 'index.php?option=com_easydiscuss&view=badges';
-
-		if ($task == 'savePublishNew') {
-			$redirect = 'index.php?option=com_easydiscuss&controller=badges&task=edit';
-		}
 
 		$message = !empty($id) ? JText::_('COM_EASYDISCUSS_BADGE_UPDATED') : JText::_('COM_EASYDISCUSS_BADGE_CREATED');
 

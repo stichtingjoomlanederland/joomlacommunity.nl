@@ -75,12 +75,20 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		}
 
 		// Set the page properties
-		ED::setPageTitle(JText::sprintf('COM_EASYDISCUSS_PROFILE_PAGE_TITLE', $profile->getName()));
+		$pageTitle = JText::sprintf('COM_EASYDISCUSS_PROFILE_PAGE_TITLE', $profile->getName(), $viewType);
 		$this->setPathway(JText::_($profile->getName()));
+
 
 		// Attach gmaps api
 		if ($this->config->get('layout_profile_showlocation')) {
-			$this->doc->addScript('//maps.googleapis.com/maps/api/js?sensor=true');
+
+			$key = '';
+
+			if ($this->config->get('main_location_gmaps_key')) {
+				$key = '?key=' . $this->config->get('main_location_gmaps_key');
+			}
+
+			$this->doc->addScript('//maps.googleapis.com/maps/api/js' . $key);
 		}
 
 		// Load up the models and get data
@@ -116,14 +124,21 @@ class EasyDiscussViewProfile extends EasyDiscussView
  		}
 
  		if ($viewType == 'favourites') {
-			$posts = $postsModel->getData(true, 'latest', null, 'favourites', '', null, 'all', $profileId);
+ 			
+			$options = array(
+				'userId' => $profile->id,
+				'filter' => 'favourites'
+				);
+
+			// $posts = $model->getData(true, 'latest', null, 'favourites');
+			$posts = $postsModel->getDiscussions($options);			
 		}
 
 		$posts = ED::formatPost($posts);
 
 		$filterArr = array('viewtype' => $viewType, "id" => $profile->id);
-		$pagination	= $postsModel->getPagination();
-		$pagination	= $pagination->getPagesLinks('profile', $filterArr, true);
+		$paginationModel = $postsModel->getPagination();
+		$pagination	= $paginationModel->getPagesLinks('profile', $filterArr, true);
 
 		// Check for integrations
 		// EasyBlog
@@ -162,6 +177,9 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		$favPosts = $postsModel->getData('true', 'latest', 'null', 'favourites');
 		$favPosts = ED::formatPost($favPosts);
 
+		// Set page title
+		ED::setPageTitle($pageTitle, $paginationModel);				
+
 		$this->set('sort', $sort);
 		$this->set('pagination', $pagination);
 		$this->set('posts', $posts);
@@ -184,7 +202,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		$file = JPATH_ADMINISTRATOR . '/components/com_easyblog/includes/easyblog.php';
 		$exists = JFile::exists($file);
 
-		if (!$exists) {
+		if (!$exists || !$this->config->get('integrations_easyblog_profile')) {
 			return false;
 		}
 
@@ -222,8 +240,12 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		}
 
 		// Set page properties
-		$this->setPathway(JText::_('COM_EASYDISCUSS_PROFILE'), EDR::_('index.php?option=com_easydiscuss&view=profile&id=' . $this->my->id));
-		$this->setPathway(JText::_('COM_EASYDISCUSS_EDIT_PROFILE'));
+		ED::setPageTitle('COM_EASYDISCUSS_EDIT_PROFILE');
+		if (! EDR::isCurrentActiveMenu('profile', 0, 'id', 'edit')) {
+
+			$this->setPathway(JText::_('COM_EASYDISCUSS_PROFILE'), EDR::_('index.php?option=com_easydiscuss&view=profile&id=' . $this->my->id));
+			$this->setPathway(JText::_('COM_EASYDISCUSS_EDIT_PROFILE'));
+		}
 
 		//load porfile info and auto save into table if user is not already exist in discuss's user table.
 		$userparams = new JRegistry($this->profile->get('params'));

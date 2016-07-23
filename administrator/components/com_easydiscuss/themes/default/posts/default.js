@@ -1,5 +1,5 @@
 ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
-
+    
 	$('#category_id').on('change', function() {
 		submitform();
 	});

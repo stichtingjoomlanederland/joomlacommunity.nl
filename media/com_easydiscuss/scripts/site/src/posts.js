@@ -16,6 +16,7 @@ ed.define('site/src/posts', function(){
                     '{allPostsFilter}'      : '.allPostsFilter',
                     '{newPostsFilter}'      : '.newPostsFilter',
                     '{unResolvedFilter}'    : '.unResolvedFilter',
+                    '{unreadFilter}'        : '.unreadFilter',
                     '{resolvedFilter}'      : '.resolvedFilter',
                     '{unAnsweredFilter}'    : '.unAnsweredFilter',
 

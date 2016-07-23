@@ -107,6 +107,10 @@ class EasyDiscussControllerPosts extends EasyDiscussController
             return $this->app->redirect(EDR::getAskRoute($redirectUrl, false));
         }
 
+        // Process T&C
+        $tnc = ED::tnc();
+        $tnc->storeTnc('question');
+
         $message = ($isNew)? JText::_('COM_EASYDISCUSS_POST_STORED') : JText::_('COM_EASYDISCUSS_EDIT_SUCCESS');
         $state = 'success';
 
@@ -224,9 +228,13 @@ class EasyDiscussControllerPosts extends EasyDiscussController
         $post = ED::table('Post');
         $post->load($currentParent);
 
-        $post->parent_id = $newParent;
+        // We need to get the old thread id so we can update the thread accordingly.
+        $threadId = $post->thread_id;
 
-        // Update the tags.
+        $post->parent_id = $newParent;
+        $post->thread_id = $newPost->thread_id;
+
+        // Update the posts.
         if (!$post->store()) {
             ED::setMessage(JText::sprintf('COM_EASYDISCUSS_MERGE_ERROR', $newPost->title), 'error');
             return $this->app->redirect(EDR::getPostRoute($newParent, false));
@@ -234,10 +242,17 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
         // Update all the child items from this parent to the new parent.
         $model = ED::model('Posts');
-        $model->updateNewParent($currentParent, $newParent);
+        $model->updateNewParent($currentParent, $newParent, $newPost->thread_id);
 
         // Update attachments
         $model->updateAttachments($post->id, 'replies');
+
+        // Delete discussion from thread table
+        $model->deleteThread($threadId);
+
+        // Update new parent reply count
+        $parentPost = ED::post($currentParent);
+        $parentPost->updateReplyCount();
 
         // Set proper message in mail queue.
         ED::setMessage(JText::sprintf('COM_EASYDISCUSS_MERGE_SUCCESS', $newPost->title), 'success');

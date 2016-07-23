@@ -146,6 +146,14 @@ defined('_JEXEC') or die('Restricted access');
                             <?php echo $this->html('form.boolean', 'main_link_new_window', $this->config->get('main_link_new_window')); ?>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_LINK_REL_NOFOLLOW'); ?>
+                        </div>
+                        <div class="col-md-7">
+                            <?php echo $this->html('form.boolean', 'main_link_rel_nofollow', $this->config->get('main_link_rel_nofollow')); ?>
+                        </div>
+                    </div>                    
                 </div>
             </div>
         </div>

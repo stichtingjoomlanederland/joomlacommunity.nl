@@ -64,35 +64,35 @@ defined('_JEXEC') or die('Unauthorized Access');
         <ul class="o-nav ed-navbar__o-nav">
             <?php if ($this->my->id) { ?>
                 <?php if ($this->config->get('main_conversations') && $showConversation && $this->acl->allowed('allow_privatemessage')) { ?>
-                    <?php if ($useEasySocialConversations) { ?>
-                <li>
-                    <a href="<?php echo ED::easysocial()->getConversationsRoute();?>" class="ed-navbar__icon-link <?php echo $conversationsCount ? 'has-new' : '';?>"
-                        data-original-title="<?php echo JText::_('COM_EASYDISCUSS_CONVERSATIONS');?>"
-                    >
-                        <i class="fa fa-envelope"></i>
-                        <span class="ed-navbar__link-text"><?php echo JText::_('COM_EASYDISCUSS_CONVERSATIONS');?></span>
-                    </a>
-                </li>
+                    <?php if ($useExternalConversations) { ?>
+                        <li>
+                            <a href="<?php echo ED::getConversationsRoute();?>" class="ed-navbar__icon-link <?php echo $conversationsCount ? 'has-new' : '';?>"
+                                data-original-title="<?php echo JText::_('COM_EASYDISCUSS_CONVERSATIONS');?>"
+                            >
+                                <i class="fa fa-envelope"></i>
+                                <span class="ed-navbar__link-text"><?php echo JText::_('COM_EASYDISCUSS_CONVERSATIONS');?></span>
+                            </a>
+                        </li>
                     <?php } else { ?>
-                <li>
-                    <a href="javascript:void(0);" class="ed-navbar__icon-link <?php echo $conversationsCount ? 'has-new' : '';?>"
-                        data-ed-conversations-wrapper
-                        data-ed-popbox="ajax://site/views/conversation/popbox"
-                        data-ed-popbox-position="<?php echo JFactory::getDocument()->getDirection() == 'rtl' ? 'bottom-left' : 'bottom-right';?>"
-                        data-ed-popbox-toggle="click"
-                        data-ed-popbox-offset="4"
-                        data-ed-popbox-type="navbar-conversations"
-                        data-ed-popbox-component="popbox--navbar"
-                        data-ed-popbox-cache="0"
+                        <li>
+                            <a href="javascript:void(0);" class="ed-navbar__icon-link <?php echo $conversationsCount ? 'has-new' : '';?>"
+                                data-ed-conversations-wrapper
+                                data-ed-popbox="ajax://site/views/conversation/popbox"
+                                data-ed-popbox-position="<?php echo JFactory::getDocument()->getDirection() == 'rtl' ? 'bottom-left' : 'bottom-right';?>"
+                                data-ed-popbox-toggle="click"
+                                data-ed-popbox-offset="4"
+                                data-ed-popbox-type="navbar-conversations"
+                                data-ed-popbox-component="popbox--navbar"
+                                data-ed-popbox-cache="0"
 
-                        data-ed-provide="tooltip"
-                        data-original-title="<?php echo JText::_('COM_EASYDISCUSS_CONVERSATIONS');?>"
-                    >
-                    	<i class="fa fa-envelope"></i>
-                        <span class="ed-navbar__link-text"><?php echo JText::_('COM_EASYDISCUSS_CONVERSATIONS');?></span>
-                    	<span class="ed-navbar__link-bubble" data-ed-conversations-counter><?php echo $conversationsCount;?></span>
-                    </a>
-                </li>
+                                data-ed-provide="tooltip"
+                                data-original-title="<?php echo JText::_('COM_EASYDISCUSS_CONVERSATIONS');?>"
+                            >
+                            	<i class="fa fa-envelope"></i>
+                                <span class="ed-navbar__link-text"><?php echo JText::_('COM_EASYDISCUSS_CONVERSATIONS');?></span>
+                            	<span class="ed-navbar__link-bubble" data-ed-conversations-counter><?php echo $conversationsCount;?></span>
+                            </a>
+                        </li>
                     <?php } ?>
                 <?php } ?>
 

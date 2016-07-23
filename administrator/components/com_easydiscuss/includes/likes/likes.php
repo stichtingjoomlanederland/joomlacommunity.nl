@@ -96,6 +96,10 @@ class EasyDiscussLikes extends EasyDiscuss
 		$this->addLikes($post->id, 'post', $this->my->id);
 		$post->updateThread(array('num_likes' => '+1'));
 
+		// Try get the reply parent id
+		$question = ED::post($post->id);
+		$question = $question->getParent();
+
 		// Add activity in jomsocial and easysocial
 		if ($post->user_id != $this->my->id) {
 
@@ -239,7 +243,7 @@ class EasyDiscussLikes extends EasyDiscuss
 		// Add email notification to the post owner.
 		$notify	= ED::getNotification();
 
-		$profile = ED::user($my->id);
+		$profile = ED::user($this->my->id);
 
 		$emailText = $post->isQuestion() ? 'POST' : 'REPLY';
 

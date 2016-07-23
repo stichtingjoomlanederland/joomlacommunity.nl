@@ -636,6 +636,17 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 			return $recipients;
 		}
+
+		if ($action == 'new.mentions') {
+	        // Detect known names in the post.
+        	$users = ED::string()->detectNames($post->content, array($post->user_id));
+
+	        if (!$users) {
+	            return false;
+	        }
+
+	        return $users;
+		}
 	}
 
 	/**
@@ -808,9 +819,34 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 			$permalink = EDR::_('view=post&id=' . $question->id) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
 
+			if ($post->isQuestion()) {
+				$permalink = EDR::_('view=post&id=' . $post->id);
+			}
+
 			$options = array('actor_id' => JFactory::getUser()->id, 'uid' => $post->id, 'title' => JText::_('COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_LIKES'), 'type' => 'discuss', 'url' => $permalink);
 
 			$rule = 'discuss.likes';
+		}
+
+		if ($action == 'new.mentions') {
+			
+			if (!$this->config->get('integration_easysocial_notify_mentions')) {
+				return;
+			}
+
+			if (!$recipients) {
+				return;
+			}
+
+			$permalink = EDR::_('view=post&id=' . $post->id);
+
+			if ($post->isReply()) {
+				$permalink = EDR::_('view=post&id=' . $question->id) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+			}
+
+			$options = array('actor_id' => $post->user_id, 'uid' => $post->id, 'title' => JText::sprintf('COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_MENTIONS', $question->title), 'type' => 'discuss', 'url' => $permalink);
+
+			$rule = 'discuss.mentions';
 		}
 
 		if (empty($rule)) {
@@ -1042,6 +1078,10 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 	public function loadGroup($groupId)
 	{
+		if (!$this->exists()) {
+			return false;
+		}
+
 		$group = ES::group($groupId);
 
 		if ($group->id) {

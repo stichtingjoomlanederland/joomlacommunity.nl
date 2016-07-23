@@ -1,9 +1,0 @@
-[
-    {
-        "script": [
-            "ui/position",
-            "easing"
-        ],
-        "adapter": "Foundry"
-    }
-]

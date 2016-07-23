@@ -169,7 +169,7 @@ class EasyDiscussViewVotes extends EasyDiscussView
 							'title'	=> JText::sprintf('COM_EASYDISCUSS_VOTE_DOWN_REPLY', $post->title),
 							'cid' => $post->parent_id,
 							'type' => 'vote-down-reply',
-							'target' => $post->get('user_id'),
+							'target' => $post->user_id,
 							'author' => $this->my->id,
 							'permalink'	=> 'index.php?option=com_easydiscuss&view=post&id=' . $post->parent_id
 						));
@@ -291,4 +291,43 @@ class EasyDiscussViewVotes extends EasyDiscussView
 
 		return $this->ajax->send();
 	}
+
+	/**
+	 * Vote undo
+	 *
+	 * @since	4.0.6
+	 * @access	public
+	 */
+	public function undo()
+	{
+		$id = $this->input->get('id', '', 'int');
+
+		$post = ED::post($id);
+
+		// Get user's session id.
+		$session = JFactory::getSession();
+		$sessionId = $session->getId();
+		
+		$voteModel = ED::model('Votes');
+
+		// Check if the current vote session already different, mean he already perform undo action
+		$voteModifying = $voteModel->voteModifying($post->id, $this->my->id, $sessionId); 
+
+		if (!$voteModifying) {
+			$this->ajax->reject(JText::_('COM_EASYDISCUSS_UNDO_FAILED_MSG'));
+		}
+
+		// check if the user is it modifying the vote on the post
+		$voteModifying = $voteModel->undoVote($post->id, $this->my->id, $sessionId);
+
+		// Get the total votes.
+		$totalVotes = $voteModel->getTotalVotes($post->id);
+
+		// Success message
+		$successMsg = JText::_('COM_EASYDISCUSS_VOTE_UNDO_SUCCESS_MSG');
+
+		$this->ajax->resolve($totalVotes, $successMsg);
+
+		return $this->ajax->send();
+	}	
 }

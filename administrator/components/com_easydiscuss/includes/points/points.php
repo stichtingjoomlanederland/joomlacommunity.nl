@@ -18,6 +18,13 @@ class EasyDiscussPoints extends EasyDiscuss
 		// Assign points via EasySocial
 		ED::easysocial()->assignPoints($command, $userId, $post);
 
+		$config = ED::config();
+		
+		// If points is disabled, do not proceed
+		if (!$config->get('main_points')) {
+			return false;
+		}
+
 		if (!$userId) {
 			return false;
 		}

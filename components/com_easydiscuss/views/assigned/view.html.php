@@ -19,10 +19,12 @@ class EasyDiscussViewAssigned extends EasyDiscussView
 	{
 		// Ensure that the user is logged in
 		ED::requireLogin();
-		
+
 		ED::setPageTitle(JText::_('COM_EASYDISCUSS_PAGETITLE_ASSIGNED'));
 
-		$this->setPathway( JText::_('COM_EASYDISCUSS_BREADCRUMB_ASSIGNED'));
+		if (! EDR::isCurrentActiveMenu('assigned')) {
+			$this->setPathway( JText::_('COM_EASYDISCUSS_BREADCRUMB_ASSIGNED'));
+		}
 
 		if (!ED::isModerator()) {
 			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_YOU_ARE_NOT_ALLOWED_HERE'));
@@ -42,7 +44,7 @@ class EasyDiscussViewAssigned extends EasyDiscussView
 		// retrieve the assiged post
 		$posts = $model->getPosts($this->my->id);
 		$pagination = $model->getPagination();
-		
+
 		// format the post
 		$posts = ED::formatPost($posts);
 
@@ -59,7 +61,7 @@ class EasyDiscussViewAssigned extends EasyDiscussView
 		$assignPostData = array();
 
 		foreach ($assignedPostGraph->dates as $dateString) {
-			
+
 			// Normalize the date string first
 			$dateString = str_ireplace('/', '-', $dateString);
 			$date = ED::date($dateString);
@@ -94,7 +96,7 @@ class EasyDiscussViewAssigned extends EasyDiscussView
 		$totalAssignedData = json_encode($totalAssigned);
 
 		// Format the total resolved post to json data
-		$totalResolvedData = json_encode($totalResolved);	 
+		$totalResolvedData = json_encode($totalResolved);
 
 		// Format the total resolved post to json data
 		$completedPercentage = json_encode($completedPercentage);
@@ -112,7 +114,7 @@ class EasyDiscussViewAssigned extends EasyDiscussView
 		$this->set('posts', $posts);
 		$this->set('profile', $profile);
 		$this->set('badges', $badges);
-		$this->set('pagination', $pagination);	
+		$this->set('pagination', $pagination);
 
 		parent::display('assign/default');
 	}

@@ -116,6 +116,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<a href="javascript:void(0);" class="btn btn-default btn-xs" data-ed-post-move>
 			<?php echo JText::_('COM_EASYDISCUSS_MOVE_POST'); ?>
 		</a>
+		<a href="javascript:void(0);" class="btn btn-default btn-xs" data-ed-post-merge>
+			<?php echo JText::_('COM_EASYDISCUSS_MERGE_POST'); ?>
+		</a>		
 		<?php } ?>
 
 		<?php if ($post->canLock()) { ?>

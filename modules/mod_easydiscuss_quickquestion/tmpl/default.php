@@ -33,7 +33,7 @@ defined('_JEXEC') or die('Restricted access');
 						<input type="text" id="quick-question-title" name="title" placeholder="<?php echo JText::_('MOD_EASYDISCUSS_QUICKQUESTION_TITLE', true); ?>" class="form-control" />
 					</div>
 					<div class="form-group">
-						<textarea id="quick-question-content" name="content" class="form-control" placeholder="<?php echo JText::_('MOD_EASYDISCUSS_QUICKQUESTION_CONTENT', true); ?>"></textarea>
+						<textarea id="quick-question-content" name="dc_content" class="form-control" placeholder="<?php echo JText::_('MOD_EASYDISCUSS_QUICKQUESTION_CONTENT', true); ?>"></textarea>
 					</div>
 
 					<?php if ($captcha->enabled()) { ?>

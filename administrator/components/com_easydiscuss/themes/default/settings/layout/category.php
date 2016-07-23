@@ -112,6 +112,15 @@ defined('_JEXEC') or die('Restricted access');
 							<?php echo $this->html('form.boolean', 'layout_show_all_subcategories', $this->config->get('layout_show_all_subcategories'));?>
 						</div>
 					</div>
+
+                    <div class="form-group">
+                        <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_SINGLE_CATEGORY_POST_LIMIT'); ?>
+                        </div>
+                        <div class="col-md-7">
+                            <input type="text" name="layout_single_category_post_limit" value="<?php echo $this->config->get('layout_single_category_post_limit');?>" size="5" style="text-align:center;" class="form-control form-control-sm text-center" />
+                        </div>
+                    </div>
 				</div>
 			</div>
 		</div>

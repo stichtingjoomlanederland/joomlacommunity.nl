@@ -73,7 +73,7 @@ class EasyDiscussConversation extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function archive($userId = null)
 	{
@@ -97,7 +97,7 @@ class EasyDiscussConversation extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function canAccess($userId = null)
 	{
@@ -115,12 +115,12 @@ class EasyDiscussConversation extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getMessage($obj, $truncate = false)
 	{
 		$message = new EasyDiscussConversationMessage($obj);
-		
+
 		return $message;
 	}
 
@@ -130,7 +130,7 @@ class EasyDiscussConversation extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getMessages()
 	{
@@ -151,7 +151,7 @@ class EasyDiscussConversation extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getLastReplier()
 	{
@@ -173,7 +173,7 @@ class EasyDiscussConversation extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getLastMessage($userId = null, $intro = true)
 	{
@@ -209,7 +209,7 @@ class EasyDiscussConversation extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getParticipant()
 	{
@@ -219,7 +219,7 @@ class EasyDiscussConversation extends EasyDiscuss
 
 		$participant = ED::user($participantId);
 		$participant = $participant[0];
-		
+
 		return $participant;
 	}
 
@@ -271,7 +271,7 @@ class EasyDiscussConversation extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function delete($userId = null)
 	{
@@ -292,7 +292,7 @@ class EasyDiscussConversation extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function unread($userId = null)
 	{
@@ -311,7 +311,7 @@ class EasyDiscussConversation extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function create($authorId, $recipientId, $message)
 	{
@@ -325,7 +325,7 @@ class EasyDiscussConversation extends EasyDiscuss
 			$this->table->created = $currentDate;
 			$this->table->created_by = $authorId;
 		}
-		
+
 		$this->table->lastreplied = $currentDate;
 		$this->table->store();
 
@@ -334,7 +334,10 @@ class EasyDiscussConversation extends EasyDiscuss
 
 		// Add participant to this conversation.
 		$model = ED::model('Conversation');
-		$model->addParticipant($this->table->id, $recipientId, $authorId);
+
+		if (! $exists) {
+			$model->addParticipant($this->table->id, $recipientId, $authorId);
+		}
 
 		// Add message map so that recipient can view the message.
 		$model->addMessageMap($this->table->id ,$message->id, $recipientId, $authorId);
@@ -355,7 +358,7 @@ class EasyDiscussConversation extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function createMessage($authorId, $message)
 	{
@@ -387,7 +390,7 @@ class EasyDiscussConversation extends EasyDiscuss
 		$this->notify($result);
 
 		$reply = $this->getMessage($result);
-		
+
 		return $reply;
 	}
 
@@ -397,7 +400,7 @@ class EasyDiscussConversation extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function setRead($userId)
 	{
@@ -411,7 +414,7 @@ class EasyDiscussConversation extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getElapsedTime()
 	{
@@ -426,7 +429,7 @@ class EasyDiscussConversation extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getPermalink($xhtml = true)
 	{

@@ -50,9 +50,8 @@ defined('_JEXEC') or die('Unauthorized Access');
             <a href="<?php echo EDR::_('view=notifications'); ?>" class="popbox-dropdown__note pull-left">
                 <?php echo JText::_('COM_EASYDISCUSS_VIEW_ALL_NOTIFICATIONS'); ?>
             </a>
-
-            <a href="" class="popbox-dropdown__note pull-right">
-                <?php echo JText::_('COM_EASYDISCUSS_MARK_ALL_AS_READ'); ?>
+            <a href="javascript:void(0)" data-ed-notifications-read-all class="popbox-dropdown__note pull-right">
+                <?php echo Jtext::_('COM_EASYDISCUSS_MARK_ALL_AS_READ'); ?>
             </a>
         </div>
     <?php } else { ?>

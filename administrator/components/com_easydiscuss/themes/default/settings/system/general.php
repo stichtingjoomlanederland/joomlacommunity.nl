@@ -66,6 +66,14 @@ defined('_JEXEC') or die('Unauthorized Access');
                         <?php echo $this->html('form.boolean', 'system_ajax_index', $this->config->get('system_ajax_index')); ?>
                     </div>
                 </div>
+                <div class="form-group">
+                    <div class="col-md-7 control-label">
+                        <?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_MAIN_ERROR_REDIRECTION'); ?>
+                    </div>
+                    <div class="col-md-5">
+                        <?php echo $this->html('form.boolean', 'system_error_redirection', $this->config->get('system_error_redirection')); ?>
+                    </div>
+                </div>                 
             </div>
         </div>
 	</div>

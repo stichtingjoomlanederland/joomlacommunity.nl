@@ -45,8 +45,10 @@ class EasyDiscussViewPost extends EasyDiscussView
 		$post = ED::post($id);
 
 		// Ensure that the viewer can view the post
-		if (!$post->canView($this->my->id)) {
-			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_SYSTEM_POST_NOT_FOUND'));
+		if (!$post->canView($this->my->id) || !$post->isPublished()) {
+
+			// Set a proper redirection according to the settings.
+			ED::getErrorRedirection(JText::_('COM_EASYDISCUSS_SYSTEM_POST_NOT_FOUND'));
 		}
 
 		// Determine if user are allowed to view the discussion item that belong to another cluster.
@@ -54,24 +56,29 @@ class EasyDiscussViewPost extends EasyDiscussView
 			$easysocial = ED::easysocial();
 
 			if (!$easysocial->isGroupAppExists()) {
-				return JError::raiseError(404, JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
+				ED::getErrorRedirection(JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
 			}
 
 			$cluster = $easysocial->getCluster($post->cluster_id, $post->getClusterType());
 
 			if (!$cluster->canViewItem()) {
-				return JError::raiseError(404, JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
+				ED::getErrorRedirection(JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
 			}
 		}
 
 		// Get the posts' category
 		$category = $post->getCategory();
 
-		// Add pathway for category here.
-		ED::breadcrumbs()->insertCategory($category);
-
 		// Set breadcrumbs for this discussion.
-		$this->setPathway($this->escape($post->getTitle()));
+		if (! EDR::isCurrentActiveMenu('post', $post->id)) {
+
+			// Add pathway for category here.
+			if (! EDR::isCurrentActiveMenu('forums', $category->id, 'category_id')) {
+				ED::breadcrumbs()->insertCategory($category);
+			}
+
+			$this->setPathway($this->escape($post->getTitle()));
+		}
 
 		// Mark as viewed for notifications.
 		$this->logView();
@@ -108,6 +115,11 @@ class EasyDiscussViewPost extends EasyDiscussView
 		$replies = $post->getReplies(true, $limitReplies, $sort, $limitstart);
 
 		$emptyMessage = JText::_('COM_EASYDISCUSS_NO_REPLIES_YET');
+
+		// Display proper empty message if the user are not allowed to reply.
+		if (!$post->canReply()) {
+			$emptyMessage = JText::_('COM_EASYDISCUSS_POST_REPLY_NOT_ALLOWED');
+		}
 
 		// Display proper empty message if the user are not allowed to view replies.
 		if (empty($replies) && $post->getTotalReplies() > 0) {
@@ -154,6 +166,11 @@ class EasyDiscussViewPost extends EasyDiscussView
 		// Get the poll of the post
 		$poll = $post->getPoll();
 
+		// Get site details that are associated with the post.
+		$post->siteDetails = $post->getSiteDetails();
+
+		$navigation = $post->getPostNavigation();
+
 		$this->set('poll', $poll);
 		$this->set('pagination', $pagination);
 		$this->set('post', $post);
@@ -169,6 +186,8 @@ class EasyDiscussViewPost extends EasyDiscussView
 		$this->set('date', $date);
 		$this->set('socialbuttons', $socialbuttons);
 		$this->set('emptyMessage', $emptyMessage);
+
+		$this->set('navigation', $navigation);
 
 		// If this post is password protected, we need to display the form to enter password
 		if ($post->isProtected() && !ED::isSiteAdmin() && $this->my->id != $owner) {
@@ -204,12 +223,11 @@ class EasyDiscussViewPost extends EasyDiscussView
 
 		$threadUrl = EDR::_('index.php?option=com_easydiscuss&view=post&id=' . $post->parent_id, false);
 
-		if (! $post->isReply()) {
-			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_SYSTEM_POST_NOT_FOUND'));
+		if (!$post->isReply()) {
+			ED::getErrorRedirection(JText::_('COM_EASYDISCUSS_SYSTEM_POST_NOT_FOUND'));
 		}
 
-
-		if (! $post->canEdit()) {
+		if (!$post->canEdit()) {
 			return $this->app->redirect($threadUrl, JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
 		}
 
@@ -221,7 +239,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 
 		// Set the breadcrumbs.
 		ED::setPageTitle($title);
-		// $this->setPathway('COM_EASYDISCUSS_BREADCRUMBS_ASK');
 
 		$tagsModel = ED::model('PostsTags');
 		$post->tags	= $tagsModel->getPostTags($post->id);
@@ -344,5 +361,10 @@ class EasyDiscussViewPost extends EasyDiscussView
 		// Set canonical link to avoid URL duplication.
 		$url = EDR::getPostRoute($post->id);
 		$this->doc->addHeadLink($this->escape($url), 'canonical', 'rel');
+
+		// Add opengraph tags
+		if ($this->config->get('integration_facebook_opengraph')) {
+			ED::facebook()->addOpenGraph($post);
+		}
 	}
 }

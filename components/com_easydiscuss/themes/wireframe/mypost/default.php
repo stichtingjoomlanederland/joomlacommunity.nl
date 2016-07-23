@@ -24,9 +24,13 @@ defined('_JEXEC') or die('Restricted access');
 
                         <div class="o-flag__body">
                             <a href="<?php echo $profile->getPermalink();?>" class="ed-user-name t-lg-mb--sm"><?php echo $profile->getName(); ?></a>
+
+                            <?php if( $this->config->get('main_ranking')){ ?>
                             <div class="ed-rank-bar t-lg-mb--sm">
                                 <div class="ed-rank-bar__progress" style="width: <?php echo ED::getUserRankScore($profile->id); ?>%"></div>
                             </div>
+                            <?php } ?>
+
                             <div class="ed-user-rank t-lg-mb--sm o-label o-label--<?php echo $profile->getRoleLabelClassname()?>">
                                 <?php echo $profile->getRole(); ?>
                             </div>
@@ -80,12 +84,14 @@ defined('_JEXEC') or die('Restricted access');
                         </div>
                         <?php } ?>
 
+                        <?php if ($this->config->get('main_points')) { ?>
                         <div class="ed-statistic__item">
                             <a href="<?php echo EDR::_('view=points&id='.$profile->id); ?>">
                             <span class="ed-statistic__item-count"> <?php echo $profile->getPoints(); ?></span>
                             <span><?php echo JText::_('COM_EASYDISCUSS_POINTS'); ?></span>
                             </a>
                         </div>
+                        <?php } ?>
                         
                     </div>        
                 </div>

@@ -18,12 +18,12 @@ class EasyDiscussViewSettings extends EasyDiscussAdminView
 {
 	public function testParser()
 	{
-		$server = $this->input->get('server', '');
-		$port = $this->input->get('port', '');
-		$service = $this->input->get('service', '');
-		$ssl = $this->input->get('ssl', '');
-		$user = $this->input->get('user', '');
-		$pass = $this->input->get('pass', '');
+		$server = $this->input->get('server', '', 'default');
+		$port = $this->input->get('port', '', 'default');
+		$service = $this->input->get('service', '', 'default');
+		$ssl = $this->input->get('ssl', true, 'bool');
+		$user = $this->input->get('user', '', 'default');
+		$pass = $this->input->get('pass', '', 'default');
 		$validate = $this->input->get('validate', '');
 
 		// Variable check

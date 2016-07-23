@@ -25,18 +25,26 @@ class EasyDiscussViewForums extends EasyDiscussView
 	 */
 	public function display($tpl = null)
 	{
+		$isLandingPage = true;
+
 		// If the categoryId is provided, this means that we're in the inner category.
 		$categoryId = $this->input->get('category_id', 0, 'int');
+
 		$registry = new JRegistry();
 
 		// Try to detect if there's any category id being set in the menu parameter.
 		$activeMenu = $this->app->getMenu()->getActive();
 
+		// Temporary fix for the system always get the ED frontpage menu item category_id
+		$activeMenuLink = 'index.php?option=com_easydiscuss&view=forums';
+
+		// TODO: assign multiple category from the forum menu item
+
 		// If there is an active menu, render the params
 		if ($activeMenu && !$categoryId) {
 			$registry->loadString($activeMenu->params);
 
-			if ($registry->get('category_id')) {
+			if ($registry->get('category_id') && ($activeMenu->link == $activeMenuLink)) {
 				$categoryId	= $registry->get('category_id');
 			}
 		}
@@ -50,7 +58,7 @@ class EasyDiscussViewForums extends EasyDiscussView
 		$this->logView();
 
 		// Set page title.
-		ED::setPageTitle();
+		ED::setPageTitle('COM_EASYDISCUSS_TITLE_FORUMS');
 
 		// Set the meta of the page.
 		ED::setMeta();
@@ -65,17 +73,24 @@ class EasyDiscussViewForums extends EasyDiscussView
 		// We'll need to include this parentCategory as well.
 		$parentCategory = array();
 		if ($categoryId) {
+			$isLandingPage = false;
 			$parentCategory = is_array($categoryId) ? $categoryId : array($categoryId);
 		}
 
+		$catLimits = $this->config->get('layout_categories_limit', $limit);
 		$options = array(
 					'id_only' => true,
 					'pagination' => true,
-					'limit' => $this->config->get('layout_categories_limit', $limit)
+					'withNoPosts' => $this->config->get('layout_categories_with_nopost', 0),
+					'limit' => $catLimits
 					);
 
 		// Get a list of parent categories
 		$parents = $model->getParentCategoriesOnly($categoryId, $options);
+
+		// get category pagination here
+		$pagination = $model->getPagination();
+
 
 		// Join parent with subcategories
 		$parents = array_merge($parentCategory, $parents);
@@ -97,6 +112,8 @@ class EasyDiscussViewForums extends EasyDiscussView
 		ED::post($posts);
 
 		$threads = array();
+		$temps = array();
+
 
 		if ($posts) {
 
@@ -104,23 +121,48 @@ class EasyDiscussViewForums extends EasyDiscussView
 			foreach ($posts as $row) {
 				// Load it into our post library
 				$post = ED::post($row);
-
 				$lists[] = $post;
 			}
 
 			// Grouping the posts based on categories.
 			foreach ($lists as $post) {
 
-				if (!isset($threads[$post->cat_parent_id])) {
-					$thread = new stdClass();
-					$thread->category = ED::category($post->cat_parent_id);
-					$thread->posts = array();
+				// if (!isset($threads[$post->cat_parent_id])) {
+				// 	$thread = new stdClass();
+				// 	$thread->category = ED::category($post->cat_parent_id);
+				// 	$thread->posts = array();
 
-					$threads[$post->cat_parent_id] = $thread;
-				}
+				// 	$threads[$post->cat_parent_id] = $thread;
+				// }
 
-				$threads[$post->cat_parent_id]->posts[] = $post;
+				$temps[$post->cat_parent_id][] = $post;
 			}
+		}
+
+		// now we have gather the posts. lets put them into the parents array so that the ordering of the categories will be
+		// remain.
+		foreach($parents as $parent) {
+
+			$thread = new stdClass();
+			$thread->category = ED::category($parent);
+			$thread->posts = array();
+			$thread->childs = array();
+
+			if (isset($temps[$parent])) {
+				$thread->posts = $temps[$parent];
+			}
+
+			if ($isLandingPage) {
+				$childs = ED::category()->getChildCategories($parent, true);
+				if ($childs) {
+					foreach($childs as $item) {
+						$c = ED::category($item);
+						$thread->childs[] = $c;
+					}
+				}
+			}
+
+			$threads[$parent] = $thread;
 		}
 
 		// Get the current active category
@@ -131,30 +173,46 @@ class EasyDiscussViewForums extends EasyDiscussView
 			$activeCategory = ED::category($categoryId);
 			$breadcrumbs = $activeCategory->getBreadcrumbs();
 
-			if ($breadcrumbs) {
+			if (! EDR::isCurrentActiveMenu('forums', $activeCategory->id, 'category_id') && $breadcrumbs) {
 				foreach ($breadcrumbs as $bdc) {
 					$link = $bdc->link;
-
 					if ($bdc->id == $activeCategory->id) {
 						$link = '';
 					}
-
 					$this->setPathway($bdc->title, $link);
 				}
 			}
-
 			ED::setPageTitle($activeCategory->title);
+
+
+			if ($activeCategory->isContainer()) {
+				if (isset($threads[$activeCategory->id])) {
+					// since the active category is a container, it will not have any posts. let remove the array element.
+					unset($threads[$activeCategory->id]);
+				}
+			}
 		}
-		
-		// Get the pagination
-		$pagination = $model->getPagination();
+
+		// get cats immediate childs
+		$childs = ED::category()->getChildCategories($categoryId, true);
+
+
+		$subcategories = array();
+
+		if ($childs) {
+			foreach($childs as $item) {
+				$c = ED::category($item);
+				$subcategories[] = $c;
+			}
+		}
 
 		$this->set('listing', false);
 		$this->set('breadcrumbs', $breadcrumbs);
 		$this->set('activeCategory', $activeCategory);
 		$this->set('pagination', $pagination);
 		$this->set('threads', $threads);
-		// $this->set('includeChilds', true);
+		$this->set('childs', $subcategories);
+		$this->set('isLandingPage', $isLandingPage);
 
 		parent::display('forums/default');
 	}

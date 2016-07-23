@@ -19,7 +19,7 @@ defined('_JEXEC') or die('Restricted access');
                 <?php echo JText::_('COM_EASYDISCUSS_EMAILS_NEW_DISCUSSION_REQUIRE_MODERATION') ?>
             </div>
             <div style="font-size:12px; color: #798796;font-weight:normal">
-                <?php echo JText::_('COM_EASYDISCUSS_EMAILTEMPLATE_CREATED_NEW_DISCUSSION'); ?>
+                <?php echo JText::sprintf('COM_EASYDISCUSS_EMAILTEMPLATE_CREATED_NEW_DISCUSSION', $postAuthor, $postTitle, $postCategory); ?>
             </div>
         </div>
     </td>
@@ -28,9 +28,6 @@ defined('_JEXEC') or die('Restricted access');
 <!-- content section -->
 <tr>
     <td style="text-align: center;font-size:12px;color:#888">
-        <div style="margin:30px auto;text-align:center;display:block">
-            <img src="/media/com_easydiscuss/images/spacer.gif" alt="<?php echo JText::_( 'divider' );?>" />
-        </div>
         <table align="center" border="0" cellpadding="0" cellspacing="0" style="table-layout:fixed;width:100%;">
         <tr>
         <td align="center">
@@ -63,7 +60,7 @@ defined('_JEXEC') or die('Restricted access');
 								<ul class="thumbnails">
 								<?php foreach( $attachments as $attachment ) { ?>
 									<li class="attachment-item thumbnail thumbnail-small attachment-type-<?php echo $attachment->attachmentType; ?>" id="attachment-<?php echo $attachment->id;?>" data-attachment-item>
-										<?php echo $attachment->toHTML( true );?>
+                                        <?php echo $attachment->html(true);?>
 									</li>
 								<?php } ?>
 								</ul>

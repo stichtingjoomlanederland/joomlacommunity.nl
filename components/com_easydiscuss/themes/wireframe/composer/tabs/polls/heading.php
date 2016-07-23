@@ -11,7 +11,7 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-if (($post->isQuestion() && !$this->config->get('main_polls')) || ($operation == 'replying' && !$this->config->get('main_polls_replies'))) {
+if (($post->isQuestion() && !$this->config->get('main_polls')) || (($operation == 'replying' || $post->isReply()) && !$this->config->get('main_polls_replies'))) {
     return;
 }
 ?>

@@ -404,6 +404,11 @@ class EasyDiscussSearchItem extends EasyDiscuss
 
         $content = $this->title;
         if (! $this->isCategory()) {
+            if ($this->isReply()) {
+                $title = $this->_object->getParent()->getTitle();
+                $this->title = JText::_('COM_EASYDISCUSS_SEARCH_REPLY_TITLE_PREFIX') . $title;
+            }
+
             $content = ED::badwords()->filter($this->title);
         }
 

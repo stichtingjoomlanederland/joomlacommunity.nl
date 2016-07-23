@@ -52,11 +52,15 @@ class EasyDiscussRouter extends EasyDiscuss
 		// Forums view
 		if (isset($query['view']) && $query['view'] == 'forums') {
 
-            // if ($active->query['view'] != 'forums') {
-            //     $segments[] = $query['view'];
-            // }
+			$model = ED::model('Menu');
+			$forumsMenu = EDR::getMenus('forums');
 
-            $segments[] = $query['view'];
+			// If there are no menu items that are associated with the view,
+			// we need to append the view into the segments.
+			if (!$forumsMenu) {
+				$segments[] = $query['view'];
+			}
+
 			unset($query['view']);
 
 			// It may contain a category id
@@ -92,10 +96,16 @@ class EasyDiscussRouter extends EasyDiscuss
 
 			// If use the category based permalink, we need to generate the category alias
 			if ($main_sef == 'category') {
-				$aliases = EDR::getCategoryAliases($post->getCategory()->id);
+				$lang = isset($query['lang']) ? $query['lang'] : null;
 
-				foreach ($aliases as $alias) {
-					$segments[]	= $alias;
+				// first we check if there is a menu item created for this catgory or not.
+				$menu = EDR::getMenus('categories', 'listings', $post->getCategory()->id, $lang);
+				if (! $menu) {
+					$aliases = EDR::getCategoryAliases($post->getCategory()->id);
+
+					foreach ($aliases as $alias) {
+						$segments[]	= $alias;
+					}
 				}
 			}
 
@@ -173,15 +183,17 @@ class EasyDiscussRouter extends EasyDiscuss
 			unset( $query['view'] );
 
 			if (isset($query['group_id']) && $query['group_id']) {
-				$alias = ED::easysocial()->loadGroup($query['group_id'])->getAlias();
 
-				$segments[] = $alias;
+				$easysocial = ED::easysocial();
+				$group = $easysocial->loadGroup($query['group_id']);
 
-				unset($query['group_id']);
+				if ($group) {
+					$alias = $group->getAlias();
+					$segments[] = $alias;
+
+					unset($query['group_id']);
+				}
 			}
-
-			// in ED 4.0, we no longer translate category in ask page.
-
 		}
 
 		// Points view
@@ -340,6 +352,12 @@ class EasyDiscussRouter extends EasyDiscuss
 			}
 		}
 
+		// Login view
+		if (isset($query['view']) && $query['view'] == 'login') {
+			$segments[] = $query['view'];
+			unset($query['view']);
+		}
+
 		if (isset($query['filter'])) {
 			$segments[] = $query['filter'];
 			unset( $query['filter'] );
@@ -369,29 +387,57 @@ class EasyDiscussRouter extends EasyDiscuss
 		$views = array('attachments', 'categories', 'index', 'forums','conversation',
 						'post', 'profile', 'search', 'tag', 'tags', 'users', 'notifications',
 						'badges', 'ask', 'subscription', 'featured', 'favourites', 'assigned',
-						'points','dashboard', 'mypost', 'groups');
+						'points','dashboard', 'mypost', 'groups', 'login');
 
 		$repliesSorting = array('oldest', 'latest', 'voted', 'likes');
+
+		// Re-assign the correct item route to the segments if the item route is exists within the view.
+		// This is to avoid the link query to be treated as 'post' view all the times when menu item is exist. #1927
+		if (in_array($item->route, $views) && $item->component == 'com_easydiscuss') {
+			if (isset($segments[1])) {
+				$segments[2] = $segments[1];
+			}
+
+			$segments[1] = $segments[0];
+			$segments[0] = $item->route;
+		}		
 
 		// If user chooses to use the simple sef setup, we need to add the proper view
 		if ($config->get('main_sef') == 'simple' || $config->get('main_sef') == 'category') {
 
+			$numSegments = count($segments);		
+
 			// we need to identify if this link is a post link or not.
 			if (!in_array($segments[0], $views)) {
-				if (count($segments) >= 2) {
 
-					if (in_array($segments[count($segments) - 1], $repliesSorting)) {
-						// this is a post.
-						array_unshift($segments, 'post');
-					} else {
-						// we just assign the first segment to be a post
-						$segments[0] = 'post';
-					}
+				$model = ED::model('Menu');
+				$catAliases = $model->getCategoryPermalinks();
+                $testItem = JString::str_ireplace(':', '-', $segments[$numSegments - 1]);
 
-				} else {
-					array_unshift($segments, 'post');
-				}
+                if (in_array($testItem, $catAliases)) {
+                   array_unshift($segments, 'forums');
+                } else {
+
+                    if ($numSegments >= 2) {
+                        if (in_array($segments[count($segments) - 1], $repliesSorting)) {
+                            // this is a post.
+                            array_unshift($segments, 'post');
+                        } else {
+                            // we just assign the first segment to be a post
+                            $segments[0] = 'post';
+                        }
+                    } else {
+                        // tthis is a post page
+                        array_unshift($segments, 'post');
+                    }
+
+                }
 			}
+		}
+
+		// Login View
+		if (isset($segments[0]) && $segments[0] == 'login') {
+			$vars['view'] = $segments[0];
 		}
 
 		// Post View
@@ -424,7 +470,7 @@ class EasyDiscussRouter extends EasyDiscuss
 
 				if (isset($segments[$idx])) {
 					$alias = $segments[$idx];
-					$postId = EDR::decodeAlias($alias, 'Post');					
+					$postId = EDR::decodeAlias($alias, 'Post');
 				}
 			}
 
@@ -663,8 +709,6 @@ class EasyDiscussRouter extends EasyDiscuss
 				$alias = $segments[$count-1];
 				$vars['group_id'] = $easysocial->decodeAlias($alias);
 			}
-
-			// in ED 4.0, we no longer translate category
 		}
 
 		if (isset($segments[0]) && $segments[0] == 'search') {

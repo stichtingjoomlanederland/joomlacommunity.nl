@@ -17,12 +17,12 @@ defined('_JEXEC') or die('Restricted access');
 	    <textarea name="comment" id="comment" cols="30" rows="5" class="form-control" data-ed-comment-message></textarea>
 	    
 	    <div class="o-row t-lg-mt--md">
-	    	<?php if ($this->config->get('main_comment_tnc')) { ?>
+	    	<?php if ($this->config->get('main_tnc_comment')) { ?>
 	        <div class="pull-left">
 	            <div class="o- t-lg-mb--lg">
 	                
 	                <div class="o-checkbox o-checkbox--inline t-mr--md">
-	                    <input type="checkbox" name="tnc-<?php echo $post->id;?>" id="tnc-<?php echo $post->id;?>" data-ed-comment-tnc-checkbox />
+	                    <input type="checkbox" name="tnc-<?php echo $post->id;?>" id="tnc-<?php echo $post->id;?>" data-ed-comment-tnc-checkbox <?php echo ED::tnc()->hasAcceptedTnc('comment') ? 'checked="checked"' : '' ?>/>
 	                    <label for="tnc-<?php echo $post->id;?>">
                         	<?php echo JText::_('COM_EASYDISCUSS_I_HAVE_READ_AND_AGREED');?> 
                         	<a href="javascript:void(0);" style="text-decoration: underline;" data-ed-comment-tnc-link>

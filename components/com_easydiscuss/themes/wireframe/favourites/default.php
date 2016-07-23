@@ -137,7 +137,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 		        </div>
         	<?php } ?>
 		<?php } ?>
-	</div>
+	</div>    
 
     <div class="t-lg-mt--xl">
         <div class="o-empty">
@@ -147,4 +147,10 @@ defined('_JEXEC') or die('Unauthorized Access');
             </div>
         </div>
     </div>
+
+    <?php if ($pagination) { ?>
+        <div class="" data-profile-pagination>
+            <?php echo $pagination;?>
+        </div>
+    <?php } ?>    
 </div>

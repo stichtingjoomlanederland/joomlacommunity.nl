@@ -26,9 +26,11 @@ class EasyDiscussViewCategories extends EasyDiscussView
 	public function display($tmpl = null)
 	{
 		// Set the pathway
-		$this->setPathway(JText::_('COM_EASYDISCUSS_BREADCRUMBS_CATEGORIES'));
+		if (! EDR::isCurrentActiveMenu('categories')) {
+			$this->setPathway(JText::_('COM_EASYDISCUSS_BREADCRUMBS_CATEGORIES'));
+		}
 
-		ED::setPageTitle(JText::_('COM_EASYDISCUSS_CATEGORIES_TITLE'));
+		ED::setPageTitle('COM_EASYDISCUSS_CATEGORIES_TITLE');
 
 		// Set the meta for the page
 		ED::setMeta();
@@ -120,7 +122,7 @@ class EasyDiscussViewCategories extends EasyDiscussView
 						'limitstart' => $this->input->get('limitstart', 0),
 						'filter' => $registry->get('filter'),
 						'category' => $categoryId,
-						'limit' => $this->config->get('layout_post_category_limit', $limit),
+						'limit' => $this->config->get('layout_single_category_post_limit', $limit),
 						'userId' => $this->my->id,
 						'includeChilds' => false
 					);
@@ -157,7 +159,8 @@ class EasyDiscussViewCategories extends EasyDiscussView
 		$activeCategory = ED::category($categoryId);
 		$breadcrumbs = $activeCategory->getBreadcrumbs();
 
-		if ($breadcrumbs) {
+		// setthing pathway
+		if (! EDR::isCurrentActiveMenu('categories', $activeCategory->id, 'category_id') && $breadcrumbs) {
 			foreach ($breadcrumbs as $bdc) {
 				$this->setPathway($bdc->title, $bdc->link);
 			}

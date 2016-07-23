@@ -17,7 +17,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	        <?php echo $this->html('table.search', 'search', $search); ?>
 	    </div>
 	    <div class="form-group">
-	    	<?php echo $this->html('table.filter', 'filter_state', $filter, array('P' => 'COM_EASYDISCUSS_PUBLISHED', 'U' => 'COM_EASYDISCUSS_UNPUBLISHED', 'A' => 'COM_EASYDISCUSS_PENDING')); ?>
+	    	<?php echo $this->html('table.filter', 'filter_state', $filter, array('published' => 'COM_EASYDISCUSS_PUBLISHED', 'unpublished' => 'COM_EASYDISCUSS_UNPUBLISHED')); ?>
 	    	<?php echo $categoryFilter; ?>
 	    </div>
 	    <div class="form-group">
@@ -35,35 +35,33 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<td style="text-align:left;">
 						<?php echo JHTML::_('grid.sort', 'Title', 'a.title', $orderDirection, $order); ?>
 					</td>
-					<td width="10%" class="center">
+					<td width="15%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_CATEGORY'); ?>
 					</td>
-					<td width="1%" class="center">
+					<td width="5%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_FEATURED'); ?>
 					</td>
-					<td width="1%" class="center">
+					<td width="5%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_PUBLISHED'); ?>
 					</td>
 
-					<?php if(empty($parentId)) { ?>
-					<td width="5%" class="center">
+					<td width="1%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_REPLIES'); ?>
 					</th>
-					<?php } ?>
 
-					<td width="4%" class="center">
+					<td width="1%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_HITS');?>
 					</th>
-					<td width="4%" class="center">
+					<td width="1%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_POSTS_VOTES'); ?>
 					</th>
-					<td width="10%" class="center">
+					<td width="10%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_USER'); ?>
 					</th>
-					<td width="15%" class="center">
+					<td width="10%" class="text-center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_DATE'), 'a.created', $orderDirection, $order); ?>
 					</th>
-					<td width="1%" class="center">
+					<td width="1%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_COLUMN_ID');?>
 					</th>
 				</tr>
@@ -102,7 +100,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					</td>
 
 					<td class="center">
-						<a href="<?php echo JRoute::_('index.php?option=com_easydiscuss&view=category&catid=' . $post->category->id); ?>">
+						<a href="<?php echo JRoute::_('index.php?option=com_easydiscuss&view=categories&layout=form&id=' . $post->category->id); ?>">
 							<?php echo $this->escape($post->category->title);?>
 						</a>
 					</td>
@@ -114,20 +112,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<?php echo $this->html('table.publish', $post, $i-1); ?>
 					</td>
 
-					<?php if (!$parentId) { ?>
 					<td class="center">
-						<?php if ($post->cnt > 0) { ?>
-							<a href="<?php echo JRoute::_('index.php?option=com_easydiscuss&view=posts&pid=' . $post->id); ?>">
-								<?php echo $post->cnt; ?>
-								<?php if ($post->pendingcnt > 0) : ?>
-									( <?php echo ED::string()->getNoun('COM_EASYDISCUSS_POSTS_PENDING_REPLY', $post->pendingcnt, true); ?> )
-								<?php endif; ?>
-							</a>
-						<?php } else { ?>
-							<?php echo $post->cnt; ?>
-						<?php } ?>
+						<?php echo $post->cnt; ?>
 					</td>
-					<?php } ?>
 
 					<td class="center">
 						<?php echo $post->hits; ?>
@@ -156,7 +143,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php } ?>
 			<?php } else { ?>
 				<tr>
-					<td colspan="12" class="center">
+					<td colspan="12" class="center empty">
 						<?php echo JText::_('COM_EASYDISCUSS_NO_DISCUSSIONS_YET'); ?>
 					</td>
 				</tr>
@@ -174,10 +161,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 		</table>
 	</div>
 
+	<input type="hidden" name="from" value="questions" />
 	<input type="hidden" name="move_category" value="" />
 	<input type="hidden" name="filter_order" value="<?php echo $order; ?>" />
 	<input type="hidden" name="filter_order_Dir" value="<?php echo $orderDirection; ?>" />
-	<input type="hidden" name="pid" value="<?php echo $parentId; ?>" />
 	
 	<?php echo $this->html('form.hidden', 'posts', 'posts'); ?>
 </form>

@@ -38,7 +38,7 @@ class EasyDiscussViewAsk extends EasyDiscussView
 		if (!$editing) {
 			$this->getSessionData($post);
 		}
-		
+
 		// If caller passed in a category id, we need to select the category for them
 		$categoryId = $this->input->get('category', $post->category_id, 'int');
 		$category = ED::category($categoryId);
@@ -66,7 +66,10 @@ class EasyDiscussViewAsk extends EasyDiscussView
 
 		// Set the breadcrumbs.
 		ED::setPageTitle($title);
-		$this->setPathway('COM_EASYDISCUSS_BREADCRUMBS_ASK');
+
+		if (! EDR::isCurrentActiveMenu('ask')) {
+			$this->setPathway('COM_EASYDISCUSS_BREADCRUMBS_ASK');
+		}
 
 		if ($editing) {
 			$isModerator = ED::moderator()->isModerator($post->category_id);
@@ -168,11 +171,14 @@ class EasyDiscussViewAsk extends EasyDiscussView
 
 		// Get post priorities
 		$priorities = array();
-		
+
 		if ($this->config->get('post_priority')) {
 			$prioritiesModel = ED::model('Priorities');
 			$priorities = $prioritiesModel->getPriorities();
 		}
+
+		// Get minimum requirement for title.
+		$minimumTitle = $this->config->get('antispam_minimum_title');
 
 		// Determines if captcha should be enabled
 		$captcha = ED::captcha();
@@ -184,6 +190,7 @@ class EasyDiscussViewAsk extends EasyDiscussView
 			$cancel = $post->getPermalink();
 		}
 
+		$this->set('minimumTitle', $minimumTitle);
 		$this->set('cancel', $cancel);
 		$this->set('post', $post);
 		$this->set('categories', $categories);

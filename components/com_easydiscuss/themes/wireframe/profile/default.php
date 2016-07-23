@@ -23,9 +23,13 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                         <div class="o-flag__body">
                             <a href="<?php echo $profile->getPermalink();?>" class="ed-user-name t-lg-mb--sm"><?php echo $profile->getName(); ?></a>
+                            
+                            <?php if( $this->config->get('main_ranking')){ ?>
                             <div class="ed-rank-bar t-lg-mb--sm">
                                 <div class="ed-rank-bar__progress" style="width: <?php echo ED::getUserRankScore($profile->id); ?>%"></div>
                             </div>
+                            <?php } ?>
+                            
                             <div class="ed-user-rank t-lg-mb--sm o-label o-label--<?php echo $profile->getRoleLabelClassname()?>">
                                 <?php echo $profile->getRole(); ?>
                             </div>
@@ -68,7 +72,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <div class="ed-statistic pull-right">
                         <div class="ed-statistic__item">
                             <a href="<?php echo EDR::_('view=profile&viewtype=replies&id='. $profile->id); ?>">
-                            <span class="ed-statistic__item-count"><?php echo $profile->getNumTopicAnswered(); ?></span>
+                            <span class="ed-statistic__item-count"><?php echo $profile->getTotalReplies(); ?></span>
                             <span><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_REPLIES');?></span>
                             </a>
                         </div>
@@ -87,12 +91,14 @@ defined('_JEXEC') or die('Unauthorized Access');
                         </div>
                         <?php } ?>
 
+                        <?php if ($this->config->get('main_points')) { ?>
                         <div class="ed-statistic__item">
                             <a href="<?php echo EDR::_('view=points&id='.$profile->id); ?>">
                             <span class="ed-statistic__item-count"> <?php echo $profile->getPoints(); ?></span>
                             <span><?php echo JText::_('COM_EASYDISCUSS_POINTS'); ?></span>
                             </a>
                         </div>
+                        <?php } ?>
 
                         <?php echo $this->html('user.pm', $profile->id, 'list'); ?>
                     </div>
@@ -100,11 +106,14 @@ defined('_JEXEC') or die('Unauthorized Access');
             </div>
         </div>
 
+        <?php if ($this->config->get('main_signature_visibility') || $this->config->get('main_description_visibility')) { ?>
         <div class="ed-user-profile__bd <?php echo !$profile->getDescription() && !$profile->getSignature()  ? ' t-lg-p--no' : '';?>">
 
+            <?php if ($this->config->get('main_description_visibility')) { ?>
             <div class="ed-profile__bio-desp">
                 <?php echo $profile->getDescription(); ?>
             </div>
+            <?php } ?>
 
             <?php if ($this->config->get('main_signature_visibility')) { ?>
             <div class="ed-profile__bio-signature">
@@ -113,6 +122,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             <?php } ?>
             
         </div>
+        <?php } ?>
 
         <div class="ed-user-profile__ft">
         <?php if ($profile->latitude && $profile->longitude) { ?>
@@ -133,9 +143,11 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <li data-profile-tab data-filter-type="assigned" <?php echo ($viewType == 'assigned')? 'class="active"' : '' ?>><a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_ASSIGNED');?> (<?php echo $profile->getTotalAssigned(); ?>)</a></li>
                     <li data-profile-tab data-filter-type="replies" <?php echo ($viewType == 'replies')? 'class="active"' : '' ?>><a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_REPLIES');?> (<?php echo $profile->getTotalReplies(); ?>)</a></li>
                     <li class="ed-profile-container__side-divider"></li>
+                    
                     <?php if ($easyblogExists) { ?>
                     <li data-profile-tab data-filter-type="easyblog" <?php echo ($viewType == 'easyblog')? 'class="active"' : '' ?>><a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_EASYBLOG');?> (<?php echo $blogCount; ?>)</a></li>
                     <?php } ?>
+                    
                     <?php if ($komentoExists) { ?>
                     <li data-profile-tab data-filter-type="komento" <?php echo ($viewType == 'komento')? 'class="active"' : '' ?>><a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_KOMENTO');?> (<?php echo $commentCount; ?>)</a></li>
                     <?php } ?>

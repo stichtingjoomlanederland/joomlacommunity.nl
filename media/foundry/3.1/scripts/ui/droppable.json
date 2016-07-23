@@ -1,8 +1,0 @@
-[
-    {
-        "script": [
-            "ui/draggable"
-        ],
-        "adapter": "Foundry"
-    }
-]

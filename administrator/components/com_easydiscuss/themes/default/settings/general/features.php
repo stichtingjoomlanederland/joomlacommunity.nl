@@ -124,6 +124,66 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
 			</div>
 		</div>
+
+		<div class="panel">
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_TNC'); ?>
+
+			<div class="panel-body">
+				<div class="form-horizontal">
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_TNC_QUESTION'); ?>
+						</div>
+						<div class="col-md-7">
+							<?php echo $this->html('form.boolean', 'main_tnc_question', $this->config->get('main_tnc_question')); ?>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_TNC_REPLY'); ?>
+						</div>
+						<div class="col-md-7">
+							<?php echo $this->html('form.boolean', 'main_tnc_reply', $this->config->get('main_tnc_reply')); ?>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_TNC_COMMENT'); ?>
+						</div>
+						<div class="col-md-7">
+							<?php echo $this->html('form.boolean', 'main_tnc_comment', $this->config->get('main_tnc_comment')); ?>
+						</div>
+					</div>										
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_TNC_REMEMBER_SELECTION'); ?>
+						</div>
+						<div class="col-md-7">
+							<?php echo $this->html('form.boolean', 'main_tnc_remember', $this->config->get('main_tnc_remember')); ?>
+						</div>
+					</div>
+					<div class="form-group">
+                        <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_TNC_REMEMBER_SELECTION_TYPE'); ?>
+                        </div>
+                        <div class="col-md-7">
+							<select name="main_tnc_remember_type" id="main_tnc_remember_type" class="form-control">
+								<option value="global" <?php echo ($this->config->get('main_tnc_remember_type') == 'global') ? 'selected="selected"' : '' ?> ><?php echo JText::_('COM_EASYDISCUSS_TNC_REMEMBER_SELECTION_TYPE_GLOBAL'); ?></option>
+								<option value="follow_type" <?php echo ($this->config->get('main_tnc_remember_type') == 'follow_type') ? 'selected="selected"' : '' ?>><?php echo JText::_('COM_EASYDISCUSS_TNC_REMEMBER_SELECTION_TYPE_FOLLOW_TYPE'); ?></option>
+							</select>
+						</div>
+					</div>									
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_TNC_TITLE'); ?>
+						</div>
+						<div class="col-md-7">
+							<textarea name="main_tnctext" class="form-control" cols="65" rows="15"><?php echo str_replace('<br />', "\n", $this->config->get('main_tnctext')); ?></textarea>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>		
 		
 	</div>
 
@@ -161,6 +221,22 @@ defined('_JEXEC') or die('Restricted access');
 			</div>
 		</div>
 
+		<div class="panel">
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_POINTS'); ?>
+
+			<div class="panel-body">
+				<div class="form-horizontal">
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_MAIN_POINTS_ENABLE'); ?>
+						</div>
+						<div class="col-md-7">
+							<?php echo $this->html('form.boolean', 'main_points', $this->config->get('main_points'));?>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>		
 
 		<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_LIKES'); ?>

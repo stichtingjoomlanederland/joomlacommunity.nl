@@ -397,6 +397,13 @@ class EDR
 					$menu = self::getMenus($view, $layout, $id, $lang);
 					if ($menu) {
 						$tmpId = $menu->id;
+					} else {
+						$post = ED::post($id);
+						$menu = self::getMenus('categories', 'listings', $post->category_id, $lang);
+
+						if ($menu) {
+							$tmpId = $menu->id;
+						}
 					}
 
 					// if ($tmpId) {
@@ -1115,6 +1122,11 @@ class EDR
 			$redirect = JUri::getInstance()->toString();
 		}
 
+		// Redirect to forums page
+		if ($config->get('main_logout_redirect') == 'forums') {
+			$redirect = EDR::getRoutedURL('view=forums', false, true);
+		}
+
 		$redirect = base64_encode($redirect);
 
 		return $redirect;
@@ -1232,9 +1244,7 @@ class EDR
                 } else {
 	                // this is the safe step to ensure later we will have atlest one menu item to retrive.
 	                $_cache[$menu->view][$menu->layout]['*'][] = $menu;
-	                if (! $row->language && $row->language != '*') {
-						$_cache[$menu->view][$menu->layout][$row->language][] = $menu;
-	                }
+	                $_cache[$menu->view][$menu->layout][$row->language][] = $menu;
                 }
 
                 $_cacheFlat[] = $menu;
@@ -1307,6 +1317,7 @@ class EDR
 				return $selection[$key];
 			}
 
+			// var_dump($selection[$key]);
 
             // Search for $view only. Does not care about layout nor the id
             if (isset($_cache[$view]) && isset($_cache[$view]) && is_null($layout)) {
@@ -1339,6 +1350,8 @@ class EDR
                 $selection[$key] = $selection[$key][0];
             }
         }
+
+
 
         return $selection[$key];
 
@@ -1431,6 +1444,56 @@ class EDR
 		return false;
 	}
 
+    /**
+     * Retrieves the current url that is being accessed.
+     *
+     * @since   4.0
+     * @access  public
+     * @param   bool    Determines if we should append this as a callback url.
+     * @return  string  The current url.
+     */
+    public static function current($isCallback = false)
+    {
+        $uri = JURI::current();
+
+        if ($isCallback) {
+            return '&callback=' . base64_encode($uri);
+        }
+
+        return $uri;
+    }
+
+    /**
+     * Determine if given view is the current active menu
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string currrent view
+     * @return  int / string  object id
+     */
+	public static function isCurrentActiveMenu($view, $id = 0, $idPrefix = 'id', $layout = '')
+	{
+		$app = JFactory::getApplication();
+		$menu = $app->getMenu()->getActive();
+
+		if (!$menu) {
+			return false;
+		}
+
+		if ($id && strpos($menu->link, 'view=' . $view) !== false && strpos($menu->link, $idPrefix . '=' . $id) !== false) {
+			return true;
+		}
+
+		if ($layout && strpos($menu->link, 'view=' . $view) !== false && strpos($menu->link, 'layout=' . $layout) !== false) {
+			return true;
+		}
+
+		if (strpos($menu->link, 'view=' . $view) !== false) {
+			return true;
+		}
+
+		return false;
+	}
 
 }
 

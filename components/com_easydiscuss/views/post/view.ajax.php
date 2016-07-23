@@ -92,7 +92,7 @@ class EasyDiscussViewPost extends EasyDiscussView
      * @since   4.0
      * @access  public
      * @param   string
-     * @return  
+     * @return
      */
     public function similarQuestion()
     {
@@ -710,6 +710,10 @@ class EasyDiscussViewPost extends EasyDiscussView
             return false;
         }
 
+        // Process T&C
+        $tnc = ED::tnc();
+        $tnc->storeTnc('reply');
+
         // We need the composer for editing purposes
         $opts = array('editing', $post);
         $composer = ED::composer($opts);
@@ -722,6 +726,9 @@ class EasyDiscussViewPost extends EasyDiscussView
         $post->permalink = EDR::getReplyRoute($question->id, $post->id);
         $post->seq = $question->getTotalReplies();
 
+        // Get site details that are associated with the post.
+        $siteDetails = $post->getSiteDetails();        
+
         // Get the output so we can append the reply into the list of replies
         $namespace = $post->isPending() ? 'default.reply.item.moderation' : 'default.reply.item';
         $namespace = 'site/post/' . $namespace;
@@ -729,6 +736,7 @@ class EasyDiscussViewPost extends EasyDiscussView
         $poll = $post->getPoll();
 
         $theme = ED::themes();
+        $theme->set('siteDetails', $siteDetails);
         $theme->set('composer', $composer);
         $theme->set('post', $post);
         $theme->set('poll', $poll);
@@ -774,173 +782,6 @@ class EasyDiscussViewPost extends EasyDiscussView
     }
 
     /**
-     * Get edit form with all details
-     */
-    public function ajaxGetEditForm( $postId = null )
-    {
-        $config     = ED::getConfig();
-        $djax       = new Disjax();
-        $my         = JFactory::getUser();
-        $id         = $postId;
-
-        $postTable  = ED::table('Post' );
-        $postTable->load( $id );
-
-        $isMine     = ED::isMine($postTable->user_id);
-        $isAdmin    = ED::isSiteAdmin();
-
-        if ( !$isMine && !$isAdmin )
-        {
-            $options = new stdClass();
-            $options->title = JText::_('COM_EASYDISCUSS_ERROR');
-            $options->content = JText::_('COM_EASYDISCUSS_NO_PERMISSION_TO_PERFORM_THE_REQUESTED_ACTION');
-
-            $buttons            = array();
-            $button             = new stdClass();
-            $button->title      = JText::_( 'COM_EASYDISCUSS_OK' );
-            $button->action     = 'disjax.closedlg();';
-            $button->className  = 'btn-primary';
-            $buttons[]          = $button;
-            $options->buttons   = $buttons;
-
-            $djax->dialog( $options );
-            $djax->send();
-            return;
-        }
-
-        if ( empty($id) )
-        {
-            $options = new stdClass();
-            $options->title = JText::_('COM_EASYDISCUSS_ERROR');
-            $options->content = JText::_('COM_EASYDISCUSS_ERROR_LOAD_POST');
-
-            $buttons            = array();
-            $button             = new stdClass();
-            $button->title      = JText::_( 'COM_EASYDISCUSS_OK' );
-            $button->action     = 'disjax.closedlg();';
-            $button->className  = 'btn-primary';
-            $buttons[]          = $button;
-            $options->buttons   = $buttons;
-
-            $djax->dialog( $options );
-            $djax->send();
-            return;
-        }
-        else
-        {
-            // get post tags
-            $postsTagsModel = ED::model('PostsTags');
-
-            $tags = $postsTagsModel->getPostTags( $id );
-
-            // clean up bad code
-            $postTable->tags    = $tags;
-
-            $result['status']   = 'success';
-            $result['id']       = $postTable->id;
-
-            // select top 20 tags.
-            $tagmodel   = ED::model( 'Tags' );
-            $tags       = $tagmodel->getTagCloud('20','post_count','DESC');
-
-            //recaptcha integration
-            $recaptcha  = '';
-            $enableRecaptcha    = $this->config->get('antispam_recaptcha');
-            $publicKey          = $this->config->get('antispam_recaptcha_public');
-            $skipRecaptcha      = $this->config->get('antispam_skip_recaptcha');
-
-            $model      = ED::model( 'Posts' );
-            $postCount  = count( $model->getPostsBy( 'user' , $this->my->id ) );
-
-            if( $enableRecaptcha && !empty( $publicKey ) && $postCount < $skipRecaptcha )
-            {
-                require_once DISCUSS_CLASSES . '/recaptcha.php';
-                $recaptcha  = getRecaptchaData( $publicKey , $this->config->get('antispam_recaptcha_theme') , $this->config->get('antispam_recaptcha_lang') , null, $this->config->get('antispam_recaptcha_ssl') );
-            }
-
-            $tpl    = new DiscussThemes();
-            $tpl->set( 'post'       , $postTable );
-            $tpl->set( 'config'     , $config );
-            $tpl->set( 'tags'       , $tags );
-            $tpl->set( 'recaptcha'  , $recaptcha );
-            $tpl->set( 'isEditMode' , true );
-
-            $result['output']   = $tpl->fetch('new.post.php');
-
-            $djax->assign('dc_main_post_edit', $result['output']);
-            $djax->script('EasyDiscuss.$("#dc_main_post_edit").slideDown(\'fast\');');
-            $djax->script('EasyDiscuss.$("#edit_content").markItUp(mySettings);');
-
-        }
-
-        $djax->send();
-        return;
-    }
-
-
-    public function ajaxReloadRecaptcha($divId = null, $reId = 'recaptcha-image')
-    {
-        $config     = ED::getConfig();
-        $mainframe  = JFactory::getApplication();
-        $my         = JFactory::getUser();
-        $djax       = new Disjax();
-
-        //recaptcha integration
-        $recaptcha  = '';
-        $enableRecaptcha    = $this->config->get('antispam_recaptcha', 0);
-        $publicKey          = $this->config->get('antispam_recaptcha_public');
-        $skipRecaptcha      = $this->config->get('antispam_skip_recaptcha');
-
-        $model      = ED::model( 'Posts' );
-        $postCount  = count( $model->getPostsBy( 'user' , $this->my->id ) );
-
-        if( $enableRecaptcha && !empty( $publicKey ) && $postCount < $skipRecaptcha )
-        {
-            require_once DISCUSS_CLASSES . '/recaptcha.php';
-            $recaptcha  = getRecaptchaData( $publicKey , $this->config->get('antispam_recaptcha_theme') , $this->config->get('antispam_recaptcha_lang') , null, $this->config->get('antispam_recaptcha_ssl'), $reId );
-
-            $djax->assign($divId, $recaptcha);
-        }
-        else
-        {
-            //somehow ajax must return something.
-            $djax->assign($divId, '');
-        }
-
-        $djax->send();
-        return;
-    }
-
-    public function ajaxIsFav( $postId )
-    {
-        $my     = JFactory::getUser();
-        //$postId   = JRequest::getInt( 'postId' );
-        $db     = ED::getDBO();
-
-        $query  = ' SELECT '.$db->nameQuote('id').' FROM '.$db->nameQuote('#__discuss_favourites');
-        $query  .= ' WHERE '.$db->nameQuote('user_id'). ' = '.$db->quote($this->my->id);
-        $query  .= ' AND '.$db->nameQuote('post_id'). ' = '.$db->quote($postId);
-
-
-        $db->setQuery($query);
-        $result = $db->loadResult();
-
-        $ajax = ED::getHelper( 'ajax' );
-
-        if(empty( $result ))
-        {
-            // This post haven't favourite
-            $ajax->success(0);
-        }
-        else
-        {
-            // This post is already favourite
-            $ajax->success(1);
-        }
-        $ajax->send();
-    }
-
-    /**
      * Displays confirmation to feature a post
      *
      * @since   4.0
@@ -976,276 +817,6 @@ class EasyDiscussViewPost extends EasyDiscussView
         $contents = $theme->output('site/post/dialogs/unfeature');
 
         return $this->ajax->resolve($contents);
-    }
-
-    public function ajaxSetFavouritePost( $postId )
-    {
-        $my     = JFactory::getUser();
-        //$postId   = JRequest::getInt( 'postId' );
-        $date   = ED::date();
-        $get    = ED::table('Favourites' );
-
-        // Set your favourite post here..
-        $favArray               = array();
-        $favArray['user_id']    = $this->my->id;
-        $favArray['post_id']    = $postId;
-        $favArray['created']    = $date->toMySQL();
-
-        $get->bind( $favArray );
-        $get->store();
-
-        $ajax = ED::getHelper( 'ajax' );
-        $ajax->success();
-        $ajax->send();
-    }
-
-    public function ajaxRemoveFavouritePost( $postId )
-    {
-        $my     = JFactory::getUser();
-        //$postId   = JRequest::getInt( 'postId' );
-        $date   = ED::date();
-        $get    = ED::table('Favourites' );
-
-        // Set your favourite post here..
-        $favArray               = array();
-        $favArray['user_id']    = $this->my->id;
-        $favArray['post_id']    = $postId;
-        $favArray['created']    = $date->toMySQL();
-
-        $key = $get->load( '0', $this->my->id, $postId );
-        $get->delete( $key );
-
-        $ajax = ED::getHelper( 'ajax' );
-        $ajax->success();
-        $ajax->send();
-    }
-
-    private function _fieldValidate($post = null)
-    {
-
-        $mainframe  = JFactory::getApplication();
-        $valid      = true;
-
-        $message    = '<ul class="reset-ul">';
-
-        if(JString::strlen($post['title']) == 0 || $post['title'] == JText::_('COM_EASYDISCUSS_POST_TITLE_EXAMPLE'))
-        {
-            $messag .= '<li>' . JText::_('COM_EASYDISCUSS_POST_TITLE_CANNOT_EMPTY') . '</li>';
-            $valid  = false;
-        }
-
-        if(JString::strlen($post['dc_reply_content']) == 0)
-        {
-            $messag .= '<li>' . JText::_('COM_EASYDISCUSS_POST_CONTENT_IS_EMPTY') . '</li>';
-            $valid  = false;
-        }
-
-        $tags           = '';
-        if(! isset($post['tags[]']))
-        {
-            $messag .= '<li>' . JText::_('COM_EASYDISCUSS_POST_EMPTY_TAG') . '</li>';
-            $valid  = false;
-        }
-        else
-        {
-            $tags           = $post['tags[]'];
-            if(empty($tags))
-            {
-                $messag .= '<li>' . JText::_('COM_EASYDISCUSS_POST_EMPTY_TAG') . '</li>';
-                $valid  = false;
-            }
-        }
-
-        $message .= '</ul>';
-
-        $returnVal      = array();
-
-        $returnVal[]    = $valid;
-        $returnVal[]    = $message;
-
-        return $returnVal;
-    }
-
-
-    private function _validateCommentFields($post = null)
-    {
-        $config = ED::getConfig();
-
-        if(JString::strlen($post['comment']) == 0)
-        {
-            $this->err[0]   = JText::_( 'COM_EASYDISCUSS_COMMENT_IS_EMPTY' );
-            $this->err[1]   = 'comment';
-            return false;
-        }
-
-        if($this->config->get('main_comment_tnc') == true)
-        {
-            if(empty($post['tnc']))
-            {
-                $this->err[0]   = JText::_( 'COM_EASYDISCUSS_TERMS_PLEASE_ACCEPT' );
-                $this->err[1]   = 'tnc';
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public function _trim(&$text = null)
-    {
-        $text = JString::trim($text);
-    }
-
-    public function ajaxSubscribe($id = null)
-    {
-        $disjax     = new disjax();
-        $mainframe  = JFactory::getApplication();
-        $my         = JFactory::getUser();
-        $sitename   = $mainframe->getCfg('sitename');
-
-        $tpl    = new DiscussThemes();
-        $tpl->set( 'id', $id );
-        $tpl->set( 'my', $my );
-        $content    = $tpl->fetch( 'ajax.subscribe.post.php' , array('dialog'=> true ) );
-
-        $options            = new stdClass();
-        $options->title     = JText::_( 'COM_EASYDISCUSS_SUBSCRIBE_TO_POST' );
-        $options->content   = $content;
-
-        $buttons            = array();
-
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_CANCEL' );
-        $button->action     = 'disjax.closedlg();';
-        $buttons[]          = $button;
-
-        $button             = new stdClass();
-        $button->title      = JText::_( 'COM_EASYDISCUSS_BUTTON_SUBSCRIBE' );
-        $button->action     = 'discuss.subscribe.post(' . $id . ')';
-        $button->className  = 'btn-primary';
-        $buttons[]          = $button;
-
-        $options->buttons   = $buttons;
-
-        $disjax->dialog($options);
-
-        $disjax->send();
-    }
-
-    public function ajaxAddSubscription($type = 'post', $email = null, $name = null, $interval = null, $cid = '0')
-    {
-        $disjax     = new Disjax();
-        $mainframe  = JFactory::getApplication();
-        $my         = JFactory::getUser();
-        $config     = ED::getConfig();
-        $msg        = '';
-        $msgClass   = 'dc_success';
-
-        $JFilter    = JFilterInput::getInstance();
-        $name       = $JFilter->clean($name, 'STRING');
-
-        jimport( 'joomla.mail.helper' );
-
-        if( !JMailHelper::isEmailAddress($email) )
-        {
-            $disjax->script( 'discuss.spinner.hide( "dialog_loading" );' );
-            $disjax->assign( 'dc_subscribe_notification .msg_in' , JText::_('COM_EASYDISCUSS_INVALID_EMAIL') );
-            $disjax->script( 'EasyDiscuss.$( "#dc_subscribe_notification .msg_in" ).addClass( "o-alert o-alert--error" );' );
-            $disjax->send();
-            return;
-        }
-
-        $subscription_info = array();
-        $subscription_info['type'] = $type;
-        $subscription_info['userid'] = $this->my->id;
-        $subscription_info['email'] = $email;
-        $subscription_info['cid'] = $cid;
-        $subscription_info['member'] = ($this->my->id)? '1':'0';
-        $subscription_info['name'] = ($this->my->id)? $my->name : $name;
-        $subscription_info['interval'] = $interval;
-
-        //validation
-        if(JString::trim($subscription_info['email']) == '')
-        {
-            $disjax->script( 'discuss.spinner.hide( "dialog_loading" );' );
-            $disjax->assign( 'dc_subscribe_notification .msg_in' , JText::_('COM_EASYDISCUSS_EMAIL_IS_EMPTY') );
-            $disjax->script( 'EasyDiscuss.$( "#dc_subscribe_notification .msg_in" ).addClass( "o-alert o-alert--error" );' );
-            $disjax->send();
-            return;
-        }
-
-        if(JString::trim($subscription_info['name']) == '')
-        {
-            $disjax->script( 'discuss.spinner.hide( "dialog_loading" );' );
-            $disjax->assign( 'dc_subscribe_notification .msg_in' , JText::_('COM_EASYDISCUSS_NAME_IS_EMPTY') );
-            $disjax->script( 'EasyDiscuss.$( "#dc_subscribe_notification .msg_in" ).addClass( "o-alert o-alert--error" );' );
-            $disjax->send();
-            return;
-        }
-
-        $model  = ED::model( 'Subscribe' );
-        $sid    = '';
-
-
-        if($this->my->id == 0)
-        {
-            $sid = $model->isPostSubscribedEmail($subscription_info);
-            if($sid != '')
-            {
-                //user found.
-                // show message.
-                $disjax->script( 'discuss.spinner.hide( "dialog_loading" );' );
-                $disjax->assign( 'dc_subscribe_notification .msg_in' , JText::_('COM_EASYDISCUSS_ALREADY_SUBSCRIBED_TO_POST') );
-                $disjax->script( 'EasyDiscuss.$( "#dc_subscribe_notification .msg_in" ).addClass( "o-alert o-alert--error" );' );
-                $disjax->send();
-                return;
-
-            }
-            else
-            {
-                if(!$model->addSubscription($subscription_info))
-                {
-                    $msg = JText::sprintf('COM_EASYDISCUSS_SUBSCRIPTION_FAILED');
-                    $msgClass = 'o-alert o-alert--error';
-                }
-            }
-        }
-        else
-        {
-            $sid = $model->isPostSubscribedUser($subscription_info);
-
-            if($sid['id'] != '')
-            {
-                // user found.
-                // update the email address
-                if(!$model->updatePostSubscription($sid['id'], $subscription_info))
-                {
-                    $msg = JText::sprintf('COM_EASYDISCUSS_SUBSCRIPTION_FAILED');
-                    $msgClass = 'o-alert o-alert--error';
-                }
-            }
-            else
-            {
-                //add new subscription.
-                if(!$model->addSubscription($subscription_info))
-                {
-                    $msg = JText::sprintf('COM_EASYDISCUSS_SUBSCRIPTION_FAILED');
-                    $msgClass = 'o-alert o-alert--error';
-                }
-            }
-        }
-
-        $msg = empty($msg)? JText::_('COM_EASYDISCUSS_SUBSCRIPTION_SUCCESS') : $msg;
-
-        // Change the email icons to unsubscribe now.
-        $disjax->script( 'EasyDiscuss.$(".via-email").removeClass("via-email").addClass( "cancel-email" );');
-
-        $disjax->script( 'discuss.spinner.hide( "dialog_loading" );' );
-        $disjax->assign( 'dc_subscribe_notification .msg_in' , $msg );
-        $disjax->script( 'EasyDiscuss.$( "#dc_subscribe_notification .msg_in" ).addClass( "'.$msgClass.'" );' );
-        $disjax->script( 'EasyDiscuss.$( ".dialog-buttons .si_btn" ).hide();' );
-        $disjax->send();
-        return;
     }
 
     public function getMoreVoters($postid = null, $limit = null)
@@ -1478,20 +1049,47 @@ class EasyDiscussViewPost extends EasyDiscussView
         $assignment = ED::table('PostAssignment');
         $assignment->load($post->id);
 
-        // Add new record if assignee was changed
-        if ($assignment->assignee_id != $moderatorId) {
-            $newAssignment = ED::table('PostAssignment');
-            $newAssignment->post_id = $postId;
-            $newAssignment->assignee_id = (int) $moderatorId;
-            $newAssignment->assigner_id = (int) JFactory::getUser()->id;
+        $isNew = $assignment->id == 0 ? true : false;
 
-            if (!$newAssignment->store()) {
+        if ($moderatorId === 0) {
+            // this means we wanan clear the assignee from the post.
+            if (! $isNew) {
+                // we now delete the record.
+                $assignment->delete();
+            }
+
+        } else {
+
+            $sendNotti = false;
+            $state = true;
+
+            if ($isNew) {
+                // new
+                $sendNotti = true;
+                $assignment->post_id = $postId;
+                $assignment->assignee_id = (int) $moderatorId;
+                $assignment->assigner_id = (int) JFactory::getUser()->id;
+
+            } else {
+                // updates
+                if ($assignment->assignee_id != $moderatorId) {
+                    $sendNotti = true;
+
+                    $assignment->assignee_id = (int) $moderatorId;
+                    $assignment->assigner_id = (int) JFactory::getUser()->id;
+                }
+            }
+
+            $state = $assignment->store();
+            if (!$state) {
                 return $this->ajax->reject('COM_EASYDISCUSS_ASSIGN_MODERATORS_SHOW_STORING_FAILED');
             }
-        }
 
-        // send notification to moderator when admin assigned post to them
-        $post->notifyAssignedModerator($moderatorId, $post->id);
+            if ($state && $sendNotti) {
+                // send notification to moderator when admin assigned post to them
+                $post->notifyAssignedModerator($moderatorId, $post->id);
+            }
+        }
 
         $moderators = ED::moderator()->getModeratorsDropdown($post->category_id);
 

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -41,7 +41,7 @@ class DiscussRole extends EasyDiscussTable
 	 *
 	 * @param Array $data
 	 **/
-	public function bind( $data , $ignore = array() )
+	public function bind($data, $ignore = array())
 	{
 		parent::bind($data);
 
@@ -54,14 +54,13 @@ class DiscussRole extends EasyDiscussTable
 		}
 	}
 
-	public function move( $direction, $where = '')
+	public function move($direction, $where = '')
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
-		if( $direction == -1) //moving up
-		{
-			if( $this->ordering > 0 )
-			{
+		//moving up
+		if ($direction == -1) {
+			if ($this->ordering > 0) {
 				$query	= 'UPDATE `#__discuss_roles` SET `ordering` = `ordering` - 5 WHERE `ordering` <= ' . $db->quote( $this->ordering - 2 );
 				$db->setQuery($query);
 				$db->query();
@@ -74,9 +73,7 @@ class DiscussRole extends EasyDiscussTable
 				$db->setQuery($query);
 				$db->query();
 			}
-		}
-		else
-		{
+		} else {
 			$query	= 'UPDATE `#__discuss_roles` SET `ordering` = `ordering` + 5 WHERE `ordering` >= ' . $db->quote( $this->ordering + 2 );
 			$db->setQuery($query);
 			$db->query();
@@ -96,50 +93,46 @@ class DiscussRole extends EasyDiscussTable
 	public function rebuildOrdering()
 	{
 		// Get the input
-		$pks	= JRequest::getVar('cid', null, 'post', 'array');
-		$order	= JRequest::getVar('order', null, 'post', 'array');
+		$pks = JRequest::getVar('cid', null, 'post', 'array');
+		$order = JRequest::getVar('order', null, 'post', 'array');
 
 		// Sanitize the input
 		JArrayHelper::toInteger($pks);
 		JArrayHelper::toInteger($order);
 
-		if (is_array($pks) && is_array($order) && count($pks) == count($order))
-		{
-			$db = DiscussHelper::getDBO();
+		if (is_array($pks) && is_array($order) && count($pks) == count($order)) {
+			$db = ED::db();
 
-			for ($i = 0, $count = count($pks); $i < $count; $i++)
-			{
-				$query	= 'UPDATE `#__discuss_roles` SET `ordering` = ' . $order[$i] . ' WHERE `id` = ' . $pks[$i];
+			for ($i = 0, $count = count($pks); $i < $count; $i++) {
+
+				$query = 'UPDATE `#__discuss_roles` SET `ordering` = ' . $order[$i] . ' WHERE `id` = ' . $pks[$i];
 				$db->setQuery($query);
 
-				if( !$db->query() )
-				{
+				if (!$db->query()) {
 					return false;
 				}
 			}
 
 			return $this->rebuild();
-		}
-		else
-		{
+		} else {
 			return false;
 		}
 	}
 
 	public function rebuild()
 	{
-		$db		= DiscussHelper::getDBO();
-		$query	= 'SELECT id, ordering FROM `#__discuss_roles` ORDER BY ordering, id DESC';
+		$db = ED::db();
+		$query = 'SELECT id, ordering FROM `#__discuss_roles` ORDER BY ordering, id DESC';
 		$db->setQuery($query);
-		$rows	= $db->loadObjectList();
+		$rows = $db->loadObjectList();
 
 		foreach ($rows as $i => $row)
 		{
-			$order	= $i + 1;
-			$query	= 'UPDATE `#__discuss_roles` SET `ordering` = ' . $order . ' WHERE `id` = ' . $row->id;
+			$order = $i + 1;
+			$query = 'UPDATE `#__discuss_roles` SET `ordering` = ' . $order . ' WHERE `id` = ' . $row->id;
 			$db->setQuery($query);
-			if( !$db->query() )
-			{
+
+			if (!$db->query()) {
 				return false;
 			}
 		}
@@ -147,15 +140,15 @@ class DiscussRole extends EasyDiscussTable
 		return true;
 	}
 
-	public function getTitle( $groups = array() )
+	public function getTitle($groups = array())
 	{
-		$role = $this->getRole( $groups );
+		$role = $this->getRole($groups);
 		return $role->title;
 	}
 
-	public function getRoleId( $groups = array() )
+	public function getRoleId($groups = array())
 	{
-		$role = $this->getRole( $groups );
+		$role = $this->getRole($groups);
 		return $role->id;
 	}
 
@@ -166,35 +159,35 @@ class DiscussRole extends EasyDiscussTable
 		return $role->colorcode;
 	}
 
-	public function getRole( $groups = array() )
+	public function getRole($groups = array())
 	{
 		static $roles = array();
 
 		$none = new stdClass;
-		$none->id			= '';
-		$none->title		= '';
-		$none->colorcode	= '';
+		$none->id = '';
+		$none->title = '';
+		$none->colorcode = '';
 
-		if( is_string($groups) )
-		{
-			$groups = array( $groups );
+		if (is_string($groups)) {
+			$groups = array($groups);
 		}
 
-		if (empty($groups))
-		{
+		if (empty($groups)) {
 			return $none;
 		}
 
-		$sig 	= implode( '-', $groups );
-		if( ! isset( $roles[$sig] ) )
-		{
-			$db		= DiscussHelper::getDBO();
-			$query	= "SELECT * FROM `#__discuss_roles` WHERE `usergroup_id` IN ( '" . implode("','", $groups) . "' ) AND `published` = 1 ORDER BY `ordering` LIMIT 1";
+		$sig = implode('-', $groups);
+
+		if (!isset($roles[$sig])) {
+
+			$db = ED::db();
+			$query = "SELECT * FROM `#__discuss_roles` WHERE `usergroup_id` IN ( '" . implode("','", $groups) . "' ) AND `published` = 1 ORDER BY `ordering` LIMIT 1";
 
 			$db->setQuery($query);
 
-			if(!$result = $db->loadObject())
-			{
+			$result = $db->loadObject();
+
+			if (!$result) {
 				$result = $none;
 			}
 

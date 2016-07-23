@@ -7,7 +7,7 @@ ed.require(['site/vendors/prism'], function() {
 
 <?php if ($this->config->get('main_location_discussion') || $this->config->get('main_location_reply')) { ?>
 // Location support
-ed.require(['edq', 'site/vendors/gmaps', 'https://maps.google.com/maps/api/js?language=<?php echo $this->config->get('main_location_language');?>'], function($, GMaps) {
+ed.require(['edq', 'site/vendors/gmaps', self.getGmapsUrl()], function($, GMaps) {
 
     var wrapper = $('[data-ed-location]');
 
@@ -44,6 +44,18 @@ ed.require(['edq', 'site/vendors/gmaps', 'https://maps.google.com/maps/api/js?la
     });
 
 });
+
+function getGmapsUrl() {
+    var gmapsApiKey = "<?php echo $this->config->get('main_location_gmaps_key'); ?>";
+
+    var gmapsUrl = 'https://maps.google.com/maps/api/js?language=<?php echo $this->config->get("main_location_language");?>';
+
+    if (gmapsApiKey) {
+        var gmapsUrl = 'https://maps.google.com/maps/api/js?key='+ gmapsApiKey +'&language=<?php echo $this->config->get("main_location_language");?>';
+    }
+
+    return gmapsUrl;
+}
 <?php } ?>
 
 
@@ -195,6 +207,9 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
         // <this> is select when you click that button
         var id = $(this).parents(voteWrapper.selector).data('id');
+
+        // Trigger the undo button
+        var voteUndo = $(this).parents(voteWrapper.selector).find('[data-ed-vote-undo]');
         var direction = $(this).data('direction');
 
         var counterEle = $(this).siblings(counter.selector);
@@ -203,6 +218,9 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
             'id': id,
             'type': direction
         }).done(function(total) {
+
+            // show vote undo link 
+            voteUndo.removeClass('hide');
 
             // update the vote count
             counterEle.text(total);
@@ -214,6 +232,34 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
         });
 
     });
+
+    // Vote undo LINK
+    var voteUndoButton = $('[data-ed-vote-undo]');
+
+    voteUndoButton.on('click.ed.vote.undo', function() {
+
+        // <this> is select when you click that button
+        var id = $(this).parents(voteWrapper.selector).data('id');
+        var counterEle = $(this).siblings(counter.selector);
+        
+        EasyDiscuss.ajax('site/views/votes/undo', {
+            'id': id
+        }).done(function(total, successMsg) {
+
+            // update the vote count
+            counterEle.text(total);
+            
+            EasyDiscuss.dialog({
+                "content": successMsg
+            });            
+
+        }).fail(function(failMsg) {
+            EasyDiscuss.dialog({
+                "content": failMsg
+            });
+        });
+
+    });    
 });
 <?php } ?>
 
@@ -321,6 +367,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
         })
     });
 
+ed.require(['edq', 'chosen'], function($) {
     // Bind the post merge buttons
     var mergeButton = $('[data-ed-post-merge]');
 
@@ -330,9 +377,21 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
         EasyDiscuss.dialog({
             content: EasyDiscuss.ajax('site/views/post/mergeForm', {
                 "id": id
+            }).done(function() {
+                var timeout = 150;
+                setTimeout(function() {
+
+                    var suggest = $('[data-field-suggest]');
+
+                    suggest.chosen({
+                        width: "95%"
+                    });
+
+                }, timeout);
             })
         })
-    });
+    })
+});
 
     // Bind the post branch buttons
     var branchButton = $('[data-ed-post-branch]');

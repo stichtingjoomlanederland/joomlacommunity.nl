@@ -39,7 +39,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                                 	<div><?php echo JString::substr(strip_tags($conversation->getLastMessage($this->my->id, false)), 0, 150) . JText::_('COM_EASYDISCUSS_ELLIPSES'); ?></div>
                                 </div>
                                 <ol class="g-list-inline g-list-inline--delimited popbox-dropdown-nav__meta-lists">
-                                    <li><?php echo ED::date()->toLapsed($conversation->created); ?></li>
+                                    <li><?php echo ED::date()->toLapsed($conversation->lastreplied); ?></li>
                                 </ol>
                             </div>
                         </div>

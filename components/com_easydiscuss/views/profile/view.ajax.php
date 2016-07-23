@@ -31,6 +31,11 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		$contents = '';
 		$pagination	= null;
 
+		$profile = ED::user($profileId);
+
+		// Append page title.
+		$pageTitle = JText::sprintf('COM_EASYDISCUSS_PROFILE_PAGE_TITLE', $profile->getName(), $type);
+
 		if ($type == 'easyblog') {
 			$helperFile = JPATH_ADMINISTRATOR . '/components/com_easyblog/includes/easyblog.php';
 
@@ -105,8 +110,16 @@ class EasyDiscussViewProfile extends EasyDiscussView
 			$pagination = $model->getPagination();
 		}
 
-		if ($type == 'favourites') {
-			$posts = $model->getData(true, 'latest', null, 'favourites', '', null, 'all', $profileId);
+ 		if ($type == 'favourites') {
+ 			
+			$options = array(
+				'userId' => $profileId,
+				'filter' => 'favourites'
+				);
+
+			// $posts = $model->getData(true, 'latest', null, 'favourites');
+			$posts = $model->getDiscussions($options);	
+			$pagination	= $model->getPagination();
 		}
 
 		if ($type == 'assigned') {
@@ -138,7 +151,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 			$pagination = $pagination->getPagesLinks('profile', $filterArr, true);
 		}
 
-		$this->ajax->resolve($contents, $pagination);
+		$this->ajax->resolve($contents, $pagination, $pageTitle);
 		return $this->ajax->send();
 
 	}

@@ -69,7 +69,7 @@ class EasyDiscussConversationMessage extends EasyDiscuss
 		$parser = ED::parser();
 		$message = $parser->bbcode($message);
 
-		return $message;
+		return nl2br($message);
 	}
 
 	/**

@@ -13,9 +13,20 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussSharerButtonGoogle extends EasyDiscuss
 {
+	public function enabled()
+	{
+		$config = ED::config();
+
+		if (!$config->get('integration_googleone')) {
+			return false;
+		}
+
+		return true;
+	}
+
 	public static function html($row, $position = 'vertical')
 	{
-		$config	= ED::config();
+		$config = ED::config();
 
 		if (!$config->get('integration_googleone')) {
 			return '';

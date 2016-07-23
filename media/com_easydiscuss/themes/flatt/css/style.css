@@ -986,6 +986,7 @@ t-xl-pt--lg = trumps-extralarge-paddingtop--large
   font-size: 0;
 }
 #ed .g-list-inline > li {
+  position: relative;
   display: inline-block;
   font-size: 11px;
 }
@@ -994,6 +995,15 @@ t-xl-pt--lg = trumps-extralarge-paddingtop--large
 }
 #ed .g-list-inline--delimited > li + li:before {
   content: attr(data-breadcrumb) "\00A0";
+}
+#ed .g-list-inline--comma > li {
+  margin-right: 4px;
+}
+#ed .g-list-inline--comma > li:after {
+  content: attr(data-breadcrumb) ",";
+}
+#ed .g-list-inline--comma > li:last-child:after {
+  content: "";
 }
 #ed .g-list-inline--dashed > li {
   position: relative;
@@ -2707,6 +2717,57 @@ fieldset[disabled] #ed .btn-link:focus {
   color: #888888;
   background-color: #ffffff;
   border-color: #dddddd;
+}
+#ed .o-pager {
+  overflow: hidden;
+  width: 100%;
+  display: inline-block;
+  border-top: 1px solid #dddddd;
+}
+#ed .o-pager__item {
+  vertical-align: middle;
+  width: 50%;
+}
+#ed .o-pager__item--prev {
+  float: left;
+}
+#ed .o-pager__item--prev .o-pager__icon {
+  margin-right: 8px;
+}
+#ed .o-pager__item--next {
+  float: right;
+  text-align: right;
+}
+#ed .o-pager__item--next .o-pager__icon {
+  margin-left: 8px;
+}
+#ed .o-pager__link {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  font-size: 12px;
+}
+#ed .o-pager__link .o-pager__icon {
+  font-size: 24px;
+  vertical-align: middle;
+  line-height: 20px;
+  position: relative;
+  top: -1px;
+}
+#ed .eb-entry-nav-prev {
+  float: left;
+}
+#ed .eb-entry-nav-prev .fa {
+  margin: 0 10px 0 0;
+}
+#ed .eb-entry-nav-next {
+  float: right;
+  text-align: right;
+  border-left: 1px solid #dddddd;
+}
+#ed .eb-entry-nav-next .fa {
+  margin: 0 0 0 10px;
 }
 #ed.tooltip {
   position: absolute;
@@ -10307,6 +10368,10 @@ a#ed .badge:focus {
   text-align: left;
   margin-top: 16px;
 }
+#ed .ed-post-content {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
 #ed .ed-post-content img {
   max-width: 100%;
 }
@@ -10714,7 +10779,7 @@ a#ed .badge:focus {
   border-radius: 50%;
   position: absolute;
   top: 24px;
-  background-color: #ffffff;
+  background-color: transparent;
 }
 #ed .ed-noti__item-content {
   position: relative;
@@ -10983,6 +11048,7 @@ a#ed .badge:focus {
   width: 100%;
 }
 #ed .ed-forum__hd,
+#ed .ed-forum__hd-thead,
 #ed .ed-forum__ft {
   position: relative;
   font-size: 12px;
@@ -10992,6 +11058,14 @@ a#ed .badge:focus {
   border-top-left-radius: 0;
   border-top-right-radius: 0;
   padding: 16px;
+}
+#ed .ed-forum__hd-title {
+  font-weight: bold;
+}
+#ed .ed-forum__hd-thead {
+  padding: 8px 16px;
+  border: 1px solid #dddddd;
+  border-top: none;
 }
 #ed .ed-forum__bd {
   border-left: 1px solid #dddddd;
@@ -12015,6 +12089,7 @@ a#ed .badge:focus {
 #ed .m-list--inline > .m-list__item {
   display: inline-block;
   position: relative;
+  line-height: 1;
 }
 #ed .m-list--has-divider > .m-list__item {
   margin-right: 8px;
@@ -12733,6 +12808,12 @@ a#ed .badge:focus {
 }
 #ed .ed-vote__down {
   bottom: 0;
+}
+#ed .ed-vote__undo {
+  position: absolute;
+  width: 52px;
+  left: 0;
+  line-height: 1;
 }
 #ed .ed-btn-counter-group {
   font-size: 11px;

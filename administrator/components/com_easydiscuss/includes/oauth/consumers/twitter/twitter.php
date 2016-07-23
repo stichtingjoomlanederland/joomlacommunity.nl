@@ -133,31 +133,39 @@ class EasyDiscussTwitter extends EasyDiscuss
 	}
 
 	/**
-	 * Shares a new content on Twitter
-	 **/
-	public function share( $post )
+	 * Shares a new content on twitter
+	 *
+	 * @since	4.0.7
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function share($post, $oauth)
 	{
-		$lib = new DiscussTwitterOAuth();
+		// Get the token and secret from the Twitter
+		$tokenAccess = $this->setAccess($oauth);
 
-		$config		= DiscussHelper::getConfig();
-		$message	= $config->get( 'main_autopost_twitter_message' );
+		// Pass all the token key and secret
+		$lib = new DiscussTwitterOAuth($oauth->key, $oauth->secret, $tokenAccess->key->key, $tokenAccess->key->secret);
 
-		$content	=  $this->processMessage($message, $post );
+		$config	= ED::config();
+		$message = $config->get('main_autopost_twitter_message');
+
+		$content = $this->processMessage($message, $post);
 
 		$parameters	= array('status' => $content);
-		$result		= $lib->post('statuses/update', $parameters);
-		$status		= array('success'=>true, 'error'=>false);
+		$result	= $lib->post('statuses/update', $parameters);
+
+		$status	= array('success' => true, 'error' => false);
 
 		//for issues with unable to authenticate error, somehow they return errors instead of error.
-		if( isset( $result->errors[0]->message ) )
-		{
+		if (isset( $result->errors[0]->message)) {
 			$status['success'] = false;
 			$status['error'] = $result->errors[0]->message;
 		}
 
 		//for others error that is not authentication issue.
-		if( isset( $result->error ) )
-		{
+		if (isset($result->error)) {
 			$status['success'] = false;
 			$status['error'] = $result->error;
 		}
@@ -165,10 +173,18 @@ class EasyDiscussTwitter extends EasyDiscuss
 		return $status['success'];
 	}
 
-	public function setAccess( $access )
+	/**
+	 * Retrieve the Twitter authenticated token
+	 *
+	 * @since	4.0.7
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function setAccess($access)
 	{
-		$access			= DiscussHelper::getRegistry( $access );
-		$this->token	= new OAuthConsumer($access->get('token'), $access->get( 'secret'));
+		$access	= ED::registry($access);
+		$this->token = new OAuthConsumer($access->get('token'), $access->get( 'secret'));
 
 		return $this->token;
 	}
@@ -187,45 +203,67 @@ class EasyDiscussTwitter extends EasyDiscuss
 	}
 
 	/**
-	 * Process message
-	 **/
-	public function processMessage( $message , $post )
+	 * Formats the message to be published on Twitter
+	 *
+	 * @since	4.0.7
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function processMessage($message, $post)
 	{
-		$search		= array();
-		$replace	= array();
+		$search	= array();
+		$replace = array();
 
-		//replace title
-		if (preg_match_all("/.*?(\\{title\\})/is", $message, $matches))
-		{
+		// replace title
+		if (preg_match_all("/.*?(\\{title\\})/is", $message, $matches)) {
 			$search[] = '{title}';
+
+			// Get the title to use
+			if ($post->isQuestion()) {
+				$post->title = $post->getTitle();
+			} else {
+				$post->title = $post->getParent()->getTitle();
+			}
+
 			$replace[] = $post->title;
 		}
 
-		//replace category
-		if (preg_match_all("/.*?(\\{category\\})/is", $message, $matches))
-		{
-			$category	= DiscussHelper::getTable( 'Category' );
-			$category->load( $post->category_id );
+		// replace category
+		if (preg_match_all("/.*?(\\{category\\})/is", $message, $matches)) {
+			$category = ED::table('Category');
+			$category->load($post->category_id);
 
-			$search[]	= '{category}';
-			$replace[]	= $category->title;
+			$search[] = '{category}';
+			$replace[] = $category->title;
 		}
 
 		$message = JString::str_ireplace($search, $replace, $message);
 
-		//replace link
-		if (preg_match_all("/.*?(\\{url\\})/is", $message, $matches))
-		{
-			$link	= DiscussRouter::getRoutedURL( 'index.php?option=com_easydiscuss&view=post&id=' . $post->id , false , true );
+		// replace link
+		if (preg_match_all("/.*?(\\{url\\})/is", $message, $matches)) {
+			
+			// $link = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $post->id, false, true);
+	        
+	        // Get the question id
+	        $question = $post->getParent();
+
+	        // if that is reply post
+			$link = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $question->id . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id, false, true);
+
+			// If that is question
+			if ($post->isQuestion()) {
+				$link = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $post->id, false, true);
+			}
 
 			// @rule: Detect the length of the link
-			$length		= JString::strlen( $link );
-			$balance	= 140 - $length;
+			$length	= JString::strlen($link);
+			$balance = 140 - $length;
 
-			$parts		= explode( '{url}' , $message );
+			$parts = explode('{url}', $message);
 
-			$message	= JString::substr( $parts[0] , 0 , 119 );
-			$message	.= ' ' . $link;
+			$message = JString::substr($parts[0], 0, 119);
+			$message .= ' ' . $link;
 
 			return $message;
 		}

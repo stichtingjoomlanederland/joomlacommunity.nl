@@ -75,12 +75,20 @@ class EasyDiscussViewEasyDiscuss extends EasyDiscussAdminView
 
 		$totalUsers = ED::model('users')->getTotalUsers();
 
+		// Get the total of the user roles
+		$totalUserRoles = ED::model('roles')->getTotalRoles();
+		
+		// Get the total of the post types
+		$totalTypes = ED::model('posttypes')->getTotalTypes();
+
 		$this->set('postsTicks', $postsTicks);
 		$this->set('postsCreated', $postsCreated);
 		$this->set('totalPosts', $totalPosts);
 		$this->set('totalCategories', $totalCategories);
 		$this->set('totalTags', $totalTags);
 		$this->set('totalUsers', $totalUsers);
+		$this->set('totalUserRoles', $totalUserRoles);
+		$this->set('totalTypes', $totalTypes);
 		$this->set('categories', $categories);
 		$this->set('postsPie', $postsPie);
 		$this->set('monthPie', $monthPie);

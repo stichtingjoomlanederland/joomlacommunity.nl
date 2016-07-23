@@ -124,7 +124,28 @@
         "access": "discuss.manage.posts",
         "title": "COM_EASYDISCUSS_SIDEBAR_DISCUSSIONS",
         "view": "posts",
-        "icon": "fa-file-text-o"
+        "icon": "fa-file-text-o",
+        "childs": [
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_DISCUSSIONS_QUESTIONS",
+                "url": {
+                    "layout": ""
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_REPLIES",
+                "url": {
+                    "layout": "replies"
+                }
+            },
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_PENDING_POSTS",
+                "counter": "threaded/getPendingCount",
+                "url": {
+                    "layout": "pending"
+                }
+            }
+        ]
     },
     {
         "access": "discuss.manage.autoposting",
@@ -217,7 +238,21 @@
         "access": "discuss.manage.badges",
         "title" : "COM_EASYDISCUSS_SIDEBAR_BADGES",
         "view"  : "badges",
-        "icon"  : "fa-certificate"
+        "icon"  : "fa-certificate",
+        "childs": [
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_BADGES",
+                "url": {
+                    "layout": ""
+                }
+            },          
+            {
+                "title": "COM_EASYDISCUSS_SIDEBAR_BADGES_MASS_ASSIGN",
+                "url": {
+                    "layout": "assign"
+                }
+            }            
+        ]        
     },
     {
         "access": "discuss.manage.types",

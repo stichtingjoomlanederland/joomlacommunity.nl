@@ -67,7 +67,7 @@ class EasyDiscussMailer extends EasyDiscuss
 		$emailSent = array();
 
 		// Notify site subscribers
-		$siteSubscribers = self::getSubscribers('site', 0, 0, array(), $excludes);
+		$siteSubscribers = self::getSubscribers('site', 0, $data['cat_id'], array(), $excludes);
 
 		foreach ($siteSubscribers as $subscriber) {
 			$emailSent[] = $subscriber->email;
@@ -358,6 +358,8 @@ class EasyDiscussMailer extends EasyDiscuss
 
 		if (!empty($categoryGrps)) {
 
+			// based on category permission.
+
 			$result = array();
 			$aclItems = array();
 			$nonAclItems = array();
@@ -365,22 +367,14 @@ class EasyDiscussMailer extends EasyDiscuss
 			// Site members
 			$queryCatIds = implode(',', $categoryGrps);
 
-			if (ED::getJoomlaVersion() >= '1.6') {
-				$query	= 'SELECT ds.* FROM `#__discuss_subscription` AS ds';
-				$query	.= ' INNER JOIN `#__user_usergroup_map` as um on um.`user_id` = ds.`userid`';
-				$query	.= ' WHERE ds.`interval` = ' . $db->Quote('instant');
-				$query	.= ' AND ds.`type` = ' . $db->Quote($type);
-				$query	.= ' AND ds.`cid` = ' . $db->Quote( $cid );
-				$query	.= ' AND um.`group_id` IN (' . $queryCatIds. ')';
-			} else {
-				$query	= 'SELECT ds.* FROM `#__discuss_subscription` AS ds';
-				$query	.= ' INNER JOIN `#__core_acl_aro` as caa on caa.`value` = ds.`userid`';
-				$query	.= ' INNER JOIN `#__core_acl_groups_aro_map` as cagam on cagam.`aro_id` = caa.`id`';
-				$query	.= ' WHERE ds.`interval` = ' . $db->Quote('instant');
-				$query	.= ' AND ds.`type` = ' . $db->Quote($type);
-				$query	.= ' AND ds.`cid` = ' . $db->Quote( $cid );
-				$query	.= ' AND cagam.`group_id` IN (' . $queryCatIds. ')';
-			}
+
+			$query	= 'SELECT ds.* FROM `#__discuss_subscription` AS ds';
+			$query	.= ' INNER JOIN `#__user_usergroup_map` as um on um.`user_id` = ds.`userid`';
+			$query	.= ' WHERE ds.`interval` = ' . $db->Quote('instant');
+			$query	.= ' AND ds.`type` = ' . $db->Quote($type);
+			$query	.= ' AND ds.`cid` = ' . $db->Quote( $cid );
+			$query	.= ' AND um.`group_id` IN (' . $queryCatIds. ')';
+
 
 			$db->setQuery($query);
 			$aclItems  = $db->loadObjectList();
@@ -605,6 +599,9 @@ class EasyDiscussMailer extends EasyDiscuss
 
 			return $content;
 		}
+
+		// Convert HTML entities to characters e.g. &lt;br&gt; => <br>
+		$content = html_entity_decode($content);
 
 		if ($this->config->get('main_notification_max_length') > '0') {
 			$content = substr($content, 0, $this->config->get('main_notification_max_length'));

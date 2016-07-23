@@ -17,7 +17,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             <div class="o-col">
                 <div class="ed-noti-hd__title">
                     	<?php echo JText::_('COM_EASYDISCUSS_ALL_NOTIFICATIONS'); ?>
-                    <span class="ed-noti-hd__badge">
+                    <span data-ed-notifications-counter class="ed-noti-hd__badge">
                 		<?php echo $totalNotifications; ?>
                     </span>
                 </div>
@@ -26,7 +26,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             <?php if ($notifications) { ?>
             <div class="o-col">
                 <div class="pull-right">
-                    <a href="<?php echo EDR::_('controller=notification&task=markreadall');?>" class="btn btn-default"><?php echo JText::_('COM_EASYDISCUSS_MARK_ALL_AS_READ'); ?></a>
+                    <a href="javascript:void(0)" data-ed-notifications-read-all class="btn btn-default"><?php echo JText::_('COM_EASYDISCUSS_MARK_AS_READ'); ?></a>
                 </div>
             </div>
             <?php } ?>
@@ -70,7 +70,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			                    <div class="ed-noti__meta">
 			                        <ol class="g-list-inline g-list-inline--delimited">
 			                            <li>
-			                            	<a href="<?php echo EDR::_($item->permalink);?>">
+			                            	<a href="<?php echo $item->permalink;?>">
 			                            		<?php echo $item->touched; ?>
 			                            	</a>
 			                            </li>
@@ -106,6 +106,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 <?php if (isset($pagination)) { ?>
     <div class="ed-pagination">
-        <?php echo $pagination->getPagesLinks();?>
+        <?php echo $pagination;?>
     </div>
 <?php } ?>

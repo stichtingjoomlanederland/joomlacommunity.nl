@@ -30,16 +30,16 @@ $count = (INT)trim($params->get('count', 0));
 $exclude = $params->get('exclusion', 0);
 $exclude = explode(',', $exclude);
 
+// Top members will always order by posts
+$options = array('count' => $count,
+			'order' => 'posts');
+
 if (!empty($exclude)) {
 
 	// Filter out alphabeths
 	$exclude = array_filter($exclude, 'is_numeric');
 	$options['exclude'] = $exclude;
 }
-
-// Top members will always order by posts
-$options = array('count' => $count,
-			'order' => 'posts');
 
 // Retrieve the users
 $model = ED::model('Users');

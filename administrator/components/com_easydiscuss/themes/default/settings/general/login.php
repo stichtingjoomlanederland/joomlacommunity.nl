@@ -51,9 +51,10 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <select name="main_logout_redirect" class="form-control" >
                                 <option value="frontpage"<?php echo $this->config->get('main_logout_redirect') == 'frontpage' ? ' selected="selected"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_REDIRECT_FRONTPAGE');?></option>
                                 <option value="same.page"<?php echo $this->config->get('main_logout_redirect') == 'same.page' ? ' selected="selected"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_REDIRECT_SAME_PAGE');?></option>
+                                <option value="forums"<?php echo $this->config->get('main_logout_redirect') == 'forums' ? ' selected="selected"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_REDIRECT_FORUMS');?></option>
                             </select>
                         </div>
-                    </div>
+                    </div>                  
 				</div>
 			</div>
 		</div>

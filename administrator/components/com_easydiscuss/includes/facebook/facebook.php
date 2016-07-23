@@ -13,6 +13,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussFacebook extends EasyDiscuss
 {
+	/**
+	 * Adds the opengraph tags on the page for the post
+	 *
+	 * @since	4.0.7
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
 	public function addOpenGraph(EasyDiscussPost $post)
 	{
 		// Use facebook developer tools to check the result

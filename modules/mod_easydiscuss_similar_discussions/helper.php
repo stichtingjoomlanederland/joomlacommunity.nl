@@ -66,10 +66,11 @@ class EDSimilarDiscussions
 			$query	= 'SELECT DATEDIFF('. $db->Quote($date->toMySQL()) . ', a.`created`) as `noofdays`, ';
 			$query	.= ' DATEDIFF(' . $db->Quote($date->toMySQL()) . ', a.`created`) as `daydiff`, TIMEDIFF(' . $db->Quote($date->toMySQL()). ', a.`created`) as `timediff`';
 			$query .= ', a.`id`,  a.`title`, a.`content`, MATCH(a.`title`, a.`content`) AGAINST (' . $db->Quote($search) . $fulltextType . ') AS score';
-			$query .= ', b.`id` as `category_id`, b.`title` as `category_name`';
+			$query .= ', b.`id` as `category_id`, b.`title` as `category_name`, a.`post_id`';
 
 			$query .= ' FROM `#__discuss_thread` as a';
 			$query .= ' inner join `#__discuss_category` as b ON a.category_id = b.id';
+			$query .= " inner join " . $db->qn('#__discuss_posts') . " as c on a.post_id = c.id";
 			$query .= ' WHERE MATCH(a.`title`,a.`content`) AGAINST (' . $db->Quote($search) . $fulltextType . ')';
 			$query .= ' AND a.`published` = ' . $db->Quote('1');
 
@@ -78,6 +79,7 @@ class EDSimilarDiscussions
 			}
 
 			$query .= ' and a.`post_id` != ' . $db->Quote($postId);
+			$query .= ' and c.`parent_id` != ' . $db->Quote($postId);
 			$query .= ' ORDER BY score DESC';
 			$query .= ' LIMIT ' . $limit;
 
@@ -99,6 +101,7 @@ class EDSimilarDiscussions
 				$row->title = ED::wordFilter($row->title);
 				$row->content = strip_tags(html_entity_decode(ED::wordFilter($row->content)));
 				$row->duration = ED::getDurationString($durationObj);
+				$row->permalink = EDR::getPostRoute($row->post_id);
 
 				$discussions[] = $row;
 			}

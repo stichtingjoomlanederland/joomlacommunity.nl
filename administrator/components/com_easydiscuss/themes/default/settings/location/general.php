@@ -82,6 +82,24 @@ defined('_JEXEC') or die('Unauthorized Access');
 		</div>
 	</div>
 
-	<div class="col-md-6">
-	</div>
+    <div class="col-md-6">
+        <div class="panel">
+            <?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_LOCATION_GENERAL_GOOGLE_MAPS'); ?>
+
+            <div id="location-question" class="panel-body">
+                <div class="form-horizontal">
+                    
+                    <div class="form-group">
+                        <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_LOCATION_GENERAL_GOOGLE_MAPS_API_KEY'); ?>
+                        </div>
+                        <div class="col-md-7">
+                            <input type="text" class="form-control" name="main_location_gmaps_key" value="<?php echo $this->config->get('main_location_gmaps_key');?>" size="60" />
+                        </div>                        
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

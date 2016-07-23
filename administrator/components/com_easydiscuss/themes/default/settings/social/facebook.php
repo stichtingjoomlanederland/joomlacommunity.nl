@@ -43,6 +43,14 @@ defined('_JEXEC') or die('Restricted access');
 						</div>
 					</div>
 
+					<div class="form-group">
+						<div class="col-md-6 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LOAD_OPENGRAPH_TAGS'); ?>
+						</div>
+						<div class="col-md-6">
+							<?php echo $this->html('form.boolean', 'integration_facebook_opengraph', $this->config->get('integration_facebook_opengraph')); ?>
+						</div>
+					</div>
 
 					<div class="form-group">
 						<div class="col-md-6 control-label">

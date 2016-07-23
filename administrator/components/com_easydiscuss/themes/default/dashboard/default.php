@@ -34,7 +34,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<div class="db-stream db-stream-graph">
 							<canvas id="graph-area" />
 						</div>
-						<!-- <div id="graph-legend" class="chart-legend"></div> -->
 					</div>
 				</div>
 			</div>
@@ -156,14 +155,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<div class="col-md-4">
 							<a class="db-stat-stamp" href="<?php echo JRoute::_('index.php?option=com_easydiscuss&view=roles');?>">
 								<i class="fa fa-user-secret"></i>
-								<em><?php echo $totalUsers;?></em>
+								<em><?php echo $totalUserRoles;?></em>
 								<b><?php echo JText::_('COM_EASYDISCUSS_STATS_ROLES');?></b>
 							</a>
 						</div>
 						<div class="col-md-4">
 							<a class="db-stat-stamp" href="<?php echo JRoute::_('index.php?option=com_easydiscuss&view=types');?>">
 								<i class="fa fa-ticket"></i>
-								<em><?php echo $totalUsers;?></em>
+								<em><?php echo $totalTypes;?></em>
 								<b><?php echo JText::_('COM_EASYDISCUSS_STATS_POST_TYPES');?></b>
 							</a>
 						</div>

@@ -92,7 +92,6 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 				$pollQuestion->post_id = $item->id;
 				$pollQuestion->title = $kPoll->title;
 				$pollQuestion->multiple = 0;
-				$pollQuestion->locked = 0;
 
 				$pollQuestion->store();
 
@@ -224,12 +223,6 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 		}
 
 		$post->bind($data);
-
-		// Validate the posted data to ensure that we can really proceed
-        if (!$post->validate($data)) {
-        	return false;
-        }
-
         $post->save();
 
 		// @task: Get attachments
@@ -332,7 +325,7 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 		// Get Kunena's category
 		$kunenaCategory = $this->getKunenaCategory($item->catid);
 
-		// Determine if this category has already been created in EasyBlog
+		// Determine if this category has already been created in EasyDiscuss
 		$easydiscussCategoryId = $this->easydiscussCategoryExists($kunenaCategory);
 
 		return $easydiscussCategoryId;

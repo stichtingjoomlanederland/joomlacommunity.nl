@@ -15,7 +15,7 @@ class EasyDiscussPost extends EasyDiscuss
 {
     private $post = null;
     private $original = null;
-
+    private $akismet = null;
 
     // This contains the error message.
     public $error = null;
@@ -496,6 +496,13 @@ class EasyDiscussPost extends EasyDiscuss
             }
         }
 
+        // Ensure that the user is allowed to reply post from this category.
+        $category = $this->getCategory();
+
+        if (!$category->canReply($this->my->id)) {
+            $canReply = false;
+        }
+
         if ($this->acl->allowed('add_reply') && $canReply) {
             return true;
         }
@@ -792,13 +799,21 @@ class EasyDiscussPost extends EasyDiscuss
 
         // If post is being edited, do not change the owner of the item.
         if (!$this->isNew()) {
-            $this->post->user_id = !$this->post->user_id ? $this->my->id : $this->post->user_id;
+            $this->post->user_id = $this->post->user_id;
         }
 
         // Cleanup alias.
-        if (isset($data['title'])) {
-            $alias = ED::badwords()->filter($data['title']);
+        if (isset($data['alias']) && $data['alias']) {
+            $alias = ED::badwords()->filter($data['alias']);
             $this->post->alias = ED::getAlias($alias, 'post', $this->post->id);
+        }
+
+        // If alias is empty, we need to get from title
+        if (!$this->post->alias) {
+            if (isset($data['title'])) {
+                $alias = ED::badwords()->filter($data['title']);
+                $this->post->alias = ED::getAlias($alias, 'post', $this->post->id);
+            }
         }
 
          // Get the content type
@@ -828,9 +843,11 @@ class EasyDiscussPost extends EasyDiscuss
 
         // now we need to 'translate the content into preview mode so that frontend no longer need to do this heavy process'
         if ($this->post->content_type == 'bbcode') {
-
             $preview = ED::parser()->bbcode($content);
             $preview = nl2br($preview);
+
+            // Before we store this as preview, we need to filter the badwords
+            $preview = ED::badwords()->filter($preview);
             $this->post->preview = $preview;
         }
 
@@ -893,7 +910,6 @@ class EasyDiscussPost extends EasyDiscuss
         $options = array('ignorePreSave' => true);
 
         $state = $this->save($options);
-
 
         $this->updateThread(array('published' => $publish));
 
@@ -1414,7 +1430,7 @@ class EasyDiscussPost extends EasyDiscuss
     public function canView($viewerId = null)
     {
         $my = JFactory::getUser($viewerId);
-        
+
         $isModerator = ED::isModerator($this->post->category_id, $my->id);
 
         // If this post doesn't have an id, it cannot be viewed.
@@ -1425,8 +1441,16 @@ class EasyDiscussPost extends EasyDiscuss
         // Ensure that the viewer's and this post category's language is the same
         $filterLanguage = JFactory::getApplication()->getLanguageFilter();
         $lang = JFactory::getLanguage();
-        
-        if ($filterLanguage && $this->getCategoryLanguage() != '*' && ($lang->getTag() != $this->getCategoryLanguage())) {
+
+        // Get current post category language
+        $postCatLang = $this->getCategoryLanguage();
+
+        // For some reason if the category language columns is stored empty data, we will override this.
+        if (empty($postCatLang)) {
+            $postCatLang = '*';
+        }
+
+        if ($filterLanguage && $postCatLang != '*' && ($lang->getTag() != $postCatLang)) {
             return false;
         }
 
@@ -1444,6 +1468,10 @@ class EasyDiscussPost extends EasyDiscuss
         $category = $this->getCategory();
 
         if (!$category->canAccess()) {
+            return false;
+        }
+
+        if ($this->isReply() && !$category->canViewReplies()) {
             return false;
         }
 
@@ -2205,6 +2233,21 @@ class EasyDiscussPost extends EasyDiscuss
     }
 
     /**
+     * Retrieves a date object for this post which can be manipulated by the caller if they want to
+     *
+     * @since   4.0.10
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function getDateObject()
+    {
+        $date = ED::dateWithOffSet($this->created);
+
+        return $date;
+    }
+
+    /**
      * Retrieves the duration string of the post
      *
      * @alternative for previous ->duration
@@ -2392,35 +2435,10 @@ class EasyDiscussPost extends EasyDiscuss
 
         $key = $this->post->id;
 
-        if (! isset($_cache[$key])) {
-
-            // // Get the total number of replies
-            // $totalReplies = $this->getTotalReplies();
-
-            // if (!$totalReplies) {
-            //     $_cache[$key] = '0';
-            //     return;
-            // }
-
-            // // Get the last reply item
-            // $model = ED::model('Posts');
-            // $reply = $model->getLastReply($this->post->id);
-
-            // if (!$reply) {
-            //     $_cache[$key] = '0';
-            //     return;
-            // }
-
-            // $post = ED::post($reply);
-
-            // // Get the user that last replied
-            // // $user = ED::user($reply->user_id);
-            // // $user->poster_name = $reply->user_id ? $user->getName() : $reply->poster_name;
-            // // $user->poster_email = $reply->user_id ? $user->user->email : $reply->poster_email;
-
-            // $user = $post->getOwner();
+        if (!isset($_cache[$key])) {
 
             $user = null;
+
             if (isset($this->last_user_id)) {
                 if ($this->last_user_id) {
 
@@ -3523,8 +3541,6 @@ class EasyDiscussPost extends EasyDiscuss
      */
     public function preSave()
     {
-        // @TODO: We need to convert the bbcode contents into html and store it on the "preview" column
-
         if ($this->isNew()) {
             // Set all post to be published by default.
             $this->post->published = DISCUSS_ID_PUBLISHED;
@@ -3715,7 +3731,15 @@ class EasyDiscussPost extends EasyDiscuss
             $this->bindAttachments();
         }
 
-        // now we need to save / update thread here
+        if ($this->isReply()) {
+            $parent = ED::table('Post');
+            $parent->load($this->parent_id);
+
+            $parent->replied = $this->created;
+            $parent->store();
+        }
+
+        // Now we need to save / update thread here
         $this->saveThread();
     }
 
@@ -3729,12 +3753,11 @@ class EasyDiscussPost extends EasyDiscuss
      */
     public function saveThread()
     {
-
         $isNew = $this->isNew();
 
         $thread = ED::table('Thread');
 
-        if (! $isNew) {
+        if (!$isNew) {
             $thread->load($this->thread_id);
 
             if ($this->isQuestion()) {
@@ -3752,9 +3775,23 @@ class EasyDiscussPost extends EasyDiscuss
                 $thread->store();
 
             } else {
-                //this is a reply. we might be updating the isresolved or isanswer state.
-                // for now do nothing. will come back to this part later.
-                //
+
+                // If this is a reply and it is published, we need to update the thread table accordingly.
+
+                // Update thread last_user_id and last update date
+                $thread->load(array('post_id' => $this->post->parent_id));
+
+                // We only want to update the rest of this section if this reply is not pending moderation
+                if ($this->isPublished()) {
+                    $thread->last_user_id = $this->post->user_id;
+                    $thread->last_poster_name = $this->post->poster_name;
+                    $thread->last_poster_email = $this->post->poster_email;
+                    $thread->replied = $this->post->created;
+
+                    $thread->num_replies = $thread->num_replies + 1;
+                }
+
+                $thread->store();
             }
 
 
@@ -3787,15 +3824,19 @@ class EasyDiscussPost extends EasyDiscuss
                 $thread->updatePostThreadId($this->post->id);
 
             } else {
-                // update thread last_user_id and last update date
+
+                // Update thread last_user_id and last update date
                 $thread->load(array('post_id' => $this->post->parent_id));
 
-                $thread->last_user_id = $this->post->user_id;
-                $thread->last_poster_name = $this->post->poster_name;
-                $thread->last_poster_email = $this->post->poster_email;
-                $thread->replied = $this->post->created;
+                // We only want to update the rest of this section if this reply is not pending moderation
+                if ($this->isPublished()) {
+                    $thread->last_user_id = $this->post->user_id;
+                    $thread->last_poster_name = $this->post->poster_name;
+                    $thread->last_poster_email = $this->post->poster_email;
+                    $thread->replied = $this->post->created;
 
-                $thread->num_replies = $thread->num_replies + 1;
+                    $thread->num_replies = $thread->num_replies + 1;
+                }
 
                 $thread->store();
 
@@ -3823,7 +3864,7 @@ class EasyDiscussPost extends EasyDiscuss
 
         // Get the current reply count
         $model = ED::model('Posts');
-        $replyCount = $model->getTotalReplies($this->post->parent_id);        
+        $replyCount = $model->getTotalReplies($this->post->parent_id);
 
         $thread = ED::table('Thread');
 
@@ -3952,13 +3993,15 @@ class EasyDiscussPost extends EasyDiscuss
             // Get the oauth client
             $client = ED::oauth()->getClient($site->type);
             $client->setAccess($oauth->access_token);
-            $state = $client->share($this);
+            $state = $client->share($this, $client);
 
-            // When the psot is shared we need to keep a record of this to prevent from sending duplicate updates.
-            $history = ED::table('OAuthPosts');
-            $history->post_id = $this->post->id;
-            $history->oauth_id = $oauth->id;
-            $history->store();
+            // When the post is shared we need to keep a record of this to prevent from sending duplicate updates.
+            if ($state === true) {
+                $history = ED::table('OAuthPosts');
+                $history->post_id = $this->post->id;
+                $history->oauth_id = $oauth->id;
+                $history->store();
+            }
         }
     }
 
@@ -4052,6 +4095,9 @@ class EasyDiscussPost extends EasyDiscuss
 
             $notification->store();
         }
+
+        // Process notification in easysocial
+        ED::easysocial()->notify('new.mentions', $this, $question);
 
         return true;
     }
@@ -4201,7 +4247,7 @@ class EasyDiscussPost extends EasyDiscuss
         $post = ED::post($postId);
 
         $emailContent = $post->content;
-        $emailContent = ED::Mailer()->trimEmail($emailContent);  
+        $emailContent = ED::Mailer()->trimEmail($emailContent);
 
         $emailData = array();
         $emailData['postLink'] = EDR::getRoutedURL('view=post&id=' .$postId ,false ,true);
@@ -4307,10 +4353,9 @@ class EasyDiscussPost extends EasyDiscuss
 
         $emailContent = $this->post->content;
 
+        // If the current content type is bbcode, we need to send it to the parser to parse it.
         if ($this->getContentType() != 'html') {
-            // the content is bbcode. we need to parse it.
-            $emailContent = ED::parser()->bbcode($emailContent);
-            $emailContent = ED::parser()->removeBrTag($emailContent);
+            $emailContent = $this->preview;
         }
 
         // If post is html type we need to strip off html codes.
@@ -4348,7 +4393,7 @@ class EasyDiscussPost extends EasyDiscuss
         } else {
 
             // If this is a private post, do not notify anyone
-            if ((!$this->post->private && $this->getCategory()->canAccess()) && !$this->isCluster()) {
+            if (!$this->post->private && !$this->isCluster()) {
                 // Notify site subscribers
 
                 if (($this->isNew() || $this->prevPostStatus == DISCUSS_ID_PENDING) && $this->isPublished() && !$this->config->get('notify_all')) {
@@ -4398,7 +4443,8 @@ class EasyDiscussPost extends EasyDiscuss
     {
         if ($this->acl->allowed('add_tag', '0')) {
 
-            $tags = $this->input->get('tags', '', 'POST');
+            // it should get it as array because it might contain a lot of tags
+            $tags = $this->input->get('tags', array(), 'array');
 
             $postTagTable = ED::table('PostsTags');
 
@@ -4459,13 +4505,24 @@ class EasyDiscussPost extends EasyDiscuss
         // Add activity integrations for replies
         if ($this->isReply() && $this->isPublished()) {
             ED::jomsocial()->addActivityReply($this);
-            ED::easysocial()->replyDiscussionStream($this);
+
+            // We don't want to create a stream for replies
+            // that were coming from Easysocial comment
+            if (!isset($this->saveOptions['saveFromEasysocialStory'])) {
+                ED::easysocial()->replyDiscussionStream($this);
+            }
         }
+
+        // Get the question
+        $question = $this->getParent();
 
         // @rule: Jomsocial activity integrations & points & ranking
         if (($this->isNew() || $this->prevPostStatus == DISCUSS_ID_PENDING) && $this->post->published == DISCUSS_ID_PUBLISHED && !$this->post->private) {
 
-            ED::jomsocial()->addActivityQuestion($this->post);
+            // Add activity integrations for new discussion
+            if ($this->isQuestion() && $this->isPublished()) {
+                ED::jomsocial()->addActivityQuestion($this->post);
+            }
 
             if (!isset($this->saveOptions['saveFromEasysocialStory']) && !$this->isReply()) {
                 ED::easysocial()->createDiscussionStream($this);
@@ -4479,7 +4536,7 @@ class EasyDiscussPost extends EasyDiscuss
                 $notificationRule = 'new.reply';
             }
 
-            ED::easysocial()->notify($notificationRule, $this);
+            ED::easysocial()->notify($notificationRule, $this, $question);
 
             // Add logging for user.
             ED::History()->log('easydiscuss.new.discussion', $this->my->id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_NEW_POST', $this->post->title ), $this->post->id);
@@ -4513,15 +4570,15 @@ class EasyDiscussPost extends EasyDiscuss
         // Get any save options if available.
         $this->saveOptions = $options;
 
+        // This allows us to perform necessary logics before the post is really saved
         if (!isset($this->saveOptions['ignorePreSave'])) {
-            // This allows us to perform necessary logics before the post is really saved
             $this->preSave();
         }
 
+        // This option enforces moderation for the post
         if (isset($this->saveOptions['forceModerate']) && $this->saveOptions['forceModerate']) {
             $this->isModerate = true;
         }
-
 
         // Now we can store this in the db
         $state = $this->post->store();
@@ -4632,6 +4689,11 @@ class EasyDiscussPost extends EasyDiscuss
 
         // If captcha is not enabled, skip it altogether
         if (!$captcha->enabled()) {
+            return true;
+        }
+
+        //If captcha is enable and create from back end
+        if (JFactory::getApplication()->isAdmin() && $captcha->enabled()) {
             return true;
         }
 
@@ -4788,7 +4850,7 @@ class EasyDiscussPost extends EasyDiscuss
         // Delete attachments
         $this->deleteAttachments();
 
-        // @rule: Delete any childs
+        // Delete any child replies
         if ($this->isQuestion()) {
             $deletedIds = $this->deleteReplies();
 
@@ -4839,6 +4901,15 @@ class EasyDiscussPost extends EasyDiscuss
             ED::aup()->assign(DISCUSS_POINTS_DELETE_DISCUSSION, $this->post->user_id, $this->post->title);
         } else {
             ED::aup()->assign(DISCUSS_POINTS_DELETE_REPLY, $this->post->user_id, $this->post->title);
+        }
+
+        // We also need to update the thread table's last_user_id column
+        if ($this->isReply()) {
+            $parent = $this->getParent();
+
+            $lastReplier = $parent->getLastReplier();
+
+            $this->updateThread(array('last_user_id' => $lastReplier->id));
         }
 
         // If this is a reply, and is an answer, we need to clear the parent's answered status
@@ -6016,4 +6087,231 @@ class EasyDiscussPost extends EasyDiscuss
         return $users;
     }
 
+    /**
+     * Retrieves a list of user id's that has participated in a discussion
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function getPostNavigation($overrideType = '')
+    {
+        $config = $this->config;
+
+        if (! $config->get('layout_postnavigation', 0)) {
+            return null;
+        }
+
+        // TODO: add setting to follow sitewide or category.
+        $type = $config->get('layout_postnavigation_type', 'sitewide');
+        $navigationType = ($overrideType) ? $overrideType : $type;
+
+        $model = ED::model('Posts');
+        $navigation = $model->getPostNavigation($this, $navigationType);
+
+        if ($navigation->prev) {
+            $navigation->prev->link = EDR::_('view=post&id=' . $navigation->prev->id);
+            $navigation->prev->title = JString::strlen($navigation->prev->title) > 50 ? JString::substr($navigation->prev->title, 0, 50) . '...' : $navigation->prev->title;
+        }
+
+        if ($navigation->next) {
+            $navigation->next->link = EDR::_('view=post&id=' . $navigation->next->id);
+            $navigation->next->title = JString::strlen($navigation->next->title) > 50 ? JString::substr($navigation->next->title, 0, 50) . '...' : $navigation->next->title;
+        }
+
+        // if both prev and next is empty. reset the variable to null
+        if (!$navigation->prev && !$navigation->next) {
+            $navigation = null;
+        }
+
+        return $navigation;
+    }
+
+    /**
+     * Get site details that are associated with the post
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function getSiteDetails()
+    {
+        //load porfile info
+        $postOwner = ED::user($this->user_id);
+        $siteDetails = new JRegistry($postOwner->get('site'));
+
+        if (!$this->canViewSiteDetails()) {
+            return false;
+        }
+
+        $string = ES::string();
+
+        $obj = new stdClass();
+
+        // Default site details from user profile
+        $siteUrl = $siteDetails->get('siteUrl');
+        $siteUsername = $siteDetails->get('siteUsername');
+        $sitePassword = $siteDetails->get('sitePassword');
+        $ftpUrl = $siteDetails->get('ftpUrl');
+        $ftpUsername = $siteDetails->get('ftpUsername');
+        $ftpPassword = $siteDetails->get('ftpPassword');
+        $siteInfo = $siteDetails->get('optional');
+
+        // Get site details from the post itself.
+        if ($this->params) {
+
+            // Get the url
+            $url = $this->getFieldData('siteurl', $this->params);
+
+            // Sanitize the url
+            if ($url) {
+                if (stristr($url[0], 'http://') === false && stristr($url[0], 'https://') === false) {
+                    $url[0] = $string->escape('http://' . $url[0]);
+                }
+            }
+
+            if ($url[0] == 'http://') {
+                $url[0] = '';
+            }
+
+            $siteDetailsTemp = array(
+                'siteUrl' => $url,
+                'siteUsername' => $this->getFieldData('siteusername', $this->params),
+                'sitePassword' => $this->getFieldData('sitepassword', $this->params),
+                'ftpUrl' => $this->getFieldData('ftpurl', $this->params),
+                'ftpUsername' => $this->getFieldData('ftpusername', $this->params),
+                'ftpPassword' => $this->getFieldData('ftppassword', $this->params),
+                'siteInfo' => $this->getFieldData('siteinfo', $this->params)
+                );
+
+            $siteDetailsPost = new stdClass();
+            $useDefault = true;
+
+            // We need to check if the user have set a value in the site details when posting a new question or replies.
+            // If yes, we need to always use that informations.
+            foreach ($siteDetailsTemp as $siteDetail => $key) {
+                $siteDetailsPost->$siteDetail = $key[0];
+
+                // Check for the value.
+                if (isset($key[0]) && $key[0]) {
+                    $useDefault = false;
+                }
+            }               
+
+            // Directly return the informations when the value is exist.
+            if (!$useDefault) {
+                return $siteDetailsPost;
+            }
+        }
+
+        // If it reached here means there are no value from both profile and post.
+        if (empty($siteUrl) && empty($siteUsername) && empty($sitePassword) && empty($ftpUrl) && empty($ftpUsername) && empty($ftpPassword)) {
+            return false;
+        }
+
+        $obj = new stdClass();
+        $obj->siteUrl = $string->escape($siteUrl);
+        $obj->siteUsername = $string->escape($siteUsername);
+        $obj->sitePassword = $string->escape($sitePassword);
+        $obj->ftpUrl = $string->escape($ftpUrl);
+        $obj->ftpUsername = $string->escape($ftpUsername);
+        $obj->ftpPassword = $string->escape($ftpPassword);
+        $obj->siteInfo = str_ireplace('\n' , "<br />" , nl2br($siteInfo));
+
+        return $obj;
+    }
+
+    /**
+     *
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function getFieldData($fieldName, $params)
+    {
+        $data = array();
+        $json = ED::json();
+
+        // this is to support data from older version
+        if (!$json->isJsonString($params)) {
+
+            $fieldName = (string) $fieldName;
+            $pattern = '/params_' . $fieldName . '[0-9]?=["](.*)["]/i';
+
+            preg_match_all($pattern, $params, $matches);
+
+            if (!empty($matches[1])) {
+                foreach ($matches[1] as $match) {
+                    $data[] = $match;
+                }
+            }
+
+            return $data;
+        }
+
+        // Make it to array
+        $params = json_decode($params, true);
+
+        if (!empty($params)) {
+            foreach ($params as $key => $val) {
+
+                $fieldName = (string) $fieldName;
+
+                if (JString::strpos($key, 'params_' . $fieldName) !== false) {
+                    $data[] = $val;
+                }
+            }
+
+            return $data;
+        }
+
+        return false;
+    }    
+
+    /**
+     * Determines if the current user can view site details
+     *
+     * @since   2.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function canViewSiteDetails()
+    {
+        if ($this->isQuestion() && !$this->config->get('tab_site_question')) {
+            return false;
+        }
+
+        if ($this->isReply() && !$this->config->get('tab_site_reply')) {
+            return false;
+        }
+
+        $access = trim($this->config->get('tab_site_access'));
+
+        // Nobody can view this if access is not set yet.
+        if (!$access) {
+            return;
+        }
+
+        $access = explode(',', $access);
+        $gids = ED::getUserGids();
+
+        $canAccess = false;
+
+        foreach ($gids as $gid) {
+            if (in_array($gid, $access)) {
+                $canAccess = true;
+            }
+        }
+
+        if (!$canAccess) {
+            return false;
+        }
+
+        return true;
+    }
 }

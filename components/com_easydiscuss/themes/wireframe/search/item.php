@@ -16,7 +16,9 @@ defined('_JEXEC') or die('Unauthorized Access');
         <div class="ed-search-type"><?php echo $post->getItemTypeTitle(); ?></div>
         <div class="o-row">
             <div class="o-col">
-                <h2 class="ed-post-item__title t-lg-mt--md t-lg-mb--md"><a href="<?php echo $post->getPermalink(); ?>"><?php echo $post->getTitle() ?></a></h2>
+                <h2 class="ed-post-item__title t-lg-mt--md t-lg-mb--md">
+                    <a href="<?php echo $post->getPermalink(); ?>"><?php echo $post->getTitle(); ?></a>
+                </h2>
 
                 <div class="ed-post-content">
                     <?php echo $post->getContent(); ?>

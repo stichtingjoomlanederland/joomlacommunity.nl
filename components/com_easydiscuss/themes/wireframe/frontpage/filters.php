@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyBlog is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -21,29 +21,29 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</a>
 		</li>
 
-		<?php if( $this->config->get('main_qna') && $this->config->get( 'layout_enablefilter_unresolved' ) ) { ?>
+		<?php if($this->config->get('main_qna') && $this->config->get('layout_enablefilter_unresolved')) { ?>
 		<li class="o-tabs__item <?php echo $activeFilter == 'unresolved' ? ' active' : '';?>"
 			data-filter-tab
 			data-filter-type="unresolved"
 		>
 			<a class="o-tabs__link unResolvedFilter" data-filter-anchor href="<?php echo EDR::_('view=index&filter=unresolved');?>">
-				<?php echo JText::_( 'COM_EASYDISCUSS_FILTER_UNRESOLVED' );?>
+				<?php echo JText::_('COM_EASYDISCUSS_FILTER_UNRESOLVED');?>
 			</a>
 		</li>
 		<?php } ?>
 
-		<?php if( $this->config->get('main_qna') && $this->config->get( 'layout_enablefilter_resolved' ) ) { ?>
+		<?php if($this->config->get('main_qna') && $this->config->get('layout_enablefilter_resolved')) { ?>
 		<li class="o-tabs__item <?php echo $activeFilter == 'resolved' ? ' active' : '';?>"
 			data-filter-tab
 			data-filter-type="resolved"
 		>
 			<a class="o-tabs__link resolvedFilter" data-filter-anchor href="<?php echo EDR::_('view=index&filter=resolved');?>">
-				<?php echo JText::_( 'COM_EASYDISCUSS_FILTER_RESOLVED' );?>
+				<?php echo JText::_('COM_EASYDISCUSS_FILTER_RESOLVED');?>
 			</a>
 		</li>
 		<?php } ?>
 
-		<?php if( $this->config->get( 'layout_enablefilter_unanswered' ) ){ ?>
+		<?php if($this->config->get('layout_enablefilter_unanswered')){ ?>
 		<li class="o-tabs__item <?php echo $activeFilter == 'unanswered' ? ' active' : '';?>"
 			data-filter-tab
 			data-filter-type="unanswered"
@@ -54,15 +54,26 @@ defined('_JEXEC') or die('Unauthorized Access');
 		</li>
 		<?php } ?>
 
+		<?php if ($this->config->get('layout_enablefilter_unread')) { ?>
+		<li class="o-tabs__item <?php echo $activeFilter == 'unread' ? ' active' : '';?>"
+			data-filter-tab
+			data-filter-type="unread"
+		>
+			<a class="o-tabs__link unreadFilter" data-filter-anchor href="<?php echo EDR::_('view=index&filter=unread');?>">
+				<?php echo JText::_('COM_EASYDISCUSS_FILTER_UNREAD');?>
+			</a>
+		</li>
+		<?php } ?>
+
 	</ul>
 
 	<!-- Sort tabs -->
 	<div class="ed-filter-bar__sort-action pull-right">
 		<select data-index-sort-filter>
-		  <option value="latest" <?php echo $activeSort == 'latest' || $activeSort == '' ? ' selected="true"' : '';?> data-sort-tab data-sort-type="latest"><?php echo JText::_( 'COM_EASYDISCUSS_SORT_LATEST' );?></option>
+		  <option value="latest" <?php echo $activeSort == 'latest' || $activeSort == '' ? ' selected="true"' : '';?> data-sort-tab data-sort-type="latest"><?php echo JText::_('COM_EASYDISCUSS_SORT_LATEST');?></option>
 		  <?php if ($activeFilter != 'unread') { ?>
-		  	<option value="popular" <?php echo $activeSort == 'popular' ? ' selected="true"' : '';?> data-sort-tab data-sort-type="popular"><?php echo JText::_( 'COM_EASYDISCUSS_SORT_POPULAR' );?></option>
-		  	<option value="title" <?php echo $activeSort == 'title' ? ' selected="true"' : '';?> data-sort-tab data-sort-type="title"><?php echo JText::_( 'COM_EASYDISCUSS_SORT_TITLE' );?></option>
+		  	<option value="popular" <?php echo $activeSort == 'popular' ? ' selected="true"' : '';?> data-sort-tab data-sort-type="popular"><?php echo JText::_('COM_EASYDISCUSS_SORT_POPULAR');?></option>
+		  	<option value="title" <?php echo $activeSort == 'title' ? ' selected="true"' : '';?> data-sort-tab data-sort-type="title"><?php echo JText::_('COM_EASYDISCUSS_SORT_TITLE');?></option>
 		  <?php } ?>
 		</select>
 	</div>

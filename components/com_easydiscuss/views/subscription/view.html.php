@@ -21,8 +21,9 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 		$filter = $this->input->get('filter', 'post', 'word');
 
 		ED::setPageTitle(JText::_('COM_EASYDISCUSS_PAGETITLE_SUBSCRIPTIONS'));
-
-		$this->setPathway( JText::_('COM_EASYDISCUSS_BREADCRUMB_SUBSCRIPTIONS'));
+		if (! EDR::isCurrentActiveMenu('subscription')) {
+			$this->setPathway( JText::_('COM_EASYDISCUSS_BREADCRUMB_SUBSCRIPTIONS'));
+		}
 
 		// Load the user's profile
 		$profile = ED::profile($this->my->id);
@@ -72,7 +73,7 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 		// json encode the graph data
 		$postDataSet = json_encode($postGraph[0]->count);
 		$label = json_encode($postGraph[1]);
-		$categoryDataSet = json_encode($categoryGraph[0]->count); 
+		$categoryDataSet = json_encode($categoryGraph[0]->count);
 
 		// pagination. work in progress
 		$pagination = $model->getPagination()->getPagesLinks('subscription', array('filter' => $filter));
@@ -92,7 +93,7 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 		$this->set('categoryDataSet', $categoryDataSet);
 		$this->set('namespace', $namespace);
 		$this->set('filter', $filter);
-		
+
 		parent::display('subscription/default');
 	}
 }

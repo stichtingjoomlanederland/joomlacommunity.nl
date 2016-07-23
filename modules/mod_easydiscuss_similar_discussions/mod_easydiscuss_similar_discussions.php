@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Restricted access');
 $path = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php';
 
 // Include module helper
-require_once dirname(__FILE__) . '/helper.php';
+require_once(dirname(__FILE__) . '/helper.php');
 
 $app = JFactory::getApplication();
 

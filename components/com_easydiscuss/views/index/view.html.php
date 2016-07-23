@@ -66,7 +66,7 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		$this->logView();
 
 		// Set page title.
-		ED::setPageTitle();
+		ED::setPageTitle('COM_EASYDISCUSS_TITLE_RECENT');
 
 		// Set the meta of the page.
 		ED::setMeta();
@@ -144,28 +144,11 @@ class EasyDiscussViewIndex extends EasyDiscussView
 
 		$pagination = $postModel->getPagination();
 
-		// $postLoader = ED::getTable('Posts');
-		// $postLoader->loadBatch( $topicIds );
-
-		// $postTagsModel = ED::model( 'PostsTags' );
-		// $postTagsModel->setPostTagsBatch( $topicIds );
-
-		// $model = ED::model('Posts');
-		// $lastReplyUser = $model->setLastReplyBatch( $topicIds );
-		// $lastReplyUser = array();
-
-		// // Reduce SQL queries by pre-loading all author object.
-		// $authorIds = array_merge($lastReplyUser, $authorIds);
-		// $authorIds = array_unique($authorIds);
-
-		// //preload users.
-		// ED::user($authorIds);
-
 		// Format featured entries.
-		$featured = ED::formatPost($featured);
+		$featured = ED::formatPost($featured, false, true);
 
 		// Format normal entries
-		$posts = ED::formatPost($posts);
+		$posts = ED::formatPost($posts, false, true);
 
 		// Let's render the layout now.
 		$this->set('activeFilter', $activeFilter);

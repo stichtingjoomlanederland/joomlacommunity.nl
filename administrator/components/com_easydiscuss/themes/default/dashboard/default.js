@@ -1,54 +1,9 @@
 ed.require(['edq', 'chartjs'], function($) {
 
-	// // Plot the chart with posts
-	// var data = [{ data: <?php echo $postsCreated;?>, label: "<?php echo JText::_('COM_EASYDISCUSS_CHART_POSTS', true);?>" }];
-
- //    $('[data-chart-posts]').plot(data, {
-
- //        series: {
- //            lines: { show: true,
- //                    lineWidth: 1,
- //                    fill: true, 
- //                    fillColor: { colors: [ { opacity: 0.1 }, { opacity: 0.13 } ] }
- //                 },
- //            points: { show: true, 
- //                     lineWidth: 2,
- //                     radius: 3
- //                 },
- //            shadowSize: 0,
- //            stack: true
- //        },
- //        grid: { 
- //            hoverable: true, 
- //            clickable: true, 
- //            tickColor: "#f9f9f9",
- //            borderWidth: 0,
- //            backgroundColor: "#fff",
- //        },
- //        colors: ["#a7b5c5", "#30a0eb"],
- //        xaxis: {
- //            min: 0.0,
- //            max: 6,
- //            //mode: null,
- //            ticks: <?php echo $postsTicks;?>,
- //            tickLength: 0, // hide gridlines
- //            axisLabelUseCanvas: true,
- //            tickDecimals: 0,
- //            axisLabelFontSizePixels: 12,
- //            axisLabelFontFamily: 'Verdana, Arial, Helvetica, Tahoma, sans-serif',
- //            axisLabelPadding: 5
- //        },
- //        yaxis: {
- //            tickDecimals: 0
- //        },
- //        shadowSize: 0
- //    });
-
     var data = {
         labels: <?php echo $postsTicks; ?>,
         datasets: [
             {
-                label: "My Created Posts",
                 fillColor: "rgba(151,187,205,0.2)",
                 strokeColor: "rgba(151,187,205,1)",
                 pointColor: "rgba(151,187,205,1)",
@@ -64,8 +19,8 @@ ed.require(['edq', 'chartjs'], function($) {
         bezierCurve : false,
         responsive: true,
         maintainAspectRatio: false,
-        tooltipTemplate: "<%if (label){%><%=label%>: <%}%><%= value %> Post",
-        legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].strokeColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>"
+        tooltipTemplate: "[%if (label){%][%=label%]: [%}%][%= value %] Post",
+        legendTemplate : "<ul class=\"[%=name.toLowerCase()%]-legend\">[% for (var i=0; i<datasets.length; i++){%]<li><span style=\"background-color:[%=datasets[i].strokeColor%]\"></span>[%if(datasets[i].label){%][%=datasets[i].label%][%}%]</li>[%}%]</ul>"
     }
 
     var ctx = document.getElementById("graph-area").getContext("2d");
@@ -147,8 +102,8 @@ ed.require(['edq', 'chartjs'], function($) {
     var options = {
         animateRotate: true,
         // animateScale: true,
-        tooltipTemplate: "<%if (label){%><%=label%>: <%}%><%= value %> Post",
-        legendTemplate: "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span class=\"chartjs-legend-label\" style=\"background-color:<%=segments[i].fillColor%>\"></span><%if(segments[i].label){%><%=segments[i].label%><%}%></li><%}%></ul>"
+        tooltipTemplate: "[%if (label){%][%=label%]: [%}%][%= value %] Post",
+        legendTemplate: "<ul class=\"[%=name.toLowerCase()%]-legend\">[% for (var i=0; i<segments.length; i++){%]<li><span class=\"chartjs-legend-label\" style=\"background-color:[%=segments[i].fillColor%]\"></span>[%if(segments[i].label){%][%=segments[i].label%][%}%]</li>[%}%]</ul>"
     }
 
     var fixedPosition = function(element) {

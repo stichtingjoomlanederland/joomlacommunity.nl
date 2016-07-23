@@ -86,17 +86,38 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 	            <div class="ed-editor__ft">
 
+                    <?php if ($this->config->get('main_tnc_reply')) { ?>
+                    <div class="pull-left">
+                        <div class="o- t-lg-mb--lg">
+                            
+                            <div class="o-checkbox o-checkbox--inline t-mr--md">
+                                <input type="checkbox" name="tnc-reply" id="tnc-reply" data-ed-reply-tnc-checkbox <?php echo ED::tnc()->hasAcceptedTnc('reply') ? 'checked="checked"' : '' ?>/>
+                                <label for="tnc-reply">
+                                    <?php echo JText::_('COM_EASYDISCUSS_I_HAVE_READ_AND_AGREED');?> 
+                                    <a href="javascript:void(0);" style="text-decoration: underline;" data-ed-reply-tnc-link>
+                                        <?php echo JText::_('COM_EASYDISCUSS_TERMS_AND_CONDITIONS');?>
+                                    </a>  
+                                </label>
+                            </div>
+                            
+                        </div>    
+                    </div>
+                    <?php } ?>                      
+
+                    <div class="pull-right">
                     <?php if ($operation == 'editing') { ?>
-                    <button type="button" class="btn btn-default pull-left" data-ed-reply-cancel><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CANCEL');?></button>
+                        <button type="button" class="btn btn-link t-lg-mr--md" data-ed-reply-cancel><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CANCEL');?></button>
                     <?php } ?>
 
-					<button type="button" class="btn btn-primary pull-right" data-ed-reply-submit>
-                        <?php if ($operation == 'replying') { ?>
-                            <?php echo JText::_('COM_EASYDISCUSS_BUTTON_SUBMIT_RESPONSE'); ?>
-                        <?php } else { ?>
-                            <?php echo JText::_('COM_EASYDISCUSS_BUTTON_UPDATE_REPLY'); ?>
-                        <?php } ?>
-                    </button>
+                        <button type="button" class="btn btn-primary pull-right" data-ed-reply-submit>
+                            <?php if ($operation == 'replying') { ?>
+                                <?php echo JText::_('COM_EASYDISCUSS_BUTTON_SUBMIT_RESPONSE'); ?>
+                            <?php } else { ?>
+                                <?php echo JText::_('COM_EASYDISCUSS_BUTTON_UPDATE_REPLY'); ?>
+                            <?php } ?>
+                        </button>    
+                    </div>
+                    
 	            </div>
 	        </div>
 

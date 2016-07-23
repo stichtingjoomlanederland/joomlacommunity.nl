@@ -497,16 +497,18 @@ class EasyDiscussModelPost extends EasyDiscussAdminModel
         $title = $prefix . ': ' . $title;
         $alias = ED::getAlias($title, 'post', $id);
 
+        $now = ED::date()->toSql();
+
         // first create a thread record for this soon tobe question.
         $query = "insert into `#__discuss_thread` (`title`, `alias`, `created`, `modified`, `replied`, `user_id`, `post_id`, `user_type`, `poster_name`, `poster_email`, `content`, `preview`, `published`, `category_id`,";
         $query .= " `num_likes`, `num_negvote`, `ordering`, `vote`, `sum_totalvote`, `hits`, `islock`, `lockdate`, `featured`, `isresolve`, `isreport`, `answered`, `params`, `password`, `legacy`, `address`,";
         $query .= " `latitude`, `longitude`, `content_type`, `post_status`, `post_type`, `private`,";
         $query .= " num_replies, last_user_id, last_poster_name, last_poster_email)";
-        $query .= " select " . $db->Quote($title) . ", " . $db->Quote($alias) . ", `created`, `modified`, `replied`, `user_id`, `id`, `user_type`, `poster_name`, `poster_email`, `content`,";
+        $query .= " select " . $db->Quote($title) . ", " . $db->Quote($alias) . ", `created`, " . $db->Quote($now) . ", " . $db->Quote($now) . ", `user_id`, `id`, `user_type`, `poster_name`, `poster_email`, `content`,";
         $query .= " `preview`, `published`, `category_id`, `num_likes`, `num_negvote`,";
         $query .= " `ordering`, `vote`, `sum_totalvote`, `hits`, `islock`, `lockdate`, `featured`, `isresolve`, `isreport`, `answered`, `params`, `password`, `legacy`, `address`, `latitude`, `longitude`, `content_type`,";
         $query .= " `post_status`, `post_type`, `private`,";
-        $query .= " 0, `user_id`, `poster_name`, `poster_email`";
+        $query .= " 0, 0, `poster_name`, `poster_email`";
         $query .= " from `#__discuss_posts` where `id` = " . $db->Quote($id);
 
         $db->setQuery($query);
@@ -536,6 +538,23 @@ class EasyDiscussModelPost extends EasyDiscussAdminModel
                 $db->setQuery($query);
                 $state = $db->query();
             }
+
+            // Once done with the new post creation, we need to update the former parent thread
+            // Update last_user_id and replied columns
+            $thread = ED::table('Thread');
+            $thread->load(array('post_id' => $parent->id));
+
+            // We need to load the current lastreply library
+            $model = ED::model('Posts');
+            $replyId = $model->getLastReply($parent->id);
+            $lastreply = ED::post($replyId); 
+
+            $thread->last_user_id = $lastreply->getOwner()->id;
+            $thread->replied = $lastreply->created;
+            $thread->store();
+
+            // Update thread's reply count
+            $parent->updateThread(array('num_replies' => '-1'));
         }
 
         return $state;

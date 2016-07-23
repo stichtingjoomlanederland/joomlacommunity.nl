@@ -141,7 +141,7 @@ ed.require(['edq', 'site/src/toolbar', 'site/src/discuss'], function($, App, dis
 	                                <?php } ?>
 	                                <input type="hidden" value="com_users"  name="option" />
 	                                <input type="hidden" value="user.login" name="task" />
-	                                <input type="hidden" name="return" value="" />
+	                                <input type="hidden" name="return" value="<?php echo EDR::getLogoutRedirect(); ?>" />
 	                                <input type="hidden" name="<?php echo ED::getToken();?>" value="1" />
 	                            </form>
 	                        </div>

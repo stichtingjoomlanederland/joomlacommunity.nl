@@ -50,9 +50,6 @@ defined('_JEXEC') or die('Restricted access');
                             <tr>
                                 <td>
                                 <br /><br />
-                                <div style="margin:30px auto;text-align:center;display:block">
-                                    <img src="/media/com_easydiscuss/images/spacer.gif" alt="<?php echo JText::_( 'divider' );?>" />
-                                </div>
                                     <table align="center" width="540" style="clear:both;margin:auto 20px">
                                         <tr>
                                             <td style="line-height:1.5;color:#555;font-family:'Lucida Grande',Tahoma,Arial;font-size:12px;text-align:center">

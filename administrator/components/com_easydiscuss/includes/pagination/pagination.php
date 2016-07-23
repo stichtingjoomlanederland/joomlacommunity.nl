@@ -48,6 +48,27 @@ class EasyDiscussPagination extends JPagination
 	}
 
 	/**
+	 * Get current page number
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getPageNumber()
+	{
+		$data = $this->getData()->pages;
+
+		foreach ($data as $page) {
+			if ($page->active) {
+				return $page->text;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 *
 	 * $filtering
 	 *      if index page:

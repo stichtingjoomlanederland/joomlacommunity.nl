@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Restricted access');
 		$post_title = (JString::strlen($post->title) > $params->get('max_title', 50))? substr($post->title, 0, $params->get('max_title', 50)) . '...' : $post->title;
 		?>
 		<div class="ed-list__item">
-			<a class="m-post-title" href="<?php echo EDR::getPostRoute($post->id);?>">
+			<a class="m-post-title" href="<?php echo $post->permalink;?>">
 				<?php echo $post->title; ?>
 			</a>
 

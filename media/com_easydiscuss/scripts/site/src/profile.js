@@ -71,7 +71,11 @@ ed.define('site/src/profile', ['edq', 'easydiscuss', 'abstract'], function($, Ea
             EasyDiscuss.ajax('site.views.profile.tab', {
                     'type'  : filterType,
                     'id' : this.options.userid
-                }).done(function(contents, paginationHTML, emptyString){
+                }).done(function(contents, paginationHTML, pageTitle, emptyString){
+
+                    // Update page title
+                    $(document).attr("title", pageTitle);
+
                     if (!contents) {
                         
                         // If there is a custom empty string passed, use it instead

@@ -39,6 +39,15 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                     <div class="form-group">
                         <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_LAYOUT_SHOWS_TAGS'); ?>
+                        </div>
+                        <div class="col-md-7">
+                            <?php echo $this->html('form.boolean', 'layout_showtags', $this->config->get('layout_showtags'));?>
+                        </div>
+                    </div>                    
+
+                    <div class="form-group">
+                        <div class="col-md-5 control-label">
                             <?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_FILTER_UNRESOLVED'); ?>
                         </div>
                         <div class="col-md-7">
@@ -61,6 +70,15 @@ defined('_JEXEC') or die('Unauthorized Access');
                         </div>
                         <div class="col-md-7">
                             <?php echo $this->html('form.boolean', 'layout_enablefilter_resolved', $this->config->get('layout_enablefilter_resolved'));?>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_FILTER_UNREAD'); ?>
+                        </div>
+                        <div class="col-md-7">
+                            <?php echo $this->html('form.boolean', 'layout_enablefilter_unread', $this->config->get('layout_enablefilter_unread'));?>
                         </div>
                     </div>
 

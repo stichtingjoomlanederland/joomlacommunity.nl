@@ -1,0 +1,70 @@
+//
+// Pager pagination
+// --------------------------------------------------
+.o-pager {
+    overflow: hidden;
+    width: 100%;
+    display: inline-block;
+    border-top: 1px solid @fd-ui-border-color;
+
+    &__item {
+        vertical-align: middle;
+        width: 50%;
+        // margin: @fd-base-spacing 0;
+
+        &--prev {
+            float: left;
+            .o-pager__icon {
+                margin-right: @fd-base-spacing;
+            }
+        }
+        &--next {
+            float: right;
+            text-align: right;
+            .o-pager__icon {
+                margin-left: @fd-base-spacing;
+            }
+        }
+    }
+
+   
+    &__link {
+        // color: inherit;
+        // display: inline-block;
+        // padding: @fd-base-spacing 0;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        vertical-align: middle;
+        font-size: @fd-base-font-size;
+
+        &:hover {
+            // background: @fd-ui-shade;
+        }
+
+        .o-pager__icon { // Due to the fontawesome under vendors we need to nested to gain selector
+            font-size: 24px; 
+            vertical-align: middle;
+            line-height: 20px;
+            position: relative;
+            top: -1px;
+        }
+    }
+    
+}
+.eb-entry-nav-prev {
+    float: left;
+
+    .fa {
+        margin: 0 10px 0 0;
+    }
+}
+.eb-entry-nav-next {
+    float: right;
+    text-align: right;
+    border-left: 1px solid @fd-ui-border-color;
+
+    .fa {
+        margin: 0 0 0 10px;
+    }
+}

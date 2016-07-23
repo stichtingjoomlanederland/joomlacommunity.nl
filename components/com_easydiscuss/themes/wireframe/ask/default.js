@@ -3,6 +3,15 @@ ed.require(['edq', 'easydiscuss', 'jquery.scrollto'], function($, EasyDiscuss) {
     // Form submission
     var askForm = $('[data-ed-ask-form]');
     var submitButton = $('[data-ed-submit-button]');
+    var tncLink = $('[data-ed-ask-tnc-link]');
+
+    // show term and conditions
+    tncLink.on('click', function() {
+        EasyDiscuss.dialog({
+            content: EasyDiscuss.ajax('site/views/comment/showTnc', {
+            })
+        })
+    });
 
     submitButton.on('click', function() {
 
@@ -15,18 +24,29 @@ ed.require(['edq', 'easydiscuss', 'jquery.scrollto'], function($, EasyDiscuss) {
             return;
         }
 
+        var alertError = $('[data-ed-post-alert]');
+        alertError.attr('hidden', '');
+      
         // Perform validations
         var title = $('[data-ed-post-title]');
+        var minimumTitle = title.data('minimum-title');
 
         // re-check again if required title field already fill in
         title.parent().removeClass('has-error');
 
-        if (title.val() == '') {
+        if (title.val() == '' || title.val().length < minimumTitle) {
 
             // Add error
             title.parent().addClass('has-error');
+            alertError.removeAttr('hidden');
 
-            $(document).scrollTo(title);
+            if (title.val() == '') {
+                alertError.html('<?php echo JText::_("COM_EASYDISCUSS_POST_TITLE_EMPTY"); ?>');
+            } else {
+                alertError.html('<?php echo JText::_("COM_EASYDISCUSS_POST_TITLE_TOO_SHORT"); ?>');
+            }
+
+            $(document).scrollTo(alertError);
 
             return false;
         }
@@ -40,7 +60,10 @@ ed.require(['edq', 'easydiscuss', 'jquery.scrollto'], function($, EasyDiscuss) {
 
             category.parent().addClass('has-error');
 
-            $(document).scrollTo(category);
+            alertError.removeAttr('hidden');
+            alertError.html('<?php echo JText::_("COM_EASYDISCUSS_POST_CATEGORY_EMPTY"); ?>');
+
+            $(document).scrollTo(alertError);
 
             return false;
         }
@@ -54,6 +77,10 @@ ed.require(['edq', 'easydiscuss', 'jquery.scrollto'], function($, EasyDiscuss) {
         if (content.val() == "") {
             content.parent().addClass('has-error');
 
+            alertError.removeAttr('hidden');
+            alertError.html('<?php echo JText::_("COM_EASYDISCUSS_POST_CONTENT_EMPTY"); ?>');
+
+            $(document).scrollTo(alertError);
             return false;
         }
 
@@ -128,6 +155,19 @@ ed.require(['edq', 'easydiscuss', 'jquery.scrollto'], function($, EasyDiscuss) {
                 return false;
             }
         }
+
+        // Check for t&c if the system is enabled.
+        <?php if ($this->config->get('main_tnc_question')) { ?>
+        var tnc = $('[data-ed-ask-tnc-checkbox]');
+
+        if (!tnc.is(':checked')) {
+            EasyDiscuss.dialog({
+                "content": '<?php echo JText::_("COM_EASYDISCUSS_TERMS_PLEASE_ACCEPT"); ?>'
+            });
+
+            return false;
+        };
+        <?php } ?>
 
         // Disable the button to avoid posting multiple times
         button.attr('disabled', true);

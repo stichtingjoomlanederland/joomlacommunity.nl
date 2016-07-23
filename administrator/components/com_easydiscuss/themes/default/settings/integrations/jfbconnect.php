@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     
                     <div class="small" style="overflow:hidden;">
                         <?php echo JText::_('COM_EASYDISCUSS_JFBCONNECT_INFO');?><br /><br />
-                        <a target="_blank" class="btn btn-primary btn-sm t-lg-mb--md" href="http://www.shareasale.com/r.cfm?B=495360&amp;U=614082&amp;M=46720&amp;urllink=">Get JFBConnect Now!</a>
+                        <a target="_blank" class="btn btn-primary btn-sm t-lg-mb--lg" href="http://www.shareasale.com/r.cfm?B=495360&amp;U=614082&amp;M=46720&amp;urllink=">Get JFBConnect Now!</a>
                     </div>
                 </div>
 

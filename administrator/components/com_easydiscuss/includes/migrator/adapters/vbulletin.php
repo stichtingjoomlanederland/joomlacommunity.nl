@@ -159,13 +159,6 @@ class EasyDiscussMigratorVbulletin extends EasyDiscussMigratorBase
 		$data['published'] = DISCUSS_ID_PUBLISHED;
 
 		$post->bind($data);
-
-		// Validate the posted data to ensure that we can really proceed
-        if (!$post->validate($data)) {
-
-            //failed
-        }
-
         $post->save();
 
         // Add this to migrators table

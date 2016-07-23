@@ -114,7 +114,7 @@ defined('_JEXEC') or die('Restricted access');
                             <?php } ?>
                             <?php if ($params->get('show_date', 1)) { ?>
                                 <div class="m-list__item t-fs--sm">
-                                    <?php echo JText::sprintf('MOD_EASYDISCUSS_RECENTDISCUSSIONS_POSTED_ON', ED::date($post->created)->format(ED::config()->get('layout_dateformat'))); ?>
+                                    <?php echo JText::sprintf('MOD_EASYDISCUSS_RECENTDISCUSSIONS_POSTED_ON', $post->date); ?>
                                 </div>
                             <?php } ?>
                         </div>

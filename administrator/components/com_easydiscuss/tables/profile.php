@@ -999,7 +999,7 @@ class DiscussProfile extends EasyDiscussTable
 
 		if (!isset($cache[$this->id])) {
 			$model = ED::model('Users');
-		$cache[$this->id] = $model->getTotalReplies($this->id);
+			$cache[$this->id] = $model->getTotalReplies($this->id);
 		}
 
 		return $cache[$this->id];
@@ -1290,11 +1290,18 @@ class DiscussProfile extends EasyDiscussTable
 		$key = $this->id;
 
 		if (! isset($_cache[$key])) {
-			$user = JFactory::getUser($this->id);
-			$userGroupId = DiscussHelper::getUserGroupId($user);
+			$id = $this->id;
+			
+			// If the id is null (guest), asign to use 0
+			if (is_null($id)) {
+				$id = 0;
+			}
+
+			$user = JFactory::getUser($id);
+			$userGroupId = ED::getUserGroupId($user, false);
 
 			$role = ED::table('Role');
-			$title	= $role->getTitle($userGroupId);
+			$title = $role->getTitle($userGroupId);
 			$_cache[$key] = $title;
 		}
 
@@ -1303,8 +1310,15 @@ class DiscussProfile extends EasyDiscussTable
 
 	public function getRoleLabelClassname()
 	{
-		$user = JFactory::getUser($this->id);
-		$userGroupId = ED::getUserGroupId($user);
+		$id = $this->id;
+		
+		// If the id is null (guest), asign to use 0
+		if (is_null($id)) {
+			$id = 0;
+		}
+
+		$user = JFactory::getUser($id);
+		$userGroupId = ED::getUserGroupId($user, false);
 
 		$role = ED::table('Role');
 		$color = $role->getRoleColor($userGroupId);
@@ -1430,6 +1444,43 @@ class DiscussProfile extends EasyDiscussTable
 
 		return $id;
 	}
+
+	/**
+	 * Retrieve user details from jfbconnect table
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getJfbconnectUserDetails($userId)
+	{
+		$db = ED::db();
+
+		// Get columns
+		$columns = $db->getTableColumns('#__jfbconnect_user_map');
+
+		// Set the default column
+		$query = 'SELECT `fb_user_id` AS `id`, `provider`, `params`';
+
+		// If it is new version
+		if (in_array('provider_user_id', $columns)) {
+			$query = 'SELECT `provider_user_id` AS `id`, `provider`, `params`';
+		}
+
+		$query .= ' FROM `#__jfbconnect_user_map` WHERE `j_user_id`=' . $db->Quote($userId);
+
+		$db->setQuery($query);
+		$data = $db->loadObjectList();
+
+		$result = '';
+
+		foreach ($data as $row) {
+			$result = $row;
+		}		
+
+		return $result;
+	}	
 
 		/**
 	 * This determines if the user should be moderated when they make a new posting

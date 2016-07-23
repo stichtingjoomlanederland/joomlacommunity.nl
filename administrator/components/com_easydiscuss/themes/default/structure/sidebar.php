@@ -36,6 +36,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<li>
 						<a href="<?php echo $child->link; ?>" class="toggle-btn <?php echo $child->class;?>">
 							<?php echo $child->title;?>
+
+							<?php if (isset($child->counter) && $child->counter) { ?>
+							<span class="app-sidebar__badge badge pull-right "><?php echo $child->counter;?></span>
+							<?php } ?>
 						</a>
 					</li>
 					<?php } ?>

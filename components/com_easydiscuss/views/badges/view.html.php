@@ -49,7 +49,9 @@ class EasyDiscussViewBadges extends EasyDiscussView
 
 		$badges = $model->getSiteBadges($options);
 
-		$this->setPathway(JText::_('COM_EASYDISCUSS_BADGES'));
+		if (! EDR::isCurrentActiveMenu('badges')) {
+			$this->setPathway(JText::_('COM_EASYDISCUSS_BADGES'));
+		}
 
 		$this->set('title', $title);
 		$this->set('badges', $badges);
@@ -79,7 +81,10 @@ class EasyDiscussViewBadges extends EasyDiscussView
 		$badge = ED::table('Badges');
 		$badge->load($id);
 
-		$this->setPathway(JText::_('COM_EASYDISCUSS_BADGES'), EDR::_('index.php?option=com_easydiscuss&view=badges'));
+		if (! EDR::isCurrentActiveMenu('badges')) {
+			$this->setPathway(JText::_('COM_EASYDISCUSS_BADGES'), EDR::_('index.php?option=com_easydiscuss&view=badges'));
+		}
+
 		$this->setPathway(JText::_($badge->get('title')));
 
 		ED::setPageTitle(JText::sprintf('COM_EASYDISCUSS_VIEWING_BADGE_TITLE', $this->escape($badge->title)));

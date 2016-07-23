@@ -221,15 +221,13 @@ class EasyDiscussAttachment extends EasyDiscuss
      */
     public function getDownloadLink()
     {
-        $link = EDR::getRoutedURL('index.php?option=com_easydiscuss&controller=attachment&task=download&tmpl=component&id=' . $this->table->id, false, true);
+        $task = 'download';
 
         if ($this->table->storage == 'amazon') {
-            // Get the storage relative path
-            $relativePath = $this->getStoragePath(true) . '/' . $this->table->path;
-
-            $storage = ED::storage('amazon');
-            $link = $storage->getPermalink($relativePath);
+            $task = 'downloadAmazon';
         }
+
+        $link = EDR::getRoutedURL('index.php?option=com_easydiscuss&controller=attachment&task=' . $task . '&tmpl=component&id=' . $this->table->id, false, true);
 
         return $link;
     }

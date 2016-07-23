@@ -38,7 +38,9 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
 			</div>
 		</div>
+	</div>
 
+	<div class="col-md-6">
 		<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_COMMENT_PAGINATION'); ?>
 
@@ -63,34 +65,5 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
 			</div>
 		</div>
-	</div>
-
-	<div class="col-md-6">
-		<div class="panel">
-			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_COMMENT_TNC'); ?>
-
-			<div class="panel-body">
-				<div class="form-horizontal">
-					<div class="form-group">
-						<div class="col-md-5 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_COMMENT_TNC'); ?>
-						</div>
-						<div class="col-md-7">
-							<?php echo $this->html('form.boolean', 'main_comment_tnc', $this->config->get('main_comment_tnc')); ?>
-						</div>
-					</div>
-					<div class="form-group">
-						<div class="col-md-5 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_COMMENT_TNC_TITLE'); ?>
-						</div>
-						<div class="col-md-7">
-							<textarea name="main_comment_tnctext" class="form-control" cols="65" rows="15"><?php echo str_replace('<br />', "\n", $this->config->get('main_comment_tnctext')); ?></textarea>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-
 	</div>
 </div>

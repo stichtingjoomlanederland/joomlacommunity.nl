@@ -80,12 +80,6 @@ class EasyDiscussMigratorJomsocial extends EasyDiscussMigratorBase
 		$data['published'] = $state;
 
 		$post->bind($data);
-
-		// Validate the posted data to ensure that we can really proceed
-        if (!$post->validate($data)) {
-            return false;
-        }
-
         if ($post->save()) {
         	// Map the comment to replies in Easydiscuss
         	$this->migrateReplies($item, $post);

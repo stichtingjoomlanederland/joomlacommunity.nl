@@ -13,15 +13,18 @@
 // no direct access
 defined('_JEXEC') or die('Restricted access');
 ?>
-<script type="text/javascript">
-//do not remove this line
-ed.require(['edq'], function($) {
-    // Logout button
-    $('[data-ed-toolbar-logout]').live('click', function() {
-        $('[data-ed-toolbar-logout-form]').submit();
-    });
-});
-</script>
+<?php if (!$edPageExist) { ?>
+	<script type="text/javascript">
+	//do not remove this line
+	ed.require(['edq'], function($) {
+	    // Logout button
+	    $('[data-ed-toolbar-logout]').live('click', function() {
+	        $('[data-ed-toolbar-logout-form]').submit();
+	    });
+	});
+	</script>
+<?php } ?>
+
 <div id="ed" data-ed-wrapper>
 <?php echo ED::toolbar()->render($modToolbar); ?>
 </div>

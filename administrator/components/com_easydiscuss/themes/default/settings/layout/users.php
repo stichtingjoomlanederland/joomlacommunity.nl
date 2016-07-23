@@ -53,6 +53,15 @@ defined('_JEXEC') or die('Restricted access');
 
                     <div class="form-group">
                         <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_DESCRIPTION_ENABLE'); ?>
+                        </div>
+                        <div class="col-md-7">
+                            <?php echo $this->html('form.boolean', 'main_description_visibility', $this->config->get('main_description_visibility'));?>
+                        </div>
+                    </div>                    
+
+                    <div class="form-group">
+                        <div class="col-md-5 control-label">
                             <?php echo $this->html('form.label', 'COM_EASYDISCUSS_SIGNATURE_ENABLE'); ?>
                         </div>
                         <div class="col-md-7">

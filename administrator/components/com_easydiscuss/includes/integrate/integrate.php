@@ -185,14 +185,19 @@ class EasyDiscussIntegrate extends EasyDiscuss
 
 		$table = ED::table('profile');
 
-		$id = $table->getJfbconnectUserId($profile->id);
+		$jfbcUser = $table->getJfbconnectUserDetails($profile->id);
 
-		if (!$id) {
+		if (!$jfbcUser) {
 			return false;
 		}
 
-		$avatar = 'https://graph.facebook.com/' . $id . '/picture?type=small';
-		$profileLink = 'http://www.facebook.com/app_scoped_user_id/' . $id;
+		// Get avatar
+		$avatar = JFBCFactory::provider($jfbcUser->provider)->profile->getAvatarUrl($jfbcUser->id,false,null);
+
+		// Get profile link
+		$params = new JRegistry();
+		$params->loadString($jfbcUser->params);
+		$profileLink = $params->get('profile_url');
 
 		return array($avatar, $profileLink);
 	}

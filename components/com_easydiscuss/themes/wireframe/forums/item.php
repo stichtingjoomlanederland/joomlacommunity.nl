@@ -72,7 +72,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     </ol>
                 </div>
 
-                <?php if ($this->config->get('main_master_tags')) { ?>
+                <?php if ($this->config->get('main_master_tags') && $this->config->get('layout_categories_tags')) { ?>
                     <?php if ($post->getTags()) { ?>
                     <ol class="g-list-inline ed-post-meta-tag t-lg-mt--md">
                         <?php foreach ($post->getTags() as $tag) { ?>
@@ -89,7 +89,7 @@ defined('_JEXEC') or die('Unauthorized Access');
             </div>
 
             <div class="o-col-sm ed-forum-item__col-time">
-                <div class="ed-forum-item__meta"><?php echo ED::date()->toLapsed($post->created); ?></div>
+                <div class="ed-forum-item__meta"><?php echo ED::date()->toLapsed($post->lastupdate); ?></div>
             </div>
 
             <div class="o-col-sm ed-forum-item__col-avatar t-text--center">

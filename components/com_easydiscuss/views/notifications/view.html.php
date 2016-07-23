@@ -24,11 +24,14 @@ class EasyDiscussViewNotifications extends EasyDiscussView
 			$this->app->redirect(EDR::getRoutedURL('index.php?option=com_easydiscuss', false, false));
 		}
 
-		$model = ED::model('Notification');
-		$this->setPathway(JText::_( 'COM_EASYDISCUSS_BREADCRUMBS_NOTIFICATIONS'));
+		ED::setPageTitle('COM_EASYDISCUSS_TITLE_NOTIFICATIONS');
+		if (! EDR::isCurrentActiveMenu('notifications')) {
+			$this->setPathway(JText::_( 'COM_EASYDISCUSS_BREADCRUMBS_NOTIFICATIONS'));
+		}
 
 		$limit = $this->config->get('main_notifications_limit', 5);
 
+		$model = ED::model('Notification');
 		// Get all notifications of the particular user given read and unread notifications.
 		$notifications = $model->getNotifications($my->id, false, $limit);
 
@@ -39,11 +42,12 @@ class EasyDiscussViewNotifications extends EasyDiscussView
 
 		// Get pagination
 		$pagination = $model->getPagination();
+		$pagination = $pagination->getPagesLinks();
 
 		$this->set('notifications', $notifications);
 		$this->set('totalNotifications', $totalNotifications);
 		$this->set('pagination', $pagination);
-	
+
 		parent::display('notifications/default');
 	}
 }

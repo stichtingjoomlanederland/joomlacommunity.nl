@@ -75,7 +75,7 @@ class EasyDiscussNotifications extends EasyDiscuss
 
 			// Set the permalink
 			$item->permalink = EDR::_($item->permalink);
-			
+
 			// Get the author string
 			$item->authorHTML = $this->getAuthorHTML($item->author);
 
@@ -86,11 +86,10 @@ class EasyDiscussNotifications extends EasyDiscuss
 			$title = explode(',', $item->title);
 			if (count($title) > 1) {
 				// Links the post title
-				$link = EDR::_($item->permalink);
 				$postTitle = $title[1];
 				$action = str_ireplace($postTitle, '', $item->title);
 
-				$item->title = $action . '<a href="' . $link .'">' . $postTitle . '</a>';
+				$item->title = $action . '<a href="' . $item->permalink .'">' . $postTitle . '</a>';
 			}
 
 			// Get the lapsed time
@@ -447,6 +446,7 @@ class EasyDiscussNotifications extends EasyDiscuss
 		$theme->set('emailTitle', $config->get('notify_email_title', $jConfig->get('sitename')));
 		$theme->set('contents', $contents);
 		$theme->set('unsubscribeLink', $data['unsubscribeLink']);
+		$theme->set('subscriptionsLink', ED::mailer()->getSubscriptionsManagerLink());
 		$theme->set('replyBreakText', $replyBreakText);
 
 		if ($config->get('notify_html_format')) {

@@ -865,6 +865,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		$pagination = isset($options['pagination']) ? $options['pagination'] : true;
 		$limitstart = isset($options['limitstart']) ? $options['limitstart'] : $this->input->get('limitstart', 0);
 		$limit = isset($options['limit']) ? $options['limit'] : null;
+		$withNoPosts = isset($options['withNoPosts']) ? $options['withNoPosts'] : false;
 
 		$query = 'select a.`id`, a.`title`, a.`alias`, a.`private`,a.`default`,a.`container`';
 
@@ -873,6 +874,9 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		}
 
 		$query .= ' from `#__discuss_category` as a';
+		if (!$withNoPosts) {
+			$query .= ' left join `#__discuss_thread` as b on a.`id` = b.`category_id` and b.`published` = 1';
+		}
 
 		if (is_array($contentId)) {
 			$query .= ' where a.parent_id IN (' . implode(',', $contentId) . ')';
@@ -897,6 +901,11 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 			$query .= " and " . $catAccessSQL;
 		}
 
+		if (!$withNoPosts) {
+			$query .= ' group by a.`id` having (count(b.`id`) > 0)';
+		}
+
+
 		$sortConfig	= $this->config->get('layout_ordering_category','latest');
 		switch($sortConfig) {
 			case 'alphabet' :
@@ -918,7 +927,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		$query .= $orderBy . $sort;
 
 		// Pagination
-		if ($limit != DISCUSS_NO_LIMIT) {
+		if ($limit != DISCUSS_NO_LIMIT && $limit) {
 			if ($pagination) {
 				$query .= " LIMIT $limitstart, $limit";
 
@@ -926,6 +935,8 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 				$query .= " LIMIT $limit";
 			}
 		}
+
+		// echo $query;
 
 		$db->setQuery($query);
 
@@ -935,12 +946,14 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 			$result = $db->loadObjectList();
 		}
 
-		if ($limit != DISCUSS_NO_LIMIT && $pagination) {
+		if ($limit != DISCUSS_NO_LIMIT && $limit && $pagination) {
 			// now lets get the row_count() for pagination.
 			$cntQuery = "select FOUND_ROWS()";
 			$db->setQuery($cntQuery);
 			$this->_total = $db->loadResult();
 			$this->_pagination = ED::pagination($this->_total, $limitstart, $limit);
+		} else {
+			$this->_pagination = ED::pagination(count($result), 0, 0);
 		}
 
 

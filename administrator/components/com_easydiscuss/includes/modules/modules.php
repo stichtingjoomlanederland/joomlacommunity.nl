@@ -35,6 +35,11 @@ class EasyDiscussModules extends EasyDiscuss
 			// Assign author info
 			$result->user = $result->getOwner();
 
+			// Get the post created date
+			$date = ED::date($result->created);
+
+			$result->date = $date->display(ED::config()->get('layout_dateformat', JText::_('DATE_FORMAT_LC1')));			
+
 			$results[] = $result;
 		}
 

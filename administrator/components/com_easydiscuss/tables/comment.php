@@ -88,7 +88,7 @@ class DiscussComment extends EasyDiscussTable
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function toData()
 	{
@@ -102,7 +102,7 @@ class DiscussComment extends EasyDiscussTable
 		$data->ip = $this->ip;
 		$data->name = $this->name;
 		$data->user_id = $this->user_id;
-		
+
 		return $data;
 	}
 
@@ -142,10 +142,10 @@ class DiscussComment extends EasyDiscussTable
 		// Load user profile's object.
 		$profile = ED::user($my->id);
 
-		// Try to detect if the comment is posted to the main question or a reply. 
+		// Try to detect if the comment is posted to the main question or a reply.
 		$liveNotificationText   = '';
 		$question = ED::table('Post');
-		
+
 		if ($post->parent_id) {
 			$question->load($post->parent_id);
 			$liveNotificationText = 'COM_EASYDISCUSS_COMMENT_REPLY_NOTIFICATION_TITLE';
@@ -155,10 +155,10 @@ class DiscussComment extends EasyDiscussTable
 		}
 
 		if ($this->published && !$question->private) {
-			
+
 			// Create notification item in EasySocial
 			ED::easySocial()->notify('new.comment', $post, $question, $this);
-			
+
 			// AUP integrations
 			ED::aup()->assign(DISCUSS_POINTS_NEW_COMMENT, $this->user_id, '');
 
@@ -205,11 +205,40 @@ class DiscussComment extends EasyDiscussTable
 		$emailData['postTitle']	= $question->title;
 		$emailData['postLink'] = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $question->id, false, true);
 
+		// lets determine if we need to include the unsubcribe link here or not.
+		$addUnsubscribeLink = false;
+		$replyAuthorEmail = $post->user_id ? $post->getOwner()->getEmail() : $post->poster_email;
+
+		if ($post->user_id == $question->user_id && !$question->user_id) {
+			// this means both reply author and topic author are guest. Let check based on email.
+			if ($post->poster_email != $question->poster_email) {
+				$addUnsubscribeLink = true;
+			}
+		} else if ($post->user_id && $post->user_id != $question->user_id) {
+			$addUnsubscribeLink = true;
+		}
+
+		// add the unsubcribe link to reply author if the reply author is not the post owner.
+		if ($addUnsubscribeLink && $replyAuthorEmail) {
+			$subTable = ED::table('Subscribe');
+			$subTable->load(array('email'=>$replyAuthorEmail, 'type' => 'post', 'cid' => $question->id));
+
+			// var_dump($subTable->id);
+
+			if ($subTable->id) {
+				$hash = base64_encode("type=".$subTable->type."\r\nsid=".$subTable->id."\r\nuid=".$subTable->userid."\r\ntoken=".md5($subTable->id.$subTable->created));
+				$emailData['unsubscribeLink'] = EDR::getRoutedURL('index.php?option=com_easydiscuss&controller=subscription&task=unsubscribe&data='.$hash, false, true);
+			}
+		}
+
+		// var_dump($addUnsubscribeLink, $replyAuthorEmail);
+		// exit;
+
 		// Get the list of emails to be sent
 		$emails	= array();
 
 		// Send email to the post owner only if the commenter is not the post owner.
-		if ($post->user_id != 0 && $post->id != $my->id ) {
+		if ($post->user_id != 0 && $post->user_id != $my->id ) {
 			$user = JFactory::getUser($post->user_id);
 			$emails[] = $user->email;
 		}
@@ -218,7 +247,7 @@ class DiscussComment extends EasyDiscussTable
 		$existingComments = $post->getComments();
 
 		if ($existingComments) {
-			
+
 			foreach ($existingComments as $existingComment) {
 				// Only add the email when the user id is not the current logged in user who is posting the comment.
 				// It should not send email to the post owner as well since the post owner will already get a notification.
@@ -247,7 +276,7 @@ class DiscussComment extends EasyDiscussTable
 			ED::events()->onContentPrepare('comment', $this);
 
 			$this->event = new stdClass();
-			
+
 			$results = ED::events()->onContentBeforeDisplay('comment', $this);
 			$this->event->beforeDisplayContent = trim(implode("\n", $results));
 

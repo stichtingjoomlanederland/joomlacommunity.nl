@@ -168,7 +168,7 @@ class ED
 	 */
 	public static function dateWithOffSet($str='')
 	{
-		$userTZ = self::getOffSet();
+		$userTZ = self::getTimeZoneOffset();
 		$date = ED::date($str);
 
 		$user = JFactory::getUser();
@@ -1470,64 +1470,64 @@ class ED
 			// Load it into our post library
 			$post = ED::post($row);
 
+			if ($isFrontpage) {
+				$model = ED::model('Posts');
+				$post->lastReply = $model->getLastReply($post->id);
+			}
+
 			$posts[] = $post;
 		}
 
 		return $posts;
 	}
 
-	public static function formatComments( $comments )
+	public static function formatComments($comments)
 	{
-		$path = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/events/events.php';
-		include_once($path);
-
-
-		$config 	= DiscussHelper::getConfig();
-
-		if( !$comments )
-		{
+		if (!$comments) {
 			return false;
 		}
 
-		$result 	= array();
+		$path = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/events/events.php';
 
-		foreach( $comments as $row )
-		{
-			$duration			= new StdClass();
-			$duration->daydiff	= $row->daydiff;
-			$duration->timediff	= $row->timediff;
+		include_once($path);
 
-			$comment 	= DiscussHelper::getTable( 'Comment' );
+		$config = ED::config();
+
+		$result = array();
+
+		foreach ($comments as $row) {
+
+			$comment = ED::table('Comment');
 			$comment->bind($row);
 
-			$comment->duration  = DiscussHelper::getDurationString( $duration );
+			$comment->duration = ED::date()->toLapsed($comment->modified);
 
 			$creator = ED::user($comment->user_id);
-			$comment->creator	= $creator;
+			$comment->creator = $creator;
 
-			if ( $config->get( 'main_content_trigger_comments' ) )
-			{
+			if ($config->get('main_content_trigger_comments')) {
+
 				// process content plugins
-				$comment->content	= $comment->comment;
+				$comment->content = $comment->comment;
 
-				EasyDiscussEvents::importPlugin( 'content' );
+				EasyDiscussEvents::importPlugin('content');
 				EasyDiscussEvents::onContentPrepare('comment', $comment);
 
 				$comment->event = new stdClass();
 
-				$results	= EasyDiscussEvents::onContentBeforeDisplay('comment', $comment);
-				$comment->event->beforeDisplayContent	= trim(implode("\n", $results));
+				$results = EasyDiscussEvents::onContentBeforeDisplay('comment', $comment);
+				$comment->event->beforeDisplayContent = trim(implode("\n", $results));
 
-				$results	= EasyDiscussEvents::onContentAfterDisplay('comment', $comment);
-				$comment->event->afterDisplayContent	= trim(implode("\n", $results));
+				$results = EasyDiscussEvents::onContentAfterDisplay('comment', $comment);
+				$comment->event->afterDisplayContent = trim(implode("\n", $results));
 
-				$comment->comment	= $comment->content;
+				$comment->comment = $comment->content;
 				unset($comment->content);
 
 				$comment->comment = ED::badwords()->filter($comment->comment);
 			}
 
-			$result[]	= $comment;
+			$result[] = $comment;
 		}
 
 		return $result;
@@ -2923,9 +2923,48 @@ class ED
 		$user = JFactory::getUser();
 
 		if ($user->guest) {
+
+			// Set the callback so it can be use later.
+			$currentUrl = EDR::current();
+			ED::setCallback($currentUrl);
+
 			ED::setMessageQueue(JText::_( 'COM_EASYDISCUSS_SIGNIN_PLEASE_LOGIN' ), 'info');
-			return $app->redirect(EDR::_('view=index', false));
+			return $app->redirect(EDR::_('view=login', false));
 		}
+	}
+
+	/**
+	 * Give a proper redirection when the user does not have the permission to view the item.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public static function getErrorRedirection($message = null)
+	{
+		$config = ED::config();
+		$app = JFactory::getApplication();
+		$user = JFactory::getUser();
+
+		if (!$message) {
+			$message = JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS');
+		}
+
+		$redirection = $config->get('system_error_redirection', true);
+
+		if ($redirection) {
+
+			// If user haven't logged in, redirect them to login page.
+			ED::requireLogin();
+
+			// If it reached here means the user is already logged in.
+			ED::setMessageQueue($message, 'error');
+			return $app->redirect(EDR::_('view=index'), false);
+		}
+
+		// default redirection
+		return JError::raiseError(404, $message);
 	}
 
 	/**
@@ -3236,7 +3275,7 @@ class ED
 	 * @param	string
 	 * @return
 	 */
-	public static function setPageTitle($text = '')
+	public static function setPageTitle($text = '', $pagination = null)
 	{
 		$text = JText::_($text);
 
@@ -3244,46 +3283,53 @@ class ED
 		$app = JFactory::getApplication();
 		$doc = JFactory::getDocument();
 
-		$menu = $app->getMenu();
-		$item = $menu->getActive();
+		$app = JFactory::getApplication();
+		$itemid = $app->input->get('Itemid', '');
 
-		if( empty( $text ) )
-		{
-			// use menu item title
-			if( is_object( $item ) )
-			{
-				$params			= $item->params;
+		$menu = JFactory::getApplication()->getMenu();
+		$item = $menu->getItem($itemid);
 
-				if(! $params instanceof JRegistry )
-				{
-					$params			= DiscussHelper::getRegistry( $item->params );
-				}
+		if (is_object($item)) {
+			
+			$params = $item->params;
 
-				$text = 	$params->get('page_title', '');
+			if (!$params instanceof JRegistry) {
+				$params = new JRegistry($item->params);
+			}
 
-				if( empty( $text ) )
-				{
-					if( isset( $item->title ) )
-					{
-						$text = 	$item->title;
-					}
-					else
-					{
-						$text = 	$item->name;
-					}
-				}
+			$customPageTitle = $params->get('page_title', '');
+
+			if ($customPageTitle) {
+				$text = $customPageTitle;
 			}
 		}
 
-		// Check for empty title and add site name if param is set
-		if (empty($text)) {
-			$title = $app->getCfg('sitename');
+
+		// Prepare Joomla's site title if necessary.
+		$jConfig = ED::jConfig();
+		$addTitle = $jConfig->get('sitename_pagetitles');
+
+		// Only add Joomla's site title if it was configured to.
+		if ($addTitle) {
+
+			$siteTitle = $jConfig->get('sitename');
+
+			if ($addTitle == 1) {
+				$text = $siteTitle . ' - ' . $text;
+			}
+
+			if ($addTitle == 2) {
+				$text = $text . ' - ' . $siteTitle;
+			}
 		}
-		elseif ($app->getCfg('sitename_pagetitles', 0) == 1) {
-			$text = JText::sprintf('JPAGETITLE', $app->getCfg('sitename'), $text);
-		}
-		elseif ($app->getCfg('sitename_pagetitles', 0) == 2) {
-			$text = JText::sprintf('JPAGETITLE', $text, $app->getCfg('sitename'));
+
+		if ($pagination) {
+			$paginationNumber = $pagination->getPageNumber();
+
+			if ($paginationNumber > 1) {
+				$paginationText = JText::sprintf('COM_EASYDISCUSS_PAGINATION_TEXT', $paginationNumber);
+				$text = $text . ' - ' . $paginationText;
+			}
 		}
 
 		$doc->setTitle($text);
@@ -3411,9 +3457,9 @@ class ED
 		return $moderator;
 	}
 
-	public static function getUserGroupId(JUser $user)
+	public static function getUserGroupId(JUser $user, $recursive = true)
 	{
-		$groups = JAccess::getGroupsByUser($user->id);
+		$groups = JAccess::getGroupsByUser($user->id, $recursive);
 
 		return $groups;
 	}
@@ -4160,6 +4206,69 @@ class ED
 		}
 
 		return $query;
+	}
+
+	/**
+	 * Sets some callback data into the current session
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public static function setCallback($data)
+	{
+		$session = JFactory::getSession();
+
+		// Serialize the callback data.
+		$data = serialize( $data );
+
+		// Store the profile type id into the session.
+		$session->set('easydiscuss.callback', $data, 'com_easydiscuss');
+	}
+
+	/**
+	 * Retrieves stored callback data.
+	 *
+	 * @since	1.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public static function getCallback()
+	{
+		$session = JFactory::getSession();
+		$data = $session->get('easydiscuss.callback', '', 'com_easydiscuss');
+
+		$data = unserialize( $data );
+
+		// Clear off the session once it's been picked up.
+		$session->clear('easydiscuss.callback', 'com_easydiscuss');
+
+		return $data;
+	}
+
+	/**
+     * Retrieves external conversation link
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+	public static function getConversationsRoute()
+	{	
+		$config = ED::config();
+		
+		if (ED::easysocial()->exists() && $config->get('integration_easysocial_messaging')) {
+            $link = ED::easysocial()->getConversationsRoute();
+        }
+
+        if (ED::jomsocial()->exists() && $config->get('integration_jomsocial_messaging')) {
+            $link = ED::jomsocial()->getConversationsRoute();
+        }
+
+        return $link;
 	}
 }
 

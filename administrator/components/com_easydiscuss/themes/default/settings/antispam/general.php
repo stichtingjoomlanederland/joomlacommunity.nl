@@ -14,6 +14,22 @@ defined('_JEXEC') or die('Unauthorized Access');
 <div class="row">
 	<div class="col-md-6">
 		<div class="panel">
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_ANTI_SPAM_GENERAL'); ?>
+
+			<div id="option01" class="panel-body">
+				<div class="form-horizontal">
+					<div class="form-group">
+                        <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_ANTI_SPAM_MINIMUM_TITLE'); ?>
+                        </div>
+                        <div class="col-md-7">
+							<input type="text" class="form-control" name="antispam_minimum_title" value="<?php echo $this->config->get('antispam_minimum_title', 0);?>" size="60"/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_AKISMET_INTEGRATIONS'); ?>
 
 			<div id="option01" class="panel-body">
@@ -36,7 +52,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					</div>
 				</div>
 			</div>
-		</div>
+		</div>		
 	</div>
 	<div class="col-md-6">
 		<div class="panel">

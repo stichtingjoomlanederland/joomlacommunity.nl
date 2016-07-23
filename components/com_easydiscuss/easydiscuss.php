@@ -19,6 +19,9 @@ require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydis
 // Start profiling1%
 ED::profiler()->start();
 
+
+
+
 // What is this for?
 ED::getUserGids();
 ED::getSAUsersIds();

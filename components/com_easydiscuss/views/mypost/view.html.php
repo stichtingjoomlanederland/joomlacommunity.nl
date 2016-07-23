@@ -19,10 +19,12 @@ class EasyDiscussViewMypost extends EasyDiscussView
 	{
 		// Ensure that the user is logged in
 		ED::requireLogin();
-		
+
 		ED::setPageTitle(JText::_('COM_EASYDISCUSS_PAGETITLE_MYPOST'));
 
-		$this->setPathway( JText::_('COM_EASYDISCUSS_BREADCRUMB_MYPOST'));
+		if (! EDR::isCurrentActiveMenu('mypost')) {
+			$this->setPathway( JText::_('COM_EASYDISCUSS_BREADCRUMB_MYPOST'));
+		}
 
 		// Load the user's profile
 		$profile = ED::profile($this->my->id);
@@ -57,7 +59,7 @@ class EasyDiscussViewMypost extends EasyDiscussView
 		$postsTicks = array();
 
 		foreach ($postsHistory->dates as $dateString) {
-			
+
 			// Normalize the date string first
 			$dateString = str_ireplace('/', '-', $dateString);
 			$date = ED::date($dateString);
@@ -66,14 +68,14 @@ class EasyDiscussViewMypost extends EasyDiscussView
 		}
 
 		$postsCreated = json_encode($postsHistory->count);
-		$postsTicks = json_encode($postsTicks);		
+		$postsTicks = json_encode($postsTicks);
 
 		$this->set('posts', $posts);
 		$this->set('profile', $profile);
 		$this->set('pagination', $pagination);
 		$this->set('badges', $badges);
 		$this->set('postsCreated', $postsCreated);
-		$this->set('postsTicks', $postsTicks);			
+		$this->set('postsTicks', $postsTicks);
 
 		parent::display('mypost/default');
 	}

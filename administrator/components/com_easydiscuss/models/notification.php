@@ -96,7 +96,7 @@ class EasyDiscussModelNotification extends EasyDiscussAdminModel
 	 * @param	int	$limit		The limit of notifications to fetch
 	 * @return	array
 	 */
-	public function getNotifications($userid, $showNewOnly = false, $limit = 10)
+	public function getNotifications($userid, $showNewOnly = false, $limit = null, $limitstart = null)
 	{
 		$db = $this->db;
 
@@ -125,7 +125,6 @@ class EasyDiscussModelNotification extends EasyDiscussAdminModel
 		}
 
 		$query[] = 'ORDER BY a.`id` DESC';
-		$query[] = 'LIMIT 0,' . $limit;
 
 		$query = implode(' ', $query);
 
@@ -135,8 +134,20 @@ class EasyDiscussModelNotification extends EasyDiscussAdminModel
 
 		// now execute found_row() to get the number of records found.
 		$cntQuery = 'select FOUND_ROWS()';
-		$db->setQuery( $cntQuery );
+		$db->setQuery($cntQuery);
 		$this->_total = $db->loadResult();
+
+		$limitstart = is_null($limitstart) ? $this->getState( 'limitstart') : $limitstart;
+		$limit = is_null($limit) ? $this->getState('limit') : $limit;		
+
+		if ($limit) {
+			$queryLimit = ' LIMIT ' . $limitstart . ', ' . $limit;
+			$query = $query . $queryLimit;
+		}	
+
+		$db->setQuery($query);
+
+		$this->_data = $db->loadObjectList();
 
 		return $this->_data;
 	}

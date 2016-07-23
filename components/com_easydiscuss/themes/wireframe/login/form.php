@@ -1,54 +1,54 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<form class="form-horizontal" method="post" action="<?php echo JRoute::_( 'index.php' );?>">
-<fieldset class="well">
-	<div class="control-group">
-		<div class="control-label">
-			<label class=" required" for="username" id="username-lbl"><?php echo JText::_( 'COM_EASYDISCUSS_USERNAME' );?><span class="star">&nbsp;*</span></label>
-		</div>
 
-		<div class="controls">
-			<input type="text" size="25" class="validate-username required" value="" id="username" name="username">
-		</div>
+<div class="ed-reply-login t-lg-mt--lg">
+	<div class="ed-reply-login__title">
+		<?php echo JText::_('Member Login');?>
 	</div>
+	<div class="ed-reply-login__info t-lg-mb--md">
+		<?php echo JText::_('You need to be logged in first.');?>
+		<a href="<?php echo ED::getRegistrationLink();?>" class=""><?php echo JText::_('COM_EASYDISCUSS_REGISTER_HERE');?></a>
+	</div>
+	<div class="ed-reply-login__form-wrap t-lg-mb--md">
+		<form method="post" action="<?php echo JRoute::_('index.php');?>">
+			<div class="form-group">
+				<label for="discuss-post-username"><?php echo JText::_('COM_EASYDISCUSS_USERNAME');?></label>
+				<input type="text" tabindex="201" id="discuss-post-username" name="username" class="form-control" autocomplete="off" />
+			</div>
+			<div class="form-group">
+				<label for="discuss-post-password"><?php echo JText::_('COM_EASYDISCUSS_PASSWORD');?></label>
+				<input type="password" tabindex="202" id="discuss-post-password" class="form-control" name="password" autocomplete="off" />
+			</div>
+			<div class="">
+				<div class="o-checkbox o-checkbox--inline t-lg-mr--md">
+				    <input type="checkbox" tabindex="203" id="discuss-post-remember" name="remember" class="" value="yes" checked="" />
+				    <label for="discuss-post-remember">
+				       <?php echo JText::_('COM_EASYDISCUSS_REMEMBER_ME');?>
+				    </label>
+				</div>
+				<input type="submit" tabindex="204" value="<?php echo JText::_('COM_EASYDISCUSS_LOGIN', true);?>" name="Submit" class="btn btn-primary pull-right" />
+			</div>
 
-	<div class="control-group">
-		<div class="control-label">
-			<label class=" required" for="password" id="password-lbl"><?php echo JText::_( 'COM_EASYDISCUSS_PASSWORD' );?><span class="star">&nbsp;*</span></label>
-		</div>
-		
-		<div class="controls">
-			<input type="password" size="25" class="validate-password required" value="" id="password" name="password">
-		</div>
-	</div>
-			
-	<div class="control-group">
-		<div class="controls">
-			<button class="btn btn-primary" type="submit"><?php echo JText::_( 'COM_EASYDISCUSS_BUTTON_LOGIN' );?></button>
-		</div>
-	</div>
-	
-	<?php if( DiscussHelper::getJoomlaVersion() >= '1.6' ){ ?>
-	<input type="hidden" value="com_users"  name="option">
-	<input type="hidden" value="user.login" name="task">
-	<?php } else { ?>
-	<input type="hidden" value="com_user"  name="option">
-	<input type="hidden" value="login" name="task">
-	<?php } ?>
+			<?php if ($this->config->get('integrations_jfbconnect') && ED::jfbconnect()->exists()) { ?>
+				{JFBCLogin}
+			<?php } ?>
 
-	<input type="hidden" value="<?php echo base64_encode( $redirect ); ?>" name="return" />
-	<input type="hidden" value="1" name="<?php echo DiscussHelper::getToken(); ?>" />
-</fieldset>
-</form>
+			<input type="hidden" value="com_users"  name="option">
+			<input type="hidden" value="user.login" name="task">
+			<input type="hidden" name="return" value="<?php echo $return; ?>" />
+			<?php echo JHTML::_('form.token'); ?>
+		</form>
+	</div>
+	<a tabindex="206" class="pull-lef" href="<?php echo ED::getResetPasswordLink();?>"><?php echo JText::_('COM_EASYDISCUSS_FORGOT_PASSWORD');?></a>
+</div>

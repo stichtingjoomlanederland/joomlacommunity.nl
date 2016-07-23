@@ -73,6 +73,58 @@ class EasyDiscussModelVotes extends EasyDiscussAdminModel
 	}
 
 	/**
+	 * Check whether the current vote is it modifying
+	 * 
+	 * @since	4.0.6
+	 * @access	public
+	 * @param	int		The unique post id.
+	 * @param	int		The user's unique id.
+	 * @param	string	The unique session id.
+	 * @param	int		The unique vote value.
+	 */
+	public function voteModifying($postId, $userId = null, $sessionId = null)
+	{
+		$db = $this->db;
+	
+		// Determine this vote is it modifying
+		$query  = 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__discuss_votes');
+		$query .= ' WHERE ' . $db->nameQuote('session_id') . '=' . $db->Quote($sessionId);
+		$query .= ' AND ' . $db->nameQuote('user_id') . '=' . $db->Quote($userId);
+		$query .= ' AND ' . $db->nameQuote('post_id') . '=' . $db->Quote($postId);
+
+		$db->setQuery($query);
+		$result = $db->loadResult() ? true : false;
+
+		return $result;
+	}
+
+	/**
+	 * Undo the user current voting
+	 * 
+	 * @since	4.0.6
+	 * @access	public
+	 * @param	int		The unique post id.
+	 * @param	int		The user's unique id.
+	 * @param	string	The unique session id.
+	 */
+	public function undoVote($postId, $userId = null, $sessionId = null)
+	{
+		$db = $this->db;
+
+		// Delete the current vote record 
+		$query  = 'DELETE FROM ' . $db->nameQuote('#__discuss_votes');
+		$query .= ' WHERE ' . $db->nameQuote('session_id') . '=' . $db->Quote($sessionId);
+		$query .= ' AND ' . $db->nameQuote('user_id') . '=' . $db->Quote($userId);
+		$query .= ' AND ' . $db->nameQuote('post_id') . '=' . $db->Quote($postId);
+
+		$db->setQuery($query);
+		$result = $db->loadResult() ? true : false;
+
+		return $result;
+	}
+
+
+	/**
 	 * Get's the total number of votes made for a specific post.
 	 *
 	 * @since	4.0

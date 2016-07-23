@@ -13,6 +13,17 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussSharerButtonTwitter extends EasyDiscuss
 {
+	public function enabled()
+	{
+		$config = ED::config();
+
+		if (!$config->get('integration_twitter_button')) {
+			return false;
+		}
+
+		return true;
+	}
+
 	public static function html($row, $position = 'vertical')
 	{
 		$config	= ED::config();

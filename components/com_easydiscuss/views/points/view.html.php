@@ -23,6 +23,10 @@ class EasyDiscussViewPoints extends EasyDiscussView
 	 */
 	public function display($tmpl = null)
 	{
+		if (!$this->config->get('main_points')) {
+			ED::getErrorRedirection();
+		}
+
 		$id = $this->input->get('id');
 		$dateContainer = '';
 

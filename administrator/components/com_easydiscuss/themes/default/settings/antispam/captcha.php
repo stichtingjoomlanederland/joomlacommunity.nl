@@ -109,6 +109,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                                 <option value="pt"<?php echo $this->config->get('antispam_recaptcha_lang') == 'pt' ? ' selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_RECAPTCHA_LANGUAGE_PORTUGUESE');?></option>
                                 <option value="tr"<?php echo $this->config->get('antispam_recaptcha_lang') == 'tr' ? ' selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_RECAPTCHA_LANGUAGE_TURKISH');?></option>
                                 <option value="es"<?php echo $this->config->get('antispam_recaptcha_lang') == 'es' ? ' selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_RECAPTCHA_LANGUAGE_SPANISH');?></option>
+                                <option value="fa"<?php echo $this->config->get('antispam_recaptcha_lang') == 'fa' ? ' selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_RECAPTCHA_LANGUAGE_PERSIAN');?></option>
                             </select>
                         </div>
                     </div>

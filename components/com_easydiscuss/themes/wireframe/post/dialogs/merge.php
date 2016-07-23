@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <dialog>
     <width>400</width>
-    <height>180</height>
+    <height>340</height>
     <selectors type="json">
     {
         "{closeButton}" : "[data-close-button]",
@@ -38,10 +38,15 @@ defined('_JEXEC') or die('Unauthorized Access');
         </p>
 
         <form data-form-response method="post" action="<?php echo JRoute::_('index.php');?>">
+
+            <div>
+                <span class="label label-info small"><?php echo JText::_('COM_EASYDISCUSS_NOTE');?>:</span>
+                <span class="small"><?php echo JText::_('COM_EASYDISCUSS_MERGE_NOTES');?></span>
+            </div>
             
             <div class="mt-20">
                 <?php if ($posts){ ?>
-                    <select name="id" class="inputbox full-width">
+                    <select name="id" class="inputbox full-width" data-field-suggest>
                         <?php foreach ($posts as $post) { ?>
                             <?php if ($post->id != $current) { ?>
                                 <option value="<?php echo $post->id;?>"><?php echo $post->id; ?> - <?php echo $this->escape($post->title); ?></option>
@@ -52,13 +57,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <div class="o-alert o-alert--error"><?php echo JText::_('COM_EASYDISCUSS_MERGE_NO_POSTS');?></div>
                 <?php } ?>
             </div>
-
-            <div>
-                <span class="label label-info small"><?php echo JText::_('COM_EASYDISCUSS_NOTE');?>:</span>
-                <span class="small"><?php echo JText::_('COM_EASYDISCUSS_MERGE_NOTES');?></span>
-            </div>
-
-            <input type="hidden" name="id" value="<?php echo $id;?>" />
+            
             <input type="hidden" name="current" value="<?php echo $current;?>" />
             <?php echo $this->html('form.hidden', 'posts', 'posts', 'merge');?>
 

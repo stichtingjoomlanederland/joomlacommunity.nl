@@ -1,9 +1,0 @@
-[
-    {
-        "script": [
-            "autosize.input",
-            "scrollTo"
-        ],
-        "adapter": "Foundry"
-    }
-]

@@ -45,7 +45,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <?php echo $this->html('form.boolean', 'main_enable_print', $this->config->get('main_enable_print')); ?>
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <div class="col-md-5 control-label">
                             <?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_WHOS_VIEWING'); ?>
@@ -63,7 +63,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <input type="text" name="layout_autominimisepost" class="form-control form-control-sm text-center" value="<?php echo $this->config->get('layout_autominimisepost' , '5' );?>" />
                         </div>
                     </div>
-                    
+
                     <div class="form-group">
                         <div class="col-md-5 control-label">
                             <?php echo $this->html('form.label', 'COM_EASYDISCUSS_REPLIES_SORTING_TAB'); ?>
@@ -80,6 +80,32 @@ defined('_JEXEC') or die('Unauthorized Access');
                             ?>
                         </div>
                     </div>
+
+
+                    <div class="form-group">
+                        <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_POST_NAVIGATION'); ?>
+                        </div>
+                        <div class="col-md-7">
+                            <?php echo $this->html('form.boolean', 'layout_postnavigation', $this->config->get('layout_postnavigation')); ?>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_POST_NAVIGATION_TYPE'); ?>
+                        </div>
+                        <div class="col-md-7">
+                            <?php
+                                $filterFormat = array();
+                                $filterFormat[] = JHTML::_('select.option', 'sitewide', JText::_( 'COM_EASYDISCUSS_ENABLE_POST_NAVIGATION_TYPE_SITEWIDE' ) );
+                                $filterFormat[] = JHTML::_('select.option', 'category', JText::_( 'COM_EASYDISCUSS_ENABLE_POST_NAVIGATION_TYPE_CATEGORY' ) );
+                                $showdet = JHTML::_('select.genericlist', $filterFormat, 'layout_postnavigation_type', 'class="form-control"  ', 'value', 'text', $this->config->get('layout_postnavigation_type' , 'sitewide' ) );
+                                echo $showdet;
+                            ?>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>

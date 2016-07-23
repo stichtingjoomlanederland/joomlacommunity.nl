@@ -44,6 +44,7 @@ class EasyDiscussFacebook extends Facebook
 		$options = array('appId' => $key, 'secret' => $secret);
 
 		parent::__construct($options);
+
 	}
 
 	/**
@@ -270,7 +271,11 @@ class EasyDiscussFacebook extends Facebook
 		$obj = new stdClass();
 
 		// Get the title to use
-		$obj->title = $post->title;
+		if ($post->isQuestion()) {
+			$obj->title = $post->getTitle();
+		} else {
+			$obj->title = $post->getParent()->getTitle();
+		}
 
 		// Get the content to be posted on Facebook
 		$obj->contents = $post->getContent();
@@ -286,7 +291,18 @@ class EasyDiscussFacebook extends Facebook
 
 		$obj->contents .= JText::_('COM_EASYDISCUSS_ELLIPSES');
 
-		$obj->permalink = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $post->id, false, true);
+		// $obj->permalink = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $post->id, false, true);
+
+        // Get the question id
+        $question = $post->getParent();
+
+        // if that is reply post
+		$obj->permalink = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $question->id . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id, false, true);
+
+		// If that is question
+		if ($post->isQuestion()) {
+			$obj->permalink = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $post->id, false, true);
+		}
 
 		return $obj;
 	}

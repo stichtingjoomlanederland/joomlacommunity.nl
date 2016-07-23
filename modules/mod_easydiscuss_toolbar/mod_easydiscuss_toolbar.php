@@ -23,11 +23,17 @@ if (!JFile::exists($path)) {
 require_once ($path);
 
 $config = ED::config();
-
+$edPageExist = false;
 
 $component = JFactory::getApplication()->input->get('option', '', 'cmd');
 if ($component == 'com_easydiscuss' && !$params->get('show_on_easydiscuss', false)) {
     return;
+}
+
+// For some reason it will conflict with other template menu drop down
+// if load the toolbar logout js script multiple time
+if ($component == 'com_easydiscuss') {
+	$edPageExist = true;
 }
 
 // load ed stuff

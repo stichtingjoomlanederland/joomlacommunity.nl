@@ -27,37 +27,14 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 	{
 		$this->checkAccess('discuss.manage.posts');
 
-		// Selected filter
-		$filter = $this->getUserState('posts.filter_state', 'filter_state', '*', 'word');
+		$this->title('COM_EASYDISCUSS_BREADCRUMB_DISCUSSIONS');
+		$this->desc('COM_EASYDISCUSS_POSTS_DESC');
 
-		// Search query
-		$search = $this->getUserState('posts.search', 'search', '', 'string');
-		$search = trim(strtolower($search));
-
-		// Ordering
-		$order = $this->getUserState('posts.filter_order', 'filter_order', 'a.id', 'cmd');
-		$orderDirection = $this->getUserState('posts.filter_order_Dir', 'filter_order_Dir', '', 'word');
-
-		// If there is a parent id, we need to load all the replies
-		$parentId = $this->input->get('pid', 0, 'int');
-		$parentTitle = '';
-
-		if ($parentId) {
-			$post = ED::table('Posts');
-			$post->load($parentId);
-
-			$this->title(JText::sprintf('COM_EASYDISCUSS_BREADCRUMB_VIEWING_REPLIES', $post->title));
-			$this->desc('COM_EASYDISCUSS_POSTS_PARENT_DESC');
-		} else {
-			$this->title('COM_EASYDISCUSS_BREADCRUMB_DISCUSSIONS');
-			$this->desc('COM_EASYDISCUSS_POSTS_DESC');
-
-			JToolbarHelper::addNew();
-			JToolBarHelper::custom('showMove', 'move', '', JText::_('COM_EASYDISCUSS_MOVE_TOOLBAR'));
-			JToolBarHelper::custom('feature', 'featured ', '', JText::_('COM_EASYDISCUSS_FEATURE_TOOLBAR'));
-			JToolBarHelper::custom('unfeature', 'star-empty', '', JText::_('COM_EASYDISCUSS_UNFEATURE_TOOLBAR'));
-			JToolBarHelper::divider();
-		}
+		JToolbarHelper::addNew();
+		JToolBarHelper::custom('showMove', 'move', '', JText::_('COM_EASYDISCUSS_MOVE_TOOLBAR'));
+		JToolBarHelper::custom('feature', 'featured ', '', JText::_('COM_EASYDISCUSS_FEATURE_TOOLBAR'));
+		JToolBarHelper::custom('unfeature', 'star-empty', '', JText::_('COM_EASYDISCUSS_UNFEATURE_TOOLBAR'));
+		JToolBarHelper::divider();
 
 		// Display toolbars
 		JToolbarHelper::publishList();
@@ -67,17 +44,37 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		JToolBarHelper::divider();
 		JToolbarHelper::deleteList();
 
-		$model = ED::model('Threaded', true);
+		// Selected filter
+		$filter = $this->input->get('filter_state', '', 'word');
 
-		$filterCategory	= JRequest::getInt( 'category_id' );
-		$categoryFilter = DiscussHelper::populateCategories('', '', 'select', 'category_id', $filterCategory , true, false , true , true);
+		// Search query
+		$search = $this->input->get('search', '', 'string');
+		$search = trim(strtolower($search));
 
-		$posts = $model->getPosts();
+		// Ordering
+		$order = $this->getUserState('posts.filter_order', 'filter_order', 'a.id', 'cmd');
+		$orderDirection = $this->getUserState('posts.filter_order_Dir', 'filter_order_Dir', 'DESC', 'word');
+
+		// Filter by category
+		$category = $this->input->get('category_id', 0, 'int');
+
+		// Get the dropdown for categories
+		$categoryFilter = ED::populateCategories('', '', 'select', 'category_id', $category, true, false , true , true);
+
+		// Fetch the list of posts 
+		$model = ED::model('Threaded');
+		$options = array('stateKey' => 'posts', 'questions' => true, 'filter' => $filter, 'category' => $category, 'search' => $search);
+		$rows = $model->getPosts($options);
 		$pagination = $model->getPagination();
 
+		$posts = array();
+
 		// Format the posts
-		if ($posts) {
-			foreach ($posts as &$post) {
+		if ($rows) {
+
+			foreach ($rows as &$row) {
+
+				$post = ED::post($row);
 
 				if ($post->user_id == '0') {
 					$post->creatorName = $post->poster_name;
@@ -86,17 +83,11 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 					$post->creatorName = $user->name;
 				}
 
-				$pid = '';
-
-				if (!empty($parentId)) {
-					$pid = '&pid=' . $parentId;
-				}
-
 				// backend link
 				$post->editLink = 'index.php?option=com_easydiscuss&view=post&layout=edit&id=' . $post->id;
 
 				// Format the display date
-				$post->displayDate = ED::date($post->created)->display(JText::_('DATE_FORMAT_LC2'));
+				$post->displayDate = ED::date($post->created)->toSql();
 
 				// display only safe content.
 				$post->content = strip_tags($post->content);
@@ -105,6 +96,10 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 				$category->load($post->category_id);
 
 				$post->category = $category;
+
+				$post->cnt = $post->getTotalReplies();
+
+				$posts[] = $post;
 			}
 		}
 
@@ -116,9 +111,105 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		$this->set('search', $search);
 		$this->set('order', $order);
 		$this->set('orderDirection', $orderDirection);
-		$this->set('parentId', $parentId);
-		$this->set('parentTitle', $parentTitle);
 
 		parent::display('posts/default');
+	}
+
+	/**
+	 * Renders a list of replies at the back end
+	 *
+	 * @since	4.0.10
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function replies()
+	{
+		$this->checkAccess('discuss.manage.posts');
+
+		$this->title('COM_EASYDISCUSS_SIDEBAR_REPLIES');
+
+		// Display toolbars
+		JToolbarHelper::publishList();
+		JToolbarHelper::unpublishList();
+		JToolBarHelper::divider();
+		JToolbarHelper::unpublishList('resetVotes', JText::_('COM_EASYDISCUSS_RESET_VOTES'));
+		JToolBarHelper::divider();
+		JToolbarHelper::deleteList();
+
+		// Selected filter
+		$filter = $this->input->get('filter_state', '', 'word');
+
+		// Search query
+		$search = $this->input->get('search', '', 'string');
+		$search = trim(strtolower($search));
+
+		$model = ED::model("Threaded");
+		$options = array('stateKey' => 'replies', 'replies' => true, 'filter' => $filter, 'search' => $search);
+		$result = $model->getPosts($options);
+		$pagination = $model->getPagination();
+		
+		// Format the posts
+		$posts = array();
+
+		if ($result) {
+			foreach ($result as $row) {
+				$post = ED::post($row);
+
+				$posts[] = $post;
+			}
+		}
+
+		$this->set('filter', $filter);
+		$this->set('search', $search);
+		$this->set('posts', $posts);
+		$this->set('pagination', $pagination);
+
+		parent::display('posts/replies');
+	}
+
+	/**
+	 * Renders a list of pending posts
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function pending()
+	{
+		$this->checkAccess('discuss.manage.posts');
+
+		$this->title('COM_EASYDISCUSS_TITLE_PENDING_POSTS');
+
+		// Display toolbars
+		JToolbarHelper::publishList('publish', JText::_('COM_EASYDISCUSS_BTN_APPROVE'));
+		JToolbarHelper::unpublishList('unpublish', JText::_('COM_EASYDISCUSS_BTN_REJECT'));
+		JToolBarHelper::divider();
+		JToolbarHelper::deleteList();
+		
+		// Search query
+		$search = $this->input->get('search', '', 'string');
+		$search = trim(strtolower($search));
+
+		$model = ED::model("Threaded");
+		$options = array('stateKey' => 'pending', 'pending' => true, 'search' => $search);
+		$result = $model->getPosts($options);
+		$pagination = $model->getPagination();
+		$posts = array();
+
+		if ($result) {
+			foreach ($result as $row) {
+				$post = ED::post($row);
+
+				$posts[] = $post;
+			}
+		}
+	
+		$this->set('search', $search);		
+		$this->set('posts', $posts);
+		$this->set('pagination', $pagination);
+
+		parent::display('posts/pending');
 	}
 }

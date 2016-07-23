@@ -45,8 +45,11 @@ class DiscussConversation extends EasyDiscussTable
 		$query[]	= 'WHERE';
 		$query[]	= '( b.' . $db->nameQuote( 'user_id' ) . '=' . $db->Quote( $recipient ) . ' OR b.' . $db->nameQuote( 'user_id' ) . '=' . $db->Quote( $creator ) . ' )';
 		$query[]	= 'GROUP BY b.' . $db->nameQuote( 'conversation_id' );
-		$query[]	= 'HAVING COUNT( b.' . $db->nameQuote( 'conversation_id' ) . ') > 1';
+		// here we restrict the conversation can be from one to one only.
+		$query[]	= 'HAVING COUNT( b.' . $db->nameQuote( 'conversation_id' ) . ') = 2';
 		$query 		= implode( ' ' , $query );
+
+		// echo $query;exit;
 
 		$db->setQuery( $query );
 

@@ -43,7 +43,7 @@ if (isset($post) && is_object($post)) {
     $ftppassword = $ftppassword && isset($ftppassword[0]) ? $ftppassword[0] : '';
 }
 ?>
-<?php if ($post->isQuestion() && $this->config->get('tab_site_question') || $post->isReply() && $this->config->get('tab_site_reply') || ED::isSiteAdmin()) { ?>
+<?php if (($post->isQuestion() && $this->config->get('tab_site_question')) || ($post->isReply() && $this->config->get('tab_site_reply'))) { ?>
 <div id="access-<?php echo $editorId; ?>" class="ed-editor-tab__content fields-tab tab-pane">
 
     <div class="ed-editor-tab__content-note t-lg-mb--xl">

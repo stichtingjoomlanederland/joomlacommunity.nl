@@ -164,16 +164,26 @@ class EasyDiscussToolbar extends EasyDiscuss
         // Set the default return url
         $return = EDR::getLoginRedirect();
 
+        // Get any callback url and use it.
+        $url = ED::getCallback();
+
+        if ($url) {
+            $return = base64_encode($url);
+        }
+
         // Message queue
         $messageObject = ED::getMessageQueue();
 
-        // Determines if we should use easysocial conversations
-        $useEasySocialConversations = false;
+        // Determines if we should use external conversations
+        $useExternalConversations = false;
 
         if (ED::easysocial()->exists() && $this->config->get('integration_easysocial_messaging')) {
-            $useEasySocialConversations = true;
+            $useExternalConversations = true;
         }
 
+        if (ED::jomsocial()->exists() && $this->config->get('integration_jomsocial_messaging')) {
+            $useExternalConversations = true;
+        }
 
         $theme = ED::themes();
         $theme->set('active', $active);
@@ -181,7 +191,7 @@ class EasyDiscussToolbar extends EasyDiscuss
         $theme->set('conversationsCount', $conversationsCount);
         $theme->set('notificationsCount', $notificationsCount);
         $theme->set('return', $return );
-        $theme->set('useEasySocialConversations', $useEasySocialConversations);
+        $theme->set('useExternalConversations', $useExternalConversations);
         $theme->set('categoryId', $activeCategory);
         $theme->set('views', $views);
         $theme->set('headers', $headers);

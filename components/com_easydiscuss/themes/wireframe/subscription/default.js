@@ -36,8 +36,8 @@ ed.require(['edq', 'site/src/subscription', 'chartjs'], function($) {
     };
 
     var options ={
-        multiTooltipTemplate: "<%= datasetLabel %> - <%= value %>",
-        legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span class=\"chartjs-legend-label\" style=\"background-color:<%=datasets[i].strokeColor%>\"></span><%if(datasets[i].label){%><%=datasets[i].label%><%}%></li><%}%></ul>",
+        multiTooltipTemplate: "[%= datasetLabel %] - [%= value %]",
+        legendTemplate : "<ul class=\"[%=name.toLowerCase()%]-legend\">[% for (var i=0; i<datasets.length; i++){%]<li><span class=\"chartjs-legend-label\" style=\"background-color:[%=datasets[i].strokeColor%]\"></span>[%if(datasets[i].label){%][%=datasets[i].label%][%}%]</li>[%}%]</ul>",
         responsive: true,
         maintainAspectRatio: false
     }

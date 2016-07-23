@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Notifications</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>9th May 2016</creationDate>
+	<creationDate>20th July 2016</creationDate>
 	<copyright>Copyright 2009 - 2016 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>4.0.5</version>
+	<version>4.0.7</version>
 	<description>
 		<![CDATA[
 			This module will display a notifications layout for Easydiscuss.

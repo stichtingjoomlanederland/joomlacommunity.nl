@@ -12,8 +12,8 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <dialog>
-    <width>400</width>
-    <height>120</height>
+    <width>600</width>
+    <height>240</height>
     <selectors type="json">
     {
         "{closeButton}" : "[data-close-button]",
@@ -34,7 +34,7 @@ defined('_JEXEC') or die('Unauthorized Access');
     <title><?php echo JText::_('COM_EASYDISCUSS_TERMS_AND_CONDITIONS'); ?></title>
     <content>
         <p class="mb-10">
-            <?php echo nl2br($this->config->get('main_comment_tnctext')); ?>
+            <?php echo nl2br($this->config->get('main_tnctext')); ?>
         </p>
 
         <form data-form-response method="post" action="<?php echo JRoute::_('index.php');?>">

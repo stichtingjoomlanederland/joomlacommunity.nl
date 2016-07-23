@@ -1,218 +1,175 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once dirname( __FILE__ ) . '/model.php';
+require_once(dirname( __FILE__ ) . '/model.php');
 
 class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 {
-	/**
-	 * Blogs data array
-	 *
-	 * @var array
-	 */
-	var $_data = null;
+	public $total = null;
 
-	/**
-	 * Pagination object
-	 *
-	 * @var object
-	 */
-	var $_pagination = null;
-
-	/**
-	 * Configuration data
-	 *
-	 * @var int	Total number of rows
-	 **/
-	var $_total;
-
-	/**
-	 * Constructor
-	 *
-	 * @since 1.5
-	 */
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
-
-		$mainframe 	= JFactory::getApplication();
-
-		//get the number of events from database
-		$limit		= $mainframe->getUserStateFromRequest('com_easydiscuss.posts.limit', 'limit', $mainframe->getCfg('list_limit') , 'int');
+		
+		// Get the posts limit
+		$limit = $this->app->getUserStateFromRequest('com_easydiscuss.posts.limit', 'limit', $this->app->getCfg('list_limit') , 'int');
 		$limitstart	= JRequest::getVar('limitstart', 0, '', 'int');
 
 		$this->setState('limit', $limit);
 		$this->setState('limitstart', $limitstart);
 	}
 
-	function getPosts( $userId = null )
+	/**
+	 * Allows caller to retrieve posts
+	 *
+	 * @since	4.0.9
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getPosts($options = array())
 	{
-		if(empty($this->_data) )
-		{
-			$query = $this->_buildQuery( $userId );
+		$db = ED::db();
 
-			$this->_data	= $this->_getList( $this->_buildQuery() , $this->getState('limitstart'), $this->getState('limit') );
-		}
-		return $this->_data;
-	}
+		$query = array();
+		$query[] = 'SELECT a.*';
+		$query[] = 'FROM ' . $db->qn('#__discuss_posts') . ' AS a';
 
-	function _buildQuery()
-	{
-		// Get the WHERE and ORDER BY clauses for the query
-		$where		= $this->_buildQueryWhere();
-		$orderby	= $this->_buildQueryOrderBy();
-		$db			= DiscussHelper::getDBO();
-
-		$parentId	= JRequest::getString('pid', '');
-
-
-// 		$query = 'SELECT IFNULL(a.id, b.id) AS pid, b.* FROM #__discuss_posts AS a ' .
-// 				 '	RIGHT JOIN #__discuss_posts AS b ' .
-// 				 '	ON a.id = b.parent_id';
-
-		if(! empty($parentId))
-		{
-			$query	= 'select a.*, 0 as `cnt`, 0 as `pendingcnt`';
-			$query	.= ' from `#__discuss_posts` AS a';
-		}
-		else
-		{
-// 			$query	= 'select a.*, count(b.`id`) as `cnt`';
-// 			$query	.= ' from `#__discuss_posts` AS a LEFT JOIN `#__discuss_posts` AS b ON a.`id` = b.`parent_id`';
-
-			$query	= 'select a.*, count(b.`id`) as `cnt`, count(c.`id`) as `pendingcnt`';
-			$query	.= ' from `#__discuss_posts` AS a LEFT JOIN `#__discuss_posts` AS b ON a.`id` = b.`parent_id`';
-			$query	.= ' LEFT JOIN `#__discuss_posts` AS c ON b.`id` = c.`id` and c.`published` = ' . $db->Quote('4');
-
-		}
-
-		$query	.= $where;
-
-		if(empty($parentId))
-		{
-			$query	.= ' GROUP BY a.`id`';
-		}
-
-		$query	.= ' ' . $orderby;
-
-		return $query;
-	}
-
-	function _buildQueryWhere()
-	{
-		$mainframe		= JFactory::getApplication();
-		$db				= DiscussHelper::getDBO();
-
-		$filter_state	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.posts.filter_state', 'filter_state', '', 'word' );
-		$filter_category	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.posts.filter_state', 'category_id', '', 'int' );
-
-		$search			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.posts.search', 'search', '', 'string' );
-		$search			= $db->getEscaped( trim(JString::strtolower( $search ) ) );
-
-		$parentId		= JRequest::getString('pid', '');
+		$filter = isset($options['filter']) ? $options['filter'] : '';
+		$category = isset($options['category']) ? $options['category'] : '';
 
 		$where = array();
 
-
-		if(! empty($parentId))
-		{
-			$where[]	= 'a.`parent_id` = ' . $db->Quote($parentId);
-		}
-		else
-		{
-			$where[]	= 'a.`parent_id` = ' . $db->Quote('0');
+		// We only want to fetch the parent if needed
+		if (isset($options['questions']) && $options['questions']) {
+			$where[] = 'a.`parent_id` = ' . $db->Quote('0');
 		}
 
-		if( $filter_category )
-		{
-			$where[]	= 'a.' . $db->nameQuote( 'category_id' ) . '=' . $db->Quote( $filter_category );
+		// We only want to fetch the parent if needed
+		if (isset($options['replies']) && $options['replies']) {
+			$where[] = 'a.`parent_id` != ' . $db->Quote('0');
 		}
 
-		if ( $filter_state )
-		{
-			if ( $filter_state == 'P' )
-			{
-				$where[] = $db->nameQuote( 'a.published' ) . '=' . $db->Quote( '1' );
-			}
-			else if ($filter_state == 'U' )
-			{
-				$where[] = $db->nameQuote( 'a.published' ) . '=' . $db->Quote( '0' );
-			}
-			else if ($filter_state == 'A' )
-			{
-				$where[] = $db->nameQuote( 'a.published' ) . '=' . $db->Quote( '4' );
-			}
+		// Render only pending posts
+		if (isset($options['pending']) && $options['pending']) {
+			$where[] = 'a.' . $db->qn('published') . '=' . $db->Quote(DISCUSS_ID_PENDING);
+		} else {
+			$where[] = 'a.' . $db->qn('published') . '!=' . $db->Quote(DISCUSS_ID_PENDING);
 		}
 
-		if ($search)
-		{
-			$where[] = ' LOWER( a.`title` ) LIKE \'%' . $search . '%\' ';
+		// Determines if we need to filter posts by category
+		if ($category) {
+			$where[] = 'a.' . $db->qn( 'category_id' ) . '=' . $db->Quote($category);
 		}
 
-		$where 		= count( $where ) ? ' WHERE ' . implode( ' AND ', $where ) : '' ;
+		// Filter posts that are published
+		if ($filter == 'published') {
+			$where[] = $db->qn('a.published') . '=' . $db->Quote('1');
+		}
 
-		return $where;
-	}
+		// Filter posts that are unpublished
+		if ($filter == 'unpublished') {
+			$where[] = $db->qn('a.published') . '=' . $db->Quote('0');
+		}
 
-	function _buildQueryOrderBy()
-	{
-		$mainframe			= JFactory::getApplication();
+		// Search queries
+		$search = isset($options['search']) ? $options['search'] : '';
+		$search = $db->getEscaped(trim(JString::strtolower($search)));
 
-		$filter_order		= $mainframe->getUserStateFromRequest( 'com_easydiscuss.posts.filter_order', 		'filter_order', 	'a.id', 'cmd' );
-		$filter_order_Dir	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.posts.filter_order_Dir',	'filter_order_Dir',	'DESC', 'word' );
+		// Get the ordering and order direction of posts
+		$stateKey = isset($options['stateKey']) ? $options['stateKey'] : 'posts';
 
-		$orderby 	= ' ORDER BY '.$filter_order.' '.$filter_order_Dir.', ordering';
+		if ($search && $stateKey == 'posts') {
+			$where[] = ' LOWER( a.`title` ) LIKE ' . $db->Quote('%' . $search . '%');
+		}
 
-		//$orderby	= ' ORDER BY pid, a.created, b.created';
-		//$orderby	= ' ORDER BY a.created';
+		if ($search && $stateKey == 'replies') {
+			$where[] = ' LOWER(a.`content`) LIKE ' . $db->Quote('%' . $search . '%');
+		}
 
-		return $orderby;
+		if ($search && $stateKey == 'pending') {
+			$where[] = ' (LOWER(a.`title`) LIKE ' . $db->Quote('%' . $search . '%') . ' OR LOWER(a.`content`) LIKE ' . $db->Quote('%' . $search . '%') . ')';
+		}
+
+		$where = count($where) ? ' WHERE ' . implode( ' AND ', $where ) : '' ;
+
+		$query[] = $where;
+
+
+		$ordering = $this->app->getUserStateFromRequest('com_easydiscuss.' . $stateKey . '.filter_order', 'filter_order', 'a.id', 'cmd');
+		$direction = $this->app->getUserStateFromRequest('com_easydiscuss.' . $stateKey . '.filter_order_Dir', 'filter_order_Dir', 'DESC', 'word');
+
+		$query[] = 'ORDER BY ' . $ordering . ' ' . $direction . ', ordering';
+
+		// Glue the queries together.
+		$query = implode(' ', $query);
+
+		// Get the total number of items
+		$limitQuery = str_ireplace('a.*', 'COUNT(1)', $query);
+		$db->setQuery($limitQuery);
+		$total = (int) $db->loadResult();
+		$this->total = $total;
+
+		// Get the pagination
+		$limitstart = $this->getState('limitstart');
+		$limit = $this->getState('limit');
+		$query .= ' LIMIT ' . $limitstart . ',' . $limit;
+
+		$db->setQuery($query);
+		$items = $db->loadObjectList();
+
+		return $items;
 	}
 
 	/**
-	 * Method to return the total number of rows
+	 * Allows caller to retrieve the number of pending items on the site
 	 *
-	 * @access public
-	 * @return integer
+	 * @since	4.0.10
+	 * @access	public
+	 * @param	string
+	 * @return	
 	 */
-	function getTotal()
+	public function getPendingCount()
 	{
-		// Load total number of rows
-		if( empty($this->_total) )
-		{
-			$this->_total	= $this->_getListCount( $this->_buildQuery() );
-		}
+		$db = ED::db();
 
-		return $this->_total;
+		$query = array();
+		$query[] = 'SELECT COUNT(1) FROM ' . $db->qn('#__discuss_posts');
+		$query[] = 'WHERE ' . $db->qn('published') . '=' . $db->Quote(DISCUSS_ID_PENDING);
+
+		$query = implode(' ', $query);
+		
+		$db->setQuery($query);
+		$total = $db->loadResult();
+
+		return $total;
 	}
 
 	/**
-	 * Method to get a pagination object for the events
+	 * Retrieves the pagination for the posts
 	 *
-	 * @access public
-	 * @return integer
+	 * @since	4.0.10
+	 * @access	public
+	 * @param	string
+	 * @return	
 	 */
-	function getPagination()
+	public function getPagination()
 	{
-		// Lets load the content if it doesn't already exist
-		if ( empty( $this->_pagination ) )
-		{
-			jimport('joomla.html.pagination');
-			$this->_pagination = new JPagination( $this->getTotal(), $this->getState('limitstart'), $this->getState('limit') );
-		}
+		jimport('joomla.html.pagination');
 
-		return $this->_pagination;
+		$pagination = new JPagination($this->total, $this->getState('limitstart'), $this->getState('limit'));
+
+		return $pagination;
 	}
 
 	/**
@@ -246,16 +203,24 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 		return true;
 	}
 	
-	function getAllPosts()
+	/**
+	 * Retrieves all posts from the site
+	 *
+	 * @since	4.0.9
+	 * @access	public
+	 * @param	string
+	 * @return	
+	 */
+	public function getAllPosts()
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
-		$query = 'SELECT IFNULL(a.id, b.id) AS pid, b.* FROM #__discuss_posts AS a ' .
+		$query = 'SELECT IFNULL(a.id, b.id) AS pid, b.* FROM `#__discuss_posts` AS a ' .
 				 '	RIGHT JOIN #__discuss_posts AS b ' .
 				 '	ON a.id = b.parent_id' .
 				 ' ORDER BY a.created, b.created';
 
-		$db->setQuery( $query );
+		$db->setQuery($query);
 		$result = $db->loadObjectList();
 
 		return $result;

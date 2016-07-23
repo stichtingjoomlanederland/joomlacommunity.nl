@@ -62,7 +62,7 @@ class EasyDiscussViewGroups extends EasyDiscussView
 		$this->logView();
 
 		// Set page title.
-		ED::setPageTitle();
+		ED::setPageTitle('COM_EASYDISCUSS_TITLE_GROUP_DISCUSSIONS');
 
 		// Set the meta of the page.
 		ED::setMeta();

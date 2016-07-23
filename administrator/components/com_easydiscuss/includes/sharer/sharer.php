@@ -26,6 +26,11 @@ class EasyDiscussSharer extends EasyDiscuss
 			$className = 'EasyDiscussSharerButton' . ucfirst($id);
 			$button = new $className();
 
+			// If button is not enabled, do not process.
+			if (!$button->enabled()) {
+				continue;
+			}
+
 			$buttons[] = $button;
 		}
 
@@ -46,6 +51,10 @@ class EasyDiscussSharer extends EasyDiscuss
 	public function html($post, $position = 'vertical')
 	{
 		$buttons = $this->buttons();
+
+		if (!$buttons) {
+			return false;
+		}
 
 		$theme = ED::themes();
 		$theme->set('post', $post);

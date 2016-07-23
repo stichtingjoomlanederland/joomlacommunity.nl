@@ -78,6 +78,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 		</div>
 		<?php } ?>
 
+		<?php if ($this->config->get('main_description_visibility')) { ?>
 		<div class="form-group">
 		    <label for="description"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_DESCRIPTION'); ?></label>
 			<div class="ed-editor ed-editor--<?php echo $composer->getEditorClass();?>" <?php echo $composer->uid;?>>
@@ -86,6 +87,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	        	</div>
 			</div>
 		</div>
+		<?php } ?>
 
 	</div>
 </div>

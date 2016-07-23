@@ -32,7 +32,6 @@ class EasyDiscussStylesheet extends EasyDiscuss
 	 */
 	public function attach()
 	{
-
         // RTL support
         $lang = JFactory::getLanguage();
         $rtl = $lang->isRTL();
@@ -53,7 +52,6 @@ class EasyDiscussStylesheet extends EasyDiscuss
 
             return;
         }
-
 
 		$uri = $this->compile();
 

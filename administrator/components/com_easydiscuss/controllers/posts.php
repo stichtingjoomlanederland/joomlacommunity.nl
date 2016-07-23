@@ -113,96 +113,86 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	/**
 	 * Process the toggle publish.
 	 *
-	 * @since	4.0
+	 * @since	4.0.10
 	 * @access	public
 	 * @param	string
 	 * @return
 	 */
 	public function publish()
 	{
-		$config = $this->config;
-		$items = $this->input->get('cid', '', 'array');
-		$pid = $this->input->get('pid', '');
-		$message = '';
+		// Construct the default redirection link
+		$redirect = 'index.php?option=com_easydiscuss&view=posts';
 
-		if (count($items) <= 0) {
+		// Determine where should we redirect the user back to
+		$from = $this->input->get('from', '', 'word');
+
+		if ($from) {
+			$redirect .= '&layout=' . $from;
+		}
+
+		$posts = $this->input->get('cid', '', 'array');
+
+		if (!$posts) {
 			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
 			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
-		} else {
-			// @task: Tell the world that we're publishing post by sending notification.
-			foreach ($items as $item) {
 
-				// $post = ED::table('Posts');
-				// $post->load($item);
-				$post = ED::post($item);
-				$published = $post->publish(1);
-			}
-
-			// $model = ED::model('Posts');
-			// $published = $model->publishPosts($items, 1);
-
-			if ($published) {
-				$message = JText::_('COM_EASYDISCUSS_POSTS_PUBLISHED');
-				ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
-			} else {
-				$message = JText::_('COM_EASYDISCUSS_ERROR_PUBLISHING');
-				ED::setMessage($message, DISCUSS_QUEUE_ERROR);
-			}
+			return $this->app->redirect($redirect);			
 		}
 
-		$pidLink = '';
 
-		if (!empty($pid)) {
-			$pidLink = '&pid=' . $pid;
+		// Try to unpublish these selected posts
+		foreach ($posts as $item) {
+			$post = ED::post($item);
+			$post->publish(1);
 		}
 
-		$this->setRedirect('index.php?option=com_easydiscuss&view=posts' . $pidLink);
+		$message = JText::_('COM_EASYDISCUSS_POSTS_PUBLISHED');
+		ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
+
+		return $this->app->redirect($redirect);
 	}
 
 	/**
 	 * Process the toggle unpublish.
 	 *
-	 * @since	4.0
+	 * @since	4.0.10
 	 * @access	public
 	 * @param	string
 	 * @return
 	 */
 	public function unpublish()
 	{
-		$posts = $this->input->get('cid', '', 'array');
-		$pid = $this->input->get('pid', '');
-		$message = '';
+		// Construct the default redirection link
+		$redirect = 'index.php?option=com_easydiscuss&view=posts';
 
-		if (count($posts) <= 0) {
+		// Determine where should we redirect the user back to
+		$from = $this->input->get('from', '', 'word');
+
+		if ($from) {
+			$redirect .= '&layout=' . $from;
+		}
+
+		// Get the list of posts to unpublish
+		$posts = $this->input->get('cid', '', 'array');
+
+		if (!$posts) {
 			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
 			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
-		} else {
 
-			// @task: Tell the world that we're publishing post by sending notification.
-			foreach ($posts as $item) {
-
-				// $post = ED::table('Posts');
-				// $post->load($item);
-				$post = ED::post($item);
-				$unpublish = $post->publish('0');
-			}
-
-			if ($unpublish) {
-				$message = JText::_('COM_EASYDISCUSS_POSTS_UNPUBLISHED');
-				ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
-			} else {
-				$message = JText::_('COM_EASYDISCUSS_ERROR_UNPUBLISHING');
-				ED::setMessage($message, DISCUSS_QUEUE_ERROR);
-			}
+			return $this->app->redirect($redirect);
 		}
 
-		$pidLink = '';
-
-		if(! empty($pid)) {
-			$pidLink = '&pid=' . $pid;
+		// Try to unpublish each posts
+		foreach ($posts as $item) {
+			$post = ED::post($item);
+			$post->publish('0');
 		}
 
-		$this->setRedirect('index.php?option=com_easydiscuss&view=posts' . $pidLink);
+
+		$message = JText::_('COM_EASYDISCUSS_POSTS_UNPUBLISHED');
+		ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
+
+		$this->app->redirect($redirect);
 	}
 
 	public function edit()
@@ -224,68 +214,42 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	/**
 	 * Remove discussions from the site.
 	 *
-	 * @since	4.0
+	 * @since	4.0.10
 	 * @access	public
 	 */
 	public function remove()
 	{
-		$post = $this->input->get('cid' , array(), 'POST');
-		$pid = $this->input->get('pid', '', 'default');
+		// Construct the default redirection link
+		$redirect = 'index.php?option=com_easydiscuss&view=posts';
 
-		$message = '';
-		$type = 'success';
+		// Determine where should we redirect the user back to
+		$from = $this->input->get('from', '', 'word');
 
-		if (count($post) <= 0) {
+		if ($from) {
+			$redirect .= '&layout=' . $from;
+		}
+
+		$posts = $this->input->get('cid' , array(), 'POST');
+
+		if (!$posts) {
 			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
-			$type = 'error';
-		} else {
+			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
 
-			$model = ED::model('Post');
-
-			//check if any of the 'to be' remove entry was a answered reply.
-			// If yes, revert the main post to unresolved.
-			// if (! empty($pid)) {
-			// 	// we know this is the replies.
-			// 	$model->revertAnwered( $post );
-			// }
-
-			if ($post) {
-				foreach ($post as $id) {
-					// $discussion = DiscussHelper::getTable( 'Post' );
-					// $discussion->load( $id );
-
-					// // Delete all notification associated with this post
-					// $notificationModel = ED::model('Notification');
-					// $notificationModel->deleteNotifications( $id );
-
-					// $discussion->delete();
-
-					$post = ED::post($id);
-					$post->delete();
-				}
-
-				$message = (empty($pid)) ? JText::_('COM_EASYDISCUSS_POSTS_DELETED') : JText::_('COM_EASYDISCUSS_REPLIES_DELETED');
-
-				// @rule: Trigger AUP points
-				if ( !empty($pid)) {
-					ED::getHelper('Aup')->assign( DISCUSS_POINTS_DELETE_DISCUSSION , $post->user_id , $post->title);
-				}
-
-			} else {
-				$message = (empty($pid)) ? JText::_('COM_EASYDISCUSS_ERROR_DELETING_POST') : JText::_('COM_EASYDISCUSS_ERROR_DELETING_REPLY');
-				$type = 'error';
-			}
-
+			return $this->app->redirect($redirect);
 		}
 
-		$pidLink = '';
-		if (! empty($pid)) {
-			$pidLink = '&pid=' . $pid;
+		$model = ED::model('Post');
+
+		foreach ($posts as $item) {
+			$post = ED::post($item);
+			$post->delete();
 		}
 
-		ED::setMessageQueue( $message , $type );
+		$message = (empty($pid)) ? JText::_('COM_EASYDISCUSS_POSTS_DELETED') : JText::_('COM_EASYDISCUSS_REPLIES_DELETED');
 
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=posts' . $pidLink );
+		ED::setMessageQueue($message, DISCUSS_QUEUE_SUCCESS);
+
+		return $this->app->redirect($redirect);
 	}
 
 	public function add()
@@ -330,10 +294,10 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	    $isNew = $post->isNew();
 
 	    // Get the redirect URL
-	    $redirectUrl = EDR::_('view=ask', false);
+	    $redirectUrl = 'index.php?option=com_easydiscuss&view=post';
 
 	    if (!$isNew) {
-	        $redirectUrl = EDR::_('view=ask&id=' . $post->id, false);
+	        $redirectUrl = 'index.php?option=com_easydiscuss&view=post&layout=edit&id=' . $post->id;
 	    }
 
 	    // Check the permissions to post a new question
@@ -363,14 +327,14 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	        ED::storeSession($data, 'NEW_POST_TOKEN');
 	        ED::setMessage($post->getError(), 'error');
 
-	        return $this->app->redirect(EDR::getAskRoute($redirectUrl, false));
+	        return $this->app->redirect($redirectUrl);
 	    }
 
 	    // Save
 	    // Need to check all the error and make sure it is standardized
 	    if (!$post->save()) {
 	        ED::setMessage($post->getError(), 'error');
-	        return $this->app->redirect(EDR::getAskRoute($redirectUrl, false));
+	        return $this->app->redirect($redirectUrl);
 	    }
 
 	    $message = ($isNew)? JText::_('COM_EASYDISCUSS_POST_STORED') : JText::_('COM_EASYDISCUSS_EDIT_SUCCESS');
@@ -418,6 +382,16 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		// Check for request forgeries
 	    ED::checkToken();
 
+		// Construct the default redirection link
+		$redirect = 'index.php?option=com_easydiscuss&view=posts';
+
+		// Determine where should we redirect the user back to
+		$from = $this->input->get('from', '', 'word');
+
+		if ($from) {
+			$redirect .= '&layout=' . $from;
+		}
+
 		$cid = $this->input->get('cid');
 
 		foreach ($cid as $id) {
@@ -425,7 +399,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 			if (!$post->id) {
 				ED::setMessageQueue(JText::_('COM_EASYDISCUSS_POST_RESET_VOTES_ERROR'), DISCUSS_QUEUE_ERROR);
-				return $this->setRedirect('index.php?option=com_easydiscuss&view=posts');
+				return $this->app->redirect($redirect);
 			}
 
 			$post->resetVotes();
@@ -433,6 +407,6 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		ED::setMessageQueue(JText::_('COM_EASYDISCUSS_POST_RESET_VOTES_SUCCESS'), DISCUSS_QUEUE_SUCCESS);
 
-		$this->setRedirect( 'index.php?option=com_easydiscuss&view=posts' );
+		return $this->app->redirect($redirect);
 	}
 }

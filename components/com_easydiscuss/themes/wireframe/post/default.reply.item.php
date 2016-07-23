@@ -95,7 +95,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                 <?php echo $this->output('site/post/default.references', array('post' => $post, 'composer' => $composer)); ?>
 
-                <?php echo $this->output('site/post/default.site.detail', array('post' => $post)); ?>
+                <?php echo $this->output('site/post/default.site.detail', array('post' => $post, 'composer' => $composer)); ?>
             
             </div>                    
             

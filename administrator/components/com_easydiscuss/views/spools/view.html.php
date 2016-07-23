@@ -69,7 +69,7 @@ class EasyDiscussViewSpools extends EasyDiscussAdminView
 		// Get the mail id
 		$id = $this->input->get('id', 0, 'int');
 
-		$mailq	= ED::table('Mailqueue');
+		$mailq = ED::table('Mailqueue');
 		$mailq->load($id);
 
 		echo $mailq->getBody();

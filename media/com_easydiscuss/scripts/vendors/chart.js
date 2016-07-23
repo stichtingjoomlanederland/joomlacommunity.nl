@@ -86,7 +86,7 @@ ed.define('chartjs', ['edjquery'], function($) {
 			scaleShowLabels: true,
 
 			// Interpolated JS string - can access value
-			scaleLabel: "<%=value%>",
+			scaleLabel: "[%=value%]",
 
 			// Boolean - Whether the scale should stick to integers, and not show any floats even if drawing space is there
 			scaleIntegersOnly: true,
@@ -149,7 +149,7 @@ ed.define('chartjs', ['edjquery'], function($) {
 			tooltipTitleFontColor: "#fff",
 
 			// String - Tooltip title template
-			tooltipTitleTemplate: "<%= label%>",
+			tooltipTitleTemplate: "[%= label%]",
 
 			// Number - pixel width of padding around tooltip text
 			tooltipYPadding: 6,
@@ -167,10 +167,10 @@ ed.define('chartjs', ['edjquery'], function($) {
 			tooltipXOffset: 10,
 
 			// String - Template string for single tooltips
-			tooltipTemplate: "<%if (label){%><%=label%>: <%}%><%= value %>",
+			tooltipTemplate: "[%if (label){%][%=label%]: [%}%][%= value %]",
 
 			// String - Template string for single tooltips
-			multiTooltipTemplate: "<%= value %>",
+			multiTooltipTemplate: "[%= value %]",
 
 			// String - Colour behind the legend colour block
 			multiTooltipKeyBackground: '#fff',
@@ -517,11 +517,11 @@ ed.define('chartjs', ['edjquery'], function($) {
 					// Convert the template into pure JavaScript
 					str
 						.replace(/[\r\t\n]/g, " ")
-						.split("<%").join("\t")
-						.replace(/((^|%>)[^\t]*)'/g, "$1\r")
-						.replace(/\t=(.*?)%>/g, "',$1,'")
+						.split("[%").join("\t")
+						.replace(/((^|%\])[^\t]*)'/g, "$1\r")
+						.replace(/\t=(.*?)%\]/g, "',$1,'")
 						.split("\t").join("');")
-						.split("%>").join("p.push('")
+						.split("%]").join("p.push('")
 						.split("\r").join("\\'") +
 					"');}return p.join('');"
 				);
@@ -2291,7 +2291,7 @@ ed.define('chartjs', ['edjquery'], function($) {
 		barDatasetSpacing : 1,
 
 		//String - A legend template
-		legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].fillColor%>\"><%if(datasets[i].label){%><%=datasets[i].label%><%}%></span></li><%}%></ul>"
+		legendTemplate : "<ul class=\"[%=name.toLowerCase()%]-legend\">[% for (var i=0; i<datasets.length; i++){%]<li><span style=\"background-color:[%=datasets[i].fillColor%]\">[%if(datasets[i].label){%][%=datasets[i].label%][%}%]</span></li>[%}%]</ul>"
 
 	};
 
@@ -2589,7 +2589,7 @@ ed.define('chartjs', ['edjquery'], function($) {
 		animateScale : false,
 
 		//String - A legend template
-		legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"><%if(segments[i].label){%><%=segments[i].label%><%}%></span></li><%}%></ul>"
+		legendTemplate : "<ul class=\"[%=name.toLowerCase()%]-legend\">[% for (var i=0; i<segments.length; i++){%]<li><span style=\"background-color:[%=segments[i].fillColor%]\">[%if(segments[i].label){%][%=segments[i].label%][%}%]</span></li>[%}%]</ul>"
 
 	};
 
@@ -2802,7 +2802,7 @@ ed.define('chartjs', ['edjquery'], function($) {
 		datasetFill : true,
 
 		//String - A legend template
-		legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].strokeColor%>\"><%if(datasets[i].label){%><%=datasets[i].label%><%}%></span></li><%}%></ul>",
+		legendTemplate : "<ul class=\"[%=name.toLowerCase()%]-legend\">[% for (var i=0; i<datasets.length; i++){%]<li><span style=\"background-color:[%=datasets[i].strokeColor%]\">[%if(datasets[i].label){%][%=datasets[i].label%][%}%]</span></li>[%}%]</ul>",
 
 		//Boolean - Whether to horizontally center the label and point dot inside the grid
 		offsetGridLines : false
@@ -3183,7 +3183,7 @@ ed.define('chartjs', ['edjquery'], function($) {
 		animateScale : false,
 
 		//String - A legend template
-		legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<segments.length; i++){%><li><span style=\"background-color:<%=segments[i].fillColor%>\"><%if(segments[i].label){%><%=segments[i].label%><%}%></span></li><%}%></ul>"
+		legendTemplate : "<ul class=\"[%=name.toLowerCase()%]-legend\">[% for (var i=0; i<segments.length; i++){%]<li><span style=\"background-color:[%=segments[i].fillColor%]\">[%if(segments[i].label){%][%=segments[i].label%][%}%]</span></li>[%}%]</ul>"
 	};
 
 
@@ -3449,7 +3449,7 @@ ed.define('chartjs', ['edjquery'], function($) {
 			datasetFill : true,
 
 			//String - A legend template
-			legendTemplate : "<ul class=\"<%=name.toLowerCase()%>-legend\"><% for (var i=0; i<datasets.length; i++){%><li><span style=\"background-color:<%=datasets[i].strokeColor%>\"><%if(datasets[i].label){%><%=datasets[i].label%><%}%></span></li><%}%></ul>"
+			legendTemplate : "<ul class=\"[%=name.toLowerCase()%]-legend\">[% for (var i=0; i<datasets.length; i++){%]<li><span style=\"background-color:[%=datasets[i].strokeColor%]\">[%if(datasets[i].label){%][%=datasets[i].label%][%}%]</span></li>[%}%]</ul>"
 
 		},
 
