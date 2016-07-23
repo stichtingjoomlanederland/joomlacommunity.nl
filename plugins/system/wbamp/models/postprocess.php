@@ -6,8 +6,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.3.1.490
- * @date        2016-05-18
+ * @version     1.4.2.551
+ * @date        2016-07-19
  */
 
 // no direct access
@@ -95,6 +95,58 @@ class WbampModel_Postprocess
 						$shouldAmpify = strpos($class, 'pagenav') !== false;
 					}
 				}
+			}
+
+			// multipage article pager (next/prev)
+			if (WbampHelper_Runtime::$params->get('ampify_pagination'))
+			{
+				// are we in a joomla pagination ul?
+				// <div class="pager"><ul><li><a>
+				$parent = $link->parentNode;
+				if (!empty($parent))
+				{
+					$grandParent = $parent->parentNode;
+					if (!empty($grandParent) && $grandParent->tagName == 'ul')
+					{
+						$greatGrandParent = $grandParent->parentNode;
+						if (!empty($greatGrandParent) && $greatGrandParent->tagName == 'div')
+						{
+							$class = $greatGrandParent->getAttribute('class');
+							if(strpos($class, 'pager') !== false)
+							{
+								$shouldAmpify = true;
+							};
+						}
+					}
+				}
+			}
+
+			// category blog
+			if (WbampHelper_Runtime::$params->get('ampify_pagination') && !empty($attributes['class']) && strpos($attributes['class'], 'pagenav') !== false)
+			{
+				$parent = $link->parentNode;
+				if (!empty($parent))
+				{
+					$grandParent = $parent->parentNode;
+					if (!empty($grandParent) && $grandParent->tagName == 'ul')
+					{
+						$greatGrandParent = $grandParent->parentNode;
+						if (!empty($greatGrandParent) && $greatGrandParent->tagName == 'div')
+						{
+							$class = $greatGrandParent->getAttribute('class');
+							if(strpos($class, 'pagination') !== false)
+							{
+								$shouldAmpify = true;
+							};
+						}
+					}
+				}
+			}
+
+			// automatic processing for ToC links
+			if (!$shouldAmpify && WbampHelper_Runtime::$params->get('ampify_pagination') && !empty($attributes['class']) && strpos($attributes['class'], 'toclink') !== false)
+			{
+				$shouldAmpify = true;
 			}
 
 			// link was marked by user
@@ -197,8 +249,11 @@ class WbampModel_Postprocess
 
 		$content = $rawContent;
 
+		// remove or replace content with user supplied regular expressions
+		$content = $this->_processRegExp($content);
+
 		// email obfuscation
-		if(WbampHelper_Runtime::$params->get('email_protection', true))
+		if (WbampHelper_Runtime::$params->get('email_protection', true))
 		{
 			$obfuscator = new WbampModelProcessor_Obfuscator();
 			$obfuscator->process($content);
@@ -236,7 +291,7 @@ class WbampModel_Postprocess
 		$content = str_replace('<br></br>', '<br />', $content);
 
 		/**
-		 * Same kind of stuff: saveWml() convert end-of-line into &#13;
+		 * Same kind of stuff: saveXml() convert end-of-line into &#13;
 		 */
 		$content = str_replace('&#13;', '', $content);
 
@@ -303,6 +358,56 @@ class WbampModel_Postprocess
 		}
 
 		return $dom;
+	}
+
+	/**
+	 * Apply user-defined regular expressions replacements on
+	 * on the AMP content.
+	 *
+	 * @param string $rawContent
+	 * @return string
+	 */
+	private function _processRegExp($rawContent)
+	{
+		$content = $rawContent;
+		$config = new WbampModel_Config();
+		$regExpsRaw = WbampHelper_Runtime::$params->get('cleanup_regexp', $config->defaulCleanupRegexp);
+		if (empty($regExpsRaw))
+		{
+			return $content;
+		}
+
+		$regExps = explode("\n", $regExpsRaw);
+		if (empty($regExps) || JString::trim($regExps[0]) == '-')
+		{
+			return $content;
+		}
+
+		foreach ($regExps as $regExpRecord)
+		{
+			$record = JString::trim($regExpRecord);
+			if (empty($record))
+			{
+				continue;
+			}
+			if (JString::strpos($record, ';') === 0)
+			{
+				continue;
+			}
+			$regExpParts = explode('=>', $record);
+			if (count($regExpParts) != 2)
+			{
+				ShlSystem_Log::error('wbamp', 'Invalid regular expression when cleaning page (' . $regExpRecord . '). Please verify the value of Clean-up expressions in wbAMP parameters.');
+				return $content;
+			}
+
+			$regExp = JString::trim($regExpParts[0]);
+			$replacement = JString::trim($regExpParts[1], ' ');
+			$replacement = JString::trim($replacement, '"');
+			$content = preg_replace($regExp, $replacement, $content, -1, $replaceCount);
+		}
+
+		return $content;
 	}
 
 	/**

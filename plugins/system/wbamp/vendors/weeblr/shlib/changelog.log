@@ -1,6 +1,6 @@
                                 shLib change log                                
 
-                        (2016-05-17 17:46 - build #522)                         
+                        (2016-07-18 10:02 - build #540)                         
 
 
     [new]    Added automatic detection of images for OpenGraph and Twitter
@@ -28,6 +28,7 @@
              pluralized or not
     [new]    Added MVC compatibility layer, handling J! 2 & J! 3
 
+    [chg]    Added support for RTL documents
     [chg]    Allow Flexicontent plugin to use 'showall' parameters, same as
              com_content - closes #440
     [chg]    Bumped messages titles db column to 512 chars
@@ -88,6 +89,8 @@
     [chg]    Now clearing output buffer before aborting HTTP request
     [chg]    Changed error handling for Joomla! 2/3 compatiblity
 
+    [bug]    OGP and Twitter cards images URLs are not fully qualified if
+             entered manually in backend - fixes #453
     [bug]    Invalid UTF-8 character in category name breaks configuration
              popup with "String could not be parsed as XML message) - closes
              #448

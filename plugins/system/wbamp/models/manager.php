@@ -6,8 +6,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.3.1.490
- * @date        2016-05-18
+ * @version     1.4.2.551
+ * @date        2016-07-19
  */
 
 // no direct access
@@ -109,7 +109,6 @@ class WbampModel_Manager
 		if ($this->_isAmpRequest)
 		{
 			//mimic Jomla incorrect behavior, which suppresses trailing slash
-			//$hasTrailingSlash = substr($this->_newPath, -1) == '/';
 			$truncatedPath = $hasTrailingSlash ? JString::ltrim($this->_newPath, '/') : JString::trim($this->_newPath, '/');
 
 			$this->_uri->setPath($truncatedPath);
@@ -121,6 +120,8 @@ class WbampModel_Manager
 				// sh404SEF: on home page, we don't keep the index.php bit as Joomla does
 				$urlRewritePrefix = '';
 			}
+
+			$truncatedPath = JString::rtrim($truncatedPath, '/');
 
 			if (!WbampHelper_Runtime::$joomlaConfig->get('sef_rewrite'))
 			{
@@ -231,7 +232,7 @@ class WbampModel_Manager
 			)
 			{
 				$this->_shUrl = Sh404sefFactory::getPageInfo()->shURL;
-				$this->_shUrl = empty($this->_shUrl) ? '' : WbampHelper_Route::absolutify($this->_shUrl, true);
+				$this->_shUrl = empty($this->_shUrl) ? '' : ShlSystem_Route::absolutify($this->_shUrl, true);
 			}
 		}
 

@@ -5,8 +5,8 @@
  * @copyright    (c) Yannick Gaultier - Weeblr llc - 2016
  * @package      wbAmp
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      1.3.1.490
- * @date        2016-05-18
+ * @version      1.4.2.551
+ * @date        2016-07-19
  */
 /*************************************
 *
@@ -36,6 +36,11 @@
 /*************************************
 *
 * Content
+*
+**************************************/
+/*************************************
+*
+* Links
 *
 **************************************/
 /*************************************
@@ -70,15 +75,18 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.3.1.490
- * @date        2016-05-18
+ * @version     1.4.2.551
+ * @date        2016-07-19
  */
 /*************************************
 *
 * Menu
 *
 **************************************/
-.wbamp-container.wbamp-menu {
+.wbamp-sidebar {
+  background: #b6be9c;
+}
+.wbamp-sidebar .wbamp-menu {
   margin: 0 auto 0;
   padding: 0;
   font-family: 'Roboto', sans-serif;
@@ -86,13 +94,16 @@
   background: #b6be9c;
   font-size: 0.8em;
 }
-.wbamp-menu ul {
+.wbamp-sidebar .wbamp-menu {
+  min-width: 50vw;
+}
+.wbamp-sidebar .wbamp-menu ul {
   list-style-type: none;
   padding: 1em;
   margin: 0;
 }
-.wbamp-menu li a,
-.wbamp-menu li a:visited {
+.wbamp-sidebar .wbamp-menu li a,
+.wbamp-sidebar .wbamp-menu li a:visited {
   display: inline-block;
   width: 100%;
   text-decoration: none;
@@ -104,20 +115,20 @@
   padding-right: 1em;
   margin-right: -1em;
 }
-.wbamp-menu li a:hover,
-.wbamp-menu li.active a:hover {
+.wbamp-sidebar .wbamp-menu li a:hover,
+.wbamp-sidebar .wbamp-menu li.active a:hover {
   background: #FFAC2F;
   color: #000000;
 }
-.wbamp-menu li.active a {
+.wbamp-sidebar .wbamp-menu li.active a {
   background: #327DCB;
   color: #FFFFFF;
 }
-.wbamp-menu li ul {
+.wbamp-sidebar .wbamp-menu li ul {
   padding: 0 0 0 1em;
 }
-.wbamp-menu li ul a,
-.wbamp-menu li.active ul a {
+.wbamp-sidebar .wbamp-menu li ul a,
+.wbamp-sidebar .wbamp-menu li.active ul a {
   background: #b6be9c;
   color: #444444;
   padding-left: 2em;
@@ -128,33 +139,11 @@
 * Menu control
 *
 **************************************/
-.wbamp-wrapper {
+.wbamp-sidebar-control {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 100%;
   margin: 0 auto;
 }
-.wbamp-container.wbamp-menu-slide {
-  line-height: 2.5em;
-  background: #FFFFFF;
-}
-nav.wbamp-menu-slide {
-  float: left;
-  position: absolute;
-  top: 0;
-  min-width: 20em;
-  max-width: 90%;
-  box-sizing: border-box;
-}
-nav.wbamp-menu-slide:hover {
-  height: 100%;
-  z-index: 1000;
-  background: #b6be9c;
-  top: 0;
-  bottom: 0;
-}
-nav.wbamp-menu-slide .menu-open {
+.wbamp-sidebar-button {
   display: inline-block;
   text-align: left;
   height: 2.5em;
@@ -162,60 +151,59 @@ nav.wbamp-menu-slide .menu-open {
   padding: 0.3em 0.5em;
   margin: 0;
   border: none;
-  background: #b6be9c;
+  color: #BBBBBB;
+  background: transparent;
   border-radius: 0;
 }
-nav.wbamp-menu-slide .menu-icon-bar {
+.wbamp-sidebar-button:hover {
+  cursor: pointer;
+  outline: none;
+  color: #000000;
+}
+.wbamp-sidebar-button .menu-icon-bar {
   display: block;
   width: 1.5em;
   height: 0.20em;
   margin: 0;
   padding: 0;
-  background-color: #FFFFFF;
+  background-color: #BBBBBB;
   box-shadow: none;
 }
-nav.wbamp-menu-slide:hover .menu-icon-bar {
-  background-color: #DDDDDD;
+.wbamp-sidebar-button:hover .menu-icon-bar {
+  background-color: #000000;
 }
-nav.wbamp-menu-slide .menu-icon-bar + .menu-icon-bar {
+.wbamp-sidebar-button .menu-icon-bar + .menu-icon-bar {
   margin-top: 0.25em;
 }
-nav.wbamp-menu-slide:hover .menu-open {
-  outline: none;
-}
-nav.wbamp-menu-slide .menu-content {
-  position: relative;
-  height: 0;
-  width: 0;
-  background: #b6be9c;
-  overflow: hidden;
-}
-nav.wbamp-menu-slide:hover .menu-content {
-  width: 100%;
+.wbamp-sidebar-button.menu-close {
+  position: absolute;
+  top: 0;
+  font-size: 1.75em;
+  line-height: 1.1em;
+  padding: 0.1em;
+  width: auto;
   height: auto;
-  border-top: 1px solid #898596;
-  transition: width 0.2s;
-  -webkit-transition: width 0.2s;
-}
-nav.wbamp-menu-slide + .menu-close {
-  display: none;
-  float: right;
-  position: relative;
-  margin: 0.5em 0.5em 0 0;
-  padding: 0.25em 0.5em;
-  border: none;
-  background: none;
+  text-align: center;
+  vertical-align: middle;
+  background: transparent;
   border-radius: 0.1em;
-  color: #FFFFFF;
-  background: #b6be9c;
+  cursor: pointer;
+  color: #EEEEEE;
 }
-nav.wbamp-menu-slide + .menu-close:before {
-  content: '\D7';
-  font-size: 1.5em;
+.wbamp-sidebar-button.menu-close .menu-close {
+  display: none;
 }
-nav.wbamp-menu-slide:hover + .menu-close {
+.wbamp-sidebar-button.menu-close:hover {
+  color: #000000;
+}
+.wbamp-sidebar[side][open] .menu-close {
   display: block;
-  transition: 0.5s;
+}
+.wbamp-sidebar[side="left"] .wbamp-sidebar-button.menu-close {
+  right: 0.5em;
+}
+.wbamp-sidebar[side="right"] .wbamp-sidebar-button.menu-close {
+  left: 0.5em;
 }
 /*************************************
 *
@@ -519,6 +507,38 @@ nav.wbamp-menu-slide:hover + .menu-close {
   margin-left: 0.25em;
   font-size: 1.5em;
   line-height: 1;
+}
+.wbamp-container.wbamp-content div.pager ul {
+  margin: 1em 0;
+  padding: 0;
+  font-size: 0.8em;
+  text-align: center;
+}
+.wbamp-container.wbamp-content div.pager ul li {
+  padding: 0.4em 1em;
+  display: inline-block;
+}
+.wbamp-container.wbamp-content div.pager ul li a {
+  text-decoration: none;
+}
+.wbamp-container.wbamp-content div.pagination ul {
+  margin: 1em 0;
+  padding: 0;
+  font-size: 0.8em;
+  text-align: center;
+}
+.wbamp-container.wbamp-content div.pagination ul li {
+  padding: 0.4em 1em;
+  display: inline-block;
+}
+.wbamp-container.wbamp-content div.pagination ul li a {
+  text-decoration: underline;
+}
+.wbamp-container.wbamp-content div.pagination ul li a:visited {
+  color: #777777;
+}
+.wbamp-container.wbamp-content div.pagination ul li span {
+  color: #BBBBBB;
 }
 /*************************************
 *

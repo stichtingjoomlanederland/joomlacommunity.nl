@@ -2,12 +2,12 @@
 <extension version="3.0" type="plugin" group="wbamp" method="upgrade">
     <name>K2 wbAMP support</name>
     <author>Yannick Gaultier</author>
-    <creationDate>2016-05-18</creationDate>
+    <creationDate>2016-07-19</creationDate>
     <copyright>(c) Yannick Gaultier - Weeblr llc - 2016</copyright>
     <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
     <authorEmail>contact@weeblr.com</authorEmail>
     <authorUrl>https://weeblr.com</authorUrl>
-    <version>1.3.1.490</version>
+    <version>1.4.2.551</version>
     <description>K2 wbAMP support</description>
     <files>
         <filename plugin="k2">k2.php</filename>

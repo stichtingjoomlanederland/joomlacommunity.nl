@@ -2,12 +2,12 @@
 <extension version="3.0" type="plugin" group="system" method="upgrade">
     <name>PLG_SYSTEM_WBAMP</name>
     <author>Yannick Gaultier</author>
-    <creationDate>2016-05-18</creationDate>
+    <creationDate>2016-07-19</creationDate>
     <copyright>(c) Yannick Gaultier - Weeblr llc - 2016</copyright>
     <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
     <authorEmail>contact@weeblr.com</authorEmail>
     <authorUrl>https://weeblr.com</authorUrl>
-    <version>1.3.1.490</version>
+    <version>1.4.2.551</version>
     <description>PLG_SYSTEM_WBAMP_XML_DESCRIPTION</description>
     <files>
         <filename plugin="wbamp">api.php</filename>
@@ -625,6 +625,10 @@
                     <option value="1">JYES</option>
                 </field>
 
+                <field name="cleanup_regexp" type="wbregexp" default="" filter="raw"
+                       label="PLG_SYSTEM_WBAMP_CLEANUP_REGEXP_LABEL"
+                       description="PLG_SYSTEM_WBAMP_CLEANUP_REGEXP_DESC" cols="60" rows="10"
+                       class="wb_text_area_wide wbTip"/>
 
                 <field type="wbspacer" name="update_spacer"
                        label="PLG_SYSTEM_WBAMP_SECTION_UPDATES"/>

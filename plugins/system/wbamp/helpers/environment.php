@@ -6,8 +6,8 @@
  * @copyright    (c) Yannick Gaultier - Weeblr llc - 2016
  * @package      wbAmp
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      1.3.1.490
- * @date        2016-05-18
+ * @version      1.4.2.551
+ * @date        2016-07-19
  */
 
 defined('_JEXEC') or die();
@@ -25,6 +25,7 @@ class WbampHelper_Environment
 	public static function handleSpecificEnvironment()
 	{
 		self::disableNewRelic();
+		self::disablePageSpeed();
 	}
 
 	/**
@@ -39,5 +40,16 @@ class WbampHelper_Environment
 		{
 			newrelic_disable_autorun();
 		}
+	}
+
+	/**
+	 * Send header to disable PageSpeed which can
+	 * insert javascript on the fly, at least
+	 * prior to June 2016. Google announced
+	 * PS will not alter AMP page in an upcomnig release
+	 */
+	private static function disablePageSpeed()
+	{
+		header('PageSpeed: off');
 	}
 }

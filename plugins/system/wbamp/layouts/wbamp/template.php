@@ -6,8 +6,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.3.1.490
- * @date        2016-05-18
+ * @version     1.4.2.551
+ * @date        2016-07-19
  */
 
 // no direct access
@@ -15,7 +15,7 @@ defined('_JEXEC') or die;
 
 ?>
 <!doctype html>
-<html lang="<?php echo JFactory::getLanguage()->getTag(); ?>" amp>
+<html lang="<?php echo $displayData['document_language']; ?>" dir="<?php echo $displayData['document_direction']; ?>" amp>
 
 <head>
 	<meta charset="utf-8">
@@ -29,6 +29,19 @@ defined('_JEXEC') or die;
 </head>
 
 <body>
+<?php
+if (WbampHelper_Edition::$id == 'full')
+{
+	if ($displayData['params']->get('menu_location', 'hidden') != 'hidden')
+	{
+		$menuStyle = strtolower($displayData['params']->get('menu_style', 'slide'));
+		if ('slide' == $menuStyle)
+		{
+			echo ShlMvcLayout_Helper::render('wbamp.tags.sidebar', $displayData, WbampHelper_Runtime::$layoutsBasePaths);
+		}
+	}
+}
+?>
 <div class="wbamp-wrapper">
 	<?php
 
@@ -54,7 +67,10 @@ defined('_JEXEC') or die;
 		if ($displayData['params']->get('menu_location', 'hidden') == 'before')
 		{
 			$menuStyle = strtolower($displayData['params']->get('menu_style', 'slide'));
-			echo ShlMvcLayout_Helper::render('wbamp.menu_' . $menuStyle, $displayData, WbampHelper_Runtime::$layoutsBasePaths);
+			if ('default' == $menuStyle)
+			{
+				echo ShlMvcLayout_Helper::render('wbamp.menu_' . $menuStyle, $displayData, WbampHelper_Runtime::$layoutsBasePaths);
+			}
 		}
 	}
 
@@ -109,7 +125,11 @@ defined('_JEXEC') or die;
 	{
 		if ($displayData['params']->get('menu_location', 'hidden') == 'after')
 		{
-			echo ShlMvcLayout_Helper::render('wbamp.menu_default', $displayData, WbampHelper_Runtime::$layoutsBasePaths);
+			$menuStyle = strtolower($displayData['params']->get('menu_style', 'slide'));
+			if ('default' == $menuStyle)
+			{
+				echo ShlMvcLayout_Helper::render('wbamp.menu_default', $displayData, WbampHelper_Runtime::$layoutsBasePaths);
+			}
 		}
 	}
 

@@ -6,8 +6,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.3.1.490
- * @date        2016-05-18
+ * @version     1.4.2.551
+ * @date        2016-07-19
  */
 
 // no direct access
@@ -30,19 +30,22 @@ class WbampModelElement_Autotag
 					$method = 'get' . ucfirst($tagName) . 'UrlData';
 					$newTag = $renderer->buildTag($tagName, WbampHelper_Tags::$method($matches));
 
-					// insert new tag
-					$fragment = $dom->createDocumentFragment();
-					$fragment->appendXML($newTag);
-					$parent = $link->parentNode;
-					$parent->insertBefore($fragment, $link);
-					$parent->removeChild($link);
+					if (!empty($newTag))
+					{
+						// insert new tag
+						$fragment = $dom->createDocumentFragment();
+						$fragment->appendXML($newTag);
+						$parent = $link->parentNode;
+						$parent->insertBefore($fragment, $link);
+						$parent->removeChild($link);
 
-					// mark as modified, to update the DOM object
-					$this->_modified = true;
+						// mark as modified, to update the DOM object
+						$this->_modified = true;
 
-					// we have replaced the link with an amp tag,
-					// don't keep trying to do it again
-					break;
+						// we have replaced the link with an amp tag,
+						// don't keep trying to do it again
+						break;
+					}
 				}
 			}
 		}

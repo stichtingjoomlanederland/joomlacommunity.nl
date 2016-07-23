@@ -6,8 +6,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.3.1.490
- * @date        2016-05-18
+ * @version     1.4.2.551
+ * @date        2016-07-19
  */
 
 // no direct access
@@ -93,6 +93,9 @@ class WbampModel_Renderer
 			WbampHelper_Sh404sef::processMetaData($data, $document, $this->_manager);
 		}
 
+		// document data
+		$data['document_language'] = JFactory::getLanguage()->getTag();
+		$data['document_direction'] = JFactory::getDocument()->direction;
 		// page data
 		$data['canonical'] = $this->_manager->getCanonicalUrl();
 		$data['shURL'] = $this->_manager->getShURL();
@@ -110,9 +113,26 @@ class WbampModel_Renderer
 		$templateId = (int) $data['params']->get('rendering_template', 0);
 		$data['joomla_template'] = WbampHelper_Media::getTemplateName($templateId);
 
-		// collect page elements data, for later rendering
+		// collect navigation menu data, for rendering
 		$data['navigation_menu'] = $this->getElementData('navigation', $data, '');
+		// if menu is sidebar, add sidebar script
+		if (WbampHelper_Edition::$id == 'full'
+			&& $data['params']->get('menu_location', 'hidden') != 'hidden'
+			&& strtolower($data['params']->get('menu_style', 'slide')) == 'slide'
+		)
+		{
+			$this->addScripts(
+				array(
+					'amp-sidebar' => sprintf(WbampModel_Renderer::AMP_SCRIPTS_PATTERN, 'sidebar', WbampModel_Renderer::AMP_SCRIPTS_VERSION)
+				)
+			);
+		}
+
+		// collect social buttons data, for rendering
 		$data['social_buttons'] = $this->getElementData('socialbuttons', $data, array('types' => array(), 'theme' => 'colors', 'style' => 'rounded'));
+
+		// ads, make sure amp-ad script is loaded
+		$this->getElementData('ad', $data, '');
 
 		// collect main Joomla rendered component content
 		$rawContent = JFactory::getDocument()->getBuffer('component');
@@ -194,6 +214,77 @@ class WbampModel_Renderer
 		return $this->_postProcessor->postProcessPage($pageContent);
 	}
 
+	public function buildTag($type, $displayData)
+	{
+		$tag = ShlMvcLayout_Helper::render('wbamp.tags.' . $type, $displayData, WbampHelper_Runtime::$layoutsBasePaths);
+		// finally add script to execute the tag
+		$this->addScripts(
+			array(
+				WbampHelper_Runtime::$embedTags[$type]['amp_tag'] => sprintf(WbampModel_Renderer::AMP_SCRIPTS_PATTERN, WbampHelper_Runtime::$embedTags[$type]['script'], WbampModel_Renderer::AMP_SCRIPTS_VERSION)
+			)
+		);
+
+		return $tag;
+	}
+
+	/**
+	 * Use Joomla to render a module identified by its id
+	 * System-non chrome used when rendering, ie no chrome at all
+	 *
+	 * @param int $moduleId
+	 * @return mixed|string
+	 */
+	public function renderModule($moduleId)
+	{
+		$renderedModule = '';
+		try
+		{
+			if (!empty($moduleId))
+			{
+				$moduleData = ShlDbHelper::selectObject('#__modules', array('module', 'title'), array('id' => $moduleId));
+				if (!empty($moduleData))
+				{
+					$module = JModuleHelper::getModule($moduleData->module, $moduleData->title);
+					$attribs['style'] = 'System-none';
+					$renderedModule = JModuleHelper::renderModule($module, $attribs);
+					$renderedModule = WbampHelper_Route::sef($renderedModule);
+					$renderedModule = str_replace('{wbamp_current_year}', date('Y'), $renderedModule);
+
+					// make sure module content is AMP compliant
+					$renderedModule = $this->_postProcessor->convert($renderedModule);
+				}
+			}
+		}
+		catch (Exception $e)
+		{
+			ShlSystem_Log::error('wbamp', __METHOD__ . ' ' . $e->getMessage());
+			$renderedModule = '';
+		}
+		return $renderedModule;
+	}
+
+	/**
+	 * Collect all scripts added by renderer or postprocessor
+	 *
+	 * @return array
+	 */
+	public function getScripts()
+	{
+		$this->_scripts = array_merge($this->_scripts, (array) $this->_postProcessor->getScripts());
+		return $this->_scripts;
+	}
+
+	/**
+	 * Add an amp tag handler script definition
+	 * to the list of scripts to load in the page
+	 *
+	 * @param $scripts
+	 */
+	private function addScripts($scripts)
+	{
+		$this->_scripts = array_merge($this->_scripts, (array) $scripts);
+	}
+
 	/**
 	 * Instantiate an element-specific renderer model
 	 * and use its getData() method to collect
@@ -219,19 +310,6 @@ class WbampModel_Renderer
 		}
 
 		return $data;
-	}
-
-	public function buildTag($type, $displayData)
-	{
-		$tag = ShlMvcLayout_Helper::render('wbamp.tags.' . $type, $displayData, WbampHelper_Runtime::$layoutsBasePaths);
-		// finally add script to execute the tag
-		$this->addScripts(
-			array(
-				WbampHelper_Runtime::$embedTags[$type]['amp_tag'] => sprintf(WbampModel_Renderer::AMP_SCRIPTS_PATTERN, WbampHelper_Runtime::$embedTags[$type]['script'], WbampModel_Renderer::AMP_SCRIPTS_VERSION)
-			)
-		);
-
-		return $tag;
 	}
 
 	/**
@@ -294,42 +372,6 @@ class WbampModel_Renderer
 	}
 
 	/**
-	 * Use Joomla to render a module identified by its id
-	 * System-non chrome used when rendering, ie no chrome at all
-	 *
-	 * @param int $moduleId
-	 * @return mixed|string
-	 */
-	public function renderModule($moduleId)
-	{
-		$renderedModule = '';
-		try
-		{
-			if (!empty($moduleId))
-			{
-				$moduleData = ShlDbHelper::selectObject('#__modules', array('module', 'title'), array('id' => $moduleId));
-				if (!empty($moduleData))
-				{
-					$module = JModuleHelper::getModule($moduleData->module, $moduleData->title);
-					$attribs['style'] = 'System-none';
-					$renderedModule = JModuleHelper::renderModule($module, $attribs);
-					$renderedModule = WbampHelper_Route::sef($renderedModule);
-					$renderedModule = str_replace('{wbamp_current_year}', date('Y'), $renderedModule);
-
-					// make sure module content is AMP compliant
-					$renderedModule = $this->_postProcessor->convert($renderedModule);
-				}
-			}
-		}
-		catch (Exception $e)
-		{
-			ShlSystem_Log::error('wbamp', __METHOD__ . ' ' . $e->getMessage());
-			$renderedModule = '';
-		}
-		return $renderedModule;
-	}
-
-	/**
 	 * Build up an array of meta data that can be json_encoded and output
 	 * directly to the page
 	 *
@@ -364,7 +406,7 @@ class WbampModel_Renderer
 				'name' => WbampHelper_Runtime::$params->get('publisher_name', ''),
 				'logo' => array(
 					'@type' => 'ImageObject',
-					'url' => WbampHelper_Route::absolutify($publisherImageUrl, true),
+					'url' => ShlSystem_Route::absolutify($publisherImageUrl, true),
 					'width' => $publisherImageSize['width'],
 					'height' => $publisherImageSize['height']
 
@@ -466,7 +508,7 @@ class WbampModel_Renderer
 					$dimensions = WbampHelper_Media::getImageSize($image);
 					$jsonld['image'] = array(
 						'@type' => 'ImageObject',
-						'url' => WbampHelper_Route::absolutify($image, true),
+						'url' => ShlSystem_Route::absolutify($image, true),
 						'width' => $dimensions['width'],
 						'height' => $dimensions['height']
 
@@ -477,7 +519,7 @@ class WbampModel_Renderer
 			// image, if set by user in regular content, {wbamp-meta name="image" url="" height="123" width="456"}
 			if (!empty($data['user_set_data']) && !empty($data['user_set_data']['image']))
 			{
-				$userSetImage = WbampHelper_Route::absolutify($data['user_set_data']['image']['url'], true);
+				$userSetImage = ShlSystem_Route::absolutify($data['user_set_data']['image']['url'], true);
 				$pageImageSize = array();
 				$pageImageSize['width'] = empty($data['user_set_data']['image']['width']) ? 0 : $data['user_set_data']['image']['width'];
 				$pageImageSize['height'] = empty($data['user_set_data']['image']['height']) ? 0 : $data['user_set_data']['image']['height'];
@@ -503,7 +545,7 @@ class WbampModel_Renderer
 				$fallbackImage = $data['params']->get('pages_fallback_image', '');
 				if (!empty($fallbackImage))
 				{
-					$fallbackImage = WbampHelper_Route::absolutify($data['params']->get('pages_fallback_image', ''), true);
+					$fallbackImage = ShlSystem_Route::absolutify($data['params']->get('pages_fallback_image', ''), true);
 					$pageImageSize = array('width' => 0, 'height' => 0);
 					$pageImageSize['width'] = $data['params']->get('pages_fallback_image_width', 0);
 					$pageImageSize['height'] = $data['params']->get('pages_fallback_image_height', 0);
@@ -559,7 +601,7 @@ class WbampModel_Renderer
 		if (!empty($match[1]) && empty($this->_extractedImage))
 		{
 			$attributes = JUtility::parseAttributes($match[1]);
-			$imageUrl = WbampHelper_Route::absolutify($attributes['src'], true);
+			$imageUrl = ShlSystem_Route::absolutify($attributes['src'], true);
 			$imageSize = array();
 			$imageSize['width'] = empty($attributes['width']) ? 0 : $attributes['width'];
 			$imageSize['height'] = empty($attributes['height']) ? 0 : $attributes['height'];
@@ -580,27 +622,5 @@ class WbampModel_Renderer
 		}
 
 		return $match[0];
-	}
-
-	/**
-	 * Collect all scripts added by renderer or postprocessor
-	 *
-	 * @return array
-	 */
-	public function getScripts()
-	{
-		$this->_scripts = array_merge($this->_scripts, (array) $this->_postProcessor->getScripts());
-		return $this->_scripts;
-	}
-
-	/**
-	 * Add an amp tag handler script definition
-	 * to the list of scripts to load in the page
-	 *
-	 * @param $scripts
-	 */
-	private function addScripts($scripts)
-	{
-		$this->_scripts = array_merge($this->_scripts, (array) $scripts);
 	}
 }

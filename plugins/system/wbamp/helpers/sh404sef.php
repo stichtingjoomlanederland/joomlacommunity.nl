@@ -6,8 +6,8 @@
  * @copyright    (c) Yannick Gaultier - Weeblr llc - 2016
  * @package      wbAmp
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      1.3.1.490
- * @date        2016-05-18
+ * @version      1.4.2.551
+ * @date        2016-07-19
  */
 
 defined('_JEXEC') or die();
@@ -36,7 +36,7 @@ class WbampHelper_Sh404sef
 			$data['sh404sef_custom_data'] = Sh404sefHelperMetadata::getCustomMetaDataFromDb();
 			if (!empty($data['sh404sef_custom_data']->canonical))
 			{
-				$manager->setCanonicalUrl(WbampHelper_Route::absolutify($data['sh404sef_custom_data']->canonical));
+				$manager->setCanonicalUrl(ShlSystem_Route::absolutify($data['sh404sef_custom_data']->canonical));
 			}
 			Sh404sefFactory::getPageInfo()->pageCanonicalUrl = $manager->getCanonicalUrl();
 			if (!empty($data['sh404sef_custom_data']->metatitle))

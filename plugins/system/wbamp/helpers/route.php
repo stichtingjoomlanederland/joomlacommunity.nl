@@ -6,8 +6,8 @@
  * @copyright    (c) Yannick Gaultier - Weeblr llc - 2016
  * @package      wbAmp
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      1.3.1.490
- * @date        2016-05-18
+ * @version      1.4.2.551
+ * @date        2016-07-19
  */
 
 defined('_JEXEC') or die;
@@ -18,57 +18,7 @@ defined('_JEXEC') or die;
  */
 class WbampHelper_Route
 {
-
 	private static $urlSuffix = null;
-
-	/**
-	 * Turn a relative-to-page URL into an absolute one
-	 *
-	 * @param $url
-	 * @param bool $forceDomain if URL is already absolute, we won't fully qualify it with a domain (if relativen we
-	 * still prepend the full domain
-	 * @param null $isAdmin If === true or === false, disable using JApplication::isAdmin, for testing
-	 *
-	 * @return string
-	 */
-	public static function absolutify($url, $forceDomain = false, $isAdmin = null)
-	{
-		// is it already absolute?
-		if (self::isFullyQUalified($url))
-		{
-			return $url;
-		}
-
-		if (substr($url, 0, 1) == '/')
-		{
-			if ($forceDomain)
-			{
-				// don't know if the possible site subfolder has been prepended
-				$uri = JUri::getInstance();
-				$subFolder = $uri->base(true);
-				if (substr($url, 0, JString::strlen($subFolder)) == $subFolder)
-				{
-					$prefix = $uri->tostring(array('scheme', 'host'));
-				}
-				else
-				{
-					$prefix = $uri->base();
-				}
-				$url = JString::rtrim($prefix, '/') . $url;
-			}
-
-			return $url;
-		}
-
-		// relative URL, make it fully qualified
-		$base = JUri::base();
-		if ($isAdmin === true || ($isAdmin !== false && JFactory::getApplication()->isAdmin()))
-		{
-			$base = JString::substr($base, 0, -14);
-		}
-
-		return $base . $url;
-	}
 
 	/**
 	 * Make absolute and routed non-sef URLs found in some content
@@ -143,8 +93,9 @@ class WbampHelper_Route
 	 * @param bool $full
 	 * @return string
 	 */
-	public static function realPathToAmp($path, $query, $full = true)
+	public static function realPathToAmp($path, $query = '', $full = true)
 	{
+		$rawPath = $path;
 		if (WbampHelper_Runtime::isStandaloneMode())
 		{
 			$ampSuffix = '';
@@ -152,6 +103,17 @@ class WbampHelper_Route
 		else
 		{
 			$ampSuffix = WbampHelper_Runtime::$params->get('amp_suffix', 'amp');
+		}
+
+		// does it have a query string?
+		if (empty($query))
+		{
+			$questionMarkPosition = JString::strpos($path, '?');
+			if ($questionMarkPosition !== false)
+			{
+				$path = Jstring::substr($path, 0, $questionMarkPosition);
+				$query = Jstring::substr($rawPath, $questionMarkPosition);
+			}
 		}
 
 		// does it start with a slash? (but not a protocol relative URL)
@@ -192,7 +154,7 @@ class WbampHelper_Route
 		if ($full)
 		{
 			// full URL, make sure the path was not already fully qualified
-			if (!self::isFullyQUalified($ampPath))
+			if (!ShlSystem_Route::isFullyQualified($ampPath))
 			{
 				// apply index.php
 				if (!WbampHelper_Runtime::$joomlaConfig->get('sef_rewrite'))
@@ -273,18 +235,5 @@ class WbampHelper_Route
 
 			throw new RuntimeException('wbAMP: error processing Joomla page: ' . $message);
 		}
-	}
-
-	/**
-	 * Finds if a URL is fully qualified, ie starts with a scheme
-	 * Protocal-relative URLs are considered fully qualified
-	 *
-	 * @param $url
-	 * @return bool
-	 */
-	private static function isFullyQUalified($url)
-	{
-		$isFullyQualified = substr($url, 0, 7) == 'http://' || substr($url, 0, 8) == 'https://' || substr($url, 0, 2) == '//';
-		return $isFullyQualified;
 	}
 }

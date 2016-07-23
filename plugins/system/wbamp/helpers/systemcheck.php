@@ -6,8 +6,8 @@
  * @copyright    (c) Yannick Gaultier - Weeblr llc - 2016
  * @package      wbAmp
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      1.3.1.490
- * @date        2016-05-18
+ * @version      1.4.2.551
+ * @date        2016-07-19
  */
 
 // Security check to ensure this file is being included by a parent file.
@@ -145,7 +145,7 @@ class WbampHelper_Systemcheck
 			$fallbackURL = $this->_pluginParams->get('pages_fallback_image', '');
 			if (!empty($fallbackURL))
 			{
-				$fallbackImage = WbampHelper_Route::absolutify($fallbackURL, true);
+				$fallbackImage = ShlSystem_Route::absolutify($fallbackURL, true);
 				$pageImageSize = array('width' => 0, 'height' => 0);
 				$pageImageSize['width'] = $this->_pluginParams->get('pages_fallback_image_width', 0);
 				$pageImageSize['height'] = $this->_pluginParams->get('pages_fallback_image_height', 0);

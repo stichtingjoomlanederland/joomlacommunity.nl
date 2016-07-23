@@ -6,8 +6,8 @@
  * @copyright    (c) Yannick Gaultier 2015
  * @package      shlib
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      0.3.1.522
- * @date        2016-05-17
+ * @version      0.3.1.540
+ * @date        2016-07-18
  *
  * build 370
  */
@@ -52,7 +52,7 @@ class  plgSystemShlib extends JPlugin
 		// initialize path lib
 		$this->_initLibrary();
 
-		defined('SHLIB_VERSION') or define('SHLIB_VERSION', '0.3.1.522');
+		defined('SHLIB_VERSION') or define('SHLIB_VERSION', '0.3.1.540');
 	}
 
 	public function onAfterInitialise()
@@ -76,6 +76,51 @@ class  plgSystemShlib extends JPlugin
 			catch (ShlException $e)
 			{
 				ShlSystem_Log::error('shlib', 'Unable to setup database query cache: %s', $e->getMessage());
+			}
+		}
+	}
+
+	public function onAfterRender()
+	{
+		if (ShlHtml_Manager::getInstance()->hasDeferredScripts())
+		{
+			$app = JFactory::getApplication();
+			if (!$app->isSite())
+			{
+				return;
+			}
+			$document = JFactory::getDocument();
+
+			if ($document->getType() != 'html')
+			{
+				return;
+			}
+
+			$scripts = ShlHtml_Manager::getInstance()->getDeferredScripts();
+			$links = $scripts['links'];
+			$declarations = $scripts['declarations'];
+
+			// order scripts
+
+			// build Text
+			$linksHtml = '';
+			foreach ($links as $linkRecord)
+			{
+				$linksHtml .= "\n<script src=\"" . $linkRecord['script'] . "\" type=\"text/javascript\"></script>\n";
+			}
+			$declarationsHtml = '';
+			foreach ($declarations as $declarationRecord)
+			{
+				$declarationsHtml .= "\n<script type=\"text/javascript\">\n" . $declarationRecord['script'] . "\n</script>\n";
+			}
+
+			// insert in page
+			$content = $linksHtml . $declarationsHtml;
+			if (!empty($content))
+			{
+				$page = JResponse::getBody();
+				$page = str_replace('</body>', $content . '</body>', $page);
+				JResponse::setBody($page);
 			}
 		}
 	}

@@ -6,8 +6,8 @@
  * @copyright    (c) Yannick Gaultier 2015
  * @package      shlib
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      0.3.1.522
- * @date         2016-05-17
+ * @version      0.3.1.540
+ * @date         2016-07-18
  */
 
 // Security check to ensure this file is being included by a parent file.
@@ -21,7 +21,7 @@ class ShlHtml_Manager
 {
 	const ASSETS_PATH = '/media/plg_shlib';
 
-	const DEV        = 0;
+	const DEV = 0;
 	const PRODUCTION = 1;
 	static public $assetsMode = self::PRODUCTION;
 
@@ -32,6 +32,8 @@ class ShlHtml_Manager
 	static private $_assetsVersions = array();
 	static private $_manager        = null;
 
+	private $_deferredScripts = array();
+
 	public static function getInstance()
 	{
 		if (is_null(self::$_manager))
@@ -39,10 +41,27 @@ class ShlHtml_Manager
 			$manager = new ShlHtml_Manager;
 			$manager::$assetsMode = plgSystemShlib::$__params->get('assets_mode', self::PRODUCTION);
 			$manager::$assetsBundling = plgSystemShlib::$__params->get('assets_bundling', self::BUNDLE);
+			$manager->initDeferredScripts();
 			self::$_manager = $manager;
 		}
 
 		return self::$_manager;
+	}
+
+	public function hasDeferredScripts()
+	{
+		return !empty($this->_deferredScripts['links']) || !empty($this->_deferredScripts['declarations']);
+	}
+
+	public function getDeferredScripts()
+	{
+		return $this->_deferredScripts;
+	}
+
+	public function initDeferredScripts()
+	{
+		$this->_deferredScripts['links'] = array();
+		$this->_deferredScripts['declarations'] = array();
 	}
 
 	// @deprecated
@@ -67,18 +86,70 @@ class ShlHtml_Manager
 	 * Insert a script file in current document, possibly minified/versioned/gzipped
 	 *
 	 * @param string $name JS file name, no extension
-	 * @param array  $options
+	 * @param array $options
 	 *                     document    a J! document object, default to JFactory::getDocument() if missing
 	 *                     files_root  Root path to file location, default to JPATH_ROOT
 	 *                     files_path  Subpath to file location, will be added to files_root, default to /media/plg_shlib
 	 *                     url_root    Root URL to link files to, default to JURI::root(true)
+	 *                     position    bottom || empty
+	 *                     weight      int used to order scripts when inserted, lower is inserted first, higher inserted last
+	 *                     raw         bool use link directly, don't optimize it
 	 * @return $this
 	 */
 	public function addScript($name, $options = array())
 	{
 		$document = empty($options['document']) ? JFactory::getDocument() : $options['document'];
-		$document->addScript($this->getMediaLink($name, 'js', $options));
+		$link = empty($options['raw']) ? $this->getMediaLink($name, 'js', $options) : $name;
+		if (!empty($options['position']) && $options['position'] == 'bottom')
+		{
+			$weight = empty($options['weight']) ? 10 : (int) $options['weight'];
+			// compute key, avoid duplicate links
+			$key = empty($options['raw']) ?
+				$name
+				. (empty($options['files_root']) ? '' : $options['files_root'])
+				. (empty($options['files_path']) ? '' : $options['files_path'])
+				. (empty($options['url_root']) ? '' : $options['url_root'])
+				:
+				$name;
+			$this->_deferredScripts['links'][$key] = array(
+				'weight' => $weight,
+				'script' => $link,
+				'options' => $options
+			);
+		}
+		else
+		{
+			$document->addScript($link);
+		}
+		return $this;
+	}
 
+	/**
+	 * Insert a raw script, possibly at the bottom of the page
+	 *
+	 * @param string $content JS content, without script tags
+	 * @param array $options
+	 *                     document    a J! document object, default to JFactory::getDocument() if missing
+	 *                     position    bottom || empty
+	 *                     weight      int used to order scripts when inserted, lower is inserted first, higher inserted last
+	 * @return $this
+	 */
+	public function addScriptDeclaration($content, $options = array())
+	{
+		$document = empty($options['document']) ? JFactory::getDocument() : $options['document'];
+		if (!empty($options['position']) && $options['position'] == 'bottom')
+		{
+			$weight = empty($options['weight']) ? 10 : (int) $options['weight'];
+			$this->_deferredScripts['declarations'][] = array(
+				'weight' => $weight,
+				'script' => $content,
+				'options' => $options
+			);
+		}
+		else
+		{
+			$document->addScriptDeclaration($content);
+		}
 		return $this;
 	}
 
@@ -86,7 +157,7 @@ class ShlHtml_Manager
 	 * Insert a CSS file in current document, possibly minified/versioned/gzipped
 	 *
 	 * @param string $name JS file name, no extension
-	 * @param array  $options
+	 * @param array $options
 	 *                     document    a J! document object, default to JFactory::getDocument() if missing
 	 *                     files_root  Root path to file location, default to JPATH_ROOT
 	 *                     files_path  Subpath to file location, will be added to files_root, default to /media/plg_shlib
@@ -106,7 +177,7 @@ class ShlHtml_Manager
 	 *
 	 * @param string $name JS file name, no extension
 	 * @param string $type js | css
-	 * @param array  $options
+	 * @param array $options
 	 *                     files_root  Root path to file location, default to JPATH_ROOT
 	 *                     files_path  Subpath to file location, will be added to files_root, default to /media/plg_shlib
 	 *                     url_root    Root URL to link files to, default to JURI::root(true)

@@ -1,7 +1,53 @@
                                 wbAMP changelog                                 
 
-                        (2016-05-18 21:14 - build #490)                         
+                        (2016-07-19 16:01 - build #551)                         
 
+
+
+--------------------------------------------------------------------------------
+ [ 2016-07-19 ] Version 1.4.2
+--------------------------------------------------------------------------------
+
+
+    [bug]    Some Joomla pagination links may not be AMPlified, even if set to
+             in config
+
+
+--------------------------------------------------------------------------------
+ [ 2016-07-19 ] Version 1.4.1
+--------------------------------------------------------------------------------
+
+
+    [chg]    Added support for wbAMP themes one-click update
+
+
+--------------------------------------------------------------------------------
+ [ 2016-07-19 ] Version 1.4.0
+--------------------------------------------------------------------------------
+
+
+    [new]    Added styling and handling of category blog pagination - closes
+             #83
+    [new]    Now handling multi-page article pager (prev-next)
+    [new]    Option to set regular expressions for AMP page cleanup. Comes
+             with defaults for Regularlabs Sourcerer, Slider, Tabs,Modals,
+             Modules Anywhere,Snippets, Tips, RSForm, Chronoforms, WidgetKit,
+             Simple Image Gallery, PhocaGallery - closes #93
+    [new]    Now also handling multipage article pagination - closes #91
+    [new]    Now loading amp-ad javascript, changed in AMP specification -
+             closes #89
+    [new]    Now disabling PageSpeed on AMP page (with header) - closes #90
+    [new]    Implemented amp-sidebar component, replaces built-in CSS menu -
+             closes #86
+
+    [chg]    Added support for RTL documents
+    [chg]    In case of missing update keys, now redirecting back to update
+             page with a clear message.
+
+    [bug]    Header image may be cropped if larger than document size - fixes
+             #88
+    [bug]    Incorrect double / at the end of canonical link on AMP category
+             pages
 
 
 --------------------------------------------------------------------------------

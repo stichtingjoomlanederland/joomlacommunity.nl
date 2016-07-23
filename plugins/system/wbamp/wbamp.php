@@ -6,10 +6,10 @@
  * @copyright    (c) Yannick Gaultier - Weeblr llc - 2016
  * @package      wbAmp
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      1.3.1.490
- * @date        2016-05-18
+ * @version      1.4.2.551
+ * @date        2016-07-19
  *
- * build 1.3.1.490
+ * build 1.4.2.551
  *
  */
 
@@ -49,8 +49,8 @@ class plgSystemWbamp extends JPlugin
 	 * @var array Base URL to fetch updates
 	 */
 	private $baseUrls = array(
-		'https://u1.weeblr.com/dist/wbamp/full',
-		'https://u1.weeblr.com/dist/wbamp_themes/full'
+		'https://u1.weeblr.com/dist/wbamp/full' => 'wbamp',
+		'https://u1.weeblr.com/dist/wbamp-themes-taylor/full' => 'wbamp-themes-taylor'
 	);
 
 	/**
@@ -543,11 +543,12 @@ class plgSystemWbamp extends JPlugin
 	{
 		// are we trying to update one of our extensions?
 		$oneOfOurs = false;
-		foreach ($this->baseUrls as $baseUrl)
+		foreach ($this->baseUrls as $baseUrl => $productId)
 		{
 			if (strpos($url, $baseUrl) === 0)
 			{
 				$oneOfOurs = true;
+				$this->productId = $productId;
 				break;
 			}
 		}
@@ -610,7 +611,10 @@ class plgSystemWbamp extends JPlugin
 			&& (empty($credentials['id']) || empty($credentials['secret']))
 		)
 		{
-			JFactory::getApplication()->enqueueMessage("You haven't entered your update access and/or secret keys, needed for this update. Please read the <strong>Updating</strong> section of <a href='https://weeblr.com/documentation'>this extension documentation</a>", 'error');
+			$app = JFactory::getApplication();
+			$app->enqueueMessage(JText::sprintf('COM_WBAMP_UPDATE_NO_CREDENTIALS', 'https://weeblr.com/documentation/products.wbamp/1/installation-update/updating.html'), 'error');
+			$app->redirect('index.php?option=com_installer&view=update');
+
 		}
 		return $credentials;
 	}
@@ -677,5 +681,4 @@ class plgSystemWbamp extends JPlugin
 		$this->errorHandler($exception);
 	}
 }
-
 

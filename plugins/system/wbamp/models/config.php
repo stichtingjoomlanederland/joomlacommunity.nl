@@ -7,8 +7,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.3.1.490
- * @date        2016-05-18
+ * @version     1.4.2.551
+ * @date        2016-07-19
  */
 
 defined('_JEXEC') or die();
@@ -416,6 +416,37 @@ class WbampModel_Config
 	 * @var int
 	 */
 	private $_pageImageMinWidth = 696;
+
+	private $_defaulCleanupRegexp = "
+; ---------- RegularLabs Sourcerer ---------
+#{source[^}]*}.*{/source}#iuUs => \"\"
+; ---------- RegularLabs Slider ---------
+#{slider[^}]*}#iuUs  => \"<br />\"
+#{/slider[^}]*}#iuUs => \"<br />\"
+; ---------- RegularLabs Tabs ---------
+#{tab[^}]*}#iuUs  => \"<br />\"
+#{/tab[^}]*}#iuUs => \"<br />\"
+; ---------- RegularLabs Modals ---------
+#{modal[^}]*}#iuUs  => \"\"
+#{/modal[^}]*}#iuUs => \"\"
+; ---------- RegularLabs Modules Anywhere ---------
+#{module[^}]*}#iuUs  => \"\"
+; ---------- RegularLabs Snippets ---------
+#{snippet[^}]*}#iuUs  => \"\"
+; ---------- RegularLabs Tips ---------
+#{tip[^}]*}#iuUs  => \"\"
+; ---------- RSForm ---------
+#{rsform[^}]*}#iuUs  => \"\"
+; ---------- Chronoforms ---------
+#{chronoforms[^}]*}.*{/chronoforms}#iuUs => \"\"
+#{chronoforms5[^}]*}.*{/chronoforms5}#iuUs => \"\"
+; ---------- Yootheme WidgetKit ---------
+#\[widgetkit[^\]]*\]#iuUs  => \"\"
+; ---------- Alledia Simple Image gallery ---------
+#{gallery[^}]*}.*{/gallery}#iuUs => \"\"
+; ---------- PhocaGallery ---------
+#{phocagallery[^}]*}#iuUs  => \"\"
+";
 
 	/**
 	 * Magic method to fetch a config value directly
