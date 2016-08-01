@@ -18,33 +18,46 @@ $files   = array_filter($this->items, function ($i) { return ($i->type == 'file'
 
 <?php echo $this->loadTemplate('navbar'); ?>
 
-<div class="row">
-	<?php if (!empty($folders)) : ?>
-		<?php foreach ($folders as $i => $folder) : ?>
-			<div class="content-4">
-				<div class="panel panel-downloads">
-					<div class="panel-heading">
-						<?php echo (!empty($folder->filename) ? $folder->filename : $folder->name); ?>
+<?php if (!empty($folders) || !empty($files)) : ?>
+	<div class="row">
+		<?php if (!empty($folders)) : ?>
+			<?php foreach ($folders as $i => $folder) : ?>
+				<div class="content-4">
+					<div class="panel panel-downloads panel-<?php echo $folder->name; ?>">
+						<div class="panel-heading">
+							<?php echo (!empty($folder->filename) ? $folder->filename : $folder->name); ?>
+						</div>
+						<?php echo rsfilesHelper::display(str_replace("%2F", "/", $folder->fullpath), $this->params) ?>
 					</div>
-					<?php echo rsfilesHelper::display(str_replace("%2F", "/", $folder->fullpath), $this->params) ?>
+				</div>
+			<?php endforeach; ?>
+		<?php endif; ?>
+		<?php if (!empty($files) && !empty($folders)) : ?>
+			<div class="row">
+				<div class="content-4">
+					<div class="panel panel-downloads panel-files">
+						<div class="panel-heading">
+							Bestanden
+						</div>
+						<div class="list-group list-group-flush">
+							<?php foreach ($files as $i => $file) : ?>
+								<a href="<?php echo JRoute::_('index.php?option=com_rsfiles&layout=download&path='.rsfilesHelper::encode($file->fullpath).$file->itemid); ?>" class="list-group-item">
+									<i class="rsicon-file"></i> <?php echo (!empty($file->filename) ? $file->filename : $file->name); ?>
+								</a>
+							<?php endforeach; ?>
+						</div>
+					</div>
 				</div>
 			</div>
-		<?php endforeach; ?>
-	<?php endif; ?>
-	<?php if (!empty($files)) : ?>
-		<div class="content-4">
-			<div class="panel panel-downloads">
-				<div class="panel-heading">
-					Bestanden
-				</div>
-				<div class="list-group list-group-flush">
-					<?php foreach ($files as $i => $file) : ?>
-						<a href="<?php echo JRoute::_('index.php?option=com_rsfiles&layout=download&path='.rsfilesHelper::encode($file->fullpath).$file->itemid); ?>" class="list-group-item">
-							<i class="rsicon-file"></i> <?php echo (!empty($file->filename) ? $file->filename : $file->name); ?>
-						</a>
-					<?php endforeach; ?>
-				</div>
-			</div>
-		</div>
-	<?php endif; ?>
-</div>
+		<?php endif; ?>
+	</div>
+<?php endif; ?>
+
+<?php if (!empty($files) && empty($folders)) : ?>
+	<?php foreach ($files as $i => $file) :
+		$this->file = $file;
+		$this->download = rsfilesHelper::downloadlink($file, $file->fullpath);
+
+		echo $this->loadTemplate('file');
+	endforeach; ?>
+<?php endif; ?>
