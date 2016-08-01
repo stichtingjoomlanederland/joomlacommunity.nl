@@ -63,8 +63,10 @@ class Restore extends Controller
 	/**
 	 * Start the restoration
 	 */
-	function start()
+	public function start()
 	{
+		$this->csrfProtection();
+
 		/** @var RestoreModel $model */
 		$model   = $this->getModel();
 
@@ -106,7 +108,7 @@ class Restore extends Controller
 	/**
 	 * Perform a step through AJAX
 	 */
-	function ajax()
+	public function ajax()
 	{
 		/** @var RestoreModel $model */
 		$model   = $this->getModel();

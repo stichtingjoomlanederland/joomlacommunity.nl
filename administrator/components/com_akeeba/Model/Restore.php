@@ -171,7 +171,7 @@ ENDDATA;
 			$ftp_host = $this->getState('ftp_host', '');
 			$ftp_port = $this->getState('ftp_port', '21');
 			$ftp_user = $this->getState('ftp_user', '');
-			$ftp_pass = $this->getState('ftp_pass', '');
+			$ftp_pass = addcslashes($this->getState('ftp_pass', ''), "'\\");
 			$ftp_root = $this->getState('ftp_root', '');
 			$ftp_ssl  = $this->getState('ftp_ssl', 0);
 			$ftp_pasv = $this->getState('ftp_root', 1);

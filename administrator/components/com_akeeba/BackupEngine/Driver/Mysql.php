@@ -125,7 +125,13 @@ class Mysql extends Base
 		// If auto-select is enabled select the given database.
 		if ($this->selectDatabase && !empty($this->_database))
 		{
-			$this->select($this->_database);
+			if (!$this->select($this->_database))
+			{
+				$this->errorNum = 3;
+				$this->errorMsg = "Cannot select database {$this->_database}";
+
+				return;
+			}
 		}
 
 		$this->setUTF();

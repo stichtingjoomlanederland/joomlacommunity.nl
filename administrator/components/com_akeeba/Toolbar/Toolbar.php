@@ -21,7 +21,6 @@ class Toolbar extends BaseToolbar
 	public function onAlices()
 	{
 		JToolbarHelper::title(JText::_('COM_AKEEBA_TITLE_ALICES'),'akeeba');
-
 		JToolbarHelper::back('JTOOLBAR_BACK', 'index.php?option=com_akeeba&view=ControlPanel');
 	}
 
@@ -29,7 +28,9 @@ class Toolbar extends BaseToolbar
 	{
 		JToolbarHelper::title(JText::_('COM_AKEEBA').':: <small>'.JText::_('COM_AKEEBA_BACKUP').'</small>','akeeba');
 		JToolbarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+
 		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/backup-now.html');
 	}
 
 	public function onConfigurations()
@@ -53,6 +54,9 @@ class Toolbar extends BaseToolbar
 
 		$bar->appendButton('Link', 'calendar', JText::_('COM_AKEEBA_SCHEDULE'), 'index.php?option=com_akeeba&view=Schedule');
 
+		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/configuration.html');
+
 		$js = <<< JS
 ;;
 
@@ -68,31 +72,40 @@ JS;
 	{
 		JToolbarHelper::title(JText::_('COM_AKEEBA').':: <small>'.JText::_('COM_AKEEBA_CONFWIZ').'</small>','akeeba');
 		JToolbarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/configuration-wizard.html');
 	}
 
 	public function onControlPanelsMain()
 	{
 		JToolbarHelper::title(JText::_('COM_AKEEBA').' :: <small>'.JText::_('COM_AKEEBA_CONTROLPANEL').'</small>','akeeba');
-
 		JToolbarHelper::preferences('com_akeeba', '500', '660');
+		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/using-akeeba-backup-component.html#control-panel');
 	}
 
 	public function onDatabaseFiltersMain()
 	{
 		JToolbarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_DBFILTER').'</small>','akeeba');
 		JToolbarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/database-tables-exclusion.html');
 	}
 
 	public function onDiscovers()
 	{
 		JToolbarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_DISCOVER').'</small>','akeeba');
 		JToolbarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/ch03s02s05s03.html');
 	}
 
 	public function onFileFiltersMain()
 	{
 		JToolbarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_FILEFILTERS').'</small>','akeeba');
 		JToolbarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/exclude-data-from-backup.html#files-and-directories-exclusion');
 	}
 
 	public function onIncludeFoldersMain()
@@ -100,6 +113,7 @@ JS;
 		JToolbarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_INCLUDEFOLDER').'</small>','akeeba');
 		JToolbarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/off-site-directories-inclusion.html');
 	}
 
 	public function onLogs()
@@ -108,6 +122,7 @@ JS;
 
 		JToolbarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/view-log.html');
 	}
 
 	public function onManagesDefault()
@@ -127,6 +142,8 @@ JS;
 		JToolbarHelper::custom( 'deletefiles', 'delete.png', 'delete_f2.png', JText::_('COM_AKEEBA_BUADMIN_LABEL_DELETEFILES'), true );
 		JToolbarHelper::spacer();
 		JToolbarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/adminsiter-backup-files.html');
 	}
 
 	public function onManagesShowcomment()
@@ -135,18 +152,24 @@ JS;
 		JToolbarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 		JToolbarHelper::save();
 		JToolbarHelper::cancel();
+		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/adminsiter-backup-files.html');
 	}
 
 	public function onMultipleDatabasesMain()
 	{
 		JToolbarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_MULTIDB').'</small>','akeeba');
 		JToolbarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/include-data-to-archive.html#multiple-db-definitions');
 	}
 
 	public function onProfilesAdd()
 	{
 		parent::onAdd();
 		JToolbarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_PROFILES_PAGETITLE_NEW').'</small>','akeeba');
+		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/using-basic-operations.html#profiles-management');
 	}
 
 	public function onProfilesBrowse()
@@ -160,34 +183,46 @@ JS;
 		JToolbarHelper::spacer();
 		JToolbarHelper::deleteList();
 		JToolbarHelper::spacer();
+		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/using-basic-operations.html#profiles-management');
 	}
 
 	public function onProfilesEdit()
 	{
 		parent::onEdit();
 		JToolbarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_PROFILES_PAGETITLE_EDIT').'</small>','akeeba');
+		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/using-basic-operations.html#profiles-management');
 	}
 
 	public function onRegExDatabaseFiltersMain()
 	{
 		JToolbarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_REGEXDBFILTERS').'</small>','akeeba');
 		JToolbarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/regex-database-tables-exclusion.html');
 	}
 
 	public function onRegExFileFiltersMain()
 	{
 		JToolbarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_REGEXFSFILTERS').'</small>','akeeba');
 		JToolbarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/regex-files-directories-exclusion.html');
 	}
 
 	public function onRemoteFilesDownloadToServer()
 	{
 		JToolbarHelper::title(JText::_('COM_AKEEBA_REMOTEFILES'),'akeeba');
+		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/ch03s02s05s02.html');
 	}
 
 	public function onRemoteFilesListActions()
 	{
 		JToolbarHelper::title(JText::_('COM_AKEEBA_REMOTEFILES'),'akeeba');
+		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/ch03s02s05s02.html');
 	}
 
 	public function onRestores()
@@ -195,24 +230,31 @@ JS;
 		JToolbarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_RESTORE').'</small>','akeeba');
 		JToolbarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/adminsiter-backup-files.html#integrated-restoration');
 	}
 
 	public function onS3ImportsMain()
 	{
 		JToolbarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_S3IMPORT').'</small>','akeeba');
 		JToolbarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/ch03s02s05s03.html');
 	}
 
 	public function onS3ImportsDltoserver()
 	{
 		JToolbarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_S3IMPORT').'</small>','akeeba');
 		JToolbarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/ch03s02s05s03.html');
 	}
 
 	public function onSchedules()
 	{
 		JToolbarHelper::title(JText::_('COM_AKEEBA').':: <small>'.JText::_('COM_AKEEBA_SCHEDULE').'</small>','akeeba');
 		JToolbarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+		JToolbarHelper::spacer();
+		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/automating-your-backup.html');
 	}
 
 	public function onStatisticsMain()

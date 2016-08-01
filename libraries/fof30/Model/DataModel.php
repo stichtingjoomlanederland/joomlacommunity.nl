@@ -677,6 +677,7 @@ class DataModel extends Model implements \JTableInterface
 		$info = (object)array(
 			'Default' => $default,
 			'Type' => $type,
+			'Null' => 'YES',
 		);
 
 		$this->knownFields[$fieldName] = $info;
@@ -1373,7 +1374,7 @@ class DataModel extends Model implements \JTableInterface
 
 			$value = $this->$fieldName;
 
-			if (($field->Null == 'NO') && empty($value) && !is_numeric($value) && !in_array($fieldName, $this->fieldsSkipChecks))
+			if (isset($field->Null) && ($field->Null == 'NO') && empty($value) && !is_numeric($value) && !in_array($fieldName, $this->fieldsSkipChecks))
 			{
 				if (!is_null($field->Default))
 				{

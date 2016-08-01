@@ -808,41 +808,48 @@ class InstallScript
 
 		// If a component exists with this option in the table then we don't need to add menus
 		$query = $db->getQuery(true)
-			->select('m.id, e.extension_id')
-			->from('#__menu AS m')
-			->join('LEFT', '#__extensions AS e ON m.component_id = e.extension_id')
-			->where('m.parent_id = 1')
-			->where('m.client_id = 1')
-			->where('e.type = ' . $db->quote('component'))
-			->where('e.element = ' . $db->quote($option));
+			->select('COUNT(*)')
+			->from($db->qn('#__menu') . ' AS ' . $db->qn('m'))
+			->leftJoin($db->qn('#__extensions', 'e') . ' ON ' .
+				$db->qn('m.component_id') . ' = ' . $db->qn('e.extension_id'))
+			->where($db->qn('m.parent_id') . ' = ' . $db->q(1))
+			->where($db->qn('m.client_id') . ' = ' . $db->q(1))
+			->where($db->qn('e.type') . ' = ' . $db->q('component'))
+			->where($db->qn('e.element') . ' = ' . $db->q($option));
 
 		$db->setQuery($query);
 
-		$componentrow = $db->loadObject();
+		$existingMenus = $db->loadResult();
+
+		if ($existingMenus)
+		{
+			return true;
+		}
 
 		// Let's find the extension id
 		$query->clear()
-			->select('e.extension_id')
-			->from('#__extensions AS e')
-			->where('e.element = ' . $db->quote($option));
+			->select($db->qn('e.extension_id'))
+			->from($db->qn('#__extensions', 'e'))
+			->where($db->qn('e.type') . ' = ' . $db->q('component'))
+			->where($db->qn('e.element') . ' = ' . $db->q($option));
 		$db->setQuery($query);
-		$component_id = $db->loadResult();
+		$componentId = $db->loadResult();
 
 		// Ok, now its time to handle the menus.  Start with the component root menu, then handle submenus.
 		$menuElement = $parent->get('manifest')->administration->menu;
 
-		// We need to insert the menu item as the last child of Joomla!'s menu root node. By default this is the
-		// menu item with ID=1. However, some crappy upgrade scripts enjoy screwing it up. Hey, ho, the workaround
-		// way I go.
+		// We need to insert the menu item as the last child of Joomla!'s menu root node. First let's make sure that
+		// it exists. Normally it should be the menu item with ID = 1.
 		$query = $db->getQuery(true)
 			->select($db->qn('id'))
 			->from($db->qn('#__menu'))
 			->where($db->qn('id') . ' = ' . $db->q(1));
 		$rootItemId = $db->setQuery($query)->loadResult();
 
+		// If we didn't find the item with ID=1 something has screwed up the menu table, e.g. a bad upgrade script. In
+		// this case we can try to find the root node by title.
 		if (is_null($rootItemId))
 		{
-			// Guess what? The Problem has happened. Let's find the root node by title.
 			$rootItemId = null;
 			$query = $db->getQuery(true)
 				->select($db->qn('id'))
@@ -851,9 +858,9 @@ class InstallScript
 			$rootItemId = $db->setQuery($query, 0, 1)->loadResult();
 		}
 
+		// So, someone changed the title of the menu item too?! Let's find it by alias.
 		if (is_null($rootItemId))
 		{
-			// For crying out loud, did that idiot changed the title too?! Let's find it by alias.
 			$rootItemId = null;
 			$query = $db->getQuery(true)
 				->select($db->qn('id'))
@@ -862,9 +869,9 @@ class InstallScript
 			$rootItemId = $db->setQuery($query, 0, 1)->loadResult();
 		}
 
+		// For crying out loud, they changed the alias too? Fine! Find it by component ID.
 		if (is_null($rootItemId))
 		{
-			// Dude. Dude! Duuuuuuude! The alias is screwed up, too?! Find it by component ID.
 			$rootItemId = null;
 			$query = $db->getQuery(true)
 				->select($db->qn('id'))
@@ -873,9 +880,9 @@ class InstallScript
 			$rootItemId = $db->setQuery($query, 0, 1)->loadResult();
 		}
 
+		// Um, OK. Still no go. Let's try with minimum lft value.
 		if (is_null($rootItemId))
 		{
-			// Your site is more of a "shite" than a "site". Let's try with minimum lft value.
 			$rootItemId = null;
 			$query = $db->getQuery(true)
 				->select($db->qn('id'))
@@ -884,9 +891,9 @@ class InstallScript
 			$rootItemId = $db->setQuery($query, 0, 1)->loadResult();
 		}
 
+		// I quit. Your site's menu structure is broken. I'll just throw an error.
 		if (is_null($rootItemId))
 		{
-			// I quit. Your site is broken. What the hell are you doing with it? I'll just throw an error.
 			throw new Exception("Your site is broken. There is no root menu item. As a result it is impossible to create menu items. The installation of this component has failed. Please fix your database and retry!", 500);
 		}
 
@@ -902,7 +909,7 @@ class InstallScript
 			$data['type'] = 'component';
 			$data['published'] = 0;
 			$data['parent_id'] = 1;
-			$data['component_id'] = $component_id;
+			$data['component_id'] = $componentId;
 			$data['img'] = ((string)$menuElement->attributes()->img) ? (string)$menuElement->attributes()->img : 'class:component';
 			$data['home'] = 0;
 			$data['path'] = '';
@@ -920,7 +927,7 @@ class InstallScript
 			$data['type'] = 'component';
 			$data['published'] = 0;
 			$data['parent_id'] = 1;
-			$data['component_id'] = $component_id;
+			$data['component_id'] = $componentId;
 			$data['img'] = 'class:component';
 			$data['home'] = 0;
 			$data['path'] = '';
@@ -1005,7 +1012,7 @@ class InstallScript
 		 * Since we have created a menu item, we add it to the installation step stack
 		 * so that if we have to rollback the changes we can undo it.
 		 */
-		$parent->getParent()->pushStep(array('type' => 'menu', 'id' => $component_id));
+		$parent->getParent()->pushStep(array('type' => 'menu', 'id' => $componentId));
 
 		/*
 		 * Process SubMenus
@@ -1029,7 +1036,7 @@ class InstallScript
 			$data['type'] = 'component';
 			$data['published'] = 0;
 			$data['parent_id'] = $parent_id;
-			$data['component_id'] = $component_id;
+			$data['component_id'] = $componentId;
 			$data['img'] = ((string)$child->attributes()->img) ? (string)$child->attributes()->img : 'class:component';
 			$data['home'] = 0;
 
@@ -1097,7 +1104,7 @@ class InstallScript
 			 * Since we have created a menu item, we add it to the installation step stack
 			 * so that if we have to rollback the changes we can undo it.
 			 */
-			$parent->getParent()->pushStep(array('type' => 'menu', 'id' => $component_id));
+			$parent->getParent()->pushStep(array('type' => 'menu', 'id' => $componentId));
 		}
 
 		return true;

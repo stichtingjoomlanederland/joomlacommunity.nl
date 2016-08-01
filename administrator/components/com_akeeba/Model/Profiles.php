@@ -124,5 +124,13 @@ class Profiles extends DataModel
 		{
 			throw new RuntimeException(\JText::_('COM_AKEEBA_PROFILE_ERR_CANNOTDELETEDEFAULT'), 500);
 		}
+
+		// If you're deleting the current backup profile we have to switch to the default profile (#1)
+		$activeProfile     = Platform::getInstance()->get_active_profile();
+
+		if ($id == $activeProfile)
+		{
+			throw new RuntimeException(\JText::sprintf('COM_AKEEBA_PROFILE_ERR_CANNOTDELETEACTIVE', $id), 500);
+		}
 	}
 }

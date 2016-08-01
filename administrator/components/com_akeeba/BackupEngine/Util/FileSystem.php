@@ -148,7 +148,7 @@ class FileSystem
 				'[DAY]'              => Platform::getInstance()->get_local_timestamp("d"),
 				'[TIME]'             => Platform::getInstance()->get_local_timestamp("His"),
 				'[WEEK]'             => Platform::getInstance()->get_local_timestamp("W"),
-				'[WEEKDAY]'          => Platform::getInstance()->get_local_timestamp("w"),
+				'[WEEKDAY]'          => Platform::getInstance()->get_local_timestamp("l"),
 				'[HOST]'             => empty($host) ? 'unknown_host' : $host,
 				'[RANDOM]'           => md5(microtime()),
 				'[VERSION]'          => $version,

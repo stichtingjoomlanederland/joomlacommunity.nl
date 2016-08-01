@@ -1,4 +1,15 @@
 <?php die();?>
+Akeeba Backup 5.1.3
+================================================================================
++ Automatically handle unsupported database storage engines when restoring MySQL databases
++ Help buttons everywhere. No more excuses for not reading the fine manual.
+# [HIGH] Failure to upload to newly created Amazon S3 buckets
+# [MEDIUM] Import from S3 didn't work with API v4-only regions (Frankfurt, São Paulo)
+# [LOW] The [WEEKDAY] variable in archive name templates returned the weekday number (e.g 1) instead of text (e.g. Sunday)
+# [LOW] Deleting the currently active profile would cause a white page / internal server error
+# [LOW] Chrome and other misbehaving browsers autofill the database username/password, leading to restoration failure if you're not paying very close attention. We are now working around these browsers.
+# [LOW] WebDAV prost-processing: Fixed handling of URLs containing spaces
+
 Akeeba Backup 5.1.2
 ================================================================================
 - Removed Dropbox API v1 integration. The v1 API is going to be discontinued by Dropbox, see https://blogs.dropbox.com/developers/2016/06/api-v1-deprecated/ Please use the Dropbox API v2 integration instead.
