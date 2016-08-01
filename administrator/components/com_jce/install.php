@@ -73,7 +73,7 @@ abstract class WFInstall {
                 }
             }
         }
-        
+
         // install profiles etc.
         $state = self::installProfiles();
 
@@ -628,10 +628,10 @@ abstract class WFInstall {
             $site . '/editor/tiny_mce/plugins/dragupload',
             // remove googlemaps
             $site . '/editor/extensions/aggregator/googlemaps',
-            
+
             // remove extensions folder
             $site . '/editor/libraries/js/extensions',
-            
+
             // remove fullpage plugin
             $site . '/editor/tiny_mce/plugins/fullpage'
         );
@@ -713,14 +713,14 @@ abstract class WFInstall {
 
             // remove concat files
             $admin . '/media/js/jce.js',
-            
+
             $admin . '/media/js/profiles.js',
             $admin . '/media/js/extensions.js',
             $admin . '/media/js/checklist.js',
             $admin . '/media/js/styleformat.js',
             $admin . '/media/js/fonts.js',
             $admin . '/media/js/blockformats.js',
-            
+
             $admin . '/media/css/colorpicker.css',
             $admin . '/media/css/bootstrap.min.css',
             $admin . '/media/css/styles.css',
@@ -730,7 +730,7 @@ abstract class WFInstall {
             $admin . '/media/css/blockformats.css',
             $admin . '/media/css/layout.css',
             $admin . '/media/css/profile.css',
-            
+
             $site . '/editor/libraries/js/html5.js',
             $site . '/editor/libraries/js/select.js',
             $site . '/editor/libraries/js/tips.js',
@@ -749,7 +749,7 @@ abstract class WFInstall {
             $site . '/editor/libraries/js/filter.js',
             $site . '/editor/libraries/js/manager.js',
             $site . '/editor/libraries/js/link.js',
-            
+
             $site . '/editor/libraries/css/reset.css',
             $site . '/editor/libraries/css/tips.css',
             $site . '/editor/libraries/css/tree.css',
@@ -921,7 +921,7 @@ abstract class WFInstall {
                 }
             }
         }
-        
+
         // transfer styleselect, fontselect, fontsize etc. to a plugin
         if (version_compare($version, '2.3.5', '<')) {
             $profiles = self::getProfiles();
@@ -930,31 +930,31 @@ abstract class WFInstall {
             if (!empty($profiles)) {
                 foreach ($profiles as $item) {
                     $table->load($item->id);
-                    
+
                     $plugins = explode(',', $table->plugins);
 
                     if (strpos($table->rows, 'formatselect') !== false) {
                         $plugins[] = 'formatselect';
                     }
-                    
+
                     if (strpos($table->rows, 'styleselect') !== false) {
                         $plugins[] = 'styleselect';
                     }
-                    
+
                     if (strpos($table->rows, 'fontselect') !== false) {
                         $plugins[] = 'fontselect';
                     }
-                    
+
                     if (strpos($table->rows, 'fontsizeselect') !== false) {
                         $plugins[] = 'fontsizeselect';
                     }
-                    
+
                     if (strpos($table->rows, 'forecolor') !== false || strpos($table->rows, 'backcolor') !== false) {
                         $plugins[] = 'fontcolor';
                     }
-                    
+
                     $table->plugins = implode(',', $plugins);
-                    
+
                     $table->store();
                 }
             }
@@ -987,7 +987,7 @@ abstract class WFInstall {
 
     private static function getProfiles() {
         $db = JFactory::getDBO();
-        
+
         $query = $db->getQuery(true);
 
         if (is_object($query)) {
@@ -1043,6 +1043,7 @@ abstract class WFInstall {
         $packages = array(
             'editor'    => array('jce'),
             'system'    => array('jce'),
+            'content'   => array('jce'),
             'quickicon' => array('jcefilebrowser'),
             'module'    => array('mod_jcefilebrowser')
         );
@@ -1052,10 +1053,10 @@ abstract class WFInstall {
             if (defined('JPATH_PLATFORM')) {
                 if ($folder == 'module') {
                     continue;
-                }                
-                // Joomla! 1.5  
+                }
+                // Joomla! 1.5
             } else {
-                if ($folder == 'quickicon' || $folder == 'system') {
+                if ($folder == 'quickicon' || $folder == 'system' || $folder == 'content') {
                     continue;
                 }
             }
@@ -1097,9 +1098,9 @@ abstract class WFInstall {
                     $module->published = 1;
                     $module->store();
                 }
-                
+
                 // enable jce system plugin
-                if ($folder == 'system') {
+                if ($folder == 'system' || $folder == 'content') {
                     $plugin = JTable::getInstance('extension');
 
                     foreach ($element as $item) {
@@ -1119,7 +1120,7 @@ abstract class WFInstall {
                         JFile::move($installer->getPath('extension_root') . '/' . basename($manifest), $installer->getPath('extension_root') . '/jce.xml');
                     }
                 }
-                
+
                 // add index files
                 if ($folder == 'editor' && !defined('JPATH_PLATFORM')) {
                     self::addIndexfiles(array($installer->getPath('extension_root') . '/jce'));
@@ -1140,7 +1141,7 @@ abstract class WFInstall {
             $module = JTable::getInstance('extension');
             return $module->find(array('type' => 'module', 'element' => $name));
 
-            // Joomla! 1.5    
+            // Joomla! 1.5
         } else {
             $db = JFactory::getDBO();
             $query = 'SELECT id FROM #__modules' . ' WHERE module = ' . $db->Quote($name);
@@ -1155,7 +1156,7 @@ abstract class WFInstall {
         if (defined('JPATH_PLATFORM')) {
             $plugin = JTable::getInstance('extension');
             return $plugin->find(array('type' => 'plugin', 'folder' => $folder, 'element' => $element));
-            // Joomla! 1.5    
+            // Joomla! 1.5
         } else {
             $plugin = JTable::getInstance('plugin');
 

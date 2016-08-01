@@ -30,7 +30,7 @@ class WFEditorPlugin extends JObject {
 
     // Editor Plugin instance
     private static $instance;
-    
+
     // array of alerts
     private $_alerts = array();
 
@@ -48,7 +48,7 @@ class WFEditorPlugin extends JObject {
 
         // check plugin is valid
         //$this->checkPlugin($plugin) or die('RESTRICTED');
-        
+
         // set plugin name
         $this->set('name', $plugin);
 
@@ -81,7 +81,7 @@ class WFEditorPlugin extends JObject {
         if (!array_key_exists('colorpicker', $config)) {
             $config['colorpicker'] = in_array($plugin, array('imgmanager_ext', 'caption', 'mediamanager'));
         }
-        
+
         // backwards compatability
         if (!array_key_exists('mediaplayer', $config)) {
             $config['mediaplayer'] = false;
@@ -148,12 +148,12 @@ class WFEditorPlugin extends JObject {
 
         return $wf->getProfile($plugin);
     }
-    
+
     protected function getPluginVersion() {
         $manifest = WF_EDITOR_PLUGIN . '/' . $this->get('name') . '.xml';
-        
+
         $version = '';
-            
+
         if (is_file($manifest)) {
             $xml = WFXMLHelper::parseInstallManifest($manifest);
 
@@ -161,17 +161,17 @@ class WFEditorPlugin extends JObject {
                 $version = $xml['version'];
             }
         }
-        
+
         if ($version) {
             $version = preg_replace('#[^a-z0-9]+#i', '', $version);
         }
-        
+
         return $version;
     }
 
     public function execute() {
         WFToken::checkToken() or die('Access to this resource is restricted');
-        
+
         // load core language
         WFLanguage::load('com_jce', JPATH_ADMINISTRATOR);
         // Load Plugin language
@@ -216,8 +216,8 @@ class WFEditorPlugin extends JObject {
                 'name'      => $name,
                 'language'  => WFLanguage::getTag(),
                 'direction' => WFLanguage::getDir(),
-                'compress_javascript' => $this->getParam('editor.compress_javascript', 1),
-                'compress_css' => $this->getParam('editor.compress_css', 1)
+                'compress_javascript' => $this->getParam('editor.compress_javascript', 0),
+                'compress_css' => $this->getParam('editor.compress_css', 0)
             ));
 
             // set standalone mode
@@ -238,7 +238,7 @@ class WFEditorPlugin extends JObject {
             // set body output
             $document->setBody($view->loadTemplate());
 
-            // render document		
+            // render document
             $document->render();
         }
     }
@@ -255,9 +255,9 @@ class WFEditorPlugin extends JObject {
             $document->addScript(array('tiny_mce_popup'), 'tiny_mce');
         }
 
-        $document->addScript(array('jquery.min', 'jquery-ui.min'), 'jquery');      
+        $document->addScript(array('jquery.min', 'jquery-ui.min'), 'jquery');
         $document->addScript(array('plugin.full.js'));
-        
+
         $document->addStyleSheet(array('jquery-ui'), 'jquery');
         $document->addStyleSheet(array('plugin'), 'libraries');
 
@@ -285,17 +285,17 @@ class WFEditorPlugin extends JObject {
      */
     public function getDefaults($defaults = array()) {
         $name = $this->getName();
-        
+
         // get manifest path
         $manifest = WF_EDITOR_PLUGIN . '/' . $name . '.xml';
-        
+
         // get parameter defaults
         if (is_file($manifest)) {
             $params = $this->getParams(array(
                 'key'   => $name,
                 'path'  => $manifest
             ));
-            
+
             return array_merge($defaults, (array) $params->getAll('defaults'));
         }
 
@@ -313,7 +313,7 @@ class WFEditorPlugin extends JObject {
         if ($plugin) {
             // check existence of plugin directory
             if (is_dir(WF_EDITOR_PLUGINS . '/' . $plugin)) {
-                // get profile	
+                // get profile
                 $profile = $this->getProfile($plugin);
                 // check for valid object and profile id
                 return is_object($profile) && isset($profile->id);
@@ -325,7 +325,7 @@ class WFEditorPlugin extends JObject {
 
     /**
      * Add an alert array to the stack
-     * 
+     *
      * @access private
      * @param object $class Alert classname
      * @param object $title Alert title
@@ -390,7 +390,7 @@ class WFEditorPlugin extends JObject {
 
     /**
      * Compile plugin settings from defaults and alerts
-     * 
+     *
      * @access  public
      * @param 	array $settings
      * @return 	array
@@ -414,7 +414,7 @@ class WFEditorPlugin extends JObject {
 
     /**
      * Get a parameter by key
-     * 
+     *
      * @access 	public
      * @param 	string $key Parameter key eg: editor.width
      * @param 	mixed $fallback Fallback value
