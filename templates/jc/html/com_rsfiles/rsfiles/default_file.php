@@ -4,7 +4,7 @@
  * @copyright (C) 2010-2014 www.rsjoomla.com
  * @license GPL, http://www.gnu.org/copyleft/gpl.html
  */
-defined( '_JEXEC' ) or die( 'Restricted access' );
+defined( '_JEXEC' ) or die('Restricted access');
 ?>
 
 <div class="well download">
@@ -32,13 +32,17 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 				<ul class="list-group list-group-flush">
 					<?php if ($this->config->show_file_size) : ?>
 						<li class="list-group-item">
-							<span class="info"><?php echo $this->file->filesize; ?></span>
+							<span class="info">
+								<?php echo (isset($this->file->filesize) ? $this->file->filesize : $this->file->size) ?>
+							</span>
 							<?php echo JText::_("COM_RSFILES_FILE_SIZE"); ?>
 						</li>
 					<?php endif; ?>
 					<?php if ($this->config->show_hits) : ?>
 						<li class="list-group-item">
-							<span class="info"><?php echo $this->file->hits; ?></span>
+							<span class="info">
+								<?php echo $this->file->hits; ?>
+							</span>
 							<?php echo JText::_("COM_RSFILES_FILE_HITS"); ?>
 						</li>
 					<?php endif; ?>
