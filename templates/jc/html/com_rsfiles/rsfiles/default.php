@@ -22,6 +22,13 @@ $files   = array_filter($this->items, function ($i) { return ($i->type == 'file'
 	<div class="row">
 		<?php if (!empty($folders)) : ?>
 			<?php foreach ($folders as $i => $folder) : ?>
+				<?php
+				// If the paramter "folder" is not public, we have to append this to our filepath
+				if ($this->params->get("folder") != "Public")
+				{
+					$folder->fullpath = $this->params->get("folder") . DIRECTORY_SEPARATOR . $folder->fullpath;
+				}
+				?>
 				<div class="content-4">
 					<div class="panel panel-downloads panel-<?php echo $folder->name; ?>">
 						<div class="panel-heading">
