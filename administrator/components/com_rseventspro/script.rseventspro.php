@@ -778,6 +778,49 @@ class com_rseventsproInstallerScript
 				$db->execute();
 			}
 			
+			// Index
+			$db->setQuery("SHOW INDEX FROM #__rseventspro_events WHERE Key_name = 'location'");
+			if (!$db->loadObject()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_events` ADD INDEX (`location`)");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW INDEX FROM #__rseventspro_events WHERE Key_name = 'owner'");
+			if (!$db->loadObject()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_events` ADD INDEX (`owner`)");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW INDEX FROM #__rseventspro_events WHERE Key_name = 'completed'");
+			if (!$db->loadObject()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_events` ADD INDEX (`completed`)");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW INDEX FROM #__rseventspro_events WHERE Key_name = 'published'");
+			if (!$db->loadObject()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_events` ADD INDEX (`published`)");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW INDEX FROM #__rseventspro_events WHERE Key_name = 'published_2'");
+			if (!$db->loadObject()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_events` ADD INDEX (`published`, `completed`)");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW INDEX FROM #__rseventspro_tickets WHERE Key_name = 'ide'");
+			if (!$db->loadObject()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_tickets` ADD INDEX (`ide`)");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW INDEX FROM #__rseventspro_tickets WHERE Key_name = 'price'");
+			if (!$db->loadObject()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_tickets` ADD INDEX (`price`)");
+				$db->execute();
+			}
+			
 			// Set event ticket layout to individual tickets
 			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_events` WHERE `Field` = 'ticket_pdf'");
 			if ($db->loadResult()) {
@@ -935,9 +978,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.10.7</h2>
+	<h2>Changelog v1.10.9</h2>
 	<ul class="version-history">
-		<li><span class="version-new">ADD</span> Add sitename to the page meta title.</li>
+		<li><span class="version-fixed">FIX</span> Improved query performance.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>

@@ -156,7 +156,12 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_events` (
   `timezone` varchar(255) NOT NULL,
   `aspectratio` tinyint(1) NOT NULL,
   `itemid` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `location` (`location`),
+  KEY `owner` (`owner`),
+  KEY `completed` (`completed`),
+  KEY `published` (`published`),
+  KEY `published_2` (`published`, `completed`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_files` (
@@ -263,7 +268,9 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_tickets` (
   `attach` tinyint(1) NOT NULL,
   `layout` longtext NOT NULL,
   `order` int(11) NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `ide` (`ide`),
+  KEY `price` (`price`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_tmp` (

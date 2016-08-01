@@ -1163,6 +1163,7 @@ class rseventsproHelper
 			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_STATE').'",';
 			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_PAYMENT').'",';
 			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_TICKETS').'",';
+			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_TICKET_CODE').'",';
 			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_TOTAL').'"';
 			
 			if (file_exists(JPATH_SITE.'/components/com_rsform/rsform.php')) {
@@ -1182,20 +1183,31 @@ class rseventsproHelper
 			$csv .= "\n";
 		}
 		
-		
 		if (!empty($subscribers)) {
 			foreach ($subscribers as $subscriber) {
 				$total				= 0;
-				$purchasedtickets	= array();
-				$tickets			= rseventsproHelper::getUserTickets($subscriber->id);
+				$tickets			= array();
+				$purchasedTickets	= rseventsproHelper::getUserTickets($subscriber->id);
 				
-				if (!empty($tickets)) { 
-					foreach ($tickets as $ticket) {
+				if (!empty($purchasedTickets)) { 
+					foreach ($purchasedTickets as $ticket) {
+						
 						if ($ticket->price > 0) {
-							$purchasedtickets[] = $ticket->quantity. ' x '.$ticket->name . ' (' . rseventsproHelper::currency($ticket->price).')';
 							$total += (int) $ticket->quantity * $ticket->price;
-						} else {
-							$purchasedtickets[] = $ticket->quantity. ' x '.$ticket->name . ' (' . JText::_('COM_RSEVENTSPRO_GLOBAL_FREE').')';
+						}
+						
+						for ($j=0;$j<$ticket->quantity;$j++) {
+							$ticket = clone $ticket;
+							
+							if (!$ticket->id) {
+								$ticket->name = JText::_('COM_RSEVENTSPRO_FREE_ENTRANCE');
+							}
+							
+							$code	= md5($subscriber->id.$ticket->id.($j+1));
+							$code	= substr($code,0,4).substr($code,-4);
+							
+							$ticket->code = rseventsproHelper::getConfig('barcode_prefix', 'string', 'RST-').$subscriber->id.'-'.$code;
+							$tickets[] = $ticket;
 						}
 					}
 				}
@@ -1213,25 +1225,26 @@ class rseventsproHelper
 					$total = $total + $subscriber->tax;
 				}
 				
-				$stickets = !empty($purchasedtickets) ? implode('<br />',$purchasedtickets) : '';
-				
-				$csv .= '"'.$db->escape($subscriber->id).'",';
-				$csv .= '"'.$db->escape($subscriber->name).'",';
-				$csv .= '"'.$db->escape($subscriber->email).'",';
-				$csv .= '"'.$db->escape(rseventsproHelper::showdate($subscriber->date,'Y-m-d H:i:s')).'",';
-				$csv .= '"'.$db->escape($subscriber->ip).'",';
-				$csv .= '"'.$db->escape(rseventsproHelper::getStatuses($subscriber->state)).'",';
-				$csv .= '"'.$db->escape(rseventsproHelper::getPayment($subscriber->gateway)).'",';
-				$csv .= '"'.$db->escape($stickets).'",';
-				$csv .= '"'.$db->escape(rseventsproHelper::currency($total)).'"';
-				
-				if ($subscriber->SubmissionId) {
-					if ($submissions = rseventsproHelper::getSubmission($subscriber->SubmissionId)) {
-						$csv .= ','.'"'.implode('","',$submissions).'"';
+				foreach ($tickets as $ticket) { 
+					$csv .= '"'.$db->escape($subscriber->id).'",';
+					$csv .= '"'.$db->escape($subscriber->name).'",';
+					$csv .= '"'.$db->escape($subscriber->email).'",';
+					$csv .= '"'.$db->escape(rseventsproHelper::showdate($subscriber->date,'Y-m-d H:i:s')).'",';
+					$csv .= '"'.$db->escape($subscriber->ip).'",';
+					$csv .= '"'.$db->escape(rseventsproHelper::getStatuses($subscriber->state)).'",';
+					$csv .= '"'.$db->escape(rseventsproHelper::getPayment($subscriber->gateway)).'",';
+					$csv .= '"'.$db->escape($ticket->name).'",';
+					$csv .= '"'.$db->escape($ticket->code).'",';
+					$csv .= '"'.$db->escape(rseventsproHelper::currency($total)).'"';
+					
+					if ($subscriber->SubmissionId) {
+						if ($submissions = rseventsproHelper::getSubmission($subscriber->SubmissionId)) {
+							$csv .= ','.'"'.implode('","',$submissions).'"';
+						}
 					}
+					
+					$csv .= "\n";
 				}
-				
-				$csv .= "\n";
 			}
 		}
 		
@@ -5461,7 +5474,7 @@ class rseventsproHelper
 						$tcode	= md5($ids.$ticket->id.$i);
 						$tcode	= substr($tcode,0,4).substr($tcode,-4);
 						
-						if ($tcode == $code) {
+						if (strtolower($tcode) == strtolower($code)) {
 							$found = true;
 							
 							$query->clear()

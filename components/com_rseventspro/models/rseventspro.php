@@ -3259,7 +3259,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$query->group('e.id');
 		$query->price(false);
 		
-		$db->setQuery('SELECT MAX('.$db->qn('price').') FROM '.$db->qn('#__rseventspro_tickets').' WHERE '.$db->qn('ide').' IN ('.$query->toString().')');
+		$db->setQuery('SELECT MAX('.$db->qn('price').') FROM '.$db->qn('#__rseventspro_tickets').' WHERE '.$db->qn('ide').' IN ( SELECT * FROM ('.$query->toString().') AS subquery)');
 		return round($db->loadResult());
 	}
 }
