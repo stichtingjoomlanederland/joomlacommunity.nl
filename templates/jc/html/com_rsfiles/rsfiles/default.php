@@ -4,44 +4,47 @@
 * @copyright (C) 2010-2014 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
-defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
+defined( '_JEXEC' ) or die( 'Restricted access' );
 
-<?php if ($this->params->get('show_page_heading') != 0) { ?>
+$folders = array_filter($this->items, function ($i) { return ($i->type == 'folder'); });
+$files   = array_filter($this->items, function ($i) { return ($i->type == 'file'); });
+?>
+
+<?php if ($this->params->get('show_page_heading') != 0) : ?>
 <div class="page-header">
 	<h1><?php echo $this->escape($this->params->get('page_heading')); ?></h1>
 </div>
-<?php } ?>
-<div class="row-fluid">
-  
-		<?php if ($this->config->show_folder_desc == 1 && !empty($this->fdescription)) { ?>
-  <?php echo $this->fdescription; ?>
-		<?php } ?>
-			<div>
-					<?php if (!empty($this->items)) { ?>
-               		<?php foreach ($this->items as $i => $item) { ?>
-					<?php $canDownload = rsfilesHelper::permissions('CanDownload',$item->fullpath); ?>
-					<div class="row">
-                      	<div class="content-4">
-						<div class="panel panel-downloads">
-                        	<div class="panel-heading">
-								<a href="<?php echo JRoute::_('index.php?option=com_rsfiles&folder='.rsfilesHelper::encode($item->fullpath).$this->itemid); ?>" class="<?php echo $thumbnail->class; ?>" title="<?php echo $thumbnail->image; ?>">
-									<?php echo (!empty($item->filename) ? $item->filename : $item->name); ?>
-								</a>
-                          	</div> 
+<?php endif; ?>
 
-						</div>
-                          </div>
+<?php echo $this->loadTemplate('navbar'); ?>
+
+<div class="row">
+	<?php if (!empty($folders)) : ?>
+		<?php foreach ($folders as $i => $folder) : ?>
+			<div class="content-4">
+				<div class="panel panel-downloads">
+					<div class="panel-heading">
+						<?php echo (!empty($folder->filename) ? $folder->filename : $folder->name); ?>
 					</div>
-					<?php } ?>
-					<?php } ?>
+					<?php echo rsfilesHelper::display(str_replace("%2F", "/", $folder->fullpath), $this->params) ?>
+				</div>
 			</div>
-		
-		<?php if (($this->config->show_pagination_position == 1 || $this->config->show_pagination_position == 2) && $this->pagination->{rsfilesHelper::isJ3() ? 'pagesTotal' : 'pages.total'} > 1) { ?>
-		<div class="pagination">
-			<p class="counter pull-right">
-				<?php echo $this->pagination->getPagesCounter(); ?>
-			</p>
-			<?php echo $this->pagination->getPagesLinks(); ?>
+		<?php endforeach; ?>
+	<?php endif; ?>
+	<?php if (!empty($files)) : ?>
+		<div class="content-4">
+			<div class="panel panel-downloads">
+				<div class="panel-heading">
+					Bestanden
+				</div>
+				<div class="list-group list-group-flush">
+					<?php foreach ($files as $i => $file) : ?>
+						<a href="<?php echo JRoute::_('index.php?option=com_rsfiles&layout=download&path='.rsfilesHelper::encode($file->fullpath).$file->itemid); ?>" class="list-group-item">
+							<i class="rsicon-file"></i> <?php echo (!empty($file->filename) ? $file->filename : $file->name); ?>
+						</a>
+					<?php endforeach; ?>
+				</div>
+			</div>
 		</div>
-		<?php } ?>
+	<?php endif; ?>
 </div>

@@ -24,6 +24,8 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 {
 	echo $analyticsData['script'];
 }
+
+//require_once JPATH_THEMES . "/" . $this->template . "/dummy/downloads_core.php";
 ?>
 
 <div class="header<?php echo $helper->isHome() ? ' homepage' : ''; ?>">
