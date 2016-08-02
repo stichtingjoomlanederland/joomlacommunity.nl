@@ -35,7 +35,7 @@ defined( '_JEXEC' ) or die('Restricted access');
 							<span class="info">
 								<?php echo (isset($this->file->filesize) ? $this->file->filesize : $this->file->size) ?>
 							</span>
-							<?php echo JText::_("COM_RSFILES_FILE_SIZE"); ?>
+							<i class="rsicon-file"></i> <?php echo JText::_("COM_RSFILES_FILE_SIZE"); ?>
 						</li>
 					<?php endif; ?>
 					<?php if ($this->config->show_hits) : ?>
@@ -43,12 +43,21 @@ defined( '_JEXEC' ) or die('Restricted access');
 							<span class="info">
 								<?php echo $this->file->hits; ?>
 							</span>
-							<?php echo JText::_("COM_RSFILES_FILE_HITS"); ?>
+							<i class="rsicon-hits"></i> <?php echo JText::_("COM_RSFILES_FILE_HITS"); ?>
+						</li>
+					<?php endif; ?>
+					<?php if ($this->config->show_file_version && !empty($this->file->fileversion)) : ?>
+						<li class="list-group-item">
+							<span class="info">
+								<?php echo $this->file->fileversion; ?>
+							</span>
+							<i class="rsicon-version"></i> <?php echo JText::_('COM_RSFILES_FILE_VERSION'); ?>
 						</li>
 					<?php endif; ?>
 					<li class="list-group-item">
 						<a class="btn btn-block btn-success <?php echo $this->download->enablemodal; ?>" <?php echo $this->download->rel; ?> href="<?php echo $this->download->dlink; ?>">
-							<span class="glyphicon glyphicon-download"></span> Download</a>
+							<span class="glyphicon glyphicon-download"></span> Download
+						</a>
 					</li>
 				</ul>
 			</div>
