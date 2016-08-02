@@ -11,7 +11,7 @@ defined( '_JEXEC' ) or die('Restricted access');
 	<div class="row">
 		<div class="content-7">
 			<h2>
-				<?php echo (isset($this->file->FileName) ? $this->file->FileName : $this->file->filename); ?>
+				<?php echo (!empty($this->file->FileName) ? $this->file->FileName : $this->file->filename); ?>
 				<br />
 				<?php if ($this->config->show_date_added) : ?>
 					<small>
@@ -33,7 +33,7 @@ defined( '_JEXEC' ) or die('Restricted access');
 					<?php if ($this->config->show_file_size) : ?>
 						<li class="list-group-item">
 							<span class="info">
-								<?php echo (isset($this->file->filesize) ? $this->file->filesize : $this->file->size) ?>
+								<?php echo (!empty($this->file->filesize) ? $this->file->filesize : $this->file->size) ?>
 							</span>
 							<i class="rsicon-file"></i> <?php echo JText::_("COM_RSFILES_FILE_SIZE"); ?>
 						</li>
