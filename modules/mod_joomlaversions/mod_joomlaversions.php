@@ -4,7 +4,7 @@
  * @subpackage  mod_joomlaversions
  *
  * @copyright   Copyright (C) 2016 Joomla! Community. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @license     GNU General Public License version 2 or later
  */
 
 defined('_JEXEC') or die;

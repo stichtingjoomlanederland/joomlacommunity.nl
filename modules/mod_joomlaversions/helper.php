@@ -4,7 +4,7 @@
  * @subpackage  mod_joomlaversions
  *
  * @copyright   Copyright (C) 2016 Joomla! Community. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @license     GNU General Public License version 2 or later
  */
 
 defined('_JEXEC') or die;
@@ -22,7 +22,11 @@ class ModJoomlaVersionsHelper
 	/**
 	 * Get all the versions from joomla.org
 	 *
-	 * @return array
+	 * @param   string  $url  Update url to the XML file
+	 *
+	 * @return  array
+	 *
+	 * @since   1.0.0
 	 */
 	private static function getJoomlaVersions($url)
 	{
@@ -57,6 +61,8 @@ class ModJoomlaVersionsHelper
 	 * @param   array  $prefixes  Filter prefix
 	 *
 	 * @return  array
+	 *
+	 * @since   1.0.0
 	 */
 	private static function getLatest($versions, $prefixes)
 	{
@@ -64,9 +70,12 @@ class ModJoomlaVersionsHelper
 
 		foreach ($prefixes as $prefix)
 		{
-			$tmp = array_filter($versions, function($elem) use ($prefix) {
-				return substr($elem, 0, 1) == $prefix;
-			});
+			$tmp = array_filter(
+				$versions,
+				function($elem) use ($prefix) {
+					return substr($elem, 0, 1) == $prefix;
+				}
+			);
 
 			if (empty($tmp))
 			{
@@ -82,7 +91,9 @@ class ModJoomlaVersionsHelper
 	/**
 	 * Get the latest Joomla! version
 	 *
-	 * @return array
+	 * @return mixed  array on success, false when there is no respone
+	 *
+	 * @since  1.0.0
 	 */
 	public static function getAjax()
 	{

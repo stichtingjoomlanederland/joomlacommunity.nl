@@ -4,7 +4,7 @@
  * @subpackage  mod_joomlaversions
  *
  * @copyright   Copyright (C) 2016 Joomla! Community. All rights reserved.
- * @license     GNU General Public License version 2 or later; see LICENSE.txt
+ * @license     GNU General Public License version 2 or later
  */
 
 defined('_JEXEC') or die;
@@ -28,7 +28,7 @@ defined('_JEXEC') or die;
 				dataType: 'json',
 				success: function (response) {
 					$.each(response, function(index, value) {
-						$('.latest_version').append('<div class="jversion">' + value + '</div>');
+						$('.latest_version').append('<div class="jversion"><span class="icon icon-joomla"></span><span class="text">' + value + '</span></div>');
 					});
 				},
 				error: function (response) {
