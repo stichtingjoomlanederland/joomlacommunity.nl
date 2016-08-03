@@ -53,7 +53,7 @@ $params  = $this->state->get('params');
 		<fieldset>
 			<div class="row-fluid">
 				<!-- Left column -->
-				<div class="content-8">
+				<div class="col-md-8">
 					<?php echo JHtml::_('bootstrap.startTabSet', 'pfe', array('active' => 'editor')); ?>
 
 					<!-- Editor tab -->
@@ -130,7 +130,7 @@ $params  = $this->state->get('params');
 				</div><!-- End Left column -->
 
 				<!-- Right column -->
-				<div class="content-4">
+				<div class="col-md-4">
 					<div class="well">
 						<h3 class="page-header"><?php echo JText::_('PLG_PERFECTFRONTENDEDITING_FORM_PUBLICATIONDETAILS') ?></h3>
 						<?php echo $this->form->renderField('state'); ?>

@@ -5,7 +5,10 @@
 
 	img {
 		width: 100%;
-		border-radius: @border-radius-base;
+
+	  	@media (min-width: @screen-md) {
+		  border-radius : @border-radius-base;
+		}
 	}
 
 	@media (min-width: @screen-md) {
@@ -32,8 +35,11 @@
 
 	img {
 		width: 100%;
-		border-top-left-radius: @border-radius-base;
-		border-bottom-right-radius: @border-radius-base;
+
+	  	@media (min-width: @screen-md) {
+		  border-top-left-radius: @border-radius-base;
+		  border-bottom-right-radius: @border-radius-base;
+	  	}
 	}
 }
 

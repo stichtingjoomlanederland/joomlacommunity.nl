@@ -56,14 +56,14 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
 		</div>
 	<?php endif; ?>
 	<div class="row">
-		<div class="col-md-2">
-			<?php if ($image == 'small'): ?>
-				<div class="photoboxsmall<?php if ($images->float_intro == 'right'): ?> logo<?php endif; ?>">
-					<img src="<?php echo($images->image_intro); ?>"/>
-				</div>
-			<?php endif; ?>
-			<div class="item-meta">
-				<?php if ($showArticleInformation != false) : ?>
+		<?php if ($showArticleInformation != false) : ?>
+			<div class="col-md-2">
+				<?php if ($image == 'small'): ?>
+					<div class="photoboxsmall<?php if ($images->float_intro == 'right'): ?> logo<?php endif; ?>">
+						<img src="<?php echo($images->image_intro); ?>"/>
+					</div>
+				<?php endif; ?>
+				<div class="item-meta">
 					<?php if ($params->get('show_author')) : ?>
 						<div class="auteur-info">
 							<?php
@@ -110,23 +110,22 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
 							</p>
 						</div>
 					<?php endif; ?>
-				<?php endif; ?>
-
-				<div class="item-share full">
-					<?php
-					$data = array(
-						'title'      => 'Share',
-						'facebook'   => true,
-						'twitter'    => true,
-						'googleplus' => true,
-						'item'       => $this->item
-					);
-					echo JLayoutHelper::render('template.snippet-share-page', $data);
-					?>
+					<div class="item-share full">
+						<?php
+						$data = array(
+							'title'      => 'Share',
+							'facebook'   => true,
+							'twitter'    => true,
+							'googleplus' => true,
+							'item'       => $this->item
+						);
+						echo JLayoutHelper::render('template.snippet-share-page', $data);
+						?>
+					</div>
 				</div>
 			</div>
-		</div>
-		<div class="col-md-9">
+		<?php endif; ?>
+		<div class="<?php echo ($showArticleInformation ? "col-md-9" : "col-md-10 col-md-push-1"); ?>">
 			<div class="item">
 				<div class="page-header">
 					<?php if ($params->get('show_title')) : ?>

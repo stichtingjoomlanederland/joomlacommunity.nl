@@ -123,7 +123,7 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
 			</div>
 		</div>
 
-		<div class="col-8">
+		<div class="col-md-9">
 			<div class="item">
 				<div class="page-header">
 					<?php if ($params->get('show_title')) : ?>
