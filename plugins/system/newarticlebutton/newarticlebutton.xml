@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.1" type="plugin" group="system" method="upgrade">
+	<name>plg_system_newarticlebutton</name>
+	<author>Niels van der Veer</author>
+	<creationDate>July 2016</creationDate>
+	<copyright>Copyright (C) 2016 Niels van der Veer. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later</license>
+	<authorEmail>n.i.vdveer@gmail.com</authorEmail>
+	<authorUrl>www.nielsvanderveer.me</authorUrl>
+	<version>1.0.0</version>
+	<description>PLG_SYSTEM_NEWARTICLEBUTTON_XML_DESCRIPTION</description>
+	<files>
+		<filename plugin="newarticlebutton">newarticlebutton.php</filename>
+		<folder>tmpl</folder>
+	</files>
+	<languages folder="language">
+		<language tag="nl-NL">nl-NL/nl-NL.plg_system_newarticlebutton.ini</language>
+		<language tag="nl-NL">nl-NL/nl-NL.plg_system_newarticlebutton.sys.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_system_newarticlebutton.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_system_newarticlebutton.sys.ini</language>
+	</languages>
+	<updateservers>
+		<server type="extension" priority="2" name="New Article Button update server">https://raw.githubusercontent.com/n9iels/plg_system_newarticlebutton/master/update.xml</server>
+	</updateservers>
+	<config>
+	</config>
+</extension>
