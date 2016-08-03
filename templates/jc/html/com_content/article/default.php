@@ -46,7 +46,7 @@ $profile->facebook = $userparams->get('facebook', '');
 $profile->linkedin = $userparams->get('linkedin', '');
 
 // Determ if the article information column must be shown or not
-$showArticleInformation = ($params->get('show_create_date') && $params->get('show_category') && $params->get('show_author'));
+$showArticleInformation = ($params->get('show_create_date') || $params->get('show_category') || $params->get('show_author'));
 
 ?>
 <div class="well <?php echo ($image == 'large' ? 'photoheader' : ''); ?>">
@@ -56,65 +56,77 @@ $showArticleInformation = ($params->get('show_create_date') && $params->get('sho
 		</div>
 	<?php endif; ?>
 	<div class="row">
-		<?php if ($showArticleInformation != false) : ?>
-			<div class="col-2">
-				<?php if ($image == 'small'): ?>
-					<div class="photoboxsmall<?php if ($images->float_intro == 'right'): ?> logo<?php endif; ?>">
-						<img src="<?php echo($images->image_intro); ?>"/>
-					</div>
-				<?php endif; ?>
-				<div class="item-meta">
+		<div class="col-md-2">
+			<?php if ($image == 'small'): ?>
+				<div class="photoboxsmall<?php if ($images->float_intro == 'right'): ?> logo<?php endif; ?>">
+					<img src="<?php echo($images->image_intro); ?>"/>
+				</div>
+			<?php endif; ?>
+			<div class="item-meta">
+				<?php if ($showArticleInformation != false) : ?>
+					<?php if ($params->get('show_author')) : ?>
+						<div class="auteur-info">
+							<?php
+							if (!empty($this->item->created_by_alias)) : ?>
+								<strong>Door</strong>
+								<p>
+									<?php echo $this->item->created_by_alias; ?>
+								</p>
+							<?php else: ?>
+								<p>
+									<a href="<?php echo $profile->getLink(); ?>">
+										<img class="img-circle" width="80px" src="<?php echo $profile->getAvatar(); ?>"/>
+									</a>
+								</p>
+								<p>
+									<?php echo JHtml::_('link', $profile->getLink(), $profile->user->get('name')); ?>
+								</p>
+							<?php endif; ?>
+						</div>
+					<?php endif; ?>
+
 					<?php if ($params->get('show_create_date')) : ?>
-					<div class="item-datum">
-						<strong>Datum</strong>
-						<p>
-							<time class="post-date"><?php echo JHtml::_('date', $this->item->created, JText::_('j F Y')); ?></time>
-						</p>
-					</div>
+						<div class="item-datum">
+							<strong>Datum</strong>
+							<p>
+								<time class="post-date"><?php echo JHtml::_('date', $this->item->created, JText::_('j F Y')); ?></time>
+							</p>
+						</div>
 					<?php endif; ?>
 
 					<?php if ($params->get('show_category')) : ?>
-					<div class="item-categorie">
-						<strong>Categorie</strong>
-						<p>
-							<time class="post-date">
-								<?php $title = $this->escape($this->item->category_title);
-								$url         = '<a href="' . JRoute::_(ContentHelperRoute::getCategoryRoute($this->item->catslug)) . '">' . $title . '</a>'; ?>
-								<?php if ($params->get('link_category') && $this->item->catslug) : ?>
-									<?php echo $url; ?>
-								<?php else : ?>
-									<?php echo $title; ?>
-								<?php endif; ?>
-							</time>
-						</p>
-					</div>
+						<div class="item-categorie">
+							<strong>Categorie</strong>
+							<p>
+								<time class="post-date">
+									<?php $title = $this->escape($this->item->category_title);
+									$url         = '<a href="' . JRoute::_(ContentHelperRoute::getCategoryRoute($this->item->catslug)) . '">' . $title . '</a>'; ?>
+									<?php if ($params->get('link_category') && $this->item->catslug) : ?>
+										<?php echo $url; ?>
+									<?php else : ?>
+										<?php echo $title; ?>
+									<?php endif; ?>
+								</time>
+							</p>
+						</div>
 					<?php endif; ?>
+				<?php endif; ?>
 
-					<?php if ($params->get('show_author')) : ?>
-					<div class="item-auteur">
-						<strong>Door</strong>
-						<p>
-							<?php echo JHtml::_('link', $profile->getLink(), $profile->user->get('name')); ?>
-						</p>
-					</div>
-					<?php endif; ?>
-
-					<div class="item-share full">
-						<?php
-						$data = array(
-							'title'      => 'Share',
-							'facebook'   => true,
-							'twitter'    => true,
-							'googleplus' => true,
-							'item'       => $this->item
-						);
-						echo JLayoutHelper::render('template.snippet-share-page', $data);
-						?>
-					</div>
+				<div class="item-share full">
+					<?php
+					$data = array(
+						'title'      => 'Share',
+						'facebook'   => true,
+						'twitter'    => true,
+						'googleplus' => true,
+						'item'       => $this->item
+					);
+					echo JLayoutHelper::render('template.snippet-share-page', $data);
+					?>
 				</div>
 			</div>
-		<?php endif; ?>
-		<div class="<?php echo ($showArticleInformation ? 'col-8' : 'col-12'); ?>">
+		</div>
+		<div class="col-md-9">
 			<div class="item">
 				<div class="page-header">
 					<?php if ($params->get('show_title')) : ?>
@@ -139,12 +151,16 @@ $showArticleInformation = ($params->get('show_create_date') && $params->get('sho
 		</div>
 	</div>
 
-	<?php if ($showArticleInformation != false) : ?>
+	<?php if ($params->get('show_author') && empty($this->item->created_by_alias)) : ?>
 	<div class="row articleinfo">
 		<div class="col-sm-2 author-img">
-			<a href="<?php echo $profile->getLink(); ?>">
-				<img class="img-circle" src="<?php echo $profile->getAvatar(); ?>"/>
-			</a>
+			<?php if (!empty($this->item->created_by_alias)) : ?>
+				<?php echo $this->item->created_by_alias; ?>
+			<?php else: ?>
+				<a href="<?php echo $profile->getLink(); ?>">
+					<img class="img-circle" src="<?php echo $profile->getAvatar(); ?>"/>
+				</a>
+			<?php endif; ?>
 		</div>
 		<div class="col-sm-10">
 			<h4><a href="<?php echo $profile->getLink(); ?>"><?php echo $profile->nickname; ?></a></h4>
