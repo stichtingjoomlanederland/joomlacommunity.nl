@@ -336,7 +336,7 @@ class ThisTemplateHelper
 
 		if (isset($this->doc->_script['text/javascript']))
 		{
-			$this->doc->_script['text/javascript'] = preg_replace('%jQuery\(function\(\$\) {\s*SqueezeBox.initialize\(\{\}\);\s*SqueezeBox.assign\(\$\(\'.rs_modal\'\).get\(\), \{\s*parse: \'rel\'\s*\}\);\s*\}\);\s*window.jModalClose\(\) = function(\) \{\s*SqueezeBox.close\(\);\s*\}%', '', $this->doc->_script['text/javascript']);
+			$this->doc->_script['text/javascript'] = preg_replace('%jQuery\(function\(\$\) {\s*SqueezeBox.initialize\(\{\}\);\s*SqueezeBox.assign\(\$\(\'.rs_modal\'\).get\(\), \{\s*parse: \'rel\'\s*\}\);\s*\}\);\s*window.jModalClose = function \(\) \{\s*SqueezeBox.close\(\);\s*\}%', '', $this->doc->_script['text/javascript']);
 
 			// Unset completly if empty
 			if (empty($this->doc->_script['text/javascript']))
