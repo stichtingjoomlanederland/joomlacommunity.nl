@@ -55,15 +55,15 @@ abstract class RSFirewallSnapshot
 		return $return;
 	}
 	
-	public static function check($current, $snapshot) {
+	public static function modified($current, $snapshot) {
 		foreach ($snapshot as $key => $value) {
 			if ($key == 'user_id') continue;
 			if ($key == 'adjacent') continue;
 			if ($current->$key != $value)
-				return false;
+				return array('key' => $key, 'value' => $current->$key, 'snapshot' => $value);
 		}
 		
-		return true;
+		return false;
 	}
 	
 	public static function replace($snapshot, $update = false) {

@@ -7,5 +7,6 @@ CREATE TABLE IF NOT EXISTS `#__rsfirewall_lists` (
   `published` tinyint(1) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `published` (`published`),
-  KEY `type` (`type`)
+  KEY `type` (`type`),
+  KEY `ip` (`ip`)
 ) DEFAULT CHARSET=utf8;

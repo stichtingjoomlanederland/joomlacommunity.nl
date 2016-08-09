@@ -301,7 +301,28 @@ class RSFirewallModelRSFirewall extends JModelLegacy
 		
 		return true;
 	}
-	
+
+	public function getCountryBlocking()
+	{
+		$countries = $this->config->get('blocked_countries');
+		if (!empty($countries))
+		{
+			return true;
+		}
+		return false;
+	}
+
+	public function getGeoIpStatus(){
+		require_once JPATH_ADMINISTRATOR . '/components/com_rsfirewall/models/configuration.php';
+		$model = new RSFirewallModelConfiguration();
+
+		if($model->getIsGeoIPUploaded() || $model->isGeoIPNative()){
+			return true;
+		}
+
+		return false;
+	}
+
 	public function isPluginEnabled() {
 		return JPluginHelper::isEnabled('system', 'rsfirewall');
 	}

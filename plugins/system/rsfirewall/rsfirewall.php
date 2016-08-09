@@ -847,12 +847,11 @@ class plgSystemRSFirewall extends JPlugin
 		if ($days > 0) {
 			$date = JFactory::getDate();
 			$date->modify('-' . $days . ' days');
-			$date = $date->toSql();
 
 			$db = JFactory::getDbo();
 			$query = $db->getQuery(true)
 				->delete('#__rsfirewall_logs')
-				->where($db->qn('date') . ' < ' . $db->q($date) . ' LIMIT 50');
+				->where($db->qn('date') . ' < ' . $db->q($date->toSql()) . ' LIMIT 50');
 			$db->setQuery($query);
 			$db->execute();
 		}
@@ -1015,9 +1014,16 @@ class plgSystemRSFirewall extends JPlugin
 					// if the user exists and the snapshot information doesn't match
 					// OR if the user doesn't exist
 					// replace with the snapshot information
-					if (($user && !RSFirewallSnapshot::check($user, $snapshot)) || !$user) {
+					if (empty($user) || ($modified = RSFirewallSnapshot::modified($user, $snapshot))) {
 						RSFirewallSnapshot::replace($snapshot, !empty($user));
-						$this->logger->add('critical', 'PROTECTED_USER_CHANGE_ATTEMPT', $user->username)->save();
+						
+						if (empty($user)) {
+							$debug = JText::sprintf('COM_RSFIREWALL_MISSING_USER', $snapshot->username);
+						} else {
+							$debug = JText::sprintf('COM_RSFIREWALL_MODIFIED_DATA', $snapshot->username, $modified['key'], $modified['snapshot'], $modified['value']);
+						}
+						
+						$this->logger->add('critical', 'PROTECTED_USER_CHANGE_ATTEMPT', $debug)->save();
 					}
 				}
 			}

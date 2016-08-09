@@ -203,8 +203,10 @@ class RSFirewallControllerFix extends JControllerLegacy
 		$data->result 	= true;
 		
 		$tmp = $checkModel->getTemporaryFolder();
-		
-		if ($tmp == JPATH_SITE || realpath($tmp) == realpath(JPATH_SITE) || $tmp == '' || $tmp == '/tmp' || realpath($tmp) == '') {
+		/**
+		 * Check if the Joomla! temporary folder is wrongfully set
+		 */
+		if ($tmp == JPATH_SITE || realpath($tmp) == realpath(JPATH_SITE) || $tmp == '' || $tmp == '/tmp' || realpath($tmp) == '' || strpos(JPATH_SITE, $tmp) === 0) {
 			$data->result  = false;
 			$data->message = JText::sprintf('COM_RSFIREWALL_TEMPORARY_FOLDER_INCORRECTLY_SET', $tmp);
 		} else {

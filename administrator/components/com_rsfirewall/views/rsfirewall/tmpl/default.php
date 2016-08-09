@@ -24,6 +24,12 @@ defined('_JEXEC') or die('Restricted access');
 			<?php } ?>
 			<?php if ($this->canViewLogs) { ?>
 				<?php echo $this->loadTemplate('charts'); ?>
+				<?php
+				if ($this->renderMap)
+				{
+					echo $this->loadTemplate('vectormap');
+				}
+				?>
 				<h2><?php echo JText::sprintf('COM_RSFIREWALL_LAST_MESSAGES_FROM_SYSTEM_LOG', $this->logNum); ?></h2>
 				<?php echo $this->loadTemplate('logs'); ?>
 			<?php } ?>

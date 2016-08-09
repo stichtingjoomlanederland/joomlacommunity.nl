@@ -978,9 +978,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.10.9</h2>
+	<h2>Changelog v1.10.10</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">FIX</span> Improved query performance.</li>
+		<li><span class="version-fixed">Fix</span> Deleted events were preventing the restoration from completing.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>

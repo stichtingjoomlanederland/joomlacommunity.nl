@@ -38,6 +38,9 @@ class RSFirewallCaptcha
 	}
 	
 	public function showImage($width=80,$height=45,$chars=4,$dots=1,$lines=1) {
+		if (function_exists('ob_end_clean') && is_callable('ob_end_clean')) {
+			@ob_end_clean();
+		}
 		if (!function_exists('imagecreate')) {
 			$this->close('imagecreate() not available.');
 		}

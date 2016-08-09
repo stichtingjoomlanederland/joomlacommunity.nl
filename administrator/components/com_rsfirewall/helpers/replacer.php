@@ -188,17 +188,10 @@ class RSFirewallReplacer
 		}
 		
 		if ($emails) {
-			$string  = '';
-			$string .= "\r\n".'<script type="text/javascript">function rsfirewall_mail(what){';
-			foreach ($emails as $mail)
-				$string .= "\nif (what == 'rsfirewall_".$mail['id']."')"."\ndocument.getElementById(what).src = '".JRoute::_('index.php?option=com_rsfirewall&task=mail&string='.$mail['encoded_mail'])."';\r\n";
-			$string .= '}</script>';
-			$text = str_replace('</body>', $string.'</body>', $text);
-			
-			return true;
+			$text = str_replace('</body>', '<script type="text/javascript" src="'.JUri::root(true).'/components/com_rsfirewall/assets/js/rsfirewall.js"></script></body>', $text);
 		}
 		
-		return false;
+		return !empty($emails);
 	}
 	
 	protected static function _searchPattern($link, $text) {
@@ -213,22 +206,51 @@ class RSFirewallReplacer
 		$id 		 = uniqid('');
 		$_mail['id'] = $id;
 		if (!empty($params['mail'])) {
-			$mail = $params['mail'];
-			$encoded_mail = base64_encode($mail);
-			$_mail['encoded_mail'] = $encoded_mail;
-			$_mail['mail'] = $mail;
-			$replacement = '<img src="'.JRoute::_('index.php?option=com_rsfirewall&task=cloak&string='.$encoded_mail).'" style="cursor: pointer; vertical-align: middle" alt="" onclick="rsfirewall_mail(\'rsfirewall_'.$id.'\')" />';
+			$_mail['encoded_mail'] 	= base64_encode($params['mail']);
+			$_mail['mail'] 			= $params['mail'];
+			
+			$replacement = '<a href="javascript:void(0);" onclick="RSFirewallMail(\''.$_mail['encoded_mail'].'\')" class="rsfirewall_emails_a"><img src="'.htmlentities(self::getImageString($params['mail']), ENT_COMPAT, 'utf-8').'" style="vertical-align: middle" class="rsfirewall_emails_img" alt="." /></a>';
 		}
 		
 		if (!empty($params['mailText'])) {
 			$mailText = $params['mailText'];
 			$_mail['mailText'] = $mailText;
-			$replacement = '<a href="javascript: void(0)" onclick="rsfirewall_mail(\'rsfirewall_'.$id.'\')">'.$mailText.'</a>';
+			$replacement = $mailText;
 		}
 		
 		$emails[] = $_mail;
 		
-		$replacement .= '<iframe src="" style="display: none; position: absolute; left: -1000px; top: -1000px;" width="0%" height="0%" id="rsfirewall_'.$id.'"></iframe>';
 		return $replacement;
+	}
+	
+	protected static function getImageString($mail) {
+		if (function_exists('imagecreate')) {
+			$length = strlen($mail);
+			$size = 15;
+	 
+			$imagelength = $length*7;
+			$imageheight = $size;
+			$image       = imagecreate($imagelength, $imageheight);
+			$usebgrcolor = sscanf('#FFFFFF', '#%2x%2x%2x');
+			$usestrcolor = sscanf('#000000', '#%2x%2x%2x');
+
+			$bgcolor     = imagecolorallocate($image, $usebgrcolor[0], $usebgrcolor[1], $usebgrcolor[2]);
+			$stringcolor = imagecolorallocate($image, $usestrcolor[0], $usestrcolor[1], $usestrcolor[2]);
+			
+			imagestring($image, 3, 0, 0,  $mail, $stringcolor); 
+			
+			ob_start();
+			imagegif($image);
+			imagedestroy($image);
+			$data = ob_get_contents();
+			ob_end_clean();
+			
+			return 'data:image/gif;base64,'.base64_encode($data);
+		} else {
+			// disable if image creation doesn't work
+			RSFirewallConfig::getInstance()->set('verify_emails', 0);
+		}
+		
+		return '';
 	}
 }

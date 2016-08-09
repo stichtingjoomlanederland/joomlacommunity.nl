@@ -95,4 +95,12 @@ INSERT IGNORE INTO `#__rsfirewall_signatures` (`signature`, `type`, `reason`) VA
 ('eval\\(\\$[a-zA-Z0-9]+\\(\\$[a-zA-Z0-9]+\\(\\$[a-zA-Z0-9]+', 'regex', 'PHP Injection - Obfuscated code'),
 ('if\\(\\$_POST\\[''golden''\\]\\=\\="Done"\\)', 'regex', 'PHP Injection - File uploader'),
 ('chr\\(\\([0-9]+\\-[0-9]+\\)\\)', 'regex', 'Possible PHP Injection - Obfuscated code'),
-('eval\\/\\*(.*)\\*\\/\\(', 'regexis', 'Obfuscated eval()');
+('eval\\/\\*(.*)\\*\\/\\(', 'regexis', 'Obfuscated eval()'),
+('(realstatistics\\.(info|pro)|realanalytics\\.pro|siteanalytics\\.pro|webstatistics\\.pro|adobesecurupdate\\.com|microsoft-securety\\.com)', 'regexis', 'Realstatistics Malware'),
+('(\\$[a-z]+)\\("[a-z]",\\s?"",\\s?"[a-z0-9_]+"\\)', 'regexis', 'PHP Injection - Obfuscated function name'),
+('(\\$func=("[a-z_]+"[\\.]){4,})' , 'regexis', 'PHP Injection - Obfuscated function name'),
+('(\\$[a-z0-9]+\\{[0-9]+\\}\\s?\\.?\\s?){10,}', 'regexis', 'PHP Injection - Obfuscated function name'),
+('(\\[(SHELL|ZAD)\\ID])', 'regexs', 'PHP Injection - Mass mailer'),
+('die\\(md5\\(\\''[a-z0-9_]+\\''\\)\\);', 'regexis', 'PHP Injection - Shell'),
+('(@(\\$[a-z0-9]+\\(){4,})', 'regexis', 'PHP Injection - Obfuscated function call'),
+('([a-z0-9_]+\\/\\*(.*?)\\*\\/\\()', 'regex', 'PHP Injection - Obfuscated function call');
