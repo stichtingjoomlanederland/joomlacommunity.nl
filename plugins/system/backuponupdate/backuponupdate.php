@@ -154,8 +154,9 @@ class plgSystemBackuponupdate extends JPlugin
 				$profileId = 1;
 			}
 
-			// Get the return URL
-			$return_url = JUri::base() . 'index.php?option=com_joomlaupdate&task=update.install&is_backed_up=1';
+			// Get the return URL (Joomla uses a different token)
+			$jtoken = JFactory::getSession()->getFormToken();
+			$return_url = JUri::base() . 'index.php?option=com_joomlaupdate&task=update.install&is_backed_up=1&'.$jtoken.'=1';
 
 			// Get the redirect URL
 			$token        = JFactory::getSession()->getToken();

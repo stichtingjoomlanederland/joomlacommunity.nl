@@ -39,6 +39,10 @@ else
 {
 	$image = 'none';
 }
+
+// Determ if the article information column must be shown or not
+$showArticleInformation = ($params->get('show_create_date') || $params->get('show_category') || $params->get('show_author'));
+
 ?>
 <div class="well <?php echo ($image == 'large' ? 'photoheader' : ''); ?>">
 	<?php if ($image == 'large'): ?>
@@ -55,36 +59,54 @@ else
 			<?php endif; ?>
 
 			<div class="item-meta">
-				<div class="auteur-info">
-					<p>
-						<a href="<?php echo $profile->getLink(); ?>">
-							<img class="img-circle" width="80px" src="<?php echo $profile->getAvatar(); ?>"/>
-						</a>
-					</p>
-					<?php echo JHtml::_('link', $profile->getLink(), $profile->user->get('name')); ?>
-				</div>
-
-				<div class="item-datum">
-					<strong>Datum</strong>
-					<p>
-						<time class="post-date"><?php echo JHtml::_('date', $this->item->created, JText::_('j F Y')); ?></time>
-					</p>
-				</div>
-
-				<div class="item-categorie">
-					<strong>Categorie</strong>
-					<p>
-						<time class="post-date">
-							<?php if ($params->get('link_category') && $this->item->catslug) : ?>
-								<a href="<?php echo JRoute::_(ContentHelperRoute::getCategoryRoute($this->item->catslug)); ?>">
-									<?php echo $this->escape($this->item->category_title); ?>
-								</a>
-							<?php else : ?>
-								<?php echo $this->escape($this->item->category_title); ?>
+				<?php if ($showArticleInformation != false) : ?>
+					<?php if ($params->get('show_author')) : ?>
+						<div class="auteur-info">
+							<?php
+							if (!empty($this->item->created_by_alias)) : ?>
+								<strong>Door</strong>
+								<p>
+									<?php echo $this->item->created_by_alias; ?>
+								</p>
+							<?php else: ?>
+								<p>
+									<a href="<?php echo $profile->getLink(); ?>">
+										<img class="img-circle" width="80px" src="<?php echo $profile->getAvatar(); ?>"/>
+									</a>
+								</p>
+								<p>
+									<?php echo JHtml::_('link', $profile->getLink(), $profile->user->get('name')); ?>
+								</p>
 							<?php endif; ?>
-						</time>
-					</p>
-				</div>
+						</div>
+					<?php endif; ?>
+
+					<?php if ($params->get('show_create_date')) : ?>
+						<div class="item-datum">
+							<strong>Datum</strong>
+							<p>
+								<time class="post-date"><?php echo JHtml::_('date', $this->item->created, JText::_('j F Y')); ?></time>
+							</p>
+						</div>
+					<?php endif; ?>
+
+					<?php if ($params->get('show_category')) : ?>
+						<div class="item-categorie">
+							<strong>Categorie</strong>
+							<p>
+								<time class="post-date">
+									<?php $title = $this->escape($this->item->category_title);
+									$url         = '<a href="' . JRoute::_(ContentHelperRoute::getCategoryRoute($this->item->catslug)) . '">' . $title . '</a>'; ?>
+									<?php if ($params->get('link_category') && $this->item->catslug) : ?>
+										<?php echo $url; ?>
+									<?php else : ?>
+										<?php echo $title; ?>
+									<?php endif; ?>
+								</time>
+							</p>
+						</div>
+					<?php endif; ?>
+				<?php endif; ?>
 
 				<div class="item-share full">
 					<?php
@@ -101,7 +123,7 @@ else
 			</div>
 		</div>
 
-		<div class="col-8">
+		<div class="col-md-9">
 			<div class="item">
 				<div class="page-header">
 					<?php if ($params->get('show_title')) : ?>

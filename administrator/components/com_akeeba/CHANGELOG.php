@@ -1,4 +1,8 @@
 <?php die();?>
+Akeeba Backup 5.1.4
+================================================================================
+# [MEDIUM] Updated "Backup on Update" plugin to be compatible with Joomla 3.6.1 and later
+
 Akeeba Backup 5.1.3
 ================================================================================
 + Automatically handle unsupported database storage engines when restoring MySQL databases
