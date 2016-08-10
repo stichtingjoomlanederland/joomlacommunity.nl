@@ -141,7 +141,18 @@ class RSFirewallControllerLogs extends JControllerAdmin
 		$this->setMessage(JText::sprintf('COM_RSFIREWALL_ADD_FROM_LOG_ITEM_SAVED_OK', $added));
 		$this->setRedirect('index.php?option=com_rsfirewall&view=logs');
 	}
-	
+
+	public function getStatistics(){
+		$model = $this->getModel('Logs');
+		$data  = $model->getBlockedIps();
+
+		if(empty($data)){
+			$data = new stdClass();
+		};
+
+		$this->showResponse(true, $data);
+	}
+
 	protected function showResponse($success, $data=null) {
 		// set JSON encoding
 		JFactory::getDocument()->setMimeEncoding('application/json');

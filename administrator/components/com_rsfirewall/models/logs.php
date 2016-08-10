@@ -19,16 +19,16 @@ class RSFirewallModelLogs extends JModelList
 
 		parent::__construct($config);
 	}
-	
+
 	protected function getListQuery() {
 		$db 	= JFactory::getDBO();
 		$query 	= $db->getQuery(true);
-		
+
 		// get filtering states
 		$search 		= $this->getState('filter.search');
 		$level 			= $this->getState('filter.level');
 		$blocked_status = $this->getState('filter.blocked_status');
-		
+
 		$query	->select($db->qn('logs').'.*')
 				->select($db->qn('#__rsfirewall_lists').'.'.$db->qn('type'))
 				->select($db->qn('#__rsfirewall_lists').'.'.$db->qn('id', 'listId'))
@@ -65,13 +65,13 @@ class RSFirewallModelLogs extends JModelList
 					break;
 			}
 		}
-		
+
 		// order by
 		$query->order($db->escape($this->getState('list.ordering', 'logs.date')).' '.$db->escape($this->getState('list.direction', 'desc')));
-		
+
 		return $query;
 	}
-	
+
 	protected function populateState($ordering = null, $direction = null) {
 		$this->setState('filter.search', $this->getUserStateFromRequest($this->context.'.filter.search', 'filter_search'));
 		$this->setState('filter.level',  $this->getUserStateFromRequest($this->context.'.filter.level',  'filter_level'));
@@ -80,7 +80,7 @@ class RSFirewallModelLogs extends JModelList
 		// List state information.
 		parent::populateState('logs.date', 'desc');
 	}
-	
+
 	public function getLevels()
 	{
 		return array(
@@ -98,32 +98,32 @@ class RSFirewallModelLogs extends JModelList
 			JHtml::_('select.option', '1', JText::_('COM_RSFIREWALL_BLOCKED'))
 		);
 	}
-	
+
 	public function toCSV() {
 		// Get Dbo
 		$db = JFactory::getDbo();
-		
+
 		// Populate state so filters and ordering is available.
 		$this->populateState();
-		
+
 		// Get results
 		$results = $db->setQuery($this->getListQuery())->loadAssocList();
-		
+
 		// Error on no results
 		if (!$results) {
 			throw new Exception(JText::_('COM_RSFIREWALL_NOT_ENOUGH_RESULTS_TO_OUTPUT'));
 		}
-		
+
 		// Load GeoIP helper class
 		require_once JPATH_ADMINISTRATOR.'/components/com_rsfirewall/helpers/geoip/geoip.php';
 		$geoip = RSFirewallGeoIP::getInstance();
-		
+
 		$out = @fopen('php://output', 'w');
-		
+
 		if (!is_resource($out)) {
 			throw new Exception(JText::_('COM_RSFIREWALL_COULD_NOT_OPEN_PHP_OUTPUT'));
 		}
-		
+
 		// Get CSV headers
 		$columns = array(
 			JText::_('COM_RSFIREWALL_ALERT_LEVEL'),
@@ -136,45 +136,72 @@ class RSFirewallModelLogs extends JModelList
 			JText::_('COM_RSFIREWALL_LOG_DESCRIPTION'),
 			JText::_('COM_RSFIREWALL_LOG_DEBUG_VARIABLES')
 		);
-		
+
 		// Write CSV headers
 		if (fputcsv($out, $columns, ',', '"') === false) {
 			throw new Exception(JText::_('COM_RSFIREWALL_COULD_NOT_WRITE_PHP_OUTPUT'));
 		}
-		
+
 		foreach ($results as $result) {
 			// Prettify results
 			$result['level'] = JText::_('COM_RSFIREWALL_LEVEL_'.$result['level']);
 			$result['date']  = JHTML::_('date', $result['date'], 'Y-m-d H:i:s');
 			$result['code']  = JText::_('COM_RSFIREWALL_EVENT_'.$result['code']);
-			
+
 			// Add country code if available
 			if ($country = $geoip->getCountryCode($result['ip'])) {
 				$result['ip'] = sprintf('(%s) %s', $country, $result['ip']);
 			}
-			
+
 			// Remove unneeded headers
 			unset($result['type']);
 			unset($result['listId']);
 			unset($result['id']);
-			
+
 			// Write CSV row
 			if (fputcsv($out, $result, ',', '"') === false) {
 				throw new Exception(JText::_('COM_RSFIREWALL_COULD_NOT_WRITE_PHP_OUTPUT'));
 			}
 		}
-		
+
 		fclose($out);
 	}
-	
+
+	public function getBlockedIps(){
+		$db 	= JFactory::getDBO();
+		$query = $db->getQuery(true)
+			->select('COUNT('.$db->qn('ip').') AS num')
+			->select($db->qn('ip'))
+			->from($db->qn('#__rsfirewall_logs'))
+			->group($db->qn('ip'));
+		$db->setQuery($query);
+		$results = $db->loadObjectList();
+
+		require_once JPATH_ADMINISTRATOR.'/components/com_rsfirewall/helpers/geoip/geoip.php';
+		$geoip = RSFirewallGeoIP::getInstance();
+
+		$prepared = array();
+		foreach ($results as $result) {
+			$cc = strtolower($geoip->getCountryCode($result->ip));
+			if (empty($prepared[$cc])) {
+				$prepared[$cc] = $result->num;
+			} else {
+				$prepared[$cc] += $result->num;
+			}
+		}
+		unset($results);
+
+		return $prepared;
+	}
+
 	public function getIsJ30() {
 		$jversion = new JVersion();
 		return $jversion->isCompatible('3.0');
 	}
-	
+
 	public function getFilterBar() {
 		require_once JPATH_COMPONENT.'/helpers/adapters/filterbar.php';
-		
+
 		$options = array();
 		$options['search'] = array(
 			'label' => JText::_('JSEARCH_FILTER'),
@@ -206,15 +233,15 @@ class RSFirewallModelLogs extends JModelList
 					.'</select>'
 			)
 		);
-		
+
 		$bar = new RSFilterBar($options);
-		
+
 		return $bar;
 	}
-	
+
 	public function getSideBar() {
 		require_once JPATH_COMPONENT.'/helpers/toolbar.php';
-		
+
 		RSFirewallToolbarHelper::addFilter(
 			JText::_('COM_RSFIREWALL_SELECT_LEVEL'),
 			'filter_level',
@@ -226,7 +253,7 @@ class RSFirewallModelLogs extends JModelList
 			'filter_blocked_status',
 			JHtml::_('select.options', $this->getBlockedStatuses(), 'value', 'text', $this->getState('filter.blocked_status'))
 		);
-		
+
 		return RSFirewallToolbarHelper::render();
 	}
 }

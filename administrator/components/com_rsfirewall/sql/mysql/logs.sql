@@ -9,5 +9,6 @@ CREATE TABLE IF NOT EXISTS `#__rsfirewall_logs` (
   `referer` text NOT NULL,
   `code` varchar(255) NOT NULL,
   `debug_variables` text NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `ip` (`ip`)
 ) DEFAULT CHARSET=utf8;

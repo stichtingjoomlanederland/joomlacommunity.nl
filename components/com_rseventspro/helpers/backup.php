@@ -254,6 +254,8 @@ class RSEBackup {
 		$limit	= $this->limit;
 		$return	= array();
 		
+		$skip_ids = array('ide' => '#__rseventspro_events', 'ids' => '#__rseventspro_users', 'idc' => '#__rseventspro_coupons', 'itd' => '#__rseventspro_tickets');
+		
 		if ($step == 0) {
 			$this->db->truncateTable('#__rseventspro_tmp');
 		}
@@ -282,6 +284,19 @@ class RSEBackup {
 								// Skip columns that are not in the current version of the table
 								if (!in_array($column,$columns)) {
 									continue;
+								}
+								
+								// skip the rows that have ide, ids, idc, itd that do not exists
+								$skip = false;
+								foreach ($skip_ids as $skip_col => $skip_tbl) {
+									if ($column == $skip_col && !$this->getId($hash, $skip_tbl, $value)) {
+										$skip = true;
+									}
+								}
+								
+								if ($skip) {
+									$queries++;
+									continue 2;
 								}
 								
 								if ($column == 'id' && $table != '#__rseventspro_taxonomy') {

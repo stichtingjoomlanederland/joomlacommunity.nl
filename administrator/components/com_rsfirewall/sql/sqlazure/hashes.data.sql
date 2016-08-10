@@ -222,4 +222,16 @@ INSERT INTO [#__rsfirewall_hashes] ([file], [hash], [type]) VALUES
 ('plugins/user/joomla/joomla.php', 'd9337799a4e43640a5717a88c33accf0', '3.5.1'),
 ('plugins/authentication/joomla/joomla.php', 'b5687c0549b50e57a4a7f583324f1487', '3.5.1'),
 ('index.php', 'f81654a86c69fe7cb685905b5305c06d', '3.5.1'),
-('administrator/index.php', 'c1e6484a0bc1df6e179d49ed3956d698', '3.5.1');
+('administrator/index.php', 'c1e6484a0bc1df6e179d49ed3956d698', '3.5.1'),
+('plugins/user/joomla/joomla.php', 'ff9dc38b50f4faf6eb2874bac5bf9b69', '3.6.0'),
+('plugins/authentication/joomla/joomla.php', 'b5687c0549b50e57a4a7f583324f1487', '3.6.0'),
+('index.php', 'f81654a86c69fe7cb685905b5305c06d', '3.6.0'),
+('administrator/index.php', 'c1e6484a0bc1df6e179d49ed3956d698', '3.6.0'),
+('plugins/user/joomla/joomla.php', 'b4298c487c39049b75b7fbc850d257e7', '3.6.1'),
+('plugins/authentication/joomla/joomla.php', '3a8e8ad739d4105d851669f1f2c06c10', '3.6.1'),
+('index.php', 'f81654a86c69fe7cb685905b5305c06d', '3.6.1'),
+('administrator/index.php', 'c1e6484a0bc1df6e179d49ed3956d698', '3.6.1'),
+('plugins/user/joomla/joomla.php', 'b4298c487c39049b75b7fbc850d257e7', '3.6.2'),
+('plugins/authentication/joomla/joomla.php', '3a8e8ad739d4105d851669f1f2c06c10', '3.6.2'),
+('index.php', 'f81654a86c69fe7cb685905b5305c06d', '3.6.2'),
+('administrator/index.php', 'c1e6484a0bc1df6e179d49ed3956d698', '3.6.2');

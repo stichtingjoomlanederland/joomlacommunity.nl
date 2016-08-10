@@ -599,6 +599,13 @@ class com_rsfirewallInstallerScript
 			$db->execute();
 		}
 		
+		if (!$columns['ip']->Key) {
+			$db->setQuery('ALTER TABLE #__rsfirewall_logs ADD INDEX(`ip`); ');
+			$db->execute();
+			$db->setQuery('ALTER TABLE #__rsfirewall_lists ADD INDEX(`ip`); ');
+			$db->execute();
+		}
+		
 		// offenders
 		$columns = $db->getTableColumns('#__rsfirewall_offenders', false);
 		if ($columns['ip']->Type != 'varchar(255)') {
@@ -753,12 +760,14 @@ class com_rsfirewallInstallerScript
 			<b class="install-not-ok">Error installing!</b>
 			<?php } ?>
 		</p>
-		<h2>Changelog v2.10.2</h2>
+		<h2>Changelog v2.11.0</h2>
 		<ul class="version-history">
-			<li><span class="version-upgraded">Upg</span> A log entry will be created when a change is attempted on a protected user.</li>
-			<li><span class="version-upgraded">Upg</span> A log entry will be created when the creation of a new administrator is blocked.</li>
+			<li><span class="version-new">New</span> Map of blocked attacks in the System Overview area.</li>
 			<li><span class="version-upgraded">Upg</span> Malware database updated.</li>
-			<li><span class="version-fixed">Fix</span> Old log entries were not deleted according to the settings.</li>
+			<li><span class="version-upgraded">Upg</span> Replacing email addresses with images has been re-worked to reduce page load.</li>
+			<li><span class="version-upgraded">Upg</span> More information shown when a protected user change has been attempted.</li>
+			<li><span class="version-fixed">Fix</span> No longer allows you to delete files from your Temporary Folder if it's incorrectly set and contains your website's folder.</li>
+			<li><span class="version-fixed">Fix</span> System Logs was becoming slow due to missing indexes on tables.</li>
 		</ul>
 		<a class="com-rsfirewall-button" href="index.php?option=com_rsfirewall">Start using RSFirewall!</a>
 		<a class="com-rsfirewall-button" href="https://www.rsjoomla.com/support/documentation/rsfirewall-user-guide.html" target="_blank">Read the RSFirewall! User Guide</a>

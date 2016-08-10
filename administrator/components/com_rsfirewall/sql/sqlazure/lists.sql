@@ -5,5 +5,6 @@ CREATE TABLE [#__rsfirewall_lists] (
   [reason] varchar(255) NOT NULL,
   [date] datetime NOT NULL,
   [published] tinyint NOT NULL,
-  PRIMARY KEY ([id])
+  PRIMARY KEY ([id]),
+  KEY [ip] ([ip])
 );
