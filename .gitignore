@@ -46,3 +46,7 @@ media/foundry/3.1/config/
 
 # Backup files
 administrator/components/com_akeeba/backup/
+
+# RSDownloads
+/rsdownloads/
+!/rsdownloads/.htaccess
