@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" version="3.0" method="upgrade" group="acymailing">
+	<name>AcyMailing Tag and filter : Community Builder</name>
+	<creationDate>September 2009</creationDate>
+	<version>3.7.2</version>
+	<author>Acyba</author>
+	<authorEmail>dev@acyba.com</authorEmail>
+	<authorUrl>http://www.acyba.com</authorUrl>
+	<copyright>Copyright (C) 2009-2016 ACYBA SAS - All rights reserved..</copyright>
+	<license>GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
+	<description>This plugin enables you to add information from the CB Profile of the user in your newsletters. It also allows you to filter the users based on CB fields and modify these field values</description>
+	<files>
+		<filename plugin="tagcbuser">tagcbuser.php</filename>
+		<filename>tagcbuser.xml</filename>
+		<filename>index.html</filename>
+	</files>
+</extension>
