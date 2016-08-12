@@ -48,6 +48,10 @@ class RSFormProFieldCalendar extends RSFormProField
 		$hiddenName = $this->formId.'_'.$this->getProperty('NAME', '');
 		if (!empty($hidden[$hiddenName])) {
 			$hiddenValue = preg_replace('#[^0-9\/]+#i', '', $hidden[$hiddenName]);
+		} else {
+			if (!empty($value)) {
+				$hiddenValue = JFactory::getDate(str_replace('/', '-', $value))->format('m/d/Y');
+			}
 		}
 		
 		// set the calendar script

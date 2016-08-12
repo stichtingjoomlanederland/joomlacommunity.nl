@@ -155,7 +155,7 @@ class RSFormModelForms extends JModelLegacy
 	{
 		$formId = JFactory::getApplication()->input->getInt('formId');
 
-		$this->_db->setQuery("SELECT ComponentId FROM #__rsform_components WHERE FormId='".$formId."' AND ComponentTypeId IN (".RSFORM_FIELD_SUBMITBUTTON.",".RSFORM_FIELD_IMAGEBUTTON.") LIMIT 1");
+		$this->_db->setQuery("SELECT ComponentId FROM #__rsform_components WHERE FormId='".$formId."' AND ComponentTypeId IN (".RSFORM_FIELD_SUBMITBUTTON.") LIMIT 1");
 		return $this->_db->loadResult();
 	}
 
@@ -297,8 +297,7 @@ class RSFormModelForms extends JModelLegacy
 
 			if (empty($this->_form->Lang))
 			{
-				$language = JFactory::getLanguage();
-				$this->_form->Lang = $language->getTag();
+				$this->_form->Lang = JFactory::getLanguage()->getDefault();
 			}
 
 			if ($this->_form->FormLayoutAutogenerate)
@@ -358,6 +357,8 @@ class RSFormModelForms extends JModelLegacy
 		$requiredMarker = isset($this->_form->Required) ? $this->_form->Required : '(*)';
 		// get the form fields
 		$fieldsets 		= $this->getFieldNames('fieldsets');
+		// get the form options
+		$formOptions = RSFormProHelper::getForm($formId);
 
 		// Generate the layout
 		ob_start();
@@ -403,7 +404,7 @@ class RSFormModelForms extends JModelLegacy
 		}
 	}
 
-	protected function getComponentType($componentId, $formId) {
+	public function getComponentType($componentId, $formId) {
 		$db 	= JFactory::getDbo();
 		$query	= $db->getQuery(true);
 
@@ -770,8 +771,8 @@ class RSFormModelForms extends JModelLegacy
 
 		if (empty($this->_form))
 			$this->getForm();
-
-		return $session->get('com_rsform.form.formId'.$this->_form->FormId.'.lang', !empty($this->_form->Lang) ? $this->_form->Lang : $lang->getDefault());
+		
+		return $session->get('com_rsform.form.formId'.$this->_form->FormId.'.lang', $lang->getTag());
 	}
 
 	function getEmailLang($id = null)

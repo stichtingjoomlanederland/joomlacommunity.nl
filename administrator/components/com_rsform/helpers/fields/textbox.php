@@ -135,6 +135,7 @@ class RSFormProFieldTextbox extends RSFormProField
 		$geo		= $this->getProperty('GEOLOCATION', 'NO');
 		$address	= $this->getProperty('MAPRESULT', 'ADDRESS');
 		$name 		= $this->getProperty('NAME');
+		$mapType 	= $this->getProperty('MAPTYPE', 'ROADMAP');
 		
 		$script		= '';
 		
@@ -145,7 +146,7 @@ class RSFormProFieldTextbox extends RSFormProField
 		$script .= "\t".'rsformmap'.$id.' = new google.maps.Map(rsformmapDiv'.$id.', {'."\n";
 		$script .= "\t\t".'center: new google.maps.LatLng('.$center.'),'."\n";
 		$script .= "\t\t".'zoom: '.$zoom.','."\n";
-		$script .= "\t\t".'mapTypeId: google.maps.MapTypeId.ROADMAP,'."\n";
+		$script .= "\t\t".'mapTypeId: google.maps.MapTypeId.'.$mapType.','."\n";
 		$script .= "\t\t".'streetViewControl: false'."\n";
 		$script .= "\t".'});'."\n\n";
 		$script .= "\t".'rsformmarker'.$id.' = new google.maps.Marker({'."\n";
@@ -202,7 +203,7 @@ class RSFormProFieldTextbox extends RSFormProField
 		
 		// Add the Google Maps API JS
 		if (!RSFormProFieldTextbox::$mapScript) {
-			$this->addCustomTag('<script src="https://maps.google.com/maps/api/js" type="text/javascript"></script>');
+			$this->addCustomTag('<script src="https://maps.google.com/maps/api/js?key='.urlencode(RSFormProHelper::getConfig('google.api_key')).'" type="text/javascript"></script>');
 			// Do not load the script for every map field
 			RSFormProFieldTextbox::$mapScript = true;
 		}

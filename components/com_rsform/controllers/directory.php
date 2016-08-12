@@ -133,6 +133,8 @@ class RSFormControllerDirectory extends RSFormController
 					// Show a text for the "confirmed" column.
 					if ($field->name == 'confirmed') {
 						$value = $submissions[$cid]->{$field->name} ? JText::_('RSFP_YES') : JText::_('RSFP_NO');
+					} else if ($field->name == 'DateSubmitted') {
+						$value = RSFormProHelper::getDate($submissions[$cid]->{$field->name});
 					} else {
 						$value = $submissions[$cid]->{$field->name};
 					}

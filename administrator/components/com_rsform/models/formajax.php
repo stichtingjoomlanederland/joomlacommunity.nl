@@ -158,6 +158,7 @@ class RSFormModelFormAjax extends JModelLegacy
 					break;
 
 				case 'select':
+				case 'selectmultiple':
 				{
 					if ($lang->hasKey('RSFP_COMP_FIELD_'.$field->name))
 						$field->body = JText::_('RSFP_COMP_FIELD_'.$field->name);
@@ -176,13 +177,24 @@ class RSFormModelFormAjax extends JModelLegacy
 					 */
 					if (json_decode($result->Properties))
 					{
-						$additional .= 'data-toggle="' . RSFormProHelper::htmlEscape($result->Properties) . '" data-properties="toggler"';
+						$additional .= ' data-toggle="' . RSFormProHelper::htmlEscape($result->Properties) . '" data-properties="toggler"';
+					}
+					
+					// set the multiple attribute and select size if needed
+					if ($result->FieldType == 'selectmultiple') {
+						$additional .= ' size="5" multiple="multiple"';
 					}
 
-					$field->body .= '<select name="param['.$field->name.']" '. $additional .' tabindex="'.$taborder.'" id="'.$field->name.'" onchange="changeValidation(this);">';
+					$field->body .= '<select name="param['.$field->name.']'.($result->FieldType == 'selectmultiple' ? '[]' : '').'" '. $additional .' tabindex="'.$taborder.'" id="'.$field->name.'" onchange="changeValidation(this);">';
 
 					if (!isset($data[$field->name]))
 						$data[$field->name] = '';
+						
+					if ($result->FieldType == 'selectmultiple') {
+						if(!empty($data[$field->name])) {
+							$data[$field->name] = explode(',', $data[$field->name]);
+						}
+					}
 
 					$result->FieldValues = str_replace("\r", '', $result->FieldValues);
 					$items = RSFormProHelper::isCode($result->FieldValues);
@@ -199,7 +211,7 @@ class RSFormModelFormAjax extends JModelLegacy
 						else
 							$label = $option_shown;
 
-						$field->body .= '<option '.($componentId > 0 && $data[$field->name] == $option_value ? 'selected="selected"' : '').' value="'.$option_value.'">'.RSFormProHelper::htmlEscape($label).'</option>';
+						$field->body .= '<option '.($componentId > 0 && ((!is_array($data[$field->name]) && $data[$field->name] == $option_value) || (is_array($data[$field->name]) && in_array($option_value, $data[$field->name]))) ? 'selected="selected"' : '').' value="'.$option_value.'">'.RSFormProHelper::htmlEscape($label).'</option>';
 					}
 					$field->body .= '</select>';
 				}

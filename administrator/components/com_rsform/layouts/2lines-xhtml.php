@@ -23,7 +23,19 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 					continue;
 				}
 				$fieldName = $this->getProperty($field['data'], 'NAME');
+				
+				// retrieve the componentTypeId
+				$componentTypeId = $this->getComponentType($field['data']['componentId'], $formId);
+				
+				// detect if the field is a Captcha Field of any sort
+				$captchaField = false;
+				if (in_array($componentTypeId, RSFormProHelper::$captchaFields) && !empty($formOptions->RemoveCaptchaLogged)) {
+					$captchaField = true;
+				}
 	?>
+<?php if ($captchaField) { ?>
+		{if {global:userid} == "0"}
+<?php } ?>
 		<li class="rsform-block rsform-block-<?php echo JFilterOutput::stringURLSafe($fieldName); ?>">
 <?php	if (!$field['pagebreak']) { ?>
 			<div class="formCaption2">{<?php echo $fieldName; ?>:caption}<?php echo ($field['required'] ? '<strong class="formRequired">'.$requiredMarker.'</strong>' : '');?></div>
@@ -36,6 +48,9 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 			<div class="formDescription">{<?php echo $fieldName; ?>:description}</div>
 <?php } ?>
 		</li>
+<?php if ($captchaField) { ?>
+		{/if}
+<?php } ?>
 <?php
 			}
 			

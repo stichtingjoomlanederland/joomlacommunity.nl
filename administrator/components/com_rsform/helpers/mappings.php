@@ -10,6 +10,7 @@ defined('_JEXEC') or die('Restricted access');
 define('RSFP_MAPPINGS_INSERT', 0);
 define('RSFP_MAPPINGS_UPDATE', 1);
 define('RSFP_MAPPINGS_DELETE', 2);
+define('RSFP_MAPPINGS_REPLACE', 3);
 
 class RSFormProMappings
 {
@@ -117,6 +118,20 @@ class RSFormProMappings
 		switch ($row->method) {
 			case RSFP_MAPPINGS_INSERT:
 				$query->insert($db->qn($table));
+			break;
+			case RSFP_MAPPINGS_REPLACE:
+				$query = 'REPLACE INTO '.$db->qn($table).' SET ';
+				$set = array();
+				// Create the SET clause
+				if (!empty($data)) {
+					foreach ($data as $column => $field) {
+						$set[] = $db->qn($column).'='.$db->q($field);
+					}
+				}
+
+				if ($set) {
+					$query .= implode(', ', $set);
+				}
 			break;
 			
 			case RSFP_MAPPINGS_UPDATE:

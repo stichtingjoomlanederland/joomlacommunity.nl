@@ -1,12 +1,166 @@
 var RSFormProCalendars = {};
 var RSFormProPrices = {};
 var ajaxExtraValidationScript = {};
+var RSClickedSubmitElement = false;
 
 if (typeof RSFormPro != 'object') {
 	var RSFormPro = {};
 }
 
 RSFormPro.Forms = {};
+RSFormPro.scrollToError = false;
+
+/* Handle HTML5 form fields validation for the forms without AjaxValidation enabled */
+RSFormPro.setHTML5Validation = function (formId, isDisabledSubmit, layoutErrorClass) {
+	var submitElement = RSFormPro.getElementByType(formId, 'submit');
+	for (i = 0; i < submitElement.length; i++) {
+		if (RSFormProUtils.hasClass(submitElement[i],'rsform-submit-button')) {
+			RSFormProUtils.addEvent(submitElement[i], 'click', (function (event) {
+				errorElements = RSFormPro.HTML5.validation(formId);
+				if (errorElements.length) {
+					for (j = 0; j < errorElements.length; j++) {
+						errorElements[j].field.className = errorElements[j].field.className.replace(' rsform-error', '') + ' rsform-error';
+						if (document.getElementById('component' + errorElements[j].componentId)) {
+							document.getElementById('component' + errorElements[j].componentId).className = 'formError';
+						}
+						if (layoutErrorClass) {
+							try {
+								var block = RSFormPro.getBlock(formId, RSFormProUtils.getAlias(errorElements[j].field.getAttribute('id')));
+								block = block[0];
+								block.className = block.className.replace(layoutErrorClass, '') + layoutErrorClass;
+							} catch (err) {}
+						}
+					}
+
+					if (RSFormPro.scrollToError){
+						RSFormPro.gotoErrorElement(formId);
+					}
+
+					if (isDisabledSubmit) {
+						for (j = 0; j < submitElement.length; j++) {
+							submitElement[j].disabled = false;
+						}
+					}
+
+					event.preventDefault();
+				} else {
+					if (isDisabledSubmit) {
+						// if the submit button or any other element has the id submit the form.submit() function is overwritten
+						if (typeof this.form.submit != 'function') {
+							document.createElement('form').submit.call(this.form)
+						} else {
+							this.form.submit();
+						}
+					}
+				}
+			}));
+		}
+	}
+};
+
+/* Disable the submit button when form is submitted functions */
+RSFormPro.setDisabledSubmit = function(formId, ajaxValidation){
+	if (!ajaxValidation) {
+		var submitElement = RSFormPro.getElementByType(formId, 'submit');
+		for (i = 0; i < submitElement.length; i++) {
+			if (RSFormProUtils.hasClass(submitElement[i],'rsform-submit-button')) {
+				RSFormProUtils.addEvent(submitElement[i],'click', (function(event) {
+					for (j = 0; j < submitElement.length; j++) {
+						submitElement[j].disabled = true;
+					}
+				}));
+			}
+		}
+	}
+};
+/* Thank You Message in Popup Window functions */
+
+RSFormPro.showThankYouPopup = function (thankYouContainer){
+	var content = thankYouContainer.innerHTML;
+	var gotoUrl = thankYouContainer.querySelector('#rsfp-thankyou-popup-return-link').value;
+
+	// remove the html part from the layout
+	thankYouContainer.parentNode.removeChild( thankYouContainer );
+
+	document.body.className = document.body.className+' rsfp_popup_activated';
+	document.body.innerHTML += '<div class="rsfp_thankyou_popup_outer" onclick="RSFormPro.accessLink(event,\''+gotoUrl+'\')"><div class="rsfp_thankyou_popup_inner" id="rsfp_thankyou_popup_inner"><div class="rsfp_thankou_popup_close_btn">&times;</div>'+content+'</div></div>';
+
+	var popupWindowHeight = document.getElementById('rsfp_thankyou_popup_inner').offsetHeight;
+	var windowHeight = window.innerHeight;
+
+	var marginTop = (windowHeight - popupWindowHeight) / 2;
+	document.getElementById('rsfp_thankyou_popup_inner').style.marginTop = marginTop+'px';
+}
+RSFormPro.accessLink = function(event,link) {
+	var clickedElementClass = event.target.className;
+	if (clickedElementClass == 'rsfp_thankyou_popup_outer' || clickedElementClass == 'rsfp_thankou_popup_close_btn') {
+		if (link.length > 0) {
+			document.location = link;
+		} else {
+			document.location.reload();
+		}
+	}
+}
+
+/* Scroll to first error element */
+RSFormPro.gotoErrorElement = function(formId){
+	var form = RSFormPro.getForm(formId);
+	var errorElements = form.getElementsByClassName('formError');
+	if (errorElements.length) {
+		var block = RSFormPro.findAncestor(errorElements[0], 'rsform-block');
+		if (block) {
+			RSFormPro.scrollToElement(block);
+		} else {
+			RSFormPro.scrollToElement(errorElements[0]);
+		}
+	}
+}
+
+RSFormPro.findAncestor = function(el, cls){
+	while(el = el.parentElement) {
+		var elementClasses = el.className;
+		elementClasses = elementClasses.split(' ');
+		if (elementClasses.indexOf(cls) >= 0) {
+			return el;
+		}
+	}
+
+	return false;
+}
+
+/* ScrollTo functions */
+RSFormPro.scrollToElement = function(element){
+	var to = element.offsetTop;
+	var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+	var documentView = window.innerHeight + scrollTop;
+
+	// this is more specific for the modern browsers
+	if (typeof element.getBoundingClientRect == 'function') {
+		to = element.getBoundingClientRect().top + scrollTop;
+	}
+
+	if (to < scrollTop || to > documentView) {
+		RSFormPro.scrollTo(to, 300);
+	}
+}
+
+RSFormPro.scrollTo = function(to, duration) {
+	if (duration <= 0) return;
+	var elementScrollTop = window.pageYOffset ?  window.pageYOffset : document.documentElement.scrollTop;
+	var difference = to - elementScrollTop;
+	var perTick = difference / duration * 10;
+	
+	setTimeout(function() {
+		var limitControl;
+		limitControl = window.pageYOffset ?  window.pageYOffset : document.documentElement.scrollTop;
+		limitControl = limitControl + perTick;
+		window.scrollTo(0, limitControl);
+		// if the element has been reached or the scroll is at the bottom of the page no need to continue
+		if (limitControl == to) return;
+
+		RSFormPro.scrollTo(to, duration - 10);
+	}, 10);
+}
 
 /* Field specific functions */
 
@@ -234,6 +388,39 @@ RSFormPro.getValue = function(formId, name) {
 	return values;
 };
 
+RSFormPro.getElementByType = function(formId, type) {
+	var form	= RSFormPro.getForm(formId);
+	type = type.toUpperCase();
+	var elements	= [];
+
+	if (typeof form != 'undefined')
+	{
+		for (var i = 0; i < form.elements.length; i++)
+		{
+			var element = form.elements[i];
+			var tagName = element.tagName || element.nodeName;
+			switch (tagName)
+			{
+				case 'INPUT':
+				case 'BUTTON':
+					if (element.type.toUpperCase() == type) {
+						elements.push(element);
+					}
+					break;
+
+				case 'SELECT':
+				case 'TEXTAREA':
+					if (type == 'SELECT' || type == 'TEXTAREA') {
+						elements.push(element);
+					}
+					break;
+			}
+		}
+	}
+
+	return elements;
+};
+
 RSFormPro.isChecked = function(formId, name, value) {
 	var isChecked 	= false;
 	var form 		= RSFormPro.getForm(formId);
@@ -365,6 +552,85 @@ RSFormPro.getFieldsByName = function(formId, name) {
 	return results;
 };
 
+/*HTML5 simulators*/
+
+RSFormPro.HTML5 = {
+	validation: function(formId){
+		var form = RSFormPro.getForm(formId);
+		var errorElements = [];
+		var html5types = ['number', 'email', 'range', 'url', 'tel'];
+
+		var checkValidityExists = true;
+		var page = 0;
+		if (form.elements.length) {
+			for (i=0; i<form.elements.length; i++) {
+				if (!checkValidityExists) {
+					break;
+				}
+
+				// if the multiple form is present and also validation we will need to find in witch page the element is located
+				if (form.elements[i].type == 'button') {
+					var onclick = form.elements[i].getAttribute('onclick');
+					if (onclick != '' && onclick.indexOf('rsfp_changePage') >= 0){
+						var countCommas = 0;
+						var pos = onclick.indexOf(',');
+						while (pos > -1) {
+							++countCommas;
+							pos = onclick.indexOf(',', ++pos);
+						}
+
+
+						if (countCommas > 2) {
+							page++;
+						}
+					}
+				}
+				if (html5types.indexOf(form.elements[i].type) >= 0) {
+					if ( typeof(form.elements[i].checkValidity) == "function" && checkValidityExists) {
+						if (!form.elements[i].checkValidity()) {
+							var elementObj = {
+								field: form.elements[i],
+								page: page
+							};
+							// try to get the componentId
+							var componentId = RSFormPro.HTML5.getComponentId(formId, form.elements[i].getAttribute('id'));
+							if (componentId) {
+								elementObj.componentId = componentId;
+							}
+
+							errorElements.push(elementObj);
+						}
+					} else {
+						checkValidityExists = false;
+					}
+				}
+			}
+		}
+		return errorElements;
+	},
+
+	componentIds: {},
+
+	getComponentId: function(formId, elementAlias) {
+		if (typeof RSFormPro.HTML5.componentIds[formId] == 'undefined') {
+			RSFormPro.HTML5.componentIds[formId] = {};
+		}
+
+		if (typeof RSFormPro.HTML5.componentIds[formId][elementAlias] == 'undefined') {
+			var block = RSFormPro.getBlock(formId, elementAlias);
+			var componentIdBlock = RSFormProUtils.getElementsByClassName('formNoError', 'span', block[0]);
+			if (componentIdBlock.length) {
+				var componentId = componentIdBlock[0].getAttribute('id');
+				RSFormPro.HTML5.componentIds[formId][elementAlias] = componentId.replace('component', '');
+			} else {
+				RSFormPro.HTML5.componentIds[formId][elementAlias] = false;
+			}
+		}
+
+		return RSFormPro.HTML5.componentIds[formId][elementAlias];
+	}
+};
+
 /* Pagination functions */
 
 RSFormPro.Pages = {
@@ -374,12 +640,13 @@ RSFormPro.Pages = {
 		if (direction == 'next') {
 			RSFormPro.callbacks.runCallback(formId, 'nextPage');
 		}
+		RSFormPro.callbacks.runCallback(formId, 'changePage');
 		
 		var thePage;
 
 		if (validate) {
 			var form = RSFormPro.getForm(formId);
-			if (!RSFormPro.Ajax.validate(form, page, parentErrorClass)) {
+			if (!RSFormPro.Ajax.validate(form, page, parentErrorClass, totalPages)) {
 				return false;
 			}
 		}
@@ -515,6 +782,7 @@ RSFormPro.Ajax = {
 				j,
 				id,
 				formComponent,
+				firstErrorElement,
 				elementBlock;
 
 			ids = data.response[0].split(',');
@@ -559,17 +827,23 @@ RSFormPro.Ajax = {
 								}
 							}
 						}
+						// scroll to first error elment
+						if (RSFormPro.scrollToError){
+							RSFormPro.gotoErrorElement(formId);
+						}
 					}
 				}
 			}
 		}
 	},
-	validate: function(form, page, parentErrorClass) {
+	validate: function(form, page, parentErrorClass ,totalPages) {
 		try {
 			var el = form.elements.length;
 		} catch (err) {
 			form = this;
 		}
+
+
 
 		var xmlHttp = RSFormPro.Ajax.getXHR();
 		var url = 'index.php?option=com_rsform&task=ajaxValidate';
@@ -579,14 +853,34 @@ RSFormPro.Ajax = {
 
 		var params = [],
 			submits = [],
+			errorFields = [],
 			success = false,
 			formId = 0,
 			ids,
+			totlaJSDetectedPages = 0,
+			lastClickedElement,
 			i,
 			j;
 
 		for (i=0; i<form.elements.length; i++)
 		{
+			// try and detect total pages of the form
+			if (form.elements[i].type == 'button') {
+				var onclick = form.elements[i].getAttribute('onclick');
+				if (onclick != '' && onclick.indexOf('rsfp_changePage') >= 0) {
+					var countCommas = 0;
+					var pos = onclick.indexOf(',');
+					while (pos > -1) {
+						++countCommas;
+						pos = onclick.indexOf(',', ++pos);
+					}
+
+					if (countCommas > 2) {
+						totlaJSDetectedPages++;
+					}
+				}
+			}
+
 			// don't send an empty value
 			if (!form.elements[i].name) continue;
 			if (form.elements[i].name.length == 0) continue;
@@ -595,7 +889,7 @@ RSFormPro.Ajax = {
 			// check if the radio is selected
 			if (form.elements[i].type == 'radio' && form.elements[i].checked == false) continue;
 
-			if (form.elements[i].type == 'submit') {
+			if (form.elements[i].type == 'submit' && form.elements[i].getAttribute('data-disableonsubmit') == '1') {
 				submits.push(form.elements[i]);
 				form.elements[i].disabled = true;
 			}
@@ -619,6 +913,8 @@ RSFormPro.Ajax = {
 			params.push(form.elements[i].name + '=' + encodeURIComponent(form.elements[i].value));
 		}
 
+		errorFields = RSFormPro.HTML5.validation(formId);
+
 		if (typeof ajaxExtraValidationScript[formId] == 'function') {
 			ajaxExtraValidationScript[formId]('beforeSend', formId, {'url': url, 'params': params});
 		}
@@ -629,74 +925,137 @@ RSFormPro.Ajax = {
 
 		params = params.join('&');
 
-		xmlHttp.open("POST", url, false);
+		xmlHttp.open("POST", url, true);
 
 		//Send the proper header information along with the request
 		xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 		xmlHttp.send(params);
 		success = true;
-
-		if (xmlHttp.responseText.indexOf("\n") != -1)
-		{
-			var response = xmlHttp.responseText.split("\n");
-			// All spans set to no error
-			ids = response[0].split(',');
-			for (i = 0; i < ids.length; i++)
-				if (!isNaN(parseInt(ids[i])) && document.getElementById('component'+ids[i])) {
-					document.getElementById('component'+ids[i]).className = 'formNoError';
-				}
-
-			// Show errors
-			ids = response[1].split(',');
-			for (i = 0; i < ids.length; i++)
-				if (!isNaN(parseInt(ids[i])) && document.getElementById('component'+ids[i]))
-				{
-					document.getElementById('component'+ids[i]).className = 'formError';
-					success = false;
-				}
-
-			if (response.length == 4)
-			{
-				page = parseInt(response[2]) - 1;
-				var totalPages = parseInt(response[3]);
-				rsfp_changePage(formId, page, totalPages, false);
-			}
-
-			if (typeof ajaxExtraValidationScript[formId] == 'function') {
-				ajaxExtraValidationScript[formId]('afterSend', formId, {'url': url, 'params': params, 'response': response, 'parentErrorClass': parentErrorClass});
-			}
-		}
-
-		for (i = 0; i < submits.length; i++) {
-			submits[i].disabled = false;
-		}
 		
-		if (success == false && document.getElementById('rsform_error_' + formId))
-		{
-			try {
-				if (typeof page == 'undefined' || page == 0) {
-					RSFormPro.callbacks.runCallback(formId, 'afterValidationFailed'); // callback functions if validation fails when form is submitted
-				} else {
-					RSFormPro.callbacks.runCallback(formId, 'nextPageFailed'); // callback functions if validation fails when a specific page of the form is checked
+		xmlHttp.onreadystatechange = function() {
+			if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+				if (xmlHttp.responseText.indexOf("\n") != -1)
+				{
+
+					var response = xmlHttp.responseText.split("\n");
+					// All spans set to no error
+					ids = response[0].split(',');
+					for (i = 0; i < ids.length; i++)
+						if (!isNaN(parseInt(ids[i])) && document.getElementById('component'+ids[i])) {
+							document.getElementById('component'+ids[i]).className = 'formNoError';
+						}
+
+					// Show errors
+					ids = response[1].split(',');
+
+					// add the HTML5 elements with errors
+					var errorOnPage;
+					if (errorFields.length) {
+						for (i = 0; i < errorFields.length; i++) {
+							if (typeof errorFields[i].componentId != 'undefined') {
+								if (typeof page == 'undefined' || (page - 1) == errorFields[i].page) {
+									ids.push(errorFields[i].componentId);
+									if (typeof errorOnPage != 'undefined') {
+										errorOnPage = errorFields[i].page < errorOnPage ? errorFields[i].page : errorOnPage;
+									} else {
+										errorOnPage = errorFields[i].page;
+									}
+								}
+							}
+						}
+					}
+
+
+					var errorComponents = [];
+					for (i = 0; i < ids.length; i++) {
+						if (!isNaN(parseInt(ids[i])) && document.getElementById('component' + ids[i])) {
+							document.getElementById('component' + ids[i]).className = 'formError';
+							errorComponents.push(ids[i]);
+							success = false;
+						}
+					}
+
+					// lets detect if the multiple page form is submitted
+
+					var changePageHTML5Errors = false;
+					if (totlaJSDetectedPages > 0 && RSClickedSubmitElement && submits.indexOf(RSClickedSubmitElement) >= 0 && typeof errorOnPage != 'undefined') {
+						changePageHTML5Errors = true;
+					}
+					//return false;
+					if (response.length == 4 || changePageHTML5Errors)
+					{
+						if (response.length == 4) {
+							page = parseInt(response[2]) - 1;
+							totalPages = parseInt(response[3]);
+							if (changePageHTML5Errors) {
+								page = page > errorOnPage ? errorOnPage : page;
+							}
+						} else {
+							if (changePageHTML5Errors) {
+								page = errorOnPage;
+								totalPages = totlaJSDetectedPages;
+							}
+						}
+
+						rsfp_changePage(formId, page, totalPages, false);
+					}
+
+					if (typeof ajaxExtraValidationScript[formId] == 'function') {
+						// rewrite the response so that all the error components are added (that includes HTML5 fields)
+						if (errorComponents.length) {
+							response[1] = errorComponents.join();
+						}
+						ajaxExtraValidationScript[formId]('afterSend', formId, {'url': url, 'params': params, 'response': response, 'parentErrorClass': parentErrorClass});
+					}
 				}
-				document.getElementById('rsform_error_' + formId).style.display = 'block';
+				
+				if (success == false && document.getElementById('rsform_error_' + formId))
+				{
+					// The submits must be clickable again
+					for (i = 0; i < submits.length; i++) {
+						submits[i].disabled = false;
+					}
+
+					try {
+						if (typeof page == 'undefined' || page == 0) {
+							RSFormPro.callbacks.runCallback(formId, 'afterValidationFailed'); // callback functions if validation fails when form is submitted
+						} else {
+							RSFormPro.callbacks.runCallback(formId, 'nextPageFailed'); // callback functions if validation fails when a specific page of the form is checked
+						}
+						document.getElementById('rsform_error_' + formId).style.display = 'block';
+					}
+					catch (err) { }
+				}
+
+				if (success == true) {
+					// Change the page if the validation passes
+					if (page) {
+						rsfp_changePage(formId, page, totalPages, false);
+					} else {
+						// the submit button has been presed so we need to submit the form
+						// if the submit button or any other element has the id submit the form.submit() function is overwritten
+						if (typeof form.submit != 'function') {
+							document.createElement('form').submit.call(form)
+						} else {
+							form.submit();
+						}
+					}
+
+					try {
+						if (typeof page == 'undefined' || page == 0) {
+							RSFormPro.callbacks.runCallback(formId, 'afterValidationSuccess'); // callback functions if validation succeeds
+						} else {
+							RSFormPro.callbacks.runCallback(formId, 'nextPageSuccess'); // callback functions if validation succeeds when a specific page of the form is checked
+						}
+						document.getElementById('rsform_error_' + formId).style.display = 'none';
+					}
+					catch (err) { }
+				}
+				return success;
 			}
-			catch (err) { }
 		}
 
-		if (success == true) {
-			try {
-				if (typeof page == 'undefined' || page == 0) {
-					RSFormPro.callbacks.runCallback(formId, 'afterValidationSuccess'); // callback functions if validation succeeds
-				} else {
-					RSFormPro.callbacks.runCallback(formId, 'nextPageSuccess'); // callback functions if validation succeeds when a specific page of the form is checked
-				}
-				document.getElementById('rsform_error_' + formId).style.display = 'none';
-			}
-			catch (err) { }
-		}
-
-		return success;
+		return false;
 	}
 };
 

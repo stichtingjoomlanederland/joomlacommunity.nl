@@ -13,20 +13,100 @@ class RSFormProFieldTicket extends RSFormProFieldHidden
 {
 	// backend preview
 	public function getPreviewInput() {
-		$txt	 	= JText::_('RSFP_HIDDEN_FIELD_PLACEHOLDER');
 		$codeIcon   = RSFormProHelper::getIcon('support');
-		$length 	= $this->getProperty('LENGTH', 8);
-		$characters = $this->getProperty('CHARACTERS', 'ALPHANUMERIC');
-		
-		$html = '<td>&nbsp;</td><td>'.$codeIcon.RSFormProHelper::generateString($length, $characters).'</td>';
+		$html 		= '<td>&nbsp;</td><td>'.$codeIcon.$this->generateString().'</td>';
 		return $html;
 	}
 	
 	// @desc Overridden here because this field generates a value based on its settings
-	public function getValue() {
-		$length 	= $this->getProperty('LENGTH', 8);
-		$characters = $this->getProperty('CHARACTERS', 'ALPHANUMERIC');
-		
-		return RSFormProHelper::generateString($length, $characters);
+	public function getValue()
+	{
+		return $this->generateString();
+	}
+
+	protected function generateString()
+	{
+		$type		= $this->getProperty('TICKETTYPE','RANDOM');
+		$key		= '';
+
+		if ($type == 'RANDOM')
+		{
+			$length 	= (int) $this->getProperty('LENGTH', 8);
+			$characters = $this->getProperty('CHARACTERS', 'ALPHANUMERIC');
+			switch ($characters)
+			{
+				case 'ALPHANUMERIC':
+				default:
+					$possible = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+					break;
+				case 'ALPHA':
+					$possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+					break;
+				case 'NUMERIC':
+					$possible = '0123456789';
+					break;
+			}
+
+			if ($length < 1 || $length > 255) {
+				$length = 8;
+			}
+
+			$key = '';
+			$i = 0;
+			while ($i < $length) {
+				$key .= substr($possible, mt_rand(0, strlen($possible) - 1), 1);
+				$i++;
+			}
+		} else if ($type == 'SEQUENTIAL') {
+			$leadingLength = (int) $this->getProperty('LEADINGZEROLENGTH', '0');
+			$db    = JFactory::getDbo();
+			$query = $db->getQuery(true);
+
+			$query
+				->select("MAX(TRIM(LEADING '0' FROM ".$db->qn('FieldValue')."))")
+				->from('#__rsform_submission_values')
+				->where($db->qn('FormId') . ' = ' . $db->q($this->formId))
+				->where($db->qn('FieldName') . ' = ' . $db->q($this->name))
+				->where($db->qn('FieldValue') . " REGEXP '^[0-9]+$'"); // condition to catch only the numeric values, this scenario happens when the ticket type was previous Random Type
+			$db->setQuery($query);
+			$key = (int) $db->loadResult();
+			$key++;
+			if ($leadingLength)
+			{
+				$key = str_pad($key, ($leadingLength+1), '0', STR_PAD_LEFT);
+			}
+		}
+
+		return $key;
+	}
+
+	protected function stringExists($string) {
+		$db    = JFactory::getDbo();
+		$query = $db->getQuery(true);
+
+		$query
+			->select('COUNT(*)')
+			->from('#__rsform_submission_values')
+			->where($db->qn('FormId') . ' = ' . $db->q($this->formId))
+			->where($db->qn('FieldName') . ' = ' . $db->q($this->name))
+			->where($db->qn('FieldValue') . ' = ' . $db->q($string));
+		$db->setQuery($query);
+
+		return $db->loadResult();
+	}
+
+	// process the field value after validation
+	public function processBeforeStore($submissionId, &$post, &$files) {
+		if (!isset($post[$this->name]))
+		{
+			return false;
+		}
+
+		$value = $post[$this->name];
+		while ($this->stringExists($value)) {
+			$value = $this->generateString();
+		}
+
+		$post[$this->name] = $value;
 	}
 }

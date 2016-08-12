@@ -398,7 +398,7 @@ class RSFormModelDirectory extends JModelLegacy
 			else
 			{
 				// Update only if we've changed something
-				if ($original->FieldValue != $value)
+				if ($original->FieldValue !== $value)
 				{
 					$this->_db->setQuery("UPDATE #__rsform_submission_values SET FieldValue='".$this->_db->escape($value)."' WHERE SubmissionValueId='".$original->SubmissionValueId."' LIMIT 1");
 					$this->_db->execute();

@@ -12,7 +12,17 @@ require_once dirname(__FILE__).'/../formlayout.php';
 class RSFormProFormLayoutUIkit extends RSFormProFormLayout
 {
 	public $errorClass = ' uk-form-danger';
-
+	public $progressContent = '<div><div class="uk-progress"><div class="uk-progress-bar" style="width: {percent}%"><em>{page_lang} <strong>{page}</strong> {of_lang} {total}</em></div></div></div>';
+	
+	public function __construct() {
+		if (JFactory::getDocument()->direction == 'rtl') {
+			$this->progressContent = '<div><div class="uk-progress"><div class="uk-progress-bar" style="width: {percent}%{direction}"><em>{total} {of_lang} <strong>{page}</strong> {page_lang}</em></div></div></div>';
+		}
+		$this->progressOverwritten = true;
+		parent::__construct();
+		
+	}
+	
 	public function loadFramework() {
 		// Load the CSS files
 		if (JFactory::getDocument()->direction == 'rtl') {
@@ -23,6 +33,7 @@ class RSFormProFormLayoutUIkit extends RSFormProFormLayout
 		$this->addStyleSheet('com_rsform/frameworks/uikit/tooltip.min.css');
 		$this->addStyleSheet('com_rsform/frameworks/uikit/form-advanced.min.css');
 		$this->addStyleSheet('com_rsform/frameworks/uikit/progress.min.css');
+		
 
 		// Load jQuery
 		$this->addjQuery();

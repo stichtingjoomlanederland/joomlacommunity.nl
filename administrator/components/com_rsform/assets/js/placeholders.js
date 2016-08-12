@@ -39,7 +39,7 @@
 				$html += '<li><a href="javascript:void(0)" class="rsfp-dropdown-placeholder" data-value="' + this + '">' + this + '</a></li>'
 			});
 
-			$(element).after('<div class="rsfp-dropdown-list-container"><button class="placeholders-input-append" id="' + $(element).attr('id') + '-list">&#9660;</button><ul class="rsfp-drodown-list" data-target="' + $(element).attr('id') + '-list">' + $html + '</ul></div>');
+			$(element).after('<div class="rsfp-dropdown-list-container"><button class="placeholders-input-append" id="' + $(element).attr('id') + '-list">&#9660;</button><ul class="rsfp-dropdown-list" data-target="' + $(element).attr('id') + '-list">' + $html + '</ul></div>');
 
 			this.initDropdowns($('#' + $(element).attr('id') + '-list'));
 		};
@@ -51,15 +51,8 @@
 
 			$(element).on('click', function (e) {
 				e.preventDefault();
-				$('.rsfp-drodown-list').hide();
+				$('.rsfp-dropdown-list').hide();
 				$dropdown.toggle();
-			});
-
-
-			$('html').click(function (e) {
-				if (e.target.className !== 'placeholders-input-append') {
-					$('.rsfp-drodown-list').hide();
-				}
 			});
 
 			$dropdown.find('li > a').on('click', function () {
@@ -156,6 +149,12 @@
 				$el.data('rsplaceholder', rsplaceholder);
 				rsplaceholder.addDropdown($el);
 			}
+			
+			$('html').click(function (e) {
+				if (e.target.className !== 'placeholders-input-append') {
+					$('.rsfp-dropdown-list').hide();
+				}
+			});
 
 			return this.each(init);
 		}

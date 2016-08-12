@@ -12,7 +12,16 @@ require_once dirname(__FILE__).'/../formlayout.php';
 class RSFormProFormLayoutResponsive extends RSFormProFormLayout
 {
     public $errorClass = '';
-
+	public $progressContent = '<div><div class="rsformProgressContainer"><div class="rsformProgressBar" style="width: {percent}%;"><em>{page_lang} <strong>{page}</strong> {of_lang} {total}</em></div></div></div>';
+	
+	public function __construct() {
+		if (JFactory::getDocument()->direction == 'rtl') {
+			$this->progressContent = '<div><div class="rsformProgressContainer"><div class="rsformProgressBar" style="width: {percent}%;"><em>{total} {of_lang} <strong>{page}</strong> {page_lang}</em></div></div></div>';
+		}
+		$this->progressOverwritten = true;
+		parent::__construct();
+		
+	}
     public function loadFramework() {
         // Load the CSS files
         $this->addStyleSheet('com_rsform/frameworks/responsive/responsive.css');

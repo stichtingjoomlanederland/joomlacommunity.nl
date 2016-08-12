@@ -225,4 +225,67 @@ class RSFormProFieldBirthDay extends RSFormProFieldSelectList
 		
 		return $attr;
 	}
+
+	// process the field value after validation
+	public function processBeforeStore($submissionId, &$post, &$files) {
+		if (!isset($post[$this->name]))
+		{
+			return false;
+		}
+
+		$dateOrdering = $this->getProperty('DATEORDERING', '');
+		$showDay = $this->getProperty('SHOWDAY', 'YES');
+		$showMonth = $this->getProperty('SHOWMONTH', 'YES');
+		$showYear = $this->getProperty('SHOWYEAR', 'YES');
+		$storeLeadingZero = $this->getProperty('STORELEADINGZERO', 'NO');
+		$dateSeparator = $this->getProperty('DATESEPARATOR', '/');
+
+		$day   = strpos($dateOrdering, 'D');
+		$month = strpos($dateOrdering, 'M');
+		$year  = strpos($dateOrdering, 'Y');
+
+		$value = $post[$this->name];
+		$items = array();
+		if ($showDay)
+		{
+			if ($storeLeadingZero)
+			{
+				$value['d'] = str_pad($value['d'], 2, '0', STR_PAD_LEFT);
+			}
+			$items[$day] = $value['d'];
+		}
+		if ($showMonth)
+		{
+			if ($storeLeadingZero)
+			{
+				$value['m'] = str_pad($value['m'], 2, '0', STR_PAD_LEFT);
+			}
+			$items[$month] = $value['m'];
+		}
+		if ($showYear)
+		{
+			$items[$year] = $value['y'];
+		}
+		ksort($items);
+
+		$hasValues = false;
+		foreach ($items as $item)
+		{
+			if (!empty($item))
+			{
+				$hasValues = true;
+				break;
+			}
+		}
+		if (!$hasValues)
+		{
+			$value = '';
+		}
+		else
+		{
+			$value = implode($dateSeparator, $items);
+		}
+
+		$post[$this->name] = $value;
+	}
 }

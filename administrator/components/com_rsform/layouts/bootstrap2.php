@@ -29,7 +29,17 @@ $tooltipClass = RSFormProHelper::isJ('3.0') ? ' hasTooltip' : ' hasTip';
 			$componentTypeId = $this->getComponentType($field['data']['componentId'], $formId);
 			
 			$fieldName = $this->getProperty($field['data'], 'NAME');
+
+			// set an extra placeholder for the captcha fields so that we can hide it when the user si logged in
+			$captchaField = false;
+			if (in_array($componentTypeId, RSFormProHelper::$captchaFields) && !empty($formOptions->RemoveCaptchaLogged)) {
+				$captchaField = true;
+			}
+
 ?>
+<?php if ($captchaField) { ?>
+	{if {global:userid} == "0"}
+<?php } ?>
 	<div class="control-group rsform-block rsform-block-<?php echo JFilterOutput::stringURLSafe($fieldName)?>{<?php echo $fieldName; ?>:errorClass}">
 <?php if ($componentTypeId != RSFORM_FIELD_FREETEXT) { ?>
 		<label class="control-label formControlLabel<?php echo (!$field['pagebreak'] ? $tooltipClass : ''); ?>"<?php if (!$field['pagebreak']) {?> title="{<?php echo $fieldName; ?>:description}" for="<?php echo $fieldName; ?>"<?php } ?>><?php if ($field['pagebreak']) { ?> &nbsp;<?php } else { ?>{<?php echo $fieldName; ?>:caption}<?php echo ($field['required'] ? '<strong class="formRequired">'.$requiredMarker.'</strong>' : ''); } ?></label>
@@ -40,6 +50,9 @@ $tooltipClass = RSFormProHelper::isJ('3.0') ? ' hasTooltip' : ' hasTip';
 		</div>
 <?php } ?>
 	</div>
+<?php if ($captchaField) { ?>
+	{/if}
+<?php } ?>
 <?php
 		}
 		if (!empty($fields['hidden'])) {

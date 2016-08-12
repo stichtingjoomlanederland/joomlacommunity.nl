@@ -811,5 +811,15 @@ RSFormPro.jQueryCalendar = {
 		}
 	},
 	
+	hideAllPopupCalendars: function(formId) {
+		if (typeof RSFormPro.jQueryCalendar.calendars[formId] != 'undefined') {
+			jQuery.each(RSFormPro.jQueryCalendar.calendars[formId], function () {
+				if (!this.calendarInstance.getOptions('inline')) {
+					this.calendarInstance.trigger('close.xdsoft');
+				}
+			});
+		}
+	},
+	
 	shownCalendars: []
 }

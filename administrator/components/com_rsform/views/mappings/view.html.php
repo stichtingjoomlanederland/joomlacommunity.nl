@@ -55,6 +55,7 @@ class RSFormViewMappings extends JViewLegacy
 		// Method
 		$lists['MappingMethod'] = JHtml::_('select.radiolist',  array(
 					JHtml::_('select.option',  '0', JText::_( 'RSFP_FORM_MAPPINGS_METHOD_INSERT' ) ),
+					JHtml::_('select.option',  '3', JText::_( 'RSFP_FORM_MAPPINGS_METHOD_REPLACE' ) ),
 					JHtml::_('select.option',  '1', JText::_( 'RSFP_FORM_MAPPINGS_METHOD_UPDATE' ) ),
 					JHtml::_('select.option',  '2', JText::_( 'RSFP_FORM_MAPPINGS_METHOD_DELETE' ) )
 				), 'method', 'class="inputbox"', 'value', 'text', (int) $this->mapping->method);

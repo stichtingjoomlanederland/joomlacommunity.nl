@@ -11,7 +11,6 @@ INSERT IGNORE INTO `#__rsform_component_types` (`ComponentTypeId`, `ComponentTyp
 (9, 'fileUpload'),
 (10, 'freeText'),
 (11, 'hidden'),
-(12, 'imageButton'),
 (13, 'submitButton'),
 (14, 'password'),
 (15, 'ticket'),

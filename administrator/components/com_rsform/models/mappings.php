@@ -51,7 +51,7 @@ class RSFormModelMappings extends JModelLegacy
 			}
 		}
 		
-		if (($row->method == 0 || $row->method == 1) && empty($data)) {
+		if (($row->method == 0 || $row->method == 1 || $row->method == 3) && empty($data)) {
 			return false;
 		}
 		

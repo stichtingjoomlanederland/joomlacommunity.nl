@@ -9,6 +9,21 @@ defined('_JEXEC') or die('Restricted access');
 
 class RSFormProFormLayout
 {	
+	// the default progress bar layout
+	public $progressContent = '<div><p><em>{page_lang} <strong>{page}</strong> {of_lang} {total}</em></p><div class="rsformProgressContainer"><div class="rsformProgressBar" style="width: {percent}%;"></div></div></div>';
+	protected $progressOverwritten = false;
+	
+	public function __construct() {
+		$replace = array('{page_lang}', '{of_lang}', '{direction}');
+		$with = array(JText::_('RSFP_PROGRESS_PAGE'), JText::_('RSFP_PROGRESS_OF'), '; float:right');
+		
+		if (JFactory::getDocument()->direction == 'rtl' && !$this->progressOverwritten) {
+			$this->progressContent = '<div><p><em>{total} {of_lang} <strong>{page}</strong> {page_lang}</em></p><div class="rsformProgressContainer"><div class="rsformProgressBar" style="width: {percent}%;"></div></div></div>';
+		}
+		
+		$this->progressContent = str_replace($replace, $with, $this->progressContent);
+	}
+	
 	protected function addStyleSheet($path) {
 		$stylesheet = JHtml::stylesheet($path, array(), true, true);
 		RSFormProAssets::addStyleSheet($stylesheet);

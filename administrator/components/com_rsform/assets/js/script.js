@@ -80,6 +80,10 @@ RSFormPro.$(document).on('renderedMappings', function(){
 	RSFormPro.$('[data-placeholders]').rsplaceholder();
 });
 
+RSFormPro.$(document).on('renderedRsfpmappingWhere', function(event, element){
+	RSFormPro.$('#'+element).find('[data-placeholders]').rsplaceholder();
+});
+
 RSFormPro.$(document).on('renderedSilentPostField', function($event, $field_one, $field_two){
 	RSFormPro.$($field_one).find('input').rsplaceholder();
 	RSFormPro.$($field_two).find('input').rsplaceholder();
@@ -542,7 +546,7 @@ function generateDirectoryLayout(formId, alert) {
 }
 
 function saveLayoutName(formId, layoutName) {
-	var layoutsWithoutTheme = ['responsive', 'bootstrap2', 'bootstrap3', 'uikit'];
+	var layoutsWithoutTheme = ['responsive', 'bootstrap2', 'bootstrap3', 'uikit', 'foundation'];
 
 	for (var i = 0; i < document.getElementsByName('ThemeName').length; i++) {
 		document.getElementsByName('ThemeName')[i].disabled = layoutsWithoutTheme.indexOf(layoutName) >= 0;
@@ -689,6 +693,91 @@ function changeValidation(elem) {
 			else
 				document.getElementById('idVALIDATIONEXTRA').className = 'hideVALIDATIONEXTRA';
 		}
+		
+		var multipleRulesField = document.getElementById('idVALIDATIONMULTIPLE');
+		if (elem.value == 'multiplerules') {
+			multipleRulesField.style.display = 'table-row';
+			changeValidation(document.getElementById('VALIDATIONMULTIPLE'));
+		} else {
+			multipleRulesField.style.display = 'none';
+			document.getElementById('VALIDATIONEXTRA').name='param[VALIDATIONEXTRA]';
+			
+			// if the saved extra value of the multiple rule exist in the current rule selection keep it, if no leave it as it is
+			var savedExtra = document.getElementById('VALIDATIONEXTRA').value;
+			try {
+				eval('var savedExtraObject='+savedExtra);
+			} catch(e) {
+				var savedExtraObject = {};
+			}
+			
+			if (typeof savedExtraObject == 'object' && typeof savedExtraObject[elem.value] != 'undefined') {
+				document.getElementById('VALIDATIONEXTRA').value = savedExtraObject[elem.value];
+			}
+			
+			// remove previous created extra validations for the multiple validation
+			var previousExtras = document.querySelectorAll('.mValidation');
+			for (i = 0; i < previousExtras.length; i++) {
+				previousExtras[i].parentNode.removeChild(previousExtras[i]);
+			} 
+		}
+	} else if (elem.id == 'VALIDATIONMULTIPLE') {
+		var selectedValues = new Array();
+		for (i = 0; i < elem.length; i++) {
+			if (elem[i].selected && (elem[i].value == 'custom' || elem[i].value == 'numeric' || elem[i].value == 'alphanumeric' || elem[i].value == 'alpha' || elem[i].value == 'regex' || elem[i].value == 'sameas')) {
+				selectedValues.push(elem[i].value);
+			}
+		}
+		
+		// remove previous created extra validations
+		var previousExtras = document.querySelectorAll('.mValidation');
+		for (i = 0; i < previousExtras.length; i++) {
+			previousExtras[i].parentNode.removeChild(previousExtras[i]);
+		} 
+		
+		// set the name of the normal validation to 'empty'
+		document.getElementById('VALIDATIONEXTRA').name='';
+		
+		// the default validation extra value if already saved
+		var savedExtra = document.getElementById('VALIDATIONEXTRA').value;
+		try {
+			eval('var savedExtraObject='+savedExtra);
+		} catch(e) {
+			var savedExtraObject = {};
+		}
+		
+		var clonedElement = document.getElementById('idVALIDATIONEXTRA').cloneNode(true);
+		clonedElement.removeAttribute('id');
+		clonedElement.removeClass('hideVALIDATIONEXTRA');
+		
+		var afterElement = document.getElementById('idVALIDATIONMULTIPLE');
+		
+		for(i = 0; i < selectedValues.length; i++) {
+			var newclonedElement = clonedElement.cloneNode(true);
+			newclonedElement.addClass('mValidation '+selectedValues[i]);
+			
+			var captionElement = newclonedElement.querySelector('#captionVALIDATIONEXTRA');
+			var validationElement = newclonedElement.querySelector('#VALIDATIONEXTRA');
+			
+			captionElement.id='captionValidation'+selectedValues[i];
+			validationElement.id='Validation'+selectedValues[i];
+			validationElement.name="param[VALIDATIONEXTRA]["+selectedValues[i]+"]";
+			if (typeof savedExtraObject[selectedValues[i]] != 'undefined') {
+				validationElement.value = savedExtraObject[selectedValues[i]];
+			} else {
+				validationElement.value = '';
+			}
+			
+			if (selectedValues[i] == 'regex' || selectedValues[i] == 'sameas') {
+				theText = RStranslateText(selectedValues[i])
+			} else {
+				theText = RStranslateText('extra');
+			}
+			
+			captionElement.innerHTML = theText;
+			
+			afterElement.parentNode.insertBefore(newclonedElement, afterElement.nextSibling);
+		}
+		
 	}
 }
 
@@ -699,10 +788,24 @@ function submissionChangeForm(formId) {
 function toggleCustomizeColumns() {
 	var el = RSFormPro.$('#columnsDiv');
 
-	if (el.is(':hidden'))
+	if (el.is(':hidden')) {
+		var windowH = RSFormPro.$(window).height();
+		var remove = 0;
+		if (RSFormPro.$('body > #status').length > 0) {
+			remove += parseInt(RSFormPro.$('body > #status').height());
+		}
+		var parentElementOffset = el.parent().offset();
+		remove += parentElementOffset.top;
+		var innerHeight = windowH - remove - 120;
+
+		if (innerHeight <= 0) {
+			innerHeight = 400;
+		}
+		el.find('#columnsInnerDiv').css('max-height', innerHeight+'px');
 		el.slideDown('fast');
-	else
+	} else {
 		el.slideUp('fast');
+	}
 }
 
 function closeAllDropdowns(except) {
@@ -817,6 +920,7 @@ function mpConnect() {
 				if (document.getElementById('method0').checked) document.getElementById('mpMethodOff').innerHTML = getLabelText('method0');
 				if (document.getElementById('method1').checked) document.getElementById('mpMethodOff').innerHTML = getLabelText('method1');
 				if (document.getElementById('method2').checked) document.getElementById('mpMethodOff').innerHTML = getLabelText('method2');
+				if (document.getElementById('method3').checked) document.getElementById('mpMethodOff').innerHTML = getLabelText('method3');
 				document.getElementById('mpHostOff').innerHTML = document.getElementById('MappingHost').value + ':' + document.getElementById('MappingPort').value;
 				document.getElementById('mpDriverOff').innerHTML = document.getElementById('driver').value;
 				document.getElementById('mpUsernameOff').innerHTML = document.getElementById('MappingUsername').value;
@@ -889,7 +993,7 @@ function mpColumns(table) {
 
 	xmlHttp.onreadystatechange = function () {//Call a function when the state changes.
 		if (xmlHttp.readyState == 4) {
-			if ((isset(document.getElementById('method0')) && document.getElementById('method0').checked) || (isset(document.getElementById('method1')) && document.getElementById('method1').checked) || (isset(document.getElementById('method')) && document.getElementById('method').value == 0) || (isset(document.getElementById('method')) && document.getElementById('method').value == 1))
+			if ((isset(document.getElementById('method0')) && document.getElementById('method0').checked) || (isset(document.getElementById('method1')) && document.getElementById('method1').checked) || (isset(document.getElementById('method3')) && document.getElementById('method3').checked) || (isset(document.getElementById('method')) && document.getElementById('method').value == 0) || (isset(document.getElementById('method')) && document.getElementById('method').value == 1) || (isset(document.getElementById('method')) && document.getElementById('method').value == 3))
 				document.getElementById('rsfpmappingColumns').innerHTML = xmlHttp.responseText;
 			document.getElementById('mappingloader2').style.display = 'none';
 
@@ -1010,6 +1114,7 @@ function mappingWhere(table) {
 		if (xmlHttp.readyState == 4) {
 			document.getElementById('rsfpmappingWhere').innerHTML = xmlHttp.responseText;
 			document.getElementById('mappingloader2').style.display = 'none';
+			RSFormPro.$(document).trigger('renderedRsfpmappingWhere', 'rsfpmappingWhere');
 		}
 	};
 	xmlHttp.send(params);

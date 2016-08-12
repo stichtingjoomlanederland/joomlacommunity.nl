@@ -37,4 +37,12 @@ class RSFormProFieldBootstrap3Captcha extends RSFormProFieldCaptcha
 		
 		return $attr;
 	}
+	
+	protected function getRefreshAttributes() {
+		$attr = array(
+			'class="rsform-captcha-refresh-button btn btn-default"'
+		);
+		
+		return implode(' ', $attr);
+	}
 }

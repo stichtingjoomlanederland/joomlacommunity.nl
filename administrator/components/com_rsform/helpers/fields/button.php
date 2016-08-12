@@ -153,7 +153,7 @@ class RSFormProFieldButton extends RSFormProField
 		$class 		 = substr(get_class($this), -strlen('SubmitButton'));
 		
 		if ($class == 'SubmitButton') {
-			$buttons 	 = $this->getProperty('SUBMITS');
+			$buttons 	 = $this->getProperty('SUBMITS', array());
 			$last		 = $componentId == end($buttons);
 		}
 			

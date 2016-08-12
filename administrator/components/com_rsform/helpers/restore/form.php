@@ -151,30 +151,112 @@ class RSFormProRestoreForm
 		if (isset($this->xml->fields)) {
 			foreach ($this->xml->fields->children() as $field) {
 				$query = $this->db->getQuery(true);
+				$componentTypeId = (string) $field->ComponentTypeId;
+				// change fieldType if needed
+				$changedField = '';
+				if ($componentTypeId == '12') {
+					$componentTypeId = '13';
+					$changedField = 'imageButton';
+				}
+				
 				$query	->insert('#__rsform_components')
 						->set(array(
 								$this->db->qn('FormId')				.'='.$this->db->q($this->form->FormId),
-								$this->db->qn('ComponentTypeId')	.'='.$this->db->q((string) $field->ComponentTypeId),
+								$this->db->qn('ComponentTypeId')	.'='.$this->db->q($componentTypeId),
 								$this->db->qn('Order')				.'='.$this->db->q((string) $field->Order),
 								$this->db->qn('Published')			.'='.$this->db->q((string) $field->Published)
 						));
 				$this->db->setQuery($query)->execute();
 				$componentId = $this->db->insertid();
 				
+				// we use the switch statement for further field types changes - at the moment we only need it for the image button
+				$referenceProperties = array();
+				if (!empty($changedField)) {
+					switch ($changedField) {
+						case 'imageButton':
+							$this->db->setQuery("SELECT `FieldName` FROM `#__rsform_component_type_fields` WHERE `ComponentTypeId` = 13 ");
+							$referenceProperties = $this->db->loadColumn();
+						break;
+					}
+				}
+				
 				
 				if (isset($field->properties)) {
+					$newProperties = array();
 					foreach ($field->properties->children() as $property => $value) {
-						$query = $this->db->getQuery(true);
-						$query	->insert('#__rsform_properties')
-								->set(array(
-										$this->db->qn('ComponentId')	.'='.$this->db->q($componentId),
-										$this->db->qn('PropertyName')	.'='.$this->db->q((string) $property),
-										$this->db->qn('PropertyValue')	.'='.$this->db->q((string) $value)
-								));
-						$this->db->setQuery($query)->execute();
-						// store the ComponentId
-						if ((string) $property == 'NAME') {
-							$this->fields[(string) $value] = $componentId;
+						$property = (string) $property;
+						$value = (string) $value;
+						
+						if (!isset($newProperties[$componentId])) {
+							$newProperties[$componentId] = array();
+						}
+						
+						if (!empty($changedField)) {
+							switch ($changedField) {
+								case 'imageButton':
+									if (in_array($property, $referenceProperties)) {
+										if ($property == 'ADDITIONALATTRIBUTES' && isset($newProperties[$componentId]['ADDITIONALATTRIBUTES'])) {
+											$newProperties[$componentId]['ADDITIONALATTRIBUTES'] = $value."\r\n".$newProperties[$componentId]['ADDITIONALATTRIBUTES'];	
+										} else {
+											$newProperties[$componentId][$property] = $value;
+										}
+									} else if ($property == 'IMAGEBUTTON' && !empty($value)) {
+										$additional = 'type="image"'."\r\n".'src="'.$value.'"';
+										if (isset($newProperties[$componentId]['ADDITIONALATTRIBUTES']) && !empty($newProperties[$componentId]['ADDITIONALATTRIBUTES'])) {
+											$additional = $newProperties[$componentId]['ADDITIONALATTRIBUTES']."\r\n".$additional;
+										}
+										$newProperties[$componentId]['ADDITIONALATTRIBUTES'] = $additional;
+									}
+								break;
+							}
+						} else  {
+							$newProperties[$componentId][$property] = $value;
+						}
+					}
+					
+					// add the submit button extra properties
+					if (!empty($changedField)) {
+						switch ($changedField) {
+							case 'imageButton':
+								foreach ($newProperties as $CompId => $property) {
+									foreach ($referenceProperties as $referenceProperty) {
+										$value = '';
+										switch ($referenceProperty) {
+											case 'DISPLAYPROGRESS':
+												$value = 'NO';
+											break;
+											case 'BUTTONTYPE':
+												$value = 'TYPEINPUT';
+											break;
+											case 'DISPLAYPROGRESSMSG':
+												$value = '<div>'."\r\n".' <p><em>Page <strong>{page}</strong> of {total}</em></p>'."\r\n".' <div class="rsformProgressContainer">'."\r\n".'  <div class="rsformProgressBar" style="width: {percent}%;"></div>'."\r\n".' </div>'."\r\n".'</div>';
+											break;
+										}
+										
+										if (!empty($value)) {
+											$newProperties[$CompId][$referenceProperty] = $value;
+										}
+									}
+								}
+							break;
+						}
+					}
+				
+					
+					foreach ($newProperties as $CompId => $property) {
+						foreach ($property as $propertyName => $propertyValue) {
+							$query = $this->db->getQuery(true);
+							$query	->insert('#__rsform_properties')
+									->set(array(
+											$this->db->qn('ComponentId')	.'='.$this->db->q($CompId),
+											$this->db->qn('PropertyName')	.'='.$this->db->q($propertyName),
+											$this->db->qn('PropertyValue')	.'='.$this->db->q($propertyValue)
+									));
+							$this->db->setQuery($query)->execute();
+							// store the ComponentId
+							if ((string) $propertyName == 'NAME') {
+								$this->fields[(string) $propertyValue] = $CompId;
+							}
 						}
 					}
 				}
