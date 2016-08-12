@@ -22,13 +22,13 @@ $defaultName = isset($user->name) ? $user->name : '';
 	<a href="<?php echo $user->getPermalink();?>"
 	    class="o-avatar o-avatar--<?php echo $size; ?>"
 
-        <?php if (!$popbox && !$this->config->get('integration_easysocial_popbox')) { ?>
+        <?php if (!$popbox && !$easysocialPopbox) { ?>
         data-ed-provide="tooltip"
         data-placement="top"
         title="<?php echo $user->getName($defaultName);?>"
         <?php } ?>
 
-        <?php if ($popbox && !$this->config->get('integration_easysocial_popbox')) { ?>
+        <?php if ($popbox) { ?>
         data-ed-popbox="ajax://site/views/profile/popbox"
         data-ed-popbox-position="top-left"
         data-ed-popbox-toggle="hover"

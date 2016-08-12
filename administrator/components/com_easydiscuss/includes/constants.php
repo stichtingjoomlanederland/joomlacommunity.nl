@@ -195,6 +195,7 @@ define( 'DISCUSS_POST_STATUS_REJECT'		, 4 );
 
 // Update server
 define('ED_UPDATER', 'http://stackideas.com/updater/manifests/easydiscuss');
+define('ED_SERVICE_VERSION', 'http://stackideas.com/updater/manifests/easydiscuss');
 
 // Language server
 define('ED_LANGUAGES_SERVER', 'http://lang.stackideas.com/easydiscuss');

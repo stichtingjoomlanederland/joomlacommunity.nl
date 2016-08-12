@@ -98,15 +98,10 @@ class EasyDiscussViewPost extends EasyDiscussView
 		// Get adsense codes here.
 		$adsense = ED::adsense()->html();
 
-		// Get the answer for this discussion.
 		$model = ED::model('Posts');
-		$answer = $model->getAcceptedReply($post->id);
 
-		// Format the answer object.
-		if ($answer) {
-			$answer = ED::formatReplies($answer, $category, $pagination, true);
-			$answer = $answer[0];
-		}
+		// Get the answer for this discussion.
+		$answer = $post->getAcceptedReply(true);
 
 		// Get a list of replies for this post.
 		$limitReplies = $post->config->get('layout_replies_list_limit');

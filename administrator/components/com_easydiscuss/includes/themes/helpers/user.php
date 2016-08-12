@@ -102,7 +102,7 @@ class EasyDiscussThemesHelperUser
 		$size = isset($options['size']) ? $options['size'] : 'sm';
 
 		// default to true
-		$popbox = isset($options['popbox']) ? $options['popbox'] : true;
+		$popbox = isset($options['popbox']) ? $options['popbox'] : $config->get('layout_avatar_popbox');
 
 		// If the Jomsocial messaging integration enabled, we need to initialize the script.
 		$jomsocial = ED::jomsocial();
@@ -112,6 +112,26 @@ class EasyDiscussThemesHelperUser
 			$jomsocial->init();
 		}
 
+		$easysocialPopbox = false;
+
+		// Check for easysocial popbox.
+		if ($config->get('integration_easysocial_popbox')) {
+			$easysocial = ED::easysocial();
+
+			if ($easysocial->exists()) {
+				$easysocialPopbox = true;
+
+				// Disabled default popbox
+				$popbox = false;
+			}
+		}
+
+		// If this is guest, do not display any popbox.
+		if (!$user->id) {
+			$popbox = false;
+			$easysocialPopbox = false;
+		}
+
 		$theme = ED::themes();
 		$theme->set('user', $user);
 		$theme->set('rank', $rank);
@@ -119,6 +139,7 @@ class EasyDiscussThemesHelperUser
 		$theme->set('status', $status);
 		$theme->set('size', $size);
 		$theme->set('popbox', $popbox);
+		$theme->set('easysocialPopbox', $easysocialPopbox);
 
 		$output = $theme->output('site/html/user.avatar');
 

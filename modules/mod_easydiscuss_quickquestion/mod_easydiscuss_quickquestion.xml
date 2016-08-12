@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Quick Question Module</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>20th July 2016</creationDate>
+	<creationDate>11th August 2016</creationDate>
 	<copyright>Copyright (C) 2009 - 2016 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>4.0.7</version>
+	<version>4.0.8</version>
 	<description><![CDATA[This module provides form to quickly ask a question with minimal interface.]]></description>
 	<files>
 		<folder>styles</folder>

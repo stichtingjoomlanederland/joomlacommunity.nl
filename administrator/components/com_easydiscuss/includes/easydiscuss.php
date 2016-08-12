@@ -1785,19 +1785,19 @@ class ED
 	 * @param	array 	$exclusion	A list of excluded categories that it should not be including
 	 */
 
-	public static function populateCategories($parentId, $userId, $outType, $eleName, $default = false, $isWrite = false, $isPublishedOnly = false, $showPrivateCat = true , $disableContainers = false , $customClass = 'form-control', $exclusion = array(), $aclType = DISCUSS_CATEGORY_ACL_ACTION_VIEW)
+	public static function populateCategories($parentId, $userId, $outType, $eleName, $default = false, $isWrite = false, $isPublishedOnly = false, $showPrivateCat = true , $disableContainers = false , $customClass = 'form-control', $exclusion = array(), $aclType = DISCUSS_CATEGORY_ACL_ACTION_VIEW, $sorting = false)
 	{
 		$model = ED::model('Categories');
 		$parentCat	= null;
 
 		if (!empty($userId)) {
-			$parentCat = $model->getParentCategories($userId, 'poster', $isPublishedOnly, $showPrivateCat, $exclusion, $aclType);
+			$parentCat = $model->getParentCategories($userId, 'poster', $isPublishedOnly, $showPrivateCat, $exclusion, $aclType, $sorting);
 
 		} else if (!empty($parentId)) {
-			$parentCat = $model->getParentCategories($parentId, 'category', $isPublishedOnly, $showPrivateCat, $exclusion, $aclType);
+			$parentCat = $model->getParentCategories($parentId, 'category', $isPublishedOnly, $showPrivateCat, $exclusion, $aclType, $sorting);
 
 		} else {
-			$parentCat = $model->getParentCategories('', 'all', $isPublishedOnly, $showPrivateCat, $exclusion, $aclType);
+			$parentCat = $model->getParentCategories('', 'all', $isPublishedOnly, $showPrivateCat, $exclusion, $aclType, $sorting);
 		}
 
 		// If the result == null

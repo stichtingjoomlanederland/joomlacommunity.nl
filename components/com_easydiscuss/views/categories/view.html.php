@@ -117,6 +117,17 @@ class EasyDiscussViewCategories extends EasyDiscussView
 		// Get list of categories on the site.
 		$model = ED::model('Posts');
 
+		// Get the current active category
+		$activeCategory = ED::category($categoryId);
+		$breadcrumbs = $activeCategory->getBreadcrumbs();
+
+		// determine if we should retrive posts from it sub categories or not.
+		$includeChilds = false;
+		if ($activeCategory->isContainer()) {
+			$includeChilds = true;
+		}
+
+
 		$options = array(
 						'sort' => $registry->get('sort'),
 						'limitstart' => $this->input->get('limitstart', 0),
@@ -124,7 +135,7 @@ class EasyDiscussViewCategories extends EasyDiscussView
 						'category' => $categoryId,
 						'limit' => $this->config->get('layout_single_category_post_limit', $limit),
 						'userId' => $this->my->id,
-						'includeChilds' => false
+						'includeChilds' => $includeChilds
 					);
 
 		// Get all the posts in this category and it's childs
@@ -140,24 +151,28 @@ class EasyDiscussViewCategories extends EasyDiscussView
 			// Format normal entries
 			$posts = ED::formatPost($posts);
 
-			// Grouping the posts based on categories.
-			foreach ($posts as $post) {
+			// // Grouping the posts based on categories.
+			// foreach ($posts as $post) {
 
-				if (!isset($threads[$post->category_id])) {
-					$thread = new stdClass();
-					$thread->category = ED::category($post->category_id);
-					$thread->posts = array();
+			// 	if (!isset($threads[$post->category_id])) {
+			// 		$thread = new stdClass();
+			// 		$thread->category = ED::category($post->category_id);
+			// 		$thread->posts = array();
 
-					$threads[$post->category_id] = $thread;
-				}
+			// 		$threads[$post->category_id] = $thread;
+			// 	}
 
-				$threads[$post->category_id]->posts[] = $post;
-			}
+			// 	$threads[$post->category_id]->posts[] = $post;
+			// }
+
+			// since this category listing page only show single category post. we no longer need to group them.
+
+			$thread = new stdClass();
+			$thread->category = $activeCategory;
+			$thread->posts = array();
+			$threads[$activeCategory->id] = $thread;
+			$threads[$activeCategory->id]->posts = $posts;
 		}
-
-		// Get the current active category
-		$activeCategory = ED::category($categoryId);
-		$breadcrumbs = $activeCategory->getBreadcrumbs();
 
 		// setthing pathway
 		if (! EDR::isCurrentActiveMenu('categories', $activeCategory->id, 'category_id') && $breadcrumbs) {

@@ -36,6 +36,14 @@ defined('_JEXEC') or die('Restricted access');
 						</div>
 					</div>
 					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_AVATARS_POPBOX'); ?>
+						</div>
+						<div class="col-md-7">
+							<?php echo $this->html('form.boolean', 'layout_avatar_popbox', $this->config->get('layout_avatar_popbox'));?>
+						</div>
+					</div>					
+					<div class="form-group">
                         <div class="col-md-5 control-label">
                             <?php echo $this->html('form.label', 'COM_EASYDISCUSS_AVATARS_SIZE_PIXELS'); ?>
                         </div>

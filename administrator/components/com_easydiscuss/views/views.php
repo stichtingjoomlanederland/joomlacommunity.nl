@@ -138,7 +138,9 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
             $sidebar = $this->getSidebar();
 
             $message = ED::getMessageQueue();
-
+            $version = ED::getLocalVersion();
+            
+            $theme->set('version', $version);
             $theme->set('title', $this->panelTitle);
             $theme->set('desc', $this->panelDescription);
             $theme->set('message', $message);

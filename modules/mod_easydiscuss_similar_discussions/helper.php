@@ -3,7 +3,7 @@
 * @package      EasyDiscuss
 * @copyright    Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
-* Komento is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -98,8 +98,8 @@ class EDSimilarDiscussions
 				$durationObj->timediff = $row->timediff;
 
 				$row->content = ED::parser()->bbcode($row->content);
-				$row->title = ED::wordFilter($row->title);
-				$row->content = strip_tags(html_entity_decode(ED::wordFilter($row->content)));
+				$row->title = ED::parser()->filter($row->title);
+				$row->content = strip_tags(html_entity_decode(ED::parser()->filter($row->content)));
 				$row->duration = ED::getDurationString($durationObj);
 				$row->permalink = EDR::getPostRoute($row->post_id);
 
@@ -109,5 +109,4 @@ class EDSimilarDiscussions
 
 		return $discussions;
 	}
-
 }

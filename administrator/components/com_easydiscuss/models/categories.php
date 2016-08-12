@@ -654,10 +654,14 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		return $categories;
 	}
 
-	public function getParentCategories($contentId, $type = 'all', $isPublishedOnly = false, $showPrivateCat = true, $exclusion = array(), $aclType = DISCUSS_CATEGORY_ACL_ACTION_VIEW)
+	public function getParentCategories($contentId, $type = 'all', $isPublishedOnly = false, $showPrivateCat = true, $exclusion = array(), $aclType = DISCUSS_CATEGORY_ACL_ACTION_VIEW, $ordering = false)
 	{
 		$db = $this->db;
 		$sortConfig	= $this->config->get('layout_ordering_category','latest');
+
+		if ($ordering) {
+			$sortConfig = $ordering;
+		}
 
 		$query = 'select a.`id`, a.`title`, a.`alias`, a.`private`,a.`default`,a.`container`';
 		$query .= ' from `#__discuss_category` as a';

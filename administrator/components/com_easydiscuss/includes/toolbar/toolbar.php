@@ -37,7 +37,7 @@ class EasyDiscussToolbar extends EasyDiscuss
         $showSettings = isset($options['showSettings']) ? $options['showSettings'] : $this->config->get('layout_toolbarprofile');
         $showLogin = isset($options['showLogin']) ? $options['showLogin'] : $this->config->get('layout_toolbarlogin');
         $showConversation = isset($options['showConversation']) ? $options['showConversation'] : $this->config->get('layout_toolbar_conversation');
-        $showNotification = isset($options['showNotification']) ? $options['showNotification'] : $this->config->get('layout_toolbar_notification');
+        $showNotification = isset($options['showNotification']) ? $options['showNotification'] : ($this->config->get('layout_toolbar_notification') && $this->config->get('main_notifications'));
         $processLogic = isset($options['processLogic']) ? $options['processLogic'] : true;
         $renderToolbarModule = isset($options['renderToolbarModule']) ? $options['renderToolbarModule'] : true;
 

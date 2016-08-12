@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Your Discussions</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>20th July 2016</creationDate>
+	<creationDate>11th August 2016</creationDate>
 	<copyright>Copyright 2009 - 2016 Stack Ideas. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>4.0.7</version>
+	<version>4.0.8</version>
 	<description><![CDATA[This module will display all the discussion that the current logged in user has posted.]]></description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easydiscuss_your_discussions.ini</language>
@@ -27,7 +27,15 @@
 					<option value="1">JYES</option>
 					<option value="0">JNO</option>
 				</field>
-				<field name="showauthor" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_YOUR_DISCUSSIONS_SHOW_AUTHOR" description="MOD_EASYDISCUSS_YOUR_DISCUSSIONS_SHOW_AUTHOR_DESC">
+				<field name="showtotalvotes" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_YOUR_DISCUSSIONS_SHOW_TOTAL_VOTES" description="MOD_EASYDISCUSS_YOUR_DISCUSSIONS_SHOW_TOTAL_VOTES_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showreplycount" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_YOUR_DISCUSSIONS_SHOW_REPLY_COUNT" description="MOD_EASYDISCUSS_YOUR_DISCUSSIONS_SHOW_REPLY_COUNT_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showdate" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_YOUR_DISCUSSIONS_SHOW_DATE" description="MOD_EASYDISCUSS_YOUR_DISCUSSIONS_SHOW_DATE_DESC">
 					<option value="1">JYES</option>
 					<option value="0">JNO</option>
 				</field>
@@ -47,18 +55,15 @@
 					<option value="1">JYES</option>
 					<option value="0">JNO</option>
 				</field>
-				<field name="showreplycount" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_YOUR_DISCUSSIONS_SHOW_REPLY_COUNT" description="MOD_EASYDISCUSS_YOUR_DISCUSSIONS_SHOW_REPLY_COUNT_DESC">
-					<option value="1">JYES</option>
-					<option value="0">JNO</option>
-				</field>
-				<field name="showtotalvotes" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_YOUR_DISCUSSIONS_SHOW_TOTAL_VOTES" description="MOD_EASYDISCUSS_YOUR_DISCUSSIONS_SHOW_TOTAL_VOTES_DESC">
-					<option value="1">JYES</option>
-					<option value="0">JNO</option>
-				</field>
 				<field name="showlastreply" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_YOUR_DISCUSSIONS_SHOW_LAST_REPLY" description="MOD_EASYDISCUSS_YOUR_DISCUSSIONS_SHOW_LAST_REPLY_DESC">
 					<option value="1">JYES</option>
 					<option value="0">JNO</option>
 				</field>
+				<field name="showContent" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_YOUR_DISCUSSIONS_SHOW_CONTENT" description="MOD_EASYDISCUSS_YOUR_DISCUSSIONS_SHOW_CONTENT_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="maxContent" type="text" default="150" label="MOD_EASYDISCUSS_YOUR_DISCUSSIONS_MAXCONTENT" description="MOD_EASYDISCUSS_YOUR_DISCUSSIONS_MAXCONTENT_DESC" size="5" />
 			</fieldset>
 
 			<fieldset name="advanced">

@@ -192,7 +192,6 @@ class EasyDiscussWork extends EasyDiscuss
             $startTime .= $prefix;
         }
 
-
         $endTime = $this->config->get('main_work_endhour') . ':' . $this->config->get('main_work_endminute');
         if ($this->config->get('main_work_hourformat', '12') == '12') {
             $endTime = ($this->config->get('main_work_endhour') > 12) ? $this->config->get('main_work_endhour') - 12 : (int) $this->config->get('main_work_endhour');
@@ -292,22 +291,29 @@ class EasyDiscussWork extends EasyDiscuss
             }
         }
 
-        $startTime = ($this->config->get('main_work_starthour') > 12) ? $this->config->get('main_work_starthour') - 12 : (int) $this->config->get('main_work_starthour');
-        $startTime .= ':' . $this->config->get('main_work_startminute');
+        $startTime = $this->config->get('main_work_starthour') . ':' . $this->config->get('main_work_startminute');
+        if ($this->config->get('main_work_hourformat', '12') == '12') {
+            $startTime = ($this->config->get('main_work_starthour') > 12) ? $this->config->get('main_work_starthour') - 12 : (int) $this->config->get('main_work_starthour');
+            $startTime .= ':' . $this->config->get('main_work_startminute');
 
-        $prefix = 'AM';
-        if ($this->config->get('main_work_starthour') >= 12) {
-            $prefix = 'PM';
+            $prefix = 'AM';
+            if ($this->config->get('main_work_starthour') >= 12) {
+                $prefix = 'PM';
+            }
+            $startTime .= $prefix;
         }
-        $startTime .= $prefix;
 
-        $endTime = ($this->config->get('main_work_endhour') > 12) ? $this->config->get('main_work_endhour') - 12 : (int) $this->config->get('main_work_endhour');
-        $endTime .= ':' . $this->config->get('main_work_endminute');
-        $prefix = 'AM';
-        if ($this->config->get('main_work_endhour') >= 12) {
-            $prefix = 'PM';
+        $endTime = $this->config->get('main_work_endhour') . ':' . $this->config->get('main_work_endminute');
+        if ($this->config->get('main_work_hourformat', '12') == '12') {
+            $endTime = ($this->config->get('main_work_endhour') > 12) ? $this->config->get('main_work_endhour') - 12 : (int) $this->config->get('main_work_endhour');
+            $endTime .= ':' . $this->config->get('main_work_endminute');
+
+            $prefix = 'AM';
+            if ($this->config->get('main_work_endhour') >= 12) {
+                $prefix = 'PM';
+            }
+            $endTime .= $prefix;
         }
-        $endTime .= $prefix;
 
         $workTimeLabel = JText::sprintf('COM_EASYDISCUSS_WORK_TIME_FROM_TO', $startTime, $endTime);
 
