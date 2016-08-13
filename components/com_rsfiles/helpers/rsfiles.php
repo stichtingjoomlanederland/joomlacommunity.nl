@@ -1285,6 +1285,7 @@ class rsfilesHelper {
 			header("Content-Type: application/octetstream");
 		}
 		
+		header('Accept-Ranges: bytes');
 		header('Cache-Control: no-cache');
 		header('Content-Disposition:inline;filename="' . $filename . '"');
 		
