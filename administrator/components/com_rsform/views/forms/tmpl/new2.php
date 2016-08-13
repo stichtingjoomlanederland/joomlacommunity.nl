@@ -25,6 +25,16 @@ defined('_JEXEC') or die('Restricted access');
 			document.adminForm.AdminEmailTo.disabled = true;
 	}
 	
+	function showPopupThankyou(value)
+	{
+		if (value == 1) {
+			document.getElementById('popupThankYou').style.display = 'none';
+		}
+		else {
+			document.getElementById('popupThankYou').style.display = 'table-row';
+		}
+	}
+	
 	function changeSubmissionAction(value)
 	{
 		document.getElementById('RedirectTo1').style.display = 'none';
@@ -104,6 +114,14 @@ defined('_JEXEC') or die('Restricted access');
 			</tr>
 			<tr id="FormLayoutXHTML">
 				<td colspan="2"><?php echo JText::_('RSFP_WHATS_FORM_LAYOUT_XHTML'); ?></td>
+			</tr>
+			<tr>
+				<td width="350" style="width: 350px;" align="right" class="key"><?php echo JText::_('RSFP_WANT_SCROLL_TO_THANK_YOU_MESSAGE'); ?></td>
+				<td class="com-rsform-css-fix"><?php echo $this->lists['ScrollToThankYou']; ?></td>
+			</tr>
+			<tr style="display:none" id="popupThankYou">
+				<td width="350" style="width: 350px;" align="right" class="key"><?php echo JText::_('RSFP_WANT_POPUP_THANK_YOU_MESSAGE'); ?></td>
+				<td class="com-rsform-css-fix"><?php echo $this->lists['ThankYouMessagePopUp']; ?></td>
 			</tr>
 		</table>
 		

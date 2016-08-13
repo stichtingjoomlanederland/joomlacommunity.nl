@@ -87,7 +87,8 @@ function resetForm()
 					<div id="columnsContainer">
 						<div id="columnsDiv">
 							<label for="checkColumns" class="checkbox"><input type="checkbox" onclick="toggleCheckColumns();" id="checkColumns" /> <strong><?php echo JText::_('RSFP_CHECK_ALL'); ?></strong></label>
-						<?php $i = 0; ?>
+							<div id="columnsInnerDiv">
+							<?php $i = 0; ?>
 						<?php foreach ($this->staticHeaders as $header) { ?>
 							 <label for="column<?php echo $i; ?>" class="checkbox"><input type="checkbox" <?php echo $this->isHeaderEnabled($header, 1) ? 'checked="checked"' : ''; ?> name="staticcolumns[]" value="<?php echo $this->escape($header); ?>" id="column<?php echo $i; ?>" /><?php echo JText::_('RSFP_'.$header); ?></label>
 							<?php $i++; ?>
@@ -99,6 +100,7 @@ function resetForm()
 							</label>
 							<?php $i++; ?>
 						<?php } ?>
+							</div>
 							<center><button class="btn btn-primary" type="button" onclick="submitbutton('submissions.columns')"><?php echo JText::_('Submit'); ?></button></center>
 						</div>
 					</div>

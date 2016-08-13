@@ -48,8 +48,8 @@ class RSFormProFieldCaptcha extends RSFormProField
 			if ($refresh) {
 				$text		= $this->getProperty('REFRESHTEXT', '');
 				$base 		= JRoute::_('index.php?option=com_rsform&task=captcha&componentId='.$componentId.'&tmpl=component');
-				$onclick 	= "refreshCaptcha('$componentId', '$base'); return false;";
-				$refreshBtn = '&nbsp;&nbsp;<a href="javascript:void(0)" onclick="'.$onclick.'">'.$text.'</a>';
+				$onclick 	= "RSFormPro.refreshCaptcha('$componentId', '$base'); return false;";
+				$refreshBtn = ' <a href="javascript:void(0)" onclick="'.$onclick.'">'.$text.'</a>';
 			}
 			
 			$captchaOutput = $image.($flow == 'VERTICAL' ? '<br/>' :'').$input.$refreshBtn;
@@ -109,8 +109,8 @@ class RSFormProFieldCaptcha extends RSFormProField
 		if ($refresh) {
 			$text		= $this->getProperty('REFRESHTEXT', '');
 			$base 		= JRoute::_('index.php?option=com_rsform&task=captcha&componentId='.$componentId.'&tmpl=component');
-			$onclick 	= "refreshCaptcha('$componentId', '$base'); return false;";
-			$refreshBtn = '&nbsp;&nbsp;<a href="javascript:void(0)" onclick="'.$onclick.'">'.$text.'</a>';
+			$onclick 	= "RSFormPro.refreshCaptcha('$componentId', '$base'); return false;";
+			$refreshBtn = ' <a href="javascript:void(0)" '.$this->getRefreshAttributes().' onclick="'.$onclick.'">'.$text.'</a>';
 		}
 		
 		return $this->setFieldOutput($image, $input, $refreshBtn, $flow);
@@ -182,5 +182,13 @@ class RSFormProFieldCaptcha extends RSFormProField
 		}
 		
 		return $attr;
+	}
+	
+	protected function getRefreshAttributes() {
+		$attr = array(
+			'class="rsform-captcha-refresh-button"'
+		);
+		
+		return implode(' ', $attr);
 	}
 }

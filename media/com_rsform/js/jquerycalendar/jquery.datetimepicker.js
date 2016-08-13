@@ -511,6 +511,7 @@
 		highlightedDates: [],
 		highlightedPeriods: [],
 		disabledDates : [],
+		disabledWeekDays: [],
 		yearOffset: 0,
 		beforeShowDay: null,
 
@@ -945,6 +946,10 @@
 
 				if (_options.disabledDates && $.isArray(_options.disabledDates) && _options.disabledDates.length) {
 					options.disabledDates = $.extend(true, [], _options.disabledDates);
+				}
+				
+				if (_options.disabledWeekDays && $.isArray(_options.disabledWeekDays) && _options.disabledWeekDays.length) {
+					options.disabledWeekDays = $.extend(true, [], _options.disabledWeekDays);
 				}
 
 				if ((options.open || options.opened) && (!options.inline)) {
@@ -1427,6 +1432,7 @@
 							maxDate = false,
 							minDate = false,
 							hDate,
+							day,
 							d,
 							y,
 							m,
@@ -1469,7 +1475,8 @@
 						while (i < _xdsoft_datetime.currentTime.countDaysInMonth() || start.getDay() !== options.dayOfWeekStart || _xdsoft_datetime.currentTime.getMonth() === start.getMonth()) {
 							classes = [];
 							i += 1;
-
+							
+							day = start.getDay();
 							d = start.getDate();
 							y = start.getFullYear();
 							m = start.getMonth();
@@ -1487,6 +1494,8 @@
 							if ((maxDate !== false && start > maxDate) || (minDate !== false && start < minDate) || (customDateSettings && customDateSettings[0] === false)) {
 								classes.push('xdsoft_disabled');
 							} else if (options.disabledDates.indexOf(start.dateFormat(options.formatDate)) !== -1) {
+								classes.push('xdsoft_disabled');
+							} else if (options.disabledWeekDays.indexOf(day) !== -1) {
 								classes.push('xdsoft_disabled');
 							}
 

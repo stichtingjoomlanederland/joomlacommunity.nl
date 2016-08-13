@@ -172,6 +172,25 @@ RSFormPro.YUICalendar = {
 				}
 				continue;
 			}
+			
+			if (extraType == 'mindate') {
+				var currentDate = calendar.today;
+				var minDate = new Date(extra[extraType]);
+				
+				if (currentDate.getTime() < minDate.getTime()) {
+					calendar.cfg.setProperty('today', minDate);
+				}
+			}
+			
+			if (extraType == 'maxdate') {
+				var currentDate = calendar.today;
+				var maxDate = new Date(extra[extraType]);
+				
+				if (currentDate.getTime() > maxDate.getTime()) {
+					calendar.cfg.setProperty('today', maxDate);
+				}
+			}
+			
 			calendar.cfg.setProperty(extraType, extra[extraType]);
 		}
 	},
@@ -219,6 +238,18 @@ RSFormPro.YUICalendar = {
 			cal.style.display = '';
 		} else  {
 			cal.style.display = 'none';
+		}
+	},
+	
+	hideAllPopupCalendars: function(formId, calendarsIds) {
+		if (typeof RSFormPro.YUICalendar.calendars[formId] != 'undefined') {
+			for (var i = 0; i < calendarsIds.length; i++){
+				var calId = 'cal'+calendarsIds[i]+'Container';
+				cal = document.getElementById(calId);
+				if(cal.style.display != 'none' && cal.style.position == 'absolute') {
+					cal.style.display = 'none';
+				}
+			}
 		}
 	},
 	

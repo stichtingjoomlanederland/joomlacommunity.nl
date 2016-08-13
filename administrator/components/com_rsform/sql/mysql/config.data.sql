@@ -11,4 +11,5 @@ INSERT IGNORE INTO `#__rsform_config` (`SettingName`, `SettingValue`) VALUES
 ('calculations.nodecimals', '2'),
 ('request_timeout', '0'),
 ('backup.mask', 'backup-{domain}-{date}'),
-('allow_unsafe', '0');
+('allow_unsafe', '0'),
+('google.api_key', '');

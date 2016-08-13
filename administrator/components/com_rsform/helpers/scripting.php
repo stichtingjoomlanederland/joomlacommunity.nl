@@ -12,16 +12,58 @@ class RSFormProScripting
 		
 		$condition 	= '{[a-z0-9\_\- ]+:[a-z_]+}';
 		$inner 		= '((?:(?!{/?if).)*?)';
-		$pattern 	= '#{if\s?('.$condition.')}'.$inner.'{/if}#is';
+		$pattern 	= '#{if\s?('.$condition.')\s?(<=|>=|<>|<|>|!=|===|==|=)?\s?'.$inner.'?\s?}'.$inner.'{/if}#is';
 		
 		while (preg_match($pattern, $subject, $match)) {
-			$placeholder = $match[1];
-			$content 	 = $match[2];
+			$placeholder = trim($match[1]);
+			$operand	 = trim($match[2]);
+			$compare	 = trim($match[3], '\'" ');
+			$content 	 = $match[4];
+			$value		 = !isset($placeholders[$placeholder]) ? '' : $placeholders[$placeholder];
 
+			switch ($operand) {
+				default:
+					$result = $value;
+				break;
+				
+				case '<=':
+					$result = $value <= $compare;
+				break;
+				
+				case '>=':
+					$result = $value >= $compare;
+				break;
+				
+				case '<>':
+					$result = $value <> $compare;
+				break;
+				
+				case '<':
+					$result = $value < $compare;
+				break;
+				
+				case '>':
+					$result = $value > $compare;
+				break;
+				
+				case '!=':
+					$result = $value != $compare;
+				break;
+				
+				case '=':
+				case '==':
+					$result = $value == $compare;
+				break;
+				
+				case '===':
+					$result = $value === $compare;
+				break;
+			}
+			
 			// if empty value remove whole line
 			// else show line but remove pseudo-code
 			$subject = preg_replace($pattern,
-									empty($placeholders[$placeholder]) ? '' : addcslashes($content, '$'),
+									$result ? addcslashes($content, '$') : '',
 									$subject,
 									1);
 		}

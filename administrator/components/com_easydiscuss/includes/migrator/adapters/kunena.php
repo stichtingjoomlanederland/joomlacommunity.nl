@@ -168,6 +168,8 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 	        $data['content'] = $content;
 	        $data['parent_id'] = $post->id;
 	        $data['user_id'] = $kChildItem->userid;
+			$data['created'] = ED::date($kChildItem->time)->toMySQL();
+			$data['modified'] = ED::date($kChildItem->time)->toMySQL();
 
 	        // Load the post library
 	        $post = ED::post();
@@ -188,7 +190,9 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 		$data = array();
 
-		$lastreplied = (isset($item->threadlastreplied))? $item->threadlastreplied : $item->time;
+		// $lastreplied = $item->last_post_time;
+		$lastreplied = (isset($item->last_post_time))? $item->last_post_time : $item->time;
+
 
 		$subject = $item->subject;
 
@@ -325,8 +329,18 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 		// Get Kunena's category
 		$kunenaCategory = $this->getKunenaCategory($item->catid);
 
+		$easydiscussParentCategoryId = 0;
+
+		// Check if this kunena category has parent_id
+		if ($kunenaCategory->parent_id != 0) {
+			// Get the parent category
+			$parentCategory = $this->getKunenaCategory($kunenaCategory->parent_id);
+
+			$easydiscussParentCategoryId = $this->easydiscussCategoryExists($parentCategory);
+		} 
+
 		// Determine if this category has already been created in EasyDiscuss
-		$easydiscussCategoryId = $this->easydiscussCategoryExists($kunenaCategory);
+		$easydiscussCategoryId = $this->easydiscussCategoryExists($kunenaCategory, $easydiscussParentCategoryId);
 
 		return $easydiscussCategoryId;
 	}
@@ -365,17 +379,18 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 	{
 		$db	= $this->db;
 
-		$query = 'SELECT * FROM `#__kunena_messages` AS a';
+		$query = 'SELECT c.`last_post_time`, a.* FROM `#__kunena_messages` AS a';
+		$query .= ' INNER JOIN `#__kunena_topics` as c on c.`id` = a.`thread`';
 		$query .= ' WHERE NOT EXISTS (';
 		$query .= ' SELECT external_id FROM `#__discuss_migrators` AS b WHERE b.`external_id` = a.`id` and `component` = ' . $this->db->Quote('com_kunena');
 		$query .= ' )';
 
 		// If item is not null, caller trying to get the replies for that item
 		if (!is_null($item)) {
-			$query .= ' AND ' . $db->nameQuote('thread') . ' = ' . $db->Quote($item->thread);
-			$query .= ' AND ' . $db->nameQuote('id') . '!=' . $db->Quote($item->id);
+			$query .= ' AND a.' . $db->nameQuote('thread') . ' = ' . $db->Quote($item->thread);
+			$query .= ' AND a.' . $db->nameQuote('id') . '!=' . $db->Quote($item->id);
 		} else {
-			$query .= ' AND ' . $db->nameQuote('parent') . '=' . $db->Quote(0);
+			$query .= ' AND a.' . $db->nameQuote('parent') . '=' . $db->Quote(0);
 		}
 
 		$query .= ' ORDER BY a.`id`';
@@ -383,7 +398,7 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 		if ($limit) {
 			$query .= ' LIMIT ' . $limit;
 		}
-		
+
 		$db->setQuery($query);
 		$items = $db->loadObjectList();
 

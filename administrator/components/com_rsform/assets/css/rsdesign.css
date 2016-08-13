@@ -1,7 +1,7 @@
 /*Dashboard Style */
 table.rsproduct {
 	border-top: 1px solid #ccc;
-	border-left: 1px solid #ccc;	
+	border-left: 1px solid #ccc;
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 12px;
 
@@ -33,10 +33,10 @@ table.rsproduct td#rs_logo_bg {
 }
 
 table.rsproduct #rs_code {
-	padding: 5px;  
+	padding: 5px;
 	font-size: 15px;
-	text-shadow: 0px 1px 0px #fff;  
-	outline: none;  		
+	text-shadow: 0px 1px 0px #fff;
+	outline: none;
 	border-radius: 5px;
 	-webkit-border-radius: 5px;
 	-moz-border-radius: 5px;
@@ -114,7 +114,7 @@ table.rsc_groups_options tr td {padding:5px;}
 	width:25%;
 	display:block;
 	float:left;
-	padding-left:2%; 
+	padding-left:2%;
 	font-size: 14px;
     font-weight: bold;
     text-shadow: 1px 1px 0 #4f4f4f4;
@@ -139,6 +139,12 @@ table.rsc_groups_options tr td {padding:5px;}
 	display:block;
 	width:94%;
 }
+
+.rs_error_field {
+	background-color: #FFDFDF;
+	border:1px solid #FF6F6F;
+}
+
 .calendar {
 	line-height:12px;
 }
@@ -147,4 +153,8 @@ table.rsc_groups_options tr td {padding:5px;}
 	#search.rs_10 {
 		width: 100% !important;
 	}
+}
+
+#rsfpmappingWhere > table .rs_inp{
+	width:81%;
 }

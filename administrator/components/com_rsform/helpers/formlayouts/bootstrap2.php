@@ -12,7 +12,18 @@ require_once dirname(__FILE__).'/../formlayout.php';
 class RSFormProFormLayoutBootstrap2 extends RSFormProFormLayout
 {
 	public $errorClass = ' error';
-
+	public $progressContent = '<div><div class="progress progress-info"><div class="bar" style="width: {percent}%"><em>{page_lang} <strong>{page}</strong> {of_lang} {total}</em></div></div></div>';
+	
+	
+	public function __construct() {
+		if (JFactory::getDocument()->direction == 'rtl') {
+			$this->progressContent = '<div><div class="progress progress-info"><div class="bar" style="width: {percent}%{direction}"><em>{total} {of_lang} <strong>{page}</strong> {page_lang}</em></div></div></div>';
+		}
+		$this->progressOverwritten = true;
+		parent::__construct();
+		
+	}
+	
 	public function loadFramework() {
 		if (!RSFormProHelper::isJ('3.0')) {
 			return $this->loadFrameworkForJoomla25();

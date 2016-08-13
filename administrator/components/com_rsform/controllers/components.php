@@ -36,6 +36,10 @@ class RSFormControllerComponents extends RSFormController
 
 		$params = JRequest::getVar('param', array(), 'post', 'none', JREQUEST_ALLOWRAW);
 		$params['EMAILATTACH'] = !empty($params['EMAILATTACH']) ? implode(',',$params['EMAILATTACH']) : '';
+		if (isset($params['VALIDATIONRULE']) && $params['VALIDATIONRULE'] == 'multiplerules') {
+			$params['VALIDATIONMULTIPLE'] = !empty($params['VALIDATIONMULTIPLE']) ? implode(',',$params['VALIDATIONMULTIPLE']) : '';
+			$params['VALIDATIONEXTRA'] = !empty($params['VALIDATIONEXTRA']) ? json_encode($params['VALIDATIONEXTRA']) : '';
+		}
 
 		$just_added = false;
 		if ($componentIdToEdit < 1)

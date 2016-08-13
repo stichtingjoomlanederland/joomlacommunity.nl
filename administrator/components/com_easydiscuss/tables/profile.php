@@ -1401,15 +1401,20 @@ class DiscussProfile extends EasyDiscussTable
 		$this->store();
 	}
 
-	public function isRead( $postId )
+	/**
+	 * Determine if the user already read the post
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function isRead($postId)
 	{
-		if( $this->posts_read )
-		{
-			$posts  = unserialize( $this->posts_read );
+		if ($this->posts_read) {
+			$posts = unserialize($this->posts_read);
 			return in_array($postId, $posts);
-		}
-		else
-		{
+		} else {
 			return false;
 		}
 	}

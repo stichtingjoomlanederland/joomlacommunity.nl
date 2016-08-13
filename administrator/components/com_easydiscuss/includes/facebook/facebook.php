@@ -72,8 +72,9 @@ class EasyDiscussFacebook extends EasyDiscuss
 		// Add the type of the og tag.
 		$doc->addCustomTag('<meta property="og:type" content="article" />');
 
-		// Add the URL for this page.
-		$url = EDR::getRoutedURL(EDR::getPostRoute($post->id, false, true));
+		// Add the URL for this page.;
+		$url = EDR::getRoutedURL('view=post&id=' . $post->id, false, true);
+
 		$doc->addCustomTag('<meta property="og:url" content="' . $url . '" />');
 
 		$doc->setTitle($post->title);

@@ -13,13 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 
 <?php foreach ($thread as $post) { ?>
-    <div class="ed-forum-item 
-        <?php echo $post->isSeen($this->my->id) ? ' is-read' : '';?>
-        <?php echo $post->isFeatured() ? ' is-featured' : '';?>
-        <?php echo $post->isLocked() ? ' is-locked' : '';?>
-        <?php echo $post->isProtected() ? ' is-protected' : '';?>
-        <?php echo $this->config->get('layout_enableintrotext') || $this->config->get('main_master_tags') ? ' has-body' : '';?>"
-    >
+    <div class="ed-forum-item<?php echo $post->getHeaderClass();?>">
         <div class="o-row xo-row--unset">
 
             <?php if ($this->config->get('post_priority')) { ?>

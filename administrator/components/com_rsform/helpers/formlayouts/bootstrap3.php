@@ -12,12 +12,21 @@ require_once dirname(__FILE__).'/../formlayout.php';
 class RSFormProFormLayoutBootstrap3 extends RSFormProFormLayout
 {
 	public $errorClass = ' has-error';
-
+	public $progressContent = '<div><div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="{percent}" aria-valuemin="0" aria-valuemax="100" style="width: {percent}%;"><em>{page_lang} <strong>{page}</strong> {of_lang} {total}</em></div></div></div>';
+	
+	public function __construct() {
+		if (JFactory::getDocument()->direction == 'rtl') {
+			$this->progressContent = '<div><div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="{percent}" aria-valuemin="0" aria-valuemax="100" style="width: {percent}%;"><em>{total} {of_lang} <strong>{page}</strong> {page_lang}</em></div></div></div>';
+		}
+		$this->progressOverwritten = true;
+		parent::__construct();
+	}
+	
 	public function loadFramework() {
 		// Load the CSS files
 		$this->addStyleSheet('com_rsform/frameworks/bootstrap3/bootstrap.min.css');
 		
-		// Load the RTL file if needed
+		// Load the RTL file
 		if (JFactory::getDocument()->direction == 'rtl') {
 			$this->addStyleSheet('com_rsform/frameworks/bootstrap3/bootstrap-rtl.css');
 		}

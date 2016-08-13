@@ -31,6 +31,9 @@ class RSFormControllerSubmissions extends RSFormController
 		$model	= $this->getModel('submissions');
 		$formId = $model->getFormId();
 		
+		// if the form is changed we need to reset the limitstart
+		$app->setUserState('com_rsform.submissions.limitstart', 0);
+		
 		$app->redirect('index.php?option=com_rsform&view=submissions'.($formId ? '&formId='.$formId : ''));
 	}
 	

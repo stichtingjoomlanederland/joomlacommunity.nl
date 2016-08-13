@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="Front-end newsletter management">
+		<message>Access the front-end newsletter management</message>
+	</layout>
+	<state>
+		<name>Front-end newsletter management</name>
+	</state>
+</metadata>

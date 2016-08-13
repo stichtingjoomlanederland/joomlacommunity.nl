@@ -105,7 +105,7 @@ class RSFormProQuickFields
 								$pagebreak = true;
 							}
 
-							$fieldsets[$i][($component->ComponentTypeName == 'hidden' ? 'hidden':'visible')][] = array('data' => $properties, 'required' => $isRequired, 'pagebreak' => $pagebreak);
+							$fieldsets[$i][(($component->ComponentTypeName == 'hidden' || $component->ComponentTypeName == 'ticket') ? 'hidden':'visible')][] = array('data' => $properties, 'required' => $isRequired, 'pagebreak' => $pagebreak);
 						}
 						if ($component->ComponentTypeId == RSFORM_FIELD_PAGEBREAK) {
 							// Populate the 'pages' array

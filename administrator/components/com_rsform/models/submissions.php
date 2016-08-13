@@ -27,13 +27,25 @@ class RSFormModelSubmissions extends JModelLegacy
 	{
 		parent::__construct();
 		$this->_db = JFactory::getDBO();
-		$this->_query = $this->_buildQuery();
-		
+		// get the previous filters hashes
 		$mainframe = JFactory::getApplication();
-		
+		$previousFiltersHash = $mainframe->getUserState('com_rsform.submissions.currentfilterhash', '');
+
+		// get the current filters hashes
+		$currentFiltersHash = $this->getFiltersHash();
+
+		$this->_query = $this->_buildQuery();
+
 		// Get pagination request variables
 		$limit 		= $mainframe->getUserStateFromRequest('com_rsform.submissions.limit', 'limit', JFactory::getConfig()->get('list_limit'), 'int');
 		$limitstart = $mainframe->getUserStateFromRequest('com_rsform.submissions.limitstart', 'limitstart', 0, 'int');
+
+
+		// reset the pagination if the filters are not the same
+		if ($previousFiltersHash != $currentFiltersHash)
+		{
+			$limitstart = 0;
+		}
 		
 		// In case limit has been changed, adjust it
 		$limitstart = ($limit != 0 ? (floor($limitstart / $limit) * $limit) : 0);
@@ -50,7 +62,7 @@ class RSFormModelSubmissions extends JModelLegacy
 		$filter = $this->_db->escape($this->getFilter());
 		
 		$language_filter = $this->getLang();
-		
+
 		// Order by static headers
 		if (in_array($sortColumn, $this->getStaticHeaders()))
 		{
@@ -75,7 +87,9 @@ class RSFormModelSubmissions extends JModelLegacy
 				}
 				
 				if ($language_filter)
-					$query .= " AND s.Lang='".$this->_db->escape($language_filter)."'";
+				{
+					$query .= " AND s.Lang='" . $this->_db->escape($language_filter) . "'";
+				}
 				
 				$from = $this->getDateFrom();				
 				if ($from) {
@@ -114,15 +128,21 @@ class RSFormModelSubmissions extends JModelLegacy
 				}
 				
 				if ($language_filter)
-					$query .= " AND s.Lang='".$this->_db->escape($language_filter)."'";
+				{
+					$query .= " AND s.Lang='" . $this->_db->escape($language_filter) . "'";
+				}
 				
 				$from = $this->getDateFrom();				
 				if ($from)
-					$query .= " AND s.DateSubmitted >= '".$this->_db->escape($from)."'";
+				{
+					$query .= " AND s.DateSubmitted >= '" . $this->_db->escape($from) . "'";
+				}
 				
 				$to = $this->getDateTo();
 				if ($to)
-					$query .= " AND s.DateSubmitted <= '".$this->_db->escape($to)."'";
+				{
+					$query .= " AND s.DateSubmitted <= '" . $this->_db->escape($to) . "'";
+				}
 			}
 			
 			if ($this->checkOrderingPossible($sortColumn))
@@ -130,8 +150,29 @@ class RSFormModelSubmissions extends JModelLegacy
 				
 			$query .= " ORDER BY `FieldValue` ".$sortOrder;
 		}
+
+		// set the current filters hash
+		JFactory::getApplication()->setUserState('com_rsform.submissions.currentfilterhash', $this->getFiltersHash());
 		
 		return $query;
+	}
+
+	protected function getFiltersHash() {
+		static $hash;
+
+		if (is_null($hash))
+		{
+			$formId          = $this->getFormId();
+			$filter          = $this->_db->escape($this->getFilter());
+			$language_filter = $this->getLang();
+			$from            = $this->getDateFrom();
+			$to              = $this->getDateTo();
+
+			$currentFiltersHash = $formId . $filter . $language_filter . $from . $to;
+			$hash = md5($currentFiltersHash);
+		}
+
+		return $hash;
 	}
 	
 	function checkOrderingPossible($field)
@@ -888,7 +929,7 @@ class RSFormModelSubmissions extends JModelLegacy
 			else
 			{
 				// Update only if we've changed something
-				if ($original->FieldValue != $value)
+				if ($original->FieldValue !== $value)
 				{
 					// Check if this is an upload field
 					if (isset($files['error'][$field]) && JFile::exists($original->FieldValue) && is_file($original->FieldValue))

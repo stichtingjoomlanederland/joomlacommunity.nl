@@ -125,7 +125,9 @@ class RSFormControllerForms extends RSFormController
 	{
 		$session = JFactory::getSession();
 		$session->set('com_rsform.wizard.FormTitle', JRequest::getVar('FormTitle', '', 'post', 'none', JREQUEST_ALLOWRAW));
-		$session->set('com_rsform.wizard.FormLayout', JRequest::getVar('FormLayout', '', 'post', 'none', JREQUEST_ALLOWRAW));		
+		$session->set('com_rsform.wizard.FormLayout', JRequest::getVar('FormLayout', '', 'post', 'none', JREQUEST_ALLOWRAW));
+		$session->set('com_rsform.wizard.ScrollToThankYou', JFactory::getApplication()->input->getInt('ScrollToThankYou'));
+		$session->set('com_rsform.wizard.ThankYouMessagePopUp', JFactory::getApplication()->input->getInt('ThankYouMessagePopUp'));		
 		$session->set('com_rsform.wizard.AdminEmail', JFactory::getApplication()->input->getInt('AdminEmail'));
 		$session->set('com_rsform.wizard.AdminEmailTo', JRequest::getVar('AdminEmailTo', '', 'post', 'none', JREQUEST_ALLOWRAW));
 		$session->set('com_rsform.wizard.UserEmail', JFactory::getApplication()->input->getInt('UserEmail'));
@@ -147,6 +149,10 @@ class RSFormControllerForms extends RSFormController
 		$row = JTable::getInstance('RSForm_Forms', 'Table');
 		$row->Lang = JFactory::getLanguage()->getDefault();
 		$row->FormTitle = $session->get('com_rsform.wizard.FormTitle');
+		$row->ScrollToThankYou = $session->get('com_rsform.wizard.ScrollToThankYou');
+		if (empty($row->ScrollToThankYou)) {
+			$row->ThankYouMessagePopUp = $session->get('com_rsform.wizard.ThankYouMessagePopUp');
+		}
 		if (empty($row->FormTitle))
 			$row->FormTitle = JText::_('RSFP_FORM_DEFAULT_TITLE');
 		$row->FormName = JFilterOutput::stringURLSafe($row->FormTitle);
@@ -183,17 +189,32 @@ class RSFormControllerForms extends RSFormController
 		
 		$layout = JPATH_ADMINISTRATOR.'/components/com_rsform/layouts/'.$filter->clean($row->FormLayoutName, 'path').'.php';
 		
-		if (file_exists($layout))
+		$predefinedForm = JRequest::getVar('predefinedForm');
+		
+		require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/quickfields.php';
+		
+		if (file_exists($layout) && !$predefinedForm)
 		{
 			$quickfields = array();
 			$requiredfields = array();
 			$this->_form = $row;
-			$row->FormLayout = include($layout);
+			
+			$showFormTitle =  1;
+			$requiredMarker = '(*)';
+			$formOptions = false;
+			
+			$fieldsets = RSFormProQuickFields::getFieldNames('fieldsets');
+			
+			ob_start();
+				// include the layout selected
+				include $layout;
+				$out = ob_get_contents();
+			ob_end_clean();
+			$row->FormLayout = $out;
 		}
 		
 		if ($row->store())
 		{
-			$predefinedForm = JRequest::getVar('predefinedForm');
 			if ($predefinedForm)
 			{
 				$path = JPATH_ADMINISTRATOR.'/components/com_rsform/assets/forms/'.$filter->clean($predefinedForm);
@@ -201,6 +222,8 @@ class RSFormControllerForms extends RSFormController
 				{
 					$GLOBALS['q_FormId'] = $row->FormId;
 					JFactory::getApplication()->input->set('formId', $row->FormId);
+					
+					
 					
 					$options = array();
 					$options['cleanup'] = 0;
@@ -217,17 +240,40 @@ class RSFormControllerForms extends RSFormController
 						$model = $this->getModel('forms');
 						$quickfields = $model->getQuickFields();
 						
-						if ($AdminEmail && !empty($quickfields))
-							foreach ($quickfields as $quickfield)
-								$row->AdminEmailText .= "\n".'<p>{'.$quickfield.':caption}: {'.$quickfield.':value}</p>';
+						if ($AdminEmail && !empty($quickfields)){
+							foreach ($quickfields as $quickfield) {
+								$row->AdminEmailText .= "\n".'<p>{'.$quickfield['name'].':caption}: {'.$quickfield['name'].':value}</p>';
+							}	
+						}
 						
 						if ($UserEmail)
 						{
 							$row->UserEmailTo = '{Email:value}';
+							if (!empty($quickfields)) {
+								foreach ($quickfields as $quickfield) {
+									$row->UserEmailText .= "\n".'<p>{'.$quickfield['name'].':caption}: {'.$quickfield['name'].':value}</p>';
+								}	
+							}		
+						}
+						
+						// Genereate the layout
+						if (file_exists($layout)) {
+							$requiredfields = array();
+							$this->_form = $row;
+							$formId = $row->FormId;
 							
-							if (!empty($quickfields))
-								foreach ($quickfields as $quickfield)
-									$row->UserEmailText .= "\n".'<p>{'.$quickfield.':caption}: {'.$quickfield.':value}</p>';
+							$showFormTitle =  1;
+							$requiredMarker = '(*)';
+							$formOptions = false;
+							
+							$fieldsets = RSFormProQuickFields::getFieldNames('fieldsets');
+							
+							ob_start();
+								// include the layout selected
+								include $layout;
+								$out = ob_get_contents();
+							ob_end_clean();
+							$row->FormLayout = $out;
 						}
 						
 						$row->store();
@@ -246,6 +292,18 @@ class RSFormControllerForms extends RSFormController
 		$session->clear('com_rsform.wizard.ReturnUrl');
 		
 		$this->setRedirect('index.php?option=com_rsform&task=forms.edit&formId='.$row->FormId);
+	}
+	
+	public function getProperty($fieldData, $prop, $default=null) {
+		$model = $this->getModel('forms');
+		
+		return $model->getProperty($fieldData, $prop, $default);
+	}
+	
+	public function getComponentType($componentId, $formId){
+		$model = $this->getModel('forms');
+		
+		return $model->getComponentType($componentId, $formId);
 	}
 	
 	function save()

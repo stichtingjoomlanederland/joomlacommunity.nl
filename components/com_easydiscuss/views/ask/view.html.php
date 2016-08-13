@@ -124,10 +124,13 @@ class EasyDiscussViewAsk extends EasyDiscussView
 			}
 		}
 
+		// Sort the category by backend ordering.
+		$categorySort = 'Ordering';
+
 		// Generate the categories dropdown
 		// We know this dropdown need to check for 'select' category permission
 		// So, we add DISCUSS_CATEGORY_ACL_ACTION_SELECT
-		$categories = ED::populateCategories('', '', 'select', 'category_id', $categoryId , true, $onlyPublished, $showPrivateCat , true, 'form-control', '',  DISCUSS_CATEGORY_ACL_ACTION_SELECT);
+		$categories = ED::populateCategories('', '', 'select', 'category_id', $categoryId , true, $onlyPublished, $showPrivateCat , true, 'form-control', '',  DISCUSS_CATEGORY_ACL_ACTION_SELECT, $categorySort);
 
 		// If there are no categories, there is a possibility that the user doesn't have access
 		if (!$categories) {

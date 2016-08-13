@@ -2005,6 +2005,60 @@ class EasyDiscussPost extends EasyDiscuss
     }
 
     /**
+     * Determine that current logged in user did not read the post before
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function isUnread($userId = null)
+    {
+        $items = array();
+        $user = ED::user($userId);
+
+        // Construct the key
+        $key = $user->id . $this->post->id;
+
+        // Default is unseen for guests.
+        if (!$user->id) {
+            return false;
+        }
+
+        if (!isset($items[$key])) {
+
+            $items[$key] = ($this->post->legacy || $user->isRead($this->post->id)) ? false : true;
+        }
+
+        return $items[$key];
+    }
+
+    /**
+     * Render necessary css class on the post item wrapper.
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function getHeaderClass()
+    {
+        $class = '';
+
+        $class .= $this->isSeen($this->my->id) ? ' is-read' : '';
+        $class .= $this->isUnread($this->my->id) ? ' is-unread' : '';
+        $class .= $this->isResolved() ? ' is-resolved' : '';
+        $class .= $this->isFeatured() ? ' is-featured' : '';
+        $class .= $this->isLocked() ? ' is-locked' : '';
+        $class .= $this->isProtected() ? ' is-protected' : '';
+        $class .= $this->isPrivate() ? ' is-private' : '';
+
+        $class .= $this->config->get('layout_enableintrotext') || $this->getTags() ? ' has-body' : '';
+
+        return $class;
+    }
+
+    /**
      * Determines if the post is still within the new duration
      *
      * @alternative for previous ->isnew
@@ -2418,6 +2472,45 @@ class EasyDiscussPost extends EasyDiscuss
         }
 
         return $replies;
+    }
+
+    /**
+     * Get a list of accepted reply for this post
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function getAcceptedReply($checkAcl = true)
+    {
+        $pagination = $this->config->get('layout_replies_pagination');
+        
+        // If this is not a question, we shouldn't if any replies
+        if (!$this->isQuestion()) {
+            return false;
+        }
+
+        // We also need to check if the viewer can view replies from this category
+        $category = $this->getCategory();
+
+        if ($checkAcl && !$category->canViewReplies()) {
+            return false;
+        }
+
+        // Get replies
+        $model = ED::model('Posts');
+
+        // Get the replies
+        $answer = $model->getAcceptedReply($this->post->id);
+
+        // Format the answer object.
+        if ($answer) {
+            $answer = ED::formatReplies($answer, $category, $pagination, true);
+            $answer = $answer[0];
+        }
+
+        return $answer;
     }
 
     /**
@@ -6146,7 +6239,7 @@ class EasyDiscussPost extends EasyDiscuss
             return false;
         }
 
-        $string = ES::string();
+        $string = ED::string();
 
         $obj = new stdClass();
 

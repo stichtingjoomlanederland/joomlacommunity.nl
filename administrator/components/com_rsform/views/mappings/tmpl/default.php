@@ -105,7 +105,7 @@ defined('_JEXEC') or die('Restricted access');
 </div>
 <br /><br />
 <div id="rsfpmappingColumns">
-<?php if (!empty($this->mapping->id) && ($this->mapping->method == 0 || $this->mapping->method == 1)) { ?>
+<?php if (!empty($this->mapping->id) && ($this->mapping->method == 0 || $this->mapping->method == 1 || $this->mapping->method == 3)) { ?>
 	<?php
 	try {
 		echo RSFormProHelper::mappingsColumns($this->config, 'set', $this->mapping);

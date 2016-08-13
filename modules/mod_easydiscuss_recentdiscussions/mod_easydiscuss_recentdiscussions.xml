@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Recent Discussions</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>20th July 2016</creationDate>
+	<creationDate>11th August 2016</creationDate>
 	<copyright>Copyright 2009 - 2016 Stack Ideas. All rights reserved.</copyright>
 	<license>GPL License</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://www.stackideas.com</authorUrl>
-	<version>4.0.7</version>
+	<version>4.0.8</version>
 	<description>Displays a recent list of discussions from the site.</description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easydiscuss_recentdiscussions.ini</language>

@@ -491,7 +491,7 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		$pagination = $pagination->getPagesLinks($view, $filtering, true);
 
 		if (!$posts) {
-			return $this->ajax->resolve('');
+			return $this->ajax->resolve('', $pagination);
 		}
 
 		$theme = ED::themes();

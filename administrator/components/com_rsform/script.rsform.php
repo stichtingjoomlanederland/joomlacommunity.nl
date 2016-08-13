@@ -23,6 +23,10 @@ class com_rsformInstallerScript
 			$db->setQuery("ALTER TABLE `#__rsform_component_type_fields` ADD `Properties` TEXT NOT NULL AFTER `FieldValues`");
 			$db->execute();
 		}
+		if ($columns['FieldType']->Type != "varchar(32)") {
+			$db->setQuery("ALTER TABLE `#__rsform_component_type_fields` CHANGE `FieldType` `FieldType` VARCHAR( 32 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'hidden'");
+			$db->execute();
+		}
 
 		// Add config data
 		$this->runSQL('config.data.sql');
@@ -173,6 +177,26 @@ class com_rsformInstallerScript
 			$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `Access` VARCHAR( 5 ) NOT NULL");
 			$db->execute();
 		}
+		if (!isset($columns['ScrollToThankYou'])) {
+			$db->setQuery("ALTER TABLE #__rsform_forms ADD `ScrollToThankYou` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `ShowThankyou`");
+			$db->execute();
+		}
+		if (!isset($columns['ThankYouMessagePopUp'])) {
+			$db->setQuery("ALTER TABLE #__rsform_forms ADD `ThankYouMessagePopUp` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `ScrollToThankYou`");
+			$db->execute();
+		}
+		if (!isset($columns['ScrollToError'])) {
+			$db->setQuery("ALTER TABLE #__rsform_forms ADD `ScrollToError` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `AjaxValidation`");
+			$db->execute();
+		}
+		if (!isset($columns['DisableSubmitButton'])) {
+			$db->setQuery("ALTER TABLE #__rsform_forms ADD `DisableSubmitButton` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `FormLayoutAutogenerate`");
+			$db->execute();
+		}
+		if (!isset($columns['RemoveCaptchaLogged'])) {
+			$db->setQuery("ALTER TABLE #__rsform_forms ADD `RemoveCaptchaLogged` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `DisableSubmitButton`");
+			$db->execute();
+		}
 		
 		if ($columns['FormLayout'] == 'text') {
 			$db->setQuery("ALTER TABLE `#__rsform_forms` CHANGE `FormLayout` `FormLayout` LONGTEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
@@ -195,25 +219,22 @@ class com_rsformInstallerScript
 			$db->execute();
 		}
 		if (!$columns['SettingName']->Key) {
-			$db->setQuery("ALTER TABLE `#__rsform_config` ADD PRIMARY KEY (`SettingName`)");
-			if (!$db->execute()) {
-				// remove duplicates
-				$query = $db->getQuery(true);
-				$query->select($db->quoteName('SettingName'))->from('#__rsform_config');
-				$db->setQuery($query);
-				$results = $db->loadColumn();
-				
-				$counts = array_count_values($results);
-				foreach ($counts as $key => $num) {
-					if ($num > 1) {
-						$db->setQuery("DELETE FROM #__rsform_config WHERE ".$db->quoteName('SettingName').'='.$db->quote($key)." LIMIT ".($num-1));
-						$db->execute();
-					}
+			// remove duplicates
+			$query = $db->getQuery(true);
+			$query->select($db->quoteName('SettingName'))->from('#__rsform_config');
+			$db->setQuery($query);
+			$results = $db->loadColumn();
+			
+			$counts = array_count_values($results);
+			foreach ($counts as $key => $num) {
+				if ($num > 1) {
+					$db->setQuery("DELETE FROM #__rsform_config WHERE ".$db->quoteName('SettingName').'='.$db->quote($key)." LIMIT ".($num-1));
+					$db->execute();
 				}
-				
-				$db->setQuery("ALTER TABLE `#__rsform_config` ADD PRIMARY KEY (`SettingName`)");
-				$db->execute();
 			}
+			
+			$db->setQuery("ALTER TABLE `#__rsform_config` ADD PRIMARY KEY (`SettingName`)");
+			$db->execute();
 		}
 		
 		// #__rsform_submission_values updates
@@ -271,10 +292,26 @@ class com_rsformInstallerScript
 			$db->execute();
 		}
 
-		if ($columns['FieldType']->Type != "enum('hidden','hiddenparam','textbox','textarea','select','emailattach')") {
-			$db->setQuery("ALTER TABLE `#__rsform_component_type_fields` CHANGE `FieldType` `FieldType` ENUM( 'hidden', 'hiddenparam', 'textbox', 'textarea', 'select', 'emailattach' ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'hidden'");
+		// add the VALIDATIONMULTIPLE to the textBox field
+		$db->setQuery("SELECT COUNT(`FieldName`) FROM #__rsform_component_type_fields  WHERE `ComponentTypeId` = 1 AND `FieldName` = 'VALIDATIONMULTIPLE'");
+		if (!$db->loadResult()) {
+			$db->setQuery("INSERT INTO #__rsform_component_type_fields SET `ComponentTypeId` = 1, `FieldName` = 'VALIDATIONMULTIPLE' , `FieldType` = 'selectmultiple', `FieldValues` = '".$db->escape("//<code>\r\nreturn RSFormProHelper::getValidationRules(false, true);\r\n//</code>")."', `Ordering`= 6");
 			$db->execute();
 		}
+		// add the VALIDATIONMULTIPLE to the textArea field
+		$db->setQuery("SELECT COUNT(`FieldName`) FROM #__rsform_component_type_fields  WHERE `ComponentTypeId` = 2 AND `FieldName` = 'VALIDATIONMULTIPLE'");
+		if (!$db->loadResult()) {
+			$db->setQuery("INSERT INTO #__rsform_component_type_fields SET `ComponentTypeId` = 2, `FieldName` = 'VALIDATIONMULTIPLE' , `FieldType` = 'selectmultiple', `FieldValues` = '".$db->escape("//<code>\r\nreturn RSFormProHelper::getValidationRules(false, true);\r\n//</code>")."', `Ordering`= 6");
+			$db->execute();
+		}
+		
+		// add the VALIDATIONMULTIPLE to the password field
+		$db->setQuery("SELECT COUNT(`FieldName`) FROM #__rsform_component_type_fields  WHERE `ComponentTypeId` = 14 AND `FieldName` = 'VALIDATIONMULTIPLE'");
+		if (!$db->loadResult()) {
+			$db->setQuery("INSERT INTO #__rsform_component_type_fields SET `ComponentTypeId` = 14, `FieldName` = 'VALIDATIONMULTIPLE' , `FieldType` = 'selectmultiple', `FieldValues` = '".$db->escape("//<code>\r\nreturn RSFormProHelper::getValidationRules(false, true);\r\n//</code>")."', `Ordering`= 9");
+			$db->execute();
+		}
+		
 		// rename old RSadapter function to new one
 		$db->setQuery("UPDATE #__rsform_component_type_fields SET FieldValues='".$db->escape("//<code>\r\nreturn JPATH_SITE.'/components/com_rsform/uploads/';\r\n//</code>")."' WHERE FieldName='DESTINATION' AND ComponentTypeId=9 AND FieldValues LIKE '%RSadapter%'");
 		$db->execute();
@@ -324,6 +361,79 @@ class com_rsformInstallerScript
 		
 		$db->setQuery("UPDATE `#__rsform_component_type_fields` SET `FieldValues` = '//<code>\r\nreturn RSFormProHelper::getOtherCalendars(6);\r\n//</code>' WHERE `ComponentTypeId` = 6 AND `FieldName` = 'VALIDATIONCALENDAR'");
 		$db->execute();
+		
+		// replace old ImageButton with Submits buttons fields
+		$db->setQuery("SELECT `ComponentId` FROM `#__rsform_components` WHERE `ComponentTypeId` = 12 ");
+		if ($imagebuttons = $db->loadColumn()) {
+			$db->setQuery("SELECT `FieldName` FROM `#__rsform_component_type_fields` WHERE `ComponentTypeId` = 13 ");
+			$submitButtonProperties = $db->loadColumn();
+			
+			$db->setQuery("SELECT * FROM #__rsform_properties WHERE ComponentId IN (".implode(",", $imagebuttons).")");
+			if ($tmp = $db->loadObjectList()) {
+				$newProperties = array();
+				// handle common properties
+				foreach ($tmp as $property) {
+					if (!isset($newProperties[$property->ComponentId])) {
+						$newProperties[$property->ComponentId] = array();
+					}
+					if (in_array($property->PropertyName, $submitButtonProperties)) {
+						if ($property->PropertyName == 'ADDITIONALATTRIBUTES' && isset($newProperties[$property->ComponentId]['ADDITIONALATTRIBUTES'])) {
+							$newProperties[$property->ComponentId]['ADDITIONALATTRIBUTES'] = $property->PropertyValue."\r\n".$newProperties[$property->ComponentId]['ADDITIONALATTRIBUTES'];
+						} else {
+							$newProperties[$property->ComponentId][$property->PropertyName] = $property->PropertyValue;
+						}
+					} else if ($property->PropertyName == 'IMAGEBUTTON' && !empty($property->PropertyValue)) {
+						$additional = 'type="image"'."\r\n".'src="'.$property->PropertyValue.'"';
+						if (isset($newProperties[$property->ComponentId]['ADDITIONALATTRIBUTES']) && !empty($newProperties[$property->ComponentId]['ADDITIONALATTRIBUTES'])) {
+							$additional = $newProperties[$property->ComponentId]['ADDITIONALATTRIBUTES']."\r\n".$additional;
+						}
+						$newProperties[$property->ComponentId]['ADDITIONALATTRIBUTES'] = $additional;
+					}
+				}
+				// add the submit button extra properties
+				foreach ($newProperties as $ComponentId => $property) {
+					foreach ($submitButtonProperties as $submitProperty) {
+						$value = '';
+						switch ($submitProperty) {
+							case 'DISPLAYPROGRESS':
+								$value = 'NO';
+							break;
+							case 'BUTTONTYPE':
+								$value = 'TYPEINPUT';
+							break;
+							case 'DISPLAYPROGRESSMSG':
+								$value = '<div>'."\r\n".' <p><em>Page <strong>{page}</strong> of {total}</em></p>'."\r\n".' <div class="rsformProgressContainer">'."\r\n".'  <div class="rsformProgressBar" style="width: {percent}%;"></div>'."\r\n".' </div>'."\r\n".'</div>';
+							break;
+						}
+						
+						if (!empty($value)) {
+							$newProperties[$ComponentId][$submitProperty] = $value;
+						}
+					}
+				}
+				
+				foreach ($newProperties as $ComponentId => $property) {
+					// delete the old image button specific properties
+					$db->setQuery("DELETE FROM `#__rsform_properties` WHERE `ComponentId` = '".$ComponentId."'");
+					$db->execute();
+					
+					// add the new submit button properties
+					foreach ($property as $propertyName => $propertyValue) {
+						$db->setQuery("INSERT INTO #__rsform_properties SET ComponentId = '".$ComponentId."' , PropertyName = '".$db->escape($propertyName)."', PropertyValue = '".$db->escape($propertyValue)."'");
+						$db->execute();
+					}
+				}
+			}
+			
+			// change the ComponentTypeId from the imange button to the submit one
+			$db->setQuery("UPDATE `#__rsform_components` SET `ComponentTypeId` = 13 WHERE `ComponentTypeId` = 12");
+			$db->execute();
+			
+			// delete the image button component type
+			$db->setQuery("DELETE FROM #__rsform_component_types WHERE `ComponentTypeId` = 12");
+			$db->execute();
+		}
+	
 		
 		// #__rsform_components updates
 		$columns = $db->getTableColumns('#__rsform_components', false);
@@ -878,13 +988,36 @@ class com_rsformInstallerScript
 			<?php } ?>
 			<?php } ?>
 		<?php } ?>
-		<h2>Changelog v1.51.14</h2>
+		<h2>Changelog v1.52.0</h2>
 		<ul class="version-history">
-			<li><span class="version-upgraded">Upg</span> Configuring emails should be more intuitive now.</li>
-			<li><span class="version-upgraded">Upg</span> RTL improvements to Form Layouts.</li>
-			<li><span class="version-fixed">Fix</span> Calendar formats were not parsed correctly in some cases.</li>
-			<li><span class="version-fixed">Fix</span> Placeholder dropdowns did not work correctly on Google Chrome.</li>
-			<li><span class="version-fixed">Fix</span> Placeholder dropdowns added an incorrect delimiter to &quot;Reply To&quot; fields.</li>
+			<li><span class="version-new">New</span> Thank You Message can be displayed in a pop-up.</li>
+			<li><span class="version-new">New</span> Scroll to form on error.</li>
+			<li><span class="version-new">New</span> Scroll to Thank You Message.</li>
+			<li><span class="version-new">New</span> Form Layout: Zurb Foundation 6.2.1</li>
+			<li><span class="version-new">New</span> {if} scripting now allows comparing values.</li>
+			<li><span class="version-new">New</span> Submit button can be disabled upon submission to prevent clicking multiple times.</li>
+			<li><span class="version-new">New</span> CAPTCHA can be hidden for logged-in users.</li>
+			<li><span class="version-new">New</span> 'REPLACE' mappings method.</li>
+			<li><span class="version-upgraded">Upg</span> User Email and Admin Email are now validated upon saving.</li>
+			<li><span class="version-upgraded">Upg</span> New Validation Rule: &quot;Multiple Rules&quot;</li>
+			<li><span class="version-upgraded">Upg</span> Can now specify the Map Type in the Google Map field.</li>
+			<li><span class="version-upgraded">Upg</span> Progress bar can be auto-generated based on the current Form Layout.</li>
+			<li><span class="version-upgraded">Upg</span> 'Refresh CAPTCHA' button can now be styled through the '.rsform-captcha-refresh-button' class.</li>
+			<li><span class="version-upgraded">Upg</span> 'Refresh CAPTCHA' button now inherits button class to match current Form Layout.</li>
+			<li><span class="version-upgraded">Upg</span> 'Image Button' has been removed. Use 'Submit Button' with CSS styling instead.</li>
+			<li><span class="version-upgraded">Upg</span> Now showing current language when editing 'Thank You Message', 'Admin Email Text' and 'User Email Text'.</li>
+			<li><span class="version-upgraded">Upg</span> 'Support Ticket' field can be either 'Random' or 'Sequential'.</li>
+			<li><span class="version-fixed">Fix</span> 'Support Ticket' fields are now placed at the bottom of the HTML layout.</li>
+			<li><span class="version-fixed">Fix</span> Using &quot;Toggle Editor&quot; was not saving changes with some editors.</li>
+			<li><span class="version-fixed">Fix</span> In some cases new values were not saved when editing submissions.</li>
+			<li><span class="version-fixed">Fix</span> Timezone was not taken into account when exporting submission from the frontend.</li>
+			<li><span class="version-fixed">Fix</span> Placeholders dropdown Javascript was causing an overhead when too many fields were added.</li>
+			<li><span class="version-fixed">Fix</span> Placeholders dropdown was not working correctly in the Mappings pop-up.</li>
+			<li><span class="version-fixed">Fix</span> PHP Notices when creating a new form using the wizard.</li>
+			<li><span class="version-fixed">Fix</span> When editing a form the language you've logged in with will be used.</li>
+			<li><span class="version-fixed">Fix</span> Date and Time Picker field popup was not being closed when changing the page.</li>
+			<li><span class="version-fixed">Fix</span> Google API Key is needed for displaying a map <a target="_blank" href="https://developers.google.com/maps/pricing-and-plans/standard-plan-2016-update">https://developers.google.com/maps/pricing-and-plans/standard-plan-2016-update</a></li>
+			<li><span class="version-fixed">Fix</span> If the Password field's Default Value contained PHP code it was not taken into account during the Passphrase validation.</li>
 		</ul>
 		<a class="com-rsform-button" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="com-rsform-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/21-rsform-pro-user-guide.html" target="_blank">Read the RSForm! Pro User Guide</a>

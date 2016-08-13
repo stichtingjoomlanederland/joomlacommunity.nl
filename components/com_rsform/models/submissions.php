@@ -39,6 +39,18 @@ class RSFormModelSubmissions extends JModelLegacy
 		$limit		= $app->input->get('limit', JFactory::getConfig()->get('list_limit'), 'int');
 		$limitstart	= $app->input->get('limitstart', 0, 'int');
 
+		$mainframe = JFactory::getApplication();
+		$previousFiltersHash = $mainframe->getUserState('com_rsform.submissions.currentfilterhash', '');
+
+		// get the current filters hashes
+		$currentFiltersHash = $this->getFiltersHash();
+
+		// reset the pagination if the filters are not the same
+		if ($previousFiltersHash != $currentFiltersHash)
+		{
+			$limitstart = 0;
+		}
+
 		// In case limit has been changed, adjust it
 		$limitstart = ($limit != 0 ? (floor($limitstart / $limit) * $limit) : 0);
 
@@ -108,8 +120,26 @@ class RSFormModelSubmissions extends JModelLegacy
 		$dir = $this->params->get('sort_submissions') ? 'ASC' : 'DESC';
 		
 		$query .= " ORDER BY s.DateSubmitted $dir";
+
+		// set the current filters hash
+		JFactory::getApplication()->setUserState('com_rsform.submissions.currentfilterhash', $this->getFiltersHash());
 		
 		return $query;
+	}
+
+	protected function getFiltersHash() {
+		static $hash;
+
+		if (is_null($hash))
+		{
+			$filter          = $this->_db->escape($this->getFilter());
+			$lang            = $this->params->get('lang', '');
+
+			$currentFiltersHash = $filter . $lang;
+			$hash = md5($currentFiltersHash);
+		}
+
+		return $hash;
 	}
 	
 	public function getPagination() {

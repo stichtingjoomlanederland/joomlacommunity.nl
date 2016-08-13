@@ -23,7 +23,7 @@ defined('_JEXEC') or die('Restricted access');
 <?php if (!empty($this->fields['validations'])) { ?>
 <table border="0" cellspacing="0" cellpadding="8">
 <?php foreach ($this->fields['validations'] as $field) { ?>
-	<tr id="id<?php echo $field->name; ?>">
+	<tr id="id<?php echo $field->name; ?>"<?php echo ($field->name == 'VALIDATIONMULTIPLE' ? ' style="display:none"' : ''); ?>>
 		<td><?php echo $field->body; ?></td>
 	</tr>
 <?php } ?>

@@ -30,7 +30,7 @@ class EasyDiscussMigratorBase
 		return $migrator->store();
 	}
 
-	public function easydiscussCategoryExists($category)
+	public function easydiscussCategoryExists($category, $parentId = 0)
 	{
 		$title = JString::strtolower($category->title);
 		$alias = JString::strtolower($category->alias);
@@ -45,13 +45,13 @@ class EasyDiscussMigratorBase
 
 		// If easydiscuss category doesn't exist, create a new category using Kunena's category data
 		if (!$result) {
-			$result = $this->createEasydiscussCategory($category);
+			$result = $this->createEasydiscussCategory($category, $parentId);
 		}
 
 		return $result;
 	}
 
-	public function createEasydiscussCategory($categoryObject)
+	public function createEasydiscussCategory($categoryObject, $parentId = 0)
 	{
 		if (empty($stats)) {
 			$stats			= new stdClass();
@@ -70,6 +70,8 @@ class EasyDiscussMigratorBase
 
 		// Set the creator of the category
 		$category->created_by = $this->getDefaultSuperUserId();
+
+		$category->parent_id = $parentId;
 
 		// Now, try to save the category
 		$state = $category->store(true);

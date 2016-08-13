@@ -71,11 +71,15 @@ class RSFormViewForms extends JViewLegacy
 			JToolBarHelper::title('RSForm! Pro <small>['.JText::sprintf('RSFP_EDITING_FORM', $this->form->FormTitle).']</small>','rsform');
 
 			$lists['Published'] = $this->renderHTML('select.booleanlist','Published','',$this->form->Published);
+			$lists['DisableSubmitButton'] = $this->renderHTML('select.booleanlist','DisableSubmitButton','',$this->form->DisableSubmitButton);
+			$lists['RemoveCaptchaLogged'] = $this->renderHTML('select.booleanlist','RemoveCaptchaLogged','',$this->form->RemoveCaptchaLogged);
 			$lists['ShowFormTitle'] = $this->renderHTML('select.booleanlist','ShowFormTitle','',$this->form->ShowFormTitle);
 			$lists['keepdata'] = $this->renderHTML('select.booleanlist','Keepdata','',$this->form->Keepdata);
 			$lists['KeepIP'] = $this->renderHTML('select.booleanlist','KeepIP','',$this->form->KeepIP);
 			$lists['confirmsubmission'] = $this->renderHTML('select.booleanlist','ConfirmSubmission','',$this->form->ConfirmSubmission);
 			$lists['ShowThankyou'] = $this->renderHTML('select.booleanlist','ShowThankyou','onclick="enableThankyou(this.value);"',$this->form->ShowThankyou);
+			$lists['ScrollToThankYou'] = $this->renderHTML('select.booleanlist','ScrollToThankYou','onclick="enableThankyouPopup(this.value);"',$this->form->ScrollToThankYou);
+			$lists['ThankYouMessagePopUp'] = $this->renderHTML('select.booleanlist','ThankYouMessagePopUp',((!$this->form->ShowThankyou || ($this->form->ShowThankyou && $this->form->ScrollToThankYou)) ? 'disabled="true"' : ''),$this->form->ThankYouMessagePopUp);
 			$lists['ShowContinue'] = $this->renderHTML('select.booleanlist', 'ShowContinue', !$this->form->ShowThankyou ? 'disabled="true"' : '', $this->form->ShowContinue);
 			$lists['UserEmailMode'] = $this->renderHTML('select.booleanlist', 'UserEmailMode', 'onclick="enableEmailMode(\'User\', this.value)"', $this->form->UserEmailMode, JText::_('HTML'), JText::_('RSFP_COMP_FIELD_TEXT'));
 			$lists['UserEmailAttach'] = $this->renderHTML('select.booleanlist', 'UserEmailAttach', 'onclick="enableAttachFile(this.value)"', $this->form->UserEmailAttach);
@@ -83,6 +87,7 @@ class RSFormViewForms extends JViewLegacy
 			$lists['MetaTitle'] = $this->renderHTML('select.booleanlist', 'MetaTitle', '', $this->form->MetaTitle);
 			$lists['TextareaNewLines'] = $this->renderHTML('select.booleanlist', 'TextareaNewLines', '', $this->form->TextareaNewLines);
 			$lists['AjaxValidation'] = $this->renderHTML('select.booleanlist', 'AjaxValidation', '', $this->form->AjaxValidation);
+			$lists['ScrollToError'] = $this->renderHTML('select.booleanlist', 'ScrollToError', '', $this->form->ScrollToError);
 			$lists['FormLayoutAutogenerate'] = $this->renderHTML('select.booleanlist', 'FormLayoutAutogenerate', 'onclick="changeFormAutoGenerateLayout('.$this->form->FormId.', this.value);"', $this->form->FormLayoutAutogenerate);
 
 			$lists['post_enabled'] 	= $this->renderHTML('select.booleanlist', 'form_post[enabled]', '', $this->form_post->enabled);
@@ -117,7 +122,7 @@ class RSFormViewForms extends JViewLegacy
 			$this->layouts = array(
 				'classicLayouts' => array('inline', '2lines', '2colsinline', '2cols2lines'),
 				'xhtmlLayouts' 	 => array('inline-xhtml', '2lines-xhtml'),
-				'html5Layouts' 	 => array('responsive', 'bootstrap2', 'bootstrap3', 'uikit')
+				'html5Layouts' 	 => array('responsive', 'bootstrap2', 'bootstrap3', 'uikit', 'foundation')
 			);
 
 			$this->hasLegacyLayout = in_array($this->form->FormLayoutName, array_merge($this->layouts['classicLayouts'], $this->layouts['xhtmlLayouts']));
@@ -145,8 +150,10 @@ class RSFormViewForms extends JViewLegacy
 			JToolBarHelper::custom('forms.new.stepthree', $nextIcon, $nextIcon, JText::_('JNEXT'), false);
 			JToolBarHelper::cancel('forms.cancel');
 
-			$lists['AdminEmail'] = $this->renderHTML('select.booleanlist', 'AdminEmail', 'onclick="changeAdminEmail(this.value)"', 1);
-			$lists['UserEmail'] = $this->renderHTML('select.booleanlist', 'UserEmail', '', 1);
+			$lists['AdminEmail'] 			= $this->renderHTML('select.booleanlist', 'AdminEmail', 'onclick="changeAdminEmail(this.value)"', 1);
+			$lists['UserEmail'] 			= $this->renderHTML('select.booleanlist', 'UserEmail', '', 1);
+			$lists['ScrollToThankYou']      = $this->renderHTML('select.booleanlist', 'ScrollToThankYou','onclick="showPopupThankyou(this.value)"', 1);
+			$lists['ThankYouMessagePopUp']  = $this->renderHTML('select.booleanlist', 'ThankYouMessagePopUp','', 0);
 			$actions = array(
 				JHTML::_('select.option', 'refresh', JText::_('RSFP_SUBMISSION_REFRESH_PAGE')),
 				JHTML::_('select.option', 'thankyou', JText::_('RSFP_SUBMISSION_THANKYOU')),
@@ -187,6 +194,7 @@ class RSFormViewForms extends JViewLegacy
 			$this->formId = JFactory::getApplication()->input->getInt('formId');
 			$this->editorName = JFactory::getApplication()->input->getCmd('opener');
 			$this->editorText = $this->get('editorText');
+			$this->lang = $this->get('lang');
 		}
 		elseif ($layout == 'edit_mappings')
 		{

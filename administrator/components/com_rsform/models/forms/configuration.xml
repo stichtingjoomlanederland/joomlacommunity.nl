@@ -6,6 +6,7 @@
 			<option value="1">JYES</option>
 		</field>
 		<field name="global.date_mask" type="text" description="RSFP_GLOBAL_DATE_MASK_DESC" label="RSFP_GLOBAL_DATE_MASK" size="70" />
+		<field name="google.api_key" type="text" description="RSFP_GOOGLE_API_KEY_DESC" label="RSFP_GOOGLE_API_KEY" size="70" />
 	</fieldset>
 	<fieldset name="security" label="RSFP_SECURITY">
 		<field name="global.filtering" type="list" description="RSFP_GLOBAL_XSS_FILTER_DESC" label="RSFP_GLOBAL_XSS_FILTER" size="1" >

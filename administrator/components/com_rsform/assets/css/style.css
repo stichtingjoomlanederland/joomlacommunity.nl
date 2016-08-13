@@ -299,6 +299,16 @@ div.rsform_layout_box {
 	z-index: 999;
 }
 
+#columnsDiv {
+	right:0px;
+	left: auto;
+}
+
+#columnsDiv #columnsInnerDiv {
+	overflow-y: auto;
+	padding: 0 20px 0 0;
+}
+
 .dropdownContainer div {
 	padding: 0px;
 }

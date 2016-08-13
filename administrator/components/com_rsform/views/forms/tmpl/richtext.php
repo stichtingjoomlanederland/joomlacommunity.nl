@@ -9,15 +9,15 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <form method="post" action="index.php?option=com_rsform" name="adminForm" id="adminForm">
 	<p>
-		<button class="btn btn-success pull-left" type="button" onclick="submitform('richtext.apply');"><?php echo JText::_('JAPPLY'); ?></button>
-		<button class="btn btn-success pull-left" type="button" onclick="submitform('richtext.save');"><?php echo JText::_('JSAVE'); ?></button>
+		<button class="btn btn-success pull-left" type="button" onclick="Joomla.submitbutton('richtext.apply');"><?php echo JText::_('JAPPLY'); ?></button>
+		<button class="btn btn-success pull-left" type="button" onclick="Joomla.submitbutton('richtext.save');"><?php echo JText::_('JSAVE'); ?></button>
 		<button class="btn pull-left" type="button" onclick="window.close();"><?php echo JText::_('JCANCEL'); ?></button>
 	</p>
 	<span class="rsform_clear_both"></span>
-	
+
 	<fieldset>
-	<legend><?php echo JText::_('RSFP_EDITING_TEXT'); ?></legend>
-	
+		<legend><?php echo JText::_('RSFP_EDITING_TEXT'); ?> <small><?php echo JText::sprintf('RSFP_YOU_ARE_EDITING_IN_SHORT', $this->lang); ?></small></legend>
+
 	<?php if ($this->noEditor) { ?>
 		<textarea cols="70" rows="10" style="width: 500px; height: 320px;" class="rs_textarea" name="<?php echo $this->editorName; ?>"><?php echo RSFormProHelper::htmlEscape($this->editorText); ?></textarea>
 	<?php } else { ?>
@@ -30,5 +30,14 @@ defined('_JEXEC') or die('Restricted access');
 	<input type="hidden" name="task" value="" />
 	<input type="hidden" name="formId" value="<?php echo $this->formId; ?>" />
 </form>
+
+<script type="text/javascript">
+Joomla.submitbutton = function(task) {
+	try {
+		<?php echo $this->editor->save($this->editorName); ?>
+	} catch (e) {}
+	Joomla.submitform(task, document.getElementById('adminForm'));
+}
+</script>
 
 <?php JHTML::_('behavior.keepalive'); ?>

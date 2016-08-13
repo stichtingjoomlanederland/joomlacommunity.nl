@@ -224,14 +224,13 @@ JHTML::_('behavior.calendar');
 			formTabs: RSFormPro.$.formTabs.build
 		});
 
-		function submitbutton(pressbutton)
+		Joomla.submitbutton = function(pressbutton)
 		{
 			var form = document.adminForm;
 
 			if (pressbutton == 'forms.cancel')
 			{
-				removeExtraItems();
-				submitform(pressbutton);
+				Joomla.submitform(pressbutton);
 				return;
 			}
 			else if (pressbutton == 'forms.preview')
@@ -246,44 +245,80 @@ JHTML::_('behavior.calendar');
 					alert('<?php echo addslashes(JText::sprintf('RSFP_PLEASE_MAKE_SELECTION_TO', JText::_('RSFP_COPY'))); ?>');
 					return;
 				}
-				removeExtraItems();
-				submitform(pressbutton);
+				Joomla.submitform(pressbutton);
 			}
 			else if (pressbutton == 'components.remove' || pressbutton == 'components.publish' || pressbutton == 'components.unpublish' || pressbutton == 'components.save')
 			{
-				removeExtraItems();
-				submitform(pressbutton);
+				Joomla.submitform(pressbutton);
 			}
 			else
 			{
+				if (!validateEmailFields()) {
+					return false;
+				}
+				
 				// do field validation
-				if (document.getElementById('FormName').value == '')
+				if (document.getElementById('FormName').value == '') {
 					alert('<?php echo JText::_('RSFP_SPECIFY_FORM_NAME', true);?>');
-				else
-				{
-					if (RSFormPro.$('#properties').hasClass('btn-primary'))
+				} else {
+					if (RSFormPro.$('#properties').hasClass('btn-primary')) {
 						document.getElementById('tabposition').value = 1;
-					submitform(pressbutton);
+					}
+					Joomla.submitform(pressbutton);
 				}
 			}
-		}
-
-		Joomla.submitbutton = submitbutton;
-
-		function removeExtraItems()
-		{
-			var form = document.adminForm;
-
-			form.formLayout.name = '';
-			form.CSS.name = '';
-			form.JS.name = '';
-			form.ScriptDisplay.name = '';
-			form.ScriptProcess.name = '';
-			form.ScriptProcess2.name = '';
-			form.UserEmailScript.name = '';
-			form.AdminEmailScript.name = '';
-			form.MetaDesc.name = '';
-			form.MetaKeywords.name = '';
+		};
+		
+		function validateEmailFields() {
+			var fields = [
+				'UserEmailFrom', 'UserEmailTo', 'UserEmailReplyTo', 'UserEmailCC', 'UserEmailBCC',
+				'AdminEmailFrom', 'AdminEmailTo', 'AdminEmailReplyTo', 'AdminEmailCC', 'AdminEmailBCC'
+			];
+			
+			var result = true;
+			var fieldName, field, fieldValue, values, value;
+			
+			for (var i = 0; i < fields.length; i++) {
+				// Grab field name from array
+				fieldName 	= fields[i];
+				field 		= document.getElementById(fieldName);
+				// Grab value
+				fieldValue 	= field.value;
+				
+				RSFormPro.$(field).removeClass('rs_error_field');
+				
+				// Something's been typed in
+				if (fieldValue.length > 0) {
+					// Check for multiple values
+					values = fieldValue.split(',');
+					
+					for (var v = 0; v < values.length; v++) {
+						value = values[v];
+						
+						// Has placeholder
+						hasPlaceholder = value.indexOf('{') > -1 && value.indexOf('}') > -1;
+						// Wrong placeholder
+						wrongPlaceholder = hasPlaceholder && RSFormPro.Placeholders.indexOf(value) == -1;
+						// Not an email
+						notAnEmail = !hasPlaceholder && value.indexOf('@') == -1;
+						
+						if (wrongPlaceholder || notAnEmail) {
+							// Switch to the correct tab only on the first error
+							if (result == true) {
+								if (fieldName.indexOf('User') > -1) {
+									RSFormPro.$('#useremails').click();
+								} else {
+									RSFormPro.$('#adminemails').click();
+								}
+							}
+							RSFormPro.$(field).addClass('rs_error_field');
+							result = false;
+						}
+					}
+				}
+			}
+			
+			return result;
 		}
 
 		function listItemTask(cb, task)
@@ -429,13 +464,42 @@ JHTML::_('behavior.calendar');
 				document.getElementById('ShowContinue1').disabled = false;
 
 				document.getElementById('showContinueContainer').style.display = 'table-row';
+
+				if(document.getElementById('ScrollToThankYou0').checked) {
+					document.getElementById('ThankYouMessagePopUp0').disabled = false;
+					document.getElementById('ThankYouMessagePopUp1').disabled = false;
+					document.getElementById('thankyouMessagePopupContainer').style.display = 'table-row';
+				}
 			}
 			else
 			{
 				document.getElementById('ShowContinue0').disabled = true;
 				document.getElementById('ShowContinue1').disabled = true;
+				document.getElementById('ThankYouMessagePopUp0').disabled = true;
+				document.getElementById('ThankYouMessagePopUp1').disabled = true;
 
 				document.getElementById('showContinueContainer').style.display = 'none';
+				document.getElementById('thankyouMessagePopupContainer').style.display = 'none';
+			}
+		}
+		function enableThankyouPopup(value)
+		{
+			if (value == 0)
+			{
+				if (document.getElementById('ShowThankyou1').checked) {
+					document.getElementById('ThankYouMessagePopUp0').disabled = false;
+					document.getElementById('ThankYouMessagePopUp1').disabled = false;
+					document.getElementById('thankyouMessagePopupContainer').style.display = 'table-row';
+				}
+			}
+			else
+			{
+				if (document.getElementById('ShowThankyou1').checked) {
+					document.getElementById('ThankYouMessagePopUp0').disabled = true;
+					document.getElementById('ThankYouMessagePopUp1').disabled = true;
+
+					document.getElementById('thankyouMessagePopupContainer').style.display = 'none';
+				}
 			}
 		}
 

@@ -70,4 +70,59 @@ class RSFormProFieldFileUpload extends RSFormProField
 		
 		return $attr;
 	}
+
+	// process the upload file after form validation
+	public function processBeforeStore($submissionId, &$post, &$files) {
+		if (!isset($files[$this->name]))
+		{
+			return false;
+		}
+
+		$actualFile = $files[$this->name];
+		if ($actualFile['error'] != UPLOAD_ERR_OK)
+		{
+			return false;
+		}
+
+		$prefixProperty = $this->getProperty('PREFIX', '');
+		$destination    = $this->getProperty('DESTINATION', '');
+
+		// Prefix
+		$prefix = uniqid('') . '-';
+		if (strlen(trim($prefixProperty)) > 0)
+		{
+			$prefix = RSFormProHelper::isCode($prefixProperty);
+		}
+
+		// Path
+		$realpath = realpath($destination . DIRECTORY_SEPARATOR);
+		if (substr($realpath, -1) != DIRECTORY_SEPARATOR)
+		{
+			$realpath .= DIRECTORY_SEPARATOR;
+		}
+
+		// Filename
+		$file = $realpath . $prefix . $actualFile['name'];
+
+		jimport('joomla.filesystem.file');
+
+		// Upload File
+		if (JFile::upload($actualFile['tmp_name'], $file, false, (bool) RSFormProHelper::getConfig('allow_unsafe')))
+		{
+			//Trigger Event - onBeforeStoreSubmissions
+			JFactory::getApplication()->triggerEvent('rsfp_f_onAfterFileUpload', array(array('formId' => $this->formId, 'fieldname' => $this->name, 'file' => $file, 'name' => $prefix . $actualFile['name'])));
+
+			$db = JFactory::getDbo();
+			// Add to db (submission value)
+			$query = $db->getQuery(true)
+				->insert($db->qn('#__rsform_submission_values'))
+				->set($db->qn('SubmissionId') . ' = ' . $db->q($submissionId))
+				->set($db->qn('FormId') . ' = ' . $db->q($this->formId))
+				->set($db->qn('FieldName') . ' = ' . $db->q($this->name))
+				->set($db->qn('FieldValue') . ' = ' . $db->q($file));
+
+			$db->setQuery($query)
+				->execute();
+		}
+	}
 }

@@ -14,7 +14,7 @@ class plgInstallerRSForm extends JPlugin
 		$uri 	= JUri::getInstance($url);
 		$parts 	= explode('/', $uri->getPath());
 		
-		if ($uri->getHost() == 'www.rsjoomla.com' && in_array('com_rsform', $parts)) {
+		if ($uri->getHost() == 'www.rsjoomla.com' && (in_array('com_rsform', $parts) || in_array('plg_rsform_plugins', $parts))) {
 			if (!file_exists(JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/config.php')) {
 				return;
 			}

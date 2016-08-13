@@ -222,7 +222,7 @@ class RSFormProValidations
 
 	public static function password($param,$extra=null,$data=null)
 	{
-		if ($data['DEFAULTVALUE'] == $param)
+		if (RSFormProHelper::isCode($data['DEFAULTVALUE']) == $param)
 			return true;
 		
 		return false;
@@ -269,6 +269,26 @@ class RSFormProValidations
 		}
 		
 		return $valid;
+	}
+	
+	public static function multiplerules($value, $extra = null, $data = null) {
+		$validations = explode(',', $data['VALIDATIONMULTIPLE']);
+		$extra = json_decode($extra);
+	
+		if (!empty($validations)) {
+			foreach ($validations as $function) {
+				$newData = $data;
+				unset($newData['VALIDATIONMULTIPLE']);
+				$newData['VALIDATIONRULE'] = $function;
+				$newData['VALIDATIONEXTRA'] = $extra->{$function};
+				
+				if (!call_user_func_array('self::'.$function, array($value, $extra->{$function}, $newData))) {
+					return false;
+				}
+			}
+		}
+		
+		return true;
 	}
 	
 	protected static function luhn($value) {

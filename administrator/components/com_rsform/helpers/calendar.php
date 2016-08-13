@@ -40,6 +40,7 @@ class RSFormProCalendar
 		if (isset($calendarOptions[$formId])) {
 			// the form calendar fields
 			$script = '';
+			$calendarsIds = array();
 			foreach ($calendarOptions[$formId] as $calendarId => $calendarConfigs) {
 				$configs = array();
 				foreach ($calendarConfigs as $type=>$value) {
@@ -50,14 +51,19 @@ class RSFormProCalendar
 					}
 				}
 				$script .= "RSFormPro.".$this->type.".setCalendar(".$formId.", '".$calendarId."', {".implode(', ',$configs)."});\n";
+				if ($this->type == 'YUICalendar') {
+					$calendarsIds[] = $calendarId;
+				}
 			}
 			if (!RSFormProCalendar::$renderYUI && $this->type == 'YUICalendar') {
 				$script .= 'rsf_CALENDAR.util.Event.addListener(window, "load",RSFormPro.YUICalendar.renderCalendars);'."\n";
+				$script .= 'RSFormPro.callbacks.addCallback('.$formId.', \'changePage\', [RSFormPro.YUICalendar.hideAllPopupCalendars, '.$formId.', '.json_encode($calendarsIds).'])';
 				RSFormProCalendar::$renderYUI = true;
 			}
 			
 			if (!RSFormProCalendar::$renderJQ && $this->type == 'jQueryCalendar') {
 				$script .= "jQuery(document).ready(function(){\n\t RSFormPro.jQueryCalendar.renderCalendars(); });\n";
+				$script .= 'RSFormPro.callbacks.addCallback('.$formId.', \'changePage\', [RSFormPro.jQueryCalendar.hideAllPopupCalendars, '.$formId.'])';
 				RSFormProCalendar::$renderJQ = true;
 			}
 		}

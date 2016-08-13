@@ -22,9 +22,7 @@ class RSFormProField
 	// calculation handling
 	public $pricePattern = '#\[p(.*?)\]#is';
 	public $prices = array();
-	
-	// the field output
-	public $output = '';
+
 	
 	public $preview = false;
 	
@@ -33,9 +31,13 @@ class RSFormProField
 			$this->{$key} = $value;
 		}
 		$this->name = $this->getProperty('NAME');
-		
-		// generate the actual field
-		$this->output = ($this->preview ? $this->getPreviewInput() : $this->getFormInput());
+	}
+
+	public function __get($property) {
+		if ($property == 'output') {
+			// generate the actual field
+			return  ($this->preview ? $this->getPreviewInput() : $this->getFormInput());
+		}
 	}
 	
 	// @desc Get the input's preview HTML
@@ -183,5 +185,10 @@ class RSFormProField
 	
 	public function addScriptDeclaration($script) {
 		RSFormProAssets::addScriptDeclaration($script);
+	}
+
+	// process field or file before storing it to the database
+	public function processBeforeStore($submissionId, &$post, &$files) {
+		return;
 	}
 }

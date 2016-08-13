@@ -465,7 +465,7 @@ ed.define('jquery.popbox', ['edjquery'], function($) {
 					popbox.loader.detach();
 
 					// Build the tooltip
-					var tooltip = $.buildHTML(html);
+					var tooltip = $(html);
 
 					if (tooltip.filter("[data-ed-popbox-tooltip]").length < 1) {
 

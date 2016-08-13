@@ -399,6 +399,11 @@ class EasyDiscussCategory extends EasyDiscuss
 	public function canPost($userId = null)
 	{
 
+		// if this is a container, no one can post into this category.
+		if ($this->isContainer()) {
+			return false;
+		}
+
 		// If user is a site admin, they are always allowed regardless.
 		if (ED::isSiteAdmin()) {
 			return true;

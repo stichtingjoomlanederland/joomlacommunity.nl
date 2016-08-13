@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Restricted access');
 <br />
 <div id="mappingcontent" style="overflow: auto;">
 <?php } ?>
-	<button type="button" class="btn btn-primary" onclick="openRSModal('<?php echo JRoute::_('index.php?option=com_rsform&view=mappings&formId='.$this->formId.'&tmpl=component'); ?>', 'Mappings', '800x600')"><?php echo JText::_('RSFP_FORM_MAPPINGS_NEW'); ?></button>
+	<button type="button" class="btn btn-primary" onclick="openRSModal('<?php echo JRoute::_('index.php?option=com_rsform&view=mappings&formId='.$this->formId.'&tmpl=component'); ?>', 'Mappings', '1000x800')"><?php echo JText::_('RSFP_FORM_MAPPINGS_NEW'); ?></button>
 	
 	<br /><br />
 
@@ -53,7 +53,7 @@ defined('_JEXEC') or die('Restricted access');
 					<input type="text" name="mporder[]" size="5" value="<?php echo $row->ordering; ?>" disabled="disabled" class="text_area" style="text-align:center" />
 				</td>
 				<td align="center" width="20%" nowrap="nowrap">
-					<button type="button" class="btn pull-left" onclick="openRSModal('<?php echo JRoute::_('index.php?option=com_rsform&view=mappings&cid='.$row->id.'&tmpl=component&formId='.$this->formId.'&cid='.$row->id); ?>', 'Mappings', '800x600')"><?php echo JText::_('RSFP_EDIT'); ?></button>
+					<button type="button" class="btn pull-left" onclick="openRSModal('<?php echo JRoute::_('index.php?option=com_rsform&view=mappings&cid='.$row->id.'&tmpl=component&formId='.$this->formId.'&cid='.$row->id); ?>', 'Mappings', '1000x800')"><?php echo JText::_('RSFP_EDIT'); ?></button>
 					<button type="button" class="btn btn-danger pull-left" onclick="mappingdelete(<?php echo $this->formId; ?>,<?php echo $row->id; ?>);"><?php echo JText::_('RSFP_DELETE'); ?></button>
 				</td>
 			</tr>

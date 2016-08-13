@@ -37,7 +37,7 @@ class RSFormProFieldPageBreak extends RSFormProField
 		$formId		 = $this->formId;
 		$html 		 = '';
 		
-		$pages		= $this->getProperty('PAGES');
+		$pages		= $this->getProperty('PAGES', array());
 		$totalPages = count($pages);
 		$position	= array_search($componentId, $pages);
 		
