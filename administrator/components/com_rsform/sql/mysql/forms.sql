@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS `#__rsform_forms` (
   `Published` tinyint(1) NOT NULL default '1',
   `Lang` varchar(255) NOT NULL default '',
   `ReturnUrl` text NOT NULL,
+  `ShowSystemMessage` tinyint(1) NOT NULL default '1',
   `ShowThankyou` tinyint(1) NOT NULL default '1',
   `ScrollToThankYou` tinyint(1) NOT NULL default '0',
   `ThankYouMessagePopUp` tinyint(1) NOT NULL default '0',

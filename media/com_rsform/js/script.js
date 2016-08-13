@@ -571,7 +571,7 @@ RSFormPro.HTML5 = {
 				// if the multiple form is present and also validation we will need to find in witch page the element is located
 				if (form.elements[i].type == 'button') {
 					var onclick = form.elements[i].getAttribute('onclick');
-					if (onclick != '' && onclick.indexOf('rsfp_changePage') >= 0){
+					if (typeof onclick == 'string' && onclick.indexOf('rsfp_changePage') >= 0){
 						var countCommas = 0;
 						var pos = onclick.indexOf(',');
 						while (pos > -1) {
@@ -867,7 +867,7 @@ RSFormPro.Ajax = {
 			// try and detect total pages of the form
 			if (form.elements[i].type == 'button') {
 				var onclick = form.elements[i].getAttribute('onclick');
-				if (onclick != '' && onclick.indexOf('rsfp_changePage') >= 0) {
+				if (typeof onclick == 'string' && onclick.indexOf('rsfp_changePage') >= 0) {
 					var countCommas = 0;
 					var pos = onclick.indexOf(',');
 					while (pos > -1) {

@@ -50,7 +50,13 @@ class RSFormProFieldCalendar extends RSFormProField
 			$hiddenValue = preg_replace('#[^0-9\/]+#i', '', $hidden[$hiddenName]);
 		} else {
 			if (!empty($value)) {
-				$hiddenValue = JFactory::getDate(str_replace('/', '-', $value))->format('m/d/Y');
+				try {
+					$hiddenValue = JFactory::getDate(str_replace('/', '-', $value))->format('m/d/Y');
+				} catch (Exception $e) {
+					JFactory::getApplication()->enqueueMessage($e->getMessage(), 'warning');
+					$value = '';
+					$hiddenValue = '';
+				}
 			}
 		}
 		

@@ -24,6 +24,7 @@ class TableRSForm_Forms extends JTable
 	public $Keepdata = 1;
 	public $KeepIP = 1;
 	public $ReturnUrl = '';
+	public $ShowSystemMessage = 1;
 	public $ShowThankyou = 1;
 	public $Thankyou = '';
 	public $ShowContinue = 1;

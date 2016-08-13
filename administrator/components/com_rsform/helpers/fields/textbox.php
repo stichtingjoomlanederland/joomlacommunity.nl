@@ -64,7 +64,7 @@ class RSFormProFieldTextbox extends RSFormProField
 			$html .= ' size="'.(int) $size.'"';
 		}
 		// Maxlength
-		if ($maxlength) {
+		if ($maxlength && in_array($type, array('text', 'email', 'tel', 'url'))) {
 			$html .= ' maxlength="'.(int) $maxlength.'"';
 		}
 		

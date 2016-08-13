@@ -144,6 +144,10 @@ class com_rsformInstallerScript
 			$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `ShowContinue` TINYINT( 1 ) NOT NULL DEFAULT '1' AFTER `Thankyou`");
 			$db->execute();
 		}
+		if (!isset($columns['ShowSystemMessage'])) {
+			$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `ShowSystemMessage` TINYINT( 1 ) NOT NULL DEFAULT '1' AFTER `ReturnUrl`");
+			$db->execute();
+		}
 		if (!isset($columns['Keepdata'])) {
 			$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `Keepdata` TINYINT( 1 ) NOT NULL DEFAULT '1'");
 			$db->execute();
@@ -988,36 +992,13 @@ class com_rsformInstallerScript
 			<?php } ?>
 			<?php } ?>
 		<?php } ?>
-		<h2>Changelog v1.52.0</h2>
+		<h2>Changelog v1.52.1</h2>
 		<ul class="version-history">
-			<li><span class="version-new">New</span> Thank You Message can be displayed in a pop-up.</li>
-			<li><span class="version-new">New</span> Scroll to form on error.</li>
-			<li><span class="version-new">New</span> Scroll to Thank You Message.</li>
-			<li><span class="version-new">New</span> Form Layout: Zurb Foundation 6.2.1</li>
-			<li><span class="version-new">New</span> {if} scripting now allows comparing values.</li>
-			<li><span class="version-new">New</span> Submit button can be disabled upon submission to prevent clicking multiple times.</li>
-			<li><span class="version-new">New</span> CAPTCHA can be hidden for logged-in users.</li>
-			<li><span class="version-new">New</span> 'REPLACE' mappings method.</li>
-			<li><span class="version-upgraded">Upg</span> User Email and Admin Email are now validated upon saving.</li>
-			<li><span class="version-upgraded">Upg</span> New Validation Rule: &quot;Multiple Rules&quot;</li>
-			<li><span class="version-upgraded">Upg</span> Can now specify the Map Type in the Google Map field.</li>
-			<li><span class="version-upgraded">Upg</span> Progress bar can be auto-generated based on the current Form Layout.</li>
-			<li><span class="version-upgraded">Upg</span> 'Refresh CAPTCHA' button can now be styled through the '.rsform-captcha-refresh-button' class.</li>
-			<li><span class="version-upgraded">Upg</span> 'Refresh CAPTCHA' button now inherits button class to match current Form Layout.</li>
-			<li><span class="version-upgraded">Upg</span> 'Image Button' has been removed. Use 'Submit Button' with CSS styling instead.</li>
-			<li><span class="version-upgraded">Upg</span> Now showing current language when editing 'Thank You Message', 'Admin Email Text' and 'User Email Text'.</li>
-			<li><span class="version-upgraded">Upg</span> 'Support Ticket' field can be either 'Random' or 'Sequential'.</li>
-			<li><span class="version-fixed">Fix</span> 'Support Ticket' fields are now placed at the bottom of the HTML layout.</li>
-			<li><span class="version-fixed">Fix</span> Using &quot;Toggle Editor&quot; was not saving changes with some editors.</li>
-			<li><span class="version-fixed">Fix</span> In some cases new values were not saved when editing submissions.</li>
-			<li><span class="version-fixed">Fix</span> Timezone was not taken into account when exporting submission from the frontend.</li>
-			<li><span class="version-fixed">Fix</span> Placeholders dropdown Javascript was causing an overhead when too many fields were added.</li>
-			<li><span class="version-fixed">Fix</span> Placeholders dropdown was not working correctly in the Mappings pop-up.</li>
-			<li><span class="version-fixed">Fix</span> PHP Notices when creating a new form using the wizard.</li>
-			<li><span class="version-fixed">Fix</span> When editing a form the language you've logged in with will be used.</li>
-			<li><span class="version-fixed">Fix</span> Date and Time Picker field popup was not being closed when changing the page.</li>
-			<li><span class="version-fixed">Fix</span> Google API Key is needed for displaying a map <a target="_blank" href="https://developers.google.com/maps/pricing-and-plans/standard-plan-2016-update">https://developers.google.com/maps/pricing-and-plans/standard-plan-2016-update</a></li>
-			<li><span class="version-fixed">Fix</span> If the Password field's Default Value contained PHP code it was not taken into account during the Passphrase validation.</li>
+			<li><span class="version-upgraded">Upg</span> Default form submission system message can be turned off from the Form Properties area.</li>
+			<li><span class="version-fixed">Fix</span> AJAX validation was throwing a Javascript error.</li>
+			<li><span class="version-fixed">Fix</span> Calendar now longer throws an error preventing form to be displayed if the Default Value is using an incorrect date.</li>
+			<li><span class="version-fixed">Fix</span> 'Max Size' attribute is used only on specific 'Type' selections.</li>
+			<li><span class="version-fixed">Fix</span> 'Multiple Validation Rules' would throw a PHP Notice in a particular situation.</li>
 		</ul>
 		<a class="com-rsform-button" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="com-rsform-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/21-rsform-pro-user-guide.html" target="_blank">Read the RSForm! Pro User Guide</a>

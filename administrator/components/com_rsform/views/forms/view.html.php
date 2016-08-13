@@ -77,6 +77,7 @@ class RSFormViewForms extends JViewLegacy
 			$lists['keepdata'] = $this->renderHTML('select.booleanlist','Keepdata','',$this->form->Keepdata);
 			$lists['KeepIP'] = $this->renderHTML('select.booleanlist','KeepIP','',$this->form->KeepIP);
 			$lists['confirmsubmission'] = $this->renderHTML('select.booleanlist','ConfirmSubmission','',$this->form->ConfirmSubmission);
+			$lists['ShowSystemMessage'] = $this->renderHTML('select.booleanlist','ShowSystemMessage','',$this->form->ShowSystemMessage);
 			$lists['ShowThankyou'] = $this->renderHTML('select.booleanlist','ShowThankyou','onclick="enableThankyou(this.value);"',$this->form->ShowThankyou);
 			$lists['ScrollToThankYou'] = $this->renderHTML('select.booleanlist','ScrollToThankYou','onclick="enableThankyouPopup(this.value);"',$this->form->ScrollToThankYou);
 			$lists['ThankYouMessagePopUp'] = $this->renderHTML('select.booleanlist','ThankYouMessagePopUp',((!$this->form->ShowThankyou || ($this->form->ShowThankyou && $this->form->ScrollToThankYou)) ? 'disabled="true"' : ''),$this->form->ThankYouMessagePopUp);
