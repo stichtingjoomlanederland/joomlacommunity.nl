@@ -3,7 +3,7 @@
  * @package     Joomla_Versions
  * @subpackage  mod_joomlaversions
  *
- * @copyright   Copyright (C) 2016 Joomla! Community. All rights reserved.
+ * @copyright   Copyright (C) 2016 Niels van der Veer. All rights reserved.
  * @license     GNU General Public License version 2 or later
  */
 
@@ -47,3 +47,4 @@ JFactory::getDocument()->addScriptDeclaration($script);
 <div class="mod_joomlaversions">
 	<div class="latest-versions"></div>
 </div>
+
