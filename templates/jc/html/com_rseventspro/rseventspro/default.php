@@ -55,8 +55,8 @@ defined('_JEXEC') or die('Restricted access');?>
 
 <?php if ($this->params->get('search',1)) { ?>
     <form method="post" action="<?php echo $this->escape(JRoute::_(JURI::getInstance(),false)); ?>" name="adminForm" id="adminForm">
-
-        <div class="rsepro-filter-container">
+        <!-- Added Display None to remove Categrie Filter on eventlist :: ConConNL-->
+        <div style="display: none" class="rsepro-filter-container">
             <div class="navbar" id="rsepro-navbar">
                 <div class="navbar-inner">
                     <a data-target=".rsepro-navbar-responsive-collapse" data-toggle="collapse" class="btn btn-navbar collapsed">
@@ -96,8 +96,8 @@ defined('_JEXEC') or die('Restricted access');?>
                     </div>
                 </div>
             </div>
-
-            <ul class="rsepro-filter-filters inline unstyled">
+            <!-- Added Display None to remove Categrie Filter on eventlist :: ConConNL-->
+            <ul style="display: none;" class="rsepro-filter-filters inline unstyled">
                 <li class="rsepro-filter-operator" <?php echo count($this->columns) > 1 ? '' : 'style="display:none"'; ?>>
                     <div class="btn-group">
                         <a data-toggle="dropdown" class="btn btn-small dropdown-toggle" href="#"><span><?php echo ucfirst(JText::_('COM_RSEVENTSPRO_GLOBAL_'.$this->operator)); ?></span> <i class="caret"></i></a>
@@ -112,7 +112,8 @@ defined('_JEXEC') or die('Restricted access');?>
                 <?php if (!empty($this->columns)) { ?>
                     <?php for ($i=0; $i < count($this->columns); $i++) { ?>
                         <?php $hash = sha1(@$this->columns[$i].@$this->operators[$i].@$this->values[$i]); ?>
-                        <li id="<?php echo $hash; ?>">
+                        <!-- Added Display None to remove Categrie Filter on eventlist :: ConConNL-->
+                        <li style="display: none" id="<?php echo $hash; ?>">
                             <div class="btn-group">
                                 <span class="btn btn-small"><?php echo rseventsproHelper::translate($this->columns[$i]); ?></span>
                                 <span class="btn btn-small"><?php echo rseventsproHelper::translate($this->operators[$i]); ?></span>
@@ -186,7 +187,7 @@ defined('_JEXEC') or die('Restricted access');?>
                 <?php if (!empty($event->options['show_icon_list'])) { ?>
                     <div class="rs_event_image" itemprop="image">
                         <a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)); ?>" class="rs_event_link thumbnail">
-                            <img src="<?php echo JRoute::_('index.php?option=com_rseventspro&task=image&id='.rseventsproHelper::sef($event->id,$event->name), false); ?>" alt="" width="<?php echo $this->config->icon_small_width; ?>" />
+                            <img src="<?php echo rseventsproHelper::thumb($event->id, $this->config->icon_small_width); ?>" alt="" width="<?php echo $this->config->icon_small_width; ?>" />
                         </a>
                     </div>
                 <?php } ?>
