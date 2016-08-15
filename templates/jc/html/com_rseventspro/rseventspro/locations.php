@@ -27,15 +27,15 @@ $count = count($this->locations); ?>
 					<i class="fa fa-eye"></i>
 				</a>
 			</div>
-			
-			<div class="rs_heading">
 
-					<H2><?php echo $location->name; ?></H2>
+			<div class="rs_heading">
+				<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=location&id='.rseventsproHelper::sef($location->id,$location->name)); ?>">
+					<?php echo $location->name; ?>
 					<?php if ($this->params->get('events',0)) { ?>
-					<?php $events = (int) $this->getNumberEvents($location->id,'locations'); ?>
-					<?php if (!empty($events)) { ?>
-					<small>(<?php echo $this->getNumberEvents($location->id,'locations'); ?>)</small>
-					<?php } ?>
+						<?php $events = (int) $this->getNumberEvents($location->id,'locations'); ?>
+						<?php if (!empty($events)) { ?>
+							<small>(<?php echo $this->getNumberEvents($location->id,'locations'); ?>)</small>
+						<?php } ?>
 					<?php } ?>
 				</a>
 			</div>
