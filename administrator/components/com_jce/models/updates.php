@@ -139,13 +139,19 @@ class WFModelUpdates extends WFModel {
         jimport('joomla.filesystem.folder');
         jimport('joomla.filesystem.file');
 
+        wfimport('admin.helpers.extension');
+
+        $component = WFExtensionHelper::getComponent();
+        $params = new WFParameter($component->params, '', 'preferences');
+
         $config = JFactory::getConfig();
 
         $result = array('error' => WFText::_('WF_UPDATES_DOWNLOAD_ERROR'));
 
-        $id = JRequest::getInt('id');
-        
-        $data = $this->connect(self::$updateURL . '&task=download&id=' . $id);
+        $id   = JRequest::getInt('id');
+        $key  = $params->get('updates_key', '');
+
+        $data = $this->connect(self::$updateURL . '&task=download&id=' . $id . '&key=' . urlencode($key));
 
         if ($data) {
             $data = json_decode($data);
@@ -190,7 +196,7 @@ class WFModelUpdates extends WFModel {
      *
      * @param   string  $dir  Path to package directory
      * @return  mixed  Extension type string or boolean false on fail
-     * 
+     *
      * @copyright   Copyright (C) 2005 - 2012 Open Source Matters, Inc. All rights reserved.
      */
     public static function detectType($dir) {
@@ -232,7 +238,7 @@ class WFModelUpdates extends WFModel {
      *
      * @param   string  $archive  The uploaded package filename or install directory
      * @return  mixed  Array on success or boolean false on failure
-     * 
+     *
      * @copyright   Copyright (C) 2005 - 2012 Open Source Matters, Inc. All rights reserved.
      */
     private static function unpack($archive) {
@@ -318,7 +324,7 @@ class WFModelUpdates extends WFModel {
                 // check hash
                 if ($hash == md5(md5_file($path))) {
                     $package = self::unpack($path);
-                    
+
                     if ($package) {
                         // Install a JCE Add-on
                         if ($method == 'jce') {
@@ -331,7 +337,7 @@ class WFModelUpdates extends WFModel {
                                 // installer message
                                 $result = array('error' => '', 'text' => WFText::_($installer->get('message'), $installer->get('message')));
                             }
-                            // Install a Joomla! Extension    
+                            // Install a Joomla! Extension
                         } else {
                             jimport('joomla.installer.installer');
 
@@ -369,7 +375,7 @@ class WFModelUpdates extends WFModel {
      */
     protected function connect($url, $data = '', $download = '') {
         @error_reporting(E_ERROR);
-        
+
         $result = false;
 
         if ($download) {
@@ -381,7 +387,7 @@ class WFModelUpdates extends WFModel {
                 return array('error' => WFText::_('Update check failed : Invalid response from update server'));
             }
         }
-        
+
         return $result;
     }
 }
