@@ -105,6 +105,10 @@ defined('_JEXEC') or die('Restricted access');
 			<fieldset>
 				<legend><?php echo JText::_('RSFP_FORM_INFO_SUBMISSION'); ?></legend>
 				<table width="100%" class="com-rsform-table-props">
+					<tr id="systemMessageContainer"<?php echo $this->form->ShowThankyou ? ' style="display:none"' : ''; ?>>
+						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_SHOW_SYSTEM_MESSAGE'); ?></td>
+						<td><?php echo $this->lists['ShowSystemMessage']; ?></td>
+					</tr>
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_RETURN_URL'); ?></td>
 						<td><input name="ReturnUrl" class="rs_inp rs_80" value="<?php echo $this->escape($this->form->ReturnUrl); ?>" size="105" id="ReturnUrl" /></td>

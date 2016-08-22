@@ -272,17 +272,18 @@ class RSFormProValidations
 	}
 	
 	public static function multiplerules($value, $extra = null, $data = null) {
-		$validations = explode(',', $data['VALIDATIONMULTIPLE']);
-		$extra = json_decode($extra);
+		$validations 	= explode(',', $data['VALIDATIONMULTIPLE']);
+		$extra 			= json_decode($extra);
 	
 		if (!empty($validations)) {
 			foreach ($validations as $function) {
 				$newData = $data;
 				unset($newData['VALIDATIONMULTIPLE']);
-				$newData['VALIDATIONRULE'] = $function;
-				$newData['VALIDATIONEXTRA'] = $extra->{$function};
 				
-				if (!call_user_func_array('self::'.$function, array($value, $extra->{$function}, $newData))) {
+				$newData['VALIDATIONRULE']  = $function;
+				$newData['VALIDATIONEXTRA'] = !empty($extra->{$function}) ? $extra->{$function} : null;
+
+				if (!call_user_func_array('self::'.$function, array($value, $newData['VALIDATIONEXTRA'], $newData))) {
 					return false;
 				}
 			}

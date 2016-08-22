@@ -464,8 +464,9 @@ JHTML::_('behavior.calendar');
 				document.getElementById('ShowContinue1').disabled = false;
 
 				document.getElementById('showContinueContainer').style.display = 'table-row';
+				document.getElementById('systemMessageContainer').style.display = 'none';
 
-				if(document.getElementById('ScrollToThankYou0').checked) {
+				if (document.getElementById('ScrollToThankYou0').checked) {
 					document.getElementById('ThankYouMessagePopUp0').disabled = false;
 					document.getElementById('ThankYouMessagePopUp1').disabled = false;
 					document.getElementById('thankyouMessagePopupContainer').style.display = 'table-row';
@@ -479,9 +480,12 @@ JHTML::_('behavior.calendar');
 				document.getElementById('ThankYouMessagePopUp1').disabled = true;
 
 				document.getElementById('showContinueContainer').style.display = 'none';
+				document.getElementById('systemMessageContainer').style.display = 'table-row';
+				
 				document.getElementById('thankyouMessagePopupContainer').style.display = 'none';
 			}
 		}
+		
 		function enableThankyouPopup(value)
 		{
 			if (value == 0)

@@ -266,7 +266,9 @@ class RSFormProHelper
 			$session->clear('com_rsform.formparams.formId'.$formId);
 
 			// Must show small message
-			$mainframe->enqueueMessage(JText::_('RSFP_THANKYOU_SMALL'));
+			if ($formparams->showSystemMessage) {
+				$mainframe->enqueueMessage(JText::_('RSFP_THANKYOU_SMALL'));
+			}
 
 			if ($form->ScrollToThankYou)
 			{
@@ -2136,8 +2138,9 @@ class RSFormProHelper
 
 			// Populate data
 			$formparams = (object) array(
-				'submissionId' 	=> $SubmissionId,
-				'redirectUrl'	=> !$form->ShowThankyou && $form->ReturnUrl ? $form->ReturnUrl : $u
+				'submissionId' 		=> $SubmissionId,
+				'redirectUrl'		=> !$form->ShowThankyou && $form->ReturnUrl ? $form->ReturnUrl : $u,
+				'showSystemMessage' => $form->ShowSystemMessage
 			);
 
 			// Store the Thank You Message if option is set
@@ -3311,6 +3314,7 @@ class RSFormProHelper
 				->select($db->qn('AdminEmailScript'))
 				->select($db->qn('ReturnUrl'))
 				->select($db->qn('ShowThankyou'))
+				->select($db->qn('ShowSystemMessage'))
 				->select($db->qn('ScrollToThankYou'))
 				->select($db->qn('ThankYouMessagePopUp'))
 				->select($db->qn('Thankyou'))

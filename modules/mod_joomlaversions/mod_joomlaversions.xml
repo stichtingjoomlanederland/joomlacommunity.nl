@@ -3,11 +3,11 @@
 	<name>mod_joomlaversions</name>
 	<author>Niels van der Veer</author>
 	<creationDate>May 2016</creationDate>
-	<copyright>Copyright (C) 2016 Joomla! Community. All rights reserved.</copyright>
+	<copyright>Copyright (C) 2016 Niels van der Veer. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later</license>
 	<authorEmail>contact@nielsvanderveer.me</authorEmail>
 	<authorUrl>www.nielsvanderveer.me</authorUrl>
-	<version>1.1.1</version>
+	<version>1.1.2</version>
 	<description>MOD_JOOMLAVERSIONS_XML_DESCRIPTION</description>
 	<files>
 		<filename module="mod_joomlaversions">mod_joomlaversions.php</filename>

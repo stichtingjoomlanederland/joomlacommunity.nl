@@ -12,7 +12,7 @@ INSERT IGNORE INTO `#__rsform_component_type_fields` (`ComponentTypeId`, `FieldN
 (1, 'DEFAULTVALUE', 'textarea', '', '', 9),
 (1, 'PLACEHOLDER', 'textbox', '', '', 10),
 (1, 'DESCRIPTION', 'textarea', '', '', 11),
-(1, 'INPUTTYPE', 'select', 'text\r\nemail\r\ntel\r\nnumber\r\nrange\r\nurl', '{"case":{"number":{"show":["ATTRMIN","ATTRMAX","ATTRSTEP"],"hide":[]},"range":{"show":["ATTRMIN","ATTRMAX","ATTRSTEP"],"hide":[]},"text":{"show":[],"hide":["ATTRMIN","ATTRMAX","ATTRSTEP"]},"email":{"show":[],"hide":["ATTRMIN","ATTRMAX","ATTRSTEP"]},"tel":{"show":[],"hide":["ATTRMIN","ATTRMAX","ATTRSTEP"]},"url":{"show":[],"hide":["ATTRMIN","ATTRMAX","ATTRSTEP"]}}}', 0),
+(1, 'INPUTTYPE', 'select', 'text\r\nemail\r\ntel\r\nnumber\r\nrange\r\nurl', '{"case":{"number":{"show":["ATTRMIN","ATTRMAX","ATTRSTEP"],"hide":["MAXSIZE"]},"range":{"show":["ATTRMIN","ATTRMAX","ATTRSTEP"],"hide":["MAXSIZE"]},"text":{"show":["MAXSIZE"],"hide":["ATTRMIN","ATTRMAX","ATTRSTEP"]},"email":{"show":["MAXSIZE"],"hide":["ATTRMIN","ATTRMAX","ATTRSTEP"]},"tel":{"show":["MAXSIZE"],"hide":["ATTRMIN","ATTRMAX","ATTRSTEP"]},"url":{"show":["MAXSIZE"],"hide":["ATTRMIN","ATTRMAX","ATTRSTEP"]}}}', 0),
 (1, 'ATTRMIN', 'textbox', '', 'float', 1),
 (1, 'ATTRMAX', 'textbox', '', 'float', 2),
 (1, 'ATTRSTEP', 'textbox', '1', 'float', 2),

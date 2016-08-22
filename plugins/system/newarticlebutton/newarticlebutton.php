@@ -17,15 +17,13 @@ defined('_JEXEC') or die;
 class PlgSystemNewArticleButton extends JPlugin
 {
 	/**
-	 * @var    JFactory::getApplication()
-	 *
+	 * @var    JFactory::getApplication();
 	 * @since  1.0.0
 	 */
 	protected $app;
 
 	/**
 	 * @var    bool  Enable or disable autoloading of the language file
-	 *
 	 * @since  1.0.0
 	 */
 	protected $autoloadLanguage = true;
@@ -47,18 +45,22 @@ class PlgSystemNewArticleButton extends JPlugin
 		// Do not execute on admin or if the user is a guest
 		if ($this->app->isAdmin() || $user->guest)
 		{
-			return false;
+			return true;
 		}
 
-		// Only execute on certain layouts
+		// Only execute on category pages
 		if ($input->get("option") != "com_content" || $input->get("view") != "category")
 		{
-			return false;
+			return true;
 		}
 
-		// Get buffer and category ID
-		$catid  = $input->get("id");
-		$buffer = $doc->getBuffer("component");
+		// Filter category id's
+		$catid = $input->get("id");
+
+		if (in_array($catid, $this->params->get("exclude_categories", array())))
+		{
+			return true;
+		}
 
 		// If the user if allowed to create add the button
 		if ($user->authorise("core.create", "com_content.category." . $catid))
@@ -74,8 +76,8 @@ class PlgSystemNewArticleButton extends JPlugin
 			include $path;
 			$html = ob_get_clean();
 
-			// Append button to the compnent buffer
-			$doc->setBuffer($html . $buffer, "component");
+			// Append button to the current component buffer
+			$doc->setBuffer($html . $doc->getBuffer("component"), "component");
 		}
 
 		return true;
