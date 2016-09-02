@@ -4,11 +4,11 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 		el.preventDefault();
 
-		// if ($('[data-user-search-text]').val() != "") {
+		if ($('[data-user-search-text]').val() != "") {
 
 			//submit the form
 			$('[data-user-search-form]').submit();
-		// }
+		}
 	});
 
 });
