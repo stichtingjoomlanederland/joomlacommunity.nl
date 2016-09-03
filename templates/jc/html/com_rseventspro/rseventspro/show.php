@@ -39,6 +39,11 @@ jQuery(document).ready(function (){
 </script>
 <?php } ?>
 <!--//end Initialize map-->
+<!-- Start: Load stylesheet -->
+    <?php $doc = JFactory::getDocument(); ?>
+    <?php $doc->addStyleSheet(JURI::root(true).
+    '/components/com_rseventspro/assets/css/customeventstyle.css?v='.RSEPRO_RS_REVISION); ?>
+<!-- End: Load stylesheet -->
 
 <?php 
 	$links = rseventsproHelper::getConfig('modal','int');
