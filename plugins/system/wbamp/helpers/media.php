@@ -6,61 +6,14 @@
  * @copyright    (c) Yannick Gaultier - Weeblr llc - 2016
  * @package      wbAmp
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      1.4.2.551
- * @date        2016-07-19
+ * @version      1.5.0.585
+ * @date        2016-08-25
  */
 
 defined('_JEXEC') or die();
 
 class WbampHelper_Media
 {
-	static private $rootPath   = '';
-	static private $pathLength = 0;
-	static private $rootUrl    = '';
-	static private $rootLength = 0;
-
-	/**
-	 * Get an image size from the file
-	 *
-	 * @param $url
-	 * @return array Width/height of the image, 0/0 if not found
-	 */
-	public static function getImageSize($url)
-	{
-		if (empty(self::$rootPath))
-		{
-			self::$rootPath = JUri::base(true);
-			self::$pathLength = JString::strlen(self::$rootPath);
-			self::$rootUrl = Juri::base();
-			if (JFactory::getApplication()->isAdmin())
-			{
-				self::$rootUrl = str_replace('/administrator', '', self::$rootUrl);
-				self::$rootPath = str_replace('/administrator', '', self::$rootPath);
-			}
-			self::$rootLength = JString::strlen(self::$rootUrl);
-		}
-
-		// default values ?
-		$dimensions = array('width' => 0, 'height' => 0);
-
-		// build the physical path from the URL
-		$cleanedPath = substr($url, 0, self::$rootLength) == self::$rootUrl ? substr($url, self::$rootLength) : $url;
-		$cleanedPath = !empty(self::$pathLength) && substr($cleanedPath, 0, self::$pathLength) == self::$rootPath ? substr($url, self::$pathLength) : $cleanedPath;
-
-		$imagePath = JPATH_ROOT . '/' . $cleanedPath;
-
-		if (file_exists($imagePath))
-		{
-			$imageInfos = getimagesize($imagePath);
-			if (!empty($imageInfos))
-			{
-				$dimensions = array('width' => $imageInfos[0], 'height' => $imageInfos[1]);
-			}
-		}
-
-		return $dimensions;
-	}
-
 	/**
 	 * Finds a local image and read its dimensions
 	 * If current dimensions as known by the caller are missing,
@@ -85,7 +38,7 @@ class WbampHelper_Media
 		// at least one dimension missing, try read size from file
 		if (empty($currentDimensions['width']) || empty($currentDimensions['height']))
 		{
-			$newDimensions = self::getImageSize($url);
+			$newDimensions = ShlHtmlContent_Image::getImageSize($url);
 		}
 
 		foreach ($currentDimensions as $key => $value)

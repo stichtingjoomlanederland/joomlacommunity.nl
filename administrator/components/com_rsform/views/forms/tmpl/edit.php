@@ -235,7 +235,7 @@ JHTML::_('behavior.calendar');
 			}
 			else if (pressbutton == 'forms.preview')
 			{
-				window.open('<?php echo JURI::root(); ?>index.php?option=com_rsform&formId=<?php echo $this->form->FormId; ?>');
+				window.open('<?php echo JURI::root(); ?>index.php?option=com_rsform&view=rsform&formId=<?php echo $this->form->FormId; ?>');
 				return;
 			}
 			else if (pressbutton == 'components.copy' || pressbutton == 'components.duplicate')

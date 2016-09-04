@@ -6,8 +6,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.4.2.551
- * @date        2016-07-19
+ * @version     1.5.0.585
+ * @date        2016-08-25
  */
 
 // no direct access
@@ -100,6 +100,7 @@ class WbampModel_Renderer
 		$data['canonical'] = $this->_manager->getCanonicalUrl();
 		$data['shURL'] = $this->_manager->getShURL();
 		$data['amp_url'] = JUri::current();
+		$data['amp_path'] = str_replace(JUri::base(), '/', $data['amp_url']);
 
 		// headers
 		$this->getHeaders($data);
@@ -118,7 +119,7 @@ class WbampModel_Renderer
 		// if menu is sidebar, add sidebar script
 		if (WbampHelper_Edition::$id == 'full'
 			&& $data['params']->get('menu_location', 'hidden') != 'hidden'
-			&& strtolower($data['params']->get('menu_style', 'slide')) == 'slide'
+			&& WbampHelper_Amphtml::isSlidingMenu($data['params'])
 		)
 		{
 			$this->addScripts(
@@ -130,9 +131,6 @@ class WbampModel_Renderer
 
 		// collect social buttons data, for rendering
 		$data['social_buttons'] = $this->getElementData('socialbuttons', $data, array('types' => array(), 'theme' => 'colors', 'style' => 'rounded'));
-
-		// ads, make sure amp-ad script is loaded
-		$this->getElementData('ad', $data, '');
 
 		// collect main Joomla rendered component content
 		$rawContent = JFactory::getDocument()->getBuffer('component');
@@ -149,6 +147,9 @@ class WbampModel_Renderer
 
 		// remove tags only used when the regular HTML page is displayed
 		$data['main_content'] = str_replace('{wbamp-no-scrub}', '', $data['main_content']);
+
+		// ads, make sure amp-ad script is loaded
+		$data['main_content'] = $this->getElementData('ad', $data, '');
 
 		// process social networks tags, or raw URLs
 		$data['main_content'] = $this->getElementData('embedtags', $data['main_content'], $data['main_content']);
@@ -202,6 +203,16 @@ class WbampModel_Renderer
 
 		// let plugins build json-ld data
 		$data['json-ld'] = $this->getJsonldData($data);
+
+		// collect possible structured data from sh404SEF
+		if (WbampHelper_Edition::$id == 'full')
+		{
+			$structuredData = WbampHelper_Sh404sef::getStructuredData();
+			if (!empty($structuredData))
+			{
+				$data['structured_data'] = $structuredData;
+			}
+		}
 
 		// collect additional scripts to insert
 		$data['amp_scripts'] = $this->getScripts();
@@ -393,7 +404,8 @@ class WbampModel_Renderer
 			$jsonld['@type'] = array_key_exists($defaultArticleType, $config->documentTypes) ?
 				$config->documentTypes[$defaultArticleType] : $config->documentTypes['news'];
 			$jsonld['mainEntityOfPage'] = $this->_manager->getCanonicalUrl();
-			$jsonld['headline'] = JFactory::getDocument()->getTitle();
+			$headlineMaxLength = $config->headlineMaxLength;
+			$jsonld['headline'] = wbAbridge(JFactory::getDocument()->getTitle(), $headlineMaxLength, $headlineMaxLength - 3);
 
 			// publisher
 			$publisherImageUrl = WbampHelper_Runtime::$params->get('publisher_image', '');
@@ -505,7 +517,7 @@ class WbampModel_Renderer
 				$image = empty($data['sh404sef_custom_data']->og_image) ? Sh404sefFactory::getConfig()->ogImage : $data['sh404sef_custom_data']->og_image;
 				if (!empty($image))
 				{
-					$dimensions = WbampHelper_Media::getImageSize($image);
+					$dimensions = ShlHtmlContent_Image::getImageSize($image);
 					$jsonld['image'] = array(
 						'@type' => 'ImageObject',
 						'url' => ShlSystem_Route::absolutify($image, true),

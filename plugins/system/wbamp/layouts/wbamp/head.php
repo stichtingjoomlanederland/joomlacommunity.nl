@@ -6,8 +6,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.4.2.551
- * @date        2016-07-19
+ * @version     1.5.0.585
+ * @date        2016-08-25
  */
 
 // no direct access
@@ -68,17 +68,16 @@ if (!empty($customLinks))
 }
 
 ?>
-
 <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
 
 <?php echo ShlMvcLayout_Helper::render('wbamp.style', $displayData, WbampHelper_Runtime::$layoutsBasePaths); ?>
-
 <?php if (!empty($displayData['json-ld'])) : ?>
-	<script type="application/ld+json">
-    <?php echo json_encode($displayData['json-ld'], defined('JSON_PRETTY_PRINT') ? JSON_PRETTY_PRINT : false); ?>
-	</script>
-<?php endif; ?>
+<script type="application/ld+json">
+    <?php echo json_encode($displayData['json-ld'], defined('JSON_PRETTY_PRINT') ? JSON_PRETTY_PRINT | JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE : false); ?>
 
-<?php echo ShlMvcLayout_Helper::render('wbamp.scripts', $displayData, WbampHelper_Runtime::$layoutsBasePaths); ?>
+</script>
+<?php endif;
+if (!empty($displayData['structured_data'])) : echo $displayData['structured_data']; endif;
+echo ShlMvcLayout_Helper::render('wbamp.scripts', $displayData, WbampHelper_Runtime::$layoutsBasePaths); ?>
 
 <script async src="https://cdn.ampproject.org/v0.js"></script>

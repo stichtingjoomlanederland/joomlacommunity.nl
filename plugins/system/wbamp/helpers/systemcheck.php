@@ -6,8 +6,8 @@
  * @copyright    (c) Yannick Gaultier - Weeblr llc - 2016
  * @package      wbAmp
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      1.4.2.551
- * @date        2016-07-19
+ * @version      1.5.0.585
+ * @date        2016-08-25
  */
 
 // Security check to ensure this file is being included by a parent file.
@@ -284,7 +284,7 @@ class WbampHelper_Systemcheck
 		$logoUrl = $this->_pluginParams->get($imageType . '_image', '');
 		if (!empty($logoUrl))
 		{
-			$logoSize = WbampHelper_Media::getImageSize($logoUrl);
+			$logoSize = ShlHtmlContent_Image::getImageSize($logoUrl);
 			$width = $this->_pluginParams->get($imageType . '_image_width', $logoSize['width']);
 			$height = $this->_pluginParams->get($imageType . '_image_height', $logoSize['height']);
 			if (empty($width) || empty($height))
@@ -323,7 +323,7 @@ class WbampHelper_Systemcheck
 		$logoUrl = $this->_pluginParams->get($imageType . '_image', '');
 		if (!empty($logoUrl))
 		{
-			$logoSize = WbampHelper_Media::getImageSize($logoUrl);
+			$logoSize = ShlHtmlContent_Image::getImageSize($logoUrl);
 			$width = $this->_pluginParams->get($imageType . '_image_width', $logoSize['width']);
 			$height = $this->_pluginParams->get($imageType . '_image_height', $logoSize['height']);
 			if (

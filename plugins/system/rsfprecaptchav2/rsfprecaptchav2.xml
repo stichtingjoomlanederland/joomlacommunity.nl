@@ -3,11 +3,11 @@
 	<name>System - RSForm! Pro reCAPTCHA v2</name>
 	<author>RSJoomla!</author>
 	<creationDate>December 2014</creationDate>
-	<copyright>(C) 2014-2015 www.rsjoomla.com</copyright>
+	<copyright>(C) 2014-2016 www.rsjoomla.com</copyright>
 	<license>GNU General Public License</license>
 	<authorEmail>support@rsjoomla.com</authorEmail>
 	<authorUrl>www.rsjoomla.com</authorUrl>
-	<version>1.51.1</version>
+	<version>1.51.2</version>
 	<description><![CDATA[PLG_SYSTEM_RSFPRECAPTCHAV2_DESC]]></description>
 	<scriptfile>script.php</scriptfile>
 	
@@ -31,6 +31,11 @@
 		<filename plugin="rsfprecaptchav2">rsfprecaptchav2.php</filename>
 		<filename>index.html</filename>
 	</files>
+	
+	<media destination="com_rsform" folder="media">
+		<folder>js</folder>
+	</media>
+	
 	<languages folder="language">
 		<language tag="en-GB">en-GB/en-GB.plg_system_rsfprecaptchav2.ini</language>
 		<language tag="en-GB">en-GB/en-GB.plg_system_rsfprecaptchav2.sys.ini</language>

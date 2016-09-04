@@ -6,8 +6,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.4.2.551
- * @date        2016-07-19
+ * @version     1.5.0.585
+ * @date        2016-08-25
  */
 
 // no direct access
@@ -34,11 +34,7 @@ if (WbampHelper_Edition::$id == 'full')
 {
 	if ($displayData['params']->get('menu_location', 'hidden') != 'hidden')
 	{
-		$menuStyle = strtolower($displayData['params']->get('menu_style', 'slide'));
-		if ('slide' == $menuStyle)
-		{
-			echo ShlMvcLayout_Helper::render('wbamp.tags.sidebar', $displayData, WbampHelper_Runtime::$layoutsBasePaths);
-		}
+		WbampHelper_Amphtml::getRenderedMenu($displayData, array('slide', 'slide-right'));
 	}
 }
 ?>
@@ -66,11 +62,7 @@ if (WbampHelper_Edition::$id == 'full')
 	{
 		if ($displayData['params']->get('menu_location', 'hidden') == 'before')
 		{
-			$menuStyle = strtolower($displayData['params']->get('menu_style', 'slide'));
-			if ('default' == $menuStyle)
-			{
-				echo ShlMvcLayout_Helper::render('wbamp.menu_' . $menuStyle, $displayData, WbampHelper_Runtime::$layoutsBasePaths);
-			}
+			echo WbampHelper_Amphtml::getRenderedMenu($displayData, array('default'));
 		}
 	}
 
@@ -107,11 +99,7 @@ if (WbampHelper_Edition::$id == 'full')
 	{
 		if ($displayData['params']->get('menu_location', 'hidden') == 'after')
 		{
-			$menuStyle = strtolower($displayData['params']->get('menu_style', 'slide'));
-			if ('default' == $menuStyle)
-			{
-				echo ShlMvcLayout_Helper::render('wbamp.menu_default', $displayData, WbampHelper_Runtime::$layoutsBasePaths);
-			}
+			echo WbampHelper_Amphtml::getRenderedMenu($displayData, array('default'));
 		}
 	}
 

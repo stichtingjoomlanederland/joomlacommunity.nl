@@ -5,8 +5,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.4.2.551
- * @date        2016-07-19
+ * @version     1.5.0.585
+ * @date        2016-08-25
  */
 
 /*************************************
@@ -19,6 +19,7 @@
   background: @colors-background-menu;
 }
 
+.wbamp-container.wbamp-menu,
 .wbamp-sidebar .wbamp-menu {
   margin: @margin-menu;
   padding: @padding-menu;
@@ -27,9 +28,17 @@
   background: @colors-background-menu;
   font-size: @fonts-menu-size;
 }
-
 .wbamp-sidebar .wbamp-menu {
   min-width: @menu-min-width;
+  padding-right: 2.5em;
+  &.wbamp-right{
+    padding-right: 0;
+    padding-left: 2.5em;
+  }
+}
+
+.wbamp-container.wbamp-menu,
+.wbamp-sidebar .wbamp-menu {
   ul {
     list-style-type: none;
     padding: 1em;
@@ -82,6 +91,9 @@
 .wbamp-sidebar-control {
   position: absolute;
   margin: 0 auto;
+  &.wbamp-right {
+    right: 0;
+  }
 }
 
 .wbamp-sidebar-button {

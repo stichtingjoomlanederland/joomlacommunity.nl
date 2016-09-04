@@ -3,11 +3,11 @@
  * Shlib - programming library
  *
  * @author       Yannick Gaultier
- * @copyright    (c) Yannick Gaultier 2015
+ * @copyright    (c) Yannick Gaultier 2016
  * @package      shlib
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      0.3.1.540
- * @date        2016-07-18
+ * @version      0.3.1.580
+ * @date        2016-08-25
  *
  * build 370
  */
@@ -52,7 +52,7 @@ class  plgSystemShlib extends JPlugin
 		// initialize path lib
 		$this->_initLibrary();
 
-		defined('SHLIB_VERSION') or define('SHLIB_VERSION', '0.3.1.540');
+		defined('SHLIB_VERSION') or define('SHLIB_VERSION', '0.3.1.580');
 	}
 
 	public function onAfterInitialise()
@@ -169,6 +169,9 @@ class  plgSystemShlib extends JPlugin
 
 	protected function _initLibrary()
 	{
+		// php shortcuts
+		include_once SHLIB_ROOT_PATH . '/system/php_shortcuts.php';
+
 		// initialize Zend autoloader
 		include_once SHLIB_PATH_TO_ZEND . 'Zendshl/Loader/Autoloader.php';
 		try

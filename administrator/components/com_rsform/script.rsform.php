@@ -992,13 +992,10 @@ class com_rsformInstallerScript
 			<?php } ?>
 			<?php } ?>
 		<?php } ?>
-		<h2>Changelog v1.52.1</h2>
+		<h2>Changelog v1.52.2</h2>
 		<ul class="version-history">
-			<li><span class="version-upgraded">Upg</span> Default form submission system message can be turned off from the Form Properties area.</li>
-			<li><span class="version-fixed">Fix</span> AJAX validation was throwing a Javascript error.</li>
-			<li><span class="version-fixed">Fix</span> Calendar now longer throws an error preventing form to be displayed if the Default Value is using an incorrect date.</li>
-			<li><span class="version-fixed">Fix</span> 'Max Size' attribute is used only on specific 'Type' selections.</li>
-			<li><span class="version-fixed">Fix</span> 'Multiple Validation Rules' would throw a PHP Notice in a particular situation.</li>
+			<li><span class="version-fixed">Fix</span> AJAX validation didn't work properly on HTML5 fields.</li>
+			<li><span class="version-fixed">Fix</span> A scripting error would show up when using Javascript compressing tools.</li>
 		</ul>
 		<a class="com-rsform-button" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="com-rsform-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/21-rsform-pro-user-guide.html" target="_blank">Read the RSForm! Pro User Guide</a>

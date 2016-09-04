@@ -1625,7 +1625,7 @@ class RSFormProHelper
 			});
 			</script>';
 		} else {
-			RSFormProAssets::addScriptDeclaration('RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.setHTML5Validation(\''.$formId.'\', '.($form->DisableSubmitButton ? 'true' : 'false').', \''.(!empty($layoutErrorClass[$layoutName]) ? $layoutErrorClass[$layoutName] : '').'\');  })');
+			RSFormProAssets::addScriptDeclaration('RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.setHTML5Validation(\''.$formId.'\', '.($form->DisableSubmitButton ? 'true' : 'false').', \''.(!empty($layoutErrorClass[$layoutName]) ? $layoutErrorClass[$layoutName] : '').'\');  });');
 		}
 
 		// Allow plugins to inject code with their own Ajax script

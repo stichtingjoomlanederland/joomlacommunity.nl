@@ -1,7 +1,32 @@
                                 wbAMP changelog                                 
 
-                        (2016-07-19 16:01 - build #551)                         
+                        (2016-08-25 17:15 - build #585)                         
 
+
+
+--------------------------------------------------------------------------------
+ [ 2016-08-25 ] Version 1.5.0
+--------------------------------------------------------------------------------
+
+
+    [new]    Added support for Analytics event tracking (click, scroll) -
+             closes #68
+    [new]    Added support for right-side sliding menu - closes #95
+    [new]    Added page cleanup feature: remove elements on AMP page based on
+             CSS classes or CSS id - closes #96
+    [new]    Added support for inserting tags in content to display multiple
+             ads and network - closes #97
+    [new]    Added connector to obtain Structured data from sh404SEF
+
+    [chg]    Now truncating structured data headline field to its maximum, 100
+             characters
+    [chg]    Do not escape slashes in json-ld output
+    [chg]    Now also reading image size for images with protocol-relative
+             links (eg //path/to/image.jp) - close #103
+    [chg]    Joomla 3.6.1 now using popover instead of tooltips in backend.
+             Adjusted our custom tips - closes #101
+    [chg]    If no dataModified exists, use datePublished instead. Workaround
+             bug in Google Structured Data validator
 
 
 --------------------------------------------------------------------------------

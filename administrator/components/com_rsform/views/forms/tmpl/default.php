@@ -59,7 +59,7 @@ Joomla.submitbutton = submitbutton;
 				<span class="<?php echo RSFormProHelper::getTooltipClass(); ?>" title="<?php echo JText::sprintf('RSFP_ALL_SUBMISSIONS', $row->_allSubmissions); ?>"><a href="index.php?option=com_rsform&amp;view=submissions&amp;formId=<?php echo $row->FormId; ?>"><i class="rsficon rsficon-calendar"></i> <?php echo $row->_allSubmissions; ?></a></span>
 			</td>
 			<td align="center" nowrap="nowrap">
-				<a class="btn" href="<?php echo JURI::root(); ?>index.php?option=com_rsform&amp;formId=<?php echo $row->FormId; ?>" target="_blank"><span class="rsficon rsficon-eye rsficon-green"></span> <?php echo JText::_('RSFP_PREVIEW'); ?></a>
+				<a class="btn" href="<?php echo JURI::root(); ?>index.php?option=com_rsform&amp;view=rsform&amp;formId=<?php echo $row->FormId; ?>" target="_blank"><span class="rsficon rsficon-eye rsficon-green"></span> <?php echo JText::_('RSFP_PREVIEW'); ?></a>
 				<div class="btn-group">
 					<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><?php echo JText::_('RSFP_TOOLS'); ?> <span class="caret"></span></a>
 					<ul class="dropdown-menu" role="menu" aria-labelledby="<?php echo JText::_('RSFP_TOOLS'); ?>">

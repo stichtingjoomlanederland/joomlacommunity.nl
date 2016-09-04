@@ -617,7 +617,7 @@ RSFormPro.HTML5 = {
 		}
 
 		if (typeof RSFormPro.HTML5.componentIds[formId][elementAlias] == 'undefined') {
-			var block = RSFormPro.getBlock(formId, elementAlias);
+			var block = RSFormPro.getBlock(formId, RSFormProUtils.getAlias(elementAlias));
 			var componentIdBlock = RSFormProUtils.getElementsByClassName('formNoError', 'span', block[0]);
 			if (componentIdBlock.length) {
 				var componentId = componentIdBlock[0].getAttribute('id');
@@ -1031,6 +1031,10 @@ RSFormPro.Ajax = {
 					// Change the page if the validation passes
 					if (page) {
 						rsfp_changePage(formId, page, totalPages, false);
+						// The submits must be clickable again
+						for (i = 0; i < submits.length; i++) {
+							submits[i].disabled = false;
+						}
 					} else {
 						// the submit button has been presed so we need to submit the form
 						// if the submit button or any other element has the id submit the form.submit() function is overwritten

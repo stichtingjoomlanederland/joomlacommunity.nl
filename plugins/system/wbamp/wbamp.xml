@@ -2,12 +2,12 @@
 <extension version="3.0" type="plugin" group="system" method="upgrade">
     <name>PLG_SYSTEM_WBAMP</name>
     <author>Yannick Gaultier</author>
-    <creationDate>2016-07-19</creationDate>
+    <creationDate>2016-08-25</creationDate>
     <copyright>(c) Yannick Gaultier - Weeblr llc - 2016</copyright>
     <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
     <authorEmail>contact@weeblr.com</authorEmail>
     <authorUrl>https://weeblr.com</authorUrl>
-    <version>1.4.2.551</version>
+    <version>1.5.0.585</version>
     <description>PLG_SYSTEM_WBAMP_XML_DESCRIPTION</description>
     <files>
         <filename plugin="wbamp">api.php</filename>
@@ -75,7 +75,8 @@
                        label="PLG_SYSTEM_WBAMP_SUFFIX_LABEL"
                        description="PLG_SYSTEM_WBAMP_SUFFIX_DESC">
                 </field>
-                <field name="global_theme" type="wbampthemeselector" default="default.default" class="wb_text_wide wbTip"
+                <field name="global_theme" type="wbampthemeselector" default="default.default"
+                       class="wb_text_wide wbTip"
                        label="PLG_SYSTEM_WBAMP_GLOBAL_THEME_LABEL"
                        description="PLG_SYSTEM_WBAMP_GLOBAL_THEME_DESC">
                 </field>
@@ -379,6 +380,10 @@
                        label="PLG_SYSTEM_WBAMP_ANALYTICS_WEBPROPERTY_ID_LABEL"
                        description="PLG_SYSTEM_WBAMP_ANALYTICS_WEBPROPERTY_ID_DESC">
                 </field>
+                <field name="analytics_tracked_events" type="textarea" default="" filter="raw"
+                       label="PLG_SYSTEM_WBAMP_ANALYTICS_TRACKED_EVENTS_LABEL"
+                       description="PLG_SYSTEM_WBAMP_ANALYTICS_TRACKED_EVENTS_DESC" cols="60" rows="10"
+                       class="wb_text_area_wide wbTip"/>
             </fieldset>
 
             <fieldset name="custom_elements" label="PLG_SYSTEM_WBAMP_CUSTOM_ELEMENTS"
@@ -444,6 +449,7 @@
                        description="PLG_SYSTEM_WBAMP_NAVIGATION_MENU_STYLE_DESC">
                     <option value="default">PLG_SYSTEM_WBAMP_NAVIGATION_MENU_STYLE_DEFAULT</option>
                     <option value="slide">PLG_SYSTEM_WBAMP_NAVIGATION_MENU_STYLE_SLIDE</option>
+                    <option value="slide-right">PLG_SYSTEM_WBAMP_NAVIGATION_MENU_STYLE_SLIDE_RIGHT</option>
                 </field>
                 <field name="menu_location" type="list" default="hidden" class="wbTip"
                        label="PLG_SYSTEM_WBAMP_NAVIGATION_MENU_LOCATION_LABEL"
@@ -605,10 +611,30 @@
 
             </fieldset>
 
+            <fieldset name="cleanup" label="PLG_SYSTEM_WBAMP_CLEANUP"
+                      addfieldpath="/plugins/system/wbamp/fields">
+                <field type="wbsticker" name="sticker_main" label=""/>
+                <field type="wbspacer" name="css_cleanup_spacer"
+                       label="PLG_SYSTEM_WBAMP_CSS_CLEANUP"/>
+                <field name="cleanup_css_classes" type="textarea" default="wbamp-remove-on-amp" filter="raw"
+                       label="PLG_SYSTEM_WBAMP_CLEANUP_CSS_CLASSES_LABEL"
+                       description="PLG_SYSTEM_WBAMP_CLEANUP_CSS_CLASSES_DESC" cols="60" rows="10"
+                       class="wb_text_area_wide wbTip"/>
+                <field name="cleanup_css_ids" type="textarea" default="" filter="raw"
+                       label="PLG_SYSTEM_WBAMP_CLEANUP_CSS_IDS_LABEL"
+                       description="PLG_SYSTEM_WBAMP_CLEANUP_CSS_IDS_DESC" cols="60" rows="10"
+                       class="wb_text_area_wide wbTip"/>
+                <field name="cleanup_regexp" type="wbregexp" default="" filter="raw"
+                       label="PLG_SYSTEM_WBAMP_CLEANUP_REGEXP_LABEL"
+                       description="PLG_SYSTEM_WBAMP_CLEANUP_REGEXP_DESC" cols="60" rows="10"
+                       class="wb_text_area_wide wbTip"/>
+
+            </fieldset>
+
             <fieldset name="advanced" label="PLG_SYSTEM_WBAMP_ADVANCED"
                       addfieldpath="/plugins/system/wbamp/fields">
 
-                <field type="wbsticker" name="sticker_main" label=""/>
+                <field type="wbsticker" name="sticker_advanced" label=""/>
 
                 <field type="wbspacer" name="template_spacer"
                        label="PLG_SYSTEM_WBAMP_SECTION_TEMPLATE"/>
@@ -624,11 +650,6 @@
                     <option value="0">JNO</option>
                     <option value="1">JYES</option>
                 </field>
-
-                <field name="cleanup_regexp" type="wbregexp" default="" filter="raw"
-                       label="PLG_SYSTEM_WBAMP_CLEANUP_REGEXP_LABEL"
-                       description="PLG_SYSTEM_WBAMP_CLEANUP_REGEXP_DESC" cols="60" rows="10"
-                       class="wb_text_area_wide wbTip"/>
 
                 <field type="wbspacer" name="update_spacer"
                        label="PLG_SYSTEM_WBAMP_SECTION_UPDATES"/>

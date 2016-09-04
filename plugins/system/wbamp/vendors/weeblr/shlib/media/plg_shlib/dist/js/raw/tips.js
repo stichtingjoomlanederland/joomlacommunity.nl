@@ -2,11 +2,11 @@
  * Shlib - programming library
  *
  * @author       Yannick Gaultier
- * @copyright    (c) Yannick Gaultier 2015
+ * @copyright    (c) Yannick Gaultier 2016
  * @package      shlib
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      0.3.1.540
- * @date         2016-07-18
+ * @version      0.3.1.580
+ * @date         2016-08-25
  */
 
 /*! Copyright Weeblr llc 2016 - Licence: http://www.gnu.org/copyleft/gpl.html GNU/GPL */
@@ -16,6 +16,7 @@
     "use strict;"
 
     var autoSetupSelector = '.wbTip';
+    var tipsMode = 'popover';
 
     /**
      * Setup tips for a group of elements,
@@ -24,12 +25,16 @@
      * @param selector
      */
     function setupTips(selector) {
+        selector = selector || autoSetupSelector;
         try {
             $(selector).each(setupTip);
         } catch (e) {
             console.log('wbLib: error setting up help tips: ' + e.message);
         }
+
+        return _app.tips;
     }
+
 
     /**
      * Setup a tip for a given element
@@ -40,13 +45,37 @@
         var $element = $(element);
         var labelId = '#' + element.id + '-lbl';
         var $label = $(labelId);
-        var originalTitle = $label.attr('title');
-        if (originalTitle) {
-            $label.removeClass('hasTooltip').attr('title', '');
-            appendTip($element, originalTitle);
+        switch (tipsMode) {
+            case 'popover':
+                // J 3.6.1 +, using popovers
+                var originalTitle = $label.data('content');
+                if (originalTitle) {
+                    $label.off('mouseenter mouseleave');
+                    appendTip($element, originalTitle);
+                }
+                break;
+            case 'tips':
+                // legacy mode, pre J 3.6.1, suing bootstrap tips
+                var originalTitle = $label.attr('title');
+                if (!originalTitle) {
+                    originalTitle = $label.data('original-title');
+                }
+                if (originalTitle) {
+                    $label.removeClass('hasTooltip').attr('title', '');
+                    appendTip($element, originalTitle);
+                }
+                break;
+            default:
+                console.log('wblib: invalid tips mode ' + _app.tips.tipsMode);
         }
     }
 
+    /**
+     * Append a tip element to an input
+     *
+     * @param $element
+     * @param title
+     */
     function appendTip($element, title) {
         var $newTip = $('<span class="wbtip-wrapper"><span type="button" class="wbtip-content">' + prepareTitle(title) + '</span></span>');
         var $controls = $element.parent();
@@ -75,18 +104,12 @@
      */
     function setAutoSetupSelector(selector) {
         autoSetupSelector = selector;
+        return _app.tips;
     }
 
-    /**
-     * Auto-setup at on ready
-     */
-    function onReady() {
-        try {
-            setupTips(autoSetupSelector);
-        }
-        catch (e) {
-            console.log('Error setting up help tips: ' + e.message);
-        }
+    function setTipsMode(mode) {
+        tipsMode = mode;
+        return _app.tips;
     }
 
     /**
@@ -107,8 +130,6 @@
         }
     }
 
-    $(document).ready(onReady);
-
     // interface
     _app.tips = _app.tips || {};
     _app.tips.setAutoSetupSelector = setAutoSetupSelector;
@@ -116,6 +137,7 @@
     _app.tips.setupTip = setupTip;
     _app.tips.hideTips = toggleTips;
     _app.tips.showTips = toggleTips;
+    _app.tips.setTipsMode = setTipsMode; // from J 3.6.1 and up
 
     return _app;
 })

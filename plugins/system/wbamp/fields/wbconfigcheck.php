@@ -6,8 +6,8 @@
  * @copyright    (c) Yannick Gaultier - Weeblr llc - 2016
  * @package      wbAmp
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      1.4.2.551
- * @date        2016-07-19
+ * @version      1.5.0.585
+ * @date        2016-08-25
  */
 
 defined('_JEXEC') or die;
@@ -72,9 +72,6 @@ class JFormFieldWbconfigcheck extends JFormField
 		ShlMsg_Manager::getInstance()->addAssets($document);
 		$htmlManager->addAssets($document)
 		            ->addSpinnerAssets($document);
-
-		$document->addStyleSheet($htmlManager->getMediaLink('tips', 'css', array()));
-		$document->addScript($htmlManager->getMediaLink('tips', 'js', array()));
 
 		$renderedMessages = empty($messageList) ? '' : ShlMvcLayout_Helper::render('shlib.msg.list', array('msgs' => $messageList, 'id' => 'plg_wbamp-cp-msg-container'), SHLIB_LAYOUTS_PATH);
 		$hash = md5($renderedMessages);

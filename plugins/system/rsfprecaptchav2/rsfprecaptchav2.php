@@ -99,35 +99,7 @@ class plgSystemRSFPReCaptchav2 extends JPlugin
 				}
 				
 				RSFormProAssets::addScript('https://www.google.com/recaptcha/api.js?render=explicit'.$hl);
-				RSFormProAssets::addScriptDeclaration('
-var RSFormProReCAPTCHAv2 = {
-	loaders: [],
-	onLoad: function() {
-		window.setTimeout(function(){
-			for (var i = 0; i < RSFormProReCAPTCHAv2.loaders.length; i++) {
-				var func = RSFormProReCAPTCHAv2.loaders[i];
-				if (typeof func == "function") {
-					func();
-				}
-			}
-		}, 500)
-	}
-};
-
-if (typeof jQuery !== \'undefined\') {
-	jQuery(document).ready(function($) {
-		$(window).load(RSFormProReCAPTCHAv2.onLoad);
-	});
-} else if (typeof MooTools !== \'undefined\') {
-	window.addEvent(\'domready\', function(){
-		 window.addEvent(\'load\', RSFormProReCAPTCHAv2.onLoad);
-	});
-} else {
-	RSFormProUtils.addEvent(window, \'load\', function() {
-		RSFormProReCAPTCHAv2.onLoad();
-	});
-}
-');
+				RSFormProAssets::addScript(JHtml::script('com_rsform/recaptchav2.js', false, true, true));
 			}
 			
 			if ($siteKey = RSFormProHelper::getConfig('recaptchav2.site.key')) {
@@ -170,10 +142,16 @@ if (typeof jQuery !== \'undefined\') {
 		}
 	}
 	
-	function rsfp_f_onBeforeFormValidation($args) {
+	public function rsfp_f_onBeforeFormValidation($args) {
 		$formId 	= $args['formId'];
 		$invalid 	=& $args['invalid'];
 		$post		=& $args['post'];
+		$form       = RSFormProHelper::getForm($formId);
+		if ($form->RemoveCaptchaLogged) {
+			$logged     = JFactory::getUser()->id;
+		} else {
+			$logged = false;
+		}
 		
 		$secretKey 	= RSFormProHelper::getConfig('recaptchav2.secret.key');
 		
@@ -185,7 +163,7 @@ if (typeof jQuery !== \'undefined\') {
 		// session token gets cleared after form processes
 		// session token gets cleared on page refresh as well
 		
-		if (($componentId = RSFormProHelper::componentExists($formId, 2424)) && $secretKey) {
+		if (($componentId = RSFormProHelper::componentExists($formId, 2424)) && $secretKey && !$logged) {
 			$input = JFactory::getApplication()->input;
 			
 			$response = $input->get('g-recaptcha-response', '', 'raw');

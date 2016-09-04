@@ -6,8 +6,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.4.2.551
- * @date        2016-07-19
+ * @version     1.5.0.585
+ * @date        2016-08-25
  */
 
 // no direct access
@@ -60,7 +60,7 @@ class PlgwbampK2 extends JPlugin
 				// modified
 				if ($this->_cache[$id]->modified == '0000-00-00 00:00:00')
 				{
-					$jsonld['dateModified'] = '';
+					$jsonld['dateModified'] = $jsonld['datePublished'];
 				}
 				else
 				{

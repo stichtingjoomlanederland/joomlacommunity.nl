@@ -2,12 +2,12 @@
 <extension type="plugin" version="1.6" group="system" method="upgrade">
 	<name>plg_system_shlib</name>
 	<author>Yannick Gaultier</author>
-	<creationDate>2016-07-18</creationDate>
-	<copyright>(c) Yannick Gaultier 2015</copyright>
+	<creationDate>2016-08-25</creationDate>
+	<copyright>(c) Yannick Gaultier 2016</copyright>
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
 	<authorEmail>yannick@weeblr.com</authorEmail>
   <authorUrl>http://weeblr.com</authorUrl>
-	<version>0.3.1.540</version>
+	<version>0.3.1.580</version>
 	<description>PLG_SYSTEM_SHLIB_DESC</description>
 	<scriptfile>installation.script.php</scriptfile>
 

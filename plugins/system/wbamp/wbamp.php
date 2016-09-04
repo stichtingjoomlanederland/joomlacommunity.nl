@@ -6,10 +6,10 @@
  * @copyright    (c) Yannick Gaultier - Weeblr llc - 2016
  * @package      wbAmp
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      1.4.2.551
- * @date        2016-07-19
+ * @version      1.5.0.585
+ * @date        2016-08-25
  *
- * build 1.4.2.551
+ * build 1.5.0.585
  *
  */
 
@@ -286,6 +286,14 @@ class plgSystemWbamp extends JPlugin
 				// through our custom html and jlayouts overrides
 				// because they are fetched directly from the cache
 				WbampHelper_Runtime::$joomlaConfig->set('caching', 0);
+
+				// initialize Layouts possible paths
+				JPluginHelper::importPlugin('wbampthemes');
+				ShlSystem_Factory::dispatcher()
+				                 ->trigger(
+					                 'onWbAMPGetLayoutsPaths',
+					                 array($this->params->get('global_theme', 'weeblr.default'), & WbampHelper_Runtime::$layoutsBasePaths)
+				                 );
 			}
 		}
 		else
@@ -469,14 +477,6 @@ class plgSystemWbamp extends JPlugin
 	 */
 	private function renderAMPPage($displayData, $mainLayout)
 	{
-		// initialize Layouts possible paths
-		JPluginHelper::importPlugin('wbampthemes');
-		ShlSystem_Factory::dispatcher()
-		                 ->trigger(
-			                 'onWbAMPGetLayoutsPaths',
-			                 array($this->params->get('global_theme', 'weeblr.default'), & WbampHelper_Runtime::$layoutsBasePaths)
-		                 );
-
 		// let the view render the full page
 		$view = new WbampView_Amp();
 		$pageContent = $view->render($displayData, $mainLayout);
@@ -614,7 +614,6 @@ class plgSystemWbamp extends JPlugin
 			$app = JFactory::getApplication();
 			$app->enqueueMessage(JText::sprintf('COM_WBAMP_UPDATE_NO_CREDENTIALS', 'https://weeblr.com/documentation/products.wbamp/1/installation-update/updating.html'), 'error');
 			$app->redirect('index.php?option=com_installer&view=update');
-
 		}
 		return $credentials;
 	}

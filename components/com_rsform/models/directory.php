@@ -591,7 +591,7 @@ class RSFormModelDirectory extends JModelLegacy
 	public function getItemid() {
 		if ($menu = $this->_app->getMenu()) {
 			$active = $menu->getActive();
-			return $active->id;
+			return isset($active->id) ? $active->id : 0;
 		} else {
 			return 0;
 		}

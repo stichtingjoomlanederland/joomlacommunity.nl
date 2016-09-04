@@ -6,8 +6,8 @@
  * @copyright    (c) Yannick Gaultier - Weeblr llc - 2016
  * @package      wbAmp
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      1.4.2.551
- * @date        2016-07-19
+ * @version      1.5.0.585
+ * @date        2016-08-25
  */
 
 defined('_JEXEC') or die();
@@ -63,6 +63,24 @@ class WbampHelper_Sh404sef
 				$data['metadata']['publisher_id'] = Sh404sefFactory::getConfig()->googlePublisherUrl;
 				$data['metadata']['publisher_id'] = JString::trim($data['metadata']['publisher_id'], '/');
 			}
+		}
+	}
+
+	/**
+	 * Safe proxy to sh404SEF method to build Structured data
+	 * Allows to insert them also in AMP pages
+	 *
+	 * @return string
+	 */
+	public static function getStructuredData()
+	{
+		if (class_exists('Sh404sefHelperStructureddata'))
+		{
+			return Sh404sefHelperStructureddata::buildStructuredData();
+		}
+		else
+		{
+			return '';
 		}
 	}
 }

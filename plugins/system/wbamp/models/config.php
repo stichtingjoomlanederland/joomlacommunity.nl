@@ -7,8 +7,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.4.2.551
- * @date        2016-07-19
+ * @version     1.5.0.585
+ * @date        2016-08-25
  */
 
 defined('_JEXEC') or die();
@@ -416,6 +416,12 @@ class WbampModel_Config
 	 * @var int
 	 */
 	private $_pageImageMinWidth = 696;
+
+	/**
+	 * Max length of json-ld headline
+	 * @var int
+	 */
+	private $_headlineMaxLength = 110;
 
 	private $_defaulCleanupRegexp = "
 ; ---------- RegularLabs Sourcerer ---------

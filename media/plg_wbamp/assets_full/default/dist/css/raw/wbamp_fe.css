@@ -5,8 +5,8 @@
  * @copyright    (c) Yannick Gaultier - Weeblr llc - 2016
  * @package      wbAmp
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      1.4.2.551
- * @date        2016-07-19
+ * @version      1.5.0.585
+ * @date        2016-08-25
  */
 /*************************************
 *
@@ -75,8 +75,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.4.2.551
- * @date        2016-07-19
+ * @version     1.5.0.585
+ * @date        2016-08-25
  */
 /*************************************
 *
@@ -86,6 +86,7 @@
 .wbamp-sidebar {
   background: #b6be9c;
 }
+.wbamp-container.wbamp-menu,
 .wbamp-sidebar .wbamp-menu {
   margin: 0 auto 0;
   padding: 0;
@@ -96,13 +97,21 @@
 }
 .wbamp-sidebar .wbamp-menu {
   min-width: 50vw;
+  padding-right: 2.5em;
 }
+.wbamp-sidebar .wbamp-menu.wbamp-right {
+  padding-right: 0;
+  padding-left: 2.5em;
+}
+.wbamp-container.wbamp-menu ul,
 .wbamp-sidebar .wbamp-menu ul {
   list-style-type: none;
   padding: 1em;
   margin: 0;
 }
+.wbamp-container.wbamp-menu li a,
 .wbamp-sidebar .wbamp-menu li a,
+.wbamp-container.wbamp-menu li a:visited,
 .wbamp-sidebar .wbamp-menu li a:visited {
   display: inline-block;
   width: 100%;
@@ -115,19 +124,25 @@
   padding-right: 1em;
   margin-right: -1em;
 }
+.wbamp-container.wbamp-menu li a:hover,
 .wbamp-sidebar .wbamp-menu li a:hover,
+.wbamp-container.wbamp-menu li.active a:hover,
 .wbamp-sidebar .wbamp-menu li.active a:hover {
   background: #FFAC2F;
   color: #000000;
 }
+.wbamp-container.wbamp-menu li.active a,
 .wbamp-sidebar .wbamp-menu li.active a {
   background: #327DCB;
   color: #FFFFFF;
 }
+.wbamp-container.wbamp-menu li ul,
 .wbamp-sidebar .wbamp-menu li ul {
   padding: 0 0 0 1em;
 }
+.wbamp-container.wbamp-menu li ul a,
 .wbamp-sidebar .wbamp-menu li ul a,
+.wbamp-container.wbamp-menu li.active ul a,
 .wbamp-sidebar .wbamp-menu li.active ul a {
   background: #b6be9c;
   color: #444444;
@@ -142,6 +157,9 @@
 .wbamp-sidebar-control {
   position: absolute;
   margin: 0 auto;
+}
+.wbamp-sidebar-control.wbamp-right {
+  right: 0;
 }
 .wbamp-sidebar-button {
   display: inline-block;

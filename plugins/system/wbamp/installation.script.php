@@ -6,8 +6,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.4.2.551
- * @date        2016-07-19
+ * @version     1.5.0.585
+ * @date        2016-08-25
  */
 
 // no direct access
@@ -340,7 +340,7 @@ class plgSystemWbampInstallerScript
 			// special case, same ordering
 			if ($plugins[$plugin2]->ordering == $plugins[$plugin1]->ordering)
 			{
-				$plugins[$plugin2]->ordering = $plugins[$plugin1]->ordering + 1;
+				$plugins[$plugin1]->ordering += 1;
 			}
 
 			$query = $db->getQuery(true);

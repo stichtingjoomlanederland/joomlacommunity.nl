@@ -3,11 +3,11 @@
  * Shlib - programming library
  *
  * @author      Yannick Gaultier
- * @copyright   (c) Yannick Gaultier 2015
+ * @copyright   (c) Yannick Gaultier 2016
  * @package     shlib
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     0.3.1.540
- * @date        2016-07-18
+ * @version     0.3.1.580
+ * @date        2016-08-25
  */
 
 // Security check to ensure this file is being included by a parent file.
@@ -31,11 +31,15 @@ class ShlHtmlContent_Image
 		static $pathLength = 0;
 		static $rootUrl = '';
 		static $rootLength = 0;
+		static $protocoleRelRootUrl = '';
+		static $protocoleRelRootLength = 0;
 
 		if (empty($rootPath))
 		{
 			$rootUrl = Juri::root();
 			$rootLength = JString::strlen($rootUrl);
+			$protocoleRelRootUrl = str_replace(array('https://', 'http://'), '//', $rootUrl);
+			$protocoleRelRootLength = JString::strlen($protocoleRelRootUrl);
 			$rootPath = JUri::base(true);
 			$pathLength = JString::strlen($rootPath);
 			if (JFactory::getApplication()->isAdmin())
@@ -48,8 +52,21 @@ class ShlHtmlContent_Image
 		$dimensions = array('width' => 0, 'height' => 0);
 
 		// build the physical path from the URL
-		$cleanedPath = substr($url, 0, $rootLength) == $rootUrl ? substr($url, $rootLength) : $url;
-		$cleanedPath = substr($cleanedPath, 0, $pathLength) == $rootPath ? substr($url, $pathLength) : $cleanedPath;
+		if (substr($url, 0, $rootLength) == $rootUrl)
+		{
+			$cleanedPath = substr($url, $rootLength);
+		}
+		else if (substr($url, 0, 2) == '//' && substr($url, 0, $protocoleRelRootLength) == $protocoleRelRootUrl)
+		{
+			// protocol relative URL
+			$cleanedPath = substr($url, $protocoleRelRootLength);
+		}
+		else
+		{
+			$cleanedPath = $url;
+		}
+
+		$cleanedPath = !empty($rootPath) && substr($cleanedPath, 0, $pathLength) == $rootPath ? substr($url, $pathLength) : $cleanedPath;
 		$imagePath = JPATH_ROOT . '/' . $cleanedPath;
 		if (file_exists($imagePath))
 		{
@@ -59,7 +76,6 @@ class ShlHtmlContent_Image
 				$dimensions = array('width' => $imageInfos[0], 'height' => $imageInfos[1]);
 			}
 		}
-
 		return $dimensions;
 	}
 
@@ -85,7 +101,7 @@ class ShlHtmlContent_Image
 		}
 
 		// check for a "disable auto search tag" in content
-		if (strpos($content, '{sh404sef_disable_auto_meta_image}') !== false)
+		if (strpos($content, '{disable_auto_meta_image_detection}') !== false)
 		{
 			return $bestImage;
 		}
@@ -114,9 +130,9 @@ class ShlHtmlContent_Image
 
 					// is it big enough?
 					if (
-						(empty($imageSize['width']) || (!empty($imageSize['width']) && $imageSize['width'] >= $requiredSize['width']))
+						(!empty($imageSize['width']) && (!empty($imageSize['width']) && $imageSize['width'] >= $requiredSize['width']))
 						&&
-						(empty($imageSize['height']) || (!empty($imageSize['height']) && $imageSize['height'] >= $requiredSize['height']))
+						(!empty($imageSize['height']) && (!empty($imageSize['height']) && $imageSize['height'] >= $requiredSize['height']))
 					)
 
 					{

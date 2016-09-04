@@ -3,11 +3,11 @@
  * Shlib - programming library
  *
  * @author      Yannick Gaultier
- * @copyright   (c) Yannick Gaultier 2015
+ * @copyright   (c) Yannick Gaultier 2016
  * @package     shlib
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     0.3.1.540
- * @date				2016-07-18
+ * @version     0.3.1.580
+ * @date				2016-08-25
  */
 
 // Security check to ensure this file is being included by a parent file.

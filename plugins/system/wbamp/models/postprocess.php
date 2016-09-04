@@ -6,8 +6,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.4.2.551
- * @date        2016-07-19
+ * @version     1.5.0.585
+ * @date        2016-08-25
  */
 
 // no direct access
@@ -205,7 +205,13 @@ class WbampModel_Postprocess
 		// create a DOM object
 		$dom = WbampHelper_Dom::fromContent($rawContent);
 
-		// filter out unwanted stuff
+		// remove content from DOM, based on CSS classes rules
+		// warning: rawContent can be modified
+		$wlCleaner = new WbampModelProcessor_Csscleanup(new WbampModel_Config(), WbampHelper_Runtime::$params);
+		$dom = $wlCleaner->sanitize($rawContent, $dom);
+
+		// filter out unwanted stuff, with reg exp and tags
+		// warning: rawContent can be modified
 		$dom = $this->_cleanContent($rawContent, $dom);
 
 		// convert to AMP tags, mostly through black list
@@ -311,7 +317,7 @@ class WbampModel_Postprocess
 	{
 		if (empty($rawContent))
 		{
-			return $rawContent;
+			return $dom;
 		}
 		$content = $rawContent;
 

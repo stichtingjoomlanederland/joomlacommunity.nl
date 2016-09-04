@@ -6,8 +6,8 @@
  * @copyright    (c) Yannick Gaultier - Weeblr llc - 2016
  * @package      wbAmp
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      1.4.2.551
- * @date        2016-07-19
+ * @version      1.5.0.585
+ * @date        2016-08-25
  */
 
 defined('_JEXEC') or die;
@@ -235,5 +235,67 @@ class WbampHelper_Route
 
 			throw new RuntimeException('wbAMP: error processing Joomla page: ' . $message);
 		}
+	}
+
+	/**
+	 * Decides if a given path specification rule applies
+	 * to the current request
+	 *
+	 * Rule specs:
+	 * * => any URL
+	 * xxxx => exactly 'xxxxx'
+	 * xxx?yyy => 'xxx' + any character + 'yyy'
+	 * xxx*yyy => 'xxx' + any string + 'yyy'
+	 * *xxxx => any string + 'xxxxx'
+	 * xxxx* => 'xxxx' + any string
+	 * *xxxx* => any string + 'xxxxx' + any string
+	 * *xxxx*yyyy => any string + 'xxxxx' + any string + 'yyyy'
+	 *
+	 * @param string $rule
+	 * @param string $path the path relative to the root of the site, starting with a /
+	 */
+	public static function pathRuleMatch($rule, $path)
+	{
+		// shortcuts
+		if ('*' == $rule)
+		{
+			return true;
+		}
+
+		// build a reg exp based on rule
+		if (JString::substr($rule, 0, 1) == '~')
+		{
+			// this is a regexp, use it directly
+			$regExp = $rule;
+		}
+		else
+		{
+			// actually build the reg exp
+			$saneStarBits = array();
+			$starBits = explode('*', $rule);
+			foreach ($starBits as $sBit)
+			{
+				// same thing with ?
+				$questionBits = explode('?', $sBit);
+				$saneQBit = array();
+				foreach ($questionBits as $qBit)
+				{
+					$saneQBit[] = preg_quote($qBit);
+				}
+
+				$saneStarBits[] = implode('?', $saneQBit);
+			}
+
+			// each part has been preg_quoted
+			$sanitized = implode('*', $saneStarBits);
+			$regExp = str_replace('?', '.', $sanitized);
+			$regExp = str_replace('*', '.*', $regExp);
+			$regExp = '~^' . $regExp . '$~uU';
+		}
+
+		// execute and return
+		$shouldApply = preg_match($regExp, $path);
+
+		return $shouldApply;
 	}
 }
