@@ -33,7 +33,7 @@ $required	= ' *'; ?>
 				</label>
 				<?php } ?>
 				<div class="controls">
-					<input <?php echo $this->disable; ?> type="text" class="col-md-11 required" id="rsc_name" name="jform[name]" value="<?php echo $this->user->get('name'); ?>" size="45" <?php if (!$this->config->show_labels) { ?>placeholder="<?php echo JText::_('COM_RSCOMMENTS_COMMENT_NAME').$required; ?>"<?php } ?> />
+					<input <?php echo $this->disable; ?> type="text" class="col-md-11 required" id="rsc_name" name="jform[name]" value="<?php echo $this->user->get('name'); ?>" <?php if (!$this->config->show_labels) { ?>placeholder="<?php echo JText::_('COM_RSCOMMENTS_COMMENT_NAME').$required; ?>"<?php } ?> />
 				</div>
 			</div>
 			<div class="form-group col-md-6">
@@ -43,7 +43,7 @@ $required	= ' *'; ?>
 				</label>
 				<?php } ?>
 				<div class="controls">
-					<input <?php echo $this->disable; ?> type="text" class="col-md-11 required" id="rsc_email" name="jform[email]" value="<?php echo $this->user->get('email'); ?>" size="45" <?php if (!$this->config->show_labels) { ?>placeholder="<?php echo JText::_('COM_RSCOMMENTS_COMMENT_EMAIL').$required; ?>"<?php } ?> />
+					<input <?php echo $this->disable; ?> type="text" class="col-md-11 required" id="rsc_email" name="jform[email]" value="<?php echo $this->user->get('email'); ?>" <?php if (!$this->config->show_labels) { ?>placeholder="<?php echo JText::_('COM_RSCOMMENTS_COMMENT_EMAIL').$required; ?>"<?php } ?> />
 				</div>
 			</div>
 		</div>
@@ -58,7 +58,7 @@ $required	= ' *'; ?>
 				</label>
 				<?php } ?>
 				<div class="controls">
-					<input type="text" class="col-md-11" id="rsc_subject" name="jform[subject]" value="" size="45" <?php if (!$this->config->show_labels) { ?>placeholder="<?php echo JText::_('COM_RSCOMMENTS_COMMENT_SUBJECT'); ?>"<?php } ?> />
+					<input type="text" class="col-md-11" id="rsc_subject" name="jform[subject]" value="" <?php if (!$this->config->show_labels) { ?>placeholder="<?php echo JText::_('COM_RSCOMMENTS_COMMENT_SUBJECT'); ?>"<?php } ?> />
 				</div>
 			</div>
 			<?php } ?>
@@ -71,7 +71,7 @@ $required	= ' *'; ?>
 				</label>
 				<?php } ?>
 				<div class="controls">
-					<input type="text" class="col-md-11" id="rsc_website" name="jform[website]" value="" size="45" <?php if (!$this->config->show_labels) { ?>placeholder="<?php echo JText::_('COM_RSCOMMENTS_COMMENT_WEBSITE'); ?>"<?php } ?> />
+					<input type="text" class="col-md-11" id="rsc_website" name="jform[website]" value="" <?php if (!$this->config->show_labels) { ?>placeholder="<?php echo JText::_('COM_RSCOMMENTS_COMMENT_WEBSITE'); ?>"<?php } ?> />
 				</div>
 			</div>
 			<?php } ?>
@@ -87,7 +87,7 @@ $required	= ' *'; ?>
 				</label>
 				<?php } ?>
 				<div class="controls">
-				<input type="text" class="col-md-10" id="rsc_location" name="jform[location]" value="" size="45" <?php if (!$this->config->show_labels) { ?>placeholder="<?php echo JText::_('COM_RSCOMMENTS_COMMENT_LOCATION'); ?>"<?php } ?> />
+				<input type="text" class="col-md-10" id="rsc_location" name="jform[location]" value="" <?php if (!$this->config->show_labels) { ?>placeholder="<?php echo JText::_('COM_RSCOMMENTS_COMMENT_LOCATION'); ?>"<?php } ?> />
 				</div>
 			</div>
 			<div class="form-group col-md-6">
@@ -108,7 +108,7 @@ $required	= ' *'; ?>
 					<div class="btn-toolbar" role="toolbar">
 					<?php 
 					if (!empty($icons)) {
-						if ($iconchunks = array_chunk($icons,4)) {
+						if ($iconchunks = array_chunk($icons,12)) {
 							foreach ($iconchunks as $iconchunk) {
 								echo '<div class="btn-group" role="group">';
 								foreach ($iconchunk as $i => $icon) {
@@ -124,7 +124,7 @@ $required	= ' *'; ?>
 					<?php if ($this->config->enable_smiles == 1 && !empty($emoticons)) { ?>
 					<div class="btn-toolbar" role="toolbar" id="rsc_emoticons" style="display: none;">
 					<?php 
-					if ($emoticonschuncks = array_chunk($emoticons,4)) {
+					if ($emoticonschuncks = array_chunk($emoticons,20)) {
 						foreach ($emoticonschuncks as $emoticonschunck) {
 							echo '<div class="btn-group" role="group">';
 							foreach ($emoticonschunck as $emoticon) { 
@@ -203,6 +203,16 @@ $required	= ' *'; ?>
 						require_once(JPATH_SITE.'/components/com_rscomments/helpers/recaptcha/recaptchalib.php');
 						echo RSCommentsReCAPTCHA::loadScript('rscomments-form-recaptcha',$this->config);
 					} else { ?>
+                        <style>
+                            @media only screen and (max-width: 480px) {
+                                #rsc-g-recaptcha, #rc-imageselect, .gc-reset {
+                                    transform:scale(0.77);
+                                    -webkit-transform:scale(0.77);
+                                    transform-origin:0 0;
+                                    -webkit-transform-origin:0 0;
+                                }
+                            }
+                        </style>
 						<div id="rsc-g-recaptcha"></div>
 					<?php } ?>
 				</div>
