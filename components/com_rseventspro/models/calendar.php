@@ -73,6 +73,7 @@ class rseventsproModelCalendar extends JModelLegacy
 		
 		$query->where($where);
 		$query->userevents(false);
+		$query->group('e.id');
 		
 		return $query->toString();
 	}

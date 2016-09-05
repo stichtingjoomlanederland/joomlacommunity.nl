@@ -980,7 +980,7 @@ class com_rseventsproInstallerScript
 	<?php } ?>
 	<h2>Changelog v1.10.11</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> Optimized the Facebook synchronization.</li>
+		<li><span class="version-fixed">Fix</span> Cart plugin emails multi-language handling.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>

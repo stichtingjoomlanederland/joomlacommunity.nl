@@ -948,10 +948,12 @@ class rseventsproEmails
 		} else {
 			// Get user language
 			$query->clear()
-				->select($db->qn('lang'))
-				->from($db->qn('#__rseventspro_users'))
-				->where($db->qn('email').' = '.$db->q($to))
-				->where($db->qn('ide').' = '.$db->q($ide));
+				->select($db->qn('u.lang'))
+				->from($db->qn('#__rseventspro_users','u'))
+				->where($db->qn('u.email').' = '.$db->q($to))
+				->where($db->qn('u.ide').' = '.(int) $ide);
+			
+			JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query, 'rule' => 'u.ide')));
 			
 			$db->setQuery($query);
 			$userlanguage = $db->loadResult();
