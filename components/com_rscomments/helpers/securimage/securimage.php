@@ -1356,7 +1356,7 @@ class JSecurImageColor {
 	 * @param $green Green component 0-255
 	 * @param $blue Blue component 0-255
 	 */
-	function JSecurImageColor($red, $green = null, $blue = null)
+	function __construct($red, $green = null, $blue = null)
 	{
 		if ($green == null && $blue == null && preg_match('/^#[a-f0-9]{3,6}$/i', $red)) {
 			$col = substr($red, 1);
