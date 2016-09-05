@@ -34,7 +34,8 @@ class JFormFieldAvatarsList extends JFormField {
 			'community' => false,
 			'kunena' => false,
 			'fireboard' => false,
-			'easyblog' => false
+			'easyblog' => false,
+			'easydiscuss' => false
 		);
 
 		$avatar_options = array(JHTML::_('select.option', '', JText::_('COM_RSCOMMENTS_NO_AVATAR'), 'value', 'text'));

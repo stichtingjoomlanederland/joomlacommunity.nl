@@ -593,6 +593,29 @@ abstract class RSCommentsHelper
 				else
 					$html .= '<img width="'.$size.'" src="'.JURI::root().$path.$avatar.'" alt="EasyBlog Avatar" class="'.$theclass.'" />';
 			break;
+
+			// EasyDiscuss
+			case 'easydiscuss':
+				$query->clear()
+					->select($db->qn('avatar'))
+					->from($db->qn('#__discuss_users'))
+					->where($db->qn('id').' = '.(int) $user_id);
+				$db->setQuery($query);
+				$avatar = $db->loadResult();
+				$query->clear()
+					->select($db->qn('params'))
+					->from($db->qn('#__discuss_configs'))
+					->where($db->qn('name').' = '.$db->q('config'));
+				$db->setQuery($query);
+				$eparams = $db->loadResult();
+				$params = new JRegistry();
+				$params->loadString($eparams);
+				$path = $params->get('main_avatarpath','images/discuss_avatar/');
+				if (empty($avatar) || $avatar == 'default.png')
+					$html .= '<img width="'.$size.'" src="'.JURI::root().'components/com_easydiscuss/assets/images/default.png" alt="EasyDiscuss Avatar" class="'.$theclass.'" />';
+				else
+					$html .= '<img width="'.$size.'" src="'.JURI::root().$path.$avatar.'" alt="EasyDiscuss Avatar" class="'.$theclass.'" />';
+			break;
 		}
 		
 		return $html;
