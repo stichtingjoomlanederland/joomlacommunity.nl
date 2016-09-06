@@ -42,7 +42,7 @@ jQuery(document).ready(function (){
 <!-- Start: Load stylesheet -->
     <?php $doc = JFactory::getDocument(); ?>
     <?php $doc->addStyleSheet(JURI::root(true).
-    '/components/com_rseventspro/assets/css/customeventstyle.css?v='.RSEPRO_RS_REVISION); ?>
+    '/components/com_rseventspro/assets/css/jcstyle.css?v='.RSEPRO_RS_REVISION); ?>
 <!-- End: Load stylesheet -->
 
 <?php 
