@@ -305,7 +305,6 @@ class ThisTemplateHelper
 		unset($this->doc->_scripts[$this->doc->baseurl . '/media/system/js/mootools-core.js']);
 		unset($this->doc->_scripts[$this->doc->baseurl . '/media/system/js/mootools-more.js']);
 		unset($this->doc->_scripts[$this->doc->baseurl . '/media/system/js/caption.js']);
-		unset($this->doc->_scripts[$this->doc->baseurl . '/media/system/js/core.js']);
 		unset($this->doc->_scripts[$this->doc->baseurl . '/media/system/js/modal.js']);
 		//unset($this->doc->_scripts[$this->doc->baseurl . '/media/jui/js/jquery.min.js']);
 		unset($this->doc->_scripts[$this->doc->baseurl . '/media/jui/js/jquery-noconflict.js']);
