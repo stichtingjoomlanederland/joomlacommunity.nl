@@ -324,7 +324,48 @@ class ThisTemplateHelper
 				unset($this->doc->_script['text/javascript']);
 			}
 		}
+
+        $this->fixGoogleMapsScripts();
 	}
+
+    public function fixGoogleMapsScripts()
+    {
+        $googleMaps = false;
+        $libraries = [];
+
+        foreach ($this->doc->_scripts as $scriptName => $scriptArgs)
+        {
+            if (!stristr($scriptName, 'maps.google.com/maps/api/js'))
+            {
+                continue;
+            }
+
+            $googleMaps = true;
+
+            if (preg_match('/libraries=(.*)/', $scriptName, $match))
+            {
+                $matchLibraries = explode(',', $match[1]);
+                $libraries = array_merge($matchLibraries, $libraries);
+            }
+
+            unset($this->doc->_scripts[$scriptName]);
+        }
+
+        if ($googleMaps === false)
+        {
+            return;
+        }
+
+        $googleMapsScript = 'https://maps.google.com/maps/api/js';
+       
+        if (!empty($libraries))
+        {
+            $googleMapsScript .= '?libraries=' . implode(',', $libraries);
+        }
+
+        $newScript = array($googleMapsScript => $scriptArgs);
+        $this->doc->_scripts = array_merge($newScript, $this->doc->_scripts);
+    }
 
 	/**
 	 * unset Squeezebox
