@@ -42,11 +42,27 @@ class Log extends Model
 
 					if (!empty($tag))
 					{
-						$ret[] = $tag;
+						$parts = explode('.', $tag);
+						$key = array_pop($parts);
+						$key = str_replace('id', '', $key);
+						$key = is_numeric($key) ? sprintf('%015u', $key) : $key;
+
+						if (empty($parts))
+						{
+							$key = str_repeat('0', 15) . '.' . $key;
+						}
+						else
+						{
+							$key .= '.' . implode('.', $parts);
+						}
+
+						$ret[$key] = $tag;
 					}
 				}
 			}
 		}
+
+		krsort($ret);
 
 		return $ret;
 	}

@@ -51,7 +51,10 @@ class TestExtract extends Object
 		}
 
 		// Make sure the "Process each part immediately" option is not enabled
-		if ($config->get('engine.postproc.common.after_part', 0, false))
+		$postProcImmediately = $config->get('engine.postproc.common.after_part', 0, false);
+		$postProcEngine = $config->get('akeeba.advanced.postproc_engine', 'none');
+
+		if ($postProcImmediately && ($postProcEngine != 'none'))
 		{
 			$parent->setWarning(JText::_('COM_AKEEBA_ENGINE_TEXTEXTRACT_ERR_PROCESSIMMEDIATELY'));
 

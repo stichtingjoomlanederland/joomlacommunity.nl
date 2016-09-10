@@ -29,13 +29,6 @@ class Html extends BaseView
 	public $json = '';
 
 	/**
-	 * Is this profile available as an One Click Backup icon? 0/1
-	 *
-	 * @var  int
-	 */
-	public $quickIcon = 0;
-
-	/**
 	 * Status of the settings encryption: -1 disabled by user, 0 not available, 1 enabled and active
 	 *
 	 * @var  int

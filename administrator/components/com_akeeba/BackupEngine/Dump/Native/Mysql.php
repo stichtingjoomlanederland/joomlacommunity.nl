@@ -400,9 +400,9 @@ class Mysql extends Base
 
 								if ($columnSize >= 1024 * 1024)
 								{
-									Factory::getLog()
-									       ->log(LogLevel::WARNING, "Column $fieldName of table $tableAbstract contains $columnSize bytes of data. This may cause restoration issues.");
-									$this->setWarning("Column $fieldName of table $tableAbstract contains $columnSize bytes of data. This may cause restoration issues.");
+									$warningMessage = "Column $fieldName of table $tableAbstract contains $columnSize bytes of data. This may cause restoration issues.";
+									Factory::getLog()->log(LogLevel::WARNING, $warningMessage);
+									$this->setWarning($warningMessage);
 
 									$configuration->set('volatile.database.last_large_col_table', $tableName);
 									$lastTableWithLargeColumns = $tableName;
@@ -713,7 +713,10 @@ class Mysql extends Base
 		{
 			if (substr($table_name, 0, 3) == '#__')
 			{
-				Factory::getLog()->log(LogLevel::WARNING, __CLASS__ . " :: Table $table_name has a prefix of #__. This would cause restoration errors; table skipped.");
+				$warningMessage =
+					__CLASS__ . " :: Table $table_name has a prefix of #__. This would cause restoration errors; table skipped.";
+				$this->setWarning($warningMessage);
+				Factory::getLog()->log(LogLevel::WARNING, $warningMessage);
 				continue;
 			}
 
@@ -745,13 +748,22 @@ class Mysql extends Base
 		$enable_entities = $registry->get('engine.dump.native.advanced_entitites', true);
 		$notracking = $registry->get('engine.dump.native.nodependencies', 0);
 
+		if (!$enable_entities)
+		{
+			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: NOT listing stored PROCEDUREs, FUNCTIONs and TRIGGERs (you told me not to)");
+		}
+		elseif ($notracking != 0)
+		{
+			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: NOT listing stored PROCEDUREs, FUNCTIONs and TRIGGERs (you have disabled dependency tracking, therefore I can't handle advanced entities)");
+		}
+
 		if ($enable_entities && ($notracking == 0))
 		{
 			// Cache the database name if this is the main site's database
 
 			// 1. Stored procedures
 			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Listing stored PROCEDUREs");
-			$sql = "SHOW PROCEDURE STATUS WHERE `Db`=" . $db->Quote($this->database);
+			$sql = "SHOW PROCEDURE STATUS WHERE `Db`=" . $db->quote($this->database);
 			$db->setQuery($sql);
 
 			try
@@ -785,7 +797,7 @@ class Mysql extends Base
 
 			// 2. Stored functions
 			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Listing stored FUNCTIONs");
-			$sql = "SHOW FUNCTION STATUS WHERE `Db`=" . $db->Quote($this->database);
+			$sql = "SHOW FUNCTION STATUS WHERE `Db`=" . $db->quote($this->database);
 			$db->setQuery($sql);
 
 			try
@@ -1060,7 +1072,7 @@ class Mysql extends Base
 			} // foreach
 
 			// Get a list of functions
-			$sql = 'SHOW FUNCTION STATUS WHERE `Db`=' . $db->Quote($this->database);
+			$sql = 'SHOW FUNCTION STATUS WHERE `Db`=' . $db->quote($this->database);
 			$db->setQuery($sql);
 
 			try
@@ -1251,7 +1263,10 @@ class Mysql extends Base
 			// If the query failed we don't have the necessary SHOW privilege. Log the error and fake an empty reply.
 			$entityType = ($type == 'merge') ? 'table' : $type;
 			$msg = $e->getMessage();
-			Factory::getLog()->log(LogLevel::WARNING, "Cannot get the structure of $entityType $table_abstract. Database returned error $msg running $sql  Please check your database privileges. Your database backup may be incomplete.");
+			$warningMessage =
+				"Cannot get the structure of $entityType $table_abstract. Database returned error $msg running $sql  Please check your database privileges. Your database backup may be incomplete.";
+			$this->setWarning($warningMessage);
+			Factory::getLog()->log(LogLevel::WARNING, $warningMessage);
 			$db->resetErrors();
 
 			$temp = array(

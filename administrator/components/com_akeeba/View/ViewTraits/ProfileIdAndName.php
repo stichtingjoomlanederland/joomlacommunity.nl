@@ -30,6 +30,13 @@ trait ProfileIdAndName
 	public $profilename = '';
 
 	/**
+	 * Is this profile available as an One Click Backup icon? 0/1
+	 *
+	 * @var  int
+	 */
+	public $quickIcon = 0;
+
+	/**
 	 * Find the currently active profile ID and name and put them in properties accessible by the view template
 	 */
 	protected function getProfileIdAndName()
@@ -42,6 +49,7 @@ trait ProfileIdAndName
 		{
 			$this->profilename = $profilesModel->findOrFail($profileId)->description;
 			$this->profileid = $profileId;
+			$this->quickIcon = $profilesModel->quickicon;
 		}
 		catch (\Exception $e)
 		{

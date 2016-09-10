@@ -12,6 +12,8 @@ defined('_JEXEC') or die();
 
 use Akeeba\Backup\Admin\Controller\Mixin\CustomACL;
 use Akeeba\Backup\Admin\Controller\Mixin\PredefinedTaskList;
+use Akeeba\Backup\Admin\Model\Exceptions\TransferFatalError;
+use Akeeba\Backup\Admin\Model\Exceptions\TransferIgnorableError;
 use Exception;
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
@@ -80,21 +82,23 @@ class Transfer extends Controller
 	 */
 	public function applyConnection()
 	{
-		$result = (object)[
+		$result = (object) [
 			'status'    => true,
 			'message'   => '',
+			'ignorable' => false,
 		];
 
 		// Get the parameters from the request
 		$transferOption = $this->input->getCmd('method', 'ftp');
-		$ftpHost = $this->input->get('host', '', 'raw', 2);
-		$ftpPort = $this->input->getInt('port', null);
-		$ftpUsername = $this->input->get('username', '', 'raw', 2);
-		$ftpPassword = $this->input->get('password', '', 'raw', 2);
-		$ftpPubKey = $this->input->get('public', '', 'raw', 2);
-		$ftpPrivateKey = $this->input->get('private', '', 'raw', 2);
-		$ftpPassive = $this->input->getInt('passive', 1);
-		$ftpDirectory = $this->input->get('directory', '', 'raw', 2);
+		$force          = $this->input->getInt('force', 0);
+		$ftpHost        = $this->input->get('host', '', 'raw', 2);
+		$ftpPort        = $this->input->getInt('port', null);
+		$ftpUsername    = $this->input->get('username', '', 'raw', 2);
+		$ftpPassword    = $this->input->get('password', '', 'raw', 2);
+		$ftpPubKey      = $this->input->get('public', '', 'raw', 2);
+		$ftpPrivateKey  = $this->input->get('private', '', 'raw', 2);
+		$ftpPassive     = $this->input->getInt('passive', 1);
+		$ftpDirectory   = $this->input->get('directory', '', 'raw', 2);
 
 		// Fix the port if it's missing
 		if (empty($ftpPort))
@@ -119,6 +123,7 @@ class Transfer extends Controller
 		$session = $this->container->session;
 
 		$session->set('transfer.transferOption', $transferOption, 'akeeba');
+		$session->set('transfer.force', $force, 'akeeba');
 		$session->set('transfer.ftpHost', $ftpHost, 'akeeba');
 		$session->set('transfer.ftpPort', $ftpPort, 'akeeba');
 		$session->set('transfer.ftpUsername', $ftpUsername, 'akeeba');
@@ -136,11 +141,20 @@ class Transfer extends Controller
 			$config = $model->getFtpConfig();
 			$model->testConnection($config);
 		}
+		catch (TransferIgnorableError $e)
+		{
+			$result = (object)[
+				'status'    => false,
+				'ignorable' => true,
+				'message'   => $e->getMessage(),
+			];
+		}
 		catch (Exception $e)
 		{
 			$result = (object)[
 				'status'    => false,
 				'message'   => $e->getMessage(),
+				'ignorable' => false,
 			];
 		}
 

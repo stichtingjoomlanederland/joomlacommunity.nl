@@ -304,23 +304,20 @@ class RSFirewallModelRSFirewall extends JModelLegacy
 
 	public function getCountryBlocking()
 	{
-		$countries = $this->config->get('blocked_countries');
-		if (!empty($countries))
-		{
-			return true;
-		}
-		return false;
+		return $this->config->get('blocked_countries');
 	}
 
-	public function getGeoIpStatus(){
+	public function getGeoIPStatus()
+	{
+		// Load model
 		require_once JPATH_ADMINISTRATOR . '/components/com_rsfirewall/models/configuration.php';
 		$model = new RSFirewallModelConfiguration();
-
-		if($model->getIsGeoIPUploaded() || $model->isGeoIPNative()){
-			return true;
-		}
-
-		return false;
+		
+		// Get info on GeoIP
+		$info = $model->getGeoIPInfo();
+		
+		// Does it work?
+		return $info->works;
 	}
 
 	public function isPluginEnabled() {

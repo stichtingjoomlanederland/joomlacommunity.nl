@@ -519,7 +519,7 @@ class Sqlsrv extends Base
 				continue;
 			}
 			$fields[] = $this->quoteName($k);
-			$values[] = $this->Quote($v);
+			$values[] = $this->quote($v);
 		}
 		// Set the query and execute the insert.
 		$this->setQuery(sprintf($statement, implode(',', $fields), implode(',', $values)));

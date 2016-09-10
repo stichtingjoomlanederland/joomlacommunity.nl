@@ -131,9 +131,9 @@ JHtml::_('behavior.modal'); ?>
 								$hasLayout = rseventsproHelper::hasPDFLayout($ticket->layout,$this->item->SubmissionId);
 								
 								$purchasedtickets .= '<td align="center" class="center">'.($hasLayout ? '<a class="rsextra" href="'.JRoute::_('index.php?option=com_rseventspro&view=pdf&id='.$this->item->id.'&ide='.$this->item->ide.'&tid='.$ticket->id.'&position='.$j).'"><i class="fa fa-file-pdf-o"></i> '.$ticket->name.'</a>' : '-').'</td>';
-								$purchasedtickets .= '<td align="center" class="center">'.$code.'</td>';
+								$purchasedtickets .= '<td align="center" class="center">'.($ticket->id ? $code : '-').'</td>';
 								$purchasedtickets .= '<td align="center" class="center">';
-								$purchasedtickets .= $confirmed ? '<span class="label label-success">'.JText::_('JYES').'</span>' : '<span><a href="javascript:void(0)" class="label '.rseventsproHelper::tooltipClass().'" title="'.rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF_CONFIRMED_DESC')).'" onclick="rsepro_confirm_ticket(\''.$this->item->id.'\',\''.$code.'\', this)">'.JText::_('JNO').'</a></span>';
+								$purchasedtickets .= $ticket->id ? ($confirmed ? '<span class="label label-success">'.JText::_('JYES').'</span>' : '<span><a href="javascript:void(0)" class="label '.rseventsproHelper::tooltipClass().'" title="'.rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF_CONFIRMED_DESC')).'" onclick="rsepro_confirm_ticket(\''.$this->item->id.'\',\''.$code.'\', this)">'.JText::_('JNO').'</a></span>') : '-';
 								$purchasedtickets .= '</td>';
 							}
 							$purchasedtickets .= '</tr>';

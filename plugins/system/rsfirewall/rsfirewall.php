@@ -49,6 +49,7 @@ class plgSystemRSFirewall extends JPlugin
 		if ($this->_autoLoadClass('RSFirewallLogger')) {
 			$this->logger = RSFirewallLogger::getInstance();
 		}
+
 	}
 
 	protected function getOption() {
@@ -203,7 +204,7 @@ class plgSystemRSFirewall extends JPlugin
 			$code = $session->get('com_rsfirewall.geoip');
 		} else { // not in cache
 			require_once JPATH_ADMINISTRATOR.'/components/com_rsfirewall/helpers/geoip/geoip.php';
-			$geoip 	= RSFirewallGeoIP::getInstance();
+			$geoip 	= RSFirewallGeoIP::getInstance($ip);
 			$code 	= $geoip->getCountryCode($ip);
 
 			$session->set('com_rsfirewall.geoip', $code);
@@ -344,6 +345,9 @@ class plgSystemRSFirewall extends JPlugin
 				}
 
 				if ($deny) {
+					if ($this->config->get('enable_extra_logging')) {
+						$this->logger->add('low', 'REFERER_BLOCKED', $host);
+					}
 					// set the reason
 					$this->reason = JText::_('COM_RSFIREWALL_REFERER_BLOCKED');
 					return true;
@@ -928,7 +932,7 @@ class plgSystemRSFirewall extends JPlugin
 				if ($diff_users = array_diff($admin_users, $lockdown_users)) {
 					$db 	= JFactory::getDbo();
 					$query 	= $db->getQuery(true);
-					
+
 					$query->select('username')
 						->from('#__users')
 						->where($db->qn('id') . ' IN (' . implode(',', $diff_users) . ')');
@@ -1016,13 +1020,13 @@ class plgSystemRSFirewall extends JPlugin
 					// replace with the snapshot information
 					if (empty($user) || ($modified = RSFirewallSnapshot::modified($user, $snapshot))) {
 						RSFirewallSnapshot::replace($snapshot, !empty($user));
-						
+
 						if (empty($user)) {
 							$debug = JText::sprintf('COM_RSFIREWALL_MISSING_USER', $snapshot->username);
 						} else {
 							$debug = JText::sprintf('COM_RSFIREWALL_MODIFIED_DATA', $snapshot->username, $modified['key'], $modified['snapshot'], $modified['value']);
 						}
-						
+
 						$this->logger->add('critical', 'PROTECTED_USER_CHANGE_ATTEMPT', $debug)->save();
 					}
 				}
@@ -1244,7 +1248,7 @@ class plgSystemRSFirewall extends JPlugin
 				}
 			}
 		}
-		
+
 		if ($app->isAdmin()) {
 			$this->clearLogHistory();
 		}

@@ -518,7 +518,8 @@ jQuery(document).ready(function (){
 </div>
 
 <?php if ($this->config->timezone) { ?>
-<div id="timezoneModal" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">
+<div id="timezoneModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-content">
 	<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 		<h3><?php echo JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE'); ?></h3>
@@ -548,6 +549,7 @@ jQuery(document).ready(function (){
 	<div class="modal-footer">
 		<button class="btn" data-dismiss="modal" aria-hidden="true"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
 		<button class="btn btn-primary" type="button" onclick="document.timezoneForm.submit();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button>
+	</div>
 	</div>
 </div>
 <?php } ?>

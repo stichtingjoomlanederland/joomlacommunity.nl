@@ -177,6 +177,10 @@ defined('_JEXEC') or die();
 		<div class="alert alert-error" id="akeeba-transfer-ftp-error" style="display:none;">
 			<h3 id="akeeba-transfer-ftp-error-title">TITLE</h3>
 			<p id="akeeba-transfer-ftp-error-body">MESSAGE</p>
+
+			<a href="index.php?option=com_akeeba&view=Transfer&force=1" class="btn btn-warning" style="display:none" id="akeeba-transfer-ftp-error-force">
+				<?php echo JText::_('COM_AKEEBA_TRANSFER_ERR_OVERRIDE'); ?>
+			</a>
 		</div>
 
 		<div class="form-actions">

@@ -15,6 +15,8 @@ use FOF30\Form\Field\Ordering as FieldOrdering;
 use FOF30\Model\DataModel;
 use FOF30\Toolbar\Toolbar;
 use FOF30\View\View;
+use JHtml;
+use JHtmlSidebar;
 
 defined('_JEXEC') or die;
 
@@ -69,8 +71,8 @@ class AkeebaStrapper extends RenderBase implements RenderInterface
 			return;
 		}
 
-		\JHtml::_('behavior.core');
-		\JHTML::_('jquery.framework', true);
+		JHtml::_('behavior.core');
+		JHtml::_('jquery.framework', true);
 
 
 		// Wrap output in various classes
@@ -141,7 +143,7 @@ class AkeebaStrapper extends RenderBase implements RenderInterface
 			return;
 		}
 
-		$sidebarEntries = \JHtmlSidebar::getEntries();
+		$sidebarEntries = JHtmlSidebar::getEntries();
 
 		if (!empty($sidebarEntries))
 		{
@@ -396,7 +398,7 @@ JS;
 		{
 			foreach ($links as $link)
 			{
-				\JHtmlSidebar::addEntry($link['name'], $link['link'], $link['active']);
+				JHtmlSidebar::addEntry($link['name'], $link['link'], $link['active']);
 
 				$dropdown = false;
 
@@ -409,7 +411,7 @@ JS;
 				{
 					foreach ($link['items'] as $item)
 					{
-						\JHtmlSidebar::addEntry('– ' . $item['name'], $item['link'], $item['active']);
+						JHtmlSidebar::addEntry('– ' . $item['name'], $item['link'], $item['active']);
 					}
 				}
 			}
@@ -530,10 +532,10 @@ JS;
 	{
 		$html = '';
 
-		\JHtml::_('behavior.multiselect');
+		JHtml::_('behavior.multiselect');
 
-		\JHtml::_('bootstrap.tooltip');
-		\JHtml::_('dropdown.init');
+		JHtml::_('bootstrap.tooltip');
+		JHtml::_('dropdown.init');
 		$view	 = $form->getView();
 		$order	 = $view->escape($view->getLists()->order);
 
@@ -573,7 +575,7 @@ HTML;
 
 		if ($show_filters)
 		{
-			\JHtmlSidebar::setAction("index.php?option=" .
+			JHtmlSidebar::setAction("index.php?option=" .
 				$this->container->componentName . "&view=" .
 				$this->container->inflector->pluralize($form->getView()->getName())
 			);
@@ -649,47 +651,50 @@ JS;
 					$tdwidth = '';
 				}
 
-				if (!empty($header))
+				if (!empty($header) && $show_header)
 				{
 					$header_html .= "\t\t\t\t\t<th $tdwidth>" . "\n";
 					$header_html .= "\t\t\t\t\t\t" . $header;
 					$header_html .= "\t\t\t\t\t</th>" . "\n";
 				}
 
-				if (!empty($filter))
+				if ($show_filters)
 				{
-					$filter_html .= '<div class="filter-search btn-group pull-left">' . "\n";
-					$filter_html .= "\t" . '<label for="title" class="element-invisible">';
-					$filter_html .= \JText::_($headerField->label);
-					$filter_html .= "</label>\n";
-					$filter_html .= "\t$filter\n";
-					$filter_html .= "</div>\n";
-
-					if (!empty($buttons))
+					if (!empty($filter))
 					{
-						$filter_html .= '<div class="btn-group pull-left hidden-phone">' . "\n";
-						$filter_html .= "\t$buttons\n";
-						$filter_html .= '</div>' . "\n";
+						$filter_html .= '<div class="filter-search btn-group pull-left">' . "\n";
+						$filter_html .= "\t" . '<label for="title" class="element-invisible">';
+						$filter_html .= \JText::_($headerField->label);
+						$filter_html .= "</label>\n";
+						$filter_html .= "\t$filter\n";
+						$filter_html .= "</div>\n";
+
+						if (!empty($buttons))
+						{
+							$filter_html .= '<div class="btn-group pull-left hidden-phone">' . "\n";
+							$filter_html .= "\t$buttons\n";
+							$filter_html .= '</div>' . "\n";
+						}
 					}
-				}
-				elseif (!empty($options))
-				{
-					$label = $headerField->label;
+					elseif (!empty($options))
+					{
+						$label = $headerField->label;
 
-					$filterName = $headerField->filterFieldName;
-					$filterSource = $headerField->filterSource;
+						$filterName = $headerField->filterFieldName;
+						$filterSource = $headerField->filterSource;
 
-					\JHtmlSidebar::addFilter(
-						'- ' . \JText::_($label) . ' -',
-						$filterName,
-						\JHtml::_(
-							'select.options',
-							$options,
-							'value',
-							'text',
-							$model->getState($filterSource, ''), true
-						)
-					);
+						JHtmlSidebar::addFilter(
+							'- ' . \JText::_($label) . ' -',
+							$filterName,
+							JHtml::_(
+								'select.options',
+								$options,
+								'value',
+								'text',
+								$model->getState($filterSource, ''), true
+							)
+						);
+					}
 				}
 			}
 		}
@@ -715,7 +720,7 @@ JS;
 		$html .= '<form action="'.$actionUrl.'" method="post" name="adminForm" id="adminForm" ' . $form_class . '>' . "\n";
 
 		// Get and output the sidebar, if present
-		$sidebar = \JHtmlSidebar::render();
+		$sidebar = JHtmlSidebar::render();
 
 		if ($show_filters && !empty($sidebar)
 			&& (!$this->container->platform->isFrontend() || $this->container->toolbar->getRenderFrontendSubmenu())
@@ -767,7 +772,7 @@ JS;
 				$html .= "\t\t" . '<label for="sortTable" class="element-invisible">' . \JText::_('JGLOBAL_SORT_BY') . '</label>' . "\n";
 				$html .= "\t\t" . '<select name="sortTable" id="sortTable" class="input-medium" onchange="Joomla.orderTable()">' . "\n";
 				$html .= "\t\t\t" . '<option value="">' . \JText::_('JGLOBAL_SORT_BY') . '</option>' . "\n";
-				$html .= "\t\t\t" . \JHtml::_('select.options', $sortFields, 'value', 'text', $form->getView()->getLists()->order) . "\n";
+				$html .= "\t\t\t" . JHtml::_('select.options', $sortFields, 'value', 'text', $form->getView()->getLists()->order) . "\n";
 				$html .= "\t\t" . '</select>' . "\n";
 				$html .= "\t" . '</div>' . "\n";
 			}
@@ -947,7 +952,7 @@ JS;
 
 		if (in_array($validate, array('true', 'yes', '1', 'on')))
 		{
-			\JHTML::_('behavior.formvalidation');
+			JHtml::_('behavior.formvalidation');
 			$class = ' form-validate';
 			$this->loadValidationScript($form);
 		}
@@ -1414,7 +1419,7 @@ JS;
 
 		if ($useChosen)
 		{
-			\JHtml::_('formbehavior.chosen', $useChosen);
+			JHtml::_('formbehavior.chosen', $useChosen);
 		}
 
 		if (is_null($formType))
