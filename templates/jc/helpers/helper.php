@@ -43,7 +43,7 @@ class ThisTemplateHelper
 	 */
 	public $settings = array(
 		'debug'       => true,
-		'unset_css'   => array('com_finder', 'foundry'),
+		'unset_css'   => array('com_finder', 'foundry', 'com_rseventspro', 'com_rscomments'),
 		'analytics'   => 0, // 0 = none, GA = Universal Google Analytics, GTM = Google Tag Manager, Mix = Mixpanel
 		'analyticsid' => '',
 	);
