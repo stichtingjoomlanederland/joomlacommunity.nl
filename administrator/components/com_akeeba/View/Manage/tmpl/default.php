@@ -167,7 +167,7 @@ defined('_JEXEC') or die();
 				<?php
 				$id = 1 - $id;
 				list($originDescription, $originIcon) = $this->getOriginInformation($record);
-				list($startTime, $duration) = $this->getTimeInformation($record);
+				list($startTime, $duration, $timeZoneText) = $this->getTimeInformation($record);
 				list($statusClass, $statusIcon) = $this->getStatusInformation($record);
 				$profileName = $this->getProfileName($record);
 				?>
@@ -193,7 +193,7 @@ defined('_JEXEC') or die();
 						<div class="akeeba-buadmin-startdate" title="<?php echo \JText::_('COM_AKEEBA_BUADMIN_LABEL_START'); ?>">
 							<small>
 								<span class="fa fa-fw fa-calendar"></span>
-								<?php echo $this->escape($startTime); ?> GMT
+								<?php echo $this->escape($startTime); ?> <?php echo $this->escape($timeZoneText); ?>
 							</small>
 						</div>
 					</td>

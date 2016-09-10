@@ -852,3 +852,40 @@ table.diff {
 		opacity: 0;
 	}
 }
+
+#geoip-verification {
+	display: block;
+	background: #f5f5f5;
+	border: 1px solid #e1e1e1;
+	margin: 10px;
+	padding: 10px;
+}
+
+#geoip-downloader {
+	list-style-type: none;
+	padding: 0;
+	margin: 0;
+}
+
+#geoip-downloader > li {
+	margin: 15px;
+	position: relative;
+}
+
+#geoip-downloader > li.ok:before {
+	display: inline-block;
+	content: "\47";
+	position: relative;
+	margin-right: 10px;
+	font-family: 'IcoMoon';
+	color: #409740;
+}
+
+#geoip-downloader > li.not-ok:before {
+	display: inline-block;
+	content: "\4a";
+	position: relative;
+	margin-right: 10px;
+	font-family: 'IcoMoon';
+	color: #ad312b;
+}

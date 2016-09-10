@@ -28,6 +28,20 @@ use JUri;
 class Html extends BaseView
 {
 	/**
+	 * Should I use the user's local time zone for display?
+	 *
+	 * @var  boolean
+	 */
+	public $useLocalTime;
+
+	/**
+	 * Time format string to use for the time zone suffix
+	 *
+	 * @var  string
+	 */
+	public $timeZoneFormat;
+
+	/**
 	 * The backup record for the showcomment view
 	 *
 	 * @var  array
@@ -253,6 +267,10 @@ JS;
 		$dateFormat = trim($dateFormat);
 		$this->dateFormat = !empty($dateFormat) ? $dateFormat : JText::_('DATE_FORMAT_LC4');
 
+		// Time zone options
+		$this->useLocalTime   = $this->container->params->get('localtime', '1') == 1;
+		$this->timeZoneFormat = $this->container->params->get('timezonetext', 'T');
+
 		// Should I show the prompt for the configuration wizard?
 		$this->promptForBackupRestoration = $this->container->params->get('show_howtorestoremodal', 1) != 0;
 
@@ -407,10 +425,12 @@ JS;
 	 */
 	protected function getTimeInformation($record)
 	{
-		$startTime = new JDate($record['backupstart']);
-		$endTime   = new JDate($record['backupend']);
+		$utcTimeZone = new DateTimeZone('UTC');
+		$startTime   = new JDate($record['backupstart'], $utcTimeZone);
+		$endTime     = new JDate($record['backupend'], $utcTimeZone);
 
 		$duration = $endTime->toUnix() - $startTime->toUnix();
+
 		if ($duration > 0)
 		{
 			$seconds  = $duration % 60;
@@ -432,7 +452,18 @@ JS;
 		$tz     = new DateTimeZone($userTZ);
 		$startTime->setTimezone($tz);
 
-		return array($startTime->format($this->dateFormat), $duration);
+		$timeZoneSuffix = '';
+
+		if (!empty($this->timeZoneFormat))
+		{
+			$timeZoneSuffix = $startTime->format($this->timeZoneFormat, $this->useLocalTime);
+		}
+
+		return array(
+			$startTime->format($this->dateFormat, $this->useLocalTime),
+			$duration,
+			$timeZoneSuffix
+		);
 	}
 
 	/**

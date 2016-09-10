@@ -32,7 +32,7 @@ class ControlPanel extends Controller
 		parent::__construct($container, $config);
 
 		$this->setPredefinedTaskList([
-			'main', 'SwitchProfile', 'UpdateInfo', 'applydlid', 'resetSecretWord', 'reloadUpdateInformation'
+			'main', 'SwitchProfile', 'UpdateInfo', 'applydlid', 'resetSecretWord', 'reloadUpdateInformation', 'forceUpdateDb'
 		]);
 	}
 
@@ -54,6 +54,7 @@ class ControlPanel extends Controller
 
 		// Just in case the reset() loaded a stale configuration...
 		Platform::getInstance()->load_configuration();
+		Platform::getInstance()->apply_quirk_definitions();
 
 		// Let's make sure the temporary and output directories are set correctly and writable...
 		/** @var ConfigurationWizard $wizmodel */
@@ -223,5 +224,29 @@ ENDRESULT;
 		$url = 'index.php?option=com_akeeba';
 
 		$this->setRedirect($url, $msg);
+	}
+
+	/**
+	 * Resets the "updatedb" flag and forces the database updates
+	 */
+	public function forceUpdateDb()
+	{
+		// Reset the flag so the updates could take place
+		$this->container->params->set('updatedb', null);
+		$this->container->params->save();
+
+		/** @var \Akeeba\Backup\Admin\Model\ControlPanel $model */
+		$model = $this->getModel();
+
+		try
+		{
+			$model->checkAndFixDatabase();
+		}
+		catch (\RuntimeException $e)
+		{
+			// This should never happen, since we reset the flag before execute the update, but you never know
+		}
+
+		$this->setRedirect('index.php?option=com_akeeba');
 	}
 }

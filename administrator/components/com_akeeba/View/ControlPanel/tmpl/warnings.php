@@ -16,6 +16,19 @@ defined('_JEXEC') or die();
 	<?php echo $this->loadAnyTemplate('admin:com_akeeba/Configuration/confwiz_modal'); ?>
 <?php endif; ?>
 
+<?php /* Stuck database updates warning */?>
+<?php if ($this->stuckUpdates):?>
+	<div class="alert alert-danger">
+		<p>
+		<?php
+			echo \JText::sprintf('COM_AKEEBA_CPANEL_ERR_UPDATE_STUCK',
+					JFactory::getDbo()->getPrefix(),
+					'index.php?option=com_akeeba&view=ControlPanel&task=forceUpdateDb'
+			)?>
+		</p>
+	</div>
+<?php endif;?>
+
 <?php /* mbstring warning */ ?>
 <?php if ( ! ($this->checkMbstring)): ?>
 	<div class="alert alert-danger">
@@ -92,3 +105,20 @@ defined('_JEXEC') or die();
 		<?php echo JText::sprintf('COM_AKEEBA_LBL_CPANEL_NEEDSUPGRADE','https://www.akeebabackup.com/videos/1212-akeeba-backup-core/1617-abtc03-upgrade-core-professional.html'); ?>
 	</div>
 <?php endif; ?>
+
+<?php
+	/* Warn about CloudFlare Rocket Loader */
+	$testfile  = 'CLOUDFLARE::'.$this->getContainer()->template->parsePath('media://com_akeeba/js/ControlPanel.min.js');
+	$testfile .= '?'.$this->getContainer()->mediaVersion;
+?>
+	<div class="alert alert-error" style="display: none;" id="cloudFlareWarn">
+		<h3><?php echo JText::_('COM_AKEEBA_CPANEL_MSG_CLOUDFLARE_WARN')?></h3>
+		<p><?php echo JText::sprintf('COM_AKEEBA_CPANEL_MSG_CLOUDFLARE_WARN1', 'https://support.cloudflare.com/hc/en-us/articles/200169456-Why-is-JavaScript-or-jQuery-not-working-on-my-site-')?></p>
+	</div>
+	<script type="text/javascript" data-cfasync="true">
+		var test = localStorage.getItem('<?php echo $testfile?>');
+		if (test)
+		{
+			document.getElementById('cloudFlareWarn').style.display = 'block';
+		}
+	</script>

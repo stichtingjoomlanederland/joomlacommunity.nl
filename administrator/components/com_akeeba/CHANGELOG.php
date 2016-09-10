@@ -1,4 +1,29 @@
 <?php die();?>
+Akeeba Backup 5.2.1
+================================================================================
+! PHP 5.4 compatibility (now working around a PHP bug which has been fixed years ago in PHP 5.5 and later)
+
+Akeeba Backup 5.2.0
+================================================================================
+! mcrypt is deprecated in PHP 7.1. Replacing it with OpenSSL.
+! Missing files from the backup on some servers, especially in CLI mode
++ Added warning if CloudFlare Rocket Loader is enabled on the site
++ Added warning if database updates are stuck due to table corruption
++ ALICE raw output now is always in English
++ Support the newer Microsoft Azure API version 2015-04-05
++ Support uploading files larger than 64Mb to Microsoft Azure
++ You can now choose whether to display GMT or local time in the Manage Backups page
++ Sort the log files from newest to oldest in the View Log page (based on the backup ID)
++ View Log after successful backup now takes you to this backup's log file, not the generic View Log page
+# [MEDIUM] Cannot download archives from S3 to browser when using the Amazon S3 v4 API
+# [MEDIUM] gh-601 CloudFlare Rocket Loader is broken and kills the Javascript on your site, causing Akeeba Backup to fail
+# [LOW] Front-end URL without a view and secrety key should return a plain text 403 error, not a Joomla 404 error page.
+# [LOW] Reverse Engineering database dump engine must be available in Core version, required for backing up PostgreSQL and MS SQL Server
+# [LOW] Editing a profile's Configuration would always reset the One-click backup icon checkbox
+# [LOW] Archive integrity check refused to run when you are using the "No post-processing" option but the "Process each part immediately" option was previously selected in a different post-processing engine
+# [LOW] Total archive size would be doubled when you are using the "Process each part immediately" option but not the "Delete archive after processing" option (or when the post-processing engine is "No post-processing")
+# [LOW] Warnings from the database dump engine were not propagated to the interface
+
 Akeeba Backup 5.1.4
 ================================================================================
 # [MEDIUM] Updated "Backup on Update" plugin to be compatible with Joomla 3.6.1 and later

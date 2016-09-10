@@ -108,11 +108,11 @@ class Db extends Part
 			$root = array_shift($rootkeys);
 			$registry->set('volatile.database.root', $root);
 
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Now backing up $root");
-
 			$this->database_config = array_shift($this->database_list);
 			$this->database_config['root'] = $root;
 			$this->database_config['process_empty_prefix'] = ($root == '[SITEDB]') ? true : false;
+
+			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Now backing up $root ({$this->database_config['database']})");
 
 			$this->dump_engine->setup($this->database_config);
 

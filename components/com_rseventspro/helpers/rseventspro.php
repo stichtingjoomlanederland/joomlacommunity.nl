@@ -1206,7 +1206,7 @@ class rseventsproHelper
 							$code	= md5($subscriber->id.$ticket->id.($j+1));
 							$code	= substr($code,0,4).substr($code,-4);
 							
-							$ticket->code = rseventsproHelper::getConfig('barcode_prefix', 'string', 'RST-').$subscriber->id.'-'.$code;
+							$ticket->code = $ticket->id ? rseventsproHelper::getConfig('barcode_prefix', 'string', 'RST-').$subscriber->id.'-'.$code : '-';
 							$tickets[] = $ticket;
 						}
 					}

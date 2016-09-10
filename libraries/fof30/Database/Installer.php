@@ -553,7 +553,7 @@ class Installer
 					if (!empty($coltype))
 					{
 						$coltype = strtolower($coltype);
-						$currentType = strtolower($tableColumns[$value]->Type);
+						$currentType = is_string($tableColumns[$value]) ? $tableColumns[$value] : strtolower($tableColumns[$value]->Type);
 
 						$condition = ($coltype == $currentType);
 					}

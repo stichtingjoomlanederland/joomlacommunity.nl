@@ -9,7 +9,7 @@
 			name="permissions"
 			label="JCONFIG_PERMISSIONS_LABEL"
 			description="JCONFIG_PERMISSIONS_DESC"
-			>
+	>
 
 		<field
 				name="rules"
@@ -21,7 +21,8 @@
 				section="component"/>
 	</fieldset>
 
-	<fieldset name="frontend" label="COM_AKEEBA_CONFIG_FRONTEND_HEADER_LABEL" description="COM_AKEEBA_CONFIG_FRONTEND_HEADER_DESC">
+	<fieldset name="frontend" label="COM_AKEEBA_CONFIG_FRONTEND_HEADER_LABEL"
+			  description="COM_AKEEBA_CONFIG_FRONTEND_HEADER_DESC">
 
 		<field name="frontend_enable" type="radio" default="0"
 			   label="COM_AKEEBA_CONFIG_FEBENABLE_LABEL"
@@ -73,7 +74,7 @@
 			   filter="integer"
 			   label="COM_AKEEBA_CONFIG_FAILURE_TIMEOUT_LABEL"
 			   description="COM_AKEEBA_CONFIG_FAILURE_TIMEOUT_DESC"
-				/>
+		/>
 
 		<field name="failure_email_address" type="text" default="" size="50"
 			   label="COM_AKEEBA_CONFIG_FAILURE_EMAILADDRESS_LABEL"
@@ -93,9 +94,11 @@
 		<field name="lastversion" type="hidden" default="" label=""/>
 		<field name="angieupgrade" type="hidden" default="0" label=""/>
 		<field name="show_howtorestoremodal" type="hidden" default="1" label=""/>
+		<field name="updatedb" type="hidden" default="" label=""/>
 	</fieldset>
 
-	<fieldset name="liveupdate" label="COM_AKEEBA_CONFIG_LIVEUPDATE_HEADER_LABEL" description="COM_AKEEBA_CONFIG_LIVEUPDATE_HEADER_DESC">
+	<fieldset name="liveupdate" label="COM_AKEEBA_CONFIG_LIVEUPDATE_HEADER_LABEL"
+			  description="COM_AKEEBA_CONFIG_LIVEUPDATE_HEADER_DESC">
 		<field name="update_dlid" type="text" default="" size="30"
 			   label="COM_AKEEBA_CONFIG_DOWNLOADID_LABEL"
 			   description="COM_AKEEBA_CONFIG_DOWNLOADID_DESC"/>
@@ -129,7 +132,8 @@
 		</field>
 	</fieldset>
 
-	<fieldset name="security" label="COM_AKEEBA_CONFIG_SECURITY_HEADER_LABEL" description="COM_AKEEBA_CONFIG_SECURITY_HEADER_DESC">
+	<fieldset name="security" label="COM_AKEEBA_CONFIG_SECURITY_HEADER_LABEL"
+			  description="COM_AKEEBA_CONFIG_SECURITY_HEADER_DESC">
 		<field name="useencryption" type="radio" default="1"
 			   label="COM_AKEEBA_CONFIG_SECURITY_USEENCRYPTION_LABEL"
 			   description="COM_AKEEBA_CONFIG_SECURITY_USEENCRYPTION_DESCRIPTION"
@@ -139,11 +143,31 @@
 		</field>
 	</fieldset>
 
-	<fieldset name="backend" label="COM_AKEEBA_CONFIG_BACKEND_HEADER_LABEL" description="COM_AKEEBA_CONFIG_BACKEND_HEADER_DESC">
+	<fieldset name="backend" label="COM_AKEEBA_CONFIG_BACKEND_HEADER_LABEL"
+			  description="COM_AKEEBA_CONFIG_BACKEND_HEADER_DESC">
+
 		<field name="dateformat" type="text" default="" size="30"
 			   label="COM_AKEEBA_CONFIG_DATEFORMAT_LABEL"
 			   description="COM_AKEEBA_CONFIG_DATEFORMAT_DESC"/>
-	</fieldset>
+
+        <field name="localtime" type="radio" default="1"
+               label="COM_AKEEBA_CONFIG_BACKEND_LOCALTIME_LABEL"
+               description="COM_AKEEBA_CONFIG_BACKEND_LOCALTIME_DESC"
+               class="btn-group">
+            <option value="0">JNo</option>
+            <option value="1">JYes</option>
+        </field>
+
+        <field name="timezonetext" type="radio" default="T"
+               label="COM_AKEEBA_CONFIG_BACKEND_TIMEZONETEXT_LABEL"
+               description="COM_AKEEBA_CONFIG_BACKEND_TIMEZONETEXT_DESC"
+               class="btn-group">
+            <option value="">COM_AKEEBA_CONFIG_BACKEND_TIMEZONETEXT_NONE</option>
+            <option value="T">COM_AKEEBA_CONFIG_BACKEND_TIMEZONETEXT_ABBREVIATION</option>
+            <option value="\G\M\TP">COM_AKEEBA_CONFIG_BACKEND_TIMEZONETEXT_GMTOFFSET</option>
+        </field>
+
+    </fieldset>
 
 	<fieldset name="push" label="COM_AKEEBA_CONFIG_PUSH_HEADER_LABEL" description="COM_AKEEBA_CONFIG_PUSH_HEADER_DESC">
 		<field name="desktop_notifications" type="list" default="0"

@@ -26,6 +26,17 @@ class Ordering extends Field
 	{
 		$sortable = ($this->element['sortable'] != 'false');
 
+		$dnd = isset($this->element['dragndrop']) ? (string) $this->element['dragndrop'] : 'notbroken';
+
+		if (strtolower($dnd) == 'notbroken')
+		{
+			$dnd = !version_compare(JVERSION, '3.5.0', 'ge');
+		}
+		else
+		{
+			$dnd = in_array(strtolower($dnd), array('1', 'true', 'yes', 'on', 'enabled'), true);
+		}
+
 		if (!$sortable)
 		{
 			// Non sortable?! I'm not sure why you'd want that, but if you insist...
@@ -52,7 +63,15 @@ class Ordering extends Field
 
 		$ordering = $view->getLists()->order == 'ordering';
 
-		if ($ordering)
+		// Joomla! 3.5 and later: drag and drop reordering is broken when the ordering field is not hidden
+		// because some idiot submitted that code and some moron committed it. I tried to file a PR to fix
+		// it and got the reply "can't test, won't test". OK, then. You retarded bonobos blindly accepted
+		// code which did the EXACT OPPOSITE of what it promised and broke b/c. However, you won't accept
+		// the fix to that shit from someone who knows how Joomla! works and wasted 2 hours of his time to
+		// track down your idiocy, fix it and explain why you retarded monkeys cocked it up. Fucking morons!
+		$joomla35IsBroken = version_compare(JVERSION, '3.5.0', 'ge');
+
+		if ($ordering && (!$joomla35IsBroken || !$dnd))
 		{
 			$html .= '<a href="javascript:saveorder(' . (count($model->get()) - 1) . ', \'saveorder\')" ' .
 				'rel="tooltip" class="save-order ' . $class . '" title="' . JText::_('JLIB_HTML_SAVE_ORDER') . '">'

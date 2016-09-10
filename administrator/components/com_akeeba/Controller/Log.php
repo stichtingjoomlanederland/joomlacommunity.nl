@@ -40,9 +40,10 @@ class Log extends Controller
 	 *
 	 * @return  void
 	 */
-	public function onBeforeMain()
+	public function onBeforeDefault()
 	{
 		$tag = $this->input->get('tag', null, 'cmd');
+		$latest = $this->input->get('latest', false, 'int');
 
 		if (empty($tag))
 		{
@@ -51,6 +52,13 @@ class Log extends Controller
 
 		/** @var LogModel $model */
 		$model = $this->getModel();
+
+		if ($latest)
+		{
+			$logFiles = $model->getLogFiles();
+			$tag = array_shift($logFiles);
+		}
+
 		$model->setState('tag', $tag);
 
 		Platform::getInstance()->load_configuration(Platform::getInstance()->get_active_profile());

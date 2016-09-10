@@ -61,8 +61,6 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			'administrator/components/com_akeeba/BackupEngine/Archiver/jps.ini',
 			'administrator/components/com_akeeba/BackupEngine/Archiver/Zipnative.php',
 			'administrator/components/com_akeeba/BackupEngine/Archiver/zipnative.ini',
-			'administrator/components/com_akeeba/BackupEngine/Dump/Reverse.php',
-			'administrator/components/com_akeeba/BackupEngine/Dump/reverse.ini',
 			'administrator/components/com_akeeba/BackupEngine/Postproc/amazons3.ini',
 			'administrator/components/com_akeeba/BackupEngine/Postproc/Amazons3.php',
 			'administrator/components/com_akeeba/BackupEngine/Postproc/azure.ini',
@@ -143,7 +141,6 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			'administrator/components/com_akeeba/View/RemoteFiles',
 			'administrator/components/com_akeeba/View/S3Import',
 			'administrator/components/com_akeeba/View/Upload',
-			'administrator/components/com_akeeba/BackupEngine/Dump/Reverse',
 			'administrator/components/com_akeeba/BackupEngine/Postproc/Connector',
 		)
 	);
@@ -260,6 +257,9 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			'administrator/components/com_akeeba/BackupEngine/Postproc/dropbox.ini',
 			'administrator/components/com_akeeba/BackupEngine/Postproc/Dropbox.php',
 			'administrator/components/com_akeeba/BackupEngine/Postproc/Connector/Dropbox.php',
+
+			// Obsolete Azure files
+			'administrator/components/com_akeeba/BackupEngine/Postproc/Connector/Azure/Credentials/Sharedsignature.php',
 		),
 		'folders' => array(
 			// Directories used up to version 4.1 (inclusive)

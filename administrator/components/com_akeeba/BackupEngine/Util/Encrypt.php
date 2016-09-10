@@ -10,6 +10,10 @@
 namespace Akeeba\Engine\Util;
 
 // Protection against direct access
+use Akeeba\Engine\Util\AesAdapter\AdapterInterface;
+use Akeeba\Engine\Util\AesAdapter\Mcrypt;
+use Akeeba\Engine\Util\AesAdapter\OpenSSL;
+
 defined('AKEEBAENGINE') or die();
 
 /**
@@ -17,7 +21,8 @@ defined('AKEEBAENGINE') or die();
  * Right to use and adapt is granted for under a simple creative commons attribution
  * licence. No warranty of any form is offered.
  *
- * Modified for Akeeba Backup by Nicholas K. Dionysopoulos
+ * Heavily modified for Akeeba Backup by Nicholas K. Dionysopoulos
+ * Also added AES-128 CBC mode (with mcrypt and OpenSSL) on top of AES CTR
  */
 class Encrypt
 {
@@ -493,33 +498,28 @@ class Encrypt
 	 * AES encryption in CBC mode. This is the standard mode (the CTR methods
 	 * actually use Rijndael-128 in CTR mode, which - technically - isn't AES).
 	 * The data length is tucked as a 32-bit unsigned integer (little endian)
-	 * after the ciphertext. It supports AES-128, AES-192 and AES-256.
+	 * after the ciphertext. It supports AES-128 only.
 	 *
 	 * @since  3.0.1
 	 * @author Nicholas K. Dionysopoulos
 	 *
 	 * @param   string  $plaintext  The data to encrypt
 	 * @param   string  $password   Encryption password
-	 * @param   int     $nBits      Encryption key size. Can be 128, 192 or 256
-	 * @param   bool    $legacy     Enable legacy mode (insecure intialization vector)
+	 * @param   bool    $legacy     Enable legacy mode (insecure initialization vector)
 	 *
 	 * @return  string  The ciphertext
 	 */
-	public function AESEncryptCBC($plaintext, $password, $nBits = 128, $legacy = false)
+	public function AESEncryptCBC($plaintext, $password, $legacy = false)
 	{
-		// standard allows 128/192/256 bit keys
-		if (!($nBits == 128 || $nBits == 192 || $nBits == 256))
+		$adapter = $this->getAdapter();
+
+		if (!$adapter->isSupported())
 		{
 			return false;
 		}
 
-		if (!function_exists('mcrypt_module_open'))
-		{
-			return false;
-		}
-
-		// Try to fetch cached key or create it if it doesn't exist
-		$lookupKey = $password . '-' . $nBits;
+		// Get the expanded key from the password
+		$key = $this->expandKey($password);
 
 		// Create an IV
 		$rand = new RandomValue();
@@ -530,44 +530,13 @@ class Encrypt
 			$iv = $this->createTheWrongIV($password);
 		}
 
-		if (array_key_exists($lookupKey, $this->passwords))
-		{
-			$key = $this->passwords[$lookupKey];
-		}
-		else
-		{
-			// use AES itself to encrypt password to get cipher key (using plain password as source for
-			// key expansion) - gives us well encrypted key
-			$nBytes = $nBits / 8; // no bytes in key
-			$pwBytes = array();
-
-			for ($i = 0; $i < $nBytes; $i++)
-			{
-				$pwBytes[$i] = ord(substr($password, $i, 1)) & 0xff;
-			}
-
-			$key = $this->Cipher($pwBytes, $this->KeyExpansion($pwBytes));
-			$key = array_merge($key, array_slice($key, 0, $nBytes - 16)); // expand key to 16/24/32 bytes long
-			$newKey = '';
-
-			foreach ($key as $int)
-			{
-				$newKey .= chr($int);
-			}
-
-			$key = $newKey;
-
-			$this->passwords[$lookupKey] = $key;
-		}
-
-		$td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_CBC, '');
-		mcrypt_generic_init($td, $key, $iv);
-
 		// The ciphertext is the encrypted string...
-		$ciphertext = mcrypt_generic($td, $plaintext);
-		mcrypt_generic_deinit($td);
+		$ciphertext = $adapter->encrypt($plaintext, $key, $iv);
 
-		// ...plus the IV...
+		// ...minus the IV which was placed in front
+		$ciphertext = substr($ciphertext, 16);
+
+		// ...plus the IV at the end...
 		if (!$legacy)
 		{
 			$ciphertext .= 'JPIV' . $iv;
@@ -583,64 +552,29 @@ class Encrypt
 	 * AES decryption in CBC mode. This is the standard mode (the CTR methods
 	 * actually use Rijndael-128 in CTR mode, which - technically - isn't AES).
 	 *
-	 * Supports AES-128, AES-192 and AES-256. It supposes that the last 4 bytes
-	 * contained a little-endian unsigned long integer representing the unpadded
+	 * It supports AES-128 only. It assumes that the last 4 bytes
+	 * contain a little-endian unsigned long integer representing the unpadded
 	 * data length.
 	 *
 	 * @since  3.0.1
 	 * @author Nicholas K. Dionysopoulos
 	 *
-	 * @param string $ciphertext The data to encrypt
-	 * @param string $password   Encryption password
-	 * @param int    $nBits      Encryption key size. Can be 128, 192 or 256
+	 * @param   string  $ciphertext  The data to encrypt
+	 * @param   string  $password    Encryption password
 	 *
-	 * @return string The plaintext
+	 * @return  string  The plaintext
 	 */
-	public function AESDecryptCBC($ciphertext, $password, $nBits = 128)
+	public function AESDecryptCBC($ciphertext, $password)
 	{
-		// standard allows 128/192/256 bit keys
-		if (!($nBits == 128 || $nBits == 192 || $nBits == 256))
+		$adapter = $this->getAdapter();
+
+		if (!$adapter->isSupported())
 		{
 			return false;
 		}
 
-		if (!function_exists('mcrypt_module_open'))
-		{
-			return false;
-		}
-
-		// Try to fetch cached key/iv or create them if they do not exist
-		$lookupKey = $password . '-' . $nBits;
-
-		if (array_key_exists($lookupKey, $this->passwords))
-		{
-			$key = $this->passwords[$lookupKey];
-		}
-		else
-		{
-			// use AES itself to encrypt password to get cipher key (using plain password as source for
-			// key expansion) - gives us well encrypted key
-			$nBytes = $nBits / 8; // no bytes in key
-			$pwBytes = array();
-
-			for ($i = 0; $i < $nBytes; $i++)
-			{
-				$pwBytes[$i] = ord(substr($password, $i, 1)) & 0xff;
-			}
-
-			$key = $this->Cipher($pwBytes, $this->KeyExpansion($pwBytes));
-			$key = array_merge($key, array_slice($key, 0, $nBytes - 16)); // expand key to 16/24/32 bytes long
-			$newKey = '';
-
-			foreach ($key as $int)
-			{
-				$newKey .= chr($int);
-			}
-
-			$key = $newKey;
-
-			$this->passwords[$lookupKey] = $key;
-		}
+		// Get the expanded key from the password
+		$key = $this->expandKey($password);
 
 		// Read the data size
 		$data_size = unpack('V', substr($ciphertext, -4));
@@ -663,11 +597,7 @@ class Encrypt
 		}
 
 		// Decrypt
-		$td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_CBC, '');
-		mcrypt_generic_init($td, $key, $iv);
-
-		$plaintext = mdecrypt_generic($td, substr($ciphertext, 0, $rightStringLimit));
-		mcrypt_generic_deinit($td);
+		$plaintext = $adapter->decrypt($iv . substr($ciphertext, 0, $rightStringLimit), $key);
 
 		// Trim padding, if necessary
 		if (strlen($plaintext) > $data_size)
@@ -686,6 +616,9 @@ class Encrypt
 	 * @param   string  $password  The raw password from which we create an IV in a super bozo way
 	 *
 	 * @return  string  A 16-byte IV string
+	 *
+	 * @since   4.6.0
+	 * @author  Nicholas K. Dionysopoulos
 	 */
 	function createTheWrongIV($password)
 	{
@@ -716,5 +649,81 @@ class Encrypt
 		}
 
 		return $ivs[$key];
+	}
+
+	/**
+	 * Expand the password to an appropriate 128-bit encryption key
+	 *
+	 * @param   string  $password
+	 *
+	 * @return  string
+	 *
+	 * @since   5.2.0
+	 * @author  Nicholas K. Dionysopoulos
+	 */
+	public function expandKey($password)
+	{
+		// Try to fetch cached key or create it if it doesn't exist
+		$nBits     = 128;
+		$lookupKey = md5($password . '-' . $nBits);
+
+		if (array_key_exists($lookupKey, $this->passwords))
+		{
+			$key = $this->passwords[$lookupKey];
+
+			return $key;
+		}
+
+		// use AES itself to encrypt password to get cipher key (using plain password as source for
+		// key expansion) - gives us well encrypted key.
+		$nBytes  = $nBits / 8; // Number of bytes in key
+		$pwBytes = array();
+
+		for ($i = 0; $i < $nBytes; $i++)
+		{
+			$pwBytes[$i] = ord(substr($password, $i, 1)) & 0xff;
+		}
+
+		$key    = $this->Cipher($pwBytes, $this->KeyExpansion($pwBytes));
+		$key    = array_merge($key, array_slice($key, 0, $nBytes - 16)); // expand key to 16/24/32 bytes long
+		$newKey = '';
+
+		foreach ($key as $int)
+		{
+			$newKey .= chr($int);
+		}
+
+		$key = $newKey;
+
+		$this->passwords[$lookupKey] = $key;
+
+		return $key;
+	}
+
+	/**
+	 * Returns the correct AES-128 CBC encryption adapter
+	 *
+	 * @return  AdapterInterface
+	 *
+	 * @since   5.2.0
+	 * @author  Nicholas K. Dionysopoulos
+	 */
+	public function getAdapter()
+	{
+		static $adapter = null;
+
+		if (is_object($adapter) && ($adapter instanceof AdapterInterface))
+		{
+			return $adapter;
+		}
+
+		$adapter = new OpenSSL();
+
+		if (!$adapter->isSupported())
+		{
+			$adapter = new Mcrypt();
+		}
+
+		return $adapter;
 	}
 }

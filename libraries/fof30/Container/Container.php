@@ -602,6 +602,11 @@ class Container extends ContainerBase
 		     !($this['input'] instanceof \FOF30\Input\Input) ||
 		     !($this['input'] instanceof \JInput))
 		) {
+			if (empty($this['input']))
+			{
+				$this['input'] = array();
+			}
+
 			// This swap is necessary to prevent infinite recursion
 			$this['rawInputData'] = array_merge($this['input']);
 			unset($this['input']);

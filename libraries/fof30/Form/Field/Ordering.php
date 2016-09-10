@@ -166,6 +166,16 @@ class Ordering extends \JFormField implements FieldInterface
 
 		$class = isset($this->class) ? $this->class : 'input-mini';
 		$icon  = isset($this->element['icon']) ? $this->element['icon'] : 'icon-menu';
+		$dnd = isset($this->element['dragndrop']) ? (string) $this->element['dragndrop'] : 'notbroken';
+
+		if (strtolower($dnd) == 'notbroken')
+		{
+			$dnd = !version_compare(JVERSION, '3.5.0', 'ge');
+		}
+		else
+		{
+			$dnd = in_array(strtolower($dnd), array('1', 'true', 'yes', 'on', 'enabled'), true);
+		}
 
 		$html = '';
 
@@ -204,13 +214,28 @@ class Ordering extends \JFormField implements FieldInterface
 				$orderClass = $ordering ? 'order-enabled' : 'order-disabled';
 
 				$html .= '<div class="' . $orderClass . '">';
-				$html .= '<span class="sortable-handler ' . $disableClassName . '" title="' . $disabledLabel . '" rel="tooltip">';
-				$html .= '<i class="' . $icon . '"></i>';
-				$html .= '</span>';
+
+				if ($dnd)
+				{
+					$html .= '<span class="sortable-handler ' . $disableClassName . '" title="' . $disabledLabel . '" rel="tooltip">';
+					$html .= '<span class="' . $icon . '"></span>';
+					$html .= '</span>';
+				}
 
 				if ($ordering)
 				{
-					$html .= '<input type="text" name="order[]" size="5" class="' . $class . ' text-area-order" value="' . $this->value . '" />';
+					// Joomla! 3.5 and later: drag and drop reordering is broken when the ordering field is not hidden
+					// because some idiot submitted that code and some moron committed it. I tried to file a PR to fix
+					// it and got the reply "can't test, won't test". OK, then. You retarded bonobos blindly accepted
+					// code which did the EXACT OPPOSITE of what it promised and broke b/c. However, you won't accept
+					// the fix to that shit from someone who knows how Joomla! works and wasted 2 hours of his time to
+					// track down your idiocy, fix it and explain why you retarded monkeys cocked it up. Fucking morons!
+					$joomla35IsBroken = version_compare(JVERSION, '3.5.0', 'ge') ? 'style="display: none"': '';
+
+					// When the developer has disabled Drag and Drop we will show the field regardless
+					$joomla35IsBroken = $dnd ? $joomla35IsBroken : '';
+
+					$html .= '<input type="text" name="order[]" ' . $joomla35IsBroken . ' size="5" class="' . $class . ' text-area-order" value="' . $this->value . '" />';
 				}
 
 				$html .= '</div>';

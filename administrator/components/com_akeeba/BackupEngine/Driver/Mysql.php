@@ -782,7 +782,7 @@ class Mysql extends Base
 		if ($enable_entities)
 		{
 			// 1. Stored procedures
-			$sql = "SHOW PROCEDURE STATUS WHERE " . $this->quoteName('Db') . "=" . $this->Quote($this->_database);
+			$sql = "SHOW PROCEDURE STATUS WHERE " . $this->quoteName('Db') . "=" . $this->quote($this->_database);
 			$this->setQuery($sql);
 
 			try
@@ -808,7 +808,7 @@ class Mysql extends Base
 			}
 
 			// 2. Stored functions
-			$sql = "SHOW FUNCTION STATUS WHERE " . $this->quoteName('Db') . "=" . $this->Quote($this->_database);
+			$sql = "SHOW FUNCTION STATUS WHERE " . $this->quoteName('Db') . "=" . $this->quote($this->_database);
 			$this->setQuery($sql);
 
 			try

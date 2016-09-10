@@ -127,7 +127,15 @@ class Dispatcher extends BaseDispatcher
 			// Maybe the tables are not installed?
 			/** @var ControlPanel $cPanelModel */
 			$cPanelModel = $this->container->factory->model('ControlPanel')->tmpInstance();
-			$cPanelModel->checkAndFixDatabase();
+
+			try
+			{
+				$cPanelModel->checkAndFixDatabase();
+			}
+			catch (\RuntimeException $e)
+			{
+				// The update is stuck. We will display a warning in the Control Panel
+			}
 
 			$msg = \JText::_('COM_AKEEBA_CONTROLPANEL_MSG_REBUILTTABLES');
 			$app = \JFactory::getApplication();
@@ -148,6 +156,7 @@ class Dispatcher extends BaseDispatcher
 
 		// Load the utils helper library
 		Platform::getInstance()->load_version_defines();
+		Platform::getInstance()->apply_quirk_definitions();
 
 		// Make sure we have a version loaded
 		@include_once($this->container->backEndPath . '/components/com_akeeba/version.php');
@@ -218,11 +227,34 @@ class Dispatcher extends BaseDispatcher
 
 		if ($lastVersion != AKEEBA_VERSION)
 		{
-			$model->checkAndFixDatabase();
-			$this->container->session->set('magicParamsUpdateVersion', AKEEBA_VERSION, 'com_akeeba');
+			try
+			{
+				$model->checkAndFixDatabase();
+				$this->container->session->set('magicParamsUpdateVersion', AKEEBA_VERSION, 'com_akeeba');
+			}
+			catch (\RuntimeException $e)
+			{
+				// The update is stuck. We will display a warning in the Control Panel
+			}
 		}
 
 		// Update magic parameters if necessary
 		$model->updateMagicParameters();
+	}
+
+	public function onAfterDispatch()
+	{
+		// See the after_render.php file for an explanation. TL;DR: CloudFlare Rocket Loader is a broken pile of crap.
+		if ($this->input->get('format', 'html') != 'html')
+		{
+			return;
+		}
+
+		if (!function_exists('akeebaBackupOnAfterRenderToFixBrokenCloudFlareRocketLoader'))
+		{
+			require_once __DIR__ . '/after_render.php';
+		}
+
+		JFactory::getApplication()->registerEvent('onAfterRender', 'akeebaBackupOnAfterRenderToFixBrokenCloudFlareRocketLoader');
 	}
 }

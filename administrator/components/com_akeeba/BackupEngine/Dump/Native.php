@@ -91,6 +91,7 @@ class Native extends Part
 			$this->_engine->setup($this->_parametersArray);
 			$this->_engine->callStage('_prepare');
 			$this->setState($this->_engine->getState(), $this->_engine->getError());
+			$this->propagateFromObject($this->_engine);
 		}
 	}
 
@@ -98,11 +99,13 @@ class Native extends Part
 	{
 		$this->_engine->callStage('_finalize');
 		$this->setState($this->_engine->getState(), $this->_engine->getError());
+		$this->propagateFromObject($this->_engine);
 	}
 
 	protected function _run()
 	{
 		$this->_engine->callStage('_run');
+		$this->propagateFromObject($this->_engine);
 		$this->setState($this->_engine->getState(), $this->_engine->getError());
 		$this->setStep($this->_engine->getStep());
 		$this->setSubstep($this->_engine->getSubstep());

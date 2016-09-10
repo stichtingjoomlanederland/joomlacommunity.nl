@@ -83,6 +83,9 @@ class Html extends BaseView
 	/** @var   string  FTP passive mode (default is true) */
 	public $ftpPassive = true;
 
+	/** @var   int     Forces the transfer by skipping some checks on the target site */
+	public $force = 0;
+
 	/**
 	 * Translations to pass to the view
 	 *
@@ -112,6 +115,9 @@ class Html extends BaseView
 		$this->ftpPrivateKey    = $session->get('transfer.ftpPrivateKey', null, 'akeeba');
 		$this->ftpDirectory     = $session->get('transfer.ftpDirectory', null, 'akeeba');
 		$this->ftpPassive       = $session->get('transfer.ftpPassive', 1, 'akeeba');
+
+		// We get this option from the request
+		$this->force = $this->input->getInt('force', 0 );
 
 		if (!empty($this->latestBackup))
 		{
@@ -147,7 +153,7 @@ class Html extends BaseView
 		$js = <<< JS
 akeeba.jQuery(document).ready(function(){
 	// AJAX URL endpoint
-	akeeba_ajax_url = 'index.php?option=com_akeeba&view=Transfer&format=raw';
+	akeeba.System.params.AjaxURL = 'index.php?option=com_akeeba&view=Transfer&format=raw&force={$this->force}';
 
 	// Last results of new site URL processing
 	akeeba.Transfer.lastUrl = '{$this->newSiteUrl}';

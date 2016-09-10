@@ -7,69 +7,101 @@
 
 namespace FOF30\Encrypt;
 
+use FOF30\Encrypt\AesAdapter\AdapterInterface;
+use FOF30\Encrypt\AesAdapter\Mcrypt;
+use FOF30\Encrypt\AesAdapter\OpenSSL;
 use FOF30\Utils\Phpfunc;
 
 defined('_JEXEC') or die;
 
 /**
- * A simple implementation of AES-128, AES-192 and AES-256 encryption using the
- * high performance mcrypt library.
+ * A simple abstraction to AES encryption
+ *
+ * Usage:
+ *
+ * // Create a new instance. The key is ignored – only use it if you have legacy encrypted content you need to decrypt
+ * $aes = new Aes('ignored');
+ * // Set the password. Do not use uf you have legacy encrypted content you need to decrypt
+ * $aes->setPassword('yourRealPassword');
+ * // Encrypt something.
+ * $cipherText = $aes->encryptString($sourcePlainText);
+ * // Decypt something
+ * $plainText = $aes->decryptString($sourceCipherText);
  */
 class Aes
 {
-	/** @var   string  The AES cipher to use (this is an mcrypt identifier, not the bit strength) */
-	private $cipherType = 0;
-
-	/** @var   string  Cipher mode. Can be CBC or ECB. We recommend using CBC */
-	private $cipherMode = 0;
-
-	/** @var   string  The cipher key (password) */
-	private $keyString = '';
+	/**
+	 * The cipher key.
+	 *
+	 * @var   string
+	 */
+	private $key = '';
 
 	/**
-	 * Initialise the AES encryption object
+	 * The AES encryption adapter in use.
 	 *
-	 * @param   string  $key       The encryption key (password). It can be a raw key (32 bytes) or a passphrase.
-	 * @param   int     $strength  Bit strength (128, 192 or 256)
-	 * @param   string  $mode      Ecnryption mode. Can be ebc or cbc. We recommend using cbc.
+	 * @var  AdapterInterface
 	 */
-	public function __construct($key, $strength = 256, $mode = 'cbc')
+	private $adapter;
+
+	/**
+	 * Initialise the AES encryption object.
+	 *
+	 * Note: If the key is not 16 bytes this class will do a stupid key expansion for legacy reasons (produce the
+	 * SHA-256 of the key string and throw away half of it).
+	 *
+	 * @param   string   $key       The encryption key (password). It can be a raw key (16 bytes) or a passphrase.
+	 * @param   int      $strength  Bit strength (128, 192 or 256) – ALWAYS USE 128 BITS. THIS PARAMETER IS DEPRECATED.
+	 * @param   string   $mode      Encryption mode. Can be ebc or cbc. We recommend using cbc.
+	 * @param   Phpfunc  $phpfunc   For testing
+	 */
+	public function __construct($key, $strength = 128, $mode = 'cbc', Phpfunc $phpfunc = null)
 	{
-		$this->keyString = $key;
+		$this->adapter = new OpenSSL();
 
-		switch ($strength)
+		if (!$this->adapter->isSupported($phpfunc))
 		{
-			case 256:
-			default:
-				$this->cipherType = MCRYPT_RIJNDAEL_256;
-				break;
-
-			case 192:
-				$this->cipherType = MCRYPT_RIJNDAEL_192;
-				break;
-
-			case 128:
-				$this->cipherType = MCRYPT_RIJNDAEL_128;
-				break;
+			$this->adapter = new Mcrypt();
 		}
 
-		switch (strtoupper($mode))
-		{
-			case 'ECB':
-				$this->cipherMode = MCRYPT_MODE_ECB;
-				break;
+		$this->adapter->setEncryptionMode($mode, $strength);
+		$this->setPassword($key, true);
+	}
 
-			case 'CBC':
-				$this->cipherMode = MCRYPT_MODE_CBC;
-				break;
+	/**
+	 * Sets the password for this instance.
+	 *
+	 * WARNING: Do not use the legacy mode, it's insecure
+	 *
+	 * @param   string $password   The password (either user-provided password or binary encryption key) to use
+	 * @param   bool   $legacyMode True to use the legacy key expansion. We recommend against using it.
+	 */
+	public function setPassword($password, $legacyMode = false)
+	{
+		$this->key = $password;
+
+		$passLength = strlen($password);
+
+		if (function_exists('mb_strlen'))
+		{
+			$passLength = mb_strlen($password, 'ASCII');
+		}
+
+		// Legacy mode was doing something stupid, requiring a key of 32 bytes. DO NOT USE LEGACY MODE!
+		if ($legacyMode && ($passLength != 32))
+		{
+			// Legacy mode: use the sha256 of the password
+			$this->key = hash('sha256', $password, true);
+			// We have to trim or zero pad the password (we end up throwing half of it away in Rijndael-128 / AES...)
+			$this->key = $this->adapter->resizeKey($this->key, $this->adapter->getBlockSize());
 		}
 	}
 
 	/**
 	 * Encrypts a string using AES
 	 *
-	 * @param   string  $stringToEncrypt  The plaintext to encrypt
-	 * @param   bool    $base64encoded    Should I Base64-encode the result?
+	 * @param   string $stringToEncrypt The plaintext to encrypt
+	 * @param   bool   $base64encoded   Should I Base64-encode the result?
 	 *
 	 * @return   string  The cryptotext. Please note that the first 16 bytes of
 	 *                   the raw string is the IV (initialisation vector) which
@@ -77,34 +109,12 @@ class Aes
 	 */
 	public function encryptString($stringToEncrypt, $base64encoded = true)
 	{
-		if (strlen($this->keyString) != 32)
-		{
-			$key = hash('sha256', $this->keyString, true);
-		}
-		else
-		{
-			$key = $this->keyString;
-		}
+		$blockSize = $this->adapter->getBlockSize();
+		$randVal   = new Randval();
+		$iv        = $randVal->generate($blockSize);
 
-		// Set up the IV (Initialization Vector)
-		$iv_size = mcrypt_get_iv_size($this->cipherType, $this->cipherMode);
-		$iv = mcrypt_create_iv($iv_size, MCRYPT_DEV_URANDOM);
-
-		if (empty($iv))
-		{
-			$iv = mcrypt_create_iv($iv_size, MCRYPT_DEV_RANDOM);
-		}
-
-		if (empty($iv))
-		{
-			$iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
-		}
-
-		// Encrypt the data
-		$cipherText = mcrypt_encrypt($this->cipherType, $key, $stringToEncrypt, $this->cipherMode, $iv);
-
-		// Prepend the IV to the ciphertext
-		$cipherText = $iv . $cipherText;
+		$key        = $this->getExpandedKey($blockSize, $iv);
+		$cipherText = $this->adapter->encrypt($stringToEncrypt, $key, $iv);
 
 		// Optionally pass the result through Base64 encoding
 		if ($base64encoded)
@@ -119,36 +129,26 @@ class Aes
 	/**
 	 * Decrypts a ciphertext into a plaintext string using AES
 	 *
-	 * @param   string  $stringToDecrypt  The ciphertext to decrypt. The first 16 bytes of the raw string must contain the IV (initialisation vector).
-	 * @param   bool    $base64encoded    Should I Base64-decode the data before decryption?
+	 * @param   string $stringToDecrypt The ciphertext to decrypt. The first 16 bytes of the raw string must contain
+	 *                                  the IV (initialisation vector).
+	 * @param   bool   $base64encoded   Should I Base64-decode the data before decryption?
 	 *
 	 * @return   string  The plain text string
 	 */
 	public function decryptString($stringToDecrypt, $base64encoded = true)
 	{
-		if (strlen($this->keyString) != 32)
-		{
-			$key = hash('sha256', $this->keyString, true);
-		}
-		else
-		{
-			$key = $this->keyString;
-		}
-
 		if ($base64encoded)
 		{
 			$stringToDecrypt = base64_decode($stringToDecrypt);
 		}
 
-		// Calculate the IV size
-		$iv_size = mcrypt_get_iv_size($this->cipherType, $this->cipherMode);
-
 		// Extract IV
-		$iv = substr($stringToDecrypt, 0, $iv_size);
-		$stringToDecrypt = substr($stringToDecrypt, $iv_size);
+		$iv_size = $this->adapter->getBlockSize();
+		$iv      = substr($stringToDecrypt, 0, $iv_size);
+		$key     = $this->getExpandedKey($iv_size, $iv);
 
 		// Decrypt the data
-		$plainText = mcrypt_decrypt($this->cipherType, $key, $stringToDecrypt, $this->cipherMode, $iv);
+		$plainText = $this->adapter->decrypt($stringToDecrypt, $key);
 
 		return $plainText;
 	}
@@ -165,42 +165,14 @@ class Aes
 			$phpfunc = new Phpfunc();
 		}
 
-		if (!$phpfunc->function_exists('mcrypt_get_key_size'))
+		$adapter = new Mcrypt();
+
+		if (!$adapter->isSupported($phpfunc))
 		{
-			return false;
+			$adapter = new OpenSSL();
 		}
 
-		if (!$phpfunc->function_exists('mcrypt_get_iv_size'))
-		{
-			return false;
-		}
-
-		if (!$phpfunc->function_exists('mcrypt_create_iv'))
-		{
-			return false;
-		}
-
-		if (!$phpfunc->function_exists('mcrypt_encrypt'))
-		{
-			return false;
-		}
-
-		if (!$phpfunc->function_exists('mcrypt_decrypt'))
-		{
-			return false;
-		}
-
-		if (!$phpfunc->function_exists('mcrypt_list_algorithms'))
-		{
-			return false;
-		}
-
-		if (!$phpfunc->function_exists('hash'))
-		{
-			return false;
-		}
-
-		if (!$phpfunc->function_exists('hash_algos'))
+		if (!$adapter->isSupported($phpfunc))
 		{
 			return false;
 		}
@@ -215,19 +187,7 @@ class Aes
 			return false;
 		}
 
-		$algorightms = $phpfunc->mcrypt_list_algorithms();
-
-		if (!in_array('rijndael-128', $algorightms))
-		{
-			return false;
-		}
-
-		if (!in_array('rijndael-192', $algorightms))
-		{
-			return false;
-		}
-
-		if (!in_array('rijndael-256', $algorightms))
+		if (!$phpfunc->function_exists('hash_algos'))
 		{
 			return false;
 		}
@@ -240,5 +200,84 @@ class Aes
 		}
 
 		return true;
+	}
+
+	/**
+	 * @param $blockSize
+	 * @param $iv
+	 *
+	 * @return string
+	 */
+	public function getExpandedKey($blockSize, $iv)
+	{
+		$key        = $this->key;
+		$passLength = strlen($key);
+
+		if (function_exists('mb_strlen'))
+		{
+			$passLength = mb_strlen($key, 'ASCII');
+		}
+
+		if ($passLength != $blockSize)
+		{
+			$iterations = 1000;
+			$salt       = $this->adapter->resizeKey($iv, 16);
+			$key        = hash_pbkdf2('sha256', $this->key, $salt, $iterations, $blockSize, true);
+		}
+
+		return $key;
+	}
+}
+
+if (!function_exists('hash_pbkdf2'))
+{
+	function hash_pbkdf2($algo, $password, $salt, $count, $length = 0, $raw_output = false)
+	{
+		if (!in_array(strtolower($algo), hash_algos()))
+		{
+			trigger_error(__FUNCTION__ . '(): Unknown hashing algorithm: ' . $algo, E_USER_WARNING);
+		}
+
+		if (!is_numeric($count))
+		{
+			trigger_error(__FUNCTION__ . '(): expects parameter 4 to be long, ' . gettype($count) . ' given', E_USER_WARNING);
+		}
+
+		if (!is_numeric($length))
+		{
+			trigger_error(__FUNCTION__ . '(): expects parameter 5 to be long, ' . gettype($length) . ' given', E_USER_WARNING);
+		}
+
+		if ($count <= 0)
+		{
+			trigger_error(__FUNCTION__ . '(): Iterations must be a positive integer: ' . $count, E_USER_WARNING);
+		}
+
+		if ($length < 0)
+		{
+			trigger_error(__FUNCTION__ . '(): Length must be greater than or equal to 0: ' . $length, E_USER_WARNING);
+		}
+
+		$output      = '';
+		$block_count = $length ? ceil($length / strlen(hash($algo, '', $raw_output))) : 1;
+
+		for ($i = 1; $i <= $block_count; $i++)
+		{
+			$last = $xorsum = hash_hmac($algo, $salt . pack('N', $i), $password, true);
+
+			for ($j = 1; $j < $count; $j++)
+			{
+				$xorsum ^= ($last = hash_hmac($algo, $last, $password, true));
+			}
+
+			$output .= $xorsum;
+		}
+
+		if (!$raw_output)
+		{
+			$output = bin2hex($output);
+		}
+
+		return $length ? substr($output, 0, $length) : $output;
 	}
 }
