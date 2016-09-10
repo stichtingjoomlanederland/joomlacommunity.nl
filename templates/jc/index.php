@@ -64,6 +64,14 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 		</div>
 	</nav>
 
+	<div class="subnav" data-spy="affix" data-offset-top="<?php echo $helper->isHome() ? 0 : 0; ?>" style="margin-top: 0; padding-top: 20px;">
+		<div class="container">
+			<nav class="navbar navbar-sub" role="navigation">
+				<jdoc:include type="modules" name="submenu"/>
+			</nav>
+		</div>
+	</div>
+
 	<div class="pagetitle">
 		<?php if ($this->countModules('slider')) : ?>
 			<jdoc:include type="modules" name="slider"/>
@@ -77,13 +85,6 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 				</div>
 			</div>
 		<?php endif; ?>
-	</div>
-	<div class="subnav" data-spy="affix" data-offset-top="<?php echo $helper->isHome() ? 290 : 90; ?>">
-		<div class="container">
-			<nav class="navbar navbar-sub" role="navigation">
-				<jdoc:include type="modules" name="submenu"/>
-			</nav>
-		</div>
 	</div>
 </div>
 
