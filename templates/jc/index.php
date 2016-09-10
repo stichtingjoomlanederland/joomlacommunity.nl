@@ -172,9 +172,9 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 		<div class="container">
 			<div class="row">
 				<div class="col-12">
-					<p class="" style="float: left;">Copyright © 2008-<?php echo date('Y'); ?> Joomla!Community - Alle rechten
+					<p class="copyright">Copyright &copy; 2008-<?php echo date('Y'); ?> Joomla!Community - Alle rechten
 						voorbehouden</p>
-					<p class="followus" style="float: right;">Volg ons op: <a href="https://www.facebook.com/joomlacommunity/" target="_blank">Facebook</a> - <a href="https://www.linkedin.com/groups/1857791" target="_blank">LinkedIn</a> - <a href="https://twitter.com/joomlacommunity" target="_blank">Twitter</a> - <a href="https://www.flickr.com/groups/joomlacommunity/pool/" target="_blank">Flickr</a></p>
+					<p class="followus">Volg ons op: <a href="https://www.facebook.com/joomlacommunity/" target="_blank">Facebook</a> - <a href="https://www.linkedin.com/groups/1857791" target="_blank">LinkedIn</a> - <a href="https://twitter.com/joomlacommunity" target="_blank">Twitter</a> - <a href="https://www.flickr.com/groups/joomlacommunity/pool/" target="_blank">Flickr</a></p>
 					<jdoc:include type="modules" name="copyright"/>
 				</div>
 			</div>
