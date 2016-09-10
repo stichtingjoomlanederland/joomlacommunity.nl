@@ -150,19 +150,19 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 	<div class="footer-navs">
 		<div class="container">
 			<div class="row">
-				<div class="col-4">
+				<div class="col-sm-12 col-md-12 col-lg-4">
 					<jdoc:include type="modules" name="footer-1" style="xhtml"/>
 				</div>
-				<div class="col-2">
+				<div class="col-sm-12 col-md-3 col-lg-2">
 					<jdoc:include type="modules" name="footer-2" style="xhtml"/>
 				</div>
-				<div class="col-2">
+				<div class="col-sm-12  col-md-3  col-lg-2 ">
 					<jdoc:include type="modules" name="footer-3" style="xhtml"/>
 				</div>
-				<div class="col-2">
+				<div class="col-sm-12  col-md-3  col-lg-2 ">
 					<jdoc:include type="modules" name="footer-4" style="xhtml"/>
 				</div>
-				<div class="col-2">
+				<div class="col-sm-12  col-md-3  col-lg-2 ">
 					<jdoc:include type="modules" name="footer-5" style="xhtml"/>
 				</div>
 			</div>
