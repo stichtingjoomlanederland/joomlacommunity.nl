@@ -79,7 +79,7 @@ jQuery(document).ready(function (){
 </script>
 
 <div id="rs_event_show">
-
+<div class="col-md-12">
 
 	<!-- Moved from below Share Buttons::ConConNL-->
 	<!-- Created DIV to make Bootstrap Column:ConConNL-->
@@ -424,13 +424,15 @@ jQuery(document).ready(function (){
 	<div class="rs_clear"></div>
 	<?php } ?>
 	<!--//end FB / Twitter / Gplus sharing -->
-
+	</div>
 	</div>
 
 	<!-- Google maps -->
 	<?php if (!empty($this->options['show_map']) && !empty($event->coordinates) && rseventsproHelper::getConfig('enable_google_maps','int')) { ?>
-		<div id="map-canvas" style="width: 100%; height: 200px;"></div>
+		<div class="col-md-12">
+		<div id="map-canvas" class="col-md-12" style="width: 100%; height: 200px;"></div>
 		<br />
+		</div>
 	<?php } ?>
 	<!--//end Google maps -->
 
