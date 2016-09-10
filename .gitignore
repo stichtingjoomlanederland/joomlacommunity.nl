@@ -50,3 +50,6 @@ administrator/components/com_akeeba/backup/
 # RSDownloads
 rsdownloads/*
 !rsdownloads/.htaccess
+
+# CSS files which are compiled
+/templates/jc/css/template.css

@@ -384,22 +384,22 @@ jQuery(document).ready(function (){
 	<!-- FB / Twitter / Gplus sharing -->
 	<?php if (!empty($this->options['enable_fb_like']) || !empty($this->options['enable_twitter']) || !empty($this->options['enable_gplus']) || !empty($this->options['enable_linkedin'])) { ?>
 	<div class="rs_clear"></div>
-	<div class="rs_sharing">	
+	<div class="row rs_sharing">
 		<?php if (!empty($this->options['enable_fb_like'])) { ?>
-			<div class="rsepro-social" id="rsep_fb_like">
+			<div class="pull-left" id="rsep_fb_like">
 				<div class="fb-like" data-href="<?php echo rseventsproHelper::shareURL($event->id,$event->name); ?>" data-layout="button_count" data-action="like" data-show-faces="false" data-share="true"></div>
 			</div>
 		<?php } ?>
 
 		<?php if (!empty($this->options['enable_twitter'])) { ?>
-			<div class="rsepro-social" id="rsep_twitter">
+			<div class="pull-left" id="rsep_twitter">
 				<a href="https://twitter.com/share" class="twitter-share-button" data-text="<?php echo $this->escape($event->name); ?>">Tweet</a>
 				<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 			</div>
 		<?php } ?>
 		
 		<?php if (!empty($this->options['enable_gplus'])) { ?>
-			<div class="rsepro-social" id="rsep_gplus">
+			<div class="pull-left" id="rsep_gplus">
 				<!-- Place this tag where you want the +1 button to render -->
 				<g:plusone size="medium"></g:plusone>
 
@@ -415,7 +415,7 @@ jQuery(document).ready(function (){
 		<?php } ?>
 		
 		<?php if (!empty($this->options['enable_linkedin'])) { ?>
-			<div class="rsepro-social" id="rsep_linkedin">
+			<div class="pull-left" id="rsep_linkedin">
 				<script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
 				<script type="IN/Share" data-counter="right"></script>
 			</div>
