@@ -305,6 +305,7 @@ class ThisTemplateHelper
 		unset($this->doc->_scripts[$this->doc->baseurl . '/media/system/js/mootools-core.js']);
 		unset($this->doc->_scripts[$this->doc->baseurl . '/media/system/js/mootools-more.js']);
 		unset($this->doc->_scripts[$this->doc->baseurl . '/media/system/js/caption.js']);
+		unset($this->doc->_scripts[$this->doc->baseurl . '/media/system/js/core.js']);
 		unset($this->doc->_scripts[$this->doc->baseurl . '/media/system/js/modal.js']);
 		//unset($this->doc->_scripts[$this->doc->baseurl . '/media/jui/js/jquery.min.js']);
 		unset($this->doc->_scripts[$this->doc->baseurl . '/media/jui/js/jquery-noconflict.js']);
@@ -324,48 +325,7 @@ class ThisTemplateHelper
 				unset($this->doc->_script['text/javascript']);
 			}
 		}
-
-        $this->fixGoogleMapsScripts();
 	}
-
-    public function fixGoogleMapsScripts()
-    {
-        $googleMaps = false;
-        $libraries = [];
-
-        foreach ($this->doc->_scripts as $scriptName => $scriptArgs)
-        {
-            if (!stristr($scriptName, 'maps.google.com/maps/api/js'))
-            {
-                continue;
-            }
-
-            $googleMaps = true;
-
-            if (preg_match('/libraries=(.*)/', $scriptName, $match))
-            {
-                $matchLibraries = explode(',', $match[1]);
-                $libraries = array_merge($matchLibraries, $libraries);
-            }
-
-            unset($this->doc->_scripts[$scriptName]);
-        }
-
-        if ($googleMaps === false)
-        {
-            return;
-        }
-
-        $googleMapsScript = 'https://maps.google.com/maps/api/js';
-       
-        if (!empty($libraries))
-        {
-            $googleMapsScript .= '?libraries=' . implode(',', $libraries);
-        }
-
-        $newScript = array($googleMapsScript => $scriptArgs);
-        $this->doc->_scripts = array_merge($newScript, $this->doc->_scripts);
-    }
 
 	/**
 	 * unset Squeezebox
