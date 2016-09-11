@@ -1,6 +1,8 @@
 # Joomla System Files (i.e. cache, etc.) #
 /administrator/cache
 /cache
+/components/com_rsform/uploads/
+!/components/com_rsform/uploads/index.html
 /images
 /logs
 /tmp
