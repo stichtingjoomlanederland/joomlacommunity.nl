@@ -195,7 +195,7 @@ use Akeeba\Engine\Platform;
 				<span class="icon-stack icon-white"></span>
 				<?php echo \JText::_('COM_AKEEBA_BUADMIN'); ?>
 			</a>
-			<a class="btn" id="ab-viewlog-success" href="<?php echo JUri::base() ?>index.php?option=com_akeeba&view=Log">
+			<a class="btn" id="ab-viewlog-success" href="<?php echo JUri::base() ?>index.php?option=com_akeeba&view=Log&latest=1">
 				<span class="icon-list"></span>
 				<?php echo \JText::_('COM_AKEEBA_LOG'); ?>
 			</a>
@@ -277,7 +277,7 @@ use Akeeba\Engine\Platform;
 					<?php echo \JText::sprintf('COM_AKEEBA_BACKUP_TEXT_SOLVEISSUE_CORE', 'https://www.akeebabackup.com/subscribe.html?utm_source=akeeba_backup&utm_campaign=backuperrorcore','https://www.akeebabackup.com/support.html?utm_source=akeeba_backup&utm_campaign=backuperrorcore'); ?>
 					<?php endif; ?>
 
-					<?php echo \JText::sprintf('COM_AKEEBA_BACKUP_TEXT_SOLVEISSUE_LOG', 'index.php?option=com_akeeba&view=Log'); ?>
+					<?php echo \JText::sprintf('COM_AKEEBA_BACKUP_TEXT_SOLVEISSUE_LOG', 'index.php?option=com_akeeba&view=Log&latest=1'); ?>
 				</p>
 			</div>
 
@@ -292,7 +292,7 @@ use Akeeba\Engine\Platform;
 				<span class="icon-book icon-white"></span>
 				<?php echo \JText::_('COM_AKEEBA_BACKUP_TROUBLESHOOTINGDOCS'); ?>
 			</button>
-			<a class="btn" id="ab-viewlog-error" href="index.php?option=com_akeeba&view=Log">
+			<a class="btn" id="ab-viewlog-error" href="index.php?option=com_akeeba&view=Log&latest=1">
 				<span class="icon-list"></span>
 				<?php echo \JText::_('COM_AKEEBA_LOG'); ?>
 			</a>

@@ -89,7 +89,10 @@ class SecureSettings
 	 */
 	public function preferredEncryption()
 	{
-		if (!function_exists('mcrypt_module_open'))
+		$aes     = new Encrypt();
+		$adapter = $aes->getAdapter();
+
+		if (!$adapter->isSupported())
 		{
 			return 'CTR128';
 		}
@@ -133,7 +136,7 @@ class SecureSettings
 
 		if ($encryption == 'AES128')
 		{
-			$encrypted = Factory::getEncryption()->AESEncryptCBC($settingsINI, $key, 128);
+			$encrypted = Factory::getEncryption()->AESEncryptCBC($settingsINI, $key);
 
 			if (empty($encrypted))
 			{
@@ -199,7 +202,7 @@ class SecureSettings
 			default:
 			case 'AES128':
 				$encrypted = base64_decode($encrypted);
-				$decrypted = Factory::getEncryption()->AESDecryptCBC($encrypted, $key, 128);
+				$decrypted = Factory::getEncryption()->AESDecryptCBC($encrypted, $key);
 				break;
 
 			case 'CTR128':

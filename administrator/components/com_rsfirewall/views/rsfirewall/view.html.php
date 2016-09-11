@@ -77,10 +77,6 @@ class RSFirewallViewRsfirewall extends JViewLegacy
 
 	protected function renderMap()
 	{
-
-		if($this->get('CountryBlocking') && $this->get('GeoIpStatus')){
-			return true;
-		}
-		return false;
+		return ($this->get('CountryBlocking') && $this->get('GeoIPStatus'));
 	}
 }

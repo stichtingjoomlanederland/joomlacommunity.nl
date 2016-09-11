@@ -19,6 +19,9 @@ use JFactory;
 
 class Dispatcher extends AdminDispatcher
 {
+	/** @var   string  The name of the default view, in case none is specified */
+	public $defaultView = 'Backup';
+
 	/**
 	 * Dispatcher constructor. Overridden to set up a different default view and migrated views map than the back-end.
 	 *

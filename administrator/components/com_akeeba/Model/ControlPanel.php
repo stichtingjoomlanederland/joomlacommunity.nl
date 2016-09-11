@@ -279,7 +279,7 @@ class ControlPanel extends Model
 		}
 
 		// Loop all profiles and encrypt their settings
-		/** @var Akeeba\Backup\Admin\Model\Profiles $profilesModel */
+		/** @var \Akeeba\Backup\Admin\Model\Profiles $profilesModel */
 		$profilesModel = $this->container->factory->model('Profiles')->tmpInstance();
 		$profiles      = $profilesModel->get(true);
 		$db            = $this->container->db;
@@ -410,17 +410,38 @@ class ControlPanel extends Model
 	/**
 	 * Checks the database for missing / outdated tables and runs the appropriate SQL scripts if necessary.
 	 *
+	 * @throws  RuntimeException    If the previous database update is stuck
+	 *
 	 * @return  $this
 	 */
 	public function checkAndFixDatabase()
 	{
+		$params = $this->container->params;
+
+		// First of all let's check if we are already updating
+		$stuck = $params->get('updatedb', 0);
+
+		if ($stuck)
+		{
+			throw new RuntimeException('Previous database update is flagged as stuck');
+		}
+
+		// Then set the flag
+		$params->set('updatedb', 1);
+		$params->save();
+
 		// Install or update database
 		$dbInstaller = new Installer(
 			$this->container->db,
 			JPATH_ADMINISTRATOR . '/components/com_akeeba/sql/xml'
 
 		);
+
 		$dbInstaller->updateSchema();
+
+		// And finally remove the flag if everything went fine
+		$params->set('updatedb', null);
+		$params->save();
 
 		return $this;
 	}

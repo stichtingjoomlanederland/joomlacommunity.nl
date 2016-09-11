@@ -145,6 +145,13 @@ class Html extends BaseView
 	public $countWarnings = 0;
 
 	/**
+	 * Do I have stuck updates pending?
+	 *
+	 * @var  bool
+	 */
+	public $stuckUpdates = false;
+
+	/**
 	 * Executes before displaying the control panel page
 	 */
 	public function onBeforeMain()
@@ -159,7 +166,7 @@ class Html extends BaseView
 		{
 			/** @var UsageStatistics $usageStatsModel */
 			$usageStatsModel   = $this->container->factory->model('UsageStatistics')->tmpInstance();
-			
+
 			if (
 				is_object($usageStatsModel)
 				&& class_exists('Akeeba\\Backup\\Admin\\Model\\UsageStatistics')
@@ -193,6 +200,7 @@ class Html extends BaseView
 		$this->formattedChangelog           = $this->formatChangelog();
 		$this->promptForConfigurationWizard = Factory::getConfiguration()->get('akeeba.flag.confwiz', 0) == 0;
 		$this->countWarnings                = count(Factory::getConfigurationChecks()->getDetailedStatus());
+		$this->stuckUpdates                 = ($this->container->params->get('updatedb', 0) == 1);
 
 		// Load the version constants
 		Platform::getInstance()->load_version_defines();

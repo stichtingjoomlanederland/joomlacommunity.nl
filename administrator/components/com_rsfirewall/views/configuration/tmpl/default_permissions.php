@@ -18,3 +18,26 @@ foreach ($this->fields as $field) {
 	$this->field->showField('', $field->input);
 }
 $this->field->endFieldset();
+?>
+<script type="text/javascript">
+function getUrlParam(variable) {
+	switch (variable)
+	{
+		default:
+			return false;
+		break;
+		
+		case 'option':
+			return 'com_config';
+		break;
+		
+		case 'view':
+			return 'component';
+		break;
+		
+		case 'component':
+			return 'com_rsfirewall';
+		break;
+	}
+}
+</script>

@@ -52,7 +52,17 @@ class RSFirewallControllerConfiguration extends JControllerLegacy
 		
 		JFactory::getApplication()->close();
 	}
-	
+
+	public function downloadGeoIPDatabase(){
+		$model 		= $this->getModel('Configuration');
+		$version 	= JFactory::getApplication()->input->getCmd('version');
+
+		echo json_encode($model->downloadGeoIPDatabase($version));
+
+		jexit();
+	}
+
+
 	public function save() {
 		JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
 		

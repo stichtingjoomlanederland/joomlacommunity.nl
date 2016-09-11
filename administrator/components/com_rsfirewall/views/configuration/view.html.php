@@ -36,14 +36,8 @@ class RSFirewallViewConfiguration extends JViewLegacy
 		$this->form		 = $this->get('Form');
 		$this->fieldsets = $this->form->getFieldsets();
 		
-		// geoip db
-		$model = $this->getModel('configuration');
-		$this->geoip = (object) array(
-			'uploaded' 	=> $this->get('isGeoIPUploaded'),
-			'path' 		=> $this->get('geoIPPath'),
-			'native'	=> $model->isGeoIPNative(),
-			'nativedb'	=> $model->hasGeoIPNativeDatabase()
-		);
+		// GeoIP info
+		$this->geoip = $this->get('GeoIPInfo');
 		
 		// config
 		$this->config	= $this->get('Config');

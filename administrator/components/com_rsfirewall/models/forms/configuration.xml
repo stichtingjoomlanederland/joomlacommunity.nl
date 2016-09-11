@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>  
 	<fieldset name="country_block" label="COM_RSFIREWALL_BLOCK_COUNTRY" description="COM_RSFIREWALL_BLOCK_COUNTRY_DESC">
-		<field name="geoip_upload" label="COM_RSFIREWALL_UPLOAD_GEOIP_DB" description="COM_RSFIREWALL_UPLOAD_GEOIP_DB_DESC" type="file" size="40" />
 		<field name="blocked_continents" label="COM_RSFIREWALL_SELECT_CONTINENT_TO_BLOCK" description="COM_RSFIREWALL_SELECT_CONTINENT_TO_BLOCK_DESC" type="checkboxes" multiple="multiple">
 			<option onchange="checkCountries(this);" value="--">COM_RSFIREWALL_OTHER</option>
 			<option onchange="checkCountries(this);" value="AF">Africa</option>

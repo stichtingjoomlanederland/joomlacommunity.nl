@@ -103,4 +103,5 @@ INSERT INTO [#__rsfirewall_signatures] ([signature], [type], [reason]) VALUES
 ('(\\[(SHELL|ZAD)\\ID])', 'regexs', 'PHP Injection - Mass mailer'),
 ('die\\(md5\\(\\''[a-z0-9_]+\\''\\)\\);', 'regexis', 'PHP Injection - Shell'),
 ('(@(\\$[a-z0-9]+\\(){4,})', 'regexis', 'PHP Injection - Obfuscated function call'),
-('([a-z0-9_]+\\/\\*(.*?)\\*\\/\\()', 'regex', 'PHP Injection - Obfuscated function call');
+('([a-z0-9_]+\\/\\*(.*?)\\*\\/\\()', 'regex', 'PHP Injection - Obfuscated function call'),
+('@\\$[a-zA-Z0-9]+\\(\\$_(POST|GET|REQUEST|COOKIE)\\[.*', 'regex', 'Possible PHP Injection - obfuscated code execution from Superglobal variable.');

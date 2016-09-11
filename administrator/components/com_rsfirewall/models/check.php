@@ -792,10 +792,7 @@ class RSFirewallModelCheck extends JModelLegacy
 	public function checkGoogleSafeBrowsing(){
 		require_once JPATH_ADMINISTRATOR.'/components/com_rsfirewall/helpers/google-safe-browsing.php';
 
-		$config = RSFirewallConfig::getInstance();
-		$api = $config->get('google_safebrowsing_api_key');
-
-		$check = new RSFirewallGoogleSafeBrowsing($api);
+		$check = RSFirewallGoogleSafeBrowsing::getInstance();
 		return $check->check();
 
 	}

@@ -430,7 +430,7 @@ class Joomla3x extends BasePlatform
 		$hasPdo = class_exists('\PDO');
 		$hasMySQL = function_exists('mysql_connect');
 		$hasMySQLi = function_exists('mysqli_connect');
-		
+
 		// Prime with a default return value, favoring PDO MySQL if available
 		$defaultDriver = '\\Akeeba\\Engine\\Driver\\Pdomysql';
 
@@ -1105,5 +1105,41 @@ class Joomla3x extends BasePlatform
 	public function redirect($url)
 	{
 		\JFactory::getApplication()->redirect($url);
+	}
+
+	public function apply_quirk_definitions()
+	{
+		Factory::getConfigurationChecks()->addConfigurationCheckDefinition('013', 'critical', 'COM_AKEEBA_CPANEL_WARNING_Q013', array('\\Akeeba\\Engine\\Platform\\Joomla3x', 'quirk_013'));
+	}
+
+	public static function quirk_013()
+	{
+		$stock_dirs  = Platform::getInstance()->get_stock_directories();
+		$default_out = @realpath($stock_dirs['[DEFAULT_OUTPUT]']);
+
+		$registry = Factory::getConfiguration();
+		$outdir = $registry->get('akeeba.basic.output_directory');
+
+		foreach ($stock_dirs as $macro => $replacement)
+		{
+			$outdir = str_replace($macro, $replacement, $outdir);
+		}
+
+		$outdir_real = @realpath($outdir);
+
+		// If the output folder is the default one (or any subdir), we are safe
+		if (strpos($outdir_real, $default_out) !== false)
+		{
+			return false;
+		}
+
+		$component_path = @realpath(JPATH_ROOT.'/administrator/components/com_akeeba');
+
+		if (strpos($outdir_real, $component_path) !== false)
+		{
+			return true;
+		}
+
+		return false;
 	}
 }

@@ -760,14 +760,14 @@ class com_rsfirewallInstallerScript
 			<b class="install-not-ok">Error installing!</b>
 			<?php } ?>
 		</p>
-		<h2>Changelog v2.11.0</h2>
+		<h2>Changelog v2.11.1</h2>
 		<ul class="version-history">
-			<li><span class="version-new">New</span> Map of blocked attacks in the System Overview area.</li>
+			<li><span class="version-upgraded">Upg</span> IPv6 GeoIP database support.</li>
+			<li><span class="version-upgraded">Upg</span> Improved Country Blocking interface initial setup.</li>
+			<li><span class="version-upgraded">Upg</span> Google Safe Browsing API updated to v4.</li>
 			<li><span class="version-upgraded">Upg</span> Malware database updated.</li>
-			<li><span class="version-upgraded">Upg</span> Replacing email addresses with images has been re-worked to reduce page load.</li>
-			<li><span class="version-upgraded">Upg</span> More information shown when a protected user change has been attempted.</li>
-			<li><span class="version-fixed">Fix</span> No longer allows you to delete files from your Temporary Folder if it's incorrectly set and contains your website's folder.</li>
-			<li><span class="version-fixed">Fix</span> System Logs was becoming slow due to missing indexes on tables.</li>
+			<li><span class="version-fixed">Fix</span> Permissions were not being saved correctly due to Joomla! changes since 3.6.0.</li>
+			<li><span class="version-fixed">Fix</span> Denied referers were not recorded in the System Logs even with 'Log all blocked attempts' set to 'Yes'.</li>
 		</ul>
 		<a class="com-rsfirewall-button" href="index.php?option=com_rsfirewall">Start using RSFirewall!</a>
 		<a class="com-rsfirewall-button" href="https://www.rsjoomla.com/support/documentation/rsfirewall-user-guide.html" target="_blank">Read the RSFirewall! User Guide</a>

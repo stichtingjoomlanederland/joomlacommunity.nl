@@ -14,56 +14,270 @@ namespace Akeeba\Engine\Archiver;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
+use Akeeba\Engine\Base\Exceptions\ErrorException;
+use Akeeba\Engine\Base\Exceptions\WarningException;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Util\CRC32;
 use Psr\Log\LogLevel;
 
-class Zip extends Base
+class Zip extends BaseArchiver
 {
 	/** @var string Beginning of central directory record. */
-	private $_ctrlDirHeader = "\x50\x4b\x01\x02";
+	private $centralDirectoryRecordStartSignature = "\x50\x4b\x01\x02";
 
 	/** @var string End of central directory record. */
-	private $_ctrlDirEnd = "\x50\x4b\x05\x06";
+	private $centralDirectoryRecordEndSignature = "\x50\x4b\x05\x06";
 
 	/** @var string Beginning of file contents. */
-	private $_fileHeader = "\x50\x4b\x03\x04";
+	private $fileHeaderSignature = "\x50\x4b\x03\x04";
 
 	/** @var string The name of the temporary file holding the ZIP's Central Directory */
-	private $_ctrlDirFileName;
-
-	/** @var string The name of the file holding the ZIP's data, which becomes the final archive */
-	private $_dataFileName;
+	private $centralDirectoryFilename;
 
 	/** @var integer The total number of files and directories stored in the ZIP archive */
-	private $_totalFileEntries;
+	private $totalFilesCount;
 
 	/** @var integer The total size of data in the archive. Note: On 32-bit versions of PHP, this will overflow for archives over 2Gb! */
-	private $_totalDataSize = 0;
+	private $totalCompressedSize = 0;
 
 	/** @var integer The chunk size for CRC32 calculations */
 	private $AkeebaPackerZIP_CHUNK_SIZE;
 
-	/** @var bool Should I use Split ZIP? */
-	private $_useSplitZIP = false;
+	/** @var int Current part file number */
+	private $currentPartNumber = 1;
 
-	/** @var int Maximum fragment size, in bytes */
-	private $_fragmentSize = 0;
-
-	/** @var int Current fragment number */
-	private $_currentFragment = 1;
-
-	/** @var int Total number of fragments */
-	private $_totalFragments = 1;
-
-	/** @var string Archive full path without extension */
-	private $_dataFileNameBase = '';
-
-	/** @var bool Should I store symlinks as such (no dereferencing?) */
-	private $_symlink_store_target = false;
+	/** @var int Total number of part files */
+	private $totalParts = 1;
 
 	/** @var CRC32 The CRC32 calculations object */
 	private $crcCalculator = null;
+
+	/**
+	 * Class constructor - initializes internal operating parameters
+	 *
+	 * @return Zip
+	 */
+	public function __construct()
+	{
+		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: New instance");
+
+		// Find the optimal chunk size for ZIP archive processing
+		$this->findOptimalChunkSize();
+
+		Factory::getLog()->log(LogLevel::DEBUG, "Chunk size for CRC is now " . $this->AkeebaPackerZIP_CHUNK_SIZE . " bytes");
+
+		// Should I use Symlink Target Storage?
+		$this->enableSymlinkTargetStorage();
+
+		parent::__construct();
+	}
+
+	/**
+	 * Initialises the archiver class, creating the archive from an existent
+	 * installer's JPA archive.
+	 *
+	 * @param string $sourceJPAPath     Absolute path to an installer's JPA archive
+	 * @param string $targetArchivePath Absolute path to the generated archive
+	 * @param array  $options           A named key array of options (optional). This is currently not supported
+	 *
+	 * @return void
+	 */
+	public function initialize($targetArchivePath, $options = array())
+	{
+		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: initialize - archive $targetArchivePath");
+
+		// Get names of temporary files
+		$this->_dataFileName            = $targetArchivePath;
+
+		// Should we enable split archive feature?
+		$this->enableSplitArchives();
+
+		// Create the Central Directory temporary file
+		$this->createCentralDirectoryTempFile();
+
+		// Try to kill the archive if it exists
+		$this->createNewBackupArchive();
+
+		// On split archives, include the "Split ZIP" header, for PKZIP 2.50+ compatibility
+		if ($this->useSplitArchive)
+		{
+			$this->openArchiveForOutput();
+			$this->fwrite($this->fp, "\x50\x4b\x07\x08");
+		}
+	}
+
+	public function finalize()
+	{
+		try
+		{
+			$this->finalizeZIPFile();
+		}
+		catch (ErrorException $e)
+		{
+			$this->setError($e->getMessage());
+		}
+	}
+
+	/**
+	 * Glues the Central Directory of the ZIP file to the archive and takes care about the differences between single
+	 * and multipart archives.
+	 *
+	 * Official ZIP file format: http://www.pkware.com/appnote.txt
+	 *
+	 * @return  void
+	 */
+	public function finalizeZIPFile()
+	{
+		// 1. Get size of central directory
+		clearstatcache();
+		$cdOffset = @filesize($this->_dataFileName);
+		$this->totalCompressedSize += $cdOffset;
+		$cdSize = @filesize($this->centralDirectoryFilename);
+
+		// 2. Append Central Directory to data file and remove the CD temp file afterwards
+		if (!is_null($this->fp))
+		{
+			$this->fclose($this->fp);
+		}
+
+		if (!is_null($this->cdfp))
+		{
+			$this->fclose($this->cdfp);
+		}
+
+		$this->openArchiveForOutput(true);
+		$this->cdfp = $this->fopen($this->centralDirectoryFilename, "rb");
+
+		if ($this->cdfp === false)
+		{
+			// Already glued, return
+			$this->fclose($this->fp);
+			$this->fp   = null;
+			$this->cdfp = null;
+
+			return;
+		}
+
+		// Comment length (I need it before I start gluing the archive)
+		$comment_length = akstrlen($this->_comment);
+
+		// Special consideration for split ZIP files
+		if ($this->useSplitArchive)
+		{
+			// Calculate size of Central Directory + EOCD records
+			$total_cd_eocd_size = $cdSize + 22 + $comment_length;
+
+			// Free space on the part
+			$free_space = $this->getPartFreeSize();
+
+			if (($free_space < $total_cd_eocd_size) && ($total_cd_eocd_size > 65536))
+			{
+				// Not enough space on archive for CD + EOCD, will go on separate part
+				$this->createAndOpenNewPart(true);
+			}
+		}
+
+		// Write the CD record
+		while (!feof($this->cdfp))
+		{
+			/**
+			 * Why not split the Central Directory between parts?
+			 *
+			 * APPNOTE.TXT §8.5.2 "The central directory may span segment boundaries, but no single record in the
+			 * central directory should be split across segments."
+			 *
+			 * This would require parsing the CD temp file to prevent any CD record from spanning across two parts.
+			 * But how many bytes is each CD record? It's about 100 bytes per file which gives us about 10,400 files
+			 * per Mb. Even a 2Mb part size holds more than 20,000 file records. A typical 10Mb part size holds more
+			 * files than the largest backup I've ever seen. Therefore there is no need to waste computational power
+			 * to see if we need to span the Central Directory between parts.
+			 */
+			$chunk = fread($this->cdfp, _AKEEBA_DIRECTORY_READ_CHUNK);
+			$this->fwrite($this->fp, $chunk);
+		}
+
+		unset($chunk);
+
+		// Delete the temporary CD file
+		$this->fclose($this->cdfp);
+		$this->cdfp = null;
+		Factory::getTempFiles()->unregisterAndDeleteTempFile($this->centralDirectoryFilename);
+
+		// 3. Write the rest of headers to the end of the ZIP file
+		$this->fwrite($this->fp, $this->centralDirectoryRecordEndSignature);
+
+		if ($this->getError())
+		{
+			return;
+		}
+
+		if ($this->useSplitArchive)
+		{
+			// Split ZIP files, enter relevant disk number information
+			$this->fwrite($this->fp, pack('v', $this->totalParts - 1)); /* Number of this disk. */
+			$this->fwrite($this->fp, pack('v', $this->totalParts - 1)); /* Disk with central directory start. */
+		}
+		else
+		{
+			// Non-split ZIP files, the disk number MUST be 0
+			$this->fwrite($this->fp, pack('V', 0));
+		}
+
+		$this->fwrite($this->fp, pack('v', $this->totalFilesCount)); /* Total # of entries "on this disk". */
+		$this->fwrite($this->fp, pack('v', $this->totalFilesCount)); /* Total # of entries overall. */
+		$this->fwrite($this->fp, pack('V', $cdSize)); /* Size of central directory. */
+		$this->fwrite($this->fp, pack('V', $cdOffset)); /* Offset to start of central dir. */
+
+		// 2.0.b2 -- Write a ZIP file comment
+		$this->fwrite($this->fp, pack('v', $comment_length)); /* ZIP file comment length. */
+		$this->fwrite($this->fp, $this->_comment);
+		$this->fclose($this->fp);
+
+		// If Split ZIP and there is no .zip file, rename the last fragment to .ZIP
+		if ($this->useSplitArchive)
+		{
+			$extension = substr($this->_dataFileName, -3);
+
+			if ($extension != '.zip')
+			{
+				Factory::getLog()->log(LogLevel::DEBUG, 'Renaming last ZIP part to .ZIP extension');
+
+				$newName = $this->dataFileNameWithoutExtension . '.zip';
+
+				if (!@rename($this->_dataFileName, $newName))
+				{
+					$this->setError('Could not rename last ZIP part to .ZIP extension.');
+
+					return;
+				}
+
+				$this->_dataFileName = $newName;
+			}
+
+			// If Split ZIP and only one fragment, change the signature
+			if ($this->totalParts == 1)
+			{
+				$this->fp = $this->fopen($this->_dataFileName, 'r+b');
+				$this->fwrite($this->fp, "\x50\x4b\x30\x30");
+			}
+		}
+
+		if (function_exists('chmod'))
+		{
+			@chmod($this->_dataFileName, 0755);
+		}
+	}
+
+	/**
+	 * Returns a string with the extension (including the dot) of the files produced
+	 * by this class.
+	 *
+	 * @return string
+	 */
+	public function getExtension()
+	{
+		return '.zip';
+	}
 
 	/**
 	 * Extend the bootstrap code to add some define's used by the ZIP format engine
@@ -85,450 +299,6 @@ class Zip extends Base
 	}
 
 	/**
-	 * Class constructor - initializes internal operating parameters
-	 *
-	 * @return Zip
-	 */
-	public function __construct()
-	{
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: New instance");
-
-		// Get chunk override
-		$registry = Factory::getConfiguration();
-
-		if ($registry->get('engine.archiver.common.chunk_size', 0) > 0)
-		{
-			$this->AkeebaPackerZIP_CHUNK_SIZE = AKEEBA_CHUNK;
-		}
-		else
-		{
-			// Try to use as much memory as it's possible for CRC32 calculation
-			$memLimit = ini_get("memory_limit");
-
-			if (strstr($memLimit, 'M'))
-			{
-				$memLimit = (int)$memLimit * 1048576;
-			}
-			elseif (strstr($memLimit, 'K'))
-			{
-				$memLimit = (int)$memLimit * 1024;
-			}
-			elseif (strstr($memLimit, 'G'))
-			{
-				$memLimit = (int)$memLimit * 1073741824;
-			}
-			else
-			{
-				$memLimit = (int)$memLimit;
-			}
-
-			// 1.2a3 -- Rare case with memory_limit < 0, e.g. -1Mb!
-			if (is_numeric($memLimit) && ($memLimit < 0))
-			{
-				$memLimit = "";
-			}
-
-			if (($memLimit == ""))
-			{
-				// No memory limit, use 2Mb chunks (fairly large, right?)
-				$this->AkeebaPackerZIP_CHUNK_SIZE = 2097152;
-			}
-			elseif (function_exists("memory_get_usage"))
-			{
-				// PHP can report memory usage, see if there's enough available memory; the containing application / CMS alone eats about 5-6Mb! This code is called on files <= 1Mb
-				$memLimit     = $this->_return_bytes($memLimit);
-				$availableRAM = $memLimit - memory_get_usage();
-
-				if ($availableRAM <= 0)
-				{
-					// Some PHP implemenations also return the size of the httpd footprint!
-					if (($memLimit - 6291456) > 0)
-					{
-						$this->AkeebaPackerZIP_CHUNK_SIZE = $memLimit - 6291456;
-					}
-					else
-					{
-						$this->AkeebaPackerZIP_CHUNK_SIZE = 2097152;
-					}
-				}
-				else
-				{
-					$this->AkeebaPackerZIP_CHUNK_SIZE = $availableRAM * 0.5;
-				}
-			}
-			else
-			{
-				// PHP can't report memory usage, use a conservative 512Kb
-				$this->AkeebaPackerZIP_CHUNK_SIZE = 524288;
-			}
-		}
-
-		// NEW 2.3: Should we enable Split ZIP feature?
-		$fragmentsize = $registry->get('engine.archiver.common.part_size', 0);
-
-		if ($fragmentsize >= 65536)
-		{
-			// If the fragment size is AT LEAST 64Kb, enable Split ZIP
-			$this->_useSplitZIP  = true;
-			$this->_fragmentSize = $fragmentsize;
-			// Indicate that we have at least 1 part
-			$statistics = Factory::getStatistics();
-			$statistics->updateMultipart(1);
-		}
-
-		// NEW 2.3: Should I use Symlink Target Storage?
-		$dereferencesymlinks = $registry->get('engine.archiver.common.dereference_symlinks', true);
-
-		if (!$dereferencesymlinks)
-		{
-			// We are told not to dereference symlinks. Are we on Windows?
-			if (function_exists('php_uname'))
-			{
-				$isWindows = stristr(php_uname(), 'windows');
-			}
-			else
-			{
-				$isWindows = (DIRECTORY_SEPARATOR == '\\');
-			}
-
-			// If we are not on Windows, enable symlink target storage
-			$this->_symlink_store_target = !$isWindows;
-		}
-
-		Factory::getLog()->log(LogLevel::DEBUG, "Chunk size for CRC is now " . $this->AkeebaPackerZIP_CHUNK_SIZE . " bytes");
-
-		parent::__construct();
-	}
-
-	/**
-	 * Initialises the archiver class, creating the archive from an existent
-	 * installer's JPA archive.
-	 *
-	 * @param string $sourceJPAPath     Absolute path to an installer's JPA archive
-	 * @param string $targetArchivePath Absolute path to the generated archive
-	 * @param array  $options           A named key array of options (optional). This is currently not supported
-	 *
-	 * @return void
-	 */
-	public function initialize($targetArchivePath, $options = array())
-	{
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: initialize - archive $targetArchivePath");
-
-		// Get names of temporary files
-		$configuration          = Factory::getConfiguration();
-		$this->_ctrlDirFileName = tempnam($configuration->get('akeeba.basic.output_directory'), 'akzcd');
-		$this->_dataFileName    = $targetArchivePath;
-
-		// If we use splitting, initialize
-		if ($this->_useSplitZIP)
-		{
-			Factory::getLog()->log(LogLevel::INFO, __CLASS__ . " :: Split ZIP creation enabled");
-
-			$this->_dataFileNameBase = dirname($targetArchivePath) . '/' . basename($targetArchivePath, '.zip');
-			$this->_dataFileName     = $this->_dataFileNameBase . '.z01';
-		}
-
-		$this->_ctrlDirFileName = basename($this->_ctrlDirFileName);
-		$pos                    = strrpos($this->_ctrlDirFileName, '/');
-
-		if ($pos !== false)
-		{
-			$this->_ctrlDirFileName = substr($this->_ctrlDirFileName, $pos + 1);
-		}
-
-		$pos = strrpos($this->_ctrlDirFileName, '\\');
-
-		if ($pos !== false)
-		{
-			$this->_ctrlDirFileName = substr($this->_ctrlDirFileName, $pos + 1);
-		}
-
-		$this->_ctrlDirFileName = Factory::getTempFiles()->registerTempFile($this->_ctrlDirFileName);
-
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: CntDir Tempfile = " . $this->_ctrlDirFileName);
-
-		// Create temporary file
-		if ( !@touch($this->_ctrlDirFileName))
-		{
-			$this->setError("Could not open temporary file for ZIP archiver. Please check your temporary directory's permissions!");
-
-			return;
-		}
-
-		if (function_exists('chmod'))
-		{
-			chmod($this->_ctrlDirFileName, 0666);
-		}
-
-		// Try to kill the archive if it exists
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Killing old archive");
-		$this->fp = $this->_fopen($this->_dataFileName, "wb");
-
-		if ( !($this->fp === false))
-		{
-			ftruncate($this->fp, 0);
-		}
-		else
-		{
-			@unlink($this->_dataFileName);
-		}
-
-		if ( !@touch($this->_dataFileName))
-		{
-			$this->setError("Could not open archive file for ZIP archiver. Please check your output directory's permissions!");
-
-			return;
-		}
-
-		if (function_exists('chmod'))
-		{
-			chmod($this->_dataFileName, 0666);
-		}
-
-		// On split archives, include the "Split ZIP" header, for PKZIP 2.50+ compatibility
-		if ($this->_useSplitZIP)
-		{
-			file_put_contents($this->_dataFileName, "\x50\x4b\x07\x08");
-
-			// Also update the statistics table that we are a multipart archive...
-			$statistics = Factory::getStatistics();
-			$statistics->updateMultipart(1);
-		}
-	}
-
-	/**
-	 * Creates the ZIP file out of its pieces.
-	 * Official ZIP file format: http://www.pkware.com/appnote.txt
-	 *
-	 * @return void
-	 */
-	public function finalize()
-	{
-		// 1. Get size of central directory
-		clearstatcache();
-		$cdOffset = @filesize($this->_dataFileName);
-		$this->_totalDataSize += $cdOffset;
-		$cdSize = @filesize($this->_ctrlDirFileName);
-
-		// 2. Append Central Directory to data file and remove the CD temp file afterwards
-		if ( !is_null($this->fp))
-		{
-			$this->_fclose($this->fp);
-		}
-
-		if ( !is_null($this->cdfp))
-		{
-			$this->_fclose($this->cdfp);
-		}
-
-		$this->fp   = $this->_fopen($this->_dataFileName, "ab");
-		$this->cdfp = $this->_fopen($this->_ctrlDirFileName, "rb");
-
-		if ($this->fp === false)
-		{
-			$this->setError('Could not open ZIP data file ' . $this->_dataFileName . ' for reading');
-
-			return;
-		}
-
-		if ($this->cdfp === false)
-		{
-			// Already glued, return
-			$this->_fclose($this->fp);
-			$this->fp   = null;
-			$this->cdfp = null;
-
-			return;
-		}
-
-		if ( !$this->_useSplitZIP)
-		{
-			while ( !feof($this->cdfp))
-			{
-				$chunk = fread($this->cdfp, _AKEEBA_DIRECTORY_READ_CHUNK);
-				$this->_fwrite($this->fp, $chunk);
-
-				if ($this->getError())
-				{
-					return;
-				}
-			}
-
-			unset($chunk);
-
-			$this->_fclose($this->cdfp);
-		}
-		else
-			// Special considerations for Split ZIP
-		{
-			// Calculate size of Central Directory + EOCD records
-			$comment_length     = function_exists('mb_strlen') ? mb_strlen($this->_comment, '8bit') : strlen($this->_comment);
-			$total_cd_eocd_size = $cdSize + 22 + $comment_length;
-
-			// Free space on the part
-			clearstatcache();
-			$current_part_size = @filesize($this->_dataFileName);
-			$free_space        = $this->_fragmentSize - ($current_part_size === false ? 0 : $current_part_size);
-
-			if (($free_space < $total_cd_eocd_size) && ($total_cd_eocd_size > 65536))
-			{
-				// Not enough space on archive for CD + EOCD, will go on separate part
-				// Create new final part
-				if ( !$this->_createNewPart(true))
-				{
-					// Die if we couldn't create the new part
-					$this->setError('Could not create new ZIP part file ' . basename($this->_dataFileName));
-
-					return;
-				}
-
-				// Close the old data file
-				$this->_fclose($this->fp);
-
-				// Open data file for output
-				$this->fp = @$this->_fopen($this->_dataFileName, "ab");
-
-				if ($this->fp === false)
-				{
-					$this->fp = null;
-					$this->setError("Could not open archive file {$this->_dataFileName} for append!");
-
-					return;
-				}
-
-				// Write the CD record
-				while ( !feof($this->cdfp))
-				{
-					$chunk = fread($this->cdfp, _AKEEBA_DIRECTORY_READ_CHUNK);
-					$this->_fwrite($this->fp, $chunk);
-
-					if ($this->getError())
-					{
-						return;
-					}
-				}
-
-				unset($chunk);
-
-				$this->_fclose($this->cdfp);
-				$this->cdfp = null;
-			}
-			else
-			{
-				// Glue the CD + EOCD on the same part if they fit, or anyway if they are less than 64Kb.
-				// NOTE: WE *MUST NOT* CREATE FRAGMENTS SMALLER THAN 64Kb!!!!
-				while ( !feof($this->cdfp))
-				{
-					$chunk = fread($this->cdfp, _AKEEBA_DIRECTORY_READ_CHUNK);
-					$this->_fwrite($this->fp, $chunk);
-
-					if ($this->getError())
-					{
-						return;
-					}
-				}
-
-				unset($chunk);
-
-				$this->_fclose($this->cdfp);
-				$this->cdfp = null;
-			}
-		}
-
-		Factory::getTempFiles()->unregisterAndDeleteTempFile($this->_ctrlDirFileName);
-
-		// 3. Write the rest of headers to the end of the ZIP file
-		$this->_fclose($this->fp);
-		$this->fp = null;
-
-		clearstatcache();
-
-		$this->fp = $this->_fopen($this->_dataFileName, "ab");
-
-		if ($this->fp === false)
-		{
-			$this->setError('Could not open ' . $this->_dataFileName . ' for append');
-
-			return;
-		}
-
-		$this->_fwrite($this->fp, $this->_ctrlDirEnd);
-
-		if ($this->getError())
-		{
-			return;
-		}
-
-		if ($this->_useSplitZIP)
-		{
-			// Split ZIP files, enter relevant disk number information
-			$this->_fwrite($this->fp, pack('v', $this->_totalFragments - 1)); /* Number of this disk. */
-			$this->_fwrite($this->fp, pack('v', $this->_totalFragments - 1)); /* Disk with central directory start. */
-		}
-		else
-		{
-			// Non-split ZIP files, the disk numbers MUST be 0
-			$this->_fwrite($this->fp, pack('V', 0));
-		}
-
-		$this->_fwrite($this->fp, pack('v', $this->_totalFileEntries)); /* Total # of entries "on this disk". */
-		$this->_fwrite($this->fp, pack('v', $this->_totalFileEntries)); /* Total # of entries overall. */
-		$this->_fwrite($this->fp, pack('V', $cdSize)); /* Size of central directory. */
-		$this->_fwrite($this->fp, pack('V', $cdOffset)); /* Offset to start of central dir. */
-		$sizeOfComment = $comment_length = function_exists('mb_strlen') ? mb_strlen($this->_comment, '8bit') : strlen($this->_comment);
-
-		// 2.0.b2 -- Write a ZIP file comment
-		$this->_fwrite($this->fp, pack('v', $sizeOfComment)); /* ZIP file comment length. */
-		$this->_fwrite($this->fp, $this->_comment);
-		$this->_fclose($this->fp);
-
-		// If Split ZIP and there is no .zip file, rename the last fragment to .ZIP
-		if ($this->_useSplitZIP)
-		{
-			$extension = substr($this->_dataFileName, -3);
-
-			if ($extension != '.zip')
-			{
-				Factory::getLog()->log(LogLevel::DEBUG, 'Renaming last ZIP part to .ZIP extension');
-
-				$newName = $this->_dataFileNameBase . '.zip';
-
-				if ( !@rename($this->_dataFileName, $newName))
-				{
-					$this->setError('Could not rename last ZIP part to .ZIP extension.');
-
-					return;
-				}
-
-				$this->_dataFileName = $newName;
-			}
-		}
-
-		// If Split ZIP and only one fragment, change the signature
-		if ($this->_useSplitZIP && ($this->_totalFragments == 1))
-		{
-			$this->fp = $this->_fopen($this->_dataFileName, 'r+b');
-			$this->_fwrite($this->fp, "\x50\x4b\x30\x30");
-		}
-
-		if (function_exists('chmod'))
-		{
-			@chmod($this->_dataFileName, 0755);
-		}
-	}
-
-	/**
-	 * Returns a string with the extension (including the dot) of the files produced
-	 * by this class.
-	 *
-	 * @return string
-	 */
-	public function getExtension()
-	{
-		return '.zip';
-	}
-
-	/**
 	 * The most basic file transaction: add a single entry (file or directory) to
 	 * the archive.
 	 *
@@ -541,820 +311,155 @@ class Zip extends Base
 	 */
 	protected function _addFile($isVirtual, &$sourceNameOrData, $targetName)
 	{
-		static $configuration;
+		$configuration = Factory::getConfiguration();
 
 		// Note down the starting disk number for Split ZIP archives
-		if ($this->_useSplitZIP)
-		{
-			$starting_disk_number_for_this_file = $this->_currentFragment - 1;
-		}
-		else
-		{
-			$starting_disk_number_for_this_file = 0;
-		}
+		$starting_disk_number_for_this_file = 0;
 
-		if ( !$configuration)
+		if ($this->useSplitArchive)
 		{
-			$configuration = Factory::getConfiguration();
+			$starting_disk_number_for_this_file = $this->currentPartNumber - 1;
 		}
 
 		// Open data file for output
-		if (is_null($this->fp))
+		$this->openArchiveForOutput();
+
+		// Should I continue backing up a file from the previous step?
+		$continueProcessingFile = $configuration->get('volatile.engine.archiver.processingfile', false);
+
+		// Initialize with the default values. Why are *these* values default? If we are continuing file packing, by
+		// definition we have an uncompressed, non-virtual file. Hence the default values.
+		$isDir             = false;
+		$isSymlink         = false;
+		$compressionMethod = 1;
+		$zdata             = null;
+		// If we are continuing file packing we have an uncompressed, non-virtual file.
+		$isVirtual         = $continueProcessingFile ? false : $isVirtual;
+		$resume            = $continueProcessingFile ? 0 : null;
+
+		if (!$continueProcessingFile)
 		{
-			$this->fp = @$this->_fopen($this->_dataFileName, "ab");
-		}
+			// Log the file being added
+			$messageSource = $isVirtual ? '(virtual data)' : "(source: $sourceNameOrData)";
+			Factory::getLog()->log(LogLevel::DEBUG, "-- Adding $targetName to archive $messageSource");
 
-		if ($this->fp === false)
-		{
-			$this->setError("Could not open archive file {$this->_dataFileName} for append!");
-
-			return false;
-		}
-
-		if ( !$configuration->get('volatile.engine.archiver.processingfile', false))
-		{
-			// See if it's a directory
-			$isDir = $isVirtual ? false : is_dir($sourceNameOrData);
-
-			// See if it's a symlink (w/out dereference)
-			$isSymlink = false;
-
-			if ($this->_symlink_store_target && !$isVirtual)
-			{
-				$isSymlink = is_link($sourceNameOrData);
-			}
-
-			// Get real size before compression
-			if ($isVirtual)
-			{
-				$fileSize = function_exists('mb_strlen') ? mb_strlen($sourceNameOrData, '8bit') : strlen($sourceNameOrData);
-			}
-			else
-			{
-				if ($isSymlink)
-				{
-					$fileSize = function_exists('mb_strlen') ? mb_strlen(@readlink($sourceNameOrData), '8bit') : strlen(@readlink($sourceNameOrData));
-				}
-				else
-				{
-					$fileSize = $isDir ? 0 : @filesize($sourceNameOrData);
-				}
-			}
-
-			// Get last modification time to store in archive
-			$ftime = $isVirtual ? time() : @filemtime($sourceNameOrData);
-
-			// Decide if we will compress
-			if ($isDir || $isSymlink)
-			{
-				$compressionMethod = 0; // don't compress directories...
-			}
-			else
-			{
-				// Do we have plenty of memory left?
-				$memLimit = ini_get("memory_limit");
-
-				if (strstr($memLimit, 'M'))
-				{
-					$memLimit = (int)$memLimit * 1048576;
-				}
-				elseif (strstr($memLimit, 'K'))
-				{
-					$memLimit = (int)$memLimit * 1024;
-				}
-				elseif (strstr($memLimit, 'G'))
-				{
-					$memLimit = (int)$memLimit * 1073741824;
-				}
-				else
-				{
-					$memLimit = (int)$memLimit;
-				}
-
-				if (($memLimit == "") || ($fileSize >= _AKEEBA_COMPRESSION_THRESHOLD))
-				{
-					// No memory limit, or over 1Mb files => always compress up to 1Mb files (otherwise it times out)
-					$compressionMethod = ($fileSize <= _AKEEBA_COMPRESSION_THRESHOLD) ? 8 : 0;
-				}
-				elseif (function_exists("memory_get_usage"))
-				{
-					// PHP can report memory usage, see if there's enough available memory; the containing application / CMS alone eats about 5-6Mb! This code is called on files <= 1Mb
-					$memLimit          = $this->_return_bytes($memLimit);
-					$availableRAM      = $memLimit - memory_get_usage();
-					$compressionMethod = (($availableRAM / 2.5) >= $fileSize) ? 8 : 0;
-				}
-				else
-				{
-					// PHP can't report memory usage, compress only files up to 512Kb (conservative approach) and hope it doesn't break
-					$compressionMethod = ($fileSize <= 524288) ? 8 : 0;;
-				}
-			}
-
-			$compressionMethod = function_exists("gzcompress") ? $compressionMethod : 0;
-
-			$storedName = $targetName;
-
-			if ($isVirtual)
-			{
-				Factory::getLog()->log(LogLevel::DEBUG, '  Virtual add:' . $storedName . ' (' . $fileSize . ') - ' . $compressionMethod);
-			}
-
-			/* "Local file header" segment. */
-			$unc_len = $fileSize; // File size
-
-			if ( !$isDir)
-			{
-				// Get CRC for regular files, not dirs
-				if ($isVirtual)
-				{
-					$crc = crc32($sourceNameOrData);
-				}
-				else
-				{
-					$crc           = $this->crcCalculator->crc32_file($sourceNameOrData, $this->AkeebaPackerZIP_CHUNK_SIZE); // This is supposed to be the fast way to calculate CRC32 of a (large) file.
-
-					// If the file was unreadable, $crc will be false, so we skip the file
-					if ($crc === false)
-					{
-						$this->setWarning('Could not calculate CRC32 for ' . $sourceNameOrData);
-
-						return false;
-					}
-				}
-			}
-			else if ($isSymlink)
-			{
-				$crc = crc32(@readlink($sourceNameOrData));
-			}
-			else
-			{
-				// Dummy CRC for dirs
-				$crc = 0;
-				$storedName .= "/";
-				$unc_len = 0;
-			}
-
-			// If we have to compress, read the data in memory and compress it
-			if ($compressionMethod == 8)
-			{
-				// Get uncompressed data
-				if ($isVirtual)
-				{
-					$udata =& $sourceNameOrData;
-				}
-				else
-				{
-					$udata = @file_get_contents($sourceNameOrData); // PHP > 4.3.0 saves us the trouble
-				}
-
-				if ($udata === false)
-				{
-					// Unreadable file, skip it. Normally, we should have exited on CRC code above
-					$this->setWarning('Unreadable file ' . $sourceNameOrData . '. Check permissions');
-
-					return false;
-				}
-				else
-				{
-					// Proceed with compression
-					$zdata = @gzcompress($udata);
-
-					if ($zdata === false)
-					{
-						// If compression fails, let it behave like no compression was available
-						$c_len             = $unc_len;
-						$compressionMethod = 0;
-					}
-					else
-					{
-						unset($udata);
-
-						$zdata = substr(substr($zdata, 0, -4), 2);
-						$c_len = (function_exists('mb_strlen') ? mb_strlen($zdata, '8bit') : strlen($zdata));
-					}
-				}
-			}
-			else
-			{
-				$c_len = $unc_len;
-			}
-
-			/* Get the hex time. */
-			$dtime = dechex($this->_unix2DosTime($ftime));
-
-			if ((function_exists('mb_strlen') ? mb_strlen($dtime, '8bit') : strlen($dtime)) < 8)
-			{
-				$dtime = "00000000";
-			}
-
-			$hexdtime = chr(hexdec($dtime[6] . $dtime[7])) .
-				chr(hexdec($dtime[4] . $dtime[5])) .
-				chr(hexdec($dtime[2] . $dtime[3])) .
-				chr(hexdec($dtime[0] . $dtime[1]));
-
-			// If it's a split ZIP file, we've got to make sure that the header can fit in the part
-			if ($this->_useSplitZIP)
-			{
-				// Get header size, taking into account any extra header necessary
-				$header_size = 30 + (function_exists('mb_strlen') ? mb_strlen($storedName, '8bit') : strlen($storedName));
-
-				// Compare to free part space
-				clearstatcache();
-
-				$current_part_size = @filesize($this->_dataFileName);
-				$free_space        = $this->_fragmentSize - ($current_part_size === false ? 0 : $current_part_size);
-
-				if ($free_space <= $header_size)
-				{
-					// Not enough space on current part, create new part
-					if ( !$this->_createNewPart())
-					{
-						$this->setError('Could not create new ZIP part file ' . basename($this->_dataFileName));
-
-						return false;
-					}
-
-					// Open data file for output
-					$this->fp = @$this->_fopen($this->_dataFileName, "ab");
-
-					if ($this->fp === false)
-					{
-						$this->setError("Could not open archive file {$this->_dataFileName} for append!");
-
-						return false;
-					}
-				}
-			}
-
-			$old_offset = @ftell($this->fp);
-
-			if ($this->_useSplitZIP && ($old_offset == 0))
-			{
-				// Because in split ZIPs we have the split ZIP marker in the first four bytes.
-				@fseek($this->fp, 4);
-				$old_offset = @ftell($this->fp);
-			}
-
-			/**
-			 * $seek_result = @fseek($this->fp, 0, SEEK_END);
-			 * $old_offset = ($seek_result == -1) ? false : @ftell($this->fp);
-			 * if ($old_offset === false)
-			 * {
-			 * @clearstatcache();
-			 * $old_offset = @filesize($this->_dataFileName);
-			 * }
-			 * /**/
-
-			// Get the file name length in bytes
-			if (function_exists('mb_strlen'))
-			{
-				$fn_length = mb_strlen($storedName, '8bit');
-			}
-			else
-			{
-				$fn_length = strlen($storedName);
-			}
-
-			$this->_fwrite($this->fp, $this->_fileHeader); /* Begin creating the ZIP data. */
-
-			if ( !$isSymlink)
-			{
-				$this->_fwrite($this->fp, "\x14\x00"); /* Version needed to extract. */
-			}
-			else
-			{
-				$this->_fwrite($this->fp, "\x0a\x03"); /* Version needed to extract. */
-			}
-
-			$this->_fwrite($this->fp, pack('v', 2048)); /* General purpose bit flag. Bit 11 set = use UTF-8 encoding for filenames & comments */
-			$this->_fwrite($this->fp, ($compressionMethod == 8) ? "\x08\x00" : "\x00\x00"); /* Compression method. */
-			$this->_fwrite($this->fp, $hexdtime); /* Last modification time/date. */
-			$this->_fwrite($this->fp, pack('V', $crc)); /* CRC 32 information. */
-
-			if ( !isset($c_len))
-			{
-				$c_len = $unc_len;
-			}
-
-			$this->_fwrite($this->fp, pack('V', $c_len)); /* Compressed filesize. */
-			$this->_fwrite($this->fp, pack('V', $unc_len)); /* Uncompressed filesize. */
-			$this->_fwrite($this->fp, pack('v', $fn_length)); /* Length of filename. */
-			$this->_fwrite($this->fp, pack('v', 0)); /* Extra field length. */
-			$this->_fwrite($this->fp, $storedName); /* File name. */
-
-			// Cache useful information about the file
-			if ( !$isDir && !$isSymlink && !$isVirtual)
-			{
-				$configuration->set('volatile.engine.archiver.unc_len', $unc_len);
-				$configuration->set('volatile.engine.archiver.hexdtime', $hexdtime);
-				$configuration->set('volatile.engine.archiver.crc', $crc);
-				$configuration->set('volatile.engine.archiver.c_len', $c_len);
-				$configuration->set('volatile.engine.archiver.fn_length', $fn_length);
-				$configuration->set('volatile.engine.archiver.old_offset', $old_offset);
-				$configuration->set('volatile.engine.archiver.storedName', $storedName);
-				$configuration->set('volatile.engine.archiver.sourceNameOrData', $sourceNameOrData);
-			}
+			$this->writeFileHeader($sourceNameOrData, $targetName, $isVirtual, $isSymlink, $isDir,
+				$compressionMethod, $zdata, $unc_len,
+				$storedName , $crc, $c_len, $hexdtime, $old_offset);
 		}
 		else
 		{
 			// Since we are continuing archiving, it's an uncompressed regular file. Set up the variables.
-			$compressionMethod = 1;
-			$isDir             = false;
-			$isSymlink         = false;
 			$unc_len           = $configuration->get('volatile.engine.archiver.unc_len');
-			$hexdtime          = $configuration->get('volatile.engine.archiver.hexdtime');
+			$storedName        = $configuration->get('volatile.engine.archiver.storedName');
 			$crc               = $configuration->get('volatile.engine.archiver.crc');
 			$c_len             = $configuration->get('volatile.engine.archiver.c_len');
-			$fn_length         = $configuration->get('volatile.engine.archiver.fn_length');
+			$hexdtime          = $configuration->get('volatile.engine.archiver.hexdtime');
 			$old_offset        = $configuration->get('volatile.engine.archiver.old_offset');
-			$storedName        = $configuration->get('volatile.engine.archiver.storedName');
-		}
 
+			// Log the file we continue packing
+			Factory::getLog()->log(LogLevel::DEBUG, "-- Resuming adding file $sourceNameOrData to archive from position $resume (total size $unc_len)");
+		}
 
 		/* "File data" segment. */
 		if ($compressionMethod == 8)
 		{
-			// Just dump the compressed data
-			if ( !$this->_useSplitZIP)
-			{
-				$this->_fwrite($this->fp, $zdata);
-
-				if ($this->getError())
-				{
-					return false;
-				}
-			}
-			else
-			{
-				// Split ZIP. Check if we need to split the part in the middle of the data.
-				clearstatcache();
-				$current_part_size = @filesize($this->_dataFileName);
-				$free_space        = $this->_fragmentSize - ($current_part_size === false ? 0 : $current_part_size);
-
-				if ($free_space >= (function_exists('mb_strlen') ? mb_strlen($zdata, '8bit') : strlen($zdata)))
-				{
-					// Write in one part
-					$this->_fwrite($this->fp, $zdata);
-
-					if ($this->getError())
-					{
-						return false;
-					}
-				}
-				else
-				{
-					$bytes_left = (function_exists('mb_strlen') ? mb_strlen($zdata, '8bit') : strlen($zdata));
-
-					while ($bytes_left > 0)
-					{
-						clearstatcache();
-						$current_part_size = @filesize($this->_dataFileName);
-						$free_space        = $this->_fragmentSize - ($current_part_size === false ? 0 : $current_part_size);
-
-						// Split between parts - Write a part
-						$this->_fwrite($this->fp, $zdata, min((function_exists('mb_strlen') ? mb_strlen($zdata, '8bit') : strlen($zdata)), $free_space));
-						if ($this->getError())
-						{
-							return false;
-						}
-
-						// Get the rest of the data
-						$bytes_left = (function_exists('mb_strlen') ? mb_strlen($zdata, '8bit') : strlen($zdata)) - $free_space;
-
-						if ($bytes_left > 0)
-						{
-							$this->_fclose($this->fp);
-							$this->fp = null;
-
-							// Create new part
-							if ( !$this->_createNewPart())
-							{
-								// Die if we couldn't create the new part
-								$this->setError('Could not create new ZIP part file ' . basename($this->_dataFileName));
-
-								return false;
-							}
-
-							// Open data file for output
-							$this->fp = @$this->_fopen($this->_dataFileName, "ab");
-
-							if ($this->fp === false)
-							{
-								$this->setError("Could not open archive file {$this->_dataFileName} for append!");
-
-								return false;
-							}
-
-							$zdata = substr($zdata, -$bytes_left);
-						}
-					}
-				}
-			}
-
-			unset($zdata);
+			$this->putRawDataIntoArchive($zdata);
 		}
-		elseif ( !($isDir || $isSymlink))
+		elseif ($isVirtual)
 		{
-			// Virtual file, just write the data!
-			if ($isVirtual)
-			{
-				// Just dump the data
-				if ( !$this->_useSplitZIP)
-				{
-					$this->_fwrite($this->fp, $sourceNameOrData);
-
-					if ($this->getError())
-					{
-						return false;
-					}
-				}
-				else
-				{
-					// Split ZIP. Check if we need to split the part in the middle of the data.
-					clearstatcache();
-					$current_part_size = @filesize($this->_dataFileName);
-					$free_space        = $this->_fragmentSize - ($current_part_size === false ? 0 : $current_part_size);
-
-					if ($free_space >= (function_exists('mb_strlen') ? mb_strlen($sourceNameOrData, '8bit') : strlen($sourceNameOrData)))
-					{
-						// Write in one part
-						$this->_fwrite($this->fp, $sourceNameOrData);
-
-						if ($this->getError())
-						{
-							return false;
-						}
-					}
-					else
-					{
-						$bytes_left = (function_exists('mb_strlen') ? mb_strlen($sourceNameOrData, '8bit') : strlen($sourceNameOrData));
-
-						while ($bytes_left > 0)
-						{
-							clearstatcache();
-							$current_part_size = @filesize($this->_dataFileName);
-							$free_space        = $this->_fragmentSize - ($current_part_size === false ? 0 : $current_part_size);
-
-							// Split between parts - Write first part
-							$this->_fwrite($this->fp, $sourceNameOrData, min((function_exists('mb_strlen') ? mb_strlen($zdata, '8bit') : strlen($zdata)), $free_space));
-
-							if ($this->getError())
-							{
-								return false;
-							}
-
-							// Get the rest of the data
-							$rest_size = (function_exists('mb_strlen') ? mb_strlen($sourceNameOrData, '8bit') : strlen($sourceNameOrData)) - $free_space;
-
-							if ($rest_size > 0)
-							{
-								$this->_fclose($this->fp);
-								$this->fp = null;
-
-								// Create new part if required
-								if ( !$this->_createNewPart())
-								{
-									// Die if we couldn't create the new part
-									$this->setError('Could not create new ZIP part file ' . basename($this->_dataFileName));
-
-									return false;
-								}
-
-								// Open data file for output
-								$this->fp = @$this->_fopen($this->_dataFileName, "ab");
-
-								if ($this->fp === false)
-								{
-									$this->setError("Could not open archive file {$this->_dataFileName} for append!");
-
-									return false;
-								}
-
-								// Get the rest of the compressed data
-								$zdata = substr($sourceNameOrData, -$rest_size);
-							}
-
-							$bytes_left = $rest_size;
-						}
-					}
-				}
-			}
-			else
-			{
-				// IMPORTANT! Only this case can be spanned across steps: uncompressed, non-virtual data
-				if ($configuration->get('volatile.engine.archiver.processingfile', false))
-				{
-					$sourceNameOrData = $configuration->get('volatile.engine.archiver.sourceNameOrData', '');
-					$unc_len          = $configuration->get('volatile.engine.archiver.unc_len', 0);
-					$resume           = $configuration->get('volatile.engine.archiver.resume', 0);
-				}
-
-				// Copy the file contents, ignore directories
-				$zdatafp = @fopen($sourceNameOrData, "rb");
-
-				if ($zdatafp === false)
-				{
-					$this->setWarning('Unreadable file ' . $sourceNameOrData . '. Check permissions');
-
-					return false;
-				}
-				else
-				{
-					$timer = Factory::getTimer();
-
-					// Seek to the resume point if required
-					if ($configuration->get('volatile.engine.archiver.processingfile', false))
-					{
-						// Seek to new offset
-						$seek_result = @fseek($zdatafp, $resume);
-
-						if ($seek_result === -1)
-						{
-							// What?! We can't resume!
-							$this->setError(sprintf('Could not resume packing of file %s. Your archive is damaged!', $sourceNameOrData));
-
-							return false;
-						}
-
-						// Doctor the uncompressed size to match the remainder of the data
-						$unc_len = $unc_len - $resume;
-					}
-
-					if ( !$this->_useSplitZIP)
-					{
-						// For non Split ZIP, just dump the file very fast
-						while ( !feof($zdatafp) && ($timer->getTimeLeft() > 0) && ($unc_len > 0))
-						{
-							$zdata = fread($zdatafp, AKEEBA_CHUNK);
-							$this->_fwrite($this->fp, $zdata, min((function_exists('mb_strlen') ? mb_strlen($zdata, '8bit') : strlen($zdata)), AKEEBA_CHUNK));
-							$unc_len -= AKEEBA_CHUNK;
-
-							if ($this->getError())
-							{
-								return false;
-							}
-						}
-
-						if ( !feof($zdatafp) && ($unc_len != 0))
-						{
-							// We have to break, or we'll time out!
-							$resume = @ftell($zdatafp);
-							$configuration->set('volatile.engine.archiver.resume', $resume);
-							$configuration->set('volatile.engine.archiver.processingfile', true);
-
-							return true;
-						}
-					}
-					else
-					{
-						// Split ZIP - Do we have enough space to host the whole file?
-						clearstatcache();
-						$current_part_size = @filesize($this->_dataFileName);
-						$free_space        = $this->_fragmentSize - ($current_part_size === false ? 0 : $current_part_size);
-
-						if ($free_space >= $unc_len)
-						{
-							// Yes, it will fit inside this part, do quick copy
-							while ( !feof($zdatafp) && ($timer->getTimeLeft() > 0) && ($unc_len > 0))
-							{
-								$zdata = fread($zdatafp, AKEEBA_CHUNK);
-								$this->_fwrite($this->fp, $zdata, min((function_exists('mb_strlen') ? mb_strlen($zdata, '8bit') : strlen($zdata)), AKEEBA_CHUNK));
-								$unc_len -= AKEEBA_CHUNK;
-
-								if ($this->getError())
-								{
-									return false;
-								}
-
-							}
-
-							if ( !feof($zdatafp) && ($unc_len != 0))
-							{
-								// We have to break, or we'll time out!
-								$resume = @ftell($zdatafp);
-								$configuration->set('volatile.engine.archiver.resume', $resume);
-								$configuration->set('volatile.engine.archiver.processingfile', true);
-
-								return true;
-							}
-						}
-						else
-						{
-							// No, we'll have to split between parts. We'll loop until we run
-							// out of space.
-							while ( !feof($zdatafp) && ($timer->getTimeLeft() > 0))
-							{
-								// No, we'll have to split between parts. Write the first part
-								// Find optimal chunk size
-								clearstatcache();
-								$current_part_size = @filesize($this->_dataFileName);
-								$free_space        = $this->_fragmentSize - ($current_part_size === false ? 0 : $current_part_size);
-
-								$chunk_size_primary = min(AKEEBA_CHUNK, $free_space);
-
-								if ($chunk_size_primary <= 0)
-								{
-									$chunk_size_primary = max(AKEEBA_CHUNK, $free_space);
-								}
-
-								// Calculate if we have to read some more data (smaller chunk size)
-								// and how many times we must read w/ the primary chunk size
-								$chunk_size_secondary = $free_space % $chunk_size_primary;
-								$loop_times           = ($free_space - $chunk_size_secondary) / $chunk_size_primary;
-
-								// Read and write with the primary chunk size
-								for ($i = 1; $i <= $loop_times; $i++)
-								{
-									$zdata = fread($zdatafp, $chunk_size_primary);
-									$this->_fwrite($this->fp, $zdata, min((function_exists('mb_strlen') ? mb_strlen($zdata, '8bit') : strlen($zdata)), $chunk_size_primary));
-									$unc_len -= $chunk_size_primary;
-
-									if ($this->getError())
-									{
-										return false;
-									}
-
-									// Do we have enough time to proceed?
-									if (( !feof($zdatafp)) && ($unc_len != 0) && ($timer->getTimeLeft() <= 0))
-									{
-										// No, we have to break, or we'll time out!
-										$resume = @ftell($zdatafp);
-										$configuration->set('volatile.engine.archiver.resume', $resume);
-										$configuration->set('volatile.engine.archiver.processingfile', true);
-
-										return true;
-									}
-								}
-
-								// Read and write w/ secondary chunk size, if non-zero
-								if ($chunk_size_secondary > 0)
-								{
-									$zdata = fread($zdatafp, $chunk_size_secondary);
-									$this->_fwrite($this->fp, $zdata, min((function_exists('mb_strlen') ? mb_strlen($zdata, '8bit') : strlen($zdata)), $chunk_size_secondary));
-									$unc_len -= $chunk_size_secondary;
-
-									if ($this->getError())
-									{
-										return false;
-									}
-								}
-
-								// Do we have enough time to proceed?
-								if (( !feof($zdatafp)) && ($unc_len != 0) && ($timer->getTimeLeft() <= 0))
-								{
-									// No, we have to break, or we'll time out!
-									$resume = @ftell($zdatafp);
-									$configuration->set('volatile.engine.archiver.resume', $resume);
-									$configuration->set('volatile.engine.archiver.processingfile', true);
-
-									// ...and create a new part as well
-									if ( !$this->_createNewPart())
-									{
-										// Die if we couldn't create the new part
-										$this->setError('Could not create new ZIP part file ' . basename($this->_dataFileName));
-
-										return false;
-									}
-
-									// Open data file for output
-									$this->fp = @$this->_fopen($this->_dataFileName, "ab");
-
-									if ($this->fp === false)
-									{
-										$this->setError("Could not open archive file {$this->_dataFileName} for append!");
-
-										return false;
-									}
-
-									// ...then, return
-									return true;
-								}
-
-								// Create new ZIP part, but only if we'll have more data to write
-								if ( !feof($zdatafp) && ($unc_len > 0))
-								{
-									// Create new ZIP part
-									if ( !$this->_createNewPart())
-									{
-										// Die if we couldn't create the new part
-										$this->setError('Could not create new ZIP part file ' . basename($this->_dataFileName));
-
-										return false;
-									}
-
-									// Close the old data file
-									$this->_fclose($this->fp);
-									$this->fp = null;
-
-									// We have created the part. If the user asked for immediate post-proc, break step now.
-									if ($configuration->get('engine.postproc.common.after_part', 0))
-									{
-										$resume = @ftell($zdatafp);
-										$configuration->set('volatile.engine.archiver.resume', $resume);
-										$configuration->set('volatile.engine.archiver.processingfile', true);
-
-										$configuration->set('volatile.breakflag', true);
-										@fclose($zdatafp);
-
-										return true;
-									}
-
-									// Open data file for output
-									$this->fp = @$this->_fopen($this->_dataFileName, "ab");
-
-									if ($this->fp === false)
-									{
-										$this->setError("Could not open archive file {$this->_dataFileName} for append!");
-
-										return false;
-									}
-								}
-
-							} // end while
-
-						}
-					}
-
-					@fclose($zdatafp);
-				}
-			}
+			// Virtual data. Put into the archive.
+			$this->putRawDataIntoArchive($sourceNameOrData);
 		}
 		elseif ($isSymlink)
 		{
-			$this->_fwrite($this->fp, @readlink($sourceNameOrData));
+			$this->fwrite($this->fp, @readlink($sourceNameOrData));
+		}
+		elseif ((!$isDir) && (!$isSymlink))
+		{
+			// Uncompressed file.
+			if ($this->putUncompressedFileIntoArchive($sourceNameOrData, $unc_len, $resume) === true)
+			{
+				// If it returns true we are doing a step break to resume packing in the next step. So we need to return
+				// true here to avoid running the final bit of code which writes the central directory record and
+				// uncaches the file resume data.
+				return true;
+			}
 		}
 
 		// Open the central directory file for append
 		if (is_null($this->cdfp))
 		{
-			$this->cdfp = @$this->_fopen($this->_ctrlDirFileName, "ab");
+			$this->cdfp = @$this->fopen($this->centralDirectoryFilename, "ab");
 		}
 
 		if ($this->cdfp === false)
 		{
-			$this->setError("Could not open Central Directory temporary file for append!");
-
-			return false;
+			throw new ErrorException("Could not open Central Directory temporary file for append!");
 		}
 
-		$this->_fwrite($this->cdfp, $this->_ctrlDirHeader);
+		$this->fwrite($this->cdfp, $this->centralDirectoryRecordStartSignature);
 
-		if ( !$isSymlink)
+		if (!$isSymlink)
 		{
-			$this->_fwrite($this->cdfp, "\x14\x00"); /* Version made by (always set to 2.0). */
-			$this->_fwrite($this->cdfp, "\x14\x00"); /* Version needed to extract */
-			$this->_fwrite($this->cdfp, pack('v', 2048)); /* General purpose bit flag */
-			$this->_fwrite($this->cdfp, ($compressionMethod == 8) ? "\x08\x00" : "\x00\x00"); /* Compression method. */
+			$this->fwrite($this->cdfp, "\x14\x00"); /* Version made by (always set to 2.0). */
+			$this->fwrite($this->cdfp, "\x14\x00"); /* Version needed to extract */
+			$this->fwrite($this->cdfp, pack('v', 2048)); /* General purpose bit flag */
+			$this->fwrite($this->cdfp, ($compressionMethod == 8) ? "\x08\x00" : "\x00\x00"); /* Compression method. */
 		}
 		else
 		{
 			// Symlinks get special treatment
-			$this->_fwrite($this->cdfp, "\x14\x03"); /* Version made by (version 2.0 with UNIX extensions). */
-			$this->_fwrite($this->cdfp, "\x0a\x03"); /* Version needed to extract */
-			$this->_fwrite($this->cdfp, pack('v', 2048)); /* General purpose bit flag */
-			$this->_fwrite($this->cdfp, "\x00\x00"); /* Compression method. */
+			$this->fwrite($this->cdfp, "\x14\x03"); /* Version made by (version 2.0 with UNIX extensions). */
+			$this->fwrite($this->cdfp, "\x0a\x03"); /* Version needed to extract */
+			$this->fwrite($this->cdfp, pack('v', 2048)); /* General purpose bit flag */
+			$this->fwrite($this->cdfp, "\x00\x00"); /* Compression method. */
 		}
 
-		$this->_fwrite($this->cdfp, $hexdtime); /* Last mod time/date. */
-		$this->_fwrite($this->cdfp, pack('V', $crc)); /* CRC 32 information. */
-		$this->_fwrite($this->cdfp, pack('V', $c_len)); /* Compressed filesize. */
+		$this->fwrite($this->cdfp, $hexdtime); /* Last mod time/date. */
+		$this->fwrite($this->cdfp, pack('V', $crc)); /* CRC 32 information. */
+		$this->fwrite($this->cdfp, pack('V', $c_len)); /* Compressed filesize. */
 
 		if ($compressionMethod == 0)
 		{
 			// When we are not compressing, $unc_len is being reduced to 0 while backing up.
 			// With this trick, we always store the correct length, as in this case the compressed
 			// and uncompressed length is always the same.
-			$this->_fwrite($this->cdfp, pack('V', $c_len)); /* Uncompressed filesize. */
+			$this->fwrite($this->cdfp, pack('V', $c_len)); /* Uncompressed filesize. */
 		}
 		else
 		{
 			// When compressing, the uncompressed length differs from compressed length
 			// and this line writes the correct value.
-			$this->_fwrite($this->cdfp, pack('V', $unc_len)); /* Uncompressed filesize. */
+			$this->fwrite($this->cdfp, pack('V', $unc_len)); /* Uncompressed filesize. */
 		}
 
-		$this->_fwrite($this->cdfp, pack('v', $fn_length)); /* Length of filename. */
-		$this->_fwrite($this->cdfp, pack('v', 0)); /* Extra field length. */
-		$this->_fwrite($this->cdfp, pack('v', 0)); /* File comment length. */
-		$this->_fwrite($this->cdfp, pack('v', $starting_disk_number_for_this_file)); /* Disk number start. */
-		$this->_fwrite($this->cdfp, pack('v', 0)); /* Internal file attributes. */
+		$fn_length = akstrlen($storedName);
+		$this->fwrite($this->cdfp, pack('v', $fn_length)); /* Length of filename. */
+		$this->fwrite($this->cdfp, pack('v', 0)); /* Extra field length. */
+		$this->fwrite($this->cdfp, pack('v', 0)); /* File comment length. */
+		$this->fwrite($this->cdfp, pack('v', $starting_disk_number_for_this_file)); /* Disk number start. */
+		$this->fwrite($this->cdfp, pack('v', 0)); /* Internal file attributes. */
 
-		if ( !$isSymlink)
+		/* External file attributes */
+		if (!$isSymlink)
 		{
-			$this->_fwrite($this->cdfp, pack('V', $isDir ? 0x41FF0010 : 0xFE49FFE0)); /* External file attributes -   'archive' bit set. */
+			// Archive bit set
+			$this->fwrite($this->cdfp, pack('V', $isDir ? 0x41FF0010 : 0xFE49FFE0));
 		}
 		else
 		{
 			// For SymLinks we store UNIX file attributes
-			$this->_fwrite($this->cdfp, "\x20\x80\xFF\xA1"); /* External file attributes for Symlink. */
+			$this->fwrite($this->cdfp, "\x20\x80\xFF\xA1");
 		}
 
-		$this->_fwrite($this->cdfp, pack('V', $old_offset)); /* Relative offset of local header. */
-		$this->_fwrite($this->cdfp, $storedName); /* File name. */
+		$this->fwrite($this->cdfp, pack('V', $old_offset)); /* Relative offset of local header. */
+		$this->fwrite($this->cdfp, $storedName); /* File name. */
+
 		/* Optional extra field, file comment goes here. */
 
 		// Finally, increase the file counter by one
-		$this->_totalFileEntries++;
+		$this->totalFilesCount++;
 
 		// Uncache data
 		$configuration->set('volatile.engine.archiver.sourceNameOrData', null);
@@ -1375,6 +480,230 @@ class Zip extends Base
 	}
 
 	/**
+	 * Write the file header before putting the file data into the archive
+	 *
+	 * @param   string  $sourceNameOrData   The path to the file being compressed, or the raw file data for virtual files
+	 * @param   string  $targetName         The target path to be stored inside the archive
+	 * @param   bool    $isVirtual          Is this a virtual file?
+	 * @param   bool    $isSymlink          Is this a symlink?
+	 * @param   bool    $isDir              Is this a directory?
+	 * @param   int     $compressionMethod  The compression method chosen for this file
+	 * @param   string  $zdata              If we have compression method other than 0 this holds the compressed data.
+	 *                                      We return that from this method to avoid having to compress the same data
+	 *                                      twice (once to write the compressed data length in the header and once to
+	 *                                      write the compressed data to the archive).
+	 * @param   int     $unc_len            The uncompressed size of the file / source data
+	 *
+	 * @param   string  $storedName         The file path stored in the archive
+	 * @param   string  $crc                CRC-32 for the file
+	 * @param   int     $c_len              Compressed data length
+	 * @param   string  $hexdtime           ZIP's hexadecimal notation if the file's modification date
+	 * @param   int     $old_offset         Offset of the file header in the part file
+	 */
+	protected function writeFileHeader(&$sourceNameOrData, $targetName, &$isVirtual, &$isSymlink, &$isDir,
+	                                   &$compressionMethod, &$zdata, &$unc_len, &$storedName, &$crc, &$c_len,
+	                                   &$hexdtime, &$old_offset)
+	{
+		static $memLimit = null;
+
+		if (is_null($memLimit))
+		{
+			$memLimit = $this->getMemoryLimit();
+		}
+
+		$configuration = Factory::getConfiguration();
+
+		// See if it's a directory
+		$isDir = $isVirtual ? false : is_dir($sourceNameOrData);
+
+		// See if it's a symlink (w/out dereference)
+		$isSymlink = false;
+
+		if ($this->storeSymlinkTarget && !$isVirtual)
+		{
+			$isSymlink = is_link($sourceNameOrData);
+		}
+
+		// Get real size before compression
+		list($unc_len, $fileModTime) =
+			$this->getFileSizeAndModificationTime($sourceNameOrData, $isVirtual, $isSymlink, $isDir);
+
+		// Decide if we will compress
+		$compressionMethod = $this->getCompressionMethod($unc_len, $memLimit, $isDir, $isSymlink);
+
+		if ($isVirtual)
+		{
+			Factory::getLog()->log(LogLevel::DEBUG, '  Virtual add:' . $targetName . ' (' . $unc_len . ') - ' . $compressionMethod);
+		}
+
+		/* "Local file header" segment. */
+
+		$crc = $this->getCRCForEntity($sourceNameOrData, $isVirtual, $isDir, $isSymlink);
+
+		$storedName = $targetName;
+
+		if (!$isSymlink && $isDir)
+		{
+			$storedName .= "/";
+			$unc_len = 0;
+		}
+
+		// Test for non-existing or unreadable files
+		$this->testIfFileExists($sourceNameOrData, $isVirtual, $isDir, $isSymlink);
+
+		// Default compressed (archived) length = uncompressed length – valid unless we can actually compress the data.
+		$c_len = $unc_len;
+
+		// If we have to compress, read the data in memory and compress it
+		if ($compressionMethod == 8)
+		{
+			$this->getZData($sourceNameOrData, $isVirtual, $compressionMethod, $zdata, $unc_len, $c_len);
+
+			// The method modifies $compressionMethod to 0 (uncompressed) or 1 (Deflate) but the ZIP format needs it
+			// to be 0 (uncompressed) or 8 (Deflate). So I just multiply by 8.
+			$compressionMethod *= 8;
+		}
+
+		// Get the hex time.
+		$dtime = dechex($this->unix2DOSTime($fileModTime));
+
+		if (akstrlen($dtime) < 8)
+		{
+			$dtime = "00000000";
+		}
+
+		$hexdtime = chr(hexdec($dtime[6] . $dtime[7])) .
+			chr(hexdec($dtime[4] . $dtime[5])) .
+			chr(hexdec($dtime[2] . $dtime[3])) .
+			chr(hexdec($dtime[0] . $dtime[1]));
+
+		// If it's a split ZIP file, we've got to make sure that the header can fit in the part
+		if ($this->useSplitArchive)
+		{
+			// Get header size, taking into account any extra header necessary
+			$header_size = 30 + akstrlen($storedName);
+
+			// Compare to free part space
+			$free_space = $this->getPartFreeSize();
+
+			if ($free_space <= $header_size)
+			{
+				// Not enough space on current part, create new part
+				$this->createAndOpenNewPart();
+			}
+		}
+
+		$old_offset = @ftell($this->fp);
+
+		if ($this->useSplitArchive && ($old_offset == 0))
+		{
+			// Because in split ZIPs we have the split ZIP marker in the first four bytes.
+			@fseek($this->fp, 4);
+			$old_offset = @ftell($this->fp);
+		}
+
+		// Get the file name length in bytes
+		$fn_length = akstrlen($storedName);
+
+		$this->fwrite($this->fp, $this->fileHeaderSignature); /* Begin creating the ZIP data. */
+
+		/* Version needed to extract. */
+		if (!$isSymlink)
+		{
+			$this->fwrite($this->fp, "\x14\x00");
+		}
+		else
+		{
+			$this->fwrite($this->fp, "\x0a\x03");
+		}
+
+		$this->fwrite($this->fp, pack('v', 2048)); /* General purpose bit flag. Bit 11 set = use UTF-8 encoding for filenames & comments */
+		$this->fwrite($this->fp, ($compressionMethod == 8) ? "\x08\x00" : "\x00\x00"); /* Compression method. */
+		$this->fwrite($this->fp, $hexdtime); /* Last modification time/date. */
+		$this->fwrite($this->fp, pack('V', $crc)); /* CRC 32 information. */
+		$this->fwrite($this->fp, pack('V', $c_len)); /* Compressed filesize. */
+		$this->fwrite($this->fp, pack('V', $unc_len)); /* Uncompressed filesize. */
+		$this->fwrite($this->fp, pack('v', $fn_length)); /* Length of filename. */
+		$this->fwrite($this->fp, pack('v', 0)); /* Extra field length. */
+		$this->fwrite($this->fp, $storedName); /* File name. */
+
+		// Cache useful information about the file
+		if (!$isDir && !$isSymlink && !$isVirtual)
+		{
+			$configuration->set('volatile.engine.archiver.unc_len', $unc_len);
+			$configuration->set('volatile.engine.archiver.hexdtime', $hexdtime);
+			$configuration->set('volatile.engine.archiver.crc', $crc);
+			$configuration->set('volatile.engine.archiver.c_len', $c_len);
+			$configuration->set('volatile.engine.archiver.fn_length', $fn_length);
+			$configuration->set('volatile.engine.archiver.old_offset', $old_offset);
+			$configuration->set('volatile.engine.archiver.storedName', $storedName);
+			$configuration->set('volatile.engine.archiver.sourceNameOrData', $sourceNameOrData);
+		}
+	}
+
+	/**
+	 * Get the preferred compression method for a file
+	 *
+	 * @param   int   $fileSize   File size in bytes
+	 * @param   int   $memLimit   Memory limit in bytes
+	 * @param   bool  $isDir      Is it a directory?
+	 * @param   bool  $isSymlink  Is it a symlink?
+	 *
+	 * @return  int  Compression method to use
+	 */
+	protected function getCompressionMethod($fileSize, $memLimit, &$isDir, &$isSymlink)
+	{
+		// ZIP uses 0 for uncompressed and 8 for GZip Deflate whereas the parent method returns 0 and 1 respectively
+		return 8 * parent::getCompressionMethod($fileSize, $memLimit, $isDir, $isSymlink);
+	}
+
+	/**
+	 * Calculate the CRC-32 checksum
+	 *
+	 * @param   string  $sourceNameOrData   The path to the file being compressed, or the raw file data for virtual files
+	 * @param   bool    $isVirtual          Is this a virtual file?
+	 * @param   bool    $isSymlink          Is this a symlink?
+	 * @param   bool    $isDir              Is this a directory?
+	 *
+	 * @return  int  The CRC-32
+	 */
+	protected function getCRCForEntity(&$sourceNameOrData, &$isVirtual, &$isDir, &$isSymlink)
+	{
+		if (!$isSymlink && $isDir)
+		{
+			// Dummy CRC for dirs
+			$crc = 0;
+
+			return $crc;
+		}
+
+		if ($isSymlink)
+		{
+			$crc = \crc32(@readlink($sourceNameOrData));
+
+			return $crc;
+		}
+
+		if ($isVirtual)
+		{
+			$crc = \crc32($sourceNameOrData);
+
+			return $crc;
+		}
+
+		// This is supposed to be the fast way to calculate CRC32 of a (large) file.
+		$crc = $this->crcCalculator->crc32_file($sourceNameOrData, $this->AkeebaPackerZIP_CHUNK_SIZE);
+
+		// If the file was unreadable, $crc will be false, so we skip the file
+		if ($crc === false)
+		{
+			throw new WarningException('Could not calculate CRC32 for ' . $sourceNameOrData . '. Looks like it is an unreadable file.');
+		}
+
+		return $crc;
+	}
+
+	/**
 	 * Converts a UNIX timestamp to a 4-byte DOS date and time format
 	 * (date in high 2-bytes, time in low 2-bytes allowing magnitude
 	 * comparison).
@@ -1383,7 +712,7 @@ class Zip extends Base
 	 *
 	 * @return integer  The current date in a 4-byte DOS format.
 	 */
-	protected function _unix2DOSTime($unixtime = null)
+	protected function unix2DOSTime($unixtime = null)
 	{
 		$timearray = (is_null($unixtime)) ? getdate() : getdate($unixtime);
 
@@ -1412,21 +741,21 @@ class Zip extends Base
 	 *
 	 * @return  bool  True on success
 	 */
-	protected function _createNewPart($finalPart = false)
+	protected function createNewPartFile($finalPart = false)
 	{
 		// Close any open file pointers
 		if (is_resource($this->fp))
 		{
-			$this->_fclose($this->fp);
+			$this->fclose($this->fp);
 		}
 
 		if (is_resource($this->cdfp))
 		{
-			$this->_fclose($this->cdfp);
+			$this->fclose($this->cdfp);
 		}
 
 		// Remove the just finished part from the list of resumable offsets
-		$this->_removeFromOffsetsList($this->_dataFileName);
+		$this->removeFromOffsetsList($this->_dataFileName);
 
 		// Set the file pointers to null
 		$this->fp   = null;
@@ -1442,24 +771,24 @@ class Zip extends Base
 
 		// Add the part's size to our rolling sum
 		clearstatcache();
-		$this->_totalDataSize += filesize($this->_dataFileName);
-		$this->_totalFragments++;
-		$this->_currentFragment = $this->_totalFragments;
+		$this->totalCompressedSize += filesize($this->_dataFileName);
+		$this->totalParts++;
+		$this->currentPartNumber = $this->totalParts;
 
 		if ($finalPart)
 		{
-			$this->_dataFileName = $this->_dataFileNameBase . '.zip';
+			$this->_dataFileName = $this->dataFileNameWithoutExtension . '.zip';
 		}
 		else
 		{
-			$this->_dataFileName = $this->_dataFileNameBase . '.z' . sprintf('%02d', $this->_currentFragment);
+			$this->_dataFileName = $this->dataFileNameWithoutExtension . '.z' . sprintf('%02d', $this->currentPartNumber);
 		}
 
-		Factory::getLog()->log(LogLevel::INFO, 'Creating new ZIP part #' . $this->_currentFragment . ', file ' . $this->_dataFileName);
+		Factory::getLog()->log(LogLevel::INFO, 'Creating new ZIP part #' . $this->currentPartNumber . ', file ' . $this->_dataFileName);
 
 		// Inform CUBE that we have changed the multipart number
 		$statistics = Factory::getStatistics();
-		$statistics->updateMultipart($this->_totalFragments);
+		$statistics->updateMultipart($this->totalParts);
 
 		// Try to remove any existing file
 		@unlink($this->_dataFileName);
@@ -1473,5 +802,105 @@ class Zip extends Base
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Find the optimal chunk size for CRC32 calculations and file processing
+	 *
+	 * @return  void
+	 */
+	private function findOptimalChunkSize()
+	{
+		$configuration = Factory::getConfiguration();
+
+		// The user has entered their own preference
+		if ($configuration->get('engine.archiver.common.chunk_size', 0) > 0)
+		{
+			$this->AkeebaPackerZIP_CHUNK_SIZE = AKEEBA_CHUNK;
+
+			return;
+		}
+
+		// Get the PHP memory limit
+		$memLimit = $this->getMemoryLimit();
+
+		// Can't get a PHP memory limit? Use 2Mb chunks (fairly large, right?)
+		if (is_null($memLimit))
+		{
+			$this->AkeebaPackerZIP_CHUNK_SIZE = 2097152;
+
+			return;
+		}
+
+		if (!function_exists("memory_get_usage"))
+		{
+			// PHP can't report memory usage, use a conservative 512Kb
+			$this->AkeebaPackerZIP_CHUNK_SIZE = 524288;
+
+			return;
+		}
+
+		// PHP *can* report memory usage, see if there's enough available memory
+		$availableRAM = $memLimit - memory_get_usage();
+
+		if ($availableRAM > 0)
+		{
+			$this->AkeebaPackerZIP_CHUNK_SIZE = $availableRAM * 0.5;
+
+			return;
+		}
+
+		// NEGATIVE AVAILABLE MEMORY?!! Some borked PHP implementations also return the size of the httpd footprint.
+		if (($memLimit - 6291456) > 0)
+		{
+			$this->AkeebaPackerZIP_CHUNK_SIZE = $memLimit - 6291456;
+
+			return;
+		}
+
+		// If all else fails, use 2Mb and cross your fingers
+		$this->AkeebaPackerZIP_CHUNK_SIZE = 2097152;
+	}
+
+	/**
+	 * Create a Central Directory temporary file
+	 *
+	 * @return  void
+	 *
+	 * @throws  ErrorException
+	 */
+	private function createCentralDirectoryTempFile()
+	{
+		$configuration                  = Factory::getConfiguration();
+		$this->centralDirectoryFilename = tempnam($configuration->get('akeeba.basic.output_directory'), 'akzcd');
+		$this->centralDirectoryFilename = basename($this->centralDirectoryFilename);
+		$pos                            = strrpos($this->centralDirectoryFilename, '/');
+
+		if ($pos !== false)
+		{
+			$this->centralDirectoryFilename = substr($this->centralDirectoryFilename, $pos + 1);
+		}
+
+		$pos = strrpos($this->centralDirectoryFilename, '\\');
+
+		if ($pos !== false)
+		{
+			$this->centralDirectoryFilename = substr($this->centralDirectoryFilename, $pos + 1);
+		}
+
+		$this->centralDirectoryFilename = Factory::getTempFiles()->registerTempFile($this->centralDirectoryFilename);
+
+		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: CntDir Tempfile = " . $this->centralDirectoryFilename);
+
+		// Create temporary file
+		if (!@touch($this->centralDirectoryFilename))
+		{
+			throw new ErrorException("Could not open temporary file for ZIP archiver. Please check your temporary directory's permissions!");
+		}
+
+		if (function_exists('chmod'))
+		{
+			chmod($this->centralDirectoryFilename, 0666);
+		}
 	}
 }

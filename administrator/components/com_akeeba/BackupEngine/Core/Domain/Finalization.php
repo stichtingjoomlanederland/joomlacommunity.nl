@@ -743,11 +743,19 @@ class Finalization extends Part
 
 		// Get the part size in volatile storage, set from the immediate part uploading effected by the
 		// "Process each part immediately" option, and add it to the total file size
-		$volatileTotalSize = Factory::getConfiguration()->get('volatile.engine.archiver.totalsize', 0);
+		$config = Factory::getConfiguration();
+		$postProcImmediately = $config->get('engine.postproc.common.after_part', 0, false);
+		$deleteAfter = $config->get('engine.postproc.common.delete_after', 0, false);
+		$postProcEngine = $config->get('akeeba.advanced.postproc_engine', 'none');
 
-		if ($volatileTotalSize)
+		if ($postProcImmediately && $deleteAfter && ($postProcEngine != 'none'))
 		{
-			$filesize += $volatileTotalSize;
+			$volatileTotalSize = Factory::getConfiguration()->get('volatile.engine.archiver.totalsize', 0);
+
+			if ($volatileTotalSize)
+			{
+				$filesize += $volatileTotalSize;
+			}
 		}
 
 		$data = array(

@@ -11,6 +11,13 @@ defined('_JEXEC') or die();
 /** @var  $this  \Akeeba\Backup\Admin\View\Transfer\Html */
 ?>
 
+<?php if ($this->force):?>
+	<div class="alert alert-danger">
+		<h3><?php echo JText::_('COM_AKEEBA_TRANSFER_FORCE_HEADER')?></h3>
+		<p><?php echo JText::_('COM_AKEEBA_TRANSFER_FORCE_BODY')?></p>
+	</div>
+<?php endif; ?>
+
 <?php echo $this->loadAnyTemplate('admin:com_akeeba/CommonTemplates/FTPBrowser'); ?>
 <?php echo $this->loadAnyTemplate('admin:com_akeeba/CommonTemplates/SFTPBrowser'); ?>
 

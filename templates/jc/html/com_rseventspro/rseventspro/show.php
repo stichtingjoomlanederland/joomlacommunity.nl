@@ -79,7 +79,7 @@ jQuery(document).ready(function (){
 </script>
 
 <div id="rs_event_show">
-
+<div class="col-md-12">
 
 	<!-- Moved from below Share Buttons::ConConNL-->
 	<!-- Created DIV to make Bootstrap Column:ConConNL-->
@@ -384,22 +384,22 @@ jQuery(document).ready(function (){
 	<!-- FB / Twitter / Gplus sharing -->
 	<?php if (!empty($this->options['enable_fb_like']) || !empty($this->options['enable_twitter']) || !empty($this->options['enable_gplus']) || !empty($this->options['enable_linkedin'])) { ?>
 	<div class="rs_clear"></div>
-	<div class="rs_sharing">	
+	<div class="row rs_sharing">
 		<?php if (!empty($this->options['enable_fb_like'])) { ?>
-			<div class="rsepro-social" id="rsep_fb_like">
+			<div class="pull-left" id="rsep_fb_like">
 				<div class="fb-like" data-href="<?php echo rseventsproHelper::shareURL($event->id,$event->name); ?>" data-layout="button_count" data-action="like" data-show-faces="false" data-share="true"></div>
 			</div>
 		<?php } ?>
 
 		<?php if (!empty($this->options['enable_twitter'])) { ?>
-			<div class="rsepro-social" id="rsep_twitter">
+			<div class="pull-left" id="rsep_twitter">
 				<a href="https://twitter.com/share" class="twitter-share-button" data-text="<?php echo $this->escape($event->name); ?>">Tweet</a>
 				<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 			</div>
 		<?php } ?>
 		
 		<?php if (!empty($this->options['enable_gplus'])) { ?>
-			<div class="rsepro-social" id="rsep_gplus">
+			<div class="pull-left" id="rsep_gplus">
 				<!-- Place this tag where you want the +1 button to render -->
 				<g:plusone size="medium"></g:plusone>
 
@@ -415,7 +415,7 @@ jQuery(document).ready(function (){
 		<?php } ?>
 		
 		<?php if (!empty($this->options['enable_linkedin'])) { ?>
-			<div class="rsepro-social" id="rsep_linkedin">
+			<div class="pull-left" id="rsep_linkedin">
 				<script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
 				<script type="IN/Share" data-counter="right"></script>
 			</div>
@@ -424,13 +424,15 @@ jQuery(document).ready(function (){
 	<div class="rs_clear"></div>
 	<?php } ?>
 	<!--//end FB / Twitter / Gplus sharing -->
-
+	</div>
 	</div>
 
 	<!-- Google maps -->
 	<?php if (!empty($this->options['show_map']) && !empty($event->coordinates) && rseventsproHelper::getConfig('enable_google_maps','int')) { ?>
-		<div id="map-canvas" style="width: 100%; height: 200px;"></div>
+		<div class="col-md-12">
+		<div id="map-canvas" class="col-md-12" style="width: 100%; height: 200px;"></div>
 		<br />
+		</div>
 	<?php } ?>
 	<!--//end Google maps -->
 
@@ -516,7 +518,8 @@ jQuery(document).ready(function (){
 </div>
 
 <?php if ($this->config->timezone) { ?>
-<div id="timezoneModal" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">
+<div id="timezoneModal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-content">
 	<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 		<h3><?php echo JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE'); ?></h3>
@@ -546,6 +549,7 @@ jQuery(document).ready(function (){
 	<div class="modal-footer">
 		<button class="btn" data-dismiss="modal" aria-hidden="true"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
 		<button class="btn btn-primary" type="button" onclick="document.timezoneForm.submit();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button>
+	</div>
 	</div>
 </div>
 <?php } ?>

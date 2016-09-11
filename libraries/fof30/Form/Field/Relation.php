@@ -124,9 +124,11 @@ class Relation extends GenericList
 		$this->value = array();
 
 		$value_field = $this->element['value_field'] ? (string) $this->element['value_field'] : 'title';
+		$name = (string) $this->element['name'];
+        	$class = $this->element['model'] ? (string) $this->element['model'] : $name;
 
 		$view      = $this->form->getView()->getName();
-		$relation  = $this->form->getModel()->getContainer()->inflector->pluralize((string) $this->element['name']);
+		$relation  = $this->form->getModel()->getContainer()->inflector->pluralize($class);
 
 		/** @var DataModel $model */
 		$model = $this->form->getContainer()->factory->model($relation)->setIgnoreRequest(true)->savestate(false);
@@ -142,7 +144,7 @@ class Relation extends GenericList
 		if ($id = $this->form->getModel()->getId())
 		{
 			$model     = $this->form->getModel();
-			$relations = $model->$relation;
+			$relations = $model->$name;
 
 			foreach ($relations as $item)
 			{

@@ -29,7 +29,7 @@ class RSFirewallIP
 	// Determines protocol version to use.
 	protected function getProtocol($ip) {
 		$protocols = array(4, 6);
-		
+
 		foreach ($protocols as $version) {
 			$class = 'RSFirewallIPv'.$version;
 			if (call_user_func(array($class, 'test'), $ip)) {
@@ -151,7 +151,7 @@ class RSFirewallIP
 		if (!$ip) {
 			$input = JFactory::getApplication()->input->server;
 			$ip    = $input->get('REMOTE_ADDR', '', 'string');
-			
+
 			if ($check_for_proxy) {
 				// Proxy headers
 				$headers = RSFirewallConfig::getInstance()->get('check_proxy_ip_headers');
