@@ -350,6 +350,8 @@ class Zip extends BaseArchiver
 		else
 		{
 			// Since we are continuing archiving, it's an uncompressed regular file. Set up the variables.
+			$sourceNameOrData  = $configuration->get('volatile.engine.archiver.sourceNameOrData', '');
+			$resume            = $configuration->get('volatile.engine.archiver.resume', 0);
 			$unc_len           = $configuration->get('volatile.engine.archiver.unc_len');
 			$storedName        = $configuration->get('volatile.engine.archiver.storedName');
 			$crc               = $configuration->get('volatile.engine.archiver.crc');

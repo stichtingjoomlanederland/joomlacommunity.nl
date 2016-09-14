@@ -1,4 +1,8 @@
 <?php die();?>
+Akeeba Backup 5.2.2
+================================================================================
+! The ZIP archiver was not working properly
+
 Akeeba Backup 5.2.1
 ================================================================================
 ! PHP 5.4 compatibility (now working around a PHP bug which has been fixed years ago in PHP 5.5 and later)
