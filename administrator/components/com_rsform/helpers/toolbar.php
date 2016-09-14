@@ -23,7 +23,6 @@ abstract class RSFormProToolbarHelper
 		self::addEntry('CONFIGURATION', 'index.php?option=com_rsform&view=configuration', $view == 'configuration');
 		self::addEntry('BACKUP_RESTORE', 'index.php?option=com_rsform&view=backuprestore', $view == 'backuprestore');
 		self::addEntry('UPDATES', 'index.php?option=com_rsform&view=updates', $view == 'updates');
-		self::addEntry('PLUGINS', 'index.php?option=com_rsform&task=goto.plugins', false);
 	}
 	
 	protected static function addEntry($lang_key, $url, $default=false) {

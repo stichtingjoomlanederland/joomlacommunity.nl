@@ -992,10 +992,13 @@ class com_rsformInstallerScript
 			<?php } ?>
 			<?php } ?>
 		<?php } ?>
-		<h2>Changelog v1.52.2</h2>
+		<h2>Changelog v1.52.3</h2>
 		<ul class="version-history">
-			<li><span class="version-fixed">Fix</span> AJAX validation didn't work properly on HTML5 fields.</li>
-			<li><span class="version-fixed">Fix</span> A scripting error would show up when using Javascript compressing tools.</li>
+			<li><span class="version-fixed">Fix</span> Pressing Enter on a multi-page form would render the Submit button disabled in some cases.</li>
+			<li><span class="version-fixed">Fix</span> Submit button was left disabled when {error} placeholder was missing from Form Layout.</li>
+			<li><span class="version-fixed">Fix</span> Suppressed PHP warning when no active menu Itemid was found.</li>
+			<li><span class="version-fixed">Fix</span> 'Plugins' button removed from sidebar menu.</li>
+			<li><span class="version-fixed">Fix</span> 'Scroll to Error' was not working correctly when using lots of required fields.</li>
 		</ul>
 		<a class="com-rsform-button" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="com-rsform-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/21-rsform-pro-user-guide.html" target="_blank">Read the RSForm! Pro User Guide</a>
