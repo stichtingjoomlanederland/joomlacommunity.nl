@@ -12,12 +12,12 @@ const targetCss         = 'css';
 
 /* Gulp tasks */
 gulp.task('less', function () {
-    gulp.src(lessDir + '/template.less')
+    gulp.src(lessDir + '/*.less')
         .pipe(sourcemaps.init())
-            .pipe(less())
-            .on("error", notify.onError("<%= error.message %>"))
-            .pipe(autoprefixer('last 10 versions', 'ie 9'))
-            .pipe(cssnano())
+        .pipe(less())
+        .on("error", notify.onError("<%= error.message %>"))
+        .pipe(autoprefixer('last 10 versions', 'ie 9'))
+        .pipe(cssnano())
         .pipe(sourcemaps.write())
         .pipe(gulp.dest(targetCss))
         .pipe(notify('LESS compiled successfully'));
