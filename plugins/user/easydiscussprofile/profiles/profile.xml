@@ -45,7 +45,7 @@
 				filter="string"
 				label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_FACEBOOK_LABEL"
 				message="PLG_USER_EASYDISCUSS_PROFILE_FIELD_FACEBOOK_MESSAGE"
-				size="150"
+				size="30"
 			/>
 
 			<field
@@ -56,7 +56,7 @@
 				filter="string"
 				label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_TWITTER_LABEL"
 				message="PLG_USER_EASYDISCUSS_PROFILE_FIELD_TWITTER_MESSAGE"
-				size="150"
+				size="30"
 			/>
 
 			<field
@@ -67,7 +67,7 @@
 				filter="string"
 				label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_LINKEDIN_LABEL"
 				message="PLG_USER_EASYDISCUSS_PROFILE_FIELD_LINKEDIN_MESSAGE"
-				size="150"
+				size="30"
 			/>
 
 			<field
@@ -78,7 +78,7 @@
 				filter="string"
 				label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_SKYPE_LABEL"
 				message="PLG_USER_EASYDISCUSS_PROFILE_FIELD_SKYPE_MESSAGE"
-				size="150"
+				size="30"
 			/>
 
 			<field
@@ -89,7 +89,7 @@
 				filter="string"
 				label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_WEBSITE_LABEL"
 				message="PLG_USER_EASYDISCUSS_PROFILE_FIELD_WEBSITE_MESSAGE"
-				size="150"
+				size="30"
 			/>
 
 			<field
@@ -100,7 +100,7 @@
 				filter="string"
 				label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_LOCATION_LABEL"
 				message="PLG_USER_EASYDISCUSS_PROFILE_FIELD_LOCATION_MESSAGE"
-				size="300"
+				size="30"
 			/>
 
 		</fieldset>
