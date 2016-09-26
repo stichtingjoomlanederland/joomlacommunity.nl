@@ -1,0 +1,145 @@
+/*------------------------------------*\
+    $print.less
+\*------------------------------------*/
+@media print {
+
+body * { // Hide all by default
+	visibility:hidden;
+}
+
+#ed {
+	visibility: visible;
+	* {
+		visibility: visible;
+	}
+	position:absolute;
+	left:0;
+	top:0;
+
+
+	*,
+	*:before,
+	*:after {
+	    background: transparent !important;
+	    color: #000 !important; // Black prints faster: h5bp.com/s
+	    box-shadow: none !important;
+	    text-shadow: none !important;
+	}
+
+	a,
+	a:visited {
+	    text-decoration: underline;
+	}
+
+	a[href]:after {
+	    content: " (" attr(href) ")";
+	}
+
+	abbr[title]:after {
+	    content: " (" attr(title) ")";
+	}
+
+	// Don't show links that are fragment identifiers,
+	// or use the `javascript:` pseudo protocol
+	a[href^="#"]:after,
+	a[href^="javascript:"]:after {
+	    content: "";
+	}
+
+	pre,
+	blockquote {
+	    border: 1px solid #999;
+	    page-break-inside: avoid;
+	}
+
+	thead {
+	    display: table-header-group; // h5bp.com/t
+	}
+
+	tr,
+	img {
+	    page-break-inside: avoid;
+	}
+
+	img {
+	    max-width: 100% !important;
+	}
+
+	p,
+	h2,
+	h3 {
+	    orphans: 3;
+	    widows: 3;
+	}
+
+	h2,
+	h3 {
+	    page-break-after: avoid;
+	}
+
+	// Bootstrap specific changes start
+
+	// Bootstrap components
+	.navbar {
+	    display: none;
+	}
+	.btn,
+	.dropup > .btn {
+	    > .caret {
+	        border-top-color: #000 !important;
+	    }
+	}
+	.label {
+	    border: 1px solid #000;
+	}
+
+	.table {
+	    border-collapse: collapse !important;
+
+	    td,
+	    th {
+	        background-color: #fff !important;
+	    }
+	}
+	.table-bordered {
+	    th,
+	    td {
+	        border: 1px solid #ddd !important;
+	    }
+	}
+
+	// Elements not to print out
+	// ----------------
+	.ed-head,
+	.ed-entry-action-bar,
+	.ed-post-reply-form,
+	.ed-post-reply-bar__sort-action,
+	.ed-navbar,
+	.ed-adminbar,
+	.ed-btn-counter-group,
+	.ed-ratings,
+	.ed-post-who-view,
+	.ed-pagination,
+	.ed-comments-wrapper.is-empty,
+	.btn {
+		display: none !important;
+	}
+	.ed-location__map-static {
+		-webkit-print-color-adjust: exact;
+	}
+
+	&.discuss-view-post {
+		.discuss-item {
+			// page-break-before: always !important;
+		}
+		.discuss-item-left {
+			// left: 10px;
+			+ .discuss-item-right {
+			}
+		}
+	}
+}
+
+
+}
+

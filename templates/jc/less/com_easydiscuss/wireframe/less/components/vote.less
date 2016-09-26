@@ -1,0 +1,61 @@
+/**
+* Easydiscuss vote
+*/
+@ed-vote-width: 80px;
+.ed-vote {
+    position: relative;
+    text-align: center;
+    width: @ed-vote-width;
+    // background-color: green;
+    &__points {
+        font-size: @fd-base-font-size;
+        font-weight: bold;
+        // height: 40px;
+        padding: @fd-base-spacing--sm @fd-base-spacing;
+        position: relative;
+        z-index: 1;
+        width: @ed-vote-width * .65;
+        line-height: 1;
+        // border: 1px solid @fd-ui-border-color;
+    }
+    &__text {
+        width: @ed-vote-width * .65;
+        font-size: @fd-base-font-size;
+        line-height: 1;
+        .text-overflow();
+    }
+    &__up,
+    &__down, {
+        position: absolute;
+        width: @ed-vote-width * .35;
+        right: 0;
+        color: @fd-ui-meta-color;
+        line-height: 1;
+        // background-color: red;
+        .transition(color 0.15s ease-in-out);
+        &:hover {
+            color: @fd-ui-text-color;
+        }
+    }
+    &__up {
+        // top: -@fd-base-spacing--sm;
+        top: 0;
+
+    }
+    &__down {
+        // bottom: -@fd-base-spacing--sm;
+        bottom: 0;
+    }
+
+    &__undo {
+        // width: @ed-vote-width * .65;
+        // font-size: @fd-base-font-size;
+        // line-height: 1;
+        // .text-overflow();
+        position: absolute;
+        width: @ed-vote-width * .65;
+        left: 0;
+        // color: @fd-ui-text-link-color;
+        line-height: 1;
+    }
+}

@@ -43,7 +43,7 @@ class ThisTemplateHelper
 	 */
 	public $settings = array(
 		'debug'       => true,
-		'unset_css'   => array('com_finder', 'foundry', 'com_rseventspro', 'com_rscomments'),
+		'unset_css'   => array('com_finder', 'foundry', 'com_rseventspro', 'com_rscomments', 'com_easydiscuss'),
 		'analytics'   => 0, // 0 = none, GA = Universal Google Analytics, GTM = Google Tag Manager, Mix = Mixpanel
 		'analyticsid' => '',
 	);
@@ -265,6 +265,20 @@ class ThisTemplateHelper
 	}
 
 	/**
+	 * Method to determine whether the current page is EasyDiscuss
+	 *
+	 * @access public
+	 *
+	 * @param null
+	 *
+	 * @return bool
+	 */
+	public function isEasyDiscuss()
+	{
+		return ($this->input->getCmd('option') == 'com_easydiscuss');
+	}
+
+	/**
 	 * Remove unwanted CSS
 	 */
 	public function unloadCss()
@@ -288,6 +302,11 @@ class ThisTemplateHelper
 	public function loadCss()
 	{
 		$this->doc->addStyleSheet('templates/' . $this->template . '/css/template.css');
+
+		if ($this->isEasyDiscuss())
+		{
+			$this->doc->addStyleSheet('templates/' . $this->template . '/css/easydiscuss.css');
+		}
 	}
 
 	/**
@@ -357,7 +376,7 @@ class ThisTemplateHelper
         }
 
         $googleMapsScript = 'https://maps.google.com/maps/api/js';
-       
+
         if (!empty($libraries))
         {
             $googleMapsScript .= '?libraries=' . implode(',', $libraries);

@@ -1,0 +1,86 @@
+/**
+* Easydiscuss adminbar
+*/
+.ed-adminbar {
+    
+    font-size: 12px;
+    clear: both;
+    .clearfix();
+
+    &__dropdown-menu-tools {
+        right: 0;
+        left: auto;
+    }
+}
+&.w480 {
+    .ed-adminbar {
+        margin-top: @fd-base-spacing;
+        .btn-group {
+            margin-bottom: @fd-base-spacing;
+        }
+    }
+}
+
+// Admin bar btn will hide base on post status
+// Btn name
+// .ed-btn-featured
+// .ed-btn-unfeatured
+// .ed-btn-lock
+// .ed-btn-unlock
+// .ed-btn-resolve
+// .ed-btn-unresolve
+// .ed-btn-lockpoll
+// .ed-btn-unlockpoll
+//  Due to BS3 nested selector for link .dropdown-menu > li > a
+//  We have to use aggresive !important method here.
+// 
+
+// Have to use .btn-group and without changing the dom
+.ed-btn-resolve,
+.ed-btn-unresolve {
+    border-radius: @fd-ui-radius !important;
+}
+
+.ed-btn-unfeatured,
+.ed-btn-unlock,
+.ed-btn-unlockpoll,
+.ed-btn-unresolve {
+    display: none !important; // Hide by default
+}
+
+// .is-xxx will apply to data-ed-post-wrapper 
+.is-featured {
+    .ed-btn-unfeatured {
+        display: block !important;
+    }
+    .ed-btn-featured {
+        display: none !important;
+    }
+}
+
+.is-locked {
+    .ed-btn-unlock {
+        display: inline-block !important;
+    }
+    .ed-btn-lock {
+        display: none !important;
+    }
+}
+
+.is-lockpoll {
+    .ed-btn-unlockpoll {
+        display: inline-block !important;
+    }
+    .ed-btn-lockpoll {
+        display: none !important;
+    }
+}
+
+.is-resolved {
+    .ed-btn-unresolve {
+        display: block !important;
+    }
+    .ed-btn-resolve {
+        display: none !important;
+    }
+}
