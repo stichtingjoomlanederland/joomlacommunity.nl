@@ -58,6 +58,8 @@ class RSFormProFieldTextarea extends RSFormProField
 		$additional 	= '';
 		
 		if ($editor) {
+			$this->addScriptDeclaration('RSFormPro.Editors['.json_encode($name).'] = function() { try { return '.$this->getEditor()->getContent($name).' } catch (e) {} };');
+
 			return $this->getEditor()->display($name, $this->escape($value), $cols*10, $rows*10, $cols, $rows, true, $id, null, null,
 				array('relative_urls' => '0',
 				'cleanup_save' => '0',

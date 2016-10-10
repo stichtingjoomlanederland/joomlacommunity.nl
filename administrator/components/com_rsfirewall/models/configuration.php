@@ -53,18 +53,22 @@ class RSFirewallModelConfiguration extends JModelAdmin
 		$result = array(
 			// Default to true
 			'works'		=> true,
-			'native' 	=> $this->isGeoIPNative()
+			'native' 	=> $this->isGeoIPNative(),
+			'dbv4'		=> false,
+			'dbv6'		=> false
 		);
 		
-		// Let's see if dbs are in place
+		$now = JFactory::getDate('now')->toUnix();
+		
+		// Check native GeoIP
 		if ($this->isGeoIPNative()) {
 			$result['dbv4'] = $this->hasGeoIPNativeDatabase('GEOIP_COUNTRY_EDITION');
 			$result['dbv6'] = $this->hasGeoIPNativeDatabase('GEOIP_COUNTRY_EDITION_V6');
-		} else {
+		}
+		
+		// Check for GeoIP server files
+		if (!$result['dbv4']) {
 			$result['dbv4'] = file_exists($this->getGeoIPPath().$this->getGeoIPFileName('v4'));
-			$result['dbv6'] = file_exists($this->getGeoIPPath().$this->getGeoIPFileName('v6'));
-			
-			$now = JFactory::getDate('now')->toUnix();
 			
 			// Check file timestamp
 			if ($result['dbv4']) {
@@ -72,6 +76,12 @@ class RSFirewallModelConfiguration extends JModelAdmin
 				$result['dbv4_old'] 	 = $now - $mtime > 86400 * 30;
 				$result['dbv4_modified'] = JHtml::_('date.relative', JFactory::getDate($mtime)->toSql());
 			}
+		}
+		
+		if (!$result['dbv6']) {
+			$result['dbv6'] = file_exists($this->getGeoIPPath().$this->getGeoIPFileName('v6'));
+			
+			// Check file timestamp
 			if ($result['dbv6']) {
 				$mtime					 = filemtime($this->getGeoIPPath().$this->getGeoIPFileName('v6'));
 				$result['dbv6_old'] 	 = $now - $mtime > 86400 * 30;

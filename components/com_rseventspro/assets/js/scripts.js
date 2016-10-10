@@ -1318,6 +1318,7 @@ function rsepro_add_ticket_seats(id, place) {
 						
 						if (thetotal > maxticketsAvailable) {
 							alert(thedocument.smessage[5]);
+							rsepro_add_ticket_seats(id, place);
 							return;
 						}
 					}
@@ -1326,6 +1327,7 @@ function rsepro_add_ticket_seats(id, place) {
 					if (jQuery('#rsepro_unlimited_'+id).val() > available_per_user) {
 						jQuery('#rsepro_unlimited_'+id).val(available_per_user);
 						alert(thedocument.smessage[6].replace('%d',available_per_user));
+						rsepro_add_ticket_seats(id, place);
 						return;
 					}
 					
@@ -1349,6 +1351,7 @@ function rsepro_add_ticket_seats(id, place) {
 						
 						if (thetotal > maxticketsAvailable) {
 							alert(thedocument.smessage[5]);
+							rsepro_add_ticket_seats(id, place);
 							return;
 						}
 					}
@@ -1357,6 +1360,7 @@ function rsepro_add_ticket_seats(id, place) {
 					if (jQuery('#rsepro_unlimited_'+id).val() > available_per_user) {
 						alert(thedocument.smessage[6].replace('%d',available_per_user));
 						jQuery('#rsepro_unlimited_'+id).val(available_per_user);
+						rsepro_add_ticket_seats(id, place);
 						return;
 					}
 					

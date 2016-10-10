@@ -162,7 +162,11 @@ class RSFormController extends JControllerLegacy
 		$app	= JFactory::getApplication();
 		$vName	= $app->input->getCmd('view', '');
 		
-		if (!in_array($vName, array('rsform', 'directory', 'submissions'))) {
+		jimport('joomla.filesystem.folder');
+		
+		$allowed = JFolder::folders(JPATH_COMPONENT.'/views');
+		
+		if (!in_array($vName, $allowed)) {
 			$app->input->set('view', 'rsform');
 		}
 

@@ -7544,347 +7544,11 @@ class AKFactory
  */
 
 /**
- * Interface for AES encryption adapters
- */
-interface AKEncryptionAESAdapterInterface
-{
-	/**
-	 * Decrypts a string. Returns the raw binary ciphertext, zero-padded.
-	 *
-	 * @param   string       $plainText  The plaintext to encrypt
-	 * @param   string       $key        The raw binary key (will be zero-padded or chopped if its size is different than the block size)
-	 *
-	 * @return  string  The raw encrypted binary string.
-	 */
-	public function decrypt($plainText, $key);
-
-	/**
-	 * Returns the encryption block size in bytes
-	 *
-	 * @return  int
-	 */
-	public function getBlockSize();
-
-	/**
-	 * Is this adapter supported?
-	 *
-	 * @return  bool
-	 */
-	public function isSupported();
-}
-
-/**
- * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
- *
- * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
- * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
- */
-
-/**
- * Abstract AES encryption class
- */
-abstract class AKEncryptionAESAdapterAbstract
-{
-	/**
-	 * Trims or zero-pads a key / IV
-	 *
-	 * @param   string $key  The key or IV to treat
-	 * @param   int    $size The block size of the currently used algorithm
-	 *
-	 * @return  null|string  Null if $key is null, treated string of $size byte length otherwise
-	 */
-	public function resizeKey($key, $size)
-	{
-		if (empty($key))
-		{
-			return null;
-		}
-
-		$keyLength = strlen($key);
-
-		if (function_exists('mb_strlen'))
-		{
-			$keyLength = mb_strlen($key, 'ASCII');
-		}
-
-		if ($keyLength == $size)
-		{
-			return $key;
-		}
-
-		if ($keyLength > $size)
-		{
-			if (function_exists('mb_substr'))
-			{
-				return mb_substr($key, 0, $size, 'ASCII');
-			}
-
-			return substr($key, 0, $size);
-		}
-
-		return $key . str_repeat("\0", ($size - $keyLength));
-	}
-
-	/**
-	 * Returns null bytes to append to the string so that it's zero padded to the specified block size
-	 *
-	 * @param   string $string    The binary string which will be zero padded
-	 * @param   int    $blockSize The block size
-	 *
-	 * @return  string  The zero bytes to append to the string to zero pad it to $blockSize
-	 */
-	protected function getZeroPadding($string, $blockSize)
-	{
-		$stringSize = strlen($string);
-
-		if (function_exists('mb_strlen'))
-		{
-			$stringSize = mb_strlen($string, 'ASCII');
-		}
-
-		if ($stringSize == $blockSize)
-		{
-			return '';
-		}
-
-		if ($stringSize < $blockSize)
-		{
-			return str_repeat("\0", $blockSize - $stringSize);
-		}
-
-		$paddingBytes = $stringSize % $blockSize;
-
-		return str_repeat("\0", $blockSize - $paddingBytes);
-	}
-}
-
-/**
- * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
- *
- * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
- * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
- */
-
-class Mcrypt extends AKEncryptionAESAdapterAbstract implements AKEncryptionAESAdapterInterface
-{
-	protected $cipherType = MCRYPT_RIJNDAEL_128;
-
-	protected $cipherMode = MCRYPT_MODE_CBC;
-
-	public function decrypt($cipherText, $key)
-	{
-		$iv_size    = $this->getBlockSize();
-		$key        = $this->resizeKey($key, $iv_size);
-		$iv         = substr($cipherText, 0, $iv_size);
-		$cipherText = substr($cipherText, $iv_size);
-		$plainText  = mcrypt_decrypt($this->cipherType, $key, $cipherText, $this->cipherMode, $iv);
-
-		return $plainText;
-	}
-
-	public function isSupported()
-	{
-		if (!function_exists('mcrypt_get_key_size'))
-		{
-			return false;
-		}
-
-		if (!function_exists('mcrypt_get_iv_size'))
-		{
-			return false;
-		}
-
-		if (!function_exists('mcrypt_create_iv'))
-		{
-			return false;
-		}
-
-		if (!function_exists('mcrypt_encrypt'))
-		{
-			return false;
-		}
-
-		if (!function_exists('mcrypt_decrypt'))
-		{
-			return false;
-		}
-
-		if (!function_exists('mcrypt_list_algorithms'))
-		{
-			return false;
-		}
-
-		if (!function_exists('hash'))
-		{
-			return false;
-		}
-
-		if (!function_exists('hash_algos'))
-		{
-			return false;
-		}
-
-		$algorightms = mcrypt_list_algorithms();
-
-		if (!in_array('rijndael-128', $algorightms))
-		{
-			return false;
-		}
-
-		if (!in_array('rijndael-192', $algorightms))
-		{
-			return false;
-		}
-
-		if (!in_array('rijndael-256', $algorightms))
-		{
-			return false;
-		}
-
-		$algorightms = hash_algos();
-
-		if (!in_array('sha256', $algorightms))
-		{
-			return false;
-		}
-
-		return true;
-	}
-
-	public function getBlockSize()
-	{
-		return mcrypt_get_iv_size($this->cipherType, $this->cipherMode);
-	}
-}
-
-/**
- * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
- *
- * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
- * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
- */
-
-class OpenSSL extends AKEncryptionAESAdapterAbstract implements AKEncryptionAESAdapterInterface
-{
-	/**
-	 * The OpenSSL options for encryption / decryption
-	 *
-	 * @var  int
-	 */
-	protected $openSSLOptions = 0;
-
-	/**
-	 * The encryption method to use
-	 *
-	 * @var  string
-	 */
-	protected $method = 'aes-128-cbc';
-
-	public function __construct()
-	{
-		$this->openSSLOptions = OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING;
-	}
-
-	public function decrypt($cipherText, $key)
-	{
-		$iv_size    = $this->getBlockSize();
-		$key        = $this->resizeKey($key, $iv_size);
-		$iv         = substr($cipherText, 0, $iv_size);
-		$cipherText = substr($cipherText, $iv_size);
-		$plainText  = openssl_decrypt($cipherText, $this->method, $key, $this->openSSLOptions, $iv);
-
-		return $plainText;
-	}
-
-	public function isSupported()
-	{
-		if (!function_exists('openssl_get_cipher_methods'))
-		{
-			return false;
-		}
-
-		if (!function_exists('openssl_random_pseudo_bytes'))
-		{
-			return false;
-		}
-
-		if (!function_exists('openssl_cipher_iv_length'))
-		{
-			return false;
-		}
-
-		if (!function_exists('openssl_encrypt'))
-		{
-			return false;
-		}
-
-		if (!function_exists('openssl_decrypt'))
-		{
-			return false;
-		}
-
-		if (!function_exists('hash'))
-		{
-			return false;
-		}
-
-		if (!function_exists('hash_algos'))
-		{
-			return false;
-		}
-
-		$algorightms = openssl_get_cipher_methods();
-
-		if (!in_array('aes-128-cbc', $algorightms))
-		{
-			return false;
-		}
-
-		$algorightms = hash_algos();
-
-		if (!in_array('sha256', $algorightms))
-		{
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * @return int
-	 */
-	public function getBlockSize()
-	{
-		return openssl_cipher_iv_length($this->method);
-	}
-}
-
-/**
- * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
- *
- * @copyright   2010-2016 Nicholas K. Dionysopoulos / Akeeba Ltd.
- * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
- */
-
-/**
  * AES implementation in PHP (c) Chris Veness 2005-2016.
  * Right to use and adapt is granted for under a simple creative commons attribution
  * licence. No warranty of any form is offered.
  *
- * Heavily modified for Akeeba Backup by Nicholas K. Dionysopoulos
- * Also added AES-128 CBC mode (with mcrypt and OpenSSL) on top of AES CTR
+ * Modified for Akeeba Backup by Nicholas K. Dionysopoulos
  */
 class AKEncryptionAES
 {
@@ -7929,11 +7593,11 @@ class AKEncryptionAES
 	 *
 	 * Unicode multi-byte character safe
 	 *
-	 * @param   string $plaintext Source text to be encrypted
-	 * @param   string $password  The password to use to generate a key
-	 * @param   int    $nBits     Number of bits to be used in the key (128, 192, or 256)
+	 * @param plaintext source text to be encrypted
+	 * @param password  the password to use to generate a key
+	 * @param nBits     number of bits to be used in the key (128, 192, or 256)
 	 *
-	 * @return  string  Encrypted text
+	 * @return          encrypted text
 	 */
 	public static function AESEncryptCtr($plaintext, $password, $nBits)
 	{
@@ -8020,11 +7684,11 @@ class AKEncryptionAES
 	/**
 	 * AES Cipher function: encrypt 'input' with Rijndael algorithm
 	 *
-	 * @param   array $input    Message as byte-array (16 bytes)
-	 * @param   array $w        key schedule as 2D byte-array (Nr+1 x Nb bytes) -
-	 *                          generated from the cipher key by KeyExpansion()
+	 * @param input message as byte-array (16 bytes)
+	 * @param w     key schedule as 2D byte-array (Nr+1 x Nb bytes) -
+	 *              generated from the cipher key by KeyExpansion()
 	 *
-	 * @return  string  Ciphertext as byte-array (16 bytes)
+	 * @return      ciphertext as byte-array (16 bytes)
 	 */
 	protected static function Cipher($input, $w)
 	{    // main Cipher function [�5.1]
@@ -8043,7 +7707,7 @@ class AKEncryptionAES
 		{  // apply Nr rounds
 			$state = self::SubBytes($state, $Nb);
 			$state = self::ShiftRows($state, $Nb);
-			$state = self::MixColumns($state);
+			$state = self::MixColumns($state, $Nb);
 			$state = self::AddRoundKey($state, $w, $round, $Nb);
 		}
 
@@ -8103,20 +7767,17 @@ class AKEncryptionAES
 		return $s;  // see fp.gladman.plus.com/cryptography_technology/rijndael/aes.spec.311.pdf
 	}
 
-	protected static function MixColumns($s)
-	{
-		// combine bytes of each col of state S [�5.1.3]
+	protected static function MixColumns($s, $Nb)
+	{   // combine bytes of each col of state S [�5.1.3]
 		for ($c = 0; $c < 4; $c++)
 		{
 			$a = array(4);  // 'a' is a copy of the current column from 's'
 			$b = array(4);  // 'b' is a�{02} in GF(2^8)
-
 			for ($i = 0; $i < 4; $i++)
 			{
 				$a[$i] = $s[$i][$c];
 				$b[$i] = $s[$i][$c] & 0x80 ? $s[$i][$c] << 1 ^ 0x011b : $s[$i][$c] << 1;
 			}
-
 			// a[n] ^ b[n] is a�{03} in GF(2^8)
 			$s[0][$c] = $b[0] ^ $a[1] ^ $b[1] ^ $a[2] ^ $a[3]; // 2*a0 + 3*a1 + a2 + a3
 			$s[1][$c] = $a[0] ^ $b[1] ^ $a[2] ^ $b[2] ^ $a[3]; // a0 * 2*a1 + 3*a2 + a3
@@ -8131,20 +7792,15 @@ class AKEncryptionAES
 	 * Key expansion for Rijndael Cipher(): performs key expansion on cipher key
 	 * to generate a key schedule
 	 *
-	 * @param   array $key Cipher key byte-array (16 bytes)
+	 * @param key cipher key byte-array (16 bytes)
 	 *
-	 * @return  array  Key schedule as 2D byte-array (Nr+1 x Nb bytes)
+	 * @return    key schedule as 2D byte-array (Nr+1 x Nb bytes)
 	 */
 	protected static function KeyExpansion($key)
-	{
-		// generate Key Schedule from Cipher Key [�5.2]
-
-		// block size (in words): no of columns in state (fixed at 4 for AES)
-		$Nb = 4;
-		// key length (in words): 4/6/8 for 128/192/256-bit keys
-		$Nk = (int) (count($key) / 4);
-		// no of rounds: 10/12/14 for 128/192/256-bit keys
-		$Nr = $Nk + 6;
+	{  // generate Key Schedule from Cipher Key [�5.2]
+		$Nb = 4;              // block size (in words): no of columns in state (fixed at 4 for AES)
+		$Nk = count($key) / 4;  // key length (in words): 4/6/8 for 128/192/256-bit keys
+		$Nr = $Nk + 6;        // no of rounds: 10/12/14 for 128/192/256-bit keys
 
 		$w    = array();
 		$temp = array();
@@ -8167,8 +7823,7 @@ class AKEncryptionAES
 				$temp = self::SubWord(self::RotWord($temp));
 				for ($t = 0; $t < 4; $t++)
 				{
-					$rConIndex = (int) ($i / $Nk);
-					$temp[$t] ^= self::$Rcon[$rConIndex][$t];
+					$temp[$t] ^= self::$Rcon[$i / $Nk][$t];
 				}
 			}
 			else if ($Nk > 6 && $i % $Nk == 4)
@@ -8234,40 +7889,34 @@ class AKEncryptionAES
 	/**
 	 * Decrypt a text encrypted by AES in counter mode of operation
 	 *
-	 * @param   string  $ciphertext  Source text to be decrypted
-	 * @param   string  $password    The password to use to generate a key
-	 * @param   int     $nBits       Number of bits to be used in the key (128, 192, or 256)
+	 * @param ciphertext source text to be decrypted
+	 * @param password   the password to use to generate a key
+	 * @param nBits      number of bits to be used in the key (128, 192, or 256)
 	 *
-	 * @return  string  Decrypted text
+	 * @return           decrypted text
 	 */
 	public static function AESDecryptCtr($ciphertext, $password, $nBits)
 	{
 		$blockSize = 16;  // block size fixed at 16 bytes / 128 bits (Nb=4) for AES
-
 		if (!($nBits == 128 || $nBits == 192 || $nBits == 256))
 		{
 			return '';
-		}
-
-		// standard allows 128/192/256 bit keys
+		}  // standard allows 128/192/256 bit keys
 		$ciphertext = base64_decode($ciphertext);
 
 		// use AES to encrypt password (mirroring encrypt routine)
 		$nBytes  = $nBits / 8;  // no bytes in key
 		$pwBytes = array();
-
 		for ($i = 0; $i < $nBytes; $i++)
 		{
 			$pwBytes[$i] = ord(substr($password, $i, 1)) & 0xff;
 		}
-
 		$key = self::Cipher($pwBytes, self::KeyExpansion($pwBytes));
 		$key = array_merge($key, array_slice($key, 0, $nBytes - 16));  // expand key to 16/24/32 bytes long
 
 		// recover nonce from 1st element of ciphertext
 		$counterBlock = array();
 		$ctrTxt       = substr($ciphertext, 0, 8);
-
 		for ($i = 0; $i < 8; $i++)
 		{
 			$counterBlock[$i] = ord(substr($ctrTxt, $i, 1));
@@ -8279,12 +7928,10 @@ class AKEncryptionAES
 		// separate ciphertext into blocks (skipping past initial 8 bytes)
 		$nBlocks = ceil((strlen($ciphertext) - 8) / $blockSize);
 		$ct      = array();
-
 		for ($b = 0; $b < $nBlocks; $b++)
 		{
 			$ct[$b] = substr($ciphertext, 8 + $b * $blockSize, 16);
 		}
-
 		$ciphertext = $ct;  // ciphertext is now array of block-length strings
 
 		// plaintext will get generated block-by-block into array of block-length strings
@@ -8297,7 +7944,6 @@ class AKEncryptionAES
 			{
 				$counterBlock[15 - $c] = self::urs($b, $c * 8) & 0xff;
 			}
-
 			for ($c = 0; $c < 4; $c++)
 			{
 				$counterBlock[15 - $c - 4] = self::urs(($b + 1) / 0x100000000 - 1, $c * 8) & 0xff;
@@ -8306,7 +7952,6 @@ class AKEncryptionAES
 			$cipherCntr = self::Cipher($counterBlock, $keySchedule);  // encrypt counter block
 
 			$plaintxtByte = array();
-
 			for ($i = 0; $i < strlen($ciphertext[$b]); $i++)
 			{
 				// -- xor plaintext with ciphered counter byte-by-byte --
@@ -8314,7 +7959,6 @@ class AKEncryptionAES
 				$plaintxtByte[$i] = chr($plaintxtByte[$i]);
 
 			}
-
 			$plaintxt[$b] = implode('', $plaintxtByte);
 		}
 
@@ -8328,29 +7972,57 @@ class AKEncryptionAES
 	 * AES decryption in CBC mode. This is the standard mode (the CTR methods
 	 * actually use Rijndael-128 in CTR mode, which - technically - isn't AES).
 	 *
-	 * It supports AES-128 only. It assumes that the last 4 bytes
-	 * contain a little-endian unsigned long integer representing the unpadded
+	 * Supports AES-128, AES-192 and AES-256. It supposes that the last 4 bytes
+	 * contained a little-endian unsigned long integer representing the unpadded
 	 * data length.
 	 *
 	 * @since  3.0.1
 	 * @author Nicholas K. Dionysopoulos
 	 *
-	 * @param   string $ciphertext The data to encrypt
-	 * @param   string $password   Encryption password
+	 * @param string $ciphertext The data to encrypt
+	 * @param string $password   Encryption password
+	 * @param int    $nBits      Encryption key size. Can be 128, 192 or 256
 	 *
-	 * @return  string  The plaintext
+	 * @return string The plaintext
 	 */
-	public static function AESDecryptCBC($ciphertext, $password)
+	public static function AESDecryptCBC($ciphertext, $password, $nBits = 128)
 	{
-		$adapter = self::getAdapter();
-
-		if (!$adapter->isSupported())
+		if (!($nBits == 128 || $nBits == 192 || $nBits == 256))
+		{
+			return false;
+		}  // standard allows 128/192/256 bit keys
+		if (!function_exists('mcrypt_module_open'))
 		{
 			return false;
 		}
 
-		// Get the expanded key from the password
-		$key = self::expandKey($password);
+		// Try to fetch cached key/iv or create them if they do not exist
+		$lookupKey = $password . '-' . $nBits;
+		if (array_key_exists($lookupKey, self::$passwords))
+		{
+			$key = self::$passwords[$lookupKey];
+		}
+		else
+		{
+			// use AES itself to encrypt password to get cipher key (using plain password as source for
+			// key expansion) - gives us well encrypted key
+			$nBytes  = $nBits / 8;  // no bytes in key
+			$pwBytes = array();
+			for ($i = 0; $i < $nBytes; $i++)
+			{
+				$pwBytes[$i] = ord(substr($password, $i, 1)) & 0xff;
+			}
+			$key    = self::Cipher($pwBytes, self::KeyExpansion($pwBytes));
+			$key    = array_merge($key, array_slice($key, 0, $nBytes - 16));  // expand key to 16/24/32 bytes long
+			$newKey = '';
+			foreach ($key as $int)
+			{
+				$newKey .= chr($int);
+			}
+			$key = $newKey;
+
+			self::$passwords[$lookupKey] = $key;
+		}
 
 		// Read the data size
 		$data_size = unpack('V', substr($ciphertext, -4));
@@ -8373,7 +8045,10 @@ class AKEncryptionAES
 		}
 
 		// Decrypt
-		$plaintext = $adapter->decrypt($iv . substr($ciphertext, 0, $rightStringLimit), $key);
+		$td = mcrypt_module_open(MCRYPT_RIJNDAEL_128, '', MCRYPT_MODE_CBC, '');
+		mcrypt_generic_init($td, $key, $iv);
+		$plaintext = mdecrypt_generic($td, substr($ciphertext, 0, $rightStringLimit));
+		mcrypt_generic_deinit($td);
 
 		// Trim padding, if necessary
 		if (strlen($plaintext) > $data_size)
@@ -8418,82 +8093,6 @@ class AKEncryptionAES
 		}
 
 		return $ivs[$key];
-	}
-
-	/**
-	 * Expand the password to an appropriate 128-bit encryption key
-	 *
-	 * @param   string $password
-	 *
-	 * @return  string
-	 *
-	 * @since   5.2.0
-	 * @author  Nicholas K. Dionysopoulos
-	 */
-	public static function expandKey($password)
-	{
-		// Try to fetch cached key or create it if it doesn't exist
-		$nBits     = 128;
-		$lookupKey = md5($password . '-' . $nBits);
-
-		if (array_key_exists($lookupKey, self::$passwords))
-		{
-			$key = self::$passwords[$lookupKey];
-
-			return $key;
-		}
-
-		// use AES itself to encrypt password to get cipher key (using plain password as source for
-		// key expansion) - gives us well encrypted key.
-		$nBytes  = $nBits / 8; // Number of bytes in key
-		$pwBytes = array();
-
-		for ($i = 0; $i < $nBytes; $i++)
-		{
-			$pwBytes[$i] = ord(substr($password, $i, 1)) & 0xff;
-		}
-
-		$key    = self::Cipher($pwBytes, self::KeyExpansion($pwBytes));
-		$key    = array_merge($key, array_slice($key, 0, $nBytes - 16)); // expand key to 16/24/32 bytes long
-		$newKey = '';
-
-		foreach ($key as $int)
-		{
-			$newKey .= chr($int);
-		}
-
-		$key = $newKey;
-
-		self::$passwords[$lookupKey] = $key;
-
-		return $key;
-	}
-
-	/**
-	 * Returns the correct AES-128 CBC encryption adapter
-	 *
-	 * @return  AKEncryptionAESAdapterInterface
-	 *
-	 * @since   5.2.0
-	 * @author  Nicholas K. Dionysopoulos
-	 */
-	public static function getAdapter()
-	{
-		static $adapter = null;
-
-		if (is_object($adapter) && ($adapter instanceof AKEncryptionAESAdapterInterface))
-		{
-			return $adapter;
-		}
-
-		$adapter = new OpenSSL();
-
-		if (!$adapter->isSupported())
-		{
-			$adapter = new Mcrypt();
-		}
-
-		return $adapter;
 	}
 }
 

@@ -388,6 +388,22 @@ class Jpa extends BaseArchiver
 		$unc_len = $fileSize; // File size
 		$storedName .= ($isDir) ? "/" : "";
 
+		/**
+		 * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		 * !!!! WARNING!!! DO NOT MOVE THIS BLOCK OF CODE AFTER THE testIfFileExists OR getZData!!!!       !!!!
+		 * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		 *
+		 * PHP 5.6.3 IS BROKEN. Possibly the same applies for all old versions of PHP. If you try to get the file
+		 * permissions after reading its contents PHP segfaults.
+		 */
+		// Get file permissions
+		$perms = 0755;
+
+		if (!$isVirtual)
+		{
+			$perms = @fileperms($sourceNameOrData);
+		}
+
 		// Test for non-existing or unreadable files
 		$this->testIfFileExists($sourceNameOrData, $isVirtual, $isDir, $isSymlink);
 
@@ -402,14 +418,6 @@ class Jpa extends BaseArchiver
 		$this->totalCompressedSize += $c_len; // Update global data
 		$this->totalUncompressedSize += $fileSize; // Update global data
 		$this->totalFilesCount++;
-
-		// Get file permissions
-		$perms = 0755;
-
-		if (!$isVirtual)
-		{
-			$perms = @fileperms($sourceNameOrData);
-		}
 
 		// Calculate Entity Description Block length
 		$blockLength = 21 + akstrlen($storedName);

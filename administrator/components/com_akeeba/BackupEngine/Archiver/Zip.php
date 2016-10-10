@@ -653,7 +653,7 @@ class Zip extends BaseArchiver
 	 *
 	 * @return  int  Compression method to use
 	 */
-	protected function getCompressionMethod($fileSize, $memLimit, &$isDir, &$isSymlink)
+	protected function getCompressionMethod($fileSize, $memLimit, $isDir, $isSymlink)
 	{
 		// ZIP uses 0 for uncompressed and 8 for GZip Deflate whereas the parent method returns 0 and 1 respectively
 		return 8 * parent::getCompressionMethod($fileSize, $memLimit, $isDir, $isSymlink);

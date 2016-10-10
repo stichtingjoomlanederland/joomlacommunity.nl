@@ -191,7 +191,7 @@ class plgSystemRSFirewall extends JPlugin
 
 	protected function isGeoIPBlacklisted() {
 		$ip   				= $this->ip;
-		$blocked_countries 	= $this->config->get('blocked_countries');
+		$blocked_countries 	= array_filter($this->config->get('blocked_countries'));
 		$session 			= JFactory::getSession();
 
 		// no countries blocked, no need to continue logic
@@ -204,10 +204,11 @@ class plgSystemRSFirewall extends JPlugin
 			$code = $session->get('com_rsfirewall.geoip');
 		} else { // not in cache
 			require_once JPATH_ADMINISTRATOR.'/components/com_rsfirewall/helpers/geoip/geoip.php';
-			$geoip 	= RSFirewallGeoIP::getInstance($ip);
-			$code 	= $geoip->getCountryCode($ip);
-
-			$session->set('com_rsfirewall.geoip', $code);
+			try {
+				$geoip 	= RSFirewallGeoIP::getInstance($ip);
+				$code 	= $geoip->getCountryCode($ip);
+				$session->set('com_rsfirewall.geoip', $code);
+			} catch (Exception $e) {}
 		}
 
 		if ($code != '' && in_array($code, $blocked_countries)) {

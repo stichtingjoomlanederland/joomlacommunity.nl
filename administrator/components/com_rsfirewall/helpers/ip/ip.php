@@ -152,6 +152,14 @@ class RSFirewallIP
 			$input = JFactory::getApplication()->input->server;
 			$ip    = $input->get('REMOTE_ADDR', '', 'string');
 
+			if (strpos($ip, ',') !== false) {
+				$tmp = explode(',', $ip);
+				// grab the last IP (should be the one actual connecting)
+				$ip = trim(end($tmp));
+				// no longer need this
+				unset($tmp);
+			}
+
 			if ($check_for_proxy) {
 				// Proxy headers
 				$headers = RSFirewallConfig::getInstance()->get('check_proxy_ip_headers');

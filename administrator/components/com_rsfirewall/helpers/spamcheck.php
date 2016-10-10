@@ -29,7 +29,7 @@ class RSFirewallSpamCheck {
 		try {
 			require_once dirname(__FILE__).'/ip/ip.php';
 			
-			// check if the ip is IPv4 compatible
+			// Check if the IP is IPv4 compatible
 			$ipClass = new RSFirewallIP($ip);
 			if ($ipClass->version != 4) {
 				return false;

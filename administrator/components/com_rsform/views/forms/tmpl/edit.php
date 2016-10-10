@@ -253,8 +253,10 @@ JHTML::_('behavior.calendar');
 			}
 			else
 			{
-				if (!validateEmailFields()) {
-					return false;
+				if (pressbutton == 'forms.apply' || pressbutton == 'forms.save') {
+					if (!validateEmailFields()) {
+						return false;
+					}
 				}
 				
 				// do field validation
@@ -276,7 +278,8 @@ JHTML::_('behavior.calendar');
 			];
 			
 			var result = true;
-			var fieldName, field, fieldValue, values, value;
+			var fieldName, field, fieldValue, values, value, match;
+			var pattern = /{.*?}/g;
 			
 			for (var i = 0; i < fields.length; i++) {
 				// Grab field name from array
@@ -293,12 +296,27 @@ JHTML::_('behavior.calendar');
 					values = fieldValue.split(',');
 					
 					for (var v = 0; v < values.length; v++) {
-						value = values[v];
+						value = values[v].replace(/^\s+|\s+$/gm,'');
 						
 						// Has placeholder
 						hasPlaceholder = value.indexOf('{') > -1 && value.indexOf('}') > -1;
-						// Wrong placeholder
-						wrongPlaceholder = hasPlaceholder && RSFormPro.Placeholders.indexOf(value) == -1;
+						
+						// Defaults to false, the code below will actually check the placeholder
+						wrongPlaceholder = false;
+						
+						// Let's take into account multiple placeholders
+						if (hasPlaceholder) {
+							do {
+								match = pattern.exec(value);
+								if (match && typeof match[0] != 'undefined') {
+									// Wrong placeholder
+									if (RSFormPro.Placeholders.indexOf(match[0]) == -1) {
+										wrongPlaceholder = true;
+									}
+								}
+							} while (match);
+						}
+						
 						// Not an email
 						notAnEmail = !hasPlaceholder && value.indexOf('@') == -1;
 						

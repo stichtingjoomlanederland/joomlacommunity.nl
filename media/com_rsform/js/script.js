@@ -8,6 +8,7 @@ if (typeof RSFormPro != 'object') {
 }
 
 RSFormPro.Forms = {};
+RSFormPro.Editors = {};
 RSFormPro.scrollToError = false;
 
 /* Handle HTML5 form fields validation for the forms without AjaxValidation enabled */
@@ -915,7 +916,11 @@ RSFormPro.Ajax = {
 				formId = form.elements[i].value;
 			}
 
-			params.push(form.elements[i].name + '=' + encodeURIComponent(form.elements[i].value));
+			if (typeof RSFormPro.Editors[form.elements[i].name] == 'function') {
+				params.push(form.elements[i].name + '=' + encodeURIComponent(RSFormPro.Editors[form.elements[i].name]()));
+			} else {
+				params.push(form.elements[i].name + '=' + encodeURIComponent(form.elements[i].value));
+			}
 		}
 
 		errorFields = RSFormPro.HTML5.validation(formId);

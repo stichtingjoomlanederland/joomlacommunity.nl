@@ -1,4 +1,9 @@
 <?php die();?>
+Akeeba Backup 5.2.3
+================================================================================
++ ANGIE: Prevent direct web access to the installation/sql directory
+~ PHP 5.6.3 (and possibly other old 5.6 versions) are buggy. We rearranged the order of some code to work around these PHP bugs.
+
 Akeeba Backup 5.2.2
 ================================================================================
 ! The ZIP archiver was not working properly

@@ -152,10 +152,10 @@ class RSFirewallGoogleSafeBrowsing
 	 * @since 2.11.1
 	 */
 	public function parseRequest($request){
+		$body = @json_decode($request->body);
 		switch ($request->code)
 		{
 			case 200:
-				$body = json_decode($request->body);
 				$body = (array) $body;
 				if (empty($body))
 				{
@@ -184,7 +184,7 @@ class RSFirewallGoogleSafeBrowsing
 				return array(
 					'success' => false,
 					'result'  => false,
-					'message' => JText::_('COM_RSFIREWALL_GOOGLE_SAFE_BROWSER_BAD_REQUEST'),
+					'message' => isset($body->error->message) ? $body->error->message : JText::_('COM_RSFIREWALL_GOOGLE_SAFE_BROWSER_BAD_REQUEST'),
 					'details' => ''
 				);
 				break;
@@ -192,7 +192,7 @@ class RSFirewallGoogleSafeBrowsing
 				return array(
 					'success' => false,
 					'result'  => false,
-					'message' => JText::_('COM_RSFIREWALL_GOOGLE_SAFE_BROWSER_BAD_API_KEY'),
+					'message' => isset($body->error->message) ? $body->error->message : JText::_('COM_RSFIREWALL_GOOGLE_SAFE_BROWSER_BAD_API_KEY'),
 					'details' => JText::_('COM_RSFIREWALL_GOOGLE_SAFE_BROWSER_HOW_TO_GET_KEY')
 				);
 				break;
@@ -200,7 +200,7 @@ class RSFirewallGoogleSafeBrowsing
 				return array(
 					'success' => true,
 					'result'  => false,
-					'message' => JText::_('COM_RSFIREWALL_GOOGLE_SAFE_BROWSER_INTERNAL_SERVER_ERROR'),
+					'message' => isset($body->error->message) ? $body->error->message : JText::_('COM_RSFIREWALL_GOOGLE_SAFE_BROWSER_INTERNAL_SERVER_ERROR'),
 					'details' => ''
 				);
 				break;
@@ -208,7 +208,7 @@ class RSFirewallGoogleSafeBrowsing
 				return array(
 					'success' => true,
 					'result'  => false,
-					'message' => JText::_('COM_RSFIREWALL_GOOGLE_SAFE_BROWSER_SERVICE_UNAVAILABLE'),
+					'message' => isset($body->error->message) ? $body->error->message : JText::_('COM_RSFIREWALL_GOOGLE_SAFE_BROWSER_SERVICE_UNAVAILABLE'),
 					'details' => ''
 				);
 				break;
@@ -216,7 +216,7 @@ class RSFirewallGoogleSafeBrowsing
 				return array(
 					'success' => true,
 					'result'  => false,
-					'message' => JText::_('COM_RSFIREWALL_GOOGLE_SAFE_BROWSER_TIMEOUT'),
+					'message' => isset($body->error->message) ? $body->error->message : JText::_('COM_RSFIREWALL_GOOGLE_SAFE_BROWSER_TIMEOUT'),
 					'details' => ''
 				);
 				break;
@@ -224,7 +224,7 @@ class RSFirewallGoogleSafeBrowsing
 				return array(
 					'success' => true,
 					'result'  => false,
-					'message' => JText::_('COM_RSIFREWALL_SOMETHING_WENT_WRONG'),
+					'message' => isset($body->error->message) ? $body->error->message : JText::_('COM_RSIFREWALL_SOMETHING_WENT_WRONG'),
 					'details' => ''
 				);
 				break;

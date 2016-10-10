@@ -64,6 +64,10 @@ class RSFirewallGeoIP
 
 	public function buildIp($ip)
 	{
+		if (!class_exists('RSFirewallIP')) {
+			require_once JPATH_ADMINISTRATOR.'/components/com_rsfirewall/helpers/ip/ip.php';
+		}
+		
 		if (empty($ip))
 		{
 			$ip = RSFirewallIP::get();

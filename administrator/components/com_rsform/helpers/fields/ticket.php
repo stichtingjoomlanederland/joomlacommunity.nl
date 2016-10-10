@@ -63,7 +63,7 @@ class RSFormProFieldTicket extends RSFormProFieldHidden
 			$query = $db->getQuery(true);
 
 			$query
-				->select("MAX(TRIM(LEADING '0' FROM ".$db->qn('FieldValue')."))")
+				->select("MAX(".$db->qn('FieldValue').")")
 				->from('#__rsform_submission_values')
 				->where($db->qn('FormId') . ' = ' . $db->q($this->formId))
 				->where($db->qn('FieldName') . ' = ' . $db->q($this->name))

@@ -134,7 +134,7 @@ class RSFormProValidations
 		$formId 	= isset($form['formId']) ? $form['formId'] : 0;
 		$user		= JFactory::getUser();
 		$userField 	= $user->guest ? 's.UserIp' : 's.UserId';
-		$userValue 	= $user->guest ? $app->input->server->get('REMOTE_ADDR') : $user->id;
+		$userValue 	= $user->guest ? $app->input->server->getString('REMOTE_ADDR') : $user->id;
 		$option 	= $app->input->getCmd('option');
 		$ctrl 		= $app->input->getCmd('controller');
 		$task 		= $app->input->getCmd('task');
