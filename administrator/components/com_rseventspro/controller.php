@@ -18,6 +18,10 @@ class rseventsproController extends JControllerLegacy
 		
 		// Set the table directory
 		JTable::addIncludePath(JPATH_COMPONENT.'/tables');
+		
+		if (JFactory::getApplication()->input->getInt('fixcategories',0)) {
+			$this->fixcategories();
+		}
 	}
 	
 	/**
@@ -204,9 +208,13 @@ class rseventsproController extends JControllerLegacy
 			
 			$groups = JFactory::getApplication()->input->get('groups',array(),'array');
 			if (!empty($groups)) {
-				$registry = new JRegistry;
-				$registry->loadArray($groups);
-				$data->groups = $registry->toString();
+				try {
+					$registry = new JRegistry;
+					$registry->loadArray($groups);
+					$data->groups = $registry->toString();
+				} catch (Exception $e) {
+					$data->groups = array();
+				}
 			}
 			$db->insertObject('#__rseventspro_tickets', $data, 'id');
 			
@@ -222,9 +230,13 @@ class rseventsproController extends JControllerLegacy
 			$data = (object) $data;
 			$groups = JFactory::getApplication()->input->get('groups',array(),'array');
 			if (!empty($groups)) {
-				$registry = new JRegistry;
-				$registry->loadArray($groups);
-				$data->groups = $registry->toString();
+				try {
+					$registry = new JRegistry;
+					$registry->loadArray($groups);
+					$data->groups = $registry->toString();
+				} catch (Exception $e) {
+					$data->groups = array();
+				}
 			}
 			
 			if (!empty($data->from) && $data->from != $db->getNullDate()) {
@@ -350,5 +362,36 @@ class rseventsproController extends JControllerLegacy
 	// Trigger plugin functions
 	public function trigger() {
 		JFactory::getApplication()->triggerEvent('rsepro_adminTrigger');
+	}
+	
+	protected function fixcategories() {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		
+		$query->clear()
+			->select($db->qn('id'))->select($db->qn('description'))
+			->select($db->qn('params'))->select($db->qn('metadata'))
+			->from($db->qn('#__categories'))
+			->where($db->qn('extension').' = '.$db->q('com_rseventspro'));
+		$db->setQuery($query);
+		if ($categories = $db->loadObjectList()) {
+			foreach ($categories as $category) {
+				$description	= str_replace(array('\\\\"','\\\"','\\"','\"'),'"',$category->description);
+				$params			= str_replace(array('\\\\"','\\\"','\\"','\"'),'"',$category->params);
+				$metadata		= str_replace(array('\\\\"','\\\"','\\"','\"'),'"',$category->metadata);
+				
+				$query->clear()
+					->update($db->qn('#__categories'))
+					->set($db->qn('description').' = '.$db->q($description))
+					->set($db->qn('params').' = '.$db->q($params))
+					->set($db->qn('metadata').' = '.$db->q($metadata))
+					->where($db->qn('id').' = '.$db->q($category->id));
+				$db->setQuery($query);
+				$db->execute();
+			}
+		}
+		
+		$this->setMessage(JText::_('COM_RSEVENTSPRO_CATEGORIES_FIXED'));
+		$this->setRedirect(JRoute::_('index.php?option=com_rseventspro', false));
 	}
 }

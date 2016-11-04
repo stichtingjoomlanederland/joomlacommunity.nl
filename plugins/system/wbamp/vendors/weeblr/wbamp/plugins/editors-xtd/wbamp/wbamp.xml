@@ -2,12 +2,12 @@
 <extension version="3.0" type="plugin" group="editors-xtd" method="upgrade">
     <name>PLG_EDITORS_XTD_WBAMP</name>
     <author>Yannick Gaultier</author>
-    <creationDate>2016-08-25</creationDate>
+    <creationDate>2016-10-31</creationDate>
     <copyright>(c) Yannick Gaultier - Weeblr llc - 2016</copyright>
     <license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
     <authorEmail>contact@weeblr.com</authorEmail>
     <authorUrl>https://weeblr.com</authorUrl>
-    <version>1.5.0.585</version>
+    <version>1.6.0.607</version>
     <description>PLG_EDITORS_XTD_WBAMP_XML_DESCRIPTION</description>
 	<files>
 		<filename plugin="wbamp">wbamp.php</filename>

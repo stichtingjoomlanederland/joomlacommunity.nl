@@ -43,24 +43,9 @@ JHtml::_('behavior.keepalive'); ?>
 				<table class="table table-striped adminlist">
 					<tr>
 						<td>
-							<a href="javascript:void(0)" <?php echo $rseTitle; ?> <?php echo $rseClick; ?> class="rs_import_link<?php echo $rseClass; ?>"><?php echo $rseico; ?> <?php echo JText::_('COM_RSEVENTSPRO_IMPORT_FROM_RSEVENTS'); ?></a>
-						</td>
-					</tr>
-					<tr>
-						<td>
 							<a href="javascript:void(0)" <?php echo $jevTitle; ?> <?php echo $jevClick; ?> class="rs_import_link<?php echo $jevClass; ?>"><?php echo $jevico; ?> <?php echo JText::_('COM_RSEVENTSPRO_IMPORT_FROM_JEVENTS'); ?></a>
 						</td>
 					</tr>
-					<?php 
-					/*
-					<tr>
-						<td>
-							<a href="javascript:void(0)" <?php echo $evlTitle; ?> <?php echo $evlClick; ?> class="rs_import_link<?php echo $evlClass; ?>"><?php echo JText::_('COM_RSEVENTSPRO_IMPORT_FROM_EVENTLIST'); ?></a>
-							&nbsp; | &nbsp;
-							<a href="javascript:void(0)" <?php echo $evbTitle; ?> <?php echo $evbClick; ?> class="rs_import_link<?php echo $evbClass; ?>"><?php echo JText::_('COM_RSEVENTSPRO_IMPORT_FROM_EVENTLISTBETA'); ?></a> 
-						</td>
-					</tr>
-					*/ ?>
 					<tr>
 						<td>
 							<a href="javascript:void(0)" <?php echo $jclTitle; ?> <?php echo $jclClick; ?> class="rs_import_link<?php echo $jclClass; ?>"><?php echo $jclico; ?> <?php echo JText::_('COM_RSEVENTSPRO_IMPORT_FROM_JCALPRO'); ?></a>

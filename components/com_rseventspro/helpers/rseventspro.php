@@ -559,9 +559,13 @@ class rseventsproHelper
 			$return[] = JHTML::_('select.option', 'none', JText::_( 'COM_RSEVENTSPRO_CONF_DEFAULT_PAYMENT_NONE' ) );				
 		
 		if (!is_null($available) && !empty($available)) {
-			$registry = new JRegistry;
-			$registry->loadString($available);
-			$available = $registry->toArray();
+			try {
+				$registry = new JRegistry;
+				$registry->loadString($available);
+				$available = $registry->toArray();
+			} catch (Exception $e) {
+				$available = '';
+			}
 		} else $available = '';
 		
 		//payment plugins
@@ -2703,9 +2707,14 @@ class rseventsproHelper
 			
 			foreach ($groups as $group) {
 				if (!empty($group->jgroups)) {
-					$registry = new JRegistry;
-					$registry->loadString($group->jgroups);
-					$joomlagroups = $registry->toArray();
+					
+					try {
+						$registry = new JRegistry;
+						$registry->loadString($group->jgroups);
+						$joomlagroups = $registry->toArray();
+					} catch (Exception $e) {
+						$joomlagroups = array();
+					}
 					
 					if (!empty($joomlagroups)) {
 						$user_groups = JAccess::getGroupsByUser($user->id);
@@ -2729,9 +2738,13 @@ class rseventsproHelper
 				}
 				
 				if (!empty($group->jusers)) {
-					$registry = new JRegistry;
-					$registry->loadString($group->jusers);
-					$joomlausers = $registry->toArray();
+					try {
+						$registry = new JRegistry;
+						$registry->loadString($group->jusers);
+						$joomlausers = $registry->toArray();
+					} catch (Exception $e) {
+						$joomlausers = array();
+					}
 					
 					if (!empty($joomlausers)) {
 						if (in_array($userid,$joomlausers)) {
@@ -2789,9 +2802,13 @@ class rseventsproHelper
 				foreach ($groups as $group) {
 					// Parse joomla groups
 					if (!empty($group->jgroups)) {
-						$registry = new JRegistry;
-						$registry->loadString($group->jgroups);
-						$jgroups = $registry->toArray();
+						try {
+							$registry = new JRegistry;
+							$registry->loadString($group->jgroups);
+							$jgroups = $registry->toArray();
+						} catch (Exception $e) {
+							$jgroups = array();
+						}
 						
 						if (!empty($jgroups)) {
 							// Get current users Joomla! groups
@@ -2819,9 +2836,13 @@ class rseventsproHelper
 					// Parse user ids
 					// User id check overwrites the user group return
 					if (!empty($group->jusers)) {
-						$registry = new JRegistry;
-						$registry->loadString($group->jusers);
-						$jusers = $registry->toArray();
+						try {
+							$registry = new JRegistry;
+							$registry->loadString($group->jusers);
+							$jusers = $registry->toArray();
+						} catch (Exception $e) {
+							$jusers = array();
+						}
 						
 						if (!empty($jusers)) {
 							$userid = $user->get('id');
@@ -3158,8 +3179,13 @@ class rseventsproHelper
 			
 			// Event options
 			if ($event->options) {
-				$registry = new JRegistry;
-				$registry->loadString($event->options);
+				try {
+					$registry = new JRegistry;
+					$registry->loadString($event->options);
+				} catch (Exception $e) {
+					$registry = new JRegistry;
+				}
+				
 				if ($options = $registry->toArray()) {
 					$event->options = $defaults;
 					foreach ($options as $option => $value) {
@@ -3179,9 +3205,13 @@ class rseventsproHelper
 					if (rseventsproHelper::getConfig('color','int')) {
 						$color = '';
 						if ($cat->params) {
-							$registry = new JRegistry;
-							$registry->loadString($cat->params);
-							$color = $registry->get('color');
+							try {
+								$registry = new JRegistry;
+								$registry->loadString($cat->params);
+								$color = $registry->get('color');
+							} catch (Exception $e) {
+								$color = '';
+							}
 						}
 						
 						$style = $color ? 'style="color: '.$color.'"' : '';
@@ -3787,15 +3817,17 @@ class rseventsproHelper
 		$event		= $event->getEvent();
 		$options	= $event->get('options');
 		
-		$registry = new JRegistry;
-		$registry->loadString($options);
-		if ($options = $registry->toArray()) {
-			foreach ($defaults as $name => $value) {
-				if (isset($options[$name])) {
-					$defaults[$name] = $options[$name];
+		try {
+			$registry = new JRegistry;
+			$registry->loadString($options);
+			if ($options = $registry->toArray()) {
+				foreach ($defaults as $name => $value) {
+					if (isset($options[$name])) {
+						$defaults[$name] = $options[$name];
+					}
 				}
 			}
-		}
+		} catch (Exception $e) {}
 		
 		return $defaults;
 	}
@@ -3852,9 +3884,13 @@ class rseventsproHelper
 		if (!empty($groups)) {
 			foreach ($groups as $group) {
 				if (!empty($group->jgroups)) {
-					$registry = new JRegistry;
-					$registry->loadString($group->jgroups);
-					$joomlagroups = $registry->toArray();
+					try {
+						$registry = new JRegistry;
+						$registry->loadString($group->jgroups);
+						$joomlagroups = $registry->toArray();
+					} catch (Exception $e) {
+						$joomlagroups = array();
+					}
 					
 					if (!empty($joomlagroups)) {
 						$user_groups = JAccess::getGroupsByUser($user->id);
@@ -3878,9 +3914,13 @@ class rseventsproHelper
 				}
 				
 				if (!empty($group->jusers)) {
-					$registry = new JRegistry;
-					$registry->loadString($group->jusers);
-					$joomlausers = $registry->toArray();
+					try {
+						$registry = new JRegistry;
+						$registry->loadString($group->jusers);
+						$joomlausers = $registry->toArray();
+					} catch (Exception $e) {
+						$joomlausers = array();
+					}
 					
 					if (!empty($joomlausers)) {
 						if (in_array($userid,$joomlausers)) {
@@ -4430,9 +4470,13 @@ class rseventsproHelper
 		if (!empty($coupons)) {
 			foreach ($coupons as $c) {
 				if (!empty($c->groups)) {
-					$registry = new JRegistry;
-					$registry->loadString($c->groups);
-					$groups = $registry->toArray();
+					try {
+						$registry = new JRegistry;
+						$registry->loadString($c->groups);
+						$groups = $registry->toArray();
+					} catch (Exception $e) {
+						$groups = array();
+					}
 					
 					if (!empty($groups)) {
 						if (!empty($usergroups) && !empty($groups)) {
@@ -4589,13 +4633,21 @@ class rseventsproHelper
 			$cids = array();
 			
 			foreach ($globalCoupons as $i => $globalCoupon) {
-				$registry = new JRegistry;
-				$registry->loadString($globalCoupon->events);
-				$events = $registry->toArray();
+				try {
+					$registry = new JRegistry;
+					$registry->loadString($globalCoupon->events);
+					$events = $registry->toArray();
+				} catch (Exception $e) {
+					$events = array();
+				}
 				
-				$registry = new JRegistry;
-				$registry->loadString($globalCoupon->groups);
-				$groups = $registry->toArray();
+				try {
+					$registry = new JRegistry;
+					$registry->loadString($globalCoupon->groups);
+					$groups = $registry->toArray();
+				} catch (Exception $e) {
+					$groups = array();
+				}
 				
 				// If we found a global discount code that coresponds to the one entered or one user group is found in the global discount groups
 				if ($globalCoupon->code == $thecoupon || array_intersect($groups, $usergroups)) {
@@ -4830,6 +4882,7 @@ class rseventsproHelper
 					$seats = RSEPRO_TICKETS_UNLIMITED;
 			}
 			
+			
 			if ($event->max_tickets && $event->max_tickets_amount > 0) // do we have max attendance?
 			{
 				if ($all_tickets_purchased >= $event->max_tickets_amount) // if the limit is reached
@@ -4855,9 +4908,13 @@ class rseventsproHelper
 						}
 						else
 							$seats = min($available,$ticket->user_seats);
+					} else {
+						if ($available >= $ticket->seats) {
+							$seats = $ticket->seats;
+						} else {
+							$seats = $available;
+						}
 					}
-					else
-						$seats = $available;
 					
 					if ($seats < 0)
 						$seats = RSEPRO_TICKETS_NOT_AVAILABLE;
@@ -5071,9 +5128,13 @@ class rseventsproHelper
 		$db->setQuery($query);
 		if ($tickets = $db->loadObjectList()) {
 			foreach ($tickets as $i => $ticket) {
-				$registry = new JRegistry;
-				$registry->loadString($ticket->position);
-				$tickets[$i]->position = $registry->toArray();
+				try {
+					$registry = new JRegistry;
+					$registry->loadString($ticket->position);
+					$tickets[$i]->position = $registry->toArray();
+				} catch (Exception $e) {
+					$tickets[$i]->position = array();
+				}
 				
 				if ($checkGroup) {
 					$hasAccess = true;
@@ -5277,15 +5338,17 @@ class rseventsproHelper
 			$db->setQuery($query);
 			if ($options = $db->loadColumn()) {
 				foreach ($options as $option) {
-					$registry = new JRegistry;
-					$registry->loadString($option);
-					if ($groupOptions = $registry->toArray()) {
-						foreach ($groupOptions as $property => $value) {
-							if (isset($default[$property])) {
-								$default[$property] = $value;
+					try {
+						$registry = new JRegistry;
+						$registry->loadString($option);
+						if ($groupOptions = $registry->toArray()) {
+							foreach ($groupOptions as $property => $value) {
+								if (isset($default[$property])) {
+									$default[$property] = $value;
+								}
 							}
 						}
-					}
+					} catch (Exception $e) {}
 				}
 			}
 		}
@@ -5766,11 +5829,13 @@ class rseventsproHelper
 			$db->setQuery($query);
 			if ($restrictions = $db->loadColumn()) {
 				foreach ($restrictions as $restriction) {
-					$registry = new JRegistry;
-					$registry->loadString($restriction);
-					if ($restriction = $registry->toArray()) {
-						$disabled = array_merge($disabled, $restriction);
-					}
+					try {
+						$registry = new JRegistry;
+						$registry->loadString($restriction);
+						if ($restriction = $registry->toArray()) {
+							$disabled = array_merge($disabled, $restriction);
+						}
+					} catch (Exception $e) {}
 				}
 			}
 		}

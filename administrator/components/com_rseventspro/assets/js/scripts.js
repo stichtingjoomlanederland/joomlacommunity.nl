@@ -142,27 +142,30 @@ function addRule(err1, err2, msg) {
 function rsepro_change_list(val) {
 	var hasControlGroup = jQuery('#jform_params_archived').parent().parent().hasClass('control-group');
 	if (hasControlGroup) {
-		jQuery('#jform_params_archived').parent().parent().css('display','none');
 		jQuery('#jform_params_days').parent().parent().css('display','none');
 		
-		if (val == 'all')
+		if (val == 'archived') {
+			jQuery('#jform_params_archived').parent().parent().css('display','none');
+		} else {
 			jQuery('#jform_params_archived').parent().parent().css('display','');
-		else if (val == 'future') {
-				jQuery('#jform_params_days').parent().parent().css('display','');
-			}
-		else if (val == 'featured')
-			jQuery('#jform_params_archived').parent().parent().css('display','');
+		}
+		
+		if (val == 'future') {
+			jQuery('#jform_params_days').parent().parent().css('display','');
+		}
+		
 	} else {
-		jQuery('#jform_params_archived').parent().css('display','none');
 		jQuery('#jform_params_days').parent().css('display','none');
 		
-		if (val == 'all')
+		if (val == 'archived') {
+			jQuery('#jform_params_archived').parent().css('display','none');
+		} else {
 			jQuery('#jform_params_archived').parent().css('display','');
-		else if (val == 'future') {
+		}
+		
+		if (val == 'future') {
 			jQuery('#jform_params_days').parent().css('display','');
 		}
-		else if (val == 'featured')
-			jQuery('#jform_params_archived').parent().css('display','');
 	}
 }
 

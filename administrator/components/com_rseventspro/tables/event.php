@@ -350,9 +350,11 @@ class rseventsproTableEvent extends JTable
 		
 		if (isset($array['options'])) {
 			$defaults = rseventsproHelper::getDefaultOptions();
-			$registry = new JRegistry;
-			$registry->loadString($defaults);
-			$defaults = $registry->toArray();
+			try {
+				$registry = new JRegistry;
+				$registry->loadString($defaults);
+				$defaults = $registry->toArray();
+			} catch (Exception $e) {}
 			
 			foreach ($defaults as $name => $value) {
 				if (!isset($array['options'][$name]))

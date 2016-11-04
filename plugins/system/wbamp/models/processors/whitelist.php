@@ -6,8 +6,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.5.0.585
- * @date        2016-08-25
+ * @version     1.6.0.607
+ * @date        2016-10-31
  */
 
 defined('_JEXEC') or die();
@@ -88,19 +88,22 @@ class WbampModelProcessor_Whitelist
 				return;
 			}
 
+			// if we have some attributes white list for this element, apply them
+			if ($node->hasAttributes())
+			{
+				$this->cleanAttributes($node);
+			}
+
 			// check if tag has all mandatory attr
+			// NB: must be done after cleanAttributes, as
+			// cleanAttributes can remove some attributes, making
+			// the whole tag invalid
 			$removed = $this->checkTagMandatoryAttributes($node);
 			if ($removed)
 			{
 				// we can cut through all further processing
 				// tag was (will be) removed
 				return;
-			}
-
-			// if we have some attributes white list for this element, apply them
-			if ($node->hasAttributes())
-			{
-				$this->cleanAttributes($node);
 			}
 
 			// then process children
@@ -125,6 +128,7 @@ class WbampModelProcessor_Whitelist
 	 * or is NOT on the disallowed list
 	 *
 	 * @param $tag
+	 *
 	 * @return bool true when tag is set to be removed
 	 * @throws Exception
 	 */
@@ -160,11 +164,14 @@ class WbampModelProcessor_Whitelist
 	 * Check if a tag has all mandatory attributes
 	 *
 	 * @param $tag
+	 *
 	 * @return bool true if the tag was removed, to allow cutting down further processing
 	 */
 	private function checkTagMandatoryAttributes($tag)
 	{
 		$willBeRemoved = false;
+		$stop = $tag->nodeName;
+		$attr = $tag->attributes;
 		if (array_key_exists($tag->nodeName, $this->config->tagMandatoryAttr))
 		{
 			foreach ($this->config->tagMandatoryAttr[$tag->nodeName] as $attrName => $rule)
@@ -295,13 +302,13 @@ class WbampModelProcessor_Whitelist
 	 * Clean up an attribute of a given html tag
 	 *
 	 * @param DOMElement $tag
-	 * @param String $tagName
-	 * @param DOMAttr $attribute
-	 * @param String $attributeName
+	 * @param String     $tagName
+	 * @param DOMAttr    $attribute
+	 * @param String     $attributeName
 	 */
 	private function cleanAttribute($tag, $tagName, $attribute, $attributeName)
 	{
-		if ($attributeName == 'rel' && !in_array(strtolower($attribute->value), $this->config->relWhiteList) && !in_array($attribute->value, $this->config->relWhiteList))
+		if ($attributeName == 'rel' && !empty($this->config->relWhiteList) && !in_array(strtolower($attribute->value), $this->config->relWhiteList) && !in_array($attribute->value, $this->config->relWhiteList))
 		{
 			$tag->removeAttribute($attributeName);
 			return;
@@ -316,19 +323,14 @@ class WbampModelProcessor_Whitelist
 			return;
 		}
 
-		// no js links
-		if ($attributeName == 'href')
-		{
-			$protocol = strtok($attribute->value, ':');
-			if (in_array($protocol, $this->config->invalidProtocols))
-			{
-				$tag->removeAttribute($attributeName);
-				return;
-			}
-		}
-
 		// rules on attributes content
 		$descriptor = $tagName . '.' . $attributeName;
+
+		// protocol in href attr
+		if (!$this->cleanProtocol($tag, $attribute, $descriptor))
+		{
+			return;
+		}
 
 		// forced value
 		$this->cleanAttrForcedValues($tag, $attribute, $descriptor);
@@ -347,13 +349,54 @@ class WbampModelProcessor_Whitelist
 	}
 
 	/**
-	 * if present, this attribute must have a specific value, but we can't enforce it
-	 * so instead we remove the invalid attribute
+	 * Check attributes such href or src for the presence of invalid protocols
 	 *
 	 * @param $tag
 	 * @param $attribute
 	 * @param $attributeName
 	 * @param $descriptor
+	 *
+	 * @return bool
+	 */
+	private function cleanProtocol($tag, $attribute, $descriptor)
+	{
+		$protocolsDef = $this->config->protocolsDef;
+
+		// protocol relative link, or relative to host
+		if (wbStartsWith($attribute->value, array('//', '/')))
+		{
+			return true;
+		}
+
+		// does it have a protocol?
+		if(wbContains($attribute->value, ':'))
+		{
+			if (array_key_exists($descriptor, $protocolsDef))
+			{
+				$protocol = strtok($attribute->value, ':');
+
+				// white list
+				$allowed = empty($protocolsDef[$descriptor]) ? array() : $protocolsDef[$descriptor]['allowed'];
+				if (empty($allowed) || !in_array($protocol, $allowed))
+				{
+					$tag->removeAttribute($attribute->name);
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * if present, this attribute must have a specific value, but we can't enforce it
+	 * so instead we remove the invalid attribute or tag
+	 *
+	 * @param $tag
+	 * @param $attribute
+	 * @param $attributeName
+	 * @param $descriptor
+	 *
 	 * @return bool
 	 */
 	private function cleanAttrMandatoryValues($tag, $attribute, $descriptor)
@@ -362,7 +405,7 @@ class WbampModelProcessor_Whitelist
 		{
 			// if present, this attribute must have a specific value, but we can't enforce it
 			// so instead we remove the invalid attribute
-			if (array_key_exists($attribute->value, $this->config->attrMandatoryValue[$descriptor]['processed_values']))
+			if (!empty($this->config->attrMandatoryValue[$descriptor]['processed_values']) && array_key_exists($attribute->value, $this->config->attrMandatoryValue[$descriptor]['processed_values']))
 			{
 				switch ($this->config->attrMandatoryValue[$descriptor]['processed_values'][$attribute->value]['action'])
 				{
@@ -382,7 +425,27 @@ class WbampModelProcessor_Whitelist
 						break;
 				}
 			}
-			else
+			else if (!empty($this->config->attrMandatoryValue[$descriptor]['empty']) && empty($attribute->value))
+			{
+				switch ($this->config->attrMandatoryValue[$descriptor]['empty']['action'])
+				{
+					case 'allow':
+						break;
+					case 'replace':
+						$tag->setAttribute($attribute->name, $this->config->attrMandatoryValue[$descriptor]['action']['replace_with']);
+						break;
+					case 'remove_attr':
+						$tag->removeAttribute($attribute->name);
+						break;
+					case 'remove_tag':
+						$this->nodesToDelete[] = $tag;
+						break;
+					default:
+						throw new Exception('Internal error: invalid AttrMandatory rule action ' . $this->config->attrMandatoryValue[$descriptor]['action']);
+						break;
+				}
+			}
+			else if (!empty($this->config->attrMandatoryValue[$descriptor]['other_values']))
 			{
 				// there is no specific rule for that tag/attribute combination
 				// apply the "other_values" rules, to decide what to do with it
@@ -416,6 +479,7 @@ class WbampModelProcessor_Whitelist
 	 * @param $tag
 	 * @param $attribute
 	 * @param $descriptor
+	 *
 	 * @return bool
 	 */
 	private function cleanAttrForbiddenValue($tag, $attribute, $descriptor)
@@ -484,6 +548,7 @@ class WbampModelProcessor_Whitelist
 	 * Test if a DOM element is empty: content and children
 	 *
 	 * @param $node
+	 *
 	 * @return bool
 	 */
 	private function isEmptyNode($node)

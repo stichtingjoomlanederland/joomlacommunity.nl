@@ -5,8 +5,8 @@
  * @copyright    (c) Yannick Gaultier - Weeblr llc - 2016
  * @package      wbAmp
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      1.5.0.585
- * @date        2016-08-25
+ * @version      1.6.0.607
+ * @date        2016-10-31
  */
 /*************************************
 *
@@ -75,8 +75,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.5.0.585
- * @date        2016-08-25
+ * @version     1.6.0.607
+ * @date        2016-10-31
  */
 /*************************************
 *
@@ -229,10 +229,10 @@
 *
 **************************************/
 .wbamp-container.wbamp-ad {
-  margin: 1em auto 1em;
-  padding: 0;
+  margin: 0 auto;
+  padding: 1em 0;
   font-family: 'Roboto', sans-serif;
-  background: #F3F3F5;
+  background: #FFFFFF;
   color: #3d596d;
 }
 .wbamp-ad .wbamp-amp-tag {
@@ -452,35 +452,10 @@
 .wbamp-container.wbamp-content .wbamp-info-block a:hover {
   color: #333333;
 }
-.wbamp-container.wbamp-content .wbamp-info-block p,
-.wbamp-container.wbamp-content .content_rating p {
+.wbamp-container.wbamp-content .wbamp-info-block p {
   margin-top: 0;
   margin-bottom: 0;
   line-height: 1;
-}
-.wbamp-container.wbamp-content .content_rating p,
-.wbamp-container.wbamp-content .content_rating amp-img {
-  display: inline-block;
-  vertical-align: middle;
-  line-height: 1em;
-}
-.wbamp-container.wbamp-content .content_rating p {
-  line-height: 1em;
-  height: 1em;
-  margin-right: 0.4em;
-}
-.wbamp-container.wbamp-content .content_rating amp-img {
-  line-height: 1em;
-  margin-right: 0.2em;
-}
-.wbamp-container.wbamp-content .content_rating p.unseen {
-  color: #777777;
-  background: inherit;
-  font-family: 'Roboto', Serif;
-  font-size: 0.9em;
-}
-.wbamp-container.wbamp-content .content_rating amp-img {
-  display: inline-block;
 }
 /*************************************
 *

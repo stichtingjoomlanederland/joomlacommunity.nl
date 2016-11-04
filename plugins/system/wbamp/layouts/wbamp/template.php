@@ -6,8 +6,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.5.0.585
- * @date        2016-08-25
+ * @version     1.6.0.607
+ * @date        2016-10-31
  */
 
 // no direct access
@@ -24,13 +24,22 @@ defined('_JEXEC') or die;
 	      content="width=device-width,initial-scale=1,minimum-scale=1">
 	<link
 		href="https://fonts.googleapis.com/css?family=Roboto:400,400italic,700,700italic|Open+Sans:400,700,400italic,700italic"
-		rel="stylesheet" type="text/css">
+		rel="stylesheet" type="text/css"/>
 
 	<?php echo ShlMvcLayout_Helper::render('wbamp.head', $displayData, WbampHelper_Runtime::$layoutsBasePaths); ?>
 </head>
 
 <body>
 <?php
+// first is Google Tag Manager, right after body tag
+if (WbampHelper_Edition::$id == 'full')
+{
+	if ($displayData['params']->get('analytics_type', 'ga') == 'gtm')
+	{
+		echo ShlMvcLayout_Helper::render('wbamp.tags.analytics_gtm', $displayData, WbampHelper_Runtime::$layoutsBasePaths);
+	}
+}
+
 if (WbampHelper_Edition::$id == 'full')
 {
 	if ($displayData['params']->get('menu_location', 'hidden') != 'hidden')
@@ -45,7 +54,10 @@ if (WbampHelper_Edition::$id == 'full')
 	// analytics
 	if (WbampHelper_Edition::$id == 'full')
 	{
-		echo ShlMvcLayout_Helper::render('wbamp.tags.analytics', $displayData, WbampHelper_Runtime::$layoutsBasePaths);
+		if ($displayData['params']->get('analytics_type', 'ga') == 'ga')
+		{
+			echo ShlMvcLayout_Helper::render('wbamp.tags.analytics_ga', $displayData, WbampHelper_Runtime::$layoutsBasePaths);
+		}
 	}
 
 	// Header: either a custom module or link to home and/or logo

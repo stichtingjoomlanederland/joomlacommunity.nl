@@ -44,9 +44,13 @@ class rseventsproModelSettings extends JModelAdmin
 		$data = (array) $this->getConfig();
 		
 		if (isset($data['gallery_params'])) {
-			$registry = new JRegistry;
-			$registry->loadString($data['gallery_params']);
-			$data['gallery'] = $registry->toArray();
+			try {
+				$registry = new JRegistry;
+				$registry->loadString($data['gallery_params']);
+				$data['gallery'] = $registry->toArray();
+			} catch (Exception $e) {
+				$data['gallery'] = array();
+			}
 		}
 		
 		return $data;
@@ -164,9 +168,13 @@ class rseventsproModelSettings extends JModelAdmin
 				if (is_array($gallery['full_resolution']))
 					$gallery['full_resolution'] = implode(',',$gallery['full_resolution']);
 				
-				$registry = new JRegistry;
-				$registry->loadArray($gallery);
-				$data['gallery_params'] = $registry->toString();
+				try {
+					$registry = new JRegistry;
+					$registry->loadArray($gallery);
+					$data['gallery_params'] = $registry->toString();
+				} catch (Exception $e) {
+					$data['gallery_params'] = array();
+				}
 				unset($data['gallery']);
 			}
 		}

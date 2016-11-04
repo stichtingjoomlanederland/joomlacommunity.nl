@@ -39,9 +39,13 @@ class JFormFieldRSUsers extends JFormFieldList
 		
 		$db->setQuery($query);
 		if ($users = $db->loadResult()) {
-			$registry = new JRegistry;
-			$registry->loadString($users);
-			$users = $registry->toArray();
+			try {
+				$registry = new JRegistry;
+				$registry->loadString($users);
+				$users = $registry->toArray();
+			} catch (Exception $e) {
+				$users = array();
+			}
 			JArrayHelper::toInteger($users);
 			
 			if (!empty($users)) {

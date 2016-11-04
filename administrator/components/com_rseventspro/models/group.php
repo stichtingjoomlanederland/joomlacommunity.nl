@@ -33,24 +33,40 @@ class rseventsproModelGroup extends JModelAdmin
 	public function getItem($pk = null) {
 		if ($item = parent::getItem($pk)) {
 			// Convert the Joomla groups field to an array.
-			$registry = new JRegistry;
-			$registry->loadString($item->jgroups);
-			$item->jgroups = $registry->toArray();
+			try {
+				$registry = new JRegistry;
+				$registry->loadString($item->jgroups);
+				$item->jgroups = $registry->toArray();
+			} catch (Exception $e) {
+				$item->jgroups = array();
+			}
 			
 			// Convert the Joomla users field to an array.
-			$registry = new JRegistry;
-			$registry->loadString($item->jusers);
-			$item->jusers = $registry->toArray();
+			try {
+				$registry = new JRegistry;
+				$registry->loadString($item->jusers);
+				$item->jusers = $registry->toArray();
+			} catch (Exception $e) {
+				$item->jusers = array();
+			}
 			
 			// Convert the event options.
-			$registry = new JRegistry;
-			$registry->loadString($item->event);
-			$item->event = $registry->toArray();
+			try {
+				$registry = new JRegistry;
+				$registry->loadString($item->event);
+				$item->event = $registry->toArray();
+			} catch (Exception $e) {
+				$item->event = array();
+			}
 			
 			// Convert the restricted categories.
-			$registry = new JRegistry;
-			$registry->loadString($item->restricted_categories);
-			$item->restricted_categories = $registry->toArray();
+			try {
+				$registry = new JRegistry;
+				$registry->loadString($item->restricted_categories);
+				$item->restricted_categories = $registry->toArray();
+			} catch (Exception $e) {
+				$item->restricted_categories = array();
+			}
 		}
 		
 		return $item;
@@ -108,9 +124,14 @@ class rseventsproModelGroup extends JModelAdmin
 		$db->setQuery($query);
 		if ($options = $db->loadColumn()) {
 			foreach ($options as $option) {
-				$registry = new JRegistry;
-				$registry->loadString($option);
-				$option = $registry->toArray();
+				try {
+					$registry = new JRegistry;
+					$registry->loadString($option);
+					$option = $registry->toArray();
+				} catch (Exception $e) {
+					$option = array();
+				}
+				
 				JArrayHelper::toInteger($option);
 				$excludes = array_merge($excludes, $option);
 			}
@@ -138,9 +159,14 @@ class rseventsproModelGroup extends JModelAdmin
 		$db->setQuery($query);
 		if ($options = $db->loadColumn()) {
 			foreach ($options as $option) {
-				$registry = new JRegistry;
-				$registry->loadString($option);
-				$option = $registry->toArray();
+				try {
+					$registry = new JRegistry;
+					$registry->loadString($option);
+					$option = $registry->toArray();
+				} catch (Exception $e) {
+					$option = array();
+				}
+				
 				JArrayHelper::toInteger($option);
 				$used = array_merge($used, $option);
 			}

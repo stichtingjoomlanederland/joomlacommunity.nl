@@ -80,11 +80,20 @@ class AMP_Img_Sanitizer extends AMP_Base_Sanitizer {
 		$out = array();
 
 		foreach ( $attributes as $name => $value ) {
-			switch ( $name ) {
-				case 'src':
-				case 'alt':
+			switch ($name)
+			{
 				case 'width':
 				case 'height':
+					// weeblr
+					// get rid of 100%, or NaN
+					if (WbampHelper_Amphtml::isValidDimension($value))
+					{
+						$out[$name] = $value;
+					}
+					//
+					break;
+				case 'src':
+				case 'alt':
 				case 'class':
 				case 'srcset':
 				case 'sizes':

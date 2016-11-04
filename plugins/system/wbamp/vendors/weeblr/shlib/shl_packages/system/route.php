@@ -6,8 +6,8 @@
  * @copyright    (c) Yannick Gaultier 2016
  * @package      shlib
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      0.3.1.580
- * @date        2016-08-25
+ * @version      0.3.1.587
+ * @date        2016-10-31
  */
 
 defined('_JEXEC') or die;
@@ -33,6 +33,14 @@ class ShlSystem_Route
 	 */
 	public static function absolutify($url, $forceDomain = false, $isAdmin = null)
 	{
+		static $basePath = null;
+		static $base = null;
+		if (is_null($basePath))
+		{
+			$basePath = JUri::base(true);
+			$base = JUri::base();
+		}
+
 		// is it already absolute?
 		if (self::isFullyQUalified($url))
 		{
@@ -43,6 +51,12 @@ class ShlSystem_Route
 		{
 			if ($forceDomain)
 			{
+				// make sure the base path is not added twice (for sites in a subfolder)
+				if (JString::substr($url, 0, JString::strlen($basePath)) == $basePath)
+				{
+					$url = JString::substr($url, JString::strlen($basePath));
+				}
+
 				$url = self::getCanonicalDomain() . $url;
 			}
 
@@ -50,13 +64,13 @@ class ShlSystem_Route
 		}
 
 		// relative URL, make it fully qualified
-		$base = JUri::base();
+		$currentBase = $base;
 		if ($isAdmin === true || ($isAdmin !== false && JFactory::getApplication()->isAdmin()))
 		{
-			$base = JString::substr($base, 0, -14);
+			$currentBase = JString::substr($base, 0, -14);
 		}
 
-		return $base . $url;
+		return $currentBase . $url;
 	}
 
 	/**

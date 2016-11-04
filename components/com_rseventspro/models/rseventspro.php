@@ -992,9 +992,13 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$row = JTable::getInstance('Location','rseventsproTable');
 		$row->load($id);
 		
-		$registry = new JRegistry();
-		$registry->loadString($row->gallery_tags);
-		$row->gallery_tags = $registry->toArray();
+		try {
+			$registry = new JRegistry();
+			$registry->loadString($row->gallery_tags);
+			$row->gallery_tags = $registry->toArray();
+		} catch (Exception $e) {
+			$row->gallery_tags = array();
+		}
 		
 		return $row;
 	}
@@ -2373,9 +2377,13 @@ class rseventsproModelRseventspro extends JModelLegacy
 		
 		$groups = $this->_app->input->get('groups',array(),'array');
 		if (!empty($groups)) {
-			$registry = new JRegistry;
-			$registry->loadArray($groups);
-			$data->groups = $registry->toString();
+			try {
+				$registry = new JRegistry;
+				$registry->loadArray($groups);
+				$data->groups = $registry->toString();
+			} catch (Exception $e) {
+				$data->groups = array();
+			}
 		}
 		
 		$this->_db->insertObject('#__rseventspro_tickets', $data, 'id');
@@ -2413,9 +2421,13 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$groups		= $this->_app->input->get('groups',array(),'array');
 		
 		if (!empty($groups)) {
-			$registry = new JRegistry;
-			$registry->loadArray($groups);
-			$data->groups = $registry->toString();
+			try {
+				$registry = new JRegistry;
+				$registry->loadArray($groups);
+				$data->groups = $registry->toString();
+			} catch (Exception $e) {
+				$data->groups = array();
+			}
 		}
 		
 		if (!empty($data->from) && $data->from != $this->_db->getNullDate()) {
@@ -2699,9 +2711,13 @@ class rseventsproModelRseventspro extends JModelLegacy
 		
 		$this->_db->setQuery($query);
 		if ($properties = $this->_db->loadResult()) {
-			$registry = new JRegistry;
-			$registry->loadString($properties);
-			return $registry->toArray();
+			try {
+				$registry = new JRegistry;
+				$registry->loadString($properties);
+				return $registry->toArray();
+			} catch (Exception $e) {
+				return array();
+			}
 		}
 		
 		return false;

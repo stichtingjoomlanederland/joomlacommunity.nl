@@ -1,7 +1,37 @@
                                 wbAMP changelog                                 
 
-                        (2016-08-25 17:15 - build #585)                         
+                        (2016-10-31 16:45 - build #607)                         
 
+
+
+--------------------------------------------------------------------------------
+ [ 2016-10-31 ] Version 1.6.0
+--------------------------------------------------------------------------------
+
+
+    [new]    Added support for Google Tag Manager
+    [new]    Implemented white list protocol filtering
+
+    [chg]    Now removing meta tag if they have the charset attribute
+    [chg]    No they can't.
+    [chg]    Buttons can have an href attibute
+    [chg]    Improved sanitization of tags dimensions: filter ouy anything but
+             integers and px as width/height dimensions
+    [chg]    Improved handling of href values, including empty ones and using
+             void(0)
+    [chg]    Better layout and colors for ads
+    [chg]    Now removing voting on content, J! output is not valid structured
+             data, thus beaking amp SD validation
+    [chg]    Now allowing the meta html tag (but remove the http-equiv
+             attribute
+    [chg]    Now removing entirely link tags when they miss a rel attribute
+
+    [bug]    All ads embedded with an embed tag get the same HTML id
+    [bug]    Notice error if user created a meta data image tag, but didn't
+             supply any URL
+    [bug]    Article content can be empty on community version
+    [bug]    Incorrect height value when displaying an auto-displaying an
+             embedded Facebook post
 
 
 --------------------------------------------------------------------------------

@@ -504,7 +504,7 @@ class com_rseventsproInstallerScript
 					
 					if (!empty($event->repeat_also)) {
 						if (!$this->isJSON($event->repeat_also)) {
-							$repeat_also = unserialize($event->repeat_also);
+							$repeat_also = @unserialize($event->repeat_also);
 							if ($repeat_also !== false) {
 								$registry = new JRegistry;
 								$registry->loadArray($repeat_also);
@@ -515,7 +515,7 @@ class com_rseventsproInstallerScript
 					
 					if (!empty($event->options)) {
 						if (!$this->isJSON($event->options)) {
-							$options = unserialize($event->options);
+							$options = @unserialize($event->options);
 							if ($options !== false) {
 								$registry = new JRegistry;
 								$registry->loadArray($options);
@@ -978,9 +978,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.10.14</h2>
+	<h2>Changelog v1.10.18</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> There was a problem with the unlimited ticket seat selection.</li>
+		<li><span class="version-fixed">Fix</span> Events from next month in the Calendar menu item, were not showing on some timezones.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>

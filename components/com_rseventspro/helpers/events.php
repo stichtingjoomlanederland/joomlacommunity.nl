@@ -144,11 +144,13 @@ class RSEvent
 			$db->setQuery($query);
 			if ($restrictions = $db->loadColumn()) {
 				foreach ($restrictions as $restriction) {
-					$registry = new JRegistry;
-					$registry->loadString($restriction);
-					if ($restriction = $registry->toArray()) {
-						$disabled = array_merge($disabled, $restriction);
-					}
+					try {
+						$registry = new JRegistry;
+						$registry->loadString($restriction);
+						if ($restriction = $registry->toArray()) {
+							$disabled = array_merge($disabled, $restriction);
+						}
+					} catch (Exception $e) {}
 				}
 			}
 			
@@ -288,15 +290,17 @@ class RSEvent
 		$options = $db->loadResult();
 		
 		if (!empty($options)) {
-			$registry = new JRegistry;
-			$registry->loadString($options);
-			if ($options = $registry->toArray()) {
-				foreach ($options as $option => $value) {
-					if (isset($defaults[$option])) {
-						$defaults[$option] = $value;
+			try {
+				$registry = new JRegistry;
+				$registry->loadString($options);
+				if ($options = $registry->toArray()) {
+					foreach ($options as $option => $value) {
+						if (isset($defaults[$option])) {
+							$defaults[$option] = $value;
+						}
 					}
 				}
-			}
+			} catch (Exception $e) {}
 		}
 		
 		return $defaults;
@@ -384,9 +388,11 @@ class RSEvent
 		
 		$db->setQuery($query);
 		if ($days = $db->loadResult()) {
-			$registry = new JRegistry;
-			$registry->loadString($days);
-			$days = $registry->toArray();
+			try {
+				$registry = new JRegistry;
+				$registry->loadString($days);
+				$days = $registry->toArray();
+			} catch (Exception $e) {}
 			
 			foreach ($days as $i => $day) {
 				$days[$i] = JHtml::_('select.option', $day, $day);
@@ -414,9 +420,11 @@ class RSEvent
 		
 		$db->setQuery($query);
 		if ($days = $db->loadResult()) {
-			$registry = new JRegistry;
-			$registry->loadString($days);
-			$days = $registry->toArray();
+			try {
+				$registry = new JRegistry;
+				$registry->loadString($days);
+				$days = $registry->toArray();
+			} catch (Exception $e) {}
 			
 			foreach ($days as $i => $day) {
 				$days[$i] = JHtml::_('select.option', $day, $day);
@@ -457,9 +465,11 @@ class RSEvent
 		
 		$db->setQuery($query);
 		if ($payments = $db->loadResult()) {
-			$registry = new JRegistry;
-			$registry->loadString($payments);
-			return $registry->toArray();
+			try {
+				$registry = new JRegistry;
+				$registry->loadString($payments);
+				return $registry->toArray();
+			} catch (Exception $e) {}
 		}
 		
 		return array();
@@ -489,9 +499,13 @@ class RSEvent
 		if ($tickets = $db->loadObjectList()) {
 			foreach ($tickets as $i => $ticket) {
 				if (!empty($ticket->groups)) {
-					$registry = new JRegistry;
-					$registry->loadString($ticket->groups);
-					$tickets[$i]->groups = $registry->toArray();
+					try {
+						$registry = new JRegistry;
+						$registry->loadString($ticket->groups);
+						$tickets[$i]->groups = $registry->toArray();
+					} catch (Exception $e) {
+						$tickets[$i]->groups = array();
+					}
 				}
 			}
 			
@@ -559,9 +573,13 @@ class RSEvent
 				}
 				
 				if (!empty($coupon->groups)) {
-					$registry = new JRegistry;
-					$registry->loadString($coupon->groups);
-					$coupons[$i]->groups = $registry->toArray();
+					try {
+						$registry = new JRegistry;
+						$registry->loadString($coupon->groups);
+						$coupons[$i]->groups = $registry->toArray();
+					} catch (Exception $e) {
+						$coupons[$i]->groups = array();
+					}
 				}
 			}
 			return $coupons;
@@ -586,9 +604,13 @@ class RSEvent
 		
 		$db->setQuery($query);
 		if ($tags = $db->loadResult()) {
-			$registry = new JRegistry;
-			$registry->loadString($tags);
-			$tags = $registry->toArray();
+			try {
+				$registry = new JRegistry;
+				$registry->loadString($tags);
+				$tags = $registry->toArray();
+			} catch (Exception $e) {
+				$tags = array();
+			}
 			
 			return $tags;
 		}
@@ -1015,9 +1037,11 @@ class RSEvent
 				if ($ticket->user_seats == JText::_('COM_RSEVENTSPRO_GLOBAL_UNLIMITED'))
 					$ticket->user_seats = 0;
 				if (isset($ticket->groups) && is_array($ticket->groups)) {
-					$registry = new JRegistry;
-					$registry->loadArray($ticket->groups);
-					$ticket->groups = $registry->toString();
+					try {
+						$registry = new JRegistry;
+						$registry->loadArray($ticket->groups);
+						$ticket->groups = $registry->toString();
+					} catch (Exception $e) {}
 				} else $ticket->groups = '';
 				
 				$db->updateObject('#__rseventspro_tickets', $ticket, 'id');
@@ -1052,9 +1076,11 @@ class RSEvent
 				if ($coupon->usage == JText::_('COM_RSEVENTSPRO_GLOBAL_UNLIMITED'))
 					$coupon->usage = 0;
 				if (isset($coupon->groups) && is_array($coupon->groups)) {
-					$registry = new JRegistry;
-					$registry->loadArray($coupon->groups);
-					$coupon->groups = $registry->toString();
+					try {
+						$registry = new JRegistry;
+						$registry->loadArray($coupon->groups);
+						$coupon->groups = $registry->toString();
+					} catch (Exception $e) {}
 				} else $coupon->groups = '';
 				$coupon->id = $cid;
 				$coupon->ide = $id;

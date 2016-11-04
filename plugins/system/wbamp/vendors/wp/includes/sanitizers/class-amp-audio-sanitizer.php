@@ -49,9 +49,19 @@ class AMP_Audio_Sanitizer extends AMP_Base_Sanitizer {
 
 		foreach ( $attributes as $name => $value ) {
 			switch ( $name ) {
-				case 'src':
 				case 'width':
 				case 'height':
+					// weeblr
+					// get rid of 100%, or NaN
+					if (WbampHelper_Amphtml::isValidDimension($value))
+					{
+						$out[$name] = $value;
+					}
+					//
+					break;
+				case 'src':
+				//case 'width':
+				//case 'height':
 				case 'class':
 					$out[ $name ] = $value;
 					break;

@@ -6,10 +6,10 @@
  * @copyright    (c) Yannick Gaultier - Weeblr llc - 2016
  * @package      wbAmp
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      1.5.0.585
- * @date        2016-08-25
+ * @version      1.6.0.607
+ * @date        2016-10-31
  *
- * build 1.5.0.585
+ * build 1.6.0.607
  *
  */
 
@@ -114,7 +114,7 @@ class plgSystemWbamp extends JPlugin
 	 * Enable and setup autoloader if so
 	 *
 	 * @param object $subject
-	 * @param array $config
+	 * @param array  $config
 	 */
 	public function __construct(&$subject, $config = array())
 	{
@@ -161,6 +161,7 @@ class plgSystemWbamp extends JPlugin
 	 * Check for shLib presence and enable autoloader
 	 *
 	 * @param $app
+	 *
 	 * @return bool
 	 */
 	private function init($app)
@@ -339,10 +340,11 @@ class plgSystemWbamp extends JPlugin
 	 * Kill the Joomla email cloaker, which uses javascript
 	 * We'll replace it with our own, encoding-based
 	 *
-	 * @param $context
-	 * @param $row
-	 * @param $params
+	 * @param     $context
+	 * @param     $row
+	 * @param     $params
 	 * @param int $page
+	 *
 	 * @return bool
 	 */
 	public function onContentPrepare($context, &$row, &$params, $page = 0)
@@ -395,6 +397,7 @@ class plgSystemWbamp extends JPlugin
 	 * @param $theme
 	 * @param $css
 	 * @param $displayData
+	 *
 	 * @return bool
 	 */
 	public function onWbAMPGetCss($theme, & $css, $displayData)
@@ -456,9 +459,32 @@ class plgSystemWbamp extends JPlugin
 	}
 
 	/**
+	 * Disable voting display on AMP, as Joomla output (9/2016)
+	 * is not valid structured data, thus breaking AMP SD validation
+	 *
+	 * @param     $context
+	 * @param     $row
+	 * @param     $params
+	 * @param int $page
+	 *
+	 * @return bool
+	 */
+	public function onContentBeforeDisplay($context, &$row, &$params, $page = 0)
+	{
+		if (!$this->isAmpPage)
+		{
+			return;
+		}
+
+		// disabled voting
+		$params->set('show_vote', false);
+	}
+
+	/**
 	 * Gather all data required for a given AMP page output
 	 *
 	 * @param $getInput
+	 *
 	 * @return array
 	 */
 	private function getData($getInput)
@@ -535,7 +561,7 @@ class plgSystemWbamp extends JPlugin
 	 * Handle adding credentials to package download request
 	 *
 	 * @param   string $url url from which package is going to be downloaded
-	 * @param   array $headers headers to be sent along the download request (key => value format)
+	 * @param   array  $headers headers to be sent along the download request (key => value format)
 	 *
 	 * @return  boolean    true        always true
 	 */
@@ -576,7 +602,7 @@ class plgSystemWbamp extends JPlugin
 	 *
 	 * @param    array $credentials whatever credentials were retrieved for the current user/website
 	 * @param   string $url url from which package is going to be downloaded
-	 * @param   array $headers headers to be sent along the download request (key => value format)
+	 * @param   array  $headers headers to be sent along the download request (key => value format)
 	 *
 	 * @return void
 	 */

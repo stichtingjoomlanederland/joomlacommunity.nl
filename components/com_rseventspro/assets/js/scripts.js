@@ -1317,8 +1317,8 @@ function rsepro_add_ticket_seats(id, place) {
 						});
 						
 						if (thetotal > maxticketsAvailable) {
+							jQuery('#rsepro_unlimited_'+id).val(thedocument.jQuery('#ticket'+id+place).val());
 							alert(thedocument.smessage[5]);
-							rsepro_add_ticket_seats(id, place);
 							return;
 						}
 					}
@@ -1350,8 +1350,8 @@ function rsepro_add_ticket_seats(id, place) {
 						});
 						
 						if (thetotal > maxticketsAvailable) {
+							jQuery('#rsepro_unlimited_'+id).val('');
 							alert(thedocument.smessage[5]);
-							rsepro_add_ticket_seats(id, place);
 							return;
 						}
 					}

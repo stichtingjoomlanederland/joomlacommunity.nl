@@ -2,7 +2,7 @@ INSERT INTO [#__rsfirewall_configuration] ([name], [value], [type]) VALUES
 ('active_scanner_status', '1', 'int'),
 ('capture_backend_password', '1', 'int'),
 ('verify_upload', '1', 'int'),
-('verify_upload_blacklist_exts', 'php\r\njs\r\nexe\r\ncom\r\nbat\r\ncmd\r\nmp3', 'text'),
+('verify_upload_blacklist_exts', 'pht\r\nphp\r\njs\r\nexe\r\ncom\r\nbat\r\ncmd\r\nmp3', 'text'),
 ('monitor_core', '1', 'int'),
 ('monitor_users', '', 'array-int'),
 ('active_scanner_status_backend', '1', 'int'),

@@ -33,9 +33,13 @@ class rseventsproModelLocation extends JModelAdmin
 	public function getItem($pk = null) {
 		if ($item = parent::getItem($pk)) {
 			// Convert the gallery tags field to an array.
-			$registry = new JRegistry;
-			$registry->loadString($item->gallery_tags);
-			$item->gallery_tags = $registry->toArray();
+			try {
+				$registry = new JRegistry;
+				$registry->loadString($item->gallery_tags);
+				$item->gallery_tags = $registry->toArray();
+			} catch (Exception $e) {
+				$item->gallery_tags = array();
+			}
 		}
 		
 		return $item;

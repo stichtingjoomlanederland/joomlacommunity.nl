@@ -181,9 +181,13 @@ class rseventsproModelCalendar extends JModelLegacy
 			$this->_db->setQuery($query);
 			if ($data = $this->_db->loadObjectList()) {
 				foreach ($data as $i => $category) {
-					$registry = new JRegistry;
-					$registry->loadString($category->params);
-					$data[$i]->color = $colors ? $registry->get('color','') : '';
+					try {
+						$registry = new JRegistry;
+						$registry->loadString($category->params);
+						$data[$i]->color = $colors ? $registry->get('color','') : '';
+					} catch (Exception $e) {
+						$data[$i]->color = '';
+					}
 				}
 				
 				$object = new stdClass();
@@ -264,8 +268,9 @@ class rseventsproModelCalendar extends JModelLegacy
 		
 		$endofmonth = JFactory::getDate($year.'-'.$month.'-01 00:00:00')->format($year.'-'.$month.'-t H:i:s');
 		$endMonth	= JFactory::getDate($endofmonth, rseventsproHelper::getTimezone());
+		$endMonthDT = new DateTime($endofmonth);
 		$weekend	= $this->getWeekdays($weekstart,true);
-		$day		= $endMonth->format('w');
+		$day		= $endMonthDT->format('w');
 		
 		$k = 1;
 		$nextDays = 0;
@@ -352,9 +357,13 @@ class rseventsproModelCalendar extends JModelLegacy
 		$this->_db->setQuery($query);
 		$string = $this->_db->loadResult();
 		
-		$registry = new JRegistry;
-		$registry->loadString($string);
-		return $registry;
+		try {
+			$registry = new JRegistry;
+			$registry->loadString($string);
+			return $registry;
+		} catch (Exception $e) {
+			return new JRegistry;
+		}
 	}
 	
 	// Get extra filters

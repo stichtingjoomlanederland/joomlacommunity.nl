@@ -227,9 +227,13 @@ class rseventsproViewCalendar extends JViewLegacy
 			
 			if (!empty($cache)) {
 				foreach ($cache as $ide => $object) {
-					$registry = new JRegistry;
-					$registry->loadString($object->params);
-					$cache[$ide]->color = $registry->get('color','');
+					try {
+						$registry = new JRegistry;
+						$registry->loadString($object->params);
+						$cache[$ide]->color = $registry->get('color','');
+					} catch (Exception $e) {
+						$cache[$ide]->color = '';
+					}
 				}
 			}
 		}

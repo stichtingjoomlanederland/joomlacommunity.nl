@@ -6,8 +6,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.5.0.585
- * @date        2016-08-25
+ * @version     1.6.0.607
+ * @date        2016-10-31
  */
 
 // no direct access
@@ -99,7 +99,7 @@ class WbampModelElement_Ad
 					'wbamp.ads-networks.' . $network,
 					array(
 						'params' => WbampHelper_Runtime::$params,
-						'ad-id' => md5(mt_rand() . $network)
+						'ad_id' => md5(mt_rand() . $network)
 					),
 					WbampHelper_Runtime::$layoutsBasePaths
 				);

@@ -131,6 +131,10 @@
 									
 									base.themarker.setPosition(new google.maps.LatLng(lat,lon));
 									
+									if (base.multiMarks) {
+										base.latlngbounds.extend(base.themarker.getPosition());
+									}
+									
 									if (el.content) {
 										var content = el.content;
 										var infowindow = new google.maps.InfoWindow();
@@ -155,7 +159,7 @@
 				} else {
 					base.map.setCenter(base.createLatLng(base.options.center));
 				}
-			} else {			
+			} else {
 				base.marker = new google.maps.Marker({
 					map: base.map,
 					draggable: base.options.markerDraggable,
@@ -167,17 +171,29 @@
 		base.initPositions = function() {
 			if (base.options.markers) {
 				if (base.multiMarks) {
-					if (base.latlngbounds.getCenter().lat().toString() != 0 && base.latlngbounds.getCenter().lng().toString() != -180) {
-						base.map.setCenter(base.latlngbounds.getCenter());
-						base.map.fitBounds(base.latlngbounds);
-					} else {
-						base.map.setCenter(base.createLatLng(base.options.center));
-					}
+					setTimeout( function() {
+						if (base.latlngbounds.getCenter().lat().toString() != 0 && base.latlngbounds.getCenter().lng().toString() != -180) {
+							base.map.setCenter(base.latlngbounds.getCenter());
+							base.map.fitBounds(base.latlngbounds);
+						} else {
+							base.map.setCenter(base.createLatLng(base.options.center));
+						}
+					}, 2000);
 				} else {
 					$(base.options.markers).each(function(i, el) {
 						var themarker = 'marker' + i;
-						base.map.setCenter(base.createLatLng(el.position));
-						base.themarker.setPosition(base.createLatLng(el.position));
+						
+						if (el.position) {
+							base.map.setCenter(base.createLatLng(el.position));
+							base.themarker.setPosition(base.createLatLng(el.position));
+						} else if (el.address) {
+							base.geocoder.geocode( {address: el.address}, function(results, status) {
+								if (status == google.maps.GeocoderStatus.OK) {
+									base.map.setCenter(results[0].geometry.location);
+									base.themarker.setPosition(results[0].geometry.location);
+								}
+							});
+						}
 					});
 				}
 			}

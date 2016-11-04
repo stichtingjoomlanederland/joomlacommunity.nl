@@ -281,6 +281,20 @@ class plgSystemRSFirewall extends JPlugin
 
 		return false;
 	}
+	
+	// Joomla! < 3.6.4 user registration injection
+	protected function isUserRegistrationInjection()
+	{
+		if ($this->option == 'com_users' && JFactory::getApplication()->input->getCmd('task') == 'user.register')
+		{
+			// Set the reason
+			$this->reason = JText::_('COM_RSFIREWALL_MALWARE_DETECTED');
+			$this->logger->add('medium', 'UNAUTHORIZED_USER_REGISTRATION_ATTEMPT');
+			return true;
+		}
+		
+		return false;
+	}
 
 	// Joomla! 1.5 - 3.4.5 session injection protection
 	protected function isSessionInjection() {
@@ -1042,6 +1056,11 @@ class plgSystemRSFirewall extends JPlugin
 			if ($this->isBlacklisted() || $this->isGeoIPBlacklisted() || $this->isUserAgentBlacklisted() || $this->isRefererBlacklisted()) {
 				// show the message
 				$this->showForbiddenMessage(false);
+			}
+			
+			if ($this->isUserRegistrationInjection())
+			{
+				$this->showForbiddenMessage();
 			}
 
 			if ($this->isSessionInjection()) {

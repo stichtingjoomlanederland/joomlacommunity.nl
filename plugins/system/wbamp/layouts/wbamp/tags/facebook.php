@@ -6,8 +6,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.5.0.585
- * @date        2016-08-25
+ * @version     1.6.0.607
+ * @date        2016-10-31
  */
 
 // no direct access
@@ -24,7 +24,7 @@ defined('_JEXEC') or die;
 $layout = empty($displayData['data']['width']) ? 'responsive' : 'fixed';
 $layout = empty($displayData['data']['layout']) ? $layout : $displayData['data']['layout'];
 $width = empty($displayData['data']['width']) ? 300 : (int) $displayData['data']['width'];
-$height = empty($displayData['data']['height']) ? 250 : 'height="' . $displayData['data']['height'];
+$height = empty($displayData['data']['height']) ? 250 : (int) $displayData['data']['height'];
 $isVideo = !empty($displayData['data']['subtype']) && $displayData['data']['subtype'] == 'videos';
 $href = 'https://www.facebook.com/' . $displayData['data']['user'] . '/' . $displayData['data']['subtype'] . '/' . $displayData['data']['id'];
 ?>

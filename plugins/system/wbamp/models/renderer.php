@@ -6,8 +6,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.5.0.585
- * @date        2016-08-25
+ * @version     1.6.0.607
+ * @date        2016-10-31
  */
 
 // no direct access
@@ -149,7 +149,7 @@ class WbampModel_Renderer
 		$data['main_content'] = str_replace('{wbamp-no-scrub}', '', $data['main_content']);
 
 		// ads, make sure amp-ad script is loaded
-		$data['main_content'] = $this->getElementData('ad', $data, '');
+		$data['main_content'] = $this->getElementData('ad', $data, $data['main_content']);
 
 		// process social networks tags, or raw URLs
 		$data['main_content'] = $this->getElementData('embedtags', $data['main_content'], $data['main_content']);
@@ -180,10 +180,11 @@ class WbampModel_Renderer
 		);
 		if (!empty($data['user-notification']) && !empty($data['user-notification']['text']))
 		{
-			$script = sprintf(WbampModel_Renderer::AMP_SCRIPTS_PATTERN, 'user-notification', WbampModel_Renderer::AMP_SCRIPTS_VERSION);
 			$this->addScripts(
 				array(
-					'amp-user-notification' => $script)
+					'amp-user-notification' => sprintf(WbampModel_Renderer::AMP_SCRIPTS_PATTERN, 'user-notification', WbampModel_Renderer::AMP_SCRIPTS_VERSION),
+					'amp-analytics' => sprintf(WbampModel_Renderer::AMP_SCRIPTS_PATTERN, 'analytics', WbampModel_Renderer::AMP_SCRIPTS_VERSION)
+				)
 			);
 		}
 
@@ -199,7 +200,7 @@ class WbampModel_Renderer
 		$data['footer'] = $this->_postProcessor->applyFilters($data['footer']);
 
 		// insert analytics AMP element
-		$data['analytics_data'] = $this->getElementData('analytics', $data);
+		$data['analytics_data'] = $this->getElementData('analytics', $data, '');
 
 		// let plugins build json-ld data
 		$data['json-ld'] = $this->getJsonldData($data);
@@ -243,6 +244,7 @@ class WbampModel_Renderer
 	 * System-non chrome used when rendering, ie no chrome at all
 	 *
 	 * @param int $moduleId
+	 *
 	 * @return mixed|string
 	 */
 	public function renderModule($moduleId)
@@ -303,6 +305,7 @@ class WbampModel_Renderer
 	 *
 	 * @param $element
 	 * @param $currentData
+	 *
 	 * @return array
 	 */
 	private function getElementData($element, $currentData, $default = array())
@@ -387,6 +390,7 @@ class WbampModel_Renderer
 	 * directly to the page
 	 *
 	 * @param $data
+	 *
 	 * @return array
 	 */
 	private function getJsonldData($data)
@@ -529,7 +533,7 @@ class WbampModel_Renderer
 			}
 
 			// image, if set by user in regular content, {wbamp-meta name="image" url="" height="123" width="456"}
-			if (!empty($data['user_set_data']) && !empty($data['user_set_data']['image']))
+			if (!empty($data['user_set_data']) && !empty($data['user_set_data']['image']) && !empty($data['user_set_data']['image']['url']))
 			{
 				$userSetImage = ShlSystem_Route::absolutify($data['user_set_data']['image']['url'], true);
 				$pageImageSize = array();
@@ -605,6 +609,7 @@ class WbampModel_Renderer
 	 * as page image
 	 *
 	 * @param $match
+	 *
 	 * @return mixed
 	 */
 	private function _extractImageFromIncontent($match)

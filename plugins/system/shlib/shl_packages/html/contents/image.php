@@ -6,8 +6,8 @@
  * @copyright   (c) Yannick Gaultier 2016
  * @package     shlib
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     0.3.1.580
- * @date        2016-08-25
+ * @version     0.3.1.587
+ * @date        2016-10-31
  */
 
 // Security check to ensure this file is being included by a parent file.
@@ -117,6 +117,7 @@ class ShlHtmlContent_Image
 				$imageUrl = '';
 				if (!empty($match[1]))
 				{
+					jimport('joomla.utilities.utility');
 					$attributes = JUtility::parseAttributes($match[1]);
 					if (!empty($attributes['src']))
 					{

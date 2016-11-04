@@ -48,9 +48,13 @@ class rseventsproModelEvent extends JModelAdmin
 			$item->locationname = $location->name;
 			
 			// Convert image properties
-			$registry = new JRegistry;
-			$registry->loadString($item->properties);
-			$item->properties = $registry->toArray();
+			try {
+				$registry = new JRegistry;
+				$registry->loadString($item->properties);
+				$item->properties = $registry->toArray();
+			} catch (Exception $e) {
+				$item->properties = array();
+			}
 			
 			if (empty($item->start) || $item->start == $db->getNullDate()) {
 				$item->start = JFactory::getDate()->toSql();
@@ -794,9 +798,12 @@ class rseventsproModelEvent extends JModelAdmin
 			
 			if ($enable) {
 				$defaults = rseventsproHelper::getDefaultOptions();
-				$registry = new JRegistry;
-				$registry->loadString($defaults);
-				$defaults = $registry->toArray();
+				
+				try {
+					$registry = new JRegistry;
+					$registry->loadString($defaults);
+					$defaults = $registry->toArray();
+				} catch (Exception $e) {}
 				
 				foreach ($defaults as $name => $value) {
 					if (!isset($options[$name]))

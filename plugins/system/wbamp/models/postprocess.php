@@ -6,8 +6,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.5.0.585
- * @date        2016-08-25
+ * @version     1.6.0.607
+ * @date        2016-10-31
  */
 
 // no direct access
@@ -294,7 +294,11 @@ class WbampModel_Postprocess
 		 * which does not seem to be an issue for the AMP runtime.
 		 *
 		 */
-		$content = str_replace('<br></br>', '<br />', $content);
+		$tags = WbampHelper_Runtime::$selfClosingTags;
+		foreach($tags as $tag)
+		{
+			$content = str_replace('></'. $tag . '>', ' />', $content);
+		}
 
 		/**
 		 * Same kind of stuff: saveXml() convert end-of-line into &#13;

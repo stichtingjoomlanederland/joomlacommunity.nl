@@ -5,8 +5,8 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.5.0.585
- * @date        2016-08-25
+ * @version     1.6.0.607
+ * @date        2016-10-31
  */
 
 /*************************************
@@ -28,10 +28,11 @@
   background: @colors-background-menu;
   font-size: @fonts-menu-size;
 }
+
 .wbamp-sidebar .wbamp-menu {
   min-width: @menu-min-width;
   padding-right: 2.5em;
-  &.wbamp-right{
+  &.wbamp-right {
     padding-right: 0;
     padding-left: 2.5em;
   }
@@ -452,37 +453,10 @@
     color: @colors-text-info-block-hover;
   }
 
-  .wbamp-info-block p, .content_rating p {
+  .wbamp-info-block p {
     margin-top: 0;
     margin-bottom: 0;
     line-height: 1;
-  }
-
-  .content_rating p, .content_rating amp-img {
-    display: inline-block;
-    vertical-align: middle;
-    line-height: 1em;
-  }
-
-  .content_rating p {
-    line-height: 1em;
-    height: 1em;
-    margin-right: 0.4em;
-  }
-
-  .content_rating amp-img {
-    line-height: 1em;
-    margin-right: 0.2em;
-  }
-  .content_rating p.unseen {
-    color: @colors-text-info-block;
-    background: @colors-background-info-block;
-    font-family: @fonts-info-block;
-    font-size: @fonts-size-info-block;
-  }
-
-  .content_rating amp-img {
-    display: inline-block;
   }
 }
 

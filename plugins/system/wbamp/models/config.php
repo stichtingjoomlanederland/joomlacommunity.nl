@@ -7,15 +7,14 @@
  * @copyright   (c) Yannick Gaultier - Weeblr llc - 2016
  * @package     wbAmp
  * @license     http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version     1.5.0.585
- * @date        2016-08-25
+ * @version     1.6.0.607
+ * @date        2016-10-31
  */
 
 defined('_JEXEC') or die();
 
 class WbampModel_Config
 {
-
 	/**
 	 * Global white list
 	 *
@@ -24,7 +23,8 @@ class WbampModel_Config
 	 * @var array
 	 */
 	private $_tagsWhiteList = array(
-		/* 'html', 'head','title','link','meta','style' not in body */
+		/* 'html', 'head','title','link','style' not in body */
+		'meta', 'link',
 		'body', 'article', 'section', 'nav', 'aside', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'footer', 'address',
 		'p', 'hr', 'pre', 'blockquote', 'ol', 'ul', 'li', 'dl', 'dt', 'dd', 'figure', 'figcaption', 'div', 'main',
 		'a', 'em', 'strong', 'small', 's', 'cite', 'q', 'dfn', 'abbr', 'data', 'time', 'code', 'var', 'samp', 'kbd', 'sub', 'sup', 'i', 'b', 'u', 'mark', 'ruby', 'rb', 'rt', 'rtc', 'rp', 'bdi', 'bdo', 'span', 'br', 'wbr',
@@ -193,7 +193,7 @@ class WbampModel_Config
 		'audio' => array('__wbamp_global__', '__wbamp_data__', '__wbamp_aria__', 'autoplay', 'controls', 'loop', 'muted', 'preload', 'src'),
 		'bdo' => array('__wbamp_global__', '__wbamp_data__', '__wbamp_aria__', 'dir'),
 		'blockquote' => array('__wbamp_global__', '__wbamp_data__', '__wbamp_aria__', 'cite'),
-		'button' => array('__wbamp_global__', '__wbamp_data__', '__wbamp_aria__', 'disabled', 'name', 'type', 'value'),
+		'button' => array('__wbamp_global__', '__wbamp_data__', '__wbamp_aria__', 'disabled', 'name', 'type', 'value', 'on'),
 		'caption' => array('__wbamp_global__', '__wbamp_data__', '__wbamp_aria__', 'align'),
 		'col' => array('__wbamp_global__', '__wbamp_data__', '__wbamp_aria__', 'span'),
 		'colgroup' => array('__wbamp_global__', '__wbamp_data__', '__wbamp_aria__', 'align'),
@@ -201,6 +201,9 @@ class WbampModel_Config
 		'img' => array('__wbamp_global__', '__wbamp_data__', '__wbamp_aria__', 'alt', 'border', 'height', 'ismap', 'longdesc', 'src', 'srcset', 'width'),
 		'ins' => array('__wbamp_global__', '__wbamp_data__', '__wbamp_aria__', 'cite', 'datetime'),
 		'li' => array('__wbamp_global__', '__wbamp_data__', '__wbamp_aria__', 'value'),
+		'link' => array('__wbamp_global__', '__wbamp_data__', '__wbamp_aria__', 'crossorigin', 'href', 'hreflang', 'media', 'rel', 'type'),
+		// http-equiv forbidden on meta
+		'meta' => array('__wbamp_global__', '__wbamp_data__', '__wbamp_aria__', 'charset', 'content', 'name'),
 		'ol' => array('__wbamp_global__', '__wbamp_data__', '__wbamp_aria__', 'reversed', 'start', 'type'),
 		'q' => array('__wbamp_global__', '__wbamp_data__', '__wbamp_aria__', 'cite'),
 		'script' => array('__wbamp_global__', '__wbamp_data__', '__wbamp_aria__', 'type'),
@@ -240,6 +243,9 @@ class WbampModel_Config
 	 * @var array
 	 */
 	private $_perTagAttrBlackList = array(
+		'article' => array('itemtype'),
+		'aside' => array('itemtype'),
+		'section' => array('itemtype'),
 		'table' => array('width', 'height'),
 		'thead' => array('width', 'height'),
 		'tbody' => array('width', 'height'),
@@ -247,19 +253,40 @@ class WbampModel_Config
 		'th' => array('width', 'height'),
 		'tr' => array('width', 'height'),
 		'td' => array('width', 'height'),
-		'article' => array('itemtype'),
-		'section' => array('itemtype'),
-		'aside' => array('itemtype')
 	);
 
 	/**
-	 * Invalid protocols for href
+	 * Invalid protocols for href, src
 	 * Attribute to be removed
 	 *
 	 * @var array
 	 */
-	private $_invalidProtocols = array(
-		'javascript'
+	private $_protocolsDef = array(
+		'a.href' => array(
+			'allowed' => array(
+				'ftp',
+				'http',
+				'https',
+				'mailto',
+				'fb-messenger',
+				'intent',
+				'skype',
+				'sms',
+				'snapchat',
+				'tel',
+				'tg',
+				'threema',
+				'twitter',
+				'viber',
+				'whatsapp'
+			),
+		),
+		'link.href' => array(
+			'allowed' => array(
+				'http',
+				'https'
+			),
+		),
 	);
 
 	/**
@@ -293,6 +320,12 @@ class WbampModel_Config
 	 * @var array
 	 */
 	private $_tagMandatoryAttr = array(
+		'link' => array(
+			'rel' => array(
+				'action' => 'remove_tag', // add | remove_tag
+				'add_value' => ''
+			)
+		),
 		'script' => array
 		(
 			'type' => array(
@@ -355,9 +388,57 @@ class WbampModel_Config
 				'action' => 'remove_attr', // allow | replace | remove_attr | remove_tag
 				'replace_with' => ''
 			)
-		)
+		),
+		'a.href' => array
+		(
+			'processed_values' => array(
+				'void' => array(
+					'action' => 'replace', // allow | replace | remove_attr | remove_tag
+					'replace_with' => '#0'
+				),
+				'void(0)' => array(
+					'action' => 'replace', // allow | replace | remove_attr | remove_tag
+					'replace_with' => '#0'
+				),
+				'void(0);' => array(
+					'action' => 'replace', // allow | replace | remove_attr | remove_tag
+					'replace_with' => '#0'
+				),
+				'Void' => array(
+					'action' => 'replace', // allow | replace | remove_attr | remove_tag
+					'replace_with' => '#0'
+				),
+				'Void(0)' => array(
+					'action' => 'replace', // allow | replace | remove_attr | remove_tag
+					'replace_with' => '#0'
+				),
+				'Void(0);' => array(
+					'action' => 'replace', // allow | replace | remove_attr | remove_tag
+					'replace_with' => '#0'
+				)
+			),
+			'empty' => array(
+				'action' => 'remove_attr', // allow | replace | remove_attr | remove_tag
+			)
+		),
+		'meta.charset' => array
+		(
+			'other_values' => array(
+				'action' => 'remove_tag', // allow | replace | remove_attr | remove_tag
+				'replace_with' => ''
+			),
+			'empty' => array(
+				'action' => 'remove_tag', // allow | replace | remove_attr | remove_tag
+			)
+		),
 	);
 
+	/**
+	 * Per tag list of invalid values of some attributes. Attribute can be removed or value
+	 * replaced
+	 *
+	 * @var array
+	 */
 	private $_attrForbiddenValue = array(
 		'div.itemtype' => array(
 			'http://schema.org/Article' => array(
@@ -365,26 +446,48 @@ class WbampModel_Config
 				'replace_with' => ''
 			),
 			'http://schema.org/NewsArticle' => array(
-				'action' => 'remove', // replace | remove
+				'action' => 'remove',
 				'replace_with' => ''
 			),
 			'http://schema.org/BlogPosting' => array(
-				'action' => 'remove', // replace | remove
+				'action' => 'remove',
 				'replace_with' => ''
 			),
 			'https://schema.org/Article' => array(
-				'action' => 'remove', // replace | remove
+				'action' => 'remove',
 				'replace_with' => ''
 			),
 			'https://schema.org/NewsArticle' => array(
-				'action' => 'remove', // replace | remove
+				'action' => 'remove',
 				'replace_with' => ''
 			),
 			'https://schema.org/BlogPosting' => array(
-				'action' => 'remove', // replace | remove
+				'action' => 'remove',
 				'replace_with' => ''
 			)
-		)
+		),
+
+		// note: removing the rel attribute of a link tag
+		// will cause this tag to be removed later on
+		// as rel is a required attribute
+		'link.rel' => array(
+			'stylesheet' => array(
+				'action' => 'remove', // replace | remove
+				'replace_with' => ''
+			),
+			'preconnect' => array(
+				'action' => 'remove',
+				'replace_with' => ''
+			),
+			'prerender' => array(
+				'action' => 'remove',
+				'replace_with' => ''
+			),
+			'prefetch' => array(
+				'action' => 'remove',
+				'replace_with' => ''
+			),
+		),
 	);
 
 	/**
@@ -396,8 +499,13 @@ class WbampModel_Config
 	 * @var array
 	 */
 	private $_documentTypes = array(
+		'article' => 'Article',
+		'blog' => 'BlogPosting',
 		'news' => 'NewsArticle',
-		'blog' => 'BlogPosting'
+		'photograph' => 'Photograph',
+		'recipe' => 'Recipe',
+		'review' => 'Review',
+		'webpage' => 'WebPage'
 	);
 
 	/**
@@ -459,6 +567,7 @@ class WbampModel_Config
 	 * or possibly through remote configuration
 	 *
 	 * @param $name
+	 *
 	 * @return mixed
 	 */
 	public function __get($name)
@@ -468,7 +577,14 @@ class WbampModel_Config
 			// remote value will overwrite hardcoded value
 			default:
 				$prop = '_' . $name;
-				return $this->$prop;
+				if (property_exists($this, $prop))
+				{
+					return $this->$prop;
+				}
+				else
+				{
+					return null;
+				}
 				break;
 		}
 	}
@@ -478,6 +594,7 @@ class WbampModel_Config
 	 * exists in this config object
 	 *
 	 * @param $name
+	 *
 	 * @return mixed
 	 */
 	public function __isset($name)
@@ -492,6 +609,7 @@ class WbampModel_Config
 	 *
 	 * @param $name
 	 * @param $value
+	 *
 	 * @return $this
 	 */
 	public function __set($name, $value)

@@ -32,13 +32,21 @@ class rseventsproModelDiscount extends JModelAdmin
 	 */
 	public function getItem($pk = null) {
 		if ($item = parent::getItem($pk)) {
-			$registry = new JRegistry;
-			$registry->loadString($item->events);
-			$item->events = $registry->toArray();
+			try {
+				$registry = new JRegistry;
+				$registry->loadString($item->events);
+				$item->events = $registry->toArray();
+			} catch (Exception $e) {
+				$item->events = array();
+			}
 			
-			$registry = new JRegistry;
-			$registry->loadString($item->groups);
-			$item->groups = $registry->toArray();
+			try {
+				$registry = new JRegistry;
+				$registry->loadString($item->groups);
+				$item->groups = $registry->toArray();
+			} catch (Exception $e) {
+				$item->groups = array();
+			}
 			
 			$item->usage = empty($item->usage) ? '' : (int) $item->usage;
 			$item->same_tickets = empty($item->same_tickets) ? '' : (int) $item->same_tickets;

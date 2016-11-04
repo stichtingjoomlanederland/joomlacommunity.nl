@@ -1,6 +1,6 @@
                                 shLib change log                                
 
-                        (2016-08-25 16:49 - build #580)                         
+                        (2016-10-31 15:26 - build #587)                         
 
 
     [new]    Added Structured data Logos support
@@ -99,6 +99,8 @@
     [chg]    Now clearing output buffer before aborting HTTP request
     [chg]    Changed error handling for Joomla! 2/3 compatiblity
 
+    [bug]    Full article image may not be detected as OpenGraph image if
+             there are other images on the page
     [bug]    OGP and Twitter cards images URLs are not fully qualified if
              entered manually in backend - fixes #453
     [bug]    Invalid UTF-8 character in category name breaks configuration

@@ -6,8 +6,8 @@
  * @copyright    (c) Yannick Gaultier - Weeblr llc - 2016
  * @package      wbAmp
  * @license      http://www.gnu.org/copyleft/gpl.html GNU/GPL
- * @version      1.5.0.585
- * @date        2016-08-25
+ * @version      1.6.0.607
+ * @date        2016-10-31
  */
 defined('_JEXEC') or die;
 
@@ -24,6 +24,7 @@ class WbampHelper_Amphtml
 	 *
 	 * @param array $displayData
 	 * @param array $menuStyleAllowed list of allowed menus in that position
+	 *
 	 * @return string
 	 */
 	static public function getRenderedMenu($displayData, $menuStyleAllowed)
@@ -57,7 +58,8 @@ class WbampHelper_Amphtml
 	 * If no style provided, user selected style is read from params
 	 *
 	 * @param JRegistry $params global user set params object
-	 * @param string $menuStyle
+	 * @param string    $menuStyle
+	 *
 	 * @return bool
 	 */
 	static public function isSlidingMenu($params, $menuStyle = '')
@@ -65,5 +67,46 @@ class WbampHelper_Amphtml
 		$menuStyle = empty($menuStyle) ? $params->get('menu_style', 'slide') : $menuStyle;
 
 		return in_array($menuStyle, self::$slidingMenuStyles);
+	}
+
+	/**
+	 * Validate an HTML tag dimension (width or height)
+	 *
+	 * - must be numeric (no % or other sign)
+	 * - except when set in px, ie 250px is valid
+	 *
+	 * @param mixed $dimension
+	 * @param int   $default value if invalid
+	 *
+	 * @return int
+	 */
+	public static function validateDimension($dimension, $default = 0)
+	{
+		$validated = self::isValidDimension($dimension) ? $dimension : $default;
+
+		return $validated;
+	}
+
+	/**
+	 * Finds out if an HTML tag dimension is valid (width or height)
+	 *
+	 * - must be numeric (no % or other sign)
+	 * - except when set in px, ie 250px is valid
+	 *
+	 * @param mixed $dimension
+	 *
+	 * @return bool
+	 */
+	public static function isValidDimension($dimension)
+	{
+		$validated = is_numeric($dimension);
+		if (!$validated && substr($dimension, -2) == 'px')
+		{
+			// try again without trailing px
+			$dimension = substr($dimension, 0, -2);
+			$validated = is_numeric($dimension);
+		}
+
+		return $validated;
 	}
 }

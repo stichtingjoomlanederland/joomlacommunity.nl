@@ -411,15 +411,28 @@ class RSEBackup {
 							
 							if ($table == '#__categories') {
 								$new = $this->savecategory($values, $hash);
-							} else {							
-								$query->clear()
-									->insert($this->db->qn($table))
-									->set($values);
+							} else {
+								$counter = false;
 								
-								$this->db->setQuery($query);
-								$this->db->execute();
+								if ($table == '#__rseventspro_taxonomy') {
+									$query->clear()
+										->select('COUNT(*)')
+										->from($this->db->qn($table))
+										->where($values);
+									$this->db->setQuery($query);
+									$counter = (bool) $this->db->loadResult();
+								}
 								
-								$new = $this->db->insertid();
+								if (!$counter) {
+									$query->clear()
+										->insert($this->db->qn($table))
+										->set($values);
+									
+									$this->db->setQuery($query);
+									$this->db->execute();
+								
+									$new = $this->db->insertid();
+								}
 							}
 							
 							if ($table != '#__rseventspro_taxonomy') {
@@ -542,6 +555,11 @@ class RSEBackup {
 			
 			$column			= str_replace(array('`', ' '), '', $column);
 			$value			= str_replace(array('\'', ' '), '', $value);
+			
+			if ($column == 'params' || $column == 'metadata' || $column == 'description') {
+				$value = str_replace(array('\\\\"','\\\"','\\"','\"'), '"', $value);
+			}
+			
 			$data[$column]	= $value;
 		}
 		

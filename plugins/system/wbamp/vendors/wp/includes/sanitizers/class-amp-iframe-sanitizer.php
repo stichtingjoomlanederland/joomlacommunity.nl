@@ -82,9 +82,20 @@ class AMP_Iframe_Sanitizer extends AMP_Base_Sanitizer {
 		$out = array();
 
 		foreach ( $attributes as $name => $value ) {
-			switch ( $name ) {
-				case 'sandbox':
+			switch ($name)
+			{
+				case 'width':
 				case 'height':
+					// weeblr
+					// get rid of 100%, or NaN
+					if (WbampHelper_Amphtml::isValidDimension($value))
+					{
+						$out[$name] = $value;
+					}
+					//
+					break;
+				case 'sandbox':
+				//case 'height':
 				case 'class':
 				case 'sizes':
 					$out[ $name ] = $value;
@@ -94,12 +105,12 @@ class AMP_Iframe_Sanitizer extends AMP_Base_Sanitizer {
 					$out[ $name ] = set_url_scheme( $value, 'https' );
 					break;
 
-				case 'width':
+				/*case 'width':
 					if ( $value === '100%' ) {
 						continue;
 					}
 					$out[ $name ] = $value;
-					break;
+					break;*/
 
 				case 'frameborder':
 					if ( '0' !== $value && '1' !== $value ) {
