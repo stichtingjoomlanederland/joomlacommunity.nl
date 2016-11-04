@@ -2,8 +2,8 @@
 <extension version="3.6" client="administrator" type="language" method="upgrade">
 	<name>Nederlands (NL)</name>
 	<tag>nl-NL</tag>
-	<version>3.6.0.1</version>
-	<creationDate>Juli 2016</creationDate>
+	<version>3.6.3</version>
+	<creationDate>Oktober 2016</creationDate>
 	<author>Dutch Translation Team</author>
 	<authorEmail>taal@joomlacommunity.eu</authorEmail>
 	<authorUrl>http://joomlacode.org/gf/project/nederlands/</authorUrl>
