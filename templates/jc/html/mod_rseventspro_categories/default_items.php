@@ -14,23 +14,19 @@ defined('_JEXEC') or die('Restricted access'); ?>
 	}
 	?>
 	<li>
-		<?php $levelup = $item->level - $startLevel - 1; ?>
-		<h<?php echo $params->get('item_heading',4) + $levelup; ?>>
-			<?php if ($remove) { ?>
-				<?php if (empty($events)) { ?>
-					<?php echo $item->title;?>
-				<?php } else { ?>
-					<a <?php echo $open; ?> href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&category='.rseventsproHelper::sef($item->id,$item->title),true,$itemid); ?>">
-						<?php echo $item->title;?> <?php if ($counter && $events) { ?> (<?php echo JText::plural('MOD_RSEVENTSPRO_CATEGORIES_EVENTS_COUNT',$events); ?>) <?php } ?>
-					</a>
-				<?php } ?>
-			<?php } else { ?>
-				<a <?php echo $open; ?> href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&category='.rseventsproHelper::sef($item->id,$item->title),true,$itemid); ?>">
-					<?php echo $item->title;?> <?php if ($counter && $events) { ?> (<?php echo JText::plural('MOD_RSEVENTSPRO_CATEGORIES_EVENTS_COUNT',$events); ?>) <?php } ?>
-				</a>
-			<?php } ?>
-		</h<?php echo $params->get('item_heading',4) + $levelup; ?>>
-
+        <?php if ($remove) { ?>
+            <?php if (empty($events)) { ?>
+                <?php echo $item->title;?>
+            <?php } else { ?>
+                <a <?php echo $open; ?> href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&category='.rseventsproHelper::sef($item->id,$item->title),true,$itemid); ?>">
+                    <?php echo $item->title;?> <?php if ($counter && $events) { ?> (<?php echo JText::plural('MOD_RSEVENTSPRO_CATEGORIES_EVENTS_COUNT',$events); ?>) <?php } ?>
+                </a>
+            <?php } ?>
+        <?php } else { ?>
+            <a <?php echo $open; ?> href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&category='.rseventsproHelper::sef($item->id,$item->title),true,$itemid); ?>">
+                <?php echo $item->title;?> <?php if ($counter && $events) { ?> (<?php echo JText::plural('MOD_RSEVENTSPRO_CATEGORIES_EVENTS_COUNT',$events); ?>) <?php } ?>
+            </a>
+        <?php } ?>
 		<?php
 		if($params->get('show_children', 0) && (($params->get('maxlevel', 0) == 0) || ($params->get('maxlevel') >= ($item->level - $startLevel))) && count($item->getChildren())) {
 			echo '<ul class="level'.$item->level.'">';
