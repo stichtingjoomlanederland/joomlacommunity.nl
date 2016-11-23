@@ -27,9 +27,13 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 
 //require_once JPATH_THEMES . "/" . $this->template . "/dummy/downloads_core.php";
 ?>
-
+<div class="leaderboard-container">
+	<div class="banner">
+		<img src="http://placehold.it/728x90"/>
+	</div>
+</div>
 <div class="header<?php echo $helper->isHome() ? ' homepage' : ''; ?>">
-	<nav class="navbar navbar-default navbar-main" role="navigation">
+	<nav class="navbar navbar-default navbar-main" role="navigation" data-spy="affix" data-offset-top="110" >
 		<div class="container">
 
 			<?php //Brand and toggle get grouped for better mobile display ?>
@@ -64,7 +68,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 		</div>
 	</nav>
 
-	<div class="subnav" data-spy="affix" data-offset-top="<?php echo $helper->isHome() ? 0 : 0; ?>" style="margin-top: 0; padding-top: 20px;">
+	<div class="subnav" data-spy="affix" data-offset-top="110">
 		<div class="container">
 			<nav class="navbar navbar-sub" role="navigation">
 				<jdoc:include type="modules" name="submenu"/>
@@ -75,15 +79,6 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 	<div class="pagetitle">
 		<?php if ($this->countModules('slider')) : ?>
 			<jdoc:include type="modules" name="slider"/>
-		<?php else: ?>
-			<div class="container">
-				<div class="paginatitel pull-left">
-					<h3><?php echo $helper->getActiveMenuTitle(); ?></h3>
-				</div>
-				<div class="banner pull-right">
-					<img src="images/banner.png"/>
-				</div>
-			</div>
 		<?php endif; ?>
 	</div>
 </div>
@@ -111,17 +106,6 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 			<?php if ($helper->isHome() == true) : ?>
 				<div class="content-6 col-sm-12">
 					<jdoc:include type="modules" name="home-sidebar-a__top" style="well"/>
-					<?php /*
-					<div class="row">
-						<div class="col-sm-6">
-							<div class="thumbnail">
-								<img src="http://placehold.it/320x180" alt="...">
-								<div class="caption">
-									<h3>Joomla Hidden Secrets</h3>
-								</div>
-							</div>
-						</div>
-					</div>                    */ ?>
 					<jdoc:include type="modules" name="home-sidebar-a__bottom" style="panel"/>
 				</div>
 				<div class="content-3 col-sm-6">
@@ -175,7 +159,11 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 				<div class="col-12">
 					<p class="copyright">Copyright &copy; 2008-<?php echo date('Y'); ?> Joomla!Community - Alle rechten
 						voorbehouden</p>
-					<p class="followus">Volg ons op: <a href="https://www.facebook.com/joomlacommunity/" target="_blank">Facebook</a> - <a href="https://www.linkedin.com/groups/1857791" target="_blank">LinkedIn</a> - <a href="https://twitter.com/joomlacommunity" target="_blank">Twitter</a> - <a href="https://www.flickr.com/groups/joomlacommunity/pool/" target="_blank">Flickr</a></p>
+					<p class="followus">Volg ons op:
+						<a href="https://www.facebook.com/joomlacommunity/" target="_blank">Facebook</a> -
+						<a href="https://www.linkedin.com/groups/1857791" target="_blank">LinkedIn</a> -
+						<a href="https://twitter.com/joomlacommunity" target="_blank">Twitter</a> -
+						<a href="https://www.flickr.com/groups/joomlacommunity/pool/" target="_blank">Flickr</a></p>
 					<jdoc:include type="modules" name="copyright"/>
 				</div>
 			</div>

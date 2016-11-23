@@ -1,15 +1,37 @@
 //banner
-.banner {
-  margin: 10px -10px 10px 0;
-  width: 100%;
-  text-align: center;
+.leaderboard-container {
+	display: block;
+	overflow: hidden;
+	max-width: 100%;
+	padding: 10px 0;
+	text-align: center;
 
-  img {
-    max-width: 100%;
-  }
+	.banner {
+		display: inline-block;
+		width: 744px;
+		height: 90px;
+		padding-left: 16px;
+		vertical-align: middle;
+		position: relative;
 
-  @media (min-width: @screen-md) {
-    max-width: 468px;
-    margin: 15px -10px 15px 0;
-  }
+		&:before {
+			display: block;
+			position: absolute;
+			content: " ";
+			left: 1.5em;
+			bottom: 0;
+			display: block;
+			width: 90px;
+			height: 16px;
+			content: "Advertentie";
+			-webkit-transform: rotate(-90deg);
+			transform: rotate(-90deg);
+			-webkit-transform-origin: 0 100%;
+			transform-origin: 0 100%;
+			text-transform: uppercase;
+			font-size: 11px;
+			color: @text-color;
+			line-height: 11px;
+		}
+	}
 }

@@ -1,35 +1,17 @@
 // Header
 .header {
-  margin-bottom: 20px;
-  min-height: 110px;
-  z-index: 5;
-  position: relative;
+	margin-bottom: 20px;
+	z-index: 5;
+	position: relative;
+	min-height: 100px;
 
-  &.homepage {
-    min-height: 350px;
-  }
+	&.homepage {
+		min-height: 350px;
+	}
 
-  .subnav {
-    .navbar-sub {
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    &.affix {
-      .navbar-sub {
-        background: none;
-      }
-    }
-
-    .nav > li > a {
-      color: #fff;
-    }
-  }
-
-  @media (min-width: @screen-xs) {
-    min-height: 150px;
-  }
-
-  @media (min-width: @screen-lg) {
-    margin-top: 55px;
-  }
+	.subnav {
+		.nav > li > a {
+			color: #fff;
+		}
+	}
 }
