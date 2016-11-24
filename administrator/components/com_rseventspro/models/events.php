@@ -945,11 +945,11 @@ class rseventsproModelEvents extends JModelLegacy
 		$start		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_start', 		'filter_start',		array(), 'array');
 		$end		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_end', 		'filter_end',		array(), 'array');
 		
-		$status		= $status[0] == '' ? null : $status;
-		$featured	= $featured[0] == '' ? null : $featured[0];
-		$childs		= $childs[0] == '' ? null : $childs[0];
-		$start		= $start[0] == '' ? null : $start[0];
-		$end		= $end[0] == '' ? null : $end[0];
+		$status		= isset($status[0])		? ($status[0] 	== '' ? null : $status) : null;
+		$featured	= isset($featured[0])	? ($featured[0] == '' ? null : $featured[0]) : null;
+		$childs		= isset($childs[0])		? ($childs[0] 	== '' ? null : $childs[0]) : null;
+		$start		= isset($start[0])		? ($start[0] 	== '' ? null : $start[0]) : null;
+		$end		= isset($end[0])		? ($end[0] 		== '' ? null : $end[0]) : null;
 		
 		if (is_array($status)) {
 			$status = array_unique($status);
