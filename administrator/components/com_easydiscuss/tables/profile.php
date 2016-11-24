@@ -186,13 +186,13 @@ class DiscussProfile extends EasyDiscussTable
 	 * if user record not found in eblog_profile, create one record.
 	 *
 	 */
-	public function load( $id = null , $reset = true , $reload = false )
+	public function load($id = null , $reset = true , $reload = false, $skipGuestChecking = false)
 	{
 		if (!isset(self::$instances[$id])) {
 			$createNew  = false;
 			$user = JFactory::getUser($id);
 
-			if ($id && $user->guest) {
+			if ($id && $user->guest && !$skipGuestChecking) {
 				//do not process any further;
 				$this->user = $user;
 				self::$instances[ $id ]	= $this;

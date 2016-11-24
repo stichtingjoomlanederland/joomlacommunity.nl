@@ -58,10 +58,12 @@ class EasyDiscussFacebook extends EasyDiscuss
 
 		// Remove bbcode tags from the content.
 		$description = $post->content;
-		$description = ED::parser()->removeCodes($description);
-		$description = strip_tags($description);
-		$description = addslashes($description);
 
+		$description = preg_replace('/\s+/', ' ', (strip_tags(ED::parser()->bbcode($description))));
+
+        // strip this kind of tag -> &nbsp; &amp;
+		$description = strip_tags(html_entity_decode($description));
+		
 		if (JString::strlen($description) > $maxContent) {
 			$description = JString::substr($description, 0, $maxContent) . '...';
 		}

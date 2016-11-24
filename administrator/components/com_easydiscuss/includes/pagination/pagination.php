@@ -158,6 +158,11 @@ class EasyDiscussPagination extends JPagination
 		<div class="o-pagination-wrap text-center t-lg-mt--xl">
 			<ul class="o-pagination">
 				<li class="disabled"><span><?php echo JText::_( 'COM_EASYDISCUSS_PAGINATION_PAGE' );?> :</span></li>
+
+				<?php if( $data->start->link ){ ?>
+					<li class="older"><a href="<?php echo $data->start->link ?>" rel="nofollow"><i class="fa fa-fast-backward" title="<?php echo JText::_( 'COM_EASYDISCUSS_PAGINATION_OLDER' , true );?>"></i></a></li>
+				<?php } ?>
+
 				<?php if( $data->previous->link ){ ?>
 					<li class="older"><a href="<?php echo $data->previous->link ?>" rel="nofollow"><i class="fa fa-backward" title="<?php echo JText::_( 'COM_EASYDISCUSS_PAGINATION_OLDER' , true );?>"></i></a></li>
 				<?php } ?>
@@ -173,6 +178,10 @@ class EasyDiscussPagination extends JPagination
 				<?php if( $data->next->link ){ ?>
 					<li class="newer"><a href="<?php echo $data->next->link ?>" rel="nofollow"><i class="fa fa-forward" title="<?php echo JText::_( 'COM_EASYDISCUSS_PAGINATION_NEWER' , true );?>"></i></a></li>
 				<?php } ?>
+
+				<?php if( $data->end->link ){ ?>
+					<li class="newer"><a href="<?php echo $data->end->link ?>" rel="nofollow"><i class="fa fa-fast-forward" title="<?php echo JText::_( 'COM_EASYDISCUSS_PAGINATION_NEWER' , true );?>"></i></a></li>
+				<?php } ?>				
 			</ul>
 		</div>
 		<?php

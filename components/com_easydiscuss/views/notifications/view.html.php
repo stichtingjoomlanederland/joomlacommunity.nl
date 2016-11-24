@@ -15,6 +15,21 @@ require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewNotifications extends EasyDiscussView
 {
+	/**
+	 * Determines if notifications are enabled
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function isFeatureAvailable()
+	{
+		if (!$this->config->get('main_notifications')) {
+			return false;
+		}
+
+		return true;
+	}
+
 	public function display($tpl = null)
 	{
 		$my = ED::user();
@@ -29,7 +44,7 @@ class EasyDiscussViewNotifications extends EasyDiscussView
 			$this->setPathway(JText::_( 'COM_EASYDISCUSS_BREADCRUMBS_NOTIFICATIONS'));
 		}
 
-		$limit = $this->config->get('main_notifications_limit', 5);
+		$limit = $this->config->get('main_notification_listings_limit', 5);
 
 		$model = ED::model('Notification');
 		// Get all notifications of the particular user given read and unread notifications.

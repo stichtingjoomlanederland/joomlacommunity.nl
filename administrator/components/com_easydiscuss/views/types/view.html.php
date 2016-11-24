@@ -17,7 +17,7 @@ class EasyDiscussViewTypes extends EasyDiscussAdminView
 {
 	public function display($tpl = null)
 	{
-		$this->checkAccess('discuss.manage.posttypes');
+		$this->checkAccess('discuss.manage.types');
 
 		JToolbarHelper::addNew();
 		JToolBarHelper::divider();

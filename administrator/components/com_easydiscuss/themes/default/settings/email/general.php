@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<div class="col-md-6">
 		<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_MAIL_PARSER'); ?>
-            <a href="http://stackideas.com/docs/easydiscuss/administrators/cronjobs" class="btn btn-success t-lg-ml--lg t-lg-mt--lg" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_DOCS_CRONJOB'); ?> &rarr;</a>
+            <a href="https://stackideas.com/docs/easydiscuss/administrators/cronjobs" class="btn btn-success t-lg-ml--lg t-lg-mt--lg" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_DOCS_CRONJOB'); ?> &rarr;</a>
 
 			<div id="option01" class="panel-body">
 				<div class="form-horizontal">

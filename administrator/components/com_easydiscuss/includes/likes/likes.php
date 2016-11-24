@@ -129,7 +129,11 @@ class EasyDiscussLikes extends EasyDiscuss
 
 		// Add likes activity
 		ED::jomsocial()->addActivityLikes($post, $question);
-		ED::easysocial()->likesStream($post, $question);
+
+		// Only generated stream if user likes a question.
+		if ($post->isQuestion()) {
+			ED::easysocial()->likesStream($post, $question);
+		}
 
 		// Notify post owner
 		$this->notifyPostOwner($post);

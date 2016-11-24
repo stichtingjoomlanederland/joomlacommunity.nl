@@ -448,6 +448,7 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 			}
 
 			$query .= ' WHERE a.`group_id` IN(' . $gids . ')';
+			$query .= ' AND b.`block` = 0';
 
 			$db->setQuery($query);
 			$result = $db->loadColumn();
@@ -1085,4 +1086,48 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 
 		return $count;
     }
+
+	/**
+	 * Determines if an alias exists on the site
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getIdFromAlias($alias, $parentId = null)
+	{
+		$db = $this->db;
+
+
+		$query = "select id from `#__discuss_category`";
+		$query .= " where `alias` = " . $db->Quote($alias);
+
+		if ($parentId) {
+			$query .= " AND parent_id = " . $db->Quote($parentId);
+		}
+
+		$db->setQuery($query);
+
+		$id = $db->loadResult();
+
+		// Try replacing ':' to '-' since Joomla replaces it
+		if ( !$id ) {
+
+			$alias = JString::str_ireplace(':' , '-' , $alias);
+
+			$query = "select id from `#__discuss_category`";
+			$query .= " where `alias` = " . $db->Quote($alias);
+
+			if ($parentId) {
+				$query .= " AND parent_id = " . $db->Quote($parentId);
+			}
+
+			$db->setQuery($query);
+			$id = $db->loadResult();
+		}
+
+		return $id;
+	}
+
 }

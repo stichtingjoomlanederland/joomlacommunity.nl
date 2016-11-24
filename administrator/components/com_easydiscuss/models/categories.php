@@ -273,9 +273,13 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 				$query .= " 0 as `isVoted`,";
 			}
 
-			// $query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`,";
 			$query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`,";
-			$query .= " (select cc.`anonymous` from `#__discuss_posts` as cc where cc.`thread_id` = a.`id` and cc.created = a.replied limit 1) as `last_user_anonymous`,";
+
+        	if ($config->get('main_anonymous_posting')){
+				$query .= " (select cc.`anonymous` from `#__discuss_posts` as cc where cc.`thread_id` = a.`id` and cc.created = a.replied limit 1) as `last_user_anonymous`,";
+			} else {
+				$query .= " 0 as `last_user_anonymous`,";
+			}
 
 			$query .= " a.`post_status`, a.`post_type`";
 
@@ -294,17 +298,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 				$query .= " and a.`cluster_id` = " . $db->Quote(0);
 			}
 
-
-			// category ACL:
-			// $catOptions = array('include' => $catId,
-			// 					'includeChilds' => $includeChild);
-
-			// $catAccessSQL = ED::category()->genCategoryAccessSQL('a.category_id', $catOptions);
-			// $query .= " and " . $catAccessSQL;
-
-
 			$query .= " and a.`category_id` in (" . implode(',', $children) . ")";
-
 
 			$orderby = " order by";
 
@@ -335,12 +329,13 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		$joinQuery = "(" . implode(") UNION ALL (", $joins) . ")";
 
 		$query = "select b.*, th.*,";
-		$query .= " pt.`suffix` AS post_type_suffix, pt.`title` AS `post_type_title`, e.`title` AS `category`";
+		// $query .= " pt.`suffix` AS post_type_suffix, pt.`title` AS `post_type_title`,";
+		$query .= " e.`title` AS `category`";
 		$query .= " FROM (" . $joinQuery . ") as th";
 		$query .= " 	INNER JOIN " . $db->nameQuote('#__discuss_posts') . " as b on th.`post_id` = b.`id`";
 
 		// Join with post types table
-		$query 	.= "	LEFT JOIN " . $db->nameQuote('#__discuss_post_types') . " AS pt ON b.`post_type`= pt.`alias`";
+		// $query 	.= "	LEFT JOIN " . $db->nameQuote('#__discuss_post_types') . " AS pt ON b.`post_type`= pt.`alias`";
 
 		// Join with category table.
 		$query	.= "	LEFT JOIN " . $db->nameQuote('#__discuss_category') . " AS e ON b.`category_id` = e.`id`";
@@ -349,6 +344,28 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 
 		$db->setQuery($query);
 		$results = $db->loadObjectList();
+
+        if ($results) {
+
+	        $typequery = "SELECT * FROM ". $db->nameQuote('#__discuss_post_types');
+	        $db->setQuery($typequery);
+	        $posttypes = $db->loadObjectList("alias");
+
+        	$count = count($results);
+
+        	for ($i = 0; $i < $count; $i++) {
+        		$row =& $results[$i];
+
+	            if (isset($posttypes[$row->post_type])) {
+	                $row->post_type_suffix = $posttypes[$row->post_type]->suffix;
+	                $row->post_type_title = $posttypes[$row->post_type]->title;
+	            } else {
+	                $row->post_type_suffix = "";
+	                $row->post_type_title = "";
+	            }
+        	}
+        }
+
 
 		return $results;
 
@@ -647,9 +664,9 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		return $result;
 	}
 
-	public function getChildCategories($parentId , $isPublishedOnly = false, $includePrivate = true, $exclusion = array())
+	public function getChildCategories($parentId , $isPublishedOnly = false, $includePrivate = true, $exclusion = array(), $ordering = false)
 	{
-		$categories = ED::Category()->getChildCategories($parentId , $isPublishedOnly, $includePrivate, $exclusion);
+		$categories = ED::Category()->getChildCategories($parentId , $isPublishedOnly, $includePrivate, $exclusion, $ordering);
 
 		return $categories;
 	}

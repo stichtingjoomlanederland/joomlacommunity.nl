@@ -982,7 +982,7 @@ class EasyDiscussCategory extends EasyDiscuss
 		}
 	}
 
-	public function getChildCategories($parentId , $isPublishedOnly = false, $includePrivate = true, $exclusion = array())
+	public function getChildCategories($parentId , $isPublishedOnly = false, $includePrivate = true, $exclusion = array(), $ordering = false)
 	{
 		static $categories = array();
 
@@ -997,6 +997,10 @@ class EasyDiscussCategory extends EasyDiscuss
 			$db	= ED::db();
 
 			$sortConfig = $config->get('layout_ordering_category','latest');
+
+			if ($ordering) {
+				$sortConfig = $ordering;
+			}
 
 			// $query  = 'SELECT a.`id`, a.`title`, a.`alias`, a.`private`,a.`default`, a.`container`';
 			$query = 'SELECT a.*';

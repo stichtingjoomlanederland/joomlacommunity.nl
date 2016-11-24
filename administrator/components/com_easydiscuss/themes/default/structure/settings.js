@@ -38,21 +38,15 @@ ed.require(['edq'], function($){
             <?php if ($this->config->get('layout_bbcode_link')) { ?>
             {
                 name: "<?php echo JText::_('COM_EASYDISCUSS_BBCODE_URL');?>",
-
                 replaceWith: function(h) {
-
-                    // Get the editor's name
                     var editorName = $(h.textarea).attr('name');
                     var caretPosition = h.caretPosition.toString();
-
                     EasyDiscuss.dialog({
-                        content: EasyDiscuss.ajax('site/views/post/showLinkDialog', {'editorName': editorName, 'caretPosition': caretPosition})
+                        'content': EasyDiscuss.ajax('site/views/post/showLinkDialog', {'editorName': editorName, 'caretPosition': caretPosition})
                     });
                 },
-                beforeInsert: function(h) {
-                },
-                afterInsert: function(h) {
-                },
+                beforeInsert: function(h) {},
+                afterInsert: function(h) {},
                 className: 'markitup-url'
             },
             <?php } ?>

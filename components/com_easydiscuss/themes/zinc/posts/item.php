@@ -215,7 +215,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
             <div class="o-col-sm">
                 <ol class="g-list-inline g-list-inline--dashed pull-right ed-post-meta-cat">
-                    <li><a href="<?php echo $post->getCategory()->getPermalink();?>" class=""><?php echo $post->getCategory()->title;?></a></li>
+                    <li><a href="<?php echo $post->getCategory()->getPermalink();?>" class=""><?php echo JText::_($post->getCategory()->title);?></a></li>
                     <?php if ($post->hasAttachments()) { ?>
                     <li><i class="fa fa-file"></i></li>
                     <?php } ?>

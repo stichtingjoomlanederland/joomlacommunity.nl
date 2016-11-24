@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
 	
-	<?php echo $this->html('table.notice', 'Please remember to setup the cronjobs if you are not sending emails on page load. <a href="http://stackideas.com/docs/easydiscuss/administrators/cronjobs" target="_blank" class="btn btn-default btn-sm">Setting Up Cronjob</a>'); ?>
+	<?php echo $this->html('table.notice', 'Please remember to setup the cronjobs if you are not sending emails on page load. <a href="https://stackideas.com/docs/easydiscuss/administrators/cronjobs" target="_blank" class="btn btn-default btn-sm">Setting Up Cronjob</a>'); ?>
 
 	<div class="app-filter filter-bar form-inline">
 	    <div class="form-group">

@@ -126,6 +126,7 @@ class EasyDiscussSetupController
 		curl_setopt($resource, CURLOPT_URL, ED_MANIFEST);
 		curl_setopt($resource, CURLOPT_TIMEOUT, 120);
 		curl_setopt($resource, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($resource, CURLOPT_SSL_VERIFYPEER, false);
 
 		$result = curl_exec($resource);
 		curl_close($resource);
@@ -224,35 +225,30 @@ class EasyDiscussSetupController
 		return $developer;
 	}
 
-
 	/**
 	 * Saves a configuration item
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string	The key to save
-	 * @param	mixed	The data to save
-	 * @return
 	 */
-	public function updateConfig( $key , $value )
+	public function updateConfig($key, $value)
 	{
-		$this->foundry();
+		$this->engine();
 
-		$config 	= Foundry::config();
-		$config->set( $key , $value );
+		$config = ED::config();
+		$config->set($key, $value);
 
-		$jsonString 	= $config->toString();
+		$jsonString = $config->toString();
 
-		$configTable 	= Foundry::table( 'Config' );
+		$table = ED::table('Configs');
+		$exists = $table->load(array('name' => 'config'));
 
-		if( !$configTable->load( 'site' ) )
-		{
-			$configTable->type 	= 'site';
+		if (!$exists) {
+			$table->name = 'config';
 		}
 
-		$configTable->set( 'value' , $jsonString );
-		$configTable->store();
+		$table->params = $jsonString;
+		$table->store();
 	}
-
 }
 

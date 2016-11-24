@@ -149,6 +149,7 @@ class EasyDiscussControllerInstallDownload extends EasyDiscussSetupController
 
 		// Set a large timeout incase the server fails to download in time.
 		curl_setopt($ch, CURLOPT_TIMEOUT, 30000);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
 		// Get the response of the server
 		$result = curl_exec($ch);

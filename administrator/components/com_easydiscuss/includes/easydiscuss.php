@@ -731,7 +731,7 @@ class ED
 			$db->setQuery($query);
 			$result = $db->loadResult();
 
-			$config->loadString($result, 'INI');
+			$config->loadString($result);
 		}
 
 		return $config;
@@ -1833,7 +1833,7 @@ class ED
 				//reset
 				$parent->childs = null;
 
-				ED::buildNestedCategories($parent->id, $parent, $ignorePrivate, $isPublishedOnly, $showPrivateCat, $selectACLOnly, $exclusion);
+				ED::buildNestedCategories($parent->id, $parent, $ignorePrivate, $isPublishedOnly, $showPrivateCat, $selectACLOnly, $exclusion, $sorting);
 			}//for $i
 		}//end if !empty $parentCat
 
@@ -1876,14 +1876,14 @@ class ED
 		return $html;
 	}
 
-	public static function buildNestedCategories($parentId, $parent, $ignorePrivate = false, $isPublishedOnly = false, $showPrivate = true, $selectACLOnly = false, $exclusion = array())
+	public static function buildNestedCategories($parentId, $parent, $ignorePrivate = false, $isPublishedOnly = false, $showPrivate = true, $selectACLOnly = false, $exclusion = array(), $ordering = false)
 	{
 		$catsModel = ED::model('Categories');
 
 		// [model:category]
 		$catModel = ED::model('Category');
 
-		$childs	= $catsModel->getChildCategories($parentId, $isPublishedOnly, $showPrivate, $exclusion);
+		$childs	= $catsModel->getChildCategories($parentId, $isPublishedOnly, $showPrivate, $exclusion, $ordering);
 
 		$aclType = ( $selectACLOnly ) ? DISCUSS_CATEGORY_ACL_ACTION_SELECT : DISCUSS_CATEGORY_ACL_ACTION_VIEW;
 
@@ -1921,9 +1921,9 @@ class ED
 				}
 			}// for $j
 
-			if (!empty($parent->childs)) {
-				$parent->childs	= array_reverse($parent->childs);
-			}
+			// if (!empty($parent->childs)) {
+			// 	$parent->childs	= array_reverse($parent->childs);
+			// }
 		} else {
 			return false;
 		}
@@ -3215,6 +3215,14 @@ class ED
 			}
 		}
 
+		if ($config->get('integration_toolbar_jomsocial_profile')) {
+			$jomsocial = ED::jomsocial();
+
+			if ($jomsocial->exists()) {
+				$link = CRoute::_('index.php?option=com_community&view=profile&task=edit');
+			}
+		}		
+
 		return $link;
 	}
 
@@ -3338,69 +3346,72 @@ class ED
 
 	public static function setMeta()
 	{
-		$config	= DiscussHelper::getConfig();
-		$db		= DiscussHelper::getDBO();
+		$config	= ED::getConfig();
+		$db	= ED::db();
 
-
-		$menu	= JFactory::getApplication()->getMenu();
-		$item	= $menu->getActive();
+		$menu = JFactory::getApplication()->getMenu();
+		$item = $menu->getActive();
 
 		$result	= new stdClass();
-		$result->description	= $config->get( 'main_description' );
-		$result->keywords		= '';
+		$result->description = $config->get('main_description');
+		$result->keywords = '';
 
-		$description 	= '';
+		$description = '';
 
-		if( is_object( $item ) )
-		{
-			$params			= $item->params;
+		if (is_object($item)) {
+			$params	= $item->params;
 
-			if(! $params instanceof JRegistry )
-			{
-				$params			= DiscussHelper::getRegistry( $item->params );
+			if (!$params instanceof JRegistry) {
+				$params = ED::getRegistry($item->params);
 			}
 
-			$description	= $params->get( 'menu-meta_description' , '' );
-			$keywords		= $params->get( 'menu-meta_keywords' , '' );
+			$description = $params->get('menu-meta_description' , '');
+			$keywords = $params->get('menu-meta_keywords' , '');
+			$robots = $params->get('robots');
 
-			if( ! empty ( $description ) )
-			{
-				$result->description	= $description;
+			if (!empty($description)) {
+				$result->description = $description;
 			}
 
-			if( ! empty ( $keywords ) )
-			{
-				$result->keywords	= $keywords;
+			if (!empty($keywords)) {
+				$result->keywords = $keywords;
+			}
+
+			if (!empty($robots)) {
+				$result->robots	= $robots;
 			}
 		}
 
 		$document = JFactory::getDocument();
-		if ( empty( $result->keywords ) && empty( $result->description ) )
-		{
-			// Get joomla default description.
-			$jConfig	= ED::jconfig();
-			$joomlaDesc	= $jConfig->get('MetaDesc');
 
-			$metaDesc	= $description . ' - ' . $joomlaDesc;
-			$document->setMetadata('description', $metaDesc);
-		}
-		else
-		{
-			if ( !empty( $result->keywords ) )
-			{
+		// Get joomla default description.
+		$jConfig = ED::jconfig();
+		$metaRobots = $jConfig->get('robots');
+
+		if (empty($result->keywords) && empty($result->description)) {
+			$joomlaDesc	= $jConfig->get('MetaDesc');
+			$metaDesc = $description . ' - ' . $joomlaDesc;
+			$document->setMetadata('description', $metaDesc);	
+		} else {
+			if (!empty($result->keywords)) {
 				$document->setMetadata('keywords', $result->keywords);
 			}
 
-			if ( !empty( $result->description ) )
-			{
+			if (!empty($result->description)) {
 				$document->setMetadata('description', $result->description);
 			}
 		}
-	} //end function setMeta
+
+		if (!empty($result->robots)) {
+			$document->setMetadata('robots', $result->robots);
+		} else {
+			$document->setMetadata('robots', $metaRobots);
+		}	
+	}
 
 	public static function getFrontpageCategories()
 	{
-		$catModel		= ED::model( 'Categories' );
+		$catModel		= ED::model('Categories');
 		$newPostCount	= 0;
 
 		if( !$categories = $catModel->getCategories() )
@@ -4270,6 +4281,20 @@ class ED
 
         return $link;
 	}
+
+	/**
+	 * We cannot rely on $app->getTemplate() because we need to explicitly get the current default front end template.
+	 *
+	 * @since 4.0.9
+	 * @access public
+	 */
+	public static function getCurrentTemplate()
+	{
+		$model = ED::model('Themes');
+		$template = $model->getDefaultJoomlaTemplate();
+		
+		return $template;
+	}	
 }
 
 // Backwards compatibility

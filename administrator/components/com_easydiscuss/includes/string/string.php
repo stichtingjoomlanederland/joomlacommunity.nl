@@ -188,7 +188,7 @@ class EasyDiscussString extends EasyDiscuss
 	 */
 	public function detectNames($text, $exclude = array())
 	{
-		$pattern = '/@[A-Z0-9][A-Z0-9_-]+/i';
+		$pattern = '/@[A-Z0-9][A-Z0-9_\-\s]+/i';
 
 		preg_match_all($pattern, $text, $matches);
 
@@ -277,7 +277,7 @@ class EasyDiscussString extends EasyDiscuss
 	 * @since	4.0.6
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public static function replaceUrl($tmp, $text)
 	{
@@ -306,9 +306,9 @@ class EasyDiscussString extends EasyDiscuss
 			foreach($tmplinks as $link) {
 
 				if (stristr( $link , 'http://' ) === false && stristr( $link , 'https://' ) === false && stristr( $link , 'ftp://' ) === false ) {
-					$linksWithoutProtocols[] = $link; 
+					$linksWithoutProtocols[] = $link;
 				} else if (stristr( $link , 'http://' ) !== false || stristr( $link , 'https://' ) !== false || stristr( $link , 'ftp://' ) === false ) {
-					$linksWithProtocols[] = $link; 
+					$linksWithProtocols[] = $link;
 				}
 			}
 		}
@@ -371,7 +371,7 @@ class EasyDiscussString extends EasyDiscuss
 			$text = preg_replace($patternReplace, '<a href="\0" ' . $targetBlank . $noFollow . '>\0</a>', $text);
 		}
 
-		// Not really sure why this is needed as it will cause some of the content to not rendered correctly. 
+		// Not really sure why this is needed as it will cause some of the content to not rendered correctly.
 		// We will comment this out for now. References : #1878
 		// $text = JString::str_ireplace('&quot;', '"', $text);
 

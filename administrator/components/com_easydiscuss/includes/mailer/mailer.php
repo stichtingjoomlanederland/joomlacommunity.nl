@@ -201,6 +201,20 @@ class EasyDiscussMailer extends EasyDiscuss
 	}
 
 
+	public static function notifyMention($emails, $data)
+	{
+		if (! $emails) {
+			return;
+		}
+
+		foreach ($emails as $email) {
+			self::_storeQueue($email, $data);
+		}
+
+		return;
+	}
+
+
 	/**
 	 * Notify all subscribers except admins and mods.
 	 * Store notification emails in mailqueue.
@@ -520,13 +534,14 @@ class EasyDiscussMailer extends EasyDiscuss
 
 		$type = $config->get('notify_html_format') ? 'html' : 'text';
 
+		$defaultJoomlaTemplate = ED::getCurrentTemplate();
 
 		// Set the logo for the generic email template
-		$override = JPATH_ROOT . '/templates/' . $app->getTemplate() . '/html/com_easydiscuss/emails/logo.png';
+		$override = JPATH_ROOT . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/emails/logo.png';
 		$logo = rtrim( JURI::root() , '/' ) . '/components/com_easydiscuss/themes/wireframe/images/emails/logo.png';
 
 		if (JFile::exists($override)) {
-			$logo 	= rtrim( JURI::root() , '/' ) . '/templates/' . $app->getTemplate() . '/html/com_easydiscuss/emails/logo.png';
+			$logo 	= rtrim( JURI::root() , '/' ) . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/emails/logo.png';
 		}
 
 

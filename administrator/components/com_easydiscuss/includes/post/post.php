@@ -39,6 +39,7 @@ class EasyDiscussPost extends EasyDiscuss
     public $isModerate = null;
     public $num_replies = null;
     public $likeCnt = null;
+    public $isRejected = null;
 
     public $last_user_id = null;
     public $last_poster_name = null;
@@ -881,9 +882,11 @@ class EasyDiscussPost extends EasyDiscuss
             $this->post->password = '';
         }
 
-        // Detect user's ip address.
-        $ip = $this->input->server->get('REMOTE_ADDR');
-        $this->post->ip = $ip;
+        // Only update the ip address when the author edits the post
+        if ($this->post->user_id == $this->my->id) {
+            $ip = $this->input->server->get('REMOTE_ADDR');
+            $this->post->ip = $ip;
+        }
 
 
         return $state;
@@ -898,12 +901,15 @@ class EasyDiscussPost extends EasyDiscuss
      * @param   string
      * @return
      */
-    public function publish($publish = true)
+    public function publish($publish = true, $reject = null)
     {
         // If this post is being published, we need to check if this post is being approved or not.
         if ($publish) {
             $this->prevPostStatus = $this->post->published;
         }
+
+        // Admin decided to reject the post. We shall let the user know why.
+        $this->isRejected = $reject;
 
         $this->post->published = $publish;
 
@@ -1250,6 +1256,45 @@ class EasyDiscussPost extends EasyDiscuss
         return true;
     }
 
+
+    /**
+     * Validates the attachments for this post
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+    public function validateAttachment()
+    {
+        $files = $this->input->files->get('filedata', array(), 'raw');
+
+        if (!$files) {
+            return true;
+        }
+
+        $allowed = explode(',', $this->config->get('main_attachment_extension'));
+
+        foreach ($files as $file) {
+            if ($file['name']) {
+
+                $extension = JFile::getExt($file['name']);
+                $extension = strtolower($extension);
+
+                // if empty extension or the extension is not allowed, return error.
+                if (!$extension || !in_array($extension, $allowed)) {
+                    $this->setError(JText::sprintf('COM_EASYDISCUSS_FILE_ATTACHMENTS_INVALID_EXTENSION', $file['name']));
+                    return false;
+                }
+
+            }
+        }
+
+        return true;
+    }
+
+
+
     /**
      * Combine question and reply validates together
      *
@@ -1267,6 +1312,11 @@ class EasyDiscussPost extends EasyDiscuss
 
         // Check the validate for the custom field which set as required
         if (!$this->validateFields($operation)){
+            return false;
+        }
+
+        // Check the validate for the custom field which set as required
+        if (!$this->validateAttachment($data)){
             return false;
         }
 
@@ -2485,7 +2535,7 @@ class EasyDiscussPost extends EasyDiscuss
     public function getAcceptedReply($checkAcl = true)
     {
         $pagination = $this->config->get('layout_replies_pagination');
-        
+
         // If this is not a question, we shouldn't if any replies
         if (!$this->isQuestion()) {
             return false;
@@ -2540,9 +2590,10 @@ class EasyDiscussPost extends EasyDiscuss
                     if ($showAsAnonymous) {
                         $user = ED::user(0);
                         $user->name = JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');
+                    } else {
+                        $user = ED::user($this->last_user_id);
                     }
 
-                    $user = ED::user($this->last_user_id);
                 } else {
                     if ($this->last_poster_name) {
                         $user = ED::user(0);
@@ -2562,7 +2613,15 @@ class EasyDiscussPost extends EasyDiscuss
                 }
 
                 $post = ED::post($reply);
-                $user = $post->getOwner();
+
+                $showAsAnonymous = ($post->isAnonymous() && ($post->user_id != $this->my->id || !ED::isSiteAdmin())) ? true : false;
+
+                if ($showAsAnonymous) {
+                    $user = ED::user(0);
+                    $user->name = JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');
+                } else {
+                    $user = $post->getOwner();
+                }
             }
 
             $_cache[$key] = $user;
@@ -4168,9 +4227,13 @@ class EasyDiscussPost extends EasyDiscuss
 
         $question = $this;
 
+        $postUrl = 'index.php?option=com_easydiscuss&view=post&id=' . $this->post->id;
         if ($this->isReply()) {
             $question = $this->getParent();
+            $postUrl = 'index.php?option=com_easydiscuss&view=post&id=' . $question->id . '#reply-' . $this->post->id;
         }
+
+        $emails = array();
 
         // Notify all the names
         foreach ($users as $user) {
@@ -4182,15 +4245,40 @@ class EasyDiscussPost extends EasyDiscuss
                                         'type' => DISCUSS_NOTIFICATIONS_MENTIONED,
                                         'target' => $user->id,
                                         'author' => $this->post->user_id,
-                                        'permalink' => $this->getPermalink(true, false)
+                                        'permalink' => $postUrl
                                     )
             );
+
+            $emails[] = $user->getEmail();
 
             $notification->store();
         }
 
         // Process notification in easysocial
         ED::easysocial()->notify('new.mentions', $this, $question);
+
+        // email notification on mentions.
+        if ($this->config->get('notify_mention') && $this->isPublished() && $this->isNew()) {
+
+            $emailData = array();
+
+            $emailData['emailTemplate'] = $this->isReply() ? 'email.mention.reply.php' : 'email.mention.post.php';
+
+            $subjectText = $this->isReply() ? 'COM_EASYDISCUSS_EMAILS_MENTIONED_IN_REPLY_SUBJECT' : 'COM_EASYDISCUSS_EMAILS_MENTIONED_IN_POST_SUBJECT';
+            $emailData['emailSubject'] = JText::sprintf($subjectText, $this->getOwner()->getName(), $question->title);
+
+            $emailData['authorName'] = $this->getOwner()->getName();
+            $emailData['postTitle'] = $question->title;
+            $emailData['postLink'] = EDR::getRoutedURL('view=post&id=' . $question->id, false, true);
+
+            if ($this->isReply()) {
+                $emailData['postLink'] = EDR::getRoutedURL('view=post&id=' . $question->id . '#reply-' . $this->post->id, false, true);
+            }
+
+            // var_dump($emails, $emailData);exit;
+
+            ED::mailer()->notifyMention($emails, $emailData);
+        }
 
         return true;
     }
@@ -4205,7 +4293,7 @@ class EasyDiscussPost extends EasyDiscuss
      */
     public function replyNotify()
     {
-        if (!$this->isReply()) {
+        if (!$this->isReply() || !$this->isNew()) {
             return;
         }
 
@@ -4521,6 +4609,15 @@ class EasyDiscussPost extends EasyDiscuss
             ED::Mailer()->notifyThreadOwner($emailData, array());
         }
 
+        // Notfy thread owner if the post is being rejected
+        if ($this->isRejected) {
+            $emailData['owner_email'] = $this->getOwner()->getEmail();
+            $emailData['emailTemplate'] = 'email.subscription.site.rejected';
+            $emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_QUESTION_ASKED_REJECTED', $this->post->title);
+
+            ED::Mailer()->notifyThreadOwner($emailData, array());            
+        }
+
     }
 
     /**
@@ -4601,7 +4698,7 @@ class EasyDiscussPost extends EasyDiscuss
 
             // We don't want to create a stream for replies
             // that were coming from Easysocial comment
-            if (!isset($this->saveOptions['saveFromEasysocialStory'])) {
+            if (!isset($this->saveOptions['saveFromEasysocialStory']) && $this->isNew()) {
                 ED::easysocial()->replyDiscussionStream($this);
             }
         }
@@ -6291,7 +6388,7 @@ class EasyDiscussPost extends EasyDiscuss
                 if (isset($key[0]) && $key[0]) {
                     $useDefault = false;
                 }
-            }               
+            }
 
             // Directly return the informations when the value is exist.
             if (!$useDefault) {
@@ -6363,7 +6460,7 @@ class EasyDiscussPost extends EasyDiscuss
         }
 
         return false;
-    }    
+    }
 
     /**
      * Determines if the current user can view site details

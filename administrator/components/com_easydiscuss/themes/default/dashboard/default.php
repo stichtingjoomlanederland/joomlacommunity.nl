@@ -186,13 +186,13 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<div>
 						<i class="fa fa-book"></i>
 						<span>
-							<a href="http://stackideas.com/docs/easydiscuss/administrators/welcome" class="text-inherit"><?php echo JText::_('COM_EASYDISCUSS_ABOUT_DOCS_SUPPORT');?></a>
+							<a href="https://stackideas.com/docs/easydiscuss/administrators/welcome" class="text-inherit"><?php echo JText::_('COM_EASYDISCUSS_ABOUT_DOCS_SUPPORT');?></a>
 						</span>
 					</div>
 					<div>
 						<i class="fa fa-book"></i>
 						<span>
-							<a href="http://stackideas.com/forums" class="text-inherit"><?php echo JText::_('COM_EASYDISCUSS_ABOUT_FORUM_SUPPORT');?></a>
+							<a href="https://stackideas.com/forums" class="text-inherit"><?php echo JText::_('COM_EASYDISCUSS_ABOUT_FORUM_SUPPORT');?></a>
 						</span>
 					</div>
 				</div>

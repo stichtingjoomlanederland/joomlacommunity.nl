@@ -32,7 +32,7 @@ class EasyDiscussViewEasyDiscuss extends EasyDiscussAdminView
 
 		// Get the dashboard model
 		$model = ED::model('Dashboard');
-		
+
 		// Stats
 		$totalPosts = $model->getTotalPosts();
 		$totalCategories = $model->getTotalCategories();

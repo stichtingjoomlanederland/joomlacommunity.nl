@@ -41,7 +41,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<?php echo JText::_('COM_EASYDISCUSS_ROLES_LABEL_COLOUR'); ?>
 					</td>
 					<td width="10%" class="center">
-						<?php echo JHTML::_('grid.sort', JText::_( 'COM_EASYDISCUSS_USERGROUP' ) , 'user_id', $orderDirection, $order); ?>
+						<?php echo JHTML::_('grid.sort', JText::_( 'COM_EASYDISCUSS_USERGROUP' ) , 'usergroup_id', $orderDirection, $order); ?>
 					</td>
 					<td width="6%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_( 'COM_EASYDISCUSS_ROLE_ID' ) , 'id', $orderDirection, $order); ?>

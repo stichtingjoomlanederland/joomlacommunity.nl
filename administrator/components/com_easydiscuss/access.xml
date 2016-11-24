@@ -23,8 +23,9 @@
 		<action name="discuss.manage.tags" title="COM_EASYDISCUSS_JACL_MANAGE_TAGS" description="COM_EASYDISCUSS_JACL_MANAGE_TAGS_DESC" />
 		<action name="discuss.manage.users" title="COM_EASYDISCUSS_JACL_MANAGE_USERS" description="COM_EASYDISCUSS_JACL_MANAGE_USERS_DESC" />
 		<action name="discuss.manage.themes" title="COM_EASYDISCUSS_JACL_MANAGE_THEMES" description="COM_EASYDISCUSS_JACL_MANAGE_THEMES_DESC" />
-		<action name="discuss.manage.posttypes" title="COM_EASYDISCUSS_JACL_MANAGE_POSTTYPES" description="COM_EASYDISCUSS_JACL_MANAGE_POSTTYPES_DESC" />
+		<action name="discuss.manage.types" title="COM_EASYDISCUSS_JACL_MANAGE_POSTTYPES" description="COM_EASYDISCUSS_JACL_MANAGE_POSTTYPES_DESC" />
 		<action name="discuss.manage.maintenance" title="COM_EASYDISCUSS_JACL_MANAGE_MAINTENANCE" description="COM_EASYDISCUSS_JACL_MANAGE_MAINTENANCE_DESC" />
 		<action name="discuss.manage.bans" title="COM_EASYDISCUSS_JACL_MANAGE_BANS" description="COM_EASYDISCUSS_JACL_MANAGE_BANS_DESC" />
+		<action name="discuss.manage.emails" title="COM_EASYDISCUSS_JACL_MANAGE_EMAILS" description="COM_EASYDISCUSS_JACL_MANAGE_EMAILS_DESC" />
 	</section>
 </access>

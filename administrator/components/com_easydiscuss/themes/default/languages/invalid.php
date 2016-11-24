@@ -38,7 +38,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <div class="form-group">
                         <div class="col-lg-12">
                             <div class="obtain-key">
-                                <i class="fa fa-support"></i>&nbsp; <a href="http://stackideas.com/dashboard" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_OBTAIN_API_KEY'); ?></a>
+                                <i class="fa fa-support"></i>&nbsp; <a href="https://stackideas.com/dashboard" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_OBTAIN_API_KEY'); ?></a>
                             </div>
                         </div>
                     </div>

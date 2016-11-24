@@ -98,7 +98,15 @@ class plgSearchEasyDiscuss extends JPlugin
 			$link = EDR::_('view=post&id=' . $row->id);
 
 			if ($row->parent_id != 0) {
-				$link = EDR::_('view=post&id=' . $row->parent_id);
+				$link = EDR::_('view=post&id=' . $row->parent_id) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $row->id;
+			}
+
+			// Determine that is reply then populate the post title
+			if (empty($row->title) && $row->parent_id != 0) {
+
+				$post = ED::post($row->parent_id);
+
+				$row->title = JText::_('COM_EASYDISCUSS_SEARCH_REPLY_TITLE_PREFIX') . $post->title;
 			}
 
 			$category = $this->getCategory($row->category_id);

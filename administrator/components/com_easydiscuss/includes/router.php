@@ -110,13 +110,21 @@ class EDR
 	public static function getReplyRoute($postId = 0, $replyId = '', $xhtml = true, $ssl = null)
 	{
 		// Build the parent url
-		$url = EDR::getPostRoute($postId);
+		// $url = EDR::getPostRoute($postId);
 
 		// Retrieve the limit start if available
 		$limitstart = JFactory::getApplication()->input->get('limitstart', 0);
 
 		if ($limitstart) {
-			$url = $url . '&limitstart=' . $limitstart;
+			// if (strpos($url, '?') === false) {
+			// 	$url = $url . '?limitstart=' . $limitstart;
+			// } else {
+			// 	$url = $url . '&limitstart=' . $limitstart;
+			// }
+
+			$url = self::_('view=post&id=' . $postId . '&limitstart=' . $limitstart);
+		} else {
+			$url = EDR::getPostRoute($postId);
 		}
 
 		$url = $url . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $replyId;

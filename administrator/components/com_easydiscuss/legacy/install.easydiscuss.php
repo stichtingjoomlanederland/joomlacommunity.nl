@@ -113,7 +113,7 @@ function com_install()
 	<table width="100%" border="0">
 		<tr>
 			<td>
-				<div><img src="http://stackideas.com/images/easydiscuss/success_32.png" /></div>
+				<div><img src="https://stackideas.com/images/easydiscuss/success_32.png" /></div>
 			</td>
 		</tr>
 		<?php

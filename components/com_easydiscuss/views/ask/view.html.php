@@ -125,7 +125,7 @@ class EasyDiscussViewAsk extends EasyDiscussView
 		}
 
 		// Sort the category by backend ordering.
-		$categorySort = 'Ordering';
+		$categorySort = 'ordering';
 
 		// Generate the categories dropdown
 		// We know this dropdown need to check for 'select' category permission

@@ -34,6 +34,9 @@ class modRecentDiscussionsHelper
         $options['limit'] = $count;
         $options['respectSearch'] = false;
 
+        // Let the model knows this comes from module
+        $options['module'] = true;
+
 		switch($filter)
 		{
 			case '4':

@@ -16,7 +16,7 @@ defined('_JEXEC') or die('Unauthorized Access');
         <div class="form-group">
             <strong>
                 <i class="fa fa-support"></i>&nbsp; <?php echo JText::_('COM_EASYDISCUSS_LANGUAGES_INFO_NOTE'); ?>
-                <a href="http://stackideas.com/docs/easydiscuss/administrators/translations/becoming-an-official-translator" class="btn btn-default" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_BE_TRANSLATOR'); ?></a>
+                <a href="https://stackideas.com/docs/easydiscuss/administrators/translations/becoming-an-official-translator" class="btn btn-default" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_BE_TRANSLATOR'); ?></a>
             </strong>
         </div>
     </div>

@@ -393,19 +393,22 @@ class EasyDiscussRouter extends EasyDiscuss
 
 		// Re-assign the correct item route to the segments if the item route is exists within the view.
 		// This is to avoid the link query to be treated as 'post' view all the times when menu item is exist. #1927
-		if (in_array($item->route, $views) && $item->component == 'com_easydiscuss') {
-			if (isset($segments[1])) {
-				$segments[2] = $segments[1];
-			}
+		// if (in_array($item->route, $views) && $item->component == 'com_easydiscuss') {
+		// 	if (isset($segments[1])) {
+		// 		$segments[2] = $segments[1];
+		// 	}
 
-			$segments[1] = $segments[0];
-			$segments[0] = $item->route;
-		}		
+		// 	$segments[1] = $segments[0];
+		// 	$segments[0] = $item->route;
+		// }
+
+
+        // var_dump($segments);
 
 		// If user chooses to use the simple sef setup, we need to add the proper view
 		if ($config->get('main_sef') == 'simple' || $config->get('main_sef') == 'category') {
 
-			$numSegments = count($segments);		
+			$numSegments = count($segments);
 
 			// we need to identify if this link is a post link or not.
 			if (!in_array($segments[0], $views)) {
@@ -418,17 +421,33 @@ class EasyDiscussRouter extends EasyDiscuss
                    array_unshift($segments, 'forums');
                 } else {
 
+                    // if the current active menu item is pointing to below views, means we now the current url most likely is a post url.
+                    // thus, we need to exclude these views for later checking.
+                    $xViews = array('index', 'forums', 'post', 'categories');
+                    $xView = isset($item->query['view']) && $item->query['view'] ? $item->query['view'] : '';
+
                     if ($numSegments >= 2) {
                         if (in_array($segments[count($segments) - 1], $repliesSorting)) {
                             // this is a post.
                             array_unshift($segments, 'post');
                         } else {
                             // we just assign the first segment to be a post
-                            $segments[0] = 'post';
+                            if ($item->component == 'com_easydiscuss' && $xView && !in_array($xView, $xViews)) {
+                                array_unshift($segments, $xView);
+                            } else {
+                                // this is a post page
+                                $segments[0] = 'post';
+                            }
                         }
                     } else {
-                        // tthis is a post page
-                        array_unshift($segments, 'post');
+
+						if ($item->component == 'com_easydiscuss' && $xView && !in_array($xView, $xViews)) {
+							array_unshift($segments, $xView);
+						} else {
+                        	// this is a post page
+                        	array_unshift($segments, 'post');
+						}
+
                     }
 
                 }
@@ -517,9 +536,26 @@ class EasyDiscussRouter extends EasyDiscuss
 
                     $vars['layout'] = 'listings';
                 } else {
+                    // try to get check if the second last segment also a cat or not.
+                    $parentCatId = null;
+                    if (isset($segments[$count-2]) && $segments[$count-2]) {
+                        $tmp = $segments[$count-2];
+                        $parentCatId = EDR::decodeAlias($tmp, 'Category');
+                    }
+
                     // get the last cat
                     $category = $segments[$count-1];
-                    $vars['category_id'] = EDR::decodeAlias($category, 'Category');
+                    $catId = null;
+                    if ($parentCatId) {
+                        $model = ED::model('Category');
+                        $catId = $model->getIdFromAlias($category, $parentCatId);
+                    }
+
+                    if (! $catId) {
+                        $catId = EDR::decodeAlias($category, 'Category');
+                    }
+
+                    $vars['category_id'] = $catId;
                 }
             }
 		}
@@ -586,11 +622,26 @@ class EasyDiscussRouter extends EasyDiscuss
 
 				$segments = EDR::encodeSegments($segments);
 
-				// Get the last item since the category might be recursive.
-				$cid = $segments[count($segments) - 1];
+                // try to get check if the second last segment also a cat or not.
+                $parentCatId = null;
+                if (isset($segments[$count-2]) && $segments[$count-2]) {
+                    $tmp = $segments[$count-2];
+                    $parentCatId = EDR::decodeAlias($tmp, 'Category');
+                }
 
-				$catId = EDR::decodeAlias($cid, 'Category');
-				$vars['category_id'] = $catId;
+                // get the last cat
+                $category = $segments[$count-1];
+                $catId = null;
+                if ($parentCatId) {
+                    $model = ED::model('Category');
+                    $catId = $model->getIdFromAlias($category, $parentCatId);
+                }
+
+                if (! $catId) {
+                    $catId = EDR::decodeAlias($category, 'Category');
+                }
+
+                $vars['category_id'] = $catId;
 
 
 				// if (isset($segments[3])) {
@@ -654,7 +705,11 @@ class EasyDiscussRouter extends EasyDiscuss
 						}
 
 						if (!$user) {
-							$segments[1] = JString::str_ireplace('-', ' ', $segments[1]);
+							if ($config->get('main_sef_user') != 'default') {
+								// still unsure why we need to replace - to empty space.
+								$segments[1] = JString::str_ireplace('-', ' ', $segments[1]);
+							}
+
 							$id	= ED::getUserId($segments[1]);
 							$user = JFactory::getUser($id);
 						}

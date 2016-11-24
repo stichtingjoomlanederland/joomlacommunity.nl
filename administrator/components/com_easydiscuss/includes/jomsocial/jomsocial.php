@@ -299,18 +299,17 @@ class EasyDiscussJomSocial extends EasyDiscuss
 		CActivityStream::add($obj);
 	}
 
-	public function addActivityLikes( $post , $question )
+	public function addActivityLikes($post, $question)
 	{
-		$core	= JPATH_ROOT . '/components/com_community/libraries/core.php';
+		$core = JPATH_ROOT . '/components/com_community/libraries/core.php';
 		$config	= DiscussHelper::getConfig();
-		$my		= JFactory::getUser();
+		$my	= JFactory::getUser();
 
-		if( !JFile::exists( $core ) )
-		{
+		if (!JFile::exists($core)) {
 			return false;
 		}
 
-		require_once( $core );
+		require_once($core);
 
 		// @rule: Insert points for user.
 		if( $config->get( 'integration_jomsocial_points' ) )
@@ -332,21 +331,26 @@ class EasyDiscussJomSocial extends EasyDiscuss
 		$category	= DiscussHelper::getTable( 'Category' );
 		$category->load( $question->category_id );
 
-		$link				= DiscussRouter::getRoutedURL( 'index.php?option=com_easydiscuss&view=post&id=' . $question->id , false , true );
-		$replyLink  = $link . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+		$link = DiscussRouter::getRoutedURL( 'index.php?option=com_easydiscuss&view=post&id=' . $post->parent_id , false , true );
+		$title = $this->getActivityTitle( $question->title );
 
-		$title				= $this->getActivityTitle( $question->title );
+		// If that is question
+		if ($post->parent_id == 0) {
+			$link = DiscussRouter::getRoutedURL( 'index.php?option=com_easydiscuss&view=post&id=' . $post->id , false , true );
+			$title = $this->getActivityTitle( $post->title );
+		}		
 
-		$streamTitle        = '';
-		if(! empty( $post->parent_id ) )
-		{
+		// Generate reply permalink
+		$replyLink = EDR::_('view=post&id=' . $post->parent_id . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK'). '-' . $question->id);
+
+		$streamTitle = '';
+
+		if ($post->parent_id != 0) {
 			//this reply added into reply section.
-			$streamTitle    = JText::sprintf( 'COM_EASYDISCUSS_JOMSOCIAL_ACTIVITY_LIKE_REPLY' , $replyLink, $link , $title );
-		}
-		else
-		{
+			$streamTitle = JText::sprintf( 'COM_EASYDISCUSS_JOMSOCIAL_ACTIVITY_LIKE_REPLY' , $replyLink, $link , $title );
+		} else {
 			//this reply added into question section.
-			$streamTitle    = JText::sprintf( 'COM_EASYDISCUSS_JOMSOCIAL_ACTIVITY_LIKE_QUESTION' , $link , $title );
+			$streamTitle = JText::sprintf( 'COM_EASYDISCUSS_JOMSOCIAL_ACTIVITY_LIKE_QUESTION' , $link , $title );
 		}
 
 		$obj				= new stdClass();
@@ -356,12 +360,12 @@ class EasyDiscussJomSocial extends EasyDiscuss
 		$obj->cmd			= 'easydiscuss.question.like';
 		$obj->actor			= $my->id;
 		$obj->target		= 0;
-		$obj->like_id		= $question->id;
+		$obj->like_id		= $post->id;
 		$obj->like_type		= 'com_easydiscuss';
-		$obj->comment_id	= $question->id;
+		$obj->comment_id	= $post->id;
 		$obj->comment_type	= 'com_easydiscuss';
 		$obj->app			= 'easydiscuss';
-		$obj->cid			= $question->id;
+		$obj->cid			= $post->id;
 
 		// add JomSocial activities
 		CFactory::load ( 'libraries', 'activities' );
