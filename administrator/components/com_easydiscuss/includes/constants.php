@@ -51,7 +51,7 @@ define( 'DISCUSS_ADMIN_THEMES_URI'			, DISCUSS_ADMIN_ROOT_URI . '/themes' );
 define( 'DISCUSS_SPINNER'					, DISCUSS_MEDIA_URI . '/images/loading.gif' );
 
 
-define('DISCUSS_POWERED_BY', '<div style="text-align: center; padding: 20px 0;"><a href="http://stackideas.com">Powered by EasyDiscuss for Joomla!</a></div>');
+define('DISCUSS_POWERED_BY', '<div style="text-align: center; padding: 20px 0;"><a href="https://stackideas.com">Powered by EasyDiscuss for Joomla!</a></div>');
 
 // Privacy
 define( 'DISCUSS_PRIVACY_PUBLIC'	, '0' );
@@ -194,8 +194,8 @@ define( 'DISCUSS_POST_STATUS_WORKING_ON'	, 3 );
 define( 'DISCUSS_POST_STATUS_REJECT'		, 4 );
 
 // Update server
-define('ED_UPDATER', 'http://stackideas.com/updater/manifests/easydiscuss');
-define('ED_SERVICE_VERSION', 'http://stackideas.com/updater/manifests/easydiscuss');
+define('ED_UPDATER', 'https://stackideas.com/updater/manifests/easydiscuss');
+define('ED_SERVICE_VERSION', 'https://stackideas.com/updater/manifests/easydiscuss');
 
 // Language server
 define('ED_LANGUAGES_SERVER', 'http://lang.stackideas.com/easydiscuss');

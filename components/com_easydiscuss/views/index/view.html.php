@@ -74,6 +74,9 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		// Add rss feed into headers
 		ED::feeds()->addHeaders('index.php?option=com_easydiscuss&view=index');
 
+		// Add canonical tag for this page
+		$this->canonical('index.php?option=com_easydiscuss&view=index');
+		
 		// Get list of categories on the site.
 		$catModel = ED::model('Categories');
 

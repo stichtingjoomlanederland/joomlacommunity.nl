@@ -37,7 +37,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <div class="col-md-7">
                                 <?php echo $this->html('form.textbox', 'main_autopost_wunderlist_id', $this->config->get('main_autopost_wunderlist_id')); ?>
                                 <div class="small">
-                                    <a href="http://stackideas.com/docs/easydiscuss/administrators/autoposting/wunderlist-application" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_WHAT_IS_THIS');?></a>
+                                    <a href="https://stackideas.com/docs/easydiscuss/administrators/autoposting/wunderlist-application" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_WHAT_IS_THIS');?></a>
                                 </div>
                             </div>
                         </div>
@@ -48,7 +48,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <div class="col-md-7">
                                 <?php echo $this->html('form.textbox', 'main_autopost_wunderlist_secret', $this->config->get('main_autopost_wunderlist_secret')); ?>
                                 <div class="small">
-                                    <a href="http://stackideas.com/docs/easydiscuss/administrators/autoposting/wunderlist-application" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_WHAT_IS_THIS');?></a>
+                                    <a href="https://stackideas.com/docs/easydiscuss/administrators/autoposting/wunderlist-application" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_WHAT_IS_THIS');?></a>
                                 </div>
                             </div>
                         </div>

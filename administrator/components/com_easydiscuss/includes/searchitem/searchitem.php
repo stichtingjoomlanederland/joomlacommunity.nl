@@ -569,7 +569,13 @@ class EasyDiscussSearchItem extends EasyDiscuss
      * @access  public
      * @return  boolean True if the post is resolved.
      */
-    public function isResolved() {
+    public function isResolved() 
+    {
+        // If that is reply item, need to check the thread is it resolved or not
+        if ($this->isReply()) {
+            $thread = ED::post($this->parent_id);
+            return $thread->isresolve;
+        }        
         return $this->isresolve;
     }
 

@@ -79,6 +79,7 @@ class EasyDiscussControllerLicenseVerify extends EasyDiscussSetupController
 		curl_setopt($resource, CURLOPT_TIMEOUT, 120);
 		curl_setopt($resource, CURLOPT_POSTFIELDS, $post);
 		curl_setopt($resource, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($resource, CURLOPT_SSL_VERIFYPEER, false);
 
 		$result = curl_exec($resource);
 		curl_close($resource);

@@ -96,12 +96,16 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 			// We also need to render the styling from EasySocial.
 			if ($doc->getType() == 'html') {
-				
-				$fdoc = ES::document();
-				$fdoc->init();
 
-				$page = ES::page();
-				$page->processScripts();
+				if (method_exists('ES', 'initialize')) {
+					ES::initialize();
+				} else {
+					$fdoc = ES::document();
+					$fdoc->init();
+
+					$page = ES::page();
+					$page->processScripts();
+				}
 			}
 
 			ES::language()->load('com_easysocial', JPATH_ROOT);
@@ -122,9 +126,9 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 */
 	public function getPoints( $id )
 	{
-		$config = EasyBlogHelper::getConfig();
+		// $config = EasyBlogHelper::getConfig();
 
-		if( !$config->get( 'integrations_easysocial_points' ) )
+		if( !$this->config->get( 'integrations_easysocial_points' ) )
 		{
 			return;
 		}
@@ -173,7 +177,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 * @since	4.0.5
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getConversationsRoute($xhtml = true)
 	{
@@ -311,8 +315,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function createDiscussionStream($post)
 	{
@@ -338,7 +340,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		// Get the stream template
 		$template->setActor($post->user_id, SOCIAL_TYPE_USER);
 		$template->setContext($post->id, $contextType, $post);
-		$template->setContent($post->content);
+
 		$template->setVerb('create');
 		$template->setAccess('core.view');
 
@@ -352,8 +354,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function replyDiscussionStream($post)
 	{
@@ -378,7 +378,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		// Get the stream template
 		$template->setActor($post->user_id, SOCIAL_TYPE_USER);
 		$template->setContext($post->id, 'discuss', $obj);
-		$template->setContent($rawPost->content);
 
 		$template->setVerb('reply');
 
@@ -413,7 +412,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		// Get the stream template
 		$template->setActor($comment->user_id, SOCIAL_TYPE_USER);
 		$template->setContext($comment->id, 'discuss', $obj);
-		$template->setContent($comment->comment);
 
 		$template->setVerb('comment');
 
@@ -449,7 +447,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		// Get the stream template
 		$template->setActor( $actor->id , SOCIAL_TYPE_USER );
 		$template->setContext( $post->id , 'discuss' , $obj );
-		$template->setContent( $post->content );
 
 		$template->setVerb( 'likes' );
 
@@ -485,7 +482,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		// Get the stream template
 		$template->setActor( $rank->user_id , SOCIAL_TYPE_USER );
 		$template->setContext( $rank->rank_id , 'discuss' , $obj );
-		$template->setContent( $rank->title );
 
 		$template->setVerb( 'ranks' );
 
@@ -515,7 +511,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		// Get the stream template
 		$template->setActor(ES::user()->id, SOCIAL_TYPE_USER);
 		$template->setContext($post->id, 'discuss', $post);
-		$template->setContent($post->title);
 
 		$template->setVerb( 'favourite' );
 
@@ -550,7 +545,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		// Get the stream template
 		$template->setActor( $post->user_id , SOCIAL_TYPE_USER );
 		$template->setContext( $post->id , 'discuss' , $obj );
-		$template->setContent( $post->title );
 
 		$template->setVerb( 'accepted' );
 
@@ -584,7 +578,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		// Get the stream template
 		$template->setActor( $my->id , SOCIAL_TYPE_USER );
 		$template->setContext( $post->id , 'discuss' , $post );
-		$template->setContent( $post->title );
 
 		$template->setVerb( 'vote' );
 
@@ -655,7 +648,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getPmHtml($targetId, $layout = 'list')
 	{
@@ -768,6 +761,11 @@ class EasyDiscussEasySocial extends EasyDiscuss
 			// The recipient should only be the post owner
 			$recipients = array($post->user_id);
 
+			// Do not notify user when they comment on their own post
+			if ($comment->user_id == $post->user_id) {
+				return;
+			}
+
 			$permalink = EDR::_('view=post&id=' . $question->id) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
 
 			$content = JString::substr($comment->comment, 0, 25) . '...';
@@ -829,7 +827,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		}
 
 		if ($action == 'new.mentions') {
-			
+
 			if (!$this->config->get('integration_easysocial_notify_mentions')) {
 				return;
 			}
@@ -911,79 +909,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		$system->context_ids = $post->id;
 
 		ES::notify('easydiscuss.discussion.create', $targets, $options, $system);
-	}
-
-	/**
-	 * Creates a new stream for new comments in EasyBlog
-	 *
-	 * @since	1.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
-	public function addIndexerNewBlog( $blog )
-	{
-		if (!class_exists('Foundry')) return;
-
-		$config 	= EasyBlogHelper::getConfig();
-
-		$indexer 	= Foundry::get( 'Indexer', 'com_easyblog' );
-		$template 	= $indexer->getTemplate();
-
-		// getting the blog content
-		$content 	= $blog->intro . $blog->content;
-
-
-		$image 		= '';
-
-		// @rule: Try to get the blog image.
-		if( $blog->getImage() )
-		{
-			$image 	= $blog->getImage()->getSource( 'small' );
-		}
-
-		if( empty( $image ) )
-		{
-			// @rule: Match images from blog post
-			$pattern	= '/<\s*img [^\>]*src\s*=\s*[\""\']?([^\""\'\s>]*)/i';
-			preg_match( $pattern , $content , $matches );
-
-			$image		= '';
-
-			if( $matches )
-			{
-				$image		= isset( $matches[1] ) ? $matches[1] : '';
-
-				if( JString::stristr( $matches[1], 'https://' ) === false && JString::stristr( $matches[1], 'http://' ) === false && !empty( $image ) )
-				{
-					$image	= rtrim(JURI::root(), '/') . '/' . ltrim( $image, '/');
-				}
-			}
-		}
-
-		if(! $image )
-		{
-			$image = rtrim( JURI::root() , '/' ) . '/components/com_easyblog/assets/images/default_facebook.png';
-		}
-
-		$content    = strip_tags( $content );
-
-		if( JString::strlen( $content ) > $config->get( 'integrations_easysocial_indexer_newpost_length', 250 ) )
-		{
-			$content = JString::substr( $content, 0, $config->get( 'integrations_easysocial_indexer_newpost_length', 250 ) );
-		}
-		$template->setContent( $blog->title, $content );
-
-		$url = EasyBlogRouter::_('index.php?option=com_easyblog&view=entry&id='.$blog->id);
-
-		$template->setSource($blog->id, 'blog', $blog->created_by, $url);
-
-		$template->setThumbnail( $image );
-
-		$template->setLastUpdate( $blog->modified );
-
-		$state = $indexer->index( $template );
-		return $state;
 	}
 
 	public function deleteDiscussStream($post, $cluster = false)

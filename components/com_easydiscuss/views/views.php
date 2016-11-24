@@ -195,6 +195,21 @@ class EasyDiscussView extends EasyDiscussParentView
 	}
 
 	/**
+	 * Generate a canonical tag on the header of the page
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function canonical($url, $route = true)
+	{
+        if ($route) {
+    		$url = EDR::_($url, false, null, false, true);
+        }
+        
+		$this->doc->addHeadLink($this->escape($url), 'canonical');
+	}
+
+	/**
 	 * Generates the toolbar's html code
 	 *
 	 * @since	4.0

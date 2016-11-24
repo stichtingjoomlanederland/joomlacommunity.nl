@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Restricted access');
 				    
 				    <div class="small" style="overflow:hidden;">
 				        <?php echo JText::_('COM_EASYDISCUSS_EASYSOCIAL_INFO');?><br /><br />
-				        <a target="_blank" class="btn btn-primary btn-sm t-lg-mb--lg" href="http://stackideas.com/easysocial"><?php echo JText::_('COM_EASYDISCUSS_LEARN_MORE_EASYSOCIAL'); ?> &rarr;</a>
+				        <a target="_blank" class="btn btn-primary btn-sm t-lg-mb--lg" href="https://stackideas.com/easysocial"><?php echo JText::_('COM_EASYDISCUSS_LEARN_MORE_EASYSOCIAL'); ?> &rarr;</a>
 				    </div>
 				</div>
 

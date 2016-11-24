@@ -58,4 +58,24 @@ class EasyDiscussModelThemes extends EasyDiscussAdminModel
 		return $themes;
 	}
 
+	/**
+	 * Retrieve the current front end's default template
+	 *
+	 * @since 4.0.9
+	 * @access public
+	 */
+	public function getDefaultJoomlaTemplate()
+	{
+		$db = ED::db();
+
+		$query = 'SELECT ' . $db->nameQuote('template') . ' FROM ' . $db->nameQuote('#__template_styles');
+		$query .= ' WHERE ' . $db->nameQuote('home') . '=' . $db->Quote(1);
+		$query .= ' AND ' . $db->qn('client_id') . '=' . $db->Quote(0);
+
+		$db->setQuery($query);
+
+		$template = $db->loadResult();
+
+		return $template;
+	}
 }

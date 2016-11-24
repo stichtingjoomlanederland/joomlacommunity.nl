@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				    
 				    <div class="small" style="overflow:hidden;">
 				        <?php echo JText::_('COM_EASYDISCUSS_EASYBLOG_INFO');?><br /><br />
-				        <a target="_blank" class="btn btn-primary btn-sm t-lg-mb--lg" href="http://stackideas.com/easyblog"><?php echo JText::_('COM_EASYDISCUSS_LEARN_MORE_ABOUT_EASYBLOG'); ?> &rarr;</a>
+				        <a target="_blank" class="btn btn-primary btn-sm t-lg-mb--lg" href="https://stackideas.com/easyblog"><?php echo JText::_('COM_EASYDISCUSS_LEARN_MORE_ABOUT_EASYBLOG'); ?> &rarr;</a>
 				    </div>
 				</div>
 				<div class="form-horizontal">

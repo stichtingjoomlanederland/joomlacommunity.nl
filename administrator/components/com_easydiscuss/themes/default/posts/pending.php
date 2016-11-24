@@ -37,7 +37,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<?php echo JText::_('COM_EASYDISCUSS_TABLE_COLUMN_TYPE'); ?>
 					</td>
 
-					<td width="10%" class="center">
+					<td width="20%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_USER'); ?>
 					</th>
 
@@ -62,13 +62,17 @@ defined('_JEXEC') or die('Unauthorized Access');
 					
 					<td style="text-align:left;">
 
-						<div>
-							<?php echo $post->getTitle();?>
-						</div>
+						<?php if ($post->isQuestion()) { ?>
+							<a href="<?php echo $post->editLink; ?>"><?php echo $post->title; ?></a>
+						<?php } else { ?>
+							<?php echo $post->title; ?>
+						<?php } ?>
 
+						<?php if ($post->isReply()) { ?>
 						<p>
 							<?php echo $post->content; ?>
 						</p>
+						<?php } ?>
 
 						<div style="font-size: 11px;">
 							<?php if ($post->isQuestion()) { ?>
@@ -98,7 +102,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 					</td>
 
 					<td class="center">
-						<?php echo $post->getOwner()->getName();?>
+						<?php if ($post->user_id && $post->user_id != '0') {?>
+							<a href="index.php?option=com_easydiscuss&amp;view=user&amp;task=edit&amp;id=<?php echo $post->user_id;?>" ><?php echo $post->getOwner()->getName(); ?></a>
+						<?php } else { ?>
+							<?php echo $post->poster_name; ?>
+							&lt;<a href="mailto:<?php echo $post->poster_email;?>" target="_blank"><?php echo $post->poster_email; ?></a>&gt;
+						<?php } ?>
 					</td>
 
 					<td class="center">

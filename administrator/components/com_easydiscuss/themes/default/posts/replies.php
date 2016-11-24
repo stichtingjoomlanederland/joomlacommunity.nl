@@ -43,7 +43,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<td width="1%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_POSTS_VOTES'); ?>
 					</th>
-					<td width="10%" class="text-center">
+					<td width="20%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_USER'); ?>
 					</th>
 					<td width="10%" class="text-center">
@@ -89,8 +89,13 @@ defined('_JEXEC') or die('Unauthorized Access');
 					</td>
 
 					<td class="center">
-						<?php echo $post->getOwner()->getName();?>
-					</td>
+						<?php if ($post->user_id && $post->user_id != '0') {?>
+							<a href="index.php?option=com_easydiscuss&amp;view=user&amp;task=edit&amp;id=<?php echo $post->user_id;?>"><?php echo $post->getOwner()->getName(); ?></a>
+						<?php } else { ?>
+							<?php echo $post->poster_name; ?>
+							&lt;<a href="mailto:<?php echo $post->poster_email;?>" target="_blank"><?php echo $post->poster_email; ?></a>&gt;
+						<?php } ?>
+					</td>					
 
 					<td class="center">
 						<?php echo $post->getDateObject()->toSql(true); ?>

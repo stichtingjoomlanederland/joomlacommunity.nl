@@ -35,7 +35,8 @@ ed.require(['edq'], function($){
             jsonp: "callback",
             dataType: "jsonp",
             data: {
-                "apikey": "<?php echo $this->config->get('main_apikey');?>"
+                "apikey": "<?php echo $this->config->get('main_apikey');?>",
+                "current": "<?php echo $version;?>"
             },
             success: function(data) {
                 var version = {

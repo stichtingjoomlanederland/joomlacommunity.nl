@@ -124,7 +124,16 @@ JHTML::_( 'behavior.modal' , 'a.modal' );
                         <div class="col-md-7">
 							<?php echo $this->html('form.boolean', 'notify_owner_like', $this->config->get('notify_owner_like'));?>
 						</div>
-					</div>					
+					</div>
+                    <div class="form-group">
+                        <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_NOTIFY_USER_WHEN_MENTIONED'); ?>
+                        </div>
+                        <div class="col-md-7">
+                            <?php echo $this->html('form.boolean', 'notify_mention', $this->config->get('notify_mention'));?>
+                        </div>
+                    </div>
+
 				</div>
 			</div>
 		</div>
@@ -149,7 +158,7 @@ JHTML::_( 'behavior.modal' , 'a.modal' );
                         </div>
                         <div class="col-md-7">
 							<ul class="unstyled file-list">
-                                 This option is deprecated. You may configure 
+                                 This option is deprecated. You may configure
                                 <b>EasyDiscuss Email Templates</b> from <a href="<?php echo JURI::root() . '/administrator/index.php?option=com_easydiscuss&view=emails'; ?>">Email Templates</a> option at the sidebar.
 							</ul>
 						</div>
@@ -162,7 +171,7 @@ JHTML::_( 'behavior.modal' , 'a.modal' );
             <?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_MAIL_SPOOL'); ?>
 
             <div class="panel-body">
-                
+
                 <div class="form-group">
                     <div class="col-md-5 control-label">
                         <?php echo $this->html('form.label', 'COM_EASYDISCUSS_SEND_EMAIL_ON_PAGE_LOAD'); ?>

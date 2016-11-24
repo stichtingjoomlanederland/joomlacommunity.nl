@@ -169,7 +169,7 @@ $(document).ready(function() {
 
 	<div class="hide alert alert-danger" data-source-errors data-api-errors>
 		<p data-api-errors-message style="margin-bottom: 15px;"><?php echo JText::_( 'COM_EASYDISCUSS_INSTALLATION_METHOD_API_KEY_INVALID', true ); ?></p>
-		<a href="http://stackideas.com/forums" class="btn btn-danger" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_CONTACT_SUPPORT');?></a>
+		<a href="https://stackideas.com/forums" class="btn btn-danger" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_CONTACT_SUPPORT');?></a>
 	</div>
 
 	<br>
@@ -183,12 +183,15 @@ $(document).ready(function() {
 					<h4><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_METHOD_VIA_NETWORK');?> <span class="label label-info small"><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_RECOMMENDED');?></span></h4>
 					<div><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_METHOD_VIA_NETWORK_DESC');?></div>
 					<div data-source-network>
+						<?php if (ED_KEY) { ?>
+							<input type="text" value="<?php echo ED_KEY;?>" name="apikey" class="input input-xlarge hidden" data-api-key />
+						<?php } else { ?>
 						<div class="form-inline" style="margin-top: 20px;">
 							<div>
 								<p>
 									<b><?php echo JText::_( 'COM_EASYDISCUSS_INSTALLATION_METHOD_API_KEY' );?></b>
 									&nbsp;
-									<small><a href="http://stackideas.com/docs/easydiscuss/administrators/welcome/obtaining-api-key" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_METHOD_RETRIEVE_API_KEY');?></a></small>
+									<small><a href="https://stackideas.com/docs/easydiscuss/administrators/welcome/obtaining-api-key" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_METHOD_RETRIEVE_API_KEY');?></a></small>
 								</p>
 							</div>
 							<div class="row-table">
@@ -199,6 +202,7 @@ $(document).ready(function() {
 								</div>
 							</div>
 						</div>
+						<?php } ?>
 
 						<div class="form-inline hide" data-licenses>
 							<hr style="border-color: #ccc;">

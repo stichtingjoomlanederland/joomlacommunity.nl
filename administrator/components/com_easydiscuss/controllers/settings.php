@@ -72,6 +72,9 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 		// Reset the settings for layout_featuredpost_style to always use from configuration.ini
 		$post['layout_featuredpost_style'] = ED::getDefaultConfigValue('layout_featuredpost_style', 0);
 
+		// For terms and conditions, we want to allow html codes
+		$post['main_tnctext'] = $this->input->get('main_tnctext', '', 'raw');
+
 		if ($layout == 'general') {
 			// we need to reset the settings for work schedule days due to the use of checkbox
 			$days = array('mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun');

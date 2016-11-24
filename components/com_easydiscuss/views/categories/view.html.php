@@ -87,6 +87,11 @@ class EasyDiscussViewCategories extends EasyDiscussView
 		$categoryId = $this->input->get('category_id', 0, 'int');
 		$registry = new JRegistry();
 
+		// If the category isn't found on the site throw an error.
+		if (!$categoryId) {
+			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_CATEGORY_NOT_FOUND'));
+		}
+
 		// Try to detect if there's any category id being set in the menu parameter.
 		$activeMenu = $this->app->getMenu()->getActive();
 
@@ -120,6 +125,11 @@ class EasyDiscussViewCategories extends EasyDiscussView
 		// Get the current active category
 		$activeCategory = ED::category($categoryId);
 		$breadcrumbs = $activeCategory->getBreadcrumbs();
+
+		// If user trying to access this category page but he didn't get allowed, show error.
+		if (!$activeCategory->canAccess()) {
+			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_CATEGORY_NOT_ALLOWED'));
+		}
 
 		// determine if we should retrive posts from it sub categories or not.
 		$includeChilds = false;

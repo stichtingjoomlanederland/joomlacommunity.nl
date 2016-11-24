@@ -354,8 +354,8 @@ class EasyDiscussViewPost extends EasyDiscussView
 		$this->doc->setMetadata('description', $description);
 
 		// Set canonical link to avoid URL duplication.
-		$url = EDR::getPostRoute($post->id);
-		$this->doc->addHeadLink($this->escape($url), 'canonical', 'rel');
+		$url = EDR::getPostRoute($post->id, false);
+		$this->doc->addHeadLink($url, 'canonical', 'rel');
 
 		// Add opengraph tags
 		if ($this->config->get('integration_facebook_opengraph')) {

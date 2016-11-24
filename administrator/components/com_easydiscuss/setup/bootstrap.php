@@ -40,13 +40,13 @@ define('ED_CONFIG', $path . '/config');
 define('ED_THEMES', $path . '/themes');
 define('ED_LIB', $path . '/libraries');
 define('ED_CONTROLLERS', $path . '/controllers');
-define('ED_SERVER', 'http://stackideas.com');
-define('ED_VERIFIER', 'http://stackideas.com/updater/verify');
-define('ED_MANIFEST', 'http://stackideas.com/updater/manifests/easydiscuss');
+define('ED_SERVER', 'https://stackideas.com');
+define('ED_VERIFIER', 'https://stackideas.com/updater/verify');
+define('ED_MANIFEST', 'https://stackideas.com/updater/manifests/easydiscuss');
 define('ED_SETUP_URL', JURI::base() . 'components/com_easydiscuss/setup');
 define('ED_TMP', $path . '/tmp');
 define('ED_BETA', false);
-
+define('ED_KEY', 'be5367700e2f4d3d834bb8803ab67f56');
 
 // If this is in developer mode, we need to set the session
 if ($developer) {

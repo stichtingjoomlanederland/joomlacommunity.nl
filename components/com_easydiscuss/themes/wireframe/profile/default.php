@@ -63,7 +63,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <div class="o-col">
                     <div class="ed-profile-subscribe pull-right t-lg-mb--lg">
                         <?php if ($this->config->get('main_rss')) { ?>
-                        <a target="_blank" class="t-lg-mr--md" href="<?php echo EDR::_('view=profile&id='.$profile->id.'&format=feed');?>">
+                        <a target="_blank" class="t-lg-mr--md" href="<?php echo ED::feeds()->getFeedURL('view=profile&id='.$profile->id);?>">
                             <i class="fa fa-rss-square ed-subscribe__icon t-lg-mr--sm"></i> <?php echo JText::_('COM_EASYDISCUSS_SUBSCRIBE'); ?>
                         </a>
                         <?php } ?>

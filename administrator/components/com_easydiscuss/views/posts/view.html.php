@@ -184,7 +184,7 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 
 		// Display toolbars
 		JToolbarHelper::publishList('publish', JText::_('COM_EASYDISCUSS_BTN_APPROVE'));
-		JToolbarHelper::unpublishList('unpublish', JText::_('COM_EASYDISCUSS_BTN_REJECT'));
+		JToolbarHelper::unpublishList('reject', JText::_('COM_EASYDISCUSS_BTN_REJECT'));
 		JToolBarHelper::divider();
 		JToolbarHelper::deleteList();
 		
@@ -201,6 +201,10 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		if ($result) {
 			foreach ($result as $row) {
 				$post = ED::post($row);
+
+				if ($post->isQuestion()) {
+					$post->editLink = 'index.php?option=com_easydiscuss&view=post&layout=pending&id=' . $post->id;
+				}
 
 				$posts[] = $post;
 			}

@@ -370,6 +370,101 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	    $this->app->redirect($redirect);
 	}
 
+	public function approve()
+	{
+	    // Check for request forgeries
+	    ED::checkToken();
+
+	    // Get the id if available
+	    $id = $this->input->get('id', 0, 'int');
+
+	    // Get the date POST
+	    $data = JRequest::get('post');;
+
+	    // Load the post library
+	    $post = ED::post($id);
+
+	    // Toggle publish state
+	    $post->publish(1);
+
+		$message = JText::_('COM_EASYDISCUSS_POSTS_PUBLISHED');
+		ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
+
+		$redirect = 'index.php?option=com_easydiscuss&view=posts';
+
+		$this->app->redirect($redirect);
+	}
+
+	public function reject()
+	{
+	    // Check for request forgeries
+	    ED::checkToken();
+
+		// Get the list of posts to unpublish
+		$ids = $this->input->get('cid', '', 'array');
+
+	    // Get the id if available
+	    $id = $this->input->get('id', 0, 'int');		
+
+		if (!$ids && !$id) {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
+			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
+
+			return $this->app->redirect($redirect);
+		}
+
+		// Multiple rejection
+		if ($ids) {
+			// Try to reject each posts
+			foreach ($ids as $id) {
+				$post = ED::post($id);
+				$post->publish(0, true);
+			}			
+		} else {
+		    $post = ED::post($id);
+		    $post->publish(0, true);
+		}
+
+		// Construct the default redirection link
+		$redirect = 'index.php?option=com_easydiscuss&view=posts';
+
+		// Determine where should we redirect the user back to
+		$from = $this->input->get('from', '', 'word');
+
+		if ($from) {
+			$redirect .= '&layout=' . $from;
+		}	    
+
+		$message = JText::_('COM_EASYDISCUSS_POSTS_UNPUBLISHED');
+		ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
+
+		$this->app->redirect($redirect);		
+	}
+
+	public function delete()
+	{
+	    // Check for request forgeries
+	    ED::checkToken();
+
+	    // Get the id if available
+	    $id = $this->input->get('id', 0, 'int');
+
+	    // Get the date POST
+	    $data = JRequest::get('post');;
+
+	    // Load the post library
+	    $post = ED::post($id);
+
+	    // Toggle publish state
+	    $post->delete();
+	    
+		$message = JText::_('COM_EASYDISCUSS_POSTS_DELETED');
+		ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
+
+		$redirect = 'index.php?option=com_easydiscuss&view=posts';
+
+		$this->app->redirect($redirect);
+	}	
 
 	/**
 	 * Reset the vote count to 0.

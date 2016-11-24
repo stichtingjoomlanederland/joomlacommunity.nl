@@ -25,7 +25,7 @@ defined('_JEXEC') or die('Restricted access');
 						</div>
 						<div class="col-md-6">
 							<?php echo $this->html('form.textbox', 'integration_facebook_like_admin', $this->config->get('integration_facebook_like_admin')); ?>
-							<a href="http://stackideas.com/docs/easydiscuss/facebook/obtaining-your-facebook-account-id.html" target="_blank" style="margin-left:5px;">
+							<a href="https://stackideas.com/docs/easydiscuss/facebook/obtaining-your-facebook-account-id.html" target="_blank" style="margin-left:5px;">
 								<?php echo JText::_('COM_EASYDISCUSS_WHAT_IS_THIS'); ?>
 							</a>
 						</div>
@@ -37,7 +37,7 @@ defined('_JEXEC') or die('Restricted access');
 						</div>
 						<div class="col-md-6">
 							<?php echo $this->html('form.textbox', 'integration_facebook_like_appid', $this->config->get('integration_facebook_like_appid')); ?>
-							<a href="http://stackideas.com/docs/easydiscuss/facebook/obtaining-your-facebook-application-settings.html" target="_blank" style="margin-left:5px;">
+							<a href="https://stackideas.com/docs/easydiscuss/facebook/obtaining-your-facebook-application-settings.html" target="_blank" style="margin-left:5px;">
 								<?php echo JText::_('COM_EASYDISCUSS_WHAT_IS_THIS'); ?>
 							</a>
 						</div>

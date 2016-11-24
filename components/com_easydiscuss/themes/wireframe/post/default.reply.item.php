@@ -55,9 +55,11 @@ defined('_JEXEC') or die('Unauthorized Access');
                             
                             <div class="ed-user-rank t-lg-mb--sm o-label o-label--<?php echo $post->getOwner()->getRoleLabelClassname()?>"><?php echo $post->getOwner()->getRole(); ?></div>
 
-                            <div class="ed-rank-bar">
-                                <div style="width: <?php echo ED::ranks()->getScore($post->getOwner()->id, true); ?>%" class="ed-rank-bar__progress"></div>
-                            </div>                            
+                            <?php if ($this->config->get('main_ranking')) { ?>
+                                <div class="ed-rank-bar">
+                                    <div style="width: <?php echo ED::ranks()->getScore($post->getOwner()->id, true); ?>%" class="ed-rank-bar__progress"></div>
+                                </div>
+                            <?php } ?>                            
                         </div>
                     <?php } ?>
                 </div>        

@@ -495,7 +495,7 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 			$subscriber->interval = $subscription_info['interval'];
 			$subscriber->created = $now;
 			$subscriber->sent_out = $now;
-			
+
 			return $subscriber->store();
 		}
 
@@ -972,6 +972,11 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 
     public function updateDigestSentOut($subs)
     {
+    	if (! $subs) {
+    		// do nothing
+    		return true;
+    	}
+
         $db = ED::db();
 
         $now = ED::date()->toSql();
@@ -1002,6 +1007,11 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 	public function getDigestPosts($subscriptions, $now)
 	{
         $db = ED::db();
+
+        if (! $subscriptions) {
+        	return array();
+        }
+
 
         $unions = array();
 

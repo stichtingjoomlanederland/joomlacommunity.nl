@@ -92,7 +92,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                         <div class="col-md-7">
                             <input type="text" name="layout_dateformat" class="form-control" value="<?php echo $this->config->get('layout_dateformat' , ED::getDefaultConfigValue('layout_dateformat'));?>" />
                             <div class="mt-5">
-                                <a href="http://stackideas.com/docs/easydiscuss/administrators/how-tos/date-format" target="_blank" class="extra_text"><?php echo JText::_('COM_EASYDISCUSS_WHAT_IS_THIS'); ?></a>
+                                <a href="https://stackideas.com/docs/easydiscuss/administrators/how-tos/date-format" target="_blank" class="extra_text"><?php echo JText::_('COM_EASYDISCUSS_WHAT_IS_THIS'); ?></a>
                             </div>
                         </div>
                     </div>

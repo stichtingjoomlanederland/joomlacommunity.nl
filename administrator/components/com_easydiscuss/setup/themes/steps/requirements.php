@@ -256,7 +256,7 @@ jQuery(document).ready(function(){
 						<span class="label label-info"><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_PHP');?></span> Magic Quotes GPC
 
 						<?php if ($magicQuotes) { ?>
-						<a href="http://stackideas.com/docs/easydiscuss/administrators/setup/magic_quotes" target="_blank" class="btn btn-primary btn-xs"><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_FIX_THIS');?></a>
+						<a href="https://stackideas.com/docs/easydiscuss/administrators/setup/magic_quotes" target="_blank" class="btn btn-primary btn-xs"><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_FIX_THIS');?></a>
 						<?php } ?>
 					</div>
 				</td>

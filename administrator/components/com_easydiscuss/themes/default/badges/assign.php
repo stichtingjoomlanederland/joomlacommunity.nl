@@ -16,7 +16,7 @@ defined('_JEXEC') or die('Unauthorized Access');
         <div class="col-md-6">
             <div class="panel">
                 <?php echo $this->html('panel.head', 'COM_EASYDISCUSS_BADGES_UPLOAD_CSV_FILES'); ?>
-                <a href="http://stackideas.com/docs/easydiscuss/administrators/configuration/mass-assign-badges" target="_blank" class="btn btn-success"><?php echo JText::_('COM_EASYDISCUSS_DOCS_BADGES_MASS_ASSIGN'); ?> &rarr;</a>
+                <a href="https://stackideas.com/docs/easydiscuss/administrators/configuration/mass-assign-badges" target="_blank" class="btn btn-success"><?php echo JText::_('COM_EASYDISCUSS_DOCS_BADGES_MASS_ASSIGN'); ?> &rarr;</a>
                 
                 <div class="panel-body">
                     <code>"USER_ID"</code> , <code>"BADGE_ID"</code> , <code>"ACHIEVED_DATE"</code>

@@ -19,16 +19,6 @@ defined('_JEXEC') or die('Unauthorized Access');
             <div class="panel-body">
                 <div class="form-group">
                     <div class="col-md-7 control-label">
-                        <?php echo $this->html('form.label', 'COM_EASYDISCUSS_SYSTEM_APIKEY'); ?>
-                    </div>
-
-                    <div class="col-md-5">
-                        <?php echo $this->html('form.textbox', 'main_apikey', $this->config->get('main_apikey')); ?>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="col-md-7 control-label">
                         <?php echo $this->html('form.label', 'COM_EASYDISCUSS_SYSTEM_ENVIRONMENT'); ?>
                     </div>
 

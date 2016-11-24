@@ -258,15 +258,20 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 	{
 		$db = ED::db();
 		$my = $this->my;
+		$config = $this->config;
 		$date = ED::date();
 
 		$query = 'select b.*, a.`has_polls` as `polls_cnt`, a.`num_fav` as `totalFavourites`, a.`num_replies`, a.`num_attachments` as attachments_cnt,';
 		$query .= ' a.`num_likes` as `likeCnt`, a.`sum_totalvote` as `VotedCnt`,';
 		$query .=  " a.`replied` as `lastupdate`, a.vote as `total_vote_cnt`,";
 
-		// $query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`, ";
-		$query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`, (select cc.anonymous from `#__discuss_posts` as cc where cc.`thread_id` = a.`id` and cc.created = a.replied limit 1) as `last_user_anonymous`,";
+		$query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`, ";
 
+        if ($config->get('main_anonymous_posting')){
+			$query .= " (select cc.anonymous from `#__discuss_posts` as cc where cc.`thread_id` = a.`id` and cc.created = a.replied limit 1) as `last_user_anonymous`,";
+		} else {
+			$query .= " 0 as `last_user_anonymous`,";
+		}
 
 		$query	.= ' DATEDIFF('. $db->Quote($date->toMySQL()) . ', a.`created`) as `noofdays`, ';
 		$query	.= ' DATEDIFF(' . $db->Quote($date->toMySQL()) . ', a.`created`) as `daydiff`, TIMEDIFF(' . $db->Quote($date->toMySQL()). ', a.`created`) as `timediff`,';
@@ -277,7 +282,10 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$query .= " 0 as `isVoted`,";
 		}
 
-		$query	.= " a.`post_status`, a.`post_type`, pt.`suffix` AS post_type_suffix, pt.`title` AS `post_type_title`,";
+		$query	.= " a.`post_status`, a.`post_type`,";
+
+		// $query .= " pt.`suffix` AS post_type_suffix, pt.`title` AS `post_type_title`,";
+
 		$query	.= " e.`title` AS `category`";
 
 
@@ -286,7 +294,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 
 		// Join with post types table
-		$query 	.= "	LEFT JOIN " . $db->nameQuote('#__discuss_post_types') . " AS pt ON a.`post_type`= pt.`alias`";
+		// $query 	.= "	LEFT JOIN " . $db->nameQuote('#__discuss_post_types') . " AS pt ON a.`post_type`= pt.`alias`";
 
 		// Join with category table.
 		$query	.= "	LEFT JOIN " . $db->nameQuote('#__discuss_category') . " AS e ON a.`category_id` = e.`id`";
@@ -303,6 +311,27 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$db->setQuery($query);
 
 		$result = $db->loadObjectList();
+
+        if ($result) {
+
+	        $typequery = "SELECT * FROM ". $db->nameQuote('#__discuss_post_types');
+	        $db->setQuery($typequery);
+	        $posttypes = $db->loadObjectList("alias");
+
+        	$count = count($result);
+
+        	for ($i = 0; $i < $count; $i++) {
+        		$row =& $result[$i];
+
+	            if (isset($posttypes[$row->post_type])) {
+	                $row->post_type_suffix = $posttypes[$row->post_type]->suffix;
+	                $row->post_type_title = $posttypes[$row->post_type]->title;
+	            } else {
+	                $row->post_type_suffix = "";
+	                $row->post_type_title = "";
+	            }
+        	}
+        }
 
 		return $result;
 	}
@@ -605,7 +634,6 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$config = $this->config;
 		$date = ED::date();
 
-
 		$sort = isset( $options[ 'sort' ] ) ? $options[ 'sort' ] : 'latest';
 		$pagination = isset( $options[ 'pagination' ] ) ? $options[ 'pagination' ] : true;
 		$limitstart = isset( $options[ 'limitstart' ] ) ? $options[ 'limitstart' ] : null;
@@ -627,15 +655,27 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$search = $respectSearch ? $db->getEscaped( $this->input->get('query', '', 'string')) : '';
 		$filteractive = (empty($filter)) ? $this->input->get('filter', 'allpost', 'string') : $filter;
 
+		// If this is from Module, we should ignore the filteractive
+		$isModule = isset($options['module'])? $options['module'] : false;
+
+		if ($isModule && empty($filter)) {
+			$filteractive = '';
+		}
+
 		// unsure what is this. need to find out what and where this come from.
 		$user_id = $this->input->get('user_id', 0, 'int');
-
 
 		$query = "select SQL_CALC_FOUND_ROWS b.*, a.`has_polls` as `polls_cnt`, a.`num_fav` as `totalFavourites`, a.`num_replies`, a.`num_attachments` as attachments_cnt,";
 		$query	.= " a.`num_likes` as `likeCnt`, a.`sum_totalvote` as `VotedCnt`,";
 		$query	.=  " a.`replied` as `lastupdate`, a.vote as `total_vote_cnt`,";
 
-		$query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`, (select cc.anonymous from `#__discuss_posts` as cc where cc.`thread_id` = a.`id` and cc.created = a.replied limit 1) as `last_user_anonymous`,";
+		$query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`,";
+
+        if ($config->get('main_anonymous_posting')){
+			$query .= " (select cc.anonymous from `#__discuss_posts` as cc where cc.`thread_id` = a.`id` and cc.created = a.replied limit 1) as `last_user_anonymous`,";
+		} else {
+			$query .= " 0 as `last_user_anonymous`,";
+		}
 
 		$query	.= ' DATEDIFF('. $db->Quote($date->toMySQL()) . ', a.`created`) as `noofdays`, ';
 		$query	.= ' DATEDIFF(' . $db->Quote($date->toMySQL()) . ', a.`created`) as `daydiff`, TIMEDIFF(' . $db->Quote($date->toMySQL()). ', a.`created`) as `timediff`,';
@@ -646,7 +686,11 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$query .= " 0 as `isVoted`,";
 		}
 
-		$query	.= " a.`post_status`, a.`post_type`, pt.`suffix` AS post_type_suffix, pt.`title` AS `post_type_title`,";
+		$query	.= " a.`post_status`, a.`post_type`,";
+
+		// The post type retrieving will be done in separate query to speed up the performance.
+		// $query .= " pt.`suffix` AS post_type_suffix, pt.`title` AS `post_type_title`,";
+		//
 		$query	.= " e.`title` AS `category`";
 
 		$query .= " from " . $db->nameQuote('#__discuss_thread') . " as a";
@@ -654,7 +698,8 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 
 		// Join with post types table
-		$query 	.= "	LEFT JOIN " . $db->nameQuote('#__discuss_post_types') . " AS pt ON a.`post_type`= pt.`alias`";
+		// The post type retrieving will be done in separate query to speed up the performance.
+		// $query 	.= "	LEFT JOIN " . $db->nameQuote('#__discuss_post_types') . " AS pt ON a.`post_type`= pt.`alias`";
 
 		// Join with category table.
 		$query	.= "	LEFT JOIN " . $db->nameQuote('#__discuss_category') . " AS e ON a.`category_id` = e.`id`";
@@ -716,10 +761,10 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		if ($filteractive == 'unread') {
 			$viewer = ED::user();
 			$readPosts = $viewer->posts_read;
-			
+
 			if ($readPosts) {
 				$readPosts = unserialize($readPosts);
-				
+
 				if (count($readPosts) > 1) {
 					$extraSQL = implode( ',', $readPosts);
 					$where[] = " a.`post_id` NOT IN (" . $extraSQL . ")";
@@ -734,7 +779,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		if ($filteractive == 'unanswered') {
 			// Should not fetch posts which are resolved
 			$where[] = "a.`isresolve` = " . $db->Quote(0);
-			$where[] = "a.`created` = a.`replied`";
+			$where[] = "(a.`last_user_id` = 0 and a.`last_poster_email` = '')";
 		}
 
 		if ($filteractive == 'favourites') {
@@ -914,6 +959,27 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$this->_total = $db->loadResult();
 			$this->_pagination = ED::pagination($this->_total, $limitstart, $limit);
 		}
+
+        if ($result) {
+
+	        $typequery = "SELECT * FROM ". $db->nameQuote('#__discuss_post_types');
+	        $db->setQuery($typequery);
+	        $posttypes = $db->loadObjectList("alias");
+
+        	$count = count($result);
+
+        	for ($i = 0; $i < $count; $i++) {
+        		$row =& $result[$i];
+
+	            if (isset($posttypes[$row->post_type])) {
+	                $row->post_type_suffix = $posttypes[$row->post_type]->suffix;
+	                $row->post_type_title = $posttypes[$row->post_type]->title;
+	            } else {
+	                $row->post_type_suffix = "";
+	                $row->post_type_title = "";
+	            }
+        	}
+        }
 
 		$this->_getDateDiffs($result);
 
@@ -1297,7 +1363,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$readPosts = $profile->posts_read;
 			if ($readPosts) {
 				$readPosts = unserialize($readPosts);
-				
+
 				if (count($readPosts) > 1) {
 					$extraSQL = implode(',', $readPosts);
 					$where[] = ' a.`id` NOT IN (' . $extraSQL . ')';
@@ -1975,12 +2041,12 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$query	.=  ' t.`replied` as `lastupdate`, t.`vote` as `total_vote_cnt`,';
 
 		if ($this->my->id) {
-			$query .= " (SELECT COUNT(1) FROM " . $db->nameQuote('#__discuss_votes') . " WHERE `post_id` = t.`post_id` AND `user_id` = " . $db->Quote($this->my->id) . ") AS `isVoted`,";
+			$query .= " (SELECT COUNT(1) FROM " . $db->nameQuote('#__discuss_votes') . " WHERE `post_id` = t.`post_id` AND `user_id` = " . $db->Quote($this->my->id) . ") AS `isVoted`";
 		} else {
-			$query .= " 0 as `isVoted`,";
+			$query .= " 0 as `isVoted`";
 		}
 
-		$query	.= " pt.`suffix` AS post_type_suffix, pt.`title` AS `post_type_title`";
+		// $query	.= " ,pt.`suffix` AS post_type_suffix, pt.`title` AS `post_type_title`";
 
 
 		if( is_array($tagId) ) {
@@ -2001,7 +2067,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		}
 
 		// Join with post types table
-		$query 	.= '	LEFT JOIN ' . $db->nameQuote( '#__discuss_post_types' ) . ' AS pt ON t.`post_type`= pt.`alias`';
+		// $query 	.= '	LEFT JOIN ' . $db->nameQuote( '#__discuss_post_types' ) . ' AS pt ON t.`post_type`= pt.`alias`';
 
 		$query	.= $queryWhere;
 		$query	.= ' AND t.`published` = ' . $db->Quote('1');
@@ -2066,12 +2132,34 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$db->setQuery( $query );
 		$rows	= $db->loadObjectList();
 
-		$db->setQuery( $totalQuery );
-		$db->loadResult();
+		// $db->setQuery( $totalQuery );
+		// $db->loadResult();
+
+        if ($rows) {
+
+	        $typequery = "SELECT * FROM ". $db->nameQuote('#__discuss_post_types');
+	        $db->setQuery($typequery);
+	        $posttypes = $db->loadObjectList("alias");
+
+        	$count = count($rows);
+
+        	for ($i = 0; $i < $count; $i++) {
+        		$row =& $rows[$i];
+
+	            if (isset($posttypes[$row->post_type])) {
+	                $row->post_type_suffix = $posttypes[$row->post_type]->suffix;
+	                $row->post_type_title = $posttypes[$row->post_type]->title;
+	            } else {
+	                $row->post_type_suffix = "";
+	                $row->post_type_title = "";
+	            }
+        	}
+        }
+
 
 		$this->_total = $this->_getListCount($query);
 
-		$this->_pagination = ED::pagination($this->_total, $limitstart, $limit);		
+		$this->_pagination = ED::pagination($this->_total, $limitstart, $limit);
 		return $rows;
 	}
 
@@ -2626,7 +2714,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
      * @param   string
      * @return
      */
-	public function getUnresolvedFromUser($userId)
+	public function getUnresolvedFromUser($userId, $resolve = 0)
 	{
 		$db = ED::db();
 		$date = ED::date();
@@ -2652,7 +2740,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$query 	.= ' LEFT JOIN ' . $db->nameQuote('#__discuss_post_types') . ' AS pt';
 		$query 	.= ' ON b.`post_type` = pt.' . $db->nameQuote('alias');
 		$query	.= ' WHERE b.' . $db->nameQuote('user_id') . ' = ' . $db->Quote($userId);
-		$query	.= ' AND b.' . $db->nameQuote('isresolve') . '=' . $db->Quote(0);
+		$query	.= ' AND b.' . $db->nameQuote('isresolve') . '=' . $db->Quote($resolve);
 		$query	.= ' AND b.`parent_id` = ' . $db->Quote('0');
 		$query	.= ' AND b.' . $db->nameQuote('published') . ' = ' . $db->Quote(1);
 

@@ -87,6 +87,11 @@ class EasyDiscussSubscription extends EasyDiscuss
 
 			$items = $model->getDigestEmailSubscriptions($now, $email);
 
+			if (! $items) {
+				// nothing to process
+				continue;
+			}
+
 			// now we retrive subscription info
 			$categorySub = array();
 			$siteSub = null;

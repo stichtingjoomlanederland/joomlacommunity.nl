@@ -33,6 +33,9 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 			return $this->output($this->getResultObj('COM_EASYDISCUSS_INSTALLATION_DEVELOPER_MODE', true));
 		}
 
+		// Update the api key
+		$this->updateConfig('main_apikey', ED_KEY);
+		
 		// ACL rules needs to be created first before anything else
 		$results[] = $this->updateACL();
 

@@ -47,9 +47,6 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 		$this->set('operation', $operation);
 		$this->set('composer', $composer);
 
-		//load require javascript string
-		//ED::loadString(JRequest::getVar('view'));
-
 		parent::display('post/default');
 	}
 
@@ -106,11 +103,20 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 		$this->set('composer', $composer);
 		$this->set('tags', $tags);
 
-		//load require javascript string
-		//ED::loadString(JRequest::getVar('view'));
-
 		parent::display('post/default');
 	}
+
+	public function pending($tpl = null)
+	{
+		$this->checkAccess('discuss.manage.posts');
+
+		// Display toolbars
+		JToolbarHelper::publish('approve', JText::_('COM_EASYDISCUSS_BTN_APPROVE_AND_PUBLISH'));
+		JToolbarHelper::unpublish('reject', JText::_('COM_EASYDISCUSS_BTN_REJECT'));
+		JToolBarHelper::custom('delete','delete','icon-32-unpublish.png', 'COM_EASYDISCUSS_DELETE_BUTTON', false);
+
+		return $this->edit();
+	}	
 
 	public function getFieldForms( $isDiscussion = false , $postObj = false )
 	{
@@ -130,16 +136,19 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 	{
 		$layout = $this->getLayout();
 
-		JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_NEW_POST' ), 'discussions' );
+		if ($layout != 'pending') {
+			JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_NEW_POST' ), 'discussions' );
 
-		if ($layout == 'edit') {
-			JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_EDITING_POST' ), 'discussions' );
+			if ($layout == 'edit') {
+				JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_EDITING_POST' ), 'discussions' );
+			}
+
+			JToolbarHelper::apply();
+			JToolbarHelper::save();
+			JToolBarHelper::divider();
+			JToolBarHelper::cancel();
+		} else {
+			JToolbarHelper::title(JText::_('COM_EASYDISCUSS_REVIEW_MODERATED_POST'), 'discussions');	
 		}
-
-
-		JToolbarHelper::apply();
-		JToolbarHelper::save();
-		JToolBarHelper::divider();
-		JToolBarHelper::cancel();
 	}
 }

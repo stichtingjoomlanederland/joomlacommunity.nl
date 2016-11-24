@@ -55,9 +55,11 @@ class EasyDiscussModelNotification extends EasyDiscussAdminModel
 	 */
 	public function getPagination()
 	{
+		$limit = $this->config->get('main_notification_listings_limit', 5);
+
 		// Lets load the content if it doesn't already exist
 		if (empty($this->_pagination)) {
-			$this->_pagination = ED::pagination($this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
+			$this->_pagination = ED::pagination($this->getTotal(), $this->getState('limitstart'), $limit);
 		}
 
 		return $this->_pagination;
