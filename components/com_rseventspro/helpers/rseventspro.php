@@ -3617,7 +3617,7 @@ class rseventsproHelper
 	public static function ongoing($id) {
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
-		$now	= JFactory::getDate()->toUnix();
+		$now	= new DateTime('NOW', new DateTimezone('UTC'));
 		
 		$query->clear()
 			->select($db->qn('start'))->select($db->qn('end'))->select($db->qn('allday'))
@@ -4814,11 +4814,23 @@ class rseventsproHelper
 			
 			if ($event->max_tickets) {
 				$query->clear()
+					->select($db->qn('id'))
+					->from($db->qn('#__rseventspro_tickets'))
+					->where($db->qn('ide').' = '.$db->q($ticket->ide));
+				$db->setQuery($query);
+				$tids = $db->loadColumn();
+				JArrayHelper::toInteger($tids);
+				
+				$query->clear()
 					->select('SUM('.$db->qn('ut.quantity').')')
 					->from($db->qn('#__rseventspro_user_tickets','ut'))
 					->join('left', $db->qn('#__rseventspro_users','u').' ON '.$db->qn('u.id').' = '.$db->qn('ut.ids'))
 					->where($db->qn('u.state').' IN (0,1)')
 					->where($db->qn('u.ide').' = '.(int) $ticket->ide);
+				
+				if (!empty($tids)) {
+					$query->where($db->qn('ut.idt').' IN ('.implode(',',$tids).')');
+				}
 				
 				JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query, 'rule' => 'u.ide')));
 				
@@ -5195,11 +5207,23 @@ class rseventsproHelper
 		$query		= $db->getQuery(true);
 		
 		$query->clear()
+			->select($db->qn('id'))
+			->from($db->qn('#__rseventspro_tickets'))
+			->where($db->qn('ide').' = '.$db->q($id));
+		$db->setQuery($query);
+		$tids = $db->loadColumn();
+		JArrayHelper::toInteger($tids);
+		
+		$query->clear()
 			->select('SUM('.$db->qn('ut.quantity').')')
 			->from($db->qn('#__rseventspro_users','u'))
 			->join('LEFT', $db->qn('#__rseventspro_user_tickets','ut').' ON '.$db->qn('ut.ids').' = '.$db->qn('u.id'))
 			->where($db->qn('u.state').' IN (0,1)')
 			->where($db->qn('u.ide').' = '.(int) $id);
+		
+		if (!empty($tids)) {
+			$query->where($db->qn('ut.idt').' IN ('.implode(',',$tids).')');
+		}
 		
 		JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
 		

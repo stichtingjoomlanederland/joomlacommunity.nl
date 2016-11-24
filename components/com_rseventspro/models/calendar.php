@@ -61,7 +61,7 @@ class rseventsproModelCalendar extends JModelLegacy
 		$query->select(array('e.id', 'e.name', 'e.start', 'e.end', 'e.allday'));
 		
 		if ($layout == '' || $layout == 'default') {
-			list($start, $end) = $this->getStartEndCurrentMonth($params->get('startday',1));
+			list($start, $end) = $this->getStartEndCurrentMonth($params);
 		} else if (($layout == 'day' || $tpl == 'day') && !empty($date)) {
 			list($start, $end) = $this->getStartEndDay($date);
 		} else if (($layout == 'week' || $tpl == 'week') && !empty($date)) {
@@ -237,11 +237,30 @@ class rseventsproModelCalendar extends JModelLegacy
 		return false;
 	}
 	
-	protected function getStartEndCurrentMonth($weekstart) {
-		$input	= JFactory::getApplication()->input;
-		$now	= JFactory::getDate();
-		$month	= $input->getInt('month',	(int) $now->format('m'));
-		$year	= $input->getInt('year',	(int) $now->format('Y'));
+	protected function getStartEndCurrentMonth($params) {
+		$input		= JFactory::getApplication()->input;
+		$now		= JFactory::getDate();
+		$month		= $input->getInt('month',	0);
+		$year		= $input->getInt('year',	0);
+		$weekstart	= $params->get('startday',1);
+		
+		if (!$month) {
+			$paramsMonth = (int) $params->get('startmonth',0);
+			if ($paramsMonth == 0) {
+				$month = (int) $now->format('n');
+			} else {
+				$month = $paramsMonth;
+			}
+		}
+		
+		if (!$year) {
+			$paramsYear = (int) $params->get('startyear',0);
+			if (empty($paramsYear)) {
+				$year = (int) $now->format('Y');
+			} else {
+				$year = $paramsYear;
+			}
+		}
 		
 		if (strlen($month) == 1) {
 			$month = '0'.$month;
@@ -377,12 +396,12 @@ class rseventsproModelCalendar extends JModelLegacy
 		$end		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_end'.$itemid, 		'filter_end',		array(), 'array');
 		$price		= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_price'.$itemid, 		'filter_price',		array(), 'array');
 		
-		$status		= $status[0] 	== '' ? null : $status;
-		$featured	= $featured[0] 	== '' ? null : $featured[0];
-		$childs		= $childs[0] 	== '' ? null : $childs[0];
-		$start		= $start[0] 	== '' ? null : $start[0];
-		$end		= $end[0] 		== '' ? null : $end[0];
-		$price		= $price[0] 	== '' ? null : $price[0];
+		$status		= isset($status[0])		? ($status[0] 	== '' ? null : $status) : null;
+		$featured	= isset($featured[0])	? ($featured[0] == '' ? null : $featured[0]) : null;
+		$childs		= isset($childs[0])		? ($childs[0] 	== '' ? null : $childs[0]) : null;
+		$start		= isset($start[0])		? ($start[0] 	== '' ? null : $start[0]) : null;
+		$end		= isset($end[0])		? ($end[0] 		== '' ? null : $end[0]) : null;
+		$price		= isset($price[0])		? ($price[0] 	== '' ? null : $price[0]) : null;
 		
 		if (is_array($status)) {
 			$status = array_unique($status);
@@ -460,7 +479,7 @@ class rseventsproModelCalendar extends JModelLegacy
 		
 		$query->select(array('e.id'));
 		
-		list($start, $end) = $this->getStartEndCurrentMonth($params->get('startday',1));
+		list($start, $end) = $this->getStartEndCurrentMonth($params);
 		$where = $query->betweenQuery($start, $end, true);
 		$where = substr_replace($where,'',0,5);
 		
