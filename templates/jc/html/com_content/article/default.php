@@ -11,8 +11,10 @@ defined('_JEXEC') or die;
 
 JHtml::addIncludePath(JPATH_COMPONENT . '/helpers');
 
-// Includee easydiscuss helper to load profile information
 require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
+
+$profile = DiscussHelper::getTable('Profile');
+$profile->load($this->item->created_by);
 
 // Create shortcuts to some parameters.
 $params  = $this->item->params;
@@ -34,22 +36,20 @@ else
 	$image = 'none';
 }
 
-// Load the profile data from the database.
-// Required for use of the DiscussHelper
-require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
-$profile = DiscussHelper::getTable('Profile');
-$profile->load($this->item->created_by);
-$userparams        = DiscussHelper::getRegistry($profile->params);
-$profile->twitter  = $userparams->get('twitter', '');
-$profile->website  = $userparams->get('website', '');
-$profile->facebook = $userparams->get('facebook', '');
-$profile->linkedin = $userparams->get('linkedin', '');
-
-// Determ if the article information column must be shown or not
+// Determine if the article information column must be shown or not
 $showArticleInformation = ($params->get('show_create_date') || $params->get('show_category') || $params->get('show_author'));
 
+// Check Joomla version label
+$joomla3 = false;
+$joomla4 = false;
+
+foreach ($this->item->tags->itemTags as $tag)
+{
+	$joomla3 = ($tag->title == 'joomla3' && $joomla3 === false) ? true : false;
+	$joomla4 = ($tag->title == 'joomla4' && $joomla4 === false) ? true : false;
+}
 ?>
-<div class="well <?php echo ($image == 'large' ? 'photoheader' : ''); ?>">
+<div class="well <?php echo($image == 'large' ? 'photoheader' : ''); ?>">
 	<?php if ($image == 'large'): ?>
 		<div class="photobox">
 			<img src="<?php echo($images->image_fulltext); ?>"/>
@@ -66,8 +66,7 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
 				<div class="item-meta">
 					<?php if ($params->get('show_author')) : ?>
 						<div class="auteur-info">
-							<?php
-							if (!empty($this->item->created_by_alias)) : ?>
+							<?php if (!empty($this->item->created_by_alias)) : ?>
 								<strong>Door</strong>
 								<p>
 									<?php echo $this->item->created_by_alias; ?>
@@ -99,12 +98,12 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
 							<strong>Categorie</strong>
 							<p>
 								<time class="post-date">
-									<?php $title = $this->escape($this->item->category_title);
-									$url         = '<a href="' . JRoute::_(ContentHelperRoute::getCategoryRoute($this->item->catslug)) . '">' . $title . '</a>'; ?>
 									<?php if ($params->get('link_category') && $this->item->catslug) : ?>
-										<?php echo $url; ?>
+										<a href="<?php echo JRoute::_(ContentHelperRoute::getCategoryRoute($this->item->catslug)); ?>">
+											<?php echo $this->escape($this->item->category_title); ?>
+										</a>
 									<?php else : ?>
-										<?php echo $title; ?>
+										<?php echo $this->escape($this->item->category_title); ?>
 									<?php endif; ?>
 								</time>
 							</p>
@@ -125,9 +124,22 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
 				</div>
 			</div>
 		<?php endif; ?>
-		<div class="<?php echo ($showArticleInformation ? "col-md-9" : "col-md-10 col-md-push-1"); ?>">
+
+		<div class="<?php echo($showArticleInformation ? "col-md-9" : "col-md-12"); ?>">
 			<div class="item">
 				<div class="page-header">
+					<?php if ($canEdit) : ?>
+						<div class="edit-buttons">
+							<?php echo JLayoutHelper::render('joomla.content.icons', array('params' => $params, 'item' => $this->item, 'print' => false)); ?>
+						</div>
+					<?php endif; ?>
+
+					<div class="pull-right">
+						<?php if ($joomla3): ?>
+							<span class="label label-joomla3"><span class="icon-joomla"></span> Joomla 3.0</span>
+						<?php endif; ?>
+					</div>
+
 					<?php if ($params->get('show_title')) : ?>
 						<h1>
 							<?php echo $this->escape($this->item->title); ?>
@@ -139,64 +151,32 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
 					<?php endif; ?>
 				</div>
 				<div class="item-content">
-					<?php if ($canEdit) : ?>
-						<div class="edit-buttons">
-							<?php echo JLayoutHelper::render('joomla.content.icons', array('params' => $params, 'item' => $this->item, 'print' => false)); ?>
-						</div>
-					<?php endif; ?>
 					<?php echo $this->item->text; ?>
 				</div>
+
+				<?php if ($params->get('show_modify_date')) : ?>
+					<div class="articleinfo">
+						<!--						<a class="btn btn-small btn-danger pull-right" data-toggle="modal" href="#verbetering">-->
+						<!--							<span class="glyphicon glyphicon-warning-sign"></span> Verbetering doorgeven-->
+						<!--						</a>-->
+						<p class="text-muted">
+							<strong>Gepubliceerd:</strong> <?php echo JHtml::_('date', $this->item->created, JText::_('j F Y')); ?>,
+							<strong>aangepast:</strong> <?php echo JHtml::_('date', $this->item->modified, JText::_('j F Y')); ?>
+						</p>
+					</div>
+				<?php endif; ?>
 			</div>
 		</div>
 	</div>
 
 	<?php if ($params->get('show_author') && empty($this->item->created_by_alias)) : ?>
-	<div class="row articleinfo">
-		<div class="col-sm-2 author-img">
-			<?php if (!empty($this->item->created_by_alias)) : ?>
-				<?php echo $this->item->created_by_alias; ?>
-			<?php else: ?>
-				<a href="<?php echo $profile->getLink(); ?>">
-					<img class="img-circle" src="<?php echo $profile->getAvatar(); ?>"/>
-				</a>
-			<?php endif; ?>
-		</div>
-		<div class="col-sm-10">
-			<h4><a href="<?php echo $profile->getLink(); ?>"><?php echo $profile->nickname; ?></a></h4>
-			<p class="text-muted"><?php echo($profile->description); ?></p>
-			<ul class="list-inline share-buttons">
-				<?php if ($profile->twitter): ?>
-					<li class="share-twitter">
-						<a href="<?php echo($profile->twitter); ?>" target="_blank"><span class="icon icon-twitter"></span></a>
-					</li>
-				<?php endif; ?>
-				<?php if ($profile->facebook): ?>
-					<li class="share-facebook">
-						<a href="<?php echo($profile->facebook); ?>" target="_blank"><span class="icon icon-facebook"></span></a>
-					</li>
-				<?php endif; ?>
-				<?php if ($profile->linkedin): ?>
-					<li class="share-linkedin">
-						<a href="<?php echo($profile->linkedin); ?>" target="_blank"><span class="icon icon-linkedin"></span></a>
-					</li>
-				<?php endif; ?>
-				<?php if ($profile->website): ?>
-					<li class="share-website">
-						<a href="<?php echo($profile->website); ?>" target="_blank"><span class="icon icon-website"></span></a>
-					</li>
-				<?php endif; ?>
-			</ul>
-		</div>
-	</div>
+		<?php echo JLayoutHelper::render('template.snippet-author', $this->item->created_by); ?>
 	<?php endif; ?>
 </div>
 
 
 <?php echo $this->item->event->afterDisplayContent; ?>
 
-<?php
-if (!empty($this->item->pagination) && $this->item->pagination)
-{
-	echo $this->item->pagination;
-}
-?>
+<?php if (!empty($this->item->pagination) && $this->item->pagination): ?>
+	<?php echo $this->item->pagination; ?>
+<?php endif; ?>
