@@ -9,16 +9,10 @@
 
 defined('_JEXEC') or die;
 
-// Load the profile data from the database.
-// Required for use of the DiscussHelper
 require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
+
 $profile = DiscussHelper::getTable('Profile');
 $profile->load($this->item->created_by);
-$userparams        = DiscussHelper::getRegistry($profile->params);
-$profile->twitter  = $userparams->get('twitter', '');
-$profile->website  = $userparams->get('website', '');
-$profile->facebook = $userparams->get('facebook', '');
-$profile->linkedin = $userparams->get('linkedin', '');
 
 // Create a shortcut for params.
 $params = $this->item->params;
@@ -94,15 +88,13 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
 						<div class="item-categorie">
 							<strong>Categorie</strong>
 							<p>
-								<time class="post-date">
-									<?php $title = $this->escape($this->item->category_title);
-									$url         = '<a href="' . JRoute::_(ContentHelperRoute::getCategoryRoute($this->item->catslug)) . '">' . $title . '</a>'; ?>
-									<?php if ($params->get('link_category') && $this->item->catslug) : ?>
-										<?php echo $url; ?>
-									<?php else : ?>
-										<?php echo $title; ?>
-									<?php endif; ?>
-								</time>
+								<?php if ($params->get('link_category') && $this->item->catslug) : ?>
+									<a href="<?php echo JRoute::_(ContentHelperRoute::getCategoryRoute($this->item->catslug)); ?>">
+										<?php echo $this->escape($this->item->category_title); ?>
+									</a>
+								<?php else : ?>
+									<?php echo $this->escape($this->item->category_title); ?>
+								<?php endif; ?>
 							</p>
 						</div>
 					<?php endif; ?>
@@ -126,6 +118,12 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
 		<div class="col-md-9">
 			<div class="item">
 				<div class="page-header">
+					<?php if ($canEdit) : ?>
+						<div class="edit-buttons">
+							<?php echo JLayoutHelper::render('joomla.content.icons', array('params' => $params, 'item' => $this->item, 'print' => false)); ?>
+						</div>
+					<?php endif; ?>
+
 					<?php if ($params->get('show_title')) : ?>
 						<h2>
 							<?php if ($params->get('link_titles') && $params->get('access-view')) : ?>
@@ -142,14 +140,11 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
 						<span class="label label-warning"><?php echo JText::_('JUNPUBLISHED'); ?></span>
 					<?php endif; ?>
 				</div>
+
 				<div class="item-content">
-					<?php if ($canEdit) : ?>
-						<div class="edit-buttons">
-							<?php echo JLayoutHelper::render('joomla.content.icons', array('params' => $params, 'item' => $this->item, 'print' => false)); ?>
-						</div>
-					<?php endif; ?>
 					<?php echo $this->item->introtext; ?>
 				</div>
+
 				<?php if ($params->get('show_readmore') && $this->item->readmore) :
 					$link = JRoute::_(ContentHelperRoute::getArticleRoute($this->item->slug, $this->item->catid));
 					?>
