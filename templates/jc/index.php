@@ -87,23 +87,12 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 <!-- Body -->
 <div class="content">
 	<div class="container">
-		<jdoc:include type="modules" name="test" style="xhtml"/>
-
-		<?php if ($helper->getItemId() == 122): ?>
-			<?php include 'dummy/nieuws_alt.php'; ?>
-		<?php elseif ($helper->getItemId() == 124): ?>
-			<?php include 'dummy/nieuws_artikel.php'; ?>
-		<?php elseif ($helper->getItemId() == 98): ?>
-			<?php include 'dummy/nieuws.php'; ?>
-		<?php elseif ($helper->getItemId() == 492): ?>
-			<?php include 'dummy/styleguide.php'; ?>
-		<?php elseif ($helper->getItemId() == 468): ?>
-		<?php endif; ?>
-
 		<div class="row">
 			<jdoc:include type="modules" name="top-a" style="panel"/>
 		</div>
 		<div class="row">
+			<jdoc:include type="modules" name="breadcrumbs" />
+
 			<?php if ($helper->isHome() == true) : ?>
 				<div class="content-6 col-sm-12">
 					<jdoc:include type="modules" name="home-sidebar-a__top" style="well"/>
