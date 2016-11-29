@@ -4205,13 +4205,11 @@ class rseventsproHelper
 					$url = Foundry::user($id)->getPermalink();
 				}
 			}
+
+			$profile = DiscussHelper::getTable('Profile');
+			$profile->load($id);
+			$url = $profile->getLink();
 		}
-
-		require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
-
-		$profile = DiscussHelper::getTable('Profile');
-		$profile->load($id);
-		$url = $profile->getLink();
 
 		return $url;
 	}
