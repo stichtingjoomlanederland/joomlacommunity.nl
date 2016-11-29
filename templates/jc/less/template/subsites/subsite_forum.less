@@ -23,14 +23,14 @@
 
 .discuss-question {
 	&.is-resolved:before {
-       content: "\e60d";
-       font-family: 'jc';
-       position: absolute;
-       right: 20px;
-       font-size: 140px;
-       line-height: 0.6;
-       color: lighten(@aan-de-slag, 40%);
-    }
+		content: "\e60d";
+		font-family: 'jc';
+		position: absolute;
+		right: 20px;
+		font-size: 140px;
+		line-height: 0.6;
+		color: lighten(@aan-de-slag, 40%);
+	}
 
 	footer {
 		margin-top: 20px;
@@ -169,7 +169,7 @@
 	}
 }
 
-h2,h3 {
+h2, h3 {
 	a:hover {
 		text-decoration: none;
 	}
@@ -177,4 +177,19 @@ h2,h3 {
 
 .dc-pagination .unstyled {
 	.pagination();
+}
+
+.ed-reply-item {
+	background: @white;
+}
+
+.forum {
+	.ed-forum__hd {
+		background: @forum;
+		color: @white;
+
+		a {
+			color: @white;
+		}
+	}
 }
