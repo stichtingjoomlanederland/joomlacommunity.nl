@@ -46,6 +46,8 @@ JFactory::getDocument()->addScriptDeclaration($script);
 
 <div class="mod_joomlaversions">
 	<div class="latest-versions"></div>
-	<a href="<?php echo $params->get("download_url", "http://downloads.joomla.org"); ?>" class="btn btn-default btn-block"><?php echo JText::_("MOD_JVERSIONS_DOWNLOAD_TEXT"); ?></a>
+	<a href="<?php echo $params->get("download_url", "http://downloads.joomla.org"); ?>" target="<?php echo $params->get("update_url_target", "_blank"); ?>" class="btn btn-default btn-block">
+		<?php echo JText::_("MOD_JVERSIONS_DOWNLOAD_TEXT"); ?>
+	</a>
 </div>
 

@@ -7,7 +7,7 @@
 	<license>GNU General Public License version 2 or later</license>
 	<authorEmail>contact@nielsvanderveer.me</authorEmail>
 	<authorUrl>www.nielsvanderveer.me</authorUrl>
-	<version>1.2.0</version>
+	<version>1.2.1</version>
 	<description>MOD_JVERSIONS_XML_DESCRIPTION</description>
 	<files>
 		<filename module="mod_jversions">mod_jversions.php</filename>
@@ -34,11 +34,23 @@
 				    description="MOD_JVERSIONS_FIELD_UPDATEURL_DESC"
 				/>
 				<field
+					name="update_url_target"
+				    type="list"
+				    default="_blank"
+				    label="MOD_JVERSIONS_FIELD_DOWNLOADURL_TARGET_LABEL"
+				    description="MOD_JVERSIONS_FIELD_DOWNLOADURL_TARGET_DESC"
+				>
+					<option value="_blank">_blank</option>
+					<option value="_self">_self</option>
+					<option value="_parent">_parent</option>
+					<option value="_top">_top</option>
+				</field>
+				<field
 					name="download_url"
 				    type="text"
 				    default="http://downloads.joomla.org"
 				    label="MOD_JVERSIONS_FIELD_DOWNLOADURL_LABEL"
-				    description="MOD_JVERSIONS_FIELD_DOWNLOADURL_LABEL"
+				    description="MOD_JVERSIONS_FIELD_DOWNLOADURL_DESC"
 				/>
 				<field
 					name="prefixes"
