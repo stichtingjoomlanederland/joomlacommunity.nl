@@ -17,7 +17,11 @@ defined('_JEXEC') or die('Restricted access');
 	<li class="dropdown">
 		<a data-toggle="dropdown" class="dropdown-toggle profile" href="#">
 			<img src="<?php echo $my->getAvatar(); ?>" class="avatar">
+			<?php if ($isLoggedIn) : ?>
 			<span class="dropdown-toggle-text"><?php echo $my->getName(); ?></span>
+			<?php else:?>
+				<span class="dropdown-toggle-text">Welkom!</span>
+			<?php endif;?>
 		</a>
 		<ul class="dropdown-menu">
 			<?php if ($isLoggedIn) : ?>

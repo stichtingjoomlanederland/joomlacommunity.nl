@@ -60,9 +60,9 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 			<div class="collapse navbar-collapse" id="jc-navbar-collapse-1">
 				<div class="navbar-mobile">
 					<jdoc:include type="modules" name="mainmenu-mobile"/>
+					<jdoc:include type="modules" name="search"/>
 				</div>
 				<jdoc:include type="modules" name="usermenu"/>
-				<jdoc:include type="modules" name="search"/>
 			</div>
 
 		</div>
@@ -72,6 +72,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 		<div class="container">
 			<nav class="navbar navbar-sub" role="navigation">
 				<jdoc:include type="modules" name="submenu"/>
+				<jdoc:include type="modules" name="search"/>
 			</nav>
 		</div>
 	</div>
