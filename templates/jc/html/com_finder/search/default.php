@@ -16,27 +16,36 @@ JHtml::addIncludePath(JPATH_COMPONENT . '/helpers/html');
 ?>
 
 <div class="finder<?php echo $this->pageclass_sfx; ?>">
-<?php if ($this->params->get('show_page_heading')) : ?>
-<h1>
-	<?php if ($this->escape($this->params->get('page_heading'))) : ?>
-		<?php echo $this->escape($this->params->get('page_heading')); ?>
-	<?php else : ?>
-		<?php echo $this->escape($this->params->get('page_title')); ?>
+	<?php if ($this->params->get('show_page_heading')) : ?>
+		<h1>
+			<?php if ($this->escape($this->params->get('page_heading'))) : ?>
+				<?php echo $this->escape($this->params->get('page_heading')); ?>
+			<?php else : ?>
+				<?php echo $this->escape($this->params->get('page_title')); ?>
+			<?php endif; ?>
+		</h1>
 	<?php endif; ?>
-</h1>
-<?php endif; ?>
 
-<?php if ($this->params->get('show_search_form', 1)) : ?>
-	<div id="search-form">
-		<?php echo $this->loadTemplate('form'); ?>
-	</div>
-<?php endif;
+	<?php if ($this->params->get('show_search_form', 1)) : ?>
 
-// Load the search results layout if we are performing a search.
-if ($this->query->search === true):
-?>
-	<div id="search-results">
-		<?php echo $this->loadTemplate('results'); ?>
-	</div>
-<?php endif; ?>
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<div class="well" id="search-form">
+					<?php echo $this->loadTemplate('form'); ?>
+				</div>
+			</div>
+		</div>
+	<?php endif;
+
+	// Load the search results layout if we are performing a search.
+	if ($this->query->search === true):
+		?>
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<div id="search-results" class="well">
+					<?php echo $this->loadTemplate('results'); ?>
+				</div>
+			</div>
+		</div>
+	<?php endif; ?>
 </div>
