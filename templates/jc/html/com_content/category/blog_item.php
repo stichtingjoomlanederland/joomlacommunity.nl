@@ -149,7 +149,7 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
 					$link = JRoute::_(ContentHelperRoute::getArticleRoute($this->item->slug, $this->item->catid));
 					?>
 
-					<a class="btn btn-danger" href="<?php echo $link; ?>"> <span class="icon-chevron-right"></span>
+					<a class="btn btn-nieuws" href="<?php echo $link; ?>">
 
 						<?php if ($readmore = $this->item->alternative_readmore) :
 							echo $readmore;
