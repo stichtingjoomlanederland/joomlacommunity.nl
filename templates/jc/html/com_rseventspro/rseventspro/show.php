@@ -214,11 +214,12 @@ $tmpl = $links == 0 ? '' : '&tmpl=component';
 					<?php foreach ($organisers as $organiser) : ?>
 						<?php $profile->load($organiser); ?>
 
-						<a class="list-group-item" href="<?php echo $profile->getLink(); ?>">
-							<img class="img-circle" src="<?php echo $profile->getAvatar(); ?>" width="50px" height="50px"/>
-							<?php echo $profile->nickname; ?>
-						</a>
-
+						<li class="list-group-item">
+							<a href="<?php echo $profile->getLink(); ?>">
+								<img class="img-circle" src="<?php echo $profile->getAvatar(); ?>" width="50px" height="50px"/>
+								<?php echo $profile->nickname; ?>
+							</a>
+						</li>
 					<?php endforeach; ?>
 				</ul>
 			</div>
@@ -233,15 +234,17 @@ $tmpl = $links == 0 ? '' : '&tmpl=component';
 					<div class="panel-heading">Wij gaan!</div>
 					<ul class="list-group list-group-flush panel-bijeenkomsten">
 						<?php foreach ($this->guests as $guest) : ?>
-							<?php if (!empty($guest->url)) : ?>
-								<a class="list-group-item" href="<?php echo $guest->url; ?>">
+							<li class="list-group-item">
+								<?php if (!empty($guest->url)) : ?>
+									<a href="<?php echo $guest->url; ?>">
+										<?php echo $guest->avatar; ?>
+										<?php echo $guest->name; ?>
+									</a>
+								<?php else: ?>
 									<?php echo $guest->avatar; ?>
 									<?php echo $guest->name; ?>
-								</a>
-							<?php else: ?>
-								<?php echo $guest->avatar; ?>
-								<?php echo $guest->name; ?>
-							<?php endif; ?>
+								<?php endif; ?>
+							</li>
 						<?php endforeach; ?>
 					</ul>
 				</div>

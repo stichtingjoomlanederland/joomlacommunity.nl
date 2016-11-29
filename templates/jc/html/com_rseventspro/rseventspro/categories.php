@@ -58,10 +58,12 @@ $profile = DiscussHelper::getTable('Profile');
 							<ul class="list-group list-group-flush panel-bijeenkomsten">
 								<?php foreach ($organisers as $organiser) : ?>
 									<?php $profile->load($organiser); ?>
-									<a class="list-group-item" href="<?php echo $profile->getLink(); ?>">
-										<img class="img-circle" src="<?php echo $profile->getAvatar(); ?>" width="50px" height="50px"/>
-										<?php echo $profile->nickname; ?>
-									</a>
+									<li class="list-group-item">
+										<a href="<?php echo $profile->getLink(); ?>">
+											<img class="img-circle" src="<?php echo $profile->getAvatar(); ?>" width="50px" height="50px"/>
+											<?php echo $profile->nickname; ?>
+										</a>
+									</li>
 								<?php endforeach; ?>
 							</ul>
 						</div>
