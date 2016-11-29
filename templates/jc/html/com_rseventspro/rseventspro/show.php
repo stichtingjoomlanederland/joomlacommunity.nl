@@ -18,6 +18,26 @@ $ongoing     = rseventsproHelper::ongoing($this->event->id);
 $featured    = $event->featured ? ' rs_featured_event' : '';
 $description = empty($event->description) ? $event->small_description : $event->description;
 
+// Get organizers of event, JC custom
+require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
+$profile = DiscussHelper::getTable('Profile');
+
+$categoriesinfo = rseventsproHelper::categories($this->event->id);
+
+$db    = JFactory::getDbo();
+$query = $db->getQuery(true);
+
+$query->clear()
+	->select($db->qn('c.metadata'))
+	->from($db->qn('#__categories', 'c'))
+	->where($db->qn('c.id') . ' = ' . (int) $categoriesinfo[0]->id);
+
+$db->setQuery($query);
+$categorymeta = $db->loadResult();
+$categorymeta = json_decode($categorymeta);
+$organisers = ($categorymeta->author) ? explode(',', $categorymeta->author) : null;
+// End organizers
+
 $links = rseventsproHelper::getConfig('modal', 'int');
 $class = '';
 $rel_s = '';
@@ -56,11 +76,6 @@ $tmpl = $links == 0 ? '' : '&tmpl=component';
     }
   }
 
-
-
-
-
-
 </script>
 <div class="row">
 	<div class="content-8">
@@ -93,76 +108,6 @@ $tmpl = $links == 0 ? '' : '&tmpl=component';
 		</div>
 	</div>
 	<div class="content-4">
-		<!-- Admin options -->
-		<?php if ($this->admin || $event->owner == $this->user || $event->sid == $this->user)
-		{ ?>
-			<div class="btn-group btn-block">
-				<button data-toggle="dropdown" class="btn btn-default dropdown-toggle">
-					<span class="fa fa-pencil fa-fw"></span>
-					<span class="fa fa-users fa-fw"></span>
-					<span class="fa fa-envelope-o fa-fw"></span>
-					<?php if (!$this->eventended)
-					{ ?><span class="fa fa-envelope fa-fw"></span><?php } ?>
-					<?php if ($this->report)
-					{ ?><span class="fa fa-flag fa-fw"></span><?php } ?>
-					<span class="fa fa-barcode fa-fw"></span>
-					<span class="fa fa-trash fa-fw"></span>
-					<span class="caret"></span></button>
-				<ul class="dropdown-menu">
-					<li>
-						<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=edit&id=' . rseventsproHelper::sef($event->id, $event->name)); ?>">
-							<i class="fa fa-pencil fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_EDIT'); ?>
-						</a>
-					</li>
-					<li>
-						<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribers&id=' . rseventsproHelper::sef($event->id, $event->name)); ?>">
-							<i class="fa fa-users fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_SUBSCRIBERS'); ?>
-						</a>
-					</li>
-					<li>
-						<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=message&id=' . rseventsproHelper::sef($event->id, $event->name) . $tmpl); ?>" class="<?php echo $class; ?>"<?php echo $rel_g; ?>>
-							<i class="fa fa-envelope-o fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_MESSAGE_TO_GUESTS'); ?>
-						</a>
-					</li>
-					<?php if (!$this->eventended)
-					{ ?>
-						<li>
-							<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=reminder&id=' . rseventsproHelper::sef($event->id, $event->name)); ?>">
-								<i class="fa fa-envelope fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_SEND_REMINDER'); ?>
-							</a>
-						</li>
-					<?php } ?>
-					<?php if ($this->eventended)
-					{ ?>
-						<li>
-							<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=postreminder&id=' . rseventsproHelper::sef($event->id, $event->name)); ?>">
-								<i class="fa fa-envelope fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_SEND_POST_REMINDER'); ?>
-							</a>
-						</li>
-					<?php } ?>
-					<?php if ($this->report)
-					{ ?>
-						<li>
-							<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=reports&id=' . rseventsproHelper::sef($event->id, $event->name)); ?>">
-								<i class="fa fa-flag fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_REPORTS'); ?>
-							</a>
-						</li>
-					<?php } ?>
-					<li>
-						<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=scan&id=' . rseventsproHelper::sef($event->id, $event->name)); ?>">
-							<i class="fa fa-barcode fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_SCAN_TICKET'); ?>
-						</a>
-					</li>
-					<li>
-						<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.remove&id=' . rseventsproHelper::sef($event->id, $event->name)); ?>" onclick="return confirm('<?php echo JText::_('COM_RSEVENTSPRO_EVENT_DELETE_CONFIRMATION'); ?>');">
-							<i class="fa fa-trash fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_DELETE_EVENT'); ?>
-						</a>
-					</li>
-				</ul>
-			</div>
-		<?php } ?>
-		<!--//end Admin options -->
-
 		<div class="panel panel-bijeenkomsten">
 			<div class="panel-heading">Details</div>
 			<div class="panel-body">
@@ -245,10 +190,10 @@ $tmpl = $links == 0 ? '' : '&tmpl=component';
 					<?php if ($this->issubscribed) : ?>
 						<?php if ($this->canunsubscribe) : ?>
 							<?php if ($this->issubscribed == 1) : ?>
-								<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.unsubscribe&id=' . rseventsproHelper::sef($event->id, $event->name)); ?>" class="btn btn-default btn-block ">
+								<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.unsubscribe&id=' . rseventsproHelper::sef($event->id, $event->name)); ?>" class="btn btn-danger btn-block ">
 									<i class="fa fa-times fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_UNSUBSCRIBE'); ?>
 								</a>
-								<?php else : ?>
+							<?php else : ?>
 								<?php $Uclass = $links == 0 || $links == 2 ? 'rs_modal' : ''; ?>
 								<?php $Urel = $links == 0 || $links == 2 ? 'rel="{handler: \'iframe\'}"' : 'rel="rs_unsubscribe"'; ?>
 								<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=unsubscribe&id=' . rseventsproHelper::sef($event->id, $event->name) . '&tmpl=component'); ?>" class="btn btn-default btn-block <?php echo $Uclass; ?>" <?php echo $Urel; ?>>
@@ -260,6 +205,26 @@ $tmpl = $links == 0 ? '' : '&tmpl=component';
 				<?php endif; ?>
 			</div>
 		</div>
+
+		<!-- Show organizers -->
+		<?php if (!empty($organisers)) : ?>
+			<div class="panel panel-bijeenkomsten">
+				<div class="panel-heading">Organisatoren</div>
+				<ul class="list-group list-group-flush panel-bijeenkomsten">
+					<?php foreach ($organisers as $organiser) : ?>
+						<?php $profile->load($organiser); ?>
+
+						<a class="list-group-item" href="<?php echo $profile->getLink(); ?>">
+							<img class="img-circle" src="<?php echo $profile->getAvatar(); ?>" width="50px" height="50px"/>
+							<?php echo $profile->nickname; ?>
+						</a>
+
+					<?php endforeach; ?>
+				</ul>
+			</div>
+		<?php endif; ?>
+		<!--//end Show organizers -->
+
 
 		<!-- Show subscribers -->
 		<?php if ($event->show_registered) : ?>
