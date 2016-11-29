@@ -6,7 +6,12 @@
  */
 
 defined('_JEXEC') or die('Restricted access');
-JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
+JText::script('COM_RSEVENTSPRO_GLOBAL_FREE');
+
+// Get organizers of event, JC custom
+require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
+$profile = DiscussHelper::getTable('Profile');
+?>
 
 <script type="text/javascript">
 	var rseproMask = '<?php echo $this->escape($this->mask); ?>';
@@ -19,69 +24,93 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 
 <div class="well">
 
-	<div class="page-header">
-		<div class="pull-right">
-			<?php if ($this->params->get('search', 1)) : ?>
-				<form method="post" action="<?php echo $this->escape(JRoute::_(JURI::getInstance(), false)); ?>" name="adminForm" id="adminForm">
+	<div class="row">
+		<?php if ($this->category): ?>
+			<div class="col-md-8">
+				<div class="page-header">
+					<div class="pull-right">
+						<?php if ($this->params->get('search', 1)) : ?>
+							<form method="post" action="<?php echo $this->escape(JRoute::_(JURI::getInstance(), false)); ?>" name="adminForm" id="adminForm">
 
-					<div class="rsepro-filter-container">
+								<div class="rsepro-filter-container">
 
 
-						<?php if (!empty($this->columns))
-						{ ?>
-							<?php for ($i = 0; $i < count($this->columns); $i++)
-						{ ?>
-							<?php $hash = sha1(@$this->columns[$i] . @$this->operators[$i] . @$this->values[$i]); ?>
-							<div id="<?php echo $hash; ?>">
-								<input type="hidden" name="filter_from[]" value="<?php echo $this->escape($this->columns[$i]); ?>">
-								<input type="hidden" name="filter_condition[]" value="<?php echo $this->escape($this->operators[$i]); ?>">
-								<input type="hidden" name="search[]" value="<?php echo $this->escape($this->values[$i]); ?>">
-								<div class="btn-group">
-									<!--<span class="btn btn-default disabled btn-small"><?php echo $this->escape($this->values[$i]); ?></span>-->
+									<?php if (!empty($this->columns))
+									{ ?>
+										<?php for ($i = 0; $i < count($this->columns); $i++)
+									{ ?>
+										<?php $hash = sha1(@$this->columns[$i] . @$this->operators[$i] . @$this->values[$i]); ?>
+										<div id="<?php echo $hash; ?>">
+											<input type="hidden" name="filter_from[]" value="<?php echo $this->escape($this->columns[$i]); ?>">
+											<input type="hidden" name="filter_condition[]" value="<?php echo $this->escape($this->operators[$i]); ?>">
+											<input type="hidden" name="search[]" value="<?php echo $this->escape($this->values[$i]); ?>">
+											<div class="btn-group">
+												<!--<span class="btn btn-default disabled btn-small"><?php echo $this->escape($this->values[$i]); ?></span>-->
 
-									<a href="javascript:void(0)" class="btn btn-sm btn-default rsepro-close">
-										<i class="icon-delete"></i> Toon alles
-									</a>
+												<a href="javascript:void(0)" class="btn btn-sm btn-default rsepro-close">
+													<i class="icon-delete"></i> Toon alles
+												</a>
+											</div>
+										</div>
+
+										<li class="rsepro-filter-conditions" <?php echo $i == (count($this->columns) - 1) ? 'style="display: none;"' : ''; ?>>
+											<a class="btn btn-small"><?php echo ucfirst(JText::_('COM_RSEVENTSPRO_GLOBAL_' . $this->operator)); ?></a>
+										</li>
+
+									<?php } ?>
+									<?php } ?>
+
+
+									<input type="hidden" name="filter_from[]" value="">
+									<input type="hidden" name="filter_condition[]" value="">
+									<input type="hidden" name="search[]" value="">
+									<input type="hidden" name="filter_featured[]" value="">
+									<input type="hidden" name="filter_price[]" value="">
 								</div>
-							</div>
-
-							<li class="rsepro-filter-conditions" <?php echo $i == (count($this->columns) - 1) ? 'style="display: none;"' : ''; ?>>
-								<a class="btn btn-small"><?php echo ucfirst(JText::_('COM_RSEVENTSPRO_GLOBAL_' . $this->operator)); ?></a>
-							</li>
-
-						<?php } ?>
-						<?php } ?>
-
-
-						<input type="hidden" name="filter_from[]" value="">
-						<input type="hidden" name="filter_condition[]" value="">
-						<input type="hidden" name="search[]" value="">
-						<input type="hidden" name="filter_featured[]" value="">
-						<input type="hidden" name="filter_price[]" value="">
+							</form>
+						<?php else: ?>
+							<?php if (!empty($this->columns)) : ?>
+								<!--<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=clear'); ?>" class="rs_filter_clear"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CLEAR_FILTER'); ?></a>-->
+							<?php endif; ?>
+						<?php endif; ?>
 					</div>
-				</form>
-			<?php else: ?>
-				<?php if (!empty($this->columns)) : ?>
-					<!--<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=clear'); ?>" class="rs_filter_clear"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CLEAR_FILTER'); ?></a>-->
+
+					<h1><?php echo $this->category->title; ?></h1>
+
+				</div>
+
+				<div class="lead">
+					<p><?php echo JHtml::_('content.prepare', $this->category->description, '', 'com_content.category'); ?></p>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<!-- Show organizers -->
+				<?php $organisers = ($this->category->metadata->get('author')) ? explode(',', $this->category->metadata->get('author')) : null; ?>
+				<?php if (!empty($organisers)) : ?>
+					<div class="panel panel-bijeenkomsten">
+						<div class="panel-heading">Organisatoren</div>
+						<ul class="list-group list-group-flush panel-bijeenkomsten">
+							<?php foreach ($organisers as $organiser) : ?>
+								<?php $profile->load($organiser); ?>
+								<a class="list-group-item" href="<?php echo $profile->getLink(); ?>">
+									<img class="img-circle" src="<?php echo $profile->getAvatar(); ?>" width="50px" height="50px"/>
+									<?php echo $profile->nickname; ?>
+								</a>
+							<?php endforeach; ?>
+						</ul>
+					</div>
 				<?php endif; ?>
-			<?php endif; ?>
-		</div>
-
-		<h1>
-			<?php if ($this->category->title): ?>
-				<?php echo $this->category->title; ?>
-			<?php else: ?>
-				Joomla bijeenkomsten
-			<?php endif; ?>
-		</h1>
-
-	</div>
-
-	<div class="lead">
-		<?php if ($this->category->description): ?>
-			<p><?php echo JHtml::_('content.prepare', $this->category->description, '', 'com_content.category'); ?></p>
+				<!--//end Show organizers -->
+			</div>
 		<?php else: ?>
-			<p>Nederland en België hebben een actieve Joomlacommunity. Met grote regelmaat worden er door het hele land bijeenkomsten georganiseerd zoals Joomla Gebruikersgroepen, Pizza Bugs & Fun, de Joomla!Dagen en diverse andere activiteiten. In de komende tijd zijn onderstaande bijeenkomsten gepland.</p>
+			<div class="col-md-12">
+				<div class="page-header">
+					<h1>Joomla bijeenkomsten</h1>
+				</div>
+				<div class="lead">
+					<p>Nederland en België hebben een actieve Joomlacommunity. Met grote regelmaat worden er door het hele land bijeenkomsten georganiseerd zoals Joomla Gebruikersgroepen, Pizza Bugs & Fun, de Joomla!Dagen en diverse andere activiteiten. In de komende tijd zijn onderstaande bijeenkomsten gepland.</p>
+				</div>
+			</div>
 		<?php endif; ?>
 	</div>
 </div>

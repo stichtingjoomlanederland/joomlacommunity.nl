@@ -5,7 +5,12 @@
  * @license       GPL, http://www.gnu.org/copyleft/gpl.html
  */
 defined('_JEXEC') or die('Restricted access');
-$count = count($this->categories); ?>
+$count = count($this->categories);
+
+// Get organizers of event, JC custom
+require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
+$profile = DiscussHelper::getTable('Profile');
+?>
 
 <?php if ($this->params->get('show_page_heading', 1))
 { ?>
@@ -19,20 +24,51 @@ $count = count($this->categories); ?>
 			<h1><?php echo $category->title; ?></h1>
 		<?php else: ?>
 			<div class="well">
-				<div class="page-header">
-				<h2>
-					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&category=' . rseventsproHelper::sef($category->id, $category->title)); ?>">
-						<?php echo $category->title; ?>
-					</a>
-				</h2>
+
+
+				<div class="row">
+				<div class="col-md-8">
+					<div class="page-header">
+						<h2>
+							<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&category=' . rseventsproHelper::sef($category->id, $category->title)); ?>">
+								<?php echo $category->title; ?>
+							</a>
+						</h2>
+					</div>
+					<div class="lead">
+						<?php echo rseventsproHelper::shortenjs($category->description, $category->id, 255, $this->params->get('type', 1)); ?>
+
+						<a class="btn btn-bijeenkomsten" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&category=' . rseventsproHelper::sef($category->id, $category->title)); ?>">
+							Bekijk alle bijeenkomsten
+						</a>
+						<!--				@TODO: komende bijeenkomst-->
+					</div>
 				</div>
-
-				<?php echo rseventsproHelper::shortenjs($category->description, $category->id, 255, $this->params->get('type', 1)); ?>
-
-				<a class="btn btn-bijeenkomsten" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&category=' . rseventsproHelper::sef($category->id, $category->title)); ?>">
-					Bekijk alle bijeenkomsten
-				</a>
-<!--				@TODO: komende bijeenkomst-->
+				<div class="col-md-4">
+					<!-- Show organizers -->
+					<?php
+					$categorymeta = null;
+					$organisers = null;
+					$categorymeta = json_decode($category->metadata);
+					$organisers = ($categorymeta->author) ? explode(',', $categorymeta->author) : null;
+					?>
+					<?php if (!empty($organisers)) : ?>
+						<div class="panel panel-bijeenkomsten">
+							<div class="panel-heading">Organisatoren</div>
+							<ul class="list-group list-group-flush panel-bijeenkomsten">
+								<?php foreach ($organisers as $organiser) : ?>
+									<?php $profile->load($organiser); ?>
+									<a class="list-group-item" href="<?php echo $profile->getLink(); ?>">
+										<img class="img-circle" src="<?php echo $profile->getAvatar(); ?>" width="50px" height="50px"/>
+										<?php echo $profile->nickname; ?>
+									</a>
+								<?php endforeach; ?>
+							</ul>
+						</div>
+					<?php endif; ?>
+					<!--//end Show organizers -->
+				</div>
+				</div>
 			</div>
 		<?php endif; ?>
 	<?php endforeach; ?>
