@@ -11,8 +11,7 @@
 
 @media (min-width: @grid-float-breakpoint) {
   .navbar-mobile,
-  .toggle-sub,
-  .dropdown-toggle-text {
+  .toggle-sub {
     display: none !important;
   }
 
@@ -26,10 +25,14 @@
 
     .nav > li > a {
       line-height: @main-menu-height;
-      padding: 0 6px;
+      padding: 0 12px;
     }
 
   }
+
+	.dropdown-toggle-text {
+		float: left;
+	}
 }
 
 // navbar mobile
