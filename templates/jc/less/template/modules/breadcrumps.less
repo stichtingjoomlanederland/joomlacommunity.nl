@@ -1,0 +1,12 @@
+//breadcrumb
+.breadcrumb {
+	> li {
+		+ li:before {
+			display: none;
+		}
+
+		+ li + li:before {
+			display: inline-block;
+		}
+	}
+}
