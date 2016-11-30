@@ -48,6 +48,8 @@ class plgInstallerJce extends JPlugin
             $language->load('plg_installer_jce', JPATH_ADMINISTRATOR);
 
             $app->enqueueMessage(JText::_('PLG_INSTALLER_JCE_KEY_WARNING'), 'notice');
+
+			return true;
 		}
 		
 		// Append the subscription key to the download URL
