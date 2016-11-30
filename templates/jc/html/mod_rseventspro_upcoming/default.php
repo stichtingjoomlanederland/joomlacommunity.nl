@@ -34,7 +34,11 @@ $open = !$links ? '\'target\' => \'_blank\'' : '';
 				<span class="date-day"><?php echo rseventsproHelper::date($event->start, 'd', true); ?></span><?php echo rseventsproHelper::date($event->start, 'M', true); ?>
 			</div>
 			<h4 class="list-group-item-heading">
-				<?php echo JHtml::_('link', rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id=' . rseventsproHelper::sef($event->id, $event->name), true, $itemid), $rsEventHelper->getCategoryName($eventid->id), array('class' => 'list-group-item-anchor', $open)); ?>
+				<?php
+				$category = $rsEventHelper->getCategoryName($eventid->id);
+				$category = str_replace('Joomla Gebruikersgroep', '',$category);
+				?>
+				<?php echo JHtml::_('link', rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id=' . rseventsproHelper::sef($event->id, $event->name), true, $itemid), $category, array('class' => 'list-group-item-anchor', $open)); ?>
 			</h4>
 			<p class="list-group-item-text"><?php echo strip_tags($event->name); ?></p>
 		</div>
