@@ -4134,24 +4134,17 @@ class rseventsproHelper
 
 				// EasyDiscuss
 				case 'easydiscuss':
-					require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
+					$file = JPATH_ADMINISTRATOR  . '/components/com_easydiscuss/includes/easydiscuss.php';
 
-					$profile = DiscussHelper::getTable('Profile');
-					$profile->load($id);
+					if (file_exists($file)) {
+						require_once $file;
 
-					$html .= '<img src="'. $profile->getAvatar() .'" class="img-circle" width="50" height="50" />';
+						$profile = DiscussHelper::getTable('Profile')->load($id);
 
-//					if (file_exists(JPATH_SITE.'/components/com_easydiscuss/helpers/image.php')) {
-//						require_once JPATH_SITE.'/components/com_easydiscuss/helpers/image.php';
-//
-//						$legacy			= ($avatar == 'default.png' || $avatar == 'media/com_easydiscuss/images/default.png' || empty($avatar));
-//						$avatarLink		= $legacy ? '/media/com_easydiscuss/images/default.png' : DiscussImageHelper::getAvatarRelativePath().'/'.$avatar;
-//						$avatarLink		= JURI::root().'/'.$avatarLink;
-//
-//						$html .= '<img src="'.$avatarLink.'" alt="EasyDiscuss Avatar" class="rs_avatar" width="64" height="64" />';
-//					} else {
-//						$html .= '<img src="'.JURI::root().'components/com_rseventspro/assets/images/user.png" alt="EasyDiscuss Avatar" class="rs_avatar" width="64" height="64" />';
-//					}
+						$html .= '<img src="'.$profile->getAvatar().'" alt="EasyDiscuss Avatar" class="rs_avatar" width="64" height="64" />';
+					} else {
+						$html .= '<img src="'.JURI::root().'components/com_rseventspro/assets/images/user.png" alt="EasyDiscuss Avatar" class="rs_avatar" width="64" height="64" />';
+					}
 				break;
 
 				// EasySocial
@@ -4205,10 +4198,17 @@ class rseventsproHelper
 					$url = Foundry::user($id)->getPermalink();
 				}
 			}
+			// EasyDiscuss
+			else if ($profile == 4) {
+				$file = JPATH_ADMINISTRATOR  . '/components/com_easydiscuss/includes/easydiscuss.php';
 
-			$profile = DiscussHelper::getTable('Profile');
-			$profile->load($id);
-			$url = $profile->getLink();
+				if (file_exists($file)) {
+					require_once $file;
+
+					$profile = DiscussHelper::getTable('Profile')->load($id);
+					$url = $profile->getLink();
+				}
+			}
 		}
 
 		return $url;
