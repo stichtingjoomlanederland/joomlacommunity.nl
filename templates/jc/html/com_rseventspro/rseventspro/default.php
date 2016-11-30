@@ -89,7 +89,7 @@ $profile = DiscussHelper::getTable('Profile');
 				<?php if (!empty($organisers)) : ?>
 					<div class="panel panel-bijeenkomsten">
 						<div class="panel-heading">Organisatoren</div>
-						<ul class="list-group list-group-flush panel-bijeenkomsten">
+						<div class="list-group list-group-flush panel-bijeenkomsten">
 							<?php foreach ($organisers as $organiser) : ?>
 								<?php $profile->load($organiser); ?>
 								<a class="list-group-item" href="<?php echo $profile->getLink(); ?>">
@@ -97,7 +97,7 @@ $profile = DiscussHelper::getTable('Profile');
 									<?php echo $profile->nickname; ?>
 								</a>
 							<?php endforeach; ?>
-						</ul>
+						</div>
 					</div>
 				<?php endif; ?>
 				<!--//end Show organizers -->

@@ -35,7 +35,7 @@ $query->clear()
 $db->setQuery($query);
 $categorymeta = $db->loadResult();
 $categorymeta = json_decode($categorymeta);
-$organisers = ($categorymeta->author) ? explode(',', $categorymeta->author) : null;
+$organisers   = ($categorymeta->author) ? explode(',', $categorymeta->author) : null;
 // End organizers
 
 $links = rseventsproHelper::getConfig('modal', 'int');
@@ -210,18 +210,17 @@ $tmpl = $links == 0 ? '' : '&tmpl=component';
 		<?php if (!empty($organisers)) : ?>
 			<div class="panel panel-bijeenkomsten">
 				<div class="panel-heading">Organisatoren</div>
-				<ul class="list-group list-group-flush panel-bijeenkomsten">
+				<div class="list-group list-group-flush panel-bijeenkomsten">
 					<?php foreach ($organisers as $organiser) : ?>
 						<?php $profile->load($organiser); ?>
 
-						<li class="list-group-item">
-							<a href="<?php echo $profile->getLink(); ?>">
-								<img class="img-circle" src="<?php echo $profile->getAvatar(); ?>" width="50px" height="50px"/>
-								<?php echo $profile->nickname; ?>
-							</a>
-						</li>
+						<a class="list-group-item" href="<?php echo $profile->getLink(); ?>">
+							<img class="img-circle" src="<?php echo $profile->getAvatar(); ?>" width="50px" height="50px"/>
+							<?php echo $profile->nickname; ?>
+						</a>
+
 					<?php endforeach; ?>
-				</ul>
+				</div>
 			</div>
 		<?php endif; ?>
 		<!--//end Show organizers -->
@@ -232,21 +231,23 @@ $tmpl = $links == 0 ? '' : '&tmpl=component';
 			<?php if (!empty($this->guests)) : ?>
 				<div class="panel panel-bijeenkomsten">
 					<div class="panel-heading">Wij gaan!</div>
-					<ul class="list-group list-group-flush panel-bijeenkomsten">
+					<div class="list-group list-group-flush panel-bijeenkomsten">
 						<?php foreach ($this->guests as $guest) : ?>
-							<li class="list-group-item">
-								<?php if (!empty($guest->url)) : ?>
-									<a href="<?php echo $guest->url; ?>">
-										<?php echo $guest->avatar; ?>
-										<?php echo $guest->name; ?>
-									</a>
-								<?php else: ?>
+
+							<?php if (!empty($guest->url)) : ?>
+								<a class="list-group-item" href="<?php echo $guest->url; ?>">
 									<?php echo $guest->avatar; ?>
 									<?php echo $guest->name; ?>
-								<?php endif; ?>
-							</li>
+								</a>
+							<?php else: ?>
+								<a class="list-group-item" href="#">
+									<?php echo $guest->avatar; ?>
+									<?php echo $guest->name; ?>
+								</a>
+							<?php endif; ?>
+
 						<?php endforeach; ?>
-					</ul>
+					</div>
 				</div>
 			<?php endif; ?>
 		<?php endif; ?>
