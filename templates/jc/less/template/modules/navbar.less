@@ -4,6 +4,7 @@
 .navbar {
 	min-height: 39px;
 	width: 100%;
+  	top: 0;
 
 	.container {
 		position: relative;
@@ -161,14 +162,16 @@ img.avatar {
 			}
 		}
 	}
-
-	@media (min-width: @screen-md) {
-		.navbar {
-			display: block;
-		}
-	}
 }
 
+@media (min-width: @screen-md) {
+	.navbar {
+		display: block;
+	}
+	.affix {
+		top: auto;
+	}
+}
 
 
 
