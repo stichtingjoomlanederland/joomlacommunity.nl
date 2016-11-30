@@ -760,11 +760,9 @@ class com_rsfirewallInstallerScript
 			<b class="install-not-ok">Error installing!</b>
 			<?php } ?>
 		</p>
-		<h2>Changelog v2.11.4</h2>
+		<h2>Changelog v2.11.5</h2>
 		<ul class="version-history">
-			<li><span class="version-upgraded">Upg</span> Malware database was updated.</li>
-			<li><span class="version-upgraded">Upg</span> More thorough check for Joomla! &lt; 3.6.4 vulnerability.</li>
-			<li><span class="version-fixed">Fix</span> In some cases, GeoIPv6 functions might throw an error.</li>
+			<li><span class="version-fixed">Fix</span> Scanning for malware AJAX response could be scrambled by an incorrect encoding of a malware pattern.</li>
 		</ul>
 		<a class="com-rsfirewall-button" href="index.php?option=com_rsfirewall">Start using RSFirewall!</a>
 		<a class="com-rsfirewall-button" href="https://www.rsjoomla.com/support/documentation/rsfirewall-user-guide.html" target="_blank">Read the RSFirewall! User Guide</a>

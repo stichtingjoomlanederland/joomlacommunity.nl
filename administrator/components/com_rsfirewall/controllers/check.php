@@ -57,6 +57,14 @@ class RSFirewallControllerCheck extends JControllerLegacy
 			$result = $this->jsonEncode($response);
 		}
 
+		// Let's see if the JSON can be decoded to avoid JSON.parse errors
+		$decoded = json_decode($result);
+		if ($decoded === null)
+		{
+			// Remove wrong control chars
+			$result = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x80-\x9F]/', '', $result);
+		}
+
 		return $result;
 	}
 
