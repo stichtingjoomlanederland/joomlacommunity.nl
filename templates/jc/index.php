@@ -33,7 +33,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 	</div>
 </div>
 <div class="header<?php echo $helper->isHome() ? ' homepage' : ''; ?>">
-	<nav class="navbar navbar-default navbar-main" role="navigation" data-spy="affix" data-offset-top="110" >
+	<nav class="navbar navbar-default navbar-main" role="navigation" data-spy="affix" data-offset-top="110">
 		<div class="container">
 
 			<?php //Brand and toggle get grouped for better mobile display ?>
@@ -91,7 +91,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 			<jdoc:include type="modules" name="top-a" style="panel"/>
 		</div>
 		<div class="row">
-			<jdoc:include type="modules" name="breadcrumbs" />
+			<jdoc:include type="modules" name="breadcrumbs"/>
 
 			<?php if ($helper->isHome() == true) : ?>
 				<div class="content-6 col-sm-12">
@@ -147,14 +147,23 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 		<div class="container">
 			<div class="row">
 				<div class="col-12">
-					<p class="copyright">Copyright &copy; 2008-<?php echo date('Y'); ?> Joomla!Community - Alle rechten
-						voorbehouden</p>
-					<p class="followus">Volg ons op:
-						<a href="https://www.facebook.com/joomlacommunity/" target="_blank">Facebook</a> -
-						<a href="https://www.linkedin.com/groups/1857791" target="_blank">LinkedIn</a> -
-						<a href="https://twitter.com/joomlacommunity" target="_blank">Twitter</a> -
-						<a href="https://www.flickr.com/groups/joomlacommunity/pool/" target="_blank">Flickr</a></p>
-					<jdoc:include type="modules" name="copyright"/>
+					<p class="copyright">Copyright &copy; 2008-<?php echo date('Y'); ?>
+						<a href="http://www.stichtingsympathy.nl">Stichting Sympathy</a> - Alle rechten voorbehouden
+					</p>
+					<p class="followus">
+						Volg ons op:
+						<a href="https://www.facebook.com/joomlacommunity/" target="_blank"><i class="fa fa-facebook-square fa-2x" aria-hidden="true"></i></a>
+						<a href="https://www.linkedin.com/groups/1857791" target="_blank"><i class="fa fa-linkedin-square fa-2x" aria-hidden="true"></i></a>
+						<a href="https://twitter.com/joomlacommunity" target="_blank"><i class="fa fa-twitter-square fa-2x" aria-hidden="true"></i></a>
+						<a href="https://www.flickr.com/groups/joomlacommunity/pool/" target="_blank"><i class="fa fa-flickr fa-2x" aria-hidden="true"></i></a>
+					</p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-12">
+					<div class="joomla-disclaimer">
+						<jdoc:include type="modules" name="copyright"/>
+					</div>
 				</div>
 			</div>
 		</div>
