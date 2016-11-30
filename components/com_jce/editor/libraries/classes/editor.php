@@ -22,10 +22,6 @@ require_once(JPATH_ADMINISTRATOR . '/components/com_jce/includes/base.php');
 */
 class WFEditor extends JObject
 {
-    
-    // Editor version
-    protected $_version = '2.5.31';
-    
     // Editor instance
     protected static $instance;
     
@@ -69,7 +65,11 @@ class WFEditor extends JObject
     */
     public function getVersion()
     {
-        return preg_replace('#[^a-z0-9]+#i', '', $this->get('_version'));
+        $manifest = WF_ADMINISTRATOR . '/jce.xml';
+        
+        $version = md5_file($manifest);
+        
+        return $version;
     }
     
     private function getProfileVars($plugin = "")
@@ -105,7 +105,6 @@ class WFEditor extends JObject
             $device = 'phone';
         }
         
-        // tablet
         if ($mobile->isTablet()) {
             $device = 'tablet';
         }
@@ -118,18 +117,16 @@ class WFEditor extends JObject
         }
         
         return array(
-            "option"  => $option,
-            "area"    => $area,
-            "device"  => $device,
-            "groups"  => $groups,
-            "plugin"  => $plugin
+        "option"  => $option,
+        "area"    => $area,
+        "device"  => $device,
+        "groups"  => $groups,
+        "plugin"  => $plugin
         );
     }
     
     /**
     * Get an appropriate editor profile
-    * @access public
-    * @return $profile Object
     */
     public function getProfile($plugin = "")
     {
@@ -140,14 +137,28 @@ class WFEditor extends JObject
             $db = JFactory::getDBO();
             $user = JFactory::getUser();
             
+            $profile_id = 0;
+            
+            if ($options["option"] == 'com_jce') {
+                $profile_id = JRequest::getInt('profile_id');
+            }
+            
             $query = $db->getQuery(true);
             
             if (is_object($query)) {
                 $query->select('*')->from('#__wf_profiles')->where('published = 1')->order('ordering ASC');
+                
+                if ($profile_id) {
+                    $query->where('id = ' . (int) $profile_id);
+                }
             } else {
-                $query = 'SELECT * FROM #__wf_profiles'
-                . ' WHERE published = 1'
-                . ' ORDER BY ordering ASC';
+                $query = 'SELECT * FROM #__wf_profiles WHERE published = 1';
+                
+                if ($profile_id) {
+                    $query .= ' AND id = ' . (int) $profile_id;
+                }
+                
+                $query .= ' ORDER BY ordering ASC';
             }
             
             $db->setQuery($query);
@@ -163,7 +174,7 @@ class WFEditor extends JObject
                 $groups = array_intersect($options["groups"], explode(',', $item->types));
                 
                 // user not in the current group...
-                if (empty($groups)) {                    
+                if (empty($groups)) {
                     // no additional users set or no user match
                     if (empty($item->users) || in_array($user->id, explode(',', $item->users)) === false) {
                         continue;
@@ -176,7 +187,7 @@ class WFEditor extends JObject
                 }
                 
                 // set device default as 'desktop,tablet,mobile'
-                if (!isset($item->device) || empty($item->device)) {
+                if (empty($item->device)) {
                     $item->device = 'desktop,tablet,phone';
                 }
                 
@@ -193,6 +204,19 @@ class WFEditor extends JObject
                 if ($options["plugin"] && in_array($options["plugin"], explode(",", $item->plugins)) === false) {
                     continue;
                 }
+                
+                // check custom fields
+                /*if (!empty($item->custom)) {
+                list($key, $value) = $item->custom;
+                
+                // get from request, default to 'wf_editor_profile_custom' xml field
+                $input = JRequest::getVar($key, $app->get('wf_editor_profile_custom'));
+                
+                // no match
+                if (empty($input) || $input !== $value) {
+                continue;
+                }
+                }*/
                 
                 // decrypt params
                 if (!empty($item->params)) {
@@ -231,7 +255,7 @@ class WFEditor extends JObject
                 
                 if ($section) {
                     $option = $section;
-                }
+            }
             
             break;
         }
@@ -337,7 +361,7 @@ class WFEditor extends JObject
         // get params for base key
         $params = self::getParams(array('key' => $base));
         // get a parameter
-
+        
         $param = $params->get($keys, $fallback, $allowempty);
         
         if (is_string($param) && $type == 'string') {
