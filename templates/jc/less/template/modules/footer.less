@@ -1,54 +1,79 @@
 //Footer
 .footer {
-  position: relative;
-  width: 100%;
-  bottom: 0;
-  font-size: @font-size-small;
-  color: @gray;
-  border-top-style: solid;
-  border-top-width: 6px;
-  margin-top: 20px;
-  padding-top: 15px;
-  background: darken(@body, 8%);
+	position: relative;
+	width: 100%;
+	bottom: 0;
+	font-size: @font-size-small;
+	color: @gray;
+	border-top-style: solid;
+	border-top-width: 6px;
+	margin-top: 20px;
+	padding-top: 15px;
+	background: darken(@body, 8%);
 
-  a {
-    color: @gray-darker;
-    &:hover {
-      color: @gray;
-    }
-  }
+	a {
+		color: @gray-darker;
+		&:hover {
+			color: @gray;
+		}
+	}
 
-  .footer-navs {
-    display: none;
-    padding-top: 20px;
+	.footer-navs {
+		display: none;
 
-    @media (min-width: @screen-sm) {
-      display: block;
-    }
-  }
+		@media (min-width: @screen-sm) {
+			display: block;
+		}
+	}
+
+	h4 {
+		margin-top: 0;
+	}
 }
 
 .footerline {
-  border-top: 1px solid @gray-lighter;
-  margin-bottom: 10px;
+	border-top: 1px solid @gray-lighter;
+	margin-bottom: 10px;
 }
 
 .footer-navs {
-  padding:40px;
+	padding: 20px;
 }
 
 .footer-copyright {
-  background-color:#eee;
-  padding:40px;
-  
-  .copyright {
-    float: left;
-  }
-  
-  .followus {
-    float: right;
-  }
-} 
+	background-color: @home;
+	color: #333;
+	padding: 20px 0;
+
+	p {
+		margin: 0;
+	}
+
+	@media (min-width: @screen-sm) {
+		padding: 20px;
+	}
+
+	.copyright {
+		float: left;
+		line-height: 40px;
+	}
+
+	.followus {
+		float: right;
+		line-height: 40px;
+
+		i {
+			position: relative;
+			top: 5px;
+			padding-left: 4px;
+		}
+	}
+
+	.joomla-disclaimer {
+		padding-top: 5px;
+		font-size: 11px;
+	}
+}
 
 
 
