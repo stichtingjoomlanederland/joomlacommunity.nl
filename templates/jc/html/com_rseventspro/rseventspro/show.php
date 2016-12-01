@@ -106,6 +106,11 @@ $tmpl = $links == 0 ? '' : '&tmpl=component';
 				</div>
 			</div>
 		</div>
+		<!-- Comments -->
+		<h3>Reacties</h3>
+		<?php echo rseventsproHelper::comments($event->id,$event->name); ?>
+		<!--//end Comments -->
+
 	</div>
 	<div class="content-4">
 		<div class="panel panel-bijeenkomsten">
@@ -224,7 +229,6 @@ $tmpl = $links == 0 ? '' : '&tmpl=component';
 			</div>
 		<?php endif; ?>
 		<!--//end Show organizers -->
-
 
 		<!-- Show subscribers -->
 		<?php if ($event->show_registered) : ?>
