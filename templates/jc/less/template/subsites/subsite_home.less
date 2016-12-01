@@ -5,21 +5,171 @@
 	}
 }
 
-// Home nav
-.homepage .subnav {
-	margin-top: -59px;
-	&.affix {
-		margin-top: 0;
+.jc-welcome {
+	background-color: @home;
+	margin-bottom: 30px;
+	background-image: url(../images/joomlacommunity-welkom.jpg);
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+
+	.overlay {
+		padding: 30px 0 15px 0;
+		#gradient > .vertical(@start-color: fade(@home, 50%); @end-color: fade(@home, 95%));
+
+		@media (min-width: @screen-sm) {
+			padding: 60px 0 20px 0;
+		}
 	}
 
-	.navbar {
-		position: relative;
-		z-index: 99;
+	.joomla-intro {
+		text-align: center;
+		font-weight: 300;
+		color: @white;
+		margin-bottom: 20px;
+
+		@media (min-width: @screen-sm) {
+			padding: 0 60px;
+			margin-bottom: 50px;
+		}
+
+		h1 {
+			font-size: 26px;
+			text-shadow: 0 1px 5px rgba(0, 0, 0, .9);
+			line-height: 40px;
+			margin: 0 0 10px 0;
+
+			@media (min-width: @screen-sm) {
+				font-size: 34px;
+			}
+
+			sup {
+				font-size: 14px;
+				top: -20px;
+			}
+		}
+
+		p {
+			font-size: 16px;
+			text-shadow: 0 1px 5px rgba(0, 0, 0, .9);
+
+			@media (min-width: @screen-sm) {
+				font-size: 22px;
+			}
+		}
+
+		.btn {
+			border-color: @white;
+			color: @white;
+			background: fade(@home, 70%);
+			font-weight: 300;
+
+			&:hover {
+				background: @home;
+			}
+		}
+	}
+
+	h3 {
+		margin-top: 5px;
+		margin-bottom: 10px;
+	}
+
+	.block {
+		padding: 10px;
+		border-radius: @border-radius-base;
+		background: fade(@body, 80%);
+		margin: 10px 0;
+		&:hover {
+			background: @body;
+		}
+
+		p:last-of-type {
+			margin-bottom: 0;
+		}
+	}
+
+	.btn {
+		margin-top: 15px;
+	}
+
+	.block-downloads h3 {
+		color: @downloads;
+	}
+
+	.block-aan-de-slag h3 {
+		color: @aan-de-slag;
+	}
+
+	.block-bijeenkomsten h3 {
+		color: @bijeenkomsten;
+	}
+
+	.block-forum h3 {
+		color: @forum;
 	}
 }
 
-.news-image {
-	float: left;
-	width: 150px;
-	margin-right: 15px;
+.panel-nieuws {
+	.list-group-item {
+		padding-top: 10px;
+
+		small {
+			display: none;
+		}
+
+		@media (min-width: @screen-sm) {
+			padding-top: 15px;
+
+			small {
+				display: block;
+			}
+		}
+	}
+
+	.list-group-item-heading {
+		min-height: 66px;
+
+		@media (min-width: @screen-sm) {
+			min-height: 44px;
+		}
+	}
+
+	.news-image {
+		float: right;
+		width: 66px;
+		margin-left: 10px;
+
+		img {
+			width: 100%;
+		}
+
+		@media (min-width: @screen-sm) {
+			width: 150px;
+			margin-left: 15px;
+		}
+	}
+
+	.list-group-item-text {
+		margin-top: 5px;
+		display: none;
+
+		@media (min-width: @screen-sm) {
+			display: block;
+		}
+	}
+}
+
+.promo {
+	margin-bottom: 20px;
+}
+
+.laatste-nieuws {
+	h3 {
+		margin-top: 0;
+	}
+
+	.btn-nieuws {
+		margin-bottom: 20px;
+	}
 }
