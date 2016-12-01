@@ -10,8 +10,8 @@ defined('_JEXEC') or die;
 
 // Load Perfect Template Helper
 include_once JPATH_THEMES . '/' . $this->template . '/helpers/helper.php';
-
 ?>
+
 <!DOCTYPE html>
 <html class="html no-js" lang="<?php echo $this->language; ?>" dir="<?php echo $this->direction; ?>">
 <head>
@@ -24,8 +24,6 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 {
 	echo $analyticsData['script'];
 }
-
-//require_once JPATH_THEMES . "/" . $this->template . "/dummy/downloads_core.php";
 ?>
 <div class="leaderboard-container">
 	<div class="banner">
@@ -76,13 +74,37 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 			</nav>
 		</div>
 	</div>
-
-	<div class="pagetitle">
-		<?php if ($this->countModules('slider')) : ?>
-			<jdoc:include type="modules" name="slider"/>
-		<?php endif; ?>
-	</div>
 </div>
+
+<?php if ($helper->isHome() == true) : ?>
+	<div class="jc-welcome">
+		<div class="overlay">
+			<div class="container">
+				<div class="row">
+					<div class="col-md-12">
+						<div class="joomla-intro">
+							<jdoc:include type="modules" name="welcome-intro"/>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-6 col-lg-3">
+						<jdoc:include type="modules" name="welcome-a"/>
+					</div>
+					<div class="col-md-6 col-lg-3">
+						<jdoc:include type="modules" name="welcome-b"/>
+					</div>
+					<div class="col-md-6 col-lg-3">
+						<jdoc:include type="modules" name="welcome-c"/>
+					</div>
+					<div class="col-md-6 col-lg-3">
+						<jdoc:include type="modules" name="welcome-d"/>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+<?php endif; ?>
 
 <!-- Body -->
 <div class="content">
@@ -94,15 +116,14 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 			<jdoc:include type="modules" name="breadcrumbs"/>
 
 			<?php if ($helper->isHome() == true) : ?>
-				<div class="content-6 col-sm-12">
-					<jdoc:include type="modules" name="home-sidebar-a__top" style="well"/>
-					<jdoc:include type="modules" name="home-sidebar-a__bottom" style="panel"/>
+				<div class="col-md-7 laatste-nieuws">
+					<jdoc:include type="modules" name="home-left" style=""/>
 				</div>
-				<div class="content-3 col-sm-6">
-					<jdoc:include type="modules" name="home-sidebar-b" style="panel"/>
-				</div>
-				<div class="content-3 col-sm-6">
-					<jdoc:include type="modules" name="home-sidebar-c" style="panel"/>
+				<div class="col-md-5">
+					<div class="promo">
+						<jdoc:include type="modules" name="home-promo"/>
+					</div>
+					<jdoc:include type="modules" name="home-right" style="panel"/>
 				</div>
 			<?php else: ?>
 				<div class="content-<?php echo($this->countModules('rechts') ? 8 : 12); ?>">
@@ -120,6 +141,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 		</div>
 	</div>
 </div>
+
 <!-- Footer -->
 <div class="footer">
 	<div class="footer-navs">
@@ -152,9 +174,9 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 					</p>
 					<p class="followus">
 						Volg ons op:
-						<a href="https://www.facebook.com/joomlacommunity/" target="_blank"><i class="fa fa-facebook-square fa-2x" aria-hidden="true"></i></a>
-						<a href="https://www.linkedin.com/groups/1857791" target="_blank"><i class="fa fa-linkedin-square fa-2x" aria-hidden="true"></i></a>
-						<a href="https://twitter.com/joomlacommunity" target="_blank"><i class="fa fa-twitter-square fa-2x" aria-hidden="true"></i></a>
+						<a href="https://www.facebook.com/joomlacommunity/" target="_blank" class="facebook"><i class="fa fa-facebook-square fa-2x" aria-hidden="true"></i></a>
+						<a href="https://www.linkedin.com/groups/1857791" target="_blank" class="linkedin"><i class="fa fa-linkedin-square fa-2x" aria-hidden="true"></i></a>
+						<a href="https://twitter.com/joomlacommunity" target="_blank" class="twitter"><i class="fa fa-twitter-square fa-2x" aria-hidden="true"></i></a>
 						<a href="https://www.flickr.com/groups/joomlacommunity/pool/" target="_blank"><i class="fa fa-flickr fa-2x" aria-hidden="true"></i></a>
 					</p>
 				</div>

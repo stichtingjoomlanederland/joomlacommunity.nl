@@ -8,11 +8,11 @@
 	border-top-style: solid;
 	border-top-width: 6px;
 	margin-top: 20px;
-	padding-top: 15px;
-	background: darken(@body, 8%);
+	background: lighten(@home, 20%);
 
 	a {
 		color: @gray-darker;
+
 		&:hover {
 			color: @gray;
 		}
@@ -20,19 +20,33 @@
 
 	.footer-navs {
 		display: none;
+		position: relative;
 
 		@media (min-width: @screen-sm) {
 			display: block;
+		}
+
+		&::before {
+			content: "";
+			background-image: url(../images/jc-pattern.png);
+			background-position: center top;
+			background-repeat: no-repeat;
+			opacity: 0.5;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+			position: absolute;
 		}
 	}
 
 	h4 {
 		margin-top: 0;
 	}
+
 }
 
 .footerline {
-	border-top: 1px solid @gray-lighter;
 	margin-bottom: 10px;
 }
 
@@ -42,11 +56,24 @@
 
 .footer-copyright {
 	background-color: @home;
-	color: #333;
+	color: darken(@home, 40%);
 	padding: 20px 0;
 
 	p {
 		margin: 0;
+	}
+
+	.copyright {
+		a {
+			color: darken(@home, 40%);
+			border-bottom: 1px solid darken(@home, 40%);
+
+			&:hover {
+				color: darken(@home, 60%);
+				text-decoration: none;
+				border-bottom: none;
+			}
+		}
 	}
 
 	@media (min-width: @screen-sm) {
@@ -61,6 +88,14 @@
 	.followus {
 		float: right;
 		line-height: 40px;
+
+		a {
+			color: darken(@home, 40%);
+
+			&:hover {
+				color: darken(@home, 60%);
+			}
+		}
 
 		i {
 			position: relative;
