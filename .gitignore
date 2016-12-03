@@ -1,8 +1,7 @@
 # Joomla System Files (i.e. cache, etc.) #
 /administrator/cache
+/administrator/logs
 /cache
-/components/com_rsform/uploads/
-!/components/com_rsform/uploads/index.html
 /images
 /logs
 /tmp
@@ -37,8 +36,8 @@ Thumbs.db
 Desktop.ini
 
 # Tools #
-bower_components
-node_modules
+/bower_components
+/node_modules
 
 # Config files
 media/com_easydiscuss/config/
@@ -47,11 +46,23 @@ media/com_komento/resources/*.js*
 media/foundry/3.1/config/
 
 # Backup files
-administrator/components/com_akeeba/backup/
+/administrator/components/com_akeeba/backup/
+
+# RSEventsPro
+/components/com_rseventspro/assets/images/events/*
+!/components/com_rseventspro/assets/images/events/index.html
+
+# RSFormsPro
+/components/com_rsform/uploads/*
+!/components/com_rsform/uploads/index.html
 
 # RSDownloads
-rsdownloads/*
-!rsdownloads/.htaccess
+/rsdownloads/*
+!/rsdownloads/.htaccess
+
+#  EasyDiscuss
+/media/com_easydiscuss/attachments/*
+/media/com_easydiscuss/attachments/index.html
 
 # CSS files which are compiled
 /templates/jc/css/template.css
