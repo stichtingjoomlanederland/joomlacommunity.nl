@@ -1,22 +1,22 @@
 # Joomla System Files (i.e. cache, etc.) #
-/administrator/cache
-/administrator/logs
-/cache
-/images
-/logs
-/tmp
-/configuration.php
-/.htaccess
-/LICENSE.txt
-/README.txt
-/htaccess.txt
-/robots.txt.dist
-/web.config.txt
-/templates/beez3
-/templates/protostar
+public_html/administrator/cache/
+public_html/administrator/logs/
+public_html/cache/
+public_html/images/
+public_html/logs/
+public_html/tmp/
+public_html/configuration.php
+public_html/.htaccess
+public_html/LICENSE.txt
+public_html/README.txt
+public_html/htaccess.txt
+public_html/robots.txt.dist
+public_html/web.config.txt
+public_html/templates/beez3
+public_html/templates/protostar
 
 # JC specific
-/files
+public_html/files/
 
 # IDE & System Related Files #
 .buildpath
@@ -40,29 +40,26 @@ Desktop.ini
 /node_modules
 
 # Config files
-media/com_easydiscuss/config/
-media/com_komento/config/
-media/com_komento/resources/*.js*
-media/foundry/3.1/config/
+public_html/media/com_easydiscuss/config/
 
 # Backup files
-/administrator/components/com_akeeba/backup/
+public_html/administrator/components/com_akeeba/backup/
 
 # RSEventsPro
-/components/com_rseventspro/assets/images/events/*
-!/components/com_rseventspro/assets/images/events/index.html
+public_html/components/com_rseventspro/assets/images/events/*
+!public_html/components/com_rseventspro/assets/images/events/index.html
 
 # RSFormsPro
-/components/com_rsform/uploads/*
-!/components/com_rsform/uploads/index.html
+public_html/components/com_rsform/uploads/*
+!public_html/components/com_rsform/uploads/index.html
 
 # RSDownloads
-/rsdownloads/*
-!/rsdownloads/.htaccess
+public_html/rsdownloads/*
+!public_html/rsdownloads/.htaccess
 
 #  EasyDiscuss
-/media/com_easydiscuss/attachments/*
-/media/com_easydiscuss/attachments/index.html
+public_html/media/com_easydiscuss/attachments/*
+public_html/media/com_easydiscuss/attachments/index.html
 
 # CSS files which are compiled
-/templates/jc/css/template.css
+public_html/templates/jc/css/template.css
