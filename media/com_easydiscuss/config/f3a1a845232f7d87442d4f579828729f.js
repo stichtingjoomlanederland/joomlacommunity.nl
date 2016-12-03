@@ -1,1 +1,0 @@
-FD31.component("EasyDiscuss", {"environment":"development","source":"local","mode":"uncompressed","baseUrl":"http:\/\/joomlacommunity\/administrator\/index.php?option=com_easydiscuss&lang=none","version":"3.2.9304","scriptVersioning":false,"responsive":false});
