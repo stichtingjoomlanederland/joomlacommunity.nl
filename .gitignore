@@ -60,6 +60,3 @@ public_html/rsdownloads/*
 #  EasyDiscuss
 public_html/media/com_easydiscuss/attachments/*
 public_html/media/com_easydiscuss/attachments/index.html
-
-# CSS files which are compiled
-public_html/templates/jc/css/template.css
