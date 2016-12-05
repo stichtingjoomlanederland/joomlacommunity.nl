@@ -7,7 +7,7 @@
 	<license>GNU General Public License</license>
 	<authorEmail>support@rsjoomla.com</authorEmail>
 	<authorUrl>www.rsjoomla.com</authorUrl>
-	<version>1.51.1</version>
+	<version>1.52.0</version>
 	<description><![CDATA[PLG_SYSTEM_RSFORM_DESC]]></description>
 	<scriptfile>script.php</scriptfile>
 	

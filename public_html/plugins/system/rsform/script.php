@@ -17,13 +17,23 @@ class plgSystemRSFormInstallerScript
 		
 		$app = JFactory::getApplication();
 		
-		if (!file_exists(JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/rsform.php')) {
-			$app->enqueueMessage('Please install the RSForm! Pro component before continuing.', 'error');
-			return false;
-		}
-		
-		if (!file_exists(JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/assets.php')) {
-			$app->enqueueMessage('Please upgrade RSForm! Pro to at least version 1.51.0 before continuing!', 'error');
+		try {
+			if (!file_exists(JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/rsform.php')) {
+				throw new Exception('Please install the RSForm! Pro component before continuing.');
+			}
+			
+			if (!file_exists(JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/assets.php')) {
+				throw new Exception('Please update RSForm! Pro to at least version 1.51.0 before continuing!');
+			}
+			
+			require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/version.php';
+			$version = new RSFormProVersion;
+			
+			if (version_compare((string) $version, '1.52.5', '<')) {
+				throw new Exception('Please update RSForm! Pro to at least version 1.52.5 before continuing!');
+			}
+		} catch (Exception $e) {
+			$app->enqueueMessage($e->getMessage(), 'error');
 			return false;
 		}
 		

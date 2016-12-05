@@ -1,8 +1,7 @@
 <?php
 /**
-* @version 1.4.0
-* @package RSform!Pro 1.4.0
-* @copyright (C) 2007-2013 www.rsjoomla.com
+* @package RSForm!Pro
+* @copyright (C) 2007-2016 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -16,19 +15,6 @@ jimport( 'joomla.plugin.plugin' );
  */
 class plgSystemRSForm extends JPlugin
 {
-	public function __construct( &$subject, $config ) {
-		parent::__construct( $subject, $config );
-	}
-
-	public function onBeforeRender() {
-		if (JFactory::getApplication()->isSite() && !class_exists('RSFormProHelper')) {
-			if (file_exists(JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/rsform.php')) {
-				require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/rsform.php';
-				RSFormProAssets::$replace = true;
-			}
-		}
-	}
-
 	public function onAfterRender() {
 		$mainframe 	= JFactory::getApplication();
 		$doc 		= JFactory::getDocument();
@@ -49,6 +35,18 @@ class plgSystemRSForm extends JPlugin
 		$pattern = '#\{rsform ([0-9]+)\}#i';
 		if (preg_match_all($pattern, $content, $matches))
 		{
+			if (file_exists(JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/rsform.php'))
+			{
+				require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/rsform.php';
+			}
+			
+			if (!class_exists('RSFormProAssets') || !class_exists('RSFormProHelper'))
+			{
+				return true;
+			}
+			
+			RSFormProAssets::$replace = true;
+
 			static $found_textarea;
 			
 			$lang = JFactory::getLanguage();
@@ -76,8 +74,10 @@ class plgSystemRSForm extends JPlugin
 				$formId = $matches[1][$j];
 				$content = str_replace($matches[0][$j], RSFormProHelper::displayForm($formId,true), $content);
 			}
+
+			JResponse::setBody($content);
+
+			RSFormProAssets::render();
 		}
-		
-		JResponse::setBody($content);
 	}
 }
