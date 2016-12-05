@@ -194,7 +194,7 @@ class WFModelEditor extends WFModelBase {
         } else {
             $debug = $config->getValue('config.debug');
         }
-        
+
         $compress = array('javascript' => false, 'css' => false);
 
         // set compression states
@@ -266,7 +266,7 @@ class WFModelEditor extends WFModelBase {
         // Remove empty values
         $settings = array_filter($settings, function ($value) {return $value !== "";});
         // encode as json string
-        $tinymce = json_encode($settings, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+        $tinymce = json_encode($settings, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES);
 
         $this->addScriptDeclaration("try{WFEditor.init(" . $tinymce . ");}catch(e){console.debug(e);}");
 
@@ -587,7 +587,7 @@ class WFModelEditor extends WFModelBase {
                   $items = explode(',', $this->profile->plugins);
 
                   // core plugins
-                  $core = array('core', 'autolink', 'cleanup', 'code', 'format', 'importcss', 'colorpicker');
+                  $core = array('core', 'autolink', 'cleanup', 'code', 'format', 'importcss', 'colorpicker', 'upload');
 
                   // add advlists plugin if lists are loaded
                   if (in_array('lists', $items)) {
@@ -908,7 +908,7 @@ class WFModelEditor extends WFModelBase {
 
                 // check for editor.css file
                 if (JFile::exists($path . '/css/editor.css')) {
-                    $file = 'editor.css';    
+                    $file = 'editor.css';
                 }
 
                 // check for php version
