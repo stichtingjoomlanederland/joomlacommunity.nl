@@ -27,7 +27,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 ?>
 <div class="leaderboard-container">
 	<div class="banner">
-		<img src="http://placehold.it/728x90"/>
+		<img src="https://placehold.it/728x90"/>
 	</div>
 </div>
 <div class="header<?php echo $helper->isHome() ? ' homepage' : ''; ?>">
