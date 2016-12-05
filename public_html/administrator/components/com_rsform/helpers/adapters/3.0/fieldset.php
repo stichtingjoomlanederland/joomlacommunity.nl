@@ -12,7 +12,7 @@ class RSFieldset {
 		?>
 		<fieldset class="<?php echo $class; ?>">
 		<?php if ($legend) { ?>
-		<legend><?php echo $legend; ?></legend>
+		<h3 class="rsfp-legend"><?php echo $legend; ?></h3>
 		<?php }
 	}
 	

@@ -11,18 +11,18 @@ jimport('joomla.application.component.model');
 
 class RSFormModelForms extends JModelLegacy
 {
-	var $_data = null;
-	var $_mdata = null;
-	var $_conditionsdata = null;
-	var $_total = 0;
-	var $_mtotal = 0;
-	var $_query = '';
-	var $_mquery = '';
-	var $_pagination = null;
-	var $_db = null;
-	var $_form = null;
+	public $_data = null;
+	public $_mdata = null;
+	public $_conditionsdata = null;
+	public $_total = 0;
+	public $_mtotal = 0;
+	public $_query = '';
+	public $_mquery = '';
+	public $_pagination = null;
+	public $_db = null;
+	public $_form = null;
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		$this->_db = JFactory::getDBO();
@@ -52,7 +52,7 @@ class RSFormModelForms extends JModelLegacy
 		$this->setState('com_rsform.forms.limitstart', 	$limitstart);
 	}
 
-	function _buildQuery()
+	public function _buildQuery()
 	{
 		$filter_search = $this->getState('com_rsform.forms.filter_search');
 		$query  = "SELECT * FROM #__rsform_forms WHERE 1";
@@ -64,7 +64,7 @@ class RSFormModelForms extends JModelLegacy
 		return $query;
 	}
 
-	function _buildMQuery()
+	public function _buildMQuery()
 	{
 		$formId	= JFactory::getApplication()->input->getInt('formId');
 		$query  = "SELECT * FROM `#__rsform_mappings` WHERE `formId` = ".$formId." ORDER BY `ordering` ASC";
@@ -72,7 +72,7 @@ class RSFormModelForms extends JModelLegacy
 		return $query;
 	}
 
-	function _buildConditionsQuery()
+	public function _buildConditionsQuery()
 	{
 		$formId	= JFactory::getApplication()->input->getInt('formId');
 		$lang	= $this->getLang();
@@ -81,7 +81,7 @@ class RSFormModelForms extends JModelLegacy
 		return $query;
 	}
 
-	function getForms()
+	public function getForms()
 	{
 		if (empty($this->_data))
 			$this->_data = $this->_getList($this->_query, $this->getState('com_rsform.forms.limitstart'), $this->getState('com_rsform.forms.limit'));
@@ -101,7 +101,7 @@ class RSFormModelForms extends JModelLegacy
 		return $this->_data;
 	}
 
-	function getTotal()
+	public function getTotal()
 	{
 		if (empty($this->_total))
 			$this->_total = $this->_getListCount($this->_query);
@@ -109,7 +109,7 @@ class RSFormModelForms extends JModelLegacy
 		return $this->_total;
 	}
 
-	function getPagination()
+	public function getPagination()
 	{
 		if (empty($this->_pagination))
 		{
@@ -120,7 +120,7 @@ class RSFormModelForms extends JModelLegacy
 		return $this->_pagination;
 	}
 
-	function getFilterBar()
+	public function getFilterBar()
 	{
 		require_once JPATH_COMPONENT.'/helpers/adapters/filterbar.php';
 		// Search filter
@@ -139,19 +139,19 @@ class RSFormModelForms extends JModelLegacy
 		return $bar;
 	}
 
-	function getSortColumn()
+	public function getSortColumn()
 	{
 		$mainframe = JFactory::getApplication();
 		return $mainframe->getUserStateFromRequest('com_rsform.forms.filter_order', 'filter_order', 'FormId', 'word');
 	}
 
-	function getSortOrder()
+	public function getSortOrder()
 	{
 		$mainframe = JFactory::getApplication();
 		return $mainframe->getUserStateFromRequest('com_rsform.forms.filter_order_Dir', 'filter_order_Dir', 'ASC', 'word');
 	}
 
-	function getHasSubmitButton()
+	public function getHasSubmitButton()
 	{
 		$formId = JFactory::getApplication()->input->getInt('formId');
 
@@ -159,7 +159,7 @@ class RSFormModelForms extends JModelLegacy
 		return $this->_db->loadResult();
 	}
 
-	function getFields()
+	public function getFields()
 	{
 		$formId = JFactory::getApplication()->input->getInt('formId');
 
@@ -268,7 +268,7 @@ class RSFormModelForms extends JModelLegacy
 		return $out;
 	}
 
-	function getFieldsTotal()
+	public function getFieldsTotal()
 	{
 		$formId = JFactory::getApplication()->input->getInt('formId');
 
@@ -276,7 +276,7 @@ class RSFormModelForms extends JModelLegacy
 		return $this->_db->loadResult();
 	}
 
-	function getFieldsPagination()
+	public function getFieldsPagination()
 	{
 		jimport('joomla.html.pagination');
 
@@ -286,7 +286,7 @@ class RSFormModelForms extends JModelLegacy
 		return $pagination;
 	}
 
-	function getForm()
+	public function getForm()
 	{
 		$formId = JFactory::getApplication()->input->getInt('formId');
 
@@ -323,7 +323,7 @@ class RSFormModelForms extends JModelLegacy
 		return $this->_form;
 	}
 
-	function getFormPost()
+	public function getFormPost()
 	{
 		$formId = JFactory::getApplication()->input->getInt('formId');
 
@@ -341,7 +341,7 @@ class RSFormModelForms extends JModelLegacy
 		return $post;
 	}
 
-	function autoGenerateLayout()
+	public function autoGenerateLayout()
 	{
 		$formId = $this->_form->FormId;
 		$filter = JFilterInput::getInstance();
@@ -440,7 +440,7 @@ class RSFormModelForms extends JModelLegacy
 		return $this->getFieldNames('pages');
 	}
 
-	function getFormList()
+	public function getFormList()
 	{
 		$return = array();
 
@@ -454,13 +454,12 @@ class RSFormModelForms extends JModelLegacy
 		return $return;
 	}
 
-	function getAdminEmail()
+	public function getAdminEmail()
 	{
-		$user = JFactory::getUser();
-		return $user->get('email');
+		return JFactory::getUser()->get('email');
 	}
 
-	function getPredefinedForms()
+	public function getPredefinedForms()
 	{
 		$return = array();
 
@@ -474,7 +473,7 @@ class RSFormModelForms extends JModelLegacy
 		return $return;
 	}
 
-	function getEditorText()
+	public function getEditorText()
 	{
 		$formId = JFactory::getApplication()->input->getInt('formId');
 		$opener = JFactory::getApplication()->input->getCmd('opener');
@@ -490,7 +489,7 @@ class RSFormModelForms extends JModelLegacy
 		return $value;
 	}
 
-	function getThemes()
+	public function getThemes()
 	{
 		jimport('joomla.filesystem.folder');
 
@@ -513,7 +512,7 @@ class RSFormModelForms extends JModelLegacy
 		return $return;
 	}
 
-	function _parseXML($dir)
+	protected function _parseXML($dir)
 	{
 		// Read the file to see if it's a valid component XML file
 
@@ -566,7 +565,7 @@ class RSFormModelForms extends JModelLegacy
 		return $data;
 	}
 
-	function save()
+	public function save()
 	{
 		$mainframe = JFactory::getApplication();
 
@@ -678,7 +677,7 @@ class RSFormModelForms extends JModelLegacy
 		}
 	}
 
-	function saveFormTranslation(&$form, $lang)
+	public function saveFormTranslation(&$form, $lang)
 	{
 		if ($form->Lang == $lang) return true;
 
@@ -707,7 +706,7 @@ class RSFormModelForms extends JModelLegacy
 		}
 	}
 
-	function saveFormRichtextTranslation($formId, $opener, $value, $lang)
+	public function saveFormRichtextTranslation($formId, $opener, $value, $lang)
 	{
 		$translations = RSFormProHelper::getTranslations('forms', $formId, $lang, 'id');
 
@@ -730,7 +729,7 @@ class RSFormModelForms extends JModelLegacy
 		}
 	}
 
-	function saveFormPropertyTranslation($formId, $componentId, &$params, $lang, $just_added)
+	public function saveFormPropertyTranslation($formId, $componentId, &$params, $lang, $just_added)
 	{
 		$fields 	  = RSFormProHelper::getTranslatableProperties();
 		$translations = RSFormProHelper::getTranslations('properties', $formId, $lang, 'id');
@@ -764,7 +763,7 @@ class RSFormModelForms extends JModelLegacy
 		}
 	}
 
-	function getLang()
+	public function getLang()
 	{
 		$session = JFactory::getSession();
 		$lang 	 = JFactory::getLanguage();
@@ -775,7 +774,7 @@ class RSFormModelForms extends JModelLegacy
 		return $session->get('com_rsform.form.formId'.$this->_form->FormId.'.lang', $lang->getTag());
 	}
 
-	function getEmailLang($id = null)
+	public function getEmailLang($id = null)
 	{
 		$session = JFactory::getSession();
 		$cid	 = JFactory::getApplication()->input->getInt('cid');
@@ -789,7 +788,7 @@ class RSFormModelForms extends JModelLegacy
 		return $session->get('com_rsform.emails.emailId'.$cid.'.lang', $this->getLang());
 	}
 
-	function getLanguages()
+	public function getLanguages()
 	{
 		$lang 	   = JFactory::getLanguage();
 		$languages = $lang->getKnownLanguages(JPATH_SITE);
@@ -801,7 +800,7 @@ class RSFormModelForms extends JModelLegacy
 		return $return;
 	}
 
-	function getMappings()
+	public function getMappings()
 	{
 		if (empty($this->_mdata))
 			$this->_mdata = $this->_getList($this->_mquery);
@@ -809,7 +808,7 @@ class RSFormModelForms extends JModelLegacy
 		return $this->_mdata;
 	}
 
-	function getMTotal()
+	public function getMTotal()
 	{
 		if (empty($this->_mtotal))
 			$this->_mtotal = $this->_getListCount($this->_mquery);
@@ -817,7 +816,7 @@ class RSFormModelForms extends JModelLegacy
 		return $this->_mtotal;
 	}
 
-	function getMPagination()
+	public function getMPagination()
 	{
 		jimport('joomla.html.pagination');
 
@@ -827,7 +826,7 @@ class RSFormModelForms extends JModelLegacy
 		return $pagination;
 	}
 
-	function getConditions()
+	public function getConditions()
 	{
 		if (empty($this->_conditionsdata))
 			$this->_conditionsdata = $this->_getList($this->_conditionsquery);
@@ -835,7 +834,7 @@ class RSFormModelForms extends JModelLegacy
 		return $this->_conditionsdata;
 	}
 
-	function getEmails()
+	public function getEmails()
 	{
 		$formId = JFactory::getApplication()->input->getInt('formId',0);
 		$session = JFactory::getSession();
@@ -862,7 +861,7 @@ class RSFormModelForms extends JModelLegacy
 		return $emails;
 	}
 
-	function getEmail()
+	public function getEmail()
 	{
 		$row		= JTable::getInstance('RSForm_Emails', 'Table');
 		$session	= JFactory::getSession();
@@ -884,7 +883,7 @@ class RSFormModelForms extends JModelLegacy
 		return $row;
 	}
 
-	function saveemail()
+	public function saveEmail()
 	{
 		$row	= JTable::getInstance('RSForm_Emails', 'Table');
 		$post 	= JRequest::get('post', JREQUEST_ALLOWRAW);
@@ -924,7 +923,7 @@ class RSFormModelForms extends JModelLegacy
 		return $row;
 	}
 
-	function saveEmailsTranslation(&$email, $lang)
+	public function saveEmailsTranslation(&$email, $lang)
 	{
 		// We're saving a new email so we need to skip translations for now
 		// This email is the base for future translations.

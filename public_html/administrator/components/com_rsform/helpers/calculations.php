@@ -38,7 +38,7 @@ class RSFormProCalculations
 			}
 			
 			$return .= "\n\t grandTotal".$calculation->id.$formId." = ".$expression.";\n";
-			$return .= "\t document.getElementById('".$calculation->total."').value = number_format(grandTotal".$calculation->id.$formId.",".(int) RSFormProHelper::getConfig('calculations.nodecimals').",'".self::escape(RSFormProHelper::getConfig('calculations.decimal'))."','".self::escape(RSFormProHelper::getConfig('calculations.thousands'))."'); \n\n";
+			$return .= "\t RSFormPro.getFieldsByName($formId, '{$calculation->total}')[0].value = number_format(grandTotal".$calculation->id.$formId.",".(int) RSFormProHelper::getConfig('calculations.nodecimals').",'".self::escape(RSFormProHelper::getConfig('calculations.decimal'))."','".self::escape(RSFormProHelper::getConfig('calculations.thousands'))."'); \n\n";
 		}
 		
 		return $return;

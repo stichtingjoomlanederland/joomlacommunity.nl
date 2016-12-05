@@ -8,7 +8,7 @@
 defined('_JEXEC') or die('Restricted access');
 ?>
 <fieldset>
-	<legend><?php echo JText::_('RSFP_FORM_ATTR_HTML'); ?></legend>
+	<h3 class="rsfp-legend"><?php echo JText::_('RSFP_FORM_ATTR_HTML'); ?></h3>
 	<table class="admintable" width="100%">
 		<tr>
 			<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_FORM_ACTION'); ?></td>
@@ -37,7 +37,7 @@ defined('_JEXEC') or die('Restricted access');
 	</table>
 </fieldset>
 <fieldset>
-	<legend><?php echo JText::_('RSFP_FORM_ATTR_CSS'); ?></legend>
+	<h3 class="rsfp-legend"><?php echo JText::_('RSFP_FORM_ATTR_CSS'); ?></h3>
 	<table class="admintable" width="100%">
 		<tr>
 			<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_FORM_CSS_ID'); ?></td>

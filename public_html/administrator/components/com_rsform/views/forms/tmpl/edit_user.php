@@ -12,9 +12,9 @@ defined('_JEXEC') or die('Restricted access');
 	<tr>
 		<td valign="top" align="left">
 			<fieldset>
-				<legend><?php echo JText::_('RSFP_USER_EMAILS'); ?></legend>
+				<h3 class="rsfp-legend"><?php echo JText::_('RSFP_USER_EMAILS'); ?></h3>
 				<div class="alert alert-info"><?php echo JText::_('RSFP_EMAILS_DESC'); ?></div>
-				<legend><?php echo JText::_('RSFP_EMAILS_LEGEND_SENDER'); ?></legend>
+				<h3 class="rsfp-legend"><?php echo JText::_('RSFP_EMAILS_LEGEND_SENDER'); ?></h3>
 				<table width="100%" class="com-rsform-table-props">
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_EMAILS_FROM'); ?> *</td>
@@ -29,7 +29,7 @@ defined('_JEXEC') or die('Restricted access');
 						</td>
 					</tr>
 				</table>
-				<legend><?php echo JText::_('RSFP_EMAILS_LEGEND_RECIPIENT'); ?></legend>
+				<h3 class="rsfp-legend"><?php echo JText::_('RSFP_EMAILS_LEGEND_RECIPIENT'); ?></h3>
 				<table width="100%" class="com-rsform-table-props">
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_EMAILS_TO'); ?> *</td>
@@ -52,7 +52,7 @@ defined('_JEXEC') or die('Restricted access');
 						<td><input name="UserEmailBCC" placeholder="<?php echo JText::_('RSFP_EMAILS_BCC_PLACEHOLDER'); ?>" class="rs_inp rs_80" id="UserEmailBCC" value="<?php echo $this->escape($this->form->UserEmailBCC); ?>"  data-delimiter="," data-filter-type="include" data-filter="value,global" data-placeholders="display" /></td>
 					</tr>
 				</table>
-				<legend><?php echo JText::_('RSFP_EMAILS_LEGEND_CONTENTS'); ?></legend>
+				<h3 class="rsfp-legend"><?php echo JText::_('RSFP_EMAILS_LEGEND_CONTENTS'); ?></h3>
 				<table width="100%" class="com-rsform-table-props">
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo RSFormProHelper::translateIcon(); ?> <?php echo JText::_('RSFP_EMAILS_SUBJECT'); ?> *</td>
@@ -70,7 +70,7 @@ defined('_JEXEC') or die('Restricted access');
 						<td><?php echo $this->lists['UserEmailMode']; ?></td>
 					</tr>
 				</table>
-				<legend><?php echo JText::_('RSFP_EMAILS_LEGEND_ATTACHMENTS'); ?></legend>
+				<h3 class="rsfp-legend"><?php echo JText::_('RSFP_EMAILS_LEGEND_ATTACHMENTS'); ?></h3>
 				<table width="100%" class="com-rsform-table-props">
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_EMAILS_ATTACH_FILE'); ?></td>

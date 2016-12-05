@@ -16,13 +16,13 @@ defined('_JEXEC') or die('Restricted access');
 </p>
 <span class="rsform_clear_both"></span>
 <fieldset class="form-horizontal">
-<legend><?php echo JText::_('RSFP_FORM_EMAILS_NEW'); ?></legend>
+<h3 class="rsfp-legend"><?php echo JText::_('RSFP_FORM_EMAILS_NEW'); ?></h3>
 <?php if ($this->row->id) { ?>
 	<span><?php echo $this->lists['Languages']; ?></span><span><?php echo JText::sprintf('RSFP_YOU_ARE_EDITING_IN', $this->lang, RSFormProHelper::translateIcon()); ?></span>
 <?php } else { ?>
 	<?php echo JText::sprintf('RSFP_YOU_ARE_EDITING_IN', $this->lang, RSFormProHelper::translateIcon()); ?>
 <?php } ?>
-<legend><?php echo JText::_('RSFP_EMAILS_LEGEND_SENDER'); ?></legend>
+<h3 class="rsfp-legend"><?php echo JText::_('RSFP_EMAILS_LEGEND_SENDER'); ?></h3>
 <table width="100%" class="com-rsform-table-props">
 	<tr>
 		<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_EMAILS_FROM'); ?> *</td>
@@ -37,7 +37,7 @@ defined('_JEXEC') or die('Restricted access');
 		</td>
 	</tr>
 </table>
-<legend><?php echo JText::_('RSFP_EMAILS_LEGEND_RECIPIENT'); ?></legend>
+<h3 class="rsfp-legend"><?php echo JText::_('RSFP_EMAILS_LEGEND_RECIPIENT'); ?></h3>
 <table width="100%" class="com-rsform-table-props">
 	<tr>
 		<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_EMAILS_TO'); ?> *</td>
@@ -56,7 +56,7 @@ defined('_JEXEC') or die('Restricted access');
 		<td><input data-delimiter="," data-placeholders="display" data-filter-type="include" data-filter="value,global" name="bcc" placeholder="<?php echo JText::_('RSFP_EMAILS_BCC_PLACEHOLDER'); ?>" class="rs_inp rs_80" id="bcc" value="<?php echo $this->escape($this->row->bcc); ?>" /></td>
 	</tr>
 </table>
-<legend><?php echo JText::_('RSFP_EMAILS_LEGEND_CONTENTS'); ?></legend>
+<h3 class="rsfp-legend"><?php echo JText::_('RSFP_EMAILS_LEGEND_CONTENTS'); ?></h3>
 <table width="100%" class="com-rsform-table-props">
 	<tr>
 		<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo RSFormProHelper::translateIcon(); ?> <?php echo JText::_('RSFP_EMAILS_SUBJECT'); ?> *</td>

@@ -145,3 +145,9 @@ defined('_JEXEC') or die('Restricted access');
 
 	enableDbDetails(<?php echo $this->mapping->connection; ?>);
 </script>
+
+<style type="text/css">
+body {
+	padding: 20px !important;
+}
+</style>

@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Restricted access');
 $tmpl = JFactory::getApplication()->input->getCmd('tmpl');
 ?>
 <?php if ($tmpl != 'component') { ?>
-<legend><?php echo JText::_('RSFP_FORM_EMAILS'); ?></legend>
+<h3 class="rsfp-legend"><?php echo JText::_('RSFP_FORM_EMAILS'); ?></h3>
 <button type="button" onclick="openRSModal('<?php echo JRoute::_('index.php?option=com_rsform&task=forms.emails&type=additional&tmpl=component&formId='.$this->formId); ?>', 'Emails', '800x750');" class="btn btn-primary"><?php echo JText::_('RSFP_FORM_EMAILS_NEW'); ?></button>
 <br /><br />
 

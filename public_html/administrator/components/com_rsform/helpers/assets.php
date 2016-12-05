@@ -7,22 +7,9 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSFormProAssetsEvent extends JEvent
-{
-	public function onBeforeRender() {
-		RSFormProAssets::$replace = true;
-	}
-	
-	public function onAfterRender() {
-		RSFormProAssets::render();
-	}
-}
-
-JFactory::getApplication()->registerEvent('onAfterRender', 'RSFormProAssetsEvent');
-
 class RSFormProAssets
 {
-	// This flags checks if we need to run after the onAfterRender() event.
+	// This flag checks if we need to run after the onAfterRender() event.
 	public static $replace = false;
 	
 	public static $scripts 			= array();
@@ -100,7 +87,11 @@ class RSFormProAssets
 			if (self::$scripts) {
 				foreach (self::$scripts as $src => $tmp) {
 					if (!isset(self::$added[$src])) {
-						$newHead .= self::createScript($src);
+						$script = self::createScript($src);
+						if (strpos($body, $script) === false)
+						{
+							$newHead .= $script;
+						}
 					}
 				}
 				// Reset
@@ -110,7 +101,11 @@ class RSFormProAssets
 			if (self::$styles) {
 				foreach (self::$styles as $src => $tmp) {
 					if (!isset(self::$added[$src])) {
-						$newHead .= self::createStyleSheet($src);
+						$style = self::createStyleSheet($src);
+						if (strpos($body, $style) === false)
+						{
+							$newHead .= $style;
+						}
 					}
 				}
 				// Reset
@@ -118,19 +113,31 @@ class RSFormProAssets
 			}
 			
 			if (self::$inlineStyles) {
-				$newHead .= self::createStyleDeclaration(self::$inlineStyles);
+				$inlineStyle = self::createStyleDeclaration(self::$inlineStyles);
+				if (strpos($body, $inlineStyle) === false)
+				{
+					$newHead .= $inlineStyle;
+				}
 				// Reset
 				self::$inlineStyles = '';
 			}
 			
 			if (self::$inlineScripts) {
-				$newHead .= self::createScriptDeclaration(self::$inlineScripts);
+				$inlineScript = self::createScriptDeclaration(self::$inlineScripts);
+				if (strpos($body, $inlineScript) === false)
+				{
+					$newHead .= $inlineScript;
+				}
 				// Reset
 				self::$inlineScripts = '';
 			}
 			
 			if (self::$customTags) {
-				$newHead .= self::$customTags."\n";
+				$customTag = self::$customTags."\n";
+				if (strpos($body, $customTag) === false)
+				{
+					$newHead .= $customTag;
+				}
 				// Reset
 				self::$customTags = '';
 			}

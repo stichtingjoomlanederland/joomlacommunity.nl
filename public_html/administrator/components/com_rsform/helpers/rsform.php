@@ -21,8 +21,27 @@ if (!defined('_RSFORM_REVISION')) {
 
 JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_rsform/tables');
 
+// Let's run some workarounds
+
+// Disable caching for the current view (eg. com_content with Content Plugin)
+$cache = JFactory::getCache(JFactory::getApplication()->input->getCmd('option'), 'view');
+$cache->setCaching(false);
+
+// Disable caching for the current component
+$cache = JFactory::getCache(JFactory::getApplication()->input->getCmd('option'));
+$cache->setCaching(false);
+
+// Disable caching for com_rsform
 $cache = JFactory::getCache('com_rsform');
-$cache->clean();
+$cache->setCaching(false);
+
+// Disable System - Page Cache caching
+$cache = JFactory::getCache('page');
+$cache->setCaching(false);
+
+// Disable module caching
+$cache = JFactory::getCache('mod_rsform');
+$cache->setCaching(false);
 
 $lang = JFactory::getLanguage();
 $lang->load('com_rsform', JPATH_ADMINISTRATOR, 'en-GB', true);
@@ -940,8 +959,8 @@ class RSFormProHelper
 
 		if (!$skip_globals)
 		{
-			array_push($placeholders, '{global:username}', '{global:userid}', '{global:useremail}', '{global:fullname}', '{global:userip}', '{global:date_added}', '{global:sitename}', '{global:siteurl}', '{global:confirmation}', '{global:submissionid}', '{global:submission_id}', '{global:mailfrom}', '{global:fromname}');
-			array_push($values, $user->username, $user->id, $user->email, $user->name, $submission->UserIp, RSFormProHelper::getDate($submission->DateSubmitted), $config->get('sitename'), JURI::root(), $confirmation, $submission->SubmissionId, $submission->SubmissionId, $config->get('mailfrom'), $config->get('fromname'));
+			array_push($placeholders, '{global:username}', '{global:userid}', '{global:useremail}', '{global:fullname}', '{global:userip}', '{global:date_added}', '{global:sitename}', '{global:siteurl}', '{global:confirmation}', '{global:submissionid}', '{global:submission_id}', '{global:mailfrom}', '{global:fromname}', '{global:formid}');
+			array_push($values, $user->username, $user->id, $user->email, $user->name, $submission->UserIp, RSFormProHelper::getDate($submission->DateSubmitted), $config->get('sitename'), JURI::root(), $confirmation, $submission->SubmissionId, $submission->SubmissionId, $config->get('mailfrom'), $config->get('fromname'), $formId);
 		}
 
 		$mainframe->triggerEvent('rsfp_onAfterCreatePlaceholders', array(array('form' => &$form, 'placeholders' => &$placeholders, 'values' => &$values, 'submission' => $submission)));

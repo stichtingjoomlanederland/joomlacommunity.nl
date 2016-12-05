@@ -129,96 +129,99 @@ RSFormPro.jQueryCalendar = {
 			// set the minDate and maxDate for the other calendar if the rule is present
 			if (operation && ((typeof config.value != 'undefined' && config.value != '') || minDate || maxDate)) {
 				// configure the date and time regarding the rule for the other calendar
+				var referenceDate = false;
 				if (typeof config.value != 'undefined' && config.value != '') {
-					var referenceDate = config.value;
+					referenceDate = config.value;
 				} else if (minDate && operation == 'min') {
-					var referenceDate = minDate;
+					referenceDate = minDate;
 				} else if (maxDate && operation == 'max') {
-					var referenceDate = maxDate;
+					referenceDate = maxDate;
 				}
 				
-				var newDateParts = referenceDate.split(' ');
-				var newDate = newDateParts[0];
-				var newTime = false;
-				if (newDateParts.length > 1) {
-					newTime = newDateParts[1];
-				}
-				
-				// if the calendar does not use the timepicker we must increment or decrement the day by 1
- 				if (!config.timepicker) {
-					var newDateObject = new Date.parseDate(newDate, 'MM/DD/YYYY');
-					if (operation == 'min') {
-						var d = newDateObject.getDate() + 1; 
+				if (referenceDate) {
+					var newDateParts = referenceDate.split(' ');
+					var newDate = newDateParts[0];
+					var newTime = false;
+					if (newDateParts.length > 1) {
+						newTime = newDateParts[1];
+					}
+					
+					// if the calendar does not use the timepicker we must increment or decrement the day by 1
+					if (!config.timepicker) {
+						var newDateObject = new Date.parseDate(newDate, 'MM/DD/YYYY');
+						if (operation == 'min') {
+							var d = newDateObject.getDate() + 1; 
+						} else {
+							var d = newDateObject.getDate() - 1;
+						}
+						newDateObject.setDate(d);
+						newDate = newDateObject.dateFormat('MM/DD/YYYY');
+					}
+					
+					var otherCalendar = false;
+					if (typeof RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName] != 'undefined') {
+						otherCalendar = RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName];
+					}
+					
+					if (otherCalendar) {
+						RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].calendar.datetimepicker((operation == 'min' ? {minDate: newDate} : {maxDate: newDate}));
+						
+						var newDateObject = new Date.parseDate(newDate, 'MM/DD/YYYY');
+						var otherDate = RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].currentDate;
+						if (otherDate != '') {
+							otherDate = Date.parseDate(otherDate, RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].hiddenFormat);
+							if ((operation == 'min' && newDateObject.getTime() > otherDate.getTime()) || (operation == 'max' && newDateObject.getTime() < otherDate.getTime())) {
+								RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].calendar.val('');
+								RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].calendar.datetimepicker({startDate:false});
+								RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].hiddenDate.val('');
+							}
+						}
+									
+						if (newTime) {
+							RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].calendar.datetimepicker((operation == 'min' ? {minTime: newTime} : {maxTime: newTime}));
+						}
 					} else {
-						var d = newDateObject.getDate() - 1;
-					}
-					newDateObject.setDate(d);
-					newDate = newDateObject.dateFormat('MM/DD/YYYY');
-				}
-				
-				var otherCalendar = false;
-				if (typeof RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName] != 'undefined') {
-					otherCalendar = RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName];
-				}
-				
-				if (otherCalendar) {
-					RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].calendar.datetimepicker((operation == 'min' ? {minDate: newDate} : {maxDate: newDate}));
-					
-					var newDateObject = new Date.parseDate(newDate, 'MM/DD/YYYY');
-					var otherDate = RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].currentDate;
-					if (otherDate != '') {
-						otherDate = Date.parseDate(otherDate, RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].hiddenFormat);
+						var otherCalendarInput = document.getElementsByName("form["+otherCalendarName+"]");
+						
+						// get the proper field
+						for (i = 0 ; i < otherCalendarInput.length; i++) {
+							var otherCalendarId = otherCalendarInput[i].id;
+							if (otherCalendarId.substring(0, otherCalendarId.length - 1) == 'txtjQcal'+formId+'_') {
+								otherCalendarId = otherCalendarId.substring(8, otherCalendarId.length);
+								break;
+							}
+						}
+						
+						if (operation == 'min') {
+							if (typeof RSFormPro.jQueryCalendar.calendarsData[formId][otherCalendarId].config.extra.minDate == 'undefined') {
+								RSFormPro.jQueryCalendar.calendarsData[formId][otherCalendarId].config.extra.minDate = '';
+							}
+							RSFormPro.jQueryCalendar.calendarsData[formId][otherCalendarId].config.extra.minDate = newDate;
+						}
+						if (operation == 'max') {
+							if (typeof RSFormPro.jQueryCalendar.calendarsData[formId][otherCalendarId].config.extra.maxDate == 'undefined') {
+								RSFormPro.jQueryCalendar.calendarsData[formId][otherCalendarId].config.extra.maxDate = '';
+							}
+							RSFormPro.jQueryCalendar.calendarsData[formId][otherCalendarId].config.extra.maxDate = newDate;
+						}
+						
+						var otherTxtDate = jQuery('#txtjQcal'+otherCalendarId);
+						var otherHiddenDate = jQuery('#hiddenjQcal'+otherCalendarId);
+						
+						var otherDate = new Date.parseDate(otherHiddenDate.val(), 'MM/DD/YYYY HH:mm');
+						var newDateObject = new Date.parseDate(newDate, 'MM/DD/YYYY');
+						
 						if ((operation == 'min' && newDateObject.getTime() > otherDate.getTime()) || (operation == 'max' && newDateObject.getTime() < otherDate.getTime())) {
-							RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].calendar.val('');
-							RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].calendar.datetimepicker({startDate:false});
-							RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].hiddenDate.val('');
+							otherHiddenDate.val('');
+							otherTxtDate.val('');
+							RSFormPro.jQueryCalendar.calendarsData[formId][otherCalendarId].config.value='';
+						}
+						
+						if (newTime) {
+							RSFormPro.jQueryCalendar.calendarsData[formId][otherCalendarId].config.extra.useTimeLogic = {date: newDate, time: newTime, rule: operation};
 						}
 					}
-								
-					if (newTime) {
-						RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].calendar.datetimepicker((operation == 'min' ? {minTime: newTime} : {maxTime: newTime}));
-					}
-				} else {
-					var otherCalendarInput = document.getElementsByName("form["+otherCalendarName+"]");
-					
-					// get the proper field
-					for (i = 0 ; i < otherCalendarInput.length; i++) {
-						var otherCalendarId = otherCalendarInput[i].id;
-						if (otherCalendarId.substring(0, otherCalendarId.length - 1) == 'txtjQcal'+formId+'_') {
-							otherCalendarId = otherCalendarId.substring(8, otherCalendarId.length);
-							break;
-						}
-					}
-					
-					if (operation == 'min') {
-						if (typeof RSFormPro.jQueryCalendar.calendarsData[formId][otherCalendarId].config.extra.minDate == 'undefined') {
-							RSFormPro.jQueryCalendar.calendarsData[formId][otherCalendarId].config.extra.minDate = '';
-						}
-						RSFormPro.jQueryCalendar.calendarsData[formId][otherCalendarId].config.extra.minDate = newDate;
-					}
-					if (operation == 'max') {
-						if (typeof RSFormPro.jQueryCalendar.calendarsData[formId][otherCalendarId].config.extra.maxDate == 'undefined') {
-							RSFormPro.jQueryCalendar.calendarsData[formId][otherCalendarId].config.extra.maxDate = '';
-						}
-						RSFormPro.jQueryCalendar.calendarsData[formId][otherCalendarId].config.extra.maxDate = newDate;
-					}
-					
-					var otherTxtDate = jQuery('#txtjQcal'+otherCalendarId);
-					var otherHiddenDate = jQuery('#hiddenjQcal'+otherCalendarId);
-					
-					var otherDate = new Date.parseDate(otherHiddenDate.val(), 'MM/DD/YYYY HH:mm');
-					var newDateObject = new Date.parseDate(newDate, 'MM/DD/YYYY');
-					
-					if ((operation == 'min' && newDateObject.getTime() > otherDate.getTime()) || (operation == 'max' && newDateObject.getTime() < otherDate.getTime())) {
-						otherHiddenDate.val('');
-						otherTxtDate.val('');
-						RSFormPro.jQueryCalendar.calendarsData[formId][otherCalendarId].config.value='';
-					}
-					
-					if (newTime) {
-						RSFormPro.jQueryCalendar.calendarsData[formId][otherCalendarId].config.extra.useTimeLogic = {date: newDate, time: newTime, rule: operation};
-					}
-				}
+				}	
 			}
 			
 			// set the current date based on the config value if is set and the hidden date format, will be needing this for the correct rule implementation

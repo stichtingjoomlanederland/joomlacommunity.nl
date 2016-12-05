@@ -11,7 +11,7 @@ jimport('joomla.application.component.controller');
 
 class RSFormControllerForms extends RSFormController
 {
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		
@@ -23,7 +23,7 @@ class RSFormControllerForms extends RSFormController
 		$this->_db = JFactory::getDBO();
 	}
 
-	function manage()
+	public function manage()
 	{
 		JFactory::getApplication()->input->set('view', 'forms');
 		JFactory::getApplication()->input->set('layout', 'default');
@@ -31,12 +31,12 @@ class RSFormControllerForms extends RSFormController
 		parent::display();
 	}
 	
-	function directory() {
+	public function directory() {
 		$formId = JFactory::getApplication()->input->getInt('formId',0);
 		$this->setRedirect('index.php?option=com_rsform&view=directory&layout=edit&formId='.$formId);
 	}
 	
-	function edit()
+	public function edit()
 	{
 		JFactory::getApplication()->input->set('view', 	'forms');
 		JFactory::getApplication()->input->set('layout', 	'edit');
@@ -44,7 +44,7 @@ class RSFormControllerForms extends RSFormController
 		parent::display();
 	}
 	
-	function add()
+	public function add()
 	{
 		JFactory::getApplication()->input->set('view', 	'forms');
 		JFactory::getApplication()->input->set('layout', 	'new');
@@ -52,7 +52,7 @@ class RSFormControllerForms extends RSFormController
 		parent::display();
 	}
 	
-	function emails()
+	public function emails()
 	{
 		JFactory::getApplication()->input->set('view', 	'forms');
 		JFactory::getApplication()->input->set('layout', 	'emails');
@@ -60,7 +60,7 @@ class RSFormControllerForms extends RSFormController
 		parent::display();
 	}
 	
-	function menuAddScreen()
+	public function menuAddScreen()
 	{
 		JFactory::getApplication()->input->set('view', 	'menus');
 		JFactory::getApplication()->input->set('layout', 	'default');
@@ -68,7 +68,7 @@ class RSFormControllerForms extends RSFormController
 		parent::display();
 	}
 	
-	function menuAddBackend()
+	public function menuAddBackend()
 	{
 		$db		= JFactory::getDBO();
 		$app	= JFactory::getApplication();
@@ -95,7 +95,7 @@ class RSFormControllerForms extends RSFormController
 	/**
 	 * Forms Menu Remove Backend
 	 */
-	function menuRemoveBackend()
+	public function menuRemoveBackend()
 	{
 		$db		= JFactory::getDBO();
 		$app	= JFactory::getApplication();
@@ -113,7 +113,7 @@ class RSFormControllerForms extends RSFormController
 		$app->redirect('index.php?option=com_rsform&task=forms.manage', JText::_('RSFP_FORM_REMOVED_BACKEND'));
 	}
 	
-	function newStepTwo()
+	public function newStepTwo()
 	{
 		JFactory::getApplication()->input->set('view', 'forms');
 		JFactory::getApplication()->input->set('layout', 'new2');
@@ -121,7 +121,7 @@ class RSFormControllerForms extends RSFormController
 		parent::display();
 	}
 	
-	function newStepThree()
+	public function newStepThree()
 	{
 		$session = JFactory::getSession();
 		$session->set('com_rsform.wizard.FormTitle', JRequest::getVar('FormTitle', '', 'post', 'none', JREQUEST_ALLOWRAW));
@@ -141,7 +141,7 @@ class RSFormControllerForms extends RSFormController
 		parent::display();
 	}
 	
-	function newStepFinal()
+	public function newStepFinal()
 	{
 		$session = JFactory::getSession();
 		$config = JFactory::getConfig();
@@ -306,7 +306,7 @@ class RSFormControllerForms extends RSFormController
 		return $model->getComponentType($componentId, $formId);
 	}
 	
-	function save()
+	public function save()
 	{
 		$formId = JFactory::getApplication()->input->getInt('formId');
 		
@@ -333,7 +333,7 @@ class RSFormControllerForms extends RSFormController
 		$this->setRedirect($link, JText::_('RSFP_FORM_SAVED'));
 	}
 	
-	function cancel()
+	public function cancel()
 	{
 		$this->setRedirect('index.php?option=com_rsform&task=forms.manage');
 	}
@@ -455,7 +455,7 @@ class RSFormControllerForms extends RSFormController
 		$this->setRedirect('index.php?option=com_rsform&task=forms.manage', JText::sprintf('RSFP_FORMS_DELETED', $total));
 	}
 	
-	function changeStatus()
+	public function changeStatus()
 	{
 		$task = $this->getTask();
 		$db   = JFactory::getDBO();
@@ -481,7 +481,7 @@ class RSFormControllerForms extends RSFormController
 		$this->setRedirect('index.php?option=com_rsform&task=forms.manage', $msg);
 	}
 	
-	function copy()
+	public function copy()
 	{
 		$db 	= JFactory::getDbo();
 		$app 	= JFactory::getApplication();
@@ -517,51 +517,16 @@ class RSFormControllerForms extends RSFormController
 			
 			$newFormId = $copy->FormId;
 			
+			$componentRelations = array();
+			$conditionRelations = array();
+			$emailRelations		= array();
+			
 			// copy language
 			$db->setQuery("SELECT * FROM #__rsform_translations WHERE `reference`='forms' AND `form_id`='".$formId."'");
 			if ($translations = $db->loadObjectList()) {
 				foreach ($translations as $translation) {
 					$db->setQuery("INSERT INTO #__rsform_translations SET `form_id`='".$newFormId."', `lang_code`='".$db->escape($translation->lang_code)."', `reference`='forms', `reference_id`='".$db->escape($translation->reference_id)."', `value`='".$db->escape($translation->value)."'");
 					$db->execute();
-				}
-			}
-			
-			$componentRelations = array();
-			$conditionRelations = array();
-			
-			$db->setQuery("SELECT ComponentId FROM #__rsform_components WHERE FormId='".$formId."' ORDER BY `Order`");
-			$components = $db->loadColumn();
-			foreach ($components as $r)
-				$componentRelations[$r] = $model->copyComponent($r, $newFormId);
-			
-			// copy conditions
-			$db->setQuery("SELECT * FROM #__rsform_conditions WHERE form_id='".$formId."'");
-			if ($conditions = $db->loadObjectList())
-			{
-				foreach ($conditions as $condition)
-				{
-					$new_condition = JTable::getInstance('RSForm_Conditions', 'Table');
-					$new_condition->bind($condition);
-					$new_condition->id = null;
-					$new_condition->form_id = $newFormId;
-					$new_condition->component_id = $componentRelations[$condition->component_id];
-					$new_condition->store();
-					
-					$conditionRelations[$condition->id] = $new_condition->id;
-				}
-				
-				$db->setQuery("SELECT * FROM #__rsform_condition_details WHERE condition_id IN (".implode(',', array_keys($conditionRelations)).")");
-				if ($details = $db->loadObjectList())
-				{
-					foreach ($details as $detail)
-					{
-						$new_detail = JTable::getInstance('RSForm_Condition_Details', 'Table');
-						$new_detail->bind($detail);
-						$new_detail->id = null;
-						$new_detail->condition_id = $conditionRelations[$detail->condition_id];
-						$new_detail->component_id = $componentRelations[$detail->component_id];
-						$new_detail->store();
-					}
 				}
 			}
 			
@@ -574,6 +539,8 @@ class RSFormControllerForms extends RSFormController
 					$new_email->id = null;
 					$new_email->formId = $newFormId;
 					$new_email->store();
+					
+					$emailRelations[$email->id] = $new_email->id;
 				}
 			}
 			
@@ -606,6 +573,83 @@ class RSFormControllerForms extends RSFormController
 				}
 			}
 			
+			$db->setQuery("SELECT ComponentId FROM #__rsform_components WHERE FormId='".$formId."' ORDER BY `Order`");
+			$components = $db->loadColumn();
+			foreach ($components as $r)
+			{
+				$componentRelations[$r] = $model->copyComponent($r, $newFormId);
+			}
+			
+			// Handle dynamic properties
+			$db->setQuery("SELECT * FROM #__rsform_properties WHERE ComponentId IN (".implode(',', $componentRelations).") AND PropertyName IN ('EMAILATTACH', 'VALIDATIONCALENDAR')");
+			if ($properties = $db->loadObjectList())
+			{
+				foreach ($properties as $property)
+				{
+					if ($property->PropertyName == 'EMAILATTACH' && $property->PropertyValue)
+					{
+						$values 	= explode(',', $property->PropertyValue);
+						$newValues 	= array();
+						
+						foreach ($values as $value)
+						{
+							if (isset($emailRelations[$value]))
+							{
+								$newValues[] = $emailRelations[$value];
+							}
+							elseif (in_array($value, array('adminemail', 'useremail')))
+							{
+								$newValues[] = $value;
+							}
+						}
+						
+						$property->PropertyValue = implode(',', $newValues);
+					}
+					
+					if ($property->PropertyName == 'VALIDATIONCALENDAR' && $property->PropertyValue)
+					{
+						list($type, $oldCalendarId) = explode(' ', $property->PropertyValue, 2);
+						if (isset($componentRelations[$oldCalendarId]))
+						{
+							$property->PropertyValue = $type.' '.$componentRelations[$oldCalendarId];
+						}
+					}
+					
+					$db->setQuery("UPDATE #__rsform_properties SET PropertyValue=".$db->quote($property->PropertyValue)." WHERE PropertyId=".$db->quote($property->PropertyId));
+					$db->query();
+				}
+			}
+			
+			// copy conditions
+			$db->setQuery("SELECT * FROM #__rsform_conditions WHERE form_id='".$formId."'");
+			if ($conditions = $db->loadObjectList())
+			{
+				foreach ($conditions as $condition)
+				{
+					$new_condition = JTable::getInstance('RSForm_Conditions', 'Table');
+					$new_condition->bind($condition);
+					$new_condition->id = null;
+					$new_condition->form_id = $newFormId;
+					$new_condition->component_id = $componentRelations[$condition->component_id];
+					$new_condition->store();
+					
+					$conditionRelations[$condition->id] = $new_condition->id;
+				}
+				
+				$db->setQuery("SELECT * FROM #__rsform_condition_details WHERE condition_id IN (".implode(',', array_keys($conditionRelations)).")");
+				if ($details = $db->loadObjectList())
+				{
+					foreach ($details as $detail)
+					{
+						$new_detail = JTable::getInstance('RSForm_Condition_Details', 'Table');
+						$new_detail->bind($detail);
+						$new_detail->id = null;
+						$new_detail->condition_id = $conditionRelations[$detail->condition_id];
+						$new_detail->component_id = $componentRelations[$detail->component_id];
+						$new_detail->store();
+					}
+				}
+			}			
 			
 			//Trigger Event - onFormCopy
 			$app->triggerEvent('rsfp_bk_onFormCopy', array(

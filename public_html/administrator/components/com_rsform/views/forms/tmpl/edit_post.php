@@ -11,7 +11,7 @@ JText::script('RSFP_POST_NAME_PLACEHOLDER');
 JText::script('RSFP_POST_VALUE_PLACEHOLDER');
 ?>
 <fieldset>
-<legend><?php echo JText::_('RSFP_POST_TO_LOCATION'); ?></legend>
+<h3 class="rsfp-legend"><?php echo JText::_('RSFP_POST_TO_LOCATION'); ?></h3>
 <table width="100%" class="com-rsform-table-props">
 	<tr>
 		<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_POST_ENABLED'); ?></td>
@@ -30,7 +30,7 @@ JText::script('RSFP_POST_VALUE_PLACEHOLDER');
 		<td><input class="rs_inp rs_80" name="form_post[url]" value="<?php echo $this->escape($this->form_post->url); ?>" size="105" /></td>
 	</tr>
 </table>
-<legend><?php echo JText::_('RSFP_POST_TO_LOCATION_ADVANCED'); ?></legend>
+<h3 class="rsfp-legend"><?php echo JText::_('RSFP_POST_TO_LOCATION_ADVANCED'); ?></h3>
 <table width="100%" class="com-rsform-table-props" id="com-rsform-post-fields">
 	<thead>
 	<tr>

@@ -8,7 +8,7 @@
 defined('_JEXEC') or die('Restricted access'); ?>
 
 <fieldset>
-	<legend><?php echo JText::_('RSFP_XHTML_LAYOUTS'); ?></legend>
+	<h3 class="rsfp-legend"><?php echo JText::_('RSFP_XHTML_LAYOUTS'); ?></h3>
 	<?php $xhtmlLayouts = array('dir-inline', 'dir-2lines', 'dir-inline-title', 'dir-2lines-title', 'dir-2cols'); ?>
 	<?php foreach ($xhtmlLayouts as $layout) { ?>
 	<div class="rsform_layout_box">
@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Restricted access'); ?>
 </fieldset>
 
 <fieldset>
-	<legend><?php echo JText::_('RSFP_SUBM_DIR_DETAILS_LAYOUT'); ?></legend>
+	<h3 class="rsfp-legend"><?php echo JText::_('RSFP_SUBM_DIR_DETAILS_LAYOUT'); ?></h3>
 	<table border="0">
 		<tr>
 			<td><button class="pull-left btn btn-warning" type="button" onclick="generateDirectoryLayout('<?php echo $this->formId; ?>');"><?php echo JText::_('RSFP_GENERATE_LAYOUT'); ?></button></td>

@@ -16,7 +16,7 @@ defined('_JEXEC') or die('Restricted access');
 	<span class="rsform_clear_both"></span>
 
 	<fieldset>
-		<legend><?php echo JText::_('RSFP_EDITING_TEXT'); ?> <small><?php echo JText::sprintf('RSFP_YOU_ARE_EDITING_IN_SHORT', $this->lang); ?></small></legend>
+		<h3 class="rsfp-legend"><?php echo JText::_('RSFP_EDITING_TEXT'); ?> <small><?php echo JText::sprintf('RSFP_YOU_ARE_EDITING_IN_SHORT', $this->lang); ?></small></h3>
 
 	<?php if ($this->noEditor) { ?>
 		<textarea cols="70" rows="10" style="width: 500px; height: 320px;" class="rs_textarea" name="<?php echo $this->editorName; ?>"><?php echo RSFormProHelper::htmlEscape($this->editorText); ?></textarea>
@@ -39,5 +39,11 @@ Joomla.submitbutton = function(task) {
 	Joomla.submitform(task, document.getElementById('adminForm'));
 }
 </script>
+
+<style type="text/css">
+body {
+	padding: 20px !important;
+}
+</style>
 
 <?php JHTML::_('behavior.keepalive'); ?>

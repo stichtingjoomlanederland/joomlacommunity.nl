@@ -68,8 +68,7 @@ class RSFormProValidations
 	public static function email($email,$extra=null,$data=null)
 	{
 		jimport('joomla.mail.helper');
-		
-		$email = trim($email);
+
 		return JMailHelper::isEmailAddress($email);
 	}
 	
@@ -78,8 +77,7 @@ class RSFormProValidations
 		// Check if it's an email address format
 		if (!self::email($email,$extra,$data))
 			return false;
-		
-		$email = trim($email);
+
 		list($user, $domain) = explode('@', $email, 2);
 		
 		// checkdnsrr for PHP < 5.3.0

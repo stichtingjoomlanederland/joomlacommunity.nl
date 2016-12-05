@@ -11,7 +11,7 @@ defined('_JEXEC') or die('Restricted access');
 	<tr>
 		<td valign="top" align="left">
 			<fieldset>
-				<legend><?php echo JText::_('RSFP_FORM_INFO_BASIC'); ?></legend>
+				<h3 class="rsfp-legend"><?php echo JText::_('RSFP_FORM_INFO_BASIC'); ?></h3>
 				<table width="100%" class="com-rsform-table-props">
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_PUBLISHED'); ?></td>
@@ -37,7 +37,7 @@ defined('_JEXEC') or die('Restricted access');
 			</fieldset>
 
 			<fieldset>
-				<legend><?php echo JText::_('RSFP_FORM_INFO_VALIDATION'); ?></legend>
+				<h3 class="rsfp-legend"><?php echo JText::_('RSFP_FORM_INFO_VALIDATION'); ?></h3>
 				<table width="100%" class="com-rsform-table-props">
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_AJAX_VALIDATION'); ?></td>
@@ -74,7 +74,7 @@ defined('_JEXEC') or die('Restricted access');
 			</fieldset>
 
 			<fieldset>
-				<legend><?php echo JText::_('RSFP_FORM_INFO_THANK_YOU_MESSAGE'); ?></legend>
+				<h3 class="rsfp-legend"><?php echo JText::_('RSFP_FORM_INFO_THANK_YOU_MESSAGE'); ?></h3>
 				<table width="100%" class="com-rsform-table-props">
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_SHOW_THANKYOU_MESSAGE'); ?></td>
@@ -103,7 +103,7 @@ defined('_JEXEC') or die('Restricted access');
 			</fieldset>
 
 			<fieldset>
-				<legend><?php echo JText::_('RSFP_FORM_INFO_SUBMISSION'); ?></legend>
+				<h3 class="rsfp-legend"><?php echo JText::_('RSFP_FORM_INFO_SUBMISSION'); ?></h3>
 				<table width="100%" class="com-rsform-table-props">
 					<tr id="systemMessageContainer"<?php echo $this->form->ShowThankyou ? ' style="display:none"' : ''; ?>>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_SHOW_SYSTEM_MESSAGE'); ?></td>
@@ -136,7 +136,7 @@ defined('_JEXEC') or die('Restricted access');
 				</table>
 			</fieldset>
 			<fieldset>
-				<legend><?php echo JText::_('RSFP_FORM_INFO_MISC'); ?></legend>
+				<h3 class="rsfp-legend"><?php echo JText::_('RSFP_FORM_INFO_MISC'); ?></h3>
 				<table width="100%" class="com-rsform-table-props">
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_MULTIPLE_SEPARATOR'); ?></td>

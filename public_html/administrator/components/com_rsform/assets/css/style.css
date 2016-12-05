@@ -800,3 +800,16 @@ table#componentPreview .preview-checkbox input{
 	color: #FFF;
 	transition: all .1s ease-in-out;
 }
+
+.rsfp-legend
+{
+	display: block;
+	width: 100%;
+	padding: 0;
+	margin-bottom: 18px;
+	font-size: 19.5px;
+	font-weight: normal;
+	line-height: 36px;
+	color: #333;
+	border-bottom: 1px solid #e5e5e5;
+}

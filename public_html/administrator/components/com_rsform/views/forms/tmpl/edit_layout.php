@@ -28,7 +28,7 @@ JText::script('RSFP_HIDE_LEGACY_LAYOUTS');
 </script>
 <button class="btn btn-mini btn-warning" type="button" id="rsform_show_legacy_btn"><?php echo $this->hasLegacyLayout ? JText::_('RSFP_HIDE_LEGACY_LAYOUTS') : JText::_('RSFP_SHOW_LEGACY_LAYOUTS'); ?></button>
 <fieldset id="rsform_legacy_layouts">
-	<legend><?php echo JText::_('RSFP_CLASSIC_LAYOUTS'); ?></legend>
+	<h3 class="rsfp-legend"><?php echo JText::_('RSFP_CLASSIC_LAYOUTS'); ?></h3>
 	<?php foreach ($this->layouts['classicLayouts'] as $layout) { ?>
 		<div class="rsform_layout_box">
 			<label for="formLayout<?php echo ucfirst($layout); ?>" class="radio">
@@ -49,7 +49,7 @@ JText::script('RSFP_HIDE_LEGACY_LAYOUTS');
 </fieldset>
 
 <fieldset>
-	<legend><?php echo JText::_('RSFP_HTML5_LAYOUTS'); ?></legend>
+	<h3 class="rsfp-legend"><?php echo JText::_('RSFP_HTML5_LAYOUTS'); ?></h3>
 	<?php foreach ($this->layouts['html5Layouts'] as $layout) { ?>
 		<div class="rsform_layout_box">
 			<label for="formLayout<?php echo ucfirst($layout); ?>" class="radio">
@@ -62,7 +62,7 @@ JText::script('RSFP_HIDE_LEGACY_LAYOUTS');
 </fieldset>
 
 <fieldset>
-	<legend><?php echo JText::_('RSFP_FORM_HTML_LAYOUT_OPTIONS'); ?></legend>
+	<h3 class="rsfp-legend"><?php echo JText::_('RSFP_FORM_HTML_LAYOUT_OPTIONS'); ?></h3>
 	<span class="rsform_clear_both"></span>
 	<table border="0">
 		<tr>
@@ -77,7 +77,7 @@ JText::script('RSFP_HIDE_LEGACY_LAYOUTS');
 </fieldset>
 
 <fieldset>
-	<legend><?php echo JText::_('RSFP_FORM_HTML_LAYOUT'); ?></legend>
+	<h3 class="rsfp-legend"><?php echo JText::_('RSFP_FORM_HTML_LAYOUT'); ?></h3>
 	<button class="btn btn-warning" type="button" onclick="generateLayout('<?php echo $this->form->FormId; ?>', true);"><?php echo JText::_('RSFP_GENERATE_LAYOUT'); ?></button>
 	<table width="100%">
 		<tr>

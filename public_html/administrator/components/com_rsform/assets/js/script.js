@@ -773,6 +773,13 @@ function changeValidation(elem) {
 				theText = RStranslateText('extra');
 			}
 			
+			jQuery(document.getElementById('VALIDATIONRULE').options).each(function(){
+				if (this.value == selectedValues[i])
+				{
+					theText = this.text + ' - ' + theText;
+				}
+			});
+			
 			captionElement.innerHTML = theText;
 			
 			afterElement.parentNode.insertBefore(newclonedElement, afterElement.nextSibling);
