@@ -114,6 +114,6 @@
         </files>
       </fileset>
 	<updateservers>
-		<server type="collection" priority="1" name="RSJoomla! Extensions Dutch Translations"><![CDATA[http://download.con-con.nl/index.php?option=com_ars&view=update&task=all&format=xml&dummy=extension.xml]]></server>
+		<server type="collection" priority="1" name="RSJoomla! Extensions Dutch Translations"><![CDATA[https://con-con.nl/ReleaseSystem/rsjoomla.xml]]></server>
 	</updateservers>
 </extension>
