@@ -978,9 +978,10 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.10.21</h2>
+	<h2>Changelog v1.10.22</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> Max attendance didn't worked correctly using the cart plugin.</li>
+		<li><span class="version-new">New</span> EasyDiscuss profile URL.</li>
+		<li><span class="version-fixed">Fix</span> EasyDiscuss avatar.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>

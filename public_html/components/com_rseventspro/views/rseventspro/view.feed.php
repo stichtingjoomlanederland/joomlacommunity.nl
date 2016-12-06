@@ -11,7 +11,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 class rseventsproViewRseventspro extends JViewLegacy
 {
 	//Creates the Event Feed
-	public function display() {
+	public function display($tpl = null) {
 		$doc		= JFactory::getDocument();
 		$jinput		= JFactory::getApplication()->input;
 		$rows		= $this->get('events');
