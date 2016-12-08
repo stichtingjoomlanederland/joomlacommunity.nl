@@ -626,7 +626,7 @@ class SPUpgradeModelCom extends JModelLegacy {
         if ($item['access'] > 2) {
             $message = '<p>' . JText::sprintf('COM_SPUPGRADE_MSG_ERROR_ACCESSLEVEL', $item['id']) . '</p>';
             //$this->factory->writeLog($message);
-            continue;
+            return;
         }
         if ($item['access'] == 2)
             $item['access'] = 3;

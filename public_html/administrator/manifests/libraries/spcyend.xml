@@ -2,21 +2,20 @@
 <extension type="library" version="3.4" method="upgrade" >
     <name>KAINOTOMO PH LTD</name>
     <libraryname>spcyend</libraryname>
-    <creationDate>30-Mar-2015</creationDate>
+    <creationDate>22-Sep-2015</creationDate>
     <author>KAINOTOMO PH LTD</author>
     <authorEmail>info@kainotomo.com</authorEmail>
     <authorUrl>http://www.kainotomo.com</authorUrl>
     <copyright>KAINOTOMO PH LTD - All rights reserved.</copyright>
     <license>GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
     <!--  The version string is recorded in the components table -->
-    <version>3.2.2</version>   
+    <version>3.2.3</version>   
     <description>KAINOTOMO PH LTD Libraries</description>
 
     <files folder="libraries">
         <filename>index.html</filename>
         <folder>utilities</folder>
         <folder>database</folder>
-        <folder>geoip</folder>
     </files>
     
     <media destination="spcyend" folder="media">

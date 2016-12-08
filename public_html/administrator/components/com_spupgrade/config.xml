@@ -16,7 +16,7 @@
         </field> 
         <field
             name="duplicate_alias"
-            type="list"
+            type="hidden"
             default="1"
             label="COM_SPUPGRADE_DUPLICATE_ALIAS_LABEL"
             description="COM_SPUPGRADE_DUPLICATE_ALIAS_DESC">
