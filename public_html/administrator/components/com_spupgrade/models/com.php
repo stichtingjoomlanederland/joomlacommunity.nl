@@ -618,9 +618,9 @@ class SPUpgradeModelCom extends JModelLegacy {
         $item['sectionid'] = SPUpgradeGeneral::getOldId($item['sectionid'], 3);
         if (!$item['sectionid'])
             $item['sectionid'] = 1;
-        $item['created_by'] = SPUpgradeGeneral::getOldId($item['created_by'], 1);
-        if (!$item['created_by'])
-            $item['created_by'] = $this->user->id;
+//        $item['created_by'] = SPUpgradeGeneral::getOldId($item['created_by'], 1);
+//        if (!$item['created_by'])
+//            $item['created_by'] = $this->user->id;
 
         //access difference
         if ($item['access'] > 2) {
