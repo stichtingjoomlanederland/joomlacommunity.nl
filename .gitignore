@@ -36,8 +36,9 @@ Thumbs.db
 Desktop.ini
 
 # Tools #
-/bower_components
-/node_modules
+bower_components
+node_modules
+public_html/templates/jc/node_modules
 
 # Config files
 public_html/media/com_easydiscuss/config/
