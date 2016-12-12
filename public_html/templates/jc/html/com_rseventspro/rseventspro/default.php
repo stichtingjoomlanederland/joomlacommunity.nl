@@ -14,25 +14,25 @@ $profile = DiscussHelper::getTable('Profile');
 ?>
 
 <script type="text/javascript">
-	var rseproMask = '<?php echo $this->escape($this->mask); ?>';
-	var rseproCurrency = '<?php echo $this->escape($this->currency); ?>';
-	var rseproDecimals = '<?php echo $this->escape($this->decimals); ?>';
-	var rseproDecimal = '<?php echo $this->escape($this->decimal); ?>';
-	var rseproThousands = '<?php echo $this->escape($this->thousands); ?>';
+    var rseproMask = '<?php echo $this->escape($this->mask); ?>';
+    var rseproCurrency = '<?php echo $this->escape($this->currency); ?>';
+    var rseproDecimals = '<?php echo $this->escape($this->decimals); ?>';
+    var rseproDecimal = '<?php echo $this->escape($this->decimal); ?>';
+    var rseproThousands = '<?php echo $this->escape($this->thousands); ?>';
 </script>
 
 
 <div class="well">
 
-	<div class="row">
-		<?php if ($this->category): ?>
-			<div class="col-md-8">
-				<div class="page-header">
-					<div class="pull-right">
+    <div class="row">
+		<?php if ($this->category->level > 1): ?>
+            <div class="col-md-8">
+                <div class="page-header">
+                    <div class="pull-right">
 						<?php if ($this->params->get('search', 1)) : ?>
-							<form method="post" action="<?php echo $this->escape(JRoute::_(JURI::getInstance(), false)); ?>" name="adminForm" id="adminForm">
+                            <form method="post" action="<?php echo $this->escape(JRoute::_(JURI::getInstance(), false)); ?>" name="adminForm" id="adminForm">
 
-								<div class="rsepro-filter-container">
+                                <div class="rsepro-filter-container">
 
 
 									<?php if (!empty($this->columns))
@@ -40,83 +40,86 @@ $profile = DiscussHelper::getTable('Profile');
 										<?php for ($i = 0; $i < count($this->columns); $i++)
 									{ ?>
 										<?php $hash = sha1(@$this->columns[$i] . @$this->operators[$i] . @$this->values[$i]); ?>
-										<div id="<?php echo $hash; ?>">
-											<input type="hidden" name="filter_from[]" value="<?php echo $this->escape($this->columns[$i]); ?>">
-											<input type="hidden" name="filter_condition[]" value="<?php echo $this->escape($this->operators[$i]); ?>">
-											<input type="hidden" name="search[]" value="<?php echo $this->escape($this->values[$i]); ?>">
-											<div class="btn-group">
-												<!--<span class="btn btn-default disabled btn-small"><?php echo $this->escape($this->values[$i]); ?></span>-->
+                                        <div id="<?php echo $hash; ?>">
+                                            <input type="hidden" name="filter_from[]" value="<?php echo $this->escape($this->columns[$i]); ?>">
+                                            <input type="hidden" name="filter_condition[]" value="<?php echo $this->escape($this->operators[$i]); ?>">
+                                            <input type="hidden" name="search[]" value="<?php echo $this->escape($this->values[$i]); ?>">
+                                            <div class="btn-group">
+                                                <!--<span class="btn btn-default disabled btn-small"><?php echo $this->escape($this->values[$i]); ?></span>-->
 
-												<a href="javascript:void(0)" class="btn btn-sm btn-default rsepro-close">
-													<i class="icon-delete"></i> Toon alles
-												</a>
-											</div>
-										</div>
+                                                <a href="javascript:void(0)" class="btn btn-sm btn-default rsepro-close">
+                                                    <i class="icon-delete"></i> Toon alles
+                                                </a>
+                                            </div>
+                                        </div>
 
-										<li class="rsepro-filter-conditions" <?php echo $i == (count($this->columns) - 1) ? 'style="display: none;"' : ''; ?>>
-											<a class="btn btn-small"><?php echo ucfirst(JText::_('COM_RSEVENTSPRO_GLOBAL_' . $this->operator)); ?></a>
-										</li>
+                                        <li class="rsepro-filter-conditions" <?php echo $i == (count($this->columns) - 1) ? 'style="display: none;"' : ''; ?>>
+                                            <a class="btn btn-small"><?php echo ucfirst(JText::_('COM_RSEVENTSPRO_GLOBAL_' . $this->operator)); ?></a>
+                                        </li>
 
 									<?php } ?>
 									<?php } ?>
 
 
-									<input type="hidden" name="filter_from[]" value="">
-									<input type="hidden" name="filter_condition[]" value="">
-									<input type="hidden" name="search[]" value="">
-									<input type="hidden" name="filter_featured[]" value="">
-									<input type="hidden" name="filter_price[]" value="">
-								</div>
-							</form>
+                                    <input type="hidden" name="filter_from[]" value="">
+                                    <input type="hidden" name="filter_condition[]" value="">
+                                    <input type="hidden" name="search[]" value="">
+                                    <input type="hidden" name="filter_featured[]" value="">
+                                    <input type="hidden" name="filter_price[]" value="">
+                                </div>
+                            </form>
 						<?php else: ?>
 							<?php if (!empty($this->columns)) : ?>
-								<!--<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=clear'); ?>" class="rs_filter_clear"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CLEAR_FILTER'); ?></a>-->
+                                <!--<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=clear'); ?>" class="rs_filter_clear"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CLEAR_FILTER'); ?></a>-->
 							<?php endif; ?>
 						<?php endif; ?>
-					</div>
+                    </div>
 
-					<h1><?php echo $this->category->title; ?></h1>
+                    <h1><?php echo $this->category->title; ?></h1>
 
-				</div>
+                </div>
 
-				<div class="lead">
-					<p><?php echo JHtml::_('content.prepare', $this->category->description, '', 'com_content.category'); ?></p>
-				</div>
-			</div>
-			<div class="col-md-4">
-				<!-- Show organizers -->
+                <div class="lead">
+                    <p><?php echo JHtml::_('content.prepare', $this->category->description, '', 'com_content.category'); ?></p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <!-- Show organizers -->
 				<?php $organisers = ($this->category->metadata->get('author')) ? explode(',', $this->category->metadata->get('author')) : null; ?>
 				<?php if (!empty($organisers)) : ?>
-					<div class="panel panel-bijeenkomsten">
-						<div class="panel-heading">Organisatoren</div>
-						<div class="list-group list-group-flush panel-bijeenkomsten">
+                    <div class="panel panel-bijeenkomsten">
+                        <div class="panel-heading">Organisatoren</div>
+                        <div class="list-group list-group-flush panel-bijeenkomsten">
 							<?php foreach ($organisers as $organiser) : ?>
 								<?php $profile->load($organiser); ?>
-								<a class="list-group-item" href="<?php echo $profile->getLink(); ?>">
-									<img class="img-circle" src="<?php echo $profile->getAvatar(); ?>" width="50px" height="50px"/>
+                                <a class="list-group-item" href="<?php echo $profile->getLink(); ?>">
+                                    <img class="img-circle" src="<?php echo $profile->getAvatar(); ?>" width="50px" height="50px"/>
 									<?php echo $profile->nickname; ?>
-								</a>
+                                </a>
 							<?php endforeach; ?>
-						</div>
-					</div>
+                        </div>
+                    </div>
 				<?php endif; ?>
-				<!--//end Show organizers -->
-			</div>
+                <!--//end Show organizers -->
+            </div>
 		<?php else: ?>
-			<div class="col-md-12">
-				<div class="page-header">
-					<h1>Joomla bijeenkomsten</h1>
-				</div>
-				<div class="lead">
-					<p>Nederland en België hebben een actieve Joomlacommunity. Met grote regelmaat worden er door het hele land bijeenkomsten georganiseerd zoals Joomla Gebruikersgroepen, Pizza Bugs & Fun, de Joomla!Dagen en diverse andere activiteiten. In de komende tijd zijn onderstaande bijeenkomsten gepland.</p>
-				</div>
-			</div>
+            <div class="col-md-12">
+				<?php
+				$modules  = JModuleHelper::getModules('above-agenda');
+				$document = JFactory::getDocument();
+
+				foreach ($modules as $mod)
+				{
+					echo JModuleHelper::renderModule($mod);
+				}
+				?>
+            </div>
 		<?php endif; ?>
-	</div>
+    </div>
 </div>
 
 
-<h2>Bijeenkomsten</h2>
+<h2>Agenda</h2>
 <div class="well">
 	<?php $count = count($this->events); ?>
 	<?php if (!empty($this->events)) : ?>
@@ -139,19 +142,19 @@ $profile = DiscussHelper::getTable('Profile');
 
 			<?php if ($monthYear = rseventsproHelper::showMonthYear($event->start, 'events' . $this->fid))
 		{ ?>
-			<div class="page-header">
-				<h2><?php echo $monthYear; ?></h2>
-			</div>
+            <div class="page-header">
+                <h2><?php echo $monthYear; ?></h2>
+            </div>
 		<?php } ?>
 
-			<div class="media">
-				<div class="media-left">
-					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id=' . rseventsproHelper::sef($event->id, $event->name), false, rseventsproHelper::itemid($event->id)); ?>">
-						<img class="media-object" src="<?php echo rseventsproHelper::thumb($event->id, $this->config->icon_small_width); ?>" width="150px">
-					</a>
-				</div>
-				<div class="media-body">
-					<p class="text-muted">
+            <div class="media">
+                <div class="media-left">
+                    <a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id=' . rseventsproHelper::sef($event->id, $event->name), false, rseventsproHelper::itemid($event->id)); ?>">
+                        <img class="media-object" src="<?php echo rseventsproHelper::thumb($event->id, $this->config->icon_small_width); ?>" width="150px">
+                    </a>
+                </div>
+                <div class="media-body">
+                    <p class="text-muted">
 						<?php if ($event->allday)
 						{ ?>
 							<?php if (!empty($event->options['start_date_list']))
@@ -167,7 +170,7 @@ $profile = DiscussHelper::getTable('Profile');
 						{ ?>
 						<?php if ((!empty($event->options['start_date_list']) || !empty($event->options['start_time_list'])) && empty($event->options['end_date_list']) && empty($event->options['end_time_list']))
 						{ ?>
-						<span class="rsepro-event-starting-block">
+                        <span class="rsepro-event-starting-block">
 
 						<?php }
 						else
@@ -181,7 +184,7 @@ $profile = DiscussHelper::getTable('Profile');
 							{ ?>
 						<?php if ((!empty($event->options['end_date_list']) || !empty($event->options['end_time_list'])) && empty($event->options['start_date_list']) && empty($event->options['start_time_list']))
 						{ ?>
-							<span class="rsepro-event-ending-block">
+                            <span class="rsepro-event-ending-block">
 				<?php echo JText::_('COM_RSEVENTSPRO_EVENT_ENDING_ON'); ?>
 								<?php }
 								else
@@ -195,38 +198,38 @@ $profile = DiscussHelper::getTable('Profile');
 								<?php } ?>
 
 								<?php } ?>
-								-
+                                -
 								<?php if (!empty($event->options['show_categories_list']))
 								{ ?>
 								<?php echo $details['categories']; ?></span>
 						<?php } ?>
-					</p>
-					<h3 class="media-heading">
-						<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id=' . rseventsproHelper::sef($event->id, $event->name), false, rseventsproHelper::itemid($event->id)); ?>">
+                    </p>
+                    <h3 class="media-heading">
+                        <a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id=' . rseventsproHelper::sef($event->id, $event->name), false, rseventsproHelper::itemid($event->id)); ?>">
 							<?php echo $event->name; ?>
-						</a>
-					</h3>
-					<p><?php echo JHTML::_('string.truncate', $event->description, 210, true, false); ?></p>
-				</div>
-			</div>
+                        </a>
+                    </h3>
+                    <p><?php echo JHTML::_('string.truncate', $event->description, 210, true, false); ?></p>
+                </div>
+            </div>
 		<?php } ?>
 
 
 		<?php rseventsproHelper::clearMonthYear('events' . $this->fid, @$lastMY); ?>
-		<div class="rs_loader" id="rs_loader" style="display:none;">
-			<img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/loader.gif" alt=""/>
-		</div>
+        <div class="rs_loader" id="rs_loader" style="display:none;">
+            <img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/loader.gif" alt=""/>
+        </div>
 		<?php if ($this->total > $count)
 		{ ?>
-			<a class="rs_read_more" id="rsepro_loadmore"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_LOAD_MORE'); ?></a>
+            <a class="rs_read_more" id="rsepro_loadmore"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_LOAD_MORE'); ?></a>
 		<?php } ?>
-		<div class="hidden">
-			<span id="total" class="rs_hidden"><?php echo $this->total; ?></span>
-			<span id="Itemid" class="rs_hidden"><?php echo JFactory::getApplication()->input->getInt('Itemid'); ?></span>
-			<span id="langcode" class="rs_hidden"><?php echo rseventsproHelper::getLanguageCode(); ?></span>
-			<span id="parent" class="rs_hidden"><?php echo JFactory::getApplication()->input->getInt('parent'); ?></span>
-			<span id="rsepro-prefix" class="rs_hidden"><?php echo 'events' . $this->fid; ?></span>
-		</div>
+        <div class="hidden">
+            <span id="total" class="rs_hidden"><?php echo $this->total; ?></span>
+            <span id="Itemid" class="rs_hidden"><?php echo JFactory::getApplication()->input->getInt('Itemid'); ?></span>
+            <span id="langcode" class="rs_hidden"><?php echo rseventsproHelper::getLanguageCode(); ?></span>
+            <span id="parent" class="rs_hidden"><?php echo JFactory::getApplication()->input->getInt('parent'); ?></span>
+            <span id="rsepro-prefix" class="rs_hidden"><?php echo 'events' . $this->fid; ?></span>
+        </div>
 	<?php else : ?>
 		<?php echo JText::_('Er zijn momenteel geen bijeenkomsten gepland'); ?>
 	<?php endif; ?>
@@ -234,29 +237,29 @@ $profile = DiscussHelper::getTable('Profile');
 </div>
 
 <script type="text/javascript">
-	jQuery(document).ready(function () {
+    jQuery(document).ready(function () {
 		<?php if ($this->total > $count) { ?>
-		jQuery('#rsepro_loadmore').on('click', function () {
-			rspagination('events', jQuery('#rs_events_container > li[class!="rsepro-month-year"]').length);
-		});
+        jQuery('#rsepro_loadmore').on('click', function () {
+            rspagination('events', jQuery('#rs_events_container > li[class!="rsepro-month-year"]').length);
+        });
 		<?php } ?>
 
 		<?php if (!empty($count)) { ?>
-		jQuery('#rs_events_container li[class!="rsepro-month-year"]').on({
-			mouseenter: function () {
-				jQuery(this).find('div.rs_options').css('display', '');
-			},
-			mouseleave: function () {
-				jQuery(this).find('div.rs_options').css('display', 'none');
-			}
-		});
+        jQuery('#rs_events_container li[class!="rsepro-month-year"]').on({
+            mouseenter: function () {
+                jQuery(this).find('div.rs_options').css('display', '');
+            },
+            mouseleave: function () {
+                jQuery(this).find('div.rs_options').css('display', 'none');
+            }
+        });
 		<?php } ?>
 
 		<?php if ($this->params->get('search', 1)) { ?>
-		var options = {};
-		options.condition = '.rsepro-filter-operator';
-		options.events = [{'#rsepro-filter-from': 'rsepro_select'}];
-		jQuery().rsjoomlafilter(options);
+        var options = {};
+        options.condition = '.rsepro-filter-operator';
+        options.events = [{'#rsepro-filter-from': 'rsepro_select'}];
+        jQuery().rsjoomlafilter(options);
 		<?php } ?>
-	});
+    });
 </script>

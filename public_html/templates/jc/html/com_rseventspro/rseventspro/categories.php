@@ -18,6 +18,21 @@ $profile = DiscussHelper::getTable('Profile');
 	<h1><?php echo !empty($title) ? $this->escape($title) : JText::_('COM_RSEVENTSPRO_CATEGORIES_TITLE'); ?></h1>
 <?php } ?>
 
+<div class="well">
+    <div class="row">
+        <div class="col-md-12">
+		    <?php
+		    $modules  = JModuleHelper::getModules('above-agenda');
+		    $document = JFactory::getDocument();
+
+		    foreach ($modules as $mod)
+		    {
+			    echo JModuleHelper::renderModule($mod);
+		    }
+		    ?>
+        </div>
+    </div>
+</div>
 <?php if (!empty($this->categories)) : ?>
 	<?php foreach ($this->categories as $category): ?>
 		<?php if ($category->level == 2): ?>
