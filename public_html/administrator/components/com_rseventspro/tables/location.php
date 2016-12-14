@@ -25,6 +25,14 @@ class rseventsproTableLocation extends JTable
 	 * @since	1.5
 	 */
 	public function check() {
+		// Let's check the coordinates 		
+		try {
+			$this->coordinates = rseventsproHelper::checkCoordinates($this->coordinates);
+		} catch(Exception $e) {
+			$this->setError($e->getMessage());
+			return false;
+		}
+		
 		// Set ordering
 		if (empty($this->id)) {
 			$this->ordering = self::getNextOrder();

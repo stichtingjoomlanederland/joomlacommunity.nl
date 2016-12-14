@@ -31,7 +31,7 @@ jQuery(document).ready(function (){
 			{
 				title : '<?php echo addslashes($event->name); ?>',
 				position: '<?php echo $this->escape($event->coordinates); ?>',
-				content: '<div id="content"><b><?php echo addslashes($event->name); ?></b> <br /> <?php echo JText::_('COM_RSEVENTSPRO_LOCATION_ADDRESS',true); ?>: <?php echo addslashes($event->address); ?> <?php if (!empty($event->locationlink)) echo '<br /><a target="_blank" href="'.addslashes($event->locationlink).'">'.addslashes($event->locationlink).'</a></div>'; ?>'
+				content: '<div id="content"><b><?php echo addslashes($event->name); ?></b> <br /> <?php echo JText::_('COM_RSEVENTSPRO_LOCATION_ADDRESS',true); ?>: <?php echo addslashes($event->address); ?> <?php if (!empty($event->locationlink)) { echo '<br /><a target="_blank" href="'.addslashes($event->locationlink).'">'.addslashes($event->locationlink).'</a>'; } ?></div>'
 			}
 		]
 	});

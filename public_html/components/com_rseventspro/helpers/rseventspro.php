@@ -6264,4 +6264,28 @@ class rseventsproHelper
 		
 		return false;
 	}
+	
+	// Check for coordinates
+	public static function checkCoordinates($coordinates) {
+		// Lets check if there are any coordinates entered
+		if (empty($coordinates)) return '';
+
+		// Check if the coordinates are properly delimited
+		if (strpos($coordinates, ',') === false) {
+			throw new Exception(JText::_('COM_RSEVENTSPRO_LOCATION_COORDINATES_ERROR_DELIMITER'));
+		}
+		
+		list($lat, $lng) = explode(',', $coordinates, 2);
+		
+		// Get rid of unwanted spaces
+		$lat = (float) trim($lat);
+		$lng = (float) trim($lng);
+		
+		// Make sure range is correct
+		if ($lat < -90 || $lat > 90 || $lng < -180 || $lng > 180) {
+			throw new Exception(JText::_('COM_RSEVENTSPRO_LOCATION_COORDINATES_ERROR_RANGE'));
+		}
+		
+		return "{$lat},{$lng}";
+	}
 }

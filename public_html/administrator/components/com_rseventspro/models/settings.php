@@ -145,6 +145,15 @@ class rseventsproModelSettings extends JModelAdmin
 	public function save($data) {
 		$files		= JFactory::getApplication()->input->files->get('jform'); 
 		$default	= isset($files['default_image']) ? $files['default_image'] : array();
+		$app		= JFactory::getApplication();
+		
+		// Check the coordinates
+		try {
+			$data['google_maps_center'] = rseventsproHelper::checkCoordinates($data['google_maps_center']);
+		} catch(Exception $e) {
+			$data['google_maps_center'] = '';
+			$app->enqueueMessage($e->getMessage(),'error');
+		}
 		
 		if ($default && $default['error'] == 0 && $default['size'] > 0) {
 			jimport('joomla.filesystem.file');
@@ -180,7 +189,7 @@ class rseventsproModelSettings extends JModelAdmin
 		}
 		
 		// Save iDeal files
-		JFactory::getApplication()->triggerEvent('rseproIdealSaveSettings', array(array('data' => &$data)));
+		$app->triggerEvent('rseproIdealSaveSettings', array(array('data' => &$data)));
 		
 		$db		= $this->getDbo();
 		$query	= $db->getQuery(true);
