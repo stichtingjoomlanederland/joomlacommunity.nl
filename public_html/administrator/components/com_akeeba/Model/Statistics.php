@@ -92,6 +92,14 @@ class Statistics extends Model
 			$filters    = null;
 		}
 
+		if (is_array($order) && isset($order['order']))
+		{
+			if (strtoupper($order['order']) != 'ASC')
+			{
+				$order['order'] = 'desc';
+			}
+		}
+
 		$allStats = Platform::getInstance()->get_statistics_list(array(
 			'limitstart' => $limitstart,
 			'limit'      => $limit,

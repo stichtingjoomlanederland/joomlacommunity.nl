@@ -101,8 +101,6 @@ abstract class Base implements PlatformInterface
 		}
 
 		return ($result == true);
-
-		return true;
 	}
 
 	/**

@@ -98,6 +98,7 @@ class Transfer extends Controller
 		$ftpPubKey      = $this->input->get('public', '', 'raw', 2);
 		$ftpPrivateKey  = $this->input->get('private', '', 'raw', 2);
 		$ftpPassive     = $this->input->getInt('passive', 1);
+		$ftpPassiveFix  = $this->input->getInt('passive_fix', 1);
 		$ftpDirectory   = $this->input->get('directory', '', 'raw', 2);
 
 		// Fix the port if it's missing
@@ -106,14 +107,17 @@ class Transfer extends Controller
 			switch ($transferOption)
 			{
 				case 'ftp':
+				case 'ftpcurl':
 					$ftpPort = 21;
 					break;
 
 				case 'ftps':
+				case 'ftpscurl':
 					$ftpPort = 990;
 					break;
 
 				case 'sftp':
+				case 'sftpcurl':
 					$ftpPort = 22;
 					break;
 			}
@@ -132,6 +136,7 @@ class Transfer extends Controller
 		$session->set('transfer.ftpPrivateKey', $ftpPrivateKey, 'akeeba');
 		$session->set('transfer.ftpDirectory', $ftpDirectory, 'akeeba');
 		$session->set('transfer.ftpPassive', $ftpPassive ? 1 : 0, 'akeeba');
+		$session->set('transfer.ftpPassiveFix', $ftpPassiveFix ? 1 : 0, 'akeeba');
 
 		/** @var \Akeeba\Backup\Admin\Model\Transfer $model */
 		$model = $this->getModel();
@@ -143,7 +148,7 @@ class Transfer extends Controller
 		}
 		catch (TransferIgnorableError $e)
 		{
-			$result = (object)[
+			$result = (object) [
 				'status'    => false,
 				'ignorable' => true,
 				'message'   => $e->getMessage(),
@@ -151,7 +156,7 @@ class Transfer extends Controller
 		}
 		catch (Exception $e)
 		{
-			$result = (object)[
+			$result = (object) [
 				'status'    => false,
 				'message'   => $e->getMessage(),
 				'ignorable' => false,

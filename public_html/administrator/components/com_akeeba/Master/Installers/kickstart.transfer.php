@@ -31,6 +31,8 @@ class AKFeatureTransfer
 		$memLimit       = '8M';
 		$baseDir        = '';
 		$disabled       = '';
+		$maxPostSize    = '2M';
+		$uploadMaxSize  = '2M';
 
 		if (function_exists('ini_get'))
 		{
@@ -38,6 +40,8 @@ class AKFeatureTransfer
 			$memLimit       = ini_get("memory_limit");
 			$baseDir        = ini_get('open_basedir');
 			$disabled       = ini_get("disable_functions");
+			$maxPostSize    = ini_get("post_max_size");
+			$uploadMaxSize  = ini_get("upload_max_filesize");
 
 			if (empty($maxExecTime))
 			{
@@ -67,6 +71,8 @@ class AKFeatureTransfer
 			'canWriteTemp'  => $this->canWriteToFiles('kicktemp'),
 			'maxExecTime'   => $maxExecTime,
 			'memLimit'      => $this->memoryToBytes($memLimit),
+			'maxPost'       => $this->memoryToBytes($maxPostSize),
+			'maxUpload'     => $this->memoryToBytes($uploadMaxSize),
 			'baseDir'       => $baseDir,
 			'disabledFuncs' => $disabled,
 		);

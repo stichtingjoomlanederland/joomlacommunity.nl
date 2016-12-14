@@ -65,8 +65,8 @@ function akeebaBackupOnAfterRenderToFixBrokenCloudFlareRocketLoader()
 	$head = substr($buffer, $from, $to - $from);
 
 	// Replace '<script...src' with '<script...data-cfasync="false" src'
-	$regEx = '/<script([^>]*)src/im';
-	$head = preg_replace($regEx, '<script$1 data-cfasync="false" src', $head);
+	$regEx = '/<script([^>]*)src\s?=\s?(\'|")/im';
+	$head = preg_replace($regEx, '<script$1 data-cfasync="false" src=$2', $head);
 
 	// Reconstruct the page's HTML and set it back to the buffer
 	$buffer = substr($buffer, 0, $from) . $head . substr($buffer, $to);

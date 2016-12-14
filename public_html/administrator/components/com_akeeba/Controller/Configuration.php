@@ -56,7 +56,7 @@ class Configuration extends Controller
 		$profileName = trim($profileName);
 
 		$quickIconValue = $this->input->getCmd('quickicon', '');
-		$quickIcon      = !empty($quickIconValue);
+		$quickIcon      = (int) !empty($quickIconValue);
 
 		$mustSaveProfile = !empty($profileName) && ($profileName != $oldProfileName);
 		$mustSaveProfile = $mustSaveProfile || ($quickIcon != $oldQuickIcon);

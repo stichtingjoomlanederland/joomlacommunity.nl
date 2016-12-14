@@ -236,23 +236,32 @@ class Transfer extends Model
 	{
 		// Initialise
 		$result = [
-			'supported'	=> [
-				'ftp'	=> false,
-				'ftps'	=> false,
-				'sftp'	=> false,
+			'supported'  => [
+				'ftpcurl'  => false,
+				'ftpscurl' => false,
+				'sftpcurl' => false,
+				'ftp'      => false,
+				'ftps'     => false,
+				'sftp'     => false,
 			],
-			'firewalled'	=> [
-				'ftp'	=> false,
-				'ftps'	=> false,
-				'sftp'	=> false
+			'firewalled' => [
+				'ftpcurl'  => false,
+				'ftpscurl' => false,
+				'sftpcurl' => false,
+				'ftp'      => false,
+				'ftps'     => false,
+				'sftp'     => false,
 			]
 		];
 
 		// Necessary functions for each connection method
 		$supportChecks = [
-			'ftp'	=> ['ftp_connect', 'ftp_login', 'ftp_close', 'ftp_chdir', 'ftp_mkdir', 'ftp_pasv', 'ftp_put', 'ftp_delete'],
-			'ftps'	=> ['ftp_ssl_connect', 'ftp_login', 'ftp_close', 'ftp_chdir', 'ftp_mkdir', 'ftp_pasv', 'ftp_put', 'ftp_delete'],
-			'sftp'	=> ['ssh2_connect', 'ssh2_auth_password', 'ssh2_auth_pubkey_file', 'ssh2_sftp', 'ssh2_exec', 'ssh2_sftp_unlink', 'ssh2_sftp_stat', 'ssh2_sftp_mkdir']
+			'ftpcurl'	=> ['curl_init', 'curl_exec', 'curl_setopt', 'curl_errno', 'curl_error'],
+			'ftpscurl'	=> ['curl_init', 'curl_exec', 'curl_setopt', 'curl_errno', 'curl_error'],
+			'sftpcurl'	=> ['curl_init', 'curl_exec', 'curl_setopt', 'curl_errno', 'curl_error'],
+			'ftp'	    => ['ftp_connect', 'ftp_login', 'ftp_close', 'ftp_chdir', 'ftp_mkdir', 'ftp_pasv', 'ftp_put', 'ftp_delete'],
+			'ftps'	    => ['ftp_ssl_connect', 'ftp_login', 'ftp_close', 'ftp_chdir', 'ftp_mkdir', 'ftp_pasv', 'ftp_put', 'ftp_delete'],
+			'sftp'	    => ['ssh2_connect', 'ssh2_auth_password', 'ssh2_auth_pubkey_file', 'ssh2_sftp', 'ssh2_exec', 'ssh2_sftp_unlink', 'ssh2_sftp_stat', 'ssh2_sftp_mkdir'],
 		];
 
 		// Determine which connection methods are supported
@@ -276,13 +285,16 @@ class Transfer extends Model
 		$result['supported'] = $supported;
 
 		// Check firewall settings -- Disabled because the 3PD test server got clogged :(
-		/*
+		/**
 		$result['firewalled'] = array(
-			'ftp'	=> !$result['supported']['ftp'] ? false : EngineTransfer\Ftp::isFirewalled(),
-			'ftps'	=> !$result['supported']['ftps'] ? false : EngineTransfer\Ftp::isFirewalled(['ssl' => true]),
-			'sftp'	=> !$result['supported']['sftp'] ? false : EngineTransfer\Sftp::isFirewalled(),
+			'ftp'      => !$result['supported']['ftp'] ? false : EngineTransfer\Ftp::isFirewalled(),
+			'ftpcurl'  => !$result['supported']['ftp'] ? false : EngineTransfer\FtpCurl::isFirewalled(),
+			'ftps'     => !$result['supported']['ftps'] ? false : EngineTransfer\Ftp::isFirewalled(['ssl' => true]),
+			'ftpscurl' => !$result['supported']['ftp'] ? false : EngineTransfer\FtpCurl::isFirewalled(['ssl' => true]),
+			'sftp'     => !$result['supported']['sftp'] ? false : EngineTransfer\Sftp::isFirewalled(),
+			'sftpcurl' => !$result['supported']['sftp'] ? false : EngineTransfer\SftpCurl::isFirewalled(),
 		);
-		*/
+		/**/
 
 		return $result;
 	}
@@ -418,9 +430,13 @@ class Transfer extends Model
 			$maxTransferSize = 524288;
 		}
 
-		// We never go above a maximum transfer size that depends on the server memory settings
+		/**
+		 * We never go above a maximum transfer size that depends on the server memory setting and the maximum remote
+		 * upload size (minus 10Kb for overhead data)
+		 */
 		$chunkSizeLimit = $this->getMaxChunkSize();
-		$maxTransferSize = min($maxTransferSize, $chunkSizeLimit);
+		$maxUploadLimit = $this->container->session->get('transfer.uploadLimit', 1048576, 'akeeba') - 10240;
+		$maxTransferSize = min($maxUploadLimit, $maxTransferSize, $chunkSizeLimit);
 
 		// Save the optimal transfer size in the session
 		$this->container->session->set('transfer.fragSize', $maxTransferSize, 'akeeba');
@@ -470,9 +486,20 @@ class Transfer extends Model
 			$part++;
 		}
 
-		// If I'm past the last part I'm done
+		/**
+		 * If the backup is single part then $backup['multipart'] is 0. This means that the next if-block will report
+		 * that the transfer is done. In these cases we have to convert $backup['multipart'] to 1 to let the upload
+		 * actually run at all.
+		 */
+		if ($backup['multipart'] == 0)
+		{
+			$backup['multipart'] = 1;
+		}
+
+		// If I'm past the last part I'm done.
 		if ($part >= $backup['multipart'])
 		{
+
 			// We are done
 			$ret['done'] = true;
 			return $ret;
@@ -635,13 +662,24 @@ class Transfer extends Model
 	 */
 	private function getConnector(array $config)
 	{
-		if ($config['method'] == 'sftp')
+		switch ($config['method'])
 		{
-			$connector = new EngineTransfer\Sftp($config);
-		}
-		else
-		{
-			$connector = new EngineTransfer\Ftp($config);
+			case 'sftp':
+				$connector = new EngineTransfer\Sftp($config);
+				break;
+
+			case 'sftpcurl':
+				$connector = new EngineTransfer\SftpCurl($config);
+				break;
+
+			case 'ftpcurl':
+			case 'ftpscurl':
+				$connector = new EngineTransfer\FtpCurl($config);
+				break;
+
+			default:
+				$connector = new EngineTransfer\Ftp($config);
+				break;
 		}
 
 		return $connector;
@@ -789,17 +827,18 @@ class Transfer extends Model
 		$transferOption = $session->get('transfer.transferOption', '', 'akeeba');
 
 		return array(
-			'method'     => $transferOption,
-			'force'      => $session->get('transfer.force', 0, 'akeeba'),
-			'host'       => $session->get('transfer.ftpHost', '', 'akeeba'),
-			'port'       => $session->get('transfer.ftpPort', '', 'akeeba'),
-			'username'   => $session->get('transfer.ftpUsername', '', 'akeeba'),
-			'password'   => $session->get('transfer.ftpPassword', '', 'akeeba'),
-			'directory'  => $session->get('transfer.ftpDirectory', '', 'akeeba'),
-			'ssl'        => $transferOption == 'ftps',
-			'passive'    => $session->get('transfer.ftpPassive', 1, 'akeeba'),
-			'privateKey' => $session->get('transfer.ftpPrivateKey', '', 'akeeba'),
-			'publicKey'  => $session->get('transfer.ftpPubKey', '', 'akeeba'),
+			'method'      => $transferOption,
+			'force'       => $session->get('transfer.force', 0, 'akeeba'),
+			'host'        => $session->get('transfer.ftpHost', '', 'akeeba'),
+			'port'        => $session->get('transfer.ftpPort', '', 'akeeba'),
+			'username'    => $session->get('transfer.ftpUsername', '', 'akeeba'),
+			'password'    => $session->get('transfer.ftpPassword', '', 'akeeba'),
+			'directory'   => $session->get('transfer.ftpDirectory', '', 'akeeba'),
+			'ssl'         => $transferOption == 'ftps',
+			'passive'     => $session->get('transfer.ftpPassive', 1, 'akeeba'),
+			'passive_fix' => $session->get('transfer.ftpPassiveFix', 1, 'akeeba'),
+			'privateKey'  => $session->get('transfer.ftpPrivateKey', '', 'akeeba'),
+			'publicKey'   => $session->get('transfer.ftpPubKey', '', 'akeeba'),
 		);
 	}
 
@@ -925,6 +964,25 @@ class Transfer extends Model
 		}
 
 		$session->set('transfer.remoteTimeLimit', $data['maxExecTime'], 'akeeba');
+
+		// What is my upload limit?
+		$uploadLimit = min($data['maxPost'], $data['maxUpload']);
+
+		if (empty($data['maxPost']))
+		{
+			$uploadLimit = $data['maxUpload'];
+		}
+		elseif (empty($data['maxUpload']))
+		{
+			$uploadLimit = $data['maxPost'];
+		}
+
+		if (empty($uploadLimit))
+		{
+			$uploadLimit = 1048576;
+		}
+
+		$session->set('transfer.uploadLimit', $uploadLimit, 'akeeba');
 	}
 
 	/**

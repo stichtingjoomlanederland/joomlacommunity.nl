@@ -248,7 +248,7 @@ class BelongsToMany extends Relation
 			// Lazy loaded relation; get the single local key
 			$localKey = $this->parentModel->getFieldValue($this->localKey, null);
 
-			if (is_null($localKey))
+			if (is_null($localKey) || ($localKey === ''))
 			{
 				return false;
 			}

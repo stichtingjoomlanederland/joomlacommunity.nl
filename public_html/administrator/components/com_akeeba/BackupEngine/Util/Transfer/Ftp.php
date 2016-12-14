@@ -15,7 +15,7 @@ namespace Akeeba\Engine\Util\Transfer;
 defined('AKEEBAENGINE') or die();
 
 /**
- * FTP transfer object
+ * FTP transfer object, using PHP as the transport backend
  */
 class Ftp implements TransferInterface
 {
@@ -24,56 +24,56 @@ class Ftp implements TransferInterface
 	 *
 	 * @var  string
 	 */
-	private $host = 'localhost';
+	protected $host = 'localhost';
 
 	/**
 	 * FTP server's port, default: 21
 	 *
 	 * @var  integer
 	 */
-	private $port = 21;
+	protected $port = 21;
 
 	/**
 	 * Username used to authenticate to the FTP server
 	 *
 	 * @var  string
 	 */
-	private $username = '';
+	protected $username = '';
 
 	/**
 	 * Password used to authenticate to the FTP server
 	 *
 	 * @var  string
 	 */
-	private $password = '';
+	protected $password = '';
 
 	/**
 	 * FTP initial directory
 	 *
 	 * @var  string
 	 */
-	private $directory = '/';
+	protected $directory = '/';
 
 	/**
 	 * Should I use SSL to connect to the server (FTP over explicit SSL, a.k.a. FTPS)?
 	 *
 	 * @var  boolean
 	 */
-	private $ssl = false;
+	protected $ssl = false;
 
 	/**
 	 * Should I use FTP passive mode?
 	 *
 	 * @var bool
 	 */
-	private $passive = true;
+	protected $passive = true;
 
 	/**
 	 * Timeout for connecting to the FTP server, default: 10
 	 *
 	 * @var  integer
 	 */
-	private $timeout = 10;
+	protected $timeout = 10;
 
 	/**
 	 * The FTP connection handle
@@ -199,7 +199,7 @@ class Ftp implements TransferInterface
 	{
 		try
 		{
-			$connector = new Ftp(array(
+			$connector = new static(array(
 				'host'			=> 'test.rebex.net',
 				'port'			=> 21,
 				'username'		=> 'demo',
@@ -489,6 +489,11 @@ class Ftp implements TransferInterface
 	public function getPath($fileName)
 	{
 		$fileName = str_replace('\\', '/', $fileName);
+
+		if (strpos($fileName, $this->directory) === 0)
+		{
+			return $fileName;
+		}
 
 		$fileName = trim($fileName, '/');
 		$fileName = rtrim($this->directory, '/') . '/' . $fileName;

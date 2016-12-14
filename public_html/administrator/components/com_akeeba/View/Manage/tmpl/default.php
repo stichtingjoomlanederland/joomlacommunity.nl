@@ -102,7 +102,7 @@ defined('_JEXEC') or die();
 					<option value="asc" <?php echo ($this->order_Dir == 'asc') ? 'selected="selected"' : ""; ?>>
 						<?php echo \JText::_('JGLOBAL_ORDER_ASCENDING'); ?>
 					</option>
-					<option <?php echo ($this->order_Dir == 'desc') ? 'selected="selected"' : ""; ?>>
+					<option value="desc" <?php echo ($this->order_Dir == 'desc') ? 'selected="selected"' : ""; ?>>
 						<?php echo \JText::_('JGLOBAL_ORDER_DESCENDING'); ?>
 					</option>
 				</select>

@@ -90,7 +90,7 @@ class Dispatcher extends BaseDispatcher
 		}
 
 		// Does the user have adequate permissions to access our component?
-		if (!JFactory::getUser()->authorise('core.manage', 'com_akeeba'))
+		if (!$this->container->platform->authorise('core.manage', 'com_akeeba'))
 		{
 			throw new \RuntimeException(\JText::_('JERROR_ALERTNOAUTHOR'), 404);
 		}

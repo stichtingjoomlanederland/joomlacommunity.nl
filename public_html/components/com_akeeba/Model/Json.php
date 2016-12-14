@@ -18,7 +18,7 @@ use FOF30\Container\Container;
 use FOF30\Model\Model;
 
 // JSON API version number
-define('AKEEBA_JSON_API_VERSION', '340');
+define('AKEEBA_JSON_API_VERSION', '350');
 
 /*
  * Short API version history:
@@ -28,6 +28,7 @@ define('AKEEBA_JSON_API_VERSION', '340');
  * 330  Introduction of Akeeba Solo
  * 335  Configuration overrides in startBackup
  * 340  Advanced API allows full configuration
+ * 341  exportConfiguration, importConfiguration
  */
 
 if (!defined('AKEEBA_BACKUP_ORIGIN'))

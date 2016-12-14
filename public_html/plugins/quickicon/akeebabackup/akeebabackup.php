@@ -109,7 +109,7 @@ if (function_exists('date_default_timezone_get') && function_exists('date_defaul
  */
 
 // Make sure Akeeba Backup is installed, or quit
-$akeeba_installed = @file_exists(JPATH_ADMINISTRATOR . '/components/com_akeeba/Engine/Factory.php');
+$akeeba_installed = @file_exists(JPATH_ADMINISTRATOR . '/components/com_akeeba/BackupEngine/Factory.php');
 
 if ( !$akeeba_installed)
 {
@@ -146,7 +146,7 @@ if ($continueLoadingIcon)
 	}
 	try
 	{
-		@include_once JPATH_ADMINISTRATOR . '/components/com_akeeba/Engine/Factory.php';
+		@include_once JPATH_ADMINISTRATOR . '/components/com_akeeba/BackupEngine/Factory.php';
 		if ( !class_exists('\Akeeba\Engine\Factory', false))
 		{
 			$continueLoadingIcon = false;
@@ -291,7 +291,7 @@ class plgQuickiconAkeebabackup extends JPlugin
 			$warning = false;
 
 			$aeconfig = Factory::getConfiguration();
-			Platform::getInstance()->load_configuration();
+			Platform::getInstance()->load_configuration(1);
 
 			// Get latest non-SRP backup ID
 			$filters  = array(

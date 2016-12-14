@@ -35,6 +35,7 @@ defined('_JEXEC') or die();
 		</div>
 	</fieldset>
 
+    <?php if ($this->extension == 'jps'): ?>
 	<fieldset>
 		<legend><?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_JPSOPTIONS'); ?></legend>
 		<div class="control-group">
@@ -46,6 +47,7 @@ defined('_JEXEC') or die();
 			</div>
 		</div>
 	</fieldset>
+    <?php endif; ?>
 
     <fieldset id="ftpOptions">
 		<legend><?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_FTPOPTIONS'); ?></legend>

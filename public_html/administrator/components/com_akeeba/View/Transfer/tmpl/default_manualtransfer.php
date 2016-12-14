@@ -27,7 +27,7 @@ $bareName = basename($this->latestBackup['archivename'], '.' . $extension);
 	</div>
 
 	<p style="text-align: center">
-		<iframe width="640" height="480" src="https://www.youtube.com/embed/vo_r0r6cZNQ" frameborder="0" allowfullscreen></iframe>
+		<iframe width="640" height="480" src="https://www.youtube.com/embed/Ok_6CV2JSYg" frameborder="0" allowfullscreen></iframe>
 	</p>
 
 	<h3><?php echo \JText::_('COM_AKEEBA_BUADMIN_LBL_BACKUPINFO'); ?></h3>

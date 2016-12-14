@@ -297,7 +297,7 @@ class Logger implements LoggerInterface
 		@touch($this->logName);
 
 		// Open the log file
-		$this->fp = fopen($this->logName, 'ab');
+		$this->fp = @fopen($this->logName, 'ab');
 
 		// If we couldn't open the file set the file pointer to null
 		if ($this->fp === false)

@@ -174,6 +174,18 @@ defined('_JEXEC') or die();
 			</div>
 		</div>
 
+		<div class="control-group" id="akeeba-transfer-ftp-passive-fix-container">
+			<label for="akeeba-transfer-ftp-passive-fix" class="control-label">
+				<?php echo \JText::_('COM_AKEEBA_CONFIG_ENGINE_ARCHIVER_DIRECTFTPCURL_PASVWORKAROUND_TITLE'); ?>
+			</label>
+			<div class="controls">
+				<?php echo \JHtml::_('select.booleanlist', 'akeeba-transfer-ftp-passive-fix', array(), $this->ftpPassiveFix ? 1 : 0, 'JYES', 'JNO', 'akeeba-transfer-ftp-passive-fix') ?>
+                <span class="help-block">
+                    <?php echo \JText::_('COM_AKEEBA_CONFIG_ENGINE_ARCHIVER_DIRECTFTPCURL_PASVWORKAROUND_DESCRIPTION'); ?>
+                </span>
+			</div>
+		</div>
+
 		<div class="alert alert-error" id="akeeba-transfer-ftp-error" style="display:none;">
 			<h3 id="akeeba-transfer-ftp-error-title">TITLE</h3>
 			<p id="akeeba-transfer-ftp-error-body">MESSAGE</p>

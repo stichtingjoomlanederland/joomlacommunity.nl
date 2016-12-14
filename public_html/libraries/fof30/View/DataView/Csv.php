@@ -171,7 +171,7 @@ class Csv extends Html implements DataViewInterface
 						// Let's see if the relation exists
 						foreach ($methods as $method)
 						{
-							if (isset($object->$method))
+							if (isset($object->$method) || property_exists($object, $method))
 							{
 								$exist = true;
 								$object = $object->$method;

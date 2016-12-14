@@ -83,6 +83,9 @@ class Html extends BaseView
 	/** @var   string  FTP passive mode (default is true) */
 	public $ftpPassive = true;
 
+	/** @var   string  FTP passive mode workaround, for FTP/FTPS over cURL (default is true) */
+	public $ftpPassiveFix = true;
+
 	/** @var   int     Forces the transfer by skipping some checks on the target site */
 	public $force = 0;
 
@@ -115,13 +118,14 @@ class Html extends BaseView
 		$this->ftpPrivateKey    = $session->get('transfer.ftpPrivateKey', null, 'akeeba');
 		$this->ftpDirectory     = $session->get('transfer.ftpDirectory', null, 'akeeba');
 		$this->ftpPassive       = $session->get('transfer.ftpPassive', 1, 'akeeba');
+		$this->ftpPassiveFix    = $session->get('transfer.ftpPassiveFix', 1, 'akeeba');
 
 		// We get this option from the request
-		$this->force = $this->input->getInt('force', 0 );
+		$this->force = $this->input->getInt('force', 0);
 
 		if (!empty($this->latestBackup))
 		{
-			$lastBackupDate = JFactory::getDate($this->latestBackup['backupstart'], 'UTC');
+			$lastBackupDate       = JFactory::getDate($this->latestBackup['backupstart'], 'UTC');
 			$this->lastBackupDate = $lastBackupDate->format(JText::_('DATE_FORMAT_LC'), true);
 
 			$session->set('transfer.lastBackup', $this->latestBackup, 'akeeba');
@@ -133,7 +137,7 @@ class Html extends BaseView
 			$session->set('transfer.ftpsupport', $this->ftpSupport, 'akeeba');
 		}
 
-		$this->transferOptions  = $this->getTransferMethodOptions();
+		$this->transferOptions = $this->getTransferMethodOptions();
 
 		/*
 		foreach ($this->ftpSupport['firewalled'] as $method => $isFirewalled)

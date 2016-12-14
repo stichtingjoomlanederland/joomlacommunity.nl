@@ -223,7 +223,7 @@ HTML;
 			$totalSize = filesize($absolute_filename);
 			$nextOffset = $offset + $this->chunk_size - 1;
 
-			if (isset($result['name']) || ($nextOffset >= $totalSize))
+			if (isset($result['name']) || ($nextOffset > $totalSize))
 			{
 				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Finializing chunked upload, saving uploaded file as $remotePath");
 
@@ -397,9 +397,23 @@ HTML;
 		$this->chunk_size = $config->get('engine.postproc.dropbox2.chunk_upload_size', 10) * 1024 * 1024;
 		$this->directory = $config->get('volatile.postproc.directory', null);
 
+		// Get the base Dropbox directory for storing files
 		if (empty($this->directory))
 		{
 			$this->directory = $config->get('engine.postproc.dropbox2.directory', '');
+		}
+
+		/**
+		 * Remove the trailing and leading slashes from the directory. Why? The directory must never have a trailing
+		 * slash. The directory must have a leading slash UNLESS it's the root, in which case it needs to be normalized
+		 * to an empty string. So we first remove leading & trailing slashes, then check if it's empty (root) or not.
+		 */
+		$this->directory = trim($this->directory, '/');
+
+		// If the directory is not empty then it's not the Dropbox root, therefore I must restore the leading slash.
+		if (!empty($this->directory))
+		{
+			$this->directory = '/' . $this->directory;
 		}
 
 		// Sanity checks

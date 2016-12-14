@@ -601,9 +601,11 @@ class Joomla3x extends BasePlatform
 	 */
 	public function load_version_defines()
 	{
-		if (file_exists(JPATH_COMPONENT_ADMINISTRATOR . '/version.php'))
+		$basePath = JPATH_ADMINISTRATOR . '/components/com_akeeba';
+
+		if (file_exists($basePath . '/version.php'))
 		{
-			require_once(JPATH_COMPONENT_ADMINISTRATOR . '/version.php');
+			require_once($basePath . '/version.php');
 		}
 
 		if ( !defined('AKEEBA_VERSION'))

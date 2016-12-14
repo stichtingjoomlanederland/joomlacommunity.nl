@@ -274,7 +274,7 @@ abstract class Base extends Part
 		}
 
 		// Initialize the split dump feature
-		$this->partSize = $configuration->get('engine.dump.common.splitsize', 1048756);
+		$this->partSize = $configuration->get('engine.dump.common.splitsize', 1048576);
 		if (Factory::getEngineParamsProvider()->getScriptingParameter('db.saveasname', 'normal') == 'output')
 		{
 			$this->partSize = 0;

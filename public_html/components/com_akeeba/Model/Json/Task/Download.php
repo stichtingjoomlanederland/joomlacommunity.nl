@@ -63,7 +63,7 @@ class Download extends AbstractTask
 		$file = $files[ $part_id - 1 ];
 
 		$filesize = @filesize($file);
-		$seekPos  = $chunk_size * 1048756 * ($segment - 1);
+		$seekPos  = $chunk_size * 1048576 * ($segment - 1);
 
 		if ($seekPos > $filesize)
 		{
@@ -86,7 +86,7 @@ class Download extends AbstractTask
 			throw new \RuntimeException('Error reading specified segment', 500);
 		}
 
-		$buffer = fread($fp, 1048756);
+		$buffer = fread($fp, 1048576);
 
 		if ($buffer === false)
 		{

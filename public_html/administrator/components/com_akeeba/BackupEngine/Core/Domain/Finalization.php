@@ -1387,10 +1387,12 @@ class Finalization extends Part
 		$query = $db->getQuery(true)
 					->select(array(
 						$db->qn('id'),
+						$db->qn('tag'),
 						$db->qn('backupid'),
 						$db->qn('absolute_path'),
 					))
 					->from($db->qn($statsTable))
+					->where($db->qn('profile_id') . ' = ' . $db->q(Platform::getInstance()->get_active_profile()))
 					->where($db->qn('status') . ' = ' . $db->q('complete'))
 					->where($db->qn('filesexist') . '=' . $db->q('0'))
 					->order($db->qn('id') . ' DESC');
@@ -1418,7 +1420,11 @@ class Finalization extends Part
 
 			$logFileName = 'akeeba.' . $stat['tag'] . '.' . $stat['backupid'] . '.log';
 			$logPath = dirname($stat['absolute_path']) . '/' . $logFileName;
-			@unlink($logPath);
+
+			if (file_exists($logPath))
+			{
+				@unlink($logPath);
+			}
 		}
 
 		$ids = array();

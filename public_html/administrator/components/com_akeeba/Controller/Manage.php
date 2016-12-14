@@ -147,7 +147,7 @@ class Manage extends Controller
 		}
 
 		// If the filesize is reported, use 1M chunks for echoing the data to the browser
-		$blocksize = 1048756; //1M chunks
+		$blocksize = 1048576; //1M chunks
 		$handle    = @fopen($filename, "r");
 
 		// Now we need to loop through the file and echo out chunks of file data

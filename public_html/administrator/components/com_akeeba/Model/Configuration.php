@@ -118,7 +118,7 @@ class Configuration extends Model
 
 		if (!empty($errorMessage) && !$test->connect_ok)
 		{
-			throw new RuntimeException($errorMessage, 500);
+			throw new RuntimeException($errorMessage[0], 500);
 		}
 	}
 

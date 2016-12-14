@@ -148,12 +148,12 @@ class Mysql extends Base
 			{
 				// The CREATE command wasn't cached. Time to create it. The $type and $dependencies
 				// variables will be thrown away.
-				$type         = 'table';
+				$type         = isset($this->tables_data[ $tableName ]['type']) ? $this->tables_data[ $tableName ]['type'] : 'table';
 				$dependencies = array();
 				$outCreate    = $this->get_create($tableAbstract, $tableName, $type, $dependencies);
 			}
 
-			// Create drop statements if required (the key is defined by the scripting engine)
+            // Create drop statements if required (the key is defined by the scripting engine)
 			if (Factory::getEngineParamsProvider()->getScriptingParameter('db.dropstatements', 0))
 			{
 				if (array_key_exists('create', $this->tables_data[ $tableName ]))
@@ -188,11 +188,25 @@ class Mysql extends Base
 			{
 				// We are dumping data from a table, get the row count
 				$this->getRowCount($tableAbstract);
+
+				// If we can't get the row count we cannot back up this table's data
+				if (is_null($this->maxRange))
+				{
+					$dump_records = false;
+				}
 			}
 			else
 			{
-				// We should not dump any data
+				/**
+				 * Do NOT move this line to the if-block below. We need to only log this message on tables which are
+				 * filtered, not on tables we simply cannot get the row count information for!
+				 */
 				Factory::getLog()->log(LogLevel::INFO, "Skipping dumping data of " . $tableAbstract);
+			}
+
+			// The table is either filtered or we cannot get the row count. Either way we should not dump any data.
+			if (!$dump_records)
+			{
 				$this->maxRange  = 0;
 				$this->nextRange = 1;
 				$outData         = '';
@@ -288,8 +302,17 @@ class Mysql extends Base
 			}
 			catch (\Exception $exc)
 			{
+				// Issue a warning about the failure to dump data
+				$errno = $exc->getCode();
+				$error = $exc->getMessage();
+				$this->setWarning("Failed dumping $tableAbstract from record #{$this->nextRange}. MySQL error $errno: $error");
+
+				// Reset the database driver's state (we will try to dump other tables anyway)
 				$db->resetErrors();
 				$cursor = null;
+
+				// Mark this table as done since we are unable to dump it.
+				$this->nextRange = $this->maxRange;
 			}
 
 			while (is_array($myRow = $db->fetchAssoc()) && ($numRows < ($this->maxRange - $this->nextRange)))
@@ -614,8 +637,34 @@ class Mysql extends Base
 		          ->select('COUNT(*)')
 		          ->from($db->nameQuote($tableAbstract));
 
-		$db->setQuery($sql);
-		$this->maxRange = $db->loadResult();
+		$errno = 0;
+		$error = '';
+
+		try
+		{
+			$db->setQuery($sql);
+			$this->maxRange = $db->loadResult();
+
+			if (is_null($this->maxRange))
+			{
+				$errno = $db->getErrorNum();
+				$error = $db->getErrorMsg(false);
+			}
+		}
+		catch (\Exception $e)
+		{
+			$this->maxRange = null;
+			$errno = $e->getCode();
+			$error = $e->getMessage();
+		}
+
+		if (is_null($this->maxRange))
+		{
+			$this->setWarning("Cannot get number of rows of $tableAbstract. MySQL error $errno: $error");
+
+			return;
+		}
+
 		Factory::getLog()->log(LogLevel::DEBUG, "Rows on " . $tableAbstract . " : " . $this->maxRange);
 	}
 
@@ -1278,23 +1327,28 @@ class Mysql extends Base
 		{
 			$table_sql = $temp[0][2];
 
+            // MySQL adds the database name into everything. We have to remove it.
+            $dbName = $db->qn($this->database) . '.`';
+            $table_sql = str_replace($dbName, '`', $table_sql);
+
 			// These can contain comment lines, starting with a double dash. Remove them.
-			$lines = explode("\n", $table_sql);
-			$table_sql = '';
-
-			foreach ($lines as $line)
-			{
-				$line = trim($line);
-
-				if (substr($line, 0, 2) == '--')
-				{
-					continue;
-				}
-
-				$table_sql .= $line . ' ';
-			}
-
+			$table_sql = $this->removeMySQLComments($table_sql);
 			$table_sql = trim($table_sql);
+			$lines = explode("\n", $table_sql);
+			$lines = array_map('trim', $lines);
+
+			$table_sql = implode(' ', $lines);
+			$table_sql = trim($table_sql);
+
+			/**
+			 * Remove the definer from the CREATE PROCEDURE/TRIGGER/FUNCTION. For example, MySQL returns this:
+			 * CREATE DEFINER=`myuser`@`localhost` PROCEDURE `abc_myProcedure`() ...
+			 * If you're restoring on a different machine the definer will probably be invalid, therefore we need to
+			 * remove it from the (portable) output.
+			 */
+			$pattern = '/^CREATE(.*) ' . strtoupper($type) . ' (.*)/i';
+			$result = preg_match($pattern, $table_sql, $matches);
+			$table_sql = 'CREATE ' . strtoupper($type) . ' ' . $matches[2];
 
 			if (substr($table_sql, -1) != ';')
 			{
@@ -1312,12 +1366,19 @@ class Mysql extends Base
 		{
 			// Check for CREATE VIEW
 			$pattern = '/^CREATE(.*) VIEW (.*)/i';
-			$result = preg_match($pattern, $table_sql);
+			$result = preg_match($pattern, $table_sql, $matches);
 
 			if ($result === 1)
 			{
 				// This is a view.
 				$type = 'view';
+
+				/**
+				 * Newer MySQL versions add the definer and other information in the CREATE VIEW output, e.g.
+				 * CREATE ALGORITHM=UNDEFINED DEFINER=`muyser`@`localhost` SQL SECURITY DEFINER VIEW `abc_myview` AS ...
+				 * We need to remove that to prevent restoration troubles.
+				 */
+				$table_sql = 'CREATE VIEW ' . $matches[2];
 			}
 			else
 			{
@@ -1343,8 +1404,10 @@ class Mysql extends Base
 			}
 		}
 
-		// Replace table name and names of referenced tables with their abstracted
-		// forms and populate dependency tables at the same time
+		/**
+		 * Replace table name and names of referenced tables with their abstracted forms and populate dependency tables
+		 * at the same time.
+		 */
 
 		// On DB only backup we don't want any replacing to take place, do we?
 		if (!Factory::getEngineParamsProvider()->getScriptingParameter('db.abstractnames', 1))
@@ -1799,4 +1862,19 @@ class Mysql extends Base
 		}
 	}
 
+	/**
+	 * Removes MySQL comments from the SQL command
+	 *
+	 * @param   string  $sql  Potentially commented SQL
+	 *
+	 * @return  string  SQL without comments
+	 *
+	 * @see     http://stackoverflow.com/questions/9690448/regular-expression-to-remove-comments-from-sql-statement
+	 */
+	protected function removeMySQLComments($sql)
+	{
+		$sqlComments = '@(([\'"]).*?[^\\\]\2)|((?:\#|--).*?$|/\*(?:[^/*]|/(?!\*)|\*(?!/)|(?R))*\*\/)\s*|(?<=;)\s+@ms';
+
+		return preg_replace($sqlComments, '$1', $sql);
+	}
 }

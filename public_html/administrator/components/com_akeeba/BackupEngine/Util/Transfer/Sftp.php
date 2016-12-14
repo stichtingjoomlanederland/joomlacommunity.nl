@@ -203,7 +203,7 @@ class Sftp implements TransferInterface
 	{
 		try
 		{
-			$connector = new Sftp(array(
+			$connector = new static(array(
 				'host'			=> 'test.rebex.net',
 				'port'			=> 22,
 				'username'		=> 'demo',

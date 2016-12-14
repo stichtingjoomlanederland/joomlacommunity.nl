@@ -133,4 +133,47 @@ class Profiles extends DataModel
 			throw new RuntimeException(\JText::sprintf('COM_AKEEBA_PROFILE_ERR_CANNOTDELETEACTIVE', $id), 500);
 		}
 	}
+
+	/**
+	 * Save a profile from imported configuration data. The $data array must contain the keys description (profile
+	 * description), configuration (engine configuration INI data) and filters (inclusion and inclusion filters JSON
+	 * configuration data).
+	 *
+	 * @param    array  $data  See above
+	 *
+	 * @returns  void
+	 *
+	 * @throws   RuntimeException  When an iport error occurs
+	 */
+	public function import($data)
+	{
+		// Check for data validity
+		$isValid =
+			is_array($data) &&
+			!empty($data) &&
+			array_key_exists('description', $data) &&
+			array_key_exists('configuration', $data) &&
+			array_key_exists('filters', $data);
+
+		if (!$isValid)
+		{
+			throw new RuntimeException(\JText::_('COM_AKEEBA_PROFILES_ERR_IMPORT_INVALID'));
+		}
+
+		// Unset the id, if it exists
+		if (array_key_exists('id', $data))
+		{
+			unset($data['id']);
+		}
+
+		$data['akeeba.flag.confwiz'] = 1;
+
+		// Try saving the profile
+		$result = $this->save($data);
+
+		if (!$result)
+		{
+			throw new RuntimeException(\JText::_('COM_AKEEBA_PROFILES_ERR_IMPORT_FAILED'));
+		}
+	}
 }

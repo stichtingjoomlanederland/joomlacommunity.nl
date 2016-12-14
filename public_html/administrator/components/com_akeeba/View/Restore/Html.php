@@ -11,6 +11,7 @@ namespace Akeeba\Backup\Admin\View\Restore;
 defined('_JEXEC') or die();
 
 use Akeeba\Backup\Admin\Model\Restore;
+use Akeeba\Engine\Platform;
 use FOF30\View\DataView\Html as BaseView;
 use JFactory;
 use JHtml;
@@ -22,6 +23,7 @@ class Html extends BaseView
 	public $id;
 	public $ftpparams;
 	public $extractionmodes;
+	public $extension;
 
 	protected function onBeforeMain()
 	{
@@ -33,6 +35,9 @@ class Html extends BaseView
 		$this->id              = $model->getState('id');
 		$this->ftpparams       = $this->getFTPParams();
 		$this->extractionmodes = $this->getExtractionModes();
+
+		$backup = Platform::getInstance()->get_statistics($this->id);
+		$this->extension       = strtolower(substr($backup['absolute_path'], -3));
 	}
 
 	protected function onBeforeStart()

@@ -1,4 +1,35 @@
 <?php die();?>
+Akeeba Backup 5.2.5
+================================================================================
++ Alternative FTP post-processing engine and DirectFTP engine using cURL providing better compatibility with misconfigured and broken FTP servers
++ Alternative SFTP post-processing engine and DirectSFTP engine using cURL providing compatibility with a wide range of servers
+~ Anticipate and report database errors in more places while backing up MySQL databases
+~ Do not show the JPS password field in the Restoration page when not restoring JPS archives
+# [HIGH] Site Transfer Wizard does not work with single part backup archives
+# [HIGH] Outdated, end-of-life PHP 5.4.4 in old Debian distributions has a MAJOR bug resulting in file data not being backed up (zero length files). We've rewritten our code to work around the bug in this OLD, OUTDATED, END-OF-LIFE AND INSECURE version of PHP. PLEASE UPGRADE YOUR SERVERS. OLD PHP VERSIONS ARE **DANGEROUS**!!!
+# [MEDIUM] Dumping VIEW definers in newer MySQL versions can cause restoration issues when restoring to a new host
+# [MEDIUM] Dropbox: error while fetching the archive back from the server
+# [MEDIUM] Error restoring procedures, functions or triggers originally defined with inline MySQL comments
+# [LOW] Folders not added to archive when both their subdirectories and all their files are filtered.
+# [LOW] ALICE would display many false positives in the old backups detection step
+# [LOW] The quickicon plugin was sometimes not sure which Akeeba Backup version is installed on your site
+# [LOW] The "No Installer" option was accidentally removed
+
+Akeeba Backup 5.2.4
+================================================================================
++ ALICE: Added check about old backups being included in the backup after changing your backup output directory
++ JSON API: export and import a profile's configuration
+# [HIGH] Changes in Joomla 3.6.3 and 3.6.4 regarding Two Factor Authentication setup handling could lead to disabling TFA when restoring a site
+# [HIGH] Javascript error when using on sites with the sequence "src" in their domain name
+# [HIGH] Site Transfer Wizard fails on sites with too much memory or very fast connection speeds to the target site
+# [MEDIUM] In several instances there was a typo declaring 1Mb = 1048756 bytes instead of the correct 1048576 bytes (1024 tiems 1024). This threw off some size calculations which, in extreme cases, could lead to backup failure.
+# [MEDIUM] Obsolete records quota was applied to all backup records, not just the ones from the currently active backup profile
+# [MEDIUM] Obsolete records quota did not delete the associated log file when removing an obsolete backup record
+# [MEDIUM] The backup quickicon plugin would always deactivate itself upon first use
+# [MEDIUM] Infinite loop creating part size in rare cases where the space left in the part is one byte or less
+# [LOW] Fixed ordering in Manage Backups page
+# [LOW] Fixed removing One Click backup flag
+
 Akeeba Backup 5.2.3
 ================================================================================
 + ANGIE: Prevent direct web access to the installation/sql directory

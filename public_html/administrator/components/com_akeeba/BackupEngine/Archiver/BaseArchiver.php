@@ -22,7 +22,7 @@ defined('AKEEBAENGINE') or die();
 if (!defined('AKEEBA_CHUNK'))
 {
 	$configuration = Factory::getConfiguration();
-	$chunksize     = $configuration->get('engine.archiver.common.chunk_size', 1048756);
+	$chunksize     = $configuration->get('engine.archiver.common.chunk_size', 1048576);
 	define('AKEEBA_CHUNK', $chunksize);
 }
 
@@ -449,7 +449,7 @@ abstract class BaseArchiver extends BaseFileManagement
 			// The compression succeeded
 			unset($udata);
 			$compressionMethod = 1;
-			$zdata             = aksubstr(aksubstr($zdata, 0, -4), 2);
+			$zdata             = aksubstr($zdata, 2, -4);
 			$c_len             = akstrlen($zdata);
 		}
 	}
@@ -464,7 +464,7 @@ abstract class BaseArchiver extends BaseFileManagement
 		clearstatcache();
 		$current_part_size = @filesize($this->_dataFileName);
 
-		return $this->partSize - ($current_part_size === false ? 0 : $current_part_size);
+		return (int) $this->partSize - ($current_part_size === false ? 0 : $current_part_size);
 	}
 
 	/**
