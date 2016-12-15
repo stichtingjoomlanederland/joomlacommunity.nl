@@ -11,7 +11,44 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE');
 // Get organizers of event, JC custom
 require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
 $profile = DiscussHelper::getTable('Profile');
+
+
+$reports = null;
+$db      = JFactory::getDbo();
+$query   = $db->getQuery(true);
+$query
+	->select('id')
+	->from($db->quoteName('#__categories'))
+	->where($db->quoteName('alias') . " = " . $db->quote($this->category->alias))
+	->where($db->quoteName('extension') . " = " . $db->quote('com_content'));
+$db->setQuery($query);
+$catid = $db->loadResult();
+
+if ($catid)
+{
+	// Module params
+	$params = array(
+		'count'                      => 3,
+		'layout'                     => 'jc:jugreports',
+		'category_filtering_type'    => 1,
+		'catid'                      => array($catid),
+		'article_ordering'           => 'publish_up',
+		'article_ordering_direction' => 'DESC',
+		'show_author'                => 1,
+		'show_introtext'             => 1,
+		'introtext_limit'            => 140,
+		'created_by_alias'           => array()
+	);
+
+	// Load module and add params
+	$module         = JModuleHelper::getModule('mod_articles_category');
+	$module->params = json_encode($params);
+
+	// Render module
+	$reports = JFactory::getDocument()->loadRenderer('module')->render($module);
+}
 ?>
+
 
 <script type="text/javascript">
     var rseproMask = '<?php echo $this->escape($this->mask); ?>';
@@ -87,9 +124,9 @@ $profile = DiscussHelper::getTable('Profile');
                 <!-- Show organizers -->
 				<?php $organisers = ($this->category->metadata->get('author')) ? explode(',', $this->category->metadata->get('author')) : null; ?>
 				<?php if (!empty($organisers)) : ?>
-                    <div class="panel panel-bijeenkomsten">
+                    <div class="panel panel-agenda">
                         <div class="panel-heading">Organisatoren</div>
-                        <div class="list-group list-group-flush panel-bijeenkomsten">
+                        <div class="list-group list-group-flush panel-agenda">
 							<?php foreach ($organisers as $organiser) : ?>
 								<?php $profile->load($organiser); ?>
                                 <a class="list-group-item" href="<?php echo $profile->getLink(); ?>">
@@ -105,8 +142,7 @@ $profile = DiscussHelper::getTable('Profile');
 		<?php else: ?>
             <div class="col-md-12">
 				<?php
-				$modules  = JModuleHelper::getModules('above-agenda');
-				$document = JFactory::getDocument();
+				$modules = JModuleHelper::getModules('above-agenda');
 
 				foreach ($modules as $mod)
 				{
@@ -118,123 +154,138 @@ $profile = DiscussHelper::getTable('Profile');
     </div>
 </div>
 
+<?php if ($this->category->level > 1): ?>
+<div class="row">
+    <div class="col-md-<?php if ($reports): ?>8<?php else: ?>12<?php endif; ?>">
+		<?php endif; ?>
+        <h2>Agenda</h2>
+        <div class="well">
+			<?php $count = count($this->events); ?>
+			<?php if (!empty($this->events)) : ?>
 
-<h2>Agenda</h2>
-<div class="well">
-	<?php $count = count($this->events); ?>
-	<?php if (!empty($this->events)) : ?>
+				<?php $eventIds = rseventsproHelper::getEventIds($this->events, 'id'); ?>
+				<?php $this->events = rseventsproHelper::details($eventIds); ?>
+				<?php foreach ($this->events as $details)
+				{ ?>
+					<?php if (isset($details['event']) && !empty($details['event'])) $event = $details['event'];
+				else continue; ?>
+					<?php if (!rseventsproHelper::canview($event->id) && $event->owner != $this->user) continue; ?>
+					<?php $full = rseventsproHelper::eventisfull($event->id); ?>
+					<?php $ongoing = rseventsproHelper::ongoing($event->id); ?>
+					<?php $categories = (isset($details['categories']) && !empty($details['categories'])) ? JText::_('COM_RSEVENTSPRO_GLOBAL_CATEGORIES') . ': ' . $details['categories'] : ''; ?>
+					<?php $tags = (isset($details['tags']) && !empty($details['tags'])) ? JText::_('COM_RSEVENTSPRO_GLOBAL_TAGS') . ': ' . $details['tags'] : ''; ?>
+					<?php $incomplete = !$event->completed ? ' rs_incomplete' : ''; ?>
+					<?php $featured = $event->featured ? ' rs_featured' : ''; ?>
+					<?php $repeats = rseventsproHelper::getRepeats($event->id); ?>
+					<?php $lastMY = rseventsproHelper::showdate($event->start, 'mY'); ?>
 
-		<?php $eventIds = rseventsproHelper::getEventIds($this->events, 'id'); ?>
-		<?php $this->events = rseventsproHelper::details($eventIds); ?>
-		<?php foreach ($this->events as $details)
-		{ ?>
-			<?php if (isset($details['event']) && !empty($details['event'])) $event = $details['event'];
-		else continue; ?>
-			<?php if (!rseventsproHelper::canview($event->id) && $event->owner != $this->user) continue; ?>
-			<?php $full = rseventsproHelper::eventisfull($event->id); ?>
-			<?php $ongoing = rseventsproHelper::ongoing($event->id); ?>
-			<?php $categories = (isset($details['categories']) && !empty($details['categories'])) ? JText::_('COM_RSEVENTSPRO_GLOBAL_CATEGORIES') . ': ' . $details['categories'] : ''; ?>
-			<?php $tags = (isset($details['tags']) && !empty($details['tags'])) ? JText::_('COM_RSEVENTSPRO_GLOBAL_TAGS') . ': ' . $details['tags'] : ''; ?>
-			<?php $incomplete = !$event->completed ? ' rs_incomplete' : ''; ?>
-			<?php $featured = $event->featured ? ' rs_featured' : ''; ?>
-			<?php $repeats = rseventsproHelper::getRepeats($event->id); ?>
-			<?php $lastMY = rseventsproHelper::showdate($event->start, 'mY'); ?>
+					<?php if ($monthYear = rseventsproHelper::showMonthYear($event->start, 'events' . $this->fid))
+				{ ?>
+                    <div class="page-header">
+                        <h2><?php echo $monthYear; ?></h2>
+                    </div>
+				<?php } ?>
 
-			<?php if ($monthYear = rseventsproHelper::showMonthYear($event->start, 'events' . $this->fid))
-		{ ?>
-            <div class="page-header">
-                <h2><?php echo $monthYear; ?></h2>
-            </div>
-		<?php } ?>
+                    <div class="media">
+                        <div class="media-left">
+                            <a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id=' . rseventsproHelper::sef($event->id, $event->name), false, rseventsproHelper::itemid($event->id)); ?>">
+                                <img class="media-object" src="<?php echo rseventsproHelper::thumb($event->id, $this->config->icon_small_width); ?>" width="150px">
+                            </a>
+                        </div>
+                        <div class="media-body">
+                            <p class="text-muted"><em>
+									<?php if ($event->allday)
+									{ ?>
+										<?php if (!empty($event->options['start_date_list']))
+									{ ?>
+										<?php echo rseventsproHelper::showdate($event->start, $this->config->global_date, true); ?>
+									<?php } ?>
+									<?php } else
+									{ ?>
 
-            <div class="media">
-                <div class="media-left">
-                    <a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id=' . rseventsproHelper::sef($event->id, $event->name), false, rseventsproHelper::itemid($event->id)); ?>">
-                        <img class="media-object" src="<?php echo rseventsproHelper::thumb($event->id, $this->config->icon_small_width); ?>" width="150px">
-                    </a>
-                </div>
-                <div class="media-body">
-                    <p class="text-muted">
-						<?php if ($event->allday)
-						{ ?>
-							<?php if (!empty($event->options['start_date_list']))
-						{ ?>
-							<?php echo rseventsproHelper::showdate($event->start, $this->config->global_date, true); ?>
-						<?php } ?>
-						<?php } else
-						{ ?>
-
-						<?php if (!empty($event->options['start_date_list']) || !empty($event->options['start_time_list']) || !empty($event->options['end_date_list']) || !empty($event->options['end_time_list']))
-						{ ?>
-						<?php if (!empty($event->options['start_date_list']) || !empty($event->options['start_time_list']))
-						{ ?>
-						<?php if ((!empty($event->options['start_date_list']) || !empty($event->options['start_time_list'])) && empty($event->options['end_date_list']) && empty($event->options['end_time_list']))
-						{ ?>
-                        <span class="rsepro-event-starting-block">
+									<?php if (!empty($event->options['start_date_list']) || !empty($event->options['start_time_list']) || !empty($event->options['end_date_list']) || !empty($event->options['end_time_list']))
+									{ ?>
+									<?php if (!empty($event->options['start_date_list']) || !empty($event->options['start_time_list']))
+									{ ?>
+									<?php if ((!empty($event->options['start_date_list']) || !empty($event->options['start_time_list'])) && empty($event->options['end_date_list']) && empty($event->options['end_time_list']))
+									{ ?>
+                                    <span class="rsepro-event-starting-block">
 
 						<?php }
 						else
 						{ ?>
 
 						<?php } ?>
-							<?php echo rseventsproHelper::showdate($event->start, rseventsproHelper::showMask('list_start', $event->options), true); ?>
+										<?php echo rseventsproHelper::showdate($event->start, rseventsproHelper::showMask('list_start', $event->options), true); ?>
 
-							<?php } ?>
-							<?php if (!empty($event->options['end_date_list']) || !empty($event->options['end_time_list']))
-							{ ?>
-						<?php if ((!empty($event->options['end_date_list']) || !empty($event->options['end_time_list'])) && empty($event->options['start_date_list']) && empty($event->options['start_time_list']))
-						{ ?>
-                            <span class="rsepro-event-ending-block">
-				<?php echo JText::_('COM_RSEVENTSPRO_EVENT_ENDING_ON'); ?>
-								<?php }
-								else
-								{ ?>
+										<?php } ?>
+										<?php if (!empty($event->options['end_date_list']) || !empty($event->options['end_time_list']))
+										{ ?>
+											<?php if ((!empty($event->options['end_date_list']) || !empty($event->options['end_time_list'])) && empty($event->options['start_date_list']) && empty($event->options['start_time_list']))
+										{ ?>
 
-									<?php echo JText::_('COM_RSEVENTSPRO_EVENT_UNTIL'); ?>
-								<?php } ?>
-								<?php echo rseventsproHelper::showdate($event->end, 'H:i', true); ?> uur
+											<?php echo JText::_('COM_RSEVENTSPRO_EVENT_ENDING_ON'); ?>
+										<?php }
+										else
+										{ ?>
 
-								<?php } ?>
-								<?php } ?>
+											<?php echo JText::_('COM_RSEVENTSPRO_EVENT_UNTIL'); ?>
+										<?php } ?>
+											<?php echo rseventsproHelper::showdate($event->end, 'H:i', true); ?> uur
 
-								<?php } ?>
-                                -
-								<?php if (!empty($event->options['show_categories_list']))
-								{ ?>
-								<?php echo $details['categories']; ?></span>
-						<?php } ?>
-                    </p>
-                    <h3 class="media-heading">
-                        <a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id=' . rseventsproHelper::sef($event->id, $event->name), false, rseventsproHelper::itemid($event->id)); ?>">
-							<?php echo $event->name; ?>
-                        </a>
-                    </h3>
-                    <p><?php echo JHTML::_('string.truncate', $event->description, 210, true, false); ?></p>
+										<?php } ?>
+										<?php } ?>
+
+										<?php } ?>
+
+										<?php if ($this->category->level > 1): ?>
+										<?php else: ?>
+                                            -
+											<?php if (!empty($event->options['show_categories_list']))
+											{ ?>
+												<?php echo $details['categories']; ?>
+											<?php } ?>
+										<?php endif; ?>
+                                </em></p>
+                            <h3 class="media-heading">
+                                <a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id=' . rseventsproHelper::sef($event->id, $event->name), false, rseventsproHelper::itemid($event->id)); ?>">
+									<?php echo $event->name; ?>
+                                </a>
+                            </h3>
+                            <p><?php echo JHTML::_('string.truncate', $event->description, 210, true, false); ?></p>
+                        </div>
+                    </div>
+				<?php } ?>
+
+
+				<?php rseventsproHelper::clearMonthYear('events' . $this->fid, @$lastMY); ?>
+                <div class="rs_loader" id="rs_loader" style="display:none;">
+                    <img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/loader.gif" alt=""/>
                 </div>
-            </div>
-		<?php } ?>
-
-
-		<?php rseventsproHelper::clearMonthYear('events' . $this->fid, @$lastMY); ?>
-        <div class="rs_loader" id="rs_loader" style="display:none;">
-            <img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/loader.gif" alt=""/>
+				<?php if ($this->total > $count)
+				{ ?>
+                    <a class="rs_read_more" id="rsepro_loadmore"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_LOAD_MORE'); ?></a>
+				<?php } ?>
+                <div class="hidden">
+                    <span id="total" class="rs_hidden"><?php echo $this->total; ?></span>
+                    <span id="Itemid" class="rs_hidden"><?php echo JFactory::getApplication()->input->getInt('Itemid'); ?></span>
+                    <span id="langcode" class="rs_hidden"><?php echo rseventsproHelper::getLanguageCode(); ?></span>
+                    <span id="parent" class="rs_hidden"><?php echo JFactory::getApplication()->input->getInt('parent'); ?></span>
+                    <span id="rsepro-prefix" class="rs_hidden"><?php echo 'events' . $this->fid; ?></span>
+                </div>
+			<?php else : ?>
+				<?php echo JText::_('Er zijn momenteel geen bijeenkomsten gepland'); ?>
+			<?php endif; ?>
+			<?php if ($this->category->level > 1): ?>
         </div>
-		<?php if ($this->total > $count)
-		{ ?>
-            <a class="rs_read_more" id="rsepro_loadmore"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_LOAD_MORE'); ?></a>
-		<?php } ?>
-        <div class="hidden">
-            <span id="total" class="rs_hidden"><?php echo $this->total; ?></span>
-            <span id="Itemid" class="rs_hidden"><?php echo JFactory::getApplication()->input->getInt('Itemid'); ?></span>
-            <span id="langcode" class="rs_hidden"><?php echo rseventsproHelper::getLanguageCode(); ?></span>
-            <span id="parent" class="rs_hidden"><?php echo JFactory::getApplication()->input->getInt('parent'); ?></span>
-            <span id="rsepro-prefix" class="rs_hidden"><?php echo 'events' . $this->fid; ?></span>
+    </div>
+	<?php if ($reports) : ?>
+        <div class="col-md-4">
+			<?php echo $reports; ?>
         </div>
-	<?php else : ?>
-		<?php echo JText::_('Er zijn momenteel geen bijeenkomsten gepland'); ?>
 	<?php endif; ?>
-
 </div>
+<?php endif; ?>
 
 <script type="text/javascript">
     jQuery(document).ready(function () {

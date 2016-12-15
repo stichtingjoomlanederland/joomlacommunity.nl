@@ -113,7 +113,7 @@ $tmpl = $links == 0 ? '' : '&tmpl=component';
 
 	</div>
 	<div class="content-4">
-		<div class="panel panel-bijeenkomsten">
+		<div class="panel panel-agenda">
 			<div class="panel-heading">Details</div>
 			<div class="panel-body">
 				<?php if (!($this->admin || $event->owner == $this->user || $event->sid == $this->user) && $this->permissions['can_edit_events'])
@@ -213,9 +213,9 @@ $tmpl = $links == 0 ? '' : '&tmpl=component';
 
 		<!-- Show organizers -->
 		<?php if (!empty($organisers)) : ?>
-			<div class="panel panel-bijeenkomsten">
+			<div class="panel panel-agenda">
 				<div class="panel-heading">Organisatoren</div>
-				<div class="list-group list-group-flush panel-bijeenkomsten">
+				<div class="list-group list-group-flush panel-agenda">
 					<?php foreach ($organisers as $organiser) : ?>
 						<?php $profile->load($organiser); ?>
 
@@ -233,9 +233,9 @@ $tmpl = $links == 0 ? '' : '&tmpl=component';
 		<!-- Show subscribers -->
 		<?php if ($event->show_registered) : ?>
 			<?php if (!empty($this->guests)) : ?>
-				<div class="panel panel-bijeenkomsten">
+				<div class="panel panel-agenda">
 					<div class="panel-heading">Wij gaan!</div>
-					<div class="list-group list-group-flush panel-bijeenkomsten">
+					<div class="list-group list-group-flush panel-agenda">
 						<?php foreach ($this->guests as $guest) : ?>
 
 							<?php if (!empty($guest->url)) : ?>

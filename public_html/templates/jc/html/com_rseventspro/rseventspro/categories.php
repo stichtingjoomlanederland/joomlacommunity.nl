@@ -52,7 +52,7 @@ $profile = DiscussHelper::getTable('Profile');
 						<div class="lead">
 							<?php echo rseventsproHelper::shortenjs($category->description, $category->id, 255, $this->params->get('type', 1)); ?>
 
-							<a class="btn btn-bijeenkomsten" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&category=' . rseventsproHelper::sef($category->id, $category->title)); ?>">
+							<a class="btn btn-agenda" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&category=' . rseventsproHelper::sef($category->id, $category->title)); ?>">
 								Bekijk alle bijeenkomsten
 							</a>
 							<!--				@TODO: komende bijeenkomst-->
@@ -67,9 +67,9 @@ $profile = DiscussHelper::getTable('Profile');
 						$organisers   = ($categorymeta->author) ? explode(',', $categorymeta->author) : null;
 						?>
 						<?php if (!empty($organisers)) : ?>
-							<div class="panel panel-bijeenkomsten">
+							<div class="panel panel-agenda">
 								<div class="panel-heading">Organisatoren</div>
-								<div class="list-group list-group-flush panel-bijeenkomsten">
+								<div class="list-group list-group-flush panel-agenda">
 									<?php foreach ($organisers as $organiser) : ?>
 										<?php $profile->load($organiser); ?>
 										<a class="list-group-item" href="<?php echo $profile->getLink(); ?>">

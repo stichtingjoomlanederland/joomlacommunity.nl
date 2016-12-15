@@ -160,7 +160,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 		
 		$query->clear()
 			->select($this->_db->qn('c.id'))->select($this->_db->qn('c.title'))
-			->select($this->_db->qn('c.description'))->select($this->_db->qn('c.level'))
+			->select($this->_db->qn('c.description'))->select($this->_db->qn('c.level'))->select($this->_db->qn('c.metadata'))
 			->from($this->_db->qn('#__categories','c'))
 			->where($this->_db->qn('c.extension').' = '.$this->_db->q('com_rseventspro'))
 			->where($this->_db->qn('c.published').' = 1')
