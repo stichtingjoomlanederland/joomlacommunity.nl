@@ -181,6 +181,7 @@ if ($catid)
 
 					<?php if ($monthYear = rseventsproHelper::showMonthYear($event->start, 'events' . $this->fid))
 				{ ?>
+                    <br>
                     <div class="page-header">
                         <h2><?php echo $monthYear; ?></h2>
                     </div>
