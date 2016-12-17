@@ -10,6 +10,10 @@ defined('_JEXEC') or die;
 
 // Load Perfect Template Helper
 include_once JPATH_THEMES . '/' . $this->template . '/helpers/helper.php';
+
+// Temp banners
+$banners  = array('<a href="http://www.joomladagen.nl"><img src="images/banners/joomladagen2017.jpg"/></a>', '<a href="https://www.regularlabs.com"><img src="images/banners/regularlabs.png"/></a>');
+$bannerid = array_rand($banners, 1);
 ?>
 
 <!DOCTYPE html>
@@ -27,9 +31,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 ?>
 <div class="leaderboard-container">
     <div class="banner">
-        <a href="http://www.joomladagen.nl">
-            <img src="images/banners/joomladagen2017.jpg"/>
-        </a>
+		<?php echo $banners[$bannerid]; ?>
     </div>
 </div>
 <div class="header<?php echo $helper->isHome() ? ' homepage' : ''; ?>">
