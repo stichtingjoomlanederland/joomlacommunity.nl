@@ -8,7 +8,6 @@
                 description="Selecteer image"
                 ratio="1/1"
                 width="300"
-                required="required"
         />
 
         <field
