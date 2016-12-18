@@ -37,7 +37,7 @@ else
 }
 
 // Determine if the article information column must be shown or not
-$showArticleInformation = $params->get('info_block_show_title');
+$showArticleInformation = ($params->get('info_block_show_title')) ? ($params->get('show_create_date') || $params->get('show_category') || $params->get('show_author')) : false;
 
 // Check Joomla version label
 $joomla3 = false;
@@ -156,9 +156,6 @@ foreach ($this->item->tags->itemTags as $tag)
 
 				<?php if ($params->get('show_modify_date')) : ?>
 					<div class="articleinfo">
-						<!--						<a class="btn btn-small btn-danger pull-right" data-toggle="modal" href="#verbetering">-->
-						<!--							<span class="glyphicon glyphicon-warning-sign"></span> Verbetering doorgeven-->
-						<!--						</a>-->
 						<p class="text-muted">
 							<strong>Gepubliceerd:</strong> <?php echo JHtml::_('date', $this->item->created, JText::_('j F Y')); ?>,
 							<strong>aangepast:</strong> <?php echo JHtml::_('date', $this->item->modified, JText::_('j F Y')); ?>
