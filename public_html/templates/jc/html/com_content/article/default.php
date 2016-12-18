@@ -37,7 +37,7 @@ else
 }
 
 // Determine if the article information column must be shown or not
-$showArticleInformation = ($params->get('show_create_date') || $params->get('show_category') || $params->get('show_author'));
+$showArticleInformation = $params->get('info_block_show_title');
 
 // Check Joomla version label
 $joomla3 = false;
