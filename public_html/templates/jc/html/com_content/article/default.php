@@ -72,11 +72,7 @@ foreach ($this->item->tags->itemTags as $tag)
 									<?php echo $this->item->created_by_alias; ?>
                                 </p>
 							<?php else: ?>
-                                <p>
-                                    <a href="<?php echo $profile->getLink(); ?>">
-                                        <img class="img-circle" width="80px" src="<?php echo $profile->getAvatar(); ?>"/>
-                                    </a>
-                                </p>
+                                <strong>Door</strong>
                                 <p>
 									<?php echo JHtml::_('link', $profile->getLink(), $profile->user->get('name')); ?>
                                 </p>
