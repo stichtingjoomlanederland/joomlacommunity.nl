@@ -16,7 +16,7 @@ $script = "
 		var request = {
 			'option': 'com_ajax',
 			'module': 'jversions',
-			'prefixes': " . json_encode($params->get('prefixes', array())) . ",
+			'prefixes': " . json_encode($params->get('prefixes', array("Joomla! 3"))) . ",
 			'update_url' : '" . $params->get('update_url', 'https://update.joomla.org/core/list.xml') . "',
 			'format': 'raw'
 		};
