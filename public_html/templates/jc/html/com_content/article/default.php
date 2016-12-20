@@ -64,48 +64,51 @@ foreach ($this->item->tags->itemTags as $tag)
                     </div>
 				<?php endif; ?>
                 <div class="item-meta">
+					<?php if ($params->get('show_create_date')) : ?>
+                        <div class="article-meta item-datum">
+                            <p class="article-meta-label">datum</p>
+                            <p>
+                                <time class="post-date"><?php echo JHtml::_('date', $this->item->created, JText::_('j F Y')); ?></time>
+                                <span class="article-meta-mobile">, </span>
+                            </p>
+                        </div>
+					<?php endif; ?>
+
 					<?php if ($params->get('show_author')) : ?>
-                        <div class="auteur-info">
+                        <div class="article-meta auteur-info">
+                            <p class="article-meta-label">door</p>
 							<?php if (!empty($this->item->created_by_alias)) : ?>
-                                <strong>Door</strong>
                                 <p>
 									<?php echo $this->item->created_by_alias; ?>
                                 </p>
 							<?php else: ?>
-                                <strong>Door</strong>
                                 <p>
 									<?php echo JHtml::_('link', $profile->getLink(), $profile->user->get('name')); ?>
                                 </p>
 							<?php endif; ?>
-                        </div>
-					<?php endif; ?>
 
-					<?php if ($params->get('show_create_date')) : ?>
-                        <div class="item-datum">
-                            <strong>Datum</strong>
-                            <p>
-                                <time class="post-date"><?php echo JHtml::_('date', $this->item->created, JText::_('j F Y')); ?></time>
-                            </p>
                         </div>
 					<?php endif; ?>
 
 					<?php if ($params->get('show_category')) : ?>
-                        <div class="item-categorie">
-                            <strong>Categorie</strong>
+                        <div class="article-meta item-categorie">
+                            <p class="article-meta-label">
+                                <span class="article-meta-mobile">in</span>
+                                <span class="article-meta-desktop">categorie</span>
+                            </p>
                             <p>
-                                <time class="post-date">
-									<?php if ($params->get('link_category') && $this->item->catslug) : ?>
-                                        <a href="<?php echo JRoute::_(ContentHelperRoute::getCategoryRoute($this->item->catslug)); ?>">
-											<?php echo $this->escape($this->item->category_title); ?>
-                                        </a>
-									<?php else : ?>
+								<?php if ($params->get('link_category') && $this->item->catslug) : ?>
+                                    <a href="<?php echo JRoute::_(ContentHelperRoute::getCategoryRoute($this->item->catslug)); ?>">
 										<?php echo $this->escape($this->item->category_title); ?>
-									<?php endif; ?>
-                                </time>
+                                    </a>
+								<?php else : ?>
+									<?php echo $this->escape($this->item->category_title); ?>
+								<?php endif; ?>
                             </p>
                         </div>
 					<?php endif; ?>
-                    <div class="item-share full">
+
+                    <div class="article-meta item-share full">
 						<?php
 						$data = array(
 							'title'    => 'Share',
@@ -148,6 +151,20 @@ foreach ($this->item->tags->itemTags as $tag)
                 </div>
                 <div class="item-content">
 					<?php echo $this->item->text; ?>
+                </div>
+
+                <div class="item-share item-share-below full">
+					<?php
+					$data = array(
+						'title'    => 'Share:',
+						'facebook' => true,
+						'twitter'  => true,
+						'linkedin' => true,
+						'item'     => $this->item,
+						'inline'   => true
+					);
+					echo JLayoutHelper::render('template.snippet-share-page', $data);
+					?>
                 </div>
 
 				<?php if ($params->get('show_modify_date')) : ?>

@@ -45,7 +45,7 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
         </div>
 	<?php endif; ?>
     <div class="row">
-        <div class="col-2">
+        <div class="col-md-2">
 			<?php if ($image == 'small'): ?>
                 <div class="photoboxsmall<?php if ($images->float_intro == 'right'): ?> logo<?php endif; ?>">
                     <img src="<?php echo($images->image_intro); ?>"/>
@@ -54,35 +54,37 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
 
             <div class="item-meta">
 				<?php if ($showArticleInformation != false) : ?>
-					<?php if ($params->get('show_author')) : ?>
-                        <div class="auteur-info">
-							<?php
-							if (!empty($this->item->created_by_alias)) : ?>
-                                <strong>Door</strong>
-                                <p>
-									<?php echo $this->item->created_by_alias; ?>
-                                </p>
-							<?php else: ?>
-                                <strong>Door</strong>
-                                <p>
-									<?php echo JHtml::_('link', $profile->getLink(), $profile->user->get('name')); ?>
-                                </p>
-							<?php endif; ?>
-                        </div>
-					<?php endif; ?>
-
 					<?php if ($params->get('show_create_date')) : ?>
-                        <div class="item-datum">
-                            <strong>Datum</strong>
+                        <div class="article-meta item-datum">
+                            <p class="article-meta-label">datum</p>
                             <p>
-                                <time class="post-date"><?php echo JHtml::_('date', $this->item->created, JText::_('j F Y')); ?></time>
+                                <time class="post-date"><?php echo JHtml::_('date', $this->item->created, JText::_('j F Y')); ?></time><span class="article-meta-mobile">, </span>
                             </p>
                         </div>
 					<?php endif; ?>
 
+					<?php if ($params->get('show_author')) : ?>
+                        <div class="article-meta auteur-info">
+                            <p class="article-meta-label">door</p>
+							<?php if (!empty($this->item->created_by_alias)) : ?>
+                                <p>
+									<?php echo $this->item->created_by_alias; ?>
+                                </p>
+							<?php else: ?>
+                                <p>
+									<?php echo JHtml::_('link', $profile->getLink(), $profile->user->get('name')); ?>
+                                </p>
+							<?php endif; ?>
+
+                        </div>
+					<?php endif; ?>
+
 					<?php if ($params->get('show_category')) : ?>
-                        <div class="item-categorie">
-                            <strong>Categorie</strong>
+                        <div class="article-meta item-categorie">
+                            <p class="article-meta-label">
+                                <span class="article-meta-mobile">in</span>
+                                <span class="article-meta-desktop">categorie</span>
+                            </p>
                             <p>
 								<?php if ($params->get('link_category') && $this->item->catslug) : ?>
                                     <a href="<?php echo JRoute::_(ContentHelperRoute::getCategoryRoute($this->item->catslug)); ?>">
@@ -96,7 +98,7 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
 					<?php endif; ?>
 				<?php endif; ?>
 
-                <div class="item-share full">
+                <div class="article-meta item-share full">
 					<?php
 					$data = array(
 						'title'    => 'Share',
