@@ -1,0 +1,23 @@
+<form>
+    <fields name="images">
+        <field
+                addfieldpath="plugins/content/perfectimage/field"
+                name="image_intro"
+                type="perfectimage"
+                label="Introafbeelding"
+                description="Selecteer image"
+                ratio="1/1"
+                width="300"
+        />
+
+        <field
+                addfieldpath="plugins/content/perfectimage/field"
+                name="image_fulltext"
+                type="perfectimage"
+                label="Artikelafbeelding"
+                description="Selecteer image"
+                ratio="5/2"
+                width="1070"
+        />
+    </fields>
+</form>

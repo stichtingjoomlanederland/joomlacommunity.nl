@@ -6,8 +6,8 @@
 	img {
 		width: 100%;
 
-	  	@media (min-width: @screen-md) {
-		  border-radius : @border-radius-base;
+		@media (min-width: @screen-md) {
+			border-radius: @border-radius-base;
 		}
 	}
 
@@ -16,11 +16,7 @@
 	}
 
 	@media (min-width: @screen-lg) {
-		height: 390px;
-
-		img {
-			min-height: 290px;
-		}
+		height: 427px;
 	}
 }
 
@@ -36,10 +32,10 @@
 	img {
 		width: 100%;
 
-	  	@media (min-width: @screen-md) {
-		  border-top-left-radius: @border-radius-base;
-		  border-bottom-right-radius: @border-radius-base;
-	  	}
+		@media (min-width: @screen-md) {
+			border-top-left-radius: @border-radius-base;
+			border-bottom-right-radius: @border-radius-base;
+		}
 	}
 }
 
@@ -60,21 +56,88 @@
 }
 
 .item-meta {
-	text-align: right;
 	color: @gray;
-	display: none;
 	padding-top: @grid-gutter-width;
 	font-size: @font-size-small;
 
-	.item-categorie a {
-		color: inherit;
+	.article-meta {
+		display: inline;
+
+		.article-meta-label {
+			margin-bottom: 0;
+		}
+		p {
+			display: inline;
+		}
+
+		&.item-share {
+			display: none;
+		}
+
+		&.item-datum {
+			font-weight: 600;
+
+			.article-meta-label {
+				display: none;
+			}
+		}
+
+		.article-meta-desktop {
+			display: none;
+		}
 	}
 
-	@media (min-width: @screen-sm) {
-		display: block;
+	@media (min-width: @screen-md) {
+		text-align: right;
+
+		.article-meta {
+			display: block;
+
+			.article-meta-label {
+				font-weight: 600;
+			}
+
+			p {
+				display: block;
+			}
+
+			&.item-share {
+				display: block;
+			}
+
+			&.item-datum {
+				font-weight: 400;
+
+				.article-meta-label {
+					display: block;
+				}
+			}
+
+			.article-meta-mobile {
+				display: none;
+			}
+
+			.article-meta-desktop {
+				display: block;
+			}
+		}
 	}
 }
 
+.item-share-below {
+
+	padding-left: 5px;
+
+	li.share-title {
+		font-size: 16px;
+		vertical-align: top;
+		padding-right: 5px;
+	}
+
+	@media (min-width: @screen-md) {
+		display: none;
+	}
+}
 
 .articleinfo {
 	border-top: 1px solid #EEEEEE;
@@ -108,5 +171,15 @@
 		a:hover img.img-circle {
 			max-width: 105%;
 		}
+	}
+}
+
+.rsc_comments_count {
+	float: right;
+	line-height: 41px;
+	display: none;
+
+	@media (min-width: @screen-sm) {
+		display: block;
 	}
 }

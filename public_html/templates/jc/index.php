@@ -10,6 +10,10 @@ defined('_JEXEC') or die;
 
 // Load Perfect Template Helper
 include_once JPATH_THEMES . '/' . $this->template . '/helpers/helper.php';
+
+// Temp banners
+$banners  = array('<a href="http://www.joomladagen.nl"><img src="images/banners/joomladagen2017.jpg"/></a>', '<a href="https://www.regularlabs.com"><img src="images/banners/regularlabs.png"/></a>');
+$bannerid = array_rand($banners, 1);
 ?>
 
 <!DOCTYPE html>
@@ -27,9 +31,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 ?>
 <div class="leaderboard-container">
     <div class="banner">
-        <a href="http://www.joomladagen.nl">
-            <img src="images/banners/joomladagen2017.jpg"/>
-        </a>
+		<?php echo $banners[$bannerid]; ?>
     </div>
 </div>
 <div class="header<?php echo $helper->isHome() ? ' homepage' : ''; ?>">
@@ -171,23 +173,20 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
         <div class="container">
             <div class="row">
                 <div class="col-12">
-                    <p class="copyright">Copyright &copy; 2008-<?php echo date('Y'); ?>
-                        <a href="http://www.stichtingsympathy.nl">Stichting Sympathy</a> - Alle rechten voorbehouden
+                    <p class="copyright">&copy; Copyright 2008-<?php echo date('Y'); ?>
+                        <a href="http://www.stichtingsympathy.nl">Stichting Sympathy</a> |
+                        <a href="disclaimer">Disclaimer</a> |
+                        <a href="colofon">Colofon</a>
                     </p>
-                    <p class="followus">
-                        Volg ons op:
+                    <p class="followusicons">
                         <a href="https://www.facebook.com/joomlacommunity/" target="_blank" class="facebook"><i class="fa fa-facebook-square fa-2x" aria-hidden="true"></i></a>
                         <a href="https://www.linkedin.com/groups/1857791" target="_blank" class="linkedin"><i class="fa fa-linkedin-square fa-2x" aria-hidden="true"></i></a>
                         <a href="https://twitter.com/joomlacommunity" target="_blank" class="twitter"><i class="fa fa-twitter-square fa-2x" aria-hidden="true"></i></a>
                         <a href="https://www.flickr.com/groups/joomlacommunity/pool/" target="_blank"><i class="fa fa-flickr fa-2x" aria-hidden="true"></i></a>
                     </p>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12">
-                    <div class="joomla-disclaimer">
-                        <jdoc:include type="modules" name="copyright"/>
-                    </div>
+                    <p class="followus">
+                        Volg ons op:
+                    </p>
                 </div>
             </div>
         </div>
