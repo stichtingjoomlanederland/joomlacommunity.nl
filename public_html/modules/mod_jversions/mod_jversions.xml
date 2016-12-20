@@ -7,7 +7,7 @@
 	<license>GNU General Public License version 2 or later</license>
 	<authorEmail>contact@nielsvanderveer.me</authorEmail>
 	<authorUrl>www.nielsvanderveer.me</authorUrl>
-	<version>1.2.1</version>
+	<version>2.0.0</version>
 	<description>MOD_JVERSIONS_XML_DESCRIPTION</description>
 	<files>
 		<filename module="mod_jversions">mod_jversions.php</filename>
@@ -27,18 +27,11 @@
 		<fields name="params">
 			<fieldset name="basic">
 				<field
-					name="update_url"
-				    type="text"
-				    default="https://update.joomla.org/core/list.xml"
-				    label="MOD_JVERSIONS_FIELD_UPDATEURL_LABEL"
-				    description="MOD_JVERSIONS_FIELD_UPDATEURL_DESC"
-				/>
-				<field
-					name="update_url_target"
-				    type="list"
-				    default="_blank"
-				    label="MOD_JVERSIONS_FIELD_DOWNLOADURL_TARGET_LABEL"
-				    description="MOD_JVERSIONS_FIELD_DOWNLOADURL_TARGET_DESC"
+						name="update_url_target"
+						type="list"
+						default="_blank"
+						label="MOD_JVERSIONS_FIELD_DOWNLOADURL_TARGET_LABEL"
+						description="MOD_JVERSIONS_FIELD_DOWNLOADURL_TARGET_DESC"
 				>
 					<option value="_blank">_blank</option>
 					<option value="_self">_self</option>
@@ -46,37 +39,39 @@
 					<option value="_top">_top</option>
 				</field>
 				<field
-					name="download_url"
-				    type="text"
-				    default="http://downloads.joomla.org"
-				    label="MOD_JVERSIONS_FIELD_DOWNLOADURL_LABEL"
-				    description="MOD_JVERSIONS_FIELD_DOWNLOADURL_DESC"
+						name="download_url"
+						type="text"
+						default="http://downloads.joomla.org"
+						label="MOD_JVERSIONS_FIELD_DOWNLOADURL_LABEL"
+						description="MOD_JVERSIONS_FIELD_DOWNLOADURL_DESC"
 				/>
 				<field
-					name="prefixes"
-					type="list"
-					default="3"
-					label="MOD_JVERSIONS_FIELD_PREFIXES_LABEL"
-					description="MOD_JVERSIONS_FIELD_PREFIXES_DESC"
-				    multiple="true"
+						name="prefixes"
+						type="list"
+						default="3"
+						label="MOD_JVERSIONS_FIELD_PREFIXES_LABEL"
+						description="MOD_JVERSIONS_FIELD_PREFIXES_DESC"
+						multiple="true"
 				>
-					<option value="2">MOD_JVERSIONS_FIELD_PREFIXES_J2</option>
-					<option value="3">MOD_JVERSIONS_FIELD_PREFIXES_J3</option>
+					<option value="Joomla! 1.0">MOD_JVERSIONS_FIELD_PREFIXES_J1</option>
+					<option value="Joomla! 1.5">MOD_JVERSIONS_FIELD_PREFIXES_J15</option>
+					<option value="Joomla! 2.5">MOD_JVERSIONS_FIELD_PREFIXES_J25</option>
+					<option value="Joomla! 3">MOD_JVERSIONS_FIELD_PREFIXES_J3</option>
 				</field>
 			</fieldset>
 			<fieldset name="advanced">
 				<field
-					name="layout"
-					type="modulelayout"
-					label="JFIELD_ALT_LAYOUT_LABEL"
-					description="JFIELD_ALT_MODULE_LAYOUT_DESC"
+						name="layout"
+						type="modulelayout"
+						label="JFIELD_ALT_LAYOUT_LABEL"
+						description="JFIELD_ALT_MODULE_LAYOUT_DESC"
 				/>
 				<field
-					name="moduleclass_sfx"
-					type="textarea"
-					rows="3"
-					label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
-					description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC"
+						name="moduleclass_sfx"
+						type="textarea"
+						rows="3"
+						label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+						description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC"
 				/>
 			</fieldset>
 		</fields>

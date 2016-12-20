@@ -26,6 +26,11 @@ public_html/files/
 .idea
 .config.codekit
 
+# Vagrant
+.vagrant
+Vagrantfile
+puphpet/
+
 # OSX #
 ._*
 .Spotlight-V100
