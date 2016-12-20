@@ -20,45 +20,34 @@ defined('_JEXEC') or die;
 class ModJVersionsHelper
 {
 	/**
-	 * Get all the versions from joomla.org
+	 * Get the latest Joomla! versions for all branches
 	 *
-	 * @param   string  $url  Update url to the XML file
-	 *
-	 * @return  array
+	 * @return  stdClass
 	 *
 	 * @since   1.0.0
 	 */
-	private static function getJoomlaVersions($url)
+	private static function getLatestVersions()
 	{
 		// Check if the update url is available
 		$http = JHttpFactory::getHttp();
 
 		try
 		{
-			$response = $http->get($url);
+			$response = $http->get("https://downloads.joomla.org/api/v1/latest/cms");
 		}
 		catch (RuntimeException $e)
 		{
 			return null;
 		}
 
-		// Get all available Joomla! versions and filter for stable versions
-		$xml      = simplexml_load_string($response->body);
-		$versions = array();
-
-		foreach ($xml->extension as $item)
-		{
-			$versions[] = (string) $item['version'];
-		}
-
-		return $versions;
+		return json_decode($response->body);
 	}
 
 	/**
 	 * Filter version for the latest versions per prefix
 	 *
-	 * @param   array  $versions  Versions to filter
-	 * @param   array  $prefixes  Filter prefix
+	 * @param   stdClass  $versions  Versions to filter
+	 * @param   array     $prefixes  Filter prefix
 	 *
 	 * @return  array
 	 *
@@ -68,21 +57,12 @@ class ModJVersionsHelper
 	{
 		$latest_versions = array();
 
-		foreach ($prefixes as $prefix)
+		foreach ($versions->branches as $branch)
 		{
-			$tmp = array_filter(
-				$versions,
-				function($elem) use ($prefix) {
-					return substr($elem, 0, 1) == $prefix;
-				}
-			);
-
-			if (empty($tmp))
+			if (in_array($branch->branch, $prefixes))
 			{
-				continue;
+				$latest_versions[] = $branch->version;
 			}
-
-			$latest_versions[] = max($tmp);
 		}
 
 		return $latest_versions;
@@ -102,7 +82,7 @@ class ModJVersionsHelper
 		$prefixes = JFactory::getApplication()->input->get('prefixes', null, 'raw');
 
 		// Get response
-		$response = self::getLatest(self::getJoomlaVersions($url), $prefixes);
+		$response = self::getLatest(self::getLatestVersions(), $prefixes);
 
 		if ($response === null)
 		{
