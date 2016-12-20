@@ -101,7 +101,7 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
                 <div class="article-meta item-share full">
 					<?php
 					$data = array(
-						'title'    => 'Share',
+						'title'    => 'share',
 						'facebook' => true,
 						'twitter'  => true,
 						'linkedin' => true,
