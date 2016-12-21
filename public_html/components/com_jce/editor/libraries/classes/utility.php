@@ -27,7 +27,7 @@ abstract class WFUtility
 
     public static function cleanPath($path, $ds = DIRECTORY_SEPARATOR, $prefix = '')
     {
-        $path = trim(urldecode($path));
+        $path = trim(rawurldecode($path));
 
         // check for UNC path on IIS and set prefix
         if ($ds == '\\' && $path[0] == '\\' && $path[1] == '\\') {
@@ -314,8 +314,20 @@ abstract class WFUtility
      */
     public static function convertSize($value)
     {
+        $unit = '';
+        
+        preg_match('#([0-9]+)\s?([a-z]+)#i', $value, $matches);
+
+        if (isset($matches[1])) {
+            $value = (int) $matches[1];
+        }
+
+        if (isset($matches[2])) {
+            $unit = $matches[2];
+        }
+        
         // Convert to bytes
-        switch (strtolower($value{strlen($value) - 1})) {
+        switch (strtolower($unit)) {
             case 'g':
                 $value = intval($value) * 1073741824;
                 break;

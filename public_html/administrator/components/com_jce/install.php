@@ -184,6 +184,8 @@ abstract class WFInstall {
             $admin . '/media/js/uploads.js',
             $admin . '/models/installer.php',
             $admin . '/models/installer.xml',
+            $admin . '/models/plugins.xml',
+            $admin . '/models/commands.xml',
 
             $site . '/editor/elements/mediaplayer.php',
             $site . '/editor/libraries/extensions/imgageeditor/picmonkey.php',
@@ -242,6 +244,7 @@ abstract class WFInstall {
                 }
             }
         }
+
         // pro cleanup
         if (is_dir($site . '/libraries/pro')) {
             // remove old language files
@@ -249,11 +252,7 @@ abstract class WFInstall {
 
             if (!empty($languages)) {
                 JFile::delete($languages);
-            }
-
-            if (JFile::exists($site . '/editor/libraries/classes/extensions/mediaplayer.php')) {
-                JFile::delete($site . '/editor/libraries/classes/extensions/mediaplayer.php');
-            }
+            }  
         }
 
         // clean up links extension folder
