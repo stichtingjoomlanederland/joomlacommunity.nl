@@ -47,7 +47,7 @@ defined('KOOWA') or die; ?>
     </div>
 </div>
 
-<?php if($category->title != 'New Downloads'): ?>
+<?php if($category->title != 'Downloads'): ?>
 
 <div class="docman_list_layout docman_list_layout--default">
 
