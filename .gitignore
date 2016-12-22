@@ -60,7 +60,7 @@ public_html/components/com_rsform/uploads/*
 !public_html/components/com_rsform/uploads/index.html
 
 # DOCman
-public_html/joomlatools-files/*
+public_html/joomlatools-files/
 
 #  EasyDiscuss
 public_html/media/com_easydiscuss/attachments/*
