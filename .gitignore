@@ -15,7 +15,7 @@ public_html/web.config.txt
 public_html/templates/beez3
 public_html/templates/protostar
 
-# JC specific
+# JC Downloads
 public_html/files/
 
 # IDE & System Related Files #
@@ -59,9 +59,8 @@ public_html/components/com_rseventspro/assets/images/events/*
 public_html/components/com_rsform/uploads/*
 !public_html/components/com_rsform/uploads/index.html
 
-# RSDownloads
-public_html/rsdownloads/*
-!public_html/rsdownloads/.htaccess
+# DOCman
+public_html/joomlatools-files/*
 
 #  EasyDiscuss
 public_html/media/com_easydiscuss/attachments/*
