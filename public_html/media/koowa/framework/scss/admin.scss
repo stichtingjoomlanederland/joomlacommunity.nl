@@ -1,0 +1,21 @@
+/**
+ * Default theme
+ * ==============
+ */
+
+
+/**
+ * Joomla variables
+ * ----------------
+ * Load first to win over "!default" variables defined in core/_tools.scss
+ */
+
+@import "admin/variables";
+
+
+/**
+ * Original files can be found in Joomlatools UI
+ */
+
+@import "../../../../../../../../kodekit-ui/src/scss/kodekit-ui";
+

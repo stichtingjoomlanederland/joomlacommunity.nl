@@ -1,0 +1,6 @@
+{
+    "require": {
+        "imagine/imagine": "~0.6",
+        "mtdowling/cron-expression": "~1.0"
+    }
+}

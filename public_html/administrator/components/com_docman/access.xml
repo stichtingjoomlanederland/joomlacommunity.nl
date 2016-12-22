@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<access component="com_docman">
+	<section name="component">
+		<action name="core.admin" title="JACTION_ADMIN" description="JACTION_ADMIN_COMPONENT_DESC" />
+		<action name="core.manage" title="JACTION_MANAGE" description="JACTION_MANAGE_COMPONENT_DESC" />
+		<action name="core.create" title="JACTION_CREATE" description="JACTION_CREATE_COMPONENT_DESC" />
+		<action name="core.delete" title="JACTION_DELETE" description="JACTION_DELETE_COMPONENT_DESC" />
+		<action name="core.edit" title="JACTION_EDIT" description="JACTION_EDIT_COMPONENT_DESC" />
+		<action name="com_docman.download" title="COM_DOCMAN_DOWNLOAD_ACTION" description="COM_DOCMAN_DOWNLOAD_ACTION_DESC" />
+	</section>
+	<section name="category">
+		<action name="core.create" title="JACTION_CREATE" description="JACTION_CREATE_COMPONENT_DESC" />
+		<action name="core.delete" title="JACTION_DELETE" description="JACTION_DELETE_COMPONENT_DESC" />
+		<action name="core.edit" title="JACTION_EDIT" description="JACTION_EDIT_COMPONENT_DESC" />
+		<action name="com_docman.download" title="COM_DOCMAN_DOWNLOAD_ACTION" description="COM_DOCMAN_DOWNLOAD_ACTION_DESC" />
+	</section>
+	<section name="document">
+		<action name="core.delete" title="JACTION_DELETE" description="COM_CONTENT_ACCESS_DELETE_DESC" />
+		<action name="core.edit" title="JACTION_EDIT" description="COM_CONTENT_ACCESS_EDIT_DESC" />
+		<action name="com_docman.download" title="COM_DOCMAN_DOWNLOAD_ACTION" description="COM_DOCMAN_DOWNLOAD_ACTION_DESC" />
+	</section>
+</access>

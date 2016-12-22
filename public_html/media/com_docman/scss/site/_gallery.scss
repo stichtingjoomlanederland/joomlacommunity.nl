@@ -1,0 +1,222 @@
+$spacing: 16px;
+$padding: 8px;
+
+.koowa_media--gallery {
+
+  .koowa_media_wrapper {
+    overflow: visible;
+  }
+
+  .koowa_media_contents {
+    padding: 0;
+    border: none;
+    background: transparent;
+    display: block;
+    margin-left: -($spacing / 2);
+    margin-right: -($spacing / 2);
+
+    // Border box sizing
+    &, * {
+      box-sizing: border-box;
+    }
+
+    // Responsive columns
+    &.columns-2,
+    &.columns-3,
+    &.columns-4,
+    &.columns-5,
+    &.columns-6,
+    &.columns-7,
+    &.columns-8,
+    &.columns-9,
+    &.columns-10 {
+      max-width: none;
+    }
+
+    &.columns-2 .koowa_media__item  {width: 50%;}
+    &.columns-3 .koowa_media__item  {width: 33.3333333333%;}
+    &.columns-4 .koowa_media__item  {width: 25%;}
+    &.columns-5 .koowa_media__item  {width: 20%;}
+    &.columns-6 .koowa_media__item  {width: 16.6666666667%;}
+    &.columns-7 .koowa_media__item  {width: 14.28%;}
+    &.columns-8 .koowa_media__item  {width: 12.5%;}
+    &.columns-9 .koowa_media__item  {width: 11.1111111111%;}
+    &.columns-10 .koowa_media__item  {width: 10%;}
+    &.columns-11 .koowa_media__item  {width: 9.0909090909%;}
+    &.columns-12 .koowa_media__item  {width: 8.3333333333%;}
+    &.columns-13 .koowa_media__item  {width: 7.6923076923%;}
+    &.columns-14 .koowa_media__item  {width: 7.1428571429%;}
+    &.columns-15 .koowa_media__item  {width: 6.6666666667%;}
+    &.columns-16 .koowa_media__item  {width: 6.25%;}
+    &.columns-17 .koowa_media__item  {width: 5.8823529412%;}
+    &.columns-18 .koowa_media__item  {width: 5.5555555556%;}
+    &.columns-19 .koowa_media__item  {width: 5.2631578947%;}
+    &.columns-20 .koowa_media__item  {width: 5%;}
+  }
+
+  // Gallery item
+  .koowa_media__item {
+    margin: 0;
+    display: inline-block;
+    vertical-align: middle;
+    width: 220px;
+    max-width: 100%;
+    padding: 0 ($spacing / 2) $spacing;
+  }
+
+  // Content
+  .koowa_media__item__content {
+    display: block;
+    max-width: 100%;
+    border-radius: 4px;
+    background: radial-gradient(ellipse at center, rgba(0,0,0,0.01) 0%,rgba(0,0,0,0.05) 100%);
+    border: 1px solid rgba(0,0,0,0.1);
+
+    &.selected {
+      background-color: rgba(0,0,0,0.05);
+      border-color: $linkColor;
+    }
+
+    .add-on {
+      height: auto;
+    }
+  }
+
+  // Gallery link
+  .koowa_media__item__link {
+    display: inline-block;
+    vertical-align: middle;
+    width: 100%;
+    padding: $padding;
+  }
+
+  // Item label
+  .koowa_header {
+    margin: 0;
+    padding: 0;
+    @include wrap_words;
+  }
+
+  // Item thumbnail
+  .koowa_media__item__thumbnail {
+    min-width: 100%;
+    text-align: center;
+    white-space: nowrap;
+    font-size: 0;
+    padding: 0;
+
+    &:before {
+      content: " ";
+      display: inline-block;
+      height: 100%;
+      vertical-align: middle;
+      width: 0;
+    }
+
+    img {
+      display: inline-block;
+      vertical-align: middle;
+      max-width: 100%;
+      border-radius: 4px;
+    }
+  }
+
+  // Overflow ellipsis
+  .overflow_container {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    white-space: normal;
+  }
+}
+
+.koowa_media__item__icon {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.koowa_media_wrapper--documents {
+  .koowa_media__item {
+    text-align: center;
+  }
+
+  .koowa_media__item__label {
+    margin-top: $padding;
+  }
+}
+
+.koowa_media__item__options {
+  @include clearfix;
+  position: relative;
+  background: rgba(0, 0, 0, 0.05);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  padding: $padding;
+  margin: 0;
+  border-radius: 0 0 3px 3px;
+}
+
+.koowa_media__item__options__select {
+  display: block;
+  float: left;
+  text-align: left;
+
+  @include rtl {
+    float: right;
+    text-align: right;
+  }
+
+  input[type="checkbox"] {
+    margin :0;
+  }
+
+  label {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+    margin: 0;
+  }
+}
+
+.koowa_media__item__options__delete {
+  position: relative;
+  z-index: 2;
+  display: block;
+  float: right;
+  text-align: right;
+
+  @include rtl {
+    float: left;
+    text-align: left;
+  }
+}
+
+.koowa_media__item__content-holder {
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.koowa_header__item--select.koowa_header__item--select {
+  width: 20px;
+
+  input {
+    margin: 0;
+  }
+}
+
+a.disabled:hover {
+  color: #fff;
+  background-color: #bd362f;
+}
+
+.koowa_media_wrapper--documents,
+.koowa_media_wrapper--categories {
+  visibility: hidden;
+
+  &.gallery-initialized {
+    visibility: visible;
+  }
+}
