@@ -59,10 +59,10 @@ if ($catid)
 </script>
 
 
-<div class="well">
+<?php if ($this->category->level > 1): ?>
+    <div class="well">
 
-    <div class="row">
-		<?php if ($this->category->level > 1): ?>
+        <div class="row">
             <div class="col-md-8">
                 <div class="page-header">
                     <div class="pull-right">
@@ -139,20 +139,9 @@ if ($catid)
 				<?php endif; ?>
                 <!--//end Show organizers -->
             </div>
-		<?php else: ?>
-            <div class="col-md-12">
-				<?php
-				$modules = JModuleHelper::getModules('above-agenda');
-
-				foreach ($modules as $mod)
-				{
-					echo JModuleHelper::renderModule($mod);
-				}
-				?>
-            </div>
-		<?php endif; ?>
+        </div>
     </div>
-</div>
+<?php endif; ?>
 
 <?php if ($this->category->level > 1): ?>
 <div class="row">
