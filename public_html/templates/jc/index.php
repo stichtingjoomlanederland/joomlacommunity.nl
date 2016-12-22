@@ -134,6 +134,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 					<?php if (count(JFactory::getApplication()->getMessageQueue())) : ?>
                         <jdoc:include type="message"/>
 					<?php endif; ?>
+                    <jdoc:include type="modules" name="above-component"/>
                     <jdoc:include type="component"/>
                 </div>
 				<?php if ($this->countModules('rechts')) : ?>
