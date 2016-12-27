@@ -14,6 +14,26 @@ defined('_JEXEC') or die('RESTRICTED');
 
 class pkg_jceInstallerScript {
 	
+	private function isPro() {
+		require_once(JPATH_ADMINISTRATOR . '/components/com_jce/includes/constants.php');
+		return defined('WF_EDITOR_PRO') && WF_EDITOR_PRO;
+	}
+
+	private function matchVariant($installer) {
+		// pro can be installed over core and pro
+		if ((string) $installer->manifest->variant === "pro") {
+			return true;
+		}
+
+		// core cannot be installed over pro
+		if ($this->isPro()) {
+			return false;
+		}
+
+		// default
+		return true;
+	}
+	
 	public function install($parent) {
 		// enable plugins
 		$plugin = JTable::getInstance('extension');
@@ -56,6 +76,10 @@ class pkg_jceInstallerScript {
 	public function preflight($type, $parent) {
 		$installer = method_exists($parent, 'getParent') ? $parent->getParent() : $parent->parent;
 		
+		if ($this->matchVariant($installer) === false) {	
+			throw new RuntimeException('JCE Core cannot be installed over JCE Pro. Please install JCE Pro. To downgrade, please first uninstall JCE Pro.');
+		}
+
 		$manifest   = JPATH_PLUGINS . '/editors/jce/jce.xml';
 		$version    = 0;
 		
@@ -67,15 +91,48 @@ class pkg_jceInstallerScript {
 		$installer->set('current_version', $version);
 	}
 	
-	public function postflight($type, $parent) {
-		$plugin = JTable::getInstance('extension');
+	public function postflight($type, $parent) {		
+		$extension = JTable::getInstance('extension');
 		
 		// remove "jcefilebrowser" quickicon
-		$id = $plugin->find(array('type' => 'plugin', 'folder' => 'quickicon', 'element' => 'jcefilebrowser'));
+		$id = $extension->find(array('type' => 'plugin', 'folder' => 'quickicon', 'element' => 'jcefilebrowser'));
 		
 		if ($id) {
 			$installer = new JInstaller();
 			$installer->uninstall('plugin', $id);
+		}
+
+		$plugin = JPluginHelper::getPlugin('extension', 'joomla');
+
+		if ($plugin) {
+			$version = new JVersion();
+
+			if ($version->isCompatible('3.0')) {
+				$dispatcher = JEventDispatcher::getInstance();
+				$installer = $parent;
+			} else {
+				$dispatcher = JDispatcher::getInstance();
+				$installer = $parent->getParent();	
+			}
+
+			$plg_extension_joomla = new PlgExtensionJoomla($dispatcher, (array) $plugin);
+
+			// find and remove package
+			$component_id = $extension->find(array('type' => 'component', 'element' => 'com_jce'));
+
+			if ($component_id) {
+				$plg_extension_joomla->onExtensionAfterUninstall($installer, $component_id, true);
+			}
+
+			// find and remove package
+			$package_id = $extension->find(array('type' => 'package', 'element' => 'pkg_jce'));
+
+			if ($package_id) {
+				// remove
+				$plg_extension_joomla->onExtensionAfterUninstall($installer, $package_id, true);
+				// install
+				$plg_extension_joomla->onExtensionAfterInstall($installer, $package_id);
+			}
 		}
 	}
 }

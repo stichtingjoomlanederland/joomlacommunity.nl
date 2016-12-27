@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <install version="2.0" type="plugin" plugin="browser" core="1" editable="1">
     <name>WF_BROWSER_TITLE</name>
-    <version>2.6.2</version>
-    <creationDate>21-12-2016</creationDate>
+    <version>2.6.5</version>
+    <creationDate>27-12-2016</creationDate>
     <author>Ryan Demmer</author>
     <authorEmail>@@e-mail@@</authorEmail>
     <authorUrl>http://www.joomlacontenteditor.net/</authorUrl>

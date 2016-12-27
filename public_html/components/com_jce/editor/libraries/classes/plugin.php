@@ -48,9 +48,13 @@ class WFEditorPlugin extends JObject {
 
         // get name and caller from plugin name
         if (strpos($plugin, '.') !== false) {
-            list ($plugin, $caller) = explode('.', $plugin);
+            $parts = explode('.', $plugin);
+            $plugin = $parts[0];
+            $caller = $parts[1];
             // store caller
-            $this->set('caller', $caller);
+            if ($caller !== $plugin) {
+                $this->set('caller', $caller);
+            }
         }
 
         // set plugin name
@@ -259,7 +263,12 @@ class WFEditorPlugin extends JObject {
      * @return 	array
      */
     public function getDefaults($defaults = array()) {
-        $name = $this->getName();
+        $name   = $this->getName();
+        $caller = $this->get('caller'); 
+
+        if ($caller) {
+            $name = $caller;
+        }
 
         // get manifest path
         $manifest = WF_EDITOR_PLUGIN . '/' . $name . '.xml';
@@ -414,12 +423,11 @@ class WFEditorPlugin extends JObject {
             // no root key set, treat as shared param
         } else {
             // get fallback param from editor key
-            $fallback = $wf->getParam('editor.' . $key, $fallback, $allowempty);
+            $fallback = $wf->getParam('editor.' . $key, $fallback, $default, $type, $allowempty);
 
             if ($caller) {
                 // get fallback from plugin (with editor parameter as fallback)
                 $fallback = $wf->getParam($name . '.' . $key, $fallback, $default, $type, $allowempty);
-                // set name to caller
                 $name = $caller;
             }
 

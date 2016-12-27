@@ -56,7 +56,13 @@ class WFMediaManagerBase extends WFEditorPlugin {
      * @return object WFBrowserExtension
      */
     protected function getFileBrowser() {
-        $name = $this->getName();
+        $name   = $this->getName();
+        $caller = $this->get('caller'); 
+
+        // add caller if set
+        if ($caller) {
+            $name .= '.' . $caller;    
+        }
 
         if (!isset(self::$browser[$name])) {
             self::$browser[$name] = new WFFileBrowser($this->getFileBrowserConfig());
@@ -234,12 +240,13 @@ class WFMediaManagerBase extends WFEditorPlugin {
             $textcase = count($textcase) > 1 ? 'any' : array_shift($textcase);
         }
         
-        $filter = $this->getParam('dir_filter', array());
+        $filter = (array) $this->getParam('editor.dir_filter', array());
+
         // remove empty values
         $filter = array_filter($filter);
 
         $base = array(
-            'dir' => $this->getParam('dir', '', '', 'string', false),
+            'dir' => $this->getParam('dir'),
             'filesystem'  => $this->getFileSystem(),
             'filetypes'   => $filetypes,
             'filter'      => $filter,
