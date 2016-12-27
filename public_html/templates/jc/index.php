@@ -136,6 +136,7 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 					<?php endif; ?>
                     <jdoc:include type="modules" name="above-component"/>
                     <jdoc:include type="component"/>
+                    <jdoc:include type="modules" name="below-component"/>
                 </div>
 				<?php if ($this->countModules('rechts')) : ?>
                     <div class="content-4">
