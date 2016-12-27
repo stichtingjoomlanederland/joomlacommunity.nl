@@ -113,7 +113,7 @@ defined('KOOWA') or die; ?>
 
 			<? // Document description ?>
 			<? if ($params->show_document_description || $params->show_document_image): ?>
-                <div class="docman_description">
+                <div class="description">
 					<? if ($params->show_document_image && $document->image): ?>
 						<?= helper('behavior.thumbnail_modal'); ?>
                         <a class="docman_thumbnail thumbnail" href="<?= $document->image_download_path ?>">
