@@ -10,7 +10,7 @@
 defined('_JEXEC') or die;
 ?>
 
-<h2><?php echo $module->title; ?></h2>
+<h2>Verslagen</h2>
 <div class="list-group list-group-flush panel-agenda">
 	<?php foreach ($list as $item) : ?>
 		<?php
