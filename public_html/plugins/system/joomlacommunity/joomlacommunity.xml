@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.1" type="plugin" group="system" method="upgrade">
+    <name>JoomlaCommunity.nl System Plugin</name>
+    <creationDate>December 2016</creationDate>
+    <author>Sander Potjer</author>
+    <authorEmail>mail@sanderpotjer.nl</authorEmail>
+    <authorUrl>http://www.sanderpotjer.nl</authorUrl>
+    <copyright>Copyright (c)2016 Sander Potjer</copyright>
+    <license>GNU GPL v3 or later</license>
+    <version>1.0.0</version>
+    <description>Custom system plugin for JoomlaCommunity.nl</description>
+
+	<files>
+		<filename plugin="joomlacommunity">joomlacommunity.php</filename>
+	</files>
+</extension>
