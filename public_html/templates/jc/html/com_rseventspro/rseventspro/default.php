@@ -266,8 +266,8 @@ if ($catid)
 			<?php else : ?>
 				<?php echo JText::_('Er zijn momenteel geen bijeenkomsten gepland'); ?>
 			<?php endif; ?>
-			<?php if ($this->category->level > 1): ?>
         </div>
+		<?php if ($this->category->level > 1): ?>
     </div>
 	<?php if ($reports) : ?>
         <div class="col-md-4">
