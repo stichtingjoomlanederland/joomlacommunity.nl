@@ -175,11 +175,9 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
         <div class="container">
             <div class="row">
                 <div class="col-12">
-                    <p class="copyright">&copy; Copyright 2008-<?php echo date('Y'); ?>
-                        <a href="http://www.stichtingsympathy.nl">Stichting Sympathy</a> |
-                        <a href="disclaimer">Disclaimer</a> |
-                        <a href="colofon">Colofon</a>
-                    </p>
+                    <p class="copyright">&copy; Copyright 2008-<?php echo date('Y'); ?></p>
+                    <jdoc:include type="modules" name="copyright"/>
+
                     <p class="followusicons">
                         <a href="https://www.facebook.com/joomlacommunity/" target="_blank" class="facebook"><i class="fa fa-facebook-square fa-2x" aria-hidden="true"></i></a>
                         <a href="https://www.linkedin.com/groups/1857791" target="_blank" class="linkedin"><i class="fa fa-linkedin-square fa-2x" aria-hidden="true"></i></a>

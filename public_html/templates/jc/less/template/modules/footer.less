@@ -63,15 +63,42 @@
 		margin: 0;
 	}
 
-	.copyright {
-		a {
-			color: darken(@home, 40%);
-			border-bottom: 1px solid darken(@home, 40%);
+	.nav {
+		float: left;
 
-			&:hover {
-				color: darken(@home, 60%);
-				text-decoration: none;
-				border-bottom: none;
+		> li {
+			padding: 0 0 0 5px;
+
+			&::after {
+				content: "|";
+				padding-left: 5px;
+			}
+
+			&.active > a {
+				background: none;
+			}
+
+			&:last-of-type::after {
+				display: none;
+			}
+
+			> a {
+				padding: 0;
+				border-radius: 0;
+				color: darken(@home, 40%);
+				border-bottom: 1px solid darken(@home, 40%);
+				display: inline;
+
+				&:focus {
+					background: none;
+				}
+
+				&:hover {
+					background: none;
+					color: darken(@home, 60%);
+					text-decoration: none;
+					border-bottom: none;
+				}
 			}
 		}
 	}
