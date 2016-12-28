@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<metadata>
-	<layout title="Front-end user management">
-		<message>Access the front-end user management</message>
-	</layout>
-	<state>
-		<name>Front-end user management</name>
-	</state>
-</metadata>
