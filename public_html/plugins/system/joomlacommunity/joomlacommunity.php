@@ -31,11 +31,17 @@ class PlgSystemJoomlaCommunity extends JPlugin
 	 */
 	public function rsepro_buildRoute($route)
 	{
+		// Only continue if view is not set
+		if (isset($route['query']['view']))
+		{
+			return true;
+		}
+
 		// Get Slug
-		$slug = $route['segments'][1];
+		$slug = isset($route['segments'][1]) ? $route['segments'][1] : '';
 
 		// Check for JUG
-		if (strpos($slug, 'joomla-gebruikersgroep') !== false)
+		if (strpos($slug, 'joomla-gebruikersgroep-') !== false)
 		{
 			// Get menu alias
 			$slugarray = explode(':', $slug, 2);
