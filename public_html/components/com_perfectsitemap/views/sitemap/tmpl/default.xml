@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+    <layout title="COM_PERFECTSITEMAP_VIEW_DEFAULT_TITLE">
+        <message>COM_PERFECTSITEMAP_VIEW_DEFAULT_DESC</message>
+    </layout>
+    <!-- Add fields to the request variables for the layout. -->
+    <fields name="request">
+        <fieldset name="request">
+
+            <field name="format" type="list"
+                   label="Format"
+                   description=""
+                   default="html"
+            >
+                <option value="html">HTML</option>
+                <option value="xml">XML</option>
+            </field>
+        </fieldset>
+
+    </fields>
+</metadata>

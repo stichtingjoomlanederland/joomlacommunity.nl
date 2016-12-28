@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="3.1" method="upgrade">
+	<name>com_perfectsitemap</name>
+	<creationDate>December 2015</creationDate>
+	<author>Niels van der Veer - Perfect Web Team</author>
+	<authorEmail>info@perfectwebteam.nl</authorEmail>
+	<authorUrl>www.perfectwebteam.nl</authorUrl>
+	<copyright>Copyright (C) 2016 Perfect Web Team. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<version>1.4.4</version>
+	<description>COM_PERFECTSITEMAP_XML_DESCRIPTION</description>
+	<files folder="site">
+		<folder>helpers</folder>
+		<folder>models</folder>
+		<folder>views</folder>
+		<filename>controller.php</filename>
+		<filename>perfectsitemap.php</filename>
+	</files>
+	<languages folder="site/language">
+		<language tag="nl-NL">nl-NL/nl-NL.com_perfectsitemap.ini</language>
+		<language tag="en-GB">en-GB/en-GB.com_perfectsitemap.ini</language>
+	</languages>
+
+	<administration>
+		<languages folder="admin/language">
+			<language tag="nl-NL">nl-NL/nl-NL.com_perfectsitemap.ini</language>
+			<language tag="nl-NL">nl-NL/nl-NL.com_perfectsitemap.sys.ini</language>
+			<language tag="en-GB">en-GB/en-GB.com_perfectsitemap.ini</language>
+			<language tag="en-GB">en-GB/en-GB.com_perfectsitemap.sys.ini</language>
+		</languages>
+	</administration>
+</extension>
+

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<extension type="package" version="3.1" method="upgrade">
+	<name>Perfect Sitemap Package</name>
+	<packagename>perfectsitemap</packagename>
+	<creationDate>December 2015</creationDate>
+	<packager>Perfect Webteam</packager>
+	<copyright>Copyright (C) 2015 Perfect Web Team. All rights reserved.</copyright>
+	<packageremail>info@perfectwebteam.nl</packageremail>
+	<packagerurl>www.perfectwebteam.nl</packagerurl>
+	<author>Niels van der Veer - Perfect Web Team</author>
+	<authorEmail>info@perfectwebteam.nl</authorEmail>
+	<authorUrl>www.perfectwebteam.nl</authorUrl>
+	<version>1.4.4</version>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<description>Perfect Sitemap component and plugin</description>
+	<scriptfile>script.php</scriptfile>
+	<files>
+		<file type="component" id="com_perfectsitemap">com_perfectsitemap</file>
+		<file type="plugin" id="perfectsitemap" group="system">plg_system_perfectsitemap</file>
+		<file type="plugin" id="perfectsitemap_content" group="system">plg_system_perfectsitemap_content</file>
+	</files>
+</extension>
