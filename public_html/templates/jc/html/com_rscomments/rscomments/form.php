@@ -12,9 +12,8 @@ $emoticons = RSCommentsEmoticons::createEmoticons();
 $upload    = (int) $this->config->enable_upload;
 $required  = ' *'; ?>
 
-<div class="rscomment-form well<?php if ($this->config->comment_form_position)
-{ ?> rscomment-form-top<?php } ?>"
-     xmlns="http://www.w3.org/1999/html">
+<h3>Reageer</h3>
+<div class="rscomment-form well<?php if ($this->config->comment_form_position) : ?> rscomment-form-top<?php endif; ?>" xmlns="http://www.w3.org/1999/html">
 	<form id="rscommentsForm" name="rscommentsForm" action="javascript:void(0)" method="post">
 		<?php if ($this->config->form_accordion)
 		{ ?>

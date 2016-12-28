@@ -12,6 +12,7 @@ JText::script('COM_RSCOMMENTS_INVALID_SUBSCRIBER_EMAIL');
 JText::script('COM_RSCOMMENTS_REPORT_NO_REASON');
 JText::script('COM_RSCOMMENTS_REPORT_INVALID_CAPTCHA'); ?>
 
+<h3><?php echo count($this->comments); ?> <?php echo (count($this->comments) == 1) ? 'reactie' : 'reacties'; ?></h3>
 <div class="rscomments-comments-list">
 	<?php echo $this->loadTemplate('items'); ?>
 </div>
