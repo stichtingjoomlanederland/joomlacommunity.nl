@@ -21,7 +21,7 @@ defined('_JEXEC') or die;
 			echo JHtml::_('image', $images->image_fulltext, $image_fulltext_alt, array('class' => 'news-image'));
 		}
 		?>
-        <a class="list-group-item" href="<?php echo $item->link; ?>">
+        <a class="list-group-item report-item" href="<?php echo $item->link; ?>">
             <div class="date-icon">
                 <span class="date-day"><?php echo JHtml::_('date', $item->publish_up, JText::_('j')); ?></span><?php echo JHtml::_('date', $item->publish_up, JText::_('M')); ?>
             </div>
