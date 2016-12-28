@@ -107,7 +107,6 @@ $tmpl = $links == 0 ? '' : '&tmpl=component';
 			</div>
 		</div>
 		<!-- Comments -->
-		<h3>Reacties</h3>
 		<?php echo rseventsproHelper::comments($event->id,$event->name); ?>
 		<!--//end Comments -->
 
@@ -231,30 +230,28 @@ $tmpl = $links == 0 ? '' : '&tmpl=component';
 		<!--//end Show organizers -->
 
 		<!-- Show subscribers -->
-		<?php if ($event->show_registered) : ?>
-			<?php if (!empty($this->guests)) : ?>
-				<div class="panel panel-agenda">
-					<div class="panel-heading">Wij gaan!</div>
-					<div class="list-group list-group-flush panel-agenda">
-						<?php foreach ($this->guests as $guest) : ?>
+        <?php if (!empty($this->guests)) : ?>
+            <div class="panel panel-agenda">
+                <div class="panel-heading">Wij gaan!</div>
+                <div class="list-group list-group-flush panel-agenda">
+                    <?php foreach ($this->guests as $guest) : ?>
 
-							<?php if (!empty($guest->url)) : ?>
-								<a class="list-group-item" href="<?php echo $guest->url; ?>">
-									<?php echo $guest->avatar; ?>
-									<?php echo $guest->name; ?>
-								</a>
-							<?php else: ?>
-								<a class="list-group-item" href="#">
-									<?php echo $guest->avatar; ?>
-									<?php echo $guest->name; ?>
-								</a>
-							<?php endif; ?>
+                        <?php if (!empty($guest->url)) : ?>
+                            <a class="list-group-item" href="<?php echo $guest->url; ?>">
+                                <?php echo $guest->avatar; ?>
+                                <?php echo $guest->name; ?>
+                            </a>
+                        <?php else: ?>
+                            <a class="list-group-item" href="#">
+                                <?php echo $guest->avatar; ?>
+                                <?php echo $guest->name; ?>
+                            </a>
+                        <?php endif; ?>
 
-						<?php endforeach; ?>
-					</div>
-				</div>
-			<?php endif; ?>
-		<?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endif; ?>
 		<!--//end Show subscribers -->
 
 	</div>
