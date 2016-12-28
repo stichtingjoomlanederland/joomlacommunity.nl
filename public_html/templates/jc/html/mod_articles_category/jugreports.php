@@ -15,10 +15,10 @@ defined('_JEXEC') or die;
 	<?php foreach ($list as $item) : ?>
 		<?php
 		$images = json_decode($item->images);
-		if (isset($images->image_intro) && !empty($images->image_intro) and file_exists($images->image_intro))
+		if (isset($images->image_fulltext) && !empty($images->image_fulltext) and file_exists($images->image_fulltext))
 		{
-			$image_intro_alt = $images->image_intro_alt ? $images->image_intro_alt : $item->title;
-			echo JHtml::_('image', $images->image_intro, $image_intro_alt, array('class' => 'news-image'));
+			$image_fulltext_alt = $images->image_fulltext_alt ? $images->image_fulltext_alt : $item->title;
+			echo JHtml::_('image', $images->image_fulltext, $image_fulltext_alt, array('class' => 'news-image'));
 		}
 		?>
         <a class="list-group-item" href="<?php echo $item->link; ?>">
