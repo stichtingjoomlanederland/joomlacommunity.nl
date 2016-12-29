@@ -21,7 +21,7 @@ defined('_JEXEC') or die;
                 </div>
 			<?php endif; ?>
             <p class="list-group-item-meta">
-                <strong><?php echo JHtml::_('date', $item->publish_up, JText::_('j M Y')); ?></strong>, door <?php echo $item->displayAuthorName; ?>
+                <strong><?php echo JHtml::_('date', $item->publish_up, JText::_('j M Y')); ?></strong> door <?php echo $item->displayAuthorName; ?>
             </p>
             <h4 class="list-group-item-heading">
 				<?php echo $item->title; ?>

@@ -34,7 +34,7 @@ $open = !$links ? '\'target\' => \'_blank\'' : '';
 		else continue; ?>
 		<a class="list-group-item" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),true,$itemid); ?>">
 			<div class="date-icon">
-				<span class="date-day"><?php echo rseventsproHelper::date($event->start, 'd', true); ?></span><?php echo rseventsproHelper::date($event->start, 'M', true); ?>
+				<span class="date-day"><?php echo rseventsproHelper::date($event->start, 'j', true); ?></span><?php echo rseventsproHelper::date($event->start, 'M', true); ?>
 			</div>
 			<h4 class="list-group-item-heading">
 				<?php echo strip_tags($event->name); ?>

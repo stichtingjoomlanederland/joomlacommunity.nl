@@ -128,6 +128,10 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
                         <jdoc:include type="modules" name="home-promo"/>
                     </div>
                     <jdoc:include type="modules" name="home-right" style="panel"/>
+                    <a href="<?php echo JRoute::_('index.php?Itemid=244'); ?>" class="btn btn-agenda btn-block">
+                        Bekijk de volledige agenda
+                    </a>
+
                 </div>
 			<?php else: ?>
                 <div class="content-<?php echo($this->countModules('rechts') ? 8 : 12); ?>">

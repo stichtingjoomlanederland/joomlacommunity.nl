@@ -46,7 +46,7 @@ JFactory::getDocument()->addScriptDeclaration($script);
 
 <div class="block block-downloads">
 	<h3><i class="fa fa-download " aria-hidden="true"></i> <?php echo $module->title; ?></h3>
-	<p class="lead">Joomla is gratis te downloaden en in het Nederlands beschikbaar. De nieuwste versie is <span class="latest-versions"></span></p>
+	<p class="lead">Joomla! is gratis te downloaden en in het Nederlands beschikbaar. De nieuwste versie is <span class="latest-versions"></span></p>
 	<a href="<?php echo $params->get("download_url", "http://downloads.joomla.org"); ?>" target="<?php echo $params->get("update_url_target", "_blank"); ?>" class="btn btn-downloads btn-block">
 		<?php echo JText::_("MOD_JVERSIONS_DOWNLOAD_TEXT"); ?> <span class="latest-versions"></span>
 	</a>
