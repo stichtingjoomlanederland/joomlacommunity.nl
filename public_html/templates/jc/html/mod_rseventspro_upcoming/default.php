@@ -20,7 +20,7 @@ $open = !$links ? '\'target\' => \'_blank\'' : '';
 
 
 <div class="panel-body">
-	<p>Vergroot je Joomla-kennis door gebruikersgroepen, evenementen en curssusen te bezoeken. Voor de beginnende én gevorderde gebruiker! Of draag zelf bij aan Joomla! tijdens Pizza Bugs & Fun.</p>
+    <p>Vergroot je Joomla-kennis door gebruikersgroepen, evenementen en curssusen te bezoeken. Voor de beginnende én gevorderde gebruiker! Of draag zelf bij aan Joomla! tijdens Pizza Bugs & Fun.</p>
 </div>
 
 <div class="list-group list-group-flush">
@@ -32,14 +32,14 @@ $open = !$links ? '\'target\' => \'_blank\'' : '';
 		?>
 		<?php if (isset($details['event']) && !empty($details['event'])) $event = $details['event'];
 		else continue; ?>
-		<a class="list-group-item" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),true,$itemid); ?>">
-			<div class="date-icon">
-				<span class="date-day"><?php echo rseventsproHelper::date($event->start, 'j', true); ?></span><?php echo rseventsproHelper::date($event->start, 'M', true); ?>
-			</div>
-			<h4 class="list-group-item-heading">
+        <a class="list-group-item" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id=' . rseventsproHelper::sef($event->id, $event->name), true, $event->itemid); ?>">
+            <div class="date-icon">
+                <span class="date-day"><?php echo rseventsproHelper::date($event->start, 'j', true); ?></span><?php echo rseventsproHelper::date($event->start, 'M', true); ?>
+            </div>
+            <h4 class="list-group-item-heading">
 				<?php echo strip_tags($event->name); ?>
-			</h4>
-			<p class="list-group-item-text"><?php echo $category; ?></p>
-		</a>
+            </h4>
+            <p class="list-group-item-text"><?php echo $category; ?></p>
+        </a>
 	<?php endforeach; ?>
 </div>

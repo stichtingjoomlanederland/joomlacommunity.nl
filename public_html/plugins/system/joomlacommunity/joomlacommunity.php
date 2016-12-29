@@ -37,6 +37,9 @@ class PlgSystemJoomlaCommunity extends JPlugin
 			return true;
 		}
 
+		// Empty alias
+		$alias = '';
+
 		// Get Slug
 		$slug = isset($route['segments'][1]) ? $route['segments'][1] : '';
 
@@ -46,7 +49,38 @@ class PlgSystemJoomlaCommunity extends JPlugin
 			// Get menu alias
 			$slugarray = explode(':', $slug, 2);
 			$alias     = str_replace('joomla-gebruikersgroep-', '', $slugarray[1]);
+		}
 
+		// Check for overige
+		if (strpos($slug, 'overige-joomla') !== false)
+		{
+			// Get menu alias
+			$alias = 'overige';
+		}
+
+		// Check for cursussen
+		if (strpos($slug, 'cursussen') !== false)
+		{
+			// Get menu alias
+			$alias = 'cursussen';
+		}
+
+		// Check for pizza-bugs-fun
+		if (strpos($slug, 'pizza-bugs-fun') !== false)
+		{
+			// Get menu alias
+			$alias = 'pizza-bugs-fun';
+		}
+
+		// Check for pizza-bugs-fun
+		if (strpos($slug, 'dutch-joomla-developers') !== false)
+		{
+			// Get menu alias
+			$alias = 'dutch-joomla-developers';
+		}
+
+		if ($alias)
+		{
 			// Get ItemId
 			$db    = JFactory::getDbo();
 			$query = $db->getQuery(true);
@@ -62,6 +96,37 @@ class PlgSystemJoomlaCommunity extends JPlugin
 		}
 
 		return $route;
+	}
+
+	/**
+	 * @param $data
+	 *
+	 *
+	 * @since version
+	 */
+	public function rsepro_beforeEventStore($data)
+	{
+		$categories = $this->app->input->get('categories', array(), 'array');
+		$db         = JFactory::getDbo();
+
+		// Get category slug
+		$query = $db->getQuery(true);
+		$query->select('alias');
+		$query->from($db->quoteName('#__categories'));
+		$query->where($db->quoteName('id') . " = " . $db->quote($categories[0]));
+		$db->setQuery($query);
+		$alias = $db->loadResult();
+
+		// Get ItemId
+		$query = $db->getQuery(true);
+		$query->select('id');
+		$query->from($db->quoteName('#__menu'));
+		$query->where($db->quoteName('alias') . " = " . $db->quote($alias));
+		$db->setQuery($query);
+		$itemid = $db->loadResult();
+
+		// Set Itemid
+		$data['data']->set('itemid', $itemid);
 	}
 
 	/**
