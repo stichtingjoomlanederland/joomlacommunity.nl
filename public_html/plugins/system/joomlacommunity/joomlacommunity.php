@@ -63,4 +63,26 @@ class PlgSystemJoomlaCommunity extends JPlugin
 
 		return $route;
 	}
+
+	/**
+	 * Event method onAfterRender
+	 *
+	 * @return bool
+	 */
+	public function onAfterRender()
+	{
+		$body = $this->app->getBody();
+
+		if ($this->app->isAdmin())
+		{
+			return false;
+		}
+
+		// Replace joomlacommunity.eu by joomlacommunity.nl
+		$body = str_replace('http://www.joomlacommunity.eu', 'https://www.joomlacommunity.nl', $body);
+
+		$this->app->setBody($body);
+
+		return true;
+	}
 }
