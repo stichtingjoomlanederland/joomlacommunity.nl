@@ -221,7 +221,12 @@ if ($catid)
 
 											<?php echo JText::_('COM_RSEVENTSPRO_EVENT_UNTIL'); ?>
 										<?php } ?>
+											<?php if(strtotime($event->end) - strtotime($event->start) > 86400):?>
+
+											<?php echo rseventsproHelper::showdate($event->end, rseventsproHelper::showMask('list_start', $event->options), true); ?> uur
+                                            <?php else:?>
 											<?php echo rseventsproHelper::showdate($event->end, 'H:i', true); ?> uur
+                                            <?php endif;?>
 
 										<?php } ?>
 										<?php } ?>
