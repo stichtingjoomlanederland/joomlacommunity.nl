@@ -123,7 +123,7 @@ class ThisTemplateHelper
 	{
 		$this->doc->addHeadLink('templates/' . $this->template . '/images/favicon.ico', 'shortcut icon', 'rel', array('type' => 'image/ico'));
 		$this->doc->addHeadLink('templates/' . $this->template . '/images/favicon.png', 'shortcut icon', 'rel', array('type' => 'image/png'));
-		$this->doc->addHeadLink('templates/' . $this->template . '/images/xtouch-icon.png', 'apple-touch-icon', 'rel', array('type' => 'image/png'));
+		$this->doc->addHeadLink('templates/' . $this->template . '/images/favicon.png', 'apple-touch-icon', 'rel', array('type' => 'image/png'));
 	}
 
 	/**
