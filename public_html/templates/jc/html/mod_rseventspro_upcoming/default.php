@@ -20,7 +20,7 @@ $open = !$links ? '\'target\' => \'_blank\'' : '';
 
 
 <div class="panel-body">
-	<p>Vergroot je Joomla-kennis door Joomla evenementen en curssusen te bezoeken. Zo zijn er onder andere Joomla gebruikersgroepen voor beginnende én gevorderden Joomlagebruikers. Of draag bij aan Joomla tijdens een van de Pizza Bugs & Fun events.</p>
+	<p>Vergroot je Joomla-kennis door gebruikersgroepen, evenementen en curssusen te bezoeken. Voor de beginnende én gevorderde gebruiker! Of draag zelf bij aan Joomla! tijdens Pizza Bugs & Fun.</p>
 </div>
 
 <div class="list-group list-group-flush">
