@@ -35,7 +35,8 @@ $query->clear()
 $db->setQuery($query);
 $categorymeta = $db->loadResult();
 $categorymeta = json_decode($categorymeta);
-$organisers   = ($categorymeta->author) ? explode(',', $categorymeta->author) : null;
+$usergroup    = $categorymeta->author;
+$organisers   = JAccess::getUsersByGroup($usergroup);
 // End organizers
 
 $links = rseventsproHelper::getConfig('modal', 'int');
@@ -211,23 +212,25 @@ $tmpl = $links == 0 ? '' : '&tmpl=component';
 		</div>
 
 		<!-- Show organizers -->
-		<?php if (!empty($organisers)) : ?>
-			<div class="panel panel-agenda">
-				<div class="panel-heading">Organisatoren</div>
-				<div class="list-group list-group-flush panel-agenda">
+		<?php if ($organisers) : ?>
+            <div class="panel panel-agenda">
+                <div class="panel-heading">Organisatoren</div>
+                <div class="list-group list-group-flush panel-agenda">
 					<?php foreach ($organisers as $organiser) : ?>
 						<?php $profile->load($organiser); ?>
-
-						<a class="list-group-item" href="<?php echo $profile->getLink(); ?>">
-							<img class="img-circle" src="<?php echo $profile->getAvatar(); ?>" width="50px" height="50px"/>
-							<?php echo $profile->nickname; ?>
-						</a>
-
+                        <a class="list-group-item" href="<?php echo $profile->getLink(); ?>">
+                            <img class="img-circle" src="<?php echo $profile->getAvatar(); ?>" width="50px" height="50px"/>
+							<?php if ($profile->nickname): ?>
+								<?php echo $profile->nickname; ?>
+							<?php else: ?>
+								<?php echo $profile->user->username; ?>
+							<?php endif; ?>
+                        </a>
 					<?php endforeach; ?>
-				</div>
-			</div>
+                </div>
+            </div>
 		<?php endif; ?>
-		<!--//end Show organizers -->
+        <!--//end Show organizers -->
 
 		<!-- Show subscribers -->
         <?php if (!empty($this->guests)) : ?>

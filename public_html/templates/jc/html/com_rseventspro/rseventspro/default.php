@@ -122,21 +122,28 @@ if ($catid)
             </div>
             <div class="col-md-4">
                 <!-- Show organizers -->
-				<?php $organisers = ($this->category->metadata->get('author')) ? explode(',', $this->category->metadata->get('author')) : null; ?>
-				<?php if (!empty($organisers)) : ?>
+                <?php
+                $usergroup    = $this->category->metadata->get('author');
+                $organisers   = JAccess::getUsersByGroup($usergroup);
+                ?>
+	            <?php if ($organisers) : ?>
                     <div class="panel panel-agenda">
                         <div class="panel-heading">Organisatoren</div>
                         <div class="list-group list-group-flush panel-agenda">
-							<?php foreach ($organisers as $organiser) : ?>
-								<?php $profile->load($organiser); ?>
+				            <?php foreach ($organisers as $organiser) : ?>
+					            <?php $profile->load($organiser); ?>
                                 <a class="list-group-item" href="<?php echo $profile->getLink(); ?>">
                                     <img class="img-circle" src="<?php echo $profile->getAvatar(); ?>" width="50px" height="50px"/>
-									<?php echo $profile->nickname; ?>
+						            <?php if ($profile->nickname): ?>
+							            <?php echo $profile->nickname; ?>
+						            <?php else: ?>
+							            <?php echo $profile->user->username; ?>
+						            <?php endif; ?>
                                 </a>
-							<?php endforeach; ?>
+				            <?php endforeach; ?>
                         </div>
                     </div>
-				<?php endif; ?>
+	            <?php endif; ?>
                 <!--//end Show organizers -->
             </div>
         </div>

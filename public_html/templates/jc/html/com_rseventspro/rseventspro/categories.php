@@ -67,11 +67,11 @@ $profile = DiscussHelper::getTable('Profile');
                         <!-- Show organizers -->
 						<?php
 						$categorymeta = null;
-						$organisers   = null;
 						$categorymeta = json_decode($category->metadata);
-						$organisers   = ($categorymeta->author) ? explode(',', $categorymeta->author) : null;
+						$usergroup    = $categorymeta->author;
+						$organisers   = JAccess::getUsersByGroup($usergroup);
 						?>
-						<?php if (!empty($organisers)) : ?>
+						<?php if ($organisers) : ?>
                             <div class="panel panel-agenda">
                                 <div class="panel-heading">Organisatoren</div>
                                 <div class="list-group list-group-flush panel-agenda">
@@ -79,7 +79,11 @@ $profile = DiscussHelper::getTable('Profile');
 										<?php $profile->load($organiser); ?>
                                         <a class="list-group-item" href="<?php echo $profile->getLink(); ?>">
                                             <img class="img-circle" src="<?php echo $profile->getAvatar(); ?>" width="50px" height="50px"/>
-											<?php echo $profile->nickname; ?>
+											<?php if ($profile->nickname): ?>
+												<?php echo $profile->nickname; ?>
+											<?php else: ?>
+												<?php echo $profile->user->username; ?>
+											<?php endif; ?>
                                         </a>
 									<?php endforeach; ?>
                                 </div>
