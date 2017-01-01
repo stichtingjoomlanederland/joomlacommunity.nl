@@ -14,12 +14,15 @@ $level = 1;
 ?>
 
 <div class="perfectsitemap">
-	<?php if ($this->params->get('show_page_heading', 1)): ?>
-        <h1 itemprop="name" class="<?php echo $this->params->get('pageclass_sfx') ?>">
-			<?php echo $this->params->get('page_heading', false) ?: JText::_('COM_PERFECT_SITEMAP_PAGE_TITLE') ?>
-        </h1>
-	<?php endif; ?>
+
     <div class="well">
+        <div class="page-header">
+	        <?php if ($this->params->get('show_page_heading', 1)): ?>
+                <h1 itemprop="name" class="<?php echo $this->params->get('pageclass_sfx') ?>">
+			        <?php echo $this->params->get('page_heading', false) ?: JText::_('COM_PERFECT_SITEMAP_PAGE_TITLE') ?>
+                </h1>
+	        <?php endif; ?>
+        </div>
         <ul>
 			<?php foreach ($this->items as $item) : ?>
 			<?php if ($level > $item->level) : ?>
