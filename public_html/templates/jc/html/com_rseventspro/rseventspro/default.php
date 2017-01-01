@@ -47,6 +47,9 @@ if ($catid)
 	// Render module
 	$reports = JFactory::getDocument()->loadRenderer('module')->render($module);
 }
+
+$usergroup    = ($this->category) ? $this->category->metadata->get('author') : '';
+$organisers   = JAccess::getUsersByGroup($usergroup);
 ?>
 
 
@@ -59,11 +62,11 @@ if ($catid)
 </script>
 
 
-<?php if ($this->category->level > 1): ?>
+<?php if ($this->category): ?>
     <div class="well">
 
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-<?php if ($organisers): ?>8<?php else: ?>12<?php endif; ?>">
                 <div class="page-header">
                     <div class="pull-right">
 						<?php if ($this->params->get('search', 1)) : ?>
@@ -120,13 +123,10 @@ if ($catid)
                     <p><?php echo JHtml::_('content.prepare', $this->category->description, '', 'com_content.category'); ?></p>
                 </div>
             </div>
+
+	        <?php if ($organisers) : ?>
             <div class="col-md-4">
                 <!-- Show organizers -->
-                <?php
-                $usergroup    = $this->category->metadata->get('author');
-                $organisers   = JAccess::getUsersByGroup($usergroup);
-                ?>
-	            <?php if ($organisers) : ?>
                     <div class="panel panel-agenda">
                         <div class="panel-heading">Organisatoren</div>
                         <div class="list-group list-group-flush panel-agenda">
@@ -143,9 +143,9 @@ if ($catid)
 				            <?php endforeach; ?>
                         </div>
                     </div>
-	            <?php endif; ?>
                 <!--//end Show organizers -->
             </div>
+	        <?php endif; ?>
         </div>
     </div>
 <?php endif; ?>
