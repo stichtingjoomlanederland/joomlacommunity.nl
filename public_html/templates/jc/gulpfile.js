@@ -23,6 +23,17 @@ gulp.task('less', function () {
         .pipe(notify('LESS compiled successfully'));
 });
 
+/* Gulp tasks */
+gulp.task('lesslive', function () {
+    gulp.src(lessDir + '/*.less')
+        .pipe(less())
+        .on("error", notify.onError("<%= error.message %>"))
+        .pipe(autoprefixer('last 10 versions', 'ie 9'))
+        .pipe(cssnano())
+        .pipe(gulp.dest(targetCss))
+        .pipe(notify('LESS compiled successfully'));
+});
+
 gulp.task('default', function(){
     gulp.start(['less']);
     gulp.watch(lessDir + '/**/*.less', ['less']);
