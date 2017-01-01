@@ -20,7 +20,7 @@ if (file_exists(JPATH_SITE.'/components/com_rseventspro/helpers/rseventspro.php'
 	JFactory::getLanguage()->load('com_rseventspro');
 
 	// Add stylesheets
-	JFactory::getDocument()->addStyleSheet(JURI::root().'modules/mod_rseventspro_upcoming/style.css');
+	//JFactory::getDocument()->addStyleSheet(JURI::root().'modules/mod_rseventspro_upcoming/style.css');
 
 	// Get the Itemid
 	$itemid = $params->get('itemid');

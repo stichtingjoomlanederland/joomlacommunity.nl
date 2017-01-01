@@ -319,11 +319,11 @@ class ThisTemplateHelper
 		JHtml::_('bootstrap.framework');
 		JHtml::_('jquery.framework');
 
-
 		// Unset unwanted JavaScript
 		unset($this->doc->_scripts[$this->doc->baseurl . '/media/system/js/mootools-core.js']);
 		unset($this->doc->_scripts[$this->doc->baseurl . '/media/system/js/mootools-more.js']);
 		unset($this->doc->_scripts[$this->doc->baseurl . '/media/system/js/caption.js']);
+		//unset($this->doc->_scripts[$this->doc->baseurl . '/media/system/js/core.js']);
 		unset($this->doc->_scripts[$this->doc->baseurl . '/media/system/js/modal.js']);
 		//unset($this->doc->_scripts[$this->doc->baseurl . '/media/jui/js/jquery.min.js']);
 		unset($this->doc->_scripts[$this->doc->baseurl . '/media/jui/js/jquery-noconflict.js']);
@@ -336,6 +336,7 @@ class ThisTemplateHelper
 		{
 			$this->doc->_script['text/javascript'] = preg_replace('%jQuery\(window\)\.on\(\'load\'\,\s*function\(\)\s*\{\s*new\s*JCaption\(\'img.caption\'\);\s*}\s*\);\s*%', '', $this->doc->_script['text/javascript']);
 			$this->doc->_script['text/javascript'] = preg_replace("%\s*jQuery\(document\)\.ready\(function\(\)\{\s*jQuery\('\.hasTooltip'\)\.tooltip\(\{\"html\":\s*true,\"container\":\s*\"body\"\}\);\s*\}\);\s*%", '', $this->doc->_script['text/javascript']);
+			$this->doc->_script['text/javascript'] = preg_replace('%\s*jQuery\(function\(\$\)\{\s*\$\(\"\.hasTooltip\"\)\.tooltip\(\{\"html\":\s*true,\"container\":\s*\"body\"\}\);\s*\}\);\s*%', '', $this->doc->_script['text/javascript']);
 
 			// Unset completly if empty
 			if (empty($this->doc->_script['text/javascript']))
@@ -411,8 +412,8 @@ class ThisTemplateHelper
 	 */
 	public function loadJs()
 	{
-		$this->doc->addScript('templates/' . $this->template . '/js/modernizr.js');
-		$this->doc->addScript('templates/' . $this->template . '/js/scripts.js');
+		//$this->doc->addScript('templates/' . $this->template . '/js/modernizr.js');
+		//$this->doc->addScript('templates/' . $this->template . '/js/scripts.js');
 		$this->doc->addScript('templates/' . $this->template . '/js/bootstrap.min.js');
 	}
 
