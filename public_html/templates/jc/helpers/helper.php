@@ -508,8 +508,8 @@ class ThisTemplateHelper
 	 */
 	public function getAnalytics($template)
 	{
-		$analytics   = $template->params->get('analytics', 0);
-		$analyticsId = $template->params->get('analyticsid');
+		$analytics   = $template->params->get('analytics', 3);
+		$analyticsId = $template->params->get('analyticsid', 'GTM-PTGXDS6');
 
 		// Analytics
 		switch ($analytics)
