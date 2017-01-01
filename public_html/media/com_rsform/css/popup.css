@@ -1,0 +1,35 @@
+body.rsfp_popup_activated {
+	overflow-y:hidden;
+}
+
+.rsfp_thankyou_popup_outer {
+	height: 100%;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 99999;
+	background: rgba(0,0,0, 0.6);
+}
+
+.rsfp_thankyou_popup_inner {
+	background:#ffffff;
+	width:40%;
+	padding:20px;
+	margin:0 auto;
+	position:relative;
+}
+
+.rsfp_thankou_popup_close_btn {
+	position:absolute;
+	top:5px;
+	right:5px;
+	font-size:28px;
+	cursor:pointer;
+}
+
+@media (max-width: 767px) {
+	.rsfp_thankyou_popup_inner {
+		width:90%;
+	}
+}

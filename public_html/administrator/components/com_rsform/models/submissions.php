@@ -794,7 +794,7 @@ class RSFormModelSubmissions extends JModelLegacy
 			$name = '_STATUS';
 			$value = $submission->values['_STATUS'];
 			
-			$new_field[0] = JText::_('RSFP_PAYPAL_STATUS');
+			$new_field[0] = JText::_('RSFP_PAYMENT_STATUS');
 			
 			if ($isPDF)
 			{

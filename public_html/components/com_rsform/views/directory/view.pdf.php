@@ -35,7 +35,14 @@ class RSFormViewDirectory extends JViewLegacy
 			$contents = ob_get_contents();
 			
 			// Build root without Joomla! folder
-			$site_path = substr(str_replace(DIRECTORY_SEPARATOR, '/', JPATH_SITE), 0, -strlen(JUri::root(true)));
+			if ($folder = JUri::root(true))
+			{
+				$site_path = substr(str_replace(DIRECTORY_SEPARATOR, '/', JPATH_SITE), 0, -strlen($folder));
+			}
+			else
+			{
+				$site_path = str_replace(DIRECTORY_SEPARATOR, '/', JPATH_SITE);
+			}
 			
 			// Add own CSS
 			$css_path = realpath($site_path.'/'.JHtml::stylesheet('com_rsform/directory.css', array(), true, true));

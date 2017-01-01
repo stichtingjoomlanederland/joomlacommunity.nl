@@ -1,0 +1,15 @@
+div.formCaption {
+	float: right;
+}
+
+div.formBody {
+	float: right;
+}
+
+.formHidden {
+	position: absolute;
+	left:auto;
+	right: -100%;
+	top: -100%;
+	opacity: 0;
+}
