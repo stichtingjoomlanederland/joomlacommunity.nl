@@ -65,3 +65,7 @@ public_html/joomlatools-files/
 #  EasyDiscuss
 public_html/media/com_easydiscuss/attachments/*
 public_html/media/com_easydiscuss/attachments/index.html
+
+# Backend bescherming
+public_html/administrator/.htaccess
+public_html/administrator/.htpasswd
