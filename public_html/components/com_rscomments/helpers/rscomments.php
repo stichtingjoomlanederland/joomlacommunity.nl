@@ -612,7 +612,7 @@ abstract class RSCommentsHelper
 				$params->loadString($eparams);
 				$path = $params->get('main_avatarpath','images/discuss_avatar/');
 				if (empty($avatar) || $avatar == 'default.png')
-					$html .= '<img width="'.$size.'" src="'.JURI::root().'components/com_easydiscuss/assets/images/default.png" alt="EasyDiscuss Avatar" class="'.$theclass.'" />';
+					$html .= '<img width="'.$size.'" src="'.JURI::root().'media/com_easydiscuss/images/default_avatar.png" alt="EasyDiscuss Avatar" class="'.$theclass.'" />';
 				else
 					$html .= '<img width="'.$size.'" src="'.JURI::root().$path.$avatar.'" alt="EasyDiscuss Avatar" class="'.$theclass.'" />';
 			break;
