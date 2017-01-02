@@ -3,7 +3,7 @@
 
 /**
 * @package   	JCE
- * @copyright 	Copyright (c) 2009-2016 Ryan Demmer. All rights reserved.
+ * @copyright 	Copyright (c) 2009-2017 Ryan Demmer. All rights reserved.
  * @license   	GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -15,7 +15,15 @@ defined('_JEXEC') or die('RESTRICTED');
 class pkg_jceInstallerScript {
 	
 	private function isPro() {
-		require_once(JPATH_ADMINISTRATOR . '/components/com_jce/includes/constants.php');
+		$file = JPATH_ADMINISTRATOR . '/components/com_jce/includes/constants.php';
+
+		// new install so not pro
+		if (!is_file($file)) {
+			return false;
+		}
+		
+		include_once($file);
+
 		return defined('WF_EDITOR_PRO') && WF_EDITOR_PRO;
 	}
 
@@ -47,12 +55,23 @@ class pkg_jceInstallerScript {
                 $plugin->store();    
             }
         }
+		
+		// get installer reference
+		$installer = method_exists($parent, 'getParent') ? $parent->getParent() : $parent->parent;
 
 		require_once(JPATH_ADMINISTRATOR . '/components/com_jce/install.php');
-		
-		$installer = method_exists($parent, 'getParent') ? $parent->getParent() : $parent->parent;
-		
-		return WFInstall::install($installer);
+
+		$state = WFInstall::install($installer);
+
+		if ($state) {
+			if ((string) $installer->manifest->variant !== "pro") {
+                $message  = $installer->get('message');
+				$message .= file_get_contents(JPATH_ADMINISTRATOR . '/components/com_jce/views/cpanel/tmpl/default_pro_footer.php');
+				$installer->set('message', $message);
+            }
+		}
+
+		return $state;
 	}
 	
 	public function uninstall() {

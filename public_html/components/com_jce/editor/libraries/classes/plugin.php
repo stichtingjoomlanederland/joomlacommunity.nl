@@ -2,7 +2,7 @@
 
 /**
  * @package   	JCE
- * @copyright 	Copyright (c) 2009-2016 Ryan Demmer. All rights reserved.
+ * @copyright 	Copyright (c) 2009-2017 Ryan Demmer. All rights reserved.
  * @license   	GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -62,6 +62,11 @@ class WFEditorPlugin extends JObject {
 
         // load core language
         WFLanguage::load('com_jce', JPATH_ADMINISTRATOR);
+
+        // load pro language
+        if (WF_EDITOR_PRO) {
+            WFLanguage::load('com_jce_pro', JPATH_SITE);
+        }
 
         if (!array_key_exists('base_path', $config)) {
             $config['base_path'] = WF_EDITOR_PLUGINS . '/' . $plugin;
