@@ -20,7 +20,7 @@ $inline = isset($displayData['inline']) ? $displayData['inline'] : false;
     <?php endif;?>
 	<?php if ($displayData['twitter']) : ?>
 		<li class="share-twitter">
-			<a href="https://twitter.com/intent/tweet?url=<?php echo $url; ?>&via=funx&text=<?php echo $title; ?>" onclick="javascript:window.open(this.href,'', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=400,width=400');return false;">
+			<a href="https://twitter.com/intent/tweet?url=<?php echo $url; ?>&via=joomlacommunity&text=<?php echo $title; ?>" onclick="javascript:window.open(this.href,'', 'menubar=no,toolbar=no,resizable=yes,scrollbars=yes,height=400,width=400');return false;">
                 <i class="fa fa-twitter-square" aria-hidden="true"></i>
 			</a>
 		</li>
