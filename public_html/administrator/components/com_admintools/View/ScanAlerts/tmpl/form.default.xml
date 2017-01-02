@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+@package   AdminTools
+@copyright 2010-2016 Akeeba Ltd / Nicholas K. Dionysopoulos
+@license   GNU General Public License version 3, or later
+-->
+<form
+        type="browse"
+        show_header="1"
+        show_filters="1"
+        show_pagination="1"
+        norows_placeholder="COM_ADMINTOOLS_MSG_COMMON_NOITEMS"
+>
+    <headerset>
+        <!-- Search only fields -->
+        <header name="status" type="Selectable" onlyFilter="1"
+                source_class="Akeeba\AdminTools\Admin\Helper\Select"
+                source_method="scanresultstatus"
+                source_translate="false"
+                source_format="optionsobject"/>
+
+
+        <header name="admintools_scanalert_id" label="ID" type="RowSelect" tdwidth="20px"/>
+        <header name="path" label="COM_ADMINTOOLS_LBL_SCANALERTS_PATH" type="Searchable" buttons="1"/>
+        <header name="filestatus" label="COM_ADMINTOOLS_LBL_SCANALERTS_STATUS" tdwidth="80px" type="Field"/>
+        <header name="threat_score" label="COM_ADMINTOOLS_LBL_SCANALERTS_THREAT_SCORE" type="Field" tdwidth="80px"/>
+        <header name="acknowledged" label="COM_ADMINTOOLS_LBL_SCANALERTS_ACKNOWLEDGED" type="Selectable" tdwidth="80px">
+            <option value="-1">---</option>
+            <option value="0">JNO</option>
+            <option value="1">JYES</option>
+        </header>
+    </headerset>
+
+    <fieldset name="items">
+        <field name="admintools_scanalert_id" type="SelectRow"/>
+        <field name="path" type="ScannedFilePath"/>
+        <field name="filestatus" type="ScannedFileStatus"/>
+        <field name="threat_score" type="ScannedFileThreatScore"/>
+        <field name="acknowledged" type="Published"/>
+    </fieldset>
+</form>

@@ -1103,7 +1103,6 @@ class Controller
 		// If it's a &notation return the callback result
 		if (substr($area, 0, 1) == '&')
 		{
-			$oldAreas[] = $area;
 			$method = substr($area, 1);
 
 			// Method not found? Assume true.
@@ -1112,9 +1111,7 @@ class Controller
 				return true;
 			}
 
-			$area = $this->$method();
-
-			return $this->getACLRuleFor($area, $oldAreas);
+			return $this->$method();
 		}
 
 		// If it's not an @notation return the raw string
@@ -1129,12 +1126,7 @@ class Controller
 		// If the referenced task has no ACL map, return true
 		if (!isset($this->taskPrivileges[$index]))
 		{
-			$index = strtolower($index);
-
-			if (!isset($this->taskPrivileges[$index]))
-			{
-				return true;
-			}
+			return true;
 		}
 
 		// Get the new ACL area

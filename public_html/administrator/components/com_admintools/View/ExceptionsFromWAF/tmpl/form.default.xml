@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+@package   AdminTools
+@copyright 2010-2016 Akeeba Ltd / Nicholas K. Dionysopoulos
+@license   GNU General Public License version 3, or later
+-->
+<form
+        type="browse"
+        show_header="1"
+        show_filters="0"
+        show_pagination="1"
+        norows_placeholder="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_NOITEMS"
+>
+    <headerset>
+        <header name="id" type="RowSelect" tdwidth="20px"/>
+
+        <header name="option" label="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_OPTION" filterclass="input-medium"
+                type="Searchable" searchfieldname="foption"/>
+        <header name="view" label="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_VIEW" filterclass="input-medium"
+                type="Searchable" searchfieldname="fview"/>
+        <header name="query" label="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_QUERY" filterclass="input-medium"
+                type="Searchable" searchfieldname="fquery"/>
+    </headerset>
+
+    <fieldset name="items">
+        <field name="id" type="SelectRow"/>
+
+        <field name="option" type="RequestFieldForExceptionsFromWAF"
+               show_link="1"
+               url="index.php?option=com_admintools&amp;view=ExceptionsFromWAF&amp;task=edit&amp;id=[ITEM:ID]"
+        />
+        <field name="view" type="RequestFieldForExceptionsFromWAF"
+               show_link="1"
+               url="index.php?option=com_admintools&amp;view=ExceptionsFromWAF&amp;task=edit&amp;id=[ITEM:ID]"
+        />
+        <field name="query" type="RequestFieldForExceptionsFromWAF"
+               show_link="1"
+               url="index.php?option=com_admintools&amp;view=ExceptionsFromWAF&amp;task=edit&amp;id=[ITEM:ID]"
+        />
+    </fieldset>
+</form>

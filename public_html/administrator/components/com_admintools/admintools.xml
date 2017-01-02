@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="2.5.0" method="upgrade">
+	<name>Admintools</name>
+	<creationDate>2016-10-25</creationDate>
+	<author>Nicholas K. Dionysopoulos</author>
+	<authorEmail>nicholas@akeebabackup.com</authorEmail>
+	<authorUrl>http://www.akeebabackup.com</authorUrl>
+	<copyright>Copyright (c)2010-2016 Nicholas K. Dionysopoulos</copyright>
+	<license>This component in released under the GNU/GPL v3 or later license</license>
+	<version>4.0.2</version>
+	<description>Security and utilitarian tools for Joomla! site administrators</description>
+
+	<!-- Public front end files -->
+	<files folder="frontend">
+		<folder>Controller</folder>
+		<folder>Dispatcher</folder>
+		<folder>Model</folder>
+		<folder>View</folder>
+
+        <filename>admintools.php</filename>
+	</files>
+
+	<!-- Front end translation files -->
+	<languages folder="language/frontend">
+		<language tag="en-GB">en-GB/en-GB.com_admintools.ini</language>
+	</languages>
+
+	<!-- Administrator back-end section -->
+	<administration>
+		<!-- Administration menu -->
+		<menu view="cpanel"
+			img="com_admintools/media/images/admintools-16.png">COM_ADMINTOOLS</menu>
+
+		<!-- Back-end files -->
+		<files folder="backend">
+			<folder>assets</folder>
+			<folder>Controller</folder>
+			<folder>Dispatcher</folder>
+			<folder>engine</folder>
+			<folder>Form</folder>
+			<folder>Helper</folder>
+			<folder>media</folder>
+			<folder>Model</folder>
+			<folder>platform</folder>
+			<folder>sql</folder>
+			<folder>Toolbar</folder>
+			<folder>View</folder>
+
+            <filename>access.xml</filename>
+            <filename>admintools.php</filename>
+            <filename>CHANGELOG.php</filename>
+            <filename>config.xml</filename>
+            <filename>fof.xml</filename>
+            <filename>version.php</filename>
+		</files>
+
+		<!-- Back-end translation files -->
+		<languages folder="language/backend">
+			<language tag="en-GB">en-GB/en-GB.com_admintools.ini</language>
+			<language tag="en-GB">en-GB/en-GB.com_admintools.sys.ini</language>
+			<language tag="en-GB">en-GB/en-GB.com_admintools.menu.ini</language>
+		</languages>
+
+	</administration>
+
+	<!-- Installation / uninstallation PHP scripts -->
+	<scriptfile>script.com_admintools.php</scriptfile>
+</extension>

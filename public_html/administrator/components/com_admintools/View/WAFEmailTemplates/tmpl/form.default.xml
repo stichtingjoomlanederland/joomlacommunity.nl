@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+@package   AdminTools
+@copyright 2010-2016 Akeeba Ltd / Nicholas K. Dionysopoulos
+@license   GNU General Public License version 3, or later
+-->
+<form
+        type="browse"
+        show_header="1"
+        show_filters="1"
+        show_pagination="1"
+        norows_placeholder="COM_ADMINTOOLS_MSG_COMMON_NOITEMS"
+>
+    <headerset>
+        <header name="admintools_waftemplates_id" type="RowSelect" tdwidth="30"/>
+
+        <header name="reason" type="Searchable" label="COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_REASON_SELECT" tdwidth="130"/>
+
+        <header name="subject" type="Searchable" sortable="true"
+                label="COM_ADMINTOOLS_WAFEMAILTEMPLATES_FIELD_SUBJECT_LBL"/>
+
+        <header name="enabled" type="Published" sortable="true" tdwidth="8%"/>
+
+        <header name="language" type="Language" sortable="true" tdwidth="20%"/>
+    </headerset>
+
+    <fieldset name="items">
+        <field name="admintools_waftemplates_id" type="SelectRow"/>
+
+        <field name="reason" type="Text"
+               show_link="true"
+               url="index.php?option=com_admintools&amp;view=WAFEmailTemplates&amp;task=edit&amp;id=[ITEM:ID]"
+        />
+
+        <field name="subject" type="Text"
+               show_link="true"
+               url="index.php?option=com_admintools&amp;view=WAFEmailTemplates&amp;task=edit&amp;id=[ITEM:ID]"
+        />
+
+        <field name="enabled" type="Published"/>
+
+        <field name="language" type="Language" none="JALL"/>
+    </fieldset>
+</form>

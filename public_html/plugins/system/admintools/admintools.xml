@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5.0" type="plugin" group="system" method="upgrade">
+	<name>System - Admin Tools</name>
+	<author>Nicholas K. Dionysopoulos</author>
+	<authorEmail>nicholas@akeebabackup.com</authorEmail>
+	<authorUrl>http://www.akeebabackup.com</authorUrl>
+	<copyright>Copyright (c)2010-2016 Nicholas K. Dionysopoulos</copyright>
+	<license>GNU General Public License version 3, or later</license>
+	<creationDate>2016-10-25</creationDate>
+	<version>4.0.2</version>
+	<description>
+		Handles URL redirections defined in Admin Tools, fends off common attacks
+		and automates session table and cache clean-up
+	</description>
+	<files>
+		<filename plugin="admintools">admintools.php</filename>
+		<filename plugin="admintools">autoloader.php</filename>
+		<folder>admintools</folder>
+		<folder>feature</folder>
+		<folder>util</folder>
+	</files>
+	<languages folder="language">
+		<language tag="en-GB">en-GB/en-GB.plg_system_admintools.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_system_admintools.sys.ini</language>
+	</languages>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="language_override" type="text" default="" size="5" label="ADMINTOOLS_LANGUAGE_OVERRIDE_LBL" description="ADMINTOOLS_LANGUAGE_OVERRIDE_DESC" />
+				<field name="@spacer" type="spacer" default="" label="" description="" />
+
+				<field name="sesoptimizer" type="list" default="0" label="ADMINTOOLS_SESOPT_LBL" description="ADMINTOOLS_SESOPT_DESC">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+				<field name="sesopt_freq" type="text" default="60" size="5" label="ADMINTOOLS_SESOPT_FREQ_LBL" description="ADMINTOOLS_SESOPT_FREQ_DESC" />
+
+				<field name="@spacer" type="spacer" default="" label="" description="" />
+				<field name="sescleaner" type="list" default="0" label="ADMINTOOLS_SESCLEANER_LBL" description="ADMINTOOLS_SESCLEANER_DESC">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+				<field name="ses_freq" type="text" default="60" size="5" label="ADMINTOOLS_SES_FREQ_LBL" description="ADMINTOOLS_SES_FREQ_DESC" />
+
+				<field name="@spacer" type="spacer" default="" label="" description="" />
+				<field name="cachecleaner" type="list" default="0" label="ADMINTOOLS_CACHECLEANER_LBL" description="ADMINTOOLS_CACHECLEANER_DESC">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+				<field name="cache_freq" type="text" default="1440" size="5" label="ADMINTOOLS_CACHE_FREQ_LBL" description="ADMINTOOLS_CACHE_FREQ_DESC" />
+
+				<field name="@spacer" type="spacer" default="" label="" description="" />
+				<field name="cacheexpire" type="list" default="0" label="ADMINTOOLS_CACHECEXPIRE_LBL" description="ADMINTOOLS_CACHECEXPIRE_DESC">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+				<field name="cacheexp_freq" type="text" default="60" size="5" label="ADMINTOOLS_CACHEEXP_FREQ_LBL" description="ADMINTOOLS_CACHEEXP_FREQ_DESC" />
+
+				<field name="@spacer" type="spacer" default="" label="" description="" />
+				<field name="cleantemp" type="list" default="0" label="ADMINTOOLS_CLEANTEMP_LBL" description="ADMINTOOLS_CLEANTEMP_DESC">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+				<field name="cleantemp_freq" type="text" default="60" size="5" label="ADMINTOOLS_CLEANTEMP_FREQ_LBL" description="ADMINTOOLS_CLEANTEMP_FREQ_DESC" />
+
+				<field name="@spacer" type="spacer" default="" label="" description="" />
+				<field name="deleteinactive" type="list" default="0" label="ADMINTOOLS_DELETEINACTIVE_LBL" description="ADMINTOOLS_DELETEINACTIVE_DESC">
+					<option value="0">ADMINTOOLS_DELETEINACTIVE_NONE</option>
+					<option value="1">ADMINTOOLS_DELETEINACTIVE_NOTACTIVATED</option>
+					<option value="2">ADMINTOOLS_DELETEINACTIVE_BLOCKED</option>
+					<option value="3">ADMINTOOLS_DELETEINACTIVE_BOTH</option>
+				</field>
+				<field name="deleteinactive_days" type="text" default="7" size="5" label="ADMINTOOLS_DELETEINACTIVE_DAYS_LBL" description="ADMINTOOLS_DELETEINACTIVE_DAYS_DESC" />
+
+				<field name="@spacer" type="spacer" default="" label="" description="" />
+				<field name="maxlogentries" type="text" default="0" label="ADMINTOOLS_MAXLOGENTRIES_LBL" description="ADMINTOOLS_MAXLOGENTRIES_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

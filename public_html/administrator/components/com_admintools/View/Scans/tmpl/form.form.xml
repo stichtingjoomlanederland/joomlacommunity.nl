@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+@package   AdminTools
+@copyright 2010-2016 Akeeba Ltd / Nicholas K. Dionysopoulos
+@license   GNU General Public License version 3, or later
+-->
+<form>
+    <fieldset name="items">
+        <field name="comment" type="Textarea"
+               label="COM_ADMINTOOLS_SCANS_EDIT_COMMENT"
+               class="input-xxlarge height-medium"
+        />
+    </fieldset>
+</form>

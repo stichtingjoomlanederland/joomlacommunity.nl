@@ -498,10 +498,7 @@ class Platform extends BasePlatform
 			return true;
 		}
 
-		$ret = \JFactory::getUser()->authorise($action, $assetname);
-
-		// Work around Joomla returning null instead of false in some cases.
-		return $ret ? true : false;
+		return \JFactory::getUser()->authorise($action, $assetname);
 	}
 
 	/**

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.3.0" type="file" method="upgrade">
+    <name>file_admintools</name>
+    <author>Nicholas K. Dionysopoulos</author>
+    <authorEmail>nicholas@akeebabackup.com</authorEmail>
+    <authorUrl>https://www.akeebabackup.com</authorUrl>
+    <copyright>Copyright (c)201-2016 Akeeba Ltd / Nicholas K. Dionysopoulos</copyright>
+    <license>GNU GPL v3 or later</license>
+    <version>4.0.2</version>
+    <creationDate>2016-10-25</creationDate>
+    <description>Admin Tools CLI scripts v.4.0.2</description>
+
+    <fileset>
+        <files target="cli">
+            <file>admintools-dbrepair.php</file>
+            <file>admintools-filescanner.php</file>
+            <file>admintools-update.php</file>
+        </files>
+    </fileset>
+</extension>

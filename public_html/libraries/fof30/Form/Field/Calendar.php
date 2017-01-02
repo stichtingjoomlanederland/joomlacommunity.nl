@@ -235,8 +235,7 @@ class Calendar extends \JFormFieldCalendar implements FieldInterface
 			if (!$this->value
 				&& (string) $this->element['empty_replacement'])
 			{
-                $replacement_key = (string) $this->element['empty_replacement'];
-				$value = \JText::_($replacement_key);
+				$value = $this->element['empty_replacement'];
 			}
 			else
 			{

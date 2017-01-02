@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+@package   AdminTools
+@copyright 2010-2016 Akeeba Ltd / Nicholas K. Dionysopoulos
+@license   GNU General Public License version 3, or later
+-->
+<form
+        type="browse"
+        show_header="1"
+        show_filters="0"
+        show_pagination="1"
+        norows_placeholder="COM_ADMINTOOLS_MSG_COMMON_NOITEMS"
+        jsfiles="admin://components/com_admintools/media/js/scan.min.js"
+>
+    <headerset>
+        <header name="id" type="RowSelect" tdwidth="20px"/>
+        <header name="id" type="Field" tdwidth="20px" label="#" id="num"/>
+        <header name="backupstart" type="Field" label="COM_ADMINTOOLS_LBL_SCAN_START"/>
+        <header name="multipart" sortable="false" type="Field" label="COM_ADMINTOOLS_LBL_SCAN_TOTAL"/>
+        <header name="files_modified" type="Field" label="COM_ADMINTOOLS_LBL_SCAN_MODIFIED"/>
+        <header name="files_suspicious" type="Field" label="COM_ADMINTOOLS_LBL_SCAN_THREATNONZERO"/>
+        <header name="files_new" type="Field" label="COM_ADMINTOOLS_LBL_SCAN_ADDED"/>
+        <header name="actions" type="Field" sortable="false" label="COM_ADMINTOOLS_LBL_SCAN_ACTIONS"/>
+
+    </headerset>
+
+    <fieldset name="items">
+        <field name="id" type="SelectRow"/>
+        <field name="id" id="num" type="Text"/>
+        <field name="backupstart" type="Text"/>
+        <field name="multipart" type="Text"/>
+        <field name="files_modified" type="ScanFiles"/>
+        <field name="files_suspicious" type="ScanFiles"/>
+        <field name="files_new" type="ScanFiles"/>
+        <field name="actions" type="ScanActions"/>
+    </fieldset>
+</form>

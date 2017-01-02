@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5.0" type="plugin" group="system" method="upgrade">
+	<name>System - Admin Tools Joomla! Update Email</name>
+	<author>Nicholas K. Dionysopoulos</author>
+	<authorEmail>nicholas@dionysopoulos.me</authorEmail>
+	<authorUrl>http://www.akeebabackup.com</authorUrl>
+	<copyright>Copyright (c)2011-2016 Nicholas K. Dionysopoulos</copyright>
+	<license>GNU General Public License version 3, or later</license>
+	<creationDate>2011-05-26</creationDate>
+	<version>1.0</version>
+	<description>PLG_ATOOLSJUPDATECHECK_DESCRIPTION</description>
+	<files>
+		<filename plugin="atoolsjupdatecheck">atoolsjupdatecheck.php</filename>
+	</files>
+	<languages folder="language">
+		<language tag="en-GB">en-GB/en-GB.plg_system_atoolsjupdatecheck.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_system_atoolsjupdatecheck.sys.ini</language>
+	</languages>
+	<params>
+		<param name="language_override" type="text" default="" size="5"
+			   label="PLG_ATOOLSJUPDATECHECK_LANGUAGE_OVERRIDE_LBL"
+			   description="PLG_ATOOLSJUPDATECHECK_LANGUAGE_OVERRIDE_DESC"/>
+	</params>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="email" type="text" default="" size="40" label="PLG_ATOOLSJUPDATECHECK_EMAIL_LBL"
+					   description="PLG_ATOOLSJUPDATECHECK_EMAIL_DESC"/>
+				<field name="lastrun" type="hidden" default="0" size="15"/>
+			</fieldset>
+		</fields>
+	</config>
+</extension>

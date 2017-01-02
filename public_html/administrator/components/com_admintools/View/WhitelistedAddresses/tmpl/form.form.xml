@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+@package   AdminTools
+@copyright 2010-2016 Akeeba Ltd / Nicholas K. Dionysopoulos
+@license   GNU General Public License version 3, or later
+-->
+<form>
+    <fieldset name="items">
+
+        <field name="ip" type="Text" required="1"
+               label="COM_ADMINTOOLS_LBL_WHITELISTEDADDRESS_IP"
+        />
+
+        <field name="description" type="Text"
+               label="COM_ADMINTOOLS_LBL_WHITELISTEDADDRESS_DESCRIPTION"
+        />
+
+    </fieldset>
+</form>

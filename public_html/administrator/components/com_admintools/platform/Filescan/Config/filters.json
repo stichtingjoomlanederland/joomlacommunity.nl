@@ -1,0 +1,63 @@
+{
+	"tables": {
+		"[SITEDB]": [
+		]
+	},
+
+	"tabledata": {
+	},
+
+	"directories": {
+		"[SITEROOT]": [
+		]
+	},
+
+	"skipdirs": {
+		"[SITEROOT]": [
+		]
+	},
+
+	"files": {
+		"[SITEROOT]": [
+		]
+	},
+
+	"extradirs": [
+	],
+
+	"multidb": [
+	],
+
+	"regexskipdirs": [
+	],
+
+	"components": {
+		"default": [
+		]
+	},
+
+	"modules": [
+	],
+
+	"plugins": {
+		"content": [
+		],
+		"system":  [
+		]
+	},
+
+	"templates": {
+		"backend": [
+		]
+	},
+
+	"regexdirectories": {},
+
+	"regexfiles": {},
+
+	"regextables": [
+	],
+
+	"languages": {
+	}
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+@package   AdminTools
+@copyright 2010-2016 Akeeba Ltd / Nicholas K. Dionysopoulos
+@license   GNU General Public License version 3, or later
+-->
+<form
+        type="browse"
+        show_header="1"
+        show_filters="0"
+        show_pagination="1"
+        norows_placeholder="COM_ADMINTOOLS_ERR_BADWORD_NOITEMS"
+>
+    <headerset>
+        <header name="id" type="RowSelect" tdwidth="20px"/>
+
+        <header name="word" label="COM_ADMINTOOLS_LBL_BADWORD_WORD" filterclass="input-large" type="Searchable"/>
+
+    </headerset>
+
+    <fieldset name="items">
+        <field name="id" type="SelectRow"/>
+
+        <field name="word" type="Text"
+               show_link="1"
+               url="index.php?option=com_admintools&amp;view=BadWords&amp;task=edit&amp;id=[ITEM:ID]"
+        />
+
+    </fieldset>
+</form>

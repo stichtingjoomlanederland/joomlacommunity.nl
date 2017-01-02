@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+@package   AdminTools
+@copyright 2010-2016 Akeeba Ltd / Nicholas K. Dionysopoulos
+@license   GNU General Public License version 3, or later
+-->
+<form
+        jsfiles="admin://components/com_admintools/media/js/wafblacklist.min.js"
+>
+    <fieldset name="items">
+        <field name="enabled" type="Published" label="JPUBLISHED" />
+
+        <field name="verb" type="GenericList"
+               source_class="Akeeba\AdminTools\Admin\Helper\Select"
+               source_method="httpVerbs"
+               source_translate="false"
+               source_format="optionsobject"
+               label="COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_VERB"
+               description="COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_VERB_TIP"
+        />
+
+        <field name="foption" name_from="option" type="Text" class="input-xlarge"
+               label="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_OPTION"
+               description="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_OPTION_TIP"
+        />
+
+        <field name="fview" name_from="view" type="Text" class="input-xlarge"
+               label="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_VIEW"
+               description="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_VIEW_TIP"
+        />
+
+        <field name="ftask" name_from="task" type="Text" class="input-xlarge"
+               label="COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_TASK"
+               description="COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_TASK_TIP"
+        />
+
+        <field name="query_type" type="GenericList" class="input-small"
+               source_class="Akeeba\AdminTools\Admin\Helper\Select"
+               source_method="queryParamType"
+               source_translate="false"
+               source_format="optionsobject"
+               label="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_QUERY"
+        />
+
+        <field name="fquery" name_from="query" type="Text" class="input-xlarge"
+               label_placement="empty"
+               description="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_QUERY_TIP"
+        />
+
+        <field name="query_content" type="Text" class="input-xlarge"
+               label="COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_QUERY_CONTENT"
+               description="COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_QUERY_CONTENT_TIP"
+        />
+
+    </fieldset>
+</form>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+@package   AdminTools
+@copyright 2010-2016 Akeeba Ltd / Nicholas K. Dionysopoulos
+@license   GNU General Public License version 3, or later
+-->
+<form
+        type="browse"
+        show_header="1"
+        show_filters="1"
+        show_pagination="1"
+        norows_placeholder="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_NOITEMS"
+>
+    <headerset>
+        <header name="id" type="RowSelect" tdwidth="20px"/>
+        <header name="verb" label="COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_VERB" type="Selectable"
+                source_class="Akeeba\AdminTools\Admin\Helper\Select"
+                source_method="httpVerbs"
+                source_translate="false"
+                source_format="optionsobject"
+                searchfieldname="fverb"
+        />
+        <header name="option" label="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_OPTION" filterclass="input-small" buttons="false"
+                type="Searchable" searchfieldname="foption"/>
+        <header name="view" label="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_VIEW" filterclass="input-small" buttons="false"
+                type="Searchable" searchfieldname="fview"/>
+        <header name="task" id="ftask" label="COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_TASK" filterclass="input-small" buttons="false"
+                type="Searchable" searchfieldname="ftask"/>
+        <header name="query" label="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_QUERY" filterclass="input-small" buttons="false"
+                type="Searchable" searchfieldname="fquery"/>
+        <header name="query_content" label="COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_QUERY_CONTENT" filterclass="input-small"
+                buttons="false"
+                type="Searchable" searchfieldname="fquery_content"/>
+        <header name="enabled" type="Published" label="JPUBLISHED"
+                sortable="true" tdwidth="8%" />
+    </headerset>
+
+    <fieldset name="items">
+        <field name="id" type="SelectRow"/>
+
+        <field name="verb" type="RequestPartForWAFBlacklist"
+               show_link="1"
+               url="index.php?option=com_admintools&amp;view=WAFBlacklistedRequests&amp;task=edit&amp;id=[ITEM:ID]"
+        />
+        <field name="option" type="RequestPartForWAFBlacklist"
+               show_link="1"
+               url="index.php?option=com_admintools&amp;view=WAFBlacklistedRequests&amp;task=edit&amp;id=[ITEM:ID]"
+        />
+        <field name="view" type="RequestPartForWAFBlacklist"
+               show_link="1"
+               url="index.php?option=com_admintools&amp;view=WAFBlacklistedRequests&amp;task=edit&amp;id=[ITEM:ID]"
+        />
+        <field name="task" type="RequestPartForWAFBlacklist"
+               show_link="1"
+               url="index.php?option=com_admintools&amp;view=WAFBlacklistedRequests&amp;task=edit&amp;id=[ITEM:ID]"
+        />
+        <field name="query" type="RequestPartForWAFBlacklist"
+               show_link="1"
+               url="index.php?option=com_admintools&amp;view=WAFBlacklistedRequests&amp;task=edit&amp;id=[ITEM:ID]"
+        />
+        <field name="query_content" type="RequestPartForWAFBlacklist"
+               show_link="1"
+               url="index.php?option=com_admintools&amp;view=WAFBlacklistedRequests&amp;task=edit&amp;id=[ITEM:ID]"
+        />
+        <field name="enabled" type="Published" />
+    </fieldset>
+</form>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+@package   AdminTools
+@copyright 2010-2016 Akeeba Ltd / Nicholas K. Dionysopoulos
+@license   GNU General Public License version 3, or later
+-->
+<form>
+    <fieldset name="items">
+
+        <field name="foption" name_from="option" type="Text" class="input-xlarge"
+               label="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_OPTION"
+               description="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_OPTION_TIP"
+        />
+
+        <field name="fview" name_from="view" type="Text" class="input-xlarge"
+               label="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_VIEW"
+               description="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_VIEW_TIP"
+        />
+
+        <field name="fquery" name_from="query" type="Text" class="input-xlarge"
+               label="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_QUERY"
+               description="COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_QUERY_TIP"
+        />
+    </fieldset>
+</form>

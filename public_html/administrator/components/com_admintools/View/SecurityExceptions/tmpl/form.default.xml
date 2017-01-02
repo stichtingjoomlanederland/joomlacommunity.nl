@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+@package   AdminTools
+@copyright 2010-2016 Akeeba Ltd / Nicholas K. Dionysopoulos
+@license   GNU General Public License version 3, or later
+-->
+<form
+        type="browse"
+        show_header="1"
+        show_filters="1"
+        show_pagination="1"
+        norows_placeholder="COM_ADMINTOOLS_ERR_SECURITYEXCEPTION_NOITEMS"
+>
+    <headerset>
+        <header name="id" type="RowSelect" tdwidth="20px"/>
+
+        <header name="datefrom" type="Date" placeholder="COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_FROM" filterclass="input-small"
+                onlyFilter="true"/>
+        <header name="dateto" type="Date" placeholder="COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_TO" filterclass="input-small" onlyFilter="true"/>
+
+        <header name="logdate" label="COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_LOGDATE" type="Field" tdwidth="15%"/>
+        <header name="ip" label="COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_IP" filterclass="input-small" type="Searchable" tdwidth="15%"
+                buttons="false"/>
+        <header name="reason" label="COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_REASON" type="Selectable" tdwidth="15%"
+                source_class="Akeeba\AdminTools\Admin\Helper\Select"
+                source_method="reasons_options"
+                source_translate="false"
+                source_format="optionsobject"
+        />
+        <header name="url" label="COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_URL" filterclass="input-small" type="Searchable" buttons="false"/>
+
+    </headerset>
+
+    <fieldset name="items">
+        <field name="id" type="SelectRow"/>
+
+        <field name="logdate" type="Text"/>
+
+        <field name="ip" type="LogIp"/>
+
+        <field name="reason" type="LogReasonWithExtraInfo"/>
+
+        <field name="url" type="Text"/>
+
+    </fieldset>
+</form>
