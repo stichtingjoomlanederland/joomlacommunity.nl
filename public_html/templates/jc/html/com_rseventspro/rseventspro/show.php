@@ -18,6 +18,8 @@ $ongoing     = rseventsproHelper::ongoing($this->event->id);
 $featured    = $event->featured ? ' rs_featured_event' : '';
 $description = empty($event->description) ? $event->small_description : $event->description;
 
+JLoader::register('ContentHelperRoute', JPATH_SITE . '/components/com_content/helpers/route.php');
+
 // Get organizers of event, JC custom
 require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
 $profile = DiscussHelper::getTable('Profile');

@@ -12,6 +12,7 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE');
 require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
 $profile = DiscussHelper::getTable('Profile');
 
+JLoader::register('ContentHelperRoute', JPATH_SITE . '/components/com_content/helpers/route.php');
 
 $reports = null;
 $db      = JFactory::getDbo();
