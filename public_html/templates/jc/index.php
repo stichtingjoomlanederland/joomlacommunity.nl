@@ -17,20 +17,21 @@ include_once JPATH_THEMES . '/' . $this->template . '/helpers/helper.php';
 <head>
     <jdoc:include type="head"/>
     <script>
-        jQuery( document ).ready(function( $ ) {
+        jQuery(document).ready(function ($) {
             // Expand button for touch devices
             var toggleSub = $('.toggle-sub');
 
-            if( toggleSub.length ) {
-                toggleSub.on('click', function(){
+            if (toggleSub.length) {
+                toggleSub.on('click', function () {
                     $(this).toggleClass('active');
-                    expandSubmenu( $(this).closest('li') );
-                    collapseSiblings( $(this).closest('li').siblings() );
+                    expandSubmenu($(this).closest('li'));
+                    collapseSiblings($(this).closest('li').siblings());
                 });
             }
             function expandSubmenu(el) {
                 el.toggleClass('expand');
             }
+
             function collapseSiblings(siblings) {
                 siblings.removeClass('expand');
                 siblings.find('.toggle-sub').removeClass('active');
@@ -39,8 +40,8 @@ include_once JPATH_THEMES . '/' . $this->template . '/helpers/helper.php';
 
         // Override RSComments to make it compatible with Bootstrap 3
         function rscomments_show_report(id) {
-            var modal =  jQuery('#rscomments-report');
-            var root  = typeof rsc_root != 'undefined' ? rsc_root : '';
+            var modal = jQuery('#rscomments-report');
+            var root = typeof rsc_root != 'undefined' ? rsc_root : '';
 
             modal.find('.modal-body').load(root + 'index.php?option=com_rscomments&task=report&id=' + id);
             modal.modal();
@@ -63,8 +64,8 @@ include_once JPATH_THEMES . '/' . $this->template . '/helpers/helper.php';
         googletag.cmd = googletag.cmd || [];
     </script>
     <script>
-        googletag.cmd.push(function() {
-            googletag.defineSlot('/81355425/jc_leader', [728, 90], 'div-gpt-ad-1483553425497-0').addService(googletag.pubads());
+        googletag.cmd.push(function () {
+            googletag.defineSlot('/81355425/jc_leader', [[320, 50], [728, 90]], 'div-gpt-ad-1483558516537-0').addService(googletag.pubads());
             googletag.enableServices();
         });
     </script>
@@ -79,9 +80,11 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 ?>
 <div class="leaderboard-container">
     <div class="banner">
-        <div id='div-gpt-ad-1483553425497-0' style='height:90px; width:728px;'>
+        <div id='div-gpt-ad-1483558516537-0'>
             <script>
-                googletag.cmd.push(function() { googletag.display('div-gpt-ad-1483553425497-0'); });
+                googletag.cmd.push(function () {
+                    googletag.display('div-gpt-ad-1483558516537-0');
+                });
             </script>
         </div>
     </div>
