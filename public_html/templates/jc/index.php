@@ -65,7 +65,13 @@ include_once JPATH_THEMES . '/' . $this->template . '/helpers/helper.php';
     </script>
     <script>
         googletag.cmd.push(function () {
-            googletag.defineSlot('/81355425/jc_leader', [[320, 50], [728, 90]], 'div-gpt-ad-1483558516537-0').addService(googletag.pubads());
+            var mapLeader = googletag.sizeMapping()
+                .addSize([320, 400], [320, 50])
+                .addSize([768, 200], [728, 90])
+                .build();
+            window.LeaderSlot = googletag.defineSlot('/81355425/jc_leader', [[320, 50], [728, 90]], 'div-gpt-ad-1483558516537-0')
+                .defineSizeMapping(mapLeader)
+                .addService(googletag.pubads());
             googletag.enableServices();
         });
     </script>
