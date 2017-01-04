@@ -10,10 +10,6 @@ defined('_JEXEC') or die;
 
 // Load Perfect Template Helper
 include_once JPATH_THEMES . '/' . $this->template . '/helpers/helper.php';
-
-// Temp banners
-$banners  = array('<a href="http://www.joomladagen.nl"><img src="images/banners/joomladagen2017.jpg"/></a>', '<a href="https://www.regularlabs.com"><img src="images/banners/regularlabs.png"/></a>');
-$bannerid = array_rand($banners, 1);
 ?>
 
 <!DOCTYPE html>
@@ -50,6 +46,28 @@ $bannerid = array_rand($banners, 1);
             modal.modal();
         }
     </script>
+
+    <!-- Temp Google Ads -->
+    <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+    <script>
+        (adsbygoogle = window.adsbygoogle || []).push({
+            google_ad_client: "ca-pub-9569324843968575",
+            enable_page_level_ads: true
+        });
+    </script>
+    <!-- End Temp Google Ads -->
+
+    <script async='async' src='https://www.googletagservices.com/tag/js/gpt.js'></script>
+    <script>
+        var googletag = googletag || {};
+        googletag.cmd = googletag.cmd || [];
+    </script>
+    <script>
+        googletag.cmd.push(function() {
+            googletag.defineSlot('/81355425/jc_leader', [728, 90], 'div-gpt-ad-1483553425497-0').addService(googletag.pubads());
+            googletag.enableServices();
+        });
+    </script>
 </head>
 
 <body class="base <?php echo $helper->getBodySuffix(); ?>">
@@ -61,7 +79,11 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
 ?>
 <div class="leaderboard-container">
     <div class="banner">
-		<?php echo $banners[$bannerid]; ?>
+        <div id='div-gpt-ad-1483553425497-0' style='height:90px; width:728px;'>
+            <script>
+                googletag.cmd.push(function() { googletag.display('div-gpt-ad-1483553425497-0'); });
+            </script>
+        </div>
     </div>
 </div>
 <div class="header<?php echo $helper->isHome() ? ' homepage' : ''; ?>">
