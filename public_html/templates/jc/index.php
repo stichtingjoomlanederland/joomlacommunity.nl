@@ -36,6 +36,15 @@ include_once JPATH_THEMES . '/' . $this->template . '/helpers/helper.php';
                 siblings.removeClass('expand');
                 siblings.find('.toggle-sub').removeClass('active');
             }
+
+            // Class for expand menu
+            var toggleNav = $('.navbar-toggle ');
+
+            if (toggleNav.length) {
+                toggleNav.on('click', function () {
+                    $('.navbar-main').toggleClass('navbar-expanded');
+                });
+            }
         });
 
         // Override RSComments to make it compatible with Bootstrap 3
