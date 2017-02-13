@@ -244,6 +244,9 @@ class WFLanguageParser extends JObject {
                         // remove WF_
                         $k = str_replace('wf_', '', $k);
 
+                        // remove "_dlg"
+                        $key = preg_replace('#_dlg$#', '', $key);
+
                         // remove the section name
                         $k = preg_replace('#' . $key . '(_dlg)?_#', '', $k);
 
@@ -340,9 +343,9 @@ class WFLanguageParser extends JObject {
                     }
                 }*/
 
-                foreach ($plugins['external'] as $plugin) {
+                foreach ($plugins['external'] as $name => $plugin) {
                     // add English file
-                    $ini = JPATH_ADMINISTRATOR . '/language/en-GB/en-GB.plg_jce_' . $plugin . '.ini';
+                    $ini = JPATH_ADMINISTRATOR . '/language/en-GB/en-GB.plg_jce_editor-' . $name . '.ini';
 
                     if (is_file($ini)) {
                         $files[] = $ini;
@@ -350,7 +353,7 @@ class WFLanguageParser extends JObject {
 
                     // non-english language
                     if ($tag != 'en-GB') {
-                        $ini = JPATH_ADMINISTRATOR . '/language/' . $tag . '/' . $tag . '.plg_jce_' . $plugin . '.ini';
+                        $ini = JPATH_ADMINISTRATOR . '/language/' . $tag . '/' . $tag . '.plg_jce_editor-' . $name . '.ini';
 
                         if (is_file($ini)) {
                             $files[] = $ini;

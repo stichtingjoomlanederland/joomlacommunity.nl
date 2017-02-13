@@ -44,6 +44,7 @@ class WFElementRadio extends WFElement {
         }
 
         $attribs = array();
+        $html = '';
 
         // pattern data attribute for editable select input box
         if ((string) $node->attributes()->parent) {
@@ -58,17 +59,19 @@ class WFElementRadio extends WFElement {
             $attribs[] =  'data-parent="' . implode(';', $items) . '"';
         }
 
-        $html = '';
-
         foreach($options as $option) {
           $k  	= $option->value;
-          $id 	= $control_name . $name . $k;
+          $id 	= $control_name . $name;
+
+          // clean $id
+          $id = preg_replace('#\W+#', '_', $id);
+
           $text = JText::_($option->text);
 
           $selected = ((string) $k == (string) $value) ? 'checked="checked"' : '';
 
-          $html .= '<label for="' . $control_name . $name . '" id="' . $control_name . $name . '-lbl" class="radio">';
-          $html .= '  <input type="radio" name="' . $control_name . '[' . $name . ']' . '" id="' . $id . '" value="' . $k . '" ' . $selected . '/>';
+          $html .= '<label for="' . $id . $k . '" id="' . $id . '_lbl" class="radio" ' . implode(' ', $attribs) .'>';
+          $html .= '  <input type="radio" name="' . $control_name . '[' . $name . ']' . '" id="' . $id . $k . '" value="' . $k . '" ' . $selected . '/>';
           $html .= $text;
           $html .= '</label>';
         }
