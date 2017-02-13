@@ -9,24 +9,24 @@ defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.model');
 
-class RSFormModelSubmissions extends JModelLegacy
+class RsformModelSubmissions extends JModelLegacy
 {
-	var $_data = array();
-	var $_total = 0;
-	var $_query = '';
-	var $_pagination = null;
-	var $_db = null;
+	public $_data = array();
+	public $_total = 0;
+	public $_query = '';
+	public $_pagination = null;
+	public $_db = null;
 	
-	var $firstFormId = 0;
-	var $allFormIds = array();
+	public $firstFormId = 0;
+	public $allFormIds = array();
 	
-	var $export = false;
-	var $rows = 0;
+	public $export = false;
+	public $rows = 0;
 	
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
-		$this->_db = JFactory::getDBO();
+		$this->_db = JFactory::getDbo();
 		// get the previous filters hashes
 		$mainframe = JFactory::getApplication();
 		$previousFiltersHash = $mainframe->getUserState('com_rsform.submissions.currentfilterhash', '');
@@ -54,7 +54,7 @@ class RSFormModelSubmissions extends JModelLegacy
 		$this->setState('com_rsform.submissions.limitstart', $limitstart);
 	}
 	
-	function _buildQuery()
+	public function _buildQuery()
 	{
 		$sortColumn = $this->getSortColumn();
 		$sortOrder = $this->getSortOrder();
@@ -175,7 +175,7 @@ class RSFormModelSubmissions extends JModelLegacy
 		return $hash;
 	}
 	
-	function checkOrderingPossible($field)
+	public function checkOrderingPossible($field)
 	{
 		$formId = $this->getFormId();
 		$this->_db->setQuery("SELECT SubmissionValueId FROM #__rsform_submission_values WHERE FieldName='".$this->_db->escape($field)."' AND FormId='".$formId."'");
@@ -199,6 +199,51 @@ class RSFormModelSubmissions extends JModelLegacy
 		}
 	}
 	
+	public function getSpecialFields() {
+		static $called;
+	
+		if (is_null($called)) {
+			$fields = array();
+			$formId = $this->getFormId();
+			
+			$this->_db->setQuery("SELECT c.ComponentTypeId, p.ComponentId, p.PropertyName, p.PropertyValue FROM #__rsform_components c LEFT JOIN #__rsform_properties p ON (c.ComponentId=p.ComponentId) WHERE c.FormId='".$formId."' AND c.Published='1' AND p.PropertyName IN ('NAME', 'WYSIWYG')");
+			$components = $this->_db->loadObjectList();
+			$fields['uploadFields']		= array();		
+			$fields['multipleFields']	= array();		
+			$fields['textareaFields']	= array();		
+
+			foreach ($components as $component)
+			{
+				// Upload fields
+				if ($component->ComponentTypeId == RSFORM_FIELD_FILEUPLOAD)
+				{
+					$fields['uploadFields'][] = $component->PropertyValue;
+				}
+				// Multiple fields
+				elseif (in_array($component->ComponentTypeId, array(RSFORM_FIELD_SELECTLIST, RSFORM_FIELD_CHECKBOXGROUP)))
+				{
+					$fields['multipleFields'][] = $component->PropertyValue;
+				}
+				// Textarea fields
+				elseif ($component->ComponentTypeId == RSFORM_FIELD_TEXTAREA)
+				{
+					if ($component->PropertyName == 'WYSIWYG' && $component->PropertyValue == 'NO')
+						$fields['textareaFields'][] = $component->ComponentId;
+				}
+			}
+			
+			if (!empty($fields['textareaFields']))
+			{
+				$this->_db->setQuery("SELECT p.PropertyValue FROM #__rsform_components c LEFT JOIN #__rsform_properties p ON (c.ComponentId=p.ComponentId) WHERE c.ComponentId IN (".implode(',', $fields['textareaFields']).")");
+				$fields['textareaFields'] = $this->_db->loadColumn();
+			}
+			
+			$called = $fields;
+		}
+		
+		return $called;
+	}
+	
 	public function getDateTo()
 	{
 		$app = JFactory::getApplication();
@@ -216,7 +261,7 @@ class RSFormModelSubmissions extends JModelLegacy
 		}
 	}
 	
-	function getSubmissions()
+	public function getSubmissions()
 	{		
 		jimport('joomla.filesystem.file');
 		
@@ -229,35 +274,18 @@ class RSFormModelSubmissions extends JModelLegacy
 			if (empty($form))
 				return $this->_data;
 			
-			$this->_db->setQuery("SELECT c.ComponentTypeId, p.ComponentId, p.PropertyName, p.PropertyValue FROM #__rsform_components c LEFT JOIN #__rsform_properties p ON (c.ComponentId=p.ComponentId) WHERE c.FormId='".$formId."' AND c.Published='1' AND p.PropertyName IN ('NAME', 'WYSIWYG')");
-			$components = $this->_db->loadObjectList();			
 			$uploadFields 	= array();
 			$multipleFields = array();
 			$textareaFields = array();
-			
-			foreach ($components as $component)
-			{
-				// Upload fields
-				if ($component->ComponentTypeId == RSFORM_FIELD_FILEUPLOAD)
-				{
-					$uploadFields[] = $component->PropertyValue;
-				}
-				// Multiple fields
-				elseif (in_array($component->ComponentTypeId, array(RSFORM_FIELD_SELECTLIST, RSFORM_FIELD_CHECKBOXGROUP)))
-				{
-					$multipleFields[] = $component->PropertyValue;
-				}
-				// Textarea fields
-				elseif ($component->ComponentTypeId == RSFORM_FIELD_TEXTAREA)
-				{
-					if ($component->PropertyName == 'WYSIWYG' && $component->PropertyValue == 'NO')
-						$textareaFields[] = $component->ComponentId;
-				}
+			$fieldTypes = $this->getSpecialFields();
+			if (isset($fieldTypes['uploadFields'])) {
+				$uploadFields = $fieldTypes['uploadFields'];	
 			}
-			if (!empty($textareaFields))
-			{
-				$this->_db->setQuery("SELECT p.PropertyValue FROM #__rsform_components c LEFT JOIN #__rsform_properties p ON (c.ComponentId=p.ComponentId) WHERE c.ComponentId IN (".implode(',', $textareaFields).")");
-				$textareaFields = $this->_db->loadColumn();
+			if (isset($fieldTypes['multipleFields'])) {
+				$multipleFields = $fieldTypes['multipleFields'];	
+			}
+			if (isset($fieldTypes['textareaFields'])) {
+				$textareaFields = $fieldTypes['textareaFields'];	
 			}
 			
 			$this->_db->setQuery("SET SQL_BIG_SELECTS=1");
@@ -304,7 +332,6 @@ class RSFormModelSubmissions extends JModelLegacy
 						{
 							if ($must_escape)
 								$result->FieldValue = RSFormProHelper::htmlEscape($result->FieldValue);
-							$result->FieldValue = nl2br($result->FieldValue);
 						}
 						// PayPal status
 						elseif ($result->FieldName == '_STATUS')
@@ -335,13 +362,13 @@ class RSFormModelSubmissions extends JModelLegacy
 		return $this->_data;
 	}
 	
-	function getSubmission()
+	public function getSubmission()
 	{
 		$this->_db->setQuery("SELECT * FROM #__rsform_submissions WHERE SubmissionId='".$this->getSubmissionId()."'");
 		return $this->_db->loadObject();
 	}
 	
-	function getHeaders()
+	public function getHeaders()
 	{
 		$query  = "SELECT p.PropertyValue FROM #__rsform_components c";
 		$query .= " LEFT JOIN #__rsform_properties p ON (c.ComponentId=p.ComponentId AND p.PropertyName='NAME')";
@@ -370,13 +397,13 @@ class RSFormModelSubmissions extends JModelLegacy
 		return $headers;
 	}
 	
-	function getUploadFields() {
+	public function getUploadFields() {
 		$db = JFactory::getDbo();
 		$db->setQuery("SELECT p.PropertyValue FROM #__rsform_components c LEFT JOIN #__rsform_properties p ON (c.ComponentId=p.ComponentId) WHERE c.FormId='".$this->getFormId()."' AND c.ComponentTypeId ='9' AND p.PropertyName='NAME'");
 		return $db->loadColumn();
 	}
 	
-	function getUnescapedFields(){
+	public function getUnescapedFields(){
 		$db = JFactory::getDbo();
 		$db->setQuery("SELECT p.PropertyValue FROM #__rsform_components c LEFT JOIN #__rsform_properties p ON (c.ComponentId=p.ComponentId) WHERE c.FormId='".$this->getFormId()."' AND c.ComponentTypeId ='9' AND p.PropertyName='NAME'");
 		$fields = $db->loadColumn();
@@ -390,7 +417,7 @@ class RSFormModelSubmissions extends JModelLegacy
 		
 	}
 	
-	function getHeadersEnabled()
+	public function getHeadersEnabled()
 	{
 		$return = new stdClass();
 		$return->staticHeaders = array();
@@ -411,7 +438,7 @@ class RSFormModelSubmissions extends JModelLegacy
 		return $return;
 	}
 	
-	function getStaticHeaders()
+	public function getStaticHeaders()
 	{		
 		$return = array('DateSubmitted', 'UserIp', 'Username', 'UserId', 'Lang');
 		if ($this->addConfirmedHeader()) $return[] = 'confirmed';
@@ -419,7 +446,7 @@ class RSFormModelSubmissions extends JModelLegacy
 		return $return;
 	}
 	
-	function addConfirmedHeader()
+	public function addConfirmedHeader()
 	{
 		static $found = null;
 		if (is_null($found)) {
@@ -430,12 +457,12 @@ class RSFormModelSubmissions extends JModelLegacy
 		return $found;
 	}
 	
-	function getTotal()
+	public function getTotal()
 	{		
 		return $this->_total;
 	}
 	
-	function getPagination()
+	public function getPagination()
 	{
 		if (empty($this->_pagination))
 		{
@@ -446,15 +473,29 @@ class RSFormModelSubmissions extends JModelLegacy
 		return $this->_pagination;
 	}
 	
-	function getFormTitle()
+	public function getFormTitle()
 	{
 		$formId = $this->getFormId();
 		
-		$this->_db->setQuery("SELECT FormTitle FROM #__rsform_forms WHERE FormId='".$formId."'");
-		return $this->_db->loadResult();
+		$query = $this->_db->getQuery(true)
+			->select($this->_db->qn('FormTitle'))
+			->from($this->_db->qn('#__rsform_forms'))
+			->where($this->_db->qn('FormId') . ' = ' . $this->_db->q($formId));
+		$title = $this->_db->setQuery($query)->loadResult();
+		
+		$lang = RSFormProHelper::getCurrentLanguage($formId);
+		if ($translations = RSFormProHelper::getTranslations('forms', $formId, $lang))
+		{
+			if (isset($translations['FormTitle']))
+			{
+				$title = $translations['FormTitle'];
+			}
+		}
+		
+		return $title;
 	}
 	
-	function getForms()
+	public function getForms()
 	{
 		$mainframe = JFactory::getApplication();
 		
@@ -466,11 +507,26 @@ class RSFormModelSubmissions extends JModelLegacy
 		if (empty($sortOrder))
 			$sortOrder = 'DESC';
 		
-		$query  = "SELECT FormId, FormTitle FROM #__rsform_forms WHERE 1";
+		$query  = "SELECT FormId, FormTitle, Lang FROM #__rsform_forms WHERE 1";
 		$query .= " ORDER BY `".$sortColumn."` ".$sortOrder;
 		
 		$results = $this->_getList($query);
 		foreach ($results as $result) {
+			$lang = RSFormProHelper::getCurrentLanguage($result->FormId);
+			if ($lang != $result->Lang)
+			{
+				if ($translations = RSFormProHelper::getTranslations('forms', $result->FormId, $lang))
+				{
+					foreach ($translations as $field => $value)
+					{
+						if (isset($result->$field))
+						{
+							$result->$field = $value;
+						}
+					}
+				}
+			}
+
 			$return[] = JHTML::_('select.option', $result->FormId, $result->FormTitle);
 			$this->allFormIds[] = $result->FormId;
 		}
@@ -481,25 +537,25 @@ class RSFormModelSubmissions extends JModelLegacy
 		return $return;
 	}
 	
-	function getSortColumn()
+	public function getSortColumn()
 	{
 		$mainframe = JFactory::getApplication();
 		return $mainframe->getUserStateFromRequest('com_rsform.submissions.filter_order', 'filter_order', 'DateSubmitted', 'string');
 	}
 	
-	function getSortOrder()
+	public function getSortOrder()
 	{
 		$mainframe = JFactory::getApplication();
 		return $mainframe->getUserStateFromRequest('com_rsform.submissions.filter_order_Dir', 'filter_order_Dir', 'DESC', 'word');
 	}
 	
-	function getFilter()
+	public function getFilter()
 	{
 		$mainframe = JFactory::getApplication();
 		return $mainframe->getUserStateFromRequest('com_rsform.submissions.filter', 'search', '');
 	}
 	
-	function getFormId()
+	public function getFormId()
 	{
 		$mainframe = JFactory::getApplication();
 		
@@ -517,7 +573,7 @@ class RSFormModelSubmissions extends JModelLegacy
 	
 	// If $cid is array, it will treat it as a collection of SubmissionIds
 	// If $cid is not an array, it will treat it as the FormId on which to clear all submission files
-	function deleteSubmissions($cid)
+	public function deleteSubmissions($cid)
 	{
 		if (is_array($cid) && count($cid)) {
 			$this->_db->setQuery("DELETE FROM #__rsform_submissions WHERE SubmissionId IN (".implode(',', $cid).")");
@@ -559,7 +615,7 @@ class RSFormModelSubmissions extends JModelLegacy
 	
 	// If $cid is array, it will treat it as a collection of SubmissionIds
 	// If $cid is not an array, it will treat it as the FormId on which to clear all submission files
-	function deleteSubmissionFiles($cid)
+	public function deleteSubmissionFiles($cid)
 	{
 		jimport('joomla.filesystem.file');
 		
@@ -607,7 +663,7 @@ class RSFormModelSubmissions extends JModelLegacy
 		}
 	}
 	
-	function getSubmissionId()
+	public function getSubmissionId()
 	{
 		$cid = JRequest::getVar('cid', array());
 		if (is_array($cid))
@@ -618,7 +674,7 @@ class RSFormModelSubmissions extends JModelLegacy
 		return $cid;
 	}
 	
-	function getEditFields()
+	public function getEditFields()
 	{
 		$isPDF = JRequest::getVar('format') == 'pdf';
 		$pattern = '#\[p(.*?)\]#is';
@@ -841,7 +897,7 @@ class RSFormModelSubmissions extends JModelLegacy
 		return $return;
 	}
 	
-	function save()
+	public function save()
 	{
 		jimport('joomla.filesystem.file');
 		jimport('joomla.filesystem.folder');
@@ -962,14 +1018,14 @@ class RSFormModelSubmissions extends JModelLegacy
 		}
 	}
 	
-	function getSubmissionFormId()
+	public function getSubmissionFormId()
 	{
 		$cid = $this->getSubmissionId();
 		$this->_db->setQuery("SELECT FormId FROM #__rsform_submissions WHERE SubmissionId='".$cid."' LIMIT 1");
 		return $this->_db->loadResult();
 	}
 	
-	function getExportSelected()
+	public function getExportSelected()
 	{
 		$cid = JRequest::getVar('cid', array(), 'post');
 		JArrayHelper::toInteger($cid);
@@ -977,12 +1033,12 @@ class RSFormModelSubmissions extends JModelLegacy
 		return $cid;
 	}
 	
-	function getExportFile()
+	public function getExportFile()
 	{
 		return uniqid('');
 	}
 	
-	function getStaticFields()
+	public function getStaticFields()
 	{
 		$submissionid = $this->getSubmissionId();
 		
@@ -996,14 +1052,14 @@ class RSFormModelSubmissions extends JModelLegacy
 		return $submission;
 	}
 	
-	function getExportType()
+	public function getExportType()
 	{
 		$task = JFactory::getApplication()->input->getCmd('task');
 		$task = explode('.', $task);
 		return end($task);
 	}
 	
-	function getExportTotal()
+	public function getExportTotal()
 	{
 		$formId = $this->getFormId();
 		
@@ -1018,7 +1074,7 @@ class RSFormModelSubmissions extends JModelLegacy
 		return count($ExportRows);
 	}
 	
-	function getLanguages()
+	public function getLanguages()
 	{
 		$lang 	   = JFactory::getLanguage();
 		$languages = $lang->getKnownLanguages(JPATH_SITE);
@@ -1031,7 +1087,7 @@ class RSFormModelSubmissions extends JModelLegacy
 		return $return;
 	}
 	
-	function getLang()
+	public function getLang()
 	{
 		$mainframe = JFactory::getApplication();
 		return $mainframe->getUserStateFromRequest('com_rsform.submissions.lang', 'Language', '');

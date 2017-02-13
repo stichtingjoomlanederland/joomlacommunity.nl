@@ -67,7 +67,7 @@ class RSFormProScripting
 				
 				case '<-':
 				case '&lt;-':
-					$result = self::inclusion($value, $compare, $formId, 'right');
+					$result = self::inclusion($value, $compare, $formId, 'left');
 				break;
 				
 				case '->':

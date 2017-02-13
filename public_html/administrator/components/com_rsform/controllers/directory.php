@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.controller');
 
-class RSFormControllerDirectory extends RSFormController
+class RsformControllerDirectory extends RsformController
 {
 	public function __construct() {
 		parent::__construct();
@@ -32,7 +32,7 @@ class RSFormControllerDirectory extends RSFormController
 	}
 	
 	public function saveOrdering() {
-		$db		= JFactory::getDBO();
+		$db		= JFactory::getDbo();
 		$cids	= JFactory::getApplication()->input->get('cid',array(),'array');
 		$formId	= JFactory::getApplication()->input->getInt('formId',0);
 		
@@ -52,7 +52,7 @@ class RSFormControllerDirectory extends RSFormController
 	}
 	
 	public function saveDetails() {
-		$db		= JFactory::getDBO();
+		$db		= JFactory::getDbo();
 		$cids	= JFactory::getApplication()->input->get('cid',array(),'array');
 		$formId	= JFactory::getApplication()->input->getInt('formId',0);
 		
@@ -114,7 +114,7 @@ class RSFormControllerDirectory extends RSFormController
 	public function changeAutoGenerateLayout() {
 		$formId 		= JFactory::getApplication()->input->getInt('formId');
 		$ViewLayoutName = JRequest::getVar('ViewLayoutName');
-		$db 			= JFactory::getDBO();
+		$db 			= JFactory::getDbo();
 		
 		$db->setQuery('SELECT COUNT('.$db->qn('formId').') FROM '.$db->qn('#__rsform_directory').' WHERE '.$db->qn('formId').' = '.(int) $formId.' ');
 		if (!$db->loadResult()) {
@@ -131,7 +131,7 @@ class RSFormControllerDirectory extends RSFormController
 	public function saveName() {
 		$formId = JFactory::getApplication()->input->getInt('formId');
 		$name = JRequest::getVar('ViewLayoutName');
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 		
 		$db->setQuery('SELECT COUNT('.$db->qn('formId').') FROM '.$db->qn('#__rsform_directory').' WHERE '.$db->qn('formId').' = '.(int) $formId.' ');
 		if (!$db->loadResult()) {
@@ -146,7 +146,7 @@ class RSFormControllerDirectory extends RSFormController
 	}
 	
 	public function generate() {
-		$db 	= JFactory::getDBO();
+		$db 	= JFactory::getDbo();
 		$formId = JFactory::getApplication()->input->getInt('formId');
 		$layout = JRequest::getVar('layoutName');
 		

@@ -19,7 +19,7 @@ JHTML::_('behavior.tooltip');
 		</div>
 		<div id="dashboard-right" class="hidden-phone hidden-tablet">
 			<?php echo $this->loadTemplate('version'); ?>
-			<p align="center"><a href="http://www.rsjoomla.com/joomla-components/joomla-security.html?utm_source=rsform&amp;utm_medium=banner_approved&amp;utm_campaign=rsfirewall" target="_blank"><img src="components/com_rsform/assets/images/rsfirewall-approved.png" align="middle" alt="RSFirewall! Approved"/></a></p>
+			<p align="center"><a href="https://www.rsjoomla.com/joomla-components/joomla-security.html?utm_source=rsform&amp;utm_medium=banner_approved&amp;utm_campaign=rsfirewall" target="_blank"><img src="components/com_rsform/assets/images/rsfirewall-approved.png" align="middle" alt="RSFirewall! Approved"/></a></p>
 		</div>
 	</div>
 	

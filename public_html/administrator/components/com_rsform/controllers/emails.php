@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.controller');
 
-class RSFormControllerEmails extends RSFormController
+class RsformControllerEmails extends RsformController
 {
 	function __construct()
 	{
@@ -17,7 +17,7 @@ class RSFormControllerEmails extends RSFormController
 		
 		$this->registerTask('apply', 'save');
 		
-		$this->_db = JFactory::getDBO();
+		$this->_db = JFactory::getDbo();
 	}
 	
 	function save()
@@ -35,7 +35,7 @@ class RSFormControllerEmails extends RSFormController
 	
 	function remove()
 	{
-		$db		= JFactory::getDBO();
+		$db		= JFactory::getDbo();
 		$cid	= JFactory::getApplication()->input->getInt('cid');
 		$formId = JFactory::getApplication()->input->getInt('formId');
 		$type	= JFactory::getApplication()->input->getCmd('type','additional');

@@ -458,7 +458,7 @@ class RSFormProHelper
 
 	public static function componentNameExists($componentName, $formId, $currentComponentId=0, $column = 'ComponentId')
 	{
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 
 		if ($componentName == 'formId')
 			return true;
@@ -501,7 +501,7 @@ class RSFormProHelper
 					->loadResult();
 			}
 
-			return $session->get('com_rsform.form.formId'.$formId.'.lang', $lang->getDefault());
+			return $session->get('com_rsform.form.formId'.$formId.'.lang', $lang->getTag());
 		}
 		// frontend
 		else
@@ -703,7 +703,7 @@ class RSFormProHelper
 	{
 		jimport('joomla.filesystem.file');
 
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 		$u = JUri::getInstance();
 		$config = JFactory::getConfig();
 		$SubmissionId = (int) $SubmissionId;
@@ -1141,7 +1141,7 @@ class RSFormProHelper
 
 	public static function escapeArray(&$val, &$key)
 	{
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 		$val = $db->escape($val);
 		$key = $db->escape($key);
 	}
@@ -1158,7 +1158,7 @@ class RSFormProHelper
 	public static function componentExists($formId, $componentTypeId)
 	{
 		$formId = (int) $formId;
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 
 		if (is_array($componentTypeId))
 		{
@@ -1212,7 +1212,7 @@ class RSFormProHelper
 	// conditions
 	public static function getConditions($formId, $lang=null)
 	{
-		$db   = JFactory::getDBO();
+		$db   = JFactory::getDbo();
 
 		if (!$lang)
 			$lang = RSFormProHelper::getCurrentLanguage();
@@ -1756,7 +1756,7 @@ class RSFormProHelper
 		$mainframe = JFactory::getApplication();
 		$formId = (int) $formId;
 
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 		$db->setQuery("SELECT ThemeParams, ScrollToThankYou, ThankYouMessagePopUp FROM #__rsform_forms WHERE FormId='".$formId."'");
 		$form = $db->loadObject();
 		if ($form->ThemeParams)
@@ -1808,7 +1808,7 @@ class RSFormProHelper
 
 		$formId = (int) $formId;
 
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 		$form = RSFormProHelper::getForm($formId);
 
 		$lang 		  = RSFormProHelper::getCurrentLanguage();
@@ -2195,7 +2195,7 @@ class RSFormProHelper
 		static $components = array();
 
 		if (!isset($components[$formId])) {
-			$db = JFactory::getDBO();
+			$db = JFactory::getDbo();
 			$query = $db->getQuery(true);
 
 			// need to get the component type name so that we can load the specific class
@@ -2674,7 +2674,7 @@ class RSFormProHelper
 		static $current_lang;
 
 		$formId = (int) $formId;
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 		$query = $db->getQuery(true);
 
 		// Do not grab translations if the form is in the same language as the translation.
@@ -2975,7 +2975,7 @@ class RSFormProHelper
 	}
 
 	public static function getDirectoryFormProperties($formId) {
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 
 		// form multiple separator
 		$db->setQuery("SELECT MultipleSeparator FROM #__rsform_forms WHERE FormId = '".(int) $formId."'");
@@ -3338,6 +3338,7 @@ class RSFormProHelper
 				->select($db->qn('ThankYouMessagePopUp'))
 				->select($db->qn('Thankyou'))
 				->select($db->qn('ShowContinue'))
+				->select($db->qn('TextareaNewLines'))
 				->select($db->qn('Published'))
 				->select($db->qn('FormTitle'))
 				->select($db->qn('MetaTitle'))
@@ -3356,6 +3357,7 @@ class RSFormProHelper
 				->select($db->qn('CSSAdditionalAttributes'))
 				->select($db->qn('AjaxValidation'))
 				->select($db->qn('ScrollToError'))
+				->select($db->qn('MultipleSeparator'))
 				->select($db->qn('ThemeParams'))
 				->from($db->qn('#__rsform_forms'))
 				->where($db->qn('FormId').'='.$db->q($formId));

@@ -36,6 +36,7 @@ Joomla.submitbutton = submitbutton;
 			<th width="1%" nowrap="nowrap" class="title"><?php echo JHTML::_('grid.sort', JText::_('RSFP_PUBLISHED'), 'Published', $this->sortOrder, $this->sortColumn, 'forms.manage'); ?></th>
 			<th width="1%" nowrap="nowrap" class="title"><?php echo JText::_('RSFP_SUBMISSIONS'); ?></th>
 			<th class="title"><?php echo JText::_('RSFP_TOOLS'); ?></th>
+			<th class="title" width="1%" nowrap="nowrap"><?php echo JText::_('RSFP_LAST_LANGUAGE'); ?></th>
 			<th width="1%" nowrap="nowrap" class="title"><?php echo JHTML::_('grid.sort', JText::_('RSFP_FORM_ID'), 'FormId', $this->sortOrder, $this->sortColumn, 'forms.manage'); ?></th>
 		</tr>
 		</thead>
@@ -50,7 +51,7 @@ Joomla.submitbutton = submitbutton;
 		<tr class="row<?php echo $k; ?>">
 			<td width="1%" nowrap="nowrap"><?php echo $this->pagination->getRowOffset($i); ?></td>
 			<td width="1%" nowrap="nowrap"><?php echo JHTML::_('grid.id', $i, $row->FormId); ?></td>
-			<td><a href="index.php?option=com_rsform&amp;view=forms&amp;layout=edit&amp;formId=<?php echo $row->FormId; ?>"><?php echo !empty($row->FormTitle) ? $row->FormTitle : '<em>no title</em>'; ?></a></td>
+			<td><a href="index.php?option=com_rsform&amp;view=forms&amp;layout=edit&amp;formId=<?php echo $row->FormId; ?>"><?php echo !empty($row->FormTitle) ? $row->FormTitle : '<em>'.JText::_('RSFP_FORM_DEFAULT_TITLE').'</em>'; ?></a></td>
 			<td><?php echo $row->FormName; ?></td>
 			<td width="1%" nowrap="nowrap" align="center"><?php echo JHTML::_('jgrid.published', $row->published, $i, 'forms.'); ?></td>
 			<td width="1%" nowrap="nowrap">
@@ -73,6 +74,7 @@ Joomla.submitbutton = submitbutton;
 					</ul>
 				</div>
 			</td>
+			<td width="1%" nowrap="nowrap"><?php echo $this->escape(RSFormProHelper::getCurrentLanguage($row->FormId)); ?></td>
 			<td width="1%" nowrap="nowrap"><?php echo $row->FormId; ?></td>
 		</tr>
 	<?php
@@ -82,7 +84,7 @@ Joomla.submitbutton = submitbutton;
 	?>
 	<tfoot>
 	<tr>
-		<td colspan="8"><?php echo $this->pagination->getListFooter(); ?></td>
+		<td colspan="9"><?php echo $this->pagination->getListFooter(); ?></td>
 	</tr>
 	</tfoot>
 	</table>

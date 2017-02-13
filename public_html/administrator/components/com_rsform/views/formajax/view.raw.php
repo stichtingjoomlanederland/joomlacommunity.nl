@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.view');
 
-class RSFormViewFormajax extends JViewLegacy
+class RsformViewFormajax extends JViewLegacy
 {
 	function display($tpl = null)
 	{

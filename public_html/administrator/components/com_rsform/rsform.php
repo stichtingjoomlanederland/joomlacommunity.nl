@@ -39,12 +39,12 @@ if (!empty($controller) && file_exists(JPATH_COMPONENT.'/controllers/'.$controll
 {
 	require_once JPATH_COMPONENT.'/controllers/'.$controller.'.php';
 	
-	$controller 	   = 'RSFormController'.$controller;
-	$RSFormController  = new $controller();
+	$controller 	   = 'RsformController'.$controller;
+	$RsformController  = new $controller();
 	$controller_exists = true;
 }
 else
-	$RSFormController = new RSFormController();
+	$RsformController = new RsformController();
 
 // Trigger onInit
 $mainframe->triggerEvent('rsfp_bk_onInit');
@@ -53,10 +53,10 @@ $mainframe->triggerEvent('rsfp_bk_onInit');
 if ($controller_exists && !empty($controller_task))
 {	
 	$controller_task = preg_replace('/[^A-Z_]/i', '', $controller_task);
-	$RSFormController->execute($controller_task);
+	$RsformController->execute($controller_task);
 }
 else
-	$RSFormController->execute($mainframe->input->getWord('task'));
+	$RsformController->execute($mainframe->input->getWord('task'));
 
 // Redirect if set
-$RSFormController->redirect();
+$RsformController->redirect();

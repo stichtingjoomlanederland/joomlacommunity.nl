@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSFormModelUpdates extends JModelLegacy
+class RsformModelUpdates extends JModelLegacy
 {	
 	public function getSideBar() {
 		require_once JPATH_COMPONENT.'/helpers/toolbar.php';

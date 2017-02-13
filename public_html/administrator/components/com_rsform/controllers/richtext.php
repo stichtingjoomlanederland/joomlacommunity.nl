@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.controller');
 
-class RSFormControllerRichtext extends RSFormController
+class RsformControllerRichtext extends RsformController
 {
 	function __construct()
 	{
@@ -17,7 +17,7 @@ class RSFormControllerRichtext extends RSFormController
 		
 		$this->registerTask('apply', 'save');
 		
-		$this->_db = JFactory::getDBO();
+		$this->_db = JFactory::getDbo();
 	}
 	
 	function show()
@@ -30,7 +30,7 @@ class RSFormControllerRichtext extends RSFormController
 	
 	function save()
 	{
-		$db 	= JFactory::getDBO();
+		$db 	= JFactory::getDbo();
 		$formId = JFactory::getApplication()->input->getInt('formId');
 		$opener = JFactory::getApplication()->input->getCmd('opener');
 		$value  = JRequest::getVar($opener, '', 'post', 'none', JREQUEST_ALLOWRAW);
@@ -65,7 +65,7 @@ class RSFormControllerRichtext extends RSFormController
 		$formId = JFactory::getApplication()->input->getInt('formId');
 		$opener = JFactory::getApplication()->input->getCmd('opener');
 		
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 		$db->setQuery("SELECT `".$opener."` FROM #__rsform_forms WHERE FormId='".$formId."'");
 		$value = $db->loadResult();
 		

@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSFormModelBackupRestore extends JModelAdmin
+class RsformModelBackuprestore extends JModelAdmin
 {
 	protected $_data;
 	protected $_query;
@@ -15,7 +15,7 @@ class RSFormModelBackupRestore extends JModelAdmin
 	
 	public function __construct() {
 		parent::__construct();
-		$this->_db = JFactory::getDBO();
+		$this->_db = JFactory::getDbo();
 		$this->_query = $this->_buildQuery();
 	}
 	
@@ -44,6 +44,7 @@ class RSFormModelBackupRestore extends JModelAdmin
 		$query->select($db->qn('FormId'))
 			  ->select($db->qn('FormTitle'))
 			  ->select($db->qn('FormName'))
+			  ->select($db->qn('Lang'))
 			  ->from($db->qn('#__rsform_forms'))
 			  ->order($db->qn($this->getSortColumn()).' '.$db->escape($this->getSortOrder()));
 		
@@ -55,6 +56,21 @@ class RSFormModelBackupRestore extends JModelAdmin
 			$this->_data = $this->_getList($this->_query);
 			
 			foreach ($this->_data as $i => $row) {
+				$lang = RSFormProHelper::getCurrentLanguage($row->FormId);
+				if ($lang != $row->Lang)
+				{
+					if ($translations = RSFormProHelper::getTranslations('forms', $row->FormId, $lang))
+					{
+						foreach ($translations as $field => $value)
+						{
+							if (isset($row->$field))
+							{
+								$row->$field = $value;
+							}
+						}
+					}
+				}
+
 				$this->_db->setQuery("SELECT COUNT(`SubmissionId`) cnt FROM #__rsform_submissions WHERE FormId='".$row->FormId."'");
 				$row->_allSubmissions = $this->_db->loadResult();
 			}

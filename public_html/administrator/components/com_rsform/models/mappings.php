@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSFormModelMappings extends JModelLegacy
+class RsformModelMappings extends JModelLegacy
 {	
 	public function getMapping() {
 		$row = JTable::getInstance('RSForm_Mappings', 'Table');

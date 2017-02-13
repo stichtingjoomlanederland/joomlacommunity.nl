@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSFormModelDirectory extends JModelLegacy
+class RsformModelDirectory extends JModelLegacy
 {
 	protected $_data = array();
 	protected $_total = 0;
@@ -20,7 +20,7 @@ class RSFormModelDirectory extends JModelLegacy
 	public function __construct() {
 		parent::__construct();
 
-		$this->_db 		= JFactory::getDBO();
+		$this->_db 		= JFactory::getDbo();
 		$app			= JFactory::getApplication();
 		$this->_query 	= $this->_buildQuery();
 
@@ -38,14 +38,40 @@ class RSFormModelDirectory extends JModelLegacy
 	public function _buildQuery() {
 		$sortColumn	= $this->getSortColumn();
 		$sortOrder	= $this->getSortOrder();
+		
+		$query = $this->_db->getQuery(true)
+			->select($this->_db->qn('FormId'))
+			->select($this->_db->qn('FormTitle'))
+			->select($this->_db->qn('FormName'))
+			->select($this->_db->qn('Lang'))
+			->from($this->_db->qn('#__rsform_forms'))
+			->order($this->_db->qn($sortColumn) . ' ' . $this->_db->escape($sortOrder));
 
-		return 'SELECT '.$this->_db->qn('FormId').', '.$this->_db->qn('FormTitle').', '.$this->_db->qn('FormName').' FROM '.$this->_db->qn('#__rsform_forms').' WHERE 1 ORDER BY '.$this->_db->qn($sortColumn).' '.$this->_db->escape($sortOrder);
+		return (string) $query;
 	}
 
 	public function getForms() {
 		if (empty($this->_data)) {
 			$this->_db->setQuery($this->_query, $this->getState('com_rsform.directory.limitstart'), $this->getState('com_rsform.directory.limit'));
 			$this->_data = $this->_db->loadObjectList();
+			
+			foreach ($this->_data as $form)
+			{
+				$lang = RSFormProHelper::getCurrentLanguage($form->FormId);
+				if ($lang != $form->Lang)
+				{
+					if ($translations = RSFormProHelper::getTranslations('forms', $form->FormId, $lang))
+					{
+						foreach ($translations as $field => $value)
+						{
+							if (isset($form->$field))
+							{
+								$form->$field = $value;
+							}
+						}
+					}
+				}
+			}
 		}
 
 		return $this->_data;

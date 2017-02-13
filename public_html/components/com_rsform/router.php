@@ -114,7 +114,7 @@ function RSFormBuildRoute(&$query)
 				
 				$formId = (int) $query['formId'];
 				
-				$db = JFactory::getDBO();
+				$db = JFactory::getDbo();
 				$db->setQuery("SELECT `FormTitle` FROM #__rsform_forms WHERE `FormId`='".$formId."'");
 				$formName = JFilterOutput::stringURLSafe($db->loadResult());
 				

@@ -9,7 +9,7 @@
 defined( '_JEXEC' ) or die( 'Restricted access' );
 jimport('joomla.application.component.controller');
 
-class RSFormControllerDirectory extends RSFormController
+class RsformControllerDirectory extends RsformController
 {
 	public function __construct() {
 		parent::__construct();

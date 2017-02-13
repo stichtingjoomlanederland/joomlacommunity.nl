@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSFormModelDirectory extends JModelLegacy
+class RsformModelDirectory extends JModelLegacy
 {
 	protected $fields;
 
@@ -169,6 +169,15 @@ class RSFormModelDirectory extends JModelLegacy
 			$items	= $this->_db->loadObjectList();
 		} else {
 			$items = array();
+		}
+		
+		// small workaround - we need to have only string keys for the items
+		foreach ($items as $i => $item) {
+			$newItem = new stdClass();
+			foreach ($item as $key=>$value) {
+				$newItem->{((string)$key)} = $value;
+			}
+			$items[$i] = $newItem;
 		}
 
 		$mainframe->triggerEvent('rsfp_onAfterManageDirectoriesQuery', array(&$items, $this->params->get('formId')));

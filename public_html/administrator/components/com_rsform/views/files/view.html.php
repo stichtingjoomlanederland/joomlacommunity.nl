@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSFormViewFiles extends JViewLegacy
+class RsformViewFiles extends JViewLegacy
 {
 	public function display($tpl = null)
 	{

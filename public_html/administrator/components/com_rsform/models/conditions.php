@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.model');
 
-class RSFormModelConditions extends JModelLegacy
+class RsformModelConditions extends JModelLegacy
 {
 	var $_data 	= null;
 	var $_total = 0;
@@ -19,7 +19,7 @@ class RSFormModelConditions extends JModelLegacy
 	function __construct()
 	{
 		parent::__construct();
-		$this->_db = JFactory::getDBO();
+		$this->_db = JFactory::getDbo();
 	}
 	
 	function getFormId()
@@ -74,7 +74,14 @@ class RSFormModelConditions extends JModelLegacy
 				// paypal ?
 				if ($result->ComponentTypeId == 22)
 				{
-					$v[0] = $v[1];
+					if (isset($v[1]))
+					{
+						$v[0] = $v[1];
+					}
+					else
+					{
+						$v[1] = $v[0];
+					}
 				}
 				else
 				{

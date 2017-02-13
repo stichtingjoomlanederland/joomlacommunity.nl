@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSFormController extends JControllerLegacy
+class RsformController extends JControllerLegacy
 {
 	public function __construct()
 	{
@@ -64,11 +64,14 @@ class RSFormController extends JControllerLegacy
 
 	public function changeEmailLanguage()
 	{
-		$formId  = JFactory::getApplication()->input->getInt('formId');
-		$cid	 = JFactory::getApplication()->input->getInt('id');
+		$input	 = JFactory::getApplication()->input;
+		$formId  = $input->getInt('formId');
+		$cid	 = $input->getInt('id');
+		$type	 = $input->getCmd('type');
+
 		JFactory::getSession()->set('com_rsform.emails.emailId'.$cid.'.lang', JFactory::getApplication()->input->getString('ELanguage'));
 
-		$this->setRedirect('index.php?option=com_rsform&task=forms.emails&tmpl=component&formId='.$formId.'&cid='.$cid);
+		$this->setRedirect('index.php?option=com_rsform&task=forms.emails&type='.$type.'&tmpl=component&formId='.$formId.'&cid='.$cid);
 	}
 
 	public function layoutsGenerate()
@@ -87,7 +90,7 @@ class RSFormController extends JControllerLegacy
 		$formId = JFactory::getApplication()->input->getInt('formId');
 		$name = JFactory::getApplication()->input->getCmd('formLayoutName');
 
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 		$db->setQuery("UPDATE #__rsform_forms SET FormLayoutName='".$db->escape($name)."' WHERE FormId='".$formId."'");
 		$db->execute();
 

@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSFormControllerRestore extends RSFormController
+class RsformControllerRestore extends RsformController
 {
 	public function start() {
 		$app	= JFactory::getApplication();

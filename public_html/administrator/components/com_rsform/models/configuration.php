@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.model');
 
-class RSFormModelConfiguration extends JModelAdmin
+class RsformModelConfiguration extends JModelAdmin
 {
 	public function __construct()
 	{

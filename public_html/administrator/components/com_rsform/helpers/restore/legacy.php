@@ -165,7 +165,7 @@ class RSFormProRestore
 	
 	protected function cleanUp()
 	{
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 		if (count($this->removeColumns))
 			foreach ($this->removeColumns as $removeColumn)
 			{
@@ -179,7 +179,7 @@ class RSFormProRestore
 	
 	protected function processTask($task)
 	{
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 		
 		$attr = $task->attributes();
 		$type = 'query';
@@ -286,7 +286,7 @@ class RSFormProRestore
 	
 	protected function updateUploads()
 	{
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 		
 		$db->setQuery("SELECT `ComponentId` FROM `#__rsform_components` WHERE `ComponentTypeId` = 9 ");
 		$uploadcomponents = $db->loadObjectList();
