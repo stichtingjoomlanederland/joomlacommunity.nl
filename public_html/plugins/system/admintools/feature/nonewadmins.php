@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright Copyright (c)2010-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2017 Nicholas K. Dionysopoulos
  * @license   GNU General Public License version 3, or later
  */
 
@@ -18,12 +18,13 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 	 */
 	public function isEnabled()
 	{
-		if (!$this->helper->isBackend())
-		{
-			return false;
-		}
+		$fromBackend = $this->cparams->getValue('nonewadmins', 0) == 1;
+		$fromFrontend = $this->cparams->getValue('nonewfrontendadmins', 1) == 1;
 
-		return ($this->cparams->getValue('nonewadmins', 0) == 1);
+		$enabled = $fromBackend && $this->helper->isBackend();
+		$enabled |= $fromFrontend && $this->helper->isFrontend();
+
+		return $enabled;
 	}
 
 	/**
@@ -82,6 +83,73 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 			}
 		}
 
+		$isAdmin = $this->hasAdminGroup($groups);
+
+		if ($isAdmin)
+		{
+			// Get the correct reason (was the user being created in front- or back-end)?
+			$reason = $this->helper->isBackend() ? 'nonewadmins' : 'nonewfrontendadmins';
+
+			// Log and autoban security exception
+			$extraInfo = "Submitted JForm Variables :\n";
+			$extraInfo .= print_r($jform, true);
+			$extraInfo .= "\n";
+			$this->exceptionsHandler->logAndAutoban($reason, $extraInfo);
+
+			// Throw an exception to prevent Joomla! processing this form
+			$jlang = JFactory::getLanguage();
+			$jlang->load('joomla', JPATH_ROOT, 'en-GB', true);
+			$jlang->load('joomla', JPATH_ROOT, $jlang->getDefault(), true);
+			$jlang->load('joomla', JPATH_ROOT, null, true);
+
+			throw new Exception(JText::_('JGLOBAL_AUTH_ACCESS_DENIED'), '403');
+		}
+	}
+
+	/**
+	 * Hooks into the Joomla! models before a user is saved. This catches the case where a 3PD extension tries to create
+	 * a new user instead of going through com_users.
+	 *
+	 * @param   JUser  $oldUser  The existing user record
+	 * @param   bool   $isNew    Is this a new user?
+	 * @param   array  $data     The data to be saved
+	 *
+	 * @throws  Exception  When we catch a security exception
+	 */
+	public function onUserBeforeSave($oldUser, $isNew, $data)
+	{
+		$isAdmin = $this->hasAdminGroup($data['groups']);
+
+		if ($isAdmin)
+		{
+			// Get the correct reason (was the user being created in front- or back-end)?
+			$reason = $this->helper->isBackend() ? 'nonewadmins' : 'nonewfrontendadmins';
+
+			// Log and autoban security exception
+			$extraInfo = "User Data Variables :\n";
+			$extraInfo .= print_r($data, true);
+			$extraInfo .= "\n";
+			$this->exceptionsHandler->logAndAutoban($reason, $extraInfo);
+
+			// Throw an exception to prevent Joomla! processing this form
+			$jlang = JFactory::getLanguage();
+			$jlang->load('joomla', JPATH_ROOT, 'en-GB', true);
+			$jlang->load('joomla', JPATH_ROOT, $jlang->getDefault(), true);
+			$jlang->load('joomla', JPATH_ROOT, null, true);
+
+			throw new Exception(JText::_('JGLOBAL_AUTH_ACCESS_DENIED'), '403');
+		}
+	}
+
+	/**
+	 * Does any of the groups in the list have backend privileges
+	 *
+	 * @param   array  $groups
+	 *
+	 * @return  bool
+	 */
+	private function hasAdminGroup($groups)
+	{
 		$isAdmin = false;
 
 		if (!empty($groups))
@@ -99,16 +167,10 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 
 				$isAdmin |= $backend;
 			}
+
+			return $isAdmin;
 		}
 
-		if ($isAdmin)
-		{
-			$jlang = JFactory::getLanguage();
-			$jlang->load('joomla', JPATH_ROOT, 'en-GB', true);
-			$jlang->load('joomla', JPATH_ROOT, $jlang->getDefault(), true);
-			$jlang->load('joomla', JPATH_ROOT, null, true);
-
-			throw new Exception(JText::_('JGLOBAL_AUTH_ACCESS_DENIED'), '403');
-		}
+		return $isAdmin;
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright Copyright (c)2010-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2017 Nicholas K. Dionysopoulos
  * @license   GNU General Public License version 3, or later
  */
 
@@ -116,7 +116,20 @@ class AtsystemFeatureWafblacklist extends AtsystemFeatureAbstract
 
 		if ($block)
 		{
-			$this->exceptionsHandler->blockRequest('wafblacklist');
+			$extraInfo = '';
+
+			// If the rule matched any variable, let's print the variables that caused the block, so we can inspect later
+			if (isset($inputSource) && isset($inputObject))
+			{
+				// PLEASE NOTE! If POST data is passed, but the GET array is empty, Input will use the whole $_REQUEST
+				// array, so $inputSource will be GET even if we truly had a POST request. However this is an edge case
+				$extraInfo  = "Hash      : ".strtoupper($inputSource)."\n";
+				$extraInfo .= "Variables :\n";
+				$extraInfo .= print_r($inputObject->getData(), true);
+				$extraInfo .= "\n";
+			}
+
+			$this->exceptionsHandler->blockRequest('wafblacklist', null, $extraInfo);
 		}
 	}
 

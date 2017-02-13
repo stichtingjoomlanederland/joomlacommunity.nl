@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2016 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
  * @license   GNU General Public License version 3, or later
  */
 
@@ -65,6 +65,20 @@ defined('_JEXEC') or die;
 		<?php echo Select::booleanlist('rfishield', array(), $this->wafconfig['rfishield']); ?>
 
 	</div>
+</div>
+
+<div class="control-group">
+    <label class="control-label" for="phpshield"
+           rel="popover"
+           data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_PHPSHIELD'); ?>"
+           data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_PHPSHIELD_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_PHPSHIELD'); ?>
+    </label>
+
+    <div class="controls">
+		<?php echo Select::booleanlist('phpshield', array(), $this->wafconfig['phpshield']); ?>
+
+    </div>
 </div>
 
 <div class="control-group">

@@ -4,11 +4,11 @@
     <author>Nicholas K. Dionysopoulos</author>
     <authorEmail>nicholas@akeebabackup.com</authorEmail>
     <authorUrl>https://www.akeebabackup.com</authorUrl>
-    <copyright>Copyright (c)201-2016 Akeeba Ltd / Nicholas K. Dionysopoulos</copyright>
+    <copyright>Copyright (c)2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos</copyright>
     <license>GNU GPL v3 or later</license>
-    <version>4.0.2</version>
-    <creationDate>2016-10-25</creationDate>
-    <description>Admin Tools CLI scripts v.4.0.2</description>
+    <version>4.1.1</version>
+    <creationDate>2017-01-27</creationDate>
+    <description>Admin Tools CLI scripts v.4.1.1</description>
 
     <fileset>
         <files target="cli">

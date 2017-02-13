@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 @package   AdminTools
-@copyright 2010-2016 Akeeba Ltd / Nicholas K. Dionysopoulos
+@copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
 @license   GNU General Public License version 3, or later
 -->
 <form
@@ -17,9 +17,9 @@
         <header name="id" type="Field" tdwidth="20px" label="#" id="num"/>
         <header name="backupstart" type="Field" label="COM_ADMINTOOLS_LBL_SCAN_START"/>
         <header name="multipart" sortable="false" type="Field" label="COM_ADMINTOOLS_LBL_SCAN_TOTAL"/>
-        <header name="files_modified" type="Field" label="COM_ADMINTOOLS_LBL_SCAN_MODIFIED"/>
-        <header name="files_suspicious" type="Field" label="COM_ADMINTOOLS_LBL_SCAN_THREATNONZERO"/>
-        <header name="files_new" type="Field" label="COM_ADMINTOOLS_LBL_SCAN_ADDED"/>
+        <header name="files_modified" type="Field" label="COM_ADMINTOOLS_LBL_SCAN_MODIFIED" sortable="false" />
+        <header name="files_suspicious" type="Field" label="COM_ADMINTOOLS_LBL_SCAN_THREATNONZERO" sortable="false"/>
+        <header name="files_new" type="Field" label="COM_ADMINTOOLS_LBL_SCAN_ADDED" sortable="false"/>
         <header name="actions" type="Field" sortable="false" label="COM_ADMINTOOLS_LBL_SCAN_ACTIONS"/>
 
     </headerset>

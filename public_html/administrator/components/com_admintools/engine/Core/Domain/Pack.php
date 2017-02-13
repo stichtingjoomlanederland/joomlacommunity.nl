@@ -2,7 +2,7 @@
 /**
  * Akeeba Engine
  * The modular PHP5 site backup engine
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -56,6 +56,27 @@ class Pack extends Part
 	 * @var   boolean
 	 */
 	private $done_file_scanning = true;
+
+	/**
+	 * Is the current directory completely excluded?
+	 *
+	 * @var boolean
+	 */
+	private $excluded_folder = false;
+
+	/**
+	 * Are the current directory's subdirectories excluded?
+	 *
+	 * @var boolean
+	 */
+	private $excluded_subdirectories = false;
+
+	/**
+	 * Are the current directory's files excluded?
+	 *
+	 * @var boolean
+	 */
+	private $excluded_files = false;
 
 	/** @var   string  Path to add to scanned files */
 	private $path_prefix;
@@ -256,6 +277,7 @@ ENDVCONTENT;
 				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Already finished");
 				$this->setStep("-");
 				$this->setSubstep("");
+
 				break;
 			}
 			else
@@ -296,6 +318,30 @@ ENDVCONTENT;
 				elseif (!$this->done_subdir_scanning)
 				{
 					$result = $this->scanSubdirs();
+				}
+				/**
+				 * If we have excluded contained files or subdirectories BUT NOT the entire folder itself AND there are
+				 * no files in this directory THEN add an empty directory to the archive.
+				 **/
+				elseif (
+					($this->excluded_files || $this->excluded_subdirectories)
+					&&
+					!$this->excluded_folder
+					&&
+				    empty($this->file_list)
+				)
+				{
+					Factory::getLog()->log(LogLevel::INFO, "Empty directory " . $this->current_directory . ' (files and directories are filtered)');
+
+					$archiver = Factory::getArchiverEngine();
+
+					if ($this->current_directory != $this->remove_path_prefix)
+					{
+						$archiver->addFile($this->current_directory, $this->remove_path_prefix, $this->path_prefix);
+					}
+
+					// Error propagation
+					$this->propagateFromObject($archiver);
 				}
 
 				// Do I have an error?
@@ -352,6 +398,9 @@ ENDVCONTENT;
 		$this->getFolders_position = null;
 		$this->done_file_scanning = false;
 		$this->done_subdir_scanning = false;
+		$this->excluded_folder = false;
+		$this->excluded_subdirectories = false;
+		$this->excluded_files = false;
 
 		if (count($this->directory_list) == 0)
 		{
@@ -378,6 +427,7 @@ ENDVCONTENT;
 			Factory::getLog()->log(LogLevel::INFO, "Skipping directory " . $this->current_directory);
 			$this->done_subdir_scanning = true;
 			$this->done_file_scanning = true;
+			$this->excluded_folder = true;
 
 			return true;
 		}
@@ -385,6 +435,8 @@ ENDVCONTENT;
 		// Apply Skip Contained Directories Filters
 		if ($filters->isFiltered($dir, $root, 'dir', 'children'))
 		{
+			$this->excluded_subdirectories = true;
+
 			Factory::getLog()->log(LogLevel::INFO, "Skipping subdirectories of directory " . $this->current_directory);
 
 			$this->done_subdir_scanning = true;
@@ -393,6 +445,8 @@ ENDVCONTENT;
 		// Apply Skipfiles
 		if ($filters->isFiltered($dir, $root, 'dir', 'content'))
 		{
+			$this->excluded_files = true;
+
 			Factory::getLog()->log(LogLevel::INFO, "Skipping files of directory " . $this->current_directory);
 
 			$this->done_file_scanning = true;

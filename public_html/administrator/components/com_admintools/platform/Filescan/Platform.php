@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2016 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
  * @license   GNU General Public License version 3, or later
  */
 
@@ -57,7 +57,7 @@ class Filescan extends BasePlatform
 		// Configuration found. Convert to array format.
 		$ini_data_local = ParseIni::parse_ini_file_php($ini_data_local, true, true);
 		$ini_data       = array();
-		
+
 		foreach ($ini_data_local as $section => $row)
 		{
 			if (!empty($row))
@@ -105,7 +105,7 @@ class Filescan extends BasePlatform
 			// Decrypt the data if required
 			$ini_data_local = Factory::getSecureSettings()->decryptSettings($ini_data_local);
 			$ini_data_local = ParseIni::parse_ini_file_php($ini_data_local, true, true);
-			
+
 			$ini_data = array();
 			foreach ($ini_data_local as $section => $row)
 			{
@@ -117,7 +117,7 @@ class Filescan extends BasePlatform
 					}
 				}
 			}
-			
+
 			unset($ini_data_local);
 
 			$allowedOverrides = array(
@@ -256,7 +256,7 @@ class Filescan extends BasePlatform
 				}
 
 				$app = \JFactory::getApplication();
-				
+
 				if ($app->isAdmin())
 				{
 					if (empty($root))
@@ -673,7 +673,7 @@ class Filescan extends BasePlatform
 	 */
 	public function get_administrator_emails()
 	{
-		$db = \JFactory::getDbo();
+		$db = Factory::getDatabase(Platform::getInstance()->get_platform_database_options());
 
 		// Load the root asset node and read the rules
 		$query = $db->getQuery(true)
@@ -722,7 +722,7 @@ class Filescan extends BasePlatform
 					)
 					->where($db->qn('m') . '.' . $db->qn('group_id') . ' IN (' . $adminGroups . ')');
 		$db->setQuery($query);
-		
+
 		$superAdmins = $db->loadAssocList();
 
 		if ( !empty($superAdmins))
@@ -985,9 +985,9 @@ class Filescan extends BasePlatform
 	protected function register_akeeba_engine_classes($path_prefix)
 	{
 		global $Akeeba_Class_Map;
-		
+
 		\JLoader::import('joomla.filesystem.folder');
-		
+
 		foreach ($Akeeba_Class_Map as $class_prefix => $path_suffix)
 		{
 			// Bail out if there is such directory, so as not to have Joomla! throw errors
