@@ -3,11 +3,11 @@
 	<fields name="params">
 		<fieldset name="metadata">
 			<field
-				name="addtoxmlsitemap"
+				name="addarticletohtmlsitemap"
 				type="radio"
 				class="btn-group btn-group-yesno"
-				label="PLG_SYSTEM_PERFECTSITEMAP_ADDTOXMLSITEMAP_LABEL"
-				description="PLG_SYSTEM_PERFECTSITEMAP_ADDTOXMLSITEMAP_DESC"
+				label="PLG_PERFECTSITEMAP_CONTENT_ADDARTICLETOHTMLSITEMAP_LABEL"
+				description="PLG_PERFECTSITEMAP_CONTENT_ADDARTICLETOHTMLSITEMAP_DESC"
 				default="1"
 			>
 				<option value="1">JYES</option>
@@ -15,11 +15,11 @@
 			</field>
 
 			<field
-				name="addtohtmlsitemap"
+				name="addarticletoxmlsitemap"
 				type="radio"
 				class="btn-group btn-group-yesno"
-				label="PLG_SYSTEM_PERFECTSITEMAP_ADDTOHTMLSITEMAP_LABEL"
-				description="PLG_SYSTEM_PERFECTSITEMAP_ADDTOHTMLSITEMAP_DESC"
+				label="PLG_PERFECTSITEMAP_CONTENT_ADDARTICLETOXMLSITEMAP_LABEL"
+				description="PLG_PERFECTSITEMAP_CONTENT_ADDARTICLETOXMLSITEMAP_DESC"
 				default="1"
 			>
 				<option value="1">JYES</option>

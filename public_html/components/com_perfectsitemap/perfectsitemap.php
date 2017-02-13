@@ -3,14 +3,12 @@
  * @package     Perfect_Sitemap
  * @subpackage  com_perfectsitemap
  *
- * @copyright   Copyright (C) 2016 Perfect Web Team. All rights reserved.
+ * @copyright   Copyright (C) 2017 Perfect Web Team. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
 // No direct access to this file
 defined('_JEXEC') or die('Restricted access');
-
-JLoader::register('URLHelper', JPATH_ROOT . '/components/com_perfectsitemap/helpers/urlhelper.php');
 
 $controller = JControllerLegacy::getInstance('PerfectSitemap');
 

@@ -3,7 +3,7 @@
  * @package     Perfect_Sitemap
  * @subpackage  plg_perfectsitemap
  *
- * @copyright   Copyright (C) 2016 Perfect Web Team. All rights reserved.
+ * @copyright   Copyright (C) 2017 Perfect Web Team. All rights reserved.
  * @license     GNU General Public License version 2 or later; see LICENSE.txt
  */
 
@@ -16,17 +16,40 @@ defined('_JEXEC') or die;
  */
 class PlgSystemPerfectSitemap extends JPlugin
 {
-	// Autoload language
+	/**
+	 * Automatic load plugin language files
+	 *
+	 * @var bool
+	 */
 	protected $autoloadLanguage = true;
 
-	// JFactory::getApplication()
+	/**
+	 * Joomla Application instance
+	 *
+	 * @var  JApplicationSite
+	 */
 	public $app;
+
+	/**
+	 * Load perfectistemap plugin group and register helpers and classes
+	 *
+	 * @return  void
+	 *
+	 * @since  2.0.0
+	 */
+	public function onAfterInitialise()
+	{
+		JPluginHelper::importPlugin('perfectsitemap');
+
+		JLoader::register('PerfectSitemapUrlHelper', JPATH_ROOT . '/components/com_perfectsitemap/helpers/urlhelper.php');
+		JLoader::register('PerfectSitemapItem', JPATH_ROOT . '/components/com_perfectsitemap/helpers/perfectsitemapitem.php');
+	}
 
 	/**
 	 * Add sitemap parameter to the menu edit form
 	 *
-	 * @param   JForm  $form  The form to be altered.
-	 * @param   mixed  $data  The associated data for the form.
+	 * @param   JForm $form The form to be altered.
+	 * @param   mixed $data The associated data for the form.
 	 *
 	 * @return  boolean
 	 *
@@ -37,15 +60,13 @@ class PlgSystemPerfectSitemap extends JPlugin
 		// Make sure form element is a JForm object
 		if (!($form instanceof JForm))
 		{
-			$this->_subject->setError("JERROR_NOT_A_FORM");
+			$this->_subject->setError('JERROR_NOT_A_FORM');
 
 			return false;
 		}
 
-		$name = $form->getName();
-
 		// Make sure we are on the edit menu item page
-		if (!in_array($name, array('com_menus.item')))
+		if (!in_array($form->getName(), array('com_menus.item')))
 		{
 			return true;
 		}
