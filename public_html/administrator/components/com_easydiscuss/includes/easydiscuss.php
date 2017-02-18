@@ -150,7 +150,7 @@ class ED
 
 	public static function getHash( $seed = '' )
 	{
-		if( DiscussHelper::getJoomlaVersion() >= '2.5' )
+		if( ED::getJoomlaVersion() >= '2.5' )
 		{
 			return JApplication::getHash( $seed );
 		}
@@ -345,9 +345,9 @@ class ED
 
 	public static function getUnansweredCount( $categoryId = '0', $excludeFeatured = false )
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::getDBO();
 
-		$excludeCats	= DiscussHelper::getPrivateCategories();
+		$excludeCats	= ED::getPrivateCategories();
 		$catModel		= ED::model('Categories');
 
 		if( !is_array( $categoryId ) && !empty( $categoryId ))
@@ -423,7 +423,7 @@ class ED
 
 	public static function getFeaturedCount( $categoryId )
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::getDBO();
 
 		$query  = 'SELECT COUNT(1) as `CNT` FROM `#__discuss_posts` AS a';
 
@@ -470,44 +470,41 @@ class ED
 		return $msgObj;
 	}
 
-	public static function getAlias( $title, $type='post', $id='0' )
+	public static function getAlias($title, $type='post', $id='0')
 	{
+		$items = explode(' ', $title);
 
-		$items = explode( ' ', $title );
-		foreach( $items as $index => $item )
-		{
-			if( strpos( $item, '*' ) !== false  )
-			{
+		foreach($items as $index => $item) {
+			if (strpos($item, '*' ) !== false) {
 				$items[$index] = 'censored';
 			}
 		}
 
-		$title = implode( $items, ' ' );
+		$title = implode($items, ' ');
 
-		$alias	= DiscussHelper::permalinkSlug($title);
+		$alias	= ED::permalinkSlug($title);
 
 		// Make sure no such alias exists.
 		$i	= 1;
-		while( DiscussRouter::_isAliasExists( $alias, $type, $id ) )
-		{
-			$alias	= DiscussHelper::permalinkSlug( $title ) . '-' . $i;
+		while (DiscussRouter::_isAliasExists($alias, $type, $id)) {
+			$alias = ED::permalinkSlug($title ) . '-' . $i;
 			$i++;
 		}
 
 		return $alias;
 	}
 
-	public static function permalinkSlug( $string, $uid = null )
+	public static function permalinkSlug($string, $uid = null)
 	{
-		$config		= DiscussHelper::getConfig();
-		if ($config->get( 'main_sef_unicode' )) {
+		$config	= ED::getConfig();
+		if ($config->get('main_sef_unicode')) {
 
 			if ($uid && is_numeric($uid)) {
 				$string = $uid . ':' . $string;
 			}
 
 			// Unicode support.
-			$alias  = DiscussHelper::permalinkUnicodeSlug($string);
+			$alias = ED::permalinkUnicodeSlug($string);
 
 		} else {
 			// Replace accents to get accurate string
@@ -528,7 +525,7 @@ class ED
 	public static function permalinkUnicodeSlug( $string )
 	{
 		$slug	= '';
-		if(DiscussHelper::getJoomlaVersion() >= '1.6')
+		if(ED::getJoomlaVersion() >= '1.6')
 		{
 			$slug	= JFilterOutput::stringURLUnicodeSlug($string);
 		}
@@ -772,7 +769,7 @@ class ED
 			$my	= JFactory::getUser( $userId );
 
 			$admin = false;
-			if(DiscussHelper::getJoomlaVersion() >= '1.6')
+			if(ED::getJoomlaVersion() >= '1.6')
 			{
 				$admin	= $my->authorise('core.admin');
 			}
@@ -807,7 +804,7 @@ class ED
 
 		if( !isset( $userids[ $username ] ) || empty($userids[$username]) )
 		{
-			$db		= DiscussHelper::getDBO();
+			$db		= ED::getDBO();
 
 			// first get from user alias
 			$query	= 'SELECT `id` FROm `#__discuss_users` WHERE `alias` = ' . $db->quote( $username );
@@ -849,7 +846,7 @@ class ED
 		$uri		= JFactory::getURI();
 		$language	= $uri->getVar('lang', 'none');
 		$app		= JFactory::getApplication();
-		$config		= DiscussHelper::getJConfig();
+		$config		= ED::getJConfig();
 		$router		= $app->getRouter();
 		$url		= rtrim( JURI::base() , '/' );
 
@@ -890,12 +887,12 @@ class ED
 
 		if (isset($url)) return $url;
 
-		if( DiscussHelper::getJoomlaVersion() >= '1.6' )
+		if( ED::getJoomlaVersion() >= '1.6' )
 		{
 			$uri		= JFactory::getURI();
 			$language	= $uri->getVar( 'lang' , 'none' );
 			$app		= JFactory::getApplication();
-			$config		= DiscussHelper::getJConfig();
+			$config		= ED::getJConfig();
 			$router		= $app->getRouter();
 			$url		= rtrim( JURI::base() , '/' );
 
@@ -1058,7 +1055,7 @@ class ED
 
 	public static function isNew( $noofdays )
 	{
-		$config	= DiscussHelper::getConfig();
+		$config	= ED::getConfig();
 		$isNew	= ($noofdays <= $config->get('layout_daystostaynew', 7)) ? true : false;
 
 		return $isNew;
@@ -1174,7 +1171,7 @@ class ED
 				}
 
 				if (!$isFromBackend) {
-					DiscussHelper::setMessageQueue( JText::sprintf('COM_EASYDISCUSS_FILE_ALREADY_EXISTS', $relative_target_file) , 'error');
+					ED::setMessageQueue( JText::sprintf('COM_EASYDISCUSS_FILE_ALREADY_EXISTS', $relative_target_file) , 'error');
 					$mainframe->redirect(EDR::_('index.php?option=com_easydiscuss&view=profile', false));
 					return;
 				}
@@ -1616,9 +1613,9 @@ class ED
 
 	public static function getVoters($id, $limit='5')
 	{
-		$config	= DiscussHelper::getConfig();
+		$config	= ED::getConfig();
 
-		$table	= DiscussHelper::getTable( 'Post' );
+		$table	= ED::getTable( 'Post' );
 		$voters	= $table->getVoters($id, $limit);
 
 		$data					= new stdClass();
@@ -1669,31 +1666,31 @@ class ED
 
 	public static function isJoomla31()
 	{
-		return DiscussHelper::getJoomlaVersion() >= '3.1';
+		return ED::getJoomlaVersion() >= '3.1';
 	}
 
 	public static function isJoomla30()
 	{
-		return DiscussHelper::getJoomlaVersion() >= '3.0';
+		return ED::getJoomlaVersion() >= '3.0';
 	}
 
 	public static function isJoomla25()
 	{
-		return DiscussHelper::getJoomlaVersion() >= '1.6' && DiscussHelper::getJoomlaVersion() <= '2.5';
+		return ED::getJoomlaVersion() >= '1.6' && ED::getJoomlaVersion() <= '2.5';
 	}
 
 	public static function isJoomla15()
 	{
-		return DiscussHelper::getJoomlaVersion() == '1.5';
+		return ED::getJoomlaVersion() == '1.5';
 	}
 
 	public static function getDefaultSAIds()
 	{
 		$saUserId	= '62';
 
-		if(DiscussHelper::getJoomlaVersion() >= '1.6')
+		if(ED::getJoomlaVersion() >= '1.6')
 		{
-			$saUsers	= DiscussHelper::getSAUsersIds();
+			$saUsers	= ED::getSAUsersIds();
 			$saUserId	= $saUsers[0];
 		}
 
@@ -1706,7 +1703,7 @@ class ED
 	 */
 	public static function getSAUsersIds15()
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::getDBO();
 
 		$query = 'SELECT `id` FROM `#__users`';
 		$query .= ' WHERE (LOWER( usertype ) = ' . $db->Quote('super administrator');
@@ -1731,7 +1728,7 @@ class ED
 			return ED::getSAUsersIds15();
 		}
 
-		$db = DiscussHelper::getDBO();
+		$db = ED::getDBO();
 
 		$query	= 'SELECT a.`id`, a.`title`';
 		$query	.= ' FROM `#__usergroups` AS a';
@@ -1931,7 +1928,7 @@ class ED
 
 	public static function accessNestedCategories($arr, &$html, $deep='0', $default='0', $type='select', $linkDelimiter = '' , $disableContainers = false )
 	{
-		$config = DiscussHelper::getConfig();
+		$config = ED::getConfig();
 		if(isset($arr->childs) && is_array($arr->childs))
 		{
 			$sup	= '<sup>|_</sup>';
@@ -1998,7 +1995,7 @@ class ED
 
 				if( !$config->get('layout_category_one_level', 0) )
 				{
-					DiscussHelper::accessNestedCategories($child, $html, $deep, $default, $type, $linkDelimiter , $disableContainers );
+					ED::accessNestedCategories($child, $html, $deep, $default, $type, $linkDelimiter , $disableContainers );
 				}
 
 
@@ -2031,7 +2028,7 @@ class ED
 				$child = $arr->childs[$j];
 
 				$newArr[] = $child->id;
-				DiscussHelper::accessNestedCategoriesId($child, $newArr);
+				ED::accessNestedCategoriesId($child, $newArr);
 			}
 		}
 		else
@@ -2048,7 +2045,7 @@ class ED
 	public static function populateCategoryLinkage($childId)
 	{
 		$arr		= array();
-		$category	= DiscussHelper::getTable( 'Category' );
+		$category	= ED::getTable( 'Category' );
 		$category->load($childId);
 
 		$obj		= new stdClass();
@@ -2060,7 +2057,7 @@ class ED
 
 		if((!empty($category->parent_id)))
 		{
-			DiscussHelper::accessCategoryLinkage($category->parent_id, $arr);
+			ED::accessCategoryLinkage($category->parent_id, $arr);
 		}
 
 		$arr    = array_reverse($arr);
@@ -2070,7 +2067,7 @@ class ED
 
 	public static function accessCategoryLinkage($childId, &$arr)
 	{
-		$category	= DiscussHelper::getTable( 'Category' );
+		$category	= ED::getTable( 'Category' );
 
 		$category->load($childId);
 
@@ -2083,7 +2080,7 @@ class ED
 
 		if((!empty($category->parent_id)))
 		{
-			DiscussHelper::accessCategoryLinkage($category->parent_id, $arr);
+			ED::accessCategoryLinkage($category->parent_id, $arr);
 		}
 		else
 		{
@@ -2101,8 +2098,8 @@ class ED
 	{
 		JFactory::getLanguage()->load( 'com_easydiscuss' , JPATH_ROOT );
 
-		$config = DiscussHelper::getConfig();
-		$notify	= DiscussHelper::getNotification();
+		$config = ED::getConfig();
+		$notify	= ED::getNotification();
 
 		$emailPostTitle = $post->title;
 		$modelSubscribe		= ED::model( 'Subscribe' );
@@ -2147,7 +2144,7 @@ class ED
 		else
 		{
 			// if this is a new reply, notify post owner.
-			$parentTable		= DiscussHelper::getTable( 'Post' );
+			$parentTable		= ED::getTable( 'Post' );
 			$parentTable->load( $parent );
 
 			$emailPostTitle = $parentTable->title;
@@ -2222,7 +2219,7 @@ class ED
 		// Notify Participants if this is a reply
 		if( !empty( $parent ) && $config->get( 'notify_participants' ) && ($isNew || $prevPostStatus == DISCUSS_ID_PENDING) )
 		{
-			$participantEmails = DiscussHelper::getHelper( 'Mailer' )->_getParticipants( $post->parent_id );
+			$participantEmails = ED::getHelper( 'Mailer' )->_getParticipants( $post->parent_id );
 
 			$participantEmails  = array_unique( $participantEmails );
 
@@ -2261,7 +2258,7 @@ class ED
 			{
 				$emailData['emailTemplate']	= 'email.subscription.site.new.php';
 				$emailData['emailSubject']	= JText::sprintf('COM_EASYDISCUSS_NEW_QUESTION_ASKED', $post->id , $post->title);
-				DiscussHelper::getHelper( 'Mailer' )->notifyAllMembers( $emailData, $newPostOwnerEmails );
+				ED::getHelper( 'Mailer' )->notifyAllMembers( $emailData, $newPostOwnerEmails );
 			}
 			else
 			{
@@ -2280,7 +2277,7 @@ class ED
 							{
 								if ($value->email == $email)
 								{
-									$emailData['unsubscribeLink']	= DiscussHelper::getUnsubscribeLink( $subscribers[$key], true, true);
+									$emailData['unsubscribeLink']	= ED::getUnsubscribeLink( $subscribers[$key], true, true);
 									$notify->addQueue($email, $emailSubject, '', $emailTemplate, $emailData);
 									$doContinue = true;
 									break;
@@ -2299,7 +2296,7 @@ class ED
 								if ($value->email == $email)
 								{
 
-									$emailData['unsubscribeLink']	= DiscussHelper::getUnsubscribeLink( $postSubscribers[$key], true, true);
+									$emailData['unsubscribeLink']	= ED::getUnsubscribeLink( $postSubscribers[$key], true, true);
 									$notify->addQueue($email, $emailSubject, '', $emailTemplate, $emailData);
 									$doContinue = true;
 									break;
@@ -2319,7 +2316,7 @@ class ED
 							foreach ($newPostOwnerEmails as $ownerEmail)
 							{
 
-								//$emailData['unsubscribeLink']	= DiscussHelper::getUnsubscribeLink( $ownerEmail, true, true);
+								//$emailData['unsubscribeLink']	= ED::getUnsubscribeLink( $ownerEmail, true, true);
 								$notify->addQueue($email, $emailSubject, '', $emailTemplate, $emailData);
 								$doContinue = true;
 								break;
@@ -2428,12 +2425,12 @@ class ED
 
 	public static function getUserComponent()
 	{
-		return ( DiscussHelper::getJoomlaVersion() >= '1.6' ) ? 'com_users' : 'com_user';
+		return ( ED::getJoomlaVersion() >= '1.6' ) ? 'com_users' : 'com_user';
 	}
 
 	public static function getUserComponentLoginTask()
 	{
-		return ( DiscussHelper::getJoomlaVersion() >= '1.6' ) ? 'user.login' : 'login';
+		return ( ED::getJoomlaVersion() >= '1.6' ) ? 'user.login' : 'login';
 	}
 
 	public static function getAccessibleCategories( $parentId = 0, $type = DISCUSS_CATEGORY_ACL_ACTION_VIEW, $customUserId = '' )
@@ -2458,7 +2455,7 @@ class ED
 		if(! isset( $accessibleCategories[$sig] ) )
 		{
 
-			$db	= DiscussHelper::getDBO();
+			$db	= ED::getDBO();
 
 			$gids		= '';
 			$catQuery	= 	'select distinct a.`id`, a.`private`';
@@ -2478,7 +2475,7 @@ class ED
 			$gid	= array();
 			$gids	= '';
 
-			if( DiscussHelper::getJoomlaVersion() >= '1.6' )
+			if( ED::getJoomlaVersion() >= '1.6' )
 			{
 				$gid    = array();
 				if( $my->id == 0 )
@@ -2492,7 +2489,7 @@ class ED
 			}
 			else
 			{
-				$gid	= DiscussHelper::getUserGids();
+				$gid	= ED::getUserGids();
 			}
 
 
@@ -2537,7 +2534,7 @@ class ED
 
 	public static function getPrivateCategories( $acltype = DISCUSS_CATEGORY_ACL_ACTION_VIEW )
 	{
-		$db 			= DiscussHelper::getDBO();
+		$db 			= ED::getDBO();
 		$my 			= JFactory::getUser();
 		static $result	= array();
 
@@ -2560,15 +2557,15 @@ class ED
 				$gids	= '';
 
 
-				if( DiscussHelper::getJoomlaVersion() >= '1.6' )
+				if( ED::getJoomlaVersion() >= '1.6' )
 				{
 					// $gid	= JAccess::getGroupsByUser(0, false);
 
-					$gid	= DiscussHelper::getUserGroupId($my);
+					$gid	= ED::getUserGroupId($my);
 				}
 				else
 				{
-					$gid	= DiscussHelper::getUserGids();
+					$gid	= ED::getUserGids();
 				}
 
 				if( count( $gid ) > 0 )
@@ -2597,11 +2594,11 @@ class ED
 				$item =& $result[$i];
 				$item->childs = null;
 
-				DiscussHelper::buildNestedCategories($item->id, $item, true);
+				ED::buildNestedCategories($item->id, $item, true);
 
 				$catIds		= array();
 				$catIds[]	= $item->id;
-				DiscussHelper::accessNestedCategoriesId($item, $catIds);
+				ED::accessNestedCategoriesId($item, $catIds);
 
 				$excludeCats	= array_merge($excludeCats, $catIds);
 			}
@@ -2758,7 +2755,7 @@ class ED
 	{
 		$email	= strtolower( $email );
 
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::getDBO();
 
 		$query	= 'SELECT ' . $db->nameQuote( 'id' ) . ' FROM '
 				. $db->nameQuote( '#__users' ) . ' '
@@ -2791,7 +2788,7 @@ class ED
 
 	public static function getJoomlaUserGroups( $cid = '' )
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::getDBO();
 
 		if(ED::getJoomlaVersion() >= '1.6')
 		{
@@ -2836,7 +2833,7 @@ class ED
 		$db->setQuery( $query );
 		$result = $db->loadObjectList();
 
-		if( DiscussHelper::getJoomlaVersion() < '1.6' )
+		if( ED::getJoomlaVersion() < '1.6' )
 		{
 			$guest = new stdClass();
 			$guest->id		= '0';
@@ -3137,14 +3134,14 @@ class ED
 
 		if( is_object( $menu ) )
 		{
-			$params	= DiscussHelper::getRegistry( $menu->params );
+			$params	= ED::getRegistry( $menu->params );
 			$limit	= $params->get( 'limit' , '-2' );
 		}
 
 		if( $limit == '-2' )
 		{
 			// Use default configurations.
-			$config	= DiscussHelper::getConfig();
+			$config	= ED::getConfig();
 			$limit	= $config->get( 'layout_list_limit', '-2' );
 		}
 
@@ -3159,10 +3156,10 @@ class ED
 
 	public static function getRegistrationLink()
 	{
-		$config	= DiscussHelper::getConfig();
+		$config	= ED::getConfig();
 
 		$default	= JRoute::_( 'index.php?option=com_user&view=register' );
-		if( DiscussHelper::getJoomlaVersion() >= '1.6' )
+		if( ED::getJoomlaVersion() >= '1.6' )
 		{
 			$default	= JRoute::_( 'index.php?option=com_users&view=registration' );
 		}
@@ -3221,18 +3218,18 @@ class ED
 			if ($jomsocial->exists()) {
 				$link = CRoute::_('index.php?option=com_community&view=profile&task=edit');
 			}
-		}		
+		}
 
 		return $link;
 	}
 
 	public static function getResetPasswordLink()
 	{
-		$config 	= DiscussHelper::getConfig();
+		$config 	= ED::getConfig();
 
 		$default	= JRoute::_( 'index.php?option=com_user&view=reset' );
 
-		if( DiscussHelper::getJoomlaVersion() >= '1.6' )
+		if( ED::getJoomlaVersion() >= '1.6' )
 		{
 			$default	= JRoute::_( 'index.php?option=com_users&view=reset' );
 		}
@@ -3298,7 +3295,7 @@ class ED
 		$item = $menu->getItem($itemid);
 
 		if (is_object($item)) {
-			
+
 			$params = $item->params;
 
 			if (!$params instanceof JRegistry) {
@@ -3391,7 +3388,7 @@ class ED
 		if (empty($result->keywords) && empty($result->description)) {
 			$joomlaDesc	= $jConfig->get('MetaDesc');
 			$metaDesc = $description . ' - ' . $joomlaDesc;
-			$document->setMetadata('description', $metaDesc);	
+			$document->setMetadata('description', $metaDesc);
 		} else {
 			if (!empty($result->keywords)) {
 				$document->setMetadata('keywords', $result->keywords);
@@ -3406,7 +3403,7 @@ class ED
 			$document->setMetadata('robots', $result->robots);
 		} else {
 			$document->setMetadata('robots', $metaRobots);
-		}	
+		}
 	}
 
 	public static function getFrontpageCategories()
@@ -4268,9 +4265,9 @@ class ED
      * @return
      */
 	public static function getConversationsRoute()
-	{	
+	{
 		$config = ED::config();
-		
+
 		if (ED::easysocial()->exists() && $config->get('integration_easysocial_messaging')) {
             $link = ED::easysocial()->getConversationsRoute();
         }
@@ -4292,9 +4289,9 @@ class ED
 	{
 		$model = ED::model('Themes');
 		$template = $model->getDefaultJoomlaTemplate();
-		
+
 		return $template;
-	}	
+	}
 }
 
 // Backwards compatibility

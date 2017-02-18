@@ -59,6 +59,26 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	}
 
 	/**
+	 * Determines if this is EasySocial prior to 2.x
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function isLegacy()
+	{
+		if (!$this->exists()) {
+			return;
+		}
+
+		// Get the current version.
+		$local = ES::getLocalVersion();
+
+		$legacy = version_compare($local, '2.0.0') == -1 ? true : false;
+
+		return $legacy;
+	}
+
+	/**
 	 * Retrieves EasySocial's toolbar
 	 *
 	 * @since	1.0
@@ -992,7 +1012,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		$output = '';
 
 		ob_start();
-		echo '<div id="fd" class="es" style="margin-bottom: 15px;">';
+		echo '<div id="es" class="es" style="margin-bottom: 15px;">';
 		echo $themes->output('site/groups/header.easysocial', array('group' => $group, 'view' => $view, 'returnUrl' => $returnUrl));
 		echo '</div>';
 		$contents = ob_get_contents();

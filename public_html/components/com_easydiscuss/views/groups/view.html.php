@@ -32,7 +32,7 @@ class EasyDiscussViewGroups extends EasyDiscussView
 
 		// Check if the group app is exists or not.
 		if (!$lib->isGroupAppExists()) {
-			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+			ED::getErrorRedirection(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
 		}
 			
 		$model = ED::model('groups');

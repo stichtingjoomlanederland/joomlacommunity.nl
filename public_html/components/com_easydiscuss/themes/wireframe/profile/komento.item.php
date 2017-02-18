@@ -14,9 +14,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 <div class="ed-post-item">
     <div class="ed-post-item__hd">
         <h2 class="ed-post-item__title t-lg-mt--md t-lg-mb--md">
-            <a href="<?php echo $item->permalink; ?>"><?php echo $item->contenttitle; ?></a>
+            <a href="<?php echo $item->getPermalink(); ?>"><?php echo $item->contenttitle; ?></a>
         </h2>
-        <?php echo JString::substr(strip_tags($item->comment), 0, 150) . JText::_('COM_EASYDISCUSS_ELLIPSES'); ?>
+        <br>
+        <?php echo $item->getContent(); ?>
     </div>
 
     <div class="ed-post-item__ft t-bdt-no">

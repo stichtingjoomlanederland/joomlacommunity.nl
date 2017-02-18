@@ -390,11 +390,18 @@ class plgContentEasyDiscuss extends JPlugin
 			return false;
 		}
 
+		$my = ED::user();
+
+		// Check for permission to view the discussion
+		if (!$post->canView($my->id) || !$post->isPublished()) {
+			return false;
+		}		
+
 		$params = $this->getParams();
 
 		$model = ED::model('Posts');
 		$config = ED::config();
-		$my = JFactory::getUser();
+		// $my = JFactory::getUser();
 		$acl = ED::acl();
 
 		// Get composer
@@ -478,10 +485,20 @@ class plgContentEasyDiscuss extends JPlugin
 				$category = JTable::getInstance('Category' , 'JTable');
 				$category->load($article->catid);
 
-				$url = JRoute::_(ContentHelperRoute::getArticleRoute($article->id . ':' . $article->alias , $article->catid));
+				$url = ContentHelperRoute::getArticleRoute($article->id . ':' . $article->alias , $article->catid);
 				$url = $url . '#discuss-' . $article->id;
 
-				return $uri->toString(array('scheme', 'host', 'port')) . '/' . ltrim($url , '/');
+				// Check for SEF enabled
+				$router = new JRouterSite(array('mode'=>JROUTER_MODE_SEF));
+				$newUrl = $router->build($url)->toString(array('path', 'query', 'fragment'));
+
+				// SEF url
+				$newUrl = str_replace('/administrator/', '', $newUrl);
+
+				// Tidying up the url
+				$newUrl = str_replace('component/content/article/', '', $newUrl);
+
+				return $uri->toString(array('scheme', 'host', 'port')) . '/' . ltrim($newUrl , '/');
 
 			 break;
 			 case 'com_easyblog':
@@ -641,7 +658,8 @@ class plgContentEasyDiscuss extends JPlugin
 		$contentType = 'html';
 
 		if ($config->get('layout_editor') == 'bbcode') {
-			$text	= ED::parser()->html2bbcode($text);
+			$text = ED::parser()->convert2validImgLink($text);
+			$text = ED::parser()->html2bbcode($text);
 			$contentType = 'bbcode';
 		}
 

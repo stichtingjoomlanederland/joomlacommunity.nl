@@ -155,7 +155,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		$commentCount = 0;
 
 		if ($komentoExists && $this->config->get('integrations_komento_profile')) {
-			$commentsModel = Komento::getModel('comments');
+			$commentsModel = KT::model('comments');
 			$commentCount = $commentsModel->getTotalComment($profile->id);
 		}
 
@@ -213,14 +213,14 @@ class EasyDiscussViewProfile extends EasyDiscussView
 
 	public function komentoExists()
 	{
-		$helperFile = JPATH_ROOT . '/components/com_komento/helpers/helper.php';
-		$exists = JFile::exists( $helperFile );
+		$file = JPATH_ADMINISTRATOR . '/components/com_komento/includes/komento.php';
+		$exists = JFile::exists($file);
 
 		if (!$exists) {
 		 return false;
 		}
 
-		require_once($helperFile);
+		require_once($file);
 		return true;
 	}
 

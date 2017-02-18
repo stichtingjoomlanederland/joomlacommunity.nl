@@ -119,6 +119,7 @@ class EasyDiscussView extends EasyDiscussParentView
 
             // If integrations with ES conversations is enabled, we need to render it's scripts
             $easysocial = ED::easysocial();
+            
             if ($this->config->get('integration_easysocial_messaging') && $easysocial->exists()) {
                 $easysocial->init();
             }
@@ -170,6 +171,24 @@ class EasyDiscussView extends EasyDiscussParentView
             if ($this->config->get('system_ajax_index')) {
                 $ajaxUrl = rtrim(JURI::root(), '/') . '/index.php';
             }
+
+            // Load easysocial headers when viewing posts of another person
+            $miniheader = '';
+
+            // Only work for Easysocial 2.0.
+            if ($view == 'post' && $easysocial->exists() && !$easysocial->isLegacy()) {
+
+            	$id = $this->input->get('id', 0, 'int');
+            	$post = ED::post($id);
+
+                ES::initialize();
+
+                $user = ES::user($post->getOwner()->id);
+
+                $miniheader = ES::themes()->html('html.miniheader', $user);
+            }
+
+            $theme->set('miniheader', $miniheader);
 
             $theme->set('toolbar', $toolbar);
             $theme->set('categoryClass', $categoryClass);

@@ -409,6 +409,40 @@ class EasyDiscussParser extends EasyDiscuss
 	}
 
 	/**
+	 * Converts those image link do not have contain with domain name
+	 *
+	 * @since	4.0.12
+	 * @access	public
+	 * @param	string	The text to lookup for
+	 * @return	string 	The proper contents in bbcode img format.
+	 */
+	public function convert2validImgLink($content)
+	{
+		$base =	rtrim(JURI::root());
+
+		// TODO: check for the subfolder as well
+
+		$pattern = '/<img.*?src=["|\'](.*?)["|\'].*?\>/';
+		preg_match_all($pattern, $content, $matches);
+
+		if (isset($matches[1]) && count($matches[1]) > 0) {
+			
+			for ($i = 0; $i < count($matches[1]); $i++) {
+				
+				$imgPath = $matches[1][$i];
+
+				// Check whether this is valid img link with the http protocol
+				// Replace the domain name into imaga path
+				if (JString::strpos($imgPath , 'http://') === false && JString::strpos($imgPath, 'https://') === false) {
+					$content = str_replace($imgPath, $base . $imgPath, $content);
+				}
+			}
+		}
+		
+		return $content;
+	}
+
+	/**
 	 * Converts html codes to bbcode
 	 *
 	 * @since	1.0

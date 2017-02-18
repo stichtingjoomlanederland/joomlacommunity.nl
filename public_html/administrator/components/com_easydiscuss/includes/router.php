@@ -293,17 +293,25 @@ class EDR
 				$defaultMenu = self::getMenus('index', null, null, $lang);
 				if (! $defaultMenu) {
 					$defaultMenu = self::getMenus('forums', null, null, $lang);
+
+					if (! $defaultMenu) {
+						// just return any menu item related to ED.
+						$defaultMenu = self::getMenus('any', null, null, $lang);
+					}
 				}
 			}
 
 
 		} else {
 
-			//public static function getMenus($view, $layout = null, $id = null, $lang = null)
-
 			$defaultMenu = self::getMenus('index', null, null, $lang);
 			if (! $defaultMenu) {
 				$defaultMenu = self::getMenus('forums', null, null, $lang);
+
+				if (! $defaultMenu) {
+					// just return any menu item related to ED.
+					$defaultMenu = self::getMenus('any', null, null, $lang);
+				}
 			}
 
 			// let easydiscuss to determine the best menu itemid.
@@ -782,54 +790,68 @@ class EDR
 		}
 	}
 
-	public static function _isAliasExists( $alias, $type='post', $id='0')
+	public static function _isAliasExists($alias, $type='post', $id='0')
 	{
 		// Check reserved alias. alias migh conflict with view names.
-		$aliases = array( 'ask', 'attachments', 'badges', 'categories', 'favourites', 'featured', 'index',
+		$aliases = array('ask', 'attachments', 'badges', 'categories', 'favourites', 'featured', 'index',
 			'likes', 'notifications', 'polls', 'post', 'profile', 'search', 'subscriptions', 'tags',
-			'users', 'votes' );
+			'users', 'votes');
 
 
-		if( $type == 'post' && in_array($alias, $aliases) )
-		{
+		if ($type == 'post' && in_array($alias, $aliases)) {
 			return true;
 		}
 
-		$db		= DiscussHelper::getDBO();
+		$db	= ED::db();
 
-		switch($type)
-		{
+		switch ($type) {
 			case 'badge':
-				$query	= 'SELECT `id` FROM ' . $db->nameQuote( '#__discuss_badges' ) . ' '
-					. 'WHERE ' . $db->namequote( 'alias' ) . '=' . $db->Quote( $alias );
-				break;
-			case 'tag':
-				$query	= 'SELECT `id` FROM ' . $db->nameQuote( '#__discuss_tags' ) . ' '
-					. 'WHERE ' . $db->nameQuote( 'alias' ) . '=' . $db->Quote( $alias );
+				$query	= 'SELECT `id` FROM ' . $db->nameQuote('#__discuss_badges') . ' '
+					. 'WHERE ' . $db->namequote('alias') . '=' . $db->Quote($alias);
 				break;
 			case 'posttypes':
 				$query = 'SELECT `id` FROM ' . $db->nameQuote('#__discuss_post_types') . ' '
 					. 'WHERE ' . $db->nameQuote('alias') . '=' . $db->Quote($alias);
 				break;
+			case 'tag':
+			case 'category':
 			case 'post':
 			default:
-				$query	= 'SELECT `id` FROM ' . $db->nameQuote( '#__discuss_posts' ) . ' '
-						. 'WHERE ' . $db->nameQuote( 'alias' ) . '=' . $db->Quote( $alias ) . ' '
-						. 'AND ' . $db->nameQuote( 'id' ) . '!=' . $db->Quote( $id );
+
+				$query	= 'SELECT `id` FROM ' . $db->nameQuote('#__discuss_tags');
+				$query .= ' WHERE ' . $db->nameQuote('alias') . '=' . $db->Quote($alias);
+				if ($type == 'tag' && $id) {
+					$query .= ' AND ' . $db->nameQuote('id') . '!=' . $db->Quote($id);
+				}
+
+				$query .= ' UNION ALL ';
+
+				$query	.= ' SELECT `id` FROM ' . $db->nameQuote('#__discuss_category');
+				$query	.= ' WHERE ' . $db->namequote('alias') . '=' . $db->Quote($alias);
+				if ($type == 'category' && $id) {
+					$query .= ' AND ' . $db->nameQuote('id') . '!=' . $db->Quote($id);
+				}
+
+				$query .= ' UNION ALL ';
+
+				$query	.= 'SELECT `id` FROM ' . $db->nameQuote('#__discuss_posts');
+				$query	.= 'WHERE ' . $db->nameQuote('alias') . '=' . $db->Quote($alias);
+				if ($type == 'post' && $id) {
+					$query	.= 'AND ' . $db->nameQuote('id') . '!=' . $db->Quote($id);
+				}
 				break;
 		}
 
-		$db->setQuery( $query );
+		// echo $query;exit;
+
+		$db->setQuery($query);
 
 		$result = $db->loadAssocList();
 		$count	= count($result);
 
-		if( $count == '1' && !empty($id))
-		{
-			return ($id == $result['0']['id'])? false : true;
-		}
-		else
-		{
+		if ($count == '1' && $id && ($type != 'badge' && $type != 'posttypes')) {
+			return ($id == $result['0']['id']) ? false : true;
+		} else {
 			return ($count > 0) ? true : false;
 		}
 	}
@@ -839,7 +861,7 @@ class EDR
 	{
 		static $discussionItems	= null;
 
-		if( !isset( $discussionItems[ $postId ] ) )
+		if(!isset( $discussionItems[ $postId ]))
 		{
 			$db	= DiscussHelper::getDBO();
 
@@ -1260,6 +1282,7 @@ class EDR
 			}
 		}
 
+
 		// we know we just want the all menu items for EasyDiscuss. lets just return form the cache.
 		if (is_null($view) && is_null($layout) && is_null($id) && is_null($lang)) {
 			return $_cacheFlat;
@@ -1289,8 +1312,12 @@ class EDR
        // Get the current selection of menus from the cache
         if (!isset($selection[$key])) {
 
-        	// $forumCats = array('forums', 'post');
+			// 'any' is a special handle to get any menu items belong to ED.
+			if ($view == 'any') {
+	            $selection[$key] = $_cacheFlat[0];
 
+				return $selection[$key];
+			}
 
         	// lets check if we need to retrieve from forumcategory or not.
         	$tmp = false;

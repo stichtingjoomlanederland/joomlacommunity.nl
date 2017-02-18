@@ -67,7 +67,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                 <ol class="g-list-inline g-list-inline--delimited ed-post-meta-reply t-lg-mt--md">
                     <li><?php echo JText::sprintf('COM_EASYDISCUSS_LAST_ACTIVITY_TIMELAPSE', ED::date()->toLapsed($post->modified)); ?></li>
-                    <?php if ($post->getLastReplier()) { ?>
+                    <?php if ($post->getLastReplier() && $post->lastReply) { ?>
                         <li data-breadcrumb="·">
                             <?php if (!$post->isLastReplyAnonymous()) { ?>
                                 <a href="<?php echo EDR::_('view=post&id=' . $post->id . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK'). '-' . $post->lastReply->id); ?>">

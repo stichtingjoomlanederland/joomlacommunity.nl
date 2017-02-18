@@ -67,8 +67,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 			if (!$this->komento()) {
 				$contents = JText::_('COM_EASYDISCUSS_KOMENTO_DOES_NOT_EXIST');
 			} else {
-				$commentsModel = Komento::getModel('comments');
-				$commentHelper = Komento::getHelper('comment');
+				$commentsModel = KT::model('comments');
 
 				$options = array(
 					'sort' => 'latest',
@@ -78,10 +77,10 @@ class EasyDiscussViewProfile extends EasyDiscussView
 
 				$comments = $commentsModel->getComments('all', 'all', $options);
 				$contents = '';
+				
+				$comments = KT::formatter('comment', $comments);
 
 				foreach($comments as &$comment) {
-					$comment = $commentHelper->process($comment);
-
 					$theme->set('item', $comment);
 					$contents .= $theme->output('site/profile/komento.item');
 				}
@@ -171,14 +170,14 @@ class EasyDiscussViewProfile extends EasyDiscussView
 
 	public function komento()
 	{
-		$helperFile = JPATH_ROOT . '/components/com_komento/helpers/helper.php';
-		$exists = JFile::exists($helperFile);
+		$file = JPATH_ADMINISTRATOR . '/components/com_komento/includes/komento.php';
+		$exists = JFile::exists($file);
 
 		if (!$exists) {
 		 return false;
 		}
 
-		require_once($helperFile);
+		require_once($file);
 		return true;
 	}
 

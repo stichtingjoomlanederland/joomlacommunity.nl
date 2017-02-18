@@ -23,20 +23,44 @@ class EasyDiscussViewDashboard extends EasyDiscussView
 	 */
 	public function display($tmpl = null)
 	{
-		ED::setPageTitle(JText::_('COM_EASYDISCUSS_HOLIDAYS_TITLE'));
+		ED::setPageTitle(JText::_('COM_EASYDISCUSS_DASHBOARD_TITLE'));
 
 		// Set the meta for the page
 		ED::setMeta();
 
-		if (!$this->acl->allowed('manage_holiday')) {
+		if (!$this->acl->allowed('manage_holiday') && !ED::isSiteAdmin()) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_YOU_ARE_NOT_ALLOWED_HERE'), 'error');
 			return $this->app->redirect('index.php?option=com_easydiscuss');
 		}
-
+		
 		$model = ED::model('holidays');
 		$holidays = $model->getHolidays();
 
-		
+		$posts = false;
+
+		// Only retrieve pending post when site admin viewing the dashboard
+		if (ED::isSiteAdmin()) { 
+			// Get pending posts
+			$model = ED::model("Threaded");
+			$options = array('stateKey' => 'pending', 'pending' => true);
+			$result = $model->getPosts($options);
+			$pagination = $model->getPagination();
+			$posts = array();
+
+			if ($result) {
+				foreach ($result as $row) {
+					$post = ED::post($row);
+
+					if ($post->isQuestion()) {
+						$post->editLink = 'index.php?option=com_easydiscuss&view=post&layout=pending&id=' . $post->id;
+					}
+
+					$posts[] = $post;
+				}
+			}
+		}
+
+		$this->set('pendingPosts', $posts);		
 		$this->set('holidays', $holidays);
 		parent::display('dashboard/default');
 	}

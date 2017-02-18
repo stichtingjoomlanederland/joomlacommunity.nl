@@ -397,6 +397,11 @@ class EasyDiscussAttachment extends EasyDiscuss
      */
     public function canDelete()
     {
+        // Guest user shouldn't have permisson to delete
+        if (!$this->my->id) {
+            return false;
+        }
+
         // For super admin and moderators, we should allow this to happen
         if (ED::isSiteAdmin()) {
             return true;

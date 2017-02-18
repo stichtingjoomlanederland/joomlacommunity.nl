@@ -102,7 +102,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                             <!-- post type here -->
                             <?php if ($post->getPostType()) { ?>
-                                <li><span class="o-label o-label--clean-o <?php echo $post->getTypeSuffix(); ?>"><?php echo $post->getPostType(); ?></span></li>
+                                <li><span class="o-label o-label--clean-o <?php echo $post->getPostTypeSuffix(); ?>"><?php echo $post->getPostType(); ?></span></li>
                             <?php } ?>
 
                         </ol>
@@ -238,21 +238,36 @@ defined('_JEXEC') or die('Unauthorized Access');
 
     <?php echo $adsense->beforereplies; ?>
 
-    <?php if ($answer) { ?>
-    <div class="ed-post-answer t-lg-mb--lg">
-        <div class="ed-post-reply-bar">
-            <div class="o-row t-lg-mb--lg">
-                <div class="o-col">
-                    <div class="ed-post-reply-bar__title">
-                        <?php echo JText::_('COM_EASYDISCUSS_ENTRY_ACCEPTED_ANSWER'); ?>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <?php echo $this->output('site/post/default.reply.item', array('post' => $answer, 'poll' => $answer->getPoll())); ?>
-    </div>
-    <?php } ?>
+	<?php if ($answer) { ?>
+    	<?php if ($answer === true) { ?>
+		    <div class="ed-post-answer t-lg-mb--lg">
+				<div class="ed-reply-item is-empty">
+					<div class="o-empty o-empty--bordered o-empty--bg-shade">
+						<div class="o-empty__content">
+							<i class="o-empty__icon fa fa-ban"></i>
+							<div class="o-empty__text"><?php echo JText::_('COM_EASYDISCUSS_NO_PERMISSION_TO_VIEW_ACCEPTED_ANSWER'); ?></div>
+						</div>
+					</div>
+				</div>
+		    </div>
+
+	    <?php } else { ?>
+		    <div class="ed-post-answer t-lg-mb--lg">
+		        <div class="ed-post-reply-bar">
+		            <div class="o-row t-lg-mb--lg">
+		                <div class="o-col">
+		                    <div class="ed-post-reply-bar__title">
+		                        <?php echo JText::_('COM_EASYDISCUSS_ENTRY_ACCEPTED_ANSWER'); ?>
+		                    </div>
+		                </div>
+		            </div>
+		        </div>
+
+				<?php echo $this->output('site/post/default.reply.item', array('post' => $answer, 'poll' => $answer->getPoll())); ?>
+		    </div>
+		<?php } ?>
+	<?php } ?>
 
     <div class="ed-post-replies
         <?php echo !$replies ? ' is-empty' : '';?>

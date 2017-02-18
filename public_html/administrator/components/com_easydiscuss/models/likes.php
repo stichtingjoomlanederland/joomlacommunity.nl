@@ -61,6 +61,14 @@ class EasyDiscussModelLikes extends EasyDiscussAdminModel
 
 		$db->setQuery($query);
 		$db->query();
+
+		// Now update the thread
+		$db = ED::db();
+		$query = 'UPDATE `#__discuss_thread` SET `num_likes` = `num_likes` ' . $operator . ' 1';
+		$query .= ' WHERE `post_id` = ' . $db->Quote($contentId);
+
+		$db->setQuery($query);
+		$db->query();
 	}
 
 	public function getPostLikes($contentId, $type)

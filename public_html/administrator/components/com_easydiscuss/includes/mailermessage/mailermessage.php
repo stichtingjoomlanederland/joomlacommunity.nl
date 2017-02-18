@@ -135,32 +135,36 @@ class EasyDiscussMailerMessage extends JObject
 		$id			= isset($part->id) ? $part->id : '';
 
 
-		/*
-		 * Text
-		 */
-		if ($type == 0 && $subtype == 'plain')
-		{
-			$this->plain_data	.= self::stringToUTF8($encoding, trim($data));
+		// text
+		if ($type == 0 && $subtype == 'plain') {
+			$this->plain_data .= self::stringToUTF8($encoding, trim($data));
+		} elseif ($type == 0 && $subtype == 'html') {
+			$this->html_data .= self::stringToUTF8($encoding, trim($data));
+		} elseif ($type == 2) {
+			$this->plain_data .= self::stringToUTF8($encoding, trim($data));
 		}
-		elseif ($type == 0 && $subtype == 'html')
-		{
-			$this->html_data	.= self::stringToUTF8($encoding, trim($data));
-		}
-		elseif ($type == 2)
-		{
-			$this->plain_data	.= self::stringToUTF8($encoding, trim($data));
-		}
-		/*
-		 * Images
-		 */
-		elseif ($type == 5)
-		{
-			$image			= array();
-			$image['mime']	= $subtype; // GIF
-			$image['data']	= $data; // binary
-			$image['name']	= isset($params['name']) ? $params['name'] : $params['filename']; // 35D.gif
-			$image['id']	= $id; // <35D@goomoji.gmail>
-			$image['size']	= $part->bytes;
+
+		// Application
+        elseif ($type == 3) {
+            $application = array();
+            $application['mime'] = $subtype; // PDF
+			$application['data'] = $data; // binary
+            $application['name'] = isset($params['name']) ? $params['name'] : $params['filename'];
+            $application['id'] = $id;
+            $application['size'] = $part->bytes;
+            $application['type'] = 3;
+            
+            $this->attachment[] = $application;
+        }		
+
+        // image
+		elseif ($type == 5) {
+			$image = array();
+			$image['mime'] = $subtype; // GIF
+			$image['data'] = $data; // binary
+			$image['name'] = isset($params['name']) ? $params['name'] : $params['filename']; // 35D.gif
+			$image['id'] = $id; // <35D@goomoji.gmail>
+			$image['size'] = $part->bytes;
 
 			$this->attachment[]	= $image;
 		}

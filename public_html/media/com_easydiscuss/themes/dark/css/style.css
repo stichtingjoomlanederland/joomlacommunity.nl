@@ -788,6 +788,9 @@ e.g.:
 * @author     Stack Ideas Sdn Bhd
 **/
   /**
+* Have to use aggresive method !important for state to prevent override by other components. #66 
+*/
+  /**
 * Easydiscuss social buttons
 */
   /**
@@ -10264,16 +10267,16 @@ a#ed .badge:focus {
   }
 }
 #ed .is-locked .fa-lock {
-  display: inline-block;
+  display: inline-block !important;
 }
 #ed .is-featured .fa-star {
-  display: inline-block;
+  display: inline-block !important;
 }
 #ed .is-protected .fa-key {
-  display: inline-block;
+  display: inline-block !important;
 }
 #ed .is-private .fa-eye {
-  display: inline-block;
+  display: inline-block !important;
 }
 #ed .is-read .ed-post-item__title {
   font-weight: normal;
@@ -10282,25 +10285,25 @@ a#ed .badge:focus {
   border-bottom: 1px solid #555555;
 }
 #ed .ed-state-resolved {
-  display: none;
+  display: none !important;
 }
 #ed .is-resolved .ed-state-resolved {
-  display: inline-block;
+  display: inline-block !important;
 }
 #ed .poll-locked {
-  display: none;
+  display: none !important;
 }
 #ed .is-lockpoll .poll-locked {
-  display: inline-block;
+  display: inline-block !important;
 }
 #ed .ed-entry .ed-post-item__status {
-  display: none;
+  display: none !important;
 }
 #ed .ed-entry.is-locked .ed-post-item__status,
 #ed .ed-entry.is-featured .ed-post-item__status,
 #ed .ed-entry.is-protected .ed-post-item__status,
 #ed .ed-entry.is-private .ed-post-item__status {
-  display: inline-block;
+  display: inline-block !important;
   margin-right: 4px;
 }
 #ed .ed-post-item {
@@ -10351,7 +10354,7 @@ a#ed .badge:focus {
   color: #f5f5f5;
 }
 #ed .ed-post-item__status-icon {
-  display: none;
+  display: none !important;
 }
 #ed .ed-post-item__status .fa-star {
   color: #ec971f;
@@ -10663,10 +10666,10 @@ a#ed .badge:focus {
   background-color: #213831;
 }
 #ed .ed-post-answer .ed-state-answer {
-  display: inline-block;
+  display: inline-block !important;
 }
 #ed .ed-state-answer {
-  display: none;
+  display: none !important;
 }
 #ed .ed-reply-item {
   position: relative;
@@ -11978,11 +11981,24 @@ a#ed .badge:focus {
 #ed .ed-dashboard-item__col-date {
   width: 300px;
 }
+#ed .ed-dashboard-item__col-timestamp {
+  width: 140px;
+  color: #eeeeee;
+  text-align: center;
+}
+#ed .ed-dashboard-item__col-avatar {
+  width: 80px;
+  text-align: center;
+}
 #ed .ed-dashboard-item__col-switch {
   width: 50px;
 }
 #ed .ed-dashboard-item__col-action {
   width: 24px;
+  text-align: center;
+}
+#ed .ed-dashboard-item__col-btn-group {
+  width: 160px;
   text-align: center;
 }
 #ed .ed-dashboard-item + .ed-dashboard-item {

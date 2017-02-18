@@ -63,6 +63,9 @@ class EasyDiscussFacebook extends EasyDiscuss
 
         // strip this kind of tag -> &nbsp; &amp;
 		$description = strip_tags(html_entity_decode($description));
+
+		// We need to escape quotes this now
+		$description = ED::string()->escape($description);
 		
 		if (JString::strlen($description) > $maxContent) {
 			$description = JString::substr($description, 0, $maxContent) . '...';

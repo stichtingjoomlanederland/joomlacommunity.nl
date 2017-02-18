@@ -53,7 +53,7 @@ class EasyDiscussMigratorVbulletin extends EasyDiscussMigratorBase
 		$hasmore = false;
 
 		if ($balance) {
-		//	$hasmore = true;
+			$hasmore = true;
 		}
 
 		return $this->ajax->resolve($hasmore, $status);
@@ -168,7 +168,7 @@ class EasyDiscussMigratorVbulletin extends EasyDiscussMigratorBase
 	public function migrateCategory($item, $prefix)
 	{
 		// By default, the category id is 1 because EasyBlog uses the first category as uncategorized
-		$default = 32;
+		$default = 1;
 
 		// If there's no category assigned in this item
 		if (!$item->catid) {
@@ -230,7 +230,6 @@ class EasyDiscussMigratorVbulletin extends EasyDiscussMigratorBase
 		$query .= ' SELECT external_id FROM `#__discuss_migrators` AS b WHERE b.`external_id` = a.`postid` and `component` = ' . $this->db->Quote('vbulletin');
 		$query .= ' )';
 		$query .= ' and a.`parentid` = ' . $db->Quote($parentid);
-		$query .= ' ORDER by b.`lastpost` DESC ';
 
 		if ($limit) {
 			$query .= ' LIMIT ' . $limit;

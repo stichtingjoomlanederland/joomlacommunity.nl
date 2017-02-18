@@ -173,7 +173,7 @@ var Uri = function (uriString) {
 
     var strictMode = false,
 
-        urlExtractor = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?/gi,
+        urlExtractor = /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)?/gi,
 
         // parseUri(str) parses the supplied uri and returns an object containing its components
         parseUri = function (str) {

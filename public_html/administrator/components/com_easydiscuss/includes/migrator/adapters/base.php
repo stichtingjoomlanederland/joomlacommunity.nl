@@ -37,7 +37,7 @@ class EasyDiscussMigratorBase
 
 		$query = 'select `id` from `#__discuss_category`';
 		$query .= ' where lower(`title`) = ' . $this->db->Quote($title);
-		$query .= ' OR lower(`alias`) = ' . $this->db->Quote($alias);
+		$query .= ' AND lower(`alias`) = ' . $this->db->Quote($alias);
 		$query .= ' LIMIT 1';
 
 		$this->db->setQuery($query);

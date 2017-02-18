@@ -264,7 +264,7 @@ class DiscussComment extends EasyDiscussTable
 		// Only send email when email is not empty.
 		if (!empty($emails)) {
 			$notify	= ED::getNotification();
-			$notify->addQueue($emails, JText::sprintf('COM_EASYDISCUSS_EMAIL_TITLE_NEW_COMMENT', JString::substr($question->content, 0, 15)) . '...' , '', 'email.post.comment.new', $emailData);
+			$notify->addQueue($emails, JText::sprintf('COM_EASYDISCUSS_EMAIL_TITLE_NEW_COMMENT', JString::substr($question->title, 0, 15)) . '...' , '', 'email.post.comment.new', $emailData);
 		}
 
 		// Process comment triggers.

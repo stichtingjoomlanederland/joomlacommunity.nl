@@ -161,9 +161,14 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 		$where = array();
 		$extra = array();
 
+		$includeCatChilds = false;
+
 		$where[] = $tbl.'.`published` = ' . $db->Quote('1');
 
+
 		if ($type == 'posts' || $type == 'replies') {
+
+			$includeCatChilds = true;
 
 			// Private discussions should not show up
 			$where[]	= $tbl . '.`private`=' . $db->Quote(0);
@@ -215,8 +220,7 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 			$where[] = '(' . $extra . ')';
 		}
 
-		$catOptions = array('includeChilds' => false);
-
+		$catOptions = array('includeChilds' => $includeCatChilds);
 		if ($type == 'category') {
 			$catAccessSQL = ED::category()->genCategoryAccessSQL('a.id', $catOptions);
 		} else {
@@ -226,8 +230,6 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 		$where[] = $catAccessSQL;
 
 		$where = (count($where) ? ' WHERE ' . implode(' AND ', $where) : '');
-
-		// echo $where;exit;
 
 		return $where;
 	}
@@ -266,6 +268,8 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 		if (empty($this->_data)) {
 
 			$query = $this->_buildQuery($sort, $filter, $category, false, $tags);
+
+			// echo $query;exit;
 
 			if ($usePagination) {
 				$limitstart = is_null($limitstart) ? $this->getState('limitstart') : $limitstart;

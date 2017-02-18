@@ -38,6 +38,11 @@ document.addEventListener('DOMContentLoaded', function(){
     <?php echo $rtl ? ' is-rtl' : '';?>"
     data-ed-wrapper
 >
+    <?php if ($miniheader) { ?>
+    <div id="es" class="es">
+        <?php echo $miniheader; ?>
+    </div>
+    <?php } ?>
 
 	<?php echo $toolbar; ?>
 

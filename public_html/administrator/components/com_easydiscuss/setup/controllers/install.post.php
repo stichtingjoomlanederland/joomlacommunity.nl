@@ -66,6 +66,9 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 		// Create sample post
 		$results[] = $this->createSamplePost();
 
+		// Now we need to update the #__update_sites row to include the api key as well as the domain
+		$this->updateJoomlaUpdater();
+
 		// Change the default value for new features and theme
 		// Only for 3.x-4.0
 		if ($this->isUpgradeFrom3x()) {
@@ -406,6 +409,90 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 
 	}
 
+	/**
+	 * Retrieves the extension_id from Joomla's extension table
+	 *
+	 * @since	4.0.12
+	 * @access	public
+	 */
+	public function getExtensionId()
+	{
+		$this->engine();
+
+		$db = JFactory::getDBO();
+
+		$query = array();
+		$query[] = 'SELECT ' . $db->quoteName('extension_id') . ' FROM ' . $db->quoteName('#__extensions');
+		$query[] = 'WHERE ' . $db->quoteName('element') . '=' . $db->Quote('com_easydiscuss');
+		$query = implode(' ', $query);
+
+		$db->setQuery($query);
+
+		// Get the extension id
+		$extensionId = $db->loadResult();
+
+		return $extensionId;
+	}
+
+	/**
+	 * Once the installation is completed, we need to update Joomla's update site table with the appropriate data
+	 *
+	 * @since	5.0.42
+	 * @access	public
+	 */
+	public function updateJoomlaUpdater()
+	{
+		$this->engine();
+
+		$extensionId = $this->getExtensionId();
+
+		$db = JFactory::getDBO();
+		$query = array();
+		$query[] = 'SELECT ' . $db->quoteName('update_site_id') . ' FROM ' . $db->quoteName('#__update_sites_extensions');
+		$query[] = 'WHERE ' . $db->quoteName('extension_id') . '=' . $db->Quote($extensionId);
+
+		$query = implode(' ', $query);
+		$db->setQuery($query);
+
+		$updateSiteId = $db->loadResult();
+
+		// Now we need to update the url
+		$table = JTable::getInstance('UpdateSite');
+		$exists = $table->load($updateSiteId);
+
+		if (!$exists) {
+			return false;
+		}
+
+		$defaultLocation = 'https://stackideas.com/jupdates/manifest/easydiscuss';
+		$domain = $this->getDomain();
+		$table->location = $defaultLocation . '?apikey=' . ED_KEY . '&domain=' . $domain;
+		$table->store();
+
+		// Cleanup unwanted data from updates table
+		// Since Joomla will always try to add a new record when it doesn't find the same match, we need to delete records created
+		// for https://stackideas.com/jupdates/manifest/easydiscuss
+		$query = 'SELECT * FROM ' . $db->quoteName('#__update_sites') . ' WHERE ' . $db->quoteName('location') . '=' . $db->Quote($defaultLocation);
+		$db->setQuery($query);
+
+		$defaultSites = $db->loadObjectList();
+
+		if (!$defaultSites) {
+			return true;
+		}
+
+		foreach ($defaultSites as $site) {
+			$query = 'DELETE FROM ' . $db->quoteName('#__update_sites') . ' WHERE ' . $db->quoteName('update_site_id') . '=' . $db->Quote($site->update_site_id);
+			$db->setQuery($query);
+			$db->Query();
+
+			$query = 'DELETE FROM ' . $db->quoteName('#__update_sites_extensions') . ' WHERE ' . $db->quoteName('update_site_id') . '=' . $db->Quote($site->update_site_id);
+			$db->setQuery($query);
+			$db->Query();
+		}
+
+		return true;
+	}
 
 	/**
 	 * Create a new default blog menu
@@ -427,15 +514,8 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 
 		$db = ED::db();
 
-		$query = array();
-		$query[] = 'SELECT ' . $db->quoteName('extension_id') . ' FROM ' . $db->quoteName('#__extensions');
-		$query[] = 'WHERE ' . $db->quoteName('element') . '=' . $db->Quote('com_easydiscuss');
-		$query = implode(' ', $query);
-
-		$db->setQuery($query);
-
 		// Get the extension id
-		$extensionId = $db->loadResult();
+		$extensionId = $this->getExtensionId();
 
 		// Get the main menu that is used on the site.
 		$menuType = $this->getMainMenuType();

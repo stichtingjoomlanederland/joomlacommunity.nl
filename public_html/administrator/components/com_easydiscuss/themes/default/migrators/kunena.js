@@ -27,7 +27,10 @@ ed.require(['edq'], function($) {
 	window.migrateArticle = function() {
 
 		EasyDiscuss.ajax('admin/views/migrators/migrate', {
-			"component": "com_kunena"
+			"component": "com_kunena",
+			"resetHits": $('[data-migrator-kunena-hits]').val(),
+			"migrateSignature": $('[data-migrator-kunena-signature]').val()
+
 		}).done(function(result, status) {
 
 			// Append the current status
@@ -52,8 +55,6 @@ ed.require(['edq'], function($) {
 				$('[data-progress-status]').html('<?php echo JText::_('COM_EASYDISCUSS_NO_ITEM', true);?>');
 			}
 		});
-
-		
 	}
 
 });

@@ -57,6 +57,12 @@ class EasyDiscussViewSearch extends EasyDiscussView
 			array_unique($cats);
 		}
 
+		if ($cats) {
+
+			$catOptions = array('idOnly' => true, 'includeChilds' => true);
+			$catModel = ED::model('Categories');
+			$cats = $catModel->getCategoriesTree($cats, $catOptions);
+		}
 
 		$tagfilters = $this->input->get('tags', array(), 'array');
 
@@ -90,7 +96,6 @@ class EasyDiscussViewSearch extends EasyDiscussView
 		if ($query) {
 
 			$model = ED::model('Search');
-
 			// Get the result
 			$results = $model->getData($options);
 			$pagination = $model->getPagination();

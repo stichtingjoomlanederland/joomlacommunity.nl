@@ -119,9 +119,12 @@ class EasyDiscussThemes extends EasyDiscuss
 		// Implode the parts back to form the namespace
 		$namespace = implode('/', $parts);
 
+		// Get the default template from frontend
+		$defaultJoomlaTemplate = ED::getCurrentTemplate();
+
 		if ($checkOverridden) {
 			// Overriden Theme
-			$path = JPATH_ROOT . '/templates/' . $this->app->getTemplate() . '/html/com_easydiscuss/' . $namespace;
+			$path = JPATH_ROOT . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/' . $namespace;
 			$exists = JFile::exists($path . $extension);
 
 			if ($exists) {

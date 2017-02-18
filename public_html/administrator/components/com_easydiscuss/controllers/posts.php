@@ -286,7 +286,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	    $id = $this->input->get('id', 0, 'int');
 
 	    // Get the date POST
-	    $data = JRequest::get('post');;
+	    $data = JRequest::get('post');
 
 	    // Load the post library
 	    $post = ED::post($id);
@@ -372,20 +372,36 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 	public function approve()
 	{
-	    // Check for request forgeries
-	    ED::checkToken();
+		// Check for request forgeries
+		ED::checkToken();
 
-	    // Get the id if available
-	    $id = $this->input->get('id', 0, 'int');
+		// Get the id if available
+		$id = $this->input->get('id', 0, 'int');
 
-	    // Get the date POST
-	    $data = JRequest::get('post');;
+		// Get the date POST
+		$data = JRequest::get('post');
 
-	    // Load the post library
-	    $post = ED::post($id);
+		// For contents, we need to get the raw data.
+		$data['content'] = $this->input->get('dc_content', '', 'raw');	    
 
-	    // Toggle publish state
-	    $post->publish(1);
+		// Load the post library
+		$post = ED::post($id);
+
+		// Bind post data
+		$post->bind($data);
+
+		// Validate the posted data to ensure that we can really proceed
+		if (!$post->validate($data)) {
+
+			$redirectUrl = 'index.php?option=com_easydiscuss&view=post&layout=pending&id=' . $post->id;
+
+			ED::setMessage($post->getError(), 'error');
+
+			return $this->app->redirect($redirectUrl);
+		}
+
+		// Toggle publish state
+		$post->publish(1);
 
 		$message = JText::_('COM_EASYDISCUSS_POSTS_PUBLISHED');
 		ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);

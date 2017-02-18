@@ -52,6 +52,14 @@ defined('_JEXEC') or die('Restricted access');
 					</div>
 					<div class="form-group">
                         <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_AUTO_MOD_POST_SUBSCRIPTION'); ?>
+                        </div>
+                        <div class="col-md-7">
+							<?php echo $this->html('form.boolean', 'main_automodpostsubscription', $this->config->get('main_automodpostsubscription')); ?>
+						</div>
+					</div>
+					<div class="form-group">
+                        <div class="col-md-5 control-label">
                             <?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_GUEST_SUBSCRIPTION'); ?>
                         </div>
                         <div class="col-md-7">
@@ -79,7 +87,7 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
 			</div>
 		</div>
-	</div>	
+	</div>
 </div>
 
 

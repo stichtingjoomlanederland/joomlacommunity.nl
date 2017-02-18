@@ -90,4 +90,56 @@ class EasyDiscussViewDashboard extends EasyDiscussView
 		$holiday->save();
 		return $this->ajax->resolve();	
 	}
+
+	/**
+	 * Confirmation dialog to approve post
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function confirmApprovePost()
+	{
+		$id = $this->input->get('id', 0, 'int');
+
+		ED::checkToken();
+
+		if (!$id) {
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+		}
+
+		// Load the post
+		$post = ED::post($id);
+
+		$themes = ED::themes();
+		$themes->set('post', $post);
+		$contents = $themes->output('site/dashboard/dialogs/post.approve');
+
+		return $this->ajax->resolve($contents);
+	}
+
+	/**
+	 * Confirmation dialog to reject post
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function confirmRejectPost()
+	{
+		$id = $this->input->get('id', 0, 'int');
+
+		ED::checkToken();
+
+		if (!$id) {
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+		}
+
+		// Load the post
+		$post = ED::post($id);
+
+		$themes = ED::themes();
+		$themes->set('post', $post);
+		$contents = $themes->output('site/dashboard/dialogs/post.reject');
+
+		return $this->ajax->resolve($contents);
+	}
 }

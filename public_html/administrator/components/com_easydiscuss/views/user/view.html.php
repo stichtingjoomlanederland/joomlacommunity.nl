@@ -26,8 +26,11 @@ class EasyDiscussViewUser extends EasyDiscussAdminView
 
 		$profile = ED::user($id);
 
-		$userparams	= ED::getRegistry($profile->get('params'));
-		$siteDetails = ED::getRegistry($profile->get('site'));
+		$userparams	= json_decode($profile->get('params'));
+		$siteDetails = json_decode($profile->get('site'));
+
+		$userparams = ED::getRegistry($userparams);
+		$siteDetails = ED::getRegistry($siteDetails);
 
 		$avatarIntegration = $config->get('layout_avatarIntegration', 'default');
 

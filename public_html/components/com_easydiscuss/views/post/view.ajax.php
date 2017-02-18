@@ -487,7 +487,7 @@ class EasyDiscussViewPost extends EasyDiscussView
             return $this->ajax->reject($post->getError());
         }
 
-        return $this->ajax->resolved(JText::_('COM_EASYDISCUSS_POST_UNLOCKED'));
+        return $this->ajax->resolve(JText::_('COM_EASYDISCUSS_POST_UNLOCKED'));
     }
 
     /**
@@ -1031,6 +1031,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 
         $postId = $this->input->get('postId', 'post', 'int');
         $moderatorId = $this->input->get('moderatorId', 'post', 'int');
+        $assigner = JFactory::getUser();
 
         // Load the new post object
         $post = ED::post($postId);
@@ -1068,7 +1069,7 @@ class EasyDiscussViewPost extends EasyDiscussView
                 $sendNotti = true;
                 $assignment->post_id = $postId;
                 $assignment->assignee_id = (int) $moderatorId;
-                $assignment->assigner_id = (int) JFactory::getUser()->id;
+                $assignment->assigner_id = (int) $assigner->id;
 
             } else {
                 // updates
@@ -1076,11 +1077,17 @@ class EasyDiscussViewPost extends EasyDiscussView
                     $sendNotti = true;
 
                     $assignment->assignee_id = (int) $moderatorId;
-                    $assignment->assigner_id = (int) JFactory::getUser()->id;
+                    $assignment->assigner_id = (int) $assigner->id;
                 }
             }
 
-            $state = $assignment->store();
+            // Notification should be sent to actor for whatever reason
+            if ($assigner->id == $moderatorId) {
+                $sendNotti = false;
+            }
+
+            $state = $assignment->store(); 
+
             if (!$state) {
                 return $this->ajax->reject('COM_EASYDISCUSS_ASSIGN_MODERATORS_SHOW_STORING_FAILED');
             }
@@ -1107,7 +1114,6 @@ class EasyDiscussViewPost extends EasyDiscussView
      * @since   3.0
      * @access  public
      * @param   null
-     * @author  Jason Rey <jasonrey@stackideas.com>
      */
     public function getUpdateCount()
     {

@@ -15,7 +15,7 @@ require_once(dirname(__FILE__) . '/base.php');
 
 class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 {
-	public function migrate()
+	public function migrate($resetHits, $migrateSignature)
 	{
 		$config = ED::config();
 
@@ -30,8 +30,28 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 		$status = '';
 
+		// Once finished, we reset the user's point
+		if ($resetHits) {
+			$model = ED::model('users');
+			$model->resetPoints();
+
+			$status .= JText::_('COM_EASYDISCUSS_MIGRATOR_RESET_USER_POINTS') . '<br />';
+		}
+
+		// We need to migrate user's signature regardless there is post to migrate or not
+		if ($migrateSignature) {
+			$this->migrateUserSignature();
+
+			$status .= JText::_('COM_EASYDISCUSS_MIGRATOR_MIGRATED_KUNENA_SIGNATURE') . '<br />';
+		}
+
 		// If there's nothing to load just skip this
 		if (!$items) {
+
+			if (!empty($status)) {
+				return $this->ajax->resolve(false, $status);
+			}
+			
 			return $this->ajax->resolve('noitem');
 		}
 
@@ -51,7 +71,9 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 			// adding poll items to this thread
 			$this->mapKunenaItemPolls($item, $post);
-			
+
+			// Map item likes
+			$this->mapKunenaItemLikes($item, $post);				
 		}
 
 		$hasmore = false;
@@ -62,16 +84,52 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 		if (!$hasmore) {
 
-			// Once finished, we reset the user's point
-			if ($config->get('migrator_reset_points')) {
-				$model = ED::model('users');
-				$model->resetPoints();
-			}
-
+			// Next, we migrate all the category that not yet migrated
+			$this->migrateAllCategories();
 		}
 
 		return $this->ajax->resolve($hasmore, $status);
 
+	}
+
+	public function migrateUserSignature()
+	{
+		$db	= $this->db;
+
+		// Get all the Kunena users
+		$query = 'select * from `#__kunena_users`';
+
+		$db->setQuery($query);
+		$kUsers = $db->loadObjectList();
+
+		foreach ($kUsers as $kUser) {
+			if ($kUser->signature) {
+				
+				// Load discuss user
+				$edUser = ED::user($kUser->userid);
+				
+				if ($edUser->id) {
+					$edUser->signature = $kUser->signature;
+					$edUser->store();
+				}
+			}
+		}
+	}
+
+	public function mapKunenaItemLikes($kItem, $item)
+	{
+		$db	= $this->db;
+
+		$query = 'select * from `#__kunena_thankyou` where `postid` = ' . $db->Quote($kItem->id);
+
+		$db->setQuery($query);
+		$kThanks = $db->loadObjectList();
+
+		if ($kThanks) {
+			foreach ($kThanks as $kThank) {
+				ED::likes()->addLikes($item->id, 'post', $kThank->userid);
+			}
+		}
 	}
 
 	public function mapKunenaItemPolls($kItem, $item)
@@ -136,7 +194,6 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 			} // foreach kPolls
 
 		} // if kPolls
-
 	}
 
 	public function mapKunenaItemChilds($kItem, $parent)
@@ -177,6 +234,9 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 	        // Try to save the post now
 	        $state = $post->save();
+
+			// Map child item likes
+			$this->mapKunenaItemLikes($kChildItem, $post);				
 		}
 	}
 
@@ -190,9 +250,7 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 		$data = array();
 
-		// $lastreplied = $item->last_post_time;
 		$lastreplied = (isset($item->last_post_time))? $item->last_post_time : $item->time;
-
 
 		$subject = $item->subject;
 
@@ -345,10 +403,40 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 		return $easydiscussCategoryId;
 	}
 
+	public function migrateAllCategories()
+	{
+		// First get all Kunena Categories
+		$kunenaCategories = $this->getKunenaCategories();
+
+		if (!$kunenaCategories) {
+			return false;
+		}
+
+		foreach ($kunenaCategories as $category) {
+
+			$easydiscussParentCategoryId = 0;
+
+			// Check if this kunena category has parent_id
+			if ($category->parent_id != 0) {
+				// Get the parent category
+				$parentCategory = $this->getKunenaCategory($category->parent_id);
+
+				$easydiscussParentCategoryId = $this->easydiscussCategoryExists($parentCategory);
+			} 
+
+			$category->title = $category->name;
+
+			// Determine if this category has already been created in EasyDiscuss
+			$easydiscussCategoryId = $this->easydiscussCategoryExists($category, $easydiscussParentCategoryId);
+		}
+	}
+
 	public function getKunenaCategory($id)
 	{
-		$query  = 'SELECT * FROM `#__kunena_categories` where `id` = ' . $this->db->Quote($id);
+		$query = 'SELECT * FROM `#__kunena_categories` where `id` = ' . $this->db->Quote($id);
+		
 		$this->db->setQuery($query);
+
 		$result = $this->db->loadObject();
 
 		// Mimic Joomla's category behavior
@@ -414,17 +502,8 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 	 **/
 	public function getKunenaCategories()
 	{
-		require_once JPATH_ROOT . '/administrator/components/com_kunena/api.php';
-
-		$columnName = 'parent';
-
-		if (class_exists('KunenaForum') && KunenaForum::version() >= '2.0') {
-			$columnName = 'parent_id';
-		}
-
-		$db		= $this->db;
-		$query	= 'SELECT * FROM ' . $db->nameQuote('#__kunena_categories')
-				. ' where ' . $db->nameQuote($columnName) . ' = ' . $db->Quote('0')
+		$db	= $this->db;
+		$query = 'SELECT * FROM ' . $db->nameQuote('#__kunena_categories')
 				. ' ORDER BY ' . $db->nameQuote('ordering') . ' ASC';
 
 		$db->setQuery($query);

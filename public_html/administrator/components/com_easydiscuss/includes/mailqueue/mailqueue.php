@@ -291,12 +291,12 @@ class EasyDiscussMailQueue extends EasyDiscuss
 					if (strpos($file['name'], '/') !== FALSE) {
 						$file['name'] = substr($file['name'], strrpos($file['name'],'/')+1 );
 
-					} elseif(strpos($attachment['name'], '\\' !== FALSE)) {
+					} elseif(strpos($file['name'], '\\' !== FALSE)) {
 						$file['name'] = substr($file['name'], strrpos($file['name'],'\\')+1 );
 					}
 
 					// @task: check if the attachment has file extension. ( assuming is images )
-					$imgExts = array( 'jpg', 'png', 'gif', 'JPG', 'PNG', 'GIF', 'jpeg', 'JPEG' );
+					$imgExts = array('jpg', 'png', 'gif', 'JPG', 'PNG', 'GIF', 'jpeg', 'JPEG', 'pdf', 'PDF');
 					$imageSegment = explode('.', $file['name']);
 
 					if (! in_array($imageSegment[ count( $imageSegment ) - 1 ], $imgExts)) {
@@ -317,8 +317,8 @@ class EasyDiscussMailQueue extends EasyDiscuss
 					JFile::write( $file['tmp_name'], $file['data']);
 
 					// Check the mime contains the attachment type, if not we insert our own
-					$mime = $attachment['mime'];
-					$imgExts = array( 'jpg', 'png', 'gif', 'JPG', 'PNG', 'GIF', 'jpeg', 'JPEG' );
+					$mime = $file['mime'];
+					$imgExts = array('jpg', 'png', 'gif', 'JPG', 'PNG', 'GIF', 'jpeg', 'JPEG');
 
 					if (in_array($mime, $imgExts)) {
 						$mime = 'image/' . $mime;

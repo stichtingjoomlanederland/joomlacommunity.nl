@@ -161,6 +161,17 @@ class EasyDiscussViewAsk extends EasyDiscussView
 
 		// Get the composer library
 		$operation = $post->isNew() ? 'creating' : 'editing';
+
+		// Determine how the content should be formatted in editing layout.
+		if ($operation == 'editing') {
+			if ($this->config->get('layout_editor') == 'bbcode') {
+				$post->content = ED::parser()->html2bbcode($post->content);
+			} else if ($this->config->get('layout_editor') != 'bbcode' && $post->content_type == 'bbcode') {
+				$post->content = ED::parser()->bbcode($post->content);
+				$post->content = nl2br($post->content);
+			}
+		}
+
 		$composer = ED::composer($operation, $post);
 
 		// Test if reference is passed in query string.
@@ -191,6 +202,11 @@ class EasyDiscussViewAsk extends EasyDiscussView
 
 		if ($post->id) {
 			$cancel = $post->getPermalink();
+
+			// Post is moderated
+			if ($post->isPending() && ED::isSiteAdmin()) {
+				$cancel = EDR::_('view=dashboard');
+			}
 		}
 
 		$this->set('minimumTitle', $minimumTitle);

@@ -917,7 +917,14 @@ class EasyDiscussPost extends EasyDiscuss
 
         $state = $this->save($options);
 
-        $this->updateThread(array('published' => $publish));
+        $updateThreadOptions = array('published' => $publish);
+
+        // If this is a reply, we need to update the num_replies for that thread
+        if ($this->isReply()) {
+            $updateThreadOptions['num_replies'] = $publish ? '+1' : '-1';
+        }
+
+        $this->updateThread($updateThreadOptions);
 
         return $state;
     }
@@ -2541,15 +2548,10 @@ class EasyDiscussPost extends EasyDiscuss
             return false;
         }
 
-        // We also need to check if the viewer can view replies from this category
-        $category = $this->getCategory();
-
-        if ($checkAcl && !$category->canViewReplies()) {
-            return false;
-        }
-
         // Get replies
         $model = ED::model('Posts');
+
+		$category = $this->getCategory();
 
         // Get the replies
         $answer = $model->getAcceptedReply($this->post->id);
@@ -2558,6 +2560,12 @@ class EasyDiscussPost extends EasyDiscuss
         if ($answer) {
             $answer = ED::formatReplies($answer, $category, $pagination, true);
             $answer = $answer[0];
+
+			// We also need to check if the viewer can view replies from this category
+	        // if there is accepted answer and user canot view replies, we need to show a permission denied message. #53
+	        if ($checkAcl && !$category->canViewReplies()) {
+	            return true;
+	        }
         }
 
         return $answer;
@@ -3048,8 +3056,16 @@ class EasyDiscussPost extends EasyDiscuss
 
         if (!isset($titles[$this->post->id])) {
 
+            $title = $this->post->title;
+
+            if (!$title && $this->isReply()) {
+                $parent = $this->getParent();
+
+                $title = JText::_('COM_EASYDISCUSS_SEARCH_REPLY_TITLE_PREFIX') . $parent->getTitle();
+            }
+
             // Apply badword filtering
-            $titles[$this->post->id] = ED::badwords()->filter($this->post->title);
+            $titles[$this->post->id] = ED::badwords()->filter($title);
         }
 
         return $titles[$this->post->id];
@@ -3939,8 +3955,6 @@ class EasyDiscussPost extends EasyDiscuss
                     $thread->last_poster_name = $this->post->poster_name;
                     $thread->last_poster_email = $this->post->poster_email;
                     $thread->replied = $this->post->created;
-
-                    $thread->num_replies = $thread->num_replies + 1;
                 }
 
                 $thread->store();
@@ -3964,7 +3978,6 @@ class EasyDiscussPost extends EasyDiscuss
 
                 // need to check if this question has polls or not.
                 $thread->has_polls = $this->hasPolls();
-
 
                 // need to check if this question has attachments or not
                 $attachments = $this->getAttachments();
@@ -4293,13 +4306,12 @@ class EasyDiscussPost extends EasyDiscuss
      */
     public function replyNotify()
     {
-        if (!$this->isReply() || !$this->isNew()) {
+        if (!$this->isReply() || (!$this->isNew() && $this->prevPostStatus != DISCUSS_ID_PENDING)) {
             return;
         }
 
         // Get current submit reply/comment user id
         $reply = ED::user($this->my->id);
-
 
         $owner = $this->getOwner();
 
@@ -4615,7 +4627,7 @@ class EasyDiscussPost extends EasyDiscuss
             $emailData['emailTemplate'] = 'email.subscription.site.rejected';
             $emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_QUESTION_ASKED_REJECTED', $this->post->title);
 
-            ED::Mailer()->notifyThreadOwner($emailData, array());            
+            ED::Mailer()->notifyThreadOwner($emailData, array());
         }
 
     }
@@ -5099,7 +5111,17 @@ class EasyDiscussPost extends EasyDiscuss
 
             $lastReplier = $parent->getLastReplier();
 
-            $this->updateThread(array('last_user_id' => $lastReplier->id));
+            // No last replier
+            if ($lastReplier == '0') {
+                $this->updateThread(array(
+                        'last_user_id' => '0',
+                        'last_poster_name' => '',
+                        'last_poster_email' => ''
+                    )
+                );
+            } else {
+                $this->updateThread(array('last_user_id' => $lastReplier->id));
+            }
         }
 
         // If this is a reply, and is an answer, we need to clear the parent's answered status
@@ -5225,11 +5247,16 @@ class EasyDiscussPost extends EasyDiscuss
             return;
         }
 
+        if (!$this->config->get('main_postsubscription')) {
+            return false;
+        }
+
         if (!$this->config->get('main_autopostsubscription')) {
             return false;
         }
 
-        if (!$this->config->get('main_postsubscription')) {
+        // check if this is a moderator or not.
+        if (ED::isModerator($this->post->category_id, $this->my->id) && !$this->config->get('main_automodpostsubscription')) {
             return false;
         }
 

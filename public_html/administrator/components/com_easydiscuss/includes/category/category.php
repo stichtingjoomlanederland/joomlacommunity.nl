@@ -110,6 +110,9 @@ class EasyDiscussCategory extends EasyDiscuss
 		if (!$this->table->alias && $this->table->title) {
 			$this->table->alias = $this->generateAlias();
 		}
+
+		// Check for a valid alias
+		 $this->table->alias = ED::getAlias($this->table->alias, 'category', $this->table->id);
 	}
 
 	/**
@@ -130,9 +133,13 @@ class EasyDiscussCategory extends EasyDiscuss
 			return false;
 		}
 
-		// Check the category container shouldn't allow to set if that category already contain post
-		$model = ED::model('Categories');
-		$postCount = $model->getUsedCount($this->table->id, false, true);
+		// Check the category container shouldn't allow to set if that category already contain post.
+		// We check only if this is an update.
+		$postCount = 0;
+		if ($this->table->id) {
+			$model = ED::model('Categories');
+			$postCount = $model->getUsedCount($this->table->id, false, true);
+		}
 
 		// if user enable container option to yes, we need to ensure that
 		// do not have any post created in this category
@@ -154,6 +161,9 @@ class EasyDiscussCategory extends EasyDiscuss
 	 */
 	public function save($updateOrdering = false)
 	{
+		// Normalize the content
+		$this->normalize();
+
 		$state = $this->table->store($updateOrdering);
 
 		if (!$state) {

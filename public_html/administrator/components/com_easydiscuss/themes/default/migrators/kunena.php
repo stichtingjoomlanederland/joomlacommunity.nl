@@ -19,32 +19,41 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 				<div id="option01" class="panel-body">
 					<div class="">
+						<?php if ($exists) { ?>
 						<div class="form-group">
-
-							<?php if ($exists) { ?>
 							<p><?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_NOTICE');?></p>
 							
 							<ul>
 								<li><?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_NOTICE_BACKUP'); ?></li>
 								<li><?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_NOTICE_OFFLINE'); ?></li>
 							</ul>
-
-							<div class="col-md-5 control-label">
-								<label><?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_RESET_HITS'); ?></label>
-								<i class="fa fa-question-circle pull-right" data-ed-provide="popover" data-content="<?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_RESET_HITS_DESC'); ?>" data-title="Blog Title" data-placement="top" data-html="true" data-original-title="" title=""></i>
-							</div>
-							<div>
-								<?php echo $this->html('form.boolean', 'migrator_reset_points', $this->config->get('migrator_reset_points'));?>
-							</div>
-
-							<button class="btn btn-success" data-ed-migrate>
-								<?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_RUN_MIGRATION_TOOL'); ?>
-							</button>
-
-							<?php } else { ?>
-							<p><?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_KUNENA_NOT_INSTALLED'); ?></p>
-							<?php } ?>
 						</div>
+
+						<div class="form-group">
+						    <div class="col-md-5 control-label">
+						        <?php echo $this->html('form.label', 'COM_EASYDISCUSS_MIGRATORS_RESET_HITS'); ?>
+						    </div>
+						    <div class="col-md-7">
+						        <?php echo $this->html('form.boolean', 'migrator_reset_points', $this->config->get('migrator_reset_points'), '', 'data-migrator-kunena-hits');?>
+						    </div>
+						</div>
+
+						<div class="form-group">
+						    <div class="col-md-5 control-label">
+						        <?php echo $this->html('form.label', 'COM_EASYDISCUSS_MIGRATORS_USER_SIGNATURE'); ?>
+						    </div>
+						    <div class="col-md-7">
+						        <?php echo $this->html('form.boolean', 'migrator_user_signature', $this->config->get('migrator_user_signature'), '', 'data-migrator-kunena-signature');?>
+						    </div>
+						</div>
+
+						<button class="btn btn-success" data-ed-migrate>
+							<?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_RUN_MIGRATION_TOOL'); ?>
+						</button>
+
+						<?php } else { ?>
+							<p><?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_KUNENA_NOT_INSTALLED'); ?></p>
+						<?php } ?>
 					</div>
 				</div>
 			</div>

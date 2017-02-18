@@ -66,7 +66,14 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 		// Get post's tags
 		$postModel = ED::model('Post');
 		$post->tags = $postModel->getPostTags($post->id);
-		$post->content = ED::parser()->html2bbcode($post->content);
+
+		// Convert html to bbcode content if the editor is bbcode.
+		if ($this->config->get('layout_editor') == 'bbcode') {
+			$post->content = ED::parser()->html2bbcode($post->content);
+		} else if ($this->config->get('layout_editor') != 'bbcode' && $post->content_type == 'bbcode') {
+			$post->content = ED::parser()->bbcode($post->content);
+			$post->content = nl2br($post->content);
+		}
 
 		// Select top 20 tags.
 		$tagmodel = ED::model('Tags');
@@ -85,7 +92,7 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 
 		// Get a list of tags on the site
 		$tagsModel = ED::model('Tags');
-		$tags = $tagsModel->getTags();		
+		$tags = $tagsModel->getTags();
 
 		// Render new composer
 		// Get the composer library
@@ -116,7 +123,7 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 		JToolBarHelper::custom('delete','delete','icon-32-unpublish.png', 'COM_EASYDISCUSS_DELETE_BUTTON', false);
 
 		return $this->edit();
-	}	
+	}
 
 	public function getFieldForms( $isDiscussion = false , $postObj = false )
 	{
@@ -148,7 +155,7 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 			JToolBarHelper::divider();
 			JToolBarHelper::cancel();
 		} else {
-			JToolbarHelper::title(JText::_('COM_EASYDISCUSS_REVIEW_MODERATED_POST'), 'discussions');	
+			JToolbarHelper::title(JText::_('COM_EASYDISCUSS_REVIEW_MODERATED_POST'), 'discussions');
 		}
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -18,10 +18,8 @@ class EasyDiscussControllerInstallDownload extends EasyDiscussSetupController
 	/**
 	 * Downloads the file from the server
 	 *
-	 * @since	5.0
+	 * @since	4.0.12
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function execute()
 	{
@@ -39,6 +37,15 @@ class EasyDiscussControllerInstallDownload extends EasyDiscussSetupController
 			$result = new stdClass();
 			$result->state = false;
 			$result->message = JText::_('COM_EASYDISCUSS_INSTALLATION_ERROR_REQUEST_INFO');
+
+			$this->output($result);
+			exit;
+		}
+
+		if (isset($info->error) && $info->error != 408) {
+			$result = new stdClass();
+			$result->state = false;
+			$result->message = $info->error;
 
 			$this->output($result);
 			exit;
@@ -65,18 +72,6 @@ class EasyDiscussControllerInstallDownload extends EasyDiscussSetupController
 			exit;
 		}
 
-		// Get the md5 hash of the stored file
-		$hash = md5_file($storage);
-
-		// Check if the md5 check sum matches the one provided from the server.
-		if (!in_array($hash, $info->md5)) {
-			$result = new stdClass();
-			$result->state = false;
-			$result->message = JText::_('COM_EASYDISCUSS_INSTALLATION_ERROR_MD5_CHECKSUM');
-			$this->output($result);
-			exit;
-		}
-
 		// Check if the temporary folder exists
 		if (!JFolder::exists(ED_TMP)) {
 			JFolder::create(ED_TMP);
@@ -93,11 +88,34 @@ class EasyDiscussControllerInstallDownload extends EasyDiscussSetupController
 		// Try to extract the files
 		$state = JArchive::extract($storage, $tmp);
 
+		// If there is an error extracting the zip file, then there is a possibility that the server returned a json string
 		if (!$state) {
+
+			$contents = JFile::read($storage);
+			$result = json_decode($contents);
+
+			if (is_object($result)) {
+				$result->state = false;
+				$this->output($result);
+				exit;
+			}
+
 			$result = new stdClass();
 			$result->state = false;
 			$result->message = JText::_('COM_EASYDISCUSS_INSTALLATION_ERROR_EXTRACT_ERRORS');
 
+			$this->output($result);
+			exit;
+		}
+
+		// Get the md5 hash of the stored file
+		$hash = md5_file($storage);
+
+		// Check if the md5 check sum matches the one provided from the server.
+		if (!in_array($hash, $info->md5)) {
+			$result = new stdClass();
+			$result->state = false;
+			$result->message = JText::_('COM_EASYDISCUSS_INSTALLATION_ERROR_MD5_CHECKSUM');
 			$this->output($result);
 			exit;
 		}
@@ -119,12 +137,8 @@ class EasyDiscussControllerInstallDownload extends EasyDiscussSetupController
 	/**
 	 * Executes the file download from the server.
 	 *
-	 * @since	5.0
+	 * @since	4.0.12
 	 * @access	public
-	 * @param	object 	The manifest data from server.
-	 * @param	string	The user's api key.
-	 * @param	string	The license key to use for this installation
-	 * @return	mixed	false if download failed or path to the file if success.
 	 */
 	public function getDownloadFile($info, $apikey, $license)
 	{
@@ -134,27 +148,20 @@ class EasyDiscussControllerInstallDownload extends EasyDiscussSetupController
 		// Get the latest version
 		$ch = curl_init($info->install);
 
+		// Get the domain
+		$domain = $this->getDomain();
+
 		// Data that should be sent to the server
-		$fields = 'extension=easydiscuss&apikey=' . $apikey . '&license=' . $license . '&version=' . $info->version;
-		
-		// Debug
-		// dump($fields);
+		$fields = 'extension=easydiscuss&apikey=' . $apikey . '&license=' . $license . '&version=' . $info->version . '&domain=' . $domain;
 
 		// We need to pass the api keys to the server
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
-
-		// We don't want the output immediately.
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-		// Set a large timeout incase the server fails to download in time.
 		curl_setopt($ch, CURLOPT_TIMEOUT, 30000);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
-		// Get the response of the server
 		$result = curl_exec($ch);
-
-		// Close the connection
 		curl_close($ch);
 
 		// Set the storage page
@@ -164,9 +171,6 @@ class EasyDiscussControllerInstallDownload extends EasyDiscussSetupController
 		if (JFile::exists($storage)) {
 			JFile::delete($storage);
 		}
-
-		// Debug md5
-		// $result 	= $result . 'somedebugcontents';
 
 		$state = JFile::write($storage, $result);
 
