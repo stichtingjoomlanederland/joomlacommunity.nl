@@ -81,6 +81,9 @@ include_once JPATH_THEMES . '/' . $this->template . '/helpers/helper.php';
             window.LeaderSlot = googletag.defineSlot('/81355425/jc_leader', [[320, 50], [728, 90]], 'div-gpt-ad-1483558516537-0')
                 .defineSizeMapping(mapLeader)
                 .addService(googletag.pubads());
+            window.LeaderSlot = googletag.defineSlot('/81355425/jc_bottom', [[320, 50], [728, 90]], 'div-gpt-ad-1487456152006-0')
+                .defineSizeMapping(mapLeader)
+                .addService(googletag.pubads());
             googletag.enableServices();
         });
     </script>
@@ -218,6 +221,18 @@ if (!empty($analyticsData) && $analyticsData['position'] == 'after_body_start')
                     </div>
 				<?php endif; ?>
 			<?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<div class="leaderboard-container">
+    <div class="banner">
+        <div id='div-gpt-ad-1487456152006-0'>
+            <script>
+                googletag.cmd.push(function () {
+                    googletag.display('div-gpt-ad-1487456152006-0');
+                });
+            </script>
         </div>
     </div>
 </div>
