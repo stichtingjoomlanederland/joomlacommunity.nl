@@ -9,13 +9,13 @@ defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.model');
 
-class RSFormModelFormAjax extends JModelLegacy
+class RsformModelFormajax extends JModelLegacy
 {
 	function __construct()
 	{
 		parent::__construct();
 
-		$this->_db = JFactory::getDBO();
+		$this->_db = JFactory::getDbo();
 	}
 
 	public static function sortFields($a,$b)
@@ -47,7 +47,7 @@ class RSFormModelFormAjax extends JModelLegacy
 
 	function getComponentFields()
 	{
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 		$lang = JFactory::getLanguage();
 		$return = array();
 		$data = $this->getComponentData();
@@ -68,7 +68,7 @@ class RSFormModelFormAjax extends JModelLegacy
 				$results[$i]->Ordering = 1001;
 		}
 
-		usort($results, array('RSFormModelFormAjax', 'sortFields'));
+		usort($results, array('RsformModelFormajax', 'sortFields'));
 
 		$taborder = 1;
 

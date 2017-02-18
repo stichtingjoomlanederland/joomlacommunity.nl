@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSFormModelRestore extends JModelLegacy
+class RsformModelRestore extends JModelLegacy
 {
 	protected function getExtension($filename) {
 		$parts = explode('.', $filename);

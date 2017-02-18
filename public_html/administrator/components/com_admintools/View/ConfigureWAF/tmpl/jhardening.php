@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2016 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
  * @license   GNU General Public License version 3, or later
  */
 
@@ -22,6 +22,62 @@ defined('_JEXEC') or die;
 
 	<div class="controls">
 		<?php echo Select::booleanlist('nonewadmins', array(), $this->wafconfig['nonewadmins']); ?>
+
+	</div>
+</div>
+
+<div class="control-group">
+	<label class="control-label" for="nonewfrontendadmins"
+		   rel="popover"
+		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_NONEWFRONTENDADMINS'); ?>"
+		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_NONEWFRONTENDADMINS_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_NONEWFRONTENDADMINS'); ?>
+	</label>
+
+	<div class="controls">
+		<?php echo Select::booleanlist('nonewfrontendadmins', array(), $this->wafconfig['nonewfrontendadmins']); ?>
+
+	</div>
+</div>
+
+<div class="control-group">
+	<label class="control-label" for="configmonitor_global"
+		   rel="popover"
+		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONFIGMONITORGLOBAL'); ?>"
+		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONFIGMONITORGLOBAL_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONFIGMONITORGLOBAL'); ?>
+	</label>
+
+	<div class="controls">
+		<?php echo Select::booleanlist('configmonitor_global', array(), $this->wafconfig['configmonitor_global']); ?>
+
+	</div>
+</div>
+
+<div class="control-group">
+	<label class="control-label" for="configmonitor_components"
+		   rel="popover"
+		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONFIGMONITORCOMPONENTS'); ?>"
+		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONFIGMONITORCOMPONENTS_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONFIGMONITORCOMPONENTS'); ?>
+	</label>
+
+	<div class="controls">
+		<?php echo Select::booleanlist('configmonitor_components', array(), $this->wafconfig['configmonitor_components']); ?>
+
+	</div>
+</div>
+
+<div class="control-group">
+	<label class="control-label" for="configmonitor_action"
+		   rel="popover"
+		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONFIGMONITORACTION'); ?>"
+		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONFIGMONITORACTION_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONFIGMONITORACTION'); ?>
+	</label>
+
+	<div class="controls">
+		<?php echo Select::configMonitorAction('configmonitor_action', array(), $this->wafconfig['configmonitor_action']); ?>
 
 	</div>
 </div>

@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.model');
 
-class RSFormModelForms extends JModelLegacy
+class RsformModelForms extends JModelLegacy
 {
 	public $_data = null;
 	public $_mdata = null;
@@ -25,7 +25,7 @@ class RSFormModelForms extends JModelLegacy
 	public function __construct()
 	{
 		parent::__construct();
-		$this->_db = JFactory::getDBO();
+		$this->_db = JFactory::getDbo();
 		$mainframe = JFactory::getApplication();
 
 		// set the search filter first
@@ -35,7 +35,8 @@ class RSFormModelForms extends JModelLegacy
 		// set the query
 		$this->_query = $this->_buildQuery();
 
-		if (JRequest::getVar('layout', 'default') != 'default') {
+		if ($mainframe->input->getCmd('layout', 'default') != 'default')
+		{
 			$this->_mquery = $this->_buildMQuery();
 			$this->_conditionsquery = $this->_buildConditionsQuery();
 		}
@@ -55,12 +56,71 @@ class RSFormModelForms extends JModelLegacy
 	public function _buildQuery()
 	{
 		$filter_search = $this->getState('com_rsform.forms.filter_search');
-		$query  = "SELECT * FROM #__rsform_forms WHERE 1";
-		if (!empty($filter_search)) {
-			$query .= " AND (`FormName` LIKE '%".$this->_db->escape($filter_search)."%' OR `FormTitle` LIKE '%".$this->_db->escape($filter_search)."%')";
+		$lang		   = JFactory::getLanguage();
+		$or 	= array();
+		$ids 	= array();
+		
+		// Must check if we've changed the language for some forms (each form has its own remembered language).
+		if ($sessions = JFactory::getSession()->get('com_rsform.form'))
+		{
+			// For each form in the session, we join a specific language and form id.
+			foreach ($sessions as $form => $data)
+			{
+				if (strpos($form, 'formId') === 0 && isset($data->lang))
+				{
+					$id 	= (int) substr($form, strlen('formId'));
+					$ids[] 	= $id;
+					$or[] 	= "(t.lang_code = ".$this->_db->q($data->lang)." AND t.form_id = ".$this->_db->q($id).")";
+				}
+			}
+			
+			// Now that we've joined the session forms, we must remove them so they do not show up as duplicates.
+			if ($ids)
+			{
+				$or[] = "(t.lang_code = ".$this->_db->q($lang->getTag())." AND t.form_id NOT IN (".implode(",", $ids)."))";
+			}
 		}
-		$query .= " ORDER BY `".$this->getSortColumn()."` ".$this->getSortOrder();
+		
+		// Flag to know if we need translations - no point in doing a join if we're only using the default language.
+		$needs_translation = $lang->getTag() != $lang->getDefault() || $ids;
 
+		$query =
+			"SELECT".
+			($needs_translation ? " IFNULL(t.value, FormTitle) AS FormTitle," : " f.FormTitle,").
+			" f.FormId,".
+			" f.FormName,".
+			" f.Backendmenu,".
+			" f.Published".
+			" FROM #__rsform_forms f";
+		
+		if ($needs_translation)
+		{
+			$query .=
+				" LEFT JOIN #__rsform_translations t ON".
+				" (".
+				"	f.FormId = t.form_id".
+				"	AND t.reference = 'forms'".
+				"	AND t.reference_id = 'FormTitle'";
+
+			if ($or)
+			{
+				$query .= " AND (".implode(" OR ", $or).")";
+			}
+			else
+			{
+				$query .= " AND t.lang_code = ".$this->_db->q($lang->getTag());
+			}
+
+			$query .= " )";
+		}
+
+		if (!empty($filter_search))
+		{
+			$query .= " HAVING (`FormTitle` LIKE '%".$this->_db->escape($filter_search)."%' OR `FormName` LIKE '%".$this->_db->escape($filter_search)."%')";
+		}
+
+		$query .= " ORDER BY `".$this->getSortColumn()."` ".$this->getSortOrder();
+		
 		return $query;
 	}
 
@@ -84,14 +144,16 @@ class RSFormModelForms extends JModelLegacy
 	public function getForms()
 	{
 		if (empty($this->_data))
+		{
 			$this->_data = $this->_getList($this->_query, $this->getState('com_rsform.forms.limitstart'), $this->getState('com_rsform.forms.limit'));
+		}
 
 		foreach ($this->_data as $i => $row)
 		{
-			$this->_db->setQuery("SELECT COUNT(`SubmissionId`) cnt FROM #__rsform_submissions WHERE date_format(DateSubmitted,'%Y-%m-%d') = '".date('Y-m-d')."' AND FormId='".$row->FormId."'");
+			$this->_db->setQuery("SELECT COUNT(`SubmissionId`) cnt FROM #__rsform_submissions WHERE date_format(DateSubmitted,'%Y-%m-%d') = '".JFactory::getDate()->format('Y-m-d')."' AND FormId='".$row->FormId."'");
 			$row->_todaySubmissions = $this->_db->loadResult();
 
-			$this->_db->setQuery("SELECT COUNT(`SubmissionId`) cnt FROM #__rsform_submissions WHERE date_format(DateSubmitted,'%Y-%m') = '".date('Y-m')."' AND FormId='".$row->FormId."'");
+			$this->_db->setQuery("SELECT COUNT(`SubmissionId`) cnt FROM #__rsform_submissions WHERE date_format(DateSubmitted,'%Y-%m') = '".JFactory::getDate()->format('Y-m')."' AND FormId='".$row->FormId."'");
 			$row->_monthSubmissions = $this->_db->loadResult();
 
 			$this->_db->setQuery("SELECT COUNT(`SubmissionId`) cnt FROM #__rsform_submissions WHERE FormId='".$row->FormId."'");
@@ -625,7 +687,7 @@ class RSFormModelForms extends JModelLegacy
 		{
 			// Post to another location
 			$formId = $post['formId'];
-			$db 	= JFactory::getDBO();
+			$db 	= JFactory::getDbo();
 
 			$db->setQuery("SELECT form_id FROM #__rsform_posts WHERE form_id='".(int) $formId."'");
 			if (!$db->loadResult())

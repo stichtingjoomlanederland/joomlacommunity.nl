@@ -7,10 +7,10 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSFormViewMenus extends JViewLegacy
+class RsformViewMenus extends JViewLegacy
 {
 	public function display($tpl = null) {
-		JToolBarHelper::title('RSForm! Pro','rsform');
+		JToolbarHelper::title('RSForm! Pro','rsform');
 		
 		$lang = JFactory::getLanguage();
 		$lang->load('com_rsform.sys', JPATH_ADMINISTRATOR);

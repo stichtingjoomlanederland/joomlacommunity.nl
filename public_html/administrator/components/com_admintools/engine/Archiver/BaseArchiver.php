@@ -3,7 +3,7 @@
  * Akeeba Engine
  * The modular PHP5 site backup engine
  *
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -449,7 +449,7 @@ abstract class BaseArchiver extends BaseFileManagement
 			// The compression succeeded
 			unset($udata);
 			$compressionMethod = 1;
-			$zdata             = aksubstr(aksubstr($zdata, 0, -4), 2);
+			$zdata             = aksubstr($zdata, 2, -4);
 			$c_len             = akstrlen($zdata);
 		}
 	}

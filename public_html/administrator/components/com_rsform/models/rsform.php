@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSFormModelRSForm extends JModelLegacy
+class RsformModelRsform extends JModelLegacy
 {
 	protected $isJ30;
 	protected $config;
@@ -82,14 +82,14 @@ class RSFormModelRSForm extends JModelLegacy
 				'target' 	=> ''
 			),
 			array(
-				'link' 		=> 'https://www.rsjoomla.com/support/documentation/view-knowledgebase/26-plugins-and-modules.html',
+				'link' 		=> 'https://www.rsjoomla.com/support/documentation/rsform-pro/plugins-and-modules.html',
 				'image' 	=> 'components/com_rsform/assets/images/samples.png',
 				'text' 		=> JText::_('RSFP_PLUGINS'),
 				'access' 	=> true,
 				'target' 	=> '_blank'
 			),
 			array(
-				'link' 		=> 'https://www.rsjoomla.com/support/documentation/view-knowledgebase/21-rsform-pro-user-guide.html',
+				'link' 		=> 'https://www.rsjoomla.com/support/documentation/rsform-pro.html',
 				'image' 	=> 'components/com_rsform/assets/images/docs.png',
 				'text' 		=> JText::_('RSFP_USER_GUIDE'),
 				'access' 	=> true,
@@ -105,10 +105,5 @@ class RSFormModelRSForm extends JModelLegacy
 		);
 		
 		return $buttons;
-	}
-	
-	public function getRevision() {
-		$version = new RSFormProVersion();
-		return $version->revision;
 	}
 }

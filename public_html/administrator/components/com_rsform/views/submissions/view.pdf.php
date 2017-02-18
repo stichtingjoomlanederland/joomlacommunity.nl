@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.view');
 
-class RSFormViewSubmissions extends JViewLegacy
+class RsformViewSubmissions extends JViewLegacy
 {
 	public function display($tpl = null) {
 		$lang = JFactory::getLanguage();

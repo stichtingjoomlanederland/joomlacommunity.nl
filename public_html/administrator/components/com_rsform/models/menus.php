@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.model');
 
-class RSFormModelMenus extends JModelLegacy
+class RsformModelMenus extends JModelLegacy
 {
 	var $_data = null;
 	var $_total = 0;
@@ -20,7 +20,7 @@ class RSFormModelMenus extends JModelLegacy
 	function __construct()
 	{
 		parent::__construct();
-		$this->_db = JFactory::getDBO();
+		$this->_db = JFactory::getDbo();
 		$this->_query = $this->_buildQuery();
 		
 		$mainframe = JFactory::getApplication();

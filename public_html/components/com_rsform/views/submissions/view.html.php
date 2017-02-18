@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSFormViewSubmissions extends JViewLegacy
+class RsformViewSubmissions extends JViewLegacy
 {
 	public function display($tpl = null) {
 		$this->params 	= JFactory::getApplication()->getParams('com_rsform');

@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.controller');
 
-class RSFormControllerComponents extends RSFormController
+class RsformControllerComponents extends RsformController
 {
 	function __construct()
 	{
@@ -23,12 +23,12 @@ class RSFormControllerComponents extends RSFormController
 		$this->registerTask('setrequired',   'changerequired');
 		$this->registerTask('unsetrequired', 'changerequired');
 
-		$this->_db = JFactory::getDBO();
+		$this->_db = JFactory::getDbo();
 	}
 
 	function save()
 	{
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 
 		$componentType 	   = JFactory::getApplication()->input->getInt('COMPONENTTYPE');
 		$componentIdToEdit = JFactory::getApplication()->input->getInt('componentIdToEdit');
@@ -143,7 +143,7 @@ class RSFormControllerComponents extends RSFormController
 
 	function saveOrdering()
 	{
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 		$post = JRequest::get('post');
 		foreach ($post as $key => $val)
 		{
@@ -252,7 +252,7 @@ class RSFormControllerComponents extends RSFormController
 	function copy()
 	{
 		$formId = JFactory::getApplication()->input->getInt('formId');
-		$db = JFactory::getDBO();
+		$db = JFactory::getDbo();
 		$db->setQuery("SELECT FormId FROM #__rsform_forms WHERE FormId != '".$formId."'");
 		if (!$db->loadResult())
 			return $this->setRedirect('index.php?option=com_rsform&task=forms.edit&formId='.$formId, JText::_('RSFP_NEED_MORE_FORMS'));

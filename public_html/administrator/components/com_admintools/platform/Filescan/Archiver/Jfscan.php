@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2016 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11,6 +11,7 @@ namespace Akeeba\Engine\Archiver;
 defined('AKEEBAENGINE') or die();
 
 use Akeeba\Engine\Factory;
+use Akeeba\Engine\Platform;
 use Psr\Log\LogLevel;
 
 // Load the diff engine
@@ -45,7 +46,7 @@ class Jfscan extends Base
 			\JLoader::import('joomla.html.parameter');
 			\JLoader::import('joomla.application.component.helper');
 
-			$db  = \JFactory::getDbo();
+			$db = Factory::getDatabase(Platform::getInstance()->get_platform_database_options());
 			$sql = $db->getQuery(true)
 					  ->select($db->qn('params'))
 					  ->from($db->qn('#__extensions'))
@@ -164,7 +165,7 @@ class Jfscan extends Base
 			$filedata->data = gzdeflate(@file_get_contents($sourceNameOrData), 9);
 		}
 
-		$db = \JFactory::getDbo();
+		$db = Factory::getDatabase(Platform::getInstance()->get_platform_database_options());
 
 		if (class_exists('ReflectionClass') && (count($db->getLog()) > 100))
 		{
@@ -372,7 +373,7 @@ ENDFILEDATA;
 		}
 
 		$alertRecord = (object)$alertRecord;
-		$db          = \JFactory::getDbo();
+		$db = Factory::getDatabase(Platform::getInstance()->get_platform_database_options());
 		$db->insertObject('#__admintools_scanalerts', $alertRecord);
 		unset($alertRecord);
 	}

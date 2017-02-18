@@ -7,11 +7,11 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSFormViewDirectory extends JViewLegacy
+class RsformViewDirectory extends JViewLegacy
 {
 	public function display($tpl = null) {
 		// set title
-		JToolBarHelper::title('RSForm! Pro', 'rsform');
+		JToolbarHelper::title('RSForm! Pro', 'rsform');
 		
 		// adding the toolbar on 2.5
 		if (!RSFormProHelper::isJ('3.0')) {
@@ -21,12 +21,12 @@ class RSFormViewDirectory extends JViewLegacy
 		$layout = strtolower($this->getLayout());
 		
 		if ($layout == 'edit') {
-			JToolBarHelper::apply('directory.apply');
-			JToolBarHelper::save('directory.save');
-			JToolBarHelper::cancel('directory.cancel');
+			JToolbarHelper::apply('directory.apply');
+			JToolbarHelper::save('directory.save');
+			JToolbarHelper::cancel('directory.cancel');
 			
 			$backIcon = RSFormProHelper::isJ('3.0') ? 'previous' : 'back';
-			JToolBarHelper::custom('directory.cancelform', $backIcon, $backIcon, JText::_('RSFP_BACK_TO_FORM'), false);
+			JToolbarHelper::custom('directory.cancelform', $backIcon, $backIcon, JText::_('RSFP_BACK_TO_FORM'), false);
 			
 			RSFormProHelper::loadCodeMirror();
 			
@@ -46,7 +46,7 @@ class RSFormViewDirectory extends JViewLegacy
 			$this->emails = $this->get('emails');
 		} else {
 			$this->addToolbar();
-			JToolBarHelper::title(JText::_('RSFP_SUBM_DIR'),'rsform');
+			JToolbarHelper::title(JText::_('RSFP_SUBM_DIR'),'rsform');
 			JToolbarHelper::deleteList('','directory.remove');
 			
 			$this->sidebar		= $this->get('Sidebar');

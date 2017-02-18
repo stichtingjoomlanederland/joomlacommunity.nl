@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.application.component.controller');
 
-class RSFormControllerSubmissions extends RSFormController
+class RsformControllerSubmissions extends RsformController
 {
 	function __construct()
 	{
@@ -22,7 +22,7 @@ class RSFormControllerSubmissions extends RSFormController
 		$this->registerTask('exportExcelXML', 	'export');
 		$this->registerTask('exportXML', 		'export');
 		
-		$this->_db = JFactory::getDBO();
+		$this->_db = JFactory::getDbo();
 	}
 
 	function manage()

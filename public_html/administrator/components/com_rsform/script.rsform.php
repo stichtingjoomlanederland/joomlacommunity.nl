@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2017 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/licenses/gpl-2.0.html
 */
 
@@ -992,21 +992,10 @@ class com_rsformInstallerScript
 			<?php } ?>
 			<?php } ?>
 		<?php } ?>
-		<h2>Changelog v1.52.5</h2>
+		<h2>Changelog v1.52.9</h2>
 		<ul class="version-history">
-			<li><span class="version-upgraded">Upg</span> {if} scripting now allows you to compare multiple values.</li>
-			<li><span class="version-upgraded">Upg</span> {global:formid} placeholder is now available.</li>
-			<li><span class="version-upgraded">Upg</span> Multiple Validation Rules - 'Extra Characters' fields now display the Validation Rule to properly identify them.</li>
-			<li><span class="version-fixed">Fix</span> Sequential Ticket option was not working correctly.</li>
-			<li><span class="version-fixed">Fix</span> 'Email Address' Validation Rule no longer trims values before validation.</li>
-			<li><span class="version-fixed">Fix</span> Calculation was not updating the correct Total value field in some cases.</li>
-			<li><span class="version-fixed">Fix</span> Date and Time Picker was throwing a Javascript error when using a particular Date Modifier setting.</li>
-			<li><span class="version-fixed">Fix</span> In some particular cases, assets were being loaded after the page has been rendered.</li>
-			<li><span class="version-fixed">Fix</span> uikit FontAwesome was not loaded on Chrome / Safari browsers.</li>
-			<li><span class="version-fixed">Fix</span> When duplicating a form, Upload fields 'Attach to' property did not carry over Additional Emails.</li>
-			<li><span class="version-fixed">Fix</span> When duplicating a form, Calendar and Date Time Picker fields 'Date Modifier' property did not carry over.</li>
-			<li><span class="version-fixed">Fix</span> Workaround for Google Chrome 55 not displaying the interface correctly due to a browser bug.</li>
-			
+			<li><span class="version-fixed">Fix</span> Form Title will now show up in listings according to the language the form was last edited in.</li>
+			<li><span class="version-fixed">Fix</span> When changing the language of Directory Emails, they were incorrectly transferred to the Additional Emails area.</li>
 		</ul>
 		<a class="com-rsform-button" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="com-rsform-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/21-rsform-pro-user-guide.html" target="_blank">Read the RSForm! Pro User Guide</a>

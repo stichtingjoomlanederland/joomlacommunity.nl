@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2016 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
  * @license   GNU General Public License version 3, or later
  */
 
@@ -72,6 +72,21 @@ defined('_JEXEC') or die;
 	<div class="controls">
 		<input type="text" size="20" name="adminpw" value="<?php echo $this->escape($this->wafconfig['adminpw']); ?>"/>
 	</div>
+</div>
+
+<div class="control-group">
+    <label class="control-label" for="selfprotect"
+           rel="popover"
+           data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_SELFPROTECT'); ?>"
+           data-content="<?php echo JText::sprintf('COM_ADMINTOOLS_CONFIGUREWAF_SELFPROTECT_TIP', 'plugins/system/admintools') ?>"
+    >
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_SELFPROTECT'); ?>
+    </label>
+
+    <div class="controls">
+		<?php echo Select::booleanlist('selfprotect', array(), $this->wafconfig['selfprotect']); ?>
+
+    </div>
 </div>
 
 <div class="control-group">

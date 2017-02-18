@@ -8,7 +8,7 @@
 defined('_JEXEC') or die('Restricted access');
 jimport( 'joomla.application.component.view');
 
-class RSFormViewDirectory extends JViewLegacy
+class RsformViewDirectory extends JViewLegacy
 {
 	public function display( $tpl = null ) {
 		$this->app 			= JFactory::getApplication();
