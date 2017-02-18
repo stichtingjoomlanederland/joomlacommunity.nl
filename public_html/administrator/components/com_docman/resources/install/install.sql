@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS `#__docman_documents` (
   `uuid` char(36) NOT NULL UNIQUE,
   `title` varchar(255) NOT NULL,
   `slug` varchar(255) NOT NULL UNIQUE,
-  `docman_category_id` bigint(20) NOT NULL,
+  `docman_category_id` bigint(20) UNSIGNED NOT NULL,
   `description` longtext,
   `image` varchar(512) NOT NULL default '',
   `storage_type` varchar(64) NOT NULL default '',
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS `#__docman_documents` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__docman_categories` (
-    `docman_category_id` int(11) NOT NULL AUTO_INCREMENT,
+    `docman_category_id` SERIAL,
   	`uuid` char(36) NOT NULL UNIQUE,
     `title` varchar(255) NOT NULL,
     `slug` varchar(255) NOT NULL UNIQUE,
@@ -42,20 +42,19 @@ CREATE TABLE IF NOT EXISTS `#__docman_categories` (
     `created_by` bigint(20) NOT NULL default 0,
     `modified_on` datetime NOT NULL default '0000-00-00 00:00:00',
     `modified_by` bigint(20) NOT NULL default 0,
-    `asset_id` INTEGER UNSIGNED NOT NULL DEFAULT 0,
-    PRIMARY KEY (`docman_category_id`)
+    `asset_id` INTEGER UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__docman_category_relations` (
-  `ancestor_id` int(11) unsigned NOT NULL DEFAULT '0',
-  `descendant_id` int(11) unsigned NOT NULL DEFAULT '0',
+  `ancestor_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `descendant_id` bigint(20) unsigned NOT NULL DEFAULT '0',
   `level` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`ancestor_id`, `descendant_id`, `level`),
   KEY `path_index` (`descendant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__docman_category_orderings` (
-  `docman_category_id` int(11) unsigned NOT NULL,
+  `docman_category_id` bigint(20) unsigned NOT NULL,
   `title` int(11) NOT NULL DEFAULT '0',
   `custom` int(11) NOT NULL DEFAULT '0',
   `created_on` int(11) NOT NULL DEFAULT '0',
@@ -71,7 +70,7 @@ CREATE TABLE IF NOT EXISTS `#__docman_levels` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__docman_category_folders` (
-  `docman_category_id` int(11) unsigned NOT NULL,
+  `docman_category_id` bigint(20) unsigned NOT NULL,
   `folder` varchar(4096) NOT NULL DEFAULT '',
   `automatic` tinyint(1) NOT NULL DEFAULT '0',
   UNIQUE KEY `docman_category_id` (`docman_category_id`)

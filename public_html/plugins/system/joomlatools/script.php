@@ -137,8 +137,39 @@ class PlgSystemJoomlatoolsInstallerScript
                 return false;
             }
 
-            if (!JFolder::exists(JPATH_LIBRARIES.'/joomlatools-components')) {
-                JFolder::create(JPATH_LIBRARIES.'/joomlatools-components');
+            $components_source = $source.'/libraries/joomlatools-components';
+            $components_target = JPATH_LIBRARIES.'/joomlatools-components';
+
+            if (!JFolder::exists($components_target)) {
+                JFolder::create($components_target);
+            }
+
+            // Move reusable components
+            $components = JFolder::folders($components_source);
+
+            foreach ($components as $component)
+            {
+                $from = $components_source.'/'.$component;
+                $to   = $components_target.'/'.$component;
+
+                if (is_link($to)) {
+                    continue;
+                }
+
+                $this->_moveFolder($from, $to);
+            }
+
+            // Remove reusable components from the joomlatools folder as they have their own folder now
+            if ($type === 'update')
+            {
+                $components = ['activites', 'ckeditor', 'files', 'migrator', 'scheduler', 'tags'];
+                foreach ($components as $component) {
+                    $component_path = JPATH_LIBRARIES.'/joomlatools/component/'.$component;
+
+                    if (is_dir($component_path)) {
+                        JFolder::delete($component_path);
+                    }
+                }
             }
 
             // Create media folder
@@ -155,7 +186,7 @@ class PlgSystemJoomlatoolsInstallerScript
                 $this->_moveFolder($assets, $target);
             }
 
-            // Move component assets
+            // Move com_koowa assets
             $results = glob(JPATH_LIBRARIES . '/joomlatools/component/*/resources/assets', GLOB_ONLYDIR);
 
             foreach ($results as $result)
@@ -168,7 +199,21 @@ class PlgSystemJoomlatoolsInstallerScript
                 }
 
                 $this->_moveFolder($result, $target);
+            }
 
+            // Move component assets
+            $results = glob($components_target.'/*/resources/assets', GLOB_ONLYDIR);
+
+            foreach ($results as $result)
+            {
+                $component = preg_replace('#^.*?joomlatools-components/([^/]+)/resources/assets#', '$1', $result);
+                $target    = $media.'/com_'.$component;
+
+                if (!$component || is_link($target)) {
+                    continue;
+                }
+
+                $this->_moveFolder($result, $target);
             }
         }
 
@@ -248,7 +293,7 @@ class PlgSystemJoomlatoolsInstallerScript
 
     protected function _runQueries()
     {
-        $results = glob(JPATH_LIBRARIES . '/joomlatools/component/*/resources/install/install.sql');
+        $results = glob(JPATH_LIBRARIES . '/joomlatools-components/*/resources/install/install.sql');
         $queries = array();
 
         $db = JFactory::getDbo();

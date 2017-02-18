@@ -254,7 +254,7 @@ kQuery(function($) {
                                     self.documents_created = true;
 
                                     var item = response.entities[0],
-                                        link = item.links.self.href,
+                                        link = item.links.self.href.replace(/&amp;/g, '&'),
                                         text = Koowa.translate('Continue editing this document: {document}');
 
                                     f.empty();

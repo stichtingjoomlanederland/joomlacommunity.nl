@@ -444,14 +444,14 @@ class ComDocmanModelDocuments extends ComDocmanModelAbstract
 
                     break;
                 case 'any':
-                    $query->where('(tbl.title RLIKE :search OR tbl.description OR contents.contents RLIKE :search)')
+                    $query->where('(tbl.title RLIKE :search OR tbl.description RLIKE :search OR contents.contents RLIKE :search)')
                         ->bind(array('search' => implode('|', explode(' ', $search))));
 
                     break;
                 case 'all':
                     $i = 0;
                     foreach (explode(' ', $search) as $keyword) {
-                        $query->where("(tbl.title LIKE :search$i OR tbl.description OR contents.contents LIKE :search$i)")
+                        $query->where("(tbl.title LIKE :search$i OR tbl.description LIKE :search$i  OR contents.contents LIKE :search$i)")
                             ->bind(array("search$i" => '%'.$keyword.'%'));
                         $i++;
                     }

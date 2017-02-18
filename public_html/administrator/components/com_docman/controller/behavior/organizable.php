@@ -430,7 +430,7 @@ class ComDocmanControllerBehaviorOrganizable extends KControllerBehaviorAbstract
             {
                 $relation = $this->_getRelation($document->docman_category_id);
 
-                if (!$relation->isNew())
+                if (!$relation->isNew() && !empty($relation->folder))
                 {
                     $controller = $this->_getFileController();
 

@@ -26,4 +26,9 @@ class ComDocmanControllerPermissionDownload extends ComDocmanControllerPermissio
 
         return (bool) $result;
     }
+
+    public function canRender()
+    {
+        return $this->canRead();
+    }
 }

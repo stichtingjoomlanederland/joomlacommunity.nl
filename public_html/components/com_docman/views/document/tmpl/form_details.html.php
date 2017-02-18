@@ -61,13 +61,3 @@ defined('KOOWA') or die; ?>
         'selected' => $document->docman_category_id
   ))?>
 </div>
-
-<? if(empty($hide_tag_field)) : ?>
-<div class="k-form-group">
-    <label><?= translate('Tags'); ?></label>
-    <?= helper('listbox.tags', array(
-        'entity' => $document,
-        'autocreate' => $can_create_tag
-    )); ?>
-</div>
-<? endif; ?>

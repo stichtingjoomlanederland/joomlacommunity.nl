@@ -30,7 +30,7 @@ kQuery(function($) {
         deletable_container = null;
     }
 
-    $(delete_items_btn).addClass('k-is-disabled').data('prompt', false);
+    $(delete_items_btn).addClass('k-is-disabled disabled').data('prompt', false);
 
     var deleteItem = function(element) {
 
@@ -51,7 +51,7 @@ kQuery(function($) {
                     url : path,
                     data : data,
                     beforeSend : function () {
-                        elem.addClass('k-is-disabled');
+                        elem.addClass('k-is-disabled disabled');
                     }
                 }).done(function() {
                     var container = elem;
@@ -74,9 +74,9 @@ kQuery(function($) {
       $(this).closest(deletable).toggleClass('selected');
 
       if($(item_checkbox + ':checked').length) {
-         $(delete_items_btn).removeClass('k-is-disabled');
+         $(delete_items_btn).removeClass('k-is-disabled disabled');
       } else {
-         $(delete_items_btn).addClass('k-is-disabled');
+         $(delete_items_btn).addClass('k-is-disabled disabled');
       }
   }).on('click', delete_item_btn, function( event ){
       //delete item event handler
@@ -87,7 +87,7 @@ kQuery(function($) {
           elem = $this.closest(deletable),
           prompt = request_prompt || $this.data('prompt');
 
-      if ($this.hasClass('k-is-disabled')) {
+      if ($this.hasClass('k-is-disabled') || $this.hasClass('disabled')) {
           return;
       }
 
@@ -113,6 +113,6 @@ kQuery(function($) {
           });
       }
 
-      $(delete_items_btn).addClass('k-is-disabled');
+      $(delete_items_btn).addClass('k-is-disabled disabled');
   });
 });

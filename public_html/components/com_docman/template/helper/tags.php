@@ -49,8 +49,8 @@ class ComDocmanTemplateHelperTags extends KTemplateHelperAbstract
 
         if ($menu->query['view'] !== 'document')
         {
-            $group = $menu->query['view'] === 'flat' ? 'tag[]' : 'filter[tag][]';
-            $link  = sprintf('index.php?Itemid=%d&%s=', $menu->id, $group);
+            $group  = $menu->query['view'] === 'flat' ? 'tag[]' : 'filter[tag][]';
+            $link   = sprintf($menu->link.'&Itemid=%d&%s=', $menu->id, $group);
 
             $tags = preg_replace_callback('#\{([^\}]+)\}#i', function($matches) use ($link) {
                 if ($matches[0] === '{/}') {

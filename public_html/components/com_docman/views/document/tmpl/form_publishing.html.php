@@ -81,6 +81,24 @@ defined('KOOWA') or die; ?>
 
 </fieldset>
 
+<? if(empty($hide_tag_field)) : ?>
+<fieldset class="k-form-block">
+
+    <div class="k-form-block__header">
+        <?= translate('Tags') ?>
+    </div>
+
+    <div class="k-form-block__content">
+        <div class="k-form-group">
+            <?= helper('listbox.tags', array(
+                'entity' => $document,
+                'autocreate' => $can_create_tag
+            )) ?>
+        </div>
+    </div>
+</fieldset>
+<? endif ?>
+
 <fieldset class="k-form-block">
 
     <div class="k-form-block__header">

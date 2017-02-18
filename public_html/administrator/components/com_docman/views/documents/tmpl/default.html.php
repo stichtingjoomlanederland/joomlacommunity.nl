@@ -51,10 +51,10 @@ defined('KOOWA') or die; ?>
                 </script>
             <? endif; ?>
 
-            <!-- Component -->
+            <!-- Component wrapper -->
             <div class="k-component-wrapper">
 
-                <!-- Form -->
+                <!-- Component -->
                 <form class="k-component k-js-component k-js-grid-controller " action="" method="get">
 
                     <!-- Breadcrumbs -->

@@ -23,6 +23,10 @@ class ComDocmanMigratorExport extends ComMigratorMigratorExportAbstract
                         'label'      => 'Exporting documents',
                         'table'      => 'docman_documents'
                     ),
+                    'export_document_contents' => array(
+                        'label'      => 'Exporting document contents',
+                        'table'      => 'docman_document_contents'
+                    ),
                     'export_categories'         => array(
                         'label'      => 'Exporting categories',
                         'table'      => 'docman_categories'
@@ -100,22 +104,14 @@ class ComDocmanMigratorExport extends ComMigratorMigratorExportAbstract
                                 'element' => 'com_docman'
                             ));
                         }
-                    )
-                )
-            )
-        );
-
-        if (in_array(substr($config->version, 0, 3), array('2.1', '3.0')))
-        {
-            $config->append(array(
-                'jobs' => array(
+                    ),
                     'export_levels' => array(
                         'label'      => 'Exporting access levels',
                         'table'      => 'docman_levels'
                     )
                 )
-            ));
-        }
+            )
+        );
 
         parent::_initialize($config);
     }

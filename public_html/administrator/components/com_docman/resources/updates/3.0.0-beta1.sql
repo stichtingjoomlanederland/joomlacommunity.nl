@@ -8,8 +8,14 @@ ALTER TABLE `#__docman_levels` ENGINE=InnoDB;
 ALTER TABLE `#__files_thumbnails` ENGINE=InnoDB;
 ALTER TABLE `#__files_containers` ENGINE=InnoDB;
 
+ALTER TABLE `#__docman_documents` CHANGE `docman_document_id` `docman_document_id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+ALTER TABLE `#__docman_categories` CHANGE `docman_category_id` `docman_category_id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+ALTER TABLE `#__docman_category_relations` CHANGE `ancestor_id` `ancestor_id` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `#__docman_category_relations` CHANGE `descendant_id` `descendant_id` BIGINT(20) UNSIGNED NOT NULL DEFAULT '0';
+ALTER TABLE `#__docman_category_orderings` CHANGE `docman_category_id` `docman_category_id` BIGINT(20) UNSIGNED NOT NULL;
+
 CREATE TABLE IF NOT EXISTS `#__docman_category_folders` (
-  `docman_category_id` int(11) unsigned NOT NULL,
+  `docman_category_id` bigint(20) unsigned NOT NULL,
   `folder` varchar(4096) NOT NULL DEFAULT '',
   `automatic` tinyint(1) NOT NULL DEFAULT '0',
   UNIQUE KEY `docman_category_id` (`docman_category_id`)

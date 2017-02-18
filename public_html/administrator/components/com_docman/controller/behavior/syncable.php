@@ -26,7 +26,7 @@ class ComDocmanControllerBehaviorSyncable extends KControllerBehaviorAbstract
         try
         {
             if ($name === 'file') {
-                $this->addFile($context->result->path);
+                $this->addFile($context->result->path, $context->result);
             } else if ($name === 'folder') {
                 $this->addFolder($context->result->path);
             }
@@ -192,7 +192,7 @@ class ComDocmanControllerBehaviorSyncable extends KControllerBehaviorAbstract
         {
             $query = $this->getObject('database.query.insert')
                 ->table('docman_files')
-                ->columns(array('folder', 'name'));
+                ->columns(array('folder', 'name', 'modified_on'));
 
             $query_count = 0;
 
@@ -200,7 +200,7 @@ class ComDocmanControllerBehaviorSyncable extends KControllerBehaviorAbstract
             {
                 $file = $insert[$i];
 
-                $query->values($this->_splitPath($file));
+                $query->values(array_merge($this->_splitPath($file), [$this->_getModifiedTime($path.'/'.$file)]));
 
                 $query_count++;
 
@@ -263,7 +263,7 @@ class ComDocmanControllerBehaviorSyncable extends KControllerBehaviorAbstract
         {
             $query = $this->getObject('database.query.insert')
                 ->table('docman_folders')
-                ->columns(array('folder', 'name'));
+                ->columns(array('folder', 'name', 'modified_on'));
 
             $query_count = 0;
 
@@ -271,7 +271,7 @@ class ComDocmanControllerBehaviorSyncable extends KControllerBehaviorAbstract
             {
                 $file = $insert[$i];
 
-                $query->values($this->_splitPath($file));
+                $query->values(array_merge($this->_splitPath($file), [$this->_getModifiedTime($path.'/'.$file)]));
 
                 $query_count++;
 
@@ -287,6 +287,17 @@ class ComDocmanControllerBehaviorSyncable extends KControllerBehaviorAbstract
                 }
             }
         }
+    }
+
+    protected function _getModifiedTime($path)
+    {
+        $modified = @filemtime($path);
+
+        if ($modified) {
+            $modified = date('Y-m-d H:i:s', $modified);
+        }
+
+        return $modified;
     }
 
     protected function _splitPath($path)
@@ -377,13 +388,14 @@ class ComDocmanControllerBehaviorSyncable extends KControllerBehaviorAbstract
         return $results;
     }
 
-    public function addFile($path)
+    public function addFile($path, $entity = null)
     {
         list($folder, $name) = $this->_splitPath($path);
 
         $row = $this->getObject('com://admin/docman.database.table.files')->createRow();
         $row->folder = $folder;
         $row->name   = $name;
+        $row->modified_on = $entity && $entity->modified_date ? date('Y-m-d H:i:s', $entity->modified_date) : null;
 
         return $row->save();
     }

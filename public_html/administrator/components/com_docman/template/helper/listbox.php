@@ -202,7 +202,7 @@ class ComDocmanTemplateHelperListbox extends ComKoowaTemplateHelperListbox
     {
         $config = new KObjectConfigJson($config);
         $config->append(array(
-            'model' => 'com:files.model.folders',
+            'model' => 'com://admin/docman.model.folders',
             'filter' => array('container' => 'docman-files', 'tree' => true),
             'label' => 'path',
             'value' => 'path',
@@ -227,7 +227,7 @@ class ComDocmanTemplateHelperListbox extends ComKoowaTemplateHelperListbox
 
                 foreach ($entities as $entity) {
                     $options[] = $this->option(array('label' => $entity->{$config->label}, 'value' => $entity->{$config->value}));
-                    $this->_recurseChildFolders($entity, $options, $config);
+                    //$this->_recurseChildFolders($entity, $options, $config);
                 }
 
                 $offset += $limit;

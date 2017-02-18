@@ -11,7 +11,7 @@ defined('KOOWA') or die; ?>
 <div class="k-table-container">
     <div class="k-table">
 
-        <table class="k-js-fixed-table-header k-js-responsive-table">
+        <table class="k-js-responsive-table">
             <thead>
                 <tr>
                     <th width="1%" class="k-table-data--form">

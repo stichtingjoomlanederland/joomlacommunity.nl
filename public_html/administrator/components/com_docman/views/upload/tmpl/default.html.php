@@ -69,10 +69,10 @@ defined('_JEXEC') or die; ?>
                 </button>
             </div>
 
-            <!-- Component -->
+            <!-- Component wrapper -->
             <div class="k-component-wrapper">
 
-                <!-- Form layout -->
+                <!-- Component -->
                 <div class="k-component k-js-component">
 
                     <!-- Container -->

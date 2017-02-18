@@ -25,11 +25,11 @@ defined('KOOWA') or die; ?>
             <!-- Toolbar -->
             <ktml:toolbar type="actionbar">
 
-            <!-- Component -->
-            <div class="k-component">
+            <!-- Component wrapper -->
+            <div class="k-component-wrapper">
 
-                <!-- Form -->
-                <form class="k-flex-wrapper k-js-form-controller" action="<?= route('slug='. $document->slug.'&category_slug=' . $document->category_slug) ?>" method="post">
+                <!-- Component -->
+                <form class="k-component k-js-component k-js-form-controller" action="<?= route('slug='. $document->slug.'&category_slug=' . $document->category_slug) ?>" method="post">
 
                     <!-- Container -->
                     <div class="k-container">
@@ -56,9 +56,9 @@ defined('KOOWA') or die; ?>
 
                     </div><!-- .k-container -->
 
-                </form><!-- .k-form-layout -->
+                </form><!-- .k-component -->
 
-            </div><!-- .k-component -->
+            </div><!-- .k-component-wrapper -->
 
         </div><!-- .k-content -->
 

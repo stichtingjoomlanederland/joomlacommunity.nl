@@ -38,10 +38,10 @@ defined('KOOWA') or die; ?>
         <!-- Content -->
         <div class="k-content k-js-content">
 
-            <!-- Component -->
+            <!-- Component wrapper -->
             <div class="k-component-wrapper">
 
-                <!-- Form -->
+                <!-- Component -->
                 <div class="k-component k-js-component">
 
                     <? // Only show if there are actually menu items available ?>

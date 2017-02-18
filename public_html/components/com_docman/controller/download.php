@@ -29,7 +29,7 @@ class ComDocmanControllerDownload extends ComDocmanControllerDocument
         {
             $request = $this->getRequest();
 
-            if ($request->isSafe() && $request->getFormat() == 'html' && $context->getName() == 'before.read')
+            if ($request->isSafe() && $request->getFormat() == 'html' && $context->getName() == 'before.render')
             {
                 // Re-direct the user to the previous location (using the controller referrer).
                 $url     = $this->getReferrer($context);

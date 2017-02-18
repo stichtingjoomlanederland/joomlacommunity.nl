@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     Joomlatools
- * @copyright   Copyright (C) 2016 Timble CVBA (http://www.timble.net)
+ * @copyright   Copyright (C) 2017 Timble CVBA (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -279,7 +279,11 @@ class JoomlatoolsInstallerHelper
                 $type      = (string)$dependency->attributes()->type;
                 $element   = (string)$dependency->attributes()->element;
                 $folder    = (string)$dependency->attributes()->folder;
-                $client_id = $type == 'component' ? 1 : 0;
+                $client_id = (int)(string)$dependency->attributes()->client_id;
+
+                if (empty($client_id)) {
+                    $client_id = $type == 'component' ? 1 : 0;
+                }
 
                 $extension_id = $this->getExtensionId(array(
                     'type' => $type,
@@ -423,6 +427,80 @@ class JoomlatoolsInstallerHelper
         $db->setQuery($query);
 
         return $db->loadResult();
+    }
+
+
+    /**
+     * Tests a list of DB privileges against the current application DB connection.
+     *
+     * @param array $privileges An array containing the privileges to be checked.
+     *
+     * @return array True An array containing the privileges that didn't pass the test, i.e. not granted.
+     */
+    protected function _checkDatabasePrivileges($privileges)
+    {
+        $privileges = (array) $privileges;
+
+        $db = JFactory::getDbo();
+
+        $query = 'SELECT @@SQL_MODE';
+        $db->setQuery($query);
+        $sql_mode = $db->loadResult();
+
+        $db_name = JFactory::getApplication()->getCfg('db');
+
+        // Quote and escape DB name.
+        if (strtolower($sql_mode) == 'ansi_quotes') {
+            // Double quotes as delimiters.
+            $db_name = '"' . str_replace('"', '""', $db_name) . '"';
+        } else {
+            $db_name = '`' . str_replace('`', '``', $db_name) . '`';
+        }
+
+        // Properly escape DB name.
+        $possible_tables = array(
+            '*.*',
+            $db_name . '.*',
+            strtolower($db_name . '*'),
+            str_replace('_', '\_', $db_name) . '.*',
+            strtolower(str_replace('_', '\_', $db_name) . '.*')
+        );
+
+        $db->setQuery('SHOW GRANTS');
+
+        $grants = $db->loadColumn();
+        $granted = array();
+
+        foreach ($grants as $grant)
+        {
+            if (stripos($grant, 'USAGE ON') === false)
+            {
+                foreach ($privileges as $privilege)
+                {
+                    $regex = '/(grant\s+|,\s*)' . $privilege . '(\s*,|\s+on)/i';
+
+                    if (stripos($grant, 'ALL PRIVILEGES') || preg_match($regex, $grant))
+                    {
+                        // Check tables
+                        $tables = substr($grant, stripos($grant, ' ON ') + 4);
+                        $tables = substr($tables, 0, stripos($tables, ' TO'));
+                        $tables = trim($tables);
+
+                        if (in_array($tables, $possible_tables)) {
+                            $granted[] = $privilege;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // Proceed with installation if user is granted USAGE
+                $granted = $privileges;
+                break;
+            }
+        }
+
+        return array_diff($privileges, $granted);
     }
 
     protected function _migrate()

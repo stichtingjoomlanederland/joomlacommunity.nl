@@ -31,10 +31,10 @@ defined('KOOWA') or die; ?>
             <!-- Toolbar -->
             <ktml:toolbar type="actionbar">
 
-            <!-- Component -->
+            <!-- Component wrapper -->
             <div class="k-component-wrapper">
 
-                <!-- Form -->
+                <!-- Component -->
                 <form class="k-component k-js-component k-js-form-controller" action="" method="post">
 
                     <!-- Container -->
@@ -96,16 +96,6 @@ defined('KOOWA') or die; ?>
                                         'selected' => $document->docman_category_id
                                     ))?>
                                 </div>
-
-                                <? if(empty($hide_tag_field)) : ?>
-                                <div class="k-form-group">
-                                    <label><?= translate('Tags'); ?></label>
-                                    <?= helper('listbox.tags', array(
-                                          'entity' => $document,
-                                          'autocreate' => $can_create_tag
-                                        )) ?>
-                                </div>
-                                <? endif ?>
 
                                 <div class="k-form-group">
                                     <?= helper('editor.display', array(
@@ -190,6 +180,24 @@ defined('KOOWA') or die; ?>
                                 </div>
 
                             </fieldset>
+
+                            <? if(empty($hide_tag_field)) : ?>
+                            <fieldset class="k-form-block">
+
+                                <div class="k-form-block__header">
+                                    <?= translate('Tags') ?>
+                                </div>
+
+                                <div class="k-form-block__content">
+                                    <div class="k-form-group">
+                                        <?= helper('listbox.tags', array(
+                                            'entity' => $document,
+                                            'autocreate' => $can_create_tag
+                                        )) ?>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <? endif ?>
 
                             <fieldset class="k-form-block">
 

@@ -66,169 +66,167 @@ class ComDocmanMigratorImport extends ComMigratorMigratorImportAbstract
 
         if (in_array($source, array('2.0', '2.1', '3.0')))
         {
-            $config->append(array(
-                'jobs'      => array(
-                    'check' => array(
-                        'action' => 'check',
-                        'label'     => 'Checking your system',
-                    ),
-                    'insert_documents'          => array(
-                        'action'    => 'insert',
-                        'chunkable' => true,
-                        'label'     => 'Inserting documents',
-                        'source'    => 'docman_documents',
-                        'table'     => 'docman_documents_mig',
-                        'create_from'    => 'docman_documents'
-                    ),
-                    'insert_categories'         => array(
-                        'action'    => 'insert',
-                        'chunkable' => true,
-                        'label'     => 'Inserting categories',
-                        'source'    => 'docman_categories',
-                        'table'     => 'docman_categories_mig',
-                        'create_from'    => 'docman_categories'
-                    ),
-                    'insert_category_relations' => array(
-                        'action'    => 'insert',
-                        'chunkable' => true,
-                        'label'     => 'Inserting category relations',
-                        'source'    => 'docman_category_relations',
-                        'table'     => 'docman_category_relations_mig',
-                        'create_from'    => 'docman_category_relations'
-                    ),
-                    'insert_category_orderings' => array(
-                        'action'    => 'insert',
-                        'chunkable' => true,
-                        'label'     => 'Inserting category orderings',
-                        'source'    => 'docman_category_orderings',
-                        'table'     => 'docman_category_orderings_mig',
-                        'create_from'    => 'docman_category_orderings'
-                    ),
-                    'insert_menu'   => array(
-                        'action'    => 'insert',
-                        'chunkable' => true,
-                        'label'     => 'Inserting menus',
-                        'source'    => 'menu',
-                        'table'     => 'docman_menu_mig',
-                        'create_from'    => 'menu',
-                    ),
-                    'insert_modules'          => array(
-                        'action'    => 'insert',
-                        'chunkable' => true,
-                        'label'     => 'Inserting modules',
-                        'source'    => 'modules',
-                        'table'     => 'docman_modules_mig',
-                        'create_from'    => 'modules',
-                    ),
-                    'insert_containers'          => array(
-                        'action'    => 'insert',
-                        'chunkable' => true,
-                        'label'     => 'Inserting containers',
-                        'source'    => 'files_containers',
-                        'table'     => 'docman_containers_mig',
-                        'create_from'    => 'files_containers',
-                    ),
-                    'insert_assets'   => array(
-                        'action'      => 'insert',
-                        'chunkable'   => true,
-                        'label'       => 'Inserting assets',
-                        'source'      => 'assets',
-                        'table'       => 'docman_assets_mig',
-                        'create_from' => 'assets'
-                    ),
-                    'move_categories'           => array(
-                        'action' => 'move',
-                        'label'  => 'Moving categories',
-                        'source' => 'docman_categories_mig',
-                        'target' => 'docman_categories'
-                    ),
-                    'move_documents'            => array(
-                        'action' => 'move',
-                        'label'  => 'Moving Documents',
-                        'source' => 'docman_documents_mig',
-                        'target' => 'docman_documents'
-                    ),
-                    'move_category_relations'   => array(
-                        'action' => 'move',
-                        'label'  => 'Moving category relations',
-                        'source' => 'docman_category_relations_mig',
-                        'target' => 'docman_category_relations'
-                    ),
-                    'move_category_orderings'   => array(
-                        'action' => 'move',
-                        'label'  => 'Moving category orderings',
-                        'source' => 'docman_category_orderings_mig',
-                        'target' => 'docman_category_orderings'
-                    ),
-                    'import_modules' => array(
-                        'action' => 'copy',
-                        'label'  => 'Importing modules',
-                        'source' => 'docman_modules_mig',
-                        'target' => 'modules',
-                        'skip_primary_key' => true,
-                    ),
-                    'import_assets' => array(
-                        'action'    => 'import_assets',
-                        'label'     => 'Importing assets',
-                        'source'    => 'docman_assets_mig',
-                        'target'    => 'assets',
-                        'extension' => 'com_docman',
-                        'tables'    => array(
-                            array('docman_documents',  'com_docman.document', 'docman_document_id'),
-                            array('docman_categories', 'com_docman.category', 'docman_category_id')
-                        )
-                    ),
-                    'set_asset_parents' => array(
-                        'action' => 'query',
-                        'label'  => 'Rebuilding assets',
-                        'after'  => 'import_assets',
-                        'query'  => /** @lang text */"
+            $config->jobs->append(array(
+                'check' => array(
+                    'action' => 'check',
+                    'label'     => 'Checking your system',
+                ),
+                'insert_documents'          => array(
+                    'action'    => 'insert',
+                    'chunkable' => true,
+                    'label'     => 'Inserting documents',
+                    'source'    => 'docman_documents',
+                    'table'     => 'docman_documents_mig',
+                    'create_from'    => 'docman_documents'
+                ),
+                'insert_categories'         => array(
+                    'action'    => 'insert',
+                    'chunkable' => true,
+                    'label'     => 'Inserting categories',
+                    'source'    => 'docman_categories',
+                    'table'     => 'docman_categories_mig',
+                    'create_from'    => 'docman_categories'
+                ),
+                'insert_category_relations' => array(
+                    'action'    => 'insert',
+                    'chunkable' => true,
+                    'label'     => 'Inserting category relations',
+                    'source'    => 'docman_category_relations',
+                    'table'     => 'docman_category_relations_mig',
+                    'create_from'    => 'docman_category_relations'
+                ),
+                'insert_category_orderings' => array(
+                    'action'    => 'insert',
+                    'chunkable' => true,
+                    'label'     => 'Inserting category orderings',
+                    'source'    => 'docman_category_orderings',
+                    'table'     => 'docman_category_orderings_mig',
+                    'create_from'    => 'docman_category_orderings'
+                ),
+                'insert_menu'   => array(
+                    'action'    => 'insert',
+                    'chunkable' => true,
+                    'label'     => 'Inserting menus',
+                    'source'    => 'menu',
+                    'table'     => 'docman_menu_mig',
+                    'create_from'    => 'menu',
+                ),
+                'insert_modules'          => array(
+                    'action'    => 'insert',
+                    'chunkable' => true,
+                    'label'     => 'Inserting modules',
+                    'source'    => 'modules',
+                    'table'     => 'docman_modules_mig',
+                    'create_from'    => 'modules',
+                ),
+                'insert_containers'          => array(
+                    'action'    => 'insert',
+                    'chunkable' => true,
+                    'label'     => 'Inserting containers',
+                    'source'    => 'files_containers',
+                    'table'     => 'docman_containers_mig',
+                    'create_from'    => 'files_containers',
+                ),
+                'insert_assets'   => array(
+                    'action'      => 'insert',
+                    'chunkable'   => true,
+                    'label'       => 'Inserting assets',
+                    'source'      => 'assets',
+                    'table'       => 'docman_assets_mig',
+                    'create_from' => 'assets'
+                ),
+                'move_documents'            => array(
+                    'action' => 'move',
+                    'label'  => 'Moving Documents',
+                    'source' => 'docman_documents_mig',
+                    'target' => 'docman_documents'
+                ),
+                'move_categories'           => array(
+                    'action' => 'move',
+                    'label'  => 'Moving categories',
+                    'source' => 'docman_categories_mig',
+                    'target' => 'docman_categories'
+                ),
+                'move_category_relations'   => array(
+                    'action' => 'move',
+                    'label'  => 'Moving category relations',
+                    'source' => 'docman_category_relations_mig',
+                    'target' => 'docman_category_relations'
+                ),
+                'move_category_orderings'   => array(
+                    'action' => 'move',
+                    'label'  => 'Moving category orderings',
+                    'source' => 'docman_category_orderings_mig',
+                    'target' => 'docman_category_orderings'
+                ),
+                'import_modules' => array(
+                    'action' => 'copy',
+                    'label'  => 'Importing modules',
+                    'source' => 'docman_modules_mig',
+                    'target' => 'modules',
+                    'skip_primary_key' => true,
+                ),
+                'import_assets' => array(
+                    'action'    => 'import_assets',
+                    'label'     => 'Importing assets',
+                    'source'    => 'docman_assets_mig',
+                    'target'    => 'assets',
+                    'extension' => 'com_docman',
+                    'tables'    => array(
+                        array('docman_documents',  'com_docman.document', 'docman_document_id'),
+                        array('docman_categories', 'com_docman.category', 'docman_category_id')
+                    )
+                ),
+                'set_asset_parents' => array(
+                    'action' => 'query',
+                    'label'  => 'Rebuilding assets',
+                    'after'  => 'import_assets',
+                    'query'  => /** @lang text */"
 
-                            UPDATE #__assets AS current_asset
-                            LEFT JOIN #__docman_categories AS c ON c.asset_id = current_asset.id
-                            LEFT JOIN #__docman_category_relations AS cr ON cr.descendant_id = c.docman_category_id
-                            LEFT JOIN #__assets AS parent_asset ON parent_asset.name = CONCAT('com_docman.category.', cr.ancestor_id)
-                            SET current_asset.parent_id = parent_asset.id
-                            WHERE cr.descendant_id <> cr.ancestor_id AND cr.level = 1;
+                        UPDATE #__assets AS current_asset
+                        LEFT JOIN #__docman_categories AS c ON c.asset_id = current_asset.id
+                        LEFT JOIN #__docman_category_relations AS cr ON cr.descendant_id = c.docman_category_id
+                        LEFT JOIN #__assets AS parent_asset ON parent_asset.name = CONCAT('com_docman.category.', cr.ancestor_id)
+                        SET current_asset.parent_id = parent_asset.id
+                        WHERE cr.descendant_id <> cr.ancestor_id AND cr.level = 1;
 
-                            UPDATE #__assets AS current_asset
-                            LEFT JOIN #__docman_documents AS d ON d.asset_id = current_asset.id
-                            LEFT JOIN #__docman_categories AS c ON c.docman_category_id = d.docman_category_id
-                            LEFT JOIN #__assets AS parent_asset ON parent_asset.name = CONCAT('com_docman.category.', c.docman_category_id)
-                            SET current_asset.parent_id = parent_asset.id
-                            WHERE current_asset.name LIKE 'com_docman.document.%'
-                        "
-                    ),
-                    'import_containers' => array(
-                        'action' => 'copy',
-                        'source' => 'docman_containers_mig',
-                        'target' => 'files_containers',
-                        'label'  => 'Importing containers',
-                        'operation' => 'REPLACE'
-                    ),
-                    'import_menu' => array(
-                        'action' => 'import_menu',
-                        'source' => 'docman_menu_mig',
-                        'label'  => 'Importing menu items',
-                        'type'   => 'docman-migrated'
-                    ),
-                    'fix_modules' => array(
-                        'action' => 'fix_modules',
-                        'label' => 'Fixing modules'
-                    ),
-                    'import_settings' => array(
-                        'action' => 'import_settings',
-                        'label'  => 'Importing settings'
-                    ),
-                    'cleanup'            => array(
-                        'action' => 'query',
-                        'query'  => "
-                            DROP TABLE IF EXISTS `#__docman_containers_mig`;
-                            DROP TABLE IF EXISTS `#__docman_modules_mig`;
-                            DROP TABLE IF EXISTS `#__docman_menu_mig`;
-                            ",
-                        'label'  => 'Cleaning up'
-                    ),
+                        UPDATE #__assets AS current_asset
+                        LEFT JOIN #__docman_documents AS d ON d.asset_id = current_asset.id
+                        LEFT JOIN #__docman_categories AS c ON c.docman_category_id = d.docman_category_id
+                        LEFT JOIN #__assets AS parent_asset ON parent_asset.name = CONCAT('com_docman.category.', c.docman_category_id)
+                        SET current_asset.parent_id = parent_asset.id
+                        WHERE current_asset.name LIKE 'com_docman.document.%'
+                    "
+                ),
+                'import_containers' => array(
+                    'action' => 'copy',
+                    'source' => 'docman_containers_mig',
+                    'target' => 'files_containers',
+                    'label'  => 'Importing containers',
+                    'operation' => 'REPLACE'
+                ),
+                'import_menu' => array(
+                    'action' => 'import_menu',
+                    'source' => 'docman_menu_mig',
+                    'label'  => 'Importing menu items',
+                    'type'   => 'docman-migrated'
+                ),
+                'fix_modules' => array(
+                    'action' => 'fix_modules',
+                    'label' => 'Fixing modules'
+                ),
+                'import_settings' => array(
+                    'action' => 'import_settings',
+                    'label'  => 'Importing settings'
+                ),
+                'cleanup'            => array(
+                    'action' => 'query',
+                    'query'  => "
+                        DROP TABLE IF EXISTS `#__docman_containers_mig`;
+                        DROP TABLE IF EXISTS `#__docman_modules_mig`;
+                        DROP TABLE IF EXISTS `#__docman_menu_mig`;
+                        ",
+                    'label'  => 'Cleaning up'
                 )
             ));
         }
@@ -270,7 +268,7 @@ class ComDocmanMigratorImport extends ComMigratorMigratorImportAbstract
                     'source' => 'docman_levels_mig',
                     'target' => 'docman_levels',
                     'after'  => 'move_category_orderings'
-                )
+                ),
             ));
         }
 
@@ -322,6 +320,28 @@ class ComDocmanMigratorImport extends ComMigratorMigratorImportAbstract
                     'after'  => 'move_tags'
                 )
             ));
+        }
+
+        // It was added to export in 3.0.2
+        if (version_compare($config->source_version, '3.0.2', '>=')) {
+            $config->jobs->append([
+                'insert_document_contents'          => array(
+                    'action'    => 'insert',
+                    'chunkable' => true,
+                    'label'     => 'Inserting document contents',
+                    'source'    => 'docman_document_contents',
+                    'table'     => 'docman_document_contents_mig',
+                    'create_from'    => 'docman_document_contents',
+                    'after'  => 'insert_tags_relations',
+                ),
+                'move_document_contents' => [
+                    'action' => 'move',
+                    'label'  => 'Moving document contents',
+                    'source' => 'docman_document_contents_mig',
+                    'target' => 'docman_document_contents',
+                    'after'  => 'move_tags_relations'
+                ]
+            ]);
         }
 
         parent::_initialize($config);

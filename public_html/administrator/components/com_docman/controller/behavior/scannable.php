@@ -39,15 +39,18 @@ class ComDocmanControllerBehaviorScannable extends KControllerBehaviorAbstract
     {
         parent::__construct($config);
 
-        $thumbnail_controller = 'com://admin/docman.controller.thumbnail';
+        if ($this->isSupported()) {
+            $thumbnail_controller = 'com://admin/docman.controller.thumbnail';
 
-        $this->getIdentifier($thumbnail_controller)->getConfig()->append(array(
-            'supported_extensions' => static::$thumbnail_extensions
-        ));
+            $this->getIdentifier($thumbnail_controller)->getConfig()->append(array(
+                'supported_extensions' => static::$thumbnail_extensions
+            ));
 
-        $this->getObject($thumbnail_controller)->addCommandCallback('before.generate', function($context) {
-            return $this->_beforeGenerate($context);
-        });
+            $this->getObject($thumbnail_controller)->addCommandCallback('before.generate', function($context) {
+                return $this->_beforeGenerate($context);
+            });
+        }
+
     }
 
     protected function _initialize(KObjectConfig $config)

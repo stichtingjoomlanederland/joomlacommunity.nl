@@ -69,8 +69,8 @@ class ComDocmanTemplateHelperRoute extends KTemplateHelperAbstract
 
         $query = array(
             'option' => 'com_docman',
-            'view' => 'list',
-            'slug' => $config->entity->slug
+            'slug' => $config->entity->slug,
+            //'view' => 'list', provided by the menu item
         );
 
         $config->append($query);

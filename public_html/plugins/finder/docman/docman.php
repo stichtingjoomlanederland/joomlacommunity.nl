@@ -8,7 +8,7 @@
 
 defined('_JEXEC') or die;
 
-JLoader::register('PlgKoowaFinder', JPATH_ROOT.'/libraries/koowa/plugins/koowa/finder.php');
+JLoader::register('PlgKoowaFinder', JPATH_ROOT.'/libraries/joomlatools/plugins/koowa/finder.php');
 
 /**
  * Joomla smart search plugin for DOCman

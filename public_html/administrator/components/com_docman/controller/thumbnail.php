@@ -59,7 +59,10 @@ class ComDocmanControllerThumbnail extends KControllerAbstract implements KObjec
         }
 
         if ($thumbnail) {
-            $this->execute('save', $context);
+            $result = $this->execute('save', $context);
+        } else {
+            $entity->image = '';
+            $result = (bool) $entity->save();
         }
 
         return $result;

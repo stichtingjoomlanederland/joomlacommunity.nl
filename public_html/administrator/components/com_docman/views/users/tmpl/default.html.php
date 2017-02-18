@@ -37,10 +37,10 @@ defined('KOOWA') or die; ?>
             <!-- Toolbar -->
             <ktml:toolbar type="actionbar">
 
-            <!-- Component -->
+            <!-- Component wrapper -->
             <div class="k-component-wrapper">
 
-                <!-- Form -->
+                <!-- Component -->
                 <form class="k-component k-js-component k-js-grid-controller " action="" method="get">
 
                     <!-- Scopebar -->
