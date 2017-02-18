@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extensionset name="Accredited Joomla! Translations" description="Accredited Joomla! Translations Updates">
+<extension name="nl-NL" element="pkg_nl-NL" type="package" version="2.5.28.1" detailsurl="http://update.joomla.org/language/details/nl-NL_details.xml"/>
+</extensionset>
