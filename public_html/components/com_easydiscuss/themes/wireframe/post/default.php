@@ -70,7 +70,9 @@ defined('_JEXEC') or die('Unauthorized Access');
                                 <i class="fa fa-eye ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_PRIVATE_DESC');?>"></i>
                             </div>
 
-                            <span class="o-label o-label--success-o ed-state-resolved"><?php echo JText::_('COM_EASYDISCUSS_RESOLVED');?></span>
+                            <?php if ($this->config->get('main_qna')) { ?>
+                                <span class="o-label o-label--success-o ed-state-resolved"><?php echo JText::_('COM_EASYDISCUSS_RESOLVED');?></span>
+                            <?php } ?>
 
                             <?php echo $post->getTitle();?>
                         </a>
@@ -231,6 +233,8 @@ defined('_JEXEC') or die('Unauthorized Access');
         </div>
         <?php } ?>
     </div>
+
+    <?php echo ED::renderModule('easydiscuss-after-postcontent'); ?>
 
     <div class="ed-post-who-view t-lg-mt--lg t-lg-mb--lg">
         <?php echo ED::getWhosOnline();?>

@@ -713,6 +713,27 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	}
 
 	/**
+     * Retrieve username field for login form
+     *
+     * @since   3.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+	public function getUsernameField()
+	{
+		$esConfig = ES::config();
+
+		$usernameField = $esConfig->get('general.site.loginemail') ? 'COM_EASYDISCUSS_LOGIN_NAME_OR_EMAIL' : 'COM_EASYDISCUSS_USERNAME';
+		
+		if ($esConfig->get('registrations.emailasusername')) {
+			$usernameField = 'COM_EASYDISCUSS_LOGIN_EMAIL';
+		}
+
+		return $usernameField;
+	}
+
+	/**
 	 * Notify site subscribers whenever a new blog post is created
 	 *
 	 * @since	1.0

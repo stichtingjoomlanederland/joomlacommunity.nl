@@ -553,7 +553,8 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		$default = array(
 				'acl_type' => DISCUSS_CATEGORY_ACL_ACTION_VIEW,
 				'bind_table' => true,
-				'parent_id' => 0
+				'parent_id' => 0,
+				'language' => false
 			);
 
 		$options += $default;
@@ -561,6 +562,10 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		$query	= 'SELECT * FROM ' . $db->nameQuote('#__discuss_category');
 		$query	.= ' WHERE ' . $db->nameQuote('parent_id') . '=' . $db->Quote($options['parent_id']);
 		$query	.= ' AND ' . $db->nameQuote('published') . '=' . $db->Quote(1);
+
+		if ($options['language']) {
+			$query	.= ' AND ' . $db->nameQuote('language') . '=' . $db->Quote($options['language']);
+		}
 
 		if ($this->my->id == 0) {
 			$query	.= ' AND ' . $db->nameQuote('private') . '!=' . $db->Quote('1');

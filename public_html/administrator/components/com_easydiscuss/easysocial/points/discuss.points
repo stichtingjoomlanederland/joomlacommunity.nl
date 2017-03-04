@@ -196,5 +196,41 @@
 		"extension"		: "com_easydiscuss",
 		"state"			: true,
 		"points"		: -1
+	},
+	{
+		"title"			: "User Like Your Discussion",
+		"alias"			: "like-your-discussion",
+		"description"	: "Gain points when someone like your discussion.",
+		"command"		: "discussion.like",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: 1
+	},
+	{
+		"title"			: "User Unlike Your Discussion",
+		"alias"			: "unlike-your-discussion",
+		"description"	: "Deduct points someone unlike your discussion.",
+		"command"		: "discussion.unlike",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: -1
+	},
+	{
+		"title"			: "User Like Your Reply",
+		"alias"			: "like-your-reply",
+		"description"	: "Gain points when someone like your replies in discussion.",
+		"command"		: "reply.like",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: 1
+	},
+	{
+		"title"			: "User Unlike Your Reply",
+		"alias"			: "unlike-your-reply",
+		"description"	: "Deduct points when someone unlike your reply.",
+		"command"		: "reply.unlike",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: -1
 	}
 ]

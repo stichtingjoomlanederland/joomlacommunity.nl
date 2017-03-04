@@ -99,12 +99,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 					                </ol>
 			 					<?php } ?>
 
+                                <?php if ($this->config->get('main_qna')) { ?>
 		                        <ol class="g-list-inline ed-post-item__post-meta">
 		                            <li>
 		                            	<span class="o-label o-label--<?php echo ($post->isresolve) ? 'success' : 'danger';?>-o">
 		                            		<?php echo ($post->isresolve) ? JText::_('COM_EASYDISCUSS_RESOLVED') : JText::_('COM_EASYDISCUSS_UNRESOLVED');?></span>
 		                            </li>
 		                        </ol>
+                                <?php } ?>
 		                    </div>
 		                </div>
 		            </div>

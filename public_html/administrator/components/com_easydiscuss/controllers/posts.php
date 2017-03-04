@@ -360,6 +360,11 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 				break;
 			case 'save':
 				$redirect = 'index.php?option=com_easydiscuss&view=posts';
+
+				if ($post->isReply()) {
+					$redirect .= '&layout=replies';
+				}
+
 				break;
 			case 'savePublishNew':
 			default:

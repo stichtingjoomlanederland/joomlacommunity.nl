@@ -40,17 +40,20 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 		$author = ED::user();
 		$creatorName = $author->getName();
 
+		$returnUrl = 'index.php?option=com_easydiscuss&view=posts';
+
 		$this->set('post', $post);
 		$this->set('creatorName', $creatorName);
 		$this->set('tags', $tags);
 		$this->set('nestedCategories', $nestedCategories);
 		$this->set('operation', $operation);
 		$this->set('composer', $composer);
+		$this->set('returnUrl', $returnUrl);
 
 		parent::display('post/default');
 	}
 
-	public function edit($tpl = null)
+	public function edit($tpl = null, $isPending = false)
 	{
 		$this->checkAccess('discuss.manage.posts');
 
@@ -99,6 +102,16 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 		$operation = $post->isNew() ? 'creating' : 'editing';
 		$composer = ED::composer($operation, $post);
 
+		$returnUrl = 'index.php?option=com_easydiscuss&view=posts';
+
+		if ($post->isReply() && !$isPending) {
+			$returnUrl = 'index.php?option=com_easydiscuss&view=posts&layout=replies';
+		}
+
+		if ($isPending) {
+			$returnUrl .= '&layout=pending';
+		}
+
 		$this->set('creatorName', $creatorName);
 		$this->set('post', $post);
 		$this->set('populartags', $populartags);
@@ -109,6 +122,7 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 		$this->set('operation', $operation);
 		$this->set('composer', $composer);
 		$this->set('tags', $tags);
+		$this->set('returnUrl', $returnUrl);
 
 		parent::display('post/default');
 	}
@@ -118,11 +132,12 @@ class EasyDiscussViewPost extends EasyDiscussAdminView
 		$this->checkAccess('discuss.manage.posts');
 
 		// Display toolbars
-		JToolbarHelper::publish('approve', JText::_('COM_EASYDISCUSS_BTN_APPROVE_AND_PUBLISH'));
+		JToolbarHelper::publish('approve', JText::_('COM_EASYDISCUSS_BTN_APPROVE'));
 		JToolbarHelper::unpublish('reject', JText::_('COM_EASYDISCUSS_BTN_REJECT'));
 		JToolBarHelper::custom('delete','delete','icon-32-unpublish.png', 'COM_EASYDISCUSS_DELETE_BUTTON', false);
+		JToolBarHelper::cancel();
 
-		return $this->edit();
+		return $this->edit(false, true);
 	}
 
 	public function getFieldForms( $isDiscussion = false , $postObj = false )

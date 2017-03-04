@@ -951,10 +951,10 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 
 		$query = "";
 		foreach($intervals as $key => $days) {
-			$uQuery = "select a.*, 'Site' as `subtitle`, 'site' as `subalias` from `#__discuss_subscription` as a";
+			$uQuery = "select a.*, 'Site' as `subtitle`, 'site' as `subalias`, `count` from `#__discuss_subscription` as a";
 			$uQuery .= " where a.`state` = '1' and a.`type` = 'site' and a.`interval` = '$key' and a.`email` = " . $db->Quote($email) . " and a.`sent_out` <= date_sub('$now', INTERVAL $days DAY)";
 			$uQuery .= " union ";
-			$uQuery .= "select a.*, c.`title` as `subtitle`, c.`alias` as `subalias`  from `#__discuss_subscription` as a";
+			$uQuery .= "select a.*, c.`title` as `subtitle`, c.`alias` as `subalias`, `count` from `#__discuss_subscription` as a";
             $uQuery .= "    inner join `#__discuss_category` as c on a.cid = c.id";
 			$uQuery .= " where a.`state` = '1' and a.`type` = 'category' and a.`interval` = '$key' and a.`email` = " . $db->Quote($email) . " and a.`sent_out` <= date_sub('$now', INTERVAL $days DAY)";
 
@@ -1041,9 +1041,25 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
             if ($sub->type == 'category') {
                 $uQuery .= " and a.`category_id` = " . $db->Quote($sub->cid);
             }
-            // TODO: the limit and ordering should respect from subscription.
+
+
+			// category ACL:
+			$catOptions = array();
+			$catOptions['idOnly'] = true;
+			$catOptions['includeChilds'] = false;
+			$catOptions['useUserId'] = $sub->userid;
+
+			$catAccessSQL = ED::category()->genCategoryAccessSQL('a.category_id', $catOptions);
+			$uQuery .= " and " . $catAccessSQL;
+
             $uQuery .= " ORDER BY a.id desc";
-            $uQuery .= " LIMIT 10)";
+
+			// the limit and ordering should respect from subscription.
+            if ($sub->count) {
+				$uQuery .= " LIMIT " . $sub->count . ")";
+            } else {
+				$uQuery .= " LIMIT 10)";
+            }
 
             // echo $uQuery;
             // echo '<br><br><br>';
@@ -1054,12 +1070,157 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
         $query = implode(" UNION ", $unions);
         // echo $query;exit;
 
+
+
         $db->setQuery($query);
 
         $results = $db->loadObjectList();
 
         return $results;
 	}
+
+
+	/**
+	 * Method to get user's subscriptions based on the user's email
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getDigestReplies($subscriptions, $now)
+	{
+        $db = ED::db();
+
+        if (! $subscriptions) {
+        	return array();
+        }
+
+        $unions = array();
+
+        foreach($subscriptions as $sub) {
+
+            // $uQuery = "(select " . $db->Quote($sub->type) . " as `subs_type`, " . $db->Quote($sub->cid) . " as `subs_cid`,";
+            $uQuery = "(select";
+            $uQuery .= " a.*, 0 as `polls_cnt`, 0 as `totalFavourites`, 0 as `num_replies`, 0 as attachments_cnt, 0 as `likeCnt`, 0 as `VotedCnt`, b.`created` as `lastupdate`, 0 `total_vote_cnt`,";
+            $uQuery	.= ' DATEDIFF('. $db->Quote($now) . ', a.`created`) as `noofdays`, ';
+            $uQuery	.= ' DATEDIFF(' . $db->Quote($now) . ', a.`created`) as `daydiff`, TIMEDIFF(' . $db->Quote($now). ', a.`created`) as `timediff`,';
+            $uQuery .= " 0 as `isVoted`,";
+            $uQuery	.= " a.`post_status`, a.`post_type`,";
+            $uQuery	.= " e.`title` AS `category`";
+            $uQuery .= " from " . $db->nameQuote('#__discuss_posts') . " as a";
+            $uQuery .= "     INNER JOIN " . $db->nameQuote('#__discuss_thread') . " as b on a.thread_id = b.id";
+            $uQuery	.= "     INNER JOIN " . $db->nameQuote('#__discuss_category') . " AS e ON b.`category_id` = e.`id`";
+            $uQuery .= " WHERE a.`published` = " . $db->Quote('1');
+            $uQuery .= " and a.`parent_id` > 0";
+            $uQuery .= " and a.`created` >= " . $db->Quote($sub->sent_out) . " and a.created <= " . $db->Quote($now);
+            if ($sub->type == 'category') {
+                $uQuery .= " and a.`category_id` = " . $db->Quote($sub->cid);
+            }
+
+			// category ACL:
+			$catOptions = array();
+			$catOptions['idOnly'] = true;
+			$catOptions['includeChilds'] = false;
+			$catOptions['useUserId'] = $sub->userid;
+
+			$catAccessSQL = ED::category()->genCategoryAccessSQL('b.category_id', $catOptions, DISCUSS_CATEGORY_ACL_ACTION_VIEWREPLY);
+			$uQuery .= " and " . $catAccessSQL;
+
+
+            $uQuery .= " ORDER BY a.id desc";
+
+			// the limit and ordering should respect from subscription.
+            if ($sub->count) {
+				$uQuery .= " LIMIT " . $sub->count . ")";
+            } else {
+				$uQuery .= " LIMIT 10)";
+            }
+
+            // echo $uQuery;
+            // echo '<br><br><br>';
+            // exit;
+
+            $unions[] = $uQuery;
+        }
+
+        $query = implode(" UNION ", $unions);
+
+        $db->setQuery($query);
+
+        $results = $db->loadObjectList();
+
+        return $results;
+	}
+
+	/**
+	 * Method to get user's subscriptions based on the user's email
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getDigestComments($subscriptions, $now)
+	{
+        $db = ED::db();
+
+        if (! $subscriptions) {
+        	return array();
+        }
+
+        $unions = array();
+
+        foreach($subscriptions as $sub) {
+
+			$uQuery = "(select a.`id`, a.`comment`, a.`name`, a.`email`, a.`post_id`, c.`post_id` as `question_id`";
+			$uQuery .= " FROM `#__discuss_comments` as a";
+			$uQuery .= " INNER JOIN `#__discuss_posts` as b on a.`post_id` = b.`id`";
+			$uQuery .= " INNER JOIN `#__discuss_thread` as c on b.`thread_id` = c.`id`";
+			$uQuery .= " INNER JOIN `#__discuss_category` as d on c.`category_id` = d.`id`";
+            $uQuery .= " WHERE a.`published` = " . $db->Quote('1');
+            $uQuery .= " and a.`created` >= " . $db->Quote($sub->sent_out) . " and a.created <= " . $db->Quote($now);
+
+            if ($sub->type == 'category') {
+                $uQuery .= " and c.`category_id` = " . $db->Quote($sub->cid);
+            }
+
+
+			// category ACL:
+			$catOptions = array();
+			$catOptions['idOnly'] = true;
+			$catOptions['includeChilds'] = false;
+			$catOptions['useUserId'] = $sub->userid;
+
+			$catAccessSQL = ED::category()->genCategoryAccessSQL('b.category_id', $catOptions);
+			$uQuery .= " and " . $catAccessSQL;
+
+
+            $uQuery .= " ORDER BY a.id desc";
+
+			// the limit and ordering should respect from subscription.
+            if ($sub->count) {
+				$uQuery .= " LIMIT " . $sub->count . ")";
+            } else {
+				$uQuery .= " LIMIT 10)";
+            }
+
+            // echo $uQuery;
+            // echo '<br><br><br>';
+            // exit;
+
+            $unions[] = $uQuery;
+        }
+
+        $query = implode(" UNION ", $unions);
+
+        $db->setQuery($query);
+
+        $results = $db->loadObjectList();
+
+        return $results;
+	}
+
 
 	/**
      * Performs checking if the interval all set to instant

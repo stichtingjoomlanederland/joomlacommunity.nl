@@ -158,10 +158,7 @@ class EasyDiscussParser extends EasyDiscuss
 		$config = ED::config();
 
 		// We cannot decode the htmlentities here or else, xss will occur!
-		// // we need to make sure no special characters at this points
-		// $text = htmlspecialchars_decode($text, ENT_QUOTES);
-
-		preg_match_all('/\[url\="?(.*?)"?\](.*?)\[\/url\]/ims', $text, $matches);
+		preg_match_all('/\[url\=["|&quot;|\']*(.*?)["|&quot;|\']*?\](.*?)\[\/url\]/ims', $text, $matches);
 
 		if (!empty($matches) && isset($matches[0]) && !empty($matches[0])) {
 
@@ -491,7 +488,7 @@ class EasyDiscussParser extends EasyDiscuss
 			'[list]\1[/list]',
 			'[*] \1',
 			'[email]\1[/email]',
-			'[url="\1"]\2[/url]',
+			'[url=\1]\2[/url]',
 			'[code type="xml"]\1[/code]',
 		);
 

@@ -31,7 +31,7 @@ class EasyDiscussViewSpools extends EasyDiscussAdminView
 		$this->title('COM_EASYDISCUSS_SPOOLS_TITLE');
 		$this->desc('COM_EASYDISCUSS_SPOOLS_DESC');
 
-		$model = ED::model('Spools', true);
+		$model = ED::model('Spools');
 		$mails = $model->getData();
 
 		$pagination = $model->getPagination();

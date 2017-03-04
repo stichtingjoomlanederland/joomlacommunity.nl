@@ -54,10 +54,12 @@ class EasyDiscussRouter extends EasyDiscuss
 
 			$model = ED::model('Menu');
 			$forumsMenu = EDR::getMenus('forums');
+			$routingType = $config->get('main_routing', 'default');
+			$xView = $active->query['view'];
 
 			// If there are no menu items that are associated with the view,
 			// we need to append the view into the segments.
-			if (!$forumsMenu) {
+			if (!$forumsMenu || ($routingType == 'currentactive' && $xView != 'forums')) {
 				$segments[] = $query['view'];
 			}
 

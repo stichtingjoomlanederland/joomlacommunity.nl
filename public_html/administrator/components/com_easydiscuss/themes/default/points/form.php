@@ -23,8 +23,8 @@ defined('_JEXEC') or die('Restricted access');
 				<div class="form-horizontal">
 					<div class="form-group">
 						 <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_POINTS_TITLE'); ?>
-                        </div>
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_POINTS_TITLE'); ?>
+						</div>
 						<div class="col-md-7">
 							<input type="text" class="full-width inputbox" name="title" value="<?php echo $point->get( 'title' );?>" />
 						</div>
@@ -32,40 +32,40 @@ defined('_JEXEC') or die('Restricted access');
 
 					<div class="form-group">
 						 <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_PUBLISHED'); ?>
-                        </div>
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_PUBLISHED'); ?>
+						</div>
 						<div class="col-md-7">
 							<?php echo $this->html('form.boolean', 'published', $point->get('published', true));?>
 						</div>
 					</div>
 					<div class="form-group">
 						 <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_POINTS_CREATION_DATE'); ?>
-                        </div>
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_POINTS_CREATION_DATE'); ?>
+						</div>
 						<div class="col-md-7">
 							<?php echo ED::date()->format($point->created, ED::config()->get('layout_dateformat')); ?>
 						</div>
 					</div>
 					<div class="form-group">
 						 <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_POINTS_ACTION'); ?>
-                        </div>
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_POINTS_ACTION'); ?>
+						</div>
 						<div class="col-md-7">
 							<select name="rule_id" onchange="showDescription( this.value );" class="form-control" >
 								<option value="0"<?php echo !$point->get( 'rule_id' ) ? ' selected="selected"' : '';?>><?php echo JText::_( 'COM_EASYDISCUSS_SELECT_RULE' );?></option>
-							<?php foreach($rules as $rule ){ ?>
-								<option value="<?php echo $rule->id;?>"<?php echo $point->get( 'rule_id' ) == $rule->id ? ' selected="selected"' : '';?>><?php echo $rule->title; ?></option>
+							<?php foreach ($rules as $rule) { ?>
+								<option value="<?php echo $rule->id;?>" <?php echo !$rule->availability && $point->get('rule_id') != $rule->id ? 'disabled' : ''; ?><?php echo $point->get( 'rule_id' ) == $rule->id ? ' selected="selected"' : '';?>><?php echo $rule->title; ?></option>
 							<?php } ?>
 							</select>
-							<?php foreach($rules as $rule ){ ?>
+							<?php foreach ($rules as $rule) { ?>
 							<div id="rule-<?php echo $rule->id;?>" class="rule-description" style="display:none;"><?php echo $rule->description;?></div>
 							<?php } ?>
 						</div>
 					</div>
 					<div class="form-group">
 						 <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_POINTS_GIVEN'); ?>
-                        </div>
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_POINTS_GIVEN'); ?>
+						</div>
 						<div class="col-md-7">
 							<input type="text" name="rule_limit" class="form-control form-control-sm text-center" style="text-align: center;" value="<?php echo $point->get( 'rule_limit'); ?>" />
 						</div>

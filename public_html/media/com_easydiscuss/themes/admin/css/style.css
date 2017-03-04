@@ -10554,6 +10554,16 @@ a#ed .badge:focus {
 #ed .ed-post-answer .ed-state-answer {
   display: inline-block !important;
 }
+#ed .ed-post-pending .ed-reply-item__hd,
+#ed .ed-post-pending .ed-reply-item__bd {
+  background-color: #f5fcff;
+}
+#ed .ed-post-pending .ed-state-pending {
+  display: inline-block !important;
+}
+#ed .ed-state-pending {
+  display: none !important;
+}
 #ed .ed-state-answer {
   display: none !important;
 }
@@ -13066,6 +13076,11 @@ textarea#ed .inputbox {
 #ed .db-user .latest-updates .requires-updating {
   display: none;
 }
+#ed .db-user .latest-updates .latest-version span,
+#ed .db-user .latest-updates .local-version span {
+  font-weight: 700;
+  color: #5cae50;
+}
 #ed .db-user .has-errors .error-message {
   display: block;
 }
@@ -13078,6 +13093,11 @@ textarea#ed .inputbox {
 #ed .db-user .require-updates .requires-updating,
 #ed .db-user .require-updates .versions-meta {
   display: block;
+}
+#ed .db-user .require-updates .latest-version span,
+#ed .db-user .require-updates .local-version span {
+  font-weight: 700;
+  color: #cf3510;
 }
 #ed .db-user .require-updates .checking,
 #ed .db-user .require-updates .latest {

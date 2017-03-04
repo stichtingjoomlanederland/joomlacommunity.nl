@@ -275,13 +275,65 @@ class EasyDiscussNotifications extends EasyDiscuss
 		return $result;
 	}
 
+	/**
+	 * Sets the "From" e-mail address
+	 *
+	 * @since	4.0.13
+	 * @access	public
+	 */
+	public function getFromEmail($data)
+	{
+		$config = ED::config();
+
+		// Modify the from name to the user that generated this activity
+		if ($config->get('notify_modify_from') && isset($data['senderObject']) && $data['senderObject']) {
+
+			return $data['senderObject']->user->email;
+		}
+
+		static $mailfrom = null;
+
+		if (!$mailfrom) {
+			$config = ED::config();
+			$mailfrom = $config->get('notification_sender_email', ED::jconfig()->getValue('mailfrom'));
+		}
+
+		return $mailfrom;
+	}
+
+	/**
+	 * Sets the "From" name
+	 *
+	 * @since	4.0.13
+	 * @access	public
+	 */
+	public function getFromName($data)
+	{
+		$config = ED::config();
+
+		// Modify the from name to the user that generated this activity
+		if ($config->get('notify_modify_from') && isset($data['senderObject']) && $data['senderObject']) {
+			return $data['senderObject']->getName();
+		}
+
+		static $fromname = null;
+
+		if (!$fromname) {
+			
+			$fromname = $config->get('notification_sender_name', ED::jconfig()->getValue('fromname'));
+		}
+
+		return $fromname;
+	}
+
+
 	public function addQueue($toEmails, $subject = '', $body = '', $template='', $data = array())
 	{
 		$mainframe = JFactory::getApplication();
 		$config = ED::config();
 
-		$mailfrom = $config->get('notification_sender_email', ED::jconfig()->get('mailfrom'));
-		$fromname = $config->get('notification_sender_name', ED::jconfig()->get('fromname'));
+		$mailfrom = $this->getFromEmail($data);
+		$fromname = $this->getFromName($data);
 
 		$emailTo = array();
 

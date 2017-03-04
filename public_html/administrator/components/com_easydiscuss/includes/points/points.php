@@ -38,8 +38,12 @@ class EasyDiscussPoints extends EasyDiscuss
 		$user = ED::user($userId);
 
 		foreach ($points as $point) {
-			$user->addPoint($point->rule_limit);
+			$user->addPoint($point->rule_limit);		
 		}
+
+		// Add badges based on the command achievement type
+		$badges = ED::badges();
+		$badges->assignBadgesByCommand($command, $userId);
 
 		$user->store();
 

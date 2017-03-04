@@ -35,6 +35,8 @@ class plgFinderEasyDiscuss extends FinderIndexerAdapter
 	{
 		parent::__construct($subject, $config);
 		$this->loadLanguage();
+
+		JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
 	}
 
 	/**
@@ -116,6 +118,15 @@ class plgFinderEasyDiscuss extends FinderIndexerAdapter
 
 		if ($item->parent_id) {
 			$item->url = 'index.php?option=com_easydiscuss&view=post&id='. $item->parent_id . '#reply-' . $item->id;
+
+			// use parent post title as title in reply. #108
+			$model = ED::model('Posts');
+
+			$title = $model->getPostTitle($item->parent_id);
+			$title = JText::_('COM_EASYDISCUSS_SEARCH_REPLY_TITLE_PREFIX') . $title;
+
+			$item->title = $title;
+
 		} else {
 			$item->url = 'index.php?option=com_easydiscuss&view=post&id='. $item->id;
 		}
@@ -253,11 +264,11 @@ class plgFinderEasyDiscuss extends FinderIndexerAdapter
 		    return false;
 		}
 
-		require_once($engine);		
+		require_once($engine);
 
 		jimport('joomla.filesystem.file');
 
-		return true;		
+		return true;
 	}
 
 	/**

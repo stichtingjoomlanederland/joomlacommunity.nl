@@ -92,6 +92,10 @@ class EasyDiscussSubscription extends EasyDiscuss
 				continue;
 			}
 
+			$postsContent = "";
+			$repliesContent = "";
+			$commentsContent = "";
+
 			// now we retrive subscription info
 			$categorySub = array();
 			$siteSub = null;
@@ -99,6 +103,16 @@ class EasyDiscussSubscription extends EasyDiscuss
 			foreach($items as $item) {
 
 				$obj = new stdClass();
+
+				$managelink = '';
+				if ($item->member) {
+					// link to manage subscriptions for member;
+					$managelink = EDR::_('view=subscription', true, true);
+				}
+
+
+				// post limit
+				$obj->limit = $item->count;
 
 				if ($item->type == 'category') {
 
@@ -142,21 +156,94 @@ class EasyDiscussSubscription extends EasyDiscuss
 
 				}
 
-				$namespace = "site/emails/digest/subscriptions";
+				$namespace = "site/emails/digest/posts";
+
+				$theme = ED::themes();
+				$theme->set('site', $siteSub);
+				$theme->set('cats', $categorySub);
+
+				$postsContent = $theme->output($namespace);
+			}
+
+			// now lets get the replies
+			$replies = array();
+
+			if ($this->config->get('main_email_digest_reply')) {
+				$replies = $model->getDigestReplies($items, $now);
+
+				if ($replies) {
+					ED::post($replies);
+
+					$data = array();
+
+					foreach ($replies as $row) {
+						$reply = ED::post($row->id);
+						$data[] = $reply;
+					}
+
+					$namespace = "site/emails/digest/replies";
+
+					$theme = ED::themes();
+					$theme->set('data', $data);
+					$theme->set('managelink', $managelink);
+
+					$repliesContent = $theme->output($namespace);
+				}
+			}
+
+			// now lets get the comments
+			$comments = array();
+
+			if ($this->config->get('main_email_digest_comment')) {
+				$comments = $model->getDigestComments($items, $now);
+				if ($comments) {
+					// ED::post($replies);
+
+					$data = array();
+
+					$maxLength = 150;
+
+					foreach ($comments as $row) {
+
+						$item = new stdClass();
+
+						$item->comment = ED::badwords()->filter($row->comment);
+						if (JString::strlen($item->comment) > $maxLength) {
+							$item->comment = JString::substr($row->comment, 0, $maxLength) . '...';
+						}
+						$item->authorName = $row->name;
+						$item->authorEmail = $row->email;
+						$item->post = ED::post($row->post_id);
+						$item->question = ED::post($row->question_id);
+
+						$data[] = $item;
+					}
+
+					$namespace = "site/emails/digest/comments";
+					$theme = ED::themes();
+					$theme->set('data', $data);
+					$theme->set('managelink', $managelink);
+					$commentsContent = $theme->output($namespace);
+				}
+			}
+
+			// proceed to email sending if there are something.
+			if ($posts || $replies || $comments) {
 
 				$theme = ED::themes();
 				$theme->set('sitename', ED::jconfig()->get('sitename'));
 				$theme->set('now', ED::date()->display());
-				$theme->set('site', $siteSub);
-				$theme->set('cats', $categorySub);
+				$theme->set('posts', $postsContent);
+				$theme->set('replies', $repliesContent);
+				$theme->set('comments', $commentsContent);
 
+				$namespace = "site/emails/digest/subscriptions";
 				$body = $theme->output($namespace);
 
 				$subject = JText::sprintf('COM_EASYDISCUSS_DIGEST_EMAIL_SUBJECT', ED::date()->display(), ED::jconfig()->get('sitename'));
 
 				// add into mail queue
 				ED::mailer()->addQueue($email, $subject, $body);
-
 			}
 
 			// now update subscriptions sent_out

@@ -224,7 +224,7 @@ class EasyDiscussCompiler extends EasyDiscuss
 					);
 
 			// Get contents from all scripts
-			$contents = $this->getContents($paths, array('jquery.joomla'));
+			$contents = $this->getContents($paths, array('jquery.joomla.js'));
 
 			// To debug, uncomment the following
 			// echo $contents;
@@ -283,6 +283,10 @@ class EasyDiscussCompiler extends EasyDiscuss
 
 			$script = $this->createScriptTag($uri);
 
+			// We need to define this to fix joomla in subfolder issue
+			$siteConfig = $this->createScriptBlock('window.ed_site = "' . JURI::root() . '";');
+			
+			$this->doc->addCustomTag($siteConfig);
 			$this->doc->addCustomTag($script);
 
 			return;

@@ -35,10 +35,11 @@ defined('_JEXEC') or die('Restricted access');
         <?php echo JText::_('COM_EASYDISCUSS_NO_COMMENT_YET');?>
     </div>
 
+
 	<?php if ($post->canComment()) { ?>
 	<a href="javascript:void(0);" class="btn btn-default btn-sm" data-ed-toggle-comment><?php echo JText::_('COM_EASYDISCUSS_ADD_COMMENT')?></a>
 	
-	<div class="commentFormContainer hide" data-ed-comment-form>
+	<div class="commentFormContainer t-hidden" data-ed-comment-form>
 		<?php echo $this->output('site/comments/form', array('post' => $post)); ?>
 	</div>
 	<?php } ?>

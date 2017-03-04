@@ -44,14 +44,15 @@ defined('_JEXEC') or die('Unauthorized Access');
 	                    <span><?php echo JText::_('COM_EASYDISCUSS_USER_REPLIES');?></span>
                     </a>
                 </div>
-
+            <?php if ($this->config->get('main_badges')) { ?>                
                 <div class="ed-statistic__item">
                     <a href="<?php echo EDR::_('view=badges&userid='.$user->id); ?>">
 	                    <span class="ed-statistic__item-count"><?php echo $user->getTotalBadges();?></span>
 	                    <span><?php echo JText::_('COM_EASYDISCUSS_USER_BADGES');?></span>
                     </a>
                 </div>
-
+            <?php } ?>
+            
                 <?php echo $this->html('user.pm', $user->id, 'list'); ?>
 
                 <?php if ($this->config->get('main_rss')) { ?>

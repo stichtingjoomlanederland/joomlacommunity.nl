@@ -19,7 +19,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 	$.Joomla('submitbutton', function(action) {
 
 		if (action == 'cancel') {
-			window.location.href = 'index.php?option=com_easydiscuss&view=posts';
+			window.location.href = '<?php echo $returnUrl; ?>';
 		} else if (action == 'submit') {
 			if(admin.post.validate(false, 'newpost')) {
 				admin.post.submit();
@@ -55,14 +55,14 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		<div class="panel">
 			<div class="panel-head">
 				<a href="javascript:void(0);" data-foundry-toggle="collapse" data-target="#option01">
-				<h6><?php echo JText::_( 'COM_EASYDISCUSS_POST_DETAILS' ); ?></h6>
+				<h6><?php echo $post->isReply() ? JText::_('Reply Details') : JText::_('COM_EASYDISCUSS_POST_DETAILS'); ?></h6>
 				<i class="icon-chevron-down"></i>
 				</a>
 			</div>
 
 			<div id="option01" class="panel-body">
 				<div class="">
-					<div class="form-horizontal t-lg-mb--lg">
+					<div class="form-horizontal t-lg-mb--lg <?php echo $post->isReply() ? 't-hidden' : ''; ?>">
 						<div class="form-group">
 							<div class="col-md-3 control-label">
 								<label for="title"><?php echo JText::_( 'COM_EASYDISCUSS_POST_TITLE' );?></label>
@@ -91,7 +91,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 					</div>
 
 
-					<?php if ($this->config->get('main_private_post', false)) { ?>
+					<?php if ($this->config->get('main_private_post', false) && !$post->isReply()) { ?>
 					<div class="form-group">
 						<label class="checkbox" for="private">
 							<input id="private" type="checkbox" name="private" value="1" <?php echo $post->private ? ' checked="checked"' : '';?>/> <?php echo JText::_('COM_EASYDISCUSS_MAKE_THIS_POST_PRIVATE');?>
@@ -107,7 +107,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 			        	</div>
 
 	        			<div class="control-group">
-	        				<?php if ($this->config->get('main_master_tags') && $this->acl->allowed('add_tag')) { ?>
+	        				<?php if ($this->config->get('main_master_tags') && $this->acl->allowed('add_tag') && !$post->isReply()) { ?>
 	        					<?php echo $this->output('site/composer/forms/tags', array('post' => $post)); ?>
 	        	            <?php } ?>
 
@@ -121,7 +121,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		</div>
 	</div>
 
-	<div class="col-md-4">
+	<div class="col-md-4 <?php echo $post->isReply() ? 't-hidden' : ''; ?>">
 		<div class="panel">
 			<div class="panel-head">
 				<a href="javascript:void(0);" data-foundry-toggle="collapse" data-target="#publishoptions">

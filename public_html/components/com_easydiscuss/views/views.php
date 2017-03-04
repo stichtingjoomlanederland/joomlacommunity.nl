@@ -176,7 +176,7 @@ class EasyDiscussView extends EasyDiscussParentView
             $miniheader = '';
 
             // Only work for Easysocial 2.0.
-            if ($view == 'post' && $easysocial->exists() && !$easysocial->isLegacy()) {
+            if ($view == 'post' && $this->config->get('integration_easysocial_mini_header', true) && $easysocial->exists() && !$easysocial->isLegacy()) {
 
             	$id = $this->input->get('id', 0, 'int');
             	$post = ED::post($id);

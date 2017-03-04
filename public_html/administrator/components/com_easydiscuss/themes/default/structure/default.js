@@ -49,8 +49,8 @@ ed.require(['edq'], function($){
 					"local": "<?php echo $version;?>"
 				};
 
-				var outdated = version.latest > version.local;
-				
+				var outdated = EasyDiscuss.compareVersion(version.local, version.latest) === -1;
+
 				// Applicable only on dashboard
 				$('[data-online-version]').html(version.latest);
 				$('[data-local-version]').html(version.local);

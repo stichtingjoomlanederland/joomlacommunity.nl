@@ -153,7 +153,7 @@ class EasyDiscussViewForums extends EasyDiscussView
 			}
 
 			if ($isLandingPage) {
-				$childs = ED::category()->getChildCategories($parent, true);
+				$childs = ED::category()->getChildCategories($parent, true, false);
 				if ($childs) {
 					foreach($childs as $item) {
 						$c = ED::category($item);
@@ -194,7 +194,7 @@ class EasyDiscussViewForums extends EasyDiscussView
 		}
 
 		// get cats immediate childs
-		$childs = ED::category()->getChildCategories($categoryId, true);
+		$childs = ED::category()->getChildCategories($categoryId, true, false);
 
 
 		$subcategories = array();

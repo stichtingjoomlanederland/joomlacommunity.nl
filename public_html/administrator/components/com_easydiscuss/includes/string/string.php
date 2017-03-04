@@ -131,15 +131,22 @@ class EasyDiscussString extends EasyDiscuss
 	 */
 	public static function unhtmlentities($string)
 	{
-		$string = str_replace( '&nbsp;', '', $string);
 
-		$string = preg_replace_callback('~&#x([0-9a-f]+);~i', function($m) { return chr(hexdec($m[1])); }, $string);
-		$string = preg_replace_callback('~&#([0-9]+);~', function($m) { return chr($m[1]); }, $string);
+		if (function_exists('html_entity_decode')) {
+			return html_entity_decode($string);
 
-		// replace literal entities
-		$trans_tbl = get_html_translation_table(HTML_ENTITIES);
-		$trans_tbl = array_flip($trans_tbl);
-		return strtr($string, $trans_tbl);
+		} else {
+
+			$string = str_replace( '&nbsp;', '', $string);
+
+			$string = preg_replace_callback('~&#x([0-9a-f]+);~i', function($m) { return chr(hexdec($m[1])); }, $string);
+			$string = preg_replace_callback('~&#([0-9]+);~', function($m) { return chr($m[1]); }, $string);
+
+			// replace literal entities
+			$trans_tbl = get_html_translation_table(HTML_ENTITIES);
+			$trans_tbl = array_flip($trans_tbl);
+			return strtr($string, $trans_tbl);
+		}
 	}
 
 	/**
@@ -188,7 +195,8 @@ class EasyDiscussString extends EasyDiscuss
 	 */
 	public function detectNames($text, $exclude = array())
 	{
-		$pattern = '/@[A-Z0-9][A-Z0-9_\-\s]+/i';
+		$extendedlatinPattern = "\\x{0c0}-\\x{0ff}\\x{100}-\\x{1ff}\\x{180}-\\x{27f}";
+		$pattern = '/@[' . $extendedlatinPattern .'A-Za-z0-9][' . $extendedlatinPattern . 'A-Za-z0-9_\-\s]+/ui';
 
 		preg_match_all($pattern, $text, $matches);
 
@@ -281,7 +289,6 @@ class EasyDiscussString extends EasyDiscuss
 	 */
 	public static function replaceUrl($tmp, $text)
 	{
-
 		$config = ED::config();
 		$pattern = '@(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))@';
 
@@ -366,9 +373,7 @@ class EasyDiscussString extends EasyDiscuss
 			$text = str_ireplace($link->customcode, $link->newlink, $text);
 
 			// $patternReplace = '@(?<![.*">])\b(?:(?:https?|ftp|file)://|[a-z]\.)[-A-Z0-9+&#/%=~_|$?!:,.]*[A-Z0-9+&#/%=~_|$]@i';
-
-
-			$patternReplace = '/<img[^>]*>(*SKIP)(*FAIL)|((?<!href=")((http|https):\/{2})+(([0-9a-z_-]+\.)+(aero|asia|biz|cat|com|coop|edu|gov|club|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cu|cv|cx|cy|cz|cz|de|dj|dk|dm|do|dz|ec|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mn|mn|mo|mp|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|nom|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ra|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw|arpa|live|today)(:[0-9]+)?((\/([~0-9a-zA-Z\#\!\=\+\%@\.\/_-]+))?(\?[0-9a-zA-Z\+\%@\/&\[\];=_-]+)?)?))\b/i';
+			$patternReplace = '/<img[^>]*>|<script[^>]*>(*SKIP)(*FAIL)|((?<!href=")((http|https):\/{2})+(([0-9a-z_-]+\.)+(aero|asia|biz|cat|com|coop|edu|gov|club|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cu|cv|cx|cy|cz|cz|de|dj|dk|dm|do|dz|ec|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mn|mn|mo|mp|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|nom|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ra|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw|arpa|live|today)(:[0-9]+)?((\/([~0-9a-zA-Z\#\!\=\+\%@\.\/_-]+))?(\?[0-9a-zA-Z\+\%@\/&\[\];=_-]+)?)?))\b/i';
 
 			// Replace & to &amp; for the URL to work correctly. #48
 			// eg : https://site.com/discuss?sub=1&sub=2

@@ -10668,6 +10668,16 @@ a#ed .badge:focus {
 #ed .ed-post-answer .ed-state-answer {
   display: inline-block !important;
 }
+#ed .ed-post-pending .ed-reply-item__hd,
+#ed .ed-post-pending .ed-reply-item__bd {
+  background-color: #f5fcff;
+}
+#ed .ed-post-pending .ed-state-pending {
+  display: inline-block !important;
+}
+#ed .ed-state-pending {
+  display: none !important;
+}
 #ed .ed-state-answer {
   display: none !important;
 }

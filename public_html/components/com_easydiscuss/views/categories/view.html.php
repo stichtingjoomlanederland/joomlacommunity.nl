@@ -200,7 +200,7 @@ class EasyDiscussViewCategories extends EasyDiscussView
 
 
 		// get cats immediate childs
-		$childs = ED::category()->getChildCategories($categoryId, true);
+		$childs = ED::category()->getChildCategories($categoryId, true, false);
 
 
 		$subcategories = array();

@@ -65,9 +65,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					</td>	
 					
 					<td style="text-align:left;">
-						<p>
-							<?php echo $post->getContent(); ?>
-						</p>
+						<a href="<?php echo $post->editLink;?>"><?php echo JText::_('COM_EASYDISCUSS_VIEW_REPLY'); ?></a>
 
 						<div style="font-size: 11px;">
 							<span style="padding-right: 5px;border-right: 1px solid #d7d7d7;">

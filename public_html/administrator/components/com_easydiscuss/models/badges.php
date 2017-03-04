@@ -63,26 +63,28 @@ class EasyDiscussModelBadges extends EasyDiscussAdminModel
 	}
 
 	/**
-	 * Delete badges based on user id
+	 * Remove badge based on user id and/or badge id
 	 *
-	 * @access public
-	 *
-	 * @param
-	 * @return state
+	 * @since	4.0
+	 * @access	public
 	 */
-	public function removeBadges( $userId = null )
+	public function removeBadge($userId = null, $badgeId = null)
 	{
-		$db = DiscussHelper::getDBO();
+		$db = $this->db;
 
-		$query = 'DELETE FROM ' . $db->nameQuote( '#__discuss_badges_users' )
-				. ' WHERE ' . $db->nameQuote( 'user_id' ) . '=' . $db->Quote( $userId );
+		$query = 'DELETE FROM ' . $db->nameQuote('#__discuss_badges_users');
+		$query .= ' WHERE ' . $db->nameQuote('user_id' ) . '=' . $db->Quote($userId);
 
-		$db->setQuery( $query );
+		if ($badgeId) {
+			$query .= ' AND ' . $db->nameQuote('badge_id') . '=' . $db->Quote($badgeId);
+		}
 
-		if( !$db->query() )
-		{
+		$db->setQuery($query);
+
+		if (!$db->query()) {
 			return false;
 		}
+
 		return true;
 	}
 
@@ -281,5 +283,47 @@ class EasyDiscussModelBadges extends EasyDiscussAdminModel
 		$query	= 'SELECT * FROM ' . $db->nameQuote( '#__discuss_rules' );
 		$db->setQuery( $query );
 		return $db->loadObjectList();
+	}
+
+	/**
+	 * Get badges by points achieve type
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function getBadgesByCommand($command, $userId)
+	{
+		$db = $this->db;
+		
+		$query = array();
+
+		$query[] = 'SELECT * from `#__discuss_badges`';
+		$query[] = 'WHERE ' . $db->nameQuote('achieve_type') . ' = ' . $db->Quote('points');
+		$query[] = 'AND (';
+		$query[] = $db->nameQuote('badge_achieve_rule') . ' = ' . $db->Quote($command);
+		$query[] = 'OR';
+		$query[] = $db->nameQuote('badge_remove_rule') . ' = ' . $db->Quote($command);
+		$query[] = ')';
+		$query[] = 'AND ' . $db->nameQuote('published') . ' = ' . $db->Quote('1');
+
+		$query = implode(' ', $query);
+
+		$db->setQuery($query);
+		$result = $db->loadObjectList();
+
+		if (!$result) {
+			return $result;
+		}
+
+		$badges = array();
+
+		foreach ($result as $row) {
+			$badge = ED::table('Badges');
+			$badge->bind($row);
+
+			$badges[] = $badge;
+		}
+
+		return $badges;
 	}
 }

@@ -11,7 +11,7 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-require_once dirname( __FILE__ ) . '/model.php';
+require_once dirname(__FILE__) . '/model.php';
 
 class EasyDiscussModelSpools extends EasyDiscussAdminModel
 {
@@ -20,30 +20,30 @@ class EasyDiscussModelSpools extends EasyDiscussAdminModel
 	 *
 	 * @var integer
 	 */
-	var $_total = null;
+	protected $_total = null;
 
 	/**
 	 * Pagination object
 	 *
 	 * @var object
 	 */
-	var $_pagination = null;
+	protected $_pagination = null;
 
 	/**
 	 * Category data array
 	 *
 	 * @var array
 	 */
-	var $_data = null;
+	protected $_data = null;
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 
 
-		$mainframe	= JFactory::getApplication();
+		$mainframe = JFactory::getApplication();
 
-		$limit		= $mainframe->getUserStateFromRequest( 'com_easydiscuss.spools.limit', 'limit', $mainframe->getCfg('list_limit'), 'int');
+		$limit = $mainframe->getUserStateFromRequest('com_easydiscuss.spools.limit', 'limit', $mainframe->getCfg('list_limit'), 'int');
 		$limitstart	= JRequest::getVar('limitstart', 0, '', 'int');
 
 		$this->setState('limit', $limit);
@@ -56,13 +56,16 @@ class EasyDiscussModelSpools extends EasyDiscussAdminModel
 	 * @access public
 	 * @return integer
 	 */
-	function getTotal()
+	public function getTotal()
 	{
+		$db = ED::db();
+
 		// Lets load the content if it doesn't already exist
-		if (empty($this->_total))
-		{
-			$query = $this->_buildQuery();
-			$this->_total = $this->_getListCount($query);
+		if (empty($this->_total)) {
+			$query = $this->_buildQuery(false, true);
+			$db->setQuery($query);
+
+			$this->_total = $db->loadResult();
 		}
 
 		return $this->_total;
@@ -74,13 +77,12 @@ class EasyDiscussModelSpools extends EasyDiscussAdminModel
 	 * @access public
 	 * @return integer
 	 */
-	function getPagination()
+	public function getPagination()
 	{
 		// Lets load the content if it doesn't already exist
-		if (empty($this->_pagination))
-		{
+		if (empty($this->_pagination)) {
 			jimport('joomla.html.pagination');
-			$this->_pagination = new JPagination( $this->getTotal(), $this->getState('limitstart'), $this->getState('limit') );
+			$this->_pagination = new JPagination($this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
 		}
 
 		return $this->_pagination;
@@ -92,63 +94,63 @@ class EasyDiscussModelSpools extends EasyDiscussAdminModel
 	 * @access private
 	 * @return string
 	 */
-	function _buildQuery( $publishedOnly = false )
+	public function _buildQuery($publishedOnly = false, $isCount = false)
 	{
 		// Get the WHERE and ORDER BY clauses for the query
-		$where		= $this->_buildQueryWhere( $publishedOnly );
-		$orderby	= $this->_buildQueryOrderBy();
-		$db			= DiscussHelper::getDBO();
+		$where = $this->_buildQueryWhere($publishedOnly);
+		$orderby = $this->_buildQueryOrderBy();
+		$db = DiscussHelper::getDBO();
 
-		$query	= 'SELECT * ';
-		$query	.= 'FROM ' . $db->nameQuote( '#__discuss_mailq' );
-		$query	.= $where;
+		$query = 'SELECT *';
 
-		$query	.= $orderby;
+		if ($isCount) {
+			$query = 'SELECT COUNT(1)';
+		}
+
+		$query .= ' FROM ' . $db->nameQuote('#__discuss_mailq');
+		$query .= $where;
+
+		$query .= $orderby;
 
 		return $query;
 	}
 
-	function _buildQueryWhere()
+	public function _buildQueryWhere()
 	{
-		$mainframe			= JFactory::getApplication();
-		$db					= DiscussHelper::getDBO();
+		$mainframe = JFactory::getApplication();
+		$db = DiscussHelper::getDBO();
 
-		$filter_state 		= $mainframe->getUserStateFromRequest( 'com_easydiscuss.spools.filter_state', 'filter_state', 'U', 'word' );
-		$search 			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.spools.search', 'search', '', 'string' );
-		$search 			= $db->getEscaped( trim(JString::strtolower( $search ) ) );
+		$filter_state = $mainframe->getUserStateFromRequest('com_easydiscuss.spools.filter_state', 'filter_state', 'U', 'word');
+		$search = $mainframe->getUserStateFromRequest('com_easydiscuss.spools.search', 'search', '', 'string');
+		$search = $db->getEscaped(trim(JString::strtolower($search)));
 
 		$where = array();
 
-		if ( $filter_state )
-		{
-			if ( $filter_state == 'P' )
-			{
-				$where[] = $db->nameQuote( 'status' ) . '=' . $db->Quote( '1' );
-			}
-			else if ($filter_state == 'U' )
-			{
-				$where[] = $db->nameQuote( 'status' ) . '=' . $db->Quote( '0' );
+		if ($filter_state) {
+			if ($filter_state == 'P') {
+				$where[] = $db->nameQuote('status') . '=' . $db->Quote('1');
+			} else if ($filter_state == 'U') {
+				$where[] = $db->nameQuote('status') . '=' . $db->Quote('0');
 			}
 		}
 
-		if ($search)
-		{
-			$where[] = ' LOWER( subject ) LIKE \'%' . $search . '%\' ';
+		if ($search) {
+			$where[] = ' LOWER(subject) LIKE \'%' . $search . '%\' ';
 		}
 
-		$where 		= ( count( $where ) ? ' WHERE ' . implode( ' AND ', $where ) : '' );
+		$where = (count($where) ? ' WHERE ' . implode(' AND ', $where) : '');
 
 		return $where;
 	}
 
-	function _buildQueryOrderBy()
+	public function _buildQueryOrderBy()
 	{
-		$mainframe			= JFactory::getApplication();
+		$mainframe = JFactory::getApplication();
 
-		$filter_order		= $mainframe->getUserStateFromRequest( 'com_easydiscuss.spools.filter_order', 		'filter_order', 	'created', 'cmd' );
-		$filter_order_Dir	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.spools.filter_order_Dir',	'filter_order_Dir',	'desc', 'word' );
+		$filter_order = $mainframe->getUserStateFromRequest('com_easydiscuss.spools.filter_order', 'filter_order', 'created', 'cmd');
+		$filter_order_Dir = $mainframe->getUserStateFromRequest('com_easydiscuss.spools.filter_order_Dir', 'filter_order_Dir', 'desc', 'word');
 
-		$orderby 	= ' ORDER BY '.$filter_order.' '.$filter_order_Dir;
+		$orderby = ' ORDER BY '.$filter_order.' '.$filter_order_Dir;
 
 		return $orderby;
 	}
@@ -159,19 +161,25 @@ class EasyDiscussModelSpools extends EasyDiscussAdminModel
 	 * @access public
 	 * @return array
 	 */
-	function getData( $usePagination = true )
+	public function getData($usePagination = true)
 	{
+		$limit = $this->getState('limit', 0);
+		$limitstart = $this->getState('limitstart', 0);
+
 		// Lets load the content if it doesn't already exist
-		if (empty($this->_data))
-		{
+		if (empty($this->_data)) {
 			$query = $this->_buildQuery();
 
-			if($usePagination)
-			{
-				$this->_data = $this->_getList($query, $this->getState('limitstart'), $this->getState('limit'));
-			}
-			else
-			{
+			if ($usePagination && $limit) {
+
+				// $this->_data = $this->_getList($query, $this->getState('limitstart'), $this->getState('limit'));
+
+				$db = ED::db();
+				$query .= ' LIMIT ' . $limitstart . ',' . $limit;
+				$db->setQuery($query);
+
+				$this->_data = $db->loadObjectList();
+			} else {
 				$this->_data = $this->_getList($query);
 			}
 		}

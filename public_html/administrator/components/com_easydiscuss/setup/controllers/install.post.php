@@ -242,7 +242,11 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 				. ' ("18", "18", "Unvote a question", NOW(), "1", "-1"),'
 				. ' ("19", "19", "Unvote a reply", NOW(), "1", "-1"),'
 				. ' ("20", "20", "Remove a question", NOW(), "1", "-1"),'
-				. ' ("21", "21", "Reply rejected as answer", NOW(), "1", "-1")';
+				. ' ("21", "21", "Reply rejected as answer", NOW(), "1", "-1"),'
+				. ' ("22", "22", "Like your reply", NOW(), "1", "1"),'
+				. ' ("23", "23", "Unlike your reply", NOW(), "1", "-1"),'
+				. ' ("24", "24", "Like your discussion", NOW(), "1", "1"),'
+				. ' ("25", "25", "Unlike your discussion", NOW(), "1", "-1")';
 
 		$db->setQuery( $query );
 
@@ -289,7 +293,11 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 				. ' ("18", "easydiscuss.unvote.question", "Unvote a question", "This rule allows you to assign points for a user when they vote down a question.", "", NOW(), "1"),'
 				. ' ("19", "easydiscuss.unvote.reply", "Unvote a reply", "This rule allows you to assign a badge or points for a user when they vote down a reply.", "", NOW(), "1"),'
 				. ' ("20", "easydiscuss.remove.discussion", "Remove a discussion", "This rule allows you to assign a badge or points for a user when they remove a discussion.", "", NOW(), "1"),'
-				. ' ("21", "easydiscuss.rejectanswer.reply", "Reply rejected as answer", "This rule allows you to deduct points for a user when their accepted answer has been rejected.", "", NOW(), "1")';
+				. ' ("21", "easydiscuss.rejectanswer.reply", "Reply rejected as answer", "This rule allows you to deduct points for a user when their accepted answer has been rejected.", "", NOW(), "1"),'
+				. ' ("22", "easydiscuss.reply.like", "Like your reply", "This rule allows a user to gain points when someone like their own replies.", "", NOW(), "1"),'
+				. ' ("23", "easydiscuss.reply.unlike", "Unlike your reply", "This rule allows a user points to be deducted when someone unlike their own replies.", "", NOW(), "1"),'
+				. ' ("24", "easydiscuss.discussion.like", "Like your discussion", "This rule allows a user to gain points when someone like their own discussion post.", "", NOW(), "1"),'
+				. ' ("25", "easydiscuss.discussion.unlike", "Unlike your discussion", "This rule allows a points to be deducted when someone unlike their own discussion post.", "", NOW(), "1")';
 
 		$db->setQuery( $query );
 		$db->query();
@@ -334,7 +342,9 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 				. ' ("8", "8", "Bookworm", "Read 50 discussions.", "bookworm.png", NOW(), "1", "50", "bookworm"),'
 				. ' ("9", "9", "Peacemaker", "Updated 50 discussions to resolved.", "peacemaker.png", NOW(), "1", "50", "peacemaker"),'
 				. ' ("10", "10", "Attention!", "Updated profile 50 times.", "attention.png", NOW(), "1", "50", "attention"),'
-				. ' ("11", "11", "Firestarter", "Posted 100 comments.", "firestarter.png", NOW(), "1", "100", "firestarter")';
+				. ' ("11", "11", "Firestarter", "Posted 100 comments.", "firestarter.png", NOW(), "1", "100", "firestarter"),'
+				. ' ("12", "22", "Notable Answerer", "User likes your replies 100 times.", "reply-like.png", NOW(), "1", "100", "notable-answerer"),'
+				. ' ("13", "24", "Well-Known Questionnaire", "User likes your dicussions 50 times.", "discuss-like.png", NOW(), "1", "50", "well-known-questionnaire")';
 
 		$db->setQuery( $query );
 		$db->query();
@@ -456,18 +466,31 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 
 		$updateSiteId = $db->loadResult();
 
-		// Now we need to update the url
-		$table = JTable::getInstance('UpdateSite');
-		$exists = $table->load($updateSiteId);
-
-		if (!$exists) {
-			return false;
-		}
-
 		$defaultLocation = 'https://stackideas.com/jupdates/manifest/easydiscuss';
 		$domain = $this->getDomain();
-		$table->location = $defaultLocation . '?apikey=' . ED_KEY . '&domain=' . $domain;
-		$table->store();
+		$location = $defaultLocation . '?apikey=' . ED_KEY . '&domain=' . $domain;
+
+		// For some Joomla versions, there is no tables/updatesite.php
+		// Hence, the JTable::getInstance('UpdateSite') will return null
+		$table = JTable::getInstance('UpdateSite');
+
+		if ($table) {
+			// Now we need to update the url
+			$exists = $table->load($updateSiteId);
+
+			if (!$exists) {
+				return false;
+			}
+
+			$table->location = $location;
+			$table->store();
+		} else {
+			$query	= 'UPDATE '. $db->quoteName('#__update_sites')
+					. ' SET ' . $db->quoteName('location') . ' = ' . $db->Quote($location)
+					. ' WHERE ' . $db->quoteName('update_site_id') . ' = ' . $db->Quote($updateSiteId);
+			$db->setQuery($query);
+			$db->query();
+		}
 
 		// Cleanup unwanted data from updates table
 		// Since Joomla will always try to add a new record when it doesn't find the same match, we need to delete records created

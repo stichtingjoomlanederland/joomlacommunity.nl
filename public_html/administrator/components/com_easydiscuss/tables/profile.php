@@ -374,6 +374,20 @@ class DiscussProfile extends EasyDiscussTable
 		return $badgeUser->store();
 	}
 
+	/**
+	 * Method to remove badge
+	 *
+	 * @since	3.0
+	 * @access	public
+	 */
+	public function removeBadge($badgeId)
+	{
+		$model = ED::model('Badges');
+		$model->removeBadge($this->id, $badgeId);
+
+		return true;
+	}
+
 	public function addPoint($point)
 	{
 		$this->points += $point;

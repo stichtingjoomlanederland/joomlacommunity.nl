@@ -63,6 +63,15 @@ defined('_JEXEC') or die('Unauthorized Access');
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_POST_APPEND_EMAIL_ADDRESS_IN_CONTENT'); ?>
+                        </div>
+                        <div class="col-md-7">
+                            <?php echo $this->html('form.boolean', 'main_post_appendemail', $this->config->get('main_post_appendemail')); ?>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>

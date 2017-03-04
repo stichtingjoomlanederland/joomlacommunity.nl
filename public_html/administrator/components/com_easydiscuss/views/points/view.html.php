@@ -65,7 +65,7 @@ class EasyDiscussViewPoints extends EasyDiscussAdminView
 		}
 
 		$model = ED::model('Points');
-		$rules = $model->getRules();
+		$rules = $model->getRulesWithState();
 
 		$this->set('rules', $rules);
 		$this->set('point', $point);

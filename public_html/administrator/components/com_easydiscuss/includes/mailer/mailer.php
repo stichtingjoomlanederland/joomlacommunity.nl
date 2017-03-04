@@ -60,9 +60,14 @@ class EasyDiscussMailer extends EasyDiscuss
 		return $emails;
 	}
 
+	/**
+	 * Notifies subscribers on the site
+	 *
+	 * @since	4.0.13
+	 * @access	public
+	 */
 	public static function notifySubscribers($data, $excludes = array())
 	{
-
 		// Store all the sent emails
 		$emailSent = array();
 
@@ -88,16 +93,14 @@ class EasyDiscussMailer extends EasyDiscuss
 			// Remove dupes records
 			foreach ($results as $item) {
 
+				// Add first item
 				if (empty($tobeSent)) {
-
-					// Add first item
 					$tobeSent[] = $item;
 				}
 
 				$isAdded = false;
 
 				foreach ($tobeSent as $item2) {
-
 					if ($item->email == $item2->email) {
 						$isAdded = true;
 					}
@@ -135,6 +138,12 @@ class EasyDiscussMailer extends EasyDiscuss
 		return $emails;
 	}
 
+	/**
+	 * Notifies the person who started the discussion
+	 *
+	 * @since	4.0.13
+	 * @access	public
+	 */
 	public static function notifyThreadOwner($data, $excludes = array())
 	{
 		self::_storeQueue($data['owner_email'], $data);
@@ -142,6 +151,25 @@ class EasyDiscussMailer extends EasyDiscuss
 		return;
 	}
 
+	/**
+	 * Notifies the who the actor of the post
+	 *
+	 * @since	4.0.13
+	 * @access	public
+	 */
+	public static function notifyActor($data, $excludes = array())
+	{
+		self::_storeQueue($data['actor_email'], $data);
+
+		return;
+	}
+
+	/**
+	 * Notify people that are involved in the discussion
+	 *
+	 * @since	4.0.13
+	 * @access	public
+	 */
 	public static function notifyThreadParticipants($data, $excludes = array())
 	{
 		$excludes = array_unique($excludes);
@@ -157,7 +185,7 @@ class EasyDiscussMailer extends EasyDiscuss
 			$participants = array_unique($participants);
 
 			foreach ($participants as $part) {
-				self::_storeQueue( $part, $data );
+				self::_storeQueue($part, $data);
 			}
 		}
 		return $participants;
@@ -215,6 +243,7 @@ class EasyDiscussMailer extends EasyDiscuss
 	}
 
 
+
 	/**
 	 * Notify all subscribers except admins and mods.
 	 * Store notification emails in mailqueue.
@@ -225,8 +254,24 @@ class EasyDiscussMailer extends EasyDiscuss
 	public static function notifyAllMembers($data, $excludes = array())
 	{
 		$db = ED::db();
-		$query	= 'SELECT `email` FROM ' . $db->nameQuote('#__users');
-		$query .= ' WHERE `block` = 0 ';
+		$query	= 'SELECT DISTINCT(`email`) FROM ' . $db->nameQuote('#__users') . ' AS a';
+
+		$config = ED::config();
+
+		if (isset($data['cat_id']) && $config->get('notify_all_respect_category')) {
+			$query .= ' INNER JOIN `#__user_usergroup_map` AS b';
+			$query .= ' ON a.`id` = b.`user_id`';
+		}
+
+		$query .= ' WHERE a.`block` = 0 ';
+
+		if (isset($data['cat_id']) && $config->get('notify_all_respect_category')) {
+			$category = ED::table('Category');
+			$category->load($data['cat_id']);
+			$groups = $category->getViewableGroups();
+
+			$query .= ' AND b.`group_id` IN(' . implode(',', $groups) . ')';
+		}
 
 		if (!empty($excludes)) {
 
@@ -234,9 +279,11 @@ class EasyDiscussMailer extends EasyDiscuss
 				$excludes[$i] = $db->Quote( $excludes[$i] );
 			}
 
-			$query	.= ' AND ' . $db->nameQuote('email') . ' NOT IN (' . implode(',', $excludes) . ')';
+			$query	.= ' AND a.' . $db->nameQuote('email') . ' NOT IN (' . implode(',', $excludes) . ')';
 		}
 
+		// // Debug
+		// echo str_ireplace('#__', 'jos_', $query);exit;
 		$db->setQuery($query);
 
 		$emails = $db->loadResultArray();
@@ -248,22 +295,39 @@ class EasyDiscussMailer extends EasyDiscuss
 		}
 	}
 
+	/**
+	 * Inserts a record into the mail queue table and inserts an unsubscribe link
+	 *
+	 * @since	4.0.13
+	 * @access	public
+	 */
 	private static function _saveQueue($subscribers, $data)
 	{
-		if (!empty($subscribers)) {
-			foreach ($subscribers as $subscriber) {
-				if (!$isSent = self::isEmailSent($subscriber->email)) {
-					$hash = base64_encode("type=".$subscriber->type."\r\nsid=".$subscriber->id."\r\nuid=".$subscriber->userid."\r\ntoken=".md5($subscriber->id.$subscriber->created));
-					$data['unsubscribeLink'] = EDR::getRoutedURL('index.php?option=com_easydiscuss&controller=subscription&task=unsubscribe&data='.$hash, false, true);
-					self::_storeQueue($subscriber->email, $data);
-				}
+		if (!$subscribers) {
+			return;
+		}
+
+		foreach ($subscribers as $subscriber) {
+
+			$isSent = self::isEmailSent($subscriber->email);
+
+			if (!$isSent) {
+				$hash = base64_encode("type=".$subscriber->type."\r\nsid=".$subscriber->id."\r\nuid=".$subscriber->userid."\r\ntoken=".md5($subscriber->id.$subscriber->created));
+				$data['unsubscribeLink'] = EDR::getRoutedURL('index.php?option=com_easydiscuss&controller=subscription&task=unsubscribe&data='.$hash, false, true);
+
+				self::_storeQueue($subscriber->email, $data);
 			}
 		}
 
 		return;
 	}
 
-	// Insert to MailQueue Table
+	/**
+	 * Inserts a record into the mail queue table
+	 *
+	 * @since	4.0.13
+	 * @access	public
+	 */
 	private static function _storeQueue($emailTo, $data)
 	{
 		if (!$emailTo) {
@@ -277,8 +341,8 @@ class EasyDiscussMailer extends EasyDiscuss
 		$mailq->created = ED::date()->toSql();
 		$mailq->ashtml = ED::config()->get('notify_html_format');
 
-		$mailq->mailfrom = self::getMailFrom();
-		$mailq->fromname = self::getFromName();
+		$mailq->mailfrom = self::getMailFrom($data);
+		$mailq->fromname = self::getFromName($data);
 		$mailq->status = 0;
 
 		return $mailq->store();
@@ -435,15 +499,12 @@ class EasyDiscussMailer extends EasyDiscuss
 		}
 
 		//lets run another checking to ensure the emails doesnt exists in exclude array
-		$finalResult    = array();
-		if( count( $excludes ) > 0 && count($result) > 0 )
-		{
-			foreach( $result as $item)
-			{
-				$email  = $item->email;
-				if( !in_array($email, $excludes) )
-				{
-					$finalResult[]  = $item;
+		$finalResult = array();
+		if (count($excludes) > 0 && count($result) > 0) {
+			foreach ($result as $item) {
+				$email = $item->email;
+				if (!in_array($email, $excludes)) {
+					$finalResult[] = $item;
 				}
 			}
 		}
@@ -452,11 +513,35 @@ class EasyDiscussMailer extends EasyDiscuss
 			$finalResult = $result;
 		}
 
+		if (isset($params['emailOnly']) && $params['emailOnly']) {
+			$emails = array();
+
+			foreach ($finalResult as $subscriber) {
+				$emails[] = $subscriber->email;
+			}
+
+			return $emails;
+		}
+
 		return $finalResult;
 	}
 
-	public static function getMailFrom()
+	/**
+	 * Sets the "From" e-mail address
+	 *
+	 * @since	4.0.13
+	 * @access	public
+	 */
+	public static function getMailFrom($data = array())
 	{
+		$config = ED::config();
+
+		// Modify the from name to the user that generated this activity
+		if ($config->get('notify_modify_from') && isset($data['senderObject']) && $data['senderObject']) {
+
+			return $data['senderObject']->user->email;
+		}
+
 		static $mailfrom = null;
 
 		if (!$mailfrom) {
@@ -467,12 +552,25 @@ class EasyDiscussMailer extends EasyDiscuss
 		return $mailfrom;
 	}
 
-	public static function getFromName()
+	/**
+	 * Sets the "From" name
+	 *
+	 * @since	4.0.13
+	 * @access	public
+	 */
+	public static function getFromName($data = array())
 	{
+		$config = ED::config();
+
+		// Modify the from name to the user that generated this activity
+		if ($config->get('notify_modify_from') && isset($data['senderObject']) && $data['senderObject']) {
+			return $data['senderObject']->getName();
+		}
+
 		static $fromname = null;
 
 		if (!$fromname) {
-			$config = ED::config();
+
 			$fromname = $config->get('notification_sender_name', ED::jconfig()->getValue('fromname'));
 		}
 

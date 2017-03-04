@@ -155,6 +155,7 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		if ($result) {
 			foreach ($result as $row) {
 				$post = ED::post($row);
+				$post->editLink = 'index.php?option=com_easydiscuss&view=post&layout=edit&id=' . $post->id;
 
 				$posts[] = $post;
 			}
@@ -201,10 +202,7 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		if ($result) {
 			foreach ($result as $row) {
 				$post = ED::post($row);
-
-				if ($post->isQuestion()) {
-					$post->editLink = 'index.php?option=com_easydiscuss&view=post&layout=pending&id=' . $post->id;
-				}
+				$post->editLink = 'index.php?option=com_easydiscuss&view=post&layout=pending&id=' . $post->id;
 
 				$posts[] = $post;
 			}

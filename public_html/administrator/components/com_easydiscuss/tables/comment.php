@@ -205,6 +205,9 @@ class DiscussComment extends EasyDiscussTable
 		$emailData['postTitle']	= $question->title;
 		$emailData['postLink'] = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $question->id, false, true);
 
+		// This is used when we need to alter the sender information
+		$emailData['senderObject'] = $profile;
+
 		// lets determine if we need to include the unsubcribe link here or not.
 		$addUnsubscribeLink = false;
 		$replyAuthorEmail = $post->user_id ? $post->getOwner()->getEmail() : $post->poster_email;
@@ -258,13 +261,41 @@ class DiscussComment extends EasyDiscussTable
 			}
 		}
 
+		// Now we also need to get the site and category subscribers emails if they chose to include comments notification
+		if ($config->get('main_sitesubscription') && $config->get('main_subscription_include_comments')) {
+		    $siteSubscribers = ED::Mailer()->getSubscribers('site', 0, $post->category_id, array('emailOnly' => true), array($my->email));
+		    $emails = array_merge($emails, $siteSubscribers);
+		}
+
+		if ($config->get('main_ed_categorysubscription') && $config->get('main_subscription_include_comments')) {
+		    $categorySubscribers = ED::Mailer()->getSubscribers('category', $post->category_id, $post->category_id, array('emailOnly' => true), array($my->email));
+		    $emails = array_merge($emails, $categorySubscribers);
+		}
+
+		// We also need to notify to the post subcribers
+		if ($config->get('main_postsubscription') && $config->get('main_subscription_include_comments')) {
+		    $postSubscribers = ED::Mailer()->getSubscribers('post', $post->id, $post->category_id, array('emailOnly' => true), array($my->email));
+		    $emails = array_merge($emails, $postSubscribers);
+		}
+
 		// Ensure the emails are all unique.
 		$emails = array_unique($emails);
 
+		$subTitle = $question->title;
+		if (JString::strlen($question->title) > 100) {
+			$subTitle = JString::substr($question->title, 0, 100) . '...';
+		}
+
+		$notify = ED::notifications();
+
 		// Only send email when email is not empty.
 		if (!empty($emails)) {
-			$notify	= ED::getNotification();
-			$notify->addQueue($emails, JText::sprintf('COM_EASYDISCUSS_EMAIL_TITLE_NEW_COMMENT', JString::substr($question->title, 0, 15)) . '...' , '', 'email.post.comment.new', $emailData);
+			$notify->addQueue($emails, JText::sprintf('COM_EASYDISCUSS_EMAIL_TITLE_NEW_COMMENT', $post->id, $subTitle) , '', 'email.post.comment.new', $emailData);
+		}
+
+		// If the notify_actor is enabled, we directly send the email to the comment poster
+		if ($config->get('notify_actor')) {
+			$notify->addQueue($profile->getEmail(), JText::sprintf('COM_EASYDISCUSS_EMAIL_TITLE_YOU_ADDED_NEW_COMMENT', $subTitle) , '', 'email.comment.new', $emailData);
 		}
 
 		// Process comment triggers.

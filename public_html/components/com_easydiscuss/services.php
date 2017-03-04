@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -15,52 +15,6 @@ $config = ED::config();
 
 if (JRequest::getCmd('task', '', 'GET') == 'cron') {
 
-	// $mailq = ED::getMailQueue();
-
-	// if (JRequest::getCmd('job', '', 'GET') == 'subscription' && $config->get('main_sitesubscription')) {
-	// 	//process the site subscription
-	// 	//daily - index.php?option=com_easydiscuss&task=cron&job=subscription&interval=daily
-	// 	//weekly - index.php?option=com_easydiscuss&task=cron&job=subscription&interval=weekly
-	// 	//monthly - index.php?option=com_easydiscuss&task=cron&job=subscription&interval=monthly
-	// 	//all - index.php?option=com_easydiscuss&task=cron&job=subscription&interval=all
-
-	// 	$interval	= JRequest::getCmd('interval', 'daily', 'GET');
-
-	// 	$subs = DiscussHelper::getSiteSubscriptionClass();
-
-	// 	if($interval == 'all')
-	// 	{
-	// 		$processIntervals = array('daily', 'weekly', 'monthly');
-
-	// 		foreach($processIntervals as $processInterval)
-	// 		{
-	// 			$subs->interval = $processInterval;
-	// 			$subs->process();
-	// 		}
-	// 	}
-	// 	else
-	// 	{
-	// 		$subs->interval = $interval;
-	// 		$subs->process();
-	// 	}
-
-	// 	echo ucfirst($interval).' subscription processed.';
-	// } else {
-	// 	$mailq->sendOnPageLoad();
-
-	// 	echo 'Email batch process finished.';
-	// }
-
-	// // @rule: Process incoming email rules
-	// if ($config->get('main_email_parser')) {
-	// 	$mailq->parseEmails();
-	// }
-
-	// // Run any archiving or maintenance calls
-	// if ($config->get('prune_notifications_cron')) {
-	// 	ED::maintenance()->pruneNotifications();
-	// }
-
 	$mailq = ED::mailqueue();
 
 	// Process pending emails.
@@ -69,7 +23,6 @@ if (JRequest::getCmd('task', '', 'GET') == 'cron') {
 	if ($config->get('main_email_parser')) {
 		$mailq->parseEmails();
 	}
-
 
 	// Process remote storage tasks
 	ED::cron()->execute();

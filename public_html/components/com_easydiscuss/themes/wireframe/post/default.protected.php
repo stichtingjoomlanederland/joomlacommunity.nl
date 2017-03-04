@@ -54,7 +54,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                     <div class="t-mt--sm">
                         <ol class="g-list-inline ed-post-item__post-meta">
-                            <?php if ($post->isResolved()) { ?>
+                            <?php if ($post->isResolved() && $this->config->get('main_qna')) { ?>
                             <li>
                                 <span class="o-label o-label--success-o ed-state-resolved"><?php echo JText::_('COM_EASYDISCUSS_RESOLVED');?></span>
                             </li>
@@ -137,6 +137,8 @@ defined('_JEXEC') or die('Unauthorized Access');
             </div>
         </div>
     </div>
+
+    <?php echo ED::renderModule('easydiscuss-after-postcontent'); ?>
 
     <div class="ed-post-who-view t-lg-mt--lg t-lg-mb--lg">
         <?php echo ED::getWhosOnline();?>

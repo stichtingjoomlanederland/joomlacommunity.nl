@@ -92,17 +92,11 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <?php } ?>
                         </h2>
 
-
                         <ol class="g-list-inline ed-post-item__post-meta">
 
-                            <?php if ($post->isResolved()) { ?>
+                            <?php if ($post->isResolved() && $this->config->get('main_qna')) { ?>
                             <li><span class="o-label o-label--success-o"><?php echo JText::_('COM_EASYDISCUSS_RESOLVED');?></span></li>
                             <?php } ?>
-
-                            <?php //if ($post->isStillNew()) { ?>
-                                <!-- li><span class="o-label o-label--warning-o"><?php echo JText::_('COM_EASYDISCUSS_NEW');?></span></li -->
-                            <?php // } ?>
-
 
                             <!-- post status here: accepted, onhold, working rejected -->
                             <?php if ($post->isPostRejected()) { ?>
@@ -141,7 +135,6 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <?php } ?>
                         </ol>
 
-
                         <?php if ($this->config->get('layout_enableintrotext') || $post->getTags()) { ?>
                             <?php if ($this->config->get('layout_enableintrotext')) { ?>
                             <div class="ed-post-content">
@@ -164,7 +157,6 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <?php } ?>
 
                         <?php } ?>
-
 
                     </div>
                 </div>

@@ -77,6 +77,7 @@ defined('_JEXEC') or die('Restricted access');
 					                </ol>
 			 					<?php } ?>
 
+			 					<?php if ($this->config->get('main_qna')) { ?>
 		                        <ol class="g-list-inline ed-post-item__post-meta">
 		                            <li>
 		                            	<span class="o-label o-label--<?php echo ($post->isresolve) ? 'success' : 'danger';?>-o">
@@ -84,6 +85,7 @@ defined('_JEXEC') or die('Restricted access');
                                         </span>
 		                            </li>
 		                        </ol>
+		                        <?php } ?>
 		                    </div>
 		                </div>
 

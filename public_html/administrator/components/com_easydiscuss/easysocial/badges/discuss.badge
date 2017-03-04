@@ -79,5 +79,25 @@
 		"extension"		: "com_easydiscuss",
 		"avatar"		: "media/com_easydiscuss/badges/firestarter.png",
 		"frequency"		: 100
-	}
+	},
+	{
+		"title" 		: "Well-Known Questionnaire",
+		"alias"			: "well-known-questionnaire",
+		"description"	: "Become one of the most famous questionnaire in the forums.",
+		"howto"			: "To unlock this badge, users must likes your discussion post in forums at least 50 times.",
+		"command"		: "discussion.like",
+		"extension"		: "com_easydiscuss",
+		"avatar"		: "media/com_easydiscuss/badges/discuss-like.png",
+		"frequency"		: 50
+	},
+	{
+		"title" 		: "Notable Answerer",
+		"alias"			: "notable-answerer",
+		"description"	: "Everyone loves your replies in the forums.",
+		"howto"			: "To unlock this badge, users must likes your replies in discussion post in forums at least 100 times",
+		"command"		: "reply.like",
+		"extension"		: "com_easydiscuss",
+		"avatar"		: "media/com_easydiscuss/badges/reply-like.png",
+		"frequency"		: 100
+	}	
 ]

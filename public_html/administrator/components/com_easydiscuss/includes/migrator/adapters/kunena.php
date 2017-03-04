@@ -225,8 +225,14 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 	        $data['content'] = $content;
 	        $data['parent_id'] = $post->id;
 	        $data['user_id'] = $kChildItem->userid;
+			$data['user_type'] = DISCUSS_POSTER_MEMBER;
+			$data['poster_name'] = $kChildItem->name;
 			$data['created'] = ED::date($kChildItem->time)->toMySQL();
 			$data['modified'] = ED::date($kChildItem->time)->toMySQL();
+
+			if (!$kChildItem->userid) {
+				$data['user_type'] = DISCUSS_POSTER_GUEST;
+			}			
 
 	        // Load the post library
 	        $post = ED::post();

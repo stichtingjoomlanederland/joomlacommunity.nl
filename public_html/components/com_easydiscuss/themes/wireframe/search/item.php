@@ -24,7 +24,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <?php echo $post->getContent(); ?>
                 </div>
 
-                <?php if (! $post->isCategory()) { ?>
+                <?php if (!$post->isCategory() && $this->config->get('main_qna')) { ?>
                 <ol class="g-list-inline ed-post-item__post-meta">
                     <?php if ($post->isResolved()) { ?>
                         <li><span class="o-label o-label--success-o"><?php echo JText::_('COM_EASYDISCUSS_RESOLVED') ?></span></li>

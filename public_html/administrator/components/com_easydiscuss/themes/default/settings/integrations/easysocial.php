@@ -51,6 +51,14 @@ defined('_JEXEC') or die('Restricted access');
 							<?php echo $this->html('form.boolean', 'integration_easysocial_popbox', $this->config->get('integration_easysocial_popbox')); ?>
 						</div>
 					</div>
+					<div class="form-group">
+						<div class="col-md-6 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_MINI_HEADER'); ?>
+						</div>
+						<div class="col-md-6">
+							<?php echo $this->html('form.boolean', 'integration_easysocial_mini_header', $this->config->get('integration_easysocial_mini_header')); ?>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <h2 class="ed-page-title"><?php echo JText::_('COM_EASYDISCUSS_EDIT_PROFILE'); ?></h2>
 <div class="ed-profile">
-<form id="dashboard" name="dashboard" enctype="multipart/form-data" method="post" action="">
+<form id="dashboard" name="dashboard" enctype="multipart/form-data" method="post" action="<?php echo JRoute::_('index.php');?>">
 	<div class="ed-profile-container">
 	    <div class="ed-profile-container__side">
 	    	<div class="ed-profile-container__side-bd">

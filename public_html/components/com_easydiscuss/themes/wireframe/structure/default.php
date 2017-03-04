@@ -15,47 +15,47 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 <script type="text/javascript">
 document.addEventListener('DOMContentLoaded', function(){
-    if (window.innerWidth < 640 && window.innerWidth > 481) {
-        var wrapper = document.querySelectorAll('.ed-responsive');
-        for(var i = 0; i < wrapper.length; i++) {
-            wrapper[i].classList.add('w640');
-        }
-    }
-    if (window.innerWidth < 480 ) {
-        var wrapper = document.querySelectorAll('.ed-responsive');
-        for(var i = 0; i < wrapper.length; i++) {
-            wrapper[i].classList.add('w480');
-        }
-    }
+	if (window.innerWidth < 640 && window.innerWidth > 481) {
+		var wrapper = document.querySelectorAll('.ed-responsive');
+		for(var i = 0; i < wrapper.length; i++) {
+			wrapper[i].classList.add('w640');
+		}
+	}
+	if (window.innerWidth < 480 ) {
+		var wrapper = document.querySelectorAll('.ed-responsive');
+		for(var i = 0; i < wrapper.length; i++) {
+			wrapper[i].classList.add('w480');
+		}
+	}
 });
 </script>
 <div id="ed" class="type-component
-    ed-responsive
-    <?php echo $categoryClass;?> 
-    <?php echo $suffix; ?> 
-    <?php echo 'view-' . $view; ?>
-    <?php echo 'layout-' . $layout; ?>
-    <?php echo $rtl ? ' is-rtl' : '';?>"
-    data-ed-wrapper
+	ed-responsive
+	<?php echo $categoryClass;?> 
+	<?php echo $suffix; ?> 
+	<?php echo 'view-' . $view; ?>
+	<?php echo 'layout-' . $layout; ?>
+	<?php echo $rtl ? ' is-rtl' : '';?>"
+	data-ed-wrapper
 >
-    <?php if ($miniheader) { ?>
-    <div id="es" class="es">
-        <?php echo $miniheader; ?>
-    </div>
-    <?php } ?>
+	<?php if ($miniheader) { ?>
+	<div id="es" class="es">
+		<?php echo $miniheader; ?>
+	</div>
+	<?php } ?>
 
 	<?php echo $toolbar; ?>
 
 	<?php echo $contents; ?>
 
-    <?php if ($this->config->get('main_copyright_link_back')) { ?>
-        <?php echo DISCUSS_POWERED_BY; ?>
-    <?php } ?>
+	<?php if ($this->config->get('main_copyright_link_back')) { ?>
+		<?php echo DISCUSS_POWERED_BY; ?>
+	<?php } ?>
 
-    <?php if (JRequest::getVar('tmpl') != 'component') { ?>
-        <?php echo ED::profiler()->html();?>
-    <?php } ?>
+	<?php if (JRequest::getVar('tmpl') != 'component') { ?>
+		<?php echo ED::profiler()->html();?>
+	<?php } ?>
 
 	<input type="hidden" class="easydiscuss-token" value="<?php echo ED::getToken();?>" data-ed-token />
-    <input type="hidden" data-ed-ajax-url value="<?php echo $ajaxUrl;?>" />
+	<input type="hidden" data-ed-ajax-url value="<?php echo $ajaxUrl;?>" />
 </div>

@@ -30,7 +30,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
             <div class="o-col">
 
-                <?php if ($post->isResolved()) { ?>
+                <?php if ($post->isResolved() && $this->config->get('main_qna')) { ?>
                 <span class="o-label o-label--success-o"><?php echo JText::_('COM_EASYDISCUSS_RESOLVED'); ?></span>&nbsp;
                 <?php } ?>
 

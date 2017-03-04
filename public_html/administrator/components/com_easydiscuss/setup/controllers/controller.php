@@ -121,6 +121,22 @@ class EasyDiscussSetupController
 	}
 
 	/**
+     * Retrieve the Joomla Version
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+	public function getJoomlaVersion()
+	{
+		$jVerArr = explode('.', JVERSION);
+		$jVersion = $jVerArr[0] . '.' . $jVerArr[1];
+
+		return $jVersion;
+	}
+
+	/**
 	 * Gets the info about the latest version
 	 *
 	 * @since	4.0.12

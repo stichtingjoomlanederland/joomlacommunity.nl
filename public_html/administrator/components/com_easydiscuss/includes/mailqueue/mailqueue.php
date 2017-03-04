@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -13,7 +13,13 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussMailQueue extends EasyDiscuss
 {
-	function sendOnPageLoad()
+	/**
+	 * Processes e-mails from the queue and dispatch them out
+	 *
+	 * @since	4.0.13
+	 * @access	public
+	 */
+	public function sendOnPageLoad()
 	{
 		$db = ED::db();
 		$config	= ED::config();
@@ -27,6 +33,15 @@ class EasyDiscussMailQueue extends EasyDiscuss
 
 		$result = $db->loadObjectList();
 
+		// Get the reply to
+		$replyToEmail = $config->get('notification_sender_email', ED::jconfig()->getValue('mailfrom'));
+		$replyToName = $config->get('notification_sender_name', ED::jconfig()->getValue('fromname'));
+
+		// Standard arguments
+		$cc = null;
+		$bcc = null;
+		$attachment = null;
+
 		if (!empty($result)) {
 
 			foreach($result as $mail) {
@@ -34,16 +49,14 @@ class EasyDiscussMailQueue extends EasyDiscuss
 				$mailq = ED::table('MailQueue');
 				$mailq->load($mail->id);
 
-				if (ED::getJoomlaVersion() > '1.6') {
-					$mail = JFactory::getMailer();
-					$state = $mail->sendMail($mailq->mailfrom, $mailq->fromname, $mailq->recipient, $mailq->subject, $mailq->body, $mailq->ashtml);
-				} else {
-					$state = JUtility::sendMail($mailq->mailfrom, $mailq->fromname, $mailq->recipient, $mailq->subject, $mailq->body, $mailq->ashtml);
-				}
+				$replyTo = 
 
+				$mail = JFactory::getMailer();
+				$state = $mail->sendMail($mailq->mailfrom, $mailq->fromname, $mailq->recipient, $mailq->subject, $mailq->body, $mailq->ashtml, $cc, $bcc, $attachment, $replyToEmail, $replyToName);
+				
 				// update the status to 1 == proccessed
 				if ($state) {
-	 				$mailq->status = 1;
+					$mailq->status = 1;
 				}
 
 				$mailq->store();
@@ -51,18 +64,21 @@ class EasyDiscussMailQueue extends EasyDiscuss
 		}
 	}
 
+	/**
+	 * Fetch e-mails on the remote server
+	 *
+	 * @since	4.0.13
+	 * @access	public
+	 */
 	public function parseEmails()
 	{
-		$config = ED::getConfig();
+		$mailbox = ED::mailbox();
 
-
-		// Default email parser
-
-		$mailbox = ED::Mailbox();
-		$state	= $mailbox->connect( $config->get( 'main_email_parser_username' ), $config->get( 'main_email_parser_password' ) );
+		// Try to connect to the mail server
+		$state = $mailbox->connect($this->config->get('main_email_parser_username'), $this->config->get('main_email_parser_password'));
 
 		if ($state) {
-			self::processEmails( $mailbox );
+			self::processEmails($mailbox);
 		}
 
 		// Category email parser
@@ -77,12 +93,12 @@ class EasyDiscussMailQueue extends EasyDiscuss
 				$enable = explode( ',' , $category->getParam( 'cat_email_parser_switch') );
 
 				if ($enable[0]) {
-					$catMail = explode( ',' , $category->getParam( 'cat_email_parser') );
-					$catPass = explode( ',' , $category->getParam( 'cat_email_parser_password') );
+					$catMail = explode( ',' , $category->getParam('cat_email_parser'));
+					$catPass = explode( ',' , $category->getParam('cat_email_parser_password'));
 
 
 					$mailbox = ED::Mailbox();
-					$state	= $mailbox->connect( $catMail[0], $catPass[0] );
+					$state = $mailbox->connect($catMail[0], $catPass[0]);
 
 					if ($state) {
 						self::processEmails($mailbox, $category);
@@ -95,24 +111,52 @@ class EasyDiscussMailQueue extends EasyDiscuss
 		return true;
 	}
 
+	/**
+	 * Retrieve the sender details
+	 *
+	 * @since   4.0.13
+	 * @access  public
+	 */
+	public function getSenderEmail($data)
+	{
+		$from = '';
 
-	/*
-	 * Connect from parseEmails
+		if (isset($data->from)) {
+			$info = $data->from[0];
+
+			if (!empty($info->mailbox) && !empty($info->host)) {
+				$from = $info->mailbox . '@' . $info->host;
+			}
+		}
+
+		if (!$from) {
+			$from = $data->fromemail;
+		}
+
+		return $from;
+	}
+	
+	/**
+	 * Process emails from the mailbox
+	 *
+	 * @since	4.0.13
+	 * @access	public
 	 */
 	private function processEmails($mailer = '', $category = '')
 	{
 		// Bind file attachments
-		jimport( 'joomla.filesystem.file' );
-		jimport( 'joomla.filesystem.folder' );
-		jimport( 'joomla.utilities.utility' );
+		jimport('joomla.filesystem.file');
+		jimport('joomla.filesystem.folder');
+		jimport('joomla.utilities.utility');
 
+        $searchCriteria = 'UNSEEN';
 
-		// @task: Only search for messages that are new.
-		$unread	= $mailer->searchMessages('UNSEEN');
+		// Only search for messages that are new.
+		$unread	= $mailer->searchMessages($searchCriteria);
 
 		// If there is no unread emails, just skip this altogether
 		if (!$unread) {
-			echo JText::_( 'COM_EASYDISCUSS_NO_EMAILS_TO_PARSE' );
+			echo JText::_('COM_EASYDISCUSS_NO_EMAILS_TO_PARSE');
 			return false;
 		}
 
@@ -121,7 +165,7 @@ class EasyDiscussMailQueue extends EasyDiscuss
 		$filter = JFilterInput::getInstance();
 		$total = 0;
 
-		$replyBreaker = $config->get('mail_reply_breaker');
+		$replyBreaker = $this->config->get('mail_reply_breaker');
 
 		foreach ($unread as $sequence) {
 
@@ -130,6 +174,7 @@ class EasyDiscussMailQueue extends EasyDiscuss
 			$from = $info->from;
 
 			$senderName = 'Unknown';
+
 			if (isset($info->from)) {
 				$from = $info->from;
 
@@ -157,8 +202,8 @@ class EasyDiscussMailQueue extends EasyDiscuss
 			// Get the html output
 			$html = $message->getHTML();
 
-		    // Default allowed html codes
-		    $allowed = '<img>,<a>,<br>,<table>,<tbody>,<th>,<tr>,<td>,<div>,<span>,<p>,<h1>,<h2>,<h3>,<h4>,<h5>,<h6>,<b>,<i>,<u>';
+			// Default allowed html codes
+			$allowed = '<img>,<a>,<br>,<table>,<tbody>,<th>,<tr>,<td>,<div>,<span>,<p>,<h1>,<h2>,<h3>,<h4>,<h5>,<h6>,<b>,<i>,<u>';
 
 			// Remove disallowed tags
 			$html = strip_tags($html, $allowed);
@@ -186,11 +231,19 @@ class EasyDiscussMailQueue extends EasyDiscuss
 				$html = strip_tags($html);
 			}
 
+			// Get the sender's e-mail address
+			$senderEmail = $this->getSenderEmail($info);
+			
+			if ($this->config->get('main_email_parser_appendemail')) {
+				$newline = $editor == 'bbcode' ? "\r\n\r\n" : "<br /><br />";
+
+				$html .= $newline . $senderEmail;
+			}
+
 			// Insert default subject if emails do not contain title
 			if (empty($subject)) {
 				$subject = JText::_('COM_EASYDISCUSS_EMAIL_NO_SUBJECT');
 			}
-
 
 			$data['content'] = $html;
 			$data['content_type'] = $contentType;
@@ -200,7 +253,6 @@ class EasyDiscussMailQueue extends EasyDiscuss
 			$data['created'] = ED::date()->toSql();
 			$data['replied'] = ED::date()->toSql();
 			$data['modified'] = ED::date()->toSql();
-
 
 
 			// If this is a reply, and the site isn't configured to parse replies, skip this
@@ -235,20 +287,17 @@ class EasyDiscussMailQueue extends EasyDiscuss
 				$data['category_id'] = $parent->category_id;
 			}
 
-			// @rule: Map the sender's email with the user in Joomla?
-			$replyToEmail	= $info->fromemail;
-
 			// Lookup for the user based on their email address.
-			$user = ED::getUserByEmail($replyToEmail);
+			$user = ED::getUserByEmail($senderEmail);
 
-			if ($user instanceof JUser) {
+			if (($user instanceof JUser) && $this->config->get('main_email_parser_mapuser')) {
 				$data['user_id'] = $user->id;
 				$data['user_type'] = DISCUSS_POSTER_MEMBER;
 			} else {
 				// Guest posts
 				$data['user_type'] = DISCUSS_POSTER_GUEST;
 				$data['poster_name'] = $senderName;
-				$data['poster_email'] = $replyToEmail;
+				$data['poster_email'] = $senderEmail;
 			}
 
 			// check if guest can post question or not. if not skip the processing.
@@ -266,14 +315,14 @@ class EasyDiscussMailQueue extends EasyDiscuss
 			}
 
 			// bind the data
-	        $post->bind($data);
+			$post->bind($data);
 
-	        $saveOptions = array('ignorePreSave' => true);
-	        if ($config->get('main_email_parser_moderation')) {
-	        	$saveOptions['forceModerate'] = true;
-	        }
+			$saveOptions = array('ignorePreSave' => true);
+			if ($config->get('main_email_parser_moderation')) {
+				$saveOptions['forceModerate'] = true;
+			}
 
-	        $post->save($saveOptions);
+			$post->save($saveOptions);
 			// @task: Increment the count.
 			$total	+= 1;
 
@@ -299,12 +348,14 @@ class EasyDiscussMailQueue extends EasyDiscuss
 					$imgExts = array('jpg', 'png', 'gif', 'JPG', 'PNG', 'GIF', 'jpeg', 'JPEG', 'pdf', 'PDF');
 					$imageSegment = explode('.', $file['name']);
 
-					if (! in_array($imageSegment[ count( $imageSegment ) - 1 ], $imgExts)) {
+					// Detect the extension of the file
+					$extension  = JFile::getExt( $file['name'] );
+
+					if (! in_array($imageSegment[ count( $imageSegment ) - 1 ], $imgExts) && (!isset($extension) || !$extension)) {
 						$file['name'] = $file['name'] . '.jpg';
 					}
 
 					$maxSize	= (double) $config->get( 'attachment_maxsize' ) * 1024 * 1024;
-					$extension  = JFile::getExt( $file['name'] );
 
 					// Skip empty data's.
 					if (!isset($extension) || !$extension || !in_array(strtolower($extension), $allowed)) {
@@ -326,14 +377,14 @@ class EasyDiscussMailQueue extends EasyDiscuss
 						$mime = 'application/' . $mime;
 					}
 
-		            $file['type'] = $mime;
-		            $file['error'] = '';
+					$file['type'] = $mime;
+					$file['error'] = '';
 
-		            // Upload an attachment
-		            $attachment = ED::attachment();
-		            $attachment->upload($post, $file);
+					// Upload an attachment
+					$attachment = ED::attachment();
+					$attachment->upload($post, $file);
 
-	        	}
+				}
 			}
 
 			// all done. now mark this email as 'read'

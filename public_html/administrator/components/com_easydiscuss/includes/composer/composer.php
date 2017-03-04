@@ -160,8 +160,15 @@ class EasyDiscussComposer extends EasyDiscuss
 	 * @param	string
 	 * @return
 	 */
-	public function renderEditor($name = 'dc_content', $content = '')
+	public function renderEditor($name = 'dc_content', $content = '', $resetContent = false)
 	{
+		// See if we need to reset the $this->content
+		// This is to avoid the situation where we load two composer one after another. 
+		// If the content of a second composer is empty, it will use the previous content
+		if ($resetContent) {
+			$this->content = '';
+		}
+
 		// We need to know which theme file to load
 		$editorType = 'bbcode';
 
@@ -185,7 +192,7 @@ class EasyDiscussComposer extends EasyDiscuss
 			$style = '#ed .markItUp .markItUpButton a { background-image: url("' . DISCUSS_JOOMLA_SITE_TEMPLATES_URI . $overridePath . '") !important; }';
 			$this->doc->addStyleDeclaration($style);
 		}
-
+		
 		if ($content) {
 			$this->content = $content;
 		}

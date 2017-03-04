@@ -40,7 +40,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <?php if ($post->isResolved() || $post->isPostRejected() || $post->isPostOnhold() || $post->isPostAccepted() || $post->isPostWorkingOn() || $post->getTypeTitle()) { ?>
                 <ol class="g-list-inline ed-post-item__post-meta">
 
-                    <?php if ($post->isResolved()) { ?>
+                    <?php if ($post->isResolved() && $this->config->get('main_qna')) { ?>
                         <li><span class="o-label o-label--success-o"><?php echo JText::_('COM_EASYDISCUSS_RESOLVED');?></span></li>
                     <?php } ?>
 

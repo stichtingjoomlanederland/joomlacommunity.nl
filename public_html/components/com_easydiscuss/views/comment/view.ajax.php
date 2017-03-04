@@ -57,6 +57,14 @@ class EasyDiscussViewComment extends EasyDiscussView
 			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_COMMENTS_NOT_ALLOWED'));
 		}
 
+		// Proccess appending email in content
+		if ($this->config->get('main_post_appendemail') && $this->my->id) {
+			$posterEmail = $this->my->email;
+			$newline = "\r\n\r\n";
+
+			$message .= $newline . $posterEmail;
+		}
+
 		// Load user profile's object.
 		$profile = ED::user($this->my->id);
 
@@ -108,6 +116,9 @@ class EasyDiscussViewComment extends EasyDiscussView
 
 		// Process after save operation
 		$comment->postSave();
+
+		// Remove unnecessary <br> tag
+		$comment->comment = str_replace("<br>", "", $comment->comment);
 
 		// Get the result of the posted comment.
 		$theme = ED::themes();

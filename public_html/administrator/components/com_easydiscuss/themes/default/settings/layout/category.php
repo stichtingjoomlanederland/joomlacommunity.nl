@@ -66,6 +66,14 @@ defined('_JEXEC') or die('Restricted access');
 					</div>
 					<div class="form-group">
                         <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_CATEGORY_AVATAR'); ?>
+                        </div>
+                        <div class="col-md-7">
+							<?php echo $this->html('form.boolean', 'layout_category_show_avatar', $this->config->get('layout_category_show_avatar'));?>
+						</div>
+					</div>					
+					<div class="form-group">
+                        <div class="col-md-5 control-label">
                             <?php echo $this->html('form.label', 'COM_EASYDISCUSS_CATEGORY_SHOWMODERATORS'); ?>
                         </div>
                         <div class="col-md-7">

@@ -540,7 +540,7 @@ class plgUserEasyDiscussUsers extends JPlugin
 	public function removeBadges($userId)
 	{
 		$model = ED::model('Badges');
-		$state = $model->removeBadges($userId);
+		$state = $model->removeBadge($userId);
 
 		if ($state == false) {
 			JError::raiseError( 500, $db->stderr());

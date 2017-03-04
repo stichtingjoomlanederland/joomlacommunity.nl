@@ -41,8 +41,20 @@ class EasyDiscussViewLogin extends EasyDiscussView
             $return = base64_encode($url);
         }
 
-        $this->set('return', $return);
+		$title = JText::_('COM_EASYDISCUSS_PLEASE_LOGIN_TITLE');
+		$info = JText::_('COM_EASYDISCUSS_PLEASE_LOGIN_INFO');
 
+        $usernameField = 'COM_EASYDISCUSS_USERNAME';
+        
+        if (ED::easysocial()->exists() && $this->config->get('main_login_provider') == 'easysocial') {
+            $usernameField = ED::easysocial()->getUsernameField();
+        }
+
+        $this->set('title', $title);
+        $this->set('info', $info);
+        $this->set('usernameField', $usernameField);
+        $this->set('return', $return);
+		
 		parent::display('login/form');
 	}
 }

@@ -63,15 +63,13 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<td style="text-align:left;">
 
 						<?php if ($post->isQuestion()) { ?>
-							<a href="<?php echo $post->editLink; ?>"><?php echo $post->title; ?></a>
+							<a href="<?php echo $post->editLink;?>"><?php echo $post->title;?></a>
 						<?php } else { ?>
 							<?php echo $post->title; ?>
 						<?php } ?>
 
 						<?php if ($post->isReply()) { ?>
-						<p>
-							<?php echo $post->content; ?>
-						</p>
+						<a href="<?php echo $post->editLink;?>"><?php echo JText::_('COM_EASYDISCUSS_VIEW_REPLY'); ?></a>
 						<?php } ?>
 
 						<div style="font-size: 11px;">

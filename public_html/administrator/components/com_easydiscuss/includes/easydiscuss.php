@@ -3198,6 +3198,28 @@ class ED
 		return $link;
 	}
 
+	public static function getLoginForm($text, $return)
+	{
+		$config = ED::getConfig();
+
+		$title = JText::_($text . '_TITLE');
+		$info = JText::_($text . '_INFO');
+
+        $usernameField = 'COM_EASYDISCUSS_USERNAME';
+
+        if (ED::easysocial()->exists() && $config->get('main_login_provider') == 'easysocial') {
+            $usernameField = ED::easysocial()->getUsernameField();
+        }
+
+        $theme = ED::themes();
+        $theme->set('title', $title);
+        $theme->set('info', $info);
+        $theme->set('usernameField', $usernameField);
+        $theme->set('return', $return);
+
+        return $theme->output('site/login/form');
+	}
+
 	public static function getEditProfileLink()
 	{
 		$config	= ED::config();
@@ -3255,6 +3277,45 @@ class ED
 
 		return $link;
 	}
+
+	/**
+	 * Generate forgot username link
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public static function getRemindUsernameLink()
+	{
+		$config = ED::getConfig();
+
+		$default = JRoute::_('index.php?option=com_user&view=remind');
+
+		if (ED::getJoomlaVersion() >= '1.6') {
+			$default = JRoute::_('index.php?option=com_users&view=remind');
+		}
+
+
+		switch ($config->get('main_login_provider'))
+		{
+			case 'easysocial':
+
+				if (ED::easysocial()->exists()) {
+					$link = ESR::profile(array('layout' => 'forgetUsername'));
+				} else {
+					$link = $default;
+				}
+
+				break;
+			case 'joomla':
+			case 'cb':
+			case 'jomsocial':
+			default:
+				$link	= $default;
+				break;
+		}
+
+		return $link;
+	}	
 
 	public static function getDefaultRepliesSorting()
 	{

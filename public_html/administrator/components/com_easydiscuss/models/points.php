@@ -228,11 +228,122 @@ class EasyDiscussModelPoints extends EasyDiscussAdminModel
 		return $this->_total;
 	}
 
-	public function getRules()
+	/**
+	 * Get the action rules of easydiscuss
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function getRules($includePointsRule = false)
 	{
-		$db		= DiscussHelper::getDBO();
-		$query	= 'SELECT * FROM ' . $db->nameQuote( '#__discuss_rules' );
-		$db->setQuery( $query );
+		$db = $this->db;
+
+		$query = 'SELECT * FROM ' . $db->nameQuote('#__discuss_rules');
+		$db->setQuery($query);
 		return $db->loadObjectList();
+	}
+
+	/**
+	 * Get action rules that are being used on the site
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function getRulesWithState()
+	{
+		$db = $this->db;
+
+		$query = 'SELECT a.*, b.`id` AS points_rule_id';
+		$query .= ' FROM `#__discuss_rules` as a';
+		$query .= ' LEFT JOIN `#__discuss_points` as b';
+		$query .= ' ON a.`id` = b.`rule_id`';
+
+		$db->setQuery($query);
+
+		$result = $db->loadObjectList();
+
+		// Format the result
+		if ($result) {
+			foreach ($result as $row) {
+				$row->availability = true;
+
+				if ($row->points_rule_id) {
+					$row->availability = false;
+				}
+			}
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Get Points history given by command and user id
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function getTotalPointsHistory($userId, $command)
+	{
+		$db = $this->db;
+
+		$query = array();
+
+		$query[] = 'SELECT command, count(`command`) as total';
+		$query[] = 'FROM `#__discuss_users_history`';
+		$query[] = 'WHERE `user_id` = ' . $db->Quote($userId);
+
+		if (is_array($command)) {
+			$rule = implode(',', $command);
+			$query[] = 'AND `command` IN(' . $db->Quote($rule) . ')';
+		} else {
+			$query[] = 'AND `command` = ' . $db->Quote($rule);
+		}
+
+		$query[] = 'GROUP BY `command`';
+
+		$query = implode(' ', $query);
+
+		$db->setQuery($query);
+
+		$points = $db->loadObjectList();
+
+		if (!$points) {
+			return $points;
+		}
+
+		$pointsArray = array();
+
+		foreach ($points as $data) {
+			$pointsArray[$data->command] = $data->total;
+		}
+
+		return $pointsArray;
+	}
+
+	/**
+	 * Get all points on the site
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function getAllPoints()
+	{
+		$db = $this->db;
+
+		$query = array();
+
+		$query[] = 'SELECT * FROM ' . $db->nameQuote('#__discuss_points');
+		$query[] = 'WHERE ' . $db->nameQuote('published') . ' = ' . $db->Quote('1');
+
+		$query = implode(' ', $query);
+
+		$db->setQuery($query);
+		$result = $db->loadObjectList();
+
+		if (!$result) {
+			return false;
+		}
+
+		return $result;
 	}
 }

@@ -922,6 +922,11 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		$message = JText::_('COM_EASYDISCUSS_MODERATE_POST_PUBLISHED');
 		$redirect = EDR::_('index.php?option=com_easydiscuss&view=dashboard');
 
+		// Different message for reply
+		if ($post->isReply()) {
+			$message = JText::_('COM_EASYDISCUSS_MODERATE_REPLY_PUBLISHED');
+		}
+
 		// Let's set our custom message here.
 		ED::setMessage($message, 'success');
 		return $this->app->redirect($redirect);
@@ -947,6 +952,10 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		$message = JText::_('COM_EASYDISCUSS_POST_REJECT');
 		$redirect = EDR::_('index.php?option=com_easydiscuss&view=dashboard');
+
+		if ($post->isReply()) {
+			$message = JText::_('COM_EASYDISCUSS_MODERATE_REPLY_UNPUBLISHED');
+		}
 
 		// Let's set our custom message here.
 		ED::setMessage($message, 'success');

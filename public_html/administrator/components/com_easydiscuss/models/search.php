@@ -265,11 +265,29 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 		$limit = isset($options['limit']) ? $options['limit'] : null;
 		$tags = isset($options['tags']) ? $options['tags'] : array();
 
+		// Check if this site support multilanguage
+		$multilang = JLanguageMultilang::isEnabled();
+
+		// If the category is empty, we add a check whether this search was made from the page with language code
+		if (empty($category) && $multilang) {
+			// Get current page language
+			$lang = JFactory::getLanguage();
+
+			// Now we need to retrieve categories that belongs to this language.
+			// So that we can only display result based on the language
+			$categoriesModel = ED::model('Categories');
+			$categories = $categoriesModel->getCategories(array('language' => $lang->getTag(), 'bind_table' => false));
+			
+			$category = array();
+
+			foreach ($categories as $categoryObj) {
+				$category[] = $categoryObj->id;
+			}
+		}
+
 		if (empty($this->_data)) {
 
 			$query = $this->_buildQuery($sort, $filter, $category, false, $tags);
-
-			// echo $query;exit;
 
 			if ($usePagination) {
 				$limitstart = is_null($limitstart) ? $this->getState('limitstart') : $limitstart;

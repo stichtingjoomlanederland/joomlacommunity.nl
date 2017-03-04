@@ -36,6 +36,22 @@ defined('_JEXEC') or die('Restricted access');
 					</div>
 					<div class="form-group">
                         <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_SUBSCRIPTION_INCLUDE_REPLIES'); ?>
+                        </div>
+                        <div class="col-md-7">
+							<?php echo $this->html('form.boolean', 'main_subscription_include_replies', $this->config->get('main_subscription_include_replies')); ?>
+						</div>
+					</div>
+					<div class="form-group">
+                        <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_SUBSCRIPTION_INCLUDE_COMMENTS'); ?>
+                        </div>
+                        <div class="col-md-7">
+							<?php echo $this->html('form.boolean', 'main_subscription_include_comments', $this->config->get('main_subscription_include_comments')); ?>
+						</div>
+					</div>
+					<div class="form-group">
+                        <div class="col-md-5 control-label">
                             <?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_POST_SUBSCRIPTION'); ?>
                         </div>
                         <div class="col-md-7">
@@ -82,6 +98,24 @@ defined('_JEXEC') or die('Restricted access');
                         </div>
                         <div class="col-md-7">
 							<?php echo $this->html('form.boolean', 'main_email_digest', $this->config->get('main_email_digest')); ?>
+						</div>
+					</div>
+
+					<div class="form-group">
+                        <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_EMAIL_DIGEST_INCLUDE_REPLY'); ?>
+                        </div>
+                        <div class="col-md-7">
+							<?php echo $this->html('form.boolean', 'main_email_digest_reply', $this->config->get('main_email_digest_reply')); ?>
+						</div>
+					</div>
+
+					<div class="form-group">
+                        <div class="col-md-5 control-label">
+                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_EMAIL_DIGEST_INCLUDE_COMMENT'); ?>
+                        </div>
+                        <div class="col-md-7">
+							<?php echo $this->html('form.boolean', 'main_email_digest_comment', $this->config->get('main_email_digest_comment')); ?>
 						</div>
 					</div>
 				</div>

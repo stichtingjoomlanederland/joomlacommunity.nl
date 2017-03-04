@@ -185,6 +185,12 @@ class EasyDiscussToolbar extends EasyDiscuss
             $useExternalConversations = true;
         }
 
+        $usernameField = 'COM_EASYDISCUSS_TOOLBAR_USERNAME';
+
+        if (ED::easysocial()->exists() && $this->config->get('main_login_provider') == 'easysocial') {
+            $usernameField = ED::easysocial()->getUsernameField();
+        }
+
         $theme = ED::themes();
         $theme->set('active', $active);
         $theme->set('messageObject', $messageObject);
@@ -199,6 +205,7 @@ class EasyDiscussToolbar extends EasyDiscuss
         $theme->set('post', $post);
         $theme->set('header', $header);
         $theme->set('group', $group);
+        $theme->set('usernameField', $usernameField);
 
         // settings
         $theme->set('showToolbar', $showToolbar);

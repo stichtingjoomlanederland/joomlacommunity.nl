@@ -197,7 +197,10 @@ defined('_JEXEC') or die('Unauthorized Access');
                                                     <div class="popbox-dropdown-nav__name"><?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_MY_ASSIGNED_POSTS');?></div>
                                                     <ol class="g-list-inline g-list-inline--delimited popbox-dropdown-nav__meta-lists">
                                                         <li><?php echo JText::sprintf('COM_EASYDISCUSS_TOOLBAR_ASSIGNED', $this->profile->getTotalAssigned()); ?></li>
-                                                        <li><?php echo JText::sprintf('COM_EASYDISCUSS_TOOLBAR_RESOLVED', $this->profile->getTotalResolved()); ?></li>
+                                                        
+                                                        <?php if ($this->config->get('main_qna')) { ?>
+                                                            <li><?php echo JText::sprintf('COM_EASYDISCUSS_TOOLBAR_RESOLVED', $this->profile->getTotalResolved()); ?></li>
+                                                        <?php } ?>
                                                     </ol>
                                                 </div>
                                             </div>
@@ -326,12 +329,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 
                             <form action="<?php echo JRoute::_('index.php');?>" class="popbox-dropdown-signin" method="post" data-ed-toolbar-login-form>
                                 <div class="form-group">
-                                    <label for="ed-username"><?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_USERNAME');?>:</label>
-                                    <input name="username" type="text" class="form-control" id="ed-username" placeholder="<?php echo JText::_('Username');?>" />
+                                    <label for="ed-username"><?php echo JText::_($usernameField);?>:</label>
+                                    <input name="username" type="text" class="form-control" id="ed-username" placeholder="<?php echo JText::_($usernameField);?>" />
                                 </div>
                                 <div class="form-group">
                                     <label for="ed-password"><?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_PASSWORD');?>:</label>
-                                    <input name="password" type="password" class="form-control" id="ed-password" placeholder="<?php echo JText::_('Password');?>" />
+                                    <input name="password" type="password" class="form-control" id="ed-password" placeholder="<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_PASSWORD');?>" />
                                 </div>
                                 <div class="o-row">
                                     <div class="o-col o-col--8">
@@ -356,6 +359,9 @@ defined('_JEXEC') or die('Unauthorized Access');
                             </form>
                         </div>
 
+                        <div class="popbox-dropdown__ft">
+                            <a href="<?php echo ED::getRemindUsernameLink();?>" class="popbox-dropdown__note pull-left"><?php echo JText::_('COM_EASYDISCUSS_FORGOT_USERNAME');?></a>
+                        </div>
                         <div class="popbox-dropdown__ft">
                             <a href="<?php echo ED::getResetPasswordLink();?>" class="popbox-dropdown__note pull-left"><?php echo JText::_('COM_EASYDISCUSS_FORGOT_PASSWORD');?></a>
                         </div>

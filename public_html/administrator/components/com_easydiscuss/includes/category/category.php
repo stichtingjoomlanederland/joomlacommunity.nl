@@ -864,11 +864,24 @@ class EasyDiscussCategory extends EasyDiscuss
 		$gid = array();
 		$db = ED::db();
 
-		if ($this->my->guest) {
-			$gid = JAccess::getGroupsByUser(0, false);
+		$userId = $this->my->id;
+
+		if (isset($options['useUserId'])) {
+			if ($options['useUserId']) {
+				$gid = JAccess::getGroupsByUser($options['useUserId'], false);
+			} else {
+				$gid = JAccess::getGroupsByUser(0, false);
+			}
+
+			$userId = $options['useUserId'];
 		} else {
-			$gid = JAccess::getGroupsByUser($this->my->id, false);
+			if ($this->my->guest) {
+				$gid = JAccess::getGroupsByUser(0, false);
+			} else {
+				$gid = JAccess::getGroupsByUser($this->my->id, false);
+			}
 		}
+
 
 		$gids = '';
 
@@ -931,7 +944,7 @@ class EasyDiscussCategory extends EasyDiscuss
 		$sql .= $excludeCatSQL;
 		$sql .= " AND (";
 		$sql .= " 	( acat.`private` = 0 ) OR";
-		$sql .= " 	( (acat.`private` = 1) AND (" . $this->my->id . " > 0) ) OR";
+		$sql .= " 	( (acat.`private` = 1) AND (" . $userId . " > 0) ) OR";
 		// joomla groups.
 		$sql .= " 	( (acat.`private` = 2) AND ( (select count(1) from " . $db->nameQuote('#__discuss_category_acl_map') . " as cacl WHERE cacl.`category_id` = acat.id AND cacl.`acl_id` = $acl AND cacl.type = 'group' AND cacl.`content_id` in (" . $gids . ")) > 0 ) )";
 		$sql .= " )";

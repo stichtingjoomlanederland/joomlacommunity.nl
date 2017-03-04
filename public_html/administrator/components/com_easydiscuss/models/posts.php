@@ -133,6 +133,29 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		return $db->Query();
 	}
 
+
+	/**
+	 * Retrieve post title (parent post)
+	 * @since	4.0.13
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getPostTitle($postId)
+	{
+		$db = ED::db();
+
+		$query = "select `title`";
+		$query .= " FROM `#__discuss_posts`";
+		$query .= " where `id` = " . $db->Quote($postId);
+
+		$db->setQuery($query);
+		$result = $db->loadResult();
+
+		return $result;
+	}
+
+
 	/**
 	 * Method to get a pagination object for the posts
 	 *
@@ -1294,7 +1317,14 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$where			= array();
 
 
-		$where[]		= ' a.`published` = ' . $db->Quote('1');
+		$publishState = ' a.`published` = ' . $db->Quote(DISCUSS_ID_PUBLISHED);
+
+		// Site admin should be able to view moderated replies
+		if (ED::isSiteAdmin() && $this->_parent) {
+			$publishState = ' a.`published` in (' . $db->Quote(DISCUSS_ID_PUBLISHED) . ',' . $db->Quote(DISCUSS_ID_PENDING) .')';
+		}
+
+		$where[] = $publishState;
 
 		// get all posts where parent_id = 0
 		if(empty($this->_parent))

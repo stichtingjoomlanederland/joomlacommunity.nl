@@ -85,12 +85,21 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 
     var setAlert = function(alert, message, state) {
 
-        var newClass = state == 'error' ? 'o-alert--danger' : 'o-alert--success';
+        var newClass = 'o-alert--success';
+
+        if (state == 'error') {
+            newClass = 'o-alert--danger';
+        }
+
+        if (state == 'info') {
+            newClass = 'o-alert--info';
+        }
 
         alert
             .html(message)
             .removeClass('o-alert--success')
             .removeClass('o-alert--danger')
+            .removeClass('o-alert--info')
             .addClass(newClass);
     };
 
@@ -294,8 +303,8 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
                 replyItem.replaceWith(result.html);
             }
 
-            // For success cases
-			if (result.type == 'success') {
+            // For success/info cases. info means its in pending state
+			if (result.type == 'success' || result.type == 'info') {
 
                 // Remove any empty classes
                 repliesWrapper.removeClass('is-empty');

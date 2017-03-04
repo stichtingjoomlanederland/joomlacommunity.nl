@@ -43,6 +43,12 @@ class EasyDiscussBadges extends EasyDiscuss
 		}
 
 		foreach ($badges as $badge) {
+
+			// @TODO: If the badge is configure to points instead of frequency, we should skip it.
+			if ($badge->achieve_type != 'frequency') {
+				continue;
+			}
+
 			if ($total >= $badge->rule_limit) {
 				$table = ED::table('BadgesUsers');
 				$table->set('badge_id', $badge->id);
@@ -77,6 +83,113 @@ class EasyDiscussBadges extends EasyDiscuss
 		}
 
 		return true;
+	}
+
+	/**
+	 * Update user badge based on points achievement type
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function assignBadgesByCommand($command, $userId)
+	{
+		$user = ED::user($userId);
+
+		if (!$user->id) {
+			return;
+		}
+
+		// Get list of badges that are associated with point rule give.
+		$model = ED::model('Badges');
+		$badges = $model->getBadgesByCommand($command, $userId);
+
+		if (!$badges) {
+			return;
+		}
+
+		$achieveCommand = array();
+		$removeCommand = array();
+
+		// Now we get the points that are associated with the command
+		foreach ($badges as $badge) {
+			if ($badge->badge_achieve_rule) {
+				$achieveCommand[] = $badge->badge_achieve_rule;
+			}
+
+			if ($badge->badge_remove_rule) {
+				$removeCommand[] = $badge->badge_remove_rule;
+			}
+		}
+
+		$pointsModel = ED::model('Points');
+		$pointsLib = ED::points();
+
+		// Get the compute points for all the rules above.
+		$overallAchieveCommand = $pointsModel->getTotalPointsHistory($userId, $achieveCommand);
+		$overallRemoveCommand  = $pointsModel->getTotalPointsHistory($userId, $removeCommand);
+
+		// Now we get the threshold for each badges
+		foreach ($badges as $badge) {
+
+			$totalAchieve = 0;
+			$totalRemove = 0;
+			$negativeThreshold = false;
+
+			if (isset($overallAchieveCommand[$badge->badge_achieve_rule])) {
+				$totalAchieve = $overallAchieveCommand[$badge->badge_achieve_rule];
+
+				// Multiply with points
+				$points = $pointsLib->getPoints($badge->badge_achieve_rule);
+				$totalAchieve = $totalAchieve * $points[0]->rule_limit;
+
+				// Determeine the integer sign for points threshsold
+				if ($points[0]->rule_limit < 0) {
+					$negativeThreshold = true;
+				}
+			}
+
+			if (isset($overallRemoveCommand[$badge->badge_remove_rule])) {
+				$totalRemove = $overallRemoveCommand[$badge->badge_remove_rule];
+
+				// Multiply with points
+				$points = $pointsLib->getPoints($badge->badge_remove_rule);
+				$totalRemove = $totalRemove * $points[0]->rule_limit;
+			}
+
+			// Sum both value together
+			$totalPoints = $totalAchieve + $totalRemove;
+
+			// Get badge points threshold
+			$threshold = $badge->points_threshold;
+
+			if ($negativeThreshold) {
+				// Convert point threshold to negative value.
+				$threshold = -1 * abs($threshold);
+
+				// Remove the badge if necessary
+				if ($totalPoints > $threshold) {
+					$user->removeBadge($badge->id);
+				}
+
+				// Add the badge
+				if ($totalPoints <= $threshold) {
+					$user->addBadge($badge->id);
+				}
+			} else {
+
+				// Add badge
+				if ($totalPoints < $threshold) {
+					$user->removeBadge($badge->id);
+				}
+
+				// Remove badge
+				if ($totalPoints >= $threshold) {
+					$user->addBadge($badge->id);
+				}
+			}
+		}
+
+		return;
 	}
 
 	/**

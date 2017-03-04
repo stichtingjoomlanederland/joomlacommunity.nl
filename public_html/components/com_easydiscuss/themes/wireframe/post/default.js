@@ -73,7 +73,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		loadMoreButton = $('[data-ed-comment-load-more]');
 
 	addCommentButton.live('click', function() {
-		$(this).siblings('[data-ed-comment-form]').toggleClass('hide');
+		$(this).siblings('[data-ed-comment-form]').toggleClass('t-hidden');
 	});
 
 	submitButton.on('click', function() {
@@ -294,6 +294,8 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 	var quoteButton = $('[data-ed-post-quote]');
 
+	// Moderation buttons
+	var moderateButtons = $('[data-ed-post-moderation]');
 
 	quoteButton.live('click', function() {
 
@@ -366,6 +368,17 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 			})
 		})
 	});
+
+	moderateButtons.live('click', function() {
+		var id = $(this).parents(actionsWrapper.selector).data('id');
+		var task = $(this).data('task');
+
+		EasyDiscuss.dialog({
+			content: EasyDiscuss.ajax('site/views/post/' + task, {
+				"id": id
+			})
+		})
+	})	
 
 ed.require(['edq', 'chosen'], function($) {
 	// Bind the post merge buttons

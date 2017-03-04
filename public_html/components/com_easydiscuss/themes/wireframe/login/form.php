@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -14,16 +14,16 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 <div class="ed-reply-login t-lg-mt--lg">
 	<div class="ed-reply-login__title">
-		<?php echo JText::_('Member Login');?>
+		<?php echo $title;?>
 	</div>
 	<div class="ed-reply-login__info t-lg-mb--md">
-		<?php echo JText::_('You need to be logged in first.');?>
+		<?php echo $info;?>
 		<a href="<?php echo ED::getRegistrationLink();?>" class=""><?php echo JText::_('COM_EASYDISCUSS_REGISTER_HERE');?></a>
 	</div>
 	<div class="ed-reply-login__form-wrap t-lg-mb--md">
 		<form method="post" action="<?php echo JRoute::_('index.php');?>">
 			<div class="form-group">
-				<label for="discuss-post-username"><?php echo JText::_('COM_EASYDISCUSS_USERNAME');?></label>
+				<label for="discuss-post-username"><?php echo JText::_($usernameField);?></label>
 				<input type="text" tabindex="201" id="discuss-post-username" name="username" class="form-control" autocomplete="off" />
 			</div>
 			<div class="form-group">

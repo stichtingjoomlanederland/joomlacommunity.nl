@@ -46,13 +46,15 @@ defined('_JEXEC') or die('Unauthorized Access');
                         <?php echo $post->getContent(); ?>
                     </div>
 
-                    <div role="alert" class="o-alert o-alert--danger">
-						<?php echo JText::_('COM_EASYDISCUSS_REPLY_UNDER_MODERATE'); ?>
-                    </div>
-
                     <?php echo $this->output('site/post/default.signature', array('post' => $post)); ?>
+
+                    <div role="alert" class="o-alert o-alert--danger">
+                        <?php echo JText::_('COM_EASYDISCUSS_REPLY_UNDER_MODERATE'); ?>
+                    </div>
                 </div>
             </div>
+        </div>
+        <div class="ed-reply-item__ft">
         </div>
     </div>
 </div>

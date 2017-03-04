@@ -423,6 +423,24 @@ class DiscussCategory extends EasyDiscussTable
 
 		return $state;
 	}
+	
+	/**
+	 * Retrieves a list of user groups that can view posts under this category
+	 *
+	 * @since	4.0.13
+	 * @access	public
+	 */
+	public function getViewableGroups()
+	{
+		$db = ED::db();
+		
+		// Get accessible groups
+		$query = 'SELECT `content_id` FROM `#__discuss_category_acl_map` WHERE `acl_id`="2" AND `category_id`=' . $db->Quote($this->id);
+		$db->setQuery($query);
+		$groups = $db->loadColumn();
+		
+		return $groups;
+	}
 
 	public function updateLeft( $left, $limit = 0 )
 	{

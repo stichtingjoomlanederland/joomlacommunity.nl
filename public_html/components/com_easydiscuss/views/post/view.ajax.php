@@ -245,6 +245,40 @@ class EasyDiscussViewPost extends EasyDiscussView
         return $this->ajax->resolve($contents);
     }
 
+    /**
+     * Display confirmation dialog to approve a moderated post
+     *
+     * @since   4.0
+     * @access  public
+     */
+    public function confirmApprovePending()
+    {
+        $id = $this->input->get('id', 0, 'int');
+
+        $theme = ED::themes();
+        $theme->set('id', $id);
+        $contents = $theme->output('site/post/dialogs/approve.post');
+
+        return $this->ajax->resolve($contents);
+    }
+
+    /**
+     * Display confirmation dialog to reject a moderated post
+     *
+     * @since   4.0
+     * @access  public
+     */
+    public function confirmRejectPending()
+    {
+        $id = $this->input->get('id', 0, 'int');
+
+        $theme = ED::themes();
+        $theme->set('id', $id);
+        $contents = $theme->output('site/post/dialogs/reject.post');
+
+        return $this->ajax->resolve($contents);
+    }
+
     public function ajaxRefreshTwitter()
     {
         require_once DISCUSS_HELPERS . '/twitter.php';
@@ -745,8 +779,8 @@ class EasyDiscussViewPost extends EasyDiscussView
 
         // Prepare the result object
         $output = array();
-        $output['message'] = JText::_('COM_EASYDISCUSS_SUCCESS_REPLY_POSTED');
-        $output['type'] = 'success';
+        $output['message'] = $post->isPending() ? JText::_('COM_EASYDISCUSS_MODERATION_REPLY_POSTED') : JText::_('COM_EASYDISCUSS_SUCCESS_REPLY_POSTED');
+        $output['type'] = $post->isPending() ? 'info' : 'success';
         $output['html'] = $html;
 
         // Perhaps the viewer is unable to view the replies.

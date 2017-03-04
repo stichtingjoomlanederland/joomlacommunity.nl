@@ -49,6 +49,12 @@ class EasyDiscussLikes extends EasyDiscuss
 
 				ED::badges()->assign('easydiscuss.unlike.discussion', $this->my->id);
 				ED::points()->assign('easydiscuss.unlike.discussion', $this->my->id);
+
+				// Deduct points from post owner
+				ED::history()->log('easydiscuss.discussion.unlike', $post->user_id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_DISCUSSION_UNLIKE', $post->title), $post->id);
+
+				ED::badges()->assign('easydiscuss.discussion.unlike', $post->user_id);
+				ED::points()->assign('easydiscuss.discussion.unlike', $post->user_id);				
 			}
 
 			if ($post->isReply()) {
@@ -57,6 +63,12 @@ class EasyDiscussLikes extends EasyDiscuss
 
 				ED::badges()->assign('easydiscuss.unlike.reply', $this->my->id);
 				ED::points()->assign('easydiscuss.unlike.reply', $this->my->id);
+
+				// Deduct points from reply owner
+				ED::history()->log('easydiscuss.reply.unlike', $post->user_id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_REPLY_UNLIKE', $post->title), $post->id);
+
+				ED::badges()->assign('easydiscuss.reply.unlike', $post->user_id);
+				ED::points()->assign('easydiscuss.reply.unlike', $post->user_id);
 			}
 		}
 
@@ -113,6 +125,14 @@ class EasyDiscussLikes extends EasyDiscuss
 
 				// Assign badge for EasySocial
 				ED::easysocial()->assignBadge('like.question', $this->my->id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_LIKE_DISCUSSION', $post->title));
+
+				// Add points to post author
+				ED::history()->log('easydiscuss.discussion.like', $post->user_id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_DISCUSSION_LIKE', $post->title), $post->id);
+
+				ED::badges()->assign( 'easydiscuss.discussion.like' , $post->user_id);
+				ED::points()->assign( 'easydiscuss.discussion.like' , $post->user_id);
+
+				ED::easysocial()->assignBadge('discussion.like', $post->user_id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_LIKE_DISCUSSION', $post->title));
 			}
 
 			// Add integrations when a post is liked for replies
@@ -122,6 +142,16 @@ class EasyDiscussLikes extends EasyDiscuss
 
 				ED::badges()->assign('easydiscuss.like.reply', $this->my->id);
 				ED::points()->assign('easydiscuss.like.reply', $this->my->id);
+
+				ED::easysocial()->assignBadge('discussion.like', $this->my->id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_LIKE_DISCUSSION', $post->title));
+
+				// Add points to reply author
+				ED::history()->log('easydiscuss.reply.like', $post->user_id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_REPLY_LIKE', $post->title), $post->id);
+
+				ED::badges()->assign( 'easydiscuss.reply.like' , $post->user_id);
+				ED::points()->assign( 'easydiscuss.reply.like' , $post->user_id);
+
+				ED::easysocial()->assignBadge('reply.like', $post->user_id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_REPLY_LIKE', $post->title));
 			}
 
 			ED::easysocial()->notify('new.likes', $post, $question);

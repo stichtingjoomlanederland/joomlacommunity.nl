@@ -32,22 +32,27 @@ defined('_JEXEC') or die('Restricted access');
 						<?php echo $post->title; ?>
 					<?php } ?>
 					<?php if ($post->isReply()) { ?>
-					<p><?php echo $post->content; ?></p>
+					<a href="<?php echo EDR::getReplyRoute($post->parent_id, $post->id); ?>"><?php echo JText::_('COM_EASYDISCUSS_VIEW_REPLY'); ?></a>
 					<?php } ?>				
 					<div class="t-mt--sm">
-						<ol class="g-list-inline xed-post-item__post-meta">
-							<li>
-								<?php if ($post->isQuestion()) { ?>							
+						<ol class="g-list-inline g-list-inline--dashed">
+							<?php if ($post->isQuestion()) { ?>
+							<li>						
 								<span class="o-label o-label--warning-o"><?php echo JText::_('COM_EASYDISCUSS_DASHBOARD_MANAGE_POST_TYPE_QUESTION');?></span>
-								<?php } else { ?>
-								<span class="o-label o-label--info-o"><?php echo JText::_('COM_EASYDISCUSS_DASHBOARD_MANAGE_POST_TYPE_REPLY');?></span>
-								<?php } ?>
 							</li>
+							<?php } else { ?>
+							<li>
+								<?php echo JText::_('COM_EASYDISCUSS_POST_DOUBLE_DOT') ?><a href="<?php echo $post->getParent()->getPermalink(); ?>"><?php echo $post->getParent()->title;?></a>				
+							</li>
+							<li>
+								<span class="o-label o-label--info-o"><?php echo JText::_('COM_EASYDISCUSS_DASHBOARD_MANAGE_POST_TYPE_REPLY');?></span>
+							</li>
+							<?php } ?>
 						</ol>
 					</div>
 				</div>
 				<div class="o-col ed-dashboard-item__col-timestamp">
-					<div><?php echo $post->getDuration(); ?></div>
+					<div><?php echo ED::date()->toLapsed($post->modified);?></div>
 				</div>
 				<div class="o-col ed-dashboard-item__col-avatar">
 					<?php echo $this->html('user.avatar', $post->getOwner(), array('rank' => false, 'status' => true)); ?>

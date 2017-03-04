@@ -148,7 +148,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <li data-profile-tab data-filter-type="easyblog" <?php echo ($viewType == 'easyblog')? 'class="active"' : '' ?>><a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_EASYBLOG');?> (<?php echo $blogCount; ?>)</a></li>
                     <?php } ?>
                     
-                    <?php if ($komentoExists) { ?>
+                    <?php if ($this->config->get('integrations_komento_profile') && $komentoExists) { ?>
                     <li data-profile-tab data-filter-type="komento" <?php echo ($viewType == 'komento')? 'class="active"' : '' ?>><a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_KOMENTO');?> (<?php echo $commentCount; ?>)</a></li>
                     <?php } ?>
                 </ul>

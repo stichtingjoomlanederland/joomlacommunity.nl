@@ -101,9 +101,16 @@ class EasyDiscussControllerBadges extends EasyDiscussController
 	public function apply()
 	{
 		$id = $this->input->get('id');
+		$isNew = false;
+
 		$redirect = 'index.php?option=com_easydiscuss&view=badges&layout=form&id=' . $id;
 
-		return $this->save($redirect);
+		if (!$id) {
+			$isNew = true;
+			$redirect = 'index.php?option=com_easydiscuss&view=badges&layout=form';
+		}
+
+		return $this->save($redirect, $isNew);
 	}
 
 	/**
@@ -124,7 +131,7 @@ class EasyDiscussControllerBadges extends EasyDiscussController
 	 * @since	3.0
 	 * @access	public
 	 */
-	public function save($redirect = 'index.php?option=com_easydiscuss&view=badges')
+	public function save($redirect = 'index.php?option=com_easydiscuss&view=badges', $isNew = false)
 	{
 		JRequest::checkToken('request') or jexit( 'Invalid Token' );
 
@@ -143,7 +150,7 @@ class EasyDiscussControllerBadges extends EasyDiscussController
 		$description = JRequest::getVar( 'description' , '' , 'post' , 'string' , JREQUEST_ALLOWRAW );
 		$badge->description = $description;
 
-		if (!$badge->created) {
+		if (!$badge->created || $badge->created == '0000-00-00 00:00:00') {
 			$badge->created = ED::date()->toSql();
 		}
 
@@ -167,6 +174,10 @@ class EasyDiscussControllerBadges extends EasyDiscussController
 		$badge->store();
 
 		$message = !empty($id) ? JText::_('COM_EASYDISCUSS_BADGE_UPDATED') : JText::_('COM_EASYDISCUSS_BADGE_CREATED');
+
+		if ($isNew && $badge->id) {
+			$redirect = $redirect . '&id=' . $badge->id;
+		}
 
 		ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
 		$this->app->redirect($redirect);

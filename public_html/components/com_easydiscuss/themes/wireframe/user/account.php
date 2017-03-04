@@ -23,7 +23,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="o-col t-lg-pr--md t-xs-pr--no">
 				<div class="form-group">
 				    <label for="fullname"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_FULLNAME'); ?></label>
-				    <input type="text" class="form-control" name="fullname" id="fullname" value="<?php echo $profile->getName(); ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_FULLNAME_PLACEHOLDER'); ?>">
+				    <input type="text" class="form-control" name="fullname" id="fullname" value="<?php echo $profile->user->name; ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_PROFILE_FULLNAME_PLACEHOLDER'); ?>">
 				</div>
 			</div>
 
@@ -83,7 +83,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 		    <label for="description"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_DESCRIPTION'); ?></label>
 			<div class="ed-editor ed-editor--<?php echo $composer->getEditorClass();?>" <?php echo $composer->uid;?>>
 				<div class="ed-editor-widget ed-editor-widget--no-pad">
-	        		<?php echo $composer->renderEditor('description', $profile->getDescription(true)); ?>
+	        		<?php echo $composer->renderEditor('description', $profile->getDescription(true), true); ?>
 	        	</div>
 			</div>
 		</div>
