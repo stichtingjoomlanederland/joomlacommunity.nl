@@ -67,6 +67,16 @@ class ComDocmanTemplateHelperRoute extends KTemplateHelperAbstract
 
         unset($config->admin_link);
 
+        // Append the correct view based on the menu item
+        if (!empty($config->Itemid) && empty($config->view)) {
+            $menu = JFactory::getApplication()->getMenu()->getItem($config->Itemid);
+
+            if ($menu && !empty($menu->query) && !empty($menu->query['view'])) {
+                $config->append(['view' => $menu->query['view']]);
+            }
+        }
+
+
         $query = array(
             'option' => 'com_docman',
             'slug' => $config->entity->slug,

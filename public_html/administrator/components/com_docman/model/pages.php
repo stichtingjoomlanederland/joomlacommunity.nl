@@ -289,7 +289,10 @@ class ComDocmanModelPages extends KModelAbstract
         }
 
         foreach ($pages as &$page) {
-            $page = get_object_vars($page);
+            $p = get_object_vars($page);
+            $p['params'] = $page->params;
+
+            $page = $p;
         }
         unset($page);
 

@@ -83,6 +83,9 @@ class ComDocmanControllerBehaviorMovable extends KControllerBehaviorAbstract
 
         foreach ($this->_path_cache as $from => $to)
         {
+            $from = ComFilesFilterPath::normalizePath($from);
+            $to   = ComFilesFilterPath::normalizePath($to);
+
             $query = clone $documents_query;
             $query->bind(array('from' => $from, 'to' => $to));
 
@@ -107,6 +110,9 @@ class ComDocmanControllerBehaviorMovable extends KControllerBehaviorAbstract
             {
                 $from = substr($from, 0, -1);
                 $to   = substr($to, 0, -1);
+
+                $from = ComFilesFilterPath::normalizePath($from);
+                $to   = ComFilesFilterPath::normalizePath($to);
 
                 $query = clone $folders_query;
                 $query->bind(array('from' => $from, 'to' => $to));

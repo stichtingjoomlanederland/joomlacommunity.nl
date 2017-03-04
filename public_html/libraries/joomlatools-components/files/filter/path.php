@@ -15,12 +15,67 @@
  */
 class ComFilesFilterPath extends KFilterAbstract implements KFilterTraversable
 {
-    protected static $_safepath_pattern = array('#(\.){2,}#', '#^\.#');
+    protected static $_safepath_pattern = array('#(\.){2,}/#', '#^\.#');
 
     protected static $_special_chars = array(
         "?", "[", "]", "\\", "=", "<", ">", ":", ";", "'", "\"",
         "&", "$", "#", "*", "(", ")", "|", "~", "`", "!", "{", "}"
     );
+
+    /**
+     * Normalize the path against different encodings in the filesystem
+     * @param $path
+     * @return mixed
+     */
+    public static function normalizePath($path)
+    {
+        $replacement = [
+            '#a\x{0300}#u' => "à",
+            '#a\x{0301}#u' => "á",
+            '#a\x{0302}#u' => "â",
+            '#a\x{0308}#u' => "ä",
+            '#e\x{0300}#u' => "è",
+            '#e\x{0301}#u' => "é",
+            '#e\x{0302}#u' => "ê",
+            '#e\x{0308}#u' => "ë",
+            '#i\x{0300}#u' => "ì",
+            '#i\x{0301}#u' => "í",
+            '#i\x{0302}#u' => "î",
+            '#i\x{0308}#u' => "ï",
+            '#o\x{0300}#u' => "ò",
+            '#o\x{0301}#u' => "ó",
+            '#o\x{0302}#u' => 'ô',
+            '#o\x{0308}#u' => 'ö',
+            '#u\x{0300}#u' => "ù",
+            '#u\x{0301}#u' => 'ú',
+            '#u\x{0302}#u' => "û",
+            '#u\x{0308}#u' => "ü",
+            '#A\x{0300}#u' => "À",
+            '#A\x{0301}#u' => "Á",
+            '#A\x{0302}#u' => "Â",
+            '#A\x{0308}#u' => "Ä",
+            '#E\x{0300}#u' => "È",
+            '#E\x{0301}#u' => "É",
+            '#E\x{0302}#u' => "Ê",
+            '#E\x{0308}#u' => "Ë",
+            '#I\x{0300}#u' => "Ì",
+            '#I\x{0301}#u' => "Í",
+            '#I\x{0302}#u' => "Î",
+            '#I\x{0308}#u' => "Ï",
+            '#O\x{0300}#u' => "Ò",
+            '#O\x{0301}#u' => "Ó",
+            '#O\x{0302}#u' => "Ô",
+            '#O\x{0308}#u' => "Ö",
+            '#U\x{0300}#u' => "Ù",
+            '#U\x{0301}#u' => "Ú",
+            '#U\x{0302}#u' => "Û",
+            '#U\x{0308}#u' => "Ü"
+        ];
+
+        $path = preg_replace(array_keys($replacement), array_values($replacement), $path);
+
+        return $path;
+    }
 
     /**
      * Validate a value

@@ -84,7 +84,7 @@ class ComDocmanControllerDownload extends ComDocmanControllerDocument
                     {
                         $this->getResponse()
                             ->attachTransport('stream')
-                            ->setContent($file->fullpath, $document->mimetype);
+                            ->setContent($file->fullpath, $document->mimetype ?: 'application/octet-stream');
                     }
                     catch (InvalidArgumentException $e) {
                         throw new KControllerExceptionResourceNotFound('File not found');

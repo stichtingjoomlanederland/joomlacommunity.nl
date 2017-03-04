@@ -78,28 +78,26 @@ CREATE TABLE IF NOT EXISTS `#__docman_category_folders` (
 
 CREATE TABLE IF NOT EXISTS `#__docman_files` (
   `docman_file_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `folder` varchar(255) NOT NULL DEFAULT '',
-  `name` varchar(255) NOT NULL DEFAULT '',
+  `folder` varchar(2048) NOT NULL DEFAULT '',
+  `name` varchar(2048) NOT NULL DEFAULT '',
   `modified_on` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `modified_by` bigint(20) NOT NULL,
   `created_on` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` bigint(20) NOT NULL,
   `parameters` text,
-  PRIMARY KEY (`docman_file_id`),
-  UNIQUE KEY `path` (`folder`,`name`)
+  PRIMARY KEY (`docman_file_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__docman_folders` (
   `docman_folder_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `folder` varchar(255) NOT NULL DEFAULT '',
-  `name` varchar(255) NOT NULL DEFAULT '',
+  `folder` varchar(2048) NOT NULL DEFAULT '',
+  `name` varchar(2048) NOT NULL DEFAULT '',
   `modified_on` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `modified_by` bigint(20) NOT NULL,
   `created_on` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_by` bigint(20) NOT NULL,
   `parameters` text,
-  PRIMARY KEY (`docman_folder_id`),
-  UNIQUE KEY `path` (`folder`,`name`)
+  PRIMARY KEY (`docman_folder_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE OR REPLACE VIEW `#__docman_nodes`

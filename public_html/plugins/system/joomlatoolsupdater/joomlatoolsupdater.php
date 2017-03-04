@@ -97,10 +97,10 @@ class PlgSystemJoomlatoolsupdater extends JPlugin
         $query = array(
             'joomla' => JVERSION,
             'php'    => PHP_VERSION,
-            'extensions' => $extensions
+            'extensions' => implode(',', $extensions)
         );
 
-        $url = static::BASE_URL.'extensions.json?'.http_build_query($query);
+        $url = static::BASE_URL.'extensions.json?'.http_build_query($query, null, '&');
 
         $token    = JSession::getFormToken() . '=' . 1;
         $updates_url      = JUri::base() . 'index.php?option=com_installer&view=update&task=update.find&' . $token;

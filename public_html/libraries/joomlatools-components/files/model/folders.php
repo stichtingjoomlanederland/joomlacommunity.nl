@@ -105,9 +105,9 @@ class ComFilesModelFolders extends ComFilesModelNodes
 
 		if ($state->name)
 		{
-			if (!in_array($filename, (array) $state->name)) {
-				return false;
-			}
+            if (!in_array($filename, (array) $state->name) && !in_array(ComFilesFilterPath::normalizePath($filename), (array) $state->name)) {
+                return false;
+            }
 		}
 
 		if ($state->search && stripos($filename, $state->search) === false) {
