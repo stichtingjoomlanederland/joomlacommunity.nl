@@ -33,13 +33,13 @@ class JFormFieldSocialLists extends JFormField {
 			'community' 	=> false
 		);
 
-		$social_options = array(JHTML::_('select.option', '', JText::_('COM_RSCOMMENTS_NO_SOCIAL_LINK'), 'value', 'text'));
+		$social_options = array(JHtml::_('select.option', '', JText::_('COM_RSCOMMENTS_NO_SOCIAL_LINK'), 'value', 'text'));
 		foreach ($social_links as $component => $value) {
 			$enabled = !$value ? JFile::exists(JPATH_SITE.'/components/com_'.$component.'/'.$component.'.php') : true;
 			if($enabled)
-				$social_options[] = JHTML::_('select.option', $component, JText::_('COM_RSCOMMENTS_'.strtoupper($component)),'value', 'text');
+				$social_options[] = JHtml::_('select.option', $component, JText::_('COM_RSCOMMENTS_'.strtoupper($component)),'value', 'text');
 		}
 
-		return JHTML::_('select.genericlist', $social_options, $this->name, '', 'value', 'text', $this->value);
+		return JHtml::_('select.genericlist', $social_options, $this->name, '', 'value', 'text', $this->value);
 	}
 }

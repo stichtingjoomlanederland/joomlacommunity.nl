@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsControllerEmoticons extends JControllerLegacy
+class RscommentsControllerEmoticons extends JControllerLegacy
 {
 	protected $text_prefix = 'COM_RSCOMMENTS_SUBSCRIPTIONS';
 	
@@ -33,7 +33,7 @@ class RSCommentsControllerEmoticons extends JControllerLegacy
 	 * @return	JModel
 	 * @since	1.6
 	 */
-	public function getModel($name = 'Emoticons', $prefix = 'RSCommentsModel', $config = array('ignore_request' => true)) {
+	public function getModel($name = 'Emoticons', $prefix = 'RscommentsModel', $config = array('ignore_request' => true)) {
 		return parent::getModel($name, $prefix, $config);
 	}
 	

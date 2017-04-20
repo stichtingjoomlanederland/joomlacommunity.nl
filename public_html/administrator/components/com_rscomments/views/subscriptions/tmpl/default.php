@@ -40,7 +40,7 @@ $listDirn	= $this->escape($this->state->get('list.direction'));
 				<tbody>
 				<?php foreach ($this->items as $i => $item) { ?>
 					<tr class="row<?php echo $i % 2; ?>">
-						<td align="center"><?php echo JHTML::_('grid.id', $i, $item->IdSubscription); ?></td>
+						<td align="center"><?php echo JHtml::_('grid.id', $i, $item->IdSubscription); ?></td>
 						<td><?php echo $item->IdSubscription; ?></td>
 						<td><?php echo $item->name; ?></td>
 						<td><a href="mailto:<?php echo $item->email; ?>"><?php echo $item->email; ?></a></td>
@@ -56,7 +56,7 @@ $listDirn	= $this->escape($this->state->get('list.direction'));
 			</table>
 		</div>
 
-		<?php echo JHTML::_( 'form.token' ); ?>
+		<?php echo JHtml::_( 'form.token' ); ?>
 		<input type="hidden" name="boxchecked" value="0" />
 		<input type="hidden" name="task" value="" />
 		<input type="hidden" name="filter_component_id" id="rsc_filter_component_id" value="<?php echo $this->state->get('subscriptions.filter.component_id'); ?>" />

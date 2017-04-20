@@ -10,14 +10,14 @@ defined('_JEXEC') or die('Restricted access');
 require_once JPATH_SITE.'/components/com_rscomments/models/comments.php';
 require_once JPATH_SITE.'/components/com_rscomments/helpers/rscomments.php';
 
-class RSCommentsViewRscomments extends JViewLegacy {
+class RscommentsViewRscomments extends JViewLegacy {
 
 	public function display() {
 		$doc	= JFactory::getDocument();
 		$id		= JFactory::getApplication()->input->get('id');
 		$option	= JFactory::getApplication()->input->get('opt');
 		
-		$class = new RSCommentsModelComments($id,$option);
+		$class = new RscommentsModelComments($id,$option);
 		$rows  = $class->getComments();
 		$permissions = RSCommentsHelper::getPermissions();
 		

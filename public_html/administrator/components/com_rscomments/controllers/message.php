@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsControllerMessage extends JControllerForm
+class RscommentsControllerMessage extends JControllerForm
 {
 	/**
 	 * Class constructor.

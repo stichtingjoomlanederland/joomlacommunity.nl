@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsModelComponents extends JModelList
+class RscommentsModelComponents extends JModelList
 {
 	/**
 	 * Constructor.
@@ -42,7 +42,7 @@ class RSCommentsModelComponents extends JModelList
 	 * @since	1.6
 	 */
 	protected function getListQuery() {
-		$db 	= JFactory::getDBO();
+		$db 	= JFactory::getDbo();
 		$query 	= $db->getQuery(true);
 
 		$search 	= $this->getState('components.filter.search');

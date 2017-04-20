@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsModelEmoticons extends JModelList
+class RscommentsModelEmoticons extends JModelList
 {
 	/**
 	 * Constructor.
@@ -41,7 +41,7 @@ class RSCommentsModelEmoticons extends JModelList
 	 * @since	1.6
 	 */
 	protected function getListQuery() {
-		$db 	= JFactory::getDBO();
+		$db 	= JFactory::getDbo();
 		$query 	= $db->getQuery(true);
 
 		// Select fields
@@ -64,7 +64,7 @@ class RSCommentsModelEmoticons extends JModelList
 	}
 	
 	public function add() {
-		$db 	= JFactory::getDBO();
+		$db 	= JFactory::getDbo();
 		$query 	= $db->getQuery(true);
 		
 		$query->insert($db->qn('#__rscomments_emoticons'))
@@ -118,7 +118,7 @@ class RSCommentsModelEmoticons extends JModelList
 		$id		= JFactory::getApplication()->input->getInt('id',0);
 		
 		try {
-			$db 	= JFactory::getDBO();
+			$db 	= JFactory::getDbo();
 			$query 	= $db->getQuery(true);
 		
 			$query->delete($db->qn('#__rscomments_emoticons'))

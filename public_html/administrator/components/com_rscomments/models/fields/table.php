@@ -25,16 +25,16 @@ class JFormFieldTable extends JFormField {
 	 * @since   11.1
 	 */
 	public function getInput() {
-		$db 	= JFactory::getDBO();
+		$db 	= JFactory::getDbo();
 		$app 	= JFactory::getApplication();
 		$input 	= $app->input;
 
 		$tables = $db->getTableList();
 		
 		foreach($tables as $field)
-			$tables_list[] = JHTML::_('select.option', $field, $field);
+			$tables_list[] = JHtml::_('select.option', $field, $field);
 
-		$html = JHTML::_('select.genericlist', $tables_list, 'table', ' class="" onchange="rsc_update_cols(this.value);"', 'value', 'text', '');
+		$html = JHtml::_('select.genericlist', $tables_list, 'table', ' class="" onchange="rsc_update_cols(this.value);"', 'value', 'text', '');
 		return $html;
 	}
 }

@@ -38,13 +38,13 @@ class JFormFieldAvatarsList extends JFormField {
 			'easydiscuss' => false
 		);
 
-		$avatar_options = array(JHTML::_('select.option', '', JText::_('COM_RSCOMMENTS_NO_AVATAR'), 'value', 'text'));
+		$avatar_options = array(JHtml::_('select.option', '', JText::_('COM_RSCOMMENTS_NO_AVATAR'), 'value', 'text'));
 		foreach ($avatars as $component => $value) {
 			$enabled = !$value ? JFile::exists(JPATH_SITE.'/components/com_'.$component.'/'.$component.'.php') : true;
 			if($enabled)
-				$avatar_options[] = JHTML::_('select.option', $component, JText::_('COM_RSCOMMENTS_'.strtoupper($component)),'value', 'text');
+				$avatar_options[] = JHtml::_('select.option', $component, JText::_('COM_RSCOMMENTS_'.strtoupper($component)),'value', 'text');
 		}
 
-		return JHTML::_('select.genericlist', $avatar_options, $this->name, '', 'value', 'text', $this->value);
+		return JHtml::_('select.genericlist', $avatar_options, $this->name, '', 'value', 'text', $this->value);
 	}
 }

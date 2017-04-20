@@ -32,7 +32,7 @@ class JFormFieldLanguagetag extends JFormField {
 			$html = '<input type="hidden" name="'.$this->name.'" value="'.$tag.'" />';
 		} else {
 			$languages	= JFactory::getLanguage()->getKnownLanguages();
-			$db			= JFactory::getDBO();
+			$db			= JFactory::getDbo();
 			$query		= $db->getQuery(true);
 
 			$query->select('DISTINCT('.$db->qn('tag').')')
@@ -46,9 +46,9 @@ class JFormFieldLanguagetag extends JFormField {
 
 			if(!empty($languages)) {
 				foreach($languages as $language)
-					$language_list[] = JHTML::_('select.option', $language['tag'], '('.$language['tag'].') '.$language['name']);
+					$language_list[] = JHtml::_('select.option', $language['tag'], '('.$language['tag'].') '.$language['name']);
 
-				$html = JHTML::_('select.genericlist', $language_list, $this->name , '', 'value', 'text', '');
+				$html = JHtml::_('select.genericlist', $language_list, $this->name , '', 'value', 'text', '');
 			}
 		}
 

@@ -115,7 +115,7 @@ abstract class RSCommentsHelper {
 	
 	public static function showDate($date, $format = null) {
 		$date_format = !is_null($format) ? $format : RSCommentsHelper::getConfig('date_format');
-		return JHTML::date($date, $date_format);
+		return JHtml::date($date, $date_format);
 	}
 
 	public static function cleanComment($comment) {
@@ -188,7 +188,7 @@ abstract class RSCommentsHelper {
 		$components = array('com_content', 'com_rsblog', 'com_k2', 'com_flexicontent');
 		
 		if(!empty($component_id) && in_array($component,$components)) {
-			$db		= JFactory::getDBO();
+			$db		= JFactory::getDbo();
 			$query	= $db->getQuery(true);
 
 			$query->select($db->qn('title'));

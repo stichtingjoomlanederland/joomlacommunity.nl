@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsViewImport extends JViewLegacy
+class RscommentsViewImport extends JViewLegacy
 {
 	public function display($tpl = null) {
 		$dispatcher	= JDispatcher::getInstance();
@@ -34,11 +34,11 @@ class RSCommentsViewImport extends JViewLegacy
 	}
 
 	protected function addToolbar() {
-		JToolBarHelper::title('RSComments!','rscomments');
+		JToolbarHelper::title('RSComments!','rscomments');
 		require_once JPATH_COMPONENT.'/helpers/toolbar.php';
 		RSCommentsToolbarHelper::addToolbar('import');
 
-		JToolBarHelper::apply('import.save', JText::_('COM_RSCOMMENTS_IMPORT'));
-		JToolBarHelper::preferences('com_rscomments');
+		JToolbarHelper::apply('import.save', JText::_('COM_RSCOMMENTS_IMPORT'));
+		JToolbarHelper::preferences('com_rscomments');
 	}
 }

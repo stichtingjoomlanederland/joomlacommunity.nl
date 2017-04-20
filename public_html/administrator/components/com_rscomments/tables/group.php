@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsTableGroup extends JTable
+class RscommentsTableGroup extends JTable
 {
 	/**
 	 * Constructor

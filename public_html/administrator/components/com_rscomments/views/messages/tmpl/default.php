@@ -6,7 +6,7 @@
 */
 
 defined('_JEXEC') or die('Restricted access');
-JHTML::_('behavior.keepalive'); ?>
+JHtml::_('behavior.keepalive'); ?>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rscomments&task=message.edit'); ?>" method="post" name="adminForm" id="adminForm">
 <div class="row-fluid">
@@ -26,7 +26,7 @@ JHTML::_('behavior.keepalive'); ?>
 			</tbody>
 		</table>
 		</div> <!-- .span10 -->
-<?php echo JHTML::_('form.token'); ?>
+<?php echo JHtml::_('form.token'); ?>
 <input type="hidden" name="task" value="" />
 
 </div> <!-- .row-fluid -->

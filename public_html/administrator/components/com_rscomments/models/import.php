@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsModelImport extends JModelAdmin {
+class RscommentsModelImport extends JModelAdmin {
 	
 	/**
 	 * Method to get the record form.
@@ -77,7 +77,7 @@ class RSCommentsModelImport extends JModelAdmin {
 	 * @since	1.6
 	 */
 	public function save($data = null) {
-		$db 		= JFactory::getDBO();
+		$db 		= JFactory::getDbo();
 		$query 		= $db->getQuery(true);
 		$app		= JFactory::getApplication();
 

@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsModelSubscription extends JModelAdmin
+class RscommentsModelSubscription extends JModelAdmin
 {
 	/**
 	 * Returns a Table object, always creating it.
@@ -18,7 +18,7 @@ class RSCommentsModelSubscription extends JModelAdmin
 	 *
 	 * @return	JTable	A database object
 	*/
-	public function getTable($type = 'Subscription', $prefix = 'RSCommentsTable', $config = array()) {
+	public function getTable($type = 'Subscription', $prefix = 'RscommentsTable', $config = array()) {
 		return JTable::getInstance($type, $prefix, $config);
 	}
 	

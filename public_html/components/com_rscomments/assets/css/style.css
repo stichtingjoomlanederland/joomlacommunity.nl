@@ -88,8 +88,8 @@
 }
 
 #rscomments-subscribe {
-	margin-left: -18%;
-	width: 35%;
+	margin-left: auto;
+	width: auto;
 }
 
  /******* NEW *******/
@@ -337,6 +337,12 @@ textarea.invalid {
   }
 }
 
+@media (min-width: 768px) {
+	#rscomments-subscribe {
+		transform: translateX(-50%);
+	}
+}
+	
 @media (max-width: 480px) {
   .rscomments {
     padding: 10px;

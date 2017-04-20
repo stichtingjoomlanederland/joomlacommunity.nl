@@ -15,6 +15,7 @@ defined('_JEXEC') or die('Restricted access'); ?>
 	</div>
 	<div class="modal-body"></div>
 	<div class="modal-footer">
+		<a href="javascript:void(0)" class="btn btn-primary" onclick="rscomments_agree();"><?php echo JText::_('COM_RSCOMMENTS_I_AGREE'); ?></a>
 		<a href="javascript:void(0)" data-dismiss="modal" class="btn"><?php echo JText::_('COM_RSCOMMENTS_CLOSE'); ?></a>
 	</div>
 </div>

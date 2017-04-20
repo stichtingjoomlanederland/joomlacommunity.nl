@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsViewRscomments extends JViewLegacy
+class RscommentsViewRscomments extends JViewLegacy
 {
 	protected $sidebar;
 	protected $code;
@@ -26,8 +26,8 @@ class RSCommentsViewRscomments extends JViewLegacy
 	}
 	
 	protected function addToolbar() {
-		JToolBarHelper::title('RSComments!','rscomments');
-		JToolBarHelper::preferences('com_rscomments');
+		JToolbarHelper::title('RSComments!','rscomments');
+		JToolbarHelper::preferences('com_rscomments');
 		
 		$doc = JFactory::getDocument();
 		$doc->addScript(JUri::root().'administrator/components/com_rscomments/assets/js/scripts.js');

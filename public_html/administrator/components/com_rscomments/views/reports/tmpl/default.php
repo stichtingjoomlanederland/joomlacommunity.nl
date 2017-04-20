@@ -50,7 +50,7 @@ $listDirn	= $this->escape($this->state->get('list.direction')); ?>
 		</div>
 	</div>
 	
-	<?php echo JHTML::_('form.token'); ?>
+	<?php echo JHtml::_('form.token'); ?>
 	<input type="hidden" name="task" value="" />
 	<input type="hidden" name="boxchecked" value="0" />
 </form>

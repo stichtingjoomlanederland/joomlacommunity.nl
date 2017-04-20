@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsModelGroups extends JModelList
+class RscommentsModelGroups extends JModelList
 {
 	/**
 	 * Constructor.
@@ -27,7 +27,7 @@ class RSCommentsModelGroups extends JModelList
 	 * @since	1.6
 	 */
 	protected function getListQuery() {
-		$db 	= JFactory::getDBO();
+		$db 	= JFactory::getDbo();
 		$query 	= $db->getQuery(true);
 
 		// Select fields

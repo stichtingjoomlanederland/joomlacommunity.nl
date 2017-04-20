@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsViewEmoticons extends JViewLegacy
+class RscommentsViewEmoticons extends JViewLegacy
 {
 	public function display($tpl = null) {
 		$this->addToolbar();
@@ -18,13 +18,13 @@ class RSCommentsViewEmoticons extends JViewLegacy
 	}
 
 	protected function addToolbar() {
-		JToolBarHelper::title(JText::_('COM_RSCOMMENTS_EMOTICONS'), 'rscomment');
+		JToolbarHelper::title(JText::_('COM_RSCOMMENTS_EMOTICONS'), 'rscomment');
 
 		require_once JPATH_COMPONENT.'/helpers/toolbar.php';
 		RSCommentsToolbarHelper::addToolbar('emoticons');
 		
-		JToolBarHelper::addNew('emoticons.add');
-		JToolBarHelper::preferences('com_rscomments');
+		JToolbarHelper::addNew('emoticons.add');
+		JToolbarHelper::preferences('com_rscomments');
 		
 		JFactory::getDocument()->addScript(JURI::root(true).'/administrator/components/com_rscomments/assets/js/scripts.js');
 	}

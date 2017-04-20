@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsControllerComments extends JControllerAdmin
+class RscommentsControllerComments extends JControllerAdmin
 {
 	protected $text_prefix = 'COM_RSCOMMENTS';
 	
@@ -33,7 +33,7 @@ class RSCommentsControllerComments extends JControllerAdmin
 	 * @return	JModel
 	 * @since	1.6
 	 */
-	public function getModel($name = 'Comment', $prefix = 'RSCommentsModel', $config = array('ignore_request' => true)) {
+	public function getModel($name = 'Comment', $prefix = 'RscommentsModel', $config = array('ignore_request' => true)) {
 		return parent::getModel($name, $prefix, $config);
 	}
 	

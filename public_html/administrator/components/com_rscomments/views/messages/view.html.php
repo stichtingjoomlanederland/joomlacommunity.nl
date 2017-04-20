@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsViewMessages extends JViewLegacy {
+class RscommentsViewMessages extends JViewLegacy {
 	protected $messages;
 	protected $pagination;
 
@@ -22,7 +22,7 @@ class RSCommentsViewMessages extends JViewLegacy {
 	}
 
 	protected function addToolbar() {
-		JToolBarHelper::title(JText::_('COM_RSCOMMENTS_MESSAGES_TITLE'),'rscomment');
+		JToolbarHelper::title(JText::_('COM_RSCOMMENTS_MESSAGES_TITLE'),'rscomment');
 		
 		// add Menu in sidebar
 		require_once JPATH_COMPONENT.'/helpers/toolbar.php';
@@ -32,6 +32,6 @@ class RSCommentsViewMessages extends JViewLegacy {
 		if(count($this->available_langs) > 0)
 			JToolbarHelper::addNew('message.add');
 		
-		JToolBarHelper::preferences('com_rscomments');
+		JToolbarHelper::preferences('com_rscomments');
 	}
 }

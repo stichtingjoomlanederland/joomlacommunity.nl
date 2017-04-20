@@ -36,7 +36,7 @@ $listDirn	= $this->escape($this->state->get('list.direction'));
 				<?php foreach ($this->items as $i => $item) { ?>
 				<?php $comment_length = mb_strlen(RSCommentsHelper::cleanComment(strip_tags($item->comment))); ?>
 					<tr class="row<?php echo $i % 2; ?>">
-						<td width="2%"><?php echo JHTML::_('grid.id', $i, $item->IdComment); ?></td>
+						<td width="2%"><?php echo JHtml::_('grid.id', $i, $item->IdComment); ?></td>
 						
 						<td class="hidden-phone" ><?php echo $item->IdComment; ?></td>
 						
@@ -85,7 +85,7 @@ $listDirn	= $this->escape($this->state->get('list.direction'));
 					</tr>
 				</tfoot>
 			</table>
-			<?php echo JHTML::_( 'form.token' ); ?>
+			<?php echo JHtml::_( 'form.token' ); ?>
 			<input type="hidden" name="boxchecked" value="0" />
 			<input type="hidden" name="task" value="" />
 			<input type="hidden" name="filter_component_id" id="rsc_filter_component_id" value="<?php echo $this->state->get('com_rscomments.comments.filter.component_id'); ?>" />

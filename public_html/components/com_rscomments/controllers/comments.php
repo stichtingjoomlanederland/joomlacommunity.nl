@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsControllerComments extends JControllerLegacy
+class RscommentsControllerComments extends JControllerLegacy
 {
 	public function __construct() {
 		parent::__construct();

@@ -32,7 +32,7 @@ defined('_JEXEC') or die('Restricted access'); ?>
 					</tr>
 				</tfoot>
 			</table>
-			<?php echo JHTML::_( 'form.token' ); ?>
+			<?php echo JHtml::_( 'form.token' ); ?>
 			<input type="hidden" name="task" value="" />
 		</div>
 	</div>

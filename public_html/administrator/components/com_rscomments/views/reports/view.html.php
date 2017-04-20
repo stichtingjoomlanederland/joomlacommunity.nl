@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsViewReports extends JViewLegacy
+class RscommentsViewReports extends JViewLegacy
 {
 	protected $items;
 	protected $filterbar;
@@ -27,10 +27,10 @@ class RSCommentsViewReports extends JViewLegacy
 	}
 
 	protected function addToolbar() {
-		JToolBarHelper::title(JText::_('COM_RSCOMMENTS_REPORTS'),'rscomment');
+		JToolbarHelper::title(JText::_('COM_RSCOMMENTS_REPORTS'),'rscomment');
 		
-		JToolBarHelper::deleteList('','reports.delete');
-		JToolBarHelper::preferences('com_rscomments');
+		JToolbarHelper::deleteList('','reports.delete');
+		JToolbarHelper::preferences('com_rscomments');
 		
 		// add Menu in sidebar
 		require_once JPATH_COMPONENT.'/helpers/toolbar.php';

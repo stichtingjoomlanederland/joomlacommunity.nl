@@ -47,7 +47,7 @@ JHtml::_('behavior.modal'); ?>
 					<div class="dashboard-wraper">
 						<div class="dashboard-content"> 
 						<a href="index.php?option=com_rscomments&amp;view=comments">
-							<?php echo JHTML::_('image', 'administrator/components/com_rscomments/assets/images/comment.png', JText::_('COM_RSCOMMENTS_COMMENTS')); ?>
+							<?php echo JHtml::_('image', 'administrator/components/com_rscomments/assets/images/comment.png', JText::_('COM_RSCOMMENTS_COMMENTS')); ?>
 							<span class="dashboard-title"><?php echo JText::_('COM_RSCOMMENTS_COMMENTS'); ?></span>
 						</a>
 						</div>
@@ -57,7 +57,7 @@ JHtml::_('behavior.modal'); ?>
 					<div class="dashboard-wraper">
 						<div class="dashboard-content"> 
 						<a href="index.php?option=com_rscomments&amp;view=emoticons">
-							<?php echo JHTML::_('image', 'administrator/components/com_rscomments/assets/images/emoticons.png', JText::_('COM_RSCOMMENTS_EMOTICONS')); ?>
+							<?php echo JHtml::_('image', 'administrator/components/com_rscomments/assets/images/emoticons.png', JText::_('COM_RSCOMMENTS_EMOTICONS')); ?>
 							<span class="dashboard-title"><?php echo JText::_('COM_RSCOMMENTS_EMOTICONS'); ?></span>
 						</a>
 						</div>
@@ -68,7 +68,7 @@ JHtml::_('behavior.modal'); ?>
 						<div class="dashboard-content"> 
 							<div class="dashboard-content">
 								<a href="index.php?option=com_rscomments&amp;view=subscriptions">
-									<?php echo JHTML::_('image', 'administrator/components/com_rscomments/assets/images/subscriptions.png', JText::_('COM_RSCOMMENTS_SUBSCRIPTIONS')); ?>
+									<?php echo JHtml::_('image', 'administrator/components/com_rscomments/assets/images/subscriptions.png', JText::_('COM_RSCOMMENTS_SUBSCRIPTIONS')); ?>
 									<span class="dashboard-title"><?php echo JText::_('COM_RSCOMMENTS_SUBSCRIPTIONS'); ?></span>
 								</a>
 							</div>
@@ -80,7 +80,7 @@ JHtml::_('behavior.modal'); ?>
 						<div class="dashboard-content"> 
 							<div class="dashboard-content">
 								<a href="index.php?option=com_rscomments&amp;view=groups">
-									<?php echo JHTML::_('image', 'administrator/components/com_rscomments/assets/images/groups.png', JText::_('COM_RSCOMMENTS_GROUP_PERMISSIONS')); ?>
+									<?php echo JHtml::_('image', 'administrator/components/com_rscomments/assets/images/groups.png', JText::_('COM_RSCOMMENTS_GROUP_PERMISSIONS')); ?>
 									<span class="dashboard-title"><?php echo JText::_('COM_RSCOMMENTS_GROUP_PERMISSIONS'); ?></span>
 								</a>
 							</div>
@@ -92,7 +92,7 @@ JHtml::_('behavior.modal'); ?>
 						<div class="dashboard-content"> 
 							<div class="dashboard-content">
 								<a href="index.php?option=com_rscomments&amp;view=import">
-									<?php echo JHTML::_('image', 'administrator/components/com_rscomments/assets/images/import.png', JText::_('COM_RSCOMMENTS_IMPORT')); ?>
+									<?php echo JHtml::_('image', 'administrator/components/com_rscomments/assets/images/import.png', JText::_('COM_RSCOMMENTS_IMPORT')); ?>
 									<span class="dashboard-title"><?php echo JText::_('COM_RSCOMMENTS_IMPORT'); ?></span>
 								</a>
 							</div>
@@ -104,7 +104,7 @@ JHtml::_('behavior.modal'); ?>
 						<div class="dashboard-content"> 
 							<div class="dashboard-content">
 								<a href="index.php?option=com_rscomments&amp;view=messages">
-									<?php echo JHTML::_('image', 'administrator/components/com_rscomments/assets/images/messages.png', JText::_('COM_RSCOMMENTS_MESSAGES')); ?>
+									<?php echo JHtml::_('image', 'administrator/components/com_rscomments/assets/images/messages.png', JText::_('COM_RSCOMMENTS_MESSAGES')); ?>
 									<span class="dashboard-title"><?php echo JText::_('COM_RSCOMMENTS_MESSAGES'); ?></span>
 								</a>
 							</div>
@@ -117,28 +117,15 @@ JHtml::_('behavior.modal'); ?>
 							<div class="dashboard-content">
 							<?php if(RSCommentsHelper::isJ3()) { ?>
 								<a href="index.php?option=com_config&view=component&component=com_rscomments&return=<?php echo base64_encode(JURI::getInstance()); ?>">
-									<?php echo JHTML::_('image', 'administrator/components/com_rscomments/assets/images/configuration.png', JText::_('COM_RSCOMMENTS_CONFIGURATION')); ?>
+									<?php echo JHtml::_('image', 'administrator/components/com_rscomments/assets/images/configuration.png', JText::_('COM_RSCOMMENTS_CONFIGURATION')); ?>
 									<span class="dashboard-title"><?php echo JText::_('COM_RSCOMMENTS_CONFIGURATION'); ?></span>
 								</a>
 							<?php } else { ?>
 								<a rel="{handler: 'iframe', size: {x: 875, y: 550}, onClose: function() {}}" href="index.php?option=com_config&view=component&component=com_rscomments&tmpl=component" class="modal">
-									<?php echo JHTML::_('image', 'administrator/components/com_rscomments/assets/images/configuration.png', JText::_('COM_RSCOMMENTS_CONFIGURATION')); ?>
+									<?php echo JHtml::_('image', 'administrator/components/com_rscomments/assets/images/configuration.png', JText::_('COM_RSCOMMENTS_CONFIGURATION')); ?>
 									<span class="dashboard-title"><?php echo JText::_('COM_RSCOMMENTS_CONFIGURATION'); ?></span>
 								</a>
 							<?php } ?>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div class="rsspan4">
-					<div class="dashboard-wraper">
-						<div class="dashboard-content"> 
-							<div class="dashboard-content">
-								<a href="index.php?option=com_rscomments&amp;view=updates">
-									<?php echo JHTML::_('image', 'administrator/components/com_rscomments/assets/images/updates.png', JText::_('COM_RSCOMMENTS_UPDATES')); ?>
-									<span class="dashboard-title"><?php echo JText::_('COM_RSCOMMENTS_UPDATES'); ?></span>
-								</a>
-								
 							</div>
 						</div>
 					</div>

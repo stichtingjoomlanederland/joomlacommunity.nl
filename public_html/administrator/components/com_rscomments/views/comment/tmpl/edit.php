@@ -6,7 +6,7 @@
 */
 
 defined('_JEXEC') or die('Restricted access');
-JHTML::_('behavior.keepalive'); ?>
+JHtml::_('behavior.keepalive'); ?>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rscomments&view=comment&layout=edit&IdComment='.(int) $this->item->IdComment); ?>" method="post" name="adminForm" id="adminForm" autocomplete="off" class="form-validate form-horizontal">
 <?php
@@ -42,6 +42,6 @@ JHTML::_('behavior.keepalive'); ?>
 	echo JHtml::_('rsfieldset.end');
 ?>
 
-<?php echo JHTML::_( 'form.token' ); ?>
+<?php echo JHtml::_( 'form.token' ); ?>
 <input type="hidden" value="" name="task" />
 </form>

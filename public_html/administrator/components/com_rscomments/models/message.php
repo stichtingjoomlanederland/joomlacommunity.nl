@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsModelMessage extends JModelAdmin
+class RscommentsModelMessage extends JModelAdmin
 {
 	protected $text_prefix = 'COM_RSCOMMENTS';
 
@@ -20,7 +20,7 @@ class RSCommentsModelMessage extends JModelAdmin
 	 *
 	 * @return	JTable	A database object
 	*/
-	public function getTable($type = 'Message', $prefix = 'RSCommentsTable', $config = array()) {
+	public function getTable($type = 'Message', $prefix = 'RscommentsTable', $config = array()) {
 		return JTable::getInstance($type, $prefix, $config);
 	}
 
@@ -32,7 +32,7 @@ class RSCommentsModelMessage extends JModelAdmin
 	 * @return	mixed	Object on success, false on failure.
 	 */
 	public function getItem($pk = null) {
-		$db 	= JFactory::getDBO();
+		$db 	= JFactory::getDbo();
 		$query 	= $db->getQuery(true);
 		$tag	= JFactory::getApplication()->input->get('tag');
 
@@ -94,7 +94,7 @@ class RSCommentsModelMessage extends JModelAdmin
 	 * @since	1.6
 	 */
 	public function save($data = null) {
-		$db 	=& JFactory::getDBO();
+		$db 	=& JFactory::getDbo();
 		$query 	= $db->getQuery(true);
 		$jinput = JFactory::getApplication()->input;
 		$jform	= $jinput->get('jform', array(), 'array');

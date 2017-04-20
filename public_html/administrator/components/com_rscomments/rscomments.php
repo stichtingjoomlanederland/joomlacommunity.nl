@@ -24,6 +24,6 @@ RSCommentsHelper::setScripts();
 //clean cache
 RSCommentsHelper::cleancache();
 
-$controller	= JControllerLegacy::getInstance('RSComments');
+$controller	= JControllerLegacy::getInstance('Rscomments');
 $controller->execute(JFactory::getApplication()->input->get('task'));
 $controller->redirect();

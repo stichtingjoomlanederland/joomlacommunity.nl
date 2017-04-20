@@ -105,7 +105,7 @@ jQuery(document).ready(function(){
 			<?php echo $this->tabs->render();?>
 		</div> <!-- .span10 -->
 	</div> <!-- .row-fluid -->
-	<?php echo JHTML::_('form.token'); ?>
+	<?php echo JHtml::_('form.token'); ?>
 	<input type="hidden" name="task" value="" />
 	<input type="hidden" name="class" id="class" value="" />
 </form>

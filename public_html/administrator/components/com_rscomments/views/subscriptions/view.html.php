@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsViewSubscriptions extends JViewLegacy
+class RscommentsViewSubscriptions extends JViewLegacy
 {
 	protected $pagination;
 	protected $items;
@@ -29,13 +29,13 @@ class RSCommentsViewSubscriptions extends JViewLegacy
 	}
 
 	protected function addToolbar() {
-		JToolBarHelper::title(JText::sprintf('COM_RSCOMMENTS_SUBSCRIPTIONS_TITLE', (!empty($this->article) ? JText::_('COM_RSCOMMENTS_FROM').$this->article : '')),'rscomment');
+		JToolbarHelper::title(JText::sprintf('COM_RSCOMMENTS_SUBSCRIPTIONS_TITLE', (!empty($this->article) ? JText::_('COM_RSCOMMENTS_FROM').$this->article : '')),'rscomment');
 		
 		// add Menu in sidebar
 		require_once JPATH_COMPONENT.'/helpers/toolbar.php';
 		RSCommentsToolbarHelper::addToolbar('subscriptions');
 
-		JToolBarHelper::deleteList('','subscriptions.delete');
-		JToolBarHelper::preferences('com_rscomments');
+		JToolbarHelper::deleteList('','subscriptions.delete');
+		JToolbarHelper::preferences('com_rscomments');
 	}
 }

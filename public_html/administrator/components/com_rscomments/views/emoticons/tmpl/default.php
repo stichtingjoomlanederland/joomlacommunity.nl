@@ -67,7 +67,7 @@ JText::script('COM_RSCOMMENTS_EMOTICONS_EMPTY_VALUES');
 				<?php } ?>
 				</tbody>
 			</table>
-			<?php echo JHTML::_( 'form.token' ); ?>
+			<?php echo JHtml::_( 'form.token' ); ?>
 			<input type="hidden" name="boxchecked" value="0" />
 			<input type="hidden" name="task" value="" />
 		</div>

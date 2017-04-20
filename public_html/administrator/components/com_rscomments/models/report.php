@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsModelReport extends JModelAdmin
+class RscommentsModelReport extends JModelAdmin
 {
 	protected $text_prefix = 'COM_RSCOMMENTS';
 
@@ -20,7 +20,7 @@ class RSCommentsModelReport extends JModelAdmin
 	 *
 	 * @return	JTable	A database object
 	*/
-	public function getTable($type = 'Report', $prefix = 'RSCommentsTable', $config = array()) {
+	public function getTable($type = 'Report', $prefix = 'RscommentsTable', $config = array()) {
 		return JTable::getInstance($type, $prefix, $config);
 	}
 

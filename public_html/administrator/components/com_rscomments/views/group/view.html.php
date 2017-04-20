@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsViewGroup extends JViewLegacy
+class RscommentsViewGroup extends JViewLegacy
 {
 	protected $form;
 	protected $item;
@@ -27,13 +27,13 @@ class RSCommentsViewGroup extends JViewLegacy
 	}
 
 	protected function addToolbar() {
-		$this->item->IdGroup ? JToolBarHelper::title(JText::sprintf('COM_RSCOMMENTS_EDIT_GROUP',$this->item->GroupName),'rscomment') : JToolBarHelper::title(JText::_('COM_RSCOMMENTS_ADD_GROUP'),'rscomment');
+		$this->item->IdGroup ? JToolbarHelper::title(JText::sprintf('COM_RSCOMMENTS_EDIT_GROUP',$this->item->GroupName),'rscomment') : JToolbarHelper::title(JText::_('COM_RSCOMMENTS_ADD_GROUP'),'rscomment');
 
 		require_once JPATH_COMPONENT.'/helpers/toolbar.php';
 		RSCommentsToolbarHelper::addToolbar('configuration');
 
-		JToolBarHelper::apply('group.apply');
-		JToolBarHelper::save('group.save');
-		JToolBarHelper::cancel('group.cancel');
+		JToolbarHelper::apply('group.apply');
+		JToolbarHelper::save('group.save');
+		JToolbarHelper::cancel('group.cancel');
 	}
 }

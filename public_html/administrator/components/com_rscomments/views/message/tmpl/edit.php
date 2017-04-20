@@ -21,6 +21,6 @@ JHtml::_('behavior.keepalive'); ?>
 	echo $this->tabs->render();
 ?>
 
-<?php echo JHTML::_( 'form.token' ); ?>
+<?php echo JHtml::_( 'form.token' ); ?>
 <input type="hidden" value="" name="task" />
 </form>

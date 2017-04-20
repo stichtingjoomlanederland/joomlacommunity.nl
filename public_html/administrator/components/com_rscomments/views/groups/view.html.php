@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsViewGroups extends JViewLegacy
+class RscommentsViewGroups extends JViewLegacy
 {
 	protected $items;
 	protected $sidebar;
@@ -23,14 +23,14 @@ class RSCommentsViewGroups extends JViewLegacy
 	}
 
 	protected function addToolbar() {
-		JToolBarHelper::title(JText::_('COM_RSCOMMENTS_GROUP_PERMISSIONS'),'rscomment');
+		JToolbarHelper::title(JText::_('COM_RSCOMMENTS_GROUP_PERMISSIONS'),'rscomment');
 		
 		if ($this->canadd)
-			JToolBarHelper::addNew('group.add');
+			JToolbarHelper::addNew('group.add');
 		
-		JToolBarHelper::editList('group.edit');
-		JToolBarHelper::deleteList('','groups.delete');
-		JToolBarHelper::preferences('com_rscomments');
+		JToolbarHelper::editList('group.edit');
+		JToolbarHelper::deleteList('','groups.delete');
+		JToolbarHelper::preferences('com_rscomments');
 		
 		// add Menu in sidebar
 		require_once JPATH_COMPONENT.'/helpers/toolbar.php';

@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsControllerGroups extends JControllerAdmin
+class RscommentsControllerGroups extends JControllerAdmin
 {
 	protected $text_prefix = 'COM_RSCOMMENTS_GROUPS';
 
@@ -33,7 +33,7 @@ class RSCommentsControllerGroups extends JControllerAdmin
 	 * @return	JModel
 	 * @since	1.6
 	 */
-	public function getModel($name = 'Group', $prefix = 'RSCommentsModel', $config = array('ignore_request' => true)) {
+	public function getModel($name = 'Group', $prefix = 'RscommentsModel', $config = array('ignore_request' => true)) {
 		return parent::getModel($name, $prefix, $config);
 	}
 }

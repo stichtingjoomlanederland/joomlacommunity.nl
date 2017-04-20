@@ -462,9 +462,10 @@ class com_rscommentsInstallerScript
 		</p>
 		<?php } ?>
 	<?php } ?>
-	<h2>Changelog v1.13.5</h2>
+	<h2>Changelog v1.13.6</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> RSComments! was throwing Deprecated messages on PHP 7.</li>
+		<li><span class="version-new">Add</span> EasyDiscuss avatar selection.</li>
+		<li><span class="version-new">Add</span> Agree the terms and conditions straight from the modal.</li>
 	</ul>
 	<a class="com-rscomments-button" href="index.php?option=com_rscomments">Start using RSComments!</a>
 	<a class="com-rscomments-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/95-rscomments.html" target="_blank">Read the RSComments! User Guide</a>

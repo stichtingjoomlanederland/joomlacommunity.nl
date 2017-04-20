@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsViewMessage extends JViewLegacy
+class RscommentsViewMessage extends JViewLegacy
 {
 	protected $form;
 	protected $item;
@@ -25,12 +25,12 @@ class RSCommentsViewMessage extends JViewLegacy
 
 	protected function addToolbar() {
 		if(empty($this->item->tag))
-			JToolBarHelper::title(JText::_('COM_RSCOMMENTS_ADD_NEW_MESSAGE_FOR_LANGUAGE'),'rscomments');
+			JToolbarHelper::title(JText::_('COM_RSCOMMENTS_ADD_NEW_MESSAGE_FOR_LANGUAGE'),'rscomments');
 		else 
-			JToolBarHelper::title(JText::sprintf('COM_RSCOMMENTS_EDIT_MESSAGE_FOR_LANGUAGE',$this->languages[$this->item->tag]['name']),'rscomments');
+			JToolbarHelper::title(JText::sprintf('COM_RSCOMMENTS_EDIT_MESSAGE_FOR_LANGUAGE',$this->languages[$this->item->tag]['name']),'rscomments');
 		
-		JToolBarHelper::apply('message.apply');
-		JToolBarHelper::save('message.save');
-		JToolBarHelper::cancel('message.cancel');
+		JToolbarHelper::apply('message.apply');
+		JToolbarHelper::save('message.save');
+		JToolbarHelper::cancel('message.cancel');
 	}
 }

@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsModelRSComments extends JModelLegacy
+class RscommentsModelRSComments extends JModelLegacy
 {
 	public function __construct($config = array())  {
 		parent::__construct($config);

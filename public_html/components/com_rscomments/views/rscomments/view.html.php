@@ -7,6 +7,6 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsViewRscomments extends JViewLegacy {
+class RscommentsViewRscomments extends JViewLegacy {
 	public function display($tpl = null) {}
 }

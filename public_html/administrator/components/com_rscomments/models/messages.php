@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsModelMessages extends JModelList {	
+class RscommentsModelMessages extends JModelList {	
 	
 	/**
 	 * Constructor.
@@ -44,7 +44,7 @@ class RSCommentsModelMessages extends JModelList {
 
 	public function getAvailableLanguages() {
 		$lang 		= JFactory::getLanguage();
-		$db 		= JFactory::getDBO();
+		$db 		= JFactory::getDbo();
 		$query 		= $db->getQuery(true);
 		$languages 	= $lang->getKnownLanguages();
 

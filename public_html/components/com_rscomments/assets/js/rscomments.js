@@ -1086,6 +1086,11 @@ function rsc_checkParent(t) {
 	return true
 }
 
+function rscomments_agree() {
+	jQuery('#rsc_terms').prop('checked', true);
+	jQuery('#rscomments-terms').modal('hide');
+}
+
 function hideMessage(id) {}
 function rsc_initModal() {}
 

@@ -18,6 +18,6 @@ require_once JPATH_SITE.'/components/com_rscomments/controller.php';
 
 RSCommentsHelper::loadLang();
 
-$controller	= JControllerLegacy::getInstance('RSComments');
+$controller	= JControllerLegacy::getInstance('Rscomments');
 $controller->execute(JFactory::getApplication()->input->get('task'));
 $controller->redirect();

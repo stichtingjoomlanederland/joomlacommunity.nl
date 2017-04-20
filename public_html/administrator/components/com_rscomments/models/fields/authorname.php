@@ -26,9 +26,9 @@ class JFormFieldAuthorname extends JFormField {
 	 * @since   11.1
 	 */
 	public function getInput() {
-		$user_info = array(JHTML::_('select.option', 'username', JText::_('COM_RSCOMMENTS_USER_USERNAME'),'value', 'text'),JHTML::_('select.option', 'name', JText::_('COM_RSCOMMENTS_USER_NAME'),'value', 'text'));
-		$user_info[] = JHTML::_('select.option', 'cb', JText::_('COM_RSCOMMENTS_USER_CB'),'value', 'text', file_exists(JPATH_SITE.'/components/com_comprofiler/comprofiler.php') ? false : true);
+		$user_info = array(JHtml::_('select.option', 'username', JText::_('COM_RSCOMMENTS_USER_USERNAME'),'value', 'text'),JHtml::_('select.option', 'name', JText::_('COM_RSCOMMENTS_USER_NAME'),'value', 'text'));
+		$user_info[] = JHtml::_('select.option', 'cb', JText::_('COM_RSCOMMENTS_USER_CB'),'value', 'text', file_exists(JPATH_SITE.'/components/com_comprofiler/comprofiler.php') ? false : true);
 		
-		return JHTML::_('select.genericlist', $user_info, $this->name, '', 'value', 'text', $this->value);
+		return JHtml::_('select.genericlist', $user_info, $this->name, '', 'value', 'text', $this->value);
 	}
 }

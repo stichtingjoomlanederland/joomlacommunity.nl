@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsModelComments extends JModelList
+class RscommentsModelComments extends JModelList
 {
 	/**
 	 * Constructor.
@@ -58,7 +58,7 @@ class RSCommentsModelComments extends JModelList
 	 * @since	1.6
 	 */
 	protected function getListQuery() {
-		$db 	= JFactory::getDBO();
+		$db 	= JFactory::getDbo();
 		$query 	= $db->getQuery(true);
 
 		// Select fields
@@ -110,7 +110,7 @@ class RSCommentsModelComments extends JModelList
 	 * @since	1.6.1
 	 */
 	public function getItems() {
-		$db		= JFactory::getDBO();
+		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
 		$items	= parent::getItems();
 		
@@ -152,9 +152,9 @@ class RSCommentsModelComments extends JModelList
 		// build components list select options
 		$joomla_comps = RSCommentsHelper::getComponents();
 		$comp = array();
-		$comp[] 			= JHTML::_('select.option', '', JText::_('COM_RSCOMMENTS_SELECT_COMPONENT_LIST_ITEM'));
+		$comp[] 			= JHtml::_('select.option', '', JText::_('COM_RSCOMMENTS_SELECT_COMPONENT_LIST_ITEM'));
 		foreach($joomla_comps as $component)
-			$comp[] 			= JHTML::_('select.option', $component, RSCommentsHelper::component($component));
+			$comp[] 			= JHtml::_('select.option', $component, RSCommentsHelper::component($component));
 
 		// set the components list 
 		$options['Components']   			= $comp;

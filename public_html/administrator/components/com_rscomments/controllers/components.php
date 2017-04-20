@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsControllerComponents extends JControllerAdmin
+class RscommentsControllerComponents extends JControllerAdmin
 {
 	/**
 	 * Proxy for getModel.
@@ -18,7 +18,7 @@ class RSCommentsControllerComponents extends JControllerAdmin
 	 * @return	JModel
 	 * @since	1.6
 	 */
-	public function getModel($name = 'Component', $prefix = 'RSCommentsModel', $config = array('ignore_request' => true)) {
+	public function getModel($name = 'Component', $prefix = 'RscommentsModel', $config = array('ignore_request' => true)) {
 		return parent::getModel($name, $prefix, $config);
 	}
 }

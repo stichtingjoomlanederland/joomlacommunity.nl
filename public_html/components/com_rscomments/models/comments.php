@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RSCommentsModelComments extends JModelLegacy
+class RscommentsModelComments extends JModelLegacy
 {
 	protected $_data = null;
 	protected $_total = 0;
@@ -480,7 +480,7 @@ class RSCommentsModelComments extends JModelLegacy
 		
 		$config 		= RSCommentsHelper::getConfig();
 		$permissions 	= RSCommentsHelper::getPermissions();
-		$row 		 	= JTable::getInstance('Comment','RSCommentsTable');
+		$row 		 	= JTable::getInstance('Comment','RscommentsTable');
 		$app			= JFactory::getApplication();
 		$user			= JFactory::getUser();
 		$jinput			= $app->input;
@@ -663,7 +663,7 @@ class RSCommentsModelComments extends JModelLegacy
 		$cfg 		 	= JFactory::getConfig();
 		$jform 		 	= $app->input->get('jform',array(),'array');
 		$permissions 	= RSCommentsHelper::getPermissions();
-		$row 		 	= JTable::getInstance('Comment','RSCommentsTable');
+		$row 		 	= JTable::getInstance('Comment','RscommentsTable');
 		$session 		= JFactory::getSession();
 		$config			= RSCommentsHelper::getConfig();
 		$comment 	 	= $jform['comment'];

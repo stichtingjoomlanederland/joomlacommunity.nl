@@ -18,7 +18,6 @@ abstract class RSCommentsToolbarHelper {
 		self::addEntry(JText::_('COM_RSCOMMENTS_GROUP_PERMISSIONS'),	'index.php?option=com_rscomments&view=groups',			$ViewName == 'groups');
 		self::addEntry(JText::_('COM_RSCOMMENTS_IMPORT'),				'index.php?option=com_rscomments&view=import',			$ViewName == 'import');
 		self::addEntry(JText::_('COM_RSCOMMENTS_MESSAGES'),				'index.php?option=com_rscomments&view=messages',		$ViewName == 'messages');
-		self::addEntry(JText::_('COM_RSCOMMENTS_UPDATES'),				'index.php?option=com_rscomments&view=updates',			$ViewName == 'updates');
 	}
 
 	protected static function addEntry($string, $url, $default=false) {
