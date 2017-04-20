@@ -26,7 +26,7 @@ foreach ($fieldsets as $fieldset) {
 		if (!empty($this->config->google_client_id) && !empty($this->config->google_secret)) {
 			echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', '<a href="'.$this->auth.'" class="btn btn-info button">'.JText::_('COM_RSEVENTSPRO_CONF_SYNC_BTN').'</a>');
 		} else {
-			echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', JText::_('COM_RSEVENTSPRO_CONF_SYNC_SAVE_FIRTS'));
+			echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', JText::_('COM_RSEVENTSPRO_CONF_SYNC_SAVE_FIRST'));
 		}
 	}
 	
@@ -36,3 +36,7 @@ foreach ($fieldsets as $fieldset) {
 	
 	echo JHtml::_('rsfieldset.end');
 }
+
+echo $this->form->getInput('facebook_appid');
+echo $this->form->getInput('facebook_secret');
+echo $this->form->getInput('facebook_token');

@@ -7,7 +7,7 @@
 
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproViewCalendar extends JViewLegacy
+class RseventsproViewCalendar extends JViewLegacy
 {
 	public function display($tpl = null) {
 		$doc		= JFactory::getDocument();
@@ -36,10 +36,10 @@ class rseventsproViewCalendar extends JViewLegacy
 		
 		$clone->setVar('format','feed');
 		$clone->setVar('type','rss');
-		$this->rss = $clone->toString();
+		$this->rss = $this->escape($clone->toString());
 		$clone->setVar('format','raw');
 		$clone->setVar('type','ical');
-		$this->ical = $clone->toString();
+		$this->ical = $this->escape($clone->toString());
 		
 		$mid = $app->input->getInt('mid',0);
 		$mid = $mid ? '&mid='.$mid : '';

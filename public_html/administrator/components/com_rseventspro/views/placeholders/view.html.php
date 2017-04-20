@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproViewPlaceholders extends JViewLegacy
+class RseventsproViewPlaceholders extends JViewLegacy
 {	
 	public function display($tpl = null) {
 		require_once JPATH_SITE.'/components/com_rseventspro/helpers/placeholders.php';

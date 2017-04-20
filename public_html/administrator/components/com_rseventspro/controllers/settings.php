@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class rseventsproControllerSettings extends JControllerLegacy
+class RseventsproControllerSettings extends JControllerLegacy
 {	
 	/**
 	 * Constructor.
@@ -46,7 +46,7 @@ class rseventsproControllerSettings extends JControllerLegacy
 	 * @return	JModel
 	 * @since	1.6
 	 */
-	public function getModel($name = 'Settings', $prefix = 'rseventsproModel', $config = array('ignore_request' => true)) {
+	public function getModel($name = 'Settings', $prefix = 'RseventsproModel', $config = array('ignore_request' => true)) {
 		$model = parent::getModel($name, $prefix, $config);
 		return $model;
 	}

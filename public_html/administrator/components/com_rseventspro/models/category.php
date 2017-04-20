@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproModelCategory extends JModelAdmin
+class RseventsproModelCategory extends JModelAdmin
 {
 	/**
 	 * @var    string  The prefix to use with controller messages.
@@ -25,7 +25,7 @@ class rseventsproModelCategory extends JModelAdmin
 	 *
 	 * @since   1.6
 	 */
-	public function getTable($type = 'Category', $prefix = 'rseventsproTable', $config = array()) {
+	public function getTable($type = 'Category', $prefix = 'RseventsproTable', $config = array()) {
 		return JTable::getInstance($type, $prefix, $config);
 	}
 

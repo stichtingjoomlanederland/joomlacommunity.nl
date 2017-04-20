@@ -18,6 +18,6 @@ require_once JPATH_COMPONENT.'/controller.php';
 // Initialize main helper
 rseventsproHelper::loadHelper();
 
-$controller	= JControllerLegacy::getInstance('RSEventspro');
+$controller	= JControllerLegacy::getInstance('Rseventspro');
 $controller->execute(JFactory::getApplication()->input->get('task'));
 $controller->redirect();

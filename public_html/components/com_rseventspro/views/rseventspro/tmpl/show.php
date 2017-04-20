@@ -141,6 +141,12 @@ jQuery(document).ready(function (){
 			<i class="fa fa-pencil fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_EDIT'); ?>
 		</a>
 		<?php } ?>
+		
+		<?php if (!($this->admin || $event->owner == $this->user || $event->sid == $this->user) && $this->permissions['can_delete_events']) { ?>
+		<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.remove&id='.rseventsproHelper::sef($event->id,$event->name)); ?>" class="btn" onclick="return confirm('<?php echo JText::_('COM_RSEVENTSPRO_EVENT_DELETE_CONFIRMATION'); ?>');">
+			<i class="fa fa-trash fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_DELETE_EVENT'); ?>
+		</a>
+		<?php } ?>
 
 	<!-- Invite/Join/Unsubscribe -->	
 		<?php if ($this->cansubscribe['status']) { ?>

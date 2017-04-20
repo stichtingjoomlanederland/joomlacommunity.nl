@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); 
 
-class rseventsproController extends JControllerLegacy
+class RseventsproController extends JControllerLegacy
 {
 	/**
 	 *	Main constructor
@@ -1211,5 +1211,25 @@ class rseventsproController extends JControllerLegacy
 	// Cron for rules
 	public function rules() {
 		rseventsproHelper::rules();
+	}
+	
+	// Auto-Sync Google calendar and Facebook events
+	public function autosync() {
+		$config = rseventsproHelper::getConfig();
+		
+		// Syng Google Calendar
+		if ($config->google_client_id && $config->google_secret) {
+			require_once JPATH_SITE.'/components/com_rseventspro/helpers/google.php';
+		
+			$google	= new RSEPROGoogle();
+			$google->parse();
+		}
+		
+		// Sync Facebook events
+		if (!empty($config->facebook_token)) {
+			try {
+				rseventsproHelper::facebookEvents();
+			} catch(Exception $e) {}
+		}
 	}
 }

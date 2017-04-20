@@ -62,7 +62,7 @@ $modal = $this->config->modal == 1 || $this->config->modal == 2; ?>
 	<?php if (!empty($this->tickets) && !$this->thankyou) { ?><script type="text/javascript"><?php if ($this->event->ticketsconfig) { ?>rsepro_update_total();<?php } else { ?>rs_get_ticket(jQuery('#RSEProTickets').val());<?php } ?></script><?php } ?>
 </div>
 <?php } else { ?>
-<form action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe'); ?>" method="post" name="adminForm" id="adminForm" class="form-horizontal">
+<form action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe'); ?>" method="post" name="adminForm" id="adminForm" class="form-horizontal" autocomplete="off">
 <div class="rs_subscribe">
 	<h1><?php echo JText::sprintf('COM_RSEVENTSPRO_SUBSCRIBER_JOIN',$this->event->name); ?></h1>
 	

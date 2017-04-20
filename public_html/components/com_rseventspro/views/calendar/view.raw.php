@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproViewCalendar extends JViewLegacy
+class RseventsproViewCalendar extends JViewLegacy
 {
 	public function display($tpl = null) {
 		$app			= JFactory::getApplication();

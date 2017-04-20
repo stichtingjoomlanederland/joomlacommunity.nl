@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class rseventsproControllerEvent extends JControllerForm
+class RseventsproControllerEvent extends JControllerForm
 {
 	/**
 	 * Class constructor.

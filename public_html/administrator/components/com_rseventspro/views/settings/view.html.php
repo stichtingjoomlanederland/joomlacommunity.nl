@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproViewSettings extends JViewLegacy
+class RseventsproViewSettings extends JViewLegacy
 {
 	protected $form;
 	protected $fieldsets;
@@ -44,7 +44,7 @@ class rseventsproViewSettings extends JViewLegacy
 			JHtml::_('rseventspro.chosen','select');
 		}
 		
-		JFactory::getDocument()->addScript('https://maps.google.com/maps/api/js'.($this->config->google_map_api ? '?key='.$this->config->google_map_api : ''));
+		JFactory::getDocument()->addScript('https://maps.google.com/maps/api/js?language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
 		JFactory::getDocument()->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION);
 		
 		JToolBarHelper::apply('settings.apply');

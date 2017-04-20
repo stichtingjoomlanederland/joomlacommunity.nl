@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproModelImports extends JModelLegacy
+class RseventsproModelImports extends JModelLegacy
 {
 	protected $_tz = 0;
 	
@@ -1585,7 +1585,7 @@ class rseventsproModelImports extends JModelLegacy
 		if ($catID = (int) $db->loadResult()) {
 			return $catID;
 		} else {
-			$table = JTable::getInstance('Category', 'rseventsproTable');
+			$table = JTable::getInstance('Category', 'RseventsproTable');
 			$table->setLocation($data['parent_id'], 'last-child');
 			$table->save($data);
 			$table->rebuildPath($table->id);
@@ -1603,7 +1603,7 @@ class rseventsproModelImports extends JModelLegacy
 	 *	@return boolean
 	 */
 	protected function _savelocation($data) {
-		$table = JTable::getInstance('Location', 'rseventsproTable');
+		$table = JTable::getInstance('Location', 'RseventsproTable');
 		$table->save($data);
 		return $table->id;
 	}
@@ -1616,7 +1616,7 @@ class rseventsproModelImports extends JModelLegacy
 	 *	@return boolean
 	 */
 	protected function _savetag($data) {
-		$table = JTable::getInstance('Tag', 'rseventsproTable');
+		$table = JTable::getInstance('Tag', 'RseventsproTable');
 		$table->save($data);
 		return $table->id;
 	}
@@ -1631,7 +1631,7 @@ class rseventsproModelImports extends JModelLegacy
 	protected function _saveevent($data) {
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
-		$model	= JModelLegacy::getInstance('Event','rseventsproModel',  array('ignore_request' => true));
+		$model	= JModelLegacy::getInstance('Event','RseventsproModel',  array('ignore_request' => true));
 		
 		if ($model->save($data)) {
 			$eid			= $model->getState('event.id');

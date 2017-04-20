@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproModelTags extends JModelList
+class RseventsproModelTags extends JModelList
 {
 	/**
 	 * Constructor.

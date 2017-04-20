@@ -718,7 +718,7 @@ class RSEvent
 		JModelLegacy::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_rseventspro/models');
 		JModelLegacy::addTablePath(JPATH_ADMINISTRATOR.'/components/com_rseventspro/tables');
 		
-		$model = JModelLegacy::getInstance('Event','rseventsproModel');
+		$model = JModelLegacy::getInstance('Event','RseventsproModel');
 		return $model->getItem($this->id);
 	}
 	
@@ -1391,7 +1391,7 @@ class RSEvent
 		$dispatcher	= JDispatcher::getInstance();
 		JPluginHelper::importPlugin('finder');
 		
-		$table = JTable::getInstance('Event','rseventsproTable');
+		$table = JTable::getInstance('Event','RseventsproTable');
 		$table->load($id);
 		
 		if ($table->completed) {

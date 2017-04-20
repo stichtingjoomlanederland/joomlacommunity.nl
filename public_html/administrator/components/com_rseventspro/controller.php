@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproController extends JControllerLegacy
+class RseventsproController extends JControllerLegacy
 {	
 	/**
 	 *	Main constructor
@@ -184,13 +184,13 @@ class rseventsproController extends JControllerLegacy
 		$query	= $db->getQuery(true);
 		
 		if ($type == 'location') {
-			$table = JTable::getInstance('Location', 'rseventsproTable');
+			$table = JTable::getInstance('Location', 'RseventsproTable');
 			$table->save($data);
 			echo $table->id;
 		} elseif ($type == 'category') {
 			$data['extension'] = 'com_rseventspro';
 			$data['language'] = '*';
-			$table = JTable::getInstance('Category', 'rseventsproTable');
+			$table = JTable::getInstance('Category', 'RseventsproTable');
 			$table->setLocation($data['parent_id'], 'last-child');
 			$table->save($data);
 			$table->rebuildPath($table->id);

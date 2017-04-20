@@ -476,6 +476,9 @@ INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('fontawesom
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('canonical', '1');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('default_image', 'blank.png');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('google_map_api', '');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('enable_gallery', '1');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('facebook_check_owner', '1');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('google_access_token', '');
 
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Afghanistan');
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Akrotiri');

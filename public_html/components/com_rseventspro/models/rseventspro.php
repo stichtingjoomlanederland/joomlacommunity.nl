@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproModelRseventspro extends JModelLegacy
+class RseventsproModelRseventspro extends JModelLegacy
 {	
 	protected $_query			= null;
 	protected $_locationquery	= null;
@@ -160,7 +160,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 		
 		$query->clear()
 			->select($this->_db->qn('c.id'))->select($this->_db->qn('c.title'))
-			->select($this->_db->qn('c.description'))->select($this->_db->qn('c.level'))->select($this->_db->qn('c.metadata'))
+			->select($this->_db->qn('c.description'))->select($this->_db->qn('c.level'))
 			->from($this->_db->qn('#__categories','c'))
 			->where($this->_db->qn('c.extension').' = '.$this->_db->q('com_rseventspro'))
 			->where($this->_db->qn('c.published').' = 1')
@@ -1385,7 +1385,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 	
 	// Save subscriber
 	public function savesubscriber() {
-		$table	= JTable::getInstance('Subscription','rseventsproTable');
+		$table	= JTable::getInstance('Subscription','RseventsproTable');
 		$data	= $this->_app->input->get('jform',array(),'array');
 		$query	= $this->_db->getQuery(true);
 		
@@ -1423,7 +1423,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 	
 	// Remove subscriber
 	public function removesubscriber() {
-		$table	= JTable::getInstance('Subscription','rseventsproTable');
+		$table	= JTable::getInstance('Subscription','RseventsproTable');
 		$ids	= $this->_app->input->getInt('id');
 		$ide	= $this->_app->input->getInt('ide');
 		
@@ -1585,7 +1585,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 	
 	// Save location
 	public function savelocation() {
-		$table	= JTable::getInstance('Location','rseventsproTable');
+		$table	= JTable::getInstance('Location','RseventsproTable');
 		$data	= $this->_app->input->get('jform',array(),'array');
 		
 		if (!$table->bind($data)) {
@@ -1613,12 +1613,12 @@ class rseventsproModelRseventspro extends JModelLegacy
 	
 	// Save category
 	public function savecategory() {
-		$table	= JTable::getInstance('Category','rseventsproTable');
+		$table	= JTable::getInstance('Category','RseventsproTable');
 		$data	= $this->_app->input->get('jform',array(),'array');
 		
 		$data['extension'] = 'com_rseventspro';
 		$data['language'] = '*';
-		$table = JTable::getInstance('Category', 'rseventsproTable');
+		$table = JTable::getInstance('Category', 'RseventsproTable');
 		$table->setLocation($data['parent_id'], 'last-child');
 		$table->save($data);
 		$table->rebuildPath($table->id);
@@ -1683,6 +1683,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 		
 		// Set tickets
 		if ($event->ticketsconfig) {
+			$seatTaken	= false;
 			$tickets	= array();
 			$thetickets	= $jinput->get('tickets',array(),'array');
 			$unlimited	= $jinput->get('unlimited',array(),'array');
@@ -1698,6 +1699,25 @@ class rseventsproModelRseventspro extends JModelLegacy
 			}
 			
 			$seats = $thetickets;
+			
+			foreach ($seats as $ticketID => $ticketSeats) {
+				foreach($ticketSeats as $ticketSeat) {
+					$query->clear()
+						->select($this->_db->qn('id'))
+						->from($this->_db->qn('#__rseventspro_user_seats'))
+						->where($this->_db->qn('idt').' = '.$this->_db->q($ticketID))
+						->where($this->_db->qn('seat').' = '.$this->_db->q($ticketSeat));
+					$this->_db->setQuery($query);
+					if ($this->_db->loadResult()) {
+						JFactory::getApplication()->enqueueMessage(JText::sprintf('COM_RSEVENTSPRO_SEAT_ALREADY_TAKEN', $ticketSeat), 'error');
+						$seatTaken = true;
+					}
+				}
+			}
+			
+			if ($seatTaken) {
+				return array('status' => false, 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe&id='.rseventsproHelper::sef($id,$event->name),false) , 'message' => '');
+			}
 		} else {
 			if (rseventsproHelper::getConfig('multi_tickets','int')) {
 				$tickets = $jinput->get('tickets',array(),'array');
@@ -2038,11 +2058,11 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$this->_db->setQuery($query);
 		$thecouponcode = $this->_db->loadResult();
 		
-		$ticketstotal		= !empty($total) ? rseventsproHelper::currency($total) : '';
-		$ticketsdiscount	= !empty($total) && !empty($discount) ? rseventsproHelper::currency($discount) : '';
-		$subscriptionTax	= !empty($total) && !empty($tax) ? rseventsproHelper::currency($tax) : '';
-		$lateFee			= !empty($total) && !empty($late) ? rseventsproHelper::currency($late) : '';
-		$earlyDiscount		= !empty($total) && !empty($early) ? rseventsproHelper::currency($early) : '';
+		$ticketstotal		= rseventsproHelper::currency($total);
+		$ticketsdiscount	= !empty($discount) ? rseventsproHelper::currency($discount) : '';
+		$subscriptionTax	= !empty($tax) ? rseventsproHelper::currency($tax) : '';
+		$lateFee			= !empty($late) ? rseventsproHelper::currency($late) : '';
+		$earlyDiscount		= !empty($early) ? rseventsproHelper::currency($early) : '';
 		$gateway			= rseventsproHelper::getPayment($payment);
 		$IP					= $_SERVER['REMOTE_ADDR'];
 		$coupon				= !empty($thecouponcode) ? $thecouponcode : '';
@@ -2728,6 +2748,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 		$id		= $this->_app->input->getInt('id');
 		$query	= $this->_db->getQuery(true);
 		$path	= JPATH_SITE.'/components/com_rseventspro/assets/images/events/';
+		$thumbs = JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs/';
 		
 		$query->clear()
 			->select($this->_db->qn('icon'))
@@ -2842,7 +2863,7 @@ class rseventsproModelRseventspro extends JModelLegacy
 		
 		jimport('joomla.application.component.modeladmin');
 		JModelLegacy::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_rseventspro/models');
-		$model = JModelLegacy::getInstance('Event','rseventsproModel',  array('ignore_request' => true));
+		$model = JModelLegacy::getInstance('Event','RseventsproModel',  array('ignore_request' => true));
 		
 		if ($model->save($data)) {
 			$this->setState('eventid', $model->getState('event.id'));

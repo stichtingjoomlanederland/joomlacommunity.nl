@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproViewPdf extends JViewLegacy
+class RseventsproViewPdf extends JViewLegacy
 {
 	protected $buffer;
 	

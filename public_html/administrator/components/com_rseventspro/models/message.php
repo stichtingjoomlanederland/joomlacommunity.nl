@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproModelMessage extends JModelAdmin
+class RseventsproModelMessage extends JModelAdmin
 {
 	/**
 	 * @var		string	The prefix to use with controller messages.

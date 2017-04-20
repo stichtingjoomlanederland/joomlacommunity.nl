@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class rseventsproControllerLocations extends JControllerAdmin
+class RseventsproControllerLocations extends JControllerAdmin
 {	
 	protected $text_prefix = 'COM_RSEVENTSPRO_LOCATIONS';
 	
@@ -33,7 +33,7 @@ class rseventsproControllerLocations extends JControllerAdmin
 	 * @return	JModel
 	 * @since	1.6
 	 */
-	public function getModel($name = 'Location', $prefix = 'rseventsproModel', $config = array('ignore_request' => true)) {
+	public function getModel($name = 'Location', $prefix = 'RseventsproModel', $config = array('ignore_request' => true)) {
 		$model = parent::getModel($name, $prefix, $config);
 		return $model;
 	}

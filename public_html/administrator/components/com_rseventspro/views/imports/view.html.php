@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproViewImports extends JViewLegacy
+class RseventsproViewImports extends JViewLegacy
 {
 	protected $items;
 	protected $offsets;

@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproViewGroups extends JViewLegacy
+class RseventsproViewGroups extends JViewLegacy
 {
 	protected $items;
 	protected $pagination;

@@ -22,6 +22,6 @@ rseventsproHelper::task();
 
 JFactory::getCache('page')->clean();
 
-$controller	= JControllerLegacy::getInstance('RSEventspro');
+$controller	= JControllerLegacy::getInstance('Rseventspro');
 $controller->execute(JFactory::getApplication()->input->get('task'));
 $controller->redirect();

@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproModelRseventspro extends JModelLegacy
+class RseventsproModelRseventspro extends JModelLegacy
 {	
 	/**
 	 * Constructor.

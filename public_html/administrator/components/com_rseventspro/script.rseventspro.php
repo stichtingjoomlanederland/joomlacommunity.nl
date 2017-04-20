@@ -497,10 +497,10 @@ class com_rseventsproInstallerScript
 			}
 			
 			// UPDATE event parameters
-			$db->setQuery("SELECT `id`, `repeat_also`, `payments`, `options`, `gallery_tags` FROM `#__rseventspro_events`");
+			$db->setQuery("SELECT `id`, `repeat_also`, `payments`, `options`, `gallery_tags`, `properties` FROM `#__rseventspro_events`");
 			if ($events = $db->loadObjectList()) {
 				foreach ($events as $event) {
-					$repeat_also = $payments = $options = $gallery_tags = '';
+					$repeat_also = $payments = $options = $gallery_tags = $properties = '';
 					
 					if (!empty($event->repeat_also)) {
 						if (!$this->isJSON($event->repeat_also)) {
@@ -546,6 +546,17 @@ class com_rseventsproInstallerScript
 						}
 					}
 					
+					if (!empty($event->properties)) {
+						if (!$this->isJSON($event->properties)) {
+							$properties = explode(',',$event->properties);
+							if ($properties !== false) {
+								$registry = new JRegistry;
+								$registry->loadArray($properties);
+								$properties = $registry->toString();
+							}
+						}
+					}
+					
 					if ($repeat_also) {
 						$db->setQuery("UPDATE `#__rseventspro_events` SET `repeat_also` = '".$db->escape($repeat_also)."' WHERE `id` = ".(int) $event->id." ");
 						$db->execute();
@@ -563,6 +574,11 @@ class com_rseventsproInstallerScript
 					
 					if ($gallery_tags) {
 						$db->setQuery("UPDATE `#__rseventspro_events` SET `gallery_tags` = '".$db->escape($gallery_tags)."' WHERE `id` = ".(int) $event->id." ");
+						$db->execute();
+					}
+					
+					if ($properties) {
+						$db->setQuery("UPDATE `#__rseventspro_events` SET `properties` = '".$db->escape($properties)."' WHERE `id` = ".(int) $event->id." ");
 						$db->execute();
 					}
 				}
@@ -978,9 +994,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.10.23</h2>
+	<h2>Changelog v1.10.27</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> Check for google map coordinates when creating a new location.</li>
+		<li><span class="version-fixed">Fix</span> XSS vulnerability in the calendar view.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>

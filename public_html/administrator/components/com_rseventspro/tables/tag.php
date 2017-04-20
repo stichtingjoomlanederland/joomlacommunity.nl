@@ -8,7 +8,7 @@
 // No direct access
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproTableTag extends JTable
+class RseventsproTableTag extends JTable
 {
 	/**
 	 * @param	JDatabase	A database connector object
@@ -28,7 +28,7 @@ class rseventsproTableTag extends JTable
 	 */
 	public function store($updateNulls = false) {
 		// Verify that the alias is unique
-		$table = JTable::getInstance('Tag', 'rseventsproTable');
+		$table = JTable::getInstance('Tag', 'RseventsproTable');
 		if ($table->load(array('name' => $this->name)) && ($table->id != $this->id || $this->id == 0))
 		{
 			$this->setError(JText::_('COM_RSEVENTSPRO_DUPLICATE_TAG_NAME'));

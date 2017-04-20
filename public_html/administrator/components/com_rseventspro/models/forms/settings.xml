@@ -329,11 +329,10 @@
 		<field name="facebook_category" type="category" extension="com_rseventspro" published="1" label="COM_RSEVENTSPRO_CONF_FACEBOOK_CATEGORY" description="COM_RSEVENTSPRO_CONF_FACEBOOK_CATEGORY_DESC" size="1" default="" />
 		<field name="facebook_location" type="rslocations" label="COM_RSEVENTSPRO_CONF_FACEBOOK_LOCATION" description="COM_RSEVENTSPRO_CONF_FACEBOOK_LOCATION_DESC" size="1" default="" />
 		<field name="facebook_pages" type="text" label="COM_RSEVENTSPRO_CONF_FACEBOOK_PAGES" description="COM_RSEVENTSPRO_CONF_FACEBOOK_PAGES_DESC" size="30" default="" />
-		
-		<field type="hidden" name="facebook_appid" default="340486642645761" />
-		<field type="hidden" name="facebook_secret" default="fea413f9a085e01555de0e93848c2c4a" />
-		<field type="hidden" name="facebook_token" default="" />
-		
+		<field name="facebook_check_owner" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_FACEBOOK_CHECK_OWNER" description="COM_RSEVENTSPRO_CONF_FACEBOOK_CHECK_OWNER_DESC" default="1">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
 	</fieldset>
 	
 	<fields name="gallery">
@@ -383,5 +382,14 @@
 		<option value="1">COM_RSEVENTSPRO_CONF_SELECT_CAPTCHA_1</option>
 		<option value="2">COM_RSEVENTSPRO_CONF_SELECT_CAPTCHA_2</option>
 	</field>
+	
+	<field name="enable_gallery" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_ENABLE_GALLERY" description="COM_RSEVENTSPRO_CONF_ENABLE_GALLERY_DESC" default="0">
+		<option value="0">JNO</option>
+		<option value="1">JYES</option>
+	</field>
+	
+	<field type="hidden" name="facebook_appid" default="340486642645761" />
+	<field type="hidden" name="facebook_secret" default="fea413f9a085e01555de0e93848c2c4a" />
+	<field type="hidden" name="facebook_token" default="" />
 
 </form>

@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproModelCalendar extends JModelLegacy
+class RseventsproModelCalendar extends JModelLegacy
 {
 	protected $_query		= null;
 	protected $_data		= null;

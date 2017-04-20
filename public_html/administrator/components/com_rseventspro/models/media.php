@@ -9,7 +9,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 jimport('joomla.filesystem.folder');
 jimport('joomla.filesystem.file');
 
-class rseventsproModelMedia extends JModelLegacy
+class RseventsproModelMedia extends JModelLegacy
 {
 	/**
 	 * Method to get model state variables

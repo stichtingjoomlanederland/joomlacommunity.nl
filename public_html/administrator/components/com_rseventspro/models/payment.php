@@ -7,7 +7,7 @@
 defined( '_JEXEC' ) or die( 'Restricted access' );
 jimport( 'joomla.plugin.helper' );
 
-class rseventsproModelPayment extends JModelAdmin
+class RseventsproModelPayment extends JModelAdmin
 {	
 	protected $text_prefix = 'COM_RSEVENTSPRO';
 
@@ -20,7 +20,7 @@ class rseventsproModelPayment extends JModelAdmin
 	 *
 	 * @return	JTable	A database object
 	*/
-	public function getTable($type = 'Payment', $prefix = 'rseventsproTable', $config = array()) {
+	public function getTable($type = 'Payment', $prefix = 'RseventsproTable', $config = array()) {
 		return JTable::getInstance($type, $prefix, $config);
 	}
 	

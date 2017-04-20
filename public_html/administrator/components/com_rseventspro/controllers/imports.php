@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class rseventsproControllerImports extends JControllerLegacy
+class RseventsproControllerImports extends JControllerLegacy
 {
 	public function __construct() {
 		parent::__construct();

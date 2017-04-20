@@ -153,56 +153,85 @@ class RSEPROGoogle
 	}
 	
 	/*
+	*	Save access token
+	*/
+	
+	public function saveToken() {
+		if (isset($_GET['code'])) {
+			$db		= JFactory::getDbo();
+			$query	= $db->getQuery(true);
+			$client = new Google_Client();
+			
+			$client->setClientId($this->_clientID);
+			$client->setClientSecret($this->_secret);
+			$client->setRedirectUri(JUri::root().'administrator/index.php?option=com_rseventspro&task=settings.google');
+			$client->addScope('https://www.googleapis.com/auth/calendar');
+			$client->setAccessType('offline');
+			$client->authenticate($_GET['code']);
+			
+			$query->update($db->qn('#__rseventspro_config'))
+				->set($db->qn('value').' = '.$db->q($client->getAccessToken()))
+				->where($db->qn('name').' = '.$db->q('google_access_token'));
+			$db->setQuery($query);
+			$db->execute();
+		}
+	}
+	
+	/*
 	*	Get and parse events
 	*/
 	
 	protected function getEvents() {
-		$eventList = array();
-		$return = array();
+		$db			= JFactory::getDbo();
+		$query		= $db->getQuery(true);
+		$eventList	= array();
+		$return		= array();
+		
+		$query->select($db->qn('value'))
+			->from($db->qn('#__rseventspro_config'))
+			->where($db->qn('name').' = '.$db->q('google_access_token'));
+		$db->setQuery($query);
+		$access_token = $db->loadResult();
 		
 		$client = new Google_Client();
 		$client->setClientId($this->_clientID);
 		$client->setClientSecret($this->_secret);
 		$client->setRedirectUri(JUri::root().'administrator/index.php?option=com_rseventspro&task=settings.google');
 		$client->addScope('https://www.googleapis.com/auth/calendar');
-		
-		if (isset($_GET['code'])) {
-			$client->authenticate($_GET['code']);
-			$client->setAccessToken($client->getAccessToken());
+		$client->setAccessToken($access_token);
 			
-			$service = new Google_Service_Calendar($client);
+		$service = new Google_Service_Calendar($client);
 		
-			if ($client->getAccessToken()) {
-				$calendarIDs = array();
-				$calendarList = $service->calendarList->listCalendarList();
+		if ($client->getAccessToken()) {
+			$calendarIDs = array();
+			$calendarList = $service->calendarList->listCalendarList();
+
+			while(true) {
+				foreach ($calendarList->getItems() as $calendarListEntry) {
+					$calendarIDs[$calendarListEntry->id] = $calendarListEntry->getSummary();
+				}
+				
+				if ($pageToken = $calendarList->getNextPageToken()) {
+					$optParams = array('pageToken' => $pageToken);
+					$calendarList = $service->calendarList->listCalendarList($optParams);
+				} else {
+					break;
+				}
+			}
+
+			foreach ($calendarIDs as $id => $name) {
+				$events = $service->events->listEvents($id);
 
 				while(true) {
-					foreach ($calendarList->getItems() as $calendarListEntry) {
-						$calendarIDs[$calendarListEntry->id] = $calendarListEntry->getSummary();
+					foreach ($events->getItems() as $event) {
+						$eventList[] = $event;
 					}
 					
-					if ($pageToken = $calendarList->getNextPageToken()) {
+					if ($pageToken = $events->getNextPageToken()) {
 						$optParams = array('pageToken' => $pageToken);
-						$calendarList = $service->calendarList->listCalendarList($optParams);
+						$events = $service->events->listEvents($id, $optParams);
 					} else {
 						break;
-					}
-				}
-
-				foreach ($calendarIDs as $id => $name) {
-					$events = $service->events->listEvents($id);
-
-					while(true) {
-						foreach ($events->getItems() as $event) {
-							$eventList[] = $event;
-						}
-						
-						if ($pageToken = $events->getNextPageToken()) {
-							$optParams = array('pageToken' => $pageToken);
-							$events = $service->events->listEvents($id, $optParams);
-						} else {
-							break;
-						}
 					}
 				}
 			}

@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproModelRule extends JModelAdmin
+class RseventsproModelRule extends JModelAdmin
 {
 	protected $text_prefix = 'COM_RSEVENTSPRO';
 
@@ -19,7 +19,7 @@ class rseventsproModelRule extends JModelAdmin
 	 *
 	 * @return	JTable	A database object
 	*/
-	public function getTable($type = 'Rule', $prefix = 'rseventsproTable', $config = array()) {
+	public function getTable($type = 'Rule', $prefix = 'RseventsproTable', $config = array()) {
 		return JTable::getInstance($type, $prefix, $config);
 	}
 	

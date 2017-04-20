@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class rseventsproControllerRseventspro extends JControllerLegacy
+class RseventsproControllerRseventspro extends JControllerLegacy
 {
 	/**
 	 *	Main constructor

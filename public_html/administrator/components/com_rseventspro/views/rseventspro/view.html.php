@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproViewRseventspro extends JViewLegacy
+class RseventsproViewRseventspro extends JViewLegacy
 {
 	protected $jversion;
 	protected $code;

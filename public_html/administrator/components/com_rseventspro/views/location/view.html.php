@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproViewLocation extends JViewLegacy
+class RseventsproViewLocation extends JViewLegacy
 {
 	protected $form;
 	protected $item;
@@ -33,7 +33,7 @@ class rseventsproViewLocation extends JViewLegacy
 		}
 		
 		if ($this->config->enable_google_maps) {
-			JFactory::getDocument()->addScript('https://maps.google.com/maps/api/js'.($this->config->google_map_api ? '?key='.$this->config->google_map_api : ''));
+			JFactory::getDocument()->addScript('https://maps.google.com/maps/api/js?language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
 			JFactory::getDocument()->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION);
 		}
 	}

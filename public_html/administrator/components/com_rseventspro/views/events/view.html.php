@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproViewEvents extends JViewLegacy
+class RseventsproViewEvents extends JViewLegacy
 {
 	protected $sidebar;
 	

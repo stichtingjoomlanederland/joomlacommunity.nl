@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproViewBackup extends JViewLegacy
+class RseventsproViewBackup extends JViewLegacy
 {	
 	public function display($tpl = null) {
 		require_once JPATH_SITE.'/components/com_rseventspro/helpers/backup.php';

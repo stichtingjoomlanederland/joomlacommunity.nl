@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproViewEvent extends JViewLegacy
+class RseventsproViewEvent extends JViewLegacy
 {
 	public function display($tpl = null) {
 		require_once JPATH_SITE.'/components/com_rseventspro/helpers/events.php';

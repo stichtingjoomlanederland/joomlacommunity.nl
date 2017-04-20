@@ -311,6 +311,16 @@ class RSEBackup {
 									}
 									
 									if ($column == 'payments') {
+										
+										if (!$this->isJSON($value)) {
+											$value = @unserialize($value);
+											if ($value !== false) {
+												$registry = new JRegistry;
+												$registry->loadArray($value);
+												$value = $registry->toString();
+											}
+										}
+										
 										$registry = new JRegistry;
 										$registry->loadString($value);
 										if ($payments = $registry->toArray()) {
@@ -322,6 +332,17 @@ class RSEBackup {
 											$value = $registry->toString();
 										}
 									}
+									
+									if ($column == 'properties') {
+										if (!$this->isJSON($value)) {
+											$value = @unserialize($value);
+											if ($value !== false) {
+												$registry = new JRegistry;
+												$registry->loadArray($value);
+												$value = $registry->toString();
+											}
+										}
+									}
 								}
 								
 								// Update the event ID from the coupons table
@@ -331,6 +352,16 @@ class RSEBackup {
 									}
 									
 									if ($column == 'groups') {
+										
+										if (!$this->isJSON($value)) {
+											$value = @unserialize($value);
+											if ($value !== false) {
+												$registry = new JRegistry;
+												$registry->loadArray($value);
+												$value = $registry->toString();
+											}
+										}
+										
 										$registry = new JRegistry;
 										$registry->loadString($value);
 										if ($groups = $registry->toArray()) {
@@ -358,6 +389,17 @@ class RSEBackup {
 									}
 									
 									if ($column == 'groups') {
+										
+										if (!$this->isJSON($value)) {
+											$value = @unserialize($value);
+											if ($value !== false) {
+												$registry = new JRegistry;
+												$registry->loadArray($value);
+												$value = $registry->toString();
+											}
+										}
+										
+										
 										$registry = new JRegistry;
 										$registry->loadString($value);
 										if ($groups = $registry->toArray()) {
@@ -548,13 +590,13 @@ class RSEBackup {
 	// Save the categories
 	protected function savecategory($rows, $hash) {
 		$data	= array();
-		$table	= JTable::getInstance('Category', 'rseventsproTable');
+		$table	= JTable::getInstance('Category', 'RseventsproTable');
 		
 		foreach ($rows as $row) {
 			list($column, $value) = explode('=', $row, 2);
 			
 			$column			= str_replace(array('`', ' '), '', $column);
-			$value			= str_replace(array('\'', ' '), '', $value);
+			$value			= trim(str_replace('\'', '', $value));
 			
 			if ($column == 'params' || $column == 'metadata' || $column == 'description') {
 				$value = str_replace(array('\\\\"','\\\"','\\"','\"'), '"', $value);
@@ -665,5 +707,17 @@ class RSEBackup {
 	// Escape xml entries
 	protected function xmlentities($string) {
 		return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
+	}
+	
+	protected function isJSON($string) {
+		$data 	= json_decode($string);
+		
+		if (version_compare(PHP_VERSION,'5.3.0','>='))
+			$valid	= json_last_error() == JSON_ERROR_NONE;
+		else $valid = !is_null($data);
+		
+		if ($valid) {
+			return is_array($data) || is_object($data);
+		} else return $valid;
 	}
 }

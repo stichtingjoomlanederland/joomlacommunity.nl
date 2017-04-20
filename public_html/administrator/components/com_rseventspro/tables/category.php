@@ -15,7 +15,7 @@ JLoader::register('CategoriesTableCategory', JPATH_ADMINISTRATOR . '/components/
  * @package		Joomla.Administrator
  * @subpackage	com_categories
  */
-class rseventsproTableCategory extends CategoriesTableCategory
+class RseventsproTableCategory extends CategoriesTableCategory
 {
 	/**
 	 * Method to delete a node and, optionally, its child nodes from the table.

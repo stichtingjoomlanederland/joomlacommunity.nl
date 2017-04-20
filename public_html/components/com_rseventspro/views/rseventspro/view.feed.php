@@ -8,7 +8,7 @@
 // no direct access
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproViewRseventspro extends JViewLegacy
+class RseventsproViewRseventspro extends JViewLegacy
 {
 	//Creates the Event Feed
 	public function display($tpl = null) {
@@ -39,14 +39,12 @@ class rseventsproViewRseventspro extends JViewLegacy
 			
 			if (!empty($event->description)) $description .= $event->description;
 			
-			@$created =  ($event->created == JFactory::getDbo()->getNullDate()) ? date( 'r', strtotime($event->start)) : date( 'r', strtotime($event->created));
-
 			// load individual item creator class
 			$item = new JFeedItem();
 			$item->title 		= $title;
 			$item->link 		= $link;
 			$item->description 	= $description;
-			$item->date			= @$created;
+			$item->date			= JFactory::getDate($event->start)->format('r');
 			
 			// loads item info into rss array
 			$doc->addItem( $item );
@@ -59,7 +57,7 @@ class rseventsproViewRseventspro extends JViewLegacy
 		
 		$query->clear()
 			->select($db->qn('e.name'))->select($db->qn('e.start'))->select($db->qn('e.end'))->select($db->qn('e.allday'))
-			->select($db->qn('e.description'))->select($db->qn('e.created'))->select($db->qn('l.name','locationname'))
+			->select($db->qn('e.description'))->select($db->qn('l.name','locationname'))
 			->select($db->qn('l.address'))
 			->from($db->qn('#__rseventspro_events','e'))
 			->join('left', $db->qn('#__rseventspro_locations','l').' ON '.$db->qn('e.location').' = '.$db->qn('l.id'))

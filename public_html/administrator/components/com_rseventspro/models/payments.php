@@ -7,7 +7,7 @@
 defined( '_JEXEC' ) or die( 'Restricted access' );
 jimport( 'joomla.plugin.helper' );
 
-class rseventsproModelPayments extends JModelList
+class RseventsproModelPayments extends JModelList
 {	
 	/**
 	 * Constructor.
@@ -142,6 +142,7 @@ class rseventsproModelPayments extends JModelList
 				$details = $db->loadObject();
 				
 				$name = isset($details->name) && !empty($details->name) ? $details->name : $element;
+				$name = strtolower($name);
 				$lang->load($name, JPATH_ADMINISTRATOR);
 				$name = str_replace(array('System','system','-'),'',JText::_($name));
 				$name = trim($name);

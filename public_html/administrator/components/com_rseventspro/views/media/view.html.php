@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproViewMedia extends JViewLegacy
+class RseventsproViewMedia extends JViewLegacy
 {	
 	public function display($tpl = null) {
 		

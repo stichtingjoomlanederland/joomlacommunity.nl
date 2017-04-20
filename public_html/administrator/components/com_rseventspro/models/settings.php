@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproModelSettings extends JModelAdmin
+class RseventsproModelSettings extends JModelAdmin
 {
 	/**
 	 * @var		string	The prefix to use with controller messages.
@@ -85,7 +85,8 @@ class rseventsproModelSettings extends JModelAdmin
 	 */
 	public function getLayouts() {
 		$fields = array('general', 'dashboard', 'events', 'emails', 'maps', 'captcha', 'payments', 'sync', 'integrations');
-		if (rseventsproHelper::isGallery())
+		
+		if (file_exists(JPATH_ADMINISTRATOR.'/components/com_rsmediagallery/helpers/integration.php'))
 			$fields[] = 'gallery';
 		
 		return $fields;
@@ -168,7 +169,7 @@ class rseventsproModelSettings extends JModelAdmin
 		}
 		
 		// Save gallery params
-		if (rseventsproHelper::isGallery()) {
+		if (file_exists(JPATH_ADMINISTRATOR.'/components/com_rsmediagallery/helpers/integration.php')) {
 			$gallery = isset($data['gallery']) ? $data['gallery'] : array();
 			if (!empty($gallery)) {
 				if (is_array($gallery['thumb_resolution']))
@@ -271,13 +272,10 @@ class rseventsproModelSettings extends JModelAdmin
 	 * @since	1.6
 	 */
 	public function facebook() {
-		$db			= $this->getDbo();
-		$query		= $db->getQuery(true);
 		$config 	= $this->getConfig();
 		$jform		= JFactory::getApplication()->input->get('jform', array(),'array');
-		$allowed	= $config->facebook_pages;
-		$allowed	= !empty($allowed) ? explode(',',$allowed) : '';
-		$container	= array();
+		$parsed		= 0;
+		$total		= 0;
 		
 		if (empty($config->facebook_token)) {
 			$this->setError(JText::_('COM_RSEVENTSPRO_FACEBOOK_NO_CONNECTION'));
@@ -285,263 +283,23 @@ class rseventsproModelSettings extends JModelAdmin
 		}
 		
 		try {
-			require_once JPATH_SITE.'/components/com_rseventspro/helpers/facebook/autoload.php';
-			
-			$facebook = new Facebook\Facebook(array(
-				'app_id' => $config->facebook_appid,
-				'app_secret' => $config->facebook_secret,
-				'default_graph_version' => 'v2.6',
-				'default_access_token' => $config->facebook_token
-			));
-			
-			$fbRequest	= $facebook->get('me');
-			$user		= $fbRequest->getDecodedBody();
-			$uid 		= $user['id'];
-			$fbRequest	= $facebook->get('me/accounts?fields=id');
-			$pages		= $fbRequest->getDecodedBody();
-			$fbpages	= array();
-			$fbpages[]	= $uid;
-			$allevents	= array();
-			
-			if (!empty($pages) && !empty($pages['data'])) {
-				foreach($pages['data'] as $page) {
-					if (!empty($allowed)) {
-						foreach ($allowed as $pid) {
-							$pid = trim($pid);
-							if ($pid == $page['id']) {
-								$fbpages[] = $page['id'];
-							}
-						}
-					} else {
-						$fbpages[] = $page['id'];
-					}
-				}
-			}
-			
-			// Get user events
-			$fbRequest	= $facebook->get('me/events?limit=200');
-			$events		= $fbRequest->getDecodedBody();
-			
-			if (!empty($events) && !empty($events['data'])) {
-				foreach ($events['data'] as $event) {
-					$allevents[$event['id']] = $event;
-				}
-			}
-			
-			// Get page events
-			if (!empty($fbpages)) {
-				foreach ($fbpages as $pageid) {
-					$fbRequest	= $facebook->get('/'.$pageid.'/events?limit=200');
-					$pageEvents = $fbRequest->getDecodedBody();					
-					if (!empty($pageEvents) && !empty($pageEvents['data'])) {
-						foreach ($pageEvents['data'] as $pageEvent) {
-							$allevents[$pageEvent['id']] = $pageEvent;
-						}
-					}
-				}
-			}
-			
-			// Parse events
-			if (!empty($allevents)) {
-				foreach ($allevents as $event) {
-					$fbRequest	= $facebook->get($event['id']);
-					$eobj		= $fbRequest->getDecodedBody();
-					
-					if (empty($eobj)) {
-						continue;
-					}
-					
-					$fbRequest	= $facebook->get($event['id'].'?fields=owner,cover,timezone');
-					$fbData		= $fbRequest->getDecodedBody();
-					$cover		= isset($fbData['cover']) ? $fbData['cover'] : array();
-					$owner		= isset($fbData['owner']) ? $fbData['owner'] : array();
-					$timezone	= isset($fbData['timezone']) ? $fbData['timezone'] : null;
-					$image		= '';
-					
-					if (!empty($cover) && !empty($cover['source'])) {
-						$image = isset($cover['source']) ? $cover['source'] : '';
-					}
-					
-					if (!empty($owner) && !empty($owner['id'])) {
-						if (!in_array($owner['id'], $fbpages)) {
-							continue;
-						}
-					}
-					
-					$ev					= new stdClass();
-					$ev->id				= @$eobj['id'];
-					$ev->name			= @$eobj['name'];
-					$ev->description	= @$eobj['description'];
-					
-					if (isset($eobj['start_time'])) {
-						$startDate = new DateTime($eobj['start_time']);
-					} else {
-						$startDate = new DateTime();
-					}
-					
-					$startDate->setTimezone(new DateTimeZone('UTC'));
-					$start = $startDate->format('Y-m-d H:i:s');
-					
-					if (isset($eobj['end_time'])) {
-						$endDate = new DateTime($eobj['end_time']);
-						$endDate->setTimezone(new DateTimeZone('UTC'));
-						$end = $endDate->format('Y-m-d H:i:s');
-						$allday = 0;
-					} else {
-						$end = JFactory::getDbo()->getNullDate();
-						$allday = 1;
-					}
-					
-					$ev->start			= $start;
-					$ev->end			= $end;
-					$ev->allday			= $allday;
-					$ev->timezone		= $timezone;
-					$ev->location		= isset($eobj['place']['name']) ? $eobj['place']['name'] : 'Facebook Location';
-					$ev->street			= isset($eobj['place']['location']['street']) ? $eobj['place']['location']['street'] : '';
-					$ev->city			= isset($eobj['place']['location']['city']) ? $eobj['place']['location']['city'] : '';
-					$ev->state			= isset($eobj['place']['location']['state']) ? $eobj['place']['location']['state'] : '';
-					$ev->country		= isset($eobj['place']['location']['country']) ? $eobj['place']['location']['country'] : '';
-					$ev->lat			= isset($eobj['place']['location']['latitude']) ? $eobj['place']['location']['latitude'] : '';
-					$ev->lon			= isset($eobj['place']['location']['longitude']) ? $eobj['place']['location']['longitude'] : '';
-					$ev->image			= $image;
-					
-					$container[] = $ev; 
-				}
-			}
+			list($parsed, $total) = rseventsproHelper::facebookEvents($jform);
 		} catch (Exception $e) {
 			$this->setError($e->getMessage());
 			return false;
 		}
 		
-		$i = 0;
-		if (!empty($container)) {
-			$idcategory = isset($jform['facebook_category']) ? $jform['facebook_category'] : $config->facebook_category;
-			
-			if (empty($idcategory)) {
-				$query->clear()
-					->insert($db->qn('#__rseventspro_categories'))
-					->set($db->qn('name').' = '.$db->q('Facebook events'));
-				
-				$db->setQuery($query);
-				$db->execute();
-				$idcategory = $db->insertid();
-			}
-			
-			foreach ($container as $event) {
-				$idlocation = isset($jform['facebook_location']) ? $jform['facebook_location'] : $config->facebook_location;
-				
-				// Check if the current event was already added
-				$query->clear()
-					->select('COUNT(id)')
-					->from($db->qn('#__rseventspro_sync'))
-					->where($db->qn('id').' = '.$db->q($event->id))
-					->where($db->qn('from').' = '.$db->q('facebook'));
-				
-				$db->setQuery($query);
-				$indb = $db->loadResult();
-				
-				if (!empty($indb)) {
-					continue;
-				}
-				
-				if (empty($idlocation)) {
-					$address = $event->street;
-					if (!empty($event->city))		$address .= ' , '.$event->city;
-					if (!empty($event->state))		$address .= ' , '.$event->state;
-					if (!empty($event->country))	$address .= ' , '.$event->country;
-					
-					
-					$query->clear()
-						->insert($db->qn('#__rseventspro_locations'))
-						->set($db->qn('name').' = '.$db->q($event->location))
-						->set($db->qn('address').' = '.$db->q($address))
-						->set($db->qn('coordinates').' = '.$db->q($event->lat.','.$event->lon))
-						->set($db->qn('published').' = '.$db->q(1));
-					
-					$db->setQuery($query);
-					$db->execute();
-					$idlocation = $db->insertid();
-				}
-				
-				$query->clear()
-					->insert($db->qn('#__rseventspro_events'))
-					->set($db->qn('location').' = '.$db->q($idlocation))
-					->set($db->qn('owner').' = '.$db->q(JFactory::getUser()->get('id')))
-					->set($db->qn('name').' = '.$db->q($event->name))
-					->set($db->qn('description').' = '.$db->q($event->description))
-					->set($db->qn('start').' = '.$db->q($event->start))
-					->set($db->qn('end').' = '.$db->q($event->end))
-					->set($db->qn('allday').' = '.$db->q($event->allday))
-					->set($db->qn('options').' = '.$db->q(rseventsproHelper::getDefaultOptions()))
-					->set($db->qn('completed').' = '.$db->q(1))
-					->set($db->qn('published').' = '.$db->q(1));
-				
-				if ($event->timezone) {
-					$query->set($db->qn('timezone').' = '.$db->q($event->timezone));
-				}
-				
-				$db->setQuery($query);
-				$db->execute();
-				$idevent = $db->insertid();
-				
-				$query->clear()
-					->insert($db->qn('#__rseventspro_taxonomy'))
-					->set($db->qn('ide').' = '.$db->q($idevent))
-					->set($db->qn('id').' = '.$db->q($idcategory))
-					->set($db->qn('type').' = '.$db->q('category'));
-				
-				$db->setQuery($query);
-				$db->execute();
-				
-				$query->clear()
-					->insert($db->qn('#__rseventspro_sync'))
-					->set($db->qn('id').' = '.$db->q($event->id))
-					->set($db->qn('ide').' = '.$db->q($idevent))
-					->set($db->qn('from').' = '.$db->q('facebook'));
-				
-				$db->setQuery($query);
-				$db->execute();
-				
-				//create the thumb
-				if (!empty($event->image)) {
-					jimport('joomla.filesystem.file');
-					$path = JPATH_SITE.'/components/com_rseventspro/assets/images/events/';
-					
-					// Try to create a tmp filename and write the content of the image in it
-					$tmp = tempnam(JPATH_SITE.'components/com_rseventspro/assets/images', 'temp');
-					if ($tmp) {
-						file_put_contents($tmp, file_get_contents($event->image));
-					
-						$ext		= 'jpg';
-						$filename	= $event->id;
-					
-						while (file_exists($path.$filename.'.'.$ext)) {
-							$filename .= rand(1,999);
-						}
-					
-						rseventsproHelper::resize($tmp, 0, $path.$filename.'.'.$ext);
-					
-						$query->clear()
-							->update($db->qn('#__rseventspro_events'))
-							->set($db->qn('icon').' = '.$db->q($filename.'.'.$ext))
-							->where($db->qn('id').' = '.$db->q($idevent));
-						
-						$db->setQuery($query);
-						$db->execute();
-						
-						@unlink($tmp);
-					}
-				}
-				$i++;
-			}
-		}
-		
-		if (!$container) {
-			$this->setError(JText::_('COM_RSEVENTSPRO_FACEBOOK_NO_EVENTS_FOUND'));
+		if (!$total) {
+			$this->setError(JText::_('COM_RSEVENTSPRO_FACEBOOK_NO_EVENTS'));
 			return false;
 		}
 		
-		JFactory::getApplication()->enqueueMessage(JText::sprintf('COM_RSEVENTSPRO_FACEBOOK_IMPORTED_NEW_FOUND', $i, count($container)));
+		if (!$parsed) {
+			$this->setError(JText::_('COM_RSEVENTSPRO_FACEBOOK_NO_EVENTS_IMPORTED'));
+			return false;
+		}
+		
+		JFactory::getApplication()->enqueueMessage(JText::sprintf('COM_RSEVENTSPRO_FACEBOOK_IMPORT_SUCCESS', $parsed));
 		return true;
 	}
 	
@@ -555,6 +313,7 @@ class rseventsproModelSettings extends JModelAdmin
 		require_once JPATH_SITE.'/components/com_rseventspro/helpers/google.php';
 		
 		$google		= new RSEPROGoogle();
+		$google->saveToken();
 		$response	= $google->parse();
 		
 		if (!$response) {

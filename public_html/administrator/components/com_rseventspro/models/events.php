@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproModelEvents extends JModelLegacy
+class RseventsproModelEvents extends JModelLegacy
 {
 	protected $_query			= null;
 	protected $_pastquery		= null;

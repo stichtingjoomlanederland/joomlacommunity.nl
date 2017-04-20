@@ -8,7 +8,7 @@
 // No direct access
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproTableRule extends JTable
+class RseventsproTableRule extends JTable
 {
 	/**
 	 * @param	JDatabase	A database connector object

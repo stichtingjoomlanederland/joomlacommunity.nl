@@ -1408,7 +1408,7 @@ function rsepro_add_ticket_seats(id, place) {
 						var total = quantity * response.tprice;
 						total = number_format(total, response.payment_decimals, response.payment_decimal, response.payment_thousands);
 						thedocument.jQuery('#rsepro-seat-'+id+' td:nth-child(1)').find('span').text(quantity);
-						thedocument.jQuery('#rsepro-seat-'+id+' td:nth-child(2)').text(total);
+						thedocument.jQuery('#rsepro-seat-'+id+' td:nth-child(2)').text(response.mask.replace('{price}',total));
 						thedocument.rsepro_multi_seats_total();
 					}
 					
@@ -1446,7 +1446,7 @@ function rsepro_add_ticket_seats(id, place) {
 					var total = quantity * response.tprice;
 					total = number_format(total, response.payment_decimals, response.payment_decimal, response.payment_thousands);
 					thedocument.jQuery('#rsepro-seat-'+id+' td:nth-child(1)').find('span').text(quantity);
-					thedocument.jQuery('#rsepro-seat-'+id+' td:nth-child(2)').text(total);
+					thedocument.jQuery('#rsepro-seat-'+id+' td:nth-child(2)').text(response.mask.replace('{price}',total));
 					
 					var input = thedocument.jQuery('<input>', {
 						type: 'hidden',

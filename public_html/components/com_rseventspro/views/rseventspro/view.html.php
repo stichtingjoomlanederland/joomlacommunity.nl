@@ -7,7 +7,7 @@
 
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproViewRseventspro extends JViewLegacy
+class RseventsproViewRseventspro extends JViewLegacy
 {
 	public function display($tpl = null) {
 		$lists = array();
@@ -210,7 +210,7 @@ class rseventsproViewRseventspro extends JViewLegacy
 			$app->triggerEvent('rsepro_addCustomScripts');
 			
 			if (rseventsproHelper::getConfig('enable_google_maps')) {
-				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry'.($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
+				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry&language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
 				if ($this->document->getType() == 'html') {
 					$this->document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
 				}
@@ -318,7 +318,7 @@ class rseventsproViewRseventspro extends JViewLegacy
 		} elseif ($layout == 'location') {
 			
 			if (rseventsproHelper::getConfig('enable_google_maps')) {
-				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry'.($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
+				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry&language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
 				if ($this->document->getType() == 'html') {
 					$this->document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
 				}
@@ -341,7 +341,7 @@ class rseventsproViewRseventspro extends JViewLegacy
 			}
 			
 			if (rseventsproHelper::getConfig('enable_google_maps','int')) {
-				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry'.($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
+				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry&language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
 				if ($this->document->getType() == 'html') {
 					$this->document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
 				}
@@ -365,7 +365,7 @@ class rseventsproViewRseventspro extends JViewLegacy
 		} elseif ($layout == 'map') {
 		
 			if (rseventsproHelper::getConfig('enable_google_maps')) {
-				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry'.($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
+				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry&language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
 				if ($this->document->getType() == 'html') {
 					$this->document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
 				}
@@ -427,7 +427,7 @@ class rseventsproViewRseventspro extends JViewLegacy
 				
 				// Load maps
 				if (rseventsproHelper::getConfig('enable_google_maps','int')) {
-					$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry'.($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
+					$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry&language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
 					if ($this->document->getType() == 'html') {
 						$this->document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
 					}

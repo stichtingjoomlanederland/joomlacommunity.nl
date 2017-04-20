@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproViewMessages extends JViewLegacy
+class RseventsproViewMessages extends JViewLegacy
 {	
 	public function display($tpl = null) {
 		JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_LIST_EMAILS'),'rseventspro48');

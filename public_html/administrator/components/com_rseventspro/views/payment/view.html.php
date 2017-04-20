@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class rseventsproViewPayment extends JViewLegacy
+class RseventsproViewPayment extends JViewLegacy
 {
 	protected $form;
 	protected $item;
