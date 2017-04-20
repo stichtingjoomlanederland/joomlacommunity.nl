@@ -2,8 +2,8 @@
 <extension version="2.5" type="file" method="upgrade">
 <name>nl-NL-rsformpro</name>
 <tag>nl-NL</tag>
-<version>1.52.5</version>
-<creationDate>2017-01-12</creationDate>
+<version>1.52.9</version>
+<creationDate>2017-04-17</creationDate>
 <author>Connecting Connections</author>
 <authorEmail>info@con-con.nl</authorEmail>
 <authorUrl>https://con-con.nl</authorUrl>
@@ -38,7 +38,7 @@
 	    </tr>
 	    <tr>
 		    <td width="18%"><u><b>Vertaling voor versie:</b></u></td>
-		    <td width="80%">1.52.5</td>
+		    <td width="80%">1.52.9</td>
 	    </tr>
 	    <tr>
 		    <td width="100%" colspan="2">
