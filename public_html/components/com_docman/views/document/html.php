@@ -27,6 +27,8 @@ class ComDocmanViewDocumentHtml extends ComDocmanViewHtml
         }
         else
         {
+            $this->getObject('translator')->load('com:files');
+
             $menu = $this->getActiveMenu();
 
             $view = $menu->query['view'];

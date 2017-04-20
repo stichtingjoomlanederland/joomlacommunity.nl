@@ -6,7 +6,7 @@
  * @link        http://www.joomlatools.com
  */
 
-class ComDocmanViewUploadHtml extends ComKoowaViewHtml
+class ComDocmanViewUploadHtml extends ComDocmanViewHtml
 {
     protected function _initialize(KObjectConfig $config)
     {
@@ -28,6 +28,7 @@ class ComDocmanViewUploadHtml extends ComKoowaViewHtml
     {
         // Load administrator language file for messages
         $this->getObject('translator')->load('com://admin/docman');
+        $this->getObject('translator')->load('com:files');
 
         $context->data->admin             = JFactory::getApplication()->isAdmin();
         $context->data->show_uploader     = ! KObjectConfig::unbox($context->data->paths);

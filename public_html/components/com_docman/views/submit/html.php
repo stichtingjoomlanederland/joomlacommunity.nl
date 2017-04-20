@@ -19,6 +19,8 @@ class ComDocmanViewSubmitHtml extends ComDocmanViewHtml
     {
         if ($this->getLayout() != 'success')
         {
+            $this->getObject('translator')->load('com:files');
+            
             $page   = JFactory::getApplication()->getMenu()->getActive();
             $params = $page->params;
 

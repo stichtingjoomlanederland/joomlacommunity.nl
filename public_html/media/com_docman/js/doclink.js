@@ -232,9 +232,9 @@ DOCman.Doclink = Koowa.Class.extend({
                 // Split timestamp into [ Y, M, D, h, m, s ]
                 var parts = item.publish_date.split(/[- :]/),
                     date  = parts[2]+' '+Koowa.Date.getMonthName(parts[1], true)+' '+parts[0],
-                    row = $('<tr><td class="k-ellipsis-container" data-value="'+item.title+'">'+icon+'<a class="k-ellipsis-item" href="#">'+item.title+'</a> <small>'+item.storage_path+'</small></td>' +
+                    row = $('<tr><td class="k-table-data--ellipsis" data-value="'+item.title+'">'+icon+'<a href="#">'+item.title+'</a> <small>'+item.storage_path+'</small></td>' +
                         '<td>'+item.access_title+'</td>' +
-                        '<td class="k-table-data k-table-data--nowrap" data-value="'+item.publish_date+'">'+date+'</td></tr>');
+                        '<td class="k-table-data--nowrap" data-value="'+item.publish_date+'">'+date+'</td></tr>');
 
                 row.on('click', 'a', function(event){
                     event.preventDefault();

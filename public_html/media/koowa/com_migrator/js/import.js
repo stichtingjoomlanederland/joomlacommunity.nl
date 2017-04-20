@@ -84,7 +84,14 @@ $(function() {
         jobs = null,
         extension = null,
         fileUploaded = function(uploader, file, response) {
-            var json = $.parseJSON(response.response) || {};
+            var json;
+
+            try {
+                json = $.parseJSON(response.response) || {};
+            } catch (error) {
+                showError('Invalid response');
+                return;
+            }
 
             if (json.error) {
                 var error = json.error.length ? json.error[0].message : 'Unknown error';
@@ -157,7 +164,15 @@ $(function() {
                         url: url,
                         type: 'post',
                         error: function(data, textStatus) {
-                            showError($.parseJSON(data.responseText));
+                            var response;
+
+                            try {
+                                response = $.parseJSON(data.responseText);
+                            } catch (error) {
+                                response = {};
+                            }
+
+                            showError(response);
                         },
                         success: function(data, textStatus)  {
                             updateProgress(task_progress, 100);
@@ -193,7 +208,15 @@ $(function() {
         updateProgress(uploader_progress, file.percent);
     });
     uploader.bind('Error', function(uploader, error) {
-        showError($.parseJSON(error.response));
+        var response;
+
+        try {
+            response = $.parseJSON(error.response);
+        } catch (error) {
+            response = {};
+        }
+
+        showError(response);
     });
     uploader.bind('FileUploaded', fileUploaded);
 });

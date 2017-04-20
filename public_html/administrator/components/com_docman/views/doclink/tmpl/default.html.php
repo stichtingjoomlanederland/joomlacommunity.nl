@@ -20,6 +20,14 @@ defined('KOOWA') or die; ?>
 <? // Loading JavaScript ?>
 <ktml:script src="media://com_docman/js/admin/documents.default.js"/>
 
+<script>
+    kQuery(function($) {
+        var container = $('.mce-in.mce-panel', window.parent.document);
+        if (container.length) {
+            container.addClass('k-joomla-modal-override');
+        }
+    });
+</script>
 
 <!-- Wrapper -->
 <div class="k-wrapper k-js-wrapper">

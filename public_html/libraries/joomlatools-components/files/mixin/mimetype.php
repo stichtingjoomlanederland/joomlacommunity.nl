@@ -39,7 +39,7 @@ class ComFilesMixinMimetype extends KObject
 	protected function _initialize(KObjectConfig $config)
 	{
 		if (empty($config->adapters)) {
-			$config->adapters = array('image');
+			$config->adapters = array('image', 'extension');
 		}
 
 		parent::_initialize($config);
@@ -87,6 +87,22 @@ class ComFilesMixinMimetype extends KObject
 
 		return ComFilesMixinMimetype::NOT_AVAILABLE;
 	}
+
+	protected function _detectExtension($path)
+    {
+        $mimetype = ComFilesMixinMimetype::NOT_AVAILABLE;
+
+        if ($extension = pathinfo($path, PATHINFO_EXTENSION))
+        {
+            $entity = $this->getObject('com:files.model.mimetypes')->extension($extension)->fetch();
+
+            if (!$entity->isNew()) {
+                $mimetype = $entity->mimetype;
+            }
+        }
+
+        return $mimetype;
+    }
 
 	protected function _detectFinfo($path)
 	{

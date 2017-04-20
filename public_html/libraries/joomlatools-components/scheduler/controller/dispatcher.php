@@ -262,12 +262,15 @@ class ComSchedulerControllerDispatcher extends KControllerAbstract implements Co
 
     protected function _afterDispatch(KControllerContextInterface $context)
     {
-        $sleep_until = $this->getNextRun();
+        $sleep_until = gmdate('Y-m-d H:i:s', $this->getNextRun());
+        $last_run    = gmdate('Y-m-d H:i:s');
 
         $adapter = $this->getObject('database.adapter.mysqli');
-        $query   = sprintf("REPLACE INTO #__scheduler_metadata (`type`, `sleep_until`, `last_run`)
-            VALUES ('metadata', FROM_UNIXTIME(%d), NOW())", $sleep_until);
 
+        $query = $this->getObject('database.query.insert')
+            ->replace()
+            ->table('scheduler_metadata')
+            ->values(['type' => 'metadata', 'sleep_until' => $sleep_until, 'last_run' => $last_run]);
 
         $adapter->execute($query);
     }
@@ -378,21 +381,11 @@ class ComSchedulerControllerDispatcher extends KControllerAbstract implements Co
 
         $query
             ->table($table->getName())
-            ->values(array('status = 0', 'modified_on = NOW()'))
-            ->where('status = 1 AND NOW() > DATE_ADD(modified_on, INTERVAL 5 MINUTE)');
+            ->values(array('status = 0', 'modified_on = :now'))
+            ->where('status = 1 AND :now > DATE_ADD(modified_on, INTERVAL 5 MINUTE)')
+            ->bind(['now' => gmdate('Y-m-d H:i:s')]);
 
         $table->getAdapter()->update($query);
-
-        /*$stale = $this->getModel()->stale(1)->fetch();
-
-        if (count($stale))
-        {
-            foreach ($stale as $entity) {
-                $entity->status = 0;
-            }
-
-            $stale->save();
-        }*/
     }
 
     /**

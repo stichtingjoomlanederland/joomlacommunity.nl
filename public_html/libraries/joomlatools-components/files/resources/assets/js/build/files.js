@@ -3191,11 +3191,6 @@ Files.Image = new Class({
 		this.image = this.baseurl+'/'+this.encodePath(this.filepath, this.realpath);
 
 		this.client_cache = false;
-		if(window.sessionStorage) {
-		    if(sessionStorage[this.image.toString()]) {
-		        this.client_cache = sessionStorage[this.image.toString()];
-		    }
-		}
 	},
 	getThumbnail: function(success, failure) {
 		var that = this,
@@ -4470,10 +4465,6 @@ Files.App = new Class({
                     img.set('src', node.thumbnail ? node.thumbnail : Files.blank_image);
 
                     (node.element.getElement('.files-node') || node.element).addClass('loaded').removeClass('loading');
-
-                    if(window.sessionStorage) {
-                        sessionStorage[node.image.toString()] = img.get('src');
-                    }
                 }
             });
         }

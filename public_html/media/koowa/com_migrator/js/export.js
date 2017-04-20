@@ -83,7 +83,14 @@ $(function() {
             config.data.csrf_token = JoomlatoolsMigrator.token;
 
             var error = function(data) {
-                var response = $.parseJSON(data.responseText);
+                var response;
+
+                try {
+                    response = $.parseJSON(data.responseText);
+                } catch (error) {
+                    response = {};
+                }
+
                 showError(response);
             };
 

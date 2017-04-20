@@ -54,7 +54,13 @@
                             return;
                         }
 
-                        var response = $.parseJSON(data.responseText);
+                        var response;
+
+                        try {
+                            response = $.parseJSON(data.responseText);
+                        } catch (error) {
+                            response = {};
+                        }
 
                         self.trigger('processFailed', $.extend({}, response));
                     }

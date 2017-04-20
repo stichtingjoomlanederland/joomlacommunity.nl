@@ -44,6 +44,7 @@ defined('KOOWA') or die; ?>
                 'container' => 'docman-files',
                 'element' => '.docman-uploader',
                 'options'   => array(
+                    'prevent_duplicates' => false,
                     'url' => route('view=file&plupload=1&routed=1&format=json', false, false)
                 )
             )); ?>

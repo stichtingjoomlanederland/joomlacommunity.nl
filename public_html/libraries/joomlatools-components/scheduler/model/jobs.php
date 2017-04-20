@@ -28,7 +28,7 @@ class ComSchedulerModelJobs extends KModelDatabase
     protected function _buildQueryColumns(KDatabaseQueryInterface $query)
     {
         if (!$query->isCountQuery()) {
-            $query->columns('(status = 1 AND NOW() > DATE_ADD(modified_on, INTERVAL 5 MINUTE)) AS stale');
+            $query->columns('(status = 1 AND :now > DATE_ADD(modified_on, INTERVAL 5 MINUTE)) AS stale');
         }
     }
 
@@ -36,8 +36,10 @@ class ComSchedulerModelJobs extends KModelDatabase
     {
         $state = $this->getState();
 
+        $query->bind(['now' => gmdate('Y-m-d H:i:s')]);
+
         if ($state->stale) {
-            $query->where('(status = 1 AND NOW() > DATE_ADD(modified_on, INTERVAL 5 MINUTE))');
+            $query->where('(status = 1 AND :now > DATE_ADD(modified_on, INTERVAL 5 MINUTE))');
         }
 
         if (is_numeric($state->status) || !empty($state->status))

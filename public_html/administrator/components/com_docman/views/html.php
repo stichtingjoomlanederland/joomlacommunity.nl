@@ -8,6 +8,10 @@
 
 class ComDocmanViewHtml extends ComKoowaViewHtml
 {
+    protected function _fetchData(KViewContext $context)
+    {
+        $this->getObject('translator')->load('com:files');
 
-
+        parent::_fetchData($context);
+    }
 }

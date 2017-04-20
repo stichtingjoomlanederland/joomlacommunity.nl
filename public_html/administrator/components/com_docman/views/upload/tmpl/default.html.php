@@ -152,9 +152,9 @@ defined('_JEXEC') or die; ?>
                                     <div class="k-optionlist k-optionlist--boolean">
                                         <div class="k-optionlist__content">
                                             <input type="radio" class="k-js-humanize-titles" name="humanized_titles" id="humanized_titles1" value="1" checked="checked">
-                                            <label for="humanized_titles1"><span>Yes</span></label>
+                                            <label for="humanized_titles1"><span><?= translate('Yes') ?></span></label>
                                             <input type="radio" class="k-js-humanize-titles" name="humanized_titles" id="humanized_titles0" value="0">
-                                            <label for="humanized_titles0"><span>No</span></label>
+                                            <label for="humanized_titles0"><span><?= translate('No') ?></span></label>
                                             <div class="k-optionlist__focus"></div>
                                         </div>
                                     </div>

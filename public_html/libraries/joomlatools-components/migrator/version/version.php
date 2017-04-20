@@ -8,7 +8,7 @@
 
 class ComMigratorVersion extends KObject
 {
-    const VERSION = '1.0.3';
+    const VERSION = '1.0.4';
 
     /**
      * Get the version

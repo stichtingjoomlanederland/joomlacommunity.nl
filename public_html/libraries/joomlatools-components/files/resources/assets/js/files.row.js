@@ -128,11 +128,6 @@ Files.Image = new Class({
 		this.image = this.baseurl+'/'+this.encodePath(this.filepath, this.realpath);
 
 		this.client_cache = false;
-		if(window.sessionStorage) {
-		    if(sessionStorage[this.image.toString()]) {
-		        this.client_cache = sessionStorage[this.image.toString()];
-		    }
-		}
 	},
 	getThumbnail: function(success, failure) {
 		var that = this,

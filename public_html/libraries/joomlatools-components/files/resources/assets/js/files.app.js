@@ -842,10 +842,6 @@ Files.App = new Class({
                     img.set('src', node.thumbnail ? node.thumbnail : Files.blank_image);
 
                     (node.element.getElement('.files-node') || node.element).addClass('loaded').removeClass('loading');
-
-                    if(window.sessionStorage) {
-                        sessionStorage[node.image.toString()] = img.get('src');
-                    }
                 }
             });
         }
