@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -26,9 +26,11 @@ class Transfer extends Model
 	/**
 	 * Get the information for the latest backup
 	 *
-	 * @return   array|null  An array of backup record information or null if there is no usable backup for site transfer
+	 * @param   $profileID  int|null  The profile ID for which to get the latest backup. Set to null to search all profiles.
+	 *
+	 * @return  array|null  An array of backup record information or null if there is no usable backup for site transfer
 	 */
-	public function getLatestBackupInformation()
+	public function getLatestBackupInformation($profileID = null)
 	{
 		// Initialise
 		$ret = null;
@@ -39,6 +41,12 @@ class Transfer extends Model
 		$model = $this->container->factory->model('Statistics')->tmpInstance();
 		$model->setState('limitstart', 0);
 		$model->setState('limit', 1);
+
+		if ($profileID > 0)
+		{
+			$model->setState('profile_id', $profileID);
+		}
+
 		$backups = $model->getStatisticsListWithMeta(false, null, $db->qn('id') . ' DESC');
 
 		// No valid backups? No joy.
@@ -1053,14 +1061,19 @@ class Transfer extends Model
 	/**
 	 * Convert the textual representation of PHP memory limit to an integer, e.g. convert 8M to 8388608
 	 *
-	 * @param   string  $val  The PHP memory limit
+	 * @param   string  $setting  The PHP memory limit
 	 *
 	 * @return  int  PHP memory limit as an integer
 	 */
-	private function convertMemoryLimitToBytes($val)
+	private function convertMemoryLimitToBytes($setting)
 	{
-		$val = trim($val);
+		$val = trim($setting);
 		$last = strtolower($val{strlen($val) - 1});
+
+		if (is_numeric($last))
+		{
+			return $setting;
+		}
 
 		switch ($last)
 		{

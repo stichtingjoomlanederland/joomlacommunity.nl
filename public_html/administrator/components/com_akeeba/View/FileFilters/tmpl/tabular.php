@@ -1,11 +1,31 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 defined('_JEXEC') or die();
+
+$ajaxUrl = addslashes('index.php?option=com_akeeba&view=FileFilters&task=ajax');
+$loadingUrl = addslashes($this->container->template->parsePath('media://com_akeeba/icons/loading.gif'));
+$this->json = addcslashes($this->json, "'");
+$js = <<< JS
+
+;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
+// due to missing trailing semicolon and/or newline in their code.
+akeeba.System.documentReady(function() {
+    akeeba.System.params.AjaxURL = '$ajaxUrl';
+    akeeba.Fsfilters.loadingGif = '$loadingUrl';
+
+	// Bootstrap the page display
+	var data = eval({$this->json});
+    akeeba.Fsfilters.renderTab(data);
+});
+
+JS;
+
+$this->getContainer()->template->addJSInline($js);
 
 ?>
 <?php echo $this->loadAnyTemplate('admin:com_akeeba/CommonTemplates/ErrorModal'); ?>
@@ -40,12 +60,3 @@ defined('_JEXEC') or die();
 		</table>
 	</div>
 </fieldset>
-
-<script type="text/javascript" language="javascript">
-akeeba.jQuery(document).ready(function($){
-    akeeba.System.params.AjaxURL = '<?php echo addslashes('index.php?option=com_akeeba&view=FileFilters&task=ajax'); ?>';
-	akeeba.Fsfilters.loadingGif = '<?php echo addslashes($this->container->template->parsePath('media://com_akeeba/icons/loading.gif')); ?>';
-	var data = eval(<?php echo addcslashes($this->json, "'"); ?>);
-    akeeba.Fsfilters.renderTab(data);
-});
-</script>

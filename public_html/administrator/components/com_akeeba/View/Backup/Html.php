@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -16,7 +16,6 @@ use Akeeba\Backup\Admin\Model\ControlPanel;
 use Akeeba\Backup\Admin\View\ViewTraits\ProfileIdAndName;
 use Akeeba\Backup\Admin\View\ViewTraits\ProfileList;
 use Akeeba\Engine\Factory;
-use Akeeba\Engine\Platform;
 use FOF30\View\DataView\Html as BaseView;
 use JDate;
 use JFactory;

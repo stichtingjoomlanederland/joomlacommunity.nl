@@ -1,11 +1,36 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 defined('_JEXEC') or die();
+
+$ajaxUrl = addslashes('index.php?option=com_akeeba&view=DatabaseFilters&task=ajax');
+$this->json = addcslashes($this->json, "'\\");
+$js = <<< JS
+
+;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
+// due to missing trailing semicolon and/or newline in their code.
+/**
+ * Callback function for changing the active root in Filesystem Filters
+ */
+function akeeba_active_root_changed()
+{
+	var elRoot = document.getElementById('active_root');
+	akeeba.Dbfilters.loadTab(elRoot.options[elRoot.selectedIndex].value);
+}
+
+akeeba.System.documentReady(function(){
+    akeeba.System.params.AjaxURL = '$ajaxUrl';
+	var data = JSON.parse('{$this->json}');
+    akeeba.Dbfilters.renderTab(data);
+});
+
+JS;
+
+$this->getContainer()->template->addJSInline($js);
 
 ?>
 <?php echo $this->loadAnyTemplate('admin:com_akeeba/CommonTemplates/ErrorModal'); ?>
@@ -43,21 +68,3 @@ defined('_JEXEC') or die();
 		</table>
 	</div>
 </fieldset>
-
-<script type="text/javascript" language="javascript">
-/**
- * Callback function for changing the active root in Filesystem Filters
- */
-function akeeba_active_root_changed()
-{
-	(function($){
-        akeeba.Dbfilters.loadTab($('#active_root').val());
-	})(akeeba.jQuery);
-}
-
-akeeba.jQuery(document).ready(function($){
-	akeeba.System.params.AjaxURL = '<?php echo addslashes('index.php?option=com_akeeba&view=DatabaseFilters&task=ajax'); ?>';
-	var data = JSON.parse('<?php echo addcslashes($this->json, "'\\"); ?>');
-    akeeba.Dbfilters.renderTab(data);
-});
-</script>

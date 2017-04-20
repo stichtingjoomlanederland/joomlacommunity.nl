@@ -3,7 +3,7 @@
  * Akeeba Engine
  * The modular PHP5 site backup engine
  *
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -40,6 +40,7 @@ class StackErrorlogs extends Base
 		// Is it an error log? Exclude the file.
 		if (in_array(basename($test), array(
 			'php_error',
+			'php_errorlog',
 			'error_log',
 			'error.log'
 		))) {

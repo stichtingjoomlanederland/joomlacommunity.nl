@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -28,7 +28,8 @@ class Backup extends Controller
 		parent::__construct($container, $config);
 
 		$this->setPredefinedTaskList([
-			'main', 'ajax'
+			'main',
+			'ajax'
 		]);
 	}
 
@@ -39,10 +40,23 @@ class Backup extends Controller
 	{
 		// Did the user ask to switch the active profile?
 		$newProfile = $this->input->get('profileid', -10, 'int');
+		$autostart  = $this->input->get('autostart', 0, 'int');
 
 		if (is_numeric($newProfile) && ($newProfile > 0))
 		{
-			$this->csrfProtection();
+			/**
+			 * We have to remove CSRF protection due to the way the Joomla administrator menu manager works. Menu item
+			 * options are passed as URL parameters. However, we cannot pass dynamic parameters (like the token). This
+			 * means that a user can create a menu item with a specific backup profile ID. Normally this would cause a
+			 * 403 which is frustrating to the user because they might want to give their client the option to run a
+			 * backup with a specific profile AND let them enter a description and comment. Therefore we have to remove
+			 * the CSRF protection.
+			 *
+			 * NB! We do understand the potential risk involved. Between Joomla's AMATEURISH implementation of custom
+			 * administrator menus and user demands for features we have to (have these very vocal users and everyone
+			 * else) assume that (actually really small) risk.
+			 */
+			// $this->csrfProtection();
 
 			$this->container->session->set('profile', $newProfile, 'akeeba');
 
@@ -68,7 +82,7 @@ class Backup extends Controller
 		$model->setState('description', $this->input->get('description', '', 'string', 2));
 		$model->setState('comment', $this->input->get('comment', '', 'html', 2));
 		$model->setState('ajax', $this->input->get('ajax', '', 'cmd'));
-		$model->setState('autostart', $this->input->get('autostart', 0, 'int'));
+		$model->setState('autostart', $autostart);
 		$model->setState('jpskey', $this->input->get('jpskey', '', 'raw', 2));
 		$model->setState('angiekey', $this->input->get('angiekey', '', 'raw', 2));
 		$model->setState('returnurl', $this->input->get('returnurl', '', 'raw', 2));

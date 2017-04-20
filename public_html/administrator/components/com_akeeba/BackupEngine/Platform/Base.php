@@ -3,7 +3,7 @@
  * Akeeba Engine
  * The modular PHP5 site backup engine
  *
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -141,6 +141,21 @@ abstract class Base implements PlatformInterface
 
 		$db->setQuery($sql);
 		$databaseData = $db->loadResult();
+
+		/**
+		 * If the profile is not the default and we can't load anything let's switch back to the default profile.
+		 *
+		 * You will end up here when you have opened the application in two different browsers and Browser A is used to
+		 * delete the active profile you were using with Browser B. If we were not to load the default profile Browser B
+		 * would try to save the default configuration data to the deleted profile. However, since the profile does not
+		 * exist in the database any more the load_configuration at the end of the following if-block would trigger the
+		 * same code path, recursively, infinitely until you reached the maximum nesting level in PHP, run out of memory
+		 * or hit the execution time limit.
+		 */
+		if ((empty($databaseData) || is_null($databaseData)) && ($profile_id != 1))
+		{
+			return $this->load_configuration(1);
+		}
 
 		if (empty($databaseData) || is_null($databaseData))
 		{

@@ -2,7 +2,7 @@
 /**
  * Akeeba Engine
  * The modular PHP5 site backup engine
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -33,6 +33,27 @@ use Psr\Log\LogLevel;
  */
 class Sqlsrv extends NativeMysql
 {
+	/**
+	 * Return the current database name by querying the database connection object (e.g. SELECT DATABASE() in MySQL)
+	 *
+	 * @return  string
+	 */
+	protected function getDatabaseNameFromConnection()
+	{
+		$db = $this->getDB();
+
+		try
+		{
+			$ret = $db->setQuery('SELECT DB_NAME()')->loadResult();
+		}
+		catch (\Exception $e)
+		{
+			return '';
+		}
+
+		return empty($ret) ? '' : $ret;
+	}
+
 	/**
 	 * Implements the constructor of the class
 	 *
@@ -728,7 +749,15 @@ class Sqlsrv extends NativeMysql
 				$pos = strpos($restOfQuery, ' ', 1);
 				$tableName = substr($restOfQuery, 1, $pos - 1);
 			}
+
 			unset($restOfQuery);
+
+			/**
+			 * Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones.
+			 * Possibly not affecting Microsoft SQL Server but we'd better be safe than sorry.
+			 */
+			$tableName = str_replace(array("\r", "\n"), array('', ''), $tableName);
+
 			// Try to drop the table anyway
 			$dropQuery = 'IF OBJECT_ID(' . $db->q($tableName) . ') IS NOT NULL DROP TABLE ' . $db->qn($tableName) . ';';
 		}
@@ -751,7 +780,15 @@ class Sqlsrv extends NativeMysql
 				$pos = strpos($restOfQuery, ' ', 1);
 				$tableName = substr($restOfQuery, 1, $pos - 1);
 			}
+
 			unset($restOfQuery);
+
+			/**
+			 * Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones.
+			 * Possibly not affecting Microsoft SQL Server but we'd better be safe than sorry.
+			 */
+			$tableName = str_replace(array("\r", "\n"), array('', ''), $tableName);
+
 			$dropQuery = 'IF OBJECT_ID(' . $db->q($tableName) . ') IS NOT NULL DROP VIEW ' . $db->qn($tableName) . ';';
 		}
 

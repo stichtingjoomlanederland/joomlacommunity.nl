@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -152,6 +152,15 @@ class Html extends BaseView
 	public $stuckUpdates = false;
 
 	/**
+	 * Cache the user permissions
+	 *
+	 * @var   array
+	 *
+	 * @since 5.3.0
+	 */
+	public $permissions = array();
+
+	/**
 	 * Executes before displaying the control panel page
 	 */
 	public function onBeforeMain()
@@ -201,6 +210,13 @@ class Html extends BaseView
 		$this->promptForConfigurationWizard = Factory::getConfiguration()->get('akeeba.flag.confwiz', 0) == 0;
 		$this->countWarnings                = count(Factory::getConfigurationChecks()->getDetailedStatus());
 		$this->stuckUpdates                 = ($this->container->params->get('updatedb', 0) == 1);
+		$user                               = \JFactory::getUser();
+		$this->permissions                  = array(
+			'configure' => $user->authorise('akeeba.configure', 'com_akeeba'),
+			'backup'    => $user->authorise('akeeba.backup',    'com_akeeba'),
+			'download'  => $user->authorise('akeeba.download',  'com_akeeba'),
+		);
+
 
 		// Load the version constants
 		Platform::getInstance()->load_version_defines();

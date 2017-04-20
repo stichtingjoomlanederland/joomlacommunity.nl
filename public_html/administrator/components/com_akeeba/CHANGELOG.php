@@ -1,6 +1,36 @@
 <?php die();?>
+Akeeba Backup 5.3.1
+================================================================================
+# [HIGH] Integrated restoration: clicking Run the Installer does nothing; you can still run the installer manually
+# [HIGH] Archive integrity and restoration of JPS archives fails (the archive is valid, it's the extraction script that's the problem).
+# [HIGH] The "Replace main .htaccess with default" feature, enabled by default, causes the restoration to fail.
+# [LOW] Restoration was not removing password protection from the administrator folder even if requested to
+
+Akeeba Backup 5.3.0
+================================================================================
+! SECURITY: Workaround for MySQL security issue CVE-2016-5483 (https://blog.tarq.io/cve-2016-5483-backdooring-mysqldump-backups/) affecting SQL-only backups. This is a security issue in MySQL itself, not our backup engine. Full site backups / restoration were NOT affected.
++ You can use multiple PushBullet tokens to notify multiple accounts
+# [MEDIUM] gh-619 "Invalid upload ID specified" when trying to re-upload backup to remote storage from the Manage Backups page
+# [HIGH] PHP's memory_limit given in bytes (e.g. 134217728 instead of 128M) prevent the backup from running
+# [LOW] How To Restore modal in Manage Backups appearing halfway outside the page if your computer is a bit too fast
+
+Akeeba Backup 5.3.0.b1
+================================================================================
++ Add support for Canada (Montreal) Amazon S3 region
++ Add support for EU (London) Amazon S3 region
++ Add support for Joomla! 3.7's new administrator menu manager
++ Support for JPS format v2.0 with improved password security
++ Hide action icons based on the user's permissions
+~ Permissions are now more reasonably assigned to different views
+~ Now using the Reverse Engineering database dump engine when a Native database dump engine is not available (PostgreSQL, Microsoft SQL Server, SQLite)
+# [MEDIUM] The web.config file introduced in Akeeba Backup 3.3 was removed from the backup output directory
+# [MEDIUM] Infinite recursion if the current profile doesn't exist
+# [MEDIUM] Views defined against fully qualified tables (i.e. including the database name) could not be restored on a database with a different name
+# [LOW] The unit of measurement was not displayed in the Configuration page
+
 Akeeba Backup 5.2.5
 ================================================================================
+# [HIGH] Trailing slashes in the Directory name would cause donwloading a backup back from Dropbox to fail
 + Alternative FTP post-processing engine and DirectFTP engine using cURL providing better compatibility with misconfigured and broken FTP servers
 + Alternative SFTP post-processing engine and DirectSFTP engine using cURL providing compatibility with a wide range of servers
 ~ Anticipate and report database errors in more places while backing up MySQL databases

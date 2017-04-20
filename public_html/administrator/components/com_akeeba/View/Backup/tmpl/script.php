@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -9,62 +9,102 @@
 defined('_JEXEC') or die();
 
 /** @var  $this  \Akeeba\Backup\Admin\View\Backup\Html */
-?>
+$escapedDefaultDescription = addslashes($this->defaultDescription);
+$escapedDescription = addslashes(empty($this->description) ? $this->defaultDescription : $this->description);
+$escapedComment = addslashes($this->comment);
+$escapedAngiePassword = addslashes($this->ANGIEPassword);
+$escapedJpsKey = $this->showJPSPassword ? addslashes($this->jpsPassword) : '';
+$autoResume = (int)$this->autoResume;
+$autoResumeTimeout = (int)$this->autoResumeTimeout;
+$autoResumeRetries = (int)$this->autoResumeRetries;
+$maxExecTime = (int)$this->maxExecutionTime;
+$runtimeBias = (int)$this->runtimeBias;
+$escapedJuriBase = addslashes(JUri::base());
+$escapedDomains = addcslashes($this->domains, "'\\");
+$useIframe = $this->useIFRAME ? 'true' : 'false';
+$innerJS = <<< JS
+	// Initialization
+	akeeba.Backup.defaultDescription = "$escapedDefaultDescription";
+	akeeba.Backup.currentDescription = "$escapedDescription";
+	akeeba.Backup.currentComment     = "$escapedComment";
+	akeeba.Backup.config_angiekey    = "$escapedAngiePassword";
+	akeeba.Backup.jpsKey             = "$escapedJpsKey";
 
-<script type="text/javascript" language="javascript">
-	akeeba.jQuery(document).ready(function($){
-		// Initialization
-		akeeba.Backup.defaultDescription = "<?php echo addslashes($this->defaultDescription); ?>";
-		akeeba.Backup.config_angiekey    = "<?php echo addslashes($this->ANGIEPassword); ?>";
-		akeeba.Backup.jpsKey             = "<?php echo $this->showJPSPassword ? addslashes($this->jpsPassword) : ''; ?>";
+	// Auto-resume setup
+	akeeba.Backup.resume.enabled = $autoResume;
+	akeeba.Backup.resume.timeout = $autoResumeTimeout;
+	akeeba.Backup.resume.maxRetries = $autoResumeRetries;
 
-		// Auto-resume setup
-		akeeba.Backup.resume.enabled = <?php echo (int)$this->autoResume; ?>;
-		akeeba.Backup.resume.timeout = <?php echo (int)$this->autoResumeTimeout; ?>;
-		akeeba.Backup.resume.maxRetries = <?php echo (int)$this->autoResumeRetries; ?>;
+	// The return URL
+	akeeba.Backup.returnUrl = '{$this->returnURL}';
 
-		// The return URL
-		akeeba.Backup.returnUrl = '<?php echo $this->returnURL; ?>';
+	// Used as parameters to start_timeout_bar()
+	akeeba.Backup.maxExecutionTime = $maxExecTime;
+	akeeba.Backup.runtimeBias = $runtimeBias;
 
-		// Used as parameters to start_timeout_bar()
-		akeeba.Backup.maxExecutionTime = <?php echo (int)$this->maxExecutionTime; ?>;
-		akeeba.Backup.runtimeBias = <?php echo (int)$this->runtimeBias; ?>;
+	// Create a function for saving the editor's contents
+	akeeba.Backup.commentEditorSave = function() {
+	};
 
-		// Create a function for saving the editor's contents
-		akeeba.Backup.commentEditorSave = function() {
-		};
+	akeeba.System.notification.iconURL = '{$escapedJuriBase}../media/com_akeeba/icons/logo-48.png';
 
-		akeeba.System.notification.iconURL = '<?php echo addslashes(JUri::base()); ?>../media/com_akeeba/icons/logo-48.png';
+	//Parse the domain keys
+	akeeba.Backup.domains = JSON.parse('$escapedDomains');
 
-		//Parse the domain keys
-		akeeba.Backup.domains = JSON.parse('<?php echo addcslashes($this->domains, "'\\"); ?>');
+	// Setup AJAX proxy URL
+	akeeba.System.params.AjaxURL = 'index.php?option=com_akeeba&view=Backup&task=ajax';
 
-		// Setup AJAX proxy URL
-		akeeba.System.params.AjaxURL = 'index.php?option=com_akeeba&view=Backup&task=ajax';
+	// Setup base View Log URL
+	akeeba.Backup.URLs.LogURL = '{$escapedJuriBase}index.php?option=com_akeeba&view=Log';
+	akeeba.Backup.URLs.AliceURL = '{$escapedJuriBase}index.php?option=com_akeeba&view=Alice';
 
-		// Setup base View Log URL
-		akeeba.Backup.URLs.LogURL = '<?php echo addslashes(JUri::base()); ?>index.php?option=com_akeeba&view=Log';
-		akeeba.Backup.URLs.AliceURL = '<?php echo addslashes(JUri::base()); ?>index.php?option=com_akeeba&view=Alice';
+	// Setup the IFRAME mode
+	akeeba.System.params.useIFrame = $useIframe;
 
-		// Setup the IFRAME mode
-		akeeba.System.params.useIFrame = <?php echo $this->useIFRAME ? 'true' : 'false'; ?>;
+JS;
 
-		<?php if($this->desktopNotifications): ?>
-		akeeba.System.notification.askPermission();
-		<?php endif; ?>
+if ($this->desktopNotifications)
+{
+	$innerJS .= <<< JS
+	akeeba.System.notification.askPermission();
 
-		<?php if(!$this->unwriteableOutput && $this->autoStart): ?>
+JS;
+}
+
+if (!$this->unwriteableOutput && $this->autoStart)
+{
+	$innerJS .= <<< JS
+	akeeba.Backup.start();
+
+JS;
+}
+else
+{
+	$innerJS .= <<< JS
+	
+	// Bind start button's click event
+	akeeba.System.addEventListener(document.getElementById('backup-start'), 'click', function(e){
 		akeeba.Backup.start();
-		<?php else: ?>
-		// Bind start button's click event
-		$('#backup-start').bind("click", function(e){
-			akeeba.Backup.start();
-		});
-
-		$('#backup-default').click(akeeba.Backup.restoreDefaultOptions);
-
-		// Work around Safari which ignores autocomplete=off (FOR CRYING OUT LOUD!)
-		setTimeout('akeeba.Backup.restoreDefaultOptions();', 500);
-		<?php endif; ?>
 	});
-</script>
+
+	akeeba.System.addEventListener(document.getElementById('backup-default'), 'click', akeeba.Backup.restoreDefaultOptions);
+
+	// Work around Safari which ignores autocomplete=off (FOR CRYING OUT LOUD!)
+	setTimeout('akeeba.Backup.restoreCurrentOptions();', 500);
+
+JS;
+}
+
+$js = <<< JS
+
+;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
+// due to missing trailing semicolon and/or newline in their code.
+akeeba.System.documentReady(function(){
+	$innerJS
+});
+
+JS;
+
+$this->getContainer()->template->addJSInline($js);
+
+?>

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  *
  * @since     3.0
@@ -63,6 +63,34 @@ class Encrypt
 	);
 
 	protected $passwords = array();
+
+	/**
+	 * The algorithm to use for PBKDF2. Must be a supported hash_hmac algorithm. Default: sha1
+	 *
+	 * @var  string
+	 */
+	private $pbkdf2Algorithm = 'sha1';
+
+	/**
+	 * Number of iterations to use for PBKDF2
+	 *
+	 * @var  int
+	 */
+	private $pbkdf2Iterations = 1000;
+
+	/**
+	 * Should we use a static salt for PBKDF2?
+	 *
+	 * @var  int
+	 */
+	private $pbkdf2UseStaticSalt = 0;
+
+	/**
+	 * The static salt to use for PBKDF2
+	 *
+	 * @var  string
+	 */
+	private $pbkdf2StaticSalt = "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 
 	/**
 	 * AES Cipher function: encrypt 'input' with Rijndael algorithm
@@ -505,11 +533,10 @@ class Encrypt
 	 *
 	 * @param   string  $plaintext  The data to encrypt
 	 * @param   string  $password   Encryption password
-	 * @param   bool    $legacy     Enable legacy mode (insecure initialization vector)
 	 *
 	 * @return  string  The ciphertext
 	 */
-	public function AESEncryptCBC($plaintext, $password, $legacy = false)
+	public function AESEncryptCBC($plaintext, $password)
 	{
 		$adapter = $this->getAdapter();
 
@@ -518,34 +545,66 @@ class Encrypt
 			return false;
 		}
 
-		// Get the expanded key from the password
-		$key = $this->expandKey($password);
+		// Get encryption parameters
+		$rand          = new RandomValue();
+		$params        = $this->getKeyDerivationParameters();
+		$useStaticSalt = $params['useStaticSalt'];
+		$keySizeBytes = $params['keySize'];
 
-		// Create an IV
-		$rand = new RandomValue();
-		$iv = $rand->generate(16);
-
-		if ($legacy)
+		if ($useStaticSalt)
 		{
-			$iv = $this->createTheWrongIV($password);
+			$key = $this->getStaticSaltExpandedKey($password);
 		}
+		else
+		{
+			// Create a salt and derive a key from the password using PBKDF2
+			$algorithm    = $params['algorithm'];
+			$iterations   = $params['iterations'];
+			$salt         = $rand->generate(64);
+			$key          = $this->pbkdf2($password, $salt, $algorithm, $iterations, $keySizeBytes);
+		}
+
+
+		// Also create a new, random IV
+		$iv = $rand->generate($keySizeBytes);
 
 		// The ciphertext is the encrypted string...
 		$ciphertext = $adapter->encrypt($plaintext, $key, $iv);
 
 		// ...minus the IV which was placed in front
-		$ciphertext = substr($ciphertext, 16);
+		$ciphertext = substr($ciphertext, $keySizeBytes);
 
-		// ...plus the IV at the end...
-		if (!$legacy)
+		if (!$useStaticSalt)
 		{
-			$ciphertext .= 'JPIV' . $iv;
+			// ...plus the PBKDF2 setup values at the end (68 bytes)...
+			$ciphertext .= 'JPST' . $salt;
 		}
 
-		// ...plus the plaintext length.
+		// ...plus the IV at the end (20 bytes)...
+		$ciphertext .= 'JPIV' . $iv;
+
+		// ...plus the plaintext length (4 bytes).
 		$ciphertext .= pack('V', strlen($plaintext));
 
 		return $ciphertext;
+	}
+
+	/**
+	 * Get the parameters fed into PBKDF2 to expand the user password into an encryption key. These are the static
+	 * parameters (key size, hashing algorithm and number of iterations). A new salt is used for each encryption block
+	 * to minimize the risk of attacks against the password.
+	 *
+	 * @return  array
+	 */
+	public function getKeyDerivationParameters()
+	{
+		return array(
+			'keySize'       => 16,
+			'algorithm'     => $this->pbkdf2Algorithm,
+			'iterations'    => $this->pbkdf2Iterations,
+			'useStaticSalt' => $this->pbkdf2UseStaticSalt,
+			'staticSalt'    => $this->pbkdf2StaticSalt,
+		);
 	}
 
 	/**
@@ -573,22 +632,50 @@ class Encrypt
 			return false;
 		}
 
-		// Get the expanded key from the password
-		$key = $this->expandKey($password);
-
 		// Read the data size
 		$data_size = unpack('V', substr($ciphertext, -4));
 
+		// Do I have a PBKDF2 salt?
+		$salt             = substr($ciphertext, -92, 68);
+		$rightStringLimit = -4;
+
+		$params        = $this->getKeyDerivationParameters();
+		$keySizeBytes  = $params['keySize'];
+		$algorithm     = $params['algorithm'];
+		$iterations    = $params['iterations'];
+		$useStaticSalt = $params['useStaticSalt'];
+
+		if (substr($salt, 0, 4) == 'JPST')
+		{
+			// We have a stored salt. Retrieve it and tell decrypt to process the string minus the last 44 bytes
+			// (4 bytes for JPST, 16 bytes for the salt, 4 bytes for JPIV, 16 bytes for the IV, 4 bytes for the
+			// uncompressed string length - note that using PBKDF2 means we're also using a randomized IV per the
+			// format specification).
+			$salt             = substr($salt, 4);
+			$rightStringLimit -= 68;
+
+			$key          = $this->pbkdf2($password, $salt, $algorithm, $iterations, $keySizeBytes);
+		}
+		elseif ($useStaticSalt)
+		{
+			// We have a static salt. Use it for PBKDF2.
+			$key = $this->getStaticSaltExpandedKey($password);
+		}
+		else
+		{
+			// Get the expanded key from the password. THIS USES THE OLD, INSECURE METHOD.
+			$key = $this->expandKey($password);
+		}
+
 		// Try to get the IV from the data
 		$iv = substr($ciphertext, -24, 20);
-		$rightStringLimit = -4;
 
 		if (substr($iv, 0, 4) == 'JPIV')
 		{
 			// We have a stored IV. Retrieve it and tell mdecrypt to process the string minus the last 24 bytes
 			// (4 bytes for JPIV, 16 bytes for the IV, 4 bytes for the uncompressed string length)
-			$iv = substr($iv, 4);
-			$rightStringLimit = -24;
+			$iv               = substr($iv, 4);
+			$rightStringLimit -= 20;
 		}
 		else
 		{
@@ -609,7 +696,7 @@ class Encrypt
 	}
 
 	/**
-	 * That's the old way of craeting an IV that's definitely not cryptographically sound.
+	 * That's the old way of creating an IV that's definitely not cryptographically sound.
 	 *
 	 * DO NOT USE, EVER, UNLESS YOU WANT TO DECRYPT LEGACY DATA
 	 *
@@ -652,7 +739,7 @@ class Encrypt
 	}
 
 	/**
-	 * Expand the password to an appropriate 128-bit encryption key
+	 * Expand the password to an appropriate 128-bit encryption key. THIS CODE IS OBSOLETE. DO NOT USE.
 	 *
 	 * @param   string  $password
 	 *
@@ -725,5 +812,185 @@ class Encrypt
 		}
 
 		return $adapter;
+	}
+
+	/**
+	 * Returns the length of a string in BYTES, not characters
+	 *
+	 * @param string $string The string to get the length for
+	 *
+	 * @return int The size in BYTES
+	 */
+	public function stringLength($string)
+	{
+		return function_exists('mb_strlen') ? mb_strlen($string, '8bit') : strlen($string);
+	}
+
+	/**
+	 * Attempt to use mbstring for getting parts of strings
+	 *
+	 * @param   string    $string
+	 * @param   int       $start
+	 * @param   int|null  $length
+	 *
+	 * @return  string
+	 */
+	public function subString($string, $start, $length = null)
+	{
+		return function_exists('mb_substr') ? mb_substr($string, $start, $length, '8bit') :
+			substr($string, $start, $length);
+	}
+
+	/**
+	 * PBKDF2 key derivation function as defined by RSA's PKCS #5: https://www.ietf.org/rfc/rfc2898.txt
+	 *
+	 * Test vectors can be found here: https://www.ietf.org/rfc/rfc6070.txt
+	 *
+	 * This implementation of PBKDF2 was originally created by https://defuse.ca
+	 * With improvements by http://www.variations-of-shadow.com
+	 * Modified for Akeeba Engine by Akeeba Ltd (removed unnecessary checks to make it faster)
+	 *
+	 * @param   string  $password    The password.
+	 * @param   string  $salt        A salt that is unique to the password.
+	 * @param   string  $algorithm   The hash algorithm to use. Default is sha1.
+	 * @param   int     $count       Iteration count. Higher is better, but slower. Default: 1000.
+	 * @param   int     $key_length  The length of the derived key in bytes.
+	 *
+	 * @return  string  A string of $key_length bytes
+	 */
+	public function pbkdf2($password, $salt, $algorithm = 'sha1', $count = 1000, $key_length = 16)
+	{
+		if (function_exists("hash_pbkdf2"))
+		{
+			return hash_pbkdf2($algorithm, $password, $salt, $count, $key_length, true);
+		}
+
+		$hash_length = $this->stringLength(hash($algorithm, "", true));
+		$block_count = ceil($key_length / $hash_length);
+
+		$output = "";
+
+		for ($i = 1; $i <= $block_count; $i++)
+		{
+			// $i encoded as 4 bytes, big endian.
+			$last = $salt . pack("N", $i);
+
+			// First iteration
+			$xorResult = hash_hmac($algorithm, $last, $password, true);
+			$last      = $xorResult;
+
+			// Perform the other $count - 1 iterations
+			for ($j = 1; $j < $count; $j++)
+			{
+				$last = hash_hmac($algorithm, $last, $password, true);
+				$xorResult ^= $last;
+			}
+
+			$output .= $xorResult;
+		}
+
+		return $this->subString($output, 0, $key_length);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPbkdf2Algorithm()
+	{
+		return $this->pbkdf2Algorithm;
+	}
+
+	/**
+	 * @param string $pbkdf2Algorithm
+	 * @return Encrypt
+	 */
+	public function setPbkdf2Algorithm($pbkdf2Algorithm)
+	{
+		$this->pbkdf2Algorithm = $pbkdf2Algorithm;
+
+		return $this;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getPbkdf2Iterations()
+	{
+		return $this->pbkdf2Iterations;
+	}
+
+	/**
+	 * @param int $pbkdf2Iterations
+	 * @return Encrypt
+	 */
+	public function setPbkdf2Iterations($pbkdf2Iterations)
+	{
+		$this->pbkdf2Iterations = $pbkdf2Iterations;
+
+		return $this;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getPbkdf2UseStaticSalt()
+	{
+		return $this->pbkdf2UseStaticSalt;
+	}
+
+	/**
+	 * @param int $pbkdf2UseStaticSalt
+	 * @return Encrypt
+	 */
+	public function setPbkdf2UseStaticSalt($pbkdf2UseStaticSalt)
+	{
+		$this->pbkdf2UseStaticSalt = $pbkdf2UseStaticSalt;
+
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getPbkdf2StaticSalt()
+	{
+		return $this->pbkdf2StaticSalt;
+	}
+
+	/**
+	 * @param string $pbkdf2StaticSalt
+	 * @return Encrypt
+	 */
+	public function setPbkdf2StaticSalt($pbkdf2StaticSalt)
+	{
+		$this->pbkdf2StaticSalt = $pbkdf2StaticSalt;
+
+		return $this;
+	}
+
+	/**
+	 * Get the expanded key from the user supplied password using a static salt. The results are cached for performance
+	 * reasons.
+	 *
+	 * @param   string  $password  The user-supplied password, UTF-8 encoded.
+	 *
+	 * @return  string  The expanded key
+	 */
+	public function getStaticSaltExpandedKey($password)
+	{
+		$params        = $this->getKeyDerivationParameters();
+		$keySizeBytes  = $params['keySize'];
+		$algorithm     = $params['algorithm'];
+		$iterations    = $params['iterations'];
+		$staticSalt    = $params['staticSalt'];
+
+		$lookupKey = "PBKDF2-$algorithm-$iterations-" . md5($password . $staticSalt);
+
+		if (!array_key_exists($lookupKey, $this->passwords))
+		{
+			$this->passwords[$lookupKey] = $this->pbkdf2($password, $staticSalt, $algorithm, $iterations, $keySizeBytes);
+		}
+
+		return $this->passwords[$lookupKey];
 	}
 }

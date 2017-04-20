@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -17,7 +17,7 @@ trait CustomACL
 {
 	protected function onBeforeExecute(&$task)
 	{
-		$this->akeebaBackupACLCheck($this->view);
+		$this->akeebaBackupACLCheck($this->view, $this->task);
 	}
 
 	/**
@@ -26,27 +26,38 @@ trait CustomACL
 	 *
 	 * @return  void
 	 */
-	protected function akeebaBackupACLCheck($view)
+	protected function akeebaBackupACLCheck($view, $task)
 	{
 		// Akeeba Backup-specific ACL checks. All views not listed here are limited by the akeeba.configure privilege.
 		$viewACLMap = [
-			'ControlPanel' => 'core.manage',
-			'Backup'       => 'akeeba.backup',
-			'Upload'       => 'akeeba.backup',
-			'Manage'       => 'akeeba.download',
-			'Log'          => 'akeeba.download',
-			'S3Import'     => 'akeeba.download',
-			'Restore'      => 'akeeba.download',
-			'RemoteFiles'  => 'akeeba.download',
-			'Discover'     => 'akeeba.download',
-			'Transfer'     => 'akeeba.download',
+			'ControlPanel'       => 'core.manage',
+			'Backup'             => 'akeeba.backup',
+			'Manage'             => 'core.manage',
+			'Manage.download'    => 'akeeba.download',
+			'Manage.remove'      => 'akeeba.download',
+			'Manage.deletefiles' => 'akeeba.download',
+			'Manage.showcomment' => 'akeeba.backup',
+			'Manage.save'        => 'akeeba.download',
+			'Manage.restore'     => 'akeeba.configure',
+			'Manage.cancel'      => 'akeeba.backup',
+			'Upload'             => 'akeeba.backup',
+			'RemoteFiles'        => 'akeeba.download',
+			'Transfer'           => 'akeeba.download',
 		];
 
+		// Default
 		$privilege = 'akeeba.configure';
 
+		// Just the view was found
 		if (array_key_exists($view, $viewACLMap))
 		{
 			$privilege = $viewACLMap[$view];
+		}
+
+		// The view AND task was found
+		if (array_key_exists($view . '.' . $task, $viewACLMap))
+		{
+			$privilege = $viewACLMap[$view . '.' . $task];
 		}
 
 		// If an empty privilege is defined do not perform any ACL checks

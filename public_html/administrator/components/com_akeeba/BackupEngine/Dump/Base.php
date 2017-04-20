@@ -2,7 +2,7 @@
 /**
  * Akeeba Engine
  * The modular PHP5 site backup engine
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -58,6 +58,9 @@ abstract class Base extends Part
 
 	/** @var string Data cache, used to cache data before being written to disk */
 	protected $data_cache = '';
+
+	/** @var int  */
+	protected $largest_query = 0;
 
 	/** @var int Size of the data cache, default 128Kb */
 	protected $cache_size = 131072;
@@ -663,6 +666,13 @@ abstract class Base extends Part
 		if (!empty($data))
 		{
 			$this->data_cache .= $data;
+
+			if (strlen($data) > $this->largest_query)
+			{
+				$this->largest_query = strlen($data);
+				Factory::getConfiguration()->set('volatile.database.largest_query', $this->largest_query);
+			}
+
 		}
 		if ((strlen($this->data_cache) >= $this->cache_size) || (is_null($data) && (!empty($this->data_cache))))
 		{
@@ -785,6 +795,29 @@ abstract class Base extends Part
 		}
 
 		return $db;
+	}
+
+	/**
+	 * Return the current database name by querying the database connection object (e.g. SELECT DATABASE() in MySQL)
+	 *
+	 * @return  string
+	 */
+	abstract protected function getDatabaseNameFromConnection();
+
+	/**
+	 * Returns the database name. If the name was not declared when the object was created we will go through the
+	 * getDatabaseNameFromConnection method to populate it.
+	 *
+	 * @return  string
+	 */
+	protected function getDatabaseName()
+	{
+		if (empty($this->database))
+		{
+			$this->database = $this->getDatabaseNameFromConnection();
+		}
+
+		return $this->database;
 	}
 
 	public function callStage($stage)

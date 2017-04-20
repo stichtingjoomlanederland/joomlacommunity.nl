@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -12,7 +12,7 @@ defined('_JEXEC') or die();
 
 ?>
 <?php /* Configuration Wizard pop-up */ ?>
-<?php if($this->promptForConfigurationWizard): ?>
+<?php if ($this->promptForConfigurationWizard): ?>
 	<?php echo $this->loadAnyTemplate('admin:com_akeeba/Configuration/confwiz_modal'); ?>
 <?php endif; ?>
 
@@ -115,6 +115,14 @@ defined('_JEXEC') or die();
 		<h3><?php echo JText::_('COM_AKEEBA_CPANEL_MSG_CLOUDFLARE_WARN')?></h3>
 		<p><?php echo JText::sprintf('COM_AKEEBA_CPANEL_MSG_CLOUDFLARE_WARN1', 'https://support.cloudflare.com/hc/en-us/articles/200169456-Why-is-JavaScript-or-jQuery-not-working-on-my-site-')?></p>
 	</div>
+<?php
+/**
+ * DO NOT USE INLINE JAVASCRIPT FOR THIS SCRIPT. DO NOT REMOVE THE ATTRIBUTES.
+ *
+ * This is a specialised test which looks for CloudFlare's completely broken RocketLoader feature and warns the user
+ * about it.
+ */
+?>
 	<script type="text/javascript" data-cfasync="true">
 		var test = localStorage.getItem('<?php echo $testfile?>');
 		if (test)

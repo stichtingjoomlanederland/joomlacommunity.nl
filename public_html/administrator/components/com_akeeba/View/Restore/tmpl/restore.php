@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -9,6 +9,28 @@
 defined('_JEXEC') or die();
 
 $this->loadHelper('escape');
+
+$escapedPassword = addslashes($this->password);
+$escapedJuriBase = addslashes(JUri::base());
+$js = <<< JS
+
+;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
+// due to missing trailing semicolon and/or newline in their code.
+akeeba.Restore.password = '$escapedPassword';
+akeeba.Restore.ajaxURL = '{$escapedJuriBase}/components/com_akeeba/restore.php';
+akeeba.Restore.mainURL = '{$escapedJuriBase}/index.php';
+
+akeeba.System.documentReady(function(){
+    akeeba.Restore.pingRestoration();
+
+    akeeba.System.addEventListener(document.getElementById('restoration-runinstaller'), 'click', akeeba.Restore.runInstaller);
+    akeeba.System.addEventListener(document.getElementById('restoration-finalize'), 'click', akeeba.Restore.finalize);
+});
+
+
+JS;
+
+$this->getContainer()->template->addJSInline($js);
 
 ?>
 <div class="alert">
@@ -87,18 +109,3 @@ $this->loadHelper('escape');
 		</button>
 	</p>
 </div>
-
-<script type="text/javascript" language="javascript">
-    akeeba.Restore.password = '<?php echo addslashes($this->password); ?>';
-	akeeba.Restore.ajaxURL = '<?php echo addslashes(JUri::base()); ?>/components/com_akeeba/restore.php';
-    akeeba.Restore.mainURL = '<?php echo addslashes(JUri::base()); ?>/index.php';
-
-	(function($){
-		$(document).ready(function(){
-            akeeba.Restore.pingRestoration();
-		});
-
-		$('#restoration-runinstaller').click(akeeba.Restore.runInstaller);
-		$('#restoration-finalize').click(akeeba.Restore.finalize);
-	})(akeeba.jQuery);
-</script>

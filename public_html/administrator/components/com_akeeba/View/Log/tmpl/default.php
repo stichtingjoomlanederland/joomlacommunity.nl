@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -27,7 +27,7 @@ defined('_JEXEC') or die();
 
 			<br/>
 			<hr/>
-			<div class="iframe-holder">
+			<div id="iframe-holder">
 			<?php if ($this->logTooBig):?>
 				<p class="alert alert-info">
 					<?php echo JText::sprintf('COM_AKEEBA_LOG_SIZE_WARNING', number_format($this->logSize / (1024 * 1024), 2))?>

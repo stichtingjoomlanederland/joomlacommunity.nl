@@ -1,7 +1,7 @@
 <?php
 /**
  * @package AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license GNU General Public License version 3, or later
  *
  * @since 1.3
@@ -229,18 +229,24 @@ class AKFeatureTransfer
 	 * Converts a human formatted size to integer representation of bytes,
 	 * e.g. 1M to 1024768
 	 *
-	 * @param   string $val The value in human readable format, e.g. "1M"
+	 * @param   string  $setting  The value in human readable format, e.g. "1M"
 	 *
 	 * @return  integer  The value in bytes
 	 */
-	private function memoryToBytes($val)
+	private function memoryToBytes($setting)
 	{
-		$val  = trim($val);
+		$val = trim($setting);
 		$last = strtolower($val{strlen($val) - 1});
+
+		if (is_numeric($last))
+		{
+			return $setting;
+		}
 
 		switch ($last)
 		{
-			// The 'G' modifier is available since PHP 5.1.0
+			case 't':
+				$val *= 1024;
 			case 'g':
 				$val *= 1024;
 			case 'm':
@@ -249,6 +255,6 @@ class AKFeatureTransfer
 				$val *= 1024;
 		}
 
-		return $val;
+		return (int) $val;
 	}
 }

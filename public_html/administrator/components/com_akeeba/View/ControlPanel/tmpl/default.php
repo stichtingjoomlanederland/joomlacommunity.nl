@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -24,7 +24,7 @@ defined('_JEXEC') or die();
 		<?php echo $this->loadAnyTemplate('admin:com_akeeba/ControlPanel/profile'); ?>
 
 		<?php /* One Click Backup icons */ ?>
-		<?php if ( ! (empty($this->quickIconProfiles))): ?>
+		<?php if ( ! (empty($this->quickIconProfiles)) && $this->permissions['backup']): ?>
 		<?php echo $this->loadAnyTemplate('admin:com_akeeba/ControlPanel/oneclick'); ?>
 		<?php endif; ?>
 
@@ -38,7 +38,9 @@ defined('_JEXEC') or die();
 		<?php echo $this->loadAnyTemplate('admin:com_akeeba/ControlPanel/icons_advanced'); ?>
 
 		<?php /* Include / Exclude data */ ?>
+        <?php if ($this->permissions['configure']): ?>
 		<?php echo $this->loadAnyTemplate('admin:com_akeeba/ControlPanel/icons_includeexclude'); ?>
+        <?php endif; ?>
 	</div>
 
 	<?php /* Sidebar */ ?>

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -27,10 +27,14 @@ class Toolbar extends BaseToolbar
 	public function onBackupsMain()
 	{
 		JToolbarHelper::title(JText::_('COM_AKEEBA').':: <small>'.JText::_('COM_AKEEBA_BACKUP').'</small>','akeeba');
-		JToolbarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 
-		JToolbarHelper::spacer();
-		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/backup-now.html');
+		if (!$this->container->input->getBool('akeeba_hide_toolbar', false))
+		{
+			JToolbarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
+
+			JToolbarHelper::spacer();
+			JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/backup-now.html');
+		}
 	}
 
 	public function onConfigurations()
@@ -135,12 +139,34 @@ JS;
 			$bar->appendButton('Link', 'restore', JText::_('COM_AKEEBA_DISCOVER'), 'index.php?option=com_akeeba&view=Discover');
 		}
 
-		JToolbarHelper::publish('restore', JText::_('COM_AKEEBA_BUADMIN_LABEL_RESTORE'));
-		JToolbarHelper::editList('showcomment', JText::_('COM_AKEEBA_BUADMIN_LOG_EDITCOMMENT'));
-		JToolbarHelper::spacer();
-		JToolbarHelper::deleteList();
-		JToolbarHelper::custom( 'deletefiles', 'delete.png', 'delete_f2.png', JText::_('COM_AKEEBA_BUADMIN_LABEL_DELETEFILES'), true );
-		JToolbarHelper::spacer();
+		$user = JFactory::getUser();
+		$permissions = array(
+			'configure' => $user->authorise('akeeba.configure', 'com_akeeba'),
+			'backup' => $user->authorise('akeeba.backup', 'com_akeeba'),
+		);
+
+		if ($permissions['configure'])
+		{
+			JToolbarHelper::publish('restore', JText::_('COM_AKEEBA_BUADMIN_LABEL_RESTORE'));
+		}
+
+		if ($permissions['backup'])
+		{
+			JToolbarHelper::editList('showcomment', JText::_('COM_AKEEBA_BUADMIN_LOG_EDITCOMMENT'));
+		}
+
+		if ($permissions['configure'] || $permissions['backup'])
+		{
+			JToolbarHelper::spacer();
+		}
+
+		if ($permissions['backup'])
+		{
+			JToolbarHelper::deleteList();
+			JToolbarHelper::custom( 'deletefiles', 'delete.png', 'delete_f2.png', JText::_('COM_AKEEBA_BUADMIN_LABEL_DELETEFILES'), true );
+			JToolbarHelper::spacer();
+		}
+
 		JToolbarHelper::back('COM_AKEEBA_CONTROLPANEL', 'index.php?option=com_akeeba');
 		JToolbarHelper::spacer();
 		JToolbarHelper::help(null, false, 'https://www.akeebabackup.com/documentation/akeeba-backup-documentation/adminsiter-backup-files.html');

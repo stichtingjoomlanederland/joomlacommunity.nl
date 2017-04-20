@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -154,6 +154,15 @@ class Html extends BaseView
 	public $sortFields = [];
 
 	/**
+	 * Cache the user permissions
+	 *
+	 * @var   array
+	 *
+	 * @since 5.3.0
+	 */
+	public $permissions = array();
+
+	/**
 	 * List the backup records
 	 *
 	 * @return  void
@@ -162,11 +171,22 @@ class Html extends BaseView
 	 */
 	public function onBeforeMain()
 	{
+		// Load custom Javascript for this page
+		$this->addJavascriptFile('media://com_akeeba/js/Manage.min.js');
+
 		// Load core classes used in the view template
 		JLoader::import('joomla.utilities.date');
 
+		$user              = \JFactory::getUser();
+		$this->permissions = array(
+			'configure' => $user->authorise('akeeba.configure', 'com_akeeba'),
+			'backup'    => $user->authorise('akeeba.backup', 'com_akeeba'),
+			'download'  => $user->authorise('akeeba.download', 'com_akeeba'),
+		);
+
+
 		/** @var Profiles $profilesModel */
-		$profilesModel                  = $this->container->factory->model('Profiles')->tmpInstance();
+		$profilesModel           = $this->container->factory->model('Profiles')->tmpInstance();
 		$enginesPerPprofile      = $profilesModel->getPostProcessingEnginePerProfile();
 		$this->enginesPerProfile = $enginesPerPprofile;
 
@@ -204,35 +224,33 @@ function confirmDownload(id, part)
 	}
 }
 
+akeeba.System.documentReady(function(){
+	akeeba.Tooltip.enableFor(document.querySelectorAll('.akeebaCommentPopover'), false);
+});
+
 JS;
 		$this->addJavascriptInline($js);
 
 		JHtml::_('behavior.calendar');
-		JHtml::_('behavior.modal');
-		JHtml::_('bootstrap.popover', '.akeebaCommentPopover', array(
-			'animation'	=> true,
-			'html'		=> true,
-			'title'		=> JText::_('COM_AKEEBA_BUADMIN_LABEL_COMMENT'),
-			'placement'	=> 'bottom'
-		));
 		JHtml::_('formbehavior.chosen', 'select');
 
-		JFactory::getDocument()->addStyleSheet('https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css');
+		JFactory::getDocument()
+		        ->addStyleSheet('https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css');
 
 		$hash = 'akeebamanage';
 
 		// ...ordering
-		$platform = $this->container->platform;
-		$input = $this->input;
-		$this->order = $platform->getUserStateFromRequest($hash . 'filter_order', 'filter_order', $input,'backupstart');
+		$platform        = $this->container->platform;
+		$input           = $this->input;
+		$this->order     = $platform->getUserStateFromRequest($hash . 'filter_order', 'filter_order', $input, 'backupstart');
 		$this->order_Dir = $platform->getUserStateFromRequest($hash . 'filter_order_Dir', 'filter_order_Dir', $input, 'DESC');
 
 		// ...filter state
 		$this->fltDescription = $platform->getUserStateFromRequest($hash . 'filter_description', 'description', $input, '');
-		$this->fltFrom = $platform->getUserStateFromRequest($hash . 'filter_from', 'from', $input, '');
-		$this->fltTo = $platform->getUserStateFromRequest($hash . 'filter_to', 'to', $input, '');
-		$this->fltOrigin = $platform->getUserStateFromRequest($hash . 'filter_origin',  'origin', $input, '');
-		$this->fltProfile = $platform->getUserStateFromRequest($hash . 'filter_profile', 'profile', $input, '');
+		$this->fltFrom        = $platform->getUserStateFromRequest($hash . 'filter_from', 'from', $input, '');
+		$this->fltTo          = $platform->getUserStateFromRequest($hash . 'filter_to', 'to', $input, '');
+		$this->fltOrigin      = $platform->getUserStateFromRequest($hash . 'filter_origin', 'origin', $input, '');
+		$this->fltProfile     = $platform->getUserStateFromRequest($hash . 'filter_profile', 'profile', $input, '');
 
 		$filters  = $this->getFilters();
 		$ordering = $this->getOrdering();
@@ -263,8 +281,8 @@ JS;
 		$this->pagination   = $model->getPagination($filters); // Pagination object
 
 		// Date format
-		$dateFormat = $this->container->params->get('dateformat', '');
-		$dateFormat = trim($dateFormat);
+		$dateFormat       = $this->container->params->get('dateformat', '');
+		$dateFormat       = trim($dateFormat);
 		$this->dateFormat = !empty($dateFormat) ? $dateFormat : JText::_('DATE_FORMAT_LC4');
 
 		// Time zone options
@@ -331,7 +349,7 @@ JS;
 	/**
 	 * Translates the internal backup type (e.g. cli) to a human readable string
 	 *
-	 * @param   string  $recordType  The internal backup type
+	 * @param   string $recordType The internal backup type
 	 *
 	 * @return  string
 	 */
@@ -342,7 +360,7 @@ JS;
 		if (!is_array($backup_types))
 		{
 			// Load a mapping of backup types to textual representation
-			$scripting = \Akeeba\Engine\Factory::getEngineParamsProvider()->loadScripting();
+			$scripting    = \Akeeba\Engine\Factory::getEngineParamsProvider()->loadScripting();
 			$backup_types = array();
 			foreach ($scripting['scripts'] as $key => $data)
 			{
@@ -361,7 +379,7 @@ JS;
 	/**
 	 * Returns the origin's translated name and the appropriate icon class
 	 *
-	 * @param   array  $record  A backup record
+	 * @param   array $record A backup record
 	 *
 	 * @return  array  array(originTranslation, iconClass)
 	 */
@@ -419,7 +437,7 @@ JS;
 	/**
 	 * Get the start time and duration of a backup record
 	 *
-	 * @param   array  $record  A backup record
+	 * @param   array $record A backup record
 	 *
 	 * @return  array  array(startTimeAsString, durationAsString)
 	 */
@@ -469,7 +487,7 @@ JS;
 	/**
 	 * Get the class and icon for the backup status indicator
 	 *
-	 * @param   array  $record  A backup record
+	 * @param   array $record A backup record
 	 *
 	 * @return  array  array(class, icon)
 	 */
@@ -506,7 +524,7 @@ JS;
 	/**
 	 * Get the profile name for the backup record (or "–" if the profile no longer exists)
 	 *
-	 * @param   array  $record  A backup record
+	 * @param   array $record A backup record
 	 *
 	 * @return  string
 	 */
@@ -514,9 +532,9 @@ JS;
 	{
 		$profileName = '&mdash;';
 
-		if (isset($this->profiles[ $record['profile_id'] ]))
+		if (isset($this->profiles[$record['profile_id']]))
 		{
-			$profileName = $this->escape($this->profiles[ $record['profile_id'] ]->description);
+			$profileName = $this->escape($this->profiles[$record['profile_id']]->description);
 
 			return $profileName;
 		}
@@ -562,8 +580,8 @@ JS;
 		elseif ($this->fltTo)
 		{
 			JLoader::import('joomla.utilities.date');
-			$to     = new JDate($this->fltTo);
-			$to     = date('Y-m-d') . ' 23:59:59';
+			$to = new JDate($this->fltTo);
+			$to = date('Y-m-d') . ' 23:59:59';
 
 			$filters[] = array(
 				'field'   => 'backupstart',

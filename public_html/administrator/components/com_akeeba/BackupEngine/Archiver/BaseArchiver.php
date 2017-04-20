@@ -3,7 +3,7 @@
  * Akeeba Engine
  * The modular PHP5 site backup engine
  *
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -202,18 +202,24 @@ abstract class BaseArchiver extends BaseFileManagement
 	 * Converts a human formatted size to integer representation of bytes,
 	 * e.g. 1M to 1024768
 	 *
-	 * @param   string $val The value in human readable format, e.g. "1M"
+	 * @param   string  $setting  The value in human readable format, e.g. "1M"
 	 *
 	 * @return  integer  The value in bytes
 	 */
-	protected function humanToIntegerBytes($val)
+	protected function humanToIntegerBytes($setting)
 	{
-		$val  = trim($val);
+		$val = trim($setting);
 		$last = strtolower($val{strlen($val) - 1});
+
+		if (is_numeric($last))
+		{
+			return $setting;
+		}
 
 		switch ($last)
 		{
-			// The 'G' modifier is available since PHP 5.1.0
+			case 't':
+				$val *= 1024;
 			case 'g':
 				$val *= 1024;
 			case 'm':
@@ -222,7 +228,7 @@ abstract class BaseArchiver extends BaseFileManagement
 				$val *= 1024;
 		}
 
-		return $val;
+		return (int) $val;
 	}
 
 	/**

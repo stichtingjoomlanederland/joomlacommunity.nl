@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -33,20 +33,15 @@ defined('_JEXEC') or die();
 	<a href="#" id="btnchangelog" class="btn btn-info btn-small">CHANGELOG</a>
 
 	<div class="modal fade" id="akeeba-changelog" tabindex="-1" role="dialog" aria-labelledby="DialogLabel" aria-hidden="true" style="display:none;">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-					<h4 class="modal-title" id="errorDialogLabel">
-						<?php echo \JText::_('CHANGELOG'); ?>
-					</h4>
-				</div>
-				<div class="modal-body" id="DialogBody">
-				<?php echo $this->formattedChangelog; ?>
+        <div class="modal-header">
+            <h4 class="modal-title" id="errorDialogLabel">
+				<?php echo \JText::_('CHANGELOG'); ?>
+            </h4>
+        </div>
+        <div class="modal-body" id="DialogBody">
+			<?php echo $this->formattedChangelog; ?>
 
-				</div>
-			</div>
-		</div>
+        </div>
 	</div>
 
 	<?php /* Donation CTA */ ?>

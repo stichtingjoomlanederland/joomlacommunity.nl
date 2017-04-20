@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -212,6 +212,18 @@ class FileFilters extends Model
 			{
 				$crumbs = array();
 			}
+		}
+
+		array_walk($crumbs, function ($value, $index) {
+			if (in_array(trim($value), array('.', '..')))
+			{
+				throw new \InvalidArgumentException("Unacceptable folder crumbs");
+			}
+		});
+
+		if ((stristr($child, '/..') !== false) || (stristr($child, '\..') !== false))
+		{
+			throw new \InvalidArgumentException("Unacceptable child folder");
 		}
 
 		if (!empty($crumbs))

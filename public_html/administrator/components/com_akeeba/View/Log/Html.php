@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -97,11 +97,12 @@ class Html extends BaseView
 			$js  = <<<JS
 
 ;// Prevent broken 3PD Javascript from causing errors
-akeeba.jQuery(document).ready(function ($){
-    $('#showlog').click(function(){
-        $('<iframe width="99%" src="$src" height="400px"/>').appendTo('.iframe-holder');
-        $(this).hide();
-    })
+akeeba.System.documentReady(function (){
+	akeeba.System.addEventListener(document.getElementById('showlog'), 'click', function(){
+		var iFrameHolder = document.getElementById('iframe-holder');
+		iFrameHolder.insertAdjacentHTML('beforeend', '<iframe width="99%" src="$src" height="400px"/>');
+		this.style.display = 'none';
+    });
 });
 
 JS;

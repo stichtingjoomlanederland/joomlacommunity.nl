@@ -3,7 +3,7 @@
  * Akeeba Engine
  * The modular PHP5 site backup engine
  *
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -31,6 +31,26 @@ use Psr\Log\LogLevel;
  */
 class Mysql extends Base
 {
+	/**
+	 * Return the current database name by querying the database connection object (e.g. SELECT DATABASE() in MySQL)
+	 *
+	 * @return  string
+	 */
+	protected function getDatabaseNameFromConnection()
+	{
+		$db = $this->getDB();
+
+		try
+		{
+			$ret = $db->setQuery('SELECT DATABASE()')->loadResult();
+		}
+		catch (\Exception $e)
+		{
+			return '';
+		}
+
+		return empty($ret) ? '' : $ret;
+	}
 
 	/**
 	 * The primary key structure of the currently backed up table. The keys contained are:
@@ -58,7 +78,7 @@ class Mysql extends Base
 
 	/**
 	 * Applies the SQL compatibility setting
-	 * 
+	 *
 	 * @return  void
 	 */
 	protected function enforceSQLCompatibility()
@@ -125,6 +145,9 @@ class Mysql extends Base
 		$this->setSubstep('');
 		$tableAbstract = trim($this->table_name_map[ $tableName ]);
 		$dump_records  = $this->tables_data[ $tableName ]['dump_records'];
+
+		// Restore any previously information about the largest query we had to run
+		$this->largest_query = Factory::getConfiguration()->get('volatile.database.largest_query', 0);
 
 		// If it is the first run, find number of rows and get the CREATE TABLE command
 		if ($this->nextRange == 0)
@@ -246,7 +269,6 @@ class Mysql extends Base
 		}
 
 		$dbRoot                    = $configuration->get('volatile.database.root', '[SITEDB]');
-		$lastTableWithLargeColumns = $configuration->get('volatile.database.last_large_col_table', '');
 
 		if (($this->nextRange < $this->maxRange))
 		{
@@ -416,22 +438,6 @@ class Mysql extends Base
 						}
 						else
 						{
-							// Check whether any column contains large amounts of data which could create restoration issues
-							if ($lastTableWithLargeColumns != $tableName)
-							{
-								$columnSize = strlen($value);
-
-								if ($columnSize >= 1024 * 1024)
-								{
-									$warningMessage = "Column $fieldName of table $tableAbstract contains $columnSize bytes of data. This may cause restoration issues.";
-									Factory::getLog()->log(LogLevel::WARNING, $warningMessage);
-									$this->setWarning($warningMessage);
-
-									$configuration->set('volatile.database.last_large_col_table', $tableName);
-									$lastTableWithLargeColumns = $tableName;
-								}
-							}
-
 							// Accommodate for runtime magic quotes
 							if (function_exists('get_magic_quotes_runtime'))
 							{
@@ -604,7 +610,13 @@ class Mysql extends Base
 				$this->setSubstep('');
 				$this->nextTable = '';
 				$this->nextRange = 0;
-				$configuration->set('volatile.database.last_large_col_table', '');
+
+				// At the end of the database dump, if any query was longer than 1Mb, let's put a warning file in the installation folder
+				if ($this->largest_query >= 1024 * 1024)
+				{
+					$archive = Factory::getArchiverEngine();
+					$archive->addVirtualFile('large_tables_detected', $this->installerSettings->installerroot, $this->largest_query);
+				}
 			}
 			elseif (count($this->tables) != 0)
 			{
@@ -1462,6 +1474,20 @@ class Mysql extends Base
 		$table_sql = str_replace("\r", " ", $table_sql);
 		$table_sql = str_replace("\t", " ", $table_sql);
 
+		/**
+		 * Views, procedures, functions and triggers may contain the database name followed by the table name, always
+		 * quoted e.g. `db`.`table_name`  We need to replace all these instances with just the table name. The only
+		 * reliable way to do that is to look for "`db`.`" and replace it with "`"
+		 */
+		if (in_array($type, array('view', 'procedure', 'function', 'trigger')))
+		{
+			$dbName      = $db->qn($this->getDatabaseName());
+			$dummyQuote  = $db->qn('foo');
+			$findWhat    = $dbName . '.' . substr($dummyQuote, 0, 1);
+			$replaceWith = substr($dummyQuote, 0, 1);
+			$table_sql   = str_replace($findWhat, $replaceWith, $table_sql);
+		}
+
 		// Post-process CREATE VIEW
 		if ($type == 'view')
 		{
@@ -1518,16 +1544,25 @@ class Mysql extends Base
 		{
 			if (($type == 'table') || ($type == 'merge'))
 			{
+				// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
+				$table_name = str_replace(array("\r", "\n"), array('', ''), $table_name);
+
 				// Table or merge tables, get a DROP TABLE statement
 				$drop = "DROP TABLE IF EXISTS " . $db->quoteName($table_name) . ";\n";
 			}
 			elseif ($type == 'view')
 			{
+				// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
+				$table_name = str_replace(array("\r", "\n"), array('', ''), $table_name);
+
 				// Views get a DROP VIEW statement
 				$drop = "DROP VIEW IF EXISTS " . $db->quoteName($table_name) . ";\n";
 			}
 			elseif ($type == 'procedure')
 			{
+				// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
+				$table_name = str_replace(array("\r", "\n"), array('', ''), $table_name);
+
 				// Procedures get a DROP PROCEDURE statement and proper delimiter strings
 				$drop = "DROP PROCEDURE IF EXISTS " . $db->quoteName($table_name) . ";\n";
 				$drop .= "DELIMITER // ";
@@ -1537,6 +1572,9 @@ class Mysql extends Base
 			}
 			elseif ($type == 'function')
 			{
+				// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
+				$table_name = str_replace(array("\r", "\n"), array('', ''), $table_name);
+
 				// Procedures get a DROP FUNCTION statement and proper delimiter strings
 				$drop = "DROP FUNCTION IF EXISTS " . $db->quoteName($table_name) . ";\n";
 				$drop .= "DELIMITER // ";
@@ -1545,6 +1583,9 @@ class Mysql extends Base
 			}
 			elseif ($type == 'trigger')
 			{
+				// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
+				$table_name = str_replace(array("\r", "\n"), array('', ''), $table_name);
+
 				// Procedures get a DROP TRIGGER statement and proper delimiter strings
 				$drop = "DROP TRIGGER IF EXISTS " . $db->quoteName($table_name) . ";\n";
 				$drop .= "DELIMITER // ";
@@ -1723,6 +1764,9 @@ class Mysql extends Base
 
 			unset($restOfQuery);
 
+			// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
+			$tableName = str_replace(array("\r", "\n"), array('', ''), $tableName);
+
 			// Try to drop the table anyway
 			$dropQuery = 'DROP TABLE IF EXISTS ' . $db->nameQuote($tableName) . ';';
 		}
@@ -1748,6 +1792,9 @@ class Mysql extends Base
 			}
 
 			unset($restOfQuery);
+
+			// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
+			$tableName = str_replace(array("\r", "\n"), array('', ''), $tableName);
 
 			$dropQuery = 'DROP VIEW IF EXISTS ' . $db->nameQuote($tableName) . ';';
 		}
@@ -1775,6 +1822,9 @@ class Mysql extends Base
 
 			unset($restOfQuery);
 
+			// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
+			$entity_name = str_replace(array("\r", "\n"), array('', ''), $entity_name);
+
 			$dropQuery = 'DROP' . $entity_keyword . 'IF EXISTS `' . $entity_name . '`;';
 		}
 		// CREATE FUNCTION pre-processing
@@ -1800,6 +1850,9 @@ class Mysql extends Base
 			}
 
 			unset($restOfQuery);
+
+			// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
+			$entity_name = str_replace(array("\r", "\n"), array('', ''), $entity_name);
 
 			// Try to drop the entity anyway
 			$dropQuery = 'DROP' . $entity_keyword . 'IF EXISTS `' . $entity_name . '`;';
@@ -1827,6 +1880,9 @@ class Mysql extends Base
 			}
 
 			unset($restOfQuery);
+
+			// Defense against CVE-2016-5483 ("Bad Dump") affecting MySQL, Percona, MariaDB and other MySQL clones
+			$entity_name = str_replace(array("\r", "\n"), array('', ''), $entity_name);
 
 			// Try to drop the entity anyway
 			$dropQuery = 'DROP' . $entity_keyword . 'IF EXISTS `' . $entity_name . '`;';

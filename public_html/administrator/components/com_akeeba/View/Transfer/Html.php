@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -155,7 +155,7 @@ class Html extends BaseView
 		JText::script('COM_AKEEBA_CONFIG_DIRECTFTP_TEST_FAIL');
 
 		$js = <<< JS
-akeeba.jQuery(document).ready(function(){
+akeeba.System.documentReady(function(){
 	// AJAX URL endpoint
 	akeeba.System.params.AjaxURL = 'index.php?option=com_akeeba&view=Transfer&format=raw&force={$this->force}';
 
@@ -164,18 +164,18 @@ akeeba.jQuery(document).ready(function(){
 	akeeba.Transfer.lastResult = '{$this->newSiteUrlResult}';
 
 	// Auto-process URL change event
-	if (akeeba.jQuery('#akeeba-transfer-url').val())
+	if (document.getElementById('akeeba-transfer-url').value)
 	{
 		akeeba.Transfer.onUrlChange();
 	}
 	
 	// Remote connection hooks
-	if (akeeba.jQuery('#akeeba-transfer-ftp-method').length)
+	if (document.getElementById('akeeba-transfer-ftp-method'))
 	{
-		akeeba.jQuery('#akeeba-transfer-ftp-method').change(akeeba.Transfer.onTransferMethodChange);
-		akeeba.jQuery('#akeeba-transfer-ftp-directory-browse').click(akeeba.Transfer.initFtpSftpBrowser);
-		akeeba.jQuery('#akeeba-transfer-btn-apply').click(akeeba.Transfer.applyConnection);
-		akeeba.jQuery('#akeeba-transfer-err-url-notexists-btn-ignore').click(akeeba.Transfer.showConnectionDetails);
+		akeeba.System.addEventListener(document.getElementById('akeeba-transfer-ftp-method'), 'change', akeeba.Transfer.onTransferMethodChange);
+		//akeeba.System.addEventListener(document.getElementById('akeeba-transfer-ftp-directory-browse'), 'click', akeeba.Transfer.initFtpSftpBrowser);
+		akeeba.System.addEventListener(document.getElementById('akeeba-transfer-btn-apply'), 'click', akeeba.Transfer.applyConnection);
+		akeeba.System.addEventListener(document.getElementById('akeeba-transfer-err-url-notexists-btn-ignore'), 'click', akeeba.Transfer.showConnectionDetails);
 	}
 });
 JS;

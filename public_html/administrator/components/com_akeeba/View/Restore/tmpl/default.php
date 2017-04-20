@@ -1,12 +1,64 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 // Protect from unauthorized access
 defined('_JEXEC') or die();
+
+$urlBrowser = addslashes('index.php?view=Browser&tmpl=component&processfolder=1&folder=');
+$urlFtpBrowser = addslashes('index.php?option=com_akeeba&view=FTPBrowser');
+$urlTestFtp = addslashes('index.php?option=com_akeeba&view=Restore&task=ajax&ajax=testftp');
+$js = <<< JS
+
+;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
+// due to missing trailing semicolon and/or newline in their code.
+akeeba.System.documentReady(function() {
+    // Push some custom URLs
+    akeeba.Configuration.URLs['browser'] = '$urlBrowser';
+    akeeba.Configuration.URLs['ftpBrowser'] = '$urlFtpBrowser';
+    akeeba.Configuration.URLs['testFtp'] = '$urlTestFtp';
+
+	akeeba.System.addEventListener(document.getElementById('backup-start'), 'click', function(event){
+		document.adminForm.submit();
+	});
+
+    // Button hooks
+    function onProcEngineChange(e)
+    {
+    	var elProcEngine = document.getElementById('procengine');
+
+	    if (elProcEngine.options[elProcEngine.selectedIndex].value == 'direct')
+        {
+            document.getElementById('ftpOptions').style.display = 'none';
+        }
+        else
+        {
+            document.getElementById('ftpOptions').style.display = 'block';
+        }
+    }
+
+    akeeba.System.addEventListener(document.getElementById('ftp-browse'), 'click', function(){
+	    akeeba.Configuration.FtpBrowser.initialise('ftp.initial_directory', 'ftp')
+    });
+
+	akeeba.System.addEventListener(document.getElementById('testftp'), 'click', function(){
+		akeeba.Configuration.FtpTest.testConnection('testftp', 'ftp');
+	});
+
+	akeeba.System.addEventListener(document.getElementById('procengine'), 'change', onProcEngineChange);
+
+    onProcEngineChange();
+
+	// Work around Safari which ignores autocomplete=off
+	setTimeout('akeeba.Restore.restoreDefaultOptions();', 500);
+});
+
+JS;
+
+$this->getContainer()->template->addJSInline($js);
 
 ?>
 <?php echo $this->loadAnyTemplate('admin:com_akeeba/CommonTemplates/FTPBrowser'); ?>
@@ -109,45 +161,3 @@ defined('_JEXEC') or die();
 	</div>
 
 </form>
-
-<script type="text/javascript" language="javascript">
-akeeba.jQuery(document).ready(function($){
-    // Push some custom URLs
-    akeeba.Configuration.URLs['browser'] = '<?php echo addslashes('index.php?view=Browser&tmpl=component&processfolder=1&folder='); ?>';
-    akeeba.Configuration.URLs['ftpBrowser'] = '<?php echo addslashes('index.php?option=com_akeeba&view=FTPBrowser'); ?>';
-    akeeba.Configuration.URLs['testFtp'] = '<?php echo addslashes('index.php?option=com_akeeba&view=Restore&task=ajax&ajax=testftp'); ?>';
-
-	$('#backup-start').click(function(event){
-		document.adminForm.submit();
-	});
-
-    // Button hooks
-    function onProcEngineChange(e)
-    {
-        if ($('#procengine').val() == 'direct')
-        {
-            document.getElementById('ftpOptions').style.display = 'none';
-        }
-        else
-        {
-            document.getElementById('ftpOptions').style.display = 'block';
-        }
-    }
-
-    $('#ftp-browse').click(function(){
-        akeeba.Configuration.FtpBrowser.initialise('ftp.initial_directory', 'ftp')
-    });
-
-    $(document.getElementById('testftp')).click(function(){
-        akeeba.Configuration.FtpTest.testConnection('testftp', 'ftp');
-    });
-
-    $('#procengine').change(onProcEngineChange);
-
-    onProcEngineChange();
-
-	// Work around Safari which ignores autocomplete=off (FOR CRYING OUT LOUD!)
-	setTimeout('akeeba.Restore.restoreDefaultOptions();', 500);
-});
-
-</script>

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -114,7 +114,8 @@ class Configuration extends Model
 		// Perform the FTP connection test
 		$test = new Directsftp();
 		$test->initialize('', $config);
-		$errorMessage = $test->getWarnings();
+		$errorMessages = $test->getWarnings();
+		$errorMessage = array_shift($errorMessages);
 
 		if (!empty($errorMessage) && !$test->connect_ok)
 		{

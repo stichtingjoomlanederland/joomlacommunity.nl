@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -9,6 +9,52 @@
 defined('_JEXEC') or die();
 
 /** @var  \Akeeba\Backup\Admin\View\Configuration\Html  $this */
+
+$urls = array(
+	'browser' => addslashes('index.php?option=com_akeeba&view=Browser&processfolder=1&tmpl=component&folder='),
+	'ftpBrowser' => addslashes('index.php?option=com_akeeba&view=FTPBrowser'),
+	'sftpBrowser' => addslashes('index.php?option=com_akeeba&view=SFTPBrowser'),
+	'testFtp' => addslashes('index.php?option=com_akeeba&view=Configuration&task=testftp'),
+	'testSftp' => addslashes('index.php?option=com_akeeba&view=Configuration&task=testsftp'),
+	'dpeauthopen' => addslashes('index.php?option=com_akeeba&view=Configuration&task=dpeoauthopen&format=raw'),
+	'dpecustomapi' => addslashes('index.php?option=com_akeeba&view=Configuration&task=dpecustomapi&format=raw'),
+);
+$this->json = addcslashes($this->json, "'\\");
+$js = <<< JS
+
+;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
+// due to missing trailing semicolon and/or newline in their code.
+akeeba.System.documentReady(function(){
+	// Push some custom URLs
+	akeeba.Configuration.URLs['browser']      = '{$urls['browser']}';
+	akeeba.Configuration.URLs['ftpBrowser']   = '{$urls['ftpBrowser']}';
+	akeeba.Configuration.URLs['sftpBrowser']  = '{$urls['sftpBrowser']}';
+	akeeba.Configuration.URLs['testFtp']      = '{$urls['testFtp']}';
+	akeeba.Configuration.URLs['testSftp']     = '{$urls['testSftp']}';
+	akeeba.Configuration.URLs['dpeauthopen']  = '{$urls['dpeauthopen']}';
+	akeeba.Configuration.URLs['dpecustomapi'] = '{$urls['dpecustomapi']}';
+	akeeba.System.params.AjaxURL              = akeeba.Configuration.URLs['dpecustomapi'];
+
+	// Load the configuration UI data in a timeout to prevent Safari from auto-filling the password fields
+	var data = JSON.parse('{$this->json}');
+
+	setTimeout(function ()
+	{
+		// Work around browsers which blatantly ignore autocomplete=off
+		setTimeout('akeeba.Configuration.restoreDefaultPasswords();', 1000);
+
+		// Render the configuration UI in the timeout to prevent Safari from auto-filling the password fields
+		akeeba.Configuration.parseConfigData(data);
+
+		// Enable popovers. Must obviously run after we have the UI set up.
+		akeeba.Configuration.enablePopoverFor(document.querySelectorAll('[rel="popover"]'));
+	}, 10);
+});
+
+JS;
+
+$this->getContainer()->template->addJSInline($js);
+
 ?>
 <?php /* Configuration Wizard pop-up */ ?>
 <?php if($this->promptForConfigurationWizard): ?>
@@ -79,32 +125,3 @@ defined('_JEXEC') or die();
 </div>
 
 </form>
-<script type="text/javascript" language="javascript">
-	akeeba.jQuery(document).ready(function ($)
-	{
-		// Push some custom URLs
-		akeeba.Configuration.URLs['browser']      = '<?php echo addslashes('index.php?option=com_akeeba&view=Browser&processfolder=1&tmpl=component&folder='); ?>';
-		akeeba.Configuration.URLs['ftpBrowser']   = '<?php echo addslashes('index.php?option=com_akeeba&view=FTPBrowser'); ?>';
-		akeeba.Configuration.URLs['sftpBrowser']  = '<?php echo addslashes('index.php?option=com_akeeba&view=SFTPBrowser'); ?>';
-		akeeba.Configuration.URLs['testFtp']      = '<?php echo addslashes('index.php?option=com_akeeba&view=Configuration&task=testftp'); ?>';
-		akeeba.Configuration.URLs['testSftp']     = '<?php echo addslashes('index.php?option=com_akeeba&view=Configuration&task=testsftp'); ?>';
-		akeeba.Configuration.URLs['dpeauthopen']  = '<?php echo addslashes('index.php?option=com_akeeba&view=Configuration&task=dpeoauthopen&format=raw'); ?>';
-		akeeba.Configuration.URLs['dpecustomapi'] = '<?php echo addslashes('index.php?option=com_akeeba&view=Configuration&task=dpecustomapi&format=raw'); ?>';
-		akeeba.System.params.AjaxURL              = akeeba.Configuration.URLs['dpecustomapi'];
-
-		// Load the configuration UI data in a timeout to prevent Safari from auto-filling the password fields
-		var data = JSON.parse('<?php echo addcslashes($this->json, "'\\"); ?>');
-
-		setTimeout(function ()
-		{
-			// Work around browsers which blatantly ignore autocomplete=off
-			setTimeout('akeeba.Configuration.restoreDefaultPasswords();', 1000);
-
-			// Render the configuration UI in the timeout to prevent Safari from auto-filling the password fields
-			akeeba.Configuration.parseConfigData(data);
-
-			// Enable popovers. Must obviously run after we have the UI set up.
-			akeeba.Configuration.enablePopoverFor(akeeba.jQuery('[rel="popover"]'));
-		}, 10);
-	});
-</script>

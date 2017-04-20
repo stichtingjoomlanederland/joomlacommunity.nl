@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2016 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -197,8 +197,18 @@ class Dispatcher extends BaseDispatcher
 		\JHtml::_('jquery.framework');
 
 		$mediaVersion = $this->container->mediaVersion;
+
+		// Do not mode: everything depends on UserInterfaceCommon
 		$this->container->template->addJS('media://com_akeeba/js/UserInterfaceCommon.min.js', false, false, $mediaVersion);
+		// Do not move: System depends on Modal
+		$this->container->template->addJS('media://com_akeeba/js/Modal.min.js', false, false, $mediaVersion);
+		// Do not move: System depends on Ajax
+		$this->container->template->addJS('media://com_akeeba/js/Ajax.min.js', false, false, $mediaVersion);
+		// Do not move: System depends on Ajax
 		$this->container->template->addJS('media://com_akeeba/js/System.min.js', false, false, $mediaVersion);
+		// Do not move: Tooltip depends on System
+		$this->container->template->addJS('media://com_akeeba/js/Tooltip.min.js', false, false, $mediaVersion);
+		// Always add last (it's the least important)
 		$this->container->template->addJS('media://com_akeeba/js/piecon.min.js', false, false, $mediaVersion);
 
 		$this->container->template->addCSS('media://com_akeeba/css/akeebaui.min.css', $mediaVersion);
