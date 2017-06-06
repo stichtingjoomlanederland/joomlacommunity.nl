@@ -1,10 +1,16 @@
 # Joomla System Files (i.e. cache, etc.) #
 public_html/administrator/cache/
+!public_html/administrator/cache/index.html
 public_html/administrator/logs/
+!public_html/administrator/logs/index.html
 public_html/cache/
+!public_html/cache/index.html
 public_html/images/
+!public_html/images/index.html
 public_html/logs/
+!public_html/logs/index.html
 public_html/tmp/
+!public_html/tmp/index.html
 public_html/configuration.php
 public_html/.htaccess
 public_html/LICENSE.txt
