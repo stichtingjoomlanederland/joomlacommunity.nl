@@ -561,9 +561,11 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		$model = $this->getModel('rseventspro');
 		
 		// Get the id of the event
-		$jform = JFactory::getApplication()->input->get('jform', array(), 'array');
+		$input	= JFactory::getApplication()->input;
+		$jform	= $input->get('jform', array(), 'array');
+		$show	= $input->getInt('show',0);
 		$id		= (int) $jform['id'];
-		$tab	= JFactory::getApplication()->input->getInt('tab');
+		$tab	= $input->getInt('tab');
 		
 		$permission_denied = false;
 		$admin = rseventsproHelper::admin();
@@ -591,6 +593,10 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 			$eventName	= $model->getState('eventname');
 			$link		= 'index.php?option=com_rseventspro&layout=edit&id='.rseventsproHelper::sef($eventID,$eventName).($tab ? '&tab='.$tab : '');
 			$msg		= $moderated ? JText::_('COM_RSEVENTSPRO_EVENT_SAVED_WITH_MODERATION') : JText::_('COM_RSEVENTSPRO_EVENT_SAVED_OK');
+			
+			if ($show) {
+				$link = 'index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($eventID,$eventName);
+			}
 			
 			return $this->setRedirect(rseventsproHelper::route($link,false), $msg);
 		} else {

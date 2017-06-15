@@ -105,6 +105,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	
 	<div class="form-actions">
 		<button class="btn btn-danger rsepro-remove-ticket" type="button" data-id="<?php echo $ticket->id; ?>"><span class="fa fa-times"></span> <?php echo JText::_('COM_RSEVENTSPRO_REMOVE_TICKET'); ?></button>
+		<button class="btn btn-success rsepro-event-save" type="button"><?php echo JText::_('COM_RSEVENTSPRO_SAVE_EVENT'); ?></button>
 		<button class="btn btn-success rsepro-event-update" type="button"><?php echo JText::_('COM_RSEVENTSPRO_UPDATE_EVENT'); ?></button>
 		<button class="btn btn-danger rsepro-event-cancel" type="button"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
 	</div>

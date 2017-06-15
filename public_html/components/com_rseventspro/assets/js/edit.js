@@ -158,6 +158,11 @@ RSEventsPro.Event = {
 			RSEventsPro.Event.save();
 		});
 		
+		// Save & Close the event
+		jQuery('.rsepro-event-save').on('click', function() {
+			RSEventsPro.Event.save('event.save');
+		});
+		
 		// Cancel the editing of an event
 		jQuery('.rsepro-event-cancel').on('click', function() {
 			RSEventsPro.Event.cancel();
@@ -1210,6 +1215,25 @@ RSEventsPro.Event = {
 				}
 				
 				jQuery('label[for="jform_end_registration"]').removeClass('invalid');
+			}
+		}
+		
+		// Check if the end registraion date occurs after the event end date
+		if (jQuery('#jform_registration').is(':checked')) {
+			var eventEndDate = jQuery('#jform_allday').is(':checked') ? jQuery('#jform_start').val() : jQuery('#jform_end').val();
+			if (eventEndDate && jQuery('#jform_end_registration').val() != '') {
+				if (RSEventsPro.Event.convertDate(jQuery('#jform_end_registration').val()) > RSEventsPro.Event.convertDate(eventEndDate)) {
+					if (jQuery('#rsepro-time').val() == 1) {
+						jQuery('#jform_end_registration_dummy').addClass('invalid');
+					} else {
+						jQuery('#jform_end_registration').addClass('invalid');
+					}
+					
+					jQuery('label[for="jform_end_registration"]').addClass('invalid');
+					msg.push(Joomla.JText._('COM_RSEVENTSPRO_END_REG_BIGGER_THAN_END_ERROR'));
+					ret = false;
+					tab3 = true;
+				}
 			}
 		}
 		

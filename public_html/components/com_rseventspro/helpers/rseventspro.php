@@ -935,13 +935,19 @@ class rseventsproHelper
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
 		$total	= 0;
+		$uid	= 0;
 		$info	= '';
 		
 		// Load language
 		JFactory::getLanguage()->load('com_rseventspro',JPATH_SITE);
 		
+		// Get the subscriber user ID
+		$query->clear()->select($db->qn('idu'))->from($db->qn('#__rseventspro_users'))->where($db->qn('id').' = '.(int) $ids);
+		$db->setQuery($query);
+		$idSubscriber = (int) $db->loadResult();
+		
 		$create_user = rseventsproHelper::getConfig('create_user','int');
-		if ($create_user == 2) {
+		if ($create_user == 2 && !$idSubscriber) {
 			$query->clear()
 				->select($db->qn('idu'))->select($db->qn('email'))->select($db->qn('name'))
 				->from($db->qn('#__rseventspro_users'))
@@ -950,10 +956,8 @@ class rseventsproHelper
 			$db->setQuery($query);
 			$subscriber = $db->loadObject();
 			
-			if (empty($subscriber->idu)) {
+			if (!is_null($subscriber) && empty($subscriber->idu)) {
 				$uid = rseventsproHelper::returnUser($subscriber->email,$subscriber->name);
-			} else {
-				$uid = 0;
 			}
 		}
 		
@@ -2941,9 +2945,7 @@ class rseventsproHelper
 		$max = $events[$id]->max_tickets == 1 ? $events[$id]->max_tickets_amount : false;
 		
 		// Load tickets
-		$ticketsCache = self::getCachedTickets();
-		
-		$tickets = isset($ticketsCache[$id]) ? $ticketsCache[$id] : array();
+		$tickets = self::getCachedTickets($id);
 		
 		// Parse tickets
 		if (!empty($tickets)) {
@@ -2973,8 +2975,7 @@ class rseventsproHelper
 			}
 		} else {
 			if ($max) {
-				$subscriptionsCache = self::getCachedSubscriptions();
-				$subscriptions = isset($subscriptionsCache[$id]) ? $subscriptionsCache[$id] : 0;
+				$subscriptions = self::getCachedSubscriptions($id);
 				
 				if ($subscriptions) {
 					if ($subscriptions >= $max)
@@ -3006,7 +3007,7 @@ class rseventsproHelper
 		return $cache;
 	}
 	
-	protected static function getCachedTickets() {
+	protected static function getCachedTickets($id) {
 		static $cache = array();
 		
 		if (empty($cache)) {
@@ -3030,7 +3031,7 @@ class rseventsproHelper
 			}
 		}
 		
-		return $cache;
+		return isset($cache[$id]) ? $cache[$id] : array();
 	}
 	
 	protected static function getCachedQuantities() {
@@ -3059,7 +3060,7 @@ class rseventsproHelper
 		return $cache;
 	}
 	
-	protected static function getCachedSubscriptions() {
+	protected static function getCachedSubscriptions($id) {
 		static $cache = array();
 		
 		if (empty($cache)) {
@@ -3080,7 +3081,7 @@ class rseventsproHelper
 			}
 		}
 		
-		return $cache;
+		return isset($cache[$id]) ? $cache[$id] : 0;
 	}
 	
 	// Get a list of excluded events
@@ -3269,10 +3270,16 @@ class rseventsproHelper
 			$container['image'] = $image;
 			
 			// Tickets	
-			$arr = array();
+			$tdata	 = array();
+			$arr	 = array();
 			$tickets = '';
+			
 			if (!empty($eventtickets[$event->id])) {
 				foreach ($eventtickets[$event->id] as $ticket) {
+					$object			= new stdClass;
+					$object->name	= $ticket->name;
+					$object->price	= $ticket->price;
+					
 					$query->clear()
 						->select('SUM('.$db->qn('quantity').')')
 						->from($db->qn('#__rseventspro_user_tickets'))
@@ -3284,6 +3291,7 @@ class rseventsproHelper
 					if ($ticket->seats > 0) {
 						$available = $ticket->seats - $purchased;
 						if ($available > 0) {
+							$object->available = $available;
 							if ($ticket->price > 0) {
 								$arr[] = $available. ' x '.$ticket->name.' ('.rseventsproHelper::currency($ticket->price).')';
 							} else {
@@ -3297,6 +3305,8 @@ class rseventsproHelper
 							$arr[] = JText::_('COM_RSEVENTSPRO_GLOBAL_UNLIMITED'). ' '.$ticket->name.' ('.JText::_('COM_RSEVENTSPRO_GLOBAL_FREE').')';
 						}
 					}
+					
+					$tdata[] = $object;
 				}
 			}
 			
@@ -3310,6 +3320,7 @@ class rseventsproHelper
 			
 			$container['tickets'] = $tickets;
 			$container['ticket_info'] = $arr;
+			$container['tickets_data'] = $tdata;
 			
 			// Add event files
 			$container['files'] = rseventsproHelper::getEventFiles($event->id);
@@ -3501,7 +3512,7 @@ class rseventsproHelper
 	
 	
 	// Get the name of the user
-	public static function getUser($uid, $type = 'owner') {
+	public static function getUser($uid, $type = 'owner', $name = null) {
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
 		$user	= JFactory::getUser($uid);
@@ -3512,7 +3523,7 @@ class rseventsproHelper
 		}
 		
 		if ($option == 0) {
-			return $user->name;
+			return is_null($name) ? $user->name : $name;
 		} elseif ($option == 1) {
 			return $user->username;
 		} elseif ($option == 2) {
@@ -3528,7 +3539,9 @@ class rseventsproHelper
 				->where($db->qn('user_id').' = '.(int) $uid);
 			
 			$db->setQuery($query);
-			if ($details = $db->loadObject()) {
+			$details = $db->loadObject();
+			
+			if ($details->firstname && $details->lastname) {
 				return $details->firstname.' '.$details->middlename.' '.$details->lastname;
 			}
 			
@@ -4281,12 +4294,13 @@ class rseventsproHelper
 	}
 	
 	// Create the rating system
-	public static function rating($id) {
+	public static function rating($id, $array = false) {
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
 		$ip		= $_SERVER['REMOTE_ADDR'];
 		$html	= array();
 		
+		// Get the rating value
 		$query->clear()
 			->select('CEIL(IFNULL(SUM(id)/COUNT(id),0))')
 			->from($db->qn('#__rseventspro_taxonomy'))
@@ -4296,7 +4310,21 @@ class rseventsproHelper
 		$db->setQuery($query);
 		$rating = $db->loadResult();
 		
-		//check if the user has already voted
+		// Get the rating count
+		$query->clear()
+			->select('COUNT(id)')
+			->from($db->qn('#__rseventspro_taxonomy'))
+			->where($db->qn('type').' = '.$db->q('rating'))
+			->where($db->qn('ide').' = '.(int) $id);
+		
+		$db->setQuery($query);
+		$count = $db->loadResult();
+		
+		if ($array) {
+			return array($rating, $count);
+		}
+		
+		// Check if the user has already voted
 		$query->clear()
 			->select($db->qn('id'))
 			->from($db->qn('#__rseventspro_taxonomy'))
@@ -5687,6 +5715,9 @@ class rseventsproHelper
 			}
 		} elseif ($task == 'event.apply') {
 			$input->set('task', 'rseventspro.save');
+		} elseif ($task == 'event.save') {
+			$input->set('task', 'rseventspro.save');
+			$input->set('show', 1);
 		} elseif ($task == 'event.cancel') {
 			$input->set('task', 'rseventspro.cancel');
 		} elseif ($task == 'event.ticketsorder') {
@@ -6461,16 +6492,25 @@ class rseventsproHelper
 					if (!empty($event->state))		$address .= ' , '.$event->state;
 					if (!empty($event->country))	$address .= ' , '.$event->country;
 					
-					$query->clear()
-						->insert($db->qn('#__rseventspro_locations'))
-						->set($db->qn('name').' = '.$db->q($event->location))
-						->set($db->qn('address').' = '.$db->q($address))
-						->set($db->qn('coordinates').' = '.$db->q($event->lat.','.$event->lon))
-						->set($db->qn('published').' = '.$db->q(1));
-					
+					// Check if we already have this location
+					$query->clear()->select($db->qn('id'))
+						->from($db->qn('#__rseventspro_locations'))
+						->where($db->qn('name').' = '.$db->q($event->location))
+						->where($db->qn('address').' = '.$db->q($address))
+						->where($db->qn('coordinates').' = '.$db->q($event->lat.','.$event->lon));
 					$db->setQuery($query);
-					$db->execute();
-					$idlocation = $db->insertid();
+					if (!$idlocation = (int) $db->loadResult()) {
+						$query->clear()
+							->insert($db->qn('#__rseventspro_locations'))
+							->set($db->qn('name').' = '.$db->q($event->location))
+							->set($db->qn('address').' = '.$db->q($address))
+							->set($db->qn('coordinates').' = '.$db->q($event->lat.','.$event->lon))
+							->set($db->qn('published').' = '.$db->q(1));
+						
+						$db->setQuery($query);
+						$db->execute();
+						$idlocation = $db->insertid();
+					}
 				}
 				
 				$query->clear()
@@ -6557,5 +6597,86 @@ class rseventsproHelper
 		}
 		
 		return implode(',', $array);
+	}
+	
+	public static function richSnippet($details) {
+		$json	=  array();
+		$event	= $details['event'];
+		$root	= JUri::getInstance()->toString(array('scheme','host','port'));
+		$end	= $event->allday ? $event->start : $event->end;
+		
+		$startReg	 = !empty($event->start_registration) && $event->start_registration != '0000-00-00 00:00:00' ? $event->start_registration : $event->start;
+		$description = empty($event->description) ? $event->small_description : $event->description;
+		
+		
+		$json['@context'] = 'https://schema.org';
+		$json['@type'] = 'Event';
+		$json['name'] = $event->name;
+		$json['startDate'] = rseventsproHelper::showdate($event->start,'c');
+		$json['endDate'] = rseventsproHelper::showdate($end,'c');
+		$json['url'] = $root.rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id));
+		$json['image'] = $details['image_b'];
+		$json['description'] = strip_tags($description);
+		$json['eventStatus'] = 'http://schema.org/EventScheduled';
+		$json['location']['@type'] = 'Place';
+		$json['location']['name'] = $event->location;
+		$json['location']['address']['@type'] = 'PostalAddress';
+		$json['location']['address']['name'] = $event->address;
+		
+		if ($event->coordinates) {
+			list($lat, $lon) = explode(',',$event->coordinates,2);
+			
+			$json['location']['geo']['@type'] = 'GeoCoordinates';
+			$json['location']['geo']['latitude'] = $lat;
+			$json['location']['geo']['longitude'] = $lon;
+		}
+		
+		if ($rating = rseventsproHelper::rating($event->id, true)) {
+			list($ratingNr, $ratingCnt) = $rating;
+			
+			$json['aggregateRating']['@type'] = 'AggregateRating';
+			$json['aggregateRating']['ratingValue'] = $ratingNr;
+			$json['aggregateRating']['reviewCount'] = $ratingCnt;
+		}
+		
+		if ($tickets = $details['tickets_data']) {
+			$offers = array();
+			foreach ($tickets as $ticket) {
+				$offer = array();
+				$offer['@type'] = 'AggregateOffer';
+				$offer['priceCurrency'] = 'EUR';
+				$offer['price'] = $ticket->price;
+				$offer['availability'] = 'http://schema.org/InStock';
+				$offer['availabilityStarts'] = rseventsproHelper::showdate($startReg,'c');
+				$offer['url'] = $root.rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id));
+				$offer['inventoryLevel'] = '-';
+				
+				if (isset($ticket->available)) {
+					$offer['offerCount'] = $ticket->available;
+				}
+				
+				$offers[] = $offer;
+			}
+			
+			if ($offers) {
+				$json['offers'] = $offers;
+			}
+		}
+		
+		$script = '<script type="application/ld+json">'."\n";
+		$script .= json_encode($json, rseventsproHelper::json_options())."\n";
+		$script .= '</script>';
+		
+		if (JFactory::getDocument()->getType() == 'html') {
+			JFactory::getDocument()->addCustomTag($script);
+		}
+	}
+	
+	public static function json_options() {
+		if (version_compare(phpversion(), '5.4.0', '<')) {
+			return 0;
+		}
+		
+		return JSON_PRETTY_PRINT;
 	}
 }

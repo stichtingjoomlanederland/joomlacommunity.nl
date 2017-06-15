@@ -23,7 +23,8 @@ JText::script('COM_RSEVENTSPRO_END_BIGGER_ERROR');
 JText::script('COM_RSEVENTSPRO_END_REG_BIGGER_ERROR');
 JText::script('COM_RSEVENTSPRO_EARLY_FEE_ERROR');
 JText::script('COM_RSEVENTSPRO_LATE_FEE_ERROR');
-JText::script('COM_RSEVENTSPRO_LATE_FEE_BIGGER_ERROR'); ?>
+JText::script('COM_RSEVENTSPRO_LATE_FEE_BIGGER_ERROR');
+JText::script('COM_RSEVENTSPRO_END_REG_BIGGER_THAN_END_ERROR'); ?>
 
 <script type="text/javascript">
 	function rsepro_reset_frame() {

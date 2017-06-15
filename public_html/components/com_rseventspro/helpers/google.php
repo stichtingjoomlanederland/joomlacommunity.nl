@@ -87,14 +87,22 @@ class RSEPROGoogle
 			if (empty($idlocation)) {
 				$location = !empty($event->location) ? $event->location : 'Google calendar location';
 				
-				$query->clear()
-					->insert($db->qn('#__rseventspro_locations'))
-					->set($db->qn('name').' = '.$db->q($location))
-					->set($db->qn('address').' = '.$db->q($location));
-				
+				// Check if we already have this location
+				$query->clear()->select($db->qn('id'))
+					->from($db->qn('#__rseventspro_locations'))
+					->where($db->qn('name').' = '.$db->q($location))
+					->where($db->qn('address').' = '.$db->q($location));
 				$db->setQuery($query);
-				$db->execute();
-				$idlocation = $db->insertid();
+				if (!$idlocation = (int) $db->loadResult()) {				
+					$query->clear()
+						->insert($db->qn('#__rseventspro_locations'))
+						->set($db->qn('name').' = '.$db->q($location))
+						->set($db->qn('address').' = '.$db->q($location));
+					
+					$db->setQuery($query);
+					$db->execute();
+					$idlocation = $db->insertid();
+				}
 			}
 			
 			$query->clear()

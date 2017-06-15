@@ -31,6 +31,10 @@ class RseventsproTableSubscription extends JTable
 			$this->verification = md5($this->ide.$this->name);
 			$this->ip = $_SERVER['REMOTE_ADDR'];
 			$this->lang = JFactory::getLanguage()->getTag();
+			
+			if (rseventsproHelper::getConfig('create_user') == 2) {
+				$this->create_user = 1;
+			}
 		}
 		
 		return true;

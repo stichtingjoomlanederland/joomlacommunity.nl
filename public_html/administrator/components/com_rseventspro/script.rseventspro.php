@@ -994,9 +994,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.10.27</h2>
+	<h2>Changelog v1.10.32</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> XSS vulnerability in the calendar view.</li>
+		<li><span class="version-fixed">Fix</span> The end registration date must not be greater than the event end date.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>

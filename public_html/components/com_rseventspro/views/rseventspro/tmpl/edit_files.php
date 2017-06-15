@@ -49,6 +49,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 
 <div class="form-actions">
 	<button class="btn rsepro-event-add-files" type="button"><span class="fa fa-plus"></span> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_ADD_MORE_FILES'); ?></button>
+	<button class="btn btn-success rsepro-event-save" type="button"><?php echo JText::_('COM_RSEVENTSPRO_SAVE_EVENT'); ?></button>
 	<button class="btn btn-success rsepro-event-update" type="button"><?php echo JText::_('COM_RSEVENTSPRO_UPDATE_EVENT'); ?></button>
 	<button class="btn btn-danger rsepro-event-cancel" type="button"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
 </div>

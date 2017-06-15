@@ -90,6 +90,8 @@
 
 .rsepro-calendar-day {
 	position: relative;
+	display: inline-block;
+	width: 100%;
 }
 
 .rsepro-calendar table td div.rsepro-calendar-day>a.rsepro-add-event {

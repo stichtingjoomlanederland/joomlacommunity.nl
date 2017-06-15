@@ -91,7 +91,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		}
 		
 		// Get pagination request variables
-		$thelimit	= $this->_app->input->get('format','') == 'feed' ? $config->get('feed_limit') : $config->get('list_limit');
+		$thelimit	= $this->_app->input->get('format','') == 'feed' ? $config->get('feed_limit') : ($this->_app->input->get('type','') == 'ical' ? $config->get('feed_limit') : $config->get('list_limit'));
 		$limit		= $this->_app->getUserStateFromRequest('com_rseventspro.limit', 'limit', $thelimit, 'int');
 		$limitstart	= $this->_app->input->getInt('limitstart', 0);
 		
@@ -1674,6 +1674,15 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$this->_db->setQuery($query);
 		$event = $this->_db->loadObject();
 		
+		// Check if this event has tickets assigned to it
+		$query->clear()
+			->select('COUNT('.$this->_db->qn('id').')')
+			->from($this->_db->qn('#__rseventspro_tickets'))
+			->where($this->_db->qn('ide').' = '.(int) $id);
+		
+		$this->_db->setQuery($query);
+		$hasTickets = $this->_db->loadResult();
+		
 		if (!JMailHelper::isEmailAddress($email) || empty($name))
 			return array('status' => false, 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe&id='.rseventsproHelper::sef($id,$event->name),false) , 'message' => JText::_('COM_RSEVENTSPRO_INVALID_SUBSCRIBE_FORM'));
 		
@@ -1715,6 +1724,11 @@ class RseventsproModelRseventspro extends JModelLegacy
 				}
 			}
 			
+			if (empty($tickets) && $hasTickets) {
+				JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_SELECT_TICKETS_ERROR'), 'error');
+				return array('status' => false, 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe&id='.rseventsproHelper::sef($id,$event->name),false) , 'message' => '');
+			}
+			
 			if ($seatTaken) {
 				return array('status' => false, 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe&id='.rseventsproHelper::sef($id,$event->name),false) , 'message' => '');
 			}
@@ -1728,6 +1742,11 @@ class RseventsproModelRseventspro extends JModelLegacy
 					} else  {
 						$tickets = array($form['RSEProTickets'] => $jinput->getInt('numberinp'));
 					}
+				}
+				
+				if (empty($tickets) && $hasTickets) {
+					JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_SELECT_TICKETS_ERROR'), 'error');
+					return array('status' => false, 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe&id='.rseventsproHelper::sef($id,$event->name),false) , 'message' => '');
 				}
 			} else {
 				$ticket = (!empty($form['RSEProTickets']) && $jinput->get('option') == 'com_rseventspro') ? $form['RSEProTickets'] : $jinput->get('ticket');
@@ -2823,11 +2842,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 				$object = new stdClass();
 				// Already logged in?
 				if ($guest->idu) {
-					if ($guest->name) {
-						$object->name = $guest->name;
-					} else {
-						$object->name = rseventsproHelper::getUser($guest->idu,'guest');
-					}
+					$object->name = rseventsproHelper::getUser($guest->idu, 'guest', $guest->name);
 				} else {
 					$object->name = $guest->name;
 				}

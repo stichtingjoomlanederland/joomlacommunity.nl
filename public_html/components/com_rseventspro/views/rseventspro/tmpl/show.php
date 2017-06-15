@@ -16,7 +16,9 @@ $repeats	= $details['repeats'];
 $full		= rseventsproHelper::eventisfull($this->event->id);
 $ongoing	= rseventsproHelper::ongoing($this->event->id); 
 $featured 	= $event->featured ? ' rs_featured_event' : ''; 
-$description= empty($event->description) ? $event->small_description : $event->description;?>
+$description= empty($event->description) ? $event->small_description : $event->description;
+
+rseventsproHelper::richSnippet($details); ?>
 
 <!-- Initialize map -->
 <?php if (!empty($this->options['show_map']) && !empty($event->coordinates) && rseventsproHelper::getConfig('enable_google_maps','int')) { ?>
@@ -50,28 +52,6 @@ jQuery(document).ready(function (){
 	$tmpl = $links == 0 ? '' : '&tmpl=component';
 ?>
 <?php JFactory::getApplication()->triggerEvent('rsepro_onBeforeEventDisplay',array(array('event' => &$event, 'categories' => &$categories, 'tags' => &$tags))); ?>
-<script type="application/ld+json">
-{
-  "@context": "http://schema.org",
-  "@type": "Event",
-  "name": "<?php echo $this->escape($event->name); ?>",
-  "startDate" : "<?php echo rseventsproHelper::showdate($event->start,'Y-m-d H:i:s'); ?>",
-  <?php if (!$event->allday) { ?>"endDate" : "<?php echo rseventsproHelper::showdate($event->end,'Y-m-d H:i:s'); ?>",<?php echo "\n"; } ?>
-  "url" : "<?php echo $this->root.rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)); ?>",
-  "image" : "<?php echo $this->escape($this->root.$details['image_b']); ?>",
-  "description": "<?php echo strip_tags($description); ?>",
-  "location" :
-  {
-    "@type" : "Place",
-    "name" : "<?php echo $this->escape($event->location); ?>",
-    "address" :
-    {
-      "@type" : "PostalAddress",
-      "name" : "<?php echo $this->escape($event->address); ?>"
-    }
-  }
-}
-</script>
 
 <div id="rs_event_show">
 
