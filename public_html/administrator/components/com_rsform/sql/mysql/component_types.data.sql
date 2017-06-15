@@ -6,6 +6,7 @@ INSERT IGNORE INTO `#__rsform_component_types` (`ComponentTypeId`, `ComponentTyp
 (5, 'radioGroup'),
 (6, 'calendar'),
 (411, 'jQueryCalendar'),
+(355, 'rangeSlider'),
 (7, 'button'),
 (8, 'captcha'),
 (9, 'fileUpload'),

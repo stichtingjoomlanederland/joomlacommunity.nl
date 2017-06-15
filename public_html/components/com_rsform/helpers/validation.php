@@ -233,23 +233,39 @@ class RSFormProValidations
 	
 	public static function validurl($param,$extra=null,$data=null)
 	{
-		$format = 
-		'/^(https?):\/\/'.                                         // protocol
-		'(([a-z0-9$_\.\+!\*\'\(\),;\?&=-]|%[0-9a-f]{2})+'.         // username
-		'(:([a-z0-9$_\.\+!\*\'\(\),;\?&=-]|%[0-9a-f]{2})+)?'.      // password
-		'@)?(?#'.                                                  // auth requires @
-		')((([a-z0-9][a-z0-9-]*[a-z0-9]\.)*'.                      // domain segments AND
-		'[a-z][a-z0-9-]*[a-z0-9]'.                                 // top level domain  OR
-		'|((\d|[1-9]\d|1\d{2}|2[0-4][0-9]|25[0-5])\.){3}'.
-		'(\d|[1-9]\d|1\d{2}|2[0-4][0-9]|25[0-5])'.                 // IP address
-		')(:\d+)?'.                                                // port
-		')(((\/+([a-z0-9$_\.\+!\*\'\(\),;:@&=-]|%[0-9a-f]{2})*)*'. // path
-		'(\?([a-z0-9$_\.\+!\*\'\(\),;:@&=-]|%[0-9a-f]{2})*)'.      // query string
-		'?)?)?'.                                                   // path and query string optional
-		'(#([a-z0-9$_\.\+!\*\'\(\),;:@&=-]|%[0-9a-f]{2})*)?'.      // fragment
-		'$/i';
-		
-		return preg_match($format, $param, $match);
+		try
+		{
+			// URLs need a scheme to be valid
+			if (!preg_match('/^(https?):\/\//i', $param, $match))
+			{
+				$param = 'http://'.$param;
+			}
+			
+			// But too many schemes don't do
+			if (substr_count($param, '://') > 1)
+			{
+				return false;
+			}
+			
+			// Let's encode utf-8 characters
+			$param = JStringPunycode::urlToPunycode($param);
+			
+			// Let's use the Joomla! Uri to grab the host
+			$uri = JUri::getInstance($param);
+			$host = $uri->getScheme().'://'.$uri->getHost();
+			
+			// Now FILTER_VALIDATE_URL should suffice
+			if (filter_var($host, FILTER_VALIDATE_URL))
+			{
+				return true;
+			}
+			
+			return false;
+		}
+		catch (Exception $e)
+		{
+			return false;
+		}
 	}
 	
 	public static function regex($value,$pattern=null,$data=null) {

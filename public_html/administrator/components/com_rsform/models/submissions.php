@@ -1099,4 +1099,25 @@ class RsformModelSubmissions extends JModelLegacy
 		$tabs = new RSTabs('com-rsform-export');
 		return $tabs;
 	}
+	
+	public function getSideBar()
+	{
+		require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/toolbar.php';
+		
+		RSFormProToolbarHelper::addFilter(
+			JText::_('RSFP_VIEW_SUBMISSIONS_FOR'),
+			'formId',
+			JHtml::_('select.options', $this->getForms(), 'value', 'text', $this->getFormId()),
+			true
+		);
+		
+		RSFormProToolbarHelper::addFilter(
+			JText::_('RSFP_SHOW_SUBMISSIONS_LANGUAGE'),
+			'Language',
+			JHtml::_('select.options', $this->getLanguages(), 'value', 'text', $this->getLang()),
+			true
+		);
+		
+		return RSFormProToolbarHelper::render();
+	}
 }

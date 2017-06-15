@@ -533,6 +533,10 @@ class com_rsformInstallerScript
 			$db->setQuery("ALTER TABLE `#__rsform_directory` ADD `filename` VARCHAR(255) NOT NULL DEFAULT 'export.pdf' AFTER `formId`");
 			$db->execute();
 		}
+		if (!isset($columns['EmailsCreatedScript'])) {
+			$db->setQuery("ALTER TABLE `#__rsform_directory` ADD `EmailsCreatedScript` TEXT NOT NULL AFTER `EmailsScript`");
+			$db->execute();
+		}
 		
 		// #__rsform_posts updates
 		$columns = $db->getTableColumns('#__rsform_posts');
@@ -595,29 +599,28 @@ class com_rsformInstallerScript
 		$app 		= JFactory::getApplication();
 		$jversion 	= new JVersion();
 		
-		// Running 2.5
-		if (!$jversion->isCompatible('2.5.28')) {
-			$app->enqueueMessage('Please upgrade to Joomla! 2.5.28 before continuing!', 'error');
+		// Running Joomla! 2.5
+		if (!$jversion->isCompatible('3.0.0'))
+		{
+			$app->enqueueMessage('Your version of Joomla! has reached end of life. RSForm! Pro can no longer be installed on older Joomla! versions. Please consider updating to the latest version of Joomla! if you\'d like to still use RSForm! Pro.', 'error');
 			return false;
-		}
-		
-		if (!$jversion->isCompatible('3.0.0') && $jversion->isCompatible('2.5.28')) {
-			$app->enqueueMessage('Your version of Joomla! has reached end of life. Even though RSForm! Pro will work, we will be dropping support for Joomla! 2.5.x in the near future and will announce this decision on our blog. Please consider using the latest Joomla! version.', 'warning');
 		}
 		
 		// Running 3.x
-		if ($jversion->isCompatible('3.0.0') && !$jversion->isCompatible('3.2.7')) {
-			// Running 3.x
-			$app->enqueueMessage('Please upgrade to at least Joomla! 3.2.7 before continuing!', 'error');
+		if (!$jversion->isCompatible('3.6.5'))
+		{
+			$app->enqueueMessage('Please upgrade to at least Joomla! 3.6.5 before continuing!', 'error');
 			return false;
 		}
 		
-		if (version_compare(PHP_VERSION, '5.3.10', '<')) {
+		if (version_compare(PHP_VERSION, '5.3.10', '<'))
+		{
 			$app->enqueueMessage('Your PHP version is too old ('.PHP_VERSION.'). Even though RSForm! Pro will work, we cannot guarantee this version of PHP will be fully supported. Please consider updating to a newer version of PHP.', 'warning');
 		}
 
 		// Flag to check if we should set 'Load Layout Framework' to 'Yes' for 'Responsive' layout forms now that front.css is missing responsive declarations
-		if ($type == 'update' && !file_exists(JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/formlayouts/responsive.php')) {
+		if ($type == 'update' && !file_exists(JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/formlayouts/responsive.php'))
+		{
 			$this->migrateResponsiveLayoutFramework = true;
 		}
 		
@@ -992,10 +995,10 @@ class com_rsformInstallerScript
 			<?php } ?>
 			<?php } ?>
 		<?php } ?>
-		<h2>Changelog v1.52.9</h2>
+		<h2>Changelog v1.52.13</h2>
 		<ul class="version-history">
-			<li><span class="version-fixed">Fix</span> Form Title will now show up in listings according to the language the form was last edited in.</li>
-			<li><span class="version-fixed">Fix</span> When changing the language of Directory Emails, they were incorrectly transferred to the Additional Emails area.</li>
+			<li><span class="version-fixed">Fix</span> A Javascript error could be present on the page under certain conditions.</li>
+			<li><span class="version-fixed">Fix</span> Removed some Joomla! 2.5 workarounds.</li>
 		</ul>
 		<a class="com-rsform-button" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="com-rsform-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/21-rsform-pro-user-guide.html" target="_blank">Read the RSForm! Pro User Guide</a>

@@ -593,7 +593,7 @@ function stateDone() {
 }
 
 function refreshCaptcha(componentId, captchaPath) {
-	if (!captchaPath) captchaPath = 'index.php?option=com_rsform&task=captcha&componentId=' + componentId;
+	if (!captchaPath) captchaPath = 'index.php?option=com_rsform&task=captcha&format=image&componentId=' + componentId;
 	document.getElementById('captcha' + componentId).src = captchaPath + '&' + Math.random();
 	document.getElementById('captchaTxt' + componentId).value = '';
 	document.getElementById('captchaTxt' + componentId).focus();

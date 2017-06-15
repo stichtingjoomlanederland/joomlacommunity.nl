@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension type="component" version="2.5.0" method="upgrade">
+<extension type="component" version="3.6.5" method="upgrade">
 	<name>com_rsform</name>
 	<creationDate>February 2015</creationDate>
 	<author>RSJoomla!</author>
@@ -7,7 +7,7 @@
 	<authorUrl>www.rsjoomla.com</authorUrl>
 	<copyright>(C) 2007-2017 www.rsjoomla.com</copyright>
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
-	<version>1.52.9</version>
+	<version>1.52.13</version>
 	<description>COM_RSFORM_INSTALL_DESC</description>
 	<scriptfile>script.rsform.php</scriptfile>
 

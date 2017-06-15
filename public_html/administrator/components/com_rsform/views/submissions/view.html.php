@@ -7,21 +7,13 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-jimport('joomla.application.component.view');
-jimport('joomla.html.pane');
-
 class RsformViewSubmissions extends JViewLegacy
 {
-	function display($tpl = null)
+	public function display($tpl = null)
 	{
 		$mainframe = JFactory::getApplication();
 		
 		JToolbarHelper::title('RSForm! Pro','rsform');
-		
-		// adding the toolbar on 2.5
-		if (!RSFormProHelper::isJ('3.0')) {
-			$this->addToolbar();
-		}
 		
 		$this->tooltipClass = RSFormProHelper::getTooltipClass();
 		
@@ -92,19 +84,10 @@ class RsformViewSubmissions extends JViewLegacy
 		}
 		else
 		{
-			JToolbarHelper::custom('submissions.export.csv', 'archive', 'archive', JText::_('RSFP_EXPORT_CSV'), false);
-			JToolbarHelper::custom('submissions.export.ods', 'archive', 'archive', JText::_('RSFP_EXPORT_ODS'), false);
-			JToolbarHelper::custom('submissions.export.excelxml', 'archive', 'archive', JText::_('RSFP_EXPORT_EXCEL_XML'), false);
-			JToolbarHelper::custom('submissions.export.excel', 'archive', 'archive', JText::_('RSFP_EXPORT_EXCEL'), false);
-			JToolbarHelper::custom('submissions.export.xml', 'archive', 'archive', JText::_('RSFP_EXPORT_XML'), false);
+			JToolbarHelper::modal('exportModal', 'icon-archive icon white', 'RSFP_EXPORT');
+			JToolbarHelper::custom('submissions.cancelform', 'previous', 'previous', JText::_('RSFP_BACK_TO_FORM'), false);
 			JToolbarHelper::spacer();
-			
-			$backIcon = RSFormProHelper::isJ('3.0') ? 'previous' : 'back';
-			$sendIcon = RSFormProHelper::isJ('3.0') ? 'mail' : 'send';
-			
-			JToolbarHelper::custom('submissions.cancelform', $backIcon, $backIcon, JText::_('RSFP_BACK_TO_FORM'), false);
-			JToolbarHelper::spacer();
-			JToolbarHelper::custom('submissions.resend', $sendIcon, $sendIcon, JText::_('RSFP_RESEND_EMAILS'), false);
+			JToolbarHelper::custom('submissions.resend', 'mail', 'mail', JText::_('RSFP_RESEND_EMAILS'), false);
 			JToolbarHelper::editList('submissions.edit', JText::_('JTOOLBAR_EDIT'));
 			JToolbarHelper::deleteList(JText::_('RSFP_ARE_YOU_SURE_DELETE'), 'submissions.delete', JText::_('JTOOLBAR_DELETE'));
 			JToolbarHelper::spacer();
@@ -125,19 +108,20 @@ class RsformViewSubmissions extends JViewLegacy
 			$this->pagination = $this->get('pagination');
 			$this->sortColumn = $this->get('sortColumn');
 			$this->sortOrder = $this->get('sortOrder');
-			$this->specialFields = $this->get('specialFields');
-		
+			$this->specialFields = $this->get('specialFields');		
 			$this->filter = $this->get('filter');
 			$this->formId = $formId;
 		
-			$calendars['from'] = JHTML::calendar($this->get('dateFrom'), 'dateFrom', 'dateFrom');
-			$calendars['to']   = JHTML::calendar($this->get('dateTo'), 'dateTo', 'dateTo');
+			$calendars['from'] = JHtml::_('calendar', $this->get('dateFrom'), 'dateFrom', 'dateFrom', '%Y-%m-%d', array('placeholder' => JText::_('RSFP_FROM'), 'showTime' => 'true', 'todayBtn' => 'true'));
+			$calendars['to']   = JHtml::_('calendar', $this->get('dateTo'), 'dateTo', 'dateTo', '%Y-%m-%d', array('placeholder' => JText::_('RSFP_TO'), 'showTime' => 'true', 'todayBtn' => 'true'));
 			$this->calendars = $calendars;
 		
-			$lists['Languages'] = JHTML::_('select.genericlist', $this->get('languages'), 'Language', '', 'value', 'text', $this->get('lang'));
+			$lists['Languages'] = JHtml::_('select.genericlist', $this->get('languages'), 'Language', '', 'value', 'text', $this->get('lang'));
 		
-			$lists['forms'] = JHTML::_('select.genericlist', $forms, 'formId', 'onchange="submissionChangeForm(this.value)"', 'value', 'text', $formId);
+			$lists['forms'] = JHtml::_('select.genericlist', $forms, 'formId', 'onchange="submissionChangeForm(this.value)"', 'value', 'text', $formId);
 			$this->lists = $lists;
+			
+			$this->sidebar = $this->get('Sidebar');
 		}
 		
 		parent::display($tpl);

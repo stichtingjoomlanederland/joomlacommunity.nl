@@ -37,7 +37,7 @@ RSFormPro.YUICalendar = {
 		var forms = Object.keys(RSFormPro.YUICalendar.calendarsData);
 		
 		if (countForms > 0) {
-			for(i = 0; i < countForms; i++) {
+			for(var i = 0; i < countForms; i++) {
 				var formId = forms[i];
 				var calendarsIds = Object.keys(RSFormPro.YUICalendar.calendarsData[formId]);
 				
@@ -59,6 +59,12 @@ RSFormPro.YUICalendar = {
 		var calendarId 	 = 'cal'+idCalendar;
 		var txtDate 	 = document.getElementById('txt' + calendarId);
 		var hiddenDate 	 = document.getElementById('hidden' + calendarId);
+		
+		if (!txtDate)
+		{
+			return;
+		}
+		
 		var calendarName = txtDate.name.substring(5, txtDate.name.length - 1);
 		
 		if (typeof RSFormPro.YUICalendar.calendars[formId][calendarName] == 'undefined') {
@@ -122,15 +128,22 @@ RSFormPro.YUICalendar = {
 				if (typeof RSFormPro.YUICalendar.calendars[formId][otherCalendarName] == 'undefined') {
 					var otherCalendarInput = document.getElementsByName("form["+otherCalendarName+"]");
 					
+					var otherCalendarFound = false;
 					// get the proper field
 					for (i = 0 ; i < otherCalendarInput.length; i++) {
 						var otherCalendarId = otherCalendarInput[i].id;
-						if (otherCalendarId.substring(0, otherCalendarId.length - 1) == 'txtcal'+formId+'_') {
+						if (otherCalendarId.indexOf('txtcal'+formId+'_') === 0)
+						{
 							otherCalendarId = otherCalendarId.substring(6, otherCalendarId.length);
+							otherCalendarFound = true;
 							break;
 						}
 					}
-					RSFormPro.YUICalendar.initCalendar(formId,otherCalendarId, RSFormPro.YUICalendar.calendarsData[formId][otherCalendarId].config);
+					
+					if (otherCalendarFound)
+					{
+						RSFormPro.YUICalendar.initCalendar(formId,otherCalendarId, RSFormPro.YUICalendar.calendarsData[formId][otherCalendarId].config);
+					}
 				}
 				
 				// the other calendar object initated

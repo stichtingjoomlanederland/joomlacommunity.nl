@@ -9,7 +9,7 @@
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
 //tooltips classes
-$tooltipClass = RSFormProHelper::isJ('3.0') ? ' hasTooltip' : ' hasTip';
+$tooltipClass = ' hasTooltip';
 ?>
 <?php if ($showFormTitle) { ?>
 <h2>{global:formtitle}</h2>

@@ -117,8 +117,16 @@ class RSFormProRestore
 						throw new Exception(sprintf('Attempted to extract a file with an invalid extension (%s) - archive might be damaged.', preg_replace('#[^a-z0-9]#is', '', $ext)));
 					}
 					
+					// Let's see if somebody edited the archive manually and archived a folder...
+					$meta['filename'] = str_replace('\\', '/', $meta['filename']);
+					if (strpos($meta['filename'], '/') !== false)
+					{
+						$parts = explode('/', $meta['filename']);
+						$meta['filename'] = end($parts);
+					}
+					
 					// Make sure file does not contain invalid characters
-					if (preg_match('/[^a-z_\-0-9]/i', JFile::stripExt($meta['filename']))) {
+					if (preg_match('/[^a-z_\-\.0-9]/i', JFile::stripExt($meta['filename']))) {
 						throw new Exception('Attempted to extract a file with invalid characters in its name.');
 					}
 				

@@ -30,6 +30,7 @@ JHTML::_('behavior.keepalive'); ?>
 				<li><a href="javascript: void(0);" id="emails"><span class="rsficon rsficon-envelope-o"></span><span class="inner-text"><?php echo JText::_('RSFP_SUBM_DIR_EMAILS'); ?></span></a></li>
 				<li class="rsform_navtitle"><?php echo JText::_('RSFP_SCRIPTS_TAB'); ?></li>
 				<li><a href="javascript: void(0);" id="scripts"><span class="rsficon rsficon-code"></span><span class="inner-text"><?php echo JText::_('RSFP_FORM_SCRIPTS'); ?></span></a></li>
+				<li><a href="javascript: void(0);" id="emailscripts"><span class="rsficon rsficon-file-code-o"></span><span class="inner-text"><?php echo JText::_('RSFP_EMAIL_SCRIPTS'); ?></span></a></li>
 			</ul>
 			
 			<div id="propertiescontent">
@@ -50,6 +51,9 @@ JHTML::_('behavior.keepalive'); ?>
 				</div>
 				<div id="scriptsdiv">
 					<p><?php echo $this->loadTemplate('scripts'); ?></p>
+				</div>
+				<div id="emailscriptsdiv">
+					<p><?php echo $this->loadTemplate('emailscripts'); ?></p>
 				</div>
 			</div>
 			

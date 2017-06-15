@@ -495,25 +495,30 @@ class RsformModelDirectory extends JModelLegacy
 					continue;
 				}
 
-				// RSForm! Pro Scripting - Additional Email Text
-				// performance check
-				if (strpos($email->message, '{/if}') !== false) {
-					require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/scripting.php';
-					RSFormProScripting::compile($email->message, $placeholders, $values);
-				}
-
 				$directoryEmail = array(
-					'to' => str_replace($placeholders, $values, $email->to),
-					'cc' => str_replace($placeholders, $values, $email->cc),
-					'bcc' => str_replace($placeholders, $values, $email->bcc),
-					'from' => str_replace($placeholders, $values, $email->from),
-					'replyto' => str_replace($placeholders, $values, $email->replyto),
-					'fromName' => str_replace($placeholders, $values, $email->fromname),
-					'text' => str_replace($placeholders, $values, $email->message),
-					'subject' => str_replace($placeholders, $values, $email->subject),
-					'mode' => $email->mode,
-					'files' => array()
+					'to' 		=> $email->to,
+					'cc' 		=> $email->cc,
+					'bcc' 		=> $email->bcc,
+					'from' 		=> $email->from,
+					'replyto' 	=> $email->replyto,
+					'fromName' 	=> $email->fromname,
+					'text' 		=> $email->message,
+					'subject' 	=> $email->subject,
+					'mode' 		=> $email->mode,
+					'files' 	=> array()
 				);
+				
+				eval($directory->EmailsCreatedScript);
+				
+				// RSForm! Pro Scripting
+				// performance check
+				if (strpos($directoryEmail['text'], '{/if}') !== false) {
+					require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/scripting.php';
+					RSFormProScripting::compile($directoryEmail['text'], $placeholders, $values);
+				}
+				
+				// Replace placeholders
+				$directoryEmail = str_replace($placeholders, $values, $directoryEmail);
 
 				// additional cc
 				if (strpos($directoryEmail['cc'], ',') !== false)

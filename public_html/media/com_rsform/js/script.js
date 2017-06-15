@@ -167,7 +167,7 @@ RSFormPro.scrollTo = function(to, duration) {
 
 RSFormPro.refreshCaptcha = function(componentId, captchaPath) {
 	if (!captchaPath) {
-		captchaPath = 'index.php?option=com_rsform&task=captcha&componentId=' + componentId;
+		captchaPath = 'index.php?option=com_rsform&task=captcha&format=image&componentId=' + componentId;
 	}
 	document.getElementById('captcha' + componentId).src = captchaPath + '&' + Math.random();
 	document.getElementById('captchaTxt' + componentId).value = '';
@@ -726,6 +726,20 @@ RSFormPro.Conditions = {
 		if (typeof func == "function") {
 			func();
 		}
+	},
+	addReset: function(formId) {
+		var resetElements = RSFormPro.getElementByType(formId, 'reset');
+		if (resetElements.length > 0)
+		{
+			for (var i = 0; i < resetElements.length; i++)
+			{
+				RSFormProUtils.addEvent(resetElements[i], 'click', function() {
+					window.setTimeout(function() {
+						RSFormPro.Conditions.runAll(formId);
+					}, 1);
+				});
+			}
+		}
 	}
 };
 
@@ -739,6 +753,19 @@ RSFormPro.Calculations = {
 		// Detect IE8.
 		var isIE8 = navigator.userAgent.match(/MSIE 8\.0/);
 		var event = 'click';
+		
+		var resetElements = RSFormPro.getElementByType(formId, 'reset');
+		if (resetElements.length > 0)
+		{
+			for (var i = 0; i < resetElements.length; i++)
+			{
+				RSFormProUtils.addEvent(resetElements[i], 'click', function() {
+					if (typeof func == "function") {
+						window.setTimeout(func, 1);
+					}
+				});
+			}
+		}
 
 		for (var field in thefields) {
 			if (!thefields.hasOwnProperty(field)) {
@@ -770,11 +797,48 @@ RSFormPro.Calculations = {
 
 /* AJAX functions */
 RSFormPro.Ajax = {
+	Wait: false,
 	URL: false,
+	Params: {},
+	getParamsObject: function() {
+		return {
+			vars: [],
+			push: function(str) {
+				return this.vars.push(str);
+			},
+			
+			indexOf: function(str) {
+				return this.vars.join('&').indexOf(str);
+			},
+			
+			replace: function(r, w) {
+				this.vars = this.vars.join('&').replace(r, w).split('&');
+				
+				return this.vars.join('&');
+			},
+			
+			toString: function() {
+				return this.vars.join('&');
+			}
+		};
+	},
 	getXHR: function() {
 		try {
 			return new window.XMLHttpRequest();
 		} catch ( e ) {}
+	},
+	getXHRLegacy: function() {
+		return {
+			send: function(data)
+			{
+				if (data === RSFormPro.Ajax.Params)
+				{
+					data = data.toString();
+				}
+				
+				return RSFormPro.Ajax.xhr.send(data);
+			}
+		}
 	},
 	displayValidationErrors: function(formComponents, task, formId, data) {
 		if (task == 'afterSend') {
@@ -849,21 +913,21 @@ RSFormPro.Ajax = {
 			form = this;
 		}
 
-
-
-		var xmlHttp = RSFormPro.Ajax.getXHR();
+		RSFormPro.Ajax.xhr = RSFormPro.Ajax.getXHR();
+		RSFormPro.Ajax.xmlHttp = RSFormPro.Ajax.getXHRLegacy();
 		var url = 'index.php?option=com_rsform&task=ajaxValidate';
 		if (typeof RSFormPro.Ajax.URL == 'string') {
 			url = RSFormPro.Ajax.URL;
 		}
+		
+		RSFormPro.Ajax.Params = RSFormPro.Ajax.getParamsObject();
 
-		var params = [],
-			submits = [],
+		var submits = [],
 			errorFields = [],
 			success = false,
 			formId = 0,
 			ids,
-			totlaJSDetectedPages = 0,
+			totalJSDetectedPages = 0,
 			lastClickedElement,
 			i,
 			j;
@@ -882,7 +946,7 @@ RSFormPro.Ajax = {
 					}
 
 					if (countCommas > 2) {
-						totlaJSDetectedPages++;
+						totalJSDetectedPages++;
 					}
 				}
 			}
@@ -905,7 +969,7 @@ RSFormPro.Ajax = {
 			{
 				for (j = 0; j < form.elements[i].options.length; j++) {
 					if (form.elements[i].options[j].selected) {
-						params.push(form.elements[i].name + '=' + encodeURIComponent(form.elements[i].options[j].value));
+						RSFormPro.Ajax.Params.push(form.elements[i].name + '=' + encodeURIComponent(form.elements[i].options[j].value));
 					}
 				}
 
@@ -917,37 +981,40 @@ RSFormPro.Ajax = {
 			}
 
 			if (typeof RSFormPro.Editors[form.elements[i].name] == 'function') {
-				params.push(form.elements[i].name + '=' + encodeURIComponent(RSFormPro.Editors[form.elements[i].name]()));
+				RSFormPro.Ajax.Params.push(form.elements[i].name + '=' + encodeURIComponent(RSFormPro.Editors[form.elements[i].name]()));
 			} else {
-				params.push(form.elements[i].name + '=' + encodeURIComponent(form.elements[i].value));
+				RSFormPro.Ajax.Params.push(form.elements[i].name + '=' + encodeURIComponent(form.elements[i].value));
 			}
 		}
 
 		errorFields = RSFormPro.HTML5.validation(formId);
 
-		if (typeof ajaxExtraValidationScript[formId] == 'function') {
-			ajaxExtraValidationScript[formId]('beforeSend', formId, {'url': url, 'params': params});
-		}
-
 		if (page) {
-			params.push('page=' + page);
+			RSFormPro.Ajax.Params.push('page=' + page);
 		}
 
-		params = params.join('&');
-
-		xmlHttp.open("POST", url, true);
+		RSFormPro.Ajax.xhr.open("POST", url, true);
 
 		//Send the proper header information along with the request
-		xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		xmlHttp.send(params);
+		RSFormPro.Ajax.xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		
+		if (typeof ajaxExtraValidationScript[formId] == 'function') {
+			ajaxExtraValidationScript[formId]('beforeSend', formId, {'url': url, 'params': RSFormPro.Ajax.Params});
+		}
+
+		if (!RSFormPro.Ajax.Wait)
+		{
+			// B/C layer
+			RSFormPro.Ajax.xmlHttp.send(RSFormPro.Ajax.Params);
+		}
 		success = true;
 		
-		xmlHttp.onreadystatechange = function() {
-			if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
-				if (xmlHttp.responseText.indexOf("\n") != -1)
+		RSFormPro.Ajax.xhr.onreadystatechange = function() {
+			if (RSFormPro.Ajax.xhr.readyState == 4 && RSFormPro.Ajax.xhr.status == 200) {
+				if (RSFormPro.Ajax.xhr.responseText.indexOf("\n") != -1)
 				{
 
-					var response = xmlHttp.responseText.split("\n");
+					var response = RSFormPro.Ajax.xhr.responseText.split("\n");
 					// All spans set to no error
 					ids = response[0].split(',');
 					for (i = 0; i < ids.length; i++)
@@ -978,8 +1045,12 @@ RSFormPro.Ajax = {
 
 					var errorComponents = [];
 					for (i = 0; i < ids.length; i++) {
-						if (!isNaN(parseInt(ids[i])) && document.getElementById('component' + ids[i])) {
-							document.getElementById('component' + ids[i]).className = 'formError';
+						if (!isNaN(parseInt(ids[i])))
+						{
+							if (document.getElementById('component' + ids[i]))
+							{
+								document.getElementById('component' + ids[i]).className = 'formError';
+							}
 							errorComponents.push(ids[i]);
 							success = false;
 						}
@@ -988,7 +1059,7 @@ RSFormPro.Ajax = {
 					// lets detect if the multiple page form is submitted
 
 					var changePageHTML5Errors = false;
-					if (totlaJSDetectedPages > 0 && RSClickedSubmitElement && submits.indexOf(RSClickedSubmitElement) >= 0 && typeof errorOnPage != 'undefined') {
+					if (totalJSDetectedPages > 0 && RSClickedSubmitElement && submits.indexOf(RSClickedSubmitElement) >= 0 && typeof errorOnPage != 'undefined') {
 						changePageHTML5Errors = true;
 					}
 					//return false;
@@ -1003,7 +1074,7 @@ RSFormPro.Ajax = {
 						} else {
 							if (changePageHTML5Errors) {
 								page = errorOnPage;
-								totalPages = totlaJSDetectedPages;
+								totalPages = totalJSDetectedPages;
 							}
 						}
 
@@ -1015,7 +1086,7 @@ RSFormPro.Ajax = {
 						if (errorComponents.length) {
 							response[1] = errorComponents.join();
 						}
-						ajaxExtraValidationScript[formId]('afterSend', formId, {'url': url, 'params': params, 'response': response, 'parentErrorClass': parentErrorClass});
+						ajaxExtraValidationScript[formId]('afterSend', formId, {'url': url, 'params': RSFormPro.Ajax.Params, 'response': response, 'parentErrorClass': parentErrorClass});
 					}
 				}
 				
@@ -1115,13 +1186,18 @@ RSFormPro.callbacks = {
 
 var RSFormProUtils = {
 	addEvent: function(obj, evType, fn) {
-		if (obj.addEventListener) {
+		if (obj.addEventListener)
+		{
 			obj.addEventListener(evType, fn, false);
 			return true;
-		} else if (obj.attachEvent){
+		}
+		else if (obj.attachEvent)
+		{
 			var r = obj.attachEvent("on"+evType, fn);
 			return r;
-		} else {
+		}
+		else
+		{
 			return false;
 		}
 	},

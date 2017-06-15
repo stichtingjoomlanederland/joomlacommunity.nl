@@ -9,16 +9,11 @@ defined('_JEXEC') or die('Restricted access');
 
 class RsformModelRsform extends JModelLegacy
 {
-	protected $isJ30;
 	protected $config;
 	
 	public function __construct() {
 		parent::__construct();
-		
-		$jversion 	  = new JVersion();
-		
 		$this->config = RSFormProConfig::getInstance();
-		$this->isJ30  = $jversion->isCompatible('3.0');
 	}
 	
 	public function getCode() {

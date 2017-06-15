@@ -11,17 +11,10 @@ class RsformViewForms extends JViewLegacy
 {
 	public function display($tpl = null)
 	{
-		$document  = JFactory::getDocument();
-		$document->addCustomTag('<!--[if IE 7]><link href="'.JURI::root().'administrator/components/com_rsform/assets/css/styleie.css" rel="stylesheet" type="text/css" /><![endif]-->');
-
 		RSFormProHelper::loadCodeMirror();
 
 		JToolbarHelper::title('RSForm! Pro','rsform');
 
-		// adding the toolbar on 2.5
-		if (!RSFormProHelper::isJ('3.0')) {
-			$this->addToolbar();
-		}
 		$layout = $this->getLayout();
 		$this->isComponent = JFactory::getApplication()->input->getCmd('tmpl') == 'component';
 		$this->tooltipClass = RSFormPRoHelper::getTooltipClass();
@@ -43,16 +36,13 @@ class RsformViewForms extends JViewLegacy
 		if ($layout == 'edit')
 		{
 			JText::script('RSFP_AUTOGENERATE_LAYOUT_WARNING_SURE');
-			$submissionsIcon = RSFormProHelper::isJ('3.0') ? 'database' : 'forward';
-			$previewIcon	 = RSFormProHelper::isJ('3.0') ? 'new tab' : 'preview';
-			$directoryIcon	 = RSFormProHelper::isJ('3.0') ? 'folder' : 'forward';
 
 			JToolbarHelper::apply('forms.apply');
 			JToolbarHelper::save('forms.save');
 			JToolbarHelper::spacer();
-			JToolbarHelper::custom('forms.preview', $previewIcon, $previewIcon, JText::_('JGLOBAL_PREVIEW'), false);
-			JToolbarHelper::custom('submissions.back', $submissionsIcon, $submissionsIcon, JText::_('RSFP_SUBMISSIONS'), false);
-			JToolbarHelper::custom('forms.directory', $directoryIcon, $directoryIcon, JText::_('RSFP_DIRECTORY'), false);
+			JToolbarHelper::custom('forms.preview', 'new tab', 'new tab', JText::_('JGLOBAL_PREVIEW'), false);
+			JToolbarHelper::custom('submissions.back', 'database', 'database', JText::_('RSFP_SUBMISSIONS'), false);
+			JToolbarHelper::custom('forms.directory', 'folder', 'folder', JText::_('RSFP_DIRECTORY'), false);
 			JToolbarHelper::custom('components.copy', 'copy', 'copy', JText::_('RSFP_COPY_TO_FORM'), false);
 			JToolbarHelper::custom('components.duplicate', 'copy', 'copy', JText::_('RSFP_DUPLICATE'), false);
 			JToolbarHelper::deleteList(JText::_('RSFP_ARE_YOU_SURE_DELETE'), 'components.remove', JText::_('JTOOLBAR_DELETE'));
@@ -139,16 +129,12 @@ class RsformViewForms extends JViewLegacy
 		}
 		elseif ($layout == 'new')
 		{
-			$nextIcon = RSFormProHelper::isJ('3.0') ? 'next' : 'forward';
-
-			JToolbarHelper::custom('forms.new.steptwo', $nextIcon, $nextIcon, JText::_('JNEXT'), false);
+			JToolbarHelper::custom('forms.new.steptwo', 'next', 'next', JText::_('JNEXT'), false);
 			JToolbarHelper::cancel('forms.cancel');
 		}
 		elseif ($layout == 'new2')
 		{
-			$nextIcon = RSFormProHelper::isJ('3.0') ? 'next' : 'forward';
-
-			JToolbarHelper::custom('forms.new.stepthree', $nextIcon, $nextIcon, JText::_('JNEXT'), false);
+			JToolbarHelper::custom('forms.new.stepthree', 'next', 'next', JText::_('JNEXT'), false);
 			JToolbarHelper::cancel('forms.cancel');
 
 			$lists['AdminEmail'] 			= $this->renderHTML('select.booleanlist', 'AdminEmail', 'onclick="changeAdminEmail(this.value)"', 1);
@@ -168,9 +154,7 @@ class RsformViewForms extends JViewLegacy
 		}
 		elseif ($layout == 'new3')
 		{
-			$nextIcon = RSFormProHelper::isJ('3.0') ? 'next' : 'forward';
-
-			JToolbarHelper::custom('forms.new.stepfinal', $nextIcon, $nextIcon, JText::_('RSFP_FINISH'), false);
+			JToolbarHelper::custom('forms.new.stepfinal', 'next', 'next', JText::_('RSFP_FINISH'), false);
 			JToolbarHelper::cancel('forms.cancel');
 
 			$lists['predefinedForms'] = JHTML::_('select.genericlist', $this->get('predefinedforms'), 'predefinedForm', '');
@@ -279,43 +263,32 @@ class RsformViewForms extends JViewLegacy
 
 	protected function renderHTML() {
 		$args = func_get_args();
-		if (RSFormProHelper::isJ('3.0')) {
-			if ($args[0] == 'select.booleanlist') {
-				// 0 - type
-				// 1 - name
-				// 2 - additional
-				// 3 - value
-				// 4 - yes
-				// 5 - no
+		
+		if ($args[0] == 'select.booleanlist') {
+			// 0 - type
+			// 1 - name
+			// 2 - additional
+			// 3 - value
+			// 4 - yes
+			// 5 - no
 
-				// get the radio element
-				$radio = JFormHelper::loadFieldType('radio');
+			// get the radio element
+			$radio = JFormHelper::loadFieldType('radio');
 
-				// setup the properties
-				$name	 	= $this->escape($args[1]);
-				$additional = isset($args[2]) ? (string) $args[2] : '';
-				$value		= $args[3];
-				$yes 	 	= isset($args[4]) ? $this->escape($args[4]) : 'JYES';
-				$no 	 	= isset($args[5]) ? $this->escape($args[5]) : 'JNO';
+			// setup the properties
+			$name	 	= $this->escape($args[1]);
+			$additional = isset($args[2]) ? (string) $args[2] : '';
+			$value		= $args[3];
+			$yes 	 	= isset($args[4]) ? $this->escape($args[4]) : 'JYES';
+			$no 	 	= isset($args[5]) ? $this->escape($args[5]) : 'JNO';
 
-				// prepare the xml
-				$element = new SimpleXMLElement('<field name="'.$name.'" type="radio" class="btn-group"><option '.$additional.' value="0">'.$no.'</option><option '.$additional.' value="1">'.$yes.'</option></field>');
+			// prepare the xml
+			$element = new SimpleXMLElement('<field name="'.$name.'" type="radio" class="btn-group"><option '.$additional.' value="0">'.$no.'</option><option '.$additional.' value="1">'.$yes.'</option></field>');
 
-				// run
-				$radio->setup($element, $value);
+			// run
+			$radio->setup($element, $value);
 
-				return $radio->input;
-			}
-		} else {
-			if ($args[0] == 'select.booleanlist') {
-				$name	 	= $args[1];
-				$additional = isset($args[2]) ? (string) $args[2] : '';
-				$value		= $args[3];
-				$yes 	 	= isset($args[4]) ? $this->escape($args[4]) : 'JYES';
-				$no 	 	= isset($args[5]) ? $this->escape($args[5]) : 'JNO';
-
-				return JHtml::_($args[0], $name, $additional, $value, $yes, $no);
-			}
+			return $radio->input;
 		}
 	}
 

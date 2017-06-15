@@ -13,11 +13,6 @@ class RsformViewDirectory extends JViewLegacy
 		// set title
 		JToolbarHelper::title('RSForm! Pro', 'rsform');
 		
-		// adding the toolbar on 2.5
-		if (!RSFormProHelper::isJ('3.0')) {
-			$this->addToolbar();
-		}
-		
 		$layout = strtolower($this->getLayout());
 		
 		if ($layout == 'edit') {
@@ -25,8 +20,7 @@ class RsformViewDirectory extends JViewLegacy
 			JToolbarHelper::save('directory.save');
 			JToolbarHelper::cancel('directory.cancel');
 			
-			$backIcon = RSFormProHelper::isJ('3.0') ? 'previous' : 'back';
-			JToolbarHelper::custom('directory.cancelform', $backIcon, $backIcon, JText::_('RSFP_BACK_TO_FORM'), false);
+			JToolbarHelper::custom('directory.cancelform', 'previous', 'previous', JText::_('RSFP_BACK_TO_FORM'), false);
 			
 			RSFormProHelper::loadCodeMirror();
 			

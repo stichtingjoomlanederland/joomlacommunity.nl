@@ -17,7 +17,6 @@ class RsformModelMappings extends JModelLegacy
 	}
 	
 	public function save() {
-		$jversion 	= new JVersion;
 		$post 		= RSFormProHelper::getRawPost();
 		$row 		= JTable::getInstance('RSForm_Mappings', 'Table');
 		$db	 		= JFactory::getDbo();
@@ -137,12 +136,7 @@ class RsformModelMappings extends JModelLegacy
 			
 			$config['user'] = $config['username'];
 
-			if (RSFormProHelper::isJ('3.0')) {
-				$database = JDatabaseDriver::getInstance($config);
-			} else {
-				$database = JDatabase::getInstance($config);
-			}
-			
+			$database = JDatabaseDriver::getInstance($config);
 			$database->connect();
 			
 			if (is_a($database,'JException') || is_a($database,'JError')) {

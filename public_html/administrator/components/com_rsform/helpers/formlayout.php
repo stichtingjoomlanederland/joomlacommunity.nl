@@ -39,14 +39,6 @@ class RSFormProFormLayout
 	}
 	
 	protected function addjQuery() {
-		$jversion = new JVersion;
-		$is30	  = $jversion->isCompatible('3.0');
-		
-		if ($is30) {
-			JHtml::_('jquery.framework', true);
-		} else {
-			$this->addScript('com_rsform/jquery/jquery.min.js');
-			$this->addScript('com_rsform/jquery/jquery-noconflict.js');
-		}
+		JHtml::_('jquery.framework', true);
 	}
 }

@@ -47,7 +47,7 @@ RSFormPro.jQueryCalendar = {
 		var forms = Object.keys(RSFormPro.jQueryCalendar.calendarsData);
 		
 		if (countForms > 0) {
-			for(i = 0; i < countForms; i++) {
+			for(var i = 0; i < countForms; i++) {
 				var formId = forms[i];
 				var calendarsIds = Object.keys(RSFormPro.jQueryCalendar.calendarsData[formId]);
 				
@@ -65,6 +65,12 @@ RSFormPro.jQueryCalendar = {
 		
 		var calendarId 	 = 'cal'+idCalendar;
 		var txtDate 	 = jQuery('#txtjQ' + calendarId);
+		
+		if (!txtDate.length)
+		{
+			return;
+		}
+		
 		var hiddenDate 	 = jQuery('#hiddenjQ' + calendarId);
 		var calendarName = txtDate.attr('name').substring(5, txtDate.attr('name').length - 1);
 		
@@ -186,7 +192,8 @@ RSFormPro.jQueryCalendar = {
 						// get the proper field
 						for (i = 0 ; i < otherCalendarInput.length; i++) {
 							var otherCalendarId = otherCalendarInput[i].id;
-							if (otherCalendarId.substring(0, otherCalendarId.length - 1) == 'txtjQcal'+formId+'_') {
+							if (otherCalendarId.indexOf('txtjQcal'+formId+'_') === 0)
+							{
 								otherCalendarId = otherCalendarId.substring(8, otherCalendarId.length);
 								break;
 							}

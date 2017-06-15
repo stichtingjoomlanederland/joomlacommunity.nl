@@ -72,24 +72,48 @@ class RsformControllerForms extends RsformController
 	{
 		$db		= JFactory::getDbo();
 		$app	= JFactory::getApplication();
-		$formId	= JFactory::getApplication()->input->getInt('formId',0);
+		$formId	= $app->input->getInt('formId');
 		
+		// No form ID provided, redirect back.
 		if (!$formId)
-			$app->redirect('index.php?option=com_rsform&task=forms.manage');
+		{
+			$app->redirect('index.php?option=com_rsform&view=forms');
+		}
 		
-		$db->setQuery("SELECT FormTitle FROM #__rsform_forms WHERE FormId = ".$formId." ");
-		$formname = $db->loadResult();
+		// Get the form title
+		$query = $db->getQuery(true)
+			->select($db->qn('FormTitle'))
+			->from($db->qn('#__rsform_forms'))
+			->where($db->qn('FormId') . ' = ' . $db->q($formId));
+		$title = $db->setQuery($query)->loadResult();
 		
-		$db->setQuery("SELECT extension_id FROM #__extensions WHERE `type` = 'component' AND `element` = 'com_rsform'");
-		$componentid = $db->loadResult();
+		// Use a default title to prevent showing an empty menu item
+		if (!strlen($title))
+		{
+			$title = JText::_('RSFP_FORM_DEFAULT_TITLE');
+		}
 		
-		$db->setQuery("INSERT INTO `#__menu` (`id`, `menutype`, `title`, `alias`, `note`, `path`, `link`, `type`, `published`, `parent_id`, `level`, `component_id`, `checked_out`, `checked_out_time`, `browserNav`, `access`, `img`, `template_style_id`, `params`, `lft`, `rgt`, `home`, `language`, `client_id`) VALUES('', 'main', '".$db->escape($formname)."', '".$db->escape($formname)."', '', 'rsform', 'index.php?option=com_rsform&view=forms&layout=show&formId=".$formId."', 'component', 0, 1, 1, ".(int) $componentid.", 0, '0000-00-00 00:00:00', 0, 1, 'class:component', 0, '', 0, 0, 0, '', 1)");
+		// Get the extension ID for com_rsform
+		$query = $db->getQuery(true)
+			->select($db->qn('extension_id'))
+			->from($db->qn('#__extensions'))
+			->where($db->qn('type') . ' = ' . $db->q('component'))
+			->where($db->qn('element') . ' = ' . $db->q('com_rsform'));
+		$componentId = $db->setQuery($query)->loadResult();
+		
+		// Add it to the backend menu
+		$db->setQuery("INSERT INTO `#__menu` (`id`, `menutype`, `title`, `alias`, `note`, `path`, `link`, `type`, `published`, `parent_id`, `level`, `component_id`, `checked_out`, `checked_out_time`, `browserNav`, `access`, `img`, `template_style_id`, `params`, `lft`, `rgt`, `home`, `language`, `client_id`) VALUES('', 'main', '".$db->escape($title)."', '".$db->escape($title)."', '', 'rsform', 'index.php?option=com_rsform&view=forms&layout=show&formId=".$formId."', 'component', 0, 1, 1, ".(int) $componentId.", 0, '0000-00-00 00:00:00', 0, 1, 'class:component', 0, '', 0, 0, 0, '', 1)");
 		$db->execute();
 		
-		$db->setQuery("UPDATE #__rsform_forms SET `Backendmenu` = 1 WHERE FormId = ".$formId." ");
-		$db->execute();
+		// Mark this form as added
+		$query = $db->getQuery(true)
+			->update($db->qn('#__rsform_forms'))
+			->set($db->qn('Backendmenu') . ' = ' . $db->q(1))
+			->where($db->qn('FormId') . ' = ' . $db->q($formId));
+		$db->setQuery($query)->execute();
 		
-		$app->redirect('index.php?option=com_rsform&task=forms.manage', JText::_('RSFP_FORM_ADDED_BACKEND'));
+		// Redirect
+		$app->redirect('index.php?option=com_rsform&view=forms', JText::_('RSFP_FORM_ADDED_BACKEND'));
 	}
 	
 	/**
@@ -99,18 +123,30 @@ class RsformControllerForms extends RsformController
 	{
 		$db		= JFactory::getDbo();
 		$app	= JFactory::getApplication();
-		$formId	= JFactory::getApplication()->input->getInt('formId',0);
+		$formId	= $app->input->getInt('formId');
 		
+		// No form ID provided, redirect back.
 		if (!$formId)
-			$app->redirect('index.php?option=com_rsform&task=forms.manage');
+		{
+			$app->redirect('index.php?option=com_rsform&view=forms');
+		}
 		
-		$db->setQuery("DELETE FROM `#__menu` WHERE `client_id` = '1' AND link = 'index.php?option=com_rsform&view=forms&layout=show&formId=".$formId."' ");
-		$db->execute();
+		// Remove from menu
+		$query = $db->getQuery(true)
+			->delete($db->qn('#__menu'))
+			->where($db->qn('client_id') . ' = ' . $db->q(1))
+			->where($db->qn('link') . ' = ' . $db->q('index.php?option=com_rsform&view=forms&layout=show&formId=' . $formId));
+		$db->setQuery($query)->execute();
 		
-		$db->setQuery("UPDATE #__rsform_forms SET `Backendmenu` = 0 WHERE FormId = ".$formId." ");
-		$db->execute();
+		// Mark this form as removed
+		$query = $db->getQuery(true)
+			->update($db->qn('#__rsform_forms'))
+			->set($db->qn('Backendmenu') . ' = ' . $db->q(0))
+			->where($db->qn('FormId') . ' = ' . $db->q($formId));
+		$db->setQuery($query)->execute();
 		
-		$app->redirect('index.php?option=com_rsform&task=forms.manage', JText::_('RSFP_FORM_REMOVED_BACKEND'));
+		// Redirect
+		$app->redirect('index.php?option=com_rsform&view=forms', JText::_('RSFP_FORM_REMOVED_BACKEND'));
 	}
 	
 	public function newStepTwo()
@@ -317,7 +353,7 @@ class RsformControllerForms extends RsformController
 		switch ($task)
 		{
 			case 'save':
-				$link = 'index.php?option=com_rsform&task=forms.manage';
+				$link = 'index.php?option=com_rsform&view=forms';
 			break;
 			
 			case 'apply':
@@ -335,7 +371,7 @@ class RsformControllerForms extends RsformController
 	
 	public function cancel()
 	{
-		$this->setRedirect('index.php?option=com_rsform&task=forms.manage');
+		$this->setRedirect('index.php?option=com_rsform&view=forms');
 	}
 	
 	public function delete() {
@@ -452,7 +488,7 @@ class RsformControllerForms extends RsformController
 			));
 		}
 		
-		$this->setRedirect('index.php?option=com_rsform&task=forms.manage', JText::sprintf('RSFP_FORMS_DELETED', $total));
+		$this->setRedirect('index.php?option=com_rsform&view=forms', JText::sprintf('RSFP_FORMS_DELETED', $total));
 	}
 	
 	public function changeStatus()
@@ -478,7 +514,7 @@ class RsformControllerForms extends RsformController
 		
 		$msg = $value ? JText::sprintf('RSFP_FORMS_PUBLISHED', $total) : JText::sprintf('RSFP_FORMS_UNPUBLISHED', $total);
 
-		$this->setRedirect('index.php?option=com_rsform&task=forms.manage', $msg);
+		$this->setRedirect('index.php?option=com_rsform&view=forms', $msg);
 	}
 	
 	public function copy()
@@ -560,7 +596,7 @@ class RsformControllerForms extends RsformController
 			$db->setQuery("SELECT * FROM #__rsform_posts WHERE form_id='".$formId."'");
 			if ($post = $db->loadObject())
 			{
-				$db->setQuery("INSERT INTO #__rsform_posts SET `form_id`='".(int) $newFormId."', `enabled`='".(int) $post->enabled."', `method`='".(int) $post->method."', `silent`='".(int) $post->silent."', `url`=".$db->quote($post->url));
+				$db->setQuery("INSERT INTO #__rsform_posts SET `form_id`='".(int) $newFormId."', `enabled`='".(int) $post->enabled."', `method`='".(int) $post->method."', `fields`=".$db->q($post->fields).", `silent`='".(int) $post->silent."', `url`=".$db->quote($post->url));
 				$db->execute();
 			}
 			
@@ -662,7 +698,7 @@ class RsformControllerForms extends RsformController
 			));
 		}
 		
-		$this->setRedirect('index.php?option=com_rsform&task=forms.manage', JText::sprintf('RSFP_FORMS_COPIED', $total));
+		$this->setRedirect('index.php?option=com_rsform&view=forms', JText::sprintf('RSFP_FORMS_COPIED', $total));
 	}
 	
 	public function changeAutoGenerateLayout()

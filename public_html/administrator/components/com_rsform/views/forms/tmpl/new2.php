@@ -106,6 +106,7 @@ defined('_JEXEC') or die('Restricted access');
 					<label for="formLayoutBootstrap2" class="radio inline"><input type="radio" id="formLayoutBootstrap2" name="FormLayout" value="bootstrap2" onclick="changeLayout(this.value)" checked="checked" /> <?php echo JText::_('RSFP_LAYOUT_BOOTSTRAP2');?></label>
 					<label for="formLayoutBootstrap3" class="radio inline"><input type="radio" id="formLayoutBootstrap3" name="FormLayout" value="bootstrap3" onclick="changeLayout(this.value)"/> <?php echo JText::_('RSFP_LAYOUT_BOOTSTRAP3');?></label>
 					<label for="formLayoutUikit" class="radio inline"><input type="radio" id="formLayoutUikit" name="FormLayout" value="uikit" onclick="changeLayout(this.value)"/> <?php echo JText::_('RSFP_LAYOUT_UIKIT');?></label>
+					<label for="formLayoutFoundation" class="radio inline"><input type="radio" id="formLayoutFoundation" name="FormLayout" value="foundation" onclick="changeLayout(this.value)"/> <?php echo JText::_('RSFP_LAYOUT_FOUNDATION');?></label>
 				</td>
 			</tr>
 			<tr>

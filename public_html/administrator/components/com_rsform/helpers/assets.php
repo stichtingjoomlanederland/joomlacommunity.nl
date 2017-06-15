@@ -150,21 +150,11 @@ class RSFormProAssets
 	}
 
 	protected static function getBody() {
-		$jversion = new JVersion;
-		if ($jversion->isCompatible('3.0')) {
-			return JFactory::getApplication()->getBody();
-		} else {
-			return JResponse::getBody();
-		}
+		return JFactory::getApplication()->getBody();
 	}
 
 	protected static function setBody($body) {
-		$jversion = new JVersion;
-		if ($jversion->isCompatible('3.0')) {
-			return JFactory::getApplication()->setBody($body);
-		} else {
-			return JResponse::setBody($body);
-		}
+		return JFactory::getApplication()->setBody($body);
 	}
 
 	protected static function isHTML5() {

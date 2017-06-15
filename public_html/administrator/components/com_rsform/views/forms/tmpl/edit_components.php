@@ -31,6 +31,7 @@ defined('_JEXEC') or die('Restricted access');
 		<li class="rsform_navtitle"><?php echo JText::_('RSFP_ADVANCED_FORM_FIELDS'); ?></li>
 		<li><a href="javascript: void(0);" onclick="displayTemplate('211');return false;" id="rsfpc211"><span class="rsficon rsficon-birthday-cake"></span><span class="inner-text"><?php echo JText::_('RSFP_COMP_BIRTHDAY'); ?></span></a></li>
 		<li><a href="javascript: void(0);" onclick="displayTemplate('212');return false;" id="rsfpc212"><span class="rsficon rsficon-map-marker"></span><span class="inner-text"><?php echo JText::_('RSFP_COMP_GMAP'); ?></span></a></li>
+		<li><a href="javascript: void(0);" onclick="displayTemplate('355');return false;" id="rsfpc355"><span class="rsficon rsficon-th-list"></span><span class="inner-text"><?php echo JText::_('RSFP_COMP_RANGE_SLIDER'); ?></span></a></li>
 		<?php $this->triggerEvent('rsfp_bk_onAfterShowComponents'); ?>
 	</ul>
 	

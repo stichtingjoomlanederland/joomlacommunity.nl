@@ -17,15 +17,8 @@ class RSFormProMappings
 	public static function getMappingQuery($row) {
 		static $model;
 		if (!$model) {
-			jimport('joomla.application.component.model');
-
-			if (RSFormProHelper::isJ('3.0')) {
-				JModelLegacy::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_rsform/models');
-				$model = JModelLegacy::getInstance('mappings', 'RsformModel');
-			} else {
-				JModel::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_rsform/models');
-				$model = JModel::getInstance('mappings', 'RsformModel');
-			}
+			JModelLegacy::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_rsform/models');
+			$model = JModelLegacy::getInstance('mappings', 'RsformModel');
 		}
 		
 		$config = array(
@@ -148,15 +141,8 @@ class RSFormProMappings
 	
 	public static function mappingsColumns($config, $method, $row = null)
 	{
-		jimport('joomla.application.component.model');
-
-		if (RSFormProHelper::isJ('3.0')) {
-			JModelLegacy::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_rsform/models');
-			$model = JModelLegacy::getInstance('mappings', 'RsformModel');
-		} else {
-			JModel::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_rsform/models');
-			$model = JModel::getInstance('mappings', 'RsformModel');
-		}
+		JModelLegacy::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_rsform/models');
+		$model = JModelLegacy::getInstance('mappings', 'RsformModel');
 		
 		$columns = $model->getColumns($config);
 		

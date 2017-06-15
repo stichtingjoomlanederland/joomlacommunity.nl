@@ -26,7 +26,7 @@ class RSFormProFieldCaptcha extends RSFormProField
 			
 			// Start building the image HTML
 			// Image source
-			$src = JRoute::_('index.php?option=com_rsform&task=captcha&componentId='.$componentId.'&tmpl=component&sid='.mt_rand());
+			$src = JRoute::_('index.php?option=com_rsform&task=captcha&componentId='.$componentId.'&format=image&sid='.mt_rand());
 			// Image HTML
 			$image = '<img'.
 					 ' src="'.$src.'"'.
@@ -47,7 +47,7 @@ class RSFormProFieldCaptcha extends RSFormProField
 			$refreshBtn = '';
 			if ($refresh) {
 				$text		= $this->getProperty('REFRESHTEXT', '');
-				$base 		= JRoute::_('index.php?option=com_rsform&task=captcha&componentId='.$componentId.'&tmpl=component');
+				$base 		= JRoute::_('index.php?option=com_rsform&task=captcha&componentId='.$componentId.'&format=image');
 				$onclick 	= "RSFormPro.refreshCaptcha('$componentId', '$base'); return false;";
 				$refreshBtn = ' <a href="javascript:void(0)" onclick="'.$onclick.'">'.$text.'</a>';
 			}
@@ -72,7 +72,7 @@ class RSFormProFieldCaptcha extends RSFormProField
 		
 		// Start building the image HTML
 		// Image source
-		$src = JRoute::_('index.php?option=com_rsform&task=captcha&componentId='.$componentId.'&tmpl=component&sid='.mt_rand());
+		$src = JRoute::_('index.php?option=com_rsform&task=captcha&componentId='.$componentId.'&format=image&sid='.mt_rand());
 		// Image HTML
 		$image = '<img'.
 				 ' src="'.$src.'"'.
@@ -108,7 +108,7 @@ class RSFormProFieldCaptcha extends RSFormProField
 		$refreshBtn = '';
 		if ($refresh) {
 			$text		= $this->getProperty('REFRESHTEXT', '');
-			$base 		= JRoute::_('index.php?option=com_rsform&task=captcha&componentId='.$componentId.'&tmpl=component');
+			$base 		= JRoute::_('index.php?option=com_rsform&task=captcha&componentId='.$componentId.'&format=image');
 			$onclick 	= "RSFormPro.refreshCaptcha('$componentId', '$base'); return false;";
 			$refreshBtn = ' <a href="javascript:void(0)" '.$this->getRefreshAttributes().' onclick="'.$onclick.'">'.$text.'</a>';
 		}

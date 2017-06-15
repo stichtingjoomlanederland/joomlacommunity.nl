@@ -15,7 +15,6 @@ class RsformViewRsform extends JViewLegacy
 	// version info
 	protected $code;
 	protected $version;
-	protected $isJ30;
 	
 	function display($tpl = null)
 	{
@@ -23,8 +22,7 @@ class RsformViewRsform extends JViewLegacy
 		
 		$doc = JFactory::getDocument();
 		$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rsform/assets/css/dashboard.css');
-		
-		$this->isJ30 	= RSFormProHelper::isJ('3.0');
+
 		$this->buttons  = $this->get('Buttons');
 		$this->code		= $this->get('code');
 		$this->version	= (string) new RSFormProVersion();

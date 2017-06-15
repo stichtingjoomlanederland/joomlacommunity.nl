@@ -9,7 +9,6 @@ defined('_JEXEC') or die('Restricted access');
 
 JHTML::_('behavior.tooltip');
 JHTML::_('behavior.modal');
-JHTML::_('behavior.calendar');
 ?>
 
 	<form action="index.php?option=com_rsform&amp;task=forms.edit&amp;formId=<?php echo $this->form->FormId; ?>" method="post" name="adminForm" id="adminForm">
@@ -319,8 +318,10 @@ JHTML::_('behavior.calendar');
 						
 						// Not an email
 						notAnEmail = !hasPlaceholder && value.indexOf('@') == -1;
+						// A situation where we have a wrong delimiter thus ending up in multiple @ addresses
+						wrongDelimiter = !hasPlaceholder && (value.match(/@/g) || []).length > 1;
 						
-						if (wrongPlaceholder || notAnEmail) {
+						if (wrongPlaceholder || notAnEmail || wrongDelimiter) {
 							// Switch to the correct tab only on the first error
 							if (result == true) {
 								if (fieldName.indexOf('User') > -1) {

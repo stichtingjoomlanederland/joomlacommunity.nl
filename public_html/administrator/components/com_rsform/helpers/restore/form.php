@@ -440,6 +440,7 @@ class RSFormProRestoreForm
 								$this->db->qn('ListScript')				.'='.$this->db->q((string) $directory->ListScript),
 								$this->db->qn('DetailsScript')			.'='.$this->db->q((string) $directory->DetailsScript),
 								$this->db->qn('EmailsScript')			.'='.$this->db->q((string) $directory->EmailsScript),
+								$this->db->qn('EmailsCreatedScript')	.'='.$this->db->q((string) $directory->EmailsCreatedScript),
 								$this->db->qn('groups')					.'='.$this->db->q((string) $directory->groups),
 						));
 				$this->db->setQuery($query)->execute();

@@ -36,7 +36,10 @@ class RSFormProCaptcha
 			die();
 		}
 		
-		header('Content-type: image/png');
+		if (JFactory::getDocument()->getType() != 'image')
+		{
+			header('Content-Type: image/png');
+		}
 		
 	    $this->Length = $this->data['LENGTH'];
 		$this->Size = !empty($this->data['SIZE']) && is_numeric($this->data['SIZE']) && $this->data['SIZE'] > 0 ? $this->data['SIZE'] : 15;

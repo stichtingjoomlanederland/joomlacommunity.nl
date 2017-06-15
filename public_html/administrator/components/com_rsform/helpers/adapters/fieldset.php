@@ -5,9 +5,48 @@
 * @license GPL, http://www.gnu.org/licenses/gpl-2.0.html
 */
 
-$jversion = new JVersion();
-if ($jversion->isCompatible('3.0')) {
-	require_once dirname(__FILE__).'/3.0/'.basename(__FILE__);
-} elseif ($jversion->isCompatible('2.5')) {
-	require_once dirname(__FILE__).'/2.5/'.basename(__FILE__);
+defined('_JEXEC') or die('Restricted access');
+
+class RSFieldset {
+	public function startFieldset($legend='', $class='adminform form-horizontal') {
+		?>
+		<fieldset class="<?php echo $class; ?>">
+		<?php if ($legend) { ?>
+		<h3 class="rsfp-legend"><?php echo $legend; ?></h3>
+		<?php }
+	}
+	
+	public function showField($label, $input, $attribs=array()) {
+		$class 	= '';
+		$id 	= '';
+		
+		if (isset($attribs['class'])) {
+			$class = ' '.$this->escape($attribs['class']);
+		}
+		if (isset($attribs['id'])) {
+			$id = ' id="'.$this->escape($attribs['id']).'"';
+		}
+		?>
+		<div class="control-group<?php echo $class; ?>"<?php echo $id; ?>>
+			<?php if ($label) { ?>
+			<div class="control-label">
+				<?php echo $label; ?>
+			</div>
+			<?php } ?>
+			<div<?php if ($label) { ?> class="controls"<?php } ?>>
+				<?php echo $input; ?>
+			</div>
+		</div>
+		<?php
+	}
+	
+	public function endFieldset() {
+		?>
+		</fieldset>
+		<?php
+	}
+	
+	protected function escape($text) {
+		return htmlentities($text, ENT_COMPAT, 'utf-8');
+	}
 }

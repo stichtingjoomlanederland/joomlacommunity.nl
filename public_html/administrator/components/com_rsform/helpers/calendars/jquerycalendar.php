@@ -37,15 +37,7 @@ class RSFormProJQueryCalendar
 	
 	public static function loadFiles() {
 		// load the jQuery framework 
-		$jversion = new JVersion;
-		$is30	  = $jversion->isCompatible('3.0');
-		
-		if ($is30) {
-			JHtml::_('jquery.framework', true);
-		} else {
-			RSFormProAssets::addScript(JHtml::script('com_rsform/jquery/jquery.min.js', false, true, true));
-			RSFormProAssets::addScript(JHtml::script('com_rsform/jquery/jquery-noconflict.js', false, true, true));		
-		}
+		JHtml::_('jquery.framework', true);
 		
 		RSFormProAssets::addScript(JHtml::script('com_rsform/jquerycalendar/jquery.datetimepicker.js', false, true, true));
 		RSFormProAssets::addScript(JHtml::script('com_rsform/jquerycalendar/moment.js', false, true, true));

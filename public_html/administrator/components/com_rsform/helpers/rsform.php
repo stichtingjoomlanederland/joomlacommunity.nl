@@ -292,13 +292,13 @@ class RSFormProHelper
 			if ($form->ScrollToThankYou)
 			{
 				// scroll the window to the Thank You Message
-				$scrolltoScript = 'RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.scrollToElement(document.getElementById(\'system-message-container\')); })';
+				$scrolltoScript = 'RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.scrollToElement(document.getElementById(\'system-message-container\')); });';
 				RSFormProAssets::addScriptDeclaration($scrolltoScript);
 			}
 		}
 
 		if ($form->DisableSubmitButton) {
-			RSFormProAssets::addScriptDeclaration('RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.setDisabledSubmit(\''.$formId.'\', '.($form->AjaxValidation ? 'true' : 'false').');  })');
+			RSFormProAssets::addScriptDeclaration('RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.setDisabledSubmit(\''.$formId.'\', '.($form->AjaxValidation ? 'true' : 'false').');  });');
 		}
 		
 		// Must process form
@@ -310,7 +310,7 @@ class RSFormProHelper
 			if ($invalid)
 			{
 				if ($form->ScrollToError){
-					RSFormProAssets::addScriptDeclaration('RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.gotoErrorElement('.$formId.');  })');
+					RSFormProAssets::addScriptDeclaration('RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.gotoErrorElement('.$formId.');  });');
 				}
 				return RSFormProHelper::showForm($formId, $post, $invalid);
 			}
@@ -610,6 +610,7 @@ class RSFormProHelper
 			case 'gmaps': 			$icon = 'map-marker'; break;
 			case 'hidden': 			$icon = 'texture'; break;
 			case 'jQueryCalendar':  $icon = 'calendar'; break;
+			case 'rangeSlider':  	$icon = 'th-list'; break;
 			case 'php': 			$icon = 'code'; break;
 			case 'support': 		$icon = 'ticket'; break;
 		}
@@ -1292,6 +1293,7 @@ class RSFormProHelper
 		// calendars
 		$YUICalendars = RSFormProHelper::componentExists($formId, RSFORM_FIELD_CALENDAR);
 		$jQueryCalendars = RSFormProHelper::componentExists($formId, RSFORM_FIELD_JQUERY_CALENDAR);
+		$rangeSliders = RSFormProHelper::componentExists($formId, RSFORM_FIELD_RANGE_SLIDER);
 
 		$formLayout = $form->FormLayout;
 
@@ -1617,6 +1619,12 @@ class RSFormProHelper
 				RSFormProAssets::addScriptDeclaration($calendar->printInlineScript($formId));
 			}
 		}
+		
+		if (!empty($rangeSliders)) {
+			require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/rangeslider.php';
+			$rangeSlider = RSFormProRangeSlider::getInstance();
+			RSFormProAssets::addScriptDeclaration($rangeSlider->printInlineScript($formId));
+		}
 
 		if (!empty($pages)) {
 			$formLayout .= '<script type="text/javascript">rsfp_changePage('.$formId.', '.$start_page.', '.count($pages).');</script>'."\n";
@@ -1627,7 +1635,7 @@ class RSFormProHelper
 		}
 
 		if ($form->AjaxValidation) {
-			$formLayout .= '<script type="text/javascript">rsfp_addEvent(window, \'load\', function(){var form = rsfp_getForm('.$formId.'); 
+			$formLayout .= '<script type="text/javascript">RSFormProUtils.addEvent(window, \'load\', function(){var form = rsfp_getForm('.$formId.'); 
 			var submitElement = RSFormPro.getElementByType('.$formId.', \'submit\');
 			for (i = 0; i < submitElement.length; i++) {
 				if (RSFormProUtils.hasClass(submitElement[i],\'rsform-submit-button\')) {
@@ -1723,6 +1731,7 @@ class RSFormProHelper
 
 			$runAllConditions .= "\n".'}';
 
+			$formLayout .= "\n"."RSFormPro.Conditions.addReset($formId);";
 			$formLayout .= "\n".$runAllConditions."\n".'</script>';
 		}
 
@@ -1780,14 +1789,14 @@ class RSFormProHelper
 		if ($form->ScrollToThankYou)
 		{
 			// scroll the window to the Thank You Message
-			$scrolltoScript = 'RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.scrollToElement(document.getElementById(\'rsfp-thankyou-scroll' . $formId . '\')); })';
+			$scrolltoScript = 'RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.scrollToElement(document.getElementById(\'rsfp-thankyou-scroll' . $formId . '\')); });';
 			RSFormProAssets::addScript(JHtml::script('com_rsform/script.js', false, true, true));
 			RSFormProAssets::addScriptDeclaration($scrolltoScript);
 		}
 
 		if ($form->ThankYouMessagePopUp && !$form->ScrollToThankYou) {
 			//rsfp-thankyou-popup-container
-			$popupScript = 'RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.showThankYouPopup(document.getElementById(\'rsfp-thankyou-popup-container' . $formId . '\')); })';
+			$popupScript = 'RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.showThankYouPopup(document.getElementById(\'rsfp-thankyou-popup-container' . $formId . '\')); });';
 			RSFormProAssets::addScript(JHtml::script('com_rsform/script.js', false, true, true));
 			RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/popup.css', array(), true, true));
 			RSFormProAssets::addScriptDeclaration($popupScript);
@@ -2026,11 +2035,7 @@ class RSFormProHelper
 								'database' => $mapping->database
 							);
 
-							if (RSFormProHelper::isJ('3.0')) {
-								$database = JDatabaseDriver::getInstance($options);
-							} else {
-								$database = JDatabase::getInstance($options);
-							}
+							$database = JDatabaseDriver::getInstance($options);
 
 							//is a valid database connection
 							if (is_a($database, 'JException')) continue;
@@ -2560,12 +2565,33 @@ class RSFormProHelper
 							continue;
 						}
 
+						if ($typeId == RSFORM_FIELD_RANGE_SLIDER && empty($post['form'][$data['NAME']]))
+						{
+							$invalid[] = $data['componentId'];
+						}
+
 						$runValidations = true;
 					}
 				} else { // not required, perform checks only when something is selected
 					// we have a value, make sure it's the correct one
 					if (isset($post['form'][$data['NAME']]) && !is_array($post['form'][$data['NAME']]) && strlen(trim($post['form'][$data['NAME']]))) {
 						$runValidations = true;
+					}
+				}
+				
+				// check the calendar field if is required
+				if (($typeId == RSFORM_FIELD_CALENDAR || $typeId == RSFORM_FIELD_JQUERY_CALENDAR) && strlen(trim($post['form'][$data['NAME']]))) {
+
+					$selectedDate = trim($post['form'][$data['NAME']]);
+					$validDate = JFactory::getDate()->createFromFormat($data['DATEFORMAT'], $selectedDate);
+
+					if ($validDate) {
+						$validDate = $validDate->format($data['DATEFORMAT']);
+					}
+
+					if ($validDate != $selectedDate) {
+						$invalid[] = $data['componentId'];
+						continue;
 					}
 				}
 
@@ -2787,7 +2813,12 @@ class RSFormProHelper
 
 			// Are we sending the email as HTML?
 			if ($mode)
+			{
 				$mail->IsHTML(true);
+				
+				$textBody = str_ireplace(array('<p>', '<br>', '<br/>', '<br />'), "\n", $body);
+				$mail->AltBody = strip_tags($textBody);
+			}
 
 			// Some cleanup
 			if (is_array($recipient)) {
@@ -2829,43 +2860,31 @@ class RSFormProHelper
 
 	public static function renderHTML() {
 		$args = func_get_args();
-		if (RSFormProHelper::isJ('3.0')) {
-			if ($args[0] == 'select.booleanlist') {
-				// 0 - type
-				// 1 - name
-				// 2 - additional
-				// 3 - value
-				// 4 - yes
-				// 5 - no
+		if ($args[0] == 'select.booleanlist') {
+			// 0 - type
+			// 1 - name
+			// 2 - additional
+			// 3 - value
+			// 4 - yes
+			// 5 - no
 
-				// get the radio element
-				$radio = JFormHelper::loadFieldType('radio');
+			// get the radio element
+			$radio = JFormHelper::loadFieldType('radio');
 
-				// setup the properties
-				$name	 	= htmlspecialchars($args[1], ENT_COMPAT, 'utf-8');
-				$additional = isset($args[2]) ? (string) $args[2] : '';
-				$value		= $args[3];
-				$yes 	 	= isset($args[4]) ? htmlspecialchars($args[4], ENT_COMPAT, 'utf-8') : 'JYES';
-				$no 	 	= isset($args[5]) ? htmlspecialchars($args[5], ENT_COMPAT, 'utf-8') : 'JNO';
+			// setup the properties
+			$name	 	= htmlspecialchars($args[1], ENT_COMPAT, 'utf-8');
+			$additional = isset($args[2]) ? (string) $args[2] : '';
+			$value		= $args[3];
+			$yes 	 	= isset($args[4]) ? htmlspecialchars($args[4], ENT_COMPAT, 'utf-8') : 'JYES';
+			$no 	 	= isset($args[5]) ? htmlspecialchars($args[5], ENT_COMPAT, 'utf-8') : 'JNO';
 
-				// prepare the xml
-				$element = new SimpleXMLElement('<field name="'.$name.'" type="radio" class="btn-group"><option '.$additional.' value="0">'.$no.'</option><option '.$additional.' value="1">'.$yes.'</option></field>');
+			// prepare the xml
+			$element = new SimpleXMLElement('<field name="'.$name.'" type="radio" class="btn-group"><option '.$additional.' value="0">'.$no.'</option><option '.$additional.' value="1">'.$yes.'</option></field>');
 
-				// run
-				$radio->setup($element, $value);
+			// run
+			$radio->setup($element, $value);
 
-				return $radio->input;
-			}
-		} else {
-			if ($args[0] == 'select.booleanlist') {
-				$name	 	= $args[1];
-				$additional = isset($args[2]) ? (string) $args[2] : '';
-				$value		= $args[3];
-				$yes 	 	= isset($args[4]) ? self::htmlEscape($args[4]) : 'JYES';
-				$no 	 	= isset($args[5]) ? self::htmlEscape($args[5]) : 'JNO';
-
-				return JHtml::_($args[0], $name, $additional, $value, $yes, $no);
-			}
+			return $radio->input;
 		}
 	}
 
@@ -2940,7 +2959,7 @@ class RSFormProHelper
 
 			foreach ($allFields as $field) {
 				// Hidden fields don't have a caption
-				if ($field->FieldType == 11) {
+				if (in_array($field->FieldType, array(RSFORM_FIELD_HIDDEN, RSFORM_FIELD_TICKET))) {
 					$field->FieldCaption = $field->FieldName;
 				}
 

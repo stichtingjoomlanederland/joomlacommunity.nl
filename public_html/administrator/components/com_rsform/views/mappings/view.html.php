@@ -35,12 +35,7 @@ class RsformViewMappings extends JViewLegacy
 		$lists['MappingConnection'] = JHtml::_('select.booleanlist', 'connection', 'class="inputbox" onclick="enableDbDetails(this.value)"', $this->mapping->connection, JText::_('RSFP_FORM_MAPPINGS_CONNECTION_REMOTE'), JText::_('RSFP_FORM_MAPPINGS_CONNECTION_LOCAL'));
 		
 		// Driver
-		$version = new JVersion;
-		if ($version->isCompatible('3.0')) {
-			$connectors = JDatabaseDriver::getConnectors();
-		} else {
-			$connectors = JDatabase::getConnectors();
-		}
+		$connectors = JDatabaseDriver::getConnectors();
 		$supported = array('mysql', 'mysqli', 'pdomysql', 'postgresql', 'sqlsrv', 'sqlazure');
 		$mconnectors = array();
 		if ($connectors) {

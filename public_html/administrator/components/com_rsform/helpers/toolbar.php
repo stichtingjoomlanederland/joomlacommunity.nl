@@ -8,9 +8,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 abstract class RSFormProToolbarHelper
-{
-	public static $isJ30 = null;
-	
+{	
 	public static function addToolbar($view='') {
 		// load language file (.sys because the toolbar has the same options as the components dropdown)
 		JFactory::getLanguage()->load('com_rsform.sys', JPATH_ADMINISTRATOR);
@@ -25,32 +23,16 @@ abstract class RSFormProToolbarHelper
 		self::addEntry('UPDATES', 'index.php?option=com_rsform&view=updates', $view == 'updates');
 	}
 	
-	protected static function addEntry($lang_key, $url, $default=false) {
+	protected static function addEntry($lang_key, $url, $default = false) {
 		$lang_key = 'COM_RSFORM_'.$lang_key;
-		
-		if (self::$isJ30) {
-			JHtmlSidebar::addEntry(JText::_($lang_key), JRoute::_($url), $default);
-		} else {
-			JSubMenuHelper::addEntry(JText::_($lang_key), JRoute::_($url), $default);
-		}
+		JHtmlSidebar::addEntry(JText::_($lang_key), JRoute::_($url), $default);
 	}
 	
-	public static function addFilter($text, $key, $options) {
-		if (self::$isJ30) {
-			JHtmlSidebar::addFilter($text, $key, $options);
-		}
-		
-		// nothing for 2.5
+	public static function addFilter($text, $key, $options, $noDefault = false) {
+		JHtmlSidebar::addFilter($text, $key, $options, $noDefault);
 	}
 	
 	public static function render() {
-		if (self::$isJ30) {
-			return JHtmlSidebar::render();
-		} else {
-			return '';
-		}
+		return JHtmlSidebar::render();
 	}
 }
-
-$jversion = new JVersion();
-RSFormProToolbarHelper::$isJ30 = $jversion->isCompatible('3.0');

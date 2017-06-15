@@ -14,7 +14,8 @@ defined('_JEXEC') or die('Restricted access');
 		<th width="1"><input type="checkbox" name="toggle" id="toggleAll" value="" onclick="Joomla.checkAll(this);" /></th>
 		<th class="title"><?php echo JText::_('RSFP_FORM_TITLE'); ?></th>
 		<th class="title"><?php echo JText::_('RSFP_FORM_NAME'); ?></th>
-		<th class="title" width="15"><?php echo JText::_('RSFP_SUBMISSIONS'); ?></th>
+		<th class="title" nowrap="nowrap" width="1%"><?php echo JText::_('RSFP_FORM_ID'); ?></th>
+		<th class="title" nowrap="nowrap" width="1%"><?php echo JText::_('RSFP_SUBMISSIONS'); ?></th>
 	</tr>
 	</thead>
 	<?php
@@ -23,7 +24,8 @@ defined('_JEXEC') or die('Restricted access');
 			<td><?php echo JHtml::_('grid.id', $i, $row->FormId); ?></td>
 			<td><label for="cb<?php echo $i; ?>"><?php echo !empty($row->FormTitle) ? strip_tags($row->FormTitle) : '<em>no title</em>'; ?></label></td>
 			<td><?php echo $this->escape($row->FormName); ?></td>
-			<td><?php echo $row->_allSubmissions; ?></td>
+			<td width="1%"><?php echo $row->FormId; ?></td>
+			<td width="1%"><?php echo $row->_allSubmissions; ?></td>
 		</tr>
 		<?php
 	}

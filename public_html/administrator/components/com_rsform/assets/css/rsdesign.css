@@ -54,7 +54,7 @@ table.rsproduct #rs_code {
 .rs_25 {width:25% !important;}
 .rs_20 {width:20% !important;}
 .rs_15 {width:15% !important;}
-.rs_10,#dateFrom, #dateTo {width:10% !important;}
+.rs_10 {width:10% !important;}
 .rs_5  {width:5% !important;}
 
 /*Inputs Select Textarea */

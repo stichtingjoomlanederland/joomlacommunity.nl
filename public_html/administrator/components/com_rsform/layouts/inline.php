@@ -37,7 +37,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 			<tr class="rsform-block rsform-block-<?php echo JFilterOutput::stringURLSafe($fieldName); ?>">
 				<td><?php if ($field['pagebreak']) { ?>&nbsp;<?php } else { ?>{<?php echo $fieldName; ?>:caption}<?php echo ($field['required'] ? '<strong class="formRequired">'.$requiredMarker.'</strong>' : '');?><?php } ?></td>
 				<td>{<?php echo $fieldName; ?>:body}<?php if ($field['pagebreak']) { ?></td>
-<?php } else { ?><div class=\"formClr\"></div>{<?php echo $fieldName; ?>:validation}</td>
+<?php } else { ?><div class="formClr"></div>{<?php echo $fieldName; ?>:validation}</td>
 <?php } ?>
 				<td><?php if ($field['pagebreak']) { ?>&nbsp;<?php } else { ?>{<?php echo $fieldName; ?>:description}<?php } ?></td>
 			</tr>

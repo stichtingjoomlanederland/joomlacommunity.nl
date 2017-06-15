@@ -16,7 +16,11 @@ class RsformController extends JControllerLegacy
 		$captcha 		= new RSFormProCaptcha($componentId);
 
 		JFactory::getSession()->set('com_rsform.captcha.captchaId'.$componentId, $captcha->getCaptcha());
-		JFactory::getApplication()->close();
+		
+		if (JFactory::getDocument()->getType() != 'image')
+		{
+			JFactory::getApplication()->close();
+		}
 	}
 	
 	public function plugin() {

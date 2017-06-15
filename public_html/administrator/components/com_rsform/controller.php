@@ -19,11 +19,7 @@ class RsformController extends JControllerLegacy
 		$v 			= (string) $version;
 		$doc 		= JFactory::getDocument();
 
-		if (RSFormProHelper::isJ('3.0')) {
-			JHtml::_('jquery.framework');
-		} else {
-			$doc->addScript(JURI::root(true).'/administrator/components/com_rsform/assets/js/jquery.js?v='.$v);
-		}
+		JHtml::_('jquery.framework');
 		$doc->addScript(JURI::root(true).'/administrator/components/com_rsform/assets/js/placeholders.js?v='.$v);
 		$doc->addScript(JURI::root(true).'/administrator/components/com_rsform/assets/js/script.js?v='.$v);
 		$doc->addScript(JURI::root(true).'/administrator/components/com_rsform/assets/js/jquery.tag-editor.js?v='.$v);
@@ -33,9 +29,6 @@ class RsformController extends JControllerLegacy
 		$doc->addScript(JURI::root(true).'/administrator/components/com_rsform/assets/js/jquery.scrollto.js?v='.$v);
 
 		$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rsform/assets/css/style.css?v='.$v);
-		if (!RSFormProHelper::isJ('3.0')) {
-			$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rsform/assets/css/style25.css?v='.$v);
-		}
 		$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rsform/assets/css/jquery.tag-editor.css?v='.$v);
 		$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rsform/assets/css/rsdesign.css?v='.$v);
 		// load the font

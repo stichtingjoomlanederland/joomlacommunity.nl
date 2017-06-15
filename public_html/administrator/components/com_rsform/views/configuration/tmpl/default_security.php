@@ -14,9 +14,6 @@ if (isset($this->fieldset->description) && !empty($this->fieldset->description))
 <?php
 $this->field->startFieldset();
 foreach ($this->fields as $field) {
-	if ($field->fieldname == 'allow_unsafe' && !RSFormProHelper::isJ('3.4')) {
-		continue;
-	}
 	$this->field->showField($field->hidden ? '' : $field->label, $field->input);
 }
 $this->field->endFieldset();

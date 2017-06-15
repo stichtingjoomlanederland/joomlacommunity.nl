@@ -34,11 +34,6 @@ class RsformModelFormajax extends JModelLegacy
 		
 		if ($lang->hasKey('RSFP_COMP_FIELD_'.$name.'_DESC')) {
 			$title = JText::_('RSFP_COMP_FIELD_'.$name.'_DESC');
-			
-			if (!RSFormProHelper::isJ('3.0')) {
-				$title = htmlspecialchars($title, ENT_COMPAT, 'utf-8');
-			}
-			
 			$tooltip .= ' class="fieldHasTooltip" title="' . $title . '"';
 		}
 		
@@ -299,7 +294,7 @@ class RsformModelFormajax extends JModelLegacy
 
 	function getComponentType()
 	{
-		return JFactory::getApplication()->input->getInt('componentType');
+		return JFactory::getApplication()->input->get->getInt('componentType');
 	}
 
 	function getComponentId()

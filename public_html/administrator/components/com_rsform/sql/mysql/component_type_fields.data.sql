@@ -1,4 +1,4 @@
-DELETE FROM #__rsform_component_type_fields WHERE ComponentTypeId IN (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 41, 211, 212, 411);
+DELETE FROM #__rsform_component_type_fields WHERE ComponentTypeId IN (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 41, 211, 212, 411, 355);
 INSERT IGNORE INTO `#__rsform_component_type_fields` (`ComponentTypeId`, `FieldName`, `FieldType`, `FieldValues`, `Properties`, `Ordering`) VALUES
 (1, 'NAME', 'textbox', '', '', 1),
 (1, 'CAPTION', 'textbox', '', '', 2),
@@ -218,4 +218,25 @@ INSERT IGNORE INTO `#__rsform_component_type_fields` (`ComponentTypeId`, `FieldN
 (411, 'READONLY', 'select', 'NO\r\nYES', '', 18),
 (411, 'POPUPLABEL', 'textbox', '...', '', 19),
 (411, 'THEME', 'select', 'DEFAULT\r\nDARK', '', 20),
-(411, 'COMPONENTTYPE', 'hidden', '411', '', 200);
+(411, 'COMPONENTTYPE', 'hidden', '411', '', 200),
+(355, 'NAME', 'textbox', '', '', 1),
+(355, 'CAPTION', 'textbox', '', '', 2),
+(355, 'DEFAULTVALUE', 'textarea', '', '', 3),
+(355, 'DESCRIPTION', 'textarea', '', '', 4),
+(355, 'REQUIRED', 'select', 'NO\r\nYES', '{"case":{"YES":{"show":["VALIDATIONMESSAGE"],"hide":[]},"NO":{"show":[],"hide":["VALIDATIONMESSAGE"]}}}', 5),
+(355, 'VALIDATIONMESSAGE', 'textarea', 'INVALIDINPUT', '', 6),
+(355, 'SLIDERTYPE', 'select', 'SINGLE\r\nDOUBLE', '{"case":{"SINGLE":{"show":[],"hide":["FROMFIXED","TOFIXED"]},"DOUBLE":{"show":["FROMFIXED","TOFIXED"],"hide":[]}}}', 7),
+(355, 'SKIN', 'select', 'FLAT\r\nHTML5\r\nMODERN\r\nNICE\r\nSIMPLE', '', 8),
+(355, 'USEVALUES', 'select', 'NO\r\nYES', '{"case":{"YES":{"show":["VALUES"],"hide":["MINVALUE", "MAXVALUE", "GRIDSNAP", "GRIDSTEP"]},"NO":{"show":["MINVALUE", "MAXVALUE", "GRIDSNAP", "GRIDSTEP"],"hide":["VALUES"]}}}', 9),
+(355, 'VALUES', 'textarea', '', '', 10),
+(355, 'MINVALUE', 'textbox', '0', 'numeric', 11),
+(355, 'MAXVALUE', 'textbox', '100', 'numeric', 12),
+(355, 'GRID', 'select', 'YES\r\nNO', '', 13),
+(355, 'GRIDSNAP', 'select', 'NO\r\nYES', '', 14),
+(355, 'GRIDSTEP', 'textbox', '10', 'numeric', 15),
+(355, 'FORCEEDGES', 'select', 'YES\r\nNO', '', 16),
+(355, 'FROMFIXED', 'select', 'NO\r\nYES', '', 17),
+(355, 'TOFIXED', 'select', 'NO\r\nYES', '', 18),
+(355, 'KEYBOARD', 'select', 'NO\r\nYES', '', 19),
+(355, 'READONLY', 'select', 'NO\r\nYES', '', 20),
+(355, 'COMPONENTTYPE', 'hidden', '355', '', 21);

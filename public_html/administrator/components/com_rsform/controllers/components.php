@@ -166,11 +166,7 @@ class RsformControllerComponents extends RsformController
 			$input = JFactory::getApplication()->input;
 
 			// Make sure field name doesn't contain invalid characters
-			if (RSFormProHelper::isJ('3.0')) {
-				$name = $input->get('componentName', '', 'raw');
-			} else {
-				$name = JRequest::getVar('componentName', '', 'default', 'none', JREQUEST_ALLOWRAW);
-			}
+			$name = $input->get('componentName', '', 'raw');
 
 			if (empty($name)) {
 				throw new Exception(JText::_('RSFP_SAVE_FIELD_EMPTY_NAME'), 0);
@@ -184,7 +180,7 @@ class RsformControllerComponents extends RsformController
 				throw new Exception(JText::sprintf('RSFP_SAVE_FIELD_RESERVED_NAME', $name), 0);
 			}
 
-			$componentType 		= $input->getInt('componentType');
+			$componentType 		= $input->post->getInt('componentType');
 			$currentComponentId = $input->getInt('currentComponentId');
 			$formId				= $input->getInt('formId');
 

@@ -8,13 +8,8 @@
 defined('_JEXEC') or die('Restricted access');
 $listOrder	= $this->escape($this->filter_order);
 $listDirn	= $this->escape($this->filter_order_Dir); 
-JHtml::_('behavior.tooltip'); ?>
-
-<?php if (!RSFormProHelper::isJ('3.0')) { ?>
-<style type="text/css">
-table.category th { text-align:center !important; }
-</style>
-<?php } ?>
+JHtml::_('behavior.tooltip');
+?>
 
 <?php if ($this->params->get('show_page_heading', 1)) { ?>
 <h1><?php echo $this->escape($this->params->get('page_heading')); ?></h1>

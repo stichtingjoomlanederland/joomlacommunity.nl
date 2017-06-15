@@ -103,7 +103,6 @@ class RsformControllerMappings extends RsformController
 	
 	public function ordering() {
 		$db   		= JFactory::getDbo();
-		$jversion 	= new JVersion;
 		$post 		= RSFormProHelper::getRawPost();
 		
 		foreach ($post as $key => $val) {
