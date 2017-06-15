@@ -131,7 +131,7 @@ JS;
 
 	public function onManagesDefault()
 	{
-		JToolbarHelper::title(JText::_('COM_AKEEBA').': <small>'.JText::_('COM_AKEEBA_BUADMIN').'</small>','akeeba');
+		JToolbarHelper::title(JText::_('COM_AKEEBA') . ': <small>' . JText::_('COM_AKEEBA_BUADMIN') . '</small>', 'akeeba');
 
 		if (AKEEBA_PRO)
 		{
@@ -139,11 +139,11 @@ JS;
 			$bar->appendButton('Link', 'restore', JText::_('COM_AKEEBA_DISCOVER'), 'index.php?option=com_akeeba&view=Discover');
 		}
 
-		$user = JFactory::getUser();
-		$permissions = array(
+		$user        = $this->container->platform->getUser();
+		$permissions = [
 			'configure' => $user->authorise('akeeba.configure', 'com_akeeba'),
-			'backup' => $user->authorise('akeeba.backup', 'com_akeeba'),
-		);
+			'backup'    => $user->authorise('akeeba.backup', 'com_akeeba'),
+		];
 
 		if ($permissions['configure'])
 		{
@@ -163,7 +163,7 @@ JS;
 		if ($permissions['backup'])
 		{
 			JToolbarHelper::deleteList();
-			JToolbarHelper::custom( 'deletefiles', 'delete.png', 'delete_f2.png', JText::_('COM_AKEEBA_BUADMIN_LABEL_DELETEFILES'), true );
+			JToolbarHelper::custom('deletefiles', 'delete.png', 'delete_f2.png', JText::_('COM_AKEEBA_BUADMIN_LABEL_DELETEFILES'), true);
 			JToolbarHelper::spacer();
 		}
 

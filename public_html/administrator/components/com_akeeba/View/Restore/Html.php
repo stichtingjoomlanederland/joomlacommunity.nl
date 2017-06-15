@@ -74,7 +74,7 @@ class Html extends BaseView
 	 */
 	private function getFTPParams()
 	{
-		$config = JFactory::getConfig();
+		$config = $this->container->platform->getConfig();
 
 		return array(
 			'procengine' => $config->get('ftp_enable', 0) ? 'hybrid' : 'direct',

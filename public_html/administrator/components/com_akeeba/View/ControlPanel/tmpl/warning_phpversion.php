@@ -10,13 +10,15 @@
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
+use FOF30\Date\Date;
+
 ?>
 <?php /* Old PHP version reminder */ ?>
 <?php if(version_compare(PHP_VERSION, '5.5.0', 'lt')): ?>
 	<?php
 	JLoader::import('joomla.utilities.date');
-	$akeebaCommonDatePHP = new JDate('2015-09-03 00:00:00', 'GMT');
-	$akeebaCommonDateObsolescence = new JDate('2016-06-03 00:00:00', 'GMT');
+	$akeebaCommonDatePHP = new Date('2015-09-03 00:00:00', 'GMT');
+	$akeebaCommonDateObsolescence = new Date('2016-06-03 00:00:00', 'GMT');
 	?>
 	<div id="phpVersionCheck" class="alert alert-warning">
 		<h3><?php echo \JText::_('COM_AKEEBA_COMMON_PHPVERSIONTOOOLD_WARNING_TITLE'); ?></h3>

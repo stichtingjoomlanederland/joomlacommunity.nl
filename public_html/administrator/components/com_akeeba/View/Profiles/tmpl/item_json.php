@@ -9,6 +9,8 @@ defined('_JEXEC') or die();
 
 use Akeeba\Engine\Factory;
 
+/** @var Akeeba\Backup\Admin\View\Profiles\Json $this */
+
 $data = $this->item->getData();
 
 if (substr($data['configuration'], 0, 12) == '###AES128###')

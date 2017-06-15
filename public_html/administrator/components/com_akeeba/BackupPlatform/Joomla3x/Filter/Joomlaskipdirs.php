@@ -16,6 +16,7 @@ defined('AKEEBAENGINE') or die();
 
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
+use FOF30\Container\Container;
 
 /**
  * Subdirectories exclusion filter. Excludes temporary, cache and backup output
@@ -32,9 +33,10 @@ class Joomlaskipdirs extends Base
 
 		// We take advantage of the filter class magic to inject our custom filters
 		$configuration = Factory::getConfiguration();
-		$jreg          = \JFactory::getConfig();
+		$container     = Container::getInstance('com_akeeba');
+		$jreg          = $container->platform->getConfig();
 
-		$tmpdir = $jreg->get('tmp_path');
+		$tmpdir  = $jreg->get('tmp_path');
 		$logsdir = $jreg->get('log_path');
 
 		// Get the site's root
@@ -47,7 +49,7 @@ class Joomlaskipdirs extends Base
 			$root = '[SITEROOT]';
 		}
 
-		$this->filter_data[$root] = array(
+		$this->filter_data[$root] = [
 			// Output & temp directory of the component
 			$this->treatDirectory($configuration->get('akeeba.basic.output_directory')),
 
@@ -109,7 +111,7 @@ class Joomlaskipdirs extends Base
 			$this->treatDirectory(JPATH_ADMINISTRATOR . '/log'),
 			'administrator/log',
 			$this->treatDirectory(Platform::getInstance()->get_site_root() . '/administrator/log'),
-		);
+		];
 
 		parent::__construct();
 	}

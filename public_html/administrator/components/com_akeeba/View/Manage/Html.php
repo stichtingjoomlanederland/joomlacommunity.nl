@@ -14,8 +14,8 @@ use Akeeba\Backup\Admin\Model\Profiles;
 use Akeeba\Backup\Admin\Model\Statistics;
 use Akeeba\Engine\Platform;
 use DateTimeZone;
+use FOF30\Date\Date;
 use FOF30\View\DataView\Html as BaseView;
-use JDate;
 use JFactory;
 use JHtml;
 use JLoader;
@@ -177,7 +177,7 @@ class Html extends BaseView
 		// Load core classes used in the view template
 		JLoader::import('joomla.utilities.date');
 
-		$user              = \JFactory::getUser();
+		$user              = $this->container->platform->getUser();
 		$this->permissions = array(
 			'configure' => $user->authorise('akeeba.configure', 'com_akeeba'),
 			'backup'    => $user->authorise('akeeba.backup', 'com_akeeba'),
@@ -234,8 +234,7 @@ JS;
 		JHtml::_('behavior.calendar');
 		JHtml::_('formbehavior.chosen', 'select');
 
-		JFactory::getDocument()
-		        ->addStyleSheet('https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css');
+		$this->addCssFile('https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css', '');
 
 		$hash = 'akeebamanage';
 
@@ -444,8 +443,8 @@ JS;
 	protected function getTimeInformation($record)
 	{
 		$utcTimeZone = new DateTimeZone('UTC');
-		$startTime   = new JDate($record['backupstart'], $utcTimeZone);
-		$endTime     = new JDate($record['backupend'], $utcTimeZone);
+		$startTime   = new Date($record['backupstart'], $utcTimeZone);
+		$endTime     = new Date($record['backupend'], $utcTimeZone);
 
 		$duration = $endTime->toUnix() - $startTime->toUnix();
 
@@ -465,7 +464,7 @@ JS;
 			$duration = '';
 		}
 
-		$user   = JFactory::getUser();
+		$user   = $this->container->platform->getUser();
 		$userTZ = $user->getParam('timezone', 'UTC');
 		$tz     = new DateTimeZone($userTZ);
 		$startTime->setTimezone($tz);
@@ -580,8 +579,8 @@ JS;
 		elseif ($this->fltTo)
 		{
 			JLoader::import('joomla.utilities.date');
-			$to = new JDate($this->fltTo);
-			$to = date('Y-m-d') . ' 23:59:59';
+			$toDate = new Date($this->fltTo);
+			$to = $toDate->format('Y-m-d') . ' 23:59:59';
 
 			$filters[] = array(
 				'field'   => 'backupstart',

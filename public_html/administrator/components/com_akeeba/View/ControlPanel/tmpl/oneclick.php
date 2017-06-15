@@ -15,7 +15,7 @@ defined('_JEXEC') or die();
 
 <?php foreach($this->quickIconProfiles as $qiProfile): ?>
 	<div class="icon">
-		<a href="index.php?option=com_akeeba&view=Backup&autostart=1&profileid=<?php echo (int) $qiProfile->id; ?>&<?php echo JFactory::getSession()->getToken(); ?>=1">
+		<a href="index.php?option=com_akeeba&view=Backup&autostart=1&profileid=<?php echo (int) $qiProfile->id; ?>&<?php echo $this->container->platform->getToken(true); ?>=1">
 			<div class="ak-icon ak-icon-backup">&nbsp;</div>
 			<span><?php echo $this->escape($qiProfile->description); ?></span>
 		</a>

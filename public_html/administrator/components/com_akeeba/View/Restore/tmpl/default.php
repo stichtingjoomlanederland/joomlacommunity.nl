@@ -70,7 +70,7 @@ $this->getContainer()->template->addJSInline($js);
 	<input type="hidden" name="view" value="Restore" />
 	<input type="hidden" name="task" value="start" />
 	<input type="hidden" name="id" value="<?php echo (int)$this->id; ?>" />
-	<input type="hidden" name="<?php echo JFactory::getSession()->getToken()?>" value="1"/>
+	<input type="hidden" name="<?php echo $this->container->platform->getToken(true)?>" value="1"/>
 
 	<fieldset>
 		<legend><?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_EXTRACTIONMETHOD'); ?></legend>

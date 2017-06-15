@@ -84,8 +84,7 @@ class ControlPanel extends Controller
 			return;
 		}
 
-		$session = $this->container->session;
-		$session->set('profile', $newProfile, 'akeeba');
+		$this->container->platform->setSessionVar('profile', $newProfile, 'akeeba');
 		$url       = '';
 		$returnurl = $this->input->get('returnurl', '', 'base64');
 
@@ -141,7 +140,7 @@ ENDRESULT;
 		echo '###' . $result . '###';
 
 		// Cut the execution short
-		JFactory::getApplication()->close();
+		$this->container->platform->closeApplication();
 	}
 
 	/**
@@ -193,14 +192,13 @@ ENDRESULT;
 		// CSRF prevention
 		$this->csrfProtection();
 
-		$session   = $this->container->session;
-		$newSecret = $session->get('newSecretWord', null, 'akeeba.cpanel');
+		$newSecret = $this->container->platform->getSessionVar('newSecretWord', null, 'akeeba.cpanel');
 
 		if (empty($newSecret))
 		{
 			$random    = new \Akeeba\Engine\Util\RandomValue();
 			$newSecret = $random->generateString(32);
-			$session->set('newSecretWord', $newSecret, 'akeeba.cpanel');
+			$this->container->platform->setSessionVar('newSecretWord', $newSecret, 'akeeba.cpanel');
 		}
 
 		$this->container->params->set('frontend_secret_word', $newSecret);

@@ -16,8 +16,8 @@ use Akeeba\Backup\Admin\Model\ControlPanel;
 use Akeeba\Backup\Admin\View\ViewTraits\ProfileIdAndName;
 use Akeeba\Backup\Admin\View\ViewTraits\ProfileList;
 use Akeeba\Engine\Factory;
+use FOF30\Date\Date;
 use FOF30\View\DataView\Html as BaseView;
-use JDate;
 use JFactory;
 use JHtml;
 use JLoader;
@@ -290,9 +290,9 @@ class Html extends BaseView
 	private function getDefaultDescription()
 	{
 		$tzDefault           = $this->container->platform->getConfig()->get('offset');
-		$user                = JFactory::getUser();
+		$user                = $this->container->platform->getUser();
 		$tz                  = $user->getParam('timezone', $tzDefault);
-		$dateNow             = new JDate('now', $tz);
+		$dateNow             = new Date('now', $tz);
 		$default_description = JText::_('COM_AKEEBA_BACKUP_DEFAULT_DESCRIPTION') . ' ' .
 			$dateNow->format(JText::_('DATE_FORMAT_LC2'), true);
 

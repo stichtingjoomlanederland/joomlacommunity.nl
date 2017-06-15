@@ -216,38 +216,6 @@ abstract class Base extends BaseObject
 	}
 
 	/**
-	 * Overrides setWarning() in order to also write the warning  message to the log file
-	 *
-	 * @param   string $warning The warning message
-	 *
-	 * @codeCoverageIgnore
-	 *
-	 * @return  void
-	 */
-	public function setWarning($warning)
-	{
-		parent::setWarning($warning);
-
-		Factory::getLog()->log(LogLevel::WARNING, $warning);
-	}
-
-	/**
-	 * Overrides setError() in order to also write the error message to the log file
-	 *
-	 * @param   string $error The error message
-	 *
-	 * @codeCoverageIgnore
-	 *
-	 * @return  void
-	 */
-	public function setError($error)
-	{
-		parent::setError($error);
-
-		Factory::getLog()->log(LogLevel::ERROR, $error);
-	}
-
-	/**
 	 * Initialises the archiver class, creating the archive from an existent
 	 * installer's JPA archive. MUST BE OVERRIDEN BY CHILDREN CLASSES.
 	 *

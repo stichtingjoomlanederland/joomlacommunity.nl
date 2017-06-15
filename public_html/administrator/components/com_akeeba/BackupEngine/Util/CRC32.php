@@ -78,10 +78,12 @@ class CRC32 extends Object
 	{
 		// Detection of buggy PHP hosts
 		static $mustInvert = null;
+
 		if (is_null($mustInvert))
 		{
 			$test_crc = @hash('crc32b', 'test', false);
 			$mustInvert = (strtolower($test_crc) == '0c7e7fd8'); // Normally, it's D87F7E0C :)
+
 			if ($mustInvert)
 			{
 				Factory::getLog()->log(LogLevel::WARNING, 'Your server has a buggy PHP version which produces inverted CRC32 values. Attempting a workaround. ZIP files may appear as corrupt.');
@@ -89,6 +91,7 @@ class CRC32 extends Object
 		}
 
 		$res = @hash_file('crc32b', $filename, false);
+
 		if ($mustInvert)
 		{
 			// Workaround for buggy PHP versions (I think before 5.1.8) which produce inverted CRC32 sums

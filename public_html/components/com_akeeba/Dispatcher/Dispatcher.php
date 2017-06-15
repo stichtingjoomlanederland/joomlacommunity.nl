@@ -66,12 +66,11 @@ class Dispatcher extends AdminDispatcher
 		}
 
 		// Make sure we have a profile set throughout the component's lifetime
-		$session    = $this->container->session;
-		$profile_id = $session->get('profile', null, 'akeeba');
+		$profile_id = $this->container->platform->getSessionVar('profile', null, 'akeeba');
 
 		if (is_null($profile_id))
 		{
-			$session->set('profile', 1, 'akeeba');
+			$this->container->platform->setSessionVar('profile', 1, 'akeeba');
 		}
 
 		// Load Akeeba Engine

@@ -42,7 +42,6 @@ $this->getContainer()->template->addJSInline($js);
 <?php echo $this->loadAnyTemplate('admin:com_akeeba/Manage/howtorestore_modal'); ?>
 <?php endif; ?>
 
-<?php if ( ! ($this->promptForBackupRestoration)): ?>
 <div class="alert alert-info">
 	<button class="close" data-dismiss="alert">×</button>
 	<h4 class="alert-heading"><?php echo \JText::_('COM_AKEEBA_BUADMIN_LABEL_HOWDOIRESTORE_LEGEND'); ?></h4>
@@ -53,7 +52,6 @@ $this->getContainer()->template->addJSInline($js);
 			'https://www.akeebabackup.com/latest-kickstart-core.zip'
 			); ?>
 </div>
-<?php endif; ?>
 
 <div id="j-main-container">
 	<form action="index.php" method="post" name="adminForm" id="adminForm">
@@ -63,7 +61,7 @@ $this->getContainer()->template->addJSInline($js);
 		<input type="hidden" name="task" id="task" value="default"/>
 		<input type="hidden" name="filter_order" id="filter_order" value="<?php echo $this->escape($this->order); ?>"/>
 		<input type="hidden" name="filter_order_Dir" id="filter_order_Dir" value="<?php echo $this->escape($this->order_Dir); ?>"/>
-		<input type="hidden" name="<?php echo \JFactory::getSession()->getFormToken(); ?>" value="1"/>
+		<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1"/>
 
 		<div id="filter-bar" class="btn-toolbar">
 			<div class="filter-search btn-group pull-left">

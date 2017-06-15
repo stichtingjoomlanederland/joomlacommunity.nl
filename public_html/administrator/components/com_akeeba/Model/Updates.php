@@ -232,7 +232,7 @@ This email is sent to you by your own site, [SITENAME]
 
 ENDBODY;
 
-		$jconfig  = \JFactory::getConfig();
+		$jconfig  = $this->container->platform->getConfig();
 		$sitename = $jconfig->get('sitename');
 
 		$substitutions = array(
@@ -315,7 +315,7 @@ ENDBODY;
 			$url .= $extra_query;
 		}
 
-		$config   = \JFactory::getConfig();
+		$config   = $this->container->platform->getConfig();
 		$tmp_dest = $config->get('tmp_path');
 
 		if (!$tmp_dest)

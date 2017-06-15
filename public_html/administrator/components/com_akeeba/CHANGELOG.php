@@ -1,4 +1,52 @@
 <?php die();?>
+Akeeba Backup 5.4.0
+================================================================================
+# [HIGH] Resuming after error was broken when using the file storage for temporary files (default)
+# [MEDIUM] Errors when reading the backup engine's state were not reported, causing the backup to seem like it runs forever
+# [MEDIUM] Database storage wouldn't report the lack of stored engine state, potentially causing forever stuck backups
+# [MEDIUM] Blank page if you delete all backup profiles from the database (a default backup profile could not be created in this case)
+# [MEDIUM] Errors always result in the resume pane being shown, no matter what your settings are
+# [LOW] The Warnings pane was always displayed following resuming from a backup error
+# [LOW] The How to Restore modal would get in the way unless you chose to not be reminded again
+
+Akeeba Backup 5.4.0.b1
+================================================================================
+! Yet another BIG Joomla! 3.7.0 bug throws an exception when using the CLI backup under some circumstances.
+! Yet another BIG Joomla! 3.7.0 bug kills the front-end and remote backup when you are using the System - Page Cache plugin.
+- Removing the automatic update CLI script. Joomla! 3.7.0 can no longer execute extension installation under a CLI application.
+# [HIGH] PHP Fatal Error if the row batch size leads to an amount of data that exceeds free PHP memory
+# [HIGH] Large database records can cause an infinitely growing runaway backup or, if you're lucky, a backup crash due to exceeding PHP time limits.
+# [MEDIUM] Database hostname localhost:3306 leads to connection error under some circumstances. Note that this hostname is wrong: you should use localhost without a port instead!
+# [MEDIUM] Logic error leads to leftover temporary database dump files in the backup output directory under some circumstances
+# [LOW] The wrong message is shown by ANGIE when performing an integrated restoration through Akeeba Backup for Joomla!
+# [LOW] Wouldn't show up in the Joomla! 3.7 new backend menu type selection dialog
+# [LOW] FTP/SFTP over cURL uploads would fail if the remote directory couldn't be created
+
+Akeeba Backup 5.3.4
+================================================================================
+# [MEDIUM] Integrated restoration leads to an error message about the file extension being wrong
+
+Akeeba Backup 5.3.3
+================================================================================
+! The workaround to Joomla! 3.7's date bugs could cause a blank / error page (with an error about double timezone) under some circumstances.
+! Joomla! 3.7.0 broke backwards compatibility again, making CLI scripts fail.
+! Joomla! 3.7.0 broke the JDate package, effectively ignoring timezones, causing grave errors in date / time calculations and display
+~ Workaround for badly configured servers which print out notices before we have the chance to set the error reporting
+~ Control Panel: Display the backup date/time in the user's timezone
+~ Default backup description in the component backend includes the date / time in the user's local timezone instead of GMT
+~ Date and time shown in Site Transfer Wizard is in the user's local timezone instead of GMT
+# [LOW] Joomla! 3.7 added a fixed width to specific button classes in the toolbar, breaking the page layout
+
+Akeeba Backup 5.3.2
+================================================================================
+! Joomla! 3.7.0 broke backwards compatibility again, making CLI scripts fail.
+! Joomla! 3.7.0 broke the JDate package, effectively ignoring timezones, causing grave errors in date / time calculations and display
+~ Workaround for badly configured servers which print out notices before we have the chance to set the error reporting
+~ Control Panel: Display the backup date/time in the user's timezone
+~ Default backup description in the component backend includes the date / time in the user's local timezone instead of GMT
+~ Date and time shown in Site Transfer Wizard is in the user's local timezone instead of GMT
+# [LOW] Joomla! 3.7 added a fixed width to specific button classes in the toolbar, breaking the page layout
+
 Akeeba Backup 5.3.1
 ================================================================================
 # [HIGH] Integrated restoration: clicking Run the Installer does nothing; you can still run the installer manually

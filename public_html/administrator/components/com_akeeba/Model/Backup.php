@@ -14,8 +14,8 @@ use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use Akeeba\Engine\Util\PushMessages;
 use Exception;
+use FOF30\Date\Date;
 use FOF30\Model\Model;
-use JDate;
 use JLoader;
 use JText;
 use Psr\Log\LogLevel;
@@ -110,7 +110,21 @@ class Backup extends Model
 		if (empty($description))
 		{
 			JLoader::import('joomla.utilities.date');
-			$dateNow     = new JDate();
+			$dateNow  = new Date();
+			$timezone = $this->container->platform->getConfig()->get('offset', 'UTC');
+
+			if (!$this->getContainer()->platform->isCli())
+			{
+				$user     = $this->container->platform->getUser();
+
+				if (!$user->guest)
+				{
+					$timezone = $user->getParam('timezone', $timezone);
+				}
+			}
+
+			$tz       = new \DateTimeZone($timezone);
+			$dateNow->setTimezone($tz);
 			$description =
 				JText::_('COM_AKEEBA_BACKUP_DEFAULT_DESCRIPTION') . ' ' .
 				$dateNow->format(JText::_('DATE_FORMAT_LC2'), true);
@@ -163,8 +177,13 @@ class Backup extends Model
 				}
 
 				return [
-					'HasRun' => 0,
-					'Error'  => 'Failed configuration check Q' . $checkItem['code'] . ': ' . $checkItem['description'] . '. Please refer to https://www.akeebabackup.com/documentation/warnings/q' . $checkItem['code'] . '.html for more information and troubleshooting instructions.',
+					'HasRun'   => 0,
+					'Domain'   => 'init',
+					'Step'     => '',
+					'Substep'  => '',
+					'Error'    => 'Failed configuration check Q' . $checkItem['code'] . ': ' . $checkItem['description'] . '. Please refer to https://www.akeebabackup.com/documentation/warnings/q' . $checkItem['code'] . '.html for more information and troubleshooting instructions.',
+					'Warnings' => array(),
+					'Progress' => 0,
 				];
 			}
 		}
@@ -263,10 +282,17 @@ class Backup extends Model
 		}
 
 		// Get the profile from the session, the AKEEBA_PROFILE constant or the model state – in this order
-		$session = $this->container->session;
-		$profile = $session->get('profile', null);
-		$profile = defined('AKEEBA_PROFILE') ? AKEEBA_PROFILE : $profile;
-		$profile = $this->getState('profile', $profile, 'int');
+		if ($this->container->platform->isCli())
+		{
+			$profile = defined('AKEEBA_PROFILE') ? AKEEBA_PROFILE : 1;
+		}
+		else
+		{
+			$profile = $this->container->platform->getSessionVar('profile', null);
+			$profile = defined('AKEEBA_PROFILE') ? AKEEBA_PROFILE : $profile;
+			$profile = $this->getState('profile', $profile, 'int');
+		}
+
 		$profile = max(0, (int) $profile);
 
 		if (empty($profile))
@@ -275,7 +301,10 @@ class Backup extends Model
 		}
 
 		// Set the active profile
-		$session->set('profile', $profile);
+		if (!$this->container->platform->isCli())
+		{
+			$this->container->platform->setSessionVar('profile', $profile);
+		}
 
 		if (!defined('AKEEBA_PROFILE'))
 		{
@@ -284,7 +313,13 @@ class Backup extends Model
 
 		// Run a backup step
 		$ret_array = array(
+			'HasRun' => 0,
+			'Domain'   => 'init',
+			'Step'     => '',
+			'Substep'  => '',
 			'Error' => '',
+			'Warnings' => array(),
+			'Progress' => 0,
 		);
 
 		try
@@ -323,6 +358,21 @@ class Backup extends Model
 
 		if (!empty($ret_array['Error']) || ($ret_array['HasRun'] == 1))
 		{
+			/**
+			 * Do not nuke the Factory if we're trying to resume after an error.
+			 *
+			 * When the resume after error (retry) feature is enabled AND we are performing a backend backup we MUST
+			 * leave the factory storage intact so we can actually resume the backup. If we were to nuke the Factory
+			 * the resume would report that it cannot load the saved factory and lead to a failed backup.
+			 */
+			$config = Factory::getConfiguration();
+
+			if ($this->container->platform->isBackend() && $config->get('akeeba.advanced.autoresume', 1))
+			{
+				// We are about to resume; abort.
+				return $ret_array;
+			}
+
 			// Clean up
 			Factory::nuke();
 

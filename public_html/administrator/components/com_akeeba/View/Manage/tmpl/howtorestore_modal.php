@@ -50,7 +50,7 @@ $this->getContainer()->template->addJSInline($js);
                 ); ?>
 	</div>
 	<div class="modal-footer">
-		<a href="#" class="btn" onclick="akeeba.System.howToRestoreModal.close();">
+		<a href="#" class="btn" onclick="akeeba.System.howToRestoreModal.close(); document.getElementById('akeeba-config-howtorestore-bubble').style.display = 'none'">
 			<span class="icon icon-cancel"></span>
 			<?php echo \JText::_('COM_AKEEBA_BUADMIN_BTN_REMINDME'); ?>
 		</a>

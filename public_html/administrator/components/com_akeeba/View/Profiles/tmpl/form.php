@@ -14,7 +14,7 @@ defined('_JEXEC') or die();
 	<input type="hidden" name="boxchecked" id="boxchecked" value="0" />
 	<input type="hidden" name="task" id="task" value="save" />
 	<input type="hidden" name="id" id="id" value="<?php echo (int)$this->item->id; ?>" />
-	<input type="hidden" name="<?php echo \JFactory::getSession()->getFormToken(); ?>" value="1" />
+	<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1" />
 	
 	<div class="control-group">
 		<label class="control-label" for="description">

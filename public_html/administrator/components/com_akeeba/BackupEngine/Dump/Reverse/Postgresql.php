@@ -80,6 +80,7 @@ class Postgresql extends NativeMysql
 
 		// First, get a map of table names <--> abstract names
 		$this->reverse_engineer_db();
+
 		if ($this->getError())
 		{
 			return;
@@ -100,7 +101,7 @@ class Postgresql extends NativeMysql
 		}
 	}
 
-	protected function  reverse_engineer_db()
+	protected function reverse_engineer_db()
 	{
 		// Get a database connection
 		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Reverse engineering database");
@@ -121,7 +122,9 @@ class Postgresql extends NativeMysql
 
 		if (!$dbi->select('information_schema'))
 		{
-			Factory::getLog()->log(LogLevel::ERROR, __CLASS__ . " :: Could not connect to the INFORMATION_SCHEMA database");
+			$this->setError(__CLASS__ . " :: Could not connect to the INFORMATION_SCHEMA database");
+
+			return;
 		}
 
 		// Get the list of all database tables and views
@@ -179,10 +182,7 @@ class Postgresql extends NativeMysql
 				// Filter and convert
 				if (substr($table_name, 0, 3) == '#__')
 				{
-					$warningMessage =
-						__CLASS__ . " :: Table $table_name has a prefix of #__. This would cause restoration errors; table skipped.";
-					$this->setWarning($warningMessage);
-					Factory::getLog()->log(LogLevel::WARNING, $warningMessage);
+					$this->setWarning(__CLASS__ . " :: Table $table_name has a prefix of #__. This would cause restoration errors; table skipped.");
 
 					continue;
 				}
@@ -545,10 +545,8 @@ class Postgresql extends NativeMysql
 				// Filter and convert
 				if (substr($table_name, 0, 3) == '#__')
 				{
-					$warningMessage =
-						__CLASS__ . " :: View $table_name has a prefix of #__. This would cause restoration errors; table skipped.";
-					$this->setWarning($warningMessage);
-					Factory::getLog()->log(LogLevel::WARNING, $warningMessage);
+					$this->setWarning(__CLASS__ . " :: View $table_name has a prefix of #__. This would cause restoration errors; table skipped.");
+
 					continue;
 				}
 				$table_abstract = $this->getAbstract($table_name);

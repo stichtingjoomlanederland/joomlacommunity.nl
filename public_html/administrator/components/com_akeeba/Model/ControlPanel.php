@@ -467,8 +467,7 @@ class ControlPanel extends Model
 		$profiles = $db->loadColumn();
 
 		// Save the current profile number
-		$session    = $this->container->session;
-		$oldProfile = $session->get('profile', 1, 'akeeba');
+		$oldProfile = $this->container->platform->getSessionVar('profile', 1, 'akeeba');
 
 		// Update all profiles
 		foreach ($profiles as $profile_id)
@@ -510,14 +509,13 @@ class ControlPanel extends Model
 		catch (RuntimeException $e)
 		{
 			// Ah, the current Secret Word is bad. Create a new one if necessary.
-			$session   = JFactory::getSession();
-			$newSecret = $session->get('newSecretWord', null, 'akeeba.cpanel');
+			$newSecret = $this->container->platform->getSessionVar('newSecretWord', null, 'akeeba.cpanel');
 
 			if (empty($newSecret))
 			{
 				$random    = new \Akeeba\Engine\Util\RandomValue();
 				$newSecret = $random->generateString(32);
-				$session->set('newSecretWord', $newSecret, 'akeeba.cpanel');
+				$this->container->platform->setSessionVar('newSecretWord', $newSecret, 'akeeba.cpanel');
 			}
 
 			return $e->getMessage();

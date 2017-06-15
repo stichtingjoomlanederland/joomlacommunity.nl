@@ -422,4 +422,15 @@ class Filters extends Object
 		return false;
 	}
 
+	/**
+	 * Resets all filters, reverting them to a blank state
+	 *
+	 * @return  void
+	 *
+	 * @since   5.4.0
+	 */
+	public function reset()
+	{
+		$this->filter_registry = array();
+	}
 }

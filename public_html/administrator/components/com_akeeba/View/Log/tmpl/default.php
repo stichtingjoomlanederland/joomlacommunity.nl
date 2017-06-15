@@ -14,7 +14,7 @@ defined('_JEXEC') or die();
 <form name="adminForm" id="adminForm" action="index.php" method="post" class="form-inline">
 	<input name="option" value="com_akeeba" type="hidden" />
 	<input name="view" value="Log" type="hidden" />
-	<input type="hidden" name="<?php echo \JFactory::getSession()->getFormToken(); ?>" value="1" />
+	<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1" />
 	<fieldset>
 		<label for="tag"><?php echo \JText::_('COM_AKEEBA_LOG_CHOOSE_FILE_TITLE'); ?></label>
 		<?php echo \JHtml::_('select.genericlist', $this->logs, 'tag', 'onchange="submitform();" class="advancedSelect"', 'value', 'text', $this->tag); ?>

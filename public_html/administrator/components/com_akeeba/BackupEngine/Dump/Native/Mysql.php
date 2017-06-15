@@ -14,6 +14,7 @@ namespace Akeeba\Engine\Dump\Native;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
+use Akeeba\Backup\Admin\Controller\Log;
 use Akeeba\Engine\Dump\Base;
 use Akeeba\Engine\Factory;
 use Psr\Log\LogLevel;
@@ -259,17 +260,15 @@ class Mysql extends Base
 			}
 		}
 
+		// Load the active database root
+		$configuration    = Factory::getConfiguration();
+		$dbRoot           = $configuration->get('volatile.database.root', '[SITEDB]');
+
+		// Get the default and the current (optimal) batch size
+		$defaultBatchSize = $this->getDefaultBatchSize();
+		$batchSize        = $configuration->get('volatile.database.batchsize', $defaultBatchSize);
+
 		// Check if we have more work to do on this table
-		$configuration = Factory::getConfiguration();
-		$batchsize     = intval($configuration->get('engine.dump.common.batchsize', 1000));
-
-		if ($batchsize <= 0)
-		{
-			$batchsize = 1000;
-		}
-
-		$dbRoot                    = $configuration->get('volatile.database.root', '[SITEDB]');
-
 		if (($this->nextRange < $this->maxRange))
 		{
 			$timer = Factory::getTimer();
@@ -286,9 +285,14 @@ class Mysql extends Base
 
 			if ($this->nextRange == 0)
 			{
+				// Get the optimal batch size for this table and save it to the volatile data
+				$batchSize = $this->getOptimalBatchSize($tableAbstract, $defaultBatchSize);
+				$configuration->set('volatile.database.batchsize', $batchSize);
+
 				// First run, get a cursor to all records
-				$db->setQuery($sql, 0, $batchsize);
+				$db->setQuery($sql, 0, $batchSize);
 				Factory::getLog()->log(LogLevel::INFO, "Beginning dump of " . $tableAbstract);
+				Factory::getLog()->log(LogLevel::DEBUG, "Up to $batchSize records will be read at once.");
 			}
 			else
 			{
@@ -301,13 +305,13 @@ class Mysql extends Base
 					Factory::getLog()
 					       ->log(LogLevel::INFO, "Continuing dump of " . $tableAbstract . " from record #{$this->nextRange} using auto_increment column {$this->table_autoincrement['field']} and value {$this->table_autoincrement['value']}");
 					$sql->where($db->qn($this->table_autoincrement['field']) . ' > ' . $db->q($this->table_autoincrement['value']));
-					$db->setQuery($sql, 0, $batchsize);
+					$db->setQuery($sql, 0, $batchSize);
 				}
 				else
 				{
 					Factory::getLog()
 					       ->log(LogLevel::INFO, "Continuing dump of " . $tableAbstract . " from record #{$this->nextRange}");
-					$db->setQuery($sql, $this->nextRange, $batchsize);
+					$db->setQuery($sql, $this->nextRange, $batchSize);
 				}
 			}
 
@@ -339,7 +343,21 @@ class Mysql extends Base
 
 			while (is_array($myRow = $db->fetchAssoc()) && ($numRows < ($this->maxRange - $this->nextRange)))
 			{
-				$this->createNewPartIfRequired();
+				if ($this->createNewPartIfRequired() == false)
+				{
+					/**
+					 * When createNewPartIfRequired returns false it means that we have began adding a SQL part to the
+					 * backup archive but it hasn't finished. If we don't return here, the code below will keep adding
+					 * data to that dump file. Yes, despite being closed. When you call writeDump the file is reopened.
+					 * As a result of writing data of length Y, the file that had a size X now has a size of X + Y. This
+					 * means that the loop in BaseArchiver which tries to add it to the archive will never see its End
+					 * Of File since we are trying to resume the backup from *beyond* the file position that was
+					 * recorded as the file size. The archive can detect a file shrinking but not a file growing!
+					 * Therefore we hit an infinite loop a.k.a. runaway backup.
+					 */
+					return;
+				}
+
 				$numRows ++;
 				$numOfFields = count($myRow);
 
@@ -774,10 +792,8 @@ class Mysql extends Base
 		{
 			if (substr($table_name, 0, 3) == '#__')
 			{
-				$warningMessage =
-					__CLASS__ . " :: Table $table_name has a prefix of #__. This would cause restoration errors; table skipped.";
-				$this->setWarning($warningMessage);
-				Factory::getLog()->log(LogLevel::WARNING, $warningMessage);
+				$this->setWarning(__CLASS__ . " :: Table $table_name has a prefix of #__. This would cause restoration errors; table skipped.");
+
 				continue;
 			}
 
@@ -1324,10 +1340,8 @@ class Mysql extends Base
 			// If the query failed we don't have the necessary SHOW privilege. Log the error and fake an empty reply.
 			$entityType = ($type == 'merge') ? 'table' : $type;
 			$msg = $e->getMessage();
-			$warningMessage =
-				"Cannot get the structure of $entityType $table_abstract. Database returned error $msg running $sql  Please check your database privileges. Your database backup may be incomplete.";
-			$this->setWarning($warningMessage);
-			Factory::getLog()->log(LogLevel::WARNING, $warningMessage);
+			$this->setWarning("Cannot get the structure of $entityType $table_abstract. Database returned error $msg running $sql  Please check your database privileges. Your database backup may be incomplete.");
+
 			$db->resetErrors();
 
 			$temp = array(
@@ -1932,5 +1946,124 @@ class Mysql extends Base
 		$sqlComments = '@(([\'"]).*?[^\\\]\2)|((?:\#|--).*?$|/\*(?:[^/*]|/(?!\*)|\*(?!/)|(?R))*\*\/)\s*|(?<=;)\s+@ms';
 
 		return preg_replace($sqlComments, '$1', $sql);
+	}
+
+	/**
+	 * Get the default database dump batch size from the configuration
+	 *
+	 * @return  int
+	 */
+	protected function getDefaultBatchSize()
+	{
+		static $batchSize = null;
+
+		if (is_null($batchSize))
+		{
+			$configuration = Factory::getConfiguration();
+			$batchSize = intval($configuration->get('engine.dump.common.batchsize', 1000));
+
+			if ($batchSize <= 0)
+			{
+				$batchSize = 1000;
+			}
+		}
+
+		return $batchSize;
+	}
+
+	/**
+	 * Get the optimal row batch size for a given table based on the available memory
+	 *
+	 * @param   string  $tableAbstract     The abstract table name, e.g. #__foobar
+	 * @param   int     $defaultBatchSize  The default row batch size in the application configuration
+	 *
+	 * @return  int
+	 */
+	protected function getOptimalBatchSize($tableAbstract, $defaultBatchSize)
+	{
+		$db = $this->getDB();
+
+		try
+		{
+			$info = $db->setQuery('SHOW TABLE STATUS LIKE ' . $db->q($tableAbstract))->loadAssoc();
+		}
+		catch (\Exception $e)
+		{
+			return $defaultBatchSize;
+		}
+
+		if (!isset($info['Avg_row_length']) || empty($info['Avg_row_length']))
+		{
+			return $defaultBatchSize;
+		}
+
+		// That's the average row size as reported by MySQL.
+		$avgRow      = str_replace(array(',', '.'), array('', ''), $info['Avg_row_length']);
+		// The memory available for manipulating data is less than the free memory
+		$memoryLimit = $this->getMemoryLimit();
+		$memoryLimit = empty($memoryLimit) ? 33554432 : $memoryLimit;
+		$usedMemory  = memory_get_usage();
+		$memoryLeft  = 0.75 * ($memoryLimit - $usedMemory);
+		// The 3.25 factor is empirical and leans on the safe side.
+		$maxRows     = (int) ($memoryLeft / (3.25 * $avgRow));
+
+		return max(1, min($maxRows, $defaultBatchSize));
+	}
+
+	/**
+	 * Converts a human formatted size to integer representation of bytes,
+	 * e.g. 1M to 1024768
+	 *
+	 * @param   string  $setting  The value in human readable format, e.g. "1M"
+	 *
+	 * @return  integer  The value in bytes
+	 */
+	protected function humanToIntegerBytes($setting)
+	{
+		$val = trim($setting);
+		$last = strtolower($val{strlen($val) - 1});
+
+		if (is_numeric($last))
+		{
+			return $setting;
+		}
+
+		switch ($last)
+		{
+			case 't':
+				$val *= 1024;
+			case 'g':
+				$val *= 1024;
+			case 'm':
+				$val *= 1024;
+			case 'k':
+				$val *= 1024;
+		}
+
+		return (int) $val;
+	}
+
+	/**
+	 * Get the PHP memory limit in bytes
+	 *
+	 * @return int|null  Memory limit in bytes or null if we can't figure it out.
+	 */
+	protected function getMemoryLimit()
+	{
+		if (!function_exists('ini_get'))
+		{
+			return null;
+		}
+
+		$memLimit = ini_get("memory_limit");
+
+		if ((is_numeric($memLimit) && ($memLimit < 0)) || !is_numeric($memLimit))
+		{
+			$memLimit = 0; // 1.2a3 -- Rare case with memory_limit < 0, e.g. -1Mb!
+		}
+
+		$memLimit = $this->humanToIntegerBytes($memLimit);
+
+		return $memLimit;
 	}
 }

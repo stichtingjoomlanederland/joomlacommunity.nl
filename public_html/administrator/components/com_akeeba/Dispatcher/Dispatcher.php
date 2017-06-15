@@ -96,12 +96,11 @@ class Dispatcher extends BaseDispatcher
 		}
 
 		// Make sure we have a profile set throughout the component's lifetime
-		$session    = $this->container->session;
-		$profile_id = $session->get('profile', null, 'akeeba');
+		$profile_id = $this->container->platform->getSessionVar('profile', null, 'akeeba');
 
 		if (is_null($profile_id))
 		{
-			$session->set('profile', 1, 'akeeba');
+			$this->container->platform->setSessionVar('profile', 1, 'akeeba');
 		}
 
 		// Load Akeeba Engine
@@ -138,9 +137,7 @@ class Dispatcher extends BaseDispatcher
 			}
 
 			$msg = \JText::_('COM_AKEEBA_CONTROLPANEL_MSG_REBUILTTABLES');
-			$app = \JFactory::getApplication();
-			$app->enqueueMessage($msg, 'warning');
-			$app->redirect('index.php', 307);
+			$this->container->platform->redirect('index.php', 307, $msg, 'warning');
 		}
 
 		// Prevents the "SQLSTATE[HY000]: General error: 2014" due to resource sharing with Akeeba Engine
@@ -233,14 +230,14 @@ class Dispatcher extends BaseDispatcher
 		}
 
 		// Update the db structure if necessary (once per session at most)
-		$lastVersion = $this->container->session->get('magicParamsUpdateVersion', null, 'com_akeeba');
+		$lastVersion = $this->container->platform->getSessionVar('magicParamsUpdateVersion', null, 'com_akeeba');
 
 		if ($lastVersion != AKEEBA_VERSION)
 		{
 			try
 			{
 				$model->checkAndFixDatabase();
-				$this->container->session->set('magicParamsUpdateVersion', AKEEBA_VERSION, 'com_akeeba');
+				$this->container->platform->setSessionVar('magicParamsUpdateVersion', AKEEBA_VERSION, 'com_akeeba');
 			}
 			catch (\RuntimeException $e)
 			{

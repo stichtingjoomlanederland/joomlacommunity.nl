@@ -547,7 +547,7 @@ function deadOnTimeOut()
 	}
 	elseif (connection_status() >= 2)
 	{
-		Factory::getLog()->log(LogLevel::ERROR, Platform::getInstance()->translate('COM_AKEEBA_BACKUP_ERR_KETTENRAD_TIMEOUT'));
+		Factory::getLog()->log(LogLevel::ERROR, 'Akeeba Backup has timed out. Please read the documentation.');
 	}
 }
 

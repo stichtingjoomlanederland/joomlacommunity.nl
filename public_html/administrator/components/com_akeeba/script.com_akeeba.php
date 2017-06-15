@@ -161,6 +161,9 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 	 */
 	protected $removeFilesAllVersions = array(
 		'files'   => array(
+            // Outdated CLI scripts
+            'cli/akeeba-update.php',
+
 			// Outdated media files
 			'media/com_akeeba/js/akeebajq.js',
 			'media/com_akeeba/js/akeebajqui.js',
@@ -193,6 +196,19 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			// -- Back-end
 			'administrator/components/com_akeeba/dispatcher.php',
 			'administrator/components/com_akeeba/toolbar.php',
+			'administrator/components/com_akeeba/views/backup/view.html.php',
+			'administrator/components/com_akeeba/views/backup/tmpl/default.php',
+			'administrator/components/com_akeeba/views/restore/view.html.php',
+			'administrator/components/com_akeeba/views/restore/tmpl/default.php',
+			'administrator/components/com_akeeba/views/restore/tmpl/restore.php',
+			'administrator/components/com_akeeba/views/transfer/view.html.php',
+			'administrator/components/com_akeeba/views/transfer/tmpl/default.php',
+			'administrator/components/com_akeeba/views/transfer/tmpl/default_dialogs.php',
+			'administrator/components/com_akeeba/views/transfer/tmpl/default_manualtransfer.php',
+			'administrator/components/com_akeeba/views/transfer/tmpl/default_prerequisites.php',
+			'administrator/components/com_akeeba/views/transfer/tmpl/default_remoteconnection.php',
+			'administrator/components/com_akeeba/views/transfer/tmpl/default_upload.php',
+
 			// -- Front-end
 			'components/com_akeeba/dispatcher.php',
 
@@ -287,7 +303,26 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			'administrator/components/com_akeeba/models',
 			'administrator/components/com_akeeba/platform',
 			'administrator/components/com_akeeba/tables',
-			'administrator/components/com_akeeba/views',
+            'administrator/components/com_akeeba/views/alices',
+			'administrator/components/com_akeeba/views/browser',
+			'administrator/components/com_akeeba/views/buadmin',
+			'administrator/components/com_akeeba/views/config',
+			'administrator/components/com_akeeba/views/confwiz',
+			'administrator/components/com_akeeba/views/cpanel',
+			'administrator/components/com_akeeba/views/dbef',
+			'administrator/components/com_akeeba/views/discover',
+			'administrator/components/com_akeeba/views/eff',
+			'administrator/components/com_akeeba/views/fsfilter',
+			'administrator/components/com_akeeba/views/log',
+			'administrator/components/com_akeeba/views/multidb',
+			'administrator/components/com_akeeba/views/profiles',
+			'administrator/components/com_akeeba/views/regexdbfilter',
+			'administrator/components/com_akeeba/views/regexfsfilter',
+			'administrator/components/com_akeeba/views/remotefiles',
+			'administrator/components/com_akeeba/views/s3import',
+			'administrator/components/com_akeeba/views/schedule',
+			'administrator/components/com_akeeba/views/updates',
+			'administrator/components/com_akeeba/views/upload',
 			// -- Front-end
 			'components/com_akeeba/controllers',
 			'components/com_akeeba/models',
@@ -837,7 +872,7 @@ HTML;
 	{
 		$db = JFactory::getDbo();
 		$query = $db->getQuery(true)
-					->delete($db->qn('#__update_sites_extensions'))
+					->delete($db->qn('#__update_sites'))
 					->where($db->qn('location') . ' = ' . $db->q('http://cdn.akeebabackup.com/updates/fof.xml'));
 		try
 		{

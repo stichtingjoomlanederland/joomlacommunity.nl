@@ -165,10 +165,8 @@ class Sqlsrv extends NativeMysql
 				// Filter and convert
 				if (substr($table_name, 0, 3) == '#__')
 				{
-					$warningMessage =
-						__CLASS__ . " :: Table $table_name has a prefix of #__. This would cause restoration errors; table skipped.";
-					$this->setWarning($warningMessage);
-					Factory::getLog()->log(LogLevel::WARNING, $warningMessage);
+					$this->setWarning(__CLASS__ . " :: Table $table_name has a prefix of #__. This would cause restoration errors; table skipped.");
+
 					continue;
 				}
 				$table_abstract = $this->getAbstract($table_name);
@@ -634,10 +632,8 @@ class Sqlsrv extends NativeMysql
 			// Filter and convert
 			if (substr($table_name, 0, 3) == '#__')
 			{
-				$warningMessage =
-					__CLASS__ . " :: Table $table_name has a prefix of #__. This would cause restoration errors; table skipped.";
-				$this->setWarning($warningMessage);
-				Factory::getLog()->log(LogLevel::WARNING, $warningMessage);
+				$this->setWarning(__CLASS__ . " :: Table $table_name has a prefix of #__. This would cause restoration errors; table skipped.");
+
 				continue;
 			}
 			$table_abstract = $this->getAbstract($table_name);

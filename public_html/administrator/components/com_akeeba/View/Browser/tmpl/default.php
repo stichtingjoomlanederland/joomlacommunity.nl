@@ -8,8 +8,11 @@
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
+/** @var \Akeeba\Backup\Admin\View\Browser\Html $this */
+
 $rootDirWarning = JText::_('COM_AKEEBA_CONFIG_UI_ROOTDIR', true);
-JFactory::getDocument()->addScriptDeclaration(<<<JS
+
+$this->addJavascriptInline(<<<JS
 
 	;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
 	// due to missing trailing semicolon and/or newline in their code.
@@ -37,7 +40,7 @@ JS
 		<input type="hidden" name="tmpl" value="component"/>
 		<input type="hidden" name="folder" id="folder" value=""/>
 		<input type="hidden" name="processfolder" id="processfolder" value="0"/>
-		<input type="hidden" name="<?php echo \JFactory::getSession()->getFormToken(); ?>" value="1"/>
+		<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1"/>
 	</form>
 <?php endif; ?>
 
@@ -63,7 +66,7 @@ JS
 				<span class="icon-share icon-white"></span>
 				<?php echo \JText::_('COM_AKEEBA_BROWSER_LBL_USE'); ?>
 			</button>
-			<input type="hidden" name="<?php echo \JFactory::getSession()->getFormToken(); ?>" value="1"/>
+			<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1"/>
 		</form>
 	</div>
 </div>

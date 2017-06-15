@@ -16,7 +16,7 @@ defined('_JEXEC') or die();
 	<input type="hidden" name="task" value="" />
 	<input type="hidden" name="view" value="Manage" />
 	<input type="hidden" name="id" value="<?php echo (int)$this->record['id']; ?>" />
-	<input type="hidden" name="<?php echo \JFactory::getSession()->getFormToken(); ?>" value="1" />
+	<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1" />
 
 	<div class="control-group">
 		<label class="control-label" for="description">
@@ -29,7 +29,7 @@ defined('_JEXEC') or die();
 	</div>
 	<div class="control-group">
 		<label class="control-label" for="comment">
-			<?php echo \JText::_('COM_AKEEBA_BUADMIN_LABEL_DESCRIPTION'); ?>
+			<?php echo \JText::_('COM_AKEEBA_BUADMIN_LABEL_COMMENT'); ?>
 		</label>
 		<div class="controls">
 			<?php echo JEditor::getInstance($this->container->platform->getConfig()->get('editor', 'tinymce'))->display('comment',  $this->record['comment'], '550', '400', '60', '20', array()); ?>

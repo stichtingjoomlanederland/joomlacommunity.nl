@@ -12,9 +12,6 @@ defined('_JEXEC') or die();
 
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
-use JDate;
-use JText;
-use Psr\Log\LogLevel;
 
 /**
  * Start a backup job
@@ -53,7 +50,7 @@ class StartBackup extends AbstractTask
 		$backupid    = empty($backupid) ? null : $backupid; // Otherwise the Engine doesn't set a backup ID
 		$overrides   = $filter->clean($defConfig['overrides'], 'array');
 
-		$this->container->session->set('profile', $profile);
+		$this->container->platform->setSessionVar('profile', $profile);
 		define('AKEEBA_PROFILE', $profile);
 
 		/**

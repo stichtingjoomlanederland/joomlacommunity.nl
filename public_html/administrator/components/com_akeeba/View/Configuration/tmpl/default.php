@@ -118,7 +118,7 @@ $this->getContainer()->template->addJSInline($js);
 <input type="hidden" name="option" value="com_akeeba" />
 <input type="hidden" name="view" value="Configuration" />
 <input type="hidden" name="task" value="" />
-<input type="hidden" name="<?php echo JFactory::getSession()->getFormToken()?>" value="1" />
+<input type="hidden" name="<?php echo $this->container->platform->getToken(true) ?>" value="1" />
 
 <!-- This div contains dynamically generated user interface elements -->
 <div id="akeebagui">

@@ -506,10 +506,9 @@ class Finalization extends Part
 
 		if ($result === false)
 		{
-			Factory::getLog()->log(LogLevel::WARNING, 'Failed to process file ' . $filename);
-			Factory::getLog()->log(LogLevel::WARNING, 'Error received from the post-processing engine:');
-            Factory::getLog()->log(LogLevel::WARNING, implode("\n", array_merge($this->getWarnings(), $this->getErrors())));
 			$this->setWarning('Failed to process file ' . $filename);
+			Factory::getLog()->log(LogLevel::WARNING, 'Error received from the post-processing engine:');
+			Factory::getLog()->log(LogLevel::WARNING, implode("\n", array_merge($this->getWarnings(), $this->getErrors())));
 		}
 		elseif ($result === true)
 		{
@@ -647,8 +646,6 @@ class Finalization extends Part
 
 		if (!@file_exists($filename) || !is_file($filename))
 		{
-			Factory::getLog()->log(LogLevel::WARNING, "Failed to upload kickstart.php. File $filename is missing");
-
 			$this->setWarning('Failed to upload kickstart.php. Missing file ' . $filename);
 
 			// Indicate we're done.
@@ -660,11 +657,10 @@ class Finalization extends Part
 
 		if ($result === false)
 		{
-			Factory::getLog()->log(LogLevel::WARNING, 'Failed to upload kickstart.php');
+			$this->setWarning('Failed to upload kickstart.php');
+
 			Factory::getLog()->log(LogLevel::WARNING, 'Error received from the post-processing engine:');
 			Factory::getLog()->log(LogLevel::WARNING, implode("\n", $this->getWarnings()));
-
-			$this->setWarning('Failed to upload kickstart.php');
 		}
 		elseif ($result === true)
 		{

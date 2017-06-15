@@ -39,11 +39,10 @@ class Transfer extends Controller
 	 */
 	public function reset()
 	{
-		$session = $this->container->session;
-		$session->set('transfer', null, 'akeeba');
-		$session->set('transfer.url', null, 'akeeba');
-		$session->set('transfer.url_status', null, 'akeeba');
-		$session->set('transfer.ftpsupport', null, 'akeeba');
+		$this->container->platform->setSessionVar('transfer', null, 'akeeba');
+		$this->container->platform->setSessionVar('transfer.url', null, 'akeeba');
+		$this->container->platform->setSessionVar('transfer.url_status', null, 'akeeba');
+		$this->container->platform->setSessionVar('transfer.ftpsupport', null, 'akeeba');
 
 		/** @var \Akeeba\Backup\Admin\Model\Transfer $model */
 		$model = $this->getModel();
@@ -66,9 +65,8 @@ class Transfer extends Controller
 		$model->savestate(true);
 		$result = $model->checkAndCleanUrl($url);
 
-		$session = $this->container->session;
-		$session->set('transfer.url', $result['url'], 'akeeba');
-		$session->set('transfer.url_status', $result['status'], 'akeeba');
+		$this->container->platform->setSessionVar('transfer.url', $result['url'], 'akeeba');
+		$this->container->platform->setSessionVar('transfer.url_status', $result['status'], 'akeeba');
 
 		@ob_end_clean();
 		echo '###' . json_encode($result) . '###';
@@ -124,19 +122,17 @@ class Transfer extends Controller
 		}
 
 		// Store everything in the session
-		$session = $this->container->session;
-
-		$session->set('transfer.transferOption', $transferOption, 'akeeba');
-		$session->set('transfer.force', $force, 'akeeba');
-		$session->set('transfer.ftpHost', $ftpHost, 'akeeba');
-		$session->set('transfer.ftpPort', $ftpPort, 'akeeba');
-		$session->set('transfer.ftpUsername', $ftpUsername, 'akeeba');
-		$session->set('transfer.ftpPassword', $ftpPassword, 'akeeba');
-		$session->set('transfer.ftpPubKey', $ftpPubKey, 'akeeba');
-		$session->set('transfer.ftpPrivateKey', $ftpPrivateKey, 'akeeba');
-		$session->set('transfer.ftpDirectory', $ftpDirectory, 'akeeba');
-		$session->set('transfer.ftpPassive', $ftpPassive ? 1 : 0, 'akeeba');
-		$session->set('transfer.ftpPassiveFix', $ftpPassiveFix ? 1 : 0, 'akeeba');
+		$this->container->platform->setSessionVar('transfer.transferOption', $transferOption, 'akeeba');
+		$this->container->platform->setSessionVar('transfer.force', $force, 'akeeba');
+		$this->container->platform->setSessionVar('transfer.ftpHost', $ftpHost, 'akeeba');
+		$this->container->platform->setSessionVar('transfer.ftpPort', $ftpPort, 'akeeba');
+		$this->container->platform->setSessionVar('transfer.ftpUsername', $ftpUsername, 'akeeba');
+		$this->container->platform->setSessionVar('transfer.ftpPassword', $ftpPassword, 'akeeba');
+		$this->container->platform->setSessionVar('transfer.ftpPubKey', $ftpPubKey, 'akeeba');
+		$this->container->platform->setSessionVar('transfer.ftpPrivateKey', $ftpPrivateKey, 'akeeba');
+		$this->container->platform->setSessionVar('transfer.ftpDirectory', $ftpDirectory, 'akeeba');
+		$this->container->platform->setSessionVar('transfer.ftpPassive', $ftpPassive ? 1 : 0, 'akeeba');
+		$this->container->platform->setSessionVar('transfer.ftpPassiveFix', $ftpPassiveFix ? 1 : 0, 'akeeba');
 
 		/** @var \Akeeba\Backup\Admin\Model\Transfer $model */
 		$model = $this->getModel();

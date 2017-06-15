@@ -43,8 +43,7 @@ class GetDBRoots extends AbstractTask
 			$profile = 1;
 		}
 
-		$session = $this->container->session;
-		$session->set('profile', $profile);
+		$this->container->platform->setSessionVar('profile', $profile);
 
 		// Load the configuration
 		Platform::getInstance()->load_configuration($profile);

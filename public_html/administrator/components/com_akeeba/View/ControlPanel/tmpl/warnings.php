@@ -22,7 +22,7 @@ defined('_JEXEC') or die();
 		<p>
 		<?php
 			echo \JText::sprintf('COM_AKEEBA_CPANEL_ERR_UPDATE_STUCK',
-					JFactory::getDbo()->getPrefix(),
+					$this->getContainer()->db->getPrefix(),
 					'index.php?option=com_akeeba&view=ControlPanel&task=forceUpdateDb'
 			)?>
 		</p>
@@ -48,7 +48,7 @@ defined('_JEXEC') or die();
 		</p>
 		<p>
 			<a class="btn btn-success btn-large"
-			   href="index.php?option=com_akeeba&view=ControlPanel&task=resetSecretWord&<?php echo JFactory::getSession()->getToken(); ?>=1">
+			   href="index.php?option=com_akeeba&view=ControlPanel&task=resetSecretWord&<?php echo $this->container->platform->getToken(true) ?>=1">
 				<span class="icon icon-white icon-refresh"></span>
 				<?php echo JText::_('COM_AKEEBA_CPANEL_BTN_FESECRETWORD_RESET'); ?>
 			</a>
@@ -86,7 +86,7 @@ defined('_JEXEC') or die();
 			<input type="hidden" name="option" value="com_akeeba" />
 			<input type="hidden" name="view" value="ControlPanel" />
 			<input type="hidden" name="task" value="applydlid" />
-			<input type="hidden" name="<?php echo \JFactory::getSession()->getFormToken(); ?>" value="1" />
+			<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1" />
 		<span>
 			<?php echo JText::_('COM_AKEEBA_CPANEL_MSG_PASTEDLID') ?>
 		</span>

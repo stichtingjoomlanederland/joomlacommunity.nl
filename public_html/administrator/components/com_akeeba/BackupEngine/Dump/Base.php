@@ -14,6 +14,7 @@ namespace Akeeba\Engine\Dump;
 defined('AKEEBAENGINE') or die();
 
 use Akeeba\Engine\Base\Part;
+use Akeeba\Engine\Core\Domain\Pack;
 use Akeeba\Engine\Driver\Base as DriverBase;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
@@ -331,105 +332,51 @@ abstract class Base extends Part
 		// Mark ourselves as still running (we will test if we actually do towards the end ;) )
 		$this->setState('running');
 
-		// Check if we are still adding a database dump part to the archive, or if
-		// we have to post-process a part
+		/**
+		 * Resume packing / post-processing part files if necessary.
+		 *
+		 * @see \Akeeba\Engine\Archiver\BaseArchiver::putDataFromFileIntoArchive
+		 *
+		 * Sometimes the SQL part file may be bigger than the big file threshold (engine.archiver.common.
+		 * big_file_threshold). In this case when we try to add it to the backup archive the archiver engine figures
+		 * out it has to be added uncompressed, one chunk (engine.archiver.common.chunk_size) bytes at a time. This
+		 * happens in a loop. We read a chunk, push it to the archive, rinse and repeat.
+		 *
+		 * There are two cases when we might break the loop:
+		 *
+		 * 1. Not enough free space in the backup archive part and engine.postproc.common.after_part (immediate post-
+		 *    processing) is enabled. We break the step to let the backup part be post-processed.
+		 *
+		 * 2. We ran out of time copying data.
+		 *
+		 * The following if-blocks deal with these two cases.
+		 */
 		if (Factory::getEngineParamsProvider()->getScriptingParameter('db.saveasname', 'normal') != 'output')
 		{
-			$archiver = Factory::getArchiverEngine();
+			$archiver      = Factory::getArchiverEngine();
 			$configuration = Factory::getConfiguration();
 
-			if ($configuration->get('engine.postproc.common.after_part', 0))
+			// Case 1. Immediate post-processing was triggered in the previous step
+			if ($configuration->get('engine.postproc.common.after_part', 0) && !empty($archiver->finishedPart))
 			{
-				if (!empty($archiver->finishedPart))
-				{
-					$filename = array_shift($archiver->finishedPart);
-					Factory::getLog()->log(LogLevel::INFO, 'Preparing to post process ' . basename($filename));
-
-                    $timer     = Factory::getTimer();
-                    $startTime = $timer->getRunningTime();
-					$post_proc = Factory::getPostprocEngine();
-					$result    = $post_proc->processPart($filename);
-					$this->propagateFromObject($post_proc);
-
-					if ($result === false)
-					{
-                        Factory::getLog()->log(LogLevel::WARNING, 'Failed to process file ' . $filename);
-                        Factory::getLog()->log(LogLevel::WARNING, 'Error received from the post-processing engine:');
-                        Factory::getLog()->log(LogLevel::WARNING, implode("\n", array_merge($this->getWarnings(), $this->getErrors())));
-						$this->setWarning('Failed to process file ' . basename($filename));
-					}
-					elseif($result === true)
-					{
-						// Add this part's size to the volatile storage
-						$volatileTotalSize = $configuration->get('volatile.engine.archiver.totalsize', 0);
-						$volatileTotalSize += (int)@filesize($filename);
-						$configuration->set('volatile.engine.archiver.totalsize', $volatileTotalSize);
-
-						Factory::getLog()->log(LogLevel::INFO, 'Successfully processed file ' . basename($filename));
-					}
-                    else
-                    {
-                        // More work required
-                        Factory::getLog()->log(LogLevel::INFO, 'More post-processing steps required for file ' . $filename);
-                        $configuration->set('volatile.postproc.filename', $filename);
-
-                        // Let's push back the file into the archiver stack
-                        array_unshift($archiver->finishedPart, $filename);
-
-                        // Do we need to break the step?
-                        $endTime  = $timer->getRunningTime();
-                        $stepTime = $endTime - $startTime;
-                        $timeLeft = $timer->getTimeLeft();
-
-                        if ($timeLeft < $stepTime)
-                        {
-                            // We predict that running yet another step would cause a timeout
-                            $configuration->set('volatile.breakflag', true);
-                        }
-                        else
-                        {
-                            // We have enough time to run yet another step
-                            $configuration->set('volatile.breakflag', false);
-                        }
-                    }
-
-					// Should we delete the file afterwards?
-					if (
-						$configuration->get('engine.postproc.common.delete_after', false)
-						&& $post_proc->allow_deletes
-						&& ($result === true)
-					)
-					{
-						Factory::getLog()->log(LogLevel::DEBUG, 'Deleting already processed file ' . basename($filename));
-						Platform::getInstance()->unlink($filename);
-					}
-
-					if ($post_proc->break_after)
-					{
-						$configuration->set('volatile.breakflag', true);
-
-						return;
-					}
-				}
-			}
-
-			if ($configuration->get('volatile.engine.archiver.processingfile', false))
-			{
-				// We had already started archiving the db file, but it needs more time
-				$finished = true;
-				Factory::getLog()->log(LogLevel::DEBUG, "Continuing adding the SQL dump part to the archive");
-				$archiver->addFile(null, null, null);
-				$this->propagateFromObject($archiver);
-				if ($this->getError())
+				if (Pack::postProcessDonePartFile($this, $archiver, $configuration))
 				{
 					return;
 				}
-				$finished = !$configuration->get('volatile.engine.archiver.processingfile', false);
-				if ($finished)
-				{
-					$this->getNextDumpPart();
-				}
-				else
+			}
+
+			// We had already started archiving the db file, but it needs more time
+			if ($configuration->get('volatile.engine.archiver.processingfile', false))
+			{
+				/**
+				 * We MUST NOT try to continue adding the file to the backup archive manually. Instead, we have to go
+				 * through getNextDumpPart. This method will continue adding the part to the backup archive and when
+				 * this is done it will remove the file and create a new one.
+				 *
+				 * If that method returns false it means that we either hit an error or the archiver didn't have enough
+				 * time to add the part to the backup archive. In either case we have to return and let the Engine step.
+				 */
+				if ($this->getNextDumpPart() === false)
 				{
 					return;
 				}
@@ -526,35 +473,58 @@ abstract class Base extends Part
 	 */
 	protected function getNextDumpPart()
 	{
-
 		// On database dump only mode we mustn't create part files!
 		if (Factory::getEngineParamsProvider()->getScriptingParameter('db.saveasname', 'normal') == 'output')
 		{
 			return false;
 		}
 
-		// If the archiver is still processing, quit
-		$finished = true;
+		// Is the archiver still processing?
 		$configuration = Factory::getConfiguration();
-		$archiver = Factory::getArchiverEngine();
-		if ($configuration->get('volatile.engine.archiver.processingfile', false))
+		$archiver      = Factory::getArchiverEngine();
+		$stillProcessing = $configuration->get('volatile.engine.archiver.processingfile', false);
+
+		if ($stillProcessing)
 		{
-			return false;
+			/**
+			 * The archiver is still adding the previous dump part. This means that we are called from the top few lines
+			 * of the _run method. We must continue adding the previous dump part.
+			 */
+			Factory::getLog()->log(LogLevel::DEBUG, "Continuing adding the SQL dump part to the archive");
+			$result = $archiver->addFile('', '', '');
+		}
+		else
+		{
+			/**
+			 * There is no other dump part being processed. Therefore the current SQL dump part is still open. We must
+			 * close it and ask the archiver to add it to the backup archive.
+			 */
+			$this->closeFile();
+			Factory::getLog()->log(LogLevel::DEBUG, "Adding the SQL dump part to the archive");
+			$result = $archiver->addFileRenamed($this->tempFile, $this->saveAsName);
 		}
 
-		// We have to add the dump file to the archive
-		$this->closeFile();
-		Factory::getLog()->log(LogLevel::DEBUG, "Adding the SQL dump part to the archive");
-		$archiver->addFileRenamed($this->tempFile, $this->saveAsName);
+		// Propagate errors and warnings from the archiver
+		$this->propagateFromObject($archiver);
+
+		// Did the archiver return an error?
 		if ($this->getError())
 		{
 			return false;
 		}
-		$finished = !$configuration->get('volatile.engine.archiver.processingfile', false);
-		if (!$finished)
+
+		// Return false if the file didn't finish getting added to the archive
+		if ($configuration->get('volatile.engine.archiver.processingfile', false))
 		{
+			Factory::getLog()->debug("The SQL dump file has not been processed thoroughly by the archiver. Resuming in the next step.");
+
 			return false;
-		} // Return if the file didn't finish getting added to the archive
+		}
+
+		/**
+		 * If you are here the SQL dump part file is completely added to the backup archive. All we have to do now is
+		 * remove it and create a new dump part file.
+		 */
 
 		// Remove the old file
 		Factory::getLog()->log(LogLevel::DEBUG, "Removing dump part's temporary file");
@@ -580,19 +550,21 @@ abstract class Base extends Part
 		{
 			return true;
 		}
+
 		$filesize = 0;
+
 		if (@file_exists($this->tempFile))
 		{
 			$filesize = @filesize($this->tempFile);
 		}
+
+		$projectedSize = $filesize + strlen($this->query);
+
 		if ($this->extendedInserts)
 		{
 			$projectedSize = $filesize + $this->packetSize;
 		}
-		else
-		{
-			$projectedSize = $filesize + strlen($this->query);
-		}
+
 		if ($projectedSize > $this->partSize)
 		{
 			return $this->getNextDumpPart();

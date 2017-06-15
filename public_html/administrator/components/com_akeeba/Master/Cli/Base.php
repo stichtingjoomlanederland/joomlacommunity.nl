@@ -14,6 +14,12 @@ defined('_JEXEC') or die;
  * $curdir = __DIR__; // Path to your script file
  */
 
+// Work around some misconfigured servers which print out notices
+if (function_exists('error_reporting'))
+{
+	$oldLevel = error_reporting(0);
+}
+
 // Minimum PHP version check
 if (!isset($minphp))
 {
@@ -84,6 +90,9 @@ ENDWARNING;
 // Required by the CMS
 define('DS', DIRECTORY_SEPARATOR);
 
+// Mark this as a CLI script. Used by the Platform class.
+define('AKEEBACLI', 1);
+
 /**
  * Timezone fix
  *
@@ -135,6 +144,12 @@ if (!isset($curdir))
 	{
 		$curdir = $realPath;
 	}
+}
+
+// Restore the error reporting before importing Joomla core code
+if (function_exists('error_reporting'))
+{
+	error_reporting($oldLevel);
 }
 
 if (file_exists($curdir . '/defines.php'))
@@ -199,7 +214,7 @@ class AkeebaCliBase
 	/**
 	 * The application configuration object.
 	 *
-	 * @var    JRegistry
+	 * @var    \Joomla\Registry\Registry
 	 */
 	protected $config;
 
@@ -285,12 +300,6 @@ class AkeebaCliBase
 		if (class_exists('JFilterInput'))
 		{
 			$this->filter = JFilterInput::getInstance();
-		}
-
-		// Work around Joomla! 3.4.7's JSession bug
-		if (version_compare(JVERSION, '3.4.7', 'eq'))
-		{
-			JFactory::getSession()->restart();
 		}
 
 		// Parse the POSIX options
@@ -680,7 +689,14 @@ class AkeebaCliBase
 			return self::$cliOptions[$key];
 		}
 
-		return $this->filterVariable(self::$cliOptions[$key][0], $type);
+		$value = null;
+
+		if (!empty(self::$cliOptions[$key]))
+		{
+			$value = self::$cliOptions[$key][0];
+		}
+
+		return $this->filterVariable($value, $type);
 	}
 
 	protected function filterVariable($var, $type = 'cmd')

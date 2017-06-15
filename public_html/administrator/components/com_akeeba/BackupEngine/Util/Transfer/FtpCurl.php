@@ -163,7 +163,10 @@ class FtpCurl extends Ftp implements TransferInterface
             curl_setopt($ch, CURLOPT_VERBOSE, 1);
         }
 
-        return $ch;
+	    // Automatically create missing directories
+	    curl_setopt($ch, CURLOPT_FTP_CREATE_MISSING_DIRS, 1);
+
+	    return $ch;
     }
 
     /**

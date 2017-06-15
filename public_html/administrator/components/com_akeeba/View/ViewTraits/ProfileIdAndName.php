@@ -53,7 +53,7 @@ trait ProfileIdAndName
 		}
 		catch (\Exception $e)
 		{
-			$this->container->session->set('profile', 1, 'akeeba');
+			$this->container->platform->setSessionVar('profile', 1, 'akeeba');
 
 			$this->profileid   = 1;
 			$this->profilename = $profilesModel->findOrFail(1)->description;

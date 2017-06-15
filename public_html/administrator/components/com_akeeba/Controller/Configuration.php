@@ -105,7 +105,7 @@ class Configuration extends Controller
 
 		// Activate and edit the new profile
 		$returnUrl = base64_encode($this->redirect);
-		$token     = JFactory::getSession()->getFormToken();
+		$token     = $this->container->platform->getToken(true);
 		$url       = JUri::base() . 'index.php?option=com_akeeba&task=SwitchProfile&profileid=' . $profile->getId() .
 			'&returnurl=' . $returnUrl . '&' . $token . '=1';
 		$this->setRedirect($url);
@@ -149,7 +149,8 @@ class Configuration extends Controller
 		@ob_end_clean();
 		echo '###' . json_encode($testResult) . '###';
 		flush();
-		JFactory::getApplication()->close();
+
+		$this->container->platform->closeApplication();
 	}
 
 	/**
@@ -180,7 +181,8 @@ class Configuration extends Controller
 		@ob_end_clean();
 		echo '###' . json_encode($testResult) . '###';
 		flush();
-		JFactory::getApplication()->close();
+
+		$this->container->platform->closeApplication();
 	}
 
 	/**
@@ -197,7 +199,7 @@ class Configuration extends Controller
 		$model->dpeOuthOpen();
 		flush();
 
-		JFactory::getApplication()->close();
+		$this->container->platform->closeApplication();
 	}
 
 	/**
@@ -215,7 +217,7 @@ class Configuration extends Controller
 		echo '###' . json_encode($model->dpeCustomAPICall()) . '###';
 		flush();
 
-		JFactory::getApplication()->close();
+		$this->container->platform->closeApplication();
 	}
 
 	/**
@@ -233,6 +235,6 @@ class Configuration extends Controller
 		echo $model->dpeCustomAPICall();
 		flush();
 
-		JFactory::getApplication()->close();
+		$this->container->platform->closeApplication();
 	}
 }

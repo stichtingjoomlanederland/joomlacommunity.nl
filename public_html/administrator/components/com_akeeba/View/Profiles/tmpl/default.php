@@ -20,7 +20,7 @@ $configurl = base64_encode(JUri::base().'index.php?option=com_akeeba&view=Config
 		   value="<?php echo $this->escape($this->lists->order); ?>"/>
 	<input type="hidden" name="filter_order_Dir" id="filter_order_Dir"
 		   value="<?php echo $this->escape($this->lists->order_Dir); ?>"/>
-	<input type="hidden" name="<?php echo \JFactory::getSession()->getFormToken(); ?>" value="1" />
+	<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1" />
 
 	<?php echo $this->loadAnyTemplate('admin:com_akeeba/CommonTemplates/ProfileName'); ?>
 
@@ -121,13 +121,13 @@ $configurl = base64_encode(JUri::base().'index.php?option=com_akeeba&view=Config
 				</td>
 				<td>
 					<a class="btn btn-mini btn-primary"
-							href="index.php?option=com_akeeba&task=SwitchProfile&profileid=<?php echo (int)$profile->id; ?>&returnurl=<?php echo $configurl ?>&<?php echo \JFactory::getSession()->getFormToken(); ?>=1">
+							href="index.php?option=com_akeeba&task=SwitchProfile&profileid=<?php echo (int)$profile->id; ?>&returnurl=<?php echo $configurl ?>&<?php echo $this->container->platform->getToken(true); ?>=1">
 						<span class="icon-cog icon-white"></span>
 						<?php echo \JText::_('COM_AKEEBA_CONFIG_UI_CONFIG'); ?>
 					</a>
 					&nbsp;
 					<a class="btn btn-mini"
-						href="index.php?option=com_akeeba&view=Profile&task=read&id=<?php echo $profile->id ?>&basename=<?php echo FOF30\Utils\StringHelper::toSlug($profile->description); ?>&format=json&<?php echo \JFactory::getSession()->getFormToken(); ?>=1">
+						href="index.php?option=com_akeeba&view=Profile&task=read&id=<?php echo $profile->id ?>&basename=<?php echo FOF30\Utils\StringHelper::toSlug($profile->description); ?>&format=json&<?php echo $this->container->platform->getToken(true); ?>=1">
 						<span class="icon-download"></span>
 						<?php echo \JText::_('COM_AKEEBA_PROFILES_BTN_EXPORT'); ?>
 					</a>
@@ -149,7 +149,7 @@ $configurl = base64_encode(JUri::base().'index.php?option=com_akeeba&view=Config
 	<input type="hidden" name="view" value="Profiles" />
 	<input type="hidden" name="boxchecked" id="boxchecked" value="0" />
 	<input type="hidden" name="task" id="task" value="import" />
-	<input type="hidden" name="<?php echo \JFactory::getSession()->getFormToken(); ?>" value="1" />
+	<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1" />
 
 	<input type="file" name="importfile" class="input-medium" />
 	<button class="btn btn-success">

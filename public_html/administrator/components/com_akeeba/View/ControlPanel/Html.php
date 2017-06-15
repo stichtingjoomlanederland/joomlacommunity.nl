@@ -204,13 +204,13 @@ class Html extends BaseView
 		$this->coreWarningForDownloadID     = $model->mustWarnAboutDownloadIDInCore();
 		$this->extension_id                 = $model->getState('extension_id', 0, 'int');
 		$this->frontEndSecretWordIssue      = $model->getFrontendSecretWordError();
-		$this->newSecretWord                = $this->container->session->get('newSecretWord', null, 'akeeba.cpanel');
+		$this->newSecretWord                = $this->container->platform->getSessionVar('newSecretWord', null, 'akeeba.cpanel');
 		$this->desktopNotifications         = $this->container->params->get('desktop_notifications', '0') ? 1 : 0;
 		$this->formattedChangelog           = $this->formatChangelog();
 		$this->promptForConfigurationWizard = Factory::getConfiguration()->get('akeeba.flag.confwiz', 0) == 0;
 		$this->countWarnings                = count(Factory::getConfigurationChecks()->getDetailedStatus());
 		$this->stuckUpdates                 = ($this->container->params->get('updatedb', 0) == 1);
-		$user                               = \JFactory::getUser();
+		$user                               = $this->container->platform->getUser();
 		$this->permissions                  = array(
 			'configure' => $user->authorise('akeeba.configure', 'com_akeeba'),
 			'backup'    => $user->authorise('akeeba.backup',    'com_akeeba'),

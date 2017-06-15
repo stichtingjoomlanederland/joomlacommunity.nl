@@ -69,8 +69,7 @@ class GetFSEntities extends AbstractTask
 		}
 
 		// Set the active profile
-		$session = $this->container->session;
-		$session->set('profile', $profile);
+		$this->container->platform->setSessionVar('profile', $profile);
 
 		// Load the configuration
 		Platform::getInstance()->load_configuration($profile);

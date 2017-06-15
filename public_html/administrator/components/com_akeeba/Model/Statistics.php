@@ -14,9 +14,9 @@ use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use Exception;
 use FOF30\Container\Container;
+use FOF30\Date\Date;
 use FOF30\Model\DataModel\Exception\RecordNotLoaded;
 use FOF30\Model\Model;
-use JDate;
 use JFactory;
 use JFile;
 use JLoader;
@@ -56,8 +56,17 @@ class Statistics extends Model
 
 		$platform     = $this->container->platform;
 		$defaultLimit = $platform->getConfig()->get('list_limit', 10);
-		$limit        = $platform->getUserStateFromRequest('global.list.limit', 'limit', $this->input, $defaultLimit);
-		$limitstart   = $platform->getUserStateFromRequest('com_akeeba.stats.limitstart', 'limitstart', $this->input, 0);
+
+		if ($platform->isCli())
+		{
+			$limit      = $this->input->getInt('limit', $defaultLimit);
+			$limitstart = $this->input->getInt('limitstart', 0);
+		}
+		else
+		{
+			$limit      = $platform->getUserStateFromRequest('global.list.limit', 'limit', $this->input, $defaultLimit);
+			$limitstart = $platform->getUserStateFromRequest('com_akeeba.stats.limitstart', 'limitstart', $this->input, 0);
+		}
 
 		if ($platform->isFrontend())
 		{
@@ -327,7 +336,7 @@ This email is sent to you by your own site, [SITENAME]
 ENDBODY;
 		}
 
-		$jconfig = JFactory::getConfig();
+		$jconfig = $this->container->platform->getConfig();
 
 		$mailfrom = $jconfig->get('mailfrom');
 		$fromname = $jconfig->get('fromname');
@@ -638,7 +647,7 @@ ENDBODY;
 	{
 		$db = $this->container->db;
 
-		$now = new JDate();
+		$now = new Date();
 		$nowToSql = $now->toSql();
 
 		$query = $db->getQuery(true)

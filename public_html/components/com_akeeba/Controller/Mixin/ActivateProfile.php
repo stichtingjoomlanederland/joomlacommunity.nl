@@ -25,7 +25,7 @@ trait ActivateProfile
 		$profile = $this->input->get('profile', 1, 'int');
 		$profile = max(1, $profile);
 
-		$this->container->session->set('profile', $profile, 'akeeba');
+		$this->container->platform->setSessionVar('profile', $profile, 'akeeba');
 
 		/**
 		 * DO NOT REMOVE!

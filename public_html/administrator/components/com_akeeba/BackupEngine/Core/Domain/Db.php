@@ -16,7 +16,6 @@ defined('AKEEBAENGINE') or die();
 use Akeeba\Engine\Base\Part;
 use Akeeba\Engine\Dump\Base as DumpBase;
 use Akeeba\Engine\Factory;
-use Akeeba\Engine\Platform;
 use Psr\Log\LogLevel;
 
 /**

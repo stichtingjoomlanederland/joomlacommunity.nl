@@ -5,6 +5,8 @@
  * @license    GNU General Public License version 3, or later
  */
 
+use FOF30\Date\Date;
+
 defined('_JEXEC') or die();
 
 // PHP version check
@@ -95,6 +97,12 @@ class plgSystemAkeebaupdatecheck extends JPlugin
 			return;
 		}
 
+		// Load FOF. Required for the Date class.
+		if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+		{
+			throw new RuntimeException('FOF 3.0 is not installed', 500);
+		}
+
 		// Do we have to run (at most once per 3 hours)?
 		JLoader::import('joomla.html.parameter');
 		JLoader::import('joomla.application.component.helper');
@@ -110,7 +118,7 @@ class plgSystemAkeebaupdatecheck extends JPlugin
 
 		if (intval($last))
 		{
-			$last = new JDate($last);
+			$last = new Date($last);
 			$last = $last->toUnix();
 		}
 		else
@@ -134,7 +142,7 @@ class plgSystemAkeebaupdatecheck extends JPlugin
 			return;
 		}
 
-		$now = new JDate($now);
+		$now = new Date($now);
 
 		// Update last run status
 		// If I have the time of the last run, I can update, otherwise insert
@@ -165,12 +173,6 @@ class plgSystemAkeebaupdatecheck extends JPlugin
 		if (!$result)
 		{
 			return;
-		}
-
-		// Load FOF
-		if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
-		{
-			throw new RuntimeException('FOF 3.0 is not installed', 500);
 		}
 
 		// Load the container

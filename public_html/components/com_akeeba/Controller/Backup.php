@@ -15,16 +15,13 @@ use Akeeba\Backup\Site\Controller\Mixin\ActivateProfile;
 use Akeeba\Backup\Site\Controller\Mixin\CustomRedirection;
 use Akeeba\Backup\Site\Controller\Mixin\FrontEndPermissions;
 use Akeeba\Engine\Factory;
-use Akeeba\Engine\Platform;
-use Exception;
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
-use JDate;
+use FOF30\Date\Date;
 use JLoader;
 use JRoute;
 use JText;
 use JUri;
-use Psr\Log\LogLevel;
 
 if (!defined('AKEEBA_BACKUP_ORIGIN'))
 {
@@ -79,7 +76,7 @@ class Backup extends Controller
 		$model = $this->container->factory->model('Backup')->tmpInstance();
 
 		JLoader::import('joomla.utilities.date');
-		$dateNow = new JDate();
+		$dateNow = new Date();
 
 		$model->setState('tag', AKEEBA_BACKUP_ORIGIN);
 		$model->setState('backupid', $backupId);

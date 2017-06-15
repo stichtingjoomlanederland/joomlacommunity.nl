@@ -58,7 +58,7 @@ class Backup extends Controller
 			 */
 			// $this->csrfProtection();
 
-			$this->container->session->set('profile', $newProfile, 'akeeba');
+			$this->container->platform->setSessionVar('profile', $newProfile, 'akeeba');
 
 			/**
 			 * DO NOT REMOVE!

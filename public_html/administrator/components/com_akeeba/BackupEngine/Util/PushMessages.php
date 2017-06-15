@@ -25,7 +25,7 @@ class PushMessages
 	 *
 	 * @var Connector[]
 	 */
-	private $connectors = [];
+	private $connectors = array();
 
 	/**
 	 * Should we send push messages?
