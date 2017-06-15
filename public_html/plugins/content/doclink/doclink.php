@@ -230,7 +230,7 @@ class PlgContentDoclink extends JPlugin
     protected function _getLinks(&$text)
     {
         $matches = array();
-        $pattern = '~<a.*</a>~isU';
+        $pattern = '~<a\s+.*</a>~isU';
 
         if (preg_match_all($pattern, $text, $matches, PREG_SET_ORDER))
         {

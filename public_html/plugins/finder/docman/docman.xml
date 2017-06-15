@@ -3,12 +3,12 @@
 	<identifier>plg:finder.docman</identifier>
     <name>plg_finder_docman</name>
     <author>Joomlatools</author>
-    <creationDate>January 2016</creationDate>
-    <copyright>Copyright (C) 2014 Timble CVBA</copyright>
+    <creationDate>April 2017</creationDate>
+    <copyright>Copyright (C) 2017 Timble CVBA</copyright>
     <license>GNU GPLv3 - http://www.gnu.org/licenses/gpl.html</license>
     <authorEmail>info@joomlatools.eu</authorEmail>
     <authorUrl>www.joomlatools.eu</authorUrl>
-	<version>3.0.6</version>
+	<version>3.0.9</version>
 	<description />
 	
 	<files>

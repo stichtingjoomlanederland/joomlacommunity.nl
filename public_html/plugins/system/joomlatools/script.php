@@ -1,10 +1,10 @@
 <?php
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright   Copyright (C) 2007 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2007 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
- * @link        https://github.com/nooku/nooku-framework for the canonical source repository
+ * @link        https://github.com/joomlatools/joomlatools-framework for the canonical source repository
  */
 
 
@@ -126,7 +126,25 @@ class PlgSystemJoomlatoolsInstallerScript
 
     public function postflight($type, $installer)
     {
-        if ($type !== 'discover_install')
+        $newer_version_installed = false;
+
+        if (class_exists('Koowa') && method_exists('Koowa', 'getInstance')) {
+            $current_version = Koowa::getInstance()->getVersion();
+            $payload_version = null;
+            $payload_koowa   = $installer->getParent()->getPath('source').'/libraries/joomlatools/library/koowa.php';
+
+            if (is_file($payload_koowa) && is_readable($payload_koowa)
+                && preg_match("#const\s+VERSION\s+=\s+'(.*?)'#i", file_get_contents($payload_koowa), $matches)
+            ) {
+                $payload_version = $matches[1];
+
+                if (version_compare($payload_version, $current_version, '<')) {
+                    $newer_version_installed = true;
+                }
+            }
+        }
+
+        if ($type !== 'discover_install' && !$newer_version_installed)
         {
             $source = $installer->getParent()->getPath('source');
 
@@ -217,7 +235,9 @@ class PlgSystemJoomlatoolsInstallerScript
             }
         }
 
-        $this->_runQueries();
+        if (!$newer_version_installed) {
+            $this->_runQueries();
+        }
 
         $this->_clearCache();
 

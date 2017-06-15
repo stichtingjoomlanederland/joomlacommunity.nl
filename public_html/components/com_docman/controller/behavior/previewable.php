@@ -45,7 +45,7 @@ class ComDocmanControllerBehaviorPreviewable extends ComKoowaControllerBehaviorE
                 $url->query['auth_token'] = $token->sign($secret);
             }
 
-            $redirect = sprintf('https://docs.google.com/viewer?embedded=true&url=%s', urlencode($url));
+            $redirect = sprintf('https://docs.google.com/viewer?url=%s', urlencode($url));
 
             $context->response->setRedirect($redirect);
             return false;

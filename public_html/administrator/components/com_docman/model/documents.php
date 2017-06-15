@@ -314,7 +314,7 @@ class ComDocmanModelDocuments extends ComDocmanModelAbstract
         }
 
         if ($state->created_on_to) {
-            $query->where("tbl.created_on >= :created_on_to")
+            $query->where("tbl.created_on <= :created_on_to")
                 ->bind(array('created_on_to' => $state->created_on_to));
         }
 

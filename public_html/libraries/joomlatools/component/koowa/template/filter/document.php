@@ -1,10 +1,10 @@
 <?php
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright   Copyright (C) 2007 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2007 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
- * @link        https://github.com/nooku/nooku-framework for the canonical source repository
+ * @link        https://github.com/joomlatools/joomlatools-framework for the canonical source repository
  */
 
 /**
@@ -57,6 +57,34 @@ class ComKoowaTemplateFilterDocument extends KTemplateFilterAbstract
                 echo sprintf('<style type="%s">%s</style>', $type, $content);
             }
 
+            if (version_compare(JVERSION, '3.7.0', '>=')) {
+                $document = JFactory::getDocument();
+                $options  = $document->getScriptOptions();
+
+                $buffer  = '<script type="application/json" class="joomla-script-options new">';
+                $buffer .= $options ? json_encode($options) : '{}';
+                $buffer .= '</script>';
+
+                echo $buffer;
+            } else {
+                // Generate script language declarations.
+                if (count(JText::script()))
+                {
+                    echo '<script type="text/javascript">';
+                    echo '(function() {';
+                    echo 'var strings = ' . json_encode(JText::script()) . ';';
+                    echo 'if (typeof Joomla == \'undefined\') {';
+                    echo 'Joomla = {};';
+                    echo 'Joomla.JText = strings;';
+                    echo '}';
+                    echo 'else {';
+                    echo 'Joomla.JText.load(strings);';
+                    echo '}';
+                    echo '})();';
+                    echo '</script>';
+                }
+            }
+
             // Generate script file links
             foreach ($head['scripts'] as $path => $attributes)
             {
@@ -84,22 +112,6 @@ class ComKoowaTemplateFilterDocument extends KTemplateFilterAbstract
             }
 
 
-            // Generate script language declarations.
-            if (count(JText::script()))
-            {
-                echo '<script type="text/javascript">';
-                echo '(function() {';
-                echo 'var strings = ' . json_encode(JText::script()) . ';';
-                echo 'if (typeof Joomla == \'undefined\') {';
-                echo 'Joomla = {};';
-                echo 'Joomla.JText = strings;';
-                echo '}';
-                echo 'else {';
-                echo 'Joomla.JText.load(strings);';
-                echo '}';
-                echo '})();';
-                echo '</script>';
-            }
 
             $head = ob_get_clean();
 
