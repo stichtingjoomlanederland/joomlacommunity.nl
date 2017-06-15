@@ -89,32 +89,40 @@ class WFModelEditor extends WFModelBase
         $app = JFactory::getApplication();
         $wf = WFEditor::getInstance();
 
-        // set language
-        $this->language = WFLanguage::getCode();
         // set profile
         $this->profile = $wf->getProfile();
 
         $this->context = $wf->getContext();
     }
 
-    public function buildEditor()
-    {
-        // get document
-        $document = JFactory::getDocument();
+    public function buildEditor() {
+        $settings = $this->getEditorSettings();
+        return $this->render($settings);
+    }
 
+    public function getEditorSettings()
+    {
         // get an editor instance
         $wf = WFEditor::getInstance();
 
         // create token
         $token = WFToken::getToken();
 
-        // get default settings
-        $settings = $this->getEditorSettings();
-
+        // get editor version
         $version = self::getVersion();
 
-        // settings array for jce, tinymce etc
-        $init = array();
+        $settings = array(
+            'token' => WFToken::getToken(),
+            'etag' => md5($version),
+            'context' => $this->context,
+            'base_url' => JURI::root(),
+            'language' => WFLanguage::getCode(),
+            'directionality' => WFLanguage::getDir(),
+            'theme' => 'none',
+            'plugins' => '',
+        );
+
+        $settings['language_load'] = false;
 
         // if a profile is set
         if (is_object($this->profile)) {
@@ -232,7 +240,7 @@ class WFModelEditor extends WFModelBase
 
             if (array_key_exists('language_load', $settings)) {
                 // language
-                $this->addScript(JURI::base(true) . '/index.php?option=com_jce&view=editor&task=loadlanguages&lang=' . $this->language . '&context=' . $this->context . '&' . $token . '=1');
+                $this->addScript(JURI::base(true) . '/index.php?option=com_jce&view=editor&task=loadlanguages&lang=' . $settings['language'] . '&context=' . $this->context . '&' . $token . '=1');
             }
         }
 
@@ -286,6 +294,15 @@ class WFModelEditor extends WFModelBase
         $settings = array_filter($settings, function ($value) {
             return $value !== '';
         });
+
+        return $settings;
+    }
+
+    public function render($settings)
+    {
+        // get an editor instance
+        $wf = WFEditor::getInstance();
+
         // encode as json string
         $tinymce = json_encode($settings, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES);
 
@@ -404,39 +421,6 @@ class WFModelEditor extends WFModelBase
     private static function getVersion()
     {
         return WF_VERSION;
-    }
-
-    /**
-     * Get default settings array.
-     *
-     * @return array
-     */
-    public function getEditorSettings()
-    {
-        wfimport('editor.libraries.classes.token');
-
-        $wf = WFEditor::getInstance();
-
-        $user = JFactory::getUser();
-        $params = JComponentHelper::getParams('com_languages');
-        $locale = $user->getParam('language', $params->get('site', 'en-GB'));
-
-        $language = JLanguage::getInstance($locale);
-
-        $settings = array(
-            'token' => WFToken::getToken(),
-            'etag' => md5($this->getVersion()),
-            'context' => $this->context,
-            'base_url' => JURI::root(),
-            'language' => $this->language,
-            'directionality' => $language->isRTL() ? 'rtl' : 'ltr',
-            'theme' => 'none',
-            'plugins' => '',
-        );
-
-        $settings['language_load'] = false;
-
-        return $settings;
     }
 
     /**
