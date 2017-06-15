@@ -14,9 +14,7 @@ class AtsystemFeatureCustomblock extends AtsystemFeatureAbstract
 	 */
 	public function onAfterRoute()
 	{
-		$session = JFactory::getSession();
-
-		if ($session->get('block', false, 'com_admintools'))
+		if ($this->container->platform->getSessionVar('block', false, 'com_admintools'))
 		{
 			// This is an underhanded way to short-circuit Joomla!'s internal router.
 			$input = JFactory::getApplication()->input;

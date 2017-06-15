@@ -74,12 +74,12 @@ class Html extends BaseView
 		// Populate email addresses if necessary
 		if (empty($this->wafconfig['emailonadminlogin']))
 		{
-			$this->wafconfig['emailonadminlogin'] = JFactory::getUser()->email;
+			$this->wafconfig['emailonadminlogin'] = $this->container->platform->getUser()->email;
 		}
 
 		if (empty($this->wafconfig['emailbreaches']))
 		{
-			$this->wafconfig['emailbreaches'] = JFactory::getUser()->email;
+			$this->wafconfig['emailbreaches'] = $this->container->platform->getUser()->email;
 		}
 
 		// Get the administrator username/password

@@ -18,7 +18,7 @@ class AtsystemFeatureNofesalogin extends AtsystemFeatureAbstract
 	 */
 	public function isEnabled()
 	{
-		if (!$this->helper->isFrontend())
+		if (!$this->container->platform->isFrontend())
 		{
 			return false;
 		}
@@ -69,8 +69,6 @@ class AtsystemFeatureNofesalogin extends AtsystemFeatureAbstract
 		JLoader::import('joomla.application.component.helper');
 		$config = JComponentHelper::getParams('com_users');
 		$defaultUserGroup = $config->get('new_usertype', 2);
-
-		$acl = JFactory::getACL();
 
 		$instance->set('id', 0);
 		$instance->set('name', $user['fullname']);

@@ -85,10 +85,45 @@ abstract class Base implements PlatformInterface
 		$secureSettings = Factory::getSecureSettings();
 		$dump_profile   = $secureSettings->encryptSettings($dump_profile);
 
-		$sql = $db->getQuery(true)
-		          ->update($db->qn($this->tableNameProfiles))
-		          ->set($db->qn('configuration') . ' = ' . $db->q($dump_profile))
-		          ->where($db->qn('id') . ' = ' . $db->q($profile_id));
+		// Does the record already exist?
+		$exists = true;
+		$sql    = $db->getQuery(true)
+			->select('COUNT(*)')
+			->from($db->qn($this->tableNameProfiles))
+			->where($db->qn('id') . ' = ' . $db->q($profile_id));
+
+		try
+		{
+			$count  = $db->setQuery($sql)->loadResult();
+			$exists = ($count > 0);
+		}
+		catch (\Exception $e)
+		{
+			$exists = true;
+		}
+
+		if ($exists)
+		{
+			$sql = $db->getQuery(true)
+				->update($db->qn($this->tableNameProfiles))
+				->set($db->qn('configuration') . ' = ' . $db->q($dump_profile))
+				->where($db->qn('id') . ' = ' . $db->q($profile_id));
+		}
+		else
+		{
+			$sql = $db->getQuery(true)
+				->insert($db->qn($this->tableNameProfiles))
+				->columns(array($db->qn('id'), $db->qn('description'), $db->qn('configuration'),
+					$db->qn('filters'), $db->qn('quickicon')))
+				->values(
+					$db->q(1) . ', ' .
+					$db->q("Default backup profile") . ', ' .
+					$db->q($dump_profile)  . ', ' .
+					$db->q('')  . ', ' .
+					$db->q(1)
+				);
+		}
+
 		$db->setQuery($sql);
 
 		try

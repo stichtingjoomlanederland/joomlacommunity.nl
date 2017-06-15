@@ -11,6 +11,9 @@ class AtsystemFeatureProjecthoneypot extends AtsystemFeatureAbstract
 {
 	protected $loadOrder = 300;
 
+	/** @var  string  Extra info to log when blocking an IP */
+	private $extraInfo = null;
+
 	/**
 	 * Is this feature enabled?
 	 *
@@ -18,7 +21,7 @@ class AtsystemFeatureProjecthoneypot extends AtsystemFeatureAbstract
 	 */
 	public function isEnabled()
 	{
-		if (!$this->helper->isFrontend())
+		if (!$this->container->platform->isFrontend())
 		{
 			return false;
 		}
@@ -31,6 +34,29 @@ class AtsystemFeatureProjecthoneypot extends AtsystemFeatureAbstract
 	 */
 	public function onAfterInitialise()
 	{
+		if (!$this->isIPBlocked())
+		{
+			return;
+		}
+
+		$this->exceptionsHandler->blockRequest('httpbl', '', $this->extraInfo);
+	}
+
+	/**
+	 * Is the IP blocked by a Geo-blocking rule?
+	 *
+	 * @param   string  $ip  The IP address to check. Skip or pass empty string / null to use the current visitor's IP.
+	 *
+	 * @return  bool
+	 */
+	public function isIPBlocked($ip = null)
+	{
+		if (empty($ip))
+		{
+			// Get the visitor's IP address
+			$ip = AtsystemUtilFilter::getIp();
+		}
+
 		// Load parameters
 		$httpbl_key = $this->cparams->getValue('bbhttpblkey', '');
 		$minthreat  = $this->cparams->getValue('httpblthreshold', 25);
@@ -40,40 +66,37 @@ class AtsystemFeatureProjecthoneypot extends AtsystemFeatureAbstract
 		// Make sure we have an HTTP:BL  key set
 		if (empty($httpbl_key))
 		{
-			return;
+			return false;
 		}
 
-		// Get the IP address
-		$reqip = AtsystemUtilFilter::getIp();
-
-		if ($reqip == '0.0.0.0')
+		if ($ip == '0.0.0.0')
 		{
-			return;
+			return false;
 		}
 
-		if (strpos($reqip, '::') === 0)
+		if (strpos($ip, '::') === 0)
 		{
-			$reqip = substr($reqip, strrpos($reqip, ':') + 1);
+			$ip = substr($ip, strrpos($ip, ':') + 1);
 		}
 
 		// No point continuing if we can't get an address, right?
-		if (empty($reqip))
+		if (empty($ip))
 		{
-			return;
+			return false;
 		}
 
 		// IPv6 addresses are not supported by HTTP:BL yet
-		if (strpos($reqip, ":"))
+		if (strpos($ip, ":"))
 		{
-			return;
+			return false;
 		}
 
-		$find   = implode('.', array_reverse(explode('.', $reqip)));
+		$find   = implode('.', array_reverse(explode('.', $ip)));
 		$result = gethostbynamel($httpbl_key . ".${find}.dnsbl.httpbl.org.");
 
 		if (empty($result))
 		{
-			return;
+			return false;
 		}
 
 		$ip = explode('.', $result[0]);
@@ -81,13 +104,13 @@ class AtsystemFeatureProjecthoneypot extends AtsystemFeatureAbstract
 		// Make sure it's a valid response
 		if ($ip[0] != 127)
 		{
-			return;
+			return false;
 		}
 
 		// Do not block search engines
 		if ($ip[3] == 0)
 		{
-			return;
+			return false;
 		}
 
 		// Block harvesters and comment spammers
@@ -102,34 +125,38 @@ class AtsystemFeatureProjecthoneypot extends AtsystemFeatureAbstract
 		$block = $block && ($ip[1] <= $maxage);
 		$block = $block && ($ip[2] >= $minthreat);
 
-		if ($block)
+		if (!$block)
 		{
-			$classes = array();
+			return false;
+		}
 
-			if ($ip[3] & 1)
-			{
-				$classes[] = 'Suspicious';
-			}
+		$classes = array();
 
-			if ($ip[3] & 2)
-			{
-				$classes[] = 'Email Harvester';
-			}
+		if ($ip[3] & 1)
+		{
+			$classes[] = 'Suspicious';
+		}
 
-			if ($ip[3] & 4)
-			{
-				$classes[] = 'Comment Spammer';
-			}
+		if ($ip[3] & 2)
+		{
+			$classes[] = 'Email Harvester';
+		}
 
-			$class = implode(', ', $classes);
-			$extraInfo = <<<ENDINFO
-HTTP:BL analysis for blocked spammer's IP address $reqip
+		if ($ip[3] & 4)
+		{
+			$classes[] = 'Comment Spammer';
+		}
+
+		$class = implode(', ', $classes);
+		$this->extraInfo = <<<ENDINFO
+HTTP:BL analysis for blocked spammer's IP address $ip
 	Attacker class		: $class
 	Last activity		: $ip[1] days ago
 	Threat level		: $ip[2] --> see http://is.gd/mAwMTo for more info
 
 ENDINFO;
-			$this->exceptionsHandler->blockRequest('httpbl', '', $extraInfo);
-		}
+
+		return true;
 	}
-} 
+
+}

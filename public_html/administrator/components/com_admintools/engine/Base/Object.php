@@ -12,6 +12,8 @@
 namespace Akeeba\Engine\Base;
 
 // Protection against direct access
+use Akeeba\Engine\Factory;
+
 defined('AKEEBAENGINE') or die();
 
 /**
@@ -68,9 +70,15 @@ abstract class Object
 	 * Add an error message
 	 *
 	 * @param   string  $error  Error message
+	 * @param   bool    $log    Should I log the message automatically?
 	 */
-	public function setError($error)
+	public function setError($error, $log = true)
 	{
+		if ($log)
+		{
+			Factory::getLog()->error($error);
+		}
+
 		if ($this->_errors_queue_size > 0)
 		{
 			if (count($this->_errors) >= $this->_errors_queue_size)
@@ -117,12 +125,18 @@ abstract class Object
 	/**
 	 * Add a warning message
 	 *
-	 * @param   string  $error  Error message
+	 * @param   string  $warning  Warning message
+	 * @param   bool    $log      Should I log the message automatically?
 	 *
 	 * @return  void
 	 */
-	public function setWarning($warning)
+	public function setWarning($warning, $log = true)
 	{
+		if ($log)
+		{
+			Factory::getLog()->warning($warning);
+		}
+
 		if ($this->_warnings_queue_size > 0)
 		{
 			if (count($this->_warnings) >= $this->_warnings_queue_size)
@@ -191,7 +205,7 @@ abstract class Object
 	 * then cleared on the foreign object, as long as it implements resetErrors() and/or
 	 * resetWarnings() methods.
 	 *
-	 * @param   Object  $object  The object to propagate errors and warnings from
+	 * @param   self  $object  The object to propagate errors and warnings from
 	 *
 	 * @return  void
 	 */
@@ -205,7 +219,7 @@ abstract class Object
 			{
 				foreach ($errors as $error)
 				{
-					$this->setError($error);
+					$this->setError($error, false);
 				}
 			}
 
@@ -223,7 +237,7 @@ abstract class Object
 			{
 				foreach ($warnings as $warning)
 				{
-					$this->setWarning($warning);
+					$this->setWarning($warning, false);
 				}
 			}
 

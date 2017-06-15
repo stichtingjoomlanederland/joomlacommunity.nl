@@ -34,7 +34,7 @@
     <fieldset name="items">
         <field name="id" type="SelectRow"/>
 
-        <field name="logdate" type="Text"/>
+        <field name="logdate" type="LocalisedDate" format="Y-m-d H:i:s T" localise="no" local_timezone="yes" />
 
         <field name="ip" type="LogIp"/>
 

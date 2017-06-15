@@ -14,7 +14,7 @@ header('HTTP/1.1 403 Forbidden', true, 403);
 <html>
 <head>
 	<title>
-		<?php echo JFactory::getConfig()->get('sitename', 'Non-descript Site') ?>
+		<?php echo $this->container->platform->getConfig()->get('sitename', 'Nondescript Site') ?>
 		:: <?php echo JText::_('JGLOBAL_AUTH_ACCESS_DENIED'); ?>
 	</title>
 	<style>

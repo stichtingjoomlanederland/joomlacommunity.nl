@@ -11,6 +11,9 @@ class AtsystemFeatureIpblacklist extends AtsystemFeatureAbstract
 {
 	protected $loadOrder = 20;
 
+	/** @var  string  Extra info to log when blocking an IP */
+	private $extraInfo = null;
+
 	/**
 	 * Is this feature enabled?
 	 *
@@ -27,31 +30,7 @@ class AtsystemFeatureIpblacklist extends AtsystemFeatureAbstract
 	 */
 	public function onAfterInitialise()
 	{
-		// Let's get a list of blocked IP ranges
-		$db = $this->db;
-		$sql = $db->getQuery(true)
-			->select($db->qn('ip'))
-			->from($db->qn('#__admintools_ipblock'));
-		$db->setQuery($sql);
-
-		try
-		{
-			$ipTable = $db->loadColumn();
-		}
-		catch (Exception $e)
-		{
-			// Do nothing if the query fails
-			$ipTable = null;
-		}
-
-		if (empty($ipTable))
-		{
-			return;
-		}
-
-		$inList = AtsystemUtilFilter::IPinList($ipTable);
-
-		if ($inList !== true)
+		if (!$this->isIPBlocked())
 		{
 			return;
 		}
@@ -89,31 +68,31 @@ class AtsystemFeatureIpblacklist extends AtsystemFeatureAbstract
 		// Show the 403 message
 		if ($this->cparams->getValue('use403view', 0))
 		{
-			$session = JFactory::getSession();
-
 			// Using a view
-			if (!$session->get('block', false, 'com_admintools') || $this->helper->isBackend())
+			if (!$this->container->platform->getSessionVar('block', false, 'com_admintools') || $this->container->platform->isBackend())
 			{
 				// This is inside an if-block so that we don't end up in an infinite redirection loop
-				$session->set('block', true, 'com_admintools');
-				$session->set('message', $message, 'com_admintools');
-				$session->close();
+				$this->container->platform->setSessionVar('block', true, 'com_admintools');
+				$this->container->platform->setSessionVar('message', $message, 'com_admintools');
+
+				// Close the session (logs out the user)
+				JFactory::getSession()->close();
 
 				$base = JUri::base();
 
-				if ($this->helper->isBackend())
+				if ($this->container->platform->isBackend())
 				{
 					$base = rtrim($base);
 					$base = substr($base, 0, -13);
 				}
 
-				$this->app->redirect($base);
+				$this->container->platform->redirect($base);
 			}
 
 			return;
 		}
 
-		if ($this->helper->isBackend())
+		if ($this->container->platform->isBackend())
 		{
 			// You can't use Joomla!'s error page in the admin area. Improvise!
 			header('HTTP/1.1 403 Forbidden');
@@ -124,5 +103,47 @@ class AtsystemFeatureIpblacklist extends AtsystemFeatureAbstract
 
 		// Using Joomla!'s error page
 		throw new Exception($message, 403);
+	}
+
+	/**
+	 * Is the IP blocked by a permanent IP blacklist rule?
+	 *
+	 * @param   string  $ip  The IP address to check. Skip or pass empty string / null to use the current visitor's IP.
+	 *
+	 * @return  bool
+	 */
+	public function isIPBlocked($ip = null)
+	{
+		if (empty($ip))
+		{
+			// Get the visitor's IP address
+			$ip = AtsystemUtilFilter::getIp();
+		}
+
+		// Let's get a list of blocked IP ranges
+		$db = $this->db;
+		$sql = $db->getQuery(true)
+		          ->select($db->qn('ip'))
+		          ->from($db->qn('#__admintools_ipblock'));
+		$db->setQuery($sql);
+
+		try
+		{
+			$ipTable = $db->loadColumn();
+		}
+		catch (Exception $e)
+		{
+			// Do nothing if the query fails
+			$ipTable = null;
+		}
+
+		if (empty($ipTable))
+		{
+			return false;
+		}
+
+		$inList = AtsystemUtilFilter::IPinList($ipTable, $ip);
+
+		return ($inList === true);
 	}
 }

@@ -71,7 +71,7 @@ class AtsystemFeatureDeleteinactive extends AtsystemFeatureAbstract
 		{
 			foreach ($ids as $id)
 			{
-				$userToKill = JFactory::getUser($id);
+				$userToKill = $this->container->platform->getUser($id);
 				$userToKill->delete();
 			}
 		}

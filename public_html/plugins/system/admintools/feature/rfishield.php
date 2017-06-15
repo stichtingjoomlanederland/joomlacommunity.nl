@@ -18,17 +18,52 @@ class AtsystemFeatureRfishield extends AtsystemFeatureAbstract
 	 */
 	public function isEnabled()
 	{
-		if (!$this->helper->isFrontend())
+		// Only allow in front-end
+		if (!$this->container->platform->isFrontend())
 		{
 			return false;
 		}
 
+		// Disable on whitelisted IPs
 		if ($this->skipFiltering)
 		{
 			return false;
 		}
 
-		return ($this->cparams->getValue('rfishield', 1) == 1);
+		// Deactivate if it's not enabled
+		if ($this->cparams->getValue('rfishield', 1) != 1)
+		{
+			return false;
+		}
+
+		/**
+		 * Automatically disabled when we detect this feature is not required
+		 *
+		 * See See https://www.akeebabackup.com/home/news/1674-not-a-vulnerability-in-admin-tools.html
+		 */
+
+		// Conditional activation during integration testing
+		if ($this->cparams->getValue('integration_test_switch', 0) == 1234)
+		{
+			return true;
+		}
+
+		// Do not activate when Enable IP Workarounds is active.
+		if ($this->cparams->getValue('ipworkarounds', -1) == 1)
+		{
+			return false;
+		}
+
+		// Do not activate when allow_url_include is disabled.
+		if (function_exists('ini_get'))
+		{
+			if (!ini_get('allow_url_include'))
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**

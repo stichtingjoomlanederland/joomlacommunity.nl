@@ -29,8 +29,17 @@ class ControlPanel extends Controller
 		parent::__construct($container, $config);
 
 		$this->predefinedTaskList = [
-			'browse', 'login', 'updategeoip', 'updateinfo', 'selfblocked', 'unblockme', 'applydlid', 'resetSecretWord', 'forceUpdateDb',
-			'IpWorkarounds'
+			'browse',
+			'login',
+			'updategeoip',
+			'updateinfo',
+			'selfblocked',
+			'unblockme',
+			'applydlid',
+			'resetSecretWord',
+			'forceUpdateDb',
+			'IpWorkarounds',
+		    'changelog'
 		];
 	}
 
@@ -154,7 +163,7 @@ ENDRESULT;
 		echo '###' . $result . '###';
 
 		// Cut the execution short
-		JFactory::getApplication()->close();
+		$this->container->platform->closeApplication();
 	}
 
 	public function selfblocked()
@@ -168,7 +177,7 @@ ENDRESULT;
 
 		echo '###' . $result . '###';
 
-		JFactory::getApplication()->close();
+		$this->container->platform->closeApplication();
 	}
 
 	public function unblockme()
@@ -230,14 +239,13 @@ ENDRESULT;
 	{
 		$this->csrfProtection();
 
-		$session   = JFactory::getSession();
-		$newSecret = $session->get('newSecretWord', null, 'admintools.cpanel');
+		$newSecret = $this->container->platform->getSessionVar('newSecretWord', null, 'admintools.cpanel');
 
 		if (empty($newSecret))
 		{
 			$random    = new RandomValue();
 			$newSecret = $random->generateString(32);
-			$session->set('newSecretWord', $newSecret, 'admintools.cpanel');
+			$this->container->platform->setSessionVar('newSecretWord', $newSecret, 'admintools.cpanel');
 		}
 
 		$this->container->params->set('frontend_secret_word', $newSecret);
@@ -313,5 +321,13 @@ ENDRESULT;
 		$returnUrl = $customURL ? $customURL : 'index.php?option=com_admintools&view=ControlPanel';
 
 		$this->setRedirect($returnUrl, $msg);
+	}
+
+	public function changelog()
+	{
+		$view = $this->getView();
+		$view->setLayout('changelog');
+
+		$this->display(true);
 	}
 }

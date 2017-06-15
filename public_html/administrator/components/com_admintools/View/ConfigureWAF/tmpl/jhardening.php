@@ -83,6 +83,34 @@ defined('_JEXEC') or die;
 </div>
 
 <div class="control-group">
+    <label class="control-label" for="criticalfiles"
+           rel="popover"
+           data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CRITICALFILES'); ?>"
+           data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CRITICALFILES_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CRITICALFILES'); ?>
+    </label>
+
+    <div class="controls">
+		<?php echo Select::booleanlist('criticalfiles', array(), $this->wafconfig['criticalfiles']); ?>
+
+    </div>
+</div>
+
+<div class="control-group">
+    <label class="control-label" for="superuserslist"
+           rel="popover"
+           data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_SUPERUSERSLIST'); ?>"
+           data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_SUPERUSERSLIST_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_SUPERUSERSLIST'); ?>
+    </label>
+
+    <div class="controls">
+		<?php echo Select::booleanlist('superuserslist', array(), $this->wafconfig['superuserslist']); ?>
+
+    </div>
+</div>
+
+<div class="control-group">
 	<label class="control-label"
 		   for="resetjoomlatfa"
 		   rel="popover"

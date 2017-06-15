@@ -23,7 +23,7 @@ class Html extends BaseView
 		// Get the message
 		$cparams = Storage::getInstance();
 
-		$message = JFactory::getSession()->get('message', null, 'com_admintools');
+		$message = $this->container->platform->getSessionVar('message', null, 'com_admintools');
 
 		if (empty($message))
 		{
@@ -60,6 +60,6 @@ class Html extends BaseView
 
 		parent::display($tpl);
 
-		JFactory::getApplication()->close();
+		$this->container->platform->closeApplication();
 	}
 }

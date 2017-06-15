@@ -66,6 +66,9 @@ class Com_AdmintoolsInstallerScript extends \FOF30\Utils\InstallScript
 	 */
 	protected $removeFilesAllVersions = array(
 		'files'   => array(
+            // Obsolete CLI scripts
+            'cli/admintools-update.php',
+
 			// Old cached updates from Live Update
 			'cache/com_admintools.updates.php',
 			'cache/com_admintools.updates.ini',
@@ -79,6 +82,8 @@ class Com_AdmintoolsInstallerScript extends \FOF30\Utils\InstallScript
 			'administrator/components/com_admintools/toolbar.php',
 
 			'components/com_admintools/dispatcher.php',
+
+            'components/com_admintools/Helper/Plugin.php',
 
 			// PLUGIN "System - Admin Tools"
 
@@ -420,7 +425,7 @@ HTML;
 	{
 		$db = JFactory::getDbo();
 		$query = $db->getQuery(true)
-		            ->delete($db->qn('#__update_sites_extensions'))
+		            ->delete($db->qn('#__update_sites'))
 		            ->where($db->qn('location') . ' = ' . $db->q('http://cdn.akeebabackup.com/updates/fof.xml'));
 		try
 		{

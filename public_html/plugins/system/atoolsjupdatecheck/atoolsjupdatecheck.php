@@ -280,14 +280,24 @@ ENDBODY;
 				$mailer->Priority = 3;
 
 				$mailer->setSender(array($mailfrom, $fromname));
-				$mailer->addRecipient($sa->email);
+
+				if (empty($sa->email))
+				{
+					throw new RuntimeException('This Super User has no email. Say what?!', 500);
+				}
+
+				if ($mailer->addRecipient($sa->email) === false)
+				{
+					throw new RuntimeException('What do you know, the Super User email is wrong.', 500);
+				}
+
 				$mailer->setSubject($email_subject);
 				$mailer->setBody($email_body);
 				$mailer->Send();
 			}
 			catch (Exception $e)
 			{
-				// Joomla 3.5 is written by incompetent bonobos
+				// Joomla! 3.5 and later throw an exception when crap happens instead of suppressing it and returning false
 			}
 		}
 	}

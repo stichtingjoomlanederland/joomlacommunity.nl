@@ -20,7 +20,7 @@ defined('_JEXEC') or die;
 		<input type="hidden" name="task" value="save"/>
 		<input type="hidden" name="admintools_waftemplate_id"
 			   value="<?php echo (int) $this->item->admintools_waftemplate_id; ?>"/>
-		<input type="hidden" name="<?php echo \JFactory::getSession()->getFormToken(); ?>" value="1"/>
+		<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1"/>
 
 		<div class="control-group">
 			<label for="key_field" class="control-label">

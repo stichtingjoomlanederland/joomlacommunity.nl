@@ -69,7 +69,7 @@ $warningStyle = $this->isFirstRun ? 'display: none' : '';
 	<input type="hidden" name="option" value="com_admintools"/>
 	<input type="hidden" name="view" value="QuickStart"/>
 	<input type="hidden" name="task" value="commit"/>
-	<input type="hidden" name="<?php echo $this->escape(JFactory::getSession()->getFormToken()); ?>" value="1"/>
+	<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1"/>
 	<input type="hidden" name="detectedip" id="detectedip" value=""/>
 
 	<h2><?php echo \JText::_('COM_ADMINTOOLS_QUICKSTART_HEAD_ADMINSECURITY'); ?></h2>

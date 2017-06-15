@@ -5,6 +5,8 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use FOF30\Date\Date;
+
 defined('_JEXEC') or die;
 
 class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
@@ -28,6 +30,12 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 	 */
 	public function onUserLoginFailure($response)
 	{
+		// Exit if the IP is blacklisted; logins originating from blacklisted IPs will be blocked anyway
+		if ($this->parentPlugin->runBooleanFeature('isIPBlocked', false, []))
+		{
+			return;
+		}
+
 		$user = $this->input->getString('username', null);
 		$pass = $this->input->getString('password', null);
 
@@ -89,7 +97,7 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 			return;
 		}
 
-		$user = JFactory::getUser($userid);
+		$user = $this->container->platform->getUser($userid);
 
 		// Username doesn't match, the user is blocked or is not active? Let's stop here
 		if ($user->username != $username || $user->block || !(empty($user->activation)))
@@ -134,7 +142,7 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 		}
 
 		// Ok, now it's time to send the activation email again
-		$template = $this->exceptionsHandler->getEmailTemplate('user-reactivate');
+		$template = $this->exceptionsHandler->getEmailTemplate('user-reactivate', true);
 
 		// Well, this should never happen...
 		if (!$template)
@@ -145,7 +153,7 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 		$subject = $template[0];
 		$body = $template[1];
 
-		$config = JFactory::getConfig();
+		$config = $this->container->platform->getConfig();
 
 		try
 		{
@@ -178,9 +186,9 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 				// Send mail to all users with users creating permissions and receiving system emails
 				foreach ($rows as $row)
 				{
-					$usercreator = JFactory::getUser($row->id);
+					$usercreator = $this->container->platform->getUser($row->id);
 
-					if ($usercreator->authorise('core.create', 'com_users'))
+					if ($usercreator->authorise('core.create', 'com_users') && !empty($usercreator->email))
 					{
 						$mailer->addRecipient($usercreator->email);
 					}
@@ -214,10 +222,18 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 		}
 		catch (\Exception $e)
 		{
-			// Joomla 3.5 is written by incompetent bonobos
+			// Joomla! 3.5 and later throw an exception when crap happens instead of suppressing it and returning false
 		}
 	}
 
+	/**
+	 * @param       $limit
+	 * @param       $numfreq
+	 * @param       $frequency
+	 * @param array $extraWhere
+	 *
+	 * @return bool
+	 */
 	private function checkLogFrequency($limit, $numfreq, $frequency, array $extraWhere)
 	{
 		JLoader::import('joomla.utilities.date');
@@ -247,14 +263,14 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 				break;
 		}
 
-		$jNow = new JDate();
+		$jNow = new Date();
 
 		if ($mindatestamp == 0)
 		{
 			$mindatestamp = $jNow->toUnix() - $numfreq;
 		}
 
-		$jMinDate = new JDate($mindatestamp);
+		$jMinDate = new Date($mindatestamp);
 		$minDate = $jMinDate->toSql();
 
 		$sql = $db->getQuery(true)

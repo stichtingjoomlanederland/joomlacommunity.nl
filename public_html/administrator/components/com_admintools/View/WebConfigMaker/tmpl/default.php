@@ -44,7 +44,7 @@ $config = $this->wcconfig;
 <input type="hidden" name="option" value="com_admintools"/>
 <input type="hidden" name="view" value="WebConfigMaker"/>
 <input type="hidden" name="task" value="save"/>
-<input type="hidden" name="<?php echo $this->escape(JFactory::getSession()->getFormToken()); ?>" value="1"/>
+<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1"/>
 
 <!-- ======================================================================= -->
 <fieldset>

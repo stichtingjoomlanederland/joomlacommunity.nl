@@ -107,7 +107,7 @@ defined('_JEXEC') or die;
 
 		<div class="alert alert-info" style="margin-top: 10px">
 			<?php
-			$date = new JDate('now', JFactory::getConfig()->get('offset', 'UTC'));
+			$date = new \FOF30\Date\Date('now', $this->container->platform->getConfig()->get('offset', 'UTC'));
 			echo JText::sprintf('COM_ADMINTOOLS_LBL_CONFIGUREWAF_AWAYSCHEDULE_TIMEZONE', $date->format('H:i', true));
 			?>
 		</div>
@@ -125,7 +125,7 @@ defined('_JEXEC') or die;
 	$disabled = '';
 	$message = '';
 
-	if (!JFactory::getConfig()->get('sef') || !JFactory::getConfig()->get('sef_rewrite'))
+	if (!$this->container->platform->getConfig()->get('sef') || !$this->container->platform->getConfig()->get('sef_rewrite'))
 	{
 		$disabled = ' disabled="true"';
 		$message = '<div class="alert" style="margin:10px 0 0">' . JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_ADMINLOGINFOLDER_ALERT') . '</div>';

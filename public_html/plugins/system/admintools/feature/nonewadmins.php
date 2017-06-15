@@ -21,8 +21,8 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 		$fromBackend = $this->cparams->getValue('nonewadmins', 0) == 1;
 		$fromFrontend = $this->cparams->getValue('nonewfrontendadmins', 1) == 1;
 
-		$enabled = $fromBackend && $this->helper->isBackend();
-		$enabled |= $fromFrontend && $this->helper->isFrontend();
+		$enabled = $fromBackend && $this->container->platform->isBackend();
+		$enabled |= $fromFrontend && $this->container->platform->isFrontend();
 
 		return $enabled;
 	}
@@ -64,7 +64,7 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 			$groups = $jform['groups'];
 		}
 
-		$user = JFactory::getUser((int)$jform['id']);
+		$user = $this->container->platform->getUser((int)$jform['id']);
 
 		// Sometimes $user->groups is null... let's be 100% sure that we loaded all the groups of the user
 		if(empty($user->groups))
@@ -88,7 +88,7 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 		if ($isAdmin)
 		{
 			// Get the correct reason (was the user being created in front- or back-end)?
-			$reason = $this->helper->isBackend() ? 'nonewadmins' : 'nonewfrontendadmins';
+			$reason = $this->container->platform->isBackend() ? 'nonewadmins' : 'nonewfrontendadmins';
 
 			// Log and autoban security exception
 			$extraInfo = "Submitted JForm Variables :\n";
@@ -123,7 +123,7 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 		if ($isAdmin)
 		{
 			// Get the correct reason (was the user being created in front- or back-end)?
-			$reason = $this->helper->isBackend() ? 'nonewadmins' : 'nonewfrontendadmins';
+			$reason = $this->container->platform->isBackend() ? 'nonewadmins' : 'nonewfrontendadmins';
 
 			// Log and autoban security exception
 			$extraInfo = "User Data Variables :\n";

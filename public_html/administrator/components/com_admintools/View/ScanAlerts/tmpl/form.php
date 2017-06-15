@@ -18,7 +18,7 @@ JToolbarHelper::title(JText::_('COM_ADMINTOOLS') . ' &ndash; <small>' . $subtitl
 	<input type="hidden" name="view" value="ScanAlerts"/>
 	<input type="hidden" name="task" value=""/>
 	<input type="hidden" name="admintools_scanalert_id" value="<?php echo $this->item->admintools_scanalert_id ?>"/>
-	<input type="hidden" name="<?php echo JFactory::getSession()->getFormToken(); ?>" value="1"/>
+	<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1"/>
 
 	<fieldset>
 		<legend><?php echo JText::_('COM_ADMINTOOLS_LBL_SCANALERT_FILEINFO'); ?></legend>
@@ -37,7 +37,7 @@ JToolbarHelper::title(JText::_('COM_ADMINTOOLS') . ' &ndash; <small>' . $subtitl
 					<?php echo JText::_('COM_ADMINTOOLS_LBL_SCANALERT_SCANDATE'); ?>
 				</td>
 				<td>
-					<?php echo $this->scanDate->format(JText::_('DATE_FORMAT_LC2'), true) ?>
+					<?php echo $this->scanDate->format(JText::_('DATE_FORMAT_LC2') . ' T', true) ?>
 				</td>
 			</tr>
 			<tr>

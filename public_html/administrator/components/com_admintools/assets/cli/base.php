@@ -14,6 +14,12 @@ defined('_JEXEC') or die;
  * $curdir = __DIR__; // Path to your script file
  */
 
+// Work around some misconfigured servers which print out notices
+if (function_exists('error_reporting'))
+{
+	$oldLevel = error_reporting(0);
+}
+
 // Minimum PHP version check
 if (!isset($minphp))
 {
@@ -84,6 +90,9 @@ ENDWARNING;
 // Required by the CMS
 define('DS', DIRECTORY_SEPARATOR);
 
+// Mark this as a CLI script. Used by the Platform class.
+define('AKEEBACLI', 1);
+
 // Load system defines
 if (!isset($curdir))
 {
@@ -95,6 +104,12 @@ if (!isset($curdir))
 	{
 		$curdir = $realPath;
 	}
+}
+
+// Restore the error reporting before importing Joomla core code
+if (function_exists('error_reporting'))
+{
+	error_reporting($oldLevel);
 }
 
 if (file_exists($curdir . '/defines.php'))
@@ -248,12 +263,6 @@ class AdmintoolsCliBase
 		if (class_exists('JFilterInput'))
 		{
 			$this->filter = JFilterInput::getInstance();
-		}
-
-		// Work around Joomla! 3.4.7's JSession bug
-		if (version_compare(JVERSION, '3.4.7', 'eq'))
-		{
-			JFactory::getSession()->restart();
 		}
 
 		// Parse the POSIX options

@@ -27,7 +27,7 @@
 
         <field name="reason" type="LogReason"/>
 
-        <field name="until" type="Text"/>
+        <field name="until" type="LocalisedDate" format="Y-m-d H:i:s T" localise="no" local_timezone="yes" />
 
     </fieldset>
 </form>

@@ -25,7 +25,7 @@ class AtsystemFeatureSelfprotect extends AtsystemFeatureAbstract
 	{
 		$enabled = $this->cparams->getValue('selfprotect', 1) == 1;
 
-		return $enabled & $this->helper->isBackend();
+		return $enabled & $this->container->platform->isBackend();
 	}
 
 	/**
@@ -54,7 +54,7 @@ class AtsystemFeatureSelfprotect extends AtsystemFeatureAbstract
 	 */
 	protected function getPluginId()
 	{
-		$db = JFactory::getDbo();
+		$db = $this->container->db;
 		$query = $db->getQuery(true)
 					->select($db->qn('extension_id'))
 					->from($db->qn('#__extensions'))

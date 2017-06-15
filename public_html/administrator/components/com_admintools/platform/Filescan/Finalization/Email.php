@@ -167,9 +167,9 @@ class Email extends Object
 		$body .= '</body></html>';
 
 		// Prepare the email subject
-		$config = \JFactory::getConfig();
+		$config   = $container->platform->getConfig();
 		$sitename = $config->get('sitename', 'Unknown Site');
-		$subject = JText::sprintf('COM_ADMINTOOLS_SCANS_EMAIL_SUBJECT', $sitename);
+		$subject  = JText::sprintf('COM_ADMINTOOLS_SCANS_EMAIL_SUBJECT', $sitename);
 
 		// Send the email
 		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . ": Ready to send out emails");

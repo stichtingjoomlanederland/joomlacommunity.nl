@@ -21,7 +21,7 @@ JHtml::_('formbehavior.chosen');
 	<input type="hidden" name="option" value="com_admintools"/>
 	<input type="hidden" name="view" value="ConfigureWAF"/>
 	<input type="hidden" name="task" value="save"/>
-	<input type="hidden" name="<?php echo $this->escape(JFactory::getSession()->getFormToken()); ?>" value="1"/>
+	<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1"/>
 
 <?php if (!$this->longConfig): ?>
 	<?php echo \JHtml::_('bootstrap.startTabSet', 'admintools-wafconfig', array('active' => 'basic')); ?>

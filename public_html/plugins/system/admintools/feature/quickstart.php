@@ -19,12 +19,12 @@ class AtsystemFeatureQuickstart extends AtsystemFeatureAbstract
 
 	public function onBeforeRender()
 	{
-		if (!$this->helper->isBackend())
+		if (!$this->container->platform->isBackend())
 		{
 			return;
 		}
 
-		if (JFactory::getUser()->guest)
+		if ($this->container->platform->getUser()->guest)
 		{
 			return;
 		}
@@ -38,12 +38,12 @@ class AtsystemFeatureQuickstart extends AtsystemFeatureAbstract
 			return;
 		}
 
-		if (!JFactory::getUser()->authorise('core.manage', 'admintools.security'))
+		if (!$this->container->platform->getUser()->authorise('core.manage', 'admintools.security'))
 		{
 			return;
 		}
 
-		if (!JFactory::getUser()->authorise('core.manage', 'admintools.maintenance'))
+		if (!$this->container->platform->getUser()->authorise('core.manage', 'admintools.maintenance'))
 		{
 			return;
 		}

@@ -22,7 +22,7 @@ class AtsystemFeatureCustomadminfolder extends AtsystemFeatureAbstract
 	 */
 	public function isEnabled()
 	{
-		$config = JFactory::getConfig();
+		$config = $this->container->platform->getConfig();
 		$folder = $this->cparams->getValue('adminlogindir');
 
 		// Custom admin folder is disabled
@@ -101,7 +101,7 @@ class AtsystemFeatureCustomadminfolder extends AtsystemFeatureAbstract
 
 		$db->insertObject('#__admintools_cookies', $data);
 
-		$config = JFactory::getConfig();
+		$config = $this->container->platform->getConfig();
 		$cookie_domain = $config->get('cookie_domain', '');
 		$cookie_path = $config->get('cookie_path', '/');
 		$isSecure = $config->get('force_ssl', 0) ? true : false;
@@ -111,7 +111,7 @@ class AtsystemFeatureCustomadminfolder extends AtsystemFeatureAbstract
 
 		$uri->setPath(str_replace($folder, 'administrator/index.php', $uri->getPath()));
 
-		$this->app->redirect($uri->toString());
+		$this->container->platform->redirect($uri->toString());
 	}
 
 	/**
@@ -133,7 +133,7 @@ class AtsystemFeatureCustomadminfolder extends AtsystemFeatureAbstract
 		$logout = $this->input->cookie->get('admintools_logout', null, 'string');
 		if ($logout == '!!!LOGOUT!!!')
 		{
-			$config = JFactory::getConfig();
+			$config = $this->container->platform->getConfig();
 			$cookie_domain = $config->get('cookie_domain', '');
 			$cookie_path = $config->get('cookie_path', '/');
 			$isSecure = $config->get('force_ssl', 0) ? true : false;
@@ -196,7 +196,7 @@ class AtsystemFeatureCustomadminfolder extends AtsystemFeatureAbstract
 		}
 
 		// Last check: session state variable
-		if (JFactory::getSession()->get('adminlogindir', 0, 'com_admintools'))
+		if ($this->container->platform->getSessionVar('adminlogindir', 0, 'com_admintools'))
 		{
 			$isValid = true;
 		}
@@ -224,13 +224,13 @@ class AtsystemFeatureCustomadminfolder extends AtsystemFeatureAbstract
 		// Otherwise set the session parameter
 		if ($seriesFound)
 		{
-			JFactory::getSession()->set('adminlogindir', 1, 'com_admintools');
+			$this->container->platform->setSessionVar('adminlogindir', 1, 'com_admintools');
 		}
 	}
 
 	protected function setLogoutCookie()
 	{
-		$config = JFactory::getConfig();
+		$config = $this->container->platform->getConfig();
 		$cookie_domain = $config->get('cookie_domain', '');
 		$cookie_path = $config->get('cookie_path', '/');
 		$isSecure = $config->get('force_ssl', 0) ? true : false;
@@ -246,13 +246,13 @@ class AtsystemFeatureCustomadminfolder extends AtsystemFeatureAbstract
 	protected function isAdminLogout()
 	{
 		// Not back-end at all. Bail out.
-		if (!$this->helper->isBackend())
+		if (!$this->container->platform->isBackend())
 		{
 			return false;
 		}
 
 		// If the user is not already logged in we don't have a logout attempt
-		$user = JFactory::getUser();
+		$user = $this->container->platform->getUser();
 
 		if ($user->guest)
 		{
@@ -282,7 +282,7 @@ class AtsystemFeatureCustomadminfolder extends AtsystemFeatureAbstract
 
 		if (is_null($token))
 		{
-			$token = JFactory::getSession()->getToken();
+			$token = $this->container->platform->getToken(true);
 		}
 
 		$token = $this->input->get($token, false, 'raw');

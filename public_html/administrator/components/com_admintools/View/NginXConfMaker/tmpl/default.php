@@ -47,7 +47,7 @@ $nginxConfPath = rtrim(JPATH_ROOT, '/\\') . '/nginx.conf';
 <input type="hidden" name="option" value="com_admintools"/>
 <input type="hidden" name="view" value="NginXConfMaker"/>
 <input type="hidden" name="task" value="save"/>
-<input type="hidden" name="<?php echo JFactory::getSession()->getFormToken(); ?>" value="1"/>
+<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1"/>
 
 <!-- ======================================================================= -->
 <fieldset>

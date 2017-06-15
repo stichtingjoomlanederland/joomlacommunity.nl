@@ -12,7 +12,7 @@ defined('_JEXEC') or die;
 use Akeeba\AdminTools\Admin\Model\ScanAlerts;
 use Akeeba\AdminTools\Admin\Model\Scans;
 use FOF30\View\DataView\Html as BaseView;
-use JDate;
+use FOF30\Date\Date;
 use JLoader;
 
 class Html extends BaseView
@@ -20,7 +20,7 @@ class Html extends BaseView
 	/**
 	 * The start date/time of the scan
 	 *
-	 * @var  JDate
+	 * @var  Date
 	 */
 	public $scanDate;
 
@@ -95,7 +95,10 @@ JS;
 		$scanModel = $this->container->factory->model('Scans')->tmpInstance();
 		$scanModel->find($this->item->scan_id);
 
-		$this->scanDate = new JDate($scanModel->backupstart);
+		$this->scanDate = new Date($scanModel->backupstart);
+		$timezone       = $this->container->platform->getUser()->getParam('timezone', $this->container->platform->getConfig()->get('offset', 'GMT'));
+		$tz             = new \DateTimeZone($timezone);
+		$this->scanDate->setTimezone($tz);
 
 		$this->item->newfile    = empty($this->item->diff);
 		$this->item->suspicious = substr($this->item->diff, 0, 21) == '###SUSPICIOUS FILE###';

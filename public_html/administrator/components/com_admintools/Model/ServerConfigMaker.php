@@ -310,6 +310,13 @@ abstract class ServerConfigMaker extends Model
 
 		$configFileContents = $this->makeConfigFile();
 
+		/**
+		 * Convert CRLF to LF before saving the file. This would work around an issue with Windows browsers using CRLF
+		 * line endings in text areas which would then be transferred verbatim to the output file. Most servers don't
+		 * mind, but NginX will break hard when it sees the CR in the configuration file.
+		 */
+		$configFileContents = str_replace("\r\n", "\n", $configFileContents);
+
 		if (!@file_put_contents($htaccessPath, $configFileContents))
 		{
 			return JFile::write($htaccessPath, $configFileContents);

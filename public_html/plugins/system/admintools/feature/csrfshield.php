@@ -18,7 +18,7 @@ class AtsystemFeatureCsrfshield extends AtsystemFeatureAbstract
 	 */
 	public function isEnabled()
 	{
-		if (!$this->helper->isFrontend())
+		if (!$this->container->platform->isFrontend())
 		{
 			return false;
 		}
@@ -97,7 +97,7 @@ class AtsystemFeatureCsrfshield extends AtsystemFeatureAbstract
 
 		if (empty($fieldName))
 		{
-			$config = JFactory::getConfig();
+			$config = $this->container->platform->getConfig();
 
 			$sitename = $config->get('sitename');
 			$secret = $config->get('secret');

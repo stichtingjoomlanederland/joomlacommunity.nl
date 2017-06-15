@@ -55,7 +55,6 @@ class Sftpcurl extends Base
 			$host = substr($host, 7);
 		}
 
-
 		// Process the initial directory
 		$directory = '/' . ltrim(trim($directory), '/');
 
@@ -86,13 +85,6 @@ class Sftpcurl extends Base
 
             return false;
         }
-
-		if (!$this->sftp_chdir($directory, $sftphandle))
-		{
-			$this->setWarning("Invalid initial directory $directory for the remote SFTP server");
-
-			return false;
-		}
 
 		$realdir = substr($directory, -1) == '/' ? substr($directory, 0, strlen($directory) - 1) : $directory;
 		$basename = empty($upload_as) ? basename($absolute_filename) : $upload_as;
@@ -156,7 +148,7 @@ class Sftpcurl extends Base
         }
 
 		// Change to initial directory
-		if (!$this->sftp_chdir($directory, $sftphandle))
+		if (!$sftphandle->isDir($directory))
 		{
 			$this->setWarning("Invalid initial directory $directory for the remote SFTP server");
 
@@ -216,7 +208,7 @@ class Sftpcurl extends Base
         }
 
 		// Change to initial directory
-		if (!$this->sftp_chdir($directory, $sftphandle))
+		if (!$sftphandle->isDir($directory))
 		{
 			$this->setWarning("Invalid initial directory $directory for the remote SFTP server");
 
@@ -233,74 +225,6 @@ class Sftpcurl extends Base
 
             return false;
         }
-
-		return true;
-	}
-
-	/**
-	 * Changes to the requested directory in the remote server. You give only the
-	 * path relative to the initial directory and it does all the rest by itself,
-	 * including doing nothing if the remote directory is the one we want. If the
-	 * directory doesn't exist, it creates it.
-	 *
-	 * @param   string       $dir
-	 * @param   SftpTransfer $sftphandle
-	 *
-	 * @return  boolean
-	 */
-	protected function sftp_chdir($dir, &$sftphandle)
-	{
-		// Calculate "real" (absolute) SFTP path
-		$result = $sftphandle->isDir($dir);
-
-		if ($result === false)
-		{
-			// The directory doesn't exist, let's try to create it...
-			if (!$this->makeDirectory($dir, $sftphandle))
-			{
-				return false;
-			}
-		}
-
-		// Update the private "current remote directory" variable
-		return true;
-	}
-
-	/**
-	 * Creates a nested directory structure on the remote SFTP server
-	 *
-	 * @param   string       $dir
-	 * @param   SftpTransfer $sftphandle
-	 *
-	 * @return  boolean
-	 */
-	protected function makeDirectory($dir, &$sftphandle)
-	{
-		$alldirs = explode('/', $dir);
-		$previousDir = '';
-
-		foreach ($alldirs as $curdir)
-		{
-            // Avoid empty dir
-            if(!$curdir)
-            {
-                continue;
-            }
-
-			$check = $previousDir . '/' . $curdir;
-
-			if (!$sftphandle->isDir($check))
-			{
-				if ($sftphandle->mkdir($check) === false)
-				{
-					$this->setWarning('Could not create SFTP directory ' . $check);
-
-					return false;
-				}
-			}
-
-			$previousDir = $check;
-		}
 
 		return true;
 	}

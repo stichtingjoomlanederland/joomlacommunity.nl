@@ -12,6 +12,8 @@ defined('AKEEBAENGINE') or die();
 
 use Akeeba\Engine\Util\Comconfig;
 use Akeeba\Engine\Util\ParseIni;
+use FOF30\Container\Container;
+use FOF30\Date\Date;
 use Psr\Log\LogLevel;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
@@ -32,6 +34,26 @@ class Filescan extends BasePlatform
 
 	/** @var string The name of the table where backup records are stored */
 	public $tableNameStats = '#__admintools_scans';
+
+	/**
+	 * The container of the application
+	 *
+	 * @var   Container
+	 */
+	protected $container;
+
+	/**
+	 * Flash variables for the CLI application. We use this array since we're hell bent on NOT using Joomla's broken
+	 * session package.
+	 *
+	 * @var   array
+	 */
+	protected $flashVariables = array();
+
+	public function __construct()
+	{
+		$this->container = Container::getInstance('com_admintools');
+	}
 
 	/**
 	 * Loads the current configuration off the database table
@@ -223,7 +245,7 @@ class Filescan extends BasePlatform
 
 		if (empty($stock_directories))
 		{
-			$jreg = \JFactory::getConfig();
+			$jreg = $this->container->platform->getConfig();
 			$tmpdir = $jreg->get('tmp_path');
 			$stock_directories['[SITEROOT]']       = $this->get_site_root();
 			$stock_directories['[ROOTPARENT]']     = @realpath($this->get_site_root() . '/..');
@@ -255,9 +277,7 @@ class Filescan extends BasePlatform
 					$root = getcwd();
 				}
 
-				$app = \JFactory::getApplication();
-
-				if ($app->isAdmin())
+				if ($this->getApplicationType() == 'admin')
 				{
 					if (empty($root))
 					{
@@ -274,6 +294,7 @@ class Filescan extends BasePlatform
 						{
 							$root = '../';
 						}
+
 						// Degenerate case where $root = 'administrator'
 						// without a leading slash before entering this
 						// if-block
@@ -347,8 +368,8 @@ class Filescan extends BasePlatform
 	public function get_timestamp_database($date = 'now')
 	{
 		\JLoader::import('joomla.utilities.date');
-		$jdate = new \JDate($date);
-		return $jdate->toSql();
+		$date = new Date($date);
+		return $date->toSql();
 	}
 
 	/**
@@ -362,13 +383,18 @@ class Filescan extends BasePlatform
 	public function get_local_timestamp($format)
 	{
 		\JLoader::import('joomla.utilities.date');
+		\JLoader::import('joomla.environment.request');
 
-		$jregistry = \JFactory::getConfig();
-		$tzDefault = $jregistry->get('offset');
-		$user = \JFactory::getUser();
-		$tz   = $user->getParam('timezone', $tzDefault);
+		$jregistry = $this->container->platform->getConfig();
+		$tz        = $jregistry->get('offset');
 
-		$dateNow = new \JDate('now', $tz);
+		if ($this->getApplicationType() != 'cli')
+		{
+			$user = $this->container->platform->getUser();
+			$tz   = $user->getParam('timezone', $tz);
+		}
+
+		$dateNow = new Date('now', $tz);
 
 		return $dateNow->format($format, true);
 	}
@@ -412,7 +438,7 @@ class Filescan extends BasePlatform
 
 	public function get_site_name()
 	{
-		$jconfig = \JFactory::getConfig();
+		$jconfig = $this->container->platform->getConfig();
 		return $jconfig->get('sitename', '');
 	}
 
@@ -426,7 +452,7 @@ class Filescan extends BasePlatform
 	 */
 	public function get_default_database_driver($use_platform = true)
 	{
-		$jconfig = \JFactory::getConfig();
+		$jconfig = $this->container->platform->getConfig();
 		$driver = $jconfig->get('dbtype');
 
 		// Let's see what driver Joomla! uses...
@@ -529,7 +555,7 @@ class Filescan extends BasePlatform
 
 		if (empty($options))
 		{
-			$conf = \JFactory::getConfig();
+			$conf = $this->container->platform->getConfig();
 			$options = array(
 				'host'     => $conf->get('host'),
 				'user'     => $conf->get('user'),
@@ -575,7 +601,7 @@ class Filescan extends BasePlatform
 		if ( !defined('AKEEBA_DATE'))
 		{
 			\JLoader::import('joomla.utilities.date');
-			$date = new \JDate();
+			$date = new Date();
 			define("AKEEBA_DATE", $date->format('Y-m-d'));
 		}
 	}
@@ -610,7 +636,7 @@ class Filescan extends BasePlatform
 		// If the release is older than 3 months, issue a warning
 		if (defined('AKEEBA_DATE'))
 		{
-			$releaseDate = new \JDate(AKEEBA_DATE);
+			$releaseDate = new Date(AKEEBA_DATE);
 
 			if (time() - $releaseDate->toUnix() > 7776000)
 			{
@@ -1039,8 +1065,14 @@ class Filescan extends BasePlatform
 	 */
 	public function set_flash_variable($name, $value)
 	{
-		$session = \JFactory::getSession();
-		$session->set($name, $value, 'akeebabackup');
+		if ($this->getApplicationType() == 'cli')
+		{
+			$this->flashVariables[$name] = $value;
+
+			return;
+		}
+
+		$this->container->platform->setSessionVar($name, $value, 'admintools');
 	}
 
 	/**
@@ -1054,9 +1086,21 @@ class Filescan extends BasePlatform
 	 */
 	public function get_flash_variable($name, $default = null)
 	{
-		$session = \JFactory::getSession();
-		$ret     = $session->get($name, $default, 'akeebabackup');
-		$session->set($name, null, 'akeebabackup');
+		if ($this->getApplicationType() == 'cli')
+		{
+			$ret = $default;
+
+			if (isset($this->flashVariables[$name]))
+			{
+				$ret = $this->flashVariables[$name];
+				unset($this->flashVariables[$name]);
+			}
+
+			return $ret;
+		}
+
+		$ret     = $this->container->platform->getSessionVar($name, $default, 'admintools');
+		$this->container->platform->setSessionVar($name, null, 'admintools');
 
 		return $ret;
 	}
@@ -1070,6 +1114,52 @@ class Filescan extends BasePlatform
 	 */
 	public function redirect($url)
 	{
-		\JFactory::getApplication()->redirect($url);
+		$this->container->platform->redirect($url);
+	}
+
+	/**
+	 * Returns the application type: admin, site or cli
+	 *
+	 * @return  string  One of 'admin', 'site', or 'cli'
+	 *
+	 * @since  5.3.5
+	 */
+	private function getApplicationType()
+	{
+		if (defined('AKEEBACLI'))
+		{
+			return 'cli';
+		}
+
+		try
+		{
+			$app = \JFactory::getApplication();
+		}
+		catch (\Exception $e)
+		{
+			return 'cli';
+		}
+
+		if (!($app instanceof \JApplicationCms))
+		{
+			return 'cli';
+		}
+
+		if ($app instanceof \JApplicationCli)
+		{
+			return 'cli';
+		}
+
+		if (method_exists($app, 'isClient'))
+		{
+			return $app->isClient('site') ? 'site' : 'admin';
+		}
+
+		if (method_exists($app, 'isAdmin'))
+		{
+			return $app->isAdmin() ? 'admin' : 'site';
+		}
+
+		return ($app instanceof \JApplicationSite) ? 'site' : 'admin';
 	}
 }

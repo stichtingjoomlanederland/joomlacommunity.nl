@@ -9,7 +9,5 @@
 
 defined('_JEXEC') or die;
 
-$document = JFactory::getDocument();
 ?>
-<pre><?php
-	echo $this->escape($this->nginxconf);?></pre>
+<pre><?php echo $this->escape($this->nginxconf);?></pre>

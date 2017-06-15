@@ -11,6 +11,9 @@ class AtsystemFeatureGeoblock extends AtsystemFeatureAbstract
 {
 	protected $loadOrder = 30;
 
+	/** @var  string  Extra info to log when geo-blocking an IP */
+	private $extraInfo = null;
+
 	/**
 	 * Is this feature enabled?
 	 *
@@ -26,7 +29,28 @@ class AtsystemFeatureGeoblock extends AtsystemFeatureAbstract
 
 	public function onAfterInitialise()
 	{
-		$ip = AtsystemUtilFilter::getIp();
+		if (!$this->isIPBlocked())
+		{
+			return;
+		}
+
+		$this->exceptionsHandler->blockRequest('geoblocking', null, $this->extraInfo);
+	}
+
+	/**
+	 * Is the IP blocked by a Geo-blocking rule?
+	 *
+	 * @param   string  $ip  The IP address to check. Skip or pass empty string / null to use the current visitor's IP.
+	 *
+	 * @return  bool
+	 */
+	public function isIPBlocked($ip = null)
+	{
+		if (empty($ip))
+		{
+			// Get the visitor's IP address
+			$ip = AtsystemUtilFilter::getIp();
+		}
 
 		$continents = $this->cparams->getValue('geoblockcontinents', '');
 		$continents = empty($continents) ? array() : explode(',', $continents);
@@ -49,14 +73,18 @@ class AtsystemFeatureGeoblock extends AtsystemFeatureAbstract
 
 		if (($continent) && !empty($continents) && in_array($continent, $continents))
 		{
-			$extraInfo = 'Continent : ' . $continent;
-			$this->exceptionsHandler->blockRequest('geoblocking', null, $extraInfo);
+			$this->extraInfo = 'Continent : ' . $continent;
+
+			return true;
 		}
 
 		if (($country) && !empty($countries) && in_array($country, $countries))
 		{
-			$extraInfo = 'Country : ' . $country;
-			$this->exceptionsHandler->blockRequest('geoblocking', null, $extraInfo);
+			$this->extraInfo = 'Country : ' . $country;
+
+			return true;
 		}
+
+		return false;
 	}
 }

@@ -9,6 +9,8 @@
 
 defined('_JEXEC') or die;
 
+use FOF30\Date\Date;
+
 $root = realpath(JPATH_ROOT);
 $root = trim($root);
 $emptyRoot = empty($root);
@@ -30,7 +32,7 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/needsipworkaround
 		<p>
 			<?php
 			echo \JText::sprintf('COM_ADMINTOOLS_CPANEL_ERR_UPDATE_STUCK',
-				JFactory::getDbo()->getPrefix(),
+				$this->container->db->getPrefix(),
 				'index.php?option=com_admintools&view=ControlPanel&task=forceUpdateDb'
 			)?>
 		</p>
@@ -48,7 +50,7 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/needsipworkaround
 		</p>
 		<p>
 			<a class="btn btn-success btn-large"
-			   href="index.php?option=com_admintools&view=ControlPanel&task=resetSecretWord&<?php echo JFactory::getSession()->getToken(); ?>=1">
+			   href="index.php?option=com_admintools&view=ControlPanel&task=resetSecretWord&<?php echo $this->container->platform->getToken(true); ?>=1">
 				<span class="icon icon-white icon-refresh"></span>
 				<?php echo \JText::_('COM_ADMINTOOLS_CONTROLPANEL_BTN_FESECRETWORD_RESET'); ?>
 			</a>
@@ -58,10 +60,10 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/needsipworkaround
 
 <?php
 // Obsolete PHP version check
-if (version_compare(PHP_VERSION, '5.4.0', 'lt')):
+if (version_compare(PHP_VERSION, '5.5.0', 'lt')):
 	JLoader::import('joomla.utilities.date');
-	$akeebaCommonDatePHP = new JDate('2014-08-14 00:00:00', 'GMT');
-	$akeebaCommonDateObsolescence = new JDate('2015-05-14 00:00:00', 'GMT');
+	$akeebaCommonDatePHP = new Date('2015-09-03 00:00:00', 'GMT');
+	$akeebaCommonDateObsolescence = new Date('2016-06-03 00:00:00', 'GMT');
 	?>
 	<div id="phpVersionCheck" class="alert alert-warning">
 		<h3><?php echo \JText::_('AKEEBA_COMMON_PHPVERSIONTOOOLD_WARNING_TITLE'); ?></h3>
@@ -71,7 +73,7 @@ if (version_compare(PHP_VERSION, '5.4.0', 'lt')):
 				PHP_VERSION,
 				$akeebaCommonDatePHP->format(JText::_('DATE_FORMAT_LC1')),
 				$akeebaCommonDateObsolescence->format(JText::_('DATE_FORMAT_LC1')),
-				'5.5'
+				'5.6'
 			);
 			?>
 		</p>
@@ -104,7 +106,7 @@ if (version_compare(PHP_VERSION, '5.4.0', 'lt')):
 			<input type="hidden" name="option" value="com_admintools" />
 			<input type="hidden" name="view" value="ControlPanel" />
 			<input type="hidden" name="task" value="applydlid" />
-			<input type="hidden" name="<?php echo \JFactory::getSession()->getFormToken(); ?>" value="1" />
+			<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1" />
 	<span>
 		<?php echo \JText::_('COM_ADMINTOOLS_MSG_CONTROLPANEL_PASTEDLID'); ?>
 	</span>
@@ -137,7 +139,7 @@ if (version_compare(PHP_VERSION, '5.4.0', 'lt')):
 		<p><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_GEOIPPLUGINCANUPDATE'); ?></p>
 
 		<a class="btn btn-small"
-		   href="index.php?option=com_admintools&view=ControlPanel&task=updategeoip&<?php echo \JFactory::getSession()->getFormToken(); ?>=1">
+		   href="index.php?option=com_admintools&view=ControlPanel&task=updategeoip&<?php echo $this->container->platform->getToken(true); ?>=1">
 			<span class="icon icon-refresh"></span>
 			<?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_UPDATEGEOIPDATABASE'); ?>
 		</a>

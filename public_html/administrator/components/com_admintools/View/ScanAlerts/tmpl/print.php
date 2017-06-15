@@ -7,17 +7,22 @@
 
 defined('_JEXEC') or die;
 
+use FOF30\Date\Date;
+
 JLoader::import('joomla.utilities.date');
 
-$scan_id    = $this->input->getInt('scan_id', 0);
-$jDate      = new JDate($this->scan->backupstart);
+$scan_id  = $this->input->getInt('scan_id', 0);
+$date     = new Date($this->scan->backupstart);
+$timezone = $this->container->platform->getUser()->getParam('timezone', $this->container->platform->getConfig()->get('offset', 'GMT'));
+$tz       = new \DateTimeZone($timezone);
+$date->setTimezone($tz);
 
 ?>
 <h1>
 	<?php echo JText::sprintf('COM_ADMINTOOLS_TITLE_SCANALERTS', $scan_id) ?>
 </h1>
 <h2>
-	<?php echo $jDate->format(JText::_('DATE_FORMAT_LC2'), true) ?>
+	<?php echo $date->format(JText::_('DATE_FORMAT_LC2') . ' T', true) ?>
 </h2>
 
 <table class="table">

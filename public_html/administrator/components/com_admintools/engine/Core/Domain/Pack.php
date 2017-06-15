@@ -13,7 +13,10 @@ namespace Akeeba\Engine\Core\Domain;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
+use Akeeba\Engine\Archiver\Base;
+use Akeeba\Engine\Archiver\BaseArchiver;
 use Akeeba\Engine\Base\Part;
+use Akeeba\Engine\Configuration;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use Psr\Log\LogLevel;
@@ -266,92 +269,95 @@ ENDVCONTENT;
 
 	protected function _run()
 	{
-		// Run in a loop until we run out of time, or breakflag is set
-		$registry = Factory::getConfiguration();
-		$timer = Factory::getTimer();
-
-		while (($timer->getTimeLeft() > 0) && (!$registry->get('volatile.breakflag', false)))
+		if ($this->getState() == 'postrun')
 		{
-			if ($this->getState() == 'postrun')
-			{
-				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Already finished");
-				$this->setStep("-");
-				$this->setSubstep("");
+			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Already finished");
+			$this->setStep("-");
+			$this->setSubstep("");
 
-				break;
-			}
-			else
+			return true;
+		}
+
+		// If I'm done scanning files and subdirectories and there are no more files to pack get the next
+		// directory. This block is triggered in the first step in a new root.
+		if (empty($this->file_list) && $this->done_subdir_scanning && $this->done_file_scanning)
+		{
+			$this->progressMarkFolderDone();
+
+			if (!$this->getNextDirectory())
 			{
-				// If I'm done scanning files and subdirectories and there are no more files to pack get the next
-				// directory. This block is triggered in the first step in a new root.
-				if (empty($this->file_list) && $this->done_subdir_scanning && $this->done_file_scanning)
+				if ($this->getNextRoot())
 				{
-					$this->progressMarkFolderDone();
-
 					if (!$this->getNextDirectory())
 					{
-						if ($this->getNextRoot())
-						{
-							if (!$this->getNextDirectory())
-							{
-								return true;
-							}
-						}
-						else
-						{
-							return true;
-						}
+						return true;
 					}
 				}
-
-				// If I'm not done scanning for files and the file list is empty then scan for more files
-				if (!$this->done_file_scanning && empty($this->file_list))
+				else
 				{
-					$result = $this->scanFiles();
+					return true;
 				}
-				// If I have files left, pack them
-				elseif (!empty($this->file_list))
-				{
-					$result = $this->pack_files();
-				}
-				// If I'm not done scanning subdirectories, go ahead and scan some more of them
-				elseif (!$this->done_subdir_scanning)
-				{
-					$result = $this->scanSubdirs();
-				}
-				/**
-				 * If we have excluded contained files or subdirectories BUT NOT the entire folder itself AND there are
-				 * no files in this directory THEN add an empty directory to the archive.
-				 **/
-				elseif (
-					($this->excluded_files || $this->excluded_subdirectories)
-					&&
-					!$this->excluded_folder
-					&&
-				    empty($this->file_list)
-				)
-				{
-					Factory::getLog()->log(LogLevel::INFO, "Empty directory " . $this->current_directory . ' (files and directories are filtered)');
-
-					$archiver = Factory::getArchiverEngine();
-
-					if ($this->current_directory != $this->remove_path_prefix)
-					{
-						$archiver->addFile($this->current_directory, $this->remove_path_prefix, $this->path_prefix);
-					}
-
-					// Error propagation
-					$this->propagateFromObject($archiver);
-				}
-
-				// Do I have an error?
-				if ($this->getError())
-				{
-					return false;
-				}
-
-				return true;
 			}
+		}
+
+		/**
+		 * Automated tests override
+		 *
+		 * If the file .akeeba_engine_automated_tests_error file is present in the site's root I will throw an error.
+		 */
+		list($root, $translated_root, $dir) = $this->getCleanDirectoryComponents();
+
+		if (@file_exists($translated_root . '/.akeeba_engine_automated_tests_error'))
+		{
+			$this->setError("Akeeba Engine automated tests: I am throwing an error because the file .akeeba_engine_automated_tests_error is present in the site's root folder.");
+
+			return false;
+		}
+
+		// If I'm not done scanning for files and the file list is empty then scan for more files
+		if (!$this->done_file_scanning && empty($this->file_list))
+		{
+			$result = $this->scanFiles();
+		}
+		// If I have files left, pack them
+		elseif (!empty($this->file_list))
+		{
+			$result = $this->pack_files();
+		}
+		// If I'm not done scanning subdirectories, go ahead and scan some more of them
+		elseif (!$this->done_subdir_scanning)
+		{
+			$result = $this->scanSubdirs();
+		}
+		/**
+		 * If we have excluded contained files or subdirectories BUT NOT the entire folder itself AND there are
+		 * no files in this directory THEN add an empty directory to the archive.
+		 **/
+		elseif (
+			($this->excluded_files || $this->excluded_subdirectories)
+			&&
+			!$this->excluded_folder
+			&&
+			empty($this->file_list)
+		)
+		{
+			Factory::getLog()->log(LogLevel::INFO, "Empty directory " . $this->current_directory . ' (files and directories are filtered)');
+
+			$archiver = Factory::getArchiverEngine();
+
+			if ($this->current_directory != $this->remove_path_prefix)
+			{
+				$archiver->addFile($this->current_directory, $this->remove_path_prefix, $this->path_prefix);
+			}
+
+			// Error propagation
+			$this->propagateFromObject($archiver);
+		}
+
+		// Do I have an error?
+		if ($this->getError())
+		{
+			return false;
 		}
 
 		return true;
@@ -500,7 +506,7 @@ ENDVCONTENT;
 		// If post-processing after part creation is enabled, make sure we do post-process each part before moving on
 		if ($configuration->get('engine.postproc.common.after_part', 0) && !empty($archiver->finishedPart))
 		{
-			if ($this->postProcessDonePartFile($archiver, $configuration))
+			if (self::postProcessDonePartFile($this, $archiver, $configuration))
 			{
 				return true;
 			}
@@ -1098,12 +1104,15 @@ ENDVCONTENT;
 	}
 
 	/**
-	 * @param \Akeeba\Engine\Archiver\Base $archiver
-	 * @param \Akeeba\Engine\Configuration $configuration
+	 * Immediate post-processing of a part file that's just been completed
 	 *
-	 * @return bool
+	 * @param   Part           $domain         The backup domain object calling us
+	 * @param   BaseArchiver   $archiver       The archiver engine
+	 * @param   Configuration  $configuration  Reference to the Factory configuration object
+	 *
+	 * @return  bool
 	 */
-	protected function postProcessDonePartFile(\Akeeba\Engine\Archiver\Base $archiver, \Akeeba\Engine\Configuration $configuration)
+	public static function postProcessDonePartFile(Part $domain, BaseArchiver $archiver, Configuration $configuration)
 	{
 		$filename = array_shift($archiver->finishedPart);
 		Factory::getLog()->log(LogLevel::INFO, 'Preparing to post process ' . basename($filename));
@@ -1112,14 +1121,14 @@ ENDVCONTENT;
         $startTime = $timer->getRunningTime();
 		$post_proc = Factory::getPostprocEngine();
 		$result    = $post_proc->processPart($filename);
-		$this->propagateFromObject($post_proc);
+		$domain->propagateFromObject($post_proc);
 
 		if ($result === false)
 		{
-            Factory::getLog()->log(LogLevel::WARNING, 'Failed to process file ' . $filename);
-            Factory::getLog()->log(LogLevel::WARNING, 'Error received from the post-processing engine:');
-            Factory::getLog()->log(LogLevel::WARNING, implode("\n", array_merge($this->getWarnings(), $this->getErrors())));
-			$this->setWarning('Failed to process file ' . basename($filename));
+			$domain->setWarning('Failed to process file ' . basename($filename));
+
+			Factory::getLog()->log(LogLevel::WARNING, 'Error received from the post-processing engine:');
+			Factory::getLog()->log(LogLevel::WARNING, implode("\n", array_merge($domain->getWarnings(), $domain->getErrors())));
 		}
 		elseif($result === true)
 		{
@@ -1179,8 +1188,8 @@ ENDVCONTENT;
 		}
 
 		// This is required to let the backup continue even after a post-proc failure
-		$this->resetErrors();
-		$this->setState('running');
+		$domain->resetErrors();
+		$domain->setState('running');
 
 		return false;
 	}

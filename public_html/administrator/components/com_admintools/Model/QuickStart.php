@@ -225,6 +225,9 @@ class QuickStart extends Model
 			'reasons_noemail'         => 'geoblocking',
 			'resetjoomlatfa'          => 0,
 			'email_throttle'          => 1,
+		    'selfprotect'             => 1,
+		    'criticalfiles'           => 1,
+		    'superuserslist'          => 1,
 		);
 
 		$this->config = array_merge($this->config, $newValues);

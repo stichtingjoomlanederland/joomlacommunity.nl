@@ -244,6 +244,9 @@ class SftpCurl extends Sftp implements TransferInterface
 			curl_setopt($ch, CURLOPT_VERBOSE, 1);
 		}
 
+		// Automatically create missing directories
+		curl_setopt($ch, CURLOPT_FTP_CREATE_MISSING_DIRS, 1);
+
 		return $ch;
 	}
 

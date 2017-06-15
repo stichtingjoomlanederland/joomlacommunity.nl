@@ -23,9 +23,9 @@ class PushMessages
 	/**
 	 * The PushBullet connector
 	 *
-	 * @var Connector
+	 * @var Connector[]
 	 */
-	private $connector = null;
+	private $connectors = array();
 
 	/**
 	 * Should we send push messages?
@@ -59,16 +59,30 @@ class PushMessages
 				break;
 
 			case 1:
-				try
+				$keys = explode(',', $apiKey);
+				$keys = array_map('trim', $keys);
+
+				foreach ($keys as $key)
 				{
-					$this->connector = new Connector($apiKey);
-					$this->connector->getDevices();
+					try
+					{
+						$connector = new Connector($key);
+						$connector->getDevices();
+						$this->connectors[] = $connector;
+					}
+					catch (\Exception $e)
+					{
+						Factory::getLog()->warning("Push messages cannot be sent with API key $key. Error received when trying to establish PushBullet connection: " . $e->getMessage());
+					}
 				}
-				catch (\Exception $e)
+
+				if (empty($this->connectors))
 				{
-					Factory::getLog()->warning('Push messages cannot be sent. Error received when trying to establish PushBullet connection:' . $e->getMessage());
+					Factory::getLog()->warning('No push messages can be sent: none of the provided API keys is usable. Push messages have been deactivated.');
+
 					$this->enabled = false;
 				}
+
 				break;
 		}
 	}
@@ -89,14 +103,17 @@ class PushMessages
 			return;
 		}
 
-		try
+		foreach ($this->connectors as $connector)
 		{
-			$this->connector->pushNote('', $subject, $details);
-		}
-		catch (\Exception $e)
-		{
-			Factory::getLog()->warning('Push messages suspended. Error received when trying to send push message:' . $e->getMessage());
-			$this->enabled = false;
+			try
+			{
+				$connector->pushNote('', $subject, $details);
+			}
+			catch (\Exception $e)
+			{
+				Factory::getLog()->warning('Push messages suspended. Error received when trying to send push message:' . $e->getMessage());
+				$this->enabled = false;
+			}
 		}
 	}
 
@@ -117,15 +134,17 @@ class PushMessages
 			return;
 		}
 
-		try
+		foreach ($this->connectors as $connector)
 		{
-			$this->connector->pushLink('', $subject, $url, $details);
+			try
+			{
+				$connector->pushLink('', $subject, $url, $details);
+			}
+			catch (\Exception $e)
+			{
+				Factory::getLog()->warning('Push messages suspended. Error received when trying to send push message with a link:' . $e->getMessage());
+				$this->enabled = false;
+			}
 		}
-		catch (\Exception $e)
-		{
-			Factory::getLog()->warning('Push messages suspended. Error received when trying to send push message with a link:' . $e->getMessage());
-			$this->enabled = false;
-		}
-
 	}
 }

@@ -105,7 +105,8 @@ class FileScanner extends Controller
 				header('Connection: close');
 				echo "301 More work required";
 				flush();
-				JFactory::getApplication()->close();
+
+				$this->container->platform->closeApplication();
 			}
 			else
 			{
@@ -157,7 +158,8 @@ class FileScanner extends Controller
 			@ob_end_clean();
 			echo '500 ERROR -- ' . $array['Error'];
 			flush();
-			JFactory::getApplication()->close();
+
+			$this->container->platform->closeApplication();
 		}
 		elseif ($array['HasRun'] == 1)
 		{
@@ -169,7 +171,8 @@ class FileScanner extends Controller
 			header('Connection: close');
 			echo '200 OK';
 			flush();
-			JFactory::getApplication()->close();
+
+			$this->container->platform->closeApplication();
 		}
 		else
 		{
@@ -182,7 +185,8 @@ class FileScanner extends Controller
 				header('Connection: close');
 				echo "301 More work required";
 				flush();
-				JFactory::getApplication()->close();
+
+				$this->container->platform->closeApplication();
 			}
 
 			else
@@ -231,7 +235,8 @@ class FileScanner extends Controller
 			@ob_end_clean();
 			echo '403 ' . JText::_('COM_ADMINTOOLS_ERROR_NOT_ENABLED');
 			flush();
-			JFactory::getApplication()->close();
+
+			$this->container->platform->closeApplication();
 		}
 
 		// Is the key good?
@@ -243,7 +248,8 @@ class FileScanner extends Controller
 			@ob_end_clean();
 			echo '403 ' . JText::_('COM_ADMINTOOLS_ERROR_INVALID_KEY');
 			flush();
-			JFactory::getApplication()->close();
+
+			$this->container->platform->closeApplication();
 		}
 	}
 
@@ -254,7 +260,7 @@ class FileScanner extends Controller
 		header('Content-Type: text/plain');
 		header('Connection: close');
 
-		JFactory::getApplication()->close(0);
+		$this->container->platform->closeApplication();
 	}
 
 	/**

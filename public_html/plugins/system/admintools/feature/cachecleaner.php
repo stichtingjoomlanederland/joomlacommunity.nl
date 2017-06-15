@@ -5,6 +5,8 @@
  * @license   GNU General Public License version 3, or later
  */
 
+use FOF30\Date\Date;
+
 defined('_JEXEC') or die;
 
 class AtsystemFeatureCachecleaner extends AtsystemFeatureAbstract
@@ -34,7 +36,7 @@ class AtsystemFeatureCachecleaner extends AtsystemFeatureAbstract
 		$nextJob = $lastJob + $minutes * 60;
 
 		JLoader::import('joomla.utilities.date');
-		$now = new JDate();
+		$now = new Date();
 
 		if ($now->toUnix() >= $nextJob)
 		{

@@ -1,0 +1,519 @@
+<?php
+/**
+ * @package   AdminTools
+ * @copyright Copyright (c)2010-2017 Nicholas K. Dionysopoulos
+ * @license   GNU General Public License version 3, or later
+ */
+
+defined('_JEXEC') or die;
+
+/**
+ * Keep track of Super Users on the site and send an email when users are added. Optionally automatically block these
+ * new Super Users.
+ */
+class AtsystemFeatureSuperuserslist extends AtsystemFeatureAbstract
+{
+	protected $loadOrder = 998;
+
+	/**
+	 * Is this feature enabled?
+	 *
+	 * @return bool
+	 */
+	public function isEnabled()
+	{
+		return ($this->cparams->getValue('superuserslist', 1) == 1);
+	}
+
+	/**
+	 * Checks if a backend Super User is saving another Super User account. We have to run this check onAfterRoute since
+	 * com_users will perform an immediate redirect upon saving, without hitting onAfterRender. For the same reason the
+	 * detected ID of the Super User being saved has to be saved in the session to persist the successive page loads.
+	 */
+	public function onAfterRoute()
+	{
+		if (!$this->isBackendSuperUser())
+		{
+			return;
+		}
+
+		$safeIDs = $this->getSafeIDs();
+
+		if (empty($safeIDs))
+		{
+			return;
+		}
+
+		$this->container->platform->setSessionVar('superuserslist.safeids', $safeIDs, 'com_admintools');
+	}
+
+	public function onAfterRender()
+	{
+		$safeIDs = [];
+
+		if ($this->isBackendSuperUser())
+		{
+			$safeIDs = $this->container->platform->getSessionVar('superuserslist.safeids', [], 'com_admintools');
+			$this->container->platform->setSessionVar('superuserslist.safeids', null, 'com_admintools');
+
+			if (empty($safeIDs))
+			{
+				$safeIDs = [];
+			}
+		}
+
+		$savedSuperUserIDs   = $this->load();
+		$superUserGroups     = $this->getSuperUserGroups();
+		$currentSuperUserIDs = $this->getUsersInGroups($superUserGroups);
+
+		if (empty($savedSuperUserIDs))
+		{
+			$this->save($currentSuperUserIDs);
+
+			return;
+		}
+
+		$newSuperUsers = array_diff($currentSuperUserIDs, $savedSuperUserIDs);
+		// Do NOT remove this variable! It catches the case were Super Users are added BUT THEN REMOVED FROM $newSuperUsers WITH array_diff. WE MUST SAVE IN THIS CASE!
+		$hasNewSuperUsers  = !empty($newSuperUsers);
+		$newSuperUsers     = array_diff($newSuperUsers, $safeIDs);
+		$removedSuperUsers = array_diff($savedSuperUserIDs, $currentSuperUserIDs);
+
+		if (empty($newSuperUsers) && empty($removedSuperUsers))
+		{
+			// In case Super Users ARE added BUT are in the safe IDs list THEN we MUST save the new list!
+			if ($hasNewSuperUsers)
+			{
+				$this->save($currentSuperUserIDs);
+			}
+
+			return;
+		}
+
+		$this->sendEmail($newSuperUsers);
+
+		foreach ($newSuperUsers as $id)
+		{
+			$user        = $this->container->platform->getUser($id);
+			$user->block = 1;
+			$user->save();
+		}
+
+		$currentSuperUserIDs = array_diff($currentSuperUserIDs, $newSuperUsers);
+		$newSuperUsers       = [];
+
+		if (!empty($newSuperUsers) || !empty($removedSuperUsers))
+		{
+			$this->save($currentSuperUserIDs);
+		}
+	}
+
+	/**
+	 * Save the list of users to the database
+	 *
+	 * @param   array $userList The list of User IDs
+	 *
+	 * @return  void
+	 */
+	private function save(array $userList)
+	{
+		$db   = $this->container->db;
+		$data = json_encode($userList);
+
+		$query = $db->getQuery(true)
+		            ->delete($db->quoteName('#__admintools_storage'))
+		            ->where($db->quoteName('key') . ' = ' . $db->quote('superuserslist'));
+		$db->setQuery($query);
+		$db->execute();
+
+		$object = (object) array(
+			'key'   => 'superuserslist',
+			'value' => $data
+		);
+
+		$db->insertObject('#__admintools_storage', $object);
+	}
+
+	/**
+	 * Load the saved list of Super User IDs from the database
+	 *
+	 * @return  array
+	 */
+	private function load()
+	{
+		$db    = $this->container->db;
+		$query = $db->getQuery(true)
+		            ->select($db->quoteName('value'))
+		            ->from($db->quoteName('#__admintools_storage'))
+		            ->where($db->quoteName('key') . ' = ' . $db->quote('superuserslist'));
+		$db->setQuery($query);
+
+		$error = 0;
+
+		try
+		{
+			$jsonData = $db->loadResult();
+		}
+		catch (Exception $e)
+		{
+			$error = $e->getCode();
+		}
+
+		if (method_exists($db, 'getErrorNum') && $db->getErrorNum())
+		{
+			$error = $db->getErrorNum();
+		}
+
+		if ($error)
+		{
+			$jsonData = null;
+		}
+
+		if (empty($jsonData))
+		{
+			return [];
+		}
+
+		return json_decode($jsonData, true);
+	}
+
+	/**
+	 * Sends a warning email to the addresses set up to receive security exception emails
+	 *
+	 * @param   array  $superUsers  The IDs of Super Users added
+	 *
+	 * @return  void
+	 */
+	private function sendEmail(array $superUsers)
+	{
+		if (empty($superUsers))
+		{
+			// What are you doing here?
+			return;
+		}
+
+		// Load the component's administrator translation files
+		$jlang = JFactory::getLanguage();
+		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, 'en-GB', true);
+		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
+		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, null, true);
+
+		// Get the site name
+		$config   = $this->container->platform->getConfig();
+		$sitename = $config->get('sitename');
+
+		// Convert the list of added Super Users
+		$htmlUsersList = <<< HTML
+<ul>
+HTML;
+
+		foreach ($superUsers as $id)
+		{
+			$user = $this->container->platform->getUser($id);
+
+			$htmlUsersList .= <<< HTML
+	<li>
+		#$id &ndash; <b>{$user->username}</b> &ndash; {$user->name} &lt;{$user->email}&gt;
+	</li>
+HTML;
+
+		}
+
+		$htmlUsersList .= <<< HTML
+</ul>
+
+HTML;
+
+		// Construct the replacement table
+		$substitutions = array(
+			'[SITENAME]'  => $sitename,
+			'[DATE]'      => gmdate('Y-m-d H:i:s') . " GMT",
+			'[INFO]'      => $htmlUsersList,
+		);
+
+		// Let's get the most suitable email template
+		$template = $this->exceptionsHandler->getEmailTemplate('superuserslist', true);
+
+		// Got no template, the user didn't published any email template, or the template doesn't want us to
+		// send a notification email. Anyway, let's stop here.
+		if (!$template)
+		{
+			return;
+		}
+
+		$subject = $template[0];
+		$body = $template[1];
+
+		foreach ($substitutions as $k => $v)
+		{
+			$subject = str_replace($k, $v, $subject);
+			$body    = str_replace($k, $v, $body);
+		}
+
+		try
+		{
+			$config = $this->container->platform->getConfig();
+			$mailer = JFactory::getMailer();
+
+			$mailfrom = $config->get('mailfrom');
+			$fromname = $config->get('fromname');
+
+			$recipients = explode(',', $this->cparams->getValue('emailbreaches', ''));
+			$recipients = array_map('trim', $recipients);
+
+			foreach ($recipients as $recipient)
+			{
+				if (empty($recipient))
+				{
+					continue;
+				}
+
+				// This line is required because SpamAssassin is BROKEN
+				$mailer->Priority = 3;
+
+				$mailer->isHtml(true);
+				$mailer->setSender(array($mailfrom, $fromname));
+
+				if ($mailer->addRecipient($recipient) === false)
+				{
+					// Failed to add a recipient?
+					continue;
+				}
+
+				$mailer->setSubject($subject);
+				$mailer->setBody($body);
+				$mailer->Send();
+			}
+		}
+		catch (\Exception $e)
+		{
+			// Joomla! 3.5 and later throw an exception when crap happens instead of suppressing it and returning false
+		}
+	}
+
+	/**
+	 * Get the user groups with Super User privileges
+	 *
+	 * @return  array
+	 */
+	private function getSuperUserGroups()
+	{
+		static $ret = null;
+
+		if (!is_array($ret))
+		{
+			$db  = $this->container->db;
+			$ret = [];
+
+			try
+			{
+				$query = $db->getQuery(true)
+				            ->select($db->qn('rules'))
+				            ->from($db->qn('#__assets'))
+				            ->where($db->qn('parent_id') . ' = ' . $db->q(0));
+				$db->setQuery($query, 0, 1);
+				$rulesJSON = $db->loadResult();
+			}
+			catch (Exception $exc)
+			{
+				return $ret;
+			}
+
+			$rules     = json_decode($rulesJSON, true);
+			$rawGroups = $rules['core.admin'];
+
+			if (empty($rawGroups))
+			{
+				return $ret;
+			}
+
+			foreach ($rawGroups as $g => $enabled)
+			{
+				if (!$enabled)
+				{
+					continue;
+				}
+
+				$ret[] = $g;
+			}
+		}
+
+		return $ret;
+	}
+
+	/**
+	 * Get the IDs of users who are members of one or more groups in the $groups list
+	 *
+	 * @param   array  $groups  The users must be a member of at least one of these groups
+	 *
+	 * @return  array
+	 */
+	private function getUsersInGroups(array $groups)
+	{
+		$db  = $this->container->db;
+		$ret = [];
+		$groups = array_map(array($db, 'q'), $groups);
+
+		try
+		{
+			$query = $db->getQuery(true)
+			            ->select($db->qn('user_id'))
+			            ->from($db->qn('#__user_usergroup_map') . ' AS ' . $db->qn('m'))
+			            ->innerJoin($db->qn('#__users') . ' AS ' . $db->qn('u') . 'ON(' .
+				            $db->qn('u.id') . ' = ' . $db->qn('m.user_id')
+			            . ')')
+			            ->where($db->qn('group_id') . ' IN(' . implode(',', $groups) . ')' )
+			            ->where($db->qn('block') . ' = ' . $db->q('0') )
+						// Don't look only for empty string. Joomla! considers '' and '0' identical and will let you log in!
+			            ->where('(' .
+							'(' . $db->qn('activation') . ' = ' . $db->q('0') . ') OR ' .
+							'(' . $db->qn('activation') . ' = ' . $db->q('') . ')' .
+						')')
+			;
+			$db->setQuery($query);
+			$rawUserIDs = $db->loadColumn(0);
+		}
+		catch (Exception $exc)
+		{
+			return $ret;
+		}
+
+		if (empty($rawUserIDs))
+		{
+			return $ret;
+		}
+
+		return array_unique($rawUserIDs);
+	}
+
+	/**
+	 * Returns a list of safe Super User IDs. These are the IDs of the Super Users being saved by another Super User in
+	 * the backend of the site through com_users.
+	 *
+	 * @return  array
+	 */
+	public function getSafeIDs()
+	{
+		$app = JFactory::getApplication();
+
+		if (!$this->isBackendSuperUser())
+		{
+			return [];
+		}
+
+		// Get the option and task parameters
+		$option = $app->input->getCmd('option', 'com_foobar');
+		$task   = $app->input->getCmd('task');
+
+		// Not com_users?
+		if ($option != 'com_users')
+		{
+			return [];
+		}
+
+		// Special case: unblock with one click. There's no jform here, the ID is passed in the 'cid' query string parameter
+		if ($task == 'users.unblock')
+		{
+			$cid = $app->input->get('cid', [], 'array');
+
+			if (empty($cid))
+			{
+				return [];
+			}
+
+			if (!is_array($cid))
+			{
+				$cid = [$cid];
+			}
+
+			return $cid;
+		}
+
+		// Note Save or Save & Close?
+		if (!in_array($task, ['user.apply', 'user.save']))
+		{
+			return [];
+		}
+
+		// Get the user IDs from the form
+		$jForm = $app->input->get('jform', [], 'array');
+
+		if (!is_array($jForm) || empty($jForm))
+		{
+			return [];
+		}
+
+		// No user ID or group information?
+		if (!isset($jForm['groups']) || !isset($jForm['id']))
+		{
+			return [];
+		}
+
+		// Is it a Super User?
+		$superUserGroups = $this->getSuperUserGroups();
+		$groups          = $jForm['groups'];
+		$isSuperUser     = false;
+
+		if (empty($groups))
+		{
+			return [];
+		}
+
+		foreach ($groups as $group)
+		{
+			if (in_array($group, $superUserGroups))
+			{
+				$isSuperUser = true;
+
+				break;
+			}
+		}
+
+		if (!$isSuperUser)
+		{
+			return [];
+		}
+
+		// Get the user ID being saved and return it
+		$id = $jForm['id'];
+
+		if (empty($id))
+		{
+			return [];
+		}
+
+		return [$id];
+	}
+
+	/**
+	 * Are we currently in the backend, with a logged in Super User?
+	 *
+	 * @return  bool
+	 */
+	private function isBackendSuperUser()
+	{
+		$app = JFactory::getApplication();
+
+		// Not a valid application object?
+		if (!is_object($app) || !($app instanceof JApplicationCms))
+		{
+			return false;
+		}
+
+		// Are we in the backend?
+		$isAdmin = method_exists($app, 'isAdmin') ? $app->isAdmin() : $app->isClient('administrator');
+
+		if (!$isAdmin)
+		{
+			return false;
+		}
+
+		// Not a Super User?
+		if (!$this->container->platform->getUser()->authorise('core.admin'))
+		{
+			return false;
+		}
+
+		return true;
+	}
+} 

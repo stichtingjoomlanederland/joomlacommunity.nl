@@ -24,7 +24,7 @@ class AtsystemFeatureEmailfailedadminlong extends AtsystemFeatureAbstract
 			return false;
 		}
 
-		if (!$this->helper->isBackend())
+		if (!$this->container->platform->isBackend())
 		{
 			return false;
 		}
@@ -43,11 +43,13 @@ class AtsystemFeatureEmailfailedadminlong extends AtsystemFeatureAbstract
 	 * Sends an email upon a failed administrator login
 	 *
 	 * @param JAuthenticationResponse $response
+	 *
+	 * @return  void
 	 */
 	public function onUserLoginFailure($response)
 	{
 		// Make sure we don't fire unless someone is still in the login page
-		$user = JFactory::getUser();
+		$user = $this->container->platform->getUser();
 
 		if (!$user->guest)
 		{
@@ -58,6 +60,12 @@ class AtsystemFeatureEmailfailedadminlong extends AtsystemFeatureAbstract
 		$task   = $this->input->getCmd('task');
 
 		if (($option != 'com_login') && ($task != 'login'))
+		{
+			return;
+		}
+
+		// Exit if the IP is blacklisted; logins originating from blacklisted IPs will be blocked anyway
+		if ($this->parentPlugin->runBooleanFeature('isIPBlocked', false, []))
 		{
 			return;
 		}
@@ -73,7 +81,7 @@ class AtsystemFeatureEmailfailedadminlong extends AtsystemFeatureAbstract
 		$username = JFactory::getApplication()->input->getString('username');
 
 		// Get the site name
-		$config = JFactory::getConfig();
+		$config = $this->container->platform->getConfig();
 
 		$sitename = $config->get('sitename');
 
@@ -126,7 +134,7 @@ class AtsystemFeatureEmailfailedadminlong extends AtsystemFeatureAbstract
 		);
 
 		// Let's get the most suitable email template
-		$template = $this->exceptionsHandler->getEmailTemplate('adminloginfail');
+		$template = $this->exceptionsHandler->getEmailTemplate('adminloginfail', true);
 
 		// Got no template, the user didn't published any email template, or the template doesn't want us to
 		// send a notification email. Anyway, let's stop here.
@@ -159,12 +167,23 @@ class AtsystemFeatureEmailfailedadminlong extends AtsystemFeatureAbstract
 
 			foreach ($recipients as $recipient)
 			{
+				if (empty($recipient))
+				{
+					continue;
+				}
+
 				// This line is required because SpamAssassin is BROKEN
 				$mailer->Priority = 3;
 
 				$mailer->isHtml(true);
 				$mailer->setSender(array($mailfrom, $fromname));
-				$mailer->addRecipient($recipient);
+
+				if ($mailer->addRecipient($recipient) === false)
+				{
+					// Failed to add a recipient?
+					continue;
+				}
+
 				$mailer->setSubject($subject);
 				$mailer->setBody($body);
 				$mailer->Send();
@@ -172,7 +191,7 @@ class AtsystemFeatureEmailfailedadminlong extends AtsystemFeatureAbstract
 		}
 		catch (\Exception $e)
 		{
-			// Joomla 3.5 is written by incompetent bonobos
+			// Joomla! 3.5 and later throw an exception when crap happens instead of suppressing it and returning false
 		}
 	}
 }

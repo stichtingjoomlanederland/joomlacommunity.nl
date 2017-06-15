@@ -32,7 +32,7 @@ defined('_JEXEC') or die;
         <p><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_GEOIPPLUGINCANUPDATE'); ?></p>
 
         <a class="btn btn-small"
-           href="index.php?option=com_admintools&view=ControlPanel&task=updategeoip&returnurl=<?php echo base64_encode('index.php?option=com_admintools&view=GeographicBlocking'); ?>&<?php echo \JFactory::getSession()->getFormToken(); ?>=1">
+           href="index.php?option=com_admintools&view=ControlPanel&task=updategeoip&returnurl=<?php echo base64_encode('index.php?option=com_admintools&view=GeographicBlocking'); ?>&<?php echo $this->container->platform->getToken(true); ?>=1">
             <span class="icon icon-refresh"></span>
             <?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_UPDATEGEOIPDATABASE'); ?>
         </a>
@@ -50,7 +50,7 @@ defined('_JEXEC') or die;
 	<input type="hidden" name="option" value="com_admintools"/>
 	<input type="hidden" name="view" value="GeographicBlocking"/>
 	<input type="hidden" name="task" value=""/>
-	<input type="hidden" name="<?php echo \JFactory::getSession()->getFormToken(); ?>" value="1"/>
+	<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1"/>
 
 	<fieldset id="waf-continents">
 		<legend><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_CONTINENTS'); ?></legend>

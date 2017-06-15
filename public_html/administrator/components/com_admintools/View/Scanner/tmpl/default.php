@@ -16,7 +16,7 @@ defined('_JEXEC') or die;
 	<input type="hidden" name="option" value="com_admintools"/>
 	<input type="hidden" name="view" value="Scanner"/>
 	<input type="hidden" name="task" value=""/>
-	<input type="hidden" name="<?php echo JFactory::getSession()->getFormToken(); ?>" value="1"/>
+	<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1"/>
 
 	<fieldset>
 		<legend><?php echo JText::_('COM_ADMINTOOLS_LBL_SCANNER_BASICCONF'); ?></legend>

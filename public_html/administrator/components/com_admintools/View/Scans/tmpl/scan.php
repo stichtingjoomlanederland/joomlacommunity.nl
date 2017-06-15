@@ -11,4 +11,4 @@ defined('_JEXEC') or die;
 @ob_end_clean();
 echo '###' . json_encode($this->retarray) . '###';
 
-JFactory::getApplication()->close();
+$this->container->platform->closeApplication();

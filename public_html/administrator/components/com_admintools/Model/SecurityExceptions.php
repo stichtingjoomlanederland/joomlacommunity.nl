@@ -11,7 +11,7 @@ defined('_JEXEC') or die;
 
 use FOF30\Container\Container;
 use FOF30\Model\DataModel;
-use JDate;
+use FOF30\Date\Date;
 use JLoader;
 
 /**
@@ -90,6 +90,7 @@ class SecurityExceptions extends DataModel
 
 		JLoader::import('joomla.utilities.date');
 
+		$userTZ = $this->container->platform->getUser()->getParam('timezone', $this->container->platform->getConfig()->get('offset', 'UTC'));
 		$fltDateFrom = $this->getState('datefrom', null, 'string');
 
 		if ($fltDateFrom)
@@ -102,7 +103,8 @@ class SecurityExceptions extends DataModel
 				$this->setState('datefrom', '');
 			}
 
-			$date = new JDate($fltDateFrom);
+			$date = new Date($fltDateFrom, $userTZ);
+			$date->setTime(0,0,0);
 			$query->where($db->qn('logdate') . ' >= ' . $db->q($date->toSql()));
 		}
 
@@ -118,7 +120,8 @@ class SecurityExceptions extends DataModel
 				$this->setState('dateto', '');
 			}
 
-			$date = new JDate($fltDateTo);
+			$date = new Date($fltDateTo, $userTZ);
+			$date->setTime(23,59,59);
 			$query->where($db->qn('logdate') . ' <= ' . $db->q($date->toSql()));
 		}
 

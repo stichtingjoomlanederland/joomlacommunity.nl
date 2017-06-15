@@ -63,7 +63,7 @@ class ImportAndExport extends Controller
 
 			echo $json;
 
-			\JFactory::getApplication()->close();
+			$this->container->platform->closeApplication();
 		}
 		else
 		{

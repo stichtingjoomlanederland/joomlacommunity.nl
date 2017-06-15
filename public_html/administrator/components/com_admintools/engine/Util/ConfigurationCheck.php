@@ -578,15 +578,20 @@ class ConfigurationCheck
 		}
 	}
 
-	private function _return_bytes($val)
+	private function _return_bytes($setting)
 	{
-		$val = trim($val);
+		$val = trim($setting);
 		$last = strtolower($val{strlen($val) - 1});
-		$val = substr($val, 0, -1);
+
+		if (is_numeric($last))
+		{
+			return $setting;
+		}
 
 		switch ($last)
 		{
-			// The 'G' modifier is available since PHP 5.1.0
+			case 't':
+				$val *= 1024;
 			case 'g':
 				$val *= 1024;
 			case 'm':
@@ -595,6 +600,6 @@ class ConfigurationCheck
 				$val *= 1024;
 		}
 
-		return $val;
+		return (int) $val;
 	}
 }

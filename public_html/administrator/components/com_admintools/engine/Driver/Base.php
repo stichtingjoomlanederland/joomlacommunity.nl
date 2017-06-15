@@ -449,7 +449,7 @@ abstract class Base extends Object
 	}
 
 	/**
-	 * Gets the name of the database used by this conneciton.
+	 * Gets the name of the database used by this connection.
 	 *
 	 * @return  string
 	 */

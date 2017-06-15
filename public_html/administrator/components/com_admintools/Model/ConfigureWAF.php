@@ -130,6 +130,8 @@ class ConfigureWAF extends Model
 		'configmonitor_components'  => 1,
 		'configmonitor_action'      => 'email',
 		'selfprotect'               => 1,
+	    'criticalfiles'             => 0,
+	    'superuserslist'            => 1,
 	);
 
 	/**

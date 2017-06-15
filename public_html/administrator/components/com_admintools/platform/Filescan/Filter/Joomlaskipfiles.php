@@ -12,6 +12,7 @@ defined('AKEEBAENGINE') or die();
 
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
+use FOF30\Container\Container;
 
 /**
  * Subdirectories exclusion filter. Excludes temporary, cache and backup output
@@ -29,7 +30,8 @@ class Joomlaskipfiles extends Base
 		// We take advantage of the filter class magic to inject our custom filters
 		$configuration = Factory::getConfiguration();
 
-		$jreg = \JFactory::getConfig();
+		$container     = Container::getInstance('com_admintools');
+		$jreg          = $container->platform->getConfig();
 
 		$tmpdir = $jreg->get('tmp_path');
 

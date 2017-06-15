@@ -234,10 +234,15 @@ class FactoryStorage
 				try
 				{
 					$data = $db->loadResult();
+
+					if (empty($data))
+					{
+						return $ret;
+					}
 				}
 				catch (\Exception $e)
 				{
-					$data = '';
+					return $ret;
 				}
 
 				break;
