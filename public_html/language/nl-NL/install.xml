@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="3.4"  client="site" type="language" method="upgrade">
-	<name>Nederlands (NL)</name>
+<extension version="3.7" client="site" type="language" method="upgrade">
+	<name>Nederlands (nl-NL)</name>
 	<tag>nl-NL</tag>
-	<version>3.4.4.1</version>
-	<creationDate>2015-09-07</creationDate>
+	<version>3.7.2</version>
+	<creationDate>Mei 2017</creationDate>
 	<author>Dutch Translation Team</author>
-	<authorEmail>taal@joomlacommunity.eu</authorEmail>
+	<authorEmail>taal@joomlacommunity.nl</authorEmail>
 	<authorUrl>http://joomlacode.org/gf/project/nederlands/</authorUrl>
-	<copyright>Copyright (C) 2005 - 2015 Dutch Translation Team en Open Source Matters. All rights reserved.</copyright>
+	<copyright>Copyright (C) 2005 - 2017 Dutch Translation Team en Open Source Matters. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
-	<description>Nederlands taalbestand Joomla! 3.4 (site)</description>
+	<description>Nederlands taalbestand Joomla! 3.6 (site)</description>
 	<files>
-		<filename>index.html</filename>
 		<filename>nl-NL.com_ajax.ini</filename>
 		<filename>nl-NL.com_config.ini</filename>
 		<filename>nl-NL.com_contact.ini</filename>
@@ -94,7 +93,7 @@
 		<filename>nl-NL.tpl_beez3.sys.ini</filename>
 		<filename>nl-NL.tpl_protostar.ini</filename>
 		<filename>nl-NL.tpl_protostar.sys.ini</filename>
-		<filename file="meta">nl-NL.xml</filename>
 		<filename file="meta">install.xml</filename>
-	</files>
+		<filename file="meta">nl-NL.xml</filename>
+	</files>	<params />
 </extension>
