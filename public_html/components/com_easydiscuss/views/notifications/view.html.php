@@ -32,6 +32,9 @@ class EasyDiscussViewNotifications extends EasyDiscussView
 
 	public function display($tpl = null)
 	{
+		// Ensure that the user is logged in
+		ED::requireLogin();
+
 		$my = ED::user();
 
 		if (!$my->id) {

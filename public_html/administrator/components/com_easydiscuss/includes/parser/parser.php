@@ -18,8 +18,6 @@ class EasyDiscussParser extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function bbcode($text, $debug = false)
 	{
@@ -43,8 +41,7 @@ class EasyDiscussParser extends EasyDiscuss
 						 '/\[b\](.*?)\[\/b\]/ims',
 						 '/\[i\](.*?)\[\/i\]/ims',
 						 '/\[u\](.*?)\[\/u\]/ims',
-						 // '/\[img\](.*?)\[\/img\]/ims',
-						 '/\[img\]((http|https):\/\/([a-z0-9._\s\*_\/-]+)\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF))\[\/img]/ims',
+						 '/\[img\]((http|https):\/\/([a-z0-9\%._\s\*_\/-]+)\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF))\[\/img]/ims',
 						 '/\[quote]([^\[\/quote\]].*?)\[\/quote\]/ims',
 						 '/\[quote](.*?)\[\/quote\]/ims'
 		);
@@ -94,8 +91,43 @@ class EasyDiscussParser extends EasyDiscuss
 		// Replace smileys before anything else
 		$text = $this->replaceSmileys($text);
 
-		if ($debug) {
-			// echo $text;exit;
+		return $text;
+	}
+
+	/**
+	 * Replaces attachments embed codes with proper values
+	 *
+	 * @since	5.1
+	 * @access	public
+	 */
+	public function replaceAttachmentsEmbed($text, $post)
+	{
+		if (!$this->config->get('attachment_questions')) {
+			return $text;
+		}
+
+		// We cannot decode the htmlentities here or else, xss will occur!
+		preg_match_all('/\[attachment\](.*?)\[\/attachment\]/ims', $text, $matches);
+
+		if (empty($matches) || !isset($matches[0]) || empty($matches[0])) {
+			return $text;
+		}
+
+		$codes = $matches[0];
+		$files = $matches[1];
+		$i = 0;
+
+		foreach ($files as $title) {
+			$table = ED::table('Attachments');
+			$table->load(array('uid' => $post->id, 'title' => $title));
+
+			$attachment = ED::attachment($table);
+			$contents = $attachment->getEmbedCodes();
+			$code = $codes[$i];
+
+			$text = JString::str_ireplace($code, $contents, $text);
+
+			$i++;
 		}
 
 		return $text;
@@ -106,8 +138,6 @@ class EasyDiscussParser extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function replaceSmileys($text)
 	{
@@ -137,8 +167,14 @@ class EasyDiscussParser extends EasyDiscuss
 
 			$filePath = $overridePath . $file;
 
-			// This is original smiley path
-			$path = DISCUSS_EMOTICONS_URI . $file;
+			// Check for subfolder
+			$subfolder = JURI::root(true);
+
+			$path = '/media/com_easydiscuss/images/markitup' . $file;
+
+			if (!empty($subfolder)) {
+				$path = $subfolder . $path;
+			}
 
 			// If the override file exist, we use that path.
 			if (JFile::exists(DISCUSS_JOOMLA_SITE_TEMPLATES . $filePath)) {
@@ -153,33 +189,38 @@ class EasyDiscussParser extends EasyDiscuss
 		return $text;
 	}
 
+	/**
+	 * Replaces url tags in bbcode
+	 *
+	 * @since	4.0.15
+	 * @access	public
+	 */
 	public function replaceBBCodeURL($text)
 	{
-		$config = ED::config();
-
 		// We cannot decode the htmlentities here or else, xss will occur!
-		preg_match_all('/\[url\=["|&quot;|\']*(.*?)["|&quot;|\']*?\](.*?)\[\/url\]/ims', $text, $matches);
+		preg_match_all('/\[url\=(.*?)\](.*?)\[\/url\]/ims', $text, $matches);
 
 		if (!empty($matches) && isset($matches[0]) && !empty($matches[0])) {
-
 			// Get the list of url tags
 			$urlTags = $matches[0];
 			$urls = $matches[1];
 			$titles = $matches[2];
-
 			$total = count($urlTags);
 
 			for ($i = 0; $i < $total; $i++) {
-
 				$url = $urls[$i];
+
+				// Ensure that the url doesn't contain " or ' or &quot;
+				$url = str_ireplace(array('"', "'", '&quot;'), '', $url);
 
 				if (stristr($url, 'http://') === false && stristr($url, 'https://') === false && stristr($url, 'ftp://') === false) {
 					$url = 'http://' . $url;
 				}
 
-				$targetBlank = $config->get('main_link_new_window') ? ' target="_blank"' : '';
-				$noFollow = $config->get('main_link_rel_nofollow') ? ' rel="nofollow"' : '';
-				$text = str_ireplace($urlTags[$i], '<a href="' . $url . '"' . $targetBlank . $noFollow .'>' . $titles[ $i ] . '</a>', $text);
+				$targetBlank = $this->config->get('main_link_new_window') ? ' target="_blank"' : '';
+				$noFollow = $this->config->get('main_link_rel_nofollow') ? ' rel="nofollow"' : '';
+
+				$text = str_ireplace($urlTags[$i], '<a href="' . $url . '"' . $targetBlank . $noFollow .'>' . $titles[$i] . '</a>', $text);
 			}
 		}
 
@@ -275,6 +316,10 @@ class EasyDiscussParser extends EasyDiscuss
             }
 
 			$replace = '<a href="' . $link . '"' . $popbox . '>' . $user->getName() . '</a>';
+
+			if ($user->isBlocked()) {
+				$replace = $user->getName();
+			}
 
 			$text = JString::str_ireplace($search, $replace, $text);
 		}
@@ -656,8 +701,6 @@ class EasyDiscussParserUtilities
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function parseListItems($content)
 	{
@@ -737,10 +780,10 @@ class EasyDiscussParserUtilities
 			// Check if this list contains any list items "[*]"
 			if (JString::strpos($list->contents, '[*]') !== false) {
 
-				$text = preg_replace($bbcodeULSearch, $bbcodeULReplace, $list->contents);
+				$text = preg_replace($bbcodeULSearch, $bbcodeULReplace, $list->original);
 				$text = preg_replace($bbcodeLISearch, $bbcodeLIReplace, $text);
 			} else {
-				$text = preg_replace($bbcodeULSearch , $bbcodeULReplaceString, $list->contents);
+				$text = preg_replace($bbcodeULSearch, $bbcodeULReplaceString, $list->original);
 			}
 
 			// Update the content

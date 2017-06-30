@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -12,69 +12,71 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div id="ed" class="ed-backend" data-ed-wrapper>
+	<?php if (!$browse) { ?>
+		<div class="app-alert o-alert o-alert--danger outdated-version">
+			<div class="row-table">
+				<div class="col-cell cell-tight">
+					<i class="app-alert__icon fa fa-bolt"></i>
+				</div>
+				<div class="col-cell alert-message">
+					<?php echo JText::_('COM_EASYDISCUSS_OUTDATED_VERSION');?>
+				</div>
+				<div class="col-cell cell-tight">
+					<a href="<?php echo JRoute::_('index.php?option=com_easydiscuss&setup=true&update=true');?>" class="btn btn-default"><?php echo JText::_('COM_EASYDISCUSS_UPDATE_NOW_BUTTON');?></a>
+				</div>
+			</div>
+		</div>
 
-    <div class="app-alert o-alert o-alert--danger outdated-version">
-        <div class="row-table">
-            <div class="col-cell cell-tight">
-                <i class="app-alert__icon fa fa-bolt"></i>
-            </div>
-            <div class="col-cell alert-message">
-                <?php echo JText::_('COM_EASYDISCUSS_OUTDATED_VERSION');?>
-            </div>
-            <div class="col-cell cell-tight">
-                <a href="<?php echo JRoute::_('index.php?option=com_easydiscuss&setup=true&update=true');?>" class="btn btn-default"><?php echo JText::_('COM_EASYDISCUSS_UPDATE_NOW_BUTTON');?></a>
-            </div>
-        </div>
-    </div>
+		<?php if ($this->config->get('system_environment') == 'development') { ?>
+		<div class="app-alert o-alert o-alert--warning is-devmode">
+			<div class="row-table">
+				<div class="col-cell cell-tight">
+					<i class="app-alert__icon fa fa-warning"></i>
+				</div>
+				<div class="col-cell alert-message">
+					<?php echo JText::_('COM_EASYDISCUSS_CURRENTLY_ON_DEVELOPMENT');?>
+				</div>
+				<div class="col-cell cell-tight">
+					<a href="<?php echo JRoute::_('index.php?option=com_easydiscuss&view=settings&layout=system');?>" class="btn btn-danger"><?php echo JText::_('COM_EASYDISCUSS_FIX_THIS_BUTTON');?></a>
+				</div>
+			</div>
+		</div>
+		<?php } ?>
+	<?php } ?>
 
-    <?php if ($this->config->get('system_environment') == 'development') { ?>
-    <div class="app-alert o-alert o-alert--warning is-devmode">
-        <div class="row-table">
-            <div class="col-cell cell-tight">
-                <i class="app-alert__icon fa fa-warning"></i>
-            </div>
-            <div class="col-cell alert-message">
-                <?php echo JText::_('COM_EASYDISCUSS_CURRENTLY_ON_DEVELOPMENT');?>
-            </div>
-            <div class="col-cell cell-tight">
-                <a href="<?php echo JRoute::_('index.php?option=com_easydiscuss&view=settings&layout=system');?>" class="btn btn-danger"><?php echo JText::_('COM_EASYDISCUSS_FIX_THIS_BUTTON');?></a>
-            </div>
-        </div>
-    </div>
-    <?php } ?>
+	<div class="app-master">
+		<?php if (!$browse) { ?>
+			<?php echo $sidebar; ?>
+		<?php } ?>
 
-    <div class="app-master">
-        <?php if (!$browse) { ?>
-            <?php echo $sidebar; ?>
-        <?php } ?>
+		<div class="app-content front">
+			<div class="wrapper clearfix clear accordion">
 
-        <div class="app-content front">
+				<?php if (!$browse) { ?>
+					<?php if ($title) { ?>
+					<div class="app-content-head">
+						<h2><?php echo $title;?></h2>
+						<p><?php echo $desc;?></p>
+					</div>
+					<?php } ?>
+				<?php } ?>
 
-            <div class="wrapper clearfix clear accordion">
+				<?php if ($message) { ?>
+				<div class="discussNotice app-content__alert o-alert o-alert--<?php echo $message->type;?>">
+					<?php echo $message->message;?>
+				</div>
+				<?php } ?>
 
-                <?php if ($title) { ?>
-                <div class="app-content-head">
-                    <h2><?php echo $title;?></h2>
-                    <p><?php echo $desc;?></p>
-                </div>
-                <?php } ?>
-
-                <?php if ($message) { ?>
-                <div class="discussNotice app-content__alert o-alert o-alert--<?php echo $message->type;?>">
-                    <?php echo $message->message;?>
-                </div>
-                <?php } ?>
-
-                <div class="app-content-body">
+				<div class="app-content-body">
 
 
-                    <?php echo $contents; ?>
-                </div>
+					<?php echo $contents; ?>
+				</div>
 
-                <input type="hidden" class="easydiscuss-token" value="<?php echo ED::getToken();?>" data-ed-token />
+				<input type="hidden" class="easydiscuss-token" value="<?php echo ED::getToken();?>" data-ed-token />
 
-                <input type="hidden" data-ed-ajax-url value="<?php echo $ajaxUrl;?>" />
-            </div>
-        </div>
-    </div>
+				<input type="hidden" data-ed-ajax-url value="<?php echo $ajaxUrl;?>" />
+			</div>
+		</div>
+	</div>
 </div>

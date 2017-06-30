@@ -340,4 +340,19 @@ ed.require(['edq', 'easydiscuss', 'jquery.scrollto'], function($, EasyDiscuss) {
 
 	<?php } ?>
 
+	// Post types mapping
+	$('#category_id').on('change', function() {
+		var categoryId = $(this).val();
+
+		EasyDiscuss.ajax('site/views/post/getPostTypes', {
+			"categoryId": categoryId
+		}).done(function(html) {
+			$('[data-post-types-wrapper]').html(html);
+		});
+	});
+
+
+
+
+
 });

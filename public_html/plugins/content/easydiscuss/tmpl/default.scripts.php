@@ -68,7 +68,7 @@ ed.require(['edq', 'site/src/like'], function($) {});
 
 
 // Comment form
-<?php if ($system->config->get('main_commentpost') || $system->config->get('main_comment')) { ?>
+<?php if ($system->config->get('main_commentpost') || $system->config->get('main_comment')) { ?>    
 ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
     var addCommentButton = $('[data-ed-toggle-comment]'),
@@ -76,7 +76,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
         loadMoreButton = $('[data-ed-comment-load-more]');
 
     addCommentButton.live('click', function() {
-        $(this).siblings('[data-ed-comment-form]').toggleClass('hide');
+        $(this).siblings('[data-ed-comment-form]').toggleClass('t-hidden');
     });
 
     submitButton.on('click', function() {

@@ -1194,6 +1194,25 @@ class DiscussProfile extends EasyDiscussTable
 	}
 
 	/**
+     * Determines if the user is blocked
+     *
+     * @since   4.0.15
+     * @access  public
+     */ 
+	public function isBlocked()
+	{
+		$db	= ED::db();
+		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__users') . ' '
+				. 'WHERE ' . $db->nameQuote('id') . '=' . $db->Quote($this->id) . ' '
+				. 'AND ' . $db->nameQuote('block') . '=' . $db->Quote(0);
+		$db->setQuery($query);
+
+		$result = $db->loadResult() > 0 ? false : true;
+
+		return $result;
+	}
+
+	/**
 	 * Get a list of badges for this user.
 	 *
 	 * @access	public

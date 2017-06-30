@@ -34,8 +34,6 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0.9
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function getPosts($options = array())
 	{
@@ -86,19 +84,45 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 		$search = isset($options['search']) ? $options['search'] : '';
 		$search = $db->getEscaped(trim(JString::strtolower($search)));
 
+		// Try to see if we are trying search for specific sections
+		$search = $this->getSearchFragments($search);
+
 		// Get the ordering and order direction of posts
 		$stateKey = isset($options['stateKey']) ? $options['stateKey'] : 'posts';
 
-		if ($search && $stateKey == 'posts') {
-			$where[] = ' LOWER( a.`title` ) LIKE ' . $db->Quote('%' . $search . '%');
-		}
+		if ($search->type == 'standard') {
 
-		if ($search && $stateKey == 'replies') {
-			$where[] = ' LOWER(a.`content`) LIKE ' . $db->Quote('%' . $search . '%');
-		}
+			if ($search->query && $stateKey == 'posts') {
+				$where[] = ' LOWER( a.`title` ) LIKE ' . $db->Quote('%' . $search->query . '%');
+			}
 
-		if ($search && $stateKey == 'pending') {
-			$where[] = ' (LOWER(a.`title`) LIKE ' . $db->Quote('%' . $search . '%') . ' OR LOWER(a.`content`) LIKE ' . $db->Quote('%' . $search . '%') . ')';
+			if ($search->query && $stateKey == 'replies') {
+				$where[] = ' LOWER(a.`content`) LIKE ' . $db->Quote('%' . $search->query . '%');
+			}
+
+			if ($search->query && $stateKey == 'pending') {
+				$where[] = ' (LOWER(a.`title`) LIKE ' . $db->Quote('%' . $search->query . '%') . ' OR LOWER(a.`content`) LIKE ' . $db->Quote('%' . $search->query . '%') . ')';
+			}
+		} else {
+			if ($search->type == 'author') {
+				$search->query = trim($search->query);
+				$isUserId = (int) $search->query !== 0;
+
+				if ($isUserId) {
+					$where[] = 'a.`user_id`=' . $db->Quote($search->query);
+				} else {
+					
+					// Search by username or name. Instead of joining the table, we just fire another query 
+					// to get the id's to prevent all those collation and performance issues
+					$userQuery = 'SELECT `id` FROM `#__users` WHERE (`name` LIKE ' . $db->Quote('%' . $search->query . '%') . ' OR `username` LIKE ' . $db->Quote('%' . $search->query . '%') . ')';
+					$db->setQuery($userQuery);
+					$userIds = $db->loadColumn();
+
+					if ($userIds) {
+						$where[] = 'a.`user_id` IN(' . implode(',', $userIds) . ')';
+					}
+				}
+			}
 		}
 
 		$where = count($where) ? ' WHERE ' . implode( ' AND ', $where ) : '' ;

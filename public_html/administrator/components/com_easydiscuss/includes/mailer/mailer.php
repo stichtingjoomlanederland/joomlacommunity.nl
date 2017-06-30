@@ -309,7 +309,8 @@ class EasyDiscussMailer extends EasyDiscuss
 
 		foreach ($subscribers as $subscriber) {
 
-			$isSent = self::isEmailSent($subscriber->email);
+			// Append post title as unique id of the emails
+			$isSent = self::isEmailSent($subscriber->email . '.' . $data['postTitle']);
 
 			if (!$isSent) {
 				$hash = base64_encode("type=".$subscriber->type."\r\nsid=".$subscriber->id."\r\nuid=".$subscriber->userid."\r\ntoken=".md5($subscriber->id.$subscriber->created));
@@ -710,9 +711,31 @@ class EasyDiscussMailer extends EasyDiscuss
 			// Remove html + img tags
 			$content = strip_tags($content, $filterHtmlTag);
 
+			// Truncate the content
+			$content = $this->truncate($content);
+
 			return $content;
 		}
 
+		// Truncate the content
+		$content = $this->truncate($content);
+
+		// Remove video codes from the e-mail since it will not appear on e-mails
+		$content = ED::videos()->strip($content);
+
+		return $content;
+	}
+
+	/**
+     * Truncate email content
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+	public function truncate($content)
+	{
 		// Convert HTML entities to characters e.g. &lt;br&gt; => <br>
 		$content = html_entity_decode($content);
 
@@ -720,9 +743,6 @@ class EasyDiscussMailer extends EasyDiscuss
 			$content = substr($content, 0, $this->config->get('main_notification_max_length'));
 			$content = $content . '...';
 		}
-
-		// Remove video codes from the e-mail since it will not appear on e-mails
-		$content = ED::videos()->strip($content);
 
 		return $content;
 	}

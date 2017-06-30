@@ -32,17 +32,12 @@ class JFormFieldModal_Categories extends JFormField
 			$this->value = array($this->value);
 		}
 
+		$name = $multiple ? $this->name . '[]' : $this->name;
+
+		$categories = ED::populateCategories('', '', 'select', $name, $this->value, true, false, true , false, '', '',  DISCUSS_CATEGORY_ACL_ACTION_SELECT, false, $multiple, $containersOnly);
+
 		ob_start();
-		?>
-		<select name="<?php echo $this->name;?><?php echo $multiple ? '[]' : '';?>" id="<?php echo $this->name;?>"<?php echo $multiple == 'true' ? ' multiple="multiple"' :'';?>>
-			<option value="0"> Please select your category </option>
-			<?php if ($categories) { ?>
-				<?php foreach ($categories as $category) { ?>
-				<option value="<?php echo $category->id;?>"<?php echo in_array($category->id, $this->value) ? ' selected="selected"' : '';?>><?php echo JText::_($category->title); ?></option>
-				<?php } ?>
-			<?php } ?>
-		</select>
-		<?php
+		echo $categories;
 		$html = ob_get_contents();
 		ob_end_clean();
 

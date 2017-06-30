@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="ed-tags__item">
     <div class="ed-tag">
-        <a href="<?php echo EDR::_('index.php?option=com_easydiscuss&view=tags&layout=tag&id=' . $tag->id); ?>" class="ed-tag__name"><?php echo JText::_($tag->title); ?></a>
+        <a href="<?php echo EDR::getTagRoute($tag->id); ?>" class="ed-tag__name"><?php echo JText::_($tag->title); ?></a>
             <?php if ($this->config->get('main_rss')) { ?>
             <a href="<?php echo ED::feeds()->getFeedURL('index.php?option=com_easydiscuss&view=tags&id=' . $tag->id);?>" class="ed-tag__subscribe-link"
                 data-ed-provide="tooltip"
@@ -21,11 +21,11 @@ defined('_JEXEC') or die('Unauthorized Access');
                 title="Subscribe"
             >
                 <span><?php echo $tag->post_count; ?></span>
-                <i class="fa fa-rss"></i> 
+                <i class="fa fa-rss"></i>
             <?php } else { ?>
             <a href="<?php echo EDR::_('index.php?option=com_easydiscuss&view=tags&layout=tag&id=' . $tag->id); ?>" class="ed-tag__subscribe-link">
                 <span><?php echo $tag->post_count; ?></span>
-            <?php } ?>   
+            <?php } ?>
         </a>
-    </div>    
+    </div>
 </div>

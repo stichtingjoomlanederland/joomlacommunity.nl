@@ -657,7 +657,7 @@ class EasyDiscussCategory extends EasyDiscuss
 
 	public function getRSSPermalink($external = false)
 	{
-		$url = 'view=categories&category_id=' . $this->id;
+  		$url = 'view=categories&layout=listings&category_id=' . $this->id;
 		$url = ED::feeds()->getFeedURL($url);
 
 		return $url;

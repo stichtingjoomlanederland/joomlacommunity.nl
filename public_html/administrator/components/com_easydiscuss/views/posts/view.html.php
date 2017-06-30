@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -15,14 +15,6 @@ require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
 class EasyDiscussViewPosts extends EasyDiscussAdminView
 {
-	/**
-	 * Renders the list of discussions created on the site
-	 *
-	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
 	public function display($tpl = null)
 	{
 		$this->checkAccess('discuss.manage.posts');
@@ -103,7 +95,12 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 			}
 		}
 
+		// Determines if the user is browsing to select a post
+		$browse = $this->input->get('browse', false, 'bool');
+		$browseFunction = $this->input->get('browseFunction', '', 'string');
 
+		$this->set('browseFunction', $browseFunction);
+		$this->set('browse', $browse);
 		$this->set('filter', $filter);
 		$this->set('posts', $posts);
 		$this->set('pagination', $pagination);
@@ -120,8 +117,6 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 	 *
 	 * @since	4.0.10
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function replies()
 	{

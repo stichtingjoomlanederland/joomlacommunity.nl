@@ -199,16 +199,21 @@ class DiscussTags extends EasyDiscussTable
 			$this->created = ED::date()->toSql();
 		}
 
-		jimport( 'joomla.filesystem.filter.filteroutput');
 
-		$i	= 1;
-		while( $this->aliasExists() || empty($this->alias) )
-		{
-			$this->alias	= empty($this->alias) ? $this->title : $this->alias . '-' . $i;
+		$alias = $this->alias ? $this->alias : $this->title;
+		$alias = ED::permalinkSlug($alias);
+
+		$tmp = $alias;
+
+		$i = 1;
+		while ($this->aliasExists($tmp, $this->id) || !$tmp) {
+			$alias = !$alias ? ED::permalinkSlug($this->title) : $alias;
+			$tmp = !$tmp ? ED::permalinkSlug($this->title) : $alias . '-' . $i;
 			$i++;
 		}
+		$this->alias = $tmp;
 
-		$this->alias 	= DiscussHelper::permalinkSlug( $this->alias );
+		$this->alias = ED::getAlias($this->alias, 'tag', $this->id);
 	}
 
 	/**

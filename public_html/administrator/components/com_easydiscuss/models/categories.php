@@ -27,6 +27,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		$limitstart	= $this->input->get('limitstart', 0, 'int');
 
 		$total = $this->getTotal();
+
 		if ($limitstart > $total - $limit) {
 			$limitstart = max(0, (int) (ceil($total / $limit) - 1) * $limit);
 		}
@@ -45,7 +46,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 	{
 		// Lets load the content if it doesn't already exist
 		if (empty($this->_total)) {
-			$query = $this->_buildQuery();
+			$query = $this->_buildQuery(array('ordering' => false));
 			$this->_total = $this->_getListCount($query);
 		}
 
@@ -128,6 +129,12 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 
 	public function _buildQueryOrderBy($options = array())
 	{
+		$getOrdering = isset($options['ordering']) ? $options['ordering'] : true;
+
+		if (!$getOrdering) {
+			return '';
+		}
+
 		$filter_order = $this->app->getUserStateFromRequest('com_easydiscuss.categories.filter_order', 'filter_order', 'lft', 'cmd');
 		$filter_order_Dir = $this->app->getUserStateFromRequest('com_easydiscuss.categories.filter_order_Dir', 'filter_order_Dir', '', 'word');
 
@@ -401,7 +408,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 				$query .= ', (select count(t.id) from `#__discuss_thread` as t where b.`id` = t.`category_id` and t.`published` = 1) as `post_count`';
 			}
 			$query .= " from `#__discuss_category` as a";
-			$query .= " 	inner join `#__discuss_category` as b on a.`lft` <= b.`lft` and a.`rgt` >= b.`rgt`";
+			$query .= " 	inner join `#__discuss_category` as b on a.`lft` <= b.`lft` and a.`rgt` >= b.`rgt` AND b.`published`=" . $db->Quote(1);
 
 			// If show all subcategories, we need to check the subcategory permission as well
 			$childCatAccessSQL = " and " . ED::category()->genCategoryAccessSQL('b.id', array());
@@ -461,8 +468,6 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		if ($limit) {
 			$query .= ' LIMIT ' . $limit;
 		}
-
-		// echo $query;
 
 		$db->setQuery($query);
 
@@ -601,7 +606,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 				$ignore['alias'] = true;
 
 				$category = ED::table('Category');
-				$category->bind( $rows[$i], $ignore );
+				$category->bind($rows[$i], $ignore);
 
 				$categories[] = $category;
 			}
@@ -985,9 +990,6 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 
 		return $result;
 	}
-
-
-
 
 	public function getAllCategories($options = array())
 	{

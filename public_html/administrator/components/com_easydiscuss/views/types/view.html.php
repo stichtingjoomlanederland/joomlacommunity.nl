@@ -61,6 +61,12 @@ class EasyDiscussViewTypes extends EasyDiscussAdminView
 		parent::display('types/default');
 	}
 
+	/**
+	 * Renders the edit and creation form
+	 *
+	 * @since	4.0.14
+	 * @access	public
+	 */
 	public function form()
 	{
 		$this->checkAccess('discuss.manage.posttypes');
@@ -82,9 +88,21 @@ class EasyDiscussViewTypes extends EasyDiscussAdminView
 		JToolbarHelper::save2new();
 		JToolBarHelper::cancel();
 
+		// Get associated categories
+		$associatedCategories = $postTypes->getCategories();
+		$categories = array();
+
+		if ($associatedCategories) {
+			foreach ($associatedCategories as $category) {
+				$categories[] = (int) $category->id;
+			}
+		}
+
+		$categories = ED::populateCategories('', '', 'select', 'categories[]', $categories , true, true, true , true, 'form-control', '',  DISCUSS_CATEGORY_ACL_ACTION_SELECT, false, true);
+
+		$this->set('categories', $categories);
 		$this->set('postTypes', $postTypes);
 
-		// This will go to form.php
-		parent::display('types/form');
+		return parent::display('types/form');
 	}
 }

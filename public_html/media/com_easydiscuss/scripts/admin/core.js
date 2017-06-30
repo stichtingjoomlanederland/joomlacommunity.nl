@@ -35,6 +35,38 @@ ed.define('edq', ['edjquery', 'easydiscuss', 'jquery.uri', 'bootstrap', 'jquery.
 		$(this).popover({container: 'body', delay: { show: 100, hide: 100},animation: false, trigger: 'hover'});
 	});
 
+	$(document).on('change.form.toggler', '[data-ed-toggler-checkbox]', function() {
+		var checkbox = $(this);
+		var checked = checkbox.is(':checked');
+		var parent = checkbox.parents('[data-ed-toggler]');
+
+		if (parent.length > 0) {
+			var input = parent.find('input[type=hidden]');
+			input.val(checked ? 1 : 0).trigger('change');
+		}
+	});
+
+	$(document).on('change.form.toggler.value', '[data-ed-toggler-checkbox] ~ input[type=hidden]', function() {
+		var input = $(this);
+		var value = input.val();
+		var checked = value == 1 ? true : false;
+
+		var checkbox = input.siblings('[data-ed-toggler-checkbox]');
+		var isChecked = checkbox.is(':checked');
+		
+		// When hidden value is enabled, but checkbox has been disabled, we need to update it
+		if (checked && !isChecked) {
+			checkbox.prop('checked', true);
+			return;
+		}
+
+		if (!checked && isChecked) {
+			checkbox.prop('checked', false);
+			return;
+		}
+
+	});
+
 	function isMobile() {
 	  try{ document.createEvent("TouchEvent"); return true; }
 	  catch(e){ return false; }

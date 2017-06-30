@@ -66,7 +66,7 @@ class EasyDiscussViewAssigned extends EasyDiscussView
 			$dateString = str_ireplace('/', '-', $dateString);
 			$date = ED::date($dateString);
 
-			$assignPostData[] = $date->display('jS M');
+			$assignPostData[] = $date->display(JText::_('COM_EASYDISCUSS_DATE_DM'));
 		}
 
 		// Format the 7 days to json data

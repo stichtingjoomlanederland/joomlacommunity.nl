@@ -1735,12 +1735,30 @@ class EasyDiscussViewPost extends EasyDiscussView
     }
 
     /**
+     * Retrieves a list of post types associated with a particular category
+     *
+     * @since   5.1
+     * @access  public
+     */
+    public function getPostTypes()
+    {
+        $categoryId = $this->input->get('categoryId', 0, 'int');
+
+        $model = ED::model('PostTypes');
+        $postTypes = $model->getPostTypes($categoryId);
+
+        $theme = ED::themes();
+        $theme->set('postTypes', $postTypes);
+        $output = $theme->output('site/ask/post.types');
+
+        return $this->ajax->resolve($output);
+    }
+
+    /**
      * Allows caller to set the status of the post
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
     public function status()
     {

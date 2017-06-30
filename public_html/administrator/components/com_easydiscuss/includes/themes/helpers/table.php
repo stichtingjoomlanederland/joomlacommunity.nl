@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -18,8 +18,6 @@ class EasyDiscussThemesHelperTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function checkall()
 	{
@@ -35,8 +33,6 @@ class EasyDiscussThemesHelperTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public static function ordering($name, $index, $totalItems, $allowed = false)
 	{
@@ -57,8 +53,6 @@ class EasyDiscussThemesHelperTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public static function publish($post, $index)
 	{
@@ -76,8 +70,6 @@ class EasyDiscussThemesHelperTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public static function featured($view, $obj, $property = 'default', $tasks = 'toggleFeatured', $allowed = true)
 	{
@@ -103,8 +95,6 @@ class EasyDiscussThemesHelperTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function checkbox($index, $value, $allowed = true, $name = 'cid')
 	{
@@ -125,8 +115,6 @@ class EasyDiscussThemesHelperTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function limit($pagination)
 	{
@@ -143,8 +131,6 @@ class EasyDiscussThemesHelperTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function notice($text, $icon = 'fa-info-circle', $class = 'alert-warning')
 	{
@@ -163,8 +149,6 @@ class EasyDiscussThemesHelperTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function filter($name, $selected, $items = array())
 	{
@@ -199,13 +183,15 @@ class EasyDiscussThemesHelperTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public static function search($name, $search = '')
+	public static function search($name, $search = '', $tooltipMessage = null)
 	{
-		$theme = ED::themes();
+		if ($tooltipMessage) {
+			$tooltipMessage = JText::_($tooltipMessage);
+		}
 
+		$theme = ED::themes();
+		$theme->set('tooltipMessage', $tooltipMessage);
 		$theme->set('search', $search);
 		$theme->set('name', $name);
 
@@ -219,8 +205,6 @@ class EasyDiscussThemesHelperTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function state($view, $obj, $property = '', $controller = '', $allowed = true, $tasks = array())
 	{
@@ -262,8 +246,6 @@ class EasyDiscussThemesHelperTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function getViewStates($view)
 	{

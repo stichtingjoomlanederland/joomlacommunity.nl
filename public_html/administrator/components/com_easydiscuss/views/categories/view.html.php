@@ -117,7 +117,7 @@ class EasyDiscussViewCategories extends EasyDiscussAdminView
 		JToolBarHelper::cancel();
 
 		// // Get assigned group acl
-		$parentList = ED::populateCategories('', '', 'select', 'parent_id', $category->parent_id, false, false, false, false, '', array($category->id));
+		$parentList = ED::populateCategories('', '', 'select', 'parent_id', $category->parent_id, true, false, false, false, '', array($category->id));
 
 		// Get the default WYSIWYG editor
 		$editor = JFactory::getEditor($this->jconfig->get('editor'));

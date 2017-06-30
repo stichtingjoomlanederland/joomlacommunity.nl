@@ -42,223 +42,226 @@ class EasyDiscussAttachment extends EasyDiscuss
 		if (is_int($item) || is_string($item)) {
 			$this->table->load($item);
 		}
+
+		// Legacy mapping for attachment type
+		if (isset($item->type)) {
+			$this->attachmentType = $this->getType();
+		}
 	}
 
-    /**
-     * Magic method to get properties which don't exist on this object but on the table
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function __get($key)
-    {
-        if (isset($this->table->$key)) {
-            return $this->table->$key;
-        }
+	/**
+	 * Magic method to get properties which don't exist on this object but on the table
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function __get($key)
+	{
+		if (isset($this->table->$key)) {
+			return $this->table->$key;
+		}
 
-        if (isset($this->$key)) {
-            return $this->$key;
-        }
+		if (isset($this->$key)) {
+			return $this->$key;
+		}
 
-        return $this->table->$key;
-    }
+		return $this->table->$key;
+	}
 
-    /**
-     * Allows caller to set properties to the table without directly accessing it
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function set($key, $value)
-    {
-        $this->table->$key = $value;
-    }
+	/**
+	 * Allows caller to set properties to the table without directly accessing it
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function set($key, $value)
+	{
+		$this->table->$key = $value;
+	}
 
-    /**
-     * Deletes an attachment
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function delete()
-    {
-        // Delete it from the db first
-        $state = $this->table->delete();
+	/**
+	 * Deletes an attachment
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function delete()
+	{
+		// Delete it from the db first
+		$state = $this->table->delete();
 
-        if (!$state) {
-            $this->setError($this->table->getError());
-            return false;
-        }
+		if (!$state) {
+			$this->setError($this->table->getError());
+			return false;
+		}
 
-        // Get the path to the file
-        $path = $this->getAbsolutePath();
+		// Get the path to the file
+		$path = $this->getAbsolutePath();
 
-        // Now we need to delete the file
-        $storage = ED::storage($this->table->storage);
-        $storage->delete($path);
+		// Now we need to delete the file
+		$storage = ED::storage($this->table->storage);
+		$storage->delete($path);
 
-        // If this is an image, we need to delete the thumbnail as well
-        if ($this->isImage()) {
-            $path = $this->getAbsolutePath(true);
+		// If this is an image, we need to delete the thumbnail as well
+		if ($this->isImage()) {
+			$path = $this->getAbsolutePath(true);
 
-            $storage->delete($path);
-        }
+			$storage->delete($path);
+		}
 
-        return $state;
-    }
+		return $state;
+	}
 
-    /**
-     * Saves an attachment
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function save()
-    {
-        return $this->table->store();
-    }
+	/**
+	 * Saves an attachment
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function save()
+	{
+		return $this->table->store();
+	}
 
-    /**
-     * Renders the html output of an attachment for display purposes
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function html()
-    {
-        // Get attachment type
-        $type = $this->getType();
+	/**
+	 * Renders the html output used in the content of a post
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function getEmbedCodes()
+	{
+		// Get attachment type
+		$type = $this->getType();
 
-        $theme = ED::themes();
-        $theme->set('type', $type);
-        $theme->set('attachment', $this);
+		$theme = ED::themes();
+		$theme->set('type', $type);
+		$theme->set('attachment', $this);
 
-        return $theme->output('site/attachments/item');
-    }
+		return $theme->output('site/attachments/embed');
+	}
 
-    /**
-     * Determines if this is an image
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function isImage()
-    {
-        $type = $this->getType();
+	/**
+	 * Renders the html output of an attachment for display purposes
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function html()
+	{
+		// Get attachment type
+		$type = $this->getType();
 
-        if ($type == 'image') {
-            return true;
-        }
+		$theme = ED::themes();
+		$theme->set('type', $type);
+		$theme->set('attachment', $this);
 
-        return false;
-    }
+		return $theme->output('site/attachments/item');
+	}
 
-    /**
-     * Get the source of the file
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function getThumbnail()
-    {
-        $type = $this->getType();
-        $url = JRoute::_('index.php?option=com_easydiscuss&controller=attachment&task=thumbnail&tmpl=component&id=' . $this->table->id);
+	/**
+	 * Determines if this is an image
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function isImage()
+	{
+		$type = $this->getType();
 
-        // If the item is stored remotely, we need to set the source to the amazon site
-        if ($this->table->storage == 'amazon') {
+		if ($type == 'image') {
+			return true;
+		}
 
-            // Get the storage relative path
-            $relativePath = $this->getStoragePath(true) . '/' . $this->table->path . '_thumb';
+		return false;
+	}
 
-            $storage = ED::storage('amazon');
-            $url = $storage->getPermalink($relativePath);
-        }
+	/**
+	 * Get the source of the file
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function getThumbnail()
+	{
+		$type = $this->getType();
+		$url = JRoute::_('index.php?option=com_easydiscuss&controller=attachment&task=thumbnail&tmpl=component&id=' . $this->table->id);
 
-        return $url;
-    }
+		// If the item is stored remotely, we need to set the source to the amazon site
+		if ($this->table->storage == 'amazon') {
 
-    /**
-     * Gets the absolute path to a file
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function getAbsolutePath($thumbnail = false)
-    {
-        $storage = $this->getStoragePath();
-        $file = $storage . '/' . $this->table->path;
+			// Get the storage relative path
+			$relativePath = $this->getStoragePath(true) . '/' . $this->table->path . '_thumb';
 
-        if ($thumbnail) {
-            $file .= '_thumb';
-        }
+			$storage = ED::storage('amazon');
+			$url = $storage->getPermalink($relativePath);
+		}
 
-        return $file;
-    }
+		return $url;
+	}
 
-    /**
-     * Gets the download link
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function getDownloadLink()
-    {
-        $task = 'download';
+	/**
+	 * Gets the absolute path to a file
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function getAbsolutePath($thumbnail = false)
+	{
+		$storage = $this->getStoragePath();
+		$file = $storage . '/' . $this->table->path;
 
-        if ($this->table->storage == 'amazon') {
-            $task = 'downloadAmazon';
-        }
+		if ($thumbnail) {
+			$file .= '_thumb';
+		}
 
-        $link = EDR::getRoutedURL('index.php?option=com_easydiscuss&controller=attachment&task=' . $task . '&tmpl=component&id=' . $this->table->id, false, true);
+		return $file;
+	}
 
-        return $link;
-    }
+	/**
+	 * Gets the download link
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function getDownloadLink()
+	{
+		$task = 'download';
+
+		if ($this->table->storage == 'amazon') {
+			$task = 'downloadAmazon';
+		}
+
+		$link = EDR::getRoutedURL('index.php?option=com_easydiscuss&controller=attachment&task=' . $task . '&tmpl=component&id=' . $this->table->id, false, true);
+
+		return $link;
+	}
 
 	/**
 	 * Gets the storage path
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getStoragePath($relative = false)
 	{
-        $path = '';
+		$path = '';
 
-        // check for folder existence
-        $attachmentFolder = rtrim(JPATH_ROOT, '/') . '/media/com_easydiscuss/' . trim($this->config->get('attachment_path'), '/');
-        if (!JFolder::exists($attachmentFolder)) {
-            JFolder::create($attachmentFolder);
-        }
+		// check for folder existence
+		$attachmentFolder = rtrim(JPATH_ROOT, '/') . '/media/com_easydiscuss/' . trim($this->config->get('attachment_path'), '/');
+		if (!JFolder::exists($attachmentFolder)) {
+			JFolder::create($attachmentFolder);
+		}
 
-        if (!$relative) {
-            $path = JPATH_ROOT;
-        }
+		if (!$relative) {
+			$path = JPATH_ROOT;
+		}
 
-        // Create default media path
-        $path .= '/media/com_easydiscuss/' . trim($this->config->get('attachment_path'), '/');
+		// Create default media path
+		$path .= '/media/com_easydiscuss/' . trim($this->config->get('attachment_path'), '/');
 
 
-        return $path;
+		return $path;
 	}
 
 	/**
@@ -266,38 +269,32 @@ class EasyDiscussAttachment extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getUploadLimit()
 	{
-        $size = (double) $this->config->get('attachment_maxsize') * 1024 * 1024;
+		$size = (double) $this->config->get('attachment_maxsize') * 1024 * 1024;
 
-        return $size;
+		return $size;
 	}
 
-    /**
-     * Retrieves the image type
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function getType()
-    {
-        $type = explode("/", $this->table->mime);
+	/**
+	 * Retrieves the image type
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function getType()
+	{
+		$type = explode("/", $this->table->mime);
 
-        return $type[0];
-    }
+		return $type[0];
+	}
 
 	/**
 	 * Given a file, get the extension
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getExtension($file)
 	{
@@ -312,137 +309,131 @@ class EasyDiscussAttachment extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function upload(EasyDiscussPost $post, $file)
 	{
-        // Get the allowed files
-        $allowed = explode(',', $this->config->get('main_attachment_extension'));
+		// Get the allowed files
+		$allowed = explode(',', $this->config->get('main_attachment_extension'));
 
-        // Get the extension
-        $extension = $this->getExtension($file);
+		// Get the extension
+		$extension = $this->getExtension($file);
 
 
-        if (!$extension || !in_array($extension, $allowed)) {
-        	$this->setError(JText::sprintf('COM_EASYDISCUSS_FILE_ATTACHMENTS_INVALID_EXTENSION', $file['name']));
-        	return false;
-        }
+		if (!$extension || !in_array($extension, $allowed)) {
+			$this->setError(JText::sprintf('COM_EASYDISCUSS_FILE_ATTACHMENTS_INVALID_EXTENSION', $file['name']));
+			return false;
+		}
 
-        // Get the file size
-        $size = $file['size'];
-        $maxSize = $this->getUploadLimit();
+		// Get the file size
+		$size = $file['size'];
+		$maxSize = $this->getUploadLimit();
 
-        if ($maxSize && $size > $maxSize) {
-        	$this->setError(JText::sprintf('COM_EASYDISCUSS_FILE_ATTACHMENTS_MAX_SIZE_EXCLUDED', $file['name'], $maxSize));
-        	return false;
-        }
+		if ($maxSize && $size > $maxSize) {
+			$this->setError(JText::sprintf('COM_EASYDISCUSS_FILE_ATTACHMENTS_MAX_SIZE_EXCLUDED', $file['name'], $maxSize));
+			return false;
+		}
 
-        // @TODO: Ensure that the file doesn't contain any hacks.
+		// @TODO: Ensure that the file doesn't contain any hacks.
 
-        // Generate a unique id
-        $hash = ED::getHash($file['name'] . ED::date()->toSql() . uniqid());
+		// Generate a unique id
+		$hash = ED::getHash($file['name'] . ED::date()->toSql() . uniqid());
 
-        // This determines which storage type to use
-        $storageType = $this->config->get('storage_attachments');
+		// This determines which storage type to use
+		$storageType = $this->config->get('storage_attachments');
 
-        $this->table->path = $hash;
-        $this->table->title = $file['name'];
-        $this->table->uid = $post->id;
-        $this->table->created = ED::date()->toSql();
-        $this->table->published = true;
-        $this->table->storage = $storageType;
-        $this->table->mime = $file['type'];
-        $this->table->size = $size;
-        $this->table->store();
+		$this->table->path = $hash;
+		$this->table->title = $file['name'];
+		$this->table->uid = $post->id;
+		$this->table->created = ED::date()->toSql();
+		$this->table->published = true;
+		$this->table->storage = $storageType;
+		$this->table->mime = $file['type'];
+		$this->table->size = $size;
+		$this->table->store();
 
-        // Get the storage path
-        $storagePath = $this->getStoragePath() . '/' . $this->table->path;
+		// Get the storage path
+		$storagePath = $this->getStoragePath() . '/' . $this->table->path;
 
-        // Copy the temporary file to Joomla's temporary folder first
-        $temporaryPath = JPATH_ROOT . '/tmp/' . $hash;
-        JFile::copy($file['tmp_name'], $temporaryPath);
+		// Copy the temporary file to Joomla's temporary folder first
+		$temporaryPath = JPATH_ROOT . '/tmp/' . $hash;
+		JFile::copy($file['tmp_name'], $temporaryPath);
 
-        // Determine if the file is an image
-        $isImage = ED::image()->isImage($temporaryPath);
+		// Determine if the file is an image
+		$isImage = ED::image()->isImage($temporaryPath);
 
-        // Get the storage
-        $storage = ED::storage($this->table->storage);
+		// Get the storage
+		$storage = ED::storage($this->table->storage);
 
-        // If this is an image, create a thumb
-        if ($isImage) {
+		// If this is an image, create a thumb
+		if ($isImage) {
 
-        	// Create a thumbnail and upload it as well
-        	$thumbnailPath = $this->createThumbnail($temporaryPath);
-        	$thumbnailFilename = basename($thumbnailPath);
-        	$thumbnailStoragePath = dirname($storagePath) . '/' . $thumbnailFilename;
+			// Create a thumbnail and upload it as well
+			$thumbnailPath = $this->createThumbnail($temporaryPath);
+			$thumbnailFilename = basename($thumbnailPath);
+			$thumbnailStoragePath = dirname($storagePath) . '/' . $thumbnailFilename;
 
-            // Upload the thumbnail
-        	$storage->upload($thumbnailFilename, $thumbnailPath, $thumbnailStoragePath, true);
-        }
+			// Upload the thumbnail
+			$storage->upload($thumbnailFilename, $thumbnailPath, $thumbnailStoragePath, true);
+		}
 
 		// Now we upload the file
-        $storage->upload($hash, $temporaryPath, $storagePath, true);
+		$storage->upload($hash, $temporaryPath, $storagePath, true);
 
-        return true;
+		return true;
 	}
 
-    /**
-     * Determines if this attachment can be deleted
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function canDelete()
-    {
-        // Guest user shouldn't have permisson to delete
-        if (!$this->my->id) {
-            return false;
-        }
+	/**
+	 * Determines if this attachment can be deleted
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function canDelete()
+	{
+		// Guest user shouldn't have permisson to delete
+		if (!$this->my->id) {
+			return false;
+		}
 
-        // For super admin and moderators, we should allow this to happen
-        if (ED::isSiteAdmin()) {
-            return true;
-        }
+		// For super admin and moderators, we should allow this to happen
+		if (ED::isSiteAdmin()) {
+			return true;
+		}
 
-        if ($this->acl->allowed('delete_attachment')) {
-            return true;
-        }
+		if ($this->acl->allowed('delete_attachment')) {
+			return true;
+		}
 
-        // Get the post
-        $post = ED::post($this->table->uid);
+		// Get the post
+		$post = ED::post($this->table->uid);
 
-        if (ED::isModerator($post->category_id)) {
-            return true;
-        }
+		if (ED::isModerator($post->category_id)) {
+			return true;
+		}
 
-        if ($post->user_id == $this->my->id) {
-            return true;
-        }
+		if ($post->user_id == $this->my->id) {
+			return true;
+		}
 
-        return false;
-    }
+		return false;
+	}
 
 	/**
 	 * Creates a thumbnail
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function createThumbnail($pathToImage)
 	{
 		// Generate a temporary file
 		$temp = dirname($pathToImage) . '/' . basename($pathToImage) . '_thumb';
 
-    	$image = ED::simpleimage();
-    	$image->load($pathToImage);
-    	$image->resizeToFill(160, 120);
-    	$image->save($temp, $image->image_type);
+		$image = ED::simpleimage();
+		$image->load($pathToImage);
+		$image->resizeToFill(160, 120);
+		$image->save($temp, $image->image_type);
 
-    	return $temp;
+		return $temp;
 	}
 }

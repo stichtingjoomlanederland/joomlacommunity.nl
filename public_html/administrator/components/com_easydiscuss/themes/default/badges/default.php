@@ -1,15 +1,15 @@
 <?php
 /**
-* @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
-* @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* @package      EasyDiscuss
+* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Unauthorized Access');
+defined('_JEXEC') or die('Restricted access');
 
 if (!$prefix = JRequest::getCmd('prefix')) {
 	$prefix = '';
@@ -17,24 +17,37 @@ if (!$prefix = JRequest::getCmd('prefix')) {
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
 	<?php if ($browse) { ?>
-		<div class="app-filter filter-bar form-inline">
-		    <div class="form-group">
-		    	<h2><?php echo JText::_('COM_EASYDISCUSS_BADGES_TITLE');?></h2>
-		    	<?php echo JText::_('COM_EASYDISCUSS_BADGES_DESC');?>
-		    </div>
+	<div class="app-filter filter-bar form-inline">
+		<div class="form-group">
+			<h2><?php echo JText::_('COM_EASYDISCUSS_BADGES_TITLE');?></h2>
+			<?php echo JText::_('COM_EASYDISCUSS_BADGES_DESC');?>
 		</div>
+	</div>
 	<?php } else { ?>
-		<div class="app-filter filter-bar form-inline">
-		    <div class="form-group">
-		        <?php echo $this->html('table.search', 'search', $search); ?>
-		    </div>
-		    <div class="form-group">
-		    	<?php echo $this->html('table.filter', 'filter_state', $filter, array('P' => 'COM_EASYDISCUSS_PUBLISHED', 'U' => 'COM_EASYDISCUSS_UNPUBLISHED')); ?>
-		    </div>
-		    <div class="form-group">
-		    	<?php echo $this->html('table.limit', $pagination); ?>
-		    </div>
+	<div class="post-app-filter-bar">
+		<div class="app-filter-bar">
+			<?php echo $this->html('table.search', 'search', $search); ?>
 		</div>
+
+		<div class="app-filter-bar">
+			<div class="app-filter-bar__cell">
+				<div class="form-inline">
+					<div class="form-group">
+						<div class="app-filter-select-group">
+							<?php echo $this->html('table.filter', 'filter_state', $filter, array('P' => 'COM_EASYDISCUSS_PUBLISHED', 'U' => 'COM_EASYDISCUSS_UNPUBLISHED')); ?>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="app-filter-bar__cell app-filter-bar__cell--last">
+				<div class="form-inline">
+					<div class="app-filter-select-group">
+						<?php echo $this->html('table.limit', $pagination); ?>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 	<?php } ?>
 
 	<div class="panel-table">

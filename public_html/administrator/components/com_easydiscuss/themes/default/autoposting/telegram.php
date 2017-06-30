@@ -37,6 +37,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 							<div class="col-md-6">
 								<?php echo $this->html('form.textbox', 'integrations_telegram_token', $this->config->get('integrations_telegram_token')); ?>
+								<div class="small">
+									<a href="https://stackideas.com/docs/easydiscuss/administrators/autoposting/telegram-application" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_WHAT_IS_THIS');?></a>
+								</div>
 							</div>
 						</div>
 

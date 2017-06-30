@@ -56,16 +56,14 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
 
 				<?php if ($this->config->get('layout_post_types')) { ?>
+
 				<div class="o-col o-col--top t-lg-pr--md t-xs-pr--no">
 					<div class="form-group">
 						<label for="post_type"><?php echo JText::_('COM_EASYDISCUSS_SELECT_A_POST_TYPE');?></label>
 
-						<select id="post_type" class="form-control" name="post_type">
-							<option value="default"><?php echo JText::_('COM_EASYDISCUSS_SELECT_POST_TYPES');?></option>
-							<?php foreach ($postTypes as $type) { ?>
-								<option <?php echo ($type->alias == $post->post_type) ? 'selected="selected"' : '' ?> value="<?php echo $type->alias ?>"><?php echo $type->title ?></option>
-							<?php } ?>
-						</select>
+						<div data-post-types-wrapper>
+							<?php echo $this->output('site/ask/post.types'); ?>
+						</div>
 					</div>
 				</div>
 				<?php } ?>
@@ -77,7 +75,7 @@ defined('_JEXEC') or die('Restricted access');
 						<select name="priority" class="form-control" id="priority">
 							<option value=""><?php echo JText::_('COM_EASYDISCUSS_SELECT_A_PRIORITY');?></option>
 							<?php foreach ($priorities as $priority) { ?>
-							<option value="<?php echo $priority->id;?>"><?php echo JText::_($priority->title);?></option>
+							<option value="<?php echo $priority->id;?>"<?php echo ($post->priority == $priority->id) ? ' selected="selected"' : ''; ?>><?php echo JText::_($priority->title);?></option>
 							<?php } ?>
 						</select>
 					</div>
@@ -162,22 +160,22 @@ defined('_JEXEC') or die('Restricted access');
 					<?php if ($this->config->get('main_tnc_question')) { ?>
 					<div class="pull-left">
 						<div class="o- t-lg-mb--lg">
-							
+
 							<div class="o-checkbox o-checkbox--inline t-mr--md">
 								<input type="checkbox" name="tnc-ask" id="tnc-ask" data-ed-ask-tnc-checkbox <?php echo ED::tnc()->hasAcceptedTnc('question') ? 'checked="checked"' : '' ?>/>
 								<label for="tnc-ask">
-									<?php echo JText::_('COM_EASYDISCUSS_I_HAVE_READ_AND_AGREED');?> 
+									<?php echo JText::_('COM_EASYDISCUSS_I_HAVE_READ_AND_AGREED');?>
 									<a href="javascript:void(0);" style="text-decoration: underline;" data-ed-ask-tnc-link>
 										<?php echo JText::_('COM_EASYDISCUSS_TERMS_AND_CONDITIONS');?>
-									</a>  
+									</a>
 								</label>
 							</div>
-							
-						</div>    
-					</div>
-					<?php } ?>                   
 
-					<div class="pull-right">						
+						</div>
+					</div>
+					<?php } ?>
+
+					<div class="pull-right">
 						<?php if ($post->id && $post->isPending() && ED::isSiteAdmin()) { ?>
 						<a class="btn btn-link t-lg-pl--xs" href="<?php echo $cancel;?>">
 							<?php echo JText::_('COM_EASYDISCUSS_CANCEL');?>

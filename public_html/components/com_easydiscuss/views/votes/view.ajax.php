@@ -29,30 +29,15 @@ class EasyDiscussViewVotes extends EasyDiscussView
 
 		$post = ED::post($id);
 
-		// Since someone tries to hack the system, we just ignore this.
-		// We do not need to display friendly messages to users that try
-		// to hack the system.
-		if (($post->isQuestion() && !$this->config->get('main_allowquestionvote')) || ($post->isReply() && !$this->config->get('main_allowvote')) || (!$post->id)) {
-			$this->ajax->reject(JText::_('COM_EASYDISCUSS_SELF_VOTE_DENIED'));
-			return $this->ajax->send();
-		}
-
-		// Reject voting if the acl doesn't allowed
-		if (!$this->acl->allowed('vote_discussion')) {
+		// Check for permission
+		if (!$post->canVote()) {
 			$this->ajax->reject(JText::_('COM_EASYDISCUSS_ACL_VOTE_DISABLED'));
-			return $this->ajax->send();
 		}
 
 		// Get user's session id.
 		// $session = ED::getSession();
 		$session = JFactory::getSession();
 		$sessionId = $session->getId();
-
-		// Detect if the user is trying to vote on his own post.
-		if (!$this->config->get('main_allowselfvote') && ($this->my->id == $post->user_id)) {
-			$this->ajax->reject(JText::_('COM_EASYDISCUSS_SELF_VOTE_DENIED'));
-			return $this->ajax->send();
-		}
 
 		$voteModel = ED::model('Votes');
 

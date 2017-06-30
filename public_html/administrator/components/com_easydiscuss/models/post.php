@@ -349,216 +349,218 @@ class EasyDiscussModelPost extends EasyDiscussAdminModel
 	}
 
 	/**
-     * Move replies if the Question is being moved
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Move replies if the Question is being moved
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function moveReplies($parentId, $newCatId)
 	{
-        $query  = 'UPDATE ' . $this->db->nameQuote('#__discuss_posts')
-                . ' SET ' . $this->db->nameQuote('category_id') . '=' . $this->db->Quote($newCatId)
-                . ' WHERE ' . $this->db->nameQuote('parent_id') . '=' . $this->db->Quote($parentId);
-        $this->db->setQuery($query);
-        $this->db->Query();
+		$query  = 'UPDATE ' . $this->db->nameQuote('#__discuss_posts')
+				. ' SET ' . $this->db->nameQuote('category_id') . '=' . $this->db->Quote($newCatId)
+				. ' WHERE ' . $this->db->nameQuote('parent_id') . '=' . $this->db->Quote($parentId);
+		$this->db->setQuery($query);
+		$this->db->Query();
 	}
 
 	/**
-     * Lock the poll for question
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Lock the poll for question
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function lockPolls($id)
-    {
-        $query  = 'UPDATE ' . $this->db->nameQuote('#__discuss_polls_question')
-                . ' SET ' . $this->db->nameQuote('locked') . '=' . $this->db->Quote(1)
-                . ' WHERE ' . $this->db->nameQuote('post_id') . '=' . $this->db->Quote($id);
-        $this->db->setQuery($query);
-        $state = $this->db->Query();
+	{
+		$query  = 'UPDATE ' . $this->db->nameQuote('#__discuss_polls_question')
+				. ' SET ' . $this->db->nameQuote('locked') . '=' . $this->db->Quote(1)
+				. ' WHERE ' . $this->db->nameQuote('post_id') . '=' . $this->db->Quote($id);
+		$this->db->setQuery($query);
+		$state = $this->db->Query();
 
-        return $state;
-    }
+		return $state;
+	}
 
-    /**
-     * Unlock the poll for question
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function unlockPolls($id)
-    {
-        $query = 'UPDATE ' . $this->db->nameQuote('#__discuss_polls_question')
-                . ' SET ' . $this->db->nameQuote('locked') . '=' . $this->db->Quote(0)
-                . ' WHERE ' . $this->db->nameQuote('post_id') . '=' . $this->db->Quote($id);
-        $this->db->setQuery($query);
-        $state = $this->db->Query();
+	/**
+	 * Unlock the poll for question
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
+	public function unlockPolls($id)
+	{
+		$query = 'UPDATE ' . $this->db->nameQuote('#__discuss_polls_question')
+				. ' SET ' . $this->db->nameQuote('locked') . '=' . $this->db->Quote(0)
+				. ' WHERE ' . $this->db->nameQuote('post_id') . '=' . $this->db->Quote($id);
+		$this->db->setQuery($query);
+		$state = $this->db->Query();
 
-        return $state;
-    }
+		return $state;
+	}
 
-    /**
-     * Get replies for question
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function getReplies($questionId)
-    {
-        // To get the delete replies id
-        $query = 'SELECT ' . $this->db->nameQuote('id')
-                . ' FROM ' . $this->db->nameQuote('#__discuss_posts')
-                . ' WHERE ' . $this->db->nameQuote('parent_id') . '=' . $this->db->Quote($questionId);
-        $this->db->setQuery($query);
-        $results = $this->db->loadResultArray();
+	/**
+	 * Get replies for question
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
+	public function getReplies($questionId)
+	{
+		// To get the delete replies id
+		$query = 'SELECT ' . $this->db->nameQuote('id')
+				. ' FROM ' . $this->db->nameQuote('#__discuss_posts')
+				. ' WHERE ' . $this->db->nameQuote('parent_id') . '=' . $this->db->Quote($questionId);
+		$this->db->setQuery($query);
+		$results = $this->db->loadResultArray();
 
-        return $results;
-    }
+		return $results;
+	}
 
-    /**
-     * Delete tags
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function deleteTags($postId)
-    {
-    	$query = 'DELETE FROM ' . $this->db->nameQuote('#__discuss_posts_tags') . ' '
-                . 'WHERE ' . $this->db->nameQuote('post_id') . '=' . $this->db->Quote($postId);
-        $this->db->setQuery($query);
+	/**
+	 * Delete tags
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
+	public function deleteTags($postId)
+	{
+		$query = 'DELETE FROM ' . $this->db->nameQuote('#__discuss_posts_tags') . ' '
+				. 'WHERE ' . $this->db->nameQuote('post_id') . '=' . $this->db->Quote($postId);
+		$this->db->setQuery($query);
 
-        $this->db->Query();
-    }
+		$this->db->Query();
+	}
 
-    /**
-     * Delete comments
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function deleteComments($postId)
-    {
-        $query  = 'DELETE FROM ' . $this->db->nameQuote('#__discuss_comments')
-                . ' WHERE ' . $this->db->nameQuote('post_id') . '=' . $this->db->Quote($postId);
-        $this->db->setQuery($query);
+	/**
+	 * Delete comments
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
+	public function deleteComments($postId)
+	{
+		$query  = 'DELETE FROM ' . $this->db->nameQuote('#__discuss_comments')
+				. ' WHERE ' . $this->db->nameQuote('post_id') . '=' . $this->db->Quote($postId);
+		$this->db->setQuery($query);
 
-        $this->db->Query();
-    }
+		$this->db->Query();
+	}
 
-    /**
-     * Remove reference for the particular post
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function removeReferences($postId)
-    {
-        $query  = 'DELETE FROM ' . $this->db->nameQuote('#__discuss_posts_references');
-        $query  .= ' WHERE ' . $this->db->nameQuote('post_id') . '=' . $this->db->Quote($postId);
-        $this->db->setQuery($query);
-        $this->db->Query();
-    }
-
-
+	/**
+	 * Remove reference for the particular post
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
+	public function removeReferences($postId)
+	{
+		$query  = 'DELETE FROM ' . $this->db->nameQuote('#__discuss_posts_references');
+		$query  .= ' WHERE ' . $this->db->nameQuote('post_id') . '=' . $this->db->Quote($postId);
+		$this->db->setQuery($query);
+		$this->db->Query();
+	}
 
 
-    /**
-     * method to branch out a reply into discussion post.
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function branch($id, $parent_id)
-    {
-        $prefix = 'RE';
 
-        //branch out this reply into a question instead.
-        $db = ED::db();
 
-        $parent = ED::post($parent_id);
+	/**
+	 * method to branch out a reply into discussion post.
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
+	public function branch($id, $parent_id)
+	{
+		$prefix = 'RE';
 
-        $title = $parent->title;
-        $title = $prefix . ': ' . $title;
-        $alias = ED::getAlias($title, 'post', $id);
+		//branch out this reply into a question instead.
+		$db = ED::db();
 
-        $now = ED::date()->toSql();
+		$parent = ED::post($parent_id);
 
-        // first create a thread record for this soon tobe question.
-        $query = "insert into `#__discuss_thread` (`title`, `alias`, `created`, `modified`, `replied`, `user_id`, `post_id`, `user_type`, `poster_name`, `poster_email`, `content`, `preview`, `published`, `category_id`,";
-        $query .= " `num_likes`, `num_negvote`, `ordering`, `vote`, `sum_totalvote`, `hits`, `islock`, `lockdate`, `featured`, `isresolve`, `isreport`, `answered`, `params`, `password`, `legacy`, `address`,";
-        $query .= " `latitude`, `longitude`, `content_type`, `post_status`, `post_type`, `private`,";
-        $query .= " num_replies, last_user_id, last_poster_name, last_poster_email)";
-        $query .= " select " . $db->Quote($title) . ", " . $db->Quote($alias) . ", `created`, " . $db->Quote($now) . ", " . $db->Quote($now) . ", `user_id`, `id`, `user_type`, `poster_name`, `poster_email`, `content`,";
-        $query .= " `preview`, `published`, `category_id`, `num_likes`, `num_negvote`,";
-        $query .= " `ordering`, `vote`, `sum_totalvote`, `hits`, `islock`, `lockdate`, `featured`, `isresolve`, `isreport`, `answered`, `params`, `password`, `legacy`, `address`, `latitude`, `longitude`, `content_type`,";
-        $query .= " `post_status`, `post_type`, `private`,";
-        $query .= " 0, 0, `poster_name`, `poster_email`";
-        $query .= " from `#__discuss_posts` where `id` = " . $db->Quote($id);
+		$title = $parent->title;
+		$title = $prefix . ': ' . $title;
+		$alias = ED::getAlias($title, 'post', $id);
 
-        $db->setQuery($query);
-        $state = $db->query();
+		$now = ED::date()->toSql();
 
-        if ($state) {
-            // now we need to update the existing reply to become 'question';
-            $query = "update `#__discuss_posts` as a inner join `#__discuss_thread` as b on a.`id` = b.`post_id`";
-            $query .= " set a.`thread_id` = b.`id`,";
-            $query .= " a.`title` = " . $db->Quote($title) . ",";
-            $query .= " a.`parent_id` = 0";
-            $query .= " where a.`id` = " . $db->Quote($id);
+		// first create a thread record for this soon tobe question.
+		$query = "insert into `#__discuss_thread` (`title`, `alias`, `created`, `modified`, `replied`, `user_id`, `post_id`, `user_type`, `poster_name`, `poster_email`, `content`, `preview`, `published`, `category_id`,";
+		$query .= " `num_likes`, `num_negvote`, `ordering`, `vote`, `sum_totalvote`, `hits`, `islock`, `lockdate`, `featured`, `isresolve`, `isreport`, `answered`, `params`, `password`, `legacy`, `address`,";
+		$query .= " `latitude`, `longitude`, `content_type`, `post_status`, `post_type`, `private`,";
+		$query .= " num_replies, last_user_id, last_poster_name, last_poster_email)";
+		$query .= " select " . $db->Quote($title) . ", " . $db->Quote($alias) . ", created, " . $db->Quote($now) . ", " . $db->Quote($now) . ", `user_id`, `id`, `user_type`, `poster_name`, `poster_email`, `content`,";
+		$query .= " `preview`, `published`, `category_id`, `num_likes`, `num_negvote`,";
+		$query .= " `ordering`, `vote`, `sum_totalvote`, `hits`, `islock`, `lockdate`, `featured`, `isresolve`, `isreport`, `answered`, `params`, `password`, `legacy`, `address`, `latitude`, `longitude`, `content_type`,";
+		$query .= " `post_status`, `post_type`, `private`,";
+		$query .= " 0, 0, `poster_name`, `poster_email`";
+		$query .= " from `#__discuss_posts` where `id` = " . $db->Quote($id);
 
-            $db->setQuery($query);
-            $state = $db->query();
+		$db->setQuery($query);
+		$state = $db->query();
 
-            // finally we need to sync the counts in thread table.
-            if ($state) {
-                // // step 3: re-sync data into thread table.
-                $query = "update `#__discuss_thread` as a set";
-                $query .= " a.`num_fav` = (select count(1) from `#__discuss_favourites` as b5 where b5.`post_id` = a.`post_id`),";
-                $query .= " a.`num_attachments` = (select count(1) from `#__discuss_attachments` as b6 where b6.`uid` = a.`post_id` and b6.`published` = 1),";
-                $query .= " a.`has_polls` = (select count(1) from `#__discuss_polls` as b7 where b7.`post_id` = a.`post_id`),";
-                $query .= " a.`vote` = (select count(1) from `#__discuss_votes` as b8 where b8.`post_id` = a.`post_id`)";
-                $query .= " where a.`post_id` = " . $db->Quote($id);
+		if ($state) {
+			// now we need to update the existing reply to become 'question';
+			$query = "update `#__discuss_posts` as a inner join `#__discuss_thread` as b on a.`id` = b.`post_id`";
+			$query .= " set a.`thread_id` = b.`id`,";
+			$query .= " a.`title` = " . $db->Quote($title) . ",";
+			$query .= " a.`parent_id` = 0,";
+			$query .= " a.`modified` = " . $db->Quote($now) . ",";
+			$query .= " a.`replied` = " . $db->Quote($now);
+			$query .= " where a.`id` = " . $db->Quote($id);
 
-                $db->setQuery($query);
-                $state = $db->query();
-            }
+			$db->setQuery($query);
+			$state = $db->query();
 
-            // Once done with the new post creation, we need to update the former parent thread
-            // Update last_user_id and replied columns
-            $thread = ED::table('Thread');
-            $thread->load(array('post_id' => $parent->id));
+			// finally we need to sync the counts in thread table.
+			if ($state) {
+				// // step 3: re-sync data into thread table.
+				$query = "update `#__discuss_thread` as a set";
+				$query .= " a.`num_fav` = (select count(1) from `#__discuss_favourites` as b5 where b5.`post_id` = a.`post_id`),";
+				$query .= " a.`num_attachments` = (select count(1) from `#__discuss_attachments` as b6 where b6.`uid` = a.`post_id` and b6.`published` = 1),";
+				$query .= " a.`has_polls` = (select count(1) from `#__discuss_polls` as b7 where b7.`post_id` = a.`post_id`),";
+				$query .= " a.`vote` = (select count(1) from `#__discuss_votes` as b8 where b8.`post_id` = a.`post_id`)";
+				$query .= " where a.`post_id` = " . $db->Quote($id);
 
-            // We need to load the current lastreply library
-            $model = ED::model('Posts');
-            $replyId = $model->getLastReply($parent->id);
-            $lastreply = ED::post($replyId); 
+				$db->setQuery($query);
+				$state = $db->query();
+			}
 
-            $thread->last_user_id = $lastreply->getOwner()->id;
-            $thread->replied = $lastreply->created;
-            $thread->store();
+			// Once done with the new post creation, we need to update the former parent thread
+			// Update last_user_id and replied columns
+			$thread = ED::table('Thread');
+			$thread->load(array('post_id' => $parent->id));
 
-            // Update thread's reply count
-            $parent->updateThread(array('num_replies' => '-1'));
-        }
+			// We need to load the current lastreply library
+			$model = ED::model('Posts');
+			$replyId = $model->getLastReply($parent->id);
+			$lastreply = ED::post($replyId);
 
-        return $state;
+			$thread->last_user_id = $lastreply->getOwner()->id;
+			$thread->replied = $lastreply->created;
+			$thread->store();
 
-    }
+			// Update thread's reply count
+			$parent->updateThread(array('num_replies' => '-1'));
+		}
+
+		return $state;
+
+	}
 
 }

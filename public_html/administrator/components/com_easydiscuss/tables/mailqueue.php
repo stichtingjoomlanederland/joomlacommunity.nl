@@ -34,8 +34,6 @@ class DiscussMailQueue extends EasyDiscussTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getBody()
 	{
@@ -47,7 +45,9 @@ class DiscussMailQueue extends EasyDiscussTable
 		$body = $this->body;
 
 		// If the body is not empty, we should just use this
-		if (!empty($this->body)) {
+		if (!empty($body)) {
+			$body = str_ireplace('src="', 'width="100%" src="', $body);
+			
 			return $body;
 		}
 

@@ -1,15 +1,15 @@
 <?php
 /**
-* @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
-* @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* @package      EasyDiscuss
+* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Unauthorized Access');
+defined('_JEXEC') or die('Restricted access');
 
 jimport('joomla.filesystem.file');
 
@@ -17,31 +17,52 @@ class EasyDiscussAssets extends EasyDiscuss
 {
 	private $headers = array();
 
-	public static function getJoomlaTemplate($client = 'site')
+	/**
+	 * Get joomla template
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function getJoomlaTemplate($client = 'site')
 	{
 		static $template = array();
 
-		if( !array_key_exists($client, $template) ) {
-			$clientId = ($client == 'site') ? 0 : 1;
+		if (!isset($template[$client])) {
+			$app = JFactory::getApplication();
 
-			$db		= DiscussHelper::getDbo();
-
-			if( DiscussHelper::isJoomla15() ) {
-				$query	= 'SELECT template FROM `#__templates_menu`'
-						. ' WHERE client_id = ' . $db->quote($clientId) . ' AND menuid = 0';
+			// Try to load the template from joomla cache since some 3rd party plugins can change the templates on the fly.
+			// This can also happen if joomla menu is associated with different template than the main templates. #155
+			if ($client == 'site' && $app->isSite()) {
+				$template[$client] = $app->getTemplate();
 			} else {
-				$query	= 'SELECT template FROM `#__template_styles` AS s'
-						. ' LEFT JOIN `#__extensions` AS e ON e.type = `template` AND e.element=s.template AND e.client_id=s.client_id'
-						. ' WHERE s.client_id = ' . $db->quote($clientId) . ' AND home = 1';
-			}
-			$db->setQuery( $query );
 
-			// Fallback template
-			if( !$result = $db->loadResult() ) {
-				$result = ($client == 'site') ? 'beez_20' : 'bluestork';
-			}
+				$clientId = 1;
 
-			$template[$client] = $result;
+				if ($client == 'site') {
+					$clientId = 0;
+				}
+
+				$db = ED::db();
+
+				$query = 'SELECT `template` FROM `#__template_styles` AS s';
+				$query .= ' LEFT JOIN `#__extensions` AS e ON e.`type` = `template` AND e.`element` = s.`template` AND e.`client_id` = s.`client_id`';
+				$query .= ' WHERE s.`client_id` = ' . $db->Quote($clientId) . ' AND `home` = 1';
+
+				$db->setQuery($query);
+
+				$result = $db->loadResult();
+
+				// Default fallback template
+				if (!$result) {
+					$result = 'bluestork';
+
+					if ($client == 'site') {
+						$result = 'beez_20';
+					}
+				}
+
+				$template[$client] = $result;
+			}
 		}
 
 		return $template[$client];
@@ -62,8 +83,6 @@ class EasyDiscussAssets extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function locations($uri=false)
 	{
@@ -101,12 +120,10 @@ class EasyDiscussAssets extends EasyDiscuss
 	}
 
 	/**
-	 * 
+	 * get path
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function path($location, $type='')
 	{
@@ -201,14 +218,10 @@ class EasyDiscussAssets extends EasyDiscuss
 	}
 
 	/**
-	 * Convert path to URI
+	 * Convert Path to URI
 	 *
-	 * Convert /var/public_html/components/theme/simplistic/styles/blabla.less
-	 * to http://mysite.com/components/theme/simplistic/styles/blabla.less
-	 *
-	 * @param	string	$path
-	 *
-	 * @return	string	Full path URI
+	 * @since	4.0
+	 * @access	public
 	 */
 	public function toUri( $path )
 	{

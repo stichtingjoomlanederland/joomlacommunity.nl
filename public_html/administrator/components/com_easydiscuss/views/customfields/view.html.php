@@ -1,15 +1,15 @@
 <?php
 /**
-* @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
-* @license		GNU/GPL, see LICENSE.php
+* @package      EasyDiscuss
+* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Unauthorized Access');
+defined('_JEXEC') or die('Restricted access');
 
 require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
@@ -20,8 +20,6 @@ class EasyDiscussViewCustomFields extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function display($tpl = null)
 	{
@@ -37,15 +35,15 @@ class EasyDiscussViewCustomFields extends EasyDiscussAdminView
 		JToolbarHelper::deleteList();
 
 		// States
-		$filter = $this->getUserState('fields.filter_state', 'filter_state', '*', 'word');
+		$filter = $this->getUserState('com_easydiscuss.fields.filter_state', 'filter_state', '*', 'word');
 
 		// Search queries
-		$search = $this->getUserState('fields.search', 'search', '', 'string');
+		$search = $this->getUserState('com_easydiscuss.fields.search', 'search', '', 'string');
 		$search = trim(strtolower($search));
 
 		// Ordering
-		$order = $this->getUserState('fields.filter_order', 'filter_order', 'a.ordering', 'cmd');
-		$orderDirection = $this->getUserState('fields.filter_order_Dir', 'filter_order_Dir', 'asc', 'word');
+		$order = $this->getUserState('com_easydiscuss.fields.filter_order', 'filter_order', 'a.ordering', 'cmd');
+		$orderDirection = $this->getUserState('com_easydiscuss.fields.filter_order_Dir', 'filter_order_Dir', 'asc', 'word');
 
 		// Get data from the model
 		$model = ED::model('CustomFields');
@@ -105,8 +103,6 @@ class EasyDiscussViewCustomFields extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function form()
 	{

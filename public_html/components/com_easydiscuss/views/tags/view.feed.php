@@ -46,6 +46,11 @@ class EasyDiscussViewTags extends EasyDiscussView
 		$pagination	= $postModel->getPagination('0', $sort, $filteractive);
 		$posts = ED::formatPost($posts);
 
+		// if there do not have any post just return it.
+		if (empty($posts)) {
+			return;
+		}
+
 		foreach ($posts as $row) {
 
 			// Assign to feed item

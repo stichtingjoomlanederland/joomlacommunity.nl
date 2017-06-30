@@ -29,11 +29,9 @@ class EasyDiscussFacebook extends EasyDiscuss
 		$config = ED::config();
 
 		// Search for an image in the content
-		$image = self::searchImage($post->content);
+		$image = self::searchImage($post->preview);
 
-		if ($image) {
-			$doc->addCustomTag('<meta property="og:image" content="' . $image . '" />');
-		}
+		$doc->addCustomTag('<meta property="og:image" content="' . $image . '" />');
 
 		if ($config->get('integration_facebook_like')) {
 			
@@ -107,7 +105,7 @@ class EasyDiscussFacebook extends EasyDiscuss
 			$image = $matches[0];
 
 			// Try to just get the image url.
-			$pattern = '/src=[\"\']?([^\"\']?.*(png|jpg|jpeg|gif))[\"\']?/i';
+			$pattern = '/src\s*=\s*"(.+?)"/i';
 
 			preg_match($pattern, $image, $matches);
 
@@ -117,8 +115,18 @@ class EasyDiscussFacebook extends EasyDiscuss
 			}
 		}
 
-		if (!$image) {
-			return false;
+		if ($image) {
+			return $image;
+		}
+
+		// Default post image if the post doesn't contain any image
+		$app = JFactory::getApplication();
+		$override = JPATH_ROOT . '/templates/' . $app->getTemplate() . '/html/com_easydiscuss/images/placeholder-facebook.png';
+
+		if (JFile::exists($override)) {
+		    $image = rtrim(JURI::root(), '/') . '/templates/' . $app->getTemplate() . '/html/com_easydiscuss/images/placeholder-facebook.png';
+		} else {
+		    $image = rtrim(JURI::root(), '/') . '/components/com_easydiscuss/themes/wireframe/images/placeholder-facebook.png';
 		}
 
 		return $image;

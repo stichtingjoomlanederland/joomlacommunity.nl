@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 
 <?php foreach ($thread as $post) { ?>
-    <div class="ed-forum-item<?php echo $post->getHeaderClass(); ?>">
+    <div class="ed-forum-item<?php echo $post->getHeaderClass(); ?>" <?php echo $post->getPriority() ? 'style="border-left: 3px solid ' . $post->getPriority()->color . ';"' : '';?>>
         <div class="o-row">
 
             <?php if ($this->config->get('post_priority')) { ?>

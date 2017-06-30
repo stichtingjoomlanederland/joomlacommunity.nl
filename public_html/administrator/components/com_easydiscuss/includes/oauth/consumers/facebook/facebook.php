@@ -125,39 +125,24 @@ class EasyDiscussFacebook extends Facebook
 		$accessToken = parent::_oauthRequest(parent::getUrl('graph', '/oauth/access_token'), $options);
 
 		// The result could be a json string with error message
-		$result = json_decode($accessToken);
+		$accessToken = json_decode($accessToken);
 
-		if ($result && isset($result->error)) {
+		if (!isset($accessToken->access_token)) {
 			return false;
 		}
 
-		// Split the response because it will be access_token=xxx&expires=xxx
-		$token = explode('&', $accessToken);
+		$date = ED::date($accessToken->expires_in);
 
-		// Check if there is any values.
-		if (!isset($token[0])) {
-			return false;
-		}
+		// Get current date
+		$currentDate = ED::date()->toUnix();
 
-		// Get the access token
-		$access = $token[0];
+		// Add expiry date from current date
+		$expires = $currentDate + $accessToken->expires_in;
 
-		// Remove unecessary codes
-		$access = str_ireplace('access_token=', '', $access);
-
-		// Get expiry date
-		$expires = isset($token[1]) ? $token[1] : '';
-
-		// If the expiry date is given
-		if ($expires) {
-			$expires = str_ireplace('expires=', '', $expires);
-
-			// Set the expiry date with proper date data
-			$expires = ED::date(strtotime('now') + $expires)->toSql();
-		}
+		$expires = ED::date($expires)->toSql();
 
 		$obj = new stdClass();
-		$obj->token	= $access;
+		$obj->token	= $accessToken->access_token;
 		$obj->secret = true;
 		$obj->expires = $expires;
 		$obj->params = '';
@@ -193,7 +178,6 @@ class EasyDiscussFacebook extends Facebook
 		// If there is no image for this post
 		if (!$params['picture']) {
 			$params['picture'] = DISCUSS_JURIROOT . '/media/com_easydiscuss/images/default_facebook.png';
-			$params['source'] = rtrim(JURI::root() , '/' ) . '/media/com_easydiscuss/images/default_facebook.png';
 		}
 
 		// Autopost to user's normal account

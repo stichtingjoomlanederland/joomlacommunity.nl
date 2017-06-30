@@ -1,0 +1,7 @@
+[
+	{
+		"table": "#__discuss_polls_question",
+		"column": "locked",
+		"query": "ALTER TABLE `#__discuss_polls_question` ADD COLUMN `locked` tinyint(1) UNSIGNED DEFAULT 0;"
+	}
+]

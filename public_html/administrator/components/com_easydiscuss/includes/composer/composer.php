@@ -58,6 +58,9 @@ class EasyDiscussComposer extends EasyDiscuss
 		// Names
 		$this->classname = $this->id;
 		$this->selector = '.' . $this->id;
+
+		// Load frontend language
+		ED::loadLanguages();
 	}
 
 	/**
@@ -157,8 +160,6 @@ class EasyDiscussComposer extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function renderEditor($name = 'dc_content', $content = '', $resetContent = false)
 	{
@@ -215,8 +216,6 @@ class EasyDiscussComposer extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function renderTabs()
 	{
@@ -247,8 +246,6 @@ class EasyDiscussComposer extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function hasTabs()
 	{
@@ -278,8 +275,6 @@ class EasyDiscussComposer extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getTabs()
 	{
@@ -298,6 +293,11 @@ class EasyDiscussComposer extends EasyDiscuss
 				$tab = new stdClass();
 				$name = basename($folder);
 
+				// Check if user can really access the tabs
+				if (!$this->canAccessTabs($name)) {
+					continue;
+				}
+
 				// Get the tab heading
 				$theme = ED::themes();
 				$theme->set('editorId', $this->uid);
@@ -314,8 +314,12 @@ class EasyDiscussComposer extends EasyDiscuss
 				$theme->set('composer', $this);
 				$theme->set('operation', $this->operation);
 
-
 				$contents = $theme->output('site/composer/tabs/' . $name . '/contents');
+
+				// If contents is empty we do not display the tabs
+				if (!$contents) {
+					continue;
+				}
 
 				$tab->heading = $heading;
 				$tab->contents = $contents;
@@ -331,12 +335,73 @@ class EasyDiscussComposer extends EasyDiscuss
 	}
 
 	/**
+	 * Determine if user has access to the specified tabs
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function canAccessTabs($name)
+	{
+		// Site admin can access everythings
+		if (ED::isSiteAdmin()) {
+			return true;
+		}
+
+		$canAccess = true;
+
+		switch ($name) {
+			case 'attachments':
+				// Ensure that attachments is enabled
+				if ((!$this->config->get('attachment_questions') || !$this->acl->allowed('add_attachment', false))) {
+					$canAccess = false;
+				}
+				break;
+			case 'fields':
+				if (!$this->config->get('main_customfields_input')) {
+					$canAccess = false;
+				} else {
+					$model = ED::model('CustomFields');
+					$fields = $model->getFields(DISCUSS_CUSTOMFIELDS_ACL_INPUT, $this->operation, $this->post->id);
+
+					// if empty fields then we do not show this tab.
+					if (!$fields) {
+						$canAccess = false;
+					}
+				}
+				break;
+			case 'links':
+				// Ensure that this tab is enabled
+				if (!$this->config->get('reply_field_references')) {
+					$canAccess = false;
+				}
+				break;
+			case 'password':
+				if ($this->operation == 'replying' || ($this->operation == 'editing' && $this->post->isReply()) || !$this->config->get('main_password_protection')) {
+					$canAccess = false;
+				}
+				break;
+			case 'polls':
+				if (($this->post->isQuestion() && !$this->config->get('main_polls')) || (($this->operation == 'replying' || $this->post->isReply()) && !$this->config->get('main_polls_replies'))) {
+					$canAccess = false;
+				}
+				break;
+			case 'site':
+				if (($this->post->isQuestion() && !$this->config->get('tab_site_question')) || (!$this->post->isQuestion() && !$this->config->get('tab_site_reply'))) {
+					$canAccess = false;
+				}
+				break;
+			default:
+				break;
+		}
+
+		return $canAccess;
+	}
+
+	/**
 	 * Retrieves the editor class name
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getEditorClass()
 	{

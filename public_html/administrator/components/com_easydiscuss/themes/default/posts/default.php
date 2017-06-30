@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -12,43 +12,64 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
-	<div class="app-filter filter-bar form-inline">
-	    <div class="form-group">
-	        <?php echo $this->html('table.search', 'search', $search); ?>
-	    </div>
-	    <div class="form-group">
-	    	<?php echo $this->html('table.filter', 'filter_state', $filter, array('published' => 'COM_EASYDISCUSS_PUBLISHED', 'unpublished' => 'COM_EASYDISCUSS_UNPUBLISHED')); ?>
-	    	<?php echo $categoryFilter; ?>
-	    </div>
-	    <div class="form-group">
-	    	<?php echo $this->html('table.limit', $pagination); ?>
-	    </div>
+	<div class="post-app-filter-bar">
+		<div class="app-filter-bar">
+			<?php echo $this->html('table.search', 'search', $search, 'COM_EASYDISCUSS_SEARCH_TOOLTIP'); ?>
+		</div>
+
+		<div class="app-filter-bar">
+			<div class="app-filter-bar__cell">
+				<div class="form-inline">
+					<div class="form-group">
+						<label><?php echo JText::_('COM_EASYDISCUSS_CATEGORIES_FILTER_BY');?></label>
+						
+						<div class="app-filter-select-group">
+							<?php echo $this->html('table.filter', 'filter_state', $filter, array('published' => 'COM_EASYDISCUSS_PUBLISHED', 'unpublished' => 'COM_EASYDISCUSS_UNPUBLISHED')); ?>
+						</div>
+						<div class="app-filter-select-group">
+							<?php echo $categoryFilter; ?>
+							<div class="app-filter-select-group__drop"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="app-filter-bar__cell app-filter-bar__cell--last">
+				<div class="form-inline">
+					<div class="app-filter-select-group">
+						<?php echo $this->html('table.limit', $pagination); ?>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<div class="panel-table">
 		<table class="app-table app-table-middle table table-striped" data-ed-table>
 			<thead>
 				<tr>
+					<?php if (!$browse) { ?>
 					<td width="1%">
 						<?php echo $this->html('table.checkall'); ?>
 					</td>
+					<?php } ?>
+
 					<td style="text-align:left;">
 						<?php echo JHTML::_('grid.sort', 'Title', 'a.title', $orderDirection, $order); ?>
 					</td>
 					<td width="15%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_CATEGORY'); ?>
 					</td>
+
+					<?php if (!$browse) { ?>
 					<td width="5%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_FEATURED'); ?>
 					</td>
 					<td width="5%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_PUBLISHED'); ?>
 					</td>
-
 					<td width="1%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_REPLIES'); ?>
 					</th>
-
 					<td width="1%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_HITS');?>
 					</th>
@@ -61,6 +82,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<td width="10%" class="text-center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_DATE'), 'a.created', $orderDirection, $order); ?>
 					</th>
+					<?php } ?>
+
 					<td width="1%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_COLUMN_ID');?>
 					</th>
@@ -72,13 +95,19 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php $i = 0; ?>
 				<?php foreach ($posts as $post) { ?>
 				<tr>
+					<?php if (!$browse) { ?>
 					<td class="center">
 						<?php echo $this->html('table.checkbox', $i++, $post->id); ?>
 					</td>
+					<?php } ?>
 					
 					<td style="text-align:left;">
 						<?php if (empty($parentId)) { ?>
-							<a href="<?php echo $post->editLink; ?>"><?php echo $post->title; ?></a>
+							<?php if ($browse) { ?>
+								<a href="javascript:void(0);" onclick="parent.<?php echo $browseFunction; ?>('<?php echo $post->id;?>','<?php echo addslashes($this->escape($post->getTitle()));?>');"><?php echo $post->getTitle();?></a>
+							<?php } else { ?>
+								<a href="<?php echo $post->editLink; ?>"><?php echo $post->title; ?></a>
+							<?php } ?>
 						<?php } else { ?>
 							<?php echo $post->title; ?>
 						<?php } ?>
@@ -105,37 +134,39 @@ defined('_JEXEC') or die('Unauthorized Access');
 						</a>
 					</td>
 
-					<td class="center">
-						<?php echo $this->html('table.featured', 'posts', $post, 'featured'); ?>
-					</td>
-					<td class="center">
-						<?php echo $this->html('table.publish', $post, $i-1); ?>
-					</td>
+					<?php if (!$browse) { ?>
+						<td class="center">
+							<?php echo $this->html('table.featured', 'posts', $post, 'featured'); ?>
+						</td>
+						<td class="center">
+							<?php echo $this->html('table.publish', $post, $i-1); ?>
+						</td>
 
-					<td class="center">
-						<?php echo $post->cnt; ?>
-					</td>
+						<td class="center">
+							<?php echo $post->cnt; ?>
+						</td>
 
-					<td class="center">
-						<?php echo $post->hits; ?>
-					</td>
+						<td class="center">
+							<?php echo $post->hits; ?>
+						</td>
 
-					<td class="center">
-						<?php echo $post->sum_totalvote; ?>
-					</td>
+						<td class="center">
+							<?php echo $post->sum_totalvote; ?>
+						</td>
 
-					<td class="center">
-						<?php if ($post->user_id && $post->user_id != '0') {?>
-							<a href="index.php?option=com_easydiscuss&amp;view=user&amp;task=edit&amp;id=<?php echo $post->user_id;?>"><?php echo $post->creatorName; ?></a>
-						<?php } else { ?>
-							<?php echo $post->poster_name; ?>
-							&lt;<a href="mailto:<?php echo $post->poster_email;?>" target="_blank"><?php echo $post->poster_email; ?></a>&gt;
-						<?php } ?>
-					</td>
+						<td class="center">
+							<?php if ($post->user_id && $post->user_id != '0') {?>
+								<a href="index.php?option=com_easydiscuss&amp;view=user&amp;task=edit&amp;id=<?php echo $post->user_id;?>"><?php echo $post->getOwner()->getName(); ?></a>
+							<?php } else { ?>
+								<?php echo $post->poster_name; ?>
+								&lt;<a href="mailto:<?php echo $post->poster_email;?>" target="_blank"><?php echo $post->poster_email; ?></a>&gt;
+							<?php } ?>
+						</td>
 
-					<td class="center">
-						<?php echo $post->displayDate; ?>
-					</td>
+						<td class="center">
+							<?php echo $post->displayDate; ?>
+						</td>
+					<?php } ?>
 
 					<td class="center">
 						<?php echo $post->id; ?>
@@ -162,6 +193,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 		</table>
 	</div>
 
+	<?php if ($browse) { ?>
+	<input type="hidden" name="tmpl" value="component" />
+	<?php } ?>
+	
+	<input type="hidden" name="browse" value="<?php echo $browse;?>" />
+	<input type="hidden" name="browsefunction" value="<?php echo $browseFunction;?>" />
 	<input type="hidden" name="from" value="questions" />
 	<input type="hidden" name="move_category" value="" />
 	<input type="hidden" name="filter_order" value="<?php echo $order; ?>" />

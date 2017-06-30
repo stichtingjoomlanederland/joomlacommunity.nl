@@ -27,7 +27,7 @@
             {
                 "title": "COM_EASYDISCUSS_SIDEBAR_GENERAL",
                 "url": {
-                    "layout": ""
+                    "layout": "general"
                 }
             },
             {

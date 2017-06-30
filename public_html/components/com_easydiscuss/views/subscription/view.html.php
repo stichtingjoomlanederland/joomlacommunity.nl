@@ -17,6 +17,9 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 {
 	public function display($tpl = null)
 	{
+		// Ensure that the user is logged in
+		ED::requireLogin();
+
 		$registry = ED::registry();
 		$filter = $this->input->get('filter', 'post', 'word');
 

@@ -1,4 +1,4 @@
-ed.require(['edq'], function($) {
+ed.require(['edq', 'admin/src/table'], function($) {
 
 	$.Joomla('submitbutton', function(action) {
 

@@ -279,7 +279,7 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 		$this->panelTitle = JText::_($title);
 
 		// Set the title in Joomla as well
-		JToolBarHelper::title($this->panelTitle, $this->getName());
+		JToolBarHelper::title(JText::_('COM_EASYDISCUSS_DASHBOARD'));
 
 		// Always set the descripion unless caller explicitly want's to override this
 		$this->panelDescription = JText::_($title . '_DESC');

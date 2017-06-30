@@ -1,15 +1,15 @@
 ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
-    var checkRules = function(type) {
+	var checkRules = function(type) {
 
-        var value = type == 'yes' ? 1 : 0;
+		var value = type == 'yes' ? 1 : 0;
 
-        $('.btn-group-yesno .btn').removeClass('active');
-        $('.btn-group-yesno .btn-' + type).addClass('active');
+		$('.btn-group-yesno .btn').removeClass('active');
+		$('.btn-group-yesno .btn-' + type).addClass('active');
 
-        $('.btn-group-yesno input[type="hidden"]').val(value);
+		$('.btn-group-yesno input[type="hidden"]').val(value);
 
-    }
+	}
 
 	window.selectUser = function(id, name) {
 		$('#cid').val(id);
@@ -19,26 +19,25 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		$.Joomla('squeezebox').close();
 	}
 
-    $('[data-ed-acl-rule]').on('change', function() {
+	$('[data-ed-acl-rule]').on('change', function() {
+		var checked = $(this).is(':checked');
+		var parent = $(this).parents('[data-ed-acl-option]');
 
-        var value = $(this).val();
-        var parent = $(this).parents('[data-ed-acl-option]');
+		if (checked) {
 
-        if (value == "1") {
+			parent.find('[data-ed-acl-disallowed]')
+				.addClass('t-hidden');
 
-            parent.find('[data-ed-acl-disallowed]')
-                .addClass('t-hidden');
+			parent.find('[data-ed-acl-allowed]')
+				.removeClass('t-hidden');
 
-            parent.find('[data-ed-acl-allowed]')
-                .removeClass('t-hidden');
-
-            return;
-        }
-        
-        parent.find('[data-ed-acl-disallowed]')
-            .removeClass('t-hidden');
-            
-        parent.find('[data-ed-acl-allowed]')
-            .addClass('t-hidden');
-    });	
+			return;
+		}
+		
+		parent.find('[data-ed-acl-disallowed]')
+			.removeClass('t-hidden');
+			
+		parent.find('[data-ed-acl-allowed]')
+			.addClass('t-hidden');
+	});	
 });

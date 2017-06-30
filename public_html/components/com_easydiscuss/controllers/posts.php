@@ -27,10 +27,8 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	/**
 	 * This occurs when the user tries to create a new discussion or edits an existing discussion
 	 *
-	 * @since   4.0
+	 * @since   4.0.14
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function save()
 	{
@@ -1002,6 +1000,9 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 			ED::setMessage($post->getError(), 'error');
 			return $this->app->redirect($redirectUrl);
 		}
+
+		// Reset previous publish state to moderated before publishing. #168
+		$post->post->published = DISCUSS_ID_PENDING;
 
 		// Toggle publish state
 		$post->publish(1);

@@ -1,55 +1,33 @@
 <?php
 /**
-* @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
-* @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* @package      EasyDiscuss
+* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Unauthorized Access');
+defined('_JEXEC') or die('Restricted access');
 
 require_once dirname( __FILE__ ) . '/model.php';
 
 class EasyDiscussModelPriorities extends EasyDiscussAdminModel
 {
-	/**
-	 * Blogs data array
-	 *
-	 * @var array
-	 */
 	public $_data = null;
-
-	/**
-	 * Pagination object
-	 *
-	 * @var object
-	 */
 	public $_pagination = null;
-
-	/**
-	 * Configuration data
-	 *
-	 * @var int	Total number of rows
-	 **/
 	public $_total;
 
-	/**
-	 * Constructor
-	 *
-	 * @since 1.5
-	 */
 	public function __construct()
 	{
 		parent::__construct();
 
-		$mainframe 	= JFactory::getApplication();
+		$mainframe = JFactory::getApplication();
 
 		//get the number of events from database
-		$limit		= $mainframe->getUserStateFromRequest('com_easydiscuss.post_types.limit', 'limit', $mainframe->getCfg('list_limit') , 'int');
-		$limitstart	= JRequest::getVar('limitstart', 0, '', 'int');
+		$limit = $mainframe->getUserStateFromRequest('com_easydiscuss.post_priorities.limit', 'limit', $mainframe->getCfg('list_limit') , 'int');
+		$limitstart = JRequest::getVar('limitstart', 0, '', 'int');
 
 		$this->setState('limit', $limit);
 		$this->setState('limitstart', $limitstart);
@@ -58,11 +36,11 @@ class EasyDiscussModelPriorities extends EasyDiscussAdminModel
 	protected function _buildQuery()
 	{
 		// Get the WHERE and ORDER BY clauses for the query
-		$where		= $this->_buildQueryWhere();
-		$orderby	= $this->_buildQueryOrderBy();
-		$db			= DiscussHelper::getDBO();
+		$where = $this->_buildQueryWhere();
+		$orderby = $this->_buildQueryOrderBy();
+		$db = ED::db();
 
-		$query	= 'SELECT a.* FROM `#__discuss_priorities` AS a '
+		$query = 'SELECT a.* FROM `#__discuss_priorities` AS a '
 				. $where . ' '
 				. $orderby;
 
@@ -71,12 +49,12 @@ class EasyDiscussModelPriorities extends EasyDiscussAdminModel
 
 	protected function _buildQueryWhere()
 	{
-		$mainframe		= JFactory::getApplication();
-		$db				= DiscussHelper::getDBO();
+		$mainframe = JFactory::getApplication();
+		$db = ED::db();
 
-		$filter_state	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.post_types.filter_state', 'filter_state', '', 'word' );
-		$search			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.post_types.search', 'search', '', 'string' );
-		$search			= $db->getEscaped( trim(JString::strtolower( $search ) ) );
+		$filter_state = $mainframe->getUserStateFromRequest( 'com_easydiscuss.post_priorities.filter_state', 'filter_state', '', 'word' );
+		$search = $mainframe->getUserStateFromRequest( 'com_easydiscuss.post_priorities.search', 'search', '', 'string' );
+		$search = $db->getEscaped( trim(JString::strtolower( $search ) ) );
 
 
 		$where = array();
@@ -95,8 +73,7 @@ class EasyDiscussModelPriorities extends EasyDiscussAdminModel
 
 		if ($search)
 		{
-			$where[]	= 'LOWER(' . $db->nameQuote( 'title' ) . ') LIKE ' . $db->Quote( '%' . $search . '%' )
-						. 'OR LOWER(' . $db->nameQuote( 'alias' ) . ') LIKE ' . $db->Quote( '%' . $search . '%' );
+			$where[]	= 'LOWER(' . $db->nameQuote( 'title' ) . ') LIKE ' . $db->Quote( '%' . $search . '%' );
 		}
 
 		$where 		= ( count( $where ) ? ' WHERE ' . implode( ' AND ', $where ) : '' );
@@ -106,12 +83,12 @@ class EasyDiscussModelPriorities extends EasyDiscussAdminModel
 
 	protected function _buildQueryOrderBy()
 	{
-		$mainframe			= JFactory::getApplication();
+		$mainframe = JFactory::getApplication();
 
-		$filter_order		= $mainframe->getUserStateFromRequest( 'com_easydiscuss.customs.filter_order', 		'filter_order', 	'a.id', 'cmd' );
-		$filter_order_Dir	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.customs.filter_order_Dir',	'filter_order_Dir',		'', 'word' );
+		$filter_order = $mainframe->getUserStateFromRequest('com_easydiscuss.filter_order.filter_order', 'filter_order', 'a.id', 'cmd');
+		$filter_order_Dir = $mainframe->getUserStateFromRequest('com_easydiscuss.filter_order.filter_order_Dir', 'filter_order_Dir', '', 'word');
 
-		$orderby 			= ' ORDER BY '.$filter_order.' '.$filter_order_Dir;
+		$orderby = ' ORDER BY ' . $filter_order . ' ' . $filter_order_Dir;
 
 		return $orderby;
 	}
@@ -207,7 +184,7 @@ class EasyDiscussModelPriorities extends EasyDiscussAdminModel
 
 	public function setPostTagsBatch( $ids )
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		if( count( $ids ) > 0 )
 		{
@@ -263,7 +240,7 @@ class EasyDiscussModelPriorities extends EasyDiscussAdminModel
 		}
 
 
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		$query	= 'SELECT a.`id`, a.`title`, a.`alias`';
 		$query .= ' FROM `#__discuss_tags` AS a';
@@ -288,7 +265,7 @@ class EasyDiscussModelPriorities extends EasyDiscussAdminModel
 
 	public function add( $tagId , $postId , $creationDate )
 	{
-		$db				= DiscussHelper::getDBO();
+		$db				= ED::db();
 
 		$obj			= new stdClass();
 		$obj->tag_id	= $tagId;
@@ -300,7 +277,7 @@ class EasyDiscussModelPriorities extends EasyDiscussAdminModel
 
 	public function deletePostTag($postId)
 	{
-		$db	= DiscussHelper::getDBO();
+		$db	= ED::db();
 
 		$query	= ' DELETE FROM ' . $db->nameQuote('#__discuss_posts_tags')
 				. ' WHERE ' . $db->nameQuote('post_id') . ' =  ' . $db->quote($postId);

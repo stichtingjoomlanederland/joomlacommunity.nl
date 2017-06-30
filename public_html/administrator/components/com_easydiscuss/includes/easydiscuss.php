@@ -444,8 +444,6 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function setMessage($message, $type = 'info')
 	{
@@ -1780,65 +1778,68 @@ class ED
 	 * @param	boolean	$isWrite	Determine whether the categories list used in write new page or not.
 	 * @param	boolean	$isPublishedOnly	If this option is true, only published categories will fetched.
 	 * @param	array 	$exclusion	A list of excluded categories that it should not be including
+	 * @param	boolean $multiple	The select type (multi-selection)
 	 */
 
-	public static function populateCategories($parentId, $userId, $outType, $eleName, $default = false, $isWrite = false, $isPublishedOnly = false, $showPrivateCat = true , $disableContainers = false , $customClass = 'form-control', $exclusion = array(), $aclType = DISCUSS_CATEGORY_ACL_ACTION_VIEW, $sorting = false)
+	public static function populateCategories($parentId, $userId, $outType, $eleName, $default = false, $isWrite = false, $isPublishedOnly = false, $showPrivateCat = true, $disableContainers = false, $customClass = 'form-control', $exclusion = array(), $aclType = DISCUSS_CATEGORY_ACL_ACTION_VIEW, $sorting = false, $multiple = false, $containerOnly = false)
 	{
 		$model = ED::model('Categories');
 		$parentCat	= null;
 
 		if (!empty($userId)) {
+			// Only get parent categories created by this user
 			$parentCat = $model->getParentCategories($userId, 'poster', $isPublishedOnly, $showPrivateCat, $exclusion, $aclType, $sorting);
-
 		} else if (!empty($parentId)) {
+			// Get a specified parent category only
 			$parentCat = $model->getParentCategories($parentId, 'category', $isPublishedOnly, $showPrivateCat, $exclusion, $aclType, $sorting);
-
+		} else if ($containerOnly) {
+			$parentCat = $model->getCatContainer();
 		} else {
+			// Get all parent categories
 			$parentCat = $model->getParentCategories('', 'all', $isPublishedOnly, $showPrivateCat, $exclusion, $aclType, $sorting);
 		}
 
-		// If the result == null
+		// If no parent categories found, skip.
 		if (empty($parentCat)) {
 			return;
 		}
 
-		$ignorePrivate = false;
+		$ignorePrivate = true;
 
-		switch($outType) {
-			case 'link' :
-				$ignorePrivate = false;
-				break;
-			case 'select':
-			default:
-				$ignorePrivate = true;
-				break;
+		if ($outType == 'link') {
+			$ignorePrivate = false;
 		}
 
 		$selectACLOnly = false;
 
-		if ($isWrite) {
+		if ($isWrite && !JFactory::getApplication()->isAdmin()) {
 			$ignorePrivate = false;
 			$selectACLOnly = true;
 		}
 
-		if (!empty($parentCat)) {
+		for ($i = 0; $i < count($parentCat); $i++) {
 
-			for ($i = 0; $i < count($parentCat); $i++) {
+			$parent =& $parentCat[$i];
 
-				$parent =& $parentCat[$i];
+			$parent->childs = null;
 
-				//reset
-				$parent->childs = null;
-
+			// Get childs for this parent category
+			if (!$containerOnly) {
 				ED::buildNestedCategories($parent->id, $parent, $ignorePrivate, $isPublishedOnly, $showPrivateCat, $selectACLOnly, $exclusion, $sorting);
-			}//for $i
-		}//end if !empty $parentCat
+			}	
+
+		}
 
 		$formEle = '';
+		
+		if (!is_array($default)) {
+			$default = array($default);
+		}
 
+		// It is time to build the form
 		foreach ($parentCat as $category) {
 
-			$selected = ($category->id == $default) ? ' selected="selected"' : '';
+			$selected = (in_array($category->id, $default)) ? ' selected="selected"' : '';
 
 			if ($default === false) {
 				$selected = $category->default ? ' selected="selected"' : '';
@@ -1853,22 +1854,28 @@ class ED
 				$style = $disabled ? ' style="font-weight:700;"' : '';
 			}
 
-			$formEle .= '<option value="' . $category->id . '" ' . ' data-ed-move-post-category-id=' . $category->id . ' ' . $selected . $disabled . $style . '>' . JText::_( $category->title ) . '</option>';
+			// This is for parent categories
+			$formEle .= '<option value="' . $category->id . '" ' . ' data-ed-move-post-category-id=' . $category->id . ' ' . $selected . $disabled . $style . '>' . JText::_($category->title) . '</option>';
 
-			ED::accessNestedCategories($category, $formEle, '0', $default, $outType , '' , $disableContainers);
+			// This is for childs
+			ED::accessNestedCategories($category, $formEle, '0', $default, $outType, '', $disableContainers);
 		}
 
 		$selected = empty($default) ? ' selected="selected"' : '';
+		$multiple = $multiple ? 'multiple style="height:150px"' : '';
 
-		$html = '';
-		$html .= '<select name="' . $eleName . '" id="' . $eleName .'" class="' . $customClass . '">';
+		$html = '<select ' . $multiple . ' name="' . $eleName . '" id="' . $eleName .'" class="' . $customClass . '">';
 
-		if (!$isWrite)
-			$html .=	'<option value="0">' . JText::_('COM_EASYDISCUSS_SELECT_PARENT_CATEGORY') . '</option>';
-		else
-			$html .= '<option value="0" ' . $selected . '>' . JText::_('COM_EASYDISCUSS_SELECT_CATEGORY') . '</option>';
+		if (!$isWrite) {
+			$html .= '<option value="0">' . JText::_('COM_EASYDISCUSS_SELECT_PARENT_CATEGORY') . '</option>';
+		} else {
+			if (!$multiple) {
+				$html .= '<option value="0" ' . $selected . '>' . JText::_('COM_EASYDISCUSS_SELECT_CATEGORY') . '</option>';
+			}
+
 			$html .= $formEle;
 			$html .= '</select>';
+		}
 
 		return $html;
 	}
@@ -1882,13 +1889,13 @@ class ED
 
 		$childs	= $catsModel->getChildCategories($parentId, $isPublishedOnly, $showPrivate, $exclusion, $ordering);
 
-		$aclType = ( $selectACLOnly ) ? DISCUSS_CATEGORY_ACL_ACTION_SELECT : DISCUSS_CATEGORY_ACL_ACTION_VIEW;
+		$aclType = ($selectACLOnly) ? DISCUSS_CATEGORY_ACL_ACTION_SELECT : DISCUSS_CATEGORY_ACL_ACTION_VIEW;
 
 		$accessibleCatsIds = ED::getAccessibleCategories($parentId, $aclType);
 
 		if (!empty($childs)) {
 
-			for($j = 0; $j < count($childs); $j++) {
+			for ($j = 0; $j < count($childs); $j++) {
 				$child = $childs[$j];
 				$child->count = $catModel->getTotalPostCount($child->id);
 				$child->childs = null;
@@ -1916,102 +1923,90 @@ class ED
 				if (!ED::buildNestedCategories($child->id, $child, $ignorePrivate, $isPublishedOnly, $showPrivate, $selectACLOnly, $exclusion)) {
 					$parent->childs[] = $child;
 				}
-			}// for $j
-
-			// if (!empty($parent->childs)) {
-			// 	$parent->childs	= array_reverse($parent->childs);
-			// }
+			}
 		} else {
 			return false;
 		}
 	}
 
-	public static function accessNestedCategories($arr, &$html, $deep='0', $default='0', $type='select', $linkDelimiter = '' , $disableContainers = false )
+	public static function accessNestedCategories($arr, &$html, $deep='0', $default='0', $type='select', $linkDelimiter = '' , $disableContainers = false)
 	{
-		$config = ED::getConfig();
-		if(isset($arr->childs) && is_array($arr->childs))
-		{
-			$sup	= '<sup>|_</sup>';
-			$space	= '';
-			$ld		= (empty($linkDelimiter)) ? '>' : $linkDelimiter;
+		$config = ED::config();
 
-			if($type == 'select' || $type == 'list')
-			{
+		// Making sure this $default is an array()
+		if (!is_array($default)) {
+			$default = array($default);
+		}
+
+		if (isset($arr->childs) && is_array($arr->childs)) {
+			$sup = '<sup>|_</sup>';
+			$space = '';
+			$ld = (empty($linkDelimiter)) ? '>' : $linkDelimiter;
+
+			if ($type == 'select' || $type == 'list') {
 				$deep++;
-				for($d=0; $d < $deep; $d++)
-				{
+
+				for ($d=0; $d < $deep; $d++) {
 					$space .= '&nbsp;&nbsp;&nbsp;';
 				}
 			}
 
-			if($type == 'list' && !empty($arr->childs))
-			{
+			if ($type == 'list' && !empty($arr->childs)) {
 				$html .= '<ul>';
 			}
 
-			for($j	= 0; $j < count($arr->childs); $j++)
-			{
+			for ($j	= 0; $j < count($arr->childs); $j++) {
 				$child  = $arr->childs[$j];
 
-				switch($type)
-				{
+				switch ($type) {
 					case 'select':
-						$selected    = ($child->id == $default) ? ' selected="selected"' : '';
+						$selected = (in_array($child->id, $default)) ? ' selected="selected"' : '';
 
-						if( !$default )
-						{
-							$selected   = $child->default ? ' selected="selected"' : '';
+						if (!$default) {
+							$selected = $child->default ? ' selected="selected"' : '';
 						}
 
-						$disabled 		= '';
-						$style 			= '';
+						$disabled = '';
+						$style = '';
 
 						// @rule: Test if the category should just act as a container
-						if( $disableContainers )
-						{
-							$disabled	= $child->container	? ' disabled="disabled"' : '';
-							$style		= $disabled ? ' style="font-weight:700;"' : '';
+						if ($disableContainers) {
+							$disabled = $child->container ? ' disabled="disabled"' : '';
+							$style = $disabled ? ' style="font-weight:700;"' : '';
 						}
 
-						$html   	.= '<option value="'.$child->id.'" ' . $selected . $disabled . $style . '>' . $space . $sup . $child->title . '</option>';
+						$html .= '<option value="'.$child->id.'" ' . $selected . $disabled . $style . '>' . $space . $sup . $child->title . '</option>';
 						break;
 					case 'list':
-						$expand 	= !empty($child->childs)? '<span onclick="EasyDiscuss.$(this).parents(\'li:first\').toggleClass(\'expand\');">[+] </span>' : '';
-						$html 		.= '<li><div>' . $space . $sup . $expand . '<a href="' . DiscussRouter::getCategoryRoute( $child->id ) . '">' . $child->title . '</a> <b>(' . $child->count . ')</b></div>';
+						$expand = !empty($child->childs) ? '<span onclick="EasyDiscuss.$(this).parents(\'li:first\').toggleClass(\'expand\');">[+] </span>' : '';
+						$html .= '<li><div>' . $space . $sup . $expand . '<a href="' . EDR::getCategoryRoute($child->id) . '">' . $child->title . '</a> <b>(' . $child->count . ')</b></div>';
 						break;
 					case 'listlink':
-						$str = '<li><a href="' . DiscussRouter::getCategoryRoute( $child->id ) . '">';
-						$str   		.= (empty($html)) ? $child->title : $ld . '&nbsp;' . $child->title;
-						$str        .= '</a></li>';
-						$html   	.= $str;
+						$str = '<li><a href="' . EDR::getCategoryRoute($child->id) . '">';
+						$str .= (empty($html)) ? $child->title : $ld . '&nbsp;' . $child->title;
+						$str .= '</a></li>';
+						$html .= $str;
 						break;
 					default:
-						$str    	 = '<a href="' . DiscussRouter::getCategoryRoute( $child->id ) . '">';
-						//str   		.= (empty($html)) ? $child->title : $ld . '&nbsp;' . $child->title;
-						$str   		.= (empty($html)) ? $child->title : $ld . '&nbsp;' . $child->title;
-						$str        .= '</a></li>';
-						$html   	.= $str;
+						$str = '<a href="' . EDR::getCategoryRoute($child->id) . '">';
+						$str .= (empty($html)) ? $child->title : $ld . '&nbsp;' . $child->title;
+						$str .= '</a></li>';
+						$html .= $str;
 				}
 
-				if( !$config->get('layout_category_one_level', 0) )
-				{
-					ED::accessNestedCategories($child, $html, $deep, $default, $type, $linkDelimiter , $disableContainers );
+				if (!$config->get('layout_category_one_level', 0)) {
+					ED::accessNestedCategories($child, $html, $deep, $default, $type, $linkDelimiter, $disableContainers);
 				}
 
-
-				if($type == 'list')
-				{
+				if ($type == 'list') {
 					$html .= '</li>';
 				}
 			}
 
-			if($type == 'list' && !empty($arr->childs))
-			{
+			if ($type == 'list' && !empty($arr->childs)) {
 				$html .= '</ul>';
 			}
-		}
-		else
-		{
+		} else {
 			return false;
 		}
 	}
@@ -2020,7 +2015,7 @@ class ED
 	{
 		if(isset($arr->childs) && is_array($arr->childs))
 		{
-			//$modelSubscribe	= ED::model( 'Subscribe' );
+			//$modelSubscribe	= ED::model('Subscribe' );
 			//$subscribers	= $modelSubscribe->getSiteSubscribers('instant');
 
 			for($j = 0; $j < count($arr->childs); $j++)
@@ -4341,15 +4336,15 @@ class ED
 	}
 
 	/**
-	 * We cannot rely on $app->getTemplate() because we need to explicitly get the current default front end template.
+	 * Get current joomla template
 	 *
-	 * @since 4.0.9
+	 * @since 4.0
 	 * @access public
 	 */
-	public static function getCurrentTemplate()
+	public static function getCurrentTemplate($client = 'site')
 	{
-		$model = ED::model('Themes');
-		$template = $model->getDefaultJoomlaTemplate();
+		$assets = ED::assets();
+		$template = $assets->getJoomlaTemplate($client);
 
 		return $template;
 	}

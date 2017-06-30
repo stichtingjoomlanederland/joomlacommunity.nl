@@ -1,190 +1,190 @@
 .app-table {
-  // border: 1px solid @app-border-color;
-  border-collapse: separate;
-  // border-left: 0;
-  border-radius: @app-radius-base;
+	// border: 1px solid @app-border-color;
+	border-collapse: separate;
+	// border-left: 0;
+	border-radius: @app-radius-base;
 
-  > thead {
-    > tr {
-      > td,
-      > th {
-        // border-top: 1px solid lighten(@app-border-color, 10%);
-        border-bottom: 0px solid @app-border-color;
-        padding-top: 10px;
-        padding-bottom: 10px;
-      }
-    }
-  }
+	> thead {
+		> tr {
+			> td,
+			> th {
+				// border-top: 1px solid lighten(@app-border-color, 10%);
+				border-bottom: 0px solid @app-border-color;
+				padding-top: 10px;
+				padding-bottom: 10px;
+			}
+		}
+	}
 
-  > tbody {
-    > tr {
+	> tbody {
+		> tr {
 
-      > td,
-      > th {
-        // border-bottom: 1px solid @app-border-color;
-        padding-top: 10px;
-        padding-bottom: 10px;
-      }
-    }
-  }
+			> td,
+			> th {
+				// border-bottom: 1px solid @app-border-color;
+				padding-top: 10px;
+				padding-bottom: 10px;
+			}
+		}
+	}
 
-  > thead,
-  > tbody, 
-  > tfoot {
-    > tr {
-      > th,
-      > td {
-        &:first-child {
-          padding-left: @app-gutter-width;
+	> thead,
+	> tbody, 
+	> tfoot {
+		> tr {
+			> th,
+			> td {
+				&:first-child {
+					padding-left: @app-gutter-width;
 
-          input[type="radio"], 
-          input[type="checkbox"] {
-            margin: 0;
-          }
-        }
+					input[type="radio"], 
+					input[type="checkbox"] {
+						margin: 0;
+					}
+				}
 
-        &:last-child {
-          padding-right: @app-gutter-width; 
-        }
-      }
-    }
-  }
+				&:last-child {
+					padding-right: @app-gutter-width; 
+				}
+			}
+		}
+	}
 
-  a {
-    word-break: break-all;
-  }
+	a {
+		word-break: break-all;
+	}
 
-  @app-table-label-height: 24px;
-  @app-table-label-radius: @app-table-label-height / 2;
+	@app-table-label-height: 18px;
+	@app-table-label-radius: 9px;
 
-    .badge {
-        border-radius: @app-table-label-radius;
-        width: 32px;
-        height: @app-table-label-height;
-        line-height: @app-table-label-height;
-        padding: 0;
-        position: relative;
+		.badge {
+				border-radius: @app-table-label-radius;
+				width: @app-table-label-height;
+				height: @app-table-label-height;
+				line-height: @app-table-label-height;
+				padding: 0;
+				position: relative;
 
-        .fa {
-            line-height: inherit;
-            display: block;
-            color: #fff !important;
-        }
-    }
+				.fa {
+						line-height: inherit;
+						display: block;
+						color: #fff !important;
+				}
+		}
 
-  td.empty {
-    font-size: 18px;
-    font-weight: 500;
-    text-align: center;
-    padding: 60px 0;
+	td.empty {
+		font-size: 18px;
+		font-weight: 500;
+		text-align: center;
+		padding: 60px 0;
 
-    > i {
-      display: block;
-      font-size: 48px;
-      font-weight: normal;
-      margin-bottom: 20px;
-    }
-  }
+		> i {
+			display: block;
+			font-size: 48px;
+			font-weight: normal;
+			margin-bottom: 20px;
+		}
+	}
 
-  td.order {
-    font-size: 0;
+	td.order {
+		font-size: 0;
 
-    span,
-    input {
-      display: inline-block;
-      vertical-align: middle;
-    }
+		span,
+		input {
+			display: inline-block;
+			vertical-align: middle;
+		}
 
-    input.order-value {
-      border-radius: @app-table-label-radius;
-      background: #eee;
-      font-size: 12px;
-      
-      width: 34px;
-      height: @app-table-label-height;
-      line-height: @app-table-label-height;
+		input.order-value {
+			border-radius: @app-table-label-radius;
+			background: #eee;
+			font-size: 12px;
+			
+			width: 34px;
+			height: @app-table-label-height;
+			line-height: @app-table-label-height;
 
-      padding: 0;
-      margin: 0 10px 0 0;
-      text-align: center;
-      
-      box-shadow: none !important;
-      -moz-box-shadow: none !important;
-      -webkit-box-shadow: none !important;
-    }
+			padding: 0;
+			margin: 0 10px 0 0;
+			text-align: center;
+			
+			box-shadow: none !important;
+			-moz-box-shadow: none !important;
+			-webkit-box-shadow: none !important;
+		}
 
-    span {
-      background: #eee;
-      border: 1px solid #ccc;
-      width: 28px;
-      height: @app-table-label-height;
-      line-height: @app-table-label-height;
-      position: relative;
-      overflow: hidden;
+		span {
+			background: #eee;
+			border: 1px solid #ccc;
+			width: 28px;
+			height: @app-table-label-height;
+			line-height: @app-table-label-height;
+			position: relative;
+			overflow: hidden;
 
-      + span {
-        margin-left: -1px;
-      }
+			+ span {
+				margin-left: -1px;
+			}
 
-      a {
-        background: #fff;
-        border: 0;
-        border-radius: 0;
-        display: block;
-        line-height: @app-table-label-height - 2; // minus 2 for border up & down
-        height: @app-table-label-height - 2; // minus 2 for border up & down
-        padding: 0;
+			a {
+				background: #fff;
+				border: 0;
+				border-radius: 0;
+				display: block;
+				line-height: @app-table-label-height - 2; // minus 2 for border up & down
+				height: @app-table-label-height - 2; // minus 2 for border up & down
+				padding: 0;
 
-        i, 
-        i:before,
-        span,
-        span:before {
-          background: none;
-          border: 0;
-          font: normal normal normal 14px/1 FontAwesome;
-          line-height: @app-table-label-height - 2; // minus 2 for border up & down
-          height: @app-table-label-height - 2; // minus 2 for border up & down
-          display: block;
-          text-align: center;
-          font-size: 10px;
-          width: auto;
-          margin: 0;
-        }
-      }
+				i, 
+				i:before,
+				span,
+				span:before {
+					background: none;
+					border: 0;
+					font: normal normal normal 14px/1 FontAwesome;
+					line-height: @app-table-label-height - 2; // minus 2 for border up & down
+					height: @app-table-label-height - 2; // minus 2 for border up & down
+					display: block;
+					text-align: center;
+					font-size: 10px;
+					width: auto;
+					margin: 0;
+				}
+			}
 
-      &.order-up {
-        border-radius: @app-table-label-radius 0 0 @app-table-label-radius;
+			&.order-up {
+				border-radius: @app-table-label-radius 0 0 @app-table-label-radius;
 
-        i:before,
-        span:before {
-          content: "\f077";
-        }
-      }
+				i:before,
+				span:before {
+					content: "\f077";
+				}
+			}
 
-      &.order-down {
-        border-radius: 0 @app-table-label-radius @app-table-label-radius 0;
+			&.order-down {
+				border-radius: 0 @app-table-label-radius @app-table-label-radius 0;
 
-        i:before,
-        span:before {
-          content: "\f078";
-        }
-      }
-    }
-  }
+				i:before,
+				span:before {
+					content: "\f078";
+				}
+			}
+		}
+	}
 
-  &.table-hover {
-    > tbody > tr:hover > td {
-      background: #ffe;
-    }
-  }
+	&.table-hover {
+		> tbody > tr:hover > td {
+			background: #ffe;
+		}
+	}
 }
 
 .app-table-middle {
-  > tbody {
-    > tr {
-      > td {
-        vertical-align: middle;
-      }
-    }
-  }
+	> tbody {
+		> tr {
+			> td {
+				vertical-align: middle;
+			}
+		}
+	}
 }

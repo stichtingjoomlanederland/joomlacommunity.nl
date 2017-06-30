@@ -110,6 +110,8 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 		$db				= DiscussHelper::getDBO();
 
 		$filter_state	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.customs.filter_state', 'filter_state', '', 'word' );
+		$search = $mainframe->getUserStateFromRequest('com_easydiscuss.fields.search', 'search', '', 'string');
+		$search = $db->getEscaped(trim(JString::strtolower($search)));
 
 		$where = array();
 
@@ -123,6 +125,10 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 			{
 				$where[] = $db->nameQuote( 'a.published' ) . '=' . $db->Quote( '0' );
 			}
+		}
+
+		if ($search) {
+			$where[] = ' LOWER(' . $db->nameQuote('title') . ') LIKE \'%' . $search . '%\' ';
 		}
 
 		$where 		= ( count( $where ) ? ' WHERE ' . implode( ' AND ', $where ) : '' );

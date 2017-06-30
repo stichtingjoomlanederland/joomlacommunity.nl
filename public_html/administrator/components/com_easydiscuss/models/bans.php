@@ -142,7 +142,7 @@ class EasyDiscussModelBans extends EasyDiscussAdminModel
 		}
 
 		if ($search) {
-			$where[] = ' LOWER(userid) LIKE \'%' . $search . '%\' ';
+			$where[] = ' LOWER(' . $db->nameQuote('banned_username') . ') LIKE \'%' . $search . '%\' ';
 		}
 
 		$where = (count($where) ? ' WHERE ' . implode(' AND ', $where) : '');

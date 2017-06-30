@@ -93,10 +93,6 @@ class EasyDiscussModelReports extends EasyDiscussAdminModel
 		$db				= DiscussHelper::getDBO();
 
 		$filter_state	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.reports.filter_state', 'filter_state', '', 'word' );
-
-		$search			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.reports.search', 'search', '', 'string' );
-		$search			= $db->getEscaped( trim(JString::strtolower( $search ) ) );
-
 		$where = array();
 
 		$where[] = ' a.`isreport` = ' . $db->Quote('1');
@@ -111,11 +107,6 @@ class EasyDiscussModelReports extends EasyDiscussAdminModel
 			{
 				$where[] = $db->nameQuote( 'a.published' ) . '=' . $db->Quote( '0' );
 			}
-		}
-
-		if ($search)
-		{
-			$where[] = ' LOWER( a.`title` ) LIKE \'%' . $search . '%\' ';
 		}
 
 		$where 		= count( $where ) ? ' WHERE ' . implode( ' AND ', $where ) : '' ;

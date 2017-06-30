@@ -18,15 +18,15 @@ class EasyDiscussViewBans extends EasyDiscussAdminView
 {
 	public function display($tpl = null)
 	{
-		$state = $this->getUserState('bans.filter_state', 'filter_state', '*', 'word');
+		$state = $this->getUserState('com_easydiscuss.bans.filter_state', 'filter_state', '*', 'word');
 
 		// Search
-		$search = $this->getUserState('bans.search', 'search', '', 'string');
+		$search = $this->getUserState('com_easydiscuss.bans.search', 'search', '', 'string');
 		$search = trim(strtolower($search));
 
 		// Ordering
-		$order = $this->getUserState('bans.filter_order', 'filter_order', 'id', 'cmd');
-		$orderDirection = $this->getUserState('bans.filter_order_Dir', 'filter_order_Dir', 'asc', 'word');
+		$order = $this->getUserState('com_easydiscuss.bans.filter_order', 'filter_order', 'id', 'cmd');
+		$orderDirection = $this->getUserState('com_easydiscuss.bans.filter_order_Dir', 'filter_order_Dir', 'asc', 'word');
 
 		// Get data from the model
 		$model = ED::model('Bans', true);

@@ -9,6 +9,9 @@
 	<authorUrl>stackideas.com</authorUrl>
 	<version>4.0.0</version>
 	<description>This plugin adds a discussion at the bottom of the article allowing the articles to be linked to EasyDiscuss</description>
+	<languages>
+	    <language tag="en-GB">en-GB.plg_content_easydiscuss.ini</language>
+	</languages>
 	<files>
 		<filename plugin="easydiscuss">easydiscuss.php</filename>
 		<filename>index.html</filename>
@@ -21,8 +24,6 @@
 			<fieldset name="basic" addfieldpath="/administrator/components/com_easydiscuss/elements/fields">
 				<field type="textarea" rows="5" cols="20" name="allowed_components" label="Allow comments on component" description="Specify which components are allowed separated by a comma. Eg: com_content,com_easyblog" default="com_content,com_easyblog" />
 				<field type="modal_categories" name="category_storage" label="Where should the article be stored?" description="Select which category should the article be stored in." />
-				<field name="include_category" type="category" extension="com_content" multiple="true" size="10" default="all" label="Fetch articles from these categories" description="Select the category that you want the plugin to appear in." />
-				<field name="exclude_category" type="category" extension="com_content" multiple="true" size="10" label="Exclude articles from these categories" description="Select the category that you do not want the plugin to appear in." />
 				<field type="text" name="exclude_articles" label="Exclude article id's" description="Separate each article id with a comma e.g: 1,2,3. Leave blank to not exclude any articles" />
 				<field type="list" default="1" name="readmore_in_post" label="Show read more in post" description="If enabled, a read more link will be appended to the discussion post.">
 					<option value="1">Yes</option>
@@ -74,6 +75,12 @@
 					<option value="jomsocial">JomSocial</option>
 					<option value="easysocial">EasySocial</option>
 				</field>
+			</fieldset>
+
+			<fieldset name="joomla" addfieldpath="/administrator/components/com_easydiscuss/elements/fields">
+				<field name="noteJoomlaCategory" type="note" class="alert" label="Notes" description="This category inclusion/exclusion only applicable for Joomla Category." />
+				<field name="include_category" type="category" extension="com_content" multiple="true" size="10" default="all" label="Fetch articles from these categories" description="Select the category that you want the plugin to appear in." />
+				<field name="exclude_category" type="category" extension="com_content" multiple="true" size="10" label="Exclude articles from these categories" description="Select the category that you do not want the plugin to appear in." />
 			</fieldset>
 		</fields>
 	</config>

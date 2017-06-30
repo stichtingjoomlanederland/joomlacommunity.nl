@@ -97,7 +97,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		$badges = $profile->getBadges();
 
 		if ($viewType == 'replies') {
-			$posts	= $postsModel->getRepliesFromUser($profile->id);
+			$posts	= $postsModel->getRepliesFromUser($profile->id, 'lastreplied');
 		}
 
 		if ($viewType == 'unresolved') {
@@ -124,14 +124,14 @@ class EasyDiscussViewProfile extends EasyDiscussView
  		}
 
  		if ($viewType == 'favourites') {
- 			
+
 			$options = array(
 				'userId' => $profile->id,
 				'filter' => 'favourites'
 				);
 
 			// $posts = $model->getData(true, 'latest', null, 'favourites');
-			$posts = $postsModel->getDiscussions($options);			
+			$posts = $postsModel->getDiscussions($options);
 		}
 
 		$posts = ED::formatPost($posts);
@@ -178,7 +178,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		$favPosts = ED::formatPost($favPosts);
 
 		// Set page title
-		ED::setPageTitle($pageTitle, $paginationModel);				
+		ED::setPageTitle($pageTitle, $paginationModel);
 
 		$this->set('sort', $sort);
 		$this->set('pagination', $pagination);

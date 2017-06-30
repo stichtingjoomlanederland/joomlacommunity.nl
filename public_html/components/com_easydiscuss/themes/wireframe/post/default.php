@@ -33,10 +33,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 		<div class="o-col o-col--4">
 			<div class="ed-entry-action-bar__btn-group">
-				<a href="#respond" class="btn btn-default btn-xs t-mr--sm">
+				<a href="<?php echo JRequest::getURI();?>#respond" class="btn btn-default btn-xs t-mr--sm">
 					<?php echo JText::_('COM_EASYDISCUSS_ADD_A_REPLY');?>
 				</a>
-				<a href="#replies" class="btn btn-default btn-xs">
+				<a href="<?php echo JRequest::getURI();?>#replies" class="btn btn-default btn-xs">
 					<?php echo JText::_('COM_EASYDISCUSS_VIEW_REPLIES');?> (<span data-ed-post-reply-counter><?php echo $post->getTotalReplies(); ?></span>)
 				</a>
 			</div>
@@ -111,12 +111,9 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <?php } ?>
                 </div>
 
-                <?php if ($this->config->get('main_allowquestionvote') && $this->acl->allowed('vote_discussion')) { ?>
                 <div class="o-grid__cell o-grid__cell--auto-size">
                     <?php echo $this->output('site/post/default.vote', array('post' => $post)); ?>
                 </div>
-                <?php } ?>
-
             </div>
         </div>
 

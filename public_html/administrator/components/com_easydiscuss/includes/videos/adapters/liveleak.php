@@ -14,30 +14,29 @@ defined('_JEXEC') or die('Restricted access');
 
 class DiscussVideoLiveLeak
 {
-	private function getCode( $url )
+	private function getCode($url)
 	{
-		preg_match( '/view\?i=(.*)/i' , $url , $matches );
+		preg_match('/view\?i=(.*)/i', $url, $matches);
 
-		if( !empty( $matches ) )
-		{
+		if (!empty($matches)) {
 			return $matches[1];
 		}
 		
 		return false;
 	}
 	
-	public function getEmbedHTML( $url )
+	public function getEmbedHTML($url)
 	{
-		$code	= $this->getCode( $url );
+		$code = $this->getCode($url);
 
-		$config	= DiscussHelper::getConfig();
-		$width	= $config->get( 'bbcode_video_width' );
-		$height	= $config->get( 'bbcode_video_height' );
+		$config	= ED::config();
+		$width	= $config->get('bbcode_video_width');
+		$height	= $config->get('bbcode_video_height');
 		
-		if( $code )
-		{
-			return '<div class="ed-video ed-video--16by9"><object width="' . $width . '" height="' . $height . '"><param name="movie" value="http://www.liveleak.com/e/' . $code . '"></param><param name="wmode" value="transparent"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.liveleak.com/e/' . $code . '" type="application/x-shockwave-flash" wmode="transparent" allowscriptaccess="always" width="' . $width . '" height="' . $height . '"></embed></object></div>';
+		if ($code) {
+			return '<iframe width="' . $width . '" height="' . $height . '" src="https://www.liveleak.com/e/' . $code . '" frameborder="0" allowfullscreen></iframe>';
 		}
+
 		return false;
 	}
 }

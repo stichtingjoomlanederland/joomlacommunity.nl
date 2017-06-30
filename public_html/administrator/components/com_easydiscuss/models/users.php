@@ -299,33 +299,34 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 
 	public function _buildQueryWhere( $name = '' )
 	{
-		$mainframe		= JFactory::getApplication();
-		$db				= DiscussHelper::getDBO();
+		$mainframe = JFactory::getApplication();
+		$db = ED::db();
 
-		$config 		= DiscussHelper::getConfig();
-		$filter_state	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.users.filter_state', 'filter_state', '', 'word' );
-		$search			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.users.search', 'search', '', 'string' );
-		$search			= $db->getEscaped( trim(JString::strtolower( $search ) ) );
+		$config = DiscussHelper::getConfig();
+		$filter_state = $mainframe->getUserStateFromRequest( 'com_easydiscuss.users.filter_state', 'filter_state', '', 'word' );
+		$search = $mainframe->getUserStateFromRequest( 'com_easydiscuss.users.search', 'search', '', 'string' );
+		$search = $db->getEscaped( trim(JString::strtolower( $search ) ) );
 
 
 		// Sanity checks!!
-		$name 			= $db->getEscaped( $name );
+		$name = $db->getEscaped( $name );
 
-		$where			= array();
+		$where = array();
 
-		$where[]		= 'u.`block`=' . $db->Quote( 0 );
+		$where[] = 'u.`block`=' . $db->Quote( 0 );
 
-		if ($search)
-		{
-			$where[] = ' LOWER( name ) LIKE \'%' . $search . '%\' ';
-		}
-		elseif( !empty($name) )
-		{
 
-			$displayname	= $config->get('layout_nameformat');
+		if ($search) {
+			if ($mainframe->isAdmin()) {
+				$where[] = ' (LOWER(`name`) LIKE ' . $db->Quote('%' . $search . '%') . ') OR (LOWER(`username`) LIKE ' . $db->Quote('%' . $search . '%') . ')';
+			} else {
+				$where[] = ' (LOWER(`name`) LIKE ' . $db->Quote('%' . $search . '%') . ')';
+			}
+		} elseif (!empty($name)) {
 
-			switch($displayname)
-			{
+			$displayname = $config->get('layout_nameformat');
+
+			switch ($displayname) {
 				case "name" :
 					$where[] = ' LOWER( name ) LIKE \'%' . $name . '%\' ';
 					break;
@@ -342,9 +343,9 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 			// $where[] = ' LOWER( name ) LIKE \'%' . $name . '%\' ';
 		}
 
-		$where[]		= 'u.`id` != ' . $db->Quote( 0 );
+		$where[] = 'u.`id` != ' . $db->Quote( 0 );
 
-		$where		= ( count( $where ) ? ' WHERE ' . implode( ' AND ', $where ) : '' );
+		$where = ( count( $where ) ? ' WHERE ' . implode( ' AND ', $where ) : '' );
 
 		return $where;
 	}
@@ -424,6 +425,7 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 
 		$query = 'SELECT * FROM ' . $db->qn('#__users');
 		$query .= ' WHERE ' . $db->qn($field) . ' LIKE(' . $db->quote('%' . $search . '%') . ')';
+		$query .= ' AND ' . $db->qn('block') . ' = ' . $db->quote(0);
 
 		// Normalize the exclusion to ensure that the exclusion is an array
 		if (!is_array($excludeUsers) && $excludeUsers) {

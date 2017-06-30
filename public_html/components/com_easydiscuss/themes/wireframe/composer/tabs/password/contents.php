@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,15 +9,12 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Unauthorized Access');
-if ($operation == 'replying' || ($operation == 'editing' && $post->isReply()) || !$this->config->get('main_password_protection')) {
-    return;
-}
+defined('_JEXEC') or die('Restricted access');
 ?>
 <div id="password-<?php echo $editorId;?>" class="tab-pane ed-editor-tab__content">
-    <div class="ed-editor-tab__content-note">
-        <?php echo JText::_('COM_EASYDISCUSS_PASSWORD_TIPS'); ?>
-    </div>
+	<div class="ed-editor-tab__content-note">
+		<?php echo JText::_('COM_EASYDISCUSS_PASSWORD_TIPS'); ?>
+	</div>
 
-    <input type="text" name="password" value="<?php echo $post->password;?>" class="form-control" />
+	<input type="text" name="password" value="<?php echo $post->password;?>" class="form-control" />
 </div>

@@ -58,7 +58,6 @@ class EDR
 	public static function getTagRoute( $id = 0 , $xhtml = true , $ssl = null )
 	{
 		$url = self::_('view=tags&id=' . $id , $xhtml , $ssl);
-
 		return $url;
 	}
 
@@ -385,11 +384,12 @@ class EDR
 				case 'tags':
 
 					$menu = self::getMenus($view, $layout, $id, $lang);
+
 					if ($menu) {
 						$tmpId = $menu->id;
 					}
 
-					if ($tmpId) {
+					if ($tmpId && ($layout && $menu->layout == $layout) && $id) {
 						$dropSegment = true;
 					}
 

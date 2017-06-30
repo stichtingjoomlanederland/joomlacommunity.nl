@@ -401,6 +401,14 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 		$template->setVerb('reply');
 
+		// Store the reply permalink in params
+		// This needs to done here because we need to current total replies
+		$registry = ES::registry();
+		$registry->set('replyPermalink', $post->getReplyPermalink());
+
+		// Set the template params
+		$template->setParams($registry);
+
 		$template->setPublicStream('core.view');
 		$state = $stream->add($template);
 
@@ -935,7 +943,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		// Send notification e-mail to the target
 		$options = new stdClass();
 		$options->title = 'COM_EASYSOCIAL_EMAILS_GROUP_NEW_DISCUSSION_SUBJECT';
-		$options->template = 'apps/group/easydiscuss/discussion.create';
+		$options->template = 'site/group/discussion.create';
 		$options->params = $params;
 
 		// Set the system alerts

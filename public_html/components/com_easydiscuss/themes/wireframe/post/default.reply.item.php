@@ -83,9 +83,8 @@ defined('_JEXEC') or die('Restricted access');
 		<div data-ed-reply-editor></div>
 
 		<div class="o-row">
-			<?php if ($this->config->get('main_allowquestionvote')) { ?>
-				<?php echo $this->output('site/post/default.vote', array('post' => $post)); ?>
-			<?php } ?>
+			<?php echo $this->output('site/post/default.vote', array('post' => $post)); ?>
+
 			<div class="ed-reply-content">
 				<?php echo $post->getContent(); ?>
 			</div>

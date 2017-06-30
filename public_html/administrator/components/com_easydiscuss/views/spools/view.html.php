@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -20,8 +20,6 @@ class EasyDiscussViewSpools extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function display($tpl = null)
 	{
@@ -58,8 +56,6 @@ class EasyDiscussViewSpools extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function preview()
 	{
@@ -72,7 +68,9 @@ class EasyDiscussViewSpools extends EasyDiscussAdminView
 		$mailq = ED::table('Mailqueue');
 		$mailq->load($id);
 
-		echo $mailq->getBody();
+		$contents = $mailq->getBody();
+
+		echo $contents;
 		exit;
 	}
 

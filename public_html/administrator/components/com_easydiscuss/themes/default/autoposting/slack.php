@@ -36,6 +36,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 							<div class="col-md-7">
 								<?php echo $this->html('form.textbox', 'integrations_slack_webhook', $this->config->get('integrations_slack_webhook')); ?>
+								<div class="small">
+									<a href="https://stackideas.com/docs/easydiscuss/administrators/autoposting/slack-application" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_WHAT_IS_THIS');?></a>
+								</div>
 							</div>
 						</div>
 

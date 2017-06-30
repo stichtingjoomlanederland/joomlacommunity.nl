@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -42,8 +42,6 @@ class EasyDiscussAdminModel extends EasyDiscussAdminMainModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getStateFromRequest($name, $default, $filter)
 	{
@@ -58,13 +56,6 @@ class EasyDiscussAdminModel extends EasyDiscussAdminMainModel
 	{
 	}
 
-	/**
-	 * Stock method to auto-populate the model state.
-	 *
-	 * @return  void
-	 *
-	 * @since   12.2
-	 */
 	protected function populateState()
 	{
 		// Load the parameters.
@@ -72,4 +63,28 @@ class EasyDiscussAdminModel extends EasyDiscussAdminMainModel
 		$this->setState('params', $value);
 	}
 
+	/**
+	 * Used to split search fragments up
+	 *
+	 * @since	4.0.15
+	 * @access	public
+	 */
+	protected function getSearchFragments($query)
+	{
+		$fragments = explode(':', $query);
+
+		$search = new stdClass();
+
+		if (count($fragments) <= 1) {
+			$search->type = 'standard';
+			$search->query = $query;
+			
+			return $search;
+		}
+
+		$search->type = strtolower($fragments[0]);
+		$search->query = $fragments[1];
+		
+		return $search;
+	}
 }

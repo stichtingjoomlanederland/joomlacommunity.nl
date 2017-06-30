@@ -20,8 +20,6 @@ class EasyDiscussViewAsk extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function display($tpl = null)
 	{
@@ -157,7 +155,8 @@ class EasyDiscussViewAsk extends EasyDiscussView
 
 		// Get post types list
 		$postTypesModel = ED::model('PostTypes');
-		$postTypes = $postTypesModel->getTypes(true);
+		// $postTypes = $postTypesModel->getTypes($categoryId);
+		$postTypes = $postTypesModel->getPostTypes($categoryId);
 
 		// Get the composer library
 		$operation = $post->isNew() ? 'creating' : 'editing';

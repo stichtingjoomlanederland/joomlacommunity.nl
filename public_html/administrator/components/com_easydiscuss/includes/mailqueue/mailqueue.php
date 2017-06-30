@@ -49,10 +49,8 @@ class EasyDiscussMailQueue extends EasyDiscuss
 				$mailq = ED::table('MailQueue');
 				$mailq->load($mail->id);
 
-				$replyTo = 
-
 				$mail = JFactory::getMailer();
-				$state = $mail->sendMail($mailq->mailfrom, $mailq->fromname, $mailq->recipient, $mailq->subject, $mailq->body, $mailq->ashtml, $cc, $bcc, $attachment, $replyToEmail, $replyToName);
+				$state = $mail->sendMail($mailq->mailfrom, $mailq->fromname, $mailq->recipient, $mailq->subject, $mailq->getBody(), $mailq->ashtml, $cc, $bcc, $attachment, $replyToEmail, $replyToName);
 				
 				// update the status to 1 == proccessed
 				if ($state) {

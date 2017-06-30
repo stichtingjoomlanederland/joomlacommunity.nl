@@ -38,8 +38,6 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	protected function _buildQuery($frontend = false)
 	{
@@ -58,8 +56,6 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	protected function _buildQueryWhere($frontend = false)
 	{
@@ -75,6 +71,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 		// This is for frontend
 		if ($frontend) {
 			$where[] = $db->nameQuote('a.published') . '=' . $db->Quote('1');
+			$where[] = '(' . $db->qn('a.type') . '=' . $db->Quote('global') . ' OR ' . $db->qn('a.type') . '="")';
 		}
 
 		if ($filter_state) {
@@ -101,8 +98,6 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	protected function _buildQueryOrderBy()
 	{
@@ -119,10 +114,8 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 	/**
 	 * Retrieves the list of post types available.
 	 *
-	 * @since	4.0
+	 * @since	4.0.14
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getTypes($frontend = false)
 	{
@@ -141,7 +134,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 	}
 
 
-/**
+	/**
 	 * Total type
 	 *
 	 * @access public
@@ -197,6 +190,58 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 		}
 
 		return $this->_total;
+	}
+
+	/**
+	 * Retrieves the post types available on the ask form
+	 *
+	 * @since	4.0.14
+	 * @access	public
+	 */
+	public function getPostTypes($categoryId = null)
+	{
+		$db = ED::db();
+		$query = array();
+		
+		if (!is_null($categoryId)) {
+			$categoryId = (int) $categoryId;
+		}
+
+		$query[] = 'SELECT a.* FROM ' . $db->qn('#__discuss_post_types') . ' AS a';
+
+		if ($categoryId) {
+			$query[] = 'LEFT JOIN ' . $db->qn('#__discuss_post_types_category') . ' AS b';
+			$query[] = 'ON a.' . $db->qn('id') . ' = b.' . $db->qn('type_id');
+		}
+
+		$query[] = 'WHERE';
+		$query[] = 'a.' . $db->qn('published') . '=' . $db->Quote(1);
+		$query[] = 'AND';
+		$query[] = '(';
+		$query[] = 'a.' . $db->qn('type') . '=' . $db->Quote('global');
+		$query[] = 'OR';
+		$query[] = 'a.' . $db->qn('type') . '=' . $db->Quote('');
+	
+		if ($categoryId) {
+			$query[] = 'OR (';
+			$query[] = 'a.' . $db->qn('type') . '=' . $db->Quote('category');
+			$query[] = 'AND b.' . $db->qn('category_id') . ' = ' . $db->Quote($categoryId);
+			$query[] = ')';
+		}
+
+		$query[] = ')';
+
+		$query = implode(' ', $query);
+
+		// echo str_ireplace('#__', 'jos_', $query);
+		// exit;
+
+		$db->setQuery($query);
+		$types = $db->loadObjectList();
+
+		// dump($types);
+
+		return $types;
 	}
 
 	public function getSuffix($alias = null)
@@ -335,5 +380,61 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 		return $result;
 	}
 
+	/**
+	 * Creates the association for post types
+	 *
+	 * @since	4.0.14
+	 * @access	public
+	 */
+	public function createAssociation($postType, $categories = array())
+	{
+		if (!$categories) {
+			return;
+		}
 
+		// Delete existing items first
+		$db = ED::db();
+		$query = array();
+		$query[] = 'DELETE FROM ' . $db->qn('#__discuss_post_types_category');
+		$query[] = ' WHERE ' . $db->qn('type_id') . '=' . $db->Quote($postType->id);
+
+		$query = implode(' ', $query);
+		$db->setQuery($query);
+		$db->Query();
+
+		foreach ($categories as $categoryId) {
+			$id = (int) $categoryId;
+
+			$table = ED::table('PostTypesCategory');
+			$table->type_id = $postType->id;
+			$table->category_id = $id;
+			$table->store();
+		}
+		
+		return true;
+	}
+
+	/**
+	 * Retrieves a list of associated categories with the post type
+	 *
+	 * @since	4.0.14
+	 * @access	public
+	 */
+	public function getAssociatedCategories($postType)
+	{
+		$db = ED::db();
+		$query = array();
+
+		$query[] = 'SELECT b.* FROM ' . $db->qn('#__discuss_post_types_category') . ' AS a';
+		$query[] = 'LEFT JOIN ' . $db->qn('#__discuss_category') . ' AS b';
+		$query[] = 'ON a.' . $db->qn('category_id') . ' = b.' . $db->qn('id');
+		$query[] = 'WHERE a.' . $db->qn('type_id') . ' = ' . $db->Quote($postType->id);
+
+		$query = implode(' ', $query);
+		$db->setQuery($query);
+
+		$categories = $db->loadObjectList();
+
+		return $categories;
+	}
 }

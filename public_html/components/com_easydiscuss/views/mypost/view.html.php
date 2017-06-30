@@ -64,7 +64,7 @@ class EasyDiscussViewMypost extends EasyDiscussView
 			$dateString = str_ireplace('/', '-', $dateString);
 			$date = ED::date($dateString);
 
-			$postsTicks[] = $date->display('jS M');
+			$postsTicks[] = $date->display(JText::_('COM_EASYDISCUSS_DATE_DM'));
 		}
 
 		$postsCreated = json_encode($postsHistory->count);

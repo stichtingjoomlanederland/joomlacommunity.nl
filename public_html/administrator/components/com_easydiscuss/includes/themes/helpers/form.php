@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -18,8 +18,6 @@ class EasyDiscussThemesHelperForm
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function hidden($controller, $view = '', $task = '')
 	{
@@ -38,8 +36,6 @@ class EasyDiscussThemesHelperForm
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public static function editor($name, $selected = '')
 	{
@@ -61,8 +57,6 @@ class EasyDiscussThemesHelperForm
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public static function themes($name, $selected = "")
 	{
@@ -107,8 +101,6 @@ class EasyDiscussThemesHelperForm
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public static function label($label, $desc = '')
 	{
@@ -175,8 +167,6 @@ class EasyDiscussThemesHelperForm
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function dropdown($name, $items, $selected = '', $attributes = '')
 	{
@@ -192,19 +182,70 @@ class EasyDiscussThemesHelperForm
 	}
 
 	/**
+	 * Renders a dialog to browse for posts
+	 *
+	 * @since	4.0.14
+	 * @access	public
+	 */
+	public static function posts($name, $selected = null, $id = null)
+	{
+		if (is_null($id)) {
+			$id = $name;
+		}
+
+		$title = '';
+
+		if ($selected) {
+			$post = ED::post($selected);
+			$title = $post->getTitle();
+		}
+
+		$theme = ED::themes();
+		$theme->set('title', $title);
+		$theme->set('id', $id);
+		$theme->set('name', $name);
+		$theme->set('selected', $selected);
+
+		$output = $theme->output('admin/html/form/posts');
+
+		return $output;
+	}
+
+	/**
+	 * Renders a category dropdown
+	 *
+	 * @since	4.0.14
+	 * @access	public
+	 */
+	public static function categories($name, $selected = array(), $multiple = false)
+	{
+		$model = ED::model('Categories');
+		$categories = $model->getAllCategories();
+
+		if ($multiple) {
+			$name = $name . '[]';
+		}
+		
+		if (!is_array($selected)) {
+			$selected = array();
+		}
+
+		$theme = ED::themes();
+		$theme->set('name', $name);
+		$theme->set('multiple', $multiple);
+		$theme->set('selected', $selected);
+		$theme->set('categories', $categories);
+
+		$output = $theme->output('admin/html/form/categories');
+
+		return $output;
+	}
+
+	/**
 	 * Renders a Yes / No input.
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string			The key name for the input.
-	 * @param	bool			The value of the current item. Should be either false / true.
-	 * @param	string			The id of the input (Optional).
-	 * @param	string/array	The attributes to add to the select list.
-	 * @param	array			The tooltips data.
-	 *
-	 * @return	string	The html output.
-	 *
-	 * @author	Mark Lee <mark@stackideas.com>
 	 */
 	public static function boolean($name, $value, $id = '', $attributes = '', $tips = array() , $text = array() )
 	{
@@ -248,8 +289,6 @@ class EasyDiscussThemesHelperForm
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public static function getEditors()
 	{
@@ -284,8 +323,6 @@ class EasyDiscussThemesHelperForm
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public static function usergroups($name = 'gid' , $selected = '' , $exclude = array(), $checkSuperAdmin = false)
 	{

@@ -88,8 +88,8 @@ defined('_JEXEC') or die('Restricted access');
 								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_STORAGE_AMAZON_REGION'); ?>
 							</div>
 							<div class="col-md-7">
-								<?php echo $this->html('form.dropdown', 'amazon_region', array('us' => 'US Standard', 'us-west-2' => 'US West (Oregon)', 'us-west-1' => 'US West (Northern California)',
-														'eu-central-1' => 'EU Frankfurt', 'eu-west-1' => 'EU Ireland', 
+								<?php echo $this->html('form.dropdown', 'amazon_region', array('us' => 'US East (Northern Virginia)', 'us-east-2' => 'US East (Ohio)', 'us-west-2' => 'US West (Oregon)', 'us-west-1' => 'US West (Northern California)',
+														'eu-central-1' => 'EU Frankfurt', 'eu-west-1' => 'EU Ireland',
 														'ap-southeast-1' => 'Asia Pacific (Singapore)', 'ap-southeast-2' => 'Asia Pacific (Sydney)', 'ap-southeast-3' => 'Asia Pacific (Tokyo)',
 														'sa-east-1' => 'South America (Sau Paulo)'), $this->config->get('amazon_region')
 								);?>

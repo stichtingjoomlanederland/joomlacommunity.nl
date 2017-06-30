@@ -284,15 +284,17 @@ class EasyDiscussString extends EasyDiscuss
 	 *
 	 * @since	4.0.6
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function replaceUrl($tmp, $text)
 	{
 		$config = ED::config();
-		$pattern = '@(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))@';
 
-		preg_match_all($pattern, $tmp, $matches);
+		// Pattern to skip the url that are within the specific html tag. eg: <img src="www.url.com">.
+		$skipPattern = '<img[^>]*>(*SKIP)(*FAIL)|<script[^>]*>(*SKIP)(*FAIL)|<iframe[^>]*>(*SKIP)(*FAIL)';
+
+		$pattern = '@' . $skipPattern . '|(?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’])@i';
+
+		preg_match_all($pattern, $text, $matches);
 
 		$targetBlank = $config->get('main_link_new_window') ? ' target="_blank"' : '';
 		$noFollow = $config->get('main_link_rel_nofollow') ? ' rel="nofollow"' : '';
@@ -333,8 +335,11 @@ class EasyDiscussString extends EasyDiscuss
 			foreach($linksWithProtocols as $link) {
 
 				$mypattern = '[EDWURL' . $idx . ']';
+				$replacePattern = '@' . $skipPattern . '|(' . $link . ')@i';
 
-				$text = str_ireplace($link, $mypattern, $text);
+				$text = preg_replace($replacePattern, $mypattern, $text);
+
+				// $text = str_ireplace($link, $mypattern, $text);
 
 				$obj = new stdClass();
 				$obj->index = $idx;
@@ -354,7 +359,9 @@ class EasyDiscussString extends EasyDiscuss
 
 			foreach($linksWithoutProtocols as $link) {
 				$mypattern = '[EDWOURL' . $idx . ']';
-				$text = str_ireplace($link, $mypattern, $text);
+				$replacePattern = '@' . $skipPattern . '|(' . $link . ')@i';
+
+				$text = preg_replace($replacePattern, $mypattern, $text);
 
 				$obj = new stdClass();
 				$obj->index = $idx;
@@ -372,8 +379,7 @@ class EasyDiscussString extends EasyDiscuss
 		foreach ($linkArrays as $link) {
 			$text = str_ireplace($link->customcode, $link->newlink, $text);
 
-			// $patternReplace = '@(?<![.*">])\b(?:(?:https?|ftp|file)://|[a-z]\.)[-A-Z0-9+&#/%=~_|$?!:,.]*[A-Z0-9+&#/%=~_|$]@i';
-			$patternReplace = '/<img[^>]*>|<script[^>]*>(*SKIP)(*FAIL)|((?<!href=")((http|https):\/{2})+(([0-9a-z_-]+\.)+(aero|asia|biz|cat|com|coop|edu|gov|club|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cu|cv|cx|cy|cz|cz|de|dj|dk|dm|do|dz|ec|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mn|mn|mo|mp|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|nom|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ra|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw|arpa|live|today)(:[0-9]+)?((\/([~0-9a-zA-Z\#\!\=\+\%@\.\/_-]+))?(\?[0-9a-zA-Z\+\%@\/&\[\];=_-]+)?)?))\b/i';
+			$patternReplace = '/' . $skipPattern . '|((?<!href=")((http|https):\/{2})+(([0-9a-z_-]+\.)+(aero|asia|biz|cat|com|coop|edu|gov|club|info|int|jobs|mil|mobi|museum|name|net|org|pro|tel|travel|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cu|cv|cx|cy|cz|cz|de|dj|dk|dm|do|dz|ec|ee|eg|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mn|mn|mo|mp|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|nom|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ra|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|sj|sk|sl|sm|sn|so|sr|st|su|sv|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw|arpa|live|today)(:[0-9]+)?((\/([~0-9a-zA-Z\#\!\=\+\%@\.\/_-]+))?(\?[0-9a-zA-Z\+\%@\/&\[\];=_-]+)?)?))\b/i';
 
 			// Replace & to &amp; for the URL to work correctly. #48
 			// eg : https://site.com/discuss?sub=1&sub=2
@@ -382,10 +388,6 @@ class EasyDiscussString extends EasyDiscuss
 			// Use preg_replace to only replace if the URL doesn't has <a> tag
 			$text = preg_replace($patternReplace, '<a href="\0" ' . $targetBlank . $noFollow . '>\0</a>', $text);
 		}
-
-		// Not really sure why this is needed as it will cause some of the content to not rendered correctly.
-		// We will comment this out for now. References : #1878
-		// $text = JString::str_ireplace('&quot;', '"', $text);
 
 		return $text;
 	}

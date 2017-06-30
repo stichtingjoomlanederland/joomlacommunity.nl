@@ -58,7 +58,7 @@ defined('_JEXEC') or die('Restricted access');
 
 
 
-	<input type="hidden" class="easydiscuss-token" value="<?php echo DiscussHelper::getToken();?>" />
+	<input type="hidden" class="easydiscuss-token" value="<?php echo DiscussHelper::getToken();?>" data-ed-token />
 	<input type="hidden" name="pagelimit" id="pagelimit" value="<?php echo $params->get( 'items_count' ); ?>" />
 	<input type="hidden" name="total-responses" id="total-responses" value="<?php echo $totalReplies;?>" />
 

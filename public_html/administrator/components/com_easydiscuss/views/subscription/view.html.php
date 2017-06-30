@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -21,6 +21,9 @@ class EasyDiscussViewSubscription extends EasyDiscussAdminView
 
 		// Set page properties
 		$this->title('COM_EASYDISCUSS_SUBSCRIPTION');
+
+		JToolBarHelper::title(JText::_('COM_EASYDISCUSS_SUBSCRIPTION'), 'subscriptions');
+		JToolbarHelper::deleteList();
 
 		$filter = $this->getUserState('subscription.filter', 'filter', 'site', 'word');
 
@@ -47,12 +50,31 @@ class EasyDiscussViewSubscription extends EasyDiscussAdminView
 		parent::display('subscriptions/default');
 	}
 
-	public function registerToolbar()
+	/**
+	 * Renders the subscription form
+	 *
+	 * @since	4.0.14
+	 * @access	public
+	 */
+	public function form()
 	{
-		JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_SUBSCRIPTION' ), 'subscriptions' );
+		$this->checkAccess('discuss.manage.subscriptions');		
 
-		JToolBarHelper::custom( 'home', 'back', '', JText::_( 'COM_EASYDISCUSS_TOOLBAR_HOME' ), false);
-		JToolBarHelper::divider();
-		JToolbarHelper::deleteList();
+		// Set page properties
+		$this->title('COM_EASYDISCUSS_SUBSCRIPTION_FORM');
+
+		JToolBarHelper::title(JText::_('COM_EASYDISCUSS_SUBSCRIPTION'), 'subscriptions');
+		JToolbarHelper::apply();
+		JToolbarHelper::save();
+		JToolBarHelper::cancel();
+
+		$id = $this->input->get('id', 0, 'int');
+
+		$subscription = ED::table('Subscribe');
+		$subscription->load($id);
+
+		$this->set('subscription', $subscription);
+
+		parent::display('subscriptions/form/default');
 	}
 }

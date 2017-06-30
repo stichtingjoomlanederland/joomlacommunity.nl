@@ -216,7 +216,14 @@ class EasyDiscussRouter extends EasyDiscuss
 
 		// Tags view
 		if (isset($query['view']) && $query['view'] == 'tags') {
-			$segments[] = $query['view'];
+
+			// lets check if current menu item belong to tags view
+			$xQuery = $active->query;
+
+			if (isset($xQuery['view']) && $xQuery['view'] != 'tags') {
+				$segments[] = $query['view'];
+			}
+
 			unset($query['view']);
 
 			if (isset($query['id'])) {
@@ -405,8 +412,6 @@ class EasyDiscussRouter extends EasyDiscuss
 		// }
 
 
-        // var_dump($segments);
-
 		// If user chooses to use the simple sef setup, we need to add the proper view
 		if ($config->get('main_sef') == 'simple' || $config->get('main_sef') == 'category') {
 
@@ -417,6 +422,8 @@ class EasyDiscussRouter extends EasyDiscuss
 
 				$model = ED::model('Menu');
 				$catAliases = $model->getCategoryPermalinks();
+				$tagAliass = $model->getTagPermalinks();
+
                 $testItem = JString::str_ireplace(':', '-', $segments[$numSegments - 1]);
 
                 if (in_array($testItem, $catAliases)) {
@@ -425,7 +432,7 @@ class EasyDiscussRouter extends EasyDiscuss
 
                     // if the current active menu item is pointing to below views, means we now the current url most likely is a post url.
                     // thus, we need to exclude these views for later checking.
-                    $xViews = array('index', 'forums', 'post', 'categories');
+                    $xViews = array('index', 'forums', 'post', 'categories', 'tags');
                     $xView = isset($item->query['view']) && $item->query['view'] ? $item->query['view'] : '';
 
                     if ($numSegments >= 2) {
@@ -442,17 +449,31 @@ class EasyDiscussRouter extends EasyDiscuss
                             }
                         }
                     } else {
-
 						if ($item->component == 'com_easydiscuss' && $xView && !in_array($xView, $xViews)) {
 							array_unshift($segments, $xView);
 						} else {
-                        	// this is a post page
-                        	array_unshift($segments, 'post');
+                        	// we need further check if this is a post alias or not.
+                			if (in_array($testItem, $tagAliass)) {
+                        		array_unshift($segments, 'tags');
+                			} else {
+                				// this is a post
+                				array_unshift($segments, 'post');
+                			}
 						}
 
                     }
 
                 }
+			}
+		}
+
+		// lets check if we still have valid view or not at this points of time.
+		if (!in_array($segments[0], $views)) {
+			$numSegments = count($segments);
+			if ($numSegments == 1) {
+				// just use the view from the current active menu item.
+				$xView = isset($item->query['view']) && $item->query['view'] ? $item->query['view'] : '';
+				array_unshift($segments, $xView);
 			}
 		}
 

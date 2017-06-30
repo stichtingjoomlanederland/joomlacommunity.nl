@@ -18,8 +18,6 @@ class EasyDiscussThemesHelperPanel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public static function info($text)
 	{
@@ -36,10 +34,8 @@ class EasyDiscussThemesHelperPanel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
-	public static function head($header, $desc = '')
+	public static function heading($header, $desc = '')
 	{
 		if (!$desc) {
 			$desc = $header . '_DESC';
@@ -56,12 +52,21 @@ class EasyDiscussThemesHelperPanel
 	}
 
 	/**
+	 * @deprecated . Use panel.heading instead
+	 *
+	 * @since	4.0.14
+	 * @access	public
+	 */
+	public static function head($header, $desc = '')
+	{
+		return self::heading($header, $desc);
+	}
+
+	/**
 	 * Renders the popover html contents
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public static function popover($header, $desc = '')
 	{

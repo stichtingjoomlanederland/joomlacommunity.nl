@@ -2897,8 +2897,13 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		if (!empty($ordering)) {
 
-			if ($ordering == 'latest') {
-				$query	.= ' ORDER BY a.`created` DESC';
+			switch ($ordering) {
+				case 'latest':
+					$query	.= ' ORDER BY a.`created` DESC';
+					break;
+				case 'lastreplied':
+					$query	.= ' ORDER BY b.`replied` DESC';
+					break;
 			}
 		}
 

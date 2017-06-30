@@ -1,4 +1,4 @@
-ed.require(['edq', 'admin/src/reports'], function($, reports) {
+ed.require(['edq', 'admin/src/reports', 'admin/src/table'], function($, reports) {
 
 	reports.execute('[data-ed-reports]');
 

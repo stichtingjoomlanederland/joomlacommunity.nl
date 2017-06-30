@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,7 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 jimport('joomla.application.component.controller');
 
@@ -64,6 +64,12 @@ class EasyDiscussControllerPost_types extends EasyDiscussController
 		$this->save();
 	}
 
+	/**
+	 * Saves a post type
+	 *
+	 * @since	4.0.14
+	 * @access	public
+	 */
 	public function save()
 	{
 		ED::checkToken();
@@ -91,9 +97,20 @@ class EasyDiscussControllerPost_types extends EasyDiscussController
 
 		$postTypes->published = 1;
 
+		// Get the association
+		$postTypes->type = $this->input->get('type', 'global', 'word');
+
 		if ($postTypes->store()) {
 			//since we using the alias to join with discuss_posts.post_type, we need to update the value there as well.
 			$postTypes->updateTopicPostType($oldTitle);
+		}
+
+		// Create the necessary associations
+		if ($postTypes->type == 'category') {
+			$categories = $this->input->get('categories', array(), 'int');
+
+			$model = ED::model('PostTypes');
+			$model->createAssociation($postTypes, $categories);
 		}
 
 		// Get the current task
@@ -119,8 +136,6 @@ class EasyDiscussControllerPost_types extends EasyDiscussController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function remove()
 	{

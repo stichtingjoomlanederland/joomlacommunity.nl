@@ -405,6 +405,9 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 			return $this->app->redirect($redirectUrl);
 		}
 
+		// Reset previous publish state to moderated before publishing. #168
+		$post->post->published = DISCUSS_ID_PENDING;
+
 		// Toggle publish state
 		$post->publish(1);
 

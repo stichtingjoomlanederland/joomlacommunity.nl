@@ -77,6 +77,37 @@ class EasyDiscussModelMenu extends EasyDiscussAdminModel
         return $_categories;
 	}
 
+	/**
+	 * Retrieves all tags permalink links.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 * @param	string
+	 * @return
+	 */
+	public function getTagPermalinks()
+	{
+		static $_tags = null;
+
+		if (is_null($_tags)) {
+
+            $_tags = array();
+
+			$db = ED::db();
+
+            $query = "select `id`, `alias` from `#__discuss_tags`";
+	        $db->setQuery($query);
+
+            $results = $db->loadObjectList();
+
+            foreach ($results as $item) {
+                $_tags[] = ED::permalinkSlug($item->alias, $item->id);
+            }
+		}
+
+        return $_tags;
+	}
+
 
 	public function getCategoryTreeIds($parentId)
 	{

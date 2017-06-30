@@ -86,7 +86,55 @@ class plgContentEasyDiscuss extends JPlugin
 			return false;
 		}
 
+		if (!$this->categoryCheck($article)) {
+			return false;
+		}
+
 		$this->mapExisting($article);
+
+		return true;
+	}
+
+	/**
+     * Check for categories
+     *
+     * @since   4.0
+     * @access  public
+     * @param   string
+     * @return
+     */
+	public function categoryCheck($article)
+	{
+		// Only check for joomla article
+		if ($this->extension != 'com_content') {
+			return true;
+		}
+		
+		$params = $this->getParams();
+
+		// Check for category exclusion/inclusion
+		$excludedCategories = $params->get('exclude_category');
+
+		if (!is_array($excludedCategories)) {
+			$excludedCategories	= explode(',', $excludedCategories);
+		}
+
+		if (in_array($article->catid, $excludedCategories)) {
+			return false;
+		}
+
+		$allowedCategories = $params->get('include_category');
+
+		if ($allowedCategories || !empty($allowedCategories)) {
+
+			if (!is_array($allowedCategories)) {
+				$allowedCategories 	= explode(',', $allowedCategories);
+			}
+
+			if (!in_array($article->catid , $allowedCategories)) {
+				return false;
+			}
+		}
 
 		return true;
 	}
@@ -559,6 +607,11 @@ class plgContentEasyDiscuss extends JPlugin
 			return false;
 		}
 
+		// Ensure that the article contains contents
+		if ($this->extension == 'com_k2' && !$article->introtext && !$article->fulltext) {
+			return;
+		}
+		
 		// Since easyblog has their own unpublishing state, we need to respect it.
 		if ($this->extension == 'com_easyblog') {
 
@@ -630,7 +683,11 @@ class plgContentEasyDiscuss extends JPlugin
 
 		$data = array();
 
-		$data['category_id'] = $params->get('category_storage', 1);
+		// Only assign the category if the post is new
+		if ($isNew) {
+			$data['category_id'] = $params->get('category_storage', 1);
+		}
+
 		$data['title'] = $article->title;
 
 		// @rule: Set the creation date

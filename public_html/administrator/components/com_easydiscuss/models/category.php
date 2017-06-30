@@ -1072,8 +1072,10 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
     {
     	$db = ED::db();
 
-		$query  = 'SELECT `id` FROM `#__discuss_category` as b WHERE `parent_id` = ' . $db->Quote($catId);
-		$query .= " AND " . ED::category()->genCategoryAccessSQL('b.id', array(), DISCUSS_CATEGORY_ACL_ACTION_VIEW);
+		$query  = 'SELECT `id` FROM `#__discuss_category` as b';
+		$query .= ' WHERE `parent_id` = ' . $db->Quote($catId);
+		$query .= ' AND `published` = 1';
+		$query .= ' AND ' . ED::category()->genCategoryAccessSQL('b.id', array(), DISCUSS_CATEGORY_ACL_ACTION_VIEW);
 		$db->setQuery($query);
 
 		$categories = $db->loadObjectList();

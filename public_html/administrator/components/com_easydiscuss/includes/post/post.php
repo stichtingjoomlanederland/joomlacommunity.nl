@@ -1,8 +1,8 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -282,15 +282,38 @@ class EasyDiscussPost extends EasyDiscuss
 	}
 
 	/**
+	 * Check if vote is enabled or not
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function isVoteEnabled()
+	{
+		if ($this->isQuestion() && !$this->config->get('main_allowquestionvote')) {
+			return false;
+		}
+
+		if ($this->isReply() && !$this->config->get('main_allowvote')) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Determines if the current viewer can vote on this post
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canVote()
 	{
+		// Post is not exists
+		if (!$this->id) {
+			return false;
+		}
+
+		// Post under moderation
 		if ($this->isPending()) {
 			return false;
 		}
@@ -302,28 +325,40 @@ class EasyDiscussPost extends EasyDiscuss
 			return true;
 		}
 
-		if (!$this->my->id) {
-
-			if ($this->config->get('main_allowguest_vote_question') && $this->isQuestion()) {
-				return true;
-			}
-
-			if ($this->config->get('main_allowguest_vote_reply') && $this->isReply()) {
-				return true;
-			}
-
+		// Check if the global options is enabled
+		if (!$this->isVoteEnabled()) {
 			return false;
 		}
 
-		if ($this->config->get('main_allowquestionvote') && $this->isQuestion()) {
-			return true;
+		// Question voting
+		if ($this->isQuestion()) {
+
+			// Guest voting
+			if (!$this->my->id && !$this->config->get('main_allowguest_vote_question')) {
+				return false;
+			}
 		}
 
-		if ($this->config->get('main_allowvote') && $this->isReply()) {
-			return true;
+		// Reply voting
+		if ($this->isReply()) {
+
+			// Check for guest
+			if (!$this->my->id && !$this->config->get('main_allowguest_vote_reply')) {
+				return false;
+			}
 		}
 
-		return false;
+		// Check for self voting
+		if ($this->my->id == $this->user_id && !$this->config->get('main_allowselfvote')) {
+			return false;
+		}
+
+		// Lastly, check for acl permission
+		if (!$this->acl->allowed('vote_discussion')) {
+			return false;
+		}
+
+		return true;
 	}
 	/**
 	 * Determines if the user can feature this post
@@ -745,8 +780,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function bind($data = array(), $allowBindingId = false)
 	{
@@ -768,12 +801,6 @@ class EasyDiscussPost extends EasyDiscuss
 		// Bind posted parameters such as custom tab contents.
 		$this->bindParams($data);
 
-		// // If there is mod_post_category_id, means this is from module quick question
-		// if (isset($data['mod_post_topic_category_id'])) {
-		//     $this->post->category_id = $data['mod_post_topic_category_id'];
-		//     unset($data['mod_post_topic_category_id']);
-		// }
-
 		// Clean up the title
 		$allowedTags = explode(',', $this->config->get('main_allowed_tags'));
 		$allowedAttributes = explode(',', $this->config->get('main_allowed_attr'));
@@ -789,6 +816,26 @@ class EasyDiscussPost extends EasyDiscuss
 			$parent = $this->getParent();
 
 			$data['title'] = 'RE: ' . $parent->getTitle();
+		}
+
+		// Ensure that the user is really allowed to pick this post type
+		if ($this->post->post_type) {
+			$model = ED::model('PostTypes');
+			$postTypes = $model->getPostTypes($this->post->category_id);
+
+			if (!$postTypes) {
+				$this->post->post_type = '';
+			} else {
+				$types = array();
+
+				foreach ($postTypes as $postType) {
+					$types[] = $postType->alias;
+				}
+				
+				if (!in_array($this->post->post_type, $types)) {
+					$this->post->post_type = '';
+				}
+			}
 		}
 
 		// Need to update the module to send a content instead of quick_question_reply_content
@@ -849,7 +896,6 @@ class EasyDiscussPost extends EasyDiscuss
 
 		// Ensure that the posted content is respecting the correct values.
 		$this->post->content = $content;
-
 		$this->post->preview = $content;
 
 		// now we need to 'translate the content into preview mode so that frontend no longer need to do this heavy process'
@@ -898,7 +944,6 @@ class EasyDiscussPost extends EasyDiscuss
 			$this->post->ip = $ip;
 		}
 
-
 		return $state;
 
 	}
@@ -908,8 +953,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function publish($publish = true, $reject = null)
 	{
@@ -3066,8 +3109,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getTitle()
 	{
@@ -3201,6 +3242,7 @@ class EasyDiscussPost extends EasyDiscuss
 			// revert back the raw content into post->content;
 			$this->post->content = $raw;
 		} else {
+
 
 			$content = ED::badwords()->filter($this->post->preview);
 			$content = $this->formatContent($debug);
@@ -3723,13 +3765,11 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function preSave()
 	{
+		// Set all post to be published by default.
 		if ($this->isNew()) {
-			// Set all post to be published by default.
 			$this->post->published = DISCUSS_ID_PUBLISHED;
 		}
 
@@ -3751,15 +3791,15 @@ class EasyDiscussPost extends EasyDiscuss
 			$this->isModerate = true;
 		}
 
-		$post_type = 'post';
+		$postType = 'post';
 
 		if ($this->isReply()) {
-			$post_type = 'reply';
+			$postType = 'reply';
 		}
 
 		// @trigger: onBeforeSave
 		ED::events()->importPlugin('content');
-		ED::events()->onContentBeforeSave($post_type, $this->post, $this->isNew());
+		ED::events()->onContentBeforeSave($postType, $this->post, $this->isNew());
 	}
 
 	/**
@@ -3767,8 +3807,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function addReference()
 	{
@@ -3834,7 +3872,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 *
 	 */
 	public function bindAttachments()
 	{
@@ -3883,8 +3920,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function postSave()
 	{
@@ -3916,6 +3951,13 @@ class EasyDiscussPost extends EasyDiscuss
 		// Bind uploaded attachments
 		if ($this->acl->allowed('add_attachment') && $this->config->get('attachment_questions')) {
 			$this->bindAttachments();
+
+			// There is a possibility that we need to replace attachment tags
+			if ($this->post->content_type == 'bbcode') {
+				$preview = ED::parser()->replaceAttachmentsEmbed($this->post->preview, $this);
+				$this->post->preview = $preview;
+				$this->post->store();
+			}
 		}
 
 		if ($this->isReply()) {
@@ -4354,7 +4396,8 @@ class EasyDiscussPost extends EasyDiscuss
 		$emailData['postTitle'] = $this->post->title;
 		$emailData['comment'] = ED::parseContent($this->post->content);
 		$emailData['commentAuthor'] = $owner->getName($this->post->poster_name);
-		$emailData['postLink'] = EDR::getRoutedURL('view=post&id=' . $question->id . '#reply-' . $this->post->id, false, true);
+
+		$emailData['postLink'] =  EDR::getRoutedURL($this->getReplyPermalink(), false, true);
 
 		$emailContent = $this->post->content;
 
@@ -4396,7 +4439,7 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		// notify post owner.
-		$postOwnerId = $this->post->user_id;
+		$postOwnerId = $question->user_id;
 		$postOwner = ED::user($postOwnerId);
 		$ownerEmail = $postOwner->user->email;
 
@@ -4520,6 +4563,41 @@ class EasyDiscussPost extends EasyDiscuss
 	}
 
 	/**
+	 * Retrieve a reply permalink with limitstart
+	 *
+	 * @since   4.0
+	 * @access  public
+	 *
+	 */
+	public function getReplyPermalink()
+	{
+		$question = ED::post($this->post->parent_id);
+		
+		// Get the default reply sort
+		$replySort = $this->config->get('layout_replies_sorting');
+
+		// Get the replies limit per page
+		$replyLimit = $this->config->get('layout_replies_list_limit');
+
+		// if the sorting is latest first, we don't need to add limitstart to the url
+		if ($replySort == 'latest') {
+			$url = 'view=post&id=' . $question->id . '#reply-' . $this->post->id;
+		} else {
+			// Get the total replies for this question first
+			$totalReplies = $question->getTotalReplies();
+
+			// Calculate the limitstart for this reply
+			$pageCount = $totalReplies / $replyLimit;
+			$pageCount = ceil($pageCount) - 1;
+			$limitstart = $replyLimit * $pageCount;
+
+			$url = 'view=post&id=' . $question->id . '&limitstart=' . $limitstart . '#reply-' . $this->post->id;
+		}
+
+		return $url;
+	}
+
+	/**
 	 * Notify users.
 	 *
 	 * @since   4.0
@@ -4552,7 +4630,7 @@ class EasyDiscussPost extends EasyDiscuss
 							'type'      => DISCUSS_NOTIFICATIONS_REPLY,
 							'target'    => $participant,
 							'author'    => $this->post->user_id,
-							'permalink' => 'index.php?option=com_easydiscuss&view=post&id=' . $question->id . '#reply-' . $this->post->id,
+							'permalink' => 'index.php?option=com_easydiscuss&' . $this->getReplyPermalink(),
 							'anonymous' => $this->post->anonymous
 						));
 					$notification->store();
@@ -4632,6 +4710,7 @@ class EasyDiscussPost extends EasyDiscuss
 				// Notify site subscribers
 
 				if (($this->isNew() || $this->prevPostStatus == DISCUSS_ID_PENDING) && $this->isPublished() && !$this->config->get('notify_all')) {
+
 					if ($this->config->get('main_sitesubscription')) {
 						ED::Mailer()->notifySubscribers($emailData, array($this->my->email));
 					}
@@ -4657,7 +4736,7 @@ class EasyDiscussPost extends EasyDiscuss
 		// Notify thread owner if the post is being approved.
 		if ($this->prevPostStatus == DISCUSS_ID_PENDING) {
 			$emailData['owner_email'] = $this->getOwner()->getEmail();
-			$emailData['emailTemplate'] = 'email.subscription.site.approve';
+			$emailData['emailTemplate'] = 'email.post.approve';
 			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_QUESTION_ASKED_APPROVED', $this->post->title);
 
 			ED::Mailer()->notifyThreadOwner($emailData, array());
@@ -4666,7 +4745,7 @@ class EasyDiscussPost extends EasyDiscuss
 		// Notfy thread owner if the post is being rejected
 		if ($this->isRejected) {
 			$emailData['owner_email'] = $this->getOwner()->getEmail();
-			$emailData['emailTemplate'] = 'email.subscription.site.rejected';
+			$emailData['emailTemplate'] = 'email.post.rejected';
 			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_QUESTION_ASKED_REJECTED', $this->post->title);
 
 			ED::Mailer()->notifyThreadOwner($emailData, array());
@@ -4787,19 +4866,19 @@ class EasyDiscussPost extends EasyDiscuss
 			ED::easysocial()->notify($actionRule, $this, $question);
 
 			// Add logging for user.
-			ED::History()->log('easydiscuss.' . $actionRule, $this->my->id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_NEW_' . strtoupper($actionType), $this->post->title ), $this->post->id);
+			ED::History()->log('easydiscuss.' . $actionRule, $this->post->user_id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_NEW_' . strtoupper($actionType), $this->post->title ), $this->post->id);
 
-			ED::Badges()->assign('easydiscuss.' . $actionRule, $this->my->id);
-			ED::Points()->assign('easydiscuss.' . $actionRule, $this->my->id);
+			ED::Badges()->assign('easydiscuss.' . $actionRule, $this->post->user_id);
+			ED::Points()->assign('easydiscuss.' . $actionRule, $this->post->user_id);
 
 			// Assign badge for EasySocial
-			ED::EasySocial()->assignBadge('create.question', $this->my->id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_NEW_' . strtoupper($actionType), $this->post->title));
+			ED::EasySocial()->assignBadge('create.question', $this->post->user_id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_NEW_' . strtoupper($actionType), $this->post->title));
 
 			// assign new ranks.
-			ED::ranks()->assignRank($this->my->id, $this->config->get('main_ranking_calc_type'));
+			ED::ranks()->assignRank($this->post->user_id, $this->config->get('main_ranking_calc_type'));
 
 			// aup
-			ED::Aup()->assign(DISCUSS_POINTS_NEW_DISCUSSION, $this->my->id, $this->post->title);
+			ED::Aup()->assign(DISCUSS_POINTS_NEW_DISCUSSION, $this->post->user_id, $this->post->title);
 		}
 	}
 
@@ -4869,9 +4948,28 @@ class EasyDiscussPost extends EasyDiscuss
 		// // Execute all integration
 		$this->integrate();
 
+		// Trigger necessary plugins after save
+		$this->triggerAfterSave();
+
 		return $state;
 	}
 
+	/**
+	 * Triggers plugins after a blog post is saved
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function triggerAfterSave()
+	{
+		// Import plugins
+		JPluginHelper::importPlugin('finder');
+
+		$dispatcher = JDispatcher::getInstance();
+
+		// finder index
+		$dispatcher->trigger('onFinderAfterSave', array('com_easydiscuss.post', &$this, $this->isNew()));
+	}
 
 	/**
 	 * Updates the `read` status of a post for a particular user.
@@ -4976,8 +5074,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function formatContent($debug = false)
 	{

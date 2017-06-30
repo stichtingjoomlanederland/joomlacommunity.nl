@@ -25,7 +25,7 @@ class EasyDiscussViewCategories extends EasyDiscussView
 		$filter	= $this->input->get('filter', 'allposts', 'default');
 		$category = $this->input->get('category_id', 0, 'int');
 
-		$this->doc->link	= JRoute::_('index.php?option=com_easydiscuss&view=categories&layout=listing&category_id=' . $category);
+		$this->doc->link	= JRoute::_('index.php?option=com_easydiscuss&view=categories&layout=listings&category_id=' . $category);
 
 		$this->doc->setTitle($this->escape($this->doc->getTitle()));
 

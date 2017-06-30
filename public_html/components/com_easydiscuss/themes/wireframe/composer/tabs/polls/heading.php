@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,14 +9,10 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Unauthorized Access');
-
-if (($post->isQuestion() && !$this->config->get('main_polls')) || (($operation == 'replying' || $post->isReply()) && !$this->config->get('main_polls_replies'))) {
-    return;
-}
+defined('_JEXEC') or die('Restricted access');
 ?>
 <li>
-    <a href="#polls-<?php echo $editorId;?>" data-ed-toggle="tab">
-        <i class="fa fa-bar-chart"></i>&nbsp; <?php echo JText::_('COM_EASYDISCUSS_TAB_POLLS'); ?>
-    </a>
+	<a href="#polls-<?php echo $editorId;?>" data-ed-toggle="tab">
+		<i class="fa fa-bar-chart"></i>&nbsp; <?php echo JText::_('COM_EASYDISCUSS_TAB_POLLS'); ?>
+	</a>
 </li>

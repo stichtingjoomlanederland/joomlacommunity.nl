@@ -77,7 +77,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 
 				$comments = $commentsModel->getComments('all', 'all', $options);
 				$contents = '';
-				
+
 				$comments = KT::formatter('comment', $comments);
 
 				foreach($comments as &$comment) {
@@ -110,14 +110,14 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		}
 
  		if ($type == 'favourites') {
- 			
+
 			$options = array(
 				'userId' => $profileId,
 				'filter' => 'favourites'
 				);
 
 			// $posts = $model->getData(true, 'latest', null, 'favourites');
-			$posts = $model->getDiscussions($options);	
+			$posts = $model->getDiscussions($options);
 			$pagination	= $model->getPagination();
 		}
 
@@ -128,7 +128,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		}
 
 		if ($type == 'replies') {
-			$posts = $model->getRepliesFromUser($profileId);
+			$posts = $model->getRepliesFromUser($profileId, 'lastreplied');
 			$pagination	= $model->getPagination();
 		}
 
@@ -209,7 +209,7 @@ class EasyDiscussViewProfile extends EasyDiscussView
 				break;
 
 			case 'user-replies':
-				$data		= $model->getRepliesFromUser( $profileId );
+				$data		= $model->getRepliesFromUser( $profileId, 'lastreplied' );
 				$pagination	= $model->getPagination();
 				DiscussHelper::formatPost( $data );
 				break;

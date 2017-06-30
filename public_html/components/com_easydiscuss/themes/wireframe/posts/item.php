@@ -11,7 +11,7 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<div class="ed-post-item<?php echo $post->getHeaderClass();?>">
+<div class="ed-post-item<?php echo $post->getHeaderClass();?>" <?php echo $post->getPriority() ? 'style="border-left: 3px solid ' . $post->getPriority()->color . ';"' : '';?>>
     <div class="ed-post-item__hd">
 
         <div class="o-grid">
