@@ -131,7 +131,7 @@ class EasyDiscussControllerMaintenanceFinalize extends EasyDiscussSetupControlle
 	/**
 	 * Remove all old javascript files
 	 *
-	 * @since	5.0
+	 * @since	4.0.16
 	 * @access	public
 	 * @param	string
 	 * @return
@@ -141,18 +141,18 @@ class EasyDiscussControllerMaintenanceFinalize extends EasyDiscussSetupControlle
 		// Get the current installed version
 		$version = $this->getInstalledVersion();
 
+		$path = JPATH_ROOT . '/media/com_easydiscuss/scripts';
+		$sections = array('admin', 'site');
+
 		// Ignored files
 		$ignored = array('.svn', 'CVS', '.DS_Store', '__MACOSX');
 
-		$types = array('admin', 'composer', 'dashboard', 'module', 'site');
+		foreach ($sections as $section) {
+			$ignored[] = 'easydiscuss-basic-' . $version . '.js';
+			$ignored[] = 'easydiscuss-' . $version . '.js';
+			$ignored[] = 'core.js';
 
-		foreach ($types as $type) {
-			$ignored[] = $type . '-' . $version . '.static.min.js';
-			$ignored[] = $type . '-' . $version . '.static.js';
-			$ignored[] = $type . '-' . $version . '.optimized.min.js';
-			$ignored[] = $type . '-' . $version . '.optimized.js';
-
-			$files = JFolder::files(JPATH_ROOT . '/media/com_easydiscuss/scripts', $type . '-', false, true, $ignored);
+			$files = JFolder::files($path . '/' . $section, '.', false, true, $ignored);
 
 			if ($files) {
 				foreach ($files as $file) {

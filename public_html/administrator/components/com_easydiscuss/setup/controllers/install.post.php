@@ -69,6 +69,12 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 		// Now we need to update the #__update_sites row to include the api key as well as the domain
 		$this->updateJoomlaUpdater();
 
+		// Update the manifest_cache in #__extensions table
+		$this->updateManifestCache();
+
+		// Delete the Easydiscuss from the Updates table
+		$this->deleteUpdateRecord();
+
 		// Change the default value for new features and theme
 		// Only for 3.x-4.0
 		if ($this->isUpgradeFrom3x()) {
@@ -447,7 +453,7 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 	/**
 	 * Once the installation is completed, we need to update Joomla's update site table with the appropriate data
 	 *
-	 * @since	5.0.42
+	 * @since	4.0.14
 	 * @access	public
 	 */
 	public function updateJoomlaUpdater()
@@ -515,6 +521,60 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 		}
 
 		return true;
+	}
+
+	/**
+     * Update the manifest cache
+     *
+     * @since   4.0.14
+     * @access  public
+     * @param   string
+     * @return
+     */
+	public function updateManifestCache()
+	{	
+		$db = JFactory::getDBO();
+		$extensionId = $this->getExtensionId();
+		$manifest_details = JInstaller::parseXMLInstallFile(JPATH_ROOT. '/administrator/components/com_easydiscuss/easydiscuss.xml');
+		$manifest = json_encode($manifest_details);
+
+		// For some Joomla versions, there is no tables/Extension.php
+		// Hence, the JTable::getInstance('Extension') will return null
+		$table = JTable::getInstance('Extension');
+
+		if ($table) {
+			$exists = $table->load($extensionId);
+
+			if (!$exists) {
+				return false;
+			}
+
+			$table->manifest_cache = $manifest;
+			$table->store();
+		} else {
+			$query	= 'UPDATE '. $db->quoteName('#__extensions')
+					. ' SET ' . $db->quoteName('manifest_cache') . ' = ' . $db->Quote($manifest)
+					. ' WHERE ' . $db->quoteName('extension_id') . ' = ' . $db->Quote($extensionId);
+			$db->setQuery($query);
+			$db->query();
+		}
+	}
+
+	/**
+     * Delete record in updates table
+     *
+     * @since   4.0.14
+     * @access  public
+     * @param   string
+     * @return
+     */
+	public function deleteUpdateRecord()
+	{
+		$db = JFactory::getDBO();
+
+		$query = 'DELETE FROM ' . $db->quoteName('#__updates') . ' WHERE ' . $db->quoteName('extension_id') . '=' . $db->Quote($this->getExtensionId());
+		$db->setQuery($query);
+		$db->Query();
 	}
 
 	/**
