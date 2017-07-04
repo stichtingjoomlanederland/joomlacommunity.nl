@@ -995,10 +995,9 @@ class com_rsformInstallerScript
 			<?php } ?>
 			<?php } ?>
 		<?php } ?>
-		<h2>Changelog v1.52.13</h2>
+		<h2>Changelog v1.52.14</h2>
 		<ul class="version-history">
-			<li><span class="version-fixed">Fix</span> A Javascript error could be present on the page under certain conditions.</li>
-			<li><span class="version-fixed">Fix</span> Removed some Joomla! 2.5 workarounds.</li>
+			<li><span class="version-fixed">Fix</span> 'Multiple validation rules' did not work with custom validation rules.</li>
 		</ul>
 		<a class="com-rsform-button" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="com-rsform-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/21-rsform-pro-user-guide.html" target="_blank">Read the RSForm! Pro User Guide</a>

@@ -505,13 +505,15 @@ class RsformModelForms extends JModelLegacy
 	public function getFormList()
 	{
 		$return = array();
-
 		$formId = JFactory::getApplication()->input->getInt('formId');
+		$query = $this->_buildQuery();
 
-		$this->_db->setQuery("SELECT FormId, FormTitle FROM #__rsform_forms ORDER BY `".$this->getSortColumn()."` ".$this->getSortOrder());
+		$this->_db->setQuery($query);
 		$results = $this->_db->loadObjectList();
 		foreach ($results as $result)
+		{
 			$return[] = JHTML::_('select.option', $result->FormId, $result->FormTitle, 'value', 'text', $result->FormId == $formId);
+		}
 
 		return $return;
 	}

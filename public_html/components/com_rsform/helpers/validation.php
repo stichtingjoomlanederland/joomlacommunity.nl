@@ -297,7 +297,7 @@ class RSFormProValidations
 				$newData['VALIDATIONRULE']  = $function;
 				$newData['VALIDATIONEXTRA'] = !empty($extra->{$function}) ? $extra->{$function} : null;
 
-				if (!call_user_func_array('self::'.$function, array($value, $newData['VALIDATIONEXTRA'], $newData))) {
+				if (!call_user_func_array('static::'.$function, array($value, $newData['VALIDATIONEXTRA'], $newData))) {
 					return false;
 				}
 			}
