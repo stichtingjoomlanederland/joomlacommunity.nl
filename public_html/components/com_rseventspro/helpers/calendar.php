@@ -368,15 +368,15 @@ class RSEPROCalendar
 	
 	protected function _setMonths() {
 		$this->months = array(
-			'1' => JText::_('COM_RSEVENTSPRO_JANUARY'),
-			'2' => JText::_('COM_RSEVENTSPRO_FEBRUARY'),
-			'3' => JText::_('COM_RSEVENTSPRO_MARCH'),
-			'4' => JText::_('COM_RSEVENTSPRO_APRIL'),
-			'5' => JText::_('COM_RSEVENTSPRO_MAY'),
-			'6' => JText::_('COM_RSEVENTSPRO_JUNE'),
-			'7' => JText::_('COM_RSEVENTSPRO_JULY'),
-			'8' => JText::_('COM_RSEVENTSPRO_AUGUST'),
-			'9' => JText::_('COM_RSEVENTSPRO_SEPTEMBER'),
+			'01' => JText::_('COM_RSEVENTSPRO_JANUARY'),
+			'02' => JText::_('COM_RSEVENTSPRO_FEBRUARY'),
+			'03' => JText::_('COM_RSEVENTSPRO_MARCH'),
+			'04' => JText::_('COM_RSEVENTSPRO_APRIL'),
+			'05' => JText::_('COM_RSEVENTSPRO_MAY'),
+			'06' => JText::_('COM_RSEVENTSPRO_JUNE'),
+			'07' => JText::_('COM_RSEVENTSPRO_JULY'),
+			'08' => JText::_('COM_RSEVENTSPRO_AUGUST'),
+			'09' => JText::_('COM_RSEVENTSPRO_SEPTEMBER'),
 			'10' => JText::_('COM_RSEVENTSPRO_OCTOBER'),
 			'11' => JText::_('COM_RSEVENTSPRO_NOVEMBER'),
 			'12' => JText::_('COM_RSEVENTSPRO_DECEMBER')

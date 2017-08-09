@@ -407,6 +407,9 @@ class RSEventsProQuery
 					$end->modify('sunday next week');
 				}
 				
+				$end->setTime(23,59,59);
+				$end = $end->toSql();
+				
 				$where[] = $this->betweenQuery($start, $end);
 			} else if ($listType == 'thismonth') {
 				// List events from this month
@@ -717,6 +720,7 @@ class RSEventsProQuery
 			$value 		= $values[$i];
 			$extrac		= 0;
 			$extrat		= 0;
+			$not		= '';
 			
 			switch ($column) {
 				case 'locations':
@@ -751,8 +755,12 @@ class RSEventsProQuery
 				break;
 				
 				case 'notcontain':
-					$operator = 'NOT LIKE';
+					$operator = $column == 't.name' ? 'LIKE' : 'NOT LIKE';
 					$value	  = '%'.str_replace('%', '\%', $value).'%';
+					
+					if ($column == 't.name') {
+						$not = ' NOT';
+					}
 				break;
 				
 				case 'is':
@@ -760,7 +768,11 @@ class RSEventsProQuery
 				break;
 				
 				case 'isnot':
-					$operator = '<>';
+					$operator = ($column == 't.name' || $column == 'c.title') ? '=' : '<>';
+					
+					if ($column == 't.name' || $column == 'c.title') {
+						$not = ' NOT';
+					}
 				break;
 			}
 			
@@ -772,25 +784,9 @@ class RSEventsProQuery
 					$catwhere .= ' AND '.$db->qn('c.language').' IN ('.$db->q(JFactory::getLanguage()->getTag()).','.$db->q('*').')';
 				}
 				
-				if ($operator == '<>') {
-					$db->setQuery('SELECT '.$db->qn('tx.ide').', CONCAT(\',\', GROUP_CONCAT('.$db->qn('c.title').'), \',\') categs FROM '.$db->qn('#__rseventspro_taxonomy','tx').' LEFT JOIN '.$db->qn('#__categories','c').' ON '.$db->qn('c.id').' = '.$db->qn('tx.id').' WHERE '.$db->qn('tx.type').' = '.$db->q('category').' AND '.$db->qn('c.extension').' = '.$db->q('com_rseventspro').$catwhere.' GROUP BY '.$db->qn('tx.ide').' HAVING categs NOT LIKE '.$db->q('%'.$value.'%'));
-					if ($eventids = $db->loadColumn()) {
-						JArrayHelper::toInteger($eventids);
-						$where[] = $db->qn('e.id').' IN ('.implode(',',$eventids).')';
-					}
-				} else {
-					$where[] = $db->qn('e.id').' IN (SELECT '.$db->qn('tx.ide').' FROM '.$db->qn('#__rseventspro_taxonomy','tx').' LEFT JOIN '.$db->qn('#__categories','c').' ON '.$db->qn('c.id').' = '.$db->qn('tx.id').' WHERE '.$db->qn($column).' '.$operator.' '.$db->q($value).' AND '.$db->qn('tx.type').' = '.$db->q('category').' AND '.$db->qn('c.extension').' = '.$db->q('com_rseventspro').$catwhere.')';
-				}
+				$where[] = $db->qn('e.id').$not.' IN (SELECT '.$db->qn('tx.ide').' FROM '.$db->qn('#__rseventspro_taxonomy','tx').' LEFT JOIN '.$db->qn('#__categories','c').' ON '.$db->qn('c.id').' = '.$db->qn('tx.id').' WHERE '.$db->qn($column).' '.$operator.' '.$db->q($value).' AND '.$db->qn('tx.type').' = '.$db->q('category').' AND '.$db->qn('c.extension').' = '.$db->q('com_rseventspro').$catwhere.')';
 			} elseif ($extrat) {
-				if ($operator == '<>') {
-					$db->setQuery('SELECT '.$db->qn('tx.ide').', CONCAT(\',\', GROUP_CONCAT('.$db->qn('t.name').'), \',\') tags FROM '.$db->qn('#__rseventspro_taxonomy','tx').' LEFT JOIN '.$db->qn('#__rseventspro_tags','t').' ON '.$db->qn('t.id').' = '.$db->qn('tx.id').' WHERE '.$db->qn('tx.type').' = '.$db->q('tag').' GROUP BY '.$db->qn('tx.ide').' HAVING tags NOT LIKE '.$db->q('%'.$value.'%'));
-					if ($eventids = $db->loadColumn()) {
-						JArrayHelper::toInteger($eventids);
-						$where[] = $db->qn('e.id').' IN ('.implode(',',$eventids).')';
-					}
-				} else {
-					$where[] = $db->qn('e.id').' IN (SELECT '.$db->qn('tx.ide').' FROM '.$db->qn('#__rseventspro_taxonomy','tx').' LEFT JOIN '.$db->qn('#__rseventspro_tags','t').' ON '.$db->qn('t.id').' = '.$db->qn('tx.id').' WHERE '.$db->qn($column).' '.$operator.' '.$db->q($value).' AND '.$db->qn('tx.type').' = '.$db->q('tag').')';
-				}
+				$where[] = $db->qn('e.id').$not.' IN (SELECT '.$db->qn('tx.ide').' FROM '.$db->qn('#__rseventspro_taxonomy','tx').' LEFT JOIN '.$db->qn('#__rseventspro_tags','t').' ON '.$db->qn('t.id').' = '.$db->qn('tx.id').' WHERE '.$db->qn($column).' '.$operator.' '.$db->q($value).' AND '.$db->qn('tx.type').' = '.$db->q('tag').')';
 			} else {
 				$where[] = '('.$db->qn($column).' '.$operator.' '.$db->q($value).')';
 			}
