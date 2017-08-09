@@ -9,9 +9,6 @@
 
 namespace Akeeba\Engine\Driver\Query;
 
-use Awf\Database\QueryLimitable;
-use Awf\Database\QueryPreparable;
-
 /**
  * SQLite Query Building Class.
  *

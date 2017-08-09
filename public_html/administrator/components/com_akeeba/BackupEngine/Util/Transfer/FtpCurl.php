@@ -64,7 +64,28 @@ class FtpCurl extends Ftp implements TransferInterface
         }
     }
 
-    /**
+	/**
+	 * Save all parameters on serialization except the connection resource
+	 *
+	 * @return  array
+	 */
+	public function __sleep()
+	{
+		return array(
+			'host',
+			'port',
+			'username',
+			'password',
+			'directory',
+			'ssl',
+			'passive',
+			'timeout',
+			'skipPassiveIP',
+			'verbose',
+		);
+	}
+
+	/**
      * Returns a cURL resource handler for the remote FTP server
      *
      * @param   string  $remoteFile  Optional. The remote file / folder on the FTP server you'll be manipulating with cURL.

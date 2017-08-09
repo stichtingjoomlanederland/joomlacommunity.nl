@@ -32,7 +32,7 @@ class Dropbox2 extends Base
 	/** @var bool Are we using chunk uploads? */
 	private $chunked = false;
 
-	/** @var int Chunk size (Mb) */
+	/** @var int Chunk size (MB) */
 	private $chunk_size = 10;
 
 	public function __construct()

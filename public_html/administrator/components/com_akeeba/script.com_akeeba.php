@@ -165,6 +165,15 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
             'cli/akeeba-update.php',
 
 			// Outdated media files
+			'media/com_akeeba/icons/akeeba-48.png',
+			'media/com_akeeba/icons/akeeba-warning-48.png',
+			'media/com_akeeba/icons/arrow_small.png',
+			'media/com_akeeba/icons/error_small.png',
+			'media/com_akeeba/icons/ok_small.png',
+			'media/com_akeeba/icons/reload.png',
+			'media/com_akeeba/icons/scheduling-32.png',
+			'media/com_akeeba/icons/update.png',
+
 			'media/com_akeeba/js/akeebajq.js',
 			'media/com_akeeba/js/akeebajqui.js',
 			'media/com_akeeba/js/akeebaui.js',

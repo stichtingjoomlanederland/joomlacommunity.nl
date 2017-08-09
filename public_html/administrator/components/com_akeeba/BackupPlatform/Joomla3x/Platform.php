@@ -554,9 +554,14 @@ class Joomla3x extends BasePlatform
 		}
 		elseif (substr($driver, -5) == 'mysql')
 		{
-			// You really can't fix morons writing custom database drivers knowing jack shit about MySQL vs MySQLi but
-			// you can sure as heck work around them by FORCING MySQLi when the bastards tell you to use MySQL on a
-			// server that doesn't even have the bloody extension to begin with.
+			/**
+			 * Apparently there are some folks of dubious intelligence out there writing custom database drivers without
+			 * understanding or caring about the differences between mysql and mysqli drivers in PHP. They don't play
+			 * nice but I have my way to work around their ignorance, FORCING mysqli when they erroneously report mysql
+			 * on servers which no longer support this ancient, obsolete database connector. Of course the proper way
+			 * to address this would be having these folks fix their broken software but I think I'm asking for too
+			 * much. They know who they are, fa la la...
+			 */
 			if (!$hasMySQL)
 			{
 				return '\\Akeeba\\Engine\\Driver\\Mysqli';

@@ -14,7 +14,6 @@ namespace Akeeba\Engine\Dump\Native;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Backup\Admin\Controller\Log;
 use Akeeba\Engine\Dump\Base;
 use Akeeba\Engine\Factory;
 use Psr\Log\LogLevel;
@@ -1441,6 +1440,13 @@ class Mysql extends Base
 			$old_table_sql = $table_sql;
 		}
 
+		// Replace the table name with the abstract version.
+		// We have to quote the table name. If we don't we'll get wrong results. Imagine that you have a column whose name starts
+		// with the string literal of the table name itself.
+		// Example: table `poll`, column `poll_id` would become #__poll, #__poll_id
+		// By quoting before we make sure this won't happen.
+		$table_sql = str_replace($db->quoteName($table_name), $db->quoteName($table_abstract), $table_sql);
+
 		// Return dependency information only if dependency tracking is enabled
 		if (!$notracking)
 		{
@@ -1449,12 +1455,6 @@ class Mysql extends Base
 			// as well. On views and merge arrays, we have referenced tables
 			// by definition.
 			$dependencies = array();
-
-			// First, the table/view/merge table name itself:
-			// We have to quote the table name, otherwise if we have a column name that starts with the same name of the
-			// table we will have wrong results
-			// Example: table `poll`, columns `poll_id` will become #__poll, #__poll_id
-			$table_sql = str_replace($db->quoteName($table_name), $db->quoteName($table_abstract), $table_sql);
 
 			// Now, loop for all table entries
 			foreach ($this->table_name_map as $ref_normal => $ref_abstract)

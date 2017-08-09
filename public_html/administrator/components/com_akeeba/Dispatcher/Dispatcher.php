@@ -156,7 +156,7 @@ class Dispatcher extends BaseDispatcher
 		Platform::getInstance()->apply_quirk_definitions();
 
 		// Make sure we have a version loaded
-		@include_once($this->container->backEndPath . '/components/com_akeeba/version.php');
+		@include_once($this->container->backEndPath . '/version.php');
 
 		if (!defined('AKEEBA_VERSION'))
 		{

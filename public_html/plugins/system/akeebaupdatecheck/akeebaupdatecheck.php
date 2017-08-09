@@ -31,16 +31,15 @@ if (function_exists('eaccelerator_info'))
 		 * I know that this define seems pointless since I am returning. This means that we are exiting the file and
 		 * the plugin class isn't defined, so Joomla cannot possibly use it.
 		 *
-		 * LOL. That is how PHP works. Not how that GINORMOUS, STINKY PILE OF BULL CRAP called eAccelerator screws up
+		 * LOL. That is how PHP works. Not how that OBSOLETE, BROKEN PILE OF ROTTING BYTES called eAccelerator mangles
 		 * your code.
 		 *
 		 * That disgusting piece of bit rot will exit right after the return statement below BUT it will STILL define
 		 * the class. That's right. It ignores ALL THE CODE between here and the class declaration and parses the
-		 * class declaration o_O  Therefore the only way to actually NOT load the damn plugin when you are using it on
-		 * a server where a masturbating, lobotomized bonobo on meth has installed and enabled the tragic waste of
-		 * disk space called eAccelerator is to define a constant and use it to return from the constructor method,
-		 * therefore forcing PHP to return null instead of an object. This prompts Joomla to not do anything with the
-		 * plugin. Because screw you eAccelerator, that's why.
+		 * class declaration o_O  Therefore the only way to actually NOT load the  plugin when you are using it on
+		 * a server where an indescribable character posing as a sysadmin has installed and enabled eAccelerator is to
+		 * define a constant and use it to return from the constructor method, therefore forcing PHP to return null
+		 * instead of an object. This prompts Joomla to not do anything with the plugin.
 		 */
 		if (!defined('AKEEBA_EACCELERATOR_IS_SO_BORKED_IT_DOES_NOT_EVEN_RETURN'))
 		{

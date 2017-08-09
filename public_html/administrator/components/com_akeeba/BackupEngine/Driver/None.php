@@ -15,9 +15,6 @@ namespace Akeeba\Engine\Driver;
 defined('AKEEBAENGINE') or die();
 
 use Akeeba\Engine\Driver\Query\Base as QueryBase;
-use Akeeba\Engine\Driver\Query\Limitable;
-use Akeeba\Engine\Driver\Query\Preparable;
-use SQLite3;
 
 /**
  * Dummy driver class for flat-file CMS

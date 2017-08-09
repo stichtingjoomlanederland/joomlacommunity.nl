@@ -214,6 +214,11 @@ class FileFilters extends Model
 			}
 		}
 
+		if (!is_array($crumbs))
+		{
+			$crumbs = array();
+		}
+
 		array_walk($crumbs, function ($value, $index) {
 			if (in_array(trim($value), array('.', '..')))
 			{

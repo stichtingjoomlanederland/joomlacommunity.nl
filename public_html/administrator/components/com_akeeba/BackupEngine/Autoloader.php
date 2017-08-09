@@ -14,8 +14,6 @@ namespace Akeeba\Engine;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Platform;
-
 /**
  * The main class autoloader for AkeebaEngine
  */

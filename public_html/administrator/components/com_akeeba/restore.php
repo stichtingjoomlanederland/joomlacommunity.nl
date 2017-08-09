@@ -177,7 +177,7 @@ abstract class AKAbstractObject
 	private $_warnings = array();
 
 	/**
-	 * Public constructor, makes sure we are instanciated only by the factory class
+	 * Public constructor, makes sure we are instantiated only by the factory class
 	 */
 	public function __construct()
 	{
@@ -293,7 +293,7 @@ abstract class AKAbstractObject
 	 * Propagates errors and warnings to a foreign object. The foreign object SHOULD
 	 * implement the setError() and/or setWarning() methods but DOESN'T HAVE TO be of
 	 * AKAbstractObject type. For example, this can even be used to propagate to a
-	 * JObject instance in Joomla!. Propagated items will be removed from ourself.
+	 * JObject instance in Joomla!. Propagated items will be removed from ourselves.
 	 *
 	 * @param object $object The object to propagate errors and warnings to.
 	 */
@@ -386,7 +386,8 @@ abstract class AKAbstractObject
 				array_shift($this->_errors);
 			}
 		}
-		array_push($this->_errors, $error);
+
+		$this->_errors[] = $error;
 	}
 
 	/**
@@ -404,7 +405,7 @@ abstract class AKAbstractObject
 			}
 		}
 
-		array_push($this->_warnings, $warning);
+		$this->_warnings[] = $warning;
 	}
 
 	/**
@@ -518,9 +519,9 @@ abstract class AKAbstractPart extends AKAbstractObject
 	/**
 	 * The public interface to an engine part. This method takes care for
 	 * calling the correct method in order to perform the initialisation -
-	 * run - finalisation cycle of operation and return a proper reponse array.
+	 * run - finalisation cycle of operation and return a proper response array.
 	 *
-	 * @return    array    A Reponse Array
+	 * @return    array    A Response Array
 	 */
 	final public function tick()
 	{
@@ -755,7 +756,7 @@ abstract class AKAbstractPart extends AKAbstractObject
 	}
 
 	/**
-	 * Dettaches an observer object
+	 * Detaches an observer object
 	 *
 	 * @param AKAbstractPartObserver $obs
 	 */
@@ -1243,7 +1244,7 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
 	/**
 	 * Concrete classes must use this method to read the file header
 	 *
-	 * @return bool True if reading the file was successful, false if an error occured or we reached end of archive
+	 * @return bool True if reading the file was successful, false if an error occurred or we reached end of archive
 	 */
 	protected abstract function readFileHeader();
 
@@ -1251,7 +1252,7 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
 	 * Concrete classes must use this method to process file data. It must set $runState to AK_STATE_DATAREAD when
 	 * it's finished processing the file data.
 	 *
-	 * @return bool True if processing the file data was successful, false if an error occured
+	 * @return bool True if processing the file data was successful, false if an error occurred
 	 */
 	protected abstract function processFileData();
 
@@ -3255,7 +3256,7 @@ class AKPostprocHybrid extends AKAbstractPostproc
 		// Turn off error reporting
 		if (!defined('KSDEBUG'))
 		{
-			$oldErrorReporting = @error_reporting(E_NONE);
+			$oldErrorReporting = error_reporting(0);
 		}
 
 		// Get UNIX style paths
@@ -3731,7 +3732,7 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
 	/**
 	 * Concrete classes must use this method to read the file header
 	 *
-	 * @return bool True if reading the file was successful, false if an error occured or we reached end of archive
+	 * @return bool True if reading the file was successful, false if an error occurred or we reached end of archive
 	 */
 	protected function readFileHeader()
 	{
@@ -4102,7 +4103,7 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
 	 * Concrete classes must use this method to process file data. It must set $runState to AK_STATE_DATAREAD when
 	 * it's finished processing the file data.
 	 *
-	 * @return bool True if processing the file data was successful, false if an error occured
+	 * @return bool True if processing the file data was successful, false if an error occurred
 	 */
 	protected function processFileData()
 	{
@@ -4241,7 +4242,7 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
 			// Can we write to the file?
 			if (($outfp === false) && (!$ignore))
 			{
-				// An error occured
+				// An error occurred
 				debugMsg('Could not write to output file');
 				$this->setError(AKText::sprintf('COULDNT_WRITE_FILE', $this->fileHeader->realFile));
 
@@ -4345,7 +4346,7 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
 
 			if (($outfp === false) && (!$ignore))
 			{
-				// An error occured
+				// An error occurred
 				debugMsg('Could not write to output file');
 				$this->setError(AKText::sprintf('COULDNT_WRITE_FILE', $this->fileHeader->realFile));
 
@@ -4493,7 +4494,7 @@ class AKUnarchiverZIP extends AKUnarchiverJPA
 	/**
 	 * Concrete classes must use this method to read the file header
 	 *
-	 * @return bool True if reading the file was successful, false if an error occured or we reached end of archive
+	 * @return bool True if reading the file was successful, false if an error occurred or we reached end of archive
 	 */
 	protected function readFileHeader()
 	{
@@ -5367,7 +5368,7 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
 			// Can we write to the file?
 			if (($outfp === false) && (!$ignore))
 			{
-				// An error occured
+				// An error occurred
 				$this->setError(AKText::sprintf('COULDNT_WRITE_FILE', $this->fileHeader->realFile));
 
 				return false;
@@ -5414,7 +5415,7 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
 				AKFactory::get('kickstart.setup.ignoreerrors', false) || $this->isIgnoredDirectory($this->fileHeader->file);
 			if (($outfp === false) && (!$ignore))
 			{
-				// An error occured
+				// An error occurred
 				$this->setError(AKText::sprintf('COULDNT_WRITE_FILE', $this->fileHeader->realFile));
 
 				return false;
@@ -6032,10 +6033,10 @@ class AKText extends AKAbstractObject
 		'RESTACLEANUP'                    => 'Restoration and Clean Up',
 		'BTN_RUNINSTALLER'                => 'Run the Installer',
 		'BTN_CLEANUP'                     => 'Clean Up',
-		'BTN_SITEFE'                      => 'Visit your site\'s front-end',
-		'BTN_SITEBE'                      => 'Visit your site\'s back-end',
+		'BTN_SITEFE'                      => 'Visit your site\'s frontend',
+		'BTN_SITEBE'                      => 'Visit your site\'s backend',
 		'WARNINGS'                        => 'Extraction Warnings',
-		'ERROR_OCCURED'                   => 'An error occured',
+		'ERROR_OCCURED'                   => 'An error occurred',
 		'STEALTH_MODE'                    => 'Stealth mode',
 		'STEALTH_URL'                     => 'HTML file to show to web visitors',
 		'ERR_NOT_A_JPS_FILE'              => 'The file is not a JPA archive',
@@ -6495,7 +6496,7 @@ class AKText extends AKAbstractObject
  */
 class AKFactory
 {
-	/** @var   array  A list of instanciated objects */
+	/** @var   array  A list of instantiated objects */
 	private $objectlist = array();
 
 	/** @var   array  Simple hash data storage */
@@ -8272,24 +8273,32 @@ if (!defined('KICKSTART'))
 
 				$postproc = AKFactory::getPostProc();
 
-				// Rename htaccess.bak to .htaccess
-				if (file_exists($root . '/htaccess.bak'))
-				{
-					if (file_exists($root . '/.htaccess'))
-					{
-						$postproc->unlink($root . '/.htaccess');
-					}
-					$postproc->rename($root . '/htaccess.bak', $root . '/.htaccess');
-				}
+				/**
+				 * Should I rename the htaccess.bak and web.config.bak files back to their live filenames...?
+				 */
+				$renameFiles = AKFactory::get('kickstart.setup.renamefiles', true);
 
-				// Rename htaccess.bak to .htaccess
-				if (file_exists($root . '/web.config.bak'))
+				if ($renameFiles)
 				{
-					if (file_exists($root . '/web.config'))
+					// Rename htaccess.bak to .htaccess
+					if (file_exists($root . '/htaccess.bak'))
 					{
-						$postproc->unlink($root . '/web.config');
+						if (file_exists($root . '/.htaccess'))
+						{
+							$postproc->unlink($root . '/.htaccess');
+						}
+						$postproc->rename($root . '/htaccess.bak', $root . '/.htaccess');
 					}
-					$postproc->rename($root . '/web.config.bak', $root . '/web.config');
+
+					// Rename htaccess.bak to .htaccess
+					if (file_exists($root . '/web.config.bak'))
+					{
+						if (file_exists($root . '/web.config'))
+						{
+							$postproc->unlink($root . '/web.config');
+						}
+						$postproc->rename($root . '/web.config.bak', $root . '/web.config');
+					}
 				}
 
 				// Remove restoration.php

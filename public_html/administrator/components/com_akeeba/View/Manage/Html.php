@@ -334,7 +334,7 @@ JS;
 			return '-';
 		}
 
-		$units = array('b', 'Kb', 'Mb', 'Gb', 'Tb');
+		$units = array('b', 'KB', 'MB', 'GB', 'TB');
 		$unit  = floor(log($sizeInBytes, 2) / 10);
 
 		if ($unit == 0)

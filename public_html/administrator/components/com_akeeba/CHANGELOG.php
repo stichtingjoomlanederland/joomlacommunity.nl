@@ -1,4 +1,22 @@
 <?php die();?>
+Akeeba Backup 5.5.1
+================================================================================
+! The System - Backup on Update plugin may cause an error accessing the backend on some sites
+
+Akeeba Backup 5.5.0
+================================================================================
++ Prevent simultaneous use of ANGIE (restoration script) from two or more people / browsers
++ Workaround for Joomla! bug "Sometimes files are not copied on update"
++ Alphabetical sorting of engines and installation scripts in the Configuration page
++ Backup on Update: Show the status in the backend status bar (footer), with the ability to quickly toggle it off
++ Support for Google Storage native JSON API
+~ ANGIE for Joomla (restoration): Use alternate method to read the site's configuration, preventing PHP errors from getting in the way
+# [HIGH] Cannot change database prefix on restoration if the backup was taken with No Dependency Tracking enabled
+# [MEDIUM] Double slashes in the WebDAV path cause 0 byte uploads on some servers
+# [MEDIUM] Version information not loaded correctly (thanks Joe F.!)
+# [LOW] Notice thrown converting memory_limit to bytes under PHP 7.1
+# [LOW] Workaround for Joomla! bug 16147 (https://github.com/joomla/joomla-cms/issues/16147) - Cannot access component after installation when cache is enabled
+
 Akeeba Backup 5.4.0
 ================================================================================
 # [HIGH] Resuming after error was broken when using the file storage for temporary files (default)
@@ -151,7 +169,7 @@ Akeeba Backup 5.1.3
 + Automatically handle unsupported database storage engines when restoring MySQL databases
 + Help buttons everywhere. No more excuses for not reading the fine manual.
 # [HIGH] Failure to upload to newly created Amazon S3 buckets
-# [MEDIUM] Import from S3 didn't work with API v4-only regions (Frankfurt, São Paulo)
+# [MEDIUM] Import from S3 didn't work with API v4-only regions (Frankfurt, S??o Paulo)
 # [LOW] The [WEEKDAY] variable in archive name templates returned the weekday number (e.g 1) instead of text (e.g. Sunday)
 # [LOW] Deleting the currently active profile would cause a white page / internal server error
 # [LOW] Chrome and other misbehaving browsers autofill the database username/password, leading to restoration failure if you're not paying very close attention. We are now working around these browsers.

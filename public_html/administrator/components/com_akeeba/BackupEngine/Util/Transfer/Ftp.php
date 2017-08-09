@@ -17,7 +17,7 @@ defined('AKEEBAENGINE') or die();
 /**
  * FTP transfer object, using PHP as the transport backend
  */
-class Ftp implements TransferInterface
+class Ftp implements TransferInterface, RemoteResourceInterface
 {
 	/**
 	 * FTP server's hostname or IP address
@@ -133,6 +133,26 @@ class Ftp implements TransferInterface
 			$this->timeout = max(1, (int) $options['timeout']);
 		}
 
+		$this->connect();
+	}
+
+	/**
+	 * Save all parameters on serialization except the connection resource
+	 *
+	 * @return  array
+	 */
+	public function __sleep()
+	{
+		return array('host', 'port', 'username', 'password', 'directory', 'ssl', 'passive', 'timeout');
+	}
+
+	/**
+	 * Reconnect to the server on unserialize
+	 *
+	 * @return  void
+	 */
+	public function __wakeup()
+	{
 		$this->connect();
 	}
 
@@ -544,5 +564,35 @@ class Ftp implements TransferInterface
 		asort($folders);
 
 		return $folders;
+	}
+
+	/**
+	 * Return a string with the appropriate stream wrapper protocol for $path. You can use the result with all PHP
+	 * functions / classes which accept file paths such as DirectoryIterator, file_get_contents, file_put_contents,
+	 * fopen etc.
+	 *
+	 * @param   string  $path
+	 *
+	 * @return  string
+	 */
+	public function getWrapperStringFor($path)
+	{
+		$passwordEncoded = urlencode($this->password);
+		$hostname        = $this->host . ($this->port ? ":{$this->port}" : '');
+		$protocol        = $this->ssl ? "ftps" : "ftp";
+
+		return "{$protocol}://{$this->username}:{$passwordEncoded}@{$hostname}{$path}";
+	}
+
+	/**
+	 * Return the raw server listing for the requested folder.
+	 *
+	 * @param   string  $folder        The path name to list
+	 *
+	 * @return  string
+	 */
+	public function getRawList($folder)
+	{
+		return ftp_rawlist($this->connection, $folder);
 	}
 }

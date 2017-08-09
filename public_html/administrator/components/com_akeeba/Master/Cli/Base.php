@@ -527,7 +527,7 @@ class AkeebaCliBase
 	 */
 	protected function formatByteSize($size)
 	{
-		$unit	 = array('b', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb');
+		$unit	 = array('b', 'KB', 'MB', 'GB', 'TB', 'PB');
 		return @round($size / pow(1024, ($i	= floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
 	}
 

@@ -94,7 +94,7 @@ class Transfer extends Model
 
 		$approximateSize = 2.5 * (float) $backup['size'];
 
-		$unit	 = array('b', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb');
+		$unit	 = array('b', 'KB', 'MB', 'GB', 'TB', 'PB');
 
 		return [
 			'size'   => $approximateSize,
@@ -940,7 +940,7 @@ class Transfer extends Model
 
 		if ($requiredSize['size'] > $freeSpace)
 		{
-			$unit	 = array('b', 'Kb', 'Mb', 'Gb', 'Tb', 'Pb');
+			$unit	 = array('b', 'KB', 'MB', 'GB', 'TB', 'PB');
 			$freeSpaceString = @round($freeSpace / pow(1024, ($i = floor(log($freeSpace, 1024)))), 2) . ' ' . $unit[$i];
 
 			throw new RuntimeException(JText::sprintf('COM_AKEEBA_TRANSFER_ERR_NOTENOUGHSPACE', $freeSpaceString, $requiredSize['string']));

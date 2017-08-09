@@ -98,7 +98,7 @@ class Dispatcher extends AdminDispatcher
 		Platform::getInstance()->load_version_defines();
 
 		// Make sure we have a version loaded
-		@include_once($this->container->backEndPath . '/components/com_akeeba/version.php');
+		@include_once($this->container->backEndPath . '/version.php');
 
 		if (!defined('AKEEBA_VERSION'))
 		{

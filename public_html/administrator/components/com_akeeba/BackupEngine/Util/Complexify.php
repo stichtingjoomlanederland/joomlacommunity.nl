@@ -272,7 +272,7 @@ class Complexify
 	 */
 	private function inBanlist($str)
 	{
-		if ($str === '')
+		if ($str == '')
 		{
 			return false;
 		}
