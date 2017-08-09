@@ -32,9 +32,7 @@ class JFormFieldModal_Categories extends JFormField
 			$this->value = array($this->value);
 		}
 
-		$name = $multiple ? $this->name . '[]' : $this->name;
-
-		$categories = ED::populateCategories('', '', 'select', $name, $this->value, true, false, true , false, '', '',  DISCUSS_CATEGORY_ACL_ACTION_SELECT, false, $multiple, $containersOnly);
+		$categories = ED::populateCategories('', '', 'select', $this->name, $this->value, true, false, true , false, '', '',  DISCUSS_CATEGORY_ACL_ACTION_SELECT, false, $multiple, $containersOnly);
 
 		ob_start();
 		echo $categories;

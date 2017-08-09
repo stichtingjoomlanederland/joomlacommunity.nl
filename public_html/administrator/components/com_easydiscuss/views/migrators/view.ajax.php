@@ -33,8 +33,13 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 				$migrator = ED::migrator()->getAdapter('kunena');
 				$resetHits = $this->input->get('resetHits', false, 'boolean');
 				$migrateSignature = $this->input->get('migrateSignature', false, 'boolean');
+				$replies = $this->input->get('replies', false, 'boolean');
 
-				$migrator->migrate($resetHits, $migrateSignature);
+				if ($replies) {
+					$migrator->migrateReplies();
+				} else {
+					$migrator->migrate($resetHits, $migrateSignature);
+				}
 
 		        break;
 

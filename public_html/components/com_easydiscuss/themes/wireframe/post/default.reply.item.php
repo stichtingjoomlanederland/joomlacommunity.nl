@@ -86,7 +86,7 @@ defined('_JEXEC') or die('Restricted access');
 			<?php echo $this->output('site/post/default.vote', array('post' => $post)); ?>
 
 			<div class="ed-reply-content">
-				<?php echo $post->getContent(); ?>
+				<?php echo $post->getContent(true); ?>
 			</div>
 
 			<div class="ed-post-widget-group t-lg-mb--lg">

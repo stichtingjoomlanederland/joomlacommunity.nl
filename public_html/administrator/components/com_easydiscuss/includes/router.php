@@ -80,8 +80,6 @@ class EDR
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function getForumsRoute($id = 0, $layout = '', $xhtml = true, $ssl = null)
 	{
@@ -103,8 +101,6 @@ class EDR
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function getReplyRoute($postId = 0, $replyId = '', $xhtml = true, $ssl = null)
 	{
@@ -136,8 +132,6 @@ class EDR
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function getGroupsRoute($id = 0, $layout = '', $xhtml = true, $ssl = null)
 	{
@@ -201,8 +195,6 @@ class EDR
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function _($url = '', $xhtml = true, $ssl = null)
 	{
@@ -304,129 +296,128 @@ class EDR
 		} else {
 
 			$defaultMenu = self::getMenus('index', null, null, $lang);
-			if (! $defaultMenu) {
+
+			if (!$defaultMenu) {
 				$defaultMenu = self::getMenus('forums', null, null, $lang);
 
-				if (! $defaultMenu) {
+				if (!$defaultMenu) {
 					// just return any menu item related to ED.
 					$defaultMenu = self::getMenus('any', null, null, $lang);
 				}
 			}
 
-			// let easydiscuss to determine the best menu itemid.
-			switch($view) {
+			// Let easydiscuss to determine the best menu itemid.
+			if ($view == 'index') {
+				$menu = self::getMenus($view, null, null, $lang);
+				if ($menu) {
+					$tmpId = $menu->id;
+				}
 
-				case 'index':
-					$menu = self::getMenus($view, null, null, $lang);
+				// if ($tmpId && (($menu->segments->category_id == $category_id) || (!$layout && !$category_id))) {
+				if ($tmpId) {
+					$dropSegment = true;
+				}
+			}
+
+			if ($view == 'forums') {
+				$menu = self::getMenus($view, $layout, $category_id, $lang);
+				if ($menu) {
+					$tmpId = $menu->id;
+				}
+
+				// if ($tmpId && (($menu->segments->category_id == $category_id) || (!$layout && !$category_id))) {
+				if ($tmpId && ($menu->segments->category_id == $category_id && !$layout)) {
+					$dropSegment = true;
+				} else if ($tmpId && (!$layout && !$category_id && !$menu->segments->category_id)) {
+					// echo $menu->link;
+					$dropSegment = true;
+				}
+			}
+
+			if ($view == 'categories') {
+				$menu = self::getMenus($view, $layout, $category_id, $lang);
+
+				if ($menu) {
+					$tmpId = $menu->id;
+				}
+
+				if ($tmpId) {
+					$dropSegment = true;
+				}
+			}
+
+			if ($view == 'users') {
+				$menu = self::getMenus($view, $layout, $id, $lang);
+				if ($menu) {
+					$tmpId = $menu->id;
+				}
+
+				if ($tmpId) {
+					$dropSegment = true;
+				}
+			}
+
+			if ($view == 'tags') {
+				$menu = self::getMenus($view, $layout, $id, $lang);
+
+				if ($menu) {
+					$tmpId = $menu->id;
+				}
+
+				if ($tmpId && ($layout && $menu->layout == $layout) && $id) {
+					$dropSegment = true;
+				}
+			}
+
+			if ($view == 'post') {
+
+				$menu = self::getMenus($view, $layout, $id, $lang);
+				if ($menu) {
+					$tmpId = $menu->id;
+				} else {
+					$post = ED::post($id);
+					$menu = self::getMenus('categories', 'listings', $post->category_id, $lang);
+
 					if ($menu) {
 						$tmpId = $menu->id;
 					}
+				}
+			}
 
-					// if ($tmpId && (($menu->segments->category_id == $category_id) || (!$layout && !$category_id))) {
-					if ($tmpId) {
-						$dropSegment = true;
-					}
+			if ($view == 'mypost') {
+				$menu = self::getMenus($view, $layout, $category_id, $lang);
 
-					break;
+				if ($menu) {
+					$tmpId = $menu->id;
+				}
 
+				if ($tmpId) {
+					$dropSegment = true;
+				}
+			}
 
-				case 'forums':
-					$menu = self::getMenus($view, $layout, $category_id, $lang);
-					if ($menu) {
-						$tmpId = $menu->id;
-					}
+			if ($view == 'subscription') {
+				$menu = self::getMenus($view, $layout, $category_id, $lang);
 
-					// if ($tmpId && (($menu->segments->category_id == $category_id) || (!$layout && !$category_id))) {
-					if ($tmpId && ($menu->segments->category_id == $category_id && !$layout)) {
-						$dropSegment = true;
-					} else if ($tmpId && (!$layout && !$category_id && !$menu->segments->category_id)) {
-						// echo $menu->link;
-						$dropSegment = true;
-					}
+				if ($menu) {
+					$tmpId = $menu->id;
+				}
 
-					break;
+				if ($tmpId) {
+					$dropSegment = true;
+				}
+			}
 
-				case 'categories':
+			if ($view == 'favourites') {
+				$menu = self::getMenus($view, $layout, $category_id, $lang);
 
-					// if (isset($category_id)) {
-					// 	$tmpId	= self::getItemIdByCategories( $category_id );
-					// } else {
-					// 	$tmpId	= self::getItemId( 'categories', '', true );
-					// }
+				if ($menu) {
+					$tmpId = $menu->id;
+				}
 
-					$menu = self::getMenus($view, $layout, $category_id, $lang);
-
-					if ($menu) {
-						$tmpId = $menu->id;
-					}
-
-					if ($tmpId) {
-						$dropSegment = true;
-					}
-
-					break;
-
-				case 'users':
-
-					// $tmpId	= self::getItemId( 'users', '', true );
-
-					$menu = self::getMenus($view, $layout, $id, $lang);
-					if ($menu) {
-						$tmpId = $menu->id;
-					}
-
-					if ($tmpId) {
-						$dropSegment = true;
-					}
-
-					break;
-
-				case 'tags':
-
-					$menu = self::getMenus($view, $layout, $id, $lang);
-
-					if ($menu) {
-						$tmpId = $menu->id;
-					}
-
-					if ($tmpId && ($layout && $menu->layout == $layout) && $id) {
-						$dropSegment = true;
-					}
-
-					break;
-
-				case 'post':
-					// $postId = $id;
-
-					// if( !empty($postId ) ) {
-
-					// 	$post = ED::post($postId);
-
-					// 	$tmpId	= self::getItemIdByDiscussion( $post->id );
-
-					// 	// we try to get the menu item base on category id
-					// 	if (empty($tmpId)) {
-					// 		$tmpId  = self::getItemIdByCategories( $post->category_id );
-					// 	}
-					// }
-
-					$menu = self::getMenus($view, $layout, $id, $lang);
-					if ($menu) {
-						$tmpId = $menu->id;
-					} else {
-						$post = ED::post($id);
-						$menu = self::getMenus('categories', 'listings', $post->category_id, $lang);
-
-						if ($menu) {
-							$tmpId = $menu->id;
-						}
-					}
-
-					// if ($tmpId) {
-					// 	$dropSegment = true;
-					// }
-
-					break;
+				if ($tmpId) {
+					$dropSegment = true;
+				}
 			}
 		}
 
@@ -672,19 +663,27 @@ class EDR
 		return $loaded[$id];
 	}
 
-	public static function getTagAlias( $id )
+	public static function getTagAlias($id)
 	{
 		static $loaded = array();
 
-		if (! isset($loaded[$id])) {
+		$idx = (int) $id;
 
-			$table	= ED::table('Tags');
-			$table->load($id);
+		$segments = explode(':', $id);
 
-			$loaded[$id] = ED::permalinkSlug($table->alias, $id);
+		if (! isset($loaded[$idx])) {
+
+			if (count($segments) > 1 && $segments[1]) {
+				$loaded[$idx] = ED::permalinkSlug($segments[1], $segments[0]);
+			} else {
+				$table	= ED::table('Tags');
+				$table->load($id);
+
+				$loaded[$idx] = ED::permalinkSlug($table->alias, $id);
+			}
 		}
 
-		return $loaded[$id];
+		return $loaded[$idx];
 	}
 
 

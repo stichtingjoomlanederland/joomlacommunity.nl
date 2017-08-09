@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -24,8 +24,6 @@ class EasyDiscussViewSearch extends EasyDiscussView
 
 		$post = $this->input->getArray('get');
 
-		// var_dump($post);
-
 		// Get the category?
 		$category = $this->input->get('category_id', 0, 'int');
 
@@ -35,8 +33,8 @@ class EasyDiscussViewSearch extends EasyDiscussView
 		$cats = array();
 		$tags = array();
 
-		$tagItems = array(); // for display
-		$catItems = array(); // for display
+		$tagItems = array();
+		$catItems = array();
 
 		if ($category) {
 			$cats[] = $category;
@@ -44,12 +42,16 @@ class EasyDiscussViewSearch extends EasyDiscussView
 
 		if ($catfilters) {
 			foreach($catfilters as $item) {
-				$cats[] = (int) $item;
+				$id = (int) $item;
+
+				$cats[] = $id;
+
+				$category = ED::table('Category');
+				$category->load($id);
 
 				$obj = new stdClass();
 				$obj->id = (int) $item;
-
-				$obj->title = JString::substr($item, Jstring::strpos($item, ':') + 1);
+				$obj->title = JText::_($category->title);
 
 				$catItems[] = $obj;
 
@@ -67,13 +69,17 @@ class EasyDiscussViewSearch extends EasyDiscussView
 		$tagfilters = $this->input->get('tags', array(), 'array');
 
 		if ($tagfilters) {
-			foreach($tagfilters as $item) {
-				$tags[] = (int) $item;
 
+			foreach($tagfilters as $item) {
+				$id = (int) $item;
+				$tags[] = $id;
+
+				$tag = ED::table('Tags');
+				$tag->load($id);
+				
 				$obj = new stdClass();
 				$obj->id = (int) $item;
-
-				$obj->title = JString::substr($item, Jstring::strpos($item, ':') + 1);
+				$obj->title = JText::_($tag->title);
 
 				$tagItems[] = $obj;
 			}
@@ -106,6 +112,7 @@ class EasyDiscussViewSearch extends EasyDiscussView
 				}
 			}
 		}
+
 
 		$this->set('query', $query);
 		$this->set('posts', $items);

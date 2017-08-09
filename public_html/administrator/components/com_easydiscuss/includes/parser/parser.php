@@ -41,7 +41,7 @@ class EasyDiscussParser extends EasyDiscuss
 						 '/\[b\](.*?)\[\/b\]/ims',
 						 '/\[i\](.*?)\[\/i\]/ims',
 						 '/\[u\](.*?)\[\/u\]/ims',
-						 '/\[img\]((http|https):\/\/([a-z0-9\%._\s\*_\/-]+)\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF))\[\/img]/ims',
+						 '/\[img\]((http|https):\/\/([a-z0-9\%._\s\*_\/+-]+)\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF))\[\/img]/ims',
 						 '/\[quote]([^\[\/quote\]].*?)\[\/quote\]/ims',
 						 '/\[quote](.*?)\[\/quote\]/ims'
 		);
@@ -86,10 +86,11 @@ class EasyDiscussParser extends EasyDiscuss
 		// Replace mentions
 		if ($this->config->get('main_mentions') && $this->my->id) {
 			$text = $this->replaceMentions($text);
-		}		
+		}
 
 		// Replace smileys before anything else
 		$text = $this->replaceSmileys($text);
+
 
 		return $text;
 	}
@@ -106,6 +107,10 @@ class EasyDiscussParser extends EasyDiscuss
 			return $text;
 		}
 
+		if (! $post->id) {
+			return $text;
+		}
+
 		// We cannot decode the htmlentities here or else, xss will occur!
 		preg_match_all('/\[attachment\](.*?)\[\/attachment\]/ims', $text, $matches);
 
@@ -118,14 +123,17 @@ class EasyDiscussParser extends EasyDiscuss
 		$i = 0;
 
 		foreach ($files as $title) {
+
 			$table = ED::table('Attachments');
 			$table->load(array('uid' => $post->id, 'title' => $title));
 
-			$attachment = ED::attachment($table);
-			$contents = $attachment->getEmbedCodes();
-			$code = $codes[$i];
+			if ($table->id) {
+				$attachment = ED::attachment($table);
+				$contents = $attachment->getEmbedCodes();
+				$code = $codes[$i];
 
-			$text = JString::str_ireplace($code, $contents, $text);
+				$text = JString::str_ireplace($code, $contents, $text);
+			}
 
 			$i++;
 		}
@@ -201,27 +209,55 @@ class EasyDiscussParser extends EasyDiscuss
 		preg_match_all('/\[url\=(.*?)\](.*?)\[\/url\]/ims', $text, $matches);
 
 		if (!empty($matches) && isset($matches[0]) && !empty($matches[0])) {
+
 			// Get the list of url tags
 			$urlTags = $matches[0];
 			$urls = $matches[1];
 			$titles = $matches[2];
-			$total = count($urlTags);
 
-			for ($i = 0; $i < $total; $i++) {
-				$url = $urls[$i];
+			$text = $this->processBBCodeURL($text, $urlTags, $urls, $titles);
+		}
 
-				// Ensure that the url doesn't contain " or ' or &quot;
-				$url = str_ireplace(array('"', "'", '&quot;'), '', $url);
+		// Further check if [url] tag still exists, eg [url]url.com[/url]
+		preg_match_all('/\[url\](.*?)\[\/url\]/ims', $text, $matches);
 
-				if (stristr($url, 'http://') === false && stristr($url, 'https://') === false && stristr($url, 'ftp://') === false) {
-					$url = 'http://' . $url;
-				}
+		if (!empty($matches) && isset($matches[0]) && !empty($matches[0])) {
 
-				$targetBlank = $this->config->get('main_link_new_window') ? ' target="_blank"' : '';
-				$noFollow = $this->config->get('main_link_rel_nofollow') ? ' rel="nofollow"' : '';
+			// Get the list of url tags
+			$urlTags = $matches[0];
+			$urls = $matches[1];
+			$titles = $matches[1];
 
-				$text = str_ireplace($urlTags[$i], '<a href="' . $url . '"' . $targetBlank . $noFollow .'>' . $titles[$i] . '</a>', $text);
+			$text = $this->processBBCodeURL($text, $urlTags, $urls, $titles);
+		}
+
+		return $text;
+	}
+
+	/**
+	 * Further processing for replaceBBCodeURL method
+	 *
+	 * @since	4.0.16
+	 * @access	private
+	 */
+	public function processBBCodeURL($text, $urlTags, $urls, $titles)
+	{
+		$total = count($urlTags);
+
+		for ($i = 0; $i < $total; $i++) {
+			$url = $urls[$i];
+
+			// Ensure that the url doesn't contain " or ' or &quot;
+			$url = str_ireplace(array('"', "'", '&quot;'), '', $url);
+
+			if (stristr($url, 'http://') === false && stristr($url, 'https://') === false && stristr($url, 'ftp://') === false) {
+				$url = 'http://' . $url;
 			}
+
+			$targetBlank = $this->config->get('main_link_new_window') ? ' target="_blank"' : '';
+			$noFollow = $this->config->get('main_link_rel_nofollow') ? ' rel="nofollow"' : '';
+
+			$text = str_ireplace($urlTags[$i], '<a href="' . $url . '"' . $targetBlank . $noFollow .'>' . $titles[$i] . '</a>', $text);
 		}
 
 		return $text;
@@ -356,6 +392,90 @@ class EasyDiscussParser extends EasyDiscuss
 	}
 
 	/**
+	 * Replace [tag] tag to make compatible with kunena content.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function processHideTag($content)
+	{
+		if ($this->my->guest) {
+			// remove content in [hide] tags
+			$content = preg_replace( '/\[hide\](.*?)\[\/hide\]/ms' , '' , $content);
+		} else {
+			$content = preg_replace( '/\[hide\](.*?)\[\/hide\]/ms' , '<div class="o-alert o-alert--info-o"><i>\1</i></div>' , $content);
+		}
+
+		return $content;
+	}
+
+	public function processSizeTag($content)
+	{
+		// BBCode to find...
+		$sizeSearch = array(
+			'/\[size=1](.*?)\[\/size\]/ims',
+			'/\[size=2](.*?)\[\/size\]/ims',
+			'/\[size=3](.*?)\[\/size\]/ims',
+			'/\[size=4](.*?)\[\/size\]/ims',
+			'/\[size=5](.*?)\[\/size\]/ims',
+			'/\[size=6](.*?)\[\/size\]/ims',
+			'/\[size=(.*?)](.*?)\[\/size\]/ims'
+			);
+
+		// And replace them by...
+		$sizeReplace = array(
+			'<span style="font-size:0.6em">\1</span>',
+			'<span style="font-size:0.8em">\1</span>',
+			'<span style="font-size:1.0em">\1</span>',
+			'<span style="font-size:1.2em">\1</span>',
+			'<span style="font-size:1.4em">\1</span>',
+			'<span style="font-size:1.8em">\1</span>',
+			'<span style="font-size:\1">\2</span>'
+		);
+
+		$content = preg_replace($sizeSearch, $sizeReplace , $content);
+		return $content;
+	}
+
+
+	/**
+	 * Replace [spoiler] tag to make compatible with kunena content.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function processSpoilerTag($content)
+	{
+		// We cannot decode the htmlentities here or else, xss will occur!
+		preg_match_all('/\[spoiler\](.*?)\[\/spoiler\]/ims', $content, $matches);
+
+		if (empty($matches) || !isset($matches[0]) || empty($matches[0])) {
+			// nothing found.
+			return $content;
+		}
+
+		$codes = $matches[0];
+		$contents = $matches[1];
+
+		$i = 0;
+
+		foreach ($codes as $code) {
+
+			$text = $contents[$i];
+
+			$theme = ED::themes();
+			$theme->set('content', $text);
+			$spoiler = $theme->output('site/post/default.spoiler');
+
+			$content = JString::str_ireplace($code, $spoiler, $content);
+
+			$i++;
+		}
+
+		return $content;
+	}
+
+	/**
 	 * Replace [code] blocks with prism.js compatibility
 	 *
 	 * @since	1.0
@@ -468,9 +588,9 @@ class EasyDiscussParser extends EasyDiscuss
 		preg_match_all($pattern, $content, $matches);
 
 		if (isset($matches[1]) && count($matches[1]) > 0) {
-			
+
 			for ($i = 0; $i < count($matches[1]); $i++) {
-				
+
 				$imgPath = $matches[1][$i];
 
 				// Check whether this is valid img link with the http protocol
@@ -480,7 +600,7 @@ class EasyDiscussParser extends EasyDiscuss
 				}
 			}
 		}
-		
+
 		return $content;
 	}
 
@@ -761,7 +881,7 @@ class EasyDiscussParserUtilities
 
 		// Fix any unclosed list tags
 		foreach ($matches[0] as &$contents) {
-			
+
 			$original = $contents;
 
 			// The match of lists within this block should always be the first and last. Anything within the "list" should be considered as unclosed.
@@ -771,7 +891,7 @@ class EasyDiscussParserUtilities
 			$item = new stdClass();
 			$item->original = $original;
 			$item->contents = $contents;
-			
+
 			$lists[] = $item;
 		}
 

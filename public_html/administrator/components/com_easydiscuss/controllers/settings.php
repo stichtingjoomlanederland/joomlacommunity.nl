@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -25,8 +25,6 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function apply()
 	{
@@ -87,6 +85,45 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 			}
 		}
 
+		// Since we allow users to change the storage path, if they rename the path, we would also need to 
+		// rename the folder
+		if (isset($post['storage_path']) && !empty($post['storage_path'])) {
+				
+			$config = ED::config();
+
+			$newStoragePath = $post['storage_path'];
+			$existingStoragePath = $config->get('storage_path');
+
+			if ($newStoragePath != $existingStoragePath) {
+
+				// If the existing storage path is empty, we check for the legacy path
+				if (!$existingStoragePath) {
+
+					$legacyPath = '/media/com_easydiscuss/' . $config->get('attachment_path');
+
+					if ($newStoragePath != $legacyPath) {
+						$state = JFolder::move(JPATH_ROOT . '/' . ltrim($legacyPath, '/'), JPATH_ROOT . '/' . ltrim($storagePath, '/'));
+
+						if (!$state) {
+							ED::setMessage(JText::_('Since there is a change in the attachments path, EasyDiscuss was not able to rename the previous folder', 'error'));
+						}
+					}
+				}
+
+				// If there is an existing value for the storage path, we need to move
+				if ($existingStoragePath) {
+					$existingStoragePath = JPATH_ROOT . '/' . ltrim($existingStoragePath, '/');
+					$newStoragePath = JPATH_ROOT . '/' . ltrim($newStoragePath, '/');
+
+					$state = JFolder::move($existingStoragePath, $newStoragePath);
+
+					if (!$state) {
+						ED::setMessage(JText::_('Since there is a change in the attachments path, EasyDiscuss was not able to rename the previous folder', 'error'));
+					}
+				}
+			}
+		}
+
 		// Save the settings now
 		$result = $model->save($post);
 
@@ -140,8 +177,6 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function saveApi()
 	{
@@ -173,8 +208,6 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function cleanup(&$post)
 	{
@@ -210,34 +243,5 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 		}
 
 		return array( 'message' => $message , 'type' => $type);
-	}
-
-	/**
-	* Save the Email Template.
-	*/
-	function saveEmailTemplate()
-	{
-		$mainframe 	= JFactory::getApplication();
-		$file 		= JRequest::getVar('file', '', 'POST' );
-		$filepath	= DISCUSS_THEMES . '/wireframe/emails/' . $file;
-		$content	= JRequest::getVar( 'content' , '' , 'POST' , '' , JREQUEST_ALLOWRAW );
-		$msg		= '';
-		$msgType	= '';
-
-		$status 	= JFile::write($filepath, $content);
-
-		if(!empty($status))
-		{
-			$msg = JText::_('COM_EASYDISCUSS_SETTINGS_NOTIFICATIONS_EMAIL_TEMPLATES_SAVE_SUCCESS');
-			$msgType = 'success';
-		}
-		else
-		{
-			$msg = JText::_('COM_EASYDISCUSS_SETTINGS_NOTIFICATIONS_EMAIL_TEMPLATES_SAVE_FAIL');
-			$msgType = 'error';
-		}
-
-		DiscussHelper::setMessageQueue( $msg , $msgType );
-		$mainframe->redirect('index.php?option=com_easydiscuss&view=settings&layout=editEmailTemplate&file='.$file.'&msg='.$msg.'&msgtype='.$msgType.'&tmpl=component&browse=1');
 	}
 }

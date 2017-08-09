@@ -79,8 +79,13 @@ class EasyDiscussMigratorJomsocial extends EasyDiscussMigratorBase
 		$state = DISCUSS_ID_PUBLISHED;
 		$data['published'] = $state;
 
+		$saveOptions = array('migration' => true);
+
 		$post->bind($data);
-        if ($post->save()) {
+
+		$state = $post->save($saveOptions);
+
+        if ($state) {
         	// Map the comment to replies in Easydiscuss
         	$this->migrateReplies($item, $post);
         }
@@ -118,12 +123,14 @@ class EasyDiscussMigratorJomsocial extends EasyDiscussMigratorBase
 	        $data['parent_id'] = $post->id;
 	        $data['user_id'] = $reply->post_by;
 
+	        $saveOptions = array('migration' => true);
+
 	        // Load the post library
 	        $post = ED::post();
 	        $post->bind($data);
 
 	        // Try to save the post now
-	        $state = $post->save();
+	        $state = $post->save($saveOptions);
 		}
 	}
 

@@ -51,11 +51,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 						</div>
 					</div>
 					<div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_FILE_ATTACHMENTS_PATH'); ?>
-                        </div>
-                        <div class="col-md-7">
-							<?php echo JText::_( 'COM_EASYDISCUSS_FILE_ATTACHMENTS_PATH_INFO' );?><input type="text" name="attachment_path" class="form-control"  style="width: 100px; display: inline; margin: 0 5px;" value="<?php echo $this->config->get('attachment_path' );?>" />
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_STORAGE_PATH'); ?>
+						</div>
+						<div class="col-md-7">
+							<?php echo $this->html('form.textbox', 'storage_path', $this->config->get('storage_path', '/media/com_easydiscuss/' . $this->config->get('attachment_path')));?>
 						</div>
 					</div>
 					<div class="form-group">

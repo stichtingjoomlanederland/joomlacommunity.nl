@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -26,31 +26,29 @@ class EasyDiscussView extends EasyDiscussParentView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function __construct()
 	{
-        $this->ajax = ED::ajax();
+		$this->ajax = ED::ajax();
 		$this->config = ED::config();
-        $this->jconfig = ED::jconfig();
+		$this->jconfig = ED::jconfig();
 		$this->doc = JFactory::getDocument();
 		$this->app = JFactory::getApplication();
 		$this->input = ED::request();
 		$this->theme = ED::themes();
 		$this->my = JFactory::getUser();
-        $this->profile = ED::profile();
-        $this->acl = ED::acl();
-        $this->isAdmin = ED::isSiteAdmin();
+		$this->profile = ED::profile();
+		$this->acl = ED::acl();
+		$this->isAdmin = ED::isSiteAdmin();
 
-        // If there is a check feature method on subclasses, we need to call it
-        if (method_exists($this, 'isFeatureAvailable')) {
-            $available = $this->isFeatureAvailable();
+		// If there is a check feature method on subclasses, we need to call it
+		if (method_exists($this, 'isFeatureAvailable')) {
+			$available = $this->isFeatureAvailable();
 
-            if (!$available) {
-                return JError::raiseError(500, JText::_('COM_EASYDISCUSS_FEATURE_IS_NOT_ENABLED'));
-            }
-        }
+			if (!$available) {
+				return JError::raiseError(500, JText::_('COM_EASYDISCUSS_FEATURE_IS_NOT_ENABLED'));
+			}
+		}
 		parent::__construct();
 	}
 
@@ -59,8 +57,6 @@ class EasyDiscussView extends EasyDiscussParentView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function set($key, $value = '')
 	{
@@ -72,19 +68,17 @@ class EasyDiscussView extends EasyDiscussParentView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function setPathway($title, $link = '')
 	{
 		JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
 
-        // Always translate the title
-        $title = JText::_($title);
+		// Always translate the title
+		$title = JText::_($title);
 
-        $pathway = $this->app->getPathway();
+		$pathway = $this->app->getPathway();
 
-        return $pathway->addItem($title, $link);
+		return $pathway->addItem($title, $link);
 	}
 
 	/**
@@ -92,8 +86,6 @@ class EasyDiscussView extends EasyDiscussParentView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function display($tpl = null)
 	{
@@ -117,96 +109,82 @@ class EasyDiscussView extends EasyDiscussParentView
 			// Initialize whatever that is necessary
 			ED::init('site');
 
-            // If integrations with ES conversations is enabled, we need to render it's scripts
-            $easysocial = ED::easysocial();
-            
-            if ($this->config->get('integration_easysocial_messaging') && $easysocial->exists()) {
-                $easysocial->init();
-            }
+			// If integrations with ES conversations is enabled, we need to render it's scripts
+			$easysocial = ED::easysocial();
+			
+			if ($this->config->get('integration_easysocial_messaging') && $easysocial->exists()) {
+				$easysocial->init();
+			}
 
-            $bbcodeSettings = $this->theme->output('admin/structure/settings');
+			$bbcodeSettings = $this->theme->output('admin/structure/settings');
 
 			// Get the contents of the view.
 			$contents = $this->theme->output($tpl);
 
-            // attached bbcode settings
-            $contents = $bbcodeSettings . $contents;
-
+			// attached bbcode settings
+			$contents = $bbcodeSettings . $contents;
 
 			// We need to output the structure
 			$theme = ED::themes();
 
-            // RTL support
-            $lang = JFactory::getLanguage();
-            $rtl = $lang->isRTL();
+			// RTL support
+			$lang = JFactory::getLanguage();
+			$rtl = $lang->isRTL();
 
-            // if ($rtl) {
-            //     $themeName = ED::themes()->getName();
+			// Class suffix
+			$suffix = $this->config->get('layout_wrapper_sfx', '');
 
-            //     // check if site is now runing on production or not.
-            //     $filename = 'style-rtl';
-            //     if ($this->config->get('system_environment') == 'production') {
-            //         $filename .= '.min';
-            //     }
+			// Category classes
+			$categoryId = $this->input->get('category_id', 0, 'int');
+			$categoryClass = $categoryId ? ' category-' . $categoryId : '';
 
-            //     $this->doc->addStyleSheet(rtrim(JURI::root(), '/') . '/media/com_easydiscuss/themes/' . $themeName . '/css/' . $filename . '.css');
-            // }
-
-            // Class suffix
-            $suffix = $this->config->get('layout_wrapper_sfx', '');
-
-            // Category classes
-            $categoryId = $this->input->get('category_id', 0, 'int');
-            $categoryClass = $categoryId ? ' category-' . $categoryId : '';
-
-            // Retrieve the toolbar for EasyDiscuss
-            $toolbar = $this->getToolbar();
+			// Retrieve the toolbar for EasyDiscuss
+			$toolbar = $this->getToolbar();
 
 			// Jomsocial toolbar
-            $jsToolbar = ED::jomsocial()->getToolbar();
+			$jsToolbar = ED::jomsocial()->getToolbar();
 
-            // Set the ajax url
-            $ajaxUrl = JURI::root();
+			// Set the ajax url
+			$ajaxUrl = JURI::root();
 
-            if ($this->config->get('system_ajax_index')) {
-                $ajaxUrl = rtrim(JURI::root(), '/') . '/index.php';
-            }
+			if ($this->config->get('system_ajax_index')) {
+				$ajaxUrl = rtrim(JURI::root(), '/') . '/index.php';
+			}
 
-            // Load easysocial headers when viewing posts of another person
-            $miniheader = '';
+			// Load easysocial headers when viewing posts of another person
+			$miniheader = '';
 
-            // Only work for Easysocial 2.0.
-            if ($view == 'post' && $this->config->get('integration_easysocial_mini_header', true) && $easysocial->exists() && !$easysocial->isLegacy()) {
+			// Only work for Easysocial 2.0.
+			if ($view == 'post' && $this->config->get('integration_easysocial_mini_header', true) && $easysocial->exists() && !$easysocial->isLegacy()) {
 
-            	$id = $this->input->get('id', 0, 'int');
-            	$post = ED::post($id);
+				$id = $this->input->get('id', 0, 'int');
+				$post = ED::post($id);
 
-                ES::initialize();
+				ES::initialize();
 
-                $user = ES::user($post->getOwner()->id);
+				$user = ES::user($post->getOwner()->id);
 
-                $miniheader = ES::themes()->html('html.miniheader', $user);
-            }
+				$miniheader = ES::themes()->html('html.miniheader', $user);
+			}
 
-            $theme->set('miniheader', $miniheader);
-
-            $theme->set('toolbar', $toolbar);
-            $theme->set('categoryClass', $categoryClass);
-            $theme->set('suffix', $suffix);
-            $theme->set('rtl', $rtl);
+			$theme->set('miniheader', $miniheader);
+			$theme->set('toolbar', $toolbar);
+			$theme->set('categoryClass', $categoryClass);
+			$theme->set('suffix', $suffix);
+			$theme->set('rtl', $rtl);
 			$theme->set('contents', $contents);
 			$theme->set('layout', $layout);
 			$theme->set('view', $view);
-            $theme->set('ajaxUrl', $ajaxUrl);
+			$theme->set('ajaxUrl', $ajaxUrl);
 			$theme->set('jsToolbar', $jsToolbar);
 
 			$output = $theme->output('site/structure/default');
 
-            // Get the scripts
-            $scripts = ED::scripts()->getScripts();
+			// Get the scripts
+			$scripts = ED::scripts()->getScripts();
 
 			echo $output;
-            echo $scripts;
+			echo $scripts;
 			return;
 		}
 
@@ -221,10 +199,10 @@ class EasyDiscussView extends EasyDiscussParentView
 	 */
 	public function canonical($url, $route = true)
 	{
-        if ($route) {
-    		$url = EDR::_($url, false, null, false, true);
-        }
-        
+		if ($route) {
+			$url = EDR::_($url, false, null, false, true);
+		}
+		
 		$this->doc->addHeadLink($this->escape($url), 'canonical');
 	}
 
@@ -233,13 +211,11 @@ class EasyDiscussView extends EasyDiscussParentView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getToolbar()
 	{
-        $toolbar = ED::toolbar();
-        return $toolbar->render();
+		$toolbar = ED::toolbar();
+		return $toolbar->render();
 	}
 
 	public function logView()

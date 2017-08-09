@@ -15,6 +15,7 @@ class EasyDiscussScripts extends EasyDiscuss
 {
 	static $scripts = array();
 	static $loaded = array();
+	static $isLoaded = false;
 
 	public function add($uid, $script, $unique = true)
 	{
@@ -34,6 +35,16 @@ class EasyDiscussScripts extends EasyDiscuss
 
 	public function getScripts()
 	{
+		self::$isLoaded = true;
 		return implode('', self::$scripts);
+	}
+
+	public function clearScripts()
+	{
+		if (self::$isLoaded) {
+			self::$scripts = array();
+			self::$isLoaded = false;
+		}
+		return true;
 	}
 }

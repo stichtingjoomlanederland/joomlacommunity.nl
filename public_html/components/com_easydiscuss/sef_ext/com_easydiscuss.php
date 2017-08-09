@@ -58,6 +58,12 @@ if (!empty($id) && !empty($view)) {
 		case 'tags':
 			$permalink  = EDR::getAlias( 'tags' , $id );
 		break;
+		case 'badges':
+			$permalink  = EDR::getAlias( 'badges' , $id );
+		break;
+		case 'points':
+			$permalink  = EDR::getAlias( 'profile' , $id );
+		break;		
 	}
 }
 

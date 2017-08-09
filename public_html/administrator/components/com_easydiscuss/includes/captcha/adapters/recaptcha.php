@@ -47,178 +47,183 @@ require_once(__DIR__ . '/abstract.php');
 
 class EasyDiscussCaptchaRecaptcha extends EasyDiscussCaptchaAbstract
 {
-    private static $_signupUrl = "https://www.google.com/recaptcha/admin";
-    private static $_siteVerifyUrl = "https://www.google.com/recaptcha/api/siteverify?";
+	private static $_signupUrl = "https://www.google.com/recaptcha/admin";
+	private static $_siteVerifyUrl = "https://www.google.com/recaptcha/api/siteverify?";
 
-    private static $_version = "php_1.0";
-    private $options = array();
+	private static $_version = "php_1.0";
+	private $options = array();
 
-    private $public = '';
-    private $secret = '';
-    private $colorScheme = null;
-    private $language = null;
+	private $public = '';
+	private $secret = '';
+	private $colorScheme = null;
+	private $language = null;
 
-    public function __construct($options = array())
-    {
-        parent::__construct();
+	public function __construct($options = array())
+	{
+		parent::__construct();
 
-        $this->public = $this->config->get('antispam_recaptcha_public');
-        $this->secret = $this->config->get('antispam_recaptcha_private');
-        $this->colorScheme = $this->config->get('antispam_recaptcha_theme');
-        $this->language = $this->config->get('antispam_recaptcha_lang');
-    }
+		$this->public = $this->config->get('antispam_recaptcha_public');
+		$this->secret = $this->config->get('antispam_recaptcha_private');
+		$this->colorScheme = $this->config->get('antispam_recaptcha_theme');
+		$this->language = $this->config->get('antispam_recaptcha_lang');
+	}
 
-    /**
-     * Validates the captcha image
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return  
-     */
-    public function validate($data = array())
-    {
-        $response = $this->input->get('g-recaptcha-response');
-        $ip = @$_SERVER['REMOTE_ADDR'];
+	/**
+	 * Validates the captcha image
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
+	public function validate($data = array())
+	{
+		$response = $this->input->get('g-recaptcha-response');
+		$ip = @$_SERVER['REMOTE_ADDR'];
 
-        $response = $this->verifyResponse($ip, $response);
+		$response = $this->verifyResponse($ip, $response);
 
-        if ($response === true) {
-            return true;
-        }
+		if ($response === true) {
+			return true;
+		}
 
-        $this->setError($response->errorCodes);
-        
-        return false;
-    }
+		$this->setError($response->errorCodes);
 
-    /**
-     * Generates the recaptcha image
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return  
-     */
-    public function html()
-    {
-        $uid = uniqid();
+		return false;
+	}
 
-        $theme = ED::themes();
+	/**
+	 * Generates the recaptcha image
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
+	public function html($isModule = false)
+	{
+		$uid = uniqid();
 
-        $theme->set('recaptchaUid', $uid);
-        $theme->set('public', $this->public);
-        $theme->set('colorScheme', $this->colorScheme);
-        $theme->set('language', $this->language);
+		$theme = ED::themes();
 
-        $output = $theme->output('site/captcha/recaptcha');
+		$theme->set('recaptchaUid', $uid);
+		$theme->set('public', $this->public);
+		$theme->set('colorScheme', $this->colorScheme);
+		$theme->set('language', $this->language);
 
-        return $output;
-    }
+		$output = '';
+		if ($isModule) {
+			$output = $theme->output('site/captcha/recaptcha.module');
+		} else {
+			$output = $theme->output('site/captcha/recaptcha');
+		}
 
-    public function reload($previousCaptchaId = null)
-    {
+		return $output;
+	}
 
-    }
+	public function reload($previousCaptchaId = null)
+	{
 
-    public function getImageSource()
-    {
+	}
 
-    }
+	public function getImageSource()
+	{
 
-    /**
-     * Encodes the given data into a query string format.
-     *
-     * @param array $data array of string elements to be encoded.
-     *
-     * @return string - encoded request.
-     */
-    private function _encodeQS($data)
-    {
-        $req = "";
-        foreach ($data as $key => $value) {
-            $req .= $key . '=' . urlencode(stripslashes($value)) . '&';
-        }
+	}
 
-        // Cut the last '&'
-        $req=substr($req, 0, strlen($req)-1);
-        return $req;
-    }
+	/**
+	 * Encodes the given data into a query string format.
+	 *
+	 * @param array $data array of string elements to be encoded.
+	 *
+	 * @return string - encoded request.
+	 */
+	private function _encodeQS($data)
+	{
+		$req = "";
+		foreach ($data as $key => $value) {
+			$req .= $key . '=' . urlencode(stripslashes($value)) . '&';
+		}
 
-    /**
-     * Submits an HTTP GET to a reCAPTCHA server.
-     *
-     * @param string $path url path to recaptcha server.
-     * @param array  $data array of parameters to be sent.
-     *
-     * @return array response
-     */
-    private function _submitHTTPGet($path, $data)
-    {
-        $req = $this->_encodeQS($data);
-        //$response = file_get_contents($path . $req);
+		// Cut the last '&'
+		$req=substr($req, 0, strlen($req)-1);
+		return $req;
+	}
 
-        // We use Curl instead of file_get_contents for security reason
-        $rCURL = curl_init();
+	/**
+	 * Submits an HTTP GET to a reCAPTCHA server.
+	 *
+	 * @param string $path url path to recaptcha server.
+	 * @param array  $data array of parameters to be sent.
+	 *
+	 * @return array response
+	 */
+	private function _submitHTTPGet($path, $data)
+	{
+		$req = $this->_encodeQS($data);
+		//$response = file_get_contents($path . $req);
 
-        curl_setopt($rCURL, CURLOPT_URL, $path . $req);
-        curl_setopt($rCURL, CURLOPT_HEADER, 0);
-        curl_setopt($rCURL, CURLOPT_RETURNTRANSFER, 1);
+		// We use Curl instead of file_get_contents for security reason
+		$rCURL = curl_init();
 
-        $response = curl_exec($rCURL);
+		curl_setopt($rCURL, CURLOPT_URL, $path . $req);
+		curl_setopt($rCURL, CURLOPT_HEADER, 0);
+		curl_setopt($rCURL, CURLOPT_RETURNTRANSFER, 1);
 
-        curl_close($rCURL);
+		$response = curl_exec($rCURL);
 
-        return $response;
-    }
+		curl_close($rCURL);
 
-    /**
-     * Calls the reCAPTCHA siteverify API to verify whether the user passes
-     * CAPTCHA test.
-     *
-     * @param string $remoteIp   IP address of end user.
-     * @param string $response   response string from recaptcha verification.
-     *
-     * @return EasyDiscussRecaptchaResponse
-     */
-    public function verifyResponse($remoteIp, $response)
-    {
-        $recaptchaResponse = new EasyDiscussRecaptchaResponse();
-        $recaptchaResponse->success = true;
-        $recaptchaResponse->errorCodes = '';
+		return $response;
+	}
 
-        // Discard empty solution submissions
-        if ($response == null || strlen($response) == 0) {
-            $recaptchaResponse->success = false;
-            $recaptchaResponse->errorCodes = JText::_('COM_EASYDISCUSS_RECAPTCHA_MISSING_INPUT');
-            return $recaptchaResponse;
-        }
+	/**
+	 * Calls the reCAPTCHA siteverify API to verify whether the user passes
+	 * CAPTCHA test.
+	 *
+	 * @param string $remoteIp   IP address of end user.
+	 * @param string $response   response string from recaptcha verification.
+	 *
+	 * @return EasyDiscussRecaptchaResponse
+	 */
+	public function verifyResponse($remoteIp, $response)
+	{
+		$recaptchaResponse = new EasyDiscussRecaptchaResponse();
+		$recaptchaResponse->success = true;
+		$recaptchaResponse->errorCodes = '';
 
-        $getResponse = $this->_submitHttpGet(
-            self::$_siteVerifyUrl,
-            array (
-                'secret' => $this->secret,
-                'remoteip' => $remoteIp,
-                'v' => self::$_version,
-                'response' => $response
-            )
-        );
+		// Discard empty solution submissions
+		if ($response == null || strlen($response) == 0) {
+			$recaptchaResponse->success = false;
+			$recaptchaResponse->errorCodes = JText::_('COM_EASYDISCUSS_RECAPTCHA_MISSING_INPUT');
+			return $recaptchaResponse;
+		}
 
-        $answers = json_decode($getResponse, true);
-        
-        if (trim($answers['success']) == false) {
+		$getResponse = $this->_submitHttpGet(
+			self::$_siteVerifyUrl,
+			array (
+				'secret' => $this->secret,
+				'remoteip' => $remoteIp,
+				'v' => self::$_version,
+				'response' => $response
+			)
+		);
 
-            $recaptchaResponse->success = false;
+		$answers = json_decode($getResponse, true);
 
-            return $recaptchaResponse;
-        }
+		if (trim($answers['success']) == false) {
 
-        return true;
-    }
+			$recaptchaResponse->success = false;
+
+			return $recaptchaResponse;
+		}
+
+		return true;
+	}
 }
 
 class EasyDiscussRecaptchaResponse
 {
-    public $success;
-    public $errorCodes;
+	public $success;
+	public $errorCodes;
 }

@@ -196,7 +196,7 @@ class EasyDiscussString extends EasyDiscuss
 	public function detectNames($text, $exclude = array())
 	{
 		$extendedlatinPattern = "\\x{0c0}-\\x{0ff}\\x{100}-\\x{1ff}\\x{180}-\\x{27f}";
-		$pattern = '/@[' . $extendedlatinPattern .'A-Za-z0-9][' . $extendedlatinPattern . 'A-Za-z0-9_\-\s]+/ui';
+		$pattern = '/@[' . $extendedlatinPattern .'A-Za-z0-9][' . $extendedlatinPattern . 'A-Za-z0-9_\-\.\s]+/ui';
 
 		preg_match_all($pattern, $text, $matches);
 
@@ -432,4 +432,16 @@ class EasyDiscussString extends EasyDiscuss
 
 	    return preg_replace($pattern, $replace, $strings);
 	}
+
+	/**
+	 * To determine if the text is ascii
+	 *
+	 * @since	4.0.16
+	 * @access	public
+	 */
+	public function isAscii($str)
+	{
+		return (preg_match('/(?:[^\x00-\x7F])/',$str) !== 1);
+	}
+
 }

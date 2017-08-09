@@ -166,6 +166,15 @@ defined('_JEXEC') or die('Restricted access');
 
 					<div class="form-group">
 						<div class="col-md-6 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_VOTES'); ?>
+						</div>
+						<div class="col-md-6">
+							<?php echo $this->html('form.boolean', 'integration_easysocial_notify_vote', $this->config->get('integration_easysocial_notify_vote')); ?>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<div class="col-md-6 control-label">
 							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFY_MENTIONS'); ?>
 						</div>
 						<div class="col-md-6">

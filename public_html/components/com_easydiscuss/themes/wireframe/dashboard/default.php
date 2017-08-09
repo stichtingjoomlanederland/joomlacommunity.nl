@@ -11,10 +11,10 @@
 */
 defined('_JEXEC') or die('Restricted access');
 ?>
-<?php if (ED::isSiteAdmin()) { ?>
+<?php if (ED::isSiteAdmin() || $this->acl->allowed('manage_pending')) { ?>
 <?php echo $this->output('site/dashboard/manage/posts'); ?>
 <?php } ?>
 
-<?php if ($this->acl->allowed('manage_holiday')) { ?>
+<?php if ($this->config->get('main_work_schedule') && $this->acl->allowed('manage_holiday')) { ?>
 <?php echo $this->output('site/dashboard/manage/holiday'); ?>
 <?php } ?>

@@ -442,7 +442,7 @@ class DiscussProfile extends EasyDiscussTable
 		$initial->code = '';
 
 		$text = '';
-		if (JString::is_ascii($name)) {
+		if (ED::string()->isAscii($name)) {
 			//lets split the name based on empty space
 			$segments = explode(' ', $name);
 
@@ -1198,7 +1198,7 @@ class DiscussProfile extends EasyDiscussTable
      *
      * @since   4.0.15
      * @access  public
-     */ 
+     */
 	public function isBlocked()
 	{
 		$db	= ED::db();
@@ -1324,7 +1324,7 @@ class DiscussProfile extends EasyDiscussTable
 
 		if (! isset($_cache[$key])) {
 			$id = $this->id;
-			
+
 			// If the id is null (guest), asign to use 0
 			if (is_null($id)) {
 				$id = 0;
@@ -1344,7 +1344,7 @@ class DiscussProfile extends EasyDiscussTable
 	public function getRoleLabelClassname()
 	{
 		$id = $this->id;
-		
+
 		// If the id is null (guest), asign to use 0
 		if (is_null($id)) {
 			$id = 0;
@@ -1515,10 +1515,10 @@ class DiscussProfile extends EasyDiscussTable
 
 		foreach ($data as $row) {
 			$result = $row;
-		}		
+		}
 
 		return $result;
-	}	
+	}
 
 		/**
 	 * This determines if the user should be moderated when they make a new posting

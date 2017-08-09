@@ -55,7 +55,7 @@ defined('_JEXEC') or die('Restricted access');
 								<ul class="thumbnails">
 								<?php foreach ($attachments as $attachment) { ?>
 									<li class="attachment-item thumbnail thumbnail-small attachment-type-<?php echo $attachment->attachmentType; ?>" id="attachment-<?php echo $attachment->id;?>" data-attachment-item>
-										<?php echo $attachment->html();?>
+										<?php echo $attachment->html(true);?>
 									</li>
 								<?php } ?>
 								</ul>

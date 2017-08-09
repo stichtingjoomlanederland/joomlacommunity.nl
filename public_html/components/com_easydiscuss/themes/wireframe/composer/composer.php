@@ -24,9 +24,11 @@ defined('_JEXEC') or die('Unauthorized Access');
         <?php if ($operation == 'replying' || $operation == 'editing') { ?>
                 
             <div class="ed-reply-form__title">
-                <div class="o-avatar o-avatar--sm t-lg-mr--sm">
-                     <img alt="<?php echo $my->getName(); ?>" src="<?php echo $my->getAvatar(); ?>">
-                </div>
+                <?php if ($this->config->get('layout_avatar')) { ?>
+                    <div class="o-avatar o-avatar--sm t-lg-mr--sm">
+                         <img alt="<?php echo $my->getName(); ?>" src="<?php echo $my->getAvatar(); ?>">
+                    </div>
+                <?php } ?>
                 <?php echo ($operation == 'replying') ? JText::_('COM_EASYDISCUSS_ENTRY_YOUR_RESPONSE') : JText::_('COM_EASYDISCUSS_EDIT_YOUR_RESPONSE'); ?>
             </div>
 

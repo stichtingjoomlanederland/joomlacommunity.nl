@@ -12,29 +12,27 @@
 defined('_JEXEC') or die('Restricted access');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
-	<div class="post-app-filter-bar">
-		<div class="app-filter-bar" style="display: none;">
-		</div>
+	
 
-		<div class="app-filter-bar">
-			<div class="app-filter-bar__cell">
-				<div class="form-inline">
-					<div class="form-group">
-						<div class="app-filter-select-group">
-							<?php echo $this->html('table.filter', 'filter_state', $filter); ?>
-						</div>
+	<div class="app-filter-bar">
+		<div class="app-filter-bar__cell t-lg-pl--lg">
+			<div class="form-inline">
+				<div class="form-group">
+					<div class="app-filter-select-group">
+						<?php echo $this->html('table.filter', 'filter_state', $filter); ?>
 					</div>
 				</div>
 			</div>
-			<div class="app-filter-bar__cell app-filter-bar__cell--last">
-				<div class="form-inline">
-					<div class="app-filter-select-group">
-						<?php echo $this->html('table.limit', $pagination); ?>
-					</div>
+		</div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--last">
+			<div class="form-inline">
+				<div class="app-filter-select-group">
+					<?php echo $this->html('table.limit', $pagination); ?>
 				</div>
 			</div>
 		</div>
 	</div>
+
 
 	<div class="panel-table">
 		<table class="app-table app-table-middle table table-striped" data-ed-table>

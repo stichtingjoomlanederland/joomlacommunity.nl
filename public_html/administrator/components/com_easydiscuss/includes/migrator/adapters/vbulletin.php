@@ -106,12 +106,14 @@ class EasyDiscussMigratorVbulletin extends EasyDiscussMigratorBase
 	        $data['content'] = $childItem->pagetext;
 	        $data['parent_id'] = $post->id;
 
+	        $saveOptions = array('migration' => true);
+
 	        // Load the post library
 	        $post = ED::post();
 	        $post->bind($data);
 
 	        // Try to save the post now
-	        $state = $post->save();
+	        $state = $post->save($saveOptions);
 		}
 	}
 
@@ -158,8 +160,10 @@ class EasyDiscussMigratorVbulletin extends EasyDiscussMigratorBase
 		$data['islock'] = 0;
 		$data['published'] = DISCUSS_ID_PUBLISHED;
 
+		$saveOptions = array('migration' => true);
+
 		$post->bind($data);
-        $post->save();
+        $post->save($saveOptions);
 
         // Add this to migrators table
 		$this->added('vbulletin', $post->id, $item->postid, 'post');

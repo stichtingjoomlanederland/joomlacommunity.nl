@@ -58,7 +58,7 @@ class EasyDiscussModelPostsTags extends EasyDiscussAdminModel
 
 					// prepare data to bind
 					unset($item->post_id);
-					$tag->bind($item);
+					$tag->bind($item, array(), false);
 
 					$cache = ED::cache();
 					$cache->set($tag, 'tag');

@@ -1,6 +1,7 @@
 ed.require(['edq'], function($) {
 		
 	var migrateButton = $('[data-ed-migrate]');
+	var migrateReplyButton = $('[data-ed-migrate-reply]');
 
 	migrateButton.on('click', function() {
 
@@ -41,19 +42,40 @@ ed.require(['edq'], function($) {
 				return;
 			}
 
+			// Once finished the migrating topics, we continue with the replies
+			$('[data-progress-status]').append('<?php echo JText::_('COM_EASYDISCUSS_MIGRATOR_MIGRATE_REPLIES', true);?>');
+			
+			window.migrateReplies();
+		});
+	},
+
+	window.migrateReplies = function() {
+
+		EasyDiscuss.ajax('admin/views/migrators/migrate', {
+			"component": "com_kunena",
+			"resetHits": 0,
+			"migrateSignature": 0,
+			"replies": true
+		}).done(function(result, status) {
+
+			// Append the current status
+			$('[data-progress-status]').append(status);
+
+			// If there's still items to render, run a recursive loop until it doesn't have any more items;
+			if (result == true) {
+				window.migrateReplies();
+				return;
+			}
+
 			//remove loading icon.
 			$('[data-progress-loading]').addClass('hide');
 
-			migrateButton.removeAttr('disabled');
+			migrateButton.attr('disabled', true);
+
 			migrateButton.html('<i class="fa fa-check"></i> <?php echo JText::_('COM_EASYDISCUSS_COMPLETED', true);?>');
 			$('[data-progress-status]').append('<?php echo JText::_('COM_EASYDISCUSS_COMPLETED', true);?>');
-
-			if (result == 'noitem'){
-				migrateButton.removeAttr('disabled');
-				migrateButton.html('<?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_RUN_MIGRATION_TOOL', true);?>');
-				$('[data-progress-status]').html('<?php echo JText::_('COM_EASYDISCUSS_NO_ITEM', true);?>');
-			}
 		});
 	}
+
 
 });

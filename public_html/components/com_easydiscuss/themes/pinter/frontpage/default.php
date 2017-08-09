@@ -23,7 +23,7 @@ defined('_JEXEC') or die('Restricted access');
 	<?php } ?>
 
 	<div class="ed-filters">
-		<?php echo $this->output('site/frontpage/filters', array('activeFilter' => $activeFilter, 'activeSort' => $activeSort)); ?>
+		<?php echo $this->output('site/frontpage/filters', array('activeFilter' => $activeFilter, 'activeSort' => $activeSort, 'menuCatId' => $menuCatId)); ?>
 	</div>
 
 	<div class="ed-posts-list <?php echo !$posts ? 'is-empty' : '';?>" data-list-item itemscope itemtype="http://schema.org/ItemList">
@@ -35,7 +35,7 @@ defined('_JEXEC') or die('Restricted access');
 
 		<div class="o-loading">
 			<div class="o-loading__content">
-				<i class="fa fa-spinner fa-spin"></i>    
+				<i class="fa fa-spinner fa-spin"></i>
 			</div>
 		</div>
 

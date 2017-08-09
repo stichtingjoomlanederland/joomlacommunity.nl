@@ -15,22 +15,220 @@ require_once(dirname(__FILE__) . '/base.php');
 
 class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 {
-	public function migrate($resetHits, $migrateSignature)
+	private $num = 50;
+
+	public function getKunenaReplies($item, $limit = null)
 	{
+		$db	= $this->db;
+
+		// $query = 'SELECT c.`last_post_time`, a.* FROM `#__kunena_messages` AS a';
+		// $query .= ' INNER JOIN `#__kunena_topics` as c on c.`id` = a.`thread`';
+		// $query .= ' WHERE NOT EXISTS (';
+		// $query .= ' SELECT external_id FROM `#__discuss_migrators` AS b WHERE b.`external_id` = a.`id` and `type` = ' . $db->Quote('reply') . ' and `component` = ' . $this->db->Quote('com_kunena');
+		// $query .= ' )';
+
+		// $query .= ' AND a.' . $db->nameQuote('parent') . '!=' . $db->Quote(0);
+		// $query .= ' ORDER BY a.`id`';
+
+
+		$query = 'SELECT c.`last_post_time`, a.* FROM `#__kunena_messages` AS a';
+		$query .= ' LEFT JOIN `#__discuss_migrators` AS b ON b.`external_id` = a.`id` and b.`component` = ' . $this->db->Quote('com_kunena') . ' and b.`type` = ' . $db->Quote('reply');
+		$query .= ' INNER JOIN `#__kunena_topics` as c on c.`id` = a.`thread`';
+		$query .= ' WHERE ' . $db->nameQuote('a.parent') . ' > 0';
+		$query .= ' and b.`id` is null';
+		// $query .= ' ORDER BY a.`id`';
+
+		if ($limit) {
+			$query .= ' LIMIT ' . $limit;
+		}
+
+		$db->setQuery($query);
+		$items = $db->loadObjectList();
+
+		return $items;
+
+	}
+
+	public function getTotalKunenaReplies()
+	{
+		$db	= $this->db;
+
+		// $query = 'SELECT COUNT(1) FROM `#__kunena_messages` AS a';
+		// $query .= ' WHERE NOT EXISTS (';
+		// $query .= ' SELECT external_id FROM `#__discuss_migrators` AS b WHERE b.`external_id` = a.`id` and `type` = ' . $db->Quote('reply') . ' and `component` = ' . $this->db->Quote('com_kunena');
+		// $query .= ' )';
+		// $query .= ' AND ' . $db->nameQuote('parent') . '!=' . $db->Quote(0);
+
+		$query = 'SELECT COUNT(1) FROM `#__kunena_messages` AS a';
+		$query .= ' LEFT JOIN `#__discuss_migrators` AS b ON b.`external_id` = a.`id` and b.`component` = ' . $this->db->Quote('com_kunena') . ' and b.`type` = ' . $db->Quote('reply');
+		$query .= ' WHERE ' . $db->nameQuote('a.parent') . ' > 0';
+		$query .= ' and b.`id` is null';
+
+		$db->setQuery($query);
+		$items = $db->loadResult();
+
+		return $items;
+	}
+
+	public function getInternalId($externalId)
+	{
+		$db	= $this->db;
+
+		$query = 'SELECT internal_id FROM `#__discuss_migrators` WHERE `external_id` = '. $this->db->Quote($externalId) . ' and `component` = ' . $this->db->Quote('com_kunena');
+
+		$db->setQuery($query);
+		$internalId = $db->loadResult();
+
+		return $internalId;
+	}
+
+	public function migrateReplies()
+	{
+
+		$edInternalIds = array();
+		$edParents = array();
+
+
 		$config = ED::config();
 
 		// Get the total number of Kunena items
-		$total = $this->getTotalKunenaPosts();
+		$total = $this->getTotalKunenaReplies();
 
 		// Get all Kunena Posts that is not yet migrated
-		$items = $this->getKunenaPosts(null, 10);
+		$items = $this->getKunenaReplies(null, $this->num);
 
 		// Determines if there is still items to be migrated
 		$balance = $total - count($items);
 
 		$status = '';
 
-		// Once finished, we reset the user's point
+		// If there's nothing to load just skip this
+		if (!$items) {
+
+			if (!empty($status)) {
+				return $this->ajax->resolve(false, $status);
+			}
+
+			return $this->ajax->resolve('noreplies');
+		}
+
+		foreach ($items as $item) {
+
+			// Get the kunena parent
+			$kunenaParentId = $item->parent;
+
+
+			// try getting from cache;
+			if (!isset($edInternalIds[$kunenaParentId])) {
+				// Retrieve the internal id (ED parent)
+				$edInternalIds[$kunenaParentId] =  $this->getInternalId($kunenaParentId);
+			}
+			$edParentId = $edInternalIds[$kunenaParentId];
+
+			$post = null;
+			if (!isset($edParents[$edParentId])) {
+				// Load the post library
+				$post = ED::post($edParentId);
+
+				// If this post is not a question, we'll need to get the parent id.
+				if (!$post->isQuestion()) {
+					$parent = $post->getParent();
+
+					// Re-assign $post to be the parent.
+					$post = ED::post($parent->id);
+				}
+
+				$edParents[$edParentId] = $post;
+			} else {
+				$post = $edParents[$edParentId];
+			}
+
+			// Get the content
+			$content = $this->getKunenaMessage($item);
+
+			$data = array();
+
+			// For contents, we need to get the raw data.
+			$data['content'] = $content;
+
+			// process confidential tag
+			$data = $this->processConfidentialTag($data);
+
+			// process code tag
+			$data['content'] = $this->processCodeTag($data['content']);
+
+			$data['title'] = ($item->subject) ? $item->subject : 'RE:';
+			$data['parent_id'] = $post->id;
+			$data['user_id'] = $item->userid;
+			$data['user_type'] = DISCUSS_POSTER_MEMBER;
+			$data['poster_name'] = $item->name;
+			$data['created'] = ED::date($item->time)->toMySQL();
+			$data['modified'] = ED::date($item->time)->toMySQL();
+
+			if (!$item->userid) {
+				$data['user_type'] = DISCUSS_POSTER_GUEST;
+			}
+
+			// Load the post library
+			$post = ED::post();
+			$post->bind($data, false, true);
+
+			// Try to save the post now
+			$saveOptions = array('migration' => true);
+			$state = $post->save($saveOptions);
+
+			if ($state) {
+
+				$files = $this->getKunenaAttachments($item);
+
+				if ($files) {
+					$this->processAttachments($files, $post);
+
+					$preview = ED::parser()->replaceAttachmentsEmbed($post->post->preview, $post);
+					$post->post->preview = $preview;
+					$post->post->store();
+				}
+
+			}
+
+			// Map child item likes
+			$this->mapKunenaItemLikes($item, $post);
+
+			// Add this to migrators table
+			$this->added('com_kunena', $post->id, $item->id, 'reply');
+
+			$status .= JText::sprintf('COM_EASYDISCUSS_MIGRATOR_MIGRATED_KUNENA_REPLY', $item->id, $post->id) . '<br />';
+
+		}
+
+		$hasmore = false;
+
+		if ($balance) {
+			$hasmore = true;
+		}
+
+		return $this->ajax->resolve($hasmore, $status);
+
+	}
+
+	public function migrate($resetHits, $migrateSignature)
+	{
+		$config = ED::config();
+
+		// ini_set('max_execution_time', 1800);
+
+		// Get the total number of Kunena items
+		$total = $this->getTotalKunenaPosts();
+
+		// Get all Kunena Posts that is not yet migrated
+		$items = $this->getKunenaPosts(null, $this->num);
+
+		// Determines if there is still items to be migrated
+		$balance = $total - count($items);
+
+		$status = '';
+
+		// We reset the user's point if needed
 		if ($resetHits) {
 			$model = ED::model('users');
 			$model->resetPoints();
@@ -51,21 +249,16 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 			if (!empty($status)) {
 				return $this->ajax->resolve(false, $status);
 			}
-			
+
 			return $this->ajax->resolve('noitem');
 		}
 
 		foreach ($items as $item) {
-			
+
 			$post = ED::post();
 
 			// Map the item to discuss post
 			$state = $this->mapKunenaItem($item, $post);
-
-			// If everything okay, migrate the replies
-			if ($state) {
-				$this->mapKunenaItemChilds($item, $post);
-			}
 
 			$status .= JText::_('COM_EASYDISCUSS_MIGRATOR_MIGRATED_KUNENA') . ': ' . $item->id . JText::_('COM_EASYDISCUSS_MIGRATOR_EASYDISCUSS') . ': ' . $post->id . '<br />';
 
@@ -73,7 +266,7 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 			$this->mapKunenaItemPolls($item, $post);
 
 			// Map item likes
-			$this->mapKunenaItemLikes($item, $post);				
+			$this->mapKunenaItemLikes($item, $post);
 		}
 
 		$hasmore = false;
@@ -104,10 +297,10 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 		foreach ($kUsers as $kUser) {
 			if ($kUser->signature) {
-				
+
 				// Load discuss user
 				$edUser = ED::user($kUser->userid);
-				
+
 				if ($edUser->id) {
 					$edUser->signature = $kUser->signature;
 					$edUser->store();
@@ -196,56 +389,49 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 		} // if kPolls
 	}
 
-	public function mapKunenaItemChilds($kItem, $parent)
+	protected function processConfidentialTag($data)
 	{
-		// try to get the childs
-		$items = $this->getKunenaPosts($kItem, null);
+		// lets check if there is this [credential] tags or not.
 
-		if (!$items) {
-			return false;
+		$text = $data['content'];
+
+		// We cannot decode the htmlentities here or else, xss will occur!
+		preg_match_all('/\[confidential\](.*?)\[\/confidential\]/ims', $text, $matches, PREG_SET_ORDER);
+
+		if (empty($matches) || !isset($matches[0]) || empty($matches[0])) {
+			// nothing found.
+			return $data;
 		}
 
-		foreach ($items as $kChildItem) {
-			
-			// Load the post library
-			$post = ED::post($parent->id);
+		$credentials = '';
 
-			// If this post is not a question, we'll need to get the parent id.
-			if (!$post->isQuestion()) {
-				$parent = $post->getParent();
+		foreach ($matches as $match) {
+			$code = $match[0];
+			$credentials .= $match[1] . "<br />";
 
-				// Re-assign $post to be the parent.
-				$post = ED::post($parent->id);
-			}
-
-			// Get the content
-			$content = $this->getKunenaMessage($kChildItem);
-
-			// For contents, we need to get the raw data.
-	        $data['content'] = $content;
-	        $data['parent_id'] = $post->id;
-	        $data['user_id'] = $kChildItem->userid;
-			$data['user_type'] = DISCUSS_POSTER_MEMBER;
-			$data['poster_name'] = $kChildItem->name;
-			$data['created'] = ED::date($kChildItem->time)->toMySQL();
-			$data['modified'] = ED::date($kChildItem->time)->toMySQL();
-
-			if (!$kChildItem->userid) {
-				$data['user_type'] = DISCUSS_POSTER_GUEST;
-			}			
-
-	        // Load the post library
-	        $post = ED::post();
-	        $post->bind($data);
-
-	        // Try to save the post now
-	        $state = $post->save();
-
-			// Map child item likes
-			$this->mapKunenaItemLikes($kChildItem, $post);				
+			// next, let replace the content with empty space.
+			$text = JString::str_ireplace($code, '', $text);
 		}
+
+		$data["params_siteurl"] = '';
+		$data["params_siteusername"] = '';
+		$data["params_sitepassword"] = '';
+		$data["params_ftpurl"] = '';
+		$data["params_ftpusername"] = '';
+		$data["params_ftppassword"] = '';
+		$data["params_siteinfo"] = nl2br($credentials);
+
+		// update the content
+		$data['content'] = $text;
+
+		return $data;
 	}
 
+	protected function processCodeTag($content)
+	{
+		$content = preg_replace( '/\[code\]/ms' , '[code type="markup"]' , $content );
+		return $content;
+	}
 
 	public function mapKunenaItem($item, &$post, $parent = null)
 	{
@@ -266,7 +452,6 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 		// Create category if this item's category does not exist on the site
 		$categoryId = $this->migrateCategory($item);
-
 		$data['content'] = $content;
 		$data['title'] = $subject;
 		$data['category_id'] = $categoryId;
@@ -290,13 +475,41 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 			$data['user_type'] = DISCUSS_POSTER_GUEST;
 		}
 
+		// process confidential tag
+		$data = $this->processConfidentialTag($data);
+
+		// process code tag
+		$data['content'] = $this->processCodeTag($data['content']);
+
 		$post->bind($data);
-        $post->save();
+
+		$saveOptions = array('migration' => true);
+		$post->save($saveOptions);
 
 		// @task: Get attachments
 		$files = $this->getKunenaAttachments($item);
 
 		if ($files) {
+			$this->processAttachments($files, $post);
+		}
+
+		$preview = ED::parser()->replaceAttachmentsEmbed($post->post->preview, $post);
+		$post->post->preview = $preview;
+		$post->post->store();
+
+		// Add this to migrators table
+		$this->added('com_kunena', $post->id, $item->id, 'post');
+
+		return true;
+	}
+
+
+	public function processAttachments($files, $post)
+	{
+		$config = ED::config();
+
+		if ($files) {
+
 			foreach ($files as $kAttachment){
 				$attachment	= ED::table('Attachments');
 
@@ -311,9 +524,6 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 				$attachment->set('path', $hash);
 
-				// Copy files over.
-				$config = ED::config();
-
 				$storagePath = ED::attachment()->getStoragePath();
 				$storage = $storagePath . '/' . $hash;
 				$kStorage = JPATH_ROOT . '/' . rtrim($kAttachment->folder, '/')  . '/' . $kAttachment->filename;
@@ -325,7 +535,7 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 				}
 
 				if (JFile::exists($kStorage)) {
-					
+
 					JFile::copy($kStorage, $storage);
 
 					if (ED::image()->isImage($kStorage)) {
@@ -342,14 +552,17 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 				$attachment->created = ED::date()->toSql();
 
 				$attachment->store();
+
+				// log the data.
+				$this->added('com_kunena', $attachment->id, $kAttachment->id, 'attachment');
+
 			}
+
 		}
 
-        // Add this to migrators table
-		$this->added('com_kunena', $post->id, $item->id, 'post');
 
-		return true;
 	}
+
 
 	public function getKunenaAttachments($kItem)
 	{
@@ -368,14 +581,16 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 		$query	= 'SELECT ' . $db->nameQuote('message') . ' FROM ' . $db->nameQuote('#__kunena_messages_text') . ' '
 				. 'WHERE ' . $db->nameQuote('mesid') . '=' . $db->Quote($kItem->id);
-		
+
 		$db->setQuery($query);
 
 		$message	= $db->loadResult();
 
 		// @task: Replace unwanted bbcode's.
-		$message	= preg_replace( '/\[attachment\="?(.*?)"?\](.*?)\[\/attachment\]/ms' , '' , $message );
+		$message	= preg_replace( '/\[attachment\="?(.*?)"?\](.*?)\[\/attachment\]/ms' , '[attachment]\2[/attachment]' , $message );
 		$message	= preg_replace( '/\[quote=(.+?)\d+\]/ms' , '[quote]' , $message );
+		$message	= preg_replace( '/\[url\](.*?)\[\/url\]/ms' , '[url="\1"]\1[/url]' , $message );
+
 
 		return $message;
 	}
@@ -401,7 +616,7 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 			$parentCategory = $this->getKunenaCategory($kunenaCategory->parent_id);
 
 			$easydiscussParentCategoryId = $this->easydiscussCategoryExists($parentCategory);
-		} 
+		}
 
 		// Determine if this category has already been created in EasyDiscuss
 		$easydiscussCategoryId = $this->easydiscussCategoryExists($kunenaCategory, $easydiscussParentCategoryId);
@@ -428,7 +643,7 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 				$parentCategory = $this->getKunenaCategory($category->parent_id);
 
 				$easydiscussParentCategoryId = $this->easydiscussCategoryExists($parentCategory);
-			} 
+			}
 
 			$category->title = $category->name;
 
@@ -440,7 +655,7 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 	public function getKunenaCategory($id)
 	{
 		$query = 'SELECT * FROM `#__kunena_categories` where `id` = ' . $this->db->Quote($id);
-		
+
 		$this->db->setQuery($query);
 
 		$result = $this->db->loadObject();
@@ -469,7 +684,7 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 		return $items;
 	}
 
-	public function getKunenaPosts($item, $limit = null)
+	public function getKunenaPosts($item = null, $limit = null)
 	{
 		$db	= $this->db;
 

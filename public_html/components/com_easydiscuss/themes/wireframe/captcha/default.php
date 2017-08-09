@@ -18,7 +18,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <img src="<?php echo $source;?>" alt="<?php echo JText::_('COM_EASYDISCUSS_CAPTCHA_IMG_ALT_TEXT', true);?>" data-ed-captcha-image class="ed-captcha-image" />
             </span>
 
-            <input name="captcha-response" type="text" class="form-control" placeholder="<?php echo JText::_('Enter security code', true);?>" />
+            <input name="captcha-response" type="text" class="form-control" placeholder="<?php echo JText::_('COM_EASYDISCUSS_CAPTCHA_INSERT_SECURITY_CODE', true);?>" />
 
             <span class="input-group-btn">
                 <a href="javascript:void(0);" class="btn btn-default" data-ed-captcha-reload>

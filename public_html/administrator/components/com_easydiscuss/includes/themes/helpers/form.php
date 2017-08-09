@@ -366,4 +366,25 @@ class EasyDiscussThemesHelperForm
 
 		return $groups;
 	}
+
+	/**
+	 * Render a lists of languages which installed in joomla
+	 *
+	 * @since	4.0.16
+	 * @access	public
+	 */
+	public static function languages($name, $languages, $selected = '', $attributes = '')
+	{
+		$languages = JLanguage::getKnownLanguages();
+
+		$theme = ED::themes();
+		$theme->set('name', $name);
+		$theme->set('languages', $languages);
+		$theme->set('selected', $selected);
+		$theme->set('attributes', $attributes);
+
+		$output = $theme->output('admin/html/form.languages');
+
+		return $output;
+	}	
 }

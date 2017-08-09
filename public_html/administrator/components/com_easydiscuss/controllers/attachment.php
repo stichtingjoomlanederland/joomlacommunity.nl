@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,8 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 jimport('joomla.application.component.controller');
 jimport('joomla.filesystem.file');
@@ -18,7 +17,7 @@ require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/constan
 
 class EasyDiscussControllerAttachment extends EasyDiscussController
 {
-	function displayFile()
+	public function displayFile()
 	{
 		$id = $this->input->get('id', '', 'GET');
 
@@ -32,8 +31,9 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 			return false;
 		}
 
-		$path = $this->config->get('attachment_path');
-		$file = JPATH_ROOT . '/media/com_easydiscuss/' . $path  . '/' . $attachment->path;
+		$path = ED::attachment()->getStoragePath();
+
+		$file = $path . '/' . $attachment->path;
 		
 		if (!JFile::exists($file)) {
 			return false;
@@ -43,8 +43,6 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 		header('Content-Type: ' . $attachment->mime);
 		header('Content-Disposition: inline');
 		header('Content-Transfer-Encoding: binary');
-		// header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-		// header('Pragma: public');
 		header('Content-Length: ' . filesize($file));
 
 		// http://dtbaker.com.au/random-bits/how-to-cache-images-generated-by-php.html
@@ -53,7 +51,6 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 		header("Expires: " . date(DATE_RFC822,strtotime(" 2 day")));
 
 		if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) && (strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == filemtime($file))) {
-		  // send the last mod time of the file back
 		  header('Last-Modified: '.gmdate('D, d M Y H:i:s', filemtime($file)).' GMT', true, 304);
 		}
 
@@ -77,8 +74,8 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 			return false;
 		}
 
-		$path = $this->config->get('attachment_path');
-		$file = JPATH_ROOT . '/media/com_easydiscuss' . $path . '/' . $attachment->path;
+		$path = ED::attachment()->getStoragePath();
+		$file = $path . '/' . $attachment->path;
 		
 		if (!JFile::exists($file)) {
 			return false;
@@ -111,7 +108,7 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 		exit;
 	}
 
-	function deleteFile($id)
+	public function deleteFile($id)
 	{
 		if (empty($id)) {
 			return false;
@@ -122,12 +119,14 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 			return false;
 		}
 
-		$path = $this->config->get('attachment_path');
-		$file = JPATH_ROOT . 'media/com_easydiscuss/' . $path . '/' . $attachment->path;
-		
-		if (JFile::exists($file)) {
-			
-			if (!JFile::delete($file)) {
+		$path = ED::attachment()->getStoragePath();
+		$file = $path . '/' . $attachment->path;
+		$exists = JFile::exists($file);
+
+		if ($exists) {
+			$state = JFile::delete($file);
+
+			if (!$state) {
 				return false;
 			}
 		}

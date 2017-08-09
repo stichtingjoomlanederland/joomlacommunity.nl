@@ -18,6 +18,7 @@ class EasyDiscussControllerRules extends EasyDiscussController
     public function __construct()
     {
         parent::__construct();
+        $this->jConfig = ED::jConfig();
 
         $this->checkAccess('discuss.manage.rules');
     }
@@ -51,7 +52,8 @@ class EasyDiscussControllerRules extends EasyDiscussController
 		// Request forgeries check
 		ED::checkToken();
 
-		$file = $this->input->get('rule', '', 'FILES');
+		// $file = $this->input->get('rule', '', 'FILES');
+		$file = $this->input->files->get('rule', '');
 		$files = array();
 
 		// @task: If there's no tmp_name in the $file, we assume that the data sent is corrupted.
@@ -64,7 +66,7 @@ class EasyDiscussControllerRules extends EasyDiscussController
 		if ($file['name'] && JFile::getExt($file['name']) == 'xml') {
 			$files = array($file['tmp_name']);
 		} else {
-			$path = rtrim($this->jconfig->get('tmp_path'), '/') . '/' . $file['name'];
+			$path = rtrim($this->jConfig->get('tmp_path'), '/') . '/' . $file['name'];
 
 			// @rule: Copy zip file to temporary location
 			if( !JFile::copy($file['tmp_name'], $path)) {
@@ -117,13 +119,7 @@ class EasyDiscussControllerRules extends EasyDiscussController
 	{
 		// @task: Try to read the temporary file.
 		$contents = JFile::read($path);
-		$parser = ED::xml($contents);
-
-		// @task: Test for appropriate manifest type
-		if ($parser->getName() != 'easydiscuss') {
-			ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_RULE_FILE'), 'error');
-			return $this->app->redirect('index.php?option=com_easydiscuss&view=rules&layout=install');
-		}
+		$parser = ED::getXML($contents, false);
 
 		// @task: Bind appropriate values from the xml file into the database table.
 		$rule = ED::table('Rules');

@@ -204,6 +204,8 @@ class EasyDiscussViewVotes extends EasyDiscussView
 				}
 			}
 
+			$rule = ($typeValue == '1') ? 'new.voteup' : 'new.votedown';
+			ED::easysocial()->notify($rule, $post, $question);
 		}
 
 		// Get the total votes.

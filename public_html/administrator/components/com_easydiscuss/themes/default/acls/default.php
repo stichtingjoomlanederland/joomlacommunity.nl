@@ -12,16 +12,14 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
-	<div class="post-app-filter-bar">
-		<div class="app-filter-bar" style="display: none;">
-		</div>
 
-		<div class="app-filter-bar">
-			<div class="app-filter-bar__cell app-filter-bar__cell--last">
-				<div class="form-inline">
-					<div class="app-filter-select-group">
-						<?php echo $this->html('table.limit', $pagination); ?>
-					</div>
+	<div class="app-filter-bar">
+		<div class="app-filter-bar__cell">
+		</div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--last">
+			<div class="form-inline">
+				<div class="app-filter-select-group">
+					<?php echo $this->html('table.limit', $pagination); ?>
 				</div>
 			</div>
 		</div>

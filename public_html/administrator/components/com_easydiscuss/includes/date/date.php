@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -39,8 +39,6 @@ class EasyDiscussDate extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function __call($method, $args)
 	{
@@ -52,8 +50,6 @@ class EasyDiscussDate extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function format($format = 'l, d F Y', $local = false)
 	{
@@ -68,12 +64,32 @@ class EasyDiscussDate extends EasyDiscuss
 	}
 
 	/**
+	 * Retrieves the date format
+	 *
+	 * @since	4.0.16
+	 * @access	public
+	 */
+	public function getDateFormat($default = '')
+	{
+		if (!$default) {
+			$default = JText::_('DATE_FORMAT_LC1');
+		}
+
+		$config = ED::config();
+		$format = $config->get('layout_dateformat', $default);
+
+		if ($this->isUsingLegacyFormat($format)) {
+			$format = $this->convertLegacyFormat($format);
+		}
+
+		return $format;
+	}
+
+	/**
 	 * This method should be used to display the result on the page rather than directly using format
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function display($format = 'l, d F Y', $local = true, $timezone = null)
 	{
@@ -105,8 +121,6 @@ class EasyDiscussDate extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function toLapsed($time)
 	{
@@ -146,8 +160,6 @@ class EasyDiscussDate extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public static function convertLegacyFormat($format)
 	{
@@ -272,8 +284,6 @@ class EasyDiscussDate extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function isUsingLegacyFormat($format)
 	{
@@ -287,8 +297,6 @@ class EasyDiscussDate extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function toMySQL()
 	{

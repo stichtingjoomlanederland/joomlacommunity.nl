@@ -11,7 +11,7 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-require_once dirname( __FILE__ ) . '/model.php';
+require_once dirname(__FILE__) . '/model.php';
 
 class EasyDiscussModelTags extends EasyDiscussAdminModel
 {
@@ -40,7 +40,7 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 	{
 		parent::__construct();
 
-		$limit		= $this->app->getUserStateFromRequest( 'com_easydiscuss.tags.limit', 'limit', $this->app->getCfg('list_limit'), 'int');
+		$limit		= $this->app->getUserStateFromRequest('com_easydiscuss.tags.limit', 'limit', $this->app->getCfg('list_limit'), 'int');
 		$limitstart	= $this->input->get('limitstart', 0, 'int');
 
 		$this->setState('limit', $limit);
@@ -77,7 +77,7 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		if (empty($this->_pagination))
 		{
 			jimport('joomla.html.pagination');
-			$this->_pagination = new JPagination( $this->getTotal(), $this->getState('limitstart'), $this->getState('limit') );
+			$this->_pagination = new JPagination($this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
 		}
 
 		return $this->_pagination;
@@ -96,7 +96,7 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		$orderby	= $this->_buildQueryOrderBy();
 		$db			= ED::db();
 
-		$query	= 'SELECT * FROM ' . $db->nameQuote( '#__discuss_tags' )
+		$query	= 'SELECT * FROM ' . $db->nameQuote('#__discuss_tags')
 				. $where . ' '
 				. $orderby;
 
@@ -108,30 +108,30 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		$mainframe			= JFactory::getApplication();
 		$db					= ED::db();
 
-		$filter_state 		= $mainframe->getUserStateFromRequest( 'com_easydiscuss.tags.filter_state', 'filter_state', '', 'word' );
-		$search 			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.tags.search', 'search', '', 'string' );
-		$search 			= $db->getEscaped( trim(JString::strtolower( $search ) ) );
+		$filter_state 		= $mainframe->getUserStateFromRequest('com_easydiscuss.tags.filter_state', 'filter_state', '', 'word');
+		$search 			= $mainframe->getUserStateFromRequest('com_easydiscuss.tags.search', 'search', '', 'string');
+		$search 			= $db->getEscaped(trim(JString::strtolower($search)));
 
 		$where = array();
 
-		if ( $filter_state )
+		if ($filter_state)
 		{
-			if ( $filter_state == 'P' )
+			if ($filter_state == 'P')
 			{
-				$where[] = $db->nameQuote( 'published' ) . '=' . $db->Quote( '1' );
+				$where[] = $db->nameQuote('published') . '=' . $db->Quote('1');
 			}
-			else if ($filter_state == 'U' )
+			else if ($filter_state == 'U')
 			{
-				$where[] = $db->nameQuote( 'published' ) . '=' . $db->Quote( '0' );
+				$where[] = $db->nameQuote('published') . '=' . $db->Quote('0');
 			}
 		}
 
 		if ($search)
 		{
-			$where[] = ' LOWER( title ) LIKE \'%' . $search . '%\' ';
+			$where[] = ' LOWER(title) LIKE \'%' . $search . '%\' ';
 		}
 
-		$where 		= ( count( $where ) ? ' WHERE ' . implode( ' AND ', $where ) : '' );
+		$where 		= (count($where) ? ' WHERE ' . implode(' AND ', $where) : '');
 
 		return $where;
 	}
@@ -140,8 +140,8 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 	{
 		$mainframe			= JFactory::getApplication();
 
-		$filter_order		= $mainframe->getUserStateFromRequest( 'com_easydiscuss.tags.filter_order', 		'filter_order', 	'id', 'cmd' );
-		$filter_order_Dir	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.tags.filter_order_Dir',	'filter_order_Dir',		'', 'word' );
+		$filter_order		= $mainframe->getUserStateFromRequest('com_easydiscuss.tags.filter_order', 		'filter_order', 	'id', 'cmd');
+		$filter_order_Dir	= $mainframe->getUserStateFromRequest('com_easydiscuss.tags.filter_order_Dir',	'filter_order_Dir',		'', 'word');
 
 		$orderby 			= ' ORDER BY '.$filter_order.' '.$filter_order_Dir;
 
@@ -154,7 +154,7 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 	 * @access public
 	 * @return array
 	 */
-	public function getData( $usePagination = true)
+	public function getData($usePagination = true)
 	{
 		// Lets load the content if it doesn't already exist
 		if (empty($this->_data))
@@ -175,20 +175,20 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 	 * @access public
 	 * @return array
 	 */
-	public function publish( &$tags = array(), $publish = 1 )
+	public function publish(&$tags = array(), $publish = 1)
 	{
-		if( count( $tags ) > 0 )
+		if(count($tags) > 0)
 		{
 			$db		= ED::db();
 
-			$ids	= implode( ',' , $tags );
+			$ids	= implode(',' , $tags);
 
-			$query	= 'UPDATE ' . $db->nameQuote( '#__discuss_tags' ) . ' '
-					. 'SET ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( $publish ) . ' '
-					. 'WHERE ' . $db->nameQuote( 'id' ) . ' IN (' . $ids . ')';
-			$db->setQuery( $query );
+			$query	= 'UPDATE ' . $db->nameQuote('#__discuss_tags') . ' '
+					. 'SET ' . $db->nameQuote('published') . '=' . $db->Quote($publish) . ' '
+					. 'WHERE ' . $db->nameQuote('id') . ' IN (' . $ids . ')';
+			$db->setQuery($query);
 
-			if( !$db->query() )
+			if(!$db->query())
 			{
 				$this->setError($this->_db->getErrorMsg());
 				return false;
@@ -241,7 +241,7 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		return $names;
 	}
 
-	public function isExist( $tagName, $excludeTagIds = '0' )
+	public function isExist($tagName, $excludeTagIds = '0')
 	{
 		$db = ED::db();
 
@@ -262,21 +262,21 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 	 * @access public
 	 * @return integer
 	 */
-	public function getTotalTags( $userId = 0)
+	public function getTotalTags($userId = 0)
 	{
 		$db		= ED::db();
 		$where	= array();
 
-		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_tags' );
+		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__discuss_tags');
 
 		if(! empty($userId))
 			$where[]  = '`user_id` = ' . $db->Quote($userId);
 
-		$extra	= ( count( $where ) ? ' WHERE ' . implode( ' AND ', $where ) : '' );
+		$extra	= (count($where) ? ' WHERE ' . implode(' AND ', $where) : '');
 		$query	= $query . $extra;
 
 
-		$db->setQuery( $query );
+		$db->setQuery($query);
 
 		$result	= $db->loadResult();
 
@@ -302,24 +302,26 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		}
 		// echo $query; exit;
 
-		$db->setQuery( $query );
+		$db->setQuery($query);
 		$result	= $db->loadResult();
 
 		return $result;
 	}
 
-	public function getTagCloud($limit='', $order='title', $sort='asc' , $userId = '' )
+	public function getTagCloud($limit='', $order='title', $sort='asc' , $userId = '', $usePagination = false)
 	{
 		$db = ED::db();
 
-		$query	=   'select a.`id`, a.`title`, a.`alias`, a.`created`, count(c.`id`) as `post_count`';
-		$query	.=  ' from #__discuss_tags as a';
-		$query	.=  '    left join #__discuss_posts_tags as b';
-		$query	.=  '    on a.`id` = b.`tag_id`';
-		$query	.=  '    left join #__discuss_posts as c';
-		$query	.=  '    on b.post_id = c.id';
-		$query	.=  '    and c.`private`=' . $db->Quote(0);
-		$query	.=  '    and c.`published` = ' . $db->Quote('1');
+		$limitstart = $this->getState('limitstart', 0);
+
+		$query	=  'select SQL_CALC_FOUND_ROWS a.`id`, a.`title`, a.`alias`, a.`created`, count(c.`id`) as `post_count`';
+		$query	.= ' from #__discuss_tags as a';
+		$query	.= '	left join #__discuss_posts_tags as b';
+		$query	.= '	on a.`id` = b.`tag_id`';
+		$query	.= '	left join #__discuss_posts as c';
+		$query	.= '	on b.post_id = c.id';
+		$query	.= '	and c.`private`=' . $db->Quote(0);
+		$query	.= '	and c.`published` = ' . $db->Quote('1');
 
 		// Do not include cluster item here.
 		$query .= ' AND c.`cluster_id` = ' . $db->Quote(0);
@@ -333,17 +335,15 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 
 		$query	.= 	' where a.`published` = ' . $db->Quote('1');
 
-		if( !empty( $userId ) )
-		{
-			$query	.= ' AND a.`user_id`=' . $db->Quote( $userId );
+		if (!empty($userId)) {
+			$query	.= ' AND a.`user_id`=' . $db->Quote($userId);
 		}
 
 
 		$query	.=  ' group by (a.`id`)';
 
 		//order
-		switch($order)
-		{
+		switch ($order) {
 			case 'postcount':
 				$query	.=  ' ORDER BY (post_count)';
 				break;
@@ -353,8 +353,7 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		}
 
 		//sort
-		switch($sort)
-		{
+		switch ($sort) {
 			case 'asc':
 				$query	.=  ' asc ';
 				break;
@@ -364,14 +363,28 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		}
 
 		//limit
-		if(!empty($limit))
-		{
-			$query	.=  ' LIMIT ' . (INT)$limit;
+		if (!empty($limit)) {
+			if ($usePagination) {
+				$query .= " LIMIT $limitstart, $limit";
+
+			} else {
+				$query	.=  ' LIMIT ' . (INT)$limit;
+			}
 		}
 
 		$db->setQuery($query);
-
 		$result = $db->loadObjectList();
+
+		if ($limit && $usePagination) {
+
+			$cntQuery = "select FOUND_ROWS()";
+			$db->setQuery($cntQuery);
+			$this->_total = $db->loadResult();
+			$this->_pagination = ED::pagination($this->_total, $limitstart, $limit);
+
+		}
+
+
 		return $result;
 	}
 

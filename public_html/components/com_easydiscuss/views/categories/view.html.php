@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -15,14 +15,6 @@ require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewCategories extends EasyDiscussView
 {
-	/**
-	 * Generates the categories listing
-	 *
-	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
 	public function display($tmpl = null)
 	{
 		// Set the pathway
@@ -112,10 +104,6 @@ class EasyDiscussViewCategories extends EasyDiscussView
 		// Add view to this page.
 		$this->logView();
 
-
-		// // Set the meta of the page.
-		// ED::setMeta();
-
 		// Add rss feed into headers
 		ED::feeds()->addHeaders('index.php?option=com_easydiscuss&view=categories&layout=listings&category_id=' . $categoryId);
 
@@ -145,7 +133,8 @@ class EasyDiscussViewCategories extends EasyDiscussView
 						'category' => $categoryId,
 						'limit' => $this->config->get('layout_single_category_post_limit', $limit),
 						'userId' => $this->my->id,
-						'includeChilds' => $includeChilds
+						'includeChilds' => $includeChilds,
+						'featuredSticky' => true
 					);
 
 		// Get all the posts in this category and it's childs
@@ -161,22 +150,6 @@ class EasyDiscussViewCategories extends EasyDiscussView
 			// Format normal entries
 			$posts = ED::formatPost($posts);
 
-			// // Grouping the posts based on categories.
-			// foreach ($posts as $post) {
-
-			// 	if (!isset($threads[$post->category_id])) {
-			// 		$thread = new stdClass();
-			// 		$thread->category = ED::category($post->category_id);
-			// 		$thread->posts = array();
-
-			// 		$threads[$post->category_id] = $thread;
-			// 	}
-
-			// 	$threads[$post->category_id]->posts[] = $post;
-			// }
-
-			// since this category listing page only show single category post. we no longer need to group them.
-
 			$thread = new stdClass();
 			$thread->category = $activeCategory;
 			$thread->posts = array();
@@ -185,7 +158,7 @@ class EasyDiscussViewCategories extends EasyDiscussView
 		}
 
 		// setthing pathway
-		if (! EDR::isCurrentActiveMenu('categories', $activeCategory->id, 'category_id') && $breadcrumbs) {
+		if (!EDR::isCurrentActiveMenu('categories', $activeCategory->id, 'category_id') && $breadcrumbs) {
 			foreach ($breadcrumbs as $bdc) {
 				$this->setPathway($bdc->title, $bdc->link);
 			}
@@ -198,10 +171,8 @@ class EasyDiscussViewCategories extends EasyDiscussView
 		// Get the pagination
 		$pagination = $model->getPagination();
 
-
 		// get cats immediate childs
 		$childs = ED::category()->getChildCategories($categoryId, true, false);
-
 
 		$subcategories = array();
 

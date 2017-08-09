@@ -100,17 +100,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <?php echo $this->html('form.label', 'COM_EASYDISCUSS_RECAPTCHA_LANGUAGE'); ?>
                         </div>
                         <div class="col-md-7">
-                            <select name="antispam_recaptcha_lang" class="form-control">
-                                <option value="en"<?php echo $this->config->get('antispam_recaptcha_lang') == 'en' ? ' selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_RECAPTCHA_LANGUAGE_ENGLISH');?></option>
-                                <option value="ru"<?php echo $this->config->get('antispam_recaptcha_lang') == 'ru' ? ' selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_RECAPTCHA_LANGUAGE_RUSSIAN');?></option>
-                                <option value="fr"<?php echo $this->config->get('antispam_recaptcha_lang') == 'fr' ? ' selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_RECAPTCHA_LANGUAGE_FRENCH');?></option>
-                                <option value="de"<?php echo $this->config->get('antispam_recaptcha_lang') == 'de' ? ' selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_RECAPTCHA_LANGUAGE_GERMAN');?></option>
-                                <option value="nl"<?php echo $this->config->get('antispam_recaptcha_lang') == 'nl' ? ' selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_RECAPTCHA_LANGUAGE_DUTCH');?></option>
-                                <option value="pt"<?php echo $this->config->get('antispam_recaptcha_lang') == 'pt' ? ' selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_RECAPTCHA_LANGUAGE_PORTUGUESE');?></option>
-                                <option value="tr"<?php echo $this->config->get('antispam_recaptcha_lang') == 'tr' ? ' selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_RECAPTCHA_LANGUAGE_TURKISH');?></option>
-                                <option value="es"<?php echo $this->config->get('antispam_recaptcha_lang') == 'es' ? ' selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_RECAPTCHA_LANGUAGE_SPANISH');?></option>
-                                <option value="fa"<?php echo $this->config->get('antispam_recaptcha_lang') == 'fa' ? ' selected="selected"' : ''; ?>><?php echo JText::_('COM_EASYDISCUSS_RECAPTCHA_LANGUAGE_PERSIAN');?></option>
-                            </select>
+                            <?php echo $this->html('form.languages', 'antispam_recaptcha_lang', '', $this->config->get('antispam_recaptcha_lang'));?>
                         </div>
                     </div>
                 </div>

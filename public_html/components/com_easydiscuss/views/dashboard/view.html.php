@@ -39,7 +39,7 @@ class EasyDiscussViewDashboard extends EasyDiscussView
 		$posts = false;
 
 		// Only retrieve pending post when site admin viewing the dashboard
-		if (ED::isSiteAdmin()) { 
+		if (ED::isSiteAdmin() || $this->acl->allowed('manage_pending')) { 
 			// Get pending posts
 			$model = ED::model("Threaded");
 			$options = array('stateKey' => 'pending', 'pending' => true);

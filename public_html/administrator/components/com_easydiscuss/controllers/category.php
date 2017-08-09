@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -94,8 +94,6 @@ class EasyDiscussControllerCategory extends EasyDiscussController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function save()
 	{
@@ -159,6 +157,12 @@ class EasyDiscussControllerCategory extends EasyDiscussController
 		// Determine the redirection if the validate is fail
 		$validateRedirection = $isNew ? $urlCatForm : $urlCatForm . '&id=' . $category->id;
 
+		// The user might change this to a container category and when that happens, the default category is a container.
+		if ($category->default && $category->container) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_UNABLE_TO_SAVE_CATEGORY_AS_CONTAINER'), 'error');
+			return $this->app->redirect($validateRedirection);			
+		}
+		
 		// We need to ensure that the category is valid
 		if (!$category->validate()) {
             ED::setMessage($category->getError(), 'error');

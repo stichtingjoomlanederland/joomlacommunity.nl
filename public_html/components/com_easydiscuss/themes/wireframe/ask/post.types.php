@@ -14,6 +14,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 <select id="post_type" class="form-control" name="post_type">
 	<option value="default"><?php echo JText::_('COM_EASYDISCUSS_SELECT_POST_TYPES');?></option>
 	<?php foreach ($postTypes as $type) { ?>
-		<option <?php echo (isset($post) && $type->alias == $post->post_type) ? 'selected="selected"' : '' ?> value="<?php echo $type->alias ?>"><?php echo $type->title ?></option>
+		<option <?php echo (isset($post) && $type->alias == $post->post_type) ? 'selected="selected"' : '' ?> value="<?php echo $type->alias ?>"><?php echo JText::_($type->title); ?></option>
 	<?php } ?>
 </select>

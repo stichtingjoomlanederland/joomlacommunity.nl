@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -147,7 +147,7 @@ class EasyDiscussAttachment extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function html()
+	public function html($external = false)
 	{
 		// Get attachment type
 		$type = $this->getType();
@@ -155,6 +155,7 @@ class EasyDiscussAttachment extends EasyDiscuss
 		$theme = ED::themes();
 		$theme->set('type', $type);
 		$theme->set('attachment', $this);
+		$theme->set('external', $external);
 
 		return $theme->output('site/attachments/item');
 	}
@@ -182,10 +183,15 @@ class EasyDiscussAttachment extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function getThumbnail()
+	public function getThumbnail($external = false)
 	{
 		$type = $this->getType();
-		$url = JRoute::_('index.php?option=com_easydiscuss&controller=attachment&task=thumbnail&tmpl=component&id=' . $this->table->id);
+
+		if ($external) {
+			$url = EDR::getRoutedURL('index.php?option=com_easydiscuss&controller=attachment&task=thumbnail&tmpl=component&id=' . $this->table->id, false, true);
+		} else {
+			$url = JRoute::_('index.php?option=com_easydiscuss&controller=attachment&task=thumbnail&tmpl=component&id=' . $this->table->id);
+		}
 
 		// If the item is stored remotely, we need to set the source to the amazon site
 		if ($this->table->storage == 'amazon') {
@@ -240,28 +246,26 @@ class EasyDiscussAttachment extends EasyDiscuss
 	/**
 	 * Gets the storage path
 	 *
-	 * @since	4.0
+	 * @since	4.0.16
 	 * @access	public
 	 */
 	public function getStoragePath($relative = false)
 	{
-		$path = '';
+		// Prior to 4.0.16, we allow users to only change the relative path name
+		// This is why, we need to fallback to the original path if there is no value on storage_path
+		$path = ltrim($this->config->get('storage_path', '/media/com_easydiscuss/' . trim($this->config->get('attachment_path', '/'))), '/');
 
-		// check for folder existence
-		$attachmentFolder = rtrim(JPATH_ROOT, '/') . '/media/com_easydiscuss/' . trim($this->config->get('attachment_path'), '/');
-		if (!JFolder::exists($attachmentFolder)) {
-			JFolder::create($attachmentFolder);
+		if ($relative) {
+			return '/' . $path;
 		}
 
-		if (!$relative) {
-			$path = JPATH_ROOT;
+		$folder = rtrim(JPATH_ROOT, '/') . '/' . $path;
+
+		if (!JFolder::exists($folder)) {
+			JFolder::create($folder);
 		}
 
-		// Create default media path
-		$path .= '/media/com_easydiscuss/' . trim($this->config->get('attachment_path'), '/');
-
-
-		return $path;
+		return $folder;
 	}
 
 	/**

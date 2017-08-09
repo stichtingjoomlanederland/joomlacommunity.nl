@@ -32,10 +32,16 @@ class EasyDiscussViewTags extends EasyDiscussView
 			return $this->tag($tmpl);
 		}
 
+		// for now we hardcode the limit as tags page pagination abit special. #232
+		$limit = DISCUSS_TAGS_LIMIT;
+
 		$model = ED::model("Tags");
-		$tags = $model->getTagCloud('', '', '');
+		$tags = $model->getTagCloud($limit, '', 'asc', '', true);
+		$pagination = $model->getPagination();
 
 		$this->set('tags', $tags);
+		$this->set('pagination', $pagination);
+
 
 		parent::display('tags/default');
 	}

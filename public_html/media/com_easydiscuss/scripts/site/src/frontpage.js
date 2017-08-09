@@ -5,6 +5,7 @@ ed.define('site/src/frontpage', ['edq', 'easydiscuss', 'abstract', 'selectize'],
 			opts: {
 				activefiltertype: null,
 				activeSortType: null,
+				activeCategoryIds: null,
 				'{allPostsFilter}'      : '.allPostsFilter',
 				'{newPostsFilter}'      : '.newPostsFilter',
 				'{unResolvedFilter}'    : '.unResolvedFilter',
@@ -38,13 +39,22 @@ ed.define('site/src/frontpage', ['edq', 'easydiscuss', 'abstract', 'selectize'],
 					.addClass("active");
 
 				filterType = this.options.activefiltertype;
+				categoryIds = this.options.activeCategoryIds;
+
+				if (filterType == null || filterType == undefined) {
+					filterType = $('[data-filter-tab]').filter('.active').data('filterType');
+				}
+
+				if (categoryIds == undefined) {
+					categoryIds = $('[data-filter-tab]').data('filterCatid');
+				}
 
 				this.options.activeSortType = sortType;
 
-				this.doFilter(filterType, sortType);
+				this.doFilter(filterType, sortType, categoryIds);
 			},
 
-			doFilter: function(filterType, sortType) {
+			doFilter: function(filterType, sortType, categoryIds) {
 
 				var list = this.itemList();
 				var emptyList = this.emptyList();
@@ -57,6 +67,7 @@ ed.define('site/src/frontpage', ['edq', 'easydiscuss', 'abstract', 'selectize'],
 
 
 				this.options.activefiltertype = filterType;
+				this.options.activeCategoryIds = categoryIds;
 
 				if (sortType === undefined) {
 					sortType = this.options.activeSortType;
@@ -77,6 +88,7 @@ ed.define('site/src/frontpage', ['edq', 'easydiscuss', 'abstract', 'selectize'],
 				EasyDiscuss.ajax('site/views/index/filter', {
 					'filter': filterType,
 					'sort'  : sortType,
+					'categoryIds' : categoryIds,
 					'id'    : this.element.data('id'),
 					'view'  : this.element.data('view')
 				}).done(function(contents, paginationHTML) {
@@ -100,21 +112,11 @@ ed.define('site/src/frontpage', ['edq', 'easydiscuss', 'abstract', 'selectize'],
 			// List item being clicked
 			'{filterTab} click' : function(element) {
 				var type = element.data('filterType');
+				var categoryIds = element.data('filterCatid');
 
-				this.doFilter(type);
+				this.doFilter(type,undefined, categoryIds);
 			}
 
-			// '{sortTab} click' : function(element) {
-			//     var type = element.data('sortType');
-
-			//     this.doSort(type);
-			// },
-
-			// '{sortTab} change' : function(element) {
-			//     var type = element.data('sortType');
-
-			//     this.doSort(type);
-			// }
 		}
 	});
 

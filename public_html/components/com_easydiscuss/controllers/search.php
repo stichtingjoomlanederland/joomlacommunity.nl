@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -14,12 +14,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 class EasyDiscussControllerSearch extends EasyDiscussController
 {
 	/**
-	 * @since	4.0
+	 * Performs search in EasyDiscuss
+	 *
+	 * @since	4.0.16
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-
 	public function query()
 	{
 		// Check for request forgeries
@@ -28,24 +27,25 @@ class EasyDiscussControllerSearch extends EasyDiscussController
 		// Get the query
 		$query 	= $this->input->get('query', '', 'string');
 
-		// TODO:
 		$tags = $this->input->get('tags', array(), 'array');
 		$categories = $this->input->get('categories', array(), 'array');
 
 		$catQuery = '';
+
 		if ($categories) {
 			$i = 0;
 			foreach($categories as $item) {
-				$catQuery .= "&categories[$i]=" . $item;
+				$catQuery .= "&categories[$i]=" . (int) $item;
 				$i++;
 			}
 		}
 
 		$tagQuery = '';
+		
 		if ($tags) {
 			$i = 0;
 			foreach($tags as $item) {
-				$catQuery .= "&tags[$i]=" . $item;
+				$catQuery .= "&tags[$i]=" . (int) $item;
 				$i++;
 			}
 		}

@@ -24,6 +24,45 @@ class EasyDiscussControllerPriorities extends EasyDiscussController
 		$this->registerTask('save2new', 'save');
 	}
 
+
+	/**
+	 * remove priorities
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function remove()
+	{
+		// Check for request forgeries
+		ED::checkToken();
+
+		$ids = $this->input->get('cid', '', 'POST');
+		$redirect = 'index.php?option=com_easydiscuss&view=priorities';
+
+		if (empty($ids)) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID'), 'error');
+			return $this->app->redirect($redirect);
+		}
+
+		foreach ($ids as $id) {
+
+			$table = ED::table('Priority');
+			$table->load($id);
+
+			$state = $table->delete();
+
+			if (! $state) {
+				$message = JText::sprintf('COM_EASYDISCUSS_PRIORITIES_DELETE_FAILED', $table->title);
+				ED::setMessage($message, 'error');
+				return $this->app->redirect($redirect);
+			}
+		}
+
+		// Display message
+		ED::setMessage('COM_EASYDISCUSS_PRIORITY_DELETE_SUCCESSFULLY', 'success');
+		return $this->app->redirect($redirect);
+	}
+
 	/**
 	 * Saves a new priority
 	 *

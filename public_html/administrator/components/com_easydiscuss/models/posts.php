@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,9 +9,9 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once dirname( __FILE__ ) . '/model.php';
+require_once(__DIR__ . '/model.php');
 
 class EasyDiscussModelPosts extends EasyDiscussAdminModel
 {
@@ -136,10 +136,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 	/**
 	 * Retrieve post title (parent post)
+	 *
 	 * @since	4.0.13
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getPostTitle($postId)
 	{
@@ -159,20 +158,20 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 	/**
 	 * Method to get a pagination object for the posts
 	 *
-	 * @access public
-	 * @return integer
+	 * @sicne	4.0.16
+	 * @access 	public
 	 */
-	public function getPagination( $parent_id = 0, $sort = 'latest', $filter='', $category='', $featuredOnly = 'all', $userId = '' )
+	public function getPagination($parent_id = 0, $sort = 'latest', $filter='', $category='', $featuredOnly = 'all', $userId = '')
 	{
-		$this->_parent	= $parent_id;
+		$this->_parent = $parent_id;
 
 		// Lets load the content if it doesn't already exist
 		if (empty($this->_pagination)) {
-			if (! $this->_total) {
+			if (!$this->_total) {
 				$this->_total = $this->getTotal($sort, $filter, $category, $featuredOnly, $userId);
 			}
 
-			$this->_pagination	= DiscussHelper::getPagination($this->_total, $this->getState('limitstart'), $this->getState('limit'));
+			$this->_pagination = ED::getPagination($this->_total, $this->getState('limitstart'), $this->getState('limit'));
 		}
 
 		return $this->_pagination;
@@ -645,12 +644,10 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 	/**
 	 * Retrieve a list of discussions
 	 *
-	 * @since	1.0
-	 * @param	array 	An array of options
-	 * the ignorePostIds must be a string when pass into this method.
-	 *
+	 * @since	4.0.16
+	 * @access	public
 	 */
-	public function getDiscussions( $options = array() )
+	public function getDiscussions($options = array())
 	{
 		$my = $this->my;
 		$db = $this->db;
@@ -895,58 +892,65 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		}
 
 		$orderby = "";
+		$featuredOrdering = '';
+
+		$featuredSticky = isset($options['featuredSticky']) ? $options['featuredSticky'] : false;
+		
+		if ($featuredSticky) {
+			$featuredOrdering = "a.featured DESC, ";
+		}
+
 		if ($featured && $config->get('layout_featuredpost_style') != '0') {
 			switch ($config->get('layout_featuredpost_sort', 'date_latest')) {
 				case 'date_oldest':
-					$orderby = " ORDER BY a.`replied` ASC"; //used in getdata only
+					$orderby = " ORDER BY " . $featuredOrdering . "a.`replied` ASC"; //used in getdata only
 					break;
 				case 'order_asc':
-					$orderby = " ORDER BY a.`ordering` ASC"; //used in getreplies only
+					$orderby = " ORDER BY " . $featuredOrdering . "a.`ordering` ASC"; //used in getreplies only
 					break;
 				case 'order_desc':
-					$orderby = " ORDER BY a.`ordering` DESC"; //used in getdate and getreplies
+					$orderby = " ORDER BY " . $featuredOrdering . "a.`ordering` DESC"; //used in getdate and getreplies
 					break;
 				case 'date_latest':
 				default:
-					$orderby = " ORDER BY a.`replied` DESC"; //used in getsticky and get created date
+					$orderby = " ORDER BY " . $featuredOrdering . "a.`replied` DESC"; //used in getsticky and get created date
 					break;
 			}
 		} else {
 			switch ($sort) {
 				case 'title':
-					$orderby = " ORDER BY a.`title` ASC"; //used in getdata only
+					$orderby = " ORDER BY " . $featuredOrdering . "a.`title` ASC"; //used in getdata only
 					break;
 				case 'popular':
-					$orderby = " ORDER BY `num_replies` DESC, a.`created` DESC"; //used in getdata only
+					$orderby = " ORDER BY " . $featuredOrdering . "`num_replies` DESC, a.`created` DESC"; //used in getdata only
 					break;
 				case 'hits':
-					$orderby = " ORDER BY a.`hits` DESC"; //used in getdata only
+					$orderby = " ORDER BY " . $featuredOrdering . " a.`hits` DESC"; //used in getdata only
 					break;
 				case 'voted':
-					$orderby = " ORDER BY a.`sum_totalvote` DESC"; //used in getreplies only
+					$orderby = " ORDER BY " . $featuredOrdering . "a.`sum_totalvote` DESC"; //used in getreplies only
 					break;
 				case 'likes':
-					$orderby = " ORDER BY a.`num_likes` DESC"; //used in getdate and getreplies
+					$orderby = " ORDER BY " . $featuredOrdering . "a.`num_likes` DESC"; //used in getdate and getreplies
 					break;
 				case 'activepost':
-					$orderby = " ORDER BY a.`replied` DESC"; //used in getsticky and getlastreply
+					$orderby = " ORDER BY " . $featuredOrdering . "a.`replied` DESC"; //used in getsticky and getlastreply
 					break;
 				case 'featured':
 					$orderby = " ORDER BY a.`featured` DESC, a.`created` DESC"; //used in getsticky and getlastreply
 					break;
 				case 'oldest':
-					$orderby = " ORDER BY a.`created` ASC"; //used in discussion replies
+					$orderby = " ORDER BY " . $featuredOrdering . "a.`created` ASC"; //used in discussion replies
 					break;
 				case 'replylatest':
-					$orderby = " ORDER BY a.`created` DESC"; //used in discussion replies
+					$orderby = " ORDER BY " . $featuredOrdering . "a.`created` DESC"; //used in discussion replies
 					break;
 				case 'latest':
 				default:
-					$orderby = " ORDER BY a.`replied` DESC"; //used in getsticky and get created date
+					$orderby = " ORDER BY " . $featuredOrdering . "a.`replied` DESC"; //used in getsticky and get created date
 					break;
 			}
 		}
-
 
 		if (!$includeAnonymous) {
 			$where[] = "b.`anonymous` != " . $db->Quote(1);
@@ -2030,7 +2034,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 	 * @param	int		$tagId	The tag id.
 	 * @return	array	$rows	An array of blog objects.
 	 */
-	public function getTaggedPost($tagId = 0, $sort = 'latest', $filter = '', $limitStart = '')
+	public function getTaggedPost($tagId = 0, $sort = 'latest', $filter = '', $limitStart = '', $limit = null, $pagination = true)
 	{
 		if ($tagId == 0) {
 			return false;
@@ -2041,7 +2045,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		}
 
 		$db = ED::db();
-		$limit = (int) $this->getState('limit');
+		$limit = is_null($limit) ? (int) $this->getState('limit') : $limit;
 		$limitstart = (empty($limitStart)) ? $this->getState('limitstart') : $limitStart;
 
 		$limitstart = abs($limitstart);
@@ -2186,10 +2190,12 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
         	}
         }
 
+        if ($pagination) {
+			$this->_total = $this->_getListCount($query);
 
-		$this->_total = $this->_getListCount($query);
-
-		$this->_pagination = ED::pagination($this->_total, $limitstart, $limit);
+			$this->_pagination = ED::pagination($this->_total, $limitstart, $limit);
+		}
+		
 		return $rows;
 	}
 

@@ -48,7 +48,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						</div>
 
 						<button class="btn btn-success" data-ed-migrate>
-							<?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_RUN_MIGRATION_TOOL'); ?>
+							<?php echo JText::_('COM_EASYDISCUSS_MIGRATOR_MIGRATE'); ?>
 						</button>
 
 						<?php } else { ?>

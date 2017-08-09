@@ -1,7 +1,7 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,7 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="app-content-body">
 	<div class="row">
@@ -33,7 +33,7 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 
 		<div class="col-md-6">
-			<div class="panel">
+			<div class="panel <?php echo $this->config->get('storage_attachments') != 'amazon' ? 't-hidden' : '';?>" data-storage-amazon>
 				<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_STORAGE_AMAZON'); ?>
 
 				<div class="panel-body">

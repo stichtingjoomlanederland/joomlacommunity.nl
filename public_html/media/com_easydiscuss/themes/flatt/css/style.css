@@ -39,7 +39,7 @@
 * #TOOLS
 */
 /*------------------------------------*\
-    $Theme - EasyDiscuss Wireframe
+	$Theme - EasyDiscuss Wireframe
 \*------------------------------------*/
 /**
  * SETTINGS
@@ -812,6 +812,14 @@ e.g.:
 */
   /**
 * Easydiscuss btn counter group specific for likes and favor
+*/
+  /** 
+* @package      EasyDiscuss
+* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      Proprietary Use License https://stackideas.com/licensing
+**/
+  /**
+* Easydiscuss spoiler
 */
   /**
 * #STATES
@@ -10342,6 +10350,9 @@ a#ed .badge:focus {
 #ed .is-resolved .ed-state-resolved {
   display: inline-block !important;
 }
+#ed .is-resolved .btn-ed-accept {
+  display: none !important;
+}
 #ed .poll-locked {
   display: none !important;
 }
@@ -12279,6 +12290,57 @@ a#ed .badge:focus {
 #ed .m-leaderboard__meta {
   line-height: .5;
 }
+#ed .ed-mod-ask {
+  background-color: #ffffff;
+  border: 1px solid #cccccc;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+#ed .ed-mod-ask__header,
+#ed .ed-mod-ask__content,
+#ed .ed-mod-ask__footer {
+  padding: 5px;
+  font-size: 12px;
+}
+#ed .ed-mod-ask__header:before,
+#ed .ed-mod-ask__content:before,
+#ed .ed-mod-ask__footer:before,
+#ed .ed-mod-ask__header:after,
+#ed .ed-mod-ask__content:after,
+#ed .ed-mod-ask__footer:after {
+  content: " ";
+  display: table;
+}
+#ed .ed-mod-ask__header:after,
+#ed .ed-mod-ask__content:after,
+#ed .ed-mod-ask__footer:after {
+  clear: both;
+}
+#ed .ed-mod-ask__support-msg {
+  padding: 5px;
+  background-color: #f1f1f1;
+  text-align: center;
+}
+#ed .ed-mod-ask .ed-ask-status {
+  border-radius: 5px;
+  vertical-align: middle;
+  padding: 0.2em 0.6em;
+  text-align: center;
+  display: inline;
+  font-size: 75%;
+  font-weight: bold;
+  line-height: 1;
+}
+#ed .ed-mod-ask .online {
+  background-color: #d3f1d7;
+  border: 1px solid #39b54a;
+  color: #39b54a;
+}
+#ed .ed-mod-ask .offline {
+  background-color: #ffffff;
+  border: 1px solid #d9534f;
+  color: #d9534f;
+}
 #ed .discuss-post-share {
   margin: 10px 0px 10px 0px;
 }
@@ -13109,6 +13171,23 @@ fieldset[disabled] #ed .btn-ed-favor.active {
 #ed .btn-ed-favor .badge {
   color: #5bc0de !important;
   background-color: #ffffff !important;
+}
+#ed .ed-spoiler {
+  background-color: #fafafa;
+  padding: 8px 16px;
+}
+#ed .ed-spoiler__hd {
+  margin-bottom: 4px;
+}
+#ed .ed-spoiler__title {
+  font-weight: bold;
+}
+#ed .ed-spoiler__toggle {
+  color: #888888;
+  margin-left: 8px;
+}
+#ed .ed-spoiler__bd {
+  color: #888888;
 }
 #ed .o-loading {
   display: inline-block;

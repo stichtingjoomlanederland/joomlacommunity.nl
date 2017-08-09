@@ -24,9 +24,6 @@ class EasyDiscussViewPriorities extends EasyDiscussAdminView
 
 		JToolbarHelper::addNew();
 		JToolBarHelper::divider();
-		JToolbarHelper::publishList();
-		JToolbarHelper::unpublishList();
-		JToolBarHelper::divider();
 		JToolbarHelper::deleteList();
 
 		$model = ED::model('Priorities');

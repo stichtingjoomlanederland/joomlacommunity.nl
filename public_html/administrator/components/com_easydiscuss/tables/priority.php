@@ -24,4 +24,27 @@ class DiscussPriority extends EasyDiscussTable
 	{
 		parent::__construct('#__discuss_priorities', 'id', $db);
 	}
+
+	/**
+	 * Overrides parent's delete method to add our own logic.
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function delete($pk = null)
+	{
+		$db = ED::db();
+
+		$query = 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_posts' ) . ' '
+				. 'WHERE ' . $db->nameQuote( 'priority' ) . '=' . $db->Quote( $this->id );
+
+		$db->setQuery($query);
+		$count = $db->loadResult();
+
+		if ($count > 0) {
+			return false;
+		}
+
+		return parent::delete();
+	}
 }

@@ -39,10 +39,9 @@ class plgSearchEasyDiscuss extends JPlugin
 	public function onContentSearchAreas()
 	{
 		JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
+		$title = JText::_('PLG_EASYDISCUSS_SEARCH_FILTER_TITLE');
 
-		static $areas = array(
-			'discussions' => 'Discussions'
-			);
+		$areas = array('discussions' => $title);
 
 		return $areas;
 	}
@@ -51,10 +50,9 @@ class plgSearchEasyDiscuss extends JPlugin
 	public function onSearchAreas()
 	{
 		JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
+		$title = JText::_('PLG_EASYDISCUSS_SEARCH_FILTER_TITLE');
 
-		static $areas = array(
-			'discussions' => 'Discussions'
-		);
+		$areas = array('discussions' => $title);
 
 		return $areas;
 	}

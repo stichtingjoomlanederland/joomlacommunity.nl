@@ -14,13 +14,18 @@ defined('_JEXEC') or die('Unauthorized Access');
 <h2 class="ed-page-title"><?php echo JText::_('COM_EASYDISCUSS_TAGS'); ?></h2>
 
 <?php if ($tags) { ?>
-    <div class="ed-tags">
-	    <?php foreach ($tags as $tag) { ?>
-	        <?php echo $this->output('site/tags/default.item', array('tag' => $tag)); ?>
-	    <?php } ?>
-    </div>
+	<div class="ed-tags">
+		<?php foreach ($tags as $tag) { ?>
+			<?php echo $this->output('site/tags/default.item', array('tag' => $tag)); ?>
+		<?php } ?>
+	</div>
+
+	<div class="ed-pagination">
+		<?php echo $pagination->getPagesLinks();?>
+	</div>
+
 <?php } else { ?>
-    <div class="dc_alert msg_in">
-        <?php echo JText::_('COM_EASYDISCUSS_NO_RECORDS_FOUND'); ?>
-    </div>
+	<div class="dc_alert msg_in">
+		<?php echo JText::_('COM_EASYDISCUSS_NO_RECORDS_FOUND'); ?>
+	</div>
 <?php } ?>

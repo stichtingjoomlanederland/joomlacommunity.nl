@@ -438,10 +438,8 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		if (!$filterType) {
 			$filterType = 'allposts';
 		}
-		
-		// $categoryId = $this->input->get('id', 0, 'int');
-		//
-		$categoryId = 0;
+
+		$categoryIds = $this->input->get('categoryIds', '', 'default');
 
 		$view = $this->input->get('view', 'index', 'cmd');
 
@@ -459,14 +457,14 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		// Get normal discussion posts.
 		$options 	= array(
 						'sort'		=> $sort,
-						'category'	=> $categoryId,
+						'category'	=> $categoryIds,
 						'filter'	=> $filterType,
 						'limit'		=> $limit,
 						'featured'	=> false
 					);
 
-		if ($categoryId) {
-			$options['category'] = explode(',', $categoryId);
+		if ($categoryIds) {
+			$options['category'] = explode(',', $categoryIds);
 		}
 
 		$posts = $postModel->getDiscussions($options);
@@ -484,15 +482,18 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		$filtering = array( 'filter' => $filterType,
 							'sort' => $sort);
 
-		// if ($category_id) {
-		// 	$filtering['category_id'] = $category_id;
-		// }
+		if ($category_id) {
+			$filtering['category_id'] = $categoryIds;
+		}
 
 		$pagination = $pagination->getPagesLinks($view, $filtering, true);
 
 		if (!$posts) {
 			return $this->ajax->resolve('', $pagination);
 		}
+
+
+
 
 		$theme = ED::themes();
 		$contents = '';

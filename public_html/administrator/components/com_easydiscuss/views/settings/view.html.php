@@ -56,8 +56,6 @@ class EasyDiscussViewSettings extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getContents($layout)
 	{
@@ -116,8 +114,6 @@ class EasyDiscussViewSettings extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function resortTabs($a, $b)
 	{
@@ -138,59 +134,5 @@ class EasyDiscussViewSettings extends EasyDiscussAdminView
 		$categories	= $db->loadObjectList();
 
 		return $categories;
-	}
-
-	public function editEmailTemplate()
-	{
-		$file		= JRequest::getVar('file', '', 'GET');
-		$filepath	= DISCUSS_THEMES . '/wireframe/emails/' . $file;
-		$content	= '';
-		$html		= '';
-		$msg		= JRequest::getVar('msg', '', 'GET');
-		$msgType	= JRequest::getVar('msgtype', '', 'GET');
-
-		ob_start();
-
-		if(!empty($msg))
-		{
-		?>
-			<div id="discuss-message" class="<?php echo $msgType; ?>"><?php echo $msg; ?></div>
-		<?php
-		}
-
-		if(is_writable($filepath))
-		{
-			$content = JFile::read($filepath);
-		?>
-			<form name="emailTemplate" id="emailTemplate" method="POST">
-				<div>
-				<?php if(DiscussHelper::getJoomlaVersion() <= '1.5') : ?>
-				<input type="button" value="<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_NOTIFICATIONS_EMAIL_TEMPLATES_CLOSE' );?>" onclick="window.parent.document.getElementById('sbox-window').close();">
-				<?php endif; ?>
-				<input type="submit" name="save" value="<?php echo JText::_( 'COM_EASYDISCUSS_SETTINGS_NOTIFICATIONS_EMAIL_TEMPLATES_SAVE' );?>">
-				</div>
-				<textarea rows="28" cols="93" name="content"><?php echo $content; ?></textarea>
-				<input type="hidden" name="option" value="com_easydiscuss">
-				<input type="hidden" name="controller" value="settings">
-				<input type="hidden" name="task" value="saveEmailTemplate">
-				<input type="hidden" name="file" value="<?php echo $file; ?>">
-				<input type="hidden" name="tmpl" value="component">
-				<input type="hidden" name="browse" value="1">
-
-
-			</form>
-		<?php
-		}
-		else
-		{
-		?>
-			<div><?php echo JText::_('COM_EASYDISCUSS_SETTINGS_NOTIFICATIONS_EMAIL_TEMPLATES_UNWRITABLE'); ?></div>
-		<?php
-		}
-
-		$html = ob_get_contents();
-		ob_end_clean();
-
-		echo $html;
 	}
 }

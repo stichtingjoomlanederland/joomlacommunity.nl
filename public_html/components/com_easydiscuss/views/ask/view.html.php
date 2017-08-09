@@ -208,6 +208,19 @@ class EasyDiscussViewAsk extends EasyDiscussView
 			}
 		}
 
+		// Add canonical tag for this page
+		$catId = $this->input->get('category', '', 'int');
+
+		if ($catId) {
+			$this->canonical('index.php?option=com_easydiscuss&view=ask&category=' . $categoryId);
+		
+		} elseif($id && !$catId) {
+			$this->canonical('index.php?option=com_easydiscuss&view=ask&id=' . $post->id);
+		
+		} else {
+			$this->canonical('index.php?option=com_easydiscuss&view=ask');
+		}
+
 		$this->set('minimumTitle', $minimumTitle);
 		$this->set('cancel', $cancel);
 		$this->set('post', $post);

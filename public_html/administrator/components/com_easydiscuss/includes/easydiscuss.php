@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -30,8 +30,6 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function init($location = 'site')
 	{
@@ -299,46 +297,15 @@ class ED
 		return $registry;
 	}
 
+	/**
+	 * Load joomla xml
+	 *
+	 * @since	4.0.16
+	 * @access	public
+	 */
 	public static function getXML($data, $isFile = true)
 	{
-		if( ED::getJoomlaVersion() >= '1.6' )
-		{
-			$xml = JFactory::getXML($data, true);
-		}
-		else
-		{
-			// Disable libxml errors and allow to fetch error information as needed
-			libxml_use_internal_errors(true);
-
-			if ($isFile)
-			{
-				// Try to load the XML file
-				//$xml = simplexml_load_file($data, 'JXMLElement');
-				$xml = simplexml_load_file($data);
-			}
-			else
-			{
-				// Try to load the XML string
-				//$xml = simplexml_load_string($data, 'JXMLElement');
-				$xml = simplexml_load_string($data);
-			}
-
-			if (empty($xml))
-			{
-				// There was an error
-				JError::raiseWarning(100, JText::_('JLIB_UTIL_ERROR_XML_LOAD'));
-
-				if ($isFile)
-				{
-					JError::raiseWarning(100, $data);
-				}
-
-				foreach (libxml_get_errors() as $error)
-				{
-					JError::raiseWarning(100, 'XML: ' . $error->message);
-				}
-			}
-		}
+		$xml = JFactory::getXML($data, $isFile);
 
 		return $xml;
 	}
@@ -1864,7 +1831,9 @@ class ED
 		$selected = empty($default) ? ' selected="selected"' : '';
 		$multiple = $multiple ? 'multiple style="height:150px"' : '';
 
-		$html = '<select ' . $multiple . ' name="' . $eleName . '" id="' . $eleName .'" class="' . $customClass . '">';
+		$name = $multiple ? $eleName . '[]' : $eleName;
+
+		$html = '<select ' . $multiple . ' name="' . $name . '" id="' . $eleName .'" class="' . $customClass . '">';
 
 		if (!$isWrite) {
 			$html .= '<option value="0">' . JText::_('COM_EASYDISCUSS_SELECT_PARENT_CATEGORY') . '</option>';
@@ -2717,8 +2686,6 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function getPagination($total, $limitstart, $limit, $prefix = '')
 	{

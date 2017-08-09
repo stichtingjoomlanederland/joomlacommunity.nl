@@ -1,48 +1,29 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-defined('_JEXEC') or die('Restricted access');
-
-require_once dirname( __FILE__ ) . '/model.php';
+require_once(__DIR__ . '/model.php');
 
 class EasyDiscussModelCategory extends EasyDiscussAdminModel
 {
-	/**
-	 * Category total
-	 *
-	 * @var integer
-	 */
 	protected $_total = null;
-
-	/**
-	 * Pagination object
-	 *
-	 * @var object
-	 */
 	protected $_pagination = null;
-
-	/**
-	 * Category data array
-	 *
-	 * @var array
-	 */
 	protected $_data = null;
 
 	public function __construct()
 	{
 		parent::__construct();
 
-		$limit		= ($this->app->getCfg('list_limit') == 0) ? 5 : DiscussHelper::getListLimit();
+		$limit = ($this->app->getCfg('list_limit') == 0) ? 5 : DiscussHelper::getListLimit();
 		$limitstart = $this->input->get('limitstart', '0', 'int');
 
 		// In case limit has been changed, adjust it
@@ -115,8 +96,6 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function deleteACLMapping($categoryId)
 	{
@@ -135,8 +114,6 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function deleteACL($categoryId, $aclId = '')
 	{
@@ -197,8 +174,11 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 		return true;
 	}
 
-	/*
+	/**
 	 * Retrieves the default category
+	 *
+	 * @since	4.0.16
+	 * @access	public
 	 */
 	public function getDefaultCategory()
 	{

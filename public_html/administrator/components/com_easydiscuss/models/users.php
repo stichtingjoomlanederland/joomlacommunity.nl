@@ -731,6 +731,12 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 		return $result;
 	}
 
+	/**
+	 * Allow caller to retrieve a list of users ordered by specific post count
+	 *
+	 * @since	4.0.16
+	 * @access	public
+	 */
 	public function getTopUsers($options = array())
 	{
 		$db	= ED::db();
@@ -745,10 +751,19 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 			$exclusion = 'AND a.`id` NOT IN(' . implode(', ',$exclude) . ') ';
 		}
 
+		$duration = isset($options['duration']) ? $options['duration'] : 0;
+		$durationQuery = '';
+
+		if ($duration && $order == 'posts') {
+			$date = ED::date();
+			$durationQuery = 'AND b.`created` >= DATE_SUB(' . $db->Quote($date->toSql()) . ', INTERVAL ' . $duration . ' DAY) ';
+		}
+
 		if ($order == 'posts') {
 			$query	= 'SELECT a.' . $db->nameQuote('id') . ', '
 					. '(select count(1) from ' . $db->nameQuote('#__discuss_posts') . ' AS b' . ' '
 					. 'where b.' . $db->nameQuote('user_id') . '  = a.' . $db->nameQuote('id') . ' '
+					. $durationQuery
 					. 'AND b.' . $db->nameQuote('published') . ' = ' . $db->Quote('1') . ') AS ' . $db->nameQuote('total_posts') . ' '
 					. 'FROM ' . $db->nameQuote('#__discuss_users') . ' AS a '
 					. 'INNER JOIN ' . $db->nameQuote('#__users') . ' AS c '
@@ -758,6 +773,7 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 					. 'ORDER BY ' . $db->nameQuote('total_posts') . ' DESC '
 					. 'LIMIT 0,' . $count;
 		}
+
 		if ($order == 'points') {
 			$query	= 'SELECT a.' . $db->nameQuote('id') . ', '
 					. 'a.' . $db->nameQuote('points') . ' AS ' . $db->nameQuote('total_points') . ' '
@@ -769,6 +785,7 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 					. 'ORDER BY ' . $db->nameQuote('total_points') . ' DESC '
 					. 'LIMIT 0,' . $count;
 		}
+
 		if ($order == 'answers') {
 			$query	= 'SELECT a.' . $db->nameQuote('id') . ', '
 					. '(select count(1) from ' . $db->nameQuote('#__discuss_posts') . ' AS b' . ' '

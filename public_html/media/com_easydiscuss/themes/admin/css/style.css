@@ -10233,6 +10233,9 @@ a#ed .badge:focus {
 #ed .is-resolved .ed-state-resolved {
   display: inline-block !important;
 }
+#ed .is-resolved .btn-ed-accept {
+  display: none !important;
+}
 #ed .poll-locked {
   display: none !important;
 }

@@ -87,12 +87,14 @@ class EasyDiscussMigratorDiscussions extends EasyDiscussMigratorBase
 	        $data['parent_id'] = $post->id;
 	        $data['user_id'] = $dChildItem->userid;
 
+	        $saveOptions = array('migration' => true);
+
 	        // Load the post library
 	        $post = ED::post();
 	        $post->bind($data);
 
 	        // Try to save the post now
-	        $state = $post->save();
+	        $state = $post->save($saveOptions);
 		}
 	}
 
@@ -131,8 +133,10 @@ class EasyDiscussMigratorDiscussions extends EasyDiscussMigratorBase
 			$data['user_type'] = DISCUSS_POSTER_GUEST;
 		}
 
+		$saveOptions = array('migration' => true);
+
 		$post->bind($data);
-        $post->save();
+        $post->save($saveOptions);
 
         // Add this to migrators table
 		$this->added('com_discussions', $post->id, $item->id, 'post');

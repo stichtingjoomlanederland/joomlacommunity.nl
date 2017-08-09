@@ -38,6 +38,29 @@ class EasyDiscussControllerUser extends EasyDiscussController
 		$post = $this->input->getArray('post');
 		$user->name	= $post['fullname'];
 
+		// this is so that we can get com_users jform data for custom fields.
+		$profileExModel = new EasyDiscussModelProfileEx();
+		$form = $profileExModel->getForm();
+
+		// here we need to get the custom fiels data and simulate the form post data.
+		if ($form !== false) {
+			$customFields = array();
+			foreach ($form->getFieldsets() as $group => $fieldset) {
+
+				if (strpos($group, 'fields') !== false) {
+					$fields = $form->getFieldset($group);
+
+					foreach($fields as $field) {
+						$customFields[$field->fieldname] = $field->value;
+					}
+				}
+			}
+
+			if ($customFields) {
+				$post['com_fields'] = $customFields;
+			}
+		}
+
 		if (!$user->bind($post)) {
 			ED::setMessage($user->getError(), 'error');
 			$this->_saveError($user->id);
@@ -426,4 +449,64 @@ class EasyDiscussControllerUser extends EasyDiscussController
 
 		return $this->app->redirect('index.php?option=com_easydiscuss&view=user&id=' . $user->id);
 	}
+}
+
+
+require_once(JPATH_ADMINISTRATOR .'/components/com_users/models/user.php');
+class EasyDiscussModelProfileEx extends UsersModelUser
+{
+	/**
+	 * @since	4.0
+	 * @access	public
+	 */
+	protected $data;
+
+	/**
+	 * Checks if an alias is valid
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function __construct($config = array())
+	{
+		parent::__construct($config);
+	}
+
+	/**
+	 * Get user custom fields if available
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function getForm($data = array(), $loadData = true)
+	{
+		if (! $this->isEnabled()) {
+			return false;
+		}
+
+		// add com_users forms and fields path
+		JForm::addFormPath(JPATH_ADMINISTRATOR . '/components/com_users/models/forms');
+		JForm::addFieldPath(JPATH_ADMINISTRATOR . '/components/com_users//models/fields');
+		JForm::addFormPath(JPATH_ADMINISTRATOR . '/components/com_users//model/form');
+		JForm::addFieldPath(JPATH_ADMINISTRATOR . '/components/com_users//model/field');
+
+		$form = parent::getForm($data, $loadData);
+		return $form;
+	}
+
+	/**
+	 * Checks if custom fields supported or not.
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function isEnabled()
+	{
+		JLoader::register('FieldsHelper', JPATH_ADMINISTRATOR . '/components/com_fields/helpers/fields.php');
+
+		// Only joomla 3.7.x and above have custom fields
+		if (!class_exists('FieldsHelper')) {
+			return false;
+		}
+
+		return true;
+	}
+
 }

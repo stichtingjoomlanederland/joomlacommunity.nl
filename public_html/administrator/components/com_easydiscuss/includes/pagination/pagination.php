@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -52,8 +52,6 @@ class EasyDiscussPagination extends JPagination
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getPageNumber()
 	{
@@ -94,33 +92,28 @@ class EasyDiscussPagination extends JPagination
 				if( is_array($filtering['category_id']) ) {
 					$filtering['category_id'] = $filtering['category_id'][0];
 				}
-				$queries    .= '&layout=listings&category_id=' . $filtering['category_id'];
+				$queries .= '&layout=listings&category_id=' . $filtering['category_id'];
 			}
 
-			if( isset( $filtering['filter'] ) )
-			{
-				$queries    .= '&filter=' .$filtering['filter'];
+			if (isset($filtering['filter'])) {
+				$queries .= '&filter=' . $filtering['filter'];
 			}
 
-			if( isset( $filtering['sort'] ) )
-			{
-				$queries    .= '&sort=' .$filtering['sort'];
+			if (isset($filtering['sort'])) {
+				$queries .= '&sort=' .$filtering['sort'];
 			}
 
-			if( isset( $filtering['query'] ) )
-			{
+			if (isset($filtering['query'])) {
 				$queries    .= '&query=' .$filtering['query'];
 			}
 
 			// profile
-			if( isset( $filtering['viewtype'] ) )
-			{
-				$queries    .= '&viewtype=' .$filtering['viewtype'];
+			if (isset($filtering['viewtype'])) {
+				$queries .= '&viewtype=' .$filtering['viewtype'];
 			}
 
-			if( isset( $filtering['id'] ) )
-			{
-				$queries    .= '&id=' .$filtering['id'];
+			if (isset($filtering['id'])) {
+				$queries .= '&id=' .$filtering['id'];
 			}
 		}
 

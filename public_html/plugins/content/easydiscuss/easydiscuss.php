@@ -36,8 +36,6 @@ class plgContentEasyDiscuss extends JPlugin
 	 *
 	 * @since	4.0
 	 * @access	private
-	 * @param	string
-	 * @return
 	 */
 	private function exists()
 	{
@@ -63,8 +61,8 @@ class plgContentEasyDiscuss extends JPlugin
 	 */
 	public function onAfterContentSave(&$article, $isNew)
 	{
-		if (! $this->exists()) {
-			return false;
+		if (!$this->exists()) {
+			return;
 		}
 
 		// If the current page is easydiscuss, we want to skip this altogether.
@@ -83,16 +81,16 @@ class plgContentEasyDiscuss extends JPlugin
 		$allowed[] = 'com_easydiscuss';
 
 		if (!in_array($this->extension, $allowed)) {
-			return false;
+			return;
 		}
 
 		if (!$this->categoryCheck($article)) {
-			return false;
+			return;
 		}
 
 		$this->mapExisting($article);
 
-		return true;
+		return;
 	}
 
 	/**
@@ -100,8 +98,6 @@ class plgContentEasyDiscuss extends JPlugin
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function categoryCheck($article)
 	{
@@ -183,8 +179,8 @@ class plgContentEasyDiscuss extends JPlugin
 	 */
 	public function onAfterDisplayContent(&$article, &$articleParams, $limitstart , $trigger = '')
 	{
-		if (! $this->exists()) {
-			return false;
+		if (!$this->exists()) {
+			return;
 		}
 
 		$app = JFactory::getApplication();
@@ -311,11 +307,10 @@ class plgContentEasyDiscuss extends JPlugin
 	}
 
 	/**
-	 * Retrieves parameter plugins.
+	 * Return paramenter of the plugins in form of object
 	 *
-	 * @access 	public
-	 * @param 	null
-	 * @return 	JParameter		JParameter object from Joomla.
+	 * @since	4.0
+	 * @access	public
 	 */
 	public function getParams()
 	{

@@ -20,8 +20,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function display($tpl = null)
 	{
@@ -150,8 +148,9 @@ class EasyDiscussViewPost extends EasyDiscussView
 
 		// Get the post created date
 		$date = ED::date($post->created);
+		$dateFormat = $date->getDateFormat(JText::_('DATE_FORMAT_LC1'));
 
-		$post->date = $date->display(ED::config()->get('layout_dateformat', JText::_('DATE_FORMAT_LC1')));
+		$post->date = JHtml::date($post->created, $dateFormat);
 
 		// Get the pagination for replies
 		if ($pagination) {
@@ -208,6 +207,9 @@ class EasyDiscussViewPost extends EasyDiscussView
 		// Load post item
 		$id = $this->input->get('id', 0, 'int');
         $seq = $this->input->get('seq', 0, 'int');
+		
+		// Load the actor
+		$my = ED::user();
 
 		if (!$id) {
 			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_SYSTEM_POST_NOT_FOUND'));
@@ -263,6 +265,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 		$this->set('composer', $composer);
 		$this->set('attachments', $attachments);
 		$this->set('redirect', $redirect);
+		$this->set('my', $my);
 
 		parent::display('post/default.edit');
 	}

@@ -15,7 +15,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 	<!-- Filter tabs -->
 	<ul class="o-tabs o-tabs--ed pull-left">
-		<li class="o-tabs__item <?php echo !$activeFilter || $activeFilter == 'allposts' || $activeFilter == 'all' ? ' active' : '';?>" data-filter-tab data-filter-type="allposts">
+		<li class="o-tabs__item <?php echo !$activeFilter || $activeFilter == 'allposts' || $activeFilter == 'all' ? ' active' : '';?>"
+			data-filter-tab
+			data-filter-type="allposts"
+			data-filter-catid="<?php echo $menuCatId; ?>"
+		>
 			<a class="o-tabs__link allPostsFilter" data-filter-anchor href="<?php echo EDR::_('view=index');?>">
 				<?php echo JText::_('COM_EASYDISCUSS_FILTER_ALL_POSTS'); ?>
 			</a>
@@ -25,6 +29,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<li class="o-tabs__item <?php echo $activeFilter == 'unresolved' ? ' active' : '';?>"
 			data-filter-tab
 			data-filter-type="unresolved"
+			data-filter-catid="<?php echo $menuCatId; ?>"
 		>
 			<a class="o-tabs__link unResolvedFilter" data-filter-anchor href="<?php echo EDR::_('view=index&filter=unresolved');?>">
 				<?php echo JText::_('COM_EASYDISCUSS_FILTER_UNRESOLVED');?>
@@ -36,6 +41,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<li class="o-tabs__item <?php echo $activeFilter == 'resolved' ? ' active' : '';?>"
 			data-filter-tab
 			data-filter-type="resolved"
+			data-filter-catid="<?php echo $menuCatId; ?>"
 		>
 			<a class="o-tabs__link resolvedFilter" data-filter-anchor href="<?php echo EDR::_('view=index&filter=resolved');?>">
 				<?php echo JText::_('COM_EASYDISCUSS_FILTER_RESOLVED');?>
@@ -47,6 +53,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<li class="o-tabs__item <?php echo $activeFilter == 'unanswered' ? ' active' : '';?>"
 			data-filter-tab
 			data-filter-type="unanswered"
+			data-filter-catid="<?php echo $menuCatId; ?>"
 		>
 			<a class="o-tabs__link unAnsweredFilter" data-filter-anchor href="<?php echo EDR::_('view=index&filter=unanswered');?>">
 				<?php echo JText::_('COM_EASYDISCUSS_FILTER_UNANSWERED'); ?>
@@ -54,10 +61,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 		</li>
 		<?php } ?>
 
-		<?php if ($this->config->get('layout_enablefilter_unread')) { ?>
+		<?php if ($this->config->get('layout_enablefilter_unread') && ED::isLoggedIn()) { ?>
 		<li class="o-tabs__item <?php echo $activeFilter == 'unread' ? ' active' : '';?>"
 			data-filter-tab
 			data-filter-type="unread"
+			data-filter-catid="<?php echo $menuCatId; ?>"
 		>
 			<a class="o-tabs__link unreadFilter" data-filter-anchor href="<?php echo EDR::_('view=index&filter=unread');?>">
 				<?php echo JText::_('COM_EASYDISCUSS_FILTER_UNREAD');?>

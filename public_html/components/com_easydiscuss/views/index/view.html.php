@@ -37,12 +37,15 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		// Try to detect if there's any category id being set in the menu parameter.
 		$activeMenu = $this->app->getMenu()->getActive();
 
+		$menuCatId = '';
+
 		// If there is an active menu, render the params
 		if ($activeMenu && !$categoryId) {
 			$registry->loadString($activeMenu->params);
 
 			if ($registry->get('category_id')) {
 				$categoryId	= $registry->get('category_id');
+				$menuCatId = $categoryId;
 			}
 		}
 
@@ -76,7 +79,7 @@ class EasyDiscussViewIndex extends EasyDiscussView
 
 		// Add canonical tag for this page
 		$this->canonical('index.php?option=com_easydiscuss&view=index');
-		
+
 		// Get list of categories on the site.
 		$catModel = ED::model('Categories');
 
@@ -160,6 +163,12 @@ class EasyDiscussViewIndex extends EasyDiscussView
 		$this->set('posts', $posts);
 		$this->set('featured', $featured);
 		$this->set('pagination', $pagination);
+
+		// used for the filtering
+		if ($menuCatId && is_array($menuCatId)) {
+			$menuCatId = implode(',', $menuCatId);
+		}
+		$this->set('menuCatId', $menuCatId);
 
 		parent::display('frontpage/default');
 	}

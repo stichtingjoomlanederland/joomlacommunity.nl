@@ -21,7 +21,7 @@ defined('_JEXEC') or die('Unauthorized Access');
         <?php } ?>
     >
         <?php if ($type == 'image') { ?>
-            <img class="ed-attachment-item__img" src="<?php echo $attachment->getThumbnail();?>" alt="<?php echo $this->html('string.escape', $attachment->title);?>" />
+            <img class="ed-attachment-item__img" src="<?php echo $attachment->getThumbnail($external);?>" alt="<?php echo $this->html('string.escape', $attachment->title);?>" />
 
         <?php } else { ?>
             <i class="fa fa-download ed-attachment-item__icon"></i>

@@ -368,7 +368,8 @@ class EasyDiscussInstaller
 				. ' ("29", "delete_own_comment", "0", "COM_EASYDISCUSS_ACL_OPTION_EDIT_OWN_COMMENT_DESC", "1", "0", "0"),'
 				. ' ("30", "allow_privatemessage", "1", "COM_EASYDISCUSS_ACL_OPTION_ALLOW_PRIVATEMESSAGE_DESC", "1", "0", "0"),'
 				. ' ("31", "manage_holiday", "0", "COM_EASYDISCUSS_ACL_OPTION_MANAGE_HOLIDAY_DESC", "1", "0", "0"),'
-				. ' ("32", "exclude_frontend_statistics", "1", "COM_EASYDISCUSS_ACL_OPTION_EXCLUDE_FRONTEND_STATISTICS_DESC", "1", "0", "1")';
+				. ' ("32", "exclude_frontend_statistics", "1", "COM_EASYDISCUSS_ACL_OPTION_EXCLUDE_FRONTEND_STATISTICS_DESC", "1", "0", "1"),'
+				. ' ("33", "manage_pending", "0", "COM_EASYDISCUSS_ACL_OPTION_MANAGE_PENDING_DESC", "1", "0", "0")';
 
 
 		$this->db->setQuery( $query );

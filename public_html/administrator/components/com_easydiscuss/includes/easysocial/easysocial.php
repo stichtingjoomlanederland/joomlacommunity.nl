@@ -896,6 +896,28 @@ class EasyDiscussEasySocial extends EasyDiscuss
 			$rule = 'discuss.mentions';
 		}
 
+		if ($action == 'new.voteup' || $action == 'new.votedown') {
+
+			if (!$this->config->get('integration_easysocial_notify_vote')) {
+				return;
+			}
+
+			// The recipient should only be the post owner
+			$recipients = array($post->user_id);
+
+			$permalink = EDR::_('view=post&id=' . $question->id) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+
+			if ($post->isQuestion()) {
+				$permalink = EDR::_('view=post&id=' . $post->id);
+			}
+
+			$string = ($action == 'new.voteup') ? 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_VOTE_UP' : 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_VOTE_DOWN';
+
+			$options = array('actor_id' => JFactory::getUser()->id, 'uid' => $post->id, 'title' => JText::_($string), 'type' => 'discuss', 'url' => $permalink);
+
+			$rule = 'discuss.vote';
+		}
+
 		if (empty($rule)) {
 			return false;
 		}

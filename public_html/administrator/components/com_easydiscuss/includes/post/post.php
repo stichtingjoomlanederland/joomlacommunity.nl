@@ -781,7 +781,7 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function bind($data = array(), $allowBindingId = false)
+	public function bind($data = array(), $allowBindingId = false, $isMigration = false)
 	{
 		$date = ED::date();
 
@@ -806,7 +806,7 @@ class EasyDiscussPost extends EasyDiscuss
 		$allowedAttributes = explode(',', $this->config->get('main_allowed_attr'));
 
 		// Sanitize the post title
-		if (isset($data['title'])) {
+		if (isset($data['title']) && !$isMigration) {
 			$input = JFilterInput::getInstance($allowedTags, $allowedAttributes);
 			$this->title = $input->clean($data['title']);
 		}
@@ -819,7 +819,7 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		// Ensure that the user is really allowed to pick this post type
-		if ($this->post->post_type) {
+		if ($this->post->post_type && !$isMigration) {
 			$model = ED::model('PostTypes');
 			$postTypes = $model->getPostTypes($this->post->category_id);
 
@@ -831,7 +831,7 @@ class EasyDiscussPost extends EasyDiscuss
 				foreach ($postTypes as $postType) {
 					$types[] = $postType->alias;
 				}
-				
+
 				if (!in_array($this->post->post_type, $types)) {
 					$this->post->post_type = '';
 				}
@@ -901,6 +901,7 @@ class EasyDiscussPost extends EasyDiscuss
 		// now we need to 'translate the content into preview mode so that frontend no longer need to do this heavy process'
 		if ($this->post->content_type == 'bbcode') {
 			$preview = ED::parser()->bbcode($content);
+
 			$preview = nl2br($preview);
 
 			// Before we store this as preview, we need to filter the badwords
@@ -926,7 +927,7 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		// If this is a reply, we need to update the last replied date for the parent discussion
-		if ($this->post->published && $this->isReply()) {
+		if ($this->post->published && $this->isReply() && !$isMigration) {
 			$this->post->updateParentLastRepliedDate();
 		}
 
@@ -1012,9 +1013,13 @@ class EasyDiscussPost extends EasyDiscuss
 		// Send notification to the thread starter that their post is being featured.
 		// Only send when the person featuring the post is not himself.
 		if ($this->post->user_id != $this->my->id) {
+
+			ED::loadLanguages();
+
 			$notification = ED::table('Notifications');
+
 			$notification->bind(array(
-					'title' => JText::sprintf( 'COM_EASYDISCUSS_FEATURED_DISCUSSION_NOTIFICATION_TITLE', $this->post->title),
+					'title' => JText::sprintf('COM_EASYDISCUSS_FEATURED_DISCUSSION_NOTIFICATION_TITLE', $this->post->title),
 					'cid' => $this->post->id,
 					'type' => DISCUSS_NOTIFICATIONS_FEATURED,
 					'target' => $this->post->user_id,
@@ -3306,7 +3311,12 @@ class EasyDiscussPost extends EasyDiscuss
 			if (!$this->post->user_id) {
 				$user = ED::user('0');
 
-				$user->name = $this->post->poster_name;
+				if (!isset($user->user)) {
+					$user->user = new stdClass();
+				}
+				
+				$user->user->name = $this->post->poster_name;
+				$user->user->email = $this->post->poster_email;
 			}
 
 			$owners[$key] = $user;
@@ -3671,7 +3681,7 @@ class EasyDiscussPost extends EasyDiscuss
 				$posttype = $model->getTitle($this->post->post_type);
 			}
 
-			$_title[$this->post->id] = $posttype;
+			$_title[$this->post->id] = JText::_($posttype);
 		}
 
 
@@ -3954,18 +3964,25 @@ class EasyDiscussPost extends EasyDiscuss
 
 			// There is a possibility that we need to replace attachment tags
 			if ($this->post->content_type == 'bbcode') {
+
 				$preview = ED::parser()->replaceAttachmentsEmbed($this->post->preview, $this);
-				$this->post->preview = $preview;
-				$this->post->store();
 			}
 		}
 
-		if ($this->isReply()) {
-			$parent = ED::table('Post');
-			$parent->load($this->parent_id);
+		$preview = ED::parser()->processSizeTag($preview);
 
-			$parent->replied = $this->created;
-			$parent->store();
+		$this->post->preview = $preview;
+		$this->post->store();
+
+		if (!isset($this->saveOptions['migration']) && (isset($this->saveOptions['migration']) && !$this->saveOptions['migration'])) {
+
+			if ($this->isReply()) {
+				$parent = ED::table('Post');
+				$parent->load($this->parent_id);
+
+				$parent->replied = $this->created;
+				$parent->store();
+			}
 		}
 
 		// Now we need to save / update thread here
@@ -4388,7 +4405,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 		// send notification to all comment subscribers that want to receive notification immediately
 		$attachments = $this->getAttachments();
-		
+
 		// This is used when we need to alter the sender information
 		$emailData['senderObject'] = $owner;
 
@@ -4572,7 +4589,7 @@ class EasyDiscussPost extends EasyDiscuss
 	public function getReplyPermalink()
 	{
 		$question = ED::post($this->post->parent_id);
-		
+
 		// Get the default reply sort
 		$replySort = $this->config->get('layout_replies_sorting');
 
@@ -4608,7 +4625,7 @@ class EasyDiscussPost extends EasyDiscuss
 	{
 		// Add system notifications for the thread starter
 		if ($this->isReply() && $this->post->published && $this->config->get('main_notifications_reply')) {
-			  
+
 			// Get all users that are subscribed to this post
 			$model = ED::model('Posts');
 			$participants = $model->getParticipants($this->post->parent_id);
@@ -4657,7 +4674,7 @@ class EasyDiscussPost extends EasyDiscuss
 		$overrideName = (isset($profile->name) && $profile->name) ? $profile->name : '';
 
 		// This is used when we need to alter the sender information
-		$emailData['senderObject'] = $profile; 
+		$emailData['senderObject'] = $profile;
 
 		$emailData['postAuthor'] = $profile->getName($overrideName);
 		$emailData['postAuthorAvatar'] = $profile->getAvatar();
@@ -4866,7 +4883,7 @@ class EasyDiscussPost extends EasyDiscuss
 			ED::easysocial()->notify($actionRule, $this, $question);
 
 			// Add logging for user.
-			ED::History()->log('easydiscuss.' . $actionRule, $this->post->user_id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_NEW_' . strtoupper($actionType), $this->post->title ), $this->post->id);
+			ED::History()->log('easydiscuss.' . $actionRule, $this->post->user_id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_NEW_' . strtoupper($actionType), $this->post->title), $this->post->id);
 
 			ED::Badges()->assign('easydiscuss.' . $actionRule, $this->post->user_id);
 			ED::Points()->assign('easydiscuss.' . $actionRule, $this->post->user_id);
@@ -4913,8 +4930,25 @@ class EasyDiscussPost extends EasyDiscuss
 			return $this->app->close();
 		}
 
+		// dump('done...');
+		// exit;
+
 		// This allows us to perform necessary logics after the post is really saved.
 		$this->postSave();
+
+		// Add tag for the post
+		$this->addTags();
+
+		// Subscribe the user to this post (for replies)
+		$this->subscribe();
+
+		// Trigger necessary plugins after save
+		$this->triggerAfterSave();
+
+		// Here we need to check if this is migration, we can just skip all these
+		if (isset($this->saveOptions['migration']) && $this->saveOptions['migration']) {
+			return $state;
+		}
 
 		// Auto post to slack
 		$this->slack();
@@ -4933,23 +4967,14 @@ class EasyDiscussPost extends EasyDiscuss
 		// Ping
 		$this->ping();
 
-		// Add tag for the post
-		$this->addTags();
-
 		// should we send email notifications (question)
 		$this->notify();
 
 		// should we send email notifications (reply)
 		$this->replyNotify();
 
-		// Subscribe the user to this post (for replies)
-		$this->subscribe();
-
-		// // Execute all integration
+		// Execute all integration
 		$this->integrate();
-
-		// Trigger necessary plugins after save
-		$this->triggerAfterSave();
 
 		return $state;
 	}
@@ -5078,6 +5103,8 @@ class EasyDiscussPost extends EasyDiscuss
 	public function formatContent($debug = false)
 	{
 		if ($this->post->preview) {
+			$this->post->preview = ED::parser()->processSpoilerTag($this->post->preview);
+			$this->post->preview = ED::parser()->processHideTag($this->post->preview);
 			return $this->post->preview;
 		}
 
@@ -5092,6 +5119,13 @@ class EasyDiscussPost extends EasyDiscuss
 			// Allow syntax highlighter even on html codes.
 			$content = ED::parser()->bbcode($content, $debug);
 
+			$content = ED::parser()->processHideTag($content);
+			$content = ED::parser()->processSpoilerTag($content);
+			$content = ED::parser()->processSizeTag($content);
+
+			// There is a possibility that we need to replace attachment tags
+			$content = ED::parser()->replaceAttachmentsEmbed($content, $this);
+
 			// Since this is a bbcode content and source, we want to replace \n with <br /> tags.
 			$content = nl2br($content);
 		}
@@ -5105,6 +5139,14 @@ class EasyDiscussPost extends EasyDiscuss
 			// Since the original content is bbcode, we don't really need to do any replacements.
 			// Just feed it in through bbcode formatter.
 			$content = ED::parser()->bbcode($content);
+
+			$content = ED::parser()->processHideTag($content);
+			$content = ED::parser()->processSpoilerTag($content);
+			$content = ED::parser()->processSizeTag($content);
+
+			// There is a possibility that we need to replace attachment tags
+			$content = ED::parser()->replaceAttachmentsEmbed($content, $this);
+
 		}
 
 		// If the admin decides to switch from wysiwyg to bbcode, we need to fix the content here.
@@ -5126,6 +5168,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 		// Apply word censorship on the content
 		$content = ED::badwords()->filter($content);
+
 
 		return $content;
 	}
@@ -5665,6 +5708,8 @@ class EasyDiscussPost extends EasyDiscuss
 			ED::easySocial()->assignBadge('resolve.reply', $this->my->id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_RESOLVED_OWN_DISCUSSION', $this->post->title));
 		}
 
+
+
 		// Add notifications for the thread starter
 		if ($this->post->user_id != $this->my->id && $this->config->get('main_notifications_resolved')) {
 			$notification = ED::table('Notifications');
@@ -5679,6 +5724,14 @@ class EasyDiscussPost extends EasyDiscuss
 				));
 			$notification->store();
 		}
+
+		// Import plugins
+		JPluginHelper::importPlugin('easydiscuss');
+
+		$dispatcher = JDispatcher::getInstance();
+
+		// finder index
+		$dispatcher->trigger('onEasyDiscussAfterResolved', array('com_easydiscuss.post', &$this));
 
 		return $state;
 	}

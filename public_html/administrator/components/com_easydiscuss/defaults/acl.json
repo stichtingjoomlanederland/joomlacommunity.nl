@@ -286,5 +286,14 @@
         "default" : 1,
         "public": 1,
         "id": 32
+    },
+    {
+        "action": "manage_pending",
+        "group": "moderation",
+        "desc": "COM_EASYDISCUSS_ACL_OPTION_MANAGE_PENDING_DESC",
+        "published": 1,
+        "default" : 0,
+        "public": 0,
+        "id": 33
     }
 ]

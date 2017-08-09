@@ -1,17 +1,15 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
 ED::import('admin:/tables/table');
 
@@ -191,7 +189,7 @@ class DiscussTags extends EasyDiscussTable
 	 *
 	 * @param Array $data
 	 **/
-	public function bind( $data , $ignore = array() )
+	public function bind($data, $ignore = array(), $generateAlias = true)
 	{
 		parent::bind( $data );
 
@@ -199,21 +197,23 @@ class DiscussTags extends EasyDiscussTable
 			$this->created = ED::date()->toSql();
 		}
 
+		if ($generateAlias) {
 
-		$alias = $this->alias ? $this->alias : $this->title;
-		$alias = ED::permalinkSlug($alias);
+			$alias = $this->alias ? $this->alias : $this->title;
+			$alias = ED::permalinkSlug($alias);
 
-		$tmp = $alias;
+			$tmp = $alias;
 
-		$i = 1;
-		while ($this->aliasExists($tmp, $this->id) || !$tmp) {
-			$alias = !$alias ? ED::permalinkSlug($this->title) : $alias;
-			$tmp = !$tmp ? ED::permalinkSlug($this->title) : $alias . '-' . $i;
-			$i++;
+			$i = 1;
+			while ($this->aliasExists($tmp, $this->id) || !$tmp) {
+				$alias = !$alias ? ED::permalinkSlug($this->title) : $alias;
+				$tmp = !$tmp ? ED::permalinkSlug($this->title) : $alias . '-' . $i;
+				$i++;
+			}
+			$this->alias = $tmp;
+
+			$this->alias = ED::getAlias($this->alias, 'tag', $this->id);			
 		}
-		$this->alias = $tmp;
-
-		$this->alias = ED::getAlias($this->alias, 'tag', $this->id);
 	}
 
 	/**

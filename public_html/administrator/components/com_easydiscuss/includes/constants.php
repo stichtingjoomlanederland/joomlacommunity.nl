@@ -193,6 +193,9 @@ define( 'DISCUSS_POST_STATUS_ACCEPTED'		, 2 );
 define( 'DISCUSS_POST_STATUS_WORKING_ON'	, 3 );
 define( 'DISCUSS_POST_STATUS_REJECT'		, 4 );
 
+define( 'DISCUSS_TAGS_LIMIT', 18);
+
+
 // Update server
 define('ED_UPDATER', 'https://stackideas.com/updater/manifests/easydiscuss');
 define('ED_SERVICE_VERSION', 'https://stackideas.com/updater/manifests/easydiscuss');
