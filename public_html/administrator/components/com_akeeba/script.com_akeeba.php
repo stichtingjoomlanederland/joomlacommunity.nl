@@ -293,6 +293,10 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 
 			// Obsolete Azure files
 			'administrator/components/com_akeeba/BackupEngine/Postproc/Connector/Azure/Credentials/Sharedsignature.php',
+
+            // Obsolete AES-128 CTR implementation in Javascript
+			'media/com_akeeba/js/Encryption.min.js',
+			'media/com_akeeba/js/Encryption.min.map',
 		),
 		'folders' => array(
 			// Directories used up to version 4.1 (inclusive)

@@ -1,4 +1,30 @@
 <?php die();?>
+Akeeba Backup 5.6.0
+================================================================================
++ Added warning if HHVM instead of PHP is used
++ Added variables for timezone information: [TIME_TZ], [TZ], [TZ_RAW], [GMT_OFFSET]
++ Backup Timezone: force all date / time variables to be expressed in a fixed timezone during backup (gh-626)
++ Clicking on "Reload update information" will fix Joomla! erroneously reporting an update is available when you have the latest version installed
++ Display the Secret Word unencrypted in the component's Options page (required for you to easily set up third party services)
+~ Updates now use HTTPS URLs for both the XML update stream and the package download itself
+# [LOW] Save & New button in the Configuration page didn't work correctly
+# [LOW] Editing RegEx filters creates a new entry, doesn't edit in place (gh-623)
+# [LOW] Repeated messages in the JavaScript console after editing a filter in Tabular or RegEx views (gh-625)
+
+Akeeba Backup 5.5.2
+================================================================================
+! [SECURITY] Settings encryption key was neither cryptographically random or big enough. Now changed to 64 crypto-safe random bytes.
+! [SECURITY] Secret Word for front-end and JSON backups is now stored encrypted in the database (as long as settings encryption in the application's Options is NOT disabled and your server supports encryption).
+! [SECURITY] Improved internal authentication in restore.php makes brute forcing the restoration takeover a few dozen orders of magnitude harder.
+- [SECURITY ADVICE] ANGIE will no longer lock its session to prevent information leaks. Please always use the ANGIE Password feature.
+~ [SECURITY] akeeba-altbackup.php: verify SSL certificates by default. Use --no-verify command line option to revert to the old behavior.
+~ Work around broken MijoShop plugin causing an error in Joomla's backend when the System - Backup on Update plugin is enabled.
+# [HIGH] Editing two or more Multiple Databases definitions consecutively would overwrite all of them with the settings of the last definition saved
+# [HIGH] Disabling decryption can lead to loss of current settings
+# [LOW] "_QQ_" shown during restoration instead of double quotes
+# [LOW] Removed MB label from count quota
+# [LOW] ANGIE: restoring sites served by a server cluster could result in "random" errors due to session handling being tied to the server IP
+
 Akeeba Backup 5.5.1
 ================================================================================
 ! The System - Backup on Update plugin may cause an error accessing the backend on some sites

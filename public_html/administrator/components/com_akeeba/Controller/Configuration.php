@@ -96,12 +96,17 @@ class Configuration extends Controller
 		/** @var Profiles $profile */
 		$profile = $this->container->factory->model('Profiles')->tmpInstance();
 		$profile
+			// Load and clone the record we just saved
 			->findOrFail($profileid)
 			->getClone()
+		;
+		// Must unset ID before save. The ID cannot be bound with bind()/save(), hence the need to do it the hard way.
+		$profile->id = null;
+		$profile
 			->save([
-				'id'          => null,
 				'description' => JText::_('COM_AKEEBA_CONFIG_SAVENEW_DEFAULT_PROFILE_NAME')
-			]);
+			])
+		;
 
 		// Activate and edit the new profile
 		$returnUrl = base64_encode($this->redirect);

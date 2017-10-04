@@ -23,6 +23,25 @@ use Akeeba\Engine\Platform;
 class SecureSettings
 {
 	/**
+	 * The filename for the settings encryption key
+	 *
+	 * @var   string
+	 */
+	protected $keyFilename = 'serverkey.php';
+
+	/**
+	 * Set the key filename e.g. 'serverkey.php';
+	 *
+	 * @param   string  $filename  The new filename to use
+	 *
+	 * @return  void
+	 */
+	public function setKeyFilename($filename)
+	{
+		$this->keyFilename = $filename;
+	}
+
+	/**
 	 * Gets the configured server key, automatically loading the server key storage file
 	 * if required.
 	 *
@@ -35,7 +54,7 @@ class SecureSettings
 			return base64_decode(AKEEBA_SERVERKEY);
 		}
 
-		$filename = dirname(__FILE__) . '/../serverkey.php';
+		$filename = dirname(__FILE__) . '/../' . $this->keyFilename;
 
 		if (file_exists($filename))
 		{
@@ -202,7 +221,7 @@ class SecureSettings
 			default:
 			case 'AES128':
 				$encrypted = base64_decode($encrypted);
-				$decrypted = Factory::getEncryption()->AESDecryptCBC($encrypted, $key);
+				$decrypted = rtrim(Factory::getEncryption()->AESDecryptCBC($encrypted, $key), "\0");
 				break;
 
 			case 'CTR128':

@@ -57,8 +57,8 @@ class Schedule extends Model
 		}
 
 		// Get front-end backup secret key
-		$ret->info->secret    = $this->container->params->get('frontend_secret_word', '');
-		$ret->info->feenabled = $this->container->params->get('frontend_enable', false);
+		$ret->info->secret    = Platform::getInstance()->get_platform_configuration_option('frontend_secret_word', '');
+		$ret->info->feenabled = Platform::getInstance()->get_platform_configuration_option('frontend_enable', false);
 
 		// Get root URL
 		$ret->info->root_url = rtrim($this->container->params->get('siteurl', ''), '/');

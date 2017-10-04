@@ -122,9 +122,9 @@ class FileSystem
 
 		if (empty($variables) || !is_array($variables))
 		{
-			$host = Platform::getInstance()->get_host();
-			$version = defined('AKEEBA_VERSION') ? AKEEBA_VERSION : 'svn';
-			$version = defined('AKEEBABACKUP_VERSION') ? AKEEBABACKUP_VERSION : $version;
+			$host         = Platform::getInstance()->get_host();
+			$version      = defined('AKEEBA_VERSION') ? AKEEBA_VERSION : 'svn';
+			$version      = defined('AKEEBABACKUP_VERSION') ? AKEEBABACKUP_VERSION : $version;
 			$platformVars = Platform::getInstance()->getPlatformVersion();
 
 			$siteName = Platform::getInstance()->get_site_name();
@@ -141,20 +141,32 @@ class FileSystem
 				$siteName = substr($siteName, 0, 50);
 			}
 
+			/**
+			 * Time components. Expressed in whatever timezone the Platform decides to use.
+			 */
+			// Raw timezone, e.g. "EEST"
+			$rawTz     = Platform::getInstance()->get_local_timestamp("T");
+			// Filename-safe timezone, e.g. "eest". Note the lowercase letters.
+			$fsSafeTZ  = strtolower(str_replace(array(' ', '/', ':'), array('_', '_', '_'), $rawTz));
+
 			$variables = array(
 				'[DATE]'             => Platform::getInstance()->get_local_timestamp("Ymd"),
 				'[YEAR]'             => Platform::getInstance()->get_local_timestamp("Y"),
 				'[MONTH]'            => Platform::getInstance()->get_local_timestamp("m"),
 				'[DAY]'              => Platform::getInstance()->get_local_timestamp("d"),
 				'[TIME]'             => Platform::getInstance()->get_local_timestamp("His"),
+				'[TIME_TZ]'          => Platform::getInstance()->get_local_timestamp("His") . $fsSafeTZ,
 				'[WEEK]'             => Platform::getInstance()->get_local_timestamp("W"),
 				'[WEEKDAY]'          => Platform::getInstance()->get_local_timestamp("l"),
+				'[TZ]'               => $fsSafeTZ,
+				'[TZ_RAW]'           => $rawTz,
+				'[GMT_OFFSET]'       => Platform::getInstance()->get_local_timestamp("O"),
 				'[HOST]'             => empty($host) ? 'unknown_host' : $host,
 				'[RANDOM]'           => md5(microtime()),
 				'[VERSION]'          => $version,
 				'[PLATFORM_NAME]'    => $platformVars['name'],
 				'[PLATFORM_VERSION]' => $platformVars['version'],
-				'[SITENAME]'         => $siteName
+				'[SITENAME]'         => $siteName,
 			);
 		}
 

@@ -10,6 +10,7 @@ namespace Akeeba\Backup\Admin\Dispatcher;
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
+use Akeeba\Backup\Admin\Helper\SecretWord;
 use Akeeba\Backup\Admin\Model\ControlPanel;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
@@ -81,45 +82,19 @@ class Dispatcher extends BaseDispatcher
 		// Necessary for routing the Alice view
 		$this->container->inflector->addWord('Alice', 'Alices');
 
-		// Necessary defines for Akeeba Engine
-		if ( !defined('AKEEBAENGINE'))
-		{
-			define('AKEEBAENGINE', 1);
-			define('AKEEBAROOT', $this->container->backEndPath . '/BackupEngine');
-			define('ALICEROOT', $this->container->backEndPath . '/AliceEngine');
-		}
-
 		// Does the user have adequate permissions to access our component?
 		if (!$this->container->platform->authorise('core.manage', 'com_akeeba'))
 		{
 			throw new \RuntimeException(\JText::_('JERROR_ALERTNOAUTHOR'), 404);
 		}
 
-		// Make sure we have a profile set throughout the component's lifetime
-		$profile_id = $this->container->platform->getSessionVar('profile', null, 'akeeba');
-
-		if (is_null($profile_id))
-		{
-			$this->container->platform->setSessionVar('profile', 1, 'akeeba');
-		}
-
 		// Load Akeeba Engine
-		$basePath = $this->container->backEndPath;
-		require_once $basePath . '/BackupEngine/Factory.php';
-
-		// Load ALICE (Pro version only)
-		if (@file_exists($basePath . '/AliceEngine/factory.php'))
-		{
-			require_once $basePath . '/AliceEngine/factory.php';
-		}
+		$this->loadAkeebaEngine();
 
 		// Load the Akeeba Engine configuration
 		try
 		{
-			Platform::addPlatform('joomla3x', JPATH_COMPONENT_ADMINISTRATOR . '/BackupPlatform/Joomla3x');
-			$akeebaEngineConfig = Factory::getConfiguration();
-			Platform::getInstance()->load_configuration();
-			unset($akeebaEngineConfig);
+			$this->loadAkeebaEngineConfiguration();
 		}
 		catch (\Exception $e)
 		{
@@ -154,6 +129,10 @@ class Dispatcher extends BaseDispatcher
 		// Load the utils helper library
 		Platform::getInstance()->load_version_defines();
 		Platform::getInstance()->apply_quirk_definitions();
+
+		// Make sure the front-end backup Secret Word is stored encrypted
+		$params = $this->container->params;
+		SecretWord::enforceEncryption($params, 'frontend_secret_word');
 
 		// Make sure we have a version loaded
 		@include_once($this->container->backEndPath . '/version.php');
@@ -263,5 +242,42 @@ class Dispatcher extends BaseDispatcher
 		}
 
 		JFactory::getApplication()->registerEvent('onAfterRender', 'akeebaBackupOnAfterRenderToFixBrokenCloudFlareRocketLoader');
+	}
+
+	public function loadAkeebaEngine()
+	{
+		// Necessary defines for Akeeba Engine
+		if (!defined('AKEEBAENGINE'))
+		{
+			define('AKEEBAENGINE', 1);
+			define('AKEEBAROOT', $this->container->backEndPath . '/BackupEngine');
+			define('ALICEROOT', $this->container->backEndPath . '/AliceEngine');
+		}
+
+		// Make sure we have a profile set throughout the component's lifetime
+		$profile_id = $this->container->platform->getSessionVar('profile', null, 'akeeba');
+
+		if (is_null($profile_id))
+		{
+			$this->container->platform->setSessionVar('profile', 1, 'akeeba');
+		}
+
+		// Load Akeeba Engine
+		$basePath = $this->container->backEndPath;
+		require_once $basePath . '/BackupEngine/Factory.php';
+
+		// Load ALICE (Pro version only)
+		if (@file_exists($basePath . '/AliceEngine/factory.php'))
+		{
+			require_once $basePath . '/AliceEngine/factory.php';
+		}
+	}
+
+	public function loadAkeebaEngineConfiguration()
+	{
+		Platform::addPlatform('joomla3x', $this->container->backEndPath . '/BackupPlatform/Joomla3x');
+		$akeebaEngineConfig = Factory::getConfiguration();
+		Platform::getInstance()->load_configuration();
+		unset($akeebaEngineConfig);
 	}
 }

@@ -33,7 +33,19 @@ function akeeba_backup_on_update_toggle()
 
 JS;
 
-JFactory::getApplication()->getDocument()->addScriptDeclaration($js);
+$document = JFactory::getApplication()->getDocument();
+
+if (empty($document))
+{
+	$document = JFactory::getDocument();
+}
+
+if (empty($document))
+{
+	return;
+}
+
+$document->addScriptDeclaration($js);
 
 ?>
 <div class="btn-group viewsite pull-right" id="akeebaBackupOnUpdateStatusContainer">

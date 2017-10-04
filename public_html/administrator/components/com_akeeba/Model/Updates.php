@@ -45,7 +45,7 @@ class Updates extends Update
 
 		$config['update_component']  = 'pkg_akeeba';
 		$config['update_sitename']   = 'Akeeba Backup Core';
-		$config['update_site']       = 'http://cdn.akeebabackup.com/updates/pkgakeebacore.xml';
+		$config['update_site']       = 'https://cdn.akeebabackup.com/updates/pkgakeebacore.xml';
 		$config['update_extraquery'] = '';
 
 		$isPro = defined('AKEEBA_PRO') ? AKEEBA_PRO : 0;
@@ -61,8 +61,13 @@ class Updates extends Update
 		if ($isPro)
 		{
 			$config['update_sitename']   = 'Akeeba Backup Professional';
-			$config['update_site']       = 'http://cdn.akeebabackup.com/updates/pkgakeebapro.xml';
+			$config['update_site']       = 'https://cdn.akeebabackup.com/updates/pkgakeebapro.xml';
 			$config['update_extraquery'] = 'dlid=' . $dlid;
+		}
+
+		if (defined('AKEEBA_VERSION') && !in_array(substr(AKEEBA_VERSION, 0, 3), ['dev', 'rev']))
+		{
+			$config['update_version'] = AKEEBA_VERSION;
 		}
 
 		parent::__construct($config);

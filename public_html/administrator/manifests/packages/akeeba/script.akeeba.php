@@ -103,6 +103,15 @@ class Pkg_AkeebaInstallerScript
 			return false;
 		}
 
+		// HHVM made sense in 2013, now PHP 7 is a way better solution than an hybrid PHP interpreter
+		if (defined('HHVM_VERSION'))
+		{
+			$msg = "<p>We have detected that you are running HHVM instead of PHP. This software WILL NOT WORK properly on HHVM. Please switch to PHP 7 instead.</p>";
+			JLog::add($msg, JLog::WARNING, 'jerror');
+
+			return false;
+		}
+
 		// Try to install FOF. We need to do this in preflight to make sure that FOF is available when we install our
 		// component. The reason being that the component's installation script extends FOF's InstallScript class.
 		// We can't use a <file> tag in our package manifest because FOF's package is *supposed* to fail to install if

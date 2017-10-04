@@ -4,7 +4,7 @@
  * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
 -->
-<config>
+<config addfieldpath="/administrator/components/com_akeeba/fields">
 	<fieldset
 			name="permissions"
 			label="JCONFIG_PERMISSIONS_LABEL"
@@ -40,10 +40,19 @@
 			<option value="1">JYes</option>
 		</field>
 
-		<field name="frontend_secret_word" type="text" default="" size="30"
+		<field name="frontend_secret_word" type="akencrypted"
+			   default="" size="30"
 			   label="COM_AKEEBA_CONFIG_SECRETWORD_LABEL"
 			   description="COM_AKEEBA_CONFIG_SECRETWORD_DESC"
-			   class="input-large"/>
+			   class="input-xxlarge"/>
+
+		<field name="forced_backup_timezone" type="timezone" default="AKEEBA/DEFAULT" size="50"
+			   label="COM_AKEEBA_CONFIG_FORCEDBACKUPTZ_LABEL"
+			   description="COM_AKEEBA_CONFIG_FORCEDBACKUPTZ_DESC"
+			   class="input-xxlarge">
+			<option value="AKEEBA/DEFAULT">COM_AKEEBA_CONFIG_FORCEDBACKUPTZ_DEFAULT</option>
+			<option value="GMT">GMT</option>
+		</field>
 
 		<field name="frontend_email_on_finish" type="radio" default="0"
 			   label="COM_AKEEBA_CONFIG_FRONTENDEMAIL_LABEL"

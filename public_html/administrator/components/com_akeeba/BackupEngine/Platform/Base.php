@@ -218,23 +218,38 @@ abstract class Base implements PlatformInterface
 		// Decrypt the data if required
 		$secureSettings = Factory::getSecureSettings();
 		$noData         = empty($databaseData);
-		$databaseData   = $secureSettings->decryptSettings($databaseData);
-		$dataArray      = ParseIni::parse_ini_file($databaseData, true, true);
+		$signature      = ($noData || (strlen($databaseData) < 12)) ? '' : substr($databaseData, 0, 12);
 		$parsedData     = array();
 
-		// Did the decryption fail and we were asked to throw an exception?
-		if ($this->decryptionException && !$noData)
-		{
-			// No decrypted data
-			if (empty($databaseData))
-			{
-				throw new DecryptionException;
-			}
+		/**
+		 * Special case: profile data is encrypted but encryption is set to false. This means that the user has just
+		 * asked for the encryption to be disabled. We have to NOT load the settings so that the application has the
+		 * chance to decode the data and write the decoded data back to the database.
+		 */
 
-			// Corrupt data
-			if (!strstr($databaseData, '[akeeba]'))
+		if (!$secureSettings->supportsEncryption() && in_array($signature, array('###AES128###', '###CTR128###')))
+		{
+			$dataArray = array('volatile' => array('fake_decrypt_flag' => 1));
+		}
+		else
+		{
+			$databaseData   = $secureSettings->decryptSettings($databaseData);
+			$dataArray      = ParseIni::parse_ini_file($databaseData, true, true);
+
+			// Did the decryption fail and we were asked to throw an exception?
+			if ($this->decryptionException && !$noData)
 			{
-				throw new DecryptionException;
+				// No decrypted data
+				if (empty($databaseData))
+				{
+					throw new DecryptionException;
+				}
+
+				// Corrupt data
+				if (!strstr($databaseData, '[akeeba]'))
+				{
+					throw new DecryptionException;
+				}
 			}
 		}
 
@@ -280,6 +295,8 @@ abstract class Base implements PlatformInterface
 
 		$registry->setProtectedKeys($protected_keys);
 		$registry->activeProfile = $profile_id;
+
+		return true;
 	}
 
 	public function get_stock_directories()
@@ -319,7 +336,9 @@ abstract class Base implements PlatformInterface
 
 	public function get_local_timestamp($format)
 	{
-		return '';
+		$dateNow = new \DateTime('now', new \DateTimeZone('UTC'));
+
+		return $dateNow->format($format);
 	}
 
 	public function get_host()
