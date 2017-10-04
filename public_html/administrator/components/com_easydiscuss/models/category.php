@@ -419,15 +419,11 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 			$gids = '';
 
 			foreach ($groups as $group) {
-
-				$gids .= $db->Quote($group->content_id);
-
-				if (next($groups) !== false) {
-					$gids .= ',';
-				}
+				$gval = $db->Quote($group->content_id);
+				$gids .= $gids ? ',' . $gval : $gval;
 			}
 
-			$query .= ' WHERE a.`group_id` IN(' . $gids . ')';
+			$query .= ' WHERE a.`group_id` IN (' . $gids . ')';
 			$query .= ' AND b.`block` = 0';
 
 			$db->setQuery($query);

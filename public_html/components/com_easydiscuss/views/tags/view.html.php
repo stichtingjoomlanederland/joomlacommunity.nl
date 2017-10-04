@@ -75,9 +75,17 @@ class EasyDiscussViewTags extends EasyDiscussView
 			$this->setPathway($tag->title);
 		}
 
-		$concatCode = ED::jconfig()->getValue('sef') ? '?' : '&';
-		$this->doc->addHeadLink(JRoute::_( 'index.php?option=com_easydiscuss&view=tags&id=' . $tag ) . $concatCode . 'format=feed&type=rss' , 'alternate' , 'rel' , array('type' => 'application/rss+xml', 'title' => 'RSS 2.0') );
-		$this->doc->addHeadLink(JRoute::_( 'index.php?option=com_easydiscuss&view=tags&id=' . $tag ) . $concatCode . 'format=feed&type=atom' , 'alternate' , 'rel' , array('type' => 'application/atom+xml', 'title' => 'Atom 1.0') );
+		$concatCode = ED::jconfig()->getValue('sef') ? '?' : '&'; 
+
+		// Adding RSS Feed URL
+		$props = array('type' => 'application/rss+xml', 'title' => 'RSS 2.0');
+		$route = EDR::getTagRoute($tag->id) . $concatCode . 'format=feed&type=rss';
+		$this->doc->addHeadLink($route, 'alternate', 'rel', $props);
+
+		// Adding ATOM link
+		$props = array('type' => 'application/atom+xml', 'title' => 'Atom 1.0');
+		$route = EDR::getTagRoute($tag->id) . $concatCode . 'format=feed&type=atom';
+		$this->doc->addHeadLink($route, 'alternate', 'rel', $props);
 
 		$filteractive = JRequest::getString('filter', 'allposts');
 		$sort = JRequest::getString('sort', 'latest');

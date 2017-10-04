@@ -1313,7 +1313,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 	{
 		$mainframe		= JFactory::getApplication();
 		$db				= DiscussHelper::getDBO();
-
+		$acl = ED::acl();
 		$user_id		= JRequest::getInt('user_id');
 
 		$search			= $db->getEscaped( JRequest::getString( 'query' , '' ) );
@@ -1324,7 +1324,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$publishState = ' a.`published` = ' . $db->Quote(DISCUSS_ID_PUBLISHED);
 
 		// Site admin should be able to view moderated replies
-		if (ED::isSiteAdmin() && $this->_parent) {
+		if ((ED::isSiteAdmin() || $acl->allowed('manage_pending')) && $this->_parent) {
 			$publishState = ' a.`published` in (' . $db->Quote(DISCUSS_ID_PUBLISHED) . ',' . $db->Quote(DISCUSS_ID_PENDING) .')';
 		}
 
@@ -1962,7 +1962,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 	{
 		$db	= ED::db();
 		$query = 'SELECT COUNT(id) AS `replies` FROM `#__discuss_posts` WHERE `parent_id` = ' . $db->Quote($id);
-		$query .= ' AND `answered` = ' . $db->Quote('0');
+		// $query .= ' AND `answered` = ' . $db->Quote('0');
 		$query .= ' AND `published` = ' . $db->Quote('1');
 
 		$db->setQuery($query);

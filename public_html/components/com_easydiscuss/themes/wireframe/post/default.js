@@ -248,6 +248,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 			// update the vote count
 			counterEle.text(total);
+			voteUndoButton.addClass('t-hidden');
 			
 			EasyDiscuss.dialog({
 				"content": successMsg
@@ -523,29 +524,35 @@ ed.require(['edq', 'chosen'], function($) {
 		var task = $(this).data('task');
 		var namespace = 'site/views/post/' + task;
 
-		// If we are resolving a post, we need to set is-resolved class
-		if (task == 'resolve') {
-			postWrapper.addClass('is-resolved');
-		} else {
-			postWrapper.removeClass('is-resolved');
-		}
+		// // If we are resolving a post, we need to set is-resolved class
+		// if (task == 'resolve') {
+		// 	postWrapper.addClass('is-resolved');
+		// } else {
+		// 	postWrapper.removeClass('is-resolved');
+		// }
 
-		EasyDiscuss.ajax(namespace, {
-			"id": id
-		}).done(function(message) {
+		// EasyDiscuss.ajax(namespace, {
+		// 	"id": id
+		// })
+	
+		EasyDiscuss.dialog({
+			content: EasyDiscuss.ajax(namespace, {
+				"id": id
+			})
+		});	
+	});
 
-			// Display the message
-			alertMessage
-				.html(message)
-				.addClass('alert alert-success');
-		})
-		.fail(function(message) {
-			// Append the failed message on notifications
-			alertMessage
-				.html(message)
-				.addClass('alert alert-danger');
+
+	// reply accept button
+	qnaButtons.live('click', function() {
+		var id = $(this).parents(actionsWrapper.selector).data('id');
+		var task = $(this).data('task');
+
+		EasyDiscuss.dialog({
+			content: EasyDiscuss.ajax('site/views/post/' + task, {
+				"id": id
+			})
 		});
-
 	});
 
 

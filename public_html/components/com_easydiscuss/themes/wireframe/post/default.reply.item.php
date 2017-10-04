@@ -53,7 +53,7 @@ defined('_JEXEC') or die('Restricted access');
 							</a>
 							<span class="o-label o-label--success-o ed-state-answer"><?php echo JText::_('COM_EASYDISCUSS_ENTRY_ACCEPTED_ANSWER'); ?></span>
 
-							<span class="o-label o-label--primary-o ed-state-pending"><?php echo JText::_('Pending Moderation'); ?></span>
+							<span class="o-label o-label--primary-o ed-state-pending"><?php echo JText::_('COM_EASYDISCUSS_PENDING_MODERATION'); ?></span>
 							
 							<div class="ed-user-rank t-lg-mb--sm o-label o-label--<?php echo $post->getOwner()->getRoleLabelClassname()?>"><?php echo $post->getOwner()->getRole(); ?></div>
 

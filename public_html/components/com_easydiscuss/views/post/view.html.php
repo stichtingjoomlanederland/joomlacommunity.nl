@@ -180,7 +180,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 		$this->set('date', $date);
 		$this->set('socialbuttons', $socialbuttons);
 		$this->set('emptyMessage', $emptyMessage);
-
 		$this->set('navigation', $navigation);
 
 		// If this post is password protected, we need to display the form to enter password

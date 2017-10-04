@@ -10,6 +10,10 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Restricted access');
+
+$saveOrder = ($order == 'lft' && $orderDirection == 'asc');
+$originalOrders	= array();
+
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
 	<?php if (!$browse) { ?>
@@ -52,6 +56,12 @@ defined('_JEXEC') or die('Restricted access');
 					<td width="5%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_ADMIN_POST_TYPES_PUBLISHED'), 'a.published', $orderDirection, $order); ?>
 					</td>
+					<?php if (count($types) > 1) { ?>
+					<td width="10%" class="center">
+						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_ORDER'), 'lft', 'desc', $order); ?>
+						<?php echo JHTML::_('grid.order', $types); ?>
+					</td>
+					<?php } ?>
 					<td width="10%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_TABLE_COLUMN_TYPE');?>
 					</td>
@@ -74,6 +84,7 @@ defined('_JEXEC') or die('Restricted access');
 		<?php if ($types) { ?>
 			<?php $i = 0; ?>
 			<?php foreach ($types as $type) { ?>
+			<?php $orderkey	= array_search($type->id, $ordering);?>
 				<tr>
 					<td class="center">
 						<?php echo $this->html('table.checkbox', $i++, $type->id); ?>
@@ -86,6 +97,13 @@ defined('_JEXEC') or die('Restricted access');
 					<td class="center">
 						<?php echo $this->html('table.state', 'types', $type, 'published'); ?>
 					</td>
+
+					<?php if (count($types) > 1) { ?>
+					<td class="order">
+						<?php echo $this->html('table.ordering', 'order', $orderkey + 1, count($ordering), true); ?>
+						<?php $originalOrders[] = $orderkey + 1; ?>
+					</td>
+					<?php } ?>
 					
 					<td class="center">
 						<?php
@@ -136,6 +154,7 @@ defined('_JEXEC') or die('Restricted access');
 		</table>
 	</div>
 
+	<input type="hidden" name="original_order_values" value="<?php echo implode($originalOrders, ','); ?>" />
 	<input type="hidden" name="filter_order" value="<?php echo $order; ?>" />
 	<input type="hidden" name="filter_order_Dir" value="" />
 

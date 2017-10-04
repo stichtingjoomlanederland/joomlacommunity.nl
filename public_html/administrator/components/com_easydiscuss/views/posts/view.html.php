@@ -31,9 +31,9 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		// Display toolbars
 		JToolbarHelper::publishList();
 		JToolbarHelper::unpublishList();
-		JToolBarHelper::divider();
 		JToolbarHelper::unpublishList('resetVotes', JText::_('COM_EASYDISCUSS_RESET_VOTES'));
-		JToolBarHelper::divider();
+		JToolbarHelper::custom('lock', 'lock', '', JText::_('COM_EASYDISCUSS_LOCK'));
+		JToolbarHelper::custom('unlock', 'unlock', '', JText::_('COM_EASYDISCUSS_UNLOCK'));
 		JToolbarHelper::deleteList();
 
 		// Selected filter

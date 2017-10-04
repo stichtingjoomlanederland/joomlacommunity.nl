@@ -657,6 +657,9 @@ CREATE TABLE IF NOT EXISTS `#__discuss_post_types` (
   `created` datetime NOT NULL,
   `published` tinyint(3) NOT NULL,
   `alias` varchar( 255 ) NOT NULL,
+  `type` varchar(255) NOT NULL DEFAULT 'global',
+  `lft` int(11) NULL,
+  `rgt` int(11) NULL,
   PRIMARY KEY (`id`),
   KEY `idx_alias` (`alias`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;

@@ -473,8 +473,7 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 		$updateSiteId = $db->loadResult();
 
 		$defaultLocation = 'https://stackideas.com/jupdates/manifest/easydiscuss';
-		$domain = $this->getDomain();
-		$location = $defaultLocation . '?apikey=' . ED_KEY . '&domain=' . $domain;
+		$location = $defaultLocation . '?apikey=' . ED_KEY;
 
 		// For some Joomla versions, there is no tables/updatesite.php
 		// Hence, the JTable::getInstance('UpdateSite') will return null
@@ -524,13 +523,13 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 	}
 
 	/**
-     * Update the manifest cache
-     *
-     * @since   4.0.14
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Update the manifest cache
+	 *
+	 * @since   4.0.14
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function updateManifestCache()
 	{	
 		$db = JFactory::getDBO();
@@ -561,13 +560,13 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 	}
 
 	/**
-     * Delete record in updates table
-     *
-     * @since   4.0.14
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Delete record in updates table
+	 *
+	 * @since   4.0.14
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function deleteUpdateRecord()
 	{
 		$db = JFactory::getDBO();

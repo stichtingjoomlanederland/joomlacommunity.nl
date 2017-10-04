@@ -198,7 +198,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 	 * @since	4.0.14
 	 * @access	public
 	 */
-	public function getPostTypes($categoryId = null)
+	public function getPostTypes($categoryId = null, $order = 'ASC')
 	{
 		$db = ED::db();
 		$query = array();
@@ -230,6 +230,8 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 		}
 
 		$query[] = ')';
+
+		$query[] = 'ORDER BY `lft` ' . $order;
 
 		$query = implode(' ', $query);
 
@@ -436,5 +438,112 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 		$categories = $db->loadObjectList();
 
 		return $categories;
+	}
+
+	public function rebuildOrdering($id = null, $leftId = 0)
+	{
+		$db = $this->db;
+
+		$query = "SELECT `id` FROM `#__discuss_post_types`";
+
+		if ($id) {
+			$query .= " WHERE `id` = " . $db->Quote($id);
+		}
+
+		$query .= " ORDER BY lft, id";
+
+		$db->setQuery($query);
+		$children = $db->loadObjectList();
+
+		// The right value of this node is the left + 1
+		$rightId = $leftId + 1;
+
+		if (count($children) > 1) {
+			// Execute this function recursively over all children.
+			foreach ($children as $node) {
+				// The $rightId is the current right value, which has been incremented on recursion return.
+				// Increment the level for the children.
+				// Add this item's alias to the path (but avoid a leading /)
+				$rightId = $this->rebuildOrdering($node->id, $rightId);
+	 
+				// If there is an update failure, return false to break the recursion.
+				if ($rightId === false) return false;
+			}
+		}
+
+		// Now we've got the left value, and the right value.
+		$updateQuery = "UPDATE `#__discuss_post_types` SET";
+		$updateQuery .= " `lft` = " . $db->Quote($leftId);
+		$updateQuery .= ", `rgt` = " . $db->Quote($rightId);
+		$updateQuery .= " WHERE `id` = " . $db->Quote($id);
+
+		$db->setQuery($updateQuery);
+
+		if (!$db->execute()) {
+			return false;
+		}
+
+		return $rightId + 1;
+	}
+
+	public function moveOrder($id, $direction)
+	{
+		$db = $this->db;
+
+		$query = "SELECT * FROM `#__discuss_post_types` WHERE `id` = " . $db->Quote($id);
+
+		$db->setQuery($query);
+		$current = $db->loadObject();
+
+		$options = array();
+		if ($direction == DISCUSS_ORDER_UP) {
+
+			$query = "SELECT `id`, `lft`, `rgt` FROM `#__discuss_post_types` WHERE `lft` > " . $db->Quote($current->lft) . " ORDER BY `lft` ASC LIMIT 1";
+			$db->setQuery($query);
+			$prevNode = $db->loadObject();
+
+			$options['direction'] = 'up';
+			$options['currentLeft'] = $current->lft;
+			$options['currentRight'] = $current->rgt;
+			$options['currentNewLeft'] = $prevNode->lft;
+			$options['currentNewRight'] = $prevNode->rgt;
+			$options['nodeId'] = $prevNode->id;
+			$options['nodeLeft'] = $current->lft;
+			$options['nodeRight'] = $current->rgt;
+		} else {
+
+			$query = "SELECT `id`, `lft`, `rgt` FROM `#__discuss_post_types` WHERE `lft` < " . $db->Quote($current->lft) . " ORDER BY `lft` DESC LIMIT 1";
+			$db->setQuery($query);
+			$nextNode = $db->loadObject();
+
+			$options['direction'] = 'down';
+			$options['currentLeft'] = $current->lft;
+			$options['currentRight'] = $current->rgt;
+			$options['currentNewLeft'] = $nextNode->lft;
+			$options['currentNewRight'] = $nextNode->rgt;
+			$options['nodeId'] = $nextNode->id;
+			$options['nodeLeft'] = $current->lft;
+			$options['nodeRight'] = $current->rgt;
+		}
+
+		// Set the current node.
+		$query = "UPDATE `#__discuss_post_types` SET";
+		$query .= " `lft` = " . $db->Quote($options['currentNewLeft']);
+		$query .= ", `rgt` = " . $db->Quote($options['currentNewRight']);
+		$query .= " WHERE `id` = " . $db->Quote($current->id);
+		
+		$db->setQuery($query);
+		$db->execute();
+
+		// Set the affected node.
+		$query = "UPDATE `#__discuss_post_types` SET";
+		$query .= " `lft` = " . $db->Quote($options['nodeLeft']);
+		$query .= ", `rgt` = " . $db->Quote($options['nodeRight']);
+		$query .= " WHERE `id` = " . $db->Quote($options['nodeId']);
+
+		$db->setQuery($query);
+		$db->execute();
+
+		return true;
 	}
 }

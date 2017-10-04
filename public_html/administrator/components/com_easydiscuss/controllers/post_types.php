@@ -165,4 +165,52 @@ class EasyDiscussControllerPost_types extends EasyDiscussController
 
 		return $this->app->redirect($redirect);
 	}
+
+	public function saveOrder()
+	{
+		// Check for request forgeries
+		ED::checkToken();
+
+		$model = ED::model('postTypes');
+		$model->rebuildOrdering();
+
+		$message = JText::_('COM_EASYDISCUSS_CUSTOMFIELDS_ORDERING_SAVED');
+
+		ED::setMessage($message, 'success');
+		return $this->app->redirect('index.php?option=com_easydiscuss&view=types');
+	}
+
+	public function orderdown()
+	{
+		// Check for request forgeries
+		ED::checkToken();
+
+		self::orderType(DISCUSS_ORDER_UP);
+	}
+
+	public function orderup()
+	{
+		// Check for request forgeries
+		ED::checkToken();
+
+		self::orderType(DISCUSS_ORDER_DOWN);
+	}
+
+	public function orderType($direction) 
+	{
+		// Check for request forgeries
+		ED::checkToken();
+
+		$db = ED::db();
+		$cid = $this->input->get('cid', array(), 'post', 'array');
+
+		if (isset($cid[0])) {
+			$id = (int) $cid[0];
+			$types = ED::model('postTypes');
+			$types->moveOrder($id, $direction);
+		}
+
+		$this->app->redirect('index.php?option=com_easydiscuss&view=types');
+		exit;
+	}
 }

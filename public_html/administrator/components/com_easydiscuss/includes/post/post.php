@@ -911,7 +911,9 @@ class EasyDiscussPost extends EasyDiscuss
 
 		// Normalize other properties
 		// Whenever store is called, we should always update the modified date.
-		$this->post->modified = $date->toSql();
+		if (!$isMigration) {
+			$this->post->modified = $date->toSql();
+		}
 
 		// @since 3.0
 		$this->post->legacy = '0';
@@ -1513,6 +1515,48 @@ class EasyDiscussPost extends EasyDiscuss
 	}
 
 	/**
+	 * Determines if the viewer able to moderate the post
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function canModerate()
+	{
+		if (ED::isSiteAdmin()) {
+			return true;
+		}
+
+		if ($this->acl->allowed('manage_pending')) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Determines if the viewer able to access dashboard in frontend
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function canAccessDashboard()
+	{
+		if (ED::isSiteAdmin()) {
+			return true;
+		}
+
+		if ($this->acl->allowed('manage_pending')) {
+			return true;
+		}
+
+		if ($this->config->get('main_work_schedule') && $this->acl->allowed('manage_holiday')) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Determines if the provided user can assign moderators for this post
 	 *
 	 * @since   4.0
@@ -2018,8 +2062,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isLocked()
 	{
@@ -2031,8 +2073,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isResolved()
 	{
@@ -3314,7 +3354,7 @@ class EasyDiscussPost extends EasyDiscuss
 				if (!isset($user->user)) {
 					$user->user = new stdClass();
 				}
-				
+
 				$user->user->name = $this->post->poster_name;
 				$user->user->email = $this->post->poster_email;
 			}
@@ -3786,19 +3826,19 @@ class EasyDiscussPost extends EasyDiscuss
 		// Detect if post should be moderated.
 		$isAdmin = ED::isSiteAdmin($this->my->id);
 		$isModerator = ED::isModerator($this->post->category_id, $this->my->id);
+		$moderationEnabled = $this->config->get('main_moderatepost');
 
 		// Moderate all posts
-		if ($this->config->get('main_moderatepost') && !$isAdmin && !$isModerator) {
+		if ($moderationEnabled && !$isAdmin && !$isModerator) {
 			$this->post->published = DISCUSS_ID_PENDING;
 			$this->isModerate = true;
 		}
 
 		// Determines if the user should still be moderated
-		$user = ED::user($this->my->id);
+		$isModerationThreshold = ED::isModerateThreshold($this->my->id);
 
-		if ($user->moderateUsersPost() && !$isAdmin && !$isModerator) {
-			$this->post->published = DISCUSS_ID_PENDING;
-			$this->isModerate = true;
+		if (!$isModerationThreshold && !$isAdmin && !$isModerator) {
+			$this->post->published = DISCUSS_ID_PUBLISHED;
 		}
 
 		$postType = 'post';
@@ -3958,14 +3998,15 @@ class EasyDiscussPost extends EasyDiscuss
 			$this->bindPolls();
 		}
 
+		$preview = $this->post->preview;
+
 		// Bind uploaded attachments
 		if ($this->acl->allowed('add_attachment') && $this->config->get('attachment_questions')) {
 			$this->bindAttachments();
 
 			// There is a possibility that we need to replace attachment tags
 			if ($this->post->content_type == 'bbcode') {
-
-				$preview = ED::parser()->replaceAttachmentsEmbed($this->post->preview, $this);
+				$preview = ED::parser()->replaceAttachmentsEmbed($preview, $this);
 			}
 		}
 
@@ -5352,8 +5393,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function removeStream()
 	{
@@ -5365,25 +5404,8 @@ class EasyDiscussPost extends EasyDiscuss
 		// Remove Easysocial Stream
 		ED::easysocial()->deleteDiscussStream($this, $isCluster);
 
-		// @rule: Detect if jomsocial exists.
-		$file = JPATH_ROOT . '/components/com_community/libraries/core.php';
-
-		if (!JFile::exists($file)) {
-			return;
-		}
-
-		if ($this->config->get('integration_jomsocial_activity_new_question') && $this->isQuestion()) {
-
-			$db = ED::db();
-
-			$query  = 'DELETE FROM ' . $db->nameQuote('#__community_activities') . ' '
-					. 'WHERE ' . $db->nameQuote('app') . '=' . $db->Quote('com_easydiscuss') . ' '
-					. 'AND ' . $db->nameQuote('cid') . '=' . $db->Quote($this->post->id);
-
-			$db->setQuery($query);
-			$db->Query();
-
-		}
+		// Remove Jomsocial stream
+		ED::jomsocial()->deleteDiscussStream($this);
 	}
 
 	/**
@@ -5609,8 +5631,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function lock()
 	{
@@ -5643,8 +5663,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function unlock()
 	{
@@ -5865,7 +5883,7 @@ class EasyDiscussPost extends EasyDiscuss
 		$emailData['replyContent'] = $emailContent;
 
 		// Do not notify notify reply owner if reply owner mark their reply as answer.
-		if ($replyUser->id != $this->my->id) {
+		if ( $this->config->get('notify_owner_answer') && $replyUser->id != $this->my->id ) {
 			$notify->addQueue($email, $emailSubject, '', $emailTemplate, $emailData);
 		}
 
@@ -6552,7 +6570,7 @@ class EasyDiscussPost extends EasyDiscuss
 	{
 		//load porfile info
 		$postOwner = ED::user($this->user_id);
-		$siteDetails = new JRegistry($postOwner->get('site'));
+		$siteDetails = new JRegistry($postOwner->site);
 
 		if (!$this->canViewSiteDetails()) {
 			return false;

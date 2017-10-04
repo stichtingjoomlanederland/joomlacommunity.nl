@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -72,8 +72,6 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function toggleFeatured()
 	{
@@ -115,8 +113,6 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	 *
 	 * @since	4.0.10
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function publish()
 	{
@@ -157,8 +153,6 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	 *
 	 * @since	4.0.10
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function unpublish()
 	{
@@ -274,8 +268,6 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function save()
 	{
@@ -465,6 +457,77 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		$this->app->redirect($redirect);		
 	}
 
+	/**
+	 * Locks a post
+	 *
+	 * @since	4.0.17
+	 * @access	public
+	 */
+	public function lock()
+	{
+		ED::checkToken();
+
+		// Construct the default redirection link
+		$redirect = 'index.php?option=com_easydiscuss&view=posts';
+
+		// Get the list of posts to unpublish
+		$posts = $this->input->get('cid', '', 'array');
+
+		if (!$posts) {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
+			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
+
+			return $this->app->redirect($redirect);
+		}
+
+		// Try to unpublish each posts
+		foreach ($posts as $item) {
+			$post = ED::post($item);
+			$post->lock();
+		}
+
+
+		$message = JText::_('COM_EASYDISCUSS_POSTS_LOCKED');
+		ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
+
+		$this->app->redirect($redirect);	
+	}
+
+	/**
+	 * Unlocks a post
+	 *
+	 * @since	4.0.17
+	 * @access	public
+	 */
+	public function unlock()
+	{
+		ED::checkToken();
+
+		// Construct the default redirection link
+		$redirect = 'index.php?option=com_easydiscuss&view=posts';
+
+		// Get the list of posts to unpublish
+		$posts = $this->input->get('cid', '', 'array');
+
+		if (!$posts) {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
+			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
+
+			return $this->app->redirect($redirect);
+		}
+
+		// Try to unpublish each posts
+		foreach ($posts as $item) {
+			$post = ED::post($item);
+			$post->unlock();
+		}
+
+
+		$message = JText::_('COM_EASYDISCUSS_POSTS_LOCKED');
+		ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
+
+		$this->app->redirect($redirect);	
+	}
 	public function delete()
 	{
 	    // Check for request forgeries

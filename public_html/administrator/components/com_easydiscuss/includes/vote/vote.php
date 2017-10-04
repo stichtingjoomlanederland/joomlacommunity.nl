@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyBlog is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -13,15 +13,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussVote extends EasyDiscuss
 {
-
 	/**
 	 * Generate the voting user interface HTML
 	 *
 	 * @access	public
 	 * @param	object	$post		The post object.
-	 * @param	array	$params		The parameters.
-	 *
-	 * @return	String	The HTML string.
 	 **/
 	public static function getHTML( &$post, $params = array() )
 	{
@@ -61,4 +57,41 @@ class EasyDiscussVote extends EasyDiscuss
 
 		return $db->loadResult();
 	}
+
+	public function undoVotes($post, $sessionId)
+	{
+		$model = ED::model('Votes');
+		$status = true;
+
+		// Determine whether he has already perform undo process.
+		$undo = $model->voteModifying($post->id, $this->my->id, $sessionId);
+
+		if (!$undo) {
+			return false;
+		}
+
+		$state = $model->undoVote($post, $this->my->id, $sessionId);
+
+		return $state;
+	}
+
+	public function getTotalVotes($postId)
+	{
+		$model = ED::model('Votes');
+		$votes = $model->getTotalVotes($postId);
+
+		return $votes;
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+

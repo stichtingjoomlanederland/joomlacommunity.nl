@@ -61,7 +61,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php } ?>
 					<?php if ($this->config->get('main_rss')) { ?>
 					<div class="ed-statistic__item">
-						<a href="<?php echo EDR::_('view=assigned&id='.$profile->id.'&format=feed');?>">
+						<a href="<?php echo EDR::_('index.php?option=com_easydiscuss&view=profile&id=' . $profile->id . '&format=feed' ); ?>"
 						<i class="fa fa-rss ed-statistic__item-icon"></i>
 						</a>
 					</div>

@@ -21,22 +21,11 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 	{
 		$db	= $this->db;
 
-		// $query = 'SELECT c.`last_post_time`, a.* FROM `#__kunena_messages` AS a';
-		// $query .= ' INNER JOIN `#__kunena_topics` as c on c.`id` = a.`thread`';
-		// $query .= ' WHERE NOT EXISTS (';
-		// $query .= ' SELECT external_id FROM `#__discuss_migrators` AS b WHERE b.`external_id` = a.`id` and `type` = ' . $db->Quote('reply') . ' and `component` = ' . $this->db->Quote('com_kunena');
-		// $query .= ' )';
-
-		// $query .= ' AND a.' . $db->nameQuote('parent') . '!=' . $db->Quote(0);
-		// $query .= ' ORDER BY a.`id`';
-
-
-		$query = 'SELECT c.`last_post_time`, a.* FROM `#__kunena_messages` AS a';
+		$query = 'SELECT c.`last_post_time`, c.`first_post_id`, a.* FROM `#__kunena_messages` AS a';
 		$query .= ' LEFT JOIN `#__discuss_migrators` AS b ON b.`external_id` = a.`id` and b.`component` = ' . $this->db->Quote('com_kunena') . ' and b.`type` = ' . $db->Quote('reply');
 		$query .= ' INNER JOIN `#__kunena_topics` as c on c.`id` = a.`thread`';
-		$query .= ' WHERE ' . $db->nameQuote('a.parent') . ' > 0';
+		$query .= ' WHERE ' . $db->nameQuote('a.id') . ' != ' . $db->nameQuote('c.first_post_id');
 		$query .= ' and b.`id` is null';
-		// $query .= ' ORDER BY a.`id`';
 
 		if ($limit) {
 			$query .= ' LIMIT ' . $limit;
@@ -53,15 +42,10 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 	{
 		$db	= $this->db;
 
-		// $query = 'SELECT COUNT(1) FROM `#__kunena_messages` AS a';
-		// $query .= ' WHERE NOT EXISTS (';
-		// $query .= ' SELECT external_id FROM `#__discuss_migrators` AS b WHERE b.`external_id` = a.`id` and `type` = ' . $db->Quote('reply') . ' and `component` = ' . $this->db->Quote('com_kunena');
-		// $query .= ' )';
-		// $query .= ' AND ' . $db->nameQuote('parent') . '!=' . $db->Quote(0);
-
 		$query = 'SELECT COUNT(1) FROM `#__kunena_messages` AS a';
 		$query .= ' LEFT JOIN `#__discuss_migrators` AS b ON b.`external_id` = a.`id` and b.`component` = ' . $this->db->Quote('com_kunena') . ' and b.`type` = ' . $db->Quote('reply');
-		$query .= ' WHERE ' . $db->nameQuote('a.parent') . ' > 0';
+		$query .= ' INNER JOIN `#__kunena_topics` as c on c.`id` = a.`thread`';
+		$query .= ' WHERE ' . $db->nameQuote('a.id') . ' != c.`first_post_id`';
 		$query .= ' and b.`id` is null';
 
 		$db->setQuery($query);
@@ -117,12 +101,50 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 			// Get the kunena parent
 			$kunenaParentId = $item->parent;
 
-
 			// try getting from cache;
 			if (!isset($edInternalIds[$kunenaParentId])) {
 				// Retrieve the internal id (ED parent)
-				$edInternalIds[$kunenaParentId] =  $this->getInternalId($kunenaParentId);
+				$edId = $this->getInternalId($kunenaParentId);
+
+				if (! $edId) {
+					// this could be the parent already deleted from kunena. let get the
+					// first_post_id
+					$firstPostId = $item->first_post_id;
+
+					// check if this first post id already migrated or not. if yes, use it.
+					$edId = $this->getInternalId($firstPostId);
+
+					if (! $edId) {
+						// if no, we will need to migrate this as parent
+						//
+						$parentPost = ED::post();
+
+						$parentItem = $this->getKunenaItem($firstPostId);
+
+						// Map the item to discuss post
+						$state = $this->mapKunenaItem($parentItem, $parentPost);
+
+						$status .= JText::_('COM_EASYDISCUSS_MIGRATOR_MIGRATED_KUNENA') . ': ' . $parentItem->id . JText::_('COM_EASYDISCUSS_MIGRATOR_EASYDISCUSS') . ': ' . $parentPost->id . '<br />';
+
+						// adding poll items to this thread
+						$this->mapKunenaItemPolls($parentItem, $parentPost);
+
+						// Map item likes
+						$this->mapKunenaItemLikes($parentItem, $parentPost);
+
+						$edId = $parentPost->id;
+
+						if ($item->id == $item->first_post_id) {
+							$edInternalIds[$kunenaParentId] = $edId;
+							continue;
+						}
+
+					}
+				}
+
+				$edInternalIds[$kunenaParentId] = $edId;
 			}
+
 			$edParentId = $edInternalIds[$kunenaParentId];
 
 			$post = null;
@@ -481,7 +503,7 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 		// process code tag
 		$data['content'] = $this->processCodeTag($data['content']);
 
-		$post->bind($data);
+		$post->bind($data, false, true);
 
 		$saveOptions = array('migration' => true);
 		$post->save($saveOptions);
@@ -673,10 +695,13 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 		$db	= $this->db;
 
 		$query = 'SELECT COUNT(1) FROM `#__kunena_messages` AS a';
+		$query .= ' INNER JOIN `#__kunena_topics` as c on c.`id` = a.`thread`';
 		$query .= ' WHERE NOT EXISTS (';
 		$query .= ' SELECT external_id FROM `#__discuss_migrators` AS b WHERE b.`external_id` = a.`id` and `component` = ' . $this->db->Quote('com_kunena');
 		$query .= ' )';
-		$query .= ' AND ' . $db->nameQuote('parent') . '=' . $db->Quote(0);
+		// $query .= ' AND ' . $db->nameQuote('parent') . '=' . $db->Quote(0);
+		$query .= ' AND a.' . $db->nameQuote('id') . '=' . 'c.`first_post_id`';
+
 
 		$db->setQuery($query);
 		$items = $db->loadResult();
@@ -699,7 +724,8 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 			$query .= ' AND a.' . $db->nameQuote('thread') . ' = ' . $db->Quote($item->thread);
 			$query .= ' AND a.' . $db->nameQuote('id') . '!=' . $db->Quote($item->id);
 		} else {
-			$query .= ' AND a.' . $db->nameQuote('parent') . '=' . $db->Quote(0);
+			// $query .= ' AND a.' . $db->nameQuote('parent') . '=' . $db->Quote(0);
+			$query .= ' AND a.' . $db->nameQuote('id') . '=' . 'c.`first_post_id`';
 		}
 
 		$query .= ' ORDER BY a.`id`';
@@ -714,6 +740,21 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 		return $items;
 
 	}
+
+	public function getKunenaItem($itemId)
+	{
+		$db	= $this->db;
+
+		$query = 'SELECT c.`last_post_time`, a.* FROM `#__kunena_messages` AS a';
+		$query .= ' INNER JOIN `#__kunena_topics` as c on c.`id` = a.`thread`';
+		$query .= ' WHERE a.' . $db->nameQuote('id') . '=' . $db->Quote($itemId);
+
+		$db->setQuery($query);
+		$item = $db->loadObject();
+
+		return $item;
+	}
+
 
 	/**
 	 * Retrieves a list of categories in Kunena

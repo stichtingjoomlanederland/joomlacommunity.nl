@@ -220,9 +220,16 @@ class EasyDiscussViewPost extends EasyDiscussView
     {
         $id = $this->input->get('id', 0, 'int');
 
+        $post = ED::post($id);
+
         $theme = ED::themes();
         $theme->set('id', $id);
-        $contents = $theme->output('site/post/dialogs/accept.answer');
+
+        if ($post->isQuestion()) {
+            $contents = $theme->output('site/post/dialogs/mark.post.resolve');
+        } else {
+            $contents = $theme->output('site/post/dialogs/accept.answer');
+        }
 
         return $this->ajax->resolve($contents);
     }
@@ -238,9 +245,16 @@ class EasyDiscussViewPost extends EasyDiscussView
     {
         $id = $this->input->get('id', 0, 'int');
 
+        $post = ED::post($id);
+
         $theme = ED::themes();
         $theme->set('id', $id);
-        $contents = $theme->output('site/post/dialogs/reject.answer');
+
+        if ($post->isQuestion()) {
+            $contents = $theme->output('site/post/dialogs/mark.post.unresolve');
+        } else {
+            $contents = $theme->output('site/post/dialogs/reject.answer');
+        }
 
         return $this->ajax->resolve($contents);
     }

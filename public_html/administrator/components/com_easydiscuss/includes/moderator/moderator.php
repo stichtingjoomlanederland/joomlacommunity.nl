@@ -34,7 +34,7 @@ class EasyDiscussModerator extends EasyDiscuss
 		// If category is not supplied, caller might just want to check if
 		// the user is a moderator of any category.
 		if (is_null($categoryId)){
-			
+
 			if (isset($result['isModerator'])) {
 				return $result['isModerator'];
 			}
@@ -56,13 +56,12 @@ class EasyDiscussModerator extends EasyDiscuss
 					$query[] = $db->nameQuote('type') . '=' . $db->Quote('group');
 					$query[] = 'AND ' . $db->nameQuote('content_id') . ' IN(';
 
+					$gstring = '';
 					for ($i = 0; $i < count($gids); $i++) {
-						$query[] = $db->Quote($gids[$i]);
-
-						if (next($gids) !== false) {
-							$query[] = ',';
-						}
+						$gval = $db->Quote($gids[$i]);
+						$gstring .= $gstring ? ',' . $gval : $gval;
 					}
+					$query[] = $gstring;
 
 					$query[] = ')';
 				}
@@ -75,6 +74,8 @@ class EasyDiscussModerator extends EasyDiscuss
 			}
 
 			$query = implode(' ', $query);
+
+			// echo $query;exit;
 
 			$db->setQuery($query);
 

@@ -56,9 +56,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 	</div>
 	<?php } ?>
 
-	
+	<?php if ($post->canAcceptAsAnswer()) { ?>	
 	<div class="btn-group">
-
 		<?php if (!$post->isAnswer()) { ?>
 		<a class="btn btn-default btn-xs btn-ed-accept" data-ed-post-qna data-task="confirmAccept">
 			<?php echo JText::_('COM_EASYDISCUSS_REPLY_ACCEPT');?>
@@ -71,7 +70,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 		</a>
 		<?php } ?>
 	</div>
-	
+	<?php } ?>
 
 	<?php if ($post->canReply()) { ?>
 	<div class="btn-group">
@@ -84,8 +83,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 	<?php if ($post->canResolve()) { ?>
 	<div class="btn-group">
-		<a class="btn btn-default btn-xs ed-btn-resolve" href="javascript:void(0);" data-ed-post-resolve data-task="resolve"><?php echo JText::_('COM_EASYDISCUSS_ENTRY_MARK_RESOLVED'); ?></a>
-		<a class="btn btn-default btn-xs ed-btn-unresolve" href="javascript:void(0);" data-ed-post-resolve data-task="unresolve"><?php echo JText::_('COM_EASYDISCUSS_ENTRY_MARK_UNRESOLVED'); ?></a>
+		<a class="btn btn-default btn-xs ed-btn-resolve" href="javascript:void(0);" data-ed-post-resolve data-task="confirmAccept"><?php echo JText::_('COM_EASYDISCUSS_ENTRY_MARK_RESOLVED'); ?></a>
+		<a class="btn btn-default btn-xs ed-btn-unresolve" href="javascript:void(0);" data-ed-post-resolve data-task="confirmReject"><?php echo JText::_('COM_EASYDISCUSS_ENTRY_MARK_UNRESOLVED'); ?></a>
 	</div>
 	<?php } ?>
 

@@ -163,12 +163,12 @@ class EasyDiscussControllerBadges extends EasyDiscussController
 		$task = $this->getTask();
 
 		// Test for rules here.
-		if (!$badge->title || !$badge->description || !$badge->description) {
+		if (!$badge->title || !$badge->description) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_BADGE_SAVE_FAILED'), DISCUSS_QUEUE_ERROR);
 
 			JRequest::setVar('view', 'badge');
 
-			return parent::display();
+			return $this->app->redirect($redirect);
 		}
 
 		$badge->store();
@@ -201,10 +201,10 @@ class EasyDiscussControllerBadges extends EasyDiscussController
 
 		if (!$data) {
 
-			$message = JText::_('COM_EASYDISCUSS_BADGE_INVALID_CSV_FILE');
+			$message = JText::_('COM_EASYDISCUSS_BADGES_UPLOAD_CSV_FILE');
 			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
 
-			$this->app->redirect('index.php?option=com_easydiscuss&view=badges=$layout=assign');
+			$this->app->redirect('index.php?option=com_easydiscuss&view=badges=&layout=assign');
 			return false;
 		}
 

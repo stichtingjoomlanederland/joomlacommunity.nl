@@ -38,8 +38,6 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function exceededModerationThreshold($userId = null)
 	{
@@ -54,11 +52,11 @@ class EasyDiscussModelUsers extends EasyDiscussAdminModel
 		$db->setQuery($query);
 		$result = $db->loadResult();
 
-		if ($result <= $limit) {
-			return false;
+		if ($result >= $limit) {
+			return true;
 		}
 
-		return true;
+		return false;
 	}
 
 	/**

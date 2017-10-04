@@ -49,6 +49,12 @@ class EasyDiscussViewTypes extends EasyDiscussAdminView
 		$search = $this->getUserState('types.search', 'search', '', 'string');
 		$search = trim(strtolower($search));
 
+		$ordering = array();
+
+		foreach ($types as $type) {
+			$ordering[] = $type->id;
+		}
+
 		$this->set('browseFunction', $browseFunction);
 		$this->set('browse', $browse);
 		$this->set('search', $search);
@@ -57,6 +63,7 @@ class EasyDiscussViewTypes extends EasyDiscussAdminView
 		$this->set('order', $order);
 		$this->set('orderDirection', $orderDirection);
 		$this->set('pagination', $pagination);
+		$this->set('ordering', $ordering);
 
 		parent::display('types/default');
 	}

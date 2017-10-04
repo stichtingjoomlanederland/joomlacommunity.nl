@@ -267,6 +267,10 @@ class DiscussComment extends EasyDiscussTable
 		    $emails = array_merge($emails, $siteSubscribers);
 		}
 
+		if (!$config->get('main_subscription_include_comments')) {
+		 	return false;
+		}
+
 		if ($config->get('main_ed_categorysubscription') && $config->get('main_subscription_include_comments')) {
 		    $categorySubscribers = ED::Mailer()->getSubscribers('category', $post->category_id, $post->category_id, array('emailOnly' => true), array($my->email));
 		    $emails = array_merge($emails, $categorySubscribers);

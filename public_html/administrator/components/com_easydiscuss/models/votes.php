@@ -19,11 +19,6 @@ class EasyDiscussModelVotes extends EasyDiscussAdminModel
 	 * Check if a user vote exists in the system.
 	 *
 	 * @since	4.0
-	 * @param	int		The unique post id.
-	 * @param	int 	The user's unique id.
-	 * @param	string	The user's ip address.
-	 * @param	string	The unique session id.
-	 * @return	boolean	True if user has already voted.
 	 */
 	public function hasVoted($postId, $userId = null, $sessionId = null)
 	{
@@ -50,9 +45,6 @@ class EasyDiscussModelVotes extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	int		The unique post id.
-	 * @param	int		The user's unique id.
-	 * @param	string	The unique session id.
 	 */
 	public function getVoteType($postId, $userId = null, $sessionId = null)
 	{
@@ -77,10 +69,6 @@ class EasyDiscussModelVotes extends EasyDiscussAdminModel
 	 * 
 	 * @since	4.0.6
 	 * @access	public
-	 * @param	int		The unique post id.
-	 * @param	int		The user's unique id.
-	 * @param	string	The unique session id.
-	 * @param	int		The unique vote value.
 	 */
 	public function voteModifying($postId, $userId = null, $sessionId = null)
 	{
@@ -103,24 +91,62 @@ class EasyDiscussModelVotes extends EasyDiscussAdminModel
 	 * 
 	 * @since	4.0.6
 	 * @access	public
-	 * @param	int		The unique post id.
-	 * @param	int		The user's unique id.
-	 * @param	string	The unique session id.
 	 */
-	public function undoVote($postId, $userId = null, $sessionId = null)
+	public function undoVote($post, $userId = null, $sessionId = null)
 	{
 		$db = $this->db;
+		$votes = ED::table('votes');
 
-		// Delete the current vote record 
-		$query  = 'DELETE FROM ' . $db->nameQuote('#__discuss_votes');
-		$query .= ' WHERE ' . $db->nameQuote('session_id') . '=' . $db->Quote($sessionId);
-		$query .= ' AND ' . $db->nameQuote('user_id') . '=' . $db->Quote($userId);
-		$query .= ' AND ' . $db->nameQuote('post_id') . '=' . $db->Quote($postId);
+		// Retrieveing the current votes based on session.
+		$votes->loadComposite($post->id, $userId, $sessionId);
 
+		$value = 0;
+		// If the previous action is vote up, then we'll need to revert that.
+		if ($votes->value == 1) {
+			$value = DISCUSS_VOTE_DOWN;
+		} else {
+			$value = DISCUSS_VOTE_UP;
+		}
+
+		$query = array();
+		if ($post->isQuestion()) {
+			$query[] = 'UPDATE ' . $db->nameQuote('#__discuss_posts') . ' AS a';
+			$query[] = 'INNER JOIN ' . $db->nameQuote('#__discuss_thread') . ' AS b';
+			$query[] = 'ON a.`id` = b.`post_id`';
+
+			$query[] = 'SET a.`sum_totalvote` = a.`sum_totalvote` + ' . $db->Quote($value) . ',';
+			$query[] = 'b.`sum_totalvote` = b.`sum_totalvote` + ' . $db->Quote($value);
+
+			// Now we need to update the total votes count.
+			$query[] = ', a.`vote` = a.`vote` - 1';
+			$query[] = ', b.`vote` = b.`vote` - 1';
+
+			if ($votes->value == DISCUSS_VOTE_DOWN) {
+				$query[] = ', a.`num_negvote` = a.`num_negvote` - 1';
+				$query[] = ', b.`num_negvote` = b.`num_negvote` - 1';
+			}
+		} else {
+			$query[] = 'UPDATE ' . $db->nameQuote('#__discuss_posts') . ' AS a';
+			$query[] = 'SET a.`sum_totalvote` = a.`sum_totalvote` + ' . $db->Quote($value);
+
+			// Now we'll need to update the total votes count.
+			$query[] = ', a.`vote` = a.`vote` - 1';
+
+			if ($votes->value == DISCUSS_VOTE_DOWN) {
+				$query[] = ', a.`num_negvote` = a.`num_negvote` - 1';
+			}
+		}
+
+		$query[] = "WHERE a.`id` = " . $db->Quote($post->id);
+		
+		$query = implode(' ', $query);
 		$db->setQuery($query);
-		$result = $db->loadResult() ? true : false;
+		$state = $db->execute();
 
-		return $result;
+		// Now we can delete the current vote record 
+		$state = $votes->delete();
+
+		return $state;
 	}
 
 
@@ -128,8 +154,6 @@ class EasyDiscussModelVotes extends EasyDiscussAdminModel
 	 * Get's the total number of votes made for a specific post.
 	 *
 	 * @since	4.0
-	 * @param	int		The unique post id.
-	 * @return	int		The total number of votes.
 	 *
 	 */
 	public function getTotalVotes($postId)
@@ -155,8 +179,6 @@ class EasyDiscussModelVotes extends EasyDiscussAdminModel
 	 * Gets a list of voters for a particular post.
 	 *
 	 * @since	4.0
-	 * @param	int 	The unique post id.
-	 * @return	Array	An array of voter objects.
 	 */
 	public function getVoters($id)
 	{

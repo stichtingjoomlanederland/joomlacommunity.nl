@@ -99,8 +99,9 @@ class EasyDiscussControllerInstallCopy extends EasyDiscussSetupController
 			// We need to skip cron.php if the file already exists
 			if ($type == 'site' && $name == 'cron.php') {
 				$exists = JFile::exists($targetFile);
-
-				continue;
+				if ($exists) {
+					continue;
+				}
 			}
 
 			// Copy the file

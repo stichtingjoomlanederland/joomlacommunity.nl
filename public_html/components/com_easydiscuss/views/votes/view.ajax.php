@@ -42,7 +42,7 @@ class EasyDiscussViewVotes extends EasyDiscussView
 		$voteModel = ED::model('Votes');
 
 		// Detect if the user has already voted on this item.
-		$votedType = $voteModel->getVoteType($post->id, $this->my->id, $sessionId);
+		$votedType = $voteModel->getVoteType($post->id, $this->my->id, $sessionId); 
 
 		if ($votedType) {
 			// Determine what vote type the user has made previously.
@@ -294,27 +294,18 @@ class EasyDiscussViewVotes extends EasyDiscussView
 		// Get user's session id.
 		$session = JFactory::getSession();
 		$sessionId = $session->getId();
-		
-		$voteModel = ED::model('Votes');
 
-		// Check if the current vote session already different, mean he already perform undo action
-		$voteModifying = $voteModel->voteModifying($post->id, $this->my->id, $sessionId); 
+		// Let the votes library handles the undo.
+		$lib = ED::vote();
+		$state = $lib->undoVotes($post, $sessionId);
 
-		if (!$voteModifying) {
+		if (!$state) {
 			$this->ajax->reject(JText::_('COM_EASYDISCUSS_UNDO_FAILED_MSG'));
 		}
 
-		// check if the user is it modifying the vote on the post
-		$voteModifying = $voteModel->undoVote($post->id, $this->my->id, $sessionId);
+		$totalVotes = $lib->getTotalVotes($post->id);
 
-		// Get the total votes.
-		$totalVotes = $voteModel->getTotalVotes($post->id);
-
-		// Success message
-		$successMsg = JText::_('COM_EASYDISCUSS_VOTE_UNDO_SUCCESS_MSG');
-
-		$this->ajax->resolve($totalVotes, $successMsg);
-
+		$this->ajax->resolve($totalVotes, JText::_('COM_EASYDISCUSS_VOTE_UNDO_SUCCESS_MSG'));
 		return $this->ajax->send();
 	}	
 }

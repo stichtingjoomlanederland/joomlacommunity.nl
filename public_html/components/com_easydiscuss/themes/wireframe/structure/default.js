@@ -25,15 +25,17 @@ ed.require(['edq', 'easydiscuss', 'responsive'], function($, EasyDiscuss) {
         var textarea = $('textarea[name=' + elementId + ']');
         var tag = '[video]' + videoURL + '[/video]';
 
+        var contents = $(textarea).val();
+        var contentsExist = contents.length;
+
         // If this is at the first position, we don't want to do anything here.
-        if (caretPosition == 0) {
+        // Avoid some cases if user insert these code at the first line, the rest content will went missing
+        if (caretPosition == 0 && contentsExist == 0) {
 
             $(textarea).val(tag);
             EasyDiscuss.dialog().close();
             return true;
         }
-
-        var contents = $(textarea).val();
 
         $(textarea).val(contents.substring(0, caretPosition) + tag + contents.substring(caretPosition, contents.length));
     };
@@ -47,15 +49,17 @@ ed.require(['edq', 'easydiscuss', 'responsive'], function($, EasyDiscuss) {
         var textarea = $('textarea[name=' + elementId + ']');
         var tag = '[img]' + photoURL + '[/img]';
 
+        var contents = $(textarea).val();
+        var contentsExist = contents.length;
+
         // If this is at the first position, we don't want to do anything here.
-        if (caretPosition == 0) {
+        // Avoid some cases if user insert these code at the first line, the rest content will went missing
+        if (caretPosition == 0 && contentsExist == 0) {
 
             $(textarea).val(tag);
             EasyDiscuss.dialog().close();
             return true;
         }
-
-        var contents = $(textarea).val();
 
         $(textarea).val(contents.substring(0, caretPosition) + tag + contents.substring(caretPosition, contents.length));
     };
@@ -73,15 +77,17 @@ ed.require(['edq', 'easydiscuss', 'responsive'], function($, EasyDiscuss) {
         var textarea = $('textarea[name=' + elementId + ']');
         var tag = '[url=' + linkURL + ']'+ linkTitle +'[/url]';
 
+        var contents = $(textarea).val();
+        var contentsExist = contents.length;
+
         // If this is at the first position, we don't want to do anything here.
-        if (caretPosition == 0) {
+        // Avoid some cases if user insert these code at the first line, the rest content will went missing
+        if (caretPosition == 0 && contentsExist == 0) {
 
             $(textarea).val(tag);
             EasyDiscuss.dialog().close();
             return true;
         }
-
-        var contents = $(textarea).val();
 
         $(textarea).val(contents.substring(0, caretPosition) + tag + contents.substring(caretPosition, contents.length));
     };

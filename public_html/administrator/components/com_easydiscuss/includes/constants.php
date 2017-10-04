@@ -208,3 +208,7 @@ define('ED_LANGUAGES_NEEDS_UPDATING' , 3 );
 
 
 define ("EMOTICONS_DIR", DISCUSS_MEDIA_URI . '/images/markitup/');
+
+// Order Actions
+define('DISCUSS_ORDER_UP', -1);
+define('DISCUSS_ORDER_DOWN', 1);

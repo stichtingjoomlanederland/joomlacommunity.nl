@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -214,15 +214,15 @@ jQuery(document).ready(function(){
 					</div>
 				</td>
 				<td class="text-center text-success">
-					<i class="fa fa-check"></i>
+					<i class="icon-checkmark"></i>
 				</td>
 				<?php if( $gd ){ ?>
 				<td class="text-center text-success">
-					<i class="fa fa-check"></i>
+					<i class="icon-checkmark"></i>
 				</td>
 				<?php } else { ?>
 				<td class="text-center text-error">
-					<i class="fa fa-times"></i>
+					<i class="icon-cancel-2"></i>
 				</td>
 				<?php } ?>
 			</tr>
@@ -238,15 +238,15 @@ jQuery(document).ready(function(){
 					</div>
 				</td>
 				<td class="text-center text-success">
-					<i class="fa fa-check"></i>
+					<i class="icon-checkmark"></i>
 				</td>
 				<?php if( $curl ){ ?>
 				<td class="text-center text-success">
-					<i class="fa fa-check"></i>
+					<i class="icon-checkmark"></i>
 				</td>
 				<?php } else { ?>
 				<td class="text-center text-error">
-					<i class="fa fa-times"></i>
+					<i class="icon-cancel-2"></i>
 				</td>
 				<?php } ?>
 			</tr>

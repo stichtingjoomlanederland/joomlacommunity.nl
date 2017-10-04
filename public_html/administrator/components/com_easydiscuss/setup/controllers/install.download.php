@@ -148,11 +148,8 @@ class EasyDiscussControllerInstallDownload extends EasyDiscussSetupController
 		// Get the latest version
 		$ch = curl_init($info->install);
 
-		// Get the domain
-		$domain = $this->getDomain();
-
 		// Data that should be sent to the server
-		$fields = 'extension=easydiscuss&apikey=' . $apikey . '&license=' . $license . '&version=' . $info->version . '&domain=' . $domain;
+		$fields = 'extension=easydiscuss&apikey=' . $apikey . '&license=' . $license . '&version=' . $info->version;
 
 		// We need to pass the api keys to the server
 		curl_setopt($ch, CURLOPT_POST, true);

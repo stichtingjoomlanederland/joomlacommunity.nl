@@ -916,6 +916,11 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		$post = ED::post($postId);
 		$post->publish(1);
 
+		if (!$post->canModerate()) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'), 'error');
+			return $this->app->redirect(EDR::_('view=index', false));
+		}
+
 		// COM_EASYDISCUSS_MODERATE_REPLY_PUBLISHED
 		$message = JText::_('COM_EASYDISCUSS_MODERATE_POST_PUBLISHED');
 		$redirect = EDR::_('index.php?option=com_easydiscuss&view=dashboard');
@@ -948,6 +953,11 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		$post = ED::post($postId);
 		$post->publish(0, true);
 
+		if (!$post->canModerate()) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'), 'error');
+			return $this->app->redirect(EDR::_('view=index', false));
+		}
+
 		$message = JText::_('COM_EASYDISCUSS_POST_REJECT');
 		$redirect = EDR::_('index.php?option=com_easydiscuss&view=dashboard');
 
@@ -971,12 +981,6 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		// Check for request forgeries
 		ED::checkToken();
 
-		// Only site admin are allowed to perform this action
-		if (!ED::isSiteAdmin()) {
-			ED::setMessage('Not allowed', 'error');
-			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss'));
-		}
-
 		// Get the id if available
 		$id = $this->input->get('id', 0, 'int');
 
@@ -988,6 +992,11 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		// Load the post library
 		$post = ED::post($id);
+
+		if (!$post->canModerate()) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'), 'error');
+			return $this->app->redirect(EDR::_('view=index', false));
+		}
 
 		// Bind post data
 		$post->bind($data);
@@ -1014,4 +1023,76 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		$this->app->redirect($redirect);
 	}
+
+	/**
+	 * Mark a post as resolve
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function resolve()
+	{
+        // Get the post id
+        $id = $this->input->get('id', 0, 'int');
+
+        if (!$id) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'), 'error');
+			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss', false));
+        }
+
+        // load the post lib
+        $post = ED::post($id);
+
+        // Ensure that the user can really resolve this
+        if (!$post->canResolve()) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'), 'error');
+			return $this->app->redirect(EDR::getPostRoute($post->id, false));
+        }
+
+        // Try to resolve it now
+        $state = $post->markResolved();
+
+        if (!$state) {
+            return $this->ajax->reject($post->getError());
+        }
+
+		ED::setMessage(JText::_('COM_EASYDISCUSS_ENTRY_RESOLVED'), 'success');
+		return $this->app->redirect(EDR::getPostRoute($post->id, false));		
+	}
+
+	/**
+	 * Mark a post as unresolve
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function unresolve()
+	{
+        // Get the post id
+        $id = $this->input->get('id', 0, 'int');
+
+        if (!$id) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'), 'error');
+			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss', false));
+        }
+
+        // load the post lib
+        $post = ED::post($id);
+
+        // Ensure that the user can really resolve this
+        if (!$post->canResolve()) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'), 'error');
+			return $this->app->redirect(EDR::getPostRoute($post->id, false));
+        }
+
+        // Try to resolve it now
+        $state = $post->markUnresolve();
+
+        if (!$state) {
+            return $this->ajax->reject($post->getError());
+        }
+
+		ED::setMessage(JText::_('COM_EASYDISCUSS_ENTRY_UNRESOLVED'), 'success');
+		return $this->app->redirect(EDR::getPostRoute($post->id, false));		
+	}	
 }

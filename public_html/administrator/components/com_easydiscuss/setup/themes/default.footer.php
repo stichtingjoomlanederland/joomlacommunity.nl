@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -63,7 +63,7 @@ $(document).ready( function(){
     	<a href="javascript:void(0);" class="col-cell" <?php echo $active > 1 ? ' data-installation-nav-prev' : ' data-installation-nav-cancel';?>>
             <b>
                 <span>
-                    <i class="ion-android-arrow-back text-right"></i>
+                    <i class="eb-icon icon-arrow-left-2 text-right"></i>
                 </span>
                 <span>
                 	<?php if ($active > 1) { ?>
@@ -79,7 +79,7 @@ $(document).ready( function(){
             <b>
                 <span><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_NEXT_STEP'); ?></span>
                 <span>
-                    <i class="ion-android-arrow-forward text-left"></i>
+                    <i class="eb-icon icon-arrow-right-2 text-left"></i>
                 </span>
             </b>
         </a>
@@ -97,7 +97,7 @@ $(document).ready( function(){
             <b>
                 <span><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_INSTALL_ADDONS'); ?></span>
                 <span>
-                    <i class="ion-android-arrow-forward text-left"></i>
+                    <i class="eb-icon icon-arrow-right-2 text-left"></i>
                 </span>
             </b>
         </a>
@@ -106,7 +106,7 @@ $(document).ready( function(){
             <b>
                 <span><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_RETRY'); ?></span>
                 <span>
-                    <i class="ion-android-arrow-forward text-left"></i>
+                    <i class="eb-icon icon-arrow-right-2 text-left"></i>
                 </span>
             </b>
         </a>

@@ -593,6 +593,10 @@ class EasyDiscussParser extends EasyDiscuss
 
 				$imgPath = $matches[1][$i];
 
+				if ($imgPath[0] == '/') {
+					$base =	rtrim(JURI::root(), '/');
+				}
+
 				// Check whether this is valid img link with the http protocol
 				// Replace the domain name into imaga path
 				if (JString::strpos($imgPath , 'http://') === false && JString::strpos($imgPath, 'https://') === false) {

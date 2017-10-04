@@ -28,11 +28,13 @@ class EasyDiscussViewDashboard extends EasyDiscussView
 		// Set the meta for the page
 		ED::setMeta();
 
-		if (!$this->acl->allowed('manage_holiday') && !ED::isSiteAdmin()) {
+		$user =	ED::post();
+
+		if (!$user->canAccessDashboard()) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_YOU_ARE_NOT_ALLOWED_HERE'), 'error');
-			return $this->app->redirect('index.php?option=com_easydiscuss');
+			return $this->app->redirect(EDR::_('view=index', false));
 		}
-		
+
 		$model = ED::model('holidays');
 		$holidays = $model->getHolidays();
 

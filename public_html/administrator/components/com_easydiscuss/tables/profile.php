@@ -1535,11 +1535,17 @@ class DiscussProfile extends EasyDiscussTable
 		if (!isset($items[$this->id])) {
 			$config = ED::config();
 
-			$enabled = $config->get('main_moderation_automated');
+			$moderationEnabled = $config->get('main_moderatepost');
+			$moderationAutomatedEnabled = $config->get('main_moderation_automated');
 			$limit = $config->get('moderation_threshold');
 
-			if (($enabled && !$limit) || (!$enabled)) {
+			if (($moderationAutomatedEnabled && !$limit) || (!$moderationAutomatedEnabled)) {
+
 				$items[$this->id] = false;
+
+				if ($moderationEnabled) {
+					$items[$this->id] = true;
+				}
 
 				return $items[$this->id];
 			}

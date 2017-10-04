@@ -11,7 +11,7 @@
 */
 defined('_JEXEC') or die('Restricted access');
 ?>
-<?php if ($post->isPending() && ED::isSiteAdmin()) { ?>
+<?php if ($post->isPending() && $post->canModerate()) { ?>
 <div class="ed-adminbar" data-ed-post-actions-bar data-id="<?php echo $post->id;?>">
 	<div class="btn-group">
 		<?php if ($this->config->get('layout_editor') == 'bbcode'){ ?>

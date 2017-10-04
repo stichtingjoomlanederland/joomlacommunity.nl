@@ -114,7 +114,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 						<div style="font-size: 11px;">
 							<?php echo JText::_('COM_EASYDISCUSS_IP_ADDRESS');?>: <?php echo $post->ip;?>
+
+							<?php if ($post->isLocked()) { ?>
+								&middot; <?php echo JText::_('COM_EASYDISCUSS_LOCKED'); ?>
+							<?php } ?>
 						</div>
+
 						<?php if ($this->config->get('main_password_protection') && $post->password) { ?>
 							<span rel="ed-tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_THIS_POST_PASSWORD_PROTECTED' , true);?>">
 								<i class="icon-lock"></i>

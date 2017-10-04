@@ -230,11 +230,11 @@ class EDR
 		$Itemid = isset($query['Itemid']) ? $query['Itemid'] : '';
 		$task = isset($query['task']) ? $query['task'] : '';
 		$id = isset($query['id']) ? $query['id'] : null;
-        $sort = isset($query['sort']) ? $query['sort'] : null;
-        $filter = isset($query['filter']) ? $query['filter'] : null;
-        $lang = isset($query['lang']) ? $query['lang'] : null;
-        $search = isset($query['search']) ? $query['search'] : null;
-        $category_id = isset($query['category_id']) ? $query['category_id'] : null;
+		$sort = isset($query['sort']) ? $query['sort'] : null;
+		$filter = isset($query['filter']) ? $query['filter'] : null;
+		$lang = isset($query['lang']) ? $query['lang'] : null;
+		$search = isset($query['search']) ? $query['search'] : null;
+		$category_id = isset($query['category_id']) ? $query['category_id'] : null;
 
 		if (!empty($Itemid)) {
 			if (self::isEasyDiscussMenuItem($Itemid)) {
@@ -243,10 +243,10 @@ class EDR
 			}
 		}
 
-        if ($lang) {
-            // we knwo the lang that we passed in is the short tag. we need to get the full tag. e.g. en-GB
-            $lang = self::getSiteLanguageTag($lang);
-        }
+		if ($lang) {
+			// we knwo the lang that we passed in is the short tag. we need to get the full tag. e.g. en-GB
+			$lang = self::getSiteLanguageTag($lang);
+		}
 
 
 		$tmpId = '';
@@ -425,17 +425,17 @@ class EDR
 			$tmpId = $defaultMenu->id;
 		}
 
-        // Some query strings may have "sort" in them.
-        if ($sort) {
-            $dropSegment = false;
-        }
+		// Some query strings may have "sort" in them.
+		if ($sort) {
+			$dropSegment = false;
+		}
 
-        // Some query strings may have "search" in them.
-        if ($search) {
-            $dropSegment = false;
-        }
+		// Some query strings may have "search" in them.
+		if ($search) {
+			$dropSegment = false;
+		}
 
-        // Some query strings may have "task" in them.
+		// Some query strings may have "task" in them.
 		if ($task) {
 			$dropSegment = false;
 		}
@@ -591,7 +591,7 @@ class EDR
 	public static function replaceAccents( $string )
 	{
 		$a = array('Ã„', 'Ã¤', 'Ã–', 'Ã¶', 'Ãœ', 'Ã¼', 'ÃŸ' , 'Ã€', 'Ã', 'Ã‚', 'Ãƒ', 'Ã„', 'Ã…', 'Ã†', 'Ã‡', 'Ãˆ', 'Ã‰', 'ÃŠ', 'Ã‹', 'ÃŒ', 'Ã', 'Ã', 'Ã', 'Ã', 'Ã‘', 'Ã’', 'Ã“', 'Ã”', 'Ã•', 'Ã–', 'Ã˜', 'Ã™', 'Ãš', 'Ã›', 'Ãœ', 'Ã', 'ÃŸ', 'Ã ', 'Ã¡', 'Ã¢', 'Ã£', 'Ã¤', 'Ã¥', 'Ã¦', 'Ã§', 'Ã¨', 'Ã©', 'Ãª', 'Ã«', 'Ã¬', 'Ã­', 'Ã®', 'Ã¯', 'Ã±', 'Ã²', 'Ã³', 'Ã´', 'Ãµ', 'Ã¶', 'Ã¸', 'Ã¹', 'Ãº', 'Ã»', 'Ã¼', 'Ã½', 'Ã¿', 'Ä€', 'Ä', 'Ä‚', 'Äƒ', 'Ä„', 'Ä…', 'Ä†', 'Ä‡', 'Äˆ', 'Ä‰', 'ÄŠ', 'Ä‹', 'ÄŒ', 'Ä', 'Ä', 'Ä', 'Ä', 'Ä‘', 'Ä’', 'Ä“', 'Ä”', 'Ä•', 'Ä–', 'Ä—', 'Ä˜', 'Ä™', 'Äš', 'Ä›', 'Äœ', 'Ä', 'Ä', 'ÄŸ', 'Ä ', 'Ä¡', 'Ä¢', 'Ä£', 'Ä¤', 'Ä¥', 'Ä¦', 'Ä§', 'Ä¨', 'Ä©', 'Äª', 'Ä«', 'Ä¬', 'Ä­', 'Ä®', 'Ä¯', 'Ä°', 'Ä±', 'Ä²', 'Ä³', 'Ä´', 'Äµ', 'Ä¶', 'Ä·', 'Ä¹', 'Äº', 'Ä»', 'Ä¼', 'Ä½', 'Ä¾', 'Ä¿', 'Å€', 'Å', 'Å‚', 'Åƒ', 'Å„', 'Å…', 'Å†', 'Å‡', 'Åˆ', 'Å‰', 'ÅŒ', 'Å', 'Å', 'Å', 'Å', 'Å‘', 'Å’', 'Å“', 'Å”', 'Å•', 'Å–', 'Å—', 'Å˜', 'Å™', 'Åš', 'Å›', 'Åœ', 'Å', 'Å', 'ÅŸ', 'Å ', 'Å¡', 'Å¢', 'Å£', 'Å¤', 'Å¥', 'Å¦', 'Å§', 'Å¨', 'Å©', 'Åª', 'Å«', 'Å¬', 'Å­', 'Å®', 'Å¯', 'Å°', 'Å±', 'Å²', 'Å³', 'Å´', 'Åµ', 'Å¶', 'Å·', 'Å¸', 'Å¹', 'Åº', 'Å»', 'Å¼', 'Å½', 'Å¾', 'Å¿', 'Æ’', 'Æ ', 'Æ¡', 'Æ¯', 'Æ°', 'Ç', 'Ç', 'Ç', 'Ç', 'Ç‘', 'Ç’', 'Ç“', 'Ç”', 'Ç•', 'Ç–', 'Ç—', 'Ç˜', 'Ç™', 'Çš', 'Ç›', 'Çœ', 'Çº', 'Ç»', 'Ç¼', 'Ç½', 'Ç¾', 'Ç¿');
-        $b = array('AE', 'ae', 'O', 'o', 'U', 'u', 'ss', 'A', 'A', 'A', 'A', 'A', 'A', 'AE', 'C', 'E', 'E', 'E', 'E', 'I', 'I', 'I', 'I', 'D', 'N', 'O', 'O', 'O', 'O', 'O', 'O', 'U', 'U', 'U', 'U', 'Y', 's', 'a', 'a', 'a', 'a', 'a', 'a', 'ae', 'c', 'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i', 'n', 'o', 'o', 'o', 'o', 'o', 'o', 'u', 'u', 'u', 'u', 'y', 'y', 'A', 'a', 'A', 'a', 'A', 'a', 'C', 'c', 'C', 'c', 'C', 'c', 'C', 'c', 'D', 'd', 'D', 'd', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'G', 'g', 'G', 'g', 'G', 'g', 'G', 'g', 'H', 'h', 'H', 'h', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'IJ', 'ij', 'J', 'j', 'K', 'k', 'L', 'l', 'L', 'l', 'L', 'l', 'L', 'l', 'l', 'l', 'N', 'n', 'N', 'n', 'N', 'n', 'n', 'O', 'o', 'O', 'o', 'O', 'o', 'O', 'o', 'R', 'r', 'R', 'r', 'R', 'r', 'S', 's', 'S', 's', 'S', 's', 'S', 's', 'T', 't', 'T', 't', 'T', 't', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'W', 'w', 'Y', 'y', 'Y', 'Z', 'z', 'Z', 'z', 'Z', 'z', 's', 'f', 'O', 'o', 'U', 'u', 'A', 'a', 'I', 'i', 'O', 'o', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'A', 'a', 'AE', 'ae', 'O', 'o');
+		$b = array('AE', 'ae', 'O', 'o', 'U', 'u', 'ss', 'A', 'A', 'A', 'A', 'A', 'A', 'AE', 'C', 'E', 'E', 'E', 'E', 'I', 'I', 'I', 'I', 'D', 'N', 'O', 'O', 'O', 'O', 'O', 'O', 'U', 'U', 'U', 'U', 'Y', 's', 'a', 'a', 'a', 'a', 'a', 'a', 'ae', 'c', 'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i', 'n', 'o', 'o', 'o', 'o', 'o', 'o', 'u', 'u', 'u', 'u', 'y', 'y', 'A', 'a', 'A', 'a', 'A', 'a', 'C', 'c', 'C', 'c', 'C', 'c', 'C', 'c', 'D', 'd', 'D', 'd', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'G', 'g', 'G', 'g', 'G', 'g', 'G', 'g', 'H', 'h', 'H', 'h', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'IJ', 'ij', 'J', 'j', 'K', 'k', 'L', 'l', 'L', 'l', 'L', 'l', 'L', 'l', 'l', 'l', 'N', 'n', 'N', 'n', 'N', 'n', 'n', 'O', 'o', 'O', 'o', 'O', 'o', 'O', 'o', 'R', 'r', 'R', 'r', 'R', 'r', 'S', 's', 'S', 's', 'S', 's', 'S', 's', 'T', 't', 'T', 't', 'T', 't', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'W', 'w', 'Y', 'y', 'Y', 'Z', 'z', 'Z', 'z', 'Z', 'z', 's', 'f', 'O', 'o', 'U', 'u', 'A', 'a', 'I', 'i', 'O', 'o', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'A', 'a', 'AE', 'ae', 'O', 'o');
 
 		return str_replace($a, $b, $string);
 	}
@@ -1169,31 +1169,31 @@ class EDR
 	 * @param	string
 	 * @return
 	 */
-    public static function getSiteLanguageTag($langSEF)
-    {
-        static $cache = null;
+	public static function getSiteLanguageTag($langSEF)
+	{
+		static $cache = null;
 
-        if (is_null($cache)) {
-            $db = EB::db();
+		if (is_null($cache)) {
+			$db = EB::db();
 
-            $query = "select * from #__languages";
-            $db->setQuery($query);
+			$query = "select * from #__languages";
+			$db->setQuery($query);
 
-            $results = $db->loadObjectList();
+			$results = $db->loadObjectList();
 
-            if ($results) {
-                foreach($results as $item) {
-                    $cache[$item->sef] = $item->lang_code;
-                }
-            }
-        }
+			if ($results) {
+				foreach($results as $item) {
+					$cache[$item->sef] = $item->lang_code;
+				}
+			}
+		}
 
-        if (isset($cache[$langSEF])) {
-            return $cache[$langSEF];
-        }
+		if (isset($cache[$langSEF])) {
+			return $cache[$langSEF];
+		}
 
-        return $langSEF;
-    }
+		return $langSEF;
+	}
 
 	/**
 	 * check if this itemId belong to EasyDiscuss or not.
@@ -1224,11 +1224,11 @@ class EDR
 	 * @param	string
 	 * @return
 	 */
-    public static function getMenus($view = null, $layout = null, $id = null, $lang = null)
+	public static function getMenus($view = null, $layout = null, $id = null, $lang = null)
 	{
 		static $_cache = null;
 		static $_cacheFlat = null;
-        static $selection = array();
+		static $selection = array();
 
 		if (is_null($_cache)) {
 			// lets get from db for 1 time.
@@ -1240,43 +1240,43 @@ class EDR
 			// now we need to do the grouping.
 			foreach ($menus as $row) {
 
-                // Remove the index.php?option=com_easydiscuss from the link
-                $tmp = str_ireplace('index.php?option=com_easydiscuss', '', $row->link);
+				// Remove the index.php?option=com_easydiscuss from the link
+				$tmp = str_ireplace('index.php?option=com_easydiscuss', '', $row->link);
 
-                // Parse the URL
-                parse_str($tmp, $segments);
+				// Parse the URL
+				parse_str($tmp, $segments);
 
-                // var_dump($tmp, $segments);
+				// var_dump($tmp, $segments);
 
-                // Convert the segments to std class
-                $segments = (object) $segments;
+				// Convert the segments to std class
+				$segments = (object) $segments;
 
-                // if there is no view, most likely this menu item is a external link type. lets skip this item.
-                if(!isset($segments->view)) {
-                    continue;
-                }
+				// if there is no view, most likely this menu item is a external link type. lets skip this item.
+				if(!isset($segments->view)) {
+					continue;
+				}
 
-                $menu = new stdClass();
-                $menu->segments = $segments;
-                $menu->link = $row->link;
-                $menu->view = $segments->view;
-                $menu->layout = isset($segments->layout) ? $segments->layout : 0;
-                $menu->category_id = isset($segments->category_id) ? $segments->category_id : 0;
-                $menu->id = $row->id;
+				$menu = new stdClass();
+				$menu->segments = $segments;
+				$menu->link = $row->link;
+				$menu->view = $segments->view;
+				$menu->layout = isset($segments->layout) ? $segments->layout : 0;
+				$menu->category_id = isset($segments->category_id) ? $segments->category_id : 0;
+				$menu->id = $row->id;
 
-                // check for forum category container
-                if ($menu->view == 'forums' && isset($menu->category_id) && $menu->category_id) {
-                	// this is forum container
-                	$_cache['forumcategory'][$menu->category_id]['menu'] = $menu;
-                	$_cache['forumcategory'][$menu->category_id]['tree'] = $model->getCategoryTreeIds($menu->category_id);
+				// check for forum category container
+				if ($menu->view == 'forums' && isset($menu->category_id) && $menu->category_id) {
+					// this is forum container
+					$_cache['forumcategory'][$menu->category_id]['menu'] = $menu;
+					$_cache['forumcategory'][$menu->category_id]['tree'] = $model->getCategoryTreeIds($menu->category_id);
 
-                } else {
-	                // this is the safe step to ensure later we will have atlest one menu item to retrive.
-	                $_cache[$menu->view][$menu->layout]['*'][] = $menu;
-	                $_cache[$menu->view][$menu->layout][$row->language][] = $menu;
-                }
+				} else {
+					// this is the safe step to ensure later we will have atlest one menu item to retrive.
+					$_cache[$menu->view][$menu->layout]['*'][] = $menu;
+					$_cache[$menu->view][$menu->layout][$row->language][] = $menu;
+				}
 
-                $_cacheFlat[] = $menu;
+				$_cacheFlat[] = $menu;
 
 			}
 		}
@@ -1287,107 +1287,107 @@ class EDR
 			return $_cacheFlat;
 		}
 
-        // Always ensure that layout is lowercased
-        if (!is_null($layout)) {
-            $layout = strtolower($layout);
-        }
+		// Always ensure that layout is lowercased
+		if (!is_null($layout)) {
+			$layout = strtolower($layout);
+		}
 
-        // We want to cache the selection user made.
-        $language = false;
-        $languageTag = JFactory::getLanguage()->getTag();
+		// We want to cache the selection user made.
+		$language = false;
+		$languageTag = JFactory::getLanguage()->getTag();
 
-        // If language filter is enabled, we need to get the language tag
-        if (!JFactory::getApplication()->isAdmin()) {
-            $language = JFactory::getApplication()->getLanguageFilter();
-            $languageTag = JFactory::getLanguage()->getTag();
-        }
+		// If language filter is enabled, we need to get the language tag
+		if (!JFactory::getApplication()->isAdmin()) {
+			$language = JFactory::getApplication()->getLanguageFilter();
+			$languageTag = JFactory::getLanguage()->getTag();
+		}
 
-        if ($lang) {
-            $languageTag = $lang;
-        }
+		if ($lang) {
+			$languageTag = $lang;
+		}
 
-        $key = $view . $layout . $id . $languageTag;
+		$key = $view . $layout . $id . $languageTag;
 
-       // Get the current selection of menus from the cache
-        if (!isset($selection[$key])) {
+	   // Get the current selection of menus from the cache
+		if (!isset($selection[$key])) {
 
 			// 'any' is a special handle to get any menu items belong to ED.
 			if ($view == 'any') {
-	            $selection[$key] = $_cacheFlat[0];
+				$selection[$key] = $_cacheFlat[0];
 
 				return $selection[$key];
 			}
 
-        	// lets check if we need to retrieve from forumcategory or not.
-        	$tmp = false;
-        	if ($view == 'post') {
-        		$tmp = self::getItemViewLayoutId($_cache, $view, $layout, $id, $languageTag);
+			// lets check if we need to retrieve from forumcategory or not.
+			$tmp = false;
+			if ($view == 'post') {
+				$tmp = self::getItemViewLayoutId($_cache, $view, $layout, $id, $languageTag);
 
-        		if (! $tmp) {
-        			// now we need to check if this post's category fall into any of the forumcategory or not.
-        			$tmp = self::getItemForumCategory($_cache, $view, $id, $languageTag);
-        		}
-        	}
+				if (! $tmp) {
+					// now we need to check if this post's category fall into any of the forumcategory or not.
+					$tmp = self::getItemForumCategory($_cache, $view, $id, $languageTag);
+				}
+			}
 
-        	if ($view == 'forums') {
-        		$tmp = self::getItemForumCategory($_cache, $view, $id, $languageTag);
+			if ($view == 'forums') {
+				$tmp = self::getItemForumCategory($_cache, $view, $id, $languageTag);
 
-        		if (! $tmp) {
-        			$tmp = self::getItemViewLayoutId($_cache, $view, $layout, $id, $languageTag);
+				if (! $tmp) {
+					$tmp = self::getItemViewLayoutId($_cache, $view, $layout, $id, $languageTag);
 
-        			if (! $tmp) {
-        				$tmp = self::getItemViewLayoutId($_cache, $view, null, 0, $languageTag);
-        			}
-        		}
-        	}
+					if (! $tmp) {
+						$tmp = self::getItemViewLayoutId($_cache, $view, null, 0, $languageTag);
+					}
+				}
+			}
 
 			if ($tmp) {
 				$selection[$key] = $tmp;
 
-	            if (is_array($selection[$key])) {
-	                $selection[$key] = $selection[$key][0];
-	            }
+				if (is_array($selection[$key])) {
+					$selection[$key] = $selection[$key][0];
+				}
 
 				return $selection[$key];
 			}
 
 			// var_dump($selection[$key]);
 
-            // Search for $view only. Does not care about layout nor the id
-            if (isset($_cache[$view]) && isset($_cache[$view]) && is_null($layout)) {
-                if (isset($_cache[$view][0][$languageTag])) {
-                    $selection[$key] = $_cache[$view][0][$languageTag];
-                } else if (isset($_cache[$view][0]['*'])) {
-                    $selection[$key] = $_cache[$view][0]['*'];
-                } else {
-                    $selection[$key] = false;
-                }
-            }
+			// Search for $view only. Does not care about layout nor the id
+			if (isset($_cache[$view]) && isset($_cache[$view]) && is_null($layout)) {
+				if (isset($_cache[$view][0][$languageTag])) {
+					$selection[$key] = $_cache[$view][0][$languageTag];
+				} else if (isset($_cache[$view][0]['*'])) {
+					$selection[$key] = $_cache[$view][0]['*'];
+				} else {
+					$selection[$key] = false;
+				}
+			}
 
-            // Searches for $view and $layout only.
-            if (isset($_cache[$view]) && isset($_cache[$view]) && !is_null($layout) && isset($_cache[$view][$layout]) && (is_null($id) || empty($id)) ) {
-                $selection[$key] = isset($_cache[$view][$layout][$languageTag]) ? $_cache[$view][$layout][$languageTag] : $_cache[$view][$layout]['*'];
-            }
+			// Searches for $view and $layout only.
+			if (isset($_cache[$view]) && isset($_cache[$view]) && !is_null($layout) && isset($_cache[$view][$layout]) && (is_null($id) || empty($id)) ) {
+				$selection[$key] = isset($_cache[$view][$layout][$languageTag]) ? $_cache[$view][$layout][$languageTag] : $_cache[$view][$layout]['*'];
+			}
 
-            // Searches for $view $layout and $id
-            if (isset($_cache[$view]) && !is_null($layout) && isset($_cache[$view][$layout]) && !is_null($id) && !empty($id)) {
-        		$selection[$key] = self::getItemViewLayoutId($_cache, $view, $layout, $id, $languageTag);
-            }
+			// Searches for $view $layout and $id
+			if (isset($_cache[$view]) && !is_null($layout) && isset($_cache[$view][$layout]) && !is_null($id) && !empty($id)) {
+				$selection[$key] = self::getItemViewLayoutId($_cache, $view, $layout, $id, $languageTag);
+			}
 
-            // If we still can't find any menu, skip this altogether.
-            if (!isset($selection[$key])) {
-                $selection[$key] = false;
-            }
+			// If we still can't find any menu, skip this altogether.
+			if (!isset($selection[$key])) {
+				$selection[$key] = false;
+			}
 
-            // Flatten the array so that it would be easier for the caller.
-            if (is_array($selection[$key])) {
-                $selection[$key] = $selection[$key][0];
-            }
-        }
+			// Flatten the array so that it would be easier for the caller.
+			if (is_array($selection[$key])) {
+				$selection[$key] = $selection[$key][0];
+			}
+		}
 
 
 
-        return $selection[$key];
+		return $selection[$key];
 
 		// echo '<pre>';
 		// print_r($_cache);
@@ -1408,38 +1408,38 @@ class EDR
 		}
 
 		// no view found. just return false to stop further processing.
-        if (! isset($_cache[$view])) {
-        	return false;
-        }
+		if (! isset($_cache[$view])) {
+			return false;
+		}
 
-        if (! isset($_cache[$view][$layout])) {
-        	$layout = 0;
-        }
+		if (! isset($_cache[$view][$layout])) {
+			$layout = 0;
+		}
 
-        $tmp = isset($_cache[$view][$layout][$languageTag]) ? $_cache[$view][$layout][$languageTag] : $_cache[$view][$layout]['*'];
+		$tmp = isset($_cache[$view][$layout][$languageTag]) ? $_cache[$view][$layout][$languageTag] : $_cache[$view][$layout]['*'];
 
-        foreach ($tmp as $tmpMenu) {
+		foreach ($tmp as $tmpMenu) {
 
-            // Backward compatibility support. Try to get the ID from the new alias style, ID:ALIAS
-            $parts = explode(':', $id);
-            $legacyId = null;
+			// Backward compatibility support. Try to get the ID from the new alias style, ID:ALIAS
+			$parts = explode(':', $id);
+			$legacyId = null;
 
-            if (count($parts) > 1) {
-                $legacyId = $parts[0];
-            }
+			if (count($parts) > 1) {
+				$legacyId = $parts[0];
+			}
 
-            $checkId = 'id';
-            if ($view == 'forums' || $view == 'categories') {
+			$checkId = 'id';
+			if ($view == 'forums' || $view == 'categories') {
 				$checkId = 'category_id';
-            }
+			}
 
-            if (isset($tmpMenu->segments->{$checkId}) && ($tmpMenu->segments->{$checkId} == $id || $tmpMenu->segments->{$checkId} == $legacyId)) {
-                $return = array($tmpMenu);
-                break;
-            }
-        }
+			if (isset($tmpMenu->segments->{$checkId}) && ($tmpMenu->segments->{$checkId} == $id || $tmpMenu->segments->{$checkId} == $legacyId)) {
+				$return = array($tmpMenu);
+				break;
+			}
+		}
 
-        return $return;
+		return $return;
 	}
 
 	private static function getItemForumCategory($_cache, $view, $id, $languageTag)
@@ -1478,33 +1478,33 @@ class EDR
 		return false;
 	}
 
-    /**
-     * Retrieves the current url that is being accessed.
-     *
-     * @since   4.0
-     * @access  public
-     * @param   bool    Determines if we should append this as a callback url.
-     * @return  string  The current url.
-     */
-    public static function current($isCallback = false)
-    {
-        $uri = JURI::current();
+	/**
+	 * Retrieves the current url that is being accessed.
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   bool    Determines if we should append this as a callback url.
+	 * @return  string  The current url.
+	 */
+	public static function current($isCallback = false)
+	{
+		$uri = JURI::current();
 
-        if ($isCallback) {
-            return '&callback=' . base64_encode($uri);
-        }
+		if ($isCallback) {
+			return '&callback=' . base64_encode($uri);
+		}
 
-        return $uri;
-    }
+		return $uri;
+	}
 
-    /**
-     * Determine if given view is the current active menu
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string currrent view
-     * @return  int / string  object id
-     */
+	/**
+	 * Determine if given view is the current active menu
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string currrent view
+	 * @return  int / string  object id
+	 */
 	public static function isCurrentActiveMenu($view, $id = 0, $idPrefix = 'id', $layout = '')
 	{
 		$app = JFactory::getApplication();
@@ -1514,8 +1514,13 @@ class EDR
 			return false;
 		}
 
-		if ($id && strpos($menu->link, 'view=' . $view) !== false && strpos($menu->link, $idPrefix . '=' . $id) !== false) {
-			return true;
+		if ($id) {
+			if (strpos($menu->link, 'view=' . $view) !== false && strpos($menu->link, $idPrefix . '=' . $id) !== false) {
+				return true;
+			} else {
+				// for a specific id, if we canot find, just stop here.
+				return false;
+			}
 		}
 
 		if ($layout && strpos($menu->link, 'view=' . $view) !== false && strpos($menu->link, 'layout=' . $layout) !== false) {

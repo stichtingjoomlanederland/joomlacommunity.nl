@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -31,12 +31,9 @@ class EasyDiscussControllerAddonsList extends EasyDiscussSetupController
 			return $this->output($result);
 		}
 
-		// Check if path is empty.
-
 		// Construct the extraction path for the module
-		$info = $this->getInfo();
-		$modulesExtractPath = ED_TMP . '/modules_v' . $info->version;
-		$pluginsExtractPath = ED_TMP . '/plugins_v' . $info->version;
+		$modulesExtractPath = ED_TMP . '/modules';
+		$pluginsExtractPath = ED_TMP . '/plugins';
 
 		// Get the modules list
 		$modules = $this->getModulesList($path, $modulesExtractPath);
@@ -66,12 +63,9 @@ class EasyDiscussControllerAddonsList extends EasyDiscussSetupController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	private function getPluginsList($path, $tmp)
 	{
-		$info = $this->getInfo();
 		$zip = $path . '/plugins.zip';
 
 		$state = JArchive::extract($zip, $tmp);
@@ -122,12 +116,9 @@ class EasyDiscussControllerAddonsList extends EasyDiscussSetupController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	private function getModulesList($path, $tmp)
 	{
-		$info = $this->getInfo();
 		$zip = $path . '/modules.zip';
 
 		$state = JArchive::extract($zip, $tmp);

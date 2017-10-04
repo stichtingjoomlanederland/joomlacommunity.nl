@@ -241,8 +241,8 @@ defined('_JEXEC') or die('Unauthorized Access');
                                             </div>
                                         </a>
                                     </div>
-                                    
-                                    <?php if ($this->acl->allowed('manage_holiday') || ED::isSiteAdmin()) { ?>
+
+                                    <?php if (($this->acl->allowed('manage_holiday') && $this->config->get('main_work_schedule')) || $this->acl->allowed('manage_pending') || ED::isSiteAdmin()) { ?>
                                     <div class="popbox-dropdown-nav__item <?php echo $active == 'dashboard' ? ' is-active' : '';?>">
                                         <a href="<?php echo EDR::_('view=dashboard');?>" class="popbox-dropdown-nav__link">
                                             <div class="o-flag">

@@ -622,4 +622,35 @@ class EasyDiscussJomSocial extends EasyDiscuss
 
     	return $link;
     }
+
+	/**
+	 * Removes a stream from JomSocial
+	 *
+	 * @since	4.0.18
+	 * @access	public
+	 */
+	public function deleteDiscussStream($post)
+	{
+		if (!$this->exists()) {
+			return false;
+		}
+
+		$isAdmin = JFactory::getApplication()->isAdmin();
+
+		// If the delete discussion post from backend, we need to manually delete it from database.
+		// This is because jomsocial's activity model file in backend doesn't has removeActivity() function.
+		if ($isAdmin) {
+			$db = ED::db();
+			$query  = 'DELETE FROM ' . $db->nameQuote('#__community_activities');
+			$query .= ' WHERE ' . $db->nameQuote('app') . '=' . $db->Quote('easydiscuss');
+			$query .= ' AND ' . $db->nameQuote('cid') . '=' . $db->Quote($post->id);
+
+			$db->setQuery($query);
+			$db->query();
+
+		} else {
+			CFactory::load('libraries', 'activities');
+			CActivityStream::remove('easydiscuss', $post->id);
+		}
+	}
 }

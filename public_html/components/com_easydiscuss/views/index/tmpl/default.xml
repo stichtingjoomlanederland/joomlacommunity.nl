@@ -56,8 +56,6 @@
 				<option value="100">100</option>
 			</field>
 			<field name="category_id" type="modal_categories" default="" label="Category" description="Only fetch discussions that are created from selected category. Leave blank to fetch all discussions from the site." multipleitems="true" />
-			<field name="user_id" type="text" description="Filter by user ID" label="User ID" size="30" />
 		</fieldset>
 	</fields>
-
 </metadata>

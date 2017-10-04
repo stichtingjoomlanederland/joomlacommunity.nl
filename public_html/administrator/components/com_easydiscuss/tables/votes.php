@@ -110,6 +110,13 @@ class DiscussVotes extends EasyDiscussTable
 				$query  .= " , a.`num_negvote` = a.`num_negvote` - 1";
 				$query  .= " , b.`num_negvote` = b.`num_negvote` - 1";
 			}
+
+			// now increase the total votes count ( irregardless if the vote is up vote or down vote.)
+			// we'll only increase this once.
+			if (!$own) {
+				$query .= ", a.`vote` = a.`vote` + 1";
+				$query .= ", b.`vote` = b.`vote` + 1";
+			}
 		} else {
 
 			$query  = "UPDATE " . $db->nameQuote('#__discuss_posts') . " as a SET a.`sum_totalvote` = a.`sum_totalvote` + " . $db->Quote($val);
@@ -118,6 +125,9 @@ class DiscussVotes extends EasyDiscussTable
 			} else if ($own) {
 				$query .= " ,a.`num_negvote` = a.`num_negvote` - 1";
 			}
+
+			// now increase the total votes count ( irregardless if the vote is up vote or down vote.)
+			$query .= ", a.`vote` = a.`vote` + 1";
 		}
 
 		$query  .= " WHERE a.`id` = " . $db->Quote($post->id);

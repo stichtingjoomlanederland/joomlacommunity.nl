@@ -63,25 +63,6 @@ class EasyDiscussSetupController
 	}
 
 	/**
-	 * Retrieves the current site's domain information
-	 *
-	 * @since	4.0.12
-	 * @access	public
-	 */
-	public function getDomain()
-	{
-		static $domain = null;
-
-		if (is_null($domain)) {
-			$domain = JURI::root();
-			$domain = str_ireplace(array('http://', 'https://'), '', $domain);
-			$domain = rtrim($domain, '/');
-		}
-
-		return $domain;
-	}
-
-	/**
 	 * Allows caller to set the data
 	 *
 	 * @since	4.0.12
@@ -121,13 +102,13 @@ class EasyDiscussSetupController
 	}
 
 	/**
-     * Retrieve the Joomla Version
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Retrieve the Joomla Version
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function getJoomlaVersion()
 	{
 		$jVerArr = explode('.', JVERSION);
@@ -144,9 +125,6 @@ class EasyDiscussSetupController
 	 */
 	public function getInfo($update = false)
 	{
-		// Get the domain
-		$domain = $this->getDomain();
-
 		// Get the md5 hash from the server.
 		$resource = curl_init();
 
@@ -155,7 +133,7 @@ class EasyDiscussSetupController
 
 		// We need to pass the api keys to the server
 		curl_setopt($resource, CURLOPT_POST, true);
-		curl_setopt($resource, CURLOPT_POSTFIELDS, 'apikey=' . ED_KEY . '&from=' . $version . '&domain=' . $domain);
+		curl_setopt($resource, CURLOPT_POSTFIELDS, 'apikey=' . ED_KEY . '&from=' . $version);
 		curl_setopt($resource, CURLOPT_URL, ED_MANIFEST);
 		curl_setopt($resource, CURLOPT_TIMEOUT, 120);
 		curl_setopt($resource, CURLOPT_RETURNTRANSFER, true);

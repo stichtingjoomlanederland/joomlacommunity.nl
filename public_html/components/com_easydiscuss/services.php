@@ -12,8 +12,12 @@
 defined('_JEXEC') or die('Unauthorized Access');
 
 $config = ED::config();
+$app = JFactory::getApplication();
 
-if (JRequest::getCmd('task', '', 'GET') == 'cron') {
+$cron = $app->input->get('cron', false, 'bool');
+$task = $app->input->get('task', '', 'cmd');
+
+if ($task == 'cron' || $cron) {
 
 	$mailq = ED::mailqueue();
 

@@ -31,9 +31,6 @@ class EasyDiscussControllerInstallExtract extends EasyDiscussSetupController
 		// Get the package
 		$package = $this->input->get('package', '');
 
-		// Get information about the current release.
-		$info = $this->getInfo();
-
 		// If on developer mode, we skip the extraction
 		if ($this->isDevelopment()) {
 			return $this->output($this->getResultObj('COM_EASYDISCUSS_INSTALLATION_DEVELOPER_MODE', true));
@@ -56,7 +53,7 @@ class EasyDiscussControllerInstallExtract extends EasyDiscussSetupController
 		}
 
 		// Extract files to a temporary location
-		$tmp = ED_TMP . '/com_easydiscuss_v' . $info->version;
+		$tmp = ED_TMP . '/com_easydiscuss_' . uniqid();
 
 		// Delete any folders that already exists
 		if (JFolder::exists($tmp)) {
