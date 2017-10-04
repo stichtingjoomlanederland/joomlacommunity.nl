@@ -183,7 +183,7 @@ class Init extends Part
 
 			if (isset($_SERVER['HTTP_USER_AGENT']))
 			{
-				Factory::getLog()->log(LogLevel::INFO, "User agent         :" . phpversion() <= "4.2.1" ? getenv("HTTP_USER_AGENT") : $_SERVER['HTTP_USER_AGENT']);
+				Factory::getLog()->log(LogLevel::INFO, "User agent         :" . $_SERVER['HTTP_USER_AGENT']);
 			}
 
 			Factory::getLog()->log(LogLevel::INFO, "Safe mode          :" . ini_get("safe_mode"));
@@ -230,6 +230,11 @@ class Init extends Part
 				}
 			}
 
+			$min_time = $registry->get('akeeba.tuning.min_exec_time');
+			$max_time = $registry->get('akeeba.tuning.max_exec_time');
+			$bias	  = $registry->get('akeeba.tuning.run_time_bias');
+
+			Factory::getLog()->log(LogLevel::INFO, "Min/Max/Bias       :" . $min_time.'/'.$max_time.'/'.$bias);
 			Factory::getLog()->log(LogLevel::INFO, "Output directory   :" . $registry->get('akeeba.basic.output_directory'));
 			Factory::getLog()->log(LogLevel::INFO, "Part size (bytes)  :" . $registry->get('engine.archiver.common.part_size', 0));
 			Factory::getLog()->log(LogLevel::INFO, "--------------------------------------------------------------------------------");

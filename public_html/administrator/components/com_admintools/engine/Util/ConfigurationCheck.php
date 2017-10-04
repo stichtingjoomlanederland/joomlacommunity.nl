@@ -581,7 +581,8 @@ class ConfigurationCheck
 	private function _return_bytes($setting)
 	{
 		$val = trim($setting);
-		$last = strtolower($val{strlen($val) - 1});
+		$last = strtolower(substr($val, -1));
+		$val = substr($val, 0, -1);
 
 		if (is_numeric($last))
 		{

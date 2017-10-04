@@ -15,7 +15,6 @@ namespace Akeeba\Engine\Util;
 defined('AKEEBAENGINE') or die();
 
 use Akeeba\Engine\Factory;
-use Akeeba\Engine\Platform;
 
 /* Windows system detection */
 if ( !defined('_AKEEBA_IS_WINDOWS'))

@@ -17,7 +17,7 @@ defined('AKEEBAENGINE') or die();
 /**
  * SFTP transfer object
  */
-class Sftp implements TransferInterface
+class Sftp implements TransferInterface, RemoteResourceInterface
 {
 	/**
 	 * SFTP server's hostname or IP address
@@ -55,20 +55,6 @@ class Sftp implements TransferInterface
 	private $directory = '/';
 
 	/**
-	 * The SSH2 connection handle
-	 *
-	 * @var  resource|null
-	 */
-	private $connection = null;
-
-	/**
-	 * The SFTP connection handle
-	 *
-	 * @var  resource|null
-	 */
-	private $sftpHandle = null;
-
-	/**
 	 * The absolute filesystem path to a private key file used for authentication instead of a password.
 	 *
 	 * @var  string
@@ -81,6 +67,20 @@ class Sftp implements TransferInterface
 	 * @var  string
 	 */
 	private $publicKey = '';
+
+	/**
+	 * The SSH2 connection handle
+	 *
+	 * @var  resource|null
+	 */
+	private $connection = null;
+
+	/**
+	 * The SFTP connection handle
+	 *
+	 * @var  resource|null
+	 */
+	private $sftpHandle = null;
 
 	/**
 	 * Public constructor
@@ -130,6 +130,27 @@ class Sftp implements TransferInterface
 
 		$this->connect();
 	}
+
+	/**
+	 * Save all parameters on serialization except the connection resource
+	 *
+	 * @return  array
+	 */
+	public function __sleep()
+	{
+		return array('host', 'port', 'username', 'password', 'directory', 'privateKey', 'publicKey');
+	}
+
+	/**
+	 * Reconnect to the server on unserialize
+	 *
+	 * @return  void
+	 */
+	public function __wakeup()
+	{
+		$this->connect();
+	}
+
 
 	public function __destruct()
 	{
@@ -564,5 +585,50 @@ class Sftp implements TransferInterface
 		}
 
 		return $list;
+	}
+
+	/**
+	 * Return a string with the appropriate stream wrapper protocol for $path. You can use the result with all PHP
+	 * functions / classes which accept file paths such as DirectoryIterator, file_get_contents, file_put_contents,
+	 * fopen etc.
+	 *
+	 * @param   string  $path
+	 *
+	 * @return  string
+	 */
+	public function getWrapperStringFor($path)
+	{
+		return "ssh2.sftp://{$this->sftpHandle}{$path}";
+	}
+
+	/**
+	 * Return the raw server listing for the requested folder.
+	 *
+	 * @param   string  $folder        The path name to list
+	 *
+	 * @return  string
+	 */
+	public function getRawList($folder)
+	{
+		// First try the command for Linxu servers
+		$res = $this->ssh2cmd('ls -l ' . escapeshellarg($folder));
+
+		// If an error occurred let's try the command for Windows servers
+		if (empty($res))
+		{
+			$res = $this->ssh2cmd('CMD /C ' . escapeshellarg($folder));
+		}
+
+		return $res;
+	}
+
+	private function ssh2cmd($command)
+	{
+		$stream = ssh2_exec($this->connection, $command);
+		stream_set_blocking($stream, true);
+		$res = @stream_get_contents($stream);
+		@fclose($stream);
+
+		return $res;
 	}
 }

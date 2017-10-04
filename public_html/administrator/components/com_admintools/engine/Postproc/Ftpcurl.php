@@ -22,9 +22,9 @@ class Ftpcurl extends Base
 {
 	public function __construct()
 	{
-		$this->can_delete               = true;
-		$this->can_download_to_browser  = true;
-		$this->can_download_to_file     = true;
+		$this->can_delete              = true;
+		$this->can_download_to_browser = true;
+		$this->can_download_to_file    = true;
 	}
 
 	public function processPart($absolute_filename, $upload_as = null)
@@ -53,8 +53,12 @@ class Ftpcurl extends Base
 		{
 			$this->setWarning('YOU ARE *** N O T *** SUPPOSED TO ENTER THE ftp:// PROTOCOL PREFIX IN THE FTP HOSTNAME FIELD OF THE Upload to Remote FTP POST-PROCESSING ENGINE. I am trying to fix your bad configuration setting, but the backup might fail anyway. You MUST fix this in your configuration.');
 
-			Factory::getLog()->log(LogLevel::WARNING, 'YOU ARE *** N O T *** SUPPOSED TO ENTER THE ftp:// PROTOCOL PREFIX IN THE FTP HOSTNAME FIELD OF THE Upload to Remote FTP POST-PROCESSING ENGINE.');
-			Factory::getLog()->log(LogLevel::WARNING, 'I am trying to fix your bad configuration setting, but the backup might fail anyway. You MUST fix this in your configuration.');
+			Factory::getLog()
+			       ->log(LogLevel::WARNING, 'YOU ARE *** N O T *** SUPPOSED TO ENTER THE ftp:// PROTOCOL PREFIX IN THE FTP HOSTNAME FIELD OF THE Upload to Remote FTP POST-PROCESSING ENGINE.')
+			;
+			Factory::getLog()
+			       ->log(LogLevel::WARNING, 'I am trying to fix your bad configuration setting, but the backup might fail anyway. You MUST fix this in your configuration.')
+			;
 			$host = substr($host, 6);
 		}
 
@@ -106,7 +110,7 @@ class Ftpcurl extends Base
 					return false;
 				}
 				// Let's move into the new directory
-				else if (!$ftp->isDir($directory . '/' . $subdir))
+				elseif (!$ftp->isDir($directory . '/' . $subdir))
 				{
 					// This should never happen, anyway better be safe than sorry
 					$this->setWarning("Could not move into the subdirectory $subdir in the remote FTP server");
@@ -217,7 +221,8 @@ class Ftpcurl extends Base
 			$this->setWarning('Deleting ' . $path . ' has failed.');
 
 			return false;
-		} else
+		}
+		else
 		{
 			return true;
 		}
@@ -293,13 +298,13 @@ class Ftpcurl extends Base
 
 		$uri = $ssl ? 'ftps://' : 'ftp://';
 
-        if ($user && $pass)
+		if ($user && $pass)
 		{
 			$uri .= urlencode($user) . ':' . urlencode($pass) . '@';
 		}
 		$uri .= $host;
 
-        if ($port && ($port != 21))
+		if ($port && ($port != 21))
 		{
 			$uri .= ':' . $port;
 		}

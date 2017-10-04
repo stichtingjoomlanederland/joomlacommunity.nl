@@ -159,7 +159,6 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 		{
 			$mailer = JFactory::getMailer();
 
-			$sitename = $config->get('sitename');
 			$mailfrom = $config->get('mailfrom');
 			$fromname = $config->get('fromname');
 
@@ -200,13 +199,9 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 				return;
 			}
 
-			$tokens = array(
-				'[SITENAME]' => $sitename,
-				'[DATE]'     => gmdate('Y-m-d H:i:s') . " GMT",
-				'[USER]'     => $username,
-				'[IP]'       => $ip,
+			$tokens = $this->exceptionsHandler->getEmailVariables('', [
 				'[ACTIVATE]' => '<a href="' . $activate . '">' . $activate . '</a>',
-			);
+			]);
 
 			$subject = str_replace(array_keys($tokens), array_values($tokens), $subject);
 			$body = str_replace(array_keys($tokens), array_values($tokens), $body);

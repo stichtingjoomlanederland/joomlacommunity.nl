@@ -324,7 +324,7 @@ $config = $this->htconfig;
 		<label class="control-label" for="olddomain"><?php echo \JText::_('COM_ADMINTOOLS_LBL_HTACCESSMAKER_OLDDOMAIN'); ?></label>
 
 		<div class="controls">
-			<input type="text" name="olddomain" id="olddomain" class="input-xlarge"
+			<input type="text" name="olddomain" id="olddomain" class="input-xxlarge"
 				   value="<?php echo $this->escape($config->olddomain); ?>">
 		</div>
 	</div>

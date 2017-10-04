@@ -110,9 +110,9 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 	 * Hooks into the Joomla! models before a user is saved. This catches the case where a 3PD extension tries to create
 	 * a new user instead of going through com_users.
 	 *
-	 * @param   JUser  $oldUser  The existing user record
-	 * @param   bool   $isNew    Is this a new user?
-	 * @param   array  $data     The data to be saved
+	 * @param   JUser|array     $oldUser  The existing user record
+	 * @param   bool            $isNew    Is this a new user?
+	 * @param   array           $data     The data to be saved
 	 *
 	 * @throws  Exception  When we catch a security exception
 	 */
@@ -122,6 +122,17 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 
 		if ($isAdmin)
 		{
+			if ($oldUser instanceof JUser)
+			{
+				$oldUser = $oldUser->getProperties();
+			}
+
+			// If edited fields are in the whitelist, we should allow the edit
+			if ($this->allowEdit($oldUser, $data))
+			{
+				return;
+			}
+
 			// Get the correct reason (was the user being created in front- or back-end)?
 			$reason = $this->container->platform->isBackend() ? 'nonewadmins' : 'nonewfrontendadmins';
 
@@ -139,6 +150,55 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 
 			throw new Exception(JText::_('JGLOBAL_AUTH_ACCESS_DENIED'), '403');
 		}
+	}
+
+	/**
+	 * Changed fields are in the whitelist? If so I should allow the edit, even if we're dealing with a Super User
+	 *
+	 * @param   array   $oldUser    Old user details
+	 * @param   array   $newUser    New user details
+	 *
+	 * @return  bool    Am I allowed to edit this user?
+	 */
+	private function allowEdit($oldUser, $newUser)
+	{
+		$fieldlist = array('id', 'name', 'username', 'email', 'password', 'block', 'sendEmail', 'registerDate',
+							'lastvisitDate', 'activation', 'params', 'lastResetTime', 'resetCount', 'otpKey', 'otep', 'requireReset');
+
+		$whitelist  = array('lastvisitDate', 'block', 'otpKey', 'otep', 'activation');
+
+		// If all edited fields are inside the whitelist, we should allow the edit
+		foreach ($newUser as $field => $new_value)
+		{
+			// Some fields are created on the fly by Joomla, so we can ignore any changes to them
+			if (!in_array($field, $fieldlist))
+			{
+				continue;
+			}
+
+			// mhm... the new field is not inside the original user. This should never happen, but let's be safe
+			// than sorry and block the request
+			// DO NOT USE ISSET since some keys could be initialized to NULL
+			if (!array_key_exists($field, $oldUser))
+			{
+				return false;
+			}
+
+			$old_value = $oldUser[$field];
+
+			// New and old value are different, change detected!
+			if ($old_value != $new_value)
+			{
+				// Am I really allowed to change this field?
+				if (!in_array($field, $whitelist))
+				{
+					return false;
+				}
+			}
+		}
+
+		// If I'm here, it means that I can really edit this user (field in whitelist or no changes at all)
+		return true;
 	}
 
 	/**

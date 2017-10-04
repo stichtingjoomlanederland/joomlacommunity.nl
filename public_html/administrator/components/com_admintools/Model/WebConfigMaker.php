@@ -673,7 +673,7 @@ END;
 					<match url="^$dir/" ignoreCase="false" />
 					<conditions logicalGrouping="MatchAll" trackAllCaptures="false">
 						<add input="{REQUEST_FILENAME}" pattern="(\.php)$" ignoreCase="false" negate="true" />
-						<add input="{REQUEST_FILENAME}" matchType="IsFile" ignoreCase="false"
+						<add input="{REQUEST_FILENAME}" matchType="IsFile" ignoreCase="false" />
 					</conditions>
 					<action type="None" />
 				</rule>

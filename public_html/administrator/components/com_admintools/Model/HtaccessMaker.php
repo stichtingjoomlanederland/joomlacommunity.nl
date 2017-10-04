@@ -535,6 +535,7 @@ END;
 	ExpiresByType application/x-font-ttf "now plus 1 week"
 	ExpiresByType application/x-font-opentype "now plus 1 week"
 	ExpiresByType application/x-font-woff "now plus 1 week"
+	ExpiresByType font/woff2 "now plus 1 week"
 	ExpiresByType image/svg+xml "now plus 1 week"
 
 	# Audio files expiration: 1 month after request
@@ -1069,10 +1070,17 @@ END;
 
 		if ($config->notracetrack == 1)
 		{
+			/**
+			 * Note to self: using [TraceEnable](https://httpd.apache.org/docs/2.4/mod/core.html#traceenable) will NOT work in
+			 * a .htaccess file as it's only allowed in server and vhost configuration. Using rewrite rules is the only way to
+			 * block TRACE requests in .htaccess.
+			 */
+
 			$tmpRedirCode = $serverCaps->customCodes ? '[R=405,L]' : '[F,L]';
 			$htaccess .= <<<END
 ## Disable HTTP methods TRACE and TRACK (protect against XST)
-TraceEnable off
+RewriteCond %{REQUEST_METHOD} ^TRACE
+RewriteRule ^ - $tmpRedirCode
 
 END;
 		}

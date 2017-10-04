@@ -65,6 +65,9 @@ class AtsystemFeatureIpblacklist extends AtsystemFeatureAbstract
 			$message = "Access Denied";
 		}
 
+		// Replace the Rescue URL placeholder
+		$message = AtsystemUtilRescueurl::processBlockMessage($message);
+
 		// Show the 403 message
 		if ($this->cparams->getValue('use403view', 0))
 		{
@@ -91,6 +94,10 @@ class AtsystemFeatureIpblacklist extends AtsystemFeatureAbstract
 
 			return;
 		}
+
+		// Rescue URL check
+
+		AtsystemUtilRescueurl::processRescueURL($this->exceptionsHandler);
 
 		if ($this->container->platform->isBackend())
 		{

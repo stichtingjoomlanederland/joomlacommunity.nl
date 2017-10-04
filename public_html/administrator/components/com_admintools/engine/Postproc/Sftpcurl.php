@@ -22,9 +22,9 @@ class Sftpcurl extends Base
 {
 	public function __construct()
 	{
-		$this->can_delete = true;
+		$this->can_delete              = true;
 		$this->can_download_to_browser = false;
-		$this->can_download_to_file = true;
+		$this->can_download_to_file    = true;
 	}
 
 	public function processPart($absolute_filename, $upload_as = null)
@@ -50,8 +50,12 @@ class Sftpcurl extends Base
 		{
 			$this->setWarning('YOU ARE *** N O T *** SUPPOSED TO ENTER THE sftp:// PROTOCOL PREFIX IN THE FTP HOSTNAME FIELD OF THE Upload to Remote SFTP POST-PROCESSING ENGINE. I am trying to fix your bad configuration setting, but the backup might fail anyway. You MUST fix this in your configuration.');
 
-			Factory::getLog()->log(LogLevel::WARNING, 'YOU ARE *** N O T *** SUPPOSED TO ENTER THE sftp:// PROTOCOL PREFIX IN THE FTP HOSTNAME FIELD OF THE Upload to Remote SFTP POST-PROCESSING ENGINE.');
-			Factory::getLog()->log(LogLevel::WARNING, 'I am trying to fix your bad configuration setting, but the backup might fail anyway. You MUST fix this in your configuration.');
+			Factory::getLog()
+			       ->log(LogLevel::WARNING, 'YOU ARE *** N O T *** SUPPOSED TO ENTER THE sftp:// PROTOCOL PREFIX IN THE FTP HOSTNAME FIELD OF THE Upload to Remote SFTP POST-PROCESSING ENGINE.')
+			;
+			Factory::getLog()
+			       ->log(LogLevel::WARNING, 'I am trying to fix your bad configuration setting, but the backup might fail anyway. You MUST fix this in your configuration.')
+			;
 			$host = substr($host, 7);
 		}
 
@@ -65,28 +69,28 @@ class Sftpcurl extends Base
 		// Connect to the SFTP server
 		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . ':: Connecting to remote SFTP');
 
-        $options = array(
-            'host'       => $host,
-            'port'       => $port,
-            'username'   => $user,
-            'password'   => $pass,
-            'directory'  => $directory,
-            'privateKey' => $privKey,
-            'publicKey'  => $pubKey
-        );
+		$options = array(
+			'host'       => $host,
+			'port'       => $port,
+			'username'   => $user,
+			'password'   => $pass,
+			'directory'  => $directory,
+			'privateKey' => $privKey,
+			'publicKey'  => $pubKey,
+		);
 
-        try
-        {
-            $sftphandle = new SftpTransfer($options);
-        }
-        catch(\RuntimeException $e)
-        {
-            $this->setWarning($e->getMessage());
+		try
+		{
+			$sftphandle = new SftpTransfer($options);
+		}
+		catch (\RuntimeException $e)
+		{
+			$this->setWarning($e->getMessage());
 
-            return false;
-        }
+			return false;
+		}
 
-		$realdir = substr($directory, -1) == '/' ? substr($directory, 0, strlen($directory) - 1) : $directory;
+		$realdir  = substr($directory, -1) == '/' ? substr($directory, 0, strlen($directory) - 1) : $directory;
 		$basename = empty($upload_as) ? basename($absolute_filename) : $upload_as;
 		$realname = $realdir . '/' . $basename;
 
@@ -95,16 +99,16 @@ class Sftpcurl extends Base
 
 		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . ":: Starting SFTP upload of $absolute_filename");
 
-        try
-        {
-            $sftphandle->upload($absolute_filename, $realname);
-        }
-        catch(\RuntimeException $e)
-        {
-            $this->setWarning($e->getMessage());
+		try
+		{
+			$sftphandle->upload($absolute_filename, $realname);
+		}
+		catch (\RuntimeException $e)
+		{
+			$this->setWarning($e->getMessage());
 
-            return false;
-        }
+			return false;
+		}
 
 		return true;
 	}
@@ -114,38 +118,38 @@ class Sftpcurl extends Base
 		// Retrieve engine configuration data
 		$config = Factory::getConfiguration();
 
-		$host      = $config->get('engine.postproc.sftpcurl.host', '');
-		$port      = $config->get('engine.postproc.sftpcurl.port', 21);
-		$user      = $config->get('engine.postproc.sftpcurl.user', '');
-		$pass      = $config->get('engine.postproc.sftpcurl.pass', 0);
-        $privKey   = $config->get('engine.postproc.sftpcurl.privkey', '');
-        $pubKey    = $config->get('engine.postproc.sftpcurl.pubkey', '');
+		$host    = $config->get('engine.postproc.sftpcurl.host', '');
+		$port    = $config->get('engine.postproc.sftpcurl.port', 21);
+		$user    = $config->get('engine.postproc.sftpcurl.user', '');
+		$pass    = $config->get('engine.postproc.sftpcurl.pass', 0);
+		$privKey = $config->get('engine.postproc.sftpcurl.privkey', '');
+		$pubKey  = $config->get('engine.postproc.sftpcurl.pubkey', '');
 
 		$directory = dirname($path);
 
 		// Connect to the FTP server
 		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::delete() -- Connecting to remote SFTP');
 
-        $options = array(
-            'host'       => $host,
-            'port'       => $port,
-            'username'   => $user,
-            'password'   => $pass,
-            'directory'  => $directory,
-            'privateKey' => $privKey,
-            'publicKey'  => $pubKey
-        );
+		$options = array(
+			'host'       => $host,
+			'port'       => $port,
+			'username'   => $user,
+			'password'   => $pass,
+			'directory'  => $directory,
+			'privateKey' => $privKey,
+			'publicKey'  => $pubKey,
+		);
 
-        try
-        {
-            $sftphandle = new SftpTransfer($options);
-        }
-        catch(\RuntimeException $e)
-        {
-            $this->setWarning($e->getMessage());
+		try
+		{
+			$sftphandle = new SftpTransfer($options);
+		}
+		catch (\RuntimeException $e)
+		{
+			$this->setWarning($e->getMessage());
 
-            return false;
-        }
+			return false;
+		}
 
 		// Change to initial directory
 		if (!$sftphandle->isDir($directory))
@@ -155,7 +159,7 @@ class Sftpcurl extends Base
 			return false;
 		}
 
-        $res = $sftphandle->delete($path);
+		$res = $sftphandle->delete($path);
 
 		if (!$res)
 		{
@@ -174,38 +178,38 @@ class Sftpcurl extends Base
 		// Retrieve engine configuration data
 		$config = Factory::getConfiguration();
 
-		$host      = $config->get('engine.postproc.sftpcurl.host', '');
-		$port      = $config->get('engine.postproc.sftpcurl.port', 21);
-		$user      = $config->get('engine.postproc.sftpcurl.user', '');
-		$pass      = $config->get('engine.postproc.sftpcurl.pass', 0);
-        $privKey   = $config->get('engine.postproc.sftpcurl.privkey', '');
-        $pubKey    = $config->get('engine.postproc.sftpcurl.pubkey', '');
+		$host    = $config->get('engine.postproc.sftpcurl.host', '');
+		$port    = $config->get('engine.postproc.sftpcurl.port', 21);
+		$user    = $config->get('engine.postproc.sftpcurl.user', '');
+		$pass    = $config->get('engine.postproc.sftpcurl.pass', 0);
+		$privKey = $config->get('engine.postproc.sftpcurl.privkey', '');
+		$pubKey  = $config->get('engine.postproc.sftpcurl.pubkey', '');
 
 		$directory = dirname($remotePath);
 
 		// Connect to the FTP server
 		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::delete() -- Connecting to remote SFTP');
 
-        $options = array(
-            'host'       => $host,
-            'port'       => $port,
-            'username'   => $user,
-            'password'   => $pass,
-            'directory'  => $directory,
-            'privateKey' => $privKey,
-            'publicKey'  => $pubKey
-        );
+		$options = array(
+			'host'       => $host,
+			'port'       => $port,
+			'username'   => $user,
+			'password'   => $pass,
+			'directory'  => $directory,
+			'privateKey' => $privKey,
+			'publicKey'  => $pubKey,
+		);
 
-        try
-        {
-            $sftphandle = new SftpTransfer($options);
-        }
-        catch(\RuntimeException $e)
-        {
-            $this->setWarning($e->getMessage());
+		try
+		{
+			$sftphandle = new SftpTransfer($options);
+		}
+		catch (\RuntimeException $e)
+		{
+			$this->setWarning($e->getMessage());
 
-            return false;
-        }
+			return false;
+		}
 
 		// Change to initial directory
 		if (!$sftphandle->isDir($directory))
@@ -215,16 +219,16 @@ class Sftpcurl extends Base
 			return false;
 		}
 
-        try
-        {
-            $sftphandle->download($remotePath, $localFile);
-        }
-        catch(\RuntimeException $e)
-        {
-            $this->setWarning($e->getMessage());
+		try
+		{
+			$sftphandle->download($remotePath, $localFile);
+		}
+		catch (\RuntimeException $e)
+		{
+			$this->setWarning($e->getMessage());
 
-            return false;
-        }
+			return false;
+		}
 
 		return true;
 	}

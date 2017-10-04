@@ -654,7 +654,7 @@ location ~* \.(bmp|gif|jpg|jpeg|jp2|png|svg|tif|tiff|ico|wbmp|wbxml|smil)$ {
 }
 
 # Font files : 1 week
-location ~* \.(woff|ttf|otf|eot)$ {
+location ~* \.(woff|woff2|ttf|otf|eot)$ {
 		access_log off; log_not_found off;
 		expires 1M;
 }

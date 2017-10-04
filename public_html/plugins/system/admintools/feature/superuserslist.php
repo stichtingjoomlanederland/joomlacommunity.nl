@@ -37,35 +37,90 @@ class AtsystemFeatureSuperuserslist extends AtsystemFeatureAbstract
 			return;
 		}
 
-		$safeIDs = $this->getSafeIDs();
+		// Do I already have session data?
+		$safeIDs           = $this->container->platform->getSessionVar('superuserslist.safeids', [], 'com_admintools');
+		$isUserSaveOrApply = $this->container->platform->getSessionVar('superuserslist.createnew', null, 'com_admintools');
 
-		if (empty($safeIDs))
+		if (!is_null($isUserSaveOrApply))
 		{
+			// Yeah. Let's not overwrite the session data. We shall do that onAfterRender.
 			return;
 		}
 
+		$safeIDs = $this->getSafeIDs();
+
+		// Get the option and task parameters
+		$app               = JFactory::getApplication();
+		$option            = $app->input->getCmd('option', 'com_foobar');
+		$task              = $app->input->getCmd('task');
+		$isUserSaveOrApply = false;
+
+		// Are we using com_user to Save or Save & Close a user?
+		if ($option == 'com_users')
+		{
+			if (in_array($task, ['user.apply', 'user.save']))
+			{
+				$isUserSaveOrApply = true;
+			}
+		}
+
 		$this->container->platform->setSessionVar('superuserslist.safeids', $safeIDs, 'com_admintools');
+		$this->container->platform->setSessionVar('superuserslist.createnew', $isUserSaveOrApply, 'com_admintools');
 	}
 
 	public function onAfterRender()
 	{
-		$safeIDs = [];
+		// Only run if the current user is a Super User AND we haven't already set a flag
+		$currentUser = $this->container->platform->getUser();
 
-		if ($this->isBackendSuperUser())
+		if ($currentUser->guest)
 		{
-			$safeIDs = $this->container->platform->getSessionVar('superuserslist.safeids', [], 'com_admintools');
-			$this->container->platform->setSessionVar('superuserslist.safeids', null, 'com_admintools');
-
-			if (empty($safeIDs))
-			{
-				$safeIDs = [];
-			}
+			return;
 		}
 
+		if (!$currentUser->authorise('core.admin'))
+		{
+			return;
+		}
+
+		$flag = $this->container->platform->getSessionVar('allowedsuperuser', null, 'com_admintools');
+
+		if ($flag === true)
+		{
+			return;
+		}
+
+		// Get temporary session variables
+		$safeIDs           = $this->container->platform->getSessionVar('superuserslist.safeids', [], 'com_admintools');
+		$isUserSaveOrApply = $this->container->platform->getSessionVar('superuserslist.createnew', null, 'com_admintools');
+
+		$this->container->platform->unsetSessionVar('superuserslist.safeids', 'com_admintools');
+		$this->container->platform->unsetSessionVar('superuserslist.createnew', 'com_admintools');
+
+		// Normalize
+		if (empty($safeIDs))
+		{
+			$safeIDs = [];
+		}
+
+		if (empty($isUserSaveOrApply))
+		{
+			$isUserSaveOrApply = false;
+		}
+
+		// If it's not a backend Super User we are going to ignore session variables (they are forged!)
+		if (!$this->isBackendSuperUser())
+		{
+			$safeIDs           = [];
+			$isUserSaveOrApply = false;
+		}
+
+		// Get the Super User IDs
 		$savedSuperUserIDs   = $this->load();
 		$superUserGroups     = $this->getSuperUserGroups();
 		$currentSuperUserIDs = $this->getUsersInGroups($superUserGroups);
 
+		// Oh, we never had a list of Super Users. Let's fix that.
 		if (empty($savedSuperUserIDs))
 		{
 			$this->save($currentSuperUserIDs);
@@ -73,13 +128,31 @@ class AtsystemFeatureSuperuserslist extends AtsystemFeatureAbstract
 			return;
 		}
 
+		// Do we have new Super Users?
 		$newSuperUsers = array_diff($currentSuperUserIDs, $savedSuperUserIDs);
 		// Do NOT remove this variable! It catches the case were Super Users are added BUT THEN REMOVED FROM $newSuperUsers WITH array_diff. WE MUST SAVE IN THIS CASE!
 		$hasNewSuperUsers  = !empty($newSuperUsers);
 		$newSuperUsers     = array_diff($newSuperUsers, $safeIDs);
 		$removedSuperUsers = array_diff($savedSuperUserIDs, $currentSuperUserIDs);
 
-		if (empty($newSuperUsers) && empty($removedSuperUsers))
+		// Detect the case where we have to simply save the list of Super Users and quit (no new or removed SUs)
+		$saveListAndQuit = empty($newSuperUsers) && empty($removedSuperUsers);
+
+		/**
+		 * Special case: Super User logged in backend creates a new user account that is also a Super User.
+		 *
+		 * In this case we do not have any safeIDs because the JForm is being submitted with user ID 0. This is normal
+		 * since we are creating a new user record, therefore we do not have a user ID yet. We can distinguish this
+		 * case from the generic "third party backend extension creates a new user account" by checking the option and
+		 * task parameters. If the option is com_users (the Joomla! user management core component) and the task
+		 * indicates applying or saving a user we have the special case we need to avoid blocking.
+		 */
+		if ($this->isBackendSuperUser() && empty($safeIDs) && $isUserSaveOrApply)
+		{
+			$saveListAndQuit = true;
+		}
+
+		if ($saveListAndQuit)
 		{
 			// In case Super Users ARE added BUT are in the safe IDs list THEN we MUST save the new list!
 			if ($hasNewSuperUsers)
@@ -90,14 +163,23 @@ class AtsystemFeatureSuperuserslist extends AtsystemFeatureAbstract
 			return;
 		}
 
+		// If we're here a new Super User was added through means unknown. Notify the admins and block the user.
 		$this->sendEmail($newSuperUsers);
+		$flag = true;
 
 		foreach ($newSuperUsers as $id)
 		{
 			$user        = $this->container->platform->getUser($id);
 			$user->block = 1;
 			$user->save();
+
+			if ($currentUser->id == $id)
+			{
+				$flag = false;
+			}
 		}
+
+		$this->container->platform->setSessionVar('allowedsuperuser', $flag, 'com_admintools');
 
 		$currentSuperUserIDs = array_diff($currentSuperUserIDs, $newSuperUsers);
 		$newSuperUsers       = [];
@@ -105,6 +187,20 @@ class AtsystemFeatureSuperuserslist extends AtsystemFeatureAbstract
 		if (!empty($newSuperUsers) || !empty($removedSuperUsers))
 		{
 			$this->save($currentSuperUserIDs);
+		}
+
+		// Is the current user one of the new, bad admins? If so, try to log the out
+		if ($flag === false)
+		{
+			$app = JFactory::getApplication();
+
+			// Try being nice about it
+			if (!$app->logout())
+			{
+				// If being nice about logging you out doesn't work I'm gonna terminate you, with extreme prejudice.
+				$app->getSession()->set('user', null);
+				$app->getSession()->destroy();
+			}
 		}
 	}
 
@@ -198,10 +294,6 @@ class AtsystemFeatureSuperuserslist extends AtsystemFeatureAbstract
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, null, true);
 
-		// Get the site name
-		$config   = $this->container->platform->getConfig();
-		$sitename = $config->get('sitename');
-
 		// Convert the list of added Super Users
 		$htmlUsersList = <<< HTML
 <ul>
@@ -225,11 +317,9 @@ HTML;
 HTML;
 
 		// Construct the replacement table
-		$substitutions = array(
-			'[SITENAME]'  => $sitename,
-			'[DATE]'      => gmdate('Y-m-d H:i:s') . " GMT",
-			'[INFO]'      => $htmlUsersList,
-		);
+		$substitutions = $this->exceptionsHandler->getEmailVariables('', [
+			'[INFO]'      => $htmlUsersList
+		]);
 
 		// Let's get the most suitable email template
 		$template = $this->exceptionsHandler->getEmailTemplate('superuserslist', true);
@@ -273,6 +363,9 @@ HTML;
 
 				$mailer->isHtml(true);
 				$mailer->setSender(array($mailfrom, $fromname));
+
+				// Resets the recipients, otherwise they will pile up
+				$mailer->clearAllRecipients();
 
 				if ($mailer->addRecipient($recipient) === false)
 				{

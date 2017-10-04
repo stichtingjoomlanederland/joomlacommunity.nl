@@ -10,6 +10,7 @@ defined('_JEXEC') or die;
 use Akeeba\AdminTools\Admin\Helper\Storage;
 use FOF30\Container\Container;
 use FOF30\Date\Date;
+use FOF30\Utils\TimezoneWrangler;
 
 class AtsystemUtilExceptionshandler
 {
@@ -65,6 +66,9 @@ class AtsystemUtilExceptionshandler
 	 */
 	public function blockRequest($reason = 'other', $message = '', $extraLogInformation = '', $extraLogTableInformation = '')
 	{
+		// Rescue URL check
+		AtsystemUtilRescueurl::processRescueURL($this);
+
 		if (empty($message))
 		{
 			$customMessage = $this->cparams->getValue('custom403msg', '');
@@ -78,6 +82,8 @@ class AtsystemUtilExceptionshandler
 				$message = 'ADMINTOOLS_BLOCKED_MESSAGE';
 			}
 		}
+
+		$message = AtsystemUtilRescueurl::processBlockMessage($message);
 
 		$r = $this->logBreaches($reason, $extraLogInformation, $extraLogTableInformation);
 
@@ -247,49 +253,8 @@ class AtsystemUtilExceptionshandler
 			// Ignore any failures, they are not show stoppers
 		}
 
-		// Do I have any kind of log? Let's get some extra info
-		if (
-			($this->cparams->getValue('logbreaches', 0) && !in_array($reason, $reasons_nolog)) ||
-			($this->cparams->getValue('emailbreaches', '') && !in_array($reason, $reasons_noemail))
-		)
-		{
-			$uri = JUri::getInstance();
-			$url = $uri->toString(['scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment']);
-
-			JLoader::import('joomla.utilities.date');
-			$date = new Date();
-
-			$user      = $this->container->platform->getUser();
-
-			if ($user->guest)
-			{
-				$username = 'Guest';
-			}
-			else
-			{
-				$username = $user->username . ' (' . $user->name . ' <' . $user->email . '>)';
-			}
-
-			$country   = '';
-			$continent = '';
-
-			if (class_exists('AkeebaGeoipProvider'))
-			{
-				$geoip     = new AkeebaGeoipProvider();
-				$country   = $geoip->getCountryCode($ip);
-				$continent = $geoip->getContinent($ip);
-			}
-
-			if (empty($country))
-			{
-				$country = '(unknown country)';
-			}
-
-			if (empty($continent))
-			{
-				$continent = '(unknown continent)';
-			}
-		}
+		JLoader::import('joomla.utilities.date');
+		$date = new Date();
 
 		if ($this->cparams->getValue('logbreaches', 0) && !in_array($reason, $reasons_nolog))
 		{
@@ -317,6 +282,24 @@ class AtsystemUtilExceptionshandler
 				}
 			}
 
+			// Load the component's administrator translation files
+			$jlang = JFactory::getLanguage();
+			$jlang->load('com_admintools', JPATH_ADMINISTRATOR, 'en-GB', true);
+			$jlang->load('com_admintools', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
+			$jlang->load('com_admintools', JPATH_ADMINISTRATOR, null, true);
+
+			// Get the reason in human readable format
+			$txtReason = JText::_('COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_REASON_' . strtoupper($reason));
+
+			// Get extra information
+			if ($extraLogTableInformation)
+			{
+				list($logReason,) = explode('|', $extraLogTableInformation);
+				$txtReason .= " ($logReason)";
+			}
+
+			$tokens = $this->getEmailVariables($txtReason);
+
 			// -- Log the exception
 			$fp = @fopen($fname, 'at');
 
@@ -324,13 +307,15 @@ class AtsystemUtilExceptionshandler
 			{
 				fwrite($fp, str_repeat('-', 79) . "\n");
 				fwrite($fp, "Blocking reason: " . $reason . "\n" . str_repeat('-', 79) . "\n");
-				fwrite($fp, 'Date/time : ' . gmdate('Y-m-d H:i:s') . " GMT\n");
-				fwrite($fp, 'URL       : ' . $url . "\n");
-				fwrite($fp, 'User      : ' . $username . "\n");
-				fwrite($fp, 'IP        : ' . $ip . "\n");
-				fwrite($fp, 'Country   : ' . $country . "\n");
-				fwrite($fp, 'Continent : ' . $continent . "\n");
-				fwrite($fp, 'UA        : ' . $_SERVER['HTTP_USER_AGENT'] . "\n");
+				fwrite($fp, "Reason     : " . $txtReason . "\n");
+				fwrite($fp, 'Timestamp  : ' . gmdate('Y-m-d H:i:s') . " GMT\n");
+				fwrite($fp, 'Local time : ' . $tokens['[DATE]'] . " \n");
+				fwrite($fp, 'URL        : ' . $tokens['[URL]'] . "\n");
+				fwrite($fp, 'User       : ' . $tokens['[USER]'] . "\n");
+				fwrite($fp, 'IP         : ' . $tokens['[IP]'] . "\n");
+				fwrite($fp, 'Country    : ' . $tokens['[COUNTRY]'] . "\n");
+				fwrite($fp, 'Continent  : ' . $tokens['[CONTINENT]'] . "\n");
+				fwrite($fp, 'UA         : ' . $tokens['[UA]'] . "\n");
 
 				if (!empty($extraLogInformation))
 				{
@@ -345,8 +330,8 @@ class AtsystemUtilExceptionshandler
 			$db = $this->container->db;
 			$logEntry = (object)array(
 				'logdate'   => $date->toSql(),
-				'ip'        => $ip,
-				'url'       => $url,
+				'ip'        => $tokens['[IP]'],
+				'url'       => $tokens['[URL]'],
 				'reason'    => $reason,
 				'extradata' => $extraLogTableInformation,
 			);
@@ -365,30 +350,8 @@ class AtsystemUtilExceptionshandler
 
 		if (!empty($emailbreaches) && !in_array($reason, $reasons_noemail))
 		{
-			// Load the component's administrator translation files
-			$jlang = JFactory::getLanguage();
-			$jlang->load('com_admintools', JPATH_ADMINISTRATOR, 'en-GB', true);
-			$jlang->load('com_admintools', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
-			$jlang->load('com_admintools', JPATH_ADMINISTRATOR, null, true);
-
 			// Get the site name
 			$config = $this->container->platform->getConfig();
-
-			$sitename = $config->get('sitename');
-
-			// Create a link to lookup the IP
-			$ip_link = $this->cparams->getValue('iplookupscheme', 'http') . '://' . $this->cparams->getValue('iplookup', 'ip-lookup.net/index.php?ip={ip}');
-			$ip_link = str_replace('{ip}', $ip, $ip_link);
-
-			// Get the reason in human readable format
-			$txtReason = JText::_('COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_REASON_' . strtoupper($reason));
-
-			// Get extra information
-			if ($extraLogTableInformation)
-			{
-				list($logReason,) = explode('|', $extraLogTableInformation);
-				$txtReason .= " ($logReason)";
-			}
 
 			// Send the email
 			try
@@ -413,19 +376,6 @@ class AtsystemUtilExceptionshandler
 					$body = $template[1];
 				}
 
-				$tokens = array(
-					'[SITENAME]'  => $sitename,
-					'[REASON]'    => $txtReason,
-					'[DATE]'      => gmdate('Y-m-d H:i:s') . " GMT",
-					'[URL]'       => $url,
-					'[USER]'      => $username,
-					'[IP]'        => $ip,
-					'[LOOKUP]'    => '<a href="' . $ip_link . '">IP Lookup</a>',
-					'[COUNTRY]'   => $country,
-					'[CONTINENT]' => $continent,
-					'[UA]'        => $_SERVER['HTTP_USER_AGENT']
-				);
-
 				$subject = str_replace(array_keys($tokens), array_values($tokens), $subject);
 				$body = str_replace(array_keys($tokens), array_values($tokens), $body);
 
@@ -445,6 +395,9 @@ class AtsystemUtilExceptionshandler
 					$mailer->isHtml(true);
 					$mailer->setSender(array($mailfrom, $fromname));
 
+					// Resets the recipients, otherwise they will pile up
+					$mailer->clearAllRecipients();
+
 					if ($mailer->addRecipient($recipient) === false)
 					{
 						// Failed to add a recipient?
@@ -452,13 +405,12 @@ class AtsystemUtilExceptionshandler
 					}
 
 					$mailer->setSubject($subject);
-					$mailer->setBody($body);
+					$mailer->setBody(AtsystemUtilRescueurl::processBlockMessage($body, $recipient));
 					$mailer->Send();
 				}
 			}
 			catch (\Exception $e)
 			{
-				// Joomla 3.5 is written by incompetent bonobos
 			}
 		}
 
@@ -662,47 +614,9 @@ class AtsystemUtilExceptionshandler
 			// Get the site name
 			$config = $this->container->platform->getConfig();
 
-			$sitename = $config->get('sitename');
-
-			$country = '';
-			$continent = '';
-
-			if (class_exists('AkeebaGeoipProvider'))
-			{
-				$geoip = new AkeebaGeoipProvider();
-				$country = $geoip->getCountryCode($ip);
-				$continent = $geoip->getContinent($ip);
-			}
-
-			if (empty($country))
-			{
-				$country = '(unknown country)';
-			}
-
-			if (empty($continent))
-			{
-				$continent = '(unknown continent)';
-			}
-
-			$uri = JUri::getInstance();
-			$url = $uri->toString(array('scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment'));
-
-			$ip_link = $this->cparams->getValue('iplookupscheme', 'http') . '://' . $this->cparams->getValue('iplookup', 'ip-lookup.net/index.php?ip={ip}');
-			$ip_link = str_replace('{ip}', $ip, $ip_link);
-
-			$substitutions = array(
-				'[SITENAME]'  => $sitename,
-				'[REASON]'	  => JText::_('COM_ADMINTOOLS_WAFEMAILTEMPLATE_REASON_IPAUTOBAN'),
-				'[DATE]'      => gmdate('Y-m-d H:i:s') . " GMT",
-				'[URL]'       => $url,
-				'[USER]'      => '',
-				'[IP]'        => $ip,
-				'[LOOKUP]'    => '<a href="' . $ip_link . '">IP Lookup</a>',
-				'[COUNTRY]'   => $country,
-				'[CONTINENT]' => $continent,
-				'[UA]'		  => $_SERVER['HTTP_USER_AGENT'],
+			$substitutions = $this->getEmailVariables(JText::_('COM_ADMINTOOLS_WAFEMAILTEMPLATE_REASON_IPAUTOBAN'), [
 				'[UNTIL]'     => $minDate
-			);
+			]);
 
 			// Load the component's administrator translation files
 			$jlang = JFactory::getLanguage();
@@ -739,22 +653,35 @@ class AtsystemUtilExceptionshandler
 				$mailfrom = $config->get('mailfrom');
 				$fromname = $config->get('fromname');
 
-				// This line is required because SpamAssassin is BROKEN
-				$mailer->Priority = 3;
+				$recipients = explode(',', $this->cparams->getValue('emailafteripautoban', ''));
+				$recipients = array_map('trim', $recipients);
 
-				$mailer->isHtml(true);
-				$mailer->setSender(array($mailfrom, $fromname));
-				$mailer->addRecipient($this->cparams->getValue('emailafteripautoban', ''));
-
-				if ($this->cparams->getValue('emailafteripautoban', '') === false)
+				foreach ($recipients as $recipient)
 				{
-					// Failed to add a recipient?
-					throw new RuntimeException('Email address for auto-banned IP notification is empty', 500);
-				}
+					if (empty($recipient))
+					{
+						continue;
+					}
 
-				$mailer->setSubject($subject);
-				$mailer->setBody($body);
-				$mailer->Send();
+					// This line is required because SpamAssassin is BROKEN
+					$mailer->Priority = 3;
+
+					$mailer->isHtml(true);
+					$mailer->setSender(array($mailfrom, $fromname));
+
+					// Resets the recipients, otherwise they will pile up
+					$mailer->clearAllRecipients();
+
+					if ($mailer->addRecipient($recipient) === false)
+					{
+						// Failed to add a recipient?
+						continue;
+					}
+
+					$mailer->setSubject($subject);
+					$mailer->setBody(AtsystemUtilRescueurl::processBlockMessage($body, $recipient));
+					$mailer->Send();
+				}
 			}
 			catch (\Exception $e)
 			{
@@ -895,7 +822,7 @@ class AtsystemUtilExceptionshandler
 			}
 		}
 
-		// Because SpamAssassin is a piece of shit that blacklists our domain when it misidentifies an email as spam.
+		// Because SpamAssassin blacklists our domain when it misidentifies an email as spam.
 		$replaceThat = array(
 			'<p style=\"text-align: right; font-size: 7pt; color: #ccc;\">Powered by <a style=\"color: #ccf; text-decoration: none;\" href=\"https://www.akeebabackup.com/products/admin-tools.html\">Akeeba AdminTools</a></p>',
 			'<p style=\"text-align: right; font-size: 7pt; color: #ccc;\">Powered by <a style=\"color: #ccf; text-decoration: none;\" href=\"https://www.akeebabackup.com/products/admin-tools.html\">Akeeba AdminTools</a></p>',
@@ -921,15 +848,25 @@ class AtsystemUtilExceptionshandler
 
 		if (strpos($best->template, '<html') == false)
 		{
-			$best->template = <<< SPAMASSASSINSUCKS
+			$best->template = <<< HTML
 <html>
 <head>
 <title>{$best->subject}</title>
 </head>
 $best->template
 </html>
-SPAMASSASSINSUCKS;
+HTML;
 
+		}
+
+		// Inject self-unblocking information to the default emails for security exceptions and IP autoban
+		if ($best->reason == 'all')
+		{
+			$best->template = str_replace('Reason: [REASON]</p>', 'Reason: [REASON]</p><p>[RESCUEINFO]</p>', $best->template);
+		}
+		elseif ($best->reason == 'ipautoban')
+		{
+			$best->template = str_replace('Banned until: [UNTIL]</p>', 'Banned until: [UNTIL]</p><p>[RESCUEINFO]</p>', $best->template);
 		}
 
 		// And now return the template
@@ -977,5 +914,109 @@ SPAMASSASSINSUCKS;
 		// This IP belongs to a private network, let's raise the flag and then notify the user
 		$params->set('detected_exceptions_from_private_network', 1);
 		$params->save();
+	}
+
+	public function getComponentParam($key, $default = null)
+	{
+		return $this->cparams->getValue($key, $default);
+	}
+
+	/**
+	 * Get the variables we can use in emails as an associative list (variable => value).
+	 *
+	 * @param   string  $reason           The value for the [REASON] variable
+	 * @param   array   $customVariables  An array of custom variables to add to the return.
+	 *
+	 * @return  array
+	 */
+	public function getEmailVariables($reason, $customVariables = array())
+	{
+		// Get our IP address
+		$ip = AtsystemUtilFilter::getIp();
+
+		if ((strpos($ip, '::') === 0) && (strstr($ip, '.') !== false))
+		{
+			$ip = substr($ip, strrpos($ip, ':') + 1);
+		}
+
+		// Get the site name
+		$config = $this->container->platform->getConfig();
+
+		$siteName = $config->get('sitename');
+
+		// Create a link to lookup the IP
+		$ipLookupURL = $this->cparams->getValue('iplookupscheme', 'http') . '://' . $this->cparams->getValue('iplookup', 'ip-lookup.net/index.php?ip={ip}');
+		$ipLookupURL = str_replace('{ip}', $ip, $ipLookupURL);
+
+		$uri = JUri::getInstance();
+		$url = $uri->toString(['scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment']);
+
+		$user = $this->container->platform->getUser();
+
+		if ($user->guest)
+		{
+			$username = 'Guest';
+		}
+		else
+		{
+			$username = $user->username . ' (' . $user->name . ' <' . $user->email . '>)';
+		}
+
+		$country   = '';
+		$continent = '';
+
+		if (class_exists('AkeebaGeoipProvider'))
+		{
+			$geoip     = new AkeebaGeoipProvider();
+			$country   = $geoip->getCountryCode($ip);
+			$continent = $geoip->getContinent($ip);
+		}
+
+		if (empty($country))
+		{
+			$country = '(unknown country)';
+		}
+
+		if (empty($continent))
+		{
+			$continent = '(unknown continent)';
+		}
+
+		$tzWrangler = new TimezoneWrangler($this->container);
+		$email_timezone = $this->container->params->get('email_timezone', 'AKEEBA/DEFAULT');
+
+		if (!empty($email_timezone) && ($email_timezone != 'AKEEBA/DEFAULT'))
+		{
+			try
+			{
+				$tzWrangler->setForcedTimezone($email_timezone);
+			}
+			catch (Exception $e)
+			{
+				// Just in case someone puts an invalid timezone in there (you can never be too paranoid).
+			}
+		}
+
+		$noUser     = new JUser();
+
+		$ret = array(
+			'[SITENAME]'  => $siteName,
+			'[REASON]'    => $reason,
+			'[DATE]'      => $tzWrangler->getLocalTimeStamp('Y-m-d H:i:s T', $noUser),
+			'[URL]'       => $url,
+			'[USER]'      => $username,
+			'[IP]'        => $ip,
+			'[LOOKUP]'    => '<a href="' . $ipLookupURL . '">IP Lookup</a>',
+			'[COUNTRY]'   => $country,
+			'[CONTINENT]' => $continent,
+			'[UA]'        => $_SERVER['HTTP_USER_AGENT'],
+		);
+
+		if (is_array($customVariables) && !empty($customVariables))
+		{
+			$ret = array_merge($ret, $customVariables);
+		}
+
+		return $ret;
 	}
 }

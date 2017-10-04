@@ -17,11 +17,10 @@ defined('AKEEBAENGINE') or die();
 abstract class ParseIni
 {
 	/**
-	 * Parse an INI file and return an associative array. This monstrosity is required because some utter morons who
-	 * think they are hosts have disabled PHP's parse_ini_file() function for "security reasons". Apparently their
-	 * blatant ignorance doesn't allow them to discern between the innocuous parse_ini_file and the potentially
-	 * dangerous ini_set, leading them to disable the former and let the latter enabled. In other words, THIS CLASS IS
-	 * ONLY HERE TO FIX STUPID.
+	 * Parse an INI file and return an associative array. This monstrosity is required because some so-called hosts
+	 * have disabled PHP's parse_ini_file() function for "security reasons". Apparently their blatant ignorance doesn't
+	 * allow them to discern between the innocuous parse_ini_file and the potentially dangerous ini_set, leading them to
+	 * disable the former and let the latter enabled.
 	 *
 	 * @param    string  $file              The file to process
 	 * @param    bool    $process_sections  True to also process INI sections
@@ -30,12 +29,12 @@ abstract class ParseIni
 	 */
 	public static function parse_ini_file($file, $process_sections, $rawdata = false)
 	{
-		$isMoronHostFile = !function_exists('parse_ini_file');
-		$isMoronHostString = !function_exists('parse_ini_string');
+		$isBadHostFile = !function_exists('parse_ini_file');
+		$isBadHostString = !function_exists('parse_ini_string');
 
 		if ($rawdata)
 		{
-			if ($isMoronHostString)
+			if ($isBadHostString)
 			{
 				return self::parse_ini_file_php($file, $process_sections, $rawdata);
 			}
@@ -46,7 +45,7 @@ abstract class ParseIni
 		}
 		else
 		{
-			if ($isMoronHostFile)
+			if ($isBadHostFile)
 			{
 				return self::parse_ini_file_php($file, $process_sections);
 			}

@@ -1,4 +1,40 @@
 <?php die() ?>
+Admin Tools 4.3.1
+================================================================================
++ Added warning if HHVM is used instead of PHP
++ .htaccess / nginx.conf Maker: add support for WOFF2 in expiration time feature
++ Support for Joomla's task=viewName.taskName notation in the WAF Exceptions feature (gh-137)
++ Clicking on "Reload update information" will fix Joomla! erroneously reporting an update is available when you have the latest version installed
++ You can now define the timezone used when sending emails with security advice (gh-139)
++ WAF Blacklist rules can now apply in just the frontend of your site (default), just the backend or both (gh-138).
++ Added Console Warning feature (inform the user to prevent Self XSS) (gh-136)
+- Removed unused Options
+~ Updates now use HTTPS URLs for both the XML update stream and the package download itself
+# [MEDIUM] Rescue URL feature was not working
+# [MEDIUM] Use of TraceEnable in .htaccess would always lead to 500 error. Now using a Rewrite rule instead.
+# [LOW] Removed debug message when system plugin file is renamed
+# [LOW] Fixed blocking a specific task with WAF Blacklist feature
+
+Admin Tools 4.3.0
+================================================================================
++ Rescue URL: unblock yourself easily if you get locked out of your site (you must be a Super User)
++ Workaround for Joomla! bug "Sometimes files are not copied on update"
++ Now you can send an email to multiple addresses when an IP is blocked
++ PHP File Change Scanner, option to suppress email when there are no suspicious, added or modified files gh-133
++ Notify about renamed main.php, offer to rename it back gh-131
+~ Remove the component name from the backend pages' titles to prevent literal "ndash;" from appearing in the browser title
+~ Workaround for INSECURE JoomlaShine plugins after they refused to fix their security issue for weeks.
+~ Support for Sucuri firewall's non-standard client IP forwarding header
+~ The update warning period was raised from 90 to 180 days (we release new Admin Tools feature releases approximately every four months)
+# [HIGH] Missing closing tag would break generated web.config file
+# [HIGH] Default WAF Blacklist rule blocks legitimate request (per ticket #28151)
+# [HIGH] High resource usage by Monitor Super Users feature on high traffic sites (thank you Jaz and Anibal for the reports!)
+# [LOW] Email erroneously sent after manually creating Super User in the backend Users page
+# [LOW] Workaround for Joomla! bug 16147 (https://github.com/joomla/joomla-cms/issues/16147) - Cannot access component after installation when cache is enabled
+# [LOW] Fixed saving log entry for "nonewfrontendadmins" and "nonewadmins" reasons
+# [LOW] Fixed sending too many emails if multiple addresses are used to notify security exceptions
+# [LOW] Fixed tooltips in WAF Configuration page
+
 Admin Tools 4.2.0
 ================================================================================
 ! Yet another BIG Joomla! 3.7.0 bug throws an exception when using the CLI backup under some circumstances.

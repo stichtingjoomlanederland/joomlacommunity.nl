@@ -30,37 +30,56 @@ class AtsystemFeatureWafblacklist extends AtsystemFeatureAbstract
 	{
 		$db = $this->db;
 
-		$method = array($db->q(''), $db->q(strtoupper($_SERVER['REQUEST_METHOD'])));
-		$option = array($db->q(''));
-		$view   = array($db->q(''));
-		$task   = array($db->q(''));
+		$method    = array($db->q(''), $db->q(strtoupper($_SERVER['REQUEST_METHOD'])));
+		$option    = array($db->q(''));
+		$view      = array($db->q(''));
+		$task      = array($db->q(''));
+		$rawView   = $this->input->getCmd('view', '');
+		$rawTask   = $this->input->getCmd('task', '');
+		$rawOption = $this->input->getCmd('option', '');
 
-		if ($this->input->getCmd('option', ''))
+		if ($rawOption)
 		{
-			$option[] = $db->q($this->input->getCmd('option', ''));
+			$option[] = $db->q($rawOption);
 		}
 
-		if ($this->input->getCmd('view', ''))
+		if ($rawView)
 		{
-			$view[] = $db->q($this->input->getCmd('view', ''));
+			$view[] = $db->q($rawView);
 		}
 
-		if ($this->input->getCmd('task', ''))
+		if ($rawTask)
 		{
-			$task[] = $db->q($this->input->getCmd('task', ''));
+			$task[] = $db->q($rawTask);
+		}
+
+		// Parse task=viewName.taskName
+		if (empty($rawView) && (strpos($rawTask, '.') !== false))
+		{
+			list($viewExplode, $taskExplode) = explode('.', $rawTask, 2);
+			$view[] = $db->q($viewExplode);
+			$task[] = $db->q($taskExplode);
+		}
+		/**
+		 * If we have separate view=viewName and task=taskName variables look for a rule where task=viewName.taskName in
+		 * case the user ignored the documentation or tried to be "clever".
+		 */
+		elseif (strpos($rawTask, '.') === false)
+		{
+			$task[] = $db->q("$rawView.$rawTask");
 		}
 
 		// Let's get the rules for the current input values or the empty ones
 		$query = $db->getQuery(true)
-		            ->select('*')
-		            ->from($db->qn('#__admintools_wafblacklists'))
-		            ->where($db->qn('verb') . ' IN(' . implode(',', $method) . ')')
-		            ->where($db->qn('option') . ' IN(' . implode(',', $option) . ')')
-		            ->where($db->qn('view') . ' IN(' . implode(',', $view) . ')')
-		            ->where($db->qn('task') . ' IN(' . implode(',', $task) . ')')
-		            ->where($db->qn('enabled') . ' = ' . $db->q(1))
-		            ->group($db->qn('query'))
-		            ->order($db->qn('query') . ' ASC');;
+			->select('*')
+			->from($db->qn('#__admintools_wafblacklists'))
+			->where($db->qn('verb') . ' IN(' . implode(',', $method) . ')')
+			->where($db->qn('option') . ' IN(' . implode(',', $option) . ')')
+			->where($db->qn('view') . ' IN(' . implode(',', $view) . ')')
+			->where($db->qn('task') . ' IN(' . implode(',', $task) . ')')
+			->where($db->qn('enabled') . ' = ' . $db->q(1))
+			->group($db->qn('query'))
+			->order($db->qn('query') . ' ASC');
 
 		try
 		{
@@ -91,6 +110,29 @@ class AtsystemFeatureWafblacklist extends AtsystemFeatureAbstract
 
 		foreach ($rules as $rule)
 		{
+			/**
+			 * Make sure the view/task matches.
+			 *
+			 * This is a bit complicated since we have to take into account that EITHER OF the request AND the rule may
+			 * be using the task=viewName.taskName notation. Moreover, empty views and tasks in rules act as wildcards.
+			 */
+			$view = isset($viewExplode) ? $viewExplode : $rawView;
+			$task = isset($taskExplode) ? $taskExplode : $rawTask;
+			$hasMatch = false;
+			// -- Empty view and task: rule applies to entire component
+			$hasMatch = $hasMatch || (($rule->view == '') && ($rule->task == ''));
+			// -- Request view matches rule view AND rule task is either empty or matches request task
+			$hasMatch = $hasMatch || ((!empty($view) && ($rule->view == $view)) && (empty($rule->task) || ($rule->task == $task)));
+			// -- Request task matches rule task AND view task is either empty or matches request view
+			$hasMatch = $hasMatch || ((!empty($task) && ($rule->task == $task)) && (empty($rule->view) || ($rule->view == $view)));
+			// -- Both view and task matched by the rule's task AND the rule's view is empty
+			$hasMatch = $hasMatch || ((!empty($task) && !empty($view) && ($rule->task == "$view.$task")) && empty($rule->view));
+
+			if (!$hasMatch)
+			{
+				continue;
+			}
+
 			// Empty query => block everything for this VERB/OPTION/VIEW/TASK combination
 			if (!$rule->query)
 			{
@@ -123,7 +165,7 @@ class AtsystemFeatureWafblacklist extends AtsystemFeatureAbstract
 			{
 				// PLEASE NOTE! If POST data is passed, but the GET array is empty, Input will use the whole $_REQUEST
 				// array, so $inputSource will be GET even if we truly had a POST request. However this is an edge case
-				$extraInfo  = "Hash      : ".strtoupper($inputSource)."\n";
+				$extraInfo = "Hash      : " . strtoupper($inputSource) . "\n";
 				$extraInfo .= "Variables :\n";
 				$extraInfo .= print_r($inputObject->getData(), true);
 				$extraInfo .= "\n";
@@ -195,13 +237,29 @@ class AtsystemFeatureWafblacklist extends AtsystemFeatureAbstract
 				$found = !$found;
 			}
 		}
-		// Exact match
+		// Exact match, empty $ruleQuery
+		elseif ($ruleQuery === '')
+		{
+			$found = true;
+		}
+		// Exact match, non-empty $ruleQuery
 		else
 		{
+			// Cannot match empty key
+			if (empty($key))
+			{
+				return false;
+			}
+
 			if ($key == $ruleQuery)
 			{
 				$found = true;
 			}
+		}
+
+		if (!$found)
+		{
+			return false;
 		}
 
 		// Ok, the query parameter is set, do I have any specific rule about the content?

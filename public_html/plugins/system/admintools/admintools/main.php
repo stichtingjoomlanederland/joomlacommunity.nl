@@ -61,6 +61,38 @@ class plgSystemAdmintools extends JPlugin
 	protected $container;
 
 	/**
+	 * Working around stupid (JoomlaShine) serializing JApplicationCms and, with it, all plugins.
+	 *
+	 * Serializing the entire plugin would cause a security nightmare. So let's try to only save its only immutable
+	 * properties (name and plugin folder). In the wakeup call we'll reconstruct all the mutable properties.
+	 *
+	 * Caveat: changing the plugin parameters will have no effect in this scenario until the cache expires or is cleared
+	 *
+	 * @return  array
+	 */
+	public function __sleep()
+	{
+		return array('_name', '_type', 'params');
+	}
+
+	/**
+	 * Working around stupid (JoomlaShine) serializing JApplicationCms and, with it, all plugins.
+	 *
+	 * Serializing the entire plugin would cause a security nightmare. So let's try to only save its only immutable
+	 * properties (name and plugin folder). In the wakeup call we'll reconstruct all the mutable properties.
+	 *
+	 * Caveat: changing the plugin parameters will have no effect in this scenario until the cache expires or is cleared
+	 *
+	 * @return  void
+	 */
+	public function __wakeup()
+	{
+		$this->loadLanguage();
+
+		$this->initialize();
+	}
+
+	/**
 	 * Initialises the System - Admin Tools plugin
 	 *
 	 * @param  object $subject The object to observe
@@ -74,40 +106,8 @@ class plgSystemAdmintools extends JPlugin
 		// Call the parent constructor
 		parent::__construct($subject, $config);
 
-		$this->container = Container::getInstance('com_admintools');
-
-		// Under Joomla 2.5 we have to explicitly load the application and the database,
-		// the parent class won't do that for us.
-		if (is_null($this->app))
-		{
-			$this->app = JFactory::getApplication();
-		}
-
-		if (is_null($this->db))
-		{
-			$this->db = JFactory::getDbo();
-		}
-
-		// Store a reference to the global input object
-		$this->input = JFactory::getApplication()->input;
-
-		// Load the component parameters
-		$this->loadComponentParameters();
-
-		// Work around IP issues with transparent proxies etc
-		$this->workaroundIP();
-
-		// Load the GeoIP library, if necessary
-		$this->loadGeoIpProvider();
-
-		// Preload the security exceptions handler object
-		$this->loadExceptionsHandler();
-
-		// Load the WAF Exceptions
-		$this->loadWAFExceptions();
-
-		// Load and register the plugin features
-		$this->loadFeatures();
+		// Initialize the plugin
+		$this->initialize();
 	}
 
 	/**
@@ -455,7 +455,7 @@ class plgSystemAdmintools extends JPlugin
 		$isSEF     = $jConfig->get('sef', 0);
 
 		$option = $this->input->getCmd('option', '');
-		$view   = $this->input->getCmd('view', '');
+		$view   = $this->getCurrentView();
 
 		// If we have SEF URLs enabled and an empty $option (SEF not yet parsed) OR we have an option that does not
 		// start with com_ we need to a different kind of processing. NB! If an option in the form of com_something is
@@ -489,10 +489,13 @@ class plgSystemAdmintools extends JPlugin
 		}
 	}
 
+	/**
+	 * Load the applicable WAF exceptions for this request after parsing the Joomla! SEF rules
+	 */
 	protected function loadWAFExceptionsSEF()
 	{
-		// Do you have a fucktasting host like the one in ticket #25473 that crashes JUri if you access it
-		// onAfterIntialize because the morons unset two fundamental server variables? If you do, no exceptions for you
+		// Do you have a horrid host like the one in ticket #25473 that crashes JUri if you access it.
+		// onAfterIntialize because they unset two fundamental server variables? If you do, no exceptions for you :(
 		if (!isset($_SERVER) || (!isset($_SERVER['HTTP_HOST']) && !isset($_SERVER['SCRIPT_NAME'])))
 		{
 			return;
@@ -521,7 +524,7 @@ class plgSystemAdmintools extends JPlugin
 				jimport('joomla.language.helper');
 				$languages = JLanguageHelper::getLanguages('lang_code');
 
-				foreach($languages as $lang)
+				foreach ($languages as $lang)
 				{
 					$langSefCode = $lang->sef . '/';
 
@@ -534,15 +537,15 @@ class plgSystemAdmintools extends JPlugin
 		}
 
 		// Load all WAF exceptions for SEF URLs
-		$db = $this->db;
+		$db               = $this->db;
 		$this->exceptions = array();
-		$exceptions = array();
-		$view = $this->input->getCmd('view', '');
+		$exceptions       = array();
+		$view             = $this->getCurrentView();
 
 		$sql = $db->getQuery(true)
-				  ->select('*')
-				  ->from($db->qn('#__admintools_wafexceptions'))
-				  ->where('NOT(' . $db->qn('option') . ' LIKE ' . $db->q('com_%') . ')');
+			->select('*')
+			->from($db->qn('#__admintools_wafexceptions'))
+			->where('NOT(' . $db->qn('option') . ' LIKE ' . $db->q('com_%') . ')');
 
 		$db->setQuery($sql);
 
@@ -556,7 +559,7 @@ class plgSystemAdmintools extends JPlugin
 
 		foreach ($exceptions as $exception)
 		{
-			if($exception['option'])
+			if ($exception['option'])
 			{
 				if ((strpos($uriPathNoLanguage, $exception['option']) !== 0) && (strpos($uriPath, $exception['option']) !== 0))
 				{
@@ -798,5 +801,72 @@ class plgSystemAdmintools extends JPlugin
 		}
 
 		return $result;
+	}
+
+	/**
+	 * This is a separate method instead of being part of __construct in a last ditch attempt to work around stupid.
+	 * Namely, the incompetent kooks at JoomlaShine who serialize the entire JApplicationCms object. Of course it's a
+	 * security issue. Of course we told them to get their act together. Of course they didn't try to understand. Fine.
+	 * Let me protect my users against you.
+	 *
+	 * @return  void
+	 */
+	private function initialize()
+	{
+		$this->container = Container::getInstance('com_admintools');
+
+		// Under Joomla 2.5 we have to explicitly load the application and the database,
+		// the parent class won't do that for us.
+		if (is_null($this->app))
+		{
+			$this->app = JFactory::getApplication();
+		}
+
+		if (is_null($this->db))
+		{
+			$this->db = JFactory::getDbo();
+		}
+
+		// Store a reference to the global input object
+		$this->input = JFactory::getApplication()->input;
+
+		// Load the component parameters
+		$this->loadComponentParameters();
+
+		// Work around IP issues with transparent proxies etc
+		$this->workaroundIP();
+
+		// Load the GeoIP library, if necessary
+		$this->loadGeoIpProvider();
+
+		// Preload the security exceptions handler object
+		$this->loadExceptionsHandler();
+
+		// Load the WAF Exceptions
+		$this->loadWAFExceptions();
+
+		// Load and register the plugin features
+		$this->loadFeatures();
+	}
+
+	/**
+	 * Get the view declared in the application input. It recognizes both view=viewName and task=viewName.taskName
+	 * variants supported by the classic Joomla! MVC paradigm.
+	 *
+	 * @return  string
+	 *
+	 * @since   version
+	 */
+	private function getCurrentView()
+	{
+		$view = $this->input->getCmd('view', '');
+		$task = $this->input->getCmd('task', '');
+
+		if (empty($view) && (strpos($task, '.') !== false))
+		{
+			list($view, $task) = explode('.', $task, 2);
+		}
+
+		return $view;
 	}
 }

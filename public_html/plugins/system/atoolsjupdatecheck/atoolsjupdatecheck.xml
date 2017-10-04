@@ -30,4 +30,6 @@
 			</fieldset>
 		</fields>
 	</config>
+
+	<scriptfile>script.php</scriptfile>
 </extension>

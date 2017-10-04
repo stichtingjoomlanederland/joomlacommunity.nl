@@ -59,6 +59,9 @@ class AtsystemFeatureIpwhitelist extends AtsystemFeatureAbstract
 
 		if ($inList === false)
 		{
+			// Rescue URL check
+			AtsystemUtilRescueurl::processRescueURL($this->exceptionsHandler);
+
 			if (!$this->exceptionsHandler->logAndAutoban('ipwl'))
 			{
 				return;

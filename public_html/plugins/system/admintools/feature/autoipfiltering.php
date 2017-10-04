@@ -18,18 +18,28 @@ class AtsystemFeatureAutoipfiltering extends AtsystemFeatureAbstract
 	 */
 	public function onAfterInitialise()
 	{
-		if (!$this->isIPBlocked())
+		$ip = AtsystemUtilFilter::getIp();
+
+		if (!$this->isIPBlocked($ip))
 		{
 			return;
 		}
 
+		// Rescue URL check
+		AtsystemUtilRescueurl::processRescueURL($this->exceptionsHandler);
+
 		@ob_end_clean();
 		header("HTTP/1.0 403 Forbidden");
 
-		$ip = AtsystemUtilFilter::getIp();
-
 		$spammerMessage = $this->cparams->getValue('spammermessage', '');
+
+		if ($spammerMessage == 'You are a spammer, hacker or an otherwise bad person.')
+		{
+			$spammerMessage = 'You are a spammer, hacker or an otherwise bad person. [RESCUEINFO]';
+		}
+
 		$spammerMessage = str_replace('[IP]', $ip, $spammerMessage);
+		$spammerMessage = AtsystemUtilRescueurl::processBlockMessage($spammerMessage);
 
 		echo $spammerMessage;
 

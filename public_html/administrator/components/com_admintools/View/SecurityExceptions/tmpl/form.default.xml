@@ -14,9 +14,12 @@
     <headerset>
         <header name="id" type="RowSelect" tdwidth="20px"/>
 
-        <header name="datefrom" type="Date" placeholder="COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_FROM" filterclass="input-small"
+        <header name="datefrom" type="Date" placeholder="COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_FROM"
+                filterclass="input" format="%Y-%m-%d %H:%M"
                 onlyFilter="true"/>
-        <header name="dateto" type="Date" placeholder="COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_TO" filterclass="input-small" onlyFilter="true"/>
+        <header name="dateto" type="Date" placeholder="COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_TO"
+                filterclass="input-small" showTime="true"
+                onlyFilter="true"/>
 
         <header name="logdate" label="COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_LOGDATE" type="Field" tdwidth="15%"/>
         <header name="ip" label="COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_IP" filterclass="input-small" type="Searchable" tdwidth="15%"

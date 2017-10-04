@@ -13,7 +13,7 @@ defined('_JEXEC') or die;
 $baseUri = JUri::base();
 
 // Let's check if the system plugin is correctly installed AND published
-echo $this->loadAnyTemplate('admin:com_admintools/WebApplicationFirewall/plugin_warning');
+echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 
 ?>
 <div class="alert alert-info">

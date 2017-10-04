@@ -6,8 +6,8 @@
 	<authorUrl>http://www.akeebabackup.com</authorUrl>
 	<copyright>Copyright (c)2010-2017 Nicholas K. Dionysopoulos</copyright>
 	<license>GNU General Public License version 3, or later</license>
-	<creationDate>2017-05-18</creationDate>
-	<version>4.2.0</version>
+	<creationDate>2017-10-02</creationDate>
+	<version>4.3.1</version>
 	<description>
 		Handles URL redirections defined in Admin Tools, fends off common attacks
 		and automates session table and cache clean-up
@@ -27,6 +27,15 @@
 		<fields name="params">
 			<fieldset name="basic">
 				<field name="language_override" type="text" default="" size="5" label="ADMINTOOLS_LANGUAGE_OVERRIDE_LBL" description="ADMINTOOLS_LANGUAGE_OVERRIDE_DESC" />
+				<field name="@spacer" type="spacer" default="" label="" description="" />
+
+				<field name="rescueurl" type="list" default="1" label="ADMINTOOLS_RESCUEURL" description="ADMINTOOLS_RESCUEURL_DESC">
+					<option value="0">JNo</option>
+					<option value="1">JYes</option>
+				</field>
+
+				<field name="rescueduration" type="text" default="15" size="5" label="ADMINTOOLS_RESCUEDURATION" description="ADMINTOOLS_RESCUEDURATION_DESC" />
+
 				<field name="@spacer" type="spacer" default="" label="" description="" />
 
 				<field name="sesoptimizer" type="list" default="0" label="ADMINTOOLS_SESOPT_LBL" description="ADMINTOOLS_SESOPT_DESC">
@@ -77,4 +86,6 @@
 			</fieldset>
 		</fields>
 	</config>
+
+	<scriptfile>script.php</scriptfile>
 </extension>

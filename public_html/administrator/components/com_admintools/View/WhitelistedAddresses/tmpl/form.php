@@ -9,11 +9,6 @@
 
 defined('_JEXEC') or die;
 
-$ip = htmlspecialchars($_SERVER['REMOTE_ADDR']);
-if ((strpos($ip, '::') === 0) && (strstr($ip, '.') !== false))
-{
-	$ip = substr($ip, strrpos($ip, ':') + 1);
-}
 ?>
 <div class="alert alert-info">
 	<a class="close" data-dismiss="alert" href="#">×</a>

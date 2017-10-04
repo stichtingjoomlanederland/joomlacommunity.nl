@@ -18,7 +18,7 @@ defined('_JEXEC') or die;
  * Authentication headers to the browser! This trick below detects the missing 401 custom error page redirection and
  * returns a **valid** HTTP 401 message, letting Apache continue its business.
  *
- * FOR CRYING OUT LOUD PEOPLE, FIX YOUR CRAPPY SERVERS!!!
+ * FOR CRYING OUT LOUD PEOPLE, FIX YOUR GARBAGE SERVERS!!!
  */
 class AtsystemFeatureApache401 extends AtsystemFeatureAbstract
 {

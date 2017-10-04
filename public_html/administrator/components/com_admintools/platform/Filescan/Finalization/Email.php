@@ -77,6 +77,10 @@ class Email extends Object
 		$segments = (int)($totalFiles / 100) + 1;
 		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . ": Processing file list in $segments segment(s)");
 
+		$modified = 0;
+		$new = 0;
+		$suspicious = 0;
+
 		for ($i = 0; $i < $segments; $i++)
 		{
 			$limitstart = 100 * $i;
@@ -93,17 +97,41 @@ class Email extends Object
 				/** @var ScanAlerts $file */
 				foreach ($files as $file)
 				{
+					if ($file->threat_score > 0)
+					{
+						$suspicious++;
+					}
+
 					$fileRow = "<tr><td>{$file->path}</td><td>{$file->threat_score}</td></tr>\n";
 
 					if ($file->newfile)
 					{
 						$body_new .= $fileRow;
+						$new++;
 					}
 					else
 					{
 						$body_modified .= $fileRow;
+						$modified++;
 					}
 				}
+			}
+		}
+
+		// Conditional email sending only when actionable items are found
+		$conditionalSending = Platform::getInstance()->get_platform_configuration_option('scan_conditional_email', 0);
+
+		if ($conditionalSending)
+		{
+			Factory::getLog()->log(LogLevel::INFO, "You have enabled conditional email sending. Calculating number of actionable items (number of added, modified and suspicious files)");
+
+			$numActionableFiles = $modified + $new + $suspicious;
+
+			if ($numActionableFiles < 1)
+			{
+				Factory::getLog()->log(LogLevel::INFO, "No actionable items were detected. An email will NOT be sent this time.");
+
+				return true;
 			}
 		}
 
@@ -114,11 +142,11 @@ class Email extends Object
 		$body .= '<h1>' . JText::_('COM_ADMINTOOLS_SCANS_EMAIL_HEADING') . "</h1><hr/>\n";
 		$body .= '<h2>' . JText::_('COM_ADMINTOOLS_SCANS_EMAIL_OVERVIEW') . "</h2>\n";
 		$body .= "<p>\n";
-		$body .= '<strong>' . JText::_('COM_ADMINTOOLS_LBL_SCAN_TOTAL') . "</strong>: " . $scanModel->multipart . "<br/>\n";
-		$body .= '<strong>' . JText::_('COM_ADMINTOOLS_LBL_SCAN_MODIFIED') . "</strong>: " . $scanModel->files_modified . "<br/>\n";
+		$body .= '<strong>' . JText::_('COM_ADMINTOOLS_LBL_SCAN_TOTAL') . "</strong>: " . $totalFiles . "<br/>\n";
+		$body .= '<strong>' . JText::_('COM_ADMINTOOLS_LBL_SCAN_MODIFIED') . "</strong>: " . $modified . "<br/>\n";
 
-		$body .= '<strong>' . JText::_('COM_ADMINTOOLS_LBL_SCAN_ADDED') . "</strong>: " . $scanModel->files_new . "<br/>\n";
-		$body .= '<strong>' . JText::_('COM_ADMINTOOLS_LBL_SCAN_SUSPICIOUS') . "</strong>: " . (int) $scanModel->files_suspicious . "<br/>\n";
+		$body .= '<strong>' . JText::_('COM_ADMINTOOLS_LBL_SCAN_ADDED') . "</strong>: " . $new . "<br/>\n";
+		$body .= '<strong>' . JText::_('COM_ADMINTOOLS_LBL_SCAN_SUSPICIOUS') . "</strong>: " . $suspicious . "<br/>\n";
 		$body .= "</p>\n";
 
 		// Add the new files report only if we really have some files

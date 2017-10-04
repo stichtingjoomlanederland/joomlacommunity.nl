@@ -45,8 +45,6 @@ class AtsystemFeatureEmailonlogin extends AtsystemFeatureAbstract
 	 */
 	public function onAfterInitialise()
 	{
-		$user = $this->container->platform->getUser();
-
 		// Check if the session flag is set (avoid sending thousands of emails!)
 		$flag = $this->container->platform->getSessionVar('waf.loggedin', 0, 'plg_admintools');
 
@@ -64,60 +62,11 @@ class AtsystemFeatureEmailonlogin extends AtsystemFeatureAbstract
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, null, true);
 
-		// Get the username
-		$username = $user->username;
 		// Get the site name
 		$config = $this->container->platform->getConfig();
 
-		$sitename = $config->get('sitename');
-
-		// Get the IP address
-		$ip = AtsystemUtilFilter::getIp();
-
-		if ((strpos($ip, '::') === 0) && (strstr($ip, '.') !== false))
-		{
-			$ip = substr($ip, strrpos($ip, ':') + 1);
-		}
-
-		$country = '';
-		$continent = '';
-
-		if (class_exists('AkeebaGeoipProvider'))
-		{
-			$geoip     = new AkeebaGeoipProvider();
-			$country   = $geoip->getCountryCode($ip);
-			$continent = $geoip->getContinent($ip);
-		}
-
-		if (empty($country))
-		{
-			$country = '(unknown country)';
-		}
-
-		if (empty($continent))
-		{
-			$continent = '(unknown continent)';
-		}
-
-		$uri = JUri::getInstance();
-		$url = $uri->toString(array('scheme', 'user', 'pass', 'host', 'port', 'path', 'query', 'fragment'));
-
-		$ip_link = $this->cparams->getValue('iplookupscheme', 'http') . '://' . $this->cparams->getValue('iplookup', 'ip-lookup.net/index.php?ip={ip}');
-		$ip_link = str_replace('{ip}', $ip, $ip_link);
-
 		// Construct the replacement table
-		$substitutions = array(
-			'[SITENAME]'  => $sitename,
-			'[REASON]'	  => JText::_('COM_ADMINTOOLS_WAFEMAILTEMPLATE_REASON_ADMINLOGINSUCCESS'),
-			'[DATE]'      => gmdate('Y-m-d H:i:s') . " GMT",
-			'[URL]'       => $url,
-			'[USER]'      => $username,
-			'[IP]'        => $ip,
-			'[LOOKUP]'    => '<a href="' . $ip_link . '">IP Lookup</a>',
-			'[COUNTRY]'   => $country,
-			'[CONTINENT]' => $continent,
-			'[UA]'		  => $_SERVER['HTTP_USER_AGENT'],
-		);
+		$substitutions = $this->exceptionsHandler->getEmailVariables(JText::_('COM_ADMINTOOLS_WAFEMAILTEMPLATE_REASON_ADMINLOGINSUCCESS'));
 
 		// Let's get the most suitable email template
 		$template = $this->exceptionsHandler->getEmailTemplate('adminloginsuccess', true);
@@ -163,6 +112,9 @@ class AtsystemFeatureEmailonlogin extends AtsystemFeatureAbstract
 
 				$mailer->isHtml(true);
 				$mailer->setSender(array($mailfrom, $fromname));
+
+				// Resets the recipients, otherwise they will pile up
+				$mailer->clearAllRecipients();
 
 				if ($mailer->addRecipient($recipient) === false)
 				{

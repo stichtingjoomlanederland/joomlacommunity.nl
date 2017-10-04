@@ -21,17 +21,15 @@ class AtsystemUtilFilter
 	{
 		if (is_null(static::$ip))
 		{
-			$ip = array_key_exists('REMOTE_ADDR', $_SERVER) ? htmlspecialchars($_SERVER['REMOTE_ADDR']) : '0.0.0.0';
-
-			if (!empty($ip) && ($ip != '0.0.0.0') && function_exists('inet_pton') && function_exists('inet_ntop'))
+			// This function is invoked all other Admin Tools workflow. Since sometimes we divert from the regular path
+			// (ie rescue URL feature), it MAY happen that FOF is not included. So let's manually check that this is
+			// included and defined before attempting to use the Utils\Ip class
+			if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
 			{
-				$myIP = @inet_pton($ip);
-
-				if ($myIP !== false)
-				{
-					$ip = inet_ntop($myIP);
-				}
+				throw new \RuntimeException('FOF is currently not installed');
 			}
+
+			$ip = \FOF30\Utils\Ip::getIp();
 
 			static::setIp($ip);
 		}

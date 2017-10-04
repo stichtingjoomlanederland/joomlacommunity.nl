@@ -248,10 +248,6 @@ class AtsystemFeatureCriticalfiles extends AtsystemFeatureAbstract
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
 		$jlang->load('com_admintools', JPATH_ADMINISTRATOR, null, true);
 
-		// Get the site name
-		$config   = $this->container->platform->getConfig();
-		$sitename = $config->get('sitename');
-
 		// Convert the list of modified files to HTML
 		$htmlAlteredFiles = <<< HTML
 <ul>
@@ -280,11 +276,9 @@ HTML;
 HTML;
 
 		// Construct the replacement table
-		$substitutions = array(
-			'[SITENAME]'  => $sitename,
-			'[DATE]'      => gmdate('Y-m-d H:i:s') . " GMT",
+		$substitutions = $this->exceptionsHandler->getEmailVariables('', [
 			'[INFO]'      => $htmlAlteredFiles,
-		);
+		]);
 
 		// Let's get the most suitable email template
 		$template = $this->exceptionsHandler->getEmailTemplate('criticalfiles', true);
@@ -328,6 +322,9 @@ HTML;
 
 				$mailer->isHtml(true);
 				$mailer->setSender(array($mailfrom, $fromname));
+
+				// Resets the recipients, otherwise they will pile up
+				$mailer->clearAllRecipients();
 
 				if ($mailer->addRecipient($recipient) === false)
 				{

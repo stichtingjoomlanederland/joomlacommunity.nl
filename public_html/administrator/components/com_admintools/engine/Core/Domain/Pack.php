@@ -13,7 +13,6 @@ namespace Akeeba\Engine\Core\Domain;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Archiver\Base;
 use Akeeba\Engine\Archiver\BaseArchiver;
 use Akeeba\Engine\Base\Part;
 use Akeeba\Engine\Configuration;

@@ -208,6 +208,20 @@ elseif ($userParams->get('useractivation') == 0)
 </div>
 
 <div class="control-group">
+    <label class="control-label"
+           for="consolewarn"
+           rel="popover"
+           data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONSOLEWARN'); ?>"
+           data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONSOLEWARN_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONSOLEWARN'); ?>
+    </label>
+
+    <div class="controls">
+		<?php echo Select::booleanlist('consolewarn', array(), $this->wafconfig['consolewarn']); ?>
+    </div>
+</div>
+
+<div class="control-group">
 	<label class="control-label"
 		   for="blockedemaildomains"
 		   rel="popover"

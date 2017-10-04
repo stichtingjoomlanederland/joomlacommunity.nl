@@ -43,7 +43,7 @@ defined('_JEXEC') or die;
 		   for="httpblthreshold"
 		   rel="popover"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_HTTPBLTHRESHOLD'); ?>"
-		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_HTTPBLTHRESHOLD_TIP'); ?>">
+		   data-content="<?php echo str_replace('"', '&quot;', \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_HTTPBLTHRESHOLD_TIP')); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_HTTPBLTHRESHOLD'); ?>
 	</label>
 
@@ -72,7 +72,7 @@ defined('_JEXEC') or die;
 		   for="httpblblocksuspicious"
 		   rel="popover"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_HTTPBLBLOCKSUSPICIOUS'); ?>"
-		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_HTTPBLBLOCKSUSPICIOUS_TIP'); ?>">
+		   data-content="<?php echo str_replace('"', '&quot;', \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_HTTPBLBLOCKSUSPICIOUS_TIP')); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_HTTPBLBLOCKSUSPICIOUS'); ?>
 	</label>
 

@@ -97,15 +97,38 @@ class AtsystemFeatureMuashield extends AtsystemFeatureAbstract
 	private function blockForwardHeader()
 	{
 		// Do I have a HTTP_X_FORWARDED_FOR header?
-		if(!isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+		if (!isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !isset($_SERVER['HTTP_X_SUCURI_CLIENTIP']))
 		{
 			return;
 		}
 
-		// The same attack could be performed using the HTTP_X_FORWARDED_FOR header
-		$header = $_SERVER['HTTP_X_FORWARDED_FOR'];
-		$header = trim($header);
+		// The same attack could be performed using the HTTP_X_FORWARDED_FOR / HTTP_X_SUCURI_CLIENTIP headers
+		if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+		{
+			$header = $_SERVER['HTTP_X_FORWARDED_FOR'];
+			$header = trim($header);
 
+			$this->neuterMUA($header, 'HTTP_X_FORWARDED_FOR');
+		}
+
+		if (isset($_SERVER['HTTP_X_SUCURI_CLIENTIP']))
+		{
+			$header = $_SERVER['HTTP_X_SUCURI_CLIENTIP'];
+			$header = trim($header);
+
+			$this->neuterMUA($header, 'HTTP_X_SUCURI_CLIENTIP');
+		}
+	}
+
+	/**
+	 * @param $header
+	 *
+	 *
+	 * @since version
+	 * @throws Exception
+	 */
+	private function neuterMUA($header, $headerName)
+	{
 		$patterns = array(
 			'@"feed_url@', // feed_url isn't your typical UA but it sure as hell is part of an exploit
 			'@}__(.*)|O:@', // Typical start of serialised data
@@ -117,9 +140,9 @@ class AtsystemFeatureMuashield extends AtsystemFeatureAbstract
 			if (preg_match($pattern, $header))
 			{
 				// Neuter the attack
-				$neuterMUA                  = 'HACKING ATTEMPT DETECTED';
+				$neuterMUA = 'HACKING ATTEMPT DETECTED';
 				// 1. Reset the Forwarded header reported by the server
-				$_SERVER['HTTP_X_FORWARDED_FOR'] = $neuterMUA;
+				$_SERVER[$headerName] = $neuterMUA;
 				// 2. Replace the saved Forwarded header in the session storage to something non-malicious
 				JFactory::getSession()->set('session.client.forwarded', $neuterMUA);
 				// 3. KILL THE SESSION (may not work, depends on the session handler)
