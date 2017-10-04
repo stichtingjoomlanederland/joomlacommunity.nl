@@ -3,11 +3,11 @@
 	<name>System - RSForm! Pro</name>
 	<author>RSJoomla!</author>
 	<creationDate>November 2012</creationDate>
-	<copyright>(C) 2007-2015 www.rsjoomla.com</copyright>
+	<copyright>(C) 2007-2017 www.rsjoomla.com</copyright>
 	<license>GNU General Public License</license>
 	<authorEmail>support@rsjoomla.com</authorEmail>
 	<authorUrl>www.rsjoomla.com</authorUrl>
-	<version>1.52.0</version>
+	<version>1.52.1</version>
 	<description><![CDATA[PLG_SYSTEM_RSFORM_DESC]]></description>
 	<scriptfile>script.php</scriptfile>
 	
