@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <metafile version="3.7" client="site">
 	<name>Nederlands (nl-NL)</name>
-	<version>3.7.2</version>
-	<creationDate>Mei 2017</creationDate>
+	<version>3.8.0.1</version>
+	<creationDate>September 2017</creationDate>
 	<author>Dutch Translation Team</author>
 	<authorEmail>taal@joomlacommunity.nl</authorEmail>
 	<authorUrl>http://joomlacode.org/gf/project/nederlands/</authorUrl>
 	<copyright>Copyright (C) 2005 - 2017 Dutch Translation Team en Open Source Matters. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
-	<description><![CDATA[Nederlands taalbestand Joomla! 3.6 (site)]]></description>
+	<description><![CDATA[Nederlands taalbestand Joomla! 3.8 (site)]]></description>
 	<metadata>
 		<name>Dutch (nl-NL)</name>
 		<nativeName>Nederlands nl-NL</nativeName>

@@ -2,13 +2,13 @@
 <extension type="package" version="3.7" method="upgrade">
 	<name>Nederlands (nl-NL) taalpakket</name>
 	<packagename>nl-NL</packagename>
-	<version>3.7.2.1</version>
-	<creationDate>Mei 2017</creationDate>
+	<version>3.8.0.1</version>
+	<creationDate>September 2017</creationDate>
 	<author>Dutch Translation Team</author>
 	<authorEmail>taal@joomlacommunity.nl</authorEmail>
 	<authorUrl>http://joomlacode.org/gf/project/nederlands/</authorUrl>
 	<copyright>Copyright (C) 2005 - 2017 Open Source Matters, Inc. All rights reserved.</copyright>
-	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+	<license>https://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
 	<url>https://github.com/joomla/joomla-cms</url>
 	<packager>Joomla! Project</packager>
 	<packagerurl>www.joomla.org</packagerurl>
