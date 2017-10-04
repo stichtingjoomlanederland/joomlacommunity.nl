@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -226,6 +226,10 @@ class ComDocmanTemplateHelperListbox extends ComKoowaTemplateHelperListbox
                 $entities = $model->setState($state)->limit($limit)->offset($offset)->fetch();
 
                 foreach ($entities as $entity) {
+                    if (substr($entity->path, 0, 3) === 'tmp') {
+                        continue;
+                    }
+
                     $options[] = $this->option(array('label' => $entity->{$config->label}, 'value' => $entity->{$config->value}));
                     //$this->_recurseChildFolders($entity, $options, $config);
                 }

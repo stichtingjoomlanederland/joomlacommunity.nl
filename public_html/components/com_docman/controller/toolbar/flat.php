@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -39,7 +39,7 @@ class ComDocmanControllerToolbarFlat extends ComKoowaControllerToolbarActionbar
     protected function _commandUpload(KControllerToolbarCommand $command)
     {
         $command->icon = 'k-icon-data-transfer-upload';
-        $command->href = 'component=docman&view=upload&layout=default&tmpl=koowa';
+        $command->href = 'component=docman&view=upload&layout=default';
         $command->append(array(
             'attribs' => array(
                 'data-k-modal'   => array(

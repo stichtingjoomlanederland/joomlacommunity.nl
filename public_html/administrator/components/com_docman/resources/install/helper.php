@@ -90,71 +90,18 @@ class JoomlatoolsInstallerHelper
         return $result;
     }
 
-    public function getSystemErrors($type, $installer)
+    public function update($installer)
     {
-        return array();
-    }
+        $install_sql = $installer->getParent()->getPath('extension_root') . '/resources/install/install.sql';
+        $update_sql  = $installer->getParent()->getPath('extension_root') . '/resources/install/update.sql';
 
-    public function getRequiredDatabasePrivileges()
-    {
-        return array();
-    }
-
-    protected function _installFramework($type)
-    {
-        if ($type === 'discover_install')
-        {
-            $installer = new JInstaller();
-            $extension = array(
-                'type' => 'plugin',
-                'folder' => 'system',
-                'element' => 'joomlatools'
-            );
-
-            if ($extension_id = $this->getExtensionId($extension))
-            {
-                $instance = JTable::getInstance('extension');
-                $instance->load($extension_id);
-            }
-            else
-            {
-                $discovered = $this->_discoverExtensions();
-                $instance   = $this->_findExtension($discovered, $extension);
-
-                if ($instance) {
-                    $instance->store();
-                }
-            }
-
-            if ($instance && $instance->state == -1) {
-                return $installer->discover_install($instance->extension_id);
-            }
+        if (file_exists($install_sql)) {
+            $this->_executeSqlFile($install_sql);
         }
 
-        return false;
-    }
-
-    protected function _getComponentVersion($component)
-    {
-        $query = /** @lang text */"SELECT manifest_cache FROM #__extensions WHERE type = 'component' AND element = '%s'";
-        $query = sprintf($query, 'com_'.$component);
-
-        if ($result = JFactory::getDbo()->setQuery($query)->loadResult())
-        {
-            $manifest = new JRegistry($result);
-
-            return $manifest->get('version', null);
+        if (file_exists($update_sql)) {
+            $this->_executeSqlFile($update_sql);
         }
-
-        return null;
-    }
-
-    protected function _setCoreExtension($extension_id, $value)
-    {
-        $query = /** @lang text */"UPDATE #__extensions SET protected = %d  WHERE extension_id = %d LIMIT 1";
-        $query = sprintf($query, $value, $extension_id);
-
-        return JFactory::getDbo()->setQuery($query)->query();
     }
 
     public function postflight($type, $installer)
@@ -227,43 +174,6 @@ class JoomlatoolsInstallerHelper
         $this->_clearCache();
     }
 
-    protected function _discoverExtensions()
-    {
-        $installer = new JInstaller();
-        $installer->loadAllAdapters();
-
-        return $installer->discover();
-
-    }
-
-    protected function _findExtension($extensions, $search)
-    {
-        $type      = $search['type'];
-        $element   = $search['element'];
-        $folder    = isset($search['folder']) ? $search['folder'] : '';
-        $client_id = isset($search['client_id']) ? $search['client_id'] : 0;
-
-        if ($type == 'component') {
-            $client_id = 1;
-        }
-
-        $return = null;
-
-        foreach ($extensions as $extension)
-        {
-            if ($extension->type == (string) $type &&
-                $extension->element == (string) $element &&
-                $extension->folder == (string) $folder &&
-                $extension->client_id == (int) $client_id
-            ) {
-                $return = $extension;
-                break;
-            }
-        }
-
-        return $return;
-    }
-
     public function uninstall($installer)
     {
         $manifest = $installer->getParent()->getManifest();
@@ -312,30 +222,252 @@ class JoomlatoolsInstallerHelper
         $this->_clearCache();
     }
 
-    protected function _backupTable($table)
+    public function getExtensionId($extension)
     {
-        $db     = JFactory::getDbo();
-        $query  = 'SHOW TABLES LIKE %s';
+        $type    = (string)$extension['type'];
+        $element = (string)$extension['element'];
+        $folder  = isset($extension['folder']) ? (string) $extension['folder'] : '';
+        $cid     = isset($extension['client_id']) ? (int) $extension['client_id'] : 0;
 
-        $source_exists = $db->setQuery(sprintf($query, $db->quote($db->replacePrefix($table))))->loadResult();
-        $destination_exists = $db->setQuery(sprintf($query, $db->quote($db->replacePrefix($table.'_bkp'))))->loadResult();
+        if ($type == 'component') {
+            $cid = 1;
+        }
 
-        if ($source_exists)
+        if ($type == 'component' && substr($element, 0, 4) !== 'com_') {
+            $element = 'com_'.$element;
+        } elseif ($type == 'module' && substr($element, 0, 4) !== 'mod_') {
+            $element = 'mod_'.$element;
+        }
+
+        $db = JFactory::getDbo();
+        $query = /** @lang text */"SELECT extension_id FROM #__extensions
+            WHERE type = '$type' AND element = '$element' AND folder = '$folder' AND client_id = '$cid'
+            LIMIT 1
+        ";
+
+        $db->setQuery($query);
+
+        return $db->loadResult();
+    }
+
+    public function getSystemErrors($type, $installer)
+    {
+        return array();
+    }
+
+    public function getRequiredDatabasePrivileges()
+    {
+        return array();
+    }
+
+    protected function _installFramework($type)
+    {
+        if ($type === 'discover_install')
         {
-            if ($destination_exists) {
-                $return = false;
+            $installer = new JInstaller();
+            $extension = array(
+                'type' => 'plugin',
+                'folder' => 'system',
+                'element' => 'joomlatools'
+            );
+
+            if ($extension_id = $this->getExtensionId($extension))
+            {
+                $instance = JTable::getInstance('extension');
+                $instance->load($extension_id);
             }
             else
             {
-                $db->setQuery(sprintf('RENAME TABLE `%1$s` TO `%1$s_bkp`;', $table));
-                $return = $db->query();
+                $discovered = $this->_discoverExtensions();
+                $instance   = $this->_findExtension($discovered, $extension);
+
+                if ($instance) {
+                    $instance->store();
+                }
             }
+
+            if ($instance && $instance->state == -1) {
+                return $installer->discover_install($instance->extension_id);
+            }
+        }
+
+        return false;
+    }
+
+    protected function _getComponentVersion($component)
+    {
+        $query = /** @lang text */"SELECT manifest_cache FROM #__extensions WHERE type = 'component' AND element = '%s'";
+        $query = sprintf($query, 'com_'.$component);
+
+        if ($result = JFactory::getDbo()->setQuery($query)->loadResult())
+        {
+            $manifest = new JRegistry($result);
+
+            return $manifest->get('version', null);
+        }
+
+        return null;
+    }
+
+    protected function _setCoreExtension($extension_id, $value)
+    {
+        $query = /** @lang text */"UPDATE #__extensions SET protected = %d  WHERE extension_id = %d LIMIT 1";
+        $query = sprintf($query, $value, $extension_id);
+
+        return JFactory::getDbo()->setQuery($query)->query();
+    }
+
+    protected function _discoverExtensions()
+    {
+        $installer = new JInstaller();
+        $installer->loadAllAdapters();
+
+        return $installer->discover();
+
+    }
+
+    protected function _findExtension($extensions, $search)
+    {
+        $type      = $search['type'];
+        $element   = $search['element'];
+        $folder    = isset($search['folder']) ? $search['folder'] : '';
+        $client_id = isset($search['client_id']) ? $search['client_id'] : 0;
+
+        if ($type == 'component') {
+            $client_id = 1;
+        }
+
+        $return = null;
+
+        foreach ($extensions as $extension)
+        {
+            if ($extension->type == (string) $type &&
+                $extension->element == (string) $element &&
+                $extension->folder == (string) $folder &&
+                $extension->client_id == (int) $client_id
+            ) {
+                $return = $extension;
+                break;
+            }
+        }
+
+        return $return;
+    }
+
+    protected function _executeQuery($query) {
+        try {
+            return JFactory::getDbo()->setQuery($query)->execute();
+        }
+        catch (Exception $e)
+        {
+            JLog::add(JText::sprintf('JLIB_INSTALLER_ERROR_SQL_ERROR', $e->getMessage()), JLog::WARNING, 'jerror');
+
+            return false;
+        }
+    }
+
+    protected function _executeQueries($queries)
+    {
+        if (is_string($queries)) {
+            $queries = JDatabaseDriver::splitSql($queries);
+        }
+
+        foreach ($queries as $query) {
+            $this->_executeQuery($query);
+        }
+    }
+
+    protected function _executeSqlFile($file)
+    {
+        try
+        {
+            $buffer = file_get_contents($file);
+
+            if ($buffer === false) {
+                JLog::add(JText::sprintf('JLIB_INSTALLER_ERROR_SQL_READBUFFER'), JLog::WARNING, 'jerror');
+            }
+            else {
+                $this->_executeQueries($buffer);
+            }
+        }
+        catch (Exception $e) {}
+    }
+
+    protected function _tableExists($table)
+    {
+        $db = JFactory::getDbo();
+
+        if (substr($table, 0,  3) !== '#__') {
+            $table = '#__'.$table;
+        }
+
+        return (bool) $db->setQuery('SHOW TABLES LIKE '.$db->quote($db->replacePrefix($table)))->loadResult();
+    }
+
+    protected function _columnExists($table, $column)
+    {
+        $result = false;
+        $db     = JFactory::getDbo();
+
+        if (substr($table, 0,  3) !== '#__') {
+            $table = '#__'.$table;
+        }
+
+        if ($this->_tableExists($table))
+        {
+            $query  = 'SHOW COLUMNS FROM %s WHERE Field = %s';
+            $result = (bool) $db->setQuery(sprintf($query, $db->quoteName($db->escape($table)), $db->quote($column)))->loadResult();
+        }
+
+        return $result;
+    }
+
+    protected function _indexExists($table, $index_name)
+    {
+        $result = false;
+        $db     = JFactory::getDbo();
+
+        if (substr($table, 0,  3) !== '#__') {
+            $table = '#__'.$table;
+        }
+
+        if ($this->_tableExists($table))
+        {
+            $query  = 'SHOW KEYS FROM %s WHERE Key_name = %s';
+            $result = (bool) $db->setQuery(sprintf($query, $db->quoteName($db->escape($table)), $db->quote($index_name)))->loadResult();
+        }
+
+        return $result;
+    }
+
+    protected function _backupTable($table)
+    {
+        if ($this->_tableExists($table))
+        {
+            $destination = $table.'_bkp';
+
+            if ($this->_tableExists($destination))
+            {
+                $i = 2;
+
+                while (true)
+                {
+                    if (!$this->_tableExists($destination.$i)) {
+                        break;
+                    }
+
+                    $i++;
+                }
+
+                $destination .= $i;
+            }
+
+            $return = JFactory::getDbo()->setQuery(sprintf('RENAME TABLE `%1$s` TO `%2$s`;', $table, $destination))->query();
         }
         else $return = true;
 
         return $return;
     }
-
 
     protected function _createAsset($name, $parent_id = 1)
     {
@@ -399,34 +531,6 @@ class JoomlatoolsInstallerHelper
         }
 
         return true;
-    }
-
-    public function getExtensionId($extension)
-    {
-        $type    = (string)$extension['type'];
-        $element = (string)$extension['element'];
-        $folder  = isset($extension['folder']) ? (string) $extension['folder'] : '';
-        $cid     = isset($extension['client_id']) ? (int) $extension['client_id'] : 0;
-
-        if ($type == 'component') {
-            $cid = 1;
-        }
-
-        if ($type == 'component' && substr($element, 0, 4) !== 'com_') {
-            $element = 'com_'.$element;
-        } elseif ($type == 'module' && substr($element, 0, 4) !== 'mod_') {
-            $element = 'mod_'.$element;
-        }
-
-        $db = JFactory::getDbo();
-        $query = /** @lang text */"SELECT extension_id FROM #__extensions
-            WHERE type = '$type' AND element = '$element' AND folder = '$folder' AND client_id = '$cid'
-            LIMIT 1
-        ";
-
-        $db->setQuery($query);
-
-        return $db->loadResult();
     }
 
 

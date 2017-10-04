@@ -62,6 +62,30 @@
 				<option value="1">JYES</option>
 				<option value="0">JNO</option>
 			</field>
+			<field name="show_category_filter" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_CATEGORY_FILTER" description="SHOW_CATEGORY_FILTER_DESCRIPTION"
+				   showon="show_document_search:1"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_tag_filter" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_TAG_FILTER" description="SHOW_TAG_FILTER_DESCRIPTION"
+				   showon="show_document_search:1"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_date_filter" type="radio" class="btn-group btn-group-yesno" default="0" label="SHOW_DATE_FILTER" description="SHOW_DATE_FILTER_DESCRIPTION"
+				   showon="show_document_search:1"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_owner_filter" type="radio" class="btn-group btn-group-yesno" default="0" label="SHOW_OWNER_FILTER" description="SHOW_OWNER_FILTER_DESCRIPTION"
+				   showon="show_document_search:1"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
 			<field name="show_document_sort_limit" type="radio" class="btn-group btn-group-yesno" default="0" label="SHOW_DOCUMENT_SORT_LIMIT"
 				   description="SHOW_DOCUMENT_SORT_LIMIT_DESCRIPTION">
 				<option value="1">JYES</option>

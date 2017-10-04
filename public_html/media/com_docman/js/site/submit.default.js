@@ -38,24 +38,6 @@ kQuery(function($) {
     $.validator.messages.scheme = Koowa.translate('Your link should either start with http:// or another protocol');
     $.validator.messages.streamwrapper = Koowa.translate('Invalid remote link. This link type is not supported by your server.');
 
-    $('a.upload-method').click(function(e) {
-        e.preventDefault();
-
-        var $this = $(this);
-
-        $this.parent().parent().find('li').removeClass('active');
-        $this.parent().addClass('active');
-
-        var type = $this.data('type');
-
-        $('#storage_type').val(type);
-        $('.upload-method-box').css('display', 'none');
-        $('#document-'+type+'-path-row').css('display', 'block');
-    });
-
-    $('.upload-method-box').css('display', 'none');
-    $('a.upload-method').first().trigger('click');
-
     var humanizeFileName = function(name) {
         // strip extension
         name = name.substr(0, name.lastIndexOf('.'));
@@ -73,17 +55,44 @@ kQuery(function($) {
     };
 
     var title_field = $('#title_field'),
-        overridable_value = title_field.val();
-    $('input.input-file').change(function() {
-        var title = title_field.val();
+        storage_path_file  = $('#storage_path_file'),
+        uploader_el = $('.docman-uploader')
+        ;
 
-        if (!title || overridable_value == title) {
-            var file = $(this).val().replace("C:\\fakepath\\", "");
-
-            if (file) {
-                overridable_value = humanizeFileName(file);
-                title_field.val(overridable_value);
+    var controller = $('.k-js-form-controller').data('controller');
+    controller.implement({
+        _actionSave: function(context) {
+            if (context.validate && !this.trigger('validate', [context])) {
+                return false;
             }
+
+            this.form.append($('<input/>', {name: '_action', type: 'hidden', value: context.action}));
+
+            var uploader = uploader_el.uploader('instance'),
+                params = this.form.serializeArray();
+
+            uploader.options.url = this.form.attr('action')+'?format=json';
+            uploader.uploader.bind('FileUploaded', function(up, file, result) {
+                if (result.status === 201 && typeof result.response === 'object') {
+                    window.location = result.response.redirect;
+                }
+            });
+
+            $.each(params, function(i, item) {
+                uploader.options.multipart_params[item.name] = item.value;
+            });
+
+            uploader_el.uploader('start');
         }
+    });
+
+    uploader_el.on('uploader:selected', function(event, data) {
+        var file = data.files[0];
+
+        if (!title_field.val()) {
+            title_field.val(humanizeFileName(file.name));
+        }
+
+        storage_path_file.val(file.name);
     });
 });

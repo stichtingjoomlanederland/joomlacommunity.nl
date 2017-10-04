@@ -69,9 +69,9 @@ kQuery(function($) {
 
         $('a.k-js-gallery-item').click(function( event ) {
 
-            if ($(this).length) {
+            event.preventDefault();
 
-                event.preventDefault();
+            if ($(this).length) {
 
                 var elements = getGalleryItems($(this).parents('.koowa_media--gallery'));
 

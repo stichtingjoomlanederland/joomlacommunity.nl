@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -33,18 +33,18 @@ class ComDocmanModelPagetags extends ComDocmanModelDocuments
         parent::_initialize($config);
     }
 
-    protected function _buildQueryColumns(KDatabaseQueryInterface $query)
-    {
-        $query->columns = []; // KModelDatabase::_actionFetch adds tbl.* by default, however we want tags.*
-        $query->columns('tags.*');
-
-        $query->table   = []; // KModelDatabase::_actionFetch adds docman_tags AS tbl by default, we don't want that
-        $query->table(array('tbl' => 'docman_documents'));
-    }
-
     protected function _buildQueryJoins(KDatabaseQueryInterface $query)
     {
         parent::_buildQueryJoins($query);
+
+        // Note: this is here because _buildQueryColumns is not called on count queries
+        if (!$query->isCountQuery()) {
+            $query->columns = []; // KModelDatabase::_actionFetch adds tbl.* by default, however we want tags.*
+            $query->columns('tags.*');
+        }
+
+        $query->table   = []; // KModelDatabase::_actionFetch adds docman_tags AS tbl by default, we don't want that
+        $query->table(array('tbl' => 'docman_documents'));
 
         // This is the usual tag join
         $query->join('docman_tags_relations AS tags_relations', 'tags_relations.row = tbl.uuid');
@@ -58,7 +58,11 @@ class ComDocmanModelPagetags extends ComDocmanModelDocuments
         // If the menu item is filtered by tags already, we have an additional group by added in the page filters
         // Let's remove that and add ours to return only distinct tags
         $query->group = [];
-        $query->group('tags.tag_id');
+
+        if (!$query->isCountQuery()) {
+            $query->group('tags.tag_id');
+        }
+
         $query->where('tags.tag_id IS NOT NULL');
     }
 }

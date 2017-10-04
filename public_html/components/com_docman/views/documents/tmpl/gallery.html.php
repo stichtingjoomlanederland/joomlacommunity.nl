@@ -1,7 +1,7 @@
 <?
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -10,47 +10,11 @@ defined('KOOWA') or die; ?>
 <?= helper('ui.load'); ?>
 <?= helper('behavior.jquery'); ?>
 <?= helper('behavior.modal'); ?>
+<?= helper('gallery.load', array('params' => $params)); ?>
 
 <? if ($params->document_title_link === 'download'): ?>
     <?= helper('behavior.photoswipe'); ?>
 <? endif ?>
-
-<? if ($params->track_downloads): ?>
-    <?= helper('behavior.download_tracker'); ?>
-<? endif; ?>
-
-<? if (!empty($can_add)): ?>
-    <?= helper('behavior.modal'); ?>
-<? endif; ?>
-
-
-<ktml:script src="media://com_docman/js/site/gallery.js" />
-<ktml:script src="media://com_docman/js/site/items.js" />
-
-<script>
-    kQuery(function($) {
-
-        var documentsGallery = $('.koowa_media_wrapper--documents'),
-            categoriesGallery = $('.koowa_media_wrapper--categories'),
-            itemWidth = parseInt($('.koowa_media_wrapper--documents .koowa_media__item').css('width'));
-
-        if ( categoriesGallery ) {
-            categoriesGallery.simpleGallery({
-                item: {
-                    'width': itemWidth
-                }
-            });
-        }
-
-        if ( documentsGallery ) {
-            documentsGallery.simpleGallery({
-                item: {
-                    'width': itemWidth
-                }
-            });
-        }
-    });
-</script>
 
 <? // RSS feed ?>
 <link href="<?=route('format=rss');?>" rel="alternate" type="application/rss+xml" title="RSS 2.0" />
@@ -67,7 +31,6 @@ defined('KOOWA') or die; ?>
 
     <? // Toolbar ?>
     <ktml:toolbar type="actionbar">
-
 
     <? // Category ?>
     <? if (isset($category) &&

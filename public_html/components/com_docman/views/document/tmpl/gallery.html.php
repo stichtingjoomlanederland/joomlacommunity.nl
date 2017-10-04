@@ -1,17 +1,18 @@
 <?
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
 defined('KOOWA') or die; ?>
 
 <?= helper('ui.load'); ?>
-<?= helper('behavior.thumbnail_modal'); ?>
+<?= helper('com://site/docman.behavior.modal'); ?>
+<?= helper('com://site/docman.behavior.thumbnail_modal'); ?>
 
 <? if ($params->track_downloads): ?>
-    <?= helper('behavior.download_tracker'); ?>
+    <?= helper('com://site/docman.behavior.download_tracker'); ?>
 <? endif; ?>
 
 <?= helper('translator.script', array('strings' => array(
@@ -21,30 +22,29 @@ defined('KOOWA') or die; ?>
 <meta itemprop="contentUrl" content="<?= $document->image_download_path ?>">
 
 <? if ($document->isImage()): ?>
-    <? if ($document->storage->width): ?>
+<? if ($document->storage->width): ?>
     <meta itemprop="width" content="<?= $document->storage->width; ?>">
-    <? endif; ?>
-    <? if ($document->storage->height): ?>
+<? endif; ?>
+<? if ($document->storage->height): ?>
     <meta itemprop="height" content="<?= $document->storage->height; ?>">
-    <? endif; ?>
-    <!-- <meta itemprop="contentUrl" content="<?= $document->image_download_path ?>"> -->
+<? endif; ?>
+<!-- <meta itemprop="contentUrl" content="<?= $document->image_download_path ?>"> -->
 
-    <a class="koowa_media__item__link k-js-gallery-item <?= $params->document_title_link === 'download' ? 'docman_track_download' : ''; ?>"
-       data-path="<?= $document->image_path ?>"
-       data-title="<?= escape($document->title); ?>"
-       data-id="<?= $document->id; ?>"
-       data-width="<?= $document->storage->width; ?>"
-       data-height="<?= $document->storage->height; ?>"
-       href="<?= $document->title_link ?>"
-       title="<?= escape($document->title) ?>">
+<a class="koowa_media__item__link k-js-gallery-item <?= $params->document_title_link === 'download' ? 'docman_track_download' : ''; ?>"
+   data-path="<?= $document->image_path ?>"
+   data-title="<?= escape($document->title); ?>"
+   data-id="<?= $document->id; ?>"
+   data-width="<?= $document->storage->width; ?>"
+   data-height="<?= $document->storage->height; ?>"
+   href="<?= $document->title_link ?>"
+   title="<?= escape($document->title) ?>">
 <? else: ?>
-    <a class="koowa_media__item__link <?= $params->document_title_link === 'download' ? 'docman_track_download' : ''; ?>"
-       <?= $params->download_in_blank_page ? 'target="_blank"' : ''; ?>
-       data-title="<?= escape($document->title); ?>"
-       data-id="<?= $document->id; ?>"
-       href="<?= $document->title_link ?>"
-       title="<?= escape($document->title) ?>">
-
+<a class="koowa_media__item__link <?= $params->document_title_link === 'download' ? 'docman_track_download' : ''; ?>"
+    <?= $params->download_in_blank_page ? 'target="_blank"' : ''; ?>
+    data-title="<?= escape($document->title); ?>"
+    data-id="<?= $document->id; ?>"
+    href="<?= $document->title_link ?>"
+    title="<?= escape($document->title) ?>">
 <? endif; ?>
     <div class="koowa_media__item__content-holder">
         <? if( $document->image_path ): ?>
@@ -75,22 +75,22 @@ defined('KOOWA') or die; ?>
         <? endif; ?>
     </div>
 </a>
-<? if($document->canPerform('delete') || $document->canPerform('edit')): ?>
+<? if((!isset($manage) || $manage === true) && ($document->canPerform('delete') || $document->canPerform('edit'))): ?>
 <div class="koowa_media__item__options">
     <? if ($document->canPerform('delete')): ?>
-    <span class="koowa_media__item__options__select">
-        <input id="document-select-<?= $count; ?>" name="item-select" type="checkbox"
-               data-url="<?= $document->document_link ?>" />
-        <label for="document-select-<?= $count; ?>"></label>
-    </span>
-    <a href="#" data-action="delete-item" class="koowa_media__item__options__delete">
-        <span class="k-icon-trash k-icon--size-default"></span></a>
+        <span class="koowa_media__item__options__select">
+            <input id="document-select-<?= $count; ?>" name="item-select" type="checkbox"
+                   data-url="<?= $document->document_link ?>" />
+            <label for="document-select-<?= $count; ?>"></label>
+        </span>
+        <a href="#" data-action="delete-item" class="koowa_media__item__options__delete">
+            <span class="k-icon-trash k-icon--size-default"></span></a>
     <? endif ?>
 
     <? if ($document->canPerform('edit')): ?>
-    <a href="<?= helper('route.document', array('entity' => $document, 'layout' => 'form', 'tmpl' => 'koowa'));?>" class="koowa_media__item__options__edit">
-        <span class="k-icon-pencil k-icon--size-default"></span>
-    </a>
+        <a href="<?= helper('route.document', array('entity' => $document, 'layout' => 'form'));?>" class="koowa_media__item__options__edit">
+            <span class="k-icon-pencil k-icon--size-default"></span>
+        </a>
     <? endif ?>
 </div>
 <? endif; ?>

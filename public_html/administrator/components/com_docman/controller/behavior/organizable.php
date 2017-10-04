@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -426,11 +426,20 @@ class ComDocmanControllerBehaviorOrganizable extends KControllerBehaviorAbstract
         {
             $file = $document->storage;
 
-            if ($file->folder === '.' || $file->folder === '')
+            if ($file->folder === '.' || $file->folder === '' || $file->folder === 'tmp')
             {
-                $relation = $this->_getRelation($document->docman_category_id);
+                $relation           = $this->_getRelation($document->docman_category_id);
+                $destination_folder = null;
 
-                if (!$relation->isNew() && !empty($relation->folder))
+                // Move files out of root folder OR move from tmp to root if no category folder is defined
+                if (!$relation->isNew() && !empty($relation->folder) && $relation->folder !== $file->folder) {
+                    $destination_folder = $relation->folder;
+                }
+                elseif ($file->folder === 'tmp') {
+                    $destination_folder = '';
+                }
+
+                if ($destination_folder !== null)
                 {
                     $controller = $this->_getFileController();
 
@@ -439,7 +448,7 @@ class ComDocmanControllerBehaviorOrganizable extends KControllerBehaviorAbstract
 
                     while (true)
                     {
-                        $entity = $controller->getModel()->container('docman-files')->folder($relation->folder)->name($name)->fetch();
+                        $entity = $controller->getModel()->container('docman-files')->folder($destination_folder)->name($name)->fetch();
 
                         if (count($entity)) {
                             $name = substr_replace($file->name, ' ('.$i.').'.$file->extension, -1*(strlen($file->extension)+1));
@@ -452,7 +461,7 @@ class ComDocmanControllerBehaviorOrganizable extends KControllerBehaviorAbstract
                     }
 
                     $destination = array(
-                        'destination_folder' => $relation->folder
+                        'destination_folder' => $destination_folder
                     );
 
                     if ($name !== $file->name) {

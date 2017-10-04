@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -123,9 +123,9 @@ class ComDocmanModelDocuments extends ComDocmanModelAbstract
             ->columns('(CASE tbl.access WHEN 0 THEN COALESCE(c.access, 1) ELSE tbl.access END) AS access')
             ->columns('
                 IF(tbl.enabled = 1,
-                    IF(tbl.publish_on <> \'0000-00-00 00:00:00\' AND tbl.publish_on > NOW(),
+                    IF(tbl.publish_on <> \'0000-00-00 00:00:00\' AND tbl.publish_on > :now,
                         :pending_value,
-                        IF(tbl.unpublish_on <> \'0000-00-00 00:00:00\' AND NOW() > tbl.unpublish_on, 
+                        IF(tbl.unpublish_on <> \'0000-00-00 00:00:00\' AND :now > tbl.unpublish_on, 
                             :expired_value,
                             :published_value
                         )
@@ -133,6 +133,7 @@ class ComDocmanModelDocuments extends ComDocmanModelAbstract
                     :unpublished_value
                 ) AS status')
             ->bind(array(
+                'now' => gmdate('Y-m-d H:i:s'),
                 'published_value' => 'published',
                 'unpublished_value' => 'unpublished',
                 'expired_value' => 'expired',
@@ -320,7 +321,7 @@ class ComDocmanModelDocuments extends ComDocmanModelAbstract
 
         if ($state->search_date || $state->day_range)
         {
-            $date      = $state->search_date ? ':date' : 'NOW()';
+            $date      = $state->search_date ? ':date' : ':now';
             $date_bind = $state->search_date ?: null;
 
             if ($state->day_range) {

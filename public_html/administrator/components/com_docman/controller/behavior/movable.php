@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -11,7 +11,51 @@
  */
 class ComDocmanControllerBehaviorMovable extends KControllerBehaviorAbstract
 {
+    const TEMP_FOLDER = 'tmp';
+
     protected $_path_cache = array();
+
+    protected function _afterBrowse(KControllerContextInterface $context)
+    {
+        foreach ($context->result as $entity)
+        {
+            if (substr($entity->path, 0, 3) === 'tmp') {
+                $context->result->remove($entity);
+            }
+        }
+    }
+
+    /**
+     * Automatically create tmp folder before uploading anything into it
+     *
+     * @param KControllerContextInterface $context
+     * @throws Exception
+     */
+    protected function _beforeAdd(KControllerContextInterface $context)
+    {
+        if ($this->getMixer()->getIdentifier()->name === 'file'
+            && $context->request->data->container === 'docman-files'
+            && $context->request->data->folder === static::TEMP_FOLDER)
+        {
+            $controller = $this->getObject('com:files.controller.folder')->container('docman-files');
+            $folder     = $controller->getModel()->name(static::TEMP_FOLDER)->fetch();
+
+            if ($folder->isNew())
+            {
+                try {
+                    $controller->add(array(
+                        'container' => 'docman-files',
+                        'overwrite' => 1,
+                        'name'      => static::TEMP_FOLDER
+                    ));
+                }
+                catch (Exception $e) {
+                    if (JDEBUG) throw $e;
+                }
+
+            }
+        }
+    }
 
     /**
      * Update document modified_on timestamps when the attached file is overwritten

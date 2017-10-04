@@ -1,10 +1,10 @@
 <?php
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright	Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
- * @link		http://github.com/nooku/nooku-files for the canonical source repository
+ * @link		https://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
 defined('KOOWA') or die( 'Restricted access' ); ?>
 
@@ -104,7 +104,7 @@ defined('KOOWA') or die( 'Restricted access' ); ?>
                     <div class="k-ratio-block k-ratio-block--4-to-3">
                         <div class="k-ratio-block__body">
                             <div class="k-ratio-block__centered">
-                            [% if (typeof thumbnail === 'string') { %]
+                            [% if (typeof thumbnail === 'object') { %]
                                 [% var width = metadata.image.width %]
                                 [% var height = metadata.image.height %]
                                 <img class="image-thumbnail [%= client_cache ? 'loaded' : '' %]" src="" alt="[%=name%]" border="0" />

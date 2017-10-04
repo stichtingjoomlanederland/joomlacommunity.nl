@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -122,6 +122,10 @@ class plgSearchDocman extends JPlugin
                 $entity->title = $item->title;
                 $entity->section = '';
                 $entity->text = $item->description;
+
+                if ($item->image) {
+                    $entity->image = $item->image_path; // Universal AJAX live search integration
+                }
 
                 $return[] = $entity;
             }

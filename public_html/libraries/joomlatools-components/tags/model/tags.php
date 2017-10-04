@@ -113,9 +113,12 @@ class ComTagsModelTags extends KModelDatabase
     {
         parent::_buildQueryJoins($query);
 
-        $table = $this->getTable()->getName();
+        if (!$query->isCountQuery())
+        {
+            $table = $this->getTable()->getName();
 
-        $query->join(array('relations' => $table.'_relations'), 'relations.tag_id = tbl.tag_id');
+            $query->join(array('relations' => $table.'_relations'), 'relations.tag_id = tbl.tag_id');
+        }
     }
 
     /**
@@ -127,7 +130,7 @@ class ComTagsModelTags extends KModelDatabase
     {
         $state = $this->getState();
 
-        if($state->row) {
+        if(!$query->isCountQuery() && $state->row) {
             $query->where('relations.row IN :row')->bind(array('row' => (array) $this->getState()->row));
         }
 

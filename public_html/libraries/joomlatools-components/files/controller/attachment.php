@@ -1,8 +1,8 @@
 <?php
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright	Copyright (C) 2011 - 2015 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -166,11 +166,17 @@ class ComFilesControllerAttachment extends ComKoowaControllerModel
 
         $model->getState()->reset();
 
-        if (!$model->{$context->identity_column}($context->attachment->id)->count())
+        $attachment = $context->attachment;
+
+        if (!$model->{$context->identity_column}($attachment->id)->count())
         {
-            if (!$context->attachment->delete()) {
+            $file = $attachment->file;
+
+            if (!$attachment->delete()) {
                 throw new RuntimeException(('Attachment could not be deleted'));
             }
+
+            $this->getObject('com:files.controller.file')->container($file->container)->name($file->name)->folder($file->folder)->delete();
         }
 
         $this->_afterAttach($context);

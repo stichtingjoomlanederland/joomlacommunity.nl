@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -21,12 +21,16 @@ class ComDocmanJobScans extends ComSchedulerJobAbstract
             $behavior = $this->getObject('com://admin/docman.controller.behavior.scannable');
 
             $i = 0;
-            while ($context->hasTimeLeft() && $behavior->canSendScan() && $i < 5)
+            $has_error = false;
+
+            while ($context->hasTimeLeft() && $behavior->canSendScan() && $i < 4)
             {
                 $scan = $behavior->sendPendingScan();
 
                 if (!$scan->isNew() && $scan->status == \ComDocmanControllerBehaviorScannable::STATUS_SENT) {
                     $context->log('Sent request to scan '.$scan->identifier);
+                } else {
+                    $has_error = true;
                 }
 
                 $i++;
@@ -39,11 +43,13 @@ class ComDocmanJobScans extends ComSchedulerJobAbstract
             if ($behavior->needsThrottling()) {
                 $context->log('Waiting for active scans to complete before sending new ones');
             }
+
+            return $behavior->canSendScan() && !$has_error ? $this->suspend() : $this->complete();
         }
         catch (Exception $e) {
             $context->log($e->getMessage());
-        }
 
-        return $this->complete();
+            return $this->complete();
+        }
     }
 }

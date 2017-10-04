@@ -1,6 +1,6 @@
 kQuery(function($) {
 
-    new DOCman.GroupDialog({
+    new Docman.GroupDialog({
         view: '.js-usergroup-modal-assign',
         button: '.js-usergroup-action',
         group_selector: '.js-usergroup-groups',
@@ -8,7 +8,7 @@ kQuery(function($) {
         group_field: 'assign_group'
     });
 
-    new DOCman.GroupDialog({
+    new Docman.GroupDialog({
         view: '.js-usergroup-modal-remove',
         button: '.js-usergroup-action',
         group_selector: '.js-usergroup-groups',
@@ -17,11 +17,11 @@ kQuery(function($) {
     });
 });
 
-var DOCman = DOCman || {};
+var Docman = Docman || {};
 
 (function($) {
 
-  DOCman.GroupDialog = Koowa.Class.extend({
+Docman.GroupDialog = Koowa.Class.extend({
 
     target_group: null,
 

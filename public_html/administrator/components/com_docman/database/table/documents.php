@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -30,7 +30,6 @@ class ComDocmanDatabaseTableDocuments extends KDatabaseTableAbstract
             'filters' => array(
                 'parameters'   => array('json'),
                 'title'        => array('trim'),
-                'slug'         => array('trim'),
                 'storage_type' => array('com://admin/docman.filter.identifier'),
                 'description'  => array('trim', 'html')
             )

@@ -2,13 +2,13 @@
 <extension type="module" version="1.0.0" client="site" method="upgrade">
 	<identifier>mod://site/docman_documents</identifier>
 	<name>mod_docman_documents</name>
-	<creationDate>April 2017</creationDate>
+	<creationDate>January 2016</creationDate>
 	<author>Joomlatools</author>
-	<copyright>Copyright (C) 2011 - 2017 Timble CVBA (http://www.timble.net)</copyright>
+	<copyright>Copyright (C) 2011 Timble CVBA (http://www.timble.net)</copyright>
     <license>GNU GPLv3 - http://www.gnu.org/licenses/gpl.html</license>
 	<authorEmail>support@joomlatools.com</authorEmail>
 	<authorUrl>www.joomlatools.com</authorUrl>
-	<version>3.0.9</version>
+	<version>3.1.2</version>
 	<description>MOD_DOCMAN_DOCUMENTS_XML_DESCRIPTION</description>
 	<files>
 		<filename module="mod_docman_documents">mod_docman_documents.php</filename>
@@ -37,7 +37,7 @@
 											 multiple="true" size="10" default="" />
 								/>
                 <field name="own" type="docmanown" label="MOD_DOCMAN_DOCUMENTS_FIELD_SHOW_OWN_LABEL"
-                       class="btn-group"
+                       class="btn-group btn-group-yesno"
                        description="MOD_DOCMAN_DOCUMENTS_FIELD_SHOW_OWN_DESC" default="0">
                     <option value="1">JYES</option>
                     <option value="0">JNO</option>
@@ -60,61 +60,66 @@
                     <option value="created_on">JGLOBAL_OLDEST_FIRST</option>
                     <option value="reverse_hits">MOD_DOCMAN_DOCUMENTS_MOST_POPULAR_FIRST</option>
                     <option value="reverse_touched_on">MOD_DOCMAN_DOCUMENTS_LAST_MODIFIED_FIRST</option>
+					<option value="ordering">JFIELD_ORDERING_LABEL</option>
                 </field>
                 <field name="include_child_categories" type="radio" default="1"
-                       class="btn-group"
+                       class="btn-group btn-group-yesno"
                        label="MOD_DOCMAN_DOCUMENTS_FIELD_INCLUDE_CHILD_CATEGORIES"
                        description="MOD_DOCMAN_DOCUMENTS_FIELD_INCLUDE_CHILD_CATEGORIES_DESC">
                     <option value="1">JYES</option>
                     <option value="0">JNO</option>
                 </field>
+				<field name="show_document_title" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_DOCUMENT_TITLE" description="SHOW_DOCUMENT_TITLE_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
                 <field name="show_icon" type="radio" default="1"
-                       class="btn-group"
+                       class="btn-group btn-group-yesno"
                        label="MOD_DOCMAN_DOCUMENTS_FIELD_SHOW_ICON_LABEL"
                        description="MOD_DOCMAN_DOCUMENTS_FIELD_SHOW_ICON_DESC">
                     <option value="1">JYES</option>
                     <option value="0">JNO</option>
                 </field>
 				<field name="show_category" type="radio" default="0"
-                       class="btn-group"
+                       class="btn-group btn-group-yesno"
                        label="MOD_DOCMAN_DOCUMENTS_FIELD_SHOW_CATEGORY_LABEL"
                        description="MOD_DOCMAN_DOCUMENTS_FIELD_SHOW_CATEGORY_DESC">
                     <option value="1">JYES</option>
                     <option value="0">JNO</option>
 				</field>
                 <field name="show_created" type="radio" default="0"
-                       class="btn-group"
+                       class="btn-group btn-group-yesno"
                        label="MOD_DOCMAN_DOCUMENTS_FIELD_SHOW_CREATED_LABEL"
                        description="MOD_DOCMAN_DOCUMENTS_FIELD_SHOW_CREATED_DESC">
                     <option value="1">JYES</option>
                     <option value="0">JNO</option>
                 </field>
                 <field name="show_size" type="radio" default="0"
-                       class="btn-group"
+                       class="btn-group btn-group-yesno"
                        label="MOD_DOCMAN_DOCUMENTS_FIELD_SHOW_SIZE_LABEL"
                        description="MOD_DOCMAN_DOCUMENTS_FIELD_SHOW_SIZE_DESC">
                     <option value="1">JYES</option>
                     <option value="0">JNO</option>
                 </field>
                 <field name="show_hits" type="radio" default="0"
-                       class="btn-group"
+                       class="btn-group btn-group-yesno"
                        label="MOD_DOCMAN_DOCUMENTS_FIELD_SHOW_HITS_LABEL">
                     <option value="1">JYES</option>
                     <option value="0">JNO</option>
                 </field>
-                <field name="show_recent" type="radio" class="btn-group" default="1" label="MARK_RECENT_DOCUMENTS">
+                <field name="show_recent" type="radio" class="btn-group btn-group-yesno" default="1" label="MARK_RECENT_DOCUMENTS">
                     <option value="1">JYES</option>
                     <option value="0">JNO</option>
                 </field>
-                <field name="show_popular" type="radio" class="btn-group" default="1" label="MARK_POPULAR_DOCUMENTS">
+                <field name="show_popular" type="radio" class="btn-group btn-group-yesno" default="1" label="MARK_POPULAR_DOCUMENTS">
                     <option value="1">JYES</option>
                     <option value="0">JNO</option>
                 </field>
-                <field name="download_in_blank_page" type="radio" class="btn-group" default="0" label="DOWNLOAD_IN_BLANK_PAGE" description="DOWNLOAD_IN_BLANK_PAGE_DESCRIPTION">
+                <field name="download_in_blank_page" type="radio" class="btn-group btn-group-yesno" default="0" label="DOWNLOAD_IN_BLANK_PAGE" description="DOWNLOAD_IN_BLANK_PAGE_DESCRIPTION">
                     <option value="1">JYES</option>
                     <option value="0">JNO</option>
                 </field>
-                <field name="track_downloads" type="radio" class="btn-group" default="1" label="TRACK_DOWNLOADS" description="TRACK_DOWNLOADS_DESCRIPTION">
+                <field name="track_downloads" type="radio" class="btn-group btn-group-yesno" default="1" label="TRACK_DOWNLOADS" description="TRACK_DOWNLOADS_DESCRIPTION">
                     <option value="1">JYES</option>
                     <option value="0">JNO</option>
                 </field>

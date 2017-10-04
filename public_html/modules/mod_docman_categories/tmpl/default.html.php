@@ -1,7 +1,7 @@
 <?
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -12,7 +12,6 @@ defined('KOOWA') or die; ?>
     'package' => 'docman',
     'wrapper' => false
 )); ?>
-    
 
 <div class="k-ui-namespace">
     <div class="mod_docman mod_docman--categories <?= JFactory::getLanguage()->isRTL() ? ' k-ui-rtl' : 'k-ui-ltr' ?>">

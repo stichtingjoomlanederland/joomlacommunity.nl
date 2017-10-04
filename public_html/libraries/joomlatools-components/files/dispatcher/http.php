@@ -1,8 +1,8 @@
 <?php
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright	Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -15,6 +15,14 @@
  */
 class ComFilesDispatcherHttp extends ComKoowaDispatcherHttp
 {
+    public function __construct(KObjectConfig $config)
+    {
+        parent::__construct($config);
+
+        //Render an exception before sending the response
+        $this->getObject('event.publisher')->addListener('onException', array($this, 'renderError'));
+    }
+
     protected function _initialize(KObjectConfig $config)
     {
         $config->append(array(
@@ -27,43 +35,30 @@ class ComFilesDispatcherHttp extends ComKoowaDispatcherHttp
     }
 
     /**
-     * Overloaded execute function to handle exceptions in JSON requests
-     */
-    public function execute($action, KControllerContextInterface $context)
-    {
-        try {
-            return parent::execute($action, $context);
-        } catch (Exception $e) {
-            return $this->_handleException($e);
-        }
-    }
-
-    /**
      * Plupload do not pass the error to our application if the status code is not 200
      *
-     * @param Exception $e
+     * @param Exception $exception
      * @return bool
      * @throws Exception
      */
-    protected function _handleException(Exception $e) 
+    public function renderError($exception)
     {
     	if ($this->getRequest()->getFormat() == 'json')
         {
     		$response = new stdClass;
     		$response->status = false;
-    		$response->error  = $e->getMessage();
-    		$response->code   = $e->getCode();
+    		$response->error  = $exception->getMessage();
+    		$response->code   = $exception->getCode();
 
-    		$status_code = $this->getRequest()->query->plupload ? 200 : ($e->getCode() && $e->getCode() <= 505 ? $e->getCode() : 500);
+    		$status_code = $this->getRequest()->query->plupload ? 200 : ($exception->getCode() && $exception->getCode() <= 505 ? $exception->getCode() : 500);
 
             $this->getResponse()
                 ->setStatus($status_code)
                 ->setContent(json_encode($response), 'application/json')
                 ->send();
-    	}
-    	else throw $e;
 
-        return false;
+            return false;
+    	}
     }
 
     // FIXME: this is here because forwarded dispatchers still render results

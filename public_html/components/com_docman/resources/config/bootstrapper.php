@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -18,6 +18,7 @@ return array(
         'com://site/docman.controller.tag'                    => 'com://admin/docman.controller.tag',
         'com://site/docman.controller.behavior.findable'      => 'com://admin/docman.controller.behavior.findable',
         'com://site/docman.controller.behavior.organizable'      => 'com://admin/docman.controller.behavior.organizable',
+        'com://site/docman.controller.behavior.sluggable'      => 'com://admin/docman.controller.behavior.sluggable',
         'com://site/docman.controller.behavior.thumbnailable' => 'com://admin/docman.controller.behavior.thumbnailable',
         'com://site/docman.model.categories'              	  => 'com://admin/docman.model.categories',
         'com://site/docman.model.default'                     => 'com://admin/docman.model.default',
@@ -57,7 +58,8 @@ return array(
                 'com://admin/docman.job.cache',
                 'com://admin/docman.job.documents',
                 'com://admin/docman.job.categories',
-                'com://admin/docman.job.scans'
+                'com://admin/docman.job.scans',
+                'com://admin/docman.job.files'
             )
         ),
 

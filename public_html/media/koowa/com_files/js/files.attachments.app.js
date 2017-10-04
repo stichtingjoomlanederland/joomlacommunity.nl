@@ -1,7 +1,7 @@
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright	Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -64,12 +64,16 @@ Files.Attachments.App = new Class({
 
         if (this.url)
         {
+            var url = this.url;
+
+            url += '&_' + Date.now();
+
             that.grid.reset(); // Flush current content.
 
             this.grid.spin();
 
             new Request.JSON({
-                url: this.url,
+                url: url,
                 method: 'get',
                 onSuccess: function(response)
                 {
@@ -102,8 +106,8 @@ Files.Attachments.App = new Class({
 
                 copy.render('attachments').inject(that.preview);
 
-                if (copy.thumbnail) {
-                    that.preview.getElement('img').set('src', copy.thumbnail).show();
+                if (copy.file.thumbnail) {
+                    that.preview.getElement('img').set('src', Files.sitebase + '/' + copy.file.thumbnail.relative_path).show();
                 }
 
                 that.grid.selected = row.name;

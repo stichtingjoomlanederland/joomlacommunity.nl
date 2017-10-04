@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -296,11 +296,6 @@ class ComDocmanTemplateHelperBehavior extends ComKoowaTemplateHelperBehavior
     /**
      * Widget for selecting an thumbnail image
      *
-     * Renders as a button that toggle a dropdown menu, with an optional menu item for toggling the automatically generate
-     * state, Choose Custom and Clear selection.
-     *
-     * Used in document forms with allow_automatic enabled, on category forms without
-     *
      * @param array $config
      * @return string
      */
@@ -308,33 +303,34 @@ class ComDocmanTemplateHelperBehavior extends ComKoowaTemplateHelperBehavior
     {
         $thumbnail_controller = $this->getObject('com://admin/docman.controller.thumbnail');
 
+        $connect = $this->getObject('com://admin/docman.model.entity.config')->connectAvailable();
+
         $config = new KObjectConfigJson($config);
         $config->append(array(
-            'entity' => false,
-            'allow_automatic'  => $this->getObject('com://admin/docman.model.configs')->fetch()->thumbnails,
-            'id'               => $config->name
-        ))->append(array(
-            'automatic_switch' => ($config->allow_automatic && $config->entity && $config->entity->isNew()),
-            'automatic_path'   => ($config->entity && !$config->entity->isNew() && $config->allow_automatic) ? $thumbnail_controller->getDefaultFilename($config->entity) : ''
-        ))->append(array(
-            'callback' => 'select_'.$config->id,
+            'entity' => null
+        ))->append([
+            'entity_type' => KStringInflector::singularize($config->entity->getIdentifier()->name),
+        ])->append([
             'options'  => array(
-                'automatic_path' => $config->automatic_path,
-                'has_automatic'    => $config->has_automatic,
-                'automatic_switch' => $config->automatic_switch
+                'hasConnectSupport' => $connect,
+                'connect_token'     => $connect ? PlgKoowaConnect::generateToken() : false,
+                'csrf_token' => $this->getObject('user')->getSession()->getToken(),
+                'automatic'  => [
+                    'exists'     => is_file(JPATH_ROOT.'/joomlatools-files/docman-images/'.$thumbnail_controller->getDefaultFilename($config->entity)),
+                    'path'       => $thumbnail_controller->getDefaultFilename($config->entity),
+                    'enabled'    => ($config->entity_type === 'document' && $this->getObject('com://admin/docman.model.configs')->fetch()->thumbnails),
+                    'extensions' => $thumbnail_controller->getSupportedExtensions(),
+                ],
+                'image_container'      => 'docman-images',
+                'image_folder'         => 'root://joomlatools-files/docman-images/',
+                'links' => [
+                    'web'    => 'http://static.api.joomlatools.com/image/',
+                    'custom' => (string)$this->getTemplate()->route('option=com_docman&view=files&layout=select&types[]=image', false, false),
+                    'save_web_image' => (string)$this->getTemplate()->route('option=com_docman&view=file&format=json&routed=1', false, false),
+                    'preview_automatic_image' => (string)$this->getTemplate()->route('option=com_docman&view=file&container=docman-files&routed=1', false, false)
+                ]
             )
-        ))->append(array(
-            'options'  => array(
-                'supported_extensions' => $thumbnail_controller->getSupportedExtensions(),
-                'id'               => $config->id,
-                'callback'         => $config->callback,
-                'image_folder'     => 'root://joomlatools-files/docman-images/',
-            )
-        ));
-
-        if ($config->callback) {
-            $config->callback = 'Docman.Modal.request_map.'.$config->callback;
-        }
+        ]);
 
         $html = $this->getTemplate()
             ->loadFile('com://admin/docman.document.thumbnail.html')
@@ -342,6 +338,7 @@ class ComDocmanTemplateHelperBehavior extends ComKoowaTemplateHelperBehavior
 
         return $html;
     }
+
 
     public function calendar($config = array())
     {
@@ -408,7 +405,7 @@ class ComDocmanTemplateHelperBehavior extends ComKoowaTemplateHelperBehavior
             $html .= '<ktml:script src="media://com_docman/js/admin/category.tree.js" />';
             $html .= '<script>
                 kQuery(function($){
-                new DOCman.Tree.Categories('.json_encode($config->element).', '.$config->options.');
+                new Docman.Tree.Categories('.json_encode($config->element).', '.$config->options.');
             });</script>';
 
             static::setLoaded('category_tree');
@@ -463,7 +460,7 @@ class ComDocmanTemplateHelperBehavior extends ComKoowaTemplateHelperBehavior
             $html .= '<ktml:script src="media://com_docman/js/site/category.tree.js" />';
             $html .= '<script>
                         kQuery(function($){
-                            new DOCman.Tree.CategoriesSite('.json_encode($config->element).', '.$config->options.');
+                            new Docman.Tree.CategoriesSite('.json_encode($config->element).', '.$config->options.');
                         });</script>';
 
             static::setLoaded('category_tree_site');
@@ -595,11 +592,7 @@ class ComDocmanTemplateHelperBehavior extends ComKoowaTemplateHelperBehavior
 
             $html .= '<script>
             kQuery(function($){
-
-                new DOCman.Doclink('.$config->options.');
-
-                //Workaround for templates that incorrectly wrap &tmpl=component views breaking the layout
-                $(".docman-container.doclink").parents().css({width: "auto", padding: 0, margin: 0});
+                new Docman.Doclink('.$config->options.');
             });</script>';
 
             static::setLoaded('doclink');
@@ -638,7 +631,7 @@ class ComDocmanTemplateHelperBehavior extends ComKoowaTemplateHelperBehavior
             static::setLoaded('sidebar');
         }
 
-        $html .= '<script>kQuery(function($){new DOCman.Sidebar('.$config.');});</script>';
+        $html .= '<script>kQuery(function($){new Docman.Sidebar('.$config.');});</script>';
 
         return $html;
     }
@@ -667,7 +660,7 @@ class ComDocmanTemplateHelperBehavior extends ComKoowaTemplateHelperBehavior
             static::setLoaded('buttongroup');
         }
 
-        $html .= '<script>kQuery(function($){new DOCman.Buttongroup('.$config.');});</script>';
+        $html .= '<script>kQuery(function($){new Docman.Buttongroup('.$config.');});</script>';
 
         return $html;
     }

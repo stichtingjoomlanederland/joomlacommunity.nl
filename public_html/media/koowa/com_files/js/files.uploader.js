@@ -1,7 +1,7 @@
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright    Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright    Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license        GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -17,7 +17,8 @@ if (!Files) var Files = {};
             multi_selection: true,
             url: Files.app.createRoute({
                 view: 'file',
-                plupload: 1
+                plupload: 1,
+                thumbnails: Files.app.options.thumbnails
             }),
             multipart_params: {
                 _action: 'add',
@@ -48,15 +49,31 @@ if (!Files) var Files = {};
                         }
                     }
 
-                    if (row.type == 'image' && Files.app.grid.layout == 'icons') {
+                    if (row.type == 'image') {
                         var image = row.element.getElement('img');
                         if (image) {
-                            row.getThumbnail(function (response) {
-                                if (response.item.thumbnail) {
-                                    image.set('src', response.item.thumbnail).addClass('loaded').removeClass('loading');
-                                    row.element.getElement('.files-node').addClass('loaded').removeClass('loading');
+
+                            var setThumbnail = function(thumbnail)
+                            {
+                                image.set('src', Files.sitebase + '/' + thumbnail.relative_path).addClass('loaded').removeClass('loading');
+
+                                /* @TODO We probably do not need this anymore? Layouts have changed and these elements/classes no longer exist */
+                                var element = row.element.getElement('.files-node');
+
+                                if (element) {
+                                    element.addClass('loaded').removeClass('loading');
                                 }
-                            });
+                            };
+
+                            if (!row.thumbnail)
+                            {
+                                row.getThumbnail(function (response) {
+                                    if (response.entities[0].thumbnail) {
+                                        setThumbnail(response.entities[0].thumbnail);
+                                    }
+                                });
+                            }
+                            else setThumbnail(row.thumbnail);
 
                             /* @TODO Test if this is necessary: This is for the thumb margins to recalculate */
                             window.fireEvent('resize');

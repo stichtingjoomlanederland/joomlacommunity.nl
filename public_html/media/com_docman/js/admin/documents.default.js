@@ -1,24 +1,24 @@
 kQuery(function ($) {
 
-    new DOCman.MoveDialog({
+    new Docman.MoveDialog({
         view: '#document-move-modal',
         button: '.k-button--primary',
         open_button: '#toolbar-move',
         category_selector: '#document_move_target'
     });
 
-    new DOCman.BatchDialog({
+    new Docman.BatchDialog({
         view: '#document-batch-modal',
         button: '.k-button--primary',
         open_button: '#toolbar-batch'
     });
 });
 
-var DOCman = DOCman || {};
+var Docman = Docman || {};
 
 (function($) {
 
-DOCman.Dialog = Koowa.Class.extend({
+Docman.Dialog = Koowa.Class.extend({
     initialize: function(options) {
         this.supr();
 
@@ -85,7 +85,7 @@ DOCman.Dialog = Koowa.Class.extend({
     }
 });
 
-DOCman.MoveDialog = DOCman.Dialog.extend({
+Docman.MoveDialog = Docman.Dialog.extend({
     initialize: function(options) {
         options = {
             view: $(options.view),
@@ -122,7 +122,7 @@ DOCman.MoveDialog = DOCman.Dialog.extend({
 });
 
 
-DOCman.BatchDialog = DOCman.Dialog.extend({
+Docman.BatchDialog = Docman.Dialog.extend({
     initialize: function(options) {
         /*options = {
             view: $(options.view),

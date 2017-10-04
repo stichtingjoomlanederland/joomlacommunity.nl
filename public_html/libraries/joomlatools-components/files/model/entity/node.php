@@ -1,8 +1,8 @@
 <?php
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright	Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -153,6 +153,16 @@ class ComFilesModelEntityNode extends KModelEntityAbstract
         return $this->getContainer()->fullpath . '/' . $this->destination_path;
     }
 
+    public function getPropertyUri()
+    {
+        return $this->getContainer()->slug . '://' . $this->path;
+    }
+
+    public function getPropertyRelativePath()
+    {
+        return $this->getContainer()->relative_path . '/' . $this->path;
+    }
+
     public function getPropertyAdapter()
     {
         return $this->_adapter;
@@ -221,15 +231,23 @@ class ComFilesModelEntityNode extends KModelEntityAbstract
     {
         $data = parent::toArray();
 
+        foreach ($data as $key => $value)
+        {
+            if ($value instanceof KModelEntityAbstract || $value instanceof KModelEntityComposite) {
+                $data[$key] = $value->toArray();
+            }
+        }
+
         unset($data['csrf_token']);
         unset($data['action']);
         unset($data['option']);
         unset($data['format']);
         unset($data['view']);
 
-		$data['container'] = $this->getContainer()->slug;
-		$data['type']      = $this->getIdentifier()->name;
-		$data['path']      = $this->path;
+        $data['container'] = $this->getContainer()->slug;
+        $data['type']      = $this->getIdentifier()->name;
+        $data['path']      = $this->path;
+        $data['uri']       = $this->uri;
 
         return $data;
     }

@@ -1,7 +1,7 @@
 <?
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -107,7 +107,7 @@ defined('KOOWA') or die; ?>
                                     <label><?= translate('Create thumbnails from uploaded images');?></label>
                                     <?= helper('select.booleanlist', array('name' => 'thumbnails', 'selected' => $config->thumbnails)); ?>
                                     <? if (!$thumbnails_available): ?>
-                                    <p class="k-form-info"><?=translate('DOCman requires GD to be installed on your server for generating thumbnails')?></p>
+                                        <p class="k-form-info"><?=translate('DOCman requires GD to be installed on your server for generating thumbnails')?></p>
                                     <? endif ?>
                                 </div>
 
@@ -210,6 +210,35 @@ defined('KOOWA') or die; ?>
                                         <?= helper('select.booleanlist', array('name' => 'can_create_tag', 'selected' => $config->can_create_tag)); ?>
                                     </div>
 
+                                </div>
+
+                            </fieldset>
+
+                            <fieldset class="k-form-block">
+
+                                <div class="k-form-block__header">
+                                    Joomlatools Connect
+                                </div>
+
+                                <div class="k-form-block__content">
+                                    <? if (!$connect_support): ?>
+                                        <p class="k-alert k-alert--info">
+                                            <?= translate('Document scan requires connect', ['link' => 'https://www.joomlatools.com/connect/']); ?>
+                                        </p>
+                                    <? endif ?>
+
+                                    <div class="k-form-group">
+                                        <p>
+                                            <a class="k-button k-button--default <?= !$connect_support ? 'k-is-disabled' : '' ?>"
+                                               <?= $connect_support ? 'href="'.route('view=script&script=scan').'"' : '' ?>
+                                            >
+                                                <?= translate('Scan all documents')?>
+                                            </a>
+                                        </p>
+                                        <p class="k-form-info">
+                                            <?= translate('Scan all documents info'); ?>
+                                        </p>
+                                    </div>
                                 </div>
 
                             </fieldset>

@@ -2039,9 +2039,9 @@
 })(window);
 
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright	Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -2095,9 +2095,9 @@ Files.getFileType = function(extension) {
 };
 
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright	Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -2148,9 +2148,9 @@ Files.State = new Class({
 });
 
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright	Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -2226,9 +2226,9 @@ Files.Template.Compact = new Class({
 })();
 
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright	Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -2839,9 +2839,9 @@ Files.Grid.Root = new Class({
 });
 
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright	Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -2874,9 +2874,14 @@ if(!Files) var Files = {};
             return $.extend(true, {}, this.supr(), defaults); // get the defaults from the parent and merge them
         },
         filterData: function(response) {
+
+            var that = this;
+
             var data = response.entities,
-                parse = function(item, parent) {
-                    var path = (parent && parent.path) ? parent.path+'/' : '';
+                parse = function(item, parent)
+                {
+                    var path = (!parent && that.options.root_path) ? that.options.root_path + '/' : ''; // Prepend root folder if set
+                    path += (parent && parent.path) ? parent.path+'/' : '';
                     path += item.name;
 
                     //Parse attributes
@@ -2913,13 +2918,21 @@ if(!Files) var Files = {};
          * @returns data
          */
         parseData: function(list){
-            return [{
+            var tree = {
                 label: this.options.root.text,
                 url: '#',
                 children: list
-            }];
+            };
+
+            if (this.options.root_path)
+            {
+                tree.id = this.options.root_path;
+                tree.url = '#' + tree.id;
+            }
+
+            return [tree];
         },
-        fromUrl: function(url) {
+        fromUrl: function(url, callback) {
 
             var self = this;
             this.tree('loadDataFromUrl', url, null, function(response){
@@ -2927,6 +2940,10 @@ if(!Files) var Files = {};
                  * @TODO refactor chaining support to this.selectPath so it works even when the tree isn't loaded yet
                  */
                 if(Files.app && Files.app.hasOwnProperty('active')) self.selectPath(Files.app.active);
+
+                if (callback) {
+                    callback(response);
+                }
             });
 
         },
@@ -3062,9 +3079,9 @@ if(!Files) var Files = {};
 
 }(window.kQuery));
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright	Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -3195,7 +3212,7 @@ Files.Image = new Class({
 	getThumbnail: function(success, failure) {
 		var that = this,
 			request = new Request.JSON({
-				url: Files.app.createRoute({view: 'thumbnail', filename: that.name, folder: that.folder}),
+				url: Files.app.createRoute({view: 'file', name: that.name, folder: that.folder, thumbnails: Files.app.options.thumbnails}),
 				method: 'get',
 				onSuccess: function(response, responseText) {
 					if (typeof success == 'function') {
@@ -3305,9 +3322,9 @@ Files.Folder = new Class({
 	}
 });
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright	Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -3472,9 +3489,9 @@ Files.Paginator = new Class({
 });
 
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright	Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -3547,14 +3564,26 @@ Files.Paginator = new Class({
                     return result;
                 };
 
+            var path = '', root_path = '';
 
-            var root = wrap(app, '<span class="k-icon-home" aria-hidden="true"></span><span class="k-visually-hidden">'+app.container.title+'</span>', '', false)
+            // Check if we are rendering sub-trees
+            if (app.options.root_path) {
+                path = root_path = app.options.root_path;
+            }
+
+            var root = wrap(app, '<span class="k-icon-home" aria-hidden="true"></span><span class="k-visually-hidden">'+app.container.title+'</span>', path, false)
                         .addClass('k-breadcrumb__home')
                         .getElement('a').getParent();
 
             list.adopt(root);
 
-            var folders = app.getPath().split('/'), path = '';
+            var base_path = app.getPath();
+
+            if (root_path) {
+                base_path = base_path.replace(root_path, '');
+            }
+
+            var folders = base_path.split('/'), path = root_path;
 
             folders.each(function(title){
                 if(title.trim()) {
@@ -3622,11 +3651,11 @@ Files.Paginator = new Class({
 })();
 
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
  * @codekit-prepend "files.utilities.js", "files.state.js", "files.template.js", "files.grid.js", files.tree.js", "files.row.js", "files.paginator.js", "files.pathway.js"
  *
- * @copyright	Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -3643,6 +3672,7 @@ Files.App = new Class({
     title: '',
     cookie: null,
     options: {
+        root_path: '',
         root_text: 'Root folder',
         cookie: {
             path: '/'
@@ -3771,7 +3801,6 @@ Files.App = new Class({
         }
     },
     initialize: function(options) {
-
         if (Files.Config) {
             Object.merge(options, Files.Config);
         }
@@ -3935,6 +3964,7 @@ Files.App = new Class({
                 if (revalidate_cache) {
                     url['revalidate_cache'] = 1;
                 }
+                url['_'] = Date.now(); // Ignore client cache
                 return this.createRoute(url);
             }.bind(this),
             handleResponse = function(response) {
@@ -4049,11 +4079,10 @@ Files.App = new Class({
                 }
             }
 
-            if (this.container.parameters.thumbnails !== true) {
-                this.options.thumbnails = false;
-            } else {
-                this.state.set('thumbnails', true);
+            if (this.container.parameters.thumbnails === true) {
+                this.state.set('thumbnails', this.options.thumbnails);
             }
+            else this.options.thumbnails = false;
 
             if (this.options.types !== null) {
                 this.options.grid.types = this.options.types;
@@ -4218,7 +4247,7 @@ Files.App = new Class({
             onAfterRender: function() {
                 this.setState(that.state.data);
 
-                if (that.grid && that.grid.layout === 'icons') {
+                if (that.grid) {
                     that.setThumbnails();
                 }
             },
@@ -4236,7 +4265,7 @@ Files.App = new Class({
         this.fireEvent('beforeSetTree');
 
         if (this.options.tree.enabled) {
-            var opts = this.options.tree,
+            var opts = Object.merge({root_path: this.options.root_path}, this.options.tree);
                 that = this;
 
             opts = kQuery.extend(true, {}, {
@@ -4254,7 +4283,9 @@ Files.App = new Class({
                 initial_response: !!this.options.initial_response
             }, opts);
             this.tree = new Files.Tree(kQuery(opts.element), opts);
-            this.tree.fromUrl(this.createRoute({view: 'folders', 'tree': '1', 'limit': '2000'}));
+            var config = {view: 'folders', 'tree': '1', 'limit': '2000'};
+            if (this.options.root_path) config.folder = this.options.root_path;
+            this.tree.fromUrl(this.createRoute(config));
 
             this.addEvent('afterNavigate', function(path, type) {
                 if(path !== undefined && (!type || (type != 'initial' && type != 'stateless'))) {
@@ -4448,6 +4479,7 @@ Files.App = new Class({
     },
     setThumbnails: function() {
         this.setDimensions(true);
+
         var nodes = this.grid.nodes,
             that = this;
         if (nodes.getLength()) {
@@ -4462,7 +4494,14 @@ Files.App = new Class({
                     img.addEvent('load', function(){
                         this.addClass('loaded');
                     });
-                    img.set('src', node.thumbnail ? node.thumbnail : Files.blank_image);
+
+                    var source = Files.blank_image;
+
+                    if (node.thumbnail) {
+                        source = Files.sitebase + '/' + node.thumbnail.relative_path;
+                    }
+
+                    img.set('src', source);
 
                     (node.element.getElement('.files-node') || node.element).addClass('loaded').removeClass('loading');
                 }
@@ -4524,9 +4563,9 @@ Files.App = new Class({
 });
 
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright	Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -4589,12 +4628,16 @@ Files.Attachments.App = new Class({
 
         if (this.url)
         {
+            var url = this.url;
+
+            url += '&_' + Date.now();
+
             that.grid.reset(); // Flush current content.
 
             this.grid.spin();
 
             new Request.JSON({
-                url: this.url,
+                url: url,
                 method: 'get',
                 onSuccess: function(response)
                 {
@@ -4627,8 +4670,8 @@ Files.Attachments.App = new Class({
 
                 copy.render('attachments').inject(that.preview);
 
-                if (copy.thumbnail) {
-                    that.preview.getElement('img').set('src', copy.thumbnail).show();
+                if (copy.file.thumbnail) {
+                    that.preview.getElement('img').set('src', Files.sitebase + '/' + copy.file.thumbnail.relative_path).show();
                 }
 
                 that.grid.selected = row.name;
@@ -4726,9 +4769,9 @@ Files.Attachment = new Class({
     }
 });
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright    Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright    Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license        GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -4744,7 +4787,8 @@ if (!Files) var Files = {};
             multi_selection: true,
             url: Files.app.createRoute({
                 view: 'file',
-                plupload: 1
+                plupload: 1,
+                thumbnails: Files.app.options.thumbnails
             }),
             multipart_params: {
                 _action: 'add',
@@ -4775,15 +4819,31 @@ if (!Files) var Files = {};
                         }
                     }
 
-                    if (row.type == 'image' && Files.app.grid.layout == 'icons') {
+                    if (row.type == 'image') {
                         var image = row.element.getElement('img');
                         if (image) {
-                            row.getThumbnail(function (response) {
-                                if (response.item.thumbnail) {
-                                    image.set('src', response.item.thumbnail).addClass('loaded').removeClass('loading');
-                                    row.element.getElement('.files-node').addClass('loaded').removeClass('loading');
+
+                            var setThumbnail = function(thumbnail)
+                            {
+                                image.set('src', Files.sitebase + '/' + thumbnail.relative_path).addClass('loaded').removeClass('loading');
+
+                                /* @TODO We probably do not need this anymore? Layouts have changed and these elements/classes no longer exist */
+                                var element = row.element.getElement('.files-node');
+
+                                if (element) {
+                                    element.addClass('loaded').removeClass('loading');
                                 }
-                            });
+                            };
+
+                            if (!row.thumbnail)
+                            {
+                                row.getThumbnail(function (response) {
+                                    if (response.entities[0].thumbnail) {
+                                        setThumbnail(response.entities[0].thumbnail);
+                                    }
+                                });
+                            }
+                            else setThumbnail(row.thumbnail);
 
                             /* @TODO Test if this is necessary: This is for the thumb margins to recalculate */
                             window.fireEvent('resize');
@@ -4818,9 +4878,9 @@ if (!Files) var Files = {};
 
 
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright	Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -4842,6 +4902,50 @@ var CopyMoveDialog = Koowa.Class.extend({
 
         this.setOptions(options);
         this.attachEvents();
+    },
+    setTree: function(tree)
+    {
+        var app = Files.app;
+
+        if (!app.tree)
+        {
+            var opts = {
+                root_path: app.options.root_path,
+                root: {
+                    text: app.options.root_text
+                },
+                element: $('<div></div>'),
+                initial_response: !!this.options.initial_response
+            };
+
+            app.tree = new Files.Tree(opts.element, opts);
+
+            var config = {view: 'folders', 'tree': '1', 'limit': '2000'};
+
+            if (app.options.root_path) config.folder = app.options.root_path;
+
+            app.tree.fromUrl(app.createRoute(config), function () {
+                tree.tree('loadData', $.parseJSON(app.tree.tree('toJson')));
+            });
+
+            app.addEvent('afterNavigate', function(path, type) {
+                if(path !== undefined && (!type || (type != 'initial' && type != 'stateless'))) {
+                    app.tree.selectPath(path);
+                }
+            });
+
+            if (app.grid) {
+                app.grid.addEvent('afterDeleteNode', function(context) {
+                    var node = context.node;
+                    if (node.type == 'folder') {
+                        app.tree.removeNode(node.path);
+                    }
+                });
+            }
+        }
+        else tree.tree('loadData', $.parseJSON(app.tree.tree('toJson')));
+
+        return app.tree;
     },
     attachEvents: function() {
         var self = this;
@@ -4870,14 +4974,13 @@ var CopyMoveDialog = Koowa.Class.extend({
             return;
         }
 
-        var data = Files.app.tree.tree('toJson'),
-            tree = new Koowa.Tree(options.view.find('.k-js-tree-container'), {
-                onCanSelectNode: function(node) {
-                    return (node.path != Files.app.getPath());
-                }
-            });
+        var tree = new Koowa.Tree(this.options.tree, {
+            onCanSelectNode: function (node) {
+                return (node.path != Files.app.getPath());
+            }
+        });
 
-        tree.tree('loadData', $.parseJSON(data));
+        this.setTree(tree);
 
         this.getSelectedNodes().each(function(node) {
             var tree_node = tree.tree('getNodeById', node.path);
@@ -4952,7 +5055,7 @@ Files.CopyDialog = CopyMoveDialog.extend({
             Files.app.grid.fireEvent('afterCopyNodes', {nodes: nodes});
 
             if (refresh_tree) {
-                Files.app.tree.fromUrl(Files.app.createRoute({view: 'folders', 'tree': '1', 'limit': '2000'}));
+                tree.fromUrl(Files.app.createRoute({view: 'folders', 'tree': '1', 'limit': '2000'}));
             }
 
             self.hide();
@@ -5007,7 +5110,7 @@ Files.MoveDialog = CopyMoveDialog.extend({
             Files.app.grid.fireEvent('afterMoveNodes', {nodes: nodes});
 
             if (refresh_tree) {
-                Files.app.tree.fromUrl(Files.app.createRoute({view: 'folders', 'tree': '1', 'limit': '2000'}));
+               tree.fromUrl(Files.app.createRoute({view: 'folders', 'tree': '1', 'limit': '2000'}));
             }
 
             self.hide();

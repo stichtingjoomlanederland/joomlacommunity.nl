@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -34,18 +34,7 @@ class ComDocmanJobDocuments extends ComSchedulerJobAbstract
 
         $context->log(count($queue).' files in the queue');
 
-        if (empty($queue)) {
-            $behavior = $this->getObject('com://admin/docman.controller.behavior.syncable');
-            $behavior->syncFolders();
-            $behavior->syncFiles();
-            $queue = $behavior->getOrphanFiles(KDatabase::FETCH_FIELD_LIST, function($query) {
-                $query->limit(100);
-                $query->where('tbl.folder <> \'\'');
-            });
-
-            $context->log(sprintf('Added %s orphans to the queue', count($queue)));
-        }
-        elseif (is_array($queue))
+        if (is_array($queue))
         {
             $limit = 5; // only create 5 documents per run to limit memory errors
             while ($context->hasTimeLeft() && count($queue) && $limit)
@@ -75,6 +64,21 @@ class ComDocmanJobDocuments extends ComSchedulerJobAbstract
 
                 $limit--;
             }
+        }
+
+        if (empty($queue) && $context->hasTimeLeft()) {
+            $behavior = $this->getObject('com://admin/docman.controller.behavior.syncable');
+            $behavior->syncFolders();
+            $behavior->syncFiles();
+            $queue = $behavior->getOrphanFiles(KDatabase::FETCH_FIELD_LIST, function($query) {
+                $query->limit(100);
+                $query->join(array('cf' => 'docman_category_folders'), 'cf.folder = tbl.folder')
+                      ->where('cf.folder IS NOT NULL');
+                $query->where('tbl.folder <> \'\'');
+                $query->where('tbl.folder <> :tmp')->bind(['tmp' => ComDocmanControllerBehaviorMovable::TEMP_FOLDER]);
+            });
+
+            $context->log(sprintf('Added %s orphans to the queue', count($queue)));
         }
 
         $state->queue = (array) $queue;

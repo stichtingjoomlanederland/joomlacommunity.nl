@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -23,7 +23,7 @@ class ComDocmanDispatcherHttp extends ComKoowaDispatcherHttp
             'controller'     => 'list',
             'authenticators' => array('jwt'),
             'behaviors'      => array(
-                'scannable',
+                'connectable',
                 'com://admin/docman.dispatcher.behavior.routable'
             )
         ));
@@ -83,6 +83,22 @@ class ComDocmanDispatcherHttp extends ComKoowaDispatcherHttp
         }
     }
 
+    protected function _setResponse(KDispatcherContextInterface $context)
+    {
+        $request = $context->getRequest();
+        $view    = $request->getQuery()->view;
+        $layout  = $request->getQuery()->layout;
+
+        if (in_array($view, ['doclink', 'upload'])
+            || ($view === 'files' && $layout === 'select')
+            || ($layout === 'form' && $view !== 'submit')
+        ) {
+            $request->getHeaders()->set('X-Flush-Response', 1);
+        }
+
+        parent::_setResponse($context);
+    }
+
     public function getRequest()
     {
         $request = parent::getRequest();
@@ -107,10 +123,6 @@ class ComDocmanDispatcherHttp extends ComKoowaDispatcherHttp
             $query->status  = 'published';
         }
 
-        // Force tmpl=koowa for form layouts
-        if ($query->layout === 'form' && $query->view !== 'submit') {
-            $query->tmpl = 'koowa';
-        }
 
         $query->access = $this->getObject('user')->getRoles();
         $query->page   = $query->Itemid;

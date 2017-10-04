@@ -1,7 +1,7 @@
 <?
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -10,48 +10,54 @@ defined('KOOWA') or die;
 $options = str_replace('\/', '/', $config->options->toString());
 ?>
 
-
 <?= helper('behavior.modal'); ?>
 
+<ktml:script src="media://com_docman/js/thumbnail.js" />
 
-<ktml:script src="media://com_docman/js/modal.js" />
 <script>
-kQuery(function(){
-    new Docman.Modal.Thumbnail(<?= $options ?>);
+kQuery(function($){
+    new ThumbnailBox({
+        el: '.k-js-thumbnail',
+        store: $('.k-js-form-controller').data('controller').store,
+        data: <?= $options ?>
+    });
 });
 </script>
 
 
-<div class="thumbnail-picker">
-    <div class="thumbnail-controls k-form-group">
-        <div class="k-optionlist k-js-thumbnailpicker">
+<div class="k-js-thumbnail">
+    <div class="k-form-group">
+        <div class="k-optionlist">
             <div class="k-optionlist__content">
-                <input type="radio" name="thumbnailpicker" id="thumbnailpicker0" value="0" class="k-js-thumbnail-none" />
+                <input type="radio" v-model="active" value="none" id="thumbnailpicker0" />
                 <label for="thumbnailpicker0"><?= translate('None'); ?></label>
 
-                <input type="radio" name="thumbnailpicker" id="thumbnailpicker1" value="1" class="k-js-thumbnail-custom"
-                       data-href="<?= route('option=com_docman&view=files&layout=select&tmpl=koowa&container=docman-images&types[]=image&callback=Docman.Modal.request_map.select_image'); ?>"
-                />
-                <label for="thumbnailpicker1"><?= translate('Custom'); ?></label>
+                <input type="radio" v-model="active" value="custom" id="thumbnailpicker1" />
+                <label for="thumbnailpicker1"><?= translate('Upload'); ?></label>
 
-                <? if($config->allow_automatic): ?>
-                    <input type="radio" name="thumbnailpicker" id="thumbnailpicker2" value="2" class="k-js-thumbnail-automatic" />
-                    <label for="thumbnailpicker2"><?= translate('Generate automatically'); ?></label>
-                <? endif ?>
+                <input v-bind:disabled="hasConnectSupport ? false : true"
+                       type="radio" v-model="active" value="web" id="thumbnailpicker3" />
+                <label for="thumbnailpicker3"><?= translate('Web'); ?></label>
+
+                <input v-show="automatic.enabled" v-bind:disabled="hasAutomaticSupport ? false : true" type="radio" v-model="active" value="automatic" id="thumbnailpicker2" />
+                <label v-show="automatic.enabled" for="thumbnailpicker2"><?= translate('Generate automatically'); ?></label>
 
                 <div class="k-faux-focus"></div>
             </div>
         </div>
-        <div class="k-js-input-container" style="display: none">
-            <input data-type="custom" name="image" id="image" value="<?= escape($config->value); ?>" type="hidden" disabled="disabled">
-        </div>
     </div>
 
-    <div class="thumbnail-info">
-        <p class="k-is-hidden k-js-alert k-alert k-alert--info automatic-unsupported-format">
+    <div>
+        <p v-show="download_in_progress && download_in_progress_error" class="k-alert k-alert--warning">
+            <?= translate('Please wait while the image is downloaded'); ?>
+        </p>
+        <p v-show="entity.storage_path && isLocal && !hasAutomaticSupport" class="k-alert k-alert--info">
             <?= translate('Automatically generated thumbnails are not supported on this file type.'); ?>
         </p>
-        <p class="k-is-hidden k-js-alert k-alert k-alert--info automatic-unsupported-location">
+        <p v-show="!hasConnectSupport" class="k-alert k-alert--info">
+            <?= translate('Image search requires connect', ['link' => 'https://www.joomlatools.com/connect/']); ?>
+        </p>
+        <p v-show="isRemote" class="k-alert k-alert--info">
             <?= translate('Automatically generated thumbnails are only supported on local files.'); ?>
         </p>
     </div>
@@ -63,16 +69,26 @@ kQuery(function(){
                     <div class="k-ratio-block k-ratio-block--1-to-1">
                         <div class="k-ratio-block__body">
                             <div class="k-ratio-block__centered">
-                                <div class="k-js-no-thumbnail">128x128</div>
-                                <img class="k-js-yes-thumbnail k-is-hidden" src="" alt="" />
+                                <div v-show="!preview_url"><span class="k-icon-document-image k-icon--size-medium" aria-hidden="true"></span></div>
+                                <img v-bind:src="preview_url" v-show="preview_url" alt="" />
+                                <span class="k-loader k-loader--medium" v-show="download_in_progress"></span>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="k-card__footer">
-                    <button class="k-js-thumbnail-change k-button k-button--block k-button--default k-button--small" type="button"><?= translate('Change'); ?></button>
+                <div class="k-card__footer" v-show="active === 'custom'">
+                    <button v-on:click.prevent="changeCustom" class="k-button k-button--block k-button--default k-button--small" type="button"><?= translate('Change'); ?></button>
+                </div>
+                <div class="k-card__footer" v-show="active === 'web'">
+                    <button v-on:click.prevent="openPicker" class="k-button k-button--block k-button--default k-button--small" type="button"><?= translate('Change'); ?></button>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="k-dynamic-content-holder">
+        <input type="hidden" name="image" value="" v-if="active == 'none'" />
+        <input type="hidden" name="image" v-bind:value="entity.image"
+               v-if="active == 'custom' || active == 'web' || active == 'automatic'" />
+        <input type="hidden" name="automatic_thumbnail" value="1" v-if="active == 'automatic'" />
     </div>
 </div>

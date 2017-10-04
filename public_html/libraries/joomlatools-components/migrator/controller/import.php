@@ -36,7 +36,7 @@ class ComMigratorControllerImport extends ComMigratorControllerMigrator
     {
         $request = parent::getRequest();
 
-        $request->getQuery()->tmpl = 'koowa';
+        $request->getHeaders()->set('X-Flush-Response', 1);
 
         return $request;
     }

@@ -1,7 +1,7 @@
 <?
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -18,9 +18,8 @@ defined('KOOWA') or die; ?>
         <div class="k-form-group">
             <label><?= translate('Downloads'); ?></label>
             <div id="hits-container">
-                <p>
-                    <?= $document->hits; ?>
-                </p>
+                <span><?= $document->hits; ?></span>
+
                 <? if ($document->hits): ?>
                     <a href="#" class="k-button k-button--small k-button--default"><?= translate('Reset'); ?></a>
                 <? endif; ?>

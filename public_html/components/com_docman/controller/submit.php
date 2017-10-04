@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -27,7 +27,8 @@ class ComDocmanControllerSubmit extends ComKoowaControllerModel
         $config->append(array(
             'behaviors' => array('thumbnailable', 'findable', 'notifiable', 'editable'),
             'toolbars'  => array('submit'),
-            'model'     => 'documents'
+            'model'     => 'documents',
+            'formats'   => ['json']
         ));
 
         parent::_initialize($config);
@@ -62,13 +63,92 @@ class ComDocmanControllerSubmit extends ComKoowaControllerModel
     {
         $result = $this->execute('add', $context);
 
-        if ($context->getResponse()->getStatusCode() === KHttpResponse::CREATED)
+        $chunk  = $context->request->data->get('chunk', 'int');
+        $chunks = $context->request->data->get('chunks', 'int');
+
+        $upload_finished = (!$chunks || $chunk == $chunks - 1);
+
+        if ($upload_finished && $context->getResponse()->getStatusCode() === KHttpResponse::CREATED)
         {
             $route = JRoute::_('index.php?option=com_docman&view=submit&layout=success&Itemid='.$this->getRequest()->query->Itemid, false);
-            $context->response->setRedirect($route);
+
+            if ($context->getRequest()->getFormat() === 'html') {
+                $context->response->setRedirect($route);
+            } else {
+                $context->response->setContent(json_encode([
+                    'redirect' => $route
+                ]), 'application/json');
+            }
         }
 
         return $result;
+    }
+
+    protected function _setData(KControllerContextInterface $context)
+    {
+        $data       = $context->request->data;
+        $page       = JFactory::getApplication()->getMenu()->getItem($this->getRequest()->query->Itemid);
+        $translator = $this->getObject('translator');
+
+        if (!$page) {
+            throw new RuntimeException($translator->translate('Invalid menu item'));
+        }
+
+        foreach ($this->getModel()->getTable()->getColumns() as $key => $column) {
+            if (!in_array($key, array('docman_category_id', 'storage_type', 'title', 'description'))) {
+                unset($data->$key);
+            }
+        }
+
+        $data->enabled = $page->params->get('auto_publish') ? 1 : 0;
+
+        if (empty($data->storage_type)) {
+            $data->storage_type = $data->storage_path_remote ? 'remote' : 'file';
+        }
+
+        $categories = (array) $page->params->get('category_id');
+
+        if (!$data->docman_category_id) {
+            $data->docman_category_id = count($categories) ? $categories[0] : 0;
+        }
+
+        if (!in_array($data->docman_category_id, $categories) && $page->params->get('category_children'))
+        {
+            $state = array(
+                'id'           => $data->docman_category_id,
+                'access'       => $context->user->getRoles(),
+                'current_user' => $context->user->getId(),
+                'parent_id'    => $categories
+            );
+
+            if (!$this->getObject('com://admin/docman.model.categories')->setState($state)->count()) {
+                throw new KControllerExceptionRequestInvalid($translator->translate('You cannot submit documents on the selected category'));
+            }
+        }
+
+        if ($data->storage_type === 'file')
+        {
+            $file = $context->request->files->file;
+
+            if (empty($file) || empty($file['name'])) {
+                throw new KControllerExceptionRequestInvalid($translator->translate('You did not select a file to be uploaded.'));
+            }
+        } else {
+            $data->storage_path = $data->storage_path_remote;
+        }
+
+    }
+
+    protected function _getFileController(KControllerContextInterface $context)
+    {
+        return $this->getObject('com:files.controller.file', [
+            'behaviors' => [
+                'permissible' => [
+                    'permission' => 'com://site/docman.controller.permission.submit'
+                ]
+            ],
+            'request' => clone $context->request
+        ])->container('docman-files');
     }
 
     protected function _uploadFile(KControllerContextInterface $context)
@@ -77,94 +157,53 @@ class ComDocmanControllerSubmit extends ComKoowaControllerModel
 
         try
         {
+            $this->_setData($context);
+
             $data = $context->request->data;
-
-            $translator = $this->getObject('translator');
-            $page = JFactory::getApplication()->getMenu()->getItem($this->getRequest()->query->Itemid);
-
-            if (!$page) {
-                throw new RuntimeException($translator->translate('Invalid menu item'));
-            }
-
-            foreach ($this->getModel()->getTable()->getColumns() as $key => $column) {
-                if (!in_array($key, array('docman_category_id', 'storage_type', 'title', 'description'))) {
-                    unset($data->$key);
-                }
-            }
-
-            $categories = (array) $page->params->get('category_id');
-
-            if (!$data->docman_category_id) {
-                $data->docman_category_id = count($categories) ? $categories[0] : 0;
-            }
-
-            $permitted = in_array($data->docman_category_id, $categories);
-
-            if (!$permitted && $page->params->get('category_children'))
-            {
-                $state = array(
-                    'id'           => $data->docman_category_id,
-                    'access'       => $context->user->getRoles(),
-                    'current_user' => $context->user->getId(),
-                    'parent_id'    => $categories
-                );
-
-                $permitted = $this->getObject('com://admin/docman.model.categories')->setState($state)->count();
-            }
-
-            if (!$permitted) {
-                throw new KControllerExceptionRequestInvalid($translator->translate('You cannot submit documents on the selected category'));
-            }
-
-            $data->enabled = $page->params->get('auto_publish') ? 1 : 0;
-
-            if (empty($data->storage_type)) {
-                $data->storage_type = $data->storage_path_remote ? 'remote' : 'file';
-            }
 
             if ($data->storage_type === 'file')
             {
-                $file = $context->request->files->storage_path_file;
+                $file = $context->request->files->file;
 
-                if (empty($file) || empty($file['name'])) {
-                    throw new KControllerExceptionRequestInvalid($translator->translate('You did not select a file to be uploaded.'));
-                }
+                $controller = $this->_getFileController($context);
+                $category   = $this->getObject('com://admin/docman.model.categories')->id($data->docman_category_id)->fetch();
+                $folder     = $category->folder;
 
-                $config =  array(
-                    'behaviors' => array(
-                        'permissible' => array(
-                            'permission' => 'com://site/docman.controller.permission.submit'
-                        )
-                    ),
-                    'request' => clone $context->request
-                );
-
-                $category = $this->getObject('com://admin/docman.model.categories')->id($data->docman_category_id)->fetch();
-                $folder   = $category->folder;
-
-                $controller = $this->getObject('com:files.controller.file', $config)->container('docman-files');
-                $container  = $controller->getModel()->getContainer();
-                $file['name'] = $this->_getUniqueName($container, $folder, $file['name']);
+                $filename = $data->has('name') ? $data->name : $file['name'];
+                $filename = $this->_getUniqueName($controller->getModel()->getContainer(), $folder, $filename);
 
                 $this->_uploaded = $controller
                         ->add(array(
                             'file'   => $file['tmp_name'],
-                            'name'   => $file['name'],
-                            'folder' => $folder
+                            'name'   => $filename,
+                            'folder' => $folder,
+                            'chunk'  => $context->request->data->get('chunk', 'int'),
+                            'chunks' => $context->request->data->get('chunks', 'int')
                         ));
 
-                $data->storage_path = $this->_uploaded->path;
-
+                if ($this->_uploaded) {
+                    $data->storage_path = $this->_uploaded->path;
+                } else {
+                    $result = false; // This happens when we upload just a chunk
+                }
             }
-            else $data->storage_path = $data->{'storage_path_'.$data->storage_type};
         }
         catch (Exception $exception)
         {
-            $message = $exception->getMessage();
-            $context->getResponse()->setRedirect($this->getRequest()->getReferrer(), $message, 'error');
-            $context->getResponse()->send();
+            if ($context->getRequest()->getFormat() !== 'json') {
+                $message = $exception->getMessage();
+                $context->getResponse()->setRedirect($this->getRequest()->getReferrer(), $message, 'error');
+                $context->getResponse()->send();
 
-            $result = false;
+                $result = false;
+            } else {
+                $context->response->setContent(json_encode([
+                    'status' => false,
+                    'error' => $exception->getMessage()
+                ]), 'application/json');
+
+                $result = false;
+            }
         }
 
         return $result;

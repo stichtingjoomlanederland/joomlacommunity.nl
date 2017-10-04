@@ -1,7 +1,7 @@
 <?
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -9,8 +9,10 @@ defined('KOOWA') or die; ?>
 
 <?= helper('ui.load'); ?>
 <?= helper('behavior.keepalive'); ?>
+<?= helper('behavior.tooltip') ?>
 <?= helper('behavior.validator', array(
     'options' => array(
+        'ignore' => '',
         'messages' => array(
             'storage_path_file' => array('required' => translate('This field is required')),
             'title'             => array('required' => translate('This field is required'))
@@ -19,8 +21,11 @@ defined('KOOWA') or die; ?>
 )); ?>
 
 <?= helper('translator.script', array('strings' => array(
+    'Please wait for the upload to finish before saving the document',
     'Your link should either start with http:// or another protocol',
-    'Invalid remote link. This link type is not supported by your server.'
+    'Invalid remote link. This link type is not supported by your server.',
+    'Update',
+    'Upload'
 ))); ?>
 
 <ktml:script src="media://com_docman/js/site/submit.default.js" />
@@ -41,7 +46,25 @@ defined('KOOWA') or die; ?>
             <div class="k-ui-namespace boxed">
                 <fieldset class="form-horizontal">
 
-                    <legend><?= translate('Details'); ?></legend>
+                    <div class="control-group">
+                        <label><?= translate('File') ?></label>
+                        <input type="hidden" id="storage_path_file" required value="" />
+
+                        <?= helper('com:files.uploader.container', array(
+                            'container' => 'docman-files',
+                            'element' => '.docman-uploader',
+                            'attributes' => array(
+                                'style' => 'margin-bottom: 0'
+                            ),
+                            'options'   => array(
+                                'check_duplicates' => false,
+                                'multi_selection' => false,
+                                'autostart' => false,
+                                'url' => route('view=file&plupload=1&routed=1&format=json', false, false)
+                            )
+                        )); ?>
+                    </div>
+
 
                     <div class="control-group submit_document__title_field">
                         <label for="title_field"><?= translate('Title'); ?></label>
@@ -72,55 +95,9 @@ defined('KOOWA') or die; ?>
                             ))) ?>
                     </div>
                     <? endif ?>
-
-                    <div class="control-group submit_document__document">
-                        <ul class="nav nav-tabs">
-                            <li>
-                                <a href="#" class="upload-method" data-type="file">
-                                    <?= translate('Upload a file')?>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#" class="upload-method" data-type="remote">
-                                    <?= translate('Submit a link')?>
-                                </a>
-                            </li>
-                        </ul>
-                        <input type="hidden" name="storage_type" id="storage_type" />
-                        <div class="upload-method-box" id="document-remote-path-row">
-                            <input data-rule-streamwrapper="0"
-                                   data-rule-storage="0"
-                                   data-rule-scheme="0"
-                                   class="validate-storage submitlink input input-block-level"
-                                   data-type="remote"
-                                   id="storage_path_remote"
-                                   type="text"
-                                   size="25"
-                                   maxlength="512"
-                                   placeholder="http://"
-                                   data-streams="<?= htmlentities(json_encode($document->getSchemes())); ?>"
-                                   name="storage_path_remote"
-                                   value="<?= escape($document->storage_path); ?>"
-                                />
-                        </div>
-                        <div class="form-group upload-method-box" id="document-file-path-row">
-
-                            <div class="k-file-input-container">
-                                <div class="k-file-input">
-                                    <input class="k-js-file-input" id="file-input" data-multiple-caption="<?= translate('{count} files selected'); ?>" type="file" name="storage_path_file" required />
-                                    <label for="file-input">
-                                        <span class="k-file-input__button">
-                                            <span class="k-icon-cloud-upload" aria-hidden="true"></span>
-                                            <?= translate('Choose a file&hellip;'); ?>
-                                        </span>
-                                        <span class="k-file-input__files"></span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </fieldset>
 
+                <? if ($params->get('show_description', 0)): ?>
                 <fieldset>
                     <legend><?= translate('Description'); ?></legend>
                     <?= helper('editor.display', array(
@@ -131,6 +108,7 @@ defined('KOOWA') or die; ?>
                         'buttons' => null
                     )); ?>
                 </fieldset>
+                <? endif ?>
             </div>
 
             <input type="hidden" name="automatic_thumbnail" value="1" />
@@ -141,47 +119,3 @@ defined('KOOWA') or die; ?>
     <ktml:toolbar type="actionbar">
 
 </div>
-
-<script type="text/javascript">
-    /*
-     Originally written by By Osvaldas Valutis, www.osvaldas.info
-     Adapted by Robin Poort, www.robinpoort.com
-     Available for use under the MIT License
-     */
-
-    kQuery(function($) {
-        ( function ( document, window, index )
-        {
-            var inputs = document.querySelectorAll('.k-js-file-input');
-            Array.prototype.forEach.call( inputs, function( input )
-            {
-                var label	 = input.nextElementSibling,
-                    labelVal = label.innerHTML;
-
-                input.addEventListener('change', function( e )
-                {
-                    var fileName = '';
-                    if( this.files && this.files.length > 1 )
-                        fileName = ( this.getAttribute('data-multiple-caption') || '' ).replace( '{count}', this.files.length );
-                    else
-                        fileName = e.target.value.split( '\\' ).pop();
-
-                    if( fileName )
-                        label.querySelector('.k-file-input__files').innerHTML = fileName;
-                    else
-                        label.innerHTML = labelVal;
-                });
-
-                // Add class for drop hover
-                input.ondragover = function(ev) { this.classList.add('has-drop-focus'); };
-                input.ondragleave = function(ev) { this.classList.remove('has-drop-focus'); };
-                input.ondragend = function(ev) { this.classList.remove('has-drop-focus'); };
-                input.ondrop = function(ev) { this.classList.remove('has-drop-focus'); };
-
-                // Firefox bug fix
-                input.addEventListener('focus', function(){ input.classList.add('has-focus'); });
-                input.addEventListener('blur', function(){ input.classList.remove('has-focus'); });
-            });
-        }( document, window, 0 ));
-    });
-</script>

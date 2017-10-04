@@ -5,16 +5,16 @@
  * It renders a split view, sidebar to the left and a table layout of documents to the right.
  * It lets you select 3 different kind of links in a dialog, menu item, category or a document link.
  *
- * @copyright	Copyright (C) 2007 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2007 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @requires    DOCman.Tree.Categories, Koowa.Class, jqTree, kQuery
  */
 
-var DOCman = DOCman || {};
+var Docman = Docman || {};
 
 (function($) {
 
-DOCman.Doclink = Koowa.Class.extend({
+Docman.Doclink = Koowa.Class.extend({
 
     options: {
         editor: null,
@@ -102,7 +102,7 @@ DOCman.Doclink = Koowa.Class.extend({
             }
         }
 
-        new DOCman.Doclink.Tree('#documents-sidebar', this.options);
+        new Docman.Doclink.Tree('#documents-sidebar', this.options);
 
         this.spinner = $('.k-js-doclink-spinner');
 
@@ -347,7 +347,7 @@ DOCman.Doclink = Koowa.Class.extend({
     }
 });
 
-DOCman.Doclink.Tree = DOCman.Tree.Categories.extend({
+Docman.Doclink.Tree = Docman.Tree.Categories.extend({
 
     getDefaults: function(){
         var defaults = {

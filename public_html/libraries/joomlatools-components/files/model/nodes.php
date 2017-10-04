@@ -1,8 +1,8 @@
 <?php
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright	Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -20,18 +20,18 @@ class ComFilesModelNodes extends KModelAbstract
      *
      * @var ComFilesModelEntityContainer
      */
-    protected static $_container;
+    protected $_container;
 
     public function __construct(KObjectConfig $config)
     {
         parent::__construct($config);
 
         $this->getState()
-            ->insert('limit'    , 'int')
-            ->insert('offset'   , 'int')
-            ->insert('sort'     , 'cmd')
-            ->insert('direction', 'word', 'asc')
-            ->insert('search'   , 'string')
+            ->insert('limit'     , 'int')
+            ->insert('offset'    , 'int')
+            ->insert('sort'      , 'cmd')
+            ->insert('direction' , 'word', 'asc')
+            ->insert('search'    , 'string')
 
             ->insert('container', 'com:files.filter.container', null)
             ->insert('folder'	, 'com:files.filter.path', '')
@@ -50,7 +50,7 @@ class ComFilesModelNodes extends KModelAbstract
     {
         $config->append(array(
             'identity_key' => 'name',
-            'behaviors' => array('paginatable'),
+            'behaviors' => array('paginatable', 'com:files.model.behavior.nodes.thumbnailable'),
         ));
 
         parent::_initialize($config);
@@ -132,7 +132,7 @@ class ComFilesModelNodes extends KModelAbstract
     {
         $modified = (array) KObjectConfig::unbox($context->modified);
         if (in_array('container', $modified)) {
-            self::$_container = null;
+            $this->_container = null;
         }
     }
 
@@ -144,7 +144,7 @@ class ComFilesModelNodes extends KModelAbstract
      */
     public function getContainer()
     {
-        if(!isset(self::$_container))
+        if(!isset($this->_container))
         {
             //Set the container
             $container = $this->getObject('com:files.model.containers')->slug($this->getState()->container)->fetch();
@@ -153,10 +153,10 @@ class ComFilesModelNodes extends KModelAbstract
                 throw new UnexpectedValueException('Invalid container: '.$this->getState()->container);
             }
 
-            self::$_container = $container->top();
+            $this->_container = $container->top();
         }
 
-        return self::$_container;
+        return $this->_container;
     }
 
     public function getPath()

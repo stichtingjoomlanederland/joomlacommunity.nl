@@ -56,6 +56,30 @@
 				<option value="1">JYES</option>
 				<option value="0">JNO</option>
 			</field>
+			<field name="show_category_filter" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_CATEGORY_FILTER" description="SHOW_CATEGORY_FILTER_DESCRIPTION"
+				   showon="show_document_search:1"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_tag_filter" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_TAG_FILTER" description="SHOW_TAG_FILTER_DESCRIPTION"
+				showon="show_document_search:1"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_date_filter" type="radio" class="btn-group btn-group-yesno" default="0" label="SHOW_DATE_FILTER" description="SHOW_DATE_FILTER_DESCRIPTION"
+				   showon="show_document_search:1"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_owner_filter" type="radio" class="btn-group btn-group-yesno" default="0" label="SHOW_OWNER_FILTER" description="SHOW_OWNER_FILTER_DESCRIPTION"
+				   showon="show_document_search:1"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
 			<field name="show_document_sort_limit" type="radio" class="btn-group btn-group-yesno" default="0" label="SHOW_DOCUMENT_SORT_LIMIT"
 				   description="SHOW_DOCUMENT_SORT_LIMIT_DESCRIPTION">
 				<option value="1">JYES</option>
@@ -146,6 +170,11 @@
 			<field name="hits_for_popular" type="text" default="100" label="HITS_FOR_POPULAR" description="HITS_FOR_POPULAR_DESCRIPTION" />
 
 			<field label="CATEGORY_OPTIONS" type="heading" />
+
+			<field name="allow_category_add" type="radio" class="btn-group btn-group-yesno" default="1" label="ALLOW_CATEGORY_ADD" description="ALLOW_CATEGORY_ADD_DESCRIPTION">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
             <field name="sort_categories" type="list" default="title" label="SORT_CATEGORIES_BY">
 				<option value="title">JGLOBAL_TITLE_ALPHABETICAL</option>
 				<option value="reverse_title">JGLOBAL_TITLE_REVERSE_ALPHABETICAL</option>
@@ -178,7 +207,6 @@
 				<option value="1">JYES</option>
 				<option value="0">JNO</option>
 			</field>
-
 		</fieldset>
 	</fields>
 </metadata>

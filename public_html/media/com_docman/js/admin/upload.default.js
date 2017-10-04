@@ -1,9 +1,9 @@
 
-var DOCman = DOCman || {};
+var Docman = Docman || {};
 
 kQuery(function($) {
 
-    DOCman.BatchForm = Koowa.Class.extend({
+    Docman.BatchForm = Koowa.Class.extend({
         batch_form: null,
         document_form_container: null,
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -13,7 +13,7 @@ class ComDocmanControllerToolbarDocument extends ComDocmanControllerToolbarActio
         $category = $this->getObject('request')->query->category;
 
         $command->icon = 'k-icon-data-transfer-upload';
-        $command->href = 'component=docman&view=upload&layout=default&tmpl=koowa&category_id='.$category;
+        $command->href = 'component=docman&view=upload&layout=default&category_id='.$category;
         $command->append(array(
             'attribs' => array(
                 'data-k-modal'   => array(

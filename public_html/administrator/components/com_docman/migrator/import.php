@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     DOCman Exporter
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -64,7 +64,7 @@ class ComDocmanMigratorImport extends ComMigratorMigratorImportAbstract
             'jobs'      => array()
         ));
 
-        if (in_array($source, array('2.0', '2.1', '3.0')))
+        if (in_array($source, array('2.0', '2.1', '3.0', '3.1')))
         {
             $config->jobs->append(array(
                 'check' => array(
@@ -251,7 +251,7 @@ class ComDocmanMigratorImport extends ComMigratorMigratorImportAbstract
             ));
         }
 
-        if (in_array($source, array('2.1', '3.0')))
+        if (in_array($source, array('2.1', '3.0', '3.1')))
         {
             $config->jobs->append(array(
                 'insert_levels' => array(
@@ -272,7 +272,8 @@ class ComDocmanMigratorImport extends ComMigratorMigratorImportAbstract
             ));
         }
 
-        if ($source == '3.0') {
+        if (in_array($source, array('3.0', '3.1')))
+        {
             $config->jobs->append(array(
                 'insert_category_folders' => array(
                     'action' => 'insert',

@@ -6,7 +6,7 @@
  * A single and multi file uploader
  */
 
-@import "../../../../kodekit-ui/src/scss/core/tools";
+@import "../../../../kodekit-ui/src/scss/admin/core/tools";
 @import "koowa/progressbar";
 
 /* Variables
@@ -130,7 +130,7 @@ $k-upload-list-button-desktop-size: 23px !default;
   }
 
   &.has-open-info .k-upload__body-info {
-    @include coverall($top: 60px); /* 3 */
+    @include coverall($k-top: 60px); /* 3 */
     max-height: none; /* 4 */
     overflow: auto; /* 5 */
   }

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -218,6 +218,38 @@ class com_docmanInstallerScript extends JoomlatoolsInstallerHelper
         if (count($incompatible)) {
             $warning = 'This is important! You need to upgrade %s to 3.0 too or your site will break. Please go to <a target="_blank" href="https://joomlatools.com">https://joomlatools.com</a> and download the latest versions.';
             JFactory::getApplication()->enqueueMessage(sprintf($warning, implode(' and ', $incompatible)), 'warning');
+        }
+    }
+
+    public function update($installer)
+    {
+        parent::update($installer);
+
+        // 3.0.0-beta.2
+        if (!$this->_columnExists('docman_documents', 'ordering'))
+        {
+            $queries = [
+                "ALTER TABLE `#__docman_documents` ADD `ordering` int(11) NOT NULL default 0;",
+                "SET @order := 0;",
+                "UPDATE `#__docman_documents` SET `ordering` = (@order := @order + 1) ORDER BY `docman_category_id`, `docman_document_id`;"
+            ];
+            foreach ($queries as $query) {
+                $this->_executeQuery($query);
+            }
+        }
+
+        // 3.0.5-beta.1
+        if ($this->_indexExists('docman_files', 'path')) {
+            $this->_executeQuery("ALTER TABLE `#__docman_files` DROP INDEX `path`");
+        }
+
+        if ($this->_indexExists('docman_folders', 'path')) {
+            $this->_executeQuery("ALTER TABLE `#__docman_folders` DROP INDEX `path`");
+        }
+
+        // 3.1.0-beta.1
+        if (!$this->_columnExists('docman_scans', 'response')) {
+            $this->_executeQuery("ALTER TABLE `#__docman_scans` ADD `response` varchar(2048) NOT NULL DEFAULT ''");
         }
     }
 
@@ -544,6 +576,25 @@ class com_docmanInstallerScript extends JoomlatoolsInstallerHelper
             if (in_array($query['view'], array('tree', 'flat', 'list')))
             {
                 // add defaults for the new parameters
+                if (strpos($item->params, 'show_category_filter') === false) {
+                    $params = json_decode($item->params);
+
+                    $params->show_category_filter = 1;
+                    $params->show_tag_filter      = 1;
+                    $params->show_owner_filter    = 0;
+                    $params->show_date_filter     = 0;
+
+                    $item->params = json_encode($params);
+                }
+
+                if (strpos($item->params, 'allow_category_add') === false && in_array($query['view'], ['tree', 'list'])) {
+                    $params = json_decode($item->params);
+
+                    $params->allow_category_add = 1;
+
+                    $item->params = json_encode($params);
+                }
+
                 if (strpos($item->params, 'show_document_tags') === false) {
                     $params = json_decode($item->params);
 

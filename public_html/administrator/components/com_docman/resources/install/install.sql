@@ -143,7 +143,8 @@ CREATE TABLE IF NOT EXISTS `#__docman_scans` (
   `ocr` tinyint(1) NOT NULL DEFAULT '0',
   `thumbnail` tinyint(1) NOT NULL DEFAULT '0',
   `modified_on` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `created_on` datetime NOT NULL DEFAULT '0000-00-00 00:00:00'
+  `created_on` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `response` varchar(2048) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__docman_document_contents` (

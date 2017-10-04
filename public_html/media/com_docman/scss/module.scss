@@ -12,6 +12,9 @@
 // Namespacing with Koowa
 .k-ui-namespace .mod_docman {
 
+  // From site
+  @import "site/gallery";
+
   // Module specific
   @import "module/documents";
 

@@ -14,15 +14,6 @@ CREATE TABLE IF NOT EXISTS `#__files_containers` (
   UNIQUE KEY `slug` (`slug`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `#__files_thumbnails` (
-  `files_thumbnail_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `files_container_id` varchar(255) NOT NULL,
-  `folder` varchar(255) NOT NULL,
-  `filename` varchar(255) NOT NULL,
-  `thumbnail` mediumtext NOT NULL,
-  PRIMARY KEY (`files_thumbnail_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 REPLACE INTO `#__files_mimetypes` (mimetype, extension) VALUES ('application/andrew-inset', 'ez'), ('application/applixware', 'aw'), ('application/atom+xml', 'atom'), ('application/atomcat+xml', 'atomcat'), ('application/atomsvc+xml', 'atomsvc'), ('application/ccxml+xml', 'ccxml'), ('application/cdmi-capability', 'cdmia'), ('application/cdmi-container', 'cdmic'), ('application/cdmi-domain', 'cdmid'), ('application/cdmi-object', 'cdmio'), ('application/cdmi-queue', 'cdmiq'), ('application/cu-seeme', 'cu'), ('application/davmount+xml', 'davmount'), ('application/docbook+xml', 'dbk'), ('application/dssc+der', 'dssc'), ('application/dssc+xml', 'xdssc'), ('application/ecmascript', 'ecma'), ('application/emma+xml', 'emma'), ('application/epub+zip', 'epub'), ('application/exi', 'exi');
 REPLACE INTO `#__files_mimetypes` (mimetype, extension) VALUES ('application/font-tdpfr', 'pfr'), ('application/gml+xml', 'gml'), ('application/gpx+xml', 'gpx'), ('application/gxf', 'gxf'), ('application/hyperstudio', 'stk'), ('application/inkml+xml', 'ink'), ('application/inkml+xml', 'inkml'), ('application/ipfix', 'ipfix'), ('application/java-archive', 'jar'), ('application/java-serialized-object', 'ser'), ('application/java-vm', 'class'), ('application/javascript', 'js'), ('application/json', 'json'), ('application/jsonml+json', 'jsonml'), ('application/lost+xml', 'lostxml'), ('application/mac-binhex40', 'hqx'), ('application/mac-compactpro', 'cpt'), ('application/mads+xml', 'mads'), ('application/marc', 'mrc');
 REPLACE INTO `#__files_mimetypes` (mimetype, extension) VALUES ('application/marcxml+xml', 'mrcx'), ('application/mathematica', 'ma'), ('application/mathematica', 'nb'), ('application/mathematica', 'mb'), ('application/mathml+xml', 'mathml'), ('application/mbox', 'mbox'), ('application/mediaservercontrol+xml', 'mscml'), ('application/metalink+xml', 'metalink'), ('application/metalink4+xml', 'meta4'), ('application/mets+xml', 'mets'), ('application/mods+xml', 'mods'), ('application/mp21', 'm21'), ('application/mp21', 'mp21'), ('application/mp4', 'mp4s'), ('application/msword', 'doc'), ('application/msword', 'dot'), ('application/mxf', 'mxf'), ('application/octet-stream', 'bin'), ('application/octet-stream', 'dms');

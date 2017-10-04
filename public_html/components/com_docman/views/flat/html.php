@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -84,13 +84,19 @@ class ComDocmanViewFlatHtml extends ComDocmanViewHtml
             || (!empty($filter->tag) && $filter->tag != $tags)
             || (!empty($filter->created_by) && $filter->created_by != $owner));
 
-        $context->data->tag_filter      = [
+        $context->data->category_filter = $category_filter;
+
+        $context->data->tag_model  = $this->getObject('com://admin/docman.model.pagetags');
+        $context->data->tag_filter = [
             'page'         => $this->getModel()->getState()->page,
             'access'       => $this->getObject('user')->getRoles(),
             'current_user' => $this->getObject('user')->getId(),
             'enabled'      => $this->getModel()->getState()->enabled,
             'status'       => $this->getModel()->getState()->status
         ];
-        $context->data->category_filter = $category_filter;
+
+        if (!$context->data->tag_model->setState($context->data->tag_filter->toArray())->count()) {
+            $menu->params->set('show_tag_filter', false);
+        }
     }
 }

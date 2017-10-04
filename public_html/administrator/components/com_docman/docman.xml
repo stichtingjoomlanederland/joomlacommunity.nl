@@ -1,67 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" version="2.5" method="upgrade">
-	<identifier>com:docman</identifier>
-	<name>com_docman</name>
+    <identifier>com:docman</identifier>
+    <name>com_docman</name>
     <author>Joomlatools</author>
-    <creationDate>April 2017</creationDate>
-    <copyright>Copyright (C) 2011 - 2017 Timble CVBA (http://www.timble.net)</copyright>
+    <creationDate>January 2016</creationDate>
+    <copyright>Copyright (C) 2011 Timble CVBA (http://www.timble.net)</copyright>
     <license>GNU GPLv3 - http://www.gnu.org/licenses/gpl.html</license>
     <authorEmail>support@joomlatools.com</authorEmail>
     <authorUrl>www.joomlatools.com</authorUrl>
-	<version>3.0.9</version>
-	<description />
+    <version>3.1.2</version>
+    <description />
 
     <scriptfile>resources/install/script.php</scriptfile>
 
-	<install>
-		<sql>
-			<file driver="mysql" charset="utf8">resources/install/install.sql</file>
-		</sql>
+    <install>
+        <sql>
+            <file driver="mysql" charset="utf8">resources/install/install.sql</file>
+        </sql>
     </install>
-	<uninstall>
-		<sql>
-			<file driver="mysql" charset="utf8">resources/install/uninstall.sql</file>
-		</sql>
-	</uninstall>
+    <uninstall>
+        <sql>
+            <file driver="mysql" charset="utf8">resources/install/uninstall.sql</file>
+        </sql>
+    </uninstall>
 
-    <update>
-        <schemas>
-            <schemapath type="mysql">resources/updates</schemapath>
-        </schemas>
-    </update>
+    <files folder="site/components/com_docman">
+        <filename>docman.php</filename>
+        <filename>komento_plugin.php</filename>
+        <filename>router.php</filename>
 
-	<files folder="site/components/com_docman">
-		<filename>docman.php</filename>
-    <filename>komento_plugin.php</filename>
-		<filename>router.php</filename>
-
-		<folder>controller</folder>
-    <folder>dispatcher</folder>
-		<folder>forms</folder>
-    <folder>language</folder>
-		<folder>model</folder>
-    <folder>resources</folder>
-		<folder>template</folder>
-		<folder>views</folder>
-	</files>
+        <folder>controller</folder>
+        <folder>dispatcher</folder>
+        <folder>forms</folder>
+        <folder>language</folder>
+        <folder>model</folder>
+        <folder>resources</folder>
+        <folder>template</folder>
+        <folder>views</folder>
+    </files>
 
     <media folder="media">
         <folder>com_docman</folder>
     </media>
 
-	<administration>
-		<menu>COM_DOCMAN</menu>
-		<submenu>
-			<menu view="documents" link="option=com_docman&amp;view=documents" img="class:article">COM_DOCMAN_SUBMENU_DOCUMENTS</menu>
-      <menu view="categories" link="option=com_docman&amp;view=categories" img="class:category">COM_DOCMAN_SUBMENU_CATEGORIES</menu>
-			<menu view="tags" link="option=com_docman&amp;view=tags" img="class:media">COM_DOCMAN_SUBMENU_TAGS</menu>
-			<menu view="files" link="option=com_docman&amp;view=files" img="class:media">COM_DOCMAN_SUBMENU_FILES</menu>
-			<menu view="users" link="option=com_docman&amp;view=users" img="class:users">COM_DOCMAN_SUBMENU_USERS</menu>
-		</submenu>
+    <administration>
+        <menu>COM_DOCMAN</menu>
+        <submenu>
+            <menu view="documents" link="option=com_docman&amp;view=documents" img="class:article">COM_DOCMAN_SUBMENU_DOCUMENTS</menu>
+            <menu view="categories" link="option=com_docman&amp;view=categories" img="class:category">COM_DOCMAN_SUBMENU_CATEGORIES</menu>
+            <menu view="tags" link="option=com_docman&amp;view=tags" img="class:media">COM_DOCMAN_SUBMENU_TAGS</menu>
+            <menu view="files" link="option=com_docman&amp;view=files" img="class:media">COM_DOCMAN_SUBMENU_FILES</menu>
+            <menu view="users" link="option=com_docman&amp;view=users" img="class:users">COM_DOCMAN_SUBMENU_USERS</menu>
+        </submenu>
 
-		<files folder="administrator/components/com_docman">
-			<filename>access.xml</filename>
-			<filename>docman.php</filename>
+        <files folder="administrator/components/com_docman">
+            <filename>access.xml</filename>
+            <filename>docman.php</filename>
             <filename>version.php</filename>
             <folder>controller</folder>
             <folder>database</folder>
@@ -75,20 +69,20 @@
             <folder>template</folder>
             <folder>views</folder>
         </files>
-	</administration>
+    </administration>
 
     <updateservers>
         <server type="extension" priority="1" name="DOCman">https://api.joomlatools.com/extension/docman.xml</server>
     </updateservers>
 
     <dependencies>
-    	<dependency type="plugin" element="doclink" folder="editors-xtd">extensions/plg_editorsxtd_doclink</dependency>
-    	<dependency type="plugin" element="docman" folder="search">extensions/plg_search_docman</dependency>
+        <dependency type="plugin" element="doclink" folder="editors-xtd">extensions/plg_editorsxtd_doclink</dependency>
+        <dependency type="plugin" element="docman" folder="search">extensions/plg_search_docman</dependency>
         <dependency type="plugin" element="docman" folder="finder">extensions/plg_finder_docman</dependency>
         <dependency type="plugin" element="doclink" folder="content">extensions/plg_content_doclink</dependency>
         <dependency type="plugin" element="scheduler" folder="system">extensions/plg_system_scheduler</dependency>
         <dependency type="plugin" element="joomlatoolsupdater" folder="system" uninstall="false">extensions/plg_system_joomlatoolsupdater</dependency>
-    	<dependency type="module" element="mod_docman_documents">extensions/mod_docman_documents</dependency>
+        <dependency type="module" element="mod_docman_documents">extensions/mod_docman_documents</dependency>
         <dependency type="module" element="mod_docman_categories">extensions/mod_docman_categories</dependency>
     </dependencies>
 
@@ -147,7 +141,9 @@
         <file>media/com_docman/js/files.js</file>
         <file>media/com_docman/js/files.select.js</file>
 
+
         <folder>components/com_docman/views/categories</folder>
+        <file>components/com_docman/dispatcher/behavior/scannable.php</file>
         <file>components/com_docman/views/document/json.php</file>
         <file>components/com_docman/views/document/raw.php</file>
         <file>components/com_docman/views/document/tmpl/default.php</file>
@@ -194,5 +190,7 @@
 
         <file>media/com_docman/css/admin.css</file>
 
+        <!-- 3.1 -->
+        <file>components/com_docman/template/filter/icon.php</file>
     </deleted>
 </extension>

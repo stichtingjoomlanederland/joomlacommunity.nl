@@ -1,7 +1,7 @@
 
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -62,7 +62,13 @@
                             return;
                         }
 
-                        var response = $.parseJSON(data.responseText);
+                        var response;
+
+                        try {
+                            response = $.parseJSON(data.responseText);
+                        } catch (error) {
+                            response = {};
+                        }
 
                         self.trigger('processFailed', $.extend({}, response));
                     }
@@ -173,7 +179,14 @@
                 config.data.csrf_token = Docman.token;
 
                 var error = function(data) {
-                    var response = $.parseJSON(data.responseText);
+                    var response;
+
+                    try {
+                        response = $.parseJSON(data.responseText);
+                    } catch (error) {
+                        response = {};
+                    }
+
                     showError(response);
                 };
 

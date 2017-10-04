@@ -1,8 +1,8 @@
 <?php
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright   Copyright (C) 2011 - 2017 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://github.com/joomlatools/joomlatools-framework-activities for the canonical source repository
  */
@@ -63,6 +63,13 @@ class ComActivitiesModelEntityActivity extends KModelEntityRow implements ComAct
      * @var mixed
      */
     protected $_translator;
+
+    /**
+     * The activity locale.
+     *
+     * @var string
+     */
+    protected $_locale;
 
     /**
      * Constructor.
@@ -154,7 +161,22 @@ class ComActivitiesModelEntityActivity extends KModelEntityRow implements ComAct
      */
     public function getActivityFormat()
     {
-        return $this->format;
+        // Avoid errors due to magic getter recursions
+        if (!$format = KObjectArray::offsetGet('format')) {
+            $format = $this->format;
+        }
+
+        return $format;
+    }
+
+    /**
+     * Get the activity objects
+     *
+     * @return array An array containing ComActivitiesActivityObjectInterface objects.
+     */
+    public function getActivityObjects()
+    {
+        return $this->objects;
     }
 
     /**
@@ -287,7 +309,70 @@ class ComActivitiesModelEntityActivity extends KModelEntityRow implements ComAct
      */
     public function getPropertyFormat()
     {
-        return $this->getObject($this->_translator)->translate($this->_format, $this->tokens);
+        // Make un-translated format available for recursive calls.
+        KObjectArray::offsetSet('format', $this->_format);
+
+        return $this->getTranslator()->translateActivityFormat($this);
+    }
+
+    /**
+     * Locale setter.
+     *
+     * @param string $locale The activity locale.
+     * @return ComActivitiesActivityInterface
+     */
+    public function setLocale($locale)
+    {
+        $this->_locale = $locale;
+        return $this;
+    }
+
+    /**
+     * Locale getter.
+     *
+     * @return string The activity locale.
+     */
+    public function getLocale()
+    {
+        if (!$this->_locale) {
+            $this->getActivityFormat(); // Locale gets calculated and set when translating format
+        }
+
+        return $this->_locale;
+    }
+
+    /**
+     * Get the activity objects
+     *
+     * @return array An array containing ComActivitiesActivityObjectInterface objects.
+     */
+    public function setTranslator(ComActivitiesActivityTranslatorInterface $translator)
+    {
+        $this->_translator = $translator;
+        return $this;
+    }
+
+    /**
+     * Set the activity translator.
+     *
+     * @param ComActivitiesActivityTranslatorInterface $translator
+     * @return ComActivitiesActivityInterface
+     */
+    public function getTranslator()
+    {
+        if (!$this->_translator instanceof ComActivitiesActivityTranslatorInterface)
+        {
+            $translator = $this->getObject('translator');
+
+            if (!$translator instanceof ComActivitiesActivityTranslatorInterface) {
+                $translator = $translator->decorate($this->_translator);
+                $this->getObject('manager')->setObject('translator', $translator);
+            }
+
+            $this->setTranslator($translator);
+        }
+
+        return $this->_translator;
     }
 
     /**
@@ -371,63 +456,6 @@ class ComActivitiesModelEntityActivity extends KModelEntityRow implements ComAct
     }
 
     /**
-     * Get the activity format tokens.
-     *
-     * Tokens are activity objects being referenced in the activity format.
-     *
-     * @return array An array containing ComActivitiesActivityObjectInterface objects
-     */
-    public function getPropertyTokens()
-    {
-        $tokens = array();
-
-        // Issue a format get call if format isn't yet set. Activity overrides that dynamically set this property
-        // usually do that at the time format is calculated.
-        if (!$this->_format) {
-            $this->getActivityFormat();
-        }
-
-        if (preg_match_all('/\{(.+?)\}/',$this->_format, $labels))
-        {
-            $objects = $this->objects;
-
-            foreach ($labels[1] as $label)
-            {
-                $object = null;
-                $parts  = explode('.', $label);
-
-                if (count($parts) > 1)
-                {
-                    $name = array_shift($parts);
-
-                    if (isset($objects[$name]))
-                    {
-                        $object = $objects[$name];
-
-                        foreach ($parts as $property)
-                        {
-                            $object = $object->{$property};
-                            if (is_null($object)) break;
-                        }
-                    }
-                }
-                else
-                {
-                    if (isset($objects[$label])) {
-                        $object = $objects[$label];
-                    }
-                }
-
-                if ($object instanceof ComActivitiesActivityObjectInterface) {
-                    $tokens[$label] = $object;
-                }
-            }
-        }
-
-        return $tokens;
-    }
-
-    /**
      * Prevent setting the package property.
      *
      * @return array An array containing ComActivitiesActivityObjectInterface objects.
@@ -499,9 +527,7 @@ class ComActivitiesModelEntityActivity extends KModelEntityRow implements ComAct
      *                      determining if an object with label as defined by {Label} exists. See
      *                      {@link _findActivityActor()} as an example.
      *                      <br><br>
-     *                      - translate (array): a list of property names to be translated. By default the displayName
-     *                      property will be set as translatable unless the translate is set. If translate is set to
-     *                      false, no property will get translated.
+     *                      - translate (bool): translates displayName property if set to true.
      *                      - object (bool): the configuration array may contain arrays which represent configurations
      *                      for stacked activity objects. For them to be considered as object configurations, an object
      *                      property with its value set to true must be included in the configuration array.
@@ -513,12 +539,9 @@ class ComActivitiesModelEntityActivity extends KModelEntityRow implements ComAct
         $config = new KObjectConfig($config);
 
         $config->append(array(
-            'attributes' => array()
+            'attributes' => array(),
+            'translate'  => true
         ));
-
-        if (!$config->translate && $config->translate !== false) {
-            $config->translate = 'displayName';
-        }
 
         // Process all object sub-properties.
         foreach ($config as $key => $value)
@@ -543,30 +566,17 @@ class ComActivitiesModelEntityActivity extends KModelEntityRow implements ComAct
             $config->deleted = true;
         }
 
-        if ($translate = $config->translate)
-        {
-            $translator = $this->getObject('translator');
-            $translate  = (array) KObjectConfig::unbox($translate);
-
-            foreach ($translate as $property)
-            {
-                if ($config->{$property}) {
-                    $config->{$property} = $translator->translate($config->{$property});
-                }
-            }
-        }
-
         if ($config->image instanceof KObjectConfig)
         {
             if (is_string($config->image->url)) {
                 $config->image->url = $this->_getRoute($config->image->url);
             }
 
-            $config->image      = $this->getObject('com:activities.activity.medialink', array('data' => $config->image));
+            $config->image = $this->getObject('com:activities.activity.medialink', array('data' => $config->image));
         }
 
         // Cleanup config.
-        foreach (array('translate', 'find', 'object') as $property) {
+        foreach (array('find', 'object') as $property) {
             unset($config->$property);
         }
 
@@ -602,17 +612,17 @@ class ComActivitiesModelEntityActivity extends KModelEntityRow implements ComAct
     protected function _actorConfig(KObjectConfig $config)
     {
         $objectName = $this->getAuthor()->getName();
-        $translate  = array('displayType');
+        $translate  = false;
 
         if (!$this->created_by)
         {
-            $objectName  = 'Guest user';
-            $translate[] = 'displayName';
+            $objectName = 'Guest user';
+            $translate  = true;
         }
         elseif (!$this->_findActivityActor())
         {
-            $objectName  = 'Deleted user';
-            $translate[] = 'displayName';
+            $objectName = 'Deleted user';
+            $translate  = true;
         }
 
         $config->append(array(
@@ -635,10 +645,11 @@ class ComActivitiesModelEntityActivity extends KModelEntityRow implements ComAct
         $config->append(array(
             'id'         => $this->row,
             'objectName' => $this->title,
-            'type' => array('objectName' => $this->name, 'object' => true),
+            'type'       => array('objectName' => $this->name, 'object' => true),
             'url'        => 'option=com_' . $this->package . '&view=' . $this->name . '&id=' . $this->row,
             'attributes' => array('class' => array('object')),
-            'find'       => 'object'
+            'find'       => 'object',
+            'translate'  => false
         ));
     }
 

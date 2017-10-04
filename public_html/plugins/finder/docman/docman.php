@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -39,6 +39,9 @@ class plgFinderDocman extends PlgKoowaFinder
 
     public function onFinderAfterSave($context, $entity, $isNew)
     {
+        // Some hosts cannot handle the default value of 30000 during index
+        FinderIndexer::getState()->set('memory_table_limit', 5000);
+
         if ($context === $this->extension.'.category') {
             return $this->reindexCategory($entity);
         }
@@ -132,7 +135,13 @@ class plgFinderDocman extends PlgKoowaFinder
             $item->addTaxonomy('Category', $item->category_title, $category_state, $category_access);
         }
 
-        $item->contents = $entity->contents;
+        // Tokenizing 40000 characters seem to take around 10 seconds in Finder
+        if (strlen($entity->contents) > 40000) {
+            $item->contents = substr($entity->contents, 0, 40000);
+        } else {
+            $item->contents = $entity->contents;
+        }
+
 
         return $item;
 	}

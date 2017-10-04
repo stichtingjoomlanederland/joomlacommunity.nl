@@ -1,7 +1,7 @@
 <?
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -18,7 +18,7 @@ $button_size   = 'btn-'.(isset($button_size) ? $button_size : 'small');
     <? // Edit ?>
     <? if ($show_edit): ?>
         <a class="btn btn-default <?= $button_size ?>"
-           href="<?= helper('route.document', array('entity' => $document, 'layout' => 'form', 'tmpl' => 'koowa'));?>"
+           href="<?= helper('route.document', array('entity' => $document, 'layout' => 'form'));?>"
         ><?= translate('Edit'); ?></a>
     <? endif ?>
 

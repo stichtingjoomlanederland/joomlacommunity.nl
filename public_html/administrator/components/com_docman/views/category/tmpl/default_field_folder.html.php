@@ -1,7 +1,7 @@
 <?
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -12,11 +12,11 @@ defined('KOOWA') or die; ?>
 (function($) {
 
 /** @namespace Docman */
-if (typeof DOCman === 'undefined') { //noinspection JSUndeclaredVariable
-    DOCman = {};
+if (typeof Docman === 'undefined') { //noinspection JSUndeclaredVariable
+    Docman = {};
 }
 
-DOCman.Folder = Koowa.Class.extend({
+Docman.Folder = Koowa.Class.extend({
     active: null,
     getOptions: function() {
         return {
@@ -120,7 +120,7 @@ DOCman.Folder = Koowa.Class.extend({
 });
 
 $(function() {
-    new DOCman.Folder('.js-folder-container');
+    new Docman.Folder('.js-folder-container');
 });
 
 

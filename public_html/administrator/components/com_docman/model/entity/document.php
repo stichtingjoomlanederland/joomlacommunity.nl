@@ -1,47 +1,28 @@
 <?php
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
 
 class ComDocmanModelEntityDocument extends KModelEntityRow
 {
-    /**
-     * image_extensions
-     *
-     * @var array
-     */
-    public static $image_extensions = array('jpg', 'jpeg', 'gif', 'png', 'tiff', 'tif', 'xbm', 'bmp');
-
-    /**
-     * audio extensions
-     *
-     * @var array
-     */
-    public static $audio_extensions = array('mp3', '3gp', 'act', 'aiff', 'aac', 'amr', 'au', 'awb', 'dct', 'dss', 'dvf', 'flac', 'gsm', 'm4a', 'm4p', 'ogg', 'oga', 'ra', 'rm', 'raw', 'tta', 'vox', 'wav', 'wma', 'wv', 'webm');
-
-    /**
-     * video extensions
-     *
-     * @var array
-     */
-    public static $video_extensions = array('webm','mkv','flv','vob','ogv','ogg','avi','rm','rmvb','mp4','m4p','m4v','asf','mpg','mpeg','mpv','mpe','3gp','3g2','roq','nsv');
-
-    /**
-     * executable extensions
-     *
-     * @var array
-     */
-    public static $executable_extensions = array('exe','bat','bin','apk','msi');
+    public static $extension_type_map = array(
+        'archive'     => array('7z','gz','rar','tar','zip'),
+        'audio'       => array('mp3', '3gp', 'act', 'aiff', 'aac', 'amr', 'au', 'awb', 'dct', 'dss', 'dvf', 'flac', 'gsm', 'm4a', 'm4p', 'ogg', 'oga', 'ra', 'rm', 'raw', 'tta', 'vox', 'wav', 'wma', 'wv', 'webm'),
+        'document'    => array('pdf', 'csv', 'doc','docx','odc','odg','odp','ods', 'odt', 'otc','otg', 'otp','ott', 'rtf','txt','ppt','pptx','pps','tsv', 'tab','xls', 'xlsx','xml'),
+        'image'       => array('ai','bmp','cr2','crw','eps','erf','gif','jpg','jpeg','nef','orf','png','pbm','pgm', 'ppm','psd','svg','tif','tiff','x3f','xbm'),
+        'video'       => array('webm','mkv','flv','vob','ogv','ogg','avi','rm','rmvb','mp4','m4p','m4v','asf','mpg','mpeg','mpv','mpe','3gp','3g2','roq','nsv'),
+        'executable'  => array('cmd', 'exe','bat','bin','apk','msi', 'dmg')
+    );
 
     /**
      * viewable extensions
      *
      * @var array
      */
-    public static $viewable_extensions = array('mp3','ogg','mp4','wav','webm','mse');
+    public static $viewable_extensions = array('mp3','ogg','mp4','wav','webm','mse', 'jpg', 'jpeg', 'gif', 'png', 'tiff', 'tif', 'xbm', 'bmp');
 
     public function save()
     {
@@ -117,6 +98,18 @@ class ComDocmanModelEntityDocument extends KModelEntityRow
         }
 
         return $result;
+    }
+
+    public function toArray()
+    {
+        $data              = parent::toArray();
+        $data['extension'] = $this->extension;
+        $data['size']      = $this->size;
+        $data['kind']      = $this->kind;
+
+        unset($data['storage']);
+
+        return $data;
     }
 
     public function getStorageInfo()
@@ -318,9 +311,71 @@ class ComDocmanModelEntityDocument extends KModelEntityRow
         return $result;
     }
 
+    public function getPropertyFiletype()
+    {
+        $result = null;
+
+        if ($this->getStorageInfo())
+        {
+            $extension = strtolower($this->extension);
+
+            foreach (static::$extension_type_map as $type => $extensions) {
+                if (in_array($extension, $extensions)) {
+                    $result = $type;
+                    break;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    public function isArchive()
+    {
+        return in_array(strtolower($this->extension), static::$extension_type_map['archive']);
+    }
+
+    public function isAudio()
+    {
+        return in_array(strtolower($this->extension), static::$extension_type_map['audio']);
+    }
+
+    public function isDocument()
+    {
+        return in_array(strtolower($this->extension), static::$extension_type_map['document']);
+    }
+
+    public function isExecutable()
+    {
+        return in_array(strtolower($this->extension), static::$extension_type_map['executable']);
+    }
+
     public function isImage()
     {
-        return in_array(strtolower($this->extension), self::$image_extensions);
+        return in_array(strtolower($this->extension), static::$extension_type_map['image']);
+    }
+
+    public function isVideo()
+    {
+        return in_array(strtolower($this->extension), static::$extension_type_map['video']);
+    }
+
+    public function isYoutube()
+    {
+        if (strpos($this->storage->path, 'youtube.com/watch') === false) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function isVimeo()
+    {
+        if (strpos($this->storage->path, 'vimeo.com') === false) {
+            return false;
+        }
+
+        return true;
     }
 
     public function isTopSecret()
@@ -343,16 +398,16 @@ class ComDocmanModelEntityDocument extends KModelEntityRow
         {
             $result = 'document';
 
-            if (in_array($this->extension, self::$audio_extensions)) {
+            if ($this->isAudio()) {
                 $result = 'audio';
             }
-            elseif (in_array($this->extension, self::$video_extensions)) {
+            elseif ($this->isVideo()) {
                 $result = 'video';
             }
-            elseif (in_array($this->extension, self::$image_extensions)) {
+            elseif ($this->isImage()) {
                 $result = 'image';
             }
-            elseif (in_array($this->extension, self::$executable_extensions)) {
+            elseif ($this->isExecutable()) {
                 $result = 'executable';
             }
         }

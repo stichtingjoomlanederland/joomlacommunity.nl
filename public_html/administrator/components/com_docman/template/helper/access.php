@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -21,11 +21,12 @@ class ComDocmanTemplateHelperAccess extends KTemplateHelperAbstract
 
         $viewlevels = $entities->toArray();
 
-        $access = (int) (JFactory::getConfig()->get('access') || 1);
-        $default_access = $entities->find($access) ?: $entities->create();
+        $default_access = $entities->find((int) (JFactory::getConfig()->get('access') || 1)) ?: $entities->create();
+        $type           = KStringInflector::singularize($entity->getIdentifier()->name);
 
         return $this->getTemplate()->loadFile('com://admin/docman.document.access.html', 'php')
             ->render(array(
+                'type'       => $type,
                 'entity'     => $entity,
                 'viewlevels' => $viewlevels,
                 'default_access' => $default_access
@@ -45,6 +46,9 @@ class ComDocmanTemplateHelperAccess extends KTemplateHelperAbstract
             'id' => $config->name
         ));
 
+        // Add editor styles and scripts in JDocument to page when rendering
+        $this->getIdentifier('com:koowa.view.page.html')->getConfig()->append(['template_filters' => ['document']]);
+
         $xml = <<<EOF
 <form>
     <fieldset>
@@ -52,7 +56,7 @@ class ComDocmanTemplateHelperAccess extends KTemplateHelperAbstract
         <field name="{$config->name}" type="rules" label="JFIELD_RULES_LABEL"
             translate_label="false" class="inputbox" filter="rules"
             component="{$config->component}" section="{$config->section}" validate="rules"
-            id="{$config->id}"
+            id="{$config->id}" 
         />
     </fieldset>
 </form>
@@ -61,10 +65,13 @@ EOF;
         $form = JForm::getInstance('com_docman.document.acl', $xml);
         $form->setValue('asset_id', null, $config->asset_id);
 
-        $html = $form->getInput('rules');
+        $html = '<div class="access-rules">'.$form->getInput('rules').'</div>';
 
         // Do not allow AJAX saving - it tries to guess the asset name with no way to override
         $html = preg_replace('#onchange="sendPermissions[^"]*"#i', '', $html);
+
+        // Add necessary Bootstrap styles
+        $html .= '<ktml:style src="media://com_docman/css/access.css" />';
 
         return $html;
     }

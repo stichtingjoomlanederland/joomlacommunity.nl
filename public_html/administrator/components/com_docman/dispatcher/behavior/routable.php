@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -87,7 +87,6 @@ class ComDocmanDispatcherBehaviorRoutable extends KControllerBehaviorAbstract
             ($query->view === 'files' && (!$query->has('layout') || in_array($query->layout, array('default', 'select')))))
         {
             $layout = $query->layout;
-            $tmpl   = $query->tmpl;
 
             $this->_setContainer($context);
             $this->_attachBehaviors($context);
@@ -111,7 +110,6 @@ class ComDocmanDispatcherBehaviorRoutable extends KControllerBehaviorAbstract
                 $config['router']['defaults']['Itemid'] = $menu->id;
             }
 
-            $query->tmpl   = 'joomla';
             $query->config = $config;
             $query->layout = $layout === 'select' ? 'compact' : 'default';
 
@@ -119,7 +117,6 @@ class ComDocmanDispatcherBehaviorRoutable extends KControllerBehaviorAbstract
             $this->getMixer()->execute('forward', $context);
 
             $query->layout = $layout;
-            $query->tmpl   = $tmpl;
 
             if ($query->routed)
             {

@@ -133,14 +133,14 @@ function makeUnique(file, similar, uploader) {
 
 
 function checkDuplicates(response, uploader, options) {
-    uploader.settings.multipart_params.overwrite = 0;
-
     if (typeof response.entities === 'object' && response.entities.length) {
+        uploader.settings.multipart_params.overwrite = 0;
+
         var existing = getNamesFromArray(response.entities),
             promises = [],
             mode = typeof options.duplicate_mode === 'undefined' ? 'confirm' : options.duplicate_mode;
 
-        if (mode === 'confirm' && confirm(getConfirmationMessage(existing))) {
+        if (mode === 'overwrite' || (mode === 'confirm' && confirm(getConfirmationMessage(existing)))) {
             uploader.settings.multipart_params.overwrite = 1;
 
             return uploader.start();

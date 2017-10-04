@@ -8297,7 +8297,7 @@ $.magnificPopup.registerModule(RETINA_NS, {
 
 /*>>retina*/
  _checkInstance(); }));
-/*!
+(function($) { var jQuery = $;/*!
  * FooTable - Awesome Responsive Tables
  * Version : 2.0.3
  * http://fooplugins.com/plugins/footable-jquery/
@@ -9121,7 +9121,7 @@ $.magnificPopup.registerModule(RETINA_NS, {
         return ft;
     }
 })(jQuery, window);
-
+})(jQuery);
 /*
 JqTree 1.3.4
 
@@ -14631,7 +14631,7 @@ $(function() {
  * Customized instance of jqTree to render a list of categories in a tree structure.
  * It deals with turning a flat list into a hierarchy structure that jqTree understands.
  *
- * @copyright	Copyright (C) 2007 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2007 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		https://github.com/joomlatools/joomlatools-framework for the canonical source repository
  * @requires    Koowa.Class, jqTree plugin

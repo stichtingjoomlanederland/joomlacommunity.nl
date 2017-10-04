@@ -1,39 +1,32 @@
 <?php
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
 
 class ComDocmanControllerBehaviorScannable extends KControllerBehaviorAbstract
 {
-    const URL = "https://api.joomlatools.com/thumbnail/";
-
     const STATUS_PENDING = 0;
 
     const STATUS_SENT = 1;
 
     const STATUS_FAILED = 2;
 
-    const MAXIMUM_PENDING_SCANS = 3;
+    const MAXIMUM_PENDING_SCANS = 6;
 
-    public static $thumbnail_extensions = array(
-        'psd', 'ai', 'eps', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg', 'tif', 'tiff', 'pbm', 'pgm', 'ppm',
-        'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf',
-        'odt', 'ott', 'ods', 'ott', 'odp', 'otp', 'odg', 'otg', 'odc', 'otc',
-        'webm', 'avi', 'xvid', 'divx', 'mpg', 'mpeg', 'mpeg4', 'm4v', 'mp4', 'mov', 'mkv', 'wmv','html'
-    );
+    const MAXIMUM_FILE_SIZE = 262144000; // 250 MB
 
-    public static $ocr_extensions = array(
-        'psd', 'ai', 'eps', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg', 'tif', 'tiff', 'pbm', 'pgm', 'ppm',
-        'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf',
-        'odt', 'ott', 'ods', 'ott', 'odp', 'otp', 'odg', 'otg', 'odc', 'otc'
-    );
+    public static $thumbnail_extensions = [
+        'pdf', 'doc', 'docx', 'odt', 'xls', 'xlsx', 'ods', 'ppt', 'pptx', 'odp',
+        'bmp', 'gif', 'png', 'tif', 'tiff', 'ai', 'psd', 'svg', 'jpg', 'jpeg', 'html', 'txt'
+    ];
 
-    protected $_scan;
-
-    protected $_document;
+    public static $ocr_extensions = [
+        'pdf', 'doc', 'docx', 'odt', 'html', 'txt',
+        'xls', 'xlsx', 'ods', 'ppt', 'pptx'
+    ];
 
     public function __construct(KObjectConfig $config)
     {
@@ -57,21 +50,14 @@ class ComDocmanControllerBehaviorScannable extends KControllerBehaviorAbstract
     {
         $config->append(array(
             'priority'   => static::PRIORITY_LOW, // low priority so that thumbnailable runs first
-            'api_key'    => '',
-            'secret_key' => ''
         ));
-
-        if ($this->isSupported()) {
-            $config->api_key    = PlgKoowaConnect::getInstance()->getApiKey();
-            $config->secret_key = PlgKoowaConnect::getInstance()->getSecretKey();
-        }
 
         parent::_initialize($config);
     }
 
     public function isSupported()
     {
-        return class_exists('PlgKoowaConnect') && PlgKoowaConnect::isSupported();
+        return $this->getObject('com://admin/docman.model.entity.config')->connectAvailable();
     }
 
     public function purgeStaleScans()
@@ -95,11 +81,14 @@ class ComDocmanControllerBehaviorScannable extends KControllerBehaviorAbstract
         /** @var KDatabaseQueryUpdate $query */
         $query = $this->getObject('database.query.update');
 
+        $now = gmdate('Y-m-d H:i:s');
+
         $query
             ->values('status = '.\ComDocmanControllerBehaviorScannable::STATUS_PENDING)
             ->table(array('tbl' => 'docman_scans'))
             ->where('status = '.\ComDocmanControllerBehaviorScannable::STATUS_SENT)
-            ->where("GREATEST(created_on, modified_on) < DATE_SUB(NOW(), INTERVAL 1 HOUR)");
+            ->where("GREATEST(created_on, modified_on) < DATE_SUB(:now, INTERVAL 1 HOUR)")
+            ->bind(['now' => $now]);
 
         $this->getObject('com://admin/docman.database.table.scans')->getAdapter()->update($query);
     }
@@ -109,7 +98,7 @@ class ComDocmanControllerBehaviorScannable extends KControllerBehaviorAbstract
         $scan = $this->_getScansModel()
             ->status(\ComDocmanControllerBehaviorScannable::STATUS_PENDING)
             ->limit(1)
-            ->sort('created_on')->direction('asc')
+            ->sort('created_on')->direction('desc')
             ->fetch();
 
         if (!$scan->isNew()) {
@@ -126,7 +115,6 @@ class ComDocmanControllerBehaviorScannable extends KControllerBehaviorAbstract
         return ($count >= static::MAXIMUM_PENDING_SCANS);
     }
 
-
     public function hasPendingScan()
     {
         return $this->_getScansModel()->status(\ComDocmanControllerBehaviorScannable::STATUS_PENDING)->count();
@@ -139,6 +127,53 @@ class ComDocmanControllerBehaviorScannable extends KControllerBehaviorAbstract
         return ($this->isSupported() && !$this->_isLocal() && $this->hasPendingScan() && !$this->needsThrottling());
     }
 
+    public function canScanDocument(KModelEntityInterface $document)
+    {
+        return $document->storage_type === 'file'
+        && $document->size && $document->size < static::MAXIMUM_FILE_SIZE
+        && (in_array($document->extension, static::$thumbnail_extensions)
+            || in_array($document->extension, static::$ocr_extensions))
+            ;
+    }
+
+    public function shouldScanDocument(KModelEntityInterface $document)
+    {
+        $result = false;
+
+        if ($this->canScanDocument($document)) {
+            if (in_array($document->extension, static::$thumbnail_extensions)) {
+                if (!$document->image) {
+                    $result = true;
+                }
+            }
+
+            if (!$result && in_array($document->extension, static::$ocr_extensions)) {
+                if ($document->isNew() || !$document->contents) {
+                    $result = true;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Hooks into thumbnail controller and stops the default local thumbnail generation
+     *
+     * Returns false if the document is in queue to be scanned
+     *
+     * @param KControllerContextInterface $context
+     * @return bool
+     */
+    protected function _beforeGenerate(KControllerContextInterface $context)
+    {
+        /** @var ComDocmanModelEntityDocument $document */
+        $document = $context->getAttribute('entity');
+        $in_queue = $this->_enqueueScan($document);
+
+        return $in_queue ? false : true;
+    }
+
     /**
      * Create a thumbnail for new files
      *
@@ -147,9 +182,12 @@ class ComDocmanControllerBehaviorScannable extends KControllerBehaviorAbstract
     protected function _afterAdd(KControllerContextInterface $context)
     {
         if ($context->response->getStatusCode() === 201) {
-            $this->_enqueueScan($context->result, true);
 
-            $this->_sendCurrentScan();
+            $scan = $this->_enqueueScan($context->result);
+
+            if ($scan) {
+                $this->_sendSynchronousScan($scan, $context->result, $context);
+            }
         }
     }
 
@@ -161,61 +199,78 @@ class ComDocmanControllerBehaviorScannable extends KControllerBehaviorAbstract
     protected function _beforeEdit(KControllerContextInterface $context)
     {
         $item = $this->getModel()->fetch();
-        $data = $context->request->data;
 
-        // Force a re-generate if the document file changes.
-        if ($data->storage_path && ($item->storage_path !== $data->storage_path)) {
-            $context->file_changed = true;
+        if (count($item) === 1 && $this->canScanDocument($item)) {
+            $context->old_storage_path = $item->storage_path;
+            $context->old_storage_type = $item->storage_type;
         }
     }
 
     protected function _afterEdit(KControllerContextInterface $context)
     {
-        if ($context->getResponse()->getStatusCode() < 300) {
-            if ($context->file_changed) {
-                foreach ($context->result as $entity) {
-                    $this->_enqueueScan($entity, true);
+        if (count($context->result) === 1 && $this->canScanDocument($context->result)) {
+            $scan     = null;
+            $data     = $context->request->data;
+            $document = $context->result;
+
+            $should_scan_document = $data->force_scan || $this->shouldScanDocument($document);
+
+            if (!$should_scan_document) {
+                // We might have a pending scan from before
+                $pending_scan = $this->_getScan($document);
+
+                if (!$pending_scan->isNew()) {
+                    $should_scan_document = true;
+                }
+
+                if ((($context->old_storage_path && $context->old_storage_type)
+                    && (($document->storage_path !== $context->old_storage_path)
+                        || ($document->storage_type !== $context->old_storage_type))
+                )) {
+                    $should_scan_document = true;
                 }
             }
 
-            $this->_sendCurrentScan();
+            if ($should_scan_document) {
+                if ($scan = $this->_enqueueScan($document)) {
+                    $this->_sendSynchronousScan($scan, $document, $context);
+                }
+            }
         }
     }
 
-    /**
-     * Returns false if the document is in queue to be scanned
-     *
-     * @param KControllerContextInterface $context
-     * @return bool
-     */
-    protected function _beforeGenerate(KControllerContextInterface $context)
-    {
-        /** @var ComDocmanModelEntityDocument $document */
-        $document = $context->getAttribute('entity');
-        $in_queue = $this->_enqueueScan($document, false, true);
-
-        return $in_queue ? false : true;
-    }
-
-    protected function _sendCurrentScan()
+    protected function _sendSynchronousScan($scan, $document = null, $context = null)
     {
         try
         {
-            if ($this->needsThrottling()) {
-                $message = $this->getObject('translator')->translate('Document scan is throttled');
-
-                $this->getObject('response')->addMessage($message, KControllerResponse::FLASH_SUCCESS);
+            if ($this->_isLocal()) {
+                $message = $this->getObject('translator')->translate('Document scan needs public server');
+                $context->response->addMessage($message, KControllerResponse::FLASH_WARNING);
 
                 return false;
             }
 
-            if ($this->_scan && $this->_document) {
-                $this->_sendScan($this->_scan, $this->_document);
+            if ($this->needsThrottling()) {
+                $message = $this->getObject('translator')->translate('Document scan is throttled');
+                $context->response->addMessage($message, KControllerResponse::FLASH_SUCCESS);
+
+                return false;
+            }
+
+            $this->_sendScan($scan, $document);
+
+            if ($scan->status == static::STATUS_SENT) {
+                $message = $this->getObject('translator')->translate('Document scan is in progress');
+                $context->response->addMessage($message, KControllerResponse::FLASH_SUCCESS);
+            }
+
+            if (JDEBUG && $scan->response) {
+                $context->response->addMessage($scan->response, KControllerResponse::FLASH_NOTICE);
             }
         }
         catch (Exception $e) {
             if (JDEBUG) {
-                $this->getObject('response')->addMessage($e->getMessage(), KControllerResponse::FLASH_ERROR);
+                $context->response->addMessage($e->getMessage(), KControllerResponse::FLASH_ERROR);
             }
         }
     }
@@ -235,141 +290,64 @@ class ComDocmanControllerBehaviorScannable extends KControllerBehaviorAbstract
             }
         }
 
-        if (!$this->_isLocal()) {
-            $size = $this->getObject('com://admin/docman.controller.thumbnail')->getThumbnailSize();
+        if (!$this->_isLocal())
+        {
             $data = array(
-                'url'    => (string)$this->_getDownloadUrl($document),
-                'sizes'  => array($size['x'].'>'),
-                'format' => 'jpg',
-                'pages'  => 'all',
-                'metadata' => array('ocr', 'checksum'),
-                'data'   => array(
-                    'uuid'     => $document->uuid,
-                    'callback' => (string)$this->_getCallbackUrl()
+                'download_url' => (string)$this->_getDownloadUrl($document),
+                'callback_url' => (string)$this->_getCallbackUrl(),
+                'filename'     => ltrim(basename(' '.strtr($document->storage_path, array('/' => '/ ')))),
+                'user_data'    => array(
+                    'uuid' => $document->uuid
                 )
             );
 
-            if ($this->_sendRequest(static::URL.'?jwt='.$this->_getToken(), $data)) {
+            $response = PlgKoowaConnect::sendRequest('scanner/start', ['data' => $data]);
+
+            if ($response && $response->status_code == 200) {
                 $scan->status = static::STATUS_SENT;
+                $scan->response = $response->body;
                 $scan->save();
             }
-
-            $message = $this->getObject('translator')->translate('Document scan is in progress');
-
-            $this->getObject('response')->addMessage($message, KControllerResponse::FLASH_SUCCESS);
-        }
-        else {
-            $message = $this->getObject('translator')->translate('Document scan needs public server');
-
-            $this->getObject('response')->addMessage($message, KControllerResponse::FLASH_WARNING);
         }
 
         return $scan;
     }
 
-    protected function _enqueueScan(ComDocmanModelEntityDocument $document, $ocr = false, $thumbnail = false)
+    protected function _getScan(KModelEntityInterface $document)
     {
-        $thumbnail = $thumbnail && in_array($document->extension, static::$thumbnail_extensions);
-        $ocr       = $ocr && in_array($document->extension, static::$ocr_extensions) && $document->storage_type === 'file';
+        $model = $this->_getScansModel();
+        $scan  = $model->identifier($document->uuid)->fetch();
 
-        if ($thumbnail || $ocr) {
-            $model = $this->_getScansModel();
-            $scan  = $model->identifier($document->uuid)->fetch();
-
-                if ($scan->isNew()) {
-                    $scan = $model->create();
-                    $scan->identifier = $document->uuid;
-                }
-
-            if ($ocr) {
-                $scan->ocr = $ocr;
-            }
-
-            if ($thumbnail) {
-                $scan->thumbnail = $thumbnail;
-            }
-
-            if ($scan->save()) {
-                $this->_document = $document;
-                $this->_scan     = $scan;
-            }
-
-            return true;
+        if ($scan->isNew()) {
+            $scan = $model->create();
+            $scan->identifier = $document->uuid;
         }
 
-        return false;
+        return $scan;
     }
+
+    protected function _enqueueScan(KModelEntityInterface $document)
+    {
+        $result = false;
+
+        if ($this->canScanDocument($document))
+        {
+            $scan = $this->_getScan($document);
+            $scan->ocr = true;
+            $scan->thumbnail = true;
+            $scan->save();
+
+            if (!$scan->isNew()) {
+                $result = $scan;
+            }
+        }
+
+        return $result;
+    }
+
     protected function _isLocal()
     {
-        static $local_hosts = array('localhost', '127.0.0.1', '::1');
-
-        $url  = $this->getObject('request')->getUrl();
-        $host = $url->host;
-
-        if (in_array($host, $local_hosts)) {
-            return true;
-        }
-
-        // Returns true if host is an IP address
-        if (ip2long($host)) {
-            return (filter_var($host, FILTER_VALIDATE_IP,
-                    FILTER_FLAG_IPV4 |
-                    FILTER_FLAG_IPV6 |
-                    FILTER_FLAG_NO_PRIV_RANGE |
-                    FILTER_FLAG_NO_RES_RANGE) === false);
-        }
-        else {
-            // If no TLD is present, it's definitely local
-            if (strpos($host, '.') === false) {
-                return true;
-            }
-
-            return preg_match('/(?:\.)(local|localhost|test|example|invalid|dev|box|intern|internal)$/', $host) === 1;
-        }
-    }
-
-    /**
-     * Sends an HTTP request and returns the response
-     *
-     * @param  string $url Destination
-     * @param  array $data Request data, will be encoded as JSON
-     * @return string
-     */
-    protected function _sendRequest($url, $data)
-    {
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $url,
-            CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_TIMEOUT => 10,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => json_encode($data),
-            CURLOPT_HTTPHEADER => array(
-                "Content-type: application/json"
-            ),
-        ));
-
-        $response = curl_exec($curl);
-
-        if (curl_errno($curl)) {
-            throw new RuntimeException('Curl Error: '.curl_error($curl));
-        }
-
-        $info = curl_getinfo($curl);
-
-        if (isset($info['http_code']) && ($info['http_code'] < 200 || $info['http_code'] >= 300)) {
-            throw new RuntimeException('Problem in the request. Request returned '. $info['http_code']);
-        }
-
-        curl_close($curl);
-
-        return $response;
+        return PlgKoowaConnect::isLocal();
     }
 
     protected function _getScansModel()
@@ -390,8 +368,8 @@ class ComDocmanControllerBehaviorScannable extends KControllerBehaviorAbstract
             'option' => 'com_docman',
             'view'   => 'documents',
             'format' => 'json',
-            'thumbnail' => 1,
-            'token' => $this->_getToken()
+            'connect' => 1,
+            'token' => PlgKoowaConnect::generateToken()
         );
 
         if (substr($url->getPath(), -1) !== '/') {
@@ -419,30 +397,13 @@ class ComDocmanControllerBehaviorScannable extends KControllerBehaviorAbstract
             'option' => 'com_docman',
             'view'   => 'documents',
             'serve'  => 1,
-            'thumbnail' => 1,
+            'connect' => 1,
             'id'     => $document->id,
-            'token'  => $this->_getToken()
+            'token'  => PlgKoowaConnect::generateToken()
         );
 
         $url->setQuery($query);
 
         return $url;
-    }
-
-    /**
-     * Returns a signed JWT token for the current API key in plugin settings
-     *
-     * @return string
-     */
-    protected function _getToken()
-    {
-        /** @var KHttpTokenInterface $token */
-        $token = $this->getObject('http.token');
-        $date  = new DateTime('now');
-
-        return $token
-            ->setIssuer($this->getConfig()->api_key)
-            ->setExpireTime($date->modify('+1 hours'))
-            ->sign($this->getConfig()->secret_key);
     }
 }

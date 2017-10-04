@@ -1,8 +1,8 @@
 <?php
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright   Copyright (C) 2011 - 2017 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://github.com/joomlatools/joomlatools-framework-activities for the canonical source repository
  */
@@ -336,4 +336,19 @@ interface ComActivitiesActivityObjectInterface
      * @return bool True if the object has been deleted, false otherwise.
      */
     public function isDeleted();
+
+    /**
+     * Set the translateable state.
+     *
+     * @param bool $state The translateable state.
+     * @return ComActivitiesActivityObjectInterface
+     */
+    public function setTranslatable($state);
+
+    /**
+     * Tells if the object should be translated when rendered.
+     *
+     * @return bool True if the object is translatable, false otherwise.
+     */
+    public function isTranslatable();
 }

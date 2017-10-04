@@ -1,8 +1,8 @@
 <?php
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright	Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -13,31 +13,65 @@
  * @author  Ercan Ozkaya <https://github.com/ercanozkaya>
  * @package Koowa\Component\Files
  */
-class ComFilesModelThumbnails extends KModelDatabase
+class ComFilesModelThumbnails extends ComFilesModelFiles
 {
+    protected $_source_file;
+
     public function __construct(KObjectConfig $config)
     {
         parent::__construct($config);
 
-        $this->getState()
-            ->insert('container', 'com:files.filter.container', null)
-            ->insert('folder', 'com:files.filter.path')
-            ->insert('filename', 'com:files.filter.path', null, true, array('container'))
-            ->insert('paths', 'com:files.filter.path', null)
+        $state = $this->getState();
 
-            ->insert('types', 'cmd', '')
-            ->insert('config'   , 'json', '')
-        ;
-
-        $this->addCommandCallback('after.reset', '_afterReset');
+        $state->insert('version', 'cmd')
+              ->insert('source', 'string');
     }
 
-    /**
-     * A container object
-     *
-     * @var ComFilesModelEntityContainer
-     */
-    protected $_container;
+    protected function _initialize(KObjectConfig $config)
+    {
+        $config->append(array('state' => 'com:files.model.state.thumbnails'));
+        parent::_initialize($config);
+    }
+
+    protected function _actionCreate(KModelContext $context)
+    {
+        $parameters = $this->getContainer()->getParameters();
+        $state      = $this->getState();
+        $entity     = $context->getEntity();
+
+        $entity->name   = $state->name;
+        $entity->folder = $state->folder;
+
+        if ($file = $this->_getSourceFile()) {
+            $entity->source = $file;
+        }
+
+        if ($versions = $parameters->versions)
+        {
+            if ($version = $state->version)
+            {
+                if ($config = $versions->{$version})
+                {
+                    $entity->version   = $version;
+                    $entity->name      = $version . '-' . $entity->name;
+                    $entity->dimension = $config->dimension->toArray();
+                    $entity->crop      = $config->crop;
+                }
+            }
+        }
+        else
+        {
+            if ($dimension = $parameters->dimension) {
+                $entity->dimension = $dimension;
+            }
+
+            if (isset($parameters->crop)) {
+                $entity->crop = $parameters->crop;
+            }
+        }
+
+        return parent::_actionCreate($context);
+    }
 
     /**
      * Reset the cached container object if container changes
@@ -46,105 +80,200 @@ class ComFilesModelThumbnails extends KModelDatabase
      */
     protected function _afterReset(KModelContextInterface $context)
     {
+        parent::_afterReset($context);
+
         $modified = (array) KObjectConfig::unbox($context->modified);
-        if (in_array('container', $modified)) {
-            unset($this->_container);
+
+        if (in_array('source', $modified)) {
+            $this->_source_file = null;
         }
     }
 
-    /**
-     * Returns the current container row
-     *
-     * @return ComFilesModelEntityContainer
-     * @throws UnexpectedValueException
-     */
-    public function getContainer()
+    protected function _getSourceFile()
     {
-        if(!isset($this->_container))
+        if (!$this->_source_file instanceof ComFilesModelEntityFile)
         {
-            //Set the container
-            $container = $this->getObject('com:files.model.containers')->slug($this->getState()->container)->fetch();
+            $state = $this->getState();
 
-            if (!is_object($container) || !count($container) || $container->isNew()) {
-                throw new UnexpectedValueException('Invalid container');
+            if ($state->source) {
+                $this->_source_file = $state->getSourceFile();
             }
-
-            $this->_container = $container->top();
         }
 
-        return $this->_container;
+        return $this->_source_file;
     }
 
-	protected function _initialize(KObjectConfig $config)
-	{
-		$config->append(array(
-			'state' => 'com:files.model.state'
-		));
-
-		parent::_initialize($config);
-	}
-
-	protected function _buildQueryColumns(KDatabaseQueryInterface $query)
+    protected function _beforeCreateSet(KModelContextInterface $context)
     {
-    	parent::_buildQueryColumns($query);
+        $parameters = $this->getContainer()->getParameters();
 
-    	if ($this->getState()->container) {
-    		$query->columns(array('container' => 'c.slug'));
-    	}
+        if ($thumbnails = $context->files)
+        {
+            $file = $this->_getSourceFile();
+
+            foreach ($thumbnails as $thumbnail)
+            {
+                if ($file) {
+                    $thumbnail->source = $file;
+                }
+
+                if ($versions = $parameters->versions)
+                {
+                    $versions = array_keys($versions->toArray());
+
+                    foreach ($versions as $version)
+                    {
+                        if (strpos($thumbnail->name, $version) === 0) {
+                            break;
+                        }
+                    }
+
+                    $config = $parameters->versions->{$version};
+
+                    $thumbnail->dimension = $config->dimension;
+                    $thumbnail->crop      = $config->crop;
+                    $thumbnail->version   = $version;
+                }
+                else
+                {
+                    if ($dimension = $parameters->dimension) {
+                        $thumbnail->dimension = $dimension;
+                    }
+
+                    if (isset($parameters->crop)) {
+                        $thumbnail->crop = $parameters->crop;
+                    }
+                }
+            }
+        }
     }
 
-	protected function _buildQueryJoins(KDatabaseQueryInterface $query)
+    public function iteratorFilter($path)
     {
-    	parent::_buildQueryJoins($query);
+        $state     = $this->getState();
+        $filename  = ltrim(basename(' '.strtr($path, array('/' => '/ '))));
 
-    	if ($this->getState()->container) {
-    		$query->join(array('c' => 'files_containers'), 'c.files_container_id = tbl.files_container_id');
-    	}
+        if ($filename && $filename[0] === '.') {
+            return false;
+        }
+
+        if ($name = $state->name)
+        {
+            $names = array();
+
+            $parameters = $this->getContainer()->getParameters();
+
+            if ($parameters->versions)
+            {
+                if ($version = $state->version) {
+                    $versions = (array) $version;
+                } else {
+                    $versions = array_keys($parameters->versions->toArray());
+                }
+
+                foreach ($versions as $version) {
+                    $names[] = $version . '-' . $name;
+                }
+            }
+            else $names[] = $name;
+
+            if (!in_array($filename, $names)) {
+                return false;
+            }
+        }
+
+        if ($state->search && stripos($filename, $state->search) === false) {
+            return false;
+        }
     }
 
-	protected function _buildQueryWhere(KDatabaseQueryInterface $query)
+    protected function _beforeFetch()
     {
         $state = $this->getState();
 
-        if ($state->container) {
-            $query->where('tbl.files_container_id = :container_id')->bind(array('container_id' => $this->getContainer()->id));
-        }
-
-        if ($state->folder !== false) {
-            $query->where('tbl.folder = :folder')->bind(array('folder' => ltrim($state->folder, '/')));
-        }
-
-        if ($state->paths)
+        if ($folder = $state->folder)
         {
-            $i = 0;
-            foreach ((array)$state->paths as $path)
-            {
-                $file = ltrim(basename(' '.strtr($path, array('/' => '/ '))));
-                $folder = dirname($path);
-                if ($folder === '.') {
-                    $folder = '';
-                }
+            $container = $this->getContainer();
 
-                $query->where("(tbl.filename = :filename$i AND tbl.folder = :folder$i)", 'OR')
-                    ->bind(array('filename'.$i => $file, 'folder'.$i => $folder));
 
-                $i++;
+            $folder = $container->getAdapter('folder', array(
+                'path' => $container->fullpath . '/' . $folder
+            ));
+
+            // Avoid 'Invalid Folder' error on thumbs model (create folder if it doesn't exists)
+            if (!$folder->exists()) {
+                $folder->create();
             }
         }
-		
-	}
-	
-	protected function _buildQueryOrder(KDatabaseQueryInterface $query)
-	{
-		$sort       = $this->getState()->sort;
-		$direction  = strtoupper($this->getState()->direction);
-	
-		if($sort) 
-		{
-			$column = $this->getTable()->mapColumns($sort);
-			if(array_key_exists($column, $this->getTable()->getColumns())) {
-				$query->order($column, $direction);
-			}
-		}	
-	}
+    }
+
+    protected function _generateThumbnails(KModelContextInterface $context)
+    {
+        if ($context->entity && $context->entity instanceof ComFilesModelEntityThumbnails) {
+            $thumbnails = $context->entity;
+        } else {
+            $thumbnails = $this->getObject('com:files.model.entity.thumbnails');
+        }
+
+        $file = $this->_getSourceFile();
+
+        if ($file && $file->isImage())
+        {
+            $state     = $this->getState();
+            $container = $this->getContainer();
+
+            $model = $this->getObject('com:files.model.thumbnails')->container($container->slug)->source($file->uri);
+
+            if ($versions = $container->getParameters()->versions)
+            {
+                $versions = array_keys($versions->toArray());
+
+                if ($version = $state->version) {
+                    $versions = array_intersect($versions, (array) $version);
+                }
+
+                foreach ($versions as $version)
+                {
+                    $thumbnail = $model->version($version)->create();
+
+                    if (!$thumbnails->offsetExists($thumbnail))
+                    {
+                        if ($thumbnail->save()) {
+                            $thumbnails->insert($thumbnail);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                $thumbnail = $model->create();
+
+                if ($thumbnail->save()) {
+                    $thumbnails->insert($thumbnail);
+                }
+            }
+        }
+
+        return $thumbnails;
+    }
+
+    protected function _afterFetch(KModelContextInterface $context)
+    {
+        $file = $this->_getSourceFile();
+
+        if ($file)
+        {
+            $parameters = $this->getContainer()->getParameters();
+            $state      = $context->getState();
+            $thumbnails = $context->entity;
+
+            if (($versions = $parameters->versions) && !$state->version)
+            {
+                if ($thumbnails->count() !== count($versions)) {
+                    $this->_generateThumbnails($context); // Generate missing thumbnails
+                }
+            }
+            elseif ($thumbnails->isNew()) $this->_generateThumbnails($context);
+        }
+    }
 }

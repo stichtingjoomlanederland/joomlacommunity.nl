@@ -27,7 +27,7 @@ defined('_JEXEC') or die; ?>
 
 <script>
     kQuery(function() {
-        new DOCman.BatchForm({
+        new Docman.BatchForm({
             <? if (isset($onBeforeInitialize)): ?>
             'onBeforeInitialize': <?= $onBeforeInitialize ?>,
             <? endif ?>
@@ -93,6 +93,7 @@ defined('_JEXEC') or die; ?>
                                 'element' => '.docman-batch-uploader',
                                 'options'   => array(
                                     'multi_selection' => true,
+                                    'multipart_params' => ['folder' => 'tmp'],
                                     'autostart' => true,
                                     'url' => route('view=file&plupload=1&routed=1&format=json', false, false)
                                 )

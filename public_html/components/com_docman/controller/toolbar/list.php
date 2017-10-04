@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -13,7 +13,11 @@ class ComDocmanControllerToolbarList extends ComKoowaControllerToolbarActionbar
         if($this->getController()->canAdd()) {
             $this->addCommand('new');
 
-            $this->addCommand('newCategory');
+            $page = JFactory::getApplication()->getMenu()->getItem($this->getObject('request')->query->Itemid);
+
+            if ($page && ($page->params->get('allow_category_add', 1) || $this->getController()->canAdmin())) {
+                $this->addCommand('newCategory');
+            }
 
             $this->addUpload();
         }
@@ -43,7 +47,7 @@ class ComDocmanControllerToolbarList extends ComKoowaControllerToolbarActionbar
         $category       = $this->getController()->getModel()->fetch();
 
         $command->icon = 'k-icon-data-transfer-upload';
-        $command->href = 'component=docman&view=upload&layout=default&tmpl=koowa&category_id='.($category->id ? $category->id : '');
+        $command->href = 'component=docman&view=upload&layout=default&category_id='.($category->id ? $category->id : '');
         $command->append(array(
             'attribs' => array(
                 'data-k-modal'   => array(

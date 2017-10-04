@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -166,6 +166,13 @@ class ComDocmanControllerThumbnail extends KControllerAbstract implements KObjec
                 $file->fwrite($image->get('jpg'));
 
                 $result = $file;
+            } else {
+                $message = $this->getObject('translator')->translate('Cannot generate thumbnail locally', [
+                    'link' => 'https://www.joomlatools.com/connect/',
+                    'product' => 'Joomlatools Connect'
+                ]);
+
+                $this->getObject('response')->addMessage($message, KControllerResponse::FLASH_SUCCESS);
             }
         }
         catch (Exception $e) {}

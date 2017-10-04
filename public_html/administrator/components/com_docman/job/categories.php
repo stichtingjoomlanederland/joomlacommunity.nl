@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -34,24 +34,7 @@ class ComDocmanJobCategories extends ComSchedulerJobAbstract
 
         $context->log(count($queue).' folders in the queue');
 
-        if (empty($queue)) {
-            $behavior = $this->getObject('com://admin/docman.controller.behavior.syncable');
-            $behavior->syncFolders();
-
-            /*
-             * Add folders to the queue if and only if:
-             * 1- It is not attached to a category
-             * 2- There is not a document linking to the folder. (this makes sure we don't break existing category structures)
-             */
-            $queue = $behavior->getOrphanFolders(KDatabase::FETCH_FIELD_LIST, function($query) {
-                $query->limit(100);
-                $query->join(array('d' => 'docman_documents'), 'd.storage_path LIKE CONCAT(TRIM(LEADING "/" FROM CONCAT_WS("/", `tbl`.`folder`, `tbl`.`name`)), \'/%\')');
-                $query->where('d.docman_document_id IS NULL');
-            });
-
-            $context->log(sprintf('Added %s orphans to the queue', count($queue)));
-        }
-        elseif (is_array($queue))
+        if (is_array($queue))
         {
             $limit = 5; // only create 5 documents per run to limit memory errors
             while ($context->hasTimeLeft() && count($queue) && $limit)
@@ -81,6 +64,25 @@ class ComDocmanJobCategories extends ComSchedulerJobAbstract
 
                 $limit--;
             }
+        }
+
+        if (empty($queue) && $context->hasTimeLeft())
+        {
+            $behavior = $this->getObject('com://admin/docman.controller.behavior.syncable');
+            $behavior->syncFolders();
+
+            /*
+             * Add folders to the queue if and only if:
+             * 1- It is not attached to a category
+             * 2- There is not a document linking to the folder. (this makes sure we don't break existing category structures)
+             */
+            $queue = $behavior->getOrphanFolders(KDatabase::FETCH_FIELD_LIST, function($query) {
+                $query->limit(100);
+                $query->join(array('d' => 'docman_documents'), 'd.storage_path LIKE CONCAT(TRIM(LEADING "/" FROM CONCAT_WS("/", `tbl`.`folder`, `tbl`.`name`)), \'/%\')');
+                $query->where('d.docman_document_id IS NULL');
+            });
+
+            $context->log(sprintf('Added %s orphans to the queue', count($queue)));
         }
 
         $state->queue = (array) $queue;

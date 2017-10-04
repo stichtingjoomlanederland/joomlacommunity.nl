@@ -225,6 +225,9 @@ kQuery(function($) {
             <? // Download ?>
             <? if ($params->document_title_link !== 'download'): ?>
             <td width="5" class="koowa_table__download k-no-wrap">
+                <? //hide download for audio/video ?>
+                <? $player = helper('player.render', array('document' => $document)) ?>
+                <? if ($params->force_download || empty($player)): ?>
                 <a class="btn btn-default btn-mini docman_track_download docman_download__button" href="<?= $document->download_link; ?>"
                     <?= $params->download_in_blank_page ? 'target="_blank"' : ''; ?>
                     data-title="<?= escape($document->title); ?>"
@@ -235,7 +238,7 @@ kQuery(function($) {
                     <? endif; ?>
                     >
                     <span class="docman_download_label">
-                      <?= translate('Download'); ?>
+                        <?= translate('Download'); ?>
                     </span>
 
                     <? // Filetype and Filesize  ?>
@@ -250,6 +253,7 @@ kQuery(function($) {
                             -->)</span>
                     <? endif; ?>
                 </a>
+                <? endif; ?>
             </td>
             <? endif; ?>
 

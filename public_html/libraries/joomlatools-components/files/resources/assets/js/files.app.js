@@ -1,9 +1,9 @@
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
  * @codekit-prepend "files.utilities.js", "files.state.js", "files.template.js", "files.grid.js", files.tree.js", "files.row.js", "files.paginator.js", "files.pathway.js"
  *
- * @copyright	Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -20,6 +20,7 @@ Files.App = new Class({
     title: '',
     cookie: null,
     options: {
+        root_path: '',
         root_text: 'Root folder',
         cookie: {
             path: '/'
@@ -148,7 +149,6 @@ Files.App = new Class({
         }
     },
     initialize: function(options) {
-
         if (Files.Config) {
             Object.merge(options, Files.Config);
         }
@@ -312,6 +312,7 @@ Files.App = new Class({
                 if (revalidate_cache) {
                     url['revalidate_cache'] = 1;
                 }
+                url['_'] = Date.now(); // Ignore client cache
                 return this.createRoute(url);
             }.bind(this),
             handleResponse = function(response) {
@@ -426,11 +427,10 @@ Files.App = new Class({
                 }
             }
 
-            if (this.container.parameters.thumbnails !== true) {
-                this.options.thumbnails = false;
-            } else {
-                this.state.set('thumbnails', true);
+            if (this.container.parameters.thumbnails === true) {
+                this.state.set('thumbnails', this.options.thumbnails);
             }
+            else this.options.thumbnails = false;
 
             if (this.options.types !== null) {
                 this.options.grid.types = this.options.types;
@@ -595,7 +595,7 @@ Files.App = new Class({
             onAfterRender: function() {
                 this.setState(that.state.data);
 
-                if (that.grid && that.grid.layout === 'icons') {
+                if (that.grid) {
                     that.setThumbnails();
                 }
             },
@@ -613,7 +613,7 @@ Files.App = new Class({
         this.fireEvent('beforeSetTree');
 
         if (this.options.tree.enabled) {
-            var opts = this.options.tree,
+            var opts = Object.merge({root_path: this.options.root_path}, this.options.tree);
                 that = this;
 
             opts = kQuery.extend(true, {}, {
@@ -631,7 +631,9 @@ Files.App = new Class({
                 initial_response: !!this.options.initial_response
             }, opts);
             this.tree = new Files.Tree(kQuery(opts.element), opts);
-            this.tree.fromUrl(this.createRoute({view: 'folders', 'tree': '1', 'limit': '2000'}));
+            var config = {view: 'folders', 'tree': '1', 'limit': '2000'};
+            if (this.options.root_path) config.folder = this.options.root_path;
+            this.tree.fromUrl(this.createRoute(config));
 
             this.addEvent('afterNavigate', function(path, type) {
                 if(path !== undefined && (!type || (type != 'initial' && type != 'stateless'))) {
@@ -825,6 +827,7 @@ Files.App = new Class({
     },
     setThumbnails: function() {
         this.setDimensions(true);
+
         var nodes = this.grid.nodes,
             that = this;
         if (nodes.getLength()) {
@@ -839,7 +842,14 @@ Files.App = new Class({
                     img.addEvent('load', function(){
                         this.addClass('loaded');
                     });
-                    img.set('src', node.thumbnail ? node.thumbnail : Files.blank_image);
+
+                    var source = Files.blank_image;
+
+                    if (node.thumbnail) {
+                        source = Files.sitebase + '/' + node.thumbnail.relative_path;
+                    }
+
+                    img.set('src', source);
 
                     (node.element.getElement('.files-node') || node.element).addClass('loaded').removeClass('loading');
                 }

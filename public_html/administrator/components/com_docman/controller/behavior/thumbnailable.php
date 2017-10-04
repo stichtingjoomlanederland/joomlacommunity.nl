@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -70,6 +70,10 @@ class ComDocmanControllerBehaviorThumbnailable extends KControllerBehaviorAbstra
 
         $controller = $this->getObject('com://admin/docman.controller.thumbnail');
         $filename   = $controller->getDefaultFilename($item);
+
+        if ($data->regenerate_thumbnail) {
+            $this->_regenerate = true;
+        }
 
         // None or custom to automatic thumbnail.
         if ($data->automatic_thumbnail && ($data->image !== $filename)) {

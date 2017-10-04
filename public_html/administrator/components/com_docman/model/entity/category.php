@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -20,8 +20,10 @@ class ComDocmanModelEntityCategory extends KModelEntityRow
     public function toArray()
     {
         $data = parent::toArray();
-        $data['hierarchy_title'] = $this->hierarchy_title;
-        $data['groups']          = $this->getGroups();
+        $data['hierarchy_title']  = $this->hierarchy_title;
+        $data['groups']           = $this->getGroups();
+        $data['parent_id']        = $this->getParentId();
+        $data['automatic_folder'] = $this->automatic_folder;
 
         return $data;
     }

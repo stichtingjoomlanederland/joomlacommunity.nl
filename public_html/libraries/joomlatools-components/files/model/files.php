@@ -1,8 +1,8 @@
 <?php
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright	Copyright (C) 2011 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link		http://github.com/joomlatools/joomlatools-framework-files for the canonical source repository
  */
@@ -15,6 +15,12 @@
  */
 class ComFilesModelFiles extends ComFilesModelNodes
 {
+    protected function _initialize(KObjectConfig $config)
+    {
+        $config->append(array('behaviors' => array('thumbnailable')));
+        parent::_initialize($config);
+    }
+
     protected function _actionFetch(KModelContext $context)
     {
         $state = $this->getState();
@@ -36,16 +42,38 @@ class ComFilesModelFiles extends ComFilesModelNodes
             $files = array_reverse($files);
         }
 
-        $files = array_slice($files, $state->offset, $state->limit ? $state->limit : $this->_count);
+        $results = array_slice($files, $state->offset, $state->limit ? $state->limit : $this->_count);
+        $files   = array();
+
+        foreach ($results as $result) {
+            $files[] = array('name' => $result);
+        }
+
+        $context->files = $files;
+
+        if ($this->invokeCommand('before.createset', $context) !== false)
+        {
+            $context->set = $this->_actionCreateSet($context);
+            $this->invokeCommand('after.createset', $context);
+        }
+
+        return $context->set;
+    }
+
+    protected function _actionCreateSet(KModelContextInterface $context)
+    {
+        $state = $context->getState();
 
         $data = array();
-        foreach ($files as $file)
+
+        foreach ($context->files as $file)
         {
-            $data[] = array(
+            $file->append(array(
                 'container' => $state->container,
-                'folder'    => $state->folder,
-                'name'      => $file
-            );
+                'folder'    => $state->folder
+            ));
+
+            $data[] = $file->toArray();
         }
 
         $identifier         = $this->getIdentifier()->toArray();

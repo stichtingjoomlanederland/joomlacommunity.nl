@@ -9,12 +9,12 @@
  * Contains workarounds for Joomla! 3.0 responsive layout hacks that otherwise screws up the sidebar positioning is fixed.
  *
  *
- * @copyright	Copyright (C) 2007 - 2014 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright	Copyright (C) 2007 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license		GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @requires    Bootstrap Affix plugin
  */
 
-var DOCman = DOCman || {};
+var Docman = Docman || {};
 
 (function($){
 
@@ -23,7 +23,7 @@ var DOCman = DOCman || {};
      * @param options
      * @constructor
      */
-    DOCman.Sidebar = function(options){
+    Docman.Sidebar = function(options){
 
         //@TODO 'limit' option is automatically passed to php behavior
         if(options.hasOwnProperty('offset') && !$.isPlainObject(options.offset)) delete options.offset;
@@ -73,12 +73,12 @@ var DOCman = DOCman || {};
         this.makeCollapsible();
     };
 
-    DOCman.Sidebar.prototype = {
+    Docman.Sidebar.prototype = {
 
         /**
          * @constructs DOCman.Sidebar
          */
-        constructor: DOCman.Sidebar,
+        constructor: Docman.Sidebar,
 
         /**
          * @method getDefaults

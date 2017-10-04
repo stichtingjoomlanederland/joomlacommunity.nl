@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -105,9 +105,12 @@ class ComDocmanControllerBehaviorEditable extends ComKoowaControllerBehaviorEdit
                     $this->_old_slug => $entity->slug
                 ));
 
-                // Set the referrer in request and as the redirect
-                $context->request->setReferrer($referrer);
+            } elseif (strpos($referrer, $this->_old_slug) !== false) {
+                $referrer->query['slug'] = $entity->slug;
             }
+
+            // Set the referrer in request and as the redirect
+            $context->request->setReferrer($referrer);
 
             $referrer_cookie = $this->getReferrer($context);
             if (strpos($referrer_cookie, $old_alias) !== false)

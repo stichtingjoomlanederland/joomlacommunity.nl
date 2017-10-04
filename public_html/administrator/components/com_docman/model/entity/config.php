@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -185,16 +185,10 @@ class ComDocmanModelEntityConfig extends KModelEntityAbstract implements KObject
         $container->getParameters()->merge($data);
         $result = $container->save();
 
-        // Get the jos_extensions row entry for DOCman
-        $extension = $this->getObject('com://admin/components.database.table.extensions', array(
-            'name' => 'extensions',
-            'identity_column' => 'extension_id'
-        ))->select(array('element' => 'com_docman'), KDatabase::FETCH_ROW);
+        $extension = $this->getObject('com:koowa.model.extensions')
+            ->type('component')->element('com_docman')->fetch();
 
-        $registry = new JRegistry();
-        $registry->loadArray($this->getProperties());
-
-        $extension->params = $registry->toString();
+        $extension->parameters = $this->getProperties();
         $extension->save();
 
         $this->cleanCache();
@@ -312,5 +306,16 @@ class ComDocmanModelEntityConfig extends KModelEntityAbstract implements KObject
     public function thumbnailsAvailable()
     {
         return extension_loaded('gd')/* || extension_loaded('imagick')*/;
+    }
+
+    /**
+     * Utility function for checking if Joomlatools Connect is supported
+     *
+     * @return bool True if it can, false otherwise.
+     */
+    public function connectAvailable()
+    {
+        return class_exists('PlgKoowaConnect') && PlgKoowaConnect::isSupported()
+            && defined('PlgKoowaConnect::VERSION') && version_compare(PlgKoowaConnect::VERSION, '2.0.0', '>=');
     }
 }

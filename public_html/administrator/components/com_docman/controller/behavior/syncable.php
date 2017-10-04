@@ -355,10 +355,11 @@ class ComDocmanControllerBehaviorSyncable extends KControllerBehaviorAbstract
         /** @var KDatabaseQuerySelect $query */
         $query = $this->getObject('database.query.select');
 
-        $query->columns(array('TRIM(LEADING "/" FROM CONCAT_WS("/", tbl.folder, tbl.name))'))
+        $query->columns(array('path' => 'TRIM(LEADING "/" FROM CONCAT_WS("/", tbl.folder, tbl.name))'))
             ->table(array('tbl' => 'docman_files'))
             ->join(array('d' => 'docman_documents'), 'd.storage_path = TRIM(LEADING "/" FROM CONCAT_WS("/", tbl.folder, tbl.name))')
-            ->where('d.docman_document_id IS  NULL');
+            ->where('d.docman_document_id IS  NULL')
+            ->order('path');
 
         if (is_callable($callback)) {
             call_user_func($callback, $query);
@@ -374,10 +375,11 @@ class ComDocmanControllerBehaviorSyncable extends KControllerBehaviorAbstract
         /** @var KDatabaseQuerySelect $query */
         $query = $this->getObject('database.query.select');
 
-        $query->columns(array('TRIM(LEADING "/" FROM CONCAT_WS("/", tbl.folder, tbl.name))'))
+        $query->columns(array('path' => 'TRIM(LEADING "/" FROM CONCAT_WS("/", tbl.folder, tbl.name))'))
             ->table(array('tbl' => 'docman_folders'))
             ->join(array('cf' => 'docman_category_folders'), 'cf.folder = TRIM(LEADING "/" FROM CONCAT_WS("/", tbl.folder, tbl.name))')
-            ->where('cf.docman_category_id IS  NULL');
+            ->where('cf.docman_category_id IS  NULL')
+            ->order('path');
 
         if (is_callable($callback)) {
             call_user_func($callback, $query);
@@ -404,10 +406,17 @@ class ComDocmanControllerBehaviorSyncable extends KControllerBehaviorAbstract
     {
         list($folder, $name) = $this->_splitPath($path);
 
-        $row = $this->getObject('com://admin/docman.database.table.folders')->createRow();
-        $row->folder = $folder;
-        $row->name   = $name;
+        $table = $this->getObject('com://admin/docman.database.table.folders');
 
-        return $row->save();
+        if (!$table->count(['folder' => $folder, 'name' => $name]))
+        {
+            $row = $table->createRow();
+            $row->folder = $folder;
+            $row->name   = $name;
+
+            return $row->save();
+        }
+
+        return true;
     }
 }

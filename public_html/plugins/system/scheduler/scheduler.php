@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -23,8 +23,45 @@ class PlgSystemScheduler extends JPlugin
         $app   = JFactory::getApplication();
         $input = $app->input;
 
-        if ($app->isSite() && $input->get('option') === 'com_docman' && $input->get('controller') === 'scheduler') {
-            KObjectManager::getInstance()->getObject('com:scheduler.dispatcher.http')->dispatch();
+        if ($app->isSite() && $input->get('option') === 'com_docman' && $input->get('controller') === 'scheduler')
+        {
+            $dispatcher = KObjectManager::getInstance()->getObject('com:scheduler.dispatcher.http');
+
+            $dispatcher->getController()->addCommandCallback('after.dispatch', function($context) {
+                $this->_afterDispatch($context);
+            });
+
+            $dispatcher->dispatch();
+        }
+    }
+
+    /**
+     * Logs the execution results
+     *
+     * @param $context
+     * @throws Exception
+     */
+    protected function _afterDispatch($context)
+    {
+        try {
+            $file = 'joomlatools-scheduler.php';
+            $path = rtrim(JFactory::getConfig()->get('log_path'), '/').'/'.$file;
+
+            if (file_exists($path) && filesize($path) > 10485760) {
+                @unlink($path);
+            }
+
+            JLog::addLogger([
+                'logger'            => 'formattedtext',
+                'text_file'         => $file,
+                'text_entry_format' => '{DATETIME} {PRIORITY} {MESSAGE}'
+            ], JLog::ALL, ['joomlatools-scheduler']);
+
+            foreach ($context->getLogs() as $log) {
+                JLog::add($log[0], JLog::INFO, 'joomlatools-scheduler', $log[1]);
+            }
+        } catch (Exception $e) {
+            if (JDEBUG) throw $e;
         }
     }
 
@@ -55,7 +92,8 @@ class PlgSystemScheduler extends JPlugin
         try {
             if ($this->canRun())
             {
-                $query       = /** @lang text */"SELECT sleep_until < NOW() FROM #__scheduler_metadata WHERE type = 'metadata' LIMIT 1";
+                $now         = gmdate('Y-m-d H:i:s');
+                $query       = /** @lang text */"SELECT sleep_until < '$now' FROM #__scheduler_metadata WHERE type = 'metadata' LIMIT 1";
                 $sleep_until = JFactory::getDbo()->setQuery($query)->loadResult();
 
                 // null = no rows or actual boolean value

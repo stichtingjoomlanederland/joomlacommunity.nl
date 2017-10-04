@@ -1,8 +1,8 @@
 <?php
 /**
- * Nooku Framework - http://nooku.org/framework
+ * Joomlatools Framework - https://www.joomlatools.com/developer/framework/
  *
- * @copyright   Copyright (C) 2011 - 2017 Johan Janssens and Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Johan Janssens and Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://github.com/joomlatools/joomlatools-framework-activities for the canonical source repository
  */
@@ -47,11 +47,13 @@ class ComActivitiesTemplateHelperActivity extends KTemplateHelperAbstract implem
     {
         $config = new KObjectConfig($config);
 
+        $translator = $activity->getTranslator();
+
         $output = $activity->getActivityFormat();
 
         if (preg_match_all('/{(.*?)}/', $output, $labels))
         {
-            $tokens = $activity->tokens;
+            $tokens = $translator->getActivityTokens($activity);
 
             foreach ($labels[1] as $label)
             {
@@ -59,14 +61,18 @@ class ComActivitiesTemplateHelperActivity extends KTemplateHelperAbstract implem
 
                 if (isset($tokens[$parts[0]]))
                 {
-                    $object = $tokens[$parts[0]];
+                    $token = $tokens[$parts[0]];
+
+                    $object = clone $token;
 
                     // Deal with context translations.
-                    if (isset($parts[1]))
+                    if (!isset($parts[1]))
                     {
-                        $object = clone $object;
-                        $object->setDisplayName($parts[1]);
+                        if ($object->isTranslatable()) {
+                            $object->setDisplayName($translator->translateActivityToken($object, $activity));
+                        }
                     }
+                    else $object->setDisplayName($parts[1]);
 
                     if ($object = $this->_renderObject($object, $config)) {
                         $output = str_replace('{' . $label . '}', $object, $output);

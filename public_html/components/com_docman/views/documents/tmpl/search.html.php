@@ -1,7 +1,7 @@
 <?
 /**
  * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -88,7 +88,7 @@ defined('KOOWA') or die; ?>
                 <div class="form-group">
                     <label class="control-label"><?= translate('Tags') ?></label>
                     <?= helper('listbox.tags', array(
-                        'identifier' => 'com://admin/docman.model.pagetags',
+                        'model' => $tag_model,
                         'autocreate' => false,
                         'name' => !empty($filter_group) ? $filter_group.'[tag]' : 'tag',
                         'value' => 'slug',
@@ -142,7 +142,7 @@ defined('KOOWA') or die; ?>
             <? // Temp JS until new UI arrived. Basically we're adding old Bootstrap 2.3.2 classes to the datepickers; ?>
             <script>
                 kQuery(document).ready(function() {
-                    kQuery('.docman-search-date').find('.k-js-datepicker').addClass('input-append').find('input').addClass('input-block-level');
+                    kQuery('.docman-search-date').find('.k-input-group').addClass('input-append').find('input').addClass('input-block-level');
                 });
             </script>
 

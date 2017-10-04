@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -17,8 +17,7 @@ class ModDocman_categoriesHtml extends ModKoowaHtml
                 'com://site/docman.view.behavior.pageable',
             ),
             'template_filters' => array(
-                'com://admin/docman.template.filter.asset',
-                'com://site/docman.template.filter.icon'
+                'com://admin/docman.template.filter.asset'
             )
         ));
 

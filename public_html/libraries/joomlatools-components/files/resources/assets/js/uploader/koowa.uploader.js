@@ -945,9 +945,7 @@ $.widget("koowa.uploader", {
 			}
 		}
 		else if (plupload.STOPPED === up.state) {
-			setTimeout(function() {
-				self.progressbar.parent().removeClass('active is-uploading');
-			}, 500);
+			self.progressbar.parent().removeClass('active is-uploading');
 
 			this._setButtonStatus(this.stop_button, 'disable');
 

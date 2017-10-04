@@ -1,7 +1,7 @@
 <?php
 /**
  * @package    DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA (http://www.timble.net)
+ * @copyright   Copyright (C) 2011 Timble CVBA (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -166,19 +166,26 @@ class ComDocmanViewListHtml extends ComDocmanViewHtml
 
         $status = $this->getObject('request')->query->status;
         $enabled = $this->getModel()->getState()->enabled;
-        $context->data->tag_filter      = [
-            'page'         => $this->getModel()->getState()->page,
-            'access'       => $this->getObject('user')->getRoles(),
-            'current_user' => $this->getObject('user')->getId(),
-            'enabled'      => $enabled,
-            'status'       => $status
-        ];
+
         $context->data->category_filter = array(
             'page'         => $this->getModel()->getState()->page,
             'access'       => $this->getObject('user')->getRoles(),
             'current_user' => $this->getObject('user')->getId(),
             'enabled'      => true
         );
+
+        $context->data->tag_model  = $this->getObject('com://admin/docman.model.pagetags');
+        $context->data->tag_filter = [
+            'page'         => $this->getModel()->getState()->page,
+            'access'       => $this->getObject('user')->getRoles(),
+            'current_user' => $this->getObject('user')->getId(),
+            'enabled'      => $enabled,
+            'status'       => $status
+        ];
+
+        if (!$context->data->tag_model->setState($context->data->tag_filter->toArray())->count()) {
+            $menu->params->set('show_tag_filter', false);
+        }
     }
 
     protected function _generatePathway($category = null, $document = null)

@@ -2,7 +2,7 @@
 
 	kQuery Tags Input Plugin 1.3.3
 	
-	Copyright (C) 2011 - 2013 XOXCO, Inc
+	Copyright (C) 2011 XOXCO, Inc
 	
 	Documentation for this plugin lives here:
 	http://xoxco.com/clickable/jquery-tags-input
