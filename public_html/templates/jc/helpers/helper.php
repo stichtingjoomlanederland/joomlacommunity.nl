@@ -104,7 +104,7 @@ class ThisTemplateHelper
 	 */
 	public function setMetadata($template)
 	{
-		$this->doc->setCharset('utf8');
+		$this->doc->setCharset('utf-8');
 		$this->doc->setMetaData('viewport', 'width=device-width, initial-scale=1.0');
 		$this->doc->setMetaData('mobile-web-app-capable', 'yes');
 		$this->doc->setMetaData('apple-mobile-web-app-capable', 'yes');
