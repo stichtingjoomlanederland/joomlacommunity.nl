@@ -38,7 +38,7 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
 
 	<div class="app-content-table">
-		<table class="app-table app-table-middle table table-striped" data-ed-table>
+		<table class="app-table table" data-ed-table>
 			<thead>
 				<tr>
 					<th width="5">

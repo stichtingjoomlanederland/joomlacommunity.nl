@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,38 +9,21 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 require_once dirname(__FILE__) . '/model.php';
 
 class EasyDiscussModelTags extends EasyDiscussAdminModel
 {
-	/**
-	 * Category total
-	 *
-	 * @var integer
-	 */
 	public $_total = null;
-
-	/**
-	 * Pagination object
-	 *
-	 * @var object
-	 */
 	public $_pagination = null;
-
-	/**
-	 * Category data array
-	 *
-	 * @var array
-	 */
 	public $_data = null;
 
 	public function __construct()
 	{
 		parent::__construct();
 
-		$limit		= $this->app->getUserStateFromRequest('com_easydiscuss.tags.limit', 'limit', $this->app->getCfg('list_limit'), 'int');
+		$limit = $this->app->getUserStateFromRequest('com_easydiscuss.tags.limit', 'limit', $this->app->getCfg('list_limit'), 'int');
 		$limitstart	= $this->input->get('limitstart', 0, 'int');
 
 		$this->setState('limit', $limit);
@@ -55,9 +38,7 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 	 */
 	public function getTotal()
 	{
-		// Lets load the content if it doesn't already exist
-		if (empty($this->_total))
-		{
+		if (empty($this->_total)) {
 			$query = $this->_buildQuery();
 			$this->_total = $this->_getListCount($query);
 		}
@@ -74,10 +55,8 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 	public function getPagination()
 	{
 		// Lets load the content if it doesn't already exist
-		if (empty($this->_pagination))
-		{
-			jimport('joomla.html.pagination');
-			$this->_pagination = new JPagination($this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
+		if (empty($this->_pagination)) {
+			$this->_pagination = ED::getPagination($this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
 		}
 
 		return $this->_pagination;

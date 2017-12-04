@@ -481,8 +481,8 @@ class EasyDiscussViewIndex extends EasyDiscussView
 
 		$filtering = array( 'filter' => $filterType,
 							'sort' => $sort);
-
-		if ($category_id) {
+		
+		if ($categoryIds) {
 			$filtering['category_id'] = $categoryIds;
 		}
 

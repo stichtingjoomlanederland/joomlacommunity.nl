@@ -23,9 +23,12 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 		$query = 'SELECT c.`last_post_time`, c.`first_post_id`, a.* FROM `#__kunena_messages` AS a';
 		$query .= ' LEFT JOIN `#__discuss_migrators` AS b ON b.`external_id` = a.`id` and b.`component` = ' . $this->db->Quote('com_kunena') . ' and b.`type` = ' . $db->Quote('reply');
-		$query .= ' INNER JOIN `#__kunena_topics` as c on c.`id` = a.`thread`';
+		$query .= ' INNER JOIN `#__kunena_topics` as c on c.`id` = a.`thread` and c.`moved_id` = 0';
 		$query .= ' WHERE ' . $db->nameQuote('a.id') . ' != ' . $db->nameQuote('c.first_post_id');
 		$query .= ' and b.`id` is null';
+
+		// debug
+		// $query .= ' and c.id in (46195, 46241)';
 
 		if ($limit) {
 			$query .= ' LIMIT ' . $limit;
@@ -44,9 +47,12 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 		$query = 'SELECT COUNT(1) FROM `#__kunena_messages` AS a';
 		$query .= ' LEFT JOIN `#__discuss_migrators` AS b ON b.`external_id` = a.`id` and b.`component` = ' . $this->db->Quote('com_kunena') . ' and b.`type` = ' . $db->Quote('reply');
-		$query .= ' INNER JOIN `#__kunena_topics` as c on c.`id` = a.`thread`';
+		$query .= ' INNER JOIN `#__kunena_topics` as c on c.`id` = a.`thread` and c.`moved_id` = 0';
 		$query .= ' WHERE ' . $db->nameQuote('a.id') . ' != c.`first_post_id`';
 		$query .= ' and b.`id` is null';
+
+		// debug
+		// $query .= ' and c.id in (46195, 46241)';
 
 		$db->setQuery($query);
 		$items = $db->loadResult();
@@ -66,17 +72,14 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 		return $internalId;
 	}
 
-	public function migrateReplies()
+	public function migrateReplies($total = 0)
 	{
+		$db	= $this->db;
 
 		$edInternalIds = array();
 		$edParents = array();
 
-
 		$config = ED::config();
-
-		// Get the total number of Kunena items
-		$total = $this->getTotalKunenaReplies();
 
 		// Get all Kunena Posts that is not yet migrated
 		$items = $this->getKunenaReplies(null, $this->num);
@@ -90,16 +93,18 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 		if (!$items) {
 
 			if (!empty($status)) {
-				return $this->ajax->resolve(false, $status);
+				return $this->ajax->resolve(false, $status, '0');
 			}
 
-			return $this->ajax->resolve('noreplies');
+			return $this->ajax->resolve('noreplies', '', '0');
 		}
+
+		$threads = array();
 
 		foreach ($items as $item) {
 
 			// Get the kunena parent
-			$kunenaParentId = $item->parent;
+			$kunenaParentId = $item->first_post_id;
 
 			// try getting from cache;
 			if (!isset($edInternalIds[$kunenaParentId])) {
@@ -150,20 +155,21 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 			$post = null;
 			if (!isset($edParents[$edParentId])) {
 				// Load the post library
-				$post = ED::post($edParentId);
+				$post = ED::table('Post');
+				$post->load($edParentId);
 
 				// If this post is not a question, we'll need to get the parent id.
-				if (!$post->isQuestion()) {
-					$parent = $post->getParent();
-
-					// Re-assign $post to be the parent.
-					$post = ED::post($parent->id);
+				if ($post->parent_id) {
+					$post->load($post->parent_id);
 				}
 
 				$edParents[$edParentId] = $post;
 			} else {
 				$post = $edParents[$edParentId];
 			}
+
+			// temp keep the parent id here.
+			$threads[$post->thread_id] = $post->thread_id;
 
 			// Get the content
 			$content = $this->getKunenaMessage($item);
@@ -175,52 +181,101 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 			// process confidential tag
 			$data = $this->processConfidentialTag($data);
+			$content = $data['content'];
 
 			// process code tag
-			$data['content'] = $this->processCodeTag($data['content']);
+			$content = $this->processCodeTag($content);
 
 			$data['title'] = ($item->subject) ? $item->subject : 'RE:';
+
+			$alias = ED::permalinkSlug($data['title']) . '-' . $item->id;
+			$data['alias'] = $alias;
+
 			$data['parent_id'] = $post->id;
+			$data['thread_id'] = $post->thread_id;
+			$data['content_type'] = 'bbcode';
+			$data['category_id'] = $post->category_id;
 			$data['user_id'] = $item->userid;
 			$data['user_type'] = DISCUSS_POSTER_MEMBER;
 			$data['poster_name'] = $item->name;
 			$data['created'] = ED::date($item->time)->toMySQL();
 			$data['modified'] = ED::date($item->time)->toMySQL();
 
+
 			if (!$item->userid) {
 				$data['user_type'] = DISCUSS_POSTER_GUEST;
 			}
 
-			// Load the post library
-			$post = ED::post();
-			$post->bind($data, false, true);
+			// some joomla editor htmlentity the content before it send to server. so we need
+			// to do the god job to fix the content.
+			$content = ED::string()->unhtmlentities($content);
+			$preview = $content;
 
-			// Try to save the post now
-			$saveOptions = array('migration' => true);
-			$state = $post->save($saveOptions);
+			// now we need to 'translate the content into preview mode so that frontend no longer need to do this heavy process'
+			if ($data['content_type'] == 'bbcode') {
+				$preview = ED::parser()->bbcode($content);
+
+				$preview = nl2br($preview);
+
+				// Before we store this as preview, we need to filter the badwords
+				$preview = ED::badwords()->filter($preview);
+			}
+
+			$data['content'] = $content;
+			$data['preview'] = $preview;
+			$data['legacy'] = 0;
+
+			$state = ($item->hold == 0)? DISCUSS_ID_PUBLISHED : DISCUSS_ID_UNPUBLISHED;
+			$data['published'] = $state;
+
+			$tbl = ED::table('Post');
+			$tbl->bind($data);
+			$state = $tbl->store();
 
 			if ($state) {
 
 				$files = $this->getKunenaAttachments($item);
 
 				if ($files) {
-					$this->processAttachments($files, $post);
+					$this->processAttachments($files, $tbl);
 
-					$preview = ED::parser()->replaceAttachmentsEmbed($post->post->preview, $post);
-					$post->post->preview = $preview;
-					$post->post->store();
+					$preview = ED::parser()->replaceAttachmentsEmbed($tbl->preview, $tbl);
+					$tbl->preview = $preview;
+					$tbl->store();
 				}
 
 			}
 
-			// Map child item likes
-			$this->mapKunenaItemLikes($item, $post);
+			// // Map child item likes
+			$this->mapKunenaItemLikes($item, $tbl);
 
 			// Add this to migrators table
-			$this->added('com_kunena', $post->id, $item->id, 'reply');
+			$this->added('com_kunena', $tbl->id, $item->id, 'reply');
 
-			$status .= JText::sprintf('COM_EASYDISCUSS_MIGRATOR_MIGRATED_KUNENA_REPLY', $item->id, $post->id) . '<br />';
+			$status .= JText::sprintf('COM_EASYDISCUSS_MIGRATOR_MIGRATED_KUNENA_REPLY', $item->id, $tbl->id) . '<br />';
 
+		}
+
+		if ($threads) {
+			foreach ($threads as $thread_id) {
+				// update last user_id
+				// update last replied_date
+				// update replies count
+
+				$query = "update `#__discuss_thread` as a";
+				$query .= " inner join `#__discuss_posts` as b";
+				$query .= " on a.`id` = b.`thread_id` and b.`id` = (select max(id) from `#__discuss_posts` as c where c.`thread_id` = a.`id`)";
+				$query .= "  set a.`last_user_id` = b.`user_id`,";
+				$query .= "  a.`last_poster_name` = b.`poster_name`,";
+				$query .= "  a.`last_poster_email` = b.`poster_email`,";
+				$query .= "  a.`replied` = b.`created`,";
+				$query .= "  a.`num_replies` = (select count(1) - 1 from `#__discuss_posts` as b1 where b1.`thread_id` = a.`id` and b1.`published` = 1)";
+				$query .= " where a.id = " . $db->Quote($thread_id);
+				$query .= " and b.parent_id > 0";
+
+				$db->setQuery($query);
+				$db->query();
+			}
 		}
 
 		$hasmore = false;
@@ -229,7 +284,7 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 			$hasmore = true;
 		}
 
-		return $this->ajax->resolve($hasmore, $status);
+		return $this->ajax->resolve($hasmore, $status, $balance);
 
 	}
 
@@ -268,11 +323,13 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 		// If there's nothing to load just skip this
 		if (!$items) {
 
+			$repliesCount = $this->getTotalKunenaReplies();
+
 			if (!empty($status)) {
-				return $this->ajax->resolve(false, $status);
+				return $this->ajax->resolve(false, $status, $repliesCount);
 			}
 
-			return $this->ajax->resolve('noitem');
+			return $this->ajax->resolve('noitem', '', $repliesCount);
 		}
 
 		foreach ($items as $item) {
@@ -297,13 +354,17 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 			$hasmore = true;
 		}
 
+		$repliesCount = 0;
+
 		if (!$hasmore) {
 
 			// Next, we migrate all the category that not yet migrated
 			$this->migrateAllCategories();
+
+			$repliesCount = $this->getTotalKunenaReplies();
 		}
 
-		return $this->ajax->resolve($hasmore, $status);
+		return $this->ajax->resolve($hasmore, $status, $repliesCount);
 
 	}
 
@@ -538,7 +599,6 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 				$attachment->set('uid', $post->id);
 				$attachment->set('size', $kAttachment->size);
 				$attachment->set('title', $kAttachment->filename);
-				$attachment->set('type', $post->getType());
 				$attachment->set('published', DISCUSS_ID_PUBLISHED);
 				$attachment->set('mime', $kAttachment->filetype);
 
@@ -612,7 +672,6 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 		$message	= preg_replace( '/\[attachment\="?(.*?)"?\](.*?)\[\/attachment\]/ms' , '[attachment]\2[/attachment]' , $message );
 		$message	= preg_replace( '/\[quote=(.+?)\d+\]/ms' , '[quote]' , $message );
 		$message	= preg_replace( '/\[url\](.*?)\[\/url\]/ms' , '[url="\1"]\1[/url]' , $message );
-
 
 		return $message;
 	}
@@ -701,6 +760,9 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 		$query .= ' )';
 		// $query .= ' AND ' . $db->nameQuote('parent') . '=' . $db->Quote(0);
 		$query .= ' AND a.' . $db->nameQuote('id') . '=' . 'c.`first_post_id`';
+		$query .= ' AND c.' . $db->nameQuote('hold') . '=' . $db->Quote(0);
+		$query .= ' AND c.' . $db->nameQuote('moved_id') . '=' . $db->Quote(0);
+
 
 
 		$db->setQuery($query);
@@ -726,7 +788,13 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 		} else {
 			// $query .= ' AND a.' . $db->nameQuote('parent') . '=' . $db->Quote(0);
 			$query .= ' AND a.' . $db->nameQuote('id') . '=' . 'c.`first_post_id`';
+			$query .= ' AND c.' . $db->nameQuote('hold') . '=' . $db->Quote(0);
+			$query .= ' AND c.' . $db->nameQuote('moved_id') . '=' . $db->Quote(0);
+
+			// debug
+			// $query .= ' and a.id in (46195, 46241)';
 		}
+
 
 		$query .= ' ORDER BY a.`id`';
 

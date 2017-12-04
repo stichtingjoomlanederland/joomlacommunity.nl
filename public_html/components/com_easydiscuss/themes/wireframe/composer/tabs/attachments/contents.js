@@ -181,14 +181,17 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		});
 	});
 
-	// Insert attachments
-	$('[data-ed-attachment-item-insert]').on('click', function() {
+	// Insert an attachment item
+	var insertAttachmentItem = wrapper.find('[data-ed-attachment-item-insert]');
+
+	insertAttachmentItem.live('click', function() {
+
 		var editor = $('[data-ed-editor]');
 		var value = editor.val();
 		var file = $(this).siblings('[data-ed-attachment-item-title]').html();
 
 		value += '[attachment]' + file + '[/attachment]';
-		
+
 		$('[data-ed-editor]').val(value);
 	});
 

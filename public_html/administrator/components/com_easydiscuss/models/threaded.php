@@ -20,7 +20,7 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 	public function __construct()
 	{
 		parent::__construct();
-		
+
 		// Get the posts limit
 		$limit = $this->app->getUserStateFromRequest('com_easydiscuss.posts.limit', 'limit', $this->app->getCfg('list_limit') , 'int');
 		$limitstart	= JRequest::getVar('limitstart', 0, '', 'int');
@@ -111,8 +111,8 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 				if ($isUserId) {
 					$where[] = 'a.`user_id`=' . $db->Quote($search->query);
 				} else {
-					
-					// Search by username or name. Instead of joining the table, we just fire another query 
+
+					// Search by username or name. Instead of joining the table, we just fire another query
 					// to get the id's to prevent all those collation and performance issues
 					$userQuery = 'SELECT `id` FROM `#__users` WHERE (`name` LIKE ' . $db->Quote('%' . $search->query . '%') . ' OR `username` LIKE ' . $db->Quote('%' . $search->query . '%') . ')';
 					$db->setQuery($userQuery);
@@ -147,7 +147,9 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 		// Get the pagination
 		$limitstart = $this->getState('limitstart');
 		$limit = $this->getState('limit');
-		$query .= ' LIMIT ' . $limitstart . ',' . $limit;
+		if ($limit) {
+			$query .= ' LIMIT ' . $limitstart . ',' . $limit;
+		}
 
 		$db->setQuery($query);
 		$items = $db->loadObjectList();
@@ -160,8 +162,6 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0.10
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function getPendingCount()
 	{
@@ -172,7 +172,7 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 		$query[] = 'WHERE ' . $db->qn('published') . '=' . $db->Quote(DISCUSS_ID_PENDING);
 
 		$query = implode(' ', $query);
-		
+
 		$db->setQuery($query);
 		$total = $db->loadResult();
 
@@ -184,14 +184,12 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0.10
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function getPagination()
 	{
 		jimport('joomla.html.pagination');
 
-		$pagination = new JPagination($this->total, $this->getState('limitstart'), $this->getState('limit'));
+		$pagination = ED::getPagination($this->total, $this->getState('limitstart'), $this->getState('limit'));
 
 		return $pagination;
 	}
@@ -226,14 +224,14 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 
 		return true;
 	}
-	
+
 	/**
 	 * Retrieves all posts from the site
 	 *
 	 * @since	4.0.9
 	 * @access	public
 	 * @param	string
-	 * @return	
+	 * @return
 	 */
 	public function getAllPosts()
 	{

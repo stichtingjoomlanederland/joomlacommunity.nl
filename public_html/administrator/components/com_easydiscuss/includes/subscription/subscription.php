@@ -156,7 +156,7 @@ class EasyDiscussSubscription extends EasyDiscuss
 
 				}
 
-				$namespace = "site/emails/digest/posts";
+				$namespace = "site/emails/email.digest.posts";
 
 				$theme = ED::themes();
 				$theme->set('site', $siteSub);
@@ -181,7 +181,7 @@ class EasyDiscussSubscription extends EasyDiscuss
 						$data[] = $reply;
 					}
 
-					$namespace = "site/emails/digest/replies";
+					$namespace = "site/emails/email.digest.replies";
 
 					$theme = ED::themes();
 					$theme->set('data', $data);
@@ -219,7 +219,7 @@ class EasyDiscussSubscription extends EasyDiscuss
 						$data[] = $item;
 					}
 
-					$namespace = "site/emails/digest/comments";
+					$namespace = "site/emails/email.digest.comments";
 					$theme = ED::themes();
 					$theme->set('data', $data);
 					$theme->set('managelink', $managelink);
@@ -237,7 +237,7 @@ class EasyDiscussSubscription extends EasyDiscuss
 				$theme->set('replies', $repliesContent);
 				$theme->set('comments', $commentsContent);
 
-				$namespace = "site/emails/digest/subscriptions";
+				$namespace = "site/emails/email.digest.subscriptions";
 				$body = $theme->output($namespace);
 
 				$subject = JText::sprintf('COM_EASYDISCUSS_DIGEST_EMAIL_SUBJECT', ED::date()->display(), ED::jconfig()->get('sitename'));

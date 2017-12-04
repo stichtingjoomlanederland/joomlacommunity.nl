@@ -1039,8 +1039,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function unfeature()
 	{
@@ -1057,7 +1055,9 @@ class EasyDiscussPost extends EasyDiscuss
 
 	/**
 	 * move post into new category
-	 * @since 4.0
+	 *
+	 * @since   4.0
+	 * @access  public
 	 */
 	public function move($newCategory)
 	{
@@ -1068,7 +1068,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 		if ($state) {
 			// Move the replies too
-			$this->moveReplies($this->post->parent_id, $newCategory);
+			$this->moveReplies($this->post->id, $newCategory);
 
 			$this->updateThread(array('category_id' => $newCategory));
 
@@ -1080,8 +1080,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	private function validateReply($data, $options = array())
 	{
@@ -2085,8 +2083,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @alternative for ->isFeatured
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isFeatured()
 	{
@@ -2106,8 +2102,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isAnswer()
 	{
@@ -2127,8 +2121,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isAnonymous()
 	{
@@ -2522,7 +2514,7 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @param   string
 	 * @return
 	 */
-	public function getPermalink($external = false, $xhtml = true, $json = false)
+	public function getPermalink($external = false, $xhtml = true, $json = false, $respectedLangMenu = false)
 	{
 		static $links = array();
 
@@ -2541,6 +2533,33 @@ class EasyDiscussPost extends EasyDiscuss
 				$links[$key] = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $question->id, false, true);
 			} else {
 				$links[$key] = EDR::_('view=post&id=' . $question->id, $xhtml);
+			}
+
+			// determine the site got enable multilingual or not
+			$isSiteMultilingualEnabled = ED::isSiteMultilingualEnabled();
+			
+			if ($isSiteMultilingualEnabled) {
+
+				// retrieve the current category post language
+				$postCatLang = $this->getCategoryLanguage();
+
+				// For some reason if the category language columns is stored empty data, we will override this.
+				if (empty($postCatLang)) {
+					$postCatLang = '*';
+				}			
+
+				// currently this one only cater for discuss app
+				if ($respectedLangMenu && ($postCatLang != '*')) {
+
+					// retrieve infront language code
+					$langcode = substr($postCatLang, 0, 2);
+
+					if ($external) {
+						$links[$key] = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $question->id . '&lang=' . $langcode, false, true);
+					} else {
+						$links[$key] = EDR::_('view=post&id=' . $question->id . '&lang=' . $langcode, $xhtml);
+					}
+				}				
 			}
 
 			if ($this->isReply()) {
@@ -2616,6 +2635,10 @@ class EasyDiscussPost extends EasyDiscuss
 
 		if ($checkAcl && !$category->canViewReplies()) {
 			return $default;
+		}
+
+		if (! $sort) {
+			$sort = ED::config()->get('replies_sorting', 'oldest');
 		}
 
 		if ($sort == 'latest') {
@@ -3197,22 +3220,11 @@ class EasyDiscussPost extends EasyDiscuss
 	}
 
 	/**
-	 *
-	 *
-	 * @since   4.0
-	 * @access  public
-	 * @param   string
-	 * @return
-	 */
-
-	/**
 	 * Retrieves the intro text portion of a post
 	 *
 	 * @alternative for ->introtext
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getIntro()
 	{
@@ -3616,6 +3628,18 @@ class EasyDiscussPost extends EasyDiscuss
 	}
 
 	/**
+	 * Determines if this post's got accepted reply as answer
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function isPostReplyAccepted()
+	{
+		$state = ED::table('thread')->getThreadAnswered($this->post->id);
+		return $state;
+	}
+
+	/**
 	 * Determines if this post's assignment status is now working on or not
 	 *
 	 * @since   4.0
@@ -3834,11 +3858,15 @@ class EasyDiscussPost extends EasyDiscuss
 			$this->isModerate = true;
 		}
 
-		// Determines if the user should still be moderated
-		$isModerationThreshold = ED::isModerateThreshold($this->my->id);
+		// this Automated Moderation feature only allow registered user
+		// for those guest user should be always get moderated
+		if ($this->my->id) {
+			// Determines if the user should still be moderated
+			$isModerationThreshold = ED::isModerateThreshold($this->my->id);
 
-		if (!$isModerationThreshold && !$isAdmin && !$isModerator) {
-			$this->post->published = DISCUSS_ID_PUBLISHED;
+			if (!$isModerationThreshold && !$isAdmin && !$isModerator) {
+				$this->post->published = DISCUSS_ID_PUBLISHED;
+			}
 		}
 
 		$postType = 'post';
@@ -4423,15 +4451,42 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function replyNotify()
 	{
-		if (!$this->isReply() || (!$this->isNew() && $this->prevPostStatus != DISCUSS_ID_PENDING)) {
-			return;
+		// Add system notifications for the thread starter
+		if ($this->post->published && $this->config->get('main_notifications_reply')) {
+
+			// Get all users that are subscribed to this post
+			$model = ED::model('Posts');
+			$participants = $model->getParticipants($this->post->parent_id);
+
+			$question = ED::post($this->post->parent_id);
+
+			// Add the thread starter into the list of participants.
+			$participants[] = $question->user_id;
+
+			// Notify all participants
+			foreach($participants as $participant) {
+				if ($participant != $this->my->id) {
+
+					$notification = ED::table('Notifications');
+
+					$notification->bind(array(
+							'title' => JText::sprintf('COM_EASYDISCUSS_REPLY_DISCUSSION_NOTIFICATION_TITLE', $question->title),
+							'cid' => $question->id,
+							'type' => DISCUSS_NOTIFICATIONS_REPLY,
+							'target' => $participant,
+							'author' => $this->post->user_id,
+							'permalink' => 'index.php?option=com_easydiscuss&' . $this->getReplyPermalink(),
+							'anonymous' => $this->post->anonymous
+						));
+					$notification->store();
+				}
+			}
 		}
 
+		// Process Email notification
 		// Get current submit reply/comment user id
 		$reply = ED::user($this->my->id);
-
 		$owner = $this->getOwner();
-
 		$excludeEmails = array();
 
 		$model = ED::model('Posts');
@@ -4454,20 +4509,63 @@ class EasyDiscussPost extends EasyDiscuss
 		$emailData['postTitle'] = $this->post->title;
 		$emailData['comment'] = ED::parseContent($this->post->content);
 		$emailData['commentAuthor'] = $owner->getName($this->post->poster_name);
-
 		$emailData['postLink'] =  EDR::getRoutedURL($this->getReplyPermalink(), false, true);
-
 		$emailContent = $this->post->content;
-
 		$isEditing = $this->isNew() == true ? false : true;
 		$emailContent = ED::bbcodeHtmlSwitcher($this, 'reply', $isEditing);
 		$emailContent = $this->trimEmail($emailContent);
+
+		// Ensure that content image style attribute set to max-width
+		$emailContent = ED::parser()->normaliseImageStyle($emailContent);
 
 		$emailData['replyContent'] = $emailContent;
 		$emailData['replyAuthor'] = $owner->getName($this->post->poster_name);
 		$emailData['replyAuthorAvatar'] = $owner->getAvatar();
 		$emailData['post_id'] = $this->post->parent_id;
 		$emailData['cat_id'] = $this->post->category_id;
+
+		if ($this->isPending()) {
+
+			$emailData['emailTemplate'] = 'email.post.reply.moderation.php';
+			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_MODERATE', $question->title);
+
+			if (!$this->isNew()) {
+				$emailData['originalContent'] = $this->original->getContent();
+				$emailData['emailTemplate'] = 'email.reply.edited.moderation.php';
+				$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_EDITED_REPLY_MODERATE', $question->title);
+			}
+
+			// Notify admins.
+			// Generate hashkeys to map this current request
+			$hashkey = ED::table('Hashkeys');
+			$hashkey->uid = $this->post->id;
+			$hashkey->type = DISCUSS_REPLY_TYPE;
+			$hashkey->store();
+
+			$approveURL = ED::getExternalLink('index.php?option=com_easydiscuss&controller=posts&task=approvePost&key=' . $hashkey->key);
+			$rejectURL = ED::getExternalLink('index.php?option=com_easydiscuss&controller=posts&task=rejectPost&key=' . $hashkey->key);
+			$emailData['moderation']  = '<div style="display:inline-block;width:100%;padding:20px;border-top:1px solid #ccc;padding:20px 0 10px;margin-top:20px;line-height:19px;color:#555;font-family:\'Lucida Grande\',Tahoma,Arial;font-size:12px;text-align:left">';
+			$emailData['moderation'] .= '<a href="' . $approveURL . '" style="display:inline-block;padding:5px 15px;background:#fc0;border:1px solid #caa200;border-bottom-color:#977900;color:#534200;text-shadow:0 1px 0 #ffe684;font-weight:bold;box-shadow:inset 0 1px 0 #ffe064;-moz-box-shadow:inset 0 1px 0 #ffe064;-webkit-box-shadow:inset 0 1px 0 #ffe064;border-radius:2px;moz-border-radius:2px;-webkit-border-radius:2px;text-decoration:none!important">' . JText::_( 'COM_EASYDISCUSS_EMAIL_APPROVE_REPLY' ) . '</a>';
+			$emailData['moderation'] .= ' ' . JText::_( 'COM_EASYDISCUSS_OR' ) . ' <a href="' . $rejectURL . '" style="color:#477fda">' . JText::_( 'COM_EASYDISCUSS_REJECT' ) . '</a>';
+			$emailData['moderation'] .= '</div>';
+
+			$emailData['approveURL'] = $approveURL;
+			$emailData['rejectURL'] = $rejectURL;
+
+			ED::mailer()->notifyAdministrators($emailData, array(), $this->config->get('notify_admin'), $this->config->get('notify_moderator'));
+
+		} elseif (($this->isPublished() && !$this->post->private) || (!$this->isNew() && $this->prevPostStatus == DISCUSS_ID_PENDING)) {
+
+			$emailData['emailTemplate'] = 'email.post.reply.new.php';
+			$emailData['emailSubject']  = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $question->id , $question->title);
+			$emailData['post_id'] = $this->post->id;
+
+			ED::mailer()->notifyAdministrators($emailData, $excludeEmails, $this->config->get('notify_admin_onreply'), $this->config->get('notify_moderator_onreply'));
+		}
+
+		if (!$this->isNew() && $this->prevPostStatus != DISCUSS_ID_PENDING && !$this->isRejected) {
+			return;
+		}
 
 		if (($this->config->get('main_sitesubscription') ||  $this->config->get('main_postsubscription') ||  $this->config->get('main_ed_categorysubscription')) && $this->config->get('notify_subscriber') && $this->isPublished()) {
 			$emailData['emailTemplate'] = 'email.subscription.reply.new.php';
@@ -4479,17 +4577,17 @@ class EasyDiscussPost extends EasyDiscuss
 			// This does not send to subscribers whom subscribe to site and category
 			$subcribersEmails = ED::mailer()->notifyThreadSubscribers($emailData, array($posterEmail, $this->my->email));
 
-            // If the include_replies is enabled, we need to notify the site subscribers whenever the replies is made
-            if ($this->config->get('main_sitesubscription') && $this->config->get('main_subscription_include_replies')) {
-                $siteSubscribers = ED::Mailer()->notifySubscribers($emailData, array($posterEmail, $this->my->email));
-                $subcribersEmails = array_merge($subcribersEmails, $siteSubscribers);
-            }
+			// If the include_replies is enabled, we need to notify the site subscribers whenever the replies is made
+			if ($this->config->get('main_sitesubscription') && $this->config->get('main_subscription_include_replies')) {
+				$siteSubscribers = ED::Mailer()->notifySubscribers($emailData, array($posterEmail, $this->my->email));
+				$subcribersEmails = array_merge($subcribersEmails, $siteSubscribers);
+			}
 
-            // Same goes to category subscription
-            if ($this->config->get('main_ed_categorysubscription') && $this->config->get('main_subscription_include_replies')) {
-                $categorySubscribers = ED::Mailer()->notifySubscribers($emailData , array($posterEmail, $this->my->email));
-                $subcribersEmails = array_merge($subcribersEmails, $categorySubscribers);
-            }
+			// Same goes to category subscription
+			if ($this->config->get('main_ed_categorysubscription') && $this->config->get('main_subscription_include_replies')) {
+				$categorySubscribers = ED::Mailer()->notifySubscribers($emailData , array($posterEmail, $this->my->email));
+				$subcribersEmails = array_merge($subcribersEmails, $categorySubscribers);
+			}
 
 			$excludeEmails[] = $posterEmail;
 			$excludeEmails = array_merge($excludeEmails, $subcribersEmails);
@@ -4525,37 +4623,7 @@ class EasyDiscussPost extends EasyDiscuss
 			ED::mailer()->notifyThreadParticipants($emailData, $excludeEmails);
 		}
 
-		if ($this->isPending()) {
-			// Notify admins.
-			// Generate hashkeys to map this current request
-			$hashkey = ED::table('Hashkeys');
-			$hashkey->uid = $this->post->id;
-			$hashkey->type = DISCUSS_REPLY_TYPE;
-			$hashkey->store();
-
-			$approveURL = ED::getExternalLink('index.php?option=com_easydiscuss&controller=posts&task=approvePost&key=' . $hashkey->key);
-			$rejectURL = ED::getExternalLink('index.php?option=com_easydiscuss&controller=posts&task=rejectPost&key=' . $hashkey->key);
-			$emailData['moderation']  = '<div style="display:inline-block;width:100%;padding:20px;border-top:1px solid #ccc;padding:20px 0 10px;margin-top:20px;line-height:19px;color:#555;font-family:\'Lucida Grande\',Tahoma,Arial;font-size:12px;text-align:left">';
-			$emailData['moderation'] .= '<a href="' . $approveURL . '" style="display:inline-block;padding:5px 15px;background:#fc0;border:1px solid #caa200;border-bottom-color:#977900;color:#534200;text-shadow:0 1px 0 #ffe684;font-weight:bold;box-shadow:inset 0 1px 0 #ffe064;-moz-box-shadow:inset 0 1px 0 #ffe064;-webkit-box-shadow:inset 0 1px 0 #ffe064;border-radius:2px;moz-border-radius:2px;-webkit-border-radius:2px;text-decoration:none!important">' . JText::_( 'COM_EASYDISCUSS_EMAIL_APPROVE_REPLY' ) . '</a>';
-			$emailData['moderation'] .= ' ' . JText::_( 'COM_EASYDISCUSS_OR' ) . ' <a href="' . $rejectURL . '" style="color:#477fda">' . JText::_( 'COM_EASYDISCUSS_REJECT' ) . '</a>';
-			$emailData['moderation'] .= '</div>';
-
-			$emailData['approveURL'] = $approveURL;
-			$emailData['rejectURL'] = $rejectURL;
-
-			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_MODERATE', $question->title);
-			$emailData['emailTemplate'] = 'email.post.reply.moderation.php';
-
-			ED::mailer()->notifyAdministrators($emailData, array(), $this->config->get('notify_admin'), $this->config->get('notify_moderator'));
-
-		} elseif($this->isPublished() && !$this->post->private) {
-
-			$emailData['emailTemplate'] = 'email.post.reply.new.php';
-			$emailData['emailSubject']  = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $question->id , $question->title);
-			$emailData['post_id'] = $this->post->id;
-
-			ED::mailer()->notifyAdministrators($emailData, $excludeEmails, $this->config->get('notify_admin_onreply'), $this->config->get('notify_moderator_onreply'));
-		}
+		
 
 		if ($this->config->get('notify_actor')) {
 			$emailData['actor_email'] = $this->getOwner()->getEmail();
@@ -4565,6 +4633,29 @@ class EasyDiscussPost extends EasyDiscuss
 
 			ED::mailer()->notifyActor($emailData, array());
 		}
+
+		// Notify reply owner if the reply is being approved.
+		if ($this->prevPostStatus == DISCUSS_ID_PENDING) {
+			$emailData['postContent'] = $emailContent;
+			$emailData['owner_email'] = $this->getOwner()->getEmail();
+			$emailData['emailTemplate'] = 'email.post.approve';
+			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_REPLY_ASKED_APPROVED', $this->post->title);
+			$emailData['type'] = 'REPLY';
+
+			ED::Mailer()->notifyThreadOwner($emailData, array());
+		}
+
+		// Notfy thread owner if the post is being rejected
+		if ($this->isRejected) {
+			$emailData['postContent'] = $emailContent;
+			$emailData['owner_email'] = $this->getOwner()->getEmail();
+			$emailData['emailTemplate'] = 'email.post.rejected';
+			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_REPLY_ASKED_REJECTED', $this->post->title);
+			$emailData['type'] = 'REPLY';
+
+			ED::Mailer()->notifyThreadOwner($emailData, array());
+		}
+
 	}
 
 	/**
@@ -4664,42 +4755,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function notify()
 	{
-		// Add system notifications for the thread starter
-		if ($this->isReply() && $this->post->published && $this->config->get('main_notifications_reply')) {
-
-			// Get all users that are subscribed to this post
-			$model = ED::model('Posts');
-			$participants = $model->getParticipants($this->post->parent_id);
-
-			$question = ED::post($this->post->parent_id);
-
-			// Add the thread starter into the list of participants.
-			$participants[] = $question->user_id;
-
-			// Notify all participants
-			foreach($participants as $participant) {
-				if ($participant != $this->my->id) {
-
-					$notification = ED::table('Notifications');
-
-					$notification->bind(array(
-							'title'     => JText::sprintf('COM_EASYDISCUSS_REPLY_DISCUSSION_NOTIFICATION_TITLE', $question->title),
-							'cid'       => $question->id,
-							'type'      => DISCUSS_NOTIFICATIONS_REPLY,
-							'target'    => $participant,
-							'author'    => $this->post->user_id,
-							'permalink' => 'index.php?option=com_easydiscuss&' . $this->getReplyPermalink(),
-							'anonymous' => $this->post->anonymous
-						));
-					$notification->store();
-				}
-			}
-
-			// We will handle email notifications for reply under @replyNotify function instead.
-			// Return to @save function
-			return;
-		}
-
 		// Preparing the Email data
 		// badwords filtering for email data.
 		$this->post->title = ED::badwords()->filter($this->post->title);
@@ -4736,6 +4791,9 @@ class EasyDiscussPost extends EasyDiscuss
 
 		$emailContent = ED::Mailer()->trimEmail($emailContent);
 		$attachments = $this->getAttachments();
+
+		// Ensure that content image style attribute set to max-width
+		$emailContent = ED::parser()->normaliseImageStyle($emailContent);
 
 		$emailData['attachments'] = $attachments;
 		$emailData['postContent'] = $emailContent;
@@ -4779,6 +4837,11 @@ class EasyDiscussPost extends EasyDiscuss
 					}
 				}
 
+				// Notify user groups
+				if ($this->config->get('notify_joomla_groups') && !$this->config->get('notify_all') && ((!$this->isModerate && $this->isNew() && $this->isPublished()) || $this->prevPostStatus == DISCUSS_ID_PENDING)) {
+					ED::Mailer()->notifyUserGroups($emailData, array($this->my->email));
+				}
+
 				// Notify EVERYBODY
 				if ($this->config->get('notify_all') && ((!$this->isModerate && $this->isNew() && $this->isPublished()) || $this->prevPostStatus == DISCUSS_ID_PENDING)) {
 					ED::mailer()->notifyAllMembers($emailData, array($this->my->email));
@@ -4787,7 +4850,8 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		// Notify admins and category moderators
-		if (($this->isNew() || $this->prevPostStatus == DISCUSS_ID_PENDING)) {
+		if (($this->isNew() || $this->prevPostStatus == DISCUSS_ID_PENDING) ||
+			($this->post->published == DISCUSS_ID_PENDING && $this->prevPostStatus == DISCUSS_ID_PUBLISHED && $this->isModerate)) {
 			ED::Mailer()->notifyAdministrators($emailData, array($this->my->email), $this->config->get('notify_admin'), $this->config->get('notify_moderator'));
 		}
 
@@ -4796,6 +4860,7 @@ class EasyDiscussPost extends EasyDiscuss
 			$emailData['owner_email'] = $this->getOwner()->getEmail();
 			$emailData['emailTemplate'] = 'email.post.approve';
 			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_QUESTION_ASKED_APPROVED', $this->post->title);
+			$emailData['type'] = 'QUESTION';
 
 			ED::Mailer()->notifyThreadOwner($emailData, array());
 		}
@@ -4805,6 +4870,7 @@ class EasyDiscussPost extends EasyDiscuss
 			$emailData['owner_email'] = $this->getOwner()->getEmail();
 			$emailData['emailTemplate'] = 'email.post.rejected';
 			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_QUESTION_ASKED_REJECTED', $this->post->title);
+			$emailData['type'] = 'QUESTION';
 
 			ED::Mailer()->notifyThreadOwner($emailData, array());
 		}
@@ -4907,11 +4973,11 @@ class EasyDiscussPost extends EasyDiscuss
 		if (($this->isNew() || $this->prevPostStatus == DISCUSS_ID_PENDING) && $this->post->published == DISCUSS_ID_PUBLISHED && !$this->post->private) {
 
 			// Add activity integrations for new discussion
-			if ($this->isQuestion() && $this->isPublished()) {
+			if ($this->isQuestion() && $this->isPublished() && !$this->isAnonymous()) {
 				ED::jomsocial()->addActivityQuestion($this->post);
 			}
 
-			if (!isset($this->saveOptions['saveFromEasysocialStory']) && !$this->isReply()) {
+			if (!isset($this->saveOptions['saveFromEasysocialStory']) && !$this->isReply() && !$this->isAnonymous()) {
 				ED::easysocial()->createDiscussionStream($this);
 			}
 
@@ -4927,7 +4993,7 @@ class EasyDiscussPost extends EasyDiscuss
 			ED::History()->log('easydiscuss.' . $actionRule, $this->post->user_id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_NEW_' . strtoupper($actionType), $this->post->title), $this->post->id);
 
 			ED::Badges()->assign('easydiscuss.' . $actionRule, $this->post->user_id);
-			ED::Points()->assign('easydiscuss.' . $actionRule, $this->post->user_id);
+			ED::Points()->assign('easydiscuss.' . $actionRule, $this->post->user_id, $this->post);
 
 			// Assign badge for EasySocial
 			ED::EasySocial()->assignBadge('create.question', $this->post->user_id, JText::sprintf('COM_EASYDISCUSS_BADGES_HISTORY_NEW_' . strtoupper($actionType), $this->post->title));
@@ -5009,11 +5075,15 @@ class EasyDiscussPost extends EasyDiscuss
 		$this->ping();
 
 		// should we send email notifications (question)
-		$this->notify();
-
+		if ($this->isQuestion()) {
+			$this->notify();
+		}
+		
 		// should we send email notifications (reply)
-		$this->replyNotify();
-
+		if ($this->isReply()) {
+			$this->replyNotify();
+		}
+		
 		// Execute all integration
 		$this->integrate();
 

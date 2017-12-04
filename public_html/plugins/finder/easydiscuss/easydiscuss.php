@@ -148,15 +148,7 @@ class plgFinderEasyDiscuss extends FinderIndexerAdapter
 		// 	$item->access	= '2';
 		// }
 
-		// Truncate post content to get the summary.
-		$post = new stdClass();
-		$post->intro = '';
-
-		if ($item->content_type == 'bbcode') {
-			$content = ED::parser()->bbcode($item->content, true);
-			$content = nl2br($content);
-			$item->content = $content;
-		}
+		$item->content = $item->preview;
 
 		//$post->content	= JString::substr( strip_tags( $item->content ), 0, 300 );
 		$item->content = strip_tags($item->content);
@@ -168,7 +160,7 @@ class plgFinderEasyDiscuss extends FinderIndexerAdapter
 			$item->summary = $item->content;
 		}
 
-		$item->body = $item->intro . $item->content;
+		$item->body = $item->content;
 
 		// Add the meta-author.
 		$item->metaauthor = !empty($item->created_by_alias) ? $item->created_by_alias : $item->author;

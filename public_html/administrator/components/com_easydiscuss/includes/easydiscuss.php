@@ -17,10 +17,7 @@ jimport('joomla.html.parameter');
 jimport('joomla.access.access');
 jimport('joomla.application.component.model');
 
-// Include legacy object
 require_once(__DIR__ . '/legacy.php');
-
-// Include constants
 require_once(__DIR__ . '/dependencies.php');
 
 class ED
@@ -97,7 +94,7 @@ class ED
 			}
 
 			if (stristr($cdnUrl, 'http://') === false && stristr($cdnUrl, 'https://') === false) {
-				$cdnUrl = 'http://' . $cdnUrl;
+				$cdnUrl = '//' . $cdnUrl;
 			}
 		}
 
@@ -1126,7 +1123,9 @@ class ED
 					JFile::delete($target_file_path . '/original_' . $oldAvatar);
 				}
 
-				JFile::move($target_file_path . '/' . $oldAvatar, $tempAvatar);
+				if ($oldAvatar) {
+					JFile::move($target_file_path . '/' . $oldAvatar, $tempAvatar);
+				}
 			}
 
 			if (JFile::exists($target_file) || JFolder::exists($target_file)) {
@@ -1526,8 +1525,8 @@ class ED
 				$reply->seq = $key + 1;
 
 				if ($pagination) {
-	                $reply->seq = $limitstart ? $key + $limitstart + 1 : $key + 1;
-	            }
+					$reply->seq = $limitstart ? $key + $limitstart + 1 : $key + 1;
+				}
 			}
 
 			if ($config->get('main_comment')) {
@@ -1747,8 +1746,7 @@ class ED
 	 * @param	array 	$exclusion	A list of excluded categories that it should not be including
 	 * @param	boolean $multiple	The select type (multi-selection)
 	 */
-
-	public static function populateCategories($parentId, $userId, $outType, $eleName, $default = false, $isWrite = false, $isPublishedOnly = false, $showPrivateCat = true, $disableContainers = false, $customClass = 'form-control', $exclusion = array(), $aclType = DISCUSS_CATEGORY_ACL_ACTION_VIEW, $sorting = false, $multiple = false, $containerOnly = false)
+	public static function populateCategories($parentId, $userId, $outType, $eleName, $default = false, $isWrite = false, $isPublishedOnly = false, $showPrivateCat = true, $disableContainers = false, $customClass = 'form-control', $exclusion = array(), $aclType = DISCUSS_CATEGORY_ACL_ACTION_VIEW, $sorting = false, $multiple = false, $containerOnly = false, $attributes = array())
 	{
 		$model = ED::model('Categories');
 		$parentCat	= null;
@@ -1793,12 +1791,12 @@ class ED
 			// Get childs for this parent category
 			if (!$containerOnly) {
 				ED::buildNestedCategories($parent->id, $parent, $ignorePrivate, $isPublishedOnly, $showPrivateCat, $selectACLOnly, $exclusion, $sorting);
-			}	
+			}
 
 		}
 
 		$formEle = '';
-		
+
 		if (!is_array($default)) {
 			$default = array($default);
 		}
@@ -1833,7 +1831,13 @@ class ED
 
 		$name = $multiple ? $eleName . '[]' : $eleName;
 
-		$html = '<select ' . $multiple . ' name="' . $name . '" id="' . $eleName .'" class="' . $customClass . '">';
+		$dataAttributes = '';
+
+		if ($attributes) {
+			$dataAttributes = implode(' ', $attributes);
+		}
+
+		$html = '<select ' . $multiple . ' name="' . $name . '" id="' . $eleName .'" class="' . $customClass . '" ' . $dataAttributes . '>';
 
 		if (!$isWrite) {
 			$html .= '<option value="0">' . JText::_('COM_EASYDISCUSS_SELECT_PARENT_CATEGORY') . '</option>';
@@ -1925,8 +1929,9 @@ class ED
 			}
 
 			for ($j	= 0; $j < count($arr->childs); $j++) {
-				$child  = $arr->childs[$j];
-
+				$child = $arr->childs[$j];
+				$child->title = JText::_($child->title);
+				
 				switch ($type) {
 					case 'select':
 						$selected = (in_array($child->id, $default)) ? ' selected="selected"' : '';
@@ -2710,8 +2715,6 @@ class ED
 	 * Retrieve @JUser object based on the given email address.
 	 *
 	 * @access	public
-	 * @param	string $email	The user's email address.
-	 * @return	JUser			@JUser object.
 	 **/
 	public static function getUserByEmail( $email )
 	{
@@ -3147,7 +3150,7 @@ class ED
 				break;
 
 			case 'jomsocial':
- 				$link	= JRoute::_( 'index.php?option=com_community&view=register' );
+				$link	= JRoute::_( 'index.php?option=com_community&view=register' );
 				$file 	= JPATH_ROOT . '/components/com_community/libraries/core.php';
 
 				if (JFile::exists($file)) {
@@ -3167,19 +3170,19 @@ class ED
 		$title = JText::_($text . '_TITLE');
 		$info = JText::_($text . '_INFO');
 
-        $usernameField = 'COM_EASYDISCUSS_USERNAME';
+		$usernameField = 'COM_EASYDISCUSS_USERNAME';
 
-        if (ED::easysocial()->exists() && $config->get('main_login_provider') == 'easysocial') {
-            $usernameField = ED::easysocial()->getUsernameField();
-        }
+		if (ED::easysocial()->exists() && $config->get('main_login_provider') == 'easysocial') {
+			$usernameField = ED::easysocial()->getUsernameField();
+		}
 
-        $theme = ED::themes();
-        $theme->set('title', $title);
-        $theme->set('info', $info);
-        $theme->set('usernameField', $usernameField);
-        $theme->set('return', $return);
+		$theme = ED::themes();
+		$theme->set('title', $title);
+		$theme->set('info', $info);
+		$theme->set('usernameField', $usernameField);
+		$theme->set('return', $return);
 
-        return $theme->output('site/login/form');
+		return $theme->output('site/login/form');
 	}
 
 	public static function getEditProfileLink()
@@ -3207,24 +3210,27 @@ class ED
 		return $link;
 	}
 
+	/**
+	 * Generate reset password link
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
 	public static function getResetPasswordLink()
 	{
-		$config 	= ED::getConfig();
+		$config = ED::getConfig();
 
-		$default	= JRoute::_( 'index.php?option=com_user&view=reset' );
+		$default = JRoute::_('index.php?option=com_user&view=reset');
 
-		if( ED::getJoomlaVersion() >= '1.6' )
-		{
-			$default	= JRoute::_( 'index.php?option=com_users&view=reset' );
+		if (ED::getJoomlaVersion() >= '1.6') {
+			$default = JRoute::_('index.php?option=com_users&view=reset');
 		}
 
-
-		switch( $config->get( 'main_login_provider' ) )
-		{
+		switch ($config->get('main_login_provider')) {
 			case 'easysocial':
 
 				if (ED::easysocial()->exists()) {
-					$link = FRoute::profile( array( 'layout' => 'forgetPassword' ) );
+					$link = ESR::account(array('layout' => 'forgetPassword'));
 				} else {
 					$link = $default;
 				}
@@ -3233,7 +3239,7 @@ class ED
 			case 'cb':
 			case 'jomsocial':
 			default:
-				$link	= $default;
+				$link = $default;
 				break;
 		}
 
@@ -3277,7 +3283,7 @@ class ED
 		}
 
 		return $link;
-	}	
+	}
 
 	public static function getDefaultRepliesSorting()
 	{
@@ -3303,8 +3309,9 @@ class ED
 	 * @param	string
 	 * @return
 	 */
-	public static function setPageTitle($text = '', $pagination = null)
+	public static function setPageTitle($text = '', $pagination = null, $options = array())
 	{
+		$originalText = JText::_($text);
 		$text = JText::_($text);
 
 		// now check if site name is needed or not.
@@ -3330,8 +3337,15 @@ class ED
 			if ($customPageTitle) {
 				$text = $customPageTitle;
 			}
-		}
 
+			// if that is menu ask item with category id
+			if ($item->query['view'] == 'ask' && (isset($options['category']) && $options['category'])) {
+				$text = $customPageTitle;
+
+			} elseif ($item->query['view'] != 'ask' && (isset($options['category']) && $options['category'])) {
+				$text = $originalText;
+			}
+		}
 
 		// Prepare Joomla's site title if necessary.
 		$jConfig = ED::jConfig();
@@ -3811,13 +3825,43 @@ class ED
 		return $content;
 	}
 
+	/**
+	 * Redirect to login provider link if those page required to login first.
+	 *
+	 * @since	4.0.19
+	 * @access	public
+	 */
 	public static function getLoginLink($returnURL = '')
 	{
+		$config = ED::config();
+
 		if (!empty($returnURL)) {
 			$returnURL = '&return=' . $returnURL;
 		}
 
-		$link = DiscussRouter::_('index.php?option=com_users&view=login' . $returnURL);
+		$default = EDR::_('index.php?option=com_users&view=login' . $returnURL, false);
+
+		// Default link
+		$link = $default;
+		$loginProvider = $config->get('main_login_provider');
+
+		if ($loginProvider == 'easysocial') {
+			$easysocial = ED::easysocial();
+
+			if ($easysocial->exists()) {
+
+				// We need to decode back the return url since easysocial only accept full url as return url
+				$link = ESR::login(array('return' => $returnURL));
+			}
+		}
+
+		if ($loginProvider == 'cb') {
+			$link = JRoute::_('index.php?option=com_comprofiler&task=login' . $returnURL);
+		}
+
+		if ($loginProvider == 'easyblog') {
+			$link = JRoute::_('index.php?option=com_easyblog&view=login' . $returnURL);
+		}
 
 		return $link;
 	}
@@ -4240,6 +4284,20 @@ class ED
 	}
 
 	/**
+	 * Determine whether the site enable multilingual.
+	 *
+	 * @since	4.1.19
+	 * @access	public
+	 */
+	public static function isSiteMultilingualEnabled()
+	{
+		// check if the languagefilter plugin enabled
+		$pluginEnabled = JPluginHelper::isEnabled('system', 'languagefilter');
+
+		return $pluginEnabled;
+	}
+
+	/**
 	 * Sets some callback data into the current session
 	 *
 	 * @since	1.0
@@ -4280,26 +4338,26 @@ class ED
 	}
 
 	/**
-     * Retrieves external conversation link
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Retrieves external conversation link
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public static function getConversationsRoute()
 	{
 		$config = ED::config();
 
 		if (ED::easysocial()->exists() && $config->get('integration_easysocial_messaging')) {
-            $link = ED::easysocial()->getConversationsRoute();
-        }
+			$link = ED::easysocial()->getConversationsRoute();
+		}
 
-        if (ED::jomsocial()->exists() && $config->get('integration_jomsocial_messaging')) {
-            $link = ED::jomsocial()->getConversationsRoute();
-        }
+		if (ED::jomsocial()->exists() && $config->get('integration_jomsocial_messaging')) {
+			$link = ED::jomsocial()->getConversationsRoute();
+		}
 
-        return $link;
+		return $link;
 	}
 
 	/**

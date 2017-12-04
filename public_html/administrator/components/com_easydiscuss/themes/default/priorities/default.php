@@ -12,31 +12,39 @@
 defined('_JEXEC') or die('Restricted access');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
-	<div class="post-app-filter-bar">
-		<div class="app-filter-bar">
+	<div class="app-filter-bar">
+		<div class="app-filter-bar__cell app-filter-bar__cell--search">
 			<?php echo $this->html('table.search', 'search', $search); ?>
 		</div>
-	</div>
 
+		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
+
+		<div class="app-filter-bar__cell app-filter-bar__cell--last t-text--center">
+			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
+				&nbsp;
+			</div>
+		</div>
+	</div>
+	
 	<div class="panel-table">
-		<table class="app-table app-table-middle table table-striped" data-ed-table>
+		<table class="app-table table" data-ed-table>
 			<thead>
 				<tr>
-					<td width="1%" class="center">
+					<th width="1%" class="center">
 						<?php echo $this->html('table.checkall'); ?>
-					</td>
-					<td style="text-align:left;">
+					</th>
+					<th style="text-align:left;">
 						<?php echo JText::_('COM_EASYDISCUSS_TABLE_COLUMN_PRIORITY_TITLE');?>
-					</td>
-					<td width="20%" class="center">
+					</th>
+					<th width="20%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_TABLE_COLUMN_COLOR');?>
-					</td>
-					<td width="20%" class="center">
+					</th>
+					<th width="20%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_TABLE_COLUMN_CREATED');?>
-					</td>
-					<td width="1%" class="center">
+					</th>
+					<th width="1%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_TABLE_COLUMN_ID');?>
-					</td>
+					</th>
 				</tr>
 			</thead>
 

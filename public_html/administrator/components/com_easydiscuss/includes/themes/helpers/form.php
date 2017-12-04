@@ -88,10 +88,10 @@ class EasyDiscussThemesHelperForm
 	public static function token()
 	{
 		$theme = ED::themes();
-        $token = JFactory::getSession()->getFormToken();
+		$token = JFactory::getSession()->getFormToken();
 
-        $theme->set('token', $token);
-        $output  = $theme->output('admin/html/form.token');
+		$theme->set('token', $token);
+		$output  = $theme->output('admin/html/form.token');
 
 		return $output;
 	}
@@ -142,8 +142,6 @@ class EasyDiscussThemesHelperForm
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public static function textbox($name, $value = '', $placeholder = '', $class = '')
 	{
@@ -293,29 +291,29 @@ class EasyDiscussThemesHelperForm
 	public static function getEditors()
 	{
 		$db = ED::db();
-        $query = 'SELECT `element` AS value, `name` AS text'
-                .' FROM `#__extensions`'
-                .' WHERE `folder` = "editors"'
-                .' AND `type` = "plugin"'
-                .' AND `enabled` = 1'
-                .' ORDER BY ordering, name';
+		$query = 'SELECT `element` AS value, `name` AS text'
+				.' FROM `#__extensions`'
+				.' WHERE `folder` = "editors"'
+				.' AND `type` = "plugin"'
+				.' AND `enabled` = 1'
+				.' ORDER BY ordering, name';
 
-        $db->setQuery($query);
-        $editors = $db->loadObjectList();
+		$db->setQuery($query);
+		$editors = $db->loadObjectList();
 
-        if (!$editors) {
-        	return array();
-        }
+		if (!$editors) {
+			return array();
+		}
 
-        // We need to load the language file since we need to get the correct title
-        $language = JFactory::getLanguage();
+		// We need to load the language file since we need to get the correct title
+		$language = JFactory::getLanguage();
 
-        foreach ($editors as $editor) {
-        	$language->load($editor->text . '.sys', JPATH_ADMINISTRATOR, null, false, false);
-        	$editor->text = JText::_($editor->text);
-        }
+		foreach ($editors as $editor) {
+			$language->load($editor->text . '.sys', JPATH_ADMINISTRATOR, null, false, false);
+			$editor->text = JText::_($editor->text);
+		}
 
-        return $editors;
+		return $editors;
 	}
 
 	/**

@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<i class="fa fa-search"></i>
 		</button>
 
-		<button class="btn btn-es-danger-o app-filter-bar__search-btn" data-ed-table-search-reset>
+		<button class="btn btn-ed-danger-o app-filter-bar__search-btn" data-ed-table-search-reset>
 			<i class="fa fa-times"></i>
 		</button>
 	</span>

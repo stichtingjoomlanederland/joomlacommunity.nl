@@ -75,14 +75,11 @@ class EasyDiscussDate extends EasyDiscuss
 			$default = JText::_('DATE_FORMAT_LC1');
 		}
 
-		$config = ED::config();
-		$format = $config->get('layout_dateformat', $default);
-
-		if ($this->isUsingLegacyFormat($format)) {
-			$format = $this->convertLegacyFormat($format);
+		if ($this->isUsingLegacyFormat($default)) {
+			$default = $this->convertLegacyFormat($default);
 		}
 
-		return $format;
+		return $default;
 	}
 
 	/**

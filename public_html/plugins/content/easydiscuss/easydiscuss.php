@@ -1,15 +1,15 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 jimport('joomla.plugin.plugin');
 jimport('joomla.filesystem.file');
@@ -94,11 +94,11 @@ class plgContentEasyDiscuss extends JPlugin
 	}
 
 	/**
-     * Check for categories
-     *
-     * @since   4.0
-     * @access  public
-     */
+	 * Check for categories
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function categoryCheck($article)
 	{
 		// Only check for joomla article
@@ -487,18 +487,18 @@ class plgContentEasyDiscuss extends JPlugin
 		$system->acl = $acl;
 
 		// add bbcode settings - DO NOT MOVE THIS LINE
-        $bbcodeSettings = ED::themes()->output('admin/structure/settings');
+		$bbcodeSettings = ED::themes()->output('admin/structure/settings');
 
-        // DO NOT MOVE THESE LINE
+		// DO NOT MOVE THESE LINE
 		ob_start();
 		include(dirname(__FILE__) . '/tmpl/default.php');
 		$contents	= ob_get_contents();
 		ob_end_clean();
 
 		// DO NOT MOVE THIS LINE
-        $scripts = ED::scripts()->getScripts();
+		$scripts = ED::scripts()->getScripts();
 
-        $htmlContent = $bbcodeSettings . $contents . $scripts;
+		$htmlContent = $bbcodeSettings . $contents . $scripts;
 
 		$article->text .= $htmlContent;
 
@@ -519,9 +519,9 @@ class plgContentEasyDiscuss extends JPlugin
 
 		switch($this->extension)
 		{
-			 case 'com_content':
+			 case 'com_content' || 'com_easyarticles':
 
-			 	require_once(JPATH_ROOT . '/components/com_content/helpers/route.php');
+				require_once(JPATH_ROOT . '/components/com_content/helpers/route.php');
 
 				JTable::addIncludePath(JPATH_ROOT . '/libraries/joomla/database/table');
 
@@ -632,6 +632,11 @@ class plgContentEasyDiscuss extends JPlugin
 		// @rule: Only append discussions that are already added into the reference table.
 		$post = $this->createDiscussion($article , $isNew);
 
+		// If this post coming from EasyArticle, we should store it as com_content
+		if ($this->extension == 'com_easyarticles') {
+			$this->extension = 'com_content';
+		}
+
 		if (!$exists) {
 			// @rule: Store the references
 			$ref->set('post_id' , $post->id);
@@ -664,7 +669,7 @@ class plgContentEasyDiscuss extends JPlugin
 			return false;
 		}
 
-        $post = ED::post();
+		$post = ED::post();
 		$params = $this->getParams();
 
 		if (!$isNew) {

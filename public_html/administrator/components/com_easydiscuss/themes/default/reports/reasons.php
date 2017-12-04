@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 
 <div id="discuss-wrapper">
-	<table class="app-table app-table-middle table table-striped" data-ed-table>
+	<table class="app-table table" data-ed-table>
 		<thead>
 			<tr>
 				<th width="5" class="center">#</th>

@@ -129,6 +129,9 @@ class EasyDiscussViewTags extends EasyDiscussView
 		$posts = ED::getPostStatusAndTypes($posts);
 
 		$tagTitle = JText::_($tag->title);
+		
+		// Add canonical tag for this page
+		$this->canonical('index.php?option=com_easydiscuss&view=tags&id=' . $id);
 
 		$this->set('tag', $tag);
 		$this->set('rssLink', JRoute::_('index.php?option=com_easydiscuss&view=tags&id=' . $tag . '&format=feed'));

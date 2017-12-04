@@ -10,7 +10,7 @@
 	<version>4.0.0</version>
 	<description>This plugin adds a discussion at the bottom of the article allowing the articles to be linked to EasyDiscuss</description>
 	<languages>
-	    <language tag="en-GB">en-GB.plg_content_easydiscuss.ini</language>
+		<language tag="en-GB">en-GB.plg_content_easydiscuss.ini</language>
 	</languages>
 	<files>
 		<filename plugin="easydiscuss">easydiscuss.php</filename>
@@ -22,22 +22,22 @@
 	<config>
 		<fields name="params">
 			<fieldset name="basic" addfieldpath="/administrator/components/com_easydiscuss/elements/fields">
-				<field type="textarea" rows="5" cols="20" name="allowed_components" label="Allow comments on component" description="Specify which components are allowed separated by a comma. Eg: com_content,com_easyblog" default="com_content,com_easyblog" />
+				<field type="textarea" rows="5" cols="20" name="allowed_components" label="Allow comments on component" description="Specify which components are allowed separated by a comma. Eg: com_content,com_easyblog" default="com_content,com_easyblog,com_easyarticles" />
 				<field type="modal_categories" name="category_storage" label="Where should the article be stored?" description="Select which category should the article be stored in." />
 				<field type="text" name="exclude_articles" label="Exclude article id's" description="Separate each article id with a comma e.g: 1,2,3. Leave blank to not exclude any articles" />
-				<field type="list" default="1" name="readmore_in_post" label="Show read more in post" description="If enabled, a read more link will be appended to the discussion post.">
+				<field type="radio" class="btn-group" default="1" name="readmore_in_post" label="Show read more in post" description="If enabled, a read more link will be appended to the discussion post.">
 					<option value="1">Yes</option>
 					<option value="0">No</option>
 				</field>
-				<field type="list" default="1" name="frontpage_tools" label="Frontpage tools" description="Show or hide the frontpage tools.">
+				<field type="radio" class="btn-group" default="1" name="frontpage_tools" label="Frontpage tools" description="Show or hide the frontpage tools.">
 					<option value="1">Show</option>
 					<option value="0">Hide</option>
 				</field>
-				<field type="list" default="1" name="frontpage_show_discussion" label="Show discussion link" description="If enabled, a discussion link will be displayed in the front page">
+				<field type="radio" default="1" name="frontpage_show_discussion" class="btn-group" label="Show discussion link" description="If enabled, a discussion link will be displayed in the front page">
 					<option value="1">Yes</option>
 					<option value="0">No</option>
 				</field>
-				<field type="list" default="1" name="frontpage_show_hits" label="Show hits" description="If enabled, the hits will be displayed in the frontpage.">
+				<field type="radio" default="1" name="frontpage_show_hits" class="btn-group" label="Show hits" description="If enabled, the hits will be displayed in the frontpage.">
 					<option value="1">Yes</option>
 					<option value="0">No</option>
 				</field>
@@ -46,20 +46,20 @@
 					<option value="right">Right</option>
 					<option value="center">Center</option>
 				</field>
-				<field type="list" default="1" name="show_discussion_link" label="Show link to discussion in form" description="If enabled, users will be able to see the Go to discussions link.">
+				<field type="radio" default="1" name="show_discussion_link" class="btn-group" label="Show link to discussion in form" description="If enabled, users will be able to see the Go to discussions link.">
 					<option value="1">Yes</option>
 					<option value="0">No</option>
 				</field>
 				<field type="text" default="5" name="items_count" size="5" label="Total replies to display" description="Set the number of items to be displayed in the responses section." />
-				<field type="list" default="1" name="allow_reply" label="Allow reply" description="If enabled, users will be able to submit a reply directly.">
+				<field type="radio" class="btn-group" default="1" name="allow_reply" label="Allow reply" description="If enabled, users will be able to submit a reply directly.">
 					<option value="1">Yes</option>
 					<option value="0">No</option>
 				</field>
-				<field type="list" default="1" name="allow_likes" label="Allow likes" description="If enabled, users will be able to like the content.">
+				<field type="radio" class="btn-group" default="1" name="allow_likes" label="Allow likes" description="If enabled, users will be able to like the content.">
 					<option value="1">Yes</option>
 					<option value="0">No</option>
 				</field>
-				<field type="list" default="1" name="show_online_users" label="Show online users" description="If enabled, users that are viewing the content will also be displayed.">
+				<field type="radio" class="btn-group" default="1" name="show_online_users" label="Show online users" description="If enabled, users that are viewing the content will also be displayed.">
 					<option value="1">Yes</option>
 					<option value="0">No</option>
 				</field>

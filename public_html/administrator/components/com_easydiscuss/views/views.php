@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -11,24 +11,11 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-if (ED::getJoomlaVersion() >= '3.0') {
-	class EasyDiscussViewParent extends JViewLegacy
+class EasyDiscussViewParent extends JViewLegacy
+{
+	public function __construct($config = array())
 	{
-		public function __construct($config = array())
-		{
-			return parent::__construct($config);
-		}
-	}
-} else {
-
-	jimport('joomla.application.component.view');
-
-	class EasyDiscussViewParent extends JView
-	{
-		public function __construct($config = array())
-		{
-			return parent::__construct($config);
-		}
+		return parent::__construct($config);
 	}
 }
 
@@ -41,17 +28,17 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 	{
 		parent::__construct();
 
-        $this->doc = JFactory::getDocument();
+		$this->doc = JFactory::getDocument();
 		$this->app = JFactory::getApplication();
 		$this->my = JFactory::getUser();
 		$this->config = ED::config();
-        $this->jconfig = ED::jconfig();
-        $this->input = ED::request();
-        $this->theme = ED::themes();
+		$this->jconfig = ED::jconfig();
+		$this->input = ED::request();
+		$this->theme = ED::themes();
 
-        if ($this->doc->getType() != 'html') {
-        	$this->ajax = ED::ajax();
-    	}
+		if ($this->doc->getType() != 'html') {
+			$this->ajax = ED::ajax();
+		}
 	}
 
 	/**
@@ -59,8 +46,6 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getUserState($key, $name, $default = '', $type = 'string')
 	{
@@ -72,16 +57,14 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function set($key, $value = '')
 	{
-        if ($this->doc->getType() == 'json') {
-            $this->props[$key] = $value;
+		if ($this->doc->getType() == 'json') {
+			$this->props[$key] = $value;
 
-            return;
-        }
+			return;
+		}
 
 		$this->theme->set($key, $value);
 	}
@@ -91,14 +74,12 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function checkAccess($rule)
 	{
 		if (!$this->my->authorise($rule , 'com_easydiscuss')) {
-            ED::setMessage(JText::_('JERROR_ALERTNOAUTHOR'), 'error');
-            return $this->app->redirect('index.php?option=com_easydiscuss');
+			ED::setMessage(JText::_('JERROR_ALERTNOAUTHOR'), 'error');
+			return $this->app->redirect('index.php?option=com_easydiscuss');
 		}
 	}
 
@@ -123,41 +104,41 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 			// Get the contents of the view.
 			$contents = $this->theme->output($tpl);
 
-            // attached bbcode settings
+			// attached bbcode settings
 			$contents = $bbcodeSettings . $contents;
 
 			// We need to output the structure
 			$theme = ED::themes();
 
-            // Set the ajax url
-            $ajaxUrl = JURI::root() . 'administrator/index.php';
+			// Set the ajax url
+			$ajaxUrl = JURI::root() . 'administrator/index.php';
 
-            $browse = $this->input->get('browse', '', 'default');
+			$browse = $this->input->get('browse', '', 'default');
 
-            // Get the sidebar
-            $sidebar = $this->getSidebar();
+			// Get the sidebar
+			$sidebar = $this->getSidebar();
 
-            $message = ED::getMessageQueue();
-            $version = ED::getLocalVersion();
-            
-            $theme->set('version', $version);
-            $theme->set('title', $this->panelTitle);
-            $theme->set('desc', $this->panelDescription);
-            $theme->set('message', $message);
-            $theme->set('sidebar', $sidebar);
-            $theme->set('browse', $browse);
+			$message = ED::getMessageQueue();
+			$version = ED::getLocalVersion();
+			
+			$theme->set('version', $version);
+			$theme->set('title', $this->panelTitle);
+			$theme->set('desc', $this->panelDescription);
+			$theme->set('message', $message);
+			$theme->set('sidebar', $sidebar);
+			$theme->set('browse', $browse);
 			$theme->set('contents', $contents);
 			$theme->set('layout', $layout);
 			$theme->set('view', $view);
-            $theme->set('ajaxUrl', $ajaxUrl);
+			$theme->set('ajaxUrl', $ajaxUrl);
 
 			$output = $theme->output('admin/structure/default');
 
-            // Get the scripts
-            $scripts = ED::scripts()->getScripts();
+			// Get the scripts
+			$scripts = ED::scripts()->getScripts();
 
 			echo $output;
-            echo $scripts;
+			echo $scripts;
 
 			// If the toolbar registration exists, load it up
 			if (method_exists($this, 'registerToolbar')) {
@@ -173,8 +154,6 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 	 *
 	 * @since	1.2
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getSidebar()
 	{
@@ -190,10 +169,10 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 
 			// Check if the user is allowed to view this sidebar
 			if (isset($row->access) && $row->access) {
-		        if (!$this->my->authorise($row->access, 'com_easydiscuss')) {
-		        	continue;
-		        }
-		    }
+				if (!$this->my->authorise($row->access, 'com_easydiscuss')) {
+					continue;
+				}
+			}
 
 			if (!isset($row->view)) {
 				$row->link = 'index.php?option=com_easydiscuss';
@@ -271,8 +250,6 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function title($title)
 	{
@@ -290,8 +267,6 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function desc($desc)
 	{

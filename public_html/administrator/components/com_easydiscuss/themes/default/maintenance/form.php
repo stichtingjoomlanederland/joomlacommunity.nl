@@ -13,31 +13,31 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-maintenance-form>
 
-    <div class="app-content-table" data-maintenance-container>
-        <table class="app-table app-table-middle table table-striped">
-            <thead>
-                <tr>
-                    <th class="title" nowrap="nowrap" style="text-align:left;">
-                        <?php echo JText::_('COM_EASYDISCUSS_MAINTENANCE_COLUMN_TITLE'); ?>
-                    </th>
-                    <th width="10%" class="center">
-                        <?php echo JText::_('COM_EASYDISCUSS_MAINTENANCE_COLUMN_STATUS'); ?>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
+	<div class="app-content-table" data-maintenance-container>
+		<table class="app-table table">
+			<thead>
+				<tr>
+					<th class="title" nowrap="nowrap" style="text-align:left;">
+						<?php echo JText::_('COM_EASYDISCUSS_MAINTENANCE_COLUMN_TITLE'); ?>
+					</th>
+					<th width="10%" class="center">
+						<?php echo JText::_('COM_EASYDISCUSS_MAINTENANCE_COLUMN_STATUS'); ?>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
 
-            <?php foreach ($scripts as $script) { ?>
-                <tr data-row data-key="<?php echo $script->key; ?>">
-                    <td><?php echo $script->title; ?></td>
-                    <td class="center"><span class="label label-warning" data-status><i data-icon class="fa fa-wrench"></i></span></td>
-                </tr>
-            <?php } ?>
+			<?php foreach ($scripts as $script) { ?>
+				<tr data-row data-key="<?php echo $script->key; ?>">
+					<td><?php echo $script->title; ?></td>
+					<td class="center"><span class="label label-warning" data-status><i data-icon class="fa fa-wrench"></i></span></td>
+				</tr>
+			<?php } ?>
 
-            </tbody>
+			</tbody>
 
-        </table>
-    </div>
+		</table>
+	</div>
 
-    <?php echo $this->html('form.hidden', 'maintenance'); ?>
+	<?php echo $this->html('form.hidden', 'maintenance'); ?>
 </form>

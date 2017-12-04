@@ -15,12 +15,6 @@ require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
 class EasyDiscussViewSpools extends EasyDiscussAdminView
 {
-	/**
-	 * Renders a list of email activities
-	 *
-	 * @since	4.0
-	 * @access	public
-	 */
 	public function display($tpl = null)
 	{
 		$this->checkAccess('discuss.manage.spools');
@@ -79,8 +73,6 @@ class EasyDiscussViewSpools extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function registerToolbar()
 	{

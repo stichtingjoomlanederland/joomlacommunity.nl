@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,9 +11,8 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-JHTML::_( 'behavior.modal' , 'a.modal' );
+JHTML::_('behavior.modal', 'a.modal');
 ?>
-
 <div class="row">
 	<div class="col-md-6">
 		<div class="panel">
@@ -84,7 +83,7 @@ JHTML::_( 'behavior.modal' , 'a.modal' );
 						<div class="col-md-7">
 							<?php echo $this->html('form.boolean', 'notify_all', $this->config->get('notify_all'));?>
 						</div>
-					</div>
+					</div>			
 					<div class="form-group">
 						<div class="col-md-5 control-label">
 							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_NOTIFY_ALL_USERS_RESPECT_CATEGORY_PERMISSIONS'); ?>
@@ -149,7 +148,18 @@ JHTML::_( 'behavior.modal' , 'a.modal' );
 							<?php echo $this->html('form.boolean', 'notify_actor', $this->config->get('notify_actor'));?>
 						</div>
 					</div>
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_NOTIFY_SPECIFIC_USER_GROUPS'); ?>
+						</div>
+						<div class="col-md-7">
+							<?php echo $this->html('form.boolean', 'notify_joomla_groups', $this->config->get('notify_joomla_groups'));?>
 
+							<div class="t-lg-mt--xl">
+								<?php echo $this->html('form.usergroups', 'notify_joomla_groups_ids', explode(',', $this->config->get('notify_joomla_groups_ids'))); ?>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -182,9 +192,19 @@ JHTML::_( 'behavior.modal' , 'a.modal' );
 							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_NOTIFICATIONS_EMAIL_TITLE'); ?>
 						</div>
 						<div class="col-md-7">
-							<input type="text" class="form-control" name="notify_email_title" value="<?php echo $this->config->get( 'notify_email_title' );?>" />
+							<input type="text" class="form-control" name="notify_email_title" value="<?php echo $this->config->get('notify_email_title');?>" />
 						</div>
 					</div>
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_NOTIFICATIONS_EMAIL_TEMPLATES_FILENAME'); ?>
+						</div>
+						<div class="col-md-7">
+							<ul class="unstyled file-list">
+								<?php echo JText::_('COM_EASYDISCUSS_SETTINGS_NOTIFICATIONS_EMAIL_TEMPLATES_FILENAME_INFO');?>
+							</ul>
+						</div>
+					</div>					
 				</div>
 			</div>
 		</div>

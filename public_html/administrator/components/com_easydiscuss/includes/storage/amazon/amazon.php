@@ -59,6 +59,8 @@ class EasyDiscussStorageAmazon implements EasyDiscussStorageInterface
 		$options->credentials = array('key' => $access, 'secret' => $secret);
 		$options->signature = 'v4';
 		$options->region = $this->region;
+		$options->version = 'latest';
+
 
 		$options = (array) $options;
 

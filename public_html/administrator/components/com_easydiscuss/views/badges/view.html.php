@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -20,8 +20,6 @@ class EasyDiscussViewBadges extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function display($tpl = null)
 	{
@@ -94,13 +92,10 @@ class EasyDiscussViewBadges extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function form($tpl = null)
 	{
 		$this->checkAccess('discuss.manage.badges');
-
 		$this->title('COM_EASYDISCUSS_BADGES_TITLE');
 
 		JToolBarHelper::apply();
@@ -168,8 +163,6 @@ class EasyDiscussViewBadges extends EasyDiscussAdminView
 	{
 		$this->checkAccess('discuss.manage.badges');
 		$this->title('COM_EASYDISCUSS_BADGES_MASS_ASSIGN_TITLE');
-		
-		JToolBarHelper::cancel();
 
 		parent::display('badges/assign');
 	}

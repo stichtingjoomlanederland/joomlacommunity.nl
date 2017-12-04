@@ -135,7 +135,6 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 			return $this->app->redirect($redirect);			
 		}
 
-
 		// Try to unpublish these selected posts
 		foreach ($posts as $item) {
 			$post = ED::post($item);
@@ -271,80 +270,80 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	 */
 	public function save()
 	{
-	    // Check for request forgeries
-	    ED::checkToken();
+		// Check for request forgeries
+		ED::checkToken();
 
-	    // Get the id if available
-	    $id = $this->input->get('id', 0, 'int');
+		// Get the id if available
+		$id = $this->input->get('id', 0, 'int');
 
-	    // Get the date POST
-	    $data = JRequest::get('post');
+		// Get the date POST
+		$data = JRequest::get('post');
 
-	    // Load the post library
-	    $post = ED::post($id);
+		// Load the post library
+		$post = ED::post($id);
 
-	    $isNew = $post->isNew();
+		$isNew = $post->isNew();
 
-	    // Get the redirect URL
-	    $redirectUrl = 'index.php?option=com_easydiscuss&view=post';
+		// Get the redirect URL
+		$redirectUrl = 'index.php?option=com_easydiscuss&view=post';
 
-	    if (!$isNew) {
-	        $redirectUrl = 'index.php?option=com_easydiscuss&view=post&layout=edit&id=' . $post->id;
-	    }
+		if (!$isNew) {
+			$redirectUrl = 'index.php?option=com_easydiscuss&view=post&layout=edit&id=' . $post->id;
+		}
 
-	    // Check the permissions to post a new question
-	    if (!$post->canPostNewDiscussion()) {
-	        ED::setMessage($post->getError(), 'error');
-	        return $this->app->redirect(EDR::_('', false));
-	    }
+		// Check the permissions to post a new question
+		if (!$post->canPostNewDiscussion()) {
+			ED::setMessage($post->getError(), 'error');
+			return $this->app->redirect(EDR::_('', false));
+		}
 
-	    // If this post is being edited, check for perssion if the user is able to edit or not.
-	    if ($post->id && !$post->canEdit()) {
-	        ED::setMessage($post->getError(), 'error');
-	        return $this->app->redirect(EDR::_('view=post&id='.$id, false));
-	    }
+		// If this post is being edited, check for perssion if the user is able to edit or not.
+		if ($post->id && !$post->canEdit()) {
+			ED::setMessage($post->getError(), 'error');
+			return $this->app->redirect(EDR::_('view=post&id='.$id, false));
+		}
 
-	    // For contents, we need to get the raw data.
-	    $data['content'] = $this->input->get('dc_content', '', 'raw');
+		// For contents, we need to get the raw data.
+		$data['content'] = $this->input->get('dc_content', '', 'raw');
 
-	    // Bind the posted data
-	    $post->bind($data);
+		// Bind the posted data
+		$post->bind($data);
 
-	    // Validate the posted data to ensure that we can really proceed
-	    if (!$post->validate($data)) {
+		// Validate the posted data to ensure that we can really proceed
+		if (!$post->validate($data)) {
 
-	        $files = $this->input->get('filedata', array(), 'FILES');
-	        $data['attachments'] = $files;
+			$files = $this->input->get('filedata', array(), 'FILES');
+			$data['attachments'] = $files;
 
-	        ED::storeSession($data, 'NEW_POST_TOKEN');
-	        ED::setMessage($post->getError(), 'error');
+			ED::storeSession($data, 'NEW_POST_TOKEN');
+			ED::setMessage($post->getError(), 'error');
 
-	        return $this->app->redirect($redirectUrl);
-	    }
+			return $this->app->redirect($redirectUrl);
+		}
 
-	    // Save
-	    // Need to check all the error and make sure it is standardized
-	    if (!$post->save()) {
-	        ED::setMessage($post->getError(), 'error');
-	        return $this->app->redirect($redirectUrl);
-	    }
+		// Save
+		// Need to check all the error and make sure it is standardized
+		if (!$post->save()) {
+			ED::setMessage($post->getError(), 'error');
+			return $this->app->redirect($redirectUrl);
+		}
 
-	    $message = ($isNew)? JText::_('COM_EASYDISCUSS_POST_STORED') : JText::_('COM_EASYDISCUSS_EDIT_SUCCESS');
-	    $state = 'success';
+		$message = ($isNew)? JText::_('COM_EASYDISCUSS_POST_STORED') : JText::_('COM_EASYDISCUSS_EDIT_SUCCESS');
+		$state = 'success';
 
-	    // Let's set our custom message here.
-	    if (!$post->isPending()){
-	        ED::setMessageQueue($message, $state);
-	    }
+		// Let's set our custom message here.
+		if (!$post->isPending()){
+			ED::setMessageQueue($message, $state);
+		}
 
-	    $redirect = $this->input->get('redirect', '');
+		$redirect = $this->input->get('redirect', '');
 
-	    if (!empty($redirect)) {
-	        $redirect = base64_decode($redirect);
-	        return $this->app->redirect($redirect);
-	    }
+		if (!empty($redirect)) {
+			$redirect = base64_decode($redirect);
+			return $this->app->redirect($redirect);
+		}
 
-	    $task = $this->getTask();
+		$task = $this->getTask();
 
 		switch($task) {
 			case 'apply':
@@ -364,7 +363,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 				break;
 		}
 
-	    $this->app->redirect($redirect);
+		$this->app->redirect($redirect);
 	}
 
 	public function approve()
@@ -413,14 +412,14 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 	public function reject()
 	{
-	    // Check for request forgeries
-	    ED::checkToken();
+		// Check for request forgeries
+		ED::checkToken();
 
 		// Get the list of posts to unpublish
 		$ids = $this->input->get('cid', '', 'array');
 
-	    // Get the id if available
-	    $id = $this->input->get('id', 0, 'int');		
+		// Get the id if available
+		$id = $this->input->get('id', 0, 'int');		
 
 		if (!$ids && !$id) {
 			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
@@ -437,8 +436,8 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 				$post->publish(0, true);
 			}			
 		} else {
-		    $post = ED::post($id);
-		    $post->publish(0, true);
+			$post = ED::post($id);
+			$post->publish(0, true);
 		}
 
 		// Construct the default redirection link
@@ -530,21 +529,21 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	}
 	public function delete()
 	{
-	    // Check for request forgeries
-	    ED::checkToken();
+		// Check for request forgeries
+		ED::checkToken();
 
-	    // Get the id if available
-	    $id = $this->input->get('id', 0, 'int');
+		// Get the id if available
+		$id = $this->input->get('id', 0, 'int');
 
-	    // Get the date POST
-	    $data = JRequest::get('post');;
+		// Get the date POST
+		$data = JRequest::get('post');;
 
-	    // Load the post library
-	    $post = ED::post($id);
+		// Load the post library
+		$post = ED::post($id);
 
-	    // Toggle publish state
-	    $post->delete();
-	    
+		// Toggle publish state
+		$post->delete();
+		
 		$message = JText::_('COM_EASYDISCUSS_POSTS_DELETED');
 		ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
 
@@ -562,7 +561,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	public function resetVotes()
 	{
 		// Check for request forgeries
-	    ED::checkToken();
+		ED::checkToken();
 
 		// Construct the default redirection link
 		$redirect = 'index.php?option=com_easydiscuss&view=posts';

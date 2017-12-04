@@ -15,40 +15,40 @@ defined('_JEXEC') or die('Unauthorized Access');
 <script type="text/javascript">
 $(document).ready( function(){
 
-    var previous = $('[data-installation-nav-prev]'),
-        active = $('[data-installation-form-nav-active]'),
-        nav = $('[data-installation-form-nav]'),
-        retry = $('[data-installation-retry]'),
-        cancel = $('[data-installation-nav-cancel]'),
-        loading = $('[data-installation-loading]');
+	var previous = $('[data-installation-nav-prev]'),
+		active = $('[data-installation-form-nav-active]'),
+		nav = $('[data-installation-form-nav]'),
+		retry = $('[data-installation-retry]'),
+		cancel = $('[data-installation-nav-cancel]'),
+		loading = $('[data-installation-loading]');
 
-    previous.on('click', function() {
-        active.val(<?php echo $active;?> - 2);
+	previous.on('click', function() {
+		active.val(<?php echo $active;?> - 2);
 
-        nav.submit();
-    });
+		nav.submit();
+	});
 
-    cancel.on('click', function() {
-        window.location = '<?php echo JURI::base();?>/index.php?option=com_easydiscuss&cancelSetup=1';
-    });
+	cancel.on('click', function() {
+		window.location = '<?php echo JURI::base();?>/index.php?option=com_easydiscuss&cancelSetup=1';
+	});
 
-    retry.on('click', function() {
-        var step = $(this).data('retry-step');
+	retry.on('click', function() {
+		var step = $(this).data('retry-step');
 
-        $(this).addClass('hide');
+		$(this).addClass('hide');
 
-        loading.removeClass('hide');
+		loading.removeClass('hide');
 
-        window['ed']['installation'][step]();
-    });
+		window['ed']['installation'][step]();
+	});
 });
 </script>
 
-<form action="index.php" method="post" data-installation-form-nav class="t-hidden">
+<form action="index.php" method="post" data-installation-form-nav class="hidden">
 	<input type="hidden" name="active" value="" data-installation-form-nav-active />
 	<input type="hidden" name="option" value="com_easydiscuss" />
 
-    <?php if ($reinstall) { ?>
+	<?php if ($reinstall) { ?>
 	<input type="hidden" name="reinstall" value="1" />
 	<?php } ?>
 
@@ -59,70 +59,70 @@ $(document).ready( function(){
 
 
 <div class="container">
-    <div class="navi row-table">
-    	<a href="javascript:void(0);" class="col-cell" <?php echo $active > 1 ? ' data-installation-nav-prev' : ' data-installation-nav-cancel';?>>
-            <b>
-                <span>
-                    <i class="eb-icon icon-arrow-left-2 text-right"></i>
-                </span>
-                <span>
-                	<?php if ($active > 1) { ?>
-                		<?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_PREVIOUS'); ?>
-                	<?php } else { ?>
-                		<?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_EXIT'); ?>
-                	<?php } ?>
-                </span>
-            </b>
-        </a>
+	<div class="navi row-table">
+		<a href="javascript:void(0);" class="col-cell" <?php echo $active > 1 ? ' data-installation-nav-prev' : ' data-installation-nav-cancel';?>>
+			<b>
+				<span>
+					<i class="eb-icon icon-arrow-left-2 text-right"></i>
+				</span>
+				<span>
+					<?php if ($active > 1) { ?>
+						<?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_PREVIOUS'); ?>
+					<?php } else { ?>
+						<?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_EXIT'); ?>
+					<?php } ?>
+				</span>
+			</b>
+		</a>
 
-        <a href="javascript:void(0);" class="col-cell primary" data-installation-submit>
-            <b>
-                <span><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_NEXT_STEP'); ?></span>
-                <span>
-                    <i class="eb-icon icon-arrow-right-2 text-left"></i>
-                </span>
-            </b>
-        </a>
+		<a href="javascript:void(0);" class="col-cell primary" data-installation-submit>
+			<b>
+				<span><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_NEXT_STEP'); ?></span>
+				<span>
+					<i class="eb-icon icon-arrow-right-2 text-left"></i>
+				</span>
+			</b>
+		</a>
 
-        <a href="javascript:void(0);" class="col-cell loading hide disabled" data-installation-loading>
-            <b>
-                <span><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_LOADING'); ?></span>
-                <span>
-                    <b class="ui loader"></b>
-                </span>
-            </b>
-        </a>
+		<a href="javascript:void(0);" class="col-cell loading hide disabled" data-installation-loading>
+			<b>
+				<span><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_LOADING'); ?></span>
+				<span>
+					<b class="ui loader"></b>
+				</span>
+			</b>
+		</a>
 
-        <a href="javascript:void(0);" class="col-cell primary hide" data-installation-install-addons>
-            <b>
-                <span><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_INSTALL_ADDONS'); ?></span>
-                <span>
-                    <i class="eb-icon icon-arrow-right-2 text-left"></i>
-                </span>
-            </b>
-        </a>
+		<a href="javascript:void(0);" class="col-cell primary hide" data-installation-install-addons>
+			<b>
+				<span><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_INSTALL_ADDONS'); ?></span>
+				<span>
+					<i class="eb-icon icon-arrow-right-2 text-left"></i>
+				</span>
+			</b>
+		</a>
 
-        <a href="javascript:void(0);" class="col-cell primary hide" data-installation-retry>
-            <b>
-                <span><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_RETRY'); ?></span>
-                <span>
-                    <i class="eb-icon icon-arrow-right-2 text-left"></i>
-                </span>
-            </b>
-        </a>
-    </div>
+		<a href="javascript:void(0);" class="col-cell primary hide" data-installation-retry>
+			<b>
+				<span><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_RETRY'); ?></span>
+				<span>
+					<i class="eb-icon icon-arrow-right-2 text-left"></i>
+				</span>
+			</b>
+		</a>
+	</div>
 </div>
 <?php } ?>
 
 <?php if ($active == 'complete') { ?>
 <div class="container">
-    <div class="navi row-table">
-        <a class="col-cell primary" href="<?php echo JURI::root();?>index.php?option=com_easydiscuss" target="_blank">
-            <b><span><?php echo JText::_('COM_EASYDISCUSS_LAUNCH_FRONTEND');?></span></b>
-        </a>
-        <a class="col-cell primary" href="<?php echo JURI::root();?>administrator/index.php?option=com_easydiscuss">
-            <b><span><?php echo JText::_('COM_EASYDISCUSS_CONTINUE_TO_BACKEND');?></span></b>
-        </a>
-    </div>
+	<div class="navi row-table">
+		<a class="col-cell primary" href="<?php echo JURI::root();?>index.php?option=com_easydiscuss" target="_blank">
+			<b><span><?php echo JText::_('COM_EASYDISCUSS_LAUNCH_FRONTEND');?></span></b>
+		</a>
+		<a class="col-cell primary" href="<?php echo JURI::root();?>administrator/index.php?option=com_easydiscuss">
+			<b><span><?php echo JText::_('COM_EASYDISCUSS_CONTINUE_TO_BACKEND');?></span></b>
+		</a>
+	</div>
 </div>
 <?php } ?>

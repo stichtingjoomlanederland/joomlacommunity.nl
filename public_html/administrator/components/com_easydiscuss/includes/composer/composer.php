@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -82,8 +82,6 @@ class EasyDiscussComposer extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function editing($post)
 	{
@@ -97,8 +95,6 @@ class EasyDiscussComposer extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function creating($post)
 	{
@@ -112,8 +108,6 @@ class EasyDiscussComposer extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function defaults($post)
 	{
@@ -125,8 +119,6 @@ class EasyDiscussComposer extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getComposer()
 	{
@@ -342,17 +334,12 @@ class EasyDiscussComposer extends EasyDiscuss
 	 */
 	public function canAccessTabs($name)
 	{
-		// Site admin can access everythings
-		if (ED::isSiteAdmin()) {
-			return true;
-		}
-
 		$canAccess = true;
 
 		switch ($name) {
 			case 'attachments':
 				// Ensure that attachments is enabled
-				if ((!$this->config->get('attachment_questions') || !$this->acl->allowed('add_attachment', false))) {
+				if ((!$this->config->get('attachment_questions') || (!$this->acl->allowed('add_attachment', false) && !ED::isSiteAdmin()))) {
 					$canAccess = false;
 				}
 				break;
@@ -412,14 +399,6 @@ class EasyDiscussComposer extends EasyDiscuss
 		return 'joomla';
 	}
 
-	/**
-	 *
-	 *
-	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
 	public function getFieldData($fieldName, $params)
 	{
 		$data = array();

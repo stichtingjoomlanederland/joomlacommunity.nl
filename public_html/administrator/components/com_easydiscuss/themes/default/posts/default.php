@@ -12,79 +12,73 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
-	<div class="post-app-filter-bar">
-		<div class="app-filter-bar">
-			<?php echo $this->html('table.search', 'search', $search, 'COM_EASYDISCUSS_SEARCH_TOOLTIP'); ?>
+	<div class="app-filter-bar">
+		<div class="app-filter-bar__cell app-filter-bar__cell--search">
+			<?php echo $this->html('table.search', 'search', $search); ?>
 		</div>
 
-		<div class="app-filter-bar">
-			<div class="app-filter-bar__cell">
-				<div class="form-inline">
-					<div class="form-group">
-						<label><?php echo JText::_('COM_EASYDISCUSS_CATEGORIES_FILTER_BY');?></label>
-						
-						<div class="app-filter-select-group">
-							<?php echo $this->html('table.filter', 'filter_state', $filter, array('published' => 'COM_EASYDISCUSS_PUBLISHED', 'unpublished' => 'COM_EASYDISCUSS_UNPUBLISHED')); ?>
-						</div>
-						<div class="app-filter-select-group">
-							<?php echo $categoryFilter; ?>
-							<div class="app-filter-select-group__drop"></div>
-						</div>
-					</div>
-				</div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--auto-size app-filter-bar__cell--divider-left">
+			<div class="app-filter-bar__filter-wrap">
+				<?php echo $this->html('table.filter', 'filter_state', $filter, array('published' => 'COM_EASYDISCUSS_PUBLISHED', 'unpublished' => 'COM_EASYDISCUSS_UNPUBLISHED')); ?>
 			</div>
-			<div class="app-filter-bar__cell app-filter-bar__cell--last">
-				<div class="form-inline">
-					<div class="app-filter-select-group">
-						<?php echo $this->html('table.limit', $pagination); ?>
-					</div>
-				</div>
+		</div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--auto-size app-filter-bar__cell--divider-left">
+			<div class="app-filter-bar__filter-wrap">
+				<?php echo $categoryFilter; ?>
+			</div>
+		</div>
+		
+		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
+
+		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
+			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
+				<?php echo $this->html('table.limit', $pagination->limit); ?>
 			</div>
 		</div>
 	</div>
 
 	<div class="panel-table">
-		<table class="app-table app-table-middle table table-striped" data-ed-table>
+		<table class="app-table table" data-ed-table>
 			<thead>
 				<tr>
 					<?php if (!$browse) { ?>
-					<td width="1%">
+					<th width="1%">
 						<?php echo $this->html('table.checkall'); ?>
-					</td>
+					</th>
 					<?php } ?>
 
-					<td style="text-align:left;">
+					<th style="text-align:left;">
 						<?php echo JHTML::_('grid.sort', 'Title', 'a.title', $orderDirection, $order); ?>
-					</td>
-					<td width="15%" class="text-center">
+					</th>
+					<th width="15%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_CATEGORY'); ?>
-					</td>
+					</th>
 
 					<?php if (!$browse) { ?>
-					<td width="5%" class="text-center">
+					<th width="5%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_FEATURED'); ?>
-					</td>
-					<td width="5%" class="text-center">
+					</th>
+					<th width="5%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_PUBLISHED'); ?>
-					</td>
-					<td width="1%" class="text-center">
+					</th>
+					<th width="1%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_REPLIES'); ?>
 					</th>
-					<td width="1%" class="text-center">
+					<th width="1%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_HITS');?>
 					</th>
-					<td width="1%" class="text-center">
+					<th width="1%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_POSTS_VOTES'); ?>
 					</th>
-					<td width="20%" class="text-center">
+					<th width="20%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_USER'); ?>
 					</th>
-					<td width="10%" class="text-center">
+					<th width="10%" class="text-center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_DATE'), 'a.created', $orderDirection, $order); ?>
 					</th>
 					<?php } ?>
 
-					<td width="1%" class="text-center">
+					<th width="1%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_COLUMN_ID');?>
 					</th>
 				</tr>
@@ -180,7 +174,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php } ?>
 			<?php } else { ?>
 				<tr>
-					<td colspan="12" class="center empty">
+					<td colspan="11" class="center empty">
 						<?php echo JText::_('COM_EASYDISCUSS_NO_DISCUSSIONS_YET'); ?>
 					</td>
 				</tr>
@@ -188,7 +182,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</tbody>
 			<tfoot>
 				<tr>
-					<td colspan="12">
+					<td colspan="11">
 						<div class="footer-pagination center">
 							<?php echo $pagination->getListFooter(); ?>
 						</div>

@@ -53,9 +53,11 @@ class EasyDiscussViewBadges extends EasyDiscussView
 			$this->setPathway(JText::_('COM_EASYDISCUSS_BADGES'));
 		}
 
+		// Add canonical tag for this page
+		$this->canonical('index.php?option=com_easydiscuss&view=badges&userid=' . $id);
+
 		$this->set('title', $title);
 		$this->set('badges', $badges);
-
 		// This user is used for my achived badge.
 		$this->set('user', $this->my->id);
 

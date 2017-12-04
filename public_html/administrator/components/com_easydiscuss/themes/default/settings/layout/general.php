@@ -71,7 +71,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 	</div>
 
 	<div class="col-md-6">
-
         <div class="panel">
             <?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_LAYOUT_LOCALIZATION'); ?>
 
@@ -85,22 +84,9 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <?php echo $this->html('form.boolean', 'layout_zero_as_plural', $this->config->get('layout_zero_as_plural'));?>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_DATE_FORMAT'); ?>
-                        </div>
-                        <div class="col-md-7">
-                            <input type="text" name="layout_dateformat" class="form-control" value="<?php echo $this->config->get('layout_dateformat' , ED::getDefaultConfigValue('layout_dateformat'));?>" />
-                            <div class="mt-5">
-                                <a href="https://stackideas.com/docs/easydiscuss/administrators/how-tos/date-format" target="_blank" class="extra_text"><?php echo JText::_('COM_EASYDISCUSS_WHAT_IS_THIS'); ?></a>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
-
-
 
         <div class="panel">
             <?php echo $this->html('panel.head', 'COM_EASYDISCUSS_POWERED_BY'); ?>

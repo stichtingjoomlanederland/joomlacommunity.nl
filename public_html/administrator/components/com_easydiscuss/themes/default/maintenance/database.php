@@ -12,29 +12,29 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="app-content-table" data-maintenance-database>
-    <table class="app-table app-table-middle table table-striped">
-            <tr>
-                <td>
-                    <a href="javascript:void(0);" class="btn btn-success" data-start><?php echo JText::_('COM_EASYDISCUSS_MAINTENANCE_DATABASE_START'); ?></a>
+	<table class="app-table table">
+			<tr>
+				<td>
+					<a href="javascript:void(0);" class="btn btn-success" data-start><?php echo JText::_('COM_EASYDISCUSS_MAINTENANCE_DATABASE_START'); ?></a>
 
-                    <div class="mt-20" data-progress style="display: none;">
-                        <div class="ed-progress-wrap">
-                            <div class="progress progress-info" data-progress-box>
-                                <div class="progress-bar" style="width: 0%" data-progress-bar></div>
-                                <div class="progress-result" data-progress-percentage >0%</div>
-                            </div>
-                        </div>
+					<div class="mt-20" data-progress style="display: none;">
+						<div class="ed-progress-wrap">
+							<div class="progress progress-info" data-progress-box>
+								<div class="progress-bar" style="width: 0%" data-progress-bar></div>
+								<div class="progress-result" data-progress-percentage >0%</div>
+							</div>
+						</div>
 
-                        <div class="mt-20" data-error style="display: none;">
-                            <h4><?php echo JText::_('COM_EASYDISCUSS_MAINTENANCE_DATABASE_ERROR_OCCURED'); ?></h4>
-                        </div>
+						<div class="mt-20" data-error style="display: none;">
+							<h4><?php echo JText::_('COM_EASYDISCUSS_MAINTENANCE_DATABASE_ERROR_OCCURED'); ?></h4>
+						</div>
 
-                        <div class="mt-20" data-success style="display: none;">
-                            <h4><?php echo JText::_('COM_EASYDISCUSS_MAINTENANCE_DATABASE_SUCCESS'); ?></h4>
-                        </div>
-                    </div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+						<div class="mt-20" data-success style="display: none;">
+							<h4><?php echo JText::_('COM_EASYDISCUSS_MAINTENANCE_DATABASE_SUCCESS'); ?></h4>
+						</div>
+					</div>
+				</td>
+			</tr>
+		</tbody>
+	</table>
 </div>

@@ -51,8 +51,7 @@ class EasyDiscussModelAcl extends EasyDiscussAdminModel
 	{
 		// Lets load the content if it doesn't already exist
 		if (empty($this->_pagination)) {
-			jimport('joomla.html.pagination');
-			$this->_pagination = new JPagination( $this->getTotal($type), $this->getState('limitstart'), $this->getState('limit') );
+			$this->_pagination = ED::getPagination($this->getTotal($type), $this->getState('limitstart'), $this->getState('limit') );
 		}
 
 		return $this->_pagination;

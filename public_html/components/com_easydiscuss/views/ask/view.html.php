@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -44,10 +44,12 @@ class EasyDiscussViewAsk extends EasyDiscussView
 		// If caller passed in a cluster id, we need to associate this post with the cluster id.
 		$clusterId = $this->input->get('group_id', 0, 'int');
 
+		// Retrieves current uri that are being accessed
+		$currentUri = base64_encode(EDR::getCurrentURI());
+
 		// Check if user is allowed to post a discussion, we also need to check against the category acl
 		if ($this->my->guest && !$this->acl->allowed('add_question', 0)) {
-			ED::setMessage(JText::_('COM_EASYDISCUSS_PLEASE_KINDLY_LOGIN_TO_CREATE_A_POST'), 'error');
-			return $this->app->redirect(EDR::_('view=forums', false));
+			return $this->app->redirect(ED::getLoginLink($currentUri));
 		}
 
 		// Ensure that logged in users can really post
@@ -61,9 +63,24 @@ class EasyDiscussViewAsk extends EasyDiscussView
 		if ($id && $post->id) {
 			$title = JText::sprintf('COM_EASYDISCUSS_TITLE_EDIT_QUESTION', $post->getTitle());
 		}
+		
+		$options = array();
+
+		// Add canonical tag for this page;
+		if ($categoryId) {
+			$this->canonical('index.php?option=com_easydiscuss&view=ask&category=' . $categoryId);
+			$title = $title . ' - ' . $category->title;
+			$options = array('category' => true);
+
+		} elseif ($id && !$categoryId) {
+			$this->canonical('index.php?option=com_easydiscuss&view=ask&id=' . $post->id);
+		
+		} else {
+			$this->canonical('index.php?option=com_easydiscuss&view=ask');
+		}
 
 		// Set the breadcrumbs.
-		ED::setPageTitle($title);
+		ED::setPageTitle($title, null, $options);
 
 		if (! EDR::isCurrentActiveMenu('ask')) {
 			$this->setPathway('COM_EASYDISCUSS_BREADCRUMBS_ASK');
@@ -208,19 +225,6 @@ class EasyDiscussViewAsk extends EasyDiscussView
 			}
 		}
 
-		// Add canonical tag for this page
-		$catId = $this->input->get('category', '', 'int');
-
-		if ($catId) {
-			$this->canonical('index.php?option=com_easydiscuss&view=ask&category=' . $categoryId);
-		
-		} elseif($id && !$catId) {
-			$this->canonical('index.php?option=com_easydiscuss&view=ask&id=' . $post->id);
-		
-		} else {
-			$this->canonical('index.php?option=com_easydiscuss&view=ask');
-		}
-
 		$this->set('minimumTitle', $minimumTitle);
 		$this->set('cancel', $cancel);
 		$this->set('post', $post);
@@ -230,8 +234,6 @@ class EasyDiscussViewAsk extends EasyDiscussView
 		$this->set('tags', $tags);
 		$this->set('priorities', $priorities);
 		$this->set('redirect', $redirect);
-
-
 
 		// $this->set('reference', $reference);
 		// $this->set('referenceId', $referenceId);

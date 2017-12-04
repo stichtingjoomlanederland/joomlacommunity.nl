@@ -13,55 +13,52 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <div data-ed-reports>
 	<form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
-		
+
 		<div class="app-filter-bar">
-			<div class="app-filter-bar__cell t-lg-pl--lg">
-				<div class="form-inline">
-					<div class="form-group">
-						<div class="app-filter-select-group">
-							<?php echo $this->html('table.filter', 'filter_state', $filter_state, array('P' => 'COM_EASYDISCUSS_PUBLISHED', 'U' => 'COM_EASYDISCUSS_UNPUBLISHED')); ?>
-						</div>
-					</div>
+			<div class="app-filter-bar__cell app-filter-bar__cell--auto-size">
+				<div class="app-filter-bar__filter-wrap">
+				<?php echo $this->html('table.filter', 'filter_state', $filter_state, array('P' => 'COM_EASYDISCUSS_PUBLISHED', 'U' => 'COM_EASYDISCUSS_UNPUBLISHED')); ?>
 				</div>
 			</div>
-			<div class="app-filter-bar__cell app-filter-bar__cell--last">
-				<div class="form-inline">
-					<div class="app-filter-select-group">
-						<?php echo $this->html('table.limit', $pagination); ?>
-					</div>
+			
+			<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
+
+			<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
+				<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
+					<?php echo $this->html('table.limit', $pagination->limit); ?>
 				</div>
 			</div>
 		</div>
 
 		<div class="panel-table">
-			<table class="app-table app-table-middle table table-striped" data-ed-table>
+			<table class="app-table table" data-ed-table>
 				<thead>
 					<tr>
-						<td width="1%">
+						<th width="1%">
 							<?php echo $this->html('table.checkall'); ?>
-						</td>
+						</th>
 
-						<td style="text-align:left;">
+						<th style="text-align:left;">
 							<?php echo JText::_('COM_EASYDISCUSS_REPORTED_REASON'); ?>
-						</td>
-						<td width="15%" class="center">
+						</th>
+						<th width="15%" class="center">
 							<?php echo JText::_('COM_EASYDISCUSS_LAST_REPORTED_BY'); ?>
-						</td>
-						<td width="10%" class="center">
+						</th>
+						<th width="10%" class="center">
 							<?php echo JText::_('COM_EASYDISCUSS_NUM_REPORT');?>
-						</td>
-						<td width="10%" class="center">
+						</th>
+						<th width="10%" class="center">
 							<?php echo JText::_('COM_EASYDISCUSS_LAST_REPORT_DATE'); ?>
-						</td>
-						<td width="1%" class="center">
+						</th>
+						<th width="1%" class="center">
 							<?php echo JText::_('COM_EASYDISCUSS_REPORT_PUBLISHED'); ?>
-						</td>
-						<td width="30%" class="center">
+						</th>
+						<th width="30%" class="center">
 							<?php echo JText::_( 'COM_EASYDISCUSS_ACTION' ); ?>
-						</td>
-						<td width="6%" class="center">
+						</th>
+						<th width="6%" class="center">
 							<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_ID'), 'a.id', $orderDirection, $order); ?>
-						</td>
+						</th>
 					</tr>
 				</thead>
 				<tbody>

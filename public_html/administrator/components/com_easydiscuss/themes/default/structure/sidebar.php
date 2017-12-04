@@ -21,26 +21,30 @@ defined('_JEXEC') or die('Unauthorized Access');
 </div>
 
 <div class="app-sidebar" data-sidebar>
-	<ul class="app-sidebar-menu reset-list">
+	<ul class="app-sidebar-nav reset-list">
 	<?php foreach ($menus as $menu) { ?>
 		<li class="<?php echo $view == $menu->view ? ' active' : '';?>" data-sidebar-item>
 
 			<?php if ($menu->childs) { ?>
 				<a href="javascript:void(0);" data-sidebar-link>
-					<i class="fa <?php echo $menu->icon; ?>"></i> <?php echo $menu->title;?><b></b>
+					<i class="fa <?php echo $menu->icon; ?>"></i> 
+					<span><?php echo $menu->title;?></span>
 				</a>
 
 				<?php if ($menu->childs) { ?>
-				<ul class="app-sidebar__childs" data-sidebar-child>
+				<ul class="dropdown-menu" data-sidebar-child>
 					<?php foreach ($menu->childs as $child) { ?>
-					<li>
-						<a href="<?php echo $child->link; ?>" class="toggle-btn <?php echo $child->class;?>">
-							<?php echo $child->title;?>
+					<li class="<?php echo $child->class;?>">
+						<a href="<?php echo $child->link; ?>" class="xtoggle-btn ">
+							<span>
+								<?php echo $child->title;?>
+							</span>
 
-							<?php if (isset($child->counter) && $child->counter) { ?>
-							<span class="app-sidebar__badge badge pull-right "><?php echo $child->counter;?></span>
-							<?php } ?>
+							
 						</a>
+						<?php if (isset($child->counter) && $child->counter) { ?>
+						<span class=" badge pull-right "><?php echo $child->counter;?></span>
+						<?php } ?>
 					</li>
 					<?php } ?>
 				</ul>

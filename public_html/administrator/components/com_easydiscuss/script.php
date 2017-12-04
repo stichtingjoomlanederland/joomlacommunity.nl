@@ -185,7 +185,7 @@ class com_EasyDiscussInstallerScript
 			$jConfig = JFactory::getConfig();
 			$prefix = $jConfig->get('dbprefix');
 
-			$query = "SHOW TABLES LIKE '%" . $prefix . "discuss_configs%'";
+			$query = "SHOW TABLES LIKE '" . $prefix . "discuss_configs%'";
 			$db->setQuery($query);
 
 			$result = $db->loadResult();

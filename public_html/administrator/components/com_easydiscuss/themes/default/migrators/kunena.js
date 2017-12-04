@@ -1,5 +1,5 @@
 ed.require(['edq'], function($) {
-		
+
 	var migrateButton = $('[data-ed-migrate]');
 	var migrateReplyButton = $('[data-ed-migrate-reply]');
 
@@ -22,7 +22,7 @@ ed.require(['edq'], function($) {
 
 		//process the migration
 		window.migrateArticle();
-		
+
 	});
 
 	window.migrateArticle = function() {
@@ -31,7 +31,7 @@ ed.require(['edq'], function($) {
 			"component": "com_kunena",
 			"resetHits": $('[data-migrator-kunena-hits]').is(':checked') ? 1 : 0,
 			"migrateSignature": $('[data-migrator-kunena-signature]').is(':checked') ? 1 : 0
-		}).done(function(result, status) {
+		}).done(function(result, status, total) {
 
 			// Append the current status
 			$('[data-progress-status]').append(status);
@@ -44,26 +44,27 @@ ed.require(['edq'], function($) {
 
 			// Once finished the migrating topics, we continue with the replies
 			$('[data-progress-status]').append('<?php echo JText::_('COM_EASYDISCUSS_MIGRATOR_MIGRATE_REPLIES', true);?>');
-			
-			window.migrateReplies();
+
+			window.migrateReplies(total);
 		});
 	},
 
-	window.migrateReplies = function() {
+	window.migrateReplies = function(total) {
 
 		EasyDiscuss.ajax('admin/views/migrators/migrate', {
 			"component": "com_kunena",
 			"resetHits": 0,
 			"migrateSignature": 0,
-			"replies": true
-		}).done(function(result, status) {
+			"replies": true,
+			"total": total
+		}).done(function(result, status, total) {
 
 			// Append the current status
 			$('[data-progress-status]').append(status);
 
 			// If there's still items to render, run a recursive loop until it doesn't have any more items;
 			if (result == true) {
-				window.migrateReplies();
+				window.migrateReplies(total);
 				return;
 			}
 

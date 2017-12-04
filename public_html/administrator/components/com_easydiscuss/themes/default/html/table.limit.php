@@ -11,5 +11,12 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<?php echo $pagination->getLimitBox(); ?>
-<div class="app-filter-select-group__drop"></div>
+<select name="<?php echo $name;?>" class="o-form-control" data-ed-table-filter>
+	<?php for ($i = $step; $i <= $max; $i = $i + $step) { ?>
+		<option value="<?php echo $i;?>"<?php echo $i == $selected ? ' selected="selected"' : '';?>><?php echo $i;?></option>
+	<?php } ?>
+
+	<?php if ($showAll) { ?>
+	<option value="all"<?php echo $selected == 'all' ? ' selected="selected"' : '';?>><?php echo JText::_('COM_ED_FILTER_ALL'); ?></option>
+	<?php } ?>
+</select>

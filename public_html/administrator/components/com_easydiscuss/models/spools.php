@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,31 +9,14 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 require_once dirname(__FILE__) . '/model.php';
 
 class EasyDiscussModelSpools extends EasyDiscussAdminModel
 {
-	/**
-	 * Category total
-	 *
-	 * @var integer
-	 */
 	protected $_total = null;
-
-	/**
-	 * Pagination object
-	 *
-	 * @var object
-	 */
 	protected $_pagination = null;
-
-	/**
-	 * Category data array
-	 *
-	 * @var array
-	 */
 	protected $_data = null;
 
 	public function __construct()
@@ -81,8 +64,7 @@ class EasyDiscussModelSpools extends EasyDiscussAdminModel
 	{
 		// Lets load the content if it doesn't already exist
 		if (empty($this->_pagination)) {
-			jimport('joomla.html.pagination');
-			$this->_pagination = new JPagination($this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
+			$this->_pagination = ED::getPagination($this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
 		}
 
 		return $this->_pagination;

@@ -96,7 +96,7 @@ class EasyDiscussPoints extends EasyDiscuss
 			if ($today->format('j/n/Y') == $date->format('j/n/Y')) {
 				$index = JText::_('COM_EASYDISCUSS_POINTS_HISTORY_TODAY');
 			} else {
-				$index = $date->format($this->config->get('layout_dateformat'));
+				$index = $date->format(JText::_('DATE_FORMAT_LC1'));
 			}
 
 			if (!isset($result[$index])) {

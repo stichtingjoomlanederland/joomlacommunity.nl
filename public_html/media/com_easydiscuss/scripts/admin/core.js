@@ -13,6 +13,7 @@ ed.require.config({
 		'jquery.flot': 'admin/vendors/jquery.flot',
 		'jquery.joomla': 'admin/vendors/jquery.joomla',
 		'bootstrap.colorpicker': 'admin/vendors/bootstrap.colorpicker',
+		'select2': 'admin/vendors/select2',
 
 		'dialog': 'vendors/dialog',
 		'bootstrap': 'vendors/bootstrap',
@@ -28,11 +29,25 @@ ed.require.config({
 	}
 });
 
-ed.define('edq', ['edjquery', 'easydiscuss', 'jquery.uri', 'bootstrap', 'jquery.utils', 'jquery.migrate', 'jquery.server', 'lodash', 'dialog', 'jquery.joomla', 'chartjs'], function($) {
+ed.define('edq', ['edjquery', 'easydiscuss', 'jquery.uri', 'bootstrap', 'jquery.utils', 'jquery.migrate', 'jquery.server', 'lodash', 'dialog', 'jquery.joomla', 'chartjs', 'select2'], function($) {
 
 	// Implement popover
 	$(document).on("mouseover", "[rel=ed-popover]", function(){
 		$(this).popover({container: 'body', delay: { show: 100, hide: 100},animation: false, trigger: 'hover'});
+	});
+
+	$('[data-ed-table-filter]').select2({
+		'theme': 'backend',
+		'width': 'resolve',
+		'minimumResultsForSearch': Infinity
+	});
+
+	$('[data-ed-table-filter]').on('select2:open', function() {
+		$('body').addClass('has-select2-dropdown');
+	});
+
+	$('[data-ed-table-filter]').on('select2:close', function() {
+		$('body').removeClass('has-select2-dropdown');
 	});
 
 	$(document).on('change.form.toggler', '[data-ed-toggler-checkbox]', function() {

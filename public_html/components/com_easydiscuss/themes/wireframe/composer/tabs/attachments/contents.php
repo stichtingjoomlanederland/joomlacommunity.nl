@@ -33,6 +33,7 @@ $allowedExtensions = $this->config->get('main_attachment_extension');
 				<div id="attachment-<?php echo $attachment->id;?>" class="attachment-item attachment-type-<?php echo $attachment->getType();?>">
 					<i class="attachment-icon" data-ed-attachment-item-icon></i>
 					<span class="attachment-title" data-ed-attachment-item-title><?php echo $attachment->title;?></span>
+					<a href="javascript:void(0);" data-ed-attachment-item-insert> &bull; <?php echo JText::_('COM_EASYDISCUSS_INSERT'); ?></a>
 
 					<?php if ($attachment->canDelete()) { ?>
 					<a href="javascript:void(0);" data-ed-attachment-item-remove data-id="<?php echo $attachment->id;?>"> &bull; <?php echo JText::_('COM_EASYDISCUSS_REMOVE'); ?></a>

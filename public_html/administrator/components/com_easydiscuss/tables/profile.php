@@ -1127,7 +1127,7 @@ class DiscussProfile extends EasyDiscussTable
 	{
 		$date = ED::date($this->user->registerDate);
 
-		return $date->display(ED::config()->get('layout_dateformat', JText::_('DATE_FORMAT_LC1')));
+		return $date->display(JText::_('DATE_FORMAT_LC1'));
 	}
 
 	/**
@@ -1143,7 +1143,7 @@ class DiscussProfile extends EasyDiscussTable
 		$date = ED::date($this->user->lastvisitDate);
 		$config = ED::config();
 		$timelapse = $config->get('layout_timelapse', 1);
-		$format = $config->get('layout_dateformat', JText::_('DATE_FORMAT_LC1'));
+		$format = JText::_('DATE_FORMAT_LC1');
 
 		if ($front && $timelapse) {
 			return $date->toLapsed($this->user->lastvisitDate);

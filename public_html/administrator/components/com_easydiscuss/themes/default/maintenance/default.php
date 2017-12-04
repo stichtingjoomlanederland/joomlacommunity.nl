@@ -13,25 +13,24 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-grid-ed>
 
-	<div class="post-app-filter-bar">
-		<div class="app-filter-bar">
+	<div class="app-filter-bar">
+		<div class="app-filter-bar__cell app-filter-bar__cell--auto-size">
+			<div class="app-filter-bar__filter-wrap">
+				<?php echo $this->html('table.filter', 'filter_version', $version, $versions); ?>
+			</div>
 		</div>
 
-		<div class="app-filter-bar">
-			<div class="app-filter-bar__cell">
-				<div class="form-inline">
-					<div class="form-group">
-						<div class="app-filter-select-group">
-							<?php echo ED::themes()->html('table.filter', 'filter_version', $version, $versions); ?>
-						</div>
-					</div>
-				</div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
+
+		<div class="app-filter-bar__cell app-filter-bar__cell--last t-text--center">
+			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
+				&nbsp;
 			</div>
 		</div>
 	</div>
 
 	<div class="app-content-table">
-		<table class="app-table app-table-middle table table-striped">
+		<table class="app-table table">
 			<thead>
 				<tr>
 					<th width="5" class="center">

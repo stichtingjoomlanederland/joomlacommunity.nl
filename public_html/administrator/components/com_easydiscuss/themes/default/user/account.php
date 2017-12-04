@@ -25,10 +25,10 @@ body .key{width:300px !important;}
 					<div class="form-horizontal">
 						<div class="form-group">
 							<div class="col-md-5 control-label">
-	                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_AVATAR'); ?>
-	                        </div>
-	                        <div class="col-md-7">
-	                        <?php if ($this->config->get('layout_avatar')) { ?>
+								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_AVATAR'); ?>
+							</div>
+							<div class="col-md-7">
+							<?php if ($this->config->get('layout_avatar')) { ?>
 								<div>
 									<img id="avatar" style="border-style:solid; float:none;" src="<?php echo $profile->getAvatar(); ?>" width="120" height="120"/>
 								</div>
@@ -54,27 +54,27 @@ body .key{width:300px !important;}
 
 						<div class="form-group">
 							<div class="col-md-5 control-label">
-	                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_USERNAME'); ?>
-	                        </div>
-	                        <div class="col-md-7">
+								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_USERNAME'); ?>
+							</div>
+							<div class="col-md-7">
 								<?php echo $user->username; ?>
 							</div>
 						</div>
 
 						<div class="form-group">
 							<div class="col-md-5 control-label">
-	                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_USER_ALIAS'); ?>
-	                        </div>
-	                        <div class="col-md-7">
-	                        	<?php echo $this->html('form.textbox', 'alias', $profile->alias); ?>
+								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_USER_ALIAS'); ?>
+							</div>
+							<div class="col-md-7">
+								<?php echo $this->html('form.textbox', 'alias', $profile->alias); ?>
 							</div>
 						</div>
 
 						<div class="form-group">
 							<div class="col-md-5 control-label">
-	                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_USER_POINTS'); ?>
-	                        </div>
-	                        <div class="col-md-7">
+								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_USER_POINTS'); ?>
+							</div>
+							<div class="col-md-7">
 								<input type="text" class="form-control" id="points" name="points" size="20" maxlength="255" value="<?php echo $profile->points; ?>" />
 
 							</div>
@@ -82,9 +82,9 @@ body .key{width:300px !important;}
 
 						<div class="form-group">
 							<div class="col-md-5 control-label">
-	                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_RESET_RANK'); ?>
-	                        </div>
-	                        <div class="col-md-7">
+								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_RESET_RANK'); ?>
+							</div>
+							<div class="col-md-7">
 								<a href="javascript:void(0);" class="btn btn-info resetButton" data-ed-reset-rank ><?php echo JText::_( 'COM_EASYDISCUSS_RESET_BUTTON' ); ?></a>
 							</div>
 
@@ -92,53 +92,53 @@ body .key{width:300px !important;}
 
 						<div class="form-group">
 							<div class="col-md-5 control-label">
-	                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_FULL_NAME'); ?>
-	                        </div>
-	                        <div class="col-md-7">
+								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_FULL_NAME'); ?>
+							</div>
+							<div class="col-md-7">
 								<input type="text" class="form-control" id="fullname" name="fullname" size="55" maxlength="255" value="<?php echo $this->escape($user->name); ?>" />
 							</div>
 						</div>
 
 						<div class="form-group">
 							<div class="col-md-5 control-label">
-	                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_NICK_NAME'); ?>
-	                        </div>
-	                        <div class="col-md-7">
+								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_NICK_NAME'); ?>
+							</div>
+							<div class="col-md-7">
 								<input type="text" class="form-control" id="nickname" name="nickname" size="55" maxlength="255" value="<?php echo $this->escape($profile->nickname); ?>" />
 							</div>
 						</div>
 
 						<div class="form-group">
 							<div class="col-md-5 control-label">
-	                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_EMAIL'); ?>
-	                        </div>
-	                        <div class="col-md-7">
+								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EMAIL'); ?>
+							</div>
+							<div class="col-md-7">
 								<?php echo $user->email; ?>
 							</div>
 						</div>
 
 						<div class="form-group">
 							<div class="col-md-5 control-label">
-	                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_PROFILE_SIGNATURE'); ?>
-	                        </div>
-	                        <div class="col-md-7">
+								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_PROFILE_SIGNATURE'); ?>
+							</div>
+							<div class="col-md-7">
 								<div class="ed-editor ed-editor--<?php echo $composer->getEditorClass();?>" <?php echo $composer->uid;?>>
 									<div class="ed-editor-widget ed-editor-widget--no-pad">
-						        		<?php echo $composer->renderEditor('signature', $profile->getSignature(true)); ?>
-						        	</div>
+										<?php echo $composer->renderEditor('signature', $profile->getSignature(true)); ?>
+									</div>
 								</div>
 							</div>
 						</div>
 
 						<div class="form-group">
 							<div class="col-md-5 control-label">
-	                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_PROFILE_DESCRIPTION'); ?>
-	                        </div>
-	                        <div class="col-md-7">
+								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_PROFILE_DESCRIPTION'); ?>
+							</div>
+							<div class="col-md-7">
 								<div class="ed-editor ed-editor--<?php echo $composer->getEditorClass();?>" <?php echo $composer->uid;?>>
 									<div class="ed-editor-widget ed-editor-widget--no-pad">
-						        		<?php echo $composer->renderEditor('description', $profile->getDescription()); ?>
-						        	</div>
+										<?php echo $composer->renderEditor('description', $profile->getDescription(true), true); ?>
+									</div>
 								</div>
 							</div>
 						</div>

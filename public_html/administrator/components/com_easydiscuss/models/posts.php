@@ -167,6 +167,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		// Lets load the content if it doesn't already exist
 		if (empty($this->_pagination)) {
+
 			if (!$this->_total) {
 				$this->_total = $this->getTotal($sort, $filter, $category, $featuredOnly, $userId);
 			}
@@ -289,7 +290,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		$query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`, ";
 
-        if ($config->get('main_anonymous_posting')){
+		if ($config->get('main_anonymous_posting')){
 			$query .= " (select cc.anonymous from `#__discuss_posts` as cc where cc.`thread_id` = a.`id` and cc.created = a.replied limit 1) as `last_user_anonymous`,";
 		} else {
 			$query .= " 0 as `last_user_anonymous`,";
@@ -334,26 +335,26 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		$result = $db->loadObjectList();
 
-        if ($result) {
+		if ($result) {
 
-	        $typequery = "SELECT * FROM ". $db->nameQuote('#__discuss_post_types');
-	        $db->setQuery($typequery);
-	        $posttypes = $db->loadObjectList("alias");
+			$typequery = "SELECT * FROM ". $db->nameQuote('#__discuss_post_types');
+			$db->setQuery($typequery);
+			$posttypes = $db->loadObjectList("alias");
 
-        	$count = count($result);
+			$count = count($result);
 
-        	for ($i = 0; $i < $count; $i++) {
-        		$row =& $result[$i];
+			for ($i = 0; $i < $count; $i++) {
+				$row =& $result[$i];
 
-	            if (isset($posttypes[$row->post_type])) {
-	                $row->post_type_suffix = $posttypes[$row->post_type]->suffix;
-	                $row->post_type_title = $posttypes[$row->post_type]->title;
-	            } else {
-	                $row->post_type_suffix = "";
-	                $row->post_type_title = "";
-	            }
-        	}
-        }
+				if (isset($posttypes[$row->post_type])) {
+					$row->post_type_suffix = $posttypes[$row->post_type]->suffix;
+					$row->post_type_title = $posttypes[$row->post_type]->title;
+				} else {
+					$row->post_type_suffix = "";
+					$row->post_type_title = "";
+				}
+			}
+		}
 
 		return $result;
 	}
@@ -685,13 +686,22 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		// unsure what is this. need to find out what and where this come from.
 		$user_id = $this->input->get('user_id', 0, 'int');
 
-		$query = "select SQL_CALC_FOUND_ROWS b.*, a.`has_polls` as `polls_cnt`, a.`num_fav` as `totalFavourites`, a.`num_replies`, a.`num_attachments` as attachments_cnt,";
-		$query	.= " a.`num_likes` as `likeCnt`, a.`sum_totalvote` as `VotedCnt`,";
-		$query	.=  " a.`replied` as `lastupdate`, a.vote as `total_vote_cnt`,";
+		$useFoundRows = $config->get('system_query', 'default') == 'default' ? true : false;
+		$countSql = array();
+
+
+		$query = "select SQL_CALC_FOUND_ROWS";
+		if (! $useFoundRows) {
+			$query = "select";
+		}
+
+		$query .= " b.*, a.`has_polls` as `polls_cnt`, a.`num_fav` as `totalFavourites`, a.`num_replies`, a.`num_attachments` as attachments_cnt,";
+		$query .= " a.`num_likes` as `likeCnt`, a.`sum_totalvote` as `VotedCnt`,";
+		$query .=  " a.`replied` as `lastupdate`, a.vote as `total_vote_cnt`,";
 
 		$query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`,";
 
-        if ($config->get('main_anonymous_posting')){
+		if ($config->get('main_anonymous_posting')){
 			$query .= " (select cc.anonymous from `#__discuss_posts` as cc where cc.`thread_id` = a.`id` and cc.created = a.replied limit 1) as `last_user_anonymous`,";
 		} else {
 			$query .= " 0 as `last_user_anonymous`,";
@@ -724,7 +734,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		// Join with category table.
 		$query	.= "	LEFT JOIN " . $db->nameQuote('#__discuss_category') . " AS e ON a.`category_id` = e.`id`";
 
-		if ($filter == 'favourites') {
+		if ($filter == 'favourites' || $filteractive == 'favourites') {
 			$query	.= "	LEFT JOIN " . $db->nameQuote('#__discuss_favourites') . " AS f ON f.`post_id` = a.`post_id`";
 		}
 
@@ -734,13 +744,36 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		}
 
 		// 3rd party integrations
-		if( !is_null( $reference ) && !is_null( $referenceId ) )
-		{
+		if (!is_null($reference) && !is_null($referenceId)) {
 			$query 	.= " INNER JOIN " . $db->nameQuote('#__discuss_posts_references') . " AS ref";
 			$query	.= " 	ON a." . $db->nameQuote('post_id') . " = ref." . $db->nameQuote('post_id');
 			$query	.= " 	AND ref." . $db->nameQuote('extension') . " = " . $db->Quote($reference);
 			$query	.= " 	AND ref." . $db->nameQuote('reference_id') . " = " . $db->Quote($referenceId);
 		}
+
+		// ------------------------------
+		// Build sql for pagination count
+		$countSQL = "select count(1)";
+		$countSQL .= " from " . $db->nameQuote('#__discuss_thread') . " as a";
+		$countSQL .= " inner join " . $db->nameQuote('#__discuss_posts') . " as b on a.post_id = b.id";
+		$countSQL .= "	LEFT JOIN " . $db->nameQuote('#__discuss_category') . " AS e ON a.`category_id` = e.`id`";
+
+		if ($filter == 'favourites' || $filteractive == 'favourites') {
+			$countSQL	.= "	LEFT JOIN " . $db->nameQuote('#__discuss_favourites') . " AS f ON f.`post_id` = a.`post_id`";
+		}
+
+		if ($filter == 'assigned') {
+			$countSQL .= " INNER JOIN " . $db->nameQuote('#__discuss_assignment_map') . " AS am ON am.`post_id` = a.post_id";
+			$countSQL .= " AND am.`assignee_id` = " . $db->Quote($my->id);
+		}
+
+		if (!is_null($reference) && !is_null($referenceId)) {
+			$countSQL 	.= " INNER JOIN " . $db->nameQuote('#__discuss_posts_references') . " AS ref";
+			$countSQL	.= " 	ON a." . $db->nameQuote('post_id') . " = ref." . $db->nameQuote('post_id');
+			$countSQL	.= " 	AND ref." . $db->nameQuote('extension') . " = " . $db->Quote($reference);
+			$countSQL	.= " 	AND ref." . $db->nameQuote('reference_id') . " = " . $db->Quote($referenceId);
+		}
+
 
 		// conditions start here.
 		$where = array();
@@ -895,7 +928,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$featuredOrdering = '';
 
 		$featuredSticky = isset($options['featuredSticky']) ? $options['featuredSticky'] : false;
-		
+
 		if ($featuredSticky) {
 			$featuredOrdering = "a.featured DESC, ";
 		}
@@ -982,31 +1015,36 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		if ($limit != DISCUSS_NO_LIMIT && $pagination) {
 			// now lets get the row_count() for pagination.
 			$cntQuery = "select FOUND_ROWS()";
+
+			if (! $useFoundRows) {
+				$cntQuery = $countSQL . $where;
+			}
+
 			$db->setQuery($cntQuery);
 			$this->_total = $db->loadResult();
 			$this->_pagination = ED::pagination($this->_total, $limitstart, $limit);
 		}
 
-        if ($result) {
+		if ($result) {
 
-	        $typequery = "SELECT * FROM ". $db->nameQuote('#__discuss_post_types');
-	        $db->setQuery($typequery);
-	        $posttypes = $db->loadObjectList("alias");
+			$typequery = "SELECT * FROM ". $db->nameQuote('#__discuss_post_types');
+			$db->setQuery($typequery);
+			$posttypes = $db->loadObjectList("alias");
 
-        	$count = count($result);
+			$count = count($result);
 
-        	for ($i = 0; $i < $count; $i++) {
-        		$row =& $result[$i];
+			for ($i = 0; $i < $count; $i++) {
+				$row =& $result[$i];
 
-	            if (isset($posttypes[$row->post_type])) {
-	                $row->post_type_suffix = $posttypes[$row->post_type]->suffix;
-	                $row->post_type_title = $posttypes[$row->post_type]->title;
-	            } else {
-	                $row->post_type_suffix = "";
-	                $row->post_type_title = "";
-	            }
-        	}
-        }
+				if (isset($posttypes[$row->post_type])) {
+					$row->post_type_suffix = $posttypes[$row->post_type]->suffix;
+					$row->post_type_title = $posttypes[$row->post_type]->title;
+				} else {
+					$row->post_type_suffix = "";
+					$row->post_type_title = "";
+				}
+			}
+		}
 
 		$this->_getDateDiffs($result);
 
@@ -1047,6 +1085,8 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		// We do not want to include anything from cluster here.
 		$includeCluster = false;
 
+		$useFoundRows = $config->get('system_query', 'default') == 'default' ? true : false;
+
 		$date = ED::date();
 
 		// We do not need to check for private categories for replies since replies are posted in that particular discussion.
@@ -1060,6 +1100,9 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		}
 
 		$query = 'SELECT SQL_CALC_FOUND_ROWS';
+		if (!$useFoundRows) {
+			$query = 'SELECT';
+		}
 
 		// Include polls
 		$query 	.= ' (SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_polls' ) . ' WHERE ' . $db->nameQuote( 'post_id' ) . ' = a.' . $db->nameQuote( 'id' ) . ') AS `polls_cnt`,';
@@ -1100,10 +1143,10 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$query	.= ' ' . $db->Quote('0') . ' as `isVoted`,';
 		}
 
-		$query	.= ' a.`post_status`, a.`post_type`, pt.`suffix` AS post_type_suffix, pt.`title` AS post_type_title , a.*, ';
+		$query	.= ' pt.`suffix` AS post_type_suffix, pt.`title` AS post_type_title , a.*, ';
 
 
-		$query	.= ' e.`title` AS `category`, a.`legacy`, ';
+		$query	.= ' e.`title` AS `category`, ';
 		$query	.= ' IF(a.`replied` = '.$db->Quote('0000-00-00 00:00:00') . ', a.`created`, a.`replied`) as `lastupdate`';
 
 		$query	.= ', (select count(1) from `#__discuss_votes` where post_id = a.id) as `total_vote_cnt`';
@@ -1219,12 +1262,12 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 				case 'featured':
 					$orderby	= ' ORDER BY a.`featured` DESC, a.`created` DESC'; //used in getsticky and getlastreply
 					break;
-			    case 'oldest':
-			     	$orderby 	= " ORDER BY a.`created` ASC"; //used in discussion replies
-			     	break;
-			    case 'replylatest':
-			     	$orderby 	= " ORDER BY a.`created` DESC"; //used in discussion replies
-			     	break;
+				case 'oldest':
+					$orderby 	= " ORDER BY a.`created` ASC"; //used in discussion replies
+					break;
+				case 'replylatest':
+					$orderby 	= " ORDER BY a.`created` DESC"; //used in discussion replies
+					break;
 				case 'latest':
 				default:
 					$orderby	= ' ORDER BY a.`replied` DESC'; //used in getsticky and get created date
@@ -1283,25 +1326,25 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 	   if ($diff % 86400 > 0) {
 
-	       $rest = ($diff % 86400);
-	       $days = ($diff - $rest) / 86400;
+		   $rest = ($diff % 86400);
+		   $days = ($diff - $rest) / 86400;
 
-	       if ($rest % 3600 > 0) {
-	           $rest1 = ($rest % 3600);
-	           $hours = ($rest - $rest1) / 3600;
+		   if ($rest % 3600 > 0) {
+			   $rest1 = ($rest % 3600);
+			   $hours = ($rest - $rest1) / 3600;
 
-	           if( $rest1 % 60 > 0 ) {
-	               $rest2 = ($rest1 % 60);
-	               $minutes = ($rest1 - $rest2) / 60;
-	               $seconds = $rest2;
-	           } else {
-	               $minutes = $rest1 / 60;
-	           }
-	       } else {
-	           $hours = $rest / 3600;
-	       }
+			   if( $rest1 % 60 > 0 ) {
+				   $rest2 = ($rest1 % 60);
+				   $minutes = ($rest1 - $rest2) / 60;
+				   $seconds = $rest2;
+			   } else {
+				   $minutes = $rest1 / 60;
+			   }
+		   } else {
+			   $hours = $rest / 3600;
+		   }
 	   } else {
-	       $days = $diff / 86400;
+		   $days = $diff / 86400;
 	   }
 
 	   $hours = ($days * 24) + $hours;
@@ -1574,18 +1617,18 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 	{
 		$db = $this->db;
 
-        $query = 'UPDATE `#__discuss_posts` set `answered` = ' . $db->Quote('0');
-        $query .= ' WHERE `parent_id` = ' . $db->Quote($post->id);
+		$query = 'UPDATE `#__discuss_posts` set `answered` = ' . $db->Quote('0');
+		$query .= ' WHERE `parent_id` = ' . $db->Quote($post->id);
 
-        $db->setQuery($query);
-        $state = $db->query();
+		$db->setQuery($query);
+		$state = $db->query();
 
-        if (!$state) {
-        	return false;
-        }
+		if (!$state) {
+			return false;
+		}
 
-        // Update the thread once we mark replies as unanswered
-        $post->updateThread(array('answered' => '0'));
+		// Update the thread once we mark replies as unanswered
+		$post->updateThread(array('answered' => '0'));
 	}
 
 
@@ -1612,6 +1655,8 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		$isReplies = ($id == 'allreplies') ? false : true;
 
+		$useFoundRows = ED::config()->get('system_query', 'default') == 'default' ? true : false;
+
 		$query = $this->_buildQuery($sort, '', '', 'all', $isReplies);
 
 		$result = '';
@@ -1629,6 +1674,11 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		if ($limit != DISCUSS_NO_LIMIT && $pagination) {
 			// now lets get the row_count() for pagination.
 			$cntQuery = "select FOUND_ROWS()";
+
+			if (! $useFoundRows) {
+				$cntQuery = "select count(1) from (" . $query . ") as x";
+			}
+
 			$db->setQuery($cntQuery);
 			$this->_total = $db->loadResult();
 			$this->_pagination = ED::pagination($this->_total, $limitstart, $limit);
@@ -2070,7 +2120,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		$query	= ' SELECT DATEDIFF('. $db->Quote($date->toMySQL()) . ', t.`created`) as `noofdays`, ';
 		$query	.= ' DATEDIFF(' . $db->Quote($date->toMySQL()) . ', t.`created`) as `daydiff`, TIMEDIFF(' . $db->Quote($date->toMySQL()). ', t.`created`) as `timediff`,';
 		$query .= ' b.*,';
- 		$query	.= ' t.`has_polls` as `polls_cnt`, t.`num_fav` as `totalFavourites`, t.`num_replies`, t.`num_attachments` as attachments_cnt,';
+		$query	.= ' t.`has_polls` as `polls_cnt`, t.`num_fav` as `totalFavourites`, t.`num_replies`, t.`num_attachments` as attachments_cnt,';
 		$query	.= ' t.`num_likes` as `likeCnt`, t.`sum_totalvote` as `VotedCnt`,';
 		$query	.=  ' t.`replied` as `lastupdate`, t.`vote` as `total_vote_cnt`,';
 
@@ -2169,33 +2219,33 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		// $db->setQuery( $totalQuery );
 		// $db->loadResult();
 
-        if ($rows) {
+		if ($rows) {
 
-	        $typequery = "SELECT * FROM ". $db->nameQuote('#__discuss_post_types');
-	        $db->setQuery($typequery);
-	        $posttypes = $db->loadObjectList("alias");
+			$typequery = "SELECT * FROM ". $db->nameQuote('#__discuss_post_types');
+			$db->setQuery($typequery);
+			$posttypes = $db->loadObjectList("alias");
 
-        	$count = count($rows);
+			$count = count($rows);
 
-        	for ($i = 0; $i < $count; $i++) {
-        		$row =& $rows[$i];
+			for ($i = 0; $i < $count; $i++) {
+				$row =& $rows[$i];
 
-	            if (isset($posttypes[$row->post_type])) {
-	                $row->post_type_suffix = $posttypes[$row->post_type]->suffix;
-	                $row->post_type_title = $posttypes[$row->post_type]->title;
-	            } else {
-	                $row->post_type_suffix = "";
-	                $row->post_type_title = "";
-	            }
-        	}
-        }
+				if (isset($posttypes[$row->post_type])) {
+					$row->post_type_suffix = $posttypes[$row->post_type]->suffix;
+					$row->post_type_title = $posttypes[$row->post_type]->title;
+				} else {
+					$row->post_type_suffix = "";
+					$row->post_type_title = "";
+				}
+			}
+		}
 
-        if ($pagination) {
+		if ($pagination) {
 			$this->_total = $this->_getListCount($query);
 
 			$this->_pagination = ED::pagination($this->_total, $limitstart, $limit);
 		}
-		
+
 		return $rows;
 	}
 
@@ -2743,13 +2793,13 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 	}
 
 	/**
-     * Get unresolved posts for particular user
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Get unresolved posts for particular user
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function getUnresolvedFromUser($userId, $resolve = 0)
 	{
 		$db = ED::db();
@@ -2817,7 +2867,7 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		$this->_total = $this->_getListCount($query);
 
-		$this->_pagination = DiscussHelper::getPagination($this->_total, $limitstart, $limit);
+		$this->_pagination = ED::getPagination($this->_total, $limitstart, $limit);
 
 		$this->_data = $this->_getList($query, $limitstart , $limit);
 
@@ -3086,13 +3136,13 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 	}
 
 	/**
-     * Get unread post for particular user
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Get unread post for particular user
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function getUnread($id, $category = 0)
 	{
 
@@ -3241,13 +3291,13 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 	public function deleteThread($threadId)
 	{
-        $db = ED::db();
+		$db = ED::db();
 
-        $query = "delete from " . $db->nameQuote('#__discuss_thread');
-        $query .= " where `id` = " . $db->Quote($threadId);
+		$query = "delete from " . $db->nameQuote('#__discuss_thread');
+		$query .= " where `id` = " . $db->Quote($threadId);
 
-        $db->setQuery($query);
+		$db->setQuery($query);
 
-        return $db->query();
+		return $db->query();
 	}
 }

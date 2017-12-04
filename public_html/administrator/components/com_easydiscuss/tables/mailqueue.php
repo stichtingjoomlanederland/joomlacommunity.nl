@@ -46,7 +46,6 @@ class DiscussMailQueue extends EasyDiscussTable
 
 		// If the body is not empty, we should just use this
 		if (!empty($body)) {
-			$body = str_ireplace('src="', 'width="100%" src="', $body);
 			$body = ED::parser()->convert2validImgLink($body);
 			
 			return $body;

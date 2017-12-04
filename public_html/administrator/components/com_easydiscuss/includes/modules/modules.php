@@ -38,7 +38,7 @@ class EasyDiscussModules extends EasyDiscuss
 			// Get the post created date
 			$date = ED::date($result->created);
 
-			$result->date = $date->display(ED::config()->get('layout_dateformat', JText::_('DATE_FORMAT_LC1')));			
+			$result->date = $date->display(JText::_('DATE_FORMAT_LC1'));			
 
 			$results[] = $result;
 		}

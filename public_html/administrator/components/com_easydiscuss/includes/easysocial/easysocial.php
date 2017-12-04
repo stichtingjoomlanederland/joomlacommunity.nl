@@ -32,8 +32,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function exists()
 	{
@@ -83,8 +81,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getToolbar()
 	{
@@ -101,8 +97,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function init()
 	{
@@ -137,67 +131,10 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	}
 
 	/**
-	 * Displays the user's points
-	 *
-	 * @since	1.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
-	public function getPoints( $id )
-	{
-		// $config = EasyBlogHelper::getConfig();
-
-		if( !$this->config->get( 'integrations_easysocial_points' ) )
-		{
-			return;
-		}
-
-		$theme 	= new CodeThemes();
-
-		$user 	= Foundry::user( $id );
-
-		$theme->set( 'user' , $user );
-		$output = $theme->fetch( 'easysocial.points.php' );
-
-		return $output;
-	}
-
-	/**
-	 * Displays comments
-	 *
-	 * @since	1.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
-	public function getCommentHTML( $blog )
-	{
-		if( !$this->exists() )
-		{
-			return;
-		}
-
-		Foundry::language()->load( 'com_easysocial' , JPATH_ROOT );
-
-		$url 		= EasyBlogRouter::_( 'index.php?option=com_easyblog&view=entry&id=' . $blog->id );
-		$comments 	= Foundry::comments( $blog->id , 'blog' , SOCIAL_APPS_GROUP_USER , $url );
-
-		$theme 	= new CodeThemes();
-		$theme->set( 'blog' , $blog );
-		$theme->set( 'comments' , $comments );
-		$output 	= $theme->fetch( 'easysocial.comments.php' );
-
-		return $output;
-	}
-
-	/**
 	 * Retrieves the conversations link in EasySocial
 	 *
 	 * @since	4.0.5
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getConversationsRoute($xhtml = true)
 	{
@@ -211,46 +148,21 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	}
 
 	/**
-	 * Returns the comment counter
-	 *
-	 * @since	1.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
-	public function getCommentCount( $blog )
-	{
-		if (!$this->exists()) {
-			return;
-		}
-
-		Foundry::language()->load( 'com_easysocial' , JPATH_ROOT );
-
-		$url 		= EasyBlogRouter::_( 'index.php?option=com_easyblog&view=entry&id=' . $blog->id );
-		$comments 	= Foundry::comments( $blog->id , 'blog' , SOCIAL_APPS_GROUP_USER , $url );
-
-		return $comments->getCount();
-	}
-
-	/**
 	 * Assign badge
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public function assignBadge( $rule , $creatorId , $message )
+	public function assignBadge($rule, $creatorId, $message)
 	{
-		if( !$this->exists() )
-		{
+		if (!$this->exists()) {
 			return false;
 		}
 
-		$creator 	= Foundry::user( $creatorId );
-
-		$badge 	= Foundry::badges();
-		$state 	= $badge->log( 'com_easydiscuss' , $rule , $creator->id , $message );
+		$creator = ES::user($creatorId);
+		
+		$badge = ES::badges();
+		$state = $badge->log('com_easydiscuss', $rule, $creator->id, $message);
 
 		return $state;
 	}
@@ -261,8 +173,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function assignPoints( $rule , $creatorId = null, $post = null)
 	{
@@ -316,8 +226,10 @@ class EasyDiscussEasySocial extends EasyDiscuss
 				// This could be older version of EasySocial
 				$points->assign($rule, 'com_easydiscuss', $creator->id);
 			} else {
+				$min = isset($params->get('min')->value) ? $params->get('min')->value : $params->get('min')->default;
+
 			// Get the content length
-			if ($length > $params->get('min')->value || $params->get('min')->value == 0) {
+			if ($length > $min || $min == 0) {
 				$state 	= $points->assign($rule, 'com_easydiscuss', $creator->id);
 			}
 		}
@@ -659,14 +571,14 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		}
 
 		if ($action == 'new.mentions') {
-	        // Detect known names in the post.
-        	$users = ED::string()->detectNames($post->content, array($post->user_id));
+			// Detect known names in the post.
+			$users = ED::string()->detectNames($post->content, array($post->user_id));
 
-	        if (!$users) {
-	            return false;
-	        }
+			if (!$users) {
+				return false;
+			}
 
-	        return $users;
+			return $users;
 		}
 	}
 
@@ -721,13 +633,13 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	}
 
 	/**
-     * Retrieve username field for login form
-     *
-     * @since   3.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Retrieve username field for login form
+	 *
+	 * @since   3.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function getUsernameField()
 	{
 		$esConfig = ES::config();
@@ -766,6 +678,20 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 		$recipients = $this->getRecipients($action, $post);
 
+		// retrieve the current category post language
+		$postCatLang = $post->getCategoryLanguage();
+
+		// For some reason if the category language columns is stored empty data, we will override this.
+		if (empty($postCatLang)) {
+			$postCatLang = '*';
+		}
+
+		// retrieve infront language code
+		$langcode = substr($postCatLang, 0, 2);
+
+		// determine the site got enable multilingual or not
+		$isSiteMultilingualEnabled = ED::isSiteMultilingualEnabled();
+
 		if ($action == 'new.discussion') {
 
 			if (!$this->config->get('integration_easysocial_notify_create')) {
@@ -776,7 +702,22 @@ class EasyDiscussEasySocial extends EasyDiscuss
 				return;
 			}
 
-			$permalink = EDR::_('view=post&id=' . $post->id);
+			$defaultPermalink = 'index.php?option=com_easydiscuss&view=post&id=' . $post->id;
+
+			if ($isSiteMultilingualEnabled) {
+
+				// if the post post in language category
+				if ($postCatLang != '*') {
+					$permalink = EDR::_('view=post&id=' . $post->id . '&lang=' . $langcode, true, null, false);
+				
+				} else {
+					$permalink = $defaultPermalink;
+				}
+				
+			} else {
+				$permalink = EDR::_($defaultPermalink, true, null, false);
+			}
+
 			$image = '';
 
 			$options = array('actor_id' => $post->user_id, 'uid' => $post->id, 'title' => JText::sprintf('COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_NEW_POST', $post->title), 'type' => 'discuss', 'url' => $permalink);
@@ -794,7 +735,21 @@ class EasyDiscussEasySocial extends EasyDiscuss
 				return;
 			}
 
-			$permalink = EDR::_('view=post&id=' . $post->parent_id . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id);
+			$defaultPermalink = 'index.php?option=com_easydiscuss&view=post&id=' . $post->parent_id . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+
+			if ($isSiteMultilingualEnabled) {
+
+				// if the post post in language category
+				if ($postCatLang != '*') {
+					$permalink = EDR::_('view=post&id=' . $post->parent_id . '&lang=' . $langcode . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id, true, null, false);
+				
+				} else {
+					$permalink = $defaultPermalink;
+				}
+				
+			} else {
+				$permalink = EDR::_($defaultPermalink, true, null, false);
+			}
 
 			$options = array('actor_id' => $post->user_id, 'uid' => $post->id, 'title' => JText::sprintf('COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_REPLY', $question->title), 'type' => 'discuss', 'url' => $permalink);
 
@@ -815,7 +770,21 @@ class EasyDiscussEasySocial extends EasyDiscuss
 				return;
 			}
 
-			$permalink = EDR::_('view=post&id=' . $question->id) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+			$defaultPermalink = 'index.php?option=com_easydiscuss&view=post&id=' . $question->id . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+
+			if ($isSiteMultilingualEnabled) {
+
+				// if the post post in language category
+				if ($postCatLang != '*') {
+					$permalink = EDR::_('view=post&id=' . $question->id . '&lang=' . $langcode, true, null, false) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+				
+				} else {
+					$permalink = $defaultPermalink;
+				}
+				
+			} else {
+				$permalink = EDR::_($defaultPermalink, true, null, false);
+			}
 
 			$content = JString::substr($comment->comment, 0, 25) . '...';
 			$options = array('actor_id' => $comment->user_id, 'uid' => $comment->id, 'title' => JText::sprintf('COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_COMMENT', $content), 'type' => 'discuss', 'url' => $permalink);
@@ -832,7 +801,21 @@ class EasyDiscussEasySocial extends EasyDiscuss
 			// The recipient should only be the post owner
 			$recipients = array($post->user_id);
 
-			$permalink = EDR::_('view=post&id=' . $question->id) . '#answer';
+			$defaultPermalink = 'index.php?option=com_easydiscuss&view=post&id=' . $question->id . '#answer';
+
+			if ($isSiteMultilingualEnabled) {
+
+				// if the post post in language category
+				if ($postCatLang != '*') {
+					$permalink = EDR::_('view=post&id=' . $question->id . '&lang=' . $langcode, true, null, false) . '#answer';
+				
+				} else {
+					$permalink = $defaultPermalink;
+				}
+				
+			} else {
+				$permalink = EDR::_($defaultPermalink, true, null, false);
+			}
 
 			$options = array('actor_id' => $actor, 'uid' => $post->id, 'title' => JText::sprintf('COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_ACCEPTED_ANSWER', $question->title), 'type' => 'discuss', 'url' => $permalink);
 
@@ -848,7 +831,21 @@ class EasyDiscussEasySocial extends EasyDiscuss
 			// The recipient should only be the post owner
 			$recipients = array($question->user_id);
 
-			$permalink = EDR::_('view=post&id=' . $question->id) . '#answer';
+			$defaultPermalink = 'index.php?option=com_easydiscuss&view=post&id=' . $question->id . '#answer';
+
+			if ($isSiteMultilingualEnabled) {
+
+				// if the post post in language category
+				if ($postCatLang != '*') {
+					$permalink = EDR::_('view=post&id=' . $question->id . '&lang=' . $langcode, true, null, false) . '#answer';
+				
+				} else {
+					$permalink = $defaultPermalink;
+				}
+				
+			} else {
+				$permalink = EDR::_($defaultPermalink, true, null, false);
+			}
 
 			$options = array('actor_id' => $actor, 'uid' => $post->id, 'title' => JText::sprintf('COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_ACCEPTED_ANSWER_OWNER', $question->title), 'type' => 'discuss', 'url' => $permalink);
 
@@ -864,10 +861,35 @@ class EasyDiscussEasySocial extends EasyDiscuss
 			// The recipient should only be the post owner
 			$recipients = array($post->user_id);
 
-			$permalink = EDR::_('view=post&id=' . $question->id) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+			$defaultReplyPermalink = 'index.php?option=com_easydiscuss&view=post&id=' . $question->id . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+			$defaultQuestionPermalink = 'index.php?option=com_easydiscuss&view=post&id=' . $post->id;
 
-			if ($post->isQuestion()) {
-				$permalink = EDR::_('view=post&id=' . $post->id);
+			if ($isSiteMultilingualEnabled) {
+
+				// if the post post in language category
+				if ($postCatLang != '*') {
+
+					$permalink = EDR::_('view=post&id=' . $question->id . '&lang=' . $langcode, true, null, false) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+
+					if ($post->isQuestion()) {
+						$permalink = EDR::_('view=post&id=' . $post->id . '&lang=' . $langcode, true, null, false);
+					}
+
+				} else {
+					$permalink = $defaultReplyPermalink;
+
+					if ($post->isQuestion()) {
+						$permalink = $defaultQuestionPermalink;
+					}				
+				}
+				
+			} else {
+
+				$permalink = EDR::_($defaultReplyPermalink, true, null, false);
+
+				if ($post->isQuestion()) {
+					$permalink = EDR::_($defaultQuestionPermalink, true, null, false);
+				}
 			}
 
 			$options = array('actor_id' => JFactory::getUser()->id, 'uid' => $post->id, 'title' => JText::_('COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_LIKES'), 'type' => 'discuss', 'url' => $permalink);
@@ -885,10 +907,35 @@ class EasyDiscussEasySocial extends EasyDiscuss
 				return;
 			}
 
-			$permalink = EDR::_('view=post&id=' . $post->id);
+			$defaultReplyPermalink = 'index.php?option=com_easydiscuss&view=post&id=' . $question->id . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+			$defaultQuestionPermalink = 'index.php?option=com_easydiscuss&view=post&id=' . $post->id;
 
-			if ($post->isReply()) {
-				$permalink = EDR::_('view=post&id=' . $question->id) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+			if ($isSiteMultilingualEnabled) {
+
+				// if the post post in language category
+				if ($postCatLang != '*') {
+
+					$permalink = EDR::_($defaultQuestionPermalink . '&lang=' . $langcode, true, null, false);
+
+					if ($post->isReply()) {
+						$permalink = EDR::_('view=post&id=' . $question->id . '&lang=' . $langcode, true, null, false) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+					}
+
+				} else {
+					$permalink = $defaultQuestionPermalink;
+
+					if ($post->isReply()) {
+						$permalink = $defaultReplyPermalink;
+					}				
+				}
+				
+			} else {
+
+				$permalink = EDR::_($defaultQuestionPermalink, true, null, false);
+
+				if ($post->isReply()) {
+					$permalink = EDR::_($defaultReplyPermalink, true, null, false);
+				}
 			}
 
 			$options = array('actor_id' => $post->user_id, 'uid' => $post->id, 'title' => JText::sprintf('COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_MENTIONS', $question->title), 'type' => 'discuss', 'url' => $permalink);
@@ -905,10 +952,35 @@ class EasyDiscussEasySocial extends EasyDiscuss
 			// The recipient should only be the post owner
 			$recipients = array($post->user_id);
 
-			$permalink = EDR::_('view=post&id=' . $question->id) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+			$defaultReplyPermalink = 'index.php?option=com_easydiscuss&view=post&id=' . $question->id . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+			$defaultQuestionPermalink = 'index.php?option=com_easydiscuss&view=post&id=' . $post->id;
 
-			if ($post->isQuestion()) {
-				$permalink = EDR::_('view=post&id=' . $post->id);
+			if ($isSiteMultilingualEnabled) {
+
+				// if the post post in language category
+				if ($postCatLang != '*') {
+
+					$permalink = EDR::_('view=post&id=' . $question->id . '&lang=' . $langcode, true, null, false) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+
+					if ($post->isQuestion()) {
+						$permalink = EDR::_('view=post&id=' . $post->id . '&lang=' . $langcode, true, null, false);
+					}
+
+				} else {
+					$permalink = $defaultReplyPermalink;
+
+					if ($post->isQuestion()) {
+						$permalink = $defaultQuestionPermalink;
+					}				
+				}
+				
+			} else {
+
+				$permalink = EDR::_($defaultReplyPermalink, true, null, false);
+
+				if ($post->isQuestion()) {
+					$permalink = EDR::_($defaultQuestionPermalink, true, null, false);
+				}
 			}
 
 			$string = ($action == 'new.voteup') ? 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_VOTE_UP' : 'COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_VOTE_DOWN';
@@ -1120,11 +1192,11 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	{
 		$id = $alias;
 
-        if (strpos($alias , ':' ) !== false) {
-            $parts = explode(':', $alias , 2 );
+		if (strpos($alias , ':' ) !== false) {
+			$parts = explode(':', $alias , 2 );
 
-            $id = $parts[0];
-        }
+			$id = $parts[0];
+		}
 
 		return $id;
 	}

@@ -199,7 +199,7 @@ ed.require(['edq', 'easydiscuss', 'jquery.scrollto'], function($, EasyDiscuss) {
 
 		if (!tnc.is(':checked')) {
 			EasyDiscuss.dialog({
-				"content": '<?php echo JText::_("COM_EASYDISCUSS_TERMS_PLEASE_ACCEPT"); ?>'
+				"content": '<?php echo addslashes(JText::_("COM_EASYDISCUSS_TERMS_PLEASE_ACCEPT")); ?>'
 			});
 
 			return false;

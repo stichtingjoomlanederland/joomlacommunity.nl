@@ -1,16 +1,15 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
 require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
@@ -18,6 +17,10 @@ class EasyDiscussViewBans extends EasyDiscussAdminView
 {
 	public function display($tpl = null)
 	{
+		JToolBarHelper::title(JText::_('COM_EASYDISCUSS_BANS'), 'users');
+		JToolbarHelper::deleteList();
+		JToolBarHelper::custom('purge','purge','icon-32-unpublish.png', 'COM_EASYDISCUSS_SPOOLS_PURGE_ALL_BUTTON', false);
+
 		$state = $this->getUserState('com_easydiscuss.bans.filter_state', 'filter_state', '*', 'word');
 
 		// Search
@@ -29,8 +32,7 @@ class EasyDiscussViewBans extends EasyDiscussAdminView
 		$orderDirection = $this->getUserState('com_easydiscuss.bans.filter_order_Dir', 'filter_order_Dir', 'asc', 'word');
 
 		// Get data from the model
-		$model = ED::model('Bans', true);
-
+		$model = ED::model('Bans');
 		$bans = $model->getData();
 
 		if ($bans) {
@@ -61,15 +63,4 @@ class EasyDiscussViewBans extends EasyDiscussAdminView
 
 		parent::display('bans/default');
 	}
-	
-	public function registerToolbar()
-	{
-		JToolBarHelper::title( JText::_( 'COM_EASYDISCUSS_BANS' ), 'users' );
-
-		JToolBarHelper::custom( 'home', 'arrow-left', '', JText::_( 'COM_EASYDISCUSS_TOOLBAR_HOME' ), false);
-		JToolBarHelper::divider();		
-		JToolbarHelper::deleteList();
-		JToolBarHelper::divider();
-		JToolBarHelper::custom('purge','purge','icon-32-unpublish.png', 'COM_EASYDISCUSS_SPOOLS_PURGE_ALL_BUTTON', false);
-	}	
 }

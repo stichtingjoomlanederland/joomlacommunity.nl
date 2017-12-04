@@ -12,18 +12,17 @@
 defined('_JEXEC') or die('Restricted access');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
-	<div class="post-app-filter-bar">
-		<div class="app-filter-bar">
+
+	<div class="app-filter-bar">
+		<div class="app-filter-bar__cell app-filter-bar__cell--search">
 			<?php echo $this->html('table.search', 'search', $search); ?>
 		</div>
+		
+		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
 
-		<div class="app-filter-bar">
-			<div class="app-filter-bar__cell app-filter-bar__cell--last">
-				<div class="form-inline">
-					<div class="app-filter-select-group">
-						<?php echo $this->html('table.limit', $pagination); ?>
-					</div>
-				</div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
+			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
+				<?php echo $this->html('table.limit', $pagination->limit); ?>
 			</div>
 		</div>
 	</div>
@@ -33,37 +32,37 @@ defined('_JEXEC') or die('Restricted access');
 	<?php } ?>
 
 	<div class="panel-table">
-		<table class="app-table app-table-middle table table-striped" data-ed-table>
+		<table class="app-table table" data-ed-table>
 			<thead>
 				<tr>
 					<?php if (!$browse) { ?>
-					<td width="1%">
+					<th width="1%">
 						<?php echo $this->html('table.checkall'); ?>
-					</td>
+					</th>
 					<?php } ?>
 
-					<td style="text-align:left;">
+					<th style="text-align:left;">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_NAME'), 'u.name', $orderDirection, $order ); ?>
-					</td>
-					<td width="15%" class="center">
+					</th>
+					<th width="15%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_USERNAME'), 'u.username', $orderDirection, $order ); ?>
-					</td>
+					</th>
 
 					<?php if (!$browse) { ?>
-					<td width="10%" class="center">
+					<th width="10%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_GROUP'); ?>
-					</td>
-					<td width="15%" class="center">
+					</th>
+					<th width="15%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_EMAIL'), 'u.email', $orderDirection, $order); ?>
-					</td>
-					<td width="10%" class="center">
+					</th>
+					<th width="10%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_TOTAL_DISCUSSIONS'); ?>
-					</td>
+					</th>
 					<?php } ?>
 
-					<td width="1%" class="center">
+					<th width="1%" class="center">
 						<?php echo JHTML::_('grid.sort', Jtext::_('COM_EASYDISCUSS_ID'), 'u.id', $orderDirection, $order); ?>
-					</td>
+					</th>
 				</tr>
 			</thead>
 

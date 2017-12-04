@@ -37,7 +37,15 @@ class EasyDiscussViewPoints extends EasyDiscussView
 
 		$model = ED::model('Points', true);
 		$history = $model->getPointsHistory($id);
-		$user = ED::user($id);
+		$userObj = ED::user($id);
+
+		$pageTitle = JText::sprintf('COM_EASYDISCUSS_TITLE_POINTS', $userObj->user->name);
+
+		// set page title here
+		ED::setPageTitle($pageTitle);
+
+		// Add canonical tag for this page
+		$this->canonical('index.php?option=com_easydiscuss&view=points&id=' . $id);
 
 		foreach ($history as $item) {
 			$points = ED::points()->getPoints($item->command);
@@ -61,7 +69,7 @@ class EasyDiscussViewPoints extends EasyDiscussView
 
 		$this->set('history', $history);
 		$this->set('dateContainer', $dateContainer);
-		$this->set('user', $user);
+		$this->set('user', $userObj);
 
 		parent::display('points/default');
 	}

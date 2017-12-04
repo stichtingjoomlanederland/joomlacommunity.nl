@@ -12,59 +12,52 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
-	<div class="post-app-filter-bar">
-		<div class="app-filter-bar">
-			<?php echo $this->html('table.search', 'search', $search, 'COM_EASYDISCUSS_SEARCH_TOOLTIP'); ?>
+	<div class="app-filter-bar">
+		<div class="app-filter-bar__cell app-filter-bar__cell--search">
+			<?php echo $this->html('table.search', 'search', $search); ?>
 		</div>
 
-		<div class="app-filter-bar">
-			<div class="app-filter-bar__cell">
-				<div class="form-inline">
-					<div class="form-group">
-						<label><?php echo JText::_('COM_EASYDISCUSS_CATEGORIES_FILTER_BY');?></label>
-						
-						<div class="app-filter-select-group">
-							<?php echo $this->html('table.filter', 'filter_state', $filter, array('published' => 'COM_EASYDISCUSS_PUBLISHED', 'unpublished' => 'COM_EASYDISCUSS_UNPUBLISHED')); ?>
-						</div>
-					</div>
-				</div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--auto-size app-filter-bar__cell--divider-left">
+			<div class="app-filter-bar__filter-wrap">
+				<?php echo $this->html('table.filter', 'filter_state', $filter, array('published' => 'COM_EASYDISCUSS_PUBLISHED', 'unpublished' => 'COM_EASYDISCUSS_UNPUBLISHED')); ?>
 			</div>
-			<div class="app-filter-bar__cell app-filter-bar__cell--last">
-				<div class="form-inline">
-					<div class="app-filter-select-group">
-						<?php echo $this->html('table.limit', $pagination); ?>
-					</div>
-				</div>
+		</div>
+		
+		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
+
+		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
+			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
+				<?php echo $this->html('table.limit', $pagination); ?>
 			</div>
 		</div>
 	</div>
 
 	<div class="panel-table">
-		<table class="app-table app-table-middle table table-striped" data-ed-table>
+		<table class="app-table table" data-ed-table>
 			<thead>
 				<tr>
-					<td width="1%">
+					<th width="1%">
 						<?php echo $this->html('table.checkall'); ?>
-					</td>
+					</th>
 
-					<td style="text-align:left;">
+					<th style="text-align:left;">
 						<?php echo JText::_('COM_EASYDISCUSS_TABLE_COLUMN_REPLY'); ?>
-					</td>
+					</th>
 
-					<td width="5%" class="text-center">
+					<th width="5%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_PUBLISHED'); ?>
-					</td>
+					</th>
 
-					<td width="1%" class="text-center">
+					<th width="1%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_POSTS_VOTES'); ?>
 					</th>
-					<td width="20%" class="text-center">
+					<th width="20%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_USER'); ?>
 					</th>
-					<td width="10%" class="text-center">
+					<th width="10%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_DATE');?>
 					</th>
-					<td width="1%" class="text-center">
+					<th width="1%" class="text-center">
 						<?php echo JText::_('COM_EASYDISCUSS_COLUMN_ID');?>
 					</th>
 				</tr>

@@ -16,10 +16,10 @@ defined('_JEXEC') or die('Restricted access');
     <td style="text-align: center;padding: 40px 10px 0;">
         <div style="margin-bottom:15px;">
             <div style="font-family:Arial;font-size:32px;font-weight:normal;color:#333;display:block; margin: 4px 0">
-                <?php echo JText::_('COM_EASYDISCUSS_EMAIL_TEMPLATE_NEW_DISCUSSION_REJECTED') ?>
+                <?php echo JText::_('COM_EASYDISCUSS_EMAIL_TEMPLATE_NEW_' . $type . '_REJECTED') ?> 
             </div>
             <div style="font-size:12px; color: #798796;font-weight:normal">
-            	<?php echo JText::sprintf('COM_EASYDISCUSS_NEW_DISCUSSION_REJECTED', $postLink, $postTitle); ?>
+                <?php echo JText::sprintf('COM_EASYDISCUSS_NEW_' . $type . '_REJECTED', $postLink, $postTitle); ?>
             </div>
         </div>
     </td>
@@ -39,7 +39,7 @@ defined('_JEXEC') or die('Restricted access');
                         </p>
 
                         <p style="text-align:left;">
-                            <?php echo JText::sprintf('COM_EASYDISCUSS_EMAILS_NEW_DISCUSSION_REJECTED_NOTIFICATION', $postAuthor); ?>
+                            <?php echo JText::sprintf('COM_EASYDISCUSS_EMAILS_NEW_' . $type . '_REJECTED_NOTIFICATION', $postAuthor); ?>
                         </p>
                     </td>
                 </tr>
@@ -48,27 +48,27 @@ defined('_JEXEC') or die('Restricted access');
                 <tbody>
                     <tr>
                         <td valign="top">
-							<?php echo $postContent; ?>
+                            <?php echo $postContent; ?>
                         </td>
                     </tr>
-					<?php if( $attachments ) { ?>
-					<tr>
-						<td>
-							<div class="discuss-attachments mv-15">
-								<h5><?php echo JText::_( 'COM_EASYDISCUSS_ATTACHMENTS' ); ?>:</h5>
+                    <?php if( $attachments ) { ?>
+                    <tr>
+                        <td>
+                            <div class="discuss-attachments mv-15">
+                                <h5><?php echo JText::_( 'COM_EASYDISCUSS_ATTACHMENTS' ); ?>:</h5>
 
-								<ul class="thumbnails">
-								<?php foreach( $attachments as $attachment ) { ?>
-									<li class="attachment-item thumbnail thumbnail-small attachment-type-<?php echo $attachment->attachmentType; ?>" id="attachment-<?php echo $attachment->id;?>" data-attachment-item>
-										<?php echo $attachment->html(true);?>
-									</li>
-								<?php } ?>
-								</ul>
+                                <ul class="thumbnails">
+                                <?php foreach( $attachments as $attachment ) { ?>
+                                    <li class="attachment-item thumbnail thumbnail-small attachment-type-<?php echo $attachment->attachmentType; ?>" id="attachment-<?php echo $attachment->id;?>" data-attachment-item>
+                                        <?php echo $attachment->html(true);?>
+                                    </li>
+                                <?php } ?>
+                                </ul>
 
-							</div>
-						</td>
-					</tr>
-					<?php } ?>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php } ?>
                 </tbody>
             </table>
         </td>

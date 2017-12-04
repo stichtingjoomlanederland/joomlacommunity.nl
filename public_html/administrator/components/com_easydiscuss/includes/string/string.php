@@ -207,20 +207,20 @@ class EasyDiscussString extends EasyDiscuss
 		$result = $matches[0];
 		$users = array();
 
-        foreach ($result as $name) {
-            $name = JString::str_ireplace(array('@','#'), '', $name);
+		foreach ($result as $name) {
+			$name = JString::str_ireplace(array('@','#'), '', $name);
 
-            // Given a name, try to find the correct user id.
-            $id = ED::getUserId($name);
+			// Given a name, try to find the correct user id.
+			$id = ED::getUserId($name);
 
-            if (!$id || in_array($id, $exclude)) {
-                continue;
-            }
+			if (!$id || in_array($id, $exclude)) {
+				continue;
+			}
 
-            $users[] = ED::user($id);
-        }
+			$users[] = ED::user($id);
+		}
 
-        return $users;
+		return $users;
 	}
 
 	public function nameToLink( $text )
@@ -305,6 +305,12 @@ class EasyDiscussString extends EasyDiscuss
 		}
 
 		$tmplinks = $matches[0];
+
+		$maxLinks = 200;
+		if (count($tmplinks) > $maxLinks) {
+			// if the content has more than 200 links, we will skip this process as replacing all links will cause php execution timeout/hit memory limit.
+			return $text;
+		}
 
 		$links = array();
 		$linksWithProtocols = array();
@@ -414,23 +420,23 @@ class EasyDiscussString extends EasyDiscuss
 	{
 		$replace = $query;
 
-	  	if (is_array($query)) {
+		if (is_array($query)) {
 
-	 		$replace = array_flip(array_flip($query));
-	 		$pattern = array();
+			$replace = array_flip(array_flip($query));
+			$pattern = array();
 
-		 	foreach ($replace as $k=>$fword) {
-		    	$pattern[] = '/\b(' . $fword . ')(?!>)\b/i';
-		    	$replace[$k] = '<span class="ed-search-hightlight">$1</span>';
-		 	}
+			foreach ($replace as $k=>$fword) {
+				$pattern[] = '/\b(' . $fword . ')(?!>)\b/i';
+				$replace[$k] = '<span class="ed-search-hightlight">$1</span>';
+			}
 
-		 	return preg_replace($pattern, $replace, $strings);
-	 	}
+			return preg_replace($pattern, $replace, $strings);
+		}
 
-	    $pattern = '/\b(' . $replace . ')(?!>)\b/i';
-	    $replace = '<span class="ed-search-hightlight">$1</span>';
+		$pattern = '/\b(' . $replace . ')(?!>)\b/i';
+		$replace = '<span class="ed-search-hightlight">$1</span>';
 
-	    return preg_replace($pattern, $replace, $strings);
+		return preg_replace($pattern, $replace, $strings);
 	}
 
 	/**

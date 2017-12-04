@@ -159,8 +159,6 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getPagination()
 	{
@@ -168,7 +166,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 		if (empty($this->_pagination)) {
 			jimport('joomla.html.pagination');
 
-			$this->_pagination = new JPagination($this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
+			$this->_pagination = ED::getPagination($this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
 		}
 
 		return $this->_pagination;
@@ -434,7 +432,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 
 		$query = implode(' ', $query);
 		$db->setQuery($query);
-
+		
 		$categories = $db->loadObjectList();
 
 		return $categories;

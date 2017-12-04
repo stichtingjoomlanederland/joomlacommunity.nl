@@ -61,10 +61,8 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 	 */
 	public function getPagination()
 	{
-		// Lets load the content if it doesn't already exist
 		if (empty($this->_pagination)) {
-			jimport('joomla.html.pagination');
-			$this->_pagination = new JPagination($this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
+			$this->_pagination = ED::getPagination($this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
 		}
 
 		return $this->_pagination;
@@ -282,7 +280,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 
 			$query .= " a.`last_user_id`, a.`last_poster_name`, a.`last_poster_email`,";
 
-        	if ($config->get('main_anonymous_posting')){
+			if ($config->get('main_anonymous_posting')){
 				$query .= " (select cc.`anonymous` from `#__discuss_posts` as cc where cc.`thread_id` = a.`id` and cc.created = a.replied limit 1) as `last_user_anonymous`,";
 			} else {
 				$query .= " 0 as `last_user_anonymous`,";
@@ -352,26 +350,26 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		$db->setQuery($query);
 		$results = $db->loadObjectList();
 
-        if ($results) {
+		if ($results) {
 
-	        $typequery = "SELECT * FROM ". $db->nameQuote('#__discuss_post_types');
-	        $db->setQuery($typequery);
-	        $posttypes = $db->loadObjectList("alias");
+			$typequery = "SELECT * FROM ". $db->nameQuote('#__discuss_post_types');
+			$db->setQuery($typequery);
+			$posttypes = $db->loadObjectList("alias");
 
-        	$count = count($results);
+			$count = count($results);
 
-        	for ($i = 0; $i < $count; $i++) {
-        		$row =& $results[$i];
+			for ($i = 0; $i < $count; $i++) {
+				$row =& $results[$i];
 
-	            if (isset($posttypes[$row->post_type])) {
-	                $row->post_type_suffix = $posttypes[$row->post_type]->suffix;
-	                $row->post_type_title = $posttypes[$row->post_type]->title;
-	            } else {
-	                $row->post_type_suffix = "";
-	                $row->post_type_title = "";
-	            }
-        	}
-        }
+				if (isset($posttypes[$row->post_type])) {
+					$row->post_type_suffix = $posttypes[$row->post_type]->suffix;
+					$row->post_type_title = $posttypes[$row->post_type]->title;
+				} else {
+					$row->post_type_suffix = "";
+					$row->post_type_title = "";
+				}
+			}
+		}
 
 
 		return $results;
@@ -891,6 +889,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 	public function getParentCategoriesOnly($contentId = 0, $options = array())
 	{
 		$db = $this->db;
+		$config = $this->config;
 
 		$idOnly = isset($options['id_only']) ? $options['id_only'] : false;
 		$pagination = isset($options['pagination']) ? $options['pagination'] : true;
@@ -898,10 +897,16 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		$limit = isset($options['limit']) ? $options['limit'] : null;
 		$withNoPosts = isset($options['withNoPosts']) ? $options['withNoPosts'] : false;
 
+		$useFoundRows = $config->get('system_query', 'default') == 'default' ? true : false;
+
 		$query = 'select a.`id`, a.`title`, a.`alias`, a.`private`,a.`default`,a.`container`';
 
 		if ($idOnly) {
 			$query = 'select SQL_CALC_FOUND_ROWS a.`id`';
+
+			if (! $useFoundRows) {
+				$query = 'select a.`id`';
+			}
 		}
 
 		$query .= ' from `#__discuss_category` as a';
@@ -936,6 +941,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 			$query .= ' group by a.`id` having (count(b.`id`) > 0)';
 		}
 
+		$countSQL = $query;
 
 		$sortConfig	= $this->config->get('layout_ordering_category','latest');
 		switch($sortConfig) {
@@ -980,6 +986,13 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		if ($limit != DISCUSS_NO_LIMIT && $limit && $pagination) {
 			// now lets get the row_count() for pagination.
 			$cntQuery = "select FOUND_ROWS()";
+
+			if (! $useFoundRows) {
+				$cntQuery = "select count(1) from (" . $countSQL . ") as x";
+			}
+
+			// var_dump($cntQuery);
+
 			$db->setQuery($cntQuery);
 			$this->_total = $db->loadResult();
 			$this->_pagination = ED::pagination($this->_total, $limitstart, $limit);

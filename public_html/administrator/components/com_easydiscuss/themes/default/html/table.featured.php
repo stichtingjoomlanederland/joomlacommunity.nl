@@ -11,33 +11,11 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<a class="ed-state-<?php echo $class;?> badge" href="javascript:void(0);"
-    <?php echo $allowed ? ' data-ed-table-state' : '';?>
-    data-task="<?php echo $task;?>"
-    <?php echo !$allowed ? ' disabled="disabled"' : '';?>
+<a class="ed-state-<?php echo $class;?> " href="javascript:void(0);"
+	<?php echo $allowed ? ' data-ed-table-state' : '';?>
+	data-task="<?php echo $task;?>"
+	<?php echo !$allowed ? ' disabled="disabled"' : '';?>
 >
-    <?php if ($class == 'default' || $class == 'featured') { ?>
-    <i class="fa fa-star"></i>
-    <?php } ?>
-
-    <?php if ($class == 'published') { ?>
-    <i class="fa fa-check"></i>
-    <?php } ?>
-
-    <?php if ($class == 'unpublished') { ?>
-    <i class="fa fa-times"></i>
-    <?php } ?>
-
-    <?php if ($class == 'trash') { ?>
-    <i class="fa fa-trash-o"></i>
-    <?php } ?>
-
-    <?php if ($class == 'scheduled') { ?>
-    <i class="fa fa-clock-o"></i>
-    <?php } ?>
-
-    <?php if ($class == 'archived') { ?>
-    <i class="fa fa-inbox"></i>
-    <?php } ?>
+	
 </a>
 

@@ -2,65 +2,120 @@
 		$states.less
 \*------------------------------------*/
 
-// Sample
-// ----------------
-/*
-<a class="eb-state-publish badge" href="javascript:void(0);">
-	<i class="fa fa-check"></i>
-</a>
-<a class="eb-state-unpublish badge" href="javascript:void(0);">
-	<i class="fa fa-times"></i>
-</a>
-<a class="eb-state-trash badge" href="javascript:void(0);">
-	<i class="fa fa-trash-o"></i>
-</a>
-<a class="eb-state-scheduled badge" href="javascript:void(0);">
-	<i class="fa fa-clock-o"></i>
-</a>
-<a class="eb-state-locked badge" href="javascript:void(0);">
-	<i class="fa fa-lock"></i>
-</a>
-<a class="eb-state-unlocked badge" href="javascript:void(0);">
-	<i class="fa fa-unlock"></i>
-</a>
-<a class="eb-state-default badge" href="javascript:void(0);">
-	<i class="fa fa-star"></i>
-</a>
-<a class="eb-state-featured badge" href="javascript:void(0);">
-	<i class="fa fa-star"></i>
-</a>
-*/
+[class^="ed-state-"],
+[class*=" ed-state-"] {
+	text-align: center;
+	width: 16px;
+	height: 16px;
+	line-height: 15px;
+	border-radius: 3px;
+	border-radius: 50%;
 
-.ed-state-archived {
-	background: #3b3f45 !important;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	vertical-align: middle;
+
+	&:before {
+		font-family: FontAwesome;
+		font-weight: normal;
+		font-style: normal;
+		text-decoration: inherit;
+		color: white;
+		font-size: 11px;
+
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		vertical-align: middle;
+	}
 }
-.ed-state-published {
-	background: #378137 !important;
-}
-.ed-state-unpublished {
-	background: #B94A48 !important;
-}
-.ed-state-core {
+.ed-state-published,
+.ed-state-going {
 	background: #7CC110 !important;
+	&:before {
+		content: "\f00c";
+	}
 }
-.ed-state-no-core {
+.ed-state-unpublished,
+.ed-state-notgoing {
 	background: #B94A48 !important;
+	&:before {
+		content: "\f00d";
+	}
 }
 .ed-state-trash {
 	background: #B94A48 !important;
-}
-.ed-state-scheduled {
-	background: #5BC0DE !important;
+	&:before {
+		content: "\f1f8";
+	}
 }
 .ed-state-locked {
 	background: #aaa !important;
+	&:before {
+		content: "\f023";
+	}
 }
-.ed-state-unlocked {
+.ed-state-unactivated {
 	background: #D88B1E !important;
+	&:before {
+		content: "\f084";
+	}
+}
+.ed-state-pending {
+	background: #D88B1E !important;
+	&:before {
+		content: "\f017";
+	}
+}
+.ed-state-maybe {
+	background: #5BC0DE !important;
+	&:before {
+		content: "\f02e";
+	}
+}
+.ed-state-invited {
+	background: #D88B1E !important;
+	&:before {
+		content: "\f058";
+	}
 }
 .ed-state-default {
 	background: #aaa !important;
+	.square(16px) !important;
+	border-radius: 50%;
+	&:before {
+		content: "\f005";
+		font-size: 10px;
+	}
 }
 .ed-state-featured {
-	background: #D88B1E !important;
+	background: #F5A922;
+	.square(16px) !important;
+	border-radius: 50%;
+	&:before {
+		content: "\f005";
+		font-size: 10px;
+	}
+}
+.ed-state-plus {
+	background: #7CC110;
+	.square(16px) !important;
+	border-radius: 50%;
+	&:before {
+		content: "\f067";
+		font-size: 8px;
+		line-height: 16px;
+
+	}
+}
+.ed-state-minus {
+	background: #be1f23;
+	.square(16px) !important;
+	border-radius: 50%;
+	&:before {
+		content: "\f068";
+		font-size: 8px;
+		line-height: 16px;
+	}
 }

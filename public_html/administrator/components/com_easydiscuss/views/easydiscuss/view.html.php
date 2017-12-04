@@ -26,8 +26,6 @@ class EasyDiscussViewEasyDiscuss extends EasyDiscussAdminView
 		// This determines if the buttons should be visible to the viewer.
 		if ($this->my->authorise('core.admin', 'com_easydiscuss')) {
 			JToolBarHelper::preferences('com_easydiscuss');
-			JToolBarHelper::custom('compileStylesheet', 'refresh', '', JText::_('COM_EASYDISCUSS_CLEAR_CSS_CACHE'), false);
-			JToolBarHelper::custom('clearCache', 'refresh', '', JText::_('COM_EASYDISCUSS_PURGE_CACHE'), false);
 		}
 
 		// Get the dashboard model

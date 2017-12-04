@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -14,28 +14,24 @@ defined('_JEXEC') or die('Unauthorized Access');
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
 
 	<div class="app-filter-bar">
-		<div class="app-filter-bar__cell">
-		</div>
-		<div class="app-filter-bar__cell app-filter-bar__cell--last">
-			<div class="form-inline">
-				<div class="app-filter-select-group">
-					<?php echo $this->html('table.limit', $pagination); ?>
-				</div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
+			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
+				<?php echo $this->html('table.limit', $pagination); ?>
 			</div>
 		</div>
 	</div>
 
 	<div class="panel-table">
-		<table class="app-table app-table-middle table table-striped" data-ed-table>
+		<table class="app-table table" data-ed-table>
 			<thead>
 				<tr>
-					<td width="1%">&nbsp;</td>
-					<td style="text-align:left;">
+					<th width="1%">&nbsp;</th>
+					<th style="text-align:left;">
 						<?php echo JText::_('COM_EASYDISCUSS_GROUP_NAME'); ?>
-					</td>
-					<td width="5%" class="center">
+					</th>
+					<th width="5%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_ID'); ?>
-					</td>
+					</th>
 				</tr>
 			</thead>
 

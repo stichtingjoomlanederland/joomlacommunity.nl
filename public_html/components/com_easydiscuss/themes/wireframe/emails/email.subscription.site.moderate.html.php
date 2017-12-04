@@ -48,27 +48,27 @@ defined('_JEXEC') or die('Restricted access');
                 <tbody>
                     <tr>
                         <td valign="top">
-							<?php echo $postContent; ?>
+                            <?php echo $postContent; ?>
                         </td>
                     </tr>
-					<?php if( $attachments ) { ?>
-					<tr>
-						<td>
-							<div class="discuss-attachments mv-15">
-								<h5><?php echo JText::_( 'COM_EASYDISCUSS_ATTACHMENTS' ); ?>:</h5>
+                    <?php if( $attachments ) { ?>
+                    <tr>
+                        <td>
+                            <div class="discuss-attachments mv-15">
+                                <h5><?php echo JText::_( 'COM_EASYDISCUSS_ATTACHMENTS' ); ?>:</h5>
 
-								<ul class="thumbnails">
-								<?php foreach( $attachments as $attachment ) { ?>
-									<li class="attachment-item thumbnail thumbnail-small attachment-type-<?php echo $attachment->attachmentType; ?>" id="attachment-<?php echo $attachment->id;?>" data-attachment-item>
+                                <ul class="thumbnails">
+                                <?php foreach( $attachments as $attachment ) { ?>
+                                    <li class="attachment-item thumbnail thumbnail-small attachment-type-<?php echo $attachment->attachmentType; ?>" id="attachment-<?php echo $attachment->id;?>" data-attachment-item>
                                         <?php echo $attachment->html(true);?>
-									</li>
-								<?php } ?>
-								</ul>
+                                    </li>
+                                <?php } ?>
+                                </ul>
 
-							</div>
-						</td>
-					</tr>
-					<?php } ?>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php } ?>
                 </tbody>
             </table>
         </td>
@@ -84,14 +84,24 @@ defined('_JEXEC') or die('Restricted access');
                 color:#fff;font-size: 12px;
                 background-color: #428bca;
                 border-color: #357ebd;
-
-
                 border-style: solid;
                 border-width: 1px;
-
                 border-radius:3px; -moz-border-radius:3px; -webkit-border-radius:3px;
-                " href="<?php echo $approveURL;?>"><?php echo JText::_('COM_EASYDISCUSS_EMAIL_APPROVE_POST');?></a>
-		        <?php echo JText::_('COM_EASYDISCUSS_OR'); ?>
-		        <a href="<?php echo $rejectURL?>"><?php echo JText::_('COM_EASYDISCUSS_REJECT'); ?></a>
+                " href="<?php echo $approveURL;?>"><?php echo JText::_('COM_EASYDISCUSS_APPROVE_BUTTON');?></a>
+               
+        <a style="
+                display:inline-block;
+                text-decoration:none;
+                font-weight:bold;
+                margin-top: 20px;
+                padding:10px 15px;
+                line-height:20px;
+                color:#fff;font-size: 12px;
+                background-color: #ca4242;
+                border-color: #bd2424;
+                border-style: solid;
+                border-width: 1px;
+                border-radius:3px; -moz-border-radius:3px; -webkit-border-radius:3px;
+                " href="<?php echo $rejectURL?>"><?php echo JText::_('COM_EASYDISCUSS_REJECT_BUTTON'); ?></a>
     </td>
 </tr>

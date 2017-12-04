@@ -111,19 +111,30 @@ class EasyDiscussThemesHelperTable
 	}
 
 	/**
-	 * Renders the pagination's limit dropdown
+	 * Displays the number of items per page selection
 	 *
-	 * @since	4.0
+	 * @since	4.0.17
 	 * @access	public
 	 */
-	public static function limit($pagination)
+	public static function limit($selected = 5, $name = 'limit', $step = 5, $min = 5, $max = 100, $showAll = true)
 	{
 		$theme = ED::themes();
-		$theme->set('pagination', $pagination);
 
-		$output = $theme->output('admin/html/table.limit');
+		// Legacy support as previous calls passes $pagination object
+		if (is_object($selected)) {
+			$selected = $selected->limit;
+		}
 
-		return $output;
+		$theme->set('selected', $selected);
+		$theme->set('name', $name);
+		$theme->set('step', $step);
+		$theme->set('min', $min);
+		$theme->set('max', $max);
+		$theme->set('showAll', $showAll);
+
+		$contents = $theme->output('admin/html/table.limit');
+
+		return $contents;
 	}
 
 	/**
@@ -186,9 +197,11 @@ class EasyDiscussThemesHelperTable
 	 */
 	public static function search($name, $search = '', $tooltipMessage = null)
 	{
-		if ($tooltipMessage) {
-			$tooltipMessage = JText::_($tooltipMessage);
+		if (!$tooltipMessage) {
+			$tooltipMessage = 'COM_EASYDISCUSS_SEARCH_TOOLTIP';
 		}
+
+		$tooltipMessage = JText::_($tooltipMessage);
 
 		$theme = ED::themes();
 		$theme->set('tooltipMessage', $tooltipMessage);

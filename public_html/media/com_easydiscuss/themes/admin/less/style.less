@@ -1,5 +1,5 @@
 /*------------------------------------*\
-    $Theme - EasyDiscuss Admin
+	$Theme - EasyDiscuss Admin
 \*------------------------------------*/
 /**
  * SETTINGS
@@ -53,9 +53,6 @@
 @import "@{lib-path}/tools/default";
 
 
-// Color picker needs to be outside of wrapper
-@import "@{lib-path}/vendors/colorpicker/colorpicker";
-
 
 #ed {
 
@@ -85,6 +82,7 @@
 
 // Easydiscuss Backend
 @import "components/theme";
+@import "components/sidebar";
 @import "components/table";
 @import "components/states";
 @import "components/loader";
@@ -114,10 +112,11 @@
 */
 // For UI append oursite of the wrapper
 // ----------------
-#fd {
-    
-}
-
+// Color picker needs to be outside of wrapper
+@import "@{lib-path}/vendors/colorpicker/colorpicker";
+@import "@{lib-path}/vendors/select2/select2";
+@import "@{lib-path}/vendors/select2/custom";
+@import "@{lib-path}/vendors/editor/codemirror-custom";
 
 
 /**
@@ -126,7 +125,7 @@
 // Joomla Hack
 @import "components/joomla3-responsive.less"; // J30
 .com_easydiscuss {
-    @import "components/joomla.less"; // J30
+	@import "components/joomla.less"; // J30
 }
 
 @import "components/joomla25";

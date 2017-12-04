@@ -1,21 +1,20 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-if (!$prefix = JRequest::getCmd('prefix')) {
-	$prefix = '';
-}
+$prefix = JRequest::getCmd('prefix', '');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
+
 	<?php if ($browse) { ?>
 	<div class="app-filter filter-bar form-inline">
 		<div class="form-group">
@@ -24,68 +23,63 @@ if (!$prefix = JRequest::getCmd('prefix')) {
 		</div>
 	</div>
 	<?php } else { ?>
-	<div class="post-app-filter-bar">
-		<div class="app-filter-bar">
+	<div class="app-filter-bar">
+		<div class="app-filter-bar__cell app-filter-bar__cell--search">
 			<?php echo $this->html('table.search', 'search', $search); ?>
 		</div>
 
-		<div class="app-filter-bar">
-			<div class="app-filter-bar__cell">
-				<div class="form-inline">
-					<div class="form-group">
-						<div class="app-filter-select-group">
-							<?php echo $this->html('table.filter', 'filter_state', $filter, array('P' => 'COM_EASYDISCUSS_PUBLISHED', 'U' => 'COM_EASYDISCUSS_UNPUBLISHED')); ?>
-						</div>
-					</div>
-				</div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--auto-size app-filter-bar__cell--divider-left">
+			<div class="app-filter-bar__filter-wrap">
+				<?php echo $this->html('table.filter', 'filter_state', $filter, array('published' => 'COM_EASYDISCUSS_PUBLISHED', 'unpublished' => 'COM_EASYDISCUSS_UNPUBLISHED')); ?>
 			</div>
-			<div class="app-filter-bar__cell app-filter-bar__cell--last">
-				<div class="form-inline">
-					<div class="app-filter-select-group">
-						<?php echo $this->html('table.limit', $pagination); ?>
-					</div>
-				</div>
+		</div>
+
+		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
+
+		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
+			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
+				<?php echo $this->html('table.limit', $pagination->limit); ?>
 			</div>
 		</div>
 	</div>
 	<?php } ?>
 
 	<div class="panel-table">
-		<table class="app-table app-table-middle table table-striped" data-ed-table>
+		<table class="app-table table" data-ed-table>
 		<thead>
 			<tr>
 				<?php if (!$browse) { ?>
-					<td width="1%" class="center">
+					<th width="1%" class="center">
 						<?php echo $this->html('table.checkall'); ?>
-					</td>
+					</th>
 				<?php } ?>
 
-				<td style="text-align: left;">
+				<th style="text-align: left;">
 					<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_BADGE_TITLE'), 'a.title', $orderDirection, $order); ?>
-				</td>
+				</th>
 
 				<?php if (!$browse) { ?>
-					<td width="1%" class="center">
+					<th width="1%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_PUBLISHED'); ?>
-					</td>
-					<td width="1%" class="center">
+					</th>
+					<th width="1%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_ACHIEVERS'); ?>
-					</td>
+					</th>
 				<?php } ?>
 
-				<td width="10%" class="center">
+				<th width="10%" class="center">
 					<?php echo JText::_('COM_EASYDISCUSS_THUMBNAIL'); ?>
-				</td>
+				</th>
 
 				<?php if (!$browse) { ?>
-					<td width="10%" class="center">
+					<th width="10%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_DATE'), 'a.created', $orderDirection, $order); ?>
-					</td>
+					</th>
 				<?php } ?>
 
-				<td width="6%" class="center">
+				<th width="6%" class="center">
 					<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_ID'), 'a.id', $orderDirection, $order); ?>
-				</td>
+				</th>
 			</tr>
 		</thead>
 

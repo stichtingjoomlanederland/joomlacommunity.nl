@@ -100,14 +100,14 @@ class EasyDiscussControllerPost_types extends EasyDiscussController
 		// Get the association
 		$postTypes->type = $this->input->get('type', 'global', 'word');
 
+		//since we using the alias to join with discuss_posts.post_type, we need to update the value there as well.
 		if ($postTypes->store()) {
-			//since we using the alias to join with discuss_posts.post_type, we need to update the value there as well.
 			$postTypes->updateTopicPostType($oldTitle);
 		}
 
 		// Create the necessary associations
 		if ($postTypes->type == 'category') {
-			$categories = $this->input->get('categories', array(), 'int');
+			$categories = $this->input->get('categories', '', 'array');
 
 			$model = ED::model('PostTypes');
 			$model->createAssociation($postTypes, $categories);

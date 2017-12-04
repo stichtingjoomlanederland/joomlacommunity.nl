@@ -764,4 +764,63 @@ class EasyDiscussMailer extends EasyDiscuss
 
         return $content;
 	}
+
+	/**
+	 * Notifies only a specific set of Joomla user groups
+	 *
+	 * @since	4.0.19
+	 * @access	public
+	 */
+	public function notifyUserGroups($data, $excludes = array())
+	{
+		$ids = trim($this->config->get('notify_joomla_groups_ids'));
+
+		if (!$ids) {
+			return;
+		}
+
+		$ids = explode(',', $ids);
+
+		$db = ED::db();
+		$query = 'SELECT DISTINCT(a.`email`) FROM ' . $db->nameQuote('#__users') . ' AS a';
+		$query .= ' INNER JOIN ' . $db->nameQuote('#__user_usergroup_map') . ' AS b';
+		$query .= ' ON a.' . $db->qn('id') . ' = b.' . $db->qn('user_id');
+		$query .= ' WHERE a.`block` = 0 ';
+
+		if (!empty($excludes)) {
+
+			for ($i = 0; $i < count($excludes); $i++) {
+				$excludes[$i] = $db->Quote($excludes[$i]);
+			}
+
+			$query .= ' AND a.' . $db->nameQuote('email') . ' NOT IN (' . implode(',', $excludes) . ')';
+		}
+
+		$query .= ' AND b.group_id IN (';
+
+		$i = 1;
+		$total = count($ids);
+
+		foreach ($ids as $groupId) {
+			$query .= $db->Quote($groupId);
+
+			if ($i < $total) {
+				$query .= ',';
+			}
+
+			$i++;
+		}
+
+		$query .= ')';
+
+		$db->setQuery($query);
+
+		$emails = $db->loadResultArray();
+
+		if (!empty($emails)) {
+			foreach ($emails as $email) {
+				self::_storeQueue($email, $data);
+			}
+		}
+	}	
 }

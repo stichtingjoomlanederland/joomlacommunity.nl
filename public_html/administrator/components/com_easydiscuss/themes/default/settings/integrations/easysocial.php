@@ -18,12 +18,12 @@ defined('_JEXEC') or die('Restricted access');
 
 			<div class="panel-body">
 				<div>
-				    <img width="64" align="left" src="<?php echo JURI::root();?>administrator/components/com_easydiscuss/themes/default/images/integrations/easysocial.png" style="margin-left: 20px;margin-right:25px; float: left;">
-				    
-				    <div class="small" style="overflow:hidden;">
-				        <?php echo JText::_('COM_EASYDISCUSS_EASYSOCIAL_INFO');?><br /><br />
-				        <a target="_blank" class="btn btn-primary btn-sm t-lg-mb--lg" href="https://stackideas.com/easysocial"><?php echo JText::_('COM_EASYDISCUSS_LEARN_MORE_EASYSOCIAL'); ?> &rarr;</a>
-				    </div>
+					<img width="64" align="left" src="<?php echo JURI::root();?>administrator/components/com_easydiscuss/themes/default/images/integrations/easysocial.png" style="margin-left: 20px;margin-right:25px; float: left;">
+					
+					<div class="small" style="overflow:hidden;">
+						<?php echo JText::_('COM_EASYDISCUSS_EASYSOCIAL_INFO');?><br /><br />
+						<a target="_blank" class="btn btn-primary btn-sm t-lg-mb--lg" href="https://stackideas.com/easysocial"><?php echo JText::_('COM_EASYDISCUSS_LEARN_MORE_EASYSOCIAL'); ?> &rarr;</a>
+					</div>
 				</div>
 
 				<div class="form-horizontal">
@@ -57,57 +57,6 @@ defined('_JEXEC') or die('Restricted access');
 						</div>
 						<div class="col-md-6">
 							<?php echo $this->html('form.boolean', 'integration_easysocial_mini_header', $this->config->get('integration_easysocial_mini_header')); ?>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="panel">
-			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_EASYSOCIAL_POINTS_INTEGRATIONS'); ?>
-
-			<div class="panel-body">
-				<div class="form-horizontal">
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_USE_POINTS_INTEGRATIONS'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_points', $this->config->get('integration_easysocial_points')); ?>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="panel">
-			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_EASYSOCIAL_MEMBERS_INTEGRATIONS'); ?>
-
-			<div class="panel-body">
-				<div class="form-horizontal">
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_LINK_TO_EASYSOCIAL_MEMBERS'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_members', $this->config->get('integration_easysocial_members')); ?>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<div class="panel">
-			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_EASYSOCIAL_CONVERSATION_INTEGRATIONS'); ?>
-
-			<div class="panel-body">
-				<div class="form-horizontal">
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_LINK_TO_EASYSOCIAL_MESSAGING'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_easysocial_messaging', $this->config->get('integration_easysocial_messaging')); ?>
 						</div>
 					</div>
 				</div>
@@ -188,6 +137,58 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
 
 	<div class="col-md-6">
+		<div class="panel">
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_EASYSOCIAL_POINTS_INTEGRATIONS'); ?>
+
+			<div class="panel-body">
+				<div class="form-horizontal">
+					<div class="form-group">
+						<div class="col-md-6 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_EASYSOCIAL_USE_POINTS_INTEGRATIONS'); ?>
+						</div>
+						<div class="col-md-6">
+							<?php echo $this->html('form.boolean', 'integration_easysocial_points', $this->config->get('integration_easysocial_points')); ?>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="panel">
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_EASYSOCIAL_MEMBERS_INTEGRATIONS'); ?>
+
+			<div class="panel-body">
+				<div class="form-horizontal">
+					<div class="form-group">
+						<div class="col-md-6 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_LINK_TO_EASYSOCIAL_MEMBERS'); ?>
+						</div>
+						<div class="col-md-6">
+							<?php echo $this->html('form.boolean', 'integration_easysocial_members', $this->config->get('integration_easysocial_members')); ?>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="panel">
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_EASYSOCIAL_CONVERSATION_INTEGRATIONS'); ?>
+
+			<div class="panel-body">
+				<div class="form-horizontal">
+					<div class="form-group">
+						<div class="col-md-6 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_LINK_TO_EASYSOCIAL_MESSAGING'); ?>
+						</div>
+						<div class="col-md-6">
+							<?php echo $this->html('form.boolean', 'integration_easysocial_messaging', $this->config->get('integration_easysocial_messaging')); ?>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
 		<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_EASYSOCIAL_ACTIVITY_STREAM'); ?>
 

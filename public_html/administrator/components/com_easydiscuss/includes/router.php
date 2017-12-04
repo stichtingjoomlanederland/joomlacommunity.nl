@@ -196,7 +196,7 @@ class EDR
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function _($url = '', $xhtml = true, $ssl = null)
+	public static function _($url = '', $xhtml = true, $ssl = null, $jRouted = true)
 	{
 		static $eUri = array();
 		static $loaded = array();
@@ -214,8 +214,8 @@ class EDR
 		}
 
 		// To test if the Itemid is there or not.
-		$jURL = $url . $xhtml;
-		$key = $url . $xhtml;
+		$jURL = $url . $xhtml . (int) $jRouted;
+		$key = $url . $xhtml . (int) $jRouted;
 
 		if (isset($loaded[$key])) {
 			return $loaded[$key];
@@ -448,7 +448,6 @@ class EDR
 			return $loaded[$key];
 		}
 
-
 		//check if there is any anchor in the link or not.
 		$pos = JString::strpos($url, '#');
 
@@ -458,7 +457,8 @@ class EDR
 			$url = JString::str_ireplace('#', '&Itemid='.$tmpId.'#', $url);
 		}
 
-		$loaded[$key] = JRoute::_($url, $xhtml, $ssl);
+		$loaded[$key] = ($jRouted) ? JRoute::_($url, $xhtml, $ssl) : $url;
+
 		return $loaded[$key];
 	}
 
@@ -1120,6 +1120,19 @@ class EDR
 	{
 		$router 	= new DiscussJoomlaRouter();
 		return $router->encode( $segments );
+	}
+
+	/**
+	 * Method to retrieves current uri that are being accessed
+	 *
+	 * @since	4.0.19
+	 * @access	public
+	 */
+	public static function getCurrentURI()
+	{
+		$url = JURI::getInstance()->toString();
+
+		return $url;
 	}
 
 	public static function getLoginRedirect()

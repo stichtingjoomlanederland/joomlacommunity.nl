@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -21,21 +21,21 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('panel.info', 'COM_EASYDISCUSS_TELEGRAM_INTEGRATIONS_INFO'); ?>
 					<div class="form-horizontal">
 						<div class="form-group">
-							<div class="col-md-6 control-label">
+							<div class="col-md-5 control-label">
 								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_TELEGRAM'); ?>
 							</div>
 
-							<div class="col-md-6">
+							<div class="col-md-7">
 								<?php echo $this->html('form.boolean', 'integrations_telegram', $this->config->get('integrations_telegram')); ?>
 							</div>
 						</div>
 
 						<div class="form-group">
-							<div class="col-md-6 control-label">
+							<div class="col-md-5 control-label">
 								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_BOT_TOKEN'); ?>
 							</div>
 
-							<div class="col-md-6">
+							<div class="col-md-7">
 								<?php echo $this->html('form.textbox', 'integrations_telegram_token', $this->config->get('integrations_telegram_token')); ?>
 								<div class="small">
 									<a href="https://stackideas.com/docs/easydiscuss/administrators/autoposting/telegram-application" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_WHAT_IS_THIS');?></a>
@@ -44,11 +44,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 						</div>
 
 						<div class="form-group">
-							<div class="col-md-6 control-label">
+							<div class="col-md-5 control-label">
 								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_TELEGRAM_MESSAGE'); ?>
 							</div>
 
-							<div class="col-md-6">
+							<div class="col-md-7">
 								<?php echo $this->html('form.textarea', 'integrations_telegram_message', $this->config->get('integrations_telegram_message')); ?>
 							</div>
 						</div>

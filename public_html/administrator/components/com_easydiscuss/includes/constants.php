@@ -201,7 +201,7 @@ define('ED_UPDATER', 'https://stackideas.com/updater/manifests/easydiscuss');
 define('ED_SERVICE_VERSION', 'https://stackideas.com/updater/manifests/easydiscuss');
 
 // Language server
-define('ED_LANGUAGES_SERVER', 'http://lang.stackideas.com/easydiscuss');
+define('ED_LANGUAGES_SERVER', 'https://services.stackideas.com/translations/easydiscuss');
 define('ED_LANGUAGES_INSTALLED' , 1 );
 define('ED_LANGUAGES_NOT_INSTALLED' , 0 );
 define('ED_LANGUAGES_NEEDS_UPDATING' , 3 );

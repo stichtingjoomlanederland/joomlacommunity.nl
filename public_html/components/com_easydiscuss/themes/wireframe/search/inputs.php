@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<div class="input-group">
 		<input type="text" name="query" value="<?php echo ED::string()->escape($query); ?>" placeholder="<?php echo JText::_('COM_EASYDISCUSS_SEARCH_DEFAULT'); ?>" class="form-control" data-search-text>
 		<span class="input-group-btn">
-			<button type="button" class="btn btn-default" data-search-button><?php echo JText::_('COM_EASYDISCUSS_BUTTON_SEARCH'); ?></button>
+			<button class="btn btn-default" data-search-button><?php echo JText::_('COM_EASYDISCUSS_BUTTON_SEARCH'); ?></button>
 		</span>
 	</div>
 

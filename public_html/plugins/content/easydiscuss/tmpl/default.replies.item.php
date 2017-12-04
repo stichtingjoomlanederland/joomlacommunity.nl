@@ -51,7 +51,7 @@ defined('_JEXEC') or die('Restricted access');
 
 					<div class="discuss-action-options-1 fs-11">
 						<div class="discuss-clock ml-10 pull-left">
-							<i class="icon-ed-time"></i> <?php echo $this->formatDate( $system->config->get('layout_dateformat', '%A, %B %d %Y, %I:%M %p') , $reply->created);?> -
+							<i class="icon-ed-time"></i> <?php echo $this->formatDate('%A, %B %d %Y, %I:%M %p', $reply->created);?> -
 							<a href="<?php echo EDR::getPostRoute( $reply->parent_id ) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $reply->id;?>" title="<?php echo JText::_('COM_EASYDISCUSS_REPLY_PERMALINK_TO'); ?>">#<?php echo JText::_( 'COM_EASYDISCUSS_POST_PERMALINK' );?></a>
 						</div>
 					</div>

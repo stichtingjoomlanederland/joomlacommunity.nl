@@ -78,7 +78,6 @@ class EasyDiscussViewProfile extends EasyDiscussView
 		$pageTitle = JText::sprintf('COM_EASYDISCUSS_PROFILE_PAGE_TITLE', $profile->getName(), $viewType);
 		$this->setPathway(JText::_($profile->getName()));
 
-
 		// Attach gmaps api
 		if ($this->config->get('layout_profile_showlocation')) {
 
@@ -179,6 +178,9 @@ class EasyDiscussViewProfile extends EasyDiscussView
 
 		// Set page title
 		ED::setPageTitle($pageTitle, $paginationModel);
+
+		// Add canonical tag for this page
+		$this->canonical('index.php?option=com_easydiscuss&view=profile&id=' . $profile->id);
 
 		$this->set('sort', $sort);
 		$this->set('pagination', $pagination);

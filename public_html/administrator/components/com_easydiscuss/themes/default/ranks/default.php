@@ -20,7 +20,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				</div>
 
 			<div id="rank01" class="panel-body">
-				<div class="form-horizontal">
+				<div class="">
 					<div class="pb-10">
 						<?php if (!$this->config->get('main_ranking')) { ?>
 							<?php echo JText::_('COM_EASYDISCUSS_RANKING_DISABLED_BY_ADMIN'); ?>
@@ -41,8 +41,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 				<hr>
 
-				<div class="panel-table">
-					<table class="table td-align-middle">
+				<div class="ed-bleed--middle">
+					<table class="app-table table">
 						<thead>
 							<tr>
 								<th class="title" colspan="2"><?php echo JText::_('COM_EASYDISCUSS_RANKING_TITLE'); ?></th>

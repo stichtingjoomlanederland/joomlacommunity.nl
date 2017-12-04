@@ -39,7 +39,7 @@ defined('_JEXEC') or die('Restricted access');
 				<span class="discuss-blog-created">
 					<?php echo JText::_( 'COM_EASYBLOG_ON' ); ?>
 					<time datetime="<?php echo $this->formatDate( '%Y-%m-%d' , $post->created ); ?>">
-						<span><?php echo $this->formatDate( $ebConfig->get('layout_dateformat', JText::_('DATE_FORMAT_LC1')) , $post->created ); ?></span>
+						<span><?php echo $this->formatDate(JText::_('DATE_FORMAT_LC1'), $post->created); ?></span>
 					</time>
 				</span>
 

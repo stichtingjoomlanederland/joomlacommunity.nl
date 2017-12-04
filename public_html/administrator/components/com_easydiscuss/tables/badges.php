@@ -179,7 +179,7 @@ class DiscussBadges extends EasyDiscussTable
 
 		$date = ED::date($badgeUser->created);
 
-		return $date->display(ED::config()->get('layout_dateformat', JText::_('DATE_FORMAT_LC1')));
+		return $date->display(JText::_('DATE_FORMAT_LC1'));
 	}
 
 	/**

@@ -115,8 +115,16 @@ class EasyDiscussViewPost extends EasyDiscussView
 		}
 
 		// Display proper empty message if the user are not allowed to view replies.
+		// We need to double check again whether this post already have accepted answer while this total replies equal to 1
 		if (empty($replies) && $post->getTotalReplies() > 0) {
 			$emptyMessage = JText::_('COM_EASYDISCUSS_VIEW_REPLIES_NOT_ALLOWED');
+		}
+
+		// since now we treat accepted reply as reply, we need to add flag for this
+		$onlyAcceptedReply = false;
+
+		if (empty($replies) && ($post->isPostReplyAccepted() && $post->getTotalReplies() == 1)) {
+			$onlyAcceptedReply = true;
 		}
 
 		// Get comments for the post
@@ -181,9 +189,10 @@ class EasyDiscussViewPost extends EasyDiscussView
 		$this->set('socialbuttons', $socialbuttons);
 		$this->set('emptyMessage', $emptyMessage);
 		$this->set('navigation', $navigation);
+		$this->set('onlyAcceptedReply', $onlyAcceptedReply);
 
 		// If this post is password protected, we need to display the form to enter password
-		if ($post->isProtected() && !ED::isSiteAdmin() && $this->my->id != $owner) {
+		if ($post->isProtected() && !ED::isSiteAdmin() && $this->my->id !== $owner) {
 			parent::display('post/default.protected');
 			return;
 		}
@@ -335,24 +344,24 @@ class EasyDiscussViewPost extends EasyDiscussView
 		}
 	}
 
-
-
 	/**
 	 * Sets the page headers for this post
 	 *
 	 * @since	4.0
 	 * @access	private
-	 * @param	string
-	 * @return
 	 */
 	private function setPageHeaders(EasyDiscussPost $post)
 	{
+		$pageTitle = $post->getTitle();
+		$pageContent = strip_tags($post->preview);
+		$pageContent = JString::substr($pageContent, 0, 160);
+
+		$description = preg_replace('/\s+/', ' ', $pageContent);
+		
 		// Set page title.
-		ED::setPageTitle($post->getTitle());
+		ED::setPageTitle($pageTitle);
 
-		$description = preg_replace('/\s+/', ' ', (JString::substr(strip_tags(ED::parser()->bbcode($post->getContent())), 0, 160)));
-
-		$this->doc->setMetadata('keywords', $post->getTitle());
+		$this->doc->setMetadata('keywords', $pageTitle);
 		$this->doc->setMetadata('description', $description);
 
 		// Set canonical link to avoid URL duplication.

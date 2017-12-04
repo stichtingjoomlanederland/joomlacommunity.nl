@@ -74,7 +74,7 @@ class EasyDiscussNotifications extends EasyDiscuss
 			}
 
 			// Set the permalink
-			$item->permalink = EDR::_($item->permalink);
+			$item->permalink = $item->component == 'com_easydiscuss' ? EDR::_($item->permalink) : $item->permalink;
 
 			// Get the author string
 			$item->authorHTML = $this->getAuthorHTML($item->author);
@@ -221,7 +221,7 @@ class EasyDiscussNotifications extends EasyDiscuss
 		foreach ($items as $item) {
 
 			$date = ED::date($item->created);
-			$day = $date->display(ED::config()->get('layout_dateformat', JText::_('DATE_FORMAT_LC1')));
+			$day = $date->display(JText::_('DATE_FORMAT_LC1'));
 
 			if (!isset($result[$day])) {
 				$result[$day]	= array();

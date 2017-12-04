@@ -16,65 +16,60 @@ $originalOrders	= array();
 
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
-	<div class="post-app-filter-bar">
-		<div class="app-filter-bar">
+	<div class="app-filter-bar">
+		<div class="app-filter-bar__cell app-filter-bar__cell--search">
 			<?php echo $this->html('table.search', 'search', $search); ?>
 		</div>
 
-		<div class="app-filter-bar">
-			<div class="app-filter-bar__cell">
-				<div class="form-inline">
-					<div class="form-group">
-						<div class="app-filter-select-group">
-							<?php echo $this->html('table.filter', 'filter_state', $state, array('P' => 'COM_EASYDISCUSS_PUBLISHED', 'U' => 'COM_EASYDISCUSS_UNPUBLISHED')); ?>
-						</div>
-					</div>
-				</div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--auto-size app-filter-bar__cell--divider-left">
+			<div class="app-filter-bar__filter-wrap">
+				<?php echo $this->html('table.filter', 'filter_state', $state, array('P' => 'COM_EASYDISCUSS_PUBLISHED', 'U' => 'COM_EASYDISCUSS_UNPUBLISHED')); ?>
 			</div>
-			<div class="app-filter-bar__cell app-filter-bar__cell--last">
-				<div class="form-inline">
-					<div class="app-filter-select-group">
-						<?php echo $this->html('table.limit', $pagination); ?>
-					</div>
-				</div>
+		</div>
+
+		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
+
+		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
+			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
+				<?php echo $this->html('table.limit', $pagination->limit); ?>
 			</div>
 		</div>
 	</div>
 
 	<div class="panel-table">
-		<table class="app-table app-table-middle table table-striped" data-ed-table>
+		<table class="app-table table" data-ed-table>
 			<thead>
 				<tr>
-					<td width="1%">
+					<th width="1%">
 						<?php echo $this->html('table.checkall'); ?>
-					</td>
-					<td style="text-align:left;">
+					</th>
+					<th style="text-align:left;">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_CATEGORIES_CATEGORY_TITLE') , 'title', $orderDirection, $order); ?>
-					</td>
-					<td width="5%" class="center">
+					</th>
+					<th width="5%" class="center">
 						<?php echo JText::_('COM_EASYDSCUSS_CATEGORIES_DEFAULT'); ?>
-					</td>
-					<td width="5%" class="center">
+					</th>
+					<th width="5%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_CATEGORIES_PUBLISHED'); ?>
-					</td>
+					</th>
 					<?php if (count($categories) > 1) { ?>
-					<td width="10%" class="center">
+					<th width="10%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_ORDER'), 'lft', 'desc', $order); ?>
 						<?php echo JHTML::_('grid.order', $categories); ?>
-					</td>
+					</th>
 					<?php } ?>
-					<td width="5%" class="center">
+					<th width="5%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_CATEGORIES_ENTRIES'); ?>
-					</td>
-					<td width="5%" class="center">
+					</th>
+					<th width="5%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_CATEGORIES_CHILD_COUNT'); ?>
-					</td>
-					<td width="8%" class="center">
+					</th>
+					<th width="8%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_CATEGORIES_AUTHOR') , 'created_by', $orderDirection, $order); ?>
-					</td>
-					<td width="1%" class="center">
+					</th>
+					<th width="1%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_ID'); ?>
-					</td>
+					</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -99,7 +94,7 @@ $originalOrders	= array();
 							<?php echo $this->html('table.state', 'categories', $category, 'published'); ?>
 						</td>
 						<?php if (count($categories) > 1) { ?>
-						<td class="order">
+						<td class="order center">
 							<?php echo $this->html( 'table.ordering', 'order', $orderkey + 1, count($ordering[$category->parent_id]), true); ?>
 							<?php $originalOrders[] = $orderkey + 1; ?>
 						</td>

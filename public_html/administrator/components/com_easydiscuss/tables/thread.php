@@ -14,7 +14,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 // Import main table.
 ED::import( 'admin:/tables/table' );
 
-
 class DiscussThread extends EasyDiscussTable
 {
     public $id = null;
@@ -103,6 +102,25 @@ class DiscussThread extends EasyDiscussTable
         }
 
         return $result->id;
+    }
+
+    /**
+     * Determine this post whether got any accepted reply as answer
+     *
+     * @since   4.0.19
+     * @access  public
+     */
+    public function getThreadAnswered($id)
+    {
+        $db = ED::db();
+
+        $query  = "SELECT `answered` FROM " . $db->nameQuote('#__discuss_thread');
+        $query .= " WHERE `post_id` = " . $db->Quote($id);
+
+        $db->setQuery($query);
+        $result = $db->loadObject();
+
+        return $result->answered >= 1 ? true : false;
     }
 
 }

@@ -199,13 +199,11 @@ class EasyDiscussModelPoints extends EasyDiscussAdminModel
 	 * @access public
 	 * @return integer
 	 */
-	function &getPagination()
+	public function getPagination()
 	{
 		// Lets load the content if it doesn't already exist
-		if ( empty( $this->_pagination ) )
-		{
-			jimport('joomla.html.pagination');
-			$this->_pagination = new JPagination( $this->getTotal() , $this->getState('limitstart'), $this->getState('limit') );
+		if (empty($this->_pagination)) {
+			$this->_pagination = ED::getPagination($this->getTotal(), $this->getState('limitstart'), $this->getState('limit'));
 		}
 
 		return $this->_pagination;

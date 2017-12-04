@@ -94,11 +94,11 @@ defined('_JEXEC') or die('Restricted access');
 						<div class="col-md-6 control-label">
 							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_VERB'); ?>
 						</div>
-	                    <div class="col-md-6">
-	                        <?php echo $this->html('form.dropdown', 'integration_facebook_like_verb',
-	                        						array('like' => 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_VERB_LIKES', 'recommend' => 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_VERB_RECOMMENDS'),
-	                        						$this->config->get('integration_facebook_like_verb')); ?>
-	                    </div>
+						<div class="col-md-6">
+							<?php echo $this->html('form.dropdown', 'integration_facebook_like_verb',
+													array('like' => 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_VERB_LIKES', 'recommend' => 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_VERB_RECOMMENDS'),
+													$this->config->get('integration_facebook_like_verb')); ?>
+						</div>
 
 					</div>
 
@@ -106,17 +106,48 @@ defined('_JEXEC') or die('Restricted access');
 						<div class="col-md-6 control-label">
 							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_THEMES'); ?>
 						</div>
-	                    <div class="col-md-6">
-	                        <?php echo $this->html('form.dropdown', 'integration_facebook_like_theme',
-	                        						array('light' => 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_THEMES_LIGHT', 'dark' => 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_THEMES_DARK'),
-	                        						$this->config->get('integration_facebook_like_theme')); ?>
-	                    </div>
+						<div class="col-md-6">
+							<?php echo $this->html('form.dropdown', 'integration_facebook_like_theme',
+													array('light' => 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_THEMES_LIGHT', 'dark' => 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_FACEBOOK_LIKE_THEMES_DARK'),
+													$this->config->get('integration_facebook_like_theme')); ?>
+						</div>
 
 					</div>
 
 				</div>
 			</div>
 
+		</div>
+	</div>
+
+	<div class="col-md-6">
+		<div class="panel">
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_JFBCONNECT_INTEGRATIONS'); ?>
+
+			<div class="panel-body">
+				<div>
+					<img width="128" align="left" src="<?php echo JURI::root();?>administrator/components/com_easydiscuss/themes/default/images/integrations/sourcecoast.png" style="margin-left: 20px;margin-right:25px; float: left;">
+					
+					<div class="small" style="overflow:hidden;">
+						<?php echo JText::_('COM_EASYDISCUSS_JFBCONNECT_INFO');?><br /><br />
+						<a target="_blank" class="btn btn-primary btn-sm t-lg-mb--lg" href="http://shareasale.com/r.cfm?b=495362&u=614082&m=46720&urllink=&afftrack=">Get JFBConnect Now!</a>
+					</div>
+				</div>
+
+				
+
+				<div class="form-horizontal">
+					<div class="form-group">
+						<div class="col-md-6 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_JFBCONNECT'); ?>
+						</div>
+
+						<div class="col-md-6">
+							<?php echo $this->html('form.boolean', 'integrations_jfbconnect', $this->config->get('integrations_jfbconnect')); ?>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 
 	</div>

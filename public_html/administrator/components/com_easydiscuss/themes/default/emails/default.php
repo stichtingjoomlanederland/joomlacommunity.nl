@@ -14,18 +14,18 @@ defined('_JEXEC') or die('Unauthorized Access');
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
 	
 	<div class="panel-table">
-		<table class="app-table app-table-middle table table-striped" data-ed-table>
+		<table class="app-table table" data-ed-table>
 			<thead>
 				<tr>
-					<td>
+					<th>
 						<?php echo JText::_('COM_EASYDISCUSS_TABLE_COLUMN_FILENAME'); ?>
-					</td>
-					<td>
+					</th>
+					<th>
 						<?php echo JText::_('COM_EASYDISCUSS_TABLE_COLUMN_FILE_DESCRIPTION'); ?>
-					</td>
-					<td width="5%" class="center">
+					</th>
+					<th width="5%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_TABLE_COLUMN_MODIFIED'); ?>
-					</td>
+					</th>
 				</tr>
 			</thead>
 

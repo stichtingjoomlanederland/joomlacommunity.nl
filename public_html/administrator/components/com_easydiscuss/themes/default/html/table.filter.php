@@ -11,11 +11,10 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<select name="<?php echo $name;?>" class="form-control" data-ed-table-filter>
+<select name="<?php echo $name;?>" class="o-form-control" data-ed-table-filter>
 	<option value="" <?php echo !$selected ? ' selected="selected"' : '';?>><?php echo $initial;?></option>
 
 	<?php foreach ($items as $key => $value) { ?>
 		<option value="<?php echo $key;?>"<?php echo $selected && $selected == $key ? ' selected="selected"' : '';?>><?php echo JText::_($value);?></option>
 	<?php } ?>
 </select>
-<div class="app-filter-select-group__drop"></div>

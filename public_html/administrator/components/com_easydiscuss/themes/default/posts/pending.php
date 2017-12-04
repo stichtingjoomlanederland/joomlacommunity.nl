@@ -12,46 +12,45 @@
 defined('_JEXEC') or die('Restricted access');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
-	<div class="post-app-filter-bar">
-		<div class="app-filter-bar">
+
+	<div class="app-filter-bar">
+		<div class="app-filter-bar__cell">
 			<?php echo $this->html('table.search', 'search', $search); ?>
 		</div>
+		
+		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
 
-		<div class="app-filter-bar">
-			<div class="app-filter-bar__cell app-filter-bar__cell--last">
-				<div class="form-inline">
-					<div class="app-filter-select-group">
-						<?php echo $this->html('table.limit', $pagination); ?>
-					</div>
-				</div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
+			<div class="app-filter-bar__filter-wrap">
+				<?php echo $this->html('table.limit', $pagination->limit); ?>
 			</div>
 		</div>
 	</div>
 
 	<div class="panel-table">
-		<table class="app-table app-table-middle table table-striped" data-ed-table>
+		<table class="app-table table" data-ed-table>
 			<thead>
 				<tr>
-					<td width="1%">
+					<th width="1%">
 						<?php echo $this->html('table.checkall'); ?>
-					</td>
-					<td style="text-align:left;">
+					</th>
+					<th style="text-align:left;">
 						<?php echo JText::_('Type'); ?>
-					</td>
+					</th>
 
-					<td width="1%" class="center">
+					<th width="1%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_TABLE_COLUMN_TYPE'); ?>
-					</td>
+					</th>
 
-					<td width="20%" class="center">
+					<th width="20%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_USER'); ?>
 					</th>
 
-					<td width="15%" class="center">
+					<th width="15%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_DATE'); ?>
 					</th>
 
-					<td width="1%" class="center">
+					<th width="1%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_COLUMN_ID');?>
 					</th>
 				</tr>

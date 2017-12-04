@@ -29,7 +29,7 @@ class EasyDiscussViewPoints extends EasyDiscussAdminView
 		$order = $this->app->getUserStateFromRequest('com_easydiscuss.points.filter_order', 'filter_order', 'a.id', 'cmd');
 		$orderDirection = $this->app->getUserStateFromRequest('com_easydiscuss.points.filter_order_Dir', 'filter_order_Dir', '', 'word');
 
-		$model = ED::model('Points', true);
+		$model = ED::model('Points');
 		$points = $model->getPoints();
 
 		foreach ($points as $point) {

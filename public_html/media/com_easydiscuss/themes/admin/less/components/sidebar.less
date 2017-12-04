@@ -1,0 +1,123 @@
+/** 
+* @package      EasyDiscuss
+* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      Proprietary Use License https://stackideas.com/licensing
+**/
+// @import "config";
+
+.app-sidebar-nav {
+	overflow: hidden;
+
+	> li {
+		position: relative;
+		clear: both;
+		display: block !important;
+
+		.badge {
+			background: @fd-brand-danger;
+			position: absolute;
+			right: 0;
+			top: 9px;
+		}
+		
+		a,
+		a:focus,
+		a:hover {
+			outline: 0 !important;
+			border: 0 !important;
+			background: none !important;
+		}
+
+		+ li {
+			padding-top: 1px;
+		}
+
+		> a {
+			color: #555;
+			display: block;
+			line-height: 20px;
+			overflow: hidden;
+			padding: 7px 0;
+			text-decoration: none !important;
+			outline: 0;
+
+			> i {
+				color: #aaa;
+				line-height: inherit;
+				margin: 0 10px 0 0;
+				text-align: center;
+				width: 20px;
+				font-size: 14px;
+			}
+
+			&:hover {
+				> i {
+					color: inherit;
+				}
+			}
+		}
+
+		&.active {
+			> a {
+				font-weight: bold;
+
+				> i {
+					color: @brand-danger;
+				}
+			}
+		}
+
+		&.active,
+		&.open {
+			> .dropdown-menu {
+				display: block !important;
+			}
+		}
+
+		> .dropdown-menu {
+			display: none !important;
+			background: none;
+			border: 0;
+			list-style: none;
+			padding: 0 0 10px @app-gutter-width+5;
+			margin: 0;
+			position: static;
+			.box-shadow(none);
+			min-width: 0;
+			width: 100%;
+
+			> li {
+				position: relative;
+				> a {
+					color: #888;
+					font-size: 13px;
+					display: inline-block;
+					line-height: 24px;
+					padding: 0;
+
+					&:hover {
+						background: none;
+						color: @link-color;
+						text-decoration: none;
+					}
+				}
+
+				.badge {
+					top: 2px;
+				}
+
+				&.active {
+					> a {
+						background: none;
+						color: #1976d2;
+						font-weight: bold;
+
+						.fa {
+							color: @brand-danger;
+						}
+					}
+				}
+			}
+		}
+	}
+}

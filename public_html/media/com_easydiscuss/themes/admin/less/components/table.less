@@ -1,27 +1,56 @@
 .app-table {
-	// border: 1px solid @app-border-color;
-	border-collapse: separate;
-	// border-left: 0;
+	border-collapse: collapse;
 	border-radius: @app-radius-base;
+	clear: both;
 
 	> thead {
 		> tr {
 			> td,
 			> th {
-				// border-top: 1px solid lighten(@app-border-color, 10%);
-				border-bottom: 0px solid @app-border-color;
+				border-top: 1px solid lighten(@app-border-color, 10%);
+				border-bottom: 1px solid @app-border-color;
 				padding-top: 10px;
 				padding-bottom: 10px;
+
+				&.center {
+					text-align: center;
+				}
 			}
 		}
 	}
 
 	> tbody {
 		> tr {
+			border: 0;
+			background-color: #fff;
+
+			&:hover {
+				background-color: #fbfbfb;
+			}
+
+			&.is-checked {
+				background-color: @table-row-checked;
+			}
+
+			&:nth-of-type(2n+1) {
+				background-color: @table-row-alternate;
+
+				&.is-checked {
+					background-color: @table-row-checked;
+				}
+			}
+			
+			&:hover {
+				background-color: @table-row-hover;
+			}
+
+			> td {
+				border: 0;
+			}
 
 			> td,
 			> th {
-				// border-bottom: 1px solid @app-border-color;
+				border-bottom: 1px solid @app-border-color;
 				padding-top: 10px;
 				padding-bottom: 10px;
 			}
@@ -29,7 +58,7 @@
 	}
 
 	> thead,
-	> tbody, 
+	> tbody,
 	> tfoot {
 		> tr {
 			> th,
@@ -44,45 +73,27 @@
 				}
 
 				&:last-child {
-					padding-right: @app-gutter-width; 
+					padding-right: @app-gutter-width;	
 				}
 			}
 		}
 	}
 
-	a {
-		word-break: break-all;
-	}
+	@app-table-label-height: 24px;
+	@app-table-label-radius: @app-table-label-height / 2;
 
-	@app-table-label-height: 18px;
-	@app-table-label-radius: 9px;
+	.badge {
+		border-radius: @app-table-label-radius;
+		width: 32px;
+		height: @app-table-label-height;
+		line-height: @app-table-label-height;
+		padding: 0;
+		position: relative;
 
-		.badge {
-				border-radius: @app-table-label-radius;
-				width: @app-table-label-height;
-				height: @app-table-label-height;
-				line-height: @app-table-label-height;
-				padding: 0;
-				position: relative;
-
-				.fa {
-						line-height: inherit;
-						display: block;
-						color: #fff !important;
-				}
-		}
-
-	td.empty {
-		font-size: 18px;
-		font-weight: 500;
-		text-align: center;
-		padding: 60px 0;
-
-		> i {
+		.fa {
+			line-height: inherit;
 			display: block;
-			font-size: 48px;
-			font-weight: normal;
-			margin-bottom: 20px;
+			color: #fff !important;
 		}
 	}
 
@@ -168,22 +179,6 @@
 				span:before {
 					content: "\f078";
 				}
-			}
-		}
-	}
-
-	&.table-hover {
-		> tbody > tr:hover > td {
-			background: #ffe;
-		}
-	}
-}
-
-.app-table-middle {
-	> tbody {
-		> tr {
-			> td {
-				vertical-align: middle;
 			}
 		}
 	}

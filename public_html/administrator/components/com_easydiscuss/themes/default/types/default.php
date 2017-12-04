@@ -13,70 +13,64 @@ defined('_JEXEC') or die('Restricted access');
 
 $saveOrder = ($order == 'lft' && $orderDirection == 'asc');
 $originalOrders	= array();
-
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
 	<?php if (!$browse) { ?>
-	<div class="post-app-filter-bar">
-		<div class="app-filter-bar">
+	<div class="app-filter-bar">
+		<div class="app-filter-bar__cell app-filter-bar__cell--search">
 			<?php echo $this->html('table.search', 'search', $search); ?>
 		</div>
 
-		<div class="app-filter-bar">
-			<div class="app-filter-bar__cell">
-				<div class="form-inline">
-					<div class="form-group">
-						<div class="app-filter-select-group">
-							<?php echo $this->html('table.filter', 'filter_state', $state, array('P' => 'COM_EASYDISCUSS_PUBLISHED', 'U' => 'COM_EASYDISCUSS_UNPUBLISHED')); ?>
-						</div>
-					</div>
-				</div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--auto-size app-filter-bar__cell--divider-left">
+			<div class="app-filter-bar__filter-wrap">
+				<?php echo $this->html('table.filter', 'filter_state', $state, array('P' => 'COM_EASYDISCUSS_PUBLISHED', 'U' => 'COM_EASYDISCUSS_UNPUBLISHED')); ?>
 			</div>
-			<div class="app-filter-bar__cell app-filter-bar__cell--last">
-				<div class="form-inline">
-					<div class="app-filter-select-group">
-						<?php echo $this->html('table.limit', $pagination); ?>
-					</div>
-				</div>
+		</div>
+
+		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
+
+		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
+			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
+				<?php echo $this->html('table.limit', $pagination->limit); ?>
 			</div>
 		</div>
 	</div>
 	<?php } ?>
 
 	<div class="panel-table">
-		<table class="app-table app-table-middle table table-striped" data-ed-table>
+		<table class="app-table table" data-ed-table>
 			<thead>
 				<tr>
-					<td width="1%" class="center">
+					<th width="1%" class="center">
 						<?php echo $this->html('table.checkall'); ?>
-					</td>
-					<td style="text-align:left;">
+					</th>
+					<th style="text-align:left;">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_ADMIN_POST_TYPES_TITLE'), 'a.title', $orderDirection, $order); ?>
-					</td>
-					<td width="5%" class="center">
+					</th>
+					<th width="5%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_ADMIN_POST_TYPES_PUBLISHED'), 'a.published', $orderDirection, $order); ?>
-					</td>
+					</th>
 					<?php if (count($types) > 1) { ?>
-					<td width="10%" class="center">
+					<th width="10%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_ORDER'), 'lft', 'desc', $order); ?>
 						<?php echo JHTML::_('grid.order', $types); ?>
-					</td>
+					</th>
 					<?php } ?>
-					<td width="10%" class="center">
+					<th width="10%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_TABLE_COLUMN_TYPE');?>
-					</td>
-					<td width="10%" class="center">
+					</th>
+					<th width="10%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_ADMIN_POST_TYPES_SUFFIX'), 'a.suffix', $orderDirection, $order); ?>
-					</td>
-					<td width="10%" class="center">
+					</th>
+					<th width="10%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_ADMIN_POST_TYPES_CREATED'), 'a.created', $orderDirection, $order); ?>
-					</td>
-					<td width="10%" class="center">
+					</th>
+					<th width="10%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_ADMIN_POST_TYPES_ALIAS'), 'a.alias', $orderDirection, $order); ?>
-					</td>
-					<td width="5%" class="center">
+					</th>
+					<th width="5%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('Id'), 'a.id', $orderDirection, $order); ?>
-					</td>
+					</th>
 				</tr>
 			</thead>
 
@@ -136,7 +130,7 @@ $originalOrders	= array();
 			<?php } ?>
 		<?php } else { ?>
 			<tr>
-				<td colspan="7" class="center">
+				<td colspan="9" class="center">
 					<?php echo JText::_('COM_EASYDISCUSS_NO_POST_TYPES_YET');?>
 				</td>
 			</tr>
@@ -144,7 +138,7 @@ $originalOrders	= array();
 		</tbody>
 		<tfoot>
 			<tr>
-				<td colspan="7">
+				<td colspan="9">
 					<div class="footer-pagination center">
 						<?php echo $pagination->getListFooter(); ?>
 					</div>

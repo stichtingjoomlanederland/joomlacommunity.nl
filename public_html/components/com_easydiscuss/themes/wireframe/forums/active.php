@@ -25,7 +25,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<a href="<?php echo $activeCategory->getPermalink(); ?>" class="ed-forums-cat-header__title">
 				<?php echo JString::strtoupper($activeCategory->getTitle());?>
 			</a>
-			<?php if ($activeCategory->getParams()->get('show_description')) { ?>
+			<?php if ($activeCategory->getParams()->get('show_description') && !$this->config->get('layout_category_description_hidden')) { ?>
 				<div class="ed-forums-cat-header__desp">
 					<?php echo $activeCategory->description;?>
 				</div>

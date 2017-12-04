@@ -42,17 +42,24 @@ class EasyDiscussParser extends EasyDiscuss
 						 '/\[i\](.*?)\[\/i\]/ims',
 						 '/\[u\](.*?)\[\/u\]/ims',
 						 '/\[img\]((http|https):\/\/([a-z0-9\%._\s\*_\/+-]+)\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF))\[\/img]/ims',
-						 '/\[quote]([^\[\/quote\]].*?)\[\/quote\]/ims',
-						 '/\[quote](.*?)\[\/quote\]/ims'
+						 '/\[quote\]([^\[\/quote\]].*?)\[\/quote\]/ims',
+						 '/\[quote\](.*?)\[\/quote\]/ims',
+						 '/\[left\](.*?)\[\/left\]/ims',
+						 '/\[center\](.*?)\[\/center\]/ims',
+						 '/\[right\](.*?)\[\/right\]/ims'
 		);
 
 		// And replace them by...
-		$bbcodeReplace = array(	 '<strong>\1</strong>',
+		$bbcodeReplace = array(	
+						 '<strong>\1</strong>',
 						 '<em>\1</em>',
 						 '<u>\1</u>',
 						 '<img src="\1" alt="\1" />',
 						 '<blockquote>\1</blockquote>',
-						 '<blockquote>\1</blockquote>'
+						 '<blockquote>\1</blockquote>',
+						 '<p style="text-align: left;">\1</p>',
+						 '<p style="text-align: center;">\1</p>',
+						 '<p style="text-align: right;">\1</p>'
 		);
 
 		// @rule: Replace URL links.
@@ -73,7 +80,6 @@ class EasyDiscussParser extends EasyDiscuss
 
 		// special treatment to UL and LI. Need to do this step 1st before send for replacing the rest bbcodes. @sam
 		$text = EasyDiscussParserUtilities::parseListItems($text);
-
 		// Replace bbcodes
 		$text = preg_replace($bbcodeSearch, $bbcodeReplace, $text);
 
@@ -93,6 +99,34 @@ class EasyDiscussParser extends EasyDiscuss
 
 
 		return $text;
+	}
+
+	/**
+	 * Inject max-width styling for content image in email section
+	 *
+	 * @since	4.0.19
+	 * @access	public
+	 */
+	public function normaliseImageStyle($content)
+	{
+		// we need to remove anything style attribute then reformat to show width 100%
+		$content = preg_replace('/(<[^>]+) style=".*?"/i', '$1', $content);
+		$pattern = '/<img[^>]+>/ims';
+
+		if (preg_match_all($pattern, $content, $matches)) {
+
+			foreach ($matches as $match) {
+				// Replace all occurences of width/height
+				$clean = preg_replace('/(width|height)=["\'\d%\s]+/ims', "", $match);
+				// Replace with result within html
+				$content = str_replace($match, $clean, $content);
+			}
+		}
+
+		// we need to inject max-width 100% for image tag
+		$content = str_ireplace('src="', 'max-width="100%" style="max-width:100%" src="', $content);
+
+		return $content;
 	}
 
 	/**
@@ -613,13 +647,10 @@ class EasyDiscussParser extends EasyDiscuss
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string	The text to lookup for
-	 * @return	string 	The proper contents in bbcode format.
 	 */
 	public function html2bbcode( $text )
 	{
-		if( (stripos($text, '<p') === false) && (stripos($text, '<div') === false) &&  (stripos($text, '<br') === false))
-		{
+		if ((stripos($text, '<p') === false) && (stripos($text, '<div') === false) &&  (stripos($text, '<br') === false)) {
 			return $text;
 		}
 
@@ -632,6 +663,8 @@ class EasyDiscussParser extends EasyDiscuss
 			'/<u>(.*?)<\/u>/ims',
 			'/<img.*?src=["|\'](.*?)["|\'].*?\>/ims',
 			'/<[pP]>/ims',
+			'/<[pP] style=["|\']text-align: (center|left|right).*?["|\'].*?>(.*?)<\/[pP]>/ims', // Check for supported text align
+			'/<[pP] style=["|\'].*?["|\'].*?>/ims', // Remove all other styling as bbcode does not support it
 			'/<\/[pP]>/ims',
 			'/<blockquote>(.*?)<\/blockquote>/ims',
 			'/<ol.*?\>(.*?)<\/ol>/ims',
@@ -639,7 +672,7 @@ class EasyDiscussParser extends EasyDiscuss
 			'/<li.*?\>(.*?)<\/li>/ims',
 			'/<a.*?href=["|\']mailto:(.*?)["|\'].*?\>.*?<\/a>/ims',
 			'/<a.*?href=["|\'](.*?)["|\'].*?\>(.*?)<\/a>/ims',
-			'/<pre.*?\>(.*?)<\/pre>/ims',
+			'/<pre.*?\>(.*?)<\/pre>/ims'
 		);
 
 		$bbcodeReplace = array(
@@ -651,6 +684,8 @@ class EasyDiscussParser extends EasyDiscuss
 			'[u]\1[/u]',
 			'[img]\1[/img]',
 			'',
+			'[\1]\2[/\1]',
+			'',
 			'<br />',
 			'[quote]\1[/quote]',
 			'[list=1]\1[/list]',
@@ -658,7 +693,7 @@ class EasyDiscussParser extends EasyDiscuss
 			'[*] \1',
 			'[email]\1[/email]',
 			'[url=\1]\2[/url]',
-			'[code type="xml"]\1[/code]',
+			'[code type="xml"]\1[/code]'
 		);
 
 		// Smileys to find...
@@ -681,11 +716,13 @@ class EasyDiscussParser extends EasyDiscuss
 		//@samhere
 		//$text = str_replace($in, $out, $text);
 
+		$oldText = $text;
+
 		// Replace bbcodes
-		$text	= strip_tags($text, '<br><strong><em><u><img><a><p><blockquote><ol><ul><li><b><big><i><pre>');
-		$text	= preg_replace( $bbcodeSearch , $bbcodeReplace, $text);
-		$text	= str_ireplace('<br />', "\r\n", $text);
-		$text	= str_ireplace('<br>', "\r\n", $text);
+		$text = strip_tags($text, '<br><strong><em><u><img><a><p><blockquote><ol><ul><li><b><big><i><pre>');
+		$text = preg_replace($bbcodeSearch , $bbcodeReplace, $text);
+		$text = str_ireplace('<br />', "\r\n", $text);
+		$text = str_ireplace('<br>', "\r\n", $text);
 
 		return $text;
 	}

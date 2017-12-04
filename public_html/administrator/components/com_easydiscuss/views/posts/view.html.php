@@ -23,14 +23,13 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		$this->desc('COM_EASYDISCUSS_POSTS_DESC');
 
 		JToolbarHelper::addNew();
-		JToolBarHelper::custom('showMove', 'move', '', JText::_('COM_EASYDISCUSS_MOVE_TOOLBAR'));
-		JToolBarHelper::custom('feature', 'featured ', '', JText::_('COM_EASYDISCUSS_FEATURE_TOOLBAR'));
-		JToolBarHelper::custom('unfeature', 'star-empty', '', JText::_('COM_EASYDISCUSS_UNFEATURE_TOOLBAR'));
-		JToolBarHelper::divider();
-
-		// Display toolbars
 		JToolbarHelper::publishList();
 		JToolbarHelper::unpublishList();
+
+		JToolBarHelper::custom('feature', 'featured ', '', JText::_('COM_EASYDISCUSS_FEATURE_TOOLBAR'));
+		JToolBarHelper::custom('unfeature', 'star-empty', '', JText::_('COM_EASYDISCUSS_UNFEATURE_TOOLBAR'));
+
+		JToolBarHelper::custom('showMove', 'move', '', JText::_('COM_EASYDISCUSS_MOVE_TOOLBAR'));
 		JToolbarHelper::unpublishList('resetVotes', JText::_('COM_EASYDISCUSS_RESET_VOTES'));
 		JToolbarHelper::custom('lock', 'lock', '', JText::_('COM_EASYDISCUSS_LOCK'));
 		JToolbarHelper::custom('unlock', 'unlock', '', JText::_('COM_EASYDISCUSS_UNLOCK'));
@@ -51,7 +50,7 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		$category = $this->input->get('category_id', 0, 'int');
 
 		// Get the dropdown for categories
-		$categoryFilter = ED::populateCategories('', '', 'select', 'category_id', $category, true, false , true , true);
+		$categoryFilter = ED::populateCategories('', '', 'select', 'category_id', $category, true, false , true , true, 'o-form-control', array(), DISCUSS_CATEGORY_ACL_ACTION_VIEW, false, false, false, array('data-ed-table-filter'));
 
 		// Fetch the list of posts 
 		$model = ED::model('Threaded');
@@ -169,8 +168,6 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function pending()
 	{

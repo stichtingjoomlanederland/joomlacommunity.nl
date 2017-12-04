@@ -1,4 +1,4 @@
-ed.define('site/src/frontpage', ['edq', 'easydiscuss', 'abstract', 'selectize'], function($, EasyDiscuss, Abstract){
+ed.define('site/src/frontpage', ['edq', 'easydiscuss', 'abstract', 'chosen'], function($, EasyDiscuss, Abstract){
 
 	var Frontpage = new Abstract(function(self) {
 		return {
@@ -25,11 +25,14 @@ ed.define('site/src/frontpage', ['edq', 'easydiscuss', 'abstract', 'selectize'],
 
 			init: function(element) {
 
-				this.indexSortTab().selectize({
-					onChange: function(item){
-						self.doSort(item);
-					}
+				this.indexSortTab().chosen({
+					disable_search_threshold: 10,
+					width: "100%"
+				}).change(function(e, i){
+					var item = i.selected;
+					self.doSort(item);
 				});
+
 			},
 
 			doSort: function(sortType ) {

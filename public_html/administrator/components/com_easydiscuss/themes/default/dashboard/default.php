@@ -61,26 +61,26 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<div class="tab-content">
 					<div role="tabpanel" class="tab-pane in active" id="posts" aria-labelledby="posts-tab">
 						<div class="db-stream db-stream-graph db-stream--chart">
-						    <div id="canvas-holder">
-						        <canvas id="chart-area2" />
-						    </div>
-						    <div id="js-legend2" class="chart-legend"></div>
+							<div id="canvas-holder">
+								<canvas id="chart-area2" />
+							</div>
+							<div id="js-legend2" class="chart-legend"></div>
 						</div>
 					</div>
 					<div role="tabpanel" class="tab-pane" id="month" aria-labelledby="month-tab">
 						<div class="db-stream db-stream-graph db-stream--chart">
-						    <div id="canvas-holder">
-						        <canvas id="chart-area3" />
-						    </div>
-						    <div id="js-legend3" class="chart-legend"></div>
+							<div id="canvas-holder">
+								<canvas id="chart-area3" />
+							</div>
+							<div id="js-legend3" class="chart-legend"></div>
 						</div>
 					</div>
 					<div role="tabpanel" class="tab-pane" id="category" aria-labelledby="category-tab">
 						<div class="db-stream db-stream-graph db-stream--chart">
-						    <div id="canvas-holder">
-						        <canvas id="chart-area4" />
-						    </div>
-						    <div id="js-legend4" class="chart-legend"></div>
+							<div id="canvas-holder">
+								<canvas id="chart-area4" />
+							</div>
+							<div id="js-legend4" class="chart-legend"></div>
 						</div>
 					</div>
 				</div>
@@ -90,39 +90,59 @@ defined('_JEXEC') or die('Unauthorized Access');
 		</div>
 		
 		<div class="col-lg-5">
+
 			<div class="db-sidebar">
-				<div class="db-user">
-					<div>
-						<i class="fa fa-cloud" style="font-size: 20px; line-height: 48px; height: 48px; width: 48px; text-align: center; border: 2px solid #ddd; border-radius: 100%; color: #999"></i>
-					</div>
+				<div class="db-version">
 					<div class="checking-updates" data-version-checks>
-						<b class="checking">
-	                        <i class="fa fa-circle-o-notch fa-spin"></i> <?php echo JText::_('COM_EASYDISCUSS_CHECKING_FOR_UPDATES');?>
-	                    </b>
-	                    
-	                    <b class="error-message">
-	                    	<?php echo JText::_('COM_EASYDISCUSS_ERROR_CONNECTING_TO_UPDATER'); ?>
-	                    </b>
+						<div class="o-flag">
+							<div class="o-flag__image o-flag--top">
+								<div class="db-version__icon">
+									<i class="fa fa-cog"></i>
+									<i class="fa fa-thumbs-down"></i>
+									<i class="fa fa-thumbs-up"></i>			
+								</div>
+								
+							</div>
+							<div class="o-flag__body">
+								<div class="o-grid">
+									<div class="o-grid__cell">
+										<b class="checking">
+											<i class="fa fa-circle-o-notch fa-spin"></i> <?php echo JText::_('COM_EASYDISCUSS_CHECKING_FOR_UPDATES');?>
+										</b>
+										
+										<b class="error-message">
+											<?php echo JText::_('COM_EASYDISCUSS_ERROR_CONNECTING_TO_UPDATER'); ?>
+										</b>
 
-						<b class="latest">
-	                        <?php echo JText::_('COM_EASYDISCUSS_SOFTWARE_IS_UP_TO_DATE');?>
-	                    </b>
+										<b class="latest">
+											<?php echo JText::_('COM_EASYDISCUSS_SOFTWARE_IS_UP_TO_DATE');?>
+										</b>
 
-	                    <b class="requires-updating">
-	                        <?php echo JText::_('COM_EASYDISCUSS_SOFTWARE_REQUIRES_UPDATING');?>
+										<b class="requires-updating">
+											<?php echo JText::_('COM_EASYDISCUSS_SOFTWARE_REQUIRES_UPDATING');?>
 
-	                        <a href="<?php echo JURI::root();?>administrator/index.php?option=com_easydiscuss&setup=true&update=true" class="btn btn-primary btn-sm"><?php echo JText::_('COM_EASYDISCUSS_UPDATE_NOW');?></a>
-	                    </b>
+											
+										</b>
 
-	                    <div class="versions-meta">
-	    					<div class="text-muted local-version"><?php echo JText::_('COM_EASYDISCUSS_DASHBOARD_INSTALLED_VERSION');?>: <span data-local-version></span></div>
-	                        <div class="text-muted latest-version"><?php echo JText::_('COM_EASYDISCUSS_DASHBOARD_LATEST_VERSION');?>: <span data-online-version></span></div>
-	                    </div>
+										<div class="versions-meta">
+											<div class="text-muted local-version"><?php echo JText::_('COM_EASYDISCUSS_DASHBOARD_INSTALLED_VERSION');?>: <span data-local-version></span></div>
+											<div class="text-muted latest-version"><?php echo JText::_('COM_EASYDISCUSS_DASHBOARD_LATEST_VERSION');?>: <span data-online-version></span></div>
+										</div>
+									</div>
+									<div class="requires-updating">
+										<div class="o-grid__cell o-grid__cell--auto-size">
+											<a href="<?php echo JURI::root();?>administrator/index.php?option=com_easydiscuss&setup=true&update=true" class="btn btn-default btn-sm"><?php echo JText::_('COM_EASYDISCUSS_UPDATE_NOW');?></a>
+										</div>
+									</div>
+								</div>
+								
+							</div>
+						</div>
+						
 					</div>
 				</div>
 
 				<div class="db-stats">
-					<strong><?php echo JText::_('COM_EASYDISCUSS_STATISTICS');?></strong>
 					<div class="row db-stats-grid text-center">
 						<div class="col-md-4">
 							<a class="db-stat-stamp" href="<?php echo JRoute::_('index.php?option=com_easydiscuss&view=posts');?>">
@@ -172,13 +192,13 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<div class="db-summary">
 					<strong><?php echo JText::_('COM_EASYDISCUSS_DASHBOARD_STAY_UPDATED');?></strong>
 					<div>
-						<i class="fa fa-facebook"></i>
+						<i class="fa fa-facebook-square"></i>
 						<span>
 							<a href="https://facebook.com/StackIdeas" class="text-inherit"><?php echo JText::_('Like us on Facebook');?></a>
 						</span>
 					</div>
 					<div>
-						<i class="fa fa-twitter"></i>
+						<i class="fa fa-twitter-square"></i>
 						<span>
 							<a href="https://twitter.com/StackIdeas" class="text-inherit"><?php echo JText::_('Follow us on Twitter');?></a>
 						</span>

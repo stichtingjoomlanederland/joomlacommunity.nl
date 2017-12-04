@@ -43,7 +43,7 @@ defined('_JEXEC') or die('Restricted access');
 							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_POINTS_CREATION_DATE'); ?>
 						</div>
 						<div class="col-md-7">
-							<?php echo ED::date()->format($point->created, ED::config()->get('layout_dateformat')); ?>
+							<?php echo ED::date()->format($point->created, JText::_('DATE_FORMAT_LC1')); ?>
 						</div>
 					</div>
 					<div class="form-group">

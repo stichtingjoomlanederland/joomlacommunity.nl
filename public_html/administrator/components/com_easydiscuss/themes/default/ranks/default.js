@@ -22,236 +22,236 @@ ed.require(['edq'], function($) {
 		$.Joomla( 'submitform' , [action] );
 	});
 
-    function clearerrors() {
-        $('input.input-error').removeClass('input-error');
-        $('#sys-msg').html('');
-    }
+	function clearerrors() {
+		$('input.input-error').removeClass('input-error');
+		$('#sys-msg').html('');
+	}
 
-    function sort() {
+	function sort() {
 
-        startItems  = $('input[name="start[]"]');
-        endItems    = $('input[name="end[]"]');
-        errorMessage    = '';
+		startItems  = $('input[name="start[]"]');
+		endItems    = $('input[name="end[]"]');
+		errorMessage    = '';
 
-        if (startItems.length > 0) {
-            for (i = 0; i < startItems.length; i++) {
-                if ((i + 1) <= startItems.length) {
-                    var nextStart   = startItems[i + 1];
-                    var curStart    = startItems[i];
+		if (startItems.length > 0) {
+			for (i = 0; i < startItems.length; i++) {
+				if ((i + 1) <= startItems.length) {
+					var nextStart   = startItems[i + 1];
+					var curStart    = startItems[i];
 
-                    var nextEnd = endItems[i + 1];
-                    var curEnd  = endItems[i];
+					var nextEnd = endItems[i + 1];
+					var curEnd  = endItems[i];
 
-                    var nextStartVal    = parseInt($(nextStart).val() , 10);
-                    var nextEndVal  = parseInt($(nextEnd).val() , 10);
+					var nextStartVal    = parseInt($(nextStart).val() , 10);
+					var nextEndVal  = parseInt($(nextEnd).val() , 10);
 
-                    var curEndVal   = parseInt($(curEnd).val(), 10);
+					var curEndVal   = parseInt($(curEnd).val(), 10);
 
-                    if ((curEndVal + 1) != nextStartVal)
-                    {
-                        var interval = nextEndVal - nextStartVal;
+					if ((curEndVal + 1) != nextStartVal)
+					{
+						var interval = nextEndVal - nextStartVal;
 
-                        var newNextStartVal = curEndVal + 1;
-                        var newNextEndVal = newNextStartVal + interval;
+						var newNextStartVal = curEndVal + 1;
+						var newNextEndVal = newNextStartVal + interval;
 
-                        $(nextStart).val(newNextStartVal);
-                        $(nextEnd).val(newNextEndVal);
-                    }
-                }//end if
-            }
-        }//end if
+						$(nextStart).val(newNextStartVal);
+						$(nextEnd).val(newNextEndVal);
+					}
+				}//end if
+			}
+		}//end if
 
-    }
+	}
 
-    function checkvalue(ele) {
+	function checkvalue(ele) {
 
-        var val = $(ele).val();
-        var intRegex = /^\d+$/;
+		var val = $(ele).val();
+		var intRegex = /^\d+$/;
 
-        if (!intRegex.test(val)) {
-            setTimeout(function()
-            {
-                ele.focus();
-                ele.select();
-            },200);
+		if (!intRegex.test(val)) {
+			setTimeout(function()
+			{
+				ele.focus();
+				ele.select();
+			},200);
 
-            $('#sys-msg').html(COM_EASYDISCUSS_RANKING_ERR_ONLY_NUMBER);
-            $(ele).addClass('input-error');
+			$('#sys-msg').html(COM_EASYDISCUSS_RANKING_ERR_ONLY_NUMBER);
+			$(ele).addClass('input-error');
 
-            return;
-        }
+			return;
+		}
 
-        if (parseInt(val, 10) <= 0) {
-            setTimeout(function()
-            {
-                ele.focus();
-                ele.select();
-            },200);
+		if (parseInt(val, 10) <= 0) {
+			setTimeout(function()
+			{
+				ele.focus();
+				ele.select();
+			},200);
 
-            $('#sys-msg').html(COM_EASYDISCUSS_RANKING_ERR_GREATER_THAN_ZERO);
-            $(ele).addClass('input-error');
+			$('#sys-msg').html(COM_EASYDISCUSS_RANKING_ERR_GREATER_THAN_ZERO);
+			$(ele).addClass('input-error');
 
-            return;
-        }
+			return;
+		}
 
-        // now we check if all the pair value entered are valid or not.
-        validate();
-    }
+		// now we check if all the pair value entered are valid or not.
+		validate();
+	}
 
-    function validate() {
+	function validate() {
 
-        //clear error styling first
-        $('input[name="start[]"]').removeClass('input-error');
-        $('input[name="end[]"]').removeClass('input-error');
+		//clear error styling first
+		$('input[name="start[]"]').removeClass('input-error');
+		$('input[name="end[]"]').removeClass('input-error');
 
-        startItems  = $('input[name="start[]"]');
-        endItems    = $('input[name="end[]"]');
-        errorMessage    = '';
+		startItems  = $('input[name="start[]"]');
+		endItems    = $('input[name="end[]"]');
+		errorMessage    = '';
 
-        if (startItems.length > 0) {
-            for (i = 0; i < startItems.length; i++) {
+		if (startItems.length > 0) {
+			for (i = 0; i < startItems.length; i++) {
 
-                var curStart    = startItems[i];
-                var curEnd  = endItems[i];
+				var curStart    = startItems[i];
+				var curEnd  = endItems[i];
 
-                var curStartVal = parseInt($(curStart).val(), 10);
-                var curEndVal   = parseInt($(curEnd).val(), 10);
+				var curStartVal = parseInt($(curStart).val(), 10);
+				var curEndVal   = parseInt($(curEnd).val(), 10);
 
-                if (curStartVal >= curEndVal)
-                {
+				if (curStartVal >= curEndVal)
+				{
 
-                    $('#sys-msg').html(COM_EASYDISCUSS_RANKING_ERR_END_CANNOT_SMALLER_THAN_START);
-                    $(curEnd).addClass('input-error');
-                    return;
-                }
+					$('#sys-msg').html(COM_EASYDISCUSS_RANKING_ERR_END_CANNOT_SMALLER_THAN_START);
+					$(curEnd).addClass('input-error');
+					return;
+				}
 
-                if (i != 0)
-                {
-                    var prevStart   = startItems[i - 1];
-                    var prevEnd = endItems[i - 1];
+				if (i != 0)
+				{
+					var prevStart   = startItems[i - 1];
+					var prevEnd = endItems[i - 1];
 
-                    var prevEndVal  = parseInt($(prevEnd).val() , 10);
+					var prevEndVal  = parseInt($(prevEnd).val() , 10);
 
-                    if ((prevEndVal + 1) != curStartVal)
-                    {
-                        $('#sys-msg').html(COM_EASYDISCUSS_RANKING_ERR_CANNOT_HAVE_GAPS);
-                        $(curStart).addClass('input-error');
-                        $(prevEnd).addClass('input-error');
-                        return;
-                    }
-                }
-            }
-        }//end if
+					if ((prevEndVal + 1) != curStartVal)
+					{
+						$('#sys-msg').html(COM_EASYDISCUSS_RANKING_ERR_CANNOT_HAVE_GAPS);
+						$(curStart).addClass('input-error');
+						$(prevEnd).addClass('input-error');
+						return;
+					}
+				}
+			}
+		}//end if
 
-        //clear all errors
-        clearerrors();
-    }
-
-
-    $('[data-rank-add]').click(function() {
-
-        var newtitle = $('#newtitle').val();
-        if (newtitle.length == 0) {
-            $('#newtitle').addClass('input-error');
-            $('#newtitle').focus();
-            $('#sys-msg').html(COM_EASYDISCUSS_RANKING_ERR_ENTER_TITLE);
-            return;
-        }
-
-        var itemCnt = $('#itemCnt').val();
-        var itemCnt = parseInt(itemCnt, 10);
-
-        var items   = $('input[name="id[]"]');
-        var endVal  = '';
-
-        if (items.length > 0) {
-            endVal = $('input[name="end[]"]').last().val();
-
-            if (endVal == '') {
-                $('#sys-msg').html(COM_EASYDISCUSS_RANKING_ERR_ALL_VALUE_IS_CORRECT);
-                $('input[name="end[]"]').last().focus();
-
-                return;
-            }
-
-            endVal = parseInt(endVal, 10);
-        }
+		//clear all errors
+		clearerrors();
+	}
 
 
-        var newStartValue = 1 + endVal;
+	$('[data-rank-add]').click(function() {
 
-        var input = '<tr id="rank-' + itemCnt + '">';
-            input += '  <td>' + (items.length + 1) + '<input type="hidden" name="id[]" value="0" /></td>';
-            input += '  <td style="text-align: center;"><input data-title-text type="text" name="title[]" value="' + newtitle + '" class="input-full inputbox"/></td>';
-            input += '  <td style="text-align: center;"><input data-start-text style="text-align: center;" type="text" name="start[]" value="' + newStartValue + '" class="input-full inputbox"/></td>';
-            input += '  <td style="text-align: center;"><input data-end-text style="text-align: center;" type="text" name="end[]" value="" class="input-full inputbox"/></td>';
-            input += '  <td style="text-align: center;"><a href="javascript:void(0);" data-remove-button data-id="' + itemCnt + '">' + COM_EASYDISCUSS_RANKING_DELETE + '</a></td>';
-            input += '</tr>';
+		var newtitle = $('#newtitle').val();
+		if (newtitle.length == 0) {
+			$('#newtitle').addClass('input-error');
+			$('#newtitle').focus();
+			$('#sys-msg').html(COM_EASYDISCUSS_RANKING_ERR_ENTER_TITLE);
+			return;
+		}
 
-            $('#rank-list')
-                .append(
-                    input
-                );
+		var itemCnt = $('#itemCnt').val();
+		var itemCnt = parseInt(itemCnt, 10);
 
-        //set the focus here.
-        $('input[name="end[]"]').last().focus();
+		var items   = $('input[name="id[]"]');
+		var endVal  = '';
 
-        // update the counter
-        $('#itemCnt').val(itemCnt + 1);
+		if (items.length > 0) {
+			endVal = $('input[name="end[]"]').last().val();
 
-        //clear text box
-        $('#newtitle').val('');
+			if (endVal == '') {
+				$('#sys-msg').html(COM_EASYDISCUSS_RANKING_ERR_ALL_VALUE_IS_CORRECT);
+				$('input[name="end[]"]').last().focus();
 
-        clearerrors();
+				return;
+			}
 
-    });
+			endVal = parseInt(endVal, 10);
+		}
 
-    $('[data-remove-button]').live( 'click', function(){
 
-        var eleId = $(this).data('id');
-        var rankId = $('#rank-' + eleId).children().first().children('input[name="id[]"]').val();
+		var newStartValue = 1 + endVal;
 
-        if (rankId != '0') {
-            if ($('#itemRemove').val() == '') {
-                $('#itemRemove').val(rankId);
-            } else {
-                var rankIds = $('#itemRemove').val() + ',' + rankId;
-                $('#itemRemove').val(rankIds);
-            }
-        }
+		var input = '<tr id="rank-' + itemCnt + '">';
+			input += '  <td>' + (items.length + 1) + '<input type="hidden" name="id[]" value="0" /></td>';
+			input += '  <td style="text-align: center;"><input data-title-text type="text" name="title[]" value="' + newtitle + '" class="input-full inputbox"/></td>';
+			input += '  <td style="text-align: center;"><input data-start-text style="text-align: center;" type="text" name="start[]" value="' + newStartValue + '" class="input-full inputbox"/></td>';
+			input += '  <td style="text-align: center;"><input data-end-text style="text-align: center;" type="text" name="end[]" value="" class="input-full inputbox"/></td>';
+			input += '  <td style="text-align: center;"><a href="javascript:void(0);" class="btn btn-danger" data-remove-button data-id="' + itemCnt + '">' + COM_EASYDISCUSS_RANKING_DELETE + '</a></td>';
+			input += '</tr>';
 
-        $('#rank-' + eleId).remove();
-        sort();
-    });
+			$('#rank-list')
+				.append(
+					input
+				);
 
-    $('[data-title-text]').live('change', function() {
+		//set the focus here.
+		$('input[name="end[]"]').last().focus();
 
-        var ele = $(this);
+		// update the counter
+		$('#itemCnt').val(itemCnt + 1);
 
-        var val = ele.val();
+		//clear text box
+		$('#newtitle').val('');
 
-        ele.removeClass('input-error');
+		clearerrors();
 
-        if (val == '') {
-            setTimeout(function() {
-                ele.focus();
-                ele.select();
-            },200);
+	});
 
-            ele.addClass('input-error');
-            $('#sys-msg').html(COM_EASYDISCUSS_RANKING_ERR_ENTER_TITLE);
-            return;
-        }
+	$('[data-remove-button]').live( 'click', function(){
 
-    });
+		var eleId = $(this).data('id');
+		var rankId = $('#rank-' + eleId).children().first().children('input[name="id[]"]').val();
 
-    $('[data-start-text]').live('change', function() {
-        checkvalue(this);
-    });
+		if (rankId != '0') {
+			if ($('#itemRemove').val() == '') {
+				$('#itemRemove').val(rankId);
+			} else {
+				var rankIds = $('#itemRemove').val() + ',' + rankId;
+				$('#itemRemove').val(rankIds);
+			}
+		}
 
-    $('[data-end-text]').live('change', function() {
-        checkvalue(this);
-    });
+		$('#rank-' + eleId).remove();
+		sort();
+	});
+
+	$('[data-title-text]').live('change', function() {
+
+		var ele = $(this);
+
+		var val = ele.val();
+
+		ele.removeClass('input-error');
+
+		if (val == '') {
+			setTimeout(function() {
+				ele.focus();
+				ele.select();
+			},200);
+
+			ele.addClass('input-error');
+			$('#sys-msg').html(COM_EASYDISCUSS_RANKING_ERR_ENTER_TITLE);
+			return;
+		}
+
+	});
+
+	$('[data-start-text]').live('change', function() {
+		checkvalue(this);
+	});
+
+	$('[data-end-text]').live('change', function() {
+		checkvalue(this);
+	});
 
 
 });

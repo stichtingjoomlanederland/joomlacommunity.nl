@@ -247,8 +247,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<div class="o-empty o-empty--bordered o-empty--bg-shade">
 						<div class="o-empty__content">
 							<i class="o-empty__icon fa fa-ban"></i>
-							<div class="o-empty__text"><?php echo JText::_('COM_EASYDISCUSS_NO_PERMISSION_TO_VIEW_ACCEPTED_ANSWER'); ?></div>
-						</div>
+                            <?php if (!$onlyAcceptedReply) { ?>
+                                <div class="o-empty__text"><?php echo JText::_('COM_EASYDISCUSS_NO_PERMISSION_TO_VIEW_ACCEPTED_ANSWER'); ?></div>
+                            <?php } else { ?>
+                                <div class="o-empty__text"><?php echo JText::_('COM_EASYDISCUSS_NO_PERMISSION_TO_VIEW_ACCEPTED_ANSWER_AND_REPLIES'); ?></div>
+                            <?php } ?>
+                    	</div>
 					</div>
 				</div>
 		    </div>
@@ -271,7 +275,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<?php } ?>
 
     <div class="ed-post-replies
-        <?php echo !$replies ? ' is-empty' : '';?>
+        <?php echo !$replies && !$onlyAcceptedReply ? ' is-empty' : '';?>
         "
         data-ed-post-replies-wrapper
     >

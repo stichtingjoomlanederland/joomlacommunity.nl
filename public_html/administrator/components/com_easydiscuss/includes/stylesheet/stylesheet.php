@@ -30,28 +30,30 @@ class EasyDiscussStylesheet extends EasyDiscuss
 	 */
 	public function attach()
 	{
-        // RTL support
-        $lang = JFactory::getLanguage();
-        $rtl = $lang->isRTL();
+		// RTL support
+		$lang = JFactory::getLanguage();
+		$rtl = $lang->isRTL();
 
-        if ($rtl && $this->location == 'site') {
-            $themeName = ED::themes()->getName();
+		if ($rtl && $this->location == 'site') {
+			$themeName = ED::themes()->getName();
 
-            // check if site is now runing on production or not.
-            $filename = 'style-rtl';
-            if ($this->config->get('system_environment') == 'production') {
-                $filename .= '.min';
-            }
+			// check if site is now runing on production or not.
+			$filename = 'style-rtl';
+			if ($this->config->get('system_environment') == 'production') {
+				$filename .= '.min';
+			}
 
-            $uri = DISCUSS_MEDIA_URI . '/themes/' . $themeName . '/css/' . $filename . '.css';
-            $this->doc->addStyleSheet($uri);
+			$uri = DISCUSS_MEDIA_URI . '/themes/' . $themeName . '/css/' . $filename . '.css';
+			$this->doc->addStyleSheet($uri);
 
-            $this->attachCustomCss();
+			$this->attachCustomCss();
 
-            return;
-        }
+			return;
+		}
 
 		$uri = $this->compile();
+
+		$this->doc->addStyleSheet($uri);
 
 		if ($this->location == 'site') {
 
@@ -64,11 +66,6 @@ class EasyDiscussStylesheet extends EasyDiscuss
 
 			$this->attachCustomCss();
 		}
-
-		if ($this->location == 'admin') {
-		}
-
-		$this->doc->addStyleSheet($uri);
 	}
 
 	/**
@@ -94,8 +91,6 @@ class EasyDiscussStylesheet extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function compile()
 	{
@@ -113,8 +108,6 @@ class EasyDiscussStylesheet extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function compileSiteStylesheet($theme = null)
 	{
@@ -172,8 +165,6 @@ class EasyDiscussStylesheet extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function compileAdminStylesheet()
 	{
@@ -192,7 +183,6 @@ class EasyDiscussStylesheet extends EasyDiscuss
 			return ED::assets()->toUri($options['compressed']);
 		}
 
-		// Compile
 		$result = $less->compileStylesheet($options);
 
 		// System encountered error while compiling the admin themes

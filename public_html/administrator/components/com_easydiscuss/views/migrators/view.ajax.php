@@ -28,7 +28,7 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 
 		switch($component)
 		{
-		    case 'com_kunena':
+			case 'com_kunena':
 
 				$migrator = ED::migrator()->getAdapter('kunena');
 				$resetHits = $this->input->get('resetHits', false, 'boolean');
@@ -36,50 +36,52 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 				$replies = $this->input->get('replies', false, 'boolean');
 
 				if ($replies) {
-					$migrator->migrateReplies();
+
+					$total = $this->input->get('total', 0, 'int');
+					$migrator->migrateReplies($total);
 				} else {
 					$migrator->migrate($resetHits, $migrateSignature);
 				}
 
-		        break;
+				break;
 
-		    case 'com_community':
+			case 'com_community':
 
 				$migrator = ED::migrator()->getAdapter('jomsocial');
 
 				$migrator->migrate();
 
-		        break;
+				break;
 
-		    case 'vbulletin':
-		    	$prefix = $this->input->get('prefix', '', 'string');
+			case 'vbulletin':
+				$prefix = $this->input->get('prefix', '', 'string');
 
 				$migrator = ED::migrator()->getAdapter('vbulletin');
 
 				$migrator->migrate($prefix);
 
-		        break;
+				break;
 
-		    case 'com_discussions':
+			case 'com_discussions':
 				$migrator = ED::migrator()->getAdapter('discussions');
 
 				$migrator->migrate();
 
-		        break;
+				break;
 
-		    default:
-		        break;
+			default:
+				break;
 		}
 	}
 
 	/**
-     * Check whether the vBulletin prefix exist
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Check whether the vBulletin prefix exist
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function checkPrefix()
 	{
 		$db = ED::db();
@@ -286,7 +288,7 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 	}
 
 
-	
+
 	private function getCPNewCategory( $cpItem )
 	{
 		$db		= DiscussHelper::getDBO();

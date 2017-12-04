@@ -13,27 +13,27 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
 	<div class="panel-table">
-		<table class="app-table app-table-middle table table-striped" data-ed-table>
+		<table class="app-table table" data-ed-table>
 			<thead>
 				<tr>
-					<td width="1%" class="center">
+					<th width="1%" class="center">
                     &nbsp;
-               		</td>	
-					<td style="text-align:left;">
+               		</th>	
+					<th style="text-align:left;">
 						<?php echo JText::_('COM_EASYDISCUSS_THEMES_TITLE'); ?>
-					</td>
-					<td width="5%" class="center">
+					</th>
+					<th width="5%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_THEMES_DEFAULT'); ?>
-					</td>
-					<td width="5%" class="center">
+					</th>
+					<th width="5%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_THEMES_VERSION'); ?>
-					</td>
-					<td width="10%" class="center">
+					</th>
+					<th width="10%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_THEMES_UPDATED'); ?>
-					</td>
-					<td width="15%" class="center">
+					</th>
+					<th width="15%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_THEMES_AUTHOR'); ?>
-					</td>
+					</th>
 					
 				</tr>
 			</thead>
@@ -43,14 +43,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php foreach ($themes as $theme) { ?>
 				<tr>
 					<td class="center">
-					    <input type="radio" name="cid[]" value="<?php echo $theme->element;?>" onclick="Joomla.isChecked(this.checked);" data-ed-table-checkbox />
+						<input type="radio" name="cid[]" value="<?php echo $theme->element;?>" onclick="Joomla.isChecked(this.checked);" data-ed-table-checkbox />
 					</td>
 					
 					<td>
-	                    <h4>
-	                        <?php echo JText::_($this->escape($theme->name));?>
-	                    </h4>
-	                </td>
+						<h4>
+							<?php echo JText::_($this->escape($theme->name));?>
+						</h4>
+					</td>
 
 					<td class="center">
 						<?php echo $this->html('table.featured', 'themes', $theme, 'featured', 'makeDefault', $theme->element != $this->config->get('layout_site_theme')); ?>
