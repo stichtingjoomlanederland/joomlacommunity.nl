@@ -93,7 +93,10 @@ defined('_JEXEC') or die; ?>
                                 'element' => '.docman-batch-uploader',
                                 'options'   => array(
                                     'multi_selection' => true,
-                                    'multipart_params' => ['folder' => 'tmp'],
+                                    'multipart_params' => [
+                                        'folder' => 'tmp',
+                                        'overwrite' => 1
+                                    ],
                                     'autostart' => true,
                                     'url' => route('view=file&plupload=1&routed=1&format=json', false, false)
                                 )

@@ -29,6 +29,12 @@ class ComDocmanJobCategories extends ComSchedulerJobAbstract
             return $this->complete();
         }
 
+        if (!$this->getObject('com://admin/docman.model.entity.config')->default_owner) {
+            $context->log('No default owner selected in global configuration');
+
+            return $this->complete();
+        }
+
         $state = $context->getState();
         $queue = KObjectConfig::unbox($state->queue);
 
@@ -54,7 +60,7 @@ class ComDocmanJobCategories extends ComSchedulerJobAbstract
                     $context->log('Folder is missing in the filesystem: '.$path);
                 }
                 else if ($result === static::NO_CATEGORY) {
-                    $context->log('No category selected for '.$path);
+                    $context->log('No category selected for the parent of '.$path);
                 }
                 else if ($result === static::NO_OWNER) {
                     $context->log('No default owner selected in global configuration');
@@ -75,11 +81,23 @@ class ComDocmanJobCategories extends ComSchedulerJobAbstract
              * Add folders to the queue if and only if:
              * 1- It is not attached to a category
              * 2- There is not a document linking to the folder. (this makes sure we don't break existing category structures)
+             * 3- It is not the tmp folder
+             * 4- The parent folder has a category linked to it
              */
             $queue = $behavior->getOrphanFolders(KDatabase::FETCH_FIELD_LIST, function($query) {
                 $query->limit(100);
                 $query->join(array('d' => 'docman_documents'), 'd.storage_path LIKE CONCAT(TRIM(LEADING "/" FROM CONCAT_WS("/", `tbl`.`folder`, `tbl`.`name`)), \'/%\')');
                 $query->where('d.docman_document_id IS NULL');
+
+                // Skip tmp folder on root
+                $query->where('(tbl.name <> :tmp OR tbl.folder <> :empty)')->bind([
+                    'tmp' => ComDocmanControllerBehaviorMovable::TEMP_FOLDER,
+                    'empty' => ''
+                ]);
+
+                // Skip folders with no parents
+                $query->join(['parent_folder' => 'docman_category_folders'], 'parent_folder.folder = tbl.folder');
+                $query->where('(parent_folder.folder IS NOT NULL OR tbl.folder = :empty)');
             });
 
             $context->log(sprintf('Added %s orphans to the queue', count($queue)));

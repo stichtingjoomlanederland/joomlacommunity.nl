@@ -150,6 +150,7 @@ class com_docmanInstallerScript extends JoomlatoolsInstallerHelper
     {
         if ($type === 'update')
         {
+            $this->_removeOldScheduler();
             $this->_updateRedirectPlugin($installer);
 
             if ($this->old_version && version_compare($this->old_version, '3.0.0', '<')) {
@@ -269,6 +270,22 @@ class com_docmanInstallerScript extends JoomlatoolsInstallerHelper
         }
     }
 
+    protected function _removeOldScheduler()
+    {
+        $extension_id = $this->getExtensionId(array(
+            'type'    => 'plugin',
+            'element' => 'scheduler',
+            'folder'  => 'system'
+        ));
+
+        if ($extension_id)
+        {
+            $this->_setCoreExtension($extension_id, 0);
+
+            $i = new JInstaller();
+            $i->uninstall('plugin', $extension_id);
+        }
+    }
 
     protected function _updateRedirectPlugin($installer)
     {

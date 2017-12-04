@@ -78,8 +78,7 @@
 
             if (vm.hasConnectSupport) {
                 window.addEventListener('message', function(event) {
-                    if (event.origin.indexOf('http://static.api.joomlatools') === 0
-                        || event.origin.indexOf('https://static.api.joomlatools') === 0
+                    if (event.origin.indexOf('https://static.api.joomlatools') === 0
                         || event.origin.indexOf('http://33.33.33.58') === 0) {
 
                         if (typeof $.magnificPopup !== 'undefined' && $.magnificPopup.instance) {

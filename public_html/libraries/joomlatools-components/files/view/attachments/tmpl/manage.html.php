@@ -8,8 +8,9 @@
  */
 defined('KOOWA') or die;
 
-$can_attach = isset(parameters()->config['can_attach']) ? parameters()->config['can_attach'] : true;
-$can_detach = isset(parameters()->config['can_detach']) ? parameters()->config['can_detach'] : true;
+$can_attach       = isset(parameters()->config['can_attach']) ? parameters()->config['can_attach'] : true;
+$can_detach       = isset(parameters()->config['can_detach']) ? parameters()->config['can_detach'] : true;
+$check_duplicates = $container->getParameters()->check_duplicates ? $container->getParameters()->check_duplicates : 'unique';
 
 $query = url()->getQuery(true);
 
@@ -207,7 +208,7 @@ $callback  = isset($query['callback']) ? $query['callback'] : null;
                                 'element' => '.attachments-uploader',
                                 'options'   => array(
                                     'multi_selection' => true,
-                                    'duplicate_mode' => 'unique',
+                                    'duplicate_mode' => $check_duplicates,
                                     'url' => route('component=' . urlencode($component) . '&view=file&plupload=1&routed=1&format=json&container=' .
                                                    (isset($container) ? $container->slug : ''), false, false)
                                 )

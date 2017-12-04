@@ -26,14 +26,18 @@ window.addEvent('domready', function() {
 
 	});
 
-    Files.app.tree.element.on('tree.select', function(event)
+	if (Files.app.tree)
     {
-        var el = document.id('select-check-all');
+        Files.app.tree.element.on('tree.select', function(event)
+        {
+            var el = document.id('select-check-all');
 
-        if (el && el.checked) {
-            el.checked = false;
-        }
-    });
+            if (el && el.checked) {
+                el.checked = false;
+            }
+        });
+
+    }
 
     Files.app.grid.addEvent('afterDeleteNode', function() {
         var el = document.id('select-check-all');

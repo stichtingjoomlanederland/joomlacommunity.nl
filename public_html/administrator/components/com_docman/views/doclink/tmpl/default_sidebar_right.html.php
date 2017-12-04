@@ -16,7 +16,7 @@ defined('KOOWA') or die; ?>
             <?= translate('Selected file info'); ?>
         </div>
 
-        <form class="k-sidebar-item__content" id="properties">
+        <form class="k-sidebar-item__content" id="properties" onkeypress="return event.keyCode !== 13;">
 
             <div class="k-form-group">
                 <input type="hidden" id="url" value="" />

@@ -543,27 +543,39 @@ $.widget("koowa.uploader", {
 			{
 				self.element.addClass('has-dragdrop-support');
 
-				var addHoverClass, removeHoverClass, drop_element;
+				var drop_element = $(self.options.drop_element);
 
-				drop_element = $(self.options.drop_element);
-
-                var getDropHandlers = function (element, modifier)
-				{
-                    var drag_count = 0;
-
+                var getDropHandlers = function (element, modifier) {
                     return {
-                        enter: function (event)
-						{
+                        enter: function (event) {
                             event.preventDefault();
-                            drag_count++;
-                            element.addClass(modifier)
+                            event.stopPropagation();
+
+                            element.addClass(modifier);
                         },
-                        leave: function (event)
-						{
-                            drag_count--;
-                            if (drag_count === 0) {
-                                element.removeClass(modifier)
+                        leave: function (event) {
+                            event.stopPropagation();
+
+                            var e = event.originalEvent,
+								target = $(e.target);
+
+							// Firefox
+                            if (target.is('.k-uploader-drop-visual > span') || target.is('.k-uploader-drop-visual')
+							|| target.is(document.body) || e.target === window.document) {
+                                element.removeClass(modifier);
                             }
+
+							// Chrome
+							if (e.offsetX < 0 || e.offsetY < 0) {
+								if (!e.relatedTarget) {
+                                    element.removeClass(modifier);
+								}
+							}
+
+							// The rest
+							if ((e.offsetX === 0 && e.offsetY === 0) || event.type === 'drop') {
+                                element.removeClass(modifier);
+							}
                         }
                     }
                 };
@@ -577,10 +589,10 @@ $.widget("koowa.uploader", {
 
 					var handlers = getDropHandlers(element, 'is-active');
 
-					drop_element.on('drop', handlers.leave);
-					drop_element.on('dragleave', handlers.leave);
+                    drop_element.on('drop', handlers.leave);
+                    drop_element.on('dragleave', handlers.leave);
 
-					drop_element.on('dragenter', handlers.enter);
+                    drop_element.on('dragenter', handlers.enter);
 				}
 				else
 				{

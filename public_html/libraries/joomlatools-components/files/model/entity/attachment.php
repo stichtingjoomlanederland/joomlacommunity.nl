@@ -31,6 +31,18 @@ class ComFilesModelEntityAttachment extends KModelEntityRow
                     ->current();
     }
 
+    public function delete()
+    {
+        if ($result = parent::delete())
+        {
+            $file = $this->file;
+
+            if (!$file->isNew()) $file->delete();
+        }
+
+        return $result;
+    }
+
     public function toArray()
     {
         $data = parent::toArray();

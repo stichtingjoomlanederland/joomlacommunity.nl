@@ -29,6 +29,7 @@ return array(
         'com://site/docman.database.table.nodes'	      	  => 'com://admin/docman.database.table.nodes',
         'com://site/docman.database.table.categories'    	  => 'com://admin/docman.database.table.categories',
         'com://site/docman.database.table.documents'     	  => 'com://admin/docman.database.table.documents',
+        'com://site/docman.database.table.document_contents'  => 'com://admin/docman.database.table.document_contents',
         'com://site/docman.database.table.levels'     	      => 'com://admin/docman.database.table.levels',
         'com://site/docman.model.entity.node'		    	  => 'com://admin/docman.model.entity.node',
         'com://site/docman.model.entity.category'	    	  => 'com://admin/docman.model.entity.category',

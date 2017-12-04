@@ -109,7 +109,7 @@ class plgSearchDocman extends JPlugin
             $return = array();
             foreach ($list as $item)
             {
-                if (!$item->itemid || !searchHelper::checkNoHTML($item, $keyword, array('title', 'description'))) {
+                if (!$item->itemid) {
                     continue;
                 }
 

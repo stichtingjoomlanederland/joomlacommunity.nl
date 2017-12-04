@@ -8,7 +8,7 @@
     <license>GNU GPLv3 - http://www.gnu.org/licenses/gpl.html</license>
     <authorEmail>support@joomlatools.com</authorEmail>
     <authorUrl>www.joomlatools.com</authorUrl>
-    <version>3.1.2</version>
+    <version>3.1.3</version>
     <description />
 
     <scriptfile>resources/install/script.php</scriptfile>
@@ -80,7 +80,7 @@
         <dependency type="plugin" element="docman" folder="search">extensions/plg_search_docman</dependency>
         <dependency type="plugin" element="docman" folder="finder">extensions/plg_finder_docman</dependency>
         <dependency type="plugin" element="doclink" folder="content">extensions/plg_content_doclink</dependency>
-        <dependency type="plugin" element="scheduler" folder="system">extensions/plg_system_scheduler</dependency>
+        <dependency type="plugin" element="joomlatoolsscheduler" folder="system" uninstall="false">extensions/plg_system_joomlatoolsscheduler</dependency>
         <dependency type="plugin" element="joomlatoolsupdater" folder="system" uninstall="false">extensions/plg_system_joomlatoolsupdater</dependency>
         <dependency type="module" element="mod_docman_documents">extensions/mod_docman_documents</dependency>
         <dependency type="module" element="mod_docman_categories">extensions/mod_docman_categories</dependency>

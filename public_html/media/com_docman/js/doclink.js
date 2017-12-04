@@ -98,7 +98,7 @@ Docman.Doclink = Koowa.Class.extend({
             var text = window.parent.tinyMCE.activeEditor.selection.getContent({format:'raw'});
             if (text) {
                 this.caption_from_editor = true;
-                $('#caption').attr('value', text);
+                $('#caption').val(text);
             }
         }
 
@@ -154,14 +154,14 @@ Docman.Doclink = Koowa.Class.extend({
         $('#url').attr('value', data.url || '');
 
         if (this.caption_from_editor !== true) {
-            $('#caption').attr('value', data.title || '');
+            $('#caption').val(data.title || '');
         }
 
     },
 
     getLinkString: function() {
         var href = $('#url').attr('value'),
-            caption = $('#caption').attr('value'),
+            caption = $('#caption').val(),
             target = (this.link_type === 'Document' && this.link_target === 'blank') ? ' target="_blank"' : '',
             str = '';
 

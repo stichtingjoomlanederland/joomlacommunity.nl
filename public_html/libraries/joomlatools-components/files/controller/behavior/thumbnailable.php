@@ -115,6 +115,24 @@ class ComFilesControllerBehaviorThumbnailable extends KControllerBehaviorAbstrac
         return $entity;
     }
 
+    protected function _afterAdd(KControllerContextInterface $context)
+    {
+        $entity = $context->result;
+
+        if ($entity instanceof ComFilesModelEntityFile)
+        {
+            $container = $this->_getContainer();
+
+            // Make sure to cleanup previous thumbnails for new files (specially if overridding)
+            $thumbnails = $this->getObject('com:files.model.thumbnails', array('auto_generate' => false))
+                               ->container($container->slug)->source($entity->uri)->fetch();
+
+            if (!$thumbnails->isNew()) {
+                $thumbnails->delete();
+            }
+        }
+    }
+
     /*
      * Makes sure that thumbnails are pushed (if needed) after creating a new entity.
      */
@@ -131,10 +149,12 @@ class ComFilesControllerBehaviorThumbnailable extends KControllerBehaviorAbstrac
             {
                 $versions = array_keys($versions->toArray());
 
-                if (in_array($state->thumbnails, $versions)) {
-                    $thumbnail = $entity->getThumbnail($state->thumbnails);
-                } else {
+                $thumbnail = false;
+
+                if ($state->thumbnails === true) {
                     $thumbnail = $entity->getThumbnail();
+                } elseif (in_array($state->thumbnails, $versions)) {
+                    $thumbnail = $entity->getThumbnail($state->thumbnails);
                 }
 
                 $entity->thumbnail = $thumbnail;

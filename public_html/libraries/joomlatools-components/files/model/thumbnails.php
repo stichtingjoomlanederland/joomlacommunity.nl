@@ -25,11 +25,16 @@ class ComFilesModelThumbnails extends ComFilesModelFiles
 
         $state->insert('version', 'cmd')
               ->insert('source', 'string');
+
+        if ($config->auto_generate) {
+            $this->addCommandCallback('after.fetch', '_checkThumbnails');
+        }
+
     }
 
     protected function _initialize(KObjectConfig $config)
     {
-        $config->append(array('state' => 'com:files.model.state.thumbnails'));
+        $config->append(array('state' => 'com:files.model.state.thumbnails', 'auto_generate' => true));
         parent::_initialize($config);
     }
 
@@ -257,7 +262,7 @@ class ComFilesModelThumbnails extends ComFilesModelFiles
         return $thumbnails;
     }
 
-    protected function _afterFetch(KModelContextInterface $context)
+    protected function _checkThumbnails(KModelContextInterface $context)
     {
         $file = $this->_getSourceFile();
 

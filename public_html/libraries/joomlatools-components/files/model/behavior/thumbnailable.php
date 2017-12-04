@@ -81,22 +81,23 @@ class ComFilesModelBehaviorThumbnailable extends KModelBehaviorAbstract
 
     protected function _afterFetch(KModelContextInterface $context)
     {
-        $thumbnails = $this->getState()->thumbnails;
-        $container  = $this->getThumbnailsContainer();
+        $state = $this->getState();
+
+        $container = $this->getThumbnailsContainer();
 
         if ($container && $this->getContainer()->getParameters()->thumbnails)
         {
             $model = $this->getObject('com:files.model.thumbnails')->container($container->slug);
 
-            if ($thumbnails !== true) {
-                $model->version($thumbnails);
+            if ($state->thumbnails !== true) {
+                $model->version($state->thumbnails);
             }
 
             foreach ($context->entity as $entity)
             {
                 $entity->thumbnails_container_slug = $container->slug;
 
-                if ($thumbnails)
+                if ($state->thumbnails)
                 {
                     $model->source($entity->uri);
 

@@ -10,11 +10,10 @@ defined('KOOWA') or die( 'Restricted access' ); ?>
 
 <textarea style="display: none" id="compact_details_image">
 [%
-var width = 0, height = 0, ratio = 0;
+var width = 0, height = 0;
 if (metadata.image) {
     width  = metadata.image.width;
     height = metadata.image.height;
-    ratio  = 250 / (width > height ? width : height);
 }
 %]
 <div class="k-details">
@@ -25,8 +24,7 @@ if (metadata.image) {
                     <div class="k-loader"></div>
                     <div class="k-ratio-block__body">
                         <div class="k-ratio-block__centered">
-                            <img class="icon" src="" alt="[%=name%]" border="0"
-                                width="[%=Math.min(ratio*width, width)%]" height="[%=Math.min(ratio*height, height)%]" />
+                            <img class="icon" src="" alt="[%=name%]" border="0" />
                         </div>
                     </div>
                 </div>
@@ -36,8 +34,10 @@ if (metadata.image) {
     <dl>
         <dt><?= translate('Name'); ?></dt>
         <dd class="k-ellipsis"><span class="k-ellipsis__item">[%=name%]</span></dd>
+        [% if (width && height) { %]
         <dt><?= translate('Dimensions'); ?></dt>
         <dd>[%=width%] x [%=height%]</dd>
+        [% } %]
         <dt><?= translate('Size'); ?></dt>
         <dd>[%=size.humanize()%]</dd>
     </dl>

@@ -1,12 +1,12 @@
 <?php
 /**
- * @package    DOCman
+ * @package     Scheduler
  * @copyright   Copyright (C) 2011 Timble CVBA (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
 
-class PlgSystemScheduler extends JPlugin
+class PlgSystemjoomlatoolsscheduler extends JPlugin
 {
     protected static $_exclude = array(
         'com_postinstall', 'com_joomlaupdate', 'com_joomlatools_installer',
@@ -23,16 +23,37 @@ class PlgSystemScheduler extends JPlugin
         $app   = JFactory::getApplication();
         $input = $app->input;
 
-        if ($app->isSite() && $input->get('option') === 'com_docman' && $input->get('controller') === 'scheduler')
+        if ($app->isSite() && $input->get('option') === 'com_joomlatools' && $input->get('controller') === 'scheduler')
         {
             $dispatcher = KObjectManager::getInstance()->getObject('com:scheduler.dispatcher.http');
 
             $dispatcher->getController()->addCommandCallback('after.dispatch', function($context) {
-                $this->_afterDispatch($context);
+                self::handleLogs($context->getLogs());
             });
 
             $dispatcher->dispatch();
         }
+    }
+
+    /**
+     * Method to run a single job synchronously
+     *
+     * @param ComSchedulerJobInterface $job    The job
+     * @param array                    $config A optional configration array that gets appended to the context
+     */
+    static public function runJob(ComSchedulerJobInterface $job, $config = null)
+    {
+        $controller = KObjectManager::getInstance()->getObject('com:scheduler.dispatcher.http')->getController();
+
+        $context = $controller->getContext();
+
+        if (isset($config)) {
+            $context->append($config);
+        }
+
+        $job->run($context);
+
+        self::handleLogs($context->getLogs());
     }
 
     /**
@@ -41,7 +62,7 @@ class PlgSystemScheduler extends JPlugin
      * @param $context
      * @throws Exception
      */
-    protected function _afterDispatch($context)
+    static public function handleLogs($logs)
     {
         try {
             $file = 'joomlatools-scheduler.php';
@@ -57,12 +78,22 @@ class PlgSystemScheduler extends JPlugin
                 'text_entry_format' => '{DATETIME} {PRIORITY} {MESSAGE}'
             ], JLog::ALL, ['joomlatools-scheduler']);
 
-            foreach ($context->getLogs() as $log) {
+            foreach ($logs as $log) {
                 JLog::add($log[0], JLog::INFO, 'joomlatools-scheduler', $log[1]);
             }
         } catch (Exception $e) {
             if (JDEBUG) throw $e;
         }
+    }
+
+    /**
+     * Method for adding a message to the log
+     *
+     * @param string $message The message
+     */
+    static public function log($message)
+    {
+        self::handleLogs([[(string) $message, time()]]);
     }
 
     /**
@@ -99,14 +130,14 @@ class PlgSystemScheduler extends JPlugin
                 // null = no rows or actual boolean value
                 if ($sleep_until === null || $sleep_until)
                 {
-                    $url = JUri::root().'index.php?option=com_docman&controller=scheduler';
+                    $url = JUri::root().'index.php?option=com_joomlatools&controller=scheduler';
 
                     /*
                      * To recreate this block:
                      * * Compress request.js
                      * * Remove the first block for data-scheduler property and replace with a direct call
                      */
-                    $html = '<script type="text/javascript">/*docman job scheduler*/
+                    $html = '<script type="text/javascript">/*joomlatools job scheduler*/
 !function(){function e(e,t,n,o){try{o=new(this.XMLHttpRequest||ActiveXObject)("MSXML2.XMLHTTP.3.0"),o.open("POST",e,1),o.setRequestHeader("X-Requested-With","XMLHttpRequest"),o.setRequestHeader("Content-type","application/x-www-form-urlencoded"),o.onreadystatechange=function(){o.readyState>3&&t&&t(o.responseText,o)},o.send(n)}catch(c){}}function t(n){e(n,function(e,o){try{if(200==o.status){var c=JSON.parse(e)
 "object"==typeof c&&c["continue"]&&setTimeout(function(){t(n)},1e3)}}catch(u){}})}t("'.$url.'")}()</script>';
 

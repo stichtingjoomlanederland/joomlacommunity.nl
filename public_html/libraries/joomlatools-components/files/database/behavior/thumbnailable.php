@@ -28,6 +28,10 @@ class ComFilesDatabaseBehaviorThumbnailable extends KDatabaseBehaviorAbstract
             }
 
             $thumbnail = $model->fetch();
+
+            if ($thumbnail->isNew()) {
+                $thumbnail = false;
+            }
         }
 
         return $thumbnail;

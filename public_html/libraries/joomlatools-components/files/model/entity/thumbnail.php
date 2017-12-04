@@ -134,28 +134,39 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
 
     public function save()
     {
-        $result = false;
+        $context = $this->getContext();
+        $context->result = false;
 
-        if ($source = $this->source)
+        $is_new = $this->isNew();
+
+        if ($this->invokeCommand('before.save', $context) !== false)
         {
-            $str = $source->thumbnail_string ? $source->thumbnail_string : $this->generate();
-
-            if ($str)
+            if ($source = $this->source)
             {
-                $folder = $this->getContainer()->getAdapter('folder', array(
-                    'path' => $this->getContainer()->fullpath.'/'.($this->folder ? $this->folder.'/' : '')
-                ));
+                if ($str = $source->thumbnail_string ? $source->thumbnail_string : $this->generate())
+                {
+                    $folder = $this->getContainer()->getAdapter('folder', array(
+                        'path' => $this->getContainer()->fullpath.'/'.($this->folder ? $this->folder.'/' : '')
+                    ));
 
-                if (!$folder->exists()) {
-                    $folder->create();
+                    if (!$folder->exists()) {
+                        $folder->create();
+                    }
+
+                    $context->result = $this->_adapter->write($str);
+
+                    $this->invokeCommand('after.save', $context);
                 }
-
-                $this->contents = $str;
-                $result         = parent::save();
             }
         }
 
-        return $result;
+        if ($context->result === false) {
+            $this->setStatus(KDatabase::STATUS_FAILED);
+        } else {
+            $this->setStatus($is_new ? KDatabase::STATUS_CREATED : KDatabase::STATUS_UPDATED);
+        }
+
+        return $context->result;
     }
 
     public function toArray()

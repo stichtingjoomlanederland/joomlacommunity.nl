@@ -184,6 +184,11 @@ $padding: 8px;
   }
 }
 
+.koowa_media__item__options__edit {
+  position: relative;
+  z-index: 2;
+}
+
 .koowa_media__item__options__delete {
   position: relative;
   z-index: 2;

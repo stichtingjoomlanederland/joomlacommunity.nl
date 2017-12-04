@@ -147,6 +147,10 @@ CREATE TABLE IF NOT EXISTS `#__docman_scans` (
   `response` varchar(2048) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+# Duplicated from update.sql to here to make sure 2.1 -> 3.x updates work
+# Otherwise foreign key constraint fails
+ALTER TABLE `#__docman_documents` CHANGE `docman_document_id` `docman_document_id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
 CREATE TABLE IF NOT EXISTS `#__docman_document_contents` (
   `docman_document_id` bigint(20) unsigned NOT NULL,
   `contents` longtext,

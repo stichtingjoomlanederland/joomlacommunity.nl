@@ -187,4 +187,4 @@
 
     w.footable.plugins.register(Sort, defaults);
 
-})(jQuery, window);
+})(kQuery, window);

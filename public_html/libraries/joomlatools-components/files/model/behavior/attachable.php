@@ -27,7 +27,7 @@ class ComFilesModelBehaviorAttachable extends ComFilesModelBehaviorRelatable
             $state = $context->getState();
             $query = $context->query;
 
-            if ($state->table && $state->row)
+            if ($state->table || $state->row)
             {
                 $query->join('users AS users', 'relations.created_by = users.id', 'LEFT');
 
