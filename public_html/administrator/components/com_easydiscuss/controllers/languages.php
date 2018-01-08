@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -18,8 +18,6 @@ class EasyDiscussControllerLanguages extends EasyDiscussController
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return  
      */
     public function purge()
     {
@@ -39,9 +37,7 @@ class EasyDiscussControllerLanguages extends EasyDiscussController
      * Discovery of language files
      *
      * @since   5.0
-     * @access  public
-     * @param   string
-     * @return  
+     * @access  public  
      */
     public function discover()
     {
@@ -63,8 +59,6 @@ class EasyDiscussControllerLanguages extends EasyDiscussController
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
     public function install()
     {
@@ -90,4 +84,38 @@ class EasyDiscussControllerLanguages extends EasyDiscussController
 
         $this->app->redirect('index.php?option=com_easydiscuss&view=languages');
     }
+
+    /**
+     * Uninstall language file on the site
+     *
+     * @since   4.0.21
+     * @access  public
+     */
+    public function uninstall()
+    {
+        // Check for request forgeries here
+        ED::checkToken();
+
+        // Get the language id
+        $ids = $this->input->get('cid', array(), 'array');
+
+        foreach ($ids as $id) {
+            $id = (int) $id;
+
+            $table = ED::table('Language');
+            $table->load($id);
+
+            if (!$table->isInstalled()) {
+                $table->delete();
+                continue;
+            }
+
+            $table->uninstall();
+            $table->delete();
+        }
+
+        ED::setMessage(JText::_('COM_ED_LANGUAGE_UNINSTALLED_SUCCESSFULLY'), 'success');
+
+        $this->app->redirect('index.php?option=com_easydiscuss&view=languages');
+    }    
 }

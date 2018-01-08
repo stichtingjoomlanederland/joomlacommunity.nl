@@ -31,15 +31,15 @@ document.addEventListener('DOMContentLoaded', function(){
 </script>
 <div id="ed" class="type-component
 	ed-responsive
-	<?php echo $categoryClass;?> 
-	<?php echo $suffix; ?> 
+	<?php echo $categoryClass;?>
+	<?php echo $suffix; ?>
 	<?php echo 'view-' . $view; ?>
 	<?php echo 'layout-' . $layout; ?>
 	<?php echo $rtl ? ' is-rtl' : '';?>"
 	data-ed-wrapper
 >
 	<?php if ($miniheader) { ?>
-	<div id="es" class="es">
+	<div id="es" class="es<?php echo (ES::responsive()->isMobile()) ? ' is-mobile' : ' is-desktop'; ?>">
 		<?php echo $miniheader; ?>
 	</div>
 	<?php } ?>

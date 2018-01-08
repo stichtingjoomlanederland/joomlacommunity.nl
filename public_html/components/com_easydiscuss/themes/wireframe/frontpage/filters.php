@@ -12,76 +12,78 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="ed-filter-bar t-lg-mt--lg t-lg-mb--md">
+	
+	<div class="ed-filter-bar__sort-tabs">
+		<!-- Filter tabs -->
+		<ul class="o-tabs o-tabs--ed">
+			<li class="o-tabs__item <?php echo !$activeFilter || $activeFilter == 'allposts' || $activeFilter == 'all' ? ' active' : '';?>"
+				data-filter-tab
+				data-filter-type="allposts"
+				data-filter-catid="<?php echo $menuCatId; ?>"
+			>
+				<a class="o-tabs__link allPostsFilter" data-filter-anchor href="<?php echo EDR::_('view=index');?>">
+					<?php echo JText::_('COM_EASYDISCUSS_FILTER_ALL_POSTS'); ?>
+				</a>
+			</li>
 
-	<!-- Filter tabs -->
-	<ul class="o-tabs o-tabs--ed pull-left">
-		<li class="o-tabs__item <?php echo !$activeFilter || $activeFilter == 'allposts' || $activeFilter == 'all' ? ' active' : '';?>"
-			data-filter-tab
-			data-filter-type="allposts"
-			data-filter-catid="<?php echo $menuCatId; ?>"
-		>
-			<a class="o-tabs__link allPostsFilter" data-filter-anchor href="<?php echo EDR::_('view=index');?>">
-				<?php echo JText::_('COM_EASYDISCUSS_FILTER_ALL_POSTS'); ?>
-			</a>
-		</li>
+			<?php if($this->config->get('main_qna') && $this->config->get('layout_enablefilter_unresolved')) { ?>
+			<li class="o-tabs__item <?php echo $activeFilter == 'unresolved' ? ' active' : '';?>"
+				data-filter-tab
+				data-filter-type="unresolved"
+				data-filter-catid="<?php echo $menuCatId; ?>"
+			>
+				<a class="o-tabs__link unResolvedFilter" data-filter-anchor href="<?php echo EDR::_('view=index&filter=unresolved');?>">
+					<?php echo JText::_('COM_EASYDISCUSS_FILTER_UNRESOLVED');?>
+				</a>
+			</li>
+			<?php } ?>
 
-		<?php if($this->config->get('main_qna') && $this->config->get('layout_enablefilter_unresolved')) { ?>
-		<li class="o-tabs__item <?php echo $activeFilter == 'unresolved' ? ' active' : '';?>"
-			data-filter-tab
-			data-filter-type="unresolved"
-			data-filter-catid="<?php echo $menuCatId; ?>"
-		>
-			<a class="o-tabs__link unResolvedFilter" data-filter-anchor href="<?php echo EDR::_('view=index&filter=unresolved');?>">
-				<?php echo JText::_('COM_EASYDISCUSS_FILTER_UNRESOLVED');?>
-			</a>
-		</li>
-		<?php } ?>
+			<?php if($this->config->get('main_qna') && $this->config->get('layout_enablefilter_resolved')) { ?>
+			<li class="o-tabs__item <?php echo $activeFilter == 'resolved' ? ' active' : '';?>"
+				data-filter-tab
+				data-filter-type="resolved"
+				data-filter-catid="<?php echo $menuCatId; ?>"
+			>
+				<a class="o-tabs__link resolvedFilter" data-filter-anchor href="<?php echo EDR::_('view=index&filter=resolved');?>">
+					<?php echo JText::_('COM_EASYDISCUSS_FILTER_RESOLVED');?>
+				</a>
+			</li>
+			<?php } ?>
 
-		<?php if($this->config->get('main_qna') && $this->config->get('layout_enablefilter_resolved')) { ?>
-		<li class="o-tabs__item <?php echo $activeFilter == 'resolved' ? ' active' : '';?>"
-			data-filter-tab
-			data-filter-type="resolved"
-			data-filter-catid="<?php echo $menuCatId; ?>"
-		>
-			<a class="o-tabs__link resolvedFilter" data-filter-anchor href="<?php echo EDR::_('view=index&filter=resolved');?>">
-				<?php echo JText::_('COM_EASYDISCUSS_FILTER_RESOLVED');?>
-			</a>
-		</li>
-		<?php } ?>
+			<?php if($this->config->get('layout_enablefilter_unanswered')){ ?>
+			<li class="o-tabs__item <?php echo $activeFilter == 'unanswered' ? ' active' : '';?>"
+				data-filter-tab
+				data-filter-type="unanswered"
+				data-filter-catid="<?php echo $menuCatId; ?>"
+			>
+				<a class="o-tabs__link unAnsweredFilter" data-filter-anchor href="<?php echo EDR::_('view=index&filter=unanswered');?>">
+					<?php echo JText::_('COM_EASYDISCUSS_FILTER_UNANSWERED'); ?>
+				</a>
+			</li>
+			<?php } ?>
 
-		<?php if($this->config->get('layout_enablefilter_unanswered')){ ?>
-		<li class="o-tabs__item <?php echo $activeFilter == 'unanswered' ? ' active' : '';?>"
-			data-filter-tab
-			data-filter-type="unanswered"
-			data-filter-catid="<?php echo $menuCatId; ?>"
-		>
-			<a class="o-tabs__link unAnsweredFilter" data-filter-anchor href="<?php echo EDR::_('view=index&filter=unanswered');?>">
-				<?php echo JText::_('COM_EASYDISCUSS_FILTER_UNANSWERED'); ?>
-			</a>
-		</li>
-		<?php } ?>
+			<?php if ($this->config->get('layout_enablefilter_unread') && ED::isLoggedIn()) { ?>
+			<li class="o-tabs__item <?php echo $activeFilter == 'unread' ? ' active' : '';?>"
+				data-filter-tab
+				data-filter-type="unread"
+				data-filter-catid="<?php echo $menuCatId; ?>"
+			>
+				<a class="o-tabs__link unreadFilter" data-filter-anchor href="<?php echo EDR::_('view=index&filter=unread');?>">
+					<?php echo JText::_('COM_EASYDISCUSS_FILTER_UNREAD');?>
+				</a>
+			</li>
+			<?php } ?>
 
-		<?php if ($this->config->get('layout_enablefilter_unread') && ED::isLoggedIn()) { ?>
-		<li class="o-tabs__item <?php echo $activeFilter == 'unread' ? ' active' : '';?>"
-			data-filter-tab
-			data-filter-type="unread"
-			data-filter-catid="<?php echo $menuCatId; ?>"
-		>
-			<a class="o-tabs__link unreadFilter" data-filter-anchor href="<?php echo EDR::_('view=index&filter=unread');?>">
-				<?php echo JText::_('COM_EASYDISCUSS_FILTER_UNREAD');?>
-			</a>
-		</li>
-		<?php } ?>
-
-	</ul>
+		</ul>
+	</div>
 
 	<!-- Sort tabs -->
-	<div class="ed-filter-bar__sort-action pull-right">
+	<div class="ed-filter-bar__sort-action">
 		<select data-index-sort-filter>
 		  <option value="latest" <?php echo $activeSort == 'latest' || $activeSort == '' ? ' selected="true"' : '';?> data-sort-tab data-sort-type="latest"><?php echo JText::_('COM_EASYDISCUSS_SORT_LATEST');?></option>
 		  <?php if ($activeFilter != 'unread') { ?>
-		  	<option value="popular" <?php echo $activeSort == 'popular' ? ' selected="true"' : '';?> data-sort-tab data-sort-type="popular"><?php echo JText::_('COM_EASYDISCUSS_SORT_POPULAR');?></option>
-		  	<option value="title" <?php echo $activeSort == 'title' ? ' selected="true"' : '';?> data-sort-tab data-sort-type="title"><?php echo JText::_('COM_EASYDISCUSS_SORT_TITLE');?></option>
+			<option value="popular" <?php echo $activeSort == 'popular' ? ' selected="true"' : '';?> data-sort-tab data-sort-type="popular"><?php echo JText::_('COM_EASYDISCUSS_SORT_POPULAR');?></option>
+			<option value="title" <?php echo $activeSort == 'title' ? ' selected="true"' : '';?> data-sort-tab data-sort-type="title"><?php echo JText::_('COM_EASYDISCUSS_SORT_TITLE');?></option>
 		  <?php } ?>
 		</select>
 	</div>

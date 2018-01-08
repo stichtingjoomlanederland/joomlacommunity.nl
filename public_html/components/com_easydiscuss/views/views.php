@@ -145,21 +145,27 @@ class EasyDiscussView extends EasyDiscussParentView
 			$jsToolbar = ED::jomsocial()->getToolbar();
 
 			// Set the ajax url
-			$ajaxUrl = JURI::root();
-
-			if ($this->config->get('system_ajax_index')) {
-				$ajaxUrl = rtrim(JURI::root(), '/') . '/index.php';
-			}
+			$ajaxUrl = ED::getAjaxUrl();
 
 			// Load easysocial headers when viewing posts of another person
 			$miniheader = '';
+			$clusterHeader = '';
+			$clusterId = '';
 
-			// Only work for Easysocial 2.0.
-			if ($view == 'post' && $this->config->get('integration_easysocial_mini_header', true) && $easysocial->exists() && !$easysocial->isLegacy()) {
-
+			if ($view == 'post') {
 				$id = $this->input->get('id', 0, 'int');
 				$post = ED::post($id);
 
+				$clusterId = $post->cluster_id;
+			}
+
+			if ($clusterId) {
+				$clusterHeader = $easysocial->renderMiniHeader($clusterId, $view);
+			}
+
+			// Only work for Easysocial 2.0. 
+			// Only display if there is no cluster header.
+			if ($view == 'post' && $this->config->get('integration_easysocial_mini_header', true) && $easysocial->exists() && !$easysocial->isLegacy() && !$clusterHeader) {
 				ES::initialize();
 
 				$user = ES::user($post->getOwner()->id);

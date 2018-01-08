@@ -344,15 +344,28 @@ ed.require(['edq', 'easydiscuss', 'jquery.scrollto'], function($, EasyDiscuss) {
 	$('#category_id').on('change', function() {
 		var categoryId = $(this).val();
 
+		<?php if (!$post->id && $this->config->get('main_private_post', false) && $this->my->id) { ?>
+		EasyDiscuss.ajax('site/views/post/getPrivateState', {
+			"categoryId": categoryId
+		}).done(function(checked, enforced) {
+			checked = checked == 1 ? true : false;
+			enforced = enforced == 1 ? true : false;
+				
+			if (enforced) {
+				$('[data-private-post]').hide();
+				return;
+			}
+
+			$('[data-private-post]').show();
+			$('#private').prop('checked', checked).trigger('change');
+		});
+		<?php } ?>
+
 		EasyDiscuss.ajax('site/views/post/getPostTypes', {
 			"categoryId": categoryId
 		}).done(function(html) {
 			$('[data-post-types-wrapper]').html(html);
 		});
 	});
-
-
-
-
 
 });

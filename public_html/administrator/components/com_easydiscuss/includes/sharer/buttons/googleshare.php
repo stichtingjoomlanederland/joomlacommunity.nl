@@ -38,7 +38,7 @@ class EasyDiscussSharerButtonGoogleShare extends EasyDiscuss
 		$googleShare = '';
 
 		$size = 'medium';
-		$width = '170px';
+		$width = 'auto';
 
 		$googleShare .= '<div class="social-button google-share" style="width:' . $width . '">';
 		$googleShare .= '<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>';

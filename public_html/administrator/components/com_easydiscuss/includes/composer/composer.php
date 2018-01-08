@@ -68,8 +68,6 @@ class EasyDiscussComposer extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function replying($question)
 	{

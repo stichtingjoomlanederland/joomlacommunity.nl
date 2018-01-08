@@ -33,7 +33,10 @@ $allowedExtensions = $this->config->get('main_attachment_extension');
 				<div id="attachment-<?php echo $attachment->id;?>" class="attachment-item attachment-type-<?php echo $attachment->getType();?>">
 					<i class="attachment-icon" data-ed-attachment-item-icon></i>
 					<span class="attachment-title" data-ed-attachment-item-title><?php echo $attachment->title;?></span>
-					<a href="javascript:void(0);" data-ed-attachment-item-insert> &bull; <?php echo JText::_('COM_EASYDISCUSS_INSERT'); ?></a>
+
+					<?php if ($this->config->get('layout_editor') == 'bbcode' && $attachment->isImage()) { ?>
+						<a href="javascript:void(0);" data-ed-attachment-item-insert> &bull; <?php echo JText::_('COM_EASYDISCUSS_INSERT'); ?></a>
+					<?php } ?>
 
 					<?php if ($attachment->canDelete()) { ?>
 					<a href="javascript:void(0);" data-ed-attachment-item-remove data-id="<?php echo $attachment->id;?>"> &bull; <?php echo JText::_('COM_EASYDISCUSS_REMOVE'); ?></a>
@@ -51,7 +54,10 @@ $allowedExtensions = $this->config->get('main_attachment_extension');
 		<div class="ed-attachment-form attachment-item" data-ed-attachment-form>
 			<i class="attachment-icon" data-ed-attachment-item-icon></i>
 			<span class="attachment-title" data-ed-attachment-item-title></span>
-			<a href="javascript:void(0);" data-ed-attachment-item-insert> &bull; <?php echo JText::_('COM_EASYDISCUSS_INSERT'); ?></a>
+
+			<?php if ($this->config->get('layout_editor') == 'bbcode') { ?>
+				<a href="javascript:void(0);" data-ed-attachment-item-insert> &bull; <?php echo JText::_('COM_EASYDISCUSS_INSERT'); ?></a>
+			<?php } ?>
 			<a href="javascript:void(0);" data-ed-attachment-item-remove> &bull; <?php echo JText::_('COM_EASYDISCUSS_REMOVE'); ?></a>
 
 			<span class="btn btn-default btn-file" data-attachment-item-input>

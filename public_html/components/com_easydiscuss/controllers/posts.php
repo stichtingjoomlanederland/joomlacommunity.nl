@@ -526,11 +526,11 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	}
 
 
-	/*
+	/**
 	 * Allows anyone to approve replies provided that they get the correct key
 	 *
-	 * @param   null
-	 * @return  null
+	 * @since	4.0
+	 * @access	public
 	 */
 	public function approvePost()
 	{
@@ -542,9 +542,10 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		}
 
 		$hashkey = ED::table('HashKeys');
+		$state = $hashkey->load(array('key' => $key));
 
-		if (!$hashkey->loadByKey($key)) {
-			return $this->app->redirect($redirect, JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'), 'error');
+		if (!$state) {
+			return $this->app->redirect($redirect, JText::_('COM_ED_NOT_ALLOWED_ITEM_ALREADY_APPROVED'), 'error');
 		}
 
 		$post = ED::post($hashkey->uid);
@@ -561,6 +562,12 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=post&id=' . $pid, false));
 	}
 
+	/**
+	 * Allows anyone to reject replies provided that they get the correct key
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
 	public function rejectPost()
 	{
 		$key = $this->input->get('key', '', 'var');
@@ -571,9 +578,10 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		}
 
 		$hashkey = ED::table('HashKeys');
+		$state = $hashkey->load(array('key' => $key));
 
-		if (!$hashkey->loadByKey($key)) {
-			return $this->app->redirect($redirect, JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'), 'error');
+		if (!$state) {
+			return $this->app->redirect($redirect, JText::_('COM_ED_NOT_ALLOWED_ITEM_ALREADY_APPROVED'), 'error');
 		}
 
 		$post = ED::post($hashkey->uid);
@@ -1032,29 +1040,29 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	 */
 	public function resolve()
 	{
-        // Get the post id
-        $id = $this->input->get('id', 0, 'int');
+		// Get the post id
+		$id = $this->input->get('id', 0, 'int');
 
-        if (!$id) {
+		if (!$id) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'), 'error');
 			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss', false));
-        }
+		}
 
-        // load the post lib
-        $post = ED::post($id);
+		// load the post lib
+		$post = ED::post($id);
 
-        // Ensure that the user can really resolve this
-        if (!$post->canResolve()) {
+		// Ensure that the user can really resolve this
+		if (!$post->canResolve()) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'), 'error');
 			return $this->app->redirect(EDR::getPostRoute($post->id, false));
-        }
+		}
 
-        // Try to resolve it now
-        $state = $post->markResolved();
+		// Try to resolve it now
+		$state = $post->markResolved();
 
-        if (!$state) {
-            return $this->ajax->reject($post->getError());
-        }
+		if (!$state) {
+			return $this->ajax->reject($post->getError());
+		}
 
 		ED::setMessage(JText::_('COM_EASYDISCUSS_ENTRY_RESOLVED'), 'success');
 		return $this->app->redirect(EDR::getPostRoute($post->id, false));		
@@ -1068,29 +1076,29 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	 */
 	public function unresolve()
 	{
-        // Get the post id
-        $id = $this->input->get('id', 0, 'int');
+		// Get the post id
+		$id = $this->input->get('id', 0, 'int');
 
-        if (!$id) {
+		if (!$id) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'), 'error');
 			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss', false));
-        }
+		}
 
-        // load the post lib
-        $post = ED::post($id);
+		// load the post lib
+		$post = ED::post($id);
 
-        // Ensure that the user can really resolve this
-        if (!$post->canResolve()) {
+		// Ensure that the user can really resolve this
+		if (!$post->canResolve()) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'), 'error');
 			return $this->app->redirect(EDR::getPostRoute($post->id, false));
-        }
+		}
 
-        // Try to resolve it now
-        $state = $post->markUnresolve();
+		// Try to resolve it now
+		$state = $post->markUnresolve();
 
-        if (!$state) {
-            return $this->ajax->reject($post->getError());
-        }
+		if (!$state) {
+			return $this->ajax->reject($post->getError());
+		}
 
 		ED::setMessage(JText::_('COM_EASYDISCUSS_ENTRY_UNRESOLVED'), 'success');
 		return $this->app->redirect(EDR::getPostRoute($post->id, false));		

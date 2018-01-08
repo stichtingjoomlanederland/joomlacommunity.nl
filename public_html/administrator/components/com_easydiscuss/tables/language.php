@@ -1,9 +1,9 @@
 <?php
 /**
-* @package		EasyBlog
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasySocial is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -34,8 +34,6 @@ class DiscussLanguage extends EasyDiscussTable
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function install()
 	{
@@ -59,7 +57,7 @@ class DiscussLanguage extends EasyDiscussTable
 		}
 
 		// Download the language file
-		$connector 	= ED::connector();
+		$connector = ED::connector();
 		$connector->addUrl($url);
 		$connector->addQuery('key', $key);
 		$connector->setMethod('POST');
@@ -80,7 +78,7 @@ class DiscussLanguage extends EasyDiscussTable
 		jimport( 'joomla.filesystem.archive' );
 
 		// Extract the language's archive file
-		$state 		= JArchive::extract($storage, $folder);
+		$state = JArchive::extract($storage, $folder);
 
 		// Throw some errors when we are unable to extract the zip file.
 		if (!$state) {
@@ -89,7 +87,7 @@ class DiscussLanguage extends EasyDiscussTable
 		}
 
 		// Read the meta data
-		$raw  = JFile::read($folder . '/meta.json');
+		$raw = JFile::read($folder . '/meta.json');
 		$meta = json_decode($raw);
 
 		foreach ($meta->resources as $resource) {
@@ -103,7 +101,7 @@ class DiscussLanguage extends EasyDiscussTable
 			}
 
 			// Build the source and target files
-			$destFile 	= $dest . '/' . $this->locale . '.' . $resource->title;
+			$destFile = $dest . '/' . $this->locale . '.' . $resource->title;
 			$sourceFile = $folder . '/' . $resource->path . '/' . $this->locale . '.' . $resource->title;
 
 			// Ensure that the source file exists
@@ -117,7 +115,7 @@ class DiscussLanguage extends EasyDiscussTable
 			}
 			
 			// Try to copy the file
-			$state		= JFile::copy($sourceFile, $destFile);
+			$state = JFile::copy($sourceFile, $destFile);
 
 			if (!$state) {
 				$this->setError(JText::_('COM_EASYDISCUSS_LANGUAGES_ERROR_COPYING_FILES'));
@@ -135,9 +133,9 @@ class DiscussLanguage extends EasyDiscussTable
 		return $this->store();
 	}
 
-	public function getPath( $metaPath )
+	public function getPath($metaPath)
 	{
-		switch( $metaPath )
+		switch($metaPath)
 		{
 			case 'admin':
 			case 'plugins':
@@ -155,4 +153,49 @@ class DiscussLanguage extends EasyDiscussTable
 
 		return $path;
 	}
+
+	/**
+	 * Allows caller to uninstall a language
+	 *
+	 * @since	4.0.21
+	 * @access	public
+	 */
+	public function uninstall()
+	{
+		$locale = $this->locale;
+
+		$paths = array(JPATH_ADMINISTRATOR . '/language/' . $locale, JPATH_ROOT . '/language/' . $locale);
+
+		// Get the list of files on each folders
+		foreach ($paths as $path) {
+
+			$filter = 'easydiscuss';
+			$files = JFolder::files($path, $filter, false, true);
+
+			if (!$files) {
+				continue;
+			}
+
+			foreach ($files as $file) {
+				JFile::delete($file);
+			}
+
+			// Remove the path file as well.
+			JFolder::delete($path);
+		}
+
+		$this->state = ED_LANGUAGES_NOT_INSTALLED;
+		return $this->store();
+	}
+
+	/**
+	 * Determine if this language installed
+	 *
+	 * @since	4.0.21
+	 * @access	public
+	 */
+	public function isInstalled()
+	{
+		return $this->state == ED_LANGUAGES_INSTALLED;
+	}	
 }

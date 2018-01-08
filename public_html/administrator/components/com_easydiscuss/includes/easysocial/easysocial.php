@@ -160,7 +160,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		}
 
 		$creator = ES::user($creatorId);
-		
+
 		$badge = ES::badges();
 		$state = $badge->log('com_easydiscuss', $rule, $creator->id, $message);
 
@@ -645,7 +645,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		$esConfig = ES::config();
 
 		$usernameField = $esConfig->get('general.site.loginemail') ? 'COM_EASYDISCUSS_LOGIN_NAME_OR_EMAIL' : 'COM_EASYDISCUSS_USERNAME';
-		
+
 		if ($esConfig->get('registrations.emailasusername')) {
 			$usernameField = 'COM_EASYDISCUSS_LOGIN_EMAIL';
 		}
@@ -709,11 +709,11 @@ class EasyDiscussEasySocial extends EasyDiscuss
 				// if the post post in language category
 				if ($postCatLang != '*') {
 					$permalink = EDR::_('view=post&id=' . $post->id . '&lang=' . $langcode, true, null, false);
-				
+
 				} else {
 					$permalink = $defaultPermalink;
 				}
-				
+
 			} else {
 				$permalink = EDR::_($defaultPermalink, true, null, false);
 			}
@@ -735,18 +735,20 @@ class EasyDiscussEasySocial extends EasyDiscuss
 				return;
 			}
 
-			$defaultPermalink = 'index.php?option=com_easydiscuss&view=post&id=' . $post->parent_id . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+			$defaultPermalink = 'index.php?option=com_easydiscuss&' . $post->getReplyPermalink();
 
 			if ($isSiteMultilingualEnabled) {
 
 				// if the post post in language category
 				if ($postCatLang != '*') {
-					$permalink = EDR::_('view=post&id=' . $post->parent_id . '&lang=' . $langcode . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id, true, null, false);
-				
+
+					$defaultPermalink = 'index.php?option=com_easydiscuss&lang=' . $langcode . '&' . $post->getReplyPermalink();
+					$permalink = EDR::_($defaultPermalink, true, null, false);
+
 				} else {
 					$permalink = $defaultPermalink;
 				}
-				
+
 			} else {
 				$permalink = EDR::_($defaultPermalink, true, null, false);
 			}
@@ -770,18 +772,19 @@ class EasyDiscussEasySocial extends EasyDiscuss
 				return;
 			}
 
-			$defaultPermalink = 'index.php?option=com_easydiscuss&view=post&id=' . $question->id . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+			$defaultPermalink = 'index.php?option=com_easydiscuss&' . $post->getReplyPermalink();
 
 			if ($isSiteMultilingualEnabled) {
 
 				// if the post post in language category
 				if ($postCatLang != '*') {
-					$permalink = EDR::_('view=post&id=' . $question->id . '&lang=' . $langcode, true, null, false) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
-				
+					$defaultPermalink = 'index.php?option=com_easydiscuss&lang=' . $langcode . '&' . $post->getReplyPermalink();
+					$permalink = EDR::_($defaultPermalink, true, null, false);
+
 				} else {
 					$permalink = $defaultPermalink;
 				}
-				
+
 			} else {
 				$permalink = EDR::_($defaultPermalink, true, null, false);
 			}
@@ -808,11 +811,11 @@ class EasyDiscussEasySocial extends EasyDiscuss
 				// if the post post in language category
 				if ($postCatLang != '*') {
 					$permalink = EDR::_('view=post&id=' . $question->id . '&lang=' . $langcode, true, null, false) . '#answer';
-				
+
 				} else {
 					$permalink = $defaultPermalink;
 				}
-				
+
 			} else {
 				$permalink = EDR::_($defaultPermalink, true, null, false);
 			}
@@ -838,11 +841,11 @@ class EasyDiscussEasySocial extends EasyDiscuss
 				// if the post post in language category
 				if ($postCatLang != '*') {
 					$permalink = EDR::_('view=post&id=' . $question->id . '&lang=' . $langcode, true, null, false) . '#answer';
-				
+
 				} else {
 					$permalink = $defaultPermalink;
 				}
-				
+
 			} else {
 				$permalink = EDR::_($defaultPermalink, true, null, false);
 			}
@@ -861,7 +864,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 			// The recipient should only be the post owner
 			$recipients = array($post->user_id);
 
-			$defaultReplyPermalink = 'index.php?option=com_easydiscuss&view=post&id=' . $question->id . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+			$defaultReplyPermalink = 'index.php?option=com_easydiscuss&' . $post->getReplyPermalink();
 			$defaultQuestionPermalink = 'index.php?option=com_easydiscuss&view=post&id=' . $post->id;
 
 			if ($isSiteMultilingualEnabled) {
@@ -869,20 +872,22 @@ class EasyDiscussEasySocial extends EasyDiscuss
 				// if the post post in language category
 				if ($postCatLang != '*') {
 
-					$permalink = EDR::_('view=post&id=' . $question->id . '&lang=' . $langcode, true, null, false) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
+					$permalink = 'index.php?option=com_easydiscuss&lang=' . $langcode . '&' . $post->getReplyPermalink();
 
 					if ($post->isQuestion()) {
-						$permalink = EDR::_('view=post&id=' . $post->id . '&lang=' . $langcode, true, null, false);
+						$permalink = $defaultQuestionPermalink . '&lang=' . $langcode;
 					}
+
+					$permalink = EDR::_($permalink, true, null, false);
 
 				} else {
 					$permalink = $defaultReplyPermalink;
 
 					if ($post->isQuestion()) {
 						$permalink = $defaultQuestionPermalink;
-					}				
+					}
 				}
-				
+
 			} else {
 
 				$permalink = EDR::_($defaultReplyPermalink, true, null, false);
@@ -926,9 +931,9 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 					if ($post->isReply()) {
 						$permalink = $defaultReplyPermalink;
-					}				
+					}
 				}
-				
+
 			} else {
 
 				$permalink = EDR::_($defaultQuestionPermalink, true, null, false);
@@ -971,9 +976,9 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 					if ($post->isQuestion()) {
 						$permalink = $defaultQuestionPermalink;
-					}				
+					}
 				}
-				
+
 			} else {
 
 				$permalink = EDR::_($defaultReplyPermalink, true, null, false);
@@ -1132,10 +1137,14 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 		$themes = ED::themes();
 
+		$isMobile = ES::responsive()->isMobile();
+
+		$extraClass = ($isMobile) ? ' is-mobile' : ' is-desktop';
+
 		$output = '';
 
 		ob_start();
-		echo '<div id="es" class="es" style="margin-bottom: 15px;">';
+		echo '<div id="es" class="es' . $extraClass . '" style="margin-bottom: 15px;">';
 		echo $themes->output('site/groups/header.easysocial', array('group' => $group, 'view' => $view, 'returnUrl' => $returnUrl));
 		echo '</div>';
 		$contents = ob_get_contents();
@@ -1199,5 +1208,22 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		}
 
 		return $id;
+	}
+
+	/**
+	 * Retrieve ES user's points
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function getUserPoints($userId)
+	{
+		if (!$this->exists() || !$userId) {
+			return false;
+		}
+
+		$model = ES::model('Points');
+
+		return $model->getPoints($userId);
 	}
 }

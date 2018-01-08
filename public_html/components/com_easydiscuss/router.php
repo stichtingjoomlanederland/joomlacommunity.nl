@@ -67,17 +67,13 @@ class EasyDiscussRouter extends EasyDiscuss
 
 			// It may contain a category id
 			if (isset($query['category_id']) && $query['category_id']) {
-				$aliases = EDR::getCategoryAliases($query['category_id']);
-
-				foreach ($aliases as $alias) {
-					$segments[]	= $alias;
-				}
+				$segments[] = EDR::getAlias('category', $query['category_id']);
 
 				unset($query['category_id']);
 			}
 
 			if (isset($query['layout'])) {
-				$segments[]	= $query['layout'];
+				$segments[] = $query['layout'];
 				unset($query['layout']);
 			}
 		}
@@ -103,11 +99,7 @@ class EasyDiscussRouter extends EasyDiscuss
 				// first we check if there is a menu item created for this catgory or not.
 				$menu = EDR::getMenus('categories', 'listings', $post->getCategory()->id, $lang);
 				if (! $menu) {
-					$aliases = EDR::getCategoryAliases($post->getCategory()->id);
-
-					foreach ($aliases as $alias) {
-						$segments[]	= $alias;
-					}
+					$segments[] = EDR::getAlias('category', $post->getCategory()->id);
 				}
 			}
 
@@ -125,21 +117,17 @@ class EasyDiscussRouter extends EasyDiscuss
 			unset($query['view']);
 
 			if (isset($query['layout'])) {
-				$segments[]	= $query['layout'];
+				$segments[] = $query['layout'];
 				unset($query['layout']);
 			}
 
 			if (isset($query['id'])) {
-				$segments[]	= EDR::getUserAlias($query['id']);
+				$segments[] = EDR::getUserAlias($query['id']);
 				unset($query['id']);
 			}
 
 			if (isset($query['category_id'])) {
-				$aliases = EDR::getCategoryAliases($query['category_id']);
-
-				foreach ($aliases as $alias) {
-					$segments[]	= $alias;
-				}
+				$segments[] = EDR::getAlias('category', $query['category_id']);
 
 				unset($query['category_id']);
 			}
@@ -158,22 +146,18 @@ class EasyDiscussRouter extends EasyDiscuss
 
 			// $aMenu = EDR::getMenus('index', null, null, $lang);
 			// if ($aMenu && $aMenu->segments->view == 'index') {
-			// 	$includeViewAlias = false;
+			//  $includeViewAlias = false;
 			// }
 
 			// if ($includeViewAlias) {
-			// 	$segments[] = $query['view'];
+			//  $segments[] = $query['view'];
 			// }
 
 			$segments[] = $query['view'];
 			unset($query['view']);
 
 			if (isset($query['category_id'])) {
-				$aliases		= DiscussRouter::getCategoryAliases( $query['category_id'] );
-
-				foreach ($aliases as $alias) {
-					$segments[]	= $alias;
-				}
+				$segments[] = EDR::getAlias('category', $query['category_id']);
 
 				unset( $query['category_id'] );
 			}
@@ -200,16 +184,16 @@ class EasyDiscussRouter extends EasyDiscuss
 
 		// Points view
 		if (isset($query['view']) && $query['view'] == 'points') {
-			$segments[]	= $query['view'];
+			$segments[] = $query['view'];
 			unset($query['view']);
 
 			if (isset($query['layout'])) {
-				$segments[]	= $query['layout'];
+				$segments[] = $query['layout'];
 				unset($query['layout']);
 			}
 
 			if (isset($query['id'])) {
-				$segments[]	= EDR::getUserAlias($query['id']);
+				$segments[] = EDR::getUserAlias($query['id']);
 				unset($query['id']);
 			}
 		}
@@ -227,13 +211,13 @@ class EasyDiscussRouter extends EasyDiscuss
 			unset($query['view']);
 
 			if (isset($query['id'])) {
-				$segments[]	= DiscussRouter::getTagAlias( $query['id'] );
+				$segments[] = DiscussRouter::getTagAlias( $query['id'] );
 				unset($query['id']);
 			}
 
-            if (isset( $query['layout'])) {
-                unset( $query['layout'] );
-            }
+			if (isset( $query['layout'])) {
+				unset( $query['layout'] );
+			}
 		}
 
 		// Users view
@@ -249,12 +233,27 @@ class EasyDiscussRouter extends EasyDiscuss
 
 		// Badges view
 		if (isset($query['view']) && $query['view'] == 'badges') {
-			$segments[]		= $query['view'];
+
+			// check the current active menu item id to see if we really need to
+			// add the view or not.
+			$addView = true;
+			if ($active) {
+				$xView = isset($active->query['view']) && $active->query['view'] ? $active->query['view'] : '';
+
+				if ($xView == 'badges') {
+					$addView = false;
+				}
+			}
+
+			if ($addView) {
+				$segments[] = $query['view'];
+			}
+
 			unset( $query['view'] );
 
 			if(isset($query['id']))
 			{
-				$segments[]	= DiscussRouter::getAlias( 'badges', $query['id'] );
+				$segments[] = DiscussRouter::getAlias( 'badges', $query['id'] );
 				unset($query['id']);
 				unset( $query['layout'] );
 			}
@@ -269,7 +268,7 @@ class EasyDiscussRouter extends EasyDiscuss
 		// search view
 		if (isset($query['view']) && $query['view'] == 'search') {
 
-			$segments[]		= $query['view'];
+			$segments[]     = $query['view'];
 			unset( $query['view'] );
 
 			if (isset($query['query']) && $query['query']) {
@@ -298,22 +297,33 @@ class EasyDiscussRouter extends EasyDiscuss
 
 		// Categories view
 		if (isset($query['view']) && $query['view'] == 'categories') {
-			$segments[]	= $query['view'];
+
+			// check the current active menu item id to see if we really need to
+			// add the view or not.
+			$addView = true;
+			if ($active) {
+				$xView = isset($active->query['view']) && $active->query['view'] ? $active->query['view'] : '';
+
+				if ($xView == 'categories') {
+					$addView = false;
+				}
+			}
+
+			if ($addView) {
+				$segments[] = $query['view'];
+			}
+
 			unset($query['view']);
 
 			// It may contain a category id
 			if (isset($query['category_id']) && $query['category_id']) {
-				$aliases = EDR::getCategoryAliases($query['category_id']);
-
-				foreach ($aliases as $alias) {
-					$segments[]	= $alias;
-				}
+				$segments[] = EDR::getAlias('category', $query['category_id']);
 
 				unset($query['category_id']);
 			}
 
 			if (isset($query['layout'])) {
-				// $segments[]	= $query['layout'];
+				// $segments[]  = $query['layout'];
 				unset($query['layout']);
 			}
 
@@ -326,7 +336,7 @@ class EasyDiscussRouter extends EasyDiscuss
 			unset( $query['view'] );
 
 			if (isset($query['layout'])) {
-				$segments[]	= $query['layout'];
+				$segments[] = $query['layout'];
 				unset($query['layout']);
 			}
 		}
@@ -337,7 +347,7 @@ class EasyDiscussRouter extends EasyDiscuss
 			unset( $query['view'] );
 
 			if (isset($query['layout'])) {
-				$segments[]	= $query['layout'];
+				$segments[] = $query['layout'];
 				unset($query['layout']);
 			}
 		}
@@ -356,7 +366,7 @@ class EasyDiscussRouter extends EasyDiscuss
 			unset( $query['view'] );
 
 			if (isset($query['layout'])) {
-				$segments[]	= $query['layout'];
+				$segments[] = $query['layout'];
 				unset($query['layout']);
 			}
 		}
@@ -373,7 +383,7 @@ class EasyDiscussRouter extends EasyDiscuss
 		}
 
 		if (isset($query['sort'])) {
-			$segments[]	= $query['sort'];
+			$segments[] = $query['sort'];
 			unset( $query['sort'] );
 		}
 
@@ -403,12 +413,12 @@ class EasyDiscussRouter extends EasyDiscuss
 		// Re-assign the correct item route to the segments if the item route is exists within the view.
 		// This is to avoid the link query to be treated as 'post' view all the times when menu item is exist. #1927
 		// if (in_array($item->route, $views) && $item->component == 'com_easydiscuss') {
-		// 	if (isset($segments[1])) {
-		// 		$segments[2] = $segments[1];
-		// 	}
+		//  if (isset($segments[1])) {
+		//      $segments[2] = $segments[1];
+		//  }
 
-		// 	$segments[1] = $segments[0];
-		// 	$segments[0] = $item->route;
+		//  $segments[1] = $segments[0];
+		//  $segments[0] = $item->route;
 		// }
 
 
@@ -424,46 +434,46 @@ class EasyDiscussRouter extends EasyDiscuss
 				$catAliases = $model->getCategoryPermalinks();
 				$tagAliass = $model->getTagPermalinks();
 
-                $testItem = JString::str_ireplace(':', '-', $segments[$numSegments - 1]);
+				$testItem = JString::str_ireplace(':', '-', $segments[$numSegments - 1]);
 
-                if (in_array($testItem, $catAliases)) {
-                   array_unshift($segments, 'forums');
-                } else {
+				if (in_array($testItem, $catAliases)) {
+				   array_unshift($segments, 'forums');
+				} else {
 
-                    // if the current active menu item is pointing to below views, means we now the current url most likely is a post url.
-                    // thus, we need to exclude these views for later checking.
-                    $xViews = array('index', 'forums', 'post', 'categories', 'tags');
-                    $xView = isset($item->query['view']) && $item->query['view'] ? $item->query['view'] : '';
+					// if the current active menu item is pointing to below views, means we now the current url most likely is a post url.
+					// thus, we need to exclude these views for later checking.
+					$xViews = array('index', 'forums', 'post', 'categories', 'tags');
+					$xView = isset($item->query['view']) && $item->query['view'] ? $item->query['view'] : '';
 
-                    if ($numSegments >= 2) {
-                        if (in_array($segments[count($segments) - 1], $repliesSorting)) {
-                            // this is a post.
-                            array_unshift($segments, 'post');
-                        } else {
-                            // we just assign the first segment to be a post
-                            if ($item->component == 'com_easydiscuss' && $xView && !in_array($xView, $xViews)) {
-                                array_unshift($segments, $xView);
-                            } else {
-                                // this is a post page
-                                $segments[0] = 'post';
-                            }
-                        }
-                    } else {
+					if ($numSegments >= 2) {
+						if (in_array($segments[count($segments) - 1], $repliesSorting)) {
+							// this is a post.
+							array_unshift($segments, 'post');
+						} else {
+							// we just assign the first segment to be a post
+							if ($item->component == 'com_easydiscuss' && $xView && !in_array($xView, $xViews)) {
+								array_unshift($segments, $xView);
+							} else {
+								// this is a post page
+								$segments[0] = 'post';
+							}
+						}
+					} else {
 						if ($item->component == 'com_easydiscuss' && $xView && !in_array($xView, $xViews)) {
 							array_unshift($segments, $xView);
 						} else {
-                        	// we need further check if this is a post alias or not.
-                			if (in_array($testItem, $tagAliass)) {
-                        		array_unshift($segments, 'tags');
-                			} else {
-                				// this is a post
-                				array_unshift($segments, 'post');
-                			}
+							// we need further check if this is a post alias or not.
+							if (in_array($testItem, $tagAliass)) {
+								array_unshift($segments, 'tags');
+							} else {
+								// this is a post
+								array_unshift($segments, 'post');
+							}
 						}
 
-                    }
+					}
 
-                }
+				}
 			}
 		}
 
@@ -517,7 +527,7 @@ class EasyDiscussRouter extends EasyDiscuss
 			}
 
 			if ($postId) {
-				$vars['id']	= $postId;
+				$vars['id'] = $postId;
 			}
 
 
@@ -542,45 +552,45 @@ class EasyDiscussRouter extends EasyDiscuss
 			}
 		}
 
-        /*
-            /forums/cat1/cat2/cat3
-            /forums/cat1/cat2/cat3/listings
-        */
+		/*
+			/forums/cat1/cat2/cat3
+			/forums/cat1/cat2/cat3/listings
+		*/
 		if (isset($segments[0]) && $segments[0] == 'forums') {
 			$vars['view'] = 'forums';
 
-            $count = count($segments);
-            if ($count > 1) {
-                if (isset($segments[$count-1]) && $segments[$count-1] == 'listings') {
+			$count = count($segments);
+			if ($count > 1) {
+				if (isset($segments[$count-1]) && $segments[$count-1] == 'listings') {
 
-                    // get the last cat
-                    $category = $segments[$count-2];
-                    $vars['category_id'] = EDR::decodeAlias($category, 'Category');
+					// get the last cat
+					$category = $segments[$count-2];
+					$vars['category_id'] = EDR::decodeAlias($category, 'Category');
 
-                    $vars['layout'] = 'listings';
-                } else {
-                    // try to get check if the second last segment also a cat or not.
-                    $parentCatId = null;
-                    if (isset($segments[$count-2]) && $segments[$count-2]) {
-                        $tmp = $segments[$count-2];
-                        $parentCatId = EDR::decodeAlias($tmp, 'Category');
-                    }
+					$vars['layout'] = 'listings';
+				} else {
+					// try to get check if the second last segment also a cat or not.
+					$parentCatId = null;
+					if (isset($segments[$count-2]) && $segments[$count-2]) {
+						$tmp = $segments[$count-2];
+						$parentCatId = EDR::decodeAlias($tmp, 'Category');
+					}
 
-                    // get the last cat
-                    $category = $segments[$count-1];
-                    $catId = null;
-                    if ($parentCatId) {
-                        $model = ED::model('Category');
-                        $catId = $model->getIdFromAlias($category, $parentCatId);
-                    }
+					// get the last cat
+					$category = $segments[$count-1];
+					$catId = null;
+					if ($parentCatId) {
+						$model = ED::model('Category');
+						$catId = $model->getIdFromAlias($category, $parentCatId);
+					}
 
-                    if (! $catId) {
-                        $catId = EDR::decodeAlias($category, 'Category');
-                    }
+					if (! $catId) {
+						$catId = EDR::decodeAlias($category, 'Category');
+					}
 
-                    $vars['category_id'] = $catId;
-                }
-            }
+					$vars['category_id'] = $catId;
+				}
+			}
 		}
 
 		if (isset($segments[0]) && $segments[0] == 'index') {
@@ -631,7 +641,7 @@ class EasyDiscussRouter extends EasyDiscuss
 				}
 			}
 
-			$vars['id']	= $id;
+			$vars['id'] = $id;
 		}
 
 		if (isset($segments[0]) && $segments[0] == 'categories') {
@@ -641,38 +651,38 @@ class EasyDiscussRouter extends EasyDiscuss
 			if ($count > 1) {
 				$vars['view'] = $segments[0];
 
-				$vars['layout']	= 'listings';
+				$vars['layout'] = 'listings';
 
 				$segments = EDR::encodeSegments($segments);
 
-                // try to get check if the second last segment also a cat or not.
-                $parentCatId = null;
-                if (isset($segments[$count-2]) && $segments[$count-2]) {
-                    $tmp = $segments[$count-2];
-                    $parentCatId = EDR::decodeAlias($tmp, 'Category');
-                }
+				// try to get check if the second last segment also a cat or not.
+				$parentCatId = null;
+				if (isset($segments[$count-2]) && $segments[$count-2]) {
+					$tmp = $segments[$count-2];
+					$parentCatId = EDR::decodeAlias($tmp, 'Category');
+				}
 
-                // get the last cat
-                $category = $segments[$count-1];
-                $catId = null;
-                if ($parentCatId) {
-                    $model = ED::model('Category');
-                    $catId = $model->getIdFromAlias($category, $parentCatId);
-                }
+				// get the last cat
+				$category = $segments[$count-1];
+				$catId = null;
+				if ($parentCatId) {
+					$model = ED::model('Category');
+					$catId = $model->getIdFromAlias($category, $parentCatId);
+				}
 
-                if (! $catId) {
-                    $catId = EDR::decodeAlias($category, 'Category');
-                }
+				if (! $catId) {
+					$catId = EDR::decodeAlias($category, 'Category');
+				}
 
-                $vars['category_id'] = $catId;
+				$vars['category_id'] = $catId;
 
 
 				// if (isset($segments[3])) {
-				// 	$vars['filter']	= $segments[3];
+				//  $vars['filter'] = $segments[3];
 
-				// 	if (isset($segments[4])) {
-				// 		$vars['sort'] = $segments[4];
-				// 	}
+				//  if (isset($segments[4])) {
+				//      $vars['sort'] = $segments[4];
+				//  }
 				// }
 			}
 		}
@@ -700,7 +710,7 @@ class EasyDiscussRouter extends EasyDiscuss
 		}
 
 		if (isset($segments[0]) && $segments[0] == 'profile') {
-			$count	= count($segments);
+			$count  = count($segments);
 
 			if ($count > 1) {
 				$segments = EDR::encodeSegments($segments);
@@ -733,7 +743,7 @@ class EasyDiscussRouter extends EasyDiscuss
 								$segments[1] = JString::str_ireplace('-', ' ', $segments[1]);
 							}
 
-							$id	= ED::getUserId($segments[1]);
+							$id = ED::getUserId($segments[1]);
 							$user = JFactory::getUser($id);
 						}
 
@@ -755,7 +765,7 @@ class EasyDiscussRouter extends EasyDiscuss
 			$count = count($segments);
 
 			if ($count > 1) {
-                $vars['sort'] = $segments[1];
+				$vars['sort'] = $segments[1];
 			}
 
 			$vars['view'] = $segments[0];
@@ -811,7 +821,7 @@ class EasyDiscussRouter extends EasyDiscuss
 			$vars['view'] = $segments[0];
 
 			if (isset($segments[1])) {
-				$vars['layout']	= $segments[1];
+				$vars['layout'] = $segments[1];
 			}
 		}
 
@@ -819,7 +829,7 @@ class EasyDiscussRouter extends EasyDiscuss
 			$vars['view'] = $segments[0];
 
 			if (isset($segments[1])) {
-				$vars['layout']	= $segments[1];
+				$vars['layout'] = $segments[1];
 			}
 		}
 
@@ -828,7 +838,7 @@ class EasyDiscussRouter extends EasyDiscuss
 			$vars['view'] = $segments[0];
 
 			if (isset($segments[1])) {
-				$vars['filter']	= $segments[1];
+				$vars['filter'] = $segments[1];
 			}
 		}
 

@@ -28,7 +28,7 @@ if ($post->isQuestion() && !$this->config->get('main_location_discussion')) {
         <div class="pull-left">
             <i class="fa fa-map-marker"></i>&nbsp; <?php echo $post->address; ?>
         </div>
-        <a href="http://www.google.com/maps?q=<?php echo urlencode($post->address);?>&amp;hl=en" class="pull-right">
+        <a href="http://www.google.com/maps?q=<?php echo urlencode($post->address);?>&amp;hl=en" class="pull-right" target="_blank">
         	<?php echo JText::_('COM_EASYDISCUSS_LOCATION_VISIT'); ?>&nbsp; <i class="fa fa-external-link"></i>
         </a>
     </div>

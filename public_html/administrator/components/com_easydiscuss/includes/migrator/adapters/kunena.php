@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * Komento is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -288,7 +288,7 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 	}
 
-	public function migrate($resetHits, $migrateSignature)
+	public function migrate($resetHits, $migrateSignature, $migrateAvatar)
 	{
 		$config = ED::config();
 
@@ -318,6 +318,13 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 			$this->migrateUserSignature();
 
 			$status .= JText::_('COM_EASYDISCUSS_MIGRATOR_MIGRATED_KUNENA_SIGNATURE') . '<br />';
+		}
+
+		// We need to migrate user's avatar regardless there is post to migrate or not
+		if ($migrateAvatar) {
+			$this->migrateUserAvatar();
+
+			$status .= JText::_('COM_EASYDISCUSS_MIGRATOR_MIGRATED_KUNENA_AVATAR') . '<br />';
 		}
 
 		// If there's nothing to load just skip this
@@ -370,7 +377,7 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 	public function migrateUserSignature()
 	{
-		$db	= $this->db;
+		$db = $this->db;
 
 		// Get all the Kunena users
 		$query = 'select * from `#__kunena_users`';
@@ -389,6 +396,113 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 					$edUser->store();
 				}
 			}
+		}
+	}
+
+	public function migrateUserAvatar()
+	{
+		$db = $this->db;
+		$config = ED::config();
+
+		$query = 'select * from `#__kunena_users`';
+
+		$db->setQuery($query);
+		$kunenaUsers = $db->loadObjectList();
+
+		if (count($kunenaUsers) <= 0) {
+			return null;
+		}
+
+		foreach ($kunenaUsers as $kunenaUser) {
+
+			if (!$kunenaUser->avatar) {
+				continue;
+			}
+
+			$userid = $kunenaUser->userid;
+
+			// media/kunena/avatars/users/avatar***.jpg
+			$imagePath = JPATH_ROOT . '/media/kunena/avatars/' . $kunenaUser->avatar;
+
+			if (!JFile::exists($imagePath)) {
+				continue;
+			}
+
+			$fileName = basename($imagePath);
+
+			$avatar_config_path	= $config->get('main_avatarpath');
+			$avatar_config_path	= rtrim($avatar_config_path, '/');
+			$avatar_config_path	= JString::str_ireplace('/', DIRECTORY_SEPARATOR, $avatar_config_path);
+
+			// Get the upload path
+			$target_file_path = JPATH_ROOT . '/' . $avatar_config_path;
+
+			if (!JFolder::exists($target_file_path)) {
+				JFolder::create($target_file_path);
+			}
+
+			// Makesafe on the file
+			$date = ED::date();
+			$file_ext = ED::Image()->getFileExtention($fileName);
+			$fileName = $userid . '_' . JFile::makeSafe(md5($fileName.$date->toSql())) . '.' . strtolower($file_ext);
+
+			$target_file = JPath::clean($target_file_path . '/' . JFile::makeSafe($fileName));
+			$original = JPath::clean($target_file_path . '/' . 'original_' . JFile::makeSafe($fileName));
+
+			$profile = ED::table('Profile');
+			$profile->load($userid);
+
+			//rename the file 1st.
+			$oldAvatar = $profile->avatar;
+			$tempAvatar	= '';
+			$isNew = ($oldAvatar == 'default.png')? true : false ;
+
+			if (!$isNew) {
+				$session = JFactory::getSession();
+				$sessionId = $session->getToken();
+
+				$fileExt = JFile::getExt(JPath::clean($target_file_path . '/' . $oldAvatar));
+				$tempAvatar	= JPath::clean($target_file_path . '/' . $sessionId . '.' . $fileExt);
+
+				// Test if old original file exists. If exist, remove it.
+				if (JFile::exists($target_file_path . '/original_' . $oldAvatar)) {
+					JFile::delete($target_file_path . '/original_' . $oldAvatar);
+				}
+
+				if ($oldAvatar) {
+					JFile::move($target_file_path . '/' . $oldAvatar, $tempAvatar);
+				}
+			}
+
+			// image size should be in ratio of 1:1,
+			// Means whatever is set in width, must also being used for height
+			$configWidth = $config->get('layout_avatarwidth', 160);
+			$configHeight = $configWidth;
+
+			$originalWidth = $config->get('layout_originalavatarwidth', 400);
+			$originalHeight = $originalWidth;
+
+			// Copy the original image files over
+			$image = ED::simpleimage();
+			$image->load($imagePath);
+			$image->resizeOriginal($originalWidth, $originalHeight, $configWidth, $configHeight);
+			$image->save($original, $image->image_type);
+			unset($image);
+
+			$image = ED::simpleimage();
+			$image->load($imagePath);
+			$image->resizeToFill($configWidth, $configHeight);
+			$image->save($target_file, $image->image_type);
+
+			//now we update the user avatar. If needed, we remove the old avatar.
+			if (!$isNew) {
+				if (JFile::exists($tempAvatar)) {
+					JFile::delete($tempAvatar);
+				}
+			}
+
+			$profile->avatar = JFile::makeSafe($fileName);
+			$profile->store();
 		}
 	}
 

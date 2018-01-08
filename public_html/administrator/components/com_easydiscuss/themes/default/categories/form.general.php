@@ -121,6 +121,33 @@ defined('_JEXEC') or die('Unauthorized Access');
 		</div>
 
 		<div class="col-md-6">
+			<?php if ($this->config->get('main_private_post')) { ?>
+			<div class="panel">
+				<?php echo $this->html('panel.head', 'COM_ED_CATEGORY_PRIVATE_POSTINGS'); ?>
+
+				<div class="panel-body">
+					<div class="form-horizontal">
+						<div class="form-group">
+							<div class="col-md-5 control-label">
+								<?php echo $this->html('form.label', 'COM_ED_DEFAULT_PRIVATE_POST'); ?>
+							</div>
+							<div class="col-md-7">
+								<?php echo $this->html('form.boolean', 'cat_default_private', $category->getParam('cat_default_private', false));?>
+							</div>
+						</div>
+						<div class="form-group">
+							<div class="col-md-5 control-label">
+								<?php echo $this->html('form.label', 'COM_ED_ENFORCE_PRIVATE_POST'); ?>
+							</div>
+							<div class="col-md-7">
+								<?php echo $this->html('form.boolean', 'cat_enforce_private', $category->getParam('cat_enforce_private', false));?>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<?php } ?>
+
 			<div class="panel">
 				<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_CATEGORY_EMAIL_PARSER'); ?>
 

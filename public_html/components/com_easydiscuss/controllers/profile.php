@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -20,8 +20,6 @@ class EasyDiscussControllerProfile extends EasyDiscussController
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
 	public function display($cachable = false, $urlparams = false)
 	{
@@ -32,6 +30,12 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 		$view->display();
 	}
 
+    /**
+     * Store user profile data
+     *
+     * @since   4.0
+     * @access  public
+     */
 	public function saveProfile()
 	{
 		// Check for request forgeries
@@ -45,7 +49,7 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 		array_walk($post, array($this, '_trim'));
 
 		if (!$this->_validateProfileFields($post)) {
-			$this->setRedirect(EDR::_('view=profile&layout=edit' , false ) );
+			$this->setRedirect(EDR::_('view=profile&layout=edit', false));
 			return;
 		}
 
@@ -80,9 +84,15 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 		}
 
 		$my->name = $post['fullname'];
+
 		// We check for password2 instead off password because apparently it is still autofill the form although is autocomplete="off"
 		if (!empty($post['password2'])) {
 			$my->password = $post['password'];
+			$userRequiredBind = true;
+		}
+
+		// we check for this because user have chance to modify their email as well
+		if (!empty($post['email']) && $my->email != $post['email']) {
 			$userRequiredBind = true;
 		}
 
@@ -242,12 +252,33 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 			return false;
 		}
 
+		if (JString::strlen($post['email']) == 0) {
+			$message = JText::_('COM_ED_EMAIL_EMPTY');
+			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
+			return false;
+		}
+
+		$validEmail = ED::string()->isValidEmail($post['email']);
+
+		if (!$validEmail) {
+			$message = JText::_('COM_EASYDISCUSS_INVALID_EMAIL_ADDRESS');
+			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
+			return false;			
+		}
+
 		if (!empty($post['password'])) {
 
 			if (JString::strlen($post['password']) < 4) {
 				$message = JText::_('COM_EASYDISCUSS_PROFILE_PASSWORD_TOO_SHORT');
 				ED::setMessage($message, DISCUSS_QUEUE_ERROR);
 				return false;
+			}
+
+			// since this first password user did enter, we need to check for second password field as well
+			if (empty($post['password2'])) {
+				$message = JText::_('COM_EASYDISCUSS_PROFILE_PASSWORD_NOT_MATCH');
+				ED::setMessage($message, DISCUSS_QUEUE_ERROR);
+				return false;				
 			}
 		}
 

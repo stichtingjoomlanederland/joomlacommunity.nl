@@ -41,7 +41,7 @@ class EasyDiscussParser extends EasyDiscuss
 						 '/\[b\](.*?)\[\/b\]/ims',
 						 '/\[i\](.*?)\[\/i\]/ims',
 						 '/\[u\](.*?)\[\/u\]/ims',
-						 '/\[img\]((http|https):\/\/([a-z0-9\%._\s\*_\/+-]+)\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF))\[\/img]/ims',
+						 '/\[img\]((http|https):\/\/([a-z0-9\%._\s\*_\/+-]+)\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF).*?)\[\/img]/ims',
 						 '/\[quote\]([^\[\/quote\]].*?)\[\/quote\]/ims',
 						 '/\[quote\](.*?)\[\/quote\]/ims',
 						 '/\[left\](.*?)\[\/left\]/ims',
@@ -80,8 +80,12 @@ class EasyDiscussParser extends EasyDiscuss
 
 		// special treatment to UL and LI. Need to do this step 1st before send for replacing the rest bbcodes. @sam
 		$text = EasyDiscussParserUtilities::parseListItems($text);
+
 		// Replace bbcodes
 		$text = preg_replace($bbcodeSearch, $bbcodeReplace, $text);
+
+		// Replace any unused img tag to url tag for fail regex match
+		$text = $this->replaceImgToUrl($text);
 
 		// Urls have special treatments
 		$text = $this->replaceBBCodeURL($text);
@@ -90,7 +94,7 @@ class EasyDiscussParser extends EasyDiscuss
 		$text = ED::string()->replaceUrl($tmp, $text);
 
 		// Replace mentions
-		if ($this->config->get('main_mentions') && $this->my->id) {
+		if ($this->config->get('main_mentions')) {
 			$text = $this->replaceMentions($text);
 		}
 
@@ -132,7 +136,7 @@ class EasyDiscussParser extends EasyDiscuss
 	/**
 	 * Replaces attachments embed codes with proper values
 	 *
-	 * @since	5.1
+	 * @since	4.0
 	 * @access	public
 	 */
 	public function replaceAttachmentsEmbed($text, $post)
@@ -232,6 +236,22 @@ class EasyDiscussParser extends EasyDiscuss
 	}
 
 	/**
+	 * Replace any [img] tag to [url] tag
+	 *
+	 * @since	4.0.16
+	 * @access	public
+	 */
+	public function replaceImgToUrl($text)
+	{
+		$pattern = '/\[img\](.*?)\[\/img]/ims';
+		$replace = '[url="\1"]\1[/url]';
+
+		$text = preg_replace($pattern, $replace, $text);
+
+		return $text;
+	}
+
+	/**
 	 * Replaces url tags in bbcode
 	 *
 	 * @since	4.0.15
@@ -315,8 +335,6 @@ class EasyDiscussParser extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function replaceCodes($text, $debug = false)
 	{
@@ -336,8 +354,6 @@ class EasyDiscussParser extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function replaceGist($text, $debug = false)
 	{
@@ -355,8 +371,6 @@ class EasyDiscussParser extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function replaceMentions($text, $debug = false)
 	{
@@ -368,24 +382,23 @@ class EasyDiscussParser extends EasyDiscuss
 
 		foreach ($users as $user) {
 			$link = $user->getLink();
-			$name = $user->getName();
+			$name = htmlentities($user->getName());
 
-			$search = array('@' . $user->getName() . '#');
-
+			$search = array('@' . $name . '#');
 
 			$popbox = "";
-            if (!$this->config->get('integration_easysocial_popbox')) {
-                $popbox .= ' data-ed-popbox="ajax://site/views/profile/popbox"';
-                $popbox .= ' data-ed-popbox-position="top-left"';
-                $popbox .= ' data-ed-popbox-toggle="hover"';
-                $popbox .= ' data-ed-popbox-offset="4"';
-                $popbox .= ' data-ed-popbox-type="avatar"';
-                $popbox .= ' data-ed-popbox-component="popbox--avatar"';
-                $popbox .= ' data-ed-popbox-cache="1"';
-                $popbox .= ' data-args-id="' . $user->id . '"';
-            }
+			if (!$this->config->get('integration_easysocial_popbox')) {
+				$popbox .= ' data-ed-popbox="ajax://site/views/profile/popbox"';
+				$popbox .= ' data-ed-popbox-position="top-left"';
+				$popbox .= ' data-ed-popbox-toggle="hover"';
+				$popbox .= ' data-ed-popbox-offset="4"';
+				$popbox .= ' data-ed-popbox-type="avatar"';
+				$popbox .= ' data-ed-popbox-component="popbox--avatar"';
+				$popbox .= ' data-ed-popbox-cache="1"';
+				$popbox .= ' data-args-id="' . $user->id . '"';
+			}
 
-			$replace = '<a href="' . $link . '"' . $popbox . '>' . $user->getName() . '</a>';
+			$replace = '<a href="' . $link . '"' . $popbox . '>' . $name . '</a>';
 
 			if ($user->isBlocked()) {
 				$replace = $user->getName();
@@ -402,8 +415,6 @@ class EasyDiscussParser extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function processGistBlocks($blocks)
 	{
@@ -514,8 +525,6 @@ class EasyDiscussParser extends EasyDiscuss
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string	The contents
-	 * @return
 	 */
 	public function processCodeBlocks($blocks)
 	{
@@ -609,8 +618,6 @@ class EasyDiscussParser extends EasyDiscuss
 	 *
 	 * @since	4.0.12
 	 * @access	public
-	 * @param	string	The text to lookup for
-	 * @return	string 	The proper contents in bbcode img format.
 	 */
 	public function convert2validImgLink($content)
 	{
@@ -854,7 +861,7 @@ class EasyDiscussParserUtilities
 		$inputs = preg_replace('#\[quote=(.+?)\d+\]#', '<blockquote>', $inputs);
 		$inputs = preg_replace('#\[/quote\]#', '</blockquote>', $inputs );
 
-	  	return $inputs;
+		return $inputs;
 	 }
 
 	/**

@@ -48,7 +48,12 @@ class EasyDiscussPagination extends EasyDiscuss
 		$this->pagination = new JPagination($this->total, $this->limitstart, $this->limit, $this->prefix);
 	}
 
-	// alias method
+	/**
+	 * Proxy method to JPagination
+	 *
+	 * @since	4.0.19
+	 * @access	public
+	 */
 	public function getPagesLinks($viewpage = 'index', $filtering = array(), $doReplace = false)
 	{
 		return $this->toHTML($viewpage, $filtering, $doReplace);
@@ -97,6 +102,17 @@ class EasyDiscussPagination extends EasyDiscuss
 		$contents = $theme->output($path . '/pagination/default');
 
 		return $contents;
+	}
+
+	/**
+	 * Alias for JPagination
+	 *
+	 * @since	4.0.20
+	 * @access	public
+	 */
+	public function setAdditionalUrlParam($key, $value)
+	{
+		return $this->pagination->setAdditionalUrlParam($key, $value);
 	}
 
 	/**

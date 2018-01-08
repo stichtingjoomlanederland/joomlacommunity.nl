@@ -43,7 +43,14 @@ class EasyDiscussRanks extends EasyDiscuss
 			if ($type == 'posts') {
 				$curUserScore = 0;
 			} else {
+
 				$curUserScore = $user->points;
+
+				// We need to respect if user integrated with ES's point
+				if ($this->config->get('integration_easysocial_points')) {
+					$esLib = ED::easysocial();
+					$curUserScore = ED::easysocial()->getUserPoints($userId);
+				}
 			}
 		}
 
@@ -58,9 +65,11 @@ class EasyDiscussRanks extends EasyDiscuss
 		$query = 'select `id`, `title`, `end` from `#__discuss_ranks`';
 		$query .= ' where ( (' . $this->db->Quote($curUserScore) . ' >= `start` and ' . $this->db->Quote($curUserScore) . ' <= `end` ) OR ' . $this->db->Quote($curUserScore) . ' > `end` )';
 
-		if (!empty($userRank->rank_id)) {
-			$query .= ' and `id` > ' . $this->db->Quote($userRank->rank_id);
-		}
+		// it is not always need to be higher than a current rank. 
+		// In some cases, like change from 'number of post' to 'points' might lower down the rank.
+		// if (!empty($userRank->rank_id)) {
+		// 	$query .= ' and `id` > ' . $this->db->Quote($userRank->rank_id);
+		// }
 
 		$query .= ' ORDER BY `end` DESC limit 1';
 
@@ -71,6 +80,11 @@ class EasyDiscussRanks extends EasyDiscuss
 
 			if (empty($newRank->id)) {
 				return true;
+			}
+
+			// Before we assign new rank, we must remove the current rank.
+			if (!is_null($userRank->id)) {
+				$userRank->delete();
 			}
 
 			// insert new rank into users

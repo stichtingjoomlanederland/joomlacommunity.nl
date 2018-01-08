@@ -62,7 +62,7 @@ class EasyDiscussSharerButtonFacebook extends EasyDiscuss
 		}
 
 		$html .= '<fb:like href="' . $url . '" send="' . $send . '" layout="' . $layout . '" action="' . $verb . '" ';
-		$html .= 'locale="' . $locale . '" colorscheme="' . $theme . '" show_faces="' . $faces . '" style="height: ' . $height . ';" height="' . $height . '"></fb:like>';
+		$html .= 'locale="' . $locale . '" colorscheme="' . $theme . '" show_faces="' . $faces . '" style="height: ' . $height . 'px;" height="' . $height . '"></fb:like>';
 		$html .= '</div>';
 
 		return $html;

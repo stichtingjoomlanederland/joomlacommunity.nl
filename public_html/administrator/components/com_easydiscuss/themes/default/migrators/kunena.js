@@ -30,7 +30,8 @@ ed.require(['edq'], function($) {
 		EasyDiscuss.ajax('admin/views/migrators/migrate', {
 			"component": "com_kunena",
 			"resetHits": $('[data-migrator-kunena-hits]').is(':checked') ? 1 : 0,
-			"migrateSignature": $('[data-migrator-kunena-signature]').is(':checked') ? 1 : 0
+			"migrateSignature": $('[data-migrator-kunena-signature]').is(':checked') ? 1 : 0,
+			"migrateAvatar": $('[data-migrator-kunena-avatar]').is(':checked') ? 1 : 0
 		}).done(function(result, status, total) {
 
 			// Append the current status

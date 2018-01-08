@@ -805,38 +805,133 @@ class ED
 
 	public static function getAjaxURL()
 	{
-		$uri		= JFactory::getURI();
-		$language	= $uri->getVar('lang', 'none');
-		$app		= JFactory::getApplication();
-		$config		= ED::getJConfig();
-		$router		= $app->getRouter();
-		$url		= rtrim( JURI::base() , '/' );
+		static $url;
 
-		$url 		= $url . '/index.php?option=com_easydiscuss&lang=' . $language;
+		if (isset($url)) {
+			return $url;
+		}
 
-		if( $router->getMode() == JROUTER_MODE_SEF && JPluginHelper::isEnabled("system","languagefilter") )
-		{
-			$rewrite	= $config->get('sef_rewrite');
+		$uri = JFactory::getURI();
+		$language = $uri->getVar('lang', 'none');
 
-			$base		= str_ireplace( JURI::root( true ) , '' , $uri->getPath() );
-			$path		=  $rewrite ? $base : JString::substr( $base , 10 );
-			$path		= JString::trim( $path , '/' );
-			$parts		= explode( '/' , $path );
+		// Remove any ' or " from the language because language should only have -
+		$app = JFactory::getApplication();
+		$input = $app->input;
 
-			$language = addslashes($language);
+		$language = $input->get('lang', '', 'cmd');
 
-			if($parts) {
-				// First segment will always be the language filter.
-				$language	= reset( $parts );
+		$jConfig = ED::jconfig();
+
+		// Get the router
+		$router = $app->getRouter();
+
+		// It could be admin url or front end url
+		$url = rtrim(JURI::base(), '/') . '/';
+
+		// Determines if we should use index.php for the url
+		$config = ED::config();
+
+		if ($config->get('system_ajax_index')) {
+			$url .= 'index.php';
+		}
+
+		// Append the url with the extension
+		$url = $url . '?option=com_easydiscuss&lang=' . $language;
+
+		// During SEF mode, we need to ensure that the URL is correct.
+		$languageFilterEnabled = JPluginHelper::isEnabled("system", "languagefilter");
+
+		if ($router->getMode() == JROUTER_MODE_SEF && $languageFilterEnabled) {
+
+			$sefs = JLanguageHelper::getLanguages('sef');
+			$lang_codes   = JLanguageHelper::getLanguages('lang_code');
+
+			$plugin = JPluginHelper::getPlugin('system', 'languagefilter');
+			$params = new JRegistry();
+			$params->loadString(empty($plugin) ? '' : $plugin->params);
+			$removeLangCode = is_null($params) ? 'null' : $params->get('remove_default_prefix', 'null');
+
+
+			// Determines if the mod_rewrite is enabled on Joomla
+			$rewrite = $jConfig->getValue('sef_rewrite');
+
+			if ($removeLangCode) {
+				$defaultLang = JComponentHelper::getParams('com_languages')->get('site', 'en-GB');
+				$currentLang = $app->input->cookie->getString(JApplicationHelper::getHash('language'), $defaultLang);
+
+				$defaultSefLang = $lang_codes[$defaultLang]->sef;
+				$currentSefLang = $lang_codes[$currentLang]->sef;
+
+				if ($defaultSefLang == $currentSefLang) {
+					$language = '';
+				} else {
+					$language = $currentSefLang;
+				}
+
 			} else {
-				$language	= 'none';
+				// Replace the path if it's on subfolders
+				$base = str_ireplace(JURI::root(true), '', $uri->getPath());
+
+				if ($rewrite) {
+					$path = $base;
+				} else {
+					$path = JString::substr($base, 10);
+				}
+
+				// Remove trailing / from the url
+				$path = JString::trim($path, '/');
+				$parts = explode('/', $path);
+
+				if ($parts) {
+					// First segment will always be the language filter.
+					$language = reset($parts);
+				} else {
+					$language = 'none';
+				}
+			}
+
+			if ($language) {
+				$language .= '/';
 			}
 
 			if ($rewrite) {
-				$url		= rtrim( JURI::root() , '/' ) . '/' . $language . '/?option=com_easydiscuss';
-				$language	= 'none';
+				$url = rtrim(JURI::root(), '/');
+
+				if ($config->get('general.ajaxindex')) {
+					$url .= '/index.php';
+				}
+
+				$url .= '/' . $language . '?option=com_easydiscuss';
 			} else {
-				$url		= rtrim( JURI::root() , '/' ) . '/index.php/' . $language . '/?option=com_easydiscuss';
+				$url = rtrim(JURI::root(), '/') . '/index.php/' . $language . '?option=com_easydiscuss';
+			}
+		}
+
+
+
+		$menu = JFactory::getApplication()->getmenu();
+
+		if (!empty($menu)) {
+			$item = $menu->getActive();
+
+			if (isset($item->id)) {
+				$url .= '&Itemid=' . $item->id;
+			}
+		}
+
+		// Some SEF components tries to do a 301 redirect from non-www prefix to www prefix. Need to sort them out here.
+		$currentURL = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
+
+		if (!empty($currentURL)) {
+
+			// When the url contains www and the current accessed url does not contain www, fix it.
+			if (stristr($currentURL, 'www') === false && stristr($url, 'www') !== false) {
+				$url = str_ireplace('www.', '', $url);
+			}
+
+			// When the url does not contain www and the current accessed url contains www.
+			if (stristr($currentURL, 'www') !== false && stristr($url, 'www') === false) {
+				$url = str_ireplace('://', '://www.', $url);
 			}
 		}
 
@@ -1018,7 +1113,13 @@ class ED
 	public static function isNew( $noofdays )
 	{
 		$config	= ED::getConfig();
-		$isNew	= ($noofdays <= $config->get('layout_daystostaynew', 7)) ? true : false;
+
+		$days = (int) $config->get('layout_daystostaynew', 7);
+		$isNew = false;
+
+		if ($days > 0) {
+			$isNew	= ($noofdays <= $config->get('layout_daystostaynew', 7)) ? true : false;
+		}
 
 		return $isNew;
 	}
@@ -1931,7 +2032,7 @@ class ED
 			for ($j	= 0; $j < count($arr->childs); $j++) {
 				$child = $arr->childs[$j];
 				$child->title = JText::_($child->title);
-				
+
 				switch ($type) {
 					case 'select':
 						$selected = (in_array($child->id, $default)) ? ' selected="selected"' : '';
@@ -3441,30 +3542,6 @@ class ED
 		} else {
 			$document->setMetadata('robots', $metaRobots);
 		}
-	}
-
-	public static function getFrontpageCategories()
-	{
-		$catModel		= ED::model('Categories');
-		$newPostCount	= 0;
-
-		if( !$categories = $catModel->getCategories() )
-		{
-			return array();
-		}
-
-		foreach ($categories as $category)
-		{
-			$postModel = ED::model( 'Posts' );
-			$category->newCount = $postModel->getNewCount( '' , $category->id , null , false );
-			$newPostCount += $category->newCount;
-		}
-
-		// Temporary store in user state.
-		$app = JFactory::getApplication();
-		$app->setUserState( 'com_easydiscuss.helper.totalnewpost', $newPostCount );
-
-		return $categories;
 	}
 
 	public static function log( $var = '', $force = 0 )

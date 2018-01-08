@@ -4,7 +4,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		limit: 0,
 		editable: false,
 		types: {
-			'image': ["jpg","png","gif"],
+			'image': ["jpg","png","gif", "jpeg"],
 			'archive': ["zip","rar","gz","gzip"],
 			'pdf': ["pdf"]
 		}
@@ -99,6 +99,12 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 			.removeClass('ed-attachment-form')
 			.addClass('attachment-type-' + file.type)
 
+		// If not image type, hide the insert link
+		if (file.type != 'image') {
+			var insertLink = form.children('[data-ed-attachment-item-insert]');
+			insertLink.remove();
+		}
+		
 		// Add it into the list
 		form.appendTo(list);
 

@@ -114,7 +114,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<div class="ed-post-item__ft t-bdt-no">
 						<ol class="g-list-inline g-list-inline--dashed">
 							<li><span class=""><?php echo $post->getDuration(); ?></span></li>
-							<li><a class="" href="<?php echo EDR::getCategoryRoute($post->getCategory()->id); ?>"><?php echo $post->getCategory()->title; ?></a></li>
+							<li><a class="" href="<?php echo EDR::getCategoryRoute($post->getCategory()->id); ?>"><?php echo JText::_($post->getCategory()->title); ?></a></li>
 
 							<?php if ($post->getLastReplier()) { ?>
 								<li class="current">

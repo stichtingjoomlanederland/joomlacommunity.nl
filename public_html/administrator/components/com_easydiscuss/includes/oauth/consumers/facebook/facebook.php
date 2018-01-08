@@ -167,18 +167,9 @@ class EasyDiscussFacebook extends Facebook
 
 		$params = array(
 						'link' => $data->permalink,
-						'name' => $data->title,
 						'actions' => '{"name": "' . JText::_('COM_EASYDISCUSS_AUTOPOST_FB_VIEWON_BUTTON') . '", "link" : "' . $data->permalink . '"}',
-						'description' => $data->contents,
-						'message' => $data->contents . '...',
-						'access_token' => $this->userAccessToken,
-						'picture' => $data->image
+						'access_token' => $this->userAccessToken
 		);
-
-		// If there is no image for this post
-		if (!$params['picture']) {
-			$params['picture'] = DISCUSS_JURIROOT . '/media/com_easydiscuss/images/default_facebook.png';
-		}
 
 		// Autopost to user's normal account
 		if (!$config->get('main_autopost_facebook_page_id') && !$config->get('main_autopost_facebook_group')) {

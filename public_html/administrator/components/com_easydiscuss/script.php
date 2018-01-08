@@ -99,8 +99,6 @@ class com_EasyDiscussInstallerScript
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function preflight()
 	{
@@ -138,8 +136,6 @@ class com_EasyDiscussInstallerScript
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param
-	 * @return
 	 */
 	public function checkEDVersionConfig()
 	{

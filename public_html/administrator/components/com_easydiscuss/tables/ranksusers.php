@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * Komento is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -23,8 +23,8 @@ class DiscussRanksUsers extends EasyDiscussTable
 	/**
 	 * Constructor for this class.
 	 *
-	 * @return
-	 * @param object $db
+	 * @since	4.0
+	 * @access	public
 	 */
 	public function __construct(& $db)
 	{
@@ -64,8 +64,6 @@ class DiscussRanksUsers extends EasyDiscussTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function bind($data, $ignore = array())
 	{

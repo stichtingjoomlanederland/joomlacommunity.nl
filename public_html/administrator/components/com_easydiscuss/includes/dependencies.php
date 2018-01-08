@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -11,7 +11,6 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-// This is required if anyone needs access to the engine.
 require_once(__DIR__ . '/constants.php');
 require_once(__DIR__ . '/router.php');
 
@@ -33,10 +32,6 @@ if (!function_exists('dump')) {
 	}
 }
 
-/**
- * Base helper class to provide additional helpers to subclasses.
- *
- */
 class EasyDiscuss
 {
 	public $config = null;
@@ -91,7 +86,7 @@ class EasyDiscuss
 		$this->error = JText::_($message);
 	}
 
-	public function getError($message)
+	public function getError()
 	{
 		return $this->error;
 	}

@@ -150,6 +150,8 @@ class EasyDiscussControllerCategory extends EasyDiscussController
 		$params->set('cat_email_parser', $post['cat_email_parser']);
 		$params->set('cat_email_parser_password', $post['cat_email_parser_password']);
 		$params->set('cat_email_parser_switch', $post['cat_email_parser_switch']);
+		$params->set('cat_default_private', $post['cat_default_private']);
+		$params->set('cat_enforce_private', $post['cat_enforce_private']);
 
 		// Set the params to category
 		$category->set('params', $params->toString());
@@ -165,7 +167,7 @@ class EasyDiscussControllerCategory extends EasyDiscussController
 		
 		// We need to ensure that the category is valid
 		if (!$category->validate()) {
-            ED::setMessage($category->getError(), 'error');
+			ED::setMessage($category->getError(), 'error');
 			return $this->app->redirect($validateRedirection);
 		}
 

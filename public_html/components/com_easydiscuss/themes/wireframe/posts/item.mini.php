@@ -106,7 +106,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <span class="muted"><?php echo $post->getDuration();?></span>
             </li>
             <li>
-                <a href="<?php echo $post->getCategory()->getPermalink();?>" class=""><?php echo $post->getCategory()->title;?></a>
+                <a href="<?php echo $post->getCategory()->getPermalink();?>" class=""><?php echo JText::_($post->getCategory()->title);?></a>
             </li>
 
             <?php if ($post->hasReplies()) { ?>

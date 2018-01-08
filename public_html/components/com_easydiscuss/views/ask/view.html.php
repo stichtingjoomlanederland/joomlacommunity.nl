@@ -122,6 +122,10 @@ class EasyDiscussViewAsk extends EasyDiscussView
 		$categoryModel = ED::model('Category');
 		$defaultCategory = $categoryModel->getDefaultCategory();
 
+		if ($categoryId && $category->id) {
+			$defaultCategory = $category;
+		}
+
 		if ($categoryId == 0 && $defaultCategory !== false) {
 			$categoryId = $defaultCategory->id;
 		}
@@ -225,6 +229,7 @@ class EasyDiscussViewAsk extends EasyDiscussView
 			}
 		}
 
+		$this->set('defaultCategory', $defaultCategory);
 		$this->set('minimumTitle', $minimumTitle);
 		$this->set('cancel', $cancel);
 		$this->set('post', $post);

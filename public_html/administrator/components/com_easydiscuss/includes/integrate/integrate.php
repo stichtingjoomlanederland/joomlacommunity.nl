@@ -107,6 +107,18 @@ class EasyDiscussIntegrate extends EasyDiscuss
 		return array($avatarLink, $profileLink);
 	}
 
+	private static function jsn($profile)
+	{
+		require_once(JPATH_ROOT . '/components/com_jsn/helpers/helper.php');
+
+		$user = JsnHelper::getUser($profile->id);
+
+		$avatarLink = $user->avatar;
+		$profileLink = EDR::_('index.php?option=com_easydiscuss&view=profile&id='.$profile->id, false);
+
+		return array($avatarLink, $profileLink);
+	}
+	
 	private static function easysocial($profile)
 	{
 		if (!ED::easysocial()->exists()) {

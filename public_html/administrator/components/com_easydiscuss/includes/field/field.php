@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -49,8 +49,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function __get($key)
 	{
@@ -155,8 +153,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function validate()
 	{
@@ -182,8 +178,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function save()
 	{
@@ -205,8 +199,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function delete()
 	{
@@ -232,8 +224,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function savePermissions($data = array())
 	{
@@ -253,8 +243,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function publish()
 	{
@@ -267,8 +255,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function unpublish()
 	{
@@ -281,8 +267,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function hasTooltips()
 	{
@@ -295,8 +279,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function hasOptions()
 	{
@@ -310,8 +292,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function getAssignedGroups($action = 'view')
 	{
@@ -326,8 +306,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function getFriendlyType()
 	{
@@ -341,8 +319,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function getSection()
 	{
@@ -360,8 +336,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function getOptions()
 	{
@@ -375,8 +349,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function getValue(EasyDiscussPost $post)
 	{
@@ -404,8 +376,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function getForm($value = null)
 	{
@@ -429,8 +399,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function move($direction)
 	{

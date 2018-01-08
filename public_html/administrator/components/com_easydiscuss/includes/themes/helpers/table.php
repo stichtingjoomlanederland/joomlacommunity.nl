@@ -280,10 +280,9 @@ class EasyDiscussThemesHelperTable
 	public static function getStatesConfig()
 	{
 		$obj = array(
-					'spools' => array('0' => 'scheduled', '1' => 'published'),
-
+					'spools' => array('0' => 'unpublished', '1' => 'published'),
 					'default' => array('0' => 'unpublished', "1" => "published")
-				);
+					);
 
 		return $obj;
 	}

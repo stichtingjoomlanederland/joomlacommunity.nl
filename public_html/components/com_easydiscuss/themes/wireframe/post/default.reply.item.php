@@ -124,7 +124,7 @@ defined('_JEXEC') or die('Restricted access');
 		<ol class="g-list-inline g-list-inline--dashed">
 			<li><span class=""><?php echo $post->getDuration(); ?></span></li>
 			<li>
-				<a href="<?php echo EDR::getCategoryRoute($post->getCategory()->id); ?>"><?php echo $post->getCategory()->title; ?></a>
+				<a href="<?php echo EDR::getCategoryRoute($post->getCategory()->id); ?>"><?php echo JText::_($post->getCategory()->title); ?></a>
 			</li>
 			<li>
 				<a data-ed-post-reply-seq="<?php echo $post->seq; ?>" href="<?php echo $post->permalink; ?>">

@@ -390,7 +390,7 @@ class EasyDiscussSubscription extends EasyDiscuss
 			$dateString = str_ireplace('/', '-', $dateString);
 			$date = ED::date($dateString);
 
-			$postsTicks[] = $date->display("M 'y");
+			$postsTicks[] = $date->display(JText::_('COM_EASYDISCUSS_DATE_DM'));
 		}
 
 		return array($subscribe, $postsTicks);

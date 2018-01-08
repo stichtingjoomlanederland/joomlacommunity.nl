@@ -24,8 +24,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function move()
 	{
@@ -59,8 +57,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   3.2
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getModerators()
 	{
@@ -91,8 +87,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function similarQuestion()
 	{
@@ -175,8 +169,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function confirmDelete()
 	{
@@ -214,7 +206,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	 *
 	 * @since   3.0
 	 * @access  public
-	 * @param   int     The unique post id.
 	 */
 	public function confirmAccept()
 	{
@@ -1749,9 +1740,28 @@ class EasyDiscussViewPost extends EasyDiscussView
 	}
 
 	/**
+	 * Retrieves the default checked state of private post when switching category
+	 *
+	 * @since   4.0.21
+	 * @access  public
+	 */
+	public function getPrivateState()
+	{
+		$categoryId = $this->input->get('categoryId', 0, 'int');
+
+		$category = ED::category($categoryId);
+		$params = $category->getParams();
+
+		$checked = $params->get('cat_default_private', false);
+		$enforced = $params->get('cat_enforce_private', false);
+
+		return $this->ajax->resolve($checked, $enforced);
+	}
+
+	/**
 	 * Retrieves a list of post types associated with a particular category
 	 *
-	 * @since   5.1
+	 * @since   4.0
 	 * @access  public
 	 */
 	public function getPostTypes()

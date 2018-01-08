@@ -38,7 +38,7 @@ class EasyDiscussSharerButtonGoogle extends EasyDiscuss
 		$googleHTML = '';
 
 		$size = 'medium';
-		$width = '60px';
+		$width = 'auto';
 
 		$googleHTML	.= '<div class="social-button google-plusone" style="width:' . $width . '">';
 		$googleHTML	.= '<script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>';

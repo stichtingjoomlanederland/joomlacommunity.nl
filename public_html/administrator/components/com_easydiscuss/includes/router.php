@@ -337,11 +337,19 @@ class EDR
 			if ($view == 'categories') {
 				$menu = self::getMenus($view, $layout, $category_id, $lang);
 
+				$hasLayout = is_null($layout);
+				$useGeneric = false;
+
+				if (!$menu && $layout && $category_id) {
+					$menu = self::getMenus($view, null, null, $lang);
+					$useGeneric = true;
+				}
+
 				if ($menu) {
 					$tmpId = $menu->id;
 				}
 
-				if ($tmpId) {
+				if (!$useGeneric && $tmpId) {
 					$dropSegment = true;
 				}
 			}
@@ -416,6 +424,18 @@ class EDR
 				}
 
 				if ($tmpId) {
+					$dropSegment = true;
+				}
+			}
+
+			if ($view == 'badges') {
+				$menu = self::getMenus($view, null, null, $lang);
+
+				if ($menu) {
+					$tmpId = $menu->id;
+				}
+
+				if (!$id && $tmpId) {
 					$dropSegment = true;
 				}
 			}
@@ -1294,7 +1314,6 @@ class EDR
 			}
 		}
 
-
 		// we know we just want the all menu items for EasyDiscuss. lets just return form the cache.
 		if (is_null($view) && is_null($layout) && is_null($id) && is_null($lang)) {
 			return $_cacheFlat;
@@ -1321,7 +1340,7 @@ class EDR
 
 		$key = $view . $layout . $id . $languageTag;
 
-	   // Get the current selection of menus from the cache
+		// Get the current selection of menus from the cache
 		if (!isset($selection[$key])) {
 
 			// 'any' is a special handle to get any menu items belong to ED.
@@ -1364,10 +1383,9 @@ class EDR
 				return $selection[$key];
 			}
 
-			// var_dump($selection[$key]);
-
 			// Search for $view only. Does not care about layout nor the id
 			if (isset($_cache[$view]) && isset($_cache[$view]) && is_null($layout)) {
+
 				if (isset($_cache[$view][0][$languageTag])) {
 					$selection[$key] = $_cache[$view][0][$languageTag];
 				} else if (isset($_cache[$view][0]['*'])) {

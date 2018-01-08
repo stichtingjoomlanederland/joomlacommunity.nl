@@ -40,7 +40,6 @@ class EasyDiscussLikes extends EasyDiscuss
 
 		// If this is an unlike request, we need to remove it.
 		$this->removeLikes($post->id, $this->my->id);
-		$post->updateThread(array('num_likes' => '-1'));
 
 		if ($post->user_id != $this->my->id) {
 			if ($post->isQuestion()) {
@@ -106,7 +105,6 @@ class EasyDiscussLikes extends EasyDiscuss
 
 		// Add the likes
 		$this->addLikes($post->id, 'post', $this->my->id);
-		$post->updateThread(array('num_likes' => '+1'));
 
 		// Try get the reply parent id
 		$question = ED::post($post->id);

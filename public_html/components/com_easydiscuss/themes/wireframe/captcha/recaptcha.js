@@ -1,4 +1,4 @@
-(function($){
+ed.require(['edq'], function($) {
 
 // Create recaptcha task
 var task = [
@@ -52,17 +52,13 @@ if (!window.recaptchaScriptLoaded) {
 	window.recaptchaScriptLoaded = true;
 }
 
-})(jQuery);
+});
 
 // We need to bind composer events
 ed.require(['edq'], function($) {
-
 	// Composer form being reset
 	$(document)
-	.on('composer.form.reset', '[data-ed-composer-form]', function(){
-
-		// Reset recaptcha's form
-		grecaptcha.reset();
-	});
-
+		.on('composer.form.reset', '[data-ed-composer-form]', function(){
+			grecaptcha.reset();
+		});
 });

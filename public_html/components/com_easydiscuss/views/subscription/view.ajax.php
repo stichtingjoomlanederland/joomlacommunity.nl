@@ -114,20 +114,20 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 		$state = $sub->load($sid);
 
 		if (! $state) {
-			return $this->ajax->reject(JText::_('Error! Subscription not found!'));
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_NOT_FOUND'));
 		}
 
 		$state = $sub->delete();
 
 		if (! $state) {
-			return $this->ajax->reject(JText::_('Error! Subscription failed to remove from system. Please try again later.'));
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_UNSUBSCRIBE_FAILED_ERROR_DELETING_RECORDS'));
 		}
 
-		$message = JText::_('You have successfully unsubscribed from the site updates.');
+		$message = JText::_('COM_EASYDISCUSS_UNSUBSCRIPTION_SITE_SUCCESS');
 		if ($type == 'category') {
-			$message = JText::_('You have successfully unsubscribed from this categry updates.');
+			$message = JText::_('COM_EASYDISCUSS_UNSUBSCRIPTION_CATEGORY_SUCCESS');
 		} else if ($type == 'post') {
-			$message = JText::_('You have successfully unsubscribed from this discussion updates.');
+			$message = JText::_('COM_ED_SUBSCRIPTION_UNSUBSCRIBE_DISCUSSION_SUCCESS');
 		}
 
 		return $this->ajax->resolve($message);

@@ -65,6 +65,11 @@ class plgContentEasyDiscuss extends JPlugin
 			return;
 		}
 
+		// If this post coming from EasyArticle, we should store it as com_content
+		if ($this->extension == 'com_easyarticles') {
+			$this->extension = 'com_content';
+		}
+
 		// If the current page is easydiscuss, we want to skip this altogether.
 		// We also need to skip this when the plugins are being triggered in the discussion replies otherwise it will
 		// be in an infinite loop generating all contents.
@@ -515,11 +520,11 @@ class plgContentEasyDiscuss extends JPlugin
 	private function getArticleURL(&$article)
 	{
 		$uri = JURI::getInstance();
-
+		$sefEnabled = EDR::isSefEnabled();
 
 		switch($this->extension)
 		{
-			 case 'com_content' || 'com_easyarticles':
+			 case 'com_content':
 
 				require_once(JPATH_ROOT . '/components/com_content/helpers/route.php');
 
@@ -529,19 +534,29 @@ class plgContentEasyDiscuss extends JPlugin
 				$category->load($article->catid);
 
 				$url = ContentHelperRoute::getArticleRoute($article->id . ':' . $article->alias , $article->catid);
-				$url = $url . '#discuss-' . $article->id;
 
 				// Check for SEF enabled
-				$router = new JRouterSite(array('mode'=>JROUTER_MODE_SEF));
-				$newUrl = $router->build($url)->toString(array('path', 'query', 'fragment'));
+				if ($sefEnabled) {
+
+					$router = new JRouterSite(array('mode'=>JROUTER_MODE_SEF));
+					$url = $router->build($url)->toString(array('path', 'query', 'fragment'));
+				
+				} else {
+
+					$url = JRoute::_(ContentHelperRoute::getArticleRoute($article->id . ':' . $article->alias , $article->catid));
+				}
 
 				// SEF url
-				$newUrl = str_replace('/administrator/', '', $newUrl);
+				$url = str_replace('/administrator/', '', $url);
 
 				// Tidying up the url
-				$newUrl = str_replace('component/content/article/', '', $newUrl);
+				$url = str_replace('component/content/article/', '', $url);
 
-				return $uri->toString(array('scheme', 'host', 'port')) . '/' . ltrim($newUrl , '/');
+				$domain = $uri->toString(array('scheme', 'host', 'port'));
+
+				$permalink = $domain . '/' . ltrim($url , '/');
+
+				return $permalink;
 
 			 break;
 			 case 'com_easyblog':
@@ -557,8 +572,6 @@ class plgContentEasyDiscuss extends JPlugin
 				$category->load($article->catid);
 
 				$url = K2HelperRoute::getItemRoute($article->id . ':' . $article->alias , $article->catid . ':' . $category->alias);
-
-				$url = $url . '#discuss-' . $article->id;
 
 				return $uri->toString(array('scheme', 'host', 'port')) . '/' . ltrim($url , '/');
 			 break;
@@ -711,12 +724,25 @@ class plgContentEasyDiscuss extends JPlugin
 		// @rule: We only take the introtext part.
 		$text = $article->introtext;
 
+		// Get full content for easyblog content
+		if ($this->extension == 'com_easyblog') {
+			$text = $article->original->content;
+
+			if (!$text) {
+				$text = $article->original->intro;
+			}
+		}
+
 		$config = ED::config();
 		$contentType = 'html';
 
 		if ($config->get('layout_editor') == 'bbcode') {
 			$text = ED::parser()->convert2validImgLink($text);
 			$text = ED::parser()->html2bbcode($text);
+
+			// Remove excess html tags
+			$text = strip_tags($text);
+
 			$contentType = 'bbcode';
 		}
 

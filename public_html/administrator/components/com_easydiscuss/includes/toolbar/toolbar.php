@@ -147,7 +147,7 @@ class EasyDiscussToolbar extends EasyDiscuss
         }
 
         if ($active == 'ask' || $active == 'groups') {
-        	$clusterId = $this->input->get('group_id');
+            $clusterId = $this->input->get('group_id', '', 'int');
         }
 
         $esLib = ED::easysocial();

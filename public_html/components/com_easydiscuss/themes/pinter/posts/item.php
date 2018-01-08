@@ -50,10 +50,9 @@ defined('_JEXEC') or die('Restricted access');
 					<li><span class="o-label o-label--success-o"><?php echo JText::_('COM_EASYDISCUSS_RESOLVED');?></span></li>
 					<?php } ?>
 
-					<?php //if ($post->isStillNew()) { ?>
-						<!-- li><span class="o-label o-label--warning-o"><?php echo JText::_('COM_EASYDISCUSS_NEW');?></span></li -->
-					<?php // } ?>
-
+					<?php if ($post->isStillNew()) { ?>
+					<li><span class="o-label o-label--info-o"><?php echo JText::_('COM_EASYDISCUSS_NEW');?></span></li>
+					<?php } ?>
 
 					<!-- post status here: accepted, onhold, working rejected -->
 					<?php if ($post->isPostRejected()) { ?>
@@ -77,14 +76,14 @@ defined('_JEXEC') or die('Restricted access');
 
 				<ol class="g-list-inline g-list-inline--delimited ed-post-meta-reply t-lg-mt--md">
 					<li><?php echo JText::sprintf('COM_EASYDISCUSS_LAST_ACTIVITY_TIMELAPSE', ED::date()->toLapsed($post->modified)); ?></li>
-					<?php if ($post->getLastReplier()) { ?>
+					<?php if ($post->getLastReplier() && $post->lastReply) { ?>
 						<li data-breadcrumb="·">
 							<?php if (!$post->isLastReplyAnonymous()) { ?>
-								<a href="<?php echo EDR::_('view=post&id=' . $post->id . '&sort=latest'); ?>">
+								<a href="<?php echo $post->getLastReplyPermalink($post->lastReply->id); ?>">
 									<i class="fa fa-reply"></i> <?php echo JText::sprintf('COM_EASYDISCUSS_LAST_REPLIED_BY', $post->getLastReplier()->getName(), ED::date()->toLapsed($post->lastupdate)); ?>
 								</a>
 							<?php } else { ?>
-								<a href="<?php echo EDR::_('view=post&id=' . $post->id . '&sort=latest'); ?>">
+								<a href="<?php echo $post->getLastReplyPermalink($post->lastReply->id); ?>">
 									<i class="fa fa-reply"></i> <?php echo JText::sprintf('COM_EASYDISCUSS_LAST_REPLIED_BY', JText::_('COM_EASYDISCUSS_ANONYMOUS_USER'), ED::date()->toLapsed($post->lastupdate)); ?>
 								</a>
 							<?php } ?>
@@ -99,20 +98,26 @@ defined('_JEXEC') or die('Restricted access');
 					<div class="ed-statistic__item">
 						<a href="<?php echo $post->getPermalink();?>">
 							<span class="ed-statistic__item-count"><?php echo $post->getTotalReplies();?></span>
-							<span><?php echo JText::_('COM_EASYDISCUSS_REPLIES');?></span>
+							<span>
+								<?php echo $this->getNouns('COM_EASYDISCUSS_REPLIES', $post->getTotalReplies()); ?>
+							</span>
 						</a>
 					</div>
 					<div class="ed-statistic__item">
 						<a href="<?php echo $post->getPermalink();?>">
 							<span class="ed-statistic__item-count"><?php echo $post->getHits();?></span>
-							<span><?php echo JText::_('COM_EASYDISCUSS_VIEWS');?></span>
+							<span>
+								<?php echo $this->getNouns('COM_EASYDISCUSS_VIEWS', $post->getHits()); ?>
+							</span>
 						</a>
 					</div>
 					<?php if ($this->config->get('main_allowquestionvote')) { ?>
 					<div class="ed-statistic__item">
 						<a href="<?php echo $post->getPermalink();?>">
 							<span class="ed-statistic__item-count"><?php echo $post->getTotalVotes();?></span>
-							<span><?php echo JText::_('COM_EASYDISCUSS_VOTES');?></span>
+							<span>
+								<?php echo $this->getNouns('COM_EASYDISCUSS_VOTES_STRING', $post->getTotalVotes()); ?>
+							</span>
 						</a>
 					</div>
 					<?php } ?>
@@ -121,7 +126,9 @@ defined('_JEXEC') or die('Restricted access');
 					<div class="ed-statistic__item">
 						<a href="<?php echo $post->getPermalink();?>">
 							<span class="ed-statistic__item-count"><?php echo $post->getTotalLikes();?></span>
-							<span><?php echo JText::_('COM_EASYDISCUSS_LIKES');?></span>
+							<span>
+								<?php echo $this->getNouns('COM_EASYDISCUSS_LIKES_STRING', $post->getTotalLikes()); ?>
+							</span>
 						</a>
 					</div>
 					<?php } ?>

@@ -371,7 +371,9 @@ header.header {
 	// Joomla 3.4 #3907 
 	.subhead-collapse {
 		margin-bottom: 0;
-		height: auto !important; // #1075 Override inline style!!!
+
+		// Override height will causing jecky https://stackideas.com/forums/backend-dashboard-scroll-down-error
+		// height: auto !important; // #1075 Override inline style!!!
 		
 	}
 

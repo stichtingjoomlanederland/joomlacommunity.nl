@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -104,8 +104,9 @@ class EasyDiscussViewPost extends EasyDiscussView
 		// Get a list of replies for this post.
 		$limitReplies = $post->config->get('layout_replies_list_limit');
 		$limitstart = $this->app->input->get('limitstart', 0);
+		$isLastPage = $this->app->input->get('page', '') == 'last';
 
-		$replies = $post->getReplies(true, $limitReplies, $sort, $limitstart);
+		$replies = $post->getReplies(true, $limitReplies, $sort, $limitstart, $isLastPage);
 
 		$emptyMessage = JText::_('COM_EASYDISCUSS_NO_REPLIES_YET');
 
@@ -192,7 +193,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 		$this->set('onlyAcceptedReply', $onlyAcceptedReply);
 
 		// If this post is password protected, we need to display the form to enter password
-		if ($post->isProtected() && !ED::isSiteAdmin() && $this->my->id !== $owner) {
+		if ($post->isProtected() && !$post->canViewProtectedPost($this->my->id)) {
 			parent::display('post/default.protected');
 			return;
 		}
@@ -215,7 +216,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 		// Load post item
 		$id = $this->input->get('id', 0, 'int');
         $seq = $this->input->get('seq', 0, 'int');
-		
+
 		// Load the actor
 		$my = ED::user();
 
@@ -357,7 +358,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 		$pageContent = JString::substr($pageContent, 0, 160);
 
 		$description = preg_replace('/\s+/', ' ', $pageContent);
-		
+
 		// Set page title.
 		ED::setPageTitle($pageTitle);
 

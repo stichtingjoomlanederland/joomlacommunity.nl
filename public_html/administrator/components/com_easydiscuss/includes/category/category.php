@@ -549,27 +549,6 @@ class EasyDiscussCategory extends EasyDiscuss
 		return self::$_data[ $this->id ][$sig];
 	}
 
-	/**
-	 * Retrieves the total number of unresolved posts from this category.
-	 *
-	 * @since	4.0
-	 * @access	public
-	 * @return	int
-	 */
-	public function getNewCount()
-	{
-		static $items = array();
-
-		if (isset($items[$this->table->id])) {
-			return $items[$this->table->id];
-		}
-
-		$model = ED::model('Posts');
-		$items[$this->table->id] = $model->getNewCount('', $this->table->id, null);
-
-		return $items[$this->table->id];
-	}
-
 
 	/**
 	 * Retrieves the total number of unread posts from this category by user

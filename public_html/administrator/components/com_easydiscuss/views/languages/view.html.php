@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -28,9 +28,10 @@ class EasyDiscussViewLanguages extends EasyDiscussAdminView
 		// Set page attributes
 		$this->title('COM_EASYDISCUSS_LANGUAGES_TITLE');
 
-		JToolbarHelper::custom('discover' , 'refresh' , '' , JText::_('COM_EASYDISCUSS_TOOLBAR_BUTTON_FIND_UPDATES') , false);
-		JToolbarHelper::custom('install', 'upload' , '' , JText::_('COM_EASYDISCUSS_TOOLBAR_BUTTON_INSTALL_OR_UPDATE'));
+		JToolbarHelper::custom('discover' , 'refresh' , '' , JText::_('COM_EASYDISCUSS_TOOLBAR_BUTTON_DISCOVER') , false);
 		JToolbarHelper::custom('purge' , 'purge' , '' , JText::_('COM_EASYDISCUSS_TOOLBAR_BUTTON_PURGE_CACHE'), false);
+		JToolbarHelper::custom('install', 'upload' , '' , JText::_('COM_ED_TOOLBAR_BUTTON_INSTALL'));
+		JToolbarHelper::custom('uninstall', 'remove' , '' , JText::_('COM_ED_TOOLBAR_BUTTON_UNINSTALL'));
 
 		// Get the languages that are already stored on the db
 		$model = ED::model('Languages');

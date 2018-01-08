@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -74,16 +74,22 @@ defined('_JEXEC') or die('Unauthorized Access');
                             <?php echo $language->locale;?>
                         </td>
                         <td class="center">
-                            <?php if( $language->state == ED_LANGUAGES_INSTALLED ){ ?>
-                                <?php echo JText::_('COM_EASYDISCUSS_LANGUAGES_INSTALLED'); ?>
+                            <?php if ($language->state == ED_LANGUAGES_INSTALLED) { ?>
+                                <b class="text-success">
+                                    <?php echo JText::_('COM_EASYDISCUSS_LANGUAGES_INSTALLED'); ?>
+                                </b>
                             <?php } ?>
 
-                            <?php if( $language->state == ED_LANGUAGES_NEEDS_UPDATING ){ ?>
-                                <?php echo JText::_('COM_EASYDISCUSS_LANGUAGES_REQUIRES_UPDATING'); ?>
+                            <?php if ($language->state == ED_LANGUAGES_NEEDS_UPDATING) { ?>
+                                <b class="text-danger">
+                                    <?php echo JText::_('COM_EASYDISCUSS_LANGUAGES_REQUIRES_UPDATING'); ?>
+                                </b>
                             <?php } ?>
 
-                            <?php if( $language->state == ED_LANGUAGES_NOT_INSTALLED ){ ?>
-                                <?php echo JText::_('COM_EASYDISCUSS_LANGUAGES_NOT_INSTALLED'); ?>
+                            <?php if ($language->state == ED_LANGUAGES_NOT_INSTALLED) { ?>
+                                <span class="">
+                                    <?php echo JText::_('COM_EASYDISCUSS_LANGUAGES_NOT_INSTALLED'); ?>
+                                </span>
                             <?php } ?>
                         </td>
                         <td class="center">

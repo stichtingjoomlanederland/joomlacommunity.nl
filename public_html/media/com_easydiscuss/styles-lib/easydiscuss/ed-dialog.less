@@ -244,7 +244,10 @@
 	.flex-display(flex);
 	.align-content(space-evenly);
 
-	.btn {
+	.btn,
+	.btn:hover,
+	.btn:focus,
+	.btn:active {
 		.flex(1);
 		border-radius: 0;
 		height: @ed-dialog-footer-size;
@@ -253,21 +256,29 @@
 		background-color: @fd-ui-bg !important;
 		background-image: none !important;
 		opacity: 1;
-		&:hover,
-		&:focus,
-		&:active {
-			background-color: @fd-ui-bg !important;
-			background-image: none !important;
-		}
 
 		+ .btn {
 			border-left: 1px solid @fd-ui-border-color !important;
 		}
 	}
-	.btn-primary {
+	.btn-primary,
+	.btn-primary:hover,
+	.btn-primary:focus,
+	.btn-primary:active,
+	.btn-ed-primary,
+	.btn-ed-primary:hover,
+	.btn-ed-primary:focus,
+	.btn-ed-primary:active {
 		color: @btn-primary-bg !important;
 	}
-	.btn-danger {
+	.btn-danger,
+	.btn-danger:hover,
+	.btn-danger:focus,
+	.btn-danger:active,
+	.btn-ed-danger,
+	.btn-ed-danger:hover,
+	.btn-ed-danger:focus,
+	.btn-ed-danger:active {
 		color: @btn-danger-bg !important;
 	}
 }

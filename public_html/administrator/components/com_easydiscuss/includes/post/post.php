@@ -845,6 +845,13 @@ class EasyDiscussPost extends EasyDiscuss
 			$this->post->private = false;
 		}
 
+		// There is a possibility that the category is enforcing posts to be private
+		$category = $this->getCategory();
+
+		if ($this->isQuestion() && $category->getParams()->get('cat_enforce_private', false)) {
+			$this->post->private = true;
+		}
+
 		// If post is being edited, do not change the owner of the item.
 		if (!$this->isNew()) {
 			$this->post->user_id = $this->post->user_id;
@@ -2063,7 +2070,10 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function isLocked()
 	{
-		return $this->islock;
+		$thread = ED::table('Thread');
+		$thread->load($this->thread_id);
+
+		return $thread->islock;
 	}
 
 	/**
@@ -2217,12 +2227,8 @@ class EasyDiscussPost extends EasyDiscuss
 	/**
 	 * Determines if the post is still within the new duration
 	 *
-	 * @alternative for previous ->isnew
-	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isStillNew()
 	{
@@ -2231,7 +2237,21 @@ class EasyDiscussPost extends EasyDiscuss
 		$key = $this->post->id;
 
 		if (!isset($items[$key])) {
-			$items[$key] = ED::isNew($this->noofdays);
+
+			$noofdays = $this->noofdays;
+
+			if (is_null($noofdays)) {
+				$now = ED::date()->toMySQL();
+				$created = $this->created;
+
+				$nowStr = strtotime($now);
+				$createdStr = strtotime($created);
+				$diff = $nowStr - $createdStr;
+
+				$noofdays = floor($diff / (60 * 60 * 24));
+			}
+
+			$items[$key] = ED::isNew($noofdays);
 		}
 
 		return $items[$key];
@@ -2243,8 +2263,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @alternative for ->post_type_suffix
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getTypeSuffix()
 	{
@@ -2262,7 +2280,7 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function getTypeTitle()
 	{
-		return $this->post_type_title;
+		return JText::_($this->post_type_title);
 	}
 
 	/**
@@ -2303,8 +2321,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getCategory()
 	{
@@ -2537,7 +2553,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 			// determine the site got enable multilingual or not
 			$isSiteMultilingualEnabled = ED::isSiteMultilingualEnabled();
-			
+
 			if ($isSiteMultilingualEnabled) {
 
 				// retrieve the current category post language
@@ -2546,7 +2562,7 @@ class EasyDiscussPost extends EasyDiscuss
 				// For some reason if the category language columns is stored empty data, we will override this.
 				if (empty($postCatLang)) {
 					$postCatLang = '*';
-				}			
+				}
 
 				// currently this one only cater for discuss app
 				if ($respectedLangMenu && ($postCatLang != '*')) {
@@ -2559,7 +2575,7 @@ class EasyDiscussPost extends EasyDiscuss
 					} else {
 						$links[$key] = EDR::_('view=post&id=' . $question->id . '&lang=' . $langcode, $xhtml);
 					}
-				}				
+				}
 			}
 
 			if ($this->isReply()) {
@@ -2611,10 +2627,8 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
-	public function getReplies($checkAcl = true, $limit = null, $sort = 'oldest', $limitstart = 0)
+	public function getReplies($checkAcl = true, $limit = null, $sort = 'oldest', $limitstart = 0, $isLastPage = false)
 	{
 		$default = array();
 		$pagination = $this->config->get('layout_replies_pagination');
@@ -2650,6 +2664,19 @@ class EasyDiscussPost extends EasyDiscuss
 
 		// Get total number of replies
 		$total = $this->getTotalReplies();
+
+		// determine if we need to 'intercept' the pagination or not to fetch the latest replies
+		if ($isLastPage && $total > $limit) {
+			$num = floor($total / $limit);
+
+			if ($num > 0) {
+				$limitstart = $num * $limit;
+			}
+
+			if ($limitstart == $total) {
+				$limitstart = ($num - 1) * $limit;
+			}
+		}
 
 		// Get the replies
 		$replies = $model->getReplies($this->post->id, $sort, $limitstart, $limit, $pagination);
@@ -4086,6 +4113,9 @@ class EasyDiscussPost extends EasyDiscuss
 				unset($data['ip']);
 				unset($data['thread_id']);
 
+				// Use thread last replied data #342
+				unset($data['replied']);
+
 				$thread->bind($data);
 				$thread->store();
 
@@ -4558,7 +4588,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 			$emailData['emailTemplate'] = 'email.post.reply.new.php';
 			$emailData['emailSubject']  = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $question->id , $question->title);
-			$emailData['post_id'] = $this->post->id;
+			$emailData['post_id'] = $this->post->parent_id;
 
 			ED::mailer()->notifyAdministrators($emailData, $excludeEmails, $this->config->get('notify_admin_onreply'), $this->config->get('notify_moderator_onreply'));
 		}
@@ -4623,7 +4653,7 @@ class EasyDiscussPost extends EasyDiscuss
 			ED::mailer()->notifyThreadParticipants($emailData, $excludeEmails);
 		}
 
-		
+
 
 		if ($this->config->get('notify_actor')) {
 			$emailData['actor_email'] = $this->getOwner()->getEmail();
@@ -4721,6 +4751,11 @@ class EasyDiscussPost extends EasyDiscuss
 	public function getReplyPermalink()
 	{
 		$question = ED::post($this->post->parent_id);
+		$threadId = $this->post->thread_id;
+
+		if (!$threadId) {
+			$threadId = $question->post->thread_id;
+		}
 
 		// Get the default reply sort
 		$replySort = $this->config->get('layout_replies_sorting');
@@ -4728,10 +4763,12 @@ class EasyDiscussPost extends EasyDiscuss
 		// Get the replies limit per page
 		$replyLimit = $this->config->get('layout_replies_list_limit');
 
-		// if the sorting is latest first, we don't need to add limitstart to the url
-		if ($replySort == 'latest') {
-			$url = 'view=post&id=' . $question->id . '#reply-' . $this->post->id;
-		} else {
+		$model = ED::model('posts');
+		$rowNumber = $model->getRowNumber($threadId, $this->post->id);
+
+		$limitstart = 0;
+
+		if ($rowNumber === false) {
 			// Get the total replies for this question first
 			$totalReplies = $question->getTotalReplies();
 
@@ -4739,10 +4776,39 @@ class EasyDiscussPost extends EasyDiscuss
 			$pageCount = $totalReplies / $replyLimit;
 			$pageCount = ceil($pageCount) - 1;
 			$limitstart = $replyLimit * $pageCount;
+		} else {
 
-			$url = 'view=post&id=' . $question->id . '&limitstart=' . $limitstart . '#reply-' . $this->post->id;
+			if ($rowNumber > $replyLimit) {
+
+				// Calculate the limitstart for this reply
+				$pageCount = $rowNumber / $replyLimit;
+
+				$pageCount = ceil($pageCount) - 1;
+				$limitstart = $replyLimit * $pageCount;
+			}
 		}
 
+		$url = 'view=post&id=' . $question->id . '&limitstart=' . $limitstart . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $this->post->id;
+		return $url;
+	}
+
+
+	/**
+	 * Retrieve a reply permalink with limitstart
+	 *
+	 * @since   4.0
+	 * @access  public
+	 *
+	 */
+	public function getLastReplyPermalink($replyId)
+	{
+		$replyLink = 'view=post&id=' . $this->id;
+		if ($this->config->get('layout_replies_sorting') != 'latest') {
+			$replyLink .= '&page=last';
+		}
+		$replyLink .= '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK'). '-' . $replyId;
+
+		$url = EDR::_($replyLink);
 		return $url;
 	}
 
@@ -5067,7 +5133,7 @@ class EasyDiscussPost extends EasyDiscuss
 		$this->autopost();
 
 		// Notify mentioned name
-		if ($this->config->get('main_mentions') && $this->my->id) {
+		if ($this->config->get('main_mentions')) {
 			$this->notifyNames();
 		}
 
@@ -5078,12 +5144,12 @@ class EasyDiscussPost extends EasyDiscuss
 		if ($this->isQuestion()) {
 			$this->notify();
 		}
-		
+
 		// should we send email notifications (reply)
 		if ($this->isReply()) {
 			$this->replyNotify();
 		}
-		
+
 		// Execute all integration
 		$this->integrate();
 
@@ -6777,8 +6843,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   2.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canViewSiteDetails()
 	{
@@ -6813,5 +6877,26 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		return true;
+	}
+
+	/**
+	 * Determines if the current user can view protected post
+	 *
+	 * @since   4.0.21
+	 * @access  public
+	 */
+	public function canViewProtectedPost($viewerId)
+	{
+		$my = ED::user($viewerId);
+
+		$isModerator = ED::isModerator($this->post->category_id, $my->id);
+		$owner = $this->post->user_id;
+
+		// always allow superadmin, post owner and moderator
+		if (ED::isSiteAdmin() || $my->id == $owner || $isModerator) {
+			return true;
+		}
+
+		return false;
 	}
 }

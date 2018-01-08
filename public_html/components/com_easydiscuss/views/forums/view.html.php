@@ -103,6 +103,14 @@ class EasyDiscussViewForums extends EasyDiscussView
 						'includeChilds' => $categoryId ? false : true
 					);
 
+		// here we need to check if this category is a container or not. if yes, let get the childs posts as well.
+		if ($categoryId) {
+			$category = ED::category($categoryId);
+			if ($category->isContainer()) {
+				$options['includeChilds'] = true;
+			}
+		}
+
 		// Get all the posts in this category and it's childs
 		$posts = $model->getCategoryTreePosts($parents, $options);
 

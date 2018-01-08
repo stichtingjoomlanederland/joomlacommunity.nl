@@ -141,18 +141,6 @@ class DiscussCategory extends EasyDiscussTable
 			}
 		}
 
-// 		//getNewCount
-// 		$getNewCountSQL = $this->buildCountQuery( $ids, $excludeFeatured, $excludeCats, 'newcount');
-// 		if( count($result) > 0 )
-// 		{
-// 			$sig = 'newcount';
-//
-// 			foreach( $result as $row )
-// 			{
-// 				self::$_data[ $row->category_id ][$sig] = $row->cnt;
-// 			}
-// 		}
-
 		//getUnreadCount
 		$getUnreadCountSQL = $this->buildCountQuery( $ids, $excludeFeatured, $excludeCats, 'unreadcount');
 		$db->setQuery( $getUnreadCountSQL );
@@ -246,48 +234,7 @@ class DiscussCategory extends EasyDiscussTable
 				}
 
 				break;
-			case 'newcount':
 
-				foreach( $ids as $category )
-				{
-					$query	= 'SELECT COUNT(a.`id`) as `cnt`, ' . $category. ' as `category_id` FROM `#__discuss_posts` AS a';
-					$query	.= ' WHERE a.`parent_id` = ' . $db->Quote('0');
-					$query	.= ' AND a.`published`=' . $db->Quote('1');
-
-					if( $featuredOnly === true )
-					{
-						$query	.= ' AND a.`featured`=' . $db->Quote('1');
-					}
-					else if( $featuredOnly === false)
-					{
-						$query	.= ' AND a.`featured`=' . $db->Quote('0');
-					}
-
-					$query	.= ' AND DATEDIFF( ' . $db->Quote(ED::date()->toMySQL() ) . ', a.`created`) <= ' . $db->Quote( $config->get( 'layout_daystostaynew' ) );
-
-					if( $category )
-					{
-						$model	= ED::model( 'Categories' );
-						$childs	= $model->getChildIds( $category );
-						$childs[]	 = $category;
-
-						if( count( $childs ) == 1 )
-						{
-							$query	.= ' AND a.`category_id` = ' . $childs[0];
-						}
-						else
-						{
-							$query	.= ' AND a.`category_id` IN (' . implode( ',' , $childs ) . ')';
-						}
-
-					}
-
-					$query	.= $queryExclude;
-
-					$mainQuery[] = $query;
-				}
-
-				break;
 			case 'unreadcount':
 				$my	= JFactory::getUser();
 				$profile = ED::user($my->id);
@@ -423,7 +370,7 @@ class DiscussCategory extends EasyDiscussTable
 
 		return $state;
 	}
-	
+
 	/**
 	 * Retrieves a list of user groups that can view posts under this category
 	 *
@@ -433,13 +380,32 @@ class DiscussCategory extends EasyDiscussTable
 	public function getViewableGroups()
 	{
 		$db = ED::db();
-		
+
 		// Get accessible groups
 		$query = 'SELECT `content_id` FROM `#__discuss_category_acl_map` WHERE `acl_id`="2" AND `category_id`=' . $db->Quote($this->id);
 		$db->setQuery($query);
 		$groups = $db->loadColumn();
-		
+
 		return $groups;
+	}
+
+	/**
+	 * Render params from the category
+	 *
+	 * @since	4.0.21
+	 * @access	public
+	 */
+	public function getParams()
+	{
+		static $data = array();
+
+		if (!isset($data[$this->id])) {
+			$params = new JRegistry($this->params);
+
+			$data[$this->id] = $params;
+		}
+
+		return $data[$this->id];
 	}
 
 	public function updateLeft( $left, $limit = 0 )

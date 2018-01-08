@@ -1118,6 +1118,10 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		$db->setQuery($query);
 		$results = $db->loadObjectList();
 
+		foreach ($results as $category) {
+			$category->title = JText::_($category->title);
+		}
+
 		return $results;
 	}
 }

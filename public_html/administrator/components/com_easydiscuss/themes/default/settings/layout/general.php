@@ -14,96 +14,96 @@ defined('_JEXEC') or die('Unauthorized Access');
 <div class="row">
 	<div class="col-md-6">
 
-        <div class="panel">
-            <?php echo $this->html('panel.head', 'COM_EASYDISCUSS_DISPLAY'); ?>
+		<div class="panel">
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_DISPLAY'); ?>
 
-            <div class="panel-body">
-                <div class="form-horizontal">
+			<div class="panel-body">
+				<div class="form-horizontal">
 
-                    <div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_WRAPPERCLASS_SFX'); ?>
-                        </div>
-                        <div class="col-md-7">
-                            <input type="text" name="layout_wrapper_sfx" class="form-control"  value="<?php echo $this->config->get('layout_wrapper_sfx' , '' );?>" />
-                        </div>
-                    </div>
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_WRAPPERCLASS_SFX'); ?>
+						</div>
+						<div class="col-md-7">
+							<input type="text" name="layout_wrapper_sfx" class="form-control"  value="<?php echo $this->config->get('layout_wrapper_sfx' , '' );?>" />
+						</div>
+					</div>
 
-                    <div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_RESPONSIVE'); ?>
-                        </div>
-                        <div class="col-md-7">
-                        <?php echo $this->html('form.boolean', 'main_responsive', $this->config->get('main_responsive'));?>
-                        </div>
-                    </div>
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_RESPONSIVE'); ?>
+						</div>
+						<div class="col-md-7">
+						<?php echo $this->html('form.boolean', 'main_responsive', $this->config->get('main_responsive'));?>
+						</div>
+					</div>
 
-                    <div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_BOARD_STATISTICS'); ?>
-                        </div>
-                        <div class="col-md-7">
-                            <?php echo $this->html('form.boolean', 'layout_board_stats', $this->config->get('layout_board_stats'));?>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_LIST_LIMIT'); ?>
-                        </div>
-                        <div class="col-md-7">
-                            <input type="text" name="layout_list_limit" value="<?php echo $this->config->get('layout_list_limit' );?>" size="5" style="text-align:center;" class="form-control form-control-sm text-center" />
-                        </div>
-                    </div>
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_BOARD_STATISTICS'); ?>
+						</div>
+						<div class="col-md-7">
+							<?php echo $this->html('form.boolean', 'layout_board_stats', $this->config->get('layout_board_stats'));?>
+						</div>
+					</div>
 
-                    <div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_NUMBER_OF_DAYS_A_POST_STAY_AS_NEW'); ?>
-                        </div>
-                        <div class="col-md-7">
-                            <input type="text" name="layout_daystostaynew"  class="form-control form-control-sm text-center" value="<?php echo $this->config->get('layout_daystostaynew' , '7' );?>" />
-                        </div>
-                    </div>
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_LIST_LIMIT'); ?>
+						</div>
+						<div class="col-md-7">
+							<input type="text" name="layout_list_limit" value="<?php echo $this->config->get('layout_list_limit' );?>" size="5" style="text-align:center;" class="form-control form-control-sm text-center" />
+						</div>
+					</div>
 
-                </div>
-            </div>
-        </div>
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_NUMBER_OF_DAYS_A_POST_STAY_AS_NEW'); ?>
+						</div>
+						<div class="col-md-7">
+							<input type="text" name="layout_daystostaynew"  class="form-control form-control-sm text-center" value="<?php echo $this->config->get('layout_daystostaynew' , '7' );?>" />
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<div class="col-md-6">
-        <div class="panel">
-            <?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_LAYOUT_LOCALIZATION'); ?>
+		<div class="panel">
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_LAYOUT_LOCALIZATION'); ?>
 
-            <div class="panel-body">
-                <div class="form-horizontal">
-                    <div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_ZERO_AS_PLURAL'); ?>
-                        </div>
-                        <div class="col-md-7">
-                            <?php echo $this->html('form.boolean', 'layout_zero_as_plural', $this->config->get('layout_zero_as_plural'));?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+			<div class="panel-body">
+				<div class="form-horizontal">
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_ZERO_AS_PLURAL'); ?>
+						</div>
+						<div class="col-md-7">
+							<?php echo $this->html('form.boolean', 'layout_zero_as_plural', $this->config->get('layout_zero_as_plural'));?>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
-        <div class="panel">
-            <?php echo $this->html('panel.head', 'COM_EASYDISCUSS_POWERED_BY'); ?>
+		<div class="panel">
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_POWERED_BY'); ?>
 
-            <div class="panel-body">
-                <div class="form-horizontal">
-                    <div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_POWERED_BY'); ?>
-                        </div>
-                        <div class="col-md-7">
-                            <?php echo $this->html('form.boolean', 'main_copyright_link_back', $this->config->get('main_copyright_link_back')); ?>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+			<div class="panel-body">
+				<div class="form-horizontal">
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_POWERED_BY'); ?>
+						</div>
+						<div class="col-md-7">
+							<?php echo $this->html('form.boolean', 'main_copyright_link_back', $this->config->get('main_copyright_link_back')); ?>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
 	</div>
 </div>

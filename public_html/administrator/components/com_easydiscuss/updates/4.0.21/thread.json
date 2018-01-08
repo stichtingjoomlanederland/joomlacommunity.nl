@@ -1,0 +1,7 @@
+[
+	{
+		"table": "#__discuss_thread",
+		"index": "idx_isresolve",
+		"query": "ALTER TABLE `#__discuss_thread` ADD INDEX `idx_isresolve` (`isresolve`)"
+	}
+]

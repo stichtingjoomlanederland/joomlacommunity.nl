@@ -212,12 +212,15 @@ class EasyDiscussStorageAmazon implements EasyDiscussStorageInterface
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function upload($fileName, $source, $destination, $deleteOriginalFile = false)
 	{
-		
+		jimport('joomla.filesystem.file');
+
+		if (!JFile::exists($source)) {
+			return false;
+		}
+
 		// We always want to remove JPATH_ROOT from the destination
 		$destination = str_ireplace(JPATH_ROOT, '', $destination);
 

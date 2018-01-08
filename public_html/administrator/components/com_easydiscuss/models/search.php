@@ -118,7 +118,7 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 		$pquery .= ' a.`id`, a.`title`, a.`content`, a.`preview`, a.`user_id`, a.`category_id`, a.`parent_id`, a.`user_type`, a.`created` AS `created`, a.`poster_name`,';
 		$pquery	.= ' b.`title` AS `category`, a.password, a.`featured` AS `featured`, a.`islock` AS `islock`, a.`isresolve` AS `isresolve`,';
 		$pquery	.= ' IF(a.`replied` = '.$db->Quote('0000-00-00 00:00:00') . ', a.`created`, a.`replied`) as `lastupdate`';
-		$pquery	.= ' ,a.`legacy`, pt.`suffix` AS post_type_suffix, pt.`title` AS post_type_title';
+		$pquery	.= ' ,a.`legacy`, pt.`suffix` AS post_type_suffix, pt.`title` AS post_type_title, a.`thread_id`';
 		$pquery	.= ' FROM `#__discuss_posts` AS a';
 		$pquery .= '	LEFT JOIN ' . $db->nameQuote( '#__discuss_category' ) . ' AS b ON a.`category_id`=b.`id`';
 		$pquery .= '	LEFT JOIN ' . $db->nameQuote( '#__discuss_post_types' ) . ' AS pt ON a.`post_type`= pt.`alias`';
@@ -138,7 +138,7 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 		$cquery .= ' a.`id`, a.`title`, a.`description` as `content`, a.`description` as `preview`, a.`created_by` as `user_id`, a.`id` as `category_id`, 0 as `parent_id`, 0 AS `user_type`, a.`created` AS `created`, 0 as `poster_name`,';
 		$cquery	.= ' a.`title` AS `category`, 0 AS `password`,0 as `featured`, 0 as `islock` , 0 as `isresolve`,';
 		$cquery	.= ' a.`created` as `lastupdate`,';
-		$cquery	.= ' 1 as `legacy`, ' . $db->Quote('') . ' AS `post_type_suffix`, ' . $db->Quote( '' ) . ' AS `post_type_title`';
+		$cquery	.= ' 1 as `legacy`, ' . $db->Quote('') . ' AS `post_type_suffix`, ' . $db->Quote( '' ) . ' AS `post_type_title`, ' . $db->Quote('') . ' AS `thread_id`';
 		$cquery	.= ' FROM `#__discuss_category` AS a';
 		$cquery	.= $this->_buildQueryWhere('category', 'a', $category);
 
@@ -277,7 +277,7 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 			// So that we can only display result based on the language
 			$categoriesModel = ED::model('Categories');
 			$categories = $categoriesModel->getCategories(array('language' => $lang->getTag(), 'bind_table' => false));
-			
+
 			$category = array();
 
 			foreach ($categories as $categoryObj) {

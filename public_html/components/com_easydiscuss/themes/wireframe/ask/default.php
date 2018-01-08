@@ -84,8 +84,11 @@ defined('_JEXEC') or die('Restricted access');
 			</div>
 
 			<?php if ($this->config->get('main_private_post', false) && $this->my->id) { ?>
-			<div class="o-checkbox t-lg-mb--lg small">
-				<input id="private" type="checkbox" name="private" value="1"<?php echo $post->private ? ' checked="checked"' : '';?> />
+			<div class="o-checkbox t-lg-mb--lg small" style="<?php echo !$post->id && $defaultCategory && $defaultCategory->getParams()->get('cat_enforce_private', false) ? 'display:none;' : '';?>" data-private-post>
+				<input id="private" type="checkbox" name="private" value="1"
+					<?php echo $post->private || (!$post->id && $defaultCategory && $defaultCategory->getParams()->get('cat_default_private', false)) ? ' checked="checked"' : '';?> 
+				/>
+
 				<label for="private">
 					<?php echo JText::_('COM_EASYDISCUSS_MAKE_THIS_POST_PRIVATE');?>
 				</label>

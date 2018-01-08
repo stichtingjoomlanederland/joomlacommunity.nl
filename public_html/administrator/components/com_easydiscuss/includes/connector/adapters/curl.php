@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -36,16 +36,32 @@ class EasyDiscussConnectorCurl
 	public $handle = null;
 	public $result = array();
 
-	public $redirects = array( 300 , 301 , 302 , 303 , 304 , 305 , 306 , 307 );
+	public $redirects = array(300, 301, 302, 303, 304, 305, 306, 307);
 	public $args = array();
 	public $current	= '';
 
 	public function __construct()
 	{
-		$this->handle		= curl_multi_init();
+		$this->handle = curl_multi_init();
+
+		$jConfig = ED::jConfig();
+
+		$this->proxyEnable = $jConfig->get('proxy_enable');
+		$this->proxyHost = $jConfig->get('proxy_host');
+		$this->proxyPort = $jConfig->get('proxy_port');
+		$this->proxyUser = $jConfig->get('proxy_user');
+		$this->proxyPass = $jConfig->get('proxy_pass');
+		$this->proxyEnabled = false;
+
+		if ($this->proxyEnable && $this->proxyHost && $this->proxyPort && $this->proxyUser && $this->proxyPass) {
+
+			$this->proxy = $this->proxyHost . ':' . $this->proxyPort;
+			$this->proxyauth = $this->proxyUser . ':' . $this->proxyPass;
+			$this->proxyEnabled = true;
+		}		
 	}
 
-	public function addUrl( $url )
+	public function addUrl($url)
 	{
 		$this->urls[$url] = $url;
 		$this->current = $url;
@@ -89,6 +105,13 @@ class EasyDiscussConnectorCurl
 				$this->options[$url][CURLOPT_POSTFIELDS] = http_build_query($this->args[$url]);
 			}
 
+			// check for whether user got enable proxy server setting in joomla global configuration or not
+			if ($this->proxyEnabled) {
+				$this->options[$url][CURLOPT_PROXY] = $this->proxy;
+				$this->options[$url][CURLOPT_PROXYUSERPWD] = $this->proxyauth;
+				$this->options[$url][CURLOPT_FOLLOWLOCATION] = true;
+			}
+
 			// Set options for specific urls.
 			curl_setopt_array($this->handles[$url], $this->options[$url]);
 
@@ -101,139 +124,139 @@ class EasyDiscussConnectorCurl
 		} while($running > 0);
 
 		foreach ($this->handles as $key => $handle) {
-			$code	= curl_getinfo( $handle , CURLINFO_HTTP_CODE );
+			
+			$code = curl_getinfo($handle, CURLINFO_HTTP_CODE);
 
-			if( in_array(  $code , $this->redirects ) )
-			{
+			if (in_array($code, $this->redirects)) {
+				
 				// Debugging only.
-				// $error		= curl_error( $handle );
+				// $error = curl_error( $handle);
+				$headers = curl_multi_getcontent($handle);
 
-				$headers	= curl_multi_getcontent( $handle );
+				$this->executeRedirects($handle, $key, $code, $headers);
+			
+			} else {
+			
+				$contents = curl_multi_getcontent($handle);
 
-				$this->executeRedirects( $handle , $key , $code , $headers );
-			}
-			else
-			{
-				$contents		= curl_multi_getcontent( $handle );
+				// if the user configured proxy server in joomla, it will injected this response "HTTP/1.0/1.1 200 Connection established" string from the header
+				if ($this->proxyEnabled && (stripos($contents, "HTTP/1.1 200 Connection established\r\n\r\n") !== false || stripos($contents, "HTTP/1.0 200 Connection established\r\n\r\n") !== false)) {
+					$contents = str_ireplace("HTTP/1.1 200 Connection established\r\n\r\n", '', $contents);
+					$contents = str_ireplace("HTTP/1.0 200 Connection established\r\n\r\n", '', $contents);
+				}
 
 				// We only want to split it once.
-				$data 			= explode( "\r\n\r\n" , $contents , 2 );
+				$data = explode("\r\n\r\n", $contents, 2);
 
-				$obj 			= new stdClass();
-				$obj->headers	= isset( $data[ 0 ] ) ? $data[ 0 ] : '';
-				$obj->contents	= isset( $data[ 1 ] ) ? $data[ 1 ] : '';
+				$obj = new stdClass();
+				$obj->headers = isset($data[0]) ? $data[0] : '';
+				$obj->contents = isset($data[1]) ? $data[1] : '';
 
-				$this->finalUrls[ $key ]	= $key;
-				$this->result[ $key ]		= $obj;
+				$this->finalUrls[$key] = $key;
+				$this->result[$key] = $obj;
 			}
-			curl_multi_remove_handle( $this->handle , $handle );
+
+			curl_multi_remove_handle($this->handle, $handle);
 		}
-		curl_multi_close( $this->handle );
+
+		curl_multi_close($this->handle);
 		return true;
 	}
 
-	public function executeRedirects( $handle , $key ,  $code = '' , $headers = '' )
+	public function executeRedirects($handle, $key, $code = '', $headers = '')
 	{
-		static $loops 		= 0;
-		static $maxLoops	= 5;
+		static $loops = 0;
+		static $maxLoops = 5;
 
-		if( $loops++ >= $maxLoops )
-		{
+		if ($loops++ >= $maxLoops) {
 			$loops = 0;
 			return false;
 		}
 
-		if( $loops == 1 )
-		{
-			$last_url	= parse_url( curl_getinfo( $handle , CURLINFO_EFFECTIVE_URL) );
+		if ($loops == 1) {
+			$last_url = parse_url(curl_getinfo($handle, CURLINFO_EFFECTIVE_URL));
 		}
 
-
 		// This block will be executed second time onwards.
-		if( $loops > 1 )
-		{
-			$contents		= curl_exec( $handle );
+		if ($loops > 1) {
+			
+			$contents = curl_exec($handle);
 
 			// We only want to split it once.
-			$data 			= explode( "\r\n\r\n" , $contents , 2 );
+			$data = explode("\r\n\r\n", $contents, 2);
 
-			$headers	= isset( $data[ 0 ] ) ? $data[ 0 ] : '';
-			$contents	= isset( $data[ 1 ] ) ? $data[ 1 ] : '';
+			$headers = isset($data[0]) ? $data[0] : '';
+			$contents = isset($data[1]) ? $data[1] : '';
 
-			$code		= curl_getinfo( $handle , CURLINFO_HTTP_CODE );
-			$last_url	= parse_url( curl_getinfo( $handle , CURLINFO_EFFECTIVE_URL) );
+			$code = curl_getinfo($handle, CURLINFO_HTTP_CODE);
+			$last_url = parse_url(curl_getinfo($handle, CURLINFO_EFFECTIVE_URL));
 
-			curl_close( $handle );
+			curl_close($handle);
 		}
 
 		// This block will be executed the first time.
 		if ($code == 301 || $code == 302 || $code == 303) {
-			$matches		= array();
+			$matches = array();
 
 			// Most sites
 			preg_match('/Location:(.*?)\n/', $headers, $matches);
 
 			// Cnn.com is pretty peticular.
-			if( !$matches )
-			{
+			if (!$matches) {
 				preg_match('/Location: (.*)/', $headers, $matches);
 			}
 
 			// Get the last item from the matched url
-			$url			= @parse_url( trim( array_pop( $matches ) ) );
+			$url = @parse_url(trim(array_pop($matches)));
 
-			if( !$url )
-			{
-				$loops		= 0;
+			if (!$url) {
+				$loops = 0;
 				return $newdata;
 			}
 
-			if ( isset( $url[ 'scheme'] ) && !$url['scheme'] )
-			{
+			if (isset($url['scheme']) && !$url['scheme']) {
 				$url['scheme'] = $last_url['scheme'];
 			}
 
-			if( isset( $url[ 'host'] ) && !$url['host'] )
-			{
+			if (isset($url['host']) && !$url['host']) {
 				$url['host'] = $last_url['host'];
 			}
 
-			if( isset( $url[ 'path' ] ) && !$url['path'] )
-			{
+			if (isset($url['path']) && !$url['path']) {
 				$url['path'] = $last_url['path'];
 			}
 
 			// If the new url does not have scheme, use the previous one.
-			$scheme 	= isset( $url[ 'scheme' ] ) ? $url[ 'scheme' ] : $last_url[ 'scheme' ];
-			$host 		= isset( $url[ 'host' ] ) ? $url[ 'host' ] : $last_url[ 'host' ];
-			$path 		= isset( $url[ 'path' ] ) ? $url[ 'path' ] : $last_url[ 'path' ];
-			$query 		= isset( $url[ 'query' ] ) ? '?' . $url[ 'query' ] : '';
+			$scheme = isset( $url[ 'scheme' ] ) ? $url[ 'scheme' ] : $last_url[ 'scheme' ];
+			$host = isset( $url[ 'host' ] ) ? $url[ 'host' ] : $last_url[ 'host' ];
+			$path = isset( $url[ 'path' ] ) ? $url[ 'path' ] : $last_url[ 'path' ];
+			$query = isset( $url[ 'query' ] ) ? '?' . $url[ 'query' ] : '';
 
-			$newUrl 	= $scheme . '://' . $host . $path . $query;
-
-			$newUrl	 	= urldecode( $newUrl );
+			$newUrl = $scheme . '://' . $host . $path . $query;
+			$newUrl	= urldecode( $newUrl );
 
 			// dump( $newUrl );
-			$newHandle 	= curl_init( $newUrl );
+			$newHandle = curl_init($newUrl);
 
 			// Refresh with a new curl resource to avoid multi init issues.
 			// curl_setopt( $handle , CURLOPT_URL , $newUrl );
-			curl_setopt( $newHandle , CURLOPT_RETURNTRANSFER , true );
-			curl_setopt( $newHandle , CURLOPT_HEADER , true );
-			curl_setopt( $newHandle , CURLOPT_REFERER , 'http://www.google.com' );
-			curl_setopt( $newHandle , CURLOPT_AUTOREFERER , true );
+			curl_setopt($newHandle, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($newHandle, CURLOPT_HEADER, true);
+			curl_setopt($newHandle, CURLOPT_REFERER, 'http://www.google.com');
+			curl_setopt($newHandle, CURLOPT_AUTOREFERER, true);
 
-			$this->finalUrls[ $key ]	= $newUrl;
+			$this->finalUrls[$key] = $newUrl;
 
-			self::executeRedirects( $newHandle , $key , $code , $headers );
+			self::executeRedirects($newHandle, $key, $code, $headers);
+
 		} else {
 
-			$obj 					= new stdClass();
-			$obj->headers			= $headers;
-			$obj->contents 			= $contents;
+			$obj = new stdClass();
+			$obj->headers = $headers;
+			$obj->contents = $contents;
 
-			$this->result[ $key ]	= $obj;
-			$loops					= 0;
+			$this->result[$key]	= $obj;
+			$loops = 0;
 		}
 	}
 
@@ -242,12 +265,10 @@ class EasyDiscussConnectorCurl
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public function getFinalUrl( $key )
+	public function getFinalUrl($key)
 	{
-		return $this->finalUrls[ $key ];
+		return $this->finalUrls[$key];
 	}
 
 	/**
@@ -255,28 +276,22 @@ class EasyDiscussConnectorCurl
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string	The url that has been added into the queue earlier.
-	 * @param	bool	Determines whether or not to return the headers.
-	 *
-	 * @author	Mark Lee <mark@stackideas.com>
 	 */
-	public function getResult( $url = null , $withHeaders = false )
+	public function getResult($url = null, $withHeaders = false)
 	{
 		if (empty($url)) {
 			$url = $this->current;
 		}
 
-		if( !isset( $this->result[ $url ] ) )
-		{
+		if (!isset($this->result[$url])) {
 			return false;
 		}
 
-		if( $withHeaders )
-		{
-			return $this->result[ $url ]->headers . "\r\n\r\n" . $this->result[ $url ]->contents;
+		if ($withHeaders) {
+			return $this->result[$url]->headers . "\r\n\r\n" . $this->result[$url]->contents;
 		}
 
-		return $this->result[ $url ]->contents;
+		return $this->result[$url]->contents;
 	}
 
 	public function getResults()
@@ -302,18 +317,18 @@ class EasyDiscussConnectorCurl
 		return true;
 	}
 
-	public function setMethod( $method = 'GET' )
+	public function setMethod($method = 'GET')
 	{
-		switch( $method )
+		switch($method)
 		{
 			case 'GET':
-				$this->addOption( CURLOPT_HTTPGET , true );
+				$this->addOption(CURLOPT_HTTPGET, true);
 			break;
 			case 'POST':
-				$this->addOption( CURLOPT_POST , true );
+				$this->addOption(CURLOPT_POST, true);
 			break;
 			case 'PUT':
-				$this->addOption( CURLOPT_PUT , true );
+				$this->addOption(CURLOPT_PUT, true);
 			break;
 		}
 

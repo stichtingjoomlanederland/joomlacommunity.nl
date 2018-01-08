@@ -57,7 +57,7 @@ defined('_JEXEC') or die('Restricted access');
     <div class="ed-post-item__ft t-bdt-no">
         <ol class="g-list-inline g-list-inline--dashed">
             <li><span class=""><?php echo $post->getDuration(); ?></span></li>
-            <li><a class="" href="<?php echo EDR::getCategoryRoute($post->getCategory()->id); ?>"><?php echo $post->getCategory()->title; ?></a></li>
+            <li><a class="" href="<?php echo EDR::getCategoryRoute($post->getCategory()->id); ?>"><?php echo JText::_($post->getCategory()->title); ?></a></li>
 
             <?php if ($post->getLastReplier()) { ?>
                 <li class="current">
@@ -67,7 +67,7 @@ defined('_JEXEC') or die('Restricted access');
                             <?php echo $this->html('user.avatar', $post->getLastReplier(), array('rank' => false, 'size' => 'sm')); ?>
                         <?php } else { ?>
                             <?php echo $this->output('site/html/user.anonymous') ?>
-                        <?php } ?> 
+                        <?php } ?>
                     </div>
                 </li>
 			<?php } ?>
