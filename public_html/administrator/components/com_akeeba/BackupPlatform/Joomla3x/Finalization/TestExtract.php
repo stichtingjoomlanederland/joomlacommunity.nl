@@ -7,7 +7,7 @@
 
 namespace Akeeba\Engine\Finalization;
 
-use Akeeba\Engine\Base\Object;
+use Akeeba\Engine\Base\BaseObject;
 use Akeeba\Engine\Core\Domain\Finalization;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
@@ -20,7 +20,7 @@ defined('AKEEBAENGINE') or die();
 /**
  * Performs a dry-run extraction to ensure the integrity of the backup archive.
  */
-class TestExtract extends Object
+class TestExtract extends BaseObject
 {
 	/**
 	 * Checks the archive's data integrity by performing a dry-run extraction (no data is written to disk, just making

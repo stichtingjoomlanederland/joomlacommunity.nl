@@ -100,9 +100,6 @@ class Logger implements LoggerInterface
 			@unlink($defaultLog);
 		}
 
-		// Give correct permissions to the log file
-		@chmod($this->logName, 0666);
-
 		// Set the current log tag
 		$this->currentTag = $tag;
 

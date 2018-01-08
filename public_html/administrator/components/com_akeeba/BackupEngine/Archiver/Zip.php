@@ -788,7 +788,7 @@ class Zip extends BaseArchiver
 
 		Factory::getLog()->log(LogLevel::INFO, 'Creating new ZIP part #' . $this->currentPartNumber . ', file ' . $this->_dataFileName);
 
-		// Inform CUBE that we have changed the multipart number
+		// Inform the backup engine that we have changed the multipart number
 		$statistics = Factory::getStatistics();
 		$statistics->updateMultipart($this->totalParts);
 

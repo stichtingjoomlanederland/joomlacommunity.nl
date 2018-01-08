@@ -14,7 +14,7 @@ namespace Akeeba\Engine\Core;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Base\Object;
+use Akeeba\Engine\Base\BaseObject;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Filter\Base as FilterBase;
 use Akeeba\Engine\Platform;
@@ -23,7 +23,7 @@ use Psr\Log\LogLevel;
 /**
  * Akeeba filtering feature
  */
-class Filters extends Object
+class Filters extends BaseObject
 {
 	/** @var array An array holding data for all defined filters */
 	private $filter_registry = array();

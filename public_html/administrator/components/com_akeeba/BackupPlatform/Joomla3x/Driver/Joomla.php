@@ -14,10 +14,10 @@ namespace Akeeba\Engine\Driver;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Base\Object;
+use Akeeba\Engine\Base\BaseObject;
 use Akeeba\Engine\Platform;
 
-class Joomla extends Object
+class Joomla extends BaseObject
 {
 	/** @var Base The real database connection object */
 	private $dbo;

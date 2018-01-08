@@ -14,7 +14,7 @@ namespace Akeeba\Engine\Postproc;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Base\Object;
+use Akeeba\Engine\Base\BaseObject;
 
 /**
  * Akeeba Engine post processing abstract class
@@ -22,7 +22,7 @@ use Akeeba\Engine\Base\Object;
  * @author Nicholas
  *
  */
-abstract class Base extends Object
+abstract class Base extends BaseObject
 {
 	/** @var bool Should we break the step before post-processing? */
 	public $break_before = true;

@@ -264,11 +264,9 @@ class Html extends BaseView
 			$this->jpsPassword     = $engineConfiguration->get('engine.archiver.jps.key', '');
 		}
 
-		if (AKEEBA_PRO)
-		{
-			$this->showANGIEPassword = 1;
-			$this->ANGIEPassword     = $engineConfiguration->get('engine.installer.angie.key', '');
-		}
+		// Always show ANGIE password: we add that feature to the Core version as well
+		$this->showANGIEPassword = 1;
+		$this->ANGIEPassword     = $engineConfiguration->get('engine.installer.angie.key', '');
 
 		// Push language strings to Javascript
 		JText::script('COM_AKEEBA_BACKUP_TEXT_LASTRESPONSE');

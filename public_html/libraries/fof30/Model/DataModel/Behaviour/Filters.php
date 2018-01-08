@@ -31,7 +31,7 @@ class Filters extends Observer
 		$db = $model->getDbo();
 
 		$fields     = $model->getTableFields();
-		$blacklist  = $model->blacklistFilters();
+		$blacklist  = $model->getBlacklistFilters();
 		$filterZero = $model->getBehaviorParam('filterZero', null);
 		$tableAlias = $model->getBehaviorParam('tableAlias', null);
 

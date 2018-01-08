@@ -13,12 +13,12 @@ namespace Akeeba\Engine\Util;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Base\Object;
+use Akeeba\Engine\Base\BaseObject;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use Psr\Log\LogLevel;
 
-class Statistics extends Object
+class Statistics extends BaseObject
 {
 	/** @var bool used to block multipart updating initializing the backup */
 	private $multipart_lock = true;

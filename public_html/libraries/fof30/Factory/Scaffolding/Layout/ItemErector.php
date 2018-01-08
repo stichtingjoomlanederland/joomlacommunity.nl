@@ -14,6 +14,8 @@ use FOF30\Model\DataModel;
  * Erects a scaffolding XML for read views
  *
  * @package FOF30\Factory\Scaffolding
+ *
+ * @deprecated 3.1  Support for XML forms will be removed in FOF 4
  */
 class ItemErector extends FormErector implements ErectorInterface
 {

@@ -61,11 +61,6 @@ if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/inclu
 	return;
 }
 
-// If this is not the Professional release, bail out. So far I have only
-// received complaints about this feature from users of the Core release
-// who never bothered to read the documentation. FINE! If you are bitching
-// about it, you don't get this feature (unless you are a developer who can
-// come here and edit the code). Fair enough.
 JLoader::import('joomla.filesystem.file');
 $db = JFactory::getDbo();
 
@@ -79,19 +74,6 @@ $db->setQuery($query);
 $enabled = $db->loadResult();
 
 if (!$enabled)
-{
-	return;
-}
-
-// Is it the Pro release?
-@include_once(JPATH_ADMINISTRATOR . '/components/com_akeeba/version.php');
-
-if (!defined('AKEEBA_PRO'))
-{
-	return;
-}
-
-if (!AKEEBA_PRO)
 {
 	return;
 }

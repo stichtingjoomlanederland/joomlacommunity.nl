@@ -14,7 +14,7 @@ namespace Akeeba\Engine\Platform;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Base\Object;
+use Akeeba\Engine\Base\BaseObject;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform\Exception\DecryptionException;
 use Akeeba\Engine\Util\ParseIni;
@@ -359,9 +359,9 @@ abstract class Base implements PlatformInterface
 	/**
 	 * Creates or updates the statistics record of the current backup attempt
 	 *
-	 * @param int                        $id     Backup record ID, use null for new record
-	 * @param array                      $data   The data to store
-	 * @param \Akeeba\Engine\Base\Object $caller The calling object
+	 * @param int                            $id     Backup record ID, use null for new record
+	 * @param array                          $data   The data to store
+	 * @param \Akeeba\Engine\Base\BaseObject $caller The calling object
 	 *
 	 * @return int|null|bool The new record id, or null if this doesn't apply, or false if it failed
 	 */
@@ -414,7 +414,7 @@ abstract class Base implements PlatformInterface
 			}
 			catch (\Exception $exc)
 			{
-				if (is_object($caller) && ($caller instanceof Object))
+				if (is_object($caller) && ($caller instanceof BaseObject))
 				{
 					$caller->setError($exc->getMessage());
 				}
@@ -448,7 +448,7 @@ abstract class Base implements PlatformInterface
 			}
 			catch (\Exception $exc)
 			{
-				if (is_object($caller) && ($caller instanceof Object))
+				if (is_object($caller) && ($caller instanceof BaseObject))
 				{
 					$caller->setError($exc->getMessage());
 				}

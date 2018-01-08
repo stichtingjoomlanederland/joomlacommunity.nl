@@ -7,21 +7,14 @@
 
 namespace FOF30\Form\Field;
 
-use FOF30\Form\Exception\DataModelRequired;
-use FOF30\Form\Exception\GetInputNotAllowed;
-use FOF30\Form\Exception\GetStaticNotAllowed;
-use FOF30\Form\FieldInterface;
-use FOF30\Form\Form;
-use FOF30\Form\Header\RowSelect;
-use FOF30\Model\DataModel;
-use \JHtml;
-
 defined('_JEXEC') or die;
 
 /**
  * Form Field class for FOF
  * Alias to RowSelect (common typo)
+ *
+ * @deprecated 3.1  Support for XML forms will be removed in FOF 4
  */
-class SelectRow extends RowSelect
+class RowSelect extends SelectRow
 {
 }

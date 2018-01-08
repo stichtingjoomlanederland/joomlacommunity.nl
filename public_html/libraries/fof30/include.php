@@ -17,7 +17,7 @@ if (!class_exists('FOF30\\Autoloader\\Autoloader'))
 
 if (!defined('FOF30_INCLUDED'))
 {
-	define('FOF30_INCLUDED', '3.1.3');
+	define('FOF30_INCLUDED', '3.1.4');
 
 	JFactory::getLanguage()->load('lib_fof30', JPATH_SITE, 'en-GB', true);
 	JFactory::getLanguage()->load('lib_fof30', JPATH_SITE, null, true);
@@ -27,4 +27,7 @@ if (!defined('FOF30_INCLUDED'))
 	{
 		\JLog::addLogger(array('text_file' => 'fof.log.php'), \JLog::ALL, array('fof'));
 	}
+
+	// Register the JHtml helpers path for the Akeeba Frontend Framework
+	JHtml::addIncludePath(__DIR__ . '/Utils/FEFHelper');
 }

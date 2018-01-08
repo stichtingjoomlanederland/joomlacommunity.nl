@@ -1322,6 +1322,8 @@ class View
 	 * that model.
 	 *
 	 * @param   \FOF30\Model\Model  $model  The model object passed from the XML form renderer
+	 *
+	 * @deprecated 3.1  Support for XML forms will be removed in FOF 4
 	 */
 	public function populateFromModel(Model $model)
 	{

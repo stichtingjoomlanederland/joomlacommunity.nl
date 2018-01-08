@@ -14,14 +14,14 @@ namespace Akeeba\Engine\Core;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Base\Object;
+use Akeeba\Engine\Base\BaseObject;
 use Akeeba\Engine\Factory;
 use Psr\Log\LogLevel;
 
 /**
  * Timer class
  */
-class Timer extends Object
+class Timer extends BaseObject
 {
 
 	/** @var int Maximum execution time allowance per step */

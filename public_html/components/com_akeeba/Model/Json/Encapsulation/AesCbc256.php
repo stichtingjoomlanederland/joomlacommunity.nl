@@ -44,7 +44,7 @@ class AesCbc256 extends Base
 	public function decode($serverKey, $data)
 	{
 		$data = base64_decode($data);
-		return Factory::getEncryption()->AESDecryptCBC($data, $serverKey, 256);
+		return $this->getEncryption()->AESDecryptCBC($data, $serverKey, 256);
 	}
 
 	/**
@@ -65,6 +65,6 @@ class AesCbc256 extends Base
 	 */
 	public function encode($serverKey, $data)
 	{
-		return base64_encode(Factory::getEncryption()->AESEncryptCBC($data, $serverKey, 256));
+		return base64_encode($this->getEncryption()->AESEncryptCBC($data, $serverKey, 256));
 	}
 }

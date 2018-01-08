@@ -11,6 +11,8 @@ defined('_JEXEC') or die;
 
 /**
  * Generic interface that a FOF header field class must implement
+ *
+ * @deprecated 3.1  Support for XML forms will be removed in FOF 4
  */
 interface HeaderInterface
 {

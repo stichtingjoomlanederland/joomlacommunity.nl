@@ -13,10 +13,10 @@ namespace Akeeba\Engine\Filter;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Base\Object;
+use Akeeba\Engine\Base\BaseObject;
 use Akeeba\Engine\Factory;
 
-abstract class Base extends Object
+abstract class Base extends BaseObject
 {
 	/** @var string Filter's internal name; defaults to filename without .php extension */
 	public $filter_name = '';

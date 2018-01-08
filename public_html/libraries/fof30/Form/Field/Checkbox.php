@@ -18,6 +18,8 @@ defined('_JEXEC') or die;
 /**
  * Form Field class for the FOF framework
  * A single checkbox
+ *
+ * @deprecated 3.1  Support for XML forms will be removed in FOF 4
  */
 class Checkbox extends \JFormFieldCheckbox implements FieldInterface
 {

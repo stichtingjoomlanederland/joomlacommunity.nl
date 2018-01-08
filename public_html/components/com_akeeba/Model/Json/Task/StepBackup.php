@@ -44,6 +44,16 @@ class StepBackup extends AbstractTask
 		$tag      = $filter->clean($defConfig['tag'], 'cmd');
 		$backupid = $filter->clean($defConfig['backupid'], 'cmd');
 
+		if (is_null($backupid) && defined('AKEEBA_BACKUP_ID'))
+		{
+			$tag = AKEEBA_BACKUP_ID;
+		}
+
+		if (empty($backupid))
+		{
+			throw new \RuntimeException("JSON API :: stepBackup -- You have not provided the required backupid parameter. This parameter is MANDATORY since May 2016. Please update your client software to include this parameter.");
+		}
+
 		// Try to set the profile from the setup parameters
 		if (!empty($profile))
 		{

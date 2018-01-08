@@ -40,7 +40,7 @@ abstract class ParseIni
 			}
 			else
 			{
-				return parse_ini_string($file, $process_sections);
+				return parse_ini_string($file, $process_sections, INI_SCANNER_RAW);
 			}
 		}
 		else
@@ -51,7 +51,7 @@ abstract class ParseIni
 			}
 			else
 			{
-				return parse_ini_file($file, $process_sections);
+				return parse_ini_file($file, $process_sections, INI_SCANNER_RAW);
 			}
 		}
 	}

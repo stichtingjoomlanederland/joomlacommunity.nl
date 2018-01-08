@@ -11,9 +11,9 @@ use FOF30\Model\DataModel;
 use FOF30\Utils\ModelTypeHints;
 
 /**
- *
- *
  * @package FOF30\Factory\Scaffolding
+ *
+ * @deprecated 3.1  Support for XML forms will be removed in FOF 4
  */
 class ModelErector implements ErectorInterface
 {

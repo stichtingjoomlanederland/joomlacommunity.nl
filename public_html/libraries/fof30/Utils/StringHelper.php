@@ -85,4 +85,4 @@ abstract class StringHelper
 
 		return (bool)$string;
 	}
-} 
+}

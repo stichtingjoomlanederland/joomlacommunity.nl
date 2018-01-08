@@ -11,6 +11,11 @@ use Exception;
 
 defined('_JEXEC') or die;
 
+/**
+ * Class GetStaticNotAllowed
+ * @package FOF30\Form\Exception
+ * @deprecated 3.1  Support for XML forms will be removed in FOF 4
+ */
 class GetStaticNotAllowed extends \LogicException
 {
 	public function __construct($className, $code = 0, Exception $previous = null)

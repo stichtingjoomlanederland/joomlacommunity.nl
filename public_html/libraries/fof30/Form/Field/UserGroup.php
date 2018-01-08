@@ -20,6 +20,8 @@ defined('_JEXEC') or die;
 /**
  * Form Field class for FOF
  * Joomla! user groups
+ *
+ * @deprecated 3.1  Support for XML forms will be removed in FOF 4
  */
 class UserGroup extends \JFormFieldUsergroup implements FieldInterface
 {

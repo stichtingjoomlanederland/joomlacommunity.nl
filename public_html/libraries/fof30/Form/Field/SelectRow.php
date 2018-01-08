@@ -13,13 +13,15 @@ use FOF30\Form\Exception\GetStaticNotAllowed;
 use FOF30\Form\FieldInterface;
 use FOF30\Form\Form;
 use FOF30\Model\DataModel;
-use \JHtml;
+use JHtml;
 
 defined('_JEXEC') or die;
 
 /**
  * Form Field class for FOF
  * Renders the checkbox in browse views which allows you to select rows
+ *
+ * @deprecated 3.1  Support for XML forms will be removed in FOF 4
  */
 class SelectRow extends \JFormField implements FieldInterface
 {

@@ -13,6 +13,8 @@ defined('_JEXEC') or die;
 
 /**
  * Field header for Published (enabled) columns
+ *
+ * @deprecated 3.1  Support for XML forms will be removed in FOF 4
  */
 class Published extends Selectable
 {

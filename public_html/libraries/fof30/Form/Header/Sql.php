@@ -14,6 +14,8 @@ defined('_JEXEC') or die;
 
 /**
  * Generic field header, with drop down filters based on a SQL query
+ *
+ * @deprecated 3.1  Support for XML forms will be removed in FOF 4
  */
 class Sql extends Selectable
 {

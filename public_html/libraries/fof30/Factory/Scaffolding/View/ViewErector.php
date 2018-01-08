@@ -10,9 +10,9 @@ namespace FOF30\Factory\Scaffolding\View;
 use FOF30\View\DataView\Html;
 
 /**
- *
- *
  * @package FOF30\Factory\Scaffolding
+ *
+ * @deprecated 3.1  Support for XML forms will be removed in FOF 4
  */
 class ViewErector implements ErectorInterface
 {

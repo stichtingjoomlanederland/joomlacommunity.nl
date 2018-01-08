@@ -13,6 +13,7 @@ use FOF30\Model\DataModel;
  * Erects a scaffolding XML for browse views
  *
  * @package FOF30\Factory\Scaffolding
+ * @deprecated 3.1  Support for XML forms will be removed in FOF 4
  */
 class BrowseErector extends BaseErector implements ErectorInterface
 {

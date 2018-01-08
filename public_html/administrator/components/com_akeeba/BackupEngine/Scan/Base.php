@@ -10,12 +10,12 @@
 
 namespace Akeeba\Engine\Scan;
 
-use Akeeba\Engine\Base\Object;
+use Akeeba\Engine\Base\BaseObject;
 
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-abstract class Base extends Object
+abstract class Base extends BaseObject
 {
 	/**
 	 * Gets all the files of a given folder

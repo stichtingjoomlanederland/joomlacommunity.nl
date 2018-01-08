@@ -18,6 +18,8 @@ defined('_JEXEC') or die;
 /**
  * Form Field class for FOF
  * Tag Fields
+ *
+ * @deprecated 3.1  Support for XML forms will be removed in FOF 4
  */
 class Tag extends \JFormFieldTag implements FieldInterface
 {

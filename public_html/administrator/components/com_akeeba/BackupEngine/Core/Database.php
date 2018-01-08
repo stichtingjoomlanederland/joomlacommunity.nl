@@ -13,14 +13,14 @@ namespace Akeeba\Engine\Core;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Base\Object;
+use Akeeba\Engine\Base\BaseObject;
 use Akeeba\Engine\Driver\Base as DriverBase;
 use Akeeba\Engine\Platform;
 
 /**
  * A utility class to return a database connection object
  */
-class Database extends Object
+class Database extends BaseObject
 {
     private static $instances = array();
 

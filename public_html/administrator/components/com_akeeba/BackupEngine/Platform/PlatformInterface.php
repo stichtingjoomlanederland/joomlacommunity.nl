@@ -14,7 +14,7 @@ namespace Akeeba\Engine\Platform;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Base\Object as BaseObject;
+use Akeeba\Engine\Base\BaseObject as BaseObject;
 
 /**
  * Interface PlatformInterface

@@ -10,7 +10,7 @@
 
 namespace Akeeba\Engine\Driver;
 
-use Akeeba\Engine\Base\Object;
+use Akeeba\Engine\Base\BaseObject;
 use Akeeba\Engine\Driver\Query\Base as QueryBase;
 
 // Protection against direct access
@@ -23,7 +23,7 @@ defined('AKEEBAENGINE') or die();
  * @method qn(string $name, string $as = null)  Alias for quoteName
  * @method q(string $text, bool $escape = true)  Alias for quote
  */
-abstract class Base extends Object
+abstract class Base extends BaseObject
 {
 	/** @var string The name of the database. */
 	protected $_database;

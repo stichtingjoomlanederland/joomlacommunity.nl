@@ -13,6 +13,8 @@ defined('_JEXEC') or die;
 
 /**
  * Generic field header, with text input (search) filter
+ *
+ * @deprecated 3.1  Support for XML forms will be removed in FOF 4
  */
 class Searchable extends Field
 {

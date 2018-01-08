@@ -43,7 +43,7 @@ class AesCtr256 extends Base
 	 */
 	public function decode($serverKey, $data)
 	{
-		return Factory::getEncryption()->AESDecryptCtr($data, $serverKey, 256);
+		return $this->getEncryption()->AESDecryptCtr($data, $serverKey, 256);
 	}
 
 	/**
@@ -64,6 +64,6 @@ class AesCtr256 extends Base
 	 */
 	public function encode($serverKey, $data)
 	{
-		return Factory::getEncryption()->AESEncryptCtr($data, $serverKey, 256);
+		return $this->getEncryption()->AESEncryptCtr($data, $serverKey, 256);
 	}
 }

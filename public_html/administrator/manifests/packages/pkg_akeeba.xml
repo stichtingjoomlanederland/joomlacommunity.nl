@@ -2,15 +2,15 @@
 <extension version="3.3.0" type="package" method="upgrade">
     <name>Akeeba Backup package</name>
     <author>Nicholas K. Dionysopoulos</author>
-    <creationDate>2017-09-12</creationDate>
+    <creationDate>2017-12-11</creationDate>
     <packagename>akeeba</packagename>
-    <version>5.6.0</version>
+    <version>5.6.3</version>
     <url>https://www.akeebabackup.com</url>
     <packager>Akeeba Ltd</packager>
     <packagerurl>https://www.akeebabackup.com</packagerurl>
     <copyright>Copyright (c)2006-2017 Akeeba Ltd / Nicholas K. Dionysopoulos</copyright>
     <license>GNU GPL v3 or later</license>
-    <description>Akeeba Backup installation package v.5.6.0</description>
+    <description>Akeeba Backup installation package v.5.6.3</description>
 
     <!-- List of extensions to install -->
     <files>

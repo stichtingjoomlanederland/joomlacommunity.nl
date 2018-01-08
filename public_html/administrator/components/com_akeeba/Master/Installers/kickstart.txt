@@ -37,7 +37,7 @@
  */
 
 define('KICKSTART', 1);
-define('VERSION', '5.4.0');
+define('VERSION', 'rev2D9144E');
 define('KICKSTARTPRO', '0');
 // Uncomment the following line to enable Kickstart's debug mode
 //define('KSDEBUG', 1);
@@ -1582,6 +1582,120 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
 
 		return $path;
 	}
+
+	/**
+	 * Am I supposed to skip the extraction of the current file? This depends on
+	 *
+	 * @return bool
+	 */
+	protected function mustSkip()
+	{
+		static $isDryRun = null;
+
+		// List of files (and patterns) to extract
+		static $extractList = null;
+
+		// Internal cache of the last file we checked and whether it must be skipped
+		static $lastFileName = '';
+		static $mustSkip = false;
+
+		// Make sure the dry run flag is, indeed, populated
+		if (is_null($isDryRun))
+		{
+			$isDryRun = AKFactory::get('kickstart.setup.dryrun', '0');
+		}
+
+		// If it's a Kickstart dry run we have to skip the extraction of the file
+		if ($isDryRun)
+		{
+			return true;
+		}
+
+		// Make sure I have a list of files and patterns to extract
+		if (is_null($extractList))
+		{
+			$extractList = $this->getExtractList();
+		}
+
+		// No list of files to extract is given; we must extract everything.
+		if (empty($extractList))
+		{
+			return false;
+		}
+
+		// I am asked about the same file again. Return the cached result.
+		if ($this->fileHeader->file == $lastFileName)
+		{
+			return $mustSkip;
+		}
+
+		// Does the current file match the extract patterns or not?
+		$lastFileName = $this->fileHeader->file;
+		$lastFileName = (strpos($lastFileName, $this->addPath) === 0) ? substr($lastFileName, strlen(rtrim($this->addPath, "\\/")) + 1) : $lastFileName;
+		$mustSkip     = !$this->matchesGlobPatterns($lastFileName, $extractList);
+
+		return $mustSkip;
+	}
+
+	/**
+	 * Get the list of files / folders to extract. The list can contain filenames or glob patterns.
+	 *
+	 * @return  array
+	 */
+	private function getExtractList()
+	{
+		$rawList = AKFactory::get('kickstart.setup.extract_list', '');
+
+		// Sometimes I could get an array, e.g. from CLI
+		if (is_array($rawList))
+		{
+			$rawList = implode("\n", $rawList);
+		}
+
+		// Remove any whitespace
+		$rawList = trim($rawList);
+
+		if (empty($rawList))
+		{
+			return array();
+		}
+
+		// Convert commas to newlines so we can support both ways to express lists
+		$rawList = str_replace(",", "\n", $rawList);
+		$rawList = trim($rawList);
+
+		// Convert the list to an array and clean it
+		$list = explode("\n", $rawList);
+		$list = array_map('trim', $list);
+
+		return array_unique($list);
+	}
+
+	/**
+	 * Tests whether the item $item matches the list of shell patterns $list.
+	 *
+	 * @param   string  $item  The file name to test
+	 * @param   array   $list  The list of glob patterns to match
+	 *
+	 * @return  bool
+	 */
+	private function matchesGlobPatterns($item, array $list)
+	{
+		if (empty($list))
+		{
+			return true;
+		}
+
+		foreach ($list as $pattern)
+		{
+			if (fnmatch($pattern, $item))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
 }
 
 /**
@@ -1719,6 +1833,7 @@ class AKPostprocDirect extends AKAbstractPostproc
 		{
 			return true;
 		}
+
 		if (@mkdir($dirName, 0755, true))
 		{
 			@chmod($dirName, 0755);
@@ -4139,41 +4254,46 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
 
 		// Get the translated path name
 		$restorePerms = AKFactory::get('kickstart.setup.restoreperms', false);
-		if ($this->fileHeader->type == 'file')
+
+		if (!$this->mustSkip())
 		{
-			// Regular file; ask the postproc engine to process its filename
-			if ($restorePerms)
+			if ($this->fileHeader->type == 'file')
 			{
-				$this->fileHeader->realFile =
-					$this->postProcEngine->processFilename($this->fileHeader->file, $this->fileHeader->permissions);
+				// Regular file; ask the postproc engine to process its filename
+				if ($restorePerms)
+				{
+					$this->fileHeader->realFile =
+						$this->postProcEngine->processFilename($this->fileHeader->file, $this->fileHeader->permissions);
+				}
+				else
+				{
+					$this->fileHeader->realFile = $this->postProcEngine->processFilename($this->fileHeader->file);
+				}
+			}
+			elseif ($this->fileHeader->type == 'dir')
+			{
+				$dir = $this->fileHeader->file;
+
+				// Directory; just create it
+				if ($restorePerms)
+				{
+					$this->postProcEngine->createDirRecursive($dir, $this->fileHeader->permissions);
+				}
+				else
+				{
+					$this->postProcEngine->createDirRecursive($dir, 0755);
+				}
+
+				$this->postProcEngine->processFilename(null);
 			}
 			else
 			{
-				$this->fileHeader->realFile = $this->postProcEngine->processFilename($this->fileHeader->file);
+				// Symlink; do not post-process
+				$this->postProcEngine->processFilename(null);
 			}
-		}
-		elseif ($this->fileHeader->type == 'dir')
-		{
-			$dir = $this->fileHeader->file;
 
-			// Directory; just create it
-			if ($restorePerms)
-			{
-				$this->postProcEngine->createDirRecursive($this->fileHeader->file, $this->fileHeader->permissions);
-			}
-			else
-			{
-				$this->postProcEngine->createDirRecursive($this->fileHeader->file, 0755);
-			}
-			$this->postProcEngine->processFilename(null);
+			$this->createDirectory();
 		}
-		else
-		{
-			// Symlink; do not post-process
-			$this->postProcEngine->processFilename(null);
-		}
-
-		$this->createDirectory();
 
 		// Header is read
 		$this->runState = AK_STATE_HEADER;
@@ -4231,7 +4351,7 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
 	 */
 	protected function createDirectory()
 	{
-		if (AKFactory::get('kickstart.setup.dryrun', '0'))
+		if ($this->mustSkip())
 		{
 			return true;
 		}
@@ -4352,7 +4472,7 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
 
 		$filename = isset($this->fileHeader->realFile) ? $this->fileHeader->realFile : $this->fileHeader->file;
 
-		if (!AKFactory::get('kickstart.setup.dryrun', '0'))
+		if (!$this->mustSkip())
 		{
 			// Try to remove an existing file or directory by the same name
 			if (file_exists($filename))
@@ -4378,14 +4498,14 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
 	private function processTypeFileUncompressed()
 	{
 		// Uncompressed files are being processed in small chunks, to avoid timeouts
-		if (($this->dataReadLength == 0) && !AKFactory::get('kickstart.setup.dryrun', '0'))
+		if (($this->dataReadLength == 0) && !$this->mustSkip())
 		{
 			// Before processing file data, ensure permissions are adequate
 			$this->setCorrectPermissions($this->fileHeader->file);
 		}
 
 		// Open the output file
-		if (!AKFactory::get('kickstart.setup.dryrun', '0'))
+		if (!$this->mustSkip())
 		{
 			$ignore =
 				AKFactory::get('kickstart.setup.ignoreerrors', false) || $this->isIgnoredDirectory($this->fileHeader->file);
@@ -4414,7 +4534,7 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
 		if ($this->fileHeader->compressed == 0)
 		{
 			// No file data!
-			if (!AKFactory::get('kickstart.setup.dryrun', '0') && is_resource($outfp))
+			if (!$this->mustSkip() && is_resource($outfp))
 			{
 				@fclose($outfp);
 			}
@@ -4457,7 +4577,7 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
 				}
 			}
 
-			if (!AKFactory::get('kickstart.setup.dryrun', '0'))
+			if (!$this->mustSkip())
 			{
 				if (is_resource($outfp))
 				{
@@ -4467,7 +4587,7 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
 		}
 
 		// Close the file pointer
-		if (!AKFactory::get('kickstart.setup.dryrun', '0'))
+		if (!$this->mustSkip())
 		{
 			if (is_resource($outfp))
 			{
@@ -4492,7 +4612,7 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
 
 	private function processTypeFileCompressedSimple()
 	{
-		if (!AKFactory::get('kickstart.setup.dryrun', '0'))
+		if (!$this->mustSkip())
 		{
 			// Before processing file data, ensure permissions are adequate
 			$this->setCorrectPermissions($this->fileHeader->file);
@@ -4518,7 +4638,7 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
 		if ($this->fileHeader->compressed == 0)
 		{
 			// No file data!
-			if (!AKFactory::get('kickstart.setup.dryrun', '0'))
+			if (!$this->mustSkip())
 			{
 				if (is_resource($outfp))
 				{
@@ -4562,7 +4682,7 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
 		unset($zipData);
 
 		// Write to the file.
-		if (!AKFactory::get('kickstart.setup.dryrun', '0') && is_resource($outfp))
+		if (!$this->mustSkip() && is_resource($outfp))
 		{
 			@fwrite($outfp, $unzipData, $this->fileHeader->uncompressed);
 			@fclose($outfp);
@@ -4871,27 +4991,30 @@ class AKUnarchiverZIP extends AKUnarchiverJPA
 		}
 
 		// Get the translated path name
-		if ($this->fileHeader->type == 'file')
+		if (!$this->mustSkip())
 		{
-			$this->fileHeader->realFile = $this->postProcEngine->processFilename($this->fileHeader->file);
-		}
-		elseif ($this->fileHeader->type == 'dir')
-		{
-			$this->fileHeader->timestamp = 0;
+			if ($this->fileHeader->type == 'file')
+			{
+				$this->fileHeader->realFile = $this->postProcEngine->processFilename($this->fileHeader->file);
+			}
+			elseif ($this->fileHeader->type == 'dir')
+			{
+				$this->fileHeader->timestamp = 0;
 
-			$dir = $this->fileHeader->file;
+				$dir = $this->fileHeader->file;
 
-			$this->postProcEngine->createDirRecursive($this->fileHeader->file, 0755);
-			$this->postProcEngine->processFilename(null);
-		}
-		else
-		{
-			// Symlink; do not post-process
-			$this->fileHeader->timestamp = 0;
-			$this->postProcEngine->processFilename(null);
-		}
+				$this->postProcEngine->createDirRecursive($dir, 0755);
+				$this->postProcEngine->processFilename(null);
+			}
+			else
+			{
+				// Symlink; do not post-process
+				$this->fileHeader->timestamp = 0;
+				$this->postProcEngine->processFilename(null);
+			}
 
-		$this->createDirectory();
+			$this->createDirectory();
+		}
 
 		// Header is read
 		$this->runState = AK_STATE_HEADER;
@@ -5260,45 +5383,51 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
 
 		// Get the translated path name
 		$restorePerms = AKFactory::get('kickstart.setup.restoreperms', false);
-		if ($this->fileHeader->type == 'file')
-		{
-			// Regular file; ask the postproc engine to process its filename
-			if ($restorePerms)
-			{
-				$this->fileHeader->realFile =
-					$this->postProcEngine->processFilename($this->fileHeader->file, $this->fileHeader->permissions);
-			}
-			else
-			{
-				$this->fileHeader->realFile = $this->postProcEngine->processFilename($this->fileHeader->file);
-			}
-		}
-		elseif ($this->fileHeader->type == 'dir')
-		{
-			$dir                        = $this->fileHeader->file;
-			$this->fileHeader->realFile = $dir;
 
-			// Directory; just create it
-			if ($restorePerms)
+		if (!$this->mustSkip())
+		{
+			if ($this->fileHeader->type == 'file')
 			{
-				$this->postProcEngine->createDirRecursive($this->fileHeader->file, $this->fileHeader->permissions);
+				// Regular file; ask the postproc engine to process its filename
+				if ($restorePerms)
+				{
+					$this->fileHeader->realFile =
+						$this->postProcEngine->processFilename($this->fileHeader->file, $this->fileHeader->permissions);
+				}
+				else
+				{
+					$this->fileHeader->realFile = $this->postProcEngine->processFilename($this->fileHeader->file);
+				}
+			}
+			elseif ($this->fileHeader->type == 'dir')
+			{
+				$dir                        = $this->fileHeader->file;
+				$this->fileHeader->realFile = $dir;
+
+				// Directory; just create it
+				if ($restorePerms)
+				{
+					$this->postProcEngine->createDirRecursive($this->fileHeader->file, $this->fileHeader->permissions);
+				}
+				else
+				{
+					$this->postProcEngine->createDirRecursive($this->fileHeader->file, 0755);
+				}
+
+				$this->postProcEngine->processFilename(null);
 			}
 			else
 			{
-				$this->postProcEngine->createDirRecursive($this->fileHeader->file, 0755);
+				// Symlink; do not post-process
+				$this->postProcEngine->processFilename(null);
 			}
-			$this->postProcEngine->processFilename(null);
+
+			$this->createDirectory();
 		}
-		else
-		{
-			// Symlink; do not post-process
-			$this->postProcEngine->processFilename(null);
-		}
+
 
 		$this->fileHeader->compressed                = $this->compressedSizeReadSinceLastFileHeader;
 		$this->compressedSizeReadSinceLastFileHeader = 0;
-
-		$this->createDirectory();
 
 		// Header is read
 		$this->runState = AK_STATE_HEADER;
@@ -5313,7 +5442,7 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
 	 */
 	protected function createDirectory()
 	{
-		if (AKFactory::get('kickstart.setup.dryrun', '0'))
+		if ($this->mustSkip())
 		{
 			return true;
 		}
@@ -5480,7 +5609,7 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
 		// Trim the data
 		$data = substr($data, 0, $miniHeader['decsize']);
 
-		if (!AKFactory::get('kickstart.setup.dryrun', '0'))
+		if (!$this->mustSkip())
 		{
 			// Try to remove an existing file or directory by the same name
 			if (file_exists($this->fileHeader->file))
@@ -5505,14 +5634,14 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
 	private function processTypeFileUncompressed()
 	{
 		// Uncompressed files are being processed in small chunks, to avoid timeouts
-		if (($this->dataReadLength == 0) && !AKFactory::get('kickstart.setup.dryrun', '0'))
+		if (($this->dataReadLength == 0) && !$this->mustSkip())
 		{
 			// Before processing file data, ensure permissions are adequate
 			$this->setCorrectPermissions($this->fileHeader->file);
 		}
 
 		// Open the output file
-		if (!AKFactory::get('kickstart.setup.dryrun', '0'))
+		if (!$this->mustSkip())
 		{
 			$ignore =
 				AKFactory::get('kickstart.setup.ignoreerrors', false) || $this->isIgnoredDirectory($this->fileHeader->file);
@@ -5539,7 +5668,7 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
 		if ($this->fileHeader->uncompressed == 0)
 		{
 			// No file data!
-			if (!AKFactory::get('kickstart.setup.dryrun', '0') && is_resource($outfp))
+			if (!$this->mustSkip() && is_resource($outfp))
 			{
 				@fclose($outfp);
 			}
@@ -5558,14 +5687,14 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
 		$timer = AKFactory::getTimer();
 
 		// Files are being processed in small chunks, to avoid timeouts
-		if (($this->dataReadLength == 0) && !AKFactory::get('kickstart.setup.dryrun', '0'))
+		if (($this->dataReadLength == 0) && !$this->mustSkip())
 		{
 			// Before processing file data, ensure permissions are adequate
 			$this->setCorrectPermissions($this->fileHeader->file);
 		}
 
 		// Open the output file
-		if (!AKFactory::get('kickstart.setup.dryrun', '0'))
+		if (!$this->mustSkip())
 		{
 			// Open the output file
 			$outfp = @fopen($this->fileHeader->realFile, 'wb');
@@ -5586,7 +5715,7 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
 		if ($this->fileHeader->uncompressed == 0)
 		{
 			// No file data!
-			if (!AKFactory::get('kickstart.setup.dryrun', '0'))
+			if (!$this->mustSkip())
 			{
 				if (is_resource($outfp))
 				{
@@ -5696,7 +5825,7 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
 			$unc_len = akstringlen($data);
 
 			// Write the decrypted data
-			if (!AKFactory::get('kickstart.setup.dryrun', '0'))
+			if (!$this->mustSkip())
 			{
 				if (is_resource($outfp))
 				{
@@ -5710,7 +5839,7 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
 		}
 
 		// Close the file pointer
-		if (!AKFactory::get('kickstart.setup.dryrun', '0'))
+		if (!$this->mustSkip())
 		{
 			if (is_resource($outfp))
 			{
@@ -6220,6 +6349,8 @@ class AKText extends AKAbstractObject
 		'ERR_COULD_NOT_OPEN_ARCHIVE_PART' => 'Could not open archive part file %s for reading. Check that the file exists, is readable by the web server and is not in a directory made out of reach by chroot, open_basedir restrictions or any other restriction put in place by your host.',
 		'RENAME_FILES'                    => 'Rename server configuration files',
 		'RESTORE_PERMISSIONS'             => 'Restore file permissions',
+		'EXTRACT_LIST'                    => 'Files to extract',
+		'EXTRACT_LIST_HELP'               => 'Enter a file path such as <code>images/cat.png</code> or shell pattern such as <code>images/*.png</code> on each line. Only files matching this list will be written to disk. Leave empty to extract everything (default).',
 	);
 
 	/**
@@ -9353,6 +9484,13 @@ label {
 	margin:.5em 0;
 }
 
+.help {
+	width: 60%;
+	margin-left: 30%;
+	font-size: small;
+	color: #333;
+}
+
 input:focus, input:hover {
 	background-color: #f6f6ff;
 }
@@ -9886,7 +10024,7 @@ function echoHeadJavascript()
 				transKey = $(e).text();
 				if (array_key_exists(transKey, translation))
 				{
-					$(e).text(translation[transKey]);
+					$(e).html(translation[transKey]);
 				}
 			});
 		}
@@ -10665,7 +10803,8 @@ function echoHeadJavascript()
 					'kickstart.ftp.user':             $('#kickstart\\.ftp\\.user').val(),
 					'kickstart.ftp.pass':             $('#kickstart\\.ftp\\.pass').val(),
 					'kickstart.ftp.dir':              $('#kickstart\\.ftp\\.dir').val(),
-					'kickstart.ftp.tempdir':          $('#kickstart\\.ftp\\.tempdir').val()
+					'kickstart.ftp.tempdir':          $('#kickstart\\.ftp\\.tempdir').val(),
+					'kickstart.setup.extract_list':   $('#kickstart\\.setup\\.extract_list').val()
 				})
 			};
 			doAjax(data, function (ret)
@@ -10843,7 +10982,7 @@ function echoHeadJavascript()
 		 */
 
 		var akeeba_update  = {version: '0'};
-		var akeeba_version = '5.4.0';
+		var akeeba_version = 'rev2D9144E';
 
 		function version_compare(v1, v2, operator)
 		{
@@ -11110,7 +11249,7 @@ function echoPage()
 		<div id="header">
 			<div class="title">
 				<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAACXBIWXMAAAHFAAABxQG6eNsrAAAA/0lEQVRIx+WVUQ2DMBCGv01B5wAHYw4qARxMwiQgYQ6YAyRMAjgAB+CgezmSSwOjZfRplzSXNE2/3t1/V/hXuwMjkKcC5ICTNQImBaRVEAfUKdLkFlaWMorDo8lUHXIvsvEoyEMubFai21TaOQByVeqaFWVUPewRkEz5FqjEa+Aus3KpAfqVojsvjXYtdacVSA8MAgqRaSd+AMrYzt6zgmriv3zaeNS08MhNiD5UArcvoA64AE+1FySEYiF0I939Fj/3iFVFd6F9g1KU33yNGiX+JDYCbmIkXHm1sd6YX/pT7pKF3VYrSB87fc8RZyfgJX5I8WEVsfn+5fs1/LV9AHnjYQzAbyUrAAAAAElFTkSuQmCC" alt="Akeeba Kickstart logo">
-				Akeeba Kickstart <?php echo $edition ?> 5.4.0
+				Akeeba Kickstart <?php echo $edition ?> rev2D9144E
 			</div>
 		</div>
 
@@ -11254,6 +11393,11 @@ function echoPage()
 
 						<label for="kickstart.setup.restoreperms">RESTORE_PERMISSIONS</label>
 						<span class="field"><input type="checkbox" id="kickstart.setup.restoreperms"/></span><br/>
+
+
+                        <label for="kickstart.setup.extract_list">EXTRACT_LIST</label>
+                        <span class="field"><textarea id="kickstart.setup.extract_list" rows="5" cols="50"></textarea></span><br/>
+                        <div class="help">EXTRACT_LIST_HELP</div>
 					</div>
 				</div>
 
@@ -11665,7 +11809,7 @@ function kickstart_application_cli()
 	if (!$silent)
 	{
 		echo <<< BANNER
-Akeeba Kickstart CLI 5.4.0
+Akeeba Kickstart CLI rev2D9144E
 Copyright (c) 2008-$year Akeeba Ltd / Nicholas K. Dionysopoulos
 -------------------------------------------------------------------------------
 Akeeba Kickstart is Free Software, distributed under the terms of the GNU General
@@ -11687,6 +11831,7 @@ BANNER;
 		echo <<< HOWTOUSE
 Usage: {$argv[0]} archive.jpa [output_path] [--password=yourPassword]
          [--silent] [--permissions] [--dry-run] [--ignore-errors]
+         [--extract=<pattern>[,<pattern>...]]
 
 
 HOWTOUSE;
@@ -11733,6 +11878,8 @@ BANNER;
 	AKFactory::set('kickstart.setup.dryrun', AKCliParams::hasOption('dry-run'));
 	// Ignore errors?
 	AKFactory::set('kickstart.setup.ignoreerrors', AKCliParams::hasOption('ignore-errors'));
+	// Which files should I extract?
+	AKFactory::set('kickstart.setup.extract_list', AKCliParams::getOption('extract', '', true));
 	// Do not rename any files (this is the CLI...)
 	AKFactory::set('kickstart.setup.renamefiles', array());
 	// Optimize time limits
@@ -12189,647 +12336,6 @@ else
 {
 	kickstart_application_web();
 }
-
-/**
- * Akeeba Kickstart
- * A JSON-powered archive extraction tool
- *
- * @copyright   2008-2017 Nicholas K. Dionysopoulos / AkeebaBackup.com
- * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
- */
-
-/**
- * Akeeba Kickstart Import from URL add-on feature
- */
-class AKFeatureURLImport
-{
-	private $params = array();
-
-	/**
-	 * Echoes extra CSS to the head of the page
-	 */
-	public function onExtraHeadCSS()
-	{
-
-	}
-
-	/**
-	 * Echoes extra Javascript to the head of the page
-	 */
-	public function onExtraHeadJavascript()
-	{
-		?>
-
-		var akeeba_url_filename = null;
-
-		$(document).ready(function(){
-		$('#ak-url-showgui').click(function(e){
-		$('#ak-url-gui').show('fast');
-		$('#ak-url-progress').hide('fast');
-		$('#ak-url-complete').hide('fast');
-		$('#ak-url-error').hide('fast');
-		$('#page1-content').hide('fast');
-		});
-		$('#ak-url-hidegui').click(function(e){
-		$('#ak-url-gui').hide('fast');
-		$('#ak-url-progress').hide('fast');
-		$('#ak-url-complete').hide('fast');
-		$('#ak-url-error').hide('fast');
-		$('#page1-content').show('fast');
-		});
-		$('#ak-url-reload').click(function(e){
-		window.location.reload();
-		});
-		$('#ak-url-gotoStart').click(function(e){
-		$('#ak-url-gui').show('fast');
-		$('#ak-url-progress').hide('fast');
-		$('#ak-url-complete').hide('fast');
-		$('#ak-url-error').hide('fast');
-		});
-		});
-
-		function onAKURLImport()
-		{
-		akeeba_url_filename = $('#url\\.filename').val();
-		ak_urlimport_start();
-		}
-
-		function AKURLsetProgressBar(percent)
-		{
-		var newValue = 0;
-
-		if(percent <= 1) {
-		newValue = 100 * percent;
-		} else {
-		newValue = percent;
-		}
-
-		$('#ak-url-progressbar-inner').css('width',percent+'%');
-		}
-
-		function ak_urlimport_start()
-		{
-		akeeba_error_callback = AKURLerrorHandler;
-
-		$('#ak-url-gui').hide('fast');
-		$('#ak-url-progress').show('fast');
-		$('#ak-url-complete').hide('fast');
-		$('#ak-url-error').hide('fast');
-
-		AKURLsetProgressBar(0);
-		$('#ak-url-progresstext').html('');
-
-		var data = {
-		'task' : 'urlimport',
-		'json' : JSON.stringify({
-		'file'        : akeeba_url_filename,
-		'frag'        : "-1",
-		'totalSize'    : "-1"
-		})
-		};
-		doAjax(data, function(ret){
-		ak_urlimport_step(ret);
-		});
-		}
-
-		function ak_urlimport_step(data)
-		{
-		// Look for errors
-		if(!data.status)
-		{
-		AKURLerrorHandler(data.error);
-		return;
-		}
-
-		var totalSize = 0;
-		var doneSize = 0;
-		var percent = 0;
-		var frag = -1;
-
-		// get running stats
-		if(array_key_exists('totalSize', data)) {
-		totalSize = data.totalSize;
-		}
-		if(array_key_exists('doneSize', data)) {
-		doneSize = data.doneSize;
-		}
-		if(array_key_exists('percent', data)) {
-		percent = data.percent;
-		}
-		if(array_key_exists('frag', data)) {
-		frag = data.frag;
-		}
-
-		// Update GUI
-		AKURLsetProgressBar(percent);
-		//$('#ak-url-progresstext').text( percent+'% ('+doneSize+' / '+totalSize+' bytes)' );
-		$('#ak-url-progresstext').text( percent+'% ('+doneSize+' bytes)' );
-
-		post = {
-		'task'    : 'urlimport',
-		'json'    : JSON.stringify({
-		'file'        : akeeba_url_filename,
-		'frag'        : frag,
-		'totalSize'    : totalSize,
-		'doneSize'  : doneSize
-		})
-		};
-
-		if(percent < 100) {
-		// More work to do
-		doAjax(post, function(ret){
-		ak_urlimport_step(ret);
-		});
-		} else {
-		// Done!
-		$('#ak-url-gui').hide('fast');
-		$('#ak-url-progress').hide('fast');
-		$('#ak-url-complete').show('fast');
-		$('#ak-url-error').hide('fast');
-		}
-		}
-
-		function onAKURLJoomla()
-		{
-		akeeba_error_callback = AKURLerrorHandler;
-
-		var data = {
-		'task' : 'getjurl'
-		};
-
-		doAjax(data, function(ret)
-		{
-		ak_urlimport_gotjurl(ret);
-		});
-		}
-
-		function onAKURLWordpress()
-		{
-		$('#url\\.filename').val('http://wordpress.org/latest.zip');
-		}
-
-		function ak_urlimport_gotjurl(data)
-		{
-		var url = '';
-
-		if(array_key_exists('url', data)) {
-		url = data.url;
-		}
-
-		$('#url\\.filename').val(url);
-		}
-
-		function AKURLerrorHandler(msg)
-		{
-		$('#ak-url-gui').hide('fast');
-		$('#ak-url-progress').hide('fast');
-		$('#ak-url-complete').hide('fast');
-		$('#ak-url-error').show('fast');
-
-		$('#ak-url-errorMessage').html(msg);
-		}
-		<?php
-	}
-
-	/**
-	 * Echoes extra HTML on page 1 of Kickstart
-	 */
-	public function onPage1()
-	{
-
-		?>
-		<div id="ak-url-gui" style="display: none">
-			<div class="step1">
-				<div class="circle">1</div>
-				<h2>AKURL_TITLE_STEP1</h2>
-				<div class="area-container">
-					<label for="url.filename">AKURL_FILENAME</label>
-					<span class="field"><input type="text" style="width: 45%" id="url.filename" value=""/></span>
-					<a id="ak-url-joomla" class="button bluebutton loprofile" onclick="onAKURLJoomla()">AKURL_JOOMLA</a>
-					<a id="ak-url-wordpress" class="button bluebutton loprofile" onclick="onAKURLWordpress()">AKURL_WORDPRESS</a>
-
-					<div class="clr"></div>
-					<a id="ak-url-connect" class="button" onclick="onAKURLImport()">AKURL_IMPORT</a>
-					<a id="ak-url-hidegui" class="button bluebutton">AKURL_CANCEL</a>
-				</div>
-			</div>
-			<div class="clr"></div>
-		</div>
-
-		<div id="ak-url-progress" style="display: none">
-			<div class="circle">2</div>
-			<h2>AKURL_TITLE_STEP2</h2>
-			<div class="area-container">
-				<div id="ak-url-importing">
-					<div class="warn-not-close">AKURL_DO_NOT_CLOSE</div>
-					<div id="ak-url-progressbar" class="progressbar">
-						<div id="ak-url-progressbar-inner" class="progressbar-inner">&nbsp;</div>
-					</div>
-					<div id="ak-url-progresstext"></div>
-				</div>
-			</div>
-		</div>
-
-		<div id="ak-url-complete" style="display: none">
-			<div class="circle">3</div>
-			<h2>AKURL_TITLE_STEP3</h2>
-			<div class="area-container">
-				<div id="ak-url-reload" class="button">AKURL_BTN_RELOAD</div>
-			</div>
-		</div>
-
-		<div id="ak-url-error" class="error" style="display: none;">
-			<h3>ERROR_OCCURED</h3>
-			<p id="ak-url-errorMessage" class="errorMessage"></p>
-			<div id="ak-url-gotoStart" class="button">BTN_GOTOSTART</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Outputs HTML to be shown before Step 1's archive selection pane
-	 */
-	public function onPage1Step1()
-	{
-		?>
-		<a id="ak-url-showgui" class="button bluebutton loprofile">AKURL_IMPORT</a>
-		<?php
-	}
-
-	public function urlimport($params)
-	{
-		$this->params = $params;
-
-		// Fetch data
-		$filename  = $this->getParam('file');
-		$frag      = $this->getParam('frag', -1);
-		$totalSize = $this->getParam('totalSize', -1);
-		$doneSize  = $this->getParam('doneSize', -1);
-
-		debugMsg('Importing from URL');
-		debugMsg('  file      : ' . $filename);
-		debugMsg('  frag      : ' . $frag);
-		debugMsg('  totalSize : ' . $totalSize);
-		debugMsg('  doneSize  : ' . $doneSize);
-
-		// Init retArray
-		$retArray = array(
-			"status"    => true,
-			"error"     => '',
-			"frag"      => $frag,
-			"totalSize" => $totalSize,
-			"doneSize"  => $doneSize,
-			"percent"   => 0,
-		);
-
-		try
-		{
-			AKFactory::set('kickstart.tuning.max_exec_time', '5');
-			AKFactory::set('kickstart.tuning.run_time_bias', '75');
-			$timer = new AKCoreTimer();
-			$start = $timer->getRunningTime(); // Mark the start of this download
-			$break = false; // Don't break the step
-
-			while (($timer->getTimeLeft() > 0) && !$break)
-			{
-				// Figure out where on Earth to put that file
-				$fileparts = explode('?', $filename, 2);
-				$local_file = KSROOTDIR . '/' . basename($fileparts[0]);
-
-				debugMsg("- Importing from $filename");
-
-				// Do we have to initialize the file?
-				if ($frag == -1)
-				{
-					debugMsg("-- First frag, killing local file");
-					// Currently downloaded size
-					$doneSize = 0;
-
-					// Delete and touch the output file
-					@unlink($local_file);
-					$fp = @fopen($local_file, 'wb');
-
-					if ($fp !== false)
-					{
-						@fclose($fp);
-					}
-
-					// Init
-					$frag = 0;
-				}
-
-				// Calculate from and length
-				$length = 1048576;
-				$from   = $frag * $length;
-				$to     = $length + $from - 1;
-				//if($from == 0) $from = 1;
-
-				// Try to download the first frag
-				$temp_file = $local_file . '.tmp';
-				@unlink($temp_file);
-				$required_time = 1.0;
-				debugMsg("-- Importing frag $frag, byte position from/to: $from / $to");
-
-				$filesize = 0;
-
-				try
-				{
-					$ch = curl_init();
-					curl_setopt($ch, CURLOPT_URL, $filename);
-					curl_setopt($ch, CURLOPT_RANGE, "$from-$to");
-					curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
-					curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-					@curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-
-					if (defined('AKEEBA_CACERT_PEM'))
-					{
-						curl_setopt($ch, CURLOPT_CAINFO, AKEEBA_CACERT_PEM);
-					}
-
-					$result = curl_exec($ch);
-
-					$errno       = curl_errno($ch);
-					$errmsg      = curl_error($ch);
-					$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-					if ($result === false)
-					{
-						$error = "cURL error $errno: $errmsg";
-					}
-					elseif ($http_status > 299)
-					{
-						$result = false;
-						$error  = "HTTP status $http_status";
-					}
-					else
-					{
-						$result = file_put_contents($temp_file, $result);
-
-						if ($result === false)
-						{
-							$error = "Could not open temporary file $temp_file for writing";
-						}
-					}
-
-					curl_close($ch);
-				}
-				catch (Exception $e)
-				{
-					$error = $e->getMessage();
-				}
-
-				if (!$result)
-				{
-					@unlink($temp_file);
-
-					// Failed download
-					if ($frag == 0)
-					{
-						// Failure to download first frag = failure to download. Period.
-						$retArray['status'] = false;
-						$retArray['error']  = $error;
-
-						debugMsg("-- Download FAILED");
-
-						return $retArray;
-					}
-					else
-					{
-						// Since this is a staggered download, consider this normal and finish
-						$frag = -1;
-						debugMsg("-- Import complete");
-						$doneSize = $totalSize;
-						$break    = true;
-						continue;
-					}
-				}
-
-				// Add the currently downloaded frag to the total size of downloaded files
-				if ($result)
-				{
-					clearstatcache();
-					$filesize = (int) @filesize($temp_file);
-					debugMsg("-- Successful download of $filesize bytes");
-					$doneSize += $filesize;
-
-					// Append the file
-					$fp = @fopen($local_file, 'ab');
-
-					if ($fp === false)
-					{
-						debugMsg("-- Can't open local file for writing");
-						// Can't open the file for writing
-						@unlink($temp_file);
-						$retArray['status'] = false;
-						$retArray['error']  = 'Can\'t write to the local file';
-
-						return false;
-					}
-
-					$tf = fopen($temp_file, 'rb');
-
-					while (!feof($tf))
-					{
-						$data = fread($tf, 262144);
-						fwrite($fp, $data);
-					}
-
-					fclose($tf);
-					fclose($fp);
-					@unlink($temp_file);
-
-					debugMsg("-- Temporary file merged and removed");
-
-					if ($filesize > $length)
-					{
-						debugMsg("-- Read more data than the requested length. I assume this file is complete.");
-						$break = true;
-						$frag  = - 1;
-					}
-					elseif ($filesize < $length)
-					{
-						debugMsg("-- Read less data than the requested length. I assume this file is complete.");
-						$break = true;
-						$frag  = - 1;
-					}
-					else
-					{
-						$frag++;
-
-						debugMsg("-- Proceeding to next fragment, frag $frag");
-					}
-				}
-
-				// Advance the frag pointer and mark the end
-				$end = $timer->getRunningTime();
-
-				// Do we predict that we have enough time?
-				$required_time = max(1.1 * ($end - $start), $required_time);
-
-				if ($required_time > (10 - $end + $start))
-				{
-					$break = true;
-				}
-
-				$start = $end;
-			}
-
-			if ($frag == -1)
-			{
-				$percent = 100;
-			}
-			elseif ($doneSize <= 0)
-			{
-				$percent = 0;
-			}
-			else
-			{
-				if ($totalSize > 0)
-				{
-					$percent = 100 * ($doneSize / $totalSize);
-				}
-				else
-				{
-					$percent = 0;
-				}
-			}
-
-			// Update $retArray
-			$retArray = array(
-				"status"    => true,
-				"error"     => '',
-				"frag"      => $frag,
-				"totalSize" => $totalSize,
-				"doneSize"  => $doneSize,
-				"percent"   => $percent,
-			);
-		}
-		catch (Exception $e)
-		{
-			debugMsg("EXCEPTION RAISED:");
-			debugMsg($e->getMessage());
-			$retArray['status'] = false;
-			$retArray['error']  = $e->getMessage();
-		}
-
-		return $retArray;
-	}
-
-	private function getParam($key, $default = null)
-	{
-		if (array_key_exists($key, $this->params))
-		{
-			return $this->params[$key];
-		}
-		else
-		{
-			return $default;
-		}
-	}
-
-	public function getjurl($params)
-	{
-		return array(
-			"url" => $this->getLatestJoomlaURL(),
-		);
-	}
-
-	private function getLatestJoomlaURL()
-	{
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, 'https://downloads.joomla.org/latest');
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		@curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-
-		if (defined('AKEEBA_CACERT_PEM'))
-		{
-			curl_setopt($ch, CURLOPT_CAINFO, AKEEBA_CACERT_PEM);
-		}
-
-		$pageHTML    = curl_exec($ch);
-		$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-		if (($pageHTML === false) || ($http_status >= 300))
-		{
-			return '';
-		}
-
-		// Convert HTML to XML
-		$dom = new DOMDocument();
-		$dom->loadHTML($pageHTML);
-		$xml = $dom->saveXML();
-
-		// Load XML in a SimpleXMLElement
-		$doc = new SimpleXMLElement($xml);
-
-		// Find the download links for the ZIP format
-		$links = $doc->xpath("//a[contains(@href,'format=zip')]");
-		$dlLinkAttributes = $links[0]->attributes();
-
-		// Make it into an absolute URL and return it
-		return $this->resolveRedirect('https://downloads.joomla.org' . $dlLinkAttributes['href']);
-	}
-
-	private function resolveRedirect($url)
-	{
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, $url);
-		curl_setopt($ch, CURLOPT_NOBODY, 1);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_HEADER, 1);
-		@curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
-
-		if (defined('AKEEBA_CACERT_PEM'))
-		{
-			curl_setopt($ch, CURLOPT_CAINFO, AKEEBA_CACERT_PEM);
-		}
-
-		$headers     = curl_exec($ch);
-		$http_status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-		if (($http_status < 300) || ($http_status > 399))
-		{
-			return $url;
-		}
-
-		$headers = explode("\r", $headers);
-		$headers = array_map('trim', $headers);
-		$newURL = '';
-
-		foreach ($headers as $line)
-		{
-			if (strpos($line, 'Location') === false)
-			{
-				continue;
-			}
-
-			list($junk, $newURL) = explode(':', $line, 2);
-			$newURL = trim($newURL);
-		}
-
-		return $this->resolveRedirect($newURL);
-	}
-
-	public function onLoadTranslations()
-	{
-		$translation = AKText::getInstance();
-		$translation->addDefaultLanguageStrings(array(
-			'AKURL_IMPORT'       => "Import from URL",
-			'AKURL_TITLE_STEP1'  => "Specify the URL",
-			'AKURL_FILENAME'     => "URL to import",
-			'AKURL_JOOMLA'       => "Latest Joomla! release",
-			'AKURL_WORDPRESS'    => "Latest WordPress release",
-			'AKURL_CANCEL'       => "Cancel import",
-			'AKURL_TITLE_STEP2'  => "Importing...",
-			'AKURL_DO_NOT_CLOSE' => "Please do not close this window while your backup archives are being imported",
-			'AKURL_TITLE_STEP3'  => "Import is complete",
-			'AKURL_BTN_RELOAD'   => "Reload Kickstart",
-		));
-	}
-}
-
 
 /**
  * Akeeba Kickstart

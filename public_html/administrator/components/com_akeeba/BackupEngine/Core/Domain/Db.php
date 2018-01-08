@@ -268,7 +268,7 @@ class Db extends Part
 	protected function createDatabasesINI()
 	{
 		// caching databases.ini contents
-		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . "AkeebaCUBEDomainDBBackup :: Creating databases.ini data");
+		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . " :: Creating databases.ini data");
 
 		// Create a new string
 		$this->databases_ini = '';

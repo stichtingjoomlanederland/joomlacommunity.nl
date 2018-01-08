@@ -36,7 +36,7 @@ class lib_fof30InstallerScript
 	 *
 	 * @var   string
 	 */
-	protected $maximumJoomlaVersion = '3.9.99';
+	protected $maximumJoomlaVersion = '4.0.999';
 
 	/**
 	 * The name of the subdirectory under JPATH_LIBRARIES where this version of FOF is installed.

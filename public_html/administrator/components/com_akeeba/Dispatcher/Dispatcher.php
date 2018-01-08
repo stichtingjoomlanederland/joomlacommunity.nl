@@ -198,15 +198,7 @@ class Dispatcher extends BaseDispatcher
 	private function autoMaintenance()
 	{
 		/** @var \Akeeba\Backup\Admin\Model\ControlPanel $model */
-		try
-		{
-			$model = $this->container->factory->model('ControlPanel')->tmpInstance();
-		}
-		catch (ModelNotFound $e)
-		{
-			// It's not a fatal error while I'm still developing it...
-			return;
-		}
+		$model = $this->container->factory->model('ControlPanel')->tmpInstance();
 
 		// Update the db structure if necessary (once per session at most)
 		$lastVersion = $this->container->platform->getSessionVar('magicParamsUpdateVersion', null, 'com_akeeba');

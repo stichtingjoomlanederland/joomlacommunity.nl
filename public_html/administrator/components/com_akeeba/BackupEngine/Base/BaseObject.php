@@ -20,7 +20,7 @@ defined('AKEEBAENGINE') or die();
  * The base class of Akeeba Engine objects. Allows for error and warnings logging
  * and propagation. Largely based on the Joomla! 1.5 JObject class.
  */
-abstract class Object
+abstract class BaseObject
 {
 	/** @var  array  An array of errors */
 	private $_errors = array();

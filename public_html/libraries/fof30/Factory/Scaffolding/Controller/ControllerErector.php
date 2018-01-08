@@ -10,9 +10,9 @@ namespace FOF30\Factory\Scaffolding\Controller;
 use FOF30\Controller\DataController;
 
 /**
- *
- *
  * @package FOF30\Factory\Scaffolding
+ *
+ * @deprecated 3.1  Support for XML forms will be removed in FOF 4
  */
 class ControllerErector implements ErectorInterface
 {

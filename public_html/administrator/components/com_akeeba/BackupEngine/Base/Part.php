@@ -24,7 +24,7 @@ use Psr\Log\LogLevel;
  * this superclass' tick() final public method, which should be the ONLY public API
  * exposed to the rest of the Akeeba Engine.
  */
-abstract class Part extends Object
+abstract class Part extends BaseObject
 {
 	/**
 	 * Indicates whether this part has finished its initialisation cycle

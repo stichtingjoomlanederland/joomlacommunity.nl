@@ -22,6 +22,8 @@ if (!class_exists('JFormFieldSql'))
 /**
  * Form Field class for FOF
  * Generic list from a model's results
+ *
+ * @deprecated 3.1  Support for XML forms will be removed in FOF 4
  */
 class Model extends Selectable
 {

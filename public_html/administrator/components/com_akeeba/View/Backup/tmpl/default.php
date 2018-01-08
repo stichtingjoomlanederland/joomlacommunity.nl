@@ -87,7 +87,7 @@ defined('_JEXEC') or die();
 			</div>
 		</div>
 
-		<?php if($this->showJPSPassword): ?>
+		<?php if ($this->showJPSPassword): ?>
 		<div class="control-group">
 			<label class="control-label" for="jpskey">
 				<?php echo \JText::_('COM_AKEEBA_CONFIG_JPS_KEY_TITLE'); ?>
@@ -99,7 +99,7 @@ defined('_JEXEC') or die();
 		</div>
 		<?php endif; ?>
 
-		<?php if(AKEEBA_PRO && $this->showANGIEPassword): ?>
+		<?php if ($this->showANGIEPassword): ?>
 		<div class="control-group">
 			<label class="control-label" for="angiekey">
 				<?php echo \JText::_('COM_AKEEBA_CONFIG_ANGIE_KEY_TITLE'); ?>

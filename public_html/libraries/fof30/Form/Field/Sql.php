@@ -18,6 +18,8 @@ defined('_JEXEC') or die;
 /**
  * Form Field class for FOF
  * Radio selection listGeneric list from an SQL statement
+ *
+ * @deprecated 3.1  Support for XML forms will be removed in FOF 4
  */
 class Sql extends \JFormFieldSql implements FieldInterface
 {

@@ -227,12 +227,15 @@ class Component extends BaseInstaller
 		);
 		$dbInstaller->updateSchema();
 
-		// Make sure menu items are installed
-		$this->_createAdminMenus($parent);
+		// These workarounds are only needed, and only work, on Joomla! 3.x
+		if (strpos(JVERSION, '3.') === 0)
+		{
+			// Make sure menu items are installed
+			$this->_createAdminMenus($parent);
 
-		// Make sure menu items are published (surprise goal in the 92' by JInstaller wins the cup for "most screwed up
-		// bug in the history of Joomla!")
-		$this->_reallyPublishAdminMenuItems($parent);
+			// Make sure menu items are published
+			$this->_reallyPublishAdminMenuItems($parent);
+		}
 
 		// Which files should I remove?
 		if ($this->isPaid)

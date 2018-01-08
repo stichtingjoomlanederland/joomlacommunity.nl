@@ -12,6 +12,7 @@ use FOF30\Form\Form;
 use FOF30\Model\DataModel;
 use FOF30\Utils\StringHelper;
 use \JHtml;
+use Joomla\Utilities\ArrayHelper;
 use \JText;
 
 defined('_JEXEC') or die;
@@ -21,6 +22,8 @@ defined('_JEXEC') or die;
 /**
  * Form Field class for FOF
  * Supports a generic list of options.
+ *
+ * @deprecated 3.1  Support for XML forms will be removed in FOF 4
  */
 class GenericList extends \JFormFieldList implements FieldInterface
 {
@@ -270,7 +273,15 @@ class GenericList extends \JFormFieldList implements FieldInterface
 		if ($order)
 		{
 			jimport('joomla.utilities.arrayhelper');
-			\JArrayHelper::sortObjects($sortOptions, $order, $order_dir == 'asc' ? 1 : -1, $order_case_sensitive, false);
+
+			if (class_exists('JArrayHelper'))
+			{
+				\JArrayHelper::sortObjects($sortOptions, $order, $order_dir == 'asc' ? 1 : -1, $order_case_sensitive, false);
+			}
+			else
+			{
+				ArrayHelper::sortObjects($sortOptions, $order, $order_dir == 'asc' ? 1 : -1, $order_case_sensitive, false);
+			}
 		}
 
 		// Initialise the options

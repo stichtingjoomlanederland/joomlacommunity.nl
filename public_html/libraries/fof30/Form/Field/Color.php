@@ -21,8 +21,9 @@ defined('_JEXEC') or die('Restricted access');
 /**
  * Form Field class for the FOF framework
  * Color field
+ *
+ * @deprecated 3.1  Support for XML forms will be removed in FOF 4
  */
-
 class Color extends \JFormFieldColor implements FieldInterface
 {
 	/**
