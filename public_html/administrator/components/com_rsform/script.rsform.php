@@ -94,6 +94,10 @@ class com_rsformInstallerScript
 			$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `LoadFormLayoutFramework` TINYINT( 1 ) NOT NULL default '1' AFTER `FormLayoutName`");
 			$db->execute();
 		}
+		if (!isset($columns['FormLayoutFlow'])) {
+			$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `FormLayoutFlow` TINYINT( 1 ) NOT NULL default '0' AFTER `FormLayoutAutogenerate`");
+			$db->execute();
+		}
 		if (!isset($columns['MetaTitle'])) {
 			$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `MetaTitle` TINYINT( 1 ) NOT NULL");
 			$db->execute();
@@ -134,10 +138,6 @@ class com_rsformInstallerScript
 		}
 		if (isset($columns['UserEmailConfirmation'])) {
 			$db->setQuery("ALTER TABLE `#__rsform_forms` DROP `UserEmailConfirmation`");
-			$db->execute();
-		}
-		if (!isset($columns['ThemeParams'])) {
-			$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `ThemeParams` TEXT NOT NULL");
 			$db->execute();
 		}
 		if (!isset($columns['ShowContinue'])) {
@@ -199,6 +199,10 @@ class com_rsformInstallerScript
 		}
 		if (!isset($columns['RemoveCaptchaLogged'])) {
 			$db->setQuery("ALTER TABLE #__rsform_forms ADD `RemoveCaptchaLogged` TINYINT( 1 ) NOT NULL DEFAULT '0' AFTER `DisableSubmitButton`");
+			$db->execute();
+		}
+		if (!isset($columns['GridLayout'])) {
+			$db->setQuery("ALTER TABLE #__rsform_forms ADD `GridLayout` MEDIUMTEXT NOT NULL AFTER `FormLayout`");
 			$db->execute();
 		}
 		
@@ -272,6 +276,12 @@ class com_rsformInstallerScript
 			$db->setQuery("ALTER TABLE `#__rsform_submissions` ADD `confirmed` TINYINT( 1 ) NOT NULL");
 			$db->execute();
 		}
+        if (!isset($columns['SubmissionHash'])) {
+            $db->setQuery("ALTER TABLE `#__rsform_submissions` ADD `SubmissionHash` VARCHAR( 32 ) NOT NULL," .
+                "ADD KEY `SubmissionId` (`SubmissionId`,`FormId`,`DateSubmitted`)," .
+                "ADD KEY `SubmissionHash` (`SubmissionHash`)");
+            $db->execute();
+        }
 		$columns = $db->getTableColumns('#__rsform_submissions', false);
 		if ($columns['UserIp']->Type == 'varchar(15)') {
 			$db->setQuery("ALTER TABLE `#__rsform_submissions` CHANGE `UserIp` `UserIp` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
@@ -537,7 +547,11 @@ class com_rsformInstallerScript
 			$db->setQuery("ALTER TABLE `#__rsform_directory` ADD `EmailsCreatedScript` TEXT NOT NULL AFTER `EmailsScript`");
 			$db->execute();
 		}
-		
+        if (!isset($columns['DeletionGroups'])) {
+            $db->setQuery("ALTER TABLE `#__rsform_directory` ADD `DeletionGroups` TEXT NOT NULL AFTER `groups`");
+            $db->execute();
+        }
+
 		// #__rsform_posts updates
 		$columns = $db->getTableColumns('#__rsform_posts');
 		if (!isset($columns['fields'])) {
@@ -607,9 +621,9 @@ class com_rsformInstallerScript
 		}
 		
 		// Running 3.x
-		if (!$jversion->isCompatible('3.6.5'))
+		if (!$jversion->isCompatible('3.7.0'))
 		{
-			$app->enqueueMessage('Please upgrade to at least Joomla! 3.6.5 before continuing!', 'error');
+			$app->enqueueMessage('Please upgrade to at least Joomla! 3.7.0 before continuing!', 'error');
 			return false;
 		}
 		
@@ -783,14 +797,19 @@ class com_rsformInstallerScript
 		if (file_exists($sqlfile)) {
 			$buffer = file_get_contents($sqlfile);
 			if ($buffer !== false) {
-				$queries = JInstallerHelper::splitSql($buffer);
+				$queries = $db->splitSql($buffer);
 				foreach ($queries as $query) {
 					$query = trim($query);
 					if ($query != '' && $query{0} != '#') {
 						$db->setQuery($query);
-						if (!$db->execute()) {
-							JError::raiseWarning(1, JText::sprintf('JLIB_INSTALLER_ERROR_SQL_ERROR', $db->stderr(true)));
-						}
+						try
+                        {
+                            $db->execute();
+                        }
+                        catch (Exception $e)
+                        {
+                            JFactory::getApplication()->enqueueMessage($e->getMessage());
+                        }
 					}
 				}
 			}
@@ -904,31 +923,6 @@ class com_rsformInstallerScript
 	color: #fff;
 	padding: 3px;
 }
-
-#installer-left {
-	float: left;
-	width: 230px;
-	padding: 5px;
-}
-
-#installer-right {
-	float: left;
-	width: 680px;
-}
-
-.com-rsform-button {
-	display: inline-block;
-	background: #459300 url('components/com_rsform/assets/images/bg-button-green.gif') top left repeat-x !important;
-	border: 1px solid #459300 !important;
-	padding: 2px;
-	color: #fff !important;
-	cursor: pointer;
-	margin: 0;
-	-webkit-border-radius: 5px;
-     -moz-border-radius: 5px;
-          border-radius: 5px;
-}
-
 .big-warning {
 	background: #FAF0DB;
 	border: solid 1px #EBC46F;
@@ -945,10 +939,11 @@ class com_rsformInstallerScript
 	color: red;
 }
 </style>
-	<div id="installer-left">
-		<img src="components/com_rsform/assets/images/box.jpg" alt="RSForm! Pro Box" />
+	<div class="row-fluid">
+	<div class="span2">
+		<img src="components/com_rsform/assets/images/box.png" alt="RSForm! Pro Box" />
 	</div>
-	<div id="installer-right">
+	<div class="span10">
 		<p>TCP Library ...
 			<?php if ($messages['lib_tcpdf'] === true) { ?>
 			<b class="install-ok">Installed</b>
@@ -995,15 +990,18 @@ class com_rsformInstallerScript
 			<?php } ?>
 			<?php } ?>
 		<?php } ?>
-		<h2>Changelog v1.52.14</h2>
+		<h2>Changelog v2.0.5</h2>
 		<ul class="version-history">
-			<li><span class="version-fixed">Fix</span> 'Multiple validation rules' did not work with custom validation rules.</li>
+            <li><span class="version-fixed">Fix</span> AJAX validation did not enclose rows in the correct error classes due to a mistype.</li>
+            <li><span class="version-fixed">Fix</span> Progress bar did not advance when the form had more than 100 pages.</li>
+            <li><span class="version-fixed">Fix</span> Birthday Field's 'Allow Incorrect Dates' option was inversed (setting it to No now disallows incorrect dates).</li>
+            <li><span class="version-fixed">Fix</span> Ordering was reset when using a 'Legacy' layout and adding / removing fields.</li>
 		</ul>
-		<a class="com-rsform-button" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
-		<a class="com-rsform-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/21-rsform-pro-user-guide.html" target="_blank">Read the RSForm! Pro User Guide</a>
-		<a class="com-rsform-button" href="http://www.rsjoomla.com/customer-support/tickets.html" target="_blank">Get Support!</a>
+		<a class="btn btn-large btn-primary" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
+		<a class="btn" href="https://www.rsjoomla.com/support/documentation/rsform-pro.html" target="_blank">Read the RSForm! Pro User Guide</a>
+		<a class="btn" href="https://www.rsjoomla.com/support.html" target="_blank">Get Support!</a>
 	</div>
-	<div style="clear: both;"></div>
+	</div>
 		<?php
 	}
 }

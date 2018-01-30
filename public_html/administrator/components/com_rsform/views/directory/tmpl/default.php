@@ -6,7 +6,7 @@
 */
 
 defined('_JEXEC') or die('Restricted access');
-JHTML::_('behavior.keepalive'); ?>
+JHtml::_('behavior.keepalive'); ?>
 
 <form action="index.php?option=com_rsform" method="post" name="adminForm" id="adminForm">
 
@@ -20,9 +20,9 @@ JHTML::_('behavior.keepalive'); ?>
 					<th width="1%" nowrap="nowrap"><?php echo JText::_('#'); ?></th>
 					<th width="1%" nowrap="nowrap"><input type="checkbox" name="toggle" value="" onclick="Joomla.checkAll(this);" /></th>
 					<th width="1%" nowrap="nowrap"><?php echo JText::_('JSTATUS'); ?></th>
-					<th class="title"><?php echo JHTML::_('grid.sort', JText::_('RSFP_FORM_TITLE'), 'FormTitle', $this->sortOrder, $this->sortColumn, 'directory.manage'); ?></th>
-					<th class="title"><?php echo JHTML::_('grid.sort', JText::_('RSFP_FORM_NAME'), 'FormName', $this->sortOrder, $this->sortColumn, 'directory.manage'); ?></th>
-					<th width="1%" nowrap="nowrap" class="title"><?php echo JHTML::_('grid.sort', JText::_('RSFP_FORM_ID'), 'FormId', $this->sortOrder, $this->sortColumn, 'directory.manage'); ?></th>
+					<th class="title"><?php echo JHtml::_('grid.sort', JText::_('RSFP_FORM_TITLE'), 'FormTitle', $this->sortOrder, $this->sortColumn, 'directory.manage'); ?></th>
+					<th class="title"><?php echo JHtml::_('grid.sort', JText::_('RSFP_FORM_NAME'), 'FormName', $this->sortOrder, $this->sortColumn, 'directory.manage'); ?></th>
+					<th width="1%" nowrap="nowrap" class="title"><?php echo JHtml::_('grid.sort', JText::_('RSFP_FORM_ID'), 'FormId', $this->sortOrder, $this->sortColumn, 'directory.manage'); ?></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -30,7 +30,7 @@ JHTML::_('behavior.keepalive'); ?>
 				<?php $row->FormTitle = strip_tags($row->FormTitle); ?>
 				<tr class="row<?php echo $i % 2; ?>">
 					<td width="1%" nowrap="nowrap"><?php echo $this->pagination->getRowOffset($i); ?></td>
-					<td width="1%" nowrap="nowrap"><?php echo JHTML::_('grid.id', $i, $row->FormId); ?></td>
+					<td width="1%" nowrap="nowrap"><?php echo JHtml::_('grid.id', $i, $row->FormId); ?></td>
 					<td width="1%" nowrap="nowrap">
 						<?php if ($this->getStatus($row->FormId)) { ?>
 							<span class="badge badge-success"><?php echo JText::_('RSFP_SUBM_DIR_ENABLED'); ?></span>

@@ -9,7 +9,7 @@ div.formBody {
 .formHidden {
 	position: absolute;
 	left:auto;
-	right: -100%;
-	top: -100%;
+	right: -20000px;
+	top: -20000px;
 	opacity: 0;
 }

@@ -13,8 +13,15 @@ class RSFormProFieldHidden extends RSFormProField
 {
 	// backend preview
 	public function getPreviewInput() {
+        $value 		= (string) $this->getProperty('DEFAULTVALUE', '');
 		$txt	 	= JText::_('RSFP_HIDDEN_FIELD_PLACEHOLDER');
 		$codeIcon   = RSFormProHelper::getIcon('hidden');
+
+        if ($this->hasCode($value)) {
+            $txt        = JText::_('RSFP_PHP_CODE_PLACEHOLDER');
+            $codeIcon   = RSFormProHelper::getIcon('php');
+        }
+
 		$html = '<td>&nbsp;</td><td>'.$codeIcon.$txt.'</td>';
 		return $html;
 	}

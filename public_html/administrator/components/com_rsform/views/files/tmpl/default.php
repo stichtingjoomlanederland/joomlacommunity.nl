@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <script type="text/javascript">
 function rsform_close_window() {
-	window.parent.SqueezeBox.close();
+	window.close();
 }
 </script>
 
@@ -44,7 +44,7 @@ function rsform_close_window() {
 		</tr>
 		</thead>
 		<tr>
-			<td><a class="folder" href="index.php?option=com_rsform&amp;controller=files&amp;task=display&amp;folder=<?php echo urlencode($this->previous); ?>&amp;tmpl=component">..<?php echo JHTML::_('image', 'administrator/components/com_rsform/assets/images/up.gif', JText::_('BACK')); ?></a></td>
+			<td><a class="folder" href="index.php?option=com_rsform&amp;controller=files&amp;task=display&amp;folder=<?php echo urlencode($this->previous); ?>&amp;tmpl=component">..<?php echo JHtml::_('image', 'administrator/components/com_rsform/assets/images/up.gif', JText::_('BACK')); ?></a></td>
 		</tr>
 	<?php foreach ($this->folders as $folder) { ?>
 		<tr>
@@ -53,7 +53,7 @@ function rsform_close_window() {
 	<?php } ?>
 	<?php foreach ($this->files as $file) { ?>
 			<tr>
-				<td><a class="file" href="javascript: void(0);" onclick="window.parent.document.getElementById('UserEmailAttachFile').value = '<?php echo addcslashes($file->fullpath, '\\\''); ?>'; rsform_close_window();"><?php echo $this->escape($file->name); ?></a></td>
+				<td><a class="file" href="javascript: void(0);" data-fullpath="<?php echo $this->escape($file->fullpath); ?>" onclick="window.opener.document.getElementById('UserEmailAttachFile').value = jQuery(this).data('fullpath'); rsform_close_window();"><?php echo $this->escape($file->name); ?></a></td>
 			</tr>
 	<?php } ?>
 	</table>

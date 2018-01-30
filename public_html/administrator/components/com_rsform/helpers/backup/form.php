@@ -25,6 +25,9 @@ class RSFormProBackupForm
 	
 	// The XML Writer object
 	protected $xml;
+
+	// Holds the Grid Layout so we can process it after fields have been added
+	protected $GridLayout;
 	
 	public function __construct($options = array()) {
 		require_once dirname(__FILE__).'/xml.php';
@@ -53,7 +56,7 @@ class RSFormProBackupForm
 		
 		// Add <form> tag
 		$this->xml->add('form');
-		
+
 		$this->storeStructure();
 		$this->storeFields();
 		$this->storeCalculations();
@@ -62,6 +65,7 @@ class RSFormProBackupForm
 		$this->storeDirectory();
 		$this->storeEmails();
 		$this->storeMappings();
+		$this->storeGridLayout();
 		
 		// Allow plugins to add their own data to the backup.
 		JFactory::getApplication()->triggerEvent('rsfp_onFormBackup', array($this->form, $this->xml, $this->fields));
@@ -87,6 +91,11 @@ class RSFormProBackupForm
 		// Add the form structure #__rsform_forms
 		$this->xml->add('structure');
 		foreach ($this->form as $property => $value) {
+		    if ($property == 'GridLayout' && strlen($value))
+            {
+                $this->GridLayout = $value;
+                $value = '';
+            }
 			$this->xml->add($property, $value);
 		}
 		// Add the form translation
@@ -548,4 +557,66 @@ class RSFormProBackupForm
 		$db->setQuery($query);
 		return $db->loadObjectList();
 	}
+
+	// Grid Layout - needs to replace IDs with field names.
+	// ===========
+
+	protected function storeGridLayout()
+    {
+        if (empty($this->GridLayout))
+        {
+            return false;
+        }
+
+        $data   = json_decode($this->GridLayout);
+        $rows 	= array();
+        $hidden	= array();
+
+        // If decoding is successful, we should have $rows and $hidden
+        if (is_array($data) && isset($data[0], $data[1]))
+        {
+            $rows 	= $data[0];
+            $hidden = $data[1];
+        }
+
+        if ($rows)
+        {
+            foreach ($rows as $row_index => $row)
+            {
+                foreach ($row->columns as $column_index => $fields)
+                {
+                    foreach ($fields as $position => $id)
+                    {
+                        if (isset($this->fields[$id]))
+                        {
+                            $row->columns[$column_index][$position] = $this->fields[$id];
+                        }
+                        else
+                        {
+                            // Field doesn't exist, remove it from grid
+                            unset($row->columns[$column_index][$position]);
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($hidden)
+        {
+            foreach ($hidden as $hidden_index => $id)
+            {
+                if (isset($this->fields[$id]))
+                {
+                    $hidden[$hidden_index] = $this->fields[$id];
+                }
+                else
+                {
+                    // Field doesn't exist, remove it from grid
+                    unset($hidden[$hidden_index]);
+                }
+            }
+        }
+
+        $this->xml->replace('GridLayout', json_encode(array($rows, $hidden)));
+    }
 }

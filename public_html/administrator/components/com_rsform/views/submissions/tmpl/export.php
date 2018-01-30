@@ -6,7 +6,7 @@
 */
 
 defined('_JEXEC') or die('Restricted access');
-JHTML::_('behavior.tooltip');
+JHtml::_('behavior.tooltip');
 ?>
 <script type="text/javascript">
 function submitbutton(task)
@@ -136,4 +136,4 @@ function toggleCheckColumns()
 </form>
 
 <script type="text/javascript">updateCSVPreview();</script>
-<?php JHTML::_('behavior.keepalive'); ?>
+<?php JHtml::_('behavior.keepalive'); ?>

@@ -44,14 +44,14 @@ class RSFormProFieldCalendar extends RSFormProField
 		$this->customId = $this->formId.'_'.$position;
 		
 		$hiddenValue = '';
-		$hidden = JRequest::getVar('hidden');
+		$hidden = JFactory::getApplication()->input->get('hidden', array(), 'array');
 		$hiddenName = $this->formId.'_'.$this->getProperty('NAME', '');
 		if (!empty($hidden[$hiddenName])) {
 			$hiddenValue = preg_replace('#[^0-9\/]+#i', '', $hidden[$hiddenName]);
 		} else {
 			if (!empty($value)) {
 				try {
-					$hiddenValue = JFactory::getDate(str_replace('/', '-', $value))->format('m/d/Y');
+					$hiddenValue = JFactory::getDate($value)->format('m/d/Y');
 				} catch (Exception $e) {
 					JFactory::getApplication()->enqueueMessage($e->getMessage(), 'warning');
 					$value = '';
@@ -197,11 +197,6 @@ class RSFormProFieldCalendar extends RSFormProField
 			}
 			
 			$attr['onclick'] .= "RSFormPro.YUICalendar.showHideCalendar('cal".$this->customId."Container');";
-		}
-		
-		// Check for invalid here so that we can add 'rsform-error'
-		if ($this->invalid) {
-			$attr['class'] .= ' rsform-error';
 		}
 		
 		return $attr;

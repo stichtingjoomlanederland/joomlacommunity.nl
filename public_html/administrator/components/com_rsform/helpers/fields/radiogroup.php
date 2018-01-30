@@ -210,11 +210,6 @@ class RSFormProFieldRadioGroup extends RSFormProFieldMultiple
 		}
 		$attr['class'] .= 'rsform-radio';
 		
-		// Check for invalid here so that we can add 'rsform-error'
-		if ($this->invalid) {
-			$attr['class'] .= ' rsform-error';
-		}
-		
 		return $attr;
 	}
 

@@ -16,8 +16,9 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 <!-- Do not remove this ID, it is used to identify the page so that the pagination script can work correctly -->
 <table class="formTableLayout" border="0" id="rsform_{global:formid}_page_<?php echo $page_num; ?>">
 <?php 
-		$chunks = array_chunk($fields['visible'], 2);
-		foreach ($chunks as $chunkFields) {
+		if (!empty($fields['visible'])) {
+			$chunks = array_chunk($fields['visible'], 2);
+			foreach ($chunks as $chunkFields) {
 ?>
 	<tr>
 <?php		foreach ($chunkFields as $i => $field) {
@@ -59,6 +60,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 	</tr>
 <?php
 		}
+	}
 		
 		if (!empty($fields['hidden'])) {
 			foreach ($fields['hidden'] as $field) {

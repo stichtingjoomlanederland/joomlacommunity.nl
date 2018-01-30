@@ -41,7 +41,7 @@ class RSFilterBar
 	public function show() {
 		if ($this->sortFields || $this->orderDir) {
 			$doc = JFactory::getDocument();
-			$doc->addScript(JURI::root(true).'/administrator/components/com_rsform/assets/js/ordertable.js');
+			$doc->addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/ordertable.js');
 		}
 		?>
 		<div id="filter-bar" class="btn-toolbar">
@@ -52,7 +52,7 @@ class RSFilterBar
 			</div>
 			<div class="btn-group hidden-phone">
 				<button class="btn" type="submit" title="<?php echo JText::_('JSEARCH_FILTER_SUBMIT'); ?>"><i class="icon-search"></i></button>
-				<button class="btn" type="button" onclick="document.id('filter_search').value='';this.form.submit();" title="<?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>"><i class="icon-remove"></i></button>
+				<button class="btn" type="button" onclick="document.getElementById('filter_search').value='';this.form.submit();" title="<?php echo JText::_('JSEARCH_FILTER_CLEAR'); ?>"><i class="icon-remove"></i></button>
 			</div>
 			<?php } ?>
 			<?php if ($this->limitBox) { ?>

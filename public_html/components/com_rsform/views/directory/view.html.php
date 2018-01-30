@@ -19,11 +19,13 @@ class RsformViewDirectory extends JViewLegacy
 		$this->tooltipClass = RSFormProHelper::getTooltipClass();
 		
 		if ($this->layout == 'view') {
-			$this->doc->addStyleSheet(JHtml::stylesheet('com_rsform/directory.css', array(), true, true));
+            JHtml::stylesheet('com_rsform/directory.css', array('relative' => true));
 			
-			$this->template = $this->get('template');
-			$this->canEdit	= RSFormProHelper::canEdit($this->params->get('formId'),$this->app->input->getInt('id',0));
-			$this->id		= $this->app->input->getInt('id',0);
+			$this->template  = $this->get('template');
+            $this->id		 = $this->app->input->getInt('id',0);
+            $this->formId    = $this->params->get('formId');
+			$this->canEdit	 = RSFormProHelper::canEdit($this->formId, $this->id);
+            $this->canDelete = RSFormProHelper::canDelete($this->formId, $this->id);
 			
 			// Add custom CSS and JS
 			if ($this->directory->JS)
@@ -35,10 +37,10 @@ class RsformViewDirectory extends JViewLegacy
 			$this->app->getPathway()->addItem(JText::_('RSFP_SUBM_DIR_VIEW'), '');
 		} elseif ($this->layout == 'edit') {
 			if (RSFormProHelper::canEdit($this->params->get('formId'),$this->app->input->getInt('id',0))) {
-				$this->doc->addStyleSheet(JHtml::stylesheet('com_rsform/directory.css', array(), true, true));
+                JHtml::stylesheet('com_rsform/directory.css', array('relative' => true));
 				$this->fields		= $this->get('EditFields');
 			} else {
-				$this->app->redirect(JURI::root());
+				$this->app->redirect(JUri::root());
 			}
 			
 			// Add pathway
@@ -102,6 +104,8 @@ class RsformViewDirectory extends JViewLegacy
 				return true;
 			}
 		}
+
+		return false;
 	}
 	
 	protected function hasSearchFields() {
@@ -110,6 +114,8 @@ class RsformViewDirectory extends JViewLegacy
 				return true;
 			}
 		}
+
+		return false;
 	}
 	
 	protected function getViewableFields() {

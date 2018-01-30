@@ -67,6 +67,7 @@ class RSFormProRestoreForm
 		$this->restoreEmails();
 		$this->restoreMappings();
 		$this->rebuildCalendarsValidationRules();
+		$this->rebuildGridLayout();
 		
 		// Allow plugins to restore their own data from the backup.
 		JFactory::getApplication()->triggerEvent('rsfp_onFormRestore', array($this->form, $this->xml, $this->fields));
@@ -85,7 +86,8 @@ class RSFormProRestoreForm
 		$oldFormId 		= false;
 		foreach ($this->xml->structure->children() as $property => $value) {
 			// Skip translations for now
-			if ($property == 'translations') {
+            // Skip ThemeParams, no longer exists
+			if ($property == 'translations' || $property == 'ThemeParams') {
 				continue;
 			}
 			
@@ -555,5 +557,71 @@ class RSFormProRestoreForm
 				$this->db->setQuery($query)->execute();
 			}
 		}
-	}	
+	}
+
+	// Grid Layout
+    // ===========
+
+	protected function rebuildGridLayout()
+    {
+        if (empty($this->form->GridLayout))
+        {
+            return false;
+        }
+
+        $data   = json_decode($this->form->GridLayout);
+        $rows 	= array();
+        $hidden	= array();
+
+        // If decoding is successful, we should have $rows and $hidden
+        if (is_array($data) && isset($data[0], $data[1]))
+        {
+            $rows 	= $data[0];
+            $hidden = $data[1];
+        }
+
+        if ($rows)
+        {
+            foreach ($rows as $row_index => $row)
+            {
+                foreach ($row->columns as $column_index => $fields)
+                {
+                    foreach ($fields as $position => $id)
+                    {
+                        if (isset($this->fields[$id]))
+                        {
+                            $row->columns[$column_index][$position] = $this->fields[$id];
+                        }
+                        else
+                        {
+                            // Field doesn't exist, remove it from grid
+                            unset($row->columns[$column_index][$position]);
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($hidden)
+        {
+            foreach ($hidden as $hidden_index => $id)
+            {
+                if (isset($this->fields[$id]))
+                {
+                    $hidden[$hidden_index] = $this->fields[$id];
+                }
+                else
+                {
+                    // Field doesn't exist, remove it from grid
+                    unset($hidden[$hidden_index]);
+                }
+            }
+        }
+
+        $query = $this->db->getQuery(true);
+        $query->update('#__rsform_forms')
+            ->set($this->db->qn('GridLayout') .'='. $this->db->q(json_encode(array($rows, $hidden))))
+            ->where($this->db->qn('FormId') .'='. $this->db->q($this->form->FormId));
+        $this->db->setQuery($query)->execute();
+    }
 }

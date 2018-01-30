@@ -32,11 +32,11 @@ class RSFormProYUICalendar
 	);
 	
 	public static function loadFiles() {
-		RSFormProAssets::addScript(JHtml::script('com_rsform/calendar/calendar.js', false, true, true));
-		RSFormProAssets::addScript(JHtml::script('com_rsform/calendar/script.js', false, true, true));
-		RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/calendar/calendar.css', array(), true, true));
+		RSFormProAssets::addScript(JHtml::script('com_rsform/calendar/calendar.js', array('pathOnly' => true, 'relative' => true)));
+		RSFormProAssets::addScript(JHtml::script('com_rsform/calendar/script.js', array('pathOnly' => true, 'relative' => true)));
+		RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/calendar/calendar.css', array('pathOnly' => true, 'relative' => true)));
 		if (JFactory::getDocument()->direction == 'rtl') {
-			RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/calendar/calendar-rtl.css', array(), true, true));
+			RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/calendar/calendar-rtl.css', array('pathOnly' => true, 'relative' => true)));
 		}
 		
 		$out = "\n";
@@ -72,38 +72,27 @@ class RSFormProYUICalendar
 		RSFormProAssets::addScriptDeclaration($out);
 	}
 	
-	public static function processDateFormat($dateFormat) {
-		// handle the date formats
-		$formats   = preg_split("/[^a-z0-9]/i", $dateFormat);
-		$formats = array_filter($formats);
-		$formats = array_values($formats);
-		// handle the date splitters
-		$splitters = preg_split("/[a-z0-9]/i", $dateFormat);
-		$splitters = array_filter($splitters);
-		$splitters = array_values($splitters);
+	public static function processDateFormat($dateFormat)
+	{
+		$newFormat = '';
 		
-		// rewrite the new format date format set by the user
-		$newFormats = array();
-		foreach ($formats as $i => $format) {
-			if (isset(self::$translationTable[$format])) {
-				$newFormats[] = self::$translationTable[$format];		
-			} else {
-				// leave this for legacy reasons if the correspondent is not found
-				$newFormats[] = $format;
-			}
+		for ($i = 0; $i < strlen($dateFormat); $i++)
+		{
+			$current = $dateFormat[$i];
 			
-			if (isset($splitters[$i])) {
-				$newFormats[] = $splitters[$i];
-			}		
+			if (isset(self::$translationTable[$current]))
+			{
+				$newFormat .= self::$translationTable[$current];
+			}
+			else
+			{
+				$newFormat .= $current;
+			}
 		}
 		
-		if (!empty($newFormats)) {
-			$dateFormat = implode('', $newFormats);
-		}
-		
-		return trim($dateFormat);
+		return $newFormat;
 	}
-	
+
 	public static function setCalendarOptions($config) {
 		extract($config);
 		

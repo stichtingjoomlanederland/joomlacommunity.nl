@@ -48,7 +48,7 @@ class RsformModelConditions extends JModelLegacy
 		
 		$app->triggerEvent('rsfp_bk_onCreateConditionOptionFields',array(array('types' => &$types, 'formId' => $formId)));
 		
-		JArrayHelper::toInteger($types);
+		array_map('intval', $types);
 		
 		$this->_db->setQuery("SELECT p.PropertyValue, p.PropertyName, p.ComponentId, c.ComponentTypeId FROM #__rsform_properties p LEFT JOIN #__rsform_components c ON (p.ComponentId = c.ComponentId) WHERE c.FormId='".$formId."' AND (p.PropertyName='DEFAULTVALUE' OR p.PropertyName='ITEMS') AND c.ComponentTypeId IN (".implode(',', $types).") ORDER BY c.Order");
 		$results = $this->_db->loadObjectList();

@@ -126,11 +126,6 @@ class RSFormProFieldButton extends RSFormProField
 		}
 		if ($type == 'button') {
 			$attr['class'] .= $this->baseClass;
-			
-			// Check for invalid here so that we can add 'rsform-error'
-			if ($this->invalid) {
-				$attr['class'] .= ' rsform-error';
-			}
 		} elseif ($type == 'reset') {
 			$attr['class'] .= 'rsform-reset-button';
 		} elseif ($type == 'previous') {

@@ -46,4 +46,4 @@ body {
 }
 </style>
 
-<?php JHTML::_('behavior.keepalive'); ?>
+<?php JHtml::_('behavior.keepalive'); ?>

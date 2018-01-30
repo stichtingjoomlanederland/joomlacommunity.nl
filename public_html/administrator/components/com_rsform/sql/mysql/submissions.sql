@@ -7,6 +7,9 @@ CREATE TABLE IF NOT EXISTS `#__rsform_submissions` (
   `UserId` text NOT NULL,
   `Lang` varchar(255) NOT NULL,
   `confirmed` tinyint(1) NOT NULL,
-  PRIMARY KEY  (`SubmissionId`),
-  KEY `FormId` (`FormId`)
+  `SubmissionHash` varchar(32) NOT NULL,
+  PRIMARY KEY (`SubmissionId`),
+  KEY `FormId` (`FormId`),
+  KEY `SubmissionId` (`SubmissionId`,`FormId`,`DateSubmitted`),
+  KEY `SubmissionHash` (`SubmissionHash`)
 ) DEFAULT CHARSET=utf8;

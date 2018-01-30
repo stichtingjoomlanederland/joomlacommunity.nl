@@ -210,17 +210,17 @@ class RSFormProFieldBirthDay extends RSFormProFieldSelectList
 		
 		// Check for invalid here so that we can add 'rsform-error'
 		if ($this->invalid[$this->processing]) {
-			$attr['class'] .= ' rsform-error';
+			$attr['class'] .= ' ' . $this->fieldErrorClass;
 		}
 		
 		// Must add an onchange event when we don't allow incorrect dates eg. 31 feb
-		if (($this->processing == 'm' || $this->processing == 'y') && ($this->hasAllFields && $this->getProperty('VALIDATION_ALLOW_INCORRECT_DATE', 'YES'))) {
+		if (($this->processing == 'm' || $this->processing == 'y') && ($this->hasAllFields && !$this->getProperty('VALIDATION_ALLOW_INCORRECT_DATE', 'YES'))) {
 			if (!isset($attr['onchange'])) {
 				$attr['onchange'] = '';
 			} else {
 				$attr['onchange'] .= ' ';
 			}
-			$attr['onchange'] .= "rsfp_checkValidDate('".$this->name."');";
+			$attr['onchange'] .= "RSFormPro.disableInvalidDates('".$this->name."');";
 		}
 		
 		return $attr;

@@ -382,7 +382,7 @@ class RsformControllerForms extends RsformController
 		$cid = JFactory::getApplication()->input->get('cid', array(), 'array');
 		
 		// Force array elements to be integers
-		JArrayHelper::toInteger($cid, array());
+		array_map('intval', $cid);
 		
 		$total = count($cid);
 		foreach ($cid as $formId) {
@@ -500,7 +500,7 @@ class RsformControllerForms extends RsformController
 		$cid = JRequest::getVar('cid', array(0), 'post', 'array');
 		
 		// Force array elements to be integers
-		JArrayHelper::toInteger($cid, array(0));
+		array_map('intval', $cid);
 		
 		$value = $task == 'publish' ? 1 : 0;
 		
@@ -524,10 +524,10 @@ class RsformControllerForms extends RsformController
 		$model 	= $this->getModel('forms');
 		
 		// Get the selected items
-		$cid = JRequest::getVar('cid', array(0), 'post', 'array');
+		$cid = $app->input->get('cid', array(), 'array');
 		
 		// Force array elements to be integers
-		JArrayHelper::toInteger($cid, array(0));
+		array_map('intval', $cid);
 		
 		$total = 0;
 		foreach ($cid as $formId)
@@ -652,7 +652,7 @@ class RsformControllerForms extends RsformController
 					}
 					
 					$db->setQuery("UPDATE #__rsform_properties SET PropertyValue=".$db->quote($property->PropertyValue)." WHERE PropertyId=".$db->quote($property->PropertyId));
-					$db->query();
+					$db->execute();
 				}
 			}
 			
@@ -685,7 +685,66 @@ class RsformControllerForms extends RsformController
 						$new_detail->store();
 					}
 				}
-			}			
+			}
+
+			// Rebuild Grid Layout
+            if (!empty($copy->GridLayout))
+            {
+                $data   = json_decode($copy->GridLayout);
+                $rows 	= array();
+                $hidden	= array();
+
+                // If decoding is successful, we should have $rows and $hidden
+                if (is_array($data) && isset($data[0], $data[1]))
+                {
+                    $rows 	= $data[0];
+                    $hidden = $data[1];
+                }
+
+                if ($rows)
+                {
+                    foreach ($rows as $row_index => $row)
+                    {
+                        foreach ($row->columns as $column_index => $fields)
+                        {
+                            foreach ($fields as $position => $id)
+                            {
+                                if (isset($componentRelations[$id]))
+                                {
+                                    $row->columns[$column_index][$position] = $componentRelations[$id];
+                                }
+                                else
+                                {
+                                    // Field doesn't exist, remove it from grid
+                                    unset($row->columns[$column_index][$position]);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if ($hidden)
+                {
+                    foreach ($hidden as $hidden_index => $id)
+                    {
+                        if (isset($componentRelations[$id]))
+                        {
+                            $hidden[$hidden_index] = $componentRelations[$id];
+                        }
+                        else
+                        {
+                            // Field doesn't exist, remove it from grid
+                            unset($hidden[$hidden_index]);
+                        }
+                    }
+                }
+
+                $query = $db->getQuery(true);
+                $query->update('#__rsform_forms')
+                    ->set($db->qn('GridLayout') .'='. $db->q(json_encode(array($rows, $hidden))))
+                    ->where($db->qn('FormId') .'='. $db->q($copy->FormId));
+                $db->setQuery($query)->execute();
+            }
 			
 			//Trigger Event - onFormCopy
 			$app->triggerEvent('rsfp_bk_onFormCopy', array(
@@ -724,6 +783,28 @@ class RsformControllerForms extends RsformController
 
 		$app->close();
 	}
+
+    public function changeFormLayoutFlow()
+    {
+        $app			= JFactory::getApplication();
+        $formId 		= $app->input->getInt('formId');
+        $status 		= $app->input->getInt('status');
+        $db 			= JFactory::getDbo();
+
+        $query = $db->getQuery(true)
+            ->update($db->qn('#__rsform_forms'))
+            ->set($db->qn('FormLayoutFlow').'='.$db->q($status))
+            ->where($db->qn('FormId').'='.$db->q($formId));
+
+        $db->setQuery($query)
+            ->execute();
+
+        echo json_encode(array(
+            'status' => true
+        ));
+
+        $app->close();
+    }
 	
 	public function calculations() {
 		$db 		= JFactory::getDbo();
@@ -731,7 +812,7 @@ class RsformControllerForms extends RsformController
 		$total		= JRequest::getVar('total');
 		$expression	= JRequest::getVar('expression');
 		
-		$db->setQuery("SELECT MAX(`ordering`) FROM #__rsform_calculations WHERE `formId` = ".$formId."");
+		$db->setQuery("SELECT MAX(`ordering`) FROM #__rsform_calculations WHERE `formId` = ".$formId);
 		$ordering = (int) $db->loadResult() + 1;
 		
 		$db->setQuery("INSERT INTO #__rsform_calculations SET `formId` = ".$formId.", `total` = ".$db->q($total).", `expression` = ".$db->q($expression).", `ordering` = ".(int) $ordering." ");
@@ -765,5 +846,67 @@ class RsformControllerForms extends RsformController
 		
 		echo 'Ok';
 		exit();
+	}
+	
+	public function saveGridLayout()
+	{
+		$app	= JFactory::getApplication();
+		$db 	= JFactory::getDbo();
+		$query  = $db->getQuery(true);
+		$formId = $app->input->getInt('formId');
+		$layout = $app->input->getString('GridLayout');
+		$model	= $this->getModel('forms');
+		
+		$data = json_decode($layout);
+		
+		if (is_array($data) && isset($data[0], $data[1]))
+		{
+			$rows 	= $data[0];
+			$hidden = $data[1];
+			
+			$flat = array();
+			foreach ($rows as $row)
+			{
+				foreach ($row->columns as $column => $fields)
+				{
+					foreach ($fields as $field)
+					{
+						$flat[] = $field;
+					}
+				}
+			}
+			
+			$flat = array_merge($flat, $hidden);
+			
+			foreach ($flat as $position => $id)
+			{
+				$query->update($db->qn('#__rsform_components'))
+					->set($db->qn('Order').'='.$db->q($position))
+					->where($db->qn('ComponentId').'='.$db->q($id));
+
+				$db->setQuery($query)
+					->execute();
+				
+				$query->clear();
+			}
+		}
+
+		$query->update($db->qn('#__rsform_forms'))
+			->set($db->qn('GridLayout').'='.$db->q($layout))
+			->where($db->qn('FormId').'='.$db->q($formId));
+
+		$db->setQuery($query)
+			->execute();
+
+		// Auto generate layout
+		$model->getForm();
+		if ($model->_form->FormLayoutAutogenerate)
+		{
+			$model->autoGenerateLayout();
+		}
+		
+		echo $model->_form->FormLayout;
+
+		$app->close();
 	}
 }

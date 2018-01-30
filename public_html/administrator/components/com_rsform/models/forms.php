@@ -232,7 +232,7 @@ class RsformModelForms extends JModelLegacy
 
 		$properties = RSFormProHelper::getComponentProperties($components);
 
-		$pages			= array();
+		$pages = array();
 		foreach ($components as $component)
 		{
 			if ($component->ComponentTypeId == RSFORM_FIELD_PAGEBREAK) {
@@ -250,12 +250,13 @@ class RsformModelForms extends JModelLegacy
 			// Pagination
 			if ($component->ComponentTypeId == RSFORM_FIELD_PAGEBREAK)
 			{
-				$data['PAGES'] 	 	= $pages;
+				$data['PAGES'] = $pages;
 			}
 
 			$field = new stdClass();
 			$field->id = $component->ComponentId;
 			$field->type_id = $component->ComponentTypeId;
+			$field->type_name = $component->ComponentTypeName;
 			$field->name = $component->ComponentName;
 			$field->published = $component->Published;
 			$field->ordering = $component->Order;
@@ -274,8 +275,9 @@ class RsformModelForms extends JModelLegacy
 				$field->validation = '<b>'.$data['VALIDATIONRULE_DATE'].'</b>';
 			}
 
-			$return[] = $field;
+			$return[$field->id] = $field;
 		}
+		
 		return $return;
 	}
 
@@ -364,10 +366,6 @@ class RsformModelForms extends JModelLegacy
 
 			if ($this->_form->FormLayoutAutogenerate)
 				$this->autoGenerateLayout();
-
-			$registry = new JRegistry();
-			$registry->loadString($this->_form->ThemeParams, 'INI');
-			$this->_form->ThemeParams =& $registry;
 
 			$lang = $this->getLang();
 			if ($lang != $this->_form->Lang)
@@ -506,13 +504,21 @@ class RsformModelForms extends JModelLegacy
 	{
 		$return = array();
 		$formId = JFactory::getApplication()->input->getInt('formId');
+		
+		// Workaround to ignore searches
+		$filter_search = $this->getState('com_rsform.forms.filter_search');
+		$this->setState('com_rsform.forms.filter_search', null);
+		
 		$query = $this->_buildQuery();
+		
+		// Revert
+		$this->setState('com_rsform.forms.filter_search', $filter_search);
 
 		$this->_db->setQuery($query);
 		$results = $this->_db->loadObjectList();
 		foreach ($results as $result)
 		{
-			$return[] = JHTML::_('select.option', $result->FormId, $result->FormTitle, 'value', 'text', $result->FormId == $formId);
+			$return[] = JHtml::_('select.option', $result->FormId, $result->FormTitle, 'value', 'text', $result->FormId == $formId);
 		}
 
 		return $return;
@@ -527,12 +533,12 @@ class RsformModelForms extends JModelLegacy
 	{
 		$return = array();
 
-		$return[] = JHTML::_('select.option', '', JText::_('RSFP_PREDEFINED_BLANK_FORM'));
+		$return[] = JHtml::_('select.option', '', JText::_('RSFP_PREDEFINED_BLANK_FORM'));
 
 		jimport('joomla.filesystem.folder');
 		$folders = JFolder::folders(JPATH_ADMINISTRATOR.'/components/com_rsform/assets/forms');
 		foreach ($folders as $folder)
-			$return[] = JHTML::_('select.option', $folder, $folder);
+			$return[] = JHtml::_('select.option', $folder, $folder);
 
 		return $return;
 	}
@@ -551,82 +557,6 @@ class RsformModelForms extends JModelLegacy
 			$value = $translations[$opener];
 
 		return $value;
-	}
-
-	public function getThemes()
-	{
-		jimport('joomla.filesystem.folder');
-
-		$return = array();
-
-		$data = new stdClass();
-		$data->name = JText::_('RSFP_NONE');
-		$data->directory = $data->img_path = $data->version = $data->creationdate = $data->authorEmail = $data->authorUrl = $data->author = '';
-
-		$return[] = $data;
-
-		$dirs = JFolder::folders(JPATH_SITE.'/components/com_rsform/assets/themes', '.', false, true);
-		foreach ($dirs as $i => $dir)
-		{
-			$data = $this->_parseXML($dir);
-			if ($data)
-				$return[] = $data;
-		}
-
-		return $return;
-	}
-
-	protected function _parseXML($dir)
-	{
-		// Read the file to see if it's a valid component XML file
-
-		$files = JFolder::files($dir, '\.xml');
-		if (!count($files))
-			return false;
-
-		$file = reset($files);
-		$path = $dir.'/'.$file;
-
-		if (!$xml = simplexml_load_file($path)) {
-			unset($xml);
-			return false;
-		}
-
-		$data = new stdClass();
-
-		$data->directory = basename($dir);
-
-		$data->img_path = '';
-		$files = JFolder::files($dir, '\.jpg|\.gif|\.png');
-		if (count($files))
-		{
-			$file = reset($files);
-			$data->img_path = JURI::root().'components/com_rsform/assets/themes/'.$data->directory.'/'.$file;
-		}
-
-		$data->name = isset($xml->name) ? $xml->name : '';
-		$data->creationdate = isset($xml->creationDate) ? $xml->creationDate : JText::_('Unknown');
-		$data->author = isset($xml->author) ? $xml->author : JText::_('Unknown');
-		$data->copyright = isset($xml->copyright) ? $xml->copyright : '';
-		$data->authorEmail = isset($xml->authorEmail) ? $xml->authorEmail : '';
-		$data->authorUrl = isset($xml->authorUrl) ? $xml->authorUrl : '';
-		$data->version = isset($xml->version) ? $xml->version : '';
-		$data->description = isset($xml->description) ? $xml->description : '';
-
-		if (isset($xml->css)) {
-			$data->css = array();
-			foreach ($xml->css as $css) {
-				$data->css[] = (string) $css;
-			}
-		}
-		if (isset($xml->js)) {
-			$data->js = array();
-			foreach ($xml->js as $js) {
-				$data->js[] = (string) $js;
-			}
-		}
-
-		return $data;
 	}
 
 	public function save()
@@ -651,28 +581,6 @@ class RsformModelForms extends JModelLegacy
 		unset($form->UserEmailText);
 		unset($form->AdminEmailText);
 		unset($form->ErrorMessage);
-
-		$params = array();
-		if (!empty($post['ThemeName']))
-		{
-			$stylesheets = @$post['ThemeCSS'][$post['ThemeName']];
-			$javascripts = @$post['ThemeJS'][$post['ThemeName']];
-
-			$params[] = 'name='.$post['ThemeName'];
-			if (is_array($stylesheets))
-			{
-				$params[] = 'num_css='.count($stylesheets);
-				foreach ($stylesheets as $i => $stylesheet)
-					$params[] = 'css'.$i.'='.$stylesheet;
-			}
-			if (is_array($javascripts))
-			{
-				$params[] = 'num_js='.count($javascripts);
-				foreach ($javascripts as $i => $javascript)
-					$params[] = 'js'.$i.'='.$javascript;
-			}
-		}
-		$form->ThemeParams = implode("\n", $params);
 
 		if (!isset($post['FormLayoutAutogenerate']))
 			$post['FormLayoutAutogenerate'] = 0;
@@ -859,7 +767,7 @@ class RsformModelForms extends JModelLegacy
 
 		$return = array();
 		foreach ($languages as $tag => $properties)
-			$return[] = JHTML::_('select.option', $tag, $properties['name']);
+			$return[] = JHtml::_('select.option', $tag, $properties['name']);
 
 		return $return;
 	}

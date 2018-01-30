@@ -65,6 +65,9 @@ class RsformViewSubmissions extends JViewLegacy
 			
 			$formTitle = $this->get('formTitle');
 			JToolbarHelper::title('RSForm! Pro <small>['.JText::sprintf('RSFP_EXPORTING', $this->exportType, $formTitle).']</small>','rsform');
+			
+			JToolbarHelper::custom('submissions.cancelform', 'previous', 'previous', JText::_('RSFP_BACK_TO_FORM'), false);
+			JToolbarHelper::custom('submissions.back', 'database', 'database', JText::_('RSFP_SUBMISSIONS'), false);
 		}
 		elseif ($layout == 'edit')
 		{

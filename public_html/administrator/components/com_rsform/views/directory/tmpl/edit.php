@@ -6,7 +6,7 @@
 */
 
 defined('_JEXEC') or die('Restricted access');
-JHTML::_('behavior.keepalive'); ?>
+JHtml::_('behavior.keepalive'); ?>
 
 <form action="index.php?option=com_rsform" method="post" name="adminForm" id="adminForm" enctype="multipart/form-data">
 	
@@ -22,6 +22,7 @@ JHTML::_('behavior.keepalive'); ?>
 			<ul class="rsform_leftnav" id="rsform_secondleftnav">
 				<li class="rsform_navtitle"><?php echo JText::_('RSFP_DIRECTORY_TAB'); ?></li>
 				<li><a href="javascript: void(0);" id="editform"><span class="rsficon rsficon-pencil-square"></span><span class="inner-text"><?php echo JText::_('RSFP_DIRECTORY_EDIT'); ?></span></a></li>
+                <li><a href="javascript: void(0);" id="permissions"><span class="rsficon rsficon-shield"></span><span class="inner-text"><?php echo JText::_('RSFP_DIRECTORY_PERMISSIONS'); ?></span></a></li>
 				<li><a href="javascript: void(0);" id="fields"><span class="rsficon rsficon-list-alt"></span><span class="inner-text"><?php echo JText::_('RSFP_DIRECTORY_FIELDS'); ?></span></a></li>
 				<li class="rsform_navtitle"><?php echo JText::_('RSFP_DESIGN_TAB'); ?></li>
 				<li><a href="javascript: void(0);" id="formlayout"><span class="rsficon rsficon-th-list"></span><span class="inner-text"><?php echo JText::_('RSFP_SUBM_DIR_DETAILS_LAYOUT'); ?></span></a></li>
@@ -37,6 +38,9 @@ JHTML::_('behavior.keepalive'); ?>
 				<div id="editformdiv">
 					<p><?php echo $this->loadTemplate('general'); ?></p>
 				</div>
+                <div id="permissionsdiv">
+                    <p><?php echo $this->loadTemplate('permissions'); ?></p>
+                </div>
 				<div id="fieldsdiv">
 					<p><?php echo $this->loadTemplate('fields'); ?></p>
 				</div>
@@ -70,8 +74,8 @@ JHTML::_('behavior.keepalive'); ?>
 RSFormPro.$(document).ready(function(){
 	RSFormPro.$('#rsform_tab3').formTabs(<?php echo $this->tab; ?>);
 	RSFormPro.$('#dirSubmissionsTable tbody').tableDnD({
-		onDragClass: 'rsform_dragged',				
-		onDrop: function (table, row) {
+		onDragClass: 'rsform_dragged',
+        onDragStop: function (table, row) {
 			tidyOrderDir();
 		}
 	});

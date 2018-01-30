@@ -17,6 +17,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 <!-- Do not remove this ID, it is used to identify the page so that the pagination script can work correctly -->
 <div id="rsform_{global:formid}_page_<?php echo $page_num; ?>">
 <?php 
+	if (!empty($fields['visible'])) {
 		foreach ($fields['visible'] as $field) {
 			// handle special hidden fields
 			if ($this->getProperty($field['data'], 'LAYOUTHIDDEN', false)) {
@@ -52,6 +53,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 <?php } ?>
 <?php
 		}
+	}
 		
 		if (!empty($fields['hidden'])) {
 			foreach ($fields['hidden'] as $field) {

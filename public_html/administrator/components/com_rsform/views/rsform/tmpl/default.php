@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-JHTML::_('behavior.tooltip');
+JHtml::_('behavior.tooltip');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm">
 	<div id="j-sidebar-container" class="span2">

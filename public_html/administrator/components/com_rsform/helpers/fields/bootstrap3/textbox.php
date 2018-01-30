@@ -16,12 +16,7 @@ class RSFormProFieldBootstrap3Textbox extends RSFormProFieldTextbox
 		if (strlen($attr['class'])) {
 			$attr['class'] .= ' ';
 		}
-		$attr['class'] .= 'form-control rsform-input-box';
-		
-		// Check for invalid here so that we can add 'rsform-error'
-		if ($this->invalid) {
-			$attr['class'] .= ' rsform-error';
-		}
+		$attr['class'] .= 'form-control';
 		
 		return $attr;
 	}

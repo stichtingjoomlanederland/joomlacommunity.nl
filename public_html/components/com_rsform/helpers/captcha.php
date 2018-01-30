@@ -10,13 +10,13 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class RSFormProCaptcha
 {
-	var $Size;
-    var $Length;
-    var $Type;
-    var $CaptchaString;
-    var $fontpath;
-    var $fonts;
-    var $data;
+	public $Size;
+    public $Length;
+    public $Type;
+    public $CaptchaString;
+    public $fontpath;
+    public $fonts;
+    public $data;
 
     public function __construct($componentId=0)
 	{
@@ -27,13 +27,13 @@ class RSFormProCaptcha
 		if (!isset($this->data['LENGTH']))
 			$this->data['LENGTH'] = 4;
 		
-		if ($this->data['IMAGETYPE'] == 'INVISIBLE')
-			die();
+		if ($this->data['IMAGETYPE'] == 'INVISIBLE') {
+            die();
+        }
 		
 		if (!function_exists('imagecreate'))
 		{
-			header('Location:'.JURI::root().'components/com_rsform/assets/images/nogd.gif');
-			die();
+		    JFactory::getApplication()->redirect(JHtml::_('image', 'com_rsform/nogd.gif', '', null, true, 1));
 		}
 		
 		if (JFactory::getDocument()->getType() != 'image')
@@ -70,18 +70,18 @@ class RSFormProCaptcha
 	    $this->makeCaptcha($componentId);
     }
 
-    function getFonts()
+    public function getFonts()
 	{
 		jimport('joomla.filesystem.folder');
 		return JFolder::files($this->fontpath, '\.ttf');
 	}
 	
-    function getRandomFont()
+    public function getRandomFont()
 	{
 		return $this->fontpath.'/'.$this->fonts[mt_rand(0, count($this->fonts) - 1)];
     }
     
-	function stringGenerate()
+	public function stringGenerate()
 	{
 		if (!isset($this->data['TYPE']))
 			$this->data['TYPE'] = 'ALPHANUMERIC';
@@ -98,7 +98,7 @@ class RSFormProCaptcha
 			$this->CaptchaString .= $CharPool[mt_rand(0, $PoolLength)];
     }
 
-    function makeCaptcha($componentId=0)
+    public function makeCaptcha($componentId=0)
 	{
 		if (!isset($this->data['BACKGROUNDCOLOR']))
 			$this->data['BACKGROUNDCOLOR'] = '#FFFFFF';
@@ -127,12 +127,12 @@ class RSFormProCaptcha
 		if ($this->data['IMAGETYPE'] == 'NOFREETYPE')
 			imagestring($image, mt_rand(3,5), 10, 0,  $this->CaptchaString, $stringcolor); 
 		
-		$this->addNoise($image, 2);
+		$this->addNoise($image, 7);
 		imagepng($image);
 		imagedestroy($image);
     }
 
-	function addNoise(&$image, $runs = 30)
+	public function addNoise(&$image, $runs = 30)
 	{
 		$w = imagesx($image);
 		$h = imagesy($image);
@@ -145,7 +145,7 @@ class RSFormProCaptcha
 			}
     }
 	
-    function getCaptcha()
+    public function getCaptcha()
     {
 		return $this->CaptchaString;
     }
@@ -153,14 +153,14 @@ class RSFormProCaptcha
 
 class RSFormProCaptchaError
 {
-    var $errors = array();
+    public $errors = array();
 
-    function addError($errormsg = '')
+    public function addError($errormsg = '')
     {
         $this->errors[] = $errormsg;
     }
 
-    function displayError()
+    public function displayError()
     {
 		$iheight     = count($this->errors) * 20 + 10;
 		$iheight     = ($iheight < 70) ? 70 : $iheight;

@@ -17,12 +17,7 @@ class RSFormProFieldBootstrap3Textarea extends RSFormProFieldTextarea
 		if (strlen($attr['class'])) {
 			$attr['class'] .= ' ';
 		}
-		$attr['class'] .= 'form-control rsform-text-box';
-		
-		// Check for invalid here so that we can add 'rsform-error'
-		if ($this->invalid) {
-			$attr['class'] .= ' rsform-error';
-		}
+		$attr['class'] .= 'form-control';
 		
 		return $attr;
 	}

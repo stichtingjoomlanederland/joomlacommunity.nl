@@ -9,310 +9,378 @@ defined('_JEXEC') or die('Restricted access');
 
 class RsformModelDirectory extends JModelLegacy
 {
-	protected $fields;
+    protected $fields;
 
-	/**
-	 *	Main constructor
-	 */
-	public function __construct($config = array()) {
-		$this->_app		= JFactory::getApplication();
-		$this->_db		= JFactory::getDbo();
-		$this->params	= $this->_app->getParams('com_rsform');
-		$this->itemid	= $this->getItemid();
-		$this->context	= 'com_rsform.directory'.$this->itemid;
+    /**
+     *    Main constructor
+     */
+    public function __construct($config = array())
+    {
+        $this->_app = JFactory::getApplication();
+        $this->_db = JFactory::getDbo();
+        $this->params = $this->_app->getParams('com_rsform');
+        $this->itemid = $this->getItemid();
+        $this->context = 'com_rsform.directory' . $this->itemid;
 
-		// Check for a valid form
-		if (!$this->isValid()) {
-			throw new Exception($this->getError(), 500);
-		}
+        // Check for a valid form
+        if (!$this->isValid()) {
+            throw new Exception($this->getError(), 500);
+        }
 
-		$this->getFields();
-		parent::__construct();
-	}
+        $this->getFields();
+        parent::__construct();
+    }
 
-	/**
-	 *	Check if we are allowed to show content
-	 */
-	public function isValid() {
-		if (!$this->params->get('enable_directory', 0)) {
-			$this->setError(JText::_('RSFP_VIEW_DIRECTORY_NOT_ENABLED_FORGOT'));
-			return false;
-		}
+    /**
+     *    Check if we are allowed to show content
+     */
+    public function isValid()
+    {
+        if (!$this->params->get('enable_directory', 0)) {
+            $this->setError(JText::_('RSFP_VIEW_DIRECTORY_NOT_ENABLED_FORGOT'));
+            return false;
+        }
 
-		// Do we have a valid formId
-		$formId = $this->params->get('formId',0);
-		if (empty($formId)) {
-			$this->setError(JText::sprintf('RSFP_VIEW_DIRECTORY_NO_VALID_FORMID', $formId));
-			return false;
-		}
+        // Do we have a valid formId
+        $formId = $this->params->get('formId', 0);
+        if (empty($formId)) {
+            $this->setError(JText::sprintf('RSFP_VIEW_DIRECTORY_NO_VALID_FORMID', $formId));
+            return false;
+        }
 
-		// Check if the directory exists
-		$this->_db->setQuery('SELECT COUNT('.$this->_db->qn('formId').') FROM '.$this->_db->qn('#__rsform_directory').' WHERE '.$this->_db->qn('formId').' = '.(int) $formId.'');
-		if (!$this->_db->loadResult()) {
-			$this->setError(JText::_('RSFP_VIEW_DIRECTORY_NOT_SAVED_YET'));
-			return false;
-		}
+        // Check if the directory exists
+        $this->_db->setQuery('SELECT COUNT(' . $this->_db->qn('formId') . ') FROM ' . $this->_db->qn('#__rsform_directory') . ' WHERE ' . $this->_db->qn('formId') . ' = ' . (int)$formId . '');
+        if (!$this->_db->loadResult()) {
+            $this->setError(JText::_('RSFP_VIEW_DIRECTORY_NOT_SAVED_YET'));
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	/**
-	 *	Get directory fields
-	 */
-	public function getFields() {
-		if (!is_array($this->fields)) {
-			$this->fields = RSFormProHelper::getDirectoryFields($this->params->get('formId'));
-		}
+    /**
+     *    Get directory fields
+     */
+    public function getFields()
+    {
+        if (!is_array($this->fields)) {
+            $this->fields = RSFormProHelper::getDirectoryFields($this->params->get('formId'));
+        }
 
-		return $this->fields;
-	}
+        return $this->fields;
+    }
 
-	/**
-	 *	Submissions query
-	 */
-	public function getListQuery() {
-		// Get query
-		$db 	= &$this->_db;
-		$query 	= $db->getQuery(true);
+    /**
+     *    Submissions query
+     */
+    public function getListQuery()
+    {
+        // Get query
+        $db = &$this->_db;
+        $query = $db->getQuery(true);
 
-		// Get headers
-		$fields  = $this->getFields();
-		$headers = RSFormProHelper::getDirectoryStaticHeaders();
+        // Get headers
+        $fields = $this->getFields();
+        $headers = RSFormProHelper::getDirectoryStaticHeaders();
 
-		// Check if it's a search.
-		$search = $this->getSearch();
+        // Check if it's a search.
+        $search = $this->getSearch();
 
-		// Get the SubmissionId
-		$query->select($db->qn('s.SubmissionId'))
-			  ->from($db->qn('#__rsform_submission_values', 'sv'))
-			  ->join('left', $db->qn('#__rsform_submissions', 's').' ON ('.$db->qn('sv.SubmissionId').'='.$db->qn('s.SubmissionId').')')
-			  ->where($db->qn('s.FormId').'='.$db->q($this->params->get('formId')))
-			  ->group($db->qn('s.SubmissionId'))
-			  ->order($db->qn($this->getListOrder()).' '.$db->escape($this->getListDirn()));
+        // Get the SubmissionId
+        $query->select($db->qn('s.SubmissionId'))
+            ->from($db->qn('#__rsform_submission_values', 'sv'))
+            ->join('left', $db->qn('#__rsform_submissions', 's') . ' ON (' . $db->qn('sv.SubmissionId') . '=' . $db->qn('s.SubmissionId') . ')')
+            ->where($db->qn('s.FormId') . '=' . $db->q($this->params->get('formId')))
+            ->group($db->qn('s.SubmissionId'))
+            ->order($db->qn($this->getListOrder()) . ' ' . $db->escape($this->getListDirn()));
 
-		// Show only confirmed submissions?
-		if ($this->params->get('show_confirmed', 0)) {
-			$query->where($db->qn('s.confirmed').'='.$db->q(1));
-		}
+        // Show only confirmed submissions?
+        if ($this->params->get('show_confirmed', 0)) {
+            $query->where($db->qn('s.confirmed') . '=' . $db->q(1));
+        }
 
-		// Show only submissions for selected language
-		if ($lang = $this->params->get('lang', '')) {
-			$query->where($db->qn('s.Lang').'='.$db->q($lang));
-		}
+        // Show only submissions for selected language
+        if ($lang = $this->params->get('lang', '')) {
+            $query->where($db->qn('s.Lang') . '=' . $db->q($lang));
+        }
 
-		// Check if we need to show only submissions related to UserId.
-		$userId = $this->params->def('userId', 0);
-		if ($userId == 'login') {
-			// Get only logged in user's submissions
-			$user = JFactory::getUser();
+        // Check if we need to show only submissions related to UserId.
+        $userId = $this->params->def('userId', 0);
+        if ($userId == 'login') {
+            // Get only logged in user's submissions
+            $user = JFactory::getUser();
 
-			// Do not continue if he's a guest.
-			if ($user->guest) {
-				return false;
-			}
+            // Do not continue if he's a guest.
+            if ($user->guest) {
+                return false;
+            }
 
-			$query->where($db->qn('s.UserId').'='.$db->q($user->get('id')));
-		} elseif ($userId) {
-			// Show only the submissions of these users
-			$userIds = explode(',', $userId);
-			JArrayHelper::toInteger($userIds);
+            $query->where($db->qn('s.UserId') . '=' . $db->q($user->get('id')));
+        } elseif ($userId) {
+            // Show only the submissions of these users
+            $userIds = explode(',', $userId);
+            array_map('intval', $userIds);
 
-			$query->where($db->qn('s.UserId').' IN ('.implode(',', $userIds).')');
-		}
+            $query->where($db->qn('s.UserId') . ' IN (' . implode(',', $userIds) . ')');
+        }
 
-		// Iterate through fields to build the query
-		foreach ($fields as $field) {
-			// If the field is viewable or searchable, we need to select() it.
-			if ($field->viewable || $field->searchable) {
-				if ($field->componentId < 0 && isset($headers[$field->componentId])) {
-					// Static headers.
-					// Select the value.
-					if ($field->FieldName == 'confirmed') {
-						// Make sure we display a text instead of 0 and 1.
-						$query->select('IF('.$db->qn('s.confirmed').' = '.$db->q(1).', '.$db->q(JText::_('RSFP_YES')).', '.$db->q(JText::_('RSFP_NO')).') AS '.$db->qn('confirmed'));
-					} else {
-						$query->select($db->qn('s.'.$field->FieldName));
-					}
-				} else {
-					// Dynamic headers.
-					// Select the value.
-					$query->select('GROUP_CONCAT(IF('.$db->qn('sv.FieldName').'='.$db->q($field->FieldName).', '.$db->qn('sv.FieldValue').', NULL)) AS '.$db->qn($field->FieldName));
-				}
+        // Iterate through fields to build the query
+        foreach ($fields as $field) {
+            // If the field is viewable or searchable, we need to select() it.
+            if ($field->viewable || $field->searchable) {
+                if ($field->componentId < 0 && isset($headers[$field->componentId])) {
+                    // Static headers.
+                    // Select the value.
+                    if ($field->FieldName == 'confirmed') {
+                        // Make sure we display a text instead of 0 and 1.
+                        $query->select('IF(' . $db->qn('s.confirmed') . ' = ' . $db->q(1) . ', ' . $db->q(JText::_('RSFP_YES')) . ', ' . $db->q(JText::_('RSFP_NO')) . ') AS ' . $db->qn('confirmed'));
+                    } else {
+                        $query->select($db->qn('s.' . $field->FieldName));
+                    }
+                } else {
+                    // Dynamic headers.
+                    // Select the value.
+                    $query->select('GROUP_CONCAT(IF(' . $db->qn('sv.FieldName') . '=' . $db->q($field->FieldName) . ', ' . $db->qn('sv.FieldValue') . ', NULL)) AS ' . $db->qn($field->FieldName));
+                }
 
-				// If we're searching, add the field to the having() query.
-				if ($search && $field->searchable) {
-					// DateSubmitted doesn't play well with LIKE
-					if ($field->FieldId == '-1' && preg_match('#([^0-9\-: ])#', $search)) {
-						continue;
-					}
-					$query->having($db->qn($field->FieldName).' LIKE '.$db->q('%'.$db->escape($search, true).'%', false), 'OR');
-				}
-			}
-		}
+                // If we're searching, add the field to the having() query.
+                if ($search && $field->searchable) {
+                    // DateSubmitted doesn't play well with LIKE
+                    if ($field->FieldId == '-1' && preg_match('#([^0-9\-: ])#', $search)) {
+                        continue;
+                    }
+                    $query->having($db->qn($field->FieldName) . ' LIKE ' . $db->q('%' . $db->escape($search, true) . '%', false), 'OR');
+                }
+            }
+        }
 
-		return $query;
-	}
+        return $query;
+    }
 
-	public function setGroupConcatLimit() {
-		$this->_db->setQuery("SET SESSION `group_concat_max_len` = 1000000");
-		$this->_db->execute();
-	}
-	/**
-	 *	Get Submissions
-	 */
-	public function getItems() {
-		$mainframe = JFactory::getApplication();
+    public function setGroupConcatLimit()
+    {
+        $this->_db->setQuery("SET SESSION `group_concat_max_len` = 1000000");
+        $this->_db->execute();
+    }
 
-		$this->setGroupConcatLimit();
-		if ($query = $this->getListQuery()) {
-			$this->_db->setQuery($query, $this->getStart(), $this->getLimit());
-			$items	= $this->_db->loadObjectList();
-		} else {
-			$items = array();
-		}
-		
-		// small workaround - we need to have only string keys for the items
-		foreach ($items as $i => $item) {
-			$newItem = new stdClass();
-			foreach ($item as $key=>$value) {
-				$newItem->{((string)$key)} = $value;
-			}
-			$items[$i] = $newItem;
-		}
+    /**
+     *    Get Submissions
+     */
+    public function getItems()
+    {
+        $mainframe = JFactory::getApplication();
 
-		$mainframe->triggerEvent('rsfp_onAfterManageDirectoriesQuery', array(&$items, $this->params->get('formId')));
-		jimport('joomla.filesystem.file');
+        $this->setGroupConcatLimit();
+        if ($query = $this->getListQuery()) {
+            $this->_db->setQuery($query, $this->getStart(), $this->getLimit());
+            $items = $this->_db->loadObjectList();
+        } else {
+            $items = array();
+        }
 
-		list($multipleSeparator, $uploadFields, $multipleFields, $secret) = RSFormProHelper::getDirectoryFormProperties($this->params->get('formId'));
-		$this->uploadFields 	= $uploadFields;
-		$this->multipleFields 	= $multipleFields;
+        // small workaround - we need to have only string keys for the items
+        foreach ($items as $i => $item) {
+            $newItem = new stdClass();
+            foreach ($item as $key => $value) {
+                $newItem->{((string)$key)} = $value;
+            }
+            $items[$i] = $newItem;
+        }
 
-		if ($items) {
-			foreach ($items as $i => $item) {
-				foreach ($uploadFields as $field) {
-					if (isset($item->$field)) {
-						$item->$field = '<a href="'.JRoute::_('index.php?option=com_rsform&task=submissions.view.file&hash='.md5($item->SubmissionId.$secret.$field)).'">'.htmlspecialchars(JFile::getName($item->$field)).'</a>';
-					}
-				}
-				foreach ($multipleFields as $field) {
-					if (isset($item->$field)) {
-						$item->$field = str_replace("\n", $multipleSeparator, htmlentities($item->$field, ENT_COMPAT, 'utf-8'));
-					}
-				}
-				$items[$i] = $item;
-			}
-		}
+        $mainframe->triggerEvent('rsfp_onAfterManageDirectoriesQuery', array(&$items, $this->params->get('formId')));
+        jimport('joomla.filesystem.file');
 
-		return $items;
-	}
+        list($multipleSeparator, $uploadFields, $multipleFields, $secret) = RSFormProHelper::getDirectoryFormProperties($this->params->get('formId'));
+        $this->uploadFields = $uploadFields;
+        $this->multipleFields = $multipleFields;
 
-	public function getAdditionalUnescaped(){
+        if ($items) {
+            foreach ($items as $i => $item) {
+                foreach ($uploadFields as $field) {
+                    if (isset($item->$field)) {
+                        $item->$field = '<a href="' . JRoute::_('index.php?option=com_rsform&task=submissions.view.file&hash=' . md5($item->SubmissionId . $secret . $field)) . '">' . htmlspecialchars(JFile::getName($item->$field)) . '</a>';
+                    }
+                }
+                foreach ($multipleFields as $field) {
+                    if (isset($item->$field)) {
+                        $item->$field = str_replace("\n", $multipleSeparator, htmlentities($item->$field, ENT_COMPAT, 'utf-8'));
+                    }
+                }
+                $items[$i] = $item;
+            }
+        }
 
-		$unescapedFields = array();
-		$mainframe = JFactory::getApplication();
-		$mainframe->triggerEvent('rsfp_b_onManageDirectoriesCreateUnescapedFields', array(array('fields' => & $unescapedFields, 'formId' => $this->params->get('formId'))));
+        return $items;
+    }
 
-		return $unescapedFields;
+    public function getAdditionalUnescaped()
+    {
 
-	}
-	/**
-	 *	Get directory details
-	 */
-	public function getDirectory() {
-		static $table;
+        $unescapedFields = array();
+        $mainframe = JFactory::getApplication();
+        $mainframe->triggerEvent('rsfp_b_onManageDirectoriesCreateUnescapedFields', array(array('fields' => & $unescapedFields, 'formId' => $this->params->get('formId'))));
 
-		if (is_null($table)) {
-			$formId = $this->params->get('formId', 0);
-			$table = JTable::getInstance('RSForm_Directory', 'Table');
-			$table->load($formId);
-		}
+        return $unescapedFields;
 
-		return $table;
-	}
+    }
 
-	public function getTemplate() {
-		$cid		= $this->_app->input->getInt('id',0);
-		$format		= $this->_app->input->get('format');
-		$user		= JFactory::getUser();
-		$userId		= $this->params->def('userId', 0);
-		$directory	= $this->getDirectory();
-		$template	= $directory->ViewLayout;
+    /**
+     *    Get directory details
+     */
+    public function getDirectory()
+    {
+        static $table;
 
-		if ($userId != 'login' && $userId != 0) {
-			$userId = explode(',', $userId);
-			JArrayHelper::toInteger($userId);
-		}
+        if (is_null($table)) {
+            $formId = $this->params->get('formId', 0);
+            $table = JTable::getInstance('RSForm_Directory', 'Table');
+            $table->load($formId);
+        }
 
-		// Grab submission
-		$this->_db->setQuery("SELECT * FROM #__rsform_submissions WHERE SubmissionId='".$cid."'");
-		$submission = $this->_db->loadObject();
+        return $table;
+    }
 
-		// Submission doesn't exist
-		if (!$submission) {
-			JError::raiseWarning(500, JText::sprintf('RSFP_SUBMISSION_DOES_NOT_EXIST', $cid));
-			return $this->_app->redirect(JURI::root());
-		}
+    public function getTemplate()
+    {
+        $cid = $this->_app->input->getInt('id', 0);
+        $format = $this->_app->input->get('format');
+        $user = JFactory::getUser();
+        $userId = $this->params->def('userId', 0);
+        $directory = $this->getDirectory();
+        $template = $directory->ViewLayout;
 
-		// Submission doesn't belong to the configured form ID OR
-		// can view only own submissions and not his own OR
-		// can view only specified user IDs and this doesn't belong to any of the IDs
-		if (($submission->FormId != $this->params->get('formId')) || ($userId == 'login' && $submission->UserId != $user->get('id')) || (is_array($userId) && !in_array($user->get('id'), $userId))) {
-			JError::raiseWarning(500, JText::sprintf('RSFP_SUBMISSION_NOT_ALLOWED', $cid));
-			return $this->_app->redirect(JURI::root());
-		}
+        if ($userId != 'login' && $userId != 0) {
+            $userId = explode(',', $userId);
+            array_map('intval', $userId);
+        }
 
-		if ($this->params->get('show_confirmed', 0) && !$submission->confirmed) {
-			JError::raiseWarning(500, JText::sprintf('RSFP_SUBMISSION_NOT_CONFIRMED', $cid));
-			return $this->_app->redirect(JURI::root());
-		}
+        // Grab submission
+        $this->_db->setQuery("SELECT * FROM #__rsform_submissions WHERE SubmissionId='" . $cid . "'");
+        $submission = $this->_db->loadObject();
 
-		$confirmed = $submission->confirmed ? JText::_('RSFP_YES') : JText::_('RSFP_NO');
-		list($replace, $with) = RSFormProHelper::getReplacements($cid, true);
-		list($replace2, $with2) = $this->getReplacements($submission->UserId);
-		$replace = array_merge($replace, $replace2, array('{global:userip}', '{global:date_added}', '{global:submissionid}', '{global:submission_id}', '{global:confirmed}', '{global:lang}'));
-		$with 	 = array_merge($with, $with2, array($submission->UserIp, RSFormProHelper::getDate($submission->DateSubmitted), $cid, $cid, $confirmed, $submission->Lang));
+        // Submission doesn't exist
+        if (!$submission) {
+            $this->_app->enqueueMessage(JText::sprintf('RSFP_SUBMISSION_DOES_NOT_EXIST', $cid), 'warning');
+            return $this->_app->redirect(JUri::root());
+        }
 
-		if ($format == 'pdf') {
-			if (strpos($template, ':path}') !== false) {
-				$template = str_replace(':path}',':localpath}',$template);
-			}
+        // Submission doesn't belong to the configured form ID OR
+        // can view only own submissions and not his own OR
+        // can view only specified user IDs and this doesn't belong to any of the IDs
+        if (($submission->FormId != $this->params->get('formId')) || ($userId == 'login' && $submission->UserId != $user->get('id')) || (is_array($userId) && !in_array($user->get('id'), $userId))) {
+            $this->_app->enqueueMessage(JText::sprintf('RSFP_SUBMISSION_NOT_ALLOWED', $cid), 'warning');
+            return $this->_app->redirect(JUri::root());
+        }
 
-			$template = str_replace('{sitepath}', JPATH_SITE, $template);
-		} else {
-			$template = str_replace('{sitepath}', JUri::root(), $template);
-		}
+        if ($this->params->get('show_confirmed', 0) && !$submission->confirmed) {
+            $this->_app->enqueueMessage(JText::sprintf('RSFP_SUBMISSION_NOT_CONFIRMED', $cid), 'warning');
+            return $this->_app->redirect(JUri::root());
+        }
 
-		if (strpos($template, '{/if}') !== false) {
-			require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/scripting.php';
-			RSFormProScripting::compile($template, $replace, $with);
-		}
+        $confirmed = $submission->confirmed ? JText::_('RSFP_YES') : JText::_('RSFP_NO');
+        list($replace, $with) = RSFormProHelper::getReplacements($cid, true);
+        list($replace2, $with2) = $this->getReplacements($submission->UserId);
+        $replace = array_merge($replace, $replace2, array('{global:userip}', '{global:date_added}', '{global:submissionid}', '{global:submission_id}', '{global:confirmed}', '{global:lang}'));
+        $with = array_merge($with, $with2, array($submission->UserIp, RSFormProHelper::getDate($submission->DateSubmitted), $cid, $cid, $confirmed, $submission->Lang));
 
-		$detailsLayout = str_replace($replace, $with, $template);
-		eval($directory->DetailsScript);
+        if ($format == 'pdf') {
+            if (strpos($template, ':path}') !== false) {
+                $template = str_replace(':path}', ':localpath}', $template);
+            }
 
-		// Set filename
-		$directory->filename = str_replace($replace, $with, $directory->filename);
+            $template = str_replace('{sitepath}', JPATH_SITE, $template);
+        } else {
+            $template = str_replace('{sitepath}', JUri::root(), $template);
+        }
 
-		return $detailsLayout;
-	}
+        if (strpos($template, '{/if}') !== false) {
+            require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/scripting.php';
+            RSFormProScripting::compile($template, $replace, $with);
+        }
 
-	public function getReplacements($user_id) {
-		static $sitename, $siteurl, $mailfrom, $fromname;
+        $detailsLayout = str_replace($replace, $with, $template);
+        eval($directory->DetailsScript);
 
-		if (is_null($siteurl)) {
-			$config 	= JFactory::getConfig();
-			$sitename 	= $config->get('sitename');
-			$siteurl	= JURI::root();
-			$mailfrom	= $config->get('mailfrom');
-			$fromname	= $config->get('fromname');
-		}
+        // Set filename
+        $directory->filename = str_replace($replace, $with, $directory->filename);
 
-		$user    = JFactory::getUser((int) $user_id);
-		$replace = array('{global:sitename}', '{global:siteurl}', '{global:userid}', '{global:username}', '{global:email}', '{global:useremail}', '{global:fullname}', '{global:mailfrom}', '{global:fromname}');
-		$with 	 = array($sitename, $siteurl, $user->id, $user->username, $user->email, $user->email, $user->name, $mailfrom, $fromname);
+        return $detailsLayout;
+    }
 
-		return array($replace, $with);
-	}
+    public function getReplacements($user_id)
+    {
+        static $sitename, $siteurl, $mailfrom, $fromname;
+
+        if (is_null($siteurl)) {
+            $config = JFactory::getConfig();
+            $sitename = $config->get('sitename');
+            $siteurl = JUri::root();
+            $mailfrom = $config->get('mailfrom');
+            $fromname = $config->get('fromname');
+        }
+
+        $user = JFactory::getUser((int)$user_id);
+        $replace = array('{global:sitename}', '{global:siteurl}', '{global:userid}', '{global:username}', '{global:email}', '{global:useremail}', '{global:fullname}', '{global:mailfrom}', '{global:fromname}');
+        $with = array($sitename, $siteurl, $user->id, $user->username, $user->email, $user->email, $user->name, $mailfrom, $fromname);
+
+        return array($replace, $with);
+    }
+
+    public function delete($id)
+    {
+        $db = JFactory::getDbo();
+
+        $query = $db->getQuery(true)
+            ->select($db->qn('SubmissionId'))
+            ->select($db->qn('FormId'))
+            ->from($db->qn('#__rsform_submissions'))
+            ->where($db->qn('SubmissionId') . ' = ' . $db->q($id));
+        $db->setQuery($query);
+        if ($submission = $db->loadObject())
+        {
+            // If we have upload fields
+            if ($fields = RSFormProHelper::componentExists($submission->FormId, RSFORM_FIELD_FILEUPLOAD))
+            {
+                // Delete files first
+                foreach ($fields as $field)
+                {
+                    $query->clear()
+                        ->select($db->qn('FieldValue'))
+                        ->from($db->qn('#__rsform_submission_values'))
+                        ->where($db->qn('SubmissionId') . ' = ' . $db->q($submission->SubmissionId) )
+                        ->where($db->qn('FieldName') . ' = ' . $db->q($field) )
+                        ->where($db->qn('FieldValue') . ' != ' . $db->q($field) );
+
+                    if ($files = $db->setQuery($query)->loadColumn())
+                    {
+                        jimport('joomla.filesystem.file');
+
+                        foreach ($files as $file)
+                        {
+                            if (file_exists($file) && is_file($file))
+                            {
+                                JFile::delete($file);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Remove the submission
+            $query->clear()
+                ->delete($db->qn('#__rsform_submissions'))
+                ->where($db->qn('SubmissionId') . ' = ' . $db->q($submission->SubmissionId));
+            $db->setQuery($query);
+            $db->execute();
+
+            // Remove the values
+            $query->clear()
+                ->delete($db->qn('#__rsform_submission_values'))
+                ->where($db->qn('SubmissionId') . ' = ' . $db->q($submission->SubmissionId));
+            $db->setQuery($query);
+            $db->execute();
+        }
+    }
 
 	public function save() {
 		jimport('joomla.filesystem.file');

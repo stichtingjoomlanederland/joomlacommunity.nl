@@ -94,6 +94,11 @@ class RSFormProBackupXML
 		
 		return $this;
 	}
+
+	public function replace($tag, $value)
+    {
+        $this->buffer = str_replace('<' . $tag . '></' . $tag . '>', '<' . $tag . '>' . $this->escape($value) . '</' . $tag . '>', $this->buffer);
+    }
 	
 	public function __toString() {
 		return $this->buffer;

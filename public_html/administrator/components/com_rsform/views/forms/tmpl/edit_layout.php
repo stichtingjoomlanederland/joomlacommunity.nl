@@ -32,7 +32,7 @@ JText::script('RSFP_HIDE_LEGACY_LAYOUTS');
 	<?php foreach ($this->layouts['classicLayouts'] as $layout) { ?>
 		<div class="rsform_layout_box">
 			<label for="formLayout<?php echo ucfirst($layout); ?>" class="radio">
-				<input type="radio" id="formLayout<?php echo ucfirst($layout); ?>" name="FormLayoutName" value="<?php echo $layout; ?>" onclick="saveLayoutName('<?php echo $this->form->FormId; ?>', this.value);" <?php if ($this->form->FormLayoutName == $layout) { ?>checked="checked"<?php } ?> /><?php echo JText::_('RSFP_LAYOUT_'.$layout);?><br/>
+				<input type="radio" id="formLayout<?php echo ucfirst($layout); ?>" name="FormLayoutName" value="<?php echo $layout; ?>" onclick="saveLayoutName('<?php echo $this->form->FormId; ?>', this.value, true);" <?php if ($this->form->FormLayoutName == $layout) { ?>checked="checked"<?php } ?> /><?php echo JText::_('RSFP_LAYOUT_'.$layout);?><br/>
 			</label>
 			<img src="components/com_rsform/assets/images/layouts/<?php echo $layout; ?>.gif" width="175"/>
 		</div>
@@ -40,7 +40,7 @@ JText::script('RSFP_HIDE_LEGACY_LAYOUTS');
 	<?php foreach ($this->layouts['xhtmlLayouts'] as $layout) { ?>
 		<div class="rsform_layout_box">
 			<label for="formLayout<?php echo ucfirst($layout); ?>" class="radio">
-				<input type="radio" id="formLayout<?php echo ucfirst($layout); ?>" name="FormLayoutName" value="<?php echo $layout; ?>" onclick="saveLayoutName('<?php echo $this->form->FormId; ?>', this.value);" <?php if ($this->form->FormLayoutName == $layout) { ?>checked="checked"<?php } ?> /><?php echo JText::_('RSFP_LAYOUT_'.str_replace('-', '_', $layout));?><br/>
+				<input type="radio" id="formLayout<?php echo ucfirst($layout); ?>" name="FormLayoutName" value="<?php echo $layout; ?>" onclick="saveLayoutName('<?php echo $this->form->FormId; ?>', this.value, true);" <?php if ($this->form->FormLayoutName == $layout) { ?>checked="checked"<?php } ?> /><?php echo JText::_('RSFP_LAYOUT_'.str_replace('-', '_', $layout));?><br/>
 			</label>
 			<img src="components/com_rsform/assets/images/layouts/<?php echo $layout; ?>.gif" width="175"/>
 		</div>
@@ -69,6 +69,10 @@ JText::script('RSFP_HIDE_LEGACY_LAYOUTS');
 			<td><label><?php echo JText::_('RSFP_LOAD_LAYOUT_FRAMEWORK'); ?></label></td>
 			<td><?php echo $this->renderHTML('select.booleanlist', 'LoadFormLayoutFramework', '', $this->form->LoadFormLayoutFramework); ?></td>
 		</tr>
+        <tr>
+            <td><label><?php echo JText::_('RSFP_FORM_LAYOUT_FLOW');?></label></td>
+            <td><?php echo $this->lists['FormLayoutFlow']; ?></td>
+        </tr>
 		<tr>
 			<td><label><?php echo JText::_('RSFP_AUTOGENERATE_LAYOUT');?></label></td>
 			<td><?php echo $this->lists['FormLayoutAutogenerate']; ?></td>

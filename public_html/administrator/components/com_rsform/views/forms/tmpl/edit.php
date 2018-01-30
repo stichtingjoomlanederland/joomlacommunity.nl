@@ -7,12 +7,19 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-JHTML::_('behavior.tooltip');
-JHTML::_('behavior.modal');
+JFactory::getDocument()->addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/forms.js');
 ?>
-
 	<form action="index.php?option=com_rsform&amp;task=forms.edit&amp;formId=<?php echo $this->form->FormId; ?>" method="post" name="adminForm" id="adminForm">
-
+		<?php
+		echo JHtml::_('bootstrap.renderModal', 'editModal', array(
+			'title' => JText::_('RSFP_FORM_FIELD'),
+			'footer' => $this->loadTemplate('modal_footer'),
+			'bodyHeight' => 70,
+			'closeButton' => false,
+			'backdrop' => 'static'
+		),
+		$this->loadTemplate('modal_body'));
+		?>
 		<span><?php echo $this->lists['Languages']; ?></span>
 		<span><?php echo JText::sprintf('RSFP_YOU_ARE_EDITING_IN', $this->lang, RSFormProHelper::translateIcon()); ?></span>
 
@@ -24,23 +31,6 @@ JHTML::_('behavior.modal');
 				<li><a href="javascript: void(0);" id="properties" class="btn"><span class="rsficon rsficon-cogs"></span><span class="inner-text"><?php echo JText::_('RSFP_PROPERTIES_TAB_TITLE'); ?></span></a></li>
 			</ul>
 			<div id="rsform_tab1">
-				<div id="rsform_fixed">
-					<div id="rsform_textboxdiv" class="rsform_hide">
-						<ul class="rsform_secondarytabs">
-							<li><a href="javascript: void(0);" id="rsfptab0" class="active"><?php echo JText::_('RSFP_COMPONENTS_GENERAL_TAB'); ?></a></li>
-							<li><a href="javascript: void(0);" id="rsfptab1"><?php echo JText::_('RSFP_COMPONENTS_VALIDATIONS_TAB'); ?></a></li>
-							<li><a href="javascript: void(0);" id="rsfptab2"><?php echo JText::_('RSFP_COMPONENTS_ATRIBUTES_TAB'); ?></a></li>
-						</ul>
-
-						<div id="rsform_secondarytabcontent">
-							<div id="rsfptabcontent0"></div>
-							<div id="rsfptabcontent1"></div>
-							<div id="rsfptabcontent2"></div>
-						</div>
-						<a href="javascript: void(0);" class="rsform_close btn btn-mini"><span class="icon-delete"></span></a>
-					</div>
-				</div>
-
 				<?php echo $this->loadTemplate('components'); ?>
 			</div>
 
@@ -48,7 +38,7 @@ JHTML::_('behavior.modal');
 				<ul class="rsform_leftnav" id="rsform_secondleftnav">
 					<li class="rsform_navtitle"><?php echo JText::_('RSFP_DESIGN_TAB'); ?></li>
 					<li><a href="javascript: void(0);" id="formlayout"><span class="rsficon rsficon-list-alt"></span><span class="inner-text"><?php echo JText::_('RSFP_FORM_LAYOUT'); ?></span></a></li>
-					<li><a href="javascript: void(0);" id="formtheme"><span class="rsficon rsficon-image"></span><span class="inner-text"><?php echo JText::_('RSFP_FORM_THEME'); ?></span></a></li>
+					<li><a href="javascript: void(0);" id="gridlayout"><span class="rsficon rsficon-gear"></span><span class="inner-text"><?php echo JText::_('RSFP_GRID_LAYOUT'); ?></span></a></li>
 					<li><a href="javascript: void(0);" id="cssandjavascript"><span class="rsficon rsficon-file-code-o"></span><span class="inner-text"><?php echo JText::_('RSFP_CSS_JS'); ?></span></a></li>
 					<?php $this->triggerEvent('rsfp_bk_onAfterShowFormDesignTabsTab'); ?>
 					<li class="rsform_navtitle"><?php echo JText::_('RSFP_FORM_TAB'); ?></li>
@@ -77,9 +67,9 @@ JHTML::_('behavior.modal');
 					<div id="formlayoutdiv">
 						<?php echo $this->loadTemplate('layout'); ?>
 					</div><!-- formlayout -->
-					<div id="formthemediv">
-						<?php echo $this->loadTemplate('theme'); ?>
-					</div><!-- formthemediv -->
+					<div id="gridlayoutdiv">
+						<?php echo $this->loadTemplate('grid'); ?>
+					</div><!-- gridlayout -->
 					<div id="cssandjavascriptdiv">
 						<?php echo $this->loadTemplate('cssjs'); ?>
 					</div><!-- cssandjavascript -->
@@ -142,100 +132,35 @@ JHTML::_('behavior.modal');
 	</form>
 
 	<script type="text/javascript">
-		RSFormPro.$(document).ready(function(){
-			RSFormPro.$('#rsform_tab2').formTabs(<?php echo $this->tab; ?>);
-			RSFormPro.$('#rsform_textboxdiv').formTabs(0);
+		jQuery(document).ready(function($){
 			<?php if (!$this->tabposition) { ?>
-			RSFormPro.$("#rsform_tab1").show();
-			RSFormPro.$("#rsform_tab2").hide();
-			RSFormPro.$("#properties").removeClass('btn-primary');
-			RSFormPro.$("#components").addClass('btn-primary');
+			$('#components').click();
 			<?php } else { ?>
-			RSFormPro.$("#rsform_tab2").show();
-			RSFormPro.$("#rsform_tab1").hide();
-			RSFormPro.$("#properties").addClass('btn-primary');
-			RSFormPro.$("#components").removeClass('btn-primary');
+			$("#properties").click();
 			<?php } ?>
-		});
 
-		RSFormPro.$.formTabs = {
-			tabTitles: {},
-			tabContents: {},
+            $('#rsform_tab2').formTabs(<?php echo $this->tabposition ? $this->tab : 0; ?>);
 
-			build: function (startindex) {
-				this.each(function (index, el) {
-					var tid = RSFormPro.$(el).attr('id');
-					RSFormPro.$.formTabs.grabElements(el,tid);
-					RSFormPro.$.formTabs.makeTitlesClickable(tid);
-					RSFormPro.$.formTabs.setAllContentsInactive(tid);
-					RSFormPro.$.formTabs.setTitleActive(startindex,tid);
-					RSFormPro.$.formTabs.setContentActive(startindex,tid);
-				});
-			},
-
-			grabElements: function(el,tid) {
-				var children = RSFormPro.$(el).children();
-				children.each(function(index, child) {
-					if (index == 0)
-						RSFormPro.$.formTabs.tabTitles[tid] = RSFormPro.$(child).find('a');
-					else if (index == 1)
-						RSFormPro.$.formTabs.tabContents[tid] = RSFormPro.$(child).children();
-				});
-			},
-
-			setAllTitlesInactive: function (tid) {
-				this.tabTitles[tid].each(function(index, title) {
-					RSFormPro.$(title).removeClass('active');
-				});
-			},
-
-			setTitleActive: function (index,tid) {
-				index = parseInt(index);
-				if (tid == 'rsform_tab2') document.getElementById('ptab').value = index;
-				RSFormPro.$(this.tabTitles[tid][index]).addClass('active');
-			},
-
-			setAllContentsInactive: function (tid) {
-				this.tabContents[tid].each(function(index, content) {
-					RSFormPro.$(content).hide();
-				});
-			},
-
-			setContentActive: function (index,tid) {
-				index = parseInt(index);
-				RSFormPro.$(this.tabContents[tid][index]).show();
-			},
-
-			makeTitlesClickable: function (tid) {
-				this.tabTitles[tid].each(function(index, title) {
-					RSFormPro.$(title).click(function () {
-						RSFormPro.$.formTabs.setAllTitlesInactive(tid);
-						RSFormPro.$.formTabs.setTitleActive(index,tid);
-
-						RSFormPro.$.formTabs.setAllContentsInactive(tid);
-						RSFormPro.$.formTabs.setContentActive(index,tid);
-					});
-				});
-			}
-		}
-
-		RSFormPro.$.fn.extend({
-			formTabs: RSFormPro.$.formTabs.build
+			<?php if ($this->hasLegacyLayout) { ?>
+            legacyOrderingEnable();
+            <?php } else { ?>
+            legacyOrderingDisable();
+            <?php } ?>
 		});
 
 		Joomla.submitbutton = function(pressbutton)
 		{
 			var form = document.adminForm;
 
+            document.getElementById('tabposition').value = jQuery('#properties').hasClass('btn-primary') ? 1 : 0;
+
 			if (pressbutton == 'forms.cancel')
 			{
 				Joomla.submitform(pressbutton);
-				return;
 			}
 			else if (pressbutton == 'forms.preview')
 			{
-				window.open('<?php echo JURI::root(); ?>index.php?option=com_rsform&view=rsform&formId=<?php echo $this->form->FormId; ?>');
-				return;
+				window.open('<?php echo JUri::root(); ?>index.php?option=com_rsform&view=rsform&formId=<?php echo $this->form->FormId; ?>');
 			}
 			else if (pressbutton == 'components.copy' || pressbutton == 'components.duplicate')
 			{
@@ -390,6 +315,19 @@ JHTML::_('behavior.modal');
 					var theId = 'required' + cb;
 					break;
 			}
+			
+			// Add unpublished class to grid
+			if (task.indexOf('components.') > -1)
+			{
+				if (task == 'components.unpublish')
+				{
+					jQuery('#rsfp-grid-field-id-' + document.getElementById(cb).value).addClass('rsfp-grid-unpublished-field');
+				}
+				else
+				{
+					jQuery('#rsfp-grid-field-id-' + document.getElementById(cb).value).removeClass('rsfp-grid-unpublished-field');
+				}
+			}
 
 			xml.send(params);
 			xml.onreadystatechange=function()
@@ -528,22 +466,18 @@ JHTML::_('behavior.modal');
 
 		function RStranslateText(thetext)
 		{
-			if (thetext == 'extra')
-				return '<?php echo JText::_('RSFP_COMP_FIELD_VALIDATIONEXTRA', true); ?>';
-			else if (thetext == 'regex')
+			if (thetext == 'regex')
 				return '<?php echo JText::_('RSFP_COMP_FIELD_VALIDATIONEXTRAREGEX', true); ?>';
 			else if (thetext == 'sameas')
 				return '<?php echo JText::_('RSFP_COMP_FIELD_VALIDATIONEXTRASAMEAS', true); ?>';
+			else
+				return '<?php echo JText::_('RSFP_COMP_FIELD_VALIDATIONEXTRA', true); ?>';
 		}
 
 		toggleQuickAdd();
-		<?php
-		if (in_array($this->form->FormLayoutName, $this->layouts['html5Layouts']) || $this->form->FormLayoutName == 'responsive') { ?>
-		jQuery('#formtheme').hide();
-		<?php } ?>
 	</script>
 
 <?php
 //keep session alive while editing
-JHTML::_('behavior.keepalive');
+JHtml::_('behavior.keepalive');
 ?>

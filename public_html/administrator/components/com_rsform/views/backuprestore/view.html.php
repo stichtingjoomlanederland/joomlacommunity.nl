@@ -28,7 +28,7 @@ class RsformViewBackuprestore extends JViewLegacy
 		JFactory::getDocument()->addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/backup.js');
 		
 		if (!$this->writable) {
-			JError::raiseWarning(500, JText::sprintf('RSFP_BACKUP_RESTORE_CANNOT_CONTINUE_WRITABLE_PERMISSIONS', '<strong>'.$this->escape($this->tempDir).'</strong>'));
+		    JFactory::getApplication()->enqueueMessage(JText::sprintf('RSFP_BACKUP_RESTORE_CANNOT_CONTINUE_WRITABLE_PERMISSIONS', '<strong>'.$this->escape($this->tempDir).'</strong>'), 'warning');
 		}
 		
 		parent::display($tpl);

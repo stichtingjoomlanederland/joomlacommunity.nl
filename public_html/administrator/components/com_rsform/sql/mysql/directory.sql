@@ -13,5 +13,6 @@ CREATE TABLE IF NOT EXISTS `#__rsform_directory` (
   `EmailsScript` text NOT NULL,
   `EmailsCreatedScript` text NOT NULL,
   `groups` text NOT NULL,
+  `DeletionGroups` text NOT NULL,
   PRIMARY KEY (`formId`)
 ) DEFAULT CHARSET=utf8;

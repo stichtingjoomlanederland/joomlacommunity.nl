@@ -6,7 +6,7 @@
 */
 
 defined('_JEXEC') or die('Restricted access');
-JHTML::_('behavior.tooltip');
+JHtml::_('behavior.tooltip');
 ?>
 
 <script type="text/javascript">
@@ -31,13 +31,13 @@ Joomla.submitbutton = submitbutton;
 		<tr>
 			<th width="1%" nowrap="nowrap"><?php echo JText::_('#'); ?></th>
 			<th width="1%" nowrap="nowrap"><input type="checkbox" name="toggle" value="" onclick="Joomla.checkAll(this);" /></th>
-			<th class="title"><?php echo JHTML::_('grid.sort', JText::_('RSFP_FORM_TITLE'), 'FormTitle', $this->sortOrder, $this->sortColumn, 'forms.manage'); ?></th>
-			<th class="title"><?php echo JHTML::_('grid.sort', JText::_('RSFP_FORM_NAME'), 'FormName', $this->sortOrder, $this->sortColumn, 'forms.manage'); ?></th>
-			<th width="1%" nowrap="nowrap" class="title"><?php echo JHTML::_('grid.sort', JText::_('RSFP_PUBLISHED'), 'Published', $this->sortOrder, $this->sortColumn, 'forms.manage'); ?></th>
+			<th class="title"><?php echo JHtml::_('grid.sort', JText::_('RSFP_FORM_TITLE'), 'FormTitle', $this->sortOrder, $this->sortColumn, 'forms.manage'); ?></th>
+			<th class="title"><?php echo JHtml::_('grid.sort', JText::_('RSFP_FORM_NAME'), 'FormName', $this->sortOrder, $this->sortColumn, 'forms.manage'); ?></th>
+			<th width="1%" nowrap="nowrap" class="title"><?php echo JHtml::_('grid.sort', JText::_('RSFP_PUBLISHED'), 'Published', $this->sortOrder, $this->sortColumn, 'forms.manage'); ?></th>
 			<th width="1%" nowrap="nowrap" class="title"><?php echo JText::_('RSFP_SUBMISSIONS'); ?></th>
 			<th class="title"><?php echo JText::_('RSFP_TOOLS'); ?></th>
 			<th class="title" width="1%" nowrap="nowrap"><?php echo JText::_('RSFP_LAST_LANGUAGE'); ?></th>
-			<th width="1%" nowrap="nowrap" class="title"><?php echo JHTML::_('grid.sort', JText::_('RSFP_FORM_ID'), 'FormId', $this->sortOrder, $this->sortColumn, 'forms.manage'); ?></th>
+			<th width="1%" nowrap="nowrap" class="title"><?php echo JHtml::_('grid.sort', JText::_('RSFP_FORM_ID'), 'FormId', $this->sortOrder, $this->sortColumn, 'forms.manage'); ?></th>
 		</tr>
 		</thead>
 	<?php
@@ -50,17 +50,17 @@ Joomla.submitbutton = submitbutton;
 		?>
 		<tr class="row<?php echo $k; ?>">
 			<td width="1%" nowrap="nowrap"><?php echo $this->pagination->getRowOffset($i); ?></td>
-			<td width="1%" nowrap="nowrap"><?php echo JHTML::_('grid.id', $i, $row->FormId); ?></td>
+			<td width="1%" nowrap="nowrap"><?php echo JHtml::_('grid.id', $i, $row->FormId); ?></td>
 			<td><a href="index.php?option=com_rsform&amp;view=forms&amp;layout=edit&amp;formId=<?php echo $row->FormId; ?>"><?php echo !empty($row->FormTitle) ? $row->FormTitle : '<em>'.JText::_('RSFP_FORM_DEFAULT_TITLE').'</em>'; ?></a></td>
 			<td><?php echo $row->FormName; ?></td>
-			<td width="1%" nowrap="nowrap" align="center"><?php echo JHTML::_('jgrid.published', $row->published, $i, 'forms.'); ?></td>
+			<td width="1%" nowrap="nowrap" align="center"><?php echo JHtml::_('jgrid.published', $row->published, $i, 'forms.'); ?></td>
 			<td width="1%" nowrap="nowrap">
 				<span class="<?php echo RSFormProHelper::getTooltipClass(); ?>" title="<?php echo JText::sprintf('RSFP_TODAY_SUBMISSIONS', $row->_todaySubmissions); ?>"><a href="index.php?option=com_rsform&amp;view=submissions&amp;formId=<?php echo $row->FormId; ?>"><i class="rsficon rsficon-calendar"></i> <?php echo $row->_todaySubmissions; ?></a></span>
 				<span class="<?php echo RSFormProHelper::getTooltipClass(); ?>" title="<?php echo JText::sprintf('RSFP_MONTH_SUBMISSIONS', $row->_monthSubmissions); ?>"><a href="index.php?option=com_rsform&amp;view=submissions&amp;formId=<?php echo $row->FormId; ?>"><i class="rsficon rsficon-calendar"></i> <?php echo $row->_monthSubmissions; ?></a></span>
 				<span class="<?php echo RSFormProHelper::getTooltipClass(); ?>" title="<?php echo JText::sprintf('RSFP_ALL_SUBMISSIONS', $row->_allSubmissions); ?>"><a href="index.php?option=com_rsform&amp;view=submissions&amp;formId=<?php echo $row->FormId; ?>"><i class="rsficon rsficon-calendar"></i> <?php echo $row->_allSubmissions; ?></a></span>
 			</td>
 			<td align="center" nowrap="nowrap">
-				<a class="btn" href="<?php echo JURI::root(); ?>index.php?option=com_rsform&amp;view=rsform&amp;formId=<?php echo $row->FormId; ?>" target="_blank"><span class="rsficon rsficon-eye rsficon-green"></span> <?php echo JText::_('RSFP_PREVIEW'); ?></a>
+				<a class="btn" href="<?php echo JUri::root(); ?>index.php?option=com_rsform&amp;view=rsform&amp;formId=<?php echo $row->FormId; ?>" target="_blank"><span class="rsficon rsficon-eye rsficon-green"></span> <?php echo JText::_('RSFP_PREVIEW'); ?></a>
 				<div class="btn-group">
 					<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><?php echo JText::_('RSFP_TOOLS'); ?> <span class="caret"></span></a>
 					<ul class="dropdown-menu" role="menu" aria-labelledby="<?php echo JText::_('RSFP_TOOLS'); ?>">

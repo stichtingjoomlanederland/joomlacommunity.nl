@@ -91,7 +91,7 @@ INSERT IGNORE INTO `#__rsform_component_type_fields` (`ComponentTypeId`, `FieldN
 (8, 'BACKGROUNDCOLOR', 'textbox', '#FFFFFF', '', 4),
 (8, 'TEXTCOLOR', 'textbox', '#000000', '', 5),
 (8, 'TYPE', 'select', 'ALPHA\r\nNUMERIC\r\nALPHANUMERIC', '', 6),
-(8, 'ADDITIONALATTRIBUTES', 'textarea', 'style="text-align:center;width:75px;"', '', 7),
+(8, 'ADDITIONALATTRIBUTES', 'textarea', '', '', 7),
 (8, 'DESCRIPTION', 'textarea', '', '', 9),
 (8, 'COMPONENTTYPE', 'hidden', '8', '', 9),
 (8, 'VALIDATIONMESSAGE', 'textarea', 'INVALIDINPUT', '', 100),

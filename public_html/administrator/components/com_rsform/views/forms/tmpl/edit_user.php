@@ -79,21 +79,13 @@ defined('_JEXEC') or die('Restricted access');
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_EMAILS_ATTACH_FILE_LOCATION'); ?></td>
 						<td>
-							<table border="0" cellpadding="0" cellspacing="0" width="100%" style="width: 100%;">
-								<tr>
-									<td>
-										<input name="UserEmailAttachFile" class="rs_inp rs_80" id="UserEmailAttachFile" value="<?php echo !empty($this->form->UserEmailAttachFile) ? $this->form->UserEmailAttachFile : JPATH_SITE.'/components/com_rsform/uploads'; ?>" <?php if (!$this->form->UserEmailAttach) { ?>disabled="disabled"<?php } ?> />
-									</td>
-									<td width="1%" nowrap="nowrap">
-										<a href="index.php?option=com_rsform&amp;controller=files&amp;task=display&amp;folder=<?php echo @dirname($this->form->UserEmailAttachFile); ?>&amp;tmpl=component" class="modal pull-left btn" rel="{handler: 'iframe'}" id="rsform_select_file" <?php if (!$this->form->UserEmailAttach) { ?>style="display: none"<?php } ?>><span class="rsform_icon rsform_upload "><?php echo JText::_('RSFP_SELECT_FILE'); ?></span></a>
-									</td>
-								</tr>
-								<?php if ($this->form->UserEmailAttach && (!file_exists($this->form->UserEmailAttachFile) || !is_file($this->form->UserEmailAttachFile))) { ?>
-									<tr>
-										<td colspan="2"><strong style="color: red"><?php echo JText::_('RSFP_EMAILS_ATTACH_FILE_WARNING'); ?></strong></td>
-									</tr>
-								<?php } ?>
-							</table>
+							<input name="UserEmailAttachFile" class="rs_inp rs_75 pull-left" id="UserEmailAttachFile" value="<?php echo !empty($this->form->UserEmailAttachFile) ? $this->form->UserEmailAttachFile : JPATH_SITE.'/components/com_rsform/uploads'; ?>" <?php if (!$this->form->UserEmailAttach) { ?>disabled="disabled"<?php } ?> />
+							<a href="index.php?option=com_rsform&amp;controller=files&amp;task=display&amp;folder=<?php echo is_file($this->form->UserEmailAttachFile) ? $this->escape(dirname($this->form->UserEmailAttachFile)) : ''; ?>&amp;tmpl=component" onclick="openRSModal(this.href); return false;" class="pull-left btn" id="rsform_select_file" <?php if (!$this->form->UserEmailAttach) { ?>style="display: none"<?php } ?>><span class="rsficon rsficon-file-text-o"></span> <?php echo JText::_('RSFP_SELECT_FILE'); ?></a>
+							<?php if ($this->form->UserEmailAttach && (!file_exists($this->form->UserEmailAttachFile) || !is_file($this->form->UserEmailAttachFile))) { ?>
+								<div class="alert alert-danger">
+									<?php echo JText::_('RSFP_EMAILS_ATTACH_FILE_WARNING'); ?>
+								</div>
+							<?php } ?>
 						</td>
 					</tr>
 				</table>

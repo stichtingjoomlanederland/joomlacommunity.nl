@@ -7,38 +7,24 @@ RSFormPro.initCodeMirror = false;
 RSFormPro.$ = jQuery;
 
 function initRSFormPro() {
-	RSFormPro.$('#componentPreview tbody').tableDnD({
+	jQuery('#mappingTable tbody').tableDnD({
 		onDragClass: 'rsform_dragged',
-		onDrop     : function (table, row) {
-			tidyOrder(true);
-		}
-	});
-
-	RSFormPro.$('#mappingTable tbody').tableDnD({
-		onDragClass: 'rsform_dragged',
-		onDrop     : function (table, row) {
+		onDragStop : function (table, row) {
 			tidyOrderMp(true);
 		}
 	});
 
-	RSFormPro.$('#rsfp_calculations').tableDnD({
+	jQuery('#rsfp_calculations').tableDnD({
 		onDragClass: 'rsform_dragged',
-		onDrop     : function (table, row) {
+		onDragStop : function (table, row) {
 			tidyOrderCalculationsDir();
 		}
 	});
 
-	$$('a.rsmodal').each(function (el) {
-		el.addEvent('click', function (e) {
-			new Event(e).stop();
-			openRSModal(el.href);
-		});
-	});
-
-	RSFormPro.$(document).click(function () {
-		RSFormPro.$(this).mousedown(function (e) {
-			if (!RSFormPro.$(e.target).is('input')) {
-				var checkParent = RSFormPro.$(e.target).parents('.dropdownContainer').length;
+	jQuery(document).click(function () {
+		jQuery(this).mousedown(function (e) {
+			if (!jQuery(e.target).is('input')) {
+				var checkParent = jQuery(e.target).parents('.dropdownContainer').length;
 				if (!checkParent) {
 					closeAllDropdowns();
 				}
@@ -46,51 +32,69 @@ function initRSFormPro() {
 		});
 	});
 
-	RSFormPro.$("#rsform_tab2").hide();
+	jQuery("#rsform_tab2").hide();
 
-	RSFormPro.$("#properties").click(function () {
-		RSFormPro.$("#rsform_tab2").show();
-		RSFormPro.$("#rsform_tab1").hide();
-		RSFormPro.$("#components").removeClass('btn-primary');
-		RSFormPro.$("#properties").addClass('btn-primary');
+	jQuery("#properties").click(function () {
+		jQuery("#rsform_tab2").show();
+		jQuery("#rsform_tab1").hide();
+		jQuery("#components").removeClass('btn-primary');
+		jQuery("#properties").addClass('btn-primary');
 	});
 
-	RSFormPro.$("#components").click(function () {
-		RSFormPro.$("#rsform_tab1").show();
-		RSFormPro.$("#rsform_tab2").hide();
-		RSFormPro.$("#properties").removeClass('btn-primary');
-		RSFormPro.$("#components").addClass('btn-primary');
+	jQuery("#components").click(function () {
+		jQuery("#rsform_tab1").show();
+		jQuery("#rsform_tab2").hide();
+		jQuery("#properties").removeClass('btn-primary');
+		jQuery("#components").addClass('btn-primary');
 	});
 
-	RSFormPro.$(".rsform_hide").hide();
-
-	RSFormPro.$("div a.rsform_close").click(function () {
-		RSFormPro.$(this).parent().animate({width: 'toggle'});
-
-		RSFormPro.$('#rsform_firstleftnav li a').each(function (index, el) {
-			RSFormPro.$(el).removeClass('active');
-		});
-	});
-
-	RSFormPro.$('[data-placeholders]').rsplaceholder();
+	jQuery('[data-placeholders]').rsplaceholder();
 
 }
 
-RSFormPro.$(document).on('renderedMappings', function(){
-	RSFormPro.$('[data-placeholders]').rsplaceholder();
+function legacyOrderingEnable()
+{
+	var $table = jQuery('#componentPreview');
+    $table.find('tbody').tableDnD({
+        onDragClass: 'rsform_dragged',
+        onDragStop : function (table, row) {
+            tidyOrder(true);
+        }
+    });
+
+    $table.find('.order').show();
+
+    RSFormPro.Grid.hide();
+
+    jQuery('#rsform_ordering_msg').hide();
+}
+
+function legacyOrderingDisable()
+{
+    var $table = jQuery('#componentPreview');
+    $table.find('tbody').tableDnDDestroy();
+    $table.find('.order').hide();
+
+    RSFormPro.Grid.show();
+
+    jQuery('#rsform_ordering_msg').show();
+}
+
+jQuery(document).on('renderedMappings', function(){
+	jQuery('[data-placeholders]').rsplaceholder();
 });
 
-RSFormPro.$(document).on('renderedRsfpmappingWhere', function(event, element){
-	RSFormPro.$('#'+element).find('[data-placeholders]').rsplaceholder();
+jQuery(document).on('renderedRsfpmappingWhere', function(event, element){
+	jQuery('#'+element).find('[data-placeholders]').rsplaceholder();
 });
 
-RSFormPro.$(document).on('renderedSilentPostField', function($event, $field_one, $field_two){
-	RSFormPro.$($field_one).find('input').rsplaceholder();
-	RSFormPro.$($field_two).find('input').rsplaceholder();
+jQuery(document).on('renderedSilentPostField', function($event, $field_one, $field_two){
+	jQuery($field_one).find('input').rsplaceholder();
+	jQuery($field_two).find('input').rsplaceholder();
 });
 
-RSFormPro.$(document).on('renderedCalculationsField', function($event, $field){
-	RSFormPro.$('#'+$field).rsplaceholder();
+jQuery(document).on('renderedCalculationsField', function($event, $field){
+	jQuery('#'+$field).rsplaceholder();
 });
 
 function buildXmlHttp() {
@@ -145,8 +149,6 @@ function tidyOrder(update_php) {
 
 		//Send the proper header information along with the request
 		xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		xml.setRequestHeader("Content-length", params.length);
-		xml.setRequestHeader("Connection", "close");
 
 		xml.send(params);
 		xml.onreadystatechange = function () {
@@ -211,119 +213,7 @@ function tidyOrderMp(update_php) {
 }
 
 function displayTemplate(componentTypeId, componentId) {
-	if (RSFormPro.$('#rsfpc' + componentTypeId).hasClass('active') && (document.getElementById('componentIdToEdit').value == componentId || !componentId)) {
-		document.getElementById('rsfptabcontent0').innerHTML = '';
-		document.getElementById('rsfptabcontent1').innerHTML = '';
-		document.getElementById('rsfptabcontent2').innerHTML = '';
-
-		RSFormPro.$(".rsform_hide").animate({width: 'toggle'});
-		RSFormPro.$('#rsfpc' + componentTypeId).removeClass('active');
-
-		return;
-	}
-
-	document.getElementById('rsfptab0').style.display = '';
-	document.getElementById('rsfptab1').style.display = '';
-	document.getElementById('rsfptab2').style.display = '';
-
-	//hide the editor tab
-	RSFormPro.$(".rsform_hide").hide();
-
-	RSFormPro.$('#rsfpc' + componentTypeId).addClass('rsform_loading_btn');
-
-	//remove the active class
-	RSFormPro.$('#rsform_firstleftnav li a').each(function (index, el) {
-		RSFormPro.$(el).removeClass('active');
-	});
-
-	stateLoading();
-
-	document.getElementById('componentIdToEdit').value = -1;
-
-	xml = buildXmlHttp();
-	xml.onreadystatechange = function () {
-		if (xml.readyState == 4) {
-			try {
-				var top = f_scrollTop();
-				if (top > 200)
-					RSFormPro.$.scrollTo(RSFormPro.$('#rsform_firstleftnav'), 100);
-			}
-			catch (err) {
-				// do nothing
-			}
-
-			RSFormPro.$('#rsfpc' + componentTypeId).removeClass('rsform_loading_btn');
-			response = xml.responseText.split('{rsfsep}');
-
-			if (RSFormPro.$.trim(response[1]) == '')
-				document.getElementById('rsfptab1').style.display = 'none';
-			if (RSFormPro.$.trim(response[2]) == '')
-				document.getElementById('rsfptab2').style.display = 'none';
-
-			document.getElementById('rsfptabcontent0').innerHTML = response[0];
-			document.getElementById('rsfptabcontent1').innerHTML = response[1];
-			document.getElementById('rsfptabcontent2').innerHTML = response[2];
-
-			stateDone();
-
-			//set the active tab
-			RSFormPro.$('#rsfpc' + componentTypeId).addClass('active');
-
-			//show the editor tab
-			RSFormPro.$(".rsform_hide").animate({width: 'toggle'});
-
-			RSFormPro.$('.rsform_secondarytabs li a').each(function (index, el) {
-				RSFormPro.$(el).removeClass('active');
-			});
-
-			RSFormPro.$('#rsform_textboxdiv').formTabs(0);
-
-			changeValidation(document.getElementById('VALIDATIONRULE'));
-
-			// enable the inner tabs close buttons
-			RSFormPro.$("#rsform_secondarytabcontent .rsform_close").click(function () {
-				RSFormPro.$('#rsform_fixed > div').animate({width: 'toggle'});
-
-				RSFormPro.$('#rsform_firstleftnav li a').each(function (index, el) {
-					RSFormPro.$(el).removeClass('active');
-				});
-			});
-
-			// Focus on textbox
-			if (RSFormPro.$('#NAME').length > 0) {
-				RSFormPro.$('#NAME').focus();
-			}
-
-			var $fields = jQuery('[data-properties="oneperline"], [data-properties="toggler"]');
-
-			var $object = {};
-
-			jQuery.each($fields, function () {
-				$name = jQuery(this).attr('id');
-
-				$object[$name] = {
-					selector: $name
-				};
-
-				if (jQuery(this).attr('data-properties') == 'toggler') {
-					$object[$name].data = jQuery.parseJSON( jQuery(this).attr('data-toggle') );
-				}
-			});
-
-			jQuery('.rsform_hide').trigger('renderedLayout', $object);
-		}
-	};
-
-	if (componentId) {
-		document.getElementById('componentIdToEdit').value = componentId;
-		xml.open('GET', 'index.php?option=com_rsform&task=components.display&componentType=' + componentTypeId + '&componentId=' + componentId + '&formId=' + document.getElementById('formId').value + '&format=raw&randomTime=' + Math.random(), true);
-	}
-	else {
-		xml.open('GET', 'index.php?option=com_rsform&task=components.display&componentType=' + componentTypeId + '&formId=' + document.getElementById('formId').value + '&format=raw&randomTime=' + Math.random(), true);
-	}
-
-	xml.send(null);
-
+	RSFormPro.editModal.display(componentTypeId, componentId);
 }
 
 function rsfp_validateDate(value) {
@@ -367,9 +257,11 @@ function removeComponent(formId, componentId) {
 				table.deleteRow(i);
 			}
 		}
+		
+		RSFormPro.Grid.deleteField(componentId);
 
 		if (!response.submit) {
-			RSFormPro.$('#rsform_submit_button_msg').show();
+			jQuery('#rsform_submit_button_msg').show();
 		}
 
 		tidyOrder(true);
@@ -379,12 +271,12 @@ function removeComponent(formId, componentId) {
 }
 
 function processComponent(componentType) {
-	RSFormPro.$(document.getElementsByName('componentSaveButton')).prop('disabled', true);
+	RSFormPro.editModal.disableButton();
 
-	RSFormPro.$('#rsformerror0').hide();
-	RSFormPro.$('#rsformerror1').hide();
-	RSFormPro.$('#rsformerror2').hide();
-	RSFormPro.$('#rsformerror3').hide();
+	jQuery('#rsformerror0').hide();
+	jQuery('#rsformerror1').hide();
+	jQuery('#rsformerror2').hide();
+	jQuery('#rsformerror3').hide();
 
 	stateLoading();
 
@@ -393,30 +285,27 @@ function processComponent(componentType) {
 
 	// Build data array
 	var data = {
-		'componentName'     : RSFormPro.$('#NAME').val(),
-		'formId'            : RSFormPro.$('#formId').val(),
-		'currentComponentId': RSFormPro.$('#componentIdToEdit').val(),
+		'componentName'     : jQuery('#NAME').val(),
+		'formId'            : jQuery('#formId').val(),
+		'currentComponentId': jQuery('#componentIdToEdit').val(),
 		'componentType'     : componentType
 	};
 
 	if (componentType == 9) {
-		data['destination'] = RSFormPro.$('#DESTINATION').val();
+		data['destination'] = jQuery('#DESTINATION').val();
 	}
 
 	RSFormPro.$.post(url, data, function (response, status, jqXHR) {
 		if (response.result == false) {
-			// Remove current tab selection
-			RSFormPro.$('.rsform_secondarytabs li a').removeClass('active');
-
 			// Switch to tab
-			RSFormPro.$('#rsform_textboxdiv').formTabs(response.tab);
+			jQuery('[href="#rsfptab' + response.tab + '"]').click();
 
 			// Show error message
-			RSFormPro.$('#rsformerror' + response.tab).text(response.message).show();
+			jQuery('#rsformerror' + response.tab).text(response.message).show();
 
 			stateDone();
 
-			RSFormPro.$(document.getElementsByName('componentSaveButton')).prop('disabled', false);
+			RSFormPro.editModal.enableButton();
 		} else {
 			Joomla.submitbutton('components.save');
 		}
@@ -460,6 +349,35 @@ function changeDirectoryAutoGenerateLayout(formId, value) {
 	xml.send(null);
 }
 
+function autoGenerateLayout()
+{
+    if (document.getElementById('FormLayoutAutogenerate1').checked == true)
+    {
+        var formId = document.getElementById('formId').value;
+        generateLayout(formId, false);
+    }
+}
+
+function changeFormLayoutFlow()
+{
+    stateLoading();
+
+    // Build URL to post to
+    var url = 'index.php?option=com_rsform&task=forms.changeFormLayoutFlow&randomTime=' + Math.random();
+
+    // Build data array
+    var data = {
+        'status': jQuery('[name=FormLayoutFlow]').val(),
+        'formId': document.getElementById('formId').value
+    };
+
+    RSFormPro.$.post(url, data, function (response, status, jqXHR) {
+        stateDone();
+
+        autoGenerateLayout();
+    }, 'json');
+}
+
 function changeFormAutoGenerateLayout(formId, value) {
 	stateLoading();
 
@@ -468,7 +386,7 @@ function changeFormAutoGenerateLayout(formId, value) {
 
 	// Build data array
 	var data = {
-		'formLayoutName': RSFormPro.$('[name=FormLayoutName]:checked').val(),
+		'formLayoutName': jQuery('[name=FormLayoutName]:checked').val(),
 		'formId'        : formId,
 		'status'        : value
 	};
@@ -478,8 +396,8 @@ function changeFormAutoGenerateLayout(formId, value) {
 
 		value = Boolean(parseInt(value));
 
-		value ? RSFormPro.$('#rsform_layout_msg').hide() : RSFormPro.$('#rsform_layout_msg').show();
-		RSFormPro.$('#formLayout').prop('readonly', value);
+		value ? jQuery('#rsform_layout_msg').hide() : jQuery('#rsform_layout_msg').show();
+		jQuery('#formLayout').prop('readonly', value);
 
 		if (hasCodeMirror) {
 			window.codemirror_html.formLayout.setOption('readOnly', value);
@@ -501,17 +419,17 @@ function generateLayout(formId, alert) {
 
 	// Build data array
 	var data = {
-		'layoutName': RSFormPro.$('[name=FormLayoutName]:checked').val(),
+		'layoutName': jQuery('[name=FormLayoutName]:checked').val(),
 		'formId'    : formId
 	};
 
 	RSFormPro.$.post(url, data, function (response, status, jqXHR) {
 		var hasCodeMirror = typeof window.codemirror_html != 'undefined' && typeof window.codemirror_html.formLayout != 'undefined';
 
-		RSFormPro.$('#formLayout').val(response);
+		jQuery('#formLayout').val(response);
 
 		if (hasCodeMirror) {
-			window.codemirror_html.formLayout.setValue(xml.responseText);
+			window.codemirror_html.formLayout.setValue(response);
 		}
 
 		stateDone();
@@ -545,16 +463,7 @@ function generateDirectoryLayout(formId, alert) {
 	xml.send(null);
 }
 
-function saveLayoutName(formId, layoutName) {
-	var layoutsWithoutTheme = ['responsive', 'bootstrap2', 'bootstrap3', 'uikit', 'foundation'];
-
-	for (var i = 0; i < document.getElementsByName('ThemeName').length; i++) {
-		document.getElementsByName('ThemeName')[i].disabled = layoutsWithoutTheme.indexOf(layoutName) >= 0;
-	}
-
-	document.getElementById('rsform_themes_disabled').style.display = layoutsWithoutTheme.indexOf(layoutName) >= 0 ? '' : 'none';
-	layoutsWithoutTheme.indexOf(layoutName) >= 0 ? jQuery('#formtheme').hide() : jQuery('#formtheme').show();
-
+function saveLayoutName(formId, layoutName, isLegacy) {
 	stateLoading();
 	xml = buildXmlHttp();
 	xml.open('GET', 'index.php?option=com_rsform&task=layouts.save.name&formId=' + formId + '&randomTime=' + Math.random() + '&formLayoutName=' + layoutName, true);
@@ -565,7 +474,9 @@ function saveLayoutName(formId, layoutName) {
 				generateLayout(formId, false);
 			stateDone();
 		}
-	}
+	};
+
+	isLegacy ?  legacyOrderingEnable() : legacyOrderingDisable();
 }
 
 function saveDirectoryLayoutName(formId, layoutName) {
@@ -633,7 +544,6 @@ function exportProcess(start, limit, total) {
 		if (xml.readyState == 4) {
 			post = xml.responseText;
 			if (post.indexOf('END') != -1) {
-				document.getElementById('backButtonContainer').style.display = '';
 				document.getElementById('progressBar').style.width = document.getElementById('progressBar').innerHTML = '100%';
 				document.location = 'index.php?option=com_rsform&task=submissions.export.file&ExportFile=' + document.getElementById('ExportFile').value + '&ExportType=' + document.getElementById('exportType').value;
 			}
@@ -689,14 +599,14 @@ function changeValidation(elem) {
 			document.getElementById('captionVALIDATIONEXTRA').innerHTML = theText;
 
 			if (elem.value == 'custom' || elem.value == 'numeric' || elem.value == 'alphanumeric' || elem.value == 'alpha' || elem.value == 'regex' || elem.value == 'sameas')
-				document.getElementById('idVALIDATIONEXTRA').className = 'showVALIDATIONEXTRA';
+				document.getElementById('idVALIDATIONEXTRA').className = 'showVALIDATIONEXTRA control-group';
 			else
-				document.getElementById('idVALIDATIONEXTRA').className = 'hideVALIDATIONEXTRA';
+				document.getElementById('idVALIDATIONEXTRA').className = 'hideVALIDATIONEXTRA control-group';
 		}
 		
 		var multipleRulesField = document.getElementById('idVALIDATIONMULTIPLE');
 		if (elem.value == 'multiplerules') {
-			multipleRulesField.style.display = 'table-row';
+			multipleRulesField.style.display = 'block';
 			changeValidation(document.getElementById('VALIDATIONMULTIPLE'));
 		} else {
 			multipleRulesField.style.display = 'none';
@@ -793,13 +703,13 @@ function submissionChangeForm(formId) {
 }
 
 function toggleCustomizeColumns() {
-	var el = RSFormPro.$('#columnsDiv');
+	var el = jQuery('#columnsDiv');
 
 	if (el.is(':hidden')) {
-		var windowH = RSFormPro.$(window).height();
+		var windowH = jQuery(window).height();
 		var remove = 0;
-		if (RSFormPro.$('body > #status').length > 0) {
-			remove += parseInt(RSFormPro.$('body > #status').height());
+		if (jQuery('body > #status').length > 0) {
+			remove += parseInt(jQuery('body > #status').height());
 		}
 		var parentElementOffset = el.parent().offset();
 		remove += parentElementOffset.top;
@@ -816,13 +726,13 @@ function toggleCustomizeColumns() {
 }
 
 function closeAllDropdowns(except) {
-	var dropdowns = RSFormPro.$('.dropdownContainer');
-	var except = RSFormPro.$('#dropdown' + except);
+	var dropdowns = jQuery('.dropdownContainer');
+	var except = jQuery('#dropdown' + except);
 
 	for (var i = 0; i < dropdowns.length; i++) {
-		var dropdown = RSFormPro.$(dropdowns[i]).children('div');
+		var dropdown = jQuery(dropdowns[i]).children('div');
 		if (dropdown.attr('id') != except.attr('id'))
-			RSFormPro.$(dropdowns[i]).children('div').hide();
+			jQuery(dropdowns[i]).children('div').hide();
 	}
 }
 
@@ -834,7 +744,7 @@ function closeAllDropdowns(except) {
  */
 function toggleDropdown(what, extra, inner) {
 
-		RSFormPro.$(what).addClass('placeholders-initiated');
+		jQuery(what).addClass('placeholders-initiated');
 
 		$attr = {
 			'data-delimiter' : ' ',
@@ -842,9 +752,9 @@ function toggleDropdown(what, extra, inner) {
 			'onclick' : '',
 			'onkeydown' : ''
 		};
-		RSFormPro.$(what).attr($attr);
+		jQuery(what).attr($attr);
 
-		RSFormPro.$(what).rsplaceholder();
+		jQuery(what).rsplaceholder();
 
 }
 
@@ -860,7 +770,7 @@ function toggleQuickAdd() {
 }
 
 function mpConnect() {
-	var fields = RSFormPro.$("#tablers :input");
+	var fields = jQuery("#tablers :input");
 	var params = [];
 	var fname = '';
 	var fvalue = '';
@@ -945,12 +855,12 @@ function mpConnect() {
 }
 
 function getLabelText(element) {
-	return RSFormPro.$('#' + element).parent().text();
+	return jQuery('#' + element).parent().text();
 }
 
 
 function mpColumns(table) {
-	var fields = RSFormPro.$("#tablers :input");
+	var fields = jQuery("#tablers :input");
 	var params = [];
 	var fname = '';
 	var fvalue = '';
@@ -1032,9 +942,9 @@ function mappingdelete(formid, mid) {
 			document.getElementById('mappingcontent').innerHTML = xmlHttp.responseText;
 			stateDone();
 
-			RSFormPro.$('#mappingTable tbody').tableDnD({
+			jQuery('#mappingTable tbody').tableDnD({
 				onDragClass: 'rsform_dragged',
-				onDrop     : function (table, row) {
+				onDragStop     : function (table, row) {
 					tidyOrderMp(true);
 				}
 			});
@@ -1061,9 +971,9 @@ function ShowMappings(formid) {
 			document.getElementById('mappingcontent').innerHTML = xmlHttp.responseText;
 			stateDone();
 
-			RSFormPro.$('#mappingTable tbody').tableDnD({
+			jQuery('#mappingTable tbody').tableDnD({
 				onDragClass: 'rsform_dragged',
-				onDrop     : function (table, row) {
+				onDragStop     : function (table, row) {
 					tidyOrderMp(true);
 				}
 			});
@@ -1073,7 +983,7 @@ function ShowMappings(formid) {
 }
 
 function mappingWhere(table) {
-	var fields = RSFormPro.$("#tablers :input");
+	var fields = jQuery("#tablers :input");
 	var params = [];
 	var fname = '';
 	var fvalue = '';
@@ -1121,7 +1031,7 @@ function mappingWhere(table) {
 		if (xmlHttp.readyState == 4) {
 			document.getElementById('rsfpmappingWhere').innerHTML = xmlHttp.responseText;
 			document.getElementById('mappingloader2').style.display = 'none';
-			RSFormPro.$(document).trigger('renderedRsfpmappingWhere', 'rsfpmappingWhere');
+			jQuery(document).trigger('renderedRsfpmappingWhere', 'rsfpmappingWhere');
 		}
 	};
 	xmlHttp.send(params);
@@ -1189,10 +1099,10 @@ function initCodeMirror() {
 		return false;
 
 	var codemirrors = [];
-	codemirrors['js'] = RSFormPro.$('.codemirror-js');
-	codemirrors['css'] = RSFormPro.$('.codemirror-css');
-	codemirrors['php'] = RSFormPro.$('.codemirror-php');
-	codemirrors['html'] = RSFormPro.$('.codemirror-html');
+	codemirrors['js'] = jQuery('.codemirror-js');
+	codemirrors['css'] = jQuery('.codemirror-css');
+	codemirrors['php'] = jQuery('.codemirror-php');
+	codemirrors['html'] = jQuery('.codemirror-html');
 
 	// js
 	for (var i = 0; i < codemirrors['js'].length; i++) {
@@ -1238,7 +1148,7 @@ function initCodeMirror() {
 		window.codemirror_html = {};
 	}
 	for (var i = 0; i < codemirrors['html'].length; i++) {
-		var codeMirrorType = RSFormPro.$(codemirrors['html'][i]).attr('id');
+		var codeMirrorType = jQuery(codemirrors['html'][i]).attr('id');
 		window.codemirror_html[codeMirrorType] = CodeMirror.fromTextArea(codemirrors['html'][i], {
 			lineNumbers   : true,
 			matchBrackets : true,
@@ -1248,7 +1158,7 @@ function initCodeMirror() {
 			enterMode     : "keep",
 			tabMode       : "shift",
 			matchTags     : {bothTags: true},
-			readOnly      : RSFormPro.$(codemirrors['html'][i]).attr('readonly')
+			readOnly      : jQuery(codemirrors['html'][i]).attr('readonly')
 		});
 	}
 }
@@ -1376,15 +1286,15 @@ function rsfp_add_calculation(formId) {
 
 				var $input_id = 'calculations' + response[0] + 'expression';
 
-				var a = document.createElement('a');
-				a.setAttribute('href', 'javascript:void(0)');
+				var a = document.createElement('button');
+				a.setAttribute('class', 'btn btn-danger btn-mini');
+				a.setAttribute('type', 'button');
 				a.onclick = function () {
 					rsfp_remove_calculation(response[0]);
 				};
 
-				var img = document.createElement('img');
-				img.setAttribute('alt', '');
-				img.setAttribute('src', 'components/com_rsform/assets/images/close.png');
+				var img = document.createElement('i');
+				img.setAttribute('class', 'rsficon rsficon-remove');
 
 				a.appendChild(img);
 
@@ -1412,14 +1322,14 @@ function rsfp_add_calculation(formId) {
 
 				document.getElementById('rsfp_expression').value = '';
 
-				RSFormPro.$('#rsfp_calculations').tableDnD({
+				jQuery('#rsfp_calculations').tableDnD({
 					onDragClass: 'rsform_dragged',
-					onDrop     : function (table, row) {
+					onDragStop     : function (table, row) {
 						tidyOrderCalculationsDir();
 					}
 				});
 
-				RSFormPro.$(document).trigger('renderedCalculationsField', $input_id);
+				jQuery(document).trigger('renderedCalculationsField', $input_id);
 			}
 
 			stateDone();
@@ -1490,22 +1400,22 @@ function tidyOrderCalculationsDir() {
 RSFormPro.Post = {};
 
 RSFormPro.Post.addField = function () {
-	var $table = RSFormPro.$('#com-rsform-post-fields tbody');
-	var $row = RSFormPro.$('<tr>');
+	var $table = jQuery('#com-rsform-post-fields tbody');
+	var $row = jQuery('<tr>');
 
-	var $inputName = RSFormPro.$('<td><input type="text" id="form_post_name'+ Math.floor((Math.random() * 100000) + 1) +'" data-delimiter=" " data-placeholders="display" name="form_post[name][]" placeholder="' + Joomla.JText._('RSFP_POST_NAME_PLACEHOLDER') + '" class="rs_inp rs_80"></td>');
-	var $inputValue = RSFormPro.$('<td><input type="text" id="form_post_value'+ Math.floor((Math.random() * 100000) + 1) +'" data-delimiter=" " data-placeholders="display" data-filter-type="include" data-filter="value,global" name="form_post[value][]" placeholder="' + Joomla.JText._('RSFP_POST_VALUE_PLACEHOLDER') + '" class="rs_inp rs_80"></td>');
-	var $deleteBtn = RSFormPro.$('<td>').append(RSFormPro.$('<button type="button" class="btn btn-danger btn-mini"><i class="rsficon rsficon-remove"></i></button>').click(RSFormPro.Post.deleteField));
+	var $inputName = jQuery('<td><input type="text" id="form_post_name'+ Math.floor((Math.random() * 100000) + 1) +'" data-delimiter=" " data-placeholders="display" name="form_post[name][]" placeholder="' + Joomla.JText._('RSFP_POST_NAME_PLACEHOLDER') + '" class="rs_inp rs_80"></td>');
+	var $inputValue = jQuery('<td><input type="text" id="form_post_value'+ Math.floor((Math.random() * 100000) + 1) +'" data-delimiter=" " data-placeholders="display" data-filter-type="include" data-filter="value,global" name="form_post[value][]" placeholder="' + Joomla.JText._('RSFP_POST_VALUE_PLACEHOLDER') + '" class="rs_inp rs_80"></td>');
+	var $deleteBtn = jQuery('<td>').append(jQuery('<button type="button" class="btn btn-danger btn-mini"><i class="rsficon rsficon-remove"></i></button>').click(RSFormPro.Post.deleteField));
 
 	$row.append($inputName, $inputValue, $deleteBtn);
 	$table.append($row);
 	var $object = [$inputName, $inputValue];
-	RSFormPro.$(document).trigger('renderedSilentPostField', $object);
+	jQuery(document).trigger('renderedSilentPostField', $object);
 };
 
 RSFormPro.Post.deleteField = function () {
-	RSFormPro.$(this).parents('tr').remove();
+	jQuery(this).parents('tr').remove();
 };
 
-RSFormPro.$(document).ready(initCodeMirror);
-RSFormPro.$(document).ready(initRSFormPro);
+jQuery(document).ready(initCodeMirror);
+jQuery(document).ready(initRSFormPro);

@@ -132,6 +132,14 @@ class RsformModelDirectory extends JModelLegacy
 			$table->groups = array();
 		}
 
+        if ($table->DeletionGroups) {
+            $registry = new JRegistry;
+            $registry->loadString($table->DeletionGroups);
+            $table->DeletionGroups = $registry->toArray();
+        } else {
+            $table->DeletionGroups = array();
+        }
+
 		$this->_directory = $table;
 
 		if ($this->_directory->ViewLayoutAutogenerate) {
@@ -146,11 +154,27 @@ class RsformModelDirectory extends JModelLegacy
 		$input	= JFactory::getApplication()->input;
 		$db		= JFactory::getDbo();
 
-		if (isset($data['groups']) && is_array($data['groups'])) {
+		if (isset($data['groups']) && is_array($data['groups']))
+		{
 			$registry = new JRegistry;
 			$registry->loadArray($data['groups']);
 			$data['groups'] = $registry->toString();
-		} else $data['groups'] = '';
+		}
+		else
+        {
+            $data['groups'] = '';
+        }
+
+        if (isset($data['DeletionGroups']) && is_array($data['DeletionGroups']))
+        {
+            $registry = new JRegistry;
+            $registry->loadArray($data['DeletionGroups']);
+            $data['DeletionGroups'] = $registry->toString();
+        }
+        else
+        {
+            $data['DeletionGroups'] = '';
+        }
 
 		// Check if the entry exists
 		$this->_db->setQuery('SELECT COUNT('.$this->_db->qn('formId').') FROM '.$this->_db->qn('#__rsform_directory').' WHERE '.$this->_db->qn('formId').' = '.(int) $data['formId'].' ');
@@ -288,7 +312,7 @@ class RsformModelDirectory extends JModelLegacy
 					$cids[] = $field->componentId;
 			}
 		}
-		JArrayHelper::toInteger($cids);
+		array_map('intval', $cids);
 
 		if (!empty($cids)) {
 			$mainframe = JFactory::getApplication();
@@ -375,7 +399,7 @@ class RsformModelDirectory extends JModelLegacy
 					$cids[] = $field->componentId;
 			}
 		}
-		JArrayHelper::toInteger($cids);
+		array_map('intval', $cids);
 
 		if (!empty($cids)) {
 			$query->clear()
@@ -400,7 +424,7 @@ class RsformModelDirectory extends JModelLegacy
 
 	public function remove($pks) {
 		if ($pks) {
-			JArrayHelper::toInteger($pks);
+			array_map('intval', $pks);
 
 			$this->_db->setQuery("DELETE FROM #__rsform_directory WHERE formId IN (".implode(',',$pks).")");
 			$this->_db->execute();

@@ -11,7 +11,7 @@ class RSFormProCalendar
 	protected $type;
 	protected static $renderYUI = false;
 	protected static $renderJQ = false;
-	
+
 	public function __construct($type = 'YUICalendar') {
 		require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/calendars/'.strtolower($type).'.php';
 		$this->className = 'RSFormPro'.ucfirst($type);
@@ -68,5 +68,74 @@ class RSFormProCalendar
 			}
 		}
 		return $script;
+	}
+	
+	// DateTime::createFromFormat() doesn't support locale so we need to workaround
+	public static function fixValue($value, $format)
+	{
+		$english = JLanguage::getInstance('en-GB');
+		$english->load('com_rsform', JPATH_SITE);
+		
+		// l (lowercase 'L') 	A full textual representation of the day of the week 	Sunday through Saturday
+		if (strpos($format, 'l') !== false)
+		{
+			for ($i = 0; $i <= 6; $i++)
+			{
+				$from 	= JText::_('RSFP_CALENDAR_WEEKDAYS_LONG_' . $i);
+				$to 	= $english->_('RSFP_CALENDAR_WEEKDAYS_LONG_' . $i);
+				
+				if ($from !== $to)
+				{
+					$value = preg_replace('/\b' . preg_quote($from) . '\b/', $to, $value);
+				}
+			}
+		}
+
+		// D 	A textual representation of a day, three letters 	Mon through Sun
+		if (strpos($format, 'D') !== false)
+		{
+			for ($i = 0; $i <= 6; $i++)
+			{
+				$from 	= JText::_('RSFP_CALENDAR_WEEKDAYS_MEDIUM_' . $i);
+				$to 	= $english->_('RSFP_CALENDAR_WEEKDAYS_MEDIUM_' . $i);
+				
+				if ($from !== $to)
+				{
+					$value = preg_replace('/\b' . preg_quote($from) . '\b/', $to, $value);
+				}
+			}
+		}
+		
+		// F 	A full textual representation of a month, such as January or March 	January through December
+		if (strpos($format, 'F') !== false)
+		{
+			for ($i = 1; $i <= 12; $i++)
+			{
+				$from 	= JText::_('RSFP_CALENDAR_MONTHS_LONG_' . $i);
+				$to 	= $english->_('RSFP_CALENDAR_MONTHS_LONG_' . $i);
+				
+				if ($from !== $to)
+				{
+					$value = preg_replace('/\b' . preg_quote($from) . '\b/', $to, $value);
+				}
+			}
+		}
+		
+		// M 	A short textual representation of a month, three letters 	Jan through Dec
+		if (strpos($format, 'M') !== false)
+		{
+			for ($i = 1; $i <= 12; $i++)
+			{
+				$from 	= JText::_('RSFP_CALENDAR_MONTHS_SHORT_' . $i);
+				$to 	= $english->_('RSFP_CALENDAR_MONTHS_SHORT_' . $i);
+				
+				if ($from !== $to)
+				{
+					$value = preg_replace('/\b' . preg_quote($from) . '\b/', $to, $value);
+				}
+			}
+		}
+		
+		return $value;
 	}
 }

@@ -13,8 +13,10 @@ class TableRSForm_Forms extends JTable
 	
 	public $FormName = '';
 	public $FormLayout = '';
+	public $GridLayout;
 	public $FormLayoutName = 'responsive';
 	public $FormLayoutAutogenerate = 1;
+	public $FormLayoutFlow = 0;
 	public $LoadFormLayoutFramework	= 1;
 	public $CSS = '';
 	public $JS = '';
@@ -67,7 +69,6 @@ class TableRSForm_Forms extends JTable
 	public $CSSAction = '';
 	public $CSSAdditionalAttributes = '';
 	public $AjaxValidation = 0;
-	public $ThemeParams = '';
 	public $Backendmenu = '';
 	public $ConfirmSubmission = 0;
 	public $Access = '';

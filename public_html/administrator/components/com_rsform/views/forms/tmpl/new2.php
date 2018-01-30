@@ -65,19 +65,19 @@ defined('_JEXEC') or die('Restricted access');
 		{
 			var form = document.adminForm;
 			
-			jQuery(form.FormTitle).removeClass('thisformError');
-			jQuery(form.ReturnUrl).removeClass('thisformError');
+			jQuery(form.FormTitle).removeClass('rs_error_field');
+			jQuery(form.ReturnUrl).removeClass('rs_error_field');
 			
 			if (form.FormTitle.value.length == 0)
 			{
 				alert('<?php echo JText::_('RSFP_WHATS_FORM_TITLE_VALIDATION', true); ?>');
-				jQuery(form.FormTitle).addClass('thisformError');
+				jQuery(form.FormTitle).addClass('rs_error_field');
 				return;
 			}
 			if (form.SubmissionAction.value == 'redirect' && form.ReturnUrl.value.length == 0)
 			{
 				alert('<?php echo JText::_('RSFP_SUBMISSION_REDIRECT_WHERE_VALIDATION', true); ?>');
-				jQuery(form.ReturnUrl).addClass('thisformError');
+				jQuery(form.ReturnUrl).addClass('rs_error_field');
 				return;
 			}
 			
@@ -105,7 +105,9 @@ defined('_JEXEC') or die('Restricted access');
 					<label for="formLayoutResponsive" class="radio inline"><input type="radio" id="formLayoutResponsive" name="FormLayout" value="responsive" onclick="changeLayout(this.value)"/> <?php echo JText::_('RSFP_LAYOUT_RESPONSIVE');?></label>
 					<label for="formLayoutBootstrap2" class="radio inline"><input type="radio" id="formLayoutBootstrap2" name="FormLayout" value="bootstrap2" onclick="changeLayout(this.value)" checked="checked" /> <?php echo JText::_('RSFP_LAYOUT_BOOTSTRAP2');?></label>
 					<label for="formLayoutBootstrap3" class="radio inline"><input type="radio" id="formLayoutBootstrap3" name="FormLayout" value="bootstrap3" onclick="changeLayout(this.value)"/> <?php echo JText::_('RSFP_LAYOUT_BOOTSTRAP3');?></label>
+					<label for="formLayoutBootstrap4" class="radio inline"><input type="radio" id="formLayoutBootstrap4" name="FormLayout" value="bootstrap4" onclick="changeLayout(this.value)"/> <?php echo JText::_('RSFP_LAYOUT_BOOTSTRAP4');?></label>
 					<label for="formLayoutUikit" class="radio inline"><input type="radio" id="formLayoutUikit" name="FormLayout" value="uikit" onclick="changeLayout(this.value)"/> <?php echo JText::_('RSFP_LAYOUT_UIKIT');?></label>
+					<label for="formLayoutUikit3" class="radio inline"><input type="radio" id="formLayoutUikit3" name="FormLayout" value="uikit3" onclick="changeLayout(this.value)"/> <?php echo JText::_('RSFP_LAYOUT_UIKIT3');?></label>
 					<label for="formLayoutFoundation" class="radio inline"><input type="radio" id="formLayoutFoundation" name="FormLayout" value="foundation" onclick="changeLayout(this.value)"/> <?php echo JText::_('RSFP_LAYOUT_FOUNDATION');?></label>
 				</td>
 			</tr>
@@ -178,4 +180,4 @@ defined('_JEXEC') or die('Restricted access');
 	</fieldset>
 </form>
 
-<?php JHTML::_('behavior.keepalive'); ?>
+<?php JHtml::_('behavior.keepalive'); ?>

@@ -17,7 +17,7 @@ defined('_JEXEC') or die('Restricted access');
 			<td width="200" style="width: 200px;" align="right" class="key"><?php echo JText::_('RSFP_'.$header); ?></td>
 			<td>
 				<?php if ($header == 'confirmed') { ?>
-				<?php echo JHTML::_('select.booleanlist','formStatic['.$header.']','class="inputbox"',$this->staticFields->$header); ?>
+				<?php echo JHtml::_('select.booleanlist','formStatic['.$header.']','class="inputbox"',$this->staticFields->$header); ?>
 				<?php } else { ?>
 				<input class="rs_inp rs_80" type="text" name="formStatic[<?php echo $header; ?>]" value="<?php echo $this->escape($this->staticFields->$header); ?>" size="105" />
 				<?php } ?>
@@ -41,4 +41,4 @@ defined('_JEXEC') or die('Restricted access');
 	<input type="hidden" name="cid" value="<?php echo $this->submissionId; ?>">
 	<input type="hidden" name="formId" value="<?php echo $this->formId; ?>">
 </form>
-<?php JHTML::_('behavior.keepalive'); ?>
+<?php JHtml::_('behavior.keepalive'); ?>

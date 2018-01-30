@@ -11,7 +11,9 @@ require_once dirname(__FILE__).'/../formlayout.php';
 
 class RSFormProFormLayoutBootstrap3 extends RSFormProFormLayout
 {
-	public $errorClass = ' has-error';
+	public $errorClass      = ' has-error';
+    public $fieldErrorClass = '';
+
 	public $progressContent = '<div><div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="{percent}" aria-valuemin="0" aria-valuemax="100" style="width: {percent}%;"><em>{page_lang} <strong>{page}</strong> {of_lang} {total}</em></div></div></div>';
 	
 	public function __construct() {
@@ -28,7 +30,7 @@ class RSFormProFormLayoutBootstrap3 extends RSFormProFormLayout
 		
 		// Load the RTL file
 		if (JFactory::getDocument()->direction == 'rtl') {
-			$this->addStyleSheet('com_rsform/frameworks/bootstrap3/bootstrap-rtl.css');
+			$this->addStyleSheet('com_rsform/frameworks/bootstrap3/bootstrap-rtl.min.css');
 		}
 
 		// Load jQuery
@@ -45,4 +47,9 @@ class RSFormProFormLayoutBootstrap3 extends RSFormProFormLayout
 
 		$this->addScriptDeclaration(implode("\n", $script));
 	}
+
+    public function generateButton($goto)
+    {
+        return '<button type="button" class="rsform-submit-button btn btn-primary" name="continue" onclick="'.$goto.'">'.JText::_('RSFP_THANKYOU_BUTTON').'</button>';
+    }
 }

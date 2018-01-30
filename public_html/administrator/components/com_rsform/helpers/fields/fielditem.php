@@ -43,7 +43,7 @@ class RSFormProFieldItem
 	//		 This way we'll have a clean label & value
 	protected function checkFlag($flag) {
 		if ($flag == 'p') {
-			$priceFlag 	= '#\[p(.*?)\]#is';
+			$priceFlag 	= '#\[p([0-9\.\-\+]+)\]#s';
 			if (preg_match($priceFlag, $this->string, $match)) {
 				$this->string = str_replace($match[0], '', $this->string);
 				return $match[1];

@@ -12,25 +12,38 @@ RSFormPro.Editors = {};
 RSFormPro.scrollToError = false;
 
 /* Handle HTML5 form fields validation for the forms without AjaxValidation enabled */
-RSFormPro.setHTML5Validation = function (formId, isDisabledSubmit, layoutErrorClass) {
+RSFormPro.setHTML5Validation = function (formId, isDisabledSubmit, errorClasses, totalPages) {
+	var parentErrorClass = errorClasses.parent;
+	var fieldErrorClass = errorClasses.field;
 	var submitElement = RSFormPro.getElementByType(formId, 'submit');
 	for (i = 0; i < submitElement.length; i++) {
 		if (RSFormProUtils.hasClass(submitElement[i],'rsform-submit-button')) {
 			RSFormProUtils.addEvent(submitElement[i], 'click', (function (event) {
 				errorElements = RSFormPro.HTML5.validation(formId);
 				if (errorElements.length) {
+					var errorPagesFound = [];
 					for (j = 0; j < errorElements.length; j++) {
-						errorElements[j].field.className = errorElements[j].field.className.replace(' rsform-error', '') + ' rsform-error';
+						RSFormProUtils.addClass(errorElements[j], 'rsform-error');
+
 						if (document.getElementById('component' + errorElements[j].componentId)) {
 							document.getElementById('component' + errorElements[j].componentId).className = 'formError';
 						}
-						if (layoutErrorClass) {
+						if (parentErrorClass) {
 							try {
 								var block = RSFormPro.getBlock(formId, RSFormProUtils.getAlias(errorElements[j].field.getAttribute('id')));
-								block = block[0];
-								block.className = block.className.replace(layoutErrorClass, '') + layoutErrorClass;
+
+								RSFormProUtils.addClass(block[0], parentErrorClass);
 							} catch (err) {}
 						}
+
+						if (totalPages > 0) {
+							errorPagesFound.push(errorElements[j].page);
+						}
+					}
+
+					if (totalPages > 0 && errorPagesFound.length) {
+						var firstErrorPage = Math.min.apply(null, errorPagesFound);
+						RSFormPro.Pages.change(formId, firstErrorPage, totalPages, false, errorClasses)
 					}
 
 					if (RSFormPro.scrollToError){
@@ -91,7 +104,7 @@ RSFormPro.showThankYouPopup = function (thankYouContainer){
 
 	var marginTop = (windowHeight - popupWindowHeight) / 2;
 	document.getElementById('rsfp_thankyou_popup_inner').style.marginTop = marginTop+'px';
-}
+};
 RSFormPro.accessLink = function(event,link) {
 	var clickedElementClass = event.target.className;
 	if (clickedElementClass == 'rsfp_thankyou_popup_outer' || clickedElementClass == 'rsfp_thankou_popup_close_btn') {
@@ -101,7 +114,7 @@ RSFormPro.accessLink = function(event,link) {
 			document.location.reload();
 		}
 	}
-}
+};
 
 /* Scroll to first error element */
 RSFormPro.gotoErrorElement = function(formId){
@@ -115,7 +128,7 @@ RSFormPro.gotoErrorElement = function(formId){
 			RSFormPro.scrollToElement(errorElements[0]);
 		}
 	}
-}
+};
 
 RSFormPro.findAncestor = function(el, cls){
 	while(el = el.parentElement) {
@@ -127,7 +140,7 @@ RSFormPro.findAncestor = function(el, cls){
 	}
 
 	return false;
-}
+};
 
 /* ScrollTo functions */
 RSFormPro.scrollToElement = function(element){
@@ -143,7 +156,7 @@ RSFormPro.scrollToElement = function(element){
 	if (to < scrollTop || to > documentView) {
 		RSFormPro.scrollTo(to, 300);
 	}
-}
+};
 
 RSFormPro.scrollTo = function(to, duration) {
 	if (duration <= 0) return;
@@ -161,7 +174,7 @@ RSFormPro.scrollTo = function(to, duration) {
 
 		RSFormPro.scrollTo(to, duration - 10);
 	}, 10);
-}
+};
 
 /* Field specific functions */
 
@@ -569,7 +582,7 @@ RSFormPro.HTML5 = {
 					break;
 				}
 
-				// if the multiple form is present and also validation we will need to find in witch page the element is located
+				// if the multiple form is present and also validation we will need to find in which page the element is located
 				if (form.elements[i].type == 'button') {
 					var onclick = form.elements[i].getAttribute('onclick');
 					if (typeof onclick == 'string' && onclick.indexOf('rsfp_changePage') >= 0){
@@ -635,7 +648,7 @@ RSFormPro.HTML5 = {
 /* Pagination functions */
 
 RSFormPro.Pages = {
-	change: function(formId, page, totalPages, validate, parentErrorClass) {
+	change: function(formId, page, totalPages, validate, errorClasses) {
 		// callback functions if next page is clicked
 		var direction = RSFormPro.Pages.checkDirection(formId, page);
 		if (direction == 'next') {
@@ -647,7 +660,7 @@ RSFormPro.Pages = {
 
 		if (validate) {
 			var form = RSFormPro.getForm(formId);
-			if (!RSFormPro.Ajax.validate(form, page, parentErrorClass, totalPages)) {
+			if (!RSFormPro.Ajax.validate(form, page, errorClasses, totalPages)) {
 				return false;
 			}
 		}
@@ -858,13 +871,23 @@ RSFormPro.Ajax = {
 					if (formComponent && formComponent.length > 0) {
 						for (j = 0; j < formComponent.length; j++) {
 							if (formComponent[j]) {
-								formComponent[j].className = formComponent[j].className.replace(' rsform-error', '');
-								if (typeof data.parentErrorClass != 'undefined') {
+								RSFormProUtils.removeClass(formComponent[j], 'rsform-error');
+								if (typeof data.parentErrorClass != 'undefined' && data.parentErrorClass.length > 0) {
 									try {
 										elementBlock = RSFormPro.getBlock(formId, RSFormProUtils.getAlias(formComponents[id]));
-
-										elementBlock = elementBlock[0];
-										elementBlock.className = elementBlock.className.replace(data.parentErrorClass, '');
+										RSFormProUtils.removeClass(elementBlock[0], data.parentErrorClass);
+									} catch (err) {}
+								}
+								if (typeof data.fieldErrorClass != 'undefined' && data.fieldErrorClass.length > 0) {
+									try {
+										results = RSFormPro.getFieldsByName(formId, formComponents[id]);
+										if (results.length > 0)
+										{
+											for (var r = 0; r < results.length; r++)
+											{
+												RSFormProUtils.removeClass(results[r], data.fieldErrorClass);
+											}
+										}
 									} catch (err) {}
 								}
 							}
@@ -882,16 +905,27 @@ RSFormPro.Ajax = {
 					if (formComponent && formComponent.length > 0) {
 						for (j = 0; j < formComponent.length; j++) {
 							if (formComponent[j]) {
-								formComponent[j].className = formComponent[j].className.replace(' rsform-error', '') + ' rsform-error';
+								RSFormProUtils.addClass(formComponent[j], 'rsform-error');
+
 								if (!doScroll) {
 									doScroll = true;
 								}	
-								if (typeof data.parentErrorClass != 'undefined') {
+								if (typeof data.parentErrorClass != 'undefined' && data.parentErrorClass.length > 0) {
 									try {
 										elementBlock = RSFormPro.getBlock(formId, RSFormProUtils.getAlias(formComponents[id]));
-
-										elementBlock = elementBlock[0];
-										elementBlock.className = elementBlock.className.replace(data.parentErrorClass, '') + data.parentErrorClass;
+										RSFormProUtils.addClass(elementBlock[0], data.parentErrorClass);
+									} catch (err) {}
+								}
+								if (typeof data.fieldErrorClass != 'undefined' && data.fieldErrorClass.length > 0) {
+									try {
+										results = RSFormPro.getFieldsByName(formId, formComponents[id]);
+										if (results.length > 0)
+										{
+											for (var r = 0; r < results.length; r++)
+											{
+												RSFormProUtils.addClass(results[r], data.fieldErrorClass);
+											}
+										}
 									} catch (err) {}
 								}
 							}
@@ -906,7 +940,7 @@ RSFormPro.Ajax = {
 			}
 		}
 	},
-	validate: function(form, page, parentErrorClass ,totalPages) {
+	validate: function(form, page, errorClasses, totalPages) {
 		try {
 			var el = form.elements.length;
 		} catch (err) {
@@ -931,6 +965,11 @@ RSFormPro.Ajax = {
 			lastClickedElement,
 			i,
 			j;
+		
+		if (typeof errorClasses != 'object')
+		{
+			errorClasses = {'parent': '', 'field': ''}
+		}
 
 		for (i=0; i<form.elements.length; i++)
 		{
@@ -1086,7 +1125,7 @@ RSFormPro.Ajax = {
 						if (errorComponents.length) {
 							response[1] = errorComponents.join();
 						}
-						ajaxExtraValidationScript[formId]('afterSend', formId, {'url': url, 'params': RSFormPro.Ajax.Params, 'response': response, 'parentErrorClass': parentErrorClass});
+						ajaxExtraValidationScript[formId]('afterSend', formId, {'url': url, 'params': RSFormPro.Ajax.Params, 'response': response, 'parentErrorClass': errorClasses.parent, 'fieldErrorClass': errorClasses.field});
 					}
 				}
 				
@@ -1143,6 +1182,22 @@ RSFormPro.Ajax = {
 		}
 
 		return false;
+	},
+	overrideSubmit: function(formId, validationParams) {
+        var form = RSFormPro.getForm(formId);
+        var submitElement = RSFormPro.getElementByType(formId, 'submit');
+        for (i = 0; i < submitElement.length; i++) {
+			if (RSFormProUtils.hasClass(submitElement[i],'rsform-submit-button')) {
+				RSFormProUtils.addEvent(submitElement[i],'click', (function(event) {
+					event.preventDefault();
+					RSClickedSubmitElement = this;
+					for (j = 0; j < submitElement.length; j++) {
+						submitElement[j].setAttribute('data-disableonsubmit','1');
+					}
+					RSFormPro.Ajax.validate(form, undefined, validationParams);
+				}));
+			}
+		}
 	}
 };
 
@@ -1180,7 +1235,7 @@ RSFormPro.callbacks = {
 			}
 		}
 	}
-}
+};
 
 /* Helper functions */
 
@@ -1387,8 +1442,8 @@ function stringURLSafe(str) {
 	return RSFormProUtils.getAlias(str);
 }
 
-function rsfp_changePage(formId, page, totalPages, validate, parentErrorClass) {
-	return RSFormPro.Pages.change(formId, page, totalPages, validate, parentErrorClass);
+function rsfp_changePage(formId, page, totalPages, validate, errorClasses) {
+	return RSFormPro.Pages.change(formId, page, totalPages, validate, errorClasses);
 }
 
 function rsfp_hidePage(thePage) {
@@ -1427,6 +1482,6 @@ function ajaxDisplayValidationErrors(formComponents, task, formId, data) {
 	return RSFormPro.Ajax.displayValidationErrors(formComponents, task, formId, data);
 }
 
-function ajaxValidation(form, page, parentErrorClass) {
-	return RSFormPro.Ajax.validate(form, page, parentErrorClass);
+function ajaxValidation(form, page, errorClasses) {
+	return RSFormPro.Ajax.validate(form, page, errorClasses);
 }

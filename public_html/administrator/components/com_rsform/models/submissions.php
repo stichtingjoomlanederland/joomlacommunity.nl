@@ -527,7 +527,7 @@ class RsformModelSubmissions extends JModelLegacy
 				}
 			}
 
-			$return[] = JHTML::_('select.option', $result->FormId, $result->FormTitle);
+			$return[] = JHtml::_('select.option', $result->FormId, $result->FormTitle);
 			$this->allFormIds[] = $result->FormId;
 		}
 		
@@ -817,7 +817,7 @@ class RsformModelSubmissions extends JModelLegacy
 						
 						$val = str_replace('[c]', '', $buf[0]);
 						$item = str_replace('[c]', '', count($buf) == 1 ? $buf[0] : $buf[1]);
-						$options[] = JHTML::_('select.option', $val, $item);
+						$options[] = JHtml::_('select.option', $val, $item);
 					}
 					
 					$attribs = array();
@@ -827,7 +827,7 @@ class RsformModelSubmissions extends JModelLegacy
 						$attribs[] = 'multiple="multiple"';
 					$attribs = implode(' ', $attribs);
 					
-					$new_field[1] = JHTML::_('select.genericlist', $options, 'form['.$name.'][]', $attribs, 'value', 'text', $value);
+					$new_field[1] = JHtml::_('select.genericlist', $options, 'form['.$name.'][]', $attribs, 'value', 'text', $value);
 				break;
 				
 				case 'fileUpload':
@@ -859,11 +859,11 @@ class RsformModelSubmissions extends JModelLegacy
 			else
 			{
 				$options = array(
-					JHTML::_('select.option', -1, JText::_('RSFP_PAYPAL_STATUS_-1')),
-					JHTML::_('select.option', 0, JText::_('RSFP_PAYPAL_STATUS_0')),
-					JHTML::_('select.option', 1, JText::_('RSFP_PAYPAL_STATUS_1'))
+					JHtml::_('select.option', -1, JText::_('RSFP_PAYPAL_STATUS_-1')),
+					JHtml::_('select.option', 0, JText::_('RSFP_PAYPAL_STATUS_0')),
+					JHtml::_('select.option', 1, JText::_('RSFP_PAYPAL_STATUS_1'))
 				);
-				$new_field[1] = JHTML::_('select.genericlist', $options, 'form['.$name.'][]', null, 'value', 'text', $value);
+				$new_field[1] = JHtml::_('select.genericlist', $options, 'form['.$name.'][]', null, 'value', 'text', $value);
 			}
 			
 			$return[] = $new_field;
@@ -884,11 +884,11 @@ class RsformModelSubmissions extends JModelLegacy
 			else
 			{
 				$options = array(
-					JHTML::_('select.option', -1, JText::_('RSFP_ANZ_STATUS_-1')),
-					JHTML::_('select.option', 0, JText::_('RSFP_ANZ_STATUS_0')),
-					JHTML::_('select.option', 1, JText::_('RSFP_ANZ_STATUS_1'))
+					JHtml::_('select.option', -1, JText::_('RSFP_ANZ_STATUS_-1')),
+					JHtml::_('select.option', 0, JText::_('RSFP_ANZ_STATUS_0')),
+					JHtml::_('select.option', 1, JText::_('RSFP_ANZ_STATUS_1'))
 				);
-				$new_field[1] = JHTML::_('select.genericlist', $options, 'form['.$name.'][]', null, 'value', 'text', $value);
+				$new_field[1] = JHtml::_('select.genericlist', $options, 'form['.$name.'][]', null, 'value', 'text', $value);
 			}
 			
 			$return[] = $new_field;
@@ -1028,7 +1028,7 @@ class RsformModelSubmissions extends JModelLegacy
 	public function getExportSelected()
 	{
 		$cid = JRequest::getVar('cid', array(), 'post');
-		JArrayHelper::toInteger($cid);
+		array_map('intval', $cid);
 		
 		return $cid;
 	}
@@ -1080,9 +1080,9 @@ class RsformModelSubmissions extends JModelLegacy
 		$languages = $lang->getKnownLanguages(JPATH_SITE);
 		
 		$return = array();
-		$return[] = JHTML::_('select.option', '', JText::_('RSFP_SUBMISSIONS_ALL_LANGUAGES'));
+		$return[] = JHtml::_('select.option', '', JText::_('RSFP_SUBMISSIONS_ALL_LANGUAGES'));
 		foreach ($languages as $tag => $properties)
-			$return[] = JHTML::_('select.option', $tag, $properties['name']);
+			$return[] = JHtml::_('select.option', $tag, $properties['name']);
 		
 		return $return;
 	}

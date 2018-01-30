@@ -39,8 +39,8 @@ defined('_JEXEC') or die('Restricted access'); ?>
 			<td> = </td>
 			<td colspan="2">
 				<input type="text" name="calculations[<?php echo $row->id; ?>][expression]" id="calculations<?php echo $row->id; ?>expression" size="100" class="rs_inp rs_80" data-filter-type="include" data-filter="value" data-delimiter=" " data-placeholders="display" value="<?php echo $this->escape($row->expression); ?>" />
-				<a href="javascript:void(0)" onclick="rsfp_remove_calculation(<?php echo $row->id; ?>);">
-					<img src="<?php echo JURI::root(); ?>administrator/components/com_rsform/assets/images/close.png" alt="" />
+				<button class="btn btn-danger btn-mini" type="button" onclick="rsfp_remove_calculation(<?php echo $row->id; ?>);">
+					<i class="rsficon rsficon-remove"></i>
 				</a>
 				<input type="hidden" name="calcid[]" value="<?php echo $row->id; ?>" />
 				<input type="hidden" name="calorder[]" value="<?php echo $row->ordering; ?>" />

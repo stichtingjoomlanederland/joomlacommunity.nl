@@ -7,11 +7,9 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-jimport('joomla.application.component.model');
-
 class RsformModelFormajax extends JModelLegacy
 {
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 
@@ -33,18 +31,23 @@ class RsformModelFormajax extends JModelLegacy
 		$tooltip = '';
 		
 		if ($lang->hasKey('RSFP_COMP_FIELD_'.$name.'_DESC')) {
-			$title = JText::_('RSFP_COMP_FIELD_'.$name.'_DESC');
-			$tooltip .= ' class="fieldHasTooltip" title="' . $title . '"';
+			$title = JText::_('RSFP_COMP_FIELD_'.$name);
+			$content = JText::_('RSFP_COMP_FIELD_'.$name.'_DESC');
+			$tooltip .= ' class="fieldHasTooltip" data-content="'. $content .'" data-title="' . $title . '"';
 		}
 		
 		return $tooltip;
 	}
 
-	function getComponentFields()
+	public function getComponentFields()
 	{
 		$db = JFactory::getDbo();
 		$lang = JFactory::getLanguage();
-		$return = array();
+		$return = array(
+			'general'		=> array(),
+			'validations' 	=> array(),
+			'attributes' 	=> array()
+		);
 		$data = $this->getComponentData();
 		$formId = JFactory::getApplication()->input->getInt('formId');
 
@@ -71,21 +74,15 @@ class RsformModelFormajax extends JModelLegacy
 		{
 			$field = new stdClass();
 			$field->name = $result->FieldName;
+			$field->caption = $lang->hasKey('RSFP_COMP_FIELD_'.$field->name) ? JText::_('RSFP_COMP_FIELD_'.$field->name) : $field->name;
+			$field->label = '<label for="'.$field->name.'" id="caption' . $field->name.'" '.$this->getTooltip($field->name).'>'.$field->caption.'</label>';
 			$field->body = '';
+			$field->type = $result->FieldType;
 
 			switch ($result->FieldType)
 			{
 				case 'textbox':
 				{
-					if ($lang->hasKey('RSFP_COMP_FIELD_'.$field->name))
-						$field->body = JText::_('RSFP_COMP_FIELD_'.$field->name);
-					else
-						$field->body = $field->name;
-
-					$field->body = '<span id="caption'.$field->name.'" '.$this->getTooltip($field->name).'>'.$field->body.'</span> ';
-
-					$field->body .= '<br/>';
-
 					if ($componentId > 0)
 						$value = isset($data[$field->name]) ? $data[$field->name] : '';
 					else
@@ -100,27 +97,19 @@ class RsformModelFormajax extends JModelLegacy
 
 					$additional = '';
 					if ($result->FieldName == 'FILESIZE'){
-						$additional = 'onkeyup="javascript:this.value=this.value.replace(/[^0-9]/g, \'\');"';
+						$additional = 'onkeyup="this.value=this.value.replace(/[^0-9]/g, \'\');"';
 					}
 
 					if ($result->Properties != ''){
 						$additional .= ' data-properties="'. $result->Properties .'"';
 					}
 
-					$field->body .= '<input type="text" id="'.$field->name.'" name="param['.$field->name.']" tabindex="'.$taborder.'" value="'.RSFormProHelper::htmlEscape($value).'" '.$additional.' class="rsform_inp" />';
+					$field->body .= '<input type="text" id="'.$field->name.'" name="param['.$field->name.']" value="'.RSFormProHelper::htmlEscape($value).'" '.$additional.' class="rsform_inp" />';
 				}
 					break;
 
 				case 'textarea':
 				{
-					if ($lang->hasKey('RSFP_COMP_FIELD_'.$field->name))
-						$field->body = JText::_('RSFP_COMP_FIELD_'.$field->name);
-					else
-						$field->body = $field->name;
-
-					$field->body = '<span id="caption'.$field->name.'" '.$this->getTooltip($field->name).'>'.$field->body.'</span>';
-					$field->body .= '<br />';
-
 					if ($componentId > 0)
 					{
 						if (!isset($data[$field->name]))
@@ -148,21 +137,13 @@ class RsformModelFormajax extends JModelLegacy
 						$additional .= ' data-tags="' .RSFormProHelper::htmlEscape($value). '" ';
 					}
 
-					$field->body .= '<textarea id="'.$field->name.'" name="param['.$field->name.']" tabindex="'.$taborder.'" rows="5" cols="20" class="rsform_txtarea" '. $additional .'>'.RSFormProHelper::htmlEscape($value).'</textarea>';
+					$field->body .= '<textarea id="'.$field->name.'" name="param['.$field->name.']" rows="5" cols="20" class="rsform_txtarea" '. $additional .'>'.RSFormProHelper::htmlEscape($value).'</textarea>';
 				}
 					break;
 
 				case 'select':
 				case 'selectmultiple':
-				{
-					if ($lang->hasKey('RSFP_COMP_FIELD_'.$field->name))
-						$field->body = JText::_('RSFP_COMP_FIELD_'.$field->name);
-					else
-						$field->body = $field->name;
-
-					$field->body = '<span id="caption'.$field->name.'" '.$this->getTooltip($field->name).'>'.$field->body.'</span>';
-					$field->body .= '<br />';
-
+				{					
 					$additional = '';
 					/**
 					 * determine if we have a json in the properties.
@@ -180,7 +161,7 @@ class RsformModelFormajax extends JModelLegacy
 						$additional .= ' size="5" multiple="multiple"';
 					}
 
-					$field->body .= '<select name="param['.$field->name.']'.($result->FieldType == 'selectmultiple' ? '[]' : '').'" '. $additional .' tabindex="'.$taborder.'" id="'.$field->name.'" onchange="changeValidation(this);">';
+					$field->body .= '<select name="param['.$field->name.']'.($result->FieldType == 'selectmultiple' ? '[]' : '').'" '. $additional .' id="'.$field->name.'" onchange="changeValidation(this);">';
 
 					if (!isset($data[$field->name]))
 						$data[$field->name] = '';
@@ -230,14 +211,6 @@ class RsformModelFormajax extends JModelLegacy
 
 				case 'emailattach':
 				{
-					if ($lang->hasKey('RSFP_COMP_FIELD_'.$field->name))
-						$field->body = JText::_('RSFP_COMP_FIELD_'.$field->name);
-					else
-						$field->body = $field->name;
-
-					$field->body = '<span id="caption'.$field->name.'" '.$this->getTooltip($field->name).'>'.$field->body.'</span>';
-					$field->body .= '<br />';
-
 					if (!isset($data[$field->name]))
 						$data[$field->name] = '';
 
@@ -246,7 +219,7 @@ class RsformModelFormajax extends JModelLegacy
 					$db->setQuery("SELECT id, subject FROM #__rsform_emails WHERE `type` = 'additional' AND formId = ".$formId." ");
 					$emails = $db->loadObjectList();
 
-					$field->body .= '<select name="param['.$field->name.'][]" id="'.$field->name.'" tabindex="'.$taborder.'" onchange="changeValidation(this);" multiple="multiple" size="5" style="width:414px">';
+					$field->body .= '<select name="param['.$field->name.'][]" id="'.$field->name.'" onchange="changeValidation(this);" multiple="multiple" size="5" style="width:414px">';
 					$field->body .= '<option '.($componentId > 0 && in_array('useremail',$values) ? 'selected="selected"' : '').' value="useremail">'.RSFormProHelper::htmlEscape(JText::_('RSFP_COMP_ATTACH_UEMAIL')).'</option>';
 					$field->body .= '<option '.($componentId > 0 && in_array('adminemail',$values) ? 'selected="selected"' : '').' value="adminemail">'.RSFormProHelper::htmlEscape(JText::_('RSFP_COMP_ATTACH_AEMAIL')).'</option>';
 					$field->body .= '<optgroup label="'.RSFormProHelper::htmlEscape(JText::_('RSFP_COMP_ATTACH_ADEMAIL')).'">';
@@ -264,11 +237,9 @@ class RsformModelFormajax extends JModelLegacy
 
 				}
 					break;
-					$taborder++;
 			}
 
-			if (in_array($result->FieldName, $translatable) && $result->FieldType != 'hiddenparam' && $result->FieldType != 'hidden')
-				$field->body = RSFormProHelper::translateIcon().' '.$field->body;
+			$field->translatable = (in_array($result->FieldName, $translatable) && $result->FieldType != 'hiddenparam' && $result->FieldType != 'hidden');
 
 			if (in_array($field->name, $general) || $result->FieldType == 'hidden' || $result->FieldType == 'hiddenparam')
 				$return['general'][] = $field;
@@ -281,88 +252,105 @@ class RsformModelFormajax extends JModelLegacy
 		return $return;
 	}
 
-	function getComponentData()
+	public function getComponentData()
 	{
 		$componentId = $this->getComponentId();
-
-		$data = array();
+		$data 		 = array();
+		
 		if ($componentId > 0)
+		{
 			$data = RSFormProHelper::getComponentProperties($componentId);
+		}
 
 		return $data;
 	}
 
-	function getComponentType()
+	public function getComponentType()
 	{
 		return JFactory::getApplication()->input->get->getInt('componentType');
 	}
 
-	function getComponentId()
+	public function getComponentId()
 	{
-		$cid = JFactory::getApplication()->input->getInt('componentId');
-
-		$cids = JRequest::getVar('cid', array());
+		$cid    = JFactory::getApplication()->input->getInt('componentId');
+		$cids   = JFactory::getApplication()->input->get('cid', array(), 'array');
 		if (is_array($cids) && count($cids)) {
-			JArrayHelper::toInteger($cids);
+			array_map('intval', $cids);
 			$cid = $cids;
 		}
 
 		return $cid;
 	}
 
-	function getI()
+	public function getI()
 	{
 		return JFactory::getApplication()->input->getInt('i');
 	}
 
-	function getComponent()
+	public function getComponent()
 	{
 		$componentId = $this->getComponentId();
-
-		$return = new stdClass();
-		$this->_db->setQuery("SELECT Published FROM #__rsform_components WHERE ComponentId='".$componentId."'");
-		$return->published = $this->_db->loadResult();
+		$return 	 = new stdClass();
+		
+		$query = $this->_db->getQuery(true)
+			->select($this->_db->qn('Published'))
+			->from($this->_db->qn('#__rsform_components'))
+			->where($this->_db->qn('ComponentId') . ' = ' . $this->_db->q($componentId));
+		
+		$return->published = $this->_db->setQuery($query)->loadResult();
 
 		// required?
 		$data = $this->getComponentData();
-		if (isset($data['REQUIRED'])) {
+		if (isset($data['REQUIRED']))
+		{
 			$return->required = $data['REQUIRED'] == 'YES';
 		}
 
 		return $return;
 	}
 
-	function componentsChangeStatus()
+	public function componentsChangeStatus()
 	{
 		$componentId = $this->getComponentId();
-
-		$task = strtolower(JFactory::getApplication()->input->getWord('task'));
-		$published = 0;
-		if ($task == 'componentspublish')
-			$published = 1;
-
+		$task 		 = strtolower(JFactory::getApplication()->input->getWord('task'));
+		$published 	 = $task == 'componentspublish' ? 1 : 0;
+		
+		$query = $this->_db->getQuery(true)
+			->update($this->_db->qn('#__rsform_components'))
+			->set($this->_db->qn('Published') . ' = ' . $this->_db->q($published));
+		
 		if (is_array($componentId))
-			$this->_db->setQuery("UPDATE #__rsform_components SET Published='".$published."' WHERE ComponentId IN (".implode(',', $componentId).")");
+		{
+			$query->where($this->_db->qn('ComponentId') . ' IN (' . implode(',', $componentId) . ')');
+		}
 		else
-			$this->_db->setQuery("UPDATE #__rsform_components SET Published='".$published."' WHERE ComponentId='".$componentId."'");
+		{
+			$query->where($this->_db->qn('ComponentId') . ' = ' . $this->_db->q($componentId));
+		}
 
-		$this->_db->execute();
+		$this->_db->setQuery($query)->execute();
 	}
 
-	function componentsChangeRequired()
+	public function componentsChangeRequired()
 	{
 		$componentId = $this->getComponentId();
-
-		$task = strtolower(JFactory::getApplication()->input->getWord('task'));
-		$required = 'NO';
-		if ($task == 'componentssetrequired')
-			$required = 'YES';
-
+		$task 		 = strtolower(JFactory::getApplication()->input->getWord('task'));
+		$required 	 = $task == 'componentssetrequired' ? 'YES' : 'NO';
+		
+		$query = $this->_db->getQuery(true)
+			->update($this->_db->qn('#__rsform_properties'))
+			->set($this->_db->qn('PropertyValue') . ' = ' . $this->_db->q($required))
+			->where($this->_db->qn('PropertyName') . ' = ' . $this->_db->q('REQUIRED'));
+		
 		if (is_array($componentId))
-			$this->_db->setQuery("UPDATE #__rsform_properties SET PropertyValue='".$required."' WHERE PropertyName='REQUIRED' AND ComponentId IN (".implode(',', $componentId).")");
+		{
+			$query->where($this->_db->qn('ComponentId') . ' IN (' . implode(',', $componentId) . ')');
+		}
 		else
-			$this->_db->setQuery("UPDATE #__rsform_properties SET PropertyValue='".$required."' WHERE PropertyName='REQUIRED' AND ComponentId='".$componentId."'");
+		{
+			$query->where($this->_db->qn('ComponentId') . ' = ' . $this->_db->q($componentId));
+		}
 
-		$this->_db->execute();
+		$this->_db->setQuery($query)->execute();
 	}
 }

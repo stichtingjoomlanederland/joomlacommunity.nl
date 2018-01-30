@@ -45,7 +45,7 @@ class RsformViewDirectory extends JViewLegacy
 			}
 			
 			// Add own CSS
-			$css_path = realpath($site_path.'/'.JHtml::stylesheet('com_rsform/directory.css', array(), true, true));
+			$css_path = realpath($site_path.'/' . JHtml::stylesheet('com_rsform/directory.css', array('pathOnly' => true, 'relative' => true)));
 			
 			if ($css_path) {
 				$contents = '<link rel="stylesheet" href="'.$this->escape($css_path).'" type="text/css"/>'.$contents;
@@ -111,7 +111,7 @@ class RsformViewDirectory extends JViewLegacy
 			}
 			$pdf->AddPage();
 			
-			$contents .= ob_get_contents();
+			$contents = ob_get_contents();
 			$pdf->WriteHTML($contents, true);
 			$data = $pdf->Output('', 'S');
 			ob_end_clean();

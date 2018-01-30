@@ -66,12 +66,10 @@ function rsform_add_condition() {
 	}
 	
 	// remove button
+	
 	remove = $('<a>', {
 		'href': 'javascript:void(0);'
-	}).append($('<img>', {
-	'class': 'rsform_align_middle',
-	'src': 'components/com_rsform/assets/images/close.png'
-	})).click(function() {
+	}).append('<a class="btn btn-danger btn-mini" href="javascript:void(0);"><i class="rsficon rsficon-remove"></i></a>').click(function() {
 		$(this).parent('p').remove();
 	});
 	
@@ -137,14 +135,14 @@ function rsform_close_box() {
 	<p><br /><br /></p>
 	<span class="rsform_clear_both"></span>
 	<p>
-		<?php echo JText::sprintf('RSFP_SHOW_FIELD_IF_THE_FOLLOWING_MATCH', $this->lists['action'], $this->lists['block'], $this->lists['allfields'], $this->lists['condition']); ?> <a href="javascript: void(0);" onclick="rsform_add_condition();"><img class="rsform_align_middle" src="components/com_rsform/assets/images/add.png" alt="" /></a>
+		<?php echo JText::sprintf('RSFP_SHOW_FIELD_IF_THE_FOLLOWING_MATCH', $this->lists['action'], $this->lists['block'], $this->lists['allfields'], $this->lists['condition']); ?> <a class="btn btn-primary" href="javascript: void(0);" onclick="rsform_add_condition();"><i class="rsficon rsficon-plus"></i></a>
 	</p>
 	<?php if ($this->condition->details) { ?>
 		<?php foreach ($this->condition->details as $detail) { ?>
 		<p>
-			<?php echo JHTML::_('select.genericlist', $this->optionFields, 'detail_component_id[]', '', 'ComponentId', 'ComponentName', $detail->component_id); ?>
+			<?php echo JHtml::_('select.genericlist', $this->optionFields, 'detail_component_id[]', '', 'ComponentId', 'ComponentName', $detail->component_id); ?>
 			<span class="rsform_spacer">&nbsp;</span>
-			<?php echo JHTML::_('select.genericlist', $this->operators, 'operator[]', '', 'value', 'text', $detail->operator); ?>
+			<?php echo JHtml::_('select.genericlist', $this->operators, 'operator[]', '', 'value', 'text', $detail->operator); ?>
 			<span class="rsform_spacer">&nbsp;</span>
 			<select name="value[]">
 			<?php foreach ($this->optionFields as $field) { ?>
@@ -155,13 +153,13 @@ function rsform_close_box() {
 			<?php } ?>
 			</select>
 			<span class="rsform_spacer">&nbsp;</span>
-			<a href="javascript:void(0);" onclick="RSFormPro.$(this).parent('p').remove();"><img class="rsform_align_middle" src="components/com_rsform/assets/images/close.png" /></a>
+			<a class="btn btn-danger btn-mini" href="javascript:void(0);" onclick="jQuery(this).parent('p').remove();"><i class="rsficon rsficon-remove"></i></a>
 		</p>
 		<?php } ?>
 	<?php } ?>
 	</div>
 	
-	<?php echo JHTML::_('form.token'); ?>
+	<?php echo JHtml::_('form.token'); ?>
 	<input type="hidden" name="option" value="com_rsform" />
 	<input type="hidden" name="controller" value="conditions" />
 	<input type="hidden" name="task" value="" />

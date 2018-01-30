@@ -11,7 +11,7 @@ jimport('joomla.application.component.controller');
 
 class RsformControllerRichtext extends RsformController
 {
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		
@@ -20,7 +20,7 @@ class RsformControllerRichtext extends RsformController
 		$this->_db = JFactory::getDbo();
 	}
 	
-	function show()
+	public function show()
 	{
 		JFactory::getApplication()->input->set('view', 	'forms');
 		JFactory::getApplication()->input->set('layout', 	'richtext');
@@ -28,12 +28,13 @@ class RsformControllerRichtext extends RsformController
 		parent::display();
 	}
 	
-	function save()
+	public function save()
 	{
 		$db 	= JFactory::getDbo();
-		$formId = JFactory::getApplication()->input->getInt('formId');
-		$opener = JFactory::getApplication()->input->getCmd('opener');
-		$value  = JRequest::getVar($opener, '', 'post', 'none', JREQUEST_ALLOWRAW);
+		$app    = JFactory::getApplication();
+		$formId = $app->input->getInt('formId');
+		$opener = $app->input->getCmd('opener');
+		$value  = $app->input->post->get($opener, '', 'raw');
 		$model  = $this->getModel('forms');
 
 		$model->getForm();
@@ -44,29 +45,37 @@ class RsformControllerRichtext extends RsformController
 		}
 		else
 		{
-			$db->setQuery("UPDATE #__rsform_forms SET `".$opener."`='".$db->escape($value)."' WHERE FormId='".$formId."'");
+		    $query = $db->getQuery(true)
+                ->update($db->qn('#__rsform_forms'))
+                ->set($db->qn($opener) . ' = ' . $db->q($value))
+                ->where($db->qn('FormId') . ' = ' . $db->q($formId));
+			$db->setQuery($query);
 			$db->execute();
 		}
 
 		/**
 		 * Add feedback in the modal window
 		 */
-		JFactory::getApplication()->enqueueMessage(JText::_('RSFP_CHANGES_SAVED'));
+        $app->enqueueMessage(JText::_('RSFP_CHANGES_SAVED'));
 
 		if ($this->getTask() == 'apply')
 			return $this->setRedirect('index.php?option=com_rsform&task=richtext.show&opener='.$opener.'&formId='.$formId.'&tmpl=component');
-		
-		$document = JFactory::getDocument();
-		$document->addScriptDeclaration("window.close();");
+
+        JFactory::getDocument()->addScriptDeclaration("window.close();");
 	}
 	
-	function preview()
+	public function preview()
 	{
 		$formId = JFactory::getApplication()->input->getInt('formId');
 		$opener = JFactory::getApplication()->input->getCmd('opener');
 		
 		$db = JFactory::getDbo();
-		$db->setQuery("SELECT `".$opener."` FROM #__rsform_forms WHERE FormId='".$formId."'");
+
+		$query = $db->getQuery(true)
+            ->select($db->qn($opener))
+            ->from($db->qn('#__rsform_forms'))
+            ->where($db->qn('FormId') . ' = ' . $db->q($formId));
+		$db->setQuery($query);
 		$value = $db->loadResult();
 		
 		$model = $this->getModel('forms');

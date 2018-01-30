@@ -278,3 +278,18 @@ p.rsformVerticalClear {
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fffbb450', endColorstr='#fff89406', GradientType=0);
 }
+
+@media (min-width: 960px) {
+    .formContainer > .uk-grid > .uk-width-1-12 { width: 8.333%; }
+    .formContainer > .uk-grid > .uk-width-2-12 { width: 16.666%; }
+    .formContainer > .uk-grid > .uk-width-3-12 { width: 25%; }
+    .formContainer > .uk-grid > .uk-width-4-12 { width: 33.333%; }
+    .formContainer > .uk-grid > .uk-width-5-12 { width: 41.666%; }
+    .formContainer > .uk-grid > .uk-width-6-12 { width: 50%; }
+    .formContainer > .uk-grid > .uk-width-7-12 { width: 58.333%; }
+    .formContainer > .uk-grid > .uk-width-8-12 { width: 66.666%; }
+    .formContainer > .uk-grid > .uk-width-9-12 { width: 75%; }
+    .formContainer > .uk-grid > .uk-width-10-12 { width: 83.333%; }
+    .formContainer > .uk-grid > .uk-width-11-12 { width: 91.666%; }
+    .formContainer > .uk-grid > .uk-width-12-12 { width: 100%; }
+}

@@ -25,13 +25,13 @@ class RsformControllerDirectory extends RsformController
 		jimport('joomla.filesystem.file');
 		
 		if (!$directory->enablecsv) {
-			JError::raiseWarning(500, JText::_('RSFP_VIEW_DIRECTORY_NO_CSV'));
-			return $app->redirect(JURI::root());
+		    $app->enqueueMessage(JText::_('RSFP_VIEW_DIRECTORY_NO_CSV'), 'warning');
+			return $app->redirect(JUri::root());
 		}
 		
 		if (!$model->isValid()) {
-			JError::raiseWarning(500, $model->getError());
-			return $app->redirect(JURI::root());
+            $app->enqueueMessage($model->getError(), 'warning');
+			return $app->redirect(JUri::root());
 		}
 		
 		$db 	= JFactory::getDbo();
@@ -39,8 +39,8 @@ class RsformControllerDirectory extends RsformController
 		$menu	= $app->getMenu();
 		$active = $menu->getActive();
 		$formId = $params->get('formId');
-		$cids 	= JRequest::getVar('cid');
-		JArrayHelper::toInteger($cids);
+		$cids 	= $app->input->get('cid', array(), 'array');
+		array_map('intval', $cids);
 		
 		$fields  = RSFormProHelper::getDirectoryFields($formId);
 		$headers = RSFormProHelper::getDirectoryStaticHeaders();
@@ -95,7 +95,7 @@ class RsformControllerDirectory extends RsformController
 			
 			// process here
 			if (in_array($item->FieldName, $uploadFields)) {
-				$item->FieldValue = '<a href="'.JURI::root().'index.php?option=com_rsform&amp;task=submissions.view.file&amp;hash='.md5($item->SubmissionId.$secret.$item->FieldName).'">'.JFile::getName($item->FieldValue).'</a>';
+				$item->FieldValue = '<a href="'.JUri::root().'index.php?option=com_rsform&amp;task=submissions.view.file&amp;hash='.md5($item->SubmissionId.$secret.$item->FieldName).'">'.JFile::getName($item->FieldValue).'</a>';
 			} elseif (in_array($item->FieldName, $multipleFields)) {
 				$item->FieldValue = str_replace("\n", $multipleSeparator, $item->FieldValue);
 			}
@@ -181,6 +181,29 @@ class RsformControllerDirectory extends RsformController
 			$this->setRedirect(JRoute::_('index.php?option=com_rsform&view=directory',false));
 		}
 	}
+
+    public function delete() {
+        $app 	= JFactory::getApplication();
+        $params = $app->getParams('com_rsform');
+        $formId	= $params->get('formId');
+        $id		= $app->input->getInt('id',0);
+
+        // Get the model
+        $model = $this->getModel('directory');
+
+        // Save
+        if (RSFormProHelper::canDelete($formId, $id))
+        {
+            $this->setMessage(JText::sprintf('RSFP_SUBM_DIR_DELETE_OK', $id));
+            $model->delete($id);
+        }
+        else
+        {
+            $this->setMessage(JText::_('JERROR_ALERTNOAUTHOR'),'error');
+        }
+
+        $this->setRedirect(JRoute::_('index.php?option=com_rsform&view=directory',false));
+    }
 	
 	public function back() {
 		$this->setRedirect(JRoute::_('index.php?option=com_rsform&view=directory', false));

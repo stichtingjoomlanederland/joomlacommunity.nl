@@ -79,7 +79,7 @@ class RSFormProHelper
 				$mask = 'Y-m-d H:i:s';
 			}
 		}
-		return JHTML::_('date', $date, $mask);
+		return JHtml::_('date', $date, $mask);
 	}
 
 	public static function getTooltipText($title, $content='') {
@@ -114,7 +114,7 @@ class RSFormProHelper
 	public static function loadCodeMirror() {
 		if (RSFormProHelper::getConfig('global.codemirror')) {
 			$document 	= JFactory::getDocument();
-			$root		= JURI::root(true).'/administrator/components/com_rsform/assets/codemirror';
+			$root		= JUri::root(true).'/administrator/components/com_rsform/assets/codemirror';
 
 			// Load CodeMirror
 			$document->addScript($root.'/lib/codemirror.js');
@@ -235,7 +235,7 @@ class RSFormProHelper
 			}
 
 			$rseventspro = $mainframe->input->get('option') == 'com_rseventspro' && $mainframe->input->get('layout') == 'subscribe';
-			if ($rseventspro || $mainframe->isAdmin())
+			if ($rseventspro || $mainframe->isClient('administrator'))
 				$canView = true;
 
 			if (!$canView) {
@@ -243,7 +243,7 @@ class RSFormProHelper
 				if (!in_array($form->Access,$user->getAuthorisedViewLevels())) {
 					// Error, the form cannot be accessed
 					$mainframe->enqueueMessage(JText::sprintf('RSFP_FORM_CANNOT_BE_ACCESSED', $formId), 'warning');
-					$mainframe->redirect(JURI::root());
+					$mainframe->redirect(JUri::root());
 					return false;
 				}
 			}
@@ -323,9 +323,31 @@ class RSFormProHelper
 		return RSFormProHelper::showForm($formId, $get);
 	}
 
+	public static function getEditor()
+    {
+        static $editor;
+
+        // Get the editor configuration setting
+        if (is_null($editor))
+        {
+            $editor = JFactory::getConfig()->get('editor');
+        }
+
+        $jversion = new JVersion;
+
+        if ($jversion->isCompatible('3.8.0'))
+        {
+            return \Joomla\CMS\Editor\Editor::getInstance($editor);
+        }
+        else
+        {
+            return JEditor::getInstance($editor);
+        }
+    }
+
 	public static function WYSIWYG($name, $content, $hiddenField, $width, $height, $col, $row)
 	{
-		$editor = JFactory::getEditor();
+		$editor = RSFormProHelper::getEditor();
 		$params = array('relative_urls' => '0', 'cleanup_save' => '0', 'cleanup_startup' => '0', 'cleanup_entities' => '0');
 
 		$id = trim(substr($name, 4), '][');
@@ -375,20 +397,16 @@ class RSFormProHelper
 
 	public static function getValidationClass() {
 		if (file_exists(JPATH_SITE.'/components/com_rsform/helpers/customvalidation.php')) {
+			require_once JPATH_SITE.'/components/com_rsform/helpers/customvalidation.php';
 			return 'RSFormProCustomValidations';
 		} else {
+			require_once JPATH_SITE.'/components/com_rsform/helpers/validation.php';
 			return 'RSFormProValidations';
 		}
 	}
 
 	public static function getValidationRules($asArray = false, $remove_multiple = false) {
-		if (file_exists(JPATH_SITE.'/components/com_rsform/helpers/customvalidation.php')) {
-			require_once JPATH_SITE.'/components/com_rsform/helpers/customvalidation.php';
-			$results = get_class_methods('RSFormProCustomValidations');
-		} else {
-			require_once JPATH_SITE.'/components/com_rsform/helpers/validation.php';
-			$results = get_class_methods('RSFormProValidations');
-		}
+		$results = get_class_methods(static::getValidationClass());
 		
 		// Add 'none' as first validation rule
 		unset($results[array_search('none', $results)]);
@@ -409,20 +427,16 @@ class RSFormProHelper
 
 	public static function getDateValidationClass() {
 		if (file_exists(JPATH_SITE.'/components/com_rsform/helpers/customdatevalidation.php')) {
+			require_once JPATH_SITE.'/components/com_rsform/helpers/customdatevalidation.php';
 			return 'RSFormProCustomDateValidations';
 		} else {
+			require_once JPATH_SITE.'/components/com_rsform/helpers/datevalidation.php';
 			return 'RSFormProDateValidations';
 		}
 	}
 
 	public static function getDateValidationRules($asArray = false) {
-		if (file_exists(JPATH_SITE.'/components/com_rsform/helpers/customdatevalidation.php')) {
-			require_once JPATH_SITE.'/components/com_rsform/helpers/customdatevalidation.php';
-			$results = get_class_methods('RSFormProCustomDateValidations');
-		} else {
-			require_once JPATH_SITE.'/components/com_rsform/helpers/datevalidation.php';
-			$results = get_class_methods('RSFormProDateValidations');
-		}
+		$results = get_class_methods(static::getDateValidationClass());
 
 		// Add 'none' as first validation rule
 		unset($results[array_search('none', $results)]);
@@ -486,7 +500,7 @@ class RSFormProHelper
 		$formId    = !$formId ? $mainframe->input->getInt('formId') || $mainframe->input->getInt('FormId') : $formId;
 
 		// editing in backend ?
-		if ($mainframe->isAdmin())
+		if ($mainframe->isClient('administrator'))
 		{
 			if ($mainframe->input->getCmd('task') == 'submissions.edit' || ($mainframe->input->getCmd('view') == 'submissions' && $mainframe->input->getCmd('layout') == 'edit'))
 			{
@@ -587,7 +601,9 @@ class RSFormProHelper
 			return $results;
 		}
 
-		return false;
+		$blank = array();
+		
+		return $blank;
 	}
 
 	public static function isCode($value) {
@@ -649,7 +665,7 @@ class RSFormProHelper
 		}
 
 		if (empty($download_name))
-			$download_name = JFile::getName($file);
+			$download_name = basename($file);
 
 		$fsize = filesize($file);
 
@@ -874,7 +890,7 @@ class RSFormProHelper
 
 				// Check if this is an upload field
 				if (in_array($property['NAME'], $uploadFields))
-					$value = '<a href="'.JURI::root().'index.php?option=com_rsform&amp;task=submissions.view.file&amp;hash='.md5($submission->SubmissionId.$secret.$property['NAME']).$Itemid.'">'.JFile::getName($submission->values[$property['NAME']]).'</a>';
+					$value = '<a href="'.JUri::root().'index.php?option=com_rsform&amp;task=submissions.view.file&amp;hash='.md5($submission->SubmissionId.$secret.$property['NAME']).$Itemid.'">'.basename($submission->values[$property['NAME']]).'</a>';
 				// Check if this is a multiple field
 				elseif (in_array($ComponentId, $multipleFields))
 					$value = str_replace("\n", $form->MultipleSeparator, $value);
@@ -894,7 +910,7 @@ class RSFormProHelper
 					$items = RSFormProHelper::explode(RSFormProHelper::isCode($property['ITEMS']));
 
 					$special = array('[c]', '[g]', '[d]');
-					$pricePattern = '#\[p(.*?)\]#is';
+					$pricePattern = '#\[p([0-9\.\-\+]+)\]#s';
 					foreach ($all_values as $v => $value) {
 						$all_texts[$v] = $value;
 						foreach ($items as $item) {
@@ -930,11 +946,11 @@ class RSFormProHelper
 				$placeholders[] = '{'.$property['NAME'].':filename}';
 				if (isset($submission->values[$property['NAME']])) {
 					$filepath = $submission->values[$property['NAME']];
-					$filepath = substr_replace($filepath, JURI::root(), 0, strlen(JPATH_SITE)+1);
+					$filepath = substr_replace($filepath, JUri::root(), 0, strlen(JPATH_SITE)+1);
 					$filepath = str_replace(array('\\', '\\/', '//\\'), '/', $filepath);
 					$values[] = $filepath;
 					$values[] = $submission->values[$property['NAME']];
-					$values[] = JFile::getName($submission->values[$property['NAME']]);
+					$values[] = basename($submission->values[$property['NAME']]);
 				}
 				else {
 					$values[] = '';
@@ -953,15 +969,17 @@ class RSFormProHelper
 		if (empty($user->id))
 			$user = JFactory::getUser(0);
 
-		$root 				= $mainframe->isAdmin() ? JURI::root() : $u->toString(array('scheme','host', 'port'));
+		$root 				= $mainframe->isClient('administrator') ? JUri::root() : $u->toString(array('scheme','host', 'port'));
 		$confirmation_hash 	= md5($submission->SubmissionId.$formId.$submission->DateSubmitted);
 		$hash_link 			= 'index.php?option=com_rsform&task=confirm&hash='.$confirmation_hash;
-		$confirmation 		= $root.($mainframe->isAdmin() ? $hash_link : JRoute::_($hash_link));
+        $delete_link 		= 'index.php?option=com_rsform&task=deletesubmission&hash='.$submission->SubmissionHash;
+		$confirmation 		= $root.($mainframe->isClient('administrator') ? $hash_link : JRoute::_($hash_link));
+		$deletion 		    = $root.($mainframe->isClient('administrator') ? $delete_link : JRoute::_($delete_link));
 
 		if (!$skip_globals)
 		{
-			array_push($placeholders, '{global:username}', '{global:userid}', '{global:useremail}', '{global:fullname}', '{global:userip}', '{global:date_added}', '{global:sitename}', '{global:siteurl}', '{global:confirmation}', '{global:submissionid}', '{global:submission_id}', '{global:mailfrom}', '{global:fromname}', '{global:formid}');
-			array_push($values, $user->username, $user->id, $user->email, $user->name, $submission->UserIp, RSFormProHelper::getDate($submission->DateSubmitted), $config->get('sitename'), JURI::root(), $confirmation, $submission->SubmissionId, $submission->SubmissionId, $config->get('mailfrom'), $config->get('fromname'), $formId);
+			array_push($placeholders, '{global:username}', '{global:userid}', '{global:useremail}', '{global:fullname}', '{global:userip}', '{global:date_added}', '{global:sitename}', '{global:siteurl}', '{global:confirmation}', '{global:deletion}', '{global:submissionid}', '{global:submission_id}', '{global:mailfrom}', '{global:fromname}', '{global:formid}');
+			array_push($values, $user->username, $user->id, $user->email, $user->name, $submission->UserIp, RSFormProHelper::getDate($submission->DateSubmitted), $config->get('sitename'), JUri::root(), $confirmation, $deletion, $submission->SubmissionId, $submission->SubmissionId, $config->get('mailfrom'), $config->get('fromname'), $formId);
 		}
 
 		$mainframe->triggerEvent('rsfp_onAfterCreatePlaceholders', array(array('form' => &$form, 'placeholders' => &$placeholders, 'values' => &$values, 'submission' => $submission)));
@@ -999,7 +1017,7 @@ class RSFormProHelper
 		jimport('joomla.filesystem.file');
 
 		$file = str_replace($placeholders, $values, $form->UserEmailAttachFile);
-		if ($form->UserEmailAttach && JFile::exists($file))
+		if ($form->UserEmailAttach && file_exists($file))
 			$userEmail['files'][] = $file;
 
 		// Need to attach files
@@ -1163,8 +1181,8 @@ class RSFormProHelper
 
 		if (is_array($componentTypeId))
 		{
-			JArrayHelper::toInteger($componentTypeId);
-			$db->setQuery("SELECT ComponentId FROM #__rsform_components WHERE ComponentTypeId IN (".implode(',', $componentTypeId).") AND FormId='".$formId."' AND Published='1'");
+            array_map('intval', $componentTypeId);
+            $db->setQuery("SELECT ComponentId FROM #__rsform_components WHERE ComponentTypeId IN (".implode(',', $componentTypeId).") AND FormId='".$formId."' AND Published='1'");
 		}
 		else
 		{
@@ -1186,28 +1204,6 @@ class RSFormProHelper
 
 		// Test this
 		// $cache->clean();
-	}
-
-	public static function loadTheme($form)
-	{
-		jimport('joomla.html.parameter');
-
-		$registry = new JRegistry();
-		$registry->loadString($form->ThemeParams, 'INI');
-		$form->ThemeParams =& $registry;
-
-		if ($form->ThemeParams->get('num_css', 0) > 0)
-			for ($i=0; $i<$form->ThemeParams->get('num_css'); $i++)
-			{
-				$css = $form->ThemeParams->get('css'.$i);
-				RSFormProAssets::addStyleSheet(JURI::root(true).'/components/com_rsform/assets/themes/'.$form->ThemeParams->get('name').'/'.$css);
-			}
-		if ($form->ThemeParams->get('num_js', 0) > 0)
-			for ($i=0; $i<$form->ThemeParams->get('num_js'); $i++)
-			{
-				$js = $form->ThemeParams->get('js'.$i);
-				RSFormProAssets::addScript(JURI::root(true).'/components/com_rsform/assets/themes/'.$form->ThemeParams->get('name').'/'.$js);
-			}
 	}
 
 	// conditions
@@ -1280,15 +1276,13 @@ class RSFormProHelper
 			RSFormProAssets::addCustomTag($form->JS);
 		if ($form->CSS)
 			RSFormProAssets::addCustomTag($form->CSS);
-		if ($form->ThemeParams)
-			RSFormProHelper::loadTheme($form);
 
 		if ($form->ScrollToError) {
 			RSFormProAssets::addScriptDeclaration('RSFormPro.scrollToError = true;');
 		}
 
-		RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/front.css', array(), true, true));
-		RSFormProAssets::addScript(JHtml::script('com_rsform/script.js', false, true, true));
+		RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/front.css', array('pathOnly' => true, 'relative' => true)));
+		RSFormProAssets::addScript(JHtml::script('com_rsform/script.js', array('pathOnly' => true, 'relative' => true)));
 
 		// calendars
 		$YUICalendars = RSFormProHelper::componentExists($formId, RSFORM_FIELD_CALENDAR);
@@ -1296,13 +1290,6 @@ class RSFormProHelper
 		$rangeSliders = RSFormProHelper::componentExists($formId, RSFORM_FIELD_RANGE_SLIDER);
 
 		$formLayout = $form->FormLayout;
-
-		// check the captcha fields for removing them if necesary
-		if (strpos($formLayout, '{/if}') !== false)
-		{
-			require_once dirname(__FILE__) . '/scripting.php';
-			RSFormProScripting::compile($formLayout, array('{global:userid}'), array($user->get('id')));
-		}
 
 		unset($form->FormLayout);
 		$errorMessage = $form->ErrorMessage;
@@ -1338,10 +1325,11 @@ class RSFormProHelper
 
 		// stores the error class names found in the form layout
 		$layoutErrorClass = array();
+		$fieldErrorClass  = array();
 
 		$layoutName = (string) preg_replace('/[^A-Z0-9]/i', '', $form->FormLayoutName);
 		
-		// keep the loaded framework class fo further purpose
+		// keep the loaded framework class for further purpose
 		$layoutClassLoaded = false;
 		if (file_exists(dirname(__FILE__).'/formlayouts/'.$layoutName.'.php')) {
 			require_once dirname(__FILE__).'/formlayouts/'.$layoutName.'.php';
@@ -1357,13 +1345,15 @@ class RSFormProHelper
 
 				// Return the specific layout error class
 				$layoutErrorClass[$layoutName] = $layout->errorClass;
+				$fieldErrorClass[$layoutName] = $layout->fieldErrorClass;
 			}
 		} else {
 			$layoutErrorClass[$layoutName] = '';
+			$fieldErrorClass[$layoutName] = 'rsform-error';
 		}
 		
 		if ($doc->getDirection() == 'rtl')
-			RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/front-rtl.css', array(), true, true));
+			RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/front-rtl.css', array('pathOnly' => true, 'relative' => true)));
 
 		$hasAjax = (bool) $form->AjaxValidation;
 
@@ -1448,12 +1438,13 @@ class RSFormProHelper
 			)));
 
 			$config = array(
-				'formId' 		=> $formId,
-				'componentId' 	=> $component->ComponentId,
-				'data' 			=> $data,
-				'value' 		=> $val,
-				'invalid' 		=> $invalid,
-				'errorClass' 	=> $layoutErrorClass[$layoutName],
+				'formId' 			=> $formId,
+				'componentId' 		=> $component->ComponentId,
+				'data' 				=> $data,
+				'value' 			=> $val,
+				'invalid' 			=> $invalid,
+				'errorClass' 		=> $layoutErrorClass[$layoutName],
+				'fieldErrorClass' 	=> $fieldErrorClass[$layoutName]
 			);
 
 			foreach ($layouts as $class => $file) {
@@ -1548,6 +1539,13 @@ class RSFormProHelper
 		$find[] 	= '{error}';
 		$replace[] 	= $error;
 
+        // Check for {if} scripting inside Form Layout
+        if (strpos($formLayout, '{/if}') !== false)
+        {
+            require_once dirname(__FILE__) . '/scripting.php';
+            RSFormProScripting::compile($formLayout, $find, $replace);
+        }
+
 		// Replace all placeholders
 		$formLayout = str_replace($find, $replace, $formLayout);
 
@@ -1566,7 +1564,7 @@ class RSFormProHelper
 		if (!empty($pages))
 		{
 			$total_pages 	  = count($pages)+1;
-			$step			  = floor(100/$total_pages);
+			$step			  = round(100/$total_pages, 2);
 			$replace_progress = array('{page}', '{total}', '{percent}');
 			$with_progress 	  = array(1, $total_pages, $step*1);
 
@@ -1634,25 +1632,21 @@ class RSFormProHelper
 			$formLayout .= '<script type="text/javascript">RSFormPro.Ajax.URL = '.json_encode(JRoute::_('index.php?option=com_rsform&task=ajaxValidate', false)).';</script>';
 		}
 
+		$validationParams = array(
+			'parent' => $layoutErrorClass[$layoutName],
+			'field'  => $fieldErrorClass[$layoutName]
+		);
+
 		if ($form->AjaxValidation) {
-			$formLayout .= '<script type="text/javascript">RSFormProUtils.addEvent(window, \'load\', function(){var form = rsfp_getForm('.$formId.'); 
-			var submitElement = RSFormPro.getElementByType('.$formId.', \'submit\');
-			for (i = 0; i < submitElement.length; i++) {
-				if (RSFormProUtils.hasClass(submitElement[i],\'rsform-submit-button\')) {
-					RSFormProUtils.addEvent(submitElement[i],\'click\', (function(event) {
-							event.preventDefault();
-							RSClickedSubmitElement = this;
-							for (j = 0; j < submitElement.length; j++) {
-								submitElement[j].setAttribute(\'data-disableonsubmit\',\'1\');
-							}
-							ajaxValidation(form, undefined'.(!empty($layoutErrorClass[$layoutName]) ? ", '".$layoutErrorClass[$layoutName]."'": '').');
-					}));
-				}
-			}
-			});
-			</script>';
+		    RSFormProAssets::addScriptDeclaration(
+"RSFormProUtils.addEvent(window, 'load', function(){
+    RSFormPro.Ajax.overrideSubmit(" . $formId . ", " . json_encode($validationParams) . ");
+});");
 		} else {
-			RSFormProAssets::addScriptDeclaration('RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.setHTML5Validation(\''.$formId.'\', '.($form->DisableSubmitButton ? 'true' : 'false').', \''.(!empty($layoutErrorClass[$layoutName]) ? $layoutErrorClass[$layoutName] : '').'\');  });');
+			RSFormProAssets::addScriptDeclaration(
+"RSFormProUtils.addEvent(window, 'load', function(){
+	RSFormPro.setHTML5Validation('" . $formId . "', " . ($form->DisableSubmitButton ? 'true' : 'false') . ", " . json_encode($validationParams) . ", " . count($pages) . ");  
+});");
 		}
 
 		// Allow plugins to inject code with their own Ajax script
@@ -1670,7 +1664,7 @@ class RSFormProHelper
 
 				$formLayout .= "formComponents[".$component->ComponentId."]='".$component->name."';";
 			}
-			$formLayout .= "\n".'ajaxDisplayValidationErrors(formComponents, task, formId, data);'."\n";
+			$formLayout .= "\n".'RSFormPro.Ajax.displayValidationErrors(formComponents, task, formId, data);'."\n";
 			// has this been modified?
 			if ($ajaxScript) {
 				$formLayout .= $ajaxScript;
@@ -1766,19 +1760,33 @@ class RSFormProHelper
 		$formId = (int) $formId;
 
 		$db = JFactory::getDbo();
-		$db->setQuery("SELECT ThemeParams, ScrollToThankYou, ThankYouMessagePopUp FROM #__rsform_forms WHERE FormId='".$formId."'");
+		$db->setQuery("SELECT ScrollToThankYou, ThankYouMessagePopUp, FormLayoutName FROM #__rsform_forms WHERE FormId='".$formId."'");
 		$form = $db->loadObject();
-		if ($form->ThemeParams)
-			RSFormProHelper::loadTheme($form);
 
 		$doc = JFactory::getDocument();
-		RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/front.css', array(), true, true));
+		RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/front.css', array('pathOnly' => true, 'relative' => true)));
 		if ($doc->getDirection() == 'rtl')
-			RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/front-rtl.css', array(), true, true));
+			RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/front-rtl.css', array('pathOnly' => true, 'relative' => true)));
 
 		$session = JFactory::getSession();
 		$formparams = $session->get('com_rsform.formparams.formId'.$formId);
 		$output = base64_decode($formparams->thankYouMessage);
+
+		if ($formparams->loadLayoutFramework) {
+            $layoutName = $form->FormLayoutName;
+            if (file_exists(dirname(__FILE__) . '/formlayouts/' . $layoutName . '.php')) {
+                require_once dirname(__FILE__) . '/formlayouts/' . $layoutName . '.php';
+
+                $class = 'RSFormProFormLayout' . $layoutName;
+                if (class_exists($class)) {
+                    $layout = new $class();
+
+                    if (is_callable(array($layout, 'loadFramework'))) {
+                        $layout->loadFramework();
+                    }
+                }
+            }
+        }
 
 		// Clear
 		$session->clear('com_rsform.formparams.formId'.$formId);
@@ -1790,15 +1798,15 @@ class RSFormProHelper
 		{
 			// scroll the window to the Thank You Message
 			$scrolltoScript = 'RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.scrollToElement(document.getElementById(\'rsfp-thankyou-scroll' . $formId . '\')); });';
-			RSFormProAssets::addScript(JHtml::script('com_rsform/script.js', false, true, true));
+			RSFormProAssets::addScript(JHtml::script('com_rsform/script.js', array('pathOnly' => true, 'relative' => true)));
 			RSFormProAssets::addScriptDeclaration($scrolltoScript);
 		}
 
 		if ($form->ThankYouMessagePopUp && !$form->ScrollToThankYou) {
 			//rsfp-thankyou-popup-container
 			$popupScript = 'RSFormProUtils.addEvent(window, \'load\',function(){ RSFormPro.showThankYouPopup(document.getElementById(\'rsfp-thankyou-popup-container' . $formId . '\')); });';
-			RSFormProAssets::addScript(JHtml::script('com_rsform/script.js', false, true, true));
-			RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/popup.css', array(), true, true));
+			RSFormProAssets::addScript(JHtml::script('com_rsform/script.js', array('pathOnly' => true, 'relative' => true)));
+			RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/popup.css', array('pathOnly' => true, 'relative' => true)));
 			RSFormProAssets::addScriptDeclaration($popupScript);
 		}
 
@@ -1860,12 +1868,25 @@ class RSFormProHelper
 
 			$confirmsubmission = $form->ConfirmSubmission ? 0 : 1;
 
+            $SubmissionHash = JApplicationHelper::getHash(JUserHelper::genRandomPassword());
+
 			// Add to db (submission)
 			$date = JFactory::getDate();
-			$db->setQuery("INSERT INTO #__rsform_submissions SET `FormId`='".$formId."', `DateSubmitted`='".$date->toSql()."', `UserIp`='".(isset($_SERVER['REMOTE_ADDR']) ? $db->escape($_SERVER['REMOTE_ADDR']) : '')."', `Username`='".$db->escape($user->get('username'))."', `UserId`='".(int) $user->get('id')."', `Lang`='".RSFormProHelper::getCurrentLanguage()."', `confirmed` = '".$confirmsubmission."' ");
-			$db->execute();
 
-			$SubmissionId = $db->insertid();
+            $submission = (object) array(
+                'FormId'         => $formId,
+                'DateSubmitted'  => $date->toSql(),
+                'UserIp'         => isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '',
+                'Username'       => $user->username,
+                'UserId'         => $user->id,
+                'Lang'           => RSFormProHelper::getCurrentLanguage(),
+                'confirmed'      => $confirmsubmission,
+                'SubmissionHash' => $SubmissionHash
+            );
+
+			$db->insertObject('#__rsform_submissions', $submission, 'SubmissionId');
+
+			$SubmissionId = $submission->SubmissionId;
 
 			// get the form components
 			$formComponents = RSFormProHelper::getComponents($formId);
@@ -1949,18 +1970,26 @@ class RSFormProHelper
 
 				// Continue button
 				$continueButtonLabel = JText::_('RSFP_THANKYOU_BUTTON');
+                $continueButton = '<input type="button" class="rsform-submit-button btn btn-primary" name="continue" value="'.JText::_('RSFP_THANKYOU_BUTTON').'" onclick="'.$goto.'"/>';
 				if (strpos($continueButtonLabel, 'input')) {
 					$continueButton = JText::sprintf('RSFP_THANKYOU_BUTTON',$goto);
 				} else {
-					if ($form->FormLayoutName == 'responsive') {
-						$continueButton .= '<div class="formResponsive">';
-					} else {
-						$continueButton .= '<br/>';
-					}
-					$continueButton .= '<input type="button" class="rsform-submit-button btn btn-primary" name="continue" value="'.JText::_('RSFP_THANKYOU_BUTTON').'" onclick="'.$goto.'"/>';
-					if ($form->FormLayoutName == 'responsive') {
-						$continueButton .= '</div>';
-					}
+                    $layoutName = $form->FormLayoutName;
+                    if (file_exists(dirname(__FILE__).'/formlayouts/'.$layoutName.'.php')) {
+                        require_once dirname(__FILE__).'/formlayouts/'.$layoutName.'.php';
+
+                        $class = 'RSFormProFormLayout'.$layoutName;
+                        if (class_exists($class)) {
+                            $layout = new $class();
+
+                            $loadLayoutFramework = $form->LoadFormLayoutFramework;
+
+                            if (is_callable(array($layout, 'generateButton')))
+                            {
+                                $continueButton = $layout->generateButton($goto);
+                            }
+                        }
+                    }
 				}
 			}
 
@@ -2028,7 +2057,7 @@ class RSFormProHelper
 
 						if ($mapping->connection) {
 							$options = array(
-								'driver' => 'mysql',
+								'driver' => isset($mapping->driver) ? $mapping->driver : 'mysql',
 								'host' => $mapping->host,
 								'user' => $mapping->username,
 								'password' => $mapping->password,
@@ -2162,9 +2191,10 @@ class RSFormProHelper
 
 			// Populate data
 			$formparams = (object) array(
-				'submissionId' 		=> $SubmissionId,
-				'redirectUrl'		=> !$form->ShowThankyou && $form->ReturnUrl ? $form->ReturnUrl : $u,
-				'showSystemMessage' => $form->ShowSystemMessage
+                'loadLayoutFramework'   => !empty($loadLayoutFramework) ? 1 : 0,
+				'submissionId' 		    => $SubmissionId,
+				'redirectUrl'		    => !$form->ShowThankyou && $form->ReturnUrl ? $form->ReturnUrl : $u,
+				'showSystemMessage'     => $form->ShowSystemMessage
 			);
 
 			// Store the Thank You Message if option is set
@@ -2581,8 +2611,15 @@ class RSFormProHelper
 				
 				// check the calendar field if is required
 				if (($typeId == RSFORM_FIELD_CALENDAR || $typeId == RSFORM_FIELD_JQUERY_CALENDAR) && strlen(trim($post['form'][$data['NAME']]))) {
+					$selectedDate = $post['form'][$data['NAME']];
 
-					$selectedDate = trim($post['form'][$data['NAME']]);
+					if (JFactory::getLanguage()->getTag() != 'en-GB')
+					{
+						require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/calendar.php';
+						
+						$selectedDate = RSFormProCalendar::fixValue($selectedDate, $data['DATEFORMAT']);
+					}
+
 					$validDate = JFactory::getDate()->createFromFormat($data['DATEFORMAT'], $selectedDate);
 
 					if ($validDate) {
@@ -2697,24 +2734,24 @@ class RSFormProHelper
 	public static function getTranslations($reference, $formId, $lang, $select = 'value')
 	{
 		static $selections = array();
-		static $current_lang;
+		static $langs = array();
 
 		$formId = (int) $formId;
 		$db = JFactory::getDbo();
 		$query = $db->getQuery(true);
 
 		// Do not grab translations if the form is in the same language as the translation.
-		if (is_null($current_lang)) {
+		if (!isset($langs[$formId])) {
 
 			$query->clear()
 				->select($db->qn('Lang'))
 				->from('#__rsform_forms')
 				->where($db->qn('FormId').' = '.$db->q($formId));
 			$db->setQuery($query);
-			$current_lang = $db->loadResult();
+			$langs[$formId] = $db->loadResult();
 		}
 
-		if ($current_lang == $lang)
+		if ($langs[$formId] == $lang)
 			return false;
 		// build the reference hash
 		$hash = md5($reference.$formId.$lang.$select);
@@ -3024,39 +3061,99 @@ class RSFormProHelper
 		);
 	}
 
-	public static function canEdit($formId, $SubmissionId) {
-		$db				= JFactory::getDbo();
-		$user			= JFactory::getUser();
-		$canedit		= false;
-		$user_groups	= JAccess::getGroupsByUser($user->get('id'));
+	public static function canEdit($formId, $SubmissionId)
+    {
+        $db = JFactory::getDbo();
+        $user = JFactory::getUser();
+        $canedit = false;
+        $user_groups = JAccess::getGroupsByUser($user->get('id'));
 
-		$db->setQuery('SELECT '.$db->qn('groups').' FROM '.$db->qn('#__rsform_directory').' WHERE '.$db->qn('formId').' = '.$formId.' ');
-		if ($groups = $db->loadResult()) {
-			$registry = new JRegistry;
-			$registry->loadString($groups);
-			if ($groups = $registry->toArray()) {
+        if ($groups = static::getDirectoryGroups($formId, 'edit')) {
+            $registry = new JRegistry;
+            $registry->loadString($groups);
+            if ($groups = $registry->toArray()) {
+                // Check if the user can edit its own submissions
+                if (in_array('own', $groups)) {
+                    $db->setQuery('SELECT ' . $db->qn('UserId') . ' FROM ' . $db->qn('#__rsform_submissions') . ' WHERE ' . $db->qn('SubmissionId') . ' = ' . $SubmissionId . ' ');
+                    $UserId = $db->loadResult();
+                    if ($UserId == $user->get('id') && !$user->get('guest')) {
+                        $canedit = true;
+                    }
+                }
 
-				// Check if the user can edit its own submissions
-				if (in_array('own',$groups)) {
-					$db->setQuery('SELECT '.$db->qn('UserId').' FROM '.$db->qn('#__rsform_submissions').' WHERE '.$db->qn('SubmissionId').' = '.$SubmissionId.' ');
-					$UserId = $db->loadResult();
-					if ($UserId == $user->get('id') && !$user->get('guest')) {
-						$canedit = true;
-					}
-				}
+                // Check if the current user can edit submissions
+                if ($user_groups) {
+                    foreach ($user_groups as $user_group) {
+                        if (in_array($user_group, $groups))
+                            $canedit = true;
+                    }
+                }
+            }
+        }
 
-				// Check if the current user can edit submissions
-				if ($user_groups) {
-					foreach ($user_groups as $user_group) {
-						if (in_array($user_group,$groups))
-							$canedit = true;
-					}
-				}
-			}
-		}
+        return $canedit;
+    }
 
-		return $canedit;
-	}
+    public static function canDelete($formId, $SubmissionId)
+    {
+        $db         = JFactory::getDbo();
+        $user       = JFactory::getUser();
+        $canDelete  = false;
+        $user_groups = JAccess::getGroupsByUser($user->get('id'));
+
+        if ($groups = static::getDirectoryGroups($formId, 'delete')) {
+            $registry = new JRegistry;
+            $registry->loadString($groups);
+            if ($groups = $registry->toArray()) {
+                // Check if the user can edit its own submissions
+                if (in_array('own', $groups)) {
+                    $db->setQuery('SELECT ' . $db->qn('UserId') . ' FROM ' . $db->qn('#__rsform_submissions') . ' WHERE ' . $db->qn('SubmissionId') . ' = ' . $SubmissionId . ' ');
+                    $UserId = $db->loadResult();
+                    if ($UserId == $user->get('id') && !$user->get('guest')) {
+                        $canDelete = true;
+                    }
+                }
+
+                // Check if the current user can edit submissions
+                if ($user_groups) {
+                    foreach ($user_groups as $user_group) {
+                        if (in_array($user_group, $groups))
+                            $canDelete = true;
+                    }
+                }
+            }
+        }
+
+        return $canDelete;
+    }
+
+    public static function getDirectoryGroups($formId, $type = 'edit')
+    {
+        static $cache = array();
+
+        if (!isset($cache[$formId]))
+        {
+            $cache[$formId] = (object) array(
+                'edit'   => null,
+                'delete' => null
+            );
+
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)
+                ->select($db->qn('groups'))
+                ->select($db->qn('DeletionGroups'))
+                ->from($db->qn('#__rsform_directory'))
+                ->where($db->qn('formId') . ' = ' . $db->q($formId));
+
+            if ($result = $db->setQuery($query)->loadObject())
+            {
+                $cache[$formId]->edit = $result->groups;
+                $cache[$formId]->delete = $result->DeletionGroups;
+            }
+        }
+
+        return $cache[$formId]->{$type};
+    }
 
 	public static function getEditFields($cid) {
 		$db			= JFactory::getDbo();
@@ -3165,7 +3262,7 @@ class RSFormProHelper
 							JHtml::_('select.option', 1, JText::_('RSFP_YES'))
 						);
 
-						$new_field[1] = JHTML::_('select.genericlist', $options, 'formStatic[confirmed]', null, 'value', 'text', $value);
+						$new_field[1] = JHtml::_('select.genericlist', $options, 'formStatic[confirmed]', null, 'value', 'text', $value);
 					} else {
 						$new_field[1] = '<input class="rs_inp rs_80" type="text" name="formStatic['.$name.']" value="'.RSFormProHelper::htmlEscape($value).'" />';
 					}
@@ -3239,7 +3336,7 @@ class RSFormProHelper
 
 						$val = str_replace('[c]', '', $buf[0]);
 						$item = str_replace('[c]', '', count($buf) == 1 ? $buf[0] : $buf[1]);
-						$options[] = JHTML::_('select.option', $val, $item);
+						$options[] = JHtml::_('select.option', $val, $item);
 					}
 
 					$attribs = array();
@@ -3251,7 +3348,7 @@ class RSFormProHelper
 						$attribs[] = 'class="rsform-error"';
 					$attribs = implode(' ', $attribs);
 
-					$new_field[1] = JHTML::_('select.genericlist', $options, 'form['.$name.'][]', $attribs, 'value', 'text', $value);
+					$new_field[1] = JHtml::_('select.genericlist', $options, 'form['.$name.'][]', $attribs, 'value', 'text', $value);
 					break;
 
 				case 'fileUpload':
@@ -3341,6 +3438,7 @@ class RSFormProHelper
 				->select($db->qn('FormLayoutName'))
 				->select($db->qn('FormLayout'))
 				->select($db->qn('LoadFormLayoutFramework'))
+				->select($db->qn('FormLayoutFlow'))
 				->select($db->qn('DisableSubmitButton'))
 				->select($db->qn('RemoveCaptchaLogged'))
 				->select($db->qn('KeepIP'))
@@ -3377,7 +3475,6 @@ class RSFormProHelper
 				->select($db->qn('AjaxValidation'))
 				->select($db->qn('ScrollToError'))
 				->select($db->qn('MultipleSeparator'))
-				->select($db->qn('ThemeParams'))
 				->from($db->qn('#__rsform_forms'))
 				->where($db->qn('FormId').'='.$db->q($formId));
 
@@ -3389,15 +3486,7 @@ class RSFormProHelper
 	}
 
 	public static function getRawPost() {
-		$jversion = new JVersion;
-
-		if ($jversion->isCompatible('3.0')) {
-			require_once dirname(__FILE__).'/adapters/input.php';
-			$input = RSInput::create();
-			return $input->post->getArray();
-		} else {
-			return JRequest::get('post', JREQUEST_ALLOWRAW);
-		}
+		return JFactory::getApplication()->input->post->getArray(array(), null, 'raw');
 	}
 
 	public static function generateQuickAdd($field, $key){

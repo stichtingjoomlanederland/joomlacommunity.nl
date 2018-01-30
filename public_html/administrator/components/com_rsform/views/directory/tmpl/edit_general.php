@@ -19,20 +19,6 @@ defined('_JEXEC') or die('Restricted access'); ?>
 		</td>
 	</tr>
 	<tr>
-		<td width="25%" nowrap="nowrap" align="right" class="key"><?php echo JText::_('RSFP_SUBM_DIR_CAN_EDIT'); ?></td>
-		<td>
-			<div class="control-group">
-				<div class="controls">
-					<label for="own" class="checkbox">
-						<input type="checkbox" id="own" value="own" name="jform[groups][]" <?php if (in_array('own',$this->directory->groups)) echo 'checked="checked"'; ?> />
-						<?php echo JText::_('RSFP_SUBM_DIR_EDIT_OWN_SUBMISSIONS'); ?>
-					</label>
-				</div>
-			</div>
-			<?php echo JHtml::_('access.usergroups', 'jform[groups]', $this->directory->groups, true); ?>
-		</td>
-	</tr>
-	<tr>
 		<td width="25%" nowrap="nowrap" align="right" class="key"><?php echo JText::_('RSFP_SUBM_DIR_ENABLE_PDF_SUPPORT'); ?></td>
 		<td>
 			<?php echo $this->lists['enablepdf']; ?>

@@ -14,10 +14,10 @@ class RSFormProRangeSlider
 	{
 		JHtml::_('jquery.framework', true);
 		
-		RSFormProAssets::addScript(JHtml::script('com_rsform/rangeslider/ion.rangeSlider.js', false, true, true));
-		RSFormProAssets::addScript(JHtml::script('com_rsform/rangeslider/script.js', false, true, true));
-		RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/rangeslider/ion.rangeSlider.css', array(), true, true));
-		RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/rangeslider/ion.rangeSlider.skin.css', array(), true, true));
+		RSFormProAssets::addScript(JHtml::script('com_rsform/rangeslider/ion.rangeSlider.js', array('pathOnly' => true, 'relative' => true)));
+		RSFormProAssets::addScript(JHtml::script('com_rsform/rangeslider/script.js', array('pathOnly' => true, 'relative' => true)));
+		RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/rangeslider/ion.rangeSlider.css', array('pathOnly' => true, 'relative' => true)));
+		RSFormProAssets::addStyleSheet(JHtml::stylesheet('com_rsform/rangeslider/ion.rangeSlider.skin.css', array('pathOnly' => true, 'relative' => true)));
 	}
 	
 	public static function getInstance()

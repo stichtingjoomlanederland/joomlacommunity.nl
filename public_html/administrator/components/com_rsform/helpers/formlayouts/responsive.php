@@ -11,7 +11,9 @@ require_once dirname(__FILE__).'/../formlayout.php';
 
 class RSFormProFormLayoutResponsive extends RSFormProFormLayout
 {
-    public $errorClass = '';
+    public $errorClass      = '';
+    public $fieldErrorClass = 'rsform-error';
+
 	public $progressContent = '<div><div class="rsformProgressContainer"><div class="rsformProgressBar" style="width: {percent}%;"><em>{page_lang} <strong>{page}</strong> {of_lang} {total}</em></div></div></div>';
 	
 	public function __construct() {
@@ -29,5 +31,13 @@ class RSFormProFormLayoutResponsive extends RSFormProFormLayout
 		if (JFactory::getDocument()->getDirection() == 'rtl') {
 			$this->addStyleSheet('com_rsform/frameworks/responsive/responsive-rtl.css');
 		}
+    }
+
+    public function generateButton($goto)
+    {
+        return
+            '<div class="formResponsive">'.
+                '<button type="button" class="rsform-submit-button" name="continue" onclick="'.$goto.'">'.JText::_('RSFP_THANKYOU_BUTTON').'</button>'.
+            '</div>';
     }
 }

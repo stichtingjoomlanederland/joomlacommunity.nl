@@ -14,22 +14,24 @@ class RSFormProField
 	protected $data;
 	protected $value;
 	protected $invalid;
-	protected $errorClass;
+	protected $errorClass = '';
+    protected $fieldErrorClass = '';
 	
 	protected $name;
 	protected $namespace = 'form';
 	
 	// calculation handling
-	public $pricePattern = '#\[p(.*?)\]#is';
+	public $pricePattern = '#\[p([0-9\.\-\+]+)\]#s';
 	public $prices = array();
-
 	
 	public $preview = false;
 	
 	public function __construct($config) {
-		foreach ($config as $key => $value) {
+		foreach ($config as $key => $value)
+		{
 			$this->{$key} = $value;
 		}
+
 		$this->name = $this->getProperty('NAME');
 	}
 
@@ -134,12 +136,22 @@ class RSFormProField
 	
 	public function getAttributes() {
 		$return = array();
-		if ($attr = $this->getProperty('ADDITIONALATTRIBUTES')) {
+
+        if ($attr = $this->getProperty('ADDITIONALATTRIBUTES'))
+		{
 			$return = $this->parseAttributes($attr);
 		}
-		if (!isset($return['class'])) {
+
+		if (!isset($return['class']))
+		{
 			$return['class'] = '';
 		}
+
+		if ($this->invalid)
+        {
+            $return['class'] .= $this->fieldErrorClass;
+        }
+
 		return $return;
 	}
 

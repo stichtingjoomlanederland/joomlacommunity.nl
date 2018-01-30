@@ -7,4 +7,4 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-echo JHTML::_('jgrid.published', $this->field->published, $this->i, 'components.');
+echo JHtml::_('jgrid.published', $this->field->published, $this->i, 'components.');

@@ -15,7 +15,7 @@ JHtml::_('behavior.tooltip');
 <h1><?php echo $this->escape($this->params->get('page_heading')); ?></h1>
 <?php } ?>
 
-<form action="<?php echo $this->escape(JURI::getInstance()); ?>" method="post" name="adminForm" id="adminForm" class="form-inline">
+<form action="<?php echo $this->escape(JUri::getInstance()); ?>" method="post" name="adminForm" id="adminForm" class="form-inline">
 	<?php if ($this->hasSearchFields || $this->directory->enablecsv) { ?>
 	<div class="well well-small">
 		<?php if ($this->hasSearchFields) { ?>

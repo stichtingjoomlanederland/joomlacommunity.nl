@@ -20,4 +20,4 @@ defined('_JEXEC') or die('Restricted access');
 	<input type="hidden" name="task" value="forms.new.steptwo" />
 </form>
 
-<?php JHTML::_('behavior.keepalive'); ?>
+<?php JHtml::_('behavior.keepalive'); ?>

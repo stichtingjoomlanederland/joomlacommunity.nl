@@ -11,7 +11,9 @@ require_once dirname(__FILE__).'/../formlayout.php';
 
 class RSFormProFormLayoutFoundation extends RSFormProFormLayout
 {
-	public $errorClass = ' has-error-foundation';
+	public $errorClass      = ' has-error-foundation';
+    public $fieldErrorClass = 'is-invalid-input';
+
 	public $progressContent = '<div><div class="progress" role="progressbar" tabindex="0" aria-valuenow="{percent}" aria-valuemin="0" aria-valuemax="100"><div class="progress-meter" style="width: {percent}%"><p class="progress-meter-text"><em>{page_lang} <strong>{page}</strong> {of_lang} {total}</em></p></div></div></div>';
 	
 	public function __construct() {
@@ -41,4 +43,9 @@ class RSFormProFormLayoutFoundation extends RSFormProFormLayout
 		$this->addScript('com_rsform/frameworks/foundation/app.js');
 
 	}
+
+    public function generateButton($goto)
+    {
+        return '<button type="button" class="rsform-submit-button button" name="continue" onclick="'.$goto.'">'.JText::_('RSFP_THANKYOU_BUTTON').'</button>';
+    }
 }

@@ -13,17 +13,12 @@ class RSFormProFieldFoundationSubmitButton extends RSFormProFieldSubmitButton
 {
 	// @desc All buttons should have a class for easy styling
 	public function getAttributes($type='button') {
-		$attr = parent::getAttributes();
+		$attr = parent::getAttributes($type);
 		if (strlen($attr['class'])) {
 			$attr['class'] .= ' ';
 		}
 		if ($type == 'button') {
 			$attr['class'] .= ' button';
-			
-			// Check for invalid here so that we can add 'rsform-error'
-			if ($this->invalid) {
-				$attr['class'] .= ' rsform-error';
-			}
 		} elseif ($type == 'reset') {
 			$attr['class'] .= ' button alert';
 		} elseif ($type == 'previous') {

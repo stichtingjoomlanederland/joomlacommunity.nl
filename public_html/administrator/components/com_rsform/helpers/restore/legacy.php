@@ -246,16 +246,31 @@ class RSFormProRestore
 				
 				$value = str_replace($replace, $with, $value);				
 				$db->setQuery($value);
-				if (!$db->execute())
+				
+				try
+				{
+					$db->execute();
+				}
+				catch (Exception $e)
 				{
 					// Compatibility with an older version
 					$pattern = "#Unknown column '(.*?)'#is";
-					if (preg_match($pattern, $db->getErrorMsg(), $match) && $match[1] == 'UserEmailConfirmation')
+					if (preg_match($pattern, $e->getMessage(), $match))
 					{
-						$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `UserEmailConfirmation` TINYINT(1) NOT NULL");
-						$db->execute();
-						
-						$this->_addColumnToRemove('UserEmailConfirmation');
+						if ($match[1] == 'UserEmailConfirmation')
+						{
+							$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `UserEmailConfirmation` TINYINT(1) NOT NULL");
+							$db->execute();
+							
+							$this->_addColumnToRemove('UserEmailConfirmation');
+						}
+						if ($match[1] == 'ThemeParams')
+						{
+							$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `ThemeParams` TEXT NOT NULL");
+							$db->execute();
+							
+							$this->_addColumnToRemove('ThemeParams');
+						}
 						
 						$db->setQuery($value);
 						if (!$db->execute())

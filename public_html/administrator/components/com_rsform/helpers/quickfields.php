@@ -48,17 +48,31 @@ class RSFormProQuickFields
 							$componentPlaceholders = array(
 								'name' => $properties['NAME'],
 								'id'   => $component->ComponentTypeId,
-								'generate' => array(
-									'{' . $properties['NAME'] . ':caption}',
-									'{' . $properties['NAME'] . ':body}',
-									'{' . $properties['NAME'] . ':description}',
-									'{' . $properties['NAME'] . ':validation}',
-								),
-								'display'  => array(
-									'{' . $properties['NAME'] . ':caption}',
-									'{' . $properties['NAME'] . ':value}',
-								),
+								'generate' => array(),
+								'display'  => array()
 							);
+							
+							// Add caption placeholders only if captions exist.
+							if (isset($properties['CAPTION']))
+							{
+								$componentPlaceholders['generate'][] = '{' . $properties['NAME'] . ':caption}';
+								$componentPlaceholders['display'][] = '{' . $properties['NAME'] . ':caption}';
+							}
+
+							// Body placeholder
+							$componentPlaceholders['generate'][] = '{' . $properties['NAME'] . ':body}';
+
+							// Add description placeholders only if a description exists.
+							if (isset($properties['DESCRIPTION']))
+							{
+								$componentPlaceholders['generate'][] = '{' . $properties['NAME'] . ':description}';
+							}
+							
+							// Validation placeholder
+							$componentPlaceholders['generate'][] = '{' . $properties['NAME'] . ':validation}';
+
+							// Value placeholder
+							$componentPlaceholders['display'][] = '{' . $properties['NAME'] . ':value}';
 
 							if ($component->ComponentTypeId == RSFORM_FIELD_FILEUPLOAD) {
 								$componentPlaceholders['display'][] = '{' . $properties['NAME'] . ':path}';
@@ -66,11 +80,8 @@ class RSFormProQuickFields
 								$componentPlaceholders['display'][] = '{' . $properties['NAME'] . ':filename}';
 							}
 
-							if ($component->ComponentTypeId == RSFORM_FIELD_SELECTLIST || $component->ComponentTypeId == RSFORM_FIELD_CHECKBOXGROUP || $component->ComponentTypeId == RSFORM_FIELD_RADIOGROUP) {
-								$componentPlaceholders['display'][] = '{' . $properties['NAME'] . ':text}';
-							}
-
 							if (isset($properties['ITEMS'])) {
+								$componentPlaceholders['display'][] = '{' . $properties['NAME'] . ':text}';
 								if (strpos($properties['ITEMS'], '[p') !== false) {
 									$componentPlaceholders['display'][] = '{' . $properties['NAME'] . ':price}';
 								}
@@ -86,9 +97,9 @@ class RSFormProQuickFields
 							$propImagetype = self::getProperty($properties, 'IMAGETYPE');
 							if ($propRequired || // Add required fields
 							    (!is_null($propImagetype) && $propImagetype != 'INVISIBLE') || // Add CAPTCHA fields
-							    ($component->ComponentTypeId == 24) // Add ReCAPTCHA fields
+							    (in_array($component->ComponentTypeId, RSFormProHelper::$captchaFields)) // Add ReCAPTCHA fields
 							) {
-								$isRequired =true;
+								$isRequired = true;
 
 								// Populate the 'required' array
 								$required[] = $properties['NAME'];

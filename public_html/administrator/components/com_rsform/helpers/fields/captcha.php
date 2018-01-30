@@ -175,12 +175,7 @@ class RSFormProFieldCaptcha extends RSFormProField
 			$attr['class'] .= ' ';
 		}
 		$attr['class'] .= 'rsform-captcha-box';
-		
-		// Check for invalid here so that we can add 'rsform-error'
-		if ($this->invalid) {
-			$attr['class'] .= ' rsform-error';
-		}
-		
+
 		return $attr;
 	}
 	

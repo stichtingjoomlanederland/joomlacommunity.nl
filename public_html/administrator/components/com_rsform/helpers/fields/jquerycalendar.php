@@ -45,7 +45,7 @@ class RSFormProFieldJqueryCalendar extends RSFormProField
 		$this->customId = $this->formId.'_'.$position;
 		
 		$hiddenValue = '';
-		$hidden = JRequest::getVar('hidden');
+        $hidden = JFactory::getApplication()->input->get('hidden', array(), 'array');
 		$hiddenName = $this->formId.'_'.$this->getProperty('NAME', '');
 		
 		if (!empty($hidden[$hiddenName])) {
@@ -195,11 +195,6 @@ class RSFormProFieldJqueryCalendar extends RSFormProField
 			}
 			
 			$attr['onclick'] .= "RSFormPro.jQueryCalendar.showCalendar('".$this->customId."');";
-		}
-		
-		// Check for invalid here so that we can add 'rsform-error'
-		if ($this->invalid) {
-			$attr['class'] .= ' rsform-error';
 		}
 		
 		return $attr;

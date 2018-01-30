@@ -94,7 +94,13 @@ class RSFormProFieldPageBreak extends RSFormProField
 				} else {
 					$attr['onclick'] = '';
 				}
-				$attr['onclick'] .= "rsfp_changePage($formId, $nextPage, $totalPages, $validate".(!empty($this->errorClass) ? ", '".$this->errorClass."'" : '').")";
+
+                $validationParams = array(
+                    'parent' => $this->errorClass,
+                    'field'  => $this->fieldErrorClass
+                );
+
+				$attr['onclick'] .= "rsfp_changePage($formId, $nextPage, $totalPages, $validate, " . json_encode($validationParams) . ")";
 				foreach ($attr as $key => $values) {
 					$additional .= $this->attributeToHtml($key, $values);
 				}

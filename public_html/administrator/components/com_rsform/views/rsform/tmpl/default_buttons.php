@@ -6,9 +6,12 @@
 */
 
 defined('_JEXEC') or die('Restricted access');
+
+$rows = array_chunk($this->buttons, 4);
+foreach ($rows as $buttons) {
 ?>
-<div class="dashboard-container">
-	<?php foreach ($this->buttons as $button) { ?>
+	<div class="dashboard-container">
+	<?php foreach ($buttons as $button) { ?>
 		<?php if ($button['access']) { ?>
 			<div class="dashboard-info dashboard-button">
 				<a <?php if ($button['target']) { ?> target="<?php echo $this->escape($button['target']); ?>"<?php } ?> href="<?php echo $button['link']; ?>"> 
@@ -18,5 +21,6 @@ defined('_JEXEC') or die('Restricted access');
 			</div>
 		<?php } ?>
 	<?php } ?>
-</div>
-<span class="rsform_clear_both"></span>
+	</div>
+<?php
+}

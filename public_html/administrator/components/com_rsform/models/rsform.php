@@ -70,13 +70,6 @@ class RsformModelRsform extends JModelLegacy
 				'target' 	=> ''
 			),
 			array(
-				'link' 		=> JRoute::_('index.php?option=com_rsform&view=updates'),
-				'image' 	=> 'components/com_rsform/assets/images/restore.png',
-				'text' 		=> JText::_('RSFP_UPDATES'),
-				'access' 	=> true,
-				'target' 	=> ''
-			),
-			array(
 				'link' 		=> 'https://www.rsjoomla.com/support/documentation/rsform-pro/plugins-and-modules.html',
 				'image' 	=> 'components/com_rsform/assets/images/samples.png',
 				'text' 		=> JText::_('RSFP_PLUGINS'),

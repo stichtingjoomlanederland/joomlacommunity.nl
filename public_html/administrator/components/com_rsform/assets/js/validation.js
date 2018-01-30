@@ -39,8 +39,8 @@ RSFormPro.Validations = {
 	},
 
 	Tooltips: function($field) {
-		if (typeof jQuery.fn.tooltip == 'function') {
-			jQuery('.fieldHasTooltip').tooltip({"html": false,"container": "body"});
+		if (typeof jQuery.fn.popover == 'function') {
+			jQuery('.fieldHasTooltip').popover({"html": false, "container": "body", "trigger": 'hover'});
 		} else {
 			new Tips($$('.fieldHasTooltip'), { maxTitleChars: 50, fixed: false});
 		}

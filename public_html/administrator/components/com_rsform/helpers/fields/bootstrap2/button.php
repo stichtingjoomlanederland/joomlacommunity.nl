@@ -11,18 +11,12 @@ require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/fields/button.p
 
 class RSFormProFieldBootstrap2Button extends RSFormProFieldButton
 {
-	
 	// @desc All buttons should have a class for easy styling
 	public function getAttributes($type='button') {
-		$attr = parent::getAttributes();
+		$attr = parent::getAttributes($type);
 		
 		if ($type == 'button') {
 			$attr['class'] .= ' btn';
-			
-			// Check for invalid here so that we can add 'rsform-error'
-			if ($this->invalid) {
-				$attr['class'] .= ' rsform-error';
-			}
 		} elseif ($type == 'reset') {
 			$attr['class'] .= ' btn btn-danger';
 		}

@@ -7,11 +7,9 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-jimport('joomla.application.component.controller');
-
 class RsformControllerComponents extends RsformController
 {
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 
@@ -26,15 +24,17 @@ class RsformControllerComponents extends RsformController
 		$this->_db = JFactory::getDbo();
 	}
 
-	function save()
+	public function save()
 	{
 		$db = JFactory::getDbo();
 
-		$componentType 	   = JFactory::getApplication()->input->getInt('COMPONENTTYPE');
-		$componentIdToEdit = JFactory::getApplication()->input->getInt('componentIdToEdit');
-		$formId 		   = JFactory::getApplication()->input->getInt('formId');
+		$app               = JFactory::getApplication();
+		$componentType 	   = $app->input->getInt('COMPONENTTYPE');
+		$componentIdToEdit = $app->input->getInt('componentIdToEdit');
+		$formId 		   = $app->input->getInt('formId');
 
 		$params = JRequest::getVar('param', array(), 'post', 'none', JREQUEST_ALLOWRAW);
+        $params = $app->input->post->get('param', array(), 'raw');
 		$params['EMAILATTACH'] = !empty($params['EMAILATTACH']) ? implode(',',$params['EMAILATTACH']) : '';
 		if (isset($params['VALIDATIONRULE']) && $params['VALIDATIONRULE'] == 'multiplerules') {
 			$params['VALIDATIONMULTIPLE'] = !empty($params['VALIDATIONMULTIPLE']) ? implode(',',$params['VALIDATIONMULTIPLE']) : '';
@@ -135,13 +135,20 @@ class RsformControllerComponents extends RsformController
 
 
 		$link = 'index.php?option=com_rsform&task=forms.edit&formId='.$formId;
-		if (JFactory::getApplication()->input->getCmd('tmpl') == 'component')
-			$link .= '&tmpl=component';
+        if ($app->input->getInt('tabposition')) {
+            $link .= '&tabposition=1';
+            if ($tab = $app->input->getInt('tab')) {
+                $link .= '&tab=' . $tab;
+            }
+        }
+		if ($app->input->getCmd('tmpl') == 'component') {
+            $link .= '&tmpl=component';
+        }
 
 		$this->setRedirect($link);
 	}
 
-	function saveOrdering()
+	public function saveOrdering()
 	{
 		$db = JFactory::getDbo();
 		$post = JRequest::get('post');
@@ -221,7 +228,7 @@ class RsformControllerComponents extends RsformController
 		JFactory::getApplication()->close();
 	}
 
-	function display($cachable = false, $urlparams = false)
+	public function display($cachable = false, $urlparams = false)
 	{
 		JFactory::getApplication()->input->set('view', 	'formajax');
 		JFactory::getApplication()->input->set('layout', 	'component');
@@ -230,13 +237,13 @@ class RsformControllerComponents extends RsformController
 		parent::display($cachable, $urlparams);
 	}
 
-	function copyProcess()
+    public function copyProcess()
 	{
 		$toFormId 	= JFactory::getApplication()->input->getInt('toFormId');
-		$cids 		= JRequest::getVar('cid');
+		$cids 		= JFactory::getApplication()->input->get('cid', array(), 'array');
 		$model 		= $this->getModel('forms');
 
-		JArrayHelper::toInteger($cids, array());
+		array_map('intval', $cids);
 
 		foreach ($cids as $cid) {
 			$model->copyComponent($cid, $toFormId);
@@ -245,7 +252,7 @@ class RsformControllerComponents extends RsformController
 		$this->setRedirect('index.php?option=com_rsform&task=forms.edit&formId='.$toFormId, JText::sprintf('RSFP_COMPONENTS_COPIED', count($cids)));
 	}
 
-	function copy()
+    public function copy()
 	{
 		$formId = JFactory::getApplication()->input->getInt('formId');
 		$db = JFactory::getDbo();
@@ -259,19 +266,19 @@ class RsformControllerComponents extends RsformController
 		parent::display();
 	}
 
-	function copyCancel()
+    public function copyCancel()
 	{
 		$formId = JFactory::getApplication()->input->getInt('formId');
 		$this->setRedirect('index.php?option=com_rsform&task=forms.edit&formId='.$formId);
 	}
 
-	function duplicate()
+    public function duplicate()
 	{
 		$formId = JFactory::getApplication()->input->getInt('formId');
-		$cids 	= JRequest::getVar('cid');
+        $cids 	= JFactory::getApplication()->input->get('cid', array(), 'array');
 		$model 	= $this->getModel('forms');
 
-		JArrayHelper::toInteger($cids, array());
+		array_map('intval', $cids);
 		foreach ($cids as $cid) {
 			$model->copyComponent($cid, $formId);
 		}
@@ -279,7 +286,7 @@ class RsformControllerComponents extends RsformController
 		$this->setRedirect('index.php?option=com_rsform&task=forms.edit&formId='.$formId, JText::sprintf('RSFP_COMPONENTS_COPIED', count($cids)));
 	}
 
-	function changeStatus()
+    public function changeStatus()
 	{
 		$model = $this->getModel('formajax');
 		$model->componentsChangeStatus();
@@ -307,7 +314,7 @@ class RsformControllerComponents extends RsformController
 		}
 	}
 
-	function changeRequired()
+    public function changeRequired()
 	{
 		$model = $this->getModel('formajax');
 		$model->componentsChangeRequired();

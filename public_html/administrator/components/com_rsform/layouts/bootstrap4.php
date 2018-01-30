@@ -8,4 +8,7 @@
 // no direct access
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-// Moved to /administrator/components/com_rsform/helpers/rsform.php
+require_once __DIR__ . '/grid/bootstrap4.php';
+
+$grid = new RSFormProGridBootstrap4($this->_form->GridLayout, $formId, $formOptions, $requiredMarker, $showFormTitle);
+echo $grid->generate();

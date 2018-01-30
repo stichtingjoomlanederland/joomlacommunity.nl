@@ -149,12 +149,12 @@ echo JLayoutHelper::render('joomla.modal.main', $modalData);
 			<th width="1%" nowrap="nowrap"><?php echo JText::_('#'); ?></th>
 			<th width="1%" nowrap="nowrap"><input type="checkbox" name="toggle" value="" onclick="Joomla.checkAll(this);" /></th>
 			<?php foreach ($this->staticHeaders as $header) { ?>
-			<th width="1%" nowrap="nowrap" <?php echo !$this->isHeaderEnabled($header, 1) ? 'style="display: none"' : ''; ?> class="title"><?php echo JHTML::_('grid.sort', JText::_('RSFP_'.$header), $header, $this->sortOrder, $this->sortColumn, 'submissions.manage'); ?></th>
+			<th width="1%" nowrap="nowrap" <?php echo !$this->isHeaderEnabled($header, 1) ? 'style="display: none"' : ''; ?> class="title"><?php echo JHtml::_('grid.sort', JText::_('RSFP_'.$header), $header, $this->sortOrder, $this->sortColumn, 'submissions.manage'); ?></th>
 			<?php } ?>
 			<?php foreach ($this->headers as $header) { ?>
 			<th <?php echo !$this->isHeaderEnabled($header, 0) ? 'style="display: none"' : ''; ?> class="title">
 				<?php if ($header == '_STATUS') $htitle = JText::_('RSFP_PAYMENT_STATUS'); elseif ($header == '_ANZ_STATUS') $htitle = JText::_('RSFP_ANZ_STATUS'); else $htitle = $header; ?>
-				<?php echo JHTML::_('grid.sort', $htitle, $header, $this->sortOrder, $this->sortColumn, 'submissions.manage'); ?>
+				<?php echo JHtml::_('grid.sort', $htitle, $header, $this->sortOrder, $this->sortColumn, 'submissions.manage'); ?>
 			</th>
 			<?php } ?>
 		</tr>
@@ -165,7 +165,7 @@ echo JLayoutHelper::render('joomla.modal.main', $modalData);
 		foreach ($this->submissions as $submissionId => $submission) { ?>
 			<tr class="row<?php echo $k; ?>">
 				<td width="1%" nowrap="nowrap" align="center"><?php echo $this->pagination->getRowOffset($i); ?></td>
-				<td width="1%" nowrap="nowrap"><?php echo JHTML::_('grid.id', $i, $submissionId); ?></td>
+				<td width="1%" nowrap="nowrap"><?php echo JHtml::_('grid.id', $i, $submissionId); ?></td>
 				<?php foreach ($this->staticHeaders as $header) { ?>
 				<td width="1%" nowrap="nowrap" <?php echo !$this->isHeaderEnabled($header, 1) ? 'style="display: none"' : ''; ?>><?php echo $this->escape($submission[$header]); ?></td>
 				<?php } ?>
@@ -220,4 +220,4 @@ echo JLayoutHelper::render('joomla.modal.main', $modalData);
 	<input type="hidden" name="boxchecked" value="0" />
 </form>
 
-<?php JHTML::_('behavior.keepalive'); ?>
+<?php JHtml::_('behavior.keepalive'); ?>

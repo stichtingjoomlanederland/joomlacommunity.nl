@@ -30,20 +30,25 @@ $listDirn	= $this->escape($this->filter_order_Dir); ?>
 			<?php foreach ($this->viewableFields as $field) { ?>
 				<td align="center" class="center directoryCol directoryCol<?php echo $this->getFilteredName($field->FieldName); ?>"><?php echo $this->getValue($item, $field); ?></td>
 			<?php } ?>
-			<td align="center" class="center directoryActions">
+			<td align="center" class="center directoryActions" nowrap="nowrap">
 				<?php if ($this->hasDetailFields) { ?>
 				<a class="<?php echo $this->tooltipClass; ?> directoryDetail" title="<?php echo RSFormProHelper::getTooltipText(JText::_('RSFP_SUBM_DIR_VIEW')); ?>" href="<?php echo JRoute::_('index.php?option=com_rsform&view=directory&layout=view&id='.$item->SubmissionId); ?>">
-					<img src="<?php echo JURI::root().'components/com_rsform/assets/images/view.png'; ?>" alt="" />
+                    <?php echo JHtml::_('image', 'com_rsform/view.png', JText::sprintf('COM_RSFORM_VIEW_SUBMISSION_ALT', $item->SubmissionId), null, true); ?>
 				</a>
 				<?php } ?>
-				<?php if (RSFormProHelper::canEdit($this->params->get('formId'),$item->SubmissionId)) { ?>
-				<a class="<?php echo $this->tooltipClass; ?> directoryEdit" title="<?php echo RSFormProHelper::getTooltipText(JText::_('RSFP_SUBM_DIR_EDIT')); ?>" href="<?php echo JRoute::_('index.php?option=com_rsform&&view=directory&layout=edit&id='.$item->SubmissionId); ?>">
-					<img src="<?php echo JURI::root().'components/com_rsform/assets/images/edit.png'; ?>" alt="" />
+				<?php if (RSFormProHelper::canEdit($this->params->get('formId'), $item->SubmissionId)) { ?>
+				<a class="<?php echo $this->tooltipClass; ?> directoryEdit" title="<?php echo RSFormProHelper::getTooltipText(JText::_('RSFP_SUBM_DIR_EDIT')); ?>" href="<?php echo JRoute::_('index.php?option=com_rsform&view=directory&layout=edit&id='.$item->SubmissionId); ?>">
+                    <?php echo JHtml::_('image', 'com_rsform/edit.png', JText::sprintf('COM_RSFORM_EDIT_SUBMISSION_ALT', $item->SubmissionId), null, true); ?>
 				</a>
 				<?php } ?>
+                <?php if (RSFormProHelper::canDelete($this->params->get('formId'), $item->SubmissionId)) { ?>
+                    <a onclick="return confirm('<?php echo JText::_('RSFP_SUBM_DIR_DELETE_SURE', true); ?>');" class="<?php echo $this->tooltipClass; ?> directoryDelete" title="<?php echo RSFormProHelper::getTooltipText(JText::_('RSFP_SUBM_DIR_DELETE')); ?>" href="<?php echo JRoute::_('index.php?option=com_rsform&controller=directory&task=delete&id='.$item->SubmissionId); ?>">
+                        <?php echo JHtml::_('image', 'com_rsform/delete.png', JText::sprintf('COM_RSFORM_DELETE_SUBMISSION_ALT', $item->SubmissionId), null, true); ?>
+                    </a>
+                <?php } ?>
 				<?php if ($this->directory->enablepdf) { ?>
 				<a class="<?php echo $this->tooltipClass; ?> directoryPdf" title="<?php echo RSFormProHelper::getTooltipText(JText::_('RSFP_SUBM_DIR_PDF')); ?>" href="<?php echo $this->pdfLink($item->SubmissionId); ?>">
-					<img src="<?php echo JURI::root().'components/com_rsform/assets/images/pdf.png'; ?>" alt="" />
+                    <?php echo JHtml::_('image', 'com_rsform/pdf.png', JText::sprintf('COM_RSFORM_DOWNLOAD_PDF_ALT', $item->SubmissionId), null, true); ?>
 				</a>
 				<?php } ?>
 			</td>

@@ -14,7 +14,7 @@ class RSFormProFieldUikitPageBreak extends RSFormProFieldPageBreak
 	// @desc All page breaks should have a 'rsform-button' class for easy styling
 	//		 onclick should also be present for convenience.
 	public function getAttributes($action = null) {
-		$attr = parent::getAttributes();
+		$attr = parent::getAttributes($action);
 		if (strlen($attr['class'])) {
 			$attr['class'] .= ' ';
 		}

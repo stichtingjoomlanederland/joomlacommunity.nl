@@ -15,38 +15,22 @@ class RSFormProFieldBootstrap3JqueryCalendar extends RSFormProFieldJqueryCalenda
 		if ($layout == 'FLAT') {
 			return '<div class="row"><div class="col-md-12">'.$input.'</div>'.'<div class="col-md-12">'.$container.'</div>'.$hidden.'</div>';
 		} else {
-			return '<div class="row"><div class="col-md-6">'.$input.'</div>'.'<div class="col-md-6">'.$button.'</div>'.$container.$hidden.'</div>';
+            return '<div class="input-group">'.$input.'<span class="input-group-btn">'.$button.'</span></div>'.$container.$hidden;
 		}
 	}
 	
 	// @desc All calendars should have a 'rsform-calendar-box' class for easy styling
 	//		 Since the calendar is composed of multiple items, we need to differentiate the attributes through the $type parameter
 	public function getAttributes($type='input') {
-		$attr = parent::getAttributes();
+		$attr = parent::getAttributes($type);
 		if (strlen($attr['class'])) {
 			$attr['class'] .= ' ';
 		}
 		
 		if ($type == 'input') {
-			$attr['class'] .= 'rsform-calendar-box form-control';
-			$layout	= $this->getProperty('CALENDARLAYOUT', 'FLAT');
-			if ($layout == 'FLAT') {
-				$attr['class'] .= ' txtCal';
-			}
+			$attr['class'] .= 'form-control';
 		} elseif ($type == 'button') {
-			$attr['class'] .= 'btnCal rsform-calendar-button btn btn-default';
-			if (!empty($attr['onclick'])) {
-				$attr['onclick'] .= ' ';
-			} else {
-				$attr['onclick'] = '';
-			}
-			
-			$attr['onclick'] .= "RSFormPro.jQueryCalendar.showCalendar('".$this->customId."');";
-		}
-		
-		// Check for invalid here so that we can add 'rsform-error'
-		if ($this->invalid) {
-			$attr['class'] .= ' rsform-error';
+			$attr['class'] .= 'btn btn-default';
 		}
 		
 		return $attr;

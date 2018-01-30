@@ -31,8 +31,8 @@ class RsformModelSubmissions extends JModelLegacy
 		
 		// The parameter is not enabled, throw an error to prevent other people from crafting a link and seeing submissions
 		if (!$this->params->get('enable_submissions', 0)) {
-			JError::raiseWarning(500, JText::_('RSFP_VIEW_SUBMISSIONS_NOT_ENABLED_FORGOT'));
-			return $app->redirect(JURI::root());
+		    $app->enqueueMessage(JText::_('RSFP_VIEW_SUBMISSIONS_NOT_ENABLED_FORGOT'), 'warning');
+			return $app->redirect(JUri::root());
 		}
 		
 		// Get pagination request variables
@@ -112,7 +112,7 @@ class RsformModelSubmissions extends JModelLegacy
 		else
 		{
 			$userId = explode(',', $userId);
-			JArrayHelper::toInteger($userId);
+			array_map('intval', $userId);
 			
 			$query .= " AND s.UserId IN (".implode(',', $userId).")";
 		}
@@ -201,7 +201,7 @@ class RsformModelSubmissions extends JModelLegacy
 					if (in_array($result->FieldName, $this->uploadFields) && !empty($result->FieldValue))
 					{
 						$result->FilePath = $result->FieldValue;
-						$result->FieldValue = '<a href="'.JURI::root().'index.php?option=com_rsform&amp;task=submissions.view.file&amp;hash='.md5($result->SubmissionId.$secret.$result->FieldName).'">'.JFile::getName($result->FieldValue).'</a>';
+						$result->FieldValue = '<a href="'.JUri::root().'index.php?option=com_rsform&amp;task=submissions.view.file&amp;hash='.md5($result->SubmissionId.$secret.$result->FieldName).'">'.JFile::getName($result->FieldValue).'</a>';
 					}
 					// Check if this is a multiple field
 					elseif (in_array($result->FieldName, $this->multipleFields))
@@ -213,7 +213,7 @@ class RsformModelSubmissions extends JModelLegacy
 					if (in_array($result->FieldName, $this->uploadFields) && !empty($result->FieldValue))
 					{
 						$filepath = $result->FilePath;
-						$filepath = str_replace(JPATH_SITE.DIRECTORY_SEPARATOR, JURI::root(), $filepath);
+						$filepath = str_replace(JPATH_SITE.DIRECTORY_SEPARATOR, JUri::root(), $filepath);
 						$filepath = str_replace(array('\\', '\\/', '//\\'), '/', $filepath);
 						
 						$this->_data[$result->SubmissionId]['SubmissionValues'][$result->FieldName]['Path'] = $filepath;
@@ -232,7 +232,7 @@ class RsformModelSubmissions extends JModelLegacy
 		if (is_null($siteurl)) {
 			$config 	= JFactory::getConfig();
 			$sitename 	= $config->get('sitename');
-			$siteurl	= JURI::root();
+			$siteurl	= JUri::root();
 			$mailfrom	= $config->get('mailfrom');
 			$fromname	= $config->get('fromname');
 		}
@@ -378,7 +378,7 @@ class RsformModelSubmissions extends JModelLegacy
 			$userId = $this->params->def('userId', 0);
 			if ($userId != 'login' && $userId != 0) {
 				$userId = explode(',', $userId);
-				JArrayHelper::toInteger($userId);
+				array_map('intval', $userId);
 			}
 			
 			// Grab submission
@@ -387,21 +387,21 @@ class RsformModelSubmissions extends JModelLegacy
 			
 			// Submission doesn't exist
 			if (!$submission) {
-				JError::raiseWarning(500, JText::sprintf('RSFP_SUBMISSION_DOES_NOT_EXIST', $cid));
-				return $app->redirect(JURI::root());
+                $app->enqueueMessage(JText::sprintf('RSFP_SUBMISSION_DOES_NOT_EXIST', $cid), 'warning');
+				return $app->redirect(JUri::root());
 			}
 			
 			// Submission doesn't belong to the configured form ID OR
 			// can view only own submissions and not his own OR
 			// can view only specified user IDs and this doesn't belong to any of the IDs
 			if (($submission->FormId != $this->params->get('formId')) || ($userId == 'login' && $submission->UserId != $user->get('id')) || (is_array($userId) && !in_array($user->get('id'), $userId))) {
-				JError::raiseWarning(500, JText::sprintf('RSFP_SUBMISSION_NOT_ALLOWED', $cid));
-				return $app->redirect(JURI::root());
+                $app->enqueueMessage(JText::sprintf('RSFP_SUBMISSION_NOT_ALLOWED', $cid), 'warning');
+				return $app->redirect(JUri::root());
 			}
 			
 			if ($this->params->get('show_confirmed', 0) && !$submission->confirmed) {
-				JError::raiseWarning(500, JText::sprintf('RSFP_SUBMISSION_NOT_CONFIRMED', $cid));
-				return $app->redirect(JURI::root());
+                $app->enqueueMessage(JText::sprintf('RSFP_SUBMISSION_NOT_CONFIRMED', $cid), 'warning');
+				return $app->redirect(JUri::root());
 			}
 			
 			$pdf_link = JRoute::_('index.php?option=com_rsform&view=submissions&layout=view&cid='.$cid.'&format=pdf'.$Itemid);

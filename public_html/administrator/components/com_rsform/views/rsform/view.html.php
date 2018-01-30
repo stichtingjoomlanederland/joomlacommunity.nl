@@ -1,13 +1,11 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2018 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
 defined('_JEXEC') or die('Restricted access');
-
-jimport('joomla.application.component.view');
 
 class RsformViewRsform extends JViewLegacy
 {
@@ -16,12 +14,9 @@ class RsformViewRsform extends JViewLegacy
 	protected $code;
 	protected $version;
 	
-	function display($tpl = null)
+	public function display($tpl = null)
 	{
 		$this->addToolbar();
-		
-		$doc = JFactory::getDocument();
-		$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rsform/assets/css/dashboard.css');
 
 		$this->buttons  = $this->get('Buttons');
 		$this->code		= $this->get('code');
@@ -29,12 +24,16 @@ class RsformViewRsform extends JViewLegacy
 		
 		$this->sidebar	= $this->get('SideBar');
 		
+		JFactory::getDocument()->addStyleSheet(JUri::root(true).'/administrator/components/com_rsform/assets/css/dashboard.css?v=' . $this->version);
+		
 		parent::display($tpl);
 	}
 	
 	protected function addToolbar() {
 		if (JFactory::getUser()->authorise('core.admin', 'com_rsform'))
+		{
 			JToolbarHelper::preferences('com_rsform');
+		}
 		
 		// set title
 		JToolbarHelper::title('RSForm! Pro', 'rsform');

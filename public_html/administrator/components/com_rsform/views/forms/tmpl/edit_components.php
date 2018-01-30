@@ -39,15 +39,19 @@ defined('_JEXEC') or die('Restricted access');
 	<input type="hidden" name="componentEditForm" id="componentEditForm" value="-1" />
 
 <div id="componentscontent">
+    <div class="alert alert-info" id="rsform_ordering_msg">
+        <?php echo JText::_('RSFP_ORDERING_FROM_GRID_LAYOUT'); ?>
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+    </div>
+    <div class="alert alert-error" id="rsform_layout_msg" <?php if ($this->form->FormLayoutAutogenerate) { ?>style="display: none"<?php } ?>>
+        <?php echo JText::_('RSFP_AUTOGENERATE_LAYOUT_DISABLED'); ?>
+    </div>
+    <div class="alert alert-error center" id="rsform_submit_button_msg" <?php if ($this->hasSubmitButton) { ?>style="display: none"<?php } ?>>
+        <img src="components/com_rsform/assets/images/submit-help.jpg" alt="" /> <br/> <br/><?php echo JText::_('RSFP_NO_SUBMIT_BUTTON'); ?>
+    </div>
 	<table border="0" width="100%" class="adminrsform">
 		<tr>
 			<td valign="top" class="componentPreview">
-				<div class="alert alert-error" id="rsform_layout_msg" <?php if ($this->form->FormLayoutAutogenerate) { ?>style="display: none"<?php } ?>>
-					<?php echo JText::_('RSFP_AUTOGENERATE_LAYOUT_DISABLED'); ?>
-				</div>
-				<div class="alert alert-error center" id="rsform_submit_button_msg" <?php if ($this->hasSubmitButton) { ?>style="display: none"<?php } ?>>
-					<img src="components/com_rsform/assets/images/submit-help.jpg" alt="" /> <br/> <br/><?php echo JText::_('RSFP_NO_SUBMIT_BUTTON'); ?>
-				</div>
 					<table border="0" id="componentPreview" class="adminlist table table-striped">
 						<thead>
 						<tr>
@@ -57,7 +61,7 @@ defined('_JEXEC') or die('Restricted access');
 							<th class="title"><?php echo JText::_('RSFP_PREVIEW');?></th>
 							<th class="title" width="5">&nbsp;</th>
 							<th class="title" width="5">&nbsp;</th>
-							<th width="150" class="nowrap center"><span class="pull-left"><?php echo JText::_('Ordering'); ?></span> <?php echo JHTML::_('grid.order',$this->fields); ?></th>
+							<th width="150" class="order nowrap center"><span class="pull-left"><?php echo JText::_('Ordering'); ?></span> <?php echo JHtml::_('grid.order',$this->fields); ?></th>
 							<th class="title" width="5"><?php echo JText::_('RSFP_PUBLISHED');?></th>
 							<th class="title" width="5" nowrap="nowrap"><?php echo JText::_('RSFP_COMP_FIELD_REQUIRED');?></th>
 							<th class="title" width="5" nowrap="nowrap"><?php echo JText::_('RSFP_COMP_FIELD_VALIDATIONRULE');?></th>
@@ -72,7 +76,7 @@ defined('_JEXEC') or die('Restricted access');
 						$n++;
 						foreach ($this->fields as $field) { ?>
 						<tr class="row<?php echo $k; ?><?php if ($field->type_id == 41) { ?> rsform_page<?php } ?>">
-							<td><input type="hidden" name="previewComponentId" value="<?php echo $field->id; ?>" /><?php echo JHTML::_('grid.id', $i, $field->id); ?></td>
+							<td><input type="hidden" id="preview-id-<?php echo $field->id; ?>" name="previewComponentId" value="<?php echo $field->id; ?>" /><?php echo JHtml::_('grid.id', $i, $field->id); ?></td>
 							<td><?php echo $field->name; ?></td>
 							<?php echo $field->preview; ?>
 							<td align="center"><button type="button" class="btn" onclick="displayTemplate('<?php echo $field->type_id; ?>','<?php echo $field->id; ?>');"><?php echo JText::_('RSFP_EDIT'); ?></button></td>
@@ -82,7 +86,7 @@ defined('_JEXEC') or die('Restricted access');
 								<span><?php echo $this->pagination->orderDownIcon( $i, $n, true, 'orderdown', 'Move Down', 'ordering' ); ?></span>
 								<input type="text" name="order[]" size="5" value="<?php echo $field->ordering; ?>" disabled="disabled" class="width-20 text-area-order" style="text-align:center" />
 							</td>
-							<td align="center" id="publishcb<?php echo $i; ?>"><?php echo JHTML::_('jgrid.published', $field->published, $i, 'components.'); ?></td>
+							<td align="center" id="publishcb<?php echo $i; ?>"><?php echo JHtml::_('jgrid.published', $field->published, $i, 'components.'); ?></td>
 							<td align="center" id="requiredcb<?php echo $i; ?>"><?php echo is_bool($field->required) ?
 							JHtml::_('jgrid.state', array(
 								0 => array('setrequired', 'JYES', '', '', false, 'unpublish', 'unpublish'),

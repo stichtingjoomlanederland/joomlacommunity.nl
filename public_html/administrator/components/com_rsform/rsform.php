@@ -20,7 +20,6 @@ if (!$user->authorise('core.manage', 'com_rsform')) {
 // Require the base controller
 require_once JPATH_COMPONENT.'/controller.php';
 require_once JPATH_COMPONENT.'/helpers/rsform.php';
-require_once JPATH_COMPONENT.'/helpers/adapter.php';
 
 $mainframe = JFactory::getApplication();
 

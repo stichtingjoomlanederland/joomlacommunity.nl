@@ -11,7 +11,7 @@ jimport('joomla.application.component.controller');
 
 class RsformControllerSubmissions extends RsformController
 {
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		
@@ -25,7 +25,7 @@ class RsformControllerSubmissions extends RsformController
 		$this->_db = JFactory::getDbo();
 	}
 
-	function manage()
+	public function manage()
 	{
 		$app	= JFactory::getApplication();
 		$model	= $this->getModel('submissions');
@@ -37,13 +37,13 @@ class RsformControllerSubmissions extends RsformController
 		$app->redirect('index.php?option=com_rsform&view=submissions'.($formId ? '&formId='.$formId : ''));
 	}
 	
-	function back() {
+	public function back() {
 		$app	= JFactory::getApplication();
 		$formId = $app->input->getInt('formId');
 		$app->redirect('index.php?option=com_rsform&view=submissions&formId='.$formId);
 	}
 	
-	function edit()
+	public function edit()
 	{
 		$model = $this->getModel('submissions');
 		$cid   = $model->getSubmissionId();
@@ -51,7 +51,7 @@ class RsformControllerSubmissions extends RsformController
 		$app->redirect('index.php?option=com_rsform&view=submissions&layout=edit&cid='.$cid);
 	}
 	
-	function columns()
+	public function columns()
 	{
 		$app 	= JFactory::getApplication();
 		$formId = JFactory::getApplication()->input->getInt('formId');
@@ -76,7 +76,7 @@ class RsformControllerSubmissions extends RsformController
 		$app->redirect('index.php?option=com_rsform&view=submissions&formId='.$formId);
 	}
 	
-	function save()
+	public function save()
 	{
 		// Get the model
 		$model = $this->getModel('submissions');
@@ -100,12 +100,12 @@ class RsformControllerSubmissions extends RsformController
 		$this->setRedirect($link, JText::_('RSFP_SUBMISSION_SAVED'));
 	}
 	
-	function resend()
+	public function resend()
 	{
 		$app 	= JFactory::getApplication();
 		$formId = JFactory::getApplication()->input->getInt('formId');
 		$cid 	= JRequest::getVar('cid', array(), 'post');
-		JArrayHelper::toInteger($cid);
+		array_map('intval', $cid);
 		
 		foreach ($cid as $SubmissionId)
 			RSFormProHelper::sendSubmissionEmails($SubmissionId);
@@ -113,20 +113,20 @@ class RsformControllerSubmissions extends RsformController
 		$this->setRedirect('index.php?option=com_rsform&view=submissions&formId='.$formId, JText::_('RSFP_SUBMISSION_MAILS_RESENT'));
 	}
 	
-	function cancel()
+	public function cancel()
 	{
 		$app = JFactory::getApplication();
 		$app->redirect('index.php?option=com_rsform');
 	}
 	
-	function cancelForm()
+	public function cancelForm()
 	{
 		$app 	= JFactory::getApplication();
 		$formId = $app->input->getInt('formId');
 		$app->redirect('index.php?option=com_rsform&view=forms&layout=edit&formId='.$formId);
 	}
 	
-	function clear()
+	public function clear()
 	{
 		$app 	= JFactory::getApplication();
 		$formId = JFactory::getApplication()->input->getInt('formId');
@@ -138,12 +138,12 @@ class RsformControllerSubmissions extends RsformController
 		$this->setRedirect('index.php?option=com_rsform&view=forms', JText::sprintf('RSFP_SUBMISSIONS_CLEARED', $total));
 	}
 	
-	function delete()
+	public function delete()
 	{
 		$app 	= JFactory::getApplication();
 		$formId = JFactory::getApplication()->input->getInt('formId');
 		$cid 	= JRequest::getVar('cid', array(), 'post');
-		JArrayHelper::toInteger($cid);
+		array_map('intval', $cid);
 		
 		$model = $this->getModel('submissions');
 		$model->deleteSubmissionFiles($cid);
@@ -152,7 +152,7 @@ class RsformControllerSubmissions extends RsformController
 		$app->redirect('index.php?option=com_rsform&view=submissions&formId='.$formId);
 	}
 	
-	function export()
+	public function export()
 	{
 		$app 	  = JFactory::getApplication();
 		$config   = JFactory::getConfig();
@@ -171,7 +171,7 @@ class RsformControllerSubmissions extends RsformController
 		$view->display();
 	}
 	
-	function exportProcess()
+	public function exportProcess()
 	{
 		$mainframe = JFactory::getApplication();
 		
@@ -201,7 +201,7 @@ class RsformControllerSubmissions extends RsformController
 		$rows = !empty($post['ExportRows']) ? explode(',', $post['ExportRows']) : '';
 		
 		// Use headers ?
-		$use_headers = (int) $post['ExportHeaders'];
+		$use_headers = !empty($post['ExportHeaders']);
 		
 		// Headers and ordering
 		$staticHeaders = $post['ExportSubmission'];
@@ -461,7 +461,7 @@ class RsformControllerSubmissions extends RsformController
 		exit();
 	}
 	
-	function exportTask()
+	public function exportTask()
 	{
 		$session = JFactory::getSession();
 		$session->set('com_rsform.export.data', serialize(JRequest::get('post', JREQUEST_ALLOWRAW)));
@@ -473,7 +473,7 @@ class RsformControllerSubmissions extends RsformController
 		$view->display();
 	}
 	
-	function exportFile()
+	public function exportFile()
 	{
 		$config = JFactory::getConfig();
 		$file = JFactory::getApplication()->input->getCmd('ExportFile');

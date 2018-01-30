@@ -25,12 +25,12 @@ class RSFormProFormLayout
 	}
 	
 	protected function addStyleSheet($path) {
-		$stylesheet = JHtml::stylesheet($path, array(), true, true);
+		$stylesheet = JHtml::stylesheet($path, array('pathOnly' => true, 'relative' => true));
 		RSFormProAssets::addStyleSheet($stylesheet);
 	}
 	
 	protected function addScript($path) {
-		$script = JHtml::script($path, false, true, true);
+		$script = JHtml::script($path, array('pathOnly' => true, 'relative' => true));
 		RSFormProAssets::addScript($script);
 	} 
 	

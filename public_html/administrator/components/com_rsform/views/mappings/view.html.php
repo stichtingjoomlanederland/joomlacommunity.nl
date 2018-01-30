@@ -73,7 +73,7 @@ class RsformViewMappings extends JViewLegacy
 		$version 	= new RSFormProVersion();
 		$v 			= (string) $version;
 
-		RSFormProAssets::addScript(JURI::root(true).'/administrator/components/com_rsform/assets/js/placeholders.js?v='.$v);
+		RSFormProAssets::addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/placeholders.js?v='.$v);
 
 		$displayPlaceholders = array(
 			'{global:username}',

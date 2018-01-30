@@ -20,19 +20,18 @@ class RsformController extends JControllerLegacy
 		$doc 		= JFactory::getDocument();
 
 		JHtml::_('jquery.framework');
-		$doc->addScript(JURI::root(true).'/administrator/components/com_rsform/assets/js/placeholders.js?v='.$v);
-		$doc->addScript(JURI::root(true).'/administrator/components/com_rsform/assets/js/script.js?v='.$v);
-		$doc->addScript(JURI::root(true).'/administrator/components/com_rsform/assets/js/jquery.tag-editor.js?v='.$v);
-		$doc->addScript(JURI::root(true).'/administrator/components/com_rsform/assets/js/jquery.caret.min.js?v='.$v);
-		$doc->addScript(JURI::root(true).'/administrator/components/com_rsform/assets/js/validation.js?v='.$v);
-		$doc->addScript(JURI::root(true).'/administrator/components/com_rsform/assets/js/tablednd.js?v='.$v);
-		$doc->addScript(JURI::root(true).'/administrator/components/com_rsform/assets/js/jquery.scrollto.js?v='.$v);
+		$doc->addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/placeholders.js?v='.$v);
+		$doc->addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/script.js?v='.$v);
+		$doc->addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/jquery.tag-editor.js?v='.$v);
+		$doc->addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/jquery.caret.min.js?v='.$v);
+		$doc->addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/validation.js?v='.$v);
+		$doc->addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/tablednd.js?v='.$v);
+		$doc->addScript(JUri::root(true).'/administrator/components/com_rsform/assets/js/jquery.scrollto.js?v='.$v);
 
-		$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rsform/assets/css/style.css?v='.$v);
-		$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rsform/assets/css/jquery.tag-editor.css?v='.$v);
-		$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rsform/assets/css/rsdesign.css?v='.$v);
+		$doc->addStyleSheet(JUri::root(true).'/administrator/components/com_rsform/assets/css/style.css?v='.$v);
+		$doc->addStyleSheet(JUri::root(true).'/administrator/components/com_rsform/assets/css/jquery.tag-editor.css?v='.$v);
 		// load the font
-		$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rsform/assets/css/fonts/rsicons.css?v='.$v);
+		$doc->addStyleSheet(JUri::root(true).'/administrator/components/com_rsform/assets/css/fonts/rsicons.css?v='.$v);
 	}
 
 	public function mappings()
@@ -144,6 +143,10 @@ class RsformController extends JControllerLegacy
 		$captcha = new RSFormProCaptcha($componentId);
 
 		JFactory::getSession()->set('com_rsform.captcha.captchaId'.$componentId, $captcha->getCaptcha());
-		exit();
+		
+		if (JFactory::getDocument()->getType() != 'image')
+		{
+			JFactory::getApplication()->close();
+		}
 	}
 }

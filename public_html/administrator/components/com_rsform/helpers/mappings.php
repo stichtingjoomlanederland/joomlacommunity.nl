@@ -34,14 +34,6 @@ class RSFormProMappings
 		$db 	= $model->getMappingDbo($config);
 		$query 	= $db->getQuery(true);
 		
-		$database = '';
-		if (!empty($row->database))
-		{
-			if ($row->connection) {
-				$database = $db->qn($row->database).'.';
-			}
-		}
-		
 		// Get the fields
 		$data = @unserialize($row->data);
 		if ($data === false) {
@@ -97,20 +89,26 @@ class RSFormProMappings
 		
 		// Create the SET clause
 		if (!empty($data)) {
+			$fields = array();
+			$values = array();
+			
 			foreach ($data as $column => $field) {
 				$query->set($db->qn($column).'='.$db->q($field));
+				
+				$fields[] = $db->qn($column);
+				$values[] = $db->q($field);
 			}
 		}
 		
 		// Prefix the database name
 		$table = $row->table;
-		if (!empty($row->database)) {
-			$table = $row->database.'.'.$row->table;
-		}
 		
 		switch ($row->method) {
 			case RSFP_MAPPINGS_INSERT:
-				$query->insert($db->qn($table));
+				$query->clear();
+				$query->insert($db->qn($table))
+					->columns($fields)
+					->values(implode(',', $values));
 			break;
 			case RSFP_MAPPINGS_REPLACE:
 				$query = 'REPLACE INTO '.$db->qn($table).' SET ';

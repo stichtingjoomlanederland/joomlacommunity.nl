@@ -18,11 +18,6 @@ class RSFormProFieldBootstrap3Button extends RSFormProFieldButton
 		
 		if ($type == 'button') {
 			$attr['class'] .= ' btn btn-default';
-			
-			// Check for invalid here so that we can add 'rsform-error'
-			if ($this->invalid) {
-				$attr['class'] .= ' rsform-error';
-			}
 		} elseif ($type == 'reset') {
 			$attr['class'] .= ' btn btn-danger';
 		}
