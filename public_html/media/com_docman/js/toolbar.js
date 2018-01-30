@@ -2,7 +2,7 @@ kQuery(function($) {
     var grid   = $('.k-js-grid-controller'),
         controller = grid.data('controller'),
         buttons  = controller.buttons,
-        no_action_buttons = $('#toolbar-move, #toolbar-batch, #toolbar-assign, #toolbar-remove');
+        no_action_buttons = $('#toolbar-move, #toolbar-batch, #toolbar-copy, #toolbar-assign, #toolbar-remove');
 
     if (no_action_buttons.length) {
         buttons.push(no_action_buttons);

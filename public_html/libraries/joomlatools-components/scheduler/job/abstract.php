@@ -90,6 +90,16 @@ abstract class ComSchedulerJobAbstract extends KObject implements ComSchedulerJo
     }
 
     /**
+     * Signals that there is no need to run the job
+     *
+     * @return int
+     */
+    public function skip()
+    {
+        return ComSchedulerJobInterface::JOB_SKIP;
+    }
+
+    /**
      * Returns the prioritized flag of the job
      *
      * @return bool

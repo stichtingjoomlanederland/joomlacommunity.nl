@@ -146,7 +146,7 @@ class ComFilesModelEntityFolder extends ComFilesModelEntityNode implements KComm
 
 	public function hasChildren()
 	{
-		return (boolean) count($this->_children);
+		return is_null($this->_children) ? false : (boolean) count($this->_children);
 	}
 
 	/**

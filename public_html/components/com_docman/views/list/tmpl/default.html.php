@@ -50,6 +50,21 @@ defined('KOOWA') or die; ?>
                     <span class="koowa_wrapped_content">
                         <span class="whitespace_preserver">
                             <?= escape($category->title); ?>
+
+                            <? // Label locked ?>
+                            <? if ($category->canPerform('edit') && $category->isLockable() && $category->isLocked()): ?>
+                                <span class="label label-warning"><?= translate('Locked'); ?></span>
+                            <? endif; ?>
+
+                            <? // Label status ?>
+                            <? if (!$category->enabled): ?>
+                                <span class="label label-draft"><?= translate('Draft'); ?></span>
+                            <? endif; ?>
+
+                            <? // Label owner ?>
+                            <? if ($params->get('show_category_owner_label', 1) && !$category->isNew() && object('user')->getId() == $category->created_by): ?>
+                                <span class="label label-success"><?= translate('Owner'); ?></span>
+                            <? endif; ?>
                         </span>
                     </span>
                 </span>

@@ -243,9 +243,10 @@ kQuery(function($) {
                         }
 
                         chain.unshift(function() {
+                            var action = f.attr('action');
 
                             $.ajax({
-                                url: f.attr('action')+'&view=document&id=&slug=',
+                                url: action+ (action.indexOf('?') === -1 ? '?' : '&') + 'view=document&id=&slug=',
                                 type: 'POST',
                                 dataType: 'json',
                                 data: self.getPostData(f, defaults)
@@ -259,7 +260,7 @@ kQuery(function($) {
 
                                     f.empty();
 
-                                    link += '&format=html&id='+item.id;
+                                    link += (link.indexOf('?') === -1 ? '?' : '&') + 'format=html&id='+item.id;
 
                                     if (link.search('administrator/') === -1) {
                                         link += '&layout=form';

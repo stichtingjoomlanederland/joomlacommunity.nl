@@ -15,7 +15,7 @@ defined('KOOWA') or die; ?>
             for (; i < fields.length; i++) {
                 field = $(fields[i]);
 
-                if (!field.val()) {
+                if (field.length && !field.val()) {
                     var input = $('<input type="hidden" />')
                         .attr('name', field.attr('name').replace('[]', ''))
                         .val('');

@@ -29,7 +29,8 @@ class ComSchedulerDispatcherHttp extends KDispatcherAbstract
             'controller' => 'com:scheduler.controller.dispatcher',
             'response'   => 'com:koowa.dispatcher.response',
             'request'    => 'com:koowa.dispatcher.request',
-            'user'       => 'com:koowa.user'
+            'user'       => 'com:koowa.user',
+            'debug'      => KClassLoader::getInstance()->isDebug()
         ));
 
         parent::_initialize($config);
@@ -42,15 +43,38 @@ class ComSchedulerDispatcherHttp extends KDispatcherAbstract
         $context = $job_dispatcher->getContext();
 
         $job_dispatcher->synchronize($context);
-        $job_dispatcher->dispatch($context);
 
-        $result = array(
+        $result  = null;
+        $can_run = function($result, $context) use ($job_dispatcher) {
+            static $i = 0, $time = 0.0;
+            if ($i == 0 ||
+                ($i < 5
+                    && $job_dispatcher->getNextJob()
+                    && ($result === ComSchedulerJobInterface::JOB_SKIP || $time < 7.5))
+            ) {
+                $i++;
+                $time += $context->getJobDuration();
+
+                $context->log(sprintf('Current total time %f', $time));
+
+                return true;
+            }
+
+            return false;
+        };
+
+        while ($can_run($result, $context)) {
+            $result = $job_dispatcher->dispatch($context);
+        }
+
+        $response = array(
             'continue' => (bool) $job_dispatcher->getNextJob(),
-            'logs'     => KClassLoader::getInstance()->isDebug() ? $context->getLogs() : array()
+            'sleep_until' => $context->sleep_until,
+            'logs'     => $this->getConfig()->debug ? $context->getLogs() : array()
         );
 
         $context->request->setFormat('json');
-        $context->response->setContent(json_encode($result), 'application/json');
+        $context->response->setContent(json_encode($response), 'application/json');
         $context->response->headers->set('Cache-Control', 'no-cache');
 
         $this->send();

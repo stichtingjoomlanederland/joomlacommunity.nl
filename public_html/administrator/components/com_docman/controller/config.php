@@ -27,7 +27,7 @@ class ComDocmanControllerConfig extends ComKoowaControllerModel
     }
 
     /**
-     * Avoid getting redirected to the configs view. It doesn't exist.
+     * Avoid getting redirected to the configs, export, or import views
      */
     protected function _setRedirect(KControllerContextInterface $context)
     {
@@ -36,8 +36,8 @@ class ComDocmanControllerConfig extends ComKoowaControllerModel
         if ($response->isRedirect())
         {
             $url = $response->getHeaders()->get('Location');
-            if (strpos($url, 'view=configs') !== false) {
-                $response->setRedirect(str_replace('view=configs', 'view=documents', $url));
+            if (preg_match('#view=(configs|export|import)#', $url, $matches)) {
+                $response->setRedirect(str_replace('view='.$matches[1], 'view=documents', $url));
             }
         }
     }

@@ -84,6 +84,7 @@ class ComDocmanControllerToolbarActionbar extends ComKoowaControllerToolbarActio
 
         if ($identifier->name === 'document') {
             $this->addMove(array('allowed' => $controller->canEdit()));
+            $this->addCopy(array('allowed' => $controller->canAdd()));
             $this->addBatch(array('allowed' => $controller->canEdit()));
         }
     }
@@ -97,6 +98,7 @@ class ComDocmanControllerToolbarActionbar extends ComKoowaControllerToolbarActio
     protected function _commandCopy(KControllerToolbarCommand $command)
     {
         $command->icon = 'k-icon-layers';
+        $command->label = 'JTOOLBAR_DUPLICATE';
     }
 
     protected function _commandBatch(KControllerToolbarCommand $command)

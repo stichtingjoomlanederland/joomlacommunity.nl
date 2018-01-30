@@ -31,6 +31,10 @@ class PlgContentDoclink extends JPlugin
         $links = $this->_getLinks($row->text);
 
         if (count($links->document)) {
+            $this->_replaceLinksWithPlayers($links->document, $row->text);
+        }
+
+        if (count($links->document)) {
             $this->_enrichDocumentLinks($links->document, $row->text);
         }
 
@@ -63,6 +67,10 @@ class PlgContentDoclink extends JPlugin
                 continue;
             }
 
+            if ($document->isPlayable()) {
+                continue;
+            }
+
             $menu = JFactory::getApplication()->getMenu()->getItem($link->query['Itemid']);
 
             if ($menu && $menu->params->get('document_title_link') === 'download' && $menu->params->get('track_downloads'))
@@ -77,6 +85,47 @@ class PlgContentDoclink extends JPlugin
             $this->_replaceLink($link, $this->_renderLink($link, $document), $text);
         }
     }
+
+    /**
+     * Replaces audio/video playable links with html5 players
+     *
+     * @param array  $links   The links to enrich.
+     * @param string $text The text containing the links.
+     */
+    protected function _replaceLinksWithPlayers(&$links, &$text)
+    {
+        $document_ids = array_map(function($link) { return $link->id;}, $links);
+
+        $entities = $this->getObject('com://admin/docman.model.documents')->id($document_ids)->fetch();
+
+        foreach ($links as &$link)
+        {
+            $document = $entities->find($link->id);
+
+            if (strpos(trim($link->text), '<img') === 0 || !$document) {
+                continue;
+            }
+
+            if (! $document->isPlayable()) {
+                continue;
+            }
+
+            $link_template = 'index.php?option=com_docman&view=download&id=%d&Itemid=%d';
+            $document->download_link = JRoute::_(sprintf($link_template, $document->id, $link->query['Itemid']));
+
+            $helper = $this->getObject('com://site/docman.template.helper.player');
+
+            $helper->load();
+
+            $player = $helper->render(array('document' => $document));
+
+            if (! empty($player)) {
+                $this->_replaceLink($link, $player, $text);
+
+            }
+        }
+    }
+
 
     /**
      * Adds category icon information to the links

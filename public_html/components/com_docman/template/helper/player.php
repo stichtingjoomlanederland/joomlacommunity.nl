@@ -30,6 +30,11 @@ class ComDocmanTemplateHelperPlayer extends ComFilesTemplateHelperPlayer
             $html = $this->_renderVimeo($document);
         }
 
+        // Bypass leads plugin on players
+        if ($this->getObject('manager')->getClass('plg:docman.leads')) {
+            $document->download_link .= (strpos($document->download_link, '?') === false ? '?' : '&').'download=1';
+        }
+
         if ($this->_isAudio($document)) {
             $html = $this->_renderAudio($document);
         }

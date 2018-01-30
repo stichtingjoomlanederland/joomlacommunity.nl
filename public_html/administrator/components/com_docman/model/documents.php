@@ -28,7 +28,7 @@ class ComDocmanModelDocuments extends ComDocmanModelAbstract
             ->insert('storage_type', 'identifier')
             ->insert('storage_path', 'com:files.filter.path')
             ->insert('search_path', 'com:files.filter.path')
-            ->insert('search_by', 'string', 'exact')
+            ->insert('search_by', 'string', 'any')
             ->insert('search_date', 'date')
             ->insert('image', 'com:files.filter.path')
             ->insert('day_range', 'int');
@@ -314,9 +314,16 @@ class ComDocmanModelDocuments extends ComDocmanModelAbstract
                 ->bind(array('created_on_from' => $state->created_on_from));
         }
 
-        if ($state->created_on_to) {
+        if ($state->created_on_to)
+        {
+            $end_date = $state->created_on_to;
+            // Add the hour if it's missing to make the date inclusive
+            if (preg_match('#^[0-9]{4}\-[0-9]{2}-[0-9]{2}$#', $end_date)) {
+                $end_date .= ' 23:59:59';
+            }
+
             $query->where("tbl.created_on <= :created_on_to")
-                ->bind(array('created_on_to' => $state->created_on_to));
+                ->bind(array('created_on_to' => $end_date));
         }
 
         if ($state->search_date || $state->day_range)

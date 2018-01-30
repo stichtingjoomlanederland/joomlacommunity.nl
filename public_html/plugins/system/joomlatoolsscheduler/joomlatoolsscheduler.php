@@ -6,7 +6,7 @@
  * @link        http://www.joomlatools.com
  */
 
-class PlgSystemjoomlatoolsscheduler extends JPlugin
+class PlgSystemJoomlatoolsscheduler extends JPlugin
 {
     protected static $_exclude = array(
         'com_postinstall', 'com_joomlaupdate', 'com_joomlatools_installer',

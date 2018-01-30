@@ -1,18 +1,3 @@
-kQuery(function ($) {
-
-    new Docman.MoveDialog({
-        view: '#document-move-modal',
-        button: '.k-button--primary',
-        open_button: '#toolbar-move',
-        category_selector: '#document_move_target'
-    });
-
-    new Docman.BatchDialog({
-        view: '#document-batch-modal',
-        button: '.k-button--primary',
-        open_button: '#toolbar-batch'
-    });
-});
 
 var Docman = Docman || {};
 
@@ -82,6 +67,56 @@ Docman.Dialog = Koowa.Class.extend({
     },
     getData: function() {
         return null;
+    }
+});
+
+Docman.DuplicateDialog = Docman.Dialog.extend({
+    initialize: function(options) {
+        options = {
+            view: $(options.view),
+            button: $(options.button, options.view),
+            open_button: $(options.open_button),
+            tree: $(options.view).find('.k-js-tree-container'),
+            category_selector: $(options.category_selector)
+        };
+
+        this.supr(options);
+    },
+    submit: function() {
+        var controller = $('.k-js-grid-controller').data('controller'),
+            context = {},
+            data = this.getData();
+
+        if (data && Koowa.Grid.getAllSelected().length) {
+            context.validate = true;
+            context.data     = data;
+            context.data[controller.token_name] = controller.token_value;
+            context.action = 'copy';
+
+            controller.trigger('execute', [context]);
+        }
+    },
+    attachEvents: function() {
+        this.supr();
+
+        var self = this;
+
+        if (this.options.category_selector) {
+            this.options.category_selector.on('change', function(e) {
+                self.options.button.prop('disabled', !$(this).val());
+            });
+        }
+    },
+    getData: function() {
+        var selected = this.options.category_selector.val();
+
+        if (selected) {
+            return {
+                docman_category_id: selected
+            };
+        } else {
+            return null;
+        }
     }
 });
 
@@ -180,5 +215,29 @@ Docman.BatchDialog = Docman.Dialog.extend({
         return null;
     }
 });
+
+$(function () {
+
+    new Docman.DuplicateDialog({
+        view: '#document-duplicate-modal',
+        button: '.k-button--primary',
+        open_button: '#toolbar-copy',
+        category_selector: '#document_duplicate_target'
+    });
+
+    new Docman.MoveDialog({
+        view: '#document-move-modal',
+        button: '.k-button--primary',
+        open_button: '#toolbar-move',
+        category_selector: '#document_move_target'
+    });
+
+    new Docman.BatchDialog({
+        view: '#document-batch-modal',
+        button: '.k-button--primary',
+        open_button: '#toolbar-batch'
+    });
+});
+
 
 })(window.kQuery);

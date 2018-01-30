@@ -13,6 +13,8 @@ class ComDocmanJobCache extends ComSchedulerJobAbstract
         $config->append(array(
             'frequency' => ComSchedulerJobInterface::FREQUENCY_DAILY
         ));
+
+        parent::_initialize($config);
     }
 
     public function run(ComSchedulerJobContextInterface $context)

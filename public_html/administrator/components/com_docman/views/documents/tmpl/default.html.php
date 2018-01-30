@@ -95,4 +95,5 @@ defined('KOOWA') or die; ?>
 <div class="k-dynamic-content-holder">
     <?= import('modal_move.html') ?>
     <?= import('modal_batch.html') ?>
+    <?= import('modal_duplicate.html') ?>
 </div>

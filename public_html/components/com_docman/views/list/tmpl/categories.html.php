@@ -34,6 +34,21 @@ defined('KOOWA') or die; ?>
                         <a class="koowa_header__link" href="<?= helper('route.category', array('entity' => $category)) ?>">
                             <?= escape($category->title) ?>
                         </a>
+
+                        <? // Label locked ?>
+                        <? if ($category->canPerform('edit') && $category->isLockable() && $category->isLocked()): ?>
+                            <span class="label label-warning"><?= translate('Locked'); ?></span>
+                        <? endif; ?>
+
+                        <? // Label status ?>
+                        <? if (!$category->enabled): ?>
+                            <span class="label label-draft"><?= translate('Draft'); ?></span>
+                        <? endif; ?>
+
+                        <? // Label owner ?>
+                        <? if ($params->get('show_category_owner_label', 1) && object('user')->getId() == $category->created_by): ?>
+                            <span class="label label-success"><?= translate('Owner'); ?></span>
+                        <? endif; ?>
                     </span>
                 </span>
             </span>

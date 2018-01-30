@@ -13,12 +13,20 @@ class ComDocmanJobScans extends ComSchedulerJobAbstract
         $config->append(array(
             'frequency' => ComSchedulerJobInterface::FREQUENCY_EVERY_FIVE_MINUTES
         ));
+
+        parent::_initialize($config);
     }
 
     public function run(ComSchedulerJobContextInterface $context)
     {
         try {
             $behavior = $this->getObject('com://admin/docman.controller.behavior.scannable');
+
+            if (!$behavior->isSupported()) {
+                $context->log('Joomlatools Connect credentials are missing');
+
+                return $this->skip();
+            }
 
             $i = 0;
             $has_error = false;
@@ -34,10 +42,6 @@ class ComDocmanJobScans extends ComSchedulerJobAbstract
                 }
 
                 $i++;
-            }
-
-            if (!$behavior->isSupported()) {
-                $context->log('Joomlatools Connect credentials are missing');
             }
 
             if ($behavior->needsThrottling()) {

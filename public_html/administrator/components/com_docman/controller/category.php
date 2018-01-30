@@ -39,7 +39,7 @@ class ComDocmanControllerCategory extends ComKoowaControllerModel
      * @param KDispatcherContextInterface $context
      * @throws KControllerExceptionActionFailed
      */
-    protected function _checkDocumentCount(KDispatcherContextInterface $context)
+    protected function _checkDocumentCount(KControllerContextInterface $context)
     {
         $data = $this->getModel()->fetch();
 

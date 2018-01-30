@@ -138,6 +138,8 @@ class ModDocman_categoriesHtml extends ModKoowaHtml
     /**
      * Sets the layout from the parameters
      *
+     * Stops rendering if the page is set to active and the active menu is not a list view
+     *
      * @param KViewContext $context
      */
     protected function _beforeRender(KViewContext $context)
@@ -148,6 +150,15 @@ class ModDocman_categoriesHtml extends ModKoowaHtml
         {
             $this->setLayout($params->layout);
             $context->layout = $this->getLayout();
+        }
+
+        if ($this->getParameters()->page == -1)
+        {
+            $menu = JFactory::getApplication()->getMenu()->getActive();
+
+            if ($menu && is_array($menu->query) && isset($menu->query['view']) && !in_array($menu->query['view'], ['list', 'tree'])) {
+                return false;
+            }
         }
     }
 

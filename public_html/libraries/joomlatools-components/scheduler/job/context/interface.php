@@ -16,6 +16,20 @@
 interface ComSchedulerJobContextInterface extends KControllerContextInterface
 {
     /**
+     * Sets the time it took to complete the job
+     *
+     * @param $time float Duration in ms
+     */
+    public function setJobDuration($time);
+
+    /**
+     * Returns the time it took to run the last job
+     *
+     * @return float
+     */
+    public function getJobDuration();
+
+    /**
      * Sets the time limit
      *
      * @param $time int Unix timestamp

@@ -113,6 +113,8 @@ class ComSchedulerControllerDispatcher extends KControllerAbstract implements Co
      */
     protected function _actionDispatch(ComSchedulerJobContextInterface $context)
     {
+        $start = microtime(true);
+
         if ($entity = $this->getNextJob())
         {
             // Set to running
@@ -158,6 +160,8 @@ class ComSchedulerControllerDispatcher extends KControllerAbstract implements Co
                 $entity->save();
             }
         }
+
+        $context->setJobDuration(microtime(true) - $start);
 
         return $context->result;
     }
@@ -262,6 +266,8 @@ class ComSchedulerControllerDispatcher extends KControllerAbstract implements Co
 
     protected function _afterDispatch(KControllerContextInterface $context)
     {
+        $context->log(sprintf('Job took %.2f seconds', $context->getJobDuration()));
+
         $sleep_until = gmdate('Y-m-d H:i:s', $this->getNextRun());
         $last_run    = gmdate('Y-m-d H:i:s');
 
@@ -273,6 +279,8 @@ class ComSchedulerControllerDispatcher extends KControllerAbstract implements Co
             ->values(['type' => 'metadata', 'sleep_until' => $sleep_until, 'last_run' => $last_run]);
 
         $adapter->execute($query);
+
+        $context->sleep_until = $sleep_until;
     }
 
     public function getNextRun()

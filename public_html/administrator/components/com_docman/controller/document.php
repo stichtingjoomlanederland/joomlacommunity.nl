@@ -122,6 +122,37 @@ class ComDocmanControllerDocument extends ComKoowaControllerModel
         $context->response->setRedirect($this->getReferrer($context));
     }
 
+    protected function _actionCopy(KControllerContextInterface $context)
+    {
+        if(!$context->result instanceof KModelEntityInterface) {
+            $entities = $this->getModel()->fetch();
+        } else {
+            $entities = $context->result;
+        }
+
+        if(count($entities))
+        {
+            foreach($entities as $entity)
+            {
+                unset($entity->id);
+                unset($entity->uuid);
+                $entity->setStatus(KDatabase::STATUS_DELETED);
+                $entity->setProperties($context->request->data->toArray());
+            }
+
+            //Only throw an error if the action explicitly failed.
+            if($entities->save() === false)
+            {
+                $error = $entities->getStatusMessage();
+                throw new KControllerExceptionActionFailed($error ? $error : 'Copy Action Failed');
+            }
+            else $context->status = $entities->getStatus() === KDatabase::STATUS_CREATED ? KHttpResponse::CREATED : KHttpResponse::NO_CONTENT;
+        }
+        else throw new KControllerExceptionResourceNotFound('Resource could not be found');
+
+        return $entities;
+    }
+
     /**
      * Redirects batch edits to documents view.
      *

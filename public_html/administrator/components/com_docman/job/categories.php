@@ -19,6 +19,8 @@ class ComDocmanJobCategories extends ComSchedulerJobAbstract
         $config->append(array(
             'frequency' => ComSchedulerJobInterface::FREQUENCY_EVERY_FIVE_MINUTES
         ));
+
+        parent::_initialize($config);
     }
 
     public function run(ComSchedulerJobContextInterface $context)
@@ -26,13 +28,13 @@ class ComDocmanJobCategories extends ComSchedulerJobAbstract
         if (!$this->getObject('com://admin/docman.model.entity.config')->automatic_category_creation) {
             $context->log('Automatic category creation is turned off in global configuration');
 
-            return $this->complete();
+            return $this->skip();
         }
 
         if (!$this->getObject('com://admin/docman.model.entity.config')->default_owner) {
             $context->log('No default owner selected in global configuration');
 
-            return $this->complete();
+            return $this->skip();
         }
 
         $state = $context->getState();

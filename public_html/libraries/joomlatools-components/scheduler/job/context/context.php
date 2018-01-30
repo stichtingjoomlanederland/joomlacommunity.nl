@@ -28,6 +28,11 @@ class ComSchedulerJobContext extends KControllerContext implements ComSchedulerJ
     protected $_time_limit;
 
     /**
+     * @var float
+     */
+    protected $_job_duration;
+
+    /**
      * Sets the time limit
      *
      * @param $time int Unix timestamp
@@ -58,6 +63,26 @@ class ComSchedulerJobContext extends KControllerContext implements ComSchedulerJ
     public function getTimeLeft()
     {
         return $this->_time_limit ? max($this->_time_limit - time(), 0) : PHP_INT_MAX;
+    }
+
+    /**
+     * Sets the time it took to complete the job
+     *
+     * @param $time float Duration in ms
+     */
+    public function setJobDuration($time)
+    {
+        $this->_job_duration = $time;
+    }
+
+    /**
+     * Returns the time it took to run the last job
+     *
+     * @return float
+     */
+    public function getJobDuration()
+    {
+        return $this->_job_duration;
     }
 
     /**

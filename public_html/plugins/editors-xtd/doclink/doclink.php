@@ -19,33 +19,24 @@ class plgButtonDoclink extends JPlugin
         $button = new JObject();
         $button->class = 'btn';
 
-        $button->set('modal', true);
+        $is_joomlatools_extension = false;
+
+        try
+        {
+            if (class_exists('Koowa') && class_exists('KObjectManager')) {
+                $is_joomlatools_extension = (boolean) KObjectManager::getInstance()->isRegistered('dispatcher');
+            }
+        } catch (Exception $e) {}
+
+        if (!$is_joomlatools_extension) { // Use Joomla modal
+            $button->set('modal', true);
+            $button->set('options', "{handler: 'iframe', size: {x: 1000, y: 600}}");
+        }
+        else $button->set('class', 'btn k-js-iframe-modal'); // Open using MagnificPopup
+
         $button->set('link', 'index.php?option=com_docman&amp;view=doclink&amp;e_name='.$name);
         $button->set('text', JText::_('PLG_DOCLINK_BUTTON_DOCUMENT'));
         $button->set('name', 'download');
-        $button->set('options', "{handler: 'iframe', size: {x: 800, y: 500}}");
-        $button->set('onclick', 'joomlatoolsModalFixer(editor);');
-
-        JFactory::getDocument()->addScriptDeclaration('
-        function joomlatoolsModalFixer(editor) {
-            if (typeof editor !== "undefined" && typeof editor.windowManager !== "undefined") {
-                var i = 0;
-                var interval = setInterval(function() {
-                    i++;
-                    var windows = editor.windowManager.getWindows();
-                    if (windows.length) {
-                        if (windows[0].$el) {
-                            windows[0].$el.addClass("k-joomla-modal-override")
-                        }
-                        clearInterval(interval);
-                    }
-                    if (i == 40) {
-                        clearInterval(interval);
-                    }
-                }, 50);
-            }
-        };
-        ');
 
         JHtml::_('stylesheet', 'media/koowa/com_koowa/css/modal-override.css');
 

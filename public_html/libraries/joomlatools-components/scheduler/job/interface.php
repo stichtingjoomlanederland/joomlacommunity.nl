@@ -18,6 +18,7 @@ interface ComSchedulerJobInterface extends KObjectInterface
     const JOB_COMPLETE = 0;
     const JOB_SUSPEND  = -1;
     const JOB_FAIL     = 1;
+    const JOB_SKIP     = 2;
 
     const FREQUENCY_EVERY_MINUTE       = '* * * * *';
     const FREQUENCY_EVERY_FIVE_MINUTES = '*/5 * * * *';

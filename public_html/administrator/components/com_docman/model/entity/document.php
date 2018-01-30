@@ -378,6 +378,27 @@ class ComDocmanModelEntityDocument extends KModelEntityRow
         return true;
     }
 
+    public function isPlayable()
+    {
+        if ($this->isVideo()) {
+            return true;
+        }
+
+        if ($this->isAudio()) {
+            return true;
+        }
+
+        if ($this->isVimeo()) {
+            return true;
+        }
+
+        if ($this->isYoutube()) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function isTopSecret()
     {
         return false;

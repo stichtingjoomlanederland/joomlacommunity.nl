@@ -45,7 +45,7 @@ defined('KOOWA') or die; ?>
                     <?= import('default_scopebar.html'); ?>
 
                     <!-- Check for categories -->
-                    <? if(!count($tag_count) || !count($tags)) : ?>
+                    <? if(!$tag_count || !count($tags)) : ?>
 
                         <!-- No categories -->
                         <?= import('no_tags.html'); ?>

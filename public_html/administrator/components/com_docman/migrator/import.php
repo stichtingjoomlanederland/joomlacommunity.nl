@@ -64,7 +64,7 @@ class ComDocmanMigratorImport extends ComMigratorMigratorImportAbstract
             'jobs'      => array()
         ));
 
-        if (in_array($source, array('2.0', '2.1', '3.0', '3.1')))
+        if (version_compare($source, '2.0', '>='))
         {
             $config->jobs->append(array(
                 'check' => array(
@@ -251,7 +251,7 @@ class ComDocmanMigratorImport extends ComMigratorMigratorImportAbstract
             ));
         }
 
-        if (in_array($source, array('2.1', '3.0', '3.1')))
+        if (version_compare($source, '2.1', '>='))
         {
             $config->jobs->append(array(
                 'insert_levels' => array(
@@ -272,7 +272,7 @@ class ComDocmanMigratorImport extends ComMigratorMigratorImportAbstract
             ));
         }
 
-        if (in_array($source, array('3.0', '3.1')))
+        if (version_compare($source, '3.0', '>='))
         {
             $config->jobs->append(array(
                 'insert_category_folders' => array(

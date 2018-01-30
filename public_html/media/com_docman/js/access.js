@@ -27,7 +27,13 @@ Docman.AccessBox = Vue.extend({
     mounted: function() {
         var vm = this,
             access_selector   = $(vm.$el).find('.k-js-access-selector'),
-            group_selector    = $(vm.$el).find('.k-js-group-selector');
+            group_selector    = $(vm.$el).find('.k-js-group-selector'),
+            category_selector = $('#docman_category_id');
+
+        // If there is only one option it's auto selected without trigger. So the category value in Vuex will be 0
+        if (category_selector.find('option').length === 1) {
+            category_selector.trigger('change');
+        }
 
         access_selector.select2({theme: "bootstrap"});
 

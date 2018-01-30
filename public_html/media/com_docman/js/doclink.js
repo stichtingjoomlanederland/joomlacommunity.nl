@@ -59,6 +59,10 @@ Docman.Doclink = Koowa.Class.extend({
             if (window.parent.SqueezeBox) {
                 window.parent.SqueezeBox.close();
             }
+
+            if (typeof window.parent.kQuery !== 'undefined' && typeof window.parent.kQuery.magnificPopup !== 'undefined' && window.parent.kQuery.magnificPopup.instance) {
+                window.parent.kQuery.magnificPopup.close();
+            }
         });
 
         var previous_value = this.search.val(),

@@ -19,6 +19,8 @@ class ComDocmanJobDocuments extends ComSchedulerJobAbstract
         $config->append(array(
             'frequency' => ComSchedulerJobInterface::FREQUENCY_EVERY_FIVE_MINUTES
         ));
+
+        parent::_initialize($config);
     }
 
     public function run(ComSchedulerJobContextInterface $context)
@@ -26,7 +28,7 @@ class ComDocmanJobDocuments extends ComSchedulerJobAbstract
         if (!$this->getObject('com://admin/docman.model.entity.config')->automatic_document_creation) {
             $context->log('Automatic document creation is turned off in global configuration');
 
-            return $this->complete();
+            return $this->skip();
         }
 
         $state = $context->getState();
