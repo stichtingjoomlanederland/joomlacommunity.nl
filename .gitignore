@@ -75,3 +75,9 @@ public_html/media/com_easydiscuss/attachments/index.html
 # Backend bescherming
 public_html/administrator/.htaccess
 public_html/administrator/.htpasswd
+
+# MyJoomla BFNetwork #
+/public_html/plugins/system/bfnetwork/bfnetwork/FIRSTRUN
+/public_html/plugins/system/bfnetwork/bfnetwork/MD5SUMS
+/public_html/plugins/system/bfnetwork/bfnetwork/VERSION
+/public_html/plugins/system/bfnetwork/bfnetwork/tmp/STATE.php
