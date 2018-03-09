@@ -2,16 +2,16 @@
 <extension type="package" version="2.5" method="upgrade">
   <name>PKG_JCE</name>
   <author>Ryan Demmer</author>
-  <creationDate>24-01-2018</creationDate>
+  <creationDate>31-01-2018</creationDate>
   <packagename>jce</packagename>
-  <version>2.6.24</version>
+  <version>2.6.26</version>
   <url>https://www.joomlacontenteditor.net</url>
   <packager>Widget Factory Limited</packager>
   <packagerurl>https://www.joomlacontenteditor.net</packagerurl>
   <description>PKG_JCE_XML_DESCRIPTION</description>
   <updateservers>
     <server type="collection" priority="1" name="JCE Editor Package">
-      <![CDATA[https://cdn.joomlacontenteditor.net/updates/xml/pkg_jce.xml]]>
+      <![CDATA[https://cdn.joomlacontenteditor.net/updates/xml/pkg_jce_pro.xml]]>
     </server>
   </updateservers>
   <scriptfile>install.pkg.php</scriptfile>
@@ -27,7 +27,7 @@
   <languages folder="language">
     <language tag="en-GB">en-GB/en-GB.pkg_jce.sys.ini</language>
   </languages>
-  <variant>core</variant>
+  <variant>pro</variant>
   <compatibility>
     <version>2</version>
     <version>3</version>
