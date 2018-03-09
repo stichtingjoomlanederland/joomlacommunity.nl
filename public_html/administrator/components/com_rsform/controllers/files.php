@@ -7,8 +7,6 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-jimport('joomla.application.component.controller');
-
 class RsformControllerFiles extends RsformController
 {
 	public function display($cachable = false, $urlparams = false) {

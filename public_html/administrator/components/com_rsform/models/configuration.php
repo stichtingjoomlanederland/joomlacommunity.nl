@@ -7,8 +7,6 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-jimport('joomla.application.component.model');
-
 class RsformModelConfiguration extends JModelAdmin
 {
 	public function __construct()

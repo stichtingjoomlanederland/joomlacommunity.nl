@@ -822,3 +822,20 @@ textarea.rs_textarea:focus {
     -webkit-transform: scaleY(1.0);
   }
 }
+
+#rsform-btn-inline .btn-wrapper {
+	display: inline-block;
+	margin: 0 5px 0 0;
+}
+
+#columnsDiv label {
+	display: block;
+}
+
+#rsform-btn-inline .rsform-calendar-field {
+	margin-right: 35px;
+}
+
+#rsform-btn-inline .rsform-calendar-field .input-append {
+	margin-bottom: 0;
+}

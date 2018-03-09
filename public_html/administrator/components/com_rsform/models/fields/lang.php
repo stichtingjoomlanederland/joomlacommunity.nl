@@ -17,11 +17,11 @@ class JFormFieldLang extends JFormFieldList
 	{
 		// Initialize variables.
 		$options = array();
-		
+
 		$lang = JFactory::getLanguage();
 		$lang->load('com_rsform');
 		$languages = $lang->getKnownLanguages(JPATH_SITE);
-		$options   = array();
+
 		$options[] = JHtml::_('select.option', '', JText::_('RSFP_SUBMISSIONS_ALL_LANGUAGES'));
 		foreach ($languages as $language => $properties)
 			$options[] = JHtml::_('select.option', $language, $properties['name']);

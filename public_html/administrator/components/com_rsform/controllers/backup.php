@@ -150,9 +150,9 @@ class RsformControllerBackup extends RsformController
 	}
 	
 	public function download() {
-		$input 		 = JFactory::getApplication()->input;
-		$key    	 = $input->get('key', '', 'cmd');
-		$data 		 = $input->get('jform', array(), 'array');
+	    $app         = JFactory::getApplication();
+		$key    	 = $app->input->get('key', '', 'cmd');
+		$data 		 = $app->input->get('jform', array(), 'array');
 		$options 	 = array(
 			'key' => $key,
 			'name' => (empty($data['name']) ? 'backup' : $data['name'])
@@ -162,7 +162,7 @@ class RsformControllerBackup extends RsformController
 			$backup  = new RSFormProBackup($options);
 			$backup->download();
 		} catch (Exception $e) {
-			JError::raiseError(500, $e->getMessage());
+		    $this->setRedirect('index.php?option=com_rsform&view=backuprestore', $e->getMessage(), 'error');
 		}
 	}
 	

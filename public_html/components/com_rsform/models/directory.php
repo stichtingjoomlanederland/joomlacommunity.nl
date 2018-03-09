@@ -10,17 +10,20 @@ defined('_JEXEC') or die('Restricted access');
 class RsformModelDirectory extends JModelLegacy
 {
     protected $fields;
+    protected $_db;
+    protected $_app;
+    public $params;
 
     /**
      *    Main constructor
      */
     public function __construct($config = array())
     {
-        $this->_app = JFactory::getApplication();
-        $this->_db = JFactory::getDbo();
-        $this->params = $this->_app->getParams('com_rsform');
-        $this->itemid = $this->getItemid();
-        $this->context = 'com_rsform.directory' . $this->itemid;
+        $this->_app     = JFactory::getApplication();
+        $this->_db      = JFactory::getDbo();
+        $this->params   = $this->_app->getParams('com_rsform');
+        $this->itemid   = $this->getItemid();
+        $this->context  = 'com_rsform.directory' . $this->itemid;
 
         // Check for a valid form
         if (!$this->isValid()) {
@@ -280,8 +283,8 @@ class RsformModelDirectory extends JModelLegacy
         $confirmed = $submission->confirmed ? JText::_('RSFP_YES') : JText::_('RSFP_NO');
         list($replace, $with) = RSFormProHelper::getReplacements($cid, true);
         list($replace2, $with2) = $this->getReplacements($submission->UserId);
-        $replace = array_merge($replace, $replace2, array('{global:userip}', '{global:date_added}', '{global:submissionid}', '{global:submission_id}', '{global:confirmed}', '{global:lang}'));
-        $with = array_merge($with, $with2, array($submission->UserIp, RSFormProHelper::getDate($submission->DateSubmitted), $cid, $cid, $confirmed, $submission->Lang));
+        $replace = array_merge($replace, $replace2, array('{global:userip}', '{global:date_added}', '{global:submissionid}', '{global:submission_id}', '{global:confirmed}', '{global:lang}', '{global:formid}'));
+        $with = array_merge($with, $with2, array($submission->UserIp, RSFormProHelper::getDate($submission->DateSubmitted), $cid, $cid, $confirmed, $submission->Lang, $submission->FormId));
 
         if ($format == 'pdf') {
             if (strpos($template, ':path}') !== false) {

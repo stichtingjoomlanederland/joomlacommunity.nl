@@ -133,15 +133,18 @@ class RSFormProGridUikit3 extends RSFormProGrid
 			$block = $this->getBlock($data->ComponentName);
 			
 			$html[] = "\t"."\t"."\t".'<div class="uk-margin rsform-block rsform-block-' . $block . '">';
-				$label = "\t"."\t"."\t"."\t".'<label class="uk-form-label formControlLabel' . ($data->ComponentTypeId != RSFORM_FIELD_PAGEBREAK ? ' hasTooltip' : '') . '"';
-				if ($data->ComponentTypeId != RSFORM_FIELD_PAGEBREAK)
+			if ($data->ComponentTypeId != RSFORM_FIELD_PAGEBREAK)
+			{
+				$label = "\t"."\t"."\t"."\t".'<label class="uk-form-label formControlLabel hasTooltip"';
+				if (!in_array($data->ComponentTypeId, array(RSFORM_FIELD_CHECKBOXGROUP, RSFORM_FIELD_RADIOGROUP, RSFORM_FIELD_BIRTHDAY)))
 				{
-                    $label .= ' for="' . $data->ComponentName . '"';
-                    $label .= '{if ' . $placeholders['description'] . '}';
-					$label .= ' data-uk-tooltip="{pos:\'top-left\'}"';
-					$label .= ' title="' . $placeholders['description'] . '"';
-                    $label .= '{/if}';
+					$label .= ' for="' . $data->ComponentName . '"';
 				}
+
+				$label .= '{if ' . $placeholders['description'] . '}';
+				$label .= ' data-uk-tooltip="{pos:\'top-left\'}"';
+				$label .= ' title="' . $placeholders['description'] . '"';
+				$label .= '{/if}';
 				$label .= '>';
 				$label .= $placeholders['caption'];
 				if ($data->Required && $this->requiredMarker)
@@ -150,6 +153,7 @@ class RSFormProGridUikit3 extends RSFormProGrid
 				}
 				$label .= '</label>';
 				$html[] = $label;
+			}
 				
 				$html[] = "\t"."\t"."\t"."\t".'<div class="uk-form-controls formControls">';
 					$html[] = "\t"."\t"."\t"."\t"."\t".$placeholders['body'];

@@ -33,7 +33,6 @@ class RsformControllerComponents extends RsformController
 		$componentIdToEdit = $app->input->getInt('componentIdToEdit');
 		$formId 		   = $app->input->getInt('formId');
 
-		$params = JRequest::getVar('param', array(), 'post', 'none', JREQUEST_ALLOWRAW);
         $params = $app->input->post->get('param', array(), 'raw');
 		$params['EMAILATTACH'] = !empty($params['EMAILATTACH']) ? implode(',',$params['EMAILATTACH']) : '';
 		if (isset($params['VALIDATIONRULE']) && $params['VALIDATIONRULE'] == 'multiplerules') {
@@ -148,24 +147,28 @@ class RsformControllerComponents extends RsformController
 		$this->setRedirect($link);
 	}
 
-	public function saveOrdering()
-	{
-		$db = JFactory::getDbo();
-		$post = JRequest::get('post');
-		foreach ($post as $key => $val)
-		{
-			$key = (int) str_replace('cid_', '', $key);
-			$val = (int) $val;
-			if (empty($key)) continue;
+    public function saveOrdering()
+    {
+        $db 	= JFactory::getDbo();
+        $query 	= $db->getQuery(true);
+        $input 	= JFactory::getApplication()->input;
+        $keys 	= $input->post->get('cid', array(), 'array');
 
-			$db->setQuery("UPDATE #__rsform_components SET `Order`='".$val."' WHERE ComponentId='".$key."'");
-			$db->execute();
-		}
+        foreach ($keys as $key => $val)
+        {
+            $query->update($db->qn('#__rsform_components'))
+                ->set($db->qn('Order') . ' = ' . $db->q($val))
+                ->where($db->qn('ComponentId') . ' = ' . $db->q($key));
 
-		echo 'Ok';
+            $db->setQuery($query)->execute();
 
-		exit();
-	}
+            $query->clear();
+        }
+
+        echo 'Ok';
+
+        exit();
+    }
 
 	public function validateName()
 	{

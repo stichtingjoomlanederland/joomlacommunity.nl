@@ -7,8 +7,6 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-jimport('joomla.application.component.controller');
-
 class RsformControllerDirectory extends RsformController
 {
 	public function __construct() {
@@ -113,7 +111,7 @@ class RsformControllerDirectory extends RsformController
 	
 	public function changeAutoGenerateLayout() {
 		$formId 		= JFactory::getApplication()->input->getInt('formId');
-		$ViewLayoutName = JRequest::getVar('ViewLayoutName');
+		$ViewLayoutName = JFactory::getApplication()->input->get('ViewLayoutName');
 		$db 			= JFactory::getDbo();
 		
 		$db->setQuery('SELECT COUNT('.$db->qn('formId').') FROM '.$db->qn('#__rsform_directory').' WHERE '.$db->qn('formId').' = '.(int) $formId.' ');
@@ -130,8 +128,8 @@ class RsformControllerDirectory extends RsformController
 	
 	public function saveName() {
 		$formId = JFactory::getApplication()->input->getInt('formId');
-		$name = JRequest::getVar('ViewLayoutName');
-		$db = JFactory::getDbo();
+		$name   = JFactory::getApplication()->input->get('ViewLayoutName');
+		$db     = JFactory::getDbo();
 		
 		$db->setQuery('SELECT COUNT('.$db->qn('formId').') FROM '.$db->qn('#__rsform_directory').' WHERE '.$db->qn('formId').' = '.(int) $formId.' ');
 		if (!$db->loadResult()) {
@@ -148,7 +146,7 @@ class RsformControllerDirectory extends RsformController
 	public function generate() {
 		$db 	= JFactory::getDbo();
 		$formId = JFactory::getApplication()->input->getInt('formId');
-		$layout = JRequest::getVar('layoutName');
+		$layout = JFactory::getApplication()->input->getCmd('layoutName');
 		
 		$db->setQuery('SELECT COUNT('.$db->qn('formId').') FROM '.$db->qn('#__rsform_directory').' WHERE '.$db->qn('formId').' = '.(int) $formId.' ');
 		if (!$db->loadResult()) {
@@ -158,7 +156,7 @@ class RsformControllerDirectory extends RsformController
 		
 		$model = $this->getModel('directory');
 		$model->getDirectory();
-		$model->_directory->ViewLayoutName = JFactory::getApplication()->input->getCmd('layoutName');
+		$model->_directory->ViewLayoutName = $layout;
 		$model->autoGenerateLayout();
 		
 		echo $model->_directory->ViewLayout;

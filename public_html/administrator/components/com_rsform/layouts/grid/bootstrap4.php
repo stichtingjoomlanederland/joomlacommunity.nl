@@ -137,27 +137,32 @@ class RSFormProGridBootstrap4 extends RSFormProGrid
             }
 
 			$html[] = "\t"."\t"."\t".'<div class="'. $class .' rsform-block rsform-block-' . $block . $placeholders['error'] . '">';
-				$label = "\t"."\t"."\t"."\t".'<label class="' . $this->labelClass() . 'control-label formControlLabel"';
 				if ($data->ComponentTypeId != RSFORM_FIELD_PAGEBREAK)
 				{
-					$label .= ' data-toggle="tooltip"';
-					$label .= ' title="' . $placeholders['description'] . '"';
-					$label .= ' for="'. $data->ComponentName . '"';
+					$label = "\t"."\t"."\t"."\t".'<label class="' . $this->labelClass() . 'control-label formControlLabel" data-toggle="tooltip" title="' . $placeholders['description'] . '"';
+					if (!in_array($data->ComponentTypeId, array(RSFORM_FIELD_CHECKBOXGROUP, RSFORM_FIELD_RADIOGROUP, RSFORM_FIELD_BIRTHDAY)))
+					{
+						$label .= ' for="' . $data->ComponentName . '"';
+					}
+					$label .= '>';
+					$label .= $placeholders['caption'];
+					if ($data->Required && $this->requiredMarker)
+					{
+						$label .= '<strong class="formRequired">' . $this->requiredMarker . '</strong>';
+					}
+					$label .= '</label>';
+					$html[] = $label;
 				}
-				$label .= '>';
-				$label .= $placeholders['caption'];
-                if ($data->Required && $this->requiredMarker)
+				else
 				{
-					$label .= '<strong class="formRequired">' . $this->requiredMarker . '</strong>';
+					$html[] = "\t"."\t"."\t"."\t".'<div class="' . $this->labelClass() .  'control-label formControlLabel"></div>';
 				}
-				$label .= '</label>';
-				$html[] = $label;
 
-                $html[] = "\t"."\t"."\t"."\t".'<div class="' . $this->fieldClass() .  'formControls">';
+                $html[] = "\t"."\t"."\t"."\t".'<div class="' . $this->fieldClass() .  'formControls' . ($data->ComponentTypeId == RSFORM_FIELD_PAGEBREAK ? ' btn-group' : '') . '">';
                     $html[] = "\t"."\t"."\t"."\t"."\t".$placeholders['body'];
                     if ($data->ComponentTypeId != RSFORM_FIELD_PAGEBREAK)
                     {
-                        $html[]	= "\t"."\t"."\t"."\t"."\t".'<div class="invalid-feedback"><span class="formValidation">' . $placeholders['validation'] . '</span></div>';
+                        $html[]	= "\t"."\t"."\t"."\t"."\t".'<div><span class="formValidation">' . $placeholders['validation'] . '</span></div>';
                     }
                 $html[] = "\t"."\t"."\t"."\t".'</div>';
 			$html[] = "\t"."\t"."\t".'</div>';

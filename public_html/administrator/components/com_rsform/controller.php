@@ -119,22 +119,6 @@ class RsformController extends JControllerLegacy
 		JFactory::getApplication()->triggerEvent('rsfp_bk_onSwitchTasks');
 	}
 
-	public function setMenu()
-	{
-		$app    	= JFactory::getApplication();
-		$formId 	= $app->input->getInt('formId');
-		$component 	= JComponentHelper::getComponent('com_rsform');
-
-		$app->setUserState('com_menus.edit.item.type', 'component');
-		$app->setUserState('com_menus.edit.item.link', 'index.php?option=com_rsform&view=rsform&formId='.$formId);
-		$app->setUserState('com_menus.edit.item.data', array(
-			'component_id' => $component->id,
-			'type'		   => 'component',
-			'formId'	   => $formId
-		));
-		$this->setRedirect(JRoute::_('index.php?option=com_menus&view=item&layout=edit', false));
-	}
-
 	public function captcha()
 	{
 		require_once JPATH_SITE.'/components/com_rsform/helpers/captcha.php';

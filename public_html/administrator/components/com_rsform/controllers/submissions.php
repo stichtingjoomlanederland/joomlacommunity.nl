@@ -7,10 +7,10 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-jimport('joomla.application.component.controller');
-
 class RsformControllerSubmissions extends RsformController
 {
+    public $_db;
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -47,31 +47,41 @@ class RsformControllerSubmissions extends RsformController
 	{
 		$model = $this->getModel('submissions');
 		$cid   = $model->getSubmissionId();
-		$app = JFactory::getApplication();
-		$app->redirect('index.php?option=com_rsform&view=submissions&layout=edit&cid='.$cid);
+        JFactory::getApplication()->redirect('index.php?option=com_rsform&view=submissions&layout=edit&cid='.$cid);
 	}
 	
 	public function columns()
 	{
 		$app 	= JFactory::getApplication();
-		$formId = JFactory::getApplication()->input->getInt('formId');
-		
-		$this->_db->setQuery("DELETE FROM #__rsform_submission_columns WHERE FormId='".$formId."'");
+		$formId = $app->input->getInt('formId');
+		$query  = $this->_db->getQuery(true);
+        $staticcolumns  = $app->input->get('staticcolumns', array(), 'raw');
+        $columns        = $app->input->get('columns', array(), 'raw');
+
+		$query->delete($this->_db->qn('#__rsform_submission_columns'))
+            ->where($this->_db->qn('FormId') . ' = ' . $this->_db->q($formId));
+		$this->_db->setQuery($query);
 		$this->_db->execute();
-		
-		$staticcolumns = JRequest::getVar('staticcolumns', array());
-		foreach ($staticcolumns as $column)
-		{
-			$this->_db->setQuery("INSERT INTO #__rsform_submission_columns SET FormId='".$formId."', ColumnName='".$this->_db->escape($column)."', ColumnStatic='1'");
-			$this->_db->execute();
-		}
-		
-		$columns = JRequest::getVar('columns', array());
-		foreach ($columns as $column)
-		{
-			$this->_db->setQuery("INSERT INTO #__rsform_submission_columns SET FormId='".$formId."', ColumnName='".$this->_db->escape($column)."', ColumnStatic='0'");
-			$this->_db->execute();
-		}
+
+		if ($staticcolumns || $columns) {
+            $query->clear();
+            $query->insert($this->_db->qn('#__rsform_submission_columns'))
+                ->columns($this->_db->qn(array('FormId', 'ColumnName', 'ColumnStatic')));
+
+            if ($staticcolumns) {
+                foreach ($staticcolumns as $column) {
+                    $query->values(implode(',', array($this->_db->q($formId), $this->_db->q($column), $this->_db->q(1))));
+                }
+            }
+
+            if ($columns) {
+                foreach ($columns as $column) {
+                    $query->values(implode(',', array($this->_db->q($formId), $this->_db->q($column), $this->_db->q(0))));
+                }
+            }
+
+            $this->_db->setQuery($query)->execute();
+        }
 		
 		$app->redirect('index.php?option=com_rsform&view=submissions&formId='.$formId);
 	}
@@ -103,12 +113,13 @@ class RsformControllerSubmissions extends RsformController
 	public function resend()
 	{
 		$app 	= JFactory::getApplication();
-		$formId = JFactory::getApplication()->input->getInt('formId');
-		$cid 	= JRequest::getVar('cid', array(), 'post');
+		$formId = $app->input->getInt('formId');
+        $cid	= $app->input->post->get('cid', array(), 'array');
 		array_map('intval', $cid);
 		
-		foreach ($cid as $SubmissionId)
-			RSFormProHelper::sendSubmissionEmails($SubmissionId);
+		foreach ($cid as $SubmissionId) {
+            RSFormProHelper::sendSubmissionEmails($SubmissionId);
+        }
 		
 		$this->setRedirect('index.php?option=com_rsform&view=submissions&formId='.$formId, JText::_('RSFP_SUBMISSION_MAILS_RESENT'));
 	}
@@ -141,8 +152,8 @@ class RsformControllerSubmissions extends RsformController
 	public function delete()
 	{
 		$app 	= JFactory::getApplication();
-		$formId = JFactory::getApplication()->input->getInt('formId');
-		$cid 	= JRequest::getVar('cid', array(), 'post');
+		$formId = $app->input->getInt('formId');
+        $cid	= $app->input->post->get('cid', array(), 'array');
 		array_map('intval', $cid);
 		
 		$model = $this->getModel('submissions');
@@ -464,7 +475,7 @@ class RsformControllerSubmissions extends RsformController
 	public function exportTask()
 	{
 		$session = JFactory::getSession();
-		$session->set('com_rsform.export.data', serialize(JRequest::get('post', JREQUEST_ALLOWRAW)));
+		$session->set('com_rsform.export.data', serialize(RSFormProHelper::getRawPost()));
 		
 		$view 	= $this->getView('submissions', 'html');
 		$model 	= $this->getModel('submissions');

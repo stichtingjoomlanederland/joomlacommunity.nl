@@ -32,8 +32,7 @@ class RSFormProFormLayoutBootstrap4 extends RSFormProFormLayout
 		$this->addjQuery();
 
 		// Load Javascript
-		$this->addScript('com_rsform/frameworks/bootstrap4/popper.min.js');
-		$this->addScript('com_rsform/frameworks/bootstrap4/bootstrap.min.js');
+		$this->addScript('com_rsform/frameworks/bootstrap4/bootstrap.bundle.min.js');
 
 		// Set the script for the tooltips
 		$script = array();

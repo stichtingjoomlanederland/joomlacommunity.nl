@@ -11,6 +11,18 @@ require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/fields/checkbox
 
 class RSFormProFieldResponsiveCheckboxGroup extends RSFormProFieldCheckboxGroup
 {
+	protected function buildLabel($data) {
+		// For convenience
+		extract($data);
+		
+		return '<label for="'.$this->escape($id).$i.'">'.$this->buildInput($data).$item->label.'</label>';
+	}
+	
+	public function buildItem($data) {
+		// Responsive - <label><input></label>
+		return $this->buildLabel($data);
+	}
+	
 	public function setFlow() {
 		$flow = $this->getProperty('FLOW', 'HORIZONTAL');
 		if ($flow != 'HORIZONTAL') {

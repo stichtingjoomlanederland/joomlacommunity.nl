@@ -7,9 +7,6 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-jimport('joomla.application.component.view');
-jimport('joomla.html.pane');
-
 class RsformViewConfiguration extends JViewLegacy
 {
 	function display($tpl = null)

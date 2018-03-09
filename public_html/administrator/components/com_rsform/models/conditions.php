@@ -7,98 +7,116 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-jimport('joomla.application.component.model');
-
 class RsformModelConditions extends JModelLegacy
 {
-	var $_data 	= null;
-	var $_total = 0;
-	var $_query = '';
-	var $_db 	= null;
+	public $_data 	= null;
+	public $_total  = 0;
+	public $_query  = '';
+	public $_db 	= null;
 	
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		$this->_db = JFactory::getDbo();
 	}
 	
-	function getFormId()
+	public function getFormId()
 	{
 		static $formId;
-		if (empty($formId))
-			$formId = JFactory::getApplication()->input->getInt('formId');
+		if (empty($formId)) {
+            $formId = JFactory::getApplication()->input->getInt('formId');
+        }
 		
 		return $formId;
 	}
 	
-	function getAllFields()
+	public function getAllFields()
 	{
-		$formId = $this->getFormId();
-		
-		$this->_db->setQuery("SELECT p.PropertyValue, p.ComponentId FROM #__rsform_properties p LEFT JOIN #__rsform_components c ON (p.ComponentId = c.ComponentId) WHERE c.FormId='".$formId."' AND p.PropertyName='NAME' ORDER BY c.Order");
-		
-		return $this->_db->loadObjectList();
+	    static $cache;
+
+	    if ($cache === null)
+	    {
+            $formId = $this->getFormId();
+
+            $query = $this->_db->getQuery(true)
+                ->select($this->_db->qn('p.PropertyValue'))
+                ->select($this->_db->qn('p.ComponentId'))
+                ->select($this->_db->qn('c.ComponentTypeId'))
+                ->from($this->_db->qn('#__rsform_components', 'c'))
+                ->join('LEFT', $this->_db->qn('#__rsform_properties', 'p') . ' ON (' . $this->_db->qn('c.ComponentId') . '=' . $this->_db->qn('p.ComponentId') . ')')
+                ->where($this->_db->qn('c.FormId') . '=' . $this->_db->q($formId))
+                ->where($this->_db->qn('p.PropertyName') . '=' . $this->_db->q('NAME'))
+                ->order($this->_db->qn('c.Order') . ' ' . $this->_db->escape('ASC'));
+
+            $cache = $this->_db->setQuery($query)->loadObjectList();
+        }
+
+        return $cache;
 	}
 	
-	function getOptionFields()
+	public function getOptionFields()
 	{
 		$app 	= JFactory::getApplication();
-		$types 	= array(3, 4, 5, 22);
-		$formId = $this->getFormId();
+        $formId = $this->getFormId();
+		$types 	= array(
+            RSFORM_FIELD_SELECTLIST,
+            RSFORM_FIELD_CHECKBOXGROUP,
+            RSFORM_FIELD_RADIOGROUP,
+            22
+        );
 		
 		$app->triggerEvent('rsfp_bk_onCreateConditionOptionFields',array(array('types' => &$types, 'formId' => $formId)));
-		
 		array_map('intval', $types);
-		
-		$this->_db->setQuery("SELECT p.PropertyValue, p.PropertyName, p.ComponentId, c.ComponentTypeId FROM #__rsform_properties p LEFT JOIN #__rsform_components c ON (p.ComponentId = c.ComponentId) WHERE c.FormId='".$formId."' AND (p.PropertyName='DEFAULTVALUE' OR p.PropertyName='ITEMS') AND c.ComponentTypeId IN (".implode(',', $types).") ORDER BY c.Order");
-		$results = $this->_db->loadObjectList();
-		
-		$lang 		  = RSFormProHelper::getCurrentLanguage($formId);
-		$translations = RSFormProHelper::getTranslations('properties', $formId, $lang);
-		
-		foreach ($results as $i => $result)
-		{
-			$reference_id = $result->ComponentId.'.'.$result->PropertyName;
-			if (isset($translations[$reference_id]))
-				$result->PropertyValue = $translations[$reference_id];
-			
-			$result->PropertyValue = RSFormProHelper::isCode($result->PropertyValue);
-			$result->PropertyValue = preg_replace('#\[p(.*?)\]#is','',$result->PropertyValue);
-			$result->PropertyValue = str_replace(array("\r\n", "\r"), "\n", $result->PropertyValue);
-			$result->PropertyValue = str_replace(array('[c]', '[g]'), '', $result->PropertyValue);
-			$result->PropertyValue = explode("\n", $result->PropertyValue);
-			
-			foreach ($result->PropertyValue as $k => $v)
-			{
-				$v = explode('|', $v, 2);
-				// paypal ?
-				if ($result->ComponentTypeId == 22)
-				{
-					if (isset($v[1]))
-					{
-						$v[0] = $v[1];
-					}
-					else
-					{
-						$v[1] = $v[0];
-					}
-				}
-				else
-				{
-					if (!isset($v[1]))
-						$v[1] = $v[0];
-				}
-				
-				$result->PropertyValue[$k] = $v;
-			}
-			
-			$results[$i] = $result;
-		}
-		
-		return $results;
+
+		$optionFields = array();
+		if ($fields = $this->getAllFields())
+        {
+            foreach ($fields as $field)
+            {
+                if (in_array($field->ComponentTypeId, $types))
+                {
+                    $optionFields[] = $field;
+                }
+            }
+        }
+
+        if ($optionFields)
+        {
+            $properties = RSFormProHelper::getComponentProperties($optionFields);
+
+            require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/fields/fielditem.php';
+            require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/fieldmultiple.php';
+
+            foreach ($optionFields as $optionField)
+            {
+                // Some cleanup
+                $optionField->ComponentName = $optionField->PropertyValue;
+                unset($optionField->PropertyValue);
+
+                $config = array(
+                    'formId' 			=> $formId,
+                    'componentId' 		=> $optionField->ComponentId,
+                    'data' 				=> $properties[$optionField->ComponentId],
+                    'value' 			=> array(),
+                    'invalid' 			=> array()
+                );
+                $field = new RSFormProFieldMultiple($config);
+
+                if ($items = $field->getItems())
+                {
+                    $optionField->items = array();
+                    foreach ($items as $item)
+                    {
+                        $optionField->items[] = new RSFormProFieldItem($item);
+                    }
+                }
+            }
+        }
+
+        return $optionFields;
 	}
 	
-	function getCondition()
+	public function getCondition()
 	{
 		$cid = JFactory::getApplication()->input->getInt('cid');
 		$row = JTable::getInstance('RSForm_Conditions', 'Table');
@@ -107,66 +125,78 @@ class RsformModelConditions extends JModelLegacy
 		$row->details = array();
 		if ($row->id)
 		{
-			$this->_db->setQuery("SELECT * FROM #__rsform_condition_details WHERE condition_id='".(int) $row->id."'");
+		    $query = $this->_db->getQuery(true);
+		    $query->select('*')
+                ->from($this->_db->qn('#__rsform_condition_details'))
+                ->where($this->_db->qn('condition_id') . ' = ' . $this->_db->q($row->id));
+			$this->_db->setQuery($query);
 			$row->details = $this->_db->loadObjectList();
 		}
 		
 		return $row;
 	}
 	
-	function getLang()
+	public function getLang()
 	{
-		$formId = $this->getFormId();
-		
-		return RSFormProHelper::getCurrentLanguage($formId);
+		return RSFormProHelper::getCurrentLanguage($this->getFormId());
 	}
 	
-	function save()
+	public function save()
 	{
-		$post		= JRequest::get('post', JREQUEST_ALLOWRAW);
+		$post		= RSFormProHelper::getRawPost();
+		$app        = JFactory::getApplication();
+        $input		= $app->input;
 		$condition 	= JTable::getInstance('RSForm_Conditions', 'Table');
-		
-		if (!$condition->bind($post))
+
+		try
+        {
+            $condition->bind($post);
+            $condition->store();
+
+            $query = $this->_db->getQuery(true)
+                ->delete($this->_db->qn('#__rsform_condition_details'))
+                ->where($this->_db->qn('condition_id') . ' = ' . $this->_db->q($condition->id));
+            $this->_db->setQuery($query)
+                ->execute();
+
+            $component_ids 	= $input->get('detail_component_id', array(), 'array');
+            $operators 		= $input->get('operator', array(), 'array');
+            $values 		= $input->get('value', array(), 'raw');
+
+            for ($i=0; $i<count($component_ids); $i++)
+            {
+                $detail = JTable::getInstance('RSForm_Condition_Details', 'Table');
+                $detail->condition_id 	= $condition->id;
+                $detail->component_id 	= $component_ids[$i];
+                $detail->operator 		= $operators[$i];
+                $detail->value 			= $values[$i];
+                $detail->store();
+            }
+
+            return $condition->id;
+        }
+        catch (Exception $e)
 		{
-			JError::raiseWarning(500, $condition->getError());
-			return false;
-		}
-		
-		if ($condition->store())
-		{
-			$this->_db->setQuery("DELETE FROM #__rsform_condition_details WHERE condition_id='".(int) $condition->id."'");
-			$this->_db->execute();
-			
-			$component_ids 	= JRequest::getVar('detail_component_id');
-			$operators 		= JRequest::getVar('operator');
-			$values 		= JRequest::getVar('value', null, 'default', 'none', JREQUEST_ALLOWRAW);
-			
-			for ($i=0; $i<count($component_ids); $i++)
-			{
-				$detail = JTable::getInstance('RSForm_Condition_Details', 'Table');
-				$detail->condition_id 	= $condition->id;
-				$detail->component_id 	= $component_ids[$i];
-				$detail->operator 		= $operators[$i];
-				$detail->value 			= $values[$i];
-				$detail->store();
-			}
-			
-			return $condition->id;
-		}
-		else 
-		{
-			JError::raiseWarning(500, $condition->getError());
+            $app->enqueueMessage($e->getMessage(), 'error');
 			return false;
 		}
 	}
 	
-	function remove()
+	public function remove()
 	{
 		$cid = JFactory::getApplication()->input->getInt('cid');
-		
-		$this->_db->setQuery("DELETE FROM #__rsform_conditions WHERE id='".$cid."'");
-		$this->_db->execute();
-		$this->_db->setQuery("DELETE FROM #__rsform_condition_details WHERE condition_id='".$cid."'");
-		$this->_db->execute();
+
+		$query = $this->_db->getQuery(true);
+
+		$query->delete($this->_db->qn('#__rsform_conditions'))
+            ->where($this->_db->qn('id') . ' = ' . $this->_db->q($cid));
+		$this->_db->setQuery($query)
+            ->execute();
+
+        $query->clear()
+            ->delete($this->_db->qn('#__rsform_condition_details'))
+            ->where($this->_db->qn('condition_id') . ' = ' . $this->_db->q($cid));
+        $this->_db->setQuery($query)
+            ->execute();
 	}
 }

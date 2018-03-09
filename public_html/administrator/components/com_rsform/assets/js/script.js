@@ -131,7 +131,7 @@ function tidyOrder(update_php) {
 	var orders = document.getElementsByName('order[]');
 	var cids = document.getElementsByName('cid[]');
 	for (i = 0; i < orders.length; i++) {
-		params.push('cid_' + cids[i].value + '=' + parseInt(i + 1));
+		params.push('cid[' + cids[i].value + ']=' + parseInt(i + 1));
 
 		if (orders[i].value != i + 1)
 			must_update_php = true;
@@ -197,8 +197,6 @@ function tidyOrderMp(update_php) {
 
 		//Send the proper header information along with the request
 		xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		xml.setRequestHeader("Content-length", params.length);
-		xml.setRequestHeader("Connection", "close");
 
 		xml.send(params);
 		xml.onreadystatechange = function () {
@@ -807,8 +805,6 @@ function mpConnect() {
 
 	//Send the proper header information along with the request
 	xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlHttp.setRequestHeader("Content-length", params.length);
-	xmlHttp.setRequestHeader("Connection", "close");
 
 	xmlHttp.onreadystatechange = function () {
 		if (xmlHttp.readyState == 4) {
@@ -905,8 +901,6 @@ function mpColumns(table) {
 
 	//Send the proper header information along with the request
 	xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlHttp.setRequestHeader("Content-length", params.length);
-	xmlHttp.setRequestHeader("Connection", "close");
 
 	xmlHttp.onreadystatechange = function () {//Call a function when the state changes.
 		if (xmlHttp.readyState == 4) {
@@ -934,8 +928,6 @@ function mappingdelete(formid, mid) {
 
 	//Send the proper header information along with the request
 	xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlHttp.setRequestHeader("Content-length", params.length);
-	xmlHttp.setRequestHeader("Connection", "close");
 
 	xmlHttp.onreadystatechange = function () {//Call a function when the state changes.
 		if (xmlHttp.readyState == 4) {
@@ -963,8 +955,6 @@ function ShowMappings(formid) {
 
 	//Send the proper header information along with the request
 	xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlHttp.setRequestHeader("Content-length", params.length);
-	xmlHttp.setRequestHeader("Connection", "close");
 
 	xmlHttp.onreadystatechange = function () {//Call a function when the state changes.
 		if (xmlHttp.readyState == 4) {
@@ -1024,8 +1014,6 @@ function mappingWhere(table) {
 
 	//Send the proper header information along with the request
 	xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlHttp.setRequestHeader("Content-length", params.length);
-	xmlHttp.setRequestHeader("Connection", "close");
 
 	xmlHttp.onreadystatechange = function () {//Call a function when the state changes.
 		if (xmlHttp.readyState == 4) {
@@ -1053,8 +1041,6 @@ function removeEmail(id, fid, type) {
 
 	//Send the proper header information along with the request
 	xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlHttp.setRequestHeader("Content-length", params.length);
-	xmlHttp.setRequestHeader("Connection", "close");
 
 	xmlHttp.onreadystatechange = function () {//Call a function when the state changes.
 		if (xmlHttp.readyState == 4) {
@@ -1082,8 +1068,6 @@ function updateemails(fid, type) {
 
 	//Send the proper header information along with the request
 	xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlHttp.setRequestHeader("Content-length", params.length);
-	xmlHttp.setRequestHeader("Connection", "close");
 
 	xmlHttp.onreadystatechange = function () {//Call a function when the state changes.
 		if (xmlHttp.readyState == 4) {
@@ -1173,8 +1157,6 @@ function conditionDelete(formid, cid) {
 
 	//Send the proper header information along with the request
 	xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlHttp.setRequestHeader("Content-length", params.length);
-	xmlHttp.setRequestHeader("Connection", "close");
 
 	xmlHttp.onreadystatechange = function () {//Call a function when the state changes.
 		if (xmlHttp.readyState == 4) {
@@ -1195,8 +1177,6 @@ function showConditions(formid) {
 
 	//Send the proper header information along with the request
 	xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlHttp.setRequestHeader("Content-length", params.length);
-	xmlHttp.setRequestHeader("Connection", "close");
 
 	xmlHttp.onreadystatechange = function () {//Call a function when the state changes.
 		if (xmlHttp.readyState == 4) {
@@ -1218,9 +1198,11 @@ function openRSModal(href, type, size) {
 	window.open(href, type, 'width=' + width + ', height=' + height + ',scrollbars=1');
 }
 
-function rsfp_add_calculation(formId) {
+function addCalculation(formId) {
 	if (document.getElementById('rsfp_expression').value == '')
+	{
 		return;
+	}
 
 	stateLoading();
 
@@ -1237,8 +1219,6 @@ function rsfp_add_calculation(formId) {
 
 	//Send the proper header information along with the request
 	xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlHttp.setRequestHeader("Content-length", params.length);
-	xmlHttp.setRequestHeader("Connection", "close");
 
 	xmlHttp.onreadystatechange = function () {//Call a function when the state changes.
 		if (xmlHttp.readyState == 4) {
@@ -1290,7 +1270,7 @@ function rsfp_add_calculation(formId) {
 				a.setAttribute('class', 'btn btn-danger btn-mini');
 				a.setAttribute('type', 'button');
 				a.onclick = function () {
-					rsfp_remove_calculation(response[0]);
+					removeCalculation(response[0]);
 				};
 
 				var img = document.createElement('i');
@@ -1324,7 +1304,7 @@ function rsfp_add_calculation(formId) {
 
 				jQuery('#rsfp_calculations').tableDnD({
 					onDragClass: 'rsform_dragged',
-					onDragStop     : function (table, row) {
+					onDragStop: function (table, row) {
 						tidyOrderCalculationsDir();
 					}
 				});
@@ -1338,7 +1318,12 @@ function rsfp_add_calculation(formId) {
 	xmlHttp.send(params);
 }
 
-function rsfp_remove_calculation(id) {
+function removeCalculation(id) {
+	if (!confirm(Joomla.JText._('RSFP_DELETE_SURE_CALCULATION')))
+	{
+		return;
+	}
+	
 	stateLoading();
 
 	params = 'id=' + id + '&tmpl=component&randomTime=' + Math.random();
@@ -1348,8 +1333,6 @@ function rsfp_remove_calculation(id) {
 
 	//Send the proper header information along with the request
 	xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xmlHttp.setRequestHeader("Content-length", params.length);
-	xmlHttp.setRequestHeader("Connection", "close");
 
 	xmlHttp.onreadystatechange = function () {//Call a function when the state changes.
 		if (xmlHttp.readyState == 4) {
@@ -1386,8 +1369,6 @@ function tidyOrderCalculationsDir() {
 
 	//Send the proper header information along with the request
 	xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xml.setRequestHeader("Content-length", params.length);
-	xml.setRequestHeader("Connection", "close");
 
 	xml.send(params);
 	xml.onreadystatechange = function () {

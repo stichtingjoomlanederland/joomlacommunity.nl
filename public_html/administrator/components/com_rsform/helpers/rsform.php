@@ -772,6 +772,7 @@ class RSFormProHelper
 		$components = $db->loadObjectList();
 		$properties 	   = array();
 		$uploadFields 	   = array();
+		$hiddenFields	   = array();
 		$multipleFields    = array();
 		$textareaFields    = array();
 		$freetextFields	   = array();
@@ -840,6 +841,8 @@ class RSFormProHelper
 					$textareaFields[] = $component->ComponentId;
 			} elseif ($component->ComponentTypeId == RSFORM_FIELD_FREETEXT) {
 				$freetextFields[] = $component->ComponentId;
+			} elseif (in_array($component->ComponentTypeId, array(RSFORM_FIELD_HIDDEN, RSFORM_FIELD_TICKET))) {
+				$hiddenFields[] = $component->ComponentId;
 			}
 
 			$properties[$component->ComponentId][$component->PropertyName] = $component->PropertyValue;
@@ -863,7 +866,15 @@ class RSFormProHelper
 		{
 			// {component:caption}
 			$placeholders[] = '{'.$property['NAME'].':caption}';
-			$values[] = isset($property['CAPTION']) ? $property['CAPTION'] : '';
+			// Hidden fields don't have a caption
+			if (in_array($ComponentId, $hiddenFields))
+			{
+				$values[] = $property['NAME'];
+			}
+			else
+			{
+				$values[] = isset($property['CAPTION']) ? $property['CAPTION'] : '';
+			}
 
 			// {component:description}
 			$placeholders[] = '{'.$property['NAME'].':description}';
@@ -1704,10 +1715,15 @@ class RSFormProHelper
 					}
 
 					$formLayout .= "\n"."if (items) {";
-					$formLayout .= "\n"."if (".implode($condition->condition == 'all' ? '&&' : '||', $condition_vars).")";
-					$formLayout .= "\n"."rsfp_setDisplay(items, '".($condition->action == 'show' ? '' : 'none')."');";
-					$formLayout .= "\n".'else';
-					$formLayout .= "\n"."rsfp_setDisplay(items, '".($condition->action == 'show' ? 'none' : '')."');";
+					$formLayout .= "\n"."if (".implode($condition->condition == 'all' ? '&&' : '||', $condition_vars).") {";
+					$formLayout .= "\n"."displayValue = '".($condition->action == 'show' ? '' : 'none')."';";
+					$formLayout .= "\n".'} else {';
+					$formLayout .= "\n"."displayValue = '".($condition->action == 'show' ? 'none' : '')."';";
+					$formLayout .= "\n".'}';
+					$formLayout .= "\n".'rsfp_setDisplay(items, displayValue);';
+					$formLayout .= "\n"."if (displayValue == 'none') {";
+					$formLayout .= "\n"."RSFormPro.resetValues(rsfp_getFieldsByName(".$formId.", '".addslashes($condition->ComponentName)."'));";
+					$formLayout .= "\n"."}";
 					$formLayout .= "\n"."}";
 				}
 				$formLayout .= "\n".'}';
@@ -2059,6 +2075,7 @@ class RSFormProHelper
 							$options = array(
 								'driver' => isset($mapping->driver) ? $mapping->driver : 'mysql',
 								'host' => $mapping->host,
+								'port' => $mapping->port,
 								'user' => $mapping->username,
 								'password' => $mapping->password,
 								'database' => $mapping->database
@@ -2790,7 +2807,7 @@ class RSFormProHelper
 
 	public static function translateIcon()
 	{
-		return '<a href="javascript:void(0)" title="'.JText::_('RSFP_THIS_ITEM_IS_TRANSLATABLE').'" style="color:#3071a9"><span class="rsficon rsficon-flag"></span></a>';
+		return '<span class="rsficon rsficon-flag" title="' . JText::_('RSFP_THIS_ITEM_IS_TRANSLATABLE') . '" style="color:#3071a9"></span>';
 	}
 
 	public static function mappingsColumns($config, $method, $row = null)

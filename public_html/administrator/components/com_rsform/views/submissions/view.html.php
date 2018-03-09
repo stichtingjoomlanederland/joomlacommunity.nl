@@ -115,8 +115,8 @@ class RsformViewSubmissions extends JViewLegacy
 			$this->filter = $this->get('filter');
 			$this->formId = $formId;
 		
-			$calendars['from'] = JHtml::_('calendar', $this->get('dateFrom'), 'dateFrom', 'dateFrom', '%Y-%m-%d', array('placeholder' => JText::_('RSFP_FROM'), 'showTime' => 'true', 'todayBtn' => 'true'));
-			$calendars['to']   = JHtml::_('calendar', $this->get('dateTo'), 'dateTo', 'dateTo', '%Y-%m-%d', array('placeholder' => JText::_('RSFP_TO'), 'showTime' => 'true', 'todayBtn' => 'true'));
+			$calendars['from'] = JHtml::_('calendar', $this->get('dateFrom'), 'dateFrom', 'dateFrom', '%Y-%m-%d %H:%M:%S', array('placeholder' => JText::_('RSFP_FROM'), 'showTime' => 'true', 'todayBtn' => 'true'));
+			$calendars['to']   = JHtml::_('calendar', $this->get('dateTo'), 'dateTo', 'dateTo', '%Y-%m-%d %H:%M:%S', array('placeholder' => JText::_('RSFP_TO'), 'showTime' => 'true', 'todayBtn' => 'true'));
 			$this->calendars = $calendars;
 		
 			$lists['Languages'] = JHtml::_('select.genericlist', $this->get('languages'), 'Language', '', 'value', 'text', $this->get('lang'));

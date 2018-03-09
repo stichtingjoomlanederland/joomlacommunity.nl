@@ -33,7 +33,17 @@ class RSFormProRestoreSubmissions
 		// Attempt to load the XML data
 		libxml_use_internal_errors(true);
 		
-		$this->xml = simplexml_load_file($path);
+		if (class_exists('DOMDocument')) {
+			$dom = new DOMDocument('1.0', 'UTF-8');
+			$dom->strictErrorChecking = false;
+			$dom->validateOnParse = false;
+			$dom->recover = true;
+			$dom->loadXML(file_get_contents($path));
+			
+			$this->xml = simplexml_import_dom($dom);
+		} else {
+			$this->xml = simplexml_load_file($path);
+		}
 		
 		if ($this->xml === false) {
 			$errors = array();

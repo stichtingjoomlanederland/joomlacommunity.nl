@@ -24,7 +24,7 @@ defined('_JEXEC') or die('Restricted access');
 	foreach ($this->menus as $menu) { ?>
 		<tr class="row<?php echo $k; ?>">
 			<td align="center" width="30"><?php echo $this->pagination->getRowOffset($i); ?></td>
-			<td><a href="index.php?option=com_rsform&amp;task=setmenu&amp;menutype=<?php echo urlencode($menu->menutype); ?>&amp;formId=<?php echo $this->formId; ?>"><?php echo $this->escape($menu->title); ?></a></td>
+			<td><a href="index.php?option=com_rsform&amp;task=forms.setmenu&amp;menutype=<?php echo urlencode($menu->menutype); ?>&amp;formId=<?php echo $this->formId; ?>"><?php echo $this->escape($menu->title); ?></a></td>
 			<td><?php echo $this->escape($menu->menutype); ?></td>
 			<td align="center"><?php echo $menu->id; ?></td>
 		</tr>

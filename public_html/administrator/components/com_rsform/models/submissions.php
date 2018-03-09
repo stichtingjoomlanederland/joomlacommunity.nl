@@ -7,8 +7,6 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-jimport('joomla.application.component.model');
-
 class RsformModelSubmissions extends JModelLegacy
 {
 	public $_data = array();
@@ -103,7 +101,7 @@ class RsformModelSubmissions extends JModelLegacy
 					$query .= " AND s.DateSubmitted <= '".$this->_db->escape($to)."'";
 				}
 			}
-			$query .= " ORDER BY `".$sortColumn."` ".$sortOrder;
+			$query .= " ORDER BY " . $this->_db->qn('s.' . $sortColumn) . " " . $this->_db->escape($sortOrder);
 		}
 		// Order by dynamic headers (form fields)
 		else
@@ -146,9 +144,9 @@ class RsformModelSubmissions extends JModelLegacy
 			}
 			
 			if ($this->checkOrderingPossible($sortColumn))
-				$query .= " AND sv.FieldName='".$sortColumn."'";
+				$query .= " AND sv.FieldName=".$this->_db->q($sortColumn);
 				
-			$query .= " ORDER BY `FieldValue` ".$sortOrder;
+			$query .= " ORDER BY `FieldValue` ".$this->_db->escape($sortOrder);
 		}
 
 		// set the current filters hash
@@ -300,6 +298,7 @@ class RsformModelSubmissions extends JModelLegacy
 			{
 				$submissionIds[] = $result->SubmissionId;
 				
+				$this->_data[$result->SubmissionId]['SubmissionId'] = $result->SubmissionId;
 				$this->_data[$result->SubmissionId]['FormId'] = $result->FormId;
 				$this->_data[$result->SubmissionId]['DateSubmitted'] = RSFormProHelper::getDate($result->DateSubmitted);
 				$this->_data[$result->SubmissionId]['UserIp'] = $result->UserIp;
@@ -312,8 +311,8 @@ class RsformModelSubmissions extends JModelLegacy
 			
 			if (!empty($submissionIds))
 			{
-				$layout = JRequest::getVar('layout');
-				$view = JRequest::getVar('view');
+				$layout = JFactory::getApplication()->input->get('layout');
+				$view = JFactory::getApplication()->input->get('view');
 				$must_escape = $view == 'submissions' && $layout == 'default';
 				
 				$results = $this->_getList("SELECT * FROM `#__rsform_submission_values` WHERE `SubmissionId` IN (".implode(',',$submissionIds).")");
@@ -440,7 +439,7 @@ class RsformModelSubmissions extends JModelLegacy
 	
 	public function getStaticHeaders()
 	{		
-		$return = array('DateSubmitted', 'UserIp', 'Username', 'UserId', 'Lang');
+		$return = array('SubmissionId', 'DateSubmitted', 'UserIp', 'Username', 'UserId', 'Lang');
 		if ($this->addConfirmedHeader()) $return[] = 'confirmed';
 		
 		return $return;
@@ -676,7 +675,7 @@ class RsformModelSubmissions extends JModelLegacy
 	
 	public function getEditFields()
 	{
-		$isPDF = JRequest::getVar('format') == 'pdf';
+		$isPDF = JFactory::getApplication()->input->get('format') == 'pdf';
 		$pattern = '#\[p(.*?)\]#is';
 		$cid = $this->getSubmissionId();
 		
@@ -1027,7 +1026,7 @@ class RsformModelSubmissions extends JModelLegacy
 	
 	public function getExportSelected()
 	{
-		$cid = JRequest::getVar('cid', array(), 'post');
+		$cid = JFactory::getApplication()->input->get('cid', array(), 'array');
 		array_map('intval', $cid);
 		
 		return $cid;
@@ -1063,10 +1062,14 @@ class RsformModelSubmissions extends JModelLegacy
 	{
 		$formId = $this->getFormId();
 		
-		$ExportRows = JRequest::getVar('ExportRows');
+		$ExportRows = JFactory::getApplication()->input->get('ExportRows', '', 'string');
 		if (empty($ExportRows))
 		{
-			$this->_db->setQuery("SELECT COUNT(SubmissionId) FROM #__rsform_submissions WHERE FormId='".$formId."'");
+		    $query = $this->_db->getQuery(true)
+                ->select('COUNT(' . $this->_db->qn('SubmissionId') . ')')
+                ->from($this->_db->qn('#__rsform_submissions'))
+                ->where($this->_db->qn('FormId') . ' = ' . $this->_db->q($formId));
+			$this->_db->setQuery($query);
 			return $this->_db->loadResult();
 		}
 		

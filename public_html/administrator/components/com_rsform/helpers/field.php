@@ -147,8 +147,12 @@ class RSFormProField
 			$return['class'] = '';
 		}
 
-		if ($this->invalid)
+		if ($this->invalid && strlen($this->fieldErrorClass))
         {
+			if (strlen($return['class']))
+			{
+				$return['class'] .= ' ';
+			}
             $return['class'] .= $this->fieldErrorClass;
         }
 

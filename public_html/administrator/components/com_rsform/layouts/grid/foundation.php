@@ -108,26 +108,30 @@ class RSFormProGridFoundation extends RSFormProGrid
 			$block = $this->getBlock($data->ComponentName);
 
 			$html[] = "\t"."\t"."\t".'<div class="row rsform-block rsform-block-' . $block . $placeholders['error'] . '">';
-				$label = "\t"."\t"."\t"."\t"."\t".'<label class="formControlLabel' . ($data->ComponentTypeId != RSFORM_FIELD_PAGEBREAK ? ' has-tip' : '') . '"';
 				if ($data->ComponentTypeId != RSFORM_FIELD_PAGEBREAK)
 				{
-					$label .= ' data-tooltip aria-haspopup="true" data-disable-hover="false" tabindex="1"';
-					$label .= ' title="' . $placeholders['description'] . '"';
-					$label .= ' for="' . $data->ComponentName . '"';
+					$label = "\t"."\t"."\t"."\t"."\t".'<label class="formControlLabel has-tip" data-tooltip aria-haspopup="true" data-disable-hover="false" tabindex="1" title="' . $placeholders['description'] . '"';
+					if (!in_array($data->ComponentTypeId, array(RSFORM_FIELD_CHECKBOXGROUP, RSFORM_FIELD_RADIOGROUP, RSFORM_FIELD_BIRTHDAY)))
+					{
+						$label .= ' for="' . $data->ComponentName . '"';
+					}
+					$label .= '>';
+					$label .= $placeholders['caption'];
+					if ($data->Required && $this->requiredMarker)
+					{
+						$label .= '<strong class="formRequired">' . $this->requiredMarker . '</strong>';
+					}
+					$label .= '</label>';
 				}
-				$label .= '>';
-				$label .= $placeholders['caption'];
-                if ($data->Required && $this->requiredMarker)
-				{
-					$label .= '<strong class="formRequired">' . $this->requiredMarker . '</strong>';
-				}
-				$label .= '</label>';
 
                 if ($this->formOptions->FormLayoutFlow == static::FLOW_HORIZONTAL) {
                     $html[] = "\t"."\t"."\t"."\t".'<div class="medium-3 columns">';
                 }
 
-                $html[] = $label;
+				if ($data->ComponentTypeId != RSFORM_FIELD_PAGEBREAK)
+				{
+					$html[] = $label;
+				}
 
                 if ($this->formOptions->FormLayoutFlow == static::FLOW_HORIZONTAL) {
                     $html[] = "\t" . "\t" . "\t" . "\t" . '</div>';

@@ -50,10 +50,25 @@ class RSFormProFieldCalendar extends RSFormProField
 			$hiddenValue = preg_replace('#[^0-9\/]+#i', '', $hidden[$hiddenName]);
 		} else {
 			if (!empty($value)) {
-				try {
-					$hiddenValue = JFactory::getDate($value)->format('m/d/Y');
-				} catch (Exception $e) {
-					JFactory::getApplication()->enqueueMessage($e->getMessage(), 'warning');
+				// Let's allow the 'now' keyword
+				if (strtolower($value) == 'now')
+				{
+					$value = JFactory::getDate('now')->format($format);
+				}
+				if (JFactory::getLanguage()->getTag() != 'en-GB')
+				{
+					require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/calendar.php';
+					
+					$value = RSFormProCalendar::fixValue($value, $format);
+				}
+				// Try to create a date to see if it's valid
+				$date = JFactory::getDate()->createFromFormat($format, $value);
+				if ($date !== false)
+				{
+					$hiddenValue = $date->format('m/d/Y');
+				}
+				else
+				{
 					$value = '';
 					$hiddenValue = '';
 				}

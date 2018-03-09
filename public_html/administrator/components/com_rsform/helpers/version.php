@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Restricted access');
 
 class RSFormProVersion
 {
-	public $version = '2.0.5';
+	public $version = '2.0.7';
 	public $key		= '2XKJ3KS7JO';
 	// Unused
 	public $revision = null;

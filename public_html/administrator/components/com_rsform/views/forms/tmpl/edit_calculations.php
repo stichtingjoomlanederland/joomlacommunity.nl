@@ -5,9 +5,12 @@
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
-defined('_JEXEC') or die('Restricted access'); ?>
+defined('_JEXEC') or die('Restricted access');
 
-<div id="rsform_layout_msg" class="alert alert-info">
+JText::script('RSFP_DELETE_SURE_CALCULATION');
+?>
+
+<div class="alert alert-info">
 	<?php echo JText::_('RSFP_CALCULATION_INFO'); ?>
 </div>
 <br />
@@ -22,7 +25,7 @@ defined('_JEXEC') or die('Restricted access'); ?>
 		<td>
 			<input type="text" name="rsfp_expression" id="rsfp_expression" size="100" class="rs_inp rs_80" value="" data-filter-type="include" data-filter="value" data-delimiter=" " data-placeholders="display" />
 		</td>
-		<td><button class="btn btn-primary" type="button" onclick="rsfp_add_calculation(<?php echo $this->form->FormId; ?>);"><?php echo JText::_('RSFP_SAVE_THIS_CALCULATION'); ?></button></td>
+		<td><button class="btn btn-primary" type="button" onclick="addCalculation(<?php echo $this->form->FormId; ?>);"><?php echo JText::_('RSFP_SAVE_THIS_CALCULATION'); ?></button></td>
 	</tr>
 	<tr>
 		<td colspan="4"><hr /></td>
@@ -39,9 +42,9 @@ defined('_JEXEC') or die('Restricted access'); ?>
 			<td> = </td>
 			<td colspan="2">
 				<input type="text" name="calculations[<?php echo $row->id; ?>][expression]" id="calculations<?php echo $row->id; ?>expression" size="100" class="rs_inp rs_80" data-filter-type="include" data-filter="value" data-delimiter=" " data-placeholders="display" value="<?php echo $this->escape($row->expression); ?>" />
-				<button class="btn btn-danger btn-mini" type="button" onclick="rsfp_remove_calculation(<?php echo $row->id; ?>);">
+				<button class="btn btn-danger btn-mini" type="button" onclick="removeCalculation(<?php echo $row->id; ?>);">
 					<i class="rsficon rsficon-remove"></i>
-				</a>
+				</button>
 				<input type="hidden" name="calcid[]" value="<?php echo $row->id; ?>" />
 				<input type="hidden" name="calorder[]" value="<?php echo $row->ordering; ?>" />
 			</td>

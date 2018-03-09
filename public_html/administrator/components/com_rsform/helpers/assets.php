@@ -27,7 +27,7 @@ class RSFormProAssets
 		} else {
 			if (method_exists(JFactory::getDocument(), 'addScript')) {
 				self::$added[$path] = 1;
-				JFactory::getDocument()->addScript($path);
+				JFactory::getDocument()->addScript($path, array('version' => 'auto'));
 			}
 		}
 	}
@@ -50,7 +50,7 @@ class RSFormProAssets
 		} else {
 			if (method_exists(JFactory::getDocument(), 'addStyleSheet')) {
 				self::$added[$path] = 1;
-				JFactory::getDocument()->addStyleSheet($path);
+				JFactory::getDocument()->addStyleSheet($path, array('version' => 'auto'));
 			}
 		}
 	}

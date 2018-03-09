@@ -39,8 +39,8 @@ defined('_JEXEC') or die('Restricted access');
 	<input type="hidden" name="componentEditForm" id="componentEditForm" value="-1" />
 
 <div id="componentscontent">
-    <div class="alert alert-info" id="rsform_ordering_msg">
-        <?php echo JText::_('RSFP_ORDERING_FROM_GRID_LAYOUT'); ?>
+    <div class="alert alert-info text-center" id="rsform_ordering_msg">
+        <?php echo JText::_('RSFP_ORDERING_FROM_GRID_LAYOUT'); ?><a href="javascript: void();" onclick="jQuery('#properties').click();jQuery('#gridlayout').click();" class="btn btn-primary"><?php echo JText::_('RSFP_GO_TO_ORDERING_GRID_LAYOUT'); ?></a>
         <button type="button" class="close" data-dismiss="alert">&times;</button>
     </div>
     <div class="alert alert-error" id="rsform_layout_msg" <?php if ($this->form->FormLayoutAutogenerate) { ?>style="display: none"<?php } ?>>

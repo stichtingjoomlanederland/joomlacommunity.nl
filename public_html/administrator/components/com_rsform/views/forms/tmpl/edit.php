@@ -249,6 +249,7 @@ JFactory::getDocument()->addScript(JUri::root(true).'/administrator/components/c
 						if (wrongPlaceholder || notAnEmail || wrongDelimiter) {
 							// Switch to the correct tab only on the first error
 							if (result == true) {
+								RSFormPro.$('#properties').click();
 								if (fieldName.indexOf('User') > -1) {
 									RSFormPro.$('#useremails').click();
 								} else {
@@ -301,8 +302,6 @@ JFactory::getDocument()->addScript(JUri::root(true).'/administrator/components/c
 
 			//Send the proper header information along with the request
 			xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-			xml.setRequestHeader("Content-length", params.length);
-			xml.setRequestHeader("Connection", "close");
 
 			switch (task) {
 				case 'components.unpublish':

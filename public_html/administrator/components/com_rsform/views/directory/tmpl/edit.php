@@ -185,8 +185,6 @@ function tidyOrderDir() {
 	
 	//Send the proper header information along with the request
 	xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xml.setRequestHeader("Content-length", params.length);
-	xml.setRequestHeader("Connection", "close");
 
 	xml.send(params);
 	xml.onreadystatechange=function()
@@ -206,7 +204,7 @@ function tidyOrderDir() {
 function rsfp_autogenerate() {
 	stateLoading();
 	
-	var params = new Array();
+	var params = [];
 	var cids = document.getElementsByName('dirindetails[]');
 	var formId = document.getElementById('formId').value;
 	
@@ -228,8 +226,6 @@ function rsfp_autogenerate() {
 	
 	//Send the proper header information along with the request
 	xml.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	xml.setRequestHeader("Content-length", params.length);
-	xml.setRequestHeader("Connection", "close");
 
 	xml.send(params);
 	xml.onreadystatechange=function()

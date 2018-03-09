@@ -44,7 +44,17 @@ class RSFormProRestoreForm
 		// Attempt to load the XML data
 		libxml_use_internal_errors(true);
 		
-		$this->xml = simplexml_load_file($options['path']);
+		if (class_exists('DOMDocument')) {
+			$dom = new DOMDocument('1.0', 'UTF-8');
+			$dom->strictErrorChecking = false;
+			$dom->validateOnParse = false;
+			$dom->recover = true;
+			$dom->loadXML(file_get_contents($options['path']));
+			
+			$this->xml = simplexml_import_dom($dom);
+		} else {
+			$this->xml = simplexml_load_file($options['path']);
+		}
 		
 		if ($this->xml === false) {
 			$errors = array();
@@ -432,6 +442,7 @@ class RSFormProRestoreForm
 				$query	->insert('#__rsform_directory')
 						->set(array(
 								$this->db->qn('formId')					.'='.$this->db->q($this->form->FormId),
+								$this->db->qn('filename')				.'='.$this->db->q((string) $directory->filename),
 								$this->db->qn('enablepdf')				.'='.$this->db->q((string) $directory->enablepdf),
 								$this->db->qn('enablecsv')				.'='.$this->db->q((string) $directory->enablecsv),
 								$this->db->qn('ViewLayout')				.'='.$this->db->q((string) $directory->ViewLayout),
@@ -444,6 +455,7 @@ class RSFormProRestoreForm
 								$this->db->qn('EmailsScript')			.'='.$this->db->q((string) $directory->EmailsScript),
 								$this->db->qn('EmailsCreatedScript')	.'='.$this->db->q((string) $directory->EmailsCreatedScript),
 								$this->db->qn('groups')					.'='.$this->db->q((string) $directory->groups),
+								$this->db->qn('DeletionGroups')			.'='.$this->db->q((string) $directory->DeletionGroups),
 						));
 				$this->db->setQuery($query)->execute();
 				

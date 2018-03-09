@@ -49,29 +49,6 @@ function resetForm()
 	document.getElementById('dateTo').value   = '';
 }
 </script>
-
-<style>
-#rsform-btn-inline .btn-wrapper
-{
-	display: inline-block;
-	margin: 0 5px 0 0;
-}
-
-#columnsDiv label {
-	display: block;
-}
-
-#rsform-btn-inline .rsform-calendar-field
-{
-	margin-right: 35px;
-}
-
-#rsform-btn-inline .rsform-calendar-field .input-append
-{
-	margin-bottom: 0;
-}
-</style>
-
 <?php
 // Export Modal
 $modalData = array(

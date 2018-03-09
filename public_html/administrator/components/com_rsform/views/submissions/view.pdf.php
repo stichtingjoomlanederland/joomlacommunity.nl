@@ -7,8 +7,6 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-jimport('joomla.application.component.view');
-
 class RsformViewSubmissions extends JViewLegacy
 {
 	public function display($tpl = null) {

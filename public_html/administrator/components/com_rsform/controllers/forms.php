@@ -7,8 +7,6 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-jimport('joomla.application.component.controller');
-
 class RsformControllerForms extends RsformController
 {
 	public function __construct()
@@ -66,6 +64,23 @@ class RsformControllerForms extends RsformController
 		JFactory::getApplication()->input->set('layout', 	'default');
 		
 		parent::display();
+	}
+	
+	public function setMenu()
+	{
+		$app    	= JFactory::getApplication();
+		$formId 	= $app->input->getInt('formId');
+		$component 	= JComponentHelper::getComponent('com_rsform');
+
+		$app->setUserState('com_menus.edit.item.type', 'component');
+		$app->setUserState('com_menus.edit.item.link', 'index.php?option=com_rsform&view=rsform&formId='.$formId);
+		$app->setUserState('com_menus.edit.item.data', array(
+			'component_id' => $component->id,
+			'type'		   => 'component',
+			'menutype'	   => $app->input->getString('menutype'),
+			'formId'	   => $formId
+		));
+		$this->setRedirect(JRoute::_('index.php?option=com_menus&view=item&layout=edit', false));
 	}
 	
 	public function menuAddBackend()
@@ -159,20 +174,22 @@ class RsformControllerForms extends RsformController
 	
 	public function newStepThree()
 	{
+	    $app     = JFactory::getApplication();
 		$session = JFactory::getSession();
-		$session->set('com_rsform.wizard.FormTitle', JRequest::getVar('FormTitle', '', 'post', 'none', JREQUEST_ALLOWRAW));
-		$session->set('com_rsform.wizard.FormLayout', JRequest::getVar('FormLayout', '', 'post', 'none', JREQUEST_ALLOWRAW));
-		$session->set('com_rsform.wizard.ScrollToThankYou', JFactory::getApplication()->input->getInt('ScrollToThankYou'));
-		$session->set('com_rsform.wizard.ThankYouMessagePopUp', JFactory::getApplication()->input->getInt('ThankYouMessagePopUp'));		
-		$session->set('com_rsform.wizard.AdminEmail', JFactory::getApplication()->input->getInt('AdminEmail'));
-		$session->set('com_rsform.wizard.AdminEmailTo', JRequest::getVar('AdminEmailTo', '', 'post', 'none', JREQUEST_ALLOWRAW));
-		$session->set('com_rsform.wizard.UserEmail', JFactory::getApplication()->input->getInt('UserEmail'));
-		$session->set('com_rsform.wizard.SubmissionAction', JRequest::getVar('SubmissionAction', '', 'post', 'word'));
-		$session->set('com_rsform.wizard.Thankyou', JRequest::getVar('Thankyou', '', 'post', 'none', JREQUEST_ALLOWRAW));
-		$session->set('com_rsform.wizard.ReturnUrl', JRequest::getVar('ReturnUrl', '', 'post', 'none', JREQUEST_ALLOWRAW));
+
+		$session->set('com_rsform.wizard.FormTitle', $app->input->get('FormTitle', '', 'raw'));
+		$session->set('com_rsform.wizard.FormLayout', $app->input->get('FormLayout', '', 'raw'));
+		$session->set('com_rsform.wizard.ScrollToThankYou', $app->input->get('ScrollToThankYou', 0, 'int'));
+		$session->set('com_rsform.wizard.ThankYouMessagePopUp', $app->input->get('ThankYouMessagePopUp', 0, 'int'));
+		$session->set('com_rsform.wizard.AdminEmail', $app->input->get('AdminEmail', 0, 'int'));
+		$session->set('com_rsform.wizard.AdminEmailTo', $app->input->get('AdminEmailTo', '', 'raw'));
+		$session->set('com_rsform.wizard.UserEmail', $app->input->get('UserEmail', 0, 'int'));
+		$session->set('com_rsform.wizard.SubmissionAction', $app->input->get('SubmissionAction', '', 'cmd'));
+		$session->set('com_rsform.wizard.Thankyou', $app->input->get('Thankyou', '', 'raw'));
+		$session->set('com_rsform.wizard.ReturnUrl', $app->input->get('ReturnUrl', '', 'raw'));
 		
-		JFactory::getApplication()->input->set('view', 'forms');
-		JFactory::getApplication()->input->set('layout', 'new3');
+		$app->input->set('view', 'forms');
+		$app->input->set('layout', 'new3');
 		
 		parent::display();
 	}
@@ -225,7 +242,7 @@ class RsformControllerForms extends RsformController
 		
 		$layout = JPATH_ADMINISTRATOR.'/components/com_rsform/layouts/'.$filter->clean($row->FormLayoutName, 'path').'.php';
 		
-		$predefinedForm = JRequest::getVar('predefinedForm');
+		$predefinedForm = JFactory::getApplication()->input->get('predefinedForm', '', 'string');
 		
 		require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/quickfields.php';
 		
@@ -258,8 +275,6 @@ class RsformControllerForms extends RsformController
 				{
 					$GLOBALS['q_FormId'] = $row->FormId;
 					JFactory::getApplication()->input->set('formId', $row->FormId);
-					
-					
 					
 					$options = array();
 					$options['cleanup'] = 0;
@@ -347,8 +362,8 @@ class RsformControllerForms extends RsformController
 		$formId = JFactory::getApplication()->input->getInt('formId');
 		
 		$model = $this->getModel('forms');
-		$saved = $model->save();
-		
+		$model->save();
+
 		$task = $this->getTask();
 		switch ($task)
 		{
@@ -363,8 +378,9 @@ class RsformControllerForms extends RsformController
 			break;
 		}
 		
-		if (JFactory::getApplication()->input->getCmd('tmpl') == 'component')
-			$link .= '&tmpl=component';
+		if (JFactory::getApplication()->input->getCmd('tmpl') == 'component') {
+            $link .= '&tmpl=component';
+        }
 		
 		$this->setRedirect($link, JText::_('RSFP_FORM_SAVED'));
 	}
@@ -497,7 +513,7 @@ class RsformControllerForms extends RsformController
 		$db   = JFactory::getDbo();
 		
 		// Get the selected items
-		$cid = JRequest::getVar('cid', array(0), 'post', 'array');
+		$cid = JFactory::getApplication()->input->post->get('cid', array(), 'array');
 		
 		// Force array elements to be integers
 		array_map('intval', $cid);
@@ -809,8 +825,8 @@ class RsformControllerForms extends RsformController
 	public function calculations() {
 		$db 		= JFactory::getDbo();
 		$formId 	= JFactory::getApplication()->input->getInt('formId');
-		$total		= JRequest::getVar('total');
-		$expression	= JRequest::getVar('expression');
+		$total		= JFactory::getApplication()->input->get('total', '', 'raw');
+		$expression	= JFactory::getApplication()->input->get('expression', '', 'raw');
 		
 		$db->setQuery("SELECT MAX(`ordering`) FROM #__rsform_calculations WHERE `formId` = ".$formId);
 		$ordering = (int) $db->loadResult() + 1;
@@ -825,18 +841,24 @@ class RsformControllerForms extends RsformController
 	public function removeCalculation() {
 		$db 		= JFactory::getDbo();
 		$id		 	= JFactory::getApplication()->input->getInt('id');
+
+		$query = $db->getQuery(true)
+            ->delete($db->qn('#__rsform_calculations'))
+            ->where($db->qn('id') . ' = ' . $db->q($id));
 		
-		$db->setQuery("DELETE FROM #__rsform_calculations WHERE `id` = ".$id."");
+		$db->setQuery($query);
 		if ($db->execute()) {
 			echo 1;
-		} else echo 0;
-		
+		} else {
+            echo 0;
+        }
+
 		jexit();
 	}
 	
 	public function saveCalculationsOrdering() {
 		$db		= JFactory::getDbo();
-		$cids	= JFactory::getApplication()->input->get('cid',array(),'array');
+		$cids	= JFactory::getApplication()->input->get('cid', array(), 'array');
 		$formId	= JFactory::getApplication()->input->getInt('formId',0);
 		
 		foreach ($cids as $key => $order) {

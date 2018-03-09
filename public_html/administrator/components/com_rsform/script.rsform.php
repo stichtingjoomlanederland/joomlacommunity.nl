@@ -990,12 +990,25 @@ class com_rsformInstallerScript
 			<?php } ?>
 			<?php } ?>
 		<?php } ?>
-		<h2>Changelog v2.0.5</h2>
+		<h2>Changelog v2.0.7</h2>
 		<ul class="version-history">
-            <li><span class="version-fixed">Fix</span> AJAX validation did not enclose rows in the correct error classes due to a mistype.</li>
-            <li><span class="version-fixed">Fix</span> Progress bar did not advance when the form had more than 100 pages.</li>
-            <li><span class="version-fixed">Fix</span> Birthday Field's 'Allow Incorrect Dates' option was inversed (setting it to No now disallows incorrect dates).</li>
-            <li><span class="version-fixed">Fix</span> Ordering was reset when using a 'Legacy' layout and adding / removing fields.</li>
+            <li><span class="version-upgraded">Upg</span> Bootstrap 4.0.0 stable.</li>
+            <li><span class="version-upgraded">Upg</span> Submission ID now shows up in Manage Submissions.</li>
+            <li><span class="version-upgraded">Upg</span> Calculations can now compute the difference between 'Calendar' and 'Date and Time Picker' fields as well.</li>
+            <li><span class="version-upgraded">Upg</span> Hiding an element through the Conditional Fields feature will reset its value and trigger the other conditions as well.</li>
+            <li><span class="version-fixed">Fix</span> Bootstrap 3 Free Text fields had a negative margin pushing the text outside.</li>
+            <li><span class="version-fixed">Fix</span> Bootstrap 4 'invalid-feedback' class was hiding validation messages for checkboxes and radios.</li>
+            <li><span class="version-fixed">Fix</span> 'Add To Menu' was not pre-selecting the correct menu.</li>
+            <li><span class="version-fixed">Fix</span> When executing Mappings the port was not taken into account.</li>
+            <li><span class="version-fixed">Fix</span> Calendar time was not taken into account when filtering submissions in the backend.</li>
+            <li><span class="version-fixed">Fix</span> Conditional Fields option values were not properly escaped when setting them up.</li>
+            <li><span class="version-fixed">Fix</span> Layouts no longer generate an incorrect 'for' attribute on labels for Checkbox Groups, Radio Groups and Birthday Fields.</li>
+			<li><span class="version-fixed">Fix</span> Layouts no longer generate labels for Pagebreak fields.</li>
+			<li><span class="version-fixed">Fix</span> Bootstrap 3 and 4 layouts now use a 'btn-group' class for the Pagebreak fields.</li>
+            <li><span class="version-fixed">Fix</span> When saving the form, if an error was present in the User or Admin Emails configuration, the tab did not move to the Form Properties area.</li>
+            <li><span class="version-fixed">Fix</span> Some Default Values were not working in the 'Calendar' field.</li>
+            <li><span class="version-fixed">Fix</span> Because they don't have a 'Caption' property, Hidden Fields will now display their name when using the caption placeholder.</li>
+            <li><span class="version-fixed">Fix</span> Some code cleanup.</li>
 		</ul>
 		<a class="btn btn-large btn-primary" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="btn" href="https://www.rsjoomla.com/support/documentation/rsform-pro.html" target="_blank">Read the RSForm! Pro User Guide</a>

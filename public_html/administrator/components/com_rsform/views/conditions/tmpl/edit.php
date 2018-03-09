@@ -16,15 +16,14 @@ rsform_close_box();
 <?php } ?>
 
 function rsform_add_condition() {
-	var $ = RSFormPro.$;
 	<?php if (!$this->optionFields) { ?>
 	alert('<?php echo JText::_('RSFP_CONDITION_PLEASE_ADD_OPTIONS', true); ?>');
 	<?php } else { ?>
-	var new_condition = $('<p>');
+	var new_condition = jQuery('<p>');
 	
-	var spacer = $('<span>', {'class': 'rsform_spacer'}).html('&nbsp;&nbsp;&nbsp;');
-	var spacer2 = $('<span>', {'class': 'rsform_spacer'}).html('&nbsp;&nbsp;&nbsp;');
-	var spacer3 = $('<span>', {'class': 'rsform_spacer'}).html('&nbsp;&nbsp;&nbsp;');
+	var spacer = jQuery('<span>', {'class': 'rsform_spacer'}).html('&nbsp;&nbsp;&nbsp;');
+	var spacer2 = jQuery('<span>', {'class': 'rsform_spacer'}).html('&nbsp;&nbsp;&nbsp;');
+	var spacer3 = jQuery('<span>', {'class': 'rsform_spacer'}).html('&nbsp;&nbsp;&nbsp;');
 	
 	// fields
 	var fields = document.createElement('select');
@@ -67,15 +66,15 @@ function rsform_add_condition() {
 	
 	// remove button
 	
-	remove = $('<a>', {
+	remove = jQuery('<a>', {
 		'href': 'javascript:void(0);'
 	}).append('<a class="btn btn-danger btn-mini" href="javascript:void(0);"><i class="rsficon rsficon-remove"></i></a>').click(function() {
-		$(this).parent('p').remove();
+		jQuery(this).parent('p').remove();
 	});
 	
 	new_condition.append(fields, spacer, operator, spacer2, values, spacer3, remove);
 	
-	$('#rsform_conditions').append(new_condition);
+	jQuery('#rsform_conditions').append(new_condition);
 	<?php } ?>
 }
 
@@ -84,8 +83,8 @@ function rsform_get_field_value(id) {
 	
 <?php foreach ($this->optionFields as $field) { ?>
 	fields['<?php echo $field->ComponentId; ?>'] = [];
-	<?php foreach ($field->PropertyValue as $value) { ?>
-	fields['<?php echo $field->ComponentId; ?>'].push({'value': '<?php echo addslashes($value[0]); ?>', 'text': '<?php echo addslashes($value[1]); ?>'});
+	<?php foreach ($field->items as $item) { ?>
+    fields['<?php echo $field->ComponentId; ?>'].push({'value': <?php echo json_encode($item->value); ?>, 'text': <?php echo json_encode($item->label); ?>});
 	<?php } ?>
 <?php } ?>
 
@@ -93,11 +92,7 @@ function rsform_get_field_value(id) {
 }
 
 function rsform_change_field() {
-	
-	var $ = RSFormPro.$;
-	
-	//parent = $(this).parent('p');
-	values = $(this).parent().children('select')[2];
+	values = jQuery(this).parent().children('select')[2];
 	values.options.length = 0;
 	
 	selected_values = rsform_get_field_value(this.value);
@@ -146,10 +141,10 @@ function rsform_close_box() {
 			<span class="rsform_spacer">&nbsp;</span>
 			<select name="value[]">
 			<?php foreach ($this->optionFields as $field) { ?>
-			<?php if ($field->ComponentId != $detail->component_id) continue; ?>
-			<?php foreach ($field->PropertyValue as $value) { ?>
-			<option <?php if ($value[0] == $detail->value) { ?>selected="selected"<?php } ?> value="<?php echo $this->escape($value[0]); ?>"><?php echo $this->escape($value[1]); ?></option>
-			<?php } ?>
+                <?php if ($field->ComponentId != $detail->component_id) continue; ?>
+                <?php foreach ($field->items as $item) { ?>
+                    <option <?php if ($item->value == $detail->value) { ?>selected="selected"<?php } ?> value="<?php echo $this->escape($item->value); ?>"><?php echo $this->escape($item->label); ?></option>
+                <?php } ?>
 			<?php } ?>
 			</select>
 			<span class="rsform_spacer">&nbsp;</span>
