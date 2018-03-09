@@ -81,3 +81,6 @@ public_html/administrator/.htpasswd
 /public_html/plugins/system/bfnetwork/bfnetwork/MD5SUMS
 /public_html/plugins/system/bfnetwork/bfnetwork/VERSION
 /public_html/plugins/system/bfnetwork/bfnetwork/tmp/STATE.php
+
+# MyJoomla
+/pulic_html/.myjoomla.configuration.php.md5
