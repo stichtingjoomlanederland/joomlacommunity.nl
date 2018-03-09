@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -93,8 +93,11 @@ class ConfigureWAF extends Model
 		'configmonitor_action'      => 'email',
 		'selfprotect'               => 1,
 		'criticalfiles'             => 0,
-		'superuserslist'            => 1,
-		'consolewarn'				=> 1
+		'superuserslist'            => 0,
+		'consolewarn'				=> 1,
+		'404shield_enable'			=> 1,
+		'404shield'					=> "wp-admin.php\nwp-login.php\nwp-content/*\nwp-admin/*",
+		'emailphpexceptions'		=> ''
 	);
 
 	/**

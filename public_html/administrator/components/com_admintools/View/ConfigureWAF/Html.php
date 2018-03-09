@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -60,6 +60,16 @@ class Html extends BaseView
 		JText::script('JNO', true);
 		JText::script('JYES', true);
 
+		$this->addJavascriptFile('admin://components/com_admintools/media/js/Tooltip.min.js');
+		$this->addJavascriptFile('admin://components/com_admintools/media/js/ConfigureWAF.min.js');
+		$tabsJS = '';
+
+		if (!$this->longConfig)
+		{
+			$tabsJS = 'akeeba.fef.tabs();';
+			$this->addJavascriptFile('media://fef/js/tabs.min.js');
+		}
+
 		// Push data to Javascript
 		$script = <<< JS
 
@@ -67,10 +77,10 @@ class Html extends BaseView
 
 akeeba.jQuery(document).ready(function($){
 	admintools.ConfigureWAF.myIP = '$this->myIP';
+	$tabsJS
 });
 
 JS;
-		$this->addJavascriptFile('admin://components/com_admintools/media/js/ConfigureWAF.min.js');
 		$this->addJavascriptInline($script);
 	}
 }

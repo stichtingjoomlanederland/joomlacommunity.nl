@@ -4,10 +4,10 @@
 	<author>Nicholas K. Dionysopoulos</author>
 	<authorEmail>nicholas@akeebabackup.com</authorEmail>
 	<authorUrl>http://www.akeebabackup.com</authorUrl>
-	<copyright>Copyright (c)2010-2017 Nicholas K. Dionysopoulos</copyright>
+	<copyright>Copyright (c)2010-2018 Nicholas K. Dionysopoulos</copyright>
 	<license>GNU General Public License version 3, or later</license>
-	<creationDate>2017-10-02</creationDate>
-	<version>4.3.1</version>
+	<creationDate>2018-02-26</creationDate>
+	<version>5.0.2</version>
 	<description>
 		Handles URL redirections defined in Admin Tools, fends off common attacks
 		and automates session table and cache clean-up

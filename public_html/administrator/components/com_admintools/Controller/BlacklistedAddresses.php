@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11,6 +11,7 @@ defined('_JEXEC') or die;
 
 use Akeeba\AdminTools\Admin\Controller\Mixin\CustomACL;
 use FOF30\Controller\DataController;
+use FOF30\View\Exception\AccessForbidden;
 use JText;
 
 class BlacklistedAddresses extends DataController
@@ -22,6 +23,19 @@ class BlacklistedAddresses extends DataController
 		$this->layout = 'import';
 
 		$this->display();
+	}
+
+	public function export()
+	{
+		try
+		{
+			parent::display();
+		}
+		catch (AccessForbidden $e)
+		{
+			$msg = JText::_('COM_ADMINTOOLS_BLACKLISTEDADDRESSES_EXPORT_EMPTY');
+			$this->setRedirect('index.php?option=com_admintools&view=BlacklistedAddresses', $msg);
+		}
 	}
 
 	public function doimport()

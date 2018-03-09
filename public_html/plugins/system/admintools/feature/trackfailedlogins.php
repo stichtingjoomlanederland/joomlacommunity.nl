@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright Copyright (c)2010-2017 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -108,7 +108,7 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 		// If I'm here, it means that this is a valid user, let's see if I have to deactivate him
 		$where = array(
 			'ip'     => $ip,
-			'reason' => 'loginfailure'
+			'reason' => 'loginfailure',
 		);
 
 		$deactivate = $this->checkLogFrequency($limit, $numfreq, $frequency, $where);
@@ -121,8 +121,9 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 		JPluginHelper::importPlugin('user');
 		$db = $this->db;
 
-		$data['activation'] = JApplication::getHash(JUserHelper::genRandomPassword());
-		$data['block'] = 1;
+		$randomPassword        = class_exists('Joomla\\CMS\\User\\UserHelper') ? \Joomla\CMS\User\UserHelper::genRandomPassword() : \JUserHelper::genRandomPassword();
+		$data['activation']    = class_exists('Joomla\\CMS\\Application\\ApplicationHelper') ? \Joomla\CMS\Application\ApplicationHelper::getHash($randomPassword) : JApplication::getHash($randomPassword);
+		$data['block']         = 1;
 		$data['lastvisitDate'] = $db->getNullDate();
 
 		// If an admin needs to activate the user, I have to set the activate flag
@@ -151,7 +152,7 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 		}
 
 		$subject = $template[0];
-		$body = $template[1];
+		$body    = $template[1];
 
 		$config = $this->container->platform->getConfig();
 
@@ -162,8 +163,8 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 			$mailfrom = $config->get('mailfrom');
 			$fromname = $config->get('fromname');
 
-			$uri = JUri::getInstance();
-			$base = $uri->toString(array('scheme', 'user', 'pass', 'host', 'port'));
+			$uri      = JUri::getInstance();
+			$base     = $uri->toString(array('scheme', 'user', 'pass', 'host', 'port'));
 			$activate = $base . JRoute::_('index.php?option=com_users&task=registration.activate&token=' . $data['activation'], false);
 
 			// Send e-mail to the user
@@ -176,9 +177,9 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 			{
 				// get all admin users
 				$query = $db->getQuery(true)
-							->select($db->qn(array('name', 'email', 'sendEmail', 'id')))
-							->from($db->qn('#__users'))
-							->where($db->qn('sendEmail') . ' = ' . 1);
+					->select($db->qn(array('name', 'email', 'sendEmail', 'id')))
+					->from($db->qn('#__users'))
+					->where($db->qn('sendEmail') . ' = ' . 1);
 
 				$rows = $db->setQuery($query)->loadObjectList();
 
@@ -204,7 +205,7 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 			]);
 
 			$subject = str_replace(array_keys($tokens), array_values($tokens), $subject);
-			$body = str_replace(array_keys($tokens), array_values($tokens), $body);
+			$body    = str_replace(array_keys($tokens), array_values($tokens), $body);
 
 			// This line is required because SpamAssassin is BROKEN
 			$mailer->Priority = 3;

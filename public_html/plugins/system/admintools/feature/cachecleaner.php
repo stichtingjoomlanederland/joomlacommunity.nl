@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright Copyright (c)2010-2017 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -54,7 +54,7 @@ class AtsystemFeatureCachecleaner extends AtsystemFeatureAbstract
 		JLoader::import('joomla.cms.application.helper');
 
 		// Site client
-		$client = JApplicationHelper::getClientInfo(0);
+		$client = class_exists('Joomla\\CMS\\Application\\ApplicationHelper') ? \Joomla\CMS\Application\ApplicationHelper::getClientInfo(0) : JApplicationHelper::getClientInfo(0);
 
 		$er = @error_reporting(0);
 		$cache = JFactory::getCache('');

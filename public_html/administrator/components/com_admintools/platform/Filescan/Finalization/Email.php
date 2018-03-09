@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -12,19 +12,18 @@ defined('AKEEBAENGINE') or die();
 
 use Akeeba\AdminTools\Admin\Model\ScanAlerts;
 use Akeeba\AdminTools\Admin\Model\Scans;
-use Akeeba\Engine\Base\Object;
+use Akeeba\Engine\Base\BaseObject;
 use Akeeba\Engine\Core\Domain\Finalization;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
-use Akeeba\Engine\Util\Comconfig;
 use FOF30\Container\Container;
-use Psr\Log\LogLevel;
 use JText;
+use Psr\Log\LogLevel;
 
 /**
  * Generates email reports for scan results
  */
-class Email extends Object
+class Email extends BaseObject
 {
 	public function send_scan_email($parent)
 	{

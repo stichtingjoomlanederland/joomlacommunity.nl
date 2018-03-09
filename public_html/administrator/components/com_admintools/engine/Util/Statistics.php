@@ -2,7 +2,7 @@
 /**
  * Akeeba Engine
  * The modular PHP5 site backup engine
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -13,12 +13,12 @@ namespace Akeeba\Engine\Util;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Base\Object;
+use Akeeba\Engine\Base\BaseObject;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use Psr\Log\LogLevel;
 
-class Statistics extends Object
+class Statistics extends BaseObject
 {
 	/** @var bool used to block multipart updating initializing the backup */
 	private $multipart_lock = true;

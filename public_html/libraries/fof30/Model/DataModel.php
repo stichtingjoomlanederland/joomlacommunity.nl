@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     FOF
- * @copyright   2010-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL version 2 or later
  */
 
@@ -1651,7 +1651,7 @@ class DataModel extends Model implements \JTableInterface
 		// Get a "count all" query
 		$db = $this->getDbo();
 		$query = $this->buildQuery(true);
-		$query->clear('select')->select('COUNT(*)');
+		$query->clear('select')->clear('order')->select('COUNT(*)');
 
 		// Run the "before build query" hook and behaviours
 		$this->triggerEvent('onBuildCountQuery', array(&$query));

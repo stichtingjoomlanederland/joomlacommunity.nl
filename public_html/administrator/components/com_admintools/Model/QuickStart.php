@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -227,7 +227,7 @@ class QuickStart extends Model
 			'email_throttle'          => 1,
 		    'selfprotect'             => 1,
 		    'criticalfiles'           => 1,
-		    'superuserslist'          => 1,
+		    'superuserslist'          => 0,
 		);
 
 		$this->config = array_merge($this->config, $newValues);

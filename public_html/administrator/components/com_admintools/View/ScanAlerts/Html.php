@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -14,6 +14,7 @@ use Akeeba\AdminTools\Admin\Model\Scans;
 use FOF30\View\DataView\Html as BaseView;
 use FOF30\Date\Date;
 use JLoader;
+use JText;
 
 class Html extends BaseView
 {
@@ -65,6 +66,17 @@ class Html extends BaseView
 	 * @var  array
 	 */
 	public $retarray;
+
+	/** @var  string	Order column */
+	public $order;
+
+	/** @var  string Order direction, ASC/DESC */
+	public $order_Dir;
+
+	/** @var  array	Sorting order options */
+	public $sortFields = [];
+
+	public $filters = [];
 
 	protected function onBeforeEdit()
 	{
@@ -155,11 +167,48 @@ JS;
 
 			unset($diffLines);
 		}
+
+		// Should I enable tabs?
+		if ($this->generateDiff && ($this->fstatus == 'modified'))
+		{
+			$this->addJavascriptFile('media://fef/js/tabs.min.js');
+
+			$script = <<< JS
+
+; // Working around broken 3PD plugins
+akeeba.jQuery(document).ready(function($){
+	akeeba.fef.tabs();
+});
+JS;
+			$this->addJavascriptInline($script);
+		}
 	}
 
 	protected function onBeforeBrowse()
 	{
 		parent::onBeforeBrowse();
+
+		$hash = 'admintools'.$this->getName();
+
+		// ...ordering
+		$platform        = $this->container->platform;
+		$input           = $this->input;
+		$this->order     = $platform->getUserStateFromRequest($hash . 'filter_order', 'filter_order', $input, 'admintools_scanalert_id');
+		$this->order_Dir = $platform->getUserStateFromRequest($hash . 'filter_order_Dir', 'filter_order_Dir', $input, 'DESC');
+
+		// ...filter state
+		$this->filters['status'] 	   = $platform->getUserStateFromRequest($hash . 'filter_status', 'status', $input);
+		$this->filters['path'] 	 	   = $platform->getUserStateFromRequest($hash . 'filter_path', 'path', $input);
+		$this->filters['acknowledged'] = $platform->getUserStateFromRequest($hash . 'filter_acknowledged', 'acknowledged', $input);
+
+		// Construct the array of sorting fields
+		$this->sortFields = array(
+			'admintools_scanalert_id' => 'ID',
+			'path' 					  => JText::_('COM_ADMINTOOLS_LBL_SCANALERTS_PATH'),
+			'filestatus' 			  => JText::_('COM_ADMINTOOLS_LBL_SCANALERTS_STATUS'),
+			'threat_score' 			  => JText::_('COM_ADMINTOOLS_LBL_SCANALERTS_THREAT_SCORE'),
+			'acknowledged'			  => JText::_('COM_ADMINTOOLS_LBL_SCANALERTS_ACKNOWLEDGED'),
+		);
 
 		if ($this->getLayout() == 'print')
 		{

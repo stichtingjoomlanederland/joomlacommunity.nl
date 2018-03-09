@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -454,24 +454,56 @@ class Filescan extends BasePlatform
 	{
 		$jconfig = $this->container->platform->getConfig();
 		$driver = $jconfig->get('dbtype');
+		$driver = strtolower($driver);
+
+		$hasPdo = class_exists('\PDO');
+		$hasMySQL = function_exists('mysql_connect');
+		$hasMySQLi = function_exists('mysqli_connect');
+
+		// Prime with a default return value, favoring PDO MySQL if available
+		$defaultDriver = '\\Akeeba\\Engine\\Driver\\Pdomysql';
+
+		if (!$hasPdo)
+		{
+			// Second best choice is MySQLi
+			$defaultDriver = '\\Akeeba\\Engine\\Driver\\Mysqli';
+
+			// Third best choice is MySQL
+			if (!$hasMySQLi && $hasMySQL)
+			{
+				$defaultDriver = '\\Akeeba\\Engine\\Driver\\Mysql';
+			}
+		}
 
 		// Let's see what driver Joomla! uses...
 		if ($use_platform)
 		{
 			$hasNookuContent = file_exists(JPATH_ROOT . '/plugins/system/nooku.php');
+
 			switch ($driver)
 			{
 				// MySQL or MySQLi drivers are known to be working; use their
 				// Akeeba Engine extended version, Akeeba\Engine\Driver\Joomla
 				case 'mysql':
+					// So, Joomla! 4's "mysql" is, actually, "pdomysql". Therefore I can use our own wrapper driver
+					if (version_compare(JVERSION, '3.99999.99999', 'gt'))
+					{
+						return '\\Akeeba\\Engine\\Driver\\Joomla';
+					}
+
+					// The piece of crap called FaLang is lying about the database driver
+					if (!$hasMySQL)
+					{
+						return '\\Akeeba\\Engine\\Driver\\Mysqli';
+					}
+
 					if ($hasNookuContent)
 					{
 						return '\\Akeeba\\Engine\\Driver\\Mysql';
 					}
-					else
-					{
-						return '\\Akeeba\\Engine\\Driver\\Joomla';
-					}
+
+					return '\\Akeeba\\Engine\\Driver\\Joomla';
+
 					break;
 
 				case 'mysqli':
@@ -479,69 +511,92 @@ class Filescan extends BasePlatform
 					{
 						return '\\Akeeba\\Engine\\Driver\\Mysqli';
 					}
-					else
-					{
-						return '\\Akeeba\\Engine\\Driver\\Joomla';
-					}
-					break;
 
-				case 'sqlsrv':
-				case 'sqlazure':
 					return '\\Akeeba\\Engine\\Driver\\Joomla';
+
 					break;
 
-				case 'postgresql':
-					return '\\Akeeba\\Engine\\Driver\\Joomla';
-					break;
-
-				case 'pdomysql':
-					return '\\Akeeba\\Engine\\Driver\\Joomla';
-					break;
-
-				// Some custom driver. Uh oh!
+				// Any other case, use our platform-specific driver
 				default:
+					return '\\Akeeba\\Engine\\Driver\\Joomla';
+
 					break;
 			}
 		}
 
 		// Is this a subcase of mysqli or mysql drivers?
-		if (strtolower(substr($driver, 0, 6)) == 'mysqli')
-		{
-			return '\\Akeeba\\Engine\\Driver\\Mysqli';
-		}
-		elseif (strtolower(substr($driver, 0, 5)) == 'mysql')
-		{
-			return '\\Akeeba\\Engine\\Driver\\Mysql';
-		}
-		elseif (strtolower(substr($driver, 0, 6)) == 'sqlsrv')
-		{
-			return '\\Akeeba\\Engine\\Driver\\Sqlsrv';
-		}
-		elseif (strtolower(substr($driver, 0, 8)) == 'sqlazure')
-		{
-			return '\\Akeeba\\Engine\\Driver\\Sqlazure';
-		}
-		elseif (strtolower(substr($driver, 0, 10)) == 'postgresql')
-		{
-			return '\\Akeeba\\Engine\\Driver\\Postgresql';
-		}
-		elseif (strtolower(substr($driver, 0, 8)) == 'pdomysql')
+		if (substr($driver, 0, 8) == 'pdomysql')
 		{
 			return '\\Akeeba\\Engine\\Driver\\Pdomysql';
 		}
-
-		// If we're still here, we have to guesstimate the correct driver. All bets are off.
-		// And you'd better be using MySQL!!!
-		if (function_exists('mysqli_connect'))
+		elseif (substr($driver, 0, 6) == 'mysqli')
 		{
-			// MySQLi available. Let's use it.
 			return '\\Akeeba\\Engine\\Driver\\Mysqli';
 		}
-		else
+		elseif (substr($driver, 0, 5) == 'mysql')
 		{
-			// MySQLi is not available; let's use standard MySQL.
+			// The piece of crap called FaLang is lying about the database driver
+			if (!$hasMySQL)
+			{
+				return '\\Akeeba\\Engine\\Driver\\Mysqli';
+			}
+
 			return '\\Akeeba\\Engine\\Driver\\Mysql';
 		}
+		elseif (substr($driver, 0, 6) == 'sqlsrv')
+		{
+			return '\\Akeeba\\Engine\\Driver\\Sqlsrv';
+		}
+		elseif (substr($driver, 0, 8) == 'sqlazure')
+		{
+			return '\\Akeeba\\Engine\\Driver\\Sqlazure';
+		}
+		elseif (substr($driver, 0, 10) == 'postgresql')
+		{
+			return '\\Akeeba\\Engine\\Driver\\Postgresql';
+		}
+
+		// Sometimes we get driver names in the form of foomysql instead of mysqlfoo. Let's look for that too.
+		if (substr($driver, -8) == 'pdomysql')
+		{
+			return '\\Akeeba\\Engine\\Driver\\Pdomysql';
+		}
+		elseif (substr($driver, -6) == 'mysqli')
+		{
+			return '\\Akeeba\\Engine\\Driver\\Mysqli';
+		}
+		elseif (substr($driver, -5) == 'mysql')
+		{
+			/**
+			 * Apparently there are some folks of dubious intelligence out there writing custom database drivers without
+			 * understanding or caring about the differences between mysql and mysqli drivers in PHP. They don't play
+			 * nice but I have my way to work around their ignorance, FORCING mysqli when they erroneously report mysql
+			 * on servers which no longer support this ancient, obsolete database connector. Of course the proper way
+			 * to address this would be having these folks fix their broken software but I think I'm asking for too
+			 * much. They know who they are, fa la la...
+			 */
+			if (!$hasMySQL)
+			{
+				return '\\Akeeba\\Engine\\Driver\\Mysqli';
+			}
+
+			return '\\Akeeba\\Engine\\Driver\\Mysql';
+		}
+		elseif (substr($driver, -6) == 'sqlsrv')
+		{
+			return '\\Akeeba\\Engine\\Driver\\Sqlsrv';
+		}
+		elseif (substr($driver, -8) == 'sqlazure')
+		{
+			return '\\Akeeba\\Engine\\Driver\\Sqlazure';
+		}
+		elseif (substr($driver, -10) == 'postgresql')
+		{
+			return '\\Akeeba\\Engine\\Driver\\Postgresql';
+		}
+
+		// I give up! You'd better be usign a MySQL db server.
+		return $defaultDriver;
 	}
 
 	/**
@@ -1001,37 +1056,6 @@ class Filescan extends BasePlatform
 		}
 
 		return $result;
-	}
-
-	/**
-	 * Registers Akeeba Engine's core classes with JLoader
-	 *
-	 * @param string $path_prefix The path prefix to look in
-	 */
-	protected function register_akeeba_engine_classes($path_prefix)
-	{
-		global $Akeeba_Class_Map;
-
-		\JLoader::import('joomla.filesystem.folder');
-
-		foreach ($Akeeba_Class_Map as $class_prefix => $path_suffix)
-		{
-			// Bail out if there is such directory, so as not to have Joomla! throw errors
-			if ( !@is_dir($path_prefix . '/' . $path_suffix))
-			{
-				continue;
-			}
-
-			$file_list = \JFolder::files($path_prefix . '/' . $path_suffix, '.*\.php');
-			if (is_array($file_list) && !empty($file_list))
-			{
-				foreach ($file_list as $file)
-				{
-					$class_suffix = ucfirst(basename($file, '.php'));
-					\JLoader::register($class_prefix . $class_suffix, $path_prefix . '/' . $path_suffix . '/' . $file);
-				}
-			}
-		}
 	}
 
 	/**

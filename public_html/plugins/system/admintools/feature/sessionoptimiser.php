@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright Copyright (c)2010-2017 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -61,26 +61,24 @@ class AtsystemFeatureSessionoptimiser extends AtsystemFeatureAbstract
 	private function sessionOptimize()
 	{
 		$db = $this->db;
+		$dbName = $db->getName();
 
-		// First, make sure this is MySQL!
-		$dbClass = get_class($db);
-
-		if (substr($dbClass, 0, 15) == 'JDatabaseDriver')
-		{
-			$dbClass = substr($dbClass, 15);
-		}
-		else
-		{
-			$dbClass = str_replace('JDatabase', '', $dbClass);
-		}
-
-		if (!in_array(strtolower($dbClass), array('mysql', 'mysqli')))
+		// Make sure this is MySQL
+		if (!in_array(strtolower($dbName), array('mysql', 'mysqli')))
 		{
 			return;
 		}
 
-		$db->setQuery('CHECK TABLE ' . $db->quoteName('#__session'));
-		$result = $db->loadObjectList();
+		try
+		{
+			$db->setQuery('CHECK TABLE ' . $db->quoteName('#__session'));
+			$result = $db->loadObjectList();
+		}
+		catch (Exception $e)
+		{
+			return;
+		}
+
 
 		$isOK = false;
 
@@ -102,13 +100,26 @@ class AtsystemFeatureSessionoptimiser extends AtsystemFeatureAbstract
 		// Run a repair only if it is required
 		if (!$isOK)
 		{
-			// The table needs repair
-			$db->setQuery('REPAIR TABLE ' . $db->quoteName('#__session'));
-			$db->execute();
+			try
+			{
+				$db->setQuery('REPAIR TABLE ' . $db->quoteName('#__session'));
+				$db->execute();
+			}
+			catch (Exception $e)
+			{
+				return;
+			}
 		}
 
 		// Finally, optimize
-		$db->setQuery('OPTIMIZE TABLE ' . $db->quoteName('#__session'));
-		$db->execute();
+		try
+		{
+			$db->setQuery('OPTIMIZE TABLE ' . $db->quoteName('#__session'));
+			$db->execute();
+		}
+		catch (Exception $e)
+		{
+			return;
+		}
 	}
 }

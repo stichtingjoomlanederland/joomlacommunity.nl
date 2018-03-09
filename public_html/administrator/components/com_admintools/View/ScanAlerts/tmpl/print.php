@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -47,7 +47,6 @@ $date->setTimezone($tz);
 	<?php if ($count = count($this->items)): ?>
 		<?php
 		$i = 0;
-		$m = 1;
 		foreach ($this->items as $item):
 			if ($item->threat_score == 0)
 			{
@@ -92,8 +91,7 @@ $date->setTimezone($tz);
 				$alt = '';
 			}
 			?>
-			<tr class="row<?php $m = 1 - $m;
-			echo $m; ?>">
+			<tr>
 				<td><?php echo $i + 1 ?></td>
 				<td>
 					<?php echo $truncatedPath ? "&hellip;" : ''; ?>

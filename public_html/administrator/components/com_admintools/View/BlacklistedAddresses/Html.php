@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -9,13 +9,19 @@ namespace Akeeba\AdminTools\Admin\View\BlacklistedAddresses;
 
 defined('_JEXEC') or die;
 
-use FOF30\View\DataView\Html as BaseView;
+use Akeeba\AdminTools\Admin\View\WhitelistedAddresses\Html as BaseView;
 
 class Html extends BaseView
 {
+	protected function onBeforeBrowse()
+	{
+		$this->hash_view = 'admintoolsblacklistedaddresses';
+
+		parent::onBeforeBrowse();
+	}
+
 	protected function onBeforeImport()
 	{
 		$this->addJavascriptFile('admin://components/com_admintools/media/js/BlacklistedAddresses.min.js');
 	}
-
 }

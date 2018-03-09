@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright Copyright (c)2010-2017 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -22,7 +22,33 @@ class AtsystemFeatureSuperuserslist extends AtsystemFeatureAbstract
 	 */
 	public function isEnabled()
 	{
-		return ($this->cparams->getValue('superuserslist', 1) == 1);
+		/**
+		 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		 * A Short History Of How This Feature Ended Up Disabled By Default
+		 * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+		 *
+		 * Despite this feature working just fine, we found out that it's a constant source of support request for
+		 * reasons unrelated to its performance or reliability. It boils down to:
+		 *
+		 * - Badly written third party software, some of it running outside Joomla!, will create from scratch or afresh
+		 *   Super User accounts silently. This is EXACTLY the problem this feature is supposed to catch and it does.
+		 *   However users don't perceive that ugly and dangerous third party hack as a problem and instead believe that
+		 *   it's Admin Tools fault for warning them when they have not been subjectively hacked (in fact, the machine
+		 *   has no way to determine that what just happened is not malicious BECAUSE THAT'S EXACTLY WHAT AN EVIL HACKER
+		 *   WOULD DO TO PWN YOUR SITE).
+		 *
+		 * - People forget that they have disabled Admin Tools when they are creating a Super User, therefore making it
+		 *   impossible for AT to know if the new Super User is legit or an evil implant. AT warns them, as they should,
+		 *   but they again think it's a bug - despite the feature doing EXACTLY what it is asked to do, i.e. warn for
+		 *   any user account created outside the Users editor and / or outside its watch.
+		 *
+		 * - People use third party extensions either by themselves (obvious) or one which override the backend Users
+		 *   page of Joomla! (absolutely not obvious). In this case the created Super User is indeed created outside the
+		 *   backend Users page of Joomla! so Admin Tools correctly warns them. Once more, people perceive it as a bug
+		 *   in Admin Tools.
+		 */
+
+		return ($this->cparams->getValue('superuserslist', 0) == 1);
 	}
 
 	/**
@@ -588,7 +614,14 @@ HTML;
 		$app = JFactory::getApplication();
 
 		// Not a valid application object?
-		if (!is_object($app) || !($app instanceof JApplicationCms))
+		if (!is_object($app))
+		{
+			return false;
+		}
+
+		$isCMSApp = version_compare(JVERSION, '3.99999.99999', 'gt') ? ($app instanceof \Joomla\CMS\Application\CMSApplication) : $app instanceof JApplicationCms;
+
+		if (!$isCMSApp)
 		{
 			return false;
 		}

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11,63 +11,56 @@ use Akeeba\AdminTools\Admin\Helper\Select;
 defined('_JEXEC') or die;
 
 ?>
-<div class="control-group">
-	<label class="control-label" for="tsrenable"
-		   rel="popover"
+<div class="akeeba-form-group">
+	<label for="tsrenable"
+		   rel="akeeba-sticky-tooltip"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_TSRENABLE'); ?>"
 		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_TSRENABLE_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_TSRENABLE'); ?>
 	</label>
 
-	<div class="controls">
-		<?php echo Select::booleanlist('tsrenable', array(), $this->wafconfig['tsrenable']); ?>
-
-	</div>
+    <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'tsrenable', $this->wafconfig['tsrenable']); ?>
 </div>
 
-<div class="control-group">
-	<label class="control-label"
+<div class="akeeba-form-group">
+	<label
 		   for="emailafteripautoban"
-		   rel="popover"
+		   rel="akeeba-sticky-tooltip"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_EMAILAFTERIPAUTOBAN'); ?>"
 		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_EMAILAFTERIPAUTOBAN_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_EMAILAFTERIPAUTOBAN'); ?>
 	</label>
 
-	<div class="controls">
-		<input class="input-large" type="text" size="50" name="emailafteripautoban"
-			   value="<?php echo $this->escape($this->wafconfig['emailafteripautoban']); ?>"/>
-	</div>
+    <input type="text" size="50" name="emailafteripautoban" value="<?php echo $this->escape($this->wafconfig['emailafteripautoban']); ?>"/>
 </div>
 
-<div class="control-group">
-	<label class="control-label" for="tsrstrikes"
-		   rel="popover"
+<div class="akeeba-form-group">
+	<label for="tsrstrikes"
+		   rel="akeeba-sticky-tooltip"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_TSRSTRIKES'); ?>"
 		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_TSRSTRIKES_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_TSRSTRIKES'); ?>
 	</label>
 
-	<div class="controls">
+	<div class="akeeba-form--inline">
 		<input class="input-mini pull-left" type="text" size="5" name="tsrstrikes"
 			   value="<?php echo $this->escape($this->wafconfig['tsrstrikes']); ?>"/>
 		<span class="floatme"><?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_TSRNUMFREQ'); ?></span>
 		<input class="input-mini" type="text" size="5" name="tsrnumfreq"
 			   value="<?php echo $this->escape($this->wafconfig['tsrnumfreq']); ?>"/>
 		<?php echo Select::trsfreqlist('tsrfrequency', array('class' => 'input-small'), $this->wafconfig['tsrfrequency']); ?>
-
 	</div>
 </div>
 
-<div class="control-group">
-	<label class="control-label" for="tsrbannum"
-		   rel="popover"
+<div class="akeeba-form-group">
+	<label for="tsrbannum"
+		   rel="akeeba-sticky-tooltip"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_TSRBANNUM'); ?>"
 		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_TSRBANNUM_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_TSRBANNUM'); ?>
 	</label>
 
-	<div class="controls">
+	<div class="akeeba-form--inline">
 		<input class="input-mini" type="text" size="5" name="tsrbannum"
 			   value="<?php echo $this->escape($this->wafconfig['tsrbannum']); ?>"/>
 		&nbsp;
@@ -76,46 +69,40 @@ defined('_JEXEC') or die;
 	</div>
 </div>
 
-<div class="control-group">
-	<label class="control-label" for="tsrpermaban"
-		   rel="popover"
+<div class="akeeba-form-group">
+	<label for="tsrpermaban"
+		   rel="akeeba-sticky-tooltip"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_PERMABAN'); ?>"
 		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_PERMABAN_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_PERMABAN'); ?>
 	</label>
 
-	<div class="controls">
-		<?php echo Select::booleanlist('permaban', array(), $this->wafconfig['permaban']); ?>
-
-	</div>
+    <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'permaban', $this->wafconfig['permaban']); ?>
 </div>
 
-<div class="control-group">
-	<label class="control-label" for="permabannum"
-		   rel="popover"
+<div class="akeeba-form-group">
+	<label for="permabannum"
+		   rel="akeeba-sticky-tooltip"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_PERMABANNUM'); ?>"
 		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_PERMABANNUM_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_PERMABANNUM'); ?>
 	</label>
 
-	<div class="controls">
+	<div>
 		<input class="input-mini" type="text" size="5" name="permabannum"
 			   value="<?php echo $this->escape($this->wafconfig['permabannum']); ?>"/>
 		<span><?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_PERMABANNUM_2'); ?></span>
 	</div>
 </div>
 
-<div class="control-group">
-	<label class="control-label"
+<div class="akeeba-form-group">
+	<label
 		   for="spammermessage"
-		   rel="popover"
+		   rel="akeeba-sticky-tooltip"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_SPAMMERMESSAGE'); ?>"
 		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_SPAMMERMESSAGE_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_SPAMMERMESSAGE'); ?>
 	</label>
 
-	<div class="controls">
-		<input type="text" class="input-xxlarge" name="spammermessage"
-			   value="<?php echo htmlentities($this->wafconfig['spammermessage']) ?>"/>
-	</div>
+    <input type="text" name="spammermessage"  value="<?php echo htmlentities($this->wafconfig['spammermessage']) ?>"/>
 </div>

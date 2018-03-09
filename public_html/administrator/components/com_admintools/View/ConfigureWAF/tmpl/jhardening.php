@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -12,153 +12,123 @@ use Akeeba\AdminTools\Admin\Helper\Select;
 defined('_JEXEC') or die;
 
 ?>
-<div class="control-group">
-	<label class="control-label" for="nonewadmins"
-		   rel="popover"
+<div class="akeeba-form-group">
+	<label for="nonewadmins"
+		   rel="akeeba-sticky-tooltip"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_NONEWADMINS'); ?>"
 		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_NONEWADMINS_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_NONEWADMINS'); ?>
 	</label>
 
-	<div class="controls">
-		<?php echo Select::booleanlist('nonewadmins', array(), $this->wafconfig['nonewadmins']); ?>
-
-	</div>
+    <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'nonewadmins', $this->wafconfig['nonewadmins']); ?>
 </div>
 
-<div class="control-group">
-	<label class="control-label" for="nonewfrontendadmins"
-		   rel="popover"
+<div class="akeeba-form-group">
+	<label for="nonewfrontendadmins"
+		   rel="akeeba-sticky-tooltip"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_NONEWFRONTENDADMINS'); ?>"
 		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_NONEWFRONTENDADMINS_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_NONEWFRONTENDADMINS'); ?>
 	</label>
 
-	<div class="controls">
-		<?php echo Select::booleanlist('nonewfrontendadmins', array(), $this->wafconfig['nonewfrontendadmins']); ?>
-
-	</div>
+    <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'nonewfrontendadmins', $this->wafconfig['nonewfrontendadmins']); ?>
 </div>
 
-<div class="control-group">
-	<label class="control-label" for="configmonitor_global"
-		   rel="popover"
+<div class="akeeba-form-group">
+	<label for="configmonitor_global"
+		   rel="akeeba-sticky-tooltip"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONFIGMONITORGLOBAL'); ?>"
 		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONFIGMONITORGLOBAL_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONFIGMONITORGLOBAL'); ?>
 	</label>
 
-	<div class="controls">
-		<?php echo Select::booleanlist('configmonitor_global', array(), $this->wafconfig['configmonitor_global']); ?>
-
-	</div>
+    <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'configmonitor_global', $this->wafconfig['configmonitor_global']); ?>
 </div>
 
-<div class="control-group">
-	<label class="control-label" for="configmonitor_components"
-		   rel="popover"
+<div class="akeeba-form-group">
+	<label for="configmonitor_components"
+		   rel="akeeba-sticky-tooltip"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONFIGMONITORCOMPONENTS'); ?>"
 		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONFIGMONITORCOMPONENTS_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONFIGMONITORCOMPONENTS'); ?>
 	</label>
 
-	<div class="controls">
-		<?php echo Select::booleanlist('configmonitor_components', array(), $this->wafconfig['configmonitor_components']); ?>
-
-	</div>
+    <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'configmonitor_components', $this->wafconfig['configmonitor_components']); ?>
 </div>
 
-<div class="control-group">
-	<label class="control-label" for="configmonitor_action"
-		   rel="popover"
+<div class="akeeba-form-group">
+	<label for="configmonitor_action"
+		   rel="akeeba-sticky-tooltip"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONFIGMONITORACTION'); ?>"
 		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONFIGMONITORACTION_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONFIGMONITORACTION'); ?>
 	</label>
 
-	<div class="controls">
-		<?php echo Select::configMonitorAction('configmonitor_action', array(), $this->wafconfig['configmonitor_action']); ?>
-
-	</div>
+    <?php echo Select::configMonitorAction('configmonitor_action', array(), $this->wafconfig['configmonitor_action']); ?>
 </div>
 
-<div class="control-group">
-    <label class="control-label" for="criticalfiles"
-           rel="popover"
+<div class="akeeba-form-group">
+    <label for="criticalfiles"
+           rel="akeeba-sticky-tooltip"
            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CRITICALFILES'); ?>"
            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CRITICALFILES_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CRITICALFILES'); ?>
     </label>
 
-    <div class="controls">
-		<?php echo Select::booleanlist('criticalfiles', array(), $this->wafconfig['criticalfiles']); ?>
-
-    </div>
+    <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'criticalfiles', $this->wafconfig['criticalfiles']); ?>
 </div>
 
-<div class="control-group">
-    <label class="control-label" for="superuserslist"
-           rel="popover"
+<div class="akeeba-form-group">
+    <label for="superuserslist"
+           rel="akeeba-sticky-tooltip"
            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_SUPERUSERSLIST'); ?>"
            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_SUPERUSERSLIST_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_SUPERUSERSLIST'); ?>
     </label>
 
-    <div class="controls">
-		<?php echo Select::booleanlist('superuserslist', array(), $this->wafconfig['superuserslist']); ?>
-
-    </div>
+    <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'superuserslist', $this->wafconfig['superuserslist']); ?>
 </div>
 
-<div class="control-group">
-	<label class="control-label"
+<div class="akeeba-form-group">
+	<label
 		   for="resetjoomlatfa"
-		   rel="popover"
+		   rel="akeeba-sticky-tooltip"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_RESETJOOMLATFA'); ?>"
 		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_RESETJOOMLATFA_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_RESETJOOMLATFA'); ?>
 	</label>
 
-	<div class="controls">
-		<?php echo Select::booleanlist('resetjoomlatfa', array(), $this->wafconfig['resetjoomlatfa']); ?>
-
-	</div>
+    <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'resetjoomlatfa', $this->wafconfig['resetjoomlatfa']); ?>
 </div>
 
-<div class="control-group">
-	<label class="control-label" for="nofesalogin"
-		   rel="popover"
+<div class="akeeba-form-group">
+	<label for="nofesalogin"
+		   rel="akeeba-sticky-tooltip"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_NOFESALOGIN'); ?>"
 		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_NOFESALOGIN_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_NOFESALOGIN'); ?>
 	</label>
 
-	<div class="controls">
-		<?php echo Select::booleanlist('nofesalogin', array(), $this->wafconfig['nofesalogin']); ?>
-
-	</div>
+    <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'nofesalogin', $this->wafconfig['nofesalogin']); ?>
 </div>
 
-<div class="control-group">
-	<label class="control-label"
+<div class="akeeba-form-group">
+	<label
 		   for="trackfailedlogins"
-		   rel="popover"
+		   rel="akeeba-sticky-tooltip"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_TRACKFAILEDLOGINS'); ?>"
 		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_TRACKFAILEDLOGINS_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_TRACKFAILEDLOGINS'); ?>
 	</label>
 
-	<div class="controls">
-		<?php echo Select::booleanlist('trackfailedlogins', array(), $this->wafconfig['trackfailedlogins']); ?>
-
-	</div>
+    <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'trackfailedlogins', $this->wafconfig['trackfailedlogins']); ?>
 </div>
 
 <?php
 // Detect user registration and activation type
 $disabled = '';
 $message  = '';
-$classes  = array('class' => 'input-small');
+$classes  = array('class' => 'akeeba-input-mini');
 
 JLoader::import('cms.component.helper');
 $userParams = JComponentHelper::getParams('com_users');
@@ -168,36 +138,36 @@ if (!$userParams->get('allowUserRegistration'))
 {
 	$classes['disabled'] = 'true';
 	$disabled = ' disabled="true" ';
-	$message = '<div style="margin-top:10px" class="alert alert-info">' . JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_ALERT_NOREGISTRATION') . '</div>';
+	$message = '<div style="margin-top:10px" class="akeeba-block--info">' . JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_ALERT_NOREGISTRATION') . '</div>';
 }
 // Super User user activation
 elseif ($userParams->get('useractivation') == 2)
 {
-	$message = '<div style="margin-top: 10px" class="alert">' . JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_ALERT_ADMINACTIVATION') . '</div>';
+	$message = '<div style="margin-top: 10px" class="akeeba-block--warning">' . JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_ALERT_ADMINACTIVATION') . '</div>';
 }
 // No user activation
 elseif ($userParams->get('useractivation') == 0)
 {
 	$classes['disabled'] = 'true';
 	$disabled = ' disabled="true" ';
-	$message = '<div style="margin-top:10px" class="alert alert-info">' . JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_ALERT_NOUSERACTIVATION') . '</div>';
+	$message = '<div style="margin-top:10px" class="akeeba-block--info">' . JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_ALERT_NOUSERACTIVATION') . '</div>';
 }
 ?>
 
-<div class="control-group">
-	<label class="control-label"
+<div class="akeeba-form-group">
+	<label
 		   for="deactivateusers"
-		   rel="popover"
+		   rel="akeeba-sticky-tooltip"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DEACTIVATEUSERS'); ?>"
 		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DEACTIVATEUSERS_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_DEACTIVATEUSERS'); ?>
 	</label>
 
-	<div class="controls">
-		<input class="input-mini pull-left" type="text" size="5" name="deactivateusers_num" <?php echo $disabled ?>
+	<div class="akeeba-form--inline">
+		<input class="akeeba-input-mini" type="text" size="5" name="deactivateusers_num" <?php echo $disabled ?>
 		value="<?php echo $this->escape($this->wafconfig['deactivateusers_num']); ?>"/>
-		<span class="floatme"><?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_DEACTIVATENUMFREQ'); ?></span>
-		<input class="input-mini" type="text" size="5" name="deactivateusers_numfreq" <?php echo $disabled ?>
+		<span><?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_LBL_DEACTIVATENUMFREQ'); ?></span>
+		<input class="akeeba-input-mini" type="text" size="5" name="deactivateusers_numfreq" <?php echo $disabled ?>
 		value="<?php echo $this->escape($this->wafconfig['deactivateusers_numfreq']); ?>"/>
 		<?php
 		echo Select::trsfreqlist('deactivateusers_frequency', $classes, $this->wafconfig['deactivateusers_frequency']);
@@ -207,30 +177,26 @@ elseif ($userParams->get('useractivation') == 0)
 	</div>
 </div>
 
-<div class="control-group">
-    <label class="control-label"
+<div class="akeeba-form-group">
+    <label
            for="consolewarn"
-           rel="popover"
+           rel="akeeba-sticky-tooltip"
            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONSOLEWARN'); ?>"
            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONSOLEWARN_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CONSOLEWARN'); ?>
     </label>
 
-    <div class="controls">
-		<?php echo Select::booleanlist('consolewarn', array(), $this->wafconfig['consolewarn']); ?>
-    </div>
+    <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'consolewarn', $this->wafconfig['consolewarn']); ?>
 </div>
 
-<div class="control-group">
-	<label class="control-label"
+<div class="akeeba-form-group">
+	<label
 		   for="blockedemaildomains"
-		   rel="popover"
+		   rel="akeeba-sticky-tooltip"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_BLOCKEDEMAILDOMAINS'); ?>"
 		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_BLOCKEDEMAILDOMAINS_TIP'); ?>">
 		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_BLOCKEDEMAILDOMAINS'); ?>
 	</label>
 
-	<div class="controls">
-		<textarea id="blockedemaildomains" name="blockedemaildomains" rows="5"><?php echo $this->escape($this->wafconfig['blockedemaildomains']); ?></textarea>
-	</div>
+    <textarea id="blockedemaildomains" name="blockedemaildomains" rows="5"><?php echo $this->escape($this->wafconfig['blockedemaildomains']); ?></textarea>
 </div>

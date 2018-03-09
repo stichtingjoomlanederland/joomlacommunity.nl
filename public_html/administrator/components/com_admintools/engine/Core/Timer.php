@@ -3,7 +3,7 @@
  * Akeeba Engine
  * The modular PHP5 site backup engine
  *
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -14,14 +14,14 @@ namespace Akeeba\Engine\Core;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Base\Object;
+use Akeeba\Engine\Base\BaseObject;
 use Akeeba\Engine\Factory;
 use Psr\Log\LogLevel;
 
 /**
  * Timer class
  */
-class Timer extends Object
+class Timer extends BaseObject
 {
 
 	/** @var int Maximum execution time allowance per step */

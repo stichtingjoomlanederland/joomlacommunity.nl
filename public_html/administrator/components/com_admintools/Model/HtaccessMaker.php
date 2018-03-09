@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -594,9 +594,11 @@ HTACCESS;
 
 		if (($config->autocompress == 1) && ($serverCaps->deflate))
 		{
+			// See https://stackoverflow.com/questions/5230202/apache-addoutputfilterbytype-is-deprecated-how-to-rewrite-using-mod-filter
+			$apacheModuleForDeflate = version_compare($apacheVersion, '2.4', 'ge') ? 'mod_filter' : 'mod_deflate';
 			$htaccess .= <<<ENDHTCODE
 ##### Automatic compression of resources -- BEGIN
-<IfModule mod_deflate.c>
+<IfModule {$apacheModuleForDeflate}.c>
 	AddOutputFilterByType DEFLATE text/plain text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript image/svg+xml
 </IfModule>
 

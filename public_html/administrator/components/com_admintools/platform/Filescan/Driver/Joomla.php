@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -10,10 +10,10 @@ namespace Akeeba\Engine\Driver;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Base\Object;
+use Akeeba\Engine\Base\BaseObject;
 use Akeeba\Engine\Platform;
 
-class Joomla extends Object
+class Joomla extends BaseObject
 {
 	/** @var Base The real database connection object */
 	private $dbo;
@@ -28,13 +28,22 @@ class Joomla extends Object
 		// Get best matching Akeeba Backup driver instance
 		if (class_exists('JFactory'))
 		{
-			$db = \JFactory::getDbo();
+			// Get the database driver *AND* make sure it's connected.
+			$db = \JFactory::getDBO();
+			$db->connect();
+
 			$options['connection'] = $db->getConnection();
 
 			switch ($db->name)
 			{
 				case 'mysql':
+					// So, Joomla! 4's "mysql" is, actually, "pdomysql".
 					$driver = 'mysql';
+
+					if (version_compare(JVERSION, '3.99999.99999', 'gt'))
+					{
+						$driver = 'pdomysql';
+					}
 					break;
 
 				case 'mysqli':

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -12,13 +12,13 @@ defined('_JEXEC') or die;
 
 ?>
 <?php if (!$this->hasPlugin): ?>
-    <div class="well">
+    <div class="akeeba-block--warning">
         <h3><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_GEOIPPLUGINSTATUS'); ?></h3>
 
         <p><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_GEOIPPLUGINMISSING'); ?></p>
 
-        <a class="btn btn-primary" href="https://www.akeebabackup.com/download/akgeoip.html" target="_blank">
-            <span class="icon icon-white icon-download"></span>
+        <a class="akeeba-btn--primary" href="https://www.akeebabackup.com/download/akgeoip.html" target="_blank">
+            <span class="akion-code-download"></span>
             <?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_DOWNLOADGEOIPPLUGIN'); ?>
         </a>
     </div>
@@ -26,59 +26,54 @@ defined('_JEXEC') or die;
     <?php return; ?>
 <?php endif; ?>
 <?php if ($this->pluginNeedsUpdate): ?>
-    <div class="well well-small">
+    <div class="akeeba-block--info">
         <h3><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_GEOIPPLUGINEXISTS'); ?></h3>
 
         <p><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_GEOIPPLUGINCANUPDATE'); ?></p>
 
-        <a class="btn btn-small"
+        <a class="akeeba-btn--dark--small"
            href="index.php?option=com_admintools&view=ControlPanel&task=updategeoip&returnurl=<?php echo base64_encode('index.php?option=com_admintools&view=GeographicBlocking'); ?>&<?php echo $this->container->platform->getToken(true); ?>=1">
-            <span class="icon icon-refresh"></span>
+            <span class="akion-refresh"></span>
             <?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_UPDATEGEOIPDATABASE'); ?>
         </a>
     </div>
 <?php endif; ?>
 
-<div class="alert alert-info">
-	<a class="close" data-dismiss="alert" href="#">×</a>
+<div class="akeeba-block--info">
     <h3><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_INFOHEAD'); ?></h3>
 	<p><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_INFO'); ?></p>
 	<p class="small"><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_MAXMIND'); ?></p>
 </div>
 
-<form action="index.php" method="post" name="adminForm" id="adminForm" class="form form-inline">
-	<input type="hidden" name="option" value="com_admintools"/>
-	<input type="hidden" name="view" value="GeographicBlocking"/>
-	<input type="hidden" name="task" value=""/>
-	<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1"/>
-
-	<fieldset id="waf-continents">
-		<legend><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_CONTINENTS'); ?></legend>
+<form action="index.php" method="post" name="adminForm" id="adminForm" class="akeeba-form--inline">
+	<div class="akeeba-panel--primary" id="waf-continents">
+		<header class="akeeba-block-header">
+            <h3><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_CONTINENTS'); ?></h3>
+        </header>
 
 		<?php foreach($this->allContinents as $code => $name): ?>
         <?php $checked = in_array($code, $this->continents) ? 'checked="$checked"' : ''; ?>
-        <div class="control-group">
-            <div class="controls">
-                <label class="checkbox">
-                    <input type="checkbox" <?php echo $checked; ?> name="continent[<?php echo $code; ?>]" id="continent<?php echo $code; ?>">
-                    <?php echo $this->escape($name); ?>
-
-                </label>
-            </div>
+        <div class="akeeba-form-group--checkbox">
+            <label>
+                <input type="checkbox" <?php echo $checked; ?> name="continent[<?php echo $code; ?>]" id="continent<?php echo $code; ?>">
+                <?php echo $this->escape($name); ?>
+            </label>
         </div>
         <?php endforeach; ?>
-	</fieldset>
+	</div>
 
-	<fieldset id="waf-countries">
-		<legend><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_COUNTRIES'); ?></legend>
+	<div class="akeeba-panel--primary" id="waf-countries">
+		<header class="akeeba-block-header">
+            <h3><?php echo \JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_COUNTRIES'); ?></h3>
+        </header>
 
-		<table class="table table-striped">
+		<table class="akeeba-table">
 			<thead>
 			<tr>
 				<th colspan="3">
-					<button class="btn"
+					<button class="akeeba-btn--dark"
 							onclick="akeeba.jQuery('.country').attr('checked', 'checked');return false;"><?php echo JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_ALL') ?></button>
-					<button class="btn"
+					<button class="akeeba-btn--dark"
 							onclick="akeeba.jQuery('.country').removeAttr('checked');return false;"><?php echo JText::_('COM_ADMINTOOLS_LBL_GEOGRAPHICBLOCKING_NONE') ?></button>
 				</th>
 			</tr>
@@ -90,10 +85,10 @@ defined('_JEXEC') or die;
                 <tr>
                 <?php endif; ?>
                     <?php $i++; ?>
-                    <td>
+                    <td width="33%">
                         <?php $checked = in_array($code, $this->countries) ? 'checked="$checked"' : ''; ?>
-                        <div class="control-group">
-                            <div class="controls">
+                        <div class="akeeba-form-group">
+                            <div>
                                 <label class="checkbox">
                                     <input type="checkbox" <?php echo $checked; ?> name="country[<?php echo $code; ?>]" id="country<?php echo $code; ?>" class="country">
                                     <?php echo $this->escape($name); ?>
@@ -110,5 +105,10 @@ defined('_JEXEC') or die;
 
 			</tbody>
 		</table>
-	</fieldset>
+	</div>
+
+    <input type="hidden" name="option" value="com_admintools"/>
+    <input type="hidden" name="view" value="GeographicBlocking"/>
+    <input type="hidden" name="task" value=""/>
+    <input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1"/>
 </form>

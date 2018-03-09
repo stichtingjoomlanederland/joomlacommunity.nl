@@ -3,7 +3,7 @@
  * Akeeba Engine
  * The modular PHP5 site backup engine
  *
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -24,7 +24,7 @@ use Psr\Log\LogLevel;
  * this superclass' tick() final public method, which should be the ONLY public API
  * exposed to the rest of the Akeeba Engine.
  */
-abstract class Part extends Object
+abstract class Part extends BaseObject
 {
 	/**
 	 * Indicates whether this part has finished its initialisation cycle

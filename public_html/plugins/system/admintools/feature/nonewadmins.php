@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright Copyright (c)2010-2017 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -21,7 +21,7 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 		$fromBackend = $this->cparams->getValue('nonewadmins', 0) == 1;
 		$fromFrontend = $this->cparams->getValue('nonewfrontendadmins', 1) == 1;
 
-		$enabled = $fromBackend && $this->container->platform->isBackend();
+		$enabled  = $fromBackend && $this->container->platform->isBackend();
 		$enabled |= $fromFrontend && $this->container->platform->isFrontend();
 
 		return $enabled;
@@ -94,15 +94,18 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 			$extraInfo = "Submitted JForm Variables :\n";
 			$extraInfo .= print_r($jform, true);
 			$extraInfo .= "\n";
-			$this->exceptionsHandler->logAndAutoban($reason, $extraInfo);
 
-			// Throw an exception to prevent Joomla! processing this form
-			$jlang = JFactory::getLanguage();
-			$jlang->load('joomla', JPATH_ROOT, 'en-GB', true);
-			$jlang->load('joomla', JPATH_ROOT, $jlang->getDefault(), true);
-			$jlang->load('joomla', JPATH_ROOT, null, true);
+			// Display the error only if the user should be really blocked (ie we're not in the Whitelist)
+			if ($this->exceptionsHandler->logAndAutoban($reason, $extraInfo))
+			{
+				// Throw an exception to prevent Joomla! processing this form
+				$jlang = JFactory::getLanguage();
+				$jlang->load('joomla', JPATH_ROOT, 'en-GB', true);
+				$jlang->load('joomla', JPATH_ROOT, $jlang->getDefault(), true);
+				$jlang->load('joomla', JPATH_ROOT, null, true);
 
-			throw new Exception(JText::_('JGLOBAL_AUTH_ACCESS_DENIED'), '403');
+				throw new Exception(JText::_('JGLOBAL_AUTH_ACCESS_DENIED'), '403');
+			}
 		}
 	}
 
@@ -140,15 +143,18 @@ class AtsystemFeatureNonewadmins extends AtsystemFeatureAbstract
 			$extraInfo = "User Data Variables :\n";
 			$extraInfo .= print_r($data, true);
 			$extraInfo .= "\n";
-			$this->exceptionsHandler->logAndAutoban($reason, $extraInfo);
 
-			// Throw an exception to prevent Joomla! processing this form
-			$jlang = JFactory::getLanguage();
-			$jlang->load('joomla', JPATH_ROOT, 'en-GB', true);
-			$jlang->load('joomla', JPATH_ROOT, $jlang->getDefault(), true);
-			$jlang->load('joomla', JPATH_ROOT, null, true);
+			// Display the error only if the user should be really blocked (ie we're not in the Whitelist)
+			if ($this->exceptionsHandler->logAndAutoban($reason, $extraInfo))
+			{
+				// Throw an exception to prevent Joomla! processing this form
+				$jlang = JFactory::getLanguage();
+				$jlang->load('joomla', JPATH_ROOT, 'en-GB', true);
+				$jlang->load('joomla', JPATH_ROOT, $jlang->getDefault(), true);
+				$jlang->load('joomla', JPATH_ROOT, null, true);
 
-			throw new Exception(JText::_('JGLOBAL_AUTH_ACCESS_DENIED'), '403');
+				throw new Exception(JText::_('JGLOBAL_AUTH_ACCESS_DENIED'), '403');
+			}
 		}
 	}
 

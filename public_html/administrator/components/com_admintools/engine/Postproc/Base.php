@@ -3,7 +3,7 @@
  * Akeeba Engine
  * The modular PHP5 site backup engine
  *
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -14,7 +14,7 @@ namespace Akeeba\Engine\Postproc;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Base\Object;
+use Akeeba\Engine\Base\BaseObject;
 
 /**
  * Akeeba Engine post processing abstract class
@@ -22,7 +22,7 @@ use Akeeba\Engine\Base\Object;
  * @author Nicholas
  *
  */
-abstract class Base extends Object
+abstract class Base extends BaseObject
 {
 	/** @var bool Should we break the step before post-processing? */
 	public $break_before = true;

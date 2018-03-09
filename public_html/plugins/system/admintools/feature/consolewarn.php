@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright Copyright (c)2010-2017 Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -23,8 +23,11 @@ class AtsystemFeatureConsolewarn extends AtsystemFeatureAbstract
 
 	/**
 	 * Inject some Javascript to display a warning inside browser console
+	 *
+	 * Please note: Since we're injecting javascript, we have to do that as late as possible, otherwise the document
+	 * is not yet created and Joomla will create a new one for us, resulting in a vast collection of possible side-effects
 	 */
-	public function onAfterInitialise()
+	public function onBeforeRender()
 	{
 		// There's nothing to steal if you're a guest
 		if (JFactory::getUser()->guest)

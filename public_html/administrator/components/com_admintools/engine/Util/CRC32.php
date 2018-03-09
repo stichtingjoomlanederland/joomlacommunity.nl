@@ -2,7 +2,7 @@
 /**
  * Akeeba Engine
  * The modular PHP5 site backup engine
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -13,7 +13,7 @@ namespace Akeeba\Engine\Util;
 // Protection against direct access
 defined('AKEEBAENGINE') or die();
 
-use Akeeba\Engine\Base\Object;
+use Akeeba\Engine\Base\BaseObject;
 use Akeeba\Engine\Factory;
 use Psr\Log\LogLevel;
 
@@ -21,7 +21,7 @@ use Psr\Log\LogLevel;
  * A handy class to abstract the calculation of CRC32 of files under various
  * server conditions and versions of PHP.
  */
-class CRC32 extends Object
+class CRC32 extends BaseObject
 {
 	/**
 	 * Returns the CRC32 of a file, selecting the more appropriate algorithm.

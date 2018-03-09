@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -16,109 +16,64 @@ $baseUri = JUri::base();
 echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 
 ?>
-<div class="alert alert-info">
+<div class="akeeba-block--info">
 	<a class="close" data-dismiss="alert" href="#">×</a>
 	<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_HTACCESSTIP'); ?>
 </div>
 
-<div class="akeeba-cpanel">
-
-	<a href="index.php?option=com_admintools&view=ConfigureWAF" class="btn cpanel-icon">
-		<img
-				src="<?php echo $this->escape($baseUri); ?>components/com_admintools/media/images/wafconfig-32.png"
-				class="at-icon" alt="<?php echo \JText::_('COM_ADMINTOOLS_TITLE_WAFCONFIG'); ?>"/>
-			<span class="title">
-				<?php echo \JText::_('COM_ADMINTOOLS_TITLE_WAFCONFIG'); ?><br/>
-			</span>
+<div class="akeeba-grid--small akeeba-panel">
+	<a href="index.php?option=com_admintools&view=ConfigureWAF" class="akeeba-action--grey">
+        <span class="akion-flash"></span>
+        <?php echo \JText::_('COM_ADMINTOOLS_TITLE_WAFCONFIG'); ?>
 	</a>
 
-	<a href="index.php?option=com_admintools&view=ExceptionsFromWAFs" class="btn cpanel-icon">
-		<img
-				src="<?php echo $this->escape($baseUri); ?>components/com_admintools/media/images/wafexceptions-32.png"
-				class="at-icon" alt="<?php echo \JText::_('COM_ADMINTOOLS_TITLE_WAFEXCEPTIONS'); ?>"/>
-			<span class="title">
-				<?php echo \JText::_('COM_ADMINTOOLS_TITLE_WAFEXCEPTIONS'); ?><br/>
-			</span>
+	<a href="index.php?option=com_admintools&view=ExceptionsFromWAFs" class="akeeba-action--teal">
+        <span class="akion-funnel"></span>
+        <?php echo \JText::_('COM_ADMINTOOLS_TITLE_WAFEXCEPTIONS'); ?>
 	</a>
 
-	<a href="index.php?option=com_admintools&view=WAFBlacklistedRequests" class="btn cpanel-icon">
-		<img
-				src="<?php echo $this->escape($baseUri); ?>components/com_admintools/media/images/ipbl-32.png"
-				class="at-icon" alt="<?php echo \JText::_('COM_ADMINTOOLS_TITLE_WAFBLACKLISTS'); ?>"/>
-			<span class="title">
-				<?php echo \JText::_('COM_ADMINTOOLS_TITLE_WAFBLACKLISTS'); ?><br/>
-			</span>
+	<a href="index.php?option=com_admintools&view=WAFBlacklistedRequests" class="akeeba-action--red">
+        <span class="akion-locked"></span>
+        <?php echo \JText::_('COM_ADMINTOOLS_TITLE_WAFBLACKLISTS'); ?>
 	</a>
 
-	<a href="index.php?option=com_admintools&view=WhitelistedAddresses" class="btn cpanel-icon">
-		<img
-				src="<?php echo $this->escape($baseUri); ?>components/com_admintools/media/images/ipwl-32.png"
-				class="at-icon" alt="<?php echo \JText::_('COM_ADMINTOOLS_TITLE_IPWL'); ?>"/>
-			<span class="title">
-				<?php echo \JText::_('COM_ADMINTOOLS_TITLE_IPWL'); ?><br/>
-			</span>
+	<a href="index.php?option=com_admintools&view=WhitelistedAddresses" class="akeeba-action--teal">
+        <span class="akion-ios-paper"></span>
+        <?php echo \JText::_('COM_ADMINTOOLS_TITLE_IPWL'); ?>
 	</a>
 
-	<a href="index.php?option=com_admintools&view=BlacklistedAddresses" class="btn cpanel-icon">
-		<img
-				src="<?php echo $this->escape($baseUri); ?>components/com_admintools/media/images/ipbl-32.png"
-				class="at-icon" alt="<?php echo \JText::_('COM_ADMINTOOLS_TITLE_IPBL'); ?>"/>
-			<span class="title">
-				<?php echo \JText::_('COM_ADMINTOOLS_TITLE_IPBL'); ?><br/>
-			</span>
+	<a href="index.php?option=com_admintools&view=BlacklistedAddresses" class="akeeba-action--red">
+        <span class="akion-ios-paper-outline"></span>
+        <?php echo \JText::_('COM_ADMINTOOLS_TITLE_IPBL'); ?>
 	</a>
 
-	<a href="index.php?option=com_admintools&view=BadWords" class="btn cpanel-icon">
-		<img
-				src="<?php echo $this->escape($baseUri); ?>components/com_admintools/media/images/badwords-32.png"
-				class="at-icon" alt="<?php echo \JText::_('COM_ADMINTOOLS_TITLE_BADWORDS'); ?>"/>
-			<span class="title">
-				<?php echo \JText::_('COM_ADMINTOOLS_TITLE_BADWORDS'); ?><br/>
-			</span>
+	<a href="index.php?option=com_admintools&view=BadWords" class="akeeba-action--red">
+        <span class="akion-flag"></span>
+        <?php echo \JText::_('COM_ADMINTOOLS_TITLE_BADWORDS'); ?>
 	</a>
 
-	<a href="index.php?option=com_admintools&view=GeographicBlocking" class="btn cpanel-icon">
-		<img
-				src="<?php echo $this->escape($baseUri); ?>components/com_admintools/media/images/geoblock-32.png"
-				class="at-icon" alt="<?php echo \JText::_('COM_ADMINTOOLS_TITLE_GEOBLOCK'); ?>"/>
-			<span class="title">
-				<?php echo \JText::_('COM_ADMINTOOLS_TITLE_GEOBLOCK'); ?><br/>
-			</span>
+	<a href="index.php?option=com_admintools&view=GeographicBlocking" class="akeeba-action--teal">
+        <span class="akion-earth"></span>
+        <?php echo \JText::_('COM_ADMINTOOLS_TITLE_GEOBLOCK'); ?>
 	</a>
 
-	<a href="index.php?option=com_admintools&view=SecurityExceptions" class="btn cpanel-icon">
-		<img
-				src="<?php echo $this->escape($baseUri); ?>components/com_admintools/media/images/log-32.png"
-				class="at-icon" alt="<?php echo \JText::_('COM_ADMINTOOLS_TITLE_LOG'); ?>"/>
-			<span class="title">
-				<?php echo \JText::_('COM_ADMINTOOLS_TITLE_LOG'); ?><br/>
-			</span>
+	<a href="index.php?option=com_admintools&view=SecurityExceptions" class="akeeba-action--grey">
+        <span class="akion-stats-bars"></span>
+        <?php echo \JText::_('COM_ADMINTOOLS_TITLE_LOG'); ?>
 	</a>
 
-	<a href="index.php?option=com_admintools&view=AutoBannedAddresses" class="btn cpanel-icon">
-		<img
-				src="<?php echo $this->escape($baseUri); ?>components/com_admintools/media/images/ipautoban-32.png"
-				class="at-icon" alt="<?php echo \JText::_('COM_ADMINTOOLS_TITLE_IPAUTOBAN'); ?>"/>
-			<span class="title">
-				<?php echo \JText::_('COM_ADMINTOOLS_TITLE_IPAUTOBAN'); ?><br/>
-			</span>
+	<a href="index.php?option=com_admintools&view=AutoBannedAddresses" class="akeeba-action--red">
+        <span class="akion-close-circled"></span>
+        <?php echo \JText::_('COM_ADMINTOOLS_TITLE_IPAUTOBAN'); ?>
 	</a>
 
-	<a href="index.php?option=com_admintools&view=IPAutoBanHistories" class="btn cpanel-icon">
-		<img
-				src="<?php echo $this->escape($baseUri); ?>components/com_admintools/media/images/ipautoban-32.png"
-				class="at-icon" alt="<?php echo \JText::_('COM_ADMINTOOLS_TITLE_IPAUTOBANHISTORY'); ?>"/>
-			<span class="title">
-				<?php echo \JText::_('COM_ADMINTOOLS_TITLE_IPAUTOBANHISTORY'); ?><br/>
-			</span>
+	<a href="index.php?option=com_admintools&view=IPAutoBanHistories" class="akeeba-action--red">
+        <span class="akion-close-circled"></span>
+        <?php echo \JText::_('COM_ADMINTOOLS_TITLE_IPAUTOBANHISTORY'); ?>
 	</a>
 
-	<a href="index.php?option=com_admintools&view=WAFEmailTemplates" class="btn cpanel-icon">
-		<img
-				src="<?php echo $this->escape($baseUri); ?>components/com_admintools/media/images/waftemplates-32.png"
-				class="at-icon" alt="<?php echo \JText::_('COM_ADMINTOOLS_TITLE_WAFEMAILTEMPLATES'); ?>"/>
-			<span class="title">
-				<?php echo \JText::_('COM_ADMINTOOLS_TITLE_WAFEMAILTEMPLATES'); ?><br/>
-			</span>
+	<a href="index.php?option=com_admintools&view=WAFEmailTemplates" class="akeeba-action--grey">
+        <span class="akion-email"></span>
+        <?php echo \JText::_('COM_ADMINTOOLS_TITLE_WAFEMAILTEMPLATES'); ?>
 	</a>
 </div>

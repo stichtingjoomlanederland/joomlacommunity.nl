@@ -3,7 +3,7 @@
  * Akeeba Engine
  * The modular PHP5 site backup engine
  *
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -16,7 +16,7 @@ defined('AKEEBAENGINE') or die();
 
 use Akeeba\Engine\Base\Exceptions\ErrorException;
 use Akeeba\Engine\Base\Exceptions\WarningException;
-use Akeeba\Engine\Base\Object as BaseObject;
+use Akeeba\Engine\Base\BaseObject as BaseObject;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use Akeeba\Engine\Util\FileSystem;
@@ -286,7 +286,8 @@ abstract class Base extends BaseObject
 
 			if (array_key_exists($embedded_installer, $installerDescriptors))
 			{
-				$packages = $installerDescriptors[$embedded_installer]['package'];
+				$packages  = $installerDescriptors[$embedded_installer]['package'];
+				$langPacks = $installerDescriptors[$embedded_installer]['language'];
 
 				if (empty($packages))
 				{
@@ -298,20 +299,34 @@ abstract class Base extends BaseObject
 						"offset"   => 0, // Offset in JPA file
 						"skip"     => false, // Skip this?
 						"done"     => true, // Are we done yet?
-						"filesize" => 0
+						"filesize" => 0,
 					);
 
 					return $retArray;
 				}
 
 				$packages   = explode(',', $packages);
+				$langPacks  = explode(',', $langPacks);
 				$totalSize  = 0;
 				$pathPrefix = Platform::getInstance()->get_installer_images_path() . '/';
 
 				foreach ($packages as $package)
 				{
-					$filePath = $pathPrefix . $package;
+					$filePath  = $pathPrefix . $package;
 					$totalSize += (int) @filesize($filePath);
+				}
+
+				foreach ($langPacks as $langPack)
+				{
+					$filePath  = $pathPrefix . $langPack;
+
+					if (!is_file($filePath))
+					{
+						continue;
+					}
+
+					$packages[] = $langPack;
+					$totalSize += (int) @filesize($langPack);
 				}
 
 				if (count($packages) < $index)
@@ -401,6 +416,21 @@ abstract class Base extends BaseObject
 				$installerDescriptors = Factory::getEngineParamsProvider()->getInstallerList();
 				$packages             = $installerDescriptors[$embedded_installer]['package'];
 				$packages             = explode(',', $packages);
+				$pathPrefix           = Platform::getInstance()->get_installer_images_path() . '/';
+				$langPacks            = $installerDescriptors[$embedded_installer]['languages'];
+				$langPacks            = explode(',', $langPacks);
+
+				foreach ($langPacks as $langPack)
+				{
+					$filePath = $pathPrefix . $langPack;
+
+					if (!is_file($filePath))
+					{
+						continue;
+					}
+
+					$packages[] = $langPack;
+				}
 
 				Factory::getLog()->log(LogLevel::DEBUG, '  Done with package ' . $packages[$index]);
 

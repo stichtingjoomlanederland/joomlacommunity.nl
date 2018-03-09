@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     FOF
- * @copyright   2010-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL version 2 or later
  */
 
@@ -777,7 +777,14 @@ class Component extends BaseInstaller
 		$componentId = $db->loadResult();
 
 		// Ok, now its time to handle the menus.  Start with the component root menu, then handle submenus.
-		$menuElement = $parent->get('manifest')->administration->menu;
+		if (method_exists($parent, 'getManifest'))
+		{
+			$menuElement = $parent->getManifest()->administration->menu;
+		}
+		else
+		{
+			$menuElement = $parent->get('manifest')->administration->menu;
+		}
 
 		// We need to insert the menu item as the last child of Joomla!'s menu root node. First let's make sure that
 		// it exists. Normally it should be the menu item with ID = 1.
@@ -959,7 +966,16 @@ class Component extends BaseInstaller
 		 * Process SubMenus
 		 */
 
-		if (!$parent->get('manifest')->administration->submenu)
+		if (method_exists($parent, 'getManifest'))
+		{
+			$submenu = $parent->getManifest()->administration->submenu;
+		}
+		else
+		{
+			$submenu = $parent->get('manifest')->administration->submenu;
+		}
+
+		if (!$submenu)
 		{
 			return true;
 		}
@@ -967,7 +983,7 @@ class Component extends BaseInstaller
 		$parent_id = $table->id;
 
 		/** @var \SimpleXMLElement $child */
-		foreach ($parent->get('manifest')->administration->submenu->menu as $child)
+		foreach ($submenu->menu as $child)
 		{
 			$data                 = array();
 			$data['menutype']     = 'main';

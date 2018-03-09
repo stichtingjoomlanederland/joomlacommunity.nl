@@ -1,26 +1,27 @@
 <?php
 /**
  * @package   AdminTools
- * @copyright 2010-2017 Akeeba Ltd / Nicholas K. Dionysopoulos
+ * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 defined('_JEXEC') or die;
 ?>
-<form name="adminForm" id="adminForm" action="index.php" method="post" class="form form-horizontal" enctype="multipart/form-data">
-	<input type="hidden" name="option" value="com_admintools"/>
-	<input type="hidden" name="view" value="ImportAndExport"/>
-	<input type="hidden" name="task" value=""/>
-	<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1"/>
+<form name="adminForm" id="adminForm" action="index.php" method="post" class="akeeba-form--horizontal" enctype="multipart/form-data">
+	<div class="akeeba-panel--primary">
+		<header class="akeeba-block-header">
+            <h3><?php echo \JText::_('COM_ADMINTOOLS_TITLE_IMPORT_SETTINGS'); ?></h3>
+        </header>
 
-	<fieldset>
-		<legend><?php echo \JText::_('COM_ADMINTOOLS_TITLE_IMPORT_SETTINGS'); ?></legend>
+		<div class="akeeba-form-group">
+			<label><?php echo \JText::_('COM_ADMINTOOLS_IMPORTANDEXPORT_FILE'); ?></label>
 
-		<div class="control-group">
-			<label class="control-label"><?php echo \JText::_('COM_ADMINTOOLS_IMPORTANDEXPORT_FILE'); ?></label>
-			<div class="controls">
-				<input type="file" name="importfile" value="" />
-			</div>
+            <input type="file" name="importfile" value="" />
 		</div>
-	</fieldset>
+	</div>
+
+    <input type="hidden" name="option" value="com_admintools"/>
+    <input type="hidden" name="view" value="ImportAndExport"/>
+    <input type="hidden" name="task" value=""/>
+    <input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1"/>
 </form>
