@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -308,6 +308,10 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 
             // PHP 7.2 compatibility
             'administrator/components/com_akeeba/BackupEngine/Base/Object.php',
+
+			// Obsolete media files
+            'media/com_akeeba/icons/akeeba-ui-32.png',
+            'media/com_akeeba/changelog.png',
 		),
 		'folders' => array(
 			// Directories used up to version 4.1 (inclusive)
@@ -490,6 +494,9 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 
 		// Parent method
 		parent::postflight($type, $parent);
+
+		// Add ourselves to the list of extensions depending on Akeeba FEF
+		$this->addDependency('file_fef', $this->componentName);
 
 		// Uninstall post-installation messages we are no longer using
 		$this->uninstallObsoletePostinstallMessages();

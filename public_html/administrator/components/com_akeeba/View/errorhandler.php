@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaCommon
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  *
  * Common exception handler to deal with the unhandled exceptions in our software and provide useful information to us and the
@@ -24,7 +24,16 @@ if (in_array($code, [403, 404]))
 	throw $e;
 }
 
-$app->setHeader('HTTP/1.1', $code);
+if (version_compare(JVERSION, '4', 'lt'))
+{
+	$app->setHeader('HTTP/1.1', $code);
+}
+else
+{
+	// In Joomla 4 we have to use the "Status" header, otherwise we get a fatal error saying that
+	// HTTP/1.1 is not a valid header
+	$app->setHeader('Status', $code);
+}
 
 if (!$isFrontend)
 {
@@ -160,15 +169,42 @@ if (!$isFrontend)
 <pre><?php print_r($_REQUEST) ?></pre>
 
 <h3>Session state</h3>
-<pre><?php print_r($app->getSession()->getData()->toArray()) ?></pre>
+<pre><?php
+	if (version_compare(JVERSION, '4', 'lt'))
+	{
+		print_r($app->getSession()->getData()->toArray());
+	}
+	else
+	{
+		print_r($app->getSession()->all());
+	}
+?></pre>
 
 <?php
 if (!include_once (JPATH_ADMINISTRATOR . '/components/com_admin/models/sysinfo.php')) return;
-$model = new AdminModelSysInfo();
-$directories = $model->getDirectory();
-$extensions = $model->getExtensions();
-$phpSettings = $model->getPhpSettings();
-$hasPHPInfo = $model->phpinfoEnabled();
+
+if (!class_exists('AdminModelSysInfo'))
+{
+    return;
+}
+
+try
+{
+	$model = new AdminModelSysInfo();
+	$directories = $model->getDirectory();
+	$extensions = $model->getExtensions();
+	$phpSettings = $model->getPhpSettings();
+	$hasPHPInfo = $model->phpinfoEnabled();
+}
+catch (\Exception $e)
+{
+    /**
+     * If you are here, Joomla! had an unhandled exception inside its own code, typically decoding JSON. The only thing
+     * you can do is die. If you try returning the unhandled exception will bubble up Joomla's error handler and you're
+     * stuck with a misleading error. Sorry :(
+     */
+    die;
+}
 ?>
 
 <h3>PHP Settings</h3>

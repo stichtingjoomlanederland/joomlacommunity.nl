@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11,35 +11,36 @@
 defined('_JEXEC') or die();
 
 ?>
-<h3><?php echo \JText::_('COM_AKEEBA_CPANEL_HEADER_ADVANCED'); ?></h3>
+<section class="akeeba-panel--info">
+    <header class="akeeba-block-header">
+        <h3><?php echo \JText::_('COM_AKEEBA_CPANEL_HEADER_ADVANCED'); ?></h3>
+    </header>
 
-<?php if ($this->permissions['configure']): ?>
-<div class="icon">
-	<a href="index.php?option=com_akeeba&view=Schedule">
-		<div class="ak-icon ak-icon-scheduling">&nbsp;</div>
-		<span><?php echo \JText::_('COM_AKEEBA_SCHEDULE'); ?></span>
-	</a>
-</div>
-<?php endif; ?>
+    <div class="akeeba-grid--small">
+        <?php if ($this->permissions['configure']): ?>
+            <a class="akeeba-action--teal"
+                href="index.php?option=com_akeeba&view=Schedule">
+                <span class="akion-calendar"></span>
+                <?php echo \JText::_('COM_AKEEBA_SCHEDULE'); ?>
+            </a>
+        <?php endif; ?>
 
-<?php if(AKEEBA_PRO): ?>
-	<?php if ($this->permissions['configure']): ?>
-	<div class="icon">
-		<a href="index.php?option=com_akeeba&view=Discover">
-			<div class="ak-icon ak-icon-import">&nbsp;</div>
-			<span><?php echo \JText::_('COM_AKEEBA_DISCOVER'); ?></span>
-		</a>
-	</div>
-    <?php endif; ?>
+        <?php if(AKEEBA_PRO): ?>
+            <?php if ($this->permissions['configure']): ?>
+                <a class="akeeba-action--orange"
+                    href="index.php?option=com_akeeba&view=Discover">
+                    <span class="akion-ios-download"></span>
+                    <?php echo \JText::_('COM_AKEEBA_DISCOVER'); ?>
+                </a>
+            <?php endif; ?>
 
-    <?php if ($this->permissions['configure']): ?>
-	<div class="icon">
-		<a href="index.php?option=com_akeeba&view=S3Import">
-			<div class="ak-icon ak-icon-s3import">&nbsp;</div>
-			<span><?php echo \JText::_('COM_AKEEBA_S3IMPORT'); ?></span>
-		</a>
-	</div>
-    <?php endif; ?>
-<?php endif; ?>
-
-<div class="clearfix"></div>
+            <?php if ($this->permissions['configure']): ?>
+                <a class="akeeba-action--orange"
+                    href="index.php?option=com_akeeba&view=S3Import">
+                    <span class="akion-ios-cloud-download"></span>
+                    <?php echo \JText::_('COM_AKEEBA_S3IMPORT'); ?>
+                </a>
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
+</section>

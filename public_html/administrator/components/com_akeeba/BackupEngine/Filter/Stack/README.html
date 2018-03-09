@@ -9,9 +9,9 @@
 <body>
 <h1>What is this directory?</h1>
 
-<p>In this directory, Akeeba Backup stores the stacked optional filters (Optional Filters in the Configuration page).
-    Unlike regular filters which are always loaded, optional filters are only loaded when the user chooses to enable
-    them. Each filter consists of two files: <var>filtername</var>.ini and <var>filtername</var>.php. The former
+<p>In this directory, Akeeba Backup and Akeeba Solo store the optional filters (Optional Filters in the Configuration
+    page). Unlike regular filters which are always loaded, optional filters are only loaded when the user chooses to
+    enable them. Each filter consists of two files: <var>filtername</var>.ini and <var>filtername</var>.php. The former
     contains the filter-specific configuration options and the later contains the actual filter code.</p>
 
 <p>
@@ -20,7 +20,9 @@
 </p>
 
 <p>
-    Optional filters are always named Akeeba\Engine\Filter\Stack<var>Filtername</var> so that the autoloader can find them.
+    Optional filters are always named Akeeba\Engine\Filter\Stack\Stack<var>Filtername</var> so that the autoloader can
+    find them. For the same reason their filename must be Stack<var>Filtername</var>.php   Please watch out for the
+    letter case in the names, it's important.
 </p>
 </body>
 </html>

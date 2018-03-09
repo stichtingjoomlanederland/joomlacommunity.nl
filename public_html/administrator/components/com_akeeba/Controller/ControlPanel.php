@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -119,22 +119,22 @@ class ControlPanel extends Controller
 				'infolbl' => JText::_('COM_AKEEBA_CPANEL_MSG_MOREINFO'),
 			);
 
-			$result = <<<ENDRESULT
-	<div class="alert alert-warning">
+			$result = <<<HTML
+	<div class="akeeba-block--warning">
 		<h3>
 			<span class="icon icon-exclamation-sign glyphicon glyphicon-exclamation-sign"></span>
 			{$strings['header']}
 		</h3>
 		<p>
-			<a href="index.php?option=com_installer&view=update" class="btn btn-primary">
+			<a href="index.php?option=com_installer&view=update" class="akeeba-btn--primary">
 				{$strings['button']}
 			</a>
-			<a href="{$strings['infourl']}" target="_blank" class="btn btn-small btn-info">
+			<a href="{$strings['infourl']}" target="_blank" class="akeeba-btn--ghost akeeba-btn--small">
 				{$strings['infolbl']}
 			</a>
 		</p>
 	</div>
-ENDRESULT;
+HTML;
 		}
 
 		echo '###' . $result . '###';

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -149,15 +149,15 @@ class FileFilters extends Model
 				}
 
 				$test   = $node . $file;
-				$status = array();
+				$status = [];
 
 				// Check file/all filter (exclude)
 				$result          = $filters->isFilteredExtended($test, $root, 'file', 'all', $byFilter);
 				$status['files'] = (!$result) ? 0 : (($byFilter == 'files') ? 1 : 2);
-				$status['size']  = @filesize($directory . '/' . $file);
+				$status['size']  = $this->formatSize(@filesize($directory . '/' . $file), 1);
 
 				// Add to output array
-				$files_out[ $file ] = $status;
+				$files_out[$file] = $status;
 			}
 		}
 
@@ -431,4 +431,44 @@ class FileFilters extends Model
 
 		return $ret_array;
 	}
+
+	/**
+	 * Format the size of the file (given in bytes) to something human readable, e.g. 123 MB
+	 *
+	 * @param   int  $bytes     The file size in bytes
+	 * @param   int  $decimals  How many decimals you want (default: 0)
+	 *
+	 * @return  string  The human-readable, formatted size
+	 */
+	private function formatSize($bytes, $decimals = 0)
+	{
+		$bytes  = empty($bytes) ? 0 : (int) $bytes;
+		$format = empty($decimals) ? '%0u' : '%0.' . $decimals . 'f';
+
+		$uom = [
+			'TB' => 1048576 * 1048576,
+			'GB' => 1024 * 1048576,
+			'MB' => 1048576,
+			'KB' => 1024,
+			'B'  => 1,
+		];
+
+		// Whole bytes cannot have decimal positions
+		if (!empty($decimals))
+		{
+			unset($uom['B']);
+		}
+
+		foreach ($uom as $unit => $byteSize)
+		{
+			if (doubleval($bytes) >= $byteSize)
+			{
+				return sprintf($format, $bytes / $byteSize) . ' ' . $unit;
+			}
+		}
+
+		// If the number is either too big or too small,
+		return sprintf('%0u B', $bytes);
+	}
+
 }

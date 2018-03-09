@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -37,26 +37,30 @@ $this->getContainer()->template->addJSInline($js);
 
 <?php echo $this->loadAnyTemplate('admin:com_akeeba/CommonTemplates/ProfileName'); ?>
 
-<div class="well form-inline">
-	<div>
+<div class="akeeba-form--inline akeeba-panel--info">
+    <div class="akeeba-form-group">
 		<label><?php echo \JText::_('COM_AKEEBA_DBFILTER_LABEL_ROOTDIR'); ?></label>
 		<span><?php echo $this->root_select; ?></span>
 	</div>
-	<div id="addnewfilter">
-		<label><?php echo \JText::_('COM_AKEEBA_FILEFILTERS_LABEL_ADDNEWFILTER'); ?></label>
-		<button class="btn" onclick="akeeba.Dbfilters.addNew('tables'); return false;">
+	<div id="addnewfilter" class="akeeba-form-group--actions">
+		<label>
+            <?php echo \JText::_('COM_AKEEBA_FILEFILTERS_LABEL_ADDNEWFILTER'); ?>
+        </label>
+
+		<button class="akeeba-btn--grey" onclick="akeeba.Dbfilters.addNew('tables'); return false;">
 			<?php echo \JText::_('COM_AKEEBA_DBFILTER_TYPE_TABLES'); ?>
 		</button>
-		<button class="btn" onclick="akeeba.Dbfilters.addNew('tabledata'); return false;">
+
+        <button class="akeeba-btn--grey" onclick="akeeba.Dbfilters.addNew('tabledata'); return false;">
 			<?php echo \JText::_('COM_AKEEBA_DBFILTER_TYPE_TABLEDATA'); ?>
 		</button>
 	</div>
 </div>
 
 
-<fieldset>
+<div class="akeeba-panel--primary">
 	<div id="ak_list_container">
-		<table id="ak_list_table" class="table table-striped">
+		<table id="ak_list_table" class="akeeba-table--striped">
 			<thead>
 				<tr>
 					<td width="250px"><?php echo \JText::_('COM_AKEEBA_FILEFILTERS_LABEL_TYPE'); ?></td>
@@ -67,4 +71,4 @@ $this->getContainer()->template->addJSInline($js);
 			</tbody>
 		</table>
 	</div>
-</fieldset>
+</div>

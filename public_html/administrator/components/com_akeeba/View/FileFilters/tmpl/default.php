@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -32,34 +32,53 @@ $this->getContainer()->template->addJSInline($js);
 
 <?php echo $this->loadAnyTemplate('admin:com_akeeba/CommonTemplates/ProfileName'); ?>
 
-<div class="form-inline well">
-	<div>
-		<label><?php echo \JText::_('COM_AKEEBA_FILEFILTERS_LABEL_ROOTDIR'); ?></label>
+<div class="akeeba-form--inline akeeba-panel--info">
+	<div class="akeeba-form-group">
+		<label>
+            <?php echo \JText::_('COM_AKEEBA_FILEFILTERS_LABEL_ROOTDIR'); ?>
+        </label>
 		<span><?php echo $this->root_select; ?></span>
-		<button class="btn btn-danger" onclick="akeeba.Fsfilters.nuke(); return false;">
-			<span class="icon-fire icon-trash"></span>
+    </div>
+    <div class="akeeba-form-group--actions">
+        <button class="akeeba-btn--red" onclick="akeeba.Fsfilters.nuke(); return false;">
+			<span class="akion-ios-trash"></span>
 			<?php echo \JText::_('COM_AKEEBA_FILEFILTERS_LABEL_NUKEFILTERS'); ?>
 		</button>
-		<a class="btn btn-small" href="index.php?option=com_akeeba&view=FileFilters&task=tabular">
-			<span class="icon-list"></span>
+
+        <a class="akeeba-btn--grey" href="index.php?option=com_akeeba&view=FileFilters&task=tabular">
+			<span class="akion-ios-list-outline"></span>
 			<?php echo \JText::_('COM_AKEEBA_FILEFILTERS_LABEL_VIEWALL'); ?>
 		</a>
 	</div>
 </div>
 
-<div id="ak_crumbs_container" class="row-fluid">
-	<ul id="ak_crumbs" class="breadcrumb"></ul>
+<div id="ak_crumbs_container" class="akeeba-panel--100 akeeba-panel--information">
+    <div>
+        <ul id="ak_crumbs" class="akeeba-breadcrumb"></ul>
+    </div>
 </div>
 
 
-<div id="ak_main_container">
-	<fieldset id="ak_folder_container">
-		<legend><?php echo \JText::_('COM_AKEEBA_FILEFILTERS_LABEL_DIRS'); ?></legend>
-		<div id="folders"></div>
-	</fieldset>
+<div id="ak_main_container" class="akeeba-container--50-50">
+	<div>
+        <div class="akeeba-panel--info">
+            <header class="akeeba-block-header">
+                <h3>
+			        <?php echo \JText::_('COM_AKEEBA_FILEFILTERS_LABEL_DIRS'); ?>
+                </h3>
+            </header>
+            <div id="folders"></div>
+        </div>
+	</div>
 
-	<fieldset id="ak_files_container">
-		<legend><?php echo \JText::_('COM_AKEEBA_FILEFILTERS_LABEL_FILES'); ?></legend>
-		<div id="files"></div>
-	</fieldset>
+	<div>
+        <div class="akeeba-panel--info">
+            <header class="akeeba-block-header">
+                <h3>
+			        <?php echo \JText::_('COM_AKEEBA_FILEFILTERS_LABEL_FILES'); ?>
+                </h3>
+            </header>
+            <div id="files"></div>
+        </div>
+	</div>
 </div>

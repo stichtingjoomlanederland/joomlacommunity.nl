@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="3.3.0" type="component" method="upgrade">
 	<name>Akeeba</name>
-	<creationDate>2017-12-11</creationDate>
+	<creationDate>2018-02-26</creationDate>
 	<author>Nicholas K. Dionysopoulos</author>
 	<authorEmail>nicholas@dionysopoulos.me</authorEmail>
 	<authorUrl>http://www.akeebabackup.com</authorUrl>
 	<copyright>Copyright (c)2006-2017 Akeeba Ltd / Nicholas K. Dionysopoulos</copyright>
 	<license>GNU GPL v3 or later</license>
-	<version>5.6.3</version>
-	<description>Akeeba Backup Core - Full Joomla! site backup solution, Core Edition.</description>
+	<version>6.0.1</version>
+	<description>Akeeba Backup Pro - Full Joomla! site backup solution, Professional Edition</description>
 
 	<!-- Public front end files -->
 	<files folder="frontend">
@@ -22,13 +22,12 @@
 	<languages folder="language/frontend">
 		<language tag="en-GB">en-GB/en-GB.com_akeeba.ini</language>
 	</languages>
-
+	
 	<!-- Media files -->
 	<media destination="com_akeeba" folder="media">
 		<folder>css</folder>
 		<folder>js</folder>
 		<folder>icons</folder>
-		<filename>changelog.png</filename>
 	</media>
 
 	<!-- Administrator back-end section -->
@@ -39,10 +38,11 @@
 
 		<!-- Back-end files -->
 		<files folder="backend">
+			<folder>AliceEngine</folder>
 			<folder>backup</folder>
 			<folder>BackupEngine</folder>
-			<folder>BackupPlatform</folder>
 			<folder>Controller</folder>
+			<folder>BackupPlatform</folder>
 			<folder>Dispatcher</folder>
 			<folder>fields</folder>
 			<folder>Helper</folder>

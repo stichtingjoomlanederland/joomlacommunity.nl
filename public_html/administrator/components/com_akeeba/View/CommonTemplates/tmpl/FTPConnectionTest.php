@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11,14 +11,9 @@ defined('_JEXEC') or die();
 <?php /* (S)FTP connection test */ ?>
 <div class="modal fade" id="testFtpDialog" tabindex="-1" role="dialog" aria-labelledby="testFtpDialogLabel"
      aria-hidden="true" style="display:none;">
-
-    <div class="modal-header">
-        <h4 class="modal-title" id="testFtpDialogLabel">
-        </h4>
+    <div class="akeeba-renderer-fef">
+        <h4 class="modal-title" id="testFtpDialogLabel"></h4>
+        <div class="akeeba-block--success" id="testFtpDialogBodyOk"></div>
+        <div class="akeeba-block--failure" id="testFtpDialogBodyFail"></div>
     </div>
-    <div class="modal-body" id="testFtpDialogBody">
-        <div class="alert alert-success" id="testFtpDialogBodyOk"></div>
-        <div class="alert alert-danger" id="testFtpDialogBodyFail"></div>
-    </div>
-
 </div>

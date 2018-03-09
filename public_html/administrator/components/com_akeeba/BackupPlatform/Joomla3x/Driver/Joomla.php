@@ -3,7 +3,7 @@
  * Akeeba Engine
  * The modular PHP5 site backup engine
  *
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -32,13 +32,22 @@ class Joomla extends BaseObject
 		// Get best matching Akeeba Backup driver instance
 		if (class_exists('JFactory'))
 		{
+			// Get the database driver *AND* make sure it's connected.
 			$db = \JFactory::getDBO();
+			$db->connect();
+
 			$options['connection'] = $db->getConnection();
 
 			switch ($db->name)
 			{
 				case 'mysql':
+					// So, Joomla! 4's "mysql" is, actually, "pdomysql".
 					$driver = 'mysql';
+
+					if (version_compare(JVERSION, '3.99999.99999', 'gt'))
+					{
+						$driver = 'pdomysql';
+					}
 					break;
 
 				case 'mysqli':

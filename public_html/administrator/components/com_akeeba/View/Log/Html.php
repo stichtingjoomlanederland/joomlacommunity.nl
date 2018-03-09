@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -100,8 +100,9 @@ class Html extends BaseView
 akeeba.System.documentReady(function (){
 	akeeba.System.addEventListener(document.getElementById('showlog'), 'click', function(){
 		var iFrameHolder = document.getElementById('iframe-holder');
+		iFrameHolder.style.display = 'block';
 		iFrameHolder.insertAdjacentHTML('beforeend', '<iframe width="99%" src="$src" height="400px"/>');
-		this.style.display = 'none';
+		this.parentNode.style.display = 'none';
     });
 });
 
@@ -112,7 +113,5 @@ JS;
 
 
 		$this->getProfileIdAndName();
-
-		JHtml::_('formbehavior.chosen');
 	}
 }

@@ -2,7 +2,7 @@
 /**
  * Akeeba Engine
  * The modular PHP5 site backup engine
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  */
@@ -551,7 +551,10 @@ class Mysqli extends Mysql
 		else
 		{
 			$socket = $port;
-			$port = '';
+
+			// If we're going to use sockets, port MUST BE null, otherwise mysqli_connect will try to use it ignoring
+			// the socket, causing a connection error
+			$port = null;
 		}
 
 		// Finally, if it's a persistent connection we have to prefix the hostname with 'p:'

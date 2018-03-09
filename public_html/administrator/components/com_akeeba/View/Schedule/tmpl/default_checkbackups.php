@@ -1,240 +1,277 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 ?>
-<h3>
-    <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_CHECK_BACKUPS'); ?>
-</h3>
+<h2>
+	<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_CHECK_BACKUPS'); ?>
+</h2>
 
 <p>
-    <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_HEADERINFO'); ?>;
+	<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_HEADERINFO'); ?>;
 </p>
 
-<fieldset>
-    <legend>
-        <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_CLICRON'); ?>
-    </legend>
+<div class="akeeba-panel--information">
+    <header class="akeeba-block-header">
+        <h3><?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_CLICRON'); ?></h3>
+    </header>
 
-    <?php if(AKEEBA_PRO): ?>
-    <p class="alert alert-info">
-        <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_CLICRON_INFO'); ?>
-        <br/>
-        <a class="btn btn-mini btn-info" href="https://www.akeebabackup.com/documentation/akeeba-backup-documentation/native-cron-script.html" target="_blank">
-            <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_GENERICREADDOC'); ?>
-        </a>
-    </p>
-    <p>
-        <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_GENERICUSECLI'); ?>
-        <code>
-            <?php echo $this->escape($this->checkinfo->info->php_path); ?> <?php echo $this->escape($this->checkinfo->cli->path); ?>
+	<?php if (AKEEBA_PRO): ?>
+        <div class="akeeba-block--info">
+            <p>
+				<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_CLICRON_INFO'); ?>
+            </p>
+            <p>
+                <a class="akeeba-btn--teal"
+                   href="https://www.akeebabackup.com/documentation/akeeba-backup-documentation/native-cron-script.html"
+                   target="_blank">
+                    <span class="akion-ios-book"></span>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_GENERICREADDOC'); ?>
+                </a>
+            </p>
+        </div>
 
-        </code>
-    </p>
-    <p>
-        <span class="label label-important"><?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_CLIGENERICIMPROTANTINFO'); ?></span>
-        <?php echo \JText::sprintf('COM_AKEEBA_SCHEDULE_LBL_CLIGENERICINFO', $this->croninfo->info->php_path); ?>
-    </p>
-    <?php endif; ?>
+        <p>
+			<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_GENERICUSECLI'); ?>
+            <code>
+				<?php echo $this->escape($this->checkinfo->info->php_path); ?>
+                <?php echo $this->escape($this->checkinfo->cli->path); ?>
 
-    <?php if ( ! (AKEEBA_PRO)): ?>
-    <div class="alert">
-        <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_UPGRADETOPRO'); ?>
-        <br/>
-        <a class="btn btn-primary" href="https://www.akeebabackup.com/subscribe.html" target="_blank">
-            <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_UPGRADENOW'); ?>
-        </a>
+            </code>
+        </p>
+
+        <p>
+            <span class="akeeba-label--warning"><?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_CLIGENERICIMPROTANTINFO'); ?></span>
+			<?php echo \JText::sprintf('COM_AKEEBA_SCHEDULE_LBL_CLIGENERICINFO', $this->croninfo->info->php_path); ?>
+        </p>
+	<?php endif; ?>
+
+	<?php if (!AKEEBA_PRO): ?>
+        <div class="akeeba-block--warning">
+            <p>
+				<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_UPGRADETOPRO'); ?></p>
+            <p>
+                <a class="akeeba-btn--green" href="https://www.akeebabackup.com/subscribe.html" target="_blank">
+                    <span class="akion-card"></span>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_UPGRADENOW'); ?>
+                </a>
+            </p>
+        </div>
+	<?php endif; ?>
+</div>
+
+<div class="akeeba-panel--information">
+    <header class="akeeba-block-header">
+        <h3><?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_ALTCLICRON'); ?></h3>
+    </header>
+
+	<?php if (AKEEBA_PRO): ?>
+        <div class="akeeba-block--info">
+            <p>
+				<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_ALTCLICRON_INFO'); ?>
+            </p>
+            <p>
+                <a class="akeeba-btn--teal"
+                   href="https://www.akeebabackup.com/documentation/akeeba-backup-documentation/alternative-cron-script.html"
+                   target="_blank">
+                    <span class="akion-ios-book"></span>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_GENERICREADDOC'); ?>
+                </a>
+            </p>
+        </div>
+
+		<?php if (!$this->checkinfo->info->feenabled): ?>
+            <div class="akeeba-block--failure">
+                <p>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_DISABLED'); ?>
+                </p>
+            </div>
+		<?php endif; ?>
+
+		<?php if ($this->croninfo->info->feenabled && !trim($this->croninfo->info->secret)): ?>
+            <div class="akeeba-block--failure">
+                <p>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_SECRET'); ?>
+                </p>
+            </div>
+		<?php endif; ?>
+
+		<?php if ($this->croninfo->info->feenabled && trim($this->croninfo->info->secret)): ?>
+            <p>
+				<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_GENERICUSECLI'); ?>
+                <code>
+					<?php echo $this->escape($this->checkinfo->info->php_path); ?>
+                    <?php echo $this->escape($this->checkinfo->altcli->path); ?>
+
+                </code>
+            </p>
+            <p>
+                <span class="akeeba-label--warning"><?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_CLIGENERICIMPROTANTINFO'); ?></span>
+				<?php echo \JText::sprintf('COM_AKEEBA_SCHEDULE_LBL_CLIGENERICINFO', $this->checkinfo->info->php_path); ?>
+            </p>
+		<?php endif; ?>
+
+	<?php endif; ?>
+	<?php if (!AKEEBA_PRO): ?>
+        <div class="akeeba-block--warning">
+            <p>
+				<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_UPGRADETOPRO'); ?></p>
+            <p>
+                <a class="akeeba-btn--green" href="https://www.akeebabackup.com/subscribe.html" target="_blank">
+                    <span class="akion-card"></span>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_UPGRADENOW'); ?>
+                </a>
+            </p>
+        </div>
+	<?php endif; ?>
+
+</div>
+
+<div class="akeeba-panel--information">
+    <header class="akeeba-block-header">
+        <h3><?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTENDBACKUP'); ?></h3>
+    </header>
+
+    <div class="akeeba-block--info">
+        <p>
+			<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTENDBACKUP_INFO'); ?>
+        </p>
+        <p>
+            <a class="akeeba-btn--info"
+               href="https://www.akeebabackup.com/documentation/akeeba-backup-documentation/automating-your-backup.html"
+               target="_blank">
+                <span class="akion-ios-book"></span>
+				<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_GENERICREADDOC'); ?>
+            </a>
+        </p>
     </div>
-    <?php endif; ?>
-</fieldset>
 
-<fieldset>
-    <legend>
-        <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_ALTCLICRON'); ?>
-    </legend>
+	<?php if (!$this->croninfo->info->feenabled): ?>
+        <div class="akeeba-block--failure">
+            <p>
+				<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_DISABLED'); ?>
+            </p>
+        </div>
+	<?php endif; ?>
 
-    <?php if(AKEEBA_PRO): ?>
-    <p class="alert alert-info">
-        <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_ALTCLICRON_INFO'); ?>
-        <br/>
-        <a class="btn btn-mini btn-info" href="https://www.akeebabackup.com/documentation/akeeba-backup-documentation/alternative-cron-script.html" target="_blank">
-            <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_GENERICREADDOC'); ?>
-        </a>
-    </p>
+	<?php if ($this->croninfo->info->feenabled && !trim($this->croninfo->info->secret)): ?>
+        <div class="akeeba-block--failure">
+            <p>
+				<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_SECRET'); ?>
+            </p>
+        </div>
+	<?php endif; ?>
 
-    <?php if(!$this->checkinfo->info->feenabled): ?>
-    <p class="alert alert-error">
-        <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_DISABLED'); ?>
-    </p>
-    <?php endif; ?>
+	<?php if ($this->checkinfo->info->feenabled && trim($this->checkinfo->info->secret)): ?>
+        <p>
+			<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTENDBACKUP_MANYMETHODS'); ?>
+        </p>
 
-    <?php if($this->croninfo->info->feenabled && !trim($this->croninfo->info->secret)): ?>
-    <p class="alert alert-error">
-        <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_SECRET'); ?>
-    </p>
-    <?php endif; ?>
+        <h4>
+			<?php echo JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTENDBACKUP_TAB_WEBCRON', true) ?>
+        </h4>
 
-    <?php if($this->croninfo->info->feenabled && trim($this->croninfo->info->secret)): ?>
-    <p>
-        <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_GENERICUSECLI'); ?>
-        <code>
-            <?php echo $this->escape($this->checkinfo->info->php_path); ?> <?php echo $this->escape($this->checkinfo->altcli->path); ?>
+		<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON'); ?>
 
-        </code>
-    </p>
-    <p>
-        <span class="label label-important"><?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_CLIGENERICIMPROTANTINFO'); ?></span>
-        <?php echo \JText::sprintf('COM_AKEEBA_SCHEDULE_LBL_CLIGENERICINFO', $this->checkinfo->info->php_path); ?>
-    </p>
-    <?php endif; ?>
-
-    <?php endif; ?>
-
-    <?php if ( ! (AKEEBA_PRO)): ?>
-    <div class="alert">
-        <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_UPGRADETOPRO'); ?>
-        <br/>
-        <a class="btn btn-primary" href="https://www.akeebabackup.com/subscribe.html" target="_blank">
-            <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_UPGRADENOW'); ?>
-        </a>
-    </div>
-    <?php endif; ?>
-</fieldset>
-
-<fieldset>
-    <legend><?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTENDBACKUP'); ?></legend>
-
-    <p class="alert alert-info">
-        <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTENDBACKUP_INFO'); ?>
-        <br/>
-        <a class="btn btn-mini btn-info" href="https://www.akeebabackup.com/documentation/akeeba-backup-documentation/automating-your-backup.html" target="_blank">
-            <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_GENERICREADDOC'); ?>
-        </a>
-    </p>
-
-    <?php if(!$this->checkinfo->info->feenabled): ?>
-    <p class="alert alert-error">
-        <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_DISABLED'); ?>
-    </p>
-    <?php endif; ?>
-
-    <?php if($this->checkinfo->info->feenabled && !trim($this->checkinfo->info->secret)): ?>
-    <p class="alert alert-error">
-        <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_SECRET'); ?>
-    </p>
-    <?php endif; ?>
-
-    <?php if($this->checkinfo->info->feenabled && trim($this->checkinfo->info->secret)): ?>
-    <p>
-        <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTENDBACKUP_MANYMETHODS'); ?>
-    </p>
-
-    <?php echo \JHtml::_('bootstrap.startTabSet', 'abschedulingCheckTabs', array('active' => 'absTabCheckWget')); ?>
-    <?php echo \JHtml::_('bootstrap.addTab', 'abschedulingCheckTabs', 'absTabCheckWebcron', JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTENDBACKUP_TAB_WEBCRON', true)); ?>
-
-        <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON'); ?>
-        <table class="table table-striped" width="100%">
+        <table class="akeeba-table--striped" width="100%">
             <tr>
                 <td></td>
                 <td>
-                    <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_INFO'); ?>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_INFO'); ?>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_NAME'); ?>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_NAME'); ?>
                 </td>
                 <td>
-                    <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_NAME_INFO'); ?>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_TIMEOUT'); ?>
-                </td>
-                <td>
-                    <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_TIMEOUT_INFO'); ?>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_NAME_INFO'); ?>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_URL'); ?>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_TIMEOUT'); ?>
                 </td>
                 <td>
-                    <?php echo $this->escape($this->checkinfo->info->root_url); ?>/<?php echo $this->escape($this->checkinfo->frontend->path); ?>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_TIMEOUT_INFO'); ?>
+                </td>
+            </tr>
+            <tr>
+                <td>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_URL'); ?>
+                </td>
+                <td>
+					<?php echo $this->escape($this->checkinfo->info->root_url); ?>/<?php echo $this->escape($this->checkinfo->frontend->path); ?>
 
                 </td>
             </tr>
             <tr>
                 <td>
-                    <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_LOGIN'); ?>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_LOGIN'); ?>
                 </td>
                 <td>
-                    <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_LOGINPASSWORD_INFO'); ?>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_PASSWORD'); ?>
-                </td>
-                <td>
-                    <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_LOGINPASSWORD_INFO'); ?>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_LOGINPASSWORD_INFO'); ?>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_EXECUTIONTIME'); ?>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_PASSWORD'); ?>
                 </td>
                 <td>
-                    <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_EXECUTIONTIME_INFO'); ?>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_LOGINPASSWORD_INFO'); ?>
                 </td>
             </tr>
             <tr>
                 <td>
-                    <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_ALERTS'); ?>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_EXECUTIONTIME'); ?>
                 </td>
                 <td>
-                    <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_ALERTS_INFO'); ?>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_EXECUTIONTIME_INFO'); ?>
+                </td>
+            </tr>
+            <tr>
+                <td>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_ALERTS'); ?>
+                </td>
+                <td>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_ALERTS_INFO'); ?>
                 </td>
             </tr>
             <tr>
                 <td></td>
                 <td>
-                    <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_THENCLICKSUBMIT'); ?>
+					<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WEBCRON_THENCLICKSUBMIT'); ?>
                 </td>
             </tr>
         </table>
 
-    <?php echo \JHtml::_('bootstrap.endTab'); ?>
-    <?php echo \JHtml::_('bootstrap.addTab', 'abschedulingCheckTabs', 'absTabCheckWget', JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTENDBACKUP_TAB_WGET', true)); ?>
+        <h4><?php echo JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTENDBACKUP_TAB_WGET', true) ?></h4>
 
         <p>
-            <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WGET'); ?>
+			<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_WGET'); ?>
             <code>
                 wget --max-redirect=10000 "<?php echo $this->escape($this->checkinfo->info->root_url); ?>/<?php echo $this->escape($this->checkinfo->frontend->path); ?>" -O - 1>/dev/null 2>/dev/null
             </code>
         </p>
 
-    <?php echo \JHtml::_('bootstrap.endTab'); ?>
-    <?php echo \JHtml::_('bootstrap.addTab', 'abschedulingCheckTabs', 'absTabCheckCurl', JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTENDBACKUP_TAB_CURL', true)); ?>
+        <h4><?php echo JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTENDBACKUP_TAB_CURL', true) ?></h4>
 
         <p>
-            <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_CURL'); ?>
+			<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_CURL'); ?>
             <code>
                 curl -L --max-redirs 1000 -v "<?php echo $this->escape($this->checkinfo->info->root_url); ?>/<?php echo $this->escape($this->checkinfo->frontend->path); ?>" 1>/dev/null 2>/dev/null
             </code>
         </p>
 
-    <?php echo \JHtml::_('bootstrap.endTab'); ?>
-    <?php echo \JHtml::_('bootstrap.addTab', 'abschedulingCheckTabs', 'absTabCheckScript', JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTENDBACKUP_TAB_SCRIPT', true)); ?>
+        <h4><?php echo JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTENDBACKUP_TAB_SCRIPT', true) ?></h4>
 
         <p>
-            <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_CUSTOMSCRIPT'); ?>
+			<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_CUSTOMSCRIPT'); ?>
         </p>
         <pre>
 &lt;?php
@@ -252,20 +289,14 @@ defined('_JEXEC') or die();
 ?&gt;
         </pre>
 
-    <?php echo \JHtml::_('bootstrap.endTab'); ?>
-    <?php echo \JHtml::_('bootstrap.addTab', 'abschedulingCheckTabs', 'absTabCheckUrl', JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTENDBACKUP_TAB_URL', true)); ?>
+        <h4><?php echo JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTENDBACKUP_TAB_URL', true) ?></h4>
 
         <p>
-            <?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_RAWURL'); ?>
+			<?php echo \JText::_('COM_AKEEBA_SCHEDULE_LBL_FRONTEND_RAWURL'); ?>
             <code>
-                <?php echo $this->escape($this->checkinfo->info->root_url); ?>/<?php echo $this->escape($this->checkinfo->frontend->path); ?>
-
+				<?php echo $this->escape($this->checkinfo->info->root_url); ?>/<?php echo $this->escape($this->checkinfo->frontend->path); ?>
             </code>
         </p>
 
-    <?php echo \JHtml::_('bootstrap.endTab'); ?>
-    <?php echo \JHtml::_('bootstrap.endTabSet'); ?>
-
-    <?php endif; ?>
-
-</fieldset>
+	<?php endif; ?>
+</div>

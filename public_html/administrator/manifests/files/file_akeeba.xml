@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.3.0" type="file" method="upgrade">
+    <name>file_akeeba</name>
+    <author>Nicholas K. Dionysopoulos</author>
+    <authorEmail>nicholas@akeebabackup.com</authorEmail>
+    <authorUrl>https://www.akeebabackup.com</authorUrl>
+    <copyright>Copyright (c)2006-2017 Akeeba Ltd / Nicholas K. Dionysopoulos</copyright>
+    <license>GNU GPL v3 or later</license>
+    <version>6.0.1</version>
+    <creationDate>2018-02-26</creationDate>
+    <description>Akeeba Backup CLI scripts v.6.0.1</description>
+
+    <fileset>
+        <files target="cli">
+            <file>akeeba-altbackup.php</file>
+            <file>akeeba-altcheck-failed.php</file>
+            <file>akeeba-backup.php</file>
+            <file>akeeba-check-failed.php</file>
+        </files>
+    </fileset>
+</extension>

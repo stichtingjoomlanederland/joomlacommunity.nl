@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -88,6 +88,11 @@ class Dispatcher extends BaseDispatcher
 			throw new \RuntimeException(\JText::_('JERROR_ALERTNOAUTHOR'), 404);
 		}
 
+		// FEF Renderer options. Used to load the common CSS file.
+		$this->container->renderer->setOptions([
+			'custom_css' => 'media://com_akeeba/css/akeebaui.min.css'
+		]);
+
 		// Load Akeeba Engine
 		$this->loadAkeebaEngine();
 
@@ -151,8 +156,8 @@ class Dispatcher extends BaseDispatcher
 
 		if ($format == 'html')
 		{
-			// Load common media files
-			$this->loadCommonMediaFiles();
+			// Load common Javascript files. NOTE: CSS and anything style-related is loaded by the FEF Renderer class.
+			$this->loadCommonJavascript();
 
 			// Perform common maintenance tasks
 			$this->autoMaintenance();
@@ -164,11 +169,11 @@ class Dispatcher extends BaseDispatcher
 	}
 
 	/**
-	 * Loads all the static media files (JS and CSS) which are common across many views of the component.
+	 * Loads the Javascript files which are common across many views of the component.
 	 *
 	 * @return  void
 	 */
-	private function loadCommonMediaFiles()
+	private function loadCommonJavascript()
 	{
 		\JHtml::_('jquery.framework');
 
@@ -186,8 +191,6 @@ class Dispatcher extends BaseDispatcher
 		$this->container->template->addJS('media://com_akeeba/js/Tooltip.min.js', false, false, $mediaVersion);
 		// Always add last (it's the least important)
 		$this->container->template->addJS('media://com_akeeba/js/piecon.min.js', false, false, $mediaVersion);
-
-		$this->container->template->addCSS('media://com_akeeba/css/akeebaui.min.css', $mediaVersion);
 	}
 
 	/**

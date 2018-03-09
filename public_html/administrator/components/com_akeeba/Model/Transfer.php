@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -444,7 +444,11 @@ class Transfer extends Model
 		 */
 		$chunkSizeLimit = $this->getMaxChunkSize();
 		$maxUploadLimit = $this->container->platform->getSessionVar('transfer.uploadLimit', 1048576, 'akeeba') - 10240;
-		$maxTransferSize = min($maxUploadLimit, $maxTransferSize, $chunkSizeLimit);
+		/**
+		 * A little explanation for "$maxUploadLimit / 4" below. We are uploading binary data which gets encoded as
+		 * form data. The integer part is a rough estimation of the size discrepancy between raw and encoded data.
+		 */
+		$maxTransferSize = min(floor($maxUploadLimit / 4), $maxTransferSize, $chunkSizeLimit);
 
 		// Save the optimal transfer size in the session
 		$this->container->platform->setSessionVar('transfer.fragSize', $maxTransferSize, 'akeeba');
@@ -757,7 +761,14 @@ class Transfer extends Model
 	 */
 	private function checkIfExistingSite(EngineTransfer\TransferInterface $connector)
 	{
-		$possibleFiles = ['index.php', 'wordpress/index.php'];
+		/**
+		 * I run into a PHP bug. When we try to read 'wordpress/index.php' over FTP to determine if it exists we end up
+		 * with the folder "wordpress" being created. I have only been able to reproduce with with VSFTPd. The VSFTPd
+		 * log claims there is only an unsuccessful read operation. Why the folder is create is a mystery, but I have to
+		 * remove it anyway. I know, right?
+		 */
+		// $possibleFiles = ['index.php', 'wordpress/index.php'];
+		$possibleFiles = ['index.php'];
 
 		foreach ($possibleFiles as $file)
 		{

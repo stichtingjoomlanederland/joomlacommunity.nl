@@ -3,7 +3,7 @@
  * Akeeba Engine
  * The modular PHP5 site backup engine
  *
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -29,31 +29,36 @@ abstract class ParseIni
 	 */
 	public static function parse_ini_file($file, $process_sections, $rawdata = false)
 	{
-		$isBadHostFile = !function_exists('parse_ini_file');
-		$isBadHostString = !function_exists('parse_ini_string');
+		/**
+		 * WARNING: DO NOT USE INI_SCANNER_RAW IN THE parse_ini_string / parse_ini_file FUNCTION CALLS
+		 *
+		 * Sometimes we need to save data which is either multiline or has double quotes in the Engine's
+		 * configuration. For this reason we have to manually escape \r, \n, \t and \" in
+		 * Akeeba\Engine\Configuration::dumpObject(). If we don't we end up with multiline INI values which
+		 * won't work. However, if we are using INI_SCANNER_RAW these characters are not escaped back to their
+		 * original form. As a result we end up with broken data which cause various problems, the most visible
+		 * of which is that Google Storage integration is broken since the JSON data included in the config is
+		 * now unparseable.
+		 */
 
 		if ($rawdata)
 		{
-			if ($isBadHostString)
+			if (!function_exists('parse_ini_string'))
 			{
 				return self::parse_ini_file_php($file, $process_sections, $rawdata);
 			}
-			else
-			{
-				return parse_ini_string($file, $process_sections, INI_SCANNER_RAW);
-			}
+
+			// !!! VERY IMPORTANT !!! Read the warning above before touching this line
+			return parse_ini_string($file, $process_sections);
 		}
-		else
+
+		if (!function_exists('parse_ini_file'))
 		{
-			if ($isBadHostFile)
-			{
-				return self::parse_ini_file_php($file, $process_sections);
-			}
-			else
-			{
-				return parse_ini_file($file, $process_sections, INI_SCANNER_RAW);
-			}
+			return self::parse_ini_file_php($file, $process_sections);
 		}
+
+		// !!! VERY IMPORTANT !!! Read the warning above before touching this line
+		return parse_ini_file($file, $process_sections);
 	}
 
 	/**

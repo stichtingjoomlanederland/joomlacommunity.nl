@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
 -->
 <config addfieldpath="/administrator/components/com_akeeba/fields">
@@ -27,7 +27,7 @@
 		<field name="frontend_enable" type="radio" default="0"
 			   label="COM_AKEEBA_CONFIG_FEBENABLE_LABEL"
 			   description="COM_AKEEBA_CONFIG_FEBENABLE_DESC"
-			   class="btn-group">
+			   class="switcher btn-group">
 			<option value="0">JNo</option>
 			<option value="1">JYes</option>
 		</field>
@@ -35,7 +35,7 @@
 		<field name="failure_frontend_enable" type="radio" default="0"
 			   label="COM_AKEEBA_CONFIG_FAILURE_FEBENABLE_LABEL"
 			   description="COM_AKEEBA_CONFIG_FAILURE_FEBENABLE_DESC"
-			   class="btn-group">
+			   class="switcher btn-group">
 			<option value="0">JNo</option>
 			<option value="1">JYes</option>
 		</field>
@@ -46,7 +46,8 @@
 			   description="COM_AKEEBA_CONFIG_SECRETWORD_DESC"
 			   class="input-xxlarge"/>
 
-		<field name="forced_backup_timezone" type="timezone" default="AKEEBA/DEFAULT" size="50"
+		<field name="forced_backup_timezone" type="timezone" default="AKEEBA/DEFAULT"
+			   size="1"
 			   label="COM_AKEEBA_CONFIG_FORCEDBACKUPTZ_LABEL"
 			   description="COM_AKEEBA_CONFIG_FORCEDBACKUPTZ_DESC"
 			   class="input-xxlarge">
@@ -57,7 +58,7 @@
 		<field name="frontend_email_on_finish" type="radio" default="0"
 			   label="COM_AKEEBA_CONFIG_FRONTENDEMAIL_LABEL"
 			   description="COM_AKEEBA_CONFIG_FRONTENDEMAIL_DESC"
-			   class="btn-group">
+			   class="switcher btn-group">
 			<option value="0">JNo</option>
 			<option value="1">JYes</option>
 		</field>
@@ -146,7 +147,7 @@
 		<field name="useencryption" type="radio" default="1"
 			   label="COM_AKEEBA_CONFIG_SECURITY_USEENCRYPTION_LABEL"
 			   description="COM_AKEEBA_CONFIG_SECURITY_USEENCRYPTION_DESCRIPTION"
-			   class="btn-group">
+			   class="switcher btn-group">
 			<option value="0">JNo</option>
 			<option value="1">JYes</option>
 		</field>
@@ -162,7 +163,7 @@
         <field name="localtime" type="radio" default="1"
                label="COM_AKEEBA_CONFIG_BACKEND_LOCALTIME_LABEL"
                description="COM_AKEEBA_CONFIG_BACKEND_LOCALTIME_DESC"
-               class="btn-group">
+               class="switcher btn-group">
             <option value="0">JNo</option>
             <option value="1">JYes</option>
         </field>
@@ -170,7 +171,7 @@
         <field name="timezonetext" type="radio" default="T"
                label="COM_AKEEBA_CONFIG_BACKEND_TIMEZONETEXT_LABEL"
                description="COM_AKEEBA_CONFIG_BACKEND_TIMEZONETEXT_DESC"
-               class="btn-group">
+               class="switcher btn-group">
             <option value="">COM_AKEEBA_CONFIG_BACKEND_TIMEZONETEXT_NONE</option>
             <option value="T">COM_AKEEBA_CONFIG_BACKEND_TIMEZONETEXT_ABBREVIATION</option>
             <option value="\G\M\TP">COM_AKEEBA_CONFIG_BACKEND_TIMEZONETEXT_GMTOFFSET</option>
@@ -179,10 +180,11 @@
     </fieldset>
 
 	<fieldset name="push" label="COM_AKEEBA_CONFIG_PUSH_HEADER_LABEL" description="COM_AKEEBA_CONFIG_PUSH_HEADER_DESC">
-		<field name="desktop_notifications" type="list" default="0"
+		<field name="desktop_notifications" type="radio" default="0"
 			   label="COM_AKEEBA_CONFIG_DESKTOP_NOTIFICATIONS_LABEL"
-			   description="COM_AKEEBA_CONFIG_DESKTOP_NOTIFICATIONS_DESC">
-			<option value="0">JNO</option>
+			   description="COM_AKEEBA_CONFIG_DESKTOP_NOTIFICATIONS_DESC"
+			   class="switcher btn-group">
+		<option value="0">JNO</option>
 			<option value="1">JYES</option>
 		</field>
 

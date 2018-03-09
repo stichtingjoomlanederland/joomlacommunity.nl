@@ -1,14 +1,12 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 // Protect from unauthorized access
 defined('_JEXEC') or die();
-
-JHtml::_('behavior.modal');
 
 /** @var \FOF30\View\DataView\Html $this */
 
@@ -33,7 +31,7 @@ function akeeba_confwiz_modal_open()
 };
 
 akeeba.System.documentReady(function(){
-	setTimeout('akeeba_confwiz_modal_open();', 50);
+	setTimeout('akeeba_confwiz_modal_open();', 500);
 });
 
 JS;
@@ -41,30 +39,31 @@ JS;
 $this->getContainer()->template->addJSInline($js);
 ?>
 
-<div id="akeeba-config-confwiz-bubble" class="modal fade" role="dialog" aria-labelledby="DialogLabel" aria-hidden="true" style="display: none;">
-    <div class="modal-header">
-        <h4 class="modal-title">
-			<?php echo \JText::_('COM_AKEEBA_CONFIG_HEADER_CONFWIZ'); ?>
+<div id="akeeba-config-confwiz-bubble" class="modal fade" role="dialog"
+     aria-labelledby="DialogLabel" aria-hidden="true" style="display: none;">
+    <div class="akeeba-renderer-fef">
+        <h4>
+		    <?php echo \JText::_('COM_AKEEBA_CONFIG_HEADER_CONFWIZ'); ?>
         </h4>
-    </div>
-    <div class="modal-body">
-        <p>
-			<?php echo \JText::_('COM_AKEEBA_CONFIG_LBL_CONFWIZ_INTRO'); ?>
-        </p>
-        <p>
-            <a href="index.php?option=com_akeeba&view=ConfigurationWizard" class="btn btn-large btn-success">
-                <span class="icon icon-lightning"></span>
-				<?php echo \JText::_('COM_AKEEBA_CONFWIZ'); ?>
+        <div>
+            <p>
+			    <?php echo \JText::_('COM_AKEEBA_CONFIG_LBL_CONFWIZ_INTRO'); ?>
+            </p>
+            <p>
+                <a href="index.php?option=com_akeeba&view=ConfigurationWizard" class="akeeba-btn--green akeeba-btn--big">
+                    <span class="akion-flash"></span>
+				    <?php echo \JText::_('COM_AKEEBA_CONFWIZ'); ?>
+                </a>
+            </p>
+            <p>
+			    <?php echo \JText::_('COM_AKEEBA_CONFIG_LBL_CONFWIZ_AFTER'); ?>
+            </p>
+        </div>
+        <div>
+            <a href="#" class="akeeba-btn--ghost akeeba-btn--small" onclick="akeeba.System.configurationWizardModal.close();">
+                <span class="akion-close"></span>
+			    <?php echo \JText::_('JCANCEL'); ?>
             </a>
-        </p>
-        <p>
-			<?php echo \JText::_('COM_AKEEBA_CONFIG_LBL_CONFWIZ_AFTER'); ?>
-        </p>
-    </div>
-    <div class="modal-footer">
-        <a href="#" class="btn" onclick="akeeba.System.configurationWizardModal.close();">
-            <span class="icon icon-cancel"></span>
-			<?php echo \JText::_('JCANCEL'); ?>
-        </a>
+        </div>
     </div>
 </div>

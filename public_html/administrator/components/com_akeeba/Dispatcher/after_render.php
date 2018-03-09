@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   Akeeba Backup 5.x
- * @copyright 2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or later
  */
 

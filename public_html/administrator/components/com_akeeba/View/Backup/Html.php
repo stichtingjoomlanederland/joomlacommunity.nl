@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -195,7 +195,6 @@ class Html extends BaseView
 
 		// Preload Joomla! behaviours
 		JLoader::import('joomla.utilities.date');
-		JHtml::_('formbehavior.chosen');
 
 		// Load the models
 		/** @var  Backup $model */

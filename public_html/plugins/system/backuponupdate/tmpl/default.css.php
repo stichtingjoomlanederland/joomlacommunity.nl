@@ -3,7 +3,7 @@ defined('_JEXEC') or die();
 /**
  * @package    AkeebaBackup
  * @subpackage backuponupdate
- * @copyright  Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license    GNU General Public License version 3, or later
  *
  * @since      5.4.1

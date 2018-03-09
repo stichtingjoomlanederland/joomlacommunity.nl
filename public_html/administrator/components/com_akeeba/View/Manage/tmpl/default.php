@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -9,31 +9,12 @@
 defined('_JEXEC') or die();
 
 /** @var  \Akeeba\Backup\Admin\View\Manage\Html  $this */
+use FOF30\Utils\FEFHelper\Html as FEFHtml;
 
 $urlIncludeFolders = addslashes(JUri::base() . 'index.php?option=com_akeeba&view=IncludeFolders&task=ajax');
 $urlBrowser = addslashes(JUri::base() . 'index.php?option=com_akeeba&view=Browser&processfolder=1&tmpl=component&folder=');
-$escapedOrder = addslashes($this->order);
-$js = <<< JS
 
-;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-Joomla.orderTable = function () {
-	table = document.getElementById("sortTable");
-	direction = document.getElementById("directionTable");
-	order = table.options[table.selectedIndex].value;
-	if (order != '$escapedOrder')
-	{
-		dirn = 'asc';
-	}
-	else
-	{
-		dirn = direction.options[direction.selectedIndex].value;
-	}
-	Joomla.tableOrdering(order, dirn, '');
-}
-
-JS;
-
+$js = FEFHtml::jsOrderingBackend($this->order);
 $this->getContainer()->template->addJSInline($js);
 
 ?>
@@ -42,116 +23,77 @@ $this->getContainer()->template->addJSInline($js);
 <?php echo $this->loadAnyTemplate('admin:com_akeeba/Manage/howtorestore_modal'); ?>
 <?php endif; ?>
 
-<div class="alert alert-info">
-	<button class="close" data-dismiss="alert">×</button>
-	<h4 class="alert-heading"><?php echo \JText::_('COM_AKEEBA_BUADMIN_LABEL_HOWDOIRESTORE_LEGEND'); ?></h4>
-
-	<?php echo \JText::sprintf('COM_AKEEBA_BUADMIN_LABEL_HOWDOIRESTORE_TEXT_PRO',
-			'https://www.akeebabackup.com/videos/1212-akeeba-backup-core/1618-abtc04-restore-site-new-server.html',
-			'index.php?option=com_akeeba&view=Transfer',
-			'https://www.akeebabackup.com/latest-kickstart-core.zip'
-			); ?>
+<div class="akeeba-block--info">
+	<h4><?php echo \JText::_('COM_AKEEBA_BUADMIN_LABEL_HOWDOIRESTORE_LEGEND'); ?></h4>
+    <p>
+	    <?php echo \JText::sprintf('COM_AKEEBA_BUADMIN_LABEL_HOWDOIRESTORE_TEXT_PRO',
+		    'https://www.akeebabackup.com/videos/1212-akeeba-backup-core/1618-abtc04-restore-site-new-server.html',
+		    'index.php?option=com_akeeba&view=Transfer',
+		    'https://www.akeebabackup.com/latest-kickstart-core.zip'
+	    ); ?>
+    </p>
 </div>
 
 <div id="j-main-container">
-	<form action="index.php" method="post" name="adminForm" id="adminForm">
-		<input type="hidden" name="option" id="option" value="com_akeeba"/>
-		<input type="hidden" name="view" id="view" value="Manage"/>
-		<input type="hidden" name="boxchecked" id="boxchecked" value="0"/>
-		<input type="hidden" name="task" id="task" value="default"/>
-		<input type="hidden" name="filter_order" id="filter_order" value="<?php echo $this->escape($this->order); ?>"/>
-		<input type="hidden" name="filter_order_Dir" id="filter_order_Dir" value="<?php echo $this->escape($this->order_Dir); ?>"/>
-		<input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1"/>
+	<form action="index.php" method="post" name="adminForm" id="adminForm" class="akeeba-form">
 
-		<div id="filter-bar" class="btn-toolbar">
-			<div class="filter-search btn-group pull-left">
-				<input type="text" name="description" placeholder="<?php echo \JText::_('COM_AKEEBA_BUADMIN_LABEL_DESCRIPTION'); ?>"
-					   id="filter_description"
-					   value="<?php echo $this->escape($this->fltDescription); ?>"
-					   title="<?php echo \JText::_('COM_AKEEBA_BUADMIN_LABEL_DESCRIPTION'); ?>"/>
-			</div>
-			<div class="btn-group pull-left hidden-phone">
-				<button class="btn" type="submit" title="<?php echo \JText::_('JSEARCH_FILTER_SUBMIT'); ?>">
-					<span  class="icon-search"></span>
-				</button>
-				<button class="btn" type="button"
-						onclick="document.getElementById('filter_description').value='';this.form.submit();"
-						title="<?php echo \JText::_('JSEARCH_FILTER_CLEAR'); ?>">
-					<span class="icon-remove"></span>
-				</button>
-			</div>
+        <section class="akeeba-panel--33-66 akeeba-filter-bar-container">
+            <div class="akeeba-filter-bar akeeba-filter-bar--left akeeba-form-section akeeba-form--inline">
+                <div class="akeeba-filter-element akeeba-form-group">
+                    <input type="text" name="description" placeholder="<?php echo \JText::_('COM_AKEEBA_BUADMIN_LABEL_DESCRIPTION'); ?>"
+                           id="filter_description"
+                           value="<?php echo $this->escape($this->fltDescription); ?>"
+                           title="<?php echo \JText::_('COM_AKEEBA_BUADMIN_LABEL_DESCRIPTION'); ?>"/>
+                </div>
 
-			<div class="filter-search btn-group pull-left hidden-phone">
-				<?php echo \JHtml::_('calendar', $this->fltFrom, 'from', 'from', '%Y-%m-%d', array('class' => 'input-small')); ?>
-			</div>
-			<div class="filter-search btn-group pull-left hidden-phone">
-				<?php echo \JHtml::_('calendar', $this->fltTo, 'to', 'to', '%Y-%m-%d', array('class' => 'input-small')); ?>
-			</div>
-			<div class="btn-group pull-left hidden-phone">
-				<button class="btn" type="button" onclick="this.form.submit(); return false;"
-						title="<?php echo \JText::_('JSEARCH_FILTER_SUBMIT'); ?>">
-					<span class="icon-search"></span>
-				</button>
-			</div>
-			<div class="btn-group pull-left hidden-phone">
-				<?php echo \JHtml::_('select.genericlist', $this->profilesList, 'profile', 'onchange="document.forms.adminForm.submit()" class="advancedSelect"', 'value', 'text', $this->fltProfile); ?>
-			</div>
+                <div class="akeeba-filter-element akeeba-form-group akeeba-filter-joomlacalendarfix">
+	                <?php echo \JHtml::_('calendar', $this->fltFrom, 'from', 'from', '%Y-%m-%d', array('class' => 'input-small')); ?>
+                </div>
 
-			<div class="btn-group pull-right">
-				<label for="limit"
-					   class="element-invisible"><?php echo \JText::_('JFIELD_PLG_SEARCH_SEARCHLIMIT_DESC'); ?></label>
-				<?php echo $this->pagination->getLimitBox(); ?>
+                <div class="akeeba-filter-element akeeba-form-group akeeba-filter-joomlacalendarfix">
+	                <?php echo \JHtml::_('calendar', $this->fltTo, 'to', 'to', '%Y-%m-%d', array('class' => 'input-small')); ?>
+                </div>
 
-			</div>
-			<div class="btn-group pull-right hidden-phone">
-				<label for="directionTable"
-					   class="element-invisible"><?php echo \JText::_('JFIELD_ORDERING_DESC'); ?></label>
-				<select name="directionTable" id="directionTable" class="input-medium" onchange="Joomla.orderTable()">
-					<option value="">
-						<?php echo \JText::_('JFIELD_ORDERING_DESC'); ?>
-					</option>
-					<option value="asc" <?php echo ($this->order_Dir == 'asc') ? 'selected="selected"' : ""; ?>>
-						<?php echo \JText::_('JGLOBAL_ORDER_ASCENDING'); ?>
-					</option>
-					<option value="desc" <?php echo ($this->order_Dir == 'desc') ? 'selected="selected"' : ""; ?>>
-						<?php echo \JText::_('JGLOBAL_ORDER_DESCENDING'); ?>
-					</option>
-				</select>
-			</div>
-			<div class="btn-group pull-right">
-				<label for="sortTable" class="element-invisible"><?php echo \JText::_('JGLOBAL_SORT_BY'); ?></label>
-				<select name="sortTable" id="sortTable" class="input-medium" onchange="Joomla.orderTable()">
-					<option value=""><?php echo \JText::_('JGLOBAL_SORT_BY'); ?></option>
-					<?php echo \JHtml::_('select.options', $this->sortFields, 'value', 'text', $this->order); ?>
-				</select>
-			</div>
-		</div>
+                <div class="akeeba-filter-element akeeba-form-group">
+                    <button class="akeeba-btn--grey akeeba-btn--icon-only akeeba-btn--small akeeba-hidden-phone" onclick="this.form.submit();" title="<?php echo \JText::_('JSEARCH_FILTER_SUBMIT'); ?>">
+                        <span class="akion-search"></span>
+                    </button>
+                </div>
 
-		<table class="table table-striped" id="itemsList">
+                <div class="akeeba-filter-element akeeba-form-group">
+	                <?php echo \JHtml::_('select.genericlist', $this->profilesList, 'profile', 'onchange="document.forms.adminForm.submit()" class="advancedSelect"', 'value', 'text', $this->fltProfile); ?>
+                </div>
+            </div>
+
+            <?php echo FEFHtml::selectOrderingBackend($this->getPagination(), $this->sortFields, $this->order, $this->order_Dir)?>
+
+        </section>
+
+		<table class="akeeba-table akeeba-table--striped" id="itemsList">
 		<thead>
 			<tr>
-				<th width="20">
+				<th width="32">
 					<input type="checkbox" name="toggle" value="" onclick="Joomla.checkAll(this);"/>
 				</th>
-				<th width="20" class="hidden-phone">
+				<th width="48" class="akeeba-hidden-phone">
 					<?php echo \JHtml::_('grid.sort', 'COM_AKEEBA_BUADMIN_LABEL_ID', 'id', $this->order_Dir, $this->order, 'default'); ?>
 				</th>
 				<th>
 					<?php echo \JHtml::_('grid.sort', 'COM_AKEEBA_BUADMIN_LABEL_DESCRIPTION', 'description', $this->order_Dir, $this->order, 'default'); ?>
 				</th>
-				<th  class="hidden-phone">
+				<th class="akeeba-hidden-phone">
 					<?php echo \JHtml::_('grid.sort', 'COM_AKEEBA_BUADMIN_LABEL_PROFILEID', 'profile_id', $this->order_Dir, $this->order, 'default'); ?>
 				</th>
-				<th width="5%">
+				<th width="80">
 					<?php echo \JText::_('COM_AKEEBA_BUADMIN_LABEL_DURATION'); ?>
 				</th>
 				<th width="40">
 					<?php echo \JText::_('COM_AKEEBA_BUADMIN_LABEL_STATUS'); ?>
 				</th>
-				<th width="80" class="hidden-phone">
+				<th width="80" class="akeeba-hidden-phone">
 					<?php echo \JText::_('COM_AKEEBA_BUADMIN_LABEL_SIZE'); ?>
 				</th>
-				<th class="hidden-phone">
+				<th class="akeeba-hidden-phone">
 					<?php echo \JText::_('COM_AKEEBA_BUADMIN_LABEL_MANAGEANDDL'); ?>
 				</th>
 			</tr>
@@ -184,16 +126,16 @@ $this->getContainer()->template->addJSInline($js);
 				?>
 				<tr class="row<?php echo $id; ?>">
 					<td><?php echo \JHtml::_('grid.id', ++$i, $record['id']); ?></td>
-					<td class="hidden-phone">
+					<td class="akeeba-hidden-phone">
 						<?php echo $this->escape($record['id']); ?>
 
 					</td>
 					<td>
-						<span class="fa fa-fw <?php echo $originIcon; ?> akeebaCommentPopover" rel="popover"
+						<span class="<?php echo $originIcon; ?> akeebaCommentPopover" rel="popover"
 							  title="<?php echo \JText::_('COM_AKEEBA_BUADMIN_LABEL_ORIGIN'); ?>"
 							  data-content="<?php echo $this->escape($originDescription); ?>"></span>
 						<?php if ( ! (empty($record['comment']))): ?>
-						<span class="icon icon-question-sign akeebaCommentPopover" rel="popover"
+						<span class="akion-help-circled akeebaCommentPopover" rel="popover"
 							  data-content="<?php echo $this->escape($record['comment']); ?>"></span>
 						<?php endif; ?>
 						<a href="<?php echo $this->escape(JUri::base()); ?>index.php?option=com_akeeba&view=Manage&task=showcomment&id=<?php echo $this->escape((int)$record['id']); ?>">
@@ -203,12 +145,12 @@ $this->getContainer()->template->addJSInline($js);
 						<br/>
 						<div class="akeeba-buadmin-startdate" title="<?php echo \JText::_('COM_AKEEBA_BUADMIN_LABEL_START'); ?>">
 							<small>
-								<span class="fa fa-fw fa-calendar"></span>
+								<span class="akion-calendar"></span>
 								<?php echo $this->escape($startTime); ?> <?php echo $this->escape($timeZoneText); ?>
 							</small>
 						</div>
 					</td>
-					<td class="hidden-phone">
+					<td class="akeeba-hidden-phone">
 						#<?php echo $this->escape((int)$record['profile_id']); ?>. <?php echo $this->escape($profileName); ?>
 
 						<br/>
@@ -221,13 +163,13 @@ $this->getContainer()->template->addJSInline($js);
 
 					</td>
 					<td>
-						<span class="label <?php echo $statusClass; ?> akeebaCommentPopover" rel="popover"
+						<span class="<?php echo $statusClass; ?> akeebaCommentPopover" rel="popover"
 							  title="<?php echo \JText::_('COM_AKEEBA_BUADMIN_LABEL_STATUS'); ?>"
 							  data-content="<?php echo \JText::_('COM_AKEEBA_BUADMIN_LABEL_STATUS_' . $record['meta']); ?>">
-							<span class="fa fa-fw <?php echo $statusIcon; ?>"></span>
+							<span class="<?php echo $statusIcon; ?>"></span>
 						</span>
 					</td>
-					<td class="hidden-phone">
+					<td class="akeeba-hidden-phone">
 						<?php if($record['meta'] == 'ok'): ?>
 							<?php echo $this->escape($this->formatFilesize($record['size'])); ?>
 
@@ -237,7 +179,7 @@ $this->getContainer()->template->addJSInline($js);
 							&mdash;
 						<?php endif; ?>
 					</td>
-					<td class="hidden-phone">
+					<td class="akeeba-hidden-phone">
 						<?php echo $this->loadAnyTemplate('admin:com_akeeba/Manage/manage_column', [
 							'record' => &$record
 						]); ?>
@@ -247,5 +189,15 @@ $this->getContainer()->template->addJSInline($js);
 		<?php endif; ?>
 		</tbody>
 		</table>
+
+        <div class="akeeba-hidden-fields-container">
+            <input type="hidden" name="option" id="option" value="com_akeeba"/>
+            <input type="hidden" name="view" id="view" value="Manage"/>
+            <input type="hidden" name="boxchecked" id="boxchecked" value="0"/>
+            <input type="hidden" name="task" id="task" value="default"/>
+            <input type="hidden" name="filter_order" id="filter_order" value="<?php echo $this->escape($this->order); ?>"/>
+            <input type="hidden" name="filter_order_Dir" id="filter_order_Dir" value="<?php echo $this->escape($this->order_Dir); ?>"/>
+            <input type="hidden" name="<?php echo $this->container->platform->getToken(true); ?>" value="1"/>
+        </div>
 	</form>
 </div>

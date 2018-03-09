@@ -1,4 +1,30 @@
 <?php die();?>
+Akeeba Backup 6.0.1
+================================================================================
++ Warn the user if either FOF or FEF is not installed
++ While importing backup archives, they are now sorted alphabetically
+# [HIGH] Site Transfer Wizard: browser-specific BUTTON element behavior prevents using this feature in Firefox
+# [LOW] Inadvertent space between domain and path in the Schedule page
+
+Akeeba Backup 6.0.0
+================================================================================
+# [LOW] Fixed warning message during the installation due to missing folders
+
+Akeeba Backup 6.0.0.b1
+================================================================================
++ Rewritten interface using our brand new Akeeba Frontend Framework
++ Preliminary Joomla! 4.0 support
+# [MEDIUM] Fixed connection issue to the database when certain hostnames are used (named pipes)
+# [LOW] The kicktemp folder and the kickstart.transfer.php file were not removed after Site Transfer Wizard had finished
+# [LOW] The Transfer Wizard may select a chunk size which is too big for the target server
+# [LOW] Using the Site Transfer Wizard may result in a "wordpress" folder being left behind on some servers with a broken FTP server (technically a bug with your FTP server; we had to remove a minor feature to work around it)
+# [LOW] Add-on ANGIE language files would not be included in the backup archive
+# [LOW] Leftover empty file after the end of the Configuration Wizard run
+
+Akeeba Backup 5.6.4
+================================================================================
+# [LOW] Add-on ANGIE language files would not be included in the backup archive
+
 Akeeba Backup 5.6.3
 ================================================================================
 ! Some JavaScript files had a zero size in the 5.6.2 package

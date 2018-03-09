@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -12,7 +12,7 @@ defined('_JEXEC') or die();
 ?>
 
 <?php if ($this->force):?>
-	<div class="alert alert-danger">
+	<div class="akeeba-block--warning">
 		<h3><?php echo JText::_('COM_AKEEBA_TRANSFER_FORCE_HEADER')?></h3>
 		<p><?php echo JText::_('COM_AKEEBA_TRANSFER_FORCE_BODY')?></p>
 	</div>

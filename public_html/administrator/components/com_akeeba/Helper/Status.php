@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -93,15 +93,15 @@ class Status
 
 		if ($status && empty($quirks))
 		{
-			$html = '<p class="alert alert-success">' . JText::_('COM_AKEEBA_CPANEL_LBL_STATUS_OK') . '</p>';
+			$html = '<div class="akeeba-block--success"><p>' . JText::_('COM_AKEEBA_CPANEL_LBL_STATUS_OK') . '</p></div>';
 		}
 		elseif ($status && !empty($quirks))
 		{
-			$html = '<p class="alert">' . JText::_('COM_AKEEBA_CPANEL_LBL_STATUS_WARNING') . '</p>';
+			$html = '<div class="akeeba-block--warning"><p>' . JText::_('COM_AKEEBA_CPANEL_LBL_STATUS_WARNING') . '</p></div>';
 		}
 		else
 		{
-			$html = '<p class="alert alert-error">' . JText::_('COM_AKEEBA_CPANEL_LBL_STATUS_ERROR') . '</p>';
+			$html = '<div class="akeeba-block--failure"><p>' . JText::_('COM_AKEEBA_CPANEL_LBL_STATUS_ERROR') . '</p></div>';
 		}
 
 		return $html;
@@ -196,17 +196,17 @@ class Status
 		{
 			case 'run':
 				$status      = JText::_('COM_AKEEBA_BUADMIN_LABEL_STATUS_PENDING');
-				$statusClass = "label-warning";
+				$statusClass = "akeeba-label--warning";
 				break;
 
 			case 'fail':
 				$status      = JText::_('COM_AKEEBA_BUADMIN_LABEL_STATUS_FAIL');
-				$statusClass = "label-important";
+				$statusClass = "akeeba-label--failure";
 				break;
 
 			case 'complete':
 				$status      = JText::_('COM_AKEEBA_BUADMIN_LABEL_STATUS_OK');
-				$statusClass = "label-success";
+				$statusClass = "akeeba-label--success";
 				break;
 
 			default:
@@ -245,7 +245,7 @@ class Status
 		$tz        = new \DateTimeZone($container->platform->getUser()->getParam('timezone', $container->platform->getConfig()->get('offset', 'UTC')));
 		$startTime->setTimezone($tz);
 
-		$html = '<table class="table table-striped">';
+		$html = '<table class="akeeba-table--striped">';
 		$html .= '<tr><td>' . JText::_('COM_AKEEBA_BUADMIN_LABEL_START') . '</td><td>' . $startTime->format(JText::_('DATE_FORMAT_LC2'), true) . '</td></tr>';
 		$html .= '<tr><td>' . JText::_('COM_AKEEBA_BUADMIN_LABEL_DESCRIPTION') . '</td><td>' . $record['description'] . '</td></tr>';
 		$html .= '<tr><td>' . JText::_('COM_AKEEBA_BUADMIN_LABEL_STATUS') . '</td><td><span class="label ' . $statusClass . '">' . $status . '</span></td></tr>';

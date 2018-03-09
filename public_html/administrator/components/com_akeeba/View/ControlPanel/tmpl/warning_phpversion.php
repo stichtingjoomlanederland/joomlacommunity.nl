@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -20,7 +20,7 @@ use FOF30\Date\Date;
 	$akeebaCommonDatePHP = new Date('2015-09-03 00:00:00', 'GMT');
 	$akeebaCommonDateObsolescence = new Date('2016-06-03 00:00:00', 'GMT');
 	?>
-	<div id="phpVersionCheck" class="alert alert-warning">
+	<div id="phpVersionCheck" class="akeeba-block--warning">
 		<h3><?php echo \JText::_('COM_AKEEBA_COMMON_PHPVERSIONTOOOLD_WARNING_TITLE'); ?></h3>
 		<p>
 			<?php echo \JText::sprintf(

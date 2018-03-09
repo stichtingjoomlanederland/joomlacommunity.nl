@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -220,10 +220,6 @@ class Html extends BaseView
 
 		// Load the version constants
 		Platform::getInstance()->load_version_defines();
-
-		// Set up the GUI behaviours
-		JHtml::_('behavior.modal');
-		JHtml::_('formbehavior.chosen');
 
 		// Add the Javascript to the document
 		$this->addJavascriptFile('media://com_akeeba/js/ControlPanel.min.js');

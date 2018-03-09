@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -112,11 +112,13 @@ class Pkg_AkeebaInstallerScript
 			return false;
 		}
 
-		// Try to install FOF. We need to do this in preflight to make sure that FOF is available when we install our
-		// component. The reason being that the component's installation script extends FOF's InstallScript class.
-		// We can't use a <file> tag in our package manifest because FOF's package is *supposed* to fail to install if
-		// a newer version is already installed. This would unfortunately cancel the installation of the entire package,
-		// so we have to get a bit tricky.
+		/**
+		 * Try to install FOF. We need to do this in preflight to make sure that FOF is available when we install our
+		 * component. The reason being that the component's installation script extends FOF's InstallScript class.
+		 * We can't use a <file> tag in our package manifest because FOF's package is *supposed* to fail to install if
+		 * a newer version is already installed. This would unfortunately cancel the installation of the entire package,
+		 * so we have to get a bit tricky.
+		 */
 		$this->installOrUpdateFOF($parent);
 
 		return true;
@@ -132,6 +134,15 @@ class Pkg_AkeebaInstallerScript
 	 */
 	public function postflight($type, $parent)
 	{
+		/**
+		 * Try to install FEF. We only need to do this in postflight. A failure, while detrimental to the display of the
+		 * extension, is non-fatal to the installation and can be rectified by manual installation of the FEF package.
+		 * We can't use a <file> tag in our package manifest because FEF's package is *supposed* to fail to install if
+		 * a newer version is already installed. This would unfortunately cancel the installation of the entire package,
+		 * so we have to get a bit tricky.
+		 */
+		$this->installOrUpdateFEF($parent);
+
 		/**
 		 * Clean the cache after installing the package.
 		 *
@@ -214,6 +225,17 @@ class Pkg_AkeebaInstallerScript
 		 * the component and hope nothing goes wrong.
 		 */
 		$this->removeDependency('fof30', $this->componentName);
+
+		/**
+		 * uninstall() is called before the component is uninstalled. Therefore there is a dependency to FEF which
+		 * prevents FEF from being removed at this point. Therefore we have to remove the dependency before removing
+		 * the component and hope nothing goes wrong.
+		 */
+		$this->removeDependency('file_fef', $this->componentName);
+
+		// The try to uninstall FEF. The uninstallation might fail if there are other extensions depending
+		// on it. That would cause the entire package uninstallation to fail, hence the need for special handling.
+		$this->uninstallFEF($parent);
 
 		// Then try to uninstall the FOF library. The uninstallation might fail if there are other extensions depending
 		// on it. That would cause the entire package uninstallation to fail, hence the need for special handling.
@@ -316,6 +338,83 @@ class Pkg_AkeebaInstallerScript
 			// We can expect the uninstallation to fail if there are other extensions depending on the FOF library.
 		}
 	}
+
+	/**
+	 * Tries to install or update FEF. The FEF files package installation can fail if there's a newer version
+	 * installed.
+	 *
+	 * @param   \JInstallerAdapterPackage  $parent
+	 */
+	private function installOrUpdateFEF($parent)
+	{
+		// Get the path to the FOF package
+		$sourcePath = $parent->getParent()->getPath('source');
+		$sourcePackage = $sourcePath . '/file_fef.zip';
+
+		// Extract and install the package
+		$package = JInstallerHelper::unpack($sourcePackage);
+		$tmpInstaller  = new JInstaller;
+		$error = null;
+
+		try
+		{
+			$installResult = $tmpInstaller->install($package['dir']);
+		}
+		catch (\Exception $e)
+		{
+			$installResult = false;
+			$error = $e->getMessage();
+		}
+	}
+
+	/**
+	 * Try to uninstall the FEF package. We don't go through the Joomla! package uninstallation since we can expect the
+	 * uninstallation of the FEF library to fail if other software depends on it.
+	 *
+	 * @param   JInstallerAdapterPackage  $parent
+	 */
+	private function uninstallFEF($parent)
+	{
+		// Check dependencies on FOF
+		$dependencyCount = count($this->getDependencies('file_fef'));
+
+		if ($dependencyCount)
+		{
+			$msg = "<p>You have $dependencyCount extension(s) depending on this version of Akeeba FEF. The package cannot be uninstalled unless these extensions are uninstalled first.</p>";
+
+			JLog::add($msg, JLog::WARNING, 'jerror');
+
+			return;
+		}
+
+		$tmpInstaller = new JInstaller;
+
+		$db = $parent->getParent()->getDbo();
+
+		$query = $db->getQuery(true)
+			->select('extension_id')
+			->from('#__extensions')
+			->where('type = ' . $db->quote('file'))
+			->where('element = ' . $db->quote('file_fef'));
+
+		$db->setQuery($query);
+		$id = $db->loadResult();
+
+		if (!$id)
+		{
+			return;
+		}
+
+		try
+		{
+			$tmpInstaller->uninstall('file', $id, 0);
+		}
+		catch (\Exception $e)
+		{
+			// We can expect the uninstallation to fail if there are other extensions depending on the FOF library.
+		}
+	}
+
 
 	/**
 	 * Enable modules and plugins after installing them

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -33,16 +33,17 @@ JS;
 $this->getContainer()->template->addJSInline($js);
 
 ?>
-<div class="alert">
-	<span class="icon-warning-sign"></span>
-	<?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_DONOTCLOSE'); ?>
+<div class="akeeba-block--info">
+	<p>
+		<?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_DONOTCLOSE'); ?>
+    </p>
 </div>
 
 
 <div id="restoration-progress">
-	<h3><?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_INPROGRESS'); ?></h3>
+	<h4><?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_INPROGRESS'); ?></h4>
 
-	<table class="table table-striped">
+	<table class="akeeba-table--striped">
 		<tr>
 			<td width="25%">
 				<?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_BYTESREAD'); ?>
@@ -76,8 +77,10 @@ $this->getContainer()->template->addJSInline($js);
 </div>
 
 <div id="restoration-error" style="display:none">
-	<div class="alert alert-error">
-		<h3 class="alert-heading"><?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_FAILED'); ?></h3>
+	<div class="akeeba-block--failure">
+		<h4>
+            <?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_FAILED'); ?>
+        </h4>
 		<div id="errorframe">
 			<p><?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_FAILED_INFO'); ?></p>
 			<p id="backup-error-message">
@@ -87,24 +90,28 @@ $this->getContainer()->template->addJSInline($js);
 </div>
 
 <div id="restoration-extract-ok" style="display:none">
-	<div class="alert alert-success">
-		<h3 class="alert-heading"><?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_SUCCESS'); ?></h3>
-		<p>
+	<div class="akeeba-block--success">
+		<h4>
+            <?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_SUCCESS'); ?>
+        </h4>
+
+        <p>
 			<?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_SUCCESS_INFO2'); ?>
 		</p>
 		<p>
 			<?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_SUCCESS_INFO2B'); ?>
 		</p>
 	</div>
-	<p>
-		<button class="btn btn-large btn-success" id="restoration-runinstaller" onclick="return false;">
-			<span class="icon-share-alt icon-white"></span>
+
+    <p>
+		<button class="akeeba-btn--primary" id="restoration-runinstaller" onclick="return false;">
+			<span class="akion-android-share"></span>
 			<?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_RUNINSTALLER'); ?>
 		</button>
 	</p>
 	<p>
-		<button class="btn btn-large btn-success" id="restoration-finalize" style="display: none" onclick="return false;">
-			<span class="icon-exit icon-white"></span>
+		<button class="akeeba-btn--green" id="restoration-finalize" style="display: none" onclick="return false;">
+			<span class="akion-android-exit"></span>
 			<?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_FINALIZE'); ?>
 		</button>
 	</p>

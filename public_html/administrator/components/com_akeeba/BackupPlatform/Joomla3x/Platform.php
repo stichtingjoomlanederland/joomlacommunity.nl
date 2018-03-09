@@ -3,7 +3,7 @@
  * Akeeba Engine
  * The modular PHP5 site backup engine
  *
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  *
@@ -471,7 +471,6 @@ class Joomla3x extends BasePlatform
 			}
 		}
 
-
 		// Let's see what driver Joomla! uses...
 		if ($use_platform)
 		{
@@ -482,6 +481,12 @@ class Joomla3x extends BasePlatform
 				// MySQL or MySQLi drivers are known to be working; use their
 				// Akeeba Engine extended version, Akeeba\Engine\Driver\Joomla
 				case 'mysql':
+					// So, Joomla! 4's "mysql" is, actually, "pdomysql". Therefore I can use our own wrapper driver
+					if (version_compare(JVERSION, '3.99999.99999', 'gt'))
+					{
+						return '\\Akeeba\\Engine\\Driver\\Joomla';
+					}
+
 					// The piece of crap called FaLang is lying about the database driver
 					if (!$hasMySQL)
 					{

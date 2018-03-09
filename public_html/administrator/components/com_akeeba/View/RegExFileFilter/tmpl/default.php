@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -29,20 +29,25 @@ $this->getContainer()->template->addJSInline($js);
 
 <?php echo $this->loadAnyTemplate('admin:com_akeeba/CommonTemplates/ProfileName'); ?>
 
-<div class="well form-inline">
-	<label><?php echo \JText::_('COM_AKEEBA_FILEFILTERS_LABEL_ROOTDIR'); ?></label>
-	<span id="ak_roots_container_tab">
-		<span><?php echo $this->root_select; ?></span>
-	</span>
+<div class="akeeba-panel--information">
+    <div class="akeeba-form-section">
+        <div class="akeeba-form--inline">
+            <label><?php echo \JText::_('COM_AKEEBA_FILEFILTERS_LABEL_ROOTDIR'); ?></label>
+            <span id="ak_roots_container_tab">
+		<?php echo $this->root_select; ?>
+	    </span>
+        </div>
+    </div>
 </div>
-<div>
+
+<div class="akeeba-container--primary">
 	<div id="ak_list_container">
-		<table id="table-container" class="table table-striped">
+        <table id="table-container" class="akeeba-table--striped--dynamic-line-editor">
 			<thead>
 				<tr>
-					<td width="90px">&nbsp;</td>
-					<td width="250px"><?php echo \JText::_('COM_AKEEBA_FILEFILTERS_LABEL_TYPE'); ?></td>
-					<td><?php echo \JText::_('COM_AKEEBA_FILEFILTERS_LABEL_FILTERITEM'); ?></td>
+					<th width="120px">&nbsp;</th>
+					<th width="250px"><?php echo \JText::_('COM_AKEEBA_FILEFILTERS_LABEL_TYPE'); ?></th>
+					<th><?php echo \JText::_('COM_AKEEBA_FILEFILTERS_LABEL_FILTERITEM'); ?></th>
 				</tr>
 			</thead>
 			<tbody id="ak_list_contents" class="table-container">

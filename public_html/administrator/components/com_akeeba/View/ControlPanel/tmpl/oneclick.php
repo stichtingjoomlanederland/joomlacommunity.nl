@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11,15 +11,20 @@
 defined('_JEXEC') or die();
 
 ?>
-<h3><?php echo \JText::_('COM_AKEEBA_CPANEL_HEADER_QUICKBACKUP'); ?></h3>
+<section class="akeeba-panel--primary">
 
-<?php foreach($this->quickIconProfiles as $qiProfile): ?>
-	<div class="icon">
-		<a href="index.php?option=com_akeeba&view=Backup&autostart=1&profileid=<?php echo (int) $qiProfile->id; ?>&<?php echo $this->container->platform->getToken(true); ?>=1">
-			<div class="ak-icon ak-icon-backup">&nbsp;</div>
-			<span><?php echo $this->escape($qiProfile->description); ?></span>
-		</a>
-	</div>
-<?php endforeach; ?>
+    <header class="akeeba-block-header">
+        <h3><?php echo \JText::_('COM_AKEEBA_CPANEL_HEADER_QUICKBACKUP'); ?></h3>
+    </header>
 
-<div class="clearfix"></div>
+    <div class=" akeeba-grid--small">
+	    <?php foreach($this->quickIconProfiles as $qiProfile): ?>
+            <a class="akeeba-action--green"
+               href="index.php?option=com_akeeba&view=Backup&autostart=1&profileid=<?php echo (int) $qiProfile->id; ?>&<?php echo $this->container->platform->getToken(true); ?>=1">
+                <span class="akion-play"></span>
+                <span><?php echo $this->escape($qiProfile->description); ?></span>
+            </a>
+	    <?php endforeach; ?>
+    </div>
+
+</section>

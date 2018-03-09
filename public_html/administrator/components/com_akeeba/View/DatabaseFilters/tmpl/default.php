@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -40,23 +40,31 @@ $this->getContainer()->template->addJSInline($js);
 
 <?php echo $this->loadAnyTemplate('admin:com_akeeba/CommonTemplates/ProfileName'); ?>
 
-<div class="form-inline well">
-	<div>
-		<label><?php echo \JText::_('COM_AKEEBA_DBFILTER_LABEL_ROOTDIR'); ?></label>
-		<?php echo $this->root_select; ?>
-
-		<button class="btn btn-success" onclick="akeeba.Dbfilters.excludeNonCMS(); return false;">
-			<span class="icon-flag icon-white"></span>
+<div class="akeeba-form--inline akeeba-panel--info">
+    <div class="akeeba-form-group">
+        <label><?php echo \JText::_('COM_AKEEBA_DBFILTER_LABEL_ROOTDIR'); ?></label>
+	    <?php echo $this->root_select; ?>
+    </div>
+    <div class="akeeba-form-group--actions">
+        <button class="akeeba-btn--green" onclick="akeeba.Dbfilters.excludeNonCMS(); return false;">
+            <span class="akion-ios-flag"></span>
 			<?php echo \JText::_('COM_AKEEBA_DBFILTER_LABEL_EXCLUDENONCORE'); ?>
-		</button>
-		<button class="btn btn-danger" onclick="akeeba.Dbfilters.nuke(); return false;">
-			<span class="icon-refresh icon-white"></span>
+        </button>
+        <button class="akeeba-btn--red" onclick="akeeba.Dbfilters.nuke(); return false;">
+            <span class="akion-ios-loop-strong"></span>
 			<?php echo \JText::_('COM_AKEEBA_DBFILTER_LABEL_NUKEFILTERS'); ?>
-		</button>
-	</div>
+        </button>
+    </div>
 </div>
 
-<fieldset>
-	<legend><?php echo \JText::_('COM_AKEEBA_DBFILTER_LABEL_TABLES'); ?></legend>
+<div id="ak_main_container" class="akeeba-container--100">
+</div>
+
+<div class="akeeba-panel--info">
+    <header class="akeeba-block-header">
+        <h3>
+            <?php echo \JText::_('COM_AKEEBA_DBFILTER_LABEL_TABLES'); ?>
+        </h3>
+    </header>
 	<div id="tables"></div>
-</fieldset>
+</div>

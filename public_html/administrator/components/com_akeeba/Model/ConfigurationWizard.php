@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -116,7 +116,7 @@ class ConfigurationWizard extends Model
 			$oneBlock .= $oneKilo;
 		}
 
-		$filename = tempnam($tempdir, 'confwiz') . '.jpa';
+		$filename = tempnam($tempdir, 'confwiz');
 		@unlink($filename);
 
 		$fp = @fopen($filename, 'w');

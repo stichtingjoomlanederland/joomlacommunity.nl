@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11,20 +11,22 @@ defined('_JEXEC') or die();
 /** @var  $this  \Akeeba\Backup\Admin\View\Transfer\Html */
 ?>
 
-<fieldset id="akeeba-transfer-upload" style="display: none;">
-	<legend>
-		<?php echo \JText::_('COM_AKEEBA_TRANSFER_HEAD_UPLOAD'); ?>
-	</legend>
+<div id="akeeba-transfer-upload" class="akeeba-panel--primary" style="display: none;">
+	<header class="akeeba-block-header">
+        <h3>
+	        <?php echo \JText::_('COM_AKEEBA_TRANSFER_HEAD_UPLOAD'); ?>
+        </h3>
+	</header>
 
-	<div class="alert alert-error" style="display: none" id="akeeba-transfer-upload-error">
+	<div class="akeeba-block--failure" style="display: none" id="akeeba-transfer-upload-error">
 	</div>
 
 	<div id="akeeba-transfer-upload-area-upload" style="display: none">
 		<div id="backup-steps">
-			<div class="label label-warning" id="akeeba-transfer-upload-lbl-kickstart">
+			<div class="akeeba-label--orange" id="akeeba-transfer-upload-lbl-kickstart">
 				<?php echo \JText::_('COM_AKEEBA_TRANSFER_LBL_UPLOAD_KICKSTART'); ?>
 			</div>
-			<div class="label label-default" id="akeeba-transfer-upload-lbl-archive">
+			<div class="akeeba-label--grey" id="akeeba-transfer-upload-lbl-archive">
 				<?php echo \JText::_('COM_AKEEBA_TRANSFER_LBL_UPLOAD_BACKUP'); ?>
 			</div>
 		</div>
@@ -40,15 +42,15 @@ defined('_JEXEC') or die();
 
 	<div id="akeeba-transfer-upload-area-kickstart" style="display: none">
 		<p>
-			<a class="btn btn-success btn-large" id="akeeba-transfer-upload-btn-kickstart" href="" target="_blank">
-				<span class="icon icon-arrow-right"></span>
+			<a class="akeeba-btn--green--large" id="akeeba-transfer-upload-btn-kickstart" href="" target="_blank">
+				<span class="akion-arrow-right-b"></span>
 				<?php echo \JText::_('COM_AKEEBA_TRANSFER_BTN_OPEN_KICKSTART'); ?>
 			</a>
 		</p>
 
-		<div class="help-block">
+		<div class="akeeba-block--info">
 			<?php echo \JText::_('COM_AKEEBA_TRANSFER_LBL_OPEN_KICKSTART_INFO'); ?>
 		</div>
 	</div>
 
-</fieldset>
+</div>

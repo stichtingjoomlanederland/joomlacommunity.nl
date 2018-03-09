@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -232,9 +232,6 @@ JS;
 		$this->addJavascriptInline($js);
 
 		JHtml::_('behavior.calendar');
-		JHtml::_('formbehavior.chosen', 'select');
-
-		$this->addCssFile('https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css', '');
 
 		$hash = 'akeebamanage';
 
@@ -390,42 +387,42 @@ JS;
 		switch (strtolower($record['origin']))
 		{
 			case 'backend':
-				$originIcon = 'fa-desktop';
+				$originIcon = 'akion-android-desktop';
 				break;
 
 			case 'frontend':
-				$originIcon = 'fa-globe';
+				$originIcon = 'akion-ios-world';
 				break;
 
 			case 'json':
-				$originIcon = 'fa-cloud';
+				$originIcon = 'akion-android-cloud';
 				break;
 
 			case 'cli':
-				$originIcon = 'fa-keyboard-o';
+				$originIcon = 'akion-ios-paper-outline';
 				break;
 
 			case 'xmlrpc':
-				$originIcon = 'fa-code';
+				$originIcon = 'akion-code';
 				break;
 
 			case 'restorepoint':
-				$originIcon = 'fa-refresh';
+				$originIcon = 'akion-refresh';
 				break;
 
 			case 'lazy':
-				$originIcon = 'fa-joomla';
+				$originIcon = 'akion-cube';
 				break;
 
 			default:
-				$originIcon = 'fa-question';
+				$originIcon = 'akion-help';
 				break;
 		}
 
 		if (empty($originLanguageKey) || ($originDescription == $originLanguageKey))
 		{
 			$originDescription = '&ndash;';
-			$originIcon        = 'fa-question';
+			$originIcon        = 'akion-help';
 
 			return array($originDescription, $originIcon);
 		}
@@ -497,23 +494,24 @@ JS;
 		switch ($record['meta'])
 		{
 			case 'ok':
-				$statusIcon  = 'fa-check';
-				$statusClass = 'label-success';
+				$statusIcon  = 'akion-checkmark';
+				$statusClass = 'akeeba-label--green';
 				break;
 			case 'pending':
-				$statusIcon  = 'fa-play-circle-o';
-				$statusClass = 'label-warning';
+				$statusIcon  = 'akion-play';
+				$statusClass = 'akeeba-label--orange';
 				break;
 			case 'fail':
-				$statusIcon  = 'fa-times';
-				$statusClass = 'label-important';
+				$statusIcon  = 'akion-android-cancel';
+				$statusClass = 'akeeba-label--red';
 				break;
 			case 'remote':
-				$statusIcon  = 'fa-cloud';
-				$statusClass = 'label-info';
+				$statusIcon  = 'akion-cloud';
+				$statusClass = 'akeeba-label--teal';
 				break;
 			default:
-				$statusIcon = 'fa-trash-o';
+				$statusIcon = 'akion-trash-a';
+				$statusClass = 'akeeba-label--grey';
 				break;
 		}
 

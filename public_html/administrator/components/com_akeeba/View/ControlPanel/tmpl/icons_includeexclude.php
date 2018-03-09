@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11,52 +11,51 @@
 defined('_JEXEC') or die();
 
 ?>
-<h3><?php echo \JText::_('COM_AKEEBA_CPANEL_HEADER_INCLUDEEXCLUDE'); ?></h3>
 
-<?php if(AKEEBA_PRO): ?>
-	<div class="icon">
-		<a href="index.php?option=com_akeeba&view=MultipleDatabases">
-			<div class="ak-icon ak-icon-multidb">&nbsp;</div>
-			<span><?php echo \JText::_('COM_AKEEBA_MULTIDB'); ?></span>
-		</a>
-	</div>
+<section class="akeeba-panel--info">
+    <header class="akeeba-block-header">
+        <h3><?php echo \JText::_('COM_AKEEBA_CPANEL_HEADER_INCLUDEEXCLUDE'); ?></h3>
+    </header>
 
-	<div class="icon">
-		<a href="index.php?option=com_akeeba&view=IncludeFolders">
-			<div class="ak-icon ak-icon-extradirs">&nbsp;</div>
-			<span><?php echo \JText::_('COM_AKEEBA_INCLUDEFOLDER'); ?></span>
-		</a>
-	</div>
-<?php endif; ?>
+    <div class="akeeba-grid--small">
+        <?php if(AKEEBA_PRO): ?>
+            <a class="akeeba-action--green"
+                href="index.php?option=com_akeeba&view=MultipleDatabases">
+                <span class="akion-arrow-swap"></span>
+	            <?php echo \JText::_('COM_AKEEBA_MULTIDB'); ?>
+            </a>
 
-<div class="icon">
-	<a href="index.php?option=com_akeeba&view=FileFilters">
-		<div class="ak-icon ak-icon-fsfilter">&nbsp;</div>
-		<span><?php echo \JText::_('COM_AKEEBA_FILEFILTERS'); ?></span>
-	</a>
-</div>
+            <a class="akeeba-action--green"
+                href="index.php?option=com_akeeba&view=IncludeFolders">
+                <span class="akion-folder"></span>
+	            <?php echo \JText::_('COM_AKEEBA_INCLUDEFOLDER'); ?>
+            </a>
+        <?php endif; ?>
 
-<div class="icon">
-	<a href="index.php?option=com_akeeba&view=DatabaseFilters">
-		<div class="ak-icon ak-icon-dbfilter">&nbsp;</div>
-		<span><?php echo \JText::_('COM_AKEEBA_DBFILTER'); ?></span>
-	</a>
-</div>
+        <a class="akeeba-action--red"
+            href="index.php?option=com_akeeba&view=FileFilters">
+            <span class="akion-filing"></span>
+	        <?php echo \JText::_('COM_AKEEBA_FILEFILTERS'); ?>
+        </a>
 
-<?php if(AKEEBA_PRO): ?>
-	<div class="icon">
-		<a href="index.php?option=com_akeeba&view=RegExFileFilters">
-			<div class="ak-icon ak-icon-regexfiles">&nbsp;</div>
-			<span><?php echo \JText::_('COM_AKEEBA_REGEXFSFILTERS'); ?></span>
-		</a>
-	</div>
+        <a class="akeeba-action--red"
+            href="index.php?option=com_akeeba&view=DatabaseFilters">
+            <span class="akion-ios-grid-view"></span>
+	        <?php echo \JText::_('COM_AKEEBA_DBFILTER'); ?>
+        </a>
 
-	<div class="icon">
-		<a href="index.php?option=com_akeeba&view=RegExDatabaseFilters">
-			<div class="ak-icon ak-icon-regexdb">&nbsp;</div>
-			<span><?php echo \JText::_('COM_AKEEBA_REGEXDBFILTERS'); ?></span>
-		</a>
-	</div>
-<?php endif; ?>
+        <?php if(AKEEBA_PRO): ?>
+            <a class="akeeba-action--red"
+                href="index.php?option=com_akeeba&view=RegExFileFilters">
+                <span class="akion-ios-folder"></span>
+	            <?php echo \JText::_('COM_AKEEBA_REGEXFSFILTERS'); ?>
+            </a>
 
-<div class="clearfix"></div>
+            <a class="akeeba-action--red"
+                href="index.php?option=com_akeeba&view=RegExDatabaseFilters">
+                <span class="akion-ios-box"></span>
+	            <?php echo \JText::_('COM_AKEEBA_REGEXDBFILTERS'); ?>
+            </a>
+        <?php endif; ?>
+
+    </div></section>

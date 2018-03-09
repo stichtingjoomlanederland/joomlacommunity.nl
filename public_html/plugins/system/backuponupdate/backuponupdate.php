@@ -2,7 +2,7 @@
 /**
  * @package    AkeebaBackup
  * @subpackage backuponupdate
- * @copyright  Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license    GNU General Public License version 3, or later
  *
  * @since      3.3
@@ -246,14 +246,17 @@ class plgSystemBackuponupdate extends JPlugin
 				return;
 			}
 
-			$document->addStyleDeclaration($this->loadTemplate('default.css'));
+			$isJoomla4 = version_compare(JVERSION, '3.999999.999999', 'gt');
+			$baseDocumentName = $isJoomla4 ? 'joomla4' : 'default';
+
+			$document->addStyleDeclaration($this->loadTemplate($baseDocumentName . '.css'));
 
 			$fakeModule = (object)[
 				'id' => -1,
 				'title' => 'Backup on Update',
 				'module' => 'mod_custom',
 				'position' => 'status',
-				'content' => $this->loadTemplate('default.html', [
+				'content' => $this->loadTemplate($baseDocumentName . '.html', [
 					'active' => $this->getBoUFlag()
 				]),
 				'showtitle' => 0,

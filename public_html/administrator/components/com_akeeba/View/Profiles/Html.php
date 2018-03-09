@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -69,7 +69,6 @@ JS;
 
 		JHtml::_('behavior.multiselect');
 		JHtml::_('dropdown.init');
-		JHtml::_('formbehavior.chosen', 'select');
 	}
 
 	/**

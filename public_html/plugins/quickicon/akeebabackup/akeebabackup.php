@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2017 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -222,8 +222,9 @@ class plgQuickiconAkeebabackup extends JPlugin
 	 */
 	public function onGetIcons($context)
 	{
-		$container = \FOF30\Container\Container::getInstance('com_akeeba');
-		$user      = $container->platform->getUser();
+		$container           = \FOF30\Container\Container::getInstance('com_akeeba');
+		$user                = $container->platform->getUser();
+		$j4WarningJavascript = false;
 
 		if (!$user->authorise('akeeba.backup', 'com_akeeba'))
 		{
@@ -270,6 +271,8 @@ class plgQuickiconAkeebabackup extends JPlugin
 			$profileId = 1;
 		}
 
+		$isJoomla4 = version_compare(JVERSION, '3.999999.999999', 'gt');
+
 		$ret = [
 			'link'  => 'index.php?option=com_akeeba&view=Backup&autostart=1&returnurl=' . urlencode($url) . '&profileid=' . $profileId . "&$token=1",
 			'image' => 'akeeba-black',
@@ -281,6 +284,11 @@ class plgQuickiconAkeebabackup extends JPlugin
 		if (version_compare(JVERSION, '3.0', 'lt'))
 		{
 			$ret['image'] = $url . '/../media/com_akeeba/icons/akeeba-48.png';
+		}
+
+		if ($isJoomla4)
+		{
+			$ret['image'] = 'fa fa-akeeba-black';
 		}
 
 		if ($this->params->get('enablewarning', 0) == 0)
@@ -350,7 +358,17 @@ class plgQuickiconAkeebabackup extends JPlugin
 				$ret['image'] = 'akeeba-red';
 				$ret['text']  = JText::_('PLG_QUICKICON_AKEEBABACKUP_BACKUPREQUIRED');
 
-				if (version_compare(JVERSION, '3.0', 'lt'))
+				if ($isJoomla4)
+				{
+					/**
+					 * Joomla! 4 is dumb. Quickicons cannot have a class. However, Joomla! itself uses a class on the icon
+					 * container to tell users when the update status is OK or there are updates required. Therefore we will
+					 * have to use some Javascript to achieve the same result. Grrrr...
+					 */
+					$j4WarningJavascript = true;
+					$ret['image'] = 'fa fa-akeeba-black';
+				}
+				elseif (version_compare(JVERSION, '3.0', 'lt'))
 				{
 					$ret['image'] = $url . '/../media/com_akeeba/icons/akeeba-warning-48.png';
 				}
@@ -364,6 +382,37 @@ class plgQuickiconAkeebabackup extends JPlugin
 		if (version_compare(JVERSION, '3.0', 'gt'))
 		{
 			$inlineCSS = <<< CSS
+@font-face
+{
+	font-family: "Akeeba Products for Quickicons";
+	font-style: normal;
+	font-weight: normal;
+	src: url("../media/com_akeeba/fonts/akeeba/Akeeba-Products.eot?") format("eot"), url("../media/com_akeeba/fonts/akeeba/Akeeba-Products.svg#Akeeba_Products") format("svg"), url("../media/com_akeeba/fonts/akeeba/Akeeba-Products.ttf") format("truetype"), url("../media/com_akeeba/fonts/akeeba/Akeeba-Products.woff") format("woff"); 
+}
+
+[class*=fa-akeeba-]:before
+{
+  display: inline-block;
+  font-family: 'Akeeba Products for Quickicons';
+  font-style: normal;
+  font-weight: normal;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+span.fa-akeeba-black:before
+{
+  color: #ffffff;
+  background: transparent;
+}
+
+span[class*=fa-akeeba]:before
+{
+	content: 'B';
+}
+
 .icon-akeeba-black {
 	background-image: url("../media/com_akeeba/icons/akeebabackup-16-black.png");
 	width: 16px;
@@ -388,13 +437,28 @@ CSS;
 			JFactory::getApplication()->getDocument()->addStyleDeclaration($inlineCSS);
 		}
 
+		if ($isJoomla4)
+		{
+			$myClass = $j4WarningJavascript ? 'danger' : 'success';
+			$inlineJS = <<< JS
+// ; Defense against third party broken Javascript
+document.addEventListener('DOMContentLoaded', function() {
+	document.getElementById('plg_quickicon_akeebabackup').className = 'pulse $myClass';
+});
+
+JS;
+
+			\Joomla\CMS\Factory::getApplication()->getDocument()->addScriptDeclaration($inlineJS);
+		}
+
 		// Re-enable self
 		$db    = JFactory::getDbo();
 		$query = $db->getQuery(true)
-			->update($db->qn('#__extensions'))
-			->set($db->qn('enabled') . ' = ' . $db->q('1'))
-			->where($db->qn('element') . ' = ' . $db->q('akeebabackup'))
-			->where($db->qn('folder') . ' = ' . $db->q('quickicon'));
+		            ->update($db->qn('#__extensions'))
+		            ->set($db->qn('enabled') . ' = ' . $db->q('1'))
+		            ->where($db->qn('element') . ' = ' . $db->q('akeebabackup'))
+		            ->where($db->qn('folder') . ' = ' . $db->q('quickicon'))
+		;
 		$db->setQuery($query);
 		$db->execute();
 
