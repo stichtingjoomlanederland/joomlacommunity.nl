@@ -1956,14 +1956,13 @@ class ED
 
 	public static function buildNestedCategories($parentId, $parent, $ignorePrivate = false, $isPublishedOnly = false, $showPrivate = true, $selectACLOnly = false, $exclusion = array(), $ordering = false)
 	{
-		$catsModel = ED::model('Categories');
+		$aclType = ($selectACLOnly) ? DISCUSS_CATEGORY_ACL_ACTION_SELECT : DISCUSS_CATEGORY_ACL_ACTION_VIEW;
 
 		// [model:category]
 		$catModel = ED::model('Category');
 
-		$childs	= $catsModel->getChildCategories($parentId, $isPublishedOnly, $showPrivate, $exclusion, $ordering);
-
-		$aclType = ($selectACLOnly) ? DISCUSS_CATEGORY_ACL_ACTION_SELECT : DISCUSS_CATEGORY_ACL_ACTION_VIEW;
+		$catsModel = ED::model('Categories');
+		$childs	= $catsModel->getChildCategories($parentId, $isPublishedOnly, $showPrivate, $exclusion, $ordering, $aclType);
 
 		$accessibleCatsIds = ED::getAccessibleCategories($parentId, $aclType);
 
@@ -2157,6 +2156,56 @@ class ED
 			return false;
 		}
 	}
+
+
+	/**
+	 * Generates a html code for category selection in backend
+	 *
+	 * @since	4.0.22
+	 * @access	public
+	 */
+	public static function populateCategoryFilter($eleName, $catId = '', $attributes, $defaultText = 'COM_EASYDISCUSS_SELECT_CATEGORY', $className = '')
+	{
+		$model = ED::model('Category');
+		$categories = $model->generateCategoryFilterList();
+
+		$options = "";
+
+		if ($categories) {
+
+			$selected = !$catId ? ' selected="selected"' : '';
+			$options .= '<option value="0"' . $selected . '>' . JText::_($defaultText) . '</option>';
+
+
+			foreach ($categories as $category) {
+
+				$selected = $category->id == $catId ? ' selected="selected"' : '';
+
+				$space = '';
+				$sup = '';
+
+				if ($category->depth > 0) {
+
+					$sup	= '<sup>|_</sup>';
+
+					for ($d = 0; $d < $category->depth; $d++) {
+						$space .= '&nbsp;&nbsp;&nbsp;';
+					}
+				}
+
+				$options .= '<option value="' . $category->id . '"' . $selected . '>' . $space . $sup . JText::_($category->title) . '</option>';
+			}
+		}
+
+		$html = '';
+		$html .= '<select name="' . $eleName . '" id="' . $eleName .'" class="' . $className . '" ' . $attributes . '>';
+		$html .= $options;
+		$html .= '</select>';
+
+		return $html;
+	}
+
+
 
 	/**
 	 * $post - post jtable object

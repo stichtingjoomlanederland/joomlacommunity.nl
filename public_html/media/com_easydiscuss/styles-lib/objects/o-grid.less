@@ -21,10 +21,10 @@
  */
 /* Add `.grid` for the table */
 .o-row {
-  .make-grid();
+	.make-grid();
 }
 .o-row--unset {
-  table-layout: unset;
+	table-layout: unset;
 }
 // .o-row--padding {
 //   border-collapse: separate;
@@ -75,55 +75,55 @@
 .o-col--10,
 .o-col--11,
 .o-col--12 {
-  .make-grid-item();
-  vertical-align: middle;
+	.make-grid-item();
+	vertical-align: middle;
 }
 
 /* Set the widths */
 .o-col,
 .o-col-sm {
-  &--1 { width: 8.333333%; }
-  &--2 { width: 16.666667%; }
-  &--3 { width: 25%; }
-  &--4 { width: 33.333333%; }
-  &--5 { width: 41.666667%; }
-  &--6 { width: 50%; }
-  &--7 { width: 58.333333%; }
-  &--8 { width: 66.666667%; }
-  &--9 { width: 75%; }
-  &--10 { width: 83.333333%; }
-  &--11 { width: 91.666667%; }
-  &--12 { width: 100%; }
+	&--1 { width: 8.333333%; }
+	&--2 { width: 16.666667%; }
+	&--3 { width: 25%; }
+	&--4 { width: 33.333333%; }
+	&--5 { width: 41.666667%; }
+	&--6 { width: 50%; }
+	&--7 { width: 58.333333%; }
+	&--8 { width: 66.666667%; }
+	&--9 { width: 75%; }
+	&--10 { width: 83.333333%; }
+	&--11 { width: 91.666667%; }
+	&--12 { width: 100%; }
 }
 
 &.w480 {
-  .o-col,
-  .o-col--1,
-  .o-col--2,
-  .o-col--3,
-  .o-col--4,
-  .o-col--5,
-  .o-col--6,
-  .o-col--7,
-  .o-col--8,
-  .o-col--9,
-  .o-col--10,
-  .o-col--11,
-  .o-col--12 {
-    display: block;
-    width: 100%;
-  }
+	.o-col,
+	.o-col--1,
+	.o-col--2,
+	.o-col--3,
+	.o-col--4,
+	.o-col--5,
+	.o-col--6,
+	.o-col--7,
+	.o-col--8,
+	.o-col--9,
+	.o-col--10,
+	.o-col--11,
+	.o-col--12 {
+		display: block;
+		width: 100%;
+	}
 }
 
 
 // Default middle modifier for align top
 .o-col {
-  &--top {
-    vertical-align: top;
-  }
-  // &--middle {
-  //   vertical-align: middle;
-  // }
+	&--top {
+		vertical-align: top;
+	}
+	// &--middle {
+	//   vertical-align: middle;
+	// }
 }
 
 
@@ -132,121 +132,238 @@
  * o-grid : Grid with flex method
  */
  .o-grid {
-  display: flex;
-  flex-wrap: wrap;
-  list-style: none;
-  margin: 0;
-  padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	list-style: none;
+	margin: 0;
+	padding: 0;
 }
 
 .o-grid__cell {
-  flex: 1;
+	flex: 1;
 }
 
 &.w480 {
-  .o-grid {
-    display: block;
-    .clearfix();
-  }
-  .o-grid__cell {
-    flex: none;
-  }
+	.o-grid {
+		display: block;
+		.clearfix();
+	}
+	.o-grid__cell {
+		flex: none;
+	}
 }
 
 .o-grid--flex-cells > .o-grid__cell {
-  display: flex;
+	display: flex;
 }
 
 /* With gutters */
 .o-grid--gutters {
-  margin: -@fd-base-spacing 0 0 -@fd-base-spacing;
+	margin: -@fd-base-spacing 0 0 -@fd-base-spacing;
 }
 .o-grid--gutters > .o-grid__cell {
-  padding: @fd-base-spacing 0 0 @fd-base-spacing;
+	padding: @fd-base-spacing 0 0 @fd-base-spacing;
 }
 
 
 /* Alignment per row */
 .o-grid--top {
-  align-items: flex-start;
+	align-items: flex-start;
 }
 
 .o-grid--bottom {
-  align-items: flex-end;
+	align-items: flex-end;
 }
 
 .o-grid--center {
-  align-items: center;
+	align-items: center;
 }
 
 .o-grid--justify-center {
-  justify-content: center;
+	justify-content: center;
 }
 
 /* Alignment per cell */
 .o-grid__cell--top {
-  align-self: flex-start;
+	align-self: flex-start;
 }
 
 .o-grid__cell--bottom {
-  align-self: flex-end;
+	align-self: flex-end;
 }
 
 .o-grid__cell--center {
-  align-self: center;
+	align-self: center;
 }
 
 .o-grid__cell--auto-size {
-  flex: none;
+	flex: none;
 }
 
 .o-grid--fit > .o-grid__cell {
-  flex: 1;
+	flex: 1;
 }
 
 .o-grid--full > .o-grid__cell {
-  flex: 0 0 100%;
+	flex: 0 0 100%;
 }
 
 .o-grid--1of2 > .o-grid__cell {
-  flex: 0 0 50%;
+	flex: 0 0 50%;
 }
 
 .o-grid--1of3 > .o-grid__cell {
-  flex: 0 0 33.3333%;
+	flex: 0 0 33.3333%;
 }
 
 .o-grid--1of4 > .o-grid__cell {
-  flex: 0 0 25%;
-}
-
-.u-1of3 {
-  width: 33.3333%!important;
-  -webkit-box-flex: 0!important;
-  -webkit-flex: none!important;
-  -ms-flex: none!important;
-  flex: none!important;
+	flex: 0 0 25%;
 }
 
 
 .o-grid--gutters {
-  margin: -@fd-base-spacing 0 @fd-base-spacing -@fd-base-spacing;
+	margin: -@fd-base-spacing 0 @fd-base-spacing -@fd-base-spacing;
 }
 .o-grid--gutters > .o-grid__cell {
-  padding: @fd-base-spacing 0 0 @fd-base-spacing;
+	padding: @fd-base-spacing 0 0 @fd-base-spacing;
 }
 
 .o-grid--gutters-lg {
-  margin: -@fd-base-spacing--lg 0 @fd-base-spacing--lg -@fd-base-spacing--lg;
+	margin: -@fd-base-spacing--lg 0 @fd-base-spacing--lg -@fd-base-spacing--lg;
 }
 .o-grid--gutters-lg > .o-grid__cell {
-  padding: @fd-base-spacing--lg 0 0 @fd-base-spacing--lg;
+	padding: @fd-base-spacing--lg 0 0 @fd-base-spacing--lg;
 }
 
 .o-grid--guttersXl {
-  margin: -2em 0 2em -2em;
+	margin: -2em 0 2em -2em;
 }
 .o-grid--guttersXl > .o-grid__cell {
-  padding: 2em 0 0 2em;
+	padding: 2em 0 0 2em;
 }
 
+/* Specific size for cell */
+.o-grid__cell--1of3 {
+	.flex(none)!important;
+	width: 33.3333%!important;
+}
+
+.o-grid__cell--2of3 {
+	.flex(none)!important;
+	width: 66.3333%!important;
+}
+
+&.w480 {
+	.o-grid--gutters {
+		margin: 0;
+		> .o-grid__cell {
+			padding: 0 0 @fd-base-spacing--lg;
+		}
+	}
+
+	.o-grid__cell--1of3,
+	.o-grid__cell--2of3 {
+		width: 100% !important;
+	}
+}
+
+
+/*
+ * o-grid-sm : Grid with flex method wont stack on mobile
+ */
+ .o-grid-sm {
+	.flex-display(flex);
+	.flex-wrap(wrap);
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.o-grid-sm__cell {
+	.flex(1);
+}
+
+
+
+/* Alignment per row */
+.o-grid-sm--top {
+	.align-items(flex-start);
+}
+
+.o-grid-sm--bottom {
+	.align-items(flex-end);
+}
+
+.o-grid-sm--center {
+	.align-items(center);
+}
+
+.o-grid-sm--justify-center {
+	.justify-content(center);
+}
+.o-grid-sm--nowrap {
+	.flex-wrap(nowrap);
+}
+
+/* Alignment per cell */
+.o-grid-sm__cell--top {
+	.align-self(flex-start);
+}
+
+.o-grid-sm__cell--bottom {
+	.align-self(flex-end);
+}
+
+.o-grid-sm__cell--center {
+	.align-self(center);
+}
+
+.o-grid-sm__cell--left {
+	.flex(none);
+	margin-right: auto; 
+}
+.o-grid-sm__cell--right {
+	.flex(none);
+	margin-left: auto; 
+
+}
+.o-grid-sm__cell--auto-size {
+	.flex(none);
+}
+
+// .o-grid--fit > .o-grid__cell {
+//   flex: 1;
+// }
+
+.o-grid-sm--full > .o-grid-sm__cell {
+	.flex(0 0 100%);
+}
+
+.o-grid-sm--1of2 > .o-grid-sm__cell {
+	.flex(0 0 50%);
+}
+
+.o-grid-sm--1of3 > .o-grid-sm__cell {
+	.flex(0 0 33.3333%);
+}
+
+.o-grid-sm--1of4 > .o-grid-sm__cell {
+	.flex(0 0 25%);
+}
+
+
+
+/* With gutters */
+.o-grid-sm--gutters {
+	margin: -@fd-base-spacing 0 @fd-base-spacing -@fd-base-spacing;
+}
+.o-grid-sm--gutters > .o-grid-sm__cell {
+	padding: @fd-base-spacing 0 0 @fd-base-spacing;
+}
+
+.o-grid-sm--gutters-lg {
+	margin: -@fd-base-spacing--lg 0 @fd-base-spacing--lg -@fd-base-spacing--lg;
+}
+.o-grid-sm--gutters-lg > .o-grid-sm__cell {
+	padding: @fd-base-spacing--lg 0 0 @fd-base-spacing--lg;
+}

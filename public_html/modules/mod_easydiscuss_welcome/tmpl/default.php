@@ -116,11 +116,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<form action="<?php echo JRoute::_('index.php', true, $params->get('usesecure')); ?>" method="post" name="login" id="form-login" >
 		<?php echo $params->get('pretext'); ?>
 		<ul class="g-list-unstyled">
-			<li class="prm">
 				<label for="discuss-welcome-username" class="input-label"><?php echo JText::_('MOD_EASYDISCUSS_WELCOME_USERNAME'); ?></label>
 				<input type="text" id="discuss-welcome-username" name="username" class="form-control" size="18">
 			</li>
-			<li class="prm">
 				<label for="discuss-welcome-password" class="input-label"><?php echo JText::_('MOD_EASYDISCUSS_WELCOME_PASSWORD'); ?></label>
 				<input type="password" id="discuss-welcome-password" name="password" class="form-control" size="18" >
 			</li>

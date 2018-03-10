@@ -6,17 +6,16 @@ ed.define('site/src/frontpage', ['edq', 'easydiscuss', 'abstract', 'chosen'], fu
 				activefiltertype: null,
 				activeSortType: null,
 				activeCategoryIds: null,
-				'{allPostsFilter}'      : '.allPostsFilter',
-				'{newPostsFilter}'      : '.newPostsFilter',
-				'{unResolvedFilter}'    : '.unResolvedFilter',
-				'{resolvedFilter}'      : '.resolvedFilter',
-				'{unAnsweredFilter}'    : '.unAnsweredFilter',
-				'{sortLatest}'          : '.sortLatest',
-				'{sortPopular}'         : '.sortPopular',
-				// '{ulList}'              : 'ul.normal',
-				'{itemList}'            : '[data-list-item]',
-				'{emptyList}'           : 'div.empty',
-				'{pagination}'          : '[data-frontpage-pagination]',
+				'{allPostsFilter}': '.allPostsFilter',
+				'{newPostsFilter}': '.newPostsFilter',
+				'{unResolvedFilter}': '.unResolvedFilter',
+				'{resolvedFilter}': '.resolvedFilter',
+				'{unAnsweredFilter}': '.unAnsweredFilter',
+				'{sortLatest}': '.sortLatest',
+				'{sortPopular}': '.sortPopular',
+				'{itemList}': '[data-list-item]',
+				'{emptyList}': 'div.empty',
+				'{pagination}': '[data-frontpage-pagination]',
 
 				'{sortTab}': '[data-sort-tab]',
 				'{filterTab}': '[data-filter-tab]',
@@ -24,15 +23,6 @@ ed.define('site/src/frontpage', ['edq', 'easydiscuss', 'abstract', 'chosen'], fu
 			},
 
 			init: function(element) {
-
-				this.indexSortTab().chosen({
-					disable_search_threshold: 10,
-					width: "100%"
-				}).change(function(e, i){
-					var item = i.selected;
-					self.doSort(item);
-				});
-
 			},
 
 			doSort: function(sortType ) {
@@ -67,7 +57,6 @@ ed.define('site/src/frontpage', ['edq', 'easydiscuss', 'abstract', 'chosen'], fu
 					.removeClass('active')
 					.filterBy("filterType", filterType)
 					.addClass("active");
-
 
 				this.options.activefiltertype = filterType;
 				this.options.activeCategoryIds = categoryIds;
@@ -110,6 +99,10 @@ ed.define('site/src/frontpage', ['edq', 'easydiscuss', 'abstract', 'chosen'], fu
 				.always(function(){
 					list.removeClass('is-loading');
 				});
+			},
+
+			'{indexSortTab} change': function(el, ev) {
+				self.doSort(el.val());
 			},
 
 			// List item being clicked

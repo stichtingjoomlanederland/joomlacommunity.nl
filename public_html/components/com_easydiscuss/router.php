@@ -421,6 +421,24 @@ class EasyDiscussRouter extends EasyDiscuss
 		//  $segments[0] = $item->route;
 		// }
 
+		// We know that the view=categories&layout=listings&id=xxx because there's only 1 segment
+		// and the active menu is view=categories
+		if (isset($item) && $item->query['view'] == 'categories' && count($segments) == 1) {
+
+			$catId = EDR::decodeAlias($segments[0], 'Category');
+			
+			$category = ED::table('Category');
+			$category->load($catId);
+
+			// Only force this when we can find a category id.
+			if ($category->id) {
+				$vars['view'] = 'categories';
+				$vars['layout'] = 'listings';
+				$vars['category_id'] = $category->id;
+
+				return $vars;
+			}
+		}
 
 		// If user chooses to use the simple sef setup, we need to add the proper view
 		if ($config->get('main_sef') == 'simple' || $config->get('main_sef') == 'category') {
@@ -437,7 +455,7 @@ class EasyDiscussRouter extends EasyDiscuss
 				$testItem = JString::str_ireplace(':', '-', $segments[$numSegments - 1]);
 
 				if (in_array($testItem, $catAliases)) {
-				   array_unshift($segments, 'forums');
+					array_unshift($segments, 'forums');
 				} else {
 
 					// if the current active menu item is pointing to below views, means we now the current url most likely is a post url.
@@ -655,8 +673,20 @@ class EasyDiscussRouter extends EasyDiscuss
 
 				$segments = EDR::encodeSegments($segments);
 
+				$knownFilter = array('allposts','unanswered', 'unresolved', 'unread', 'resolved');
+
+				// Determine if the last segments is a known filter
+				if (in_array($segments[$count - 1], $knownFilter)) {
+					$vars['filter'] = $segments[$count - 1];
+					unset($segments[$count - 1]);
+
+					// Get new count
+					$count = $count - 1;
+				}
+
 				// try to get check if the second last segment also a cat or not.
 				$parentCatId = null;
+
 				if (isset($segments[$count-2]) && $segments[$count-2]) {
 					$tmp = $segments[$count-2];
 					$parentCatId = EDR::decodeAlias($tmp, 'Category');

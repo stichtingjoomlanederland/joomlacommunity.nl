@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -41,47 +41,63 @@ class plgUserEasydiscussProfile extends JPlugin
 		}
 
 		// Check we are manipulating a valid form.
-		if (!in_array($context, array('com_users.profile', 'com_users.user', 'com_users.registration', 'com_admin.profile')))
-		{
+		if (!in_array($context, array('com_users.profile', 'com_users.user', 'com_users.registration', 'com_admin.profile'))) {
 			return true;
 		}
 
-		if (is_object($data))
-		{
+		if (is_object($data)) {
+
 			$userId = isset($data->id) ? $data->id : 0;
 
-			if (!isset($data->easydiscussprofile) and $userId > 0)
-			{
+			if (!isset($data->easydiscussprofile) and $userId > 0) {
+
 				// Load the profile data from the database.
 				$db = JFactory::getDbo();
 				$db->setQuery(
 					'SELECT * FROM `#__discuss_users`' .
 					' WHERE id = '.(int) $userId
 				);
+
 				$result = $db->loadObject();
 
 				// Check for a database error.
-				if ($db->getErrorNum())
-				{
+				if ($db->getErrorNum()) {
 					$this->_subject->setError($db->getErrorMsg());
 					return false;
 				}
 
 				// Merge the profile data.
 				$data->easydiscussprofile = array();
+				
+				if (isset($result->nickname) && $result->nickname) {
+					$data->easydiscussprofile['nickname'] = $result->nickname;
+				}
 
-				$data->easydiscussprofile['nickname']		= $result->nickname;
-				$data->easydiscussprofile['description']	= $result->description;
-				$data->easydiscussprofile['signature']		= $result->signature;
-				$data->easydiscussprofile['website']		= $result->url;
-				$data->easydiscussprofile['location']		= $result->location;
+				if (isset($result->description) && $result->description) {
+					$data->easydiscussprofile['description'] = $result->description;
+				}
 
-				$userparams	= DiscussHelper::getRegistry($result->params);
+				if (isset($result->signature) && $result->signature) {
+					$data->easydiscussprofile['signature'] = $result->signature;
+				}
 
-				$data->easydiscussprofile['facebook']	= $userparams->get( 'facebook', '' );
-				$data->easydiscussprofile['twitter']	= $userparams->get( 'twitter', '' );
-				$data->easydiscussprofile['linkedin']	= $userparams->get( 'linkedin', '' );
-				$data->easydiscussprofile['skype']		= $userparams->get( 'skype', '' );
+				if (isset($result->url) && $result->url) {
+					$data->easydiscussprofile['website'] = $result->url;
+				}
+
+				if (isset($result->location) && $result->location) {
+					$data->easydiscussprofile['location'] = $result->location;
+				}
+
+				if (!empty($result->params)) {
+					
+					$userparams	= ED::getRegistry($result->params);
+
+					$data->easydiscussprofile['facebook'] = $userparams->get('facebook', '');
+					$data->easydiscussprofile['twitter'] = $userparams->get('twitter', '');
+					$data->easydiscussprofile['linkedin'] = $userparams->get('linkedin', '');
+					$data->easydiscussprofile['skype'] = $userparams->get('skype', '');					
+				}
 
 				// Todo: clean data
 				// ...
@@ -97,16 +113,15 @@ class plgUserEasydiscussProfile extends JPlugin
 			return;
 		}
 
-		if (!($form instanceof JForm))
-		{
+		if (!($form instanceof JForm)) {
 			$this->_subject->setError('JERROR_NOT_A_FORM');
 			return false;
 		}
 
 		// Check we are manipulating a valid form.
 		$name = $form->getName();
-		if (!in_array($name, array('com_admin.profile', 'com_users.user', 'com_users.profile', 'com_users.registration')))
-		{
+
+		if (!in_array($name, array('com_admin.profile', 'com_users.user', 'com_users.profile', 'com_users.registration'))) {
 			return true;
 		}
 
@@ -126,41 +141,35 @@ class plgUserEasydiscussProfile extends JPlugin
 			'location'
 		);
 
-		foreach ($fields as $field)
-		{
+		foreach ($fields as $field) {
+
 			// Case using the users manager in admin
-			if ($name == 'com_users.user')
-			{
+			if ($name == 'com_users.user') {
+				
 				// Remove the field if it is disabled in registration and profile
 				if ($this->params->get('register-require_' . $field, 1) == 0
-					&& $this->params->get('profile-require_' . $field, 1) == 0)
-				{
+					&& $this->params->get('profile-require_' . $field, 1) == 0) {
+
 					$form->removeField($field, 'easydiscussprofile');
 				}
-			}
-			// Case registration
-			elseif ($name == 'com_users.registration')
-			{
+
+			// Case registration	
+			} elseif ($name == 'com_users.registration') {
+				
 				// Toggle whether the field is required.
-				if ($this->params->get('register-require_' . $field, 1) > 0)
-				{
+				if ($this->params->get('register-require_' . $field, 1) > 0) {
 					$form->setFieldAttribute($field, 'required', ($this->params->get('register-require_' . $field) == 2) ? 'required' : '', 'profile');
-				}
-				else
-				{
+				} else {
 					$form->removeField($field, 'easydiscussprofile');
 				}
-			}
-			// Case profile in site or admin
-			elseif ($name == 'com_users.profile' || $name == 'com_admin.profile')
-			{
+
+			// Case profile in site or admin	
+			} elseif ($name == 'com_users.profile' || $name == 'com_admin.profile') {
+				
 				// Toggle whether the field is required.
-				if ($this->params->get('profile-require_' . $field, 1) > 0)
-				{
+				if ($this->params->get('profile-require_' . $field, 1) > 0) {
 					$form->setFieldAttribute($field, 'required', ($this->params->get('profile-require_' . $field) == 2) ? 'required' : '', 'profile');
-				}
-				else
-				{
+				} else {
 					$form->removeField($field, 'easydiscussprofile');
 				}
 			}
@@ -177,61 +186,56 @@ class plgUserEasydiscussProfile extends JPlugin
 
 		$userId	= JArrayHelper::getValue($data, 'id', 0, 'int');
 
-		if ($userId && $result && isset($data['easydiscussprofile']) && (count($data['easydiscussprofile'])))
-		{
-			try
-			{
+		if ($userId && $result && isset($data['easydiscussprofile']) && (count($data['easydiscussprofile']))) {
+			
+			try {
+
 				// Sanitize the date
 				// ...
 
 				// Save into profile table
 				$profile = ED::user($userId);
 
-				$profile->nickname		= $data['easydiscussprofile']['nickname'];;
-				$profile->description	= $data['easydiscussprofile']['description'];
-				$profile->signature		= $data['easydiscussprofile']['signature'];
-				$profile->url			= $data['easydiscussprofile']['website'];
-				$profile->location		= $data['easydiscussprofile']['location'];
+				$profile->nickname = $data['easydiscussprofile']['nickname'];;
+				$profile->description = $data['easydiscussprofile']['description'];
+				$profile->signature	= $data['easydiscussprofile']['signature'];
+				$profile->url = $data['easydiscussprofile']['website'];
+				$profile->location = $data['easydiscussprofile']['location'];
 
 				// Save params
-				$userparams	= DiscussHelper::getRegistry('');
+				$userparams	= ED::getRegistry('');
 
-				if ( isset($data['easydiscussprofile']['facebook']) )
-				{
-					$userparams->set( 'facebook', $data['easydiscussprofile']['facebook'] );
-				}
-				if ( isset($data['easydiscussprofile']['twitter']) )
-				{
-					$userparams->set( 'twitter', $data['easydiscussprofile']['twitter'] );
-				}
-				if ( isset($data['easydiscussprofile']['linkedin']) )
-				{
-					$userparams->set( 'linkedin', $data['easydiscussprofile']['linkedin'] );
-				}
-				if ( isset($data['easydiscussprofile']['skype']) )
-				{
-					$userparams->set( 'skype', $data['easydiscussprofile']['skype'] );
-				}
-				if ( isset($data['easydiscussprofile']['website']) )
-				{
-					$userparams->set( 'website', $data['easydiscussprofile']['website'] );
+				if (isset($data['easydiscussprofile']['facebook'])) {
+					$userparams->set('facebook', $data['easydiscussprofile']['facebook']);
 				}
 
-				$profile->params	= $userparams->toString();
-
-				if( !$profile->id )
-				{
-					$profile->id 	= $userId;
+				if (isset($data['easydiscussprofile']['twitter'])) {
+					$userparams->set( 'twitter', $data['easydiscussprofile']['twitter']);
 				}
 
-				if( !$profile->store() )
-				{
+				if (isset($data['easydiscussprofile']['linkedin'])) {
+					$userparams->set( 'linkedin', $data['easydiscussprofile']['linkedin']);
+				}
+
+				if (isset($data['easydiscussprofile']['skype'])) {
+					$userparams->set('skype', $data['easydiscussprofile']['skype']);
+				}
+
+				if ( isset($data['easydiscussprofile']['website'])) {
+					$userparams->set('website', $data['easydiscussprofile']['website']);
+				}
+
+				$profile->params = $userparams->toString();
+
+				if (!$profile->id) {
+					$profile->id = $userId;
+				}
+
+				if (!$profile->store()) {
 					throw new Exception($profile->getError());
 				}
 
-			}
-			catch (JException $e)
-			{
+			} catch (JException $e) {
 				$this->_subject->setError($e->getMessage());
 				return false;
 			}

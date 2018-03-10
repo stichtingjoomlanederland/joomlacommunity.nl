@@ -81,11 +81,19 @@ defined('_JEXEC') or die('Restricted access');
 					<?php } ?>
 				</div>
 				<div class="ed-forum__ft">
-					<?php if (!$thread->category->container) { ?>
-						<a href="<?php echo EDR::getCategoryRoute($thread->category->id); ?>">
-							<?php echo $thread->posts ? JText::_('COM_EASYDISCUSS_FORUMS_VIEW_ALL_POST') : JText::_('COM_EASYDISCUSS_FORUMS_VIEW_CATEGORY') ; ?> &rarr;
-						</a>
+					<?php if ($thread->posts && $this->my->id) { ?>
+					<a href="<?php echo EDR::_('view=categories&layout=listings&category_id=' . $thread->category->id . '&filter=unread'); ?>">
+						<?php echo JText::_('COM_ED_VIEW_UNREAD_POSTS') ; ?> &rarr;
+					</a>
+					&nbsp;
 					<?php } ?>
+
+					<?php if (!$thread->category->container) { ?>
+					<a href="<?php echo EDR::getCategoryRoute($thread->category->id); ?>">
+						<?php echo $thread->posts ? JText::_('COM_EASYDISCUSS_FORUMS_VIEW_ALL_POST') : JText::_('COM_EASYDISCUSS_FORUMS_VIEW_CATEGORY') ; ?> &rarr;
+					</a>
+					<?php } ?>
+
 					<?php if ($thread->posts) { ?>
 					<span class="pull-right"><?php echo JText::sprintf('COM_EASYDISCUSS_FORUMS_COUNT_POST', count($thread->posts), $thread->category->getTotalPosts()); ?></span>
 					<?php } ?>

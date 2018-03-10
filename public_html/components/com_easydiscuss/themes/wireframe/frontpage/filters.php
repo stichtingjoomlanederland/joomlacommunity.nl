@@ -1,15 +1,15 @@
 <?php
 /**
-* @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
-* @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* @package      EasyDiscuss
+* @copyright    Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Unauthorized Access');
+defined('_JEXEC') or die('Restricted access');
 ?>
 <div class="ed-filter-bar t-lg-mt--lg t-lg-mb--md">
 	
@@ -21,7 +21,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				data-filter-type="allposts"
 				data-filter-catid="<?php echo $menuCatId; ?>"
 			>
-				<a class="o-tabs__link allPostsFilter" data-filter-anchor href="<?php echo EDR::_('view=index');?>">
+				<a class="o-tabs__link allPostsFilter" data-filter-anchor href="<?php echo EDR::_($baseUrl);?>">
 					<?php echo JText::_('COM_EASYDISCUSS_FILTER_ALL_POSTS'); ?>
 				</a>
 			</li>
@@ -32,7 +32,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				data-filter-type="unresolved"
 				data-filter-catid="<?php echo $menuCatId; ?>"
 			>
-				<a class="o-tabs__link unResolvedFilter" data-filter-anchor href="<?php echo EDR::_('view=index&filter=unresolved');?>">
+				<a class="o-tabs__link unResolvedFilter" data-filter-anchor href="<?php echo EDR::_($baseUrl . '&filter=unresolved');?>">
 					<?php echo JText::_('COM_EASYDISCUSS_FILTER_UNRESOLVED');?>
 				</a>
 			</li>
@@ -44,7 +44,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				data-filter-type="resolved"
 				data-filter-catid="<?php echo $menuCatId; ?>"
 			>
-				<a class="o-tabs__link resolvedFilter" data-filter-anchor href="<?php echo EDR::_('view=index&filter=resolved');?>">
+				<a class="o-tabs__link resolvedFilter" data-filter-anchor href="<?php echo EDR::_($baseUrl . '&filter=resolved');?>">
 					<?php echo JText::_('COM_EASYDISCUSS_FILTER_RESOLVED');?>
 				</a>
 			</li>
@@ -56,7 +56,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				data-filter-type="unanswered"
 				data-filter-catid="<?php echo $menuCatId; ?>"
 			>
-				<a class="o-tabs__link unAnsweredFilter" data-filter-anchor href="<?php echo EDR::_('view=index&filter=unanswered');?>">
+				<a class="o-tabs__link unAnsweredFilter" data-filter-anchor href="<?php echo EDR::_($baseUrl . '&filter=unanswered');?>">
 					<?php echo JText::_('COM_EASYDISCUSS_FILTER_UNANSWERED'); ?>
 				</a>
 			</li>
@@ -68,7 +68,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				data-filter-type="unread"
 				data-filter-catid="<?php echo $menuCatId; ?>"
 			>
-				<a class="o-tabs__link unreadFilter" data-filter-anchor href="<?php echo EDR::_('view=index&filter=unread');?>">
+				<a class="o-tabs__link unreadFilter" data-filter-anchor href="<?php echo EDR::_($baseUrl . '&filter=unread');?>">
 					<?php echo JText::_('COM_EASYDISCUSS_FILTER_UNREAD');?>
 				</a>
 			</li>
@@ -80,10 +80,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<!-- Sort tabs -->
 	<div class="ed-filter-bar__sort-action">
 		<select data-index-sort-filter>
-		  <option value="latest" <?php echo $activeSort == 'latest' || $activeSort == '' ? ' selected="true"' : '';?> data-sort-tab data-sort-type="latest"><?php echo JText::_('COM_EASYDISCUSS_SORT_LATEST');?></option>
+		  <option value="latest" <?php echo $activeSort == 'latest' || $activeSort == '' ? ' selected="true"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_SORT_LATEST');?></option>
 		  <?php if ($activeFilter != 'unread') { ?>
-			<option value="popular" <?php echo $activeSort == 'popular' ? ' selected="true"' : '';?> data-sort-tab data-sort-type="popular"><?php echo JText::_('COM_EASYDISCUSS_SORT_POPULAR');?></option>
-			<option value="title" <?php echo $activeSort == 'title' ? ' selected="true"' : '';?> data-sort-tab data-sort-type="title"><?php echo JText::_('COM_EASYDISCUSS_SORT_TITLE');?></option>
+			<option value="popular" <?php echo $activeSort == 'popular' ? ' selected="true"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_SORT_POPULAR');?></option>
+			<option value="title" <?php echo $activeSort == 'title' ? ' selected="true"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_SORT_TITLE');?></option>
 		  <?php } ?>
 		</select>
 	</div>

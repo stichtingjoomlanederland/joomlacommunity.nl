@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -68,8 +68,6 @@ class DiscussComment extends EasyDiscussTable
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function canConvert()
 	{
@@ -87,8 +85,6 @@ class DiscussComment extends EasyDiscussTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function toData()
 	{
@@ -124,13 +120,11 @@ class DiscussComment extends EasyDiscussTable
 	}
 
 	/**
-     * Performs after comment save operation
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Performs after comment save operation
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function postSave()
 	{
 		$config = ED::config();
@@ -237,6 +231,11 @@ class DiscussComment extends EasyDiscussTable
 		// var_dump($addUnsubscribeLink, $replyAuthorEmail);
 		// exit;
 
+		// We should skip it all together if these 2 setting didn't enabled.
+		if (!$config->get('notify_comment_participants') && !$config->get('main_subscription_include_comments')) {
+			return false;
+		}		
+
 		// Get the list of emails to be sent
 		$emails	= array();
 
@@ -246,40 +245,43 @@ class DiscussComment extends EasyDiscussTable
 			$emails[] = $user->email;
 		}
 
-		// Retrieve the list of user emails from the list of comments made on the post.
-		$existingComments = $post->getComments();
+		if ($config->get('notify_comment_participants')) {
 
-		if ($existingComments) {
+			// Retrieve the list of user emails from the list of comments made on the post.
+			$existingComments = $post->getComments();
 
-			foreach ($existingComments as $existingComment) {
-				// Only add the email when the user id is not the current logged in user who is posting the comment.
-				// It should not send email to the post owner as well since the post owner will already get a notification.
-				if ($existingComment->user_id != 0 && $existingComment->user_id != $my->id && $existingComment->user_id != $post->user_id) {
-					$user = JFactory::getUser($existingComment->user_id);
-					$emails[] = $user->email;
+			if ($existingComments) {
+
+				foreach ($existingComments as $existingComment) {
+					// Only add the email when the user id is not the current logged in user who is posting the comment.
+					// It should not send email to the post owner as well since the post owner will already get a notification.
+					if ($existingComment->user_id != 0 && $existingComment->user_id != $my->id && $existingComment->user_id != $post->user_id) {
+						$user = JFactory::getUser($existingComment->user_id);
+						$emails[] = $user->email;
+					}
 				}
 			}
 		}
 
-		// Now we also need to get the site and category subscribers emails if they chose to include comments notification
-		if ($config->get('main_sitesubscription') && $config->get('main_subscription_include_comments')) {
-		    $siteSubscribers = ED::Mailer()->getSubscribers('site', 0, $post->category_id, array('emailOnly' => true), array($my->email));
-		    $emails = array_merge($emails, $siteSubscribers);
-		}
+		// if the subscription part enable include comment setting
+		if ($config->get('main_subscription_include_comments')) {
 
-		if (!$config->get('main_subscription_include_comments')) {
-		 	return false;
-		}
+			// Now we also need to get the site and category subscribers emails if they chose to include comments notification
+			if ($config->get('main_sitesubscription')) {
+				$siteSubscribers = ED::Mailer()->getSubscribers('site', 0, $post->category_id, array('emailOnly' => true), array($my->email));
+				$emails = array_merge($emails, $siteSubscribers);
+			}
 
-		if ($config->get('main_ed_categorysubscription') && $config->get('main_subscription_include_comments')) {
-		    $categorySubscribers = ED::Mailer()->getSubscribers('category', $post->category_id, $post->category_id, array('emailOnly' => true), array($my->email));
-		    $emails = array_merge($emails, $categorySubscribers);
-		}
+			if ($config->get('main_ed_categorysubscription')) {
+				$categorySubscribers = ED::Mailer()->getSubscribers('category', $post->category_id, $post->category_id, array('emailOnly' => true), array($my->email));
+				$emails = array_merge($emails, $categorySubscribers);
+			}
 
-		// We also need to notify to the post subcribers
-		if ($config->get('main_postsubscription') && $config->get('main_subscription_include_comments')) {
-		    $postSubscribers = ED::Mailer()->getSubscribers('post', $post->id, $post->category_id, array('emailOnly' => true), array($my->email));
-		    $emails = array_merge($emails, $postSubscribers);
+			// We also need to notify to the post subcribers
+			if ($config->get('main_postsubscription')) {
+				$postSubscribers = ED::Mailer()->getSubscribers('post', $post->id, $post->category_id, array('emailOnly' => true), array($my->email));
+				$emails = array_merge($emails, $postSubscribers);
+			}
 		}
 
 		// Ensure the emails are all unique.

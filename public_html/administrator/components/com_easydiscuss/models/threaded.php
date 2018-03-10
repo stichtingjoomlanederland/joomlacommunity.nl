@@ -39,9 +39,20 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 	{
 		$db = ED::db();
 
+
+		$isQuestion = isset($options['questions']) ? $options['questions'] : false;
+		$loadPaginationCount = isset($options['loadPaginationCount']) ? $options['loadPaginationCount'] : true;
+
 		$query = array();
-		$query[] = 'SELECT a.*';
-		$query[] = 'FROM ' . $db->qn('#__discuss_posts') . ' AS a';
+
+		if ($isQuestion) {
+			$query[] = 'SELECT a.*, b.`num_replies`';
+			$query[] = 'FROM ' . $db->qn('#__discuss_posts') . ' AS a FORCE INDEX (discuss_post_last_reply)';
+			$query[] = ' INNER JOIN  ' . $db->qn('#__discuss_thread') . ' AS b ON a.id = b.post_id' ;
+		} else {
+			$query[] = 'SELECT a.*';
+			$query[] = 'FROM ' . $db->qn('#__discuss_posts') . ' AS a';
+		}
 
 		$filter = isset($options['filter']) ? $options['filter'] : '';
 		$category = isset($options['category']) ? $options['category'] : '';
@@ -129,20 +140,29 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 
 		$query[] = $where;
 
+		// prepare for count sql.
+		$queryCnt = $query;
 
 		$ordering = $this->app->getUserStateFromRequest('com_easydiscuss.' . $stateKey . '.filter_order', 'filter_order', 'a.id', 'cmd');
 		$direction = $this->app->getUserStateFromRequest('com_easydiscuss.' . $stateKey . '.filter_order_Dir', 'filter_order_Dir', 'DESC', 'word');
 
-		$query[] = 'ORDER BY ' . $ordering . ' ' . $direction . ', ordering';
+		$query[] = 'ORDER BY ' . $ordering . ' ' . $direction;
 
 		// Glue the queries together.
 		$query = implode(' ', $query);
 
-		// Get the total number of items
-		$limitQuery = str_ireplace('a.*', 'COUNT(1)', $query);
-		$db->setQuery($limitQuery);
-		$total = (int) $db->loadResult();
-		$this->total = $total;
+		if ($loadPaginationCount) {
+			// Get the total number of items
+			if ($isQuestion) {
+				$queryCnt[0] = str_ireplace('a.*, b.`num_replies`', 'COUNT(1)', $queryCnt[0]);
+			} else {
+				$queryCnt[0] = str_ireplace('a.*', 'COUNT(*)', $queryCnt[0]);
+			}
+			$limitQuery = implode(' ', $queryCnt);
+			$db->setQuery($limitQuery);
+			$total = (int) $db->loadResult();
+			$this->total = $total;
+		}
 
 		// Get the pagination
 		$limitstart = $this->getState('limitstart');
@@ -156,6 +176,121 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 
 		return $items;
 	}
+
+
+	/**
+	 * Allows caller to retrieve posts
+	 *
+	 * @since	4.0.9
+	 * @access	public
+	 */
+	public function getPostPagination($options = array())
+	{
+		$db = ED::db();
+
+
+		$isQuestion = isset($options['questions']) ? $options['questions'] : false;
+
+		$query = array();
+
+		$query[] = 'SELECT count(1)';
+
+		if ($isQuestion) {
+			$query[] = ' FROM  ' . $db->qn('#__discuss_thread') . ' AS a' ;
+			$query[] = ' 	INNER JOIN  ' . $db->qn('#__discuss_posts') . ' AS b ON a.`post_id` = b.`id`' ;
+		} else {
+			$query[] = 'FROM ' . $db->qn('#__discuss_posts') . ' AS a';
+		}
+
+		$filter = isset($options['filter']) ? $options['filter'] : '';
+		$category = isset($options['category']) ? $options['category'] : '';
+
+		$where = array();
+
+		// We only want to fetch the parent if needed
+		if (isset($options['replies']) && $options['replies']) {
+			$where[] = 'a.`parent_id` != ' . $db->Quote('0');
+		}
+
+		// Render only pending posts
+		if (isset($options['pending']) && $options['pending']) {
+			$where[] = 'a.' . $db->qn('published') . '=' . $db->Quote(DISCUSS_ID_PENDING);
+		} else {
+			$where[] = 'a.' . $db->qn('published') . '!=' . $db->Quote(DISCUSS_ID_PENDING);
+		}
+
+		// Determines if we need to filter posts by category
+		if ($category) {
+			$where[] = 'a.' . $db->qn( 'category_id' ) . '=' . $db->Quote($category);
+		}
+
+		// Filter posts that are published
+		if ($filter == 'published') {
+			$where[] = $db->qn('a.published') . '=' . $db->Quote('1');
+		}
+
+		// Filter posts that are unpublished
+		if ($filter == 'unpublished') {
+			$where[] = $db->qn('a.published') . '=' . $db->Quote('0');
+		}
+
+		// Search queries
+		$search = isset($options['search']) ? $options['search'] : '';
+		$search = $db->getEscaped(trim(JString::strtolower($search)));
+
+		// Try to see if we are trying search for specific sections
+		$search = $this->getSearchFragments($search);
+
+		// Get the ordering and order direction of posts
+		$stateKey = isset($options['stateKey']) ? $options['stateKey'] : 'posts';
+
+		if ($search->type == 'standard') {
+
+			if ($search->query && $stateKey == 'posts') {
+				$where[] = ' LOWER( a.`title` ) LIKE ' . $db->Quote('%' . $search->query . '%');
+			}
+
+			if ($search->query && $stateKey == 'replies') {
+				$where[] = ' LOWER(a.`content`) LIKE ' . $db->Quote('%' . $search->query . '%');
+			}
+
+		} else {
+			if ($search->type == 'author') {
+				$search->query = trim($search->query);
+				$isUserId = (int) $search->query !== 0;
+
+				if ($isUserId) {
+					$where[] = 'a.`user_id`=' . $db->Quote($search->query);
+				} else {
+
+					// Search by username or name. Instead of joining the table, we just fire another query
+					// to get the id's to prevent all those collation and performance issues
+					$userQuery = 'SELECT `id` FROM `#__users` WHERE (`name` LIKE ' . $db->Quote('%' . $search->query . '%') . ' OR `username` LIKE ' . $db->Quote('%' . $search->query . '%') . ')';
+					$db->setQuery($userQuery);
+					$userIds = $db->loadColumn();
+
+					if ($userIds) {
+						$where[] = 'a.`user_id` IN(' . implode(',', $userIds) . ')';
+					}
+				}
+			}
+		}
+
+		$where = count($where) ? ' WHERE ' . implode( ' AND ', $where ) : '' ;
+		$query[] = $where;
+
+		// Glue the queries together.
+		$query = implode(' ', $query);
+
+		$db->setQuery($query);
+		$total = (int) $db->loadResult();
+		$this->total = $total;
+
+		$pagination = $this->getPagination();
+
+		return $pagination;
+	}
+
 
 	/**
 	 * Allows caller to retrieve the number of pending items on the site
@@ -188,6 +323,8 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 	public function getPagination()
 	{
 		jimport('joomla.html.pagination');
+
+		// dump($this->total, $this->getState('limitstart'), $this->getState('limit'));
 
 		$pagination = ED::getPagination($this->total, $this->getState('limitstart'), $this->getState('limit'));
 

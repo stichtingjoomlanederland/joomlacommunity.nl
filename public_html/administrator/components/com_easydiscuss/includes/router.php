@@ -1207,7 +1207,7 @@ class EDR
 		static $cache = null;
 
 		if (is_null($cache)) {
-			$db = EB::db();
+			$db = ED::db();
 
 			$query = "select * from #__languages";
 			$db->setQuery($query);

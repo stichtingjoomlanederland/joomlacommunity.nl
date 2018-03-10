@@ -565,7 +565,7 @@ class EasyDiscussMailer extends EasyDiscuss
 
 		// Modify the from name to the user that generated this activity
 		if ($config->get('notify_modify_from') && isset($data['senderObject']) && $data['senderObject']) {
-			return $data['senderObject']->user->name;
+			return $data['senderObject']->getName();
 		}
 
 		static $fromname = null;

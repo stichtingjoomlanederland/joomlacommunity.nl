@@ -460,7 +460,9 @@ class EasyDiscussConversation extends EasyDiscuss
 		$emailData['conversationLink'] = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=conversation&id=' . $message->id, false, true);
 		$emailData['authorName'] = $author->getName();
 		$emailData['authorAvatar'] = $author->getAvatar();
-		$emailData['content'] = $message->message;
+
+		$content = ED::parser()->replaceMentions($message->message);
+		$emailData['content'] = $content;
 
 		$subject = JText::sprintf( 'COM_EASYDISCUSS_CONVERSATION_EMAIL_SUBJECT', $author->getName());
 

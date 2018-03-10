@@ -35,6 +35,13 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		JToolbarHelper::custom('unlock', 'unlock', '', JText::_('COM_EASYDISCUSS_UNLOCK'));
 		JToolbarHelper::deleteList();
 
+		// Determines if the user is browsing to select a post
+		$browse = $this->input->get('browse', false, 'bool');
+		$browseFunction = $this->input->get('browseFunction', '', 'string');
+		$limit = $this->app->getUserStateFromRequest('com_easydiscuss.posts.limit', 'limit', $this->app->getCfg('list_limit') , 'int');
+		$limitstart	= $this->input->get('limitstart', 0, 'int');
+
+
 		// Selected filter
 		$filter = $this->input->get('filter_state', '', 'word');
 
@@ -47,16 +54,27 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		$orderDirection = $this->getUserState('posts.filter_order_Dir', 'filter_order_Dir', 'DESC', 'word');
 
 		// Filter by category
-		$category = $this->input->get('category_id', 0, 'int');
+		$categoryId = $this->input->get('category_id', 0, 'int');
 
 		// Get the dropdown for categories
-		$categoryFilter = ED::populateCategories('', '', 'select', 'category_id', $category, true, false , true , true, 'o-form-control', array(), DISCUSS_CATEGORY_ACL_ACTION_VIEW, false, false, false, array('data-ed-table-filter'));
+		$categoryFilter = ED::populateCategoryFilter('category_id', $categoryId, 'class="o-form-control" data-ed-table-filter');
 
-		// Fetch the list of posts 
+		// Fetch the list of posts
 		$model = ED::model('Threaded');
-		$options = array('stateKey' => 'posts', 'questions' => true, 'filter' => $filter, 'category' => $category, 'search' => $search);
+		$options = array('stateKey' => 'posts', 'questions' => true, 'filter' => $filter, 'category' => $categoryId, 'search' => $search);
+
+		$options['loadPaginationCount'] = false;
+
+		if ($browse) {
+			$options['loadPaginationCount'] = true;
+		}
+
 		$rows = $model->getPosts($options);
-		$pagination = $model->getPagination();
+		$pagination = null;
+
+		if ($browse) {
+			$pagination = $model->getPagination();
+		}
 
 		$posts = array();
 
@@ -94,10 +112,6 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 			}
 		}
 
-		// Determines if the user is browsing to select a post
-		$browse = $this->input->get('browse', false, 'bool');
-		$browseFunction = $this->input->get('browseFunction', '', 'string');
-
 		$this->set('browseFunction', $browseFunction);
 		$this->set('browse', $browse);
 		$this->set('filter', $filter);
@@ -105,8 +119,11 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		$this->set('pagination', $pagination);
 		$this->set('categoryFilter', $categoryFilter);
 		$this->set('search', $search);
+		$this->set('categoryId', $categoryId);
 		$this->set('order', $order);
 		$this->set('orderDirection', $orderDirection);
+		$this->set('limit', $limit);
+		$this->set('limitstart', $limitstart);
 
 		parent::display('posts/default');
 	}
@@ -131,6 +148,9 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		JToolBarHelper::divider();
 		JToolbarHelper::deleteList();
 
+		$limit = $this->app->getUserStateFromRequest('com_easydiscuss.posts.limit', 'limit', $this->app->getCfg('list_limit') , 'int');
+		$limitstart	= $this->input->get('limitstart', 0, 'int');
+
 		// Selected filter
 		$filter = $this->input->get('filter_state', '', 'word');
 
@@ -139,10 +159,11 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		$search = trim(strtolower($search));
 
 		$model = ED::model("Threaded");
-		$options = array('stateKey' => 'replies', 'replies' => true, 'filter' => $filter, 'search' => $search);
+		$options = array('stateKey' => 'replies', 'replies' => true, 'filter' => $filter, 'search' => $search, 'loadPaginationCount' => false);
+
 		$result = $model->getPosts($options);
-		$pagination = $model->getPagination();
-		
+		// $pagination = $model->getPagination();
+
 		// Format the posts
 		$posts = array();
 
@@ -158,7 +179,10 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		$this->set('filter', $filter);
 		$this->set('search', $search);
 		$this->set('posts', $posts);
-		$this->set('pagination', $pagination);
+		// $this->set('pagination', $pagination);
+		$this->set('limit', $limit);
+		$this->set('limitstart', $limitstart);
+
 
 		parent::display('posts/replies');
 	}
@@ -180,7 +204,7 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		JToolbarHelper::unpublishList('reject', JText::_('COM_EASYDISCUSS_BTN_REJECT'));
 		JToolBarHelper::divider();
 		JToolbarHelper::deleteList();
-		
+
 		// Search query
 		$search = $this->input->get('search', '', 'string');
 		$search = trim(strtolower($search));
@@ -199,8 +223,8 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 				$posts[] = $post;
 			}
 		}
-	
-		$this->set('search', $search);		
+
+		$this->set('search', $search);
 		$this->set('posts', $posts);
 		$this->set('pagination', $pagination);
 

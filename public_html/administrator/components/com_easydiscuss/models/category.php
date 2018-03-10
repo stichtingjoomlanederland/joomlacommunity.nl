@@ -334,6 +334,7 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 			if ($children) {
 				$query = "select count(1) from `#__discuss_thread` as a";
 				$query .= " where a.`published` = " . $db->Quote('1');
+				$query .= " and a.`private` = " . $db->Quote('0');
 				$query .= " and a.`cluster_id` = " . $db->Quote(0);
 				$query .= " and a.`category_id` in (" . implode(',', $children) . ")";
 
@@ -1106,6 +1107,29 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 		}
 
 		return $id;
+	}
+
+
+	/**
+	 * Return categories hierachy and sort by ordering column.
+	 *
+	 * @since	4.0.22
+	 * @access	public
+	 */
+	public function generateCategoryFilterList()
+	{
+		$db = ED::db();
+
+		$query = "select a.*, (SELECT COUNT(id) FROM `#__discuss_category` WHERE `lft` < a.`lft` AND `rgt` > a.`rgt`) AS depth";
+		$query .= " from `#__discuss_category` as a";
+		$query .= " order by a.`lft`";
+
+		// echo $query;exit;
+
+		$db->setQuery($query);
+		$results = $db->loadObjectList();
+
+		return $results;
 	}
 
 }

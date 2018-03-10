@@ -1,0 +1,7 @@
+[
+	{
+		"table": "#__discuss_category",
+		"index": "idx_lft",
+		"query": "ALTER TABLE `#__discuss_category` ADD INDEX `idx_lft` (`lft`)"
+	}
+]

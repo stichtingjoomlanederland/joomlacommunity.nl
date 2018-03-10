@@ -3362,7 +3362,7 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @param   string
 	 * @return
 	 */
-	public function getOwner()
+	public function getOwner($isEmail = false)
 	{
 		static $owners = array();
 
@@ -3376,9 +3376,13 @@ class EasyDiscussPost extends EasyDiscuss
 			if ($this->post->user_id) {
 
 				// var_dump($this->post->anonymous && ($this->post->user_id != $this->my->id || !ED::isSiteAdmin()));
-
 				$showAsAnonymous = ($this->post->anonymous && ($this->post->user_id != $this->my->id || !ED::isSiteAdmin())) ? true : false;
 
+				// Email section shouldn't show admin name if it post as anonymous
+				if ($isEmail && ED::isSiteAdmin() && $this->post->anonymous) {
+					$showAsAnonymous = true;
+				}
+				
 				if ($showAsAnonymous) {
 					$user = ED::user('0');
 					$user->name = JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');
@@ -3671,8 +3675,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isPostWorkingOn()
 	{
@@ -3684,15 +3686,11 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isUserBanned()
 	{
 		// Check if the user is banned from the site
 		$model = ED::model('bans');
-
-		// TODO: get the user IP
 		$options = array('ip' => $this->input->server->get('REMOTE_ADDR'), 'userId' => $this->my->id);
 
 		// if the current user do not get banned return false
@@ -3708,7 +3706,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @return  boolean True if the post is protected.
 	 */
 	public function isProtected()
 	{
@@ -4516,8 +4513,20 @@ class EasyDiscussPost extends EasyDiscuss
 		// Process Email notification
 		// Get current submit reply/comment user id
 		$reply = ED::user($this->my->id);
-		$owner = $this->getOwner();
 		$excludeEmails = array();
+		$owner = $this->getOwner(true);
+
+		// Retrieve the reply owner name
+		if (isset($owner->name) && $owner->name) {
+			$overrideName = $owner->name;
+
+		// Retrieve the guest name
+		} elseif (isset($this->post->poster_name) && $this->post->poster_name) {
+			$overrideName = $this->post->poster_name;	
+		
+		} else {
+			$overrideName = '';
+		}
 
 		$model = ED::model('Posts');
 
@@ -4549,7 +4558,7 @@ class EasyDiscussPost extends EasyDiscuss
 		$emailContent = ED::parser()->normaliseImageStyle($emailContent);
 
 		$emailData['replyContent'] = $emailContent;
-		$emailData['replyAuthor'] = $owner->getName($this->post->poster_name);
+		$emailData['replyAuthor'] = $owner->getName($overrideName);
 		$emailData['replyAuthorAvatar'] = $owner->getAvatar();
 		$emailData['post_id'] = $this->post->parent_id;
 		$emailData['cat_id'] = $this->post->category_id;
@@ -4827,7 +4836,7 @@ class EasyDiscussPost extends EasyDiscuss
 		$this->post->content = ED::badwords()->filter($this->post->content);
 
 		// prepare email content and information.
-		$profile = $this->getOwner();
+		$profile = $this->getOwner(true);
 
 		// For use within the emails.
 		$emailData = array();
@@ -5022,7 +5031,7 @@ class EasyDiscussPost extends EasyDiscuss
 	public function integrate()
 	{
 		// Add activity integrations for replies
-		if ($this->isReply() && $this->isPublished()) {
+		if ($this->isReply() && $this->isPublished() && !$this->isAnonymous()) {
 			ED::jomsocial()->addActivityReply($this);
 
 			// We don't want to create a stream for replies

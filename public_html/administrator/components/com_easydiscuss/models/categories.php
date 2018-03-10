@@ -672,9 +672,9 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		return $result;
 	}
 
-	public function getChildCategories($parentId , $isPublishedOnly = false, $includePrivate = true, $exclusion = array(), $ordering = false)
+	public function getChildCategories($parentId , $isPublishedOnly = false, $includePrivate = true, $exclusion = array(), $ordering = false, $aclType = DISCUSS_CATEGORY_ACL_ACTION_VIEW)
 	{
-		$categories = ED::Category()->getChildCategories($parentId , $isPublishedOnly, $includePrivate, $exclusion, $ordering);
+		$categories = ED::Category()->getChildCategories($parentId , $isPublishedOnly, $includePrivate, $exclusion, $ordering, $aclType);
 
 		return $categories;
 	}

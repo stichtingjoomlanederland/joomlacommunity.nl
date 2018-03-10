@@ -9,6 +9,7 @@
 		<action name="discuss.manage.comments" title="COM_EASYDISCUSS_JACL_MANAGE_COMMENTS" description="COM_EASYDISCUSS_JACL_MANAGE_COMMENTS_DESC" />
 		<action name="discuss.manage.customfields" title="COM_EASYDISCUSS_JACL_MANAGE_CUSTOMFIELDS" description="COM_EASYDISCUSS_JACL_MANAGE_CUSTOMFIELDS_DESC" />
 		<action name="discuss.manage.labels" title="COM_EASYDISCUSS_JACL_MANAGE_LABELS" description="COM_EASYDISCUSS_JACL_MANAGE_LABELS_DESC" />
+		<action name="discuss.manage.languages" title="COM_EASYDISCUSS_JACL_MANAGE_LANGUAGES" description="COM_EASYDISCUSS_JACL_MANAGE_LANGUAGES_DESC" />
 		<action name="discuss.manage.migrators" title="COM_EASYDISCUSS_JACL_MANAGE_MIGRATORS" description="COM_EASYDISCUSS_JACL_MANAGE_MIGRATORS_DESC" />
 		<action name="discuss.manage.points" title="COM_EASYDISCUSS_JACL_MANAGE_POINTS" description="COM_EASYDISCUSS_JACL_MANAGE_POINTS_DESC" />
 		<action name="discuss.manage.posts" title="COM_EASYDISCUSS_JACL_MANAGE_POSTS" description="COM_EASYDISCUSS_JACL_MANAGE_POSTS_DESC" />

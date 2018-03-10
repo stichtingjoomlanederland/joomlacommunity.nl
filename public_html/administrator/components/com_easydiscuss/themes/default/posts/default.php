@@ -27,12 +27,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php echo $categoryFilter; ?>
 			</div>
 		</div>
-		
+
 		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
 
 		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
 			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
-				<?php echo $this->html('table.limit', $pagination->limit); ?>
+				<?php echo $this->html('table.limit', $limit); ?>
 			</div>
 		</div>
 	</div>
@@ -94,7 +94,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<?php echo $this->html('table.checkbox', $i++, $post->id); ?>
 					</td>
 					<?php } ?>
-					
+
 					<td style="text-align:left;">
 						<?php if (empty($parentId)) { ?>
 							<?php if ($browse) { ?>
@@ -180,11 +180,21 @@ defined('_JEXEC') or die('Unauthorized Access');
 				</tr>
 			<?php } ?>
 			</tbody>
+
+
 			<tfoot>
 				<tr>
 					<td colspan="11">
-						<div class="footer-pagination center">
+						<div class="footer-pagination center<?php echo (!$browse) ? ' is-loading': ''; ?>" data-questions-pagination>
+							<?php if ($browse) { ?>
 							<?php echo $pagination->getListFooter(); ?>
+							<?php } else { ?>
+								<div class="o-loading">
+									<div class="o-loading__content">
+										<i class="fa fa-spinner fa-spin"></i>
+									</div>
+								</div>
+							<?php } ?>
 						</div>
 					</td>
 				</tr>
@@ -195,13 +205,13 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<?php if ($browse) { ?>
 	<input type="hidden" name="tmpl" value="component" />
 	<?php } ?>
-	
+
 	<input type="hidden" name="browse" value="<?php echo $browse;?>" />
 	<input type="hidden" name="browsefunction" value="<?php echo $browseFunction;?>" />
 	<input type="hidden" name="from" value="questions" />
 	<input type="hidden" name="move_category" value="" />
 	<input type="hidden" name="filter_order" value="<?php echo $order; ?>" />
 	<input type="hidden" name="filter_order_Dir" value="<?php echo $orderDirection; ?>" />
-	
+
 	<?php echo $this->html('form.hidden', 'posts', 'posts'); ?>
 </form>

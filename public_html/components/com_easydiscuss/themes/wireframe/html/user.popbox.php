@@ -20,7 +20,7 @@ defined('_JEXEC') or die('Unauthorized Access');
                     <?php if ($this->config->get('layout_user_online')) { ?>
                         <div class="o-avatar-status__indicator"></div>
                     <?php } ?>
-                    <a class="o-avatar o-avatar--lg" href="">
+                    <a class="o-avatar o-avatar--lg" href="<?php echo $user->getPermalink();?>">
                         <?php if ($this->config->get('layout_avatar')) { ?>
                             <img src="<?php echo $user->getAvatar();?>" alt="<?php echo $this->escape($user->getName());?>" />
                         <?php } else { ?>

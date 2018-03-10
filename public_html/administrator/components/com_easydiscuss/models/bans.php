@@ -40,9 +40,16 @@ class EasyDiscussModelBans extends EasyDiscussAdminModel
 		// count how many record
 		$query = 'SELECT COUNT(1) FROM ' . $db->quoteName('#__discuss_users_banned') . ' WHERE ' . $db->quoteName('end') . ' > ' . $db->quote($now);
 
-		if (isset($options['ip']) && isset($options['userId'])) {
-			$query .= ' AND ' . $db->quoteName('ip') . ' = ' . $db->quote($options['ip']);
+		$userId = isset($options['userId']) ? $options['userId'] : null;
+		$ip = isset($options['ip']) ? $options['ip'] : null;
+
+		if ($userId) {
 			$query .= ' AND ' . $db->quoteName('userid') . ' = ' . $db->quote($options['userId']);
+		}
+
+		// If there is a user id, we do not need to check for the ip address
+		if ($ip && !$userId) {
+			$query .= ' AND ' . $db->quoteName('ip') . ' = ' . $db->quote($options['ip']);
 		}
 
 		$db->setQuery($query);

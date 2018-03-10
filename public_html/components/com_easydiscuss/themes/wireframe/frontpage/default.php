@@ -23,7 +23,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<?php } ?>
 
 	<div class="ed-filters">
-		<?php echo $this->output('site/frontpage/filters', array('activeFilter' => $activeFilter, 'activeSort' => $activeSort, 'menuCatId' => $menuCatId)); ?>
+		<?php echo $this->output('site/frontpage/filters', array('baseUrl' => 'view=index', 'activeFilter' => $activeFilter, 'activeSort' => $activeSort, 'menuCatId' => $menuCatId)); ?>
 	</div>
 
 	<div class="ed-posts-list <?php echo !$posts ? 'is-empty' : '';?>" data-list-item itemscope itemtype="http://schema.org/ItemList">

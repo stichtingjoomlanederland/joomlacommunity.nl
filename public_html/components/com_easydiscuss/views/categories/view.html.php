@@ -125,11 +125,13 @@ class EasyDiscussViewCategories extends EasyDiscussView
 			$includeChilds = true;
 		}
 
+		$activeSort = $registry->get('sort');
+		$activeFilter = $this->input->get('filter', 'allposts', 'string');
 
 		$options = array(
-						'sort' => $registry->get('sort'),
+						'sort' => $activeSort,
 						'limitstart' => $this->input->get('limitstart', 0),
-						'filter' => $registry->get('filter'),
+						'filter' => $activeFilter,
 						'category' => $categoryId,
 						'limit' => $this->config->get('layout_single_category_post_limit', $limit),
 						'userId' => $this->my->id,
@@ -183,6 +185,10 @@ class EasyDiscussViewCategories extends EasyDiscussView
 			}
 		}
 
+		$baseUrl = 'view=categories&layout=listings&category_id=' . $activeCategory->id;
+
+		$this->set('activeSort', $activeSort);
+		$this->set('activeFilter', $activeFilter);
 		$this->set('listing', true);
 		$this->set('breadcrumbs', $breadcrumbs);
 		$this->set('activeCategory', $activeCategory);
@@ -190,9 +196,8 @@ class EasyDiscussViewCategories extends EasyDiscussView
 		$this->set('pagination', $pagination);
 		$this->set('includeChild', false);
 		$this->set('childs', $subcategories);
+		$this->set('baseUrl', $baseUrl);
 
 		parent::display('forums/listings');
-
 	}
-
 }

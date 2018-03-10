@@ -22,12 +22,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php echo $this->html('table.filter', 'filter_state', $filter, array('published' => 'COM_EASYDISCUSS_PUBLISHED', 'unpublished' => 'COM_EASYDISCUSS_UNPUBLISHED')); ?>
 			</div>
 		</div>
-		
+
 		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
 
 		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
 			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
-				<?php echo $this->html('table.limit', $pagination); ?>
+				<?php echo $this->html('table.limit', $limit); ?>
 			</div>
 		</div>
 	</div>
@@ -70,8 +70,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<tr>
 					<td class="center">
 						<?php echo $this->html('table.checkbox', $i++, $post->id); ?>
-					</td>	
-					
+					</td>
+
 					<td style="text-align:left;">
 						<a href="<?php echo $post->editLink;?>"><?php echo JText::_('COM_EASYDISCUSS_VIEW_REPLY'); ?></a>
 
@@ -101,7 +101,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 							<?php echo $post->poster_name; ?>
 							&lt;<a href="mailto:<?php echo $post->poster_email;?>" target="_blank"><?php echo $post->poster_email; ?></a>&gt;
 						<?php } ?>
-					</td>					
+					</td>
 
 					<td class="center">
 						<?php echo $post->getDateObject()->toSql(true); ?>
@@ -123,17 +123,21 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<tfoot>
 				<tr>
 					<td colspan="12">
-						<div class="footer-pagination center">
-							<?php echo $pagination->getListFooter(); ?>
+						<div class="footer-pagination center is-loading" data-replies-pagination>
+							<div class="o-loading">
+								<div class="o-loading__content">
+									<i class="fa fa-spinner fa-spin"></i>
+								</div>
+							</div>
 						</div>
 					</td>
 				</tr>
 			</tfoot>
 		</table>
 	</div>
-	
+
 	<input type="hidden" name="layout" value="replies" />
 	<input type="hidden" name="from" value="replies" />
-	
+
 	<?php echo $this->html('form.hidden', 'posts', 'posts'); ?>
 </form>

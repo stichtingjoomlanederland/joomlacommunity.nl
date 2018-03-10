@@ -1,5 +1,5 @@
 ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
-    
+
 	$('#category_id').on('change', function() {
 		submitform();
 	});
@@ -10,12 +10,12 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 			EasyDiscuss.dialog({
 				content: EasyDiscuss.ajax("admin/views/posts/showMoveDialog"),
-	            bindings: {
-	                "{moveButton} click": function() {
-	                	Joomla.submitbutton('movePosts');
-                        EasyDiscuss.dialog().close();
-	                }
-	            }
+				bindings: {
+					"{moveButton} click": function() {
+						Joomla.submitbutton('movePosts');
+						EasyDiscuss.dialog().close();
+					}
+				}
 			});
 
 			return;
@@ -46,35 +46,55 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 		var id = $(this).data('id');
 
-        EasyDiscuss.dialog({
-            content: EasyDiscuss.ajax('admin/views/posts/showApproveDialog', { "id": id }),
-            bindings: {
-                "{approveButton} click": function() {
-                    EasyDiscuss.ajax('admin/controllers/posts/publish', {
-                        "cid": [id]
-                    }).done(function(content) {
+		EasyDiscuss.dialog({
+			content: EasyDiscuss.ajax('admin/views/posts/showApproveDialog', { "id": id }),
+			bindings: {
+				"{approveButton} click": function() {
+					EasyDiscuss.ajax('admin/controllers/posts/publish', {
+						"cid": [id]
+					}).done(function(content) {
 
-                        // // Hide the dialog
-                        EasyDiscuss.dialog().close();
-                        // refresh current page
-                        location.reload();
-                    });
-                },
+						// // Hide the dialog
+						EasyDiscuss.dialog().close();
+						// refresh current page
+						location.reload();
+					});
+				},
 
-                "{rejectButton} click": function() {
-                    EasyDiscuss.ajax('admin/controllers/posts/unpublish', {
-                        "cid": [id]
-                    }).done(function(content) {
+				"{rejectButton} click": function() {
+					EasyDiscuss.ajax('admin/controllers/posts/unpublish', {
+						"cid": [id]
+					}).done(function(content) {
 
-                        // // Hide the dialog
-                        EasyDiscuss.dialog().close();
-                        // refresh current page
-                        location.reload();
-                    });
-                }
-            }
-        });
+						// // Hide the dialog
+						EasyDiscuss.dialog().close();
+						// refresh current page
+						location.reload();
+					});
+				}
+			}
+		});
 
+	});
+
+	// attempt to load pagination via ajax.
+	$(document).ready(function() {
+
+		<?php if (!$browse) { ?>
+
+		EasyDiscuss.ajax('admin/views/posts/pagination', {
+			"type" : "questions",
+			"search": "<?php echo $search; ?>",
+			"state": "<?php echo $filter; ?>",
+			"category": "<?php echo $categoryId; ?>",
+			'limitstart': "<?php echo $limitstart; ?>"
+		}).done(function(content) {
+			$('[data-questions-pagination]')
+				.removeClass('is-loading')
+				.html(content);
+		});
+
+		<?php } ?>
 	});
 
 });

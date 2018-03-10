@@ -785,7 +785,7 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 		$my = JFactory::getUser();
 
 		$category = ED::table('Category');
-		$category->title = 'Uncategories';
+		$category->title = 'Uncategorized';
 		$category->alias = 'uncategorized';
 		$category->created_by = $my->id;
 		$category->created = ED::date()->toSql();

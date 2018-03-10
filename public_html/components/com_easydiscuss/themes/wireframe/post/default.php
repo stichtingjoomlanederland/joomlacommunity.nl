@@ -49,8 +49,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 		<div class="ed-post-item__hd">
 
-			<div class="o-grid o-grid--center">
-				<div class="o-grid__cell">
+			<div class="o-grid-sm o-grid-sm--center">
+				<div class="o-grid-sm__cell">
 					<h2 class="ed-post-item__title t-lg-mb--md">
 
 						<?php if ($this->config->get('post_priority') && $post->getPriority()) { ?>
@@ -115,7 +115,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php } ?>
 				</div>
 
-				<div class="o-grid__cell o-grid__cell--auto-size">
+				<div class="o-grid-sm__cell o-grid-sm__cell--auto-size o-grid-sm__cell--top">
 					<?php echo $this->output('site/post/default.vote', array('post' => $post)); ?>
 				</div>
 			</div>

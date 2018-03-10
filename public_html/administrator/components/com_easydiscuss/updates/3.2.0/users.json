@@ -27,7 +27,7 @@
     {
         "table"     : "#__discuss_users",
         "column"    : "edited",
-        "query"     : "ALTER TABLE `#__discuss_users` ADD `edited` INT NOT NULL DEFAULT 0', ADD `posts_read` TEXT NULL;"
+        "query"     : "ALTER TABLE `#__discuss_users` ADD `edited` INT NOT NULL DEFAULT 0, ADD `posts_read` TEXT NULL;"
     },
     {
         "table"     : "#__discuss_users",

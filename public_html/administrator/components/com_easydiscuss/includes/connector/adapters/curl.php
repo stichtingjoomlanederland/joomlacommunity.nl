@@ -40,6 +40,16 @@ class EasyDiscussConnectorCurl
 	public $args = array();
 	public $current	= '';
 
+	// for Joomla proxy settings.
+	public $proxyEnable = null;
+	public $proxyHost = null;
+	public $proxyPort = null;
+	public $proxyUser = null;
+	public $proxyPass = null;
+	public $proxyEnabled = null;
+	public $proxy = null;
+	public $proxyauth = null;
+
 	public function __construct()
 	{
 		$this->handle = curl_multi_init();

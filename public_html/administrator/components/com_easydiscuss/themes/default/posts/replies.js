@@ -13,4 +13,20 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 			$.Joomla( 'submitform' , [action] )
 		}
 	});
+
+	// attempt to load pagination via ajax.
+	$(document).ready(function() {
+
+		EasyDiscuss.ajax('admin/views/posts/pagination', {
+			"type" : "replies",
+			"search": "<?php echo $search; ?>",
+			"state": "<?php echo $filter; ?>",
+			'limitstart': "<?php echo $limitstart; ?>"
+		}).done(function(content) {
+			$('[data-replies-pagination]')
+				.removeClass('is-loading')
+				.html(content);
+		});
+
+	});
 });

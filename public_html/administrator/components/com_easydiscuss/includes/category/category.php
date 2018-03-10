@@ -984,7 +984,7 @@ class EasyDiscussCategory extends EasyDiscuss
 		}
 	}
 
-	public function getChildCategories($parentId , $isPublishedOnly = false, $includePrivate = true, $exclusion = array(), $ordering = false)
+	public function getChildCategories($parentId , $isPublishedOnly = false, $includePrivate = true, $exclusion = array(), $ordering = false, $aclType = DISCUSS_CATEGORY_ACL_ACTION_VIEW)
 	{
 		static $categories = array();
 
@@ -1017,7 +1017,7 @@ class EasyDiscussCategory extends EasyDiscuss
 
 				if (!$includePrivate) {
 					//check categories acl here.
-					$catIds = ED::getAclCategories(DISCUSS_CATEGORY_ACL_ACTION_VIEW, $my->id, $parentId);
+					$catIds = ED::getAclCategories($aclType, $my->id, $parentId);
 
 					if (count($catIds) > 0) {
 

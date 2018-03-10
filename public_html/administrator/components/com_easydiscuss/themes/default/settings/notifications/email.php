@@ -150,6 +150,14 @@ JHTML::_('behavior.modal', 'a.modal');
 					</div>
 					<div class="form-group">
 						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_NOTIFY_COMMENT_PARTICIPANTS'); ?>
+						</div>
+						<div class="col-md-7">
+							<?php echo $this->html('form.boolean', 'notify_comment_participants', $this->config->get('notify_comment_participants'));?>
+						</div>
+					</div>					
+					<div class="form-group">
+						<div class="col-md-5 control-label">
 							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_NOTIFY_SPECIFIC_USER_GROUPS'); ?>
 						</div>
 						<div class="col-md-7">
