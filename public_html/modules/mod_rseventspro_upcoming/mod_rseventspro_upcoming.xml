@@ -7,17 +7,25 @@
 	<authorUrl>www.rsjoomla.com</authorUrl>
 	<copyright>(C) 2009-2014 www.rsjoomla.com</copyright>
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
-	<version>1.0.5</version>
+	<version>1.2</version>
 	<description>MOD_RSEVENTSPRO_UPCOMING_DESCRIPTION</description>
 	<scriptfile>script.php</scriptfile>
+	
+	<updateservers>
+        <server type="extension" priority="1" name="RSEvents! Pro - Upcoming Module">https://www.rsjoomla.com/updates/com_rseventspro/Modules/mod_rseventspro_upcoming.xml</server>
+    </updateservers>
 
 	<files>
 		<filename module="mod_rseventspro_upcoming">mod_rseventspro_upcoming.php</filename>
 		<folder>tmpl</folder>
 		<filename>helper.php</filename>
 		<filename>index.html</filename>
-		<filename>style.css</filename>
 	</files>
+	
+	<media destination="mod_rseventspro_upcoming" folder="media">
+		<folder>css</folder>
+		<filename>index.html</filename>
+	</media>
 	
 	<languages>
 		<language tag="en-GB">language/en-GB/en-GB.mod_rseventspro_upcoming.ini</language>

@@ -62,7 +62,7 @@ abstract class modRseventsProUpcoming {
 			$query->where($active_today);
 		
 		if (!empty($categories)) {
-			JArrayHelper::toInteger($categories);
+			array_map('intval',$categories);
 			
 			$subquery->clear()
 				->select($db->qn('tx.ide'))
@@ -84,7 +84,7 @@ abstract class modRseventsProUpcoming {
 		}
 		
 		if (!empty($tags)) {
-			JArrayHelper::toInteger($tags);
+			array_map('intval',$tags);
 			
 			$subquery->clear()
 				->select($db->qn('tx.ide'))
@@ -97,7 +97,7 @@ abstract class modRseventsProUpcoming {
 		}
 		
 		if (!empty($locations)) {
-			JArrayHelper::toInteger($locations);
+			array_map('intval',$locations);
 			
 			$query->where($db->qn('e.location').' IN ('.implode(',',$locations).')');
 		}
@@ -145,7 +145,7 @@ abstract class modRseventsProUpcoming {
 			}
 			
 			if (!empty($ids)) {
-				JArrayHelper::toInteger($ids);
+				array_map('intval',$ids);
 				$ids = array_unique($ids);
 			}
 		}
@@ -174,7 +174,7 @@ abstract class modRseventsProUpcoming {
 		
 		$db->setQuery($query);
 		if ($events = $db->loadColumn()) {
-			JArrayHelper::toInteger($events);
+			array_map('intval',$events);
 			return $events;
 		}
 		
