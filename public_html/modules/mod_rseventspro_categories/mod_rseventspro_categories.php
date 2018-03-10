@@ -14,7 +14,7 @@ if (file_exists(JPATH_SITE.'/components/com_rseventspro/helpers/rseventspro.php'
 	require_once JPATH_SITE.'/components/com_rseventspro/helpers/route.php';
 	require_once JPATH_SITE.'/modules/mod_rseventspro_categories/helper.php';
 
-	JFactory::getDocument()->addStyleSheet(JURI::root().'modules/mod_rseventspro_categories/style.css');
+	JHtml::stylesheet('mod_rseventspro_categories/style.css', array('relative' => true, 'version' => 'auto'));
 
 	$suffix		= $params->get('moduleclass_sfx');
 	$links		= $params->get('links',0);

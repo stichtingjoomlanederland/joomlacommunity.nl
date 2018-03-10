@@ -28,7 +28,7 @@ abstract class modRseventsProCategories {
 		$cache = JFactory::getCache('mod_rseventspro_categories');
 		$cache->setCaching($params->get('use_cache', 1));
 		$cache->setLifeTime($params->get('cache_time', 900));
-		$cache = $cache->call(array('modRseventsProCategories', 'getCachedCount'), $params);
+		$cache = $cache->get(array('modRseventsProCategories', 'getCachedCount'), array($params));
 		
 		return !empty($cache[$id]) ? $cache[$id] : 0;
 	}
@@ -79,6 +79,6 @@ abstract class modRseventsProCategories {
 		$cache->setCaching($params->get('use_cache', 1));
 		$cache->setLifeTime($params->get('cache_time', 900));
 		
-		return $cache->call(array('modRseventsProCategories', 'getCategoryIds'));
+		return $cache->get(array('modRseventsProCategories', 'getCategoryIds'));
 	}
 }
