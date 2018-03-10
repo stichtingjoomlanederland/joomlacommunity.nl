@@ -29,8 +29,6 @@ class RseventsproViewDiscount extends JViewLegacy
 		JToolBarHelper::save2new('discount.save2new');
 		JToolBarHelper::cancel('discount.cancel');
 		
-		if (rseventsproHelper::isJ3()) {
-			JHtml::_('rseventspro.chosen','select');
-		}
+		JHtml::_('rseventspro.chosen','select');
 	}
 }

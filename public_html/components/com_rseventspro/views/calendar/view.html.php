@@ -73,7 +73,7 @@ class RseventsproViewCalendar extends JViewLegacy
 			$doc->setMetadata('robots', $this->params->get('robots'));
 		
 		// Add custom scripts
-		$doc->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/calendar.css?v='.RSEPRO_RS_REVISION);
+		JHtml::stylesheet('com_rseventspro/calendar.css', array('relative' => true, 'version' => 'auto'));
 		
 		// Get events
 		$events = $this->get('Events');
@@ -103,7 +103,7 @@ class RseventsproViewCalendar extends JViewLegacy
 			// Add search bar
 			if ($this->params->get('search',1)) {
 				if ($doc->getType() == 'html') {
-					$doc->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.filter.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
+					$doc->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.filter.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 				}
 				
 				$filters			= $this->get('filters');
@@ -114,8 +114,8 @@ class RseventsproViewCalendar extends JViewLegacy
 				$this->showCondition= $this->get('Conditions');
 				
 				// Price slider assets
-				$this->document->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/bootstrap-slider.css');
-				$this->document->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/bootstrap-slider.js');
+				JHtml::stylesheet('com_rseventspro/bootstrap-slider.css', array('relative' => true, 'version' => 'auto'));
+				JHtml::script('com_rseventspro/bootstrap-slider.js', array('relative' => true, 'version' => 'auto'));
 				$this->maxPrice = $this->get('MaxPrice');
 			}
 			
@@ -260,7 +260,7 @@ class RseventsproViewCalendar extends JViewLegacy
 		$details	= '';
 		
 		if (!empty($ids)) {
-			JArrayHelper::toInteger($ids);
+			array_map('intval',$ids);
 			$query->clear()
 				->select($db->qn('name'))
 				->from($db->qn('#__rseventspro_events'))

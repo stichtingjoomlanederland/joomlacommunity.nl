@@ -5,12 +5,12 @@
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-JHtml::_('behavior.formvalidation');
+JHtml::_('behavior.formvalidator');
 JHtml::_('behavior.keepalive'); ?>
 
 <script type="text/javascript">
 	Joomla.submitbutton = function(task) {
-		if (task == 'location.cancel' || document.formvalidator.isValid(document.id('adminForm'))) {
+		if (task == 'location.cancel' || document.formvalidator.isValid(document.getElementById('adminForm'))) {
 			Joomla.submitform(task, document.getElementById('adminForm'));
 		} else {
 			alert('<?php echo $this->escape(JText::_('JGLOBAL_VALIDATION_FORM_FAILED'));?>');
@@ -47,6 +47,7 @@ JHtml::_('behavior.keepalive'); ?>
 			<?php } ?>
 			<?php if ($this->config->enable_google_maps) { ?>
 			<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('coordinates'), $this->form->getInput('coordinates')); ?>
+			<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('marker'), $this->form->getInput('marker')); ?>
 			<?php } ?>
 			<?php echo JHtml::_('rsfieldset.end'); ?>
 			
@@ -63,7 +64,7 @@ JHtml::_('behavior.keepalive'); ?>
 			<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('enable_google_maps','config'), $this->form->getInput('enable_google_maps','config')); ?>
 			<?php echo JHtml::_('rsfieldset.end'); ?>
 			<div style="margin-top:5px; text-align:center;">
-				<img src="<?php echo JURI::root(); ?>administrator/components/com_rseventspro/assets/images/map.png" alt="" />
+				<?php echo JHtml::image('com_rseventspro/map.png', '', array(), true); ?>
 			</div>
 			<?php } ?>
 		</div>

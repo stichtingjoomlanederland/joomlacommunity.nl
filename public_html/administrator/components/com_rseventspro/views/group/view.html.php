@@ -32,8 +32,6 @@ class RseventsproViewGroup extends JViewLegacy
 		JToolBarHelper::save2new('group.save2new');
 		JToolBarHelper::cancel('group.cancel');
 		
-		if (rseventsproHelper::isJ3()) {
-			JHtml::_('rseventspro.chosen','select');
-		}
+		JHtml::_('rseventspro.chosen','select');
 	}
 }

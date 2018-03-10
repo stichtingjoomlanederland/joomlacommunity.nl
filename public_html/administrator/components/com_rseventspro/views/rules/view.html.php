@@ -13,7 +13,6 @@ class RseventsproViewRules extends JViewLegacy
 	
 	public function display($tpl = null) {
 		$this->items 		= $this->get('Items');
-		$this->sidebar		= $this->get('Sidebar');
 		
 		$this->addToolBar();
 		parent::display($tpl);
@@ -21,13 +20,10 @@ class RseventsproViewRules extends JViewLegacy
 	
 	protected function addToolBar() {
 		JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_PAYMENT_RULES'),'rseventspro48');
-		JToolBar::getInstance('toolbar')->appendButton('Link', 'back', JText::_('COM_RSEVENTSPRO_GLOBAL_BACK_BTN'), JRoute::_('index.php?option=com_rseventspro&view=payments'));
+		JToolBar::getInstance('toolbar')->appendButton('Link', 'arrow-left', JText::_('COM_RSEVENTSPRO_GLOBAL_BACK_BTN'), JRoute::_('index.php?option=com_rseventspro&view=payments'));
 		JToolBarHelper::deleteList('','rules.delete');
-		JToolBarHelper::custom('rseventspro','rseventspro32','rseventspro32',JText::_('COM_RSEVENTSPRO_GLOBAL_NAME'),false);
 		
-		if (rseventsproHelper::isJ3()) {
-			JHtml::_('rseventspro.chosen','select');
-		}
+		JHtml::_('rseventspro.chosen','select');
 	}
 	
 	protected function getSubject($id) {

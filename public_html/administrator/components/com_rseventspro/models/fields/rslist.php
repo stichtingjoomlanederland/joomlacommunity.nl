@@ -28,9 +28,8 @@ class JFormFieldRSList extends JFormFieldList
 		// Load jQuery
 		rseventsproHelper::loadjQuery();
 		
-		$doc = JFactory::getDocument();
-		$doc->addScript(JURI::root().'administrator/components/com_rseventspro/assets/js/scripts.js');
-		$doc->addScriptDeclaration("jQuery(window).ready(function() { rsepro_change_list(jQuery('#jform_params_list').val()); });");
+		JHtml::script('com_rseventspro/admin.js', array('relative' => true));
+		JFactory::getDocument()->addScriptDeclaration("jQuery(window).ready(function() { rsepro_change_list(jQuery('#jform_params_list').val()); });");
 	}
 	
 	/**

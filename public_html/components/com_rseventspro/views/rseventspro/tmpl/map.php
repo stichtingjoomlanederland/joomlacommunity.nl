@@ -58,6 +58,7 @@ jQuery(document).ready(function (){
 				title : '<?php echo addslashes($event->name); ?>',
 				position: '<?php echo addslashes($event->coordinates); ?>',
 				address: '<?php echo addslashes($event->address); ?>',
+				<?php if ($event->marker) echo "icon : '".addslashes(rseventsproHelper::showMarker($event->marker))."',\n"; ?>
 				content: '<?php echo rseventsproHelper::locationContent($event, $single); ?>'
 			}
 			
@@ -198,7 +199,7 @@ jQuery(document).ready(function (){
 		<button class="btn btn-primary" type="button" id="rsepro-radius-search">
 			<i class="fa fa-search"></i> <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SEARCH'); ?>
 		</button>
-		<img id="rsepro-loader" src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/loader.gif" width="16" height="16" alt="" style="display: none;" />
+		<?php echo JHtml::image('com_rseventspro/loader.gif', '', array('id' => 'rsepro-loader', 'style' => 'display: none;'), true); ?> 
 	</div>
 </div>
 <?php } ?>

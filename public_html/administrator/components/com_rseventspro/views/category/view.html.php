@@ -18,10 +18,8 @@ class RseventsproViewCategory extends JViewLegacy
 		$this->state	= $this->get('State');
 
 		// Check for errors.
-		if (count($errors = $this->get('Errors')))
-		{
-			JError::raiseError(500, implode("\n", $errors));
-			return false;
+		if (count($errors = $this->get('Errors'))) {
+			throw new Exception(implode("\n", $errors), 500);
 		}
 
 		$this->addToolbar();
@@ -41,8 +39,7 @@ class RseventsproViewCategory extends JViewLegacy
 		}
 
 		JToolbarHelper::cancel('category.cancel');
-		if (rseventsproHelper::isJ3()) {
-			JHtml::_('rseventspro.chosen','select');
-		}
+		
+		JHtml::_('rseventspro.chosen','select');
 	}
 }

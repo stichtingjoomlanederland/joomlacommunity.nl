@@ -20,7 +20,7 @@ Joomla.submitbutton = function(task) {
 <form method="post" action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=events'); ?>" name="adminForm" id="adminForm" autocomplete="off">
 	<div class="row-fluid">
 		<div class="span2">
-			<?php echo $this->sidebar; ?>
+			<?php echo JHtmlSidebar::render(); ?>
 		</div>
 		<div class="span10">
 			<table class="table table-striped adminlist">

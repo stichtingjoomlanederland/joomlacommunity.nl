@@ -10,7 +10,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );?>
 function rse_add_form(id,value) {
 	window.parent.jQuery('.rsepro-event-form').text(value);
 	window.parent.jQuery('#form').val(id);
-	window.parent.SqueezeBox.close();
+	window.parent.jQuery('#rseFromModal').modal('hide');
 }
 </script>
 

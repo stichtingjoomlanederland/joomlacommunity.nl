@@ -8,28 +8,25 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class RseventsproViewSubscriptions extends JViewLegacy
 {
-	protected $items;
-	protected $pagination;
-	protected $state;
-	protected $sidebar;
-	protected $filterbar;
-	protected $total;
-	
 	public function display($tpl = null) {		
 		$this->layout		= $this->getLayout();
-		$this->sidebar		= $this->get('Sidebar');
 		
 		if ($this->layout == 'scan') {
 			JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_EVENT_SCAN_TICKET'),'rseventspro48');
 			JToolBar::getInstance('toolbar')->appendButton( 'Link', 'back', JText::_('COM_RSEVENTSPRO_GLOBAL_BACK_BTN'), JRoute::_('index.php?option=com_rseventspro&view=subscriptions'));
 			
-			$this->scan			= rseventsproHelper::getScan();
+			$this->scan			 = rseventsproHelper::getScan();
 		} else {
-			$this->items 		= $this->get('Items');
-			$this->pagination 	= $this->get('Pagination');
-			$this->filterbar	= $this->get('Filterbar');	
-			$this->total 		= $this->get('Total');
-			$this->state 		= $this->get('State');
+			$this->items 		 = $this->get('Items');
+			$this->pagination 	 = $this->get('Pagination');
+			$this->state 		 = $this->get('State');
+			$this->filterForm    = $this->get('FilterForm');
+			$this->activeFilters = $this->get('ActiveFilters');
+			
+			if (!$this->state->get('filter.event')) {
+				$ticketXml = new SimpleXMLElement('<field name="ticket" type="hidden" default="" />');
+				$this->filterForm->setField($ticketXml, 'filter', true);
+			}
 			
 			$this->addToolBar();
 		}
@@ -44,23 +41,20 @@ class RseventsproViewSubscriptions extends JViewLegacy
 		JToolBarHelper::addNew('subscription.add');
 		JToolBarHelper::editList('subscription.edit');
 		JToolBarHelper::deleteList('','subscriptions.delete');
-		JToolBarHelper::custom('subscriptions.complete','approve','approve',JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS_APPROVE'));
+		JToolBarHelper::custom('subscriptions.complete','save','save',JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS_APPROVE'));
 		JToolBarHelper::custom('subscriptions.incomplete','pending','pending',JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS_PENDING'));
-		JToolBarHelper::custom('subscriptions.denied','denied','denied',JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS_DENY'));
+		JToolBarHelper::custom('subscriptions.denied','cancel-circle','cancel-circle',JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS_DENY'));
 		
 		if ($event = $this->state->get('filter.event')) {
 			if (rseventsproHelper::pdf())
 				JToolBar::getInstance('toolbar')->appendButton( 'Link', 'list', JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_LIST'), JRoute::_('index.php?option=com_rseventspro&view=pdf&eid='.$event));
 			
-			JToolBar::getInstance('toolbar')->appendButton( 'Link', 'export', JText::_('COM_RSEVENTSPRO_EXPORT_SUBSCRIBERS'), JRoute::_('index.php?option=com_rseventspro&task=subscriptions.export&id='.$event));
+			JToolBar::getInstance('toolbar')->appendButton( 'Link', 'arrow-down', JText::_('COM_RSEVENTSPRO_EXPORT_SUBSCRIBERS'), JRoute::_('index.php?option=com_rseventspro&task=subscriptions.export&id='.$event));
 		}
 		
 		JToolBar::getInstance('toolbar')->appendButton( 'Link', 'lamp', JText::_('COM_RSEVENTSPRO_EVENT_SCAN_TICKET'), JRoute::_('index.php?option=com_rseventspro&view=subscriptions&layout=scan'));
-		JToolBarHelper::custom('rseventspro','rseventspro32','rseventspro32',JText::_('COM_RSEVENTSPRO_GLOBAL_NAME'),false);
 		
-		if (rseventsproHelper::isJ3()) {
-			JHtml::_('rseventspro.chosen','select');
-		}
+		JHtml::_('rseventspro.chosen','select');
 	}
 	
 	protected function getUser($id) {

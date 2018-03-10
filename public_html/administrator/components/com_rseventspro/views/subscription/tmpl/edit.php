@@ -5,9 +5,8 @@
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-JHtml::_('behavior.formvalidation');
-JHtml::_('behavior.keepalive');
-JHtml::_('behavior.modal'); ?>
+JHtml::_('behavior.formvalidator');
+JHtml::_('behavior.keepalive'); ?>
 
 <script type="text/javascript">
 	Joomla.submitbutton = function(task) {
@@ -16,7 +15,7 @@ JHtml::_('behavior.modal'); ?>
 			return;
 		}
 		
-		if (document.formvalidator.isValid(document.id('adminForm'))) {
+		if (document.formvalidator.isValid(document.getElementById('adminForm'))) {
 			<?php if ($this->item->id) { ?>
 			Joomla.submitform(task, document.getElementById('adminForm'));
 			<?php } else { ?>
@@ -29,14 +28,6 @@ JHtml::_('behavior.modal'); ?>
 		} else {
 			alert('<?php echo $this->escape(JText::_('JGLOBAL_VALIDATION_FORM_FAILED',true));?>');
 		}
-	}
-	
-	function jSelectUser_jform_idu(id, title) {
-		if (jQuery('#jform_idu_id').val() != id) {
-			rsepro_get_user_details(id);
-		}
-		
-		SqueezeBox.close();
 	}
 	
 	function rsepro_get_user_details(id) {
@@ -54,13 +45,26 @@ JHtml::_('behavior.modal'); ?>
 		});
 	}
 	
-	function rsepro_select_event(id) {
-		if (id == 0) {
+	function rsepro_show_add_tickets() {
+		sel = jQuery('#event option:selected').val();
+		
+		if (sel == 0) {
 			jQuery('#eventtickets').css('display','none');
-			jQuery('#eventtickets')
 		} else {
 			jQuery('#eventtickets').css('display','');
-			jQuery('#eventtickets').prop('href','index.php?option=com_rseventspro&view=subscription&layout=tickets&tmpl=component&id='+id);
+		}
+	}
+	
+	function rsepro_show_tickets() {
+		sel = jQuery('#event option:selected').val();
+		
+		if (sel != 0) {
+			jQuery('#rseTicketModal').on('show.bs.modal', function() {
+				jQuery(this).find('iframe').prop('src','index.php?option=com_rseventspro&view=subscription&layout=tickets&tmpl=component&id=' + sel);
+			}).on('hide.bs.modal', function () {
+				rsepro_update_total();
+			});
+			jQuery('#rseTicketModal').modal('show');
 		}
 	}
 	
@@ -69,9 +73,6 @@ JHtml::_('behavior.modal'); ?>
 			rsepro_get_user_details(jQuery(this).val());
 		});
 	});
-	
-	
-	
 </script>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=subscription&layout=edit&id='.(int) $this->item->id); ?>" method="post" name="adminForm" id="adminForm" autocomplete="off" class="form-validate form-horizontal">
@@ -161,7 +162,7 @@ JHtml::_('behavior.modal'); ?>
 			<?php echo JHtml::_('rsfieldset.element', '<label>'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TAX').'</label>', '<span class="rsextra">'.rseventsproHelper::currency($this->item->tax).'</span>'); ?>
 			<?php } ?>
 			
-			<?php if ($event->ticketsconfig && rseventsproHelper::hasSeats($this->item->id)) echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', '<span class="rsextra"><a class="modal" rel="{handler: \'iframe\', size: {x:'.rseventsproHelper::getConfig('seats_width','int','1280').',y:'.rseventsproHelper::getConfig('seats_height','int','800').'}}" href="'.JRoute::_('index.php?option=com_rseventspro&view=subscription&layout=seats&tmpl=component&id='.$this->item->id).'">'.JText::_('COM_RSEVENTSPRO_SEATS_CONFIGURATION').'</a></span>'); ?>
+			<?php if ($event->ticketsconfig && rseventsproHelper::hasSeats($this->item->id)) echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', '<span class="rsextra"><a class="btn" href="javascript:void(0)" onclick="jQuery(\'#rseModal\').modal(\'show\');">'.JText::_('COM_RSEVENTSPRO_SEATS_CONFIGURATION').'</a></span>'); ?>
 			
 			<?php echo JHtml::_('rsfieldset.element', '<label>'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TOTAL').'</label>', '<span class="rsextra">'.rseventsproHelper::currency(rseventsproHelper::total($this->item->id)).'</span>'); ?>
 			
@@ -169,10 +170,10 @@ JHtml::_('behavior.modal'); ?>
 			<?php JText::script('COM_RSEVENTSPRO_SUBSCRIBER_PLEASE_SELECT_TICKET'); ?>
 			<?php JText::script('COM_RSEVENTSPRO_SUBSCRIBER_PLEASE_SELECT_TICKET_FROM_EVENT'); ?>
 			
-			<?php $selectevent = ' <select name="event" id="event" onchange="rsepro_select_event(this.value);">'; ?>
+			<?php $selectevent = ' <select name="event" id="event" onchange="rsepro_show_add_tickets();">'; ?>
 			<?php $selectevent .= JHtml::_('select.options', $this->events); ?>
 			<?php $selectevent .= '</select>'; ?>
-			<?php $selectevent .= ' <a id="eventtickets" style="vertical-align: top; display:none;" class="modal btn" rel="{handler: \'iframe\', size: {x:'.rseventsproHelper::getConfig('seats_width','int','1280').',y:'.rseventsproHelper::getConfig('seats_height','int','800').'}, onClose: function() {rsepro_update_total();}}" href="javascript:void(0);">'.JText::_('COM_RSEVENTSPRO_SELECT_TICKETS').'</a>'; ?>
+			<?php $selectevent .= ' <a id="eventtickets" style="vertical-align: top; display:none;" class="btn" onclick="rsepro_show_tickets()" href="javascript:void(0);">'.JText::_('COM_RSEVENTSPRO_SELECT_TICKETS').'</a>'; ?>
 			
 			<?php echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', $selectevent);  ?>
 			<?php echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', '<span class="rsextra" id="rsepro_selected_tickets_view"></span><span id="rsepro_selected_tickets"></span><span id="rsepro_simple_tickets"></span>'); ?>
@@ -212,3 +213,7 @@ JHtml::_('behavior.modal'); ?>
 	<?php echo $this->form->getInput('ide'); ?>
 	<?php echo JHTML::_('behavior.keepalive'); ?>
 </form>
+
+<?php if ($event->ticketsconfig && rseventsproHelper::hasSeats($this->item->id)) echo JHtml::_('bootstrap.renderModal', 'rseModal', array('title' => '&nbsp;', 'url' => JRoute::_('index.php?option=com_rseventspro&view=subscription&layout=seats&tmpl=component&id='.$this->item->id, false), 'bodyHeight' => 70, 'width' => rseventsproHelper::getConfig('seats_width','int','1280'), 'height' => rseventsproHelper::getConfig('seats_height','int','800'))); ?>
+
+<?php echo JHtml::_('bootstrap.renderModal', 'rseTicketModal', array('title' => '&nbsp;', 'url' => '#', 'bodyHeight' => 70)); ?>

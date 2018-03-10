@@ -1,161 +1,161 @@
 CREATE TABLE IF NOT EXISTS `#__rseventspro_cards` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `ids` int(11) NOT NULL,
+  `ids` int(11) NOT NULL DEFAULT '0',
   `card_number` text NOT NULL,
   `card_csc` text NOT NULL,
-  `card_exp` varchar(10) NOT NULL,
-  `card_fname` varchar(255) NOT NULL,
-  `card_lname` varchar(255) NOT NULL,
+  `card_exp` varchar(10) NOT NULL DEFAULT '',
+  `card_fname` varchar(255) NOT NULL DEFAULT '',
+  `card_lname` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_config` (
-  `name` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL DEFAULT '',
   `value` text NOT NULL,
   PRIMARY KEY (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_confirmed` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `ids` int(11) NOT NULL,
-  `code` varchar(255) NOT NULL,
+  `ids` int(11) NOT NULL DEFAULT '0',
+  `code` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `ids` (`ids`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_countries` (
-  `name` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL DEFAULT '',
   UNIQUE KEY `name` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_coupons` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `ide` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
+  `ide` int(11) NOT NULL DEFAULT '0',
+  `name` varchar(255) NOT NULL DEFAULT '',
   `from` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `to` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `usage` int(10) NOT NULL,
-  `discount` float NOT NULL,
-  `type` tinyint(1) NOT NULL,
-  `action` tinyint(1) NOT NULL,
-  `groups` varchar(255) NOT NULL,
+  `usage` int(10) NOT NULL DEFAULT '0',
+  `discount` float NOT NULL DEFAULT '0',
+  `type` tinyint(1) NOT NULL DEFAULT '0',
+  `action` tinyint(1) NOT NULL DEFAULT '0',
+  `groups` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_coupon_codes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `idc` int(11) NOT NULL,
-  `code` varchar(255) NOT NULL,
-  `used` int(11) NOT NULL,
+  `idc` int(11) NOT NULL DEFAULT '0',
+  `code` varchar(255) NOT NULL DEFAULT '',
+  `used` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `idc` (`idc`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_discounts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `code` varchar(255) NOT NULL,
-  `from` datetime NOT NULL,
-  `to` datetime NOT NULL,
-  `usage` int(11) NOT NULL,
-  `used` int(11) NOT NULL,
-  `type` int(11) NOT NULL,
-  `value` float NOT NULL,
-  `apply_to` tinyint(2) NOT NULL,
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `code` varchar(255) NOT NULL DEFAULT '',
+  `from` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `to` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `usage` int(11) NOT NULL DEFAULT '0',
+  `used` int(11) NOT NULL DEFAULT '0',
+  `type` int(11) NOT NULL DEFAULT '0',
+  `value` float NOT NULL DEFAULT '0',
+  `apply_to` tinyint(2) NOT NULL DEFAULT '0',
   `events` text NOT NULL,
   `groups` text NOT NULL,
-  `discounttype` tinyint(2) NOT NULL,
-  `same_tickets` int(11) NOT NULL,
-  `different_tickets` int(11) NOT NULL,
-  `total` tinyint(2) NOT NULL,
-  `totalvalue` float NOT NULL,
-  `payment` tinyint(2) NOT NULL,
-  `paymentvalue` varchar(255) NOT NULL,
+  `discounttype` tinyint(2) NOT NULL DEFAULT '0',
+  `same_tickets` int(11) NOT NULL DEFAULT '0',
+  `different_tickets` int(11) NOT NULL DEFAULT '0',
+  `total` tinyint(2) NOT NULL DEFAULT '0',
+  `totalvalue` float NOT NULL DEFAULT '0',
+  `payment` tinyint(2) NOT NULL DEFAULT '0',
+  `paymentvalue` varchar(255) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_emails` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `lang` varchar(20) NOT NULL,
-  `type` varchar(100) NOT NULL,
-  `enable` tinyint(1) NOT NULL,
-  `mode` tinyint(1) NOT NULL,
-  `parent` int(11) NOT NULL,
-  `subject` varchar(255) NOT NULL,
+  `lang` varchar(20) NOT NULL DEFAULT '',
+  `type` varchar(100) NOT NULL DEFAULT '',
+  `enable` tinyint(1) NOT NULL DEFAULT '0',
+  `mode` tinyint(1) NOT NULL DEFAULT '0',
+  `parent` int(11) NOT NULL DEFAULT '0',
+  `subject` varchar(255) NOT NULL DEFAULT '',
   `message` text NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_events` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `parent` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `created` datetime NOT NULL,
+  `parent` int(11) NOT NULL DEFAULT '0',
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `created` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `start` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `end` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `description` text NOT NULL,
   `small_description` text NOT NULL,
-  `location` int(2) NOT NULL,
-  `owner` int(11) NOT NULL,
-  `URL` varchar(500) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `phone` varchar(255) NOT NULL,
-  `metaname` varchar(255) NOT NULL,
-  `metakeywords` varchar(500) NOT NULL,
-  `metadescription` varchar(200) NOT NULL,
-  `recurring` tinyint(1) NOT NULL,
-  `registration` tinyint(1) NOT NULL,
-  `comments` tinyint(1) NOT NULL,
-  `icon` varchar(255) NOT NULL,
-  `repeat_interval` int(3) NOT NULL,
-  `repeat_type` tinyint(1) NOT NULL,
+  `location` int(2) NOT NULL DEFAULT '0',
+  `owner` int(11) NOT NULL DEFAULT '0',
+  `URL` varchar(500) NOT NULL DEFAULT '',
+  `email` varchar(255) NOT NULL DEFAULT '',
+  `phone` varchar(255) NOT NULL DEFAULT '',
+  `metaname` varchar(255) NOT NULL DEFAULT '',
+  `metakeywords` varchar(500) NOT NULL DEFAULT '',
+  `metadescription` varchar(200) NOT NULL DEFAULT '',
+  `recurring` tinyint(1) NOT NULL DEFAULT '0',
+  `registration` tinyint(1) NOT NULL DEFAULT '0',
+  `comments` tinyint(1) NOT NULL DEFAULT '0',
+  `icon` varchar(255) NOT NULL DEFAULT '',
+  `repeat_interval` int(3) NOT NULL DEFAULT '0',
+  `repeat_type` tinyint(1) NOT NULL DEFAULT '0',
   `repeat_end` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `repeat_also` text NOT NULL,
-  `repeat_on_type` tinyint(1) NOT NULL,
-  `repeat_on_day` tinyint(2) NOT NULL,
-  `repeat_on_day_order` tinyint(1) NOT NULL,
-  `repeat_on_day_type` varchar(25) NOT NULL,
+  `repeat_on_type` tinyint(1) NOT NULL DEFAULT '0',
+  `repeat_on_day` tinyint(2) NOT NULL DEFAULT '0',
+  `repeat_on_day_order` tinyint(1) NOT NULL DEFAULT '0',
+  `repeat_on_day_type` varchar(25) NOT NULL DEFAULT '',
   `exclude_dates` text NOT NULL,
-  `start_registration` datetime NOT NULL,
-  `end_registration` datetime NOT NULL,
-  `unsubscribe_date` datetime NOT NULL,
+  `start_registration` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `end_registration` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `unsubscribe_date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `payments` text NOT NULL,
-  `max_tickets` tinyint(1) NOT NULL,
-  `max_tickets_amount` int(11) NOT NULL,
-  `notify_me` tinyint(1) NOT NULL,
-  `notify_me_unsubscribe` tinyint(1) NOT NULL,
-  `overbooking` tinyint(1) NOT NULL,
-  `overbooking_amount` int(11) NOT NULL,
-  `show_registered` tinyint(1) NOT NULL,
-  `automatically_approve` tinyint(1) NOT NULL,
-  `paypal_email` varchar(255) NOT NULL,
-  `discounts` tinyint(1) NOT NULL,
-  `form` int(11) NOT NULL,
-  `early_fee` float NOT NULL,
-  `early_fee_type` tinyint(1) NOT NULL,
-  `early_fee_end` datetime NOT NULL,
-  `late_fee` float NOT NULL,
-  `late_fee_type` tinyint(1) NOT NULL,
-  `late_fee_start` datetime NOT NULL,
+  `max_tickets` tinyint(1) NOT NULL DEFAULT '0',
+  `max_tickets_amount` int(11) NOT NULL DEFAULT '0',
+  `notify_me` tinyint(1) NOT NULL DEFAULT '0',
+  `notify_me_unsubscribe` tinyint(1) NOT NULL DEFAULT '0',
+  `overbooking` tinyint(1) NOT NULL DEFAULT '0',
+  `overbooking_amount` int(11) NOT NULL DEFAULT '0',
+  `show_registered` tinyint(1) NOT NULL DEFAULT '0',
+  `automatically_approve` tinyint(1) NOT NULL DEFAULT '0',
+  `paypal_email` varchar(255) NOT NULL DEFAULT '',
+  `discounts` tinyint(1) NOT NULL DEFAULT '0',
+  `form` int(11) NOT NULL DEFAULT '0',
+  `early_fee` float NOT NULL DEFAULT '0',
+  `early_fee_type` tinyint(1) NOT NULL DEFAULT '0',
+  `early_fee_end` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `late_fee` float NOT NULL DEFAULT '0',
+  `late_fee_type` tinyint(1) NOT NULL DEFAULT '0',
+  `late_fee_start` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `options` text NOT NULL,
-  `archived` tinyint(1) NOT NULL,
-  `published` tinyint(1) NOT NULL,
-  `completed` tinyint(1) NOT NULL,
-  `approved` tinyint(1) NOT NULL,
-  `ticket_pdf` tinyint(1) NOT NULL,
+  `archived` tinyint(1) NOT NULL DEFAULT '0',
+  `published` tinyint(1) NOT NULL DEFAULT '0',
+  `completed` tinyint(1) NOT NULL DEFAULT '0',
+  `approved` tinyint(1) NOT NULL DEFAULT '0',
+  `ticket_pdf` tinyint(1) NOT NULL DEFAULT '0',
   `ticket_pdf_layout` text NOT NULL,
-  `properties` varchar(255) NOT NULL,
+  `properties` varchar(255) NOT NULL DEFAULT '',
   `gallery_tags` text NOT NULL,
-  `sync` tinyint(1) NOT NULL,
-  `sid` varchar(255) NOT NULL,
-  `allday` tinyint(1) NOT NULL,
-  `ticketsconfig` tinyint(1) NOT NULL,
-  `featured` tinyint(1) NOT NULL,
-  `hits` int(11) NOT NULL,
-  `timezone` varchar(255) NOT NULL,
-  `aspectratio` tinyint(1) NOT NULL,
-  `itemid` int(11) NOT NULL,
+  `sync` tinyint(1) NOT NULL DEFAULT '0',
+  `sid` varchar(255) NOT NULL DEFAULT '',
+  `allday` tinyint(1) NOT NULL DEFAULT '0',
+  `ticketsconfig` tinyint(1) NOT NULL DEFAULT '0',
+  `featured` tinyint(1) NOT NULL DEFAULT '0',
+  `hits` int(11) NOT NULL DEFAULT '0',
+  `timezone` varchar(255) NOT NULL DEFAULT '',
+  `aspectratio` tinyint(1) NOT NULL DEFAULT '0',
+  `itemid` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `location` (`location`),
   KEY `owner` (`owner`),
@@ -166,34 +166,34 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_events` (
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_files` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `ide` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `location` varchar(255) NOT NULL,
-  `permissions` varchar(6) NOT NULL,
+  `ide` int(11) NOT NULL DEFAULT '0',
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `location` varchar(255) NOT NULL DEFAULT '',
+  `permissions` varchar(6) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_groups` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL DEFAULT '',
   `jgroups` text NOT NULL,
   `jusers` text NOT NULL,
-  `can_add_locations` tinyint(1) NOT NULL,
-  `can_create_categories` tinyint(1) NOT NULL,
-  `can_delete_events` tinyint(1) NOT NULL,
-  `can_download` tinyint(1) NOT NULL,
-  `can_edit_events` tinyint(1) NOT NULL,
-  `can_edit_locations` tinyint(1) NOT NULL,
-  `can_post_events` tinyint(1) NOT NULL,
-  `can_register` tinyint(1) NOT NULL,
-  `can_repeat_events` tinyint(1) NOT NULL,
-  `can_unsubscribe` tinyint(1) NOT NULL,
-  `can_upload` tinyint(1) NOT NULL,
-  `event_moderation` tinyint(1) NOT NULL,
-  `tag_moderation` tinyint(1) NOT NULL,
-  `can_approve_events` int(11) NOT NULL,
-  `can_approve_tags` int(11) NOT NULL,
-  `can_change_options` tinyint(1) NOT NULL,
+  `can_add_locations` tinyint(1) NOT NULL DEFAULT '0',
+  `can_create_categories` tinyint(1) NOT NULL DEFAULT '0',
+  `can_delete_events` tinyint(1) NOT NULL DEFAULT '0',
+  `can_download` tinyint(1) NOT NULL DEFAULT '0',
+  `can_edit_events` tinyint(1) NOT NULL DEFAULT '0',
+  `can_edit_locations` tinyint(1) NOT NULL DEFAULT '0',
+  `can_post_events` tinyint(1) NOT NULL DEFAULT '0',
+  `can_register` tinyint(1) NOT NULL DEFAULT '0',
+  `can_repeat_events` tinyint(1) NOT NULL DEFAULT '0',
+  `can_unsubscribe` tinyint(1) NOT NULL DEFAULT '0',
+  `can_upload` tinyint(1) NOT NULL DEFAULT '0',
+  `event_moderation` tinyint(1) NOT NULL DEFAULT '0',
+  `tag_moderation` tinyint(1) NOT NULL DEFAULT '0',
+  `can_approve_events` int(11) NOT NULL DEFAULT '0',
+  `can_approve_tags` int(11) NOT NULL DEFAULT '0',
+  `can_change_options` tinyint(1) NOT NULL DEFAULT '0',
   `event` text NOT NULL,
   `restricted_categories` text NOT NULL,
   PRIMARY KEY (`id`)
@@ -201,139 +201,164 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_groups` (
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_locations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `url` varchar(255) NOT NULL,
-  `address` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `url` varchar(255) NOT NULL DEFAULT '',
+  `address` varchar(255) NOT NULL DEFAULT '',
   `description` text NOT NULL,
-  `coordinates` varchar(255) NOT NULL,
+  `coordinates` varchar(255) NOT NULL DEFAULT '',
+  `marker` varchar(255) NOT NULL DEFAULT '',
   `gallery_tags` text NOT NULL,
-  `ordering` int(11) NOT NULL,
-  `published` tinyint(1) NOT NULL,
+  `ordering` int(11) NOT NULL DEFAULT '0',
+  `published` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_payments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL DEFAULT '',
   `details` text NOT NULL,
-  `tax_type` tinyint(1) NOT NULL,
-  `tax_value` float NOT NULL,
-  `redirect` varchar(550) NOT NULL,
-  `published` tinyint(1) NOT NULL,
+  `tax_type` tinyint(1) NOT NULL DEFAULT '0',
+  `tax_value` float NOT NULL DEFAULT '0',
+  `redirect` varchar(550) NOT NULL DEFAULT '',
+  `published` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_rules` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `payment` varchar(255) NOT NULL,
-  `status` int(11) NOT NULL,
-  `interval` int(11) NOT NULL,
-  `rule` int(11) NOT NULL,
-  `mid` int(11) NOT NULL,
+  `payment` varchar(255) NOT NULL DEFAULT '',
+  `status` int(11) NOT NULL DEFAULT '0',
+  `interval` int(11) NOT NULL DEFAULT '0',
+  `rule` int(11) NOT NULL DEFAULT '0',
+  `mid` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_sync` (
-  `id` varchar(150) NOT NULL,
-  `ide` int(11) NOT NULL,
-  `from` varchar(50) NOT NULL,
+  `id` varchar(150) NOT NULL DEFAULT '',
+  `ide` int(11) NOT NULL DEFAULT '0',
+  `from` varchar(50) NOT NULL DEFAULT '',
   KEY `id` (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `#__rseventspro_sync_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` varchar(50) NOT NULL DEFAULT '',
+  `date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `eid` int(11) NOT NULL DEFAULT '0',
+  `importid` varchar(255) NOT NULL DEFAULT '',
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `imported` int(2) NOT NULL DEFAULT '0',
+  `message` varchar(255) NOT NULL DEFAULT '',
+  `page` int(2) NOT NULL DEFAULT '0',
+  `from` varchar(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`),
+  KEY `eid` (`eid`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_tags` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `published` tinyint(1) NOT NULL,
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `published` tinyint(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_taxonomy` (
-  `type` varchar(50) NOT NULL,
-  `ide` int(11) NOT NULL,
-  `id` int(11) NOT NULL,
-  `extra` varchar(255) NOT NULL,
+  `type` varchar(50) NOT NULL DEFAULT '',
+  `ide` int(11) NOT NULL DEFAULT '0',
+  `id` int(11) NOT NULL DEFAULT '0',
+  `extra` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`type`,`ide`,`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_tickets` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `ide` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `price` DECIMAL(20, 3) NOT NULL,
-  `seats` int(10) NOT NULL,
-  `user_seats` int(10) NOT NULL,
+  `ide` int(11) NOT NULL DEFAULT '0',
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `price` DECIMAL(20, 3) NOT NULL DEFAULT '0',
+  `seats` int(10) NOT NULL DEFAULT '0',
+  `user_seats` int(10) NOT NULL DEFAULT '0',
   `description` text NOT NULL,
   `position` text NOT NULL,
   `groups` text NOT NULL,
-  `attach` tinyint(1) NOT NULL,
+  `attach` tinyint(1) NOT NULL DEFAULT '0',
   `layout` longtext NOT NULL,
-  `order` int(11) NOT NULL,
+  `order` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `ide` (`ide`),
   KEY `price` (`price`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_tmp` (
-  `hash` varchar(32) NOT NULL,
-  `table` varchar(32) NOT NULL,
-  `old` int(11) NOT NULL,
-  `new` int(11) NOT NULL,
+  `hash` varchar(32) NOT NULL DEFAULT '',
+  `table` varchar(32) NOT NULL DEFAULT '',
+  `old` int(11) NOT NULL DEFAULT '0',
+  `new` int(11) NOT NULL DEFAULT '0',
   UNIQUE KEY `hash` (`hash`,`table`,`old`),
   KEY `new` (`new`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `ide` int(11) NOT NULL,
-  `idu` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `date` datetime NOT NULL,
-  `state` tinyint(1) NOT NULL,
-  `verification` varchar(255) NOT NULL,
-  `SubmissionId` int(11) NOT NULL,
-  `gateway` varchar(255) NOT NULL,
-  `ip` varchar(20) NOT NULL,
-  `URL` varchar(255) NOT NULL,
+  `ide` int(11) NOT NULL DEFAULT '0',
+  `idu` int(11) NOT NULL DEFAULT '0',
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `email` varchar(255) NOT NULL DEFAULT '',
+  `date` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `state` tinyint(1) NOT NULL DEFAULT '0',
+  `verification` varchar(255) NOT NULL DEFAULT '',
+  `SubmissionId` int(11) NOT NULL DEFAULT '0',
+  `gateway` varchar(255) NOT NULL DEFAULT '',
+  `ip` varchar(20) NOT NULL DEFAULT '',
+  `URL` varchar(255) NOT NULL DEFAULT '',
   `params` text NOT NULL,
-  `discount` float NOT NULL,
-  `early_fee` float NOT NULL,
-  `late_fee` float NOT NULL,
-  `tax` float NOT NULL,
+  `discount` float NOT NULL DEFAULT '0',
+  `early_fee` float NOT NULL DEFAULT '0',
+  `late_fee` float NOT NULL DEFAULT '0',
+  `tax` float NOT NULL DEFAULT '0',
   `log` text NOT NULL,
-  `lang` varchar(10) NOT NULL,
-  `coupon` varchar(255) NOT NULL,
-  `ideal` varchar(100) NOT NULL,
-  `confirmed` tinyint(1) NOT NULL,
-  `create_user` tinyint(1) NOT NULL,
+  `lang` varchar(10) NOT NULL DEFAULT '',
+  `coupon` varchar(255) NOT NULL DEFAULT '',
+  `ideal` varchar(100) NOT NULL DEFAULT '',
+  `confirmed` tinyint(1) NOT NULL DEFAULT '0',
+  `create_user` tinyint(1) NOT NULL DEFAULT '0',
+  `hash` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `ide` (`ide`,`idu`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `#__rseventspro_user_info` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL DEFAULT '',
+  `description` text NOT NULL,
+  `image` varchar(255) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `#__rseventspro_user_tickets` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `ids` int(11) NOT NULL,
-  `idt` int(11) NOT NULL,
-  `quantity` int(11) NOT NULL,
+  `ids` int(11) NOT NULL DEFAULT '0',
+  `idt` int(11) NOT NULL DEFAULT '0',
+  `quantity` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `ids` (`ids`,`idt`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_user_seats` (
   `id` INT NOT NULL AUTO_INCREMENT, 
-  `ids` INT NOT NULL, 
-  `idt` INT NOT NULL, 
-  `seat` INT NOT NULL, 
+  `ids` INT NOT NULL DEFAULT '0',
+  `idt` INT NOT NULL DEFAULT '0',
+  `seat` INT NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`), 
   INDEX (`ids`, `idt`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `#__rseventspro_reports` (
   `id` INT NOT NULL AUTO_INCREMENT, 
-  `ide` INT NOT NULL, 
-  `idu` INT NOT NULL, 
-  `ip` VARCHAR(15) NOT NULL, 
-  `text` TEXT NOT NULL, 
+  `ide` INT NOT NULL DEFAULT '0',
+  `idu` INT NOT NULL DEFAULT '0',
+  `ip` VARCHAR(15) NOT NULL DEFAULT '',
+  `text` TEXT NOT NULL,
   PRIMARY KEY (`id`), 
   INDEX (`ide`, `idu`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
@@ -479,6 +504,13 @@ INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('google_map
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('enable_gallery', '1');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('facebook_check_owner', '1');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('google_access_token', '');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('content_prepare', '1');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('seo_title', '1');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('google_expired', '1');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('user_icon_width', '150');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('facebook_expired', '1');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('facebook_profile', '1');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('facebook_check_owner_profile', '1');
 
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Afghanistan');
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Akrotiri');

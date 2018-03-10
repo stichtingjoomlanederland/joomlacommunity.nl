@@ -61,7 +61,7 @@ class RseventsproController extends JControllerLegacy
 			}
 			
 			if (!empty($unlimited)) {
-				JArrayHelper::toInteger($unlimited);
+				array_map('intval',$unlimited);
 				foreach ($unlimited as $unlimitedid => $quantity)
 					$tickets[$unlimitedid] = $quantity;
 			}
@@ -94,7 +94,7 @@ class RseventsproController extends JControllerLegacy
 				->from($db->qn('#__rseventspro_coupon_codes','cc'))
 				->join('left', $db->qn('#__rseventspro_coupons','c').' ON '.$db->qn('cc.idc').' = '.$db->qn('c.id'))
 				->where($db->qn('c.ide').' = '.$id)
-				->where($db->qn('cc.code').' = '.$db->q($coupon));
+				->where('BINARY '.$db->qn('cc.code').' = '.$db->q($coupon));
 			
 			$db->setQuery($query);
 			if ($data = $db->loadObject()) {
@@ -1179,7 +1179,7 @@ class RseventsproController extends JControllerLegacy
 		if ($event = $db->loadObject()) {
 			$cache = JFactory::getCache('com_rseventspro');
 			$cache->setCaching(true);
-			if ($data = $cache->call(array('rseventsproHelper', 'createImage'), $event, $width, $height)) {
+			if ($data = $cache->get(array('rseventsproHelper', 'createImage'), array($event, $width, $height))) {
 				@ob_end_clean();
 				require_once JPATH_SITE.'/components/com_rseventspro/helpers/phpthumb/phpthumb.functions.php';
 				header('Content-Type: '.phpthumb_functions::ImageTypeToMIMEtype($data['ext']));

@@ -28,13 +28,11 @@ class RseventsproViewLocation extends JViewLegacy
 		JToolBarHelper::save2new('location.save2new');
 		JToolBarHelper::cancel('location.cancel');
 		
-		if (rseventsproHelper::isJ3()) {
-			JHtml::_('rseventspro.chosen','select');
-		}
+		JHtml::_('rseventspro.chosen','select');
 		
 		if ($this->config->enable_google_maps) {
 			JFactory::getDocument()->addScript('https://maps.google.com/maps/api/js?language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
-			JFactory::getDocument()->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION);
+			JHtml::script('com_rseventspro/jquery.map.js', array('relative' => true, 'version' => 'auto'));
 		}
 	}
 }

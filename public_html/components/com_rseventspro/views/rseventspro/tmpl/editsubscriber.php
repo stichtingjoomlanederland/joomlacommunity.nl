@@ -5,7 +5,6 @@
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-JHtml::_('behavior.modal','.rs_modal');
 
 $total		= 0;
 $subscriber = $this->data['data'];
@@ -181,7 +180,7 @@ function rs_validate_subscr() {
 		<?php if ($event->ticketsconfig && rseventsproHelper::hasSeats($subscriber->id)) { ?>
 		<tr>
 			<td width="160">&nbsp;</td>
-			<td><a class="rs_modal" rel="{handler: 'iframe', size: {x:<?php echo rseventsproHelper::getConfig('seats_width','int','1280'); ?>,y:<?php echo rseventsproHelper::getConfig('seats_height','int','800'); ?>}}" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=userseats&tmpl=component&id='.rseventsproHelper::sef($subscriber->id,$subscriber->name)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_SEATS_CONFIGURATION'); ?></a></td>
+			<td><a class="btn" onclick="jQuery('#rseModal').modal('show');" href="javascript:void(0);"><?php echo JText::_('COM_RSEVENTSPRO_SEATS_CONFIGURATION'); ?></a></td>
 		</tr>
 		<?php } ?>
 		<tr>
@@ -230,3 +229,5 @@ function rs_validate_subscr() {
 	<input type="hidden" name="jform[id]" value="<?php echo $subscriber->id; ?>" />
 	<input type="hidden" name="ide" value="<?php echo $event->id; ?>" />
 </form>
+
+<?php echo JHtml::_('bootstrap.renderModal', 'rseModal', array('title' => '&nbsp;', 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=userseats&tmpl=component&id='.rseventsproHelper::sef($subscriber->id,$subscriber->name)), 'bodyHeight' => 70, 'width' => rseventsproHelper::getConfig('seats_width','int','1280'), 'height' => rseventsproHelper::getConfig('seats_height','int','800'))); ?>

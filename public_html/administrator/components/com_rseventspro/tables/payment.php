@@ -16,4 +16,12 @@ class RseventsproTablePayment extends JTable
 	public function __construct($db) {
 		parent::__construct('#__rseventspro_payments', 'id', $db);
 	}
+	
+	public function check() {
+		if (empty($this->tax_value)) {
+			$this->tax_value = 0;
+		}
+		
+		return true;
+	}
 }

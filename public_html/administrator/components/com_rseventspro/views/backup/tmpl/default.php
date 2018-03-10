@@ -23,9 +23,9 @@ jQuery(document).ready(function() {
 <form action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=backup'); ?>" method="post" name="adminForm" id="adminForm" class="form-horizontal" autocomplete="off" enctype="multipart/form-data">
 	<div class="row-fluid" id="rsepro-backup-container">
 		<div id="j-sidebar-container" class="span2">
-			<?php echo $this->sidebar; ?>
+			<?php echo JHtmlSidebar::render(); ?>
 		</div>
-		<div id="j-main-container" class="span10">
+		<div id="j-main-container" class="span10 j-main-container">
 			<div class="progress" id="rsepro-backup">
 				<div style="width: 0%;" class="bar">
 					<div class="pull-right progress-label">0%</div>

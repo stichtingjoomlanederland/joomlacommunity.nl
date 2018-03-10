@@ -10,7 +10,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );?>
 	function rse_add_form(id,value) {
 		window.parent.jQuery('.rsepro-event-form').html(value);
 		window.parent.jQuery('#form').val(id);
-		window.parent.SqueezeBox.close();
+		window.parent.jQuery('#rseFromModal').modal('hide');
 	}
 </script>
 
@@ -30,11 +30,9 @@ defined( '_JEXEC' ) or die( 'Restricted access' );?>
 			<td></td>
 		</tr>
 		<?php if (!empty($this->forms)) { ?>
-		<?php $i = 0; ?>
-		<?php $k = 1; ?>
-		<?php foreach($this->forms as $row) { ?>
+		<?php foreach($this->forms as $i => $row) { ?>
 		<?php $form = rseventsproHelper::checkform($row->FormId,$this->eventID); ?>
-			<tr class="row<?php echo $k; ?>">
+			<tr class="row<?php echo $i % 2; ?>">
 				<td><?php echo $this->fpagination->getRowOffset($i); ?></td>
 				<td>
 					<?php if (@$form['result']) { ?>
@@ -45,14 +43,12 @@ defined( '_JEXEC' ) or die( 'Restricted access' );?>
 				</td>
 				<td><?php echo @$form['message']; ?></td>
 			</tr>
-		<?php $i++; ?>
-		<?php $k=1-$k; ?>
 		<?php } ?>
 		<?php } ?>
 		</tbody>
 		<tfoot>
 			<tr>
-				<td colspan="3"><?php echo $this->fpagination->getListFooter(); ?></td>
+				<td colspan="3" style="text-align:center;"><?php echo $this->fpagination->getListFooter(); ?></td>
 			</tr>
 		</tfoot>
 	</table>

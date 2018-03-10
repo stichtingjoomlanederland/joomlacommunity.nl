@@ -32,7 +32,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 			->where($db->qn('e.published').' = 1')
 			->where($db->qn('e.completed').' = 1')
 			->where($db->qn('e.start').' > '.$db->q(JFactory::getDate()->toSql()))
-			->group($db->qn('e.id'))
+			->group($db->qn('e.id'))->group($db->qn('e.name'))->group($db->qn('e.start'))->group($db->qn('e.end'))->group($db->qn('e.allday'))
 			->order($db->qn('e.start').' ASC');
 		
 		$db->setQuery($query, 0, rseventsproHelper::getConfig('dashboard_upcoming_nr','int',5));
@@ -141,6 +141,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$buttons[] = array('icon' => 'fa fa-scissors fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_DISCOUNTS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=discounts'));
 		$buttons[] = array('icon' => 'fa fa-credit-card fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_PAYMENTS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=payments'));
 		$buttons[] = array('icon' => 'fa fa-users fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_GROUPS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=groups'));
+		$buttons[] = array('icon' => 'fa fa-user-circle fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_USERS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=users'));
 		$buttons[] = array('icon' => 'fa fa-upload fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_IMPORTS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=imports'));
 		$buttons[] = array('icon' => 'fa fa-archive fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_BACKUP'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=backup'));
 		$buttons[] = array('icon' => 'fa fa-envelope-o fa-4x', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_EMAILS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=messages'));
@@ -153,5 +154,24 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$app->triggerEvent('rsepro_adminDashboard',array(array('buttons' => &$buttons)));
 		
 		return $buttons;
+	}
+	
+	public function getStatistics() {
+		require_once JPATH_SITE.'/components/com_rseventspro/helpers/statistics.php';
+		
+		$statistics = new RSEventsProStatistics();
+		
+		$types = array(
+			JText::_('COM_RSEVENTSPRO_DASHBOARD_STATISTICS_TODAY') 		=> $statistics->get('today'),
+			JText::_('COM_RSEVENTSPRO_DASHBOARD_STATISTICS_THISWEEK') 	=> $statistics->get('thisweek'),
+			JText::_('COM_RSEVENTSPRO_DASHBOARD_STATISTICS_LASTWEEK') 	=> $statistics->get('lastweek'),
+			JText::_('COM_RSEVENTSPRO_DASHBOARD_STATISTICS_THISMONTH') 	=> $statistics->get('thismonth'),
+			JText::_('COM_RSEVENTSPRO_DASHBOARD_STATISTICS_LASTMONTH') 	=> $statistics->get('lastmonth'),
+			JText::_('COM_RSEVENTSPRO_DASHBOARD_STATISTICS_THISYEAR') 	=> $statistics->get('thisyear'),
+			JText::_('COM_RSEVENTSPRO_DASHBOARD_STATISTICS_LASTYEAR') 	=> $statistics->get('lastyear'),
+			JText::_('COM_RSEVENTSPRO_DASHBOARD_STATISTICS_TOTAL') 		=> $statistics->get('total')
+		);
+		
+		return $types;
 	}
 }

@@ -4,8 +4,7 @@
 * @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
-defined( '_JEXEC' ) or die( 'Restricted access' ); 
-JHtml::_('behavior.modal', 'a.modal_jform_owner'); ?>
+defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 <legend><?php echo JText::_('COM_RSEVENTSPRO_EVENT_CONTACT'); ?></legend>
 
 <div class="control-group">

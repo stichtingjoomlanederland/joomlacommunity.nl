@@ -55,7 +55,8 @@ class RSEventsProPlaceholders {
 			'{Gateway}' 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_GATEWAY',
 			'{IP}' 				=> 'COM_RSEVENTSPRO_PLACEHOLDER_IP',
 			'{Coupon}' 			=> 'COM_RSEVENTSPRO_PLACEHOLDER_COUPON',
-			'{PaymentURL}' 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_PAYMENT_URL'
+			'{PaymentURL}' 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_PAYMENT_URL',
+			'{UnsubscribeURL}' 	=> 'COM_RSEVENTSPRO_PLACEHOLDER_UNSUBSCRIBE_URL'
 		);
 		
 		return array_merge(self::$globals, $registration);
@@ -72,7 +73,8 @@ class RSEventsProPlaceholders {
 			'{EarlyDiscount}' 	=> 'COM_RSEVENTSPRO_PLACEHOLDER_EARLY_DISCOUNT',
 			'{Gateway}' 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_GATEWAY',
 			'{IP}' 				=> 'COM_RSEVENTSPRO_PLACEHOLDER_IP',
-			'{Coupon}' 			=> 'COM_RSEVENTSPRO_PLACEHOLDER_COUPON'
+			'{Coupon}' 			=> 'COM_RSEVENTSPRO_PLACEHOLDER_COUPON',
+			'{UnsubscribeURL}' 	=> 'COM_RSEVENTSPRO_PLACEHOLDER_UNSUBSCRIBE_URL'
 		);
 		
 		return array_merge(self::$globals, $activation);
@@ -173,6 +175,18 @@ class RSEventsProPlaceholders {
 			'{SubscribeDate}'		=> 'COM_RSEVENTSPRO_PLACEHOLDER_SUBSCRIBE_DATE',
 			'{PaymentGateway}'		=> 'COM_RSEVENTSPRO_PLACEHOLDER_GATEWAY',
 			'{TicketsDiscount}'		=> 'COM_RSEVENTSPRO_PLACEHOLDER_COUPON'
+		);
+		
+		return array_merge(self::$globals, $notify_me);
+	}
+	
+	public static function notify_me_unsubscribe() {
+		$notify_me = array(
+			'{SubscriberUsername}'	=> 'COM_RSEVENTSPRO_PLACEHOLDER_SUBSCRIBER_USERNAME',
+			'{SubscriberName}'		=> 'COM_RSEVENTSPRO_PLACEHOLDER_SUBSCRIBER_NAME',
+			'{SubscriberEmail}'		=> 'COM_RSEVENTSPRO_PLACEHOLDER_SUBSCRIBER_EMAIL',
+			'{SubscriberIP}'		=> 'COM_RSEVENTSPRO_PLACEHOLDER_SUBSCRIBER_IP',
+			'{SubscribeDate}'		=> 'COM_RSEVENTSPRO_PLACEHOLDER_SUBSCRIBE_DATE'
 		);
 		
 		return array_merge(self::$globals, $notify_me);

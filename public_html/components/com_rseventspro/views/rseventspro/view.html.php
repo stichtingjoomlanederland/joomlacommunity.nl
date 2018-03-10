@@ -54,7 +54,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 		// Add search bar
 		if ($this->params->get('search',1)) {
 			if ($this->document->getType() == 'html') {
-				$this->document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.filter.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
+				$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.filter.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 			}
 		}
 		
@@ -102,15 +102,18 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 			if ($modifyTitle) {
 				$title = null;
-				if ($this->category) {
-					$skipMeta = true;
-					$title = JText::sprintf('COM_RSEVENTSPRO_EVENTS_CATEGORY_TITLE_SEO',$this->category->title);
-				} elseif ($this->location) {
-					$skipMeta = true;
-					$title = JText::sprintf('COM_RSEVENTSPRO_EVENTS_LOCATION_TITLE_SEO',$this->location);
-				} elseif ($this->tag) {
-					$skipMeta = true;
-					$title = JText::sprintf('COM_RSEVENTSPRO_EVENTS_TAG_TITLE_SEO',$this->tag);
+				
+				if (rseventsproHelper::getConfig('seo_title','int',1)) {
+					if ($this->category) {
+						$skipMeta = true;
+						$title = JText::sprintf('COM_RSEVENTSPRO_EVENTS_CATEGORY_TITLE_SEO',$this->category->title);
+					} elseif ($this->location) {
+						$skipMeta = true;
+						$title = JText::sprintf('COM_RSEVENTSPRO_EVENTS_LOCATION_TITLE_SEO',$this->location);
+					} elseif ($this->tag) {
+						$skipMeta = true;
+						$title = JText::sprintf('COM_RSEVENTSPRO_EVENTS_TAG_TITLE_SEO',$this->tag);
+					}
 				}
 				
 				if (!is_null($title)) {
@@ -125,8 +128,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 			}
 			
 			// Price slider assets
-			$this->document->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/bootstrap-slider.css');
-			$this->document->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/bootstrap-slider.js');
+			JHtml::stylesheet('com_rseventspro/bootstrap-slider.css', array('relative' => true, 'version' => 'auto'));
+			JHtml::script('com_rseventspro/bootstrap-slider.js', array('relative' => true, 'version' => 'auto'));
 			$this->maxPrice = $this->get('MaxPrice');
 			
 			$this->mask		= empty($this->config->payment_mask) ? '%p %c' : $this->config->payment_mask;
@@ -196,15 +199,11 @@ class RseventsproViewRseventspro extends JViewLegacy
 			// Load scripts
 			JHtml::_('rseventspro.chosen');
 			if ($this->document->getType() == 'html') {
-				$this->document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/edit.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
+				$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/edit.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 			}
-			$this->document->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/edit.css?v='.RSEPRO_RS_REVISION);
+			JHtml::stylesheet('com_rseventspro/edit.css', array('relative' => true, 'version' => 'auto'));
 			
-			if (rseventsproHelper::isJ3()) {
-				JHtml::_('jquery.ui', array('core', 'sortable'));
-			} else {
-				$this->document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery-ui.min.js" type="text/javascript"></script>');
-			}
+			JHtml::_('jquery.ui', array('core', 'sortable'));
 			
 			// Load custom scripts
 			$app->triggerEvent('rsepro_addCustomScripts');
@@ -212,7 +211,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 			if (rseventsproHelper::getConfig('enable_google_maps')) {
 				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry&language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
 				if ($this->document->getType() == 'html') {
-					$this->document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
+					$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.map.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 				}
 			}
 			
@@ -264,9 +263,9 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 			// Load scripts
 			if ($this->document->getType() == 'html') {
-				$this->document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.imgareaselect.pack.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
+				$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.imgareaselect.pack.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 			}
-			$this->document->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/imgareaselect-animated.css');
+			JHtml::stylesheet('com_rseventspro/imgareaselect-animated.css', array('relative' => true, 'version' => 'auto'));
 			
 			$this->item			= $this->get('Event');
 			$this->icon			= $this->get('icon');
@@ -320,7 +319,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 			if (rseventsproHelper::getConfig('enable_google_maps')) {
 				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry&language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
 				if ($this->document->getType() == 'html') {
-					$this->document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
+					$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.map.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 				}
 			}
 			
@@ -343,7 +342,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 			if (rseventsproHelper::getConfig('enable_google_maps','int')) {
 				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry&language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
 				if ($this->document->getType() == 'html') {
-					$this->document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
+					$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.map.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 				}
 			}
 			
@@ -353,6 +352,11 @@ class RseventsproViewRseventspro extends JViewLegacy
 			$app->triggerEvent('rsepro_addCustomScripts');
 			
 			$this->row = $this->get('location');
+			
+			$form = JForm::getInstance('location', JPATH_ADMINISTRATOR.'/components/com_rseventspro/models/forms/location.xml', array('control' => 'jform'));
+			$form->bind($this->row);
+			
+			$this->form = $form;
 			
 			//set the pathway
 			$pathway->addItem(JText::_('COM_RSEVENTSPRO_BC_EDIT_LOCATION'));
@@ -367,7 +371,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 			if (rseventsproHelper::getConfig('enable_google_maps')) {
 				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry&language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
 				if ($this->document->getType() == 'html') {
-					$this->document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
+					$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.map.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 				}
 			}
 			
@@ -406,6 +410,10 @@ class RseventsproViewRseventspro extends JViewLegacy
 				rseventsproHelper::error(JText::_('COM_RSEVENTSPRO_ERROR_INVALID_EVENT'), rseventsproHelper::route('index.php?option=com_rseventspro&layout=default',false));
 			}
 			
+			if ($layout == 'print') {
+				$this->document->setMetaData('robots', 'noindex,nofollow');
+			}
+			
 			// Get the event
 			$skipMeta				= true;
 			$this->event			= $this->get('event');
@@ -429,7 +437,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 				if (rseventsproHelper::getConfig('enable_google_maps','int')) {
 					$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry&language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
 					if ($this->document->getType() == 'html') {
-						$this->document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
+						$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.map.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 					}
 				}
 			}
@@ -442,8 +450,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 			// Load jQuery Colorbox modal
 			if (rseventsproHelper::getConfig('modal','int') == 1 && $layout == 'show') {
-				$this->document->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery.colorbox.min.js');
-				$this->document->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/colorbox.css');
+				JHtml::script('com_rseventspro/jquery.colorbox.min.js', array('relative' => true, 'version' => 'auto'));
+				JHtml::stylesheet('com_rseventspro/colorbox.css', array('relative' => true, 'version' => 'auto'));
 				$this->document->addCustomTag('<script type="text/javascript">jQuery(document).ready(function(){
 					jQuery("a[rel=\'rs_subscribe\']").colorbox({iframe:true, innerWidth:'.$this->modal_width.', innerHeight:'.$this->modal_height.' , title:\''.JText::_('COM_RSEVENTSPRO_EVENT_JOIN',true).'\'});
 					jQuery("a[rel=\'rs_invite\']").colorbox({iframe:true, innerWidth:'.$this->modal_width.', innerHeight:'.$this->modal_height.', title:\''.JText::_('COM_RSEVENTSPRO_EVENT_INVITE',true).'\'});
@@ -500,7 +508,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 			if (rseventsproHelper::getConfig('must_login','int') && $user->get('id') == 0) {
 				$link = rseventsproHelper::getConfig('modal','int');
 				if ($link == 0) {
-					$app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id)),JText::_('COM_RSEVENTSPRO_PLEASE_LOGIN'));
+					$app->enqueueMessage(JText::_('COM_RSEVENTSPRO_PLEASE_LOGIN'));
+					$app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id)));
 				} else {
 					echo rseventsproHelper::redirect(true,JText::_('COM_RSEVENTSPRO_PLEASE_LOGIN'),rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id)),false,true);
 					return;
@@ -778,7 +787,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 				rseventsproHelper::error(JText::_('COM_RSEVENTSPRO_ERROR_NO_TICKETS_LEFT'), rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id)));
 			}
 			
-			$this->document->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/tickets.css?v='.RSEPRO_RS_REVISION);
+			JHtml::stylesheet('com_rseventspro/tickets.css', array('relative' => true, 'version' => 'auto'));
 			
 			$this->tickets = rseventsproHelper::getTickets(JFactory::getApplication()->input->getInt('id',0));
 		} elseif ($layout == 'seats') {
@@ -799,8 +808,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 			}
 			
 			// Load scripts
-			$this->document->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery-ui.min.js?v='.RSEPRO_RS_REVISION);
-			$this->document->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/tickets.css?v='.RSEPRO_RS_REVISION);
+			JHtml::script('com_rseventspro/jquery-ui.min.js', array('relative' => true, 'version' => 'auto'));
+			JHtml::stylesheet('com_rseventspro/tickets.css', array('relative' => true, 'version' => 'auto'));
 			$this->tickets = rseventsproHelper::getTickets($app->input->getInt('id',0));
 		} elseif ($layout == 'report') {
 			$this->report			= $this->get('canreport');
@@ -840,7 +849,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 		} elseif ($layout == 'userseats') {
 			$this->data = $this->get('subscriber');
 			if ($this->admin || $this->data['event']->owner == $user->get('id')) {
-				$this->document->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/tickets.css?v='.RSEPRO_RS_REVISION);
+				JHtml::stylesheet('com_rseventspro/tickets.css', array('relative' => true, 'version' => 'auto'));
 				
 				$eventId		= $this->data['event']->id;
 				$this->tickets	= rseventsproHelper::getTickets($eventId);
@@ -853,6 +862,32 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 			$type 				= JFactory::getApplication()->input->getCmd('type','');
 			$this->placeholders = RSEventsProPlaceholders::get($type);
+		} elseif ($layout == 'user') {
+			$this->id		= $app->input->getInt('id', 0);
+			
+			if ($this->id == 0) {
+				rseventsproHelper::error(JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED'), rseventsproHelper::route('index.php?option=com_rseventspro',false));
+			}
+			
+			$this->canEdit	= $user->get('id') == $this->id;
+			$this->data		= rseventsproHelper::getUserProfile($app->input->getInt('id', 0));
+			$this->created	= rseventsproHelper::getUserEvents($app->input->getInt('id', 0));
+			$this->joined	= rseventsproHelper::getUserEvents($app->input->getInt('id', 0), 'join');
+		} elseif ($layout == 'edituser') {
+			
+			if ($app->input->getInt('id', 0) == 0) {
+				rseventsproHelper::error(JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED'), rseventsproHelper::route('index.php?option=com_rseventspro',false));
+			}
+			
+			if ($user->get('id') == $app->input->getInt('id', 0)) {
+				$this->data = rseventsproHelper::getUserProfile($app->input->getInt('id', 0));
+				$form		= JForm::getInstance('user', JPATH_ADMINISTRATOR.'/components/com_rseventspro/models/forms/user.xml', array('control' => 'jform'));
+				$form->bind($this->data);
+				
+				$this->form = $form;
+			} else {
+				rseventsproHelper::error(JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED'), rseventsproHelper::route('index.php?option=com_rseventspro',false));
+			}
 		}
 		
 		$this->lists	= $lists;

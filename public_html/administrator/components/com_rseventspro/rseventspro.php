@@ -8,7 +8,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 // Check for access
 if (!JFactory::getUser()->authorise('core.manage', 'com_rseventspro'))
-	return JError::raiseWarning(404, JText::_('JERROR_ALERTNOAUTHOR'));
+	 throw new Exception(JText::_('JERROR_ALERTNOAUTHOR'), 403);
 	
 // Load files
 require_once JPATH_SITE. '/components/com_rseventspro/helpers/adapter/adapter.php';

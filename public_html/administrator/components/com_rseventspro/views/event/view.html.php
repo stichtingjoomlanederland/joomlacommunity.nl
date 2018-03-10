@@ -37,8 +37,8 @@ class RseventsproViewEvent extends JViewLegacy
 		} elseif ($this->layout == 'upload') {
 			
 			// Load scripts
-			$this->document->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery.imgareaselect.pack.js');
-			$this->document->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/imgareaselect-animated.css');
+			JHtml::script('com_rseventspro/jquery.imgareaselect.pack.js', array('relative' => true, 'version' => 'auto'));
+			JHtml::stylesheet('com_rseventspro/imgareaselect-animated.css', array('relative' => true, 'version' => 'auto'));
 			
 			$image				= @getimagesize(JPATH_SITE.'/components/com_rseventspro/assets/images/events/'.$this->item->icon);
 			$this->width		= isset($image[0]) ? $image[0] : 800;
@@ -71,8 +71,8 @@ class RseventsproViewEvent extends JViewLegacy
 			
 		} elseif ($this->layout == 'tickets') {
 			
-			$this->document->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery-ui.min.js');
-			$this->document->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/tickets.css');
+			JHtml::script('com_rseventspro/jquery-ui.min.js', array('relative' => true, 'version' => 'auto'));
+			JHtml::stylesheet('com_rseventspro/tickets.css', array('relative' => true, 'version' => 'auto'));
 			$this->tickets = rseventsproHelper::getTickets($this->app->input->getInt('id',0));
 		}
 		
@@ -83,21 +83,15 @@ class RseventsproViewEvent extends JViewLegacy
 		$this->item->name ? JToolBarHelper::title(JText::sprintf('COM_RSEVENTSPRO_EDIT_EVENT',$this->item->name),'rseventspro48') : JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_ADD_EVENT'),'rseventspro48');
 		JToolBarHelper::apply('event.apply');
 		JToolBarHelper::save('event.save');
-		JToolBarHelper::custom('preview','preview','preview',JText::_('COM_RSEVENTSPRO_PREVIEW_EVENT'),false);
+		JToolBarHelper::custom('preview','zoom-in','zoom-in',JText::_('COM_RSEVENTSPRO_PREVIEW_EVENT'),false);
 		JToolBarHelper::cancel('event.cancel');
 		
 		JHtml::_('rseventspro.chosen');
-		
-		if (!rseventsproHelper::isJ3()) {
-			$this->document->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery-ui.min.js');
-			rseventsproHelper::loadBootstrap(true);
-		} else {
-			JHtml::_('jquery.ui', array('core', 'sortable'));
-		}
+		JHtml::_('jquery.ui', array('core', 'sortable'));
 		
 		// Load scripts
-		$this->document->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/edit.js?v='.RSEPRO_RS_REVISION);
-		$this->document->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/edit.css?v='.RSEPRO_RS_REVISION);
+		JHtml::script('com_rseventspro/edit.js', array('relative' => true, 'version' => 'auto'));
+		JHtml::stylesheet('com_rseventspro/edit.css', array('relative' => true, 'version' => 'auto'));
 		
 		// Load RSEvents!Pro plugins
 		rseventsproHelper::loadPlugins();
@@ -107,7 +101,7 @@ class RseventsproViewEvent extends JViewLegacy
 		
 		if ($this->config->enable_google_maps) {
 			$this->document->addScript('https://maps.google.com/maps/api/js?language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
-			$this->document->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery.map.js?v='.RSEPRO_RS_REVISION);
+			JHtml::script('com_rseventspro/jquery.map.js', array('relative' => true, 'version' => 'auto'));
 		}
 	}
 }

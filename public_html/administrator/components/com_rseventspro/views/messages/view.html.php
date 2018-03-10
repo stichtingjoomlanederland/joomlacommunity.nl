@@ -10,9 +10,6 @@ class RseventsproViewMessages extends JViewLegacy
 {	
 	public function display($tpl = null) {
 		JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_LIST_EMAILS'),'rseventspro48');
-		JToolBarHelper::custom('rseventspro','rseventspro32','rseventspro32',JText::_('COM_RSEVENTSPRO_GLOBAL_NAME'),false);
-		
-		$this->sidebar = rseventsproHelper::isJ3() ? JHtmlSidebar::render() : '';
 		
 		parent::display($tpl);
 	}

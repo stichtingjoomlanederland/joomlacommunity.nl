@@ -63,13 +63,10 @@ class JFormFieldCategoryParent extends JFormFieldList
         // Get the options.
         $db->setQuery($query);
             
-        try
-        {
+        try {
             $options = $db->loadObjectList();
-        }
-        catch (RuntimeException $e)
-        {
-            JError::raiseWarning(500, $e->getMessage);
+        } catch (RuntimeException $e) {
+            throw new Exception($e->getMessage(), 500);
         }
             
         // Pad the option text with spaces using depth level as a multiplier.

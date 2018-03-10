@@ -190,6 +190,8 @@ class RseventsproController extends JControllerLegacy
 		} elseif ($type == 'category') {
 			$data['extension'] = 'com_rseventspro';
 			$data['language'] = '*';
+			$data['params'] = '';
+			$data['description'] = '';
 			$table = JTable::getInstance('Category', 'RseventsproTable');
 			$table->setLocation($data['parent_id'], 'last-child');
 			$table->save($data);
@@ -198,6 +200,8 @@ class RseventsproController extends JControllerLegacy
 			echo json_encode(JHtml::_('category.options','com_rseventspro', array('filter.published' => array(1))));
 		} elseif ($type == 'ticket') {
 			$data = (object) $data;
+			
+			$data->position = '';
 			
 			$query->select('MAX('.$db->qn('order').')')
 				->from($db->qn('#__rseventspro_tickets'))
@@ -215,7 +219,15 @@ class RseventsproController extends JControllerLegacy
 				} catch (Exception $e) {
 					$data->groups = array();
 				}
+			} else {
+				$data->groups = '';
 			}
+			
+			$data->layout = '';
+			$data->price = (float) $data->price;
+			$data->seats = (int) $data->seats;
+			$data->user_seats = (int) $data->user_seats;
+			
 			$db->insertObject('#__rseventspro_tickets', $data, 'id');
 			
 			if ($format == 'raw') {
@@ -242,12 +254,18 @@ class RseventsproController extends JControllerLegacy
 			if (!empty($data->from) && $data->from != $db->getNullDate()) {
 				$start = JFactory::getDate($data->from, rseventsproHelper::getTimezone());
 				$data->from = $start->format('Y-m-d H:i:s');
+			} else {
+				$data->from = $db->getNullDate();
 			}
 			
 			if (!empty($data->to) && $data->to != $db->getNullDate()) {
 				$end = JFactory::getDate($data->to, rseventsproHelper::getTimezone());
 				$data->to = $end->format('Y-m-d H:i:s');
+			} else {
+				$data->to = $db->getNullDate();
 			}
+			
+			$data->usage = (int) $data->usage;
 			
 			$db->insertObject('#__rseventspro_coupons', $data, 'id');
 			

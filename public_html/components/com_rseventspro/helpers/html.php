@@ -6,6 +6,8 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); 
 
+use Joomla\Utilities\ArrayHelper;
+
 abstract class JHTMLRSEventsPro
 {
 	/**
@@ -36,7 +38,7 @@ abstract class JHTMLRSEventsPro
 		JFactory::getLanguage()->load('com_rseventspro.dates',JPATH_SITE);
 		
 		$document = JFactory::getDocument();
-		$document->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/bootstrap-datetimepicker.min.css');
+		JHtml::stylesheet('com_rseventspro/bootstrap-datetimepicker.min.css', array('relative' => true, 'version' => 'auto'));
 		
 		$locale = "\n".'(function($){'."\n";
 		$locale .= "\t".'$.fn.datetimepicker.dates[\'en\'] = {'."\n";
@@ -49,9 +51,9 @@ abstract class JHTMLRSEventsPro
 		$locale .= '}(jQuery))'."\n";
 		
 		if ($document->getType() == 'html') {
-			$document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/bootstrap-datetimepicker.min.js" type="text/javascript"></script>');
+			$document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/bootstrap-datetimepicker.min.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 			$document->addCustomTag('<script type="text/javascript">'.$locale.'</script>');
-			$document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/bootstrap.fix.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
+			$document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/bootstrap.fix.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 		}
 		
 		static::$loaded[__METHOD__] = true;
@@ -94,7 +96,7 @@ abstract class JHTMLRSEventsPro
 				unset($attribs['clear']);
 			}
 
-			$attribs = JArrayHelper::toString($attribs);
+			$attribs = ArrayHelper::toString($attribs);
 		}
 		
 		$html	= array();
@@ -200,62 +202,19 @@ abstract class JHTMLRSEventsPro
 	 * @param   int $i
 	 */
 	public static function featured($value = 0, $i) {
-		// Array of image, task, title, action
 		$states	= array(
-			0	=> array((rseventsproHelper::isJ3() ? 'star-empty' : 'disabled.png'),	'events.featured',		'COM_RSEVENTSPRO_UNFEATURED',	'COM_RSEVENTSPRO_TOGGLE_TO_FEATURE'),
-			1	=> array((rseventsproHelper::isJ3() ? 'star' : 'featured.png'),			'events.unfeatured',	'COM_RSEVENTSPRO_FEATURED',		'COM_RSEVENTSPRO_TOGGLE_TO_UNFEATURE'),
+			0	=> array('featured',		'COM_RSEVENTSPRO_UNFEATURED',	'COM_RSEVENTSPRO_TOGGLE_TO_FEATURE',	true, 'featured', 'unfeatured'),
+			1	=> array('unfeatured',		'COM_RSEVENTSPRO_FEATURED',		'COM_RSEVENTSPRO_TOGGLE_TO_UNFEATURE',	true, 'unfeatured', 'featured')
 		);
-		$state	= JArrayHelper::getValue($states, (int) $value, $states[1]);
-		$icon	= $state[0];
-		$image 	= JHtml::_('image', 'admin/'.$state[0], JText::_($state[2]), NULL, true);
 		
-		if (rseventsproHelper::isJ3()) {
-			$html	= '<a href="#" onclick="return listItemTask(\'cb'.$i.'\',\''.$state[1].'\')" class="btn btn-micro hasTooltip' . ($value == 1 ? ' active' : '') . '" title="'.JText::_($state[3]).'"><i class="icon-'
-					. $icon.'"></i></a>';
-		} else {
-			$html	= '<a href="#" onclick="return listItemTask(\'cb'.$i.'\',\''.$state[1].'\')" class="'.rseventsproHelper::tooltipClass() . ($value == 1 ? ' active' : '') . '" title="'.rseventsproHelper::tooltipText(JText::_($state[3])).'">'
-					. $image.'</a>';
-		}
-
-		return $html;
+		return JHTML::_('jgrid.state', $states, $value, $i, 'events.');
 	}
 	
 	public static function chosen($selector = '.rsepro-chosen', $options = array()) {
 		$doc = JFactory::getDocument();
 		$doc->addStyleDeclaration('.rsepro-chosen {width: 220px;}');
 		
-		if (rseventsproHelper::isJ3()) {
-			JHtml::_('formbehavior.chosen', $selector, null, $options);
-		} else {
-			if (isset(static::$loaded[__METHOD__][$selector])) {
-				return;
-			}
-			
-			// Default settings
-			$options['disable_search_threshold']  = isset($options['disable_search_threshold']) ? $options['disable_search_threshold'] : 10;
-			$options['allow_single_deselect']     = isset($options['allow_single_deselect']) ? $options['allow_single_deselect'] : true;
-			$options['placeholder_text_multiple'] = isset($options['placeholder_text_multiple']) ? $options['placeholder_text_multiple']: JText::_('JGLOBAL_SELECT_SOME_OPTIONS');
-			$options['placeholder_text_single']   = isset($options['placeholder_text_single']) ? $options['placeholder_text_single'] : JText::_('JGLOBAL_SELECT_AN_OPTION');
-			$options['no_results_text']           = isset($options['no_results_text']) ? $options['no_results_text'] : JText::_('JGLOBAL_SELECT_NO_RESULTS_MATCH');
-
-			// Options array to json options string
-			$options_str = json_encode($options);
-			
-			if ($doc->getType() == 'html') {
-				$doc->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/chosen.jquery.min.js" type="text/javascript"></script>');
-			}
-			$doc->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/chosen.css');
-			$doc->addScriptDeclaration("
-					jQuery(document).ready(function (){
-						jQuery('" . $selector . "').chosen(" . $options_str . ");
-					});
-				"
-			);
-
-			static::$loaded[__METHOD__][$selector] = true;
-
-			return;
-		}
+		JHtml::_('formbehavior.chosen', $selector, null, $options);
 	}
 	
 	
@@ -398,7 +357,7 @@ abstract class JHTMLRSEventsPro
 		}
 		
 		if ($document->getType() == 'html') {
-			$document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/chosen.ajax.jquery.min.js" type="text/javascript"></script>');
+			$document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/chosen.ajax.jquery.min.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 		}
 		$document->addScriptDeclaration("
 			(function($){

@@ -18,8 +18,9 @@ class RseventsproModelSubscriptions extends JModelList
 	public function __construct($config = array()) {
 		if (empty($config['filter_fields'])) {
 			$config['filter_fields'] = array(
-				'u.name', 'e.name', 'u.id',
-				'u.gateway', 'u.state', 'u.confirmed'
+				'u.name', 'e.name', 'u.id', 'u.date',
+				'u.gateway', 'u.state', 'u.confirmed', 
+				'state', 'event', 'ticket'
 			);
 		}
 		
@@ -31,21 +32,25 @@ class RseventsproModelSubscriptions extends JModelList
 	 *
 	 * Note. Calling getState in this method will result in recursion.
 	 *
-	 * @return	void
-	 * @since	1.6
+	 * @param   string  $ordering   An optional ordering field.
+	 * @param   string  $direction  An optional direction (asc|desc).
+	 *
+	 * @return  void
+	 *
+	 * @since   1.6
 	 */
-	protected function populateState($ordering = null, $direction = null) {
-		$jinput = JFactory::getApplication()->input;
-		$this->setState('filter.search', $this->getUserStateFromRequest($this->context.'.filter.search', 'filter_search'));
-		$this->setState('filter.state', $this->getUserStateFromRequest($this->context.'.filter.state', 'filter_state'));
-		$this->setState('filter.event', $this->getUserStateFromRequest($this->context.'.filter.event', 'filter_event'));
-		$this->setState('filter.ticket', $this->getUserStateFromRequest($this->context.'.filter.ticket', 'filter_ticket'));
+	protected function populateState($ordering = 'u.date', $direction = 'desc') {
+		$event = JFactory::getApplication()->input->getInt('filter_event', 0);
 		
-		$limitstart = $jinput->getInt('lstart');
+		$this->setState('filter.event', $this->getUserStateFromRequest($this->context . '.filter.event', 'filter_event', '', 'cmd'));
 		
 		// List state information.
-		parent::populateState('u.date', 'desc');
-		$this->setState('list.start', $limitstart);
+		parent::populateState($ordering, $direction);
+		
+		if ($event) {
+			$this->setState('filter.event', $event);
+		}
+		
 	}
 	
 	/**
@@ -107,106 +112,6 @@ class RseventsproModelSubscriptions extends JModelList
 		JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
 		
 		return $query;
-	}
-	
-	/**
-	 *	Method to set the side bar
-	 */
-	public function getSidebar() {
-		if (rseventsproHelper::isJ3()) {
-			$layout = JFactory::getApplication()->input->get('layout','');
-			
-			if ($layout != 'scan') {
-				JHtmlSidebar::addFilter(
-					JText::_('COM_RSEVENTSPRO_SELECT_STATE'),
-					'filter_state',
-					JHtml::_('select.options', rseventsproHelper::getStatuses(), 'value', 'text', $this->getState('filter.state'), false)
-				);
-				JHtmlSidebar::addFilter(
-					JText::_('COM_RSEVENTSPRO_SELECT_EVENT'),
-					'filter_event',
-					JHtml::_('select.options', rseventsproHelper::getFilterEvents(true,true), 'value', 'text', $this->getState('filter.event'), false)
-				);
-				
-				if ($this->getState('filter.event')) {
-					JHtmlSidebar::addFilter(
-						JText::_('COM_RSEVENTSPRO_SELECT_TICKET'),
-						'filter_ticket',
-						JHtml::_('select.options', $this->getFilterTickets(), 'value', 'text', $this->getState('filter.ticket'), false)
-					);
-				}
-			}
-			
-			return JHtmlSidebar::render();
-		}
-		
-		return;
-	}
-	
-	/**
-	 *	Method to set the filter bar
-	 */
-	public function getFilterBar() {
-		$options = array();
-		$options['search'] = array(
-			'label' => JText::_('JSEARCH_FILTER'),
-			'value' => $this->getState('filter.search')
-		);
-		$options['listDirn']  = $this->getState('list.direction', 'desc');
-		$options['listOrder'] = $this->getState('list.ordering', 'u.date');
-		$options['sortFields'] = array(
-			JHtml::_('select.option', 'u.id', JText::_('COM_RSEVENTSPRO_GLOBAL_SORT_ID')),
-			JHtml::_('select.option', 'u.date', JText::_('COM_RSEVENTSPRO_SUBSCRIPTIONS_SORT_DATE')),
-			JHtml::_('select.option', 'u.name', JText::_('COM_RSEVENTSPRO_SUBSCRIPTIONS_SORT_NAME')),
-			JHtml::_('select.option', 'e.name', JText::_('COM_RSEVENTSPRO_SUBSCRIPTIONS_SORT_EVENT_NAME')),
-			JHtml::_('select.option', 'u.gateway', JText::_('COM_RSEVENTSPRO_SUBSCRIPTIONS_SORT_GATEWAY')),
-			JHtml::_('select.option', 'u.state', JText::_('JSTATUS'))
-		);
-		$options['rightItems'] = array(
-			array(
-				'input' => '<select id="filter_state" name="filter_state" class="inputbox" onchange="this.form.submit()">'."\n"
-						   .'<option value="">'.JText::_('COM_RSEVENTSPRO_SELECT_STATE').'</option>'."\n"
-						   .JHtml::_('select.options', rseventsproHelper::getStatuses(), 'value', 'text', $this->getState('filter.state'))."\n"
-						   .'</select>'
-				),
-			
-			array(
-				'input' => '<select id="filter_event" name="filter_event" class="inputbox" onchange="this.form.submit()">'."\n"
-						   .'<option value="">'.JText::_('COM_RSEVENTSPRO_SELECT_EVENT').'</option>'."\n"
-						   .JHtml::_('select.options', rseventsproHelper::getFilterEvents(true,true,'DESC'), 'value', 'text', $this->getState('filter.event'))."\n"
-						   .'</select>'
-				)
-		);
-		
-		if ($this->getState('filter.event')) {
-			$options['rightItems'][] = array(
-				'input' => '<select id="filter_ticket" name="filter_ticket" class="inputbox" onchange="this.form.submit()">'."\n"
-						   .'<option value="">'.JText::_('COM_RSEVENTSPRO_SELECT_TICKET').'</option>'."\n"
-						   .JHtml::_('select.options', $this->getFilterTickets(), 'value', 'text', $this->getState('filter.ticket'))."\n"
-						   .'</select>'
-				);
-		}
-		
-		$bar = new RSFilterBar($options);
-		return $bar;
-	}
-	
-	/**
-	 *	Method to get tickets
-	 */
-	protected function getFilterTickets() {
-		$db = JFactory::getDbo();
-		$id = $this->getState('filter.event');
-		$query = $db->getQuery(true);
-		
-		$query->clear()
-			->select($db->qn('id','value'))->select($db->qn('name','text'))
-			->from($db->qn('#__rseventspro_tickets'))
-			->where($db->qn('ide').' = '.(int) $id)
-			->order($db->qn('order').' ASC');
-			
-		$db->setQuery($query);
-		return $db->loadObjectList();
 	}
 	
 	/**

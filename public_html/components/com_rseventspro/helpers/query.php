@@ -212,7 +212,7 @@ class RSEventsProQuery
 		
 		// Filter events with the menu item categories filter
 		if (!empty($categories)) {
-			JArrayHelper::toInteger($categories);
+			array_map('intval',$categories);
 			$groups		= implode(',', $user->getAuthorisedViewLevels());
 			$catwhere	= 'AND '.$db->qn('c.access').' IN ('.$groups.')';
 			
@@ -225,14 +225,14 @@ class RSEventsProQuery
 		
 		// Filter events with the menu item tags filter
 		if (!empty($tags)) {
-			JArrayHelper::toInteger($tags);
+			array_map('intval',$tags);
 			
 			$where[] = ' AND '.$db->qn('e.id').' IN (SELECT '.$db->qn('tx.ide').' FROM '.$db->qn('#__rseventspro_taxonomy','tx').' LEFT JOIN '.$db->qn('#__rseventspro_tags','t').' ON '.$db->qn('t.id').' = '.$db->qn('tx.id').' WHERE '.$db->qn('t.id').' IN ('.implode(',',$tags).') AND '.$db->qn('tx.type').' = '.$db->q('tag').')';
 		}
 		
 		// Filter events with the menu item locations filter
 		if (!empty($locations)) {
-			JArrayHelper::toInteger($locations);
+			array_map('intval',$locations);
 			
 			$where[] = ' AND '.$db->qn('e.location').' IN ('.implode(',',$locations).')';
 		}
@@ -363,6 +363,9 @@ class RSEventsProQuery
 				} else {
 					$end->modify('sunday next week');
 				}
+				
+				$end->setTime(23,59,59);
+				$end = $end->toSql();
 				
 				$where[] = $this->betweenQuery($start, $end);
 			} else if ($listType == 'thisweekend') {
@@ -510,7 +513,8 @@ class RSEventsProQuery
 		$featured_condition = $this->featured ? (rseventsproHelper::getConfig('featured','int') ? $db->qn('e.featured').' DESC, ' : '') : '';
 		
 		if (isset($this->group)) {
-			$query .= ' GROUP BY '.$db->qn($this->group);
+			$groupBy = is_array($this->group) ? $this->implodeSql($this->group) : $db->qn($this->group);
+			$query .= ' GROUP BY '.$groupBy;
 		}
 		
 		if (isset($this->having)) {

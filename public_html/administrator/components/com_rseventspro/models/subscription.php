@@ -79,7 +79,7 @@ class RseventsproModelSubscription extends JModelAdmin
 	public function status($pks, $value = 0) {
 		// Sanitize the ids.
 		$pks = (array) $pks;
-		JArrayHelper::toInteger($pks);
+		array_map('intval',$pks);
 		
 		if (empty($pks)) {
 			$this->setError(JText::_('JERROR_NO_ITEMS_SELECTED'));
@@ -280,7 +280,7 @@ class RseventsproModelSubscription extends JModelAdmin
 				}
 				
 				if (!empty($unlimited)) {
-					JArrayHelper::toInteger($unlimited);
+					array_map('intval',$unlimited);
 					foreach ($unlimited as $unlimitedid => $quantity)
 						$tickets[$unlimitedid] = $quantity;
 				}
@@ -291,7 +291,7 @@ class RseventsproModelSubscription extends JModelAdmin
 			}
 			
 			if (!empty($tickets)) {
-				JArrayHelper::toInteger($tickets);
+				array_map('intval',$tickets);
 				foreach ($tickets as $ticket => $quantity) {
 					if (strpos($ticket,'ev') !== false)
 						$ticket = 0;

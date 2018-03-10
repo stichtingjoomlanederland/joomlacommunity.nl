@@ -11,7 +11,6 @@ class RseventsproViewRseventspro extends JViewLegacy
 	protected $jversion;
 	protected $code;
 	protected $config;
-	protected $middle;
 	protected $events;
 	protected $subscribers;
 	protected $comments;
@@ -20,11 +19,11 @@ class RseventsproViewRseventspro extends JViewLegacy
 		$this->version		= (string) new RSEventsProVersion();	
 		$this->config		= rseventsproHelper::getConfig();
 		$this->code			= $this->config->global_code;
-		$this->middle		= $this->config->dashboard_upcoming || $this->config->dashboard_subscribers || ($this->config->dashboard_comments && !in_array($this->config->event_comment,array(0,1)));
 		$this->events		= $this->get('Events');
 		$this->subscribers	= $this->get('Subscribers');
 		$this->comments		= $this->get('Comments');
 		$this->buttons		= $this->get('Buttons');
+		$this->statistics	= $this->get('Statistics');
 		
 		$this->addToolBar();
 		parent::display($tpl);
@@ -35,7 +34,5 @@ class RseventsproViewRseventspro extends JViewLegacy
 		
 		if (JFactory::getUser()->authorise('core.admin', 'com_rseventspro'))
 			JToolBarHelper::preferences('com_rseventspro');
-		
-		JToolBarHelper::custom('rseventspro','rseventspro32','rseventspro32',JText::_('COM_RSEVENTSPRO_GLOBAL_NAME'),false);
 	}
 }

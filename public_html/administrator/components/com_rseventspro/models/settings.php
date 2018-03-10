@@ -156,6 +156,7 @@ class RseventsproModelSettings extends JModelAdmin
 			$app->enqueueMessage($e->getMessage(),'error');
 		}
 		
+		// Set default image
 		if ($default && $default['error'] == 0 && $default['size'] > 0) {
 			jimport('joomla.filesystem.file');
 			
@@ -166,6 +167,13 @@ class RseventsproModelSettings extends JModelAdmin
 					$data['default_image'] = $file;
 				}
 			}
+		}
+		
+		// Save Facebook pages
+		if (isset($data['facebook_pages'])) {
+			$data['facebook_pages'] = is_array($data['facebook_pages']) ? implode(',', $data['facebook_pages']) : $data['facebook_pages'];
+		} else {
+			$data['facebook_pages'] = '';
 		}
 		
 		// Save gallery params
@@ -323,5 +331,48 @@ class RseventsproModelSettings extends JModelAdmin
 		
 		$this->setState($this->getName() . '.gcevents', $response);
 		return true;
+	}
+	
+	public function getLogs() {
+		$db		= JFactory::getDbo();
+		$query	= $this->getLogQuery();
+		
+		$db->setQuery($query,JFactory::getApplication()->input->getInt('limitstart', 0), JFactory::getConfig()->get('list_limit'));
+		return $db->loadObjectList();
+	}
+	
+	public function getTotalLogs() {
+		$db		= JFactory::getDbo();
+		$query	= $this->getLogQuery(true);
+		
+		$db->setQuery($query);
+		return $db->loadResult();
+	}
+	
+	public function getPagination() {
+		jimport('joomla.html.pagination');
+		return new JPagination($this->getTotalLogs(), JFactory::getApplication()->input->getInt('limitstart', 0), JFactory::getConfig()->get('list_limit'));
+	}
+	
+	protected function getLogQuery($count = false) {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery();
+		$type	= JFactory::getApplication()->input->get('from');
+		$search	= JFactory::getApplication()->input->getString('search');
+		$select = $count ? 'COUNT('.$db->qn('id').')' : '*';
+		
+		$query->clear()
+			->select($select)
+			->from($db->qn('#__rseventspro_sync_log'))
+			->where($db->qn('type').' = '.$db->q($type))
+			->order($db->qn('date').' DESC')
+			->order($db->qn('id').' ASC');
+		
+		if ($search) {
+			$search = $db->q('%'.$db->escape($search, true).'%');
+			$query->where('('.$db->qn('name').' LIKE '.$search.' OR '.$db->qn('from').' LIKE '.$search.')');
+		}
+		
+		return $query;
 	}
 }

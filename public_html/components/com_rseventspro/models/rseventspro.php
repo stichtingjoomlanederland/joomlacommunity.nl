@@ -138,6 +138,8 @@ class RseventsproModelRseventspro extends JModelLegacy
 			$query->where($this->_db->qn('e.published').' = 1');
 			$query->where($this->_db->qn('e.completed').' = 1');
 			$query->group($this->_db->qn('l.id'));
+			$query->group($this->_db->qn('l.name'));
+			$query->group($this->_db->qn('l.description'));
 		}		
 		
 		return (string) $query;
@@ -287,7 +289,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		}
 		
 		if (!empty($categories)) {
-			JArrayHelper::toInteger($categories);
+			array_map('intval',$categories);
 			$addcategorywhere = true;
 			
 			if (count($categories) == 1 && $categories[0] == 0) {
@@ -317,7 +319,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		}
 		
 		if (!empty($locations)) {
-			JArrayHelper::toInteger($locations);
+			array_map('intval',$locations);
 			$addlocationwhere = true;
 			
 			if (count($locations) == 1 && $locations[0] == 0)
@@ -667,11 +669,12 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$tickets = $this->_db->loadObjectList();
 		
 		// Get event details
+		$idevent = !empty($subscription->ide) ? $subscription->ide : $ide;
 		$query->clear()
 			->select($this->_db->qn('id'))->select($this->_db->qn('name'))->select($this->_db->qn('owner'))
 			->select($this->_db->qn('ticketsconfig'))
 			->from($this->_db->qn('#__rseventspro_events'))
-			->where($this->_db->qn('id').' = '.(int) $ide);
+			->where($this->_db->qn('id').' = '.(int) $idevent);
 		
 		$this->_db->setQuery($query);
 		$event = $this->_db->loadObject();
@@ -965,8 +968,10 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$return	= array();
 		$params = rseventsproHelper::getParams();
 		$query	= RSEventsProQuery::getInstance($params);
-		$select = array('e.id', 'e.name', 'e.start', 'e.owner', 'e.end', 'e.allday', 'l.id' => 'lid', 'l.name' => 'lname', 'l.address', 'l.coordinates');
+		$select = array('e.id', 'e.name', 'e.start', 'e.owner', 'e.end', 'e.allday', 'l.id' => 'lid', 'l.name' => 'lname', 'l.address', 'l.coordinates', 'l.marker');
+		$group	= array('e.id', 'e.name', 'e.start', 'e.owner', 'e.end', 'e.allday', 'l.id', 'l.name', 'l.address', 'l.coordinates', 'l.marker');
 		$query->select($select);
+		$query->group($group);
 		$query->featured(false);
 		$query->userevents(false);
 		
@@ -1312,7 +1317,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 			$user	= JFactory::getUser();
 			$groups	= $user->getAuthorisedViewLevels();
 			if (!is_null($item) && !in_array($item->access, $groups)) {
-				return JError::raiseError(403, JText::_('JERROR_ALERTNOAUTHOR'));
+				throw new Exception(JText::_('JERROR_ALERTNOAUTHOR'), 403);
 			}
 			
 			if ($item) {
@@ -1454,7 +1459,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		if (!empty($send) || !empty($people))
 		{
 			if (!empty($people))
-				JArrayHelper::toInteger($people);
+				array_map('intval',$people);
 				
 			$query->clear()
 				->select($this->_db->qn('u.email'))->select($this->_db->qn('u.name'))->select($this->_db->qn('u.ide'))
@@ -1618,6 +1623,8 @@ class RseventsproModelRseventspro extends JModelLegacy
 		
 		$data['extension'] = 'com_rseventspro';
 		$data['language'] = '*';
+		$data['params'] = '';
+		$data['description'] = '';
 		$table = JTable::getInstance('Category', 'RseventsproTable');
 		$table->setLocation($data['parent_id'], 'last-child');
 		$table->save($data);
@@ -1663,6 +1670,8 @@ class RseventsproModelRseventspro extends JModelLegacy
 			$payment	= is_array($form['RSEProPayment']) ? $form['RSEProPayment'][0] : @$form['RSEProPayment'];
 		}
 		
+		$email = trim($email);
+		
 		// Get event name
 		$query->clear()
 			->select($this->_db->qn('name'))->select($this->_db->qn('discounts'))->select($this->_db->qn('early_fee'))->select($this->_db->qn('early_fee_type'))
@@ -1702,7 +1711,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 			}
 			
 			if (!empty($unlimited)) {
-				JArrayHelper::toInteger($unlimited);
+				array_map('intval',$unlimited);
 				foreach ($unlimited as $unlimitedid => $quantity)
 					$tickets[$unlimitedid] = $quantity;
 			}
@@ -1794,6 +1803,9 @@ class RseventsproModelRseventspro extends JModelLegacy
 		// Trigger before the user subscribes.
 		$this->_app->triggerEvent('rsepro_beforeSubscribe',array(array('name'=>&$name, 'email'=>&$email)));
 		
+		$sid	= JFactory::getSession()->getId();
+		$hash	= md5($email.$sid);
+		
 		$query->clear()
 			->insert($this->_db->qn('#__rseventspro_users'))
 			->set($this->_db->qn('ide').' = '.(int) $id)
@@ -1806,6 +1818,9 @@ class RseventsproModelRseventspro extends JModelLegacy
 			->set($this->_db->qn('verification').' = '.$this->_db->q($verification))
 			->set($this->_db->qn('gateway').' = '.$this->_db->q($payment))
 			->set($this->_db->qn('ip').' = '.$this->_db->q($_SERVER['REMOTE_ADDR']))
+			->set($this->_db->qn('params').' = '.$this->_db->q(''))
+			->set($this->_db->qn('log').' = '.$this->_db->q(''))
+			->set($this->_db->qn('hash').' = '.$this->_db->q($hash))
 			->set($this->_db->qn('lang').' = '.$this->_db->q($lang->getTag()));
 		
 		if ($create_user == 2) {
@@ -2174,6 +2189,13 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$this->_db->setQuery($query);
 		$event = $this->_db->loadObject();
 		
+		$userID = (int) $this->_user->get('id');
+		
+		if (empty($userID)) {
+			$URL = rseventsproHelper::route('index.php?option=com_rseventspro&layout=unsubscribe&id='.rseventsproHelper::sef($event->id,$event->name).'&tmpl=component',false);
+			return array('status' => false, 'url' => $URL, 'message' => JText::_('COM_RSEVENTSPRO_GUEST_UNSUBSCRIBED_ERROR'));
+		}
+		
 		$URL = rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id));
 		
 		if (!empty($event->unsubscribe_date) && $event->unsubscribe_date != $this->_db->getNullDate()) {
@@ -2187,6 +2209,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		if (!empty($this->permissions['can_unsubscribe'])) {
 			$query->clear()
 				->select($this->_db->qn('id'))->select($this->_db->qn('name'))->select($this->_db->qn('email'))
+				->select($this->_db->qn('ip'))->select($this->_db->qn('date'))
 				->select($this->_db->qn('SubmissionId'))->select($this->_db->qn('lang'))
 				->from($this->_db->qn('#__rseventspro_users'))
 				->where($this->_db->qn('id').' = '.(int) $id)
@@ -2249,15 +2272,15 @@ class RseventsproModelRseventspro extends JModelLegacy
 				// Notify the owner
 				if ($event->notify_me_unsubscribe) {
 					if ($event->owner) {
-						$ownerEmail = JFactory::getUser($event->owner)->get('email');
-						$ownerName  = rseventsproHelper::getUser($event->owner);
-						$from		= $config->email_from;
-						$fromName	= $config->email_fromname;
-						$subject	= JText::sprintf('COM_RSEVENTSPRO_UNSUBSCRIBE_EMAIL_SUBJECT', $subscription->name, $event->name);
-						$body		= JText::sprintf('COM_RSEVENTSPRO_UNSUBSCRIBE_EMAIL_BODY', $ownerName, $subscription->name, $event->name);
+						$additional_data = array(
+							'{SubscriberUsername}' => JFactory::getUser($this->_user->get('id'))->get('username'),
+							'{SubscriberName}' => rseventsproHelper::getUser($this->_user->get('id')),
+							'{SubscriberEmail}' => $subscription->email,
+							'{SubscriberIP}' => $subscription->ip,
+							'{SubscribeDate}' => rseventsproHelper::showdate($subscription->date,null,true)
+						);
 						
-						$mailer	= JFactory::getMailer();
-						$mailer->sendMail($from , $fromName , $ownerEmail , $subject , $body , 0);
+						rseventsproEmails::notify_me_unsubscribe(JFactory::getUser($event->owner)->get('email'), $event->id, $additional_data, $subscription->lang, $subscription->id);
 					}
 				}
 				
@@ -2272,9 +2295,27 @@ class RseventsproModelRseventspro extends JModelLegacy
 	// Unsubscribe user
 	public function unsubscribe() {
 		$id		= $this->_app->input->getInt('id');
+		$hash	= $this->_app->input->getString('hash');
 		$now	= JFactory::getDate()->toUnix();
 		$query	= $this->_db->getQuery(true);
 		$config	= rseventsproHelper::getConfig();
+		$valid	= true;
+		
+		if ($hash) {
+			list($hash, $id) = explode('-', $hash, 2);
+			
+			// Check if the hash is in our database
+			$query->clear()
+				->select($this->_db->qn('id'))
+				->from($this->_db->qn('#__rseventspro_users'))
+				->where($this->_db->qn('hash').' = '.$this->_db->q($hash));
+			$this->_db->setQuery($query);
+			if ($this->_db->loadResult()) {
+				$this->_app->input->set('id',$id);
+			} else {
+				$valid = false;
+			}
+		}
 		
 		$query->clear()
 			->select($this->_db->qn('id'))->select($this->_db->qn('name'))->select($this->_db->qn('owner'))
@@ -2285,13 +2326,34 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$this->_db->setQuery($query);
 		$event = $this->_db->loadObject();
 		
+		if (!$valid) {
+			if (empty($event)) {
+				$this->_app->enqueueMessage(JText::_('COM_RSEVENTSPRO_INVALID_SUBSCRIPTION'));
+				$this->_app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro'));
+			} else {
+				return array('id' => $event->id, 'name' => $event->name, 'message' => JText::_('COM_RSEVENTSPRO_INVALID_SUBSCRIPTION'));
+			}
+		}
+		
+		if (empty($hash)) {
+			$userID = $this->_user->get('id');
+			if (empty($userID)) {
+				return array('id' => $event->id, 'name' => $event->name, 'message' => JText::_('COM_RSEVENTSPRO_GUEST_UNSUBSCRIBED_ERROR'));
+			}
+		}
+		
 		$query->clear()
 			->select($this->_db->qn('u.id'))->select($this->_db->qn('u.name'))
 			->select($this->_db->qn('u.email'))->select($this->_db->qn('u.SubmissionId'))
 			->select($this->_db->qn('u.lang'))
 			->from($this->_db->qn('#__rseventspro_users','u'))
-			->where($this->_db->qn('u.ide').' = '.(int) $id)
-			->where($this->_db->qn('u.idu').' = '.(int) $this->_user->get('id'));
+			->where($this->_db->qn('u.ide').' = '.(int) $id);
+			
+		if ($hash) {
+			$query->where($this->_db->qn('u.hash').' = '.$this->_db->q($hash));
+		} else {
+			$query->where($this->_db->qn('u.idu').' = '.(int) $this->_user->get('id'));
+		}
 		
 		$this->_app->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
 		
@@ -2361,15 +2423,15 @@ class RseventsproModelRseventspro extends JModelLegacy
 			// Notify the owner
 			if ($event->notify_me_unsubscribe) {
 				if ($event->owner) {
-					$ownerEmail = JFactory::getUser($event->owner)->get('email');
-					$ownerName  = rseventsproHelper::getUser($event->owner);
-					$from		= $config->email_from;
-					$fromName	= $config->email_fromname;
-					$subject	= JText::sprintf('COM_RSEVENTSPRO_UNSUBSCRIBE_EMAIL_SUBJECT', $subscription->name, $event->name);
-					$body		= JText::sprintf('COM_RSEVENTSPRO_UNSUBSCRIBE_EMAIL_BODY', $ownerName, $subscription->name, $event->name);
+					$additional_data = array(
+						'{SubscriberUsername}' => JFactory::getUser($this->_user->get('id'))->get('username'),
+						'{SubscriberName}' => rseventsproHelper::getUser($this->_user->get('id')),
+						'{SubscriberEmail}' => $subscription->email,
+						'{SubscriberIP}' => $subscription->ip,
+						'{SubscribeDate}' => rseventsproHelper::showdate($subscription->date,null,true)
+					);
 					
-					$mailer	= JFactory::getMailer();
-					$mailer->sendMail($from , $fromName , $ownerEmail , $subject , $body , 0);
+					rseventsproEmails::notify_me_unsubscribe(JFactory::getUser($event->owner)->get('email'), $event->id, $additional_data, $subscription->lang, $subscription->id);
 				}
 			}
 			
@@ -2423,7 +2485,15 @@ class RseventsproModelRseventspro extends JModelLegacy
 			} catch (Exception $e) {
 				$data->groups = array();
 			}
+		} else {
+			$data->groups = '';
 		}
+		
+		$data->position = '';
+		$data->layout = '';
+		$data->price = (float) $data->price;
+		$data->seats = (int) $data->seats;
+		$data->user_seats = (int) $data->user_seats;
 		
 		$this->_db->insertObject('#__rseventspro_tickets', $data, 'id');
 		return $data->id;
@@ -2473,13 +2543,19 @@ class RseventsproModelRseventspro extends JModelLegacy
 			$start = JFactory::getDate($data->from);
 			$start->setTimezone(new DateTimezone($tzoffset));
 			$data->from = $start->toSql();
+		} else {
+			$data->from = $this->_db->getNullDate();
 		}
 		
 		if (!empty($data->to) && $data->to != $this->_db->getNullDate()) {
 			$end = JFactory::getDate($data->to);
 			$end->setTimezone(new DateTimezone($tzoffset));
 			$data->to = $end->toSql();
+		} else {
+			$data->to = $this->_db->getNullDate();
 		}
+		
+		$data->usage = (int) $data->usage;
 		
 		$this->_db->insertObject('#__rseventspro_coupons', $data, 'id');
 		
@@ -2699,7 +2775,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 					}
 					
 					$file		= JFile::makeSafe($icon['name']);
-					$filename	= JFile::getName(JFile::stripExt($file));
+					$filename	= basename(JFile::stripExt($file));
 					
 					while(JFile::exists($path.$filename.'.'.$ext))
 						$filename .= rand(1,999);
@@ -2808,7 +2884,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$name		= JFile::stripExt($icon);
 		
 		if ($folders = JFolder::folders($thumbs)) {
-			JArrayHelper::toInteger($folders);
+			array_map('intval',$folders);
 			
 			foreach ($folders as $folder) {
 				if (file_exists($thumbs.$folder.'/'.md5($folder.$name).'.'.$extension)) {
@@ -3103,7 +3179,8 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$results	= (int) $params->get('display_results',1);
 		$jinput		= JFactory::getApplication()->input;
 		$return		= array();
-		$select		= array('COUNT('.$this->_db->qn('e.id').') AS '.$this->_db->qn('eventsnr'), 'e.id',	'e.name', 'e.start', 'e.end', 'e.owner', 'e.allday', 'l.id' => 'lid', 'l.name' => 'lname', 'l.address', 'l.coordinates');
+		$having		= false;
+		$select		= array('COUNT('.$this->_db->qn('e.id').') AS '.$this->_db->qn('eventsnr'), 'e.id',	'e.name', 'e.start', 'e.end', 'e.owner', 'e.allday', 'l.id' => 'lid', 'l.name' => 'lname', 'l.address', 'l.coordinates', 'l.marker');
 		
 		if (!is_null($jinput->getString('startpoint'))) {
 			$coords = explode(',', $jinput->getString('startpoint'));
@@ -3119,8 +3196,10 @@ class RseventsproModelRseventspro extends JModelLegacy
 				$unit_value = '3959';
 			}
 			
-			$select[] = "( {$unit_value} * acos( cos( radians({$radius_start['lat']}) ) * cos( radians( SUBSTRING_INDEX(".$this->_db->qn('l.coordinates').", ',', 1) ) ) * cos( radians( SUBSTRING_INDEX(".$this->_db->qn('l.coordinates').", ',', -1) ) - radians({$radius_start['lng']}) ) + sin( radians({$radius_start['lat']}) ) * sin( radians( SUBSTRING_INDEX(".$this->_db->qn('l.coordinates').", ',', 1) ) ) ) ) AS ".$this->_db->qn("rs_rad_distance");
+			$having = "( {$unit_value} * acos( cos( radians({$radius_start['lat']}) ) * cos( radians( SUBSTRING_INDEX(".$this->_db->qn('l.coordinates').", ',', 1) ) ) * cos( radians( SUBSTRING_INDEX(".$this->_db->qn('l.coordinates').", ',', -1) ) - radians({$radius_start['lng']}) ) + sin( radians({$radius_start['lat']}) ) * sin( radians( SUBSTRING_INDEX(".$this->_db->qn('l.coordinates').", ',', 1) ) ) ) )";
 		}
+		
+		$groupBy = array(($results ? 'e.id' : 'lid'), 'e.name', 'e.start', 'e.end', 'e.owner', 'e.allday', 'l.id' , 'l.name' , 'l.address', 'l.coordinates', 'l.marker');
 		
 		$query	= RSEventsProQuery::getInstance($params);
 		
@@ -3131,13 +3210,14 @@ class RseventsproModelRseventspro extends JModelLegacy
 		if (isset($radius_start)) {
 			$radius = $jinput->getInt('radius', 100);
 			if ($radius > 0) {
-				$having = $this->_db->qn('rs_rad_distance') .' < '.$radius;
-				$query->having($having);
+				if ($having) {
+					$query->having($having.' < '.$radius);
+				}
 			}
 		}
 		
 		$query->where($this->_db->qn('l.coordinates').' <> '.$this->_db->q(''));
-		$query->group($results ? 'e.id' : 'lid');
+		$query->group($groupBy);
 		$query->order('e.start');
 		$query->direction('DESC');
 		
@@ -3168,6 +3248,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 					'coords' => $event->coordinates,
 					'content' => rseventsproHelper::locationContent($event, $single, null, false),
 					'image' => $image,
+					'marker' => $event->marker ? rseventsproHelper::showMarker($event->marker) : null,
 					'link' => $link,
 					'address' => addslashes($event->address)
 				);
@@ -3313,5 +3394,63 @@ class RseventsproModelRseventspro extends JModelLegacy
 		
 		$db->setQuery('SELECT MAX('.$db->qn('price').') FROM '.$db->qn('#__rseventspro_tickets').' WHERE '.$db->qn('ide').' IN ( SELECT * FROM ('.$query->toString().') AS subquery)');
 		return round($db->loadResult());
+	}
+	
+	public function saveuser($data) {
+		$table	= JTable::getInstance('User','RseventsproTable');
+		
+		if (!$table->bind($data)) {
+			$this->setError($table->getError());
+			return false;
+		}
+
+		// Check the data.
+		if (!$table->check()) {
+			$this->setError($table->getError());
+			return false;
+		}
+		
+		// Store the data.
+		if (!$table->store()) {
+			$this->setError($table->getError());
+			return false;
+		}
+		
+		// Upload the image
+		$table->uploadImage();
+		
+		return true;
+	}
+	
+	public function deleteimage() {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		$id		= JFactory::getApplication()->input->getInt('id',0);
+		$path	= JPATH_SITE.'/components/com_rseventspro/assets/images/users/';
+		
+		$query->select($db->qn('image'))
+			->from($db->qn('#__rseventspro_user_info'))
+			->where($db->qn('id').' = '.$id);
+		$db->setQuery($query);
+		if ($image = $db->loadResult()) {
+			jimport('joomla.filesystem.file');
+			
+			if (file_exists($path.$image)) {
+				if (JFile::delete($path.$image)) {
+					$query->clear()
+						->update($db->qn('#__rseventspro_user_info'))
+						->set($db->qn('image').' = '.$db->q(''))
+						->where($db->qn('id').' = '.$id);
+					$db->setQuery($query);
+					$db->execute();
+					
+					return true;
+				}
+			}
+			
+			return false;
+		}
+		
+		return false;
 	}
 }

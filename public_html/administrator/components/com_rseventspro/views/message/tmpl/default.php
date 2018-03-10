@@ -8,7 +8,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 //keep session alive while editing
 JHtml::_('behavior.keepalive');
-JHtml::_('behavior.formvalidation'); ?>
+JHtml::_('behavior.formvalidator'); ?>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type='.$this->type); ?>" method="post" name="adminForm" id="adminForm" class="form-validate form-horizontal" autocomplete="off">
 	<div class="row-fluid">

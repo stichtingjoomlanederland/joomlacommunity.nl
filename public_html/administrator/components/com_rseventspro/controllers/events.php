@@ -7,6 +7,8 @@
 
 defined('_JEXEC') or die('Restricted access');
 
+use Joomla\Utilities\ArrayHelper;
+
 class RseventsproControllerEvents extends JControllerAdmin
 {
 	protected $text_prefix = 'COM_RSEVENTSPRO_EVENTS';
@@ -54,7 +56,7 @@ class RseventsproControllerEvents extends JControllerAdmin
 		$model = $this->getModel();
 		
 		// Force array elements to be integers
-		JArrayHelper::toInteger($pks);
+		array_map('intval',$pks);
 		
 		// Export events
 		if ($model->exportical($pks)) {
@@ -79,7 +81,7 @@ class RseventsproControllerEvents extends JControllerAdmin
 		$model = $this->getModel();
 		
 		// Force array elements to be integers
-		JArrayHelper::toInteger($pks);
+		array_map('intval',$pks);
 		
 		// Export events
 		if (!$model->exportcsv($pks)) {
@@ -102,7 +104,7 @@ class RseventsproControllerEvents extends JControllerAdmin
 		$model = $this->getModel();
 		
 		// Force array elements to be integers
-		JArrayHelper::toInteger($pks);
+		array_map('intval',$pks);
 		
 		// Export events
 		if (!$model->rating($pks)) {
@@ -126,7 +128,7 @@ class RseventsproControllerEvents extends JControllerAdmin
 		$model = $this->getModel();
 		
 		// Force array elements to be integers
-		JArrayHelper::toInteger($pks);
+		array_map('intval',$pks);
 		
 		// Copy events
 		if (!$model->copy($pks)) {
@@ -152,7 +154,7 @@ class RseventsproControllerEvents extends JControllerAdmin
 		$model = $this->getModel();
 		
 		// Force array elements to be integers
-		JArrayHelper::toInteger($pks);
+		array_map('intval',$pks);
 		
 		// Delete reports
 		$model->deletereports($pks);
@@ -173,17 +175,17 @@ class RseventsproControllerEvents extends JControllerAdmin
 		$ids    = JFactory::getApplication()->input->get('cid', array(), 'array');
 		$values = array('featured' => 1, 'unfeatured' => 0);
 		$task   = $this->getTask();
-		$value  = JArrayHelper::getValue($values, $task, 0, 'int');
+		$value  = ArrayHelper::getValue($values, $task, 0, 'int');
 
 		if (empty($ids)) {
-			JError::raiseWarning(500, JText::_('JERROR_NO_ITEMS_SELECTED'));
+			throw new Exception(JText::_('JERROR_NO_ITEMS_SELECTED'), 500);
 		} else {
 			// Get the model.
 			$model = $this->getModel();
 
 			// Publish the items.
 			if (!$model->featured($ids, $value)) {
-				JError::raiseWarning(500, $model->getError());
+				throw new Exception($model->getError(), 500);
 			}
 		}
 
@@ -205,7 +207,7 @@ class RseventsproControllerEvents extends JControllerAdmin
 		$pks    = JFactory::getApplication()->input->get('cid', array(), 'array');
 		
 		if (!$model->batchProcess($pks)) {
-			JError::raiseWarning(500, $model->getError());
+			throw new Exception($model->getError(), 500);
 		} else {
 			JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_BATCH_COMPLETED'));
 		}
@@ -224,7 +226,7 @@ class RseventsproControllerEvents extends JControllerAdmin
 		$model	= $this->getModel();
 		
 		if (!$model->sync()) {
-			JError::raiseWarning(500, $model->getError());
+			throw new Exception($model->getError(), 500);
 		} else {
 			JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_SYNC_COMPLETED'));
 		}

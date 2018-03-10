@@ -14,7 +14,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );?>
 		<td align="center">
 			<?php $current = JFactory::getDate($this->calendar->unixdate); ?>
 			<span id="rscalendarmonth<?php echo $this->module; ?>"><?php echo $this->calendar->months[$this->calendar->cmonth].' '.$current->format('Y'); ?></span>
-			<img id="rscalendar<?php echo $this->module; ?>" src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/loader.gif" alt="" style="vertical-align:middle; display:none;" />
+			<?php echo JHtml::image('com_rseventspro/loader.gif', '', array('id' => 'rscalendar'.$this->module, 'style' => 'vertical-align: middle; display: none;'), true); ?>
 		</td>
 		<td align="right">
 			<a rel="nofollow" href="javascript:void(0);" onclick="rs_calendar('<?php echo JURI::root(true); ?>/','<?php echo $this->calendar->getNextMonth(); ?>','<?php echo $this->calendar->getNextYear(); ?>','<?php echo $this->module; ?>')" class="rs_calendar_arrows_module" id="rs_calendar_arrow_right_module">&raquo;</a>

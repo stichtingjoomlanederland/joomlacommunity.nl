@@ -3,11 +3,11 @@
 	<name>com_rseventspro</name>
 	<creationDate>March 2015</creationDate>
 	<author>RSJoomla!</author>
-	<copyright>(C) 2009-2015 www.rsjoomla.com</copyright>
+	<copyright>(C) 2009-2018 www.rsjoomla.com</copyright>
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
 	<authorEmail>support@rsjoomla.com</authorEmail>
 	<authorUrl>www.rsjoomla.com</authorUrl>
-	<version>1.10.33</version>
+	<version>1.11.5</version>
 	<description>RSEvents!Pro is the ideal extension that you can use to organize events, invite people or sell tickets directly on your website.</description>
 	<scriptfile>script.rseventspro.php</scriptfile>
 
@@ -39,13 +39,21 @@
 		<filename>rseventspro.php</filename>
 	</files>
 	
+	<media destination="com_rseventspro" folder="media">
+		<folder>css</folder>
+		<folder>js</folder>
+		<folder>images</folder>
+		<folder>fonts</folder>
+		<filename>index.html</filename>
+	</media>
+	
 	<languages>
 		<language tag="en-GB">languages/site/en-GB.com_rseventspro.ini</language>
 		<language tag="en-GB">languages/site/en-GB.com_rseventspro.dates.ini</language>
 	</languages>
 
 	<administration>
-		<menu img="../administrator/components/com_rseventspro/assets/images/rsepro_icon.gif">com_rseventspro</menu>
+		<menu>com_rseventspro</menu>
 		<submenu>
 			  <menu link="option=com_rseventspro">COM_RSEVENTSPRO_MAIN_MENU_OVERVIEW</menu>
 			  <menu link="option=com_rseventspro&amp;view=events">COM_RSEVENTSPRO_MAIN_MENU_EVENTS</menu>
@@ -56,6 +64,7 @@
 			  <menu link="option=com_rseventspro&amp;view=discounts">COM_RSEVENTSPRO_MAIN_MENU_DISCOUNTS</menu>
 			  <menu link="option=com_rseventspro&amp;view=payments">COM_RSEVENTSPRO_MAIN_MENU_PAYMENTS</menu>
 			  <menu link="option=com_rseventspro&amp;view=groups">COM_RSEVENTSPRO_MAIN_MENU_GROUPS</menu>
+			  <menu link="option=com_rseventspro&amp;view=users">COM_RSEVENTSPRO_MAIN_MENU_USERS</menu>
 			  <menu link="option=com_rseventspro&amp;view=imports">COM_RSEVENTSPRO_MAIN_MENU_IMPORT</menu>
 			  <menu link="option=com_rseventspro&amp;view=backup">COM_RSEVENTSPRO_MAIN_MENU_BACKUP</menu>
 			  <menu link="option=com_rseventspro&amp;view=messages">COM_RSEVENTSPRO_MAIN_MENU_EMAILS</menu>
@@ -67,7 +76,6 @@
 			<filename>install.mysql.sql</filename>
 			<filename>uninstall.mysql.sql</filename>
 			
-			<folder>assets</folder>
 			<folder>controllers</folder>
 			<folder>models</folder>
 			<folder>tables</folder>

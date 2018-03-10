@@ -73,7 +73,7 @@ class RseventsproModelCalendar extends JModelLegacy
 		
 		$query->where($where);
 		$query->userevents(false);
-		$query->group('e.id');
+		$query->group(array('e.id', 'e.name', 'e.start', 'e.end', 'e.allday'));
 		
 		return $query->toString();
 	}
@@ -172,7 +172,7 @@ class RseventsproModelCalendar extends JModelLegacy
 			$query->where('access IN ('.$groups.')');
 
 			if (!empty($categories)) {
-				JArrayHelper::toInteger($categories);
+				array_map('intval',$categories);
 				$query->where($this->_db->qn('id').' IN ('.implode(',',$categories).')');	
 			}
 			

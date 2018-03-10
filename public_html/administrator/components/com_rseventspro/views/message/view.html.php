@@ -35,8 +35,6 @@ class RseventsproViewMessage extends JViewLegacy
 		JToolBarHelper::save('message.save');
 		JToolBarHelper::cancel('message.cancel');
 		
-		if (rseventsproHelper::isJ3()) {
-			JHtml::_('rseventspro.chosen','select');
-		}
+		JHtml::_('rseventspro.chosen','select');
 	}
 }

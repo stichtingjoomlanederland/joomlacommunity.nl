@@ -19,7 +19,7 @@ class RseventsproViewSubscription extends JViewLegacy
 		$this->document	= JFactory::getDocument();
 		
 		if ($this->layout == 'seats') {
-			$this->document->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/tickets.css');
+			JHtml::stylesheet('com_rseventspro/tickets.css', array('relative' => true, 'version' => 'auto'));
 			
 			$eventId		= $this->getEventId();
 			$this->tickets	= rseventsproHelper::getTickets($eventId);
@@ -30,8 +30,8 @@ class RseventsproViewSubscription extends JViewLegacy
 			$this->id			= JFactory::getApplication()->input->getInt('id',0);
 			
 			if ($this->type) {
-				$this->document->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery-ui.min.js');
-				$this->document->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/tickets.css');
+				JHtml::script('com_rseventspro/jquery-ui.min.js', array('relative' => true, 'version' => 'auto'));
+				JHtml::stylesheet('com_rseventspro/tickets.css', array('relative' => true, 'version' => 'auto'));
 			}
 			
 			$this->tickets	= rseventsproHelper::getTickets($this->id);
@@ -59,9 +59,7 @@ class RseventsproViewSubscription extends JViewLegacy
 		JToolBarHelper::save2new('subscription.save2new');
 		JToolBarHelper::cancel('subscription.cancel');
 		
-		if (rseventsproHelper::isJ3()) {
-			JHtml::_('rseventspro.chosen','select');
-		}
+		JHtml::_('rseventspro.chosen','select');
 	}
 	
 	protected function getEvent($id) {

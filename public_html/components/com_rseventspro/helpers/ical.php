@@ -16,7 +16,7 @@ class RSEventsProiCal {
 	protected static $instances = array();
 	
 	public function __construct($ids) {
-		JArrayHelper::toInteger($ids);
+		array_map('intval',$ids);
 		
 		self::$ids = $ids;
 	}

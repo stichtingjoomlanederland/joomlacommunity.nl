@@ -100,7 +100,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 <form action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro'); ?>" method="post" id="adminForm" name="adminForm">
 	<div style="text-align: center;">
 		<button type="submit" class="btn btn-primary"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button>
-		<button type="button" class="btn" onclick="window.parent.SqueezeBox.close();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
+		<button type="button" class="btn" onclick="window.parent.jQuery('#rseTicketsModal').modal('hide');"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
 		<button type="button" class="btn" onclick="rsepro_reset_positions();"><?php echo JText::_('COM_RSEVENTSPRO_RESET'); ?></button>
 	</div>
 	

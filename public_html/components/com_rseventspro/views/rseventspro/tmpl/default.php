@@ -333,7 +333,7 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 
 <?php rseventsproHelper::clearMonthYear('events'.$this->fid, @$lastMY); ?>
 <div class="rs_loader" id="rs_loader" style="display:none;">
-	<img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/loader.gif" alt="" />
+	<?php echo JHtml::image('com_rseventspro/loader.gif', '', array(), true); ?>
 </div>
 <?php if ($this->total > $count) { ?>
 	<a class="rs_read_more" id="rsepro_loadmore"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_LOAD_MORE'); ?></a>
@@ -343,7 +343,9 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 <span id="langcode" class="rs_hidden"><?php echo rseventsproHelper::getLanguageCode(); ?></span>
 <span id="parent" class="rs_hidden"><?php echo JFactory::getApplication()->input->getInt('parent'); ?></span>
 <span id="rsepro-prefix" class="rs_hidden"><?php echo 'events'.$this->fid; ?></span>
-<?php } else echo JText::_('COM_RSEVENTSPRO_GLOBAL_NO_EVENTS'); ?>
+<?php } else { ?>
+<div class="alert alert-warning"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_NO_EVENTS'); ?></div>
+<?php } ?>
 
 <?php if ($this->config->timezone) { ?>
 <div id="timezoneModal" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">

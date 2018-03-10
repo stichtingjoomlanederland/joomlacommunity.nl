@@ -32,12 +32,12 @@ JHtml::_('behavior.keepalive'); ?>
 	$ohaico	  = !$this->items['ohanah'] ? '<i class="fa fa-times"></i>' : '<i class="fa fa-check"></i>';
 ?>
 
-<form method="post" action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=imports'); ?>" method="post" name="adminForm" id="adminForm" autocomplete="off" class="form-validate form-horizontal" enctype="multipart/form-data">
+<form method="post" action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=imports'); ?>" method="post" name="adminForm" id="adminForm" autocomplete="off" class="form-horizontal" enctype="multipart/form-data">
 	<div class="row-fluid">
 		<div id="j-sidebar-container" class="span2">
-			<?php echo $this->sidebar; ?>
+			<?php echo JHtmlSidebar::render(); ?>
 		</div>
-		<div id="j-main-container" class="span10">
+		<div id="j-main-container" class="span10 j-main-container">
 			<fieldset>
 				<legend><?php echo JText::_('COM_RSEVENTSPRO_IMPORT_FROM_COMPONENTS'); ?></legend>
 				<table class="table table-striped adminlist">

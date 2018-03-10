@@ -6,6 +6,8 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
+use Joomla\String\StringHelper;
+
 class RseventsproModelCategory extends JModelAdmin
 {
 	/**
@@ -102,7 +104,6 @@ class RseventsproModelCategory extends JModelAdmin
 	 * @since   1.6
 	 */
 	public function save($data) {
-		$dispatcher = rseventsproHelper::isJ3() ? JEventDispatcher::getInstance() : JDispatcher::getInstance();
 		$table = $this->getTable();
 		$input = JFactory::getApplication()->input;
 		$pk = (!empty($data['id'])) ? $data['id'] : (int) $this->getState($this->getName() . '.id');
@@ -146,7 +147,7 @@ class RseventsproModelCategory extends JModelAdmin
 		}
 
 		// Trigger the onContentBeforeSave event.
-		$result = $dispatcher->trigger($this->event_before_save, array($this->option . '.' . $this->name, &$table, $isNew));
+		$result = JFactory::getApplication()->triggerEvent($this->event_before_save, array($this->option . '.' . $this->name, &$table, $isNew));
 		if (in_array(false, $result, true)) {
 			$this->setError($table->getError());
 			return false;
@@ -159,7 +160,7 @@ class RseventsproModelCategory extends JModelAdmin
 		}
 
 		// Trigger the onContentAfterSave event.
-		$dispatcher->trigger($this->event_after_save, array($this->option . '.' . $this->name, &$table, $isNew));
+		JFactory::getApplication()->triggerEvent($this->event_after_save, array($this->option . '.' . $this->name, &$table, $isNew));
 
 		// Rebuild the path for the category:
 		if (!$table->rebuildPath($table->id)) {
@@ -193,13 +194,11 @@ class RseventsproModelCategory extends JModelAdmin
 	 */
 	public function publish(&$pks, $value = 1) {
 		if (parent::publish($pks, $value)) {
-			$dispatcher = rseventsproHelper::isJ3() ? JEventDispatcher::getInstance() : JDispatcher::getInstance();
-
 			// Include the content plugins for the change of category state event.
 			JPluginHelper::importPlugin('content');
 
 			// Trigger the onCategoryChangeState event.
-			$dispatcher->trigger('onCategoryChangeState', array('com_rseventspro', $pks, $value));
+			JFactory::getApplication()->triggerEvent('onCategoryChangeState', array('com_rseventspro', $pks, $value));
 
 			return true;
 		}
@@ -278,8 +277,8 @@ class RseventsproModelCategory extends JModelAdmin
 		// Alter the title & alias
 		$table = $this->getTable();
 		while ($table->load(array('alias' => $alias, 'parent_id' => $parent_id))) {
-			$title = JString::increment($title);
-			$alias = JString::increment($alias, 'dash');
+			$title = StringHelper::increment($title);
+			$alias = StringHelper::increment($alias, 'dash');
 		}
 
 		return array($title, $alias);

@@ -13,8 +13,8 @@ class com_rseventsproInstallerScript
 		$app		= JFactory::getApplication();
 		$jversion	= new JVersion();
 		
-		if (!$jversion->isCompatible('3')) {
-			$app->enqueueMessage('You need to have a Joomla! 3.x version in order to install RSEvents!Pro', 'error');
+		if (!$jversion->isCompatible('3.8.0')) {
+			$app->enqueueMessage('Please upgrade to at least Joomla! 3.8.0 before continuing!', 'error');
 			return false;
 		}
 		
@@ -280,7 +280,7 @@ class com_rseventsproInstallerScript
 							
 							$table->id = null;
 							$table->title = $category->name;
-							$table->alias = JApplication::stringURLSafe($category->name);
+							$table->alias = JApplicationHelper::stringURLSafe($category->name);
 							$table->extension = 'com_rseventspro';
 							$table->setLocation($newids[$parents[$category->id]], 'last-child');
 							$table->description = $category->description;
@@ -857,16 +857,54 @@ class com_rseventsproInstallerScript
 				$db->execute();
 			}
 			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_locations` WHERE `Field` = 'marker'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_locations` ADD `marker` VARCHAR( 255 ) NOT NULL AFTER `coordinates`");
+				$db->execute();
+			}
+			
+			// Set default values on database fields
+			if ($tables = $db->getTableList()) {
+				foreach ($tables as $table) {
+					if (strpos($table, $db->getPrefix().'rseventspro') !== false) {
+						if ($fields = $db->getTableColumns($table, false)) {
+							foreach ($fields as $field) {
+								$fieldType = strtolower($field->Type);
+								$fieldKey = strtolower($field->Key);
+								
+								if (strpos($fieldType, 'int') !== false || strpos($fieldType, 'float') !== false|| strpos($fieldType, 'decimal') !== false) {
+									if ($fieldKey != 'pri') {
+										$db->setQuery('ALTER TABLE '.$db->qn($table).' ALTER '.$db->qn($field->Field).' SET DEFAULT '.$db->q(0));
+										$db->execute();
+									}
+								} elseif (strpos($fieldType, 'varchar') !== false) {
+									$db->setQuery('ALTER TABLE '.$db->qn($table).' ALTER '.$db->qn($field->Field).' SET DEFAULT '.$db->q(''));
+									$db->execute();
+								} elseif (strpos($fieldType, 'datetime') !== false) {
+									$db->setQuery('ALTER TABLE '.$db->qn($table).' ALTER '.$db->qn($field->Field).' SET DEFAULT '.$db->q($db->getNullDate()));
+									$db->execute();
+								}
+							}
+						}
+					}
+				}
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_users` WHERE `Field` = 'hash'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_users` ADD `hash` VARCHAR( 255 ) NOT NULL DEFAULT '' AFTER `create_user`");
+				$db->execute();
+			}
+			
 			// Run queries
 			$sqlfile = JPATH_ADMINISTRATOR.'/components/com_rseventspro/install.mysql.sql';
 			$buffer = file_get_contents($sqlfile);
 			if ($buffer === false) {
-				JError::raiseWarning(1, JText::_('JLIB_INSTALLER_ERROR_SQL_READBUFFER'));
-				return false;
+				throw new Exception(JText::_('JLIB_INSTALLER_ERROR_SQL_READBUFFER'), 1);
 			}
 			
 			jimport('joomla.installer.helper');
-			$queries = JInstallerHelper::splitSql($buffer);
+			$queries = $db->splitSql($buffer);
 			if (count($queries) == 0) {
 				// No queries to process
 				return 0;
@@ -878,8 +916,7 @@ class com_rseventsproInstallerScript
 				if ($query != '' && $query{0} != '#') {
 					$db->setQuery($query);
 					if (!$db->execute()) {
-						JError::raiseWarning(1, JText::sprintf('JLIB_INSTALLER_ERROR_SQL_ERROR', $db->stderr(true)));
-						return false;
+						throw new Exception(JText::sprintf('JLIB_INSTALLER_ERROR_SQL_ERROR', $db->stderr(true)), 1);
 					}
 				}
 			}
@@ -984,7 +1021,7 @@ class com_rseventsproInstallerScript
 </style>
 
 <div id="rsepro-installer-left">
-	<img src="components/com_rseventspro/assets/images/rseventspro-logo.png" alt="RSEvents!Pro Box" />
+	<img src="<?php echo JUri::root(); ?>media/com_rseventspro/images/rseventspro-logo.png" alt="RSEvents!Pro" />
 </div>
 <div id="rsepro-installer-right">
 	<?php if ($messages) { ?>
@@ -994,9 +1031,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.10.33</h2>
+	<h2>Changelog v1.11.5</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> Filtering tags using the "Does not contain" and "Is not" operator didn't worked correctly.</li>
+		<li><span class="version-fixed">Fix</span> Entering coordinates would freeze the window due to recent changes in the Google Maps API.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>
@@ -1047,18 +1084,19 @@ class com_rseventsproInstallerScript
 		$lang		= JFactory::getLanguage();
 		
 		$plugins = array(
-			'rsepropdf' => '1.6.0',
+			'rsepropdf' => '1.11',
 			'rsfprseventspro' => '1.5.0',
-			'rsepro2co' => '1.1.0',
-			'rseproanzegate' => '1.1.0',
-			'rseproauthorize' => '1.1.0',
-			'rseproeway' => '1.4.0',
-			'rseproideal' => '1.3.0',
-			'rsepromygate' => '1.0.2',
-			'rsepropaypal' => '1.0.1',
-			'rseprovmerchant' => '1.1.0',
-			'rseprooffline' => '1.1.0',
-			'rseventspro' => '1.0'
+			'rsepro2co' => '1.1',
+			'rseproanzegate' => '1.2',
+			'rseproauthorize' => '1.2',
+			'rseproeway' => '1.5',
+			'rseproideal' => '1.5',
+			'rsepromygate' => '1.1',
+			'rsepropaypal' => '1.2',
+			'rseprovmerchant' => '1.2',
+			'rseprostripe' => '1.1',
+			'rseprooffline' => '1.2',
+			'rseventspro' => '1.1'
 		);
 		
 		// Check plugins version
@@ -1078,18 +1116,20 @@ class com_rseventsproInstallerScript
 		}
 		
 		$modules = array(
-			'mod_rseventspro_archived' => '1.2',
-			'mod_rseventspro_attendees' => '1.1',
-			'mod_rseventspro_calendar' => '1.5',
-			'mod_rseventspro_categories' => '1.2',
-			'mod_rseventspro_featured' => '1.2',
-			'mod_rseventspro_location' => '1.1',
-			'mod_rseventspro_locations' => '1.2',
-			'mod_rseventspro_map' => '1.2',
-			'mod_rseventspro_popular' => '1.2',
-			'mod_rseventspro_search' => '1.3',
-			'mod_rseventspro_slider' => '1.4',
-			'mod_rseventspro_upcoming' => '1.0.5'
+			'mod_rseventspro_archived' => '1.3',
+			'mod_rseventspro_attendees' => '1.3',
+			'mod_rseventspro_calendar' => '1.7',
+			'mod_rseventspro_categories' => '1.3',
+			'mod_rseventspro_events' => '1.4',
+			'mod_rseventspro_featured' => '1.3',
+			'mod_rseventspro_location' => '1.2',
+			'mod_rseventspro_locations' => '1.3',
+			'mod_rseventspro_map' => '1.6',
+			'mod_rseventspro_popular' => '1.3',
+			'mod_rseventspro_search' => '1.5',
+			'mod_rseventspro_slider' => '1.7',
+			'mod_rseventspro_tags' => '1.1',
+			'mod_rseventspro_upcoming' => '1.2'
 		);
 		
 		// Check modules version

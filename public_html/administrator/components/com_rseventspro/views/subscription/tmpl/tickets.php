@@ -91,7 +91,7 @@ jQuery(document).ready(function() {
 <?php } ?>
 
 <div style="text-align: center;">
-	<button type="button" class="btn btn-success" onclick="window.parent.SqueezeBox.close();"><?php echo JText::_('COM_RSEVENTSPRO_CLOSE_TICKETS'); ?></button>
+	<button type="button" class="btn btn-success" onclick="window.parent.jQuery('#rseTicketModal').modal('hide');"><?php echo JText::_('COM_RSEVENTSPRO_CLOSE_TICKETS'); ?></button>
 	<button type="button" class="btn btn-primary" onclick="rsepro_reset_tickets();"><?php echo JText::_('COM_RSEVENTSPRO_RESET'); ?></button>
 </div>
 <span id="eventID" style="display:none;"><?php echo $this->id; ?></span>

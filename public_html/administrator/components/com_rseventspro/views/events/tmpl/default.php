@@ -62,9 +62,9 @@ Joomla.submitbutton = function(task) {
 <form method="post" action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=events'); ?>" name="adminForm" id="adminForm" autocomplete="off">
 	<div class="row-fluid">
 		<div id="j-sidebar-container" class="span2">
-			<?php echo $this->sidebar; ?>
+			<?php echo JHtmlSidebar::render(); ?>
 		</div>
-		<div id="j-main-container" class="span10">
+		<div id="j-main-container" class="span10 j-main-container">
 			
 			<div class="rsepro-filter-container">
 				<div class="navbar" id="rsepro-navbar">
@@ -303,9 +303,7 @@ Joomla.submitbutton = function(task) {
 		</div>
 	</div>
 	
-	<div class="modal hide fade" id="batchevents" <?php if (!rseventsproHelper::isJ34()) { ?>style="width: 800px; height: auto; left: 43%;"<?php } ?>>
-		<?php echo $this->loadTemplate('batch'); ?>
-	</div>
+	<?php echo JHtml::_('bootstrap.renderModal', 'modal-batchevents', array('title' => JText::_('COM_RSEVENTSPRO_BATCH_EVENTS'), 'footer' => $this->loadTemplate('batch_footer'), 'bodyHeight' => 70), $this->loadTemplate('batch')); ?>
 
 	<?php echo JHTML::_( 'form.token' ); ?>
 	<?php if ($this->tpl == 'timeline') { ?>

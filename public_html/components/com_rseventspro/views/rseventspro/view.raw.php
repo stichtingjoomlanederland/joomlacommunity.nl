@@ -183,7 +183,9 @@ class RseventsproViewRseventspro extends JViewLegacy
 				->from($db->qn('#__rseventspro_events','e'))
 				->join('left', $db->qn('#__rseventspro_taxonomy','t').' ON '.$db->qn('e.id').' = '.$db->qn('t.ide'))
 				->where($db->qn('t.type').' = '.$db->q('category'))
-				->where($db->qn('t.id').' = '.(int) $id);
+				->where($db->qn('t.id').' = '.(int) $id)
+				->where($db->qn('e.completed').' = 1')
+				->where($db->qn('e.published').' = 1');
 			
 			
 			$db->setQuery($query);
@@ -200,7 +202,9 @@ class RseventsproViewRseventspro extends JViewLegacy
 			$query->clear()
 				->select($db->qn('id'))
 				->from($db->qn('#__rseventspro_events'))
-				->where($db->qn('location').' = '.(int) $id);
+				->where($db->qn('location').' = '.(int) $id)
+				->where($db->qn('completed').' = 1')
+				->where($db->qn('published').' = 1');
 			
 			
 			$db->setQuery($query);

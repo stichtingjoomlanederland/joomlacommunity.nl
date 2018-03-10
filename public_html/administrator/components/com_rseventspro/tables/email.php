@@ -17,6 +17,15 @@ class RseventsproTableEmail extends JTable
 		parent::__construct('#__rseventspro_emails', 'id', $db);
 	}
 	
+	public function check() {
+		if (empty($this->enable)) {
+			$this->enable = 1;
+		}
+		
+		return true;
+	}
+	
+	
 	/**
 	 * Method to delete a node and, optionally, its child nodes from the table.
 	 *

@@ -26,7 +26,8 @@ class RseventsproViewPdf extends JViewLegacy
 				}
 			
 				if ($this->buffer === false) {
-					JFactory::getApplication()->redirect('index.php?option=com_rseventspro', JText::_('COM_RSEVENTSPRO_ERROR_WHILE_LOADING_PDF'));
+					JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_ERROR_WHILE_LOADING_PDF'));
+					JFactory::getApplication()->redirect('index.php?option=com_rseventspro');
 				}
 			} catch (Exception $e) {
 				JFactory::getApplication()->enqueueMessage($e->getMessage());

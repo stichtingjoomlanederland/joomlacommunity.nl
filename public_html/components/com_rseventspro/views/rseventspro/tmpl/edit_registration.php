@@ -4,9 +4,7 @@
 * @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
-defined( '_JEXEC' ) or die( 'Restricted access' );
-JHtml::_('behavior.modal', 'a.rsepro-event-form');
-JHtml::_('behavior.modal', 'a.rsepro-tickets-config'); ?>
+defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 <legend><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TAB_REGISTRATION'); ?></legend>
 
 <div class="control-group">
@@ -115,7 +113,7 @@ JHtml::_('behavior.modal', 'a.rsepro-tickets-config'); ?>
 
 <div class="control-group" id="rsepro-tickets-configuration" style="display: none;">
 	<div class="controls">
-		<a class="btn rsepro-tickets-config" rel="{handler: 'iframe', size: {x: <?php echo rseventsproHelper::getConfig('seats_width','int','1280'); ?>, y:<?php echo rseventsproHelper::getConfig('seats_height','int','800'); ?>}}" href="<?php echo JRoute::_('index.php?option=com_rseventspro&layout=seats&tmpl=component&id='.rseventsproHelper::sef($this->item->id,$this->item->name),false); ?>">
+		<a class="btn rsepro-tickets-config" onclick="jQuery('#rseTicketsModal').modal('show');" href="javascript:void(0);">
 			<?php echo JText::_('COM_RSEVENTSPRO_TICKETS_CONFIGURATION'); ?>
 		</a>
 	</div>
@@ -129,7 +127,7 @@ JHtml::_('behavior.modal', 'a.rsepro-tickets-config'); ?>
 		<label><?php echo JText::_('COM_RSEVENTSPRO_EVENT_REGISTRATION_FORM'); ?></label>
 	</div>
 	<div class="controls">
-		<a class="btn rsepro-event-form" rel="{handler: 'iframe', size: {x: 800, y:600}}" href="<?php echo JRoute::_('index.php?option=com_rseventspro&layout=forms&tmpl=component&id='.rseventsproHelper::sef($this->item->id,$this->item->name)); ?>">
+		<a class="btn rsepro-event-form" onclick="jQuery('#rseFromModal').modal('show');" href="javascript:void(0);">
 			<?php echo $this->eventClass->getForm(); ?>
 		</a>
 		&mdash; <a href="http://www.rsjoomla.com/joomla-extensions/joomla-form.html" target="_blank"><?php echo JText::_('COM_RSEVENTSPRO_RSFORMPRO'); ?></a>
@@ -153,3 +151,7 @@ JHtml::_('behavior.modal', 'a.rsepro-tickets-config'); ?>
 	<button class="btn btn-success rsepro-event-update" type="button"><?php echo JText::_('COM_RSEVENTSPRO_UPDATE_EVENT'); ?></button>
 	<button class="btn btn-danger rsepro-event-cancel" type="button"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
 </div>
+
+<?php echo JHtml::_('bootstrap.renderModal', 'rseFromModal', array('title' => JText::_('COM_RSEVENTSPRO_SELECT_FORM'), 'url' => JRoute::_('index.php?option=com_rseventspro&layout=forms&tmpl=component&id='.rseventsproHelper::sef($this->item->id,$this->item->name), false), 'bodyHeight' => 70)); ?>
+
+<?php echo JHtml::_('bootstrap.renderModal', 'rseTicketsModal', array('title' => '&nbsp;', 'url' => JRoute::_('index.php?option=com_rseventspro&layout=seats&tmpl=component&id='.rseventsproHelper::sef($this->item->id,$this->item->name),false), 'bodyHeight' => 70, 'width' => rseventsproHelper::getConfig('seats_width','int','1280'), 'height' => rseventsproHelper::getConfig('seats_height','int','800') )); ?>

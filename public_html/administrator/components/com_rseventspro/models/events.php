@@ -171,16 +171,16 @@ class RseventsproModelEvents extends JModelLegacy
 				$subquery = $this->_db->getQuery(true);
 				$subquery->clear();
 				if ($operator == '<>') {
-					$subquery->select($this->_db->qn('tx.ide'))->select("CONCAT(',', GROUP_CONCAT(".$this->_db->qn('c.title')."), ',') categs")
+					$subquery->select($this->_db->qn('tx.ide'))
 						->from($this->_db->qn('#__rseventspro_taxonomy','tx'))
 						->join('left', $this->_db->qn('#__categories','c').' ON '.$this->_db->qn('c.id').' = '.$this->_db->qn('tx.id'))
 						->where($this->_db->qn('tx.type').' = '.$this->_db->q('category'))
 						->where($this->_db->qn('c.extension').' = '.$this->_db->q('com_rseventspro'))
 						->group($this->_db->qn('tx.ide'))
-						->having('categs NOT LIKE '.$this->_db->q('%'.$value.'%'));
+						->having('CONCAT(\',\', GROUP_CONCAT('.$this->_db->qn('c.title').'), \',\') NOT LIKE '.$this->_db->q('%'.$value.'%'));
 					$this->_db->setQuery($subquery);
 					if ($eventids = $this->_db->loadColumn()) {
-						JArrayHelper::toInteger($eventids);
+						array_map('intval',$eventids);
 						$where[] = $this->_db->qn('e.id').' IN ('.implode(',',$eventids).')';
 					}
 				} else {
@@ -197,15 +197,15 @@ class RseventsproModelEvents extends JModelLegacy
 				$subquery->clear();
 				
 				if ($operator == '<>') {
-					$subquery->select($this->_db->qn('tx.ide'))->select("CONCAT(',', GROUP_CONCAT(".$this->_db->qn('t.name')."), ',') tags")
+					$subquery->select($this->_db->qn('tx.ide'))
 						->from($this->_db->qn('#__rseventspro_taxonomy','tx'))
 						->join('left', $this->_db->qn('#__rseventspro_tags','t').' ON '.$this->_db->qn('t.id').' = '.$this->_db->qn('tx.id'))
 						->where($this->_db->qn('tx.type').' = '.$this->_db->q('tag'))
 						->group($this->_db->qn('tx.ide'))
-						->having('tags NOT LIKE '.$this->_db->q('%'.$value.'%'));
+						->having('CONCAT(\',\', GROUP_CONCAT('.$this->_db->qn('t.name').'), \',\') NOT LIKE '.$this->_db->q('%'.$value.'%'));
 					$this->_db->setQuery($subquery);
 					if ($eventids = $this->_db->loadColumn()) {
-						JArrayHelper::toInteger($eventids);
+						array_map('intval',$eventids);
 						$where[] = $this->_db->qn('e.id').' IN ('.implode(',',$eventids).')';
 					}
 				} else {
@@ -354,7 +354,7 @@ class RseventsproModelEvents extends JModelLegacy
 		
 		$this->_db->setQuery($query);
 		if ($events = $this->_db->loadColumn()) {
-			JArrayHelper::toInteger($events);
+			array_map('intval',$events);
 			return $events;
 		}
 		
@@ -487,7 +487,7 @@ class RseventsproModelEvents extends JModelLegacy
 		$ongoing = $this->_db->loadColumn();
 		if (!empty($ongoing)) {
 			$exclude = array_merge($ongoing,array());
-			JArrayHelper::toInteger($exclude);
+			array_map('intval',$exclude);
 		}
 		
 		$query = $this->_db->getQuery(true);
@@ -541,12 +541,12 @@ class RseventsproModelEvents extends JModelLegacy
 		$thisweek = $this->_db->loadColumn();
 		if (!empty($ongoing)) {
 			$exclude = array_merge($ongoing,array());
-			JArrayHelper::toInteger($exclude);
+			array_map('intval',$exclude);
 		}
 		
 		if (!empty($thisweek)) {
 			$exclude = array_merge($exclude,$thisweek);
-			JArrayHelper::toInteger($exclude);
+			array_map('intval',$exclude);
 		}
 		
 		$query = $this->_db->getQuery(true);
@@ -604,17 +604,17 @@ class RseventsproModelEvents extends JModelLegacy
 		$thismonth = $this->_db->loadColumn();
 		if (!empty($ongoing)) {
 			$exclude = array_merge($ongoing,array());
-			JArrayHelper::toInteger($exclude);
+			array_map('intval',$exclude);
 		}
 		
 		if (!empty($thisweek)) {
 			$exclude = array_merge($exclude,$thisweek);
-			JArrayHelper::toInteger($exclude);
+			array_map('intval',$exclude);
 		}
 		
 		if (!empty($thismonth)) {
 			$exclude = array_merge($exclude,$thismonth);
-			JArrayHelper::toInteger($exclude);
+			array_map('intval',$exclude);
 		}
 		
 		$query = $this->_db->getQuery(true);
@@ -690,10 +690,13 @@ class RseventsproModelEvents extends JModelLegacy
 	public function getFormsQuery() {
 		$query = $this->_db->getQuery(true);
 		$query->clear()
-			->select($this->_db->qn('FormId'))->select($this->_db->qn('FormName'))
-			->from($this->_db->qn('#__rsform_forms'))
-			->where($this->_db->qn('Published').' = 1')
-			->order($this->_db->qn('FormId').' ASC');
+			->select($this->_db->qn('f.FormId'))->select($this->_db->qn('f.FormName'))
+			->from($this->_db->qn('#__rsform_forms','f'))
+			->join('LEFT', $this->_db->qn('#__rsform_components','c').' ON '.$this->_db->qn('f.FormId').' = '.$this->_db->qn('c.FormId'))
+			->where($this->_db->qn('f.Published').' = 1')
+			->where($this->_db->qn('c.ComponentTypeId').' IN (30,31,32,33,34)')
+			->group($this->_db->qn('f.FormId'))->group($this->_db->qn('f.FormName'))
+			->order($this->_db->qn('f.FormId').' ASC');
 		
 		return $query;
 	}
@@ -1068,11 +1071,7 @@ class RseventsproModelEvents extends JModelLegacy
 	 * Method to set the side bar.
 	 */
 	public function getSidebar() {
-		if (rseventsproHelper::isJ3()) {
-			return JHtmlSidebar::render();
-		}
-		
-		return;
+		return JHtmlSidebar::render();
 	}
 	
 	/**

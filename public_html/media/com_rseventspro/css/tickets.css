@@ -1,0 +1,154 @@
+.draggable { 
+	float: left;
+    height: auto;
+    margin: 0 10px 10px 0;
+    min-height: 90px;
+    min-width: 150px;
+    padding: 5px;
+    width: 250px;
+	cursor: move;
+	position: absolute;
+	border: 1px solid #aaaaaa;
+	background: none repeat scroll 0 0 #fff;
+}
+
+.rsepro-draggable-off {
+    cursor: auto;
+    display: block;
+    left: 0 !important;
+    position: relative;
+    top: 0 !important;
+    width: auto;
+}
+
+.rsepro_front {
+	cursor: default !important;
+}
+
+#rsepro_wrapper { 
+	width: 95%;
+	height:500px; 
+	border:2px solid #ccc; 
+	padding: 10px;
+	margin: 10px;
+	position: relative;
+	overflow-y: scroll;
+}
+
+.rsepro_ticket_container {
+	width: 100%;
+	border-bottom: 1px solid #C8C8C8;
+}
+
+.rsepro_ticket_name {
+	text-align: center;
+	font-weight: bold;
+}
+
+.rsepro_ticket_name img {
+	float: right;
+}
+
+.rsepro_ticket_seats {
+	width: 100%;
+	margin-top: 5px;
+	overflow: hidden;
+}
+
+.rsepro_ticket_seat {
+	border: 1px solid #C8C8C8;
+    float: left;
+    margin-left: 5px;
+    margin-bottom: 5px;
+	text-align: center;
+    width: 20px;
+	font-size: 12px;
+    font-weight: bold;
+	color: #000;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.rsepro_ticket_seat a,
+.rsepro_ticket_seat a:hover,
+.rsepro_ticket_seat a:focus {
+	background: none !important;
+	color: #000 !important;
+	text-decoration: none;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.ui-resizable-e {
+	border-left: 2px solid;
+    right: -8px;
+	cursor: e-resize;
+    height: 100%;
+	top: 0;
+    width: 7px;
+	display: block;
+    font-size: 0.1px;
+    position: absolute;
+}
+
+.rsepro_ticket_unlimited {
+	text-align: center;
+}
+
+.rsepro_selected {
+	background: none repeat scroll 0 0 #017D00;
+}
+
+.rsepro_selected a, 
+.rsepro_selected a:hover, 
+.rsepro_selected a:focus {
+	color: #FFF !important;
+}
+
+.rsepro_disabled {
+	background: none repeat scroll 0 0 grey;
+}
+
+.rsepro_disabled {
+	color: #FFF;
+}
+
+.rsepro_ticket_seat a {
+	display:block;
+}
+
+.rsepro_ticket_center {
+	text-align: center;
+}
+
+.rsepro_user_selected {
+	background: none repeat scroll 0 0 #415CBB;
+}
+
+.rsepro_legend {
+	bottom: 0;
+    position: absolute;
+    right: 5px;
+}
+
+.rsepro_clear {
+	clear: both;
+}
+
+#all {
+	max-width: none !important;
+}
+
+.ui-resizable-s {
+	border-bottom: 2px solid;
+    bottom: 0;
+    cursor: s-resize;
+    display: block;
+    font-size: 0.1px;
+    height: 1%;
+    position: absolute;
+    right: 0;
+    width: 100%;
+}

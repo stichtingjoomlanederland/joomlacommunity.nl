@@ -24,7 +24,9 @@ class plgInstallerRSEventspro extends JPlugin
 			}
 			
 			// Load our main helper
-			require_once JPATH_SITE.'/components/com_rseventspro/helpers/rseventspro.php';
+			if (!class_exists('rseventsproHelper')) {
+				require_once JPATH_SITE.'/components/com_rseventspro/helpers/rseventspro.php';
+			}
 			
 			// Load language
 			JFactory::getLanguage()->load('plg_installer_rseventspro');

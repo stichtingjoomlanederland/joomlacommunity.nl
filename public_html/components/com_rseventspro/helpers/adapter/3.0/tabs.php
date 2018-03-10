@@ -24,10 +24,7 @@ class RSTabs {
 	 * @return  void
 	 */
 	public function __construct($id) {
-		$jversion = new JVersion;
-		if ($jversion->isCompatible('3.2.0')) {
-			JHtml::_('behavior.tabstate');
-		}
+		JHtml::_('behavior.tabstate');
 		
 		$this->id = preg_replace('#[^A-Z0-9_\. -]#i', '', $id);
 	}
@@ -56,6 +53,29 @@ class RSTabs {
 	 * @return  string  HTML for tabs
 	 */
 	public function render() {
+		$version = new JVersion;
+		if ($version->isCompatible('3.1')) {
+			return $this->renderNative();
+		} else {
+			return $this->renderLegacy();
+		}
+	}
+	
+	protected function renderNative() {
+		$active = reset($this->titles);
+		
+		echo JHtml::_('bootstrap.startTabSet', $this->id, array('active' => $active->id));
+		
+		foreach ($this->titles as $i => $title) {
+			echo JHtml::_('bootstrap.addTab', $this->id, $title->id, JText::_($title->label));
+			echo $this->contents[$i];
+			echo JHtml::_('bootstrap.endTab');
+		}
+		
+		echo JHtml::_('bootstrap.endTabSet');
+	}
+	
+	protected function renderLegacy() {
 		$html   = array();
 		
 		$html[] = "\t".'<ul class="nav nav-tabs" id="'.$this->id.'">';

@@ -8,8 +8,12 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 require_once JPATH_SITE.'/components/com_rseventspro/helpers/version.php';
 
 if (!function_exists('mb_strlen')) {
-	function mb_strlen($string, $encoding = 'UTF-8') {
-		return strlen(utf8_decode($string));
+	function mb_strlen($str, $encoding = 'iso-8859-1') {
+		switch (str_replace('-', '', strtolower($encoding))) {
+			case "utf8": return strlen(utf8_encode($str));
+			case "8bit": return strlen($str);
+			default:     return strlen(utf8_decode($str));
+		}
 	}
 }
 
@@ -113,7 +117,7 @@ class rseventsproHelper
 	// Load language files
 	public static function loadLang() {
 		$lang = JFactory::getLanguage();
-		$from = JFactory::getApplication()->isAdmin() ? JPATH_ADMINISTRATOR : JPATH_SITE;
+		$from = JFactory::getApplication()->isClient('administrator') ? JPATH_ADMINISTRATOR : JPATH_SITE;
 		
 		$lang->load('com_rseventspro', $from, 'en-GB', true);
 		$lang->load('com_rseventspro', $from, $lang->getDefault(), true);
@@ -132,57 +136,36 @@ class rseventsproHelper
 		// Load FontAwesome
 		self::loadFA();
 		
-		$doc->addScriptDeclaration("var rsepro_root = '".addslashes(JURI::root(true).'/'.($app->isAdmin() ? 'administrator/' : ''))."';");
+		$doc->addScriptDeclaration("var rsepro_root = '".addslashes(JURI::root(true).'/'.($app->isClient('administrator') ? 'administrator/' : ''))."';");
 		
 		// Load admin or site scripts
-		if ($app->isAdmin()) {
+		if ($app->isClient('administrator')) {
 			// Add CSS files
-			$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rseventspro/assets/css/style.css?v='.RSEPRO_RS_REVISION);
-			if (rseventsproHelper::isJ3()) {
-				$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rseventspro/assets/css/j3.css?v='.RSEPRO_RS_REVISION);
-			}
-			else {
-				$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rseventspro/assets/css/j2.css?v='.RSEPRO_RS_REVISION);
-			}
+			JHtml::stylesheet('com_rseventspro/admin.css', array('relative' => true, 'version' => 'auto'));
 			
 			// Add JS files
-			$doc->addScript(JURI::root(true).'/administrator/components/com_rseventspro/assets/js/scripts.js?v='.RSEPRO_RS_REVISION);
+			JHtml::script('com_rseventspro/admin.js', array('relative' => true, 'version' => 'auto'));
 		} else {
 			// Load Bootstrap
 			self::loadBootstrap();
 			
 			// Add CSS files
-			$doc->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/style.css?v='.RSEPRO_RS_REVISION);
-			
-			if (rseventsproHelper::isJ3()) {
-				$doc->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/j3.css?v='.RSEPRO_RS_REVISION);
-			} else {
-				$doc->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/j2.css?v='.RSEPRO_RS_REVISION);
-			}
+			JHtml::stylesheet('com_rseventspro/site.css', array('relative' => true, 'version' => 'auto'));
 			
 			// Add JS files
 			if ($doc->getType() == 'html') {
-				$doc->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/scripts.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
+				$doc->addCustomTag('<script src="'.JHtml::script('com_rseventspro/site.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 			}
 		}
 	}
 	
 	// Load jQuery
 	public static function loadjQuery($noconflict = true) {
-		$admin	 = JFactory::getApplication()->isAdmin() ? 'admin' : '';
+		$admin	 = JFactory::getApplication()->isClient('administrator') ? 'admin' : '';
 		$enabled = rseventsproHelper::getConfig($admin.'jquery','int',0);
 		
 		if ($enabled) {
-			if (rseventsproHelper::isJ3()) {
-				JHtml::_('jquery.framework', $noconflict);
-			} else {
-				$doc = JFactory::getDocument();
-				$doc->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery-1.11.1.min.js?v='.RSEPRO_RS_REVISION);
-				
-				if ($noconflict) {
-					$doc->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery.noconflict.js?v='.RSEPRO_RS_REVISION);
-				}
-			}
+			JHtml::_('jquery.framework', $noconflict);
 		}
 	}
 	
@@ -191,25 +174,19 @@ class rseventsproHelper
 		$document = JFactory::getDocument();
 		
 		if (rseventsproHelper::getConfig('bootstrap','int',0) || $force) {
-			if (rseventsproHelper::isJ3()) {
-				JHtml::_('bootstrap.framework');
-				JHtmlBootstrap::loadCss(true);
-			} else {
-				$document->addScript(JURI::root().'components/com_rseventspro/assets/js/bootstrap.min.js?v='.RSEPRO_RS_REVISION);
-				$document->addStyleSheet(JURI::root().'components/com_rseventspro/assets/css/bootstrap.min.css?v='.RSEPRO_RS_REVISION);
-				$document->addStyleSheet(JURI::root().'components/com_rseventspro/assets/css/bootstrap-responsive.min.css?v='.RSEPRO_RS_REVISION);
-			}
+			JHtml::_('bootstrap.framework');
+			JHtmlBootstrap::loadCss(true);
 		}
 		
 		if ($document->getType() == 'html') {
-			$document->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/bootstrap.fix.js?v='.RSEPRO_RS_REVISION.'" type="text/javascript"></script>');
+			$document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/bootstrap.fix.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 		}
 	}
 	
 	// Load FontAwesome
 	public static function loadFA() {
 		if (rseventsproHelper::getConfig('fontawesome','int',1)) {
-			JFactory::getDocument()->addStyleSheet(JURI::root().'components/com_rseventspro/assets/css/font-awesome.min.css');
+			JHtml::stylesheet('com_rseventspro/font-awesome.min.css', array('relative' => true, 'version' => 'auto'));
 		}
 	}
 	
@@ -258,7 +235,7 @@ class rseventsproHelper
 		$unix	= $now->format('U');
 		$container = array();
 		
-		if (!$config->auto_archive || $config->archive_check + 120 > $unix) {
+		if (!$config->auto_archive || (int) $config->archive_check + 120 > $unix) {
 			return false;
 		}
 		
@@ -303,7 +280,7 @@ class rseventsproHelper
 		}
 		
 		if (!empty($container)) {
-			JArrayHelper::toInteger($container);
+			array_map('intval',$container);
 			JFactory::getApplication()->triggerEvent('rsepro_beforeArchive',array(array('events'=>&$container)));
 			
 			$query->clear()
@@ -328,7 +305,7 @@ class rseventsproHelper
 		$now	= JFactory::getDate();
 		$unix	= $now->toUnix();
 		
-		if ($config->rules_check + 300 > $unix) {
+		if ((int) $config->rules_check + 300 > $unix) {
 			return;
 		}
 		
@@ -465,7 +442,7 @@ class rseventsproHelper
 		$jinput = $app->input;
 		$view   = $jinput->getCmd('view');
 		$layout = $jinput->getCmd('layout');
-		$views  = array('events','locations','categories','tags','subscriptions','discounts','payments','groups','imports','backup','messages','settings');
+		$views  = array('events','locations','categories','tags','subscriptions','discounts','payments','groups','users','imports','backup','messages','settings');
 		
 		$app->triggerEvent('rsepro_adminSubMenu',array(array('views' => &$views)));
 		
@@ -746,14 +723,33 @@ class rseventsproHelper
 	}
 	
 	// Close the modal
-	public static function modalClose($script = true) {
-		$html = array();
+	public static function modalClose($script = true, $parent = false) {
+		$modal	= rseventsproHelper::getConfig('modal', 'int', 0);
+		$html	= '';
 		
-		if ($script) $html[] = '<script type="text/javascript">';
-		$html[] = 'window.parent.SqueezeBox.close();';
-		if ($script) $html[] = '</script>';
+		if ($modal == 0) {
+			return false;
+		}
 		
-		return implode("\n",$html);
+		if ($script) {
+			$html .= '<script type="text/javascript">';
+		}
+		
+		if ($parent) {
+			$html .= 'window.parent.';
+		}
+		
+		if ($modal == 1) {
+			$html .= 'jQuery.colorbox.close();';
+		} else {
+			$html .= 'jQuery(\'.modal.in .close\').click();';
+		}
+		
+		if ($script) {
+			$html .= '</script>';
+		}
+		
+		return $html;
 	}
 	
 	// Get RSMediaGallery! tags
@@ -1174,6 +1170,7 @@ class rseventsproHelper
 			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_TICKETS').'",';
 			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_TICKET_PRICE').'",';
 			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_TICKET_CODE').'",';
+			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_TICKET_CONFIRMED').'",';
 			$csv .= '"'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EXPORT_HEADER_TOTAL').'"';
 			
 			if (file_exists(JPATH_SITE.'/components/com_rsform/rsform.php')) {
@@ -1246,6 +1243,7 @@ class rseventsproHelper
 					$csv .= '"'.$db->escape($ticket->name).'",';
 					$csv .= '"'.$db->escape(rseventsproHelper::currency($ticket->price)).'",';
 					$csv .= '"'.$db->escape($ticket->code).'",';
+					$csv .= '"'.$db->escape(rseventsproHelper::confirmed($subscriber->id, $ticket->code) ? JText::_('JYES') : JText::_('JNO')).'",';
 					$csv .= '"'.$db->escape(rseventsproHelper::currency($total)).'"';
 					
 					if ($subscriber->SubmissionId) {
@@ -1712,7 +1710,7 @@ class rseventsproHelper
 		if ($type == 'categories') {
 			$query->where($db->qn('extension').' = '.$db->q('com_rseventspro'));
 			
-			if (JFactory::getApplication()->isSite()) {
+			if (JFactory::getApplication()->isClient('site')) {
 				if (JLanguageMultilang::isEnabled()) {
 					$query->where('language IN ('.$db->q(JFactory::getLanguage()->getTag()).','.$db->q('*').')');
 				}
@@ -1905,7 +1903,7 @@ class rseventsproHelper
 				$usedtickets = $db->loadColumn();
 				
 				if (!empty($usedtickets)) {
-					JArrayHelper::toInteger($usedtickets);
+					array_map('intval',$usedtickets);
 				}
 				
 				// Update events
@@ -1926,7 +1924,7 @@ class rseventsproHelper
 					
 					$db->setQuery($query);
 					if ($couponids = $db->loadColumn()) {
-						JArrayHelper::toInteger($couponids);
+						array_map('intval',$couponids);
 						$query->clear()
 							->delete($db->qn('#__rseventspro_coupon_codes'))
 							->where($db->qn('idc').' IN ('.implode(',',$couponids).')');
@@ -2002,10 +2000,10 @@ class rseventsproHelper
 				$clone->start			= $clonestart;
 				$clone->end				= !$clone->allday ? $cloneend : $db->getNullDate();
 				$clone->icon			= '';
-				$clone->recurring		= '';
-				$clone->repeat_interval	= '';
-				$clone->repeat_type		= '';
-				$clone->repeat_end		= '';
+				$clone->recurring		= '0';
+				$clone->repeat_interval	= '0';
+				$clone->repeat_type		= '0';
+				$clone->repeat_end		= $db->getNullDate();
 				$clone->repeat_also		= '';
 				$clone->archived		= 0;
 				$clone->hits			= 0;
@@ -2277,7 +2275,7 @@ class rseventsproHelper
 		
 		$db->setQuery($query);
 		if ($couponids = $db->loadColumn()) {
-			JArrayHelper::toInteger($couponids);
+			array_map('intval',$couponids);
 			$query->clear()
 				->delete($db->qn('#__rseventspro_coupon_codes'))
 				->where($db->qn('idc').' IN ('.implode(',',$couponids).')');
@@ -2314,7 +2312,7 @@ class rseventsproHelper
 		$subscriptions = $db->loadColumn();
 		
 		if (!empty($subscriptions)) {
-			JArrayHelper::toInteger($subscriptions);
+			array_map('intval',$subscriptions);
 			
 			$query->clear()
 				->delete($db->qn('#__rseventspro_users'))
@@ -2448,7 +2446,7 @@ class rseventsproHelper
 			
 			$canAdd = false;
 			
-			if (JFactory::getApplication()->isAdmin()) {
+			if (JFactory::getApplication()->isClient('administrator')) {
 				$canAdd = true;
 			} else {
 				if (!empty($permissions['can_add_locations']) || rseventsproHelper::admin()) {
@@ -2657,7 +2655,7 @@ class rseventsproHelper
 		$itemid = $app->input->getInt('Itemid',0);
 		$params = null;
 		
-		if ($app->isAdmin()) {
+		if ($app->isClient('administrator')) {
 			return new JRegistry;
 		}
 		
@@ -3112,7 +3110,7 @@ class rseventsproHelper
 			}
 			
 			if (!empty($ids)) {
-				JArrayHelper::toInteger($ids);
+				array_map('intval',$ids);
 				$ids = array_unique($ids);
 			}
 		}
@@ -3136,7 +3134,7 @@ class rseventsproHelper
 			->select('e.*')
 			->select($db->qn('l.id','locationid'))->select($db->qn('l.name','location'))->select($db->qn('l.url','locationlink'))
 			->select($db->qn('l.address'))->select($db->qn('l.description','ldescription'))->select($db->qn('l.coordinates'))
-			->select($db->qn('l.published','lpublished'))
+			->select($db->qn('l.published','lpublished'))->select($db->qn('l.marker'))
 			->from($db->qn('#__rseventspro_events','e'))
 			->join('left',$db->qn('#__rseventspro_locations','l').' ON '.$db->qn('e.location').' = '.$db->qn('l.id'));
 		
@@ -3179,7 +3177,9 @@ class rseventsproHelper
 			$event->ownerprofile = rseventsproHelper::getProfile('owner', $event->owner);
 			
 			// Content trigger
-			$event->description = JHtml::_('content.prepare',$event->description);
+			if (rseventsproHelper::getConfig('content_prepare','int', 1)) {
+				$event->description = JHtml::_('content.prepare',$event->description);
+			}
 			
 			// Event options
 			if ($event->options) {
@@ -3222,7 +3222,7 @@ class rseventsproHelper
 					} else $style = '';
 					
 					$cURL = $root.rseventsproHelper::route('index.php?option=com_rseventspro&category='.rseventsproHelper::sef($cat->id,$cat->title).$itemid);
-					if ($app->isAdmin()) {
+					if ($app->isClient('administrator')) {
 						$cURL = str_replace('administrator/','',$cURL);
 					}
 					
@@ -3237,7 +3237,7 @@ class rseventsproHelper
 			if (!empty($eventtags[$event->id])) {
 				foreach ($eventtags[$event->id] as $tag) {
 					$tURL = $root.rseventsproHelper::route('index.php?option=com_rseventspro&tag='.rseventsproHelper::sef($tag->id,$tag->name).$itemid);
-					if ($app->isAdmin()) {
+					if ($app->isClient('administrator')) {
 						$tURL = str_replace('administrator/','',$tURL);
 					}
 					
@@ -3366,7 +3366,7 @@ class rseventsproHelper
 		}
 		
 		$ids = array_unique($ids);
-		JArrayHelper::toInteger($ids);
+		array_map('intval',$ids);
 		$db = JFactory::getDbo();
 		
 		// Get event repeated events
@@ -3420,7 +3420,7 @@ class rseventsproHelper
 				->where($db->qn('c.published').' = 1')
 				->where($db->qn('c.extension').' = '.$db->q('com_rseventspro'));
 			
-			if ($app->isSite()) {
+			if ($app->isClient('site')) {
 				if (JLanguageMultilang::isEnabled()) {
 					$query->where('c.language IN ('.$db->q(JFactory::getLanguage()->getTag()).','.$db->q('*').')');
 				}
@@ -3510,7 +3510,6 @@ class rseventsproHelper
 		return $array;
 	}
 	
-	
 	// Get the name of the user
 	public static function getUser($uid, $type = 'owner', $name = null) {
 		$db		= JFactory::getDbo();
@@ -3546,7 +3545,17 @@ class rseventsproHelper
 			}
 			
 			return $user->name;
-		} else return $user->name;
+		} elseif ($option == 4) {
+			$query->clear()
+				->select($db->qn('name'))
+				->from($db->qn('#__rseventspro_user_info'))
+				->where($db->qn('id').' = '.(int) $uid);
+			
+			$db->setQuery($query);
+			$name = $db->loadResult();
+			
+			return !empty($name) ? $name : $user->name;
+		}else return $user->name;
 	}
 	
 	// Get event files
@@ -3948,7 +3957,7 @@ class rseventsproHelper
 		}
 		
 		if (!empty($rsgroups)) {
-			JArrayHelper::toInteger($rsgroups);
+			array_map('intval',$rsgroups);
 			$rsgroups = array_unique($rsgroups);
 		}
 		
@@ -4004,13 +4013,16 @@ class rseventsproHelper
 		
 		$doc->setTitle($title);
 		
+		$meta = array('metaname' => $event->metaname, 'metakeywords' => $event->metakeywords, 'metadescription' => $event->metadescription);
+		$meta = rseventsproEmails::placeholders($meta, $event->id, $event->name);
+		
 		if (trim($event->metaname) != '') {
-			$event->metaname = str_replace('{eventname}',$event->name,$event->metaname);
+			$event->metaname = str_replace('{eventname}', $event->name, $meta['metaname']);
 			$doc->setTitle($event->metaname);
 		}
 		
-		if (trim($event->metakeywords) !='') $doc->setMetaData('keywords',$event->metakeywords);
-		if (trim($event->metadescription) !='') $doc->setDescription($event->metadescription);
+		if (trim($event->metakeywords) !='') $doc->setMetaData('keywords',$meta['metakeywords']);
+		if (trim($event->metadescription) !='') $doc->setDescription($meta['metadescription']);
 		
 		if ($event->parent && rseventsproHelper::getConfig('canonical','int', 1)) {
 			$db = JFactory::getDbo();
@@ -4024,7 +4036,6 @@ class rseventsproHelper
 				$doc->addHeadLink($canonical, 'canonical', 'rel');
 			}
 		}
-		
 		
 		return true;
 	}
@@ -4056,6 +4067,7 @@ class rseventsproHelper
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
 		$avatar = rseventsproHelper::getConfig('user_avatar');
+		$default= JUri::getInstance()->toString(array('host', 'scheme')).JHtml::image('com_rseventspro/user.png', '', array(), true, 1);
 		$html	= '';
 		
 		if (!empty($avatar)) {
@@ -4065,7 +4077,7 @@ class rseventsproHelper
 				// Gravatar
 				case 'gravatar':
 					$email = ($id == 0 && !empty($email)) ? md5(strtolower(trim($email))) : md5(strtolower(trim($user->get('email'))));
-					$html .= '<img src="http://www.gravatar.com/avatar/'.$email.'?d='.urlencode(JURI::root().'components/com_rseventspro/assets/images/user.png').'" alt="Gravatar" class="rs_avatar" width="64" height="64" />';
+					$html .= '<img src="http://www.gravatar.com/avatar/'.$email.'?d='.urlencode($default).'" alt="Gravatar" class="rs_avatar" width="64" height="64" />';
 				break;
 				
 				// Community Builder
@@ -4080,7 +4092,7 @@ class rseventsproHelper
 					if ($cavatar = $db->loadResult())
 						$html .= '<img src="'.JURI::root().'images/comprofiler/tn'.$cavatar.'" alt="Community Builder Avatar" class="rs_avatar" width="64" height="64" />';
 					else
-						$html .= '<img src="'.JURI::root().'components/com_rseventspro/assets/images/user.png" alt="Community Builder Avatar" class="rs_avatar" width="64" height="64" />';
+						$html .= JHtml::image('com_rseventspro/user.png', 'Community Builder Avatar', array('class' => 'rs_avatar', 'width' => '64', 'height' => '64'), true);
 				break;
 				
 				// JomSocial
@@ -4091,7 +4103,7 @@ class rseventsproHelper
 						$avatarUrl	= $user->getThumbAvatar();
 						$html .= '<img src="'.$avatarUrl.'" alt="JomSocial Avatar" class="rs_avatar" width="64" height="64" />';
 					} else {
-						$html .= '<img src="'.JURI::root().'components/com_rseventspro/assets/images/user.png" alt="JomSocial Avatar" class="rs_avatar" width="64" height="64" />';
+						$html .= JHtml::image('com_rseventspro/user.png', 'JomSocial Avatar', array('class' => 'rs_avatar', 'width' => '64', 'height' => '64'), true);
 					}
 				break;
 				
@@ -4110,7 +4122,7 @@ class rseventsproHelper
 							$html .= $profile->getAvatarImage('rs_avatar', '66');
 						}
 					} else {
-						$html .= '<img src="'.JURI::root().'components/com_rseventspro/assets/images/user.png" alt="Kunena Avatar" class="rs_avatar" width="64" height="64" />';
+						$html.= JHtml::image('com_rseventspro/user.png', 'Kunena Avatar', array('class' => 'rs_avatar', 'width' => '64', 'height' => '64'), true);
 					}
 				break;
 				
@@ -4127,7 +4139,7 @@ class rseventsproHelper
 				if (!empty($fireboard))
 					$html .= '<img src="'.JURI::root().'images/fbfiles/avatars/'.$fireboard.'" alt="Fireboard Avatar" class="rs_avatar" width="64" height="64" />';
 				else
-					$html .= '<img src="'.JURI::root().'components/com_rseventspro/assets/images/user.png" alt="Fireboard Avatar" class="rs_avatar" width="64" height="64" />';
+					$html .= JHtml::image('com_rseventspro/user.png', 'Fireboard Avatar', array('class' => 'rs_avatar', 'width' => '64', 'height' => '64'), true);
 					
 				break;
 				
@@ -4144,7 +4156,7 @@ class rseventsproHelper
 					if (!empty($k2) && file_exists(JPATH_SITE.'/media/k2/users/'.$k2)) {
 						$html .= '<img src="'.JURI::root().'media/k2/users/'.$k2.'" alt="K2 Avatar" class="rs_avatar" height="64" />';
 					} else {
-						$html .= '<img src="'.JURI::root().'components/com_rseventspro/assets/images/user.png" alt="K2 Avatar" class="rs_avatar" width="64" height="64" />';
+						$html .= JHtml::image('com_rseventspro/user.png', 'K2 Avatar', array('class' => 'rs_avatar', 'width' => '64', 'height' => '64'), true);
 					}
 				break;
 				
@@ -4159,7 +4171,7 @@ class rseventsproHelper
 						$html .= '<img src="'.$profile->getAvatar().'" alt="EasyDiscuss Avatar" class="rs_avatar" width="64" height="64" />';
 						
 					} else {
-						$html .= '<img src="'.JURI::root().'components/com_rseventspro/assets/images/user.png" alt="EasyDiscuss Avatar" class="rs_avatar" width="64" height="64" />';
+						$html .= JHtml::image('com_rseventspro/user.png', 'EasyDiscuss Avatar', array('class' => 'rs_avatar', 'width' => '64', 'height' => '64'), true);
 					}
 				break;
 				
@@ -4173,7 +4185,7 @@ class rseventsproHelper
 						$avatarLink = Foundry::user($id)->getAvatar(SOCIAL_AVATAR_MEDIUM);
 						$html .= '<img src="'.$avatarLink.'" alt="EasySocial Avatar" class="rs_avatar" width="64" height="64" />';
 					} else {
-						$html .= '<img src="'.JURI::root().'components/com_rseventspro/assets/images/user.png" alt="EasySocial Avatar" class="rs_avatar" width="64" height="64" />';
+						$html .= JHtml::image('com_rseventspro/user.png', 'EasySocial Avatar', array('class' => 'rs_avatar', 'width' => '64', 'height' => '64'), true);
 					}
 				break;
 			}
@@ -4186,6 +4198,10 @@ class rseventsproHelper
 	public static function getProfile($type, $id) {
 		$profile = $type == 'guests' ? rseventsproHelper::getConfig('user_profile','int') : rseventsproHelper::getConfig('event_owner_profile','int');
 		$url	 = '';
+		
+		if ($id == 0) {
+			return $url;
+		}
 		
 		if (!empty($profile)) {
 			// JomSocial
@@ -4224,6 +4240,22 @@ class rseventsproHelper
 					$profile = DiscussHelper::getTable('Profile')->load($id);
 					$url = $profile->getLink();
 				}
+			} 
+			// RSEvents!Pro
+			else if ($profile == 5) {
+				$db = JFactory::getDbo();
+				$query = $db->getQuery(true);
+				
+				$query->clear()
+					->select($db->qn('name'))
+					->from($db->qn('#__rseventspro_user_info'))
+					->where($db->qn('id').' = '.(int) $id);
+				
+				$db->setQuery($query);
+				$name = $db->loadResult();
+				$name = !empty($name) ? $name : rseventsproHelper::getUser($id);
+				
+				$url = JRoute::_('index.php?option=com_rseventspro&layout=user&id='.rseventsproHelper::sef($id, $name));
 			}
 		}
 		
@@ -4362,12 +4394,12 @@ class rseventsproHelper
 			$script[] = '});'."\n";
 			$script[] = '</script>'."\n";
 			
-			JFactory::getDocument()->addCustomTag('<script src="'.JURI::root(true).'/components/com_rseventspro/assets/js/jquery.rating.js" type="text/javascript"></script>');
+			JFactory::getDocument()->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.rating.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 			JFactory::getDocument()->addCustomTag(implode('',$script));
 		}
 		
 		$html[] = '</ul>';
-		$html[] = '<div id="rsepro_rating_loading" style="display: none;"><img src="'.JURI::root().'components/com_rseventspro/assets/images/loading.gif" alt="" style="display:none;" /><span></span></div>';
+		$html[] = '<div id="rsepro_rating_loading" style="display: none;">'.JHtml::image('com_rseventspro/loader.gif', '', array('style' => 'display: none;'), true).'<span></span></div>';
 		
 		return implode("\n", $html);
 	}
@@ -4400,13 +4432,14 @@ class rseventsproHelper
 				$return = '<div class="rs_message_info">'.$message.'</div>';
 				
 				if (!$sticky)
-					$return .= '<script type="text/javascript">window.top.setTimeout(\''.$redirect.'window.parent.SqueezeBox.close();\',1200);</script>';
+					$return .= '<script type="text/javascript">window.top.setTimeout(\''.$redirect.'window.parent.jQuery(".modal.in .close").click();\',1200);</script>';
 				return $return;
 			} 
-			else return '<a href="javascript:void(0)" onclick="window.parent.SqueezeBox.close();">'.$message.'</a>';
+			else return '<a href="javascript:void(0)" onclick="window.parent.jQuery(\'.modal.in .close\').click();">'.$message.'</a>';
 		} else {
 			if ($js) {
-				JFactory::getApplication()->redirect($url,$message);
+				JFactory::getApplication()->enqueueMessage($message);
+				JFactory::getApplication()->redirect($url);
 			} else return '<a href="'.$url.'">'.$message.'</a>';
 		}
 	}
@@ -4528,7 +4561,7 @@ class rseventsproHelper
 		
 		// Check event coupons
 		if (!empty($cids)) {
-			JArrayHelper::toInteger($cids);
+			array_map('intval',$cids);
 			$cids = array_unique($cids);
 			
 			foreach ($cids as $cid) {
@@ -4854,7 +4887,7 @@ class rseventsproHelper
 					->where($db->qn('ide').' = '.$db->q($ticket->ide));
 				$db->setQuery($query);
 				$tids = $db->loadColumn();
-				JArrayHelper::toInteger($tids);
+				array_map('intval',$tids);
 				
 				$query->clear()
 					->select('SUM('.$db->qn('ut.quantity').')')
@@ -5040,7 +5073,7 @@ class rseventsproHelper
 		
 		// Check if the user needs to activate their account.
 		if (($useractivation == 1) || ($useractivation == 2)) {
-			$data['activation'] = JApplication::getHash(JUserHelper::genRandomPassword());
+			$data['activation'] = JApplicationHelper::getHash(JUserHelper::genRandomPassword());
 			$data['block'] = 1;
 		}
 		
@@ -5132,11 +5165,12 @@ class rseventsproHelper
 		
 		// 500 error
 		if ($error == 0) {
-			JError::raiseError(500, $message);
+			throw new Exception($message, 500);
 		} elseif ($error == 1) { // 403 error
-			JError::raiseError(403, $message);
+			throw new Exception($message, 403);
 		} else { // Redirect
-			JFactory::getApplication()->redirect($url,$message, 'error');
+			JFactory::getApplication()->enqueueMessage($message, 'error');
+			JFactory::getApplication()->redirect($url);
 		}
 	}
 	
@@ -5163,7 +5197,7 @@ class rseventsproHelper
 		$userGroups	= rseventsproHelper::getUserGroups();
 		
 		if (is_null($checkGroup)) {
-			$checkGroup	= !$app->isAdmin() && $app->input->get('layout','') == 'tickets';
+			$checkGroup	= !$app->isClient('administrator') && $app->input->get('layout','') == 'tickets';
 		}
 		
 		$query->clear()
@@ -5247,7 +5281,7 @@ class rseventsproHelper
 			->where($db->qn('ide').' = '.$db->q($id));
 		$db->setQuery($query);
 		$tids = $db->loadColumn();
-		JArrayHelper::toInteger($tids);
+		array_map('intval',$tids);
 		
 		$query->clear()
 			->select('SUM('.$db->qn('ut.quantity').')')
@@ -5387,7 +5421,7 @@ class rseventsproHelper
 		$default	= rseventsproHelper::getDefaults();
 		
 		if ($groups) {
-			JArrayHelper::toInteger($groups);
+			array_map('intval',$groups);
 			
 			$query->clear()
 				->select($db->qn('event'))
@@ -5479,12 +5513,7 @@ class rseventsproHelper
 		$doc		= JFactory::getDocument();
 		$template	= $app->getTemplate();
 		
-		$class = self::isJ3() ? 'JViewLegacy' : 'JView';
-		if ($class == 'JView') {
-			jimport('joomla.application.component.view');
-		}
-		
-		$view = new $class(array(
+		$view = new JViewLegacy(array(
 			'name' => 'rseventspro',
 			'layout' => 'plugin',
 			'base_path' => JPATH_SITE.'/components/com_rseventspro'
@@ -5493,11 +5522,7 @@ class rseventsproHelper
 		$view->addTemplatePath(JPATH_THEMES.'/'.$template.'/html/com_rseventspro/rseventspro');
 		
 		// Load custom css file
-		if (file_exists(JPATH_THEMES.'/'.$template.'/html/com_rseventspro/rseventspro/plugin.css'))
-			$doc->addStyleSheet(JURI::root(true).'/templates/'.$template.'/html/com_rseventspro/rseventspro/plugin.css?v='.RSEPRO_RS_REVISION);
-		else
-			$doc->addStyleSheet(JURI::root(true).'/components/com_rseventspro/assets/css/plugin.css?v='.RSEPRO_RS_REVISION);
-		
+		JHtml::stylesheet('com_rseventspro/plugin.css', array('relative' => true, 'version' => 'auto'));
 		
 		$view->id		= $id;
 		$view->details	= rseventsproHelper::details($id, $itemid);
@@ -5661,7 +5686,7 @@ class rseventsproHelper
 	
 	// Get the tooltip class
 	public static function tooltipClass() {
-		return rseventsproHelper::isJ3() ? 'hasTooltip' : 'hasTip';
+		return 'hasTooltip';
 	}
 	
 	// Prepare the tooltip text
@@ -5680,17 +5705,13 @@ class rseventsproHelper
 	
 	// Load tooltip
 	public static function tooltipLoad() {
-		if (rseventsproHelper::isJ3()) {
-			$jversion = new JVersion();
-			
-			if ($jversion->isCompatible('3.3')) {
-				JHtml::_('behavior.core');
-			}
-			
-			JHtml::_('bootstrap.tooltip');
-		} else {
-			JHtml::_('behavior.tooltip');
+		$jversion = new JVersion();
+		
+		if ($jversion->isCompatible('3.3')) {
+			JHtml::_('behavior.core');
 		}
+		
+		JHtml::_('bootstrap.tooltip');
 	}
 	
 	// Register tasks
@@ -5733,27 +5754,21 @@ class rseventsproHelper
 	
 	// Create content for the info window 
 	public static function locationContent($event, $single, $itemid = null, $escaped = true) {
-		$content	= '';
-		$date_mask	= rseventsproHelper::getConfig('global_date');
-		$itemid		= is_null($itemid) ? rseventsproHelper::itemid($event->id) : $itemid;
+		$view = new JViewLegacy(array(
+			'name' => 'rseventspro',
+			'layout' => 'mapinfo',
+			'base_path' => JPATH_SITE.'/components/com_rseventspro'
+		));
 		
-		$alldayStart = $escaped ? addslashes(rseventsproHelper::showdate($event->start,$date_mask,true)) : rseventsproHelper::showdate($event->start,$date_mask,true);
-		$eventname	 = $escaped ? addslashes($event->name) : $event->name;
-		$lname		 = $escaped ? addslashes($event->lname) : $event->lname;
-		$start		 = $escaped ? addslashes(rseventsproHelper::showdate($event->start,null,true)) : rseventsproHelper::showdate($event->start,null,true);
-		$end		 = $escaped ? addslashes(rseventsproHelper::showdate($event->end,null,true)) : rseventsproHelper::showdate($event->end,null,true);
+		$view->addTemplatePath(JPATH_THEMES.'/'.JFactory::getApplication()->getTemplate().'/html/com_rseventspro/rseventspro');
 		
-		if ($event->allday) {
-			$content .= '<b><a target="_blank" href="'.rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,$itemid).'">'.$eventname.'</a></b> <br /> '.JText::_('COM_RSEVENTSPRO_GLOBAL_ON',true).' '.$alldayStart.'<br /> '.JText::_('COM_RSEVENTSPRO_GLOBAL_AT',true).' <a target="_blank" href="'.rseventsproHelper::route('index.php?option=com_rseventspro&layout=location&id='.rseventsproHelper::sef($event->lid,$event->lname),false,$itemid).'">'.$lname.'</a>';
-		} else {
-			$content .= '<b><a target="_blank" href="'.rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,$itemid).'">'.$eventname.'</a></b> <br /> '.JText::_('COM_RSEVENTSPRO_EVENT_STARTS',true).' '.$start.' <br /> '.JText::_('COM_RSEVENTSPRO_EVENT_ENDS',true).' '. $end.' <br /> '.JText::_('COM_RSEVENTSPRO_GLOBAL_AT',true).' <a target="_blank" href="'.rseventsproHelper::route('index.php?option=com_rseventspro&layout=location&id='.rseventsproHelper::sef($event->lid,$event->lname),false,$itemid).'">'.$lname.'</a>';
-		}
+		$view->details	= rseventsproHelper::details($event->id);
+		$view->single	= $single;
+		$view->itemid	= is_null($itemid) ? rseventsproHelper::itemid($event->id) : $itemid;
+		$view->escaped	= $escaped;
 		
-		if (!$single) {
-			$content .= '<br /><br /><a style="float:right;" href="'.rseventsproHelper::route('index.php?option=com_rseventspro&location='.rseventsproHelper::sef($event->lid,$event->lname),false,$itemid).'">'.JText::_('COM_RSEVENTSPRO_VIEW_OTHER_EVENTS',true).'</a>';
-		}
-		
-		return $content;
+		$layout = $view->loadTemplate();
+		return trim(str_replace(array("\r","\n"),'',$layout));
 	}
 	
 	// Create Month Year structure
@@ -5816,7 +5831,7 @@ class rseventsproHelper
 		$format	= is_null($format) ? $config->global_date. ' '.$config->global_time : $format;
 		$date	= is_null($date) || $date == 'now' ? gmdate('c') : $date;
 		
-		if ($config->hideyear && !$app->isAdmin() && $replace) {
+		if ($config->hideyear && !$app->isClient('administrator') && $replace) {
 			if ((is_int($date) && date('Y') == date('Y',$date)) || date('Y') == date('Y',strtotime($date))) {
 				$format = str_replace(array('Y','y','o'),'',$format);
 			}
@@ -5952,7 +5967,7 @@ class rseventsproHelper
 			return array('ext' => $extension, 'content' => $thumb->outputImageData);
 		}
 		
-		return array('ext' => $extension, 'content' => JFile::read($image));
+		return array('ext' => $extension, 'content' => file_get_contents($image));
 	}
 	
 	// Calculate the total of a subscription
@@ -6142,15 +6157,17 @@ class rseventsproHelper
 			$email	= trim($email);
 			
 			$query->clear()
-				->select($db->qn('id'))
-				->from($db->qn('#__rseventspro_users'))
-				->where($db->qn('ide').' = '.$id);
+				->select($db->qn('u.id'))
+				->from($db->qn('#__rseventspro_users','u'))
+				->where($db->qn('u.ide').' = '.$id);
 				
 			if ($user->get('id') > 0) {
-				$query->where($db->qn('idu').' = '.$db->q($user->get('id')));
+				$query->where($db->qn('u.idu').' = '.$db->q($user->get('id')));
 			} else {
-				$query->where($db->qn('email').' = '.$db->q($email));
+				$query->where($db->qn('u.email').' = '.$db->q($email));
 			}
+			
+			JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query, 'rule' => 'u.ide')));
 			
 			$db->setQuery($query);
 			if ($db->loadResult()) {
@@ -6243,13 +6260,8 @@ class rseventsproHelper
 	// Create event details for calendar tooltip
 	public static function calendarTooltip($id) {
 		$template	= JFactory::getApplication()->getTemplate();
-		$class		= self::isJ3() ? 'JViewLegacy' : 'JView';
 		
-		if ($class == 'JView') {
-			jimport('joomla.application.component.view');
-		}
-		
-		$view = new $class(array(
+		$view = new JViewLegacy(array(
 			'name' => 'calendar',
 			'layout' => 'tooltip',
 			'base_path' => JPATH_SITE.'/components/com_rseventspro'
@@ -6275,7 +6287,6 @@ class rseventsproHelper
 		if (rseventsproHelper::pdf()) {
 			// Search for a RSForm!Pro form
 			if ($SubmissionId) {
-				
 				try {
 					$db = JFactory::getDbo();
 					$query = $db->getQuery(true);
@@ -6288,7 +6299,11 @@ class rseventsproHelper
 						->where($db->qn('rr.published').' = '.$db->q(1));
 					$db->setQuery($query);
 					if ($object = $db->loadObject()) {
-						return $object->ticketpdf && $object->ticketpdf_layout;
+						if ($object->ticketpdf) {
+							return $object->ticketpdf_layout;
+						}
+						
+						return $layout;
 					}
 				} catch (Exception $e) { }
 			}
@@ -6324,14 +6339,22 @@ class rseventsproHelper
 	}
 	
 	public static function facebookEvents($jform = null) {
-		$db			= JFactory::getDbo();
-		$query		= $db->getQuery(true);
-		$config 	= rseventsproHelper::getConfig();
-		$allowed	= $config->facebook_pages;
-		$allowed	= !empty($allowed) ? explode(',',$allowed) : '';
-		$container	= array();
-		$checkOwner	= isset($jform['facebook_check_owner']) ? $jform['facebook_check_owner'] : $config->facebook_check_owner;
-		$i			= 0;
+		$db				= JFactory::getDbo();
+		$query			= $db->getQuery(true);
+		$config 		= rseventsproHelper::getConfig();
+		$allowed		= $config->facebook_pages;
+		$allowed		= !empty($allowed) ? explode(',',$allowed) : '';
+		$checkOwnerPage	= isset($jform['facebook_check_owner']) ? $jform['facebook_check_owner'] : (isset($config->facebook_check_owner) ? $config->facebook_check_owner : 1);
+		$checkOwnerUser	= isset($jform['facebook_check_owner_profile']) ? $jform['facebook_check_owner_profile'] : (isset($config->facebook_check_owner_profile) ? $config->facebook_check_owner_profile : 1);
+		$expired		= isset($jform['facebook_expired']) ? $jform['facebook_expired'] : (isset($config->facebook_expired) ? $config->facebook_expired : 1);
+		$profile		= isset($jform['facebook_profile']) ? $jform['facebook_profile'] : (isset($config->facebook_profile) ? $config->facebook_profile : 1);
+		$owners			= array();
+		$container		= array();
+		$log			= array();
+		$i				= 0;
+		
+		$now		= new DateTime();
+		$now->setTimezone(new DateTimeZone('UTC'));
 		
 		try {
 			require_once JPATH_SITE.'/components/com_rseventspro/helpers/facebook/autoload.php';
@@ -6349,8 +6372,8 @@ class rseventsproHelper
 			$fbRequest	= $facebook->get('me/accounts?fields=id');
 			$pages		= $fbRequest->getDecodedBody();
 			$fbpages	= array();
-			$fbpages[]	= $uid;
 			$allevents	= array();
+			$owners[]	= $uid;
 			
 			if (!empty($pages) && !empty($pages['data'])) {
 				foreach($pages['data'] as $page) {
@@ -6359,21 +6382,38 @@ class rseventsproHelper
 							$pid = trim($pid);
 							if ($pid == $page['id']) {
 								$fbpages[] = $page['id'];
+								$owners[] = $page['id'];
 							}
 						}
 					} else {
 						$fbpages[] = $page['id'];
+						$owners[] = $page['id'];
 					}
 				}
 			}
 			
 			// Get user events
-			$fbRequest	= $facebook->get('me/events?fields=id,name,start_time,end_time,timezone,description,owner,cover,place&limit=200');
-			$events		= $fbRequest->getDecodedBody();
-			
-			if (!empty($events) && !empty($events['data'])) {
-				foreach ($events['data'] as $event) {
-					$allevents[$event['id']] = $event;
+			if ($profile) {
+				$fbRequest	= $facebook->get('me/events?fields=id,name,start_time,end_time,timezone,description,owner,cover,place&limit=200');
+				$events		= $fbRequest->getDecodedBody();
+				
+				if (!empty($events) && !empty($events['data'])) {
+					foreach ($events['data'] as $event) {
+						$log[$event['id']] = array('name' => $event['name'], 'date' => JFactory::getDate()->toSql(), 'imported' => false, 'message' => '', 'page' => false, 'from' => @$event['owner']['name'], 'eventID' => 0);
+						
+						$owner	 = isset($event['owner']) ? $event['owner'] : array();
+						$ownerID = !empty($owner) && !empty($owner['id']) ? $owner['id'] : 0;
+						
+						if ($checkOwnerUser) {
+							if (!in_array($ownerID, $owners)) {
+								$log[$event['id']]['message'] = JText::_('COM_RSEVENTSPRO_SYNC_LOG_ERROR_OWNER');
+							} else {
+								$allevents[$event['id']] = $event;
+							}
+						} else {
+							$allevents[$event['id']] = $event;
+						}
+					}
 				}
 			}
 			
@@ -6384,7 +6424,20 @@ class rseventsproHelper
 					$pageEvents = $fbRequest->getDecodedBody();					
 					if (!empty($pageEvents) && !empty($pageEvents['data'])) {
 						foreach ($pageEvents['data'] as $pageEvent) {
-							$allevents[$pageEvent['id']] = $pageEvent;
+							$log[$pageEvent['id']] = array('name' => $event['name'], 'date' => JFactory::getDate()->toSql(), 'imported' => false, 'message' => '', 'page' => true, 'from' => @$pageEvent['owner']['name'], 'eventID' => 0);
+							
+							$owner	 = isset($pageEvent['owner']) ? $pageEvent['owner'] : array();
+							$ownerID = !empty($owner) && !empty($owner['id']) ? $owner['id'] : 0;
+							
+							if ($checkOwnerPage) {
+								if (!in_array($ownerID, $owners)) {
+									$log[$pageEvent['id']]['message'] = JText::_('COM_RSEVENTSPRO_SYNC_LOG_ERROR_OWNER');
+								} else {
+									$allevents[$pageEvent['id']] = $pageEvent;
+								}
+							} else {
+								$allevents[$pageEvent['id']] = $pageEvent;
+							}							
 						}
 					}
 				}
@@ -6399,9 +6452,9 @@ class rseventsproHelper
 					->where($db->qn('from').' = '.$db->q('facebook'));
 				$db->setQuery($query);
 				if ($dbEvents = $db->loadColumn()) {
-					
 					foreach ($dbEvents as $dbEvent) {
 						unset($allevents[$dbEvent]);
+						$log[$dbEvent]['message'] = JText::_('COM_RSEVENTSPRO_SYNC_LOG_ERROR_DB');
 					}
 				}
 			}
@@ -6410,20 +6463,11 @@ class rseventsproHelper
 			if (!empty($allevents)) {
 				foreach ($allevents as $event) {
 					$cover		= isset($event['cover']) ? $event['cover'] : array();
-					$owner		= isset($event['owner']) ? $event['owner'] : array();
 					$timezone	= isset($event['timezone']) ? $event['timezone'] : null;
 					$image		= '';
 					
 					if (!empty($cover) && !empty($cover['source'])) {
 						$image = isset($cover['source']) ? $cover['source'] : '';
-					}
-					
-					if ($checkOwner) {
-						if (!empty($owner) && !empty($owner['id'])) {
-							if (!in_array($owner['id'], $fbpages)) {
-								continue;
-							}
-						}
 					}
 					
 					$ev					= new stdClass();
@@ -6445,8 +6489,15 @@ class rseventsproHelper
 						$endDate->setTimezone(new DateTimeZone('UTC'));
 						$end = $endDate->format('Y-m-d H:i:s');
 					} else {
-						$startDate->modify('+ 2 hour');
-						$end = $startDate->format('Y-m-d H:i:s');
+						$endDate = clone $startDate;
+						$endDate->modify('+ 2 hour');
+						$end = $endDate->format('Y-m-d H:i:s');
+					}
+					
+					if (!$expired) {
+						if ($now > $endDate) {
+							continue;
+						}
 					}
 					
 					$ev->start			= $start;
@@ -6461,6 +6512,7 @@ class rseventsproHelper
 					$ev->lat			= isset($event['place']['location']['latitude']) ? $event['place']['location']['latitude'] : '';
 					$ev->lon			= isset($event['place']['location']['longitude']) ? $event['place']['location']['longitude'] : '';
 					$ev->image			= $image;
+					$ev->fbid			= $image;
 					
 					$container[] = $ev; 
 				}
@@ -6534,6 +6586,9 @@ class rseventsproHelper
 				$db->execute();
 				$idevent = $db->insertid();
 				
+				$log[$event->id]['imported'] = true;
+				$log[$event->id]['eventID'] = $idevent;
+				
 				$query->clear()
 					->insert($db->qn('#__rseventspro_taxonomy'))
 					->set($db->qn('ide').' = '.$db->q($idevent))
@@ -6584,6 +6639,10 @@ class rseventsproHelper
 				}
 				$i++;
 			}
+		}
+		
+		if ($log) {
+			rseventsproHelper::saveSyncLog($log, 'facebook');
 		}
 		
 		return array($i, count($container));
@@ -6678,5 +6737,122 @@ class rseventsproHelper
 		}
 		
 		return JSON_PRETTY_PRINT;
+	}
+	
+	public static function showMarker($marker) {
+		if (substr($marker,0,4) == 'http') {
+			return $marker;
+		}
+		
+		return JUri::root().$marker;
+	}
+	
+	public static function getUserProfile($id) {
+		$db			= JFactory::getDbo();
+		$query		= $db->getQuery(true);
+		
+		$query->clear()->select('*')
+			->from($db->qn('#__rseventspro_user_info'))
+			->where($db->qn('id').' = '.$db->q($id));
+		$db->setQuery($query);
+		if ($data = $db->loadObject()) {
+			return $data;
+		}
+		
+		$data = new stdClass;
+		$data->id = $id;
+		$data->name = rseventsproHelper::getUser($id);
+		$data->image = '';
+		$data->description = '';
+		
+		return $data;
+	}
+	
+	public static function getUserEvents($id, $type = 'created') {
+		$db			= JFactory::getDbo();
+		$query		= $db->getQuery(true);
+		$excluded	= rseventsproHelper::excludeEvents();
+		$cart		= false;
+		
+		JFactory::getApplication()->triggerEvent('rsepro_isCart', array(array('cart' => &$cart)));
+		
+		$query->select('DISTINCT '.$db->qn('e.id'))->select($db->qn('e.name'))
+			->select($db->qn('e.start'))->select($db->qn('e.end'))
+			->select($db->qn('e.allday'))->select($db->qn('e.itemid'))
+			->from($db->qn('#__rseventspro_events','e'))
+			->where($db->qn('e.published').' = '.$db->q(1));
+		
+		if ($type == 'created') {
+			$query->where($db->qn('e.owner').' = '.$db->q($id));
+		} else {
+			$query->join('LEFT',$db->qn('#__rseventspro_users','u').' ON '.$db->qn('u.ide').' = '.$db->qn('e.id'))
+				->where($db->qn('u.idu').' = '.$db->q($id));
+		}
+		
+		$db->setQuery($query);
+		$events = $db->loadObjectList();
+		
+		if ($cart && $type == 'join') {
+			$newquery = $db->getQuery(true);
+			$subquery = $db->getQuery(true);
+			
+			$subquery->select('GROUP_CONCAT('.$db->qn('c.events').' SEPARATOR ",")');
+			$subquery->from($db->qn('#__rseventspro_users','u'));
+			$subquery->join('left',$db->qn('#__rseventspro_cart','c').' ON '.$db->qn('c.ids').' = '.$db->qn('u.id'));
+			$subquery->where($db->qn('u.ide').' = '.$db->q(0));
+			$subquery->where($db->qn('u.idu').' = '.$db->q($id));
+			
+			$db->setQuery($subquery);
+			if ($eventIDs = $db->loadResult()) {
+				$newquery->select('DISTINCT '.$db->qn('e.id'))->select($db->qn('e.name'))
+					->select($db->qn('e.start'))->select($db->qn('e.end'))
+					->select($db->qn('e.allday'))->select($db->qn('e.itemid'))
+					->from($db->qn('#__rseventspro_events','e'))
+					->where($db->qn('e.published').' = '.$db->q(1))
+					->where($db->qn('e.id').' IN ('.$eventIDs.')');
+				
+				$db->setQuery($newquery);
+				if ($cartEvents = $db->loadObjectList()) {
+					$events = array_merge($events, $cartEvents);
+					$events = array_unique($events, SORT_REGULAR);
+				}
+			}
+		}
+		
+		if ($excluded) {
+			foreach ($events as $i => $event) {
+				if (in_array($event->id, $excluded)) {
+					unset($events[$i]);
+				}
+			}
+		}
+		
+		return $events;
+	}
+	
+	public static function saveSyncLog($logs, $type) {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		
+		if ($logs) {
+			foreach ($logs as $eventID => $log) {
+				if (empty($log['date'])) continue;
+				
+				$query->clear()
+					->insert($db->qn('#__rseventspro_sync_log'))
+					->set($db->qn('type').' = '.$db->q($type))
+					->set($db->qn('date').' = '.$db->q($log['date']))
+					->set($db->qn('name').' = '.$db->q($log['name']))
+					->set($db->qn('imported').' = '.$db->q((int) $log['imported']))
+					->set($db->qn('message').' = '.$db->q($log['message']))
+					->set($db->qn('page').' = '.$db->q((int) $log['page']))
+					->set($db->qn('from').' = '.$db->q($log['from']))
+					->set($db->qn('eid').' = '.$db->q($log['eventID']))
+					->set($db->qn('importid').' = '.$db->q($eventID));
+				
+				$db->setQuery($query);
+				$db->execute();
+			}
+		}
 	}
 }

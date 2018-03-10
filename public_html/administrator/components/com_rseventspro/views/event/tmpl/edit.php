@@ -47,12 +47,6 @@ JText::script('COM_RSEVENTSPRO_END_REG_BIGGER_THAN_END_ERROR'); ?>
 		jQuery('#rsepro-delete-icon-btn').css('display','none');
 	}
 	
-	function jSelectUser_jform_owner_name(id, name) {
-		jQuery('#jform_owner').val(id);
-		jQuery('#jform_owner_name').val(name);
-		SqueezeBox.close();
-	}
-	
 	<?php if ($this->config->enable_google_maps) { ?>
 	jQuery(document).ready(function (){
 		jQuery('#rsepro-location-map').rsjoomlamap({
@@ -198,112 +192,9 @@ JText::script('COM_RSEVENTSPRO_END_REG_BIGGER_THAN_END_ERROR'); ?>
 		</div>
 	</form>
 	
-	<div id="rsepro-edit-event-photo" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			<h3><?php echo JText::_('COM_RSEVENTSPRO_EVENT_PHOTO'); ?></h3>
-		</div>
-		<div class="modal-body">
-			<div id="rsepro-image-loader" class="center" style="display:none;"><img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/load.gif" alt="" /></div>
-			<iframe id="rsepro-image-frame" src="" width="100%"></iframe>
-		</div>
-		<div class="modal-footer">
-			<label for="aspectratio" class="pull-left" style="display: none" id="aspectratiolabel">
-				<input type="checkbox" id="aspectratio" name="aspectratio" value="1" style="margin:0;" /> <?php echo JText::_('COM_RSEVENTSPRO_FREE_ASPECT_RATIO'); ?>
-			</label>
-			<button class="btn btn-primary" type="button" id="rsepro-crop-icon-btn" style="display: none;"><?php echo JText::_('COM_RSEVENTSPRO_GLOABAL_CROP_BTN'); ?></button>
-			<button class="btn btn-danger" type="button" id="rsepro-delete-icon-btn" style="display: none;"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_DELETE_BTN'); ?></button>
-			<button class="btn" data-dismiss="modal" aria-hidden="true"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL_BTN'); ?></button>
-		</div>
-	</div>
-	
-	<div id="rsepro-add-new-categ" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			<h3><?php echo JText::_('COM_RSEVENTSPRO_EVENT_ADD_CATEGORY'); ?></h3>
-		</div>
-		<div class="modal-body form-horizontal">
-			<div class="control-group">
-				<div class="control-label">
-					<label for="rsepro-new-category"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_CATEGORY_NAME'); ?></label>
-				</div>
-				<div class="controls">
-					<input type="text" id="rsepro-new-category" name="category" placeholder="<?php echo JText::_('COM_RSEVENTSPRO_EVENT_ENTER_CATEGORY_NAME'); ?>" />
-				</div>
-			</div>
-			<div class="control-group">
-				<div class="control-label">
-					<label for="category-parent"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_CHOOSE_PARENT'); ?></label>
-				</div>
-				<div class="controls">
-					<select id="category-parent" name="parent">
-						<?php echo JHtml::_('select.options', JHtml::_('category.categories','com_rseventspro')); ?>
-					</select>
-				</div>
-			</div>
-		</div>
-		<div class="modal-footer">
-			<img id="rsepro-add-category-loader" src="<?php echo JUri::root(); ?>administrator/components/com_rseventspro/assets/images/loader.gif" alt="" class="pull-left" style="display: none;" />
-			<button class="btn btn-primary rsepro-event-add-category"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_ADD_CATEGORY_ADD'); ?></button>
-			<button class="btn" data-dismiss="modal" aria-hidden="true"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL_BTN'); ?></button>
-		</div>
-	</div>
-	
-	<div id="rsepro-edit-event-file" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">
-		<div class="modal-header">
-			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			<h3><?php echo JText::_('COM_RSEVENTSPRO_EVENT_EDIT_FILE'); ?></h3>
-		</div>
-		<div class="modal-body form-horizontal">
-			<div class="control-group">
-				<div class="control-label">
-					<label for="rsepro-file-name"><?php echo JText::_('COM_RSEVENTSPRO_FILE_NAME'); ?></label>
-				</div>
-				<div class="controls">
-					<input type="text" id="rsepro-file-name" name="file_name" class="input-xlarge" />
-				</div>
-			</div>
-			<div class="control-group">
-				<div class="control-label">
-					<label><?php echo JText::_('COM_RSEVENTSPRO_FILE_PERMISSIONS'); ?></label>
-				</div>
-				<div class="controls">
-					<legend><?php echo JText::_('COM_RSEVENTSPRO_FILE_VISIBLE_ALL'); ?></legend>
-					<label class="checkbox">
-						<input id="fp0" name="fp0" type="checkbox" value="1" />
-						<?php echo JText::_('COM_RSEVENTSPRO_FILE_VISIBLE_BEFORE'); ?>
-					</label>
-					<label class="checkbox">
-						<input id="fp1" name="fp1" type="checkbox" value="1" />
-						<?php echo JText::_('COM_RSEVENTSPRO_FILE_VISIBLE_DURING'); ?>
-					</label>
-					<label class="checkbox">
-						<input id="fp2" name="fp2" type="checkbox" value="1" />
-						<?php echo JText::_('COM_RSEVENTSPRO_FILE_VISIBLE_AFTER'); ?>
-					</label>
-					
-					<legend><?php echo JText::_('COM_RSEVENTSPRO_FILE_VISIBLE_REGISTERED'); ?></legend>
-					<label class="checkbox">
-						<input id="fp3" name="fp3" type="checkbox" value="1" />
-						<?php echo JText::_('COM_RSEVENTSPRO_FILE_VISIBLE_BEFORE'); ?>
-					</label>
-					<label class="checkbox">
-						<input id="fp4" name="fp4" type="checkbox" value="1" />
-						<?php echo JText::_('COM_RSEVENTSPRO_FILE_VISIBLE_DURING'); ?>
-					</label>
-					<label class="checkbox">
-						<input id="fp5" name="fp5" type="checkbox" value="1" />
-						<?php echo JText::_('COM_RSEVENTSPRO_FILE_VISIBLE_AFTER'); ?>
-					</label>
-				</div>
-			</div>
-			<input type="hidden" name="rsepro-file-id" id="rsepro-file-id" value="" />
-		</div>
-		<div class="modal-footer">
-			<button class="btn btn-primary" type="button" id="rsepro-save-file"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE_BTN'); ?></button>
-			<button class="btn" data-dismiss="modal" aria-hidden="true"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL_BTN'); ?></button>
-		</div>
-	</div>
+	<?php echo JHtml::_('bootstrap.renderModal', 'rsepro-edit-event-photo', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_PHOTO'), 'footer' => $this->loadTemplate('modal_icon_footer'), 'bodyHeight' => 70), $this->loadTemplate('modal_icon')); ?>
+	<?php echo JHtml::_('bootstrap.renderModal', 'rsepro-add-new-categ', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_ADD_CATEGORY'), 'footer' => $this->loadTemplate('modal_category_footer'), 'bodyHeight' => 70), $this->loadTemplate('modal_category')); ?>
+	<?php echo JHtml::_('bootstrap.renderModal', 'rsepro-edit-event-file', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_EDIT_FILE'), 'footer' => $this->loadTemplate('modal_file_footer'), 'bodyHeight' => 70), $this->loadTemplate('modal_file')); ?>
 	
 	<?php JFactory::getApplication()->triggerEvent('rsepro_eventNewFieldModal', array(array('view' => $this))); ?>
 	

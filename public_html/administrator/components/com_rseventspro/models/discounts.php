@@ -26,25 +26,6 @@ class RseventsproModelDiscounts extends JModelList
 	}
 	
 	/**
-	 * Method to auto-populate the model state.
-	 *
-	 * Note. Calling getState in this method will result in recursion.
-	 *
-	 * @return	void
-	 * @since	1.6
-	 */
-	protected function populateState($ordering = null, $direction = null) {
-		$jinput = JFactory::getApplication()->input;
-		$this->setState('filter.search', $this->getUserStateFromRequest($this->context.'.filter.search', 'filter_search'));
-		
-		$limitstart = $jinput->getInt('lstart');
-		
-		// List state information.
-		parent::populateState('name', 'asc');
-		$this->setState('list.start', $limitstart);
-	}
-	
-	/**
 	 * Build an SQL query to load the list data.
 	 *
 	 * @return	JDatabaseQuery
@@ -69,40 +50,9 @@ class RseventsproModelDiscounts extends JModelList
 		
 		// Add the list ordering clause
 		$listOrdering = $this->getState('list.ordering', 'name');
-		$listDirn = $db->escape($this->getState('list.direction', 'asc'));
+		$listDirn = $db->escape($this->getState('list.direction', 'ASC'));
 		$query->order($db->qn($listOrdering).' '.$listDirn);
 		
 		return $query;
-	}
-	
-	/**
-	 * Method to set the side bar.
-	 */
-	public function getSidebar() {
-		if (rseventsproHelper::isJ3()) {
-			return JHtmlSidebar::render();
-		}
-		
-		return;
-	}
-	
-	/**
-	 * Method to set the filter bar.
-	 */
-	public function getFilterBar() {
-		$options = array();
-		$options['search'] = array(
-			'label' => JText::_('JSEARCH_FILTER'),
-			'value' => $this->getState('filter.search')
-		);
-		$options['listDirn']  = $this->getState('list.direction', 'asc');
-		$options['listOrder'] = $this->getState('list.ordering', 'name');
-		$options['sortFields'] = array(
-			JHtml::_('select.option', 'id', JText::_('COM_RSEVENTSPRO_GLOBAL_SORT_ID')),
-			JHtml::_('select.option', 'name', JText::_('COM_RSEVENTSPRO_GROUPS_SORT_NAME'))
-		);
-		
-		$bar = new RSFilterBar($options);
-		return $bar;
 	}
 }

@@ -22,11 +22,7 @@ class RseventsproModelImports extends JModelLegacy
 	 * Method to set the side bar.
 	 */
 	public function getSidebar() {
-		if (rseventsproHelper::isJ3()) {
-			return JHtmlSidebar::render();
-		}
-		
-		return;
+		return JHtmlSidebar::render();
 	}
 	
 	/*
@@ -165,7 +161,7 @@ class RseventsproModelImports extends JModelLegacy
 			
 			$thecategories = array();
 			if (!empty($categories)) {
-				JArrayHelper::toInteger($categories);
+				array_map('intval',$categories);
 				$categories = array_unique($categories);
 				
 				foreach ($categories as $category) {
@@ -534,7 +530,7 @@ class RseventsproModelImports extends JModelLegacy
 					$fil	= $file->FileLocation;
 					$fil	= JFile::makeSafe($fil);
 					$ext	= JFile::getExt($fil);
-					$filename = JFile::getName(JFile::stripExt($fil));
+					$filename = basename(JFile::stripExt($fil));
 					
 					while(JFile::exists($rspath.$filename.'.'.$ext))
 						$filename .= rand(1,999);
@@ -564,7 +560,7 @@ class RseventsproModelImports extends JModelLegacy
 				$ext = JFile::getExt($icon);
 				if (in_array(strtolower($ext),array('jpg','png','jpeg'))) {
 					$file = JFile::makeSafe($icon);
-					$filename = JFile::getName(JFile::stripExt($file));
+					$filename = basename(JFile::stripExt($file));
 					
 					while(JFile::exists($path.$filename.'.'.$ext))
 						$filename .= rand(1,999);
@@ -601,7 +597,7 @@ class RseventsproModelImports extends JModelLegacy
 		
 		$condition = false;
 		if (!empty($jevcategories)) {
-			JArrayHelper::toInteger($jevcategories);
+			array_map('intval',$jevcategories);
 			$jevcategories = array_unique($jevcategories);
 			$condition = true;
 			$condition = " AND id IN (".implode(',',$jevcategories).") ";
@@ -906,7 +902,7 @@ class RseventsproModelImports extends JModelLegacy
 		$locations = $db->loadColumn();
 		
 		if (!empty($locations)) {
-			JArrayHelper::toInteger($locations);
+			array_map('intval',$locations);
 			$locations = array_unique($locations);
 			
 			foreach ($locations as $location) {
@@ -947,7 +943,7 @@ class RseventsproModelImports extends JModelLegacy
 		$categories = $db->loadColumn();
 		
 		if (!empty($categories)) {
-			JArrayHelper::toInteger($categories);
+			array_map('intval',$categories);
 			$categories = array_unique($categories);
 			
 			foreach ($categories as $category) {
@@ -985,7 +981,7 @@ class RseventsproModelImports extends JModelLegacy
 				
 				$db->setQuery($query);
 				$ecategories = $db->loadColumn();
-				JArrayHelper::toInteger($ecategories);
+				array_map('intval',$ecategories);
 				
 				if (!empty($ecategories))
 					foreach ($ecategories as $cat)
@@ -1131,7 +1127,7 @@ class RseventsproModelImports extends JModelLegacy
 		$categories = $db->loadColumn();
 		
 		if (!empty($categories)) {
-			JArrayHelper::toInteger($categories);
+			array_map('intval',$categories);
 			$categories = array_unique($categories);
 			
 			foreach ($categories as $category) {

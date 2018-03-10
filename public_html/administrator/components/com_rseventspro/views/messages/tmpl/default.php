@@ -12,9 +12,9 @@ JHtml::_('behavior.keepalive'); ?>
 <form action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=messages'); ?>" method="post" name="adminForm" id="adminForm" class="form-validate form-horizontal" autocomplete="off">
 	<div class="row-fluid">
 		<div id="j-sidebar-container" class="span2">
-			<?php echo $this->sidebar; ?>
+			<?php echo JHtmlSidebar::render(); ?>
 		</div>
-		<div id="j-main-container" class="span10">
+		<div id="j-main-container" class="span10 j-main-container">
 			<table class="adminlist table table-striped">
 				<thead>
 					<th><?php echo JText::_('COM_RSEVENTSPRO_CONF_EMAIL_TYPE'); ?></th>
@@ -49,6 +49,9 @@ JHtml::_('behavior.keepalive'); ?>
 					</tr>
 					<tr>
 						<td><a class="<?php echo rseventsproHelper::tooltipClass(); ?>" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CONF_EMAIL_NOTIFICATION_INFO')); ?>" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type=notify_me'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_CONF_EMAIL_NOTIFICATION_EMAIL'); ?></a></td>
+					</tr>
+					<tr>
+						<td><a class="<?php echo rseventsproHelper::tooltipClass(); ?>" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CONF_UNSUBSCRIBE_NOTIFICATION_INFO')); ?>" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type=notify_me_unsubscribe'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_CONF_UNSUBSCRIBE_NOTIFICATION_EMAIL'); ?></a></td>
 					</tr>
 					<tr>
 						<td><a class="<?php echo rseventsproHelper::tooltipClass(); ?>" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CONF_EMAIL_REPORT_INFO')); ?>" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type=report'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_CONF_EMAIL_REPORT_EMAIL'); ?></a></td>

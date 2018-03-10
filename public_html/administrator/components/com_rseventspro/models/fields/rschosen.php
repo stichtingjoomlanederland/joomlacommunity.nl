@@ -31,17 +31,6 @@ class JFormFieldRSChosen extends JFormFieldHidden
 		
 		// Load Chosen library
 		JHtml::_('rseventspro.chosen','.rschosen');
-		
-		if (!rseventsproHelper::isJ3()) {
-			$doc = JFactory::getDocument();
-			
-			$doc->addStyleDeclaration(".chzn-container { float: left; margin-bottom: 5px;}");
-			$doc->addScriptDeclaration(
-			"jQuery(document).ready(function() {
-				jQuery('#jform_params_categories').parents('div.pane-slider').css('overflow','visible');
-				jQuery('#jform_params_categories').parents('fieldset').css('overflow','visible');
-			});");
-		}
 	}
 	
 	/**

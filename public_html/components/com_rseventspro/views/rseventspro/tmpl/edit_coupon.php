@@ -79,7 +79,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 </div>
 
 <div class="form-actions">
-	<img id="rsepro-add-coupon-loader" src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/loader.gif" alt="" style="display: none;" />
+	<?php echo JHtml::image('com_rseventspro/loader.gif', '', array('id' => 'rsepro-add-coupon-loader', 'style' => 'display: none;'), true); ?> 
 	<button class="btn rsepro-event-add-coupon" type="button"><span class="fa fa-plus"></span> <?php echo JText::_('COM_RSEVENTSPRO_ADD_COUPON'); ?></button>
 	<button class="btn btn-success rsepro-event-save" type="button"><?php echo JText::_('COM_RSEVENTSPRO_SAVE_EVENT'); ?></button>
 	<button class="btn btn-success rsepro-event-update" type="button"><?php echo JText::_('COM_RSEVENTSPRO_UPDATE_EVENT'); ?></button>

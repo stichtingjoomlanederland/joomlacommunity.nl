@@ -7,26 +7,17 @@
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class RseventsproViewCategories extends JViewLegacy
-{
-	protected $items;
-	protected $pagination;
-	protected $state;
-	protected $sidebar;
-	protected $filterbar;
-	protected $total;
-	
+{	
 	public function display($tpl = null) {
 		$this->state         = $this->get('State');
 		$this->items         = $this->get('Items');
 		$this->pagination    = $this->get('Pagination');
-		$this->total 		 = $this->get('Total');
-		$this->filterbar	 = $this->get('Filterbar');	
-		$this->sidebar		 = $this->get('Sidebar');
+		$this->filterForm    = $this->get('FilterForm');
+		$this->activeFilters = $this->get('ActiveFilters');
 
 		// Check for errors.
 		if (count($errors = $this->get('Errors'))) {
-			JError::raiseError(500, implode("\n", $errors));
-			return false;
+			throw new Exception(implode("\n", $errors), 500);
 		}
 
 		// Preprocess the list of items to find ordering divisions.
@@ -49,8 +40,6 @@ class RseventsproViewCategories extends JViewLegacy
 		JToolbarHelper::custom('categories.rebuild', 'refresh.png', 'refresh_f2.png', 'JTOOLBAR_REBUILD', false);
 		JToolbarHelper::preferences('com_rseventspro');
 		
-		if (rseventsproHelper::isJ3()) {
-			JHtml::_('rseventspro.chosen','select');
-		}
+		JHtml::_('rseventspro.chosen','select');
 	}
 }

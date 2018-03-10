@@ -5,12 +5,12 @@
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-JHtml::_('behavior.formvalidation');
+JHtml::_('behavior.formvalidator');
 JHtml::_('behavior.keepalive'); ?>
 
 <script type="text/javascript">
 	Joomla.submitbutton = function(task) {
-		if (task == 'tag.cancel' || document.formvalidator.isValid(document.id('adminForm'))) {
+		if (task == 'tag.cancel' || document.formvalidator.isValid(document.getElementById('adminForm'))) {
 			Joomla.submitform(task, document.getElementById('adminForm'));
 		} else {
 			alert('<?php echo $this->escape(JText::_('JGLOBAL_VALIDATION_FORM_FAILED'));?>');

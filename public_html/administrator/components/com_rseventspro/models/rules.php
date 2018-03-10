@@ -66,10 +66,6 @@ class RseventsproModelRules extends JModelList
 	 * Method to get the side bar.
 	 */
 	public function getSidebar() {
-		if (rseventsproHelper::isJ3()) {
-			return JHtmlSidebar::render();
-		}
-		
-		return;
+		return JHtmlSidebar::render();
 	}
 }

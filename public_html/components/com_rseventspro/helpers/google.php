@@ -21,6 +21,11 @@ class RSEPROGoogle
 	protected $_secret;
 	
 	/*
+	*	Google log
+	*/
+	protected $log = array();
+	
+	/*
 	*	Constructor
 	*/
 	
@@ -41,6 +46,10 @@ class RSEPROGoogle
 		$events	= $this->getEvents();
 		$jform	= JFactory::getApplication()->input->get('jform',array(),'array');
 		$idcat	= isset($jform['google_category']) ? $jform['google_category'] : rseventsproHelper::getConfig('google_category','int');
+		$expired= isset($jform['google_expired']) ? $jform['google_expired'] : rseventsproHelper::getConfig('google_expired','int', 1);
+		
+		$now	= new DateTime();
+		$now->setTimezone(new DateTimeZone('UTC'));
 		
 		if (empty($idcat)) {
 			$query->clear()
@@ -56,22 +65,8 @@ class RSEPROGoogle
 		if (empty($events)) 
 			return;
 		
-		foreach ($events as $event) {
-			$start = new DateTime($event->start, new DateTimeZone($event->timezone));
-			$start->setTimezone(new DateTimeZone('UTC'));
-			$start = $start->format('Y-m-d H:i:s');
-			
-			if ($event->allday) {
-				$end = $event->end;
-			} else {
-				$end = new DateTime($event->end, new DateTimeZone($event->timezone));
-				$end->setTimezone(new DateTimeZone('UTC'));
-				$end = $end->format('Y-m-d H:i:s');
-			}
-			
-			$idlocation = isset($jform['google_location']) ? $jform['google_location'] : rseventsproHelper::getConfig('google_location','int');
-			
-			//check if the current event was already added
+		// Remove events that are already imported
+		foreach ($events as $j => $event) {
 			$query->clear()
 				->select('COUNT(id)')
 				->from($db->qn('#__rseventspro_sync'))
@@ -81,8 +76,37 @@ class RSEPROGoogle
 			$db->setQuery($query);
 			$indb = $db->loadResult();
 			
-			if(!empty($indb)) 
-				continue;
+			if(!empty($indb)) {
+				unset($events[$j]);
+				$this->log[$event->id]['message'] = JText::_('COM_RSEVENTSPRO_SYNC_LOG_ERROR_DB');
+			}
+		}
+		
+		foreach ($events as $event) {
+			$start = new DateTime($event->start, new DateTimeZone($event->timezone));
+			$start->setTimezone(new DateTimeZone('UTC'));
+			
+			if ($event->allday) {
+				$end = JFactory::getDbo()->getNullDate();
+				$endDate = clone $start;
+			} else {
+				$end = new DateTime($event->end, new DateTimeZone($event->timezone));
+				$end->setTimezone(new DateTimeZone('UTC'));
+				
+				$endDate = clone $end;
+				
+				$end = $end->format('Y-m-d H:i:s');
+			}
+			
+			$start = $start->format('Y-m-d H:i:s');
+			
+			if (!$expired) {
+				if ($now > $endDate) {
+					continue;
+				}
+			}
+			
+			$idlocation = isset($jform['google_location']) ? $jform['google_location'] : rseventsproHelper::getConfig('google_location','int');
 			
 			if (empty($idlocation)) {
 				$location = !empty($event->location) ? $event->location : 'Google calendar location';
@@ -123,6 +147,9 @@ class RSEPROGoogle
 			$db->execute();
 			$idevent = $db->insertid();
 			
+			$this->log[$event->id]['imported'] = true;
+			$this->log[$event->id]['eventID'] = $idevent;
+			
 			$query->clear()
 				->insert($db->qn('#__rseventspro_taxonomy'))
 				->set($db->qn('ide').' = '.$db->q($idevent))
@@ -142,6 +169,10 @@ class RSEPROGoogle
 			$db->execute();
 			
 			$i++;
+		}
+		
+		if ($this->log) {
+			rseventsproHelper::saveSyncLog($this->log, 'google');
 		}
 		
 		return $i;
@@ -226,7 +257,7 @@ class RSEPROGoogle
 					break;
 				}
 			}
-
+			
 			foreach ($calendarIDs as $id => $name) {
 				$events = $service->events->listEvents($id);
 
@@ -253,6 +284,7 @@ class RSEPROGoogle
 				$event->name		= $item->summary;
 				$event->description = $item->description;
 				$event->location	= isset($item->location) ? $item->location : '';
+				$event->calendar	= isset($item->creator->displayName) ? $item->creator->displayName : 'Google';
 				$allday				= false;
 				$recurringEvents	= false;
 				
@@ -315,9 +347,11 @@ class RSEPROGoogle
 				if ($recurringEvents) {
 					foreach ($recurringEvents as $recurringEvent) {
 						$return[] = $recurringEvent;
+						$this->log[$recurringEvent->id] = array('name' => $recurringEvent->name, 'date' => JFactory::getDate()->toSql(), 'imported' => false, 'message' => '', 'page' => false, 'from' => $event->calendar, 'eventID' => 0);
 					}
 				} else {
 					$return[] = $event;
+					$this->log[$event->id] = array('name' => $event->name, 'date' => JFactory::getDate()->toSql(), 'imported' => false, 'message' => '', 'page' => false, 'from' => $event->calendar, 'eventID' => 0);
 				}
 			}
 		}
@@ -377,6 +411,7 @@ class RSEPROGoogleCalendarRecurrence {
 				$event->timezone 	= $this->event->timezone;
 				$event->start 		= $date['start'];
 				$event->end			= $date['end'];
+				$event->calendar	= $this->event->calendar;
 				
 				$events[] = $event;
 			}

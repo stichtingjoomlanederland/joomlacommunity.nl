@@ -18,6 +18,22 @@ class rseventsproEmails
 		$replace		= $placeholders['replace'];
 		$optionalsPlace = array('{TicketInfo}', '{TicketsTotal}', '{Discount}', '{Tax}', '{LateFee}', '{EarlyDiscount}', '{Gateway}', '{IP}', '{Coupon}');
 		
+		if (!is_null($ids)) {
+			$db = JFactory::getDbo();
+			$query = $db->getQuery(true)->select($db->qn('hash'))->from($db->qn('#__rseventspro_users'))->where($db->qn('id').' = '.$db->q($ids));
+			$db->setQuery($query);
+			if ($hash = $db->loadResult()) {
+				$unsubscribe = JURI::getInstance()->toString(array('scheme','host')).rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.unsubscribe&hash='.$hash.'-'.$ide);
+				
+				if (JFactory::getApplication()->isClient('administrator')) {
+					$unsubscribe = str_replace('/administrator','',$unsubscribe);
+				}
+				
+				array_push($search, '{UnsubscribeURL}');
+				array_push($replace, $unsubscribe);
+			}
+		}
+		
 		if (is_array($text)) {
 			foreach($text as $name => $value) {
 				$text[$name] = str_replace($search,$replace,$value);
@@ -64,7 +80,7 @@ class rseventsproEmails
 			// The location link
 			$locationlink = $root.rseventsproHelper::route('index.php?option=com_rseventspro&layout=location&id='.rseventsproHelper::sef($event->locationid,$event->location));
 			
-			if (JFactory::getApplication()->isAdmin()) {
+			if (JFactory::getApplication()->isClient('administrator')) {
 				$eventlink = str_replace('/administrator','',$eventlink);
 				$locationlink = str_replace('/administrator','',$locationlink);
 			}
@@ -688,9 +704,63 @@ class rseventsproEmails
 			'body'		=> $body
 		);
 		
-		JFactory::getApplication()->triggerEvent('rseproNotifyEmail', array(array('ids' => $ids, 'data' => &$replacer)));
+		JFactory::getApplication()->triggerEvent('rseproNotifyEmail', array(array('ids' => $ids, 'ide' => $ide, 'data' => &$replacer)));
 		
 		$text				= rseventsproEmails::placeholders($replacer,$ide,'',$optionals, $ids);
+		$text['cc']			= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
+		$text['bcc']		= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto']	= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
+		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
+		
+		if ($additional_data) {
+			$text['body']		= str_replace(array_keys($additional_data), array_values($additional_data), $text['body']);
+			$text['subject']	= str_replace(array_keys($additional_data), array_values($additional_data), $text['subject']);
+		}
+		
+		$mailer	= JFactory::getMailer();
+		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		
+		return true;
+	}
+	
+	
+	/*
+	*	Event owner unsubscribe notification
+	*/
+	
+	public static function notify_me_unsubscribe($to, $ide, $additional_data = array(), $lang = 'en-GB', $ids = null) {
+		$config		= rseventsproHelper::getConfig();
+		$email		= rseventsproEmails::email('notify_me_unsubscribe', null, null, $lang);
+		
+		if (empty($email))
+			return false;
+		
+		$from		= $config->email_from;
+		$fromName	= $config->email_fromname;
+		$mode		= $email->mode;
+		$replyto	= $config->email_replyto;
+		$replyname	= $config->email_replytoname;
+		$cc			= $config->email_cc;
+		$bcc		= $config->email_bcc;
+		$cc			= !empty($cc) ? $cc : null;
+		$bcc		= !empty($bcc) ? $bcc : null;
+		$subject	= $email->subject;
+		$body		= $email->message;
+		
+		$replacer	= array(
+			'from'		=> $from,
+			'fromName'	=> $fromName,
+			'replyto'	=> $replyto,
+			'replyname' => $replyname,
+			'cc'		=> $cc,
+			'bcc'		=> $bcc,
+			'subject'	=> $subject,
+			'body'		=> $body
+		);
+		
+		JFactory::getApplication()->triggerEvent('rseproNotifyUnsubscribeEmail', array(array('ids' => $ids, 'data' => &$replacer)));
+		
+		$text				= rseventsproEmails::placeholders($replacer, $ide, '', null, $ids);
 		$text['cc']			= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
 		$text['bcc']		= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
 		$text['replyto']	= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
@@ -900,7 +970,7 @@ class rseventsproEmails
 						
 						$app->triggerEvent('rseproTicketPDFLayout',array(array('ids' => $ids, 'ide' => $ide, 'layout' => &$layout)));
 						
-						$app->triggerEvent('rsepro_beforeReplacePDFLayout', array(array('layout' => &$layout, 'ids' => $ids, 'ide' => $ide, 'position' => $i)));
+						$app->triggerEvent('rsepro_beforeReplacePDFLayout', array(array('layout' => &$layout, 'ids' => $ids, 'idt' => $ticket->id, 'ide' => $ide, 'position' => $i)));
 						
 						$layout = rseventsproEmails::placeholders($layout, $ide, $name, $optionals);
 						$layout = str_replace('{sitepath}', JPATH_SITE, $layout);

@@ -7,6 +7,8 @@
 
 defined('_JEXEC') or die('Restricted access');
 
+use Joomla\Archive\Archive;
+
 jimport('joomla.filesystem.file');
 jimport('joomla.filesystem.folder');
 
@@ -66,9 +68,9 @@ class RSEBackup {
 	// Process request
 	public function process($step) {
 		$table	  = $this->tables[$step];
-		$folder	  = JPATH_ADMINISTRATOR.'/components/com_rseventspro/assets/backups/'.$this->folder;
-		$archive  = JPATH_ADMINISTRATOR.'/components/com_rseventspro/assets/backups/'.$this->filename.'.zip';
-		$download = JURI::root().'administrator/components/com_rseventspro/assets/backups/'.$this->filename.'.zip';
+		$folder	  = JPATH_SITE.'/components/com_rseventspro/assets/backups/'.$this->folder;
+		$archive  = JPATH_SITE.'/components/com_rseventspro/assets/backups/'.$this->filename.'.zip';
+		$download = JURI::root().'components/com_rseventspro/assets/backups/'.$this->filename.'.zip';
 		$total	  = count($this->tables);
 		$query	  = $this->db->getQuery(true);
 		$next	  = $step + 1;
@@ -119,8 +121,8 @@ class RSEBackup {
 		
 		// Archive the files
 		if ($step == $total - 1) {
-			jimport('joomla.filesystem.archive');
-			$zip = JArchive::getAdapter('zip');
+			$jarchive = new Archive;
+			$zip = $jarchive->getAdapter('zip');
 
 			// Get the files
 			$files_list = JFolder::files($folder, '.xml$', 1, true);
@@ -130,8 +132,8 @@ class RSEBackup {
 			// Build the files array required by the zip adapter
 			foreach ($files_list as $file) {
 				$files[] = array(
-					'data' => JFile::read($file),
-					'name' => JFile::getName($file)
+					'data' => file_get_contents($file),
+					'name' => basename($file)
 				);
 			}
 
@@ -151,13 +153,13 @@ class RSEBackup {
 	// Get backup archives
 	public function getBackups() {
 		$backups = array();
-		$folder  = JPATH_ADMINISTRATOR.'/components/com_rseventspro/assets/backups';
+		$folder  = JPATH_SITE.'/components/com_rseventspro/assets/backups';
 		
 		if ($files = JFolder::files($folder, '.zip$', 1, true)) {
 			foreach ($files as $file) {
-				$name	= JFile::getName($file);
+				$name	= basename($file);
 				$date	= JFactory::getDate(filemtime($file))->toSql();
-				$url	= JURI::root().'administrator/components/com_rseventspro/assets/backups/'.$name;
+				$url	= JURI::root().'components/com_rseventspro/assets/backups/'.$name;
 				
 				$backups[] = (object) array('name' => $name, 'date' => $date, 'url' => $url); 
 			}
@@ -171,7 +173,7 @@ class RSEBackup {
 	
 	// Delete a backup archive
 	public function delete($file) {
-		$folder	= JPATH_ADMINISTRATOR.'/components/com_rseventspro/assets/backups/';
+		$folder	= JPATH_SITE.'/components/com_rseventspro/assets/backups/';
 		$return	= array('success' => false);
 		
 		if (JFile::exists($folder.$file)) {
@@ -200,22 +202,20 @@ class RSEBackup {
 				throw new Exception(JText::_('COM_RSEVENTSPRO_RESTORE_INVALID_EXTENSION'));
 			}
 			
-			$this->restore = JPATH_ADMINISTRATOR.'/components/com_rseventspro/assets/restore/'.md5($file['name']).'.zip';
+			$this->restore = JPATH_SITE.'/components/com_rseventspro/assets/restore/'.md5($file['name']).'.zip';
 			JFile::upload($file['tmp_name'], $this->restore);
 		} else {
 			if (JFile::getExt($local) != 'zip') {
 				throw new Exception(JText::_('COM_RSEVENTSPRO_RESTORE_INVALID_EXTENSION'));
 			}
 			
-			$this->restore = JPATH_ADMINISTRATOR.'/components/com_rseventspro/assets/restore/'.md5($local).'.zip';
-			JFile::copy(JPATH_ADMINISTRATOR.'/components/com_rseventspro/assets/backups/'.$local, $this->restore);
+			$this->restore = JPATH_SITE.'/components/com_rseventspro/assets/restore/'.md5($local).'.zip';
+			JFile::copy(JPATH_SITE.'/components/com_rseventspro/assets/backups/'.$local, $this->restore);
 		}
 		
 		if (JFile::exists($this->restore)) {
-			jimport('joomla.filesystem.archive');
-			
-			$this->extract = JPATH_ADMINISTRATOR.'/components/com_rseventspro/assets/restore/'.JFile::stripExt(JFile::getName($this->restore));
-			$zip = JArchive::getAdapter('zip');
+			$this->extract = JPATH_SITE.'/components/com_rseventspro/assets/restore/'.JFile::stripExt(basename($this->restore));
+			$zip = new Archive;
 			if ($extract = $zip->extract($this->restore,$this->extract)) {
 				JFile::delete($this->restore);
 				
@@ -264,7 +264,7 @@ class RSEBackup {
 			$total = $this->total($hash);
 			$query = $this->db->getQuery(true);
 			
-			$folder = JPATH_ADMINISTRATOR.'/components/com_rseventspro/assets/restore/'.$hash.'/';
+			$folder = JPATH_SITE.'/components/com_rseventspro/assets/restore/'.$hash.'/';
 			if (JFolder::exists($folder)) {
 				$table = $this->tables[$step];
 				if (isset($table) && JFile::exists($folder.$table.'.xml')) {
@@ -522,7 +522,7 @@ class RSEBackup {
 	
 	// Get the name of the extracted folder
 	public function getRestoreFolder() {
-		return JFile::getName($this->extract);
+		return basename($this->extract);
 	}
 	
 	// Set custom variables
@@ -543,7 +543,7 @@ class RSEBackup {
 			return (int) $session->get('rsepro'.$hash);
 		} else {
 			$total	= 0;
-			$folder = JPATH_ADMINISTRATOR.'/components/com_rseventspro/assets/restore/'.$hash.'/';
+			$folder = JPATH_SITE.'/components/com_rseventspro/assets/restore/'.$hash.'/';
 			if (JFolder::exists($folder)) {
 				if ($files = JFolder::files($folder, '.xml$', 1, true)) {
 					foreach ($files as $file) {

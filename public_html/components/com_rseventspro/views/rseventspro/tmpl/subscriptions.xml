@@ -9,12 +9,12 @@
 	<fields name="params">
 		<fieldset name="basic">
 			<field name="archived" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_ARCHIVED_EVENTS" description="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_ARCHIVED_EVENTS_DESC" default="1">
-				<option value="0">JNO</option>
 				<option value="1">JYES</option>
+				<option value="0">JNO</option>
 			</field>
 			<field name="past" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_PAST_EVENTS" description="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_PAST_EVENTS_DESC" default="1">
-				<option value="0">JNO</option>
 				<option value="1">JYES</option>
+				<option value="0">JNO</option>
 			</field>
 		</fieldset>
 	</fields>

@@ -35,6 +35,7 @@ jQuery(document).ready(function (){
 	$parent('#rsepro-delete-icon-btn').off('click').on('click', function(){
 		if (confirm('<?php echo JText::_('COM_RSEVENTSPRO_DELETE_ICON_INFO',true); ?>')) {
 			$parent('#rsepro-image-loader').css('display','');
+			$parent('#rsepro-image-frame').css('max-height','');
 			$parent('#rsepro-image-frame').removeProp('style');
 			$parent('#rsepro-image-frame').css('display','none');
 			
@@ -112,6 +113,7 @@ RSEventsPro.Crop = {
 
 function rsepro_open_media() {
 	jQuery('#upload_iframe').slideToggle();
+	window.parent.jQuery('#rsepro-image-frame').css('height','350');
 	<?php if($this->item->icon) { ?>
 	setTimeout(function() { RSEventsPro.Crop.instance.update(); }, 300);
 	setTimeout(function() { RSEventsPro.Crop.instance.update(); }, 500);
@@ -137,7 +139,7 @@ function rsepro_select_image(file) {
 		<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?> <a class="btn" href="javascript:void(0);" onclick="rsepro_open_media();"><?php echo JText::_('COM_RSEVENTSPRO_SELECT_IMAGE_LOCAL'); ?></a>
 	</div>
 	<div id="upload_loader" style="display:none;">
-		<img src="<?php echo JURI::root(); ?>administrator/components/com_rseventspro/assets/images/loader.gif" alt="" style="vertical-align:middle;" />
+		<?php echo JHtml::image('com_rseventspro/loader.gif', '', array('style' => 'vertical-align: middle;'), true); ?> 
 	</div>
 	
 	<iframe id="upload_iframe" src="<?php echo JRoute::_('index.php?option=com_rseventspro&view=media&tmpl=component'); ?>" style="display: none;"></iframe>
@@ -148,7 +150,7 @@ function rsepro_select_image(file) {
 			<img id="rsepro-crop-image" src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/events/<?php echo $this->item->icon; ?>" alt="" width="<?php echo $this->divwidth; ?>" />
 		</div>
 		<div id="crop_loader" style="margin-bottom:10px;text-align:center;">
-			<img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/load.gif" />
+			<?php echo JHtml::image('com_rseventspro/load.gif', '', array(), true); ?>
 		</div>
 	</div>
 	<?php } ?>

@@ -8,18 +8,12 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class RseventsproViewPayments extends JViewLegacy
 {
-	protected $items;
-	protected $state;
-	protected $sidebar;
-	protected $filterbar;
-	protected $plugins;
-	
 	public function display($tpl = null) {
 		$this->items 		= $this->get('Items');
+		$this->pagination 	= $this->get('Pagination');
 		$this->plugins		= $this->get('Plugins');
-		$this->filterbar	= $this->get('Filterbar');	
 		$this->state 		= $this->get('State');
-		$this->sidebar		= $this->get('Sidebar');
+		$this->filterForm   = $this->get('FilterForm');
 		
 		$this->addToolBar();
 		parent::display($tpl);
@@ -34,11 +28,7 @@ class RseventsproViewPayments extends JViewLegacy
 		JToolBarHelper::unpublishList('payments.unpublish');
 		JToolBarHelper::divider();
 		JToolBar::getInstance('toolbar')->appendButton('Link', 'list', JText::_('COM_RSEVENTSPRO_PAYMENT_RULES'), JRoute::_('index.php?option=com_rseventspro&view=rules'));
-		JToolBarHelper::divider();
-		JToolBarHelper::custom('rseventspro','rseventspro32','rseventspro32',JText::_('COM_RSEVENTSPRO_GLOBAL_NAME'),false);
 		
-		if (rseventsproHelper::isJ3()) {
-			JHtml::_('rseventspro.chosen','select');
-		}
+		JHtml::_('rseventspro.chosen','select');
 	}
 }

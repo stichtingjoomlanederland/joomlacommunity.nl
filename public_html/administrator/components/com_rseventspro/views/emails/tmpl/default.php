@@ -8,7 +8,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 //keep session alive while editing
 JHtml::_('behavior.keepalive');
-JHtml::_('behavior.formvalidation'); ?>
+JHtml::_('behavior.formvalidator'); ?>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=emails&tmpl=component'); ?>" method="post" name="adminForm" id="adminForm" class="form-validate form-horizontal" autocomplete="off">
 	<div class="row-fluid">
@@ -17,7 +17,7 @@ JHtml::_('behavior.formvalidation'); ?>
 				<button type="button" onclick="Joomla.submitbutton('email.add');" class="btn btn-primary button"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_NEW_BTN'); ?></button>
 				<button type="button" onclick="if (document.adminForm.boxchecked.value==0){alert('<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_ITEM_INFO',true); ?>');}else{ Joomla.submitbutton('email.edit')}" class="btn btn-primary button"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_EDIT_BTN'); ?></button>
 				<button type="button" onclick="if (document.adminForm.boxchecked.value==0){alert('<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_ITEM_INFO',true); ?>');}else{ Joomla.submitbutton('emails.delete')}" class="btn btn-primary button"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_DELETE_BTN'); ?></button>
-				<button type="button" onclick="window.parent.SqueezeBox.close();" class="btn button"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL_BTN'); ?></button>
+				<button type="button" onclick="window.parent.jQuery('#rseModal').modal('hide');" class="btn button"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL_BTN'); ?></button>
 			</div>
 			<br />
 			

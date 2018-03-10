@@ -118,7 +118,7 @@ RSEventsPro.Crop = {
 		<div class="controls">
 			<input type="file" id="upload_file" onchange="rsepro_upload_photo();" size="30" name="icon" class="input-medium" /> 
 			<span id="upload_loader" style="display:none;">
-				<img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/loader.gif" alt="" style="vertical-align:middle;" />
+				<?php echo JHtml::image('com_rseventspro/loader.gif', '', array('style' => 'vertical-align: middle;'), true); ?> 
 			</span>
 		</div>
 	</div>
@@ -128,7 +128,7 @@ RSEventsPro.Crop = {
 			<img id="rsepro-crop-image" src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/events/<?php echo $this->item->icon; ?>" alt="" width="<?php echo $this->divwidth; ?>" />
 		</div>
 		<div id="crop_loader" style="margin-bottom:10px;text-align:center;">
-			<img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/load.gif" />
+			<?php echo JHtml::image('com_rseventspro/load.gif', '', array(), true); ?>
 		</div>
 	</div>
 	<?php } ?>

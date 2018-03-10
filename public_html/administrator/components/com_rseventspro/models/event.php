@@ -448,7 +448,7 @@ class RseventsproModelEvent extends JModelAdmin
 				// Upload file
 				if ($icon['error'] == 0) {
 					$file		= JFile::makeSafe($icon['name']);
-					$filename	= JFile::getName(JFile::stripExt($file));
+					$filename	= basename(JFile::stripExt($file));
 					
 					while(JFile::exists($path.$filename.'.'.$ext)) {
 						$filename .= rand(1,999);
@@ -479,7 +479,7 @@ class RseventsproModelEvent extends JModelAdmin
 				$root		= JPATH_ROOT . '/' . $params->get('image_path', 'images');
 				$root		= str_replace(DIRECTORY_SEPARATOR, '/', $root . '/');
 				$file		= $root.$local;
-				$filename	= JFile::getName(JFile::stripExt($file));
+				$filename	= basename(JFile::stripExt($file));
 				
 				while(JFile::exists($path.$filename.'.'.$ext)) {
 					$filename .= rand(1,999);
@@ -603,7 +603,7 @@ class RseventsproModelEvent extends JModelAdmin
 		$name		= JFile::stripExt($icon);
 		
 		if ($folders = JFolder::folders($thumbs)) {
-			JArrayHelper::toInteger($folders);
+			array_map('intval',$folders);
 			
 			foreach ($folders as $folder) {
 				if (file_exists($thumbs.$folder.'/'.md5($folder.$name).'.'.$extension)) {
@@ -746,7 +746,7 @@ class RseventsproModelEvent extends JModelAdmin
 	public function featured($pks, $value = 0) {
 		// Sanitize the ids.
 		$pks = (array) $pks;
-		JArrayHelper::toInteger($pks);
+		array_map('intval',$pks);
 
 		if (empty($pks)) {
 			$this->setError(JText::_('JERROR_NO_ITEMS_SELECTED'));
@@ -774,7 +774,7 @@ class RseventsproModelEvent extends JModelAdmin
 	public function batchProcess($pks) {
 		// Sanitize the ids.
 		$pks = (array) $pks;
-		JArrayHelper::toInteger($pks);
+		array_map('intval',$pks);
 		
 		$batch	 = JFactory::getApplication()->input->get('batch',array(),'array');
 		$all	 = isset($batch['all']) ? $batch['all'] : 0;
@@ -852,7 +852,7 @@ class RseventsproModelEvent extends JModelAdmin
 			
 			// Update categories
 			if (!empty($categories)) {
-				JArrayHelper::toInteger($categories);
+				array_map('intval',$categories);
 				
 				if ($all) {
 					if ($type == 'r') {

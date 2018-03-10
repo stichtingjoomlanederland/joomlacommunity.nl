@@ -5,11 +5,8 @@
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-
-//keep session alive while editing
 JHtml::_('behavior.keepalive');
-JHtml::_('behavior.modal');
-JHtml::_('behavior.formvalidation'); ?>
+JHtml::_('behavior.formvalidator'); ?>
 
 <script type="text/javascript">
 	jQuery(document).ready(function (){
@@ -52,9 +49,9 @@ JHtml::_('behavior.formvalidation'); ?>
 <form action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=settings'); ?>" method="post" name="adminForm" id="adminForm" class="form-validate form-horizontal" autocomplete="off" enctype="multipart/form-data">
 	<div class="row-fluid">
 		<div id="j-sidebar-container" class="span2">
-			<?php echo $this->sidebar; ?>
+			<?php echo JHtmlSidebar::render(); ?>
 		</div>
-		<div id="j-main-container" class="span10">
+		<div id="j-main-container" class="span10 j-main-container">
 		<?php foreach ($this->layouts as $layout) {
 			// add the tab title
 			$this->tabs->title('COM_RSEVENTSPRO_CONF_TAB_'.strtoupper($layout), $layout);
@@ -80,3 +77,6 @@ JHtml::_('behavior.formvalidation'); ?>
 		</div>
 	</div>
 </form>
+
+<?php echo JHtml::_('bootstrap.renderModal', 'rseproFacebookLog', array('title' => JText::_('COM_RSEVENTSPRO_CONF_SYNC_LOG_BTN'), 'url' => 'index.php?option=com_rseventspro&view=settings&layout=log&from=facebook&tmpl=component', 'bodyHeight' => 70)); ?>
+<?php echo JHtml::_('bootstrap.renderModal', 'rseproGoogleLog', array('title' => JText::_('COM_RSEVENTSPRO_CONF_SYNC_LOG_BTN'), 'url' => 'index.php?option=com_rseventspro&view=settings&layout=log&from=google&tmpl=component', 'bodyHeight' => 70)); ?>

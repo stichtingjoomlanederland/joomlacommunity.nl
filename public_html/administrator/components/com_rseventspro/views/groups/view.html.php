@@ -8,20 +8,11 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class RseventsproViewGroups extends JViewLegacy
 {
-	protected $items;
-	protected $pagination;
-	protected $state;
-	protected $sidebar;
-	protected $filterbar;
-	protected $total;
-	
 	public function display($tpl = null) {
-		$this->filterbar	= $this->get('Filterbar');
 		$this->state 		= $this->get('State');
 		$this->items 		= $this->get('Items');
 		$this->pagination 	= $this->get('Pagination');
-		$this->total 		= $this->get('Total');
-		$this->sidebar		= $this->get('Sidebar');
+		$this->filterForm   = $this->get('FilterForm');
 		
 		$this->addToolBar();
 		parent::display($tpl);
@@ -32,10 +23,7 @@ class RseventsproViewGroups extends JViewLegacy
 		JToolBarHelper::addNew('group.add');
 		JToolBarHelper::editList('group.edit');
 		JToolBarHelper::deleteList('','groups.delete');
-		JToolBarHelper::custom('rseventspro','rseventspro32','rseventspro32',JText::_('COM_RSEVENTSPRO_GLOBAL_NAME'),false);
 		
-		if (rseventsproHelper::isJ3()) {
-			JHtml::_('rseventspro.chosen','select');
-		}
+		JHtml::_('rseventspro.chosen','select');
 	}
 }

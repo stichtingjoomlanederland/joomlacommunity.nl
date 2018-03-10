@@ -40,7 +40,7 @@ $count = count($this->categories); ?>
 <span id="Itemid" class="rs_hidden"><?php echo JFactory::getApplication()->input->getInt('Itemid'); ?></span>
 
 <div class="rs_loader" id="rs_loader" style="display:none;">
-	<img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/loader.gif" alt="" />
+	<?php echo JHtml::image('com_rseventspro/loader.gif', '', array(), true); ?>
 </div>
 
 <?php if ($this->total > $count) { ?>

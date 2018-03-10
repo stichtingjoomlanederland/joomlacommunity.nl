@@ -195,7 +195,7 @@ class RseventsproControllerEvent extends JControllerForm
 		$model->tickets();
 		
 		echo '<script type="text/javascript">'."\n";
-		echo 'window.parent.SqueezeBox.close()'."\n";
+		echo 'window.parent.jQuery(\'#rseTicketsModal\').modal(\'hide\');'."\n";
 		echo '</script>'."\n";
 		JFactory::getApplication()->close();
 	}

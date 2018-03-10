@@ -133,4 +133,20 @@ class RseventsproControllerSettings extends JControllerLegacy
 			$this->setRedirect('index.php?option=com_rseventspro&view=events');
 		}
 	}
+	
+	public function clearFacebookLog() {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true)->delete(JFactory::getDbo()->qn('#__rseventspro_sync_log'))->where(JFactory::getDbo()->qn('type').' = '.JFactory::getDbo()->q('facebook'));
+		
+		$db->setQuery($query)->execute();
+		JFactory::getDocument()->addScriptDeclaration('window.parent.jQuery("#rseproFacebookLog").modal("hide");');
+	}
+	
+	public function clearGoogleLog() {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true)->delete(JFactory::getDbo()->qn('#__rseventspro_sync_log'))->where(JFactory::getDbo()->qn('type').' = '.JFactory::getDbo()->q('google'));
+		
+		$db->setQuery($query)->execute();
+		JFactory::getDocument()->addScriptDeclaration('window.parent.jQuery("#rseproGoogleLog").modal("hide");');
+	}
 }

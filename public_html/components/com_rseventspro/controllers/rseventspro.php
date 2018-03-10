@@ -7,6 +7,8 @@
 
 defined('_JEXEC') or die('Restricted access');
 
+use Joomla\Utilities\ArrayHelper;
+
 class RseventsproControllerRseventspro extends JControllerLegacy
 {
 	/**
@@ -57,7 +59,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 			$id		= JFactory::getApplication()->input->getInt('id');
 			$values	= array('approve' => 1, 'pending' => 0, 'denied' => 2);
 			$task	= $this->getTask();
-			$value	= JArrayHelper::getValue($values, $task, 0, 'int');
+			$value	= ArrayHelper::getValue($values, $task, 0, 'int');
 			
 			if (!$model->status($id, $value))
 				$this->setMessage($model->getError(), 'error');
@@ -149,6 +151,9 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)), JText::_('COM_RSEVENTSPRO_ERROR_INVITE_1'));
 		
 		$model->invite();
+		
+		JFactory::getApplication()->input->set('tmpl', 'component');
+		
 		$url = rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id));
 		echo rseventsproHelper::redirect(true,JText::_('COM_RSEVENTSPRO_INVITATIONS_SENT'),$url,true);
 	}
@@ -182,7 +187,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		
 		$admin = rseventsproHelper::admin();
 		if (empty($this->permissions['can_edit_locations']) && !$admin)
-			JError::raiseError(500, JText::_('COM_RSEVENTSPRO_ERROR_EDIT_LOCATION'));
+			throw new Exception(JText::_('COM_RSEVENTSPRO_ERROR_EDIT_LOCATION'), 500);
 		
 		// Save location
 		if (!$model->savelocation()) {
@@ -223,7 +228,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 			JFactory::getApplication()->input->set('tmpl','component');
 			echo '<div class="rs_message_info">'.$result['message'].'</div>';
 			if (rseventsproHelper::getConfig('modal','int') == 0 || rseventsproHelper::getConfig('modal','int') == 2)
-				echo '<script type="text/javascript">window.top.setTimeout(\'window.parent.location.reload();window.parent.SqueezeBox.close();\',1200);</script>';
+				echo '<script type="text/javascript">window.top.setTimeout(\'window.parent.location.reload();window.parent.jQuery("#rseUnsubscribeModal").modal("hide");\',1200);</script>';
 			else
 				echo '<script type="text/javascript">window.top.setTimeout(\'window.parent.location.reload();window.parent.jQuery.colorbox.close();\',1200);</script>';
 		}
@@ -247,7 +252,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		$admin = rseventsproHelper::admin();
 		
 		if (!$admin && empty($this->permissions['can_add_locations']))
-			JError::raiseError(500, JText::_('COM_RSEVENTSPRO_ERROR_ADD_LOCATION'));
+			throw new Exception(JText::_('COM_RSEVENTSPRO_ERROR_ADD_LOCATION'), 500);
 		
 		if ($model->savelocation())
 			echo $model->getState('rseventspro.lid');
@@ -262,7 +267,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		$admin = rseventsproHelper::admin();
 		
 		if (!$admin && empty($this->permissions['can_create_categories']))
-			JError::raiseError(500, JText::_('COM_RSEVENTSPRO_ERROR_ADD_CATEGORY'));
+			throw new Exception(JText::_('COM_RSEVENTSPRO_ERROR_ADD_CATEGORY'), 500);
 		
 		if ($model->savecategory()) {
 			echo json_encode(JHtml::_('category.options','com_rseventspro', array('filter.published' => array(1))));
@@ -313,7 +318,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		}
 		
 		if ($permission_denied)
-			JError::raiseError(500, JText::_('COM_RSEVENTSPRO_ERROR_REMOVE_TICKET'));
+			throw new Exception(JText::_('COM_RSEVENTSPRO_ERROR_REMOVE_TICKET'), 500);
 		
 		echo 'RS_DELIMITER0';
 		echo (int) $model->removeticket();
@@ -364,7 +369,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		}
 		
 		if ($permission_denied)
-			JError::raiseError(500, JText::_('COM_RSEVENTSPRO_ERROR_REMOVE_COUPON'));
+			throw new Exception(JText::_('COM_RSEVENTSPRO_ERROR_REMOVE_COUPON'), 500);
 		
 		echo 'RS_DELIMITER0';
 		echo (int) $model->removecoupon();
@@ -390,7 +395,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		}
 		
 		if ($permission_denied)
-			JError::raiseError(500, JText::_('COM_RSEVENTSPRO_ERROR_EDIT_FILE'));
+			throw new Exception(JText::_('COM_RSEVENTSPRO_ERROR_EDIT_FILE'), 500);
 		
 		// Save
 		$success = $model->savefile();
@@ -416,7 +421,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		}
 		
 		if ($permission_denied)
-			JError::raiseError(500, JText::_('COM_RSEVENTSPRO_ERROR_REMOVE_FILE'));
+			throw new Exception(JText::_('COM_RSEVENTSPRO_ERROR_REMOVE_FILE'), 500);
 		
 		echo 'RS_DELIMITER0';
 		echo (int) $model->removefile();
@@ -467,8 +472,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		}
 		
 		if ($permission_denied) {
-			JError::raiseError(500, JText::_('COM_RSEVENTSPRO_ERROR_UPLOAD_ICON'));
-			return false;
+			throw new Exception(JText::_('COM_RSEVENTSPRO_ERROR_UPLOAD_ICON'), 500);
 		}
 		
 		
@@ -501,8 +505,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		}
 		
 		if ($permission_denied) {
-			JError::raiseError(500, JText::_('COM_RSEVENTSPRO_ERROR_CROP_ICON'));
-			return false;
+			throw new Exception(JText::_('COM_RSEVENTSPRO_ERROR_CROP_ICON'), 500);
 		}
 		
 		// Crop image
@@ -528,9 +531,11 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		}
 		
 		if ($permission_denied)
-			JError::raiseError(500, JText::_('COM_RSEVENTSPRO_ERROR_REMOVE_EVENT'));
+			throw new Exception(JText::_('COM_RSEVENTSPRO_ERROR_REMOVE_EVENT'), 500);
 		
 		$model->remove();
+		
+		JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_EVENT_DELETED'));
 		
 		// Hack for Joomla! SEF 
 		$menus		= $this->_app->getMenu();
@@ -541,15 +546,15 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 			
 			if (isset($query['option']) && $query['option'] == 'com_rseventspro' && isset($query['layout']) && $query['layout'] == 'edit') {
 				if ($eventsItemid = RseventsproHelperRoute::getEventsItemid()) {
-					return $this->_app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=default',false,$eventsItemid), JText::_('COM_RSEVENTSPRO_EVENT_DELETED'));
+					return $this->_app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=default',false,$eventsItemid));
 				} else {
-					return $this->_app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=default',false,'99999'), JText::_('COM_RSEVENTSPRO_EVENT_DELETED'));
+					return $this->_app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=default',false,'99999'));
 				}
 			}
 		}
 		
 		// Redirect
-		$this->_app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=default',false), JText::_('COM_RSEVENTSPRO_EVENT_DELETED'));
+		$this->_app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=default',false));
 	}
 	
 	// Events - save event
@@ -583,7 +588,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		}
 		
 		if ($permission_denied) {
-			JError::raiseError(500, JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED'));
+			throw new Exception(JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED'), 500);
 		}
 		
 		// Save
@@ -638,7 +643,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		}
 		
 		echo '<script type="text/javascript">'."\n";
-		echo 'window.parent.SqueezeBox.close()'."\n";
+		echo 'window.parent.jQuery(\'#rseTicketsModal\').modal(\'hide\')'."\n";
 		echo '</script>'."\n";
 		JFactory::getApplication()->close();
 	}
@@ -659,10 +664,10 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		if ($model->getCanreport()) {
 			$model->report();
 			echo '<div class="rs_message_info">'.JText::_('COM_RSEVENTSPRO_REPORT_ADDED').'</div>';
-			echo '<script type="text/javascript">window.top.setTimeout(\'window.parent.SqueezeBox.close();\',1200);</script>';
+			echo '<script type="text/javascript">window.top.setTimeout(\'window.parent.jQuery(\'#rseReportModal\').modal(\'hide\');\',1200);</script>';
 		} else {
 			echo '<script type="text/javascript">'."\n";
-			echo 'window.parent.SqueezeBox.close();'."\n";
+			echo 'window.parent.jQuery(\'#rseReportModal\').modal(\'hide\');'."\n";
 			echo '</script>'."\n";
 		}
 	}
@@ -680,7 +685,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		$event = $model->getEvent();
 		
 		// Force array elements to be integers
-		JArrayHelper::toInteger($pks);
+		array_map('intval',$pks);
 		
 		$admin = rseventsproHelper::admin();
 		$user  = $model->getUser();
@@ -737,5 +742,35 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		}
 		
 		JFactory::getApplication()->close();
+	}
+	
+	// Save user info
+	public function saveuser() {
+		JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
+		
+		$model	= $this->getModel();
+		$data	= JFactory::getApplication()->input->get('jform', array(), 'array');
+		
+		if (JFactory::getUser()->get('id') == $data['id']) {
+			if ($model->saveuser($data)) {
+				$this->setMessage(JText::_('COM_RSEVENTSPRO_USER_DATA_SAVED'));
+			} else {
+				$this->setMessage($model->getError(), 'error');
+			}
+		}
+		
+		$this->setRedirect(JRoute::_('index.php?option=com_rseventspro&layout=edituser&id='.rseventsproHelper::sef($data['id'], $data['name'])));
+	}
+	
+	// Delete user image
+	public function deleteimage() {
+		$id		= JFactory::getApplication()->input->getInt('id');
+		$model	= $this->getModel();
+		
+		if (JFactory::getUser()->get('id') == $id) {
+			$model->deleteimage();
+		}
+		
+		$this->setRedirect(JRoute::_('index.php?option=com_rseventspro&layout=edituser&id='.$id));
 	}
 }

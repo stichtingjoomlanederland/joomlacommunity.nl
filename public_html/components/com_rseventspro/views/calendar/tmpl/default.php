@@ -177,10 +177,10 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 					</a>
 					<?php } ?>
 					<select class="input-medium pull-left" name="month" id="month" onchange="document.adminForm.submit();">
-						<?php echo JHtml::_('select.options', $this->months, 'value', 'text', $this->calendar->cmonth, true); ?>
+						<?php echo JHtml::_('select.options', $this->months, 'value', 'text', $this->calendar->cmonth); ?>
 					</select>
 					<select class="input-small pull-left" name="year" id="year" onchange="document.adminForm.submit();">
-						<?php echo JHtml::_('select.options', $this->years, 'value', 'text', $this->calendar->cyear, true); ?>
+						<?php echo JHtml::_('select.options', $this->years, 'value', 'text', $this->calendar->cyear); ?>
 					</select>
 					<ul class="pager pull-right">
 						<li>

@@ -25,6 +25,22 @@ class RseventsproTableEvent extends JTable
 	 * @since	1.6
 	 */
 	public function bind($array, $ignore = '') {
+		if (!isset($array['id']) || empty($array['id'])) {
+			if ($fields = $this->getFields()) {
+				foreach ($fields as $key => $field) {
+					if (!isset($array[$key])) {
+						if (strpos(strtolower($field->Type), 'int') !== false || strpos(strtolower($field->Type), 'float') !== false) {
+							$array[$key] = 0;
+						} elseif (strpos(strtolower($field->Type), 'datetime') !== false) {
+							$array[$key] = JFactory::getDbo()->getNullDate();
+						} else {
+							$array[$key] = '';
+						}
+					}
+				}
+			}
+		}
+		
 		return parent::bind($array, $ignore);
 	}
 	
@@ -53,7 +69,7 @@ class RseventsproTableEvent extends JTable
 			$end	= JFactory::getDate();
 			$end->modify('+2 hours');
 			
-			if ($app->isAdmin()) { 
+			if ($app->isClient('administrator')) { 
 				$this->published = 1;
 			}
 			
@@ -132,7 +148,7 @@ class RseventsproTableEvent extends JTable
 			// Check for categories
 			$categories = $app->input->get('categories',array(),'array');
 			// Check for allowed categories
-			if ($app->isSite()) {
+			if ($app->isClient('site')) {
 				rseventsproHelper::allowedCategories($categories);
 			}
 			
@@ -146,33 +162,48 @@ class RseventsproTableEvent extends JTable
 		if (!empty($this->start_registration) && $this->start_registration != $db->getNullDate()) {
 			$start_registration  = JFactory::getDate($this->start_registration, $tzoffset);
 			$this->start_registration = $start_registration->toSql();
+		} else {
+			$this->start_registration = $db->getNullDate();
 		}
 		
 		// End registration
 		if (!empty($this->end_registration) && $this->end_registration != $db->getNullDate()) {
 			$end_registration  = JFactory::getDate($this->end_registration, $tzoffset);
 			$this->end_registration = $end_registration->toSql();
+		} else {
+			$this->end_registration = $db->getNullDate();
 		}
 		
 		// Unsubscribe date
 		if (!empty($this->unsubscribe_date) && $this->unsubscribe_date != $db->getNullDate()) {
 			$this->unsubscribe_date = JFactory::getDate($this->unsubscribe_date, $tzoffset)->toSql();
+		} else {
+			$this->unsubscribe_date = $db->getNullDate();
 		}
 		
 		// End registration date
 		if (!empty($this->repeat_end) && $this->repeat_end != $db->getNullDate()) {
 			$this->repeat_end = JFactory::getDate($this->repeat_end, $tzoffset)->toSql();
+		} else {
+			$this->repeat_end = $db->getNullDate();
 		}
 		
 		// Discounts
 		if ($this->discounts) {
 			if ($this->early_fee_end && $this->early_fee_end != $db->getNullDate()) {
 				$this->early_fee_end = JFactory::getDate($this->early_fee_end, $tzoffset)->toSql();
+			} else {
+				$this->early_fee_end = $db->getNullDate();
 			}
 
 			if ($this->late_fee_start && $this->late_fee_start != $db->getNullDate()) {
 				$this->late_fee_start = JFactory::getDate($this->late_fee_start, $tzoffset)->toSql();
+			} else {
+				$this->late_fee_start = $db->getNullDate();
 			}
+		} else {
+			$this->early_fee_end = $db->getNullDate();
+			$this->late_fee_start = $db->getNullDate();
 		}
 		
 		// Repeat dates
@@ -215,7 +246,7 @@ class RseventsproTableEvent extends JTable
 		
 		$updateOptions = true;
 		
-		if ($app->isSite()) {
+		if ($app->isClient('site')) {
 			$permissions = rseventsproHelper::permissions();
 			
 			if (empty($permissions['can_change_options'])) {
@@ -236,6 +267,8 @@ class RseventsproTableEvent extends JTable
 		}
 
 		$this->timezone = $tzoffset;
+		
+		if (empty($this->itemid)) $this->itemid = 0;
 		
 		return true;
 	}

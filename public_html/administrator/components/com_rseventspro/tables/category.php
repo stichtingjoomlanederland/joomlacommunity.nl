@@ -8,14 +8,11 @@
 // No direct access
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-// Import CategoriesTableCategory
-JLoader::register('CategoriesTableCategory', JPATH_ADMINISTRATOR . '/components/com_categories/tables/category.php');
-
 /**
  * @package		Joomla.Administrator
  * @subpackage	com_categories
  */
-class RseventsproTableCategory extends CategoriesTableCategory
+class RseventsproTableCategory extends JTableCategory
 {
 	/**
 	 * Method to delete a node and, optionally, its child nodes from the table.

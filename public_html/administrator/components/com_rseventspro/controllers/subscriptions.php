@@ -7,6 +7,8 @@
 
 defined('_JEXEC') or die('Restricted access');
 
+use Joomla\Utilities\ArrayHelper;
+
 class RseventsproControllerSubscriptions extends JControllerAdmin
 {
 	protected $text_prefix = 'COM_RSEVENTSPRO_SUBSCRIPTIONS';
@@ -54,7 +56,7 @@ class RseventsproControllerSubscriptions extends JControllerAdmin
 		$ids	= JFactory::getApplication()->input->get('cid', array(), 'array');
 		$values	= array('complete' => 1, 'incomplete' => 0, 'denied' => 2);
 		$task	= $this->getTask();
-		$value	= JArrayHelper::getValue($values, $task, 0, 'int');
+		$value	= ArrayHelper::getValue($values, $task, 0, 'int');
 		
 		if (empty($ids)) {
 			$this->setMessage(JText::_('JERROR_NO_ITEMS_SELECTED'), 'error');

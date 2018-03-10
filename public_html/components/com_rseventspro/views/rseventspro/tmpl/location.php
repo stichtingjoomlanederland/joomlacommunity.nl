@@ -23,6 +23,7 @@ jQuery(document).ready(function (){
 			{
 				title : '<?php echo addslashes($this->row->name); ?>',
 				position: '<?php echo $this->escape($this->row->coordinates); ?>',
+				<?php if ($this->row->marker) echo "icon : '".addslashes(rseventsproHelper::showMarker($this->row->marker))."',\n"; ?>
 				content: '<div id="content"><h3><?php echo addslashes($this->row->name); ?></h3> <br /> <?php echo JText::_('COM_RSEVENTSPRO_LOCATION_ADDRESS',true); ?>: <?php echo addslashes($this->row->address); ?> <?php if (!empty($this->row->url)) echo '<br /><a target="_blank" href="'.addslashes($this->row->url).'">'.addslashes($this->row->url).'</a></div>'; ?>'
 			}
 		]

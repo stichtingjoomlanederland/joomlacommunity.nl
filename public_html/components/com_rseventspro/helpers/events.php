@@ -117,7 +117,7 @@ class RSEvent
 		$db->setQuery($query);
 		$selected = $db->loadColumn();
 		
-		if (JFactory::getApplication()->isSite()) {
+		if (JFactory::getApplication()->isClient('site')) {
 			rseventsproHelper::allowedCategories($selected);
 		}
 		
@@ -804,7 +804,7 @@ class RSEvent
 		$permissions	= rseventsproHelper::permissions();
 		$admin			= rseventsproHelper::admin();
 		
-		if (!$app->isAdmin())
+		if (!$app->isClient('administrator'))
 			$moderate_tags = !empty($permissions['tag_moderation']) && !$admin;
 		
 		$query->clear()
@@ -903,7 +903,7 @@ class RSEvent
 		$db->setQuery($query);
 		$db->execute();
 		
-		if (JFactory::getApplication()->isSite()) {
+		if (JFactory::getApplication()->isClient('site')) {
 			rseventsproHelper::allowedCategories($categories);
 		}
 		
@@ -934,7 +934,7 @@ class RSEvent
 		$permissions	= rseventsproHelper::permissions();
 		$admin			= rseventsproHelper::admin();
 		
-		if (empty($permissions['can_upload']) && !$admin && !$app->isAdmin())
+		if (empty($permissions['can_upload']) && !$admin && !$app->isClient('administrator'))
 			return false;
 		
 		$extensions		= rseventsproHelper::getConfig('extensions');
@@ -959,7 +959,7 @@ class RSEvent
 				
 				if ($file['error'] == 0) {
 					$file['name'] = JFile::makeSafe($file['name']);
-					$filename = JFile::getName(JFile::stripExt($file['name']));
+					$filename = basename(JFile::stripExt($file['name']));
 					
 					while(JFile::exists($path.$filename.'.'.$extension))
 						$filename .= rand(1,999);
@@ -1069,10 +1069,9 @@ class RSEvent
 				unset($coupon['code']);
 				$coupon = (object) $coupon;
 				
-				if (!empty($coupon->from) && $coupon->from != $nulldate)
-					$coupon->from = JFactory::getDate($coupon->from, $tzoffset)->toSql();
-				if (!empty($coupon->to) && $coupon->to != $nulldate)
-					$coupon->to = JFactory::getDate($coupon->to, $tzoffset)->toSql();
+				$coupon->from = !empty($coupon->from) && $coupon->from != $nulldate ? JFactory::getDate($coupon->from, $tzoffset)->toSql() : $nulldate;
+				$coupon->to = !empty($coupon->to) && $coupon->to != $nulldate ? JFactory::getDate($coupon->to, $tzoffset)->toSql() : $nulldate;
+				
 				if ($coupon->usage == JText::_('COM_RSEVENTSPRO_GLOBAL_UNLIMITED'))
 					$coupon->usage = 0;
 				if (isset($coupon->groups) && is_array($coupon->groups)) {
@@ -1097,7 +1096,7 @@ class RSEvent
 						// Get the ids of all codes
 						$db->setQuery($query);
 						$codeids = $db->loadColumn();
-						if ($codeids) JArrayHelper::toInteger($codeids);
+						if ($codeids) array_map('intval',$codeids);
 						$ids = array();
 						
 						foreach ($codes as $code) {
@@ -1124,7 +1123,7 @@ class RSEvent
 						$remove = array_diff($codeids, $ids);
 						
 						if (!empty($remove)) {
-							JArrayHelper::toInteger($remove);
+							array_map('intval',$remove);
 							$query->clear()
 								->delete()
 								->from($db->qn('#__rseventspro_coupon_codes'))
@@ -1192,7 +1191,7 @@ class RSEvent
 		$admin	= rseventsproHelper::admin();
 		
 		$permissions	= rseventsproHelper::permissions();
-		if (empty($permissions['can_repeat_events']) && !$admin && !$app->isAdmin()) {
+		if (empty($permissions['can_repeat_events']) && !$admin && !$app->isClient('administrator')) {
 			return false;
 		}
 		
@@ -1315,7 +1314,7 @@ class RSEvent
 	 *
 	 */
 	protected function jomsocial($id) {
-		if (JFactory::getApplication()->isAdmin())
+		if (JFactory::getApplication()->isClient('administrator'))
 			return;
 		
 		if (!file_exists(JPATH_BASE.'/components/com_community/libraries/core.php'))
@@ -1388,7 +1387,6 @@ class RSEvent
 	 *
 	 */
 	protected function index($id, $isNew) {
-		$dispatcher	= JDispatcher::getInstance();
 		JPluginHelper::importPlugin('finder');
 		
 		$table = JTable::getInstance('Event','RseventsproTable');
@@ -1396,7 +1394,7 @@ class RSEvent
 		
 		if ($table->completed) {
 			// Trigger the onFinderAfterSave event.
-			$dispatcher->trigger('onFinderAfterSave', array('com_rseventspro.event', $table, $isNew));
+			JFactory::getApplication()->triggerEvent('onFinderAfterSave', array('com_rseventspro.event', $table, $isNew));
 		}
 	}
 }

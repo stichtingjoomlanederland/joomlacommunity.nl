@@ -45,12 +45,10 @@ class RseventsproViewEvents extends JViewLegacy
 			$this->fpagination		= $this->get('FormsPagination');
 			$this->eventID			= $this->app->input->getInt('id');
 		} elseif ($this->layout == 'report') {
-			$this->sidebar			= $this->get('Sidebar');
 			$this->reports			= rseventsproHelper::getReports($this->app->input->getInt('id'));
 			
 			$this->addToolBarReport();
 		} else {
-			$this->sidebar			= $this->get('Sidebar');
 			$this->tpl				= rseventsproHelper::getConfig('backendlist','int',0) ? 'general' : 'timeline';
 			
 			JHtml::_('rseventspro.chosen');
@@ -104,7 +102,7 @@ class RseventsproViewEvents extends JViewLegacy
 		JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_LIST_EVENTS'),'rseventspro48');
 		JToolBarHelper::addNew('event.add');
 		JToolBarHelper::editList('event.edit');
-		JToolBarHelper::custom('preview','preview','preview',JText::_('COM_RSEVENTSPRO_PREVIEW_EVENT'));
+		JToolBarHelper::custom('preview','zoom-in','zoom-in',JText::_('COM_RSEVENTSPRO_PREVIEW_EVENT'));
 		JToolBarHelper::divider();
 		JToolBarHelper::deleteList(JText::_('COM_RSEVENTSPRO_REMOVE_EVENTS'),'events.delete');
 		JToolBarHelper::custom('events.copy', 'copy.png', 'copy_f2.png', 'COM_RSEVENTSPRO_COPY_EVENT' );
@@ -112,35 +110,18 @@ class RseventsproViewEvents extends JViewLegacy
 		JToolBarHelper::publishList('events.publish');
 		JToolBarHelper::unpublishList('events.unpublish');
 		JToolbarHelper::custom('events.featured', 'featured.png', 'featured_f2.png', 'JFEATURED', true);
-		JToolBarHelper::custom('events.exportical','export','export',JText::_('COM_RSEVENTSPRO_EXPORT_ICAL'));
-		JToolBarHelper::custom('events.exportcsv','export','export',JText::_('COM_RSEVENTSPRO_EXPORT_CSV'));
+		JToolBarHelper::custom('events.exportical','arrow-down','arrow-down',JText::_('COM_RSEVENTSPRO_EXPORT_ICAL'));
+		JToolBarHelper::custom('events.exportcsv','arrow-down','arrow-down',JText::_('COM_RSEVENTSPRO_EXPORT_CSV'));
 		JToolBarHelper::divider();
 		JToolBarHelper::custom('events.rating','trash','trash',JText::_('COM_RSEVENTSPRO_CLEAR_RATING'));
 		JToolBarHelper::divider();
-		
-		if (rseventsproHelper::isJ3()) {
-			JHtml::_('bootstrap.modal', 'batchevents');
-			$custom = '<button data-toggle="modal" data-target="#batchevents" class="btn btn-small"><i class="icon-checkbox-partial" title="'.JText::_('COM_RSEVENTSPRO_BATCH').'"></i> '.JText::_('COM_RSEVENTSPRO_BATCH').'</button>';
-		} else {
-			$doc->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery-1.11.1.min.js?v='.RSEPRO_RS_REVISION);
-			$doc->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/jquery.noconflict.js?v='.RSEPRO_RS_REVISION);
-			$doc->addScript(JURI::root(true).'/administrator/components/com_rseventspro/assets/js/bootstrap.modal.js');
-			$doc->addScript(JURI::root(true).'/administrator/components/com_rseventspro/assets/js/bootstrap.dropdown.js');
-			$doc->addScript(JURI::root(true).'/administrator/components/com_rseventspro/assets/js/bootstrap.collapse.js');
-			$doc->addScript(JURI::root(true).'/components/com_rseventspro/assets/js/bootstrap.fix.js?v='.RSEPRO_RS_REVISION);
-			$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rseventspro/assets/css/navbar.css');
-			$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rseventspro/assets/css/bootstrap.modal.css');
-			$doc->addScriptDeclaration("(function($){ $('#batchevents').modal({\"backdrop\": true,\"keyboard\": true,\"show\": true,\"remote\": \"\"}); }) (jQuery);");
-			
-			$custom = '<a class="toolbar" href="javascript:void(0)" data-toggle="modal" data-target="#batchevents"><span class="icon-32-list"></span>'.JText::_('COM_RSEVENTSPRO_BATCH').'</a>';
-		}
-		
 		JToolBarHelper::custom('events.sync','refresh','refresh',JText::_('COM_RSEVENTSPRO_SYNC'),false);
-		JToolBar::getInstance()->appendButton('custom',$custom);
-		JToolBarHelper::divider();
-		JToolBarHelper::custom('rseventspro','rseventspro32','rseventspro32',JText::_('COM_RSEVENTSPRO_GLOBAL_NAME'),false);
 		
-		$doc->addScript(JURI::root().'components/com_rseventspro/assets/js/jquery.filter.js');
+		$layout = new JLayoutFile('joomla.toolbar.popup');
+		$dhtml = $layout->render(array('text' => JText::_('JTOOLBAR_BATCH'), 'class' => 'icon-checkbox-partial', 'name' => 'batchevents'));
+		JToolbar::getInstance('toolbar')->appendButton('Custom', $dhtml, 'batch');
+		
+		JHtml::script('com_rseventspro/jquery.filter.js', array('relative' => true, 'version' => 'auto'));
 	}
 	
 	protected function addToolBarReport() {

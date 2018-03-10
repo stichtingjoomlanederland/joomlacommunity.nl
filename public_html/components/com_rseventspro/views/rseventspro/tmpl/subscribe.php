@@ -7,7 +7,6 @@
 defined( '_JEXEC' ) or die( 'Restricted access' ); 
 JText::script('COM_RSEVENTSPRO_TICKETS'); 
 JText::script('COM_RSEVENTSPRO_SEATS');
-JHtml::_('behavior.modal','.rs_modal');
 $modal = $this->config->modal == 1 || $this->config->modal == 2; ?>
 
 <script type="text/javascript">
@@ -35,16 +34,10 @@ $modal = $this->config->modal == 1 || $this->config->modal == 2; ?>
 			window.open('<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=tickets&tmpl=component&id='.rseventsproHelper::sef($this->event->id,$this->event->name)); ?>', 'seatswindow','status=0,toolbar=0,width='+dialogWidth+',height='+dialogHeight);
 		}
 		<?php } else { ?>
-		SqueezeBox.open('<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=tickets&tmpl=component&id='.rseventsproHelper::sef($this->event->id,$this->event->name)); ?>', {
-			handler: 'iframe',
-			size: {
-				x:dialogWidth,
-				y:dialogHeight
-			},
-			onClose: function() {
-				<?php echo $this->event->form == 0 ? 'rsepro_multi_seats_total();' : 'rsepro_update_total();'; ?>
-			}
+		jQuery('#rseTicketsModal').on('hide.bs.modal', function () {
+			<?php echo $this->event->form == 0 ? 'rsepro_multi_seats_total();' : 'rsepro_update_total();'; ?>
 		});
+		jQuery('#rseTicketsModal').modal('show');
 		<?php } ?>
 	}
 </script>
@@ -110,7 +103,7 @@ $modal = $this->config->modal == 1 || $this->config->modal == 2; ?>
 			<select name="ticket" id="ticket" onchange="<?php echo $this->js; ?>" size="1" class="input-large">
 				<?php echo JHtml::_('select.options', $this->tickets); ?>
 			</select>
-			<img id="rs_loader" src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/loader.gif" alt="" style="vertical-align: middle; display: none;" />
+			<?php echo JHtml::image('com_rseventspro/loader.gif', '', array('id' => 'rs_loader', 'style' => 'vertical-align: middle; display: none;'), true); ?> 
 			<?php if ($this->config->multi_tickets) { ?>
 			<a href="javascript:void(0);" onclick="rsepro_add_multiple_tickets();"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_ADD_TICKET'); ?></a>
 			<?php } ?>
@@ -218,3 +211,4 @@ jQuery(document).ready(function() {
 <?php } ?>
 
 <span id="eventID" style="display:none;"><?php echo $this->event->id; ?></span>
+<?php echo JHtml::_('bootstrap.renderModal', 'rseTicketsModal', array('title' => '&nbsp;', 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=tickets&tmpl=component&id='.rseventsproHelper::sef($this->event->id,$this->event->name)), 'bodyHeight' => 70, 'width' => rseventsproHelper::getConfig('seats_width','int','1280'), 'height' => rseventsproHelper::getConfig('seats_height','int','800') )); ?>

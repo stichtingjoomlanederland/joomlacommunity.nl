@@ -15,9 +15,7 @@ class RseventsproViewEmail extends JViewLegacy
 		$this->form 		= $this->get('Form');
 		$this->item 		= $this->get('Item');
 		
-		if (rseventsproHelper::isJ3()) {
-			JHtml::_('rseventspro.chosen','select');
-		}
+		JHtml::_('rseventspro.chosen','select');
 		
 		parent::display($tpl);
 	}

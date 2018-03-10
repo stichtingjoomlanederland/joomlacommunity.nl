@@ -18,6 +18,33 @@ class RseventsproTableSubscription extends JTable
 	}
 	
 	/**
+	 * Overloaded bind function
+	 *
+	 * @param	array		Named array
+	 * @return	null|string	null is operation was satisfactory, otherwise returns an error
+	 * @since	1.6
+	 */
+	public function bind($array, $ignore = '') {
+		if (!isset($array['id']) || empty($array['id'])) {
+			if ($fields = $this->getFields()) {
+				foreach ($fields as $key => $field) {
+					if (!isset($array[$key])) {
+						if (strpos(strtolower($field->Type), 'int') !== false || strpos(strtolower($field->Type), 'float') !== false) {
+							$array[$key] = 0;
+						} elseif (strpos(strtolower($field->Type), 'datetime') !== false) {
+							$array[$key] = JFactory::getDbo()->getNullDate();
+						} else {
+							$array[$key] = '';
+						}
+					}
+				}
+			}
+		}
+		
+		return parent::bind($array, $ignore);
+	}
+	
+	/**
 	 * Overloaded check function
 	 *
 	 * @return  boolean  True on success, false on failure

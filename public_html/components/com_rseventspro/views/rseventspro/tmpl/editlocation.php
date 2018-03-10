@@ -86,6 +86,14 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 			<input type="text" id="jform_coordinates" name="jform[coordinates]" value="<?php echo $this->escape($this->row->coordinates); ?>" class="input-large" />
 		</div>
 	</div>
+	<div class="control-group">
+		<div class="control-label">
+			<label for="jform_marker"><?php echo JText::_('COM_RSEVENTSPRO_LOCATION_MARKER'); ?></label>
+		</div>
+		<div class="controls">
+			<?php echo $this->form->getInput('marker'); ?>
+		</div>
+	</div>
 	<?php } ?>
 	
 	<div class="form-actions">

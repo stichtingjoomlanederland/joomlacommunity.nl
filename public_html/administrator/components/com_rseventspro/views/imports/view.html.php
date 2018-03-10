@@ -16,7 +16,6 @@ class RseventsproViewImports extends JViewLegacy
 	public function display($tpl = null) {		
 		$this->items		= $this->get('Items');
 		$this->offsets		= $this->get('Offsets');
-		$this->sidebar		= $this->get('Sidebar');
 		$this->locations	= $this->get('Locations');
 		
 		$this->addToolBar();
@@ -25,10 +24,7 @@ class RseventsproViewImports extends JViewLegacy
 	
 	protected function addToolBar() {
 		JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_IMPORT_EVENTS'),'rseventspro48');
-		JToolBarHelper::custom('rseventspro','rseventspro32','rseventspro32',JText::_('COM_RSEVENTSPRO_GLOBAL_NAME'),false);
 		
-		if (rseventsproHelper::isJ3()) {
-			JHtml::_('rseventspro.chosen','select');
-		}
+		JHtml::_('rseventspro.chosen','select');
 	}
 }

@@ -36,7 +36,7 @@ var ticket_limit_<?php echo $ticket->id; ?> = <?php echo (int) rseventsproHelper
 	});
 	
 	function rsepro_close() {
-		<?php if ($modal) { ?>thedocument.<?php echo $this->event->form == 0 ? 'rsepro_multi_seats_total()' : 'rsepro_update_total()'; ?>;window.close();<?php } else { ?>window.parent.SqueezeBox.close();<?php } ?>
+		<?php if ($modal) { ?>thedocument.<?php echo $this->event->form == 0 ? 'rsepro_multi_seats_total()' : 'rsepro_update_total()'; ?>;window.close();<?php } else { ?>window.parent.jQuery('#rseTicketsModal').modal('hide');<?php } ?>
 	}
 	
 	function rsepro_seats_select(id, place, name, price) {

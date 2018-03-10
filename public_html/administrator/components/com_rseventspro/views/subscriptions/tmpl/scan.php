@@ -16,7 +16,7 @@ jQuery(document).ready(function() {
 <form method="post" action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=subscriptions&layout=scan'); ?>" name="adminForm" id="adminForm" class="form-horizontal">
 <div class="row-fluid">
 	<div class="span2">
-		<?php echo $this->sidebar; ?>
+		<?php echo JHtmlSidebar::render(); ?>
 	</div>
 	<div class="span10">
 		<?php echo JHtml::_('rsfieldset.start', 'adminform', JText::_('COM_RSEVENTSPRO_SCAN_TITLE')); ?>
@@ -58,7 +58,7 @@ jQuery(document).ready(function() {
 							<span class="subscriber_confirmed"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_CONFIRMED'); ?></span>
 						<?php } else { ?>
 							<a href="javascript:void(0)" onclick="rsepro_confirm_ticket(<?php echo $subscriber->id; ?>, '<?php echo $code; ?>', this);"><?php echo JText::_('COM_RSEVENTSPRO_CONFIRM_SUBSCRIBER'); ?></a>
-							<span id="subscriptionConfirm" style="display:none;"><br /><img src="<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/loader.gif" alt="" /></span>
+							<span id="subscriptionConfirm" style="display:none;"><br /><?php echo JHtml::image('com_rseventspro/loader.gif', '', array(), true); ?></span>
 						<?php } ?>
 					</span>
 				</div>
