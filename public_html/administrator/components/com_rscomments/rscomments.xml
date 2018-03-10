@@ -7,7 +7,7 @@
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
 	<authorEmail>support@rsjoomla.com</authorEmail>
 	<authorUrl>www.rsjoomla.com</authorUrl>
-	<version>1.13.6</version>
+	<version>1.13.10</version>
 	<description>With RSComments! you can add commenting to articles, blogs and other Joomla! extensions on your website.</description>
 	<scriptfile>script.rscomments.php</scriptfile>
 
@@ -30,7 +30,6 @@
 	<files folder="site">
 		<folder>assets</folder>
 		<folder>controllers</folder>
-		<folder>designs</folder>
 		<folder>helpers</folder>
 		<folder>models</folder>
 		<folder>views</folder>
@@ -39,13 +38,21 @@
 		<filename>router.php</filename>
 		<filename>rscomments.php</filename>
 	</files>
+	
+	<media destination="com_rscomments" folder="media">
+		<folder>css</folder>
+		<folder>js</folder>
+		<folder>images</folder>
+		<folder>fonts</folder>
+		<filename>index.html</filename>
+	</media>
 
 	<languages>
 		<language tag="en-GB">languages/site/en-GB.com_rscomments.ini</language>
 	</languages>
 
 	<administration>
-		<menu img="../administrator/components/com_rscomments/assets/images/rscomments.gif">COM_RSCOMMENTS</menu>
+		<menu>COM_RSCOMMENTS</menu>
 		<submenu>
 			<menu link="option=com_rscomments">COM_RSCOMMENTS_MENU_OVERVIEW</menu>
 			<menu link="option=com_rscomments&amp;view=comments">COM_RSCOMMENTS_MENU_COMMENTS</menu>
@@ -61,7 +68,6 @@
 			<filename>install.sql</filename>
 			<filename>uninstall.sql</filename>
 			
-			<folder>assets</folder>
 			<folder>controllers</folder>
 			<folder>helpers</folder>
 			<folder>models</folder>

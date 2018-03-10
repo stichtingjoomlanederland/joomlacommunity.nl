@@ -7,6 +7,8 @@
 
 defined('_JEXEC') or die('Restricted access');
 
+use Joomla\Utilities\ArrayHelper;
+
 class RscommentsModelGroup extends JModelAdmin
 {
 	protected $text_prefix = 'COM_RSCOMMENTS';
@@ -131,7 +133,7 @@ class RscommentsModelGroup extends JModelAdmin
 		$used = $db->loadColumn();
 		
 		if (!empty($used)) {
-			JArrayHelper::toInteger($used);
+			ArrayHelper::toInteger($used);
 			$used = array_unique($used);
 			return $used;
 		}

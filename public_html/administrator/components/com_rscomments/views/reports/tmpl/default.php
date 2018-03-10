@@ -6,27 +6,28 @@
 */
 
 defined('_JEXEC') or die('Restricted access'); 
-JHtml::_('behavior.keepalive');
-JHtml::_('behavior.modal');
-$listOrder	= $this->escape($this->state->get('list.ordering'));
-$listDirn	= $this->escape($this->state->get('list.direction')); ?>
 
-<form action="<?php echo JRoute::_('index.php?option=com_rscomments&view=reports&id='.$this->state->get('filter.id')); ?>" method="post" name="adminForm" id="adminForm">
+$listOrder	= $this->escape($this->state->get('list.ordering','r.date'));
+$listDirn	= $this->escape($this->state->get('list.direction','DESC')); ?>
+
+<form action="<?php echo JRoute::_('index.php?option=com_rscomments&view=reports&id='.JFactory::getApplication()->input->getInt('id',0)); ?>" method="post" name="adminForm" id="adminForm">
 	<div class="row-fluid">
 		<div id="j-sidebar-container" class="span2">
-			<?php echo $this->sidebar; ?>
+			<?php echo JHtmlSidebar::render(); ?>
 		</div>
-		<div id="j-main-container" class="span10">
-			<?php echo $this->filterbar->show(); ?>
-			<table class="table table-striped adminlist">
+		<div id="j-main-container" class="span10 j-main-container">
+			
+			<?php echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this)); ?>
+			
+			<table class="table table-striped">
 				<thead>
 					<tr>
 						<th width="2%" class="center" align="center"><input type="checkbox" name="checkall-toggle" value="" onclick="Joomla.checkAll(this);"/></th>
 						<th class="hidden-phone center" align="center" width="1%"><?php echo JText::_('JGRID_HEADING_ID'); ?></th>
 						<th nowrap="nowrap"><?php echo JText::_('COM_RSCOMMENTS_REPORTS_TEXT'); ?></th>
-						<th width="10%" class="center" align="center"><?php echo JHtml::_('grid.sort', JText::_('COM_RSCOMMENTS_REPORTS_NAME'), 'u.name', $listDirn, $listOrder); ?></th>
-						<th width="10%" class="center" align="center"><?php echo JHtml::_('grid.sort', JText::_('COM_RSCOMMENTS_REPORTS_IP'), 'r.ip', $listDirn, $listOrder); ?></th>
-						<th width="10%" class="center" align="center"><?php echo JHtml::_('grid.sort', JText::_('COM_RSCOMMENTS_REPORTS_DATE'), 'r.date', $listDirn, $listOrder); ?></th>
+						<th width="10%" class="center" align="center"><?php echo JHtml::_('searchtools.sort', JText::_('COM_RSCOMMENTS_REPORTS_NAME'), 'u.name', $listDirn, $listOrder); ?></th>
+						<th width="10%" class="center" align="center"><?php echo JHtml::_('searchtools.sort', JText::_('COM_RSCOMMENTS_REPORTS_IP'), 'r.ip', $listDirn, $listOrder); ?></th>
+						<th width="10%" class="center" align="center"><?php echo JHtml::_('searchtools.sort', JText::_('COM_RSCOMMENTS_REPORTS_DATE'), 'r.date', $listDirn, $listOrder); ?></th>
 					</tr>
 				</thead>
 				<tbody>

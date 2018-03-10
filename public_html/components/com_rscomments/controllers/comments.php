@@ -181,7 +181,8 @@ class RscommentsControllerComments extends JControllerLegacy
 			
 			$comment	= $model->save();
 			$template	= RSCommentsHelper::getTemplate();
-			$override	= $jinput->getInt('override');
+			$jform		= $jinput->get('jform', array(), 'array');
+			$override	= $jform['override'];
 			$class 		= new RSCommentsModelComments($comment->id, $comment->option, $config->nr_comments, $template, $override);
 			$pagination = $class->getPagination();
 			$last_page 	= $pagination->get('pages.stop');

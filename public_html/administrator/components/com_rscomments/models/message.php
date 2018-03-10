@@ -7,6 +7,8 @@
 
 defined('_JEXEC') or die('Restricted access');
 
+use Joomla\CMS\Language\LanguageHelper;
+
 class RscommentsModelMessage extends JModelAdmin
 {
 	protected $text_prefix = 'COM_RSCOMMENTS';
@@ -136,8 +138,7 @@ class RscommentsModelMessage extends JModelAdmin
 	}
 		
 	public function getLanguages() {
-		$lang = JFactory::getLanguage();
-		return $lang->getKnownLanguages();
+		return LanguageHelper::getKnownLanguages();
 	}
 
 	public function getRSTabs() {

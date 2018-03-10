@@ -224,8 +224,12 @@ abstract class RSCommentsHelper
 	}
 	
 	// Parse comment
-	public static function parseComment($comment, $permissions) {
+	public static function parseComment($comment, $permissions, $display = false) {
 		$config = RSCommentsHelper::getConfig();
+		
+		if ($display) {
+			$permissions = array('bb_bold' => true, 'bb_italic' => true, 'bb_underline' => true, 'bb_stroke' => true, 'bb_url' => true, 'bb_image' => true, 'bb_code' => true, 'bb_videos' => true);
+		}
 		
 		$patterns		= array();
 		$replacements	= array();
@@ -265,8 +269,8 @@ abstract class RSCommentsHelper
 		$replacements[] = (isset($permissions['bb_code']) && $permissions['bb_code']) ? '<span class="rsc_code">'.JText::_('COM_RSCOMMENTS_CODE').' : <pre>\\1</pre></span>' : '\\1';
 
 		// Youtube
-		$patterns[] = '#\[youtube\]http\://www\.youtube\.com/watch\?v\=(.+?)\[\/youtube\]#';
-		$replacements[] = (isset($permissions['bb_videos']) && $permissions['bb_videos']) ? '<iframe width="560" height="315" src="http://www.youtube.com/embed/\\1" frameborder="0" allowfullscreen></iframe>' : 'http://www.youtube.com/v/\\1';
+		$patterns[] = '#\[youtube\]https\://www\.youtube\.com/watch\?v\=(.+?)\[\/youtube\]#';
+		$replacements[] = (isset($permissions['bb_videos']) && $permissions['bb_videos']) ? '<iframe width="560" height="315" src="https://www.youtube.com/embed/\\1" frameborder="0" allowfullscreen></iframe>' : 'http://www.youtube.com/v/\\1';
 		
 		// Vimeo
 		$patterns[] = '#\[vimeo\]https://vimeo.com/([A-Za-z0-9-_]+)\[\/vimeo\]#';
@@ -325,11 +329,13 @@ abstract class RSCommentsHelper
 		$marker = ' ';
 
 		$text = $comment;
+		
 		$text = preg_replace('#<img[^\>]+/>#isU', '', $text);
 		$text = preg_replace('#<a.*?>(.*?)</a>#isU', '', $text);
 		$text = preg_replace('#<object.*?>(.*?)</object>#isU', '', $text);
 		$text = preg_replace('#<code.*?>(.*?)</code>#isU', '', $text);
 		$text = preg_replace('#<embed.*?>(.*?)</embed>#isU', '', $text);
+		$text = preg_replace('#<iframe.*?>(.*?)</iframe>#isU', '', $text);
 		$text = preg_replace('#(^|\s|\>|\()((http://|https://|news://|ftp://|www.)\w+[^\s\[\]\<\>\"\'\)]+)#i', '', $text);
 		
 		$matches = array();
@@ -508,9 +514,10 @@ abstract class RSCommentsHelper
 		switch ($avatar) {
 			// Gravatar
 			case 'gravatar':
-				$user = JFactory::getUser($user_id);
-				$email = ($user_id == 0 && !is_null($useremail)) ? md5(strtolower(trim($useremail))) : md5(strtolower(trim($user->get('email'))));
-				$html .= '<img src="https://www.gravatar.com/avatar/'.$email.'?d='.urlencode(JURI::root().'components/com_rscomments/assets/images/user.png').'&s='.$size.'" alt="Gravatar" class="'.$theclass.'" />';
+				$user	 = JFactory::getUser($user_id);
+				$default = JUri::getInstance()->toString(array('host', 'scheme')).JHtml::image('com_rscomments/user.png', '', array(), true, 1);
+				$email	 = ($user_id == 0 && !is_null($useremail)) ? md5(strtolower(trim($useremail))) : md5(strtolower(trim($user->get('email'))));
+				$html 	.= '<img src="https://www.gravatar.com/avatar/'.$email.'?d='.urlencode($default).'&s='.$size.'" alt="Gravatar" class="'.$theclass.'" />';
 			break;
 			
 			// Community Builder
@@ -961,12 +968,7 @@ abstract class RSCommentsHelper
 		
 		require_once JPATH_SITE.'/components/com_rscomments/helpers/tooltip.php';
 		
-		$class = self::isJ3() ? 'JViewLegacy' : 'JView';
-		if ($class == 'JView') {
-			jimport('joomla.application.component.view');
-		}
-		
-		$view = new $class(array(
+		$view = new JViewLegacy(array(
 			'name' => 'rscomments',
 			'layout' => 'form',
 			'base_path' => JPATH_SITE.'/components/com_rscomments'
@@ -974,7 +976,7 @@ abstract class RSCommentsHelper
 		
 		$view->addTemplatePath(JPATH_THEMES . '/' . JFactory::getApplication()->getTemplate() . '/html/com_rscomments/' . $view->getName());
 		
-		$view->option		= $option;
+		$view->theoption	= $option;
 		$view->id			= $id;
 		$view->override		= $override;
 		$view->config		= $config;
@@ -1026,6 +1028,10 @@ abstract class RSCommentsHelper
 		
 		$return  = '<div class="rscomments">';
 		
+		if ($global = RSCommentsHelper::getMessage('global')) {
+			$return .= $global;
+		}
+		
 		if ($position) {
 			$return .= '<div id="rscomments-comment-form">'."\n".RSCommentsHelper::displayForm($option, $id, $override)."\n".'</div>';
 		}
@@ -1045,12 +1051,7 @@ abstract class RSCommentsHelper
 	public static function initScripts($option, $id) {
 		require_once JPATH_SITE.'/components/com_rscomments/helpers/tooltip.php';
 		
-		$class = self::isJ3() ? 'JViewLegacy' : 'JView';
-		if ($class == 'JView') {
-			jimport('joomla.application.component.view');
-		}
-		
-		$view = new $class(array(
+		$view = new JViewLegacy(array(
 			'name' => 'rscomments',
 			'layout' => 'default',
 			'base_path' => JPATH_SITE.'/components/com_rscomments'
@@ -1058,7 +1059,7 @@ abstract class RSCommentsHelper
 		
 		$view->addTemplatePath(JPATH_THEMES . '/' . JFactory::getApplication()->getTemplate() . '/html/com_rscomments/' . $view->getName());
 		
-		$view->option		= $option;
+		$view->theoption	= $option;
 		$view->id			= $id;
 		$view->config		= RSCommentsHelper::getConfig();
 		$view->user			= JFactory::getUser();
@@ -1096,12 +1097,7 @@ abstract class RSCommentsHelper
 		
 		require_once JPATH_SITE.'/components/com_rscomments/helpers/tooltip.php';
 		
-		$class = self::isJ3() ? 'JViewLegacy' : 'JView';
-		if ($class == 'JView') {
-			jimport('joomla.application.component.view');
-		}
-		
-		$view = new $class(array(
+		$view = new JViewLegacy(array(
 			'name' => 'rscomments',
 			'layout' => 'default',
 			'base_path' => JPATH_SITE.'/components/com_rscomments'
@@ -1109,7 +1105,7 @@ abstract class RSCommentsHelper
 		
 		$view->addTemplatePath(JPATH_THEMES . '/' . JFactory::getApplication()->getTemplate() . '/html/com_rscomments/' . $view->getName());
 		
-		$view->option		= $option;
+		$view->theoption	= $option;
 		$view->id			= $id;
 		$view->override		= $override;
 		$view->config		= $config;
@@ -1126,11 +1122,6 @@ abstract class RSCommentsHelper
 		$view->comments		= $comments;
 		$view->pagination	= $pagination;
 		$view->total		= $total;
-		
-		if (!self::isJ3()) {
-			//set the template and add the stylesheet
-			$doc->addStyleSheet(JURI::root(true).'/components/com_rscomments/designs/'.$template.'/'.$template.'.css');
-		}
 		
 		return $view->loadTemplate($tpl);
 	}
@@ -1498,7 +1489,6 @@ abstract class RSCommentsHelper
 			
 			$doc = JFactory::getDocument();
 			$doc->addScriptDeclaration("var rsc_root = '".addslashes(JURI::root())."';");
-			$doc->addScriptDeclaration("var rsc_tooltip = '".(RSCommentsHelper::isJ3() ? 'hasTooltip' : 'hasTip')."';");
 			
 			// Load jQuery
 			RSCommentsHelper::loadjQuery();
@@ -1508,16 +1498,16 @@ abstract class RSCommentsHelper
 			
 			// Load font Awesome
 			if ($config->fontawesome == 1) {
-				$doc->addStyleSheet(JURI::root(true).'/components/com_rscomments/assets/css/font-awesome.min.css');
+				JHtml::stylesheet('com_rscomments/font-awesome.min.css', array('relative' => true, 'version' => 'auto'));
 			}
 			
 			if ($config->enable_location) {
-				$doc->addScript('https://maps.google.com/maps/api/js');
-				$doc->addScript(JURI::root(true).'/components/com_rscomments/assets/js/jquery.map.js');
+				$doc->addScript('https://maps.google.com/maps/api/js'.(isset($config->map_key) ? '?key='.$config->map_key : ''));
+				JHtml::script('com_rscomments/jquery.map.js', array('relative' => true, 'version' => 'auto'));
 			}
 			
-			$doc->addScript(JURI::root(true).'/components/com_rscomments/assets/js/rscomments.js');
-			$doc->addStyleSheet(JURI::root(true).'/components/com_rscomments/assets/css/style.css');
+			JHtml::script('com_rscomments/site.js', array('relative' => true, 'version' => 'auto'));
+			JHtml::stylesheet('com_rscomments/site.css', array('relative' => true, 'version' => 'auto'));
 			
 			if (isset($permissions['captcha']) && $permissions['captcha']) {
 				if ($config->captcha == 2) {
@@ -1541,31 +1531,15 @@ abstract class RSCommentsHelper
 	// Load jQuery
 	public static function loadjQuery($noconflict = true) {
 		if (RSCommentsHelper::getConfig('frontend_jquery')) {
-			if (RSCommentsHelper::isJ3()) {
-				JHtml::_('jquery.framework', $noconflict);
-			} else {
-				$doc = JFactory::getDocument();
-				$doc->addScript(JURI::root(true).'/components/com_rscomments/assets/js/jquery-1.11.1.min.js');
-				
-				if ($noconflict) {
-					$doc->addScript(JURI::root(true).'/components/com_rscomments/assets/js/jquery.noConflict.js');
-				}
-			}
+			JHtml::_('jquery.framework', $noconflict);
 		}
 	}
 	
 	// Load Bootstrap
 	public static function loadBootstrap($force = false) {
 		if (RSCommentsHelper::getConfig('load_bootstrap') || $force) {
-			if (RSCommentsHelper::isJ3()) {
-				JHtml::_('bootstrap.framework');
-				JHtmlBootstrap::loadCss(true);
-			} else {
-				$document = JFactory::getDocument();
-				$document->addScript(JURI::root(true).'/components/com_rscomments/assets/js/bootstrap.min.js');
-				$document->addStyleSheet(JURI::root(true).'/components/com_rscomments/assets/css/bootstrap.min.css');
-				$document->addStyleSheet(JURI::root(true).'/components/com_rscomments/assets/css/bootstrap-responsive.min.css');
-			}
+			JHtml::_('bootstrap.framework');
+			JHtmlBootstrap::loadCss(true);
 		}
 	}
 	

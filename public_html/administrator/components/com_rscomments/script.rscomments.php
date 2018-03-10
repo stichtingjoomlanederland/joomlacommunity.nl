@@ -9,6 +9,18 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 class com_rscommentsInstallerScript 
 {
 	public function install($parent) {}
+	
+	public function preflight($type, $parent) {
+		$app		= JFactory::getApplication();
+		$jversion	= new JVersion();
+		
+		if (!$jversion->isCompatible('3.8.0')) {
+			$app->enqueueMessage('Please upgrade to at least Joomla! 3.8.0 before continuing!', 'error');
+			return false;
+		}
+		
+		return true;
+	}
 
 	public function postflight($type, $parent) {
 		$db			= JFactory::getDbo();
@@ -37,7 +49,7 @@ class com_rscommentsInstallerScript
 		if ($type == 'install') {
 			// Add default configuration when installing the first time RSComments!
 			if ($extension_id) {
-				$default = '{"global_register_code":"","date_format":"d.m.Y H:i","enable_rss":"1","template":"LightScheme","authorname":"name","enable_title_field":"1","enable_website_field":"1","nofollow_rel":"1","enable_smiles":"1","enable_bbcode":"1","enable_votes":"1","enable_subscription":"1","show_subcription_checkbox":"1","terms":"1","enable_upload":"0","max_size":10,"allowed_extensions":"jpg\\r\\ntxt\\r\\n","min_comm_len":10,"max_comm_len":1000,"show_counter":"1","form_accordion":"0","show_form":"1","enable_modified":"1","avatar":"gravatar","user_social_link":"","default_order":"DESC","nr_comments":10,"email_notification":"0","notification_emails":"","show_no_comments":"1","captcha":"0","captcha_chars":5,"captcha_lines":"1","captcha_cases":"0","rec_public":"","rec_private":"","rec_themes":"red","akismet_key":"","flood_interval":"30","word_length":"15","no_follow":"1","forbiden_names":"admin\\r\\nadministrator\\r\\nmoderator\\r\\n","censored_words":"","replace_censored":"******","blocked_users":"","enable_reports":"1","enable_captcha_reports":"1","enable_email_reports":"0","report_emails":"","negative_count":"10","load_bootstrap":"0","backend_jquery":"1","frontend_jquery":"1","blocked_ips":"","fontawesome":"1","show_labels":"0","enable_location":"0"}';
+				$default = '{"global_register_code":"","date_format":"d.m.Y H:i","enable_rss":"1","template":"LightScheme","authorname":"name","enable_title_field":"1","enable_website_field":"1","nofollow_rel":"1","enable_smiles":"1","enable_bbcode":"1","enable_votes":"1","enable_subscription":"1","show_subcription_checkbox":"1","terms":"1","enable_upload":"0","max_size":10,"allowed_extensions":"jpg\\r\\ntxt\\r\\n","min_comm_len":10,"max_comm_len":1000,"show_counter":"1","form_accordion":"0","show_form":"1","enable_modified":"1","avatar":"gravatar","user_social_link":"","default_order":"DESC","nr_comments":10,"email_notification":"0","notification_emails":"","show_no_comments":"1","captcha":"0","captcha_chars":5,"captcha_lines":"1","captcha_cases":"0","rec_public":"","rec_private":"","rec_themes":"red","akismet_key":"","flood_interval":"30","word_length":"15","no_follow":"1","forbiden_names":"admin\\r\\nadministrator\\r\\nmoderator\\r\\n","censored_words":"","replace_censored":"******","blocked_users":"","enable_reports":"1","enable_captcha_reports":"1","enable_email_reports":"0","report_emails":"","negative_count":"10","load_bootstrap":"0","backend_jquery":"1","frontend_jquery":"1","blocked_ips":"","fontawesome":"1","fontawesome_admin":"1","show_labels":"0","enable_location":"0"}';
 				$query->clear()
 					->update($db->qn('#__extensions'))
 					->set($db->qn('params').' = '.$db->q($default))
@@ -171,7 +183,7 @@ class com_rscommentsInstallerScript
 				$registry->loadString($params);
 				
 				// Update config
-				$newconfig = array('blocked_ips' => '', 'fontawesome' => '1', 'show_labels' => '0', 'enable_location' => '0');
+				$newconfig = array('blocked_ips' => '', 'fontawesome' => '1', 'show_labels' => '0', 'enable_location' => '0', 'fontawesome_admin' => '1');
 				
 				foreach ($newconfig as $name => $value) {
 					if (is_null($registry->get($name, null))) {
@@ -283,15 +295,77 @@ class com_rscommentsInstallerScript
 				$db->setQuery("ALTER TABLE `#__rscomments_comments` ADD `coordinates` VARCHAR( 255 ) NOT NULL AFTER `location`");
 				$db->execute();
 			}
+			
+			// Replace emoticons path
+			$db->setQuery("SELECT `id`, `with` FROM `#__rscomments_emoticons`");
+			if ($emoticons = $db->loadObjectList()) {
+				foreach ($emoticons as $emoticon) {
+					$image = str_replace('components/com_rscomments/assets/images/emoticons/', 'media/com_rscomments/images/emoticons/', $emoticon->with);
+					$db->setQuery('UPDATE `#__rscomments_emoticons` SET `with` = '.$db->q($image).' WHERE `id` = '.$db->q($emoticon->id));
+					$db->execute();
+				}
+			}
+			
+			// Set default values on database fields
+			if ($tables = $db->getTableList()) {
+				foreach ($tables as $table) {
+					if (strpos($table, $db->getPrefix().'rscomments') !== false) {
+						if ($fields = $db->getTableColumns($table, false)) {
+							foreach ($fields as $field) {
+								$fieldType = strtolower($field->Type);
+								$fieldKey = strtolower($field->Key);
+								
+								if (strpos($fieldType, 'int') !== false || strpos($fieldType, 'float') !== false|| strpos($fieldType, 'decimal') !== false) {
+									if ($fieldKey != 'pri') {
+										$db->setQuery('ALTER TABLE '.$db->qn($table).' ALTER '.$db->qn($field->Field).' SET DEFAULT '.$db->q(0));
+										$db->execute();
+									}
+								} elseif (strpos($fieldType, 'varchar') !== false) {
+									$db->setQuery('ALTER TABLE '.$db->qn($table).' ALTER '.$db->qn($field->Field).' SET DEFAULT '.$db->q(''));
+									$db->execute();
+								} elseif (strpos($fieldType, 'datetime') !== false) {
+									$db->setQuery('ALTER TABLE '.$db->qn($table).' ALTER '.$db->qn($field->Field).' SET DEFAULT '.$db->q($db->getNullDate()));
+									$db->execute();
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 		
-		$messages = array(
-			'plugins' 	=> array(),
-			'modules' 	=> array()
-		);
-		
-		$this->checkPlugins($messages);
+		$messages = $this->checkAddons();
 		$this->showinstall($messages);
+	}
+	
+	protected function runSql() {
+		$db = JFactory::getDbo();
+		
+		$sqlfile = JPATH_ADMINISTRATOR.'/components/com_rscomments/install.sql';
+		$buffer = file_get_contents($sqlfile);
+		if ($buffer === false) {
+			throw new Exception(JText::_('JLIB_INSTALLER_ERROR_SQL_READBUFFER'), 1);
+			return false;
+		}
+
+		jimport('joomla.installer.helper');
+		$queries = $db->splitSql($buffer);
+		if (count($queries) == 0) {
+			// No queries to process
+			return 0;
+		}
+		
+		// Process each query in the $queries array (split out of sql file).
+		foreach ($queries as $query) {
+			$query = trim($query);
+			if ($query != '' && $query{0} != '#') {
+				$db->setQuery($query);
+				if (!$db->execute()) {
+					throw new Exception(JText::_('JLIB_INSTALLER_ERROR_SQL_ERROR'), 1);
+					return false;
+				}
+			}
+		}
 	}
 	
 	public function uninstall($parent) {
@@ -354,19 +428,152 @@ class com_rscommentsInstallerScript
 		$this->showUninstall();
 	}
 	
+	protected function checkAddons() {
+		$messages	= array();
+		$lang		= JFactory::getLanguage();
+		
+		$plugins = array(
+			'jacomment' => '1.1',
+			'jcomments' => '1.1',
+			'komento' => '1.1'
+		);
+		
+		// Check plugins version
+		if ($installed = $this->getPlugins($plugins)) {
+			foreach ($installed as $plugin) {
+				$file = JPATH_SITE.'/plugins/'.$plugin->folder.'/'.$plugin->element.'/'.$plugin->element.'.xml';
+				if (file_exists($file)) {
+					$xml = file_get_contents($file);
+					
+					if ($this->checkVersion($xml, $plugins[$plugin->element], '>') || strpos($xml, '<extension') === false) {
+						$lang->load($plugin->element, JPATH_ADMINISTRATOR);
+						$this->disableExtension($plugin->extension_id);
+						$messages[] = 'Please update the plugin "'.JText::_($plugin->name).'" manually.';
+					}
+				}
+			}
+		}
+		
+		$modules = array(
+			'mod_rscomments_latest' => '1.3'
+		);
+		
+		// Check modules version
+		if ($installed = $this->getModules($modules)) {
+			foreach ($installed as $module) {
+				$file = JPATH_SITE.'/modules/'.$module->element.'/'.$module->element.'.xml';
+				if (file_exists($file)) {
+					$xml = file_get_contents($file);
+					
+					if ($this->checkVersion($xml, $modules[$module->element], '>') || strpos($xml, '<install') !== false) {
+						$lang->load($module->element, JPATH_SITE);
+						$this->unpublishModule($module->element);
+						$messages[] = 'Please update the module "'.JText::_($module->name).'" manually.';
+					}
+				}
+			}
+		}
+		
+		return $messages;
+	}
+	
+	protected function disableExtension($extension_id) {
+		$db = JFactory::getDbo();
+		
+		$query = $db->getQuery(true)->update('#__extensions')
+			->set($db->qn('enabled').'='.$db->q(0))
+			->where($db->qn('extension_id').'='.$db->q($extension_id));
+		
+		$db->setQuery($query);
+		$db->execute();
+	}
+	
+	protected function unpublishModule($module) {
+		$db = JFactory::getDbo();
+		
+		$query = $db->getQuery(true)->update('#__modules')
+			->set($db->qn('published').'='.$db->q(0))
+			->where($db->qn('module').'='.$db->q($module));
+		
+		$db->setQuery($query);
+		$db->execute();
+	}
+	
+	protected function getModules($modules) {
+		$db			= JFactory::getDbo();
+		$elements	= array_keys($modules);
+		
+		$query = $db->getQuery(true)->select('*')
+			->from('#__extensions')
+			->where($db->qn('type').'='.$db->q('module'))
+			->where($db->qn('element').' IN ('.$this->quoteImplode($elements).')');
+		$db->setQuery($query);
+		
+		return $db->loadObjectList();
+	}
+	
+	protected function getPlugins($plugins) {
+		$db			= JFactory::getDbo();
+		$elements	= array_keys($plugins);
+		
+		$query = $db->getQuery(true)->select('*')
+			->from('#__extensions')
+			->where($db->qn('type').'='.$db->q('plugin'))
+			->where($db->qn('folder').' = '.$db->q('rscomments'))
+			->where($db->qn('element').' IN ('.$this->quoteImplode($elements).')');
+		$db->setQuery($query);
+		
+		return $db->loadObjectList();
+	}
+	
+	protected function quoteImplode($array) {
+		$db = JFactory::getDbo();
+		foreach ($array as $k => $v) {
+			$array[$k] = $db->q($v);
+		}
+		
+		return implode(',', $array);
+	}
+	
+	protected function escape($string) {
+		return htmlentities($string, ENT_COMPAT, 'utf-8');
+	}
+	
+	protected function checkVersion($string, $version, $operator = '>') {
+		preg_match('#<version>(.*?)<\/version>#is',$string,$match);
+		if (isset($match) && isset($match[1])) {
+			return version_compare($version,$match[1],$operator);
+		}
+		
+		return false;
+	}
+	
 	// Set the install message
 	public function showinstall($messages) {
 ?>
 <style type="text/css">
+#rsc-installer-left {
+	float: left;
+	width: 270px;
+	padding: 5px;
+	margin: 20px 0 20px 0;
+}
+
+#rsc-installer-right {
+	float: left;
+}
+
 .version-history {
 	margin: 0 0 2em 0;
 	padding: 0;
 	list-style-type: none;
 }
+
 .version-history > li {
 	margin: 0 0 0.5em 0;
 	padding: 0 0 0 4em;
 }
+
 .version,
 .version-new,
 .version-fixed,
@@ -383,89 +590,56 @@ class com_rscommentsInstallerScript
 	-moz-border-radius: 4px;
 	border-radius: 4px;
 }
-.version {
-	background: #000;
-}
-.version-new {
-	background: #7dc35b;
-}
-.version-fixed {
-	background: #e9a130;
-}
-.version-upgraded {
-	background: #61b3de;
-}
 
-.install-ok {
-	background: #7dc35b;
-	color: #fff;
-	padding: 3px;
-}
-
-.install-not-ok {
-	background: #E9452F;
-	color: #fff;
-	padding: 3px;
-}
-
-#installer-left {
-	float: left;
-	width: 230px;
-	padding: 5px;
-}
-
-#installer-right {
-	float: left;
-}
+.version { background: #000; }
+.version-new { background: #7dc35b; }
+.version-fixed { background: #e9a130; }
+.version-upgraded { background: #61b3de; }
 
 .com-rscomments-button {
 	display: inline-block;
-	background: #459300 url(components/com_rscomments/assets/images/bg-button-green.gif) top left repeat-x !important;
-	border: 1px solid #459300 !important;
-	padding: 2px;
+	background: #459300 none repeat scroll 0 0;
 	color: #fff !important;
 	cursor: pointer;
-	margin: 0;
-	-webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
+	margin-bottom: 10px;
+    padding: 7px;
 	text-decoration: none !important;
 }
 
-.big-warning {
-	background: #FAF0DB;
-	border: solid 1px #EBC46F;
-	padding: 5px;
+.rsc-messages {
+	padding: 8px 35px 8px 14px;
+	margin-bottom: 18px;
+	text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+	background-color: #f2dede;
+	border-color: #ebccd1;
+	color: #a94442;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
 }
 
-.big-warning b {
-	color: red;
+.rsc-messages > p {
+    margin: 0 0 5px !important;
 }
 </style>
-<div id="installer-left">
-	<img src="components/com_rscomments/assets/images/rscomments-box.jpg" alt="RSComments! Box" />
+
+<div id="rsc-installer-left">
+	<img src="<?php echo JUri::root(); ?>media/com_rscomments/images/rscomments-box.jpg" alt="RSComments! Box" />
 </div>
-<div id="installer-right">
-	<?php if ($messages['plugins']) { ?>
-		<p class="big-warning"><b>Warning!</b> The following plugins have been temporarily disabled to prevent any errors being shown on your website. Please <a href="http://www.rsjoomla.com/downloads.html" target="_blank">download the latest versions</a> from your account and update your installation before enabling them.</p>
-		<?php foreach ($messages['plugins'] as $plugin) { ?>
-		<p><?php echo $this->escape($plugin->name); ?> ...
-			<b class="install-<?php echo $plugin->status; ?>"><?php echo $plugin->text; ?></b>
-		</p>
+<div id="rsc-installer-right">
+	<?php if ($messages) { ?>
+	<div class="rsc-messages">
+		<?php foreach ($messages as $message) { ?>
+			<p><i class="icon-info"></i> <?php echo $message; ?></p>
 		<?php } ?>
+	</div>
 	<?php } ?>
-	<?php if ($messages['modules']) { ?>
-		<p class="big-warning"><b>Warning!</b> The following modules have been temporarily disabled to prevent any errors being shown on your website. Please <a href="http://www.rsjoomla.com/downloads.html" target="_blank">download the latest versions</a> from your account and update your installation before enabling them.</p>
-		<?php foreach ($messages['modules'] as $module) { ?>
-		<p><?php echo $this->escape($module->name); ?> ...
-			<b class="install-<?php echo $module->status; ?>"><?php echo $module->text; ?></b>
-		</p>
-		<?php } ?>
-	<?php } ?>
-	<h2>Changelog v1.13.6</h2>
+	
+	<h2>Changelog v1.13.10</h2>
 	<ul class="version-history">
-		<li><span class="version-new">Add</span> EasyDiscuss avatar selection.</li>
-		<li><span class="version-new">Add</span> Agree the terms and conditions straight from the modal.</li>
+		<li><span class="version-new">New</span> Global message.</li>
+		<li><span class="version-upgraded">Upg</span> Moved scripts to media folder.</li>
+		<li><span class="version-upgraded">Upg</span> Code optimizations.</li>
 	</ul>
 	<a class="com-rscomments-button" href="index.php?option=com_rscomments">Start using RSComments!</a>
 	<a class="com-rscomments-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/95-rscomments.html" target="_blank">Read the RSComments! User Guide</a>
@@ -475,156 +649,7 @@ class com_rscommentsInstallerScript
 <?php
 	}
 	
-	// Set the uninstall message
 	public function showUninstall() {
 		echo 'RSComments! component has been successfully uninstaled!';
-	}
-	
-	protected function checkPlugins(&$messages) {
-		$plugins = array(
-			'jacomment',
-			'jcomments',
-			'jomcomment',
-			'joomlacomment',
-			'jxcomments',
-			'udjacomments',
-			'rseventspro'
-		);
-		
-		if ($installed = $this->getPlugins($plugins)) {
-			// need to update old plugins
-			foreach ($installed as $plugin) {
-				$file = JPATH_SITE.'/plugins/'.$plugin->folder.'/'.$plugin->element.'/'.$plugin->element.'.xml';
-				if (file_exists($file)) {
-					$xml = file_get_contents($file);
-					if (strpos($xml, '<extension') === false) {
-						$this->disableExtension($plugin->extension_id);
-						
-						$status = 'warning';
-						$text	= 'Disabled';
-						
-						$messages['plugins'][] = (object) array(
-							'name' 		=> $plugin->name,
-							'status' 	=> $status,
-							'text'		=> $text
-						);
-					}
-				}
-			}
-		}
-		
-		$modules = array(
-			'mod_rscomments',
-			'mod_rscomments_latest',
-		);
-		
-		if ($installed = $this->getModules($modules)) {
-			foreach ($installed as $module) {
-				$path = $module->client_id ? JPATH_ADMINISTRATOR : JPATH_SITE;
-				$file = $path.'/modules/'.$module->element.'/'.$module->element.'.xml';
-				if (file_exists($file)) {
-					$xml = file_get_contents($file);
-					if (strpos($xml, '<install') !== false) {
-						$this->disableExtension($module->extension_id);
-						
-						$messages['modules'][] = (object) array(
-							'name' 		=> $module->name,
-							'status' 	=> 'warning',
-							'text'		=> 'Disabled'
-						);
-					}
-				}
-			}
-		}
-	}
-	
-	protected function disableExtension($extension_id) {
-		$db = JFactory::getDbo();
-		$query = $db->getQuery(true);
-		$query->update('#__extensions')
-			  ->set($db->qn('enabled').'='.$db->q(0))
-			  ->where($db->qn('extension_id').'='.$db->q($extension_id));
-		$db->setQuery($query);
-		$db->execute();
-	}
-	
-	protected function getModules($element) {
-		$db 	= JFactory::getDbo();
-		$query 	= $db->getQuery(true);
-		$one	= false;
-		if (!is_array($element)) {
-			$element = array($element);
-			$one = true;
-		}
-		
-		$query->select('*')
-			  ->from('#__extensions')
-			  ->where($db->qn('type').'='.$db->q('module'))
-			  ->where($db->qn('element').' IN ('.$this->quoteImplode($element).')');
-		$db->setQuery($query);
-		
-		return $one ? $db->loadObject() : $db->loadObjectList();
-	}
-	
-	protected function getPlugins($element) {
-		$db 	= JFactory::getDbo();
-		$query 	= $db->getQuery(true);
-		$one	= false;
-		if (!is_array($element)) {
-			$element = array($element);
-			$one = true;
-		}
-		
-		$query->select('*')
-			  ->from('#__extensions')
-			  ->where($db->qn('type').'='.$db->q('plugin'))
-			  ->where($db->qn('folder').' = '.$db->q('rscomments'))
-			  ->where($db->qn('element').' IN ('.$this->quoteImplode($element).')');
-		$db->setQuery($query);
-		
-		return $one ? $db->loadObject() : $db->loadObjectList();
-	}
-	
-	protected function quoteImplode($array) {
-		$db = JFactory::getDbo();
-		foreach ($array as $k => $v) {
-			$array[$k] = $db->quote($v);
-		}
-		
-		return implode(',', $array);
-	}
-	
-	protected function escape($string) {
-		return htmlentities($string, ENT_COMPAT, 'utf-8');
-	}
-	
-	protected function runSql() {
-		$db = JFactory::getDbo();
-		
-		$sqlfile = JPATH_ADMINISTRATOR.'/components/com_rscomments/install.sql';
-		$buffer = file_get_contents($sqlfile);
-		if ($buffer === false) {
-			JError::raiseWarning(1, JText::_('JLIB_INSTALLER_ERROR_SQL_READBUFFER'));
-			return false;
-		}
-
-		jimport('joomla.installer.helper');
-		$queries = JInstallerHelper::splitSql($buffer);
-		if (count($queries) == 0) {
-			// No queries to process
-			return 0;
-		}
-		
-		// Process each query in the $queries array (split out of sql file).
-		foreach ($queries as $query) {
-			$query = trim($query);
-			if ($query != '' && $query{0} != '#') {
-				$db->setQuery($query);
-				if (!$db->execute()) {
-					JError::raiseWarning(1, JText::sprintf('JLIB_INSTALLER_ERROR_SQL_ERROR', $db->stderr(true)));
-					return false;
-				}
-			}
-		}
 	}
 }

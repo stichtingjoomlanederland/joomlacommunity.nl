@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-$thread 	= RSCommentsHelper::getThreadStatus($this->id,$this->option);
+$thread 	= RSCommentsHelper::getThreadStatus($this->id,$this->theoption);
 $ip 		= $_SERVER['REMOTE_ADDR'];
 $ownComment = false;
 $ownComment	= $this->user->guest ? ($this->comment->ip == $ip) : ($this->comment->uid == $this->user->id);
@@ -19,8 +19,7 @@ $canPublish	= isset($this->permissions['publish_comments']) && $this->permission
 $canDelete	= ((isset($this->permissions['delete_own_comment']) && $this->permissions['delete_own_comment']) && $ownComment ) || (isset($this->permissions['delete_comments']) && $this->permissions['delete_comments']);
 $canEdit	= ((isset($this->permissions['edit_own_comment']) && $this->permissions['edit_own_comment']) && $ownComment && !$thread) || (isset($this->permissions['edit_comments']) && $this->permissions['edit_comments'] && !$thread); ?>
 
-<div id="rscomment<?php echo $this->comment->IdComment; ?>" class="media rscomment rsc_comment_big_box<?php echo $this->comment->level; ?>" <?php echo !$this->comment->published ? 'style="opacity:0.6;"' : ''; ?> itemprop="comment" itemscope itemtype="http://schema.org/UserComments"> 
-	<?php if (RSCommentsHelper::isJ3()) { ?>
+<div id="rscomment<?php echo $this->comment->IdComment; ?>" class="media rscomment rsc_comment_big_box<?php echo $this->comment->level; ?>" <?php echo !$this->comment->published ? 'style="opacity:0.6;"' : ''; ?> itemprop="comment" itemscope itemtype="http://schema.org/UserComments">
 	<?php $name			= RSCommentsHelper::name($this->comment, $this->permissions); ?>
 	<?php $social		= RSCommentsHelper::getUserSocialLink($this->comment->uid); ?>
 	<?php $badComment	= isset($this->config->negative_count) && $this->config->negative_count && $this->comment->neg >= $this->config->negative_count; ?>
@@ -76,7 +75,7 @@ $canEdit	= ((isset($this->permissions['edit_own_comment']) && $this->permissions
 			<?php } ?>
 			
 			<span id="c<?php echo $this->comment->IdComment; ?>" class="rscomm-content<?php if ($badComment) { ?> muted hidden<?php } ?>" itemprop="commentText">
-				<?php echo RSCommentsHelper::parseComment($this->comment->comment,$this->permissions); ?>
+				<?php echo RSCommentsHelper::parseComment($this->comment->comment, $this->permissions, true); ?>
 			</span>
 			
 			<?php if (!empty($this->comment->file)) { ?>
@@ -101,7 +100,7 @@ $canEdit	= ((isset($this->permissions['edit_own_comment']) && $this->permissions
 					
 					<?php if ($canEmail) { ?>
 					<a href="mailto:<?php echo $this->comment->email; ?>" title="<?php echo $this->comment->email; ?>" class="<?php echo RSTooltip::tooltipClass(); ?>">
-						<i class="rscomm-meta-icon fa fa-envelope-o"></i>
+						<i class="rscomm-meta-icon fa fa-envelope"></i>
 					</a>
 					<?php } ?>
 					
@@ -119,7 +118,7 @@ $canEdit	= ((isset($this->permissions['edit_own_comment']) && $this->permissions
 					
 					<?php if ($canEdit) { ?>
 					<a class="<?php echo RSTooltip::tooltipClass(); ?>" href="javascript:void(0);" title="<?php echo RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_EDIT_COMMENT')); ?>" onclick="rsc_edit('<?php echo $this->comment->IdComment; ?>');">
-						<i class="rscomm-meta-icon fa fa-pencil"></i>
+						<i class="rscomm-meta-icon fa fa-edit"></i>
 					</a>
 					<?php } ?>
 					
@@ -196,10 +195,6 @@ $canEdit	= ((isset($this->permissions['edit_own_comment']) && $this->permissions
 		</div>
 	</div>
 	<div id="rscomment-comment-loader-<?php echo $this->comment->IdComment; ?>" class="rscomment-loader" style="display: none;">
-		<img src="<?php echo RSCommentsHelper::ImagePath('loader.gif'); ?>" alt="" />
+		<?php echo JHtml::image('com_rscomments/loader.gif', '', array(), true); ?>
 	</div>
-	
-	<?php } else { ?>
-	<?php echo RSCommentsHelper::showComment($this->comment, $this->template, $thread); ?>
-	<?php } ?>
 </div>

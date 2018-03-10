@@ -185,7 +185,6 @@ class JSecurImage {
 	 * This value is in pixels from the left side of the image.
 	 *
 	 * @var int
-	 * @deprecated 2.0
 	 */
 	var $text_x_start;
 

@@ -32,26 +32,25 @@ class plgButtonRscomments extends JPlugin
 	 * @return array A four element array of (article_id, article_title, category_id, object)
 	 */
 	public function onDisplay($name) {
-		$doc = JFactory::getDocument();
-		$getContent = $this->_subject->getContent($name);
-		
 		$js = "
 			function insertRSComments(editor) {
-				var content = $getContent;
-				
-				if (content.match(/{rscomments on}/)) {
-					content = content.replace('{rscomments on}', '{rscomments off}');
-					".$this->_subject->setContent($name,'content')."
-				} else if (content.match(/{rscomments off}/)) {
-					content = content.replace('{rscomments off}', '{rscomments on}');
-					".$this->_subject->setContent($name,'content')."
-				} else {
-					jInsertEditorText('{rscomments on}', editor);
+				if (window.Joomla && window.Joomla.editors && window.Joomla.editors.instances && window.Joomla.editors.instances.hasOwnProperty(editor)) {
+					content = window.Joomla.editors.instances[editor].getValue();
+					
+					if (content.match(/{rscomments on}/)) {
+						content = content.replace('{rscomments on}', '{rscomments off}');
+						Joomla.editors.instances[editor].setValue(content);
+					} else if (content.match(/{rscomments off}/)) {
+						content = content.replace('{rscomments off}', '{rscomments on}');
+						Joomla.editors.instances[editor].setValue(content);
+					} else {
+						Joomla.editors.instances[editor].replaceSelection('{rscomments on}')
+					}	
 				}
 			}
 			";
 
-		$doc->addScriptDeclaration($js);
+		JFactory::getDocument()->addScriptDeclaration($js);
 		
 		$button = new JObject();
 		$button->set('modal', false);

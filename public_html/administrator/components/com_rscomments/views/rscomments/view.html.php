@@ -8,13 +8,8 @@
 defined('_JEXEC') or die('Restricted access');
 
 class RscommentsViewRscomments extends JViewLegacy
-{
-	protected $sidebar;
-	protected $code;
-	protected $latest_com;
-	
+{	
 	public function display($tpl = null) {
-		$this->sidebar 		= RSCommentsHelper::isJ3() ? JHtmlSidebar::render() : '';
 		$this->code			= $this->get('Code');
 		$this->latest_com	= $this->get('LatestComments');
 		$this->stats		= $this->get('Stats');
@@ -29,14 +24,8 @@ class RscommentsViewRscomments extends JViewLegacy
 		JToolbarHelper::title('RSComments!','rscomments');
 		JToolbarHelper::preferences('com_rscomments');
 		
-		$doc = JFactory::getDocument();
-		$doc->addScript(JUri::root().'administrator/components/com_rscomments/assets/js/scripts.js');
-		
 		if ($this->stats) {
-			$doc->addScript('https://www.google.com/jsapi');
+			JFactory::getDocument()->addScript('https://www.google.com/jsapi');
 		}
-		
-		require_once JPATH_COMPONENT.'/helpers/toolbar.php';
-		RSCommentsToolbarHelper::addToolbar('overview');
 	}
 }

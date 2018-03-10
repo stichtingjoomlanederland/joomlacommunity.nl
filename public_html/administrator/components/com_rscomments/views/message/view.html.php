@@ -9,9 +9,6 @@ defined('_JEXEC') or die('Restricted access');
 
 class RscommentsViewMessage extends JViewLegacy
 {
-	protected $form;
-	protected $item;
-	
 	public function display($tpl = null) {
 		$this->tabs		 	= $this->get('RSTabs');
 		$this->form  		= $this->get('Form');

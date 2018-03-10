@@ -9,9 +9,6 @@ defined('_JEXEC') or die('Restricted access');
 
 class RscommentsViewComment extends JViewLegacy
 {
-	protected $form;
-	protected $item;
-
 	public function display($tpl = null) {
 		$this->form  = $this->get('Form');
 		$this->item  = $this->get('Item');
@@ -22,7 +19,6 @@ class RscommentsViewComment extends JViewLegacy
 
 	protected function addToolbar() {
 		JToolbarHelper::title(JText::sprintf('COM_RSCOMMENTS_EDIT_COMMENT', '<i>'.$this->item->subject.'</i> - '.RSCommentsHelper::showDate($this->item->date)),'rscomments');
-
 		JToolbarHelper::apply('comment.apply');
 		JToolbarHelper::save('comment.save');
 		JToolbarHelper::cancel('comment.cancel');

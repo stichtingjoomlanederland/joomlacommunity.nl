@@ -24,7 +24,9 @@ class plgInstallerRSComments extends JPlugin
 			}
 
 			// Load our config
-			require_once JPATH_SITE.'/components/com_rscomments/helpers/rscomments.php';
+			if (!class_exists('RSCommentsHelper')) {
+				require_once JPATH_SITE.'/components/com_rscomments/helpers/rscomments.php';
+			}
 
 			// Load our version
 			require_once JPATH_SITE.'/components/com_rscomments/helpers/version.php';

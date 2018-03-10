@@ -28,11 +28,11 @@ JText::script('COM_RSCOMMENTS_EMOTICONS_EMPTY_VALUES');
 <form action="<?php echo JRoute::_('index.php?option=com_rscomments&view=emoticons'); ?>" method="post" name="adminForm" id="adminForm">
 	<div class="row-fluid">
 		<div id="j-sidebar-container" class="span2">
-			<?php echo $this->sidebar; ?>
+			<?php echo JHtmlSidebar::render(); ?>
 		</div>
-		<div id="j-main-container" class="span10">
+		<div id="j-main-container" class="span10 j-main-container">
 			
-			<table class="adminlist table table-striped table-hover" width="100%">
+			<table class="table table-striped table-hover" width="100%">
 				<thead>
 					<tr>
 						<th width="10%"><?php echo JText::_('COM_RSCOMMENTS_EMOTICON_CODE'); ?></th>
@@ -61,7 +61,7 @@ JText::script('COM_RSCOMMENTS_EMOTICONS_EMPTY_VALUES');
 						</td>
 						
 						<td class="center" align="center">
-							<img id="loader<?php echo $item->id; ?>" src="<?php echo JURI::root(); ?>components/com_rscomments/assets/images/loader.gif" alt="" style="display: none;" />
+							<?php echo JHtml::image('com_rscomments/loader.gif', '', array('id' => 'loader'.$item->id, 'style' => 'display: none;'), true); ?>
 						</td>
 					</tr>
 				<?php } ?>
@@ -70,6 +70,7 @@ JText::script('COM_RSCOMMENTS_EMOTICONS_EMPTY_VALUES');
 			<?php echo JHtml::_( 'form.token' ); ?>
 			<input type="hidden" name="boxchecked" value="0" />
 			<input type="hidden" name="task" value="" />
+			<?php echo JHtml::image('com_rscomments/loader.gif', '', array('id' => 'loadingImage', 'style' => 'display: none;'), true); ?>
 		</div>
 	</div>
 </form>

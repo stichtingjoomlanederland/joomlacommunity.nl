@@ -7,12 +7,8 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RscommentsTableSubscription extends JTable {
-	/**
-	 * Constructor
-	 *
-	 * @param object Database connector object
-	 */
+class RscommentsTableSubscription extends JTable 
+{
 	public function __construct(&$db) {
 		parent::__construct('#__rscomments_subscriptions', 'IdSubscription', $db);
 	}

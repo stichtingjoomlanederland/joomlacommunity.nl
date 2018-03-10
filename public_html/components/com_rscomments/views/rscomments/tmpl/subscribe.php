@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Restricted access'); ?>
 
 <div class="alert" id="subscriber-message" style="display: none;"></div>
 
-<div <?php if (RSCommentsHelper::isJ3()) { ?>class="well"<?php } else { ?> id="mailto-window" <?php } ?>>
+<div class="well">
 	<div class="row-fluid">
 		<div class="control-group">
 			<div class="control-label">
@@ -32,3 +32,4 @@ defined('_JEXEC') or die('Restricted access'); ?>
 		</div>
 	</div>
 </div>
+<button type="button" id="rscomm_subscribe" onclick="rscomments_subscribe();" style="display:none">&nbsp;</button>

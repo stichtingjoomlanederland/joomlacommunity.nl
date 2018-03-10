@@ -9,9 +9,11 @@ defined('_JEXEC') or die('Restricted access'); ?>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rscomments&view=components&component='.JFactory::getApplication()->input->get('component').'&tmpl=component'); ?>" method="post" name="adminForm" id="adminForm">
 	<div class="row-fluid">
-		<div class="span11">
-			<?php echo $this->filterbar->show();?>
-			<table class="table table-striped table-hover adminlist" id="rsc_components_tbl" width="560">
+		<div class="span12">
+			
+			<?php echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this)); ?>
+			
+			<table class="table table-striped table-hover">
 				<thead>
 					<tr>
 						<th width="2%"><?php echo JText::_('COM_RSCOMMENTS_COMPONENT_ID'); ?></th>
@@ -22,7 +24,7 @@ defined('_JEXEC') or die('Restricted access'); ?>
 				<?php foreach ($this->items as $i => $item) { ?>
 					<tr class="row<?php echo $i % 2; ?>">
 						<td><?php echo $item->id;?></td>
-						<td><a href="#" rel="<?php echo $item->id;?>" class="rsc_filter_option"><?php echo $item->title; ?></a></td>
+						<td><a href="javascript:void(0)" rel="<?php echo $item->id;?>" class="rsc_filter_option"><?php echo $item->title; ?></a></td>
 					</tr>
 				<?php } ?>
 				</tbody>

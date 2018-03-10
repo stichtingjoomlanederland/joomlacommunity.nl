@@ -10,17 +10,6 @@ defined('_JEXEC') or die('Restricted access');
 class RscommentsModelGroups extends JModelList
 {
 	/**
-	 * Constructor.
-	 *
-	 * @param	array	An optional associative array of configuration settings.
-	 * @see		JController
-	 * @since	1.6
-	 */
-	public function __construct($config = array()) {
-		parent::__construct($config);
-	}
-	
-	/**
 	 * Build an SQL query to load the list data.
 	 *
 	 * @return	JDatabaseQuery

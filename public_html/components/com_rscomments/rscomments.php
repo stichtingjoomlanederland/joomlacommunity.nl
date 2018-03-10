@@ -17,6 +17,7 @@ require_once JPATH_SITE.'/components/com_rscomments/helpers/akismet/akismet.clas
 require_once JPATH_SITE.'/components/com_rscomments/controller.php';
 
 RSCommentsHelper::loadLang();
+RSCommentsHelper::loadScripts();
 
 $controller	= JControllerLegacy::getInstance('Rscomments');
 $controller->execute(JFactory::getApplication()->input->get('task'));

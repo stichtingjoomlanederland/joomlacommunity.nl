@@ -12,19 +12,6 @@ class RscommentsControllerReports extends JControllerAdmin
 	protected $text_prefix = 'COM_RSCOMMENTS_REPORTS';
 
 	/**
-	 * Constructor.
-	 *
-	 * @param	array	$config	An optional associative array of configuration settings.
-
-	 * @return	rseventsproControllerGroups
-	 * @see		JController
-	 * @since	1.6
-	 */
-	public function __construct($config = array()) {
-		parent::__construct($config);
-	}
-
-	/**
 	 * Proxy for getModel.
 	 *
 	 * @param	string	$name	The name of the model.

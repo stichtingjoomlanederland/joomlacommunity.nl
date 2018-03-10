@@ -53,14 +53,10 @@ class plgContentRSComments extends JPlugin
 		$option = $input->getCmd('option');
 		$view	= $input->getCmd('view');
 		
-		// Plugin only for com_content
-		if ($option != 'com_content') {
-			return false;
-		}
-		
-		if (!isset($article->id)) {
+		// Can we run this plugin ?
+		if ($article instanceof JCategoryNode || $option != 'com_content' || !isset($article->id)) {
 			RSCommentsHelper::clean($article); 
-			return; 
+			return;
 		}
 		
 		$content	= $article->introtext.$article->fulltext;
@@ -89,7 +85,7 @@ class plgContentRSComments extends JPlugin
 			$text				= empty($comments) ? JText::_('COM_RSCOMMENTS_NO_COMMENTS') : JText::sprintf('COM_RSCOMMENTS_COMMENTS_NUMBER',$comments);
 			$show_no_comments	= $config->show_no_comments;
 			
-			$image = '<img src="'.JURI::root().'components/com_rscomments/assets/images/comments.png" alt="" width="16" height="16" />';
+			$image = JHtml::image('com_rscomments/comments.png', '', array(), true);
 			
 			if (empty($comments)) {
 				if ($show_no_comments) {

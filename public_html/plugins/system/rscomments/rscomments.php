@@ -35,11 +35,7 @@ class plgSystemRSComments extends JPlugin
 	public function onAfterDispatch() {
 		if (!$this->canRun()) return;
 		
-		if (RSCommentsHelper::isJ3()) {
-			JHtml::_('behavior.core');
-		} else {
-			JHtml::_('script', 'system/core.js', false, true);
-		}
+		JHtml::_('behavior.core');
 		
 		JText::script('COM_RSCOMMENTS_NO_SUBSCRIBER_NAME');
 		JText::script('COM_RSCOMMENTS_NO_SUBSCRIBER_EMAIL');
@@ -54,10 +50,25 @@ class plgSystemRSComments extends JPlugin
 		if (!$this->canRun()) return;
 		
 		$pattern 	= '#{rscomments option="(.*?)" id="(.*?)"}#is';
-		$body 		= JResponse::getBody();
+		$html		= JFactory::getApplication()->getBody();
+		$hasContent	= false;
+		
+		if (strpos($html, '</head>') !== false) {
+			list($head, $content) = explode('</head>', $html, 2);
+		} else {
+			$content = $html;
+		}
+		
+        if (empty($content)) {
+            return false;
+        }
+		
+		if (strpos($content, '{rscomments') === false) {
+            return false;
+        }
 		
 		// Get all ocurrences for : {rscomments option="com_test" id="1"}
-		preg_match_all($pattern, $body, $matches);
+		preg_match_all($pattern, $content, $matches);
 		
 		if (!empty($matches[0])) {
 			$placeholder 	= end($matches[0]);
@@ -68,17 +79,17 @@ class plgSystemRSComments extends JPlugin
 			
 			$this->_template = RSCommentsHelper::getTemplate();
 			$html = RSCommentsHelper::showRSComments($option,$id,$this->_template);
-			$body = str_replace($placeholder,$html,$body);
+			$content = str_replace($placeholder,$html,$content);
 			
 			foreach($matches[0] as $text) {
-				$body = str_replace($text,'',$body);
+				$content = str_replace($text,'',$content);
 			}
 			
-			$this->setScripts($body);
+			$hasContent	= true;
 		}
 		
 		$pattern = '#{rscomments_no option="(.*?)" id="(.*?)"}#is';
-		preg_match_all($pattern, $body, $matches);
+		preg_match_all($pattern, $content, $matches);
 		
 		if (!empty($matches[0])) {
 			foreach ($matches[0] as $index => $fullmatch) {
@@ -91,11 +102,17 @@ class plgSystemRSComments extends JPlugin
 				
 				RSCommentsHelper::clearCache();
 				
-				$body = str_replace($fullmatch, $text, $body);
+				$content = str_replace($fullmatch, $text, $content);
 			}
 		}
 		
-		JResponse::setBody($body);
+		$html = isset($head) ? ($head . '</head>' . $content) : $content;
+		
+		if ($hasContent) {
+			$this->setScripts($html);
+		}
+		
+		JFactory::getApplication()->setBody($html);
 	}
 	
 	protected function setScripts(&$body) {
@@ -108,59 +125,45 @@ class plgSystemRSComments extends JPlugin
 		
 		$scripts[] = '<script type="text/javascript">';
 		$scripts[] = 'var rsc_root = "'.addslashes(JURI::root()).'";';
-		$scripts[] = 'var rsc_tooltip = "'.(RSCommentsHelper::isJ3() ? 'hasTooltip' : 'hasTip').'";';
 		$scripts[] = '</script>';
 		
-		if (!RSCommentsHelper::isJ3()) {
+		if (RSCommentsHelper::getConfig('frontend_jquery') || RSCommentsHelper::getConfig('load_bootstrap')) {
+			if (strpos($body,'<head>') !== false && strpos($body,'</head>') !== false) {
+				$string = substr($body, strpos($body,'<head>'), strpos($body,'</head>'));
+			} else {
+				$string = $body;
+			}
+			
 			if (RSCommentsHelper::getConfig('frontend_jquery')) {
-				$scripts[] = '<script src="'.JURI::root(true).'/components/com_rscomments/assets/js/jquery-1.11.1.min.js" type="text/javascript"></script>';
-				$scripts[] = '<script src="'.JURI::root(true).'/components/com_rscomments/assets/js/jquery.noConflict.js" type="text/javascript"></script>';
+				$loadJquery		= true;
+				
+				if (strpos($string, 'media/jui/js/jquery.min.js') !== false) {
+					$loadJquery = false;
+				}
+				
+				if ($loadJquery) {
+					$scripts[] = '<script src="'.JURI::root(true).'/media/jui/js/jquery.min.js" type="text/javascript"></script>';
+					$scripts[] = '<script src="'.JURI::root(true).'/media/jui/js/jquery-noconflict.js" type="text/javascript"></script>';
+				}
 			}
 			
 			if (RSCommentsHelper::getConfig('load_bootstrap')) {
-				$scripts[] = '<script src="'.JURI::root(true).'/components/com_rscomments/assets/js/bootstrap.min.js" type="text/javascript"></script>';
-				$css[] = '<link rel="stylesheet" href="'.JURI::root(true).'/components/com_rscomments/assets/css/bootstrap.min.css" type="text/css" />';
-				$css[] = '<link rel="stylesheet" href="'.JURI::root(true).'/components/com_rscomments/assets/css/bootstrap-responsive.min.css" type="text/css" />';
-			}
-		} else {
-			if (RSCommentsHelper::getConfig('frontend_jquery') || RSCommentsHelper::getConfig('load_bootstrap')) {
-				if (strpos($body,'<head>') !== false && strpos($body,'</head>') !== false) {
-					$string = substr($body, strpos($body,'<head>'), strpos($body,'</head>'));
-				} else {
-					$string = $body;
+				$loadBootstrap	= true;
+				
+				if (strpos($string, 'media/jui/js/bootstrap.min.js') !== false) {
+					$loadBootstrap = false;
 				}
 				
-				if (RSCommentsHelper::getConfig('frontend_jquery')) {
-					$loadJquery		= true;
-					
-					if (strpos($string, 'media/jui/js/jquery.min.js') !== false) {
-						$loadJquery = false;
-					}
-					
-					if ($loadJquery) {
-						$scripts[] = '<script src="'.JURI::root(true).'/media/jui/js/jquery.min.js" type="text/javascript"></script>';
-						$scripts[] = '<script src="'.JURI::root(true).'/media/jui/js/jquery-noconflict.js" type="text/javascript"></script>';
-					}
-				}
-				
-				if (RSCommentsHelper::getConfig('load_bootstrap')) {
-					$loadBootstrap	= true;
-					
-					if (strpos($string, 'media/jui/js/bootstrap.min.js') !== false) {
-						$loadBootstrap = false;
-					}
-					
-					if ($loadBootstrap) {
-						$scripts[] = '<script src="'.JURI::root(true).'/media/jui/js/bootstrap.min.js" type="text/javascript"></script>';
-						$css[] = '<link rel="stylesheet" href="'.JURI::root(true).'/media/jui/bootstrap.min.css" type="text/css" />';
-						$css[] = '<link rel="stylesheet" href="'.JURI::root(true).'/media/jui/bootstrap-responsive.min.css" type="text/css" />';
-						$css[] = '<link rel="stylesheet" href="'.JURI::root(true).'/media/jui/bootstrap-extended.css" type="text/css" />';
-					}
+				if ($loadBootstrap) {
+					$scripts[] = '<script src="'.JURI::root(true).'/media/jui/js/bootstrap.min.js" type="text/javascript"></script>';
+					$css[] = '<link rel="stylesheet" href="'.JURI::root(true).'/media/jui/bootstrap.min.css" type="text/css" />';
+					$css[] = '<link rel="stylesheet" href="'.JURI::root(true).'/media/jui/bootstrap-responsive.min.css" type="text/css" />';
+					$css[] = '<link rel="stylesheet" href="'.JURI::root(true).'/media/jui/bootstrap-extended.css" type="text/css" />';
 				}
 			}
 		}
 		
-		$scripts[] = '<script src="'.JURI::root(true).'/components/com_rscomments/assets/js/rscomments.js" type="text/javascript"></script>';
+		$scripts[] = '<script src="'.JHtml::script('com_rscomments/site.js', array('relative' => true, 'version' => 'auto', 'pathOnly' => true)).'" type="text/javascript"></script>';
 		
 		if (isset($permissions['captcha']) && $permissions['captcha']) {
 			if ($config->captcha == 2) {
@@ -177,19 +180,15 @@ class plgSystemRSComments extends JPlugin
 			}
 		}
 		
-		$css[] = '<link rel="stylesheet" href="'.JURI::root(true).'/components/com_rscomments/assets/css/style.css" type="text/css" />';
+		$css[] = '<link rel="stylesheet" href="'.JHtml::stylesheet('com_rscomments/site.css', array('relative' => true, 'version' => 'auto', 'pathOnly' => true)).'" type="text/css" />';
 		
 		if ($config->fontawesome == 1) {
-			$css[] = '<link rel="stylesheet" href="'.JURI::root(true).'/components/com_rscomments/assets/css/font-awesome.min.css" type="text/css" />';
+			$css[] = '<link rel="stylesheet" href="'.JHtml::stylesheet('com_rscomments/font-awesome.min.css', array('relative' => true, 'version' => 'auto', 'pathOnly' => true)).'" type="text/css" />';
 		}
 		
 		if ($config->enable_location) {
 			$scripts[] = '<script src="https://maps.google.com/maps/api/js" type="text/javascript"></script>';
-			$scripts[] = '<script src="'.JURI::root(true).'/components/com_rscomments/assets/js/jquery.map.js" type="text/javascript"></script>';
-		}
-		
-		if (!RSCommentsHelper::isJ3()) {
-			$css[] = '<link rel="stylesheet" href="'.JURI::root(true).'/components/com_rscomments/designs/'.$template.'/'.$template.'.css" type="text/css" />';
+			$scripts[] = '<script src="'.JHtml::script('com_rscomments/jquery.map.js', array('relative' => true, 'version' => 'auto', 'pathOnly' => true)).'" type="text/javascript"></script>';
 		}
 		
 		$html = implode("\n",$css)."\n";

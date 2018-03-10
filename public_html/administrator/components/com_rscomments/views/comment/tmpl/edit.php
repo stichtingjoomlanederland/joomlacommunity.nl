@@ -8,7 +8,7 @@
 defined('_JEXEC') or die('Restricted access');
 JHtml::_('behavior.keepalive'); ?>
 
-<form action="<?php echo JRoute::_('index.php?option=com_rscomments&view=comment&layout=edit&IdComment='.(int) $this->item->IdComment); ?>" method="post" name="adminForm" id="adminForm" autocomplete="off" class="form-validate form-horizontal">
+<form action="<?php echo JRoute::_('index.php?option=com_rscomments&view=comment&layout=edit&IdComment='.(int) $this->item->IdComment); ?>" method="post" name="adminForm" id="adminForm" autocomplete="off" class="form-horizontal">
 <?php
 	echo JHtml::_('rsfieldset.start', 'adminform', '');
 	foreach ($this->form->getFieldset() as $field) {

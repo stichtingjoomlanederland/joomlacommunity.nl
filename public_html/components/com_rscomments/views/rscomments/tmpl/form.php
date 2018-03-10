@@ -184,7 +184,7 @@ $required	= ' *'; ?>
 					<img src="<?php echo RSCommentsHelper::route('index.php?option=com_rscomments&task=captcha&type=form'); ?>" id="submit_captcha_image" alt="Antispam" height="80" />
 						<span class="<?php echo RSTooltip::tooltipClass(); ?>" title="<?php echo RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_REFRESH_CAPTCHA_DESC')); ?>">
 							<a id="rscomments-refresh-captcha" style="border-style: none" href="javascript:void(0)" onclick="rsc_refresh_captcha('<?php echo $this->root; ?>','<?php echo RSCommentsHelper::route('index.php?option=com_rscomments&task=captcha&type=form'); ?>');">
-								<img src="<?php echo RSCommentsHelper::ImagePath('refresh.png'); ?>" alt="<?php echo JText::_('COM_RSCOMMENTS_REFRESH_CAPTCHA'); ?>" onclick="this.blur()" />
+								<i class="fa fa-refresh"></i>
 							</a>
 						</span> <br />
 						<input type="text" name="jform[captcha]" id="submit_captcha" size="40" value="" class="span5 <?php echo RSTooltip::tooltipClass(); ?> required" title="<?php echo RSTooltip::tooltipText($this->config->captcha_cases ? JText::_('COM_RSCOMMENTS_CAPTCHA_CASE_SENSITIVE') : JText::_('COM_RSCOMMENTS_CAPTCHA_CASE_INSENSITIVE')); ?>" />
@@ -202,7 +202,7 @@ $required	= ' *'; ?>
 		
 		<div class="row-fluid">
 			<span id="rsc_loading_form" class="rsloading" style="display:none;">
-				<img src="<?php echo RSCommentsHelper::ImagePath('loader.gif'); ?>" alt="" />
+				<?php echo JHtml::image('com_rscomments/loader.gif', '', array(), true); ?>
 			</span>		
 			<button type="button" id="rsc_submit" class="btn btn-primary" onclick="rsc_validate('<?php echo $upload; ?>', '<?php echo RSCommentsHelper::route('index.php?option=com_rscomments&task=captcha'); ?>');"><?php echo JText::_('COM_RSCOMMENTS_SEND'); ?></button>
 			<button type="button" onclick="rsc_reset_form();" id="rsc_reset" class="btn"><?php echo JText::_('COM_RSCOMMENTS_RESET'); ?></button>
@@ -215,7 +215,7 @@ $required	= ' *'; ?>
 		<?php } ?>
 		
 		<input type="hidden" id="rsc_id_parent" name="jform[IdParent]" value="0" />
-		<input type="hidden" id="rsc_obj_option" name="jform[obj_option]" value="<?php echo $this->option; ?>" />
+		<input type="hidden" id="rsc_obj_option" name="jform[obj_option]" value="<?php echo $this->theoption; ?>" />
 		<input type="hidden" id="rsc_url" name="jform[url]" value="<?php echo RSCommentsHelper::getUrl(); ?>" />
 		<input type="hidden" id="rsc_obj_id" name="jform[obj_id]" value="<?php echo $this->id; ?>" />
 		<input type="hidden" id="rsc_IdComment" name="jform[IdComment]" value="" />

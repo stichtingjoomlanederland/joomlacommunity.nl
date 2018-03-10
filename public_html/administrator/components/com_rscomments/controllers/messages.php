@@ -10,19 +10,6 @@ defined('_JEXEC') or die('Restricted access');
 class RscommentsControllerMessages extends JControllerAdmin
 {
 	protected $text_prefix = 'COM_RSCOMMENTS';
-	
-	/**
-	 * Constructor.
-	 *
-	 * @param	array	$config	An optional associative array of configuration settings.
-
-	 * @return	rseventsproControllerSubscriptions
-	 * @see		JController
-	 * @since	1.6
-	 */
-	public function __construct($config = array()) {
-		parent::__construct($config);
-	}
 
 	/**
 	 * Proxy for getModel.

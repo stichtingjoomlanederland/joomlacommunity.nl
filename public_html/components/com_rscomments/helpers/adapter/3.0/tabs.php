@@ -51,25 +51,16 @@ class RSTabs {
 	 * @return  string  HTML for tabs
 	 */
 	public function render() {
-		$html   = array();
+		$active = reset($this->titles);
 		
-		$html[] = "\t".'<ul class="nav nav-tabs" id="'.$this->id.'">';
+		echo JHtml::_('bootstrap.startTabSet', $this->id, array('active' => $active->id));
 		
 		foreach ($this->titles as $i => $title) {
-			$html[] = "\t\t".'<li'.($i == 0 ? ' class="active"' : '').'><a href="#'.$title->id.'" data-toggle="tab">'.JText::_($title->label).'</a></li>';
+			echo JHtml::_('bootstrap.addTab', $this->id, $title->id, JText::_($title->label));
+			echo $this->contents[$i];
+			echo JHtml::_('bootstrap.endTab');
 		}
 		
-		$html[] = "\t".'</ul>';
-		$html[] = "\t".'<div class="tab-content">';
-		
-		foreach ($this->contents as $j => $content) {
-			$html[] = "\t\t".'<div class="tab-pane'.($j == 0 ? ' active' : '').'" id="'.$this->titles[$j]->id.'">';
-			$html[] = "\t\t\t".$content;
-			$html[] = "\t\t".'</div>';
-		}
-		
-		$html[] = "\t".'</div>';
-		
-		return implode("\n",$html);
+		echo JHtml::_('bootstrap.endTabSet');
 	}
 }

@@ -7,6 +7,9 @@
 
 defined('_JEXEC') or die('Restricted access');
 
+use Joomla\Utilities\ArrayHelper;
+use Joomla\CMS\Language\LanguageHelper;
+
 if (!function_exists('mb_strlen')) {
 	function mb_strlen($string, $encoding = 'UTF-8') {
 		return strlen(utf8_decode($string));
@@ -79,33 +82,24 @@ abstract class RSCommentsHelper {
 		$enable = RSCommentsHelper::getConfig('backend_jquery', 1);
 		
 		if ($enable) {
-			if (RSCommentsHelper::isJ3()) {
-				JHtml::_('jquery.framework', $noconflict);
-			} else {
-				$doc = JFactory::getDocument();
-				$doc->addScript(JURI::root(true).'/components/com_rscomments/assets/js/jquery-1.11.1.min.js');
-				
-				if ($noconflict) {
-					$doc->addScript(JURI::root(true).'/components/com_rscomments/assets/js/jquery.noConflict.js');
-				}
-			}
+			JHtml::_('jquery.framework', $noconflict);
 		}
 	}
 	
 	//set scripts
 	public static function setScripts() {
-		$doc = JFactory::getDocument();
-		
 		RSCommentsHelper::loadjQuery();
 			
-		if (RSCommentsHelper::isJ3()) {
-			$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rscomments/assets/css/j3.css?v='._RSCOMMENTS_VERSION);
-			JHtml::_('formbehavior.chosen', 'select');
-		} else {
-			$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rscomments/assets/css/j2.css?v='._RSCOMMENTS_VERSION);
+		JHtml::_('formbehavior.chosen', 'select');
+		
+		JHtml::stylesheet('com_rscomments/admin.css', array('relative' => true, 'version' => 'auto'));
+		
+		if (RSCommentsHelper::getConfig('fontawesome_admin') == 1) {
+			JHtml::stylesheet('com_rscomments/font-awesome.min.css', array('relative' => true, 'version' => 'auto'));
 		}
-			
-		$doc->addStyleSheet(JURI::root(true).'/administrator/components/com_rscomments/assets/css/style.css?v='._RSCOMMENTS_VERSION);
+		
+		RSCommentsHelper::cleancache();
+		RSCommentsHelper::submenu();
 	}
 	
 	// Clean the cache
@@ -200,7 +194,7 @@ abstract class RSCommentsHelper {
 					$query->from($db->qn('#__rsblog_posts'));
 				break;
 				case 'com_k2':
-					$query->from($db->qn('#__k2item'));
+					$query->from($db->qn('#__k2_items'));
 				break;
 				case 'com_flexicontent':
 					$query->from($db->qn('#__flexicontent_items'));
@@ -252,8 +246,7 @@ abstract class RSCommentsHelper {
 	}
 	
 	public static function language($tag) {
-		$lang = JFactory::getLanguage();
-		$languages = $lang->getKnownLanguages();
+		$languages = LanguageHelper::getKnownLanguages();
 		
 		if ($languages && $languages[$tag]) {
 			return !empty($languages[$tag]['name']) ? $languages[$tag]['name'] : $tag;
@@ -275,14 +268,14 @@ abstract class RSCommentsHelper {
 		$db->setQuery($query);
 		
 		if ($groups = $db->loadColumn()) {
-			JArrayHelper::toInteger($groups);
+			ArrayHelper::toInteger($groups);
 			
 			$query->clear();
 			$query->select('gid');
 			$query->from($db->qn('#__rscomments_groups'));
 			$db->setQuery($query);
 			if ($gids = $db->loadColumn()) {
-				JArrayHelper::toInteger($gids);
+				ArrayHelper::toInteger($gids);
 				$diff = array_diff($groups,$gids);
 				
 				if (empty($diff)) {
@@ -315,5 +308,17 @@ abstract class RSCommentsHelper {
 			return $cnt; // return num. bytes delivered like readfile() does.
 		}
 		return $status;
+	}
+	
+	public static function submenu() {
+		$view = JFactory::getApplication()->input->get('view');
+		
+		JHtmlSidebar::addEntry(JText::_('COM_RSCOMMENTS_OVERVIEW'),				JRoute::_('index.php?option=com_rscomments'),						$view == 'overview' || $view == '');
+		JHtmlSidebar::addEntry(JText::_('COM_RSCOMMENTS_COMMENTS'),				JRoute::_('index.php?option=com_rscomments&view=comments'),			$view == 'comments');
+		JHtmlSidebar::addEntry(JText::_('COM_RSCOMMENTS_EMOTICONS'),			JRoute::_('index.php?option=com_rscomments&view=emoticons'),		$view == 'emoticons');
+		JHtmlSidebar::addEntry(JText::_('COM_RSCOMMENTS_SUBSCRIPTIONS'),		JRoute::_('index.php?option=com_rscomments&view=subscriptions'),	$view == 'subscriptions');
+		JHtmlSidebar::addEntry(JText::_('COM_RSCOMMENTS_GROUP_PERMISSIONS'),	JRoute::_('index.php?option=com_rscomments&view=groups'),			$view == 'groups');
+		JHtmlSidebar::addEntry(JText::_('COM_RSCOMMENTS_IMPORT'),				JRoute::_('index.php?option=com_rscomments&view=import'),			$view == 'import');
+		JHtmlSidebar::addEntry(JText::_('COM_RSCOMMENTS_MESSAGES'),				JRoute::_('index.php?option=com_rscomments&view=messages'),			$view == 'messages');
 	}
 }

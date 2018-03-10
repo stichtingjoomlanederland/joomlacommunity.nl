@@ -10,32 +10,6 @@ defined('_JEXEC') or die('Restricted access');
 class RscommentsModelComponents extends JModelList
 {
 	/**
-	 * Constructor.
-	 *
-	 * @param	array	An optional associative array of configuration settings.
-	 * @see		JController
-	 * @since	1.6
-	 */
-	public function __construct($config = array()) {
-		parent::__construct($config);
-	}
-	
-	/**
-	 * Method to auto-populate the model state.
-	 *
-	 * Note. Calling getState in this method will result in recursion.
-	 *
-	 * @return	void
-	 * @since	1.6
-	 */
-	protected function populateState($ordering = null, $direction = null) {
-		$this->setState('components.filter.search',		$this->getUserStateFromRequest($this->context.'.components.filter.search', 'filter_search'));
-
-		// List state information.
-		parent::populateState('ordering', 'asc');
-	}
-
-	/**
 	 * Build an SQL query to load the list data.
 	 *
 	 * @return	JDatabaseQuery
@@ -45,7 +19,6 @@ class RscommentsModelComponents extends JModelList
 		$db 	= JFactory::getDbo();
 		$query 	= $db->getQuery(true);
 
-		$search 	= $this->getState('components.filter.search');
 		$component 	= JFactory::getApplication()->input->get('component', '', 'string');
 
 		$results = array();
@@ -61,7 +34,7 @@ class RscommentsModelComponents extends JModelList
 				$query->where($db->qn('published').' IN (0,1)');
 			break;
 			case 'com_k2':
-				$query->from($db->qn('#__k2item'));
+				$query->from($db->qn('#__k2_items'));
 				$query->where($db->qn('published').' IN (0,1)');
 			break;
 			case 'com_flexicontent':
@@ -70,21 +43,11 @@ class RscommentsModelComponents extends JModelList
 			break;
 		}
 
-		if(!empty($search))
+		if ($search = $this->getState('filter.search')) {
 			$query->where($db->qn('title').' LIKE '.$db->q('%'.$search.'%'));
+		}
 
 		$query->order( $db->qn('ordering').' ASC');
 		return $query;
-	}
-	
-	public function getFilterBar() {
-		$options = array();
-		$options['search'] = array(
-			'label' => JText::_('JSEARCH_FILTER'),
-			'value' => $this->getState('components.filter.search')
-		);
-
-		$bar = new RSFilterBar($options);
-		return $bar;
 	}
 }

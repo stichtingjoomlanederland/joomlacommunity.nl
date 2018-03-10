@@ -71,12 +71,7 @@ class RscommentsController extends JControllerLegacy
 	
 	// Show subscribe view
 	public function subscribe() {
-		$class = RSCommentsHelper::isJ3() ? 'JViewLegacy' : 'JView';
-		if ($class == 'JView') {
-			jimport('joomla.application.component.view');
-		}
-		
-		$view = new $class(array(
+		$view = new JViewLegacy(array(
 			'name' => 'rscomments',
 			'layout' => 'subscribe',
 			'base_path' => JPATH_SITE.'/components/com_rscomments'
@@ -84,18 +79,11 @@ class RscommentsController extends JControllerLegacy
 		
 		$view->addTemplatePath(JPATH_THEMES . '/' . JFactory::getApplication()->getTemplate() . '/html/com_rscomments/' . $view->getName());
 		echo $view->loadTemplate();
-		
-		JFactory::getApplication()->close();
 	}
 	
 	// Show the report view
 	public function report() {
-		$class = RSCommentsHelper::isJ3() ? 'JViewLegacy' : 'JView';
-		if ($class == 'JView') {
-			jimport('joomla.application.component.view');
-		}
-		
-		$view = new $class(array(
+		$view = new JViewLegacy(array(
 			'name' => 'rscomments',
 			'layout' => 'report',
 			'base_path' => JPATH_SITE.'/components/com_rscomments'
@@ -107,8 +95,6 @@ class RscommentsController extends JControllerLegacy
 		$view->root 	= JURI::getInstance()->toString(array('scheme','host'));
 		
 		echo $view->loadTemplate();
-		
-		JFactory::getApplication()->close();
 	}
 	
 	// Show the upload form
@@ -206,6 +192,8 @@ class RscommentsController extends JControllerLegacy
 						
 						$query->clear()
 							->insert($db->qn('#__rscomments_comments'))
+							->set($db->qn('url').' = '.$db->q(''))
+							->set($db->qn('comment').' = '.$db->q(''))
 							->set($db->qn('file').' = '.$db->q($filename.'.'.$ext));
 						
 						$db->setQuery($query);
@@ -274,8 +262,9 @@ class RscommentsController extends JControllerLegacy
 			$download_folder	= JPATH_SITE.'/components/com_rscomments/assets/files/';
 			$fullpath			= $download_folder.$file;			
 			
-			if (strpos(realpath($fullpath), realpath($download_folder)) !== 0) 
-				JError::raiseError(500,JText::_('COM_RSCOMMENTS_ACCESS_DENIED'));
+			if (strpos(realpath($fullpath), realpath($download_folder)) !== 0) {
+				throw new Exception(JText::_('COM_RSCOMMENTS_ACCESS_DENIED'), 500);
+			}
 			
 			if(is_file($fullpath)) {
 				@ob_end_clean();
@@ -296,7 +285,7 @@ class RscommentsController extends JControllerLegacy
 				RSCommentsHelper::readfile_chunked($fullpath);
 				$app->close();
 			} else {
-				JError::raiseError(500,JText::_('COM_RSCOMMENTS_ACCESS_DENIED'));
+				throw new Exception(JText::_('COM_RSCOMMENTS_ACCESS_DENIED'), 500);
 			}
 		}
 		$app->close();

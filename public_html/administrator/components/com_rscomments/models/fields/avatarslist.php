@@ -18,6 +18,13 @@ class JFormFieldAvatarsList extends JFormField {
 	 */
 	protected $type = 'AvatarsList';
 
+	public function __construct() {
+		JFactory::getDocument()->addStyleDeclaration(".form-horizontal .control-group .control-label {
+	width: 185px; 
+	word-wrap: break-word;
+}");
+	}
+	
 	/**
 	 * Method to get the field input markup for a combo box field.
 	 *

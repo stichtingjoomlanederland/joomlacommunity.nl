@@ -7,18 +7,9 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RscommentsModelMessages extends JModelList {	
-	
-	/**
-	 * Constructor.
-	 *
-	 * @param	array	An optional associative array of configuration settings.
-	 * @see		JController
-	 * @since	1.6
-	 */
-	function __construct() {
-		parent::__construct();
-	}
+use Joomla\CMS\Language\LanguageHelper;
+
+class RscommentsModelMessages extends JModelList {
 
 	/**
 	 * Build an SQL query to load the list data.
@@ -43,10 +34,9 @@ class RscommentsModelMessages extends JModelList {
 	}
 
 	public function getAvailableLanguages() {
-		$lang 		= JFactory::getLanguage();
 		$db 		= JFactory::getDbo();
 		$query 		= $db->getQuery(true);
-		$languages 	= $lang->getKnownLanguages();
+		$languages 	= LanguageHelper::getKnownLanguages();
 
 		$query->select('DISTINCT('.$db->qn('tag').')')->from('`#__rscomments_messages`');
 		$db->setQuery($query);

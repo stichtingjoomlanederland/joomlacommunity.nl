@@ -77,7 +77,7 @@ function rsc_update_cols(value) {
 				jQuery(select).empty().html(html);
 			});
 
-			<?php if (RSCommentsHelper::isJ3()) { ?>jQuery('#rsc_columns').find('select').trigger("liszt:updated");<?php } ?>
+			jQuery('#rsc_columns').find('select').trigger("liszt:updated");
 		}
 	});
 }
@@ -91,24 +91,23 @@ jQuery(document).ready(function(){
 <form action="<?php echo JRoute::_('index.php?option=com_rscomments&controller=import&view=import'); ?>" method="post" name="adminForm" id="adminForm" class="form-validate form-horizontal">
 	<div class="row-fluid">
 		<div id="j-sidebar-container" class="span2">
-			<?php echo $this->sidebar; ?>
+			<?php echo JHtmlSidebar::render(); ?>
 		</div>
-		<div id="j-main-container" class="span10">
+		<div id="j-main-container" class="span10 j-main-container">
 			<?php $this->tabs->title(JText::_('COM_RSCOMMENTS_IMPORT_SIMPLE'), 'simple'); ?>
 			<?php $this->tabs->title(JText::_('COM_RSCOMMENTS_IMPORT_ADVANCED'), 'advanced'); ?>
-			<?php $this->tabs->content((!empty($this->html)) ? '<table class="table table-striped adminform">'.implode('',$this->html).'</table>' : JText::_('COM_RSCOMMENTS_IMPORT_PLUGINS_PLEASE')); ?>
-
-			<?php $content = $this->loadTemplate('advanced');
-					$this->tabs->content($content);
-			?>
-
+			<?php $this->tabs->content((!empty($this->html)) ? '<table class="table table-striped adminform">'.implode('',$this->html).'</table>' : '<div class="alert alert-warning">'.JText::_('COM_RSCOMMENTS_IMPORT_PLUGINS_PLEASE').'</div>'); ?>
+			<?php $content = $this->loadTemplate('advanced'); ?>
+			<?php $this->tabs->content($content); ?>
 			<?php echo $this->tabs->render();?>
-		</div> <!-- .span10 -->
-	</div> <!-- .row-fluid -->
+		</div>
+	</div>
+	
 	<?php echo JHtml::_('form.token'); ?>
 	<input type="hidden" name="task" value="" />
 	<input type="hidden" name="class" id="class" value="" />
 </form>
+
 <?php if(!empty($this->table)) { ?> 
 <script type="text/javascript">
 jQuery('#toolbar-save').css('display','block');

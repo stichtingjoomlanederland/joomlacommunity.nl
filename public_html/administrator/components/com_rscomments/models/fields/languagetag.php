@@ -8,6 +8,8 @@
 defined('_JEXEC') or die('Restricted access');
 jimport('joomla.form.formfield');
 
+use Joomla\CMS\Language\LanguageHelper;
+
 class JFormFieldLanguagetag extends JFormField {
 	
 	/**
@@ -31,7 +33,7 @@ class JFormFieldLanguagetag extends JFormField {
 		if(!empty($tag)) {
 			$html = '<input type="hidden" name="'.$this->name.'" value="'.$tag.'" />';
 		} else {
-			$languages	= JFactory::getLanguage()->getKnownLanguages();
+			$languages	= LanguageHelper::getKnownLanguages();
 			$db			= JFactory::getDbo();
 			$query		= $db->getQuery(true);
 

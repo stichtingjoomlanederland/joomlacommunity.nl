@@ -11,7 +11,6 @@ class RscommentsController extends JControllerLegacy {
 	
 	public function __construct() {
 		parent::__construct();
-		// Set the database object
 		JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_rscomments/tables');
 	}
 	

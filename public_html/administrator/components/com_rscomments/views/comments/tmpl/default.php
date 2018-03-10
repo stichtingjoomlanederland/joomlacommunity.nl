@@ -6,31 +6,31 @@
 */
 
 defined('_JEXEC') or die('Restricted access');
-JHtml::_('behavior.keepalive');
-JHtml::_('behavior.modal');
-$listOrder	= $this->escape($this->state->get('list.ordering'));
-$listDirn	= $this->escape($this->state->get('list.direction'));
-?>
+
+$listOrder	= $this->escape($this->state->get('list.ordering', 'date'));
+$listDirn	= $this->escape($this->state->get('list.direction', 'DESC')); ?>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rscomments&view=comments'); ?>" method="post" name="adminForm" id="adminForm">
 	<div class="row-fluid">
 		<div id="j-sidebar-container" class="span2">
-			<?php echo $this->sidebar; ?>
+			<?php echo JHtmlSidebar::render(); ?>
 		</div>
-		<div id="j-main-container" class="span10">
-			<?php echo $this->filterbar->show(); ?>
-			<table class="adminlist table table-striped table-hover" id="rsc_comments_tbl" width="100%">
+		<div id="j-main-container" class="span10 j-main-container">
+			
+			<?php echo JLayoutHelper::render('joomla.searchtools.default', array('view' => $this)); ?>
+			
+			<table class="table table-striped table-hover">
 				<thead>
-				<tr>
-					<th width="2%"><input type="checkbox" name="checkall-toggle" value="" onclick="Joomla.checkAll(this);"/></th>
-					<th class="hidden-phone" width="1%"><?php echo JText::_('COM_RSCOMMENTS_COMMENT_ID'); ?></th>
-					<th nowrap="nowrap"><?php echo JHtml::_('grid.sort', JText::_('COM_RSCOMMENTS_COMMENT_NAME'), 'comment', $listDirn, $listOrder); ?></th>
-					<th width="5%" class="center" align="center"><?php echo JText::_('COM_RSCOMMENTS_REPORTS'); ?></th>
-					<th width="10%" class="center" align="center"><?php echo JHtml::_('grid.sort', JText::_('COM_RSCOMMENTS_COMMENT_AUTHOR'), 'name', $listDirn, $listOrder); ?></th>
-					<th class="hidden-phone center" width="8%" align="center"><?php echo JHtml::_('grid.sort', JText::_('COM_RSCOMMENTS_COMMENT_COMPONENT'), 'option', $listDirn, $listOrder); ?></th>
-					<th width="10%" class="center" align="center"><?php echo JHtml::_('grid.sort', JText::_('COM_RSCOMMENTS_COMMENT_DATE'), 'date', $listDirn, $listOrder); ?></th>
-					<th class="hidden-phone" width="5%"><?php echo JHtml::_('grid.sort', JText::_('COM_RSCOMMENTS_COMMENT_PUBLISHED'), 'published', $listDirn, $listOrder); ?></th>
-				</tr>
+					<tr>
+						<th width="2%"><input type="checkbox" name="checkall-toggle" value="" onclick="Joomla.checkAll(this);"/></th>
+						<th class="hidden-phone" width="1%"><?php echo JText::_('COM_RSCOMMENTS_COMMENT_ID'); ?></th>
+						<th nowrap="nowrap"><?php echo JHtml::_('searchtools.sort', JText::_('COM_RSCOMMENTS_COMMENT_NAME'), 'comment', $listDirn, $listOrder); ?></th>
+						<th width="5%" class="center" align="center"><?php echo JText::_('COM_RSCOMMENTS_REPORTS'); ?></th>
+						<th width="10%" class="center" align="center"><?php echo JHtml::_('searchtools.sort', JText::_('COM_RSCOMMENTS_COMMENT_AUTHOR'), 'name', $listDirn, $listOrder); ?></th>
+						<th class="hidden-phone center" width="8%" align="center"><?php echo JHtml::_('searchtools.sort', JText::_('COM_RSCOMMENTS_COMMENT_COMPONENT'), 'option', $listDirn, $listOrder); ?></th>
+						<th width="10%" class="center" align="center"><?php echo JHtml::_('searchtools.sort', JText::_('COM_RSCOMMENTS_COMMENT_DATE'), 'date', $listDirn, $listOrder); ?></th>
+						<th class="hidden-phone" width="5%"><?php echo JHtml::_('searchtools.sort', JText::_('COM_RSCOMMENTS_COMMENT_PUBLISHED'), 'published', $listDirn, $listOrder); ?></th>
+					</tr>
 				</thead>
 				<tbody>
 				<?php foreach ($this->items as $i => $item) { ?>
@@ -65,7 +65,9 @@ $listDirn	= $this->escape($this->state->get('list.direction'));
 						
 						<td align="center" class="center">
 							<span class="<?php echo RSTooltip::tooltipClass(); ?>" title="<?php echo RSTooltip::tooltipText($item->email.'<br />'.JText::sprintf('COM_RSCOMMENTS_AUTHOR_INFO_NAME',$item->name).'<br/>'.JText::sprintf('COM_RSCOMMENTS_AUTHOR_INFO_SITE',$item->website).'<br/>'.JText::sprintf('COM_RSCOMMENTS_AUTHOR_INFO_IP',str_replace(':','&#058;',$item->ip))); ?>">
-								<a href="mailto:<?php echo $item->email; ?>"><?php echo $item->name; ?></a> <img src="<?php echo JURI::root(); ?>administrator/components/com_rscomments/assets/images/info.png" style="vertical-align:middle;" />
+								<a href="mailto:<?php echo $item->email; ?>">
+									<i class="fa fa-info-circle"></i> <?php echo $item->name; ?>
+								</a>
 							</span>
 						</td>
 						
@@ -85,10 +87,11 @@ $listDirn	= $this->escape($this->state->get('list.direction'));
 					</tr>
 				</tfoot>
 			</table>
+			
 			<?php echo JHtml::_( 'form.token' ); ?>
 			<input type="hidden" name="boxchecked" value="0" />
 			<input type="hidden" name="task" value="" />
-			<input type="hidden" name="filter_component_id" id="rsc_filter_component_id" value="<?php echo $this->state->get('com_rscomments.comments.filter.component_id'); ?>" />
+			<input type="hidden" name="filter[component_id]" id="rsc_filter_component_id" value="<?php echo $this->state->get('filter.component_id'); ?>" />
 		</div>
 	</div>
 </form>

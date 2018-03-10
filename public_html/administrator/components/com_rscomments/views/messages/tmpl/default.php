@@ -9,25 +9,30 @@ defined('_JEXEC') or die('Restricted access');
 JHtml::_('behavior.keepalive'); ?>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rscomments&task=message.edit'); ?>" method="post" name="adminForm" id="adminForm">
-<div class="row-fluid">
-	<div id="j-sidebar-container" class="span2">
-		<?php echo $this->sidebar; ?>
+	<div class="row-fluid">
+		<div id="j-sidebar-container" class="span2">
+			<?php echo JHtmlSidebar::render(); ?>
+		</div>
+		<div id="j-main-container" class="span10 j-main-container">
+			<div class="clearfix"></div>
+			<table class="table table-striped table-hover" id="rsc_comments_tbl">
+				<thead>
+					<tr>
+						<th width="25%"><?php echo JText::_('COM_RSCOMMENTS_MESSAGES_LANGUAGE'); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+			<?php foreach ($this->items as $row) { ?>
+					<tr>
+						<td>
+							<a href="<?php echo JRoute::_('index.php?option=com_rscomments&task=message.edit&tag='.$row->tag); ?>"><?php echo RSCommentsHelper::language($row->tag); ?></a>
+						</td>
+					</tr>
+			<?php } ?>
+				</tbody>
+			</table>
+			</div>
+		<?php echo JHtml::_('form.token'); ?>
+		<input type="hidden" name="task" value="" />
 	</div>
-	<div id="j-main-container" class="span10">
-		<div class="clearfix"></div>
-		<table class="table table-striped table-hover adminlist" id="rsc_comments_tbl" width="100%">
-			<thead>
-				<tr><th width="25%"><?php echo JText::_('COM_RSCOMMENTS_MESSAGES_LANGUAGE'); ?></th></tr>
-			</thead>
-			<tbody>
-		<?php foreach ($this->items as $row) { ?>
-				<tr><td><a href="<?php echo JRoute::_('index.php?option=com_rscomments&task=message.edit&tag='.$row->tag); ?>"><?php echo RSCommentsHelper::language($row->tag); ?></a></td></tr>
-		<?php } ?>
-			</tbody>
-		</table>
-		</div> <!-- .span10 -->
-<?php echo JHtml::_('form.token'); ?>
-<input type="hidden" name="task" value="" />
-
-</div> <!-- .row-fluid -->
 </form>

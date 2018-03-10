@@ -11,7 +11,7 @@ JHtml::_('behavior.keepalive'); ?>
 
 <script type="text/javascript">
 	Joomla.submitbutton = function(task) {
-		if (task == 'group.cancel' || document.formvalidator.isValid(document.id('adminForm'))) {
+		if (task == 'group.cancel' || document.formvalidator.isValid(document.getElementById('adminForm'))) {
 			Joomla.submitform(task, document.getElementById('adminForm'));
 		} else {
 			alert('<?php echo $this->escape(JText::_('JGLOBAL_VALIDATION_FORM_FAILED'));?>');
@@ -23,20 +23,20 @@ JHtml::_('behavior.keepalive'); ?>
 		var used = new String('<?php echo implode(',',$this->used); ?>');
 		var array = used.split(','); 
 		
-		jQuery('#<?php echo RSCommentsHelper::isJ3() ? 'jform_gid' : 'jformgid'; ?> option').each(function(){
-			if (array.contains(jQuery(this).val())) {
+		jQuery('#jform_gid option').each(function(){
+			if (array.includes(jQuery(this).val())) {
 				jQuery(this).prop('disabled', true);
 			}
 		});
-		<?php if (RSCommentsHelper::isJ3()) { ?>jQuery('#jform_gid').trigger("liszt:updated");<?php } ?>
+		jQuery('#jform_gid').trigger("liszt:updated");
 		<?php } ?>
 		<?php if (empty($this->item->IdGroup)) { ?>
-		jQuery('#<?php echo RSCommentsHelper::isJ3() ? 'jform_gid' : 'jformgid'; ?> option').each(function(){
+		jQuery('#jform_gid option').each(function(){
 			if (jQuery(this).is(':disabled') != true) {
 				jQuery(this).prop('selected', true);
 			}
 		});
-		<?php if (RSCommentsHelper::isJ3()) { ?>jQuery('#jform_gid').trigger("liszt:updated");<?php } ?>
+		jQuery('#jform_gid').trigger("liszt:updated");
 		<?php } ?>
 	});
 </script>

@@ -63,7 +63,7 @@ class RscommentsModelRSComments extends JModelLegacy
 					->select('COUNT('.$db->qn('id').') AS count')->select('DATE(DATE_ADD('.$db->qn('date').', INTERVAL '.$offset.' SECOND)) as thedate')
 					->from($db->qn('#__rscomments_comments'))
 					->where('DATE_SUB(CURDATE(),INTERVAL 30 DAY) <= DATE_ADD('.$db->qn('date').', INTERVAL '.$offset.' SECOND)')
-					->group('DATE(thedate)');
+					->group('DATE(DATE_ADD('.$db->qn('date').', INTERVAL '.$offset.' SECOND))');
 				$db->setQuery($query);
 				$stats = $db->loadObjectList();
 			} else {
@@ -71,7 +71,7 @@ class RscommentsModelRSComments extends JModelLegacy
 					->select('COUNT('.$db->qn('id').') AS count')->select('DATE(DATE_ADD('.$db->qn('date').', INTERVAL '.$offset.' SECOND)) as thedate')
 					->from($db->qn('#__rscomments_comments'))
 					->where('DATE_SUB('.$db->qn('date').',INTERVAL 30 DAY) <= DATE_ADD('.$db->qn('date').', INTERVAL '.$offset.' SECOND)')
-					->group('DATE(thedate)');
+					->group('DATE(DATE_ADD('.$db->qn('date').', INTERVAL '.$offset.' SECOND))');
 				$db->setQuery($query);
 				$stats = $db->loadObjectList();
 			}
@@ -79,14 +79,14 @@ class RscommentsModelRSComments extends JModelLegacy
 			$query->select('COUNT('.$db->qn('id').') AS count')->select('DATE_FORMAT(DATE(DATE_ADD('.$db->qn('date').', INTERVAL '.$offset.' SECOND)),"%M %Y") as thedate')
 				->from($db->qn('#__rscomments_comments'))
 				->where('DATE_SUB(CURDATE(),INTERVAL 12 MONTH) <= DATE_ADD('.$db->qn('date').', INTERVAL '.$offset.' SECOND)')
-				->group('DATE(thedate)');
+				->group('DATE_FORMAT(DATE(DATE_ADD('.$db->qn('date').', INTERVAL '.$offset.' SECOND)),"%M %Y")');
 			$db->setQuery($query);
 			$stats = $db->loadObjectList();
 		} else if ($type == 2) {
 			$query->select('COUNT('.$db->qn('id').') AS count')->select('DATE_FORMAT(DATE(DATE_ADD('.$db->qn('date').', INTERVAL '.$offset.' SECOND)),"%Y") as thedate')
 				->from($db->qn('#__rscomments_comments'))
 				->where('DATE_SUB(CURDATE(),INTERVAL 12 YEAR) <= DATE_ADD('.$db->qn('date').', INTERVAL '.$offset.' SECOND)')
-				->group('DATE(thedate)');
+				->group('DATE_FORMAT(DATE(DATE_ADD('.$db->qn('date').', INTERVAL '.$offset.' SECOND)),"%Y")');
 			$db->setQuery($query);
 			$stats = $db->loadObjectList();
 		}

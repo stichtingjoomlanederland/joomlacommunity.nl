@@ -7,18 +7,8 @@
 
 defined('_JEXEC') or die('Restricted access');
 
-class RscommentsControllerImport extends JControllerForm {
-	/**
-	 * Class constructor.
-	 *
-	 * @param   array  $config  A named array of configuration variables.
-	 *
-	 * @since	1.6
-	 */
-	public function __construct() {
-		parent::__construct();
-	}
-
+class RscommentsControllerImport extends JControllerForm 
+{
 	public function getcolumns() {
 		$model = $this->getModel('import');
 		$columns = $model->getFields();

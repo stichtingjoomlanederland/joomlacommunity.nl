@@ -49,7 +49,7 @@ class RSCommentsReCAPTCHA
 
 		$response = '';
 		if( false == ( $fs = @fsockopen($host, $port, $errno, $errstr, 10) ) ) {
-			JError::raiseWarning(500, 'RSComments! ReCAPTCHA: Could not open socket. Please check that your server can connect to '.$host);
+			JFactory::getApplication()->enqueueMessage('RSComments! ReCAPTCHA: Could not open socket. Please check that your server can connect to '.$host, 'error');
 			return false;
 		}
 
@@ -131,12 +131,12 @@ class RSCommentsReCAPTCHA
 	  */
 	public static function checkAnswer ($privkey, $remoteip, $challenge, $response, $extra_params = array()) {
 		if ($privkey == null || $privkey == '') {
-			JError::raiseWarning(500, 'To use reCAPTCHA you must get an API key from <a href="http://recaptcha.net/api/getkey">http://recaptcha.net/api/getkey</a>');
+			JFactory::getApplication()->enqueueMessage('To use reCAPTCHA you must get an API key from <a href="http://recaptcha.net/api/getkey">http://recaptcha.net/api/getkey</a>', 'error');
 			return false;
 		}
 
 		if ($remoteip == null || $remoteip == '') {
-			JError::raiseWarning(500, 'For security reasons, you must pass the remote IP to reCAPTCHA. We could not detect your IP.');
+			JFactory::getApplication()->enqueueMessage('For security reasons, you must pass the remote IP to reCAPTCHA. We could not detect your IP.', 'error');
 			return false;
 		}
 		

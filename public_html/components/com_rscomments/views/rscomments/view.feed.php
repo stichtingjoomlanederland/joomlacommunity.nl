@@ -12,7 +12,7 @@ require_once JPATH_SITE.'/components/com_rscomments/helpers/rscomments.php';
 
 class RscommentsViewRscomments extends JViewLegacy {
 
-	public function display() {
+	public function display($tpl = null) {
 		$doc	= JFactory::getDocument();
 		$id		= JFactory::getApplication()->input->get('id');
 		$option	= JFactory::getApplication()->input->get('opt');

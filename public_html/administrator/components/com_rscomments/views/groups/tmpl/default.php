@@ -10,9 +10,9 @@ defined('_JEXEC') or die('Restricted access'); ?>
 <form action="<?php echo JRoute::_('index.php?option=com_rscomments&view=groups'); ?>" method="post" name="adminForm" id="adminForm">
 	<div class="row-fluid">
 		<div id="j-sidebar-container" class="span2">
-			<?php echo $this->sidebar; ?>
+			<?php echo JHtmlSidebar::render(); ?>
 		</div>
-		<div id="j-main-container" class="span10">
+		<div id="j-main-container" class="span10 j-main-container">
 			<table class="table table-striped adminlist">
 				<thead>
 					<tr>

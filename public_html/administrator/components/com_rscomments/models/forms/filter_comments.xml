@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fields name="filter">
+		<field name="search" type="text" label="JSEARCH_FILTER" hint="JSEARCH_FILTER" />
+		<field name="component" type="components" onchange="document.getElementById('rsc_filter_component_id').value='';this.form.submit();" class="input-large" default="">
+			<option value="">COM_RSCOMMENTS_SELECT_COMPONENT_LIST_ITEM</option>
+		</field>
+	</fields>
+
+	<fields name="list">
+		<field name="fullordering" type="list" onchange="this.form.submit();" default="date DESC">
+			<option value="">JGLOBAL_SORT_BY</option>
+			<option value="date ASC">COM_RSCOMMENTS_DATE_ASC</option>
+			<option value="date DESC">COM_RSCOMMENTS_DATE_DESC</option>
+			<option value="comment ASC">COM_RSCOMMENTS_COMMENT_ASC</option>
+			<option value="comment DESC">COM_RSCOMMENTS_COMMENT_DESC</option>
+			<option value="name ASC">COM_RSCOMMENTS_AUTHOR_ASC</option>
+			<option value="name DESC">COM_RSCOMMENTS_AUTHOR_DESC</option>
+			<option value="option ASC">COM_RSCOMMENTS_COMPONENT_ASC</option>
+			<option value="option DESC">COM_RSCOMMENTS_COMPONENT_DESC</option>
+			<option value="published ASC">JSTATUS_ASC</option>
+			<option value="published DESC">JSTATUS_DESC</option>
+		</field>
+
+		<field name="limit" type="limitbox" default="25" class="input-mini" onchange="this.form.submit();" />
+	</fields>
+</form>

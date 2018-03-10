@@ -10,17 +10,6 @@ defined('_JEXEC') or die('Restricted access');
 class RscommentsModelEmoticons extends JModelList
 {
 	/**
-	 * Constructor.
-	 *
-	 * @param	array	An optional associative array of configuration settings.
-	 * @see		JController
-	 * @since	1.6
-	 */
-	public function __construct($config = array()) {
-		parent::__construct($config);
-	}
-	
-	/**
 	 * Method to auto-populate the model state.
 	 *
 	 * Note. Calling getState in this method will result in recursion.
@@ -56,11 +45,6 @@ class RscommentsModelEmoticons extends JModelList
 		$query->order($db->qn($listOrdering).' '.$listDirection);
 		
 		return $query;
-	}
-
-	public function getSideBar() {
-		require_once JPATH_ADMINISTRATOR.'/components/com_rscomments/helpers/toolbar.php';
-		return RSCommentsToolbarHelper::render();
 	}
 	
 	public function add() {

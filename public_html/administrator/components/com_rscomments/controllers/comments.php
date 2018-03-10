@@ -7,22 +7,11 @@
 
 defined('_JEXEC') or die('Restricted access');
 
+use Joomla\Utilities\ArrayHelper;
+
 class RscommentsControllerComments extends JControllerAdmin
 {
 	protected $text_prefix = 'COM_RSCOMMENTS';
-	
-	/**
-	 * Constructor.
-	 *
-	 * @param	array	$config	An optional associative array of configuration settings.
-
-	 * @return	rseventsproControllerSubscriptions
-	 * @see		JController
-	 * @since	1.6
-	 */
-	public function __construct($config = array()) {
-		parent::__construct($config);
-	}
 	
 	/**
 	 * Proxy for getModel.
@@ -49,7 +38,7 @@ class RscommentsControllerComments extends JControllerAdmin
 		$model = $this->getModel();
 		
 		// Force array elements to be integers
-		JArrayHelper::toInteger($pks);
+		ArrayHelper::toInteger($pks);
 		
 		if (!$model->votes($pks)) {
 			$this->setMessage($model->getError());

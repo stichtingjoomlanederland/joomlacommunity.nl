@@ -7,6 +7,8 @@
 
 defined('_JEXEC') or die('Restricted access');
 
+use Joomla\Utilities\ArrayHelper;
+
 class RscommentsModelComments extends JModelLegacy
 {
 	protected $_data = null;
@@ -28,7 +30,7 @@ class RscommentsModelComments extends JModelLegacy
 		$this->_IdComment 	= $IdComment;
 		$app				= JFactory::getApplication();
 		$jinput				= $app->input;
-		$pagination			= $page != null ? $page : $app->getCfg('list_limit');
+		$pagination			= $page != null ? $page : JFactory::getConfig()->get('list_limit');
 		
 		// Get pagination request variables 
 		$limit 		= $jinput->getInt('limit', $pagination); 
@@ -107,7 +109,7 @@ class RscommentsModelComments extends JModelLegacy
 		} else {
 			$commentIds = array_slice(array_keys($this->_data), $jinput->getInt('limitstart'), $this->getState('rscomments.comments.limit'));
 		}
-		JArrayHelper::toInteger($commentIds);
+		ArrayHelper::toInteger($commentIds);
 		
 		if (empty($commentIds)) {
 			return $return_comments;
@@ -257,7 +259,6 @@ class RscommentsModelComments extends JModelLegacy
 		$id		= $jinput->get('id');
 		$option	= $jinput->get('opt');
 		$task	= $jinput->get('task');
-		$get 	= JRequest::get('get');
 		
 		// unsubscribing from email link
 		if ($task == 'unsubscribeemail') {
@@ -371,9 +372,6 @@ class RscommentsModelComments extends JModelLegacy
 		$db->setQuery($query);
 		$neg = $db->loadResult();
 		
-		$vote_yes_image = RSCommentsHelper::ImagePath('voteyes.png');
-		$vote_no_image 	= RSCommentsHelper::ImagePath('voteno.png');
-		
 		$votes = $pos - $neg;
 		
 		if ($votes > 0) {
@@ -442,10 +440,7 @@ class RscommentsModelComments extends JModelLegacy
 			->where($db->qn('IdComment').' = '.(int) $id);
 		
 		$db->setQuery($query);
-		if (!$db->execute()) {
-			$this->setError($db->getErrorMsg());
-			return false;
-		}
+		$db->execute();
 
 		return $remove;
 	}
@@ -466,10 +461,7 @@ class RscommentsModelComments extends JModelLegacy
 			->where($db->qn('IdComment').' = '.(int) $id);
 		
 		$db->setQuery($query);
-		if (!$db->execute()) {
-			$this->setError($db->getErrorMsg());
-			return false;
-		}
+		$db->execute();
 		
 		return $id;
 	}
@@ -681,7 +673,7 @@ class RscommentsModelComments extends JModelLegacy
 		}
 		
 		// Get the comment ID
-		$IdComment = $session->get('com_rscomments.IdComment','');
+		$IdComment = (int) $session->get('com_rscomments.IdComment','');
 
 		// Clear the session
 		if ($session->get('com_rscomments.IdComment')) {

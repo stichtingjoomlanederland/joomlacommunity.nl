@@ -24,6 +24,7 @@ abstract class RSCommentsEmoticons {
 		$db			= JFactory::getDbo();
 		$query		= $db->getQuery(true);
 		$emoticons	= array();
+		$root		= JUri::getInstance()->toString(array('scheme','host','port'));
 		
 		$query->select($db->qn('replace'))->select($db->qn('with'))
 			->from($db->qn('#__rscomments_emoticons'));
@@ -43,24 +44,24 @@ abstract class RSCommentsEmoticons {
 				$emoticons[$emoticon->replace] = $with;
 			}
 		} else {
-			$emoticons[':confused:'] = JURI::root().'components/com_rscomments/assets/images/emoticons/confused.gif';
-			$emoticons[':cool:'] = JURI::root().'components/com_rscomments/assets/images/emoticons/cool.gif';
-			$emoticons[':cry:'] = JURI::root().'components/com_rscomments/assets/images/emoticons/cry.gif';
-			$emoticons[':laugh:'] = JURI::root().'components/com_rscomments/assets/images/emoticons/laugh.gif';
-			$emoticons[':lol:'] = JURI::root().'components/com_rscomments/assets/images/emoticons/lol.gif';
-			$emoticons[':normal:'] = JURI::root().'components/com_rscomments/assets/images/emoticons/normal.gif';
-			$emoticons[':blush:'] = JURI::root().'components/com_rscomments/assets/images/emoticons/redface.gif';
-			$emoticons[':rolleyes:'] = JURI::root().'components/com_rscomments/assets/images/emoticons/rolleyes.gif';
-			$emoticons[':sad:'] = JURI::root().'components/com_rscomments/assets/images/emoticons/sad.gif';
-			$emoticons[':shocked:'] = JURI::root().'components/com_rscomments/assets/images/emoticons/shocked.gif';
-			$emoticons[':sick:'] = JURI::root().'components/com_rscomments/assets/images/emoticons/sick.gif';
-			$emoticons[':sleeping:'] = JURI::root().'components/com_rscomments/assets/images/emoticons/sleeping.gif';
-			$emoticons[':smile:'] = JURI::root().'components/com_rscomments/assets/images/emoticons/smile.gif';
-			$emoticons[':surprised:'] = JURI::root().'components/com_rscomments/assets/images/emoticons/surprised.gif';
-			$emoticons[':tongue:'] = JURI::root().'components/com_rscomments/assets/images/emoticons/tongue.gif';
-			$emoticons[':unsure:'] = JURI::root().'components/com_rscomments/assets/images/emoticons/unsure.gif';
-			$emoticons[':whistle:'] = JURI::root().'components/com_rscomments/assets/images/emoticons/whistling.gif';
-			$emoticons[':wink:'] = JURI::root().'components/com_rscomments/assets/images/emoticons/wink.gif';
+			$emoticons[':confused:'] = $root.JHtml::image('com_rscomments/emoticons/confused.gif', '', array(), true, 1);
+			$emoticons[':cool:'] = $root.JHtml::image('com_rscomments/emoticons/cool.gif', '', array(), true, 1);
+			$emoticons[':cry:'] = $root.JHtml::image('com_rscomments/emoticons/cry.gif', '', array(), true, 1);
+			$emoticons[':laugh:'] = $root.JHtml::image('com_rscomments/emoticons/laugh.gif', '', array(), true, 1);
+			$emoticons[':lol:'] = $root.JHtml::image('com_rscomments/emoticons/lol.gif', '', array(), true, 1);
+			$emoticons[':normal:'] = $root.JHtml::image('com_rscomments/emoticons/normal.gif', '', array(), true, 1);
+			$emoticons[':blush:'] = $root.JHtml::image('com_rscomments/emoticons/redface.gif', '', array(), true, 1);
+			$emoticons[':rolleyes:'] = $root.JHtml::image('com_rscomments/emoticons/rolleyes.gif', '', array(), true, 1);
+			$emoticons[':sad:'] = $root.JHtml::image('com_rscomments/emoticons/sad.gif', '', array(), true, 1);
+			$emoticons[':shocked:'] = $root.JHtml::image('com_rscomments/emoticons/shocked.gif', '', array(), true, 1);
+			$emoticons[':sick:'] = $root.JHtml::image('com_rscomments/emoticons/sick.gif', '', array(), true, 1);
+			$emoticons[':sleeping:'] = $root.JHtml::image('com_rscomments/emoticons/sleeping.gif', '', array(), true, 1);
+			$emoticons[':smile:'] = $root.JHtml::image('com_rscomments/emoticons/smile.gif', '', array(), true, 1);
+			$emoticons[':surprised:'] = $root.JHtml::image('com_rscomments/emoticons/surprised.gif', '', array(), true, 1);
+			$emoticons[':tongue:'] = $root.JHtml::image('com_rscomments/emoticons/tongue.gif', '', array(), true, 1);
+			$emoticons[':unsure:'] = $root.JHtml::image('com_rscomments/emoticons/unsure.gif', '', array(), true, 1);
+			$emoticons[':whistle:'] = $root.JHtml::image('com_rscomments/emoticons/whistling.gif', '', array(), true, 1);
+			$emoticons[':wink:'] = $root.JHtml::image('com_rscomments/emoticons/wink.gif', '', array(), true, 1);
 		}
 		
 		return $emoticons;

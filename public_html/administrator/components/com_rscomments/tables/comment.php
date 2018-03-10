@@ -9,11 +9,6 @@ defined('_JEXEC') or die('Restricted access');
 
 class RscommentsTableComment extends JTable
 {
-	/**
-	 * Constructor
-	 *
-	 * @param object Database connector object
-	 */
 	public function __construct(&$db) {
 		parent::__construct('#__rscomments_comments', 'IdComment', $db);
 	}

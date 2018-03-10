@@ -48,29 +48,6 @@ class RscommentsModelImport extends JModelAdmin {
 	}
 
 	/**
-	 *	Method to get rscomments plugins
-	 */
-	public function getPlugins() {
-		$plugins = JPluginHelper::getPlugin('rscomments'); 
-		return $plugins;
-	}
-
-	/**
-	 *	Method to register plugins
-	 */
-	public function registerPlugins() {
-		$dispatcher	= JDispatcher::getInstance();
-		$plugins = $this->getPlugins();
-
-		if (!empty($plugins)) {
-			foreach($plugins as $plugin) {
-				$class = 'plgRSComments'.$plugin->name;
-				new $class($dispatcher);
-			}
-		}
-	}
-
-	/**
 	 * Method to save data
 	 *
 	 * @return	boolean
@@ -86,20 +63,18 @@ class RscommentsModelImport extends JModelAdmin {
 		$data 			= $jform['rsc_col'];
 		$table			= $jinput->get('table', '');
 		$plugin_class 	= $jinput->get('class', '');
+		$return			= new stdClass();
 
-		if(!empty($plugin_class)) {
-			//load the plugins
+		if (!empty($plugin_class)) {
 			JPluginHelper::importPlugin('rscomments');
-			$dispatcher	= JDispatcher::getInstance();
-
-			$classname 	= 'plgRSComments'.strtolower($plugin_class);
-			$plugin 	= new $classname($dispatcher);
-			$count 		= $plugin->rscommentsImport();
-			$msg		= JText::_('COM_RSCOMMENTS_IMPORT_PLUGIN_NO_OK');
 			
-			if ($count) {
-				if ($count->comments > 0 || $count->subscriptions > 0) {
-					$msg = JText::sprintf('COM_RSCOMMENTS_IMPORT_PLUGIN_OK',$count->comments,$count->subscriptions);
+			JFactory::getApplication()->triggerEvent('rscommentsImport', array(array('plugin' => $plugin_class, 'return' => &$return)));
+			
+			$msg = JText::_('COM_RSCOMMENTS_IMPORT_PLUGIN_NO_OK');
+			
+			if ($return) {
+				if ($return->comments > 0 || $return->subscriptions > 0) {
+					$msg = JText::sprintf('COM_RSCOMMENTS_IMPORT_PLUGIN_OK',$return->comments,$return->subscriptions);
 				}
 			}
 		} else {

@@ -9,13 +9,6 @@ defined('_JEXEC') or die('Restricted access');
 
 class RscommentsControllerComment extends JControllerForm
 {
-	/**
-	 * Class constructor.
-	 *
-	 * @param   array  $config  A named array of configuration variables.
-	 *
-	 * @since	1.6
-	 */
 	public function __construct() {
 		parent::__construct();
 	}

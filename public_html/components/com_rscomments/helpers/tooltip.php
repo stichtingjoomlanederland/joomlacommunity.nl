@@ -15,36 +15,18 @@ abstract class RSTooltip {
 
 	// Get the tooltip class
 	public static function tooltipClass() {
-		return self::j3() ? 'hasTooltip' : 'hasTip';
+		return 'hasTooltip';
 	}
 
 	// Prepare the tooltip text
 	public static function tooltipText($title, $content = '') {
-		static $version;
-		if (!$version) {
-			$version = new JVersion();
-		}
-		
-		if ($version->isCompatible('3.1.2')) {
-			return JHtml::tooltipText($title, $content, 0, 0);
-		} else {
-			return $title.'::'.$content;
-		}
+		return JHtml::tooltipText($title, $content, 0, 0);
 	}
 
 	// Load tooltip
-	public static function tooltipLoad() {
-		if (self::j3()) {
-			$jversion = new JVersion();
-			
-			if ($jversion->isCompatible('3.3')) {
-				JHtml::_('behavior.core');
-			}
-			
-			JHtml::_('bootstrap.tooltip');
-		} else {
-			JHtml::_('behavior.tooltip');
-		}
+	public static function tooltipLoad() {	
+		JHtml::_('behavior.core');
+		JHtml::_('bootstrap.tooltip');
 	}
 }
 
