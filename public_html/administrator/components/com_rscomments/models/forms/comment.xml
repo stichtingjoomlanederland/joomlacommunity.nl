@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset name="main" label="COM_RSCOMMENTS_COMMENT_DETAILS" addfieldpath="/administrator/components/com_rscomments/models/fields">
+		<field name="published" type="radio" class="btn-group" label="COM_RSCOMMENTS_IMPORT_COMMENT_PUBLISHED" description="COM_RSCOMMENTS_IMPORT_COMMENT_PUBLISHED_DESC" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="name" type="text" class="input-xlarge" description="COM_RSCOMMENTS_COMMENT_AUTHOR_DESC" label="COM_RSCOMMENTS_COMMENT_AUTHOR" size="70" />
+		<field name="email" type="text" class="input-xxlarge" description="COM_RSCOMMENTS_COMMENT_EMAIL" label="COM_RSCOMMENTS_COMMENT_EMAIL_DESC" size="70" />
+		<field name="website" type="text" class="input-xxlarge" description="COM_RSCOMMENTS_COMMENT_WEBSITE" label="COM_RSCOMMENTS_COMMENT_WEBSITE_DESC" size="70" />
+		<field name="date" type="hidden" />
+		<field name="ip" type="hidden" />
+		<field name="votes" type="votes" parent="false" size="1" label="COM_RSCOMMENTS_COMMENT_VOTES" description="COM_RSCOMMENTS_COMMENT_VOTES_DESC" />
+		<field name="subject" type="text" class="input-xxlarge" description="COM_RSCOMMENTS_COMMENT_SUBJECT_DESC" label="COM_RSCOMMENTS_COMMENT_SUBJECT" size="70" />
+		<field name="comment" type="textarea" class="input-xxlarge" label="COM_RSCOMMENTS_COMMENT_MESSAGE" description="COM_RSCOMMENTS_COMMENT_MESSAGE_DESC" buttons="true" rows="12" cols="70" />
+		<field name="IdComment" type="hidden" />
+	</fieldset>
+</form>

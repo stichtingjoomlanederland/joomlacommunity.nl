@@ -1,0 +1,46 @@
+//banner
+.leaderboard-container {
+	display: block;
+	overflow: hidden;
+	max-width: 100%;
+	padding: 10px 0;
+	text-align: center;
+
+	.banner {
+		display: inline-block;
+		padding-left: 16px;
+		vertical-align: middle;
+		position: relative;
+		max-width: 100%;
+
+		&:before {
+			display: block;
+			position: absolute;
+			content: " ";
+			left: 1.5em;
+			bottom: 0;
+			display: block;
+			width: 45px;
+			height: 10px;
+			content: "Advertentie";
+			-webkit-transform: rotate(-90deg);
+			transform: rotate(-90deg);
+			-webkit-transform-origin: 0 100%;
+			transform-origin: 0 100%;
+			text-transform: uppercase;
+			font-size: 8px;
+			color: @text-color;
+			line-height: 11px;
+
+			@media (min-width: @screen-xs-max) {
+				font-size: 11px;
+				width: 90px;
+				height: 16px;
+			}
+		}
+
+		img {
+			width: 100%;
+		}
+	}
+}

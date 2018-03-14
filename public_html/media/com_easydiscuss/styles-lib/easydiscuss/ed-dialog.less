@@ -1,0 +1,375 @@
+/** 
+* @package      EasyDiscuss
+* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      Proprietary Use License https://stackideas.com/licensing
+**/
+
+
+@ed-dialog-gutter: @fd-base-spacing;
+@ed-dialog-header-size: 50px;
+@ed-dialog-footer-size: 48px;
+@ed-dialog-body-min-width: 320px;
+@ed-dialog-body-min-height: 120px;
+@ed-dialog-header-bg: @fd-ui-bg;
+@ed-dialog-body-bg: @fd-ui-bg;
+@ed-dialog-footer-bg: @fd-ui-bg;
+@ed-dialog-border-color: @fd-ui-bg;
+@ed-dialog-border-radius: 3px;
+
+&.ed-dialog {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	z-index: @zindex-dialog;
+	.transition(all .5s ease);
+	.transform_(scale(1.2));
+	opacity: 0;
+	// background: transparent;
+	background: rgba(0, 0, 0, 0.25);
+
+	&.active {
+		.transform_(scale(1));
+		opacity: 1;
+	}
+
+	&.is-loading {
+		.no-transition();
+	}
+
+	&.is-failed {
+		.o-empty {
+			display: inline-block;
+			min-height: 80px;
+
+		}
+	}
+	.o-empty__icon {
+		font-size: 30px;
+	}
+	.o-empty__text {
+		font-size: @fd-base-font-size--xl;
+	}
+	.ed-hint {
+		display: none;
+		background: @fd-ui-bg;
+		text-align: center;
+		margin: 0 auto;
+	}
+
+
+	// Override .widget which elements from administrator
+	.widget {
+		border: none;
+	}
+	
+	// #5333 Make popover display on top of dialog
+	+ .o-popover--es {
+		z-index: @zindex-dialog + 1;
+	}
+}
+
+.ed-dialog-modal {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	.transform_(translateX(-50%) translateY(-50%));
+
+	display: block;
+	border-radius: @ed-dialog-border-radius;
+	.box-shadow(0 2px 3px rgba(0,0,0,0.2));
+	max-width: 100%;
+	max-height: 100%;
+	min-width: @ed-dialog-body-min-width;
+	min-height: @ed-dialog-header-size + @ed-dialog-body-min-height;
+}
+
+&.ed-dialog.has-footer {
+
+	.ed-dialog-modal {
+		min-height: @ed-dialog-header-size + @ed-dialog-body-min-height + @ed-dialog-footer-size;
+	}
+}
+
+&.is-mobile {
+	.ed-dialog-header {
+		border-radius: 0;
+		text-align: center;
+		font-weight: 700;
+	}
+}
+
+.ed-dialog-header {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: @ed-dialog-header-size;
+	line-height: 38px;
+	z-index: 3;
+
+	background: @ed-dialog-header-bg;
+	border: 1px solid @ed-dialog-border-color;
+	border-bottom: none;
+	padding: @fd-base-spacing @fd-base-spacing--lg;
+	border-radius: @ed-dialog-border-radius @ed-dialog-border-radius 0 0;
+
+	&__grid {
+		.flex-display(flex);
+		.flex-wrap(wrap);
+		.align-items(center);
+		margin: 0;
+		padding: 0;
+		height: 100%;
+	}
+	&__cell {
+		text-align: center;
+		.flex(1 1 auto);
+	}
+}
+
+.ed-dialog-footer {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: @ed-dialog-footer-size;
+	z-index: 2;
+	display: none;
+
+	background: @ed-dialog-footer-bg;
+	border-top: 1px solid @fd-ui-border-color;
+	// border-top: none;
+	// padding: 0;
+	border-radius: 0 0 @ed-dialog-border-radius @ed-dialog-border-radius;
+}
+
+.ed-dialog-body {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+
+	border-top: @ed-dialog-header-size solid transparent;
+	border-bottom: 0;
+
+}
+
+.ed-dialog-container {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	overflow-x: hidden;
+
+	// Without footer
+	background: @ed-dialog-body-bg;
+	border: 1px solid @ed-dialog-border-color;
+	border-radius: 0 0 @ed-dialog-border-radius @ed-dialog-border-radius;
+}
+
+&.is-loading {
+	.ed-dialog-container {
+		overflow: hidden;
+	}
+}
+
+// With footer
+&.ed-dialog.has-footer {
+
+	.ed-dialog-body {
+		border-bottom: @ed-dialog-footer-size solid transparent;
+	}
+
+	.ed-dialog-container {
+		border-radius: 0;
+	}
+
+	.ed-dialog-footer {
+		display: block;
+	}
+}
+
+.ed-dialog-title {
+	font-size: @fd-base-font-size--xl;
+	font-weight: bold;
+	position: relative;
+	top: 8px;
+}
+.ed-dialog-back-button {
+	padding-right: @fd-base-spacing;
+	+ .ed-dialog-header__cell { // es-dialog-title wrapper
+		text-align: center;
+	}
+}
+.ed-dialog-back-button,
+.ed-dialog-close-button {
+	color: #bbb;
+	font-size: @fd-base-font-size--xl;
+	cursor: pointer;
+	text-align: center;
+	.flex(0 0 auto);
+	&:hover {
+		color: #888;
+	}
+
+	i {
+		// padding: 0 @ed-dialog-gutter / 6 0 @ed-dialog-gutter / 2;
+		position: relative;
+		top: -8px;
+		font-size: 20px;
+	}
+}
+
+.ed-dialog-content {
+	position: relative;
+	padding: @fd-base-spacing--sm @fd-base-spacing--lg;
+	font-size: @fd-base-font-size;
+	height: 100%;
+	* {
+		font-size: @fd-base-font-size;
+	}
+	
+}
+
+.ed-dialog-footer-content {
+	text-align: center;
+	border-radius: 0 0 @ed-dialog-border-radius @ed-dialog-border-radius;
+	overflow: hidden;
+	background-color: red;
+	.flex-display(flex);
+	.align-content(space-evenly);
+
+	.btn,
+	.btn:hover,
+	.btn:focus,
+	.btn:active {
+		.flex(1);
+		border-radius: 0;
+		height: @ed-dialog-footer-size;
+		border: 0 !important;
+		// border-bottom: 0 !important;
+		background-color: @fd-ui-bg !important;
+		background-image: none !important;
+		opacity: 1;
+
+		+ .btn {
+			border-left: 1px solid @fd-ui-border-color !important;
+		}
+	}
+	.btn-primary,
+	.btn-primary:hover,
+	.btn-primary:focus,
+	.btn-primary:active,
+	.btn-ed-primary,
+	.btn-ed-primary:hover,
+	.btn-ed-primary:focus,
+	.btn-ed-primary:active {
+		color: @btn-primary-bg !important;
+	}
+	.btn-danger,
+	.btn-danger:hover,
+	.btn-danger:focus,
+	.btn-danger:active,
+	.btn-ed-danger,
+	.btn-ed-danger:hover,
+	.btn-ed-danger:focus,
+	.btn-ed-danger:active {
+		color: @btn-danger-bg !important;
+	}
+}
+
+
+.ed-dialog-error-message {
+	display: block;
+	font-weight: normal;
+}
+
+&.ed-dialog.type-iframe {
+
+	.ed-dialog-container {
+		overflow: hidden;
+	}
+
+	.ed-dialog-content {
+		width: 100%;
+		height: 100%;
+		padding: 0;
+	}
+
+	iframe {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		border: 0;
+	}
+}
+
+&.is-mobile {
+	
+	&.ed-dialog {
+		// Since it have to cover full screen good to bring it top
+		z-index: 2147483647;
+		width: 100%;
+		height: 100%;
+	}
+	.ed-dialog-modal {
+		width: 100% !important; // Override inline style
+		height: 100% !important;
+		// height: 300px !important;
+		// left: 1%;
+	}
+	.ed-dialog-body {
+		-webkit-overflow-scrolling: touch;
+		overflow-y: scroll;
+	}
+}
+
+
+
+.ed-dialog-tabs {
+	.flex-display(flex);
+	.flex-wrap(nowrap);
+	border-bottom: 1px solid #DEE3E9;
+	line-height: 30px;
+	&--space-evenly {
+		.justify-content(space-evenly);
+	}
+	&__item {
+		// margin-right: @fd-base-spacing;
+		width: 100%;
+		text-align: center;
+
+
+		&.active {
+			border-bottom: 2px solid #61A6EF;
+			.o-box__tabs-link {
+				color: #222;
+			}
+		}
+		&.divider {
+			.flex(none);
+			width: 1px;
+			background-color: #DEE3E9;
+			margin: 0;
+			padding: 0;
+		}
+
+	}
+	&__link {
+		color: @fd-ui-meta-color;
+		display: block;
+		// background-color: red;
+		padding: @fd-base-spacing @fd-base-spacing;
+		white-space: nowrap;
+		&:hover {
+			text-decoration: none;
+		}
+	}
+}

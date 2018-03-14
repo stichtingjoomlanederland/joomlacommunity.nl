@@ -1,0 +1,12 @@
+[
+    {
+        "table": "#__discuss_posts",
+        "column": "cluster_id",
+        "query": "ALTER TABLE `#__discuss_posts` ADD COLUMN `cluster_id` INT(11) NULL default 0;"
+    },
+    {
+        "table": "#__discuss_posts",
+        "column": "cluster_type",
+        "query": "ALTER TABLE `#__discuss_posts` ADD COLUMN `cluster_type` VARCHAR(255) NULL default 0;"
+    }
+]

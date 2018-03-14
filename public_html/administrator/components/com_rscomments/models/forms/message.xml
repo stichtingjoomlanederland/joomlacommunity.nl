@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset name="comment_messages" label="COM_RSCOMMENTS_MESSAGES_SLIDER_COMMENTS" addfieldpath="/administrator/components/com_rscomments/models/fields">
+		<field name="tag" type="languagetag" description="COM_RSCOMMENTS_COMMENTS_TERMS_MESSAGE_LANG_DESC" label="COM_RSCOMMENTS_COMMENTS_TERMS_MESSAGE_LANG"/>
+		<field name="global" type="editor" class="input-xxlarge" description="COM_RSCOMMENTS_COMMENTS_GLOBAL_DESC" label="COM_RSCOMMENTS_COMMENTS_GLOBAL" rows="7" />
+		<field name="comments_closed" type="editor" class="input-xxlarge" description="COM_RSCOMMENTS_COMMENTS_CLOSED_DESC" label="COM_RSCOMMENTS_COMMENTS_CLOSED" rows="7" />
+		<field name="comments_denied" type="editor" class="input-xxlarge" description="COM_RSCOMMENTS_COMMENTS_DENIED_DESC" label="COM_RSCOMMENTS_COMMENTS_DENIED" rows="7" />
+	</fieldset>
+	<fieldset name="notification_messages" label="COM_RSCOMMENTS_MESSAGES_SLIDER_NOTIFICATION" addfieldpath="/administrator/components/com_rscomments/models/fields">
+		<field name="notification_message" type="editor" description="COM_RSCOMMENTS_COMMENTS_NOTIFICATION_DESC" label="COM_RSCOMMENTS_COMMENTS_NOTIFICATION" width="90%" />
+		<field name="subscription_message" type="editor" description="COM_RSCOMMENTS_COMMENTS_SUBSCRIPTION_DESC" label="COM_RSCOMMENTS_COMMENTS_SUBSCRIPTION" width="90%" />
+		<field name="report_message" type="editor" description="COM_RSCOMMENTS_COMMENTS_REPORT_MESSAGE_DESC" label="COM_RSCOMMENTS_COMMENTS_REPORT_MESSAGE" width="90%" />
+	</fieldset>
+	<fieldset name="terms" label="COM_RSCOMMENTS_MESSAGES_SLIDER_TERMS" addfieldpath="/administrator/components/com_rscomments/models/fields">
+		<field name="terms" type="editor" description="COM_RSCOMMENTS_MESSAGES_SLIDER_TERMS_DESC" label="COM_RSCOMMENTS_MESSAGES_SLIDER_TERMS" size="7" width="90%" />
+	</fieldset>
+</form>

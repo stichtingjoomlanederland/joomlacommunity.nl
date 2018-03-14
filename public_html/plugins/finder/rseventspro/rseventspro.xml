@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<extension version="3.1" type="plugin" group="finder" method="upgrade">
+	<name>plg_finder_rseventspro</name>
+	<author>RSJoomla!</author>
+	<creationDate>May 2013</creationDate>
+	<copyright>(C) 2005 - 2013 rsjoomla.com. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see	LICENSE.txt</license>
+	<authorEmail>supporttickets@rsjoomla.com</authorEmail>
+	<authorUrl>www.rsjoomla.com</authorUrl>
+	<version>1.0.1</version>
+	<description>PLG_FINDER_RSEVENTSPRO_XML_DESCRIPTION</description>
+	
+	<files>
+		<file plugin="rseventspro">rseventspro.php</file>
+    	<filename>index.html</filename>
+	</files>
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.plg_finder_rseventspro.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.plg_finder_rseventspro.sys.ini</language>
+	</languages>
+</extension>

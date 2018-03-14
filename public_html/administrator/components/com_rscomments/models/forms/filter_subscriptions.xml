@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fields name="filter">
+		<field name="search" type="text" label="JSEARCH_FILTER" hint="JSEARCH_FILTER" />
+		<field name="component" type="components" onchange="document.getElementById('rsc_filter_component_id').value='';this.form.submit();" class="input-large" default="">
+			<option value="">COM_RSCOMMENTS_SELECT_COMPONENT_LIST_ITEM</option>
+		</field>
+	</fields>
+
+	<fields name="list">
+		<field name="fullordering" type="list" onchange="this.form.submit();" default="IdSubscription DESC">
+			<option value="">JGLOBAL_SORT_BY</option>
+			<option value="IdSubscription ASC">JGRID_HEADING_ID_ASC</option>
+			<option value="IdSubscription DESC">JGRID_HEADING_ID_DESC</option>
+			<option value="name ASC">COM_RSCOMMENTS_NAME_ASC</option>
+			<option value="name DESC">COM_RSCOMMENTS_NAME_DESC</option>
+			<option value="email ASC">COM_RSCOMMENTS_EMAIL_ASC</option>
+			<option value="email DESC">COM_RSCOMMENTS_EMAIL_DESC</option>
+			<option value="option ASC">COM_RSCOMMENTS_COMPONENT_ASC</option>
+			<option value="option DESC">COM_RSCOMMENTS_COMPONENT_DESC</option>
+		</field>
+
+		<field name="limit" type="limitbox" default="25" class="input-mini" onchange="this.form.submit();" />
+	</fields>
+</form>

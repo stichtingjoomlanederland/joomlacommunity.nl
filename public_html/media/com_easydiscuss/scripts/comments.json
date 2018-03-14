@@ -1,0 +1,12 @@
+[
+    {
+        "language": [
+            "COM_EASYDISCUSS_TERMS_PLEASE_ACCEPT",
+            "COM_EASYDISCUSS_COMMENT_SUCESSFULLY_ADDED",
+            "COM_EASYDISCUSS_COMMENT_LOAD_MORE",
+            "COM_EASYDISCUSS_COMMENT_LOADING_MORE_COMMENTS",
+            "COM_EASYDISCUSS_COMMENT_LOAD_ERROR"
+        ],
+        "adapter": "EasyDiscuss"
+    }
+]

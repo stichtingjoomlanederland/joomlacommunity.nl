@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<field name="id" type="hidden" default="0" />
+	<field name="name" type="text" class="input-xxlarge" label="COM_RSEVENTSPRO_USER_NAME" description="COM_RSEVENTSPRO_USER_NAME_DESC" size="70" />
+	<field name="image" type="file" class="input-xxlarge" label="COM_RSEVENTSPRO_USER_IMAGE" description="COM_RSEVENTSPRO_USER_IMAGE_DESC" size="70" />
+	<field name="description" type="editor" label="JGLOBAL_DESCRIPTION" description="JGLOBAL_DESCRIPTION" class="inputbox" filter="JComponentHelper::filterText" buttons="true" hide="readmore,pagebreak" cols="50" rows="10" width="90%" height="300px" />
+</form>

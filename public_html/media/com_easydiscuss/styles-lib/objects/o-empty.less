@@ -1,0 +1,72 @@
+//
+// Empty
+// --------------------------------------------------
+/*
+DOM:
+<div class="component-xxx is-empty">
+    <div class="o-empty">
+        <div class="o-empty__content">
+            <i class="o-empty__icon fa fa-book"></i>
+            <div class="o-empty__text">Looks like you haven't post anything.</div>
+            <div class="o-empty__action t-mt--xl">
+                <a href="" class="btn btn-primary btn-lg">Ask Question</a>
+            </div>    
+        </div>
+    </div>
+</div>
+*/
+.o-empty {
+    width: 100%;
+    min-height: 200px;
+    display: inline-block;
+    text-align: center;
+    background-color: @fd-ui-bg;
+    position: relative;
+    display: none; // Display none by default.
+
+    &--height-no {
+        min-height: 0;
+    }
+    &--bg-no {
+        background-color: transparent;
+    }
+    &--bordered {
+        border: 1px solid @fd-ui-border-color;
+    }
+
+    
+    &__content {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    &__icon {
+        font-size: 40px;
+        color: @fd-ui-meta-color;
+    }
+    &__icon--sm {
+        font-size: 28px;
+        color: @fd-ui-meta-color;
+    }
+    &__text {
+        color: @fd-ui-text-color;
+    }
+    &__action {
+        margin-top: @fd-base-spacing--xl;
+    }
+}
+
+&.w480 {
+    .o-empty {
+        &--height-no {
+            min-height: 80px;
+        }
+    }
+}
+// State
+.is-empty {
+    .o-empty {
+        display: inline-block;
+    }
+}

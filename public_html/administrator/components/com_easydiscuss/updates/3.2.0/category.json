@@ -1,0 +1,27 @@
+[
+    {
+        "table"     : "#__discuss_category",
+        "column"    : "params",
+        "query"     : "ALTER TABLE `#__discuss_category` ADD `params` TEXT NOT NULL;"
+    },
+    {
+        "table"     : "#__discuss_category",
+        "column"    : "container",
+        "query"     : "ALTER TABLE `#__discuss_category` ADD `container` TINYINT(3) NOT NULL DEFAULT 0;"
+    },
+    {
+        "table"     : "#__discuss_category",
+        "index"     : "discuss_cat_mod_categories1",
+        "query"     : "alter table `#__discuss_category` add index `discuss_cat_mod_categories1` (`published`, `private`, `id`);"
+    },
+    {
+        "table"     : "#__discuss_category",
+        "index"     : "discuss_cat_mod_categories2",
+        "query"     : "alter table `#__discuss_category` add index `discuss_cat_mod_categories2` (`published`, `private`, `ordering`);"
+    },
+    {
+        "table"     : "#__discuss_category",
+        "index"     : "idx_cat_childs",
+        "query"     : "ALTER TABLE `#__discuss_category` ADD INDEX `idx_cat_childs` (`parent_id`, `published`, `lft`);"
+    }
+]

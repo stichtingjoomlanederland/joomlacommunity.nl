@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<extension type="file" method="upgrade" version="3.0">
+    <name>EasyDiscuss - Dutch (Netherlands) nl-NL Language Pack</name>
+    <version>4.0.8</version>
+    <creationDate>15 augustus 2016</creationDate>
+    <author>Martijn Maandag en Hans vd Meer</author>
+    <authorEmail>taal@joomlacommunity.eu</authorEmail>
+    <authorUrl>http://www.joomlacommunity.eu</authorUrl>
+    <copyright>© 2012-2016 - joomlacommunity.eu - All Rights Reserved.</copyright>
+    <license>GNU General Public License version 3 or later - http://www.gnu.org/licenses/gpl.html</license>
+    <packager>EasyDiscuss</packager>
+    <packagerurl>http://www.joomlacommunity.eu/</packagerurl>
+    <description>
+        <![CDATA[
+			<h2>EasyDiscuss Language Pack - Dutch (Netherlands) nl-NL Translation</h2>
+			<h3>Translators: Martijn Maandag en Hans vd Meer</h3>
+			Language resources on Transifex: EasyDiscuss [<a href="https://www.transifex.com/stack-ideas/ed4/">Dutch (Netherlands)</a>]<br/><br/>
+        ]]>
+    </description>
+    <fileset>
+        <files folder="admin" target="administrator">
+		<folder>language/nl-NL</folder>
+		</files>
+        <files folder="site" >
+		<folder>language/nl-NL</folder>
+		</files>
+    </fileset>
+
+</extension>

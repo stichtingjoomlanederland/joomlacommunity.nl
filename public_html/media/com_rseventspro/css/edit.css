@@ -1,0 +1,166 @@
+#rsepro-edit-container {
+   -moz-box-sizing:    border-box;   /* Firefox 1, probably can drop this */
+   -webkit-box-sizing: border-box;   /* Safari 3-4, also probably droppable */
+    box-sizing:        border-box;   /* Everything else */
+	position:		   relative;
+}
+
+#rsepro-edit-container form, 
+#rsepro-edit-container input, 
+#rsepro-edit-container textarea {
+   -moz-box-sizing:    content-box;   /* Firefox 1, probably can drop this */
+   -webkit-box-sizing: content-box;   /* Safari 3-4, also probably droppable */
+    box-sizing:        content-box;   /* Everything else */
+}
+
+.rsepro-edit-event a {
+	transition: color .5s;
+	outline: none;
+}
+
+.rsepro-edit-event li.active a.invalid,
+.rsepro-edit-event li.active a:hover.invalid,
+.rsepro-edit-event li.active a:focus.invalid {
+	border-top: 1px solid #9d261d;
+	border-left: 1px solid #9d261d;
+	border-bottom: 1px solid #9d261d;
+	color: #9d261d;
+}
+
+.rsepro-edit-event a:hover,
+.rsepro-edit-event a:focus {
+	text-decoration: none !important;
+	outline: none;
+}
+
+.rsepro-edit-event {
+	display: block;
+	width: auto;
+}
+
+.rsepro-edit-event.tabs-left > .nav-tabs {
+	border-right: none;
+	margin: 0 0 10px 0;
+}
+
+.rsepro-edit-event > .tab-content {
+	min-height: 900px;
+	padding: 20px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	overflow: hidden !important;
+}
+
+.rsepro-edit-event > .nav-tabs > li {
+	text-align: right;
+}
+
+.rsepro-edit-event > .nav-tabs .icon {
+	margin-left: 5px;
+}
+
+.rsepro-edit-event .control-group {
+	margin-bottom: 15px;
+}
+
+.rsepro-edit-event .rsepro-inline {
+	display: inline-block;
+	width: 10%;
+}
+
+.rsepro-edit-event .rsepro-hide {
+	display: none;
+}
+
+.rsepro-edit-event .rsepro-location-container,
+.rsepro-locations-container {
+	width: 66.2%;
+	position: absolute;
+	z-index: 999;
+}
+
+.rsepro-edit-event .rsepro-well {
+    margin-bottom: 50px;
+}
+
+.rsepro-edit-event .rsepro-location-map {
+	height: 200px;
+	width: 84%;
+}
+
+.rsepro-edit-event .rsepro-map-results-wrapper {
+	position: relative;
+}
+
+.rsepro-edit-event .rsepro-map-results {
+	position: absolute;
+    z-index: 999;
+    background-color: #fff;
+    list-style-type: none !important;
+    margin: 0 !important;
+    padding-right: 10px;
+    padding: 0 !important;
+	font-size: 13px !important;
+	white-space: normal !important;
+	width: 84%;
+	border: 1px solid #c8c8c8;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+}
+
+.rsepro-edit-event .rsepro-map-results > li,
+.rsepro-edit-event #rsepro-locations > li {
+    cursor: pointer;
+    padding: 5px;
+}
+
+.rsepro-edit-event .rsepro-loading {
+    background: url("../images/loader.gif") no-repeat scroll 99% center rgba(0, 0, 0, 0);
+}
+
+.rsepro-edit-event .rsepro-event-files > li,
+.rsepro-edit-event #rsepro-recurring-events > li {
+    margin-bottom: 5px;
+}
+
+.rsepro-edit-event #rsepro-recurring-events {
+	margin-top: 10px;
+}
+
+.control-label > label {
+    display: inline-block;
+}
+
+.rsepro-ticket a {
+    cursor: s-resize !important;
+}
+
+#rsepro-edit-container .form-actions > button {
+    margin-top: 5px;
+}
+
+@media screen and (max-width: 767px) {
+	#rsepro-edit-container .rsepro-edit-event .nav-tabs > .active > a,
+	#rsepro-edit-container .rsepro-edit-event .nav-tabs > .active > a:hover, 
+	#rsepro-edit-container .rsepro-edit-event .nav-tabs > .active > a:focus {
+		border-color: #ddd;
+		border-radius: 4px;
+	}
+	
+	.rsepro-edit-event .rsepro-well {
+		width: 98.5%;
+	}
+	
+	.rsepro-edit-event .rsepro-well .span10 {
+		width: 96%;
+	}
+	
+	.rsepro-edit-event .rsepro-location-map {
+		width: 99%;
+	}
+	
+	.rsepro-edit-event .rsepro-map-results {
+		width: 98%;
+	}
+}

@@ -1,0 +1,189 @@
+// Easydiscuss default and 3rd party editor
+// ----------------
+.ed-editor {
+    &__ft {
+        .clearfix();
+    }
+
+    &__input-list {
+        display: block;
+        margin-bottom: @fd-base-spacing;
+        >:not(:first-child) {
+            margin-top: @fd-base-spacing;    
+        }
+        
+        // Shouldn't show remove button on first item
+        .input-group {
+            width: 100%;
+            &:first-child {
+                .form-control {
+                    border-radius: @fd-ui-radius;
+                }
+                .input-group-btn {
+                    display: none;
+                }
+            }
+        }
+    }
+
+    &--bbcode {
+        .form-control {
+            border: none;
+            // border-bottom: 1px solid @fd-ui-border-color;
+        }
+    }
+}
+
+// When no tab enable in editor removed those border.
+.has-no-tab {
+    .markItUpContainer {
+        border-bottom: 0;
+    }
+    .ed-editor-tab {
+        display: none;
+    }
+}
+
+.ed-editor-widget {
+    background-color: @fd-ui-bg;
+    border: 1px solid @fd-ui-border-color;
+    margin-bottom: @fd-base-spacing--lg;
+
+    padding: @fd-base-spacing--lg;
+
+    &--no-pad {
+        padding: 0;
+    }
+
+    &__title {
+        font-weight: bold;
+        color: @fd-ui-text-color;
+    }
+    &__note {
+        font-size: @fd-base-font-size--xs;
+        color: @fd-ui-meta-color;
+        margin-bottom: @fd-base-spacing;
+    }
+}
+
+.ed-location-form {
+    
+    // Override .input-group
+    .input-group-btn {
+        vertical-align: top;
+    }
+    .selectize-input {
+        border-radius: @fd-ui-radius 0 0 @fd-ui-radius;
+
+        // Enforce to single row #1479
+        height: 34px;
+        .item {
+            height: 20px;
+            overflow: hidden;
+            vertical-align: top;
+        }
+    }
+    
+    .selectize-control.single .selectize-input::after {
+        display: none; // Hide caret
+    }
+    .selectize-control.single.loading::before {
+        right: 8px; // Caret not showing have to re position loading
+    }
+
+    &__map {
+        border: 1px solid @fd-ui-border-color;
+        background: @fd-ui-bg;
+        padding: @fd-base-spacing;
+
+        display: none; // Hide by default
+        margin-bottom: @fd-base-spacing;
+    }
+    &__map-inner {
+        border: 1px solid @fd-ui-border-color;
+    }
+    &__coords {
+        display: none; // Hide by default
+    }
+    
+    &.has-location {
+        .ed-location-form__map,
+        .ed-location-form__coords {
+            display: block;
+        }
+    }
+    
+    // Enforce size same with selectize-input hence it won't conflict due to .btn class being overridden.
+    .btn {
+        height: 34px !important;
+        padding: 6px 12px !important;
+    }
+}
+// Override for backend
+.app-content {
+    .ed-location-form__coords {
+        .form-group {
+            margin: 0 0 @fd-base-spacing !important;
+        }
+    }
+}
+
+.ed-editor-tab {
+    clear: both;
+    font-size: @fd-base-font-size--xs;
+    border-top: 1px solid @fd-ui-border-color;
+    &__content {
+        padding: @fd-base-spacing;
+        color: @fd-ui-meta-color;
+        &-note {
+            font-size: @fd-base-font-size--xs;
+            color: @fd-ui-meta-color;
+            margin-bottom: @fd-base-spacing;
+        }
+    }
+
+    li.has-error {
+        > a {
+            color: @state-danger-text;
+        }
+    }
+
+    
+}
+
+// Attachment Tabs
+.attachments-tab {
+
+    input[type=file] {
+        display: none;
+    }
+
+    .attachment-itemgroup {
+        .attachment-item {
+            margin-top: 8px;
+        }
+
+        .btn-file {
+            display: none;
+        }
+    }
+
+    .ed-attachment-form {
+        margin-top: 10px;
+
+        input[type=file] {
+            display: block;
+        }
+
+        > a,
+        .attachment-title,
+        .attachment-icon {
+            display: none;
+        }
+    }
+}
+
+.input-group-addon--captcha { // Override input-group-addon
+    width: 120px;
+}
+

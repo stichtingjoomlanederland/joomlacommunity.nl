@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+    <fieldset name="general" >
+        <field type="spacer" name="myspacer1" class="text"
+               label="COM_SPUPGRADE_CORE_LABEL" description="COM_SPUPGRADE_CORE_DESC"
+        />
+        <field
+            name="new_ids"
+            type="list"
+            default="2"
+            label="COM_SPUPGRADE_NEW_IDS_LABEL"
+            description="COM_SPUPGRADE_NEW_IDS_DESC">
+            <option value="1">COM_SPUPGRADE_NEW_IDS_OPTION_1</option>
+            <option value="0">COM_SPUPGRADE_NEW_IDS_OPTION_0</option>
+            <option value="2">COM_SPUPGRADE_NEW_IDS_OPTION_2</option>
+        </field> 
+        <field
+            name="duplicate_alias"
+            type="hidden"
+            default="1"
+            label="COM_SPUPGRADE_DUPLICATE_ALIAS_LABEL"
+            description="COM_SPUPGRADE_DUPLICATE_ALIAS_DESC">
+            <option value="1">Yes</option>
+            <option value="0">No</option>
+        </field> 
+        <field
+            name="batch"
+            type="number"
+            size="10"
+            default="100"
+            max="100000"
+            min="1"
+            label="COM_SPUPGRADE_BATCH_LABEL"
+            description="COM_SPUPGRADE_BATCH_DESC"
+        />
+    </fieldset>    
+    
+    <fieldset name="database">  
+        <field
+            name="driver"
+            type="list"
+            default="mysqli"
+            label="COM_SPUPGRADE_DRIVER_LABEL"
+            description="COM_SPUPGRADE_DRIVER_DESC">
+            <option value="mysqli">MySQLi</option>
+            <option value="mysql">MySQL</option>
+        </field>
+        <field
+            name="host"
+            type="text"
+            size="100"
+            default="localhost"
+            label="COM_SPUPGRADE_HOST_LABEL"
+            description="COM_SPUPGRADE_HOST_DESC"
+        />
+        <field
+            name="source_database_name"
+            type="text"
+            size="100"
+            default=""
+            label="COM_SPUPGRADE_SOURCE_DATABASE_NAME_LABEL"
+            description="COM_SPUPGRADE_SOURCE_DATABASE_NAME_DESC"
+        />
+        <field
+            name="source_user_name"
+            type="text"
+            size="100"
+            default=""
+            label="COM_SPUPGRADE_SOURCE_USERNAME_LABEL"
+            description="COM_SPUPGRADE_SOURCE_USERNAME_DESC"
+        />
+        <field
+            name="source_password"
+            type="password"
+            size="100"
+            default=""
+            label="COM_SPUPGRADE_SOURCE_PASSWORD_LABEL"
+            description="COM_SPUPGRADE_SOURCE_PASSWORD_DESC"
+        />
+        <field
+            name="source_db_prefix"
+            type="text"
+            size="100"
+            default="jos_"
+            label="COM_SPUPGRADE_SOURCE_DB_PREFIX_LABEL"
+            description="COM_SPUPGRADE_SOURCE_DB_PREFIX_DESC"
+        />
+        <!--
+        <field
+            name="source_path"
+            type="text"
+            size="100"
+            default=""
+            label="COM_SPUPGRADE_SOURCE_PATH_LABEL"
+            description="COM_SPUPGRADE_SOURCE_PATH_DESC"
+        />
+        -->
+    </fieldset>
+    <fieldset name="ftp">
+        <field
+            name="ftp_host"
+            type="text"
+            size="100"
+            default="localhost"
+            label="COM_SPUPGRADE_FTP_HOST_LABEL"
+            description="COM_SPUPGRADE_FTP_HOST_DESC"
+        />
+        <field
+            name="ftp_port"
+            type="text"
+            size="100"
+            default="21"
+            label="COM_SPUPGRADE_FTP_PORT_LABEL"
+            description="COM_SPUPGRADE_FTP_PORT_DESC"
+        />
+        <field
+            name="ftp_user"
+            type="text"
+            size="100"
+            default=""
+            label="COM_SPUPGRADE_FTP_USER_LABEL"
+            description="COM_SPUPGRADE_FTP_USER_DESC"
+        />
+        <field
+            name="ftp_pass"
+            type="password"
+            size="100"
+            default=""
+            label="COM_SPUPGRADE_FTP_PASSWORD_LABEL"
+            description="COM_SPUPGRADE_FTP_PASSWORD_DESC"
+        />
+        <field
+            name="ftp_root"
+            type="text"
+            size="100"
+            default="/"
+            label="COM_SPUPGRADE_FTP_ROOT_LABEL"
+            description="COM_SPUPGRADE_FTP_ROOT_DESC"
+        />
+    </fieldset>
+    <fieldset
+        name="permissions"
+        label="JCONFIG_PERMISSIONS_LABEL"
+        description="JCONFIG_PERMISSIONS_DESC"
+    >
+
+        <field
+            name="rules"
+            type="rules"
+            label="JCONFIG_PERMISSIONS_LABEL"
+            class="inputbox"
+            validate="rules"
+            filter="rules"
+            component="com_spupgrade"
+            section="component" />
+    </fieldset>
+        
+</config>
+
+                

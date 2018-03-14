@@ -1,0 +1,664 @@
+/*
+@package	ACL Manager for Joomla
+@copyright 	Copyright (c) 2011-2016 Sander Potjer
+@license 	GNU General Public License version 3 or later
+*/
+
+/* ACL Manager */
+div#aclmanager {
+	overflow: hidden;
+}
+
+div.copyright {
+    margin: 10px 0 0;
+    text-align: center;
+}
+
+.icon-48-aclmanager,
+.icon-48-liveupdate {
+	background-image:url('../images/icon-48-aclmanager.png');
+}
+
+.icon-32-print {
+	background-image:url('../images/icon-32-print.png');
+}
+
+/* Table styling */
+table#global-aclmanager tr.select {
+	height: 165px;
+}
+
+table#global-aclmanager tr.select td {
+	text-align: center;
+}
+
+table#global-aclmanager tr.select span.select {
+	color: #146295;
+    font-size: 1.182em;
+    font-weight: bold;
+}
+
+table#global-aclmanager tbody tr.row1 td.rule {
+	background: #FFFFFF;
+	text-align: center;
+}
+
+table#global-aclmanager tbody tr.row1:hover td.rule {
+	background: #E8F6FE;
+}
+
+table#global-aclmanager tbody tr.row1:hover td.norule {
+	background: #DBE4E9;
+}
+
+table#global-aclmanager tbody tr td.rule.conflict,
+table#global-aclmanager tbody tr:hover td.rule.conflict,
+li.rule.conflict,
+#aclmanager fieldset.hasupdates {
+    background-color: #FFFFCF;
+}
+
+table#global-aclmanager tbody tr td.rule.allowed,
+table#global-aclmanager tbody tr:hover td.rule.allowed,
+li.rule.allowed,
+#aclmanager fieldset.fixed,
+#aclmanager fieldset.noupdates {
+	background-color: #CFFFDA;
+}
+
+table#global-aclmanager tbody tr td.rule.denied,
+table#global-aclmanager tbody tr:hover td.rule.denied,
+li.rule.denied,
+#aclmanager fieldset.issues {
+	background-color: #FFCFCF;
+}
+
+table#global-aclmanager tbody tr.trashed td,
+table#global-aclmanager tbody tr.trashed td a {
+	color: #999999;
+}
+
+table#global-aclmanager tbody tr div.icons {
+	float: left;
+}
+
+table#global-aclmanager tbody tr div.title {
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+table#global-aclmanager tbody tr span.title {
+	font-size: 1.1em;
+}
+
+table#global-aclmanager tbody tr span.title a {
+   width: 500px;
+}
+
+table#global-aclmanager,
+table#persistent {
+	table-layout: fixed;
+}
+
+table#persistent.show thead {
+	display: block;
+	top: 75px;
+	width: 72.3%
+}
+
+table.aclmanager thead th.brrgt,
+table.aclmanager tbody td.brrgt {
+	border-right: 1px solid #CCCCCC;
+}
+
+table.aclmanager thead th.brlft,
+table.aclmanager tbody td.brlft {
+	border-left: 1px solid #CCCCCC;
+}
+
+table#persistent thead {
+	display: none;
+	table-layout: fixed;
+	position: fixed;
+	top: 0px;
+	z-index: 1;
+	background: #F4F4F4;
+	margin: 0 0 -1px -1px;
+
+	-webkit-box-shadow: 0 8px 6px -6px #CCCCCC;
+	-moz-box-shadow: 0 8px 6px -6px #CCCCCC;
+	box-shadow: 0 8px 6px -6px #CCCCCC;
+}
+
+#updates pre {
+	font-size: 12px;
+	line-height: 18px;
+}
+
+p.last {
+	margin-bottom: 0;
+}
+
+.fieldseticon {
+	float: right;
+	margin: 0 0 0 10px;
+}
+
+.aclmanagerlogo {
+	max-width: 400px;
+	width: 100%;
+	margin-bottom: 10px;
+}
+
+#filter-bar {
+	background: none;
+	padding: 0;
+}
+
+p.intro {
+	min-height: 30px;
+	margin-bottom: 0;
+}
+
+fieldset.aclhome {
+	min-height: 400px;
+}
+
+tr:hover span.gi {
+    color: #333333;
+}
+
+tr.row1.hidden {
+	display: none;
+}
+
+.fixfirst {
+	color: #cccccc;
+}
+
+.fixfirst  h3 {
+	color: #000000;
+}
+
+/* Icons */
+span.icon-16-article,
+span.icon-16-category,
+span.icon-16-component,
+span.icon-16-config,
+span.icon-16-groups,
+span.icon-16-module {
+	display:block;
+	float: right;
+	height:16px;
+	margin: -2px 5px -2px 5px;
+	width:16px;
+}
+
+span.icon-16-article {
+    background-image: url('../images/icon-16-article.png');
+}
+
+span.icon-16-category {
+    background-image: url('../images/icon-16-category.png');
+}
+
+span.icon-16-component {
+    background-image: url('../images/icon-16-component.png');
+}
+
+span.icon-16-config {
+    background-image: url('../images/icon-16-config.png');
+}
+
+span.icon-16-groups {
+    background-image: url('../images/icon-16-groups.png');
+}
+
+span.icon-16-module {
+    background-image: url('../images/icon-16-module.png');
+}
+
+span.icon-16-aclmanager {
+    background-image: url('../images/icon-16-aclmanager.png');
+    float: right;
+    display: inline-table;
+	height:16px;
+	width:16px;
+}
+
+#global-aclmanager a.icon-16-config {
+	display:block;
+	height:16px;
+	margin:0 auto;
+	width:16px;
+}
+
+span.type {
+	margin-left: 0;
+}
+
+span.gi {
+	float: left;
+}
+
+#system-message,
+#system-message > dd > ul {
+	margin-bottom: 0 !important;
+}
+
+
+/* Sidebar */
+fieldset.adminform ul.adminformlist span.value {
+    border: 0 none;
+    color: #666666;
+    font-family: Arial,Helvetica,sans-serif;
+	font-size: 1.091em;
+    font-weight: bold;
+    float: left;
+    margin: 5px 0;
+}
+
+fieldset.adminform ul.adminformlist span.value.link {
+    font-weight: normal;
+}
+
+fieldset.adminform ul.adminformlist label {
+   	min-width: 75px;
+}
+
+fieldset.adminform span.noresult {
+   font-size: 1.091em;
+   margin: 5px 0;
+   display: block;
+}
+
+fieldset label {
+	font-size: 1.091em;
+}
+
+
+/* Rules images */
+.rule span.icon {
+    display: inline-block;
+    height: 16px;
+    width: 16px;
+    background: no-repeat;
+}
+
+.rule span.unset {
+    background-image: url('../images/disabled.png');
+}
+
+.rule span.allowed {
+    background-image: url('../images/tick.png');
+}
+
+.rule span.allowed-i {
+    background-image: url('../images/icon-16-allow.png');
+}
+
+.rule span.denied {
+    background-image: url('../images/publish_x.png');
+}
+
+.rule span.icon.denied-i {
+    background-image: url('../images/icon-16-locked.png');
+    width: 36px;
+}
+
+.rule span.locked {
+    background-image: url('../images/checked_out.png');
+}
+
+.rule span.conflict {
+    background-image: url('../images/publish_y.png');
+}
+
+.rule span.legend {
+	height: 16px;
+	line-height: 16px;
+	padding-left: 5px;
+	font-size: 1.091em;
+}
+
+.rule {
+	line-height: 20px;
+}
+
+.rule span.icon {
+	float: left;
+	width: 20px;
+	height: 20px;
+	background-position: 50% 50%;
+}
+
+a.icon {
+	display: block;
+	height: 16px;
+	width: 100%;
+	margin: 0 auto;
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+}
+
+a.notset {
+	background-image: url(../images/disabled.png);
+}
+
+a.allow {
+	background-image: url(../images/tick.png);
+}
+
+a.deny {
+	background-image: url(../images/publish_x.png);
+}
+
+a.allowinactive {
+	background-image: url(../images/icon-16-allow.png);
+}
+
+a.locked {
+	background-image: url(../images/icon-16-locked.png);
+}
+
+a.conflict {
+	background-image: url(../images/publish_y.png);
+}
+
+a.link:hover {
+ cursor:pointer;
+}
+
+
+/* 3rd party actions */
+table.extra {
+	width: 100%;
+}
+
+table#global-aclmanager td.extra,
+table#global-aclmanager td.extra td {
+	padding-left: 4px;
+}
+
+table#global-aclmanager tbody tr.row1 table.extra td,
+table#global-aclmanager tbody tr.row1:hover table.extra td {
+	background: #ffffff;
+}
+
+table#global-aclmanager td.extra .pane-sliders,
+table#global-aclmanager td.extra .pane-sliders .panel {
+	margin: 0;
+}
+
+table#global-aclmanager td.extra .pane-toggler-down {
+    border-bottom: none;
+}
+
+table#global-aclmanager td.extra h3 {
+	font-size: 1.0em;
+}
+
+table#global-aclmanager table.extra {
+	border-spacing: 0;
+}
+
+table#global-aclmanager table.extra td {
+	border: none;
+	border-top: 1px solid #CCCCCC;
+}
+
+table#global-aclmanager table.extra td.rule {
+	border-left: 1px solid #CCCCCC;
+}
+
+/* RT Mission control fixes */
+div.width-35 {
+	width: 35%;
+}
+
+fieldset ul {
+	margin: 0;
+	padding: 0;
+}
+
+fieldset li {
+    list-style: none outside none;
+    margin: 0;
+    padding: 5px;
+}
+
+table.adminlist {
+	margin-bottom: 0;
+}
+
+/* Reset template */
+#reset {
+	display: none;
+}
+
+p.reset {
+	margin: 0 0 10px 0;
+}
+
+/* Bootstrap */
+table.nomargin {
+	margin-bottom: 0;
+}
+
+.desc p {
+	min-height: 60px;
+}
+
+.well.groups,
+.well.users {
+	min-height:500px;
+}
+
+.well.aclmanager dl {
+	margin-bottom: 0;
+}
+
+.well.installed dl {
+	margin: 0;
+}
+
+.diagnostictable {
+	background: #fff;
+	color: #333;
+}
+
+.sidebar-nav .nav-list > li.error a,
+li.error a {
+	color: #B94A48;
+}
+
+.sidebar-nav .nav-list > li.success a,
+li.success a {
+	color: #468847;
+}
+
+.bootstrap #assetissues,
+.bootstrap #missingassets,
+.bootstrap #adminconflicts {
+	margin-top: -120px;
+	padding-top: 120px;
+}
+
+.unstyled.checks {
+	font-size: 14px;
+}
+
+.unstyled.checks > li  {
+	padding: 3px 0;
+}
+
+.bootstrap table.aclmanager thead th.brrgt,
+.bootstrap table.aclmanager tbody td.brrgt {
+	border-right: 0;
+}
+
+.bootstrap table.table th {
+	text-align: center;
+}
+
+.bootstrap table.table th.brrgt {
+	text-align: left;
+}
+
+.bootstrap table.table th.brrgt.brlft {
+	text-align: center;
+}
+
+.bootstrap table {
+	margin-bottom: 18px;
+}
+
+dl.info {
+	font-size: 1.091em;
+	margin: 0;
+}
+
+/* Datatables */
+.dataTables_wrapper {
+	overflow: hidden;
+	width: 100%;
+	position: relative;
+	display: block;
+	top: -15px;
+}
+
+.bootstraphome .dataTables_wrapper,
+.bootstrap .dataTables_wrapper {
+	top: -27px;
+}
+
+.dataTables_processing {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 250px;
+	height: 20px;
+	margin-left: -125px;
+	margin-top: -15px;
+	padding: 5px 0 2px 0;
+	border: 1px solid #ddd;
+	text-align: center;
+	color: #999;
+	font-size: 14px;
+	background-color: white;
+}
+
+fieldset.adminform .dataTables_filter label,
+fieldset.adminform .dataTables_length label {
+	margin: 0 0 5px 0;
+	line-height: 15px;
+}
+
+.bootstraphome .dataTables_filter label,
+.bootstraphome .dataTables_length label {
+	line-height: 25px;
+}
+
+.dataTables_filter {
+	width: 100%;
+}
+
+.dataTables_filter input {
+	float: right;
+	margin: 0 0 0 5px;
+	width: 70%;
+}
+
+.bootstraphome .dataTables_filter input,
+.bootstrap .dataTables_filter input {
+	float: inherit;
+	margin: 0 0 0 5px;
+	width: 30%;
+}
+
+.dataTables_length select {
+	margin: 0 5px 0 0;
+	width: 50px;
+	float: left;
+}
+
+.dataTables_length {
+	float: left;
+	height: 30px;
+	margin-top: 4px;
+	width: 45%;
+}
+
+.dataTables_paginate {
+	float: right;
+	text-align: right;
+	height: 20px;
+	margin-top: 7px;
+}
+
+.dataTables_paginate a,
+a.new-button {
+	background: none repeat scroll 0 0 #FFFFFF;
+	border: 1px solid #CCCCCC;
+	text-decoration: none;
+	padding: 2px 5px;
+	margin: 0 0 0 5px;
+}
+
+.dataTables_paginate a:hover,
+a.new-button:hover {
+	background: none repeat scroll 0 0 #E8F6FE;
+	border: 1px solid #AAAAAA;
+	cursor: pointer;
+	text-decoration: none;
+}
+
+.bootstraphome .dataTables_paginate a,
+.bootstraphome a.new-button {
+	border-radius: 4px 4px 4px 4px;
+	line-height: 18px;
+	padding: 4px 14px;
+	vertical-align: middle;
+}
+
+table.adminlist tr.even td {
+    background-color: #F0F0F0;
+}
+
+table.adminlist .sorting_asc {
+	background: url('../images/sort_asc.png') no-repeat center right;
+}
+
+table.adminlist .sorting_desc {
+	background: url('../images/sort_desc.png') no-repeat center right;
+}
+
+table.adminlist .sorting {
+	background: url('../images/sort_both.png') no-repeat center right;
+}
+
+table.display thead th:active,
+table.display thead td:active {
+	outline: none;
+}
+
+a.new-button {
+	float: right;
+	clear: both;
+	margin-top: 5px;
+	z-index: 1;
+	position: relative;
+}
+
+#groups.sidebar .gi {
+	display: none;
+}
+
+h1.page-title .icon-aclmanager {
+	background-image: url('../images/icon-aclmanager.png');
+	width: 19px;
+	height: 25px;
+	position: relative;
+	top: 5px;
+	margin-right: 12px;
+}

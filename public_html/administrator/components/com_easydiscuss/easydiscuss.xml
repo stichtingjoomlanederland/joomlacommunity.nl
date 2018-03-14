@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="3.0.0" method="upgrade">
+	<name>com_easydiscuss</name>
+	<author>StackIdeas</author>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://www.stackideas.com</authorUrl>
+	<copyright>Copyright 2009 - 2012 Stack Ideas. All rights reserved</copyright>
+	<license>GPL License</license>
+	<version>4.0.22</version>
+	<creationDate>13th February 2018</creationDate>
+	<description>
+		Discussion extension for your Joomla! site.
+	</description>
+	<scriptfile>script.php</scriptfile>
+	<administration>
+		<menu link="option=com_easydiscuss" img="../media/com_easydiscuss/images/easydiscuss-favicon.png">COM_EASYDISCUSS</menu>
+		<submenu>
+			<menu view="settings">COM_EASYDISCUSS_ADMIN_MENU_SETTINGS</menu>
+			<menu view="posts">COM_EASYDISCUSS_MENU_DISCUSSIONS</menu>
+			<menu view="autoposting">COM_EASYDISCUSS_ADMIN_MENU_AUTOPOSTING</menu>
+			<menu view="categories">COM_EASYDISCUSS_ADMIN_MENU_CATEGORIES</menu>
+			<menu view="tags">COM_EASYDISCUSS_ADMIN_MENU_TAGS</menu>
+			<menu view="users">COM_EASYDISCUSS_ADMIN_MENU_USERS</menu>
+			<menu view="roles">COM_EASYDISCUSS_ADMIN_MENU_ROLES</menu>
+			<menu view="acls">COM_EASYDISCUSS_ADMIN_MENU_ACL</menu>
+			<menu view="reports">COM_EASYDISCUSS_ADMIN_MENU_REPORTS</menu>
+			<menu view="subscription">COM_EASYDISCUSS_ADMIN_MENU_SUBSCRIPTION</menu>
+			<menu view="badges">COM_EASYDISCUSS_ADMIN_MENU_BADGES</menu>
+			<menu view="points">COM_EASYDISCUSS_ADMIN_MENU_POINTS</menu>
+			<menu view="ranks">COM_EASYDISCUSS_ADMIN_MENU_RANKING</menu>
+			<menu view="customfields">COM_EASYDISCUSS_ADMIN_MENU_CUSTOMFIELDS</menu>
+			<menu view="spools">COM_EASYDISCUSS_ADMIN_MENU_SPOOLS</menu>
+		</submenu>
+		<files folder="admin">
+			<folder>languages</folder>
+			<folder>setup</folder>
+			<file>access.xml</file>
+			<file>config.xml</file>
+			<file>easydiscuss.php</file>
+			<file>easydiscuss.xml</file>
+			<file>script.php</file>
+			<file>setup.php</file>
+		</files>
+		<languages>
+			<language tag="en-GB">languages/admin/en-GB.com_easydiscuss.ini</language>
+			<language tag="en-GB">languages/admin/en-GB.com_easydiscuss.sys.ini</language>
+		</languages>
+	</administration>
+	<languages>
+		<language tag="en-GB">languages/site/en-GB.com_easydiscuss.ini</language>
+	</languages>
+	<updateservers>
+		<server type="extension" name="EasyDiscuss Update Site">https://stackideas.com/jupdates/manifest/easydiscuss</server>
+	</updateservers>
+</extension>

@@ -1,0 +1,46 @@
+// Switch
+// ----------------
+/*
+Markup:
+<div class="o-onoffswitch">
+	<input type="checkbox" name="onoffswitch" class="o-onoffswitch__checkbox" id="onoffswitch" checked>
+	<label class="o-onoffswitch__label" for="onoffswitch"></label>
+</div>
+
+*/
+
+
+	
+.o-onoffswitch {
+	position: relative; width: 40px;
+	-webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+	margin-top: 4px;
+}
+.o-onoffswitch__checkbox {
+	display: none;
+}
+.o-onoffswitch__label {
+	display: block; overflow: hidden; cursor: pointer;
+	height: 16px; padding: 0; line-height: 16px;
+	border: 2px solid #CCCCCC; border-radius: 16px;
+	background-color: #E6E6E6;
+	transition: background-color 0.3s ease-in;
+}
+.o-onoffswitch__label:before {
+	content: "";
+	display: block; width: 16px; margin: 0px;
+	background: #FFFFFF;
+	position: absolute; top: 0; bottom: 0;
+	right: 24px;
+	border: 2px solid #CCCCCC; border-radius: 16px;
+	transition: all 0.3s ease-in 0s; 
+}
+.o-onoffswitch__checkbox:checked + .o-onoffswitch__label {
+	background-color: #39b54a;
+}
+.o-onoffswitch__checkbox:checked + .o-onoffswitch__label, .o-onoffswitch__checkbox:checked + .o-onoffswitch__label:before {
+   border-color: #39b54a;
+}
+.o-onoffswitch__checkbox:checked + .o-onoffswitch__label:before {
+	right: 0px; 
+}

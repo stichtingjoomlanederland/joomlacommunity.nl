@@ -1,0 +1,17 @@
+//breadcrumb
+.breadcrumb {
+	padding: 0px 15px;
+	margin-bottom: 15px;
+	font-size: 14px;
+
+	> li {
+		+ li:before {
+			display: none;
+		}
+
+		+ li + li:before {
+			display: inline-block;
+			padding: 0 0 0 3px;
+		}
+	}
+}

@@ -1,0 +1,7 @@
+[
+    {
+        "table": "#__discuss_notifications",
+        "column": "anonymous",
+        "query": "ALTER TABLE `#__discuss_notifications` ADD `anonymous` tinyint(1) default 0;"
+    }
+]

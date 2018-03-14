@@ -1,0 +1,7 @@
+[
+	{
+		"table": "#__discuss_posts",
+		"index": "idx_alias",
+		"query": "ALTER TABLE `#__discuss_posts` ADD INDEX `idx_alias` (`alias` (255))"
+	}
+]

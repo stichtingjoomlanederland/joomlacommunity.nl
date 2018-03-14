@@ -1,0 +1,7 @@
+[
+    {
+        "table"     : "#__discuss_oauth",
+        "index"     : "discuss_oauth_type",
+        "query"     : "ALTER TABLE `#__discuss_oauth` ADD INDEX `discuss_oauth_type` (`type`);"
+    }
+]

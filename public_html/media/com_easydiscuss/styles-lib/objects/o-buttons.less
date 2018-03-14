@@ -1,0 +1,305 @@
+//
+// Buttons
+// --------------------------------------------------
+
+
+// Base styles
+// --------------------------------------------------
+// Have to use !important for our own to prevent conflict with other templates.
+.btn {
+	display: inline-block;
+	margin-bottom: 0; // For input.btn
+	font-weight: @btn-font-weight;
+	text-align: center;
+	vertical-align: middle;
+	touch-action: manipulation;
+	cursor: pointer;
+	background-image: none; // Reset unusual Firefox-on-Android default style ; see https://github.com/necolas/normalize.css/issues/214
+	border: 1px solid transparent;
+	white-space: nowrap;
+	text-shadow: none;
+	box-shadow: none;
+	.button-size(@padding-base-vertical; @padding-base-horizontal; @font-size-base; @line-height-base; @btn-border-radius-base);
+	.user-select(none);
+
+	&,
+	&:active,
+	&.active {
+		&:focus,
+		&.focus {
+			.tab-focus();
+		}
+	}
+
+	&:hover,
+	&:focus,
+	&.focus {
+		color: @btn-default-color;
+		text-decoration: none;
+	}
+
+	&:active,
+	&.active {
+		outline: 0;
+		background-image: none;
+		.box-shadow(inset 0 3px 5px rgba(0,0,0,.125));
+	}
+
+	&.disabled,
+	&[disabled],
+	fieldset[disabled] & {
+		cursor: @cursor-disabled;
+		.opacity(.65);
+		.box-shadow(none);
+	}
+
+	a& {
+		&.disabled,
+		fieldset[disabled] & {
+			pointer-events: none; // Future-proof disabling of clicks on `<a>` elements
+		}
+	}
+}
+
+
+// Alternate buttons
+// --------------------------------------------------
+
+.btn-default {
+	.button-variant(@btn-default-color; @btn-default-bg; @btn-default-border) !important;
+}
+.btn-primary {
+	.button-variant(@btn-primary-color; @btn-primary-bg; @btn-primary-border) !important;
+}
+// Success appears as green
+.btn-success {
+	.button-variant(@btn-success-color; @btn-success-bg; @btn-success-border) !important;
+}
+// Info appears as blue-green
+.btn-info {
+	.button-variant(@btn-info-color; @btn-info-bg; @btn-info-border) !important;
+}
+// Warning appears as orange
+.btn-warning {
+	.button-variant(@btn-warning-color; @btn-warning-bg; @btn-warning-border) !important;
+}
+// Danger and error appear as red
+.btn-danger {
+	.button-variant(@btn-danger-color; @btn-danger-bg; @btn-danger-border) !important;
+}
+
+// Yew another set for ED
+// ED outline without background color
+.button-variant-ed-o(@color) {
+	color: @color !important;
+	background-color: @fd-ui-bg !important;
+	border-color: @fd-ui-border-color !important;
+
+	&:focus,
+	&.focus {
+		color: @color !important;
+	}
+	&:hover {
+		color: @color !important;
+	}
+	&:active,
+	&.active,
+	.open > .dropdown-toggle& {
+		color: @color !important;
+
+		&:hover,
+		&:focus,
+		&.focus {
+			color: @color !important;
+		}
+	}
+	&:active,
+	&.active,
+	.open > .dropdown-toggle& {
+		background-image: none !important;
+	}
+ 
+}
+.btn-ed-default-o {
+	.button-variant-ed-o(@btn-default-color);
+}
+.btn-ed-primary-o {
+	.button-variant-ed-o(@btn-primary-bg);
+}
+.btn-ed-success-o {
+	.button-variant-ed-o(@btn-success-bg;);
+}
+.btn-ed-danger-o {
+	.button-variant-ed-o(@btn-danger-bg;);
+}
+
+// Link buttons
+// -------------------------
+
+// Make a button look and behave like a link
+.btn-link {
+	color: @link-color;
+	font-weight: normal;
+	border-radius: 0;
+
+	&,
+	&:active,
+	&.active,
+	&[disabled],
+	fieldset[disabled] & {
+		background-color: transparent;
+		.box-shadow(none);
+	}
+	&,
+	&:hover,
+	&:focus,
+	&:active {
+		border-color: transparent;
+	}
+	&:hover,
+	&:focus {
+		color: @link-hover-color;
+		text-decoration: @link-hover-decoration;
+		background-color: transparent;
+	}
+	&[disabled],
+	fieldset[disabled] & {
+		&:hover,
+		&:focus {
+			color: @btn-link-disabled-color;
+			text-decoration: none;
+		}
+	}
+}
+
+
+// Button Sizes
+// --------------------------------------------------
+
+.btn-lg {
+	// line-height: ensure even-numbered height of button next to large input
+	.button-size(@padding-large-vertical; @padding-large-horizontal; @font-size-large; @line-height-large; @btn-border-radius-large);
+}
+.btn-sm {
+	// line-height: ensure proper height of button next to small input
+	.button-size(@padding-small-vertical; @padding-small-horizontal; @font-size-small; @line-height-small; @btn-border-radius-small);
+}
+.btn-xs {
+	.button-size(@padding-xs-vertical; @padding-xs-horizontal; @font-size-small; @line-height-small; @btn-border-radius-small);
+}
+
+
+// Block button
+// --------------------------------------------------
+
+.btn-block {
+	display: block;
+	width: 100%;
+}
+
+// Vertically space out multiple block buttons
+.btn-block + .btn-block {
+	margin-top: 5px;
+}
+
+// Specificity overrides
+input[type="submit"],
+input[type="reset"],
+input[type="button"] {
+	&.btn-block {
+		width: 100%;
+	}
+}
+
+
+
+
+.btn-group-yesno {
+	width: auto;
+	min-width: 90px;
+	display: inline-block;
+
+	margin: 0 auto;
+	vertical-align: middle;
+	white-space: nowrap;
+
+	.btn {
+
+		float: left !important;
+		background: #ddd !important;
+		border: 1px solid #ccc !important;
+		border-radius: 0 !important;
+		.border-left-radius(3px) !important;
+		text-align: center !important;
+		font-size: 12px !important;
+
+		&:hover {
+
+		}
+
+		+ .btn {
+			border-radius: 0 !important;
+			.border-right-radius(3px) !important;
+		}
+
+		&.is-active {
+			background: #fff !important;
+			color: #fff !important;
+			text-shadow: 0 -1px 0 rgba(0,0,0,0.25) !important;
+		}
+
+		&.btn--yes.is-active {
+			background: @brand-primary !important;
+			border-color: darken(@brand-primary, 10%) !important;
+		}
+
+		&.btn--no.is-active {
+			background: @brand-danger !important;
+			border-color: darken(@brand-danger, 10%) !important;
+		}
+	}
+}
+
+
+.btn-file {
+	position: relative;
+	overflow: hidden;
+	padding-left: 24px !important; // Reserve space for icon
+	white-space: normal;
+	&:before {
+		display: inline-block;
+		position: absolute;
+		width: @o-radio-size;
+		height: @o-radio-size;
+		line-height: @o-radio-size;
+		left: 4px;
+		top: 6px;
+		
+		font-size: 10px;
+		color: @gray;
+		cursor: pointer;
+
+		font-family: FontAwesome;
+		font-weight: normal;
+		font-style: normal;
+		display: inline-block;
+		text-decoration: inherit;
+		content: "\f093";
+		// color: #fff;
+	}
+}
+.btn-file input[type=file] {
+	position: absolute;
+	top: 0;
+	right: 0;
+	min-width: 100%;
+	min-height: 100%;
+	font-size: 100px;
+	text-align: right;
+	filter: alpha(opacity=0);
+	opacity: 0;
+	outline: none;
+	background: white;
+	cursor: inherit;
+	display: block;
+}

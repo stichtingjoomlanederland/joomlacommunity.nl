@@ -1,0 +1,236 @@
+[
+	{
+		"title"			: "Vote Question",
+		"alias"			: "vote-question",
+		"description"	: "Earn points when you vote on a question.",
+		"command"		: "vote.question",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: 1
+	},
+	{
+		"title"			: "Unvote a Question",
+		"alias"			: "unvote-question",
+		"description"	: "Deduct points when you unvote a question.",
+		"command"		: "unvote.question",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: -1
+	},
+	{
+		"title"			: "Vote Reply",
+		"alias"			: "vote-reply",
+		"description"	: "Earn points when you vote on a reply.",
+		"command"		: "vote.reply",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: 1
+	},
+	{
+		"title"			: "Unvote a Reply",
+		"alias"			: "unvote-reply",
+		"description"	: "Deduct points when you unvote a reply.",
+		"command"		: "unvote.reply",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: -1
+	},
+	{
+		"title"			: "Vote Answer",
+		"alias"			: "vote-answer",
+		"description"	: "Earn points when you vote on an answer.",
+		"command"		: "vote.answer",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: 2
+	},
+	{
+		"title"			: "Unvote an Answer",
+		"alias"			: "unvote-answer",
+		"description"	: "Deduct points when you unvote an answer.",
+		"command"		: "unvote.answer",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: -2
+	},
+	{
+		"title"			: "Reply Accepted Answer",
+		"alias"			: "reply-accepted",
+		"description"	: "Earn points when your post is accepted as an answer.",
+		"command"		: "answer.reply",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: 5
+	},
+	{
+		"title"			: "Like A Discussion",
+		"alias"			: "like-discussion",
+		"description"	: "Earn points when you like a discussion post.",
+		"command"		: "like.discussion",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: 1
+	},
+	{
+		"title"			: "Like A Reply",
+		"alias"			: "like-reply",
+		"description"	: "Earn points when you like a reply in a discussion.",
+		"command"		: "like.reply",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: 1
+	},
+	{
+		"title"			: "Create New Discussion",
+		"alias"			: "create-discussion",
+		"description"	: "Earn points when you start a new discussion on the site.",
+		"command"		: "new.discussion",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: 10
+	},
+	{
+		"title"			: "Reply to Discussion",
+		"alias"			: "reply-discussion",
+		"description"	: "Earn points when you reply to an existing discussion.",
+		"command"		: "new.reply",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: 5,
+		"params"		: 
+		{
+			"min"	:
+			{
+				"title"		: "Minimum Characters",
+				"desc"		: "Specify the amount of characters a user must enter before being able to achieve this point",
+				"default"	: 0
+			}
+		}
+	},
+	{
+		"title"			: "Read Discussion",
+		"alias"			: "read-discussion",
+		"description"	: "Earn points when you read a discussion.",
+		"command"		: "read.discussion",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: 1
+	},
+	{
+		"title"			: "Comment on Post",
+		"alias"			: "comment-post",
+		"description"	: "Earn points when you post a new comment.",
+		"command"		: "new.comment",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: 2,
+		"params"		: 
+		{
+			"min"	:
+			{
+				"title"		: "Minimum Characters",
+				"desc"		: "Specify the amount of characters a user must enter before being able to achieve this point",
+				"default"	: 0
+			}
+		}
+	},
+	{
+		"title"			: "Unlike A Discussion",
+		"alias"			: "unlike-discussion",
+		"description"	: "Deduct points when you unlike a discussion.",
+		"command"		: "unlike.discussion",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: -1
+	},
+	{
+		"title"			: "Unlike A Reply",
+		"alias"			: "unlike-reply",
+		"description"	: "Deduct points when you unlike a reply.",
+		"command"		: "unlike.reply",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: -1
+	},
+	{
+		"title"			: "Discussion Removed",
+		"alias"			: "discussion-removed",
+		"description"	: "Deduct points when your discussion is removed from the site.",
+		"command"		: "remove.discussion",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: -10
+	},	
+	{
+		"title"			: "Reply Removed",
+		"alias"			: "reply-removed",
+		"description"	: "Deduct points when your reply is removed from the site.",
+		"command"		: "remove.reply",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: -5
+	},
+	{
+		"title"			: "Select Answer for Discussion",
+		"alias"			: "resolved-discussion",
+		"description"	: "Earn points when you mark other reply as an answer to your discussion",
+		"command"		: "resolved.discussion",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: 1
+	},
+	{
+		"title"			: "Favourite Discussion",
+		"alias"			: "favourite-discussion",
+		"description"	: "Earn points when you favourite a discussion on the site.",
+		"command"		: "favourite.discussion",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: 1
+	},
+	{
+		"title"			: "Remove Favourite Discussion",
+		"alias"			: "remove-favourite",
+		"description"	: "Deduct points when you remove a favourite discussion.",
+		"command"		: "unfavourite.discussion",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: -1
+	},
+	{
+		"title"			: "User Like Your Discussion",
+		"alias"			: "like-your-discussion",
+		"description"	: "Gain points when someone like your discussion.",
+		"command"		: "discussion.like",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: 1
+	},
+	{
+		"title"			: "User Unlike Your Discussion",
+		"alias"			: "unlike-your-discussion",
+		"description"	: "Deduct points someone unlike your discussion.",
+		"command"		: "discussion.unlike",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: -1
+	},
+	{
+		"title"			: "User Like Your Reply",
+		"alias"			: "like-your-reply",
+		"description"	: "Gain points when someone like your replies in discussion.",
+		"command"		: "reply.like",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: 1
+	},
+	{
+		"title"			: "User Unlike Your Reply",
+		"alias"			: "unlike-your-reply",
+		"description"	: "Deduct points when someone unlike your reply.",
+		"command"		: "reply.unlike",
+		"extension"		: "com_easydiscuss",
+		"state"			: true,
+		"points"		: -1
+	}
+]

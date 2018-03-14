@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_EASYDISCUSS_MENU_EDIT_PROFILE_LAYOUT">
+		<message>
+			<![CDATA[COM_EASYDISCUSS_MENU_EDIT_PROFILE_LAYOUT_DESC]]>
+		</message>
+		<view>tag</view>
+	</layout>
+	<state>
+		<name><![CDATA[COM_EASYDISCUSS_MENU_EDIT_PROFILE_LAYOUT]]></name>
+		<description><![CDATA[COM_EASYDISCUSS_MENU_EDIT_PROFILE_LAYOUT_DESC]]></description>
+		<params>
+		</params>
+	</state>		
+</metadata>

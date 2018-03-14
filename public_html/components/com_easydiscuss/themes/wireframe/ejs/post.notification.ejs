@@ -1,0 +1,8 @@
+<div class="discussNotification">
+	<div class="replyContainer"[% if(newReply < 1) { %] style="display: none;"[% } %]><span class="replyCount">[%= newReply %]</span> <span class="replyText"><?php echo JText::_( 'COM_EASYDISCUSS_NOTIFICATION_NEW_REPLY' ); ?></span></div>
+
+	<div class="commentContainer"[% if(newComment < 1) { %] style="display: none;"[% } %]><span class="commentCount">[%= newComment %]</span> <span class="commentText"><?php echo JText::_( 'COM_EASYDISCUSS_NOTIFICATION_NEW_COMMENT' ); ?></span></div>
+
+	<a href="javascript:document.location.reload(true)" class="btn btn btn-mini btn-success"><?php echo JText::_( 'COM_EASYDISCUSS_NOTIFICATION_REFRESH_PAGE' ); ?></a>
+
+</div>

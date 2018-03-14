@@ -1,0 +1,78 @@
+// Switch
+// ----------------
+/*
+Markup:
+<div class="o-switch">
+    <input type="checkbox" name="onoffswitch" class="o-switch__checkbox" id="myonoffswitch" checked>
+    <label class="o-switch__label" for="myonoffswitch">
+        <span class="o-switch__inner"></span>
+        <span class="o-switch__switch"></span>
+    </label>
+</div>
+*/
+
+.o-switch {
+    position: relative; width: 40px;
+    -webkit-user-select:none; 
+    -moz-user-select:none;
+    -ms-user-select: none;
+}
+.o-switch__checkbox {
+    display: none;
+}
+.o-switch__label {
+    display: block;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid @fd-ui-border-color;
+    border-radius: 3px;
+}
+.o-switch__inner {
+    display: block;
+    width: 200%;
+    margin-left: -100%;
+    transition: margin 0.3s ease-in 0s;
+}
+.o-switch__inner:before, .o-switch__inner:after {
+    display: block;
+    float: left;
+    width: 50%;
+    height: 20px;
+    padding: 0;
+    line-height: 20px;
+    font-size: 10px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+    box-sizing: border-box;
+}
+.o-switch__inner:before {
+    content: "";
+    padding-left: 10px;
+    background-color: @fd-brand-success; 
+    color: @fd-ui-bg;
+}
+.o-switch__inner:after {
+    content: "";
+    padding-right: 10px;
+    background-color: @fd-ui-shade; 
+    color: @fd-ui-border-color;
+    text-align: right;
+}
+.o-switch__switch {
+    display: block;
+    width: 20px;
+    height: 22px;
+    margin: 0px;
+    background: @fd-ui-bg;
+    position: absolute; 
+    top: 0; 
+    bottom: 0;
+    right: 20px;
+    border: 1px solid @fd-ui-border-color; 
+    border-radius: 3px;
+    transition: all 0.3s ease-in 0s; 
+}
+.o-switch__checkbox:checked + .o-switch__label .o-switch__inner {
+    margin-left: 0;
+}
+.o-switch__checkbox:checked + .o-switch__label .o-switch__switch {
+    right: 0px; 
+}

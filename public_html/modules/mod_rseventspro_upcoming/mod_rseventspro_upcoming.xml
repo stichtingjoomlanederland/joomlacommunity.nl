@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="2.5" method="upgrade" client="site">
+	<name>MOD_RSEVENTSPRO_UPCOMING</name>
+	<creationDate>September 2014</creationDate>
+	<author>RSJoomla!</author>
+	<authorEmail>support@rsjoomla.com</authorEmail>
+	<authorUrl>www.rsjoomla.com</authorUrl>
+	<copyright>(C) 2009-2014 www.rsjoomla.com</copyright>
+	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
+	<version>1.2</version>
+	<description>MOD_RSEVENTSPRO_UPCOMING_DESCRIPTION</description>
+	<scriptfile>script.php</scriptfile>
+	
+	<updateservers>
+        <server type="extension" priority="1" name="RSEvents! Pro - Upcoming Module">https://www.rsjoomla.com/updates/com_rseventspro/Modules/mod_rseventspro_upcoming.xml</server>
+    </updateservers>
+
+	<files>
+		<filename module="mod_rseventspro_upcoming">mod_rseventspro_upcoming.php</filename>
+		<folder>tmpl</folder>
+		<filename>helper.php</filename>
+		<filename>index.html</filename>
+	</files>
+	
+	<media destination="mod_rseventspro_upcoming" folder="media">
+		<folder>css</folder>
+		<filename>index.html</filename>
+	</media>
+	
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.mod_rseventspro_upcoming.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.mod_rseventspro_upcoming.sys.ini</language>
+	</languages>
+	
+	<config>
+		<fields name="params">
+			<fieldset name="basic" addfieldpath="/administrator/components/com_rseventspro/models/fields">
+				<field name="layout" type="modulelayout" default="default" label="JFIELD_ALT_LAYOUT_LABEL" description="JFIELD_ALT_MODULE_LAYOUT_DESC" />
+				<field name="moduleclass_sfx" type="text" default="" label="MOD_RSEVENTSPRO_UPCOMING_CLASS_SUFFIX" description="MOD_RSEVENTSPRO_UPCOMING_CLASS_SUFFIX" />
+				
+				<field name="itemid" type="text" default="" label="MOD_RSEVENTSPRO_UPCOMING_CUSTOM_ITEMID" description="MOD_RSEVENTSPRO_UPCOMING_CUSTOM_ITEMID" />
+				
+				<field name="ordering" type="list" default="start" label="MOD_RSEVENTSPRO_UPCOMING_ORDERING" description="MOD_RSEVENTSPRO_UPCOMING_ORDERING_DESC">
+					<option value="name">MOD_RSEVENTSPRO_UPCOMING_NAME_ORDERING</option>
+					<option value="start">MOD_RSEVENTSPRO_UPCOMING_STARTDATE_ORDERING</option>
+				</field>
+				
+				<field name="order" type="list" default="DESC" label="MOD_RSEVENTSPRO_UPCOMING_ORDERING_DIRECTION" description="MOD_RSEVENTSPRO_UPCOMING_ORDERING_DIRECTION_DESC">
+					<option value="DESC">MOD_RSEVENTSPRO_UPCOMING_DESCENDING</option>
+					<option value="ASC">MOD_RSEVENTSPRO_UPCOMING_ASCENDING</option>
+				</field>
+				
+				<field name="repeating" type="radio" class="btn-group" default="1" label="MOD_RSEVENTSPRO_UPCOMING_REPEATING_EVENTS" description="MOD_RSEVENTSPRO_UPCOMING_REPEATING_EVENTS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				
+				<field name="archived" type="radio" class="btn-group" default="0" label="MOD_RSEVENTSPRO_UPCOMING_EVENTS_ARCHIVED" description="MOD_RSEVENTSPRO_UPCOMING_EVENTS_ARCHIVED_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				
+				<field name="links" type="list" default="0" label="MOD_RSEVENTSPRO_UPCOMING_EVENTS_LINKS" description="MOD_RSEVENTSPRO_UPCOMING_EVENTS_LINKS_DESC">
+					<option value="0">MOD_RSEVENTSPRO_UPCOMING_EVENTS_LINKS_NEW</option>
+					<option value="1">MOD_RSEVENTSPRO_UPCOMING_EVENTS_LINKS_CURRENT</option>
+				</field>
+				
+				<field name="events" type="list" default="0" label="MOD_RSEVENTSPRO_UPCOMING_EVENTS" description="MOD_RSEVENTSPRO_UPCOMING_EVENTS_DESC">
+					<option value="0">MOD_RSEVENTSPRO_UPCOMING_EVENTS_ACTIVE_UPCOMING</option>
+					<option value="1">MOD_RSEVENTSPRO_UPCOMING_EVENTS_ACTIVE</option>
+					<option value="2">MOD_RSEVENTSPRO_UPCOMING_EVENTS_UPCOMING</option>
+				</field>
+				
+				<field name="limit" type="text" default="4" label="MOD_RSEVENTSPRO_UPCOMING_LIMIT" description="MOD_RSEVENTSPRO_UPCOMING_LIMIT_DESC" />
+				
+				<field name="categories" type="category" extension="com_rseventspro" default="" label="MOD_RSEVENTSPRO_UPCOMING_EVENTS_CATEGORIES" description="MOD_RSEVENTSPRO_UPCOMING_EVENTS_CATEGORIES_DESC" multiple="multiple" class="rs200 rschosen" />
+				<field name="locations" type="rslocations" default="" label="MOD_RSEVENTSPRO_UPCOMING_EVENTS_LOCATIONS" description="MOD_RSEVENTSPRO_UPCOMING_EVENTS_LOCATIONS_DESC" multiple="multiple" class="rs200 rschosen" show_root="false" />
+				<field name="tags" type="rstags" default="" label="MOD_RSEVENTSPRO_UPCOMING_EVENTS_TAGS" description="MOD_RSEVENTSPRO_UPCOMING_EVENTS_TAGS_DESC" multiple="multiple" class="rs200 rschosen" />
+				<field name="choosen" type="rschosen" />
+			</fieldset>
+		</fields>
+	</config>
+	
+</extension>

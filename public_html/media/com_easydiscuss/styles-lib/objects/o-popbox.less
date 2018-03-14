@@ -1,0 +1,266 @@
+// Popbox
+// ----------------
+/*
+Markup:
+<div id="ed" class="popbox">
+  <div class="arrow"></div>
+  <div data-ed-popbox-content="" class="popbox-content">
+  Some hidden contents here
+  </div>
+</div>
+*/
+// Popbox
+@popbox-bg: @fd-ui-bg;
+@popbox-border-color: @fd-ui-border-color; 
+@popbox-box-shadow: 0 5px 10px rgba(0,0,0,.2);
+// @popboxDetailsColor: white; //have to white
+// @popboxDetailsTextShadow: 1px 1px 0 rgba(0, 0, 0, 0.3);
+// @popboxCoverBackground: #333;
+@popbox-header-bg: darken(@popbox-bg, 5%); //f2f2f2
+// @popboxItemColor: #555;
+// @popboxAvatarBorder: @popbox-bg;
+// @popboxAvatarBackground: @popbox-bg;
+// @popboxBtnBackground: @fd-ui-bg;
+// @popboxBtnBackgroundHighlight: darken(@popboxBtnBackground, 10%);
+// @popboxBtnColor: #333;
+// @popboxBtnTextShadow: 0 0px 0px rgba(255,255,255,.1);
+// @popboxBtnBorder: @fd-ui-border-color;
+// @popboxBtnHoverBackground: #e6e6e6;
+@popbox-arrow-bg: @popbox-bg;
+
+@popbox-arrow-width: 8px;
+@popbox-arrow-outer-width: (@popbox-arrow-width + 1);
+@popbox-arrow-outer-color: @fd-ui-border-color;
+
+// @popboxNoticeColor: #666;
+// @popboxNoticeBackground: @fd-ui-bg;
+// @popboxNoticeUnreadBackground: #f6fbff;
+// @popboxNoticeHoverBackground: #f6f6f6;
+
+&.popbox {
+    // Position
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: auto;
+    z-index: 10020;
+    width: auto;
+
+    // Appearance
+    background: @fd-ui-bg;
+    // .getContrast(@popbox-bg); //contrast font color base on background color
+    border: 1px solid @fd-ui-border-color;
+    border-radius: @fd-ui-radius;
+    .box-shadow(@popbox-box-shadow);
+
+
+    // Text formatting
+    white-space: normal;
+    text-align: left !important;
+    line-height: @fd-base-line-height;
+
+
+    &.loading {
+        // background-image: url("@{global_uri}/images/loading.gif");
+        background-position: center center;
+        background-repeat: no-repeat;
+    }
+
+    // Arrows
+    .arrow,
+    .arrow:after {
+        position: absolute;
+        display: inline-block;
+        border-color: transparent;
+        border-style: solid;
+    }
+
+    .arrow:after {
+        content: "";
+        z-index: -1;
+    }
+
+    .top-arrow() {
+        // margin-top: -10px;
+        .arrow {
+            bottom: -@popbox-arrow-width;
+            left: 50%;
+            margin-left: -@popbox-arrow-width;
+            border-width: @popbox-arrow-width @popbox-arrow-width 0;
+            border-top-color: @popbox-arrow-bg;
+            &:after {
+                border-width: @popbox-arrow-outer-width @popbox-arrow-outer-width 0;
+                border-top-color: @popbox-arrow-outer-color;
+                bottom: -1px;
+                left: -@popbox-arrow-outer-width;
+                margin: 0;
+            }
+        }
+    }
+
+    .right-arrow() {
+        // margin-left: 10px;
+        .arrow {
+            top: 50%;
+            left: -@popbox-arrow-width;
+            margin-top: -@popbox-arrow-width;
+            border-width: @popbox-arrow-width @popbox-arrow-width @popbox-arrow-width 0;
+            border-right-color: @popbox-arrow-bg;
+            &:after {
+                border-width: @popbox-arrow-outer-width @popbox-arrow-outer-width @popbox-arrow-outer-width 0;
+                border-right-color: @popbox-arrow-outer-color;
+                bottom: -@popbox-arrow-outer-width;
+                left: -1px;
+            }
+        }
+    }
+
+    .bottom-arrow() {
+        // margin-top: 10px;
+        .arrow {
+            top: -@popbox-arrow-width;
+            left: 50%;
+            margin-left: -@popbox-arrow-width;
+            border-width: 0 @popbox-arrow-width @popbox-arrow-width;
+            border-bottom-color: @popbox-arrow-bg;
+            &:after {
+                border-width: 0 @popbox-arrow-outer-width @popbox-arrow-outer-width;
+                border-bottom-color: @popbox-arrow-outer-color;
+                top: -1px;
+                left: -@popbox-arrow-outer-width;
+                margin: 0;
+            }
+        }
+    }
+
+    .left-arrow() {
+        // margin-left: -10px;
+        .arrow {
+            top: 50%;
+            right: -@popbox-arrow-width;
+            margin-top: -@popbox-arrow-width;
+            border-width: @popbox-arrow-width 0 @popbox-arrow-width @popbox-arrow-width;
+            border-left-color: @popbox-arrow-bg;
+            &:after {
+                border-width: @popbox-arrow-outer-width 0 @popbox-arrow-outer-width @popbox-arrow-outer-width;
+                border-left-color: @popbox-arrow-outer-color;
+                bottom: -@popbox-arrow-outer-width;
+                right: -1px;
+            }
+        }
+    }
+
+    &.top {
+        .top-arrow();
+    }
+
+    &.top-left {
+        .top-arrow();
+        .arrow {
+            left: 0px;
+            right: auto;
+            margin-left: @popbox-arrow-width;
+            margin-right: auto;
+        }
+    }
+
+    &.top-right {
+        .top-arrow();
+        .arrow {
+            left: auto;
+            right: 0px;
+            margin-left: auto;
+            margin-right: @popbox-arrow-width;
+        }
+    }
+
+    &.bottom {
+        .bottom-arrow();
+    }
+
+    &.bottom-left {
+        .bottom-arrow();
+        .arrow {
+            left: 0px;
+            right: auto;
+            margin-left: @popbox-arrow-width;
+            margin-right: auto;
+        }
+    }
+
+    &.bottom-right {
+        .bottom-arrow();
+        .arrow {
+            left: auto;
+            right: 0px;
+            margin-left: auto;
+            margin-right: @popbox-arrow-width;
+        }
+    }
+
+    &.left {
+        .left-arrow();
+    }
+
+    &.left-top {
+        .left-arrow();
+        .arrow {
+            top: 0px;
+            margin-top: @popbox-arrow-width;
+            margin-bottom: auto;
+        }
+    }
+
+    &.left-bottom {
+        .left-arrow();
+        .arrow {
+            top: auto;
+            bottom: 0px;
+            margin-top: auto;
+            margin-bottom: @popbox-arrow-width;
+        }
+    }
+
+    &.right {
+        .right-arrow();
+    }
+
+    &.right-top {
+        .right-arrow();
+        .arrow {
+            top: 0px;
+            margin-top: @popbox-arrow-width;
+            margin-bottom: auto;
+        }
+    }
+
+    &.right-bottom {
+        .right-arrow();
+        .arrow {
+            top: auto;
+            bottom: 0px;
+            margin-top: auto;
+            margin-bottom: @popbox-arrow-width;
+        }
+    }
+
+    .popbox-header {
+
+        border-bottom: 1px solid @popbox-header-bg;
+        padding: 5px 15px;
+        font-size: 11px;
+        .clearfix();
+
+        .es-title {
+            font-weight: bold;
+            float: left;
+        }
+        .es-action {
+            float: right;
+        }
+    }
+
+    .popbox-content {
+        // padding: @fd-base-spacing--sm @fd-base-spacing;
+    }
+}

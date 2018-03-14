@@ -1,0 +1,155 @@
+// Easydiscuss Notifications
+// ----------------
+.ed-noti {
+    &__item {
+        position: relative;
+        padding-left: @fd-base-spacing;
+        padding-right: @fd-base-spacing;
+    }
+    &__date {
+        color: @fd-ui-meta-color;
+    }
+
+    &__item-indicator {
+        width: @fd-base-spacing;
+        height: @fd-base-spacing;
+        border-radius: 50%;
+        position: absolute;
+        top: @fd-base-spacing--xl + @fd-base-spacing--sm;
+        background-color: transparent;
+    }
+    &__item-content {
+        position: relative;
+        padding-left: @fd-base-spacing--xl;
+        padding-top: @fd-base-spacing--xl;
+        padding-bottom: @fd-base-spacing--xl;
+        border-bottom: 1px solid @fd-ui-border-color;
+    }
+    &__item-type {
+        position: absolute;
+        right: @fd-base-spacing;
+        top: 0;
+        &-icon {
+            // color: @fd-ui-meta-color;
+            &:before {
+                font-family: FontAwesome;
+                font-weight: normal;
+                font-style: normal;
+                display: inline-block;
+                text-decoration: inherit;
+                color: @fd-ui-meta-color;
+            }
+        }
+    }
+    
+    &__title {
+
+    }
+    &__desp {
+
+    }
+    &__meta {
+        color: @fd-ui-meta-color;
+    }
+    
+}
+// States 
+.is-unread {
+    .ed-noti__item-indicator {        
+        background-color: @fd-brand-primary;
+    }
+}
+.type {
+    &-reply,
+    &-comment,
+    &-mention {
+        .ed-noti__item-type-icon {
+            &:before {
+                content: '\f075';
+            }
+        }
+    }
+    &-fav {
+        .ed-noti__item-type-icon {
+            &:before {
+                content: '\f004';
+            }
+        }
+    }
+    &-like {
+        .ed-noti__item-type-icon {
+            &:before {
+                content: '\f164';
+            }
+        }
+    }
+    &-resolved {
+        .ed-noti__item-type-icon {
+            &:before {
+                content: '\f00c';
+            }
+        }
+    }
+    &-featured {
+        .ed-noti__item-type-icon {
+            &:before {
+                content: '\f005';
+            }
+        }
+    }
+    &-locked {
+        .ed-noti__item-type-icon {
+            &:before {
+                content: '\f023';
+            }
+        }
+    }
+    &-unlocked {
+        .ed-noti__item-type-icon {
+            &:before {
+                content: '\f09c';
+            }
+        }
+    }
+    &-vote {
+        .ed-noti__item-type-icon {
+            &:before {
+                content: '\f080';
+            }
+        }
+    }
+}
+
+.ed-noti-hd {
+    &__badge {
+        border-radius: 50%;
+        color: #fff;
+        display: inline-block;
+        font-size: 12px;
+        font-weight: bold;
+        line-height: 1;
+        min-width: 28px;
+        padding: @fd-base-spacing;
+        text-align: center;
+        vertical-align: middle;
+        white-space: nowrap;
+        background-color: @fd-brand-primary;
+    }
+}
+.ed-noti__item {
+    &:hover {
+        background-color: @fd-ui-shade;
+    }
+
+    
+
+    + .ed-noti__item {
+        // border-top: 1px solid @fd-ui-border-color;
+        margin-top: @fd-base-spacing--xl;
+    }
+}
+
+
+.ed-noti__indicator {
+    
+}

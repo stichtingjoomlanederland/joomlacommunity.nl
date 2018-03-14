@@ -1,0 +1,185 @@
+.app-table {
+	border-collapse: collapse;
+	border-radius: @app-radius-base;
+	clear: both;
+
+	> thead {
+		> tr {
+			> td,
+			> th {
+				border-top: 1px solid lighten(@app-border-color, 10%);
+				border-bottom: 1px solid @app-border-color;
+				padding-top: 10px;
+				padding-bottom: 10px;
+
+				&.center {
+					text-align: center;
+				}
+			}
+		}
+	}
+
+	> tbody {
+		> tr {
+			border: 0;
+			background-color: #fff;
+
+			&:hover {
+				background-color: #fbfbfb;
+			}
+
+			&.is-checked {
+				background-color: @table-row-checked;
+			}
+
+			&:nth-of-type(2n+1) {
+				background-color: @table-row-alternate;
+
+				&.is-checked {
+					background-color: @table-row-checked;
+				}
+			}
+			
+			&:hover {
+				background-color: @table-row-hover;
+			}
+
+			> td {
+				border: 0;
+			}
+
+			> td,
+			> th {
+				border-bottom: 1px solid @app-border-color;
+				padding-top: 10px;
+				padding-bottom: 10px;
+			}
+		}
+	}
+
+	> thead,
+	> tbody,
+	> tfoot {
+		> tr {
+			> th,
+			> td {
+				&:first-child {
+					padding-left: @app-gutter-width;
+
+					input[type="radio"], 
+					input[type="checkbox"] {
+						margin: 0;
+					}
+				}
+
+				&:last-child {
+					padding-right: @app-gutter-width;	
+				}
+			}
+		}
+	}
+
+	@app-table-label-height: 24px;
+	@app-table-label-radius: @app-table-label-height / 2;
+
+	.badge {
+		border-radius: @app-table-label-radius;
+		width: 32px;
+		height: @app-table-label-height;
+		line-height: @app-table-label-height;
+		padding: 0;
+		position: relative;
+
+		.fa {
+			line-height: inherit;
+			display: block;
+			color: #fff !important;
+		}
+	}
+
+	td.order {
+		font-size: 0;
+
+		span,
+		input {
+			display: inline-block;
+			vertical-align: middle;
+		}
+
+		input.order-value {
+			border-radius: @app-table-label-radius;
+			background: #eee;
+			font-size: 12px;
+			
+			width: 34px;
+			height: @app-table-label-height;
+			line-height: @app-table-label-height;
+
+			padding: 0;
+			margin: 0 10px 0 0;
+			text-align: center;
+			
+			box-shadow: none !important;
+			-moz-box-shadow: none !important;
+			-webkit-box-shadow: none !important;
+		}
+
+		span {
+			background: #eee;
+			border: 1px solid #ccc;
+			width: 28px;
+			height: @app-table-label-height;
+			line-height: @app-table-label-height;
+			position: relative;
+			overflow: hidden;
+
+			+ span {
+				margin-left: -1px;
+			}
+
+			a {
+				background: #fff;
+				border: 0;
+				border-radius: 0;
+				display: block;
+				line-height: @app-table-label-height - 2; // minus 2 for border up & down
+				height: @app-table-label-height - 2; // minus 2 for border up & down
+				padding: 0;
+
+				i, 
+				i:before,
+				span,
+				span:before {
+					background: none;
+					border: 0;
+					font: normal normal normal 14px/1 FontAwesome;
+					line-height: @app-table-label-height - 2; // minus 2 for border up & down
+					height: @app-table-label-height - 2; // minus 2 for border up & down
+					display: block;
+					text-align: center;
+					font-size: 10px;
+					width: auto;
+					margin: 0;
+				}
+			}
+
+			&.order-up {
+				border-radius: @app-table-label-radius 0 0 @app-table-label-radius;
+
+				i:before,
+				span:before {
+					content: "\f077";
+				}
+			}
+
+			&.order-down {
+				border-radius: 0 @app-table-label-radius @app-table-label-radius 0;
+
+				i:before,
+				span:before {
+					content: "\f078";
+				}
+			}
+		}
+	}
+}

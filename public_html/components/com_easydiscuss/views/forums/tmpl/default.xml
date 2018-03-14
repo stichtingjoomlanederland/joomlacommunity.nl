@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+    <layout title="COM_EASYDISCUSS_MENU_FORUMS_LAYOUT">
+        <message><![CDATA[COM_EASYDISCUSS_MENU_FORUMS_LAYOUT_DESC]]></message>
+        <view>forums</view>
+    </layout>
+    <state>
+        <name><![CDATA[COM_EASYDISCUSS_MENU_FORUMS_LAYOUT]]></name>
+        <description><![CDATA[COM_EASYDISCUSS_MENU_FORUMS_LAYOUT_DESC]]></description>
+    </state>
+
+    <fields name="request">
+        <fieldset name="request"
+            addfieldpath="/administrator/components/com_easydiscuss/elements/fields">
+
+            <field name="category_id" type="modal_categories"
+                label="Category"
+                required="false"
+                description="Choose a category..."
+            />
+        </fieldset>
+    </fields>
+
+
+    <!-- fields name="params">
+        <fieldset name="basic" label="Filters" addfieldpath="/administrator/components/com_easydiscuss/elements/fields">
+            <field name="category_id" type="modal_categories" default="Please select" label="Category container" description="Renders and display forums from this category. This category must be a container." containersonly="true" />
+        </fieldset>
+    </fields -->
+</metadata>

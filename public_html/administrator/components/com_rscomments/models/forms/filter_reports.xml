@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fields name="filter">
+		<field name="search" type="text" label="JSEARCH_FILTER" hint="JSEARCH_FILTER" />
+	</fields>
+
+	<fields name="list">
+		<field name="fullordering" type="list" onchange="this.form.submit();" default="r.date DESC">
+			<option value="">JGLOBAL_SORT_BY</option>
+			<option value="r.date ASC">COM_RSCOMMENTS_DATE_ASC</option>
+			<option value="r.date DESC">COM_RSCOMMENTS_DATE_DESC</option>
+			<option value="r.ip ASC">COM_RSCOMMENTS_IP_ASC</option>
+			<option value="r.ip DESC">COM_RSCOMMENTS_IP_DESC</option>
+			<option value="u.name ASC">COM_RSCOMMENTS_AUTHOR_ASC</option>
+			<option value="u.name DESC">COM_RSCOMMENTS_AUTHOR_DESC</option>
+		</field>
+
+		<field name="limit" type="limitbox" default="25" class="input-mini" onchange="this.form.submit();" />
+	</fields>
+</form>

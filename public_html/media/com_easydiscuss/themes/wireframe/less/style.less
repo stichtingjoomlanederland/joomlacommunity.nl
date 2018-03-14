@@ -1,0 +1,128 @@
+/*------------------------------------*\
+	$Theme - EasyDiscuss Wireframe
+\*------------------------------------*/
+/**
+ * SETTINGS
+ * - Global variables, site-wide settings, config switches, etc.
+ * Variables..........Bootstrap default variables
+ * Pallette...........Style Lib Color palette variables
+ * Variables..........Style Lib default variables
+
+ * TOOLS
+ * - Site-wide mixins and functions.
+ * Mixins.............Bootstrap default mixins
+
+ * GENERIC
+ * - Low-specificity, far-reaching rulesets (e.g. resets).
+ * Reset..............Styling reset to prevent conflict with other templates
+
+ * OBJECTS
+ * - Objects, abstractions, and design patterns (e.g. .media {}).
+ * Buttons............Generic, underlying design patterns with minimum styles
+
+
+ * COMPONENTS
+ * - Discrete, complete chunks of UI. This is the one layer for customized.
+ * Bootstrap 3........Bootstrap components styles
+ * Fontawesome........Fontawesome icon styles
+ * Easydiscuss........Easydiscuss components styles
+
+ * TRUMPS
+ * - High-specificity, very explicit selectors make sure this is last to override anything else. Overrides and helper classes (e.g. .t-hidden {}).
+ * t-spacing........Margin, padding spacing with responsive ready. For quick style don't overuse.
+ * t-font-size......Aggressive change font size (Usually for programmer to use).
+ */
+
+
+@lib-path: '../../../styles-lib';
+
+
+
+
+/**
+* #SETTINGS
+*/
+@import "@{lib-path}/variables/variables"; // Global Variables
+@import "variables/variables"; // Themes variables
+
+
+/**
+* #TOOLS
+*/
+@import "@{lib-path}/tools/default";
+
+
+// This needs to be out of the wrapper
+@import "@{lib-path}/vendors/fancybox/fancybox";
+@import "@{lib-path}/vendors/atwho/atwho";
+
+
+#ed {
+
+/**
+* #GENERIC
+*/
+@import "@{lib-path}/generic/default";
+
+
+/**
+* #OBJECTS
+*/
+@import "@{lib-path}/objects/default";
+
+
+/**
+* #COMPONENTS
+*/
+// Verndors
+@import "@{lib-path}/vendors/default";
+
+
+// Easydiscuss Backend/Frontend
+@import "@{lib-path}/easydiscuss/default";
+
+
+// Pages (modules)
+@import "@{lib-path}/easydiscuss/ed-modules";
+
+
+
+// Easydiscuss Frontend
+@import "components/buttons";
+@import "components/navbar";
+@import "components/searchbar";
+@import "components/adminbar";
+@import "components/vote";
+@import "components/btn-counter-group";
+@import "components/spoiler";
+
+
+/**
+* #STATES
+*/
+@import "@{lib-path}/objects/default-states";
+
+
+/**
+* #PATCH
+*/
+
+
+
+/**
+* #TRUMPS
+*/
+@import "@{lib-path}/trumps/default";
+
+
+
+
+
+}
+
+/**
+* #Misc
+*/
+// For UI append oursite of the wrapper
+// ----------------
+@import "print"; // Styles for printing

@@ -1,0 +1,24 @@
+/*------------------------------------*\
+    $Theme - EasyDiscuss Wireframe RTL
+\*------------------------------------*/
+
+// For gulp-rtl to compile only!
+
+#ed.is-rtl {
+    /*rtl:begin:ignore*/
+    text-align: right;
+    direction: rtl;
+    /*rtl:end:ignore*/
+    
+    
+}
+
+html[dir='rtl'] #ed.popbox {
+    /*rtl:begin:ignore*/
+    right: auto;
+    left: 0;
+    /*rtl:end:ignore*/
+}
+
+// Import LTR styling and let's gulp-rtl to convert
+@import "style";

@@ -1,0 +1,106 @@
+// Checkbox
+// ----------------
+/*
+Markup:
+<div class="o-checkbox">
+    <input type="checkbox" id="item-checkbox-1">
+    <label for="item-checkbox-1">
+        Custom checkbox
+    </label>
+</div>
+*/
+@o-checkbox-size: 16px;
+
+.o-checkbox {
+    padding-left: @fd-base-spacing--lg;
+    margin-top: @fd-base-spacing;
+    margin-bottom: @fd-base-spacing;
+    font-size: @fd-base-font-size;
+
+    label {
+            display: block;
+            position: relative;
+            padding: 0 0 0 5px;
+            font-weight: normal;
+            font-size: inherit;
+            line-height: @fd-base-line-height;
+            margin: 0;
+
+            &:before {
+                content: "";
+                display: inline-block;
+                position: absolute;
+                width: @o-checkbox-size;
+                height: @o-checkbox-size;
+                left: 0;
+                top: 0;
+                margin-left: -@fd-base-spacing--lg;
+                border: 1px solid @input-border;
+                border-radius: 2px;
+                background-color: @fd-ui-bg;
+                //.transition(~"border 0.15s ease-in-out, color 0.15s ease-in-out");
+                cursor: pointer;
+            }
+
+            &:after {
+                display: inline-block;
+                position: absolute;
+                width: @o-checkbox-size;
+                height: @o-checkbox-size;
+                line-height: @o-checkbox-size;
+                left: 0;
+                top: 0;
+                margin-left: -@fd-base-spacing--lg;
+                padding-left: 2px;
+                padding-top: 0;
+                font-size: @fd-base-font-size;
+                color: @fd-ui-text-color--inverse;
+                cursor: pointer;
+            }
+    }
+
+    input[type="checkbox"] {
+            display: none;
+        &:checked + label {
+            &:before {
+                background-color: @fd-brand-primary;
+                border-color: @fd-brand-primary;
+            }
+            &:after{
+                font-family: FontAwesome;
+                font-weight: normal;
+                font-style: normal;
+                display: inline-block;
+                text-decoration: inherit;
+                content: "\f00c";
+                color: @fd-ui-bg;
+            }
+        }
+        
+
+        &:disabled + label{
+            cursor: not-allowed;
+            &:before{
+                background-color: @gray-lighter;
+                cursor: not-allowed;
+            }
+            &:after{
+                color: @fd-brand-primary;
+            }
+        }
+    }
+
+    &--sm {
+        label {
+            font-size: @fd-base-font-size;
+        }
+    }
+
+    &--inline {
+        display: inline-block;
+        margin-right: @fd-base-spacing;
+        label {
+            display: inline-block;
+        }
+    }
+}

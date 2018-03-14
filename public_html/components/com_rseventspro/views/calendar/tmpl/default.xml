@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_RSEVENTSPRO_CALENDAR_VIEW_TITLE" >
+		<message>
+			<![CDATA[COM_RSEVENTSPRO_CALENDAR_VIEW_DESC]]>
+		</message>
+	</layout>
+	
+	<fields name="params">
+		<fieldset name="basic" addfieldpath="/administrator/components/com_rseventspro/models/fields">
+			
+			<field name="startmonth" type="list" default="0" label="COM_RSEVENTSPRO_START_MONTH" description="COM_RSEVENTSPRO_START_MONTH_DESC">
+				<option value="0">COM_RSEVENTSPRO_CURRENT_MONTH</option>
+				<option value="1">JANUARY</option>
+				<option value="2">FEBRUARY</option>
+				<option value="3">MARCH</option>
+				<option value="4">APRIL</option>
+				<option value="5">MAY</option>
+				<option value="6">JUNE</option>
+				<option value="7">JULY</option>
+				<option value="8">AUGUST</option>
+				<option value="9">SEPTEMBER</option>
+				<option value="10">OCTOBER</option>
+				<option value="11">NOVEMBER</option>
+				<option value="12">DECEMBER</option>
+			</field>
+			
+			<field name="startyear" type="text" default="" label="COM_RSEVENTSPRO_START_YEAR" class="input-small" size="5" description="COM_RSEVENTSPRO_START_YEAR_DESC" filter="integer" />
+			
+			<field name="ordering" type="list" default="start" label="COM_RSEVENTSPRO_ORDERING" description="COM_RSEVENTSPRO_ORDERING_DESC">
+				<option value="name">COM_RSEVENTSPRO_EVENTS_VIEW_ORDER_NAME</option>
+				<option value="start">COM_RSEVENTSPRO_EVENTS_VIEW_ORDER_START</option>
+				<option value="hits">COM_RSEVENTSPRO_EVENTS_VIEW_ORDER_HITS</option>
+			</field>
+			
+			<field name="order" type="list" default="DESC" label="COM_RSEVENTSPRO_DIRECTION" description="COM_RSEVENTSPRO_DIRECTION_DESC">
+				<option value="DESC">COM_RSEVENTSPRO_DESCENDING</option>
+				<option value="ASC">COM_RSEVENTSPRO_ASCENDING</option>
+			</field>
+			
+			<field name="rss" type="list" default="1" label="COM_RSEVENTSPRO_ENABLE_RSS" description="COM_RSEVENTSPRO_ENABLE_RSS_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="ical" type="list" default="1" label="COM_RSEVENTSPRO_ENABLE_ICAL" description="COM_RSEVENTSPRO_ENABLE_ICAL_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="nofollow" type="list" default="0" label="COM_RSEVENTSPRO_ENABLE_NO_FOLLOW" description="COM_RSEVENTSPRO_ENABLE_NO_FOLLOW_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="fullname" type="list" default="0" label="COM_RSEVENTSPRO_CALENDAR_VIEW_LONG_NAMES" description="COM_RSEVENTSPRO_CALENDAR_VIEW_LONG_NAMES_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="startday" type="list" default="1" label="COM_RSEVENTSPRO_CALENDAR_VIEW_STARTDAY" description="COM_RSEVENTSPRO_CALENDAR_VIEW_STARTDAY_DESC">
+				<option value="6">COM_RSEVENTSPRO_CALENDAR_VIEW_STARTDAY_SATURDAY</option>
+				<option value="0">COM_RSEVENTSPRO_CALENDAR_VIEW_STARTDAY_SUNDAY</option>
+				<option value="1">COM_RSEVENTSPRO_CALENDAR_VIEW_STARTDAY_MONDAY</option>
+			</field>
+			
+			<field name="full" type="list" default="1" label="COM_RSEVENTSPRO_CALENDAR_VIEW_FULL" description="COM_RSEVENTSPRO_CALENDAR_VIEW_FULL_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="week" type="list" default="1" label="COM_RSEVENTSPRO_CALENDAR_VIEW_WEEK" description="COM_RSEVENTSPRO_CALENDAR_VIEW_WEEK_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="details" type="list" default="1" label="COM_RSEVENTSPRO_CALENDAR_VIEW_DETAILS" description="COM_RSEVENTSPRO_CALENDAR_VIEW_DETAILS_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="limit" type="text" default="3" label="COM_RSEVENTSPRO_CALENDAR_VIEW_LIMIT" size="4" description="COM_RSEVENTSPRO_CALENDAR_VIEW_LIMIT_DESC" />
+			
+			<field name="list" type="rslist" default="all" label="COM_RSEVENTSPRO_CALENDAR_VIEW_TYPE" description="COM_RSEVENTSPRO_CALENDAR_VIEW_TYPE_DESC" onchange="rsepro_change_list(this.value);" >
+				<option value="ongoing">COM_RSEVENTSPRO_CALENDAR_VIEW_LIST_TYPE_ONGOING</option>
+			</field>
+			
+			<field name="archived" type="list" default="0" label="COM_RSEVENTSPRO_CALENDAR_VIEW_ARCHIVED" description="COM_RSEVENTSPRO_CALENDAR_VIEW_ARCHIVED_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="days" type="text" default="0" label="COM_RSEVENTSPRO_CALENDAR_VIEW_FUTURE_DAYS" size="4" description="COM_RSEVENTSPRO_CALENDAR_VIEW_FUTURE_DAYS_DESC" />		
+			
+			<field name="repeat" type="list" default="1" label="COM_RSEVENTSPRO_CALENDAR_VIEW_RECURRING_EVENTS" description="COM_RSEVENTSPRO_CALENDAR_VIEW_RECURRING_EVENTS_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="search" type="list" default="1" label="COM_RSEVENTSPRO_ENABLE_SEARCH" description="COM_RSEVENTSPRO_ENABLE_SEARCH_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="colors" type="list" default="0" label="COM_RSEVENTSPRO_CALENDAR_VIEW_COLORS" description="COM_RSEVENTSPRO_CALENDAR_VIEW_COLORS_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="legend" type="list" default="0" label="COM_RSEVENTSPRO_CALENDAR_VIEW_LEGEND" description="COM_RSEVENTSPRO_CALENDAR_VIEW_LEGEND_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="legendordering" type="list" default="title" label="COM_RSEVENTSPRO_CALENDAR_VIEW_LEGEND_ORDER" description="COM_RSEVENTSPRO_CALENDAR_VIEW_LEGEND_ORDER_DESC">
+				<option value="title">COM_RSEVENTSPRO_CATEGORIES_VIEW_ORDERING_TITLE</option>
+				<option value="lft">COM_RSEVENTSPRO_CATEGORIES_VIEW_ORDERING_ORDER</option>
+			</field>
+			
+			<field name="legenddirection" type="list" default="DESC" label="COM_RSEVENTSPRO_CALENDAR_VIEW_LEGEND_DIRECTION" description="COM_RSEVENTSPRO_CALENDAR_VIEW_LEGEND_DIRECTION_DESC">
+				<option value="DESC">COM_RSEVENTSPRO_DESCENDING</option>
+				<option value="ASC">COM_RSEVENTSPRO_ASCENDING</option>
+			</field>
+			
+			<field name="display" type="list" default="0" label="COM_RSEVENTSPRO_CALENDAR_VIEW_DISPLAY" description="COM_RSEVENTSPRO_CALENDAR_VIEW_DISPLAY_DESC">
+				<option value="0">COM_RSEVENTSPRO_CALENDAR_VIEW_DISPLAY_ALLDAYS</option>
+				<option value="1">COM_RSEVENTSPRO_CALENDAR_VIEW_DISPLAY_STARTDAY</option>
+				<option value="2">COM_RSEVENTSPRO_CALENDAR_VIEW_DISPLAY_STARTENDDAY</option>
+			</field>
+			
+			<field name="from" type="rscalendar" default="" label="COM_RSEVENTSPRO_CALENDAR_VIEW_FROM" description="COM_RSEVENTSPRO_CALENDAR_VIEW_FROM_DESC" />
+			<field name="to" type="rscalendar" default="" label="COM_RSEVENTSPRO_CALENDAR_VIEW_TO" description="COM_RSEVENTSPRO_CALENDAR_VIEW_TO_DESC" filter="SERVER_UTC" />
+			
+			<field name="categories" type="category" description="COM_RSEVENTSPRO_SELECT_CATEGORIES_DESC" extension="com_rseventspro" label="COM_RSEVENTSPRO_SELECT_CATEGORIES" multiple="multiple" class="rs200 rschosen" />
+			<field name="locations" type="rslocations" default="" label="COM_RSEVENTSPRO_SELECT_LOCATIONS" description="COM_RSEVENTSPRO_SELECT_LOCATIONS_DESC" multiple="multiple" class="rs200 rschosen" show_root="false" />
+			<field name="tags" type="rstags" default="" label="COM_RSEVENTSPRO_SELECT_TAGS" description="COM_RSEVENTSPRO_SELECT_TAGS_DESC" multiple="multiple" class="rs200 rschosen" />
+			<field name="choosen" type="rschosen" />
+		</fieldset>
+	</fields>
+</metadata>

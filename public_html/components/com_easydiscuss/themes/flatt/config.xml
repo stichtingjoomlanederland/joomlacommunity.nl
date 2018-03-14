@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<install version="1.5" type="template">
+	<name>Flatt</name>
+	<version>4.0</version>
+	<created>18/12/2015</created>
+	<updated>18/12/2015</updated>
+	<author>Stack Ideas Sdn Bhd</author>
+	<description>COM_EASYDISCUSS_THEME_FLATT_DESC</description>
+</install>

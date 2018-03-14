@@ -1,0 +1,353 @@
+/*
+@package	ACL Manager for Joomla
+@copyright 	Copyright (c) 2011-2016 Sander Potjer
+@license 	GNU General Public License version 3 or later
+*/
+
+/* ACL Manager */
+div#aclmanager {
+	overflow: hidden;
+}
+
+div.copyright {
+    margin: 10px 0 0;
+    text-align: center;
+}
+
+.icon-48-aclmanager {
+	background-image:url('../images/icon-48-aclmanager.png');
+}
+
+.icon-32-print {
+	background-image:url('../images/icon-32-print.png');
+}
+
+/* Table styling */
+table#global-aclmanager tr.select {
+	height: 165px;
+}
+
+table#global-aclmanager tr.select td {
+	text-align: center;
+}
+
+table#global-aclmanager tr.select span.select {
+	color: #146295;
+    font-size: 1.182em;
+    font-weight: bold;
+}
+
+table#global-aclmanager tbody tr.row1 td.rule {
+	background: none;
+	text-align: center;
+}
+
+table#global-aclmanager tbody tr.row1:hover td.rule {
+	background: none;
+}
+
+table#global-aclmanager tbody tr.row1:hover td.norule {
+	background: none;
+}
+
+table#global-aclmanager tbody tr.row1 td.rule.conflict,
+table#global-aclmanager tbody tr.row1:hover td.rule.conflict {
+	background: none;
+}
+
+table#global-aclmanager tbody tr.row1 td.rule.allowed,
+table#global-aclmanager tbody tr.row1:hover td.rule.allowed {
+	background: none;
+}
+
+table#global-aclmanager tbody tr.row1 td.rule.denied,
+table#global-aclmanager tbody tr.row1:hover td.rule.denied {
+	background: none;
+}
+
+table#global-aclmanager tbody tr.trashed td,
+table#global-aclmanager tbody tr.trashed td a {
+	color: #999999;
+}
+
+table#global-aclmanager tbody tr div.icons {
+	float: left;
+}
+
+table#global-aclmanager tbody tr div.title {
+	overflow: hidden;
+	margin-right: 5px;
+	white-space: nowrap;
+}
+
+table#global-aclmanager tbody tr span.title {
+	font-size: 1.1em;
+}
+
+table#global-aclmanager tbody tr span.title a {
+   width: 500px;
+}
+
+table#global-aclmanager {
+	table-layout: fixed;
+}
+
+table#global-aclmanager thead th.brrgt,
+table#global-aclmanager tbody td.coremanage {
+	border-right: 1px solid #CCCCCC;
+}
+
+table#global-aclmanager thead th.brlft,
+table#global-aclmanager tbody td.coreadmin,
+table#global-aclmanager tbody td.assetid {
+	border-left: 1px solid #CCCCCC;
+}
+
+tr.row1.hidden {
+	display: none;
+}
+
+
+/* Icons */
+span.icon-16-article,
+span.icon-16-category,
+span.icon-16-component,
+span.icon-16-config,
+span.icon-16-module {
+	display:inline-table;
+	height:16px;
+	margin: -2px 5px -2px 5px;
+	width:16px;
+}
+
+#global-aclmanager a.icon-16-config {
+	display:block;
+	height:16px;
+	margin:0 auto;
+	width:16px;
+}
+
+span.type {
+	margin-left: 0;
+}
+
+
+/* Sidebar */
+fieldset.adminform ul.adminformlist span.value {
+    border: 0 none;
+    color: #666666;
+    font-family: Arial,Helvetica,sans-serif;
+	font-size: 1.091em;
+    font-weight: bold;
+    float: left;
+    margin: 5px 0;
+}
+
+fieldset.adminform ul.adminformlist span.value.link {
+    font-weight: normal;
+}
+
+fieldset.adminform ul.adminformlist label {
+   	min-width: 75px;
+}
+
+fieldset.adminform span.noresult {
+   font-size: 1.091em;
+   margin: 5px 0;
+   display: block;
+}
+
+
+/* Rules images */
+.rule span.icon {
+    display: inline-block;
+    height: 16px;
+    width: 16px;
+    background: no-repeat;
+}
+
+.rule span.denied-i {
+	width: 32px;
+}
+
+.rule span.unset {
+    background-image: url('../images/disabled.png');
+}
+
+.rule span.allowed,
+span.icon-16-publish  {
+    background-image: url('../images/tick.png');
+}
+
+.rule span.allowed-i {
+    background-image: url('../images/icon-16-allow.png');
+}
+
+.rule span.denied,
+span.icon-16-unpublish {
+    background-image: url('../images/publish_x.png');
+}
+
+.rule span.denied-i {
+    background-image: url('../images/icon-16-deny.png');
+}
+
+.rule span.locked {
+    background-image: url('../images/checked_out.png');
+}
+
+.rule span.conflict {
+    background-image: url('../images/publish_y.png');
+}
+
+.rule span.legend {
+	height: 16px;
+	line-height: 16px;
+	padding-left: 5px;
+	font-size: 1.091em;
+}
+
+li.rule span.icon {
+	float: left;
+}
+
+
+/* 3rd party actions */
+table.extra {
+	width: 100%;
+}
+
+table#global-aclmanager td.extra,
+table#global-aclmanager td.extra td {
+	padding-left: 4px;
+}
+
+table#global-aclmanager tbody tr.row1 table.extra td,
+table#global-aclmanager tbody tr.row1:hover table.extra td {
+	background: #ffffff;
+}
+
+table#global-aclmanager td.extra .pane-sliders,
+table#global-aclmanager td.extra .pane-sliders .panel {
+	margin: 0;
+}
+
+table#global-aclmanager td.extra .pane-toggler-down {
+    border-bottom: none;
+}
+
+table#global-aclmanager td.extra h3 {
+	font-size: 1.0em;
+}
+
+table#global-aclmanager table.extra {
+	border-spacing: 0;
+}
+
+table#global-aclmanager table.extra td {
+	border: none;
+	border-top: 1px solid #CCCCCC;
+}
+
+table#global-aclmanager table.extra td.rule {
+	border-left: 1px solid #CCCCCC;
+}
+
+/* Print specific */
+
+body {
+	margin: 0 !important;
+}
+
+#print {
+	overflow: hidden;
+}
+
+#print .logo {
+	width: 40%;
+	float: left;
+}
+
+#print .logo img {
+	float: left;
+	margin-right: 5px;
+}
+
+#print .logo h1 {
+	line-height: 30px;
+	font-size: 2em;
+	margin: 0;
+	padding: 0;
+}
+
+#print .logo span.website {
+	line-height: 20px;
+	font-size: 14px;
+	margin: 0;
+}
+
+#print .legendinfo {
+	width: 60%;
+	float: right;
+	font-size: 9px;
+}
+
+#print .legendinfo ul {
+	width: 50%;
+	float: left;
+}
+
+#print .legendinfo fieldset.adminform  {
+	margin: 0 0 10px 0;
+}
+
+#print .legendinfo span.icon img {
+	margin: 0;
+}
+
+#print table.adminlist {
+    border-spacing: 0;
+    border-right: 1px solid #EEEEEE;
+    border-bottom: 1px solid #CCCCCC;
+}
+
+#print table.adminlist td,
+#print table.adminlist th {
+	border-top: 1px solid #EEEEEE;
+	border-left: 1px solid #EEEEEE;
+	border-bottom: none;
+	border-right:none;
+	padding-bottom: 2px;
+}
+
+#print table.adminlist th {
+	border-bottom: 1px solid #CCCCCC;
+}
+
+table.adminlist tr td a {
+    font-size: 1.1em;
+}
+
+#print table.adminlist,
+#print table.adminlist thead th,
+#print tr.row1,
+#print table.adminlist tbody tr.row1 td  {
+	background: none;
+}
+
+span.icon-16-article,
+span.icon-16-category,
+span.icon-16-component,
+span.icon-16-config,
+span.icon-16-module,
+.rule span.unset,
+.rule span.allowed,
+span.icon-16-publish,
+.rule span.allowed-i,
+.rule span.denied,
+span.icon-16-unpublish,
+.rule span.denied-i,
+.rule span.locked,
+.rule span.conflict {
+    background-image: none;
+}

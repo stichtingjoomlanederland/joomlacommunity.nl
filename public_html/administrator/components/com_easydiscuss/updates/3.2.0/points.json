@@ -1,0 +1,12 @@
+[
+    {
+        "table"     : "#__discuss_points",
+        "index"     : "discuss_points_rule",
+        "query"     : "ALTER TABLE `#__discuss_points` ADD INDEX `discuss_points_rule` (`rule_id`);"
+    },
+    {
+        "table"     : "#__discuss_points",
+        "index"     : "discuss_points_published",
+        "query"     : "ALTER TABLE `#__discuss_points` ADD INDEX `discuss_points_published` (`published`);"
+    }
+]

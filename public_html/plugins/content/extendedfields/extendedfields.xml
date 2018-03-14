@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.0" type="plugin" group="content">
+    <name>Extended Form Fields</name>
+    <creationDate>January 2015</creationDate>
+    <author>Sander Potjer - Perfect Web Team</author>
+    <authorEmail>hallo@perfectwebteam.nl</authorEmail>
+    <authorUrl>http://www.perfectwebteam.nl</authorUrl>
+    <copyright>Copyright (c)2015 Perfect Web Team</copyright>
+    <license>GNU GPL v3 or later</license>
+    <version>1.0.0</version>
+    <description>Add additional fields to Joomla forms</description>
+
+    <files>
+        <filename plugin="extendedfields">extendedfields.php</filename>
+        <filename>index.html</filename>
+        <folder>forms</folder>
+    </files>
+</extension>

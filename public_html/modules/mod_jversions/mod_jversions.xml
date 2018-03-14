@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.1" client="site" method="upgrade">
+	<name>mod_jversions</name>
+	<author>Niels van der Veer</author>
+	<creationDate>May 2016</creationDate>
+	<copyright>Copyright (C) 2016 Niels van der Veer. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later</license>
+	<authorEmail>contact@nielsvanderveer.me</authorEmail>
+	<authorUrl>www.nielsvanderveer.me</authorUrl>
+	<version>2.0.1</version>
+	<description>MOD_JVERSIONS_XML_DESCRIPTION</description>
+	<files>
+		<filename module="mod_jversions">mod_jversions.php</filename>
+		<folder>tmpl</folder>
+		<filename>helper.php</filename>
+	</files>
+	<languages folder="language">
+		<language tag="nl-NL">nl-NL/nl-NL.mod_jversions.ini</language>
+		<language tag="nl-NL">nl-NL/nl-NL.mod_jversions.sys.ini</language>
+		<language tag="en-GB">en-GB/en-GB.mod_jversions.ini</language>
+		<language tag="en-GB">en-GB/en-GB.mod_jversions.sys.ini</language>
+	</languages>
+	<updateservers>
+		<server type="extension" priority="2" name="J!Versions update server">https://raw.githubusercontent.com/n9iels/mod_jversions/master/update.xml</server>
+	</updateservers>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field
+						name="update_url_target"
+						type="list"
+						default="_blank"
+						label="MOD_JVERSIONS_FIELD_DOWNLOADURL_TARGET_LABEL"
+						description="MOD_JVERSIONS_FIELD_DOWNLOADURL_TARGET_DESC"
+				>
+					<option value="_blank">_blank</option>
+					<option value="_self">_self</option>
+					<option value="_parent">_parent</option>
+					<option value="_top">_top</option>
+				</field>
+				<field
+						name="download_url"
+						type="text"
+						default="http://downloads.joomla.org"
+						label="MOD_JVERSIONS_FIELD_DOWNLOADURL_LABEL"
+						description="MOD_JVERSIONS_FIELD_DOWNLOADURL_DESC"
+				/>
+				<field
+						name="prefixes"
+						type="list"
+						default="3"
+						label="MOD_JVERSIONS_FIELD_PREFIXES_LABEL"
+						description="MOD_JVERSIONS_FIELD_PREFIXES_DESC"
+						multiple="true"
+				>
+					<option value="Joomla! 1.0">MOD_JVERSIONS_FIELD_PREFIXES_J1</option>
+					<option value="Joomla! 1.5">MOD_JVERSIONS_FIELD_PREFIXES_J15</option>
+					<option value="Joomla! 2.5">MOD_JVERSIONS_FIELD_PREFIXES_J25</option>
+					<option value="Joomla! 3">MOD_JVERSIONS_FIELD_PREFIXES_J3</option>
+				</field>
+			</fieldset>
+			<fieldset name="advanced">
+				<field
+						name="layout"
+						type="modulelayout"
+						label="JFIELD_ALT_LAYOUT_LABEL"
+						description="JFIELD_ALT_MODULE_LAYOUT_DESC"
+				/>
+				<field
+						name="moduleclass_sfx"
+						type="textarea"
+						rows="3"
+						label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL"
+						description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC"
+				/>
+			</fieldset>
+		</fields>
+	</config>
+</extension>

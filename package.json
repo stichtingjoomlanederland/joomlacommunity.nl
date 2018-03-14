@@ -1,0 +1,30 @@
+{
+  "name": "perfectsite",
+  "description": "Perfect Site",
+  "author": "Perfect Web Team",
+  "devDependencies": {
+    "apollo.js": "toddmotto/apollo",
+    "grunt": "^1.0.2",
+    "grunt-autoprefixer": "^3.0.4",
+    "grunt-browser-sync": "^2.2.0",
+    "grunt-contrib-concat": "^1.0.1",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-cssmin": "^2.2.1",
+    "grunt-contrib-uglify": "^3.3.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-contrib-less": "^1.4.1",
+    "grunt-modernizr": "^1.0.2",
+    "grunt-sass": "^2.1.0",
+    "grunt-shell": "^2.1.0",
+    "grunt-svgstore": "^1.0.0",
+    "grunt-version-check": "^0.3.8",
+    "grunt-webfont": "^1.7.1",
+    "illusion": "timble/illusion#v1.1.0",
+    "jit-grunt": "^0.10.0",
+    "jquery": "^3.3.1",
+    "load-grunt-configs": "^1.0.0",
+    "node-normalize-scss": "^3.0.0",
+    "time-grunt": "^1.4.0",
+    "vanilla-js-responsive-menu": "robinpoort/vanilla-js-responsive-menu"
+  }
+}

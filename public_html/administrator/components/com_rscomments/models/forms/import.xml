@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset name="main" label="COM_RSCOMMENTS_COMMENT_DETAILS" addfieldpath="/administrator/components/com_rscomments/models/fields">
+		<field name="table" type="table" default="10" label="COM_RSCOMMENTS_IMPORT_FROM" description="COM_RSCOMMENTS_IMPORT_FROM_DESC" />
+	</fieldset>
+	<fields name="rsc_col">
+		<fieldset name="columns">
+			<field name="option" type="list" default="COM_RSCOMMENTS_SELECT_TABLE_FIRST" label="COM_RSCOMMENTS_IMPORT_OPTION" description="COM_RSCOMMENTS_IMPORT_OPTION_DESC">
+			  <option value="">COM_RSCOMMENTS_SELECT_TABLE_FIRST</option>
+			</field>
+
+			<field name="id" type="list" default="COM_RSCOMMENTS_SELECT_TABLE_FIRST" label="COM_RSCOMMENTS_IMPORT_OPTIONID" description="COM_RSCOMMENTS_IMPORT_OPTIONID_DESC">
+			  <option value="">COM_RSCOMMENTS_SELECT_TABLE_FIRST</option>
+			</field>
+
+			<field name="name" type="list" default="COM_RSCOMMENTS_SELECT_TABLE_FIRST" label="COM_RSCOMMENTS_IMPORT_AUTHOR_NAME" description="COM_RSCOMMENTS_IMPORT_AUTHOR_NAME_DESC">
+			  <option value="">COM_RSCOMMENTS_SELECT_TABLE_FIRST</option>
+			</field>
+
+			<field name="email" type="list" default="COM_RSCOMMENTS_SELECT_TABLE_FIRST" label="COM_RSCOMMENTS_IMPORT_AUTHOR_EMAIL" description="COM_RSCOMMENTS_IMPORT_AUTHOR_EMAIL_DESC">
+			  <option value="">COM_RSCOMMENTS_SELECT_TABLE_FIRST</option>
+			</field>
+
+			<field name="website" type="list" default="COM_RSCOMMENTS_SELECT_TABLE_FIRST" label="COM_RSCOMMENTS_IMPORT_AUTHOR_WEBSITE" description="COM_RSCOMMENTS_IMPORT_AUTHOR_WEBSITE_DESC">
+			  <option value="">COM_RSCOMMENTS_SELECT_TABLE_FIRST</option>
+			</field>
+
+			<field name="subject" type="list" default="COM_RSCOMMENTS_SELECT_TABLE_FIRST" label="COM_RSCOMMENTS_IMPORT_AUTHOR_SUBJECT" description="COM_RSCOMMENTS_IMPORT_AUTHOR_SUBJECT_DESC">
+			  <option value="">COM_RSCOMMENTS_SELECT_TABLE_FIRST</option>
+			</field>
+
+			<field name="ip" type="list" default="COM_RSCOMMENTS_SELECT_TABLE_FIRST" label="COM_RSCOMMENTS_IMPORT_AUTHOR_IP" description="COM_RSCOMMENTS_IMPORT_AUTHOR_IP_DESC">
+			  <option value="">COM_RSCOMMENTS_SELECT_TABLE_FIRST</option>
+			</field>
+
+			<field name="uid" type="list" default="COM_RSCOMMENTS_SELECT_TABLE_FIRST" label="COM_RSCOMMENTS_IMPORT_AUTHOR_UID" description="COM_RSCOMMENTS_IMPORT_AUTHOR_UID_DESC">
+			  <option value="">COM_RSCOMMENTS_SELECT_TABLE_FIRST</option>
+			</field>
+
+			<field name="comment" type="list" default="COM_RSCOMMENTS_SELECT_TABLE_FIRST" label="COM_RSCOMMENTS_IMPORT_AUTHOR_COMMENT" description="COM_RSCOMMENTS_IMPORT_AUTHOR_COMMENT_DESC">
+			  <option value="">COM_RSCOMMENTS_SELECT_TABLE_FIRST</option>
+			</field>
+
+			<field name="date" type="list" default="COM_RSCOMMENTS_SELECT_TABLE_FIRST" label="COM_RSCOMMENTS_IMPORT_COMMENT_DATE" description="COM_RSCOMMENTS_IMPORT_COMMENT_DATE_DESC">
+			  <option value="">COM_RSCOMMENTS_SELECT_TABLE_FIRST</option>
+			</field>
+
+			<field name="url" type="list" default="COM_RSCOMMENTS_SELECT_TABLE_FIRST" label="COM_RSCOMMENTS_IMPORT_COMMENT_URL" description="COM_RSCOMMENTS_IMPORT_COMMENT_URL_DESC">
+			  <option value="">COM_RSCOMMENTS_SELECT_TABLE_FIRST</option>
+			</field>
+
+			<field name="published" type="list" default="COM_RSCOMMENTS_SELECT_TABLE_FIRST" label="COM_RSCOMMENTS_IMPORT_COMMENT_PUBLISHED" description="COM_RSCOMMENTS_IMPORT_COMMENT_PUBLISHED_DESC">
+			  <option value="">COM_RSCOMMENTS_SELECT_TABLE_FIRST</option>
+			</field>
+		</fieldset>
+	</fields>
+</form>

@@ -1,0 +1,48 @@
+.formResponsive .formBody {
+	float: right;
+}
+
+.formResponsive .formHorizontal .formControlLabel {
+	float: right;
+}
+
+.formResponsive input[type="radio"],
+.formResponsive input[type="checkbox"] {
+	float: right;
+	margin-left: 5px;
+}
+
+.formResponsive label {
+	margin: 3px 0 3px 5px;
+	float: right;
+}
+
+.yui-calcontainer.single {
+	float: right;
+}
+
+.formResponsive .formControls .formBody .rsformgrid2,
+.formResponsive .formControls .formBody .rsformgrid3,
+.formResponsive .formControls .formBody .rsformgrid4,
+.formResponsive .formControls .formBody .rsformgrid6,
+.formResponsive .formControls .formBody .rsformgrid12 {
+	float:right;
+}
+
+@media screen and (max-width: 650px) {
+	.formResponsive .formHorizontal .rsform-block {
+		text-align: right;
+	}
+	
+	.formResponsive .formHorizontal .formControlLabel {
+		text-align: right;
+	}
+	
+	.formResponsive .formControls .formBody .rsformgrid2,
+	.formResponsive .formControls .formBody .rsformgrid3,
+	.formResponsive .formControls .formBody .rsformgrid4,
+	.formResponsive .formControls .formBody .rsformgrid6,
+	.formResponsive .formControls .formBody .rsformgrid12 {
+		float:none;
+	}
+}

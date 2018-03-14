@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="1.6" method="upgrade">
+	<name>COM_ACLMANAGER</name>
+	<author>Sander Potjer</author>
+	<creationDate>2016-05-05</creationDate>
+	<copyright>Copyright (C) 2011-2016 Sander Potjer Webdevelopment. All rights reserved.</copyright>
+	<license>http://www.gnu.org/licenses/gpl-3.0.html GNU/GPL</license>
+	<authorEmail>info@aclmanager.net</authorEmail>
+	<authorUrl>http://www.aclmanager.net</authorUrl>
+	<version>2.4.7</version>
+	<description>Joomla ACL simplified</description>
+
+	<administration>
+		<!-- Administration menu -->
+		<menu img="components/com_aclmanager/assets/images/icon-16-aclmanager.png" link="option=com_aclmanager">COM_ACLMANAGER</menu>
+
+		<!-- Back-end files -->
+		<files folder="admin">
+			<filename>access.xml</filename>
+			<filename>aclmanager.php</filename>
+			<filename>config.xml</filename>
+			<filename>controller.php</filename>
+			<filename>index.html</filename>
+			<folder>assets</folder>
+			<folder>controllers</folder>
+			<folder>helpers</folder>
+			<folder>liveupdate</folder>
+			<folder>models</folder>
+			<folder>views</folder>
+		</files>
+
+		<!-- Back-end translation files -->
+		<languages folder="admin/language">
+			<language tag="af-ZA">af-ZA/af-ZA.com_aclmanager.ini</language>
+			<language tag="af-ZA">af-ZA/af-ZA.com_aclmanager.sys.ini</language>
+			<language tag="am-ET">am-ET/am-ET.com_aclmanager.ini</language>
+			<language tag="am-ET">am-ET/am-ET.com_aclmanager.sys.ini</language>
+			<language tag="ar-SA">ar-SA/ar-SA.com_aclmanager.ini</language>
+			<language tag="ar-SA">ar-SA/ar-SA.com_aclmanager.sys.ini</language>
+			<language tag="bg-BG">bg-BG/bg-BG.com_aclmanager.ini</language>
+			<language tag="bg-BG">bg-BG/bg-BG.com_aclmanager.sys.ini</language>
+			<language tag="ca-ES">ca-ES/ca-ES.com_aclmanager.ini</language>
+			<language tag="ca-ES">ca-ES/ca-ES.com_aclmanager.sys.ini</language>
+			<language tag="da-DK">da-DK/da-DK.com_aclmanager.ini</language>
+			<language tag="da-DK">da-DK/da-DK.com_aclmanager.sys.ini</language>
+			<language tag="de-DE">de-DE/de-DE.com_aclmanager.ini</language>
+			<language tag="de-DE">de-DE/de-DE.com_aclmanager.sys.ini</language>
+			<language tag="el-GR">el-GR/el-GR.com_aclmanager.ini</language>
+			<language tag="el-GR">el-GR/el-GR.com_aclmanager.sys.ini</language>
+			<language tag="en-GB">en-GB/en-GB.com_aclmanager.ini</language>
+			<language tag="en-GB">en-GB/en-GB.com_aclmanager.sys.ini</language>
+			<language tag="es-ES">es-ES/es-ES.com_aclmanager.ini</language>
+			<language tag="es-ES">es-ES/es-ES.com_aclmanager.sys.ini</language>
+			<language tag="fa-IR">fa-IR/fa-IR.com_aclmanager.ini</language>
+			<language tag="fa-IR">fa-IR/fa-IR.com_aclmanager.sys.ini</language>
+			<language tag="fi-FI">fi-FI/fi-FI.com_aclmanager.ini</language>
+			<language tag="fi-FI">fi-FI/fi-FI.com_aclmanager.sys.ini</language>
+			<language tag="fr-FR">fr-FR/fr-FR.com_aclmanager.ini</language>
+			<language tag="fr-FR">fr-FR/fr-FR.com_aclmanager.sys.ini</language>
+			<language tag="hr-HR">hr-HR/hr-HR.com_aclmanager.ini</language>
+			<language tag="hr-HR">hr-HR/hr-HR.com_aclmanager.sys.ini</language>
+			<language tag="hu-HU">hu-HU/hu-HU.com_aclmanager.ini</language>
+			<language tag="hu-HU">hu-HU/hu-HU.com_aclmanager.sys.ini</language>
+			<language tag="it-IT">it-IT/it-IT.com_aclmanager.ini</language>
+			<language tag="it-IT">it-IT/it-IT.com_aclmanager.sys.ini</language>
+			<language tag="ja-JP">ja-JP/ja-JP.com_aclmanager.ini</language>
+			<language tag="ja-JP">ja-JP/ja-JP.com_aclmanager.sys.ini</language>
+			<language tag="nb-NO">nb-NO/nb-NO.com_aclmanager.ini</language>
+			<language tag="nb-NO">nb-NO/nb-NO.com_aclmanager.sys.ini</language>
+			<language tag="nl-NL">nl-NL/nl-NL.com_aclmanager.ini</language>
+			<language tag="nl-NL">nl-NL/nl-NL.com_aclmanager.sys.ini</language>
+			<language tag="nl-BE">nl-BE/nl-BE.com_aclmanager.ini</language>
+			<language tag="nl-BE">nl-BE/nl-BE.com_aclmanager.sys.ini</language>
+			<language tag="pl-PL">pl-PL/pl-PL.com_aclmanager.ini</language>
+			<language tag="pl-PL">pl-PL/pl-PL.com_aclmanager.sys.ini</language>
+			<language tag="pt-BR">pt-BR/pt-BR.com_aclmanager.ini</language>
+			<language tag="pt-BR">pt-BR/pt-BR.com_aclmanager.sys.ini</language>
+			<language tag="pt-PT">pt-PT/pt-PT.com_aclmanager.ini</language>
+			<language tag="pt-PT">pt-PT/pt-PT.com_aclmanager.sys.ini</language>
+			<language tag="ru-RU">ru-RU/ru-RU.com_aclmanager.ini</language>
+			<language tag="ru-RU">ru-RU/ru-RU.com_aclmanager.sys.ini</language>
+			<language tag="sl-SI">sl-SI/sl-SI.com_aclmanager.ini</language>
+			<language tag="sl-SI">sl-SI/sl-SI.com_aclmanager.sys.ini</language>
+			<language tag="sv-SE">sv-SE/sv-SE.com_aclmanager.ini</language>
+			<language tag="sv-SE">sv-SE/sv-SE.com_aclmanager.sys.ini</language>
+			<language tag="th-TH">th-TH/th-TH.com_aclmanager.ini</language>
+			<language tag="th-TH">th-TH/th-TH.com_aclmanager.sys.ini</language>
+			<language tag="uk-UA">uk-UA/uk-UA.com_aclmanager.ini</language>
+			<language tag="uk-UA">uk-UA/uk-UA.com_aclmanager.sys.ini</language>
+			<language tag="zh-ZH">zh-ZH/zh-ZH.com_aclmanager.ini</language>
+			<language tag="zh-ZH">zh-ZH/zh-ZH.com_aclmanager.sys.ini</language>
+		</languages>
+
+	</administration>
+
+	<!-- Installation / uninstallation PHP scripts -->
+	<scriptfile>script.aclmanager.php</scriptfile>
+</extension>

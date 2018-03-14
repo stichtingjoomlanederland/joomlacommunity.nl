@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<install version="1.5" type="template">
+	<name>Bubbles</name>
+	<version>1.0</version>
+	<created>15/2/2016</created>
+	<updated>15/2/2016</updated>
+	<author>Stack Ideas Sdn Bhd</author>
+	<description>COM_EASYDISCUSS_THEME_BUBBLES_DESC</description>
+</install>

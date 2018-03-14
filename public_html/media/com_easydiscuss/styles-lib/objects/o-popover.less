@@ -1,0 +1,195 @@
+/*------------------------------------*\
+    $ui.less
+\*------------------------------------*/
+/*
+DOM
+<div class="popover popover--ed top in" id="ed" style="left: 100px; width: 500px; top: 100px; position: absolute; display: block; height: 130px;">
+    <div class="arrow"></div>
+    <div class="">test</div>
+</div>
+*/
+
+
+// Backend Popover
+// ------------------
+// popover reset for si
+&.popover--ed {
+    
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: @zindex-popover;
+    display: none;
+    max-width: @popover-max-width;
+    padding: 1px;
+
+    .reset-text();
+    font-size: @font-size-base;
+
+    background-color: @popover-bg;
+    background-clip: padding-box;
+    border: 1px solid @popover-fallback-border-color;
+    border: 1px solid @popover-border-color;
+    border-radius: @border-radius-large;
+    .box-shadow(0 5px 10px rgba(0,0,0,.2));
+
+    z-index: 20001;
+    text-align: left;
+    
+    &.in {
+        // display: block !important;
+        // height: auto !important;
+    }
+
+    .popover-title {
+        font-family: sans-serif !important;
+        background-color: @fd-ui-shade !important;
+        border-bottom: 1px solid @fd-ui-border-color !important;
+        border-radius: 5px 5px 0 0 !important;
+        font-size: 12px !important;
+        font-weight: bold !important;
+        line-height: 14px !important;
+        margin: 0 !important;
+        padding: 8px 14px !important;
+
+        background: none repeat scroll 0 0 transparent;
+        border: 1px solid transparent !important;
+        font-weight: bold;
+        line-height: 16px !important;
+        // margin-top: 8px !important;
+        // margin-bottom: 10px !important;
+        // padding: 3px 14px 0 !important;
+    }
+    .popover-content {
+        font-family: sans-serif !important;
+        font-size: 11px !important;
+        padding: 2px 14px !important;
+        margin-bottom: 10px !important;
+        p {
+            margin-top:0;
+            line-height: 16px !important;
+        }
+    }
+
+
+    .arrow,
+    .arrow:after {
+        border-color: transparent !important;
+        border-style: solid !important;
+        display: inline-block !important;
+        height: 0 !important;
+        position: absolute !important;
+        width: 0 !important;
+    }
+
+    > .arrow {
+      border-width: @popover-arrow-outer-width !important;
+    }
+    > .arrow:after {
+      border-width: @popover-arrow-width !important;
+      content: "";
+    }
+
+    
+
+
+    &.top > .arrow {
+      left: 50% !important;
+      margin-left: -@popover-arrow-outer-width !important;
+      border-bottom-width: 0 !important;
+      border-top-color: @popover-arrow-outer-fallback-color !important; // IE8 fallback
+      border-top-color: @popover-arrow-outer-color !important;
+      bottom: -@popover-arrow-outer-width !important;
+      &:after {
+        content: " " !important;
+        bottom: 1px !important;
+        margin-left: -@popover-arrow-width !important;
+        border-bottom-width: 0 !important;
+        border-top-color: @popover-arrow-color !important;
+      }
+    }
+    &.right > .arrow {
+      top: 50%;
+      left: -@popover-arrow-outer-width;
+      margin-top: -@popover-arrow-outer-width;
+      border-left-width: 0;
+      border-right-color: @popover-arrow-outer-fallback-color; // IE8 fallback
+      border-right-color: @popover-arrow-outer-color;
+      &:after {
+        content: " ";
+        left: 1px;
+        bottom: -@popover-arrow-width;
+        border-left-width: 0;
+        border-right-color: @popover-arrow-color;
+      }
+    }
+    &.bottom > .arrow {
+      left: 50%;
+      margin-left: -@popover-arrow-outer-width;
+      border-top-width: 0;
+      border-bottom-color: @popover-arrow-outer-fallback-color; // IE8 fallback
+      border-bottom-color: @popover-arrow-outer-color;
+      top: -@popover-arrow-outer-width;
+      &:after {
+        content: " ";
+        top: 1px;
+        margin-left: -@popover-arrow-width;
+        border-top-width: 0;
+        border-bottom-color: @popover-arrow-color;
+      }
+    }
+
+    &.left > .arrow {
+      top: 50%;
+      right: -@popover-arrow-outer-width;
+      margin-top: -@popover-arrow-outer-width;
+      border-right-width: 0;
+      border-left-color: @popover-arrow-outer-fallback-color; // IE8 fallback
+      border-left-color: @popover-arrow-outer-color;
+      &:after {
+        content: " ";
+        right: 1px;
+        border-right-width: 0;
+        border-left-color: @popover-arrow-color;
+        bottom: -@popover-arrow-width;
+      }
+    }
+}
+
+// /*=popover for backend
+// ================================================== */
+// .popover {
+//     border-radius: 6px;
+//     color:#616143;
+//     background-color: #fff;
+//     // #gradient > .vertical(#fffffa, #fffdf0);
+//     &.top .arrow {
+//         border-top-color: #fffdf0;
+//     }
+//     &.right .arrow {
+//         border-right-color: #fffdf0;
+//     }
+//     &.bottom .arrow {
+//         border-bottom-color: #fffdf0;
+//     }
+//     &.left .arrow {
+//         border-left-color: #fffdf0;
+//     }
+//     .popover-title {
+//         background: none;
+//         border-bottom:none;
+//         font-weight: bold;
+//         font-size: 12px;
+//         padding-bottom:0;
+
+//     }
+//     .popover-content {
+//         background: transparent;
+//         p {
+//             margin: 0;
+//         }
+//     }
+
+// }//popover
+
+

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<field name="id" type="hidden" label="JGLOBAL_FIELD_ID_LABEL" description ="JGLOBAL_FIELD_ID_DESC" size="10" default="0" />
+	<field name="ide" type="hidden" default="0" />
+	<field name="idu" type="user" default="" label="COM_RSEVENTSPRO_SUBSCRIBER_USER" description="COM_RSEVENTSPRO_SUBSCRIBER_USER_DESC" />
+	<field name="name" type="text" class="input-xxlarge" label="COM_RSEVENTSPRO_SUBSCRIBER_NAME" description="COM_RSEVENTSPRO_SUBSCRIBER_NAME_DESC" required="true" size="70" />
+	<field name="email" type="text" class="input-xxlarge" label="COM_RSEVENTSPRO_SUBSCRIBER_EMAIL" description="COM_RSEVENTSPRO_SUBSCRIBER_EMAIL_DESC" required="true" size="70" validate="email" />
+	<field name="state" type="list" class="inputbox" label="COM_RSEVENTSPRO_SUBSCRIBER_STATE" description="COM_RSEVENTSPRO_SUBSCRIBER_STATE_DESC" size="1" default="0">
+		<option value="0">COM_RSEVENTSPRO_RULE_STATUS_INCOMPLETE</option>
+		<option value="1">COM_RSEVENTSPRO_RULE_STATUS_COMPLETE</option>
+		<option value="2">COM_RSEVENTSPRO_RULE_STATUS_DENIED</option>
+	</field>
+	<field name="confirmed" type="list" class="inputbox" label="COM_RSEVENTSPRO_SUBSCRIBERS_HEAD_CONFIRMED" description="COM_RSEVENTSPRO_SUBSCRIBERS_HEAD_CONFIRMED_DESC" size="1" default="0">
+		<option value="1">JYES</option>
+		<option value="0">JNO</option>
+	</field>
+</form>

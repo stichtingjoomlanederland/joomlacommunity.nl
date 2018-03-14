@@ -1,0 +1,39 @@
+// Custom mixins
+
+//Set a base color first, this will then be turned into a semi-transparent color used in gradients that blend with the background
+$rowBackgroundColor: hsl(0, 0%, 95%);
+$rowBackgroundColorHSLA: change-color($rowBackgroundColor, $alpha: (100 - lightness($rowBackgroundColor) ) / 100, $lightness: 0%);
+
+@mixin linear-gradient($from: hsla(0, 0%, 100%, 0.5), $to: hsla(0, 0%, 0%, 0.5)) {
+  background-image: -moz-linear-gradient(top, $from, $to); // FF 3.6+
+  background-image: -ms-linear-gradient(top, $from, $to); // IE10
+  background-image: -webkit-gradient(linear, 0 0, 0 100%, from($from), to($to)); // Safari 4+, Chrome 2+
+  background-image: -webkit-linear-gradient(top, $from, $to); // Safari 5.1+, Chrome 10+
+  background-image: -o-linear-gradient(top, $from, $to); // Opera 11.10
+  background-image: linear-gradient(top, $from, $to); // The standard
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#{ie-hex-str($from)}', endColorstr='#{ie-hex-str($to)}');
+}
+
+@mixin radial-elliptical-gradient($innerColor, $centerColor, $outerColor: false, $fallbackColor: whiteSmoke, $canvasColor: white) {
+  $gradient: $innerColor, $centerColor, $outerColor;
+  @if $outerColor == false {
+    $gradient: $innerColor, $centerColor;
+  }
+  background-color: $fallbackColor;
+  background: $canvasColor -webkit-radial-gradient(ellipse closest-corner, $gradient);
+  background: $canvasColor -moz-radial-gradient(ellipse closest-corner, $gradient);
+  background: $canvasColor -o-radial-gradient(ellipse closest-corner, $gradient);
+  background: $canvasColor -ms-radial-gradient(ellipse closest-corner, $gradient);
+  background: $canvasColor radial-gradient(ellipse closest-corner, $gradient);
+  background-repeat: no-repeat;
+}
+
+/* $group experimental CSS4 stuff */
+/* CSS filter experiment that automatically hue rotate blue icons to match other color schemes */
+@mixin hue-rotate-icon($hue: 211) {
+  $rotate: ($hue - hue($linkColor)) * -1;
+  $saturate: saturation($linkColor);
+  -webkit-filter: hue-rotate(#{$rotate}) saturate(#{$saturate});
+}
+
+/* $end */

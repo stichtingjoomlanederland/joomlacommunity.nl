@@ -1,0 +1,30 @@
+{
+    "name": "joomlatools/framework-scheduler",
+    "type": "joomlatools-extension",
+    "license": "GPLv3",
+    "description": "A reusable component for task scheduling",
+    "keywords": [
+        "joomla",
+        "component",
+        "scheduler"
+    ],
+    "homepage": "https://github.com/joomlatools/joomlatools-framework-scheduler",
+    "authors": [ {
+            "name": "Johan Janssens",
+            "email": "johan@janssens.me",
+            "homepage": "http://about.me/johanjanssens"
+        },
+        {
+            "name": "Timble",
+            "email": "info@timble.net",
+            "homepage": "http://www.timble.net"
+        }
+    ],
+    "require": {
+        "joomlatools/framework": "~3.0",
+        "mtdowling/cron-expression": "~1.0"
+    },
+    "extra": {
+        "joomlatools-component": "scheduler"
+    }
+}

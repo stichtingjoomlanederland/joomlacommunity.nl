@@ -1,0 +1,46 @@
+body {
+ margin: 0;
+ padding: 0;   
+}
+
+.pv-content {
+    padding: 20px;
+}
+
+#fd .o-nav--foo a{
+    background-color:#4a8ec2;
+    /*color:#fff;*/
+    border-left:1px solid #fff;
+}
+#fd .o-nav--foo li:first-child a{
+    border-left:none;
+}
+
+/* Make it red for easy views */
+.grid-example {
+  margin-bottom: 1rem;
+}
+.grid-example .o-col {
+  line-height: 3;
+  text-align: center;
+  color: #333;
+  background-color: rgba(255,0,0,.15);
+}
+.grid-example .o-col:nth-child(odd) {
+  background-color: rgba(255,0,0,.3);
+}
+
+/* Nested grid examples need outdenting because padding. */
+.grid-example .grid-example {
+  margin-top: .5rem;
+  margin-bottom: 0;
+}
+
+/* Increase height of vertically centered example */
+.grid-example.grid-align-middle {
+  height: 200px;
+}
+.grid-example.grid-align-middle .o-col {
+  min-height: 3rem;
+  line-height: 1.5;
+}

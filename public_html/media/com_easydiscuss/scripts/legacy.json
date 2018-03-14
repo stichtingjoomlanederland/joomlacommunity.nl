@@ -1,0 +1,8 @@
+[
+    {
+        "script": [
+            "composer"
+        ],
+        "adapter": "EasyDiscuss"
+    }
+]

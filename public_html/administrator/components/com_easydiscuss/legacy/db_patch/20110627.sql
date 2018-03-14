@@ -1,0 +1,1 @@
+ALTER TABLE `#__discuss_category` ADD `level` INT NOT NULL, ADD `lft` INT NOT NULL, ADD `rgt` INT NOT NULL;

@@ -1,0 +1,17 @@
+[
+    {
+        "view": [
+            "comment.form"
+        ],
+        "script": [
+            "comments",
+            "votes",
+            "location"
+        ],
+        "language": [
+            "COM_EASYDISCUSS_REPLY_LOADING_MORE_COMMENTS",
+            "COM_EASYDISCUSS_REPLY_LOAD_ERROR"
+        ],
+        "adapter": "EasyDiscuss"
+    }
+]

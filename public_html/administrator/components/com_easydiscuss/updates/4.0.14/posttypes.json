@@ -1,0 +1,7 @@
+[
+	{
+		"table": "#__discuss_post_types",
+		"column": "type",
+		"query": "ALTER TABLE `#__discuss_post_types` ADD COLUMN `type` varchar(255) DEFAULT 'global';"
+	}
+]

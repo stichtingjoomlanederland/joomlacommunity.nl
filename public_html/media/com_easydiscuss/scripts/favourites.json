@@ -1,0 +1,9 @@
+[
+    {
+        "language": [
+            "COM_EASYDISCUSS_FAVOURITE_BUTTON_UNFAVOURITE",
+            "COM_EASYDISCUSS_FAVOURITE_BUTTON_FAVOURITE"
+        ],
+        "adapter": "EasyDiscuss"
+    }
+]

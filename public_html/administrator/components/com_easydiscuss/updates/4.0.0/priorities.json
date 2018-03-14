@@ -1,0 +1,12 @@
+[
+    {
+        "table": "#__discuss_priorities",
+        "column": "id",
+        "query": "ALTER TABLE `jos_discuss_priorities` ADD PRIMARY KEY(`id`);"
+    },
+    {
+        "table": "#__discuss_priorities",
+        "column": "id",
+        "query": "ALTER TABLE `jos_discuss_priorities` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;"
+    }
+]

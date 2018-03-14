@@ -1,0 +1,137 @@
+// Easydiscuss dashboard
+// ----------------
+.ed-dashboard {
+	border: 1px solid @fd-ui-border-color;
+	border-radius: @fd-ui-radius;
+	&__hd,
+	&__bd {
+		
+	}
+	&__hd {
+		.make-grid();
+		background-color: @fd-ui-shade;
+		padding: @fd-base-spacing @fd-base-spacing--lg;
+		
+	}
+	&__bd {
+		border-top: 1px solid @fd-ui-border-color;
+	}   
+}
+
+.ed-dashboard-item {
+	.make-grid();
+	padding: @fd-base-spacing--lg;
+	position: relative;
+	
+	// Column width
+	&__col-name {
+
+	}
+	&__col-date {
+		width: 300px;
+	}
+	&__col-timestamp {
+		width: 140px;
+		color: @fd-ui-meta-color;
+		text-align: center;
+	}
+	&__col-avatar {
+		width: 80px;
+		text-align: center;
+	}
+	&__col-switch {
+		width: 50px;
+	}
+	&__col-action {
+		width: 24px;
+		text-align: center;
+	}
+	&__col-btn-group {
+		width: 160px;
+		text-align: center;
+	}
+
+	// &__btn-del {
+	//     color: @fd-ui-meta-color;
+	// }
+	&__toggle {
+		// padding: 1px 2px;
+	}
+	
+	+ .ed-dashboard-item {
+		border-top: 1px solid @fd-ui-border-color;
+	}
+}
+&.w480 {
+	.ed-dashboard-item {
+		&__col-action {
+			text-align: right;
+			position: absolute;
+			top: @fd-base-spacing;
+			right: @fd-base-spacing;
+		}
+	}
+}
+
+.ed-dashboard-form {
+	border: 1px solid @fd-ui-border-color;
+	border-radius: @fd-ui-radius;
+	&__hd {
+		.make-grid();
+		background-color: @fd-ui-shade;
+		padding: @fd-base-spacing @fd-base-spacing--lg;
+		border-bottom: 1px solid @fd-ui-border-color;
+	}
+	&__bd {
+		padding: @fd-base-spacing @fd-base-spacing--lg;
+	}
+}
+
+
+// Joomla calendar lib
+// Can't use our dom have to enforce the styles
+.ed-dashboard-j-calendar { // override .form-group
+	.input-append {
+		border-collapse: separate;
+		display: table;
+		position: relative;
+		.form-control {
+			display: table-cell;
+			border-bottom-right-radius: 0;
+			border-top-right-radius: 0;
+
+		}
+	}
+	.btn {
+		// display: table-cell;
+		height: 34px;
+		position: relative;
+		border-bottom-left-radius: 0;
+		border-top-left-radius: 0;
+
+		background-color: @fd-ui-bg !important;
+		border-color: @fd-ui-border-color !important;
+		color: @fd-ui-text-color !important;
+	}
+	.icon-calendar {
+		-moz-osx-font-smoothing: grayscale;
+		display: inline-block;
+		font-feature-settings: normal;
+		font-kerning: auto;
+		font-language-override: normal;
+		font-size: inherit;
+		font-size-adjust: none;
+		font-stretch: normal;
+		font-style: normal;
+		font-synthesis: weight style;
+		font-variant: normal;
+		font-weight: normal;
+		line-height: 1;
+		text-rendering: auto;
+		margin: 0;
+		&:before {
+			font-family: FontAwesome !important;
+			content: '\f073';
+		}
+	}
+}

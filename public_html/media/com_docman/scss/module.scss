@@ -1,0 +1,22 @@
+// Core variables and mixins without output available outside .k-ui-namespace scope
+@import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/variables";
+@import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/mixins";
+
+// Costom variables and mixins
+@import "generic/variables";
+@import "generic/mixins";
+
+// Import user interface
+@import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/scss/site";
+
+// Namespacing with Koowa
+.k-ui-namespace .mod_docman {
+
+  // From site
+  @import "site/gallery";
+
+  // Module specific
+  @import "module/documents";
+
+}
+

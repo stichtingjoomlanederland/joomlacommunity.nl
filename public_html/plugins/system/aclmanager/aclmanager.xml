@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" version="1.6" group="system" method="upgrade">
+	<name>System - ACL Manager</name>
+	<author>Sander Potjer</author>
+	<creationDate>2016-05-05</creationDate>
+	<copyright>Copyright (C) 2011-2016 Sander Potjer Webdevelopment. All rights reserved.</copyright>
+	<license>http://www.gnu.org/licenses/gpl-3.0.html GNU/GPL</license>
+	<authorEmail>info@aclmanager.net</authorEmail>
+	<authorUrl>http://www.aclmanager.net</authorUrl>
+	<version>2.4.7</version>
+	<description>This plugin enables the redirect back function to the ACL Manager overview after editing a category, article, etc...</description>
+	<files>
+		<filename plugin="aclmanager">aclmanager.php</filename>
+		<filename>index.html</filename>
+		<folder>overrides</folder>
+	</files>
+</extension>

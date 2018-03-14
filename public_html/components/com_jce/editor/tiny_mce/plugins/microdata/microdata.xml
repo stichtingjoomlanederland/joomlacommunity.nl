@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<install version="2.0.0" type="plugin" plugin="microdata" core="0" editable="0" row="4">
+    <name>WF_MICRODATA_TITLE</name>
+    <version>2.6.26</version>
+    <creationDate>31-01-2018</creationDate>
+    <author>Ryan Demmer</author>
+    <authorEmail>info@joomlacontenteditor.net</authorEmail>
+    <authorUrl>http://www.joomlacontenteditor.net/</authorUrl>
+    <copyright>Ryan Demmer</copyright>
+    <license>GNU/GPL Version 2 or later - http://www.gnu.org/licenses/gpl-2.0.html</license>
+    <description>WF_MICRODATA_DESC</description>
+    <icon>microdata</icon>
+    <files>
+        <file>editor_plugin.js</file>
+        <file>microdata.php</file>
+        <folder>classes</folder>
+        <folder>css</folder>
+        <folder>img</folder>
+        <folder>js</folder>
+        <folder>tmpl</folder>
+    </files>
+    <params>
+        <param type="text" name="cache_ttl" value="" placeholder="eg: 7" label="WF_MICRODATA_CACHE_TTL" description="WF_MICRODATA_CACHE_TTL_DESC" />
+    </params>
+    <languages>
+        <language tag="en-GB">en-GB.com_jce_microdata.ini</language>
+    </languages>
+    <help>
+        <topic key="microdata.about" title="WF_MICRODATA_HELP_ABOUT" />
+        <topic key="microdata.create" title="WF_MICRODATA_HELP_CREATE" />
+    </help>
+</install>

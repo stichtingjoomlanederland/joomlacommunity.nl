@@ -1,0 +1,69 @@
+/* List group */
+.list-group {
+	border-radius: @border-radius-base;
+
+	.list-group-item {
+		padding-right: 10px;
+
+		p {
+			color: @gray-light;
+		}
+
+		&:hover {
+			background-color: @list-group-hover-bg;
+		}
+
+		.info {
+			float: right;
+		}
+
+		.date-icon {
+			float: left;
+			width: 40px;
+			height: 44px;
+			margin-right: 10px;
+			color: @white;
+			text-align: center;
+			line-height: 1;
+			padding-top: 4px;
+			margin-left: -5px;
+			border-radius: @border-radius-small;
+		}
+
+		.date-day {
+			font-size: 20px;
+			line-height: 20px;
+			font-weight: 600;
+			display: block;
+		}
+	}
+
+	.list-group-item-heading {
+		a {
+			&,
+			&:hover,
+			&:focus {
+				color: @gray-light;
+				text-decoration: none;
+			}
+		}
+	}
+
+	.list-group-item-anchor {
+		&:before {
+			position: absolute;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			display: block;
+			content: " ";
+			background: transparent;
+			z-index: 2;
+		}
+	}
+
+	.list-group-item-text {
+		line-height: inherit;
+	}
+}

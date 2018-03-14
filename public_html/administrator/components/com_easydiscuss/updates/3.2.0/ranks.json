@@ -1,0 +1,7 @@
+[
+    {
+        "table"     : "#__discuss_ranks",
+        "index"     : "discuss_ranks_range",
+        "query"     : "ALTER TABLE `#__discuss_ranks` ADD INDEX `discuss_ranks_range` (`start`, `end`);"
+    }
+]

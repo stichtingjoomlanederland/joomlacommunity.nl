@@ -1,0 +1,22 @@
+[
+	{
+		"table": "#__discuss_post_types",
+		"column": "lft",
+		"query": "ALTER TABLE `#__discuss_post_types` ADD COLUMN `lft` int(11) NULL;"
+	},
+    {
+        "table": "#__discuss_post_types",
+        "column": "rgt",
+        "query": "ALTER TABLE `#__discuss_post_types` ADD COLUMN `rgt` int(11) NULL;"
+    },
+    {
+        "table": "#__discuss_post_types",
+        "index": "idx_lft_rgt",
+        "query": "ALTER TABLE `#__discuss_post_types` ADD INDEX `idx_lft_rgt` (`lft`, `rgt`)"
+    },
+    {
+        "table": "#__discuss_post_types",
+        "index": "idx_rgt_lft",
+        "query": "ALTER TABLE `#__discuss_post_types` ADD INDEX `idx_rgt_lft` (`rgt`, `lft`)"
+    }
+]

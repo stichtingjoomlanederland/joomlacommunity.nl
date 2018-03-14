@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="system" method="upgrade">
+	<identifier>plg:system.joomlatoolsupdater</identifier>
+    <name>plg_system_joomlatoolsupdater</name>
+    <author>Joomlatools</author>
+    <creationDate>June 2016</creationDate>
+    <copyright>Copyright (C) 2016 Timble CVBA</copyright>
+    <license>GNU GPLv3 - http://www.gnu.org/licenses/gpl.html</license>
+    <authorEmail>info@joomlatools.com</authorEmail>
+    <authorUrl>www.joomlatools.com</authorUrl>
+	<version>1.0.0</version>
+	<description />
+	
+	<files>
+		<filename plugin="joomlatoolsupdater">joomlatoolsupdater.php</filename>
+        <folder>language</folder>
+	</files>
+	<config />
+</extension>

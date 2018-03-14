@@ -1,0 +1,19 @@
+// Thumbnail
+.docman_thumbnail {
+  max-width: 25%;
+  min-width: 50px;
+  margin: 0 $smallMargin $smallMargin 0;
+  cursor: pointer;
+  float: left;
+
+  @include rtl {
+    margin-right: 0;
+    margin-left: $smallMargin;
+    float: right;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}

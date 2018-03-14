@@ -1,0 +1,20 @@
+// Header
+.header {
+	margin-bottom: 20px;
+	z-index: 5;
+	position: relative;
+
+	&.homepage {
+		margin-bottom: 0px;
+	}
+
+	@media (min-width: @screen-sm) {
+		min-height: 100px;
+	}
+
+	.subnav {
+		.nav > li > a {
+			color: #fff;
+		}
+	}
+}

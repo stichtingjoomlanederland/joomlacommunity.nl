@@ -1,0 +1,9 @@
+.mce_editable {
+  width: 96% !important; // On older browsers the padding messes up the inline 100% width propertie
+
+  @media screen {
+    // Set width to 100% and box-sizing to border box on browsers that support media queries.
+    width: 100% !important;
+    @include box-sizing(border-box);
+  }
+}

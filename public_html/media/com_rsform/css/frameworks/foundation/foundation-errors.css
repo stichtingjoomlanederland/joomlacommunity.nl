@@ -1,0 +1,24 @@
+.has-error-foundation .control-label,
+.has-error-foundation label{
+	color: #ec5840;
+}
+
+.has-error-foundation input[type="text"].rsform-error:not(:focus) ,
+.has-error-foundation input[type="password"].rsform-error:not(:focus) ,
+.has-error-foundation input[type="email"].rsform-error:not(:focus) ,
+.has-error-foundation textarea.rsform-error:not(:focus) ,
+.has-error-foundation select.rsform-error:not(:focus) {
+	background-color: rgba(236, 88, 64, 0.1);
+	border-color: #ec5840;
+}
+
+.has-error-foundation .formValidation {
+	display:block;
+	margin-bottom: 0.5rem;
+    margin-top: -1rem;
+	clear:both;
+}
+
+.has-error-foundation .columns  .row .columns * {
+	margin-bottom: 0px;
+}

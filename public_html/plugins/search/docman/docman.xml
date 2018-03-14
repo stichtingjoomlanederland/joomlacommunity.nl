@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="search" method="upgrade">
+	<identifier>plg:search.docman</identifier>
+    <name>plg_search_docman</name>
+    <author>Joomlatools</author>
+    <creationDate>January 2016</creationDate>
+    <copyright>Copyright (C) 2011 Timble CVBA (http://www.timble.net)</copyright>
+    <license>GNU GPLv3 - http://www.gnu.org/licenses/gpl.html</license>
+    <authorEmail>support@joomlatools.com</authorEmail>
+    <authorUrl>www.joomlatools.com</authorUrl>
+	<version>3.2.0</version>
+	<description />
+
+	<files>
+		<filename plugin="docman">docman.php</filename>
+        <folder>language</folder>
+	</files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="search_limit" type="text"
+					default="50"
+					description="JFIELD_PLG_SEARCH_SEARCHLIMIT_DESC"
+					label="JFIELD_PLG_SEARCH_SEARCHLIMIT_LABEL"
+					size="5"
+				/>
+			</fieldset>
+		</fields>
+	</config>
+</extension>

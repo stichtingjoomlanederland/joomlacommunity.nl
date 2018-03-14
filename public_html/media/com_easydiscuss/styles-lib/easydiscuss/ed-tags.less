@@ -1,0 +1,58 @@
+// Tags
+// ----------------
+.ed-tags {
+	.flex-display(flex);
+	.flex-wrap(wrap);
+	.justify-content(flex-start);
+
+	line-height: 1.2;
+	
+
+	&__item {
+		.flex(0 0 33%);
+		padding: @fd-base-spacing;
+		min-width: 20%;
+	}
+	
+	.o-grid__cell {
+		padding: @fd-base-spacing;
+	}
+}
+.ed-tag {
+	.flex-display(flex);
+	padding: @fd-base-spacing;
+	// border: 1px solid @fd-ui-border-color;
+	background-color: @fd-ui-shade;
+	border-radius: @fd-ui-radius;
+	position: relative;
+	&:hover {
+		background-color: darken(@fd-ui-shade, 2%)
+	}
+	.clearfix();
+	&__name {
+		color: @fd-ui-text-color;
+		display: inline-block;
+		width: 100%;
+		padding-right: 40px; // Reserve space for subscribe link
+		overflow: hidden;
+		.text-overflow();
+	}
+	&__subscribe-link {
+		color: @fd-ui-text-color;
+		float: right;
+		position: absolute;
+		right: @fd-base-spacing;
+		top: @fd-base-spacing;
+		&:hover {
+			color: @fd-brand-warning;
+		}
+	}
+}
+
+&.w480 {
+	.ed-tags {
+		&__item {
+			flex: 0 0 50%;
+		}
+	}
+}

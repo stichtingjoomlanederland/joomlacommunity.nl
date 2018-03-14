@@ -1,0 +1,20 @@
+[
+    {
+        "view": [
+            "comment.form",
+            "post.notification"
+        ],
+        "script": [
+            "comments",
+            "location"
+        ],
+        "language": [
+            "COM_EASYDISCUSS_NOTIFICATION_NEW_REPLIES",
+            "COM_EASYDISCUSS_NOTIFICATION_NEW_COMMENTS",
+            "COM_EASYDISCUSS_PLEASE_SELECT_CATEGORY_DESC",
+            "COM_EASYDISCUSS_POST_TITLE_CANNOT_EMPTY",
+            "COM_EASYDISCUSS_POST_CONTENT_IS_EMPTY"
+        ],
+        "adapter": "EasyDiscuss"
+    }
+]

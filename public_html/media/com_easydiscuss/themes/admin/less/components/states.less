@@ -1,0 +1,121 @@
+/*------------------------------------*\
+		$states.less
+\*------------------------------------*/
+
+[class^="ed-state-"],
+[class*=" ed-state-"] {
+	text-align: center;
+	width: 16px;
+	height: 16px;
+	line-height: 15px;
+	border-radius: 3px;
+	border-radius: 50%;
+
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	vertical-align: middle;
+
+	&:before {
+		font-family: FontAwesome;
+		font-weight: normal;
+		font-style: normal;
+		text-decoration: inherit;
+		color: white;
+		font-size: 11px;
+
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		vertical-align: middle;
+	}
+}
+.ed-state-published,
+.ed-state-going {
+	background: #7CC110 !important;
+	&:before {
+		content: "\f00c";
+	}
+}
+.ed-state-unpublished,
+.ed-state-notgoing {
+	background: #B94A48 !important;
+	&:before {
+		content: "\f00d";
+	}
+}
+.ed-state-trash {
+	background: #B94A48 !important;
+	&:before {
+		content: "\f1f8";
+	}
+}
+.ed-state-locked {
+	background: #aaa !important;
+	&:before {
+		content: "\f023";
+	}
+}
+.ed-state-unactivated {
+	background: #D88B1E !important;
+	&:before {
+		content: "\f084";
+	}
+}
+.ed-state-pending {
+	background: #D88B1E !important;
+	&:before {
+		content: "\f017";
+	}
+}
+.ed-state-maybe {
+	background: #5BC0DE !important;
+	&:before {
+		content: "\f02e";
+	}
+}
+.ed-state-invited {
+	background: #D88B1E !important;
+	&:before {
+		content: "\f058";
+	}
+}
+.ed-state-default {
+	background: #aaa !important;
+	.square(16px) !important;
+	border-radius: 50%;
+	&:before {
+		content: "\f005";
+		font-size: 10px;
+	}
+}
+.ed-state-featured {
+	background: #F5A922;
+	.square(16px) !important;
+	border-radius: 50%;
+	&:before {
+		content: "\f005";
+		font-size: 10px;
+	}
+}
+.ed-state-plus {
+	background: #7CC110;
+	.square(16px) !important;
+	border-radius: 50%;
+	&:before {
+		content: "\f067";
+		font-size: 8px;
+		line-height: 16px;
+
+	}
+}
+.ed-state-minus {
+	background: #be1f23;
+	.square(16px) !important;
+	border-radius: 50%;
+	&:before {
+		content: "\f068";
+		font-size: 8px;
+		line-height: 16px;
+	}
+}

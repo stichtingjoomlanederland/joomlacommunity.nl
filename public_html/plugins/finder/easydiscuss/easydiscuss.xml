@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="finder" method="upgrade">
+	<name>Smart Search - EasyDiscuss Discussions</name>
+	<author>Stack Ideas Sdn Bhd</author>
+	<creationDate>6th April 2016</creationDate>
+	<copyright>Copyright 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>stackideas.com</authorUrl>
+	<version>4.0.1</version>
+	<description>This plugin indexes Easydiscuss discussions.</description>
+	<files>
+		<filename plugin="easydiscuss">easydiscuss.php</filename>
+	</files>
+	<languages>
+		<language tag="en-GB">en-GB.plg_finder_easydiscuss.ini</language>
+		<language tag="en-GB">en-GB.plg_finder_easydiscuss.sys.ini</language>
+	</languages>
+</extension>

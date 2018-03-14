@@ -1,0 +1,17 @@
+[
+    {
+        "language": [
+            "COM_EASYDISCUSS_CONVERSATION_EMPTY_CONTENT"
+        ],
+        "library": [
+            "markitup"
+        ],
+        "script": [
+            "bbcode"
+        ],
+        "view": [
+            "conversation.read.item"
+        ],
+        "adapter": "EasyDiscuss"
+    }
+]

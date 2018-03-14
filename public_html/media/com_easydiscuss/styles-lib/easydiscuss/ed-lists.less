@@ -1,0 +1,119 @@
+// Listing
+// ----------------
+
+// Vertical (deprecate)
+.ed-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    position: relative;
+    > div {
+
+    }
+    >:not(:first-child) {
+        display: inline-block;
+        margin-top: @fd-base-spacing--xl;
+    }
+
+    &__toggle {
+        position: absolute;
+        right: @fd-base-spacing--lg;
+        top: @fd-base-spacing;
+        color: @fd-ui-meta-color;
+        .fd-no-focus-outline();
+    
+        &.collapsed {
+            .ed-list__toggle-icon {
+                // Updated cheveron icon to up
+                &:before {
+                    content: "\f078";   
+                }
+            }
+        }
+    }
+    &__toggle-icon {
+        &:before {
+            content: "\f077";
+
+            font-family: FontAwesome;
+            font-size: 14px;
+            font-weight: normal;
+            font-style: normal;
+            display: inline-block;
+            text-decoration: inherit;
+        }
+    }
+}
+
+
+//
+.ed-list__item {
+    position: relative;
+}
+.ed-list--vertical {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.has-dividers--top {
+    > .ed-list__item {
+        border-top: 1px solid @fd-ui-border-color;   
+    }
+}
+
+.has-dividers--top-space {
+    > .ed-list__item {
+        border-top: 1px solid @fd-ui-border-color;   
+        padding: @fd-base-spacing; 
+    }
+}
+
+.has-dividers--bottom {
+    > .ed-list__item {
+        border-bottom: 1px solid @fd-ui-border-color;   
+    }
+}
+
+.has-dividers--bottom-space {
+    > .ed-list__item {
+        border-bottom: 1px solid @fd-ui-border-color;   
+        padding: @fd-base-spacing; 
+    }
+}
+
+.ed-list--horizontal {
+
+}
+
+.has-space--bottom {
+    > .ed-list__item {
+        padding-bottom: @fd-base-spacing;
+    }
+}
+
+
+
+// Vertical (deprecate)
+.ed-posts-list {
+    >:not(:first-child) {
+        margin-top: @fd-base-spacing--xl;
+    }
+}
+
+
+.ed-list--category {
+    > li {
+        padding: @fd-base-spacing;
+        &:hover {
+            background-color: @fd-ui-shade;
+        }
+    }
+}
+
+// Horizontal
+.ed-avatar-list {
+    >:not(:first-child) {
+        margin-left: @fd-base-spacing;
+    }
+}

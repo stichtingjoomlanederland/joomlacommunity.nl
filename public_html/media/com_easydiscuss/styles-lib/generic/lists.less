@@ -1,0 +1,123 @@
+/*------------------------------------*\
+    #LIST
+\*------------------------------------*/
+
+// List Unstyled
+// ----------------
+.g-list-unstyled {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+// List inline
+// ----------------
+.g-list-inline {
+    margin:  0;
+    padding: 0;
+    list-style: none;
+    font-size: 0; // Method inline-block spacing issues.
+
+    > li {
+        position: relative;
+        display: inline-block;
+        font-size: @fd-base-font-size--xs; // Have to redefine font size
+    }
+}
+
+// List with seperated styles
+.g-list-inline--delimited {
+    > li + li {
+        margin-left: @fd-base-spacing--sm;
+        &:before {
+            // content: '\00A0';
+            content: attr(data-breadcrumb) "\00A0";
+            // content:attr(data-breadcrumb) "\00A0";
+        }
+    }
+}
+
+.g-list-inline--comma {
+    > li {
+        margin-right: @fd-base-spacing--sm;
+        &:after {
+            content: attr(data-breadcrumb) ",";
+            // position: absolute;
+            // right: 0;
+        }
+        &:last-child {
+            &:after {
+                content: "";
+            }
+        }    
+    }
+}
+
+.g-list-inline--dashed {
+    > li {
+        position: relative;
+    }
+    >:not(:first-child) {
+        // margin-left: 10px;
+        margin-left: @fd-base-spacing;
+        padding-left: @fd-base-spacing;
+        border-left: 1px dotted @fd-ui-border-color;
+    }
+    > li + li {
+        &:before {
+            // content: '\00A0';
+            // content: attr(data-breadcrumb) "\00A0";
+            // content:attr(data-breadcrumb) "\00A0";
+        }
+    }
+}
+
+// List with spaces
+.g-list-inline--space {
+    >:not(:first-child) {
+
+    }
+}
+
+
+// List horizontal
+.g-list--horizontal {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    > .g-list__item {
+        -webkit-align-self: center;
+        -ms-flex-item-align: center;
+        align-self: center;
+        display: inline-block;
+        vertical-align: middle;
+    }
+}
+
+.has-dividers--right>.g-list__item {
+    position: relative
+}
+
+.has-dividers--right>.g-list__item:after {
+    width: 4px;
+    height: 4px;
+    content: '';
+    display: inline-block;
+    vertical-align: middle;
+    margin-left: @fd-base-spacing--sm;
+    margin-right: @fd-base-spacing--sm;
+    border-radius: 50%;
+    background-color: @fd-ui-meta-color;
+}
+
+.has-dividers--right>.g-list__item:last-child {
+    margin-right: 0;
+    padding-right: 0
+}
+
+.has-dividers--right>.g-list__item:last-child:after {
+    content: none
+}

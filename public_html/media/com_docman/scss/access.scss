@@ -1,0 +1,42 @@
+.access-rules {
+
+  // Core variables and mixins
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/variables"; // Modify this for custom colors, font-sizes, etc
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/mixins";
+
+  // CSS Reset
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/reset";
+
+  // Grid system and page structure
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/scaffolding";
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/grid";
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/layouts";
+
+  // Base CSS
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/type";
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/forms";
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/tables";
+
+  // Components: common
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/sprites";
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/dropdowns";
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/wells";
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/component-animations";
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/close";
+
+  // Components: Buttons & Alerts
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/alerts"; // Note: alerts share common CSS with buttons and thus have styles in buttons
+
+  // Components: Nav
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/navs";
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/navbar";
+
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/tooltip";
+
+  // Components: Misc
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/media";
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/labels-badges";
+
+  // Utility classes
+  @import "../../../../../joomlatools-framework/code/libraries/joomlatools/library/resources/assets/lib/sass-twitter-bootstrap/utilities"; // Has to be last to override when necessary
+}

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_RSEVENTSPRO_EVENT_VIEW_TITLE" >
+		<message>
+			<![CDATA[COM_RSEVENTSPRO_EVENT_VIEW_DESC]]>
+		</message>
+	</layout>
+	
+	<fields name="request">
+		<fieldset name="request" addfieldpath="/administrator/components/com_rseventspro/models/fields">
+			<field name="id" type="rsevents" required="true" label="COM_RSEVENTSPRO_EVENT_VIEW_SELECT_EVENT" description="COM_RSEVENTSPRO_EVENT_VIEW_SELECT_EVENT_DESC" />
+		</fieldset>
+	</fields>
+</metadata>

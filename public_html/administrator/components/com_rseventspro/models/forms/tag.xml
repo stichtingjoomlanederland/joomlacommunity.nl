@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<field name="id" type="hidden" label="JGLOBAL_FIELD_ID_LABEL" description ="JGLOBAL_FIELD_ID_DESC" size="10" default="0" readonly="true" />
+	<field name="name" type="text" class="input-xxlarge" label="COM_RSEVENTSPRO_TAG_NAME" description="COM_RSEVENTSPRO_TAG_NAME_DESC" required="true" size="70" />
+	<field name="published" type="list" label="JSTATUS" description="JFIELD_PUBLISHED_DESC" class="inputbox" filter="intval" size="1" default="1">
+		<option value="1">JPUBLISHED</option>
+		<option value="0">JUNPUBLISHED</option>
+	</field>
+</form>

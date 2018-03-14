@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension method="upgrade" version="2.5" type="plugin" group="system">
+	<name>System - RSComments</name>
+	<creationDate>April 2015</creationDate>
+	<author>rsjoomla.com</author>
+	<copyright>Copyright 2015 RSJoomla.com All rights reserved!</copyright>
+	<authorEmail>support@rsjoomla.com</authorEmail>
+	<authorUrl>http://www.rsjoomla.com</authorUrl>
+	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license>
+	<version>1.1.0</version>
+	<description>Integrate RSComments! with Joomla! components</description>
+	<files>
+		<filename plugin="rscomments">rscomments.php</filename>
+		<filename>index.html</filename>
+	</files>
+</extension>

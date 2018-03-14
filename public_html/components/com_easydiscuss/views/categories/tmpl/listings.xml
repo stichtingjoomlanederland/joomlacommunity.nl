@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_EASYDISCUSS_MENU_SINGLE_CATEGORY">
+		<message>
+			<![CDATA[
+			COM_EASYDISCUSS_MENU_SINGLE_CATEGORY_DESC
+			]]>
+		</message>
+		<view>index</view>
+	</layout>
+	<state>
+		<name><![CDATA[COM_EASYDISCUSS_MENU_SINGLE_CATEGORY]]></name>
+		<description><![CDATA[COM_EASYDISCUSS_MENU_SINGLE_CATEGORY_DESC]]></description>
+		<url addpath="/administrator/components/com_easydiscuss/elements">
+			<param name="category_id" type="categories" label="Category" default="0" description="Choose a category..." />
+		</url>
+		<params>
+			<param name="limit" type="list" default="-2" label="Pagination" description="Set how many items to be displayed per page">
+				<option value="-1">Use Joomla Settings</option>
+				<option value="-2">Use EasyDiscuss Settings</option>
+				<option value="5">5</option>
+				<option value="10">10</option>
+				<option value="15">15</option>
+				<option value="20">20</option>
+				<option value="25">25</option>
+				<option value="30">30</option>
+				<option value="50">50</option>
+				<option value="100">100</option>
+			</param>
+		</params>
+	</state>
+
+	<fields name="request">
+		<fieldset name="request"
+			addfieldpath="/administrator/components/com_easydiscuss/elements/fields">
+
+			<field name="category_id" type="modal_categories"
+				label="Category"
+				required="true"
+				description="Choose a category..."
+			/>
+		</fieldset>
+	</fields>
+
+	<fields name="params">
+		<fieldset name="basic" label="Filters" addfieldpath="/administrator/components/com_easydiscuss/elements/fields">
+			<field name="filter" type="list" default="allposts" description="Filter by type" label="Filter">
+				<option value="allposts">JALL</option>
+				<option value="featured">Featured</option>
+				<option value="new">New</option>
+				<option value="unanswered">Unanswered</option>
+			</field>
+			<field name="sort" type="list" default="latest" description="Sort by type" label="Sorting">
+				<option value="latest">Latest</option>
+				<option value="popular">Popular</option>
+			</field>
+			<field name="limit" type="list" default="-2" label="Pagination" description="Set how many items to be displayed per page">
+				<option value="-1">Use Joomla Settings</option>
+				<option value="-2">Use EasyDiscuss Settings</option>
+				<option value="5">5</option>
+				<option value="10">10</option>
+				<option value="15">15</option>
+				<option value="20">20</option>
+				<option value="25">25</option>
+				<option value="30">30</option>
+				<option value="50">50</option>
+				<option value="100">100</option>
+			</field>
+			<field name="user_id" type="text" description="Filter by user ID" label="User ID" size="30" />
+		</fieldset>
+	</fields>
+</metadata>

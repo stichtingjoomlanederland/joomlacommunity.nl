@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="3.1" method="upgrade">
+	<name>com_perfectsitemap</name>
+	<creationDate>2017-02-10</creationDate>
+	<author>Perfect Web Team</author>
+	<authorEmail>info@perfectwebteam.nl</authorEmail>
+	<authorUrl>www.perfectwebteam.nl</authorUrl>
+	<copyright>Copyright (C) 2017 Perfect Web Team. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<version>2.0.5</version>
+	<description>COM_PERFECTSITEMAP_XML_DESCRIPTION</description>
+	<files folder="site">
+		<folder>helpers</folder>
+		<folder>language</folder>
+		<folder>models</folder>
+		<folder>views</folder>
+		<filename>controller.php</filename>
+		<filename>perfectsitemap.php</filename>
+	</files>
+
+	<administration>
+		<files folder="admin">
+			<folder>language</folder>
+		</files>
+	</administration>
+</extension>
+

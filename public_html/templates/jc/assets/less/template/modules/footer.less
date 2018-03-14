@@ -1,0 +1,140 @@
+//Footer
+.footer {
+	position: relative;
+	width: 100%;
+	bottom: 0;
+	font-size: @font-size-small;
+	color: @gray;
+	border-top-style: solid;
+	border-top-width: 6px;
+	margin-top: 20px;
+	background: lighten(@home, 20%);
+
+	a {
+		color: @gray-darker;
+
+		&:hover {
+			color: @gray;
+		}
+	}
+
+	.footer-navs {
+		display: none;
+		position: relative;
+
+		@media (min-width: @screen-sm) {
+			display: block;
+		}
+
+		&::before {
+			content: "";
+			background-image: url(../images/jc-pattern.png);
+			background-position: center top;
+			background-repeat: no-repeat;
+			background-size: contain;
+			opacity: 0.5;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+			position: absolute;
+		}
+	}
+
+	h4 {
+		margin: 10px 0 5px;
+		font-size: 18px;
+	}
+
+}
+
+.footerline {
+	margin-bottom: 10px;
+}
+
+.footer-navs {
+	padding: 20px;
+}
+
+.footer-copyright {
+	background-color: @home;
+	color: darken(@home, 40%);
+	padding: 20px 0;
+
+	p {
+		margin: 0;
+	}
+
+	.nav {
+		float: left;
+
+		> li {
+			padding: 0 0 0 5px;
+
+			&::after {
+				content: "|";
+				padding-left: 5px;
+			}
+
+			&.active > a {
+				background: none;
+			}
+
+			&:last-of-type::after {
+				display: none;
+			}
+
+			> a {
+				padding: 0;
+				border-radius: 0;
+				color: darken(@home, 40%);
+				border-bottom: 1px solid darken(@home, 40%);
+				display: inline;
+
+				&:focus {
+					background: none;
+				}
+
+				&:hover {
+					background: none;
+					color: darken(@home, 60%);
+					text-decoration: none;
+					border-bottom: none;
+				}
+			}
+		}
+	}
+
+	@media (min-width: @screen-sm) {
+		padding: 20px;
+	}
+
+	.copyright {
+		float: left;
+	}
+
+	.followus {
+		float: right;
+		padding-right: 4px;
+	}
+
+	.followusicons {
+		float: right;
+
+		a {
+			color: darken(@home, 40%);
+
+			&:hover {
+				color: darken(@home, 60%);
+			}
+		}
+
+		i {
+			position: relative;
+			padding-left: 4px;
+		}
+	}
+}
+
+
+

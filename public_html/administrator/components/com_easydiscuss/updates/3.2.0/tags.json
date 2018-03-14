@@ -1,0 +1,12 @@
+[
+    {
+        "table"     : "#__discuss_tags",
+        "index"     : "discuss_tags_query1",
+        "query"     : "alter table `#__discuss_tags` add index `discuss_tags_query1` (`published`, `id`);"
+    },
+    {
+        "table"     : "#__discuss_tags",
+        "fulltext"  : "discuss_tags_title",
+        "query"     : "ALTER TABLE `#__discuss_tags` ADD FULLTEXT `discuss_tags_title` (`title`);"
+    }
+]

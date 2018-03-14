@@ -1,0 +1,175 @@
+/**
+* Permission Rules | copied from joomla backend to make sure our permissions on frontend editing look good.
+*/
+
+#permissions-sliders ul#rules,
+#permissions-sliders ul#rules ul {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: solid 0 #ccc;
+  background: #fff;
+  list-style-type: none;
+}
+
+#permissions-sliders ul#rules li {
+  margin: 0;
+  padding: 0;
+}
+
+ul#rules li .pane-sliders .panel h3.title {
+  border: solid 0 #ccc;
+}
+
+#permissions-sliders ul#rules .pane-slider {
+  border: solid 1px #ccc;
+}
+
+#permissions-sliders ul#rules .pane-slider.pane-hide {
+  display: none;
+}
+
+#permissions-sliders ul#rules li h3 {
+  background: #fafafa;
+  font-size: 1.10em;
+}
+
+#permissions-sliders ul#rules li h3 {
+  border: solid 1px #ccc;
+}
+
+#permissions-sliders ul#rules li h3.pane-toggler-down a {
+  border: solid 0;
+}
+
+#permissions-sliders ul#rules li h3.pane-toggler-down {
+  color: #000;
+  /*background:#146295;*/
+}
+
+#permissions-sliders ul#rules .group-kind {
+  color: #025A8D;
+}
+
+#permissions-sliders ul#rules table.group-rules {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#permissions-sliders ul#rules table.group-rules td {
+  border: solid 1px #ccc;
+  padding: 4px;
+  vertical-align: middle;
+  text-align: left;
+  overflow: hidden;
+
+  @include rtl {
+    text-align: right;
+  }
+}
+
+#permissions-sliders ul#rules table.group-rules th {
+  background: #ddd;
+  border: solid 1px #ddd;
+  font-size: 0.9em;
+  color: #025A8D;
+  overflow: hidden;
+}
+
+#permissions-sliders .panel {
+  margin-bottom: 3px;
+  margin-left: 0;
+  border: 0;
+
+  @include rtl {
+    margin-right: 0;
+  }
+}
+
+#permissions-sliders p.rule-desc {
+  font-size: 1.091em;
+  margin-left: 0;
+
+  @include rtl {
+    margin-right: 0;
+  }
+}
+
+#permissions-sliders div.rule-notes {
+  font-size: 1.091em;
+}
+
+ul#rules table.aclmodify-table {
+  border: solid 1px #000;
+}
+
+ul#rules table.group-rules td label {
+  border: solid 0 #000;
+  margin: 0 !important;
+}
+
+ul#rules table.group-rules td span {
+  padding-bottom: 4px;
+}
+
+table.group-rules td select {
+  margin: 0 !important;
+}
+
+#permissions-sliders ul#rules .mypanel {
+  background: #ffffff;
+  padding: 0;
+}
+
+#permissions-sliders .mypanel table.group-rules {
+  margin: 5px;
+}
+
+#permissions-sliders ul#rules {
+  padding: 5px;
+}
+
+#permissions-sliders ul#rules table.group-rules th {
+  text-align: left;
+  padding: 4px;
+
+  @include rtl {
+    text-align: right;
+  }
+}
+
+#permissions-sliders .pane-toggler span {
+  padding-left: 20px;
+
+  @include rtl {
+    padding-left: 0;
+    padding-right: 20px;
+  }
+}
+
+#permissions-sliders .pane-toggler-down span {
+  padding-left: 20px;
+
+  @include rtl {
+    padding-left: 0;
+    padding-right: 20px;
+  }
+}
+
+#permissions-sliders .pane-toggler-down span.level,
+#permissions-sliders .pane-toggler span.level {
+  color: #aaa;
+  background-image: none;
+  padding: 0;
+}
+
+// Added own styles to make them look right
+#permissions-sliders ul#rules li h3 {
+  font-size: 14px;
+  line-height: 20px;
+  margin: 0;
+  padding: 5px 10px;
+
+  span {
+    padding: 0;
+  }
+}

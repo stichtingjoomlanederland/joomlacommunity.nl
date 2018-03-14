@@ -1,0 +1,42 @@
+[
+    {
+        "table"     : "#__discuss_users",
+        "column"    : "latitude",
+        "query"     : "ALTER TABLE `#__discuss_users` ADD `latitude` VARCHAR(255) NULL DEFAULT NULL;"
+    },
+    {
+        "table"     : "#__discuss_users",
+        "column"    : "longitude",
+        "query"     : "ALTER TABLE `#__discuss_users` ADD `longitude` VARCHAR(255) NULL DEFAULT NULL;"
+    },
+    {
+        "table"     : "#__discuss_users",
+        "column"    : "location",
+        "query"     : "ALTER TABLE `#__discuss_users` ADD `location` TEXT NOT NULL;"
+    },
+    {
+        "table"     : "#__discuss_users",
+        "column"    : "points",
+        "query"     : "ALTER TABLE `#__discuss_users` ADD `points` BIGINT DEFAULT 0 NOT NULL;"
+    },
+    {
+        "table"     : "#__discuss_users",
+        "column"    : "signature",
+        "query"     : "ALTER TABLE `#__discuss_users` ADD `signature` TEXT NOT NULL;"
+    },
+    {
+        "table"     : "#__discuss_users",
+        "column"    : "edited",
+        "query"     : "ALTER TABLE `#__discuss_users` ADD `edited` INT NOT NULL DEFAULT 0, ADD `posts_read` TEXT NULL;"
+    },
+    {
+        "table"     : "#__discuss_users",
+        "column"    : "site",
+        "query"     : "ALTER TABLE `#__discuss_users` ADD `site` TEXT;"
+    },
+    {
+        "table"     : "#__discuss_users_history",
+        "column"    : "content_id",
+        "query"     : "ALTER TABLE `#__discuss_users_history` ADD `content_id` BIGINT(20) UNSIGNED NOT NULL;"
+    }
+]

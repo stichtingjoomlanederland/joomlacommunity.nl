@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component>
+	<menu name="home" class="icon-home" title="COM_EASYDISCUSS_SIDEBAR_HOME" url="index.php?option=com_easydiscuss" />
+	<menu name="settings" class="icon-cog" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS" url="#">
+		<submenu name="general" title="COM_EASYDISCUSS_SIDEBAR_GENERAL" url="#">
+			<subsubmenu name="workflow" title="COM_EASYDISCUSS_SIDEBAR_GENERAL_WORKFLOW" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_main_workflow&amp;child=general" />
+			<subsubmenu name="badges" title="COM_EASYDISCUSS_SIDEBAR_GENERAL_BADGES" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_main_badges&amp;child=general" />
+			<subsubmenu name="tags" title="COM_EASYDISCUSS_SIDEBAR_GENERAL_TAGS" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_main_tags&amp;child=general" />
+			<subsubmenu name="comments" title="COM_EASYDISCUSS_SIDEBAR_GENERAL_COMMENTS" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_main_comments&amp;child=general" />
+			<subsubmenu name="conversations" title="COM_EASYDISCUSS_SIDEBAR_CONVERSATIONS" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_main_conversations&amp;child=general" />
+			<subsubmenu name="subscriptions" title="COM_EASYDISCUSS_SIDEBAR_GENERAL_SUBSCRIPTIONS" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_main_subscriptions&amp;child=general" />
+			<subsubmenu name="livenotifications" title="COM_EASYDISCUSS_SIDEBAR_GENERAL_LIVE_NOTIFICATIONS" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_main_livenotifications&amp;child=general" />
+			<subsubmenu name="seo" title="COM_EASYDISCUSS_SIDEBAR_GENERAL_SEO" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_main_seo&amp;child=general" />
+			<subsubmenu name="parser" title="COM_EASYDISCUSS_SIDEBAR_GENERAL_EMAIL_PARSER" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_main_parser&amp;child=general" />
+			<subsubmenu name="location" title="COM_EADYDISCUSS_SIDEBAR_GENERAL_LOCATION" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_main_location&amp;child=general" />
+			<subsubmenu name="reports" title="COM_EASYDISCUSS_SIDEBAR_GENERAL_REPORTS" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_main_reports&amp;child=general" />
+			<subsubmenu name="votes" title="COM_EASYDISCUSS_SIDEBAR_GENERAL_VOTES" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_main_votes&amp;child=general" />
+			<subsubmenu name="triggers" title="COM_EASYDISCUSS_SIDEBAR_GENERAL_CONTENT_TRIGGERS" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_main_triggers&amp;child=general" />
+			<subsubmenu name="maintenance" title="COM_EASYDISCUSS_SIDEBAR_GENERAL_MAINTENANCE" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_maintenance&amp;child=general" />
+		</submenu>
+
+		<submenu name="tabs" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_TABS">
+			<subsubmenu name="attachments" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_TABS_ATTACHMENTS" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_tabs_attachments&amp;child=tabs" />
+			<subsubmenu name="customfields" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_TABS_CUSTOMFIELDS" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_tabs_customfields&amp;child=tabs" />
+			<subsubmenu name="polls" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_TABS_POLLS" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_tabs_polls&amp;child=tabs" />
+			<subsubmenu name="protect" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_TABS_PASSWORD_PROTECT" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_tabs_protect&amp;child=tabs" />
+			<subsubmenu name="site" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_TABS_SITE_DETAILS" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_tabs_site&amp;child=tabs" />
+			<subsubmenu name="tags" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_TABS_TAGS" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_tabs_tags&amp;child=tabs" />
+			<subsubmenu name="url" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_TABS_URL_REFERENCES" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_tabs_url&amp;child=tabs" />
+
+		</submenu>
+
+		<submenu name="antispam" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_ANTISPAM" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_antispam" />
+
+		<submenu name="layout" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_LAYOUT" url="#">
+			<subsubmenu name="general" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_LAYOUT_GENERAL" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_layout_general&amp;child=layout" />
+			<subsubmenu name="toolbar" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_LAYOUT_TOOLBAR" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_layout_toolbar&amp;child=layout" />
+			<subsubmenu name="avatars" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_LAYOUT_AVATARS" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_layout_avatars&amp;child=layout" />
+			<subsubmenu name="featured" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_LAYOUT_FEATURED_POSTS" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_layout_featured&amp;child=layout" />
+			<subsubmenu name="category" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_LAYOUT_CATEGORIES" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_layout_category&amp;child=layout" />
+			<subsubmenu name="profile" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_LAYOUT_PROFILE" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_layout_profile&amp;child=layout" />
+			<subsubmenu name="members" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_LAYOUT_MEMBERS" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_layout_members&amp;child=layout" />
+		</submenu>
+
+		<submenu name="notifications" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_NOTIFICATIONS" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_notifications" />
+
+		<submenu name="integrations" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_INTEGRATIONS" url="#">
+			<subsubmenu name="easysocial" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_INTEGRATIONS_EASYSOCIAL" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_integrations_easysocial&amp;child=integrations" />
+			<subsubmenu name="aup" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_INTEGRATIONS_AUP" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_integrations_aup&amp;child=integrations" />
+			<subsubmenu name="easyblog" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_INTEGRATIONS_EASYBLOG" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_integrations_easyblog&amp;child=integrations" />
+			<subsubmenu name="komento" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_INTEGRATIONS_KOMENTO" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_integrations_komento&amp;child=integrations" />
+			<subsubmenu name="google" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_INTEGRATIONS_GOOGLE" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_integrations_google&amp;child=integrations" />
+			<subsubmenu name="jomsocial" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_INTEGRATIONS_JOMSOCIAL" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_integrations_jomsocial&amp;child=integrations" />
+		</submenu>
+
+		<submenu name="social" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_SOCIAL_INTEGRATIONS" url="#">
+			<subsubmenu name="twitter" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_SOCIAL_INTEGRATIONS_TWITTER" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_social_twitter&amp;child=social" />
+			<subsubmenu name="facebook" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_SOCIAL_INTEGRATIONS_FACEBOOK" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_social_facebook&amp;child=social" />
+			<subsubmenu name="linkedin" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_SOCIAL_INTEGRATIONS_LINKEDIN" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_social_linkedin&amp;child=social" />
+			<subsubmenu name="digg" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_SOCIAL_INTEGRATIONS_DIGG" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_social_digg&amp;child=social" />
+			<subsubmenu name="google" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_SOCIAL_INTEGRATIONS_GOOGLE" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_social_google&amp;child=social" />
+			<subsubmenu name="googleshare" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_SOCIAL_INTEGRATIONS_GOOGLE_SHARE" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_social_google_share&amp;child=social" />
+			<subsubmenu name="buttons" title="COM_EASYDISCUSS_SIDEBAR_SETTINGS_SOCIAL_INTEGRATIONS_OTHERS" url="index.php?option=com_easydiscuss&amp;view=settings&amp;layout=default_social_buttons&amp;child=social" />
+		</submenu>
+	</menu>
+
+	<menu name="posts" class="icon-comments-alt" title="COM_EASYDISCUSS_SIDEBAR_DISCUSSIONS" url="index.php?option=com_easydiscuss&amp;view=posts" />
+	<menu name="autoposting" class="icon-external-link" title="COM_EASYDISCUSS_SIDEBAR_AUTO_POSTING" url="index.php?option=com_easydiscuss&amp;view=autoposting" />
+	<menu name="categories" class="icon-folder-close-alt" title="COM_EASYDISCUSS_SIDEBAR_CATEGORIES" url="index.php?option=com_easydiscuss&amp;view=categories" />
+	<menu name="tags" class="icon-tags" title="COM_EASYDISCUSS_SIDEBAR_TAGS" url="index.php?option=com_easydiscuss&amp;view=tags" />
+	<!-- <menu name="labels" title="COM_EASYDISCUSS_SIDEBAR_LABELS" url="index.php?option=com_easydiscuss&amp;view=labels" /> -->
+	<menu name="users" class="icon-user" title="COM_EASYDISCUSS_SIDEBAR_USERS" url="index.php?option=com_easydiscuss&amp;view=users" />
+	<menu name="roles" class="icon-legal" title="COM_EASYDISCUSS_SIDEBAR_ROLES" url="index.php?option=com_easydiscuss&amp;view=roles" />
+	<menu name="acl" class="icon-lock" title="COM_EASYDISCUSS_SIDEBAR_ACL" url="index.php?option=com_easydiscuss&amp;view=acls" />
+	<menu name="reports" class="icon-warning-sign" title="COM_EASYDISCUSS_SIDEBAR_REPORTS" url="index.php?option=com_easydiscuss&amp;view=reports" />
+	<menu name="subscription" class="icon-envelope-alt" title="COM_EASYDISCUSS_SIDEBAR_SUBSCRIPTIONS" url="index.php?option=com_easydiscuss&amp;view=subscription" />
+	<menu name="badges" class="icon-trophy" title="COM_EASYDISCUSS_SIDEBAR_BADGES" url="index.php?option=com_easydiscuss&amp;view=badges" />
+	<menu name="postTypes" class="icon-flag" title="COM_EASYDISCUSS_SIDEBAR_POST_TYPES" url="index.php?option=com_easydiscuss&amp;view=post_types" />
+	<menu name="points" class="icon-certificate" title="COM_EASYDISCUSS_SIDEBAR_POINTS" url="index.php?option=com_easydiscuss&amp;view=points" />
+	<menu name="ranks" class="icon-rocket" title="COM_EASYDISCUSS_SIDEBAR_RANKS" url="index.php?option=com_easydiscuss&amp;view=ranks" />
+	<menu name="bans" class="icon-ban" title="COM_EASYDISCUSS_SIDEBAR_BANS" url="index.php?option=com_easydiscuss&amp;view=bans" />
+	<menu name="customfields" class="icon-table" title="COM_EASYDISCUSS_SIDEBAR_CUSTOMFIELDS" url="index.php?option=com_easydiscuss&amp;view=customfields" />
+	<menu name="themes" class="icon-table" title="COM_EASYDISCUSS_SIDEBAR_THEMES" url="index.php?option=com_easydiscuss&amp;view=themes" />
+	<menu name="spools" class="icon-inbox" title="COM_EASYDISCUSS_SIDEBAR_EMAIL_ACTIVITIES" url="index.php?option=com_easydiscuss&amp;view=spools" />
+	<menu name="migrators" class="icon-exchange" title="COM_EASYDISCUSS_SIDEBAR_MIGRATORS" url="#">
+		<submenu name="kunena" title="COM_EASYDISCUSS_SIDEBAR_MIGRATORS_KUNENA" url="index.php?option=com_easydiscuss&amp;view=migrators&amp;layout=default_kunena" />
+		<submenu name="jomsocialgroups" title="COM_EASYDISCUSS_SIDEBAR_MIGRATORS_JOMSOCIAL_GROUPS" url="index.php?option=com_easydiscuss&amp;view=migrators&amp;layout=default_jomsocialgroups" />
+		<submenu name="communitypolls" title="COM_EASYDISCUSS_SIDEBAR_MIGRATORS_COMMUNITY_POLLS" url="index.php?option=com_easydiscuss&amp;view=migrators&amp;layout=communitypolls" />
+		<submenu name="vbulletin" title="COM_EASYDISCUSS_SIDEBAR_MIGRATORS_VBULLETIN" url="index.php?option=com_easydiscuss&amp;view=migrators&amp;layout=default_vbulletin" />
+		<submenu name="discussions" title="COM_EASYDISCUSS_SIDEBAR_MIGRATORS_DISCUSSIONS" url="index.php?option=com_easydiscuss&amp;view=migrators&amp;layout=discussions" />
+	</menu>
+
+</component>

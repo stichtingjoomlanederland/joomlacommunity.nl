@@ -1,0 +1,133 @@
+/*------------------------------------*\
+	$Theme - EasyDiscuss Admin
+\*------------------------------------*/
+/**
+ * SETTINGS
+ * - Global variables, site-wide settings, config switches, etc.
+ * Variables..........Bootstrap default variables
+ * Pallette...........Style Lib Color palette variables
+ * Variables..........Style Lib default variables
+
+ * TOOLS
+ * - Site-wide mixins and functions.
+ * Mixins.............Bootstrap default mixins
+ 
+ * GENERIC
+ * - Low-specificity, far-reaching rulesets (e.g. resets).
+ * Reset..............Styling reset to prevent conflict with other templates
+ 
+ * OBJECTS
+ * - Objects, abstractions, and design patterns (e.g. .media {}).
+ * Buttons............Generic, underlying design patterns without styles
+ 
+ * COMPONENTS 
+ * - Discrete, complete chunks of UI. This is the one layer for customized.
+ * Bootstrap 3........Bootstrap components styles
+ * Fontawesome........Fontawesome icon styles
+ * Easydiscuss........Easydiscuss components styles
+
+ * TRUMPS
+ * - High-specificity, very explicit selectors make sure this is last to override anything else. Overrides and helper classes (e.g. .t-hidden {}).
+ * t-spacing........Margin, padding spacing with responsive ready. For quick style don't overuse.
+ * t-font-size......Aggressive change font size (Usually for programmer to use). 
+
+ * PATCH 
+ * - Joomla core or any joomla's 3rd party conflict styles.
+ * Joomla 2.5
+ * Editor
+ */
+
+
+@lib-path: '../../../styles-lib';
+
+/**
+* #SETTINGS
+*/
+@import "@{lib-path}/variables/variables"; // Global Variables
+@import "variables/variables"; // Themes variables
+
+
+/**
+* #TOOLS
+*/
+@import "@{lib-path}/tools/default";
+
+
+
+#ed {
+
+/**
+* #GENERIC
+*/
+@import "@{lib-path}/generic/default";
+
+
+/**
+* #OBJECTS
+*/
+@import "@{lib-path}/objects/default";
+
+
+/**
+* #COMPONENTS
+*/
+// Verndors
+@import "@{lib-path}/vendors/default";
+
+
+// Easydiscuss Backend/Frontend
+@import "@{lib-path}/easydiscuss/default";
+
+
+
+// Easydiscuss Backend
+@import "components/theme";
+@import "components/sidebar";
+@import "components/table";
+@import "components/states";
+@import "components/loader";
+@import "components/forms";
+// @import "components/checkbox-radio";
+// @import "components/popover";
+
+// Easydiscuss views
+@import "views/dashboard";
+
+
+/**
+* #STATES
+*/
+@import "@{lib-path}/objects/default-states";
+
+
+/**
+* #TRUMPS
+*/
+@import "@{lib-path}/trumps/default";
+
+}
+
+/**
+* #Misc
+*/
+// For UI append oursite of the wrapper
+// ----------------
+// Color picker needs to be outside of wrapper
+@import "@{lib-path}/vendors/colorpicker/colorpicker";
+@import "@{lib-path}/vendors/select2/select2";
+@import "@{lib-path}/vendors/select2/custom";
+@import "@{lib-path}/vendors/editor/codemirror-custom";
+
+
+/**
+* #PATCH
+*/
+// Joomla Hack
+@import "components/joomla3-responsive.less"; // J30
+.com_easydiscuss {
+	@import "components/joomla.less"; // J30
+}
+
+@import "components/joomla25";
+@import "@{lib-path}/patch/editor/tinymce";
+

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jomsocial>
+	<component>com_easydiscuss</component>
+	<rules>
+		<rule>
+			<name>Create a new discussion</name>
+			<description>Add points to user for creating a new discussion.</description>
+			<action_string>com_easydiscuss.new.discussion</action_string>
+			<publish>true</publish>
+			<points>5</points>
+			<access_level>1</access_level>
+		</rule>
+		<rule>
+			<name>Reply to a discussion</name>
+			<description>Add points to user for replying to a discussion.</description>
+			<action_string>com_easydiscuss.reply.discussion</action_string>
+			<publish>true</publish>
+			<points>1</points>
+			<access_level>1</access_level>
+		</rule>
+		<rule>
+			<name>Like a discussion</name>
+			<description>Add points to user for liking a discussion.</description>
+			<action_string>com_easydiscuss.like.discussion</action_string>
+			<publish>true</publish>
+			<points>1</points>
+			<access_level>1</access_level>
+		</rule>
+	</rules>
+</jomsocial>

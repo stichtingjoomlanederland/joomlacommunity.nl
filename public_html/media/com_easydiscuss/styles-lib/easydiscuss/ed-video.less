@@ -1,0 +1,51 @@
+// Video with responsive
+//
+/*
+Since there have configurable width and height for videos, it's only for the wider screen.
+Responsive only trigger in a narrow view.
+e.g.: 
+1.
+<div class="ed-video">
+    <div class="ed-video__item">
+    </div>  
+</div>
+2.
+<div class="ed-video">
+    <iframe>
+    </iframe>  
+</div>
+*/
+&.w640,
+&.w480 {
+    .ed-video {
+        position: relative;
+        display: block;
+        height: 0;
+        padding: 0;
+        overflow: hidden;
+
+        .ed-video__item,
+        iframe,
+        embed,
+        object,
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            height: 100%;
+            width: 100%;
+            border: 0;
+        }
+    }
+
+    // Modifier class for 16:9 aspect ratio
+    .ed-video--16by9 {
+        padding-bottom: 56.25%;
+    }
+
+    // Modifier class for 4:3 aspect ratio
+    .ed-video--4by3 {
+        padding-bottom: 75%;
+    }
+}

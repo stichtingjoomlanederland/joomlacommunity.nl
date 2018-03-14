@@ -1,0 +1,47 @@
+.label__help-icon {
+    color: #bbb;
+    font-size: 14px;
+    margin: 3px 0 0;
+    position: absolute;
+    top: 0;
+    right: 8px;
+}
+.control-label label {
+    margin-right: 12px; // Reserve space for help-icon #1547
+}
+
+.panel-body {
+    .form-group {
+        > .control-label {
+            text-align: left;
+        }
+    }
+}
+
+.ed-usergroups-tree {
+    .tree-title {
+        > span,
+        > b {
+            display: table-cell;
+            vertical-align: middle;
+            line-height: 16px;
+        }
+
+        > span {
+            border-left: 1px solid #ccc;
+            width: 18px;
+            position: relative;
+            padding: 0 2px 0 0;
+
+            &:after {
+                content: '';
+                height: 1px;
+                background: #ddd;
+                width: 10px;
+                display: block;
+                position: absolute;
+                top: 50%;
+            }
+        }
+    }
+}

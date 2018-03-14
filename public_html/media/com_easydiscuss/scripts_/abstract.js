@@ -1,0 +1,1 @@
+window.EasyDiscuss = abstractComponent();

@@ -1,0 +1,80 @@
+.input-group .docman_dropdown_grid .dropdown-toggle {
+
+  img {
+    max-width: 16px;
+    max-height: 16px;
+  }
+}
+
+.input-group .docman_dropdown_grid ul.dropdown-menu {
+  width: 212px;
+  position: absolute;
+  z-index: 999;
+  padding: 5px;
+}
+
+.input-group .docman_dropdown_grid ul {
+  li.icon {
+    float: left;
+    width: 40px;
+    height: 40px;
+    clear: none;
+    margin: 0;
+    padding: 0;
+    display: block;
+
+    @include rtl {
+      float: right;
+    }
+
+    a {
+      float: left;
+      display: block;
+      padding: 0;
+      margin: 0;
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      @include border-radius(3px);
+
+      @include rtl {
+        float: right;
+      }
+
+      [class^="koowa_icon--"],
+      [class*=" koowa_icon--"] {
+        display: block;
+        vertical-align: middle;
+        margin: ((40px - 16px)/2) auto;
+      }
+    }
+  }
+
+  li {
+    margin: 0;
+    padding: 0;
+
+    a.koowa-modal.mfp-iframe {
+      padding-left: 5px;
+      @include border-radius(2px);
+
+      @include rtl {
+        padding-left: 0;
+        padding-right: 5px;
+      }
+    }
+  }
+
+  li.divider {
+    margin: 9px 1px;
+    clear: both;
+    border-bottom: 1px solid #ddd;
+  }
+}
+
+.dropdown-menu {
+  li a {
+    font-size: 13px !important;
+    padding: 3px 20px;
+  }
+}

@@ -1,0 +1,32 @@
+[
+    {
+        "table": "#__discuss_posts",
+        "column": "thread_id",
+        "query": "ALTER TABLE `#__discuss_posts` ADD COLUMN `thread_id` bigint(20) UNSIGNED DEFAULT 0;"
+    },
+    {
+        "table": "#__discuss_posts",
+        "column": "preview",
+        "query": "ALTER TABLE `#__discuss_posts` ADD COLUMN `preview` LONGTEXT NULL;"
+    },
+    {
+        "table": "#__discuss_posts",
+        "index": "idx_threadid",
+        "query": "ALTER TABLE `#__discuss_posts` ADD INDEX `idx_threadid` (`thread_id`);"
+    },
+    {
+        "table": "#__discuss_posts",
+        "column": "priority",
+        "query": "ALTER TABLE `#__discuss_posts` ADD `priority` INT(11) NOT NULL;"
+    },
+    {
+        "table": "#__discuss_posts",
+        "column": "anonymous",
+        "query": "ALTER TABLE `#__discuss_posts` ADD `anonymous` tinyint(3) NULL DEFAULT 0;"
+    },
+    {
+        "table": "#__discuss_posts",
+        "column": "num_fav",
+        "query": "ALTER TABLE `#__discuss_posts` ADD `num_fav` int(11) default 0;"
+    }
+]

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fields name="filter">
+		<field name="search" type="text" label="JSEARCH_FILTER" hint="JSEARCH_FILTER" />
+		
+		<field name="state" type="list" onchange="this.form.submit();">
+			<option value="">COM_RSEVENTSPRO_SELECT_STATE</option>
+			<option value="0">COM_RSEVENTSPRO_RULE_STATUS_INCOMPLETE</option>
+			<option value="1">COM_RSEVENTSPRO_RULE_STATUS_COMPLETE</option>
+			<option value="2">COM_RSEVENTSPRO_RULE_STATUS_DENIED</option>
+		</field>
+		
+		<field name="event" type="filterevents" onchange="this.form.submit();">
+			<option value="">COM_RSEVENTSPRO_SELECT_EVENT</option>
+		</field>
+		
+		<field name="ticket" type="filtertickets" onchange="this.form.submit();">
+			<option value="">COM_RSEVENTSPRO_SELECT_TICKET</option>
+		</field>
+	</fields>
+
+	<fields name="list">
+		<field name="fullordering" type="list" onchange="this.form.submit();" default="u.date DESC">
+			<option value="">JGLOBAL_SORT_BY</option>
+			<option value="u.date ASC">COM_RSEVENTSPRO_ORDER_SUBSCRIBER_DATE_ASC</option>
+			<option value="u.date DESC">COM_RSEVENTSPRO_ORDER_SUBSCRIBER_DATE_DESC</option>
+			<option value="u.name ASC">COM_RSEVENTSPRO_ORDER_SUBSCRIBER_ASC</option>
+			<option value="u.name DESC">COM_RSEVENTSPRO_ORDER_SUBSCRIBER_DESC</option>
+			<option value="e.name ASC">COM_RSEVENTSPRO_ORDER_EVENT_ASC</option>
+			<option value="e.name DESC">COM_RSEVENTSPRO_ORDER_EVENT_DESC</option>
+			<option value="u.gateway ASC">COM_RSEVENTSPRO_ORDER_GATEWAY_ASC</option>
+			<option value="u.gateway DESC">COM_RSEVENTSPRO_ORDER_GATEWAY_DESC</option>
+			<option value="u.state ASC">JSTATUS_ASC</option>
+			<option value="u.state DESC">JSTATUS_DESC</option>
+			<option value="u.id ASC">JGRID_HEADING_ID_ASC</option>
+			<option value="u.id DESC">JGRID_HEADING_ID_DESC</option>
+		</field>
+		
+		<field name="limit" type="limitbox" default="25" class="input-mini" onchange="this.form.submit();" />
+	</fields>
+</form>

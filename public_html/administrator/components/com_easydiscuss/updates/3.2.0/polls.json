@@ -1,0 +1,22 @@
+[
+    {
+        "table"     : "#__discuss_polls",
+        "column"    : "multiple_polls",
+        "query"     : "ALTER TABLE `#__discuss_polls` ADD `multiple_polls` TINYINT( 1 ) NULL DEFAULT NULL;"
+    },
+    {
+        "table"     : "#__discuss_polls",
+        "index"     : "polls_posts",
+        "query"     : "ALTER TABLE `#__discuss_polls` ADD INDEX `polls_posts` (`post_id`, `id`);"
+    },
+    {
+        "table"     : "#__discuss_polls_question",
+        "column"    : "locked",
+        "query"     : "ALTER TABLE `#__discuss_polls_question` ADD `locked` TINYINT(1) NULL DEFAULT 0;"
+    },
+    {
+        "table"     : "#__discuss_polls_users",
+        "column"    : "session_id",
+        "query"     : "ALTER TABLE `#__discuss_polls_users` ADD `session_id` VARCHAR(200) DEFAULT NULL;"
+    }
+]

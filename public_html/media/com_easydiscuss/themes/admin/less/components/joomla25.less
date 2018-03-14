@@ -1,0 +1,198 @@
+/**
+* @package      EasyDiscuss
+* @copyright    Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      Proprietary Use License http://stackideas.com/licensing.html
+* @author       Stack Ideas Sdn Bhd
+**/
+
+// JOOMLA 2.5 STARTS HERE
+div#ed button {margin: 0}
+div#ed .fa {
+    line-height: 1;
+}
+
+.container-nav {
+    display: none;
+}
+
+.radio, .checkbox {
+    min-height: 18px;
+    padding-left: 20px;
+}
+
+div#toolbar-box {
+    margin: 0;
+}
+
+div#toolbar-box div.m ,
+div#element-box div.m {
+    border-radius: 3px;
+    overflow: hidden;
+    padding: 0 10px;
+}
+
+div#element-box div.m {
+    background: none;
+    padding: 0 !important;
+
+    .btn .fa {
+        line-height: inherit;
+    }
+
+    .btn::-moz-focus-inner { 
+        border: 0; 
+        padding: 0; 
+        // margin-top:-1px; 
+        // margin-bottom: -1px; 
+    }
+}
+
+div#ed.ed-backend {
+    margin: 0;
+}
+
+div.pagetitle {
+    padding-left: 10px !important;
+    background: none !important;
+
+    h2 {
+        line-height: 52px !important;
+        font-weight: normal !important;
+        color: #555 !important;
+        font-size: 20px !important;
+    }
+}
+div.toolbar-list ul {
+    display: inline-block;
+
+    li {
+        padding: 2px 0 2px 4px;
+    }
+}
+
+// BOOTSTRAP RELATED
+
+.tab-content > .tab-pane {
+    display: none;
+
+    &.active {
+        display: block;
+    }
+}
+
+.label,
+.badge {
+    display: inline-block;
+    padding: 2px 4px;
+    font-size: 10.998px;
+    font-weight: bold;
+    line-height: 14px;
+    color: #fff;
+    vertical-align: baseline;
+    white-space: nowrap;
+    text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+}
+
+table {
+  max-width: 100%;
+  width: 100%;
+  background-color: transparent;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+
+.table th, 
+.table td {
+    vertical-align: top;
+    padding: 8px;
+}
+
+.table-striped tbody > tr:nth-child(odd) > td, 
+.table-striped tbody > tr:nth-child(odd) > th {
+    background-color: #f9f9f9;
+}
+
+.pagination {
+    display: table;
+    width: auto;
+    margin: 0 auto;
+
+    > div {
+        display: table-cell;
+        vertical-align: middle;
+        float: none !important;
+    }
+
+    > div.limit {
+        white-space: nowrap;
+        padding: 0 10px;
+
+        select#limit {
+            display: inline-block;
+            margin: 0 0 0 5px;
+        }
+    }
+    [class*="button2-"] {
+        padding: 0 2px;
+    }
+    [class*="button2-"],
+    [class*="button2-"] > div {
+        background-image: none !important;
+    }
+
+    [class*="button2-"] > div > a,
+    [class*="button2-"] > div > span {
+        border: 1px solid #ccc;
+        padding: 5px 8px;
+        background: #ddd;
+        border-radius: 3px;
+        height: auto;
+        line-height: 18px;
+    }
+
+    [class*="button2-"] > div > a {
+        background: #fff !important;
+    }
+
+    [class*="button2-"] > div.page {
+        > a,
+        > span {
+            border-radius: 0;
+
+            + a,
+            + span {
+                border-left: 0 !important;
+            }
+
+            &:first-child {
+                border-top-left-radius: 3px;
+                border-bottom-left-radius: 3px;
+            }
+
+            &:last-child {
+                border-top-right-radius: 3px;
+                border-bottom-right-radius: 3px;
+            }
+        }
+    }
+}
+
+
+// Icons for j2.5 default admin template
+// ----------------
+
+/*32*/
+.icon-32-featured {
+    background-image: url(../images/j25/feature.png);
+}
+.icon-32-star-empty {
+    background-image: url(../images/j25/unfeature.png);
+}
+.icon-32-rules {
+    background-image: url(../images/j25/rules.png);
+}
+.icon-32-arrow-left {
+    background-image: url(../images/j25/home.png);
+}
+

@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="2.5" type="plugin" group="user" method="upgrade">
+	<name>Easydiscuss Profile</name>
+	<author>StackIdeas</author>
+	<creationDate>November 2012</creationDate>
+	<copyright>Copyright 2009 - 2012 Stack Ideas. All rights reserved</copyright>
+	<license>GPL License</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://www.stackideas.com</authorUrl>
+	<version>1.0.0</version>
+	<description>Easydiscuss Profile on Joomla user registration</description>
+
+	<files>
+		<filename plugin="easydiscussprofile">easydiscussprofile.php</filename>
+		<filename>index.html</filename>
+		<folder>profiles</folder>
+	</files>
+	<languages>
+		<language tag="en-GB">en-GB.plg_user_easydiscussprofile.ini</language>
+		<language tag="en-GB">en-GB.plg_user_easydiscussprofile.sys.ini</language>
+	</languages>
+	<config>
+		<fields name="params">
+
+			<fieldset name="basic"
+				addfieldpath="/administrator/components/com_content/models/fields">
+				<field name="register-require-user" type="spacer" class="text"
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_NAME_REGISTER_REQUIRE_USER"
+				/>
+
+				<field name="register-require_nickname" type="list"
+
+					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_NICKNAME_DESC"
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_NICKNAME_LABEL"
+				>
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="register-require_description" type="list"
+
+					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_DESCRIPTION_DESC"
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_DESCRIPTION_LABEL"
+				>
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="register-require_signature" type="list"
+
+					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_SIGNATURE_DESC"
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_SIGNATURE_LABEL"
+				>
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="register-require_facebook" type="list"
+
+					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_FACEBOOK_DESC"
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_FACEBOOK_LABEL"
+				>
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="register-require_twitter" type="list"
+
+					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_TWITTER_DESC"
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_TWITTER_LABEL"
+				>
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="register-require_linkedin" type="list"
+
+					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_LINKEDIN_DESC"
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_LINKEDIN_LABEL"
+				>
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="register-require_skype" type="list"
+
+					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_SKYPE_DESC"
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_SKYPE_LABEL"
+				>
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="register-require_website" type="list"
+
+					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_WEBSITE_DESC"
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_WEBSITE_LABEL"
+				>
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+				<field 	name="register-require_location"
+					type="list"
+
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_LOCATION_LABEL"
+					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_LOCATION_DESC"
+				>
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="spacer1" type="spacer"
+					hr="true"
+				/>
+				<field name="profile-require-user" type="spacer" class="text"
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_NAME_PROFILE_REQUIRE_USER"
+				/>
+
+				<field name="profile-require_nickname" type="list"
+
+					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_NICKNAME_DESC"
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_NICKNAME_LABEL"
+				>
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="profile-require_description" type="list"
+
+					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_DESCRIPTION_DESC"
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_DESCRIPTION_LABEL"
+				>
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="profile-require_signature" type="list"
+
+					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_SIGNATURE_DESC"
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_SIGNATURE_LABEL"
+				>
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="profile-require_facebook" type="list"
+
+					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_FACEBOOK_DESC"
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_FACEBOOK_LABEL"
+				>
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="profile-require_twitter" type="list"
+
+					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_TWITTER_DESC"
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_TWITTER_LABEL"
+				>
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="profile-require_linkedin" type="list"
+
+					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_LINKEDIN_DESC"
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_LINKEDIN_LABEL"
+				>
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="profile-require_skype" type="list"
+
+					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_SKYPE_DESC"
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_SKYPE_LABEL"
+				>
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+
+				<field name="profile-require_website" type="list"
+
+					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_WEBSITE_DESC"
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_WEBSITE_LABEL"
+				>
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+				<field 	name="profile-require_location"
+					type="list"
+
+					label="PLG_USER_EASYDISCUSS_PROFILE_FIELD_LOCATION_LABEL"
+					description="PLG_USER_EASYDISCUSS_PROFILE_FIELD_LOCATION_DESC">
+					<option value="2">JOPTION_REQUIRED</option>
+					<option value="1">JOPTION_OPTIONAL</option>
+					<option value="0">JDISABLED</option>
+				</field>
+			</fieldset>
+
+		</fields>
+	</config>
+</extension>

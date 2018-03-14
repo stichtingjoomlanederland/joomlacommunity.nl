@@ -1,0 +1,151 @@
+// BRANDS
+
+
+// TEXTS
+
+//@font-family-sans-serif:  'Helvetica Neue', Helvetica, Arial, sans-serif;
+//@font-size-base:          12px; 
+//@font-size-small:         11px;
+//@font-size-large:         @font-size-base + 2;
+//@line-height-base:        1.7; // 20/14
+// @text-color:			  @palette-grey-700;
+// @link-color:              @color-brand;
+// @icon-font-path:          "../bootstrap/fonts/";
+
+
+// GRIDS
+
+@grid-gutter-width:       10px;
+
+
+// INPUTS
+
+// @input-border:              @border-color;
+// @input-border-focus:        darken(@border-color, 5%);
+@input-color-placeholder:   @palette-grey-500;
+
+
+// PADDINGS
+
+@padding-base-vertical:     3px;
+@padding-base-horizontal:   10px;
+
+ 
+// BUTTONS
+
+// @btn-default-color: @text-color;
+// @btn-default-bg: @blue-grey-50;
+// @btn-default-border: @blue-grey-100;
+
+// @btn-primary-color: #fff;
+// @btn-primary-bg: @color-brand;
+// @btn-primary-border: darken(@color-brand, 5%);
+
+@btn-success-color: #fff;
+@btn-success-bg: @palette-green-500;
+@btn-success-border: @palette-green-600;
+
+
+// RADIUS
+
+@border-radius-base:        2px;
+@border-radius-large:       3px;
+@border-radius-small:       2px;
+@input-border-radius:       2px;
+
+
+
+// TABLES
+
+// @table-border-color:        lighten(@blue-grey-100, 4%);
+// @table-bg-accent:           lighten(@blue-grey-50,  4%);
+@table-bg-hover:            @palette-yellow-50;
+
+
+//== Media queries breakpoints
+//
+//## Define the breakpoints at which your layout will change, adapting to different screen sizes.
+
+// Extra small screen / phone
+//** Deprecated `@screen-xs` as of v3.0.1
+@screen-xs:                  480px;
+//** Deprecated `@screen-xs-min` as of v3.2.0
+@screen-xs-min:              @screen-xs;
+//** Deprecated `@screen-phone` as of v3.0.1
+@screen-phone:               @screen-xs-min;
+
+// Small screen / tablet
+//** Deprecated `@screen-sm` as of v3.0.1
+@screen-sm:                  768px;
+@screen-sm-min:              @screen-sm;
+//** Deprecated `@screen-tablet` as of v3.0.1
+@screen-tablet:              @screen-sm-min;
+
+// Medium screen / desktop
+//** Deprecated `@screen-md` as of v3.0.1
+@screen-md:                  992px;
+@screen-md-min:              @screen-md;
+//** Deprecated `@screen-desktop` as of v3.0.1
+@screen-desktop:             @screen-md-min;
+
+// Large screen / wide desktop
+//** Deprecated `@screen-lg` as of v3.0.1
+@screen-lg:                  1200px;
+@screen-lg-min:              @screen-lg;
+//** Deprecated `@screen-lg-desktop` as of v3.0.1
+@screen-lg-desktop:          @screen-lg-min;
+
+// So media queries don't overlap when required, provide a maximum
+@screen-xs-max:              (@screen-sm-min - 1);
+@screen-sm-max:              (@screen-md-min - 1);
+@screen-md-max:              (@screen-lg-min - 1);
+//== Grid system
+//
+//## Define your custom responsive grid.
+
+//** Number of columns in the grid.
+@grid-columns:              12;
+//** Padding between columns. Gets divided in half for the left and right.
+@grid-gutter-width:         30px;
+// Navbar collapse
+//** Point at which the navbar becomes uncollapsed.
+@grid-float-breakpoint:     @screen-sm-min;
+//** Point at which the navbar begins collapsing.
+@grid-float-breakpoint-max: (@grid-float-breakpoint - 1);
+
+
+//== Container sizes
+//
+//## Define the maximum width of `.container` for different screen sizes.
+
+// Small screen / tablet
+@container-tablet:             (720px + @grid-gutter-width);
+//** For `@screen-sm-min` and up.
+@container-sm:                 @container-tablet;
+
+// Medium screen / desktop
+@container-desktop:            (940px + @grid-gutter-width);
+//** For `@screen-md-min` and up.
+@container-md:                 @container-desktop;
+
+// Large screen / wide desktop
+@container-large-desktop:      (1140px + @grid-gutter-width);
+//** For `@screen-lg-min` and up.
+@container-lg:                 @container-large-desktop;
+
+
+// Ported from easyblog
+@app-gutter-width: 24px;
+@app-border-color: #DEE3E9;
+@app-text-light: #999;
+@app-radius-base: 3px;
+@app-breakpoint: 900px;
+@panel-head-grad-start : 0%;
+@panel-head-grad-end : 0%;
+@panel-head-color-end: lighten(#13294a, 3%);
+@panel-head-color-start: lighten(@panel-head-color-end, 8%);
+
+@table-row-alternate: #f9f9f9;
+@table-row-hover: #ffe;
+@table-row-checked: #ffe;
+@table-row-checked-hover: #ffe;

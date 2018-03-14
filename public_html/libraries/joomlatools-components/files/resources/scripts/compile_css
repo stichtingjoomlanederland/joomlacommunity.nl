@@ -1,0 +1,15 @@
+#!/bin/bash
+
+FOLDER=resources/assets
+BASE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+INPUT_PATH=$BASE/../assets/scss
+OUTPUT_PATH=$BASE/../assets/css
+
+for FILE in `find $INPUT_PATH -maxdepth 1 -name '*.scss'`
+do
+  base=`basename "$FILE" .scss`
+  sass --style compressed $INPUT_PATH/$base.scss $OUTPUT_PATH/$base.css
+  sed -ix 's/nooku-framework\/code\///g' $OUTPUT_PATH/$base.css.map
+  sed -ix 's/com_files//g' $OUTPUT_PATH/$base.css.map
+done

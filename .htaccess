@@ -1,0 +1,7 @@
+# Redirect all visitors from root to Joomla! in public_html
+
+Options +FollowSymLinks
+
+RewriteEngine on
+RewriteCond %{REQUEST_URI} !(.*)public_html
+RewriteRule ^(.*)$ public_html/$1 [L]

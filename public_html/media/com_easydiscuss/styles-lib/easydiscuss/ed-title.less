@@ -1,0 +1,30 @@
+// Title font size control
+// ----------------
+.ed-page-title {
+	font-size: @fd-title-font-size;
+	font-weight: bold;
+	margin: 0 0 @fd-base-spacing--lg;
+	padding: 0;
+}
+
+.ed-post-item__title,
+.ed-post-content__title {
+	font-weight: bold;
+	margin: 0;
+	padding: 0;
+}
+.ed-post-item__title {
+	font-size: @fd-title-font-size;
+	// width: 100%;
+	display: inline-block;
+	// .text-overflow();
+	> a {
+		word-wrap: break-word;
+		display: inline;
+		
+	}
+}
+.ed-post-content__title {
+	margin: @fd-base-spacing--lg 0;
+	font-size: @fd-title-font-size;
+}

@@ -1,0 +1,111 @@
+/*------------------------------------*\
+    $markitup.less
+\*------------------------------------*/
+// Extended from default
+// ----------------
+.markItUp {
+	width: 100%;
+	margin: 0;
+	border: 0px solid transparent;
+	li > a {
+		background-position: center;
+		border: 1px solid transparent;
+		.border-radius(@baseBorderRadius);
+		font-size: 0;
+		&:hover {
+			border: 1px solid darken(@grayLighter, 6.5%);
+			background-color: transparent;
+		}
+	}//a
+	.markitup-bold a {
+		background-image:url('@{media_uri}/../images/markitup/bold.png');
+	}
+	.markitup-italic a {
+		background-image:url('@{media_uri}/../images/markitup/italic.png');
+	}
+	.markitup-underline a {
+		background-image:url('@{media_uri}/../images/markitup/underline.png');
+	}
+
+	.markitup-url a {
+		background-image:url('@{media_uri}/../images/markitup/link.png');
+	}
+	.markitup-picture a {
+		background-image:url('@{media_uri}/../images/markitup/picture.png');
+	}
+	.markitup-video a {
+		background-image:url('@{media_uri}/../images/markitup/video.png');
+	}
+	.markitup-bullet a {
+		background-image:url('@{media_uri}/../images/markitup/list-bullet.png');
+	}
+	.markitup-numeric a {
+		background-image:url('@{media_uri}/../images/markitup/list-numeric.png');
+	}
+	.markitup-list a {
+		background-image:url('@{media_uri}/../images/markitup/list-item.png');
+	}
+
+	.markitup-quote a {
+		background-image:url('@{media_uri}/../images/markitup/quotes.png');
+	}
+	.markitup-code a {
+		background-image:url('@{media_uri}/../images/markitup/code.png');
+	}
+
+	.markitup-happy a {
+		background-image:url('@{media_uri}/../images/markitup/emoticon-happy.png');
+	}
+	.markitup-smile a {
+		background-image:url('@{media_uri}/../images/markitup/emoticon-smile.png');
+	}
+	.markitup-surprised a {
+		background-image:url('@{media_uri}/../images/markitup/emoticon-surprised.png');
+	}
+	.markitup-tongue a {
+		background-image:url('@{media_uri}/../images/markitup/emoticon-tongue.png');
+	}
+	.markitup-unhappy a {
+		background-image:url('@{media_uri}/../images/markitup/emoticon-unhappy.png');
+	}
+	.markitup-wink a {
+		background-image:url('@{media_uri}/../images/markitup/emoticon-wink.png');
+	}
+
+	.textareaClone {
+		min-height: 160px;
+		height: auto;
+	}
+}
+.markItUpContainer {
+	background: darken(@white, 4%);
+	padding: 5px 10px 6px 10px;
+	border: 1px solid darken(@grayLighter, 6.5%);
+}
+.markItUpHeader {
+	display: inline-block;
+	width: 100%;
+	padding: 2px 4px 6px;
+	background: darken(@white, 4%);
+	// border: 1px solid #CCC;
+	border-bottom: 0;
+	ul {
+		li {
+			margin-right: 4px;
+		}
+		.markItUpSeparator {
+			position: relative;
+			top: 4px;
+			background-color: darken(@grayLighter, 3.5%);
+			color: darken(@grayLighter, 3.5%);
+		}
+	}
+}
+.markItUpEditor {
+	padding: 5px;
+	background: @white;
+	border: 1px solid darken(@grayLighter, 13.5%);
+	.box-sizing(border-box);
+	font:14px @sansFontFamily;
+}
+

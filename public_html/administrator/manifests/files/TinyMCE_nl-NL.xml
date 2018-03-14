@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<extension type="file" version="2.5" method="upgrade">
+	<name>TinyMCE nl-NL</name>
+	<author>Dutch Translation Team</author>
+	<authorEmail>taal@joomlacommunity.eu</authorEmail>
+	<authorUrl>http://www.joomlacommunity.eu</authorUrl>
+	<copyright>(C) 2010-2012 Dutch Translation Team</copyright>
+	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
+	<version>3.5.1.1</version>
+	<creationDate>18 June 2012</creationDate>
+	<description><![CDATA[
+		<h2>Nederlands taalpakket voor TinyMCE 3.5.1.1 in Joomla 2.5 installeren geslaagd</h2>
+		Indien u andere talen gebruikt dan Nederlands en Engels zorg dan dat u deze taalpakketten ook geïnstalleerd heeft, voordat u "Automatische taalselectie" activeert via de volgende stappen:<br/>
+		<ol>
+		<li>Extensies</li>
+		<li>Pluginbeheer</li>
+		<li><a href="index.php?option=com_plugins&view=plugins&filter_search=Tekstverwerker - TinyMCE">Tekstverwerker - TinyMCE</a><br/>Of zoek in Extensies-Pluginbeheer de Editor - TinyMCE</li>
+		<li>Basis opties</li>
+		<li>Automatische taalselectie instellen op Ja</li>
+		<li>Functionaliteit instellen op Uitgebreid (Optioneel -- Indien u alle functionaliteit wilt gebruiken van)</li>
+		</ol>
+		<p></p>
+		<p>Bugs, taalfouten of verbeteringen kunnen gemeld worden op <a href="http://joomlacode.org/gf/project/nederlands/tracker/?action=TrackerItemBrowse&tracker_id=10287" target="_blank">de tracker van het Dutch Translation Team</a><br/>
+		Of op het <a href="http://forum.joomlacommunity.eu/forumdisplay.php?f=121" target="_blank">forum van JoomlaCommunity</a></p>
+		<p></p>
+		]]>
+	</description>
+
+	<!-- Fileset definition -->
+	<fileset>
+		<files target="media/editors">
+					<filename>tinymce/jscripts/tiny_mce/langs/nl.js</filename>
+					<filename>tinymce/jscripts/tiny_mce/plugins/advhr/langs/nl_dlg.js</filename>
+					<filename>tinymce/jscripts/tiny_mce/plugins/advimage/langs/nl_dlg.js</filename>
+					<filename>tinymce/jscripts/tiny_mce/plugins/advlink/langs/nl_dlg.js</filename>
+					<filename>tinymce/jscripts/tiny_mce/plugins/autosave/langs/nl.js</filename>
+					<filename>tinymce/jscripts/tiny_mce/plugins/emotions/langs/nl_dlg.js</filename>
+					<filename>tinymce/jscripts/tiny_mce/plugins/fullpage/langs/nl_dlg.js</filename>
+					<filename>tinymce/jscripts/tiny_mce/plugins/media/langs/nl_dlg.js</filename>
+					<filename>tinymce/jscripts/tiny_mce/plugins/paste/langs/nl_dlg.js</filename>
+					<filename>tinymce/jscripts/tiny_mce/plugins/searchreplace/langs/nl_dlg.js</filename>
+					<filename>tinymce/jscripts/tiny_mce/plugins/style/langs/nl_dlg.js</filename>
+					<filename>tinymce/jscripts/tiny_mce/plugins/table/langs/nl_dlg.js</filename>
+					<filename>tinymce/jscripts/tiny_mce/plugins/template/langs/nl_dlg.js</filename>
+					<filename>tinymce/jscripts/tiny_mce/plugins/xhtmlxtras/langs/nl_dlg.js</filename>
+					<filename>tinymce/jscripts/tiny_mce/themes/advanced/langs/nl.js</filename>
+					<filename>tinymce/jscripts/tiny_mce/themes/advanced/langs/nl_dlg.js</filename>
+					<filename>tinymce/jscripts/tiny_mce/themes/simple/langs/nl.js</filename>
+		</files>
+	</fileset>
+</extension>

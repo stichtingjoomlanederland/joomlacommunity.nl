@@ -1,0 +1,105 @@
+/*------------------------------------*\
+    $SHARED
+\*------------------------------------*/
+/**
+ * Where `margin-bottom` is concerned, this value will be the same as the
+ * base line-height. This allows us to keep a consistent vertical rhythm.
+ */
+/**
+ * Base elements
+ */
+h1,h2,h3,h4,h5,h6,hgroup,
+ul,ol,dl,
+blockquote,p,address,
+table,
+fieldset,figure,
+pre,
+/**
+ * Objects and abstractions
+ *
+ * .sass-margin-bottom
+ */
+.form-fields > li,
+.media,
+.island,
+.islet{
+    // margin-bottom:unit(@fd-base-spacing, px);
+    // margin-bottom:unit((@fd-base-spacing/@fd-base-font-size), em);
+
+    .islet &{
+        // margin-bottom:unit((@fd-base-spacing/2), px);
+        // margin-bottom:unit(((@fd-base-spacing/@fd-base-font-size)/2), em);
+    }
+}
+
+
+/**
+ * Doubled up `margin-bottom` helper class.
+ */
+.landmark{
+    margin-bottom:unit((2*@fd-base-spacing), px);
+    margin-bottom:unit((2*@fd-base-spacing/@fd-base-font-size), em);
+}
+
+
+/**
+ * `hr` elements only take up a few pixels, so we need to give them special
+ * treatment regarding vertical rhythm.
+ */
+hr{
+    // margin-bottom:unit((@fd-base-spacing - 2), px);
+    // margin-bottom:unit(((@fd-base-spacing - 2)/@fd-base-font-size), em);
+    // margin-bottom: @
+}
+
+
+/**
+ * Where `margin-left` is concerned we want to try and indent certain elements
+ * by a consistent amount. Define that amount once, here.
+ */
+ul,ol,dd{
+    margin-left:unit((2*@fd-base-spacing), px);
+    margin-left:unit((2*@fd-base-spacing/@fd-base-font-size), em);
+}
+
+// BS3 elements base on font size 14px
+form {
+    // font-size: @fd-base-font-size--xl;
+    // font-size: @fd-base-font-size;
+    // line-height: @fd-base-line-height;
+}
+
+// blockquote
+blockquote {
+    line-height: @fd-base-line-height;
+}
+
+pre {
+    background: @fd-ui-bg; 
+}
+
+// Conflict with BS2
+.divider {
+    border-bottom: 0;
+}
+
+// Fixed &:extend unable to compile
+.form-group {
+    .clearfix();
+}
+
+// Fixed BS3 caret conflict with BS2
+.btn .caret {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+
+// Disable auto zoom in safari3+, chrome1+ on iPhone
+@media (max-width:479px) and (-webkit-min-device-pixel-ratio:0) {
+
+    select:focus, textarea:focus, input:focus {
+        font-size: 16px !important;
+    }
+
+}

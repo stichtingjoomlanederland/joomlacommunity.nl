@@ -1,0 +1,507 @@
+/*------------------------------------*\
+    $markitup.less
+\*------------------------------------*/
+/* -------------------------------------------------------------------
+// Customized for EasyDiscuss
+// By Stack Ideas
+// ------------------------------------------------------------------*/
+@white: #fff;
+
+
+// Output icons 
+.bb-smiley { // smiley <img>
+    max-width: 16px;
+    max-height: 16px;
+}
+
+.markItUp * {
+	margin:0px; padding:0px;
+	outline:none;
+}
+.markItUp a:link,
+.markItUp a:visited {
+	color:#000;
+	text-decoration:none;
+}
+.markItUp  {
+	width:700px;
+	margin:5px 0 5px 0;
+	border:5px solid #F5F5F5;
+}
+.markItUpContainer {
+	border: none !important;
+	background: none !important;
+	padding: 0 !important;
+	font: 11px Verdana, Arial, Helvetica, sans-serif;
+	border-radius: 0 !important;
+	// border-bottom: 1px solid @fd-ui-border-color !important;
+}
+
+.ed-convo-dialog {
+	.markItUpContainer {
+		border-bottom: 1px solid @fd-ui-border-color !important;		
+	}
+}
+
+.markItUpExpanding {
+	&.has-error {
+		border: 1px solid @state-danger-text;
+		.form-control {
+			box-shadow: none;
+		}
+	}
+}
+.markItUpEditor {
+	width: 100%;
+	height:320px;
+	clear:both;
+	line-height:18px;
+	overflow:auto;
+	border-radius: 0 !important;
+
+    border: 0 !important;
+    padding: @fd-base-spacing !important;
+    box-shadow: none !important;
+    font-size: 14px !important;
+    .box-sizing(border-box);
+
+    &:focus {
+        box-shadow: none;
+    }
+
+    &::-webkit-input-placeholder { /* Safari, Chrome and Opera */
+      color: @fd-ui-meta-color;
+    }
+    &:-moz-placeholder { /* Firefox 18- */
+      color: @fd-ui-meta-color;
+    }
+    &::-moz-placeholder { /* Firefox 19+ */
+      color: @fd-ui-meta-color;
+    }
+    &:-ms-input-placeholder { /* IE 10+ */
+      color: @fd-ui-meta-color;
+    }
+    &::-ms-input-placeholder { /* Edge */
+      color: @fd-ui-meta-color;
+    }
+    &:placeholder-shown { /* Standard one last! */
+      color: @fd-ui-meta-color;
+    }
+}
+
+
+.markItUpPreviewFrame	{
+	overflow:auto;
+	background-color:#FFFFFF;
+	border:1px solid #3C769D;
+	width:99.9%;
+	height:300px;
+	margin:5px 0;
+}
+.markItUpFooter {
+	width:100%;
+	cursor:n-resize;
+}
+.markItUpResizeHandle {
+	overflow:hidden;
+	width:22px; height:5px;
+	margin-left:auto;
+	margin-right:auto;
+	background-image:url('../../../styles-lib/vendors/markitup/skins/default/images/handle.png');
+	cursor:n-resize;
+}
+/***************************************************************************************/
+/* first row of buttons */
+.markItUpHeader ul li	{
+	list-style:none;
+	float: left;
+	position:relative;
+}
+.markItUpHeader ul li ul{
+	display:none;
+}
+.markItUpHeader ul li:hover > ul{
+	display:block;
+}
+.markItUpHeader ul .markItUpDropMenu {
+	background:transparent url('../../../styles-lib/vendors/markitup/skins/default/images/menu.png') no-repeat 115% 50%;
+	margin-right:5px;
+}
+.markItUpHeader ul .markItUpDropMenu li {
+	margin-right:0px;
+}
+.markItUpHeader ul .markItUpSeparator {
+	margin:0 10px;
+	width:1px;
+	height: 20px;
+	overflow:hidden;
+	background-color:#CCC;
+}
+.markItUpHeader ul ul .markItUpSeparator {
+	width:auto; height:1px;
+	margin:0px;
+}
+/* next rows of buttons */
+.markItUpHeader ul ul {
+	display:none;
+	position:absolute;
+	top:18px; left:0px;
+	background:#F5F5F5;
+	border:1px solid #3C769D;
+	height:inherit;
+}
+.markItUpHeader ul ul li {
+	float:none;
+	border-bottom:1px solid #3C769D;
+}
+.markItUpHeader ul ul .markItUpDropMenu {
+	background:#F5F5F5 url('../../../styles-lib/vendors/markitup/skins/default/images/submenu.png') no-repeat 100% 50%;
+}
+/* next rows of buttons */
+.markItUpHeader ul ul ul {
+	position:absolute;
+	top:-1px; left:150px;
+}
+.markItUpHeader ul ul ul li {
+	float:none;
+}
+.markItUpHeader ul a {
+	display:block;
+	width:24px; height:24px;
+	text-indent: 0;
+	// background-repeat:no-repeat;
+	// padding:3px;
+	padding: 0;
+	margin:0px;
+}
+.markItUpHeader ul ul a {
+	display:block;
+	padding-left:0px;
+	text-indent:0;
+	width:120px;
+	padding:5px 5px 5px 25px;
+	background-position:2px 50%;
+}
+.markItUpHeader ul ul a:hover  {
+	color:#FFF;
+	background-color:#3C769D;
+}
+.markItUpHeader {
+	display: inline-block;
+	width: 100%;
+	padding: 2px 4px 2px;
+	background: @fd-ui-bg;
+	border: none;
+	border-bottom: 1px solid @fd-ui-border-color !important; 
+	ul {
+		li {
+			margin-right: 4px;
+		}
+		.markItUpSeparator {
+			position: relative;
+			top: 4px;
+			background-color: darken(@gray-lighter, 3.5%);
+			color: darken(@gray-lighter, 3.5%);
+		}
+	}
+}
+
+
+
+
+
+
+/***************************************************************************************/
+.html .markItUpEditor {
+	background-image:url('../../../styles-lib/vendors/markitup/skins/default/images/bg-editor-html.png');
+}
+.markdown .markItUpEditor {
+	background-image:url('../../../styles-lib/vendors/markitup/skins/default/images/bg-editor-markdown.png');
+}
+.textile .markItUpEditor {
+	background-image:url('../../../styles-lib/vendors/markitup/skins/default/images/bg-editor-textile.png');
+}
+.bbcode .markItUpEditor {
+	background-image:url('../../../styles-lib/vendors/markitup/skins/default/images/bg-editor-bbcode.png');
+}
+.wiki .markItUpEditor,
+.dotclear .markItUpEditor {
+	background-image:url('../../../styles-lib/vendors/markitup/skins/default/images/bg-editor-wiki.png');
+}
+
+
+@sprite-emo-px: 20px; //icon grid
+.spriteEmoGrid(@x, @y) {
+	background-position: -((@x*@sprite-emo-px)-@sprite-emo-px) -((@y*@sprite-emo-px)-@sprite-emo-px) !important;
+}
+.spriteSize(@size) {
+	width: @size !important;
+	height: @size !important;
+	line-height:@size;
+}
+
+
+.ed-emoticon,
+.ed-emoticon img {
+	.spriteSize(20px);
+	display: inline-block;
+	vertical-align: middle;
+	background-image: url("../../../images/emoticons/icons-emo@2x.png");
+	background-size: 140px 20px;
+}
+
+@media (-webkit-min-device-pixel-ratio: 1.5), not all, not all, (min-resolution: 144dpi) {
+	.ed-emoticon {
+		// background-image: url("../../../images//icons/icons-emo@2x.png") !important;
+		// background-size: 200px 120px;
+	}
+}
+
+// Extended from default
+// ----------------
+.markItUp {
+	width: 100%;
+	margin: 0;
+	border: 0px solid transparent;
+	li > a {
+		background-position: center;
+		border: 1px solid transparent;
+		border-radius: @fd-ui-radius;
+		font-size: 0;
+		
+		&:hover {
+			background-color: transparent;
+		}
+	}//a
+	
+	.markItUpButton {
+	    padding: 4px;
+	    
+	    a {
+	    	position: relative;
+
+	    	.spriteSize(20px);
+	    	display: inline-block;
+	    	vertical-align: middle;
+	    	background-image: url("../../../images/emoticons/icons-emo@2x.png") !important;
+	    	background-size: 140px 20px;
+	    	background-position: 0 !important;
+	    	background-color: transparent !important;
+
+	    	&:before {
+	    		position: absolute;
+	    		top: 0;
+	    		left: 0;
+	    		font-family: FontAwesome;
+	    		font-size: 14px;
+	    		font-weight: normal;
+	    		font-style: normal;
+	    		display: inline-block;
+	    		text-decoration: inherit;
+
+	    		font-size: @fd-base-font-size !important;
+	    		color: @fd-ui-text-color !important;
+	    		width: 20px !important;
+	    		height: 20px !important;
+	    		text-align: center !important;
+
+	    		text-indent: 0;
+
+	    	}
+	    }	
+	}
+
+	.markitup-bold a,
+	.markitup-italic a,
+	.markitup-underline a,
+	.markitup-url a,
+	.markitup-picture a,
+	.markitup-video a,
+	.markitup-bullet a,
+	.markitup-numeric a,
+	.markitup-list a,
+	.markitup-quote a,
+	.markitup-code a,
+	.markitup-gist a {
+		background: none !important;
+	}
+	.markitup-bold a {
+		
+		&:before {
+			content: "\f032";
+		}
+	}
+	.markitup-italic a {
+		&:before {
+			content: "\f033";
+		}
+	}
+	.markitup-underline a {
+		&:before {
+			content: "\f0cd";
+		}
+	}
+
+	.markitup-url a {
+		&:before {
+			content: "\f0c1";
+		}
+	}
+	.markitup-picture a {
+		&:before {
+			content: "\f03e";
+		}
+	}
+	.markitup-video a {
+		&:before {
+			content: "\f008";
+		}
+	}
+	.markitup-bullet a {
+		&:before {
+			content: "\f0ca";
+		}
+	}
+	.markitup-numeric a {
+		&:before {
+			content: "\f0cb";
+		}
+	}
+	.markitup-list a {
+		&:before {
+			content: "\f141";
+		}
+	}
+
+	.markitup-quote a {
+		&:before {
+			content: "\f10d";
+		}
+	}
+	.markitup-code a {
+		&:before {
+			content: "\f121";
+		}
+	}
+	.markitup-gist a {
+		&:before {
+			content: "\f113";
+		}
+	}
+	.markitup-happy a {
+		.spriteEmoGrid(2, 1);
+		// &:before {
+		// 	content: "\f03e";
+		// }
+	}
+	.markitup-smile a {
+		.spriteEmoGrid(3, 1);
+		&:before {
+			// content: "\f03e";
+		}
+	}
+	.markitup-surprised a {
+		.spriteEmoGrid(4, 1);
+		&:before {
+			// content: "\f03e";
+		}
+	}
+	.markitup-tongue a {
+		.spriteEmoGrid(5, 1);
+		&:before {
+			// content: "\f03e";
+		}
+	}
+	.markitup-unhappy a {
+		.spriteEmoGrid(6, 1);
+		&:before {
+			// content: "\f03e";
+		}
+	}
+	.markitup-wink a {
+		.spriteEmoGrid(7, 1);
+		&:before {
+			// content: "\f03e";
+		}
+	}
+
+	.textareaClone {
+		min-height: 160px;
+		height: auto;
+	}
+}
+
+
+
+@sprite-video-px: 16px; //icon grid
+.spriteVideoGrid(@x, @y) {
+	background-position: -((@x*@sprite-video-px)-@sprite-video-px) -((@y*@sprite-video-px)-@sprite-video-px);
+}
+.ed-video-providers {
+	margin-bottom: 5px;
+	li {
+		width: 31%;
+		display: inline-block;
+		margin-bottom: 10px;
+		padding-left: 22px;
+		
+		position: relative;
+		&:before {
+			position: absolute;
+			top: 0;
+			left: 0;
+			content: '';
+			width: 16px;
+			height: 16px;
+			line-height: 16px;
+			background-image:url('../../../images/videos/icons-video.png');
+			background-size: 160px 16px;	
+		}
+
+		&.video-youtube{
+			&:before {
+				.spriteVideoGrid(2, 1);
+			}
+		}
+		&.video-vimeo{
+			&:before {
+				.spriteVideoGrid(3, 1);
+			}
+		}
+		&.video-dailymotion{
+			&:before {
+				.spriteVideoGrid(4, 1);
+			}
+		}
+		&.video-google{
+			&:before {
+				.spriteVideoGrid(5, 1);
+			}
+		}
+		&.video-liveleak{
+			&:before {
+				.spriteVideoGrid(6, 1);
+			}
+		}
+		&.video-metacafe{
+			&:before {
+				.spriteVideoGrid(7, 1);
+			}
+		}
+		&.video-nicovideo{
+			&:before {
+				.spriteVideoGrid(8, 1);
+			}
+		}
+		&.video-yahoo{
+			&:before {
+				.spriteVideoGrid(9, 1);
+			}
+		}
+		&.video-smule{
+			&:before {
+				.spriteVideoGrid(10, 1);
+			}
+		}
+	}
+}

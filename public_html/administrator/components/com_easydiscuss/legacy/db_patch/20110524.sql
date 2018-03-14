@@ -1,0 +1,1 @@
+ALTER TABLE `#__discuss_category` ADD `description` TEXT NOT NULL DEFAULT ''

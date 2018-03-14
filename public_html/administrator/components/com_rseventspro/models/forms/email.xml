@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<field name="id" type="hidden" label="JGLOBAL_FIELD_ID_LABEL" description ="JGLOBAL_FIELD_ID_DESC" size="10" default="0" readonly="true" />
+	<field name="lang" type="language" label="COM_RSEVENTSPRO_MESSAGES_LANGUAGE" description="COM_RSEVENTSPRO_MESSAGES_LANGUAGE_DESC" size="1" default="" onchange="document.adminForm.submit();" />
+	<field name="subject" type="text" label="COM_RSEVENTSPRO_MESSAGES_SUBJECT" description="COM_RSEVENTSPRO_MESSAGES_SUBJECT_DESC" size="50" class="input-xlarge" default="" required="true" />
+	<field name="message" type="editor" class="inputbox" label="COM_RSEVENTSPRO_MESSAGES_CONTENT" description="COM_RSEVENTSPRO_MESSAGES_CONTENT_DESC" filter="JComponentHelper::filterText" buttons="true" />
+	<field name="parent" type="hidden" default="0" />
+	<field name="type" type="hidden" default="rule" />
+	<field name="mode" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MESSAGES_MODE" description="COM_RSEVENTSPRO_MESSAGES_MODE_DESC" default="1">
+		<option value="0">TEXT</option>
+		<option value="1">HTML</option>
+	</field>
+</form>

@@ -1,0 +1,143 @@
+// mobile
+
+@media (max-width: @grid-float-breakpoint-max) {
+	.subnav,
+	.navbar-main-menu {
+		display: none !important;
+	}
+}
+
+// desktop specific
+
+@media (min-width: @grid-float-breakpoint) {
+	.navbar-mobile,
+	.toggle-sub,
+	.dropdown-toggle-text {
+		display: none !important;
+	}
+
+	.navbar-main {
+		top: 0;
+		right: 0;
+		left: 0;
+		z-index: @zindex-navbar-fixed;
+		border-radius: 0;
+		height: @main-menu-height;
+
+		.nav > li > a {
+			line-height: @main-menu-height;
+			padding: 0 12px;
+		}
+
+	}
+
+	.dropdown-toggle-text {
+		float: left;
+	}
+}
+
+// navbar mobile
+
+.navbar-toggle {
+	margin: 0;
+	padding: 23px 15px;
+	border: none;
+	border-radius: 0;
+	transition: background-color .1s ease;
+}
+
+.navbar-default .navbar-toggle,
+.navbar-default .navbar-toggle:focus,
+.navbar-default .navbar-toggle:hover {
+	background: #efefef;
+	border: none;
+	&.collapsed {
+		background: transparent;
+	}
+}
+
+.navbar-collapse {
+	will-change: height; // the browser may optimize
+}
+
+.navbar-mobile .navbar-nav {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+.navbar-mobile .parent {
+	border-bottom: 1px solid #efefef;
+}
+
+.navbar-mobile {
+	li.parent > ul {
+		display: none;
+	}
+	li.expand > ul {
+		display: block;
+	}
+}
+
+.navbar-mobile .nav > li > a {
+	padding: @nav-link-padding;
+}
+
+.navbar-mobile .parent > a {
+	margin-right: (@font-size-base * 1.8) + @grid-gutter-width; // calculated width of .toggle-sub + margin
+
+	@switch: sibling; // selects ".toggle-sub"
+	.apply-jc-bg-color(length(@jc-colors-array)); // launch the loop (tools.less)
+}
+
+// Toggle button, expands submenu items
+.toggle-sub {
+	float: right;
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin: @nav-link-padding;
+	width: 1.8em;
+	height: 1.8em;
+	border-radius: @border-radius-base;
+	line-height: 1.8em;
+	font-size: @font-size-base;
+	text-align: center;
+	color: @brand-primary;
+	background: #efefef;
+	cursor: pointer;
+
+	&:before {
+		content: "+";
+	}
+	&.active:before {
+		content: "-";
+	}
+	&:hover,
+	&:active,
+	&:focus {
+		background: #ccc;
+	}
+}
+
+.navbar-user > li > a {
+	padding: 6px 10px 3px 10px;
+}
+
+.navbar-expanded.affix {
+	bottom: 0;
+	overflow-y: auto;
+}
+
+@media (max-width: @screen-md) {
+	#mod-finder-searchform {
+		margin: 10px 0;
+	}
+}
+
+.navbar-user {
+	border-top: 1px solid #efefef;
+
+	> li > a {
+		padding: 10px 15px 5px;
+	}
+}

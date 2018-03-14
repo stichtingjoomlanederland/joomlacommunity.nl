@@ -1,0 +1,48 @@
+// ED Board Stats
+// ----------------
+
+.ed-board-stats {
+    position: relative;
+    background-color: @fd-ui-bg;
+    // display: inline-block;
+    // min-width: 400px;
+    &__hd,
+    &__bd,
+    &__ft {
+        position: relative;
+        font-size: @fd-base-font-size;
+    }
+    &__hd {
+        padding: @fd-base-spacing @fd-base-spacing--lg;
+        border: 1px solid @fd-ui-border-color;
+        border-top-left-radius: @fd-ui-radius;
+        border-top-right-radius: @fd-ui-radius;
+
+        font-weight: bold;
+    }
+    &__bd {
+        padding: @fd-base-spacing--lg;
+        border: 1px solid @fd-ui-border-color;
+        border-top: none;
+        border-bottom-left-radius: @fd-ui-radius;
+        border-bottom-right-radius: @fd-ui-radius;
+
+        &-title {
+            font-weight: bold;
+            margin-bottom: @fd-base-spacing;
+        }
+    }
+    
+    &__meta {
+        color: @fd-ui-meta-color;
+    }
+    &__result {
+        // color: @fd-ui-text-color;
+    }
+
+    .g-list-inline {
+        >:not(:first-child) {
+            margin-left: @fd-base-spacing--lg;
+        }
+    }
+}

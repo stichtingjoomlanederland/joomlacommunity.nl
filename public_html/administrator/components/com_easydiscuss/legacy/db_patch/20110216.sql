@@ -1,0 +1,1 @@
+ALTER TABLE `#__discuss_subscription` CHANGE `post_id` `cid` BIGINT( 20 ) NOT NULL

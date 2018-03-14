@@ -1,0 +1,64 @@
+// ED Polls
+// ----------------
+
+.ed-polls {
+    position: relative;
+    display: inline-block;
+    min-width: 400px;
+    &__hd,
+    &__bd,
+    &__ft {
+        position: relative;
+        font-size: @fd-base-font-size;
+    }
+    &__hd {
+        padding: @fd-base-spacing @fd-base-spacing--lg;
+        border: 1px solid @fd-ui-border-color;
+        border-top-left-radius: @fd-ui-radius;
+        border-top-right-radius: @fd-ui-radius;
+
+        font-weight: bold;
+    }
+    &__bd {
+        padding: @fd-base-spacing--lg;
+        border: 1px solid @fd-ui-border-color;
+        border-top: none;
+        border-bottom-left-radius: @fd-ui-radius;
+        border-bottom-right-radius: @fd-ui-radius;
+    }
+    
+    &__item {
+        padding-right: 80px; // Reserve space for count
+        position: relative;
+    }
+    &__ques-list {
+        >:not(:first-child) {
+            margin-top: @fd-base-spacing--lg; 
+        }
+    }
+    &__progress {
+        background: #e5e5e5 none repeat scroll 0 0;
+        box-shadow: none;
+        height: 4px;
+        margin: 10px 0 0;
+    }
+    &__voters {
+        margin-top: 5px;
+        overflow: hidden;
+    }
+    &__count {
+        color: #999;
+        line-height: 16px;
+        position: absolute;
+        right: -80px;
+        text-align: right;
+        top: 0;
+        width: 80px;
+    }
+}
+
+&.w480 {
+    .ed-polls {
+        min-width: 250px;
+    }
+}

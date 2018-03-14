@@ -1,0 +1,168 @@
+/* Homepage */
+.siteimage {
+	img {
+		max-width: 100%;
+	}
+}
+
+.jc-welcome {
+	background-color: @home;
+	margin-bottom: 30px;
+	background-image: url(../images/joomlacommunity-welkom.jpg);
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+
+	.overlay {
+		padding: 20px 0 15px 0;
+		#gradient > .vertical(@start-color: fade(@home, 50%); @end-color: fade(@home, 95%));
+
+		@media (min-width: @screen-sm) {
+			padding: 40px 0 20px 0;
+		}
+	}
+
+	.joomla-intro {
+		text-align: center;
+		font-weight: 400;
+		color: @white;
+		margin-bottom: 20px;
+
+		@media (min-width: @screen-lg) {
+			padding: 0 60px;
+			margin-bottom: 30px;
+		}
+
+		h1 {
+			font-size: 30px;
+			text-shadow: 0 1px 5px rgba(0, 0, 0, .9);
+			line-height: 40px;
+			margin: 0 0 10px 0;
+
+			@media (min-width: @screen-sm) {
+				font-size: 34px;
+			}
+
+			sup {
+				font-size: 14px;
+				top: -20px;
+			}
+		}
+
+		p {
+			font-size: 18px;
+			text-shadow: 0 1px 5px rgba(0, 0, 0, .9);
+
+			@media (min-width: @screen-sm) {
+				font-size: 20px;
+			}
+		}
+
+		.btn {
+			border-color: @white;
+			color: @white;
+			background: fade(@home, 70%);
+			font-weight: 400;
+
+			&:hover {
+				background: @home;
+			}
+		}
+	}
+
+	h3 {
+		margin-top: 5px;
+		margin-bottom: 10px;
+	}
+
+	.block {
+		padding: 10px;
+		border-radius: @border-radius-base;
+		background: fade(@body, 80%);
+		margin: 10px 0;
+		&:hover {
+			background: @body;
+		}
+
+		p:last-of-type {
+			margin-bottom: 0;
+		}
+	}
+
+	.btn {
+		margin-top: 15px;
+	}
+
+	.block-downloads h3 {
+		color: @downloads;
+	}
+
+	.block-aan-de-slag h3 {
+		color: @aan-de-slag;
+	}
+
+	.block-agenda h3 {
+		color: @agenda;
+	}
+
+	.block-forum h3 {
+		color: @forum;
+	}
+}
+
+.panel-nieuws {
+	.list-group-item {
+		padding-top: 10px;
+		padding-left: 10px;
+		min-height: 88px;
+
+		@media (min-width: @screen-sm) {
+			padding-top: 15px;
+			padding-left: 15px;
+			min-height: 180px;
+		}
+	}
+
+	.news-image {
+		float: left;
+		width: 66px;
+		margin-right: 10px;
+
+		img {
+			width: 100%;
+		}
+
+		@media (min-width: @screen-sm) {
+			width: 150px;
+			margin-right: 15px;
+		}
+	}
+
+	.list-group-item-meta {
+		.small();
+		margin-bottom: 0px;
+	}
+
+	.list-group-item-text {
+		margin-top: 5px;
+		display: none;
+
+		@media (min-width: @screen-sm) {
+			display: block;
+		}
+	}
+}
+
+.promo {
+	margin-bottom: 20px;
+}
+
+.laatste-nieuws {
+	h3 {
+		margin-top: 0;
+	}
+
+	.btn-nieuws {
+		margin-bottom: 20px;
+	}
+}

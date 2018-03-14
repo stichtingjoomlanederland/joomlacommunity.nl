@@ -1,0 +1,7 @@
+[
+    {
+        "table"     : "#__discuss_post_types",
+        "index"     : "idx_alias",
+        "query"     : "ALTER TABLE `#__discuss_post_types` modify `title` VARCHAR( 255 ) NOT NULL, add index `idx_alias` ( `alias` );"
+    }
+]

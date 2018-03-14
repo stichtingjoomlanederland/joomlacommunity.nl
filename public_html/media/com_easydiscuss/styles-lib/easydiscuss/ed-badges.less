@@ -1,0 +1,141 @@
+// Tags
+// ----------------
+
+// Wrapper for listing
+.ed-badges {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+
+    -webkit-justify-content: flex-start;
+    -ms-justify-content: flex-start;
+    justify-content: flex-start;
+
+    line-height: 1;
+    
+
+    &__item {
+        flex: 0 0 33%;
+        padding: @fd-base-spacing;
+        min-width: 20%;
+        background-color: @fd-ui-bg;
+    }
+    
+    .o-grid__cell {
+        padding: @fd-base-spacing;
+    }
+}
+
+&.w640 {
+    .ed-badges {
+        &__item {
+            flex: 0 0 50%;
+        }
+    }
+}
+
+&.w480 {
+    .ed-badges {
+        &__item {
+            flex: 0 0 100%;
+        }
+    }
+}
+
+// Item for badges listing
+.ed-badge {
+    padding: @fd-base-spacing;
+    border: 1px solid @fd-ui-border-color;
+    // background-color: @fd-ui-shade;
+    border-radius: @fd-ui-radius;
+    position: relative;
+    overflow: hidden;
+    &:hover {
+        // background-color: darken(@fd-ui-shade, 2%)
+    }
+    .clearfix();
+
+    &--flag {
+        position: relative;
+        z-index: 2;
+    }
+
+    &__name {
+        color: @fd-ui-text-color;
+        display: inline-block;
+        font-weight: bold;
+        width: 100%;
+        padding-right: 40px; // Reserve space for subscribe link
+        overflow: hidden;
+        .text-overflow();
+    }
+    &__meta {
+        color: @fd-ui-text-color;
+        // float: right;
+        // position: absolute;
+        // right: @fd-base-spacing;
+        // top: @fd-base-spacing;
+        &:hover {
+            // color: @fd-brand-warning;
+        }
+    }
+    &__indicator {
+        position: absolute;
+        top: @fd-base-spacing;
+        right: @fd-base-spacing;
+        color: @fd-ui-meta-color;
+        z-index: 1;
+        i {
+            &:before {
+                // font-size: 80px;
+                // opacity: .2;
+            }
+        }
+    }
+}
+
+// Modifier for badge item in entry view
+.ed-badge--entry {
+    padding: @fd-base-spacing--lg;
+
+    .ed-badge__indicator {
+        i {
+            &:before {
+                font-size: 180px;
+                opacity: .1;
+            }
+        }
+    }
+}
+
+// Badges entry
+.ed-badges-entry {
+    &__note {
+        // color: @fd-ui-meta-color;
+    }
+}
+.ed-achievers {
+    >:not(:first-child) {
+        border-top: 1px solid @fd-ui-border-color;
+        // margin-top: @fd-base-spacing--lg;
+
+    }
+    &__item {
+        padding-top: @fd-base-spacing;
+        margin-bottom: @fd-base-spacing;
+    }
+}
+.ed-achiever {
+    position: relative;
+
+    &__date {
+        color: @fd-ui-meta-color;
+        position: absolute;
+        top: @fd-base-spacing;
+        right: @fd-base-spacing;
+    }
+}

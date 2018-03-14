@@ -1,0 +1,31 @@
+.rsepro_plugin_container {
+	background: none repeat scroll 0 0 #F2F3F6 !important;
+    -webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+    box-shadow: 2px 1px 2px rgba(203, 210, 217, 0.9);
+    margin: 0 0 5px !important;
+	overflow: hidden;
+	padding: 5px !important;
+}
+
+.rsepro_plugin_container:hover {
+	background: none repeat scroll 0 0 #FFFFFF !important;
+}
+
+.rsepro_plugin_image {
+	float: left;
+    padding: 5px;
+}
+
+.rsepro_plugin_image img {
+	background: none no-repeat scroll 50% 50% transparent;
+    -webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+    display: inline-block;
+}
+
+.rsepro_plugin_content {
+    line-height: 20px;
+}

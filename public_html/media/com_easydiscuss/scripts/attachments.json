@@ -1,0 +1,11 @@
+[
+    {
+        "language": [
+            "COM_EASYDISCUSS_EXCEED_ATTACHMENT_LIMIT"
+        ],
+        "view": [
+            "field.form.attachments.item"
+        ],
+        "adapter": "EasyDiscuss"
+    }
+]

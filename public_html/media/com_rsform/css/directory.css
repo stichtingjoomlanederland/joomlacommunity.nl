@@ -1,0 +1,153 @@
+.rsform-table {
+	max-width: 940px;
+	margin: 0 auto 50px auto;
+	padding-bottom: 20px;
+	border-bottom: 2px solid #e5e5e5;
+	clear: both;
+	overflow: hidden;
+}
+
+.rsform-table .rsform-title {
+	margin: 0;
+	padding: 0;
+	padding-bottom: 20px;
+	margin-bottom: 20px;
+}
+
+.rsform-table .rsform-main-title {
+	font-size: 24px;
+	font-weight: bold;
+	padding-top: 20px;
+	color: #535353;
+	border-top: 2px solid #e5e5e5;
+	border-bottom: 1px solid #e5e5e5;
+}
+
+.rsform-table .rsform-big-subtitle {
+	font-size: 20px;
+	color: #939393;
+	border-bottom: 1px solid #e5e5e5;
+}
+
+.rsform-table .rsform-small-subtitle {
+	font-size: 16px;
+	color: #c2c2c2;
+	border-bottom: 1px solid #e5e5e5;
+}
+
+#rsform-table1 .rsform-table-row {
+	background-color: #f8f8f8;
+	padding: 15px;
+	margin-bottom: 1px;
+}
+
+#rsform-table1 .rsform-table-row:nth-child(odd) {
+	background-color: #f1f0f0;
+}
+
+#rsform-table1 .rsform-table-row div {
+	display: inline-block;
+}
+
+#rsform-table1 .rsform-table-row .rsform-left-col {
+	width: 25%;
+	font-weight: bold;
+}
+
+#rsform-table1 .rsform-table-row .rsform-right-col {
+	width: 72%;
+	margin-left: 2%;
+	color: #9d9d9d;
+}
+
+#rsform-table2 .rsform-table-item {
+	margin-bottom: 3px;
+}
+
+#rsform-table2 .rsform-table-item .rsform-field-title {
+	padding: 15px;
+	background-color: #f8f8f8;
+	font-weight: bold;
+}
+
+#rsform-table2 .rsform-table-item .rsform-field-value {
+	padding: 15px;
+	background-color: #f1f0f0;
+}
+
+#rsform-table3 {
+	overflow: hidden;
+}
+
+#rsform-table3 .rsform-gallery {
+	width: 33%;
+	margin: 0 1% 0 0;
+	display: inline-block;
+	background-color: #f8f8f8;
+	padding: 10px;
+	vertical-align: top;
+}
+
+#rsform-table3 .rsform-gallery a {
+	display: block;
+	width: 100%;
+	margin-bottom: 10px;
+}
+
+#rsform-table3 .rsform-gallery img {
+	max-width: 100%;
+}
+
+#rsform-table3 .rsfp-table {
+	width: 100%;
+	display: inline-block;
+	vertical-align: top;
+}
+
+#rsform-table3 .rsform-gallery + .rsfp-table {
+	width: 62%;
+}
+
+#rsform-table3 .rsfp-table.rsfp-table-full-width {
+	width: 100%;
+	float: none;
+}
+
+#rsform-table3 .rsform-table-row {
+	background-color: #f8f8f8;
+	padding: 15px;
+	margin-bottom: 1px;
+}
+
+#rsform-table3 .rsform-table-row:nth-child(odd) {
+	background-color: #f1f0f0;
+}
+
+#rsform-table3 .rsform-table-row div {
+	display: inline-block;
+}
+
+#rsform-table3 .rsform-table-row .rsform-left-col {
+	width: 25%;
+	font-weight: bold;
+}
+
+#rsform-table3 .rsform-table-row .rsform-right-col {
+	width: 72%;
+	margin-left: 2%;
+	color: #9d9d9d;
+}
+
+span.rsform-error,
+input.rsform-error,
+select.rsform-error,
+textarea.rsform-error {
+	color: #b94a48 !important;
+	border-color: #b94a48 !important;
+}
+
+input.rsform-error:focus,
+select.rsform-error:focus,
+textarea.rsform-error:focus {
+	border-color: #953b39 !important;
+}

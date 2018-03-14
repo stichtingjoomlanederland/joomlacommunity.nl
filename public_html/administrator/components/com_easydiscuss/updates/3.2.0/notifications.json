@@ -1,0 +1,22 @@
+[
+    {
+        "table"     : "#__discuss_notifications",
+        "column"    : "favicon",
+        "query"     : "ALTER TABLE `#__discuss_notifications` ADD `favicon` TEXT NOT NULL;"
+    },
+    {
+        "table"     : "#__discuss_notifications",
+        "column"    : "component",
+        "query"     : "ALTER TABLE `#__discuss_notifications` ADD `component` VARCHAR(255) NOT NULL;"
+    },
+    {
+        "table"     : "#__discuss_notifications",
+        "index"     : "discuss_notification",
+        "query"     : "ALTER TABLE `#__discuss_notifications` ADD INDEX `discuss_notification` (`target`, `state`, `cid`, `created`, `id`);"
+    },
+    {
+        "table"     : "#__discuss_notifications",
+        "index"     : "discuss_notification_created",
+        "query"     : "ALTER TABLE `#__discuss_notifications` ADD INDEX `discuss_notification_created` (`created`);"
+    }
+]

@@ -1,0 +1,172 @@
+[
+    {
+        "table"     : "#__discuss_posts",
+        "column"    : "category_id",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD `category_id` BIGINT(20) UNSIGNED NOT NULL DEFAULT 1 AFTER `content`;"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "column"    : "answered",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD `answered` TINYINT(1) NULL DEFAULT 0;"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "discuss_post_answered",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD INDEX `discuss_post_answered` (`answered`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "column"    : "params",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD `params` TEXT NULL;"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "column"    : "password",
+        "query"     : "ALTER TABLE `ALTER TABLE `#__discuss_posts` ADD `password` TEXT NULL;"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "column"    : "lockdate",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD `lockdate` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER  `islock`;"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "column"    : "legacy",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD `legacy` TINYINT(1) DEFAULT 1, ADD `address` TEXT NULL, ADD `latitude` VARCHAR(255) DEFAULT NULL, ADD `longitude` VARCHAR(255) DEFAULT NULL;"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "unread_category_posts",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD INDEX `unread_category_posts` (`published`, `parent_id`, `legacy`, `category_id`, `id`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "column"    : "content_type",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD `content_type` VARCHAR(25) NULL;"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "column"    : "post_status",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD `post_status` TINYINT( 1 ) NOT NULL DEFAULT 0;"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "column"    : "post_type",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD `post_type` VARCHAR(255) NOT NULL, add index `idx_post_type` (`post_type`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "column"    : "ip",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD `ip` VARCHAR(255) NOT NULL;"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "column"    : "private",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD `private` TINYINT(3) NOT NULL DEFAULT 0 COMMENT 'Determines if the discussion should be a private ticket or not.' , ADD INDEX (`private`) ;"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "discuss_post_category",
+        "query"     : "alter table `#__discuss_posts` add index `discuss_post_category` (`category_id`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "discuss_post_query1",
+        "query"     : "alter table `#__discuss_posts` add index `discuss_post_query1` (`published`, `parent_id`, `answered`, `id`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "discuss_post_query2",
+        "query"     : "alter table `#__discuss_posts` add index `discuss_post_query2` (`published`, `parent_id`, `answered`, `replied`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "discuss_post_query3",
+        "query"     : "alter table `#__discuss_posts` add index `discuss_post_query3` (`published`, `parent_id`, `category_id`, `created`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "discuss_post_query4",
+        "query"     : "alter table `#__discuss_posts` add index `discuss_post_query4` (`published`, `parent_id`, `category_id`, `id`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "discuss_post_query5",
+        "query"     : "alter table `#__discuss_posts` add index `discuss_post_query5` (`published`, `parent_id`, `created`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "discuss_post_query6",
+        "query"     : "alter table `#__discuss_posts` add index `discuss_post_query6` (`published`, `parent_id`, `id`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "discuss_post_parentid",
+        "query"     : "ALTER TABLE `#__discuss_posts` DROP INDEX `discuss_post_parentid`;"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "discuss_post_parentid",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD INDEX `discuss_post_parentid` (`published`, `parent_id`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "discuss_post_last_reply",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD INDEX `discuss_post_last_reply` (`parent_id`, `id`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "idx_post_type",
+        "query"     : "ALTER TABLE `#__discuss_posts` modify `post_type` VARCHAR(255) NOT NULL, add index `idx_post_type` (`post_type`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "idx_post_replied",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD INDEX `idx_post_replied` (`replied`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "idx_post_created",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD INDEX `idx_post_created` (`created`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "idx_post_private",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD INDEX `idx_post_private` (`private`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "idx_post_search1",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD INDEX `idx_post_search1` (`published`, `parent_id`, `private`, `replied`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "idx_post_search2",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD INDEX `idx_post_search2` (`published`, `private`, `created`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "idx_post_search1a",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD INDEX `idx_post_search1a` (`published`, `parent_id`, `private`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "idx_post_search2a",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD INDEX `idx_post_search2a` (`published`, `private`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "idx_user_replies",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD INDEX `idx_user_replies` (`user_id`, `published`, `parent_id`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "index"     : "idx_post_cat_published",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD INDEX `idx_post_cat_published` (`category_id`, `published`);"
+    },
+    {
+        "table"     : "#__discuss_posts",
+        "fulltext"  : "discuss_post_titlecontent",
+        "query"     : "ALTER TABLE `#__discuss_posts` ADD FULLTEXT `discuss_post_titlecontent` (`title`, `content`);"
+    }
+]

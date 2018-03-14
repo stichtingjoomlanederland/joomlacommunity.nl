@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.0" client="site" method="upgrade">
+	<name>EasyDiscuss - Welcome</name>
+	<author>Stack Ideas Sdn Bhd</author>
+	<creationDate>13th February 2018</creationDate>
+	<copyright>Copyright 2009 - 2016 StackIdeas. All rights reserved.</copyright>
+	<license>GPL License v2</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://stackideas.com</authorUrl>
+	<version>4.0.22</version>
+	<description><![CDATA[A module that provides users login and will welcome the users if they are already logged in. It also includes the shortcuts to EasyDiscuss links.]]></description>
+	<languages>
+		<language tag="en-GB">en-GB.mod_easydiscuss_welcome.ini</language>
+	</languages>
+	<files>
+		<folder>tmpl</folder>
+		<filename module="mod_easydiscuss_welcome">mod_easydiscuss_welcome.php</filename>
+		<filename>mod_easydiscuss_welcome.xml</filename>
+	</files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="menuid" type="menuitem" default="" disable="separator" label="MOD_EASYDISCUSS_WELCOME_USE_MENU_ID_IN_LINKS" description="MOD_EASYDISCUSS_WELCOME_USE_MENU_ID_IN_LINKS_DESC" state="1">
+					<option value="">Default</option>
+				</field>
+				<field name="showavatar" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_WELCOME_SHOW_AVATAR" description="MOD_EASYDISCUSS_WELCOME_SHOW_AVATAR_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showranks" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_WELCOME_SHOW_RANKS" description="MOD_EASYDISCUSS_WELCOME_SHOW_RANKS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showbadges" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_WELCOME_SHOW_BADGES" description="MOD_EASYDISCUSS_WELCOME_SHOW_BADGES_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showfavourites" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_WELCOME_SHOW_FAVOURITES" description="MOD_EASYDISCUSS_WELCOME_SHOW_FAVOURITES_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="showsubscriptions" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_WELCOME_SHOW_SUBSCRIPTIONS" description="MOD_EASYDISCUSS_WELCOME_SHOW_SUBSCRIPTIONS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="show_assignedposts" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_WELCOME_SHOW_ASSIGNEDPOSTS" description="MOD_EASYDISCUSS_WELCOME_SHOW_ASSIGNEDPOSTS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="show_mydiscussions" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_WELCOME_SHOW_MYDISCUSSIONS" description="MOD_EASYDISCUSS_WELCOME_SHOW_MYDISCUSSIONS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="show_browsediscussions" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_WELCOME_SHOW_BROWSEDISCUSSIONS" description="MOD_EASYDISCUSS_WELCOME_SHOW_BROWSEDISCUSSIONS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="show_browsecategories" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_WELCOME_SHOW_BROWSECATEGORIES" description="MOD_EASYDISCUSS_WELCOME_SHOW_BROWSECATEGORIES_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="show_browsetags" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_WELCOME_SHOW_BROWSETAGS" description="MOD_EASYDISCUSS_WELCOME_SHOW_BROWSETAGS_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="show_browsebadges" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_WELCOME_SHOW_BROWSEBADGES" description="MOD_EASYDISCUSS_WELCOME_SHOW_BROWSEBADGES_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="enablelogin" type="radio" class="btn-group" default="1" label="MOD_EASYDISCUSS_WELCOME_ENABLE_LOGIN" description="MOD_EASYDISCUSS_WELCOME_ENABLE_LOGIN_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+				<field name="usesecure" type="radio" class="btn-group" default="0" label="MOD_EASYDISCUSS_WELCOME_ENCRYPT_LOGIN_FORM" description="MOD_EASYDISCUSS_WELCOME_ENCRYPT_LOGIN_FORM_DESC">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>					
+				</field>
+				<field name="login" type="menuitem" default="" disable="separator" label="Login Redirection URL" description="MOD_EASYBLOGWELCOME_LOGIN_REDIRECT" state="1" />
+				<field name="logout" type="menuitem" default="" disable="separator" label="Logout Redirection URL" description="MOD_EASYBLOGWELCOME_LOGOUT_REDIRECT" state="1" />
+			</fieldset>
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
+					<option value="0">Never</option>
+				</field>
+			</fieldset>
+		</fields>
+	</config>
+</extension>
+

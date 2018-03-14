@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<extension version="2.5" type="file" method="upgrade">
+<name>nl-NL-rsformpro</name>
+<tag>nl-NL</tag>
+<version>2.0.6.1</version>
+<creationDate>2018-02-27</creationDate>
+<author>Connecting Connections</author>
+<authorEmail>info@con-con.nl</authorEmail>
+<authorUrl>https://con-con.nl</authorUrl>
+<copyright>Copyright (C) 2007 - 2018. All rights reserved.</copyright>
+<license>GNU/GPL http://www.gnu.org/licenses/gpl-3.0.html</license>
+<description><![CDATA[
+  <div align="center">
+    <table border="0" width="90%">
+	    <tr>
+		    <td width="100%" colspan="2">
+		      <div align="center"> <a href="https://con-con.nl" target="_blank"><img border="0" src="https://con-con.nl/images/conban.jpg" alt="Connecting Connections" /></a>
+				<h3>RSForm! Pro Taalpakket:</h3>
+		      </div>
+		      <hr />
+		    </td>
+	    </tr>
+	    <tr>
+		    <td width="18%"><u><b>Taal:</b></u></td>
+		    <td width="80%">Nederlands</td>
+	    </tr>
+	    <tr>
+		    <td width="18%"><u><b>Website deel:</b></u></td>
+		    <td width="80%">Administrator (Backend) en Website (Frontend)</td>
+	    </tr>
+	    <tr>
+		    <td width="18%"><u><b>Auteur:</b></u></td>
+		    <td width="80%">Connecting Connections</td>
+	    </tr>
+	    <tr>
+		    <td width="18%"><u><b>Website:</b></u></td>
+		    <td width="80%"><a href="https://con-con.nl" target="_blank">https://con-con.nl</a></td>
+	    </tr>
+	    <tr>
+		    <td width="18%"><u><b>Vertaling voor versie:</b></u></td>
+		    <td width="80%">2.0.6.1</td>
+	    </tr>
+	    <tr>
+		    <td width="100%" colspan="2">
+		      <p align="center"><b><u><font color="#008000">Indien je tips, opmerkingen, verbeteringen en dergelijk hebt kun je een mail sturen naar <a href="mailto:vertaling@con-con.nl">vertaling@con-con.nl</a> en zal deze zo snel mogelijk verwerkt en beantwoord worden.</font></u></b></td>
+	    </tr>
+		<tr>
+		    <td width="100%" colspan="2">
+		      <p align="center"><b><u><font color="#008000">Volg Connecting Connections op <a href="https://twitter.com/conconnl" target="_blank">Twitter</a> en blijf op de hoogte van alle updates.</font></u></b></td>
+	    </tr>
+	    <tr>
+		    <td width="100%" colspan="2">
+		      <p align="center"><b><font color="#008000">Controleer regelmatig de <a href="www.rsjoomla.com" target="_blank">RSJoomla! downloadsite</a> voor een nieuwe versie van de vertaling voor deze extensie.<br /> Of kijk op onze <a href="https://con-con.nl/downloads" target="_blank">Download site</a>.</font></b></td>
+	    </tr>
+    </table>
+  </div>]]></description>
+      <fileset>
+        <!-- Backend Lang pack languages -->
+        <files folder="adminj25/nl-NL" target="administrator/language/nl-NL">
+<filename>nl-NL.com_rsform.ini</filename>
+<filename>nl-NL.com_rsform.sys.ini</filename>
+<filename>nl-NL.plg_content_rsform.ini</filename>
+<filename>nl-NL.plg_content_rsform.sys.ini</filename>
+<filename>nl-NL.plg_installer_rsform.ini</filename>
+<filename>nl-NL.plg_installer_rsform.sys.ini</filename>
+<filename>nl-NL.plg_system_rsform.ini</filename>
+<filename>nl-NL.plg_system_rsform.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpakismet.ini</filename>
+<filename>nl-NL.plg_system_rsfpakismet.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpauthorizenet.ini</filename>
+<filename>nl-NL.plg_system_rsfpauthorizenet.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpbfforms.ini</filename>
+<filename>nl-NL.plg_system_rsfpbfforms.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpcampaignmonitor.ini</filename>
+<filename>nl-NL.plg_system_rsfpcampaignmonitor.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpconstantcontact.ini</filename>
+<filename>nl-NL.plg_system_rsfpconstantcontact.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpdotmailer.ini</filename>
+<filename>nl-NL.plg_system_rsfpdotmailer.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpewaypayment.ini</filename>
+<filename>nl-NL.plg_system_rsfpewaypayment.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpgetresponse.ini</filename>
+<filename>nl-NL.plg_system_rsfpgetresponse.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpgoogle.ini</filename>
+<filename>nl-NL.plg_system_rsfpgoogle.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpjoomlacaptcha.ini</filename>
+<filename>nl-NL.plg_system_rsfpjoomlacaptcha.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpmailchimp.ini</filename>
+<filename>nl-NL.plg_system_rsfpmailchimp.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpmailer.ini</filename>
+<filename>nl-NL.plg_system_rsfpmailer.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpofflinepayment.ini</filename>
+<filename>nl-NL.plg_system_rsfpofflinepayment.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfppagseguropayment.ini</filename>
+<filename>nl-NL.plg_system_rsfppagseguropayment.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfppayfast.ini</filename>
+<filename>nl-NL.plg_system_rsfppayfast.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfppayment.ini</filename>
+<filename>nl-NL.plg_system_rsfppayment.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfppaypal.ini</filename>
+<filename>nl-NL.plg_system_rsfppaypal.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfppdf.ini</filename>
+<filename>nl-NL.plg_system_rsfppdf.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfprecaptcha.ini</filename>
+<filename>nl-NL.plg_system_rsfprecaptcha.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfprecaptchav2.ini</filename>
+<filename>nl-NL.plg_system_rsfprecaptchav2.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpregistration.ini</filename>
+<filename>nl-NL.plg_system_rsfpregistration.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfprseventspro.ini</filename>
+<filename>nl-NL.plg_system_rsfprseventspro.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfprsmail.ini</filename>
+<filename>nl-NL.plg_system_rsfprsmail.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpsalesforce.ini</filename>
+<filename>nl-NL.plg_system_rsfpsalesforce.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpsignature.ini</filename>
+<filename>nl-NL.plg_system_rsfpsignature.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpsmsnotification.ini</filename>
+<filename>nl-NL.plg_system_rsfpsmsnotification.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpverticalresponse.ini</filename>
+<filename>nl-NL.plg_system_rsfpverticalresponse.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpvtiger.ini</filename>
+<filename>nl-NL.plg_system_rsfpvtiger.sys.ini</filename>
+<filename>nl-NL.plg_system_rsfpzohocrm.ini</filename>
+<filename>nl-NL.plg_system_rsfpzohocrm.sys.ini</filename>
+</files>
+		<!-- Frontend Lang pack languages -->
+		<files folder="sitej25/nl-NL" target="language/nl-NL">
+<filename>nl-NL.com_rsform.ini</filename>
+<filename>nl-NL.mod_rsform_feedback.ini</filename>
+<filename>nl-NL.mod_rsform_feedback.sys.ini</filename>
+<filename>nl-NL.mod_rsform_list.ini</filename>
+<filename>nl-NL.mod_rsform_list.sys.ini</filename>
+<filename>nl-NL.mod_rsform.ini</filename>
+<filename>nl-NL.mod_rsform.sys.ini</filename>
+        </files>
+      </fileset>
+	<updateservers>
+        <server type="collection" priority="1" name="RSJoomla! Dutch Translations"><![CDATA[https://con-con.nl/ReleaseSystem/rsjoomla.xml]]></server>
+	</updateservers>
+</extension>

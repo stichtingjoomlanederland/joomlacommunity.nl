@@ -1,0 +1,63 @@
+// ED Statistics
+// ----------------
+.ed-statistic {
+    clear: both;
+    .clearfix();
+    >:not(:first-child) {
+        margin-left: @fd-base-spacing;
+    }
+
+    &__item {
+        // .border-radius(@discussItemBorderRadius);
+        border-radius: @fd-ui-radius--sm;
+        position: relative;
+        border: 1px solid @fd-ui-border-color;
+        float: left;
+        font-size: @fd-base-font-size--xs;
+        line-height: 1;
+        padding: @fd-base-spacing @fd-base-spacing--sm @fd-base-spacing;
+        text-align: center;
+        width: auto;
+        min-width: 46px;
+        min-height: 46px;
+        background-color: @fd-ui-bg;
+        a {
+            color: @fd-ui-text-color;
+            &:hover {
+                background: none;
+            }
+        }
+    }
+    &__item-icon {
+        // font-size + padding(top and bottom) sum have to be 36px;
+        font-size: @fd-base-font-size--xl;
+        padding: @fd-base-font-size--xl - @fd-base-spacing;
+        // 12 14
+        // 14 12
+    }
+    .status {
+        a {
+            // color: @discussStatisticStatusColor;
+            &:hover {
+                // color: @discussStatisticStatusColor;
+            }
+        }
+
+    }
+    
+    &__item-count {
+        display: block;
+        font-size: @fd-base-font-size--xl;
+        font-weight: bold;
+        margin-bottom: @fd-base-spacing--xs;
+        // margin-bottom: -5px;
+    }
+}
+
+
+&.w480 {
+    .ed-statistic.pull-right {
+        float: none !important;
+        margin-top: @fd-base-spacing;
+    }    
+}

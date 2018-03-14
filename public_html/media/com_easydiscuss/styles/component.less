@@ -1,0 +1,94 @@
+// components/com_easydiscuss/assets/less/bootstrap.less
+// is now
+// media/com_easydiscuss/styles/component.less
+@import "bootstrap/mixins";
+
+@EasyDiscuss: "div#discuss-wrapper";
+
+(~"@{EasyDiscuss}"),
+#discuss-dialog {
+
+	// CSS Reset
+	@import "bootstrap/reset";
+	@import "reset";
+
+	// Grid system and page structure
+	//@import "bootstrap/scaffolding";
+	@import "bootstrap/grid";
+	@import "bootstrap/layouts";
+
+	// Base CSS
+	@import "type"; // Modified from bootstrap/type to make font type inherit from template itself instead of component
+	@import "bootstrap/code";
+	@import "forms";
+	@import "bootstrap/tables";
+
+	// Components: common
+	// @import "bootstrap/sprites";
+	@import "bootstrap/dropdowns";
+	@import "dropdowns"; // Note: extended .dropdown-menu size
+	@import "bootstrap/wells";
+	@import "bootstrap/component-animations";
+	@import "bootstrap/close";
+
+	// Components: Buttons & Alerts
+	@import "bootstrap/buttons";
+	@import "bootstrap/button-groups";
+	@import "button-groups"; // Note: extra classes button-groups-es
+	@import "bootstrap/alerts"; // Note: alerts share common CSS with buttons and thus have styles in buttons
+
+	// Components: Nav
+	@import "bootstrap/navs";
+	@import "bootstrap/navbar";
+	@import "bootstrap/breadcrumbs";
+	@import "pagination"; // Note: .pagination added prefix to .dc-pagination
+	@import "bootstrap/pager";
+	@import "tabs"; // Note: extended .nav-tabs
+
+
+	// Components: Popovers
+	// @import "bootstrap/modals";
+	@import "modals"; // Note: custom modal
+	// @import "bootstrap/tooltip";
+	// @import "bootstrap/popovers";
+
+	// Components: Misc
+	@import "bootstrap/thumbnails";
+	@import "thumbnails"; // Note: extended .thumbnails
+	@import "bootstrap/media";
+	@import "bootstrap/labels-badges";
+	@import "bootstrap/progress-bars";
+	@import "bootstrap/accordion";
+	// @import "bootstrap/carousel";
+	// @import "bootstrap/hero-unit";
+
+	// Utility classes
+	@import "bootstrap/utilities"; // Has to be last to override when necessary
+	// @import "bootstrap/bootstrap.extended"; //joomla 3.0 classes
+	// @import "bootstrap/responsive-utilities";
+	@import "bootstrap/notify";
+	@import "notify"; //Note: extended notify
+	@import "location"; //Note: location map auto suggest
+
+	// 3rd party
+	@import "font-awesome/default";
+	@import "markitup/skins/default/style";
+	@import "markitup";//customize for easydiscuss
+	@import "chosen/default";
+
+	// Frontend/Backend shared classes name
+	// ----------------
+	@import "easydiscuss";
+	@import "composer";
+}
+
+
+// @import "bootstrap/component-animations";
+// @import "bootstrap/animations";
+// @import "modals";
+@import "ui";
+// @import "bootstrap/tooltip";
+// @import "bootstrap/popovers";
+
+// @import "dialog";
+//@import "mod"; //easydiscuss modules basic class

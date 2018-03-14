@@ -1,0 +1,22 @@
+[
+    {
+        "table": "#__discuss_category_acl_map",
+        "index": "discuss_category_acl_content_type",
+        "query": "ALTER TABLE `#__discuss_category_acl_map` ADD INDEX `discuss_category_acl_content_type` (`category_id`, `acl_id`, `content_id`, `type`)"
+    },
+    {
+        "table": "#__discuss_category",
+        "index": "idx_lft_rgt",
+        "query": "ALTER TABLE `#__discuss_category` ADD INDEX `idx_lft_rgt` (`lft`, `rgt`)"
+    },
+    {
+        "table": "#__discuss_category",
+        "index": "idx_rgt_lft",
+        "query": "ALTER TABLE `#__discuss_category` ADD INDEX `idx_rgt_lft` (`rgt`, `lft`)"
+    },
+    {
+        "table": "#__discuss_category",
+        "column": "language",
+        "query": "ALTER TABLE `#__discuss_category` ADD COLUMN `language` char(7) NOT NULL"
+    }
+]

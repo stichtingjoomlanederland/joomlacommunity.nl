@@ -1,0 +1,260 @@
+//
+// Modules
+// --------------------------------------------------
+.ed-mod {
+	
+	// Looping item for listing
+	&__item {
+
+	}
+	
+	// Each item have small section
+	&__section {
+		position: relative;
+		padding-top: @fd-base-spacing;
+		padding-bottom: @fd-base-spacing;
+	}
+	&__section-title {
+		font-weight: bold;
+		margin-bottom: @fd-base-spacing;
+	}
+}
+
+// Modifier styles with bordered
+.ed-mod--bordered {
+	border: 1px solid @fd-ui-border-color;
+	padding: @fd-base-spacing--lg;
+
+	.ed-mod__section {
+		padding: @fd-base-spacing--lg;
+		margin-left: -@fd-base-spacing--lg;
+		margin-right: -@fd-base-spacing--lg;
+		border-top: 1px solid @fd-ui-border-color;
+
+		&:first-child {
+			padding-top: 0;
+			border-top: 0;
+		}
+		&:last-child {
+			padding-bottom: 0;
+		}
+	}
+}
+
+
+// Post info modules
+.m-post-info {
+	&__content {
+		position: relative;
+	}
+	&__status {
+		position: absolute;
+		top: @fd-base-spacing;
+		right: @fd-base-spacing;
+	}
+}
+
+.m-post-title {
+	font-weight: bold;
+	&__link {
+		display: inline;
+	}
+}
+
+
+.m-list {
+	&__item {
+	}    
+}
+.m-list--inline {
+	> .m-list__item {
+		display: inline-block;
+		position: relative;
+		line-height: 1;
+	}
+}
+.m-list--has-divider {
+	> .m-list__item {
+		margin-right: @fd-base-spacing;
+		&:after {
+			width: 2px;
+			height: 2px;
+			content: '';
+			display: inline-block;
+			vertical-align: middle;
+			margin-left: @fd-base-spacing--sm;
+			margin-right: @fd-base-spacing--sm;
+			border-radius: 50%;
+			background-color: @fd-ui-meta-color;
+			position: absolute;
+			right: -12px;
+			top: 8px;
+		}
+		&:last-child {
+			margin-right: 0;
+			padding-right: 0;
+			&:after {
+				content: none;
+			}
+		}
+	}
+}
+
+// Navigation module
+.m-navigation {
+	&__title {
+		line-height: 18px;
+	}
+	&__link {
+		position: relative;
+	}
+	&__link-bubble {
+		position: relative;
+		float: right;
+		border-radius: @fd-ui-radius;
+		background-color: @fd-brand-primary;
+		color: #fff;
+		display: none; // hide by default
+		width: 16px;
+		height: 16px;
+		line-height: 17px;
+		right: 0;
+		top: 0;
+		text-align: center;
+		
+		margin-left: @fd-base-spacing--sm;
+	}
+}
+.has-counter {
+	.m-navigation__link-bubble {
+		display: block;
+	}
+}
+
+// Notification module
+.m-notification {
+	&__wrapper {
+
+	}
+	&__o-nav {
+
+	}
+	
+	&__icon-link {
+		color: @fd-ui-text-color;
+		padding: @fd-base-spacing--sm @fd-base-spacing;
+		// padding: 0;
+		// width: 28px;
+		min-width: 28px;
+		position: relative;
+		text-align: center;
+		&:hover {
+			background: transparent;
+		}
+		.fd-no-focus-outline();
+		> i {
+			line-height: @fd-base-line-height--computed;
+		}
+
+		&.has-new {
+			
+			.m-notification__link-bubble {
+				display: block;
+			}
+		}
+		&.is-active {
+			// background-color: @fd-navbar-link-bg--active;
+		}
+	}
+	
+	&__link-text {
+		display: none; // Display none for wider layout
+	}
+	&__link-bubble {
+		display: none; // Hide by default
+		position: absolute;
+		color: #fff;
+		background-color: @fd-brand-danger;
+		top: 0;
+		right: -@fd-base-spacing--xs;
+		min-width: 10px;
+		height: 13px;
+		overflow: hidden;
+		border-radius: @fd-navbar-radius--sm;
+		text-align: center;
+		font-size: 10px;
+		line-height: 14px;
+		font-weight: bold;
+		padding: 0 @fd-base-spacing--xs;
+	}
+}
+
+// Leaderboard module
+.ed-rank-label {
+	background-color: #ccc;
+	color: #fff;
+	border-radius: 50%;
+	// padding: @fd-base-spacing--lg;
+	width: 32px;
+	height: 32px;
+	line-height: 32px;
+	text-align: center;
+	&__text {
+
+	}
+}
+.m-leaderboard {
+	&__name {
+		vertical-align: top;
+		line-height: 1;
+	}
+	&__meta {
+		line-height: .5;
+	}    
+}
+
+// Ask module
+.ed-mod-ask {
+	
+	background-color: #ffffff;
+	border: 1px solid #cccccc;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+
+	&__header,
+	&__content,
+	&__footer {
+		padding: 5px;
+		font-size: 12px;
+		.clearfix();
+	}
+
+	&__support-msg {
+		padding: 5px;
+		background-color: #f1f1f1;
+		text-align: center;
+	}
+
+	.ed-ask-status {
+		border-radius: 5px;
+		vertical-align: middle;
+		padding: 0.2em 0.6em;
+		text-align: center;
+		display: inline;
+		font-size: 75%;
+		font-weight: bold;
+		line-height: 1;
+	}
+
+	.online {
+		background-color: #d3f1d7;
+		border: 1px solid #39b54a;
+		color: #39b54a;
+	}
+
+	.offline {
+		background-color: #ffffff;
+		border: 1px solid #d9534f;
+		color: #d9534f;
+	}
+}

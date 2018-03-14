@@ -1,0 +1,49 @@
+/*------------------------------------*\
+    $Theme - EasyDiscuss Pinter Patch
+\*------------------------------------*/
+&.view-index {
+
+    .ed-posts-list {
+        display: flex;
+        flex-wrap: wrap;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        > *:not(:first-child) {
+            margin-top: 0;
+        }
+    }
+
+    .ed-post-item--flex__cell {
+        display: flex; 
+        width: 50%;
+
+        margin-bottom: @fd-base-spacing--lg;
+
+        &:nth-child(even) {
+            padding-left: @fd-base-spacing--lg;
+        }
+    }
+
+    &.w640,
+    &.w480 {
+        .ed-post-item--flex__cell {
+            flex: none;
+            width: 100%;
+
+            &:nth-child(even) {
+                padding-left: 0;
+            }
+        }
+    }
+}
+
+.ed-post-item__content {
+    background-color: #fafafa;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+.ed-post-item__content .ed-post-item__hd {
+    flex: 1 0 auto;
+}

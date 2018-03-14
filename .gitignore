@@ -1,18 +1,28 @@
 # Joomla System Files (i.e. cache, etc.) #
-/administrator/cache
-/cache
-/images
-/logs
-/tmp
-/configuration.php
-/.htaccess
-/LICENSE.txt
-/README.txt
-/htaccess.txt
-/robots.txt.dist
-/web.config.txt
-/templates/beez3
-/templates/protostar
+/public_html/administrator/cache/
+!/public_html/administrator/cache/index.html
+/public_html/administrator/logs/
+!/public_html/administrator/logs/index.html
+/public_html/cache/
+!/public_html/cache/index.html
+/public_html/images/
+!/public_html/images/index.html
+/public_html/logs/
+!/public_html/logs/index.html
+/public_html/tmp/
+!/public_html/tmp/index.html
+/public_html/configuration.php
+/public_html/.htaccess
+/public_html/LICENSE.txt
+/public_html/README.txt
+/public_html/htaccess.txt
+/public_html/robots.txt.dist
+/public_html/web.config.txt
+/public_html/templates/beez3
+/public_html/templates/protostar
+
+# JC Downloads
+/public_html/files/
 
 # IDE & System Related Files #
 .buildpath
@@ -20,6 +30,12 @@
 .settings
 .DS_Store
 .idea
+.config.codekit
+
+# Vagrant
+.vagrant
+Vagrantfile
+puphpet/
 
 # OSX #
 ._*
@@ -30,6 +46,46 @@
 Thumbs.db
 Desktop.ini
 
+# Watchful.li #
+/public_html/administrator/components/com_watchfulli/restauration.php
+/public_html/administrator/components/com_watchfulli/restoration.php
+
 # Tools #
-/bower_components
 /node_modules
+/public_html/templates/jc/node_modules
+/hooks/config
+
+# Config files
+/public_html/media/com_easydiscuss/config/
+
+# Backup files
+/public_html/administrator/components/com_akeeba/backup/
+
+# RSEventsPro
+/public_html/components/com_rseventspro/assets/images/events/*
+!/public_html/components/com_rseventspro/assets/images/events/index.html
+
+# RSFormsPro
+/public_html/components/com_rsform/uploads/*
+!/public_html/components/com_rsform/uploads/index.html
+
+# DOCman
+/public_html/joomlatools-files/
+
+#  EasyDiscuss
+/public_html/media/com_easydiscuss/attachments/*
+/public_html/media/com_easydiscuss/attachments/index.html
+
+# Backend bescherming
+/public_html/administrator/.htaccess
+/public_html/administrator/.htpasswd
+
+# MyJoomla BFNetwork #
+/public_html/plugins/system/bfnetwork/bfnetwork/FIRSTRUN
+/public_html/plugins/system/bfnetwork/bfnetwork/MD5SUMS
+/public_html/plugins/system/bfnetwork/bfnetwork/VERSION
+/public_html/plugins/system/bfnetwork/bfnetwork/tmp/STATE.php
+
+# MyJoomla
+/pulic_html/.myjoomla.configuration.php.md5
+public_html/\.myjoomla\.configuration\.php\.md5

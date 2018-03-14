@@ -1,0 +1,136 @@
+//
+// Label
+// --------------------------------------------------
+
+.o-label {
+  display: inline;
+  padding: .2em .6em .2em;
+  font-size: 75%;
+  font-weight: bold;
+  line-height: 1;
+  color: @label-color;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  border-radius: .25em;
+
+  // Add hover effects, but only for links
+  // a& {
+  //   &:hover,
+  //   &:focus {
+  //     color: @label-link-hover-color;
+  //     text-decoration: none;
+  //     cursor: pointer;
+  //   }
+  // }
+
+  // Empty labels collapse automatically (not available in IE8)
+  &:empty {
+    display: none;
+  }
+
+  // Quick fix for labels in buttons
+  .btn & {
+    position: relative;
+    top: -1px;
+  }
+}
+
+.label-variant(@color) {
+  background-color: @color !important;
+  // color: @color;
+  // border: 1px solid @color;
+
+  &[href] {
+    &:hover,
+    &:focus {
+      background-color: darken(@color, 10%) !important;
+    }
+  }
+}
+
+
+.label-variant-o(@color) {
+  background-color: lighten(@color, 42%) !important;
+  color: @color !important;
+  border: 1px solid @color !important;
+
+  &[href] {
+    &:hover,
+    &:focus {
+      background-color: lighten(@color, 42%) !important;
+    }
+  }
+}
+
+// Colors
+// Contextual variations (linked labels get darker on :hover)
+
+/* !
+1. DO not use .o-label--inverse .o-label--important this is just a temporary classes for ED3.2
+*/
+
+.o-label--default,
+.o-label--inverse { // NOTE [1]
+  .label-variant(@label-default-bg);
+}
+
+.o-label--primary {
+  .label-variant(@label-primary-bg);
+}
+
+.o-label--success {
+  .label-variant(@label-success-bg);
+}
+
+.o-label--info {
+  .label-variant(@label-info-bg);
+}
+
+.o-label--warning {
+  .label-variant(@label-warning-bg);
+}
+
+.o-label--danger,
+.o-label--important { // NOTE [1]
+  .label-variant(@label-danger-bg);
+}
+
+// Variant border
+.o-label--default-o {
+  .label-variant-o(@label-default-bg);
+}
+
+.o-label--clean-o {
+  // .label-variant-o(@label-clean-bg);
+  background-color: @label-clean-bg;
+  color: @fd-ui-meta-color;
+  border: 1px solid @fd-ui-meta-color;
+
+  &[href] {
+    &:hover,
+    &:focus {
+      // background-color: darken(@color, 10%);
+    }
+  }
+}
+
+.o-label--primary-o {
+  .label-variant-o(@label-primary-bg);
+}
+
+.o-label--success-o {
+  .label-variant-o(@label-success-bg);
+}
+
+.o-label--info-o {
+  .label-variant-o(@label-info-bg);
+}
+
+.o-label--warning-o {
+  .label-variant-o(@label-warning-bg);
+}
+
+.o-label--danger-o {
+  .label-variant-o(@label-danger-bg);
+}

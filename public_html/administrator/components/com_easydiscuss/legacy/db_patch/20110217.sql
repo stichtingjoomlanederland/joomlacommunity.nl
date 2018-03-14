@@ -1,0 +1,1 @@
+ALTER TABLE `#__discuss_posts` CHANGE `issticky` `featured` TINYINT( 1 ) UNSIGNED NOT NULL DEFAULT '0'

@@ -1,0 +1,22 @@
+[
+	{
+		"table" : "#__discuss_badges",
+		"column" : "achieve_type",
+		"query" : "ALTER TABLE `#__discuss_badges` ADD `achieve_type` varchar(65) NOT NULL DEFAULT 'frequency';"
+	},
+	{
+		"table" : "#__discuss_badges",
+		"column" : "badge_achieve_rule",
+		"query" : "ALTER TABLE `#__discuss_badges` ADD `badge_achieve_rule` varchar(255) NULL;"
+	},
+	{
+		"table" : "#__discuss_badges",
+		"column" : "badge_remove_rule",
+		"query" : "ALTER TABLE `#__discuss_badges` ADD `badge_remove_rule` varchar(255) NULL;"
+	},
+	{
+		"table" : "#__discuss_badges",
+		"column" : "points_threshold",
+		"query" : "ALTER TABLE `#__discuss_badges` ADD `points_threshold` int(11) NOT NULL;"
+	}
+]

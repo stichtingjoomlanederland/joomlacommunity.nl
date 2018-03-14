@@ -1,0 +1,3 @@
+DROP TABLE IF EXISTS "#__ak_profiles" CASCADE;
+DROP TABLE IF EXISTS "#__ak_stats" CASCADE;
+DROP TABLE IF EXISTS "#__ak_storage" CASCADE;

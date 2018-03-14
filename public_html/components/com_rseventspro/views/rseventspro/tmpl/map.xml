@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_RSEVENTSPRO_MAP_VIEW_TITLE" >
+		<message>
+			<![CDATA[COM_RSEVENTSPRO_MAP_VIEW_DESC]]>
+		</message>
+	</layout>
+	
+	<fields name="params">
+		<fieldset name="basic" addfieldpath="/administrator/components/com_rseventspro/models/fields">
+			
+			<field name="sp1" type="spacer" label="COM_RSEVENTSPRO_RADIUS_SEARCH" />
+			
+			<field name="enable_radius" type="list" default="0" label="COM_RSEVENTSPRO_ENABLE_RADIUS" description="COM_RSEVENTSPRO_ENABLE_RADIUS_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="use_geolocation" type="list" default="0" label="COM_RSEVENTSPRO_USE_GEOLOCATION" description="COM_RSEVENTSPRO_USE_GEOLOCATION_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="default_radius" type="text" default="100" label="COM_RSEVENTSPRO_EVENTS_MAP_DEFAULT_RADIUS" description="COM_RSEVENTSPRO_EVENTS_MAP_DEFAULT_RADIUS_DESC" />
+			<field name="default_location" type="text" default="" label="COM_RSEVENTSPRO_EVENTS_MAP_DEFAULT_LOCATION" description="COM_RSEVENTSPRO_EVENTS_MAP_DEFAULT_LOCATION_DESC" />
+			<field name="circle_color" control="wheel" type="color" default="#ff8080" label="COM_RSEVENTSPRO_EVENTS_MAP_CIRCLE_COLOR" description="COM_RSEVENTSPRO_EVENTS_MAP_CIRCLE_COLOR_DESC" />
+			
+			<field name="display_results" type="list" default="1" label="COM_RSEVENTSPRO_EVENTS_MAP_DISPLAY_LIST_OF_RESULTS" description="COM_RSEVENTSPRO_EVENTS_MAP_DISPLAY_LIST_OF_RESULTS_DESC" filter="integer">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="sp2" type="spacer" label="COM_RSEVENTSPRO_MAP_OPTIONS" />
+			
+			<field name="map_width" type="text" default="100%" label="COM_RSEVENTSPRO_EVENTS_MAP_WIDTH" description="COM_RSEVENTSPRO_EVENTS_MAP_WIDTH_DESC" />
+			<field name="map_height" type="text" default="400px" label="COM_RSEVENTSPRO_EVENTS_MAP_HEIGHT" description="COM_RSEVENTSPRO_EVENTS_MAP_HEIGHT_DESC" />
+			
+			<field name="sp3" type="spacer" label="COM_RSEVENTSPRO_EVENTS_FILTERING" />
+			
+			<field name="rss" type="list" default="1" label="COM_RSEVENTSPRO_ENABLE_RSS" description="COM_RSEVENTSPRO_ENABLE_RSS_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="ical" type="list" default="1" label="COM_RSEVENTSPRO_ENABLE_ICAL" description="COM_RSEVENTSPRO_ENABLE_ICAL_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="search" type="list" default="1" label="COM_RSEVENTSPRO_ENABLE_SEARCH" description="COM_RSEVENTSPRO_ENABLE_SEARCH_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="from" type="rscalendar" default="" label="COM_RSEVENTSPRO_EVENTS_MAP_VIEW_FROM" description="COM_RSEVENTSPRO_EVENTS_MAP_VIEW_FROM_DESC" />
+			<field name="to" type="rscalendar" default="" label="COM_RSEVENTSPRO_EVENTS_MAP_VIEW_TO" description="COM_RSEVENTSPRO_EVENTS_MAP_VIEW_TO_DESC" filter="SERVER_UTC" />
+			
+			<field name="categories" type="category" description="COM_RSEVENTSPRO_SELECT_CATEGORIES_DESC" extension="com_rseventspro" label="COM_RSEVENTSPRO_SELECT_CATEGORIES" multiple="multiple" class="rs200 rschosen" />
+			<field name="locations" type="rslocations" default="" label="COM_RSEVENTSPRO_SELECT_LOCATIONS" description="COM_RSEVENTSPRO_SELECT_LOCATIONS_DESC" multiple="multiple" class="rs200 rschosen" show_root="false" />
+			<field name="tags" type="rstags" default="" label="COM_RSEVENTSPRO_SELECT_TAGS" description="COM_RSEVENTSPRO_SELECT_TAGS_DESC" multiple="multiple" class="rs200 rschosen" />
+			
+			<field name="choosen" type="rschosen" />
+		</fieldset>
+	</fields>
+</metadata>

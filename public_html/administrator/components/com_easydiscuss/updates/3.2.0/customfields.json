@@ -1,0 +1,27 @@
+[
+    {
+        "table"     : "#__discuss_customfields_rule",
+        "index"     : "cf_rule_field_id",
+        "query"     : "ALTER TABLE `#__discuss_customfields_rule` ADD INDEX `cf_rule_field_id` (`field_id`);"
+    },
+    {
+        "table"     : "#__discuss_customfields_rule",
+        "index"     : "cf_rule_acl_types",
+        "query"     : "ALTER TABLE `#__discuss_customfields_rule` ADD INDEX `cf_rule_acl_types` (`content_type`, `acl_id`, `content_id`);"
+    },
+    {
+        "table"     : "#__discuss_customfields_value",
+        "index"     : "cf_value_field_id",
+        "query"     : "ALTER TABLE `#__discuss_customfields_value` ADD INDEX `cf_value_field_id` (`field_id`);"
+    },
+    {
+        "table"     : "#__discuss_customfields_value",
+        "index"     : "cf_value_field_post",
+        "query"     : "ALTER TABLE `#__discuss_customfields_value` ADD INDEX `cf_value_field_post` (`field_id`, `post_id`);"
+    },
+    {
+        "table"     : "#__discuss_customfields_value",
+        "index"     : "cf_value_field_postid",
+        "query"     : "ALTER TABLE `#__discuss_customfields_value` ADD INDEX `cf_value_field_postid` (`post_id`);"
+    }
+]

@@ -1,0 +1,13 @@
+.ajaxPopover {
+	min-height: 40px;
+	line-height: 40px;
+	text-align: center;
+}
+.ajaxPopover.loading {
+	background: url('ajax-loader.gif') no-repeat center center;
+}
+.ajaxPopover.error {
+	color: #b94a48;
+	background: #fff5f5;
+	margin:0;
+}

@@ -1,0 +1,42 @@
+//
+// Member item
+// --------------------------------------------------
+
+.ed-user-item {
+    padding: @fd-base-spacing--lg;
+    position: relative;
+    border: 1px solid @fd-ui-border-color;
+    border-radius: @fd-ui-radius;
+    background-color: @fd-ui-bg;
+}
+// Elements
+// Apply to <a> or <div> will do
+.ed-user-name {
+    display: inline-block;
+}
+.ed-user-rank {
+    line-height: 1;
+}
+.ed-user-rank,
+.ed-user-meta {
+    font-size: @fd-base-font-size--xs;
+}
+
+
+.ed-rank-bar {
+    max-width: @fd-base-spacing * 5;
+    width: 100%;
+    background-color: #ccc;
+    height: @fd-base-spacing / 2;
+    border-radius: @fd-ui-radius--sm;
+    &__progress {
+        background-color: @fd-brand-success;
+        height: @fd-base-spacing / 2;
+        border-radius: @fd-ui-radius--sm;
+    }
+
+    &--max-width-no {
+        max-width: none;
+    }
+}
+

@@ -1,0 +1,17 @@
+[
+	{
+		"table": "#__discuss_migrators",
+		"index": "idx_extensions",
+		"query": "ALTER TABLE `#__discuss_migrators` ADD INDEX `idx_extensions` (`external_id`, `component` (64));"
+	},
+	{
+		"table": "#__discuss_migrators",
+		"index": "idx_component",
+		"query": "ALTER TABLE `#__discuss_migrators` ADD INDEX `idx_component` (`component` (64));"
+	},
+	{
+		"table": "#__discuss_migrators",
+		"index": "idx_type",
+		"query": "ALTER TABLE `#__discuss_migrators` ADD INDEX `idx_type` (`type` (64));"
+	}
+]

@@ -1,0 +1,17 @@
+[
+    {
+        "table"     : "#__discuss_comments",
+        "column"    : "sent",
+        "query"     : "ALTER TABLE `#__discuss_comments` ADD `sent` TINYINT( 1 ) NOT NULL DEFAULT 0;"
+    },
+    {
+        "table"     : "#__discuss_comments",
+        "column"    : "lft",
+        "query"     : "ALTER TABLE `#__discuss_comments` ADD `lft` INT( 11 ) NOT NULL DEFAULT 0;"
+    },
+    {
+        "table"     : "#__discuss_comments",
+        "index"     : "discuss_comment_post_created",
+        "query"     : "ALTER TABLE `#__discuss_comments` ADD INDEX `discuss_comment_post_created` (`post_id`, `created`);"
+    }
+]

@@ -1,0 +1,28 @@
+// Categories
+.docman_categories {
+  border-top: 1px solid $rowBackgroundColor;
+  border-top-color: $rowBackgroundColorHSLA;
+  margin-top: $smallMargin;
+  margin-bottom: $mediumMargin;
+}
+
+// Category
+.docman_category {
+  display: block;
+  float: none;
+  @include clearfix();
+}
+
+.docman_category--style {
+  @include linear-gradient($rowBackgroundColorHSLA, rgba($rowBackgroundColorHSLA, 0));
+  border-top: 1px solid #fff;
+  padding: 10px 10px 0;
+  border-top-color: hsla(0, 0%, 100%, 0.1);
+  border-bottom: 1px solid $rowBackgroundColor;
+  border-bottom-color: $rowBackgroundColorHSLA;
+
+  @include rtl {
+    padding-right: 0;
+    padding-left: 10px;
+  }
+}
