@@ -61,11 +61,10 @@ class RsformModelConditions extends JModelLegacy
 		$types 	= array(
             RSFORM_FIELD_SELECTLIST,
             RSFORM_FIELD_CHECKBOXGROUP,
-            RSFORM_FIELD_RADIOGROUP,
-            22
+            RSFORM_FIELD_RADIOGROUP
         );
 		
-		$app->triggerEvent('rsfp_bk_onCreateConditionOptionFields',array(array('types' => &$types, 'formId' => $formId)));
+		$app->triggerEvent('rsfp_bk_onCreateConditionOptionFields', array(array('types' => &$types, 'formId' => $formId)));
 		array_map('intval', $types);
 
 		$optionFields = array();
@@ -107,7 +106,11 @@ class RsformModelConditions extends JModelLegacy
                     $optionField->items = array();
                     foreach ($items as $item)
                     {
-                        $optionField->items[] = new RSFormProFieldItem($item);
+						$item = new RSFormProFieldItem($item);
+						
+						$app->triggerEvent('rsfp_bk_onCreateConditionOptionFieldItem', array(array('field' => &$optionField, 'item' => &$item, 'formId' => $formId)));
+						
+                        $optionField->items[] = $item;
                     }
                 }
             }
