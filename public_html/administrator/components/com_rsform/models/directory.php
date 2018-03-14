@@ -312,7 +312,7 @@ class RsformModelDirectory extends JModelLegacy
 					$cids[] = $field->componentId;
 			}
 		}
-		array_map('intval', $cids);
+		$cids = array_map('intval', $cids);
 
 		if (!empty($cids)) {
 			$mainframe = JFactory::getApplication();
@@ -399,7 +399,7 @@ class RsformModelDirectory extends JModelLegacy
 					$cids[] = $field->componentId;
 			}
 		}
-		array_map('intval', $cids);
+		$cids = array_map('intval', $cids);
 
 		if (!empty($cids)) {
 			$query->clear()
@@ -424,7 +424,7 @@ class RsformModelDirectory extends JModelLegacy
 
 	public function remove($pks) {
 		if ($pks) {
-			array_map('intval', $pks);
+			$pks = array_map('intval', $pks);
 
 			$this->_db->setQuery("DELETE FROM #__rsform_directory WHERE formId IN (".implode(',',$pks).")");
 			$this->_db->execute();

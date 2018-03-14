@@ -398,7 +398,7 @@ class RsformControllerForms extends RsformController
 		$cid = JFactory::getApplication()->input->get('cid', array(), 'array');
 		
 		// Force array elements to be integers
-		array_map('intval', $cid);
+		$cid = array_map('intval', $cid);
 		
 		$total = count($cid);
 		foreach ($cid as $formId) {
@@ -516,7 +516,7 @@ class RsformControllerForms extends RsformController
 		$cid = JFactory::getApplication()->input->post->get('cid', array(), 'array');
 		
 		// Force array elements to be integers
-		array_map('intval', $cid);
+		$cid = array_map('intval', $cid);
 		
 		$value = $task == 'publish' ? 1 : 0;
 		
@@ -543,7 +543,7 @@ class RsformControllerForms extends RsformController
 		$cid = $app->input->get('cid', array(), 'array');
 		
 		// Force array elements to be integers
-		array_map('intval', $cid);
+		$cid = array_map('intval', $cid);
 		
 		$total = 0;
 		foreach ($cid as $formId)

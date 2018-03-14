@@ -65,7 +65,7 @@ class RsformModelConditions extends JModelLegacy
         );
 		
 		$app->triggerEvent('rsfp_bk_onCreateConditionOptionFields', array(array('types' => &$types, 'formId' => $formId)));
-		array_map('intval', $types);
+		$types = array_map('intval', $types);
 
 		$optionFields = array();
 		if ($fields = $this->getAllFields())

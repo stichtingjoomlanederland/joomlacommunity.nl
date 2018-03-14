@@ -1192,7 +1192,7 @@ class RSFormProHelper
 
 		if (is_array($componentTypeId))
 		{
-            array_map('intval', $componentTypeId);
+            $componentTypeId = array_map('intval', $componentTypeId);
             $db->setQuery("SELECT ComponentId FROM #__rsform_components WHERE ComponentTypeId IN (".implode(',', $componentTypeId).") AND FormId='".$formId."' AND Published='1'");
 		}
 		else

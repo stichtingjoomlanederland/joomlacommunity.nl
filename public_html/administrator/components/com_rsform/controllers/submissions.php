@@ -115,7 +115,7 @@ class RsformControllerSubmissions extends RsformController
 		$app 	= JFactory::getApplication();
 		$formId = $app->input->getInt('formId');
         $cid	= $app->input->post->get('cid', array(), 'array');
-		array_map('intval', $cid);
+		$cid = array_map('intval', $cid);
 		
 		foreach ($cid as $SubmissionId) {
             RSFormProHelper::sendSubmissionEmails($SubmissionId);
@@ -154,7 +154,7 @@ class RsformControllerSubmissions extends RsformController
 		$app 	= JFactory::getApplication();
 		$formId = $app->input->getInt('formId');
         $cid	= $app->input->post->get('cid', array(), 'array');
-		array_map('intval', $cid);
+		$cid = array_map('intval', $cid);
 		
 		$model = $this->getModel('submissions');
 		$model->deleteSubmissionFiles($cid);
