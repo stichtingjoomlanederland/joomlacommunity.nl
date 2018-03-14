@@ -275,7 +275,7 @@ class RsformModelFormajax extends JModelLegacy
 		$cid    = JFactory::getApplication()->input->getInt('componentId');
 		$cids   = JFactory::getApplication()->input->get('cid', array(), 'array');
 		if (is_array($cids) && count($cids)) {
-			array_map('intval', $cids);
+			$cids = array_map('intval', $cids);
 			$cid = $cids;
 		}
 

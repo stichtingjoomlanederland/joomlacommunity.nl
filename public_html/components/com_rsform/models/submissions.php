@@ -112,7 +112,7 @@ class RsformModelSubmissions extends JModelLegacy
 		else
 		{
 			$userId = explode(',', $userId);
-			array_map('intval', $userId);
+			$userId = array_map('intval', $userId);
 			
 			$query .= " AND s.UserId IN (".implode(',', $userId).")";
 		}
@@ -378,7 +378,7 @@ class RsformModelSubmissions extends JModelLegacy
 			$userId = $this->params->def('userId', 0);
 			if ($userId != 'login' && $userId != 0) {
 				$userId = explode(',', $userId);
-				array_map('intval', $userId);
+				$userId = array_map('intval', $userId);
 			}
 			
 			// Grab submission

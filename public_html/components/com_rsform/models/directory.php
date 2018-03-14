@@ -122,7 +122,7 @@ class RsformModelDirectory extends JModelLegacy
         } elseif ($userId) {
             // Show only the submissions of these users
             $userIds = explode(',', $userId);
-            array_map('intval', $userIds);
+            $userIds = array_map('intval', $userIds);
 
             $query->where($db->qn('s.UserId') . ' IN (' . implode(',', $userIds) . ')');
         }
@@ -254,7 +254,7 @@ class RsformModelDirectory extends JModelLegacy
 
         if ($userId != 'login' && $userId != 0) {
             $userId = explode(',', $userId);
-            array_map('intval', $userId);
+            $userId = array_map('intval', $userId);
         }
 
         // Grab submission

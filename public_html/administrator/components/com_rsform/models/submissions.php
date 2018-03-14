@@ -1027,7 +1027,7 @@ class RsformModelSubmissions extends JModelLegacy
 	public function getExportSelected()
 	{
 		$cid = JFactory::getApplication()->input->get('cid', array(), 'array');
-		array_map('intval', $cid);
+		$cid = array_map('intval', $cid);
 		
 		return $cid;
 	}

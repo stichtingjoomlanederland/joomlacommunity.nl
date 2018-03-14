@@ -246,7 +246,7 @@ class RsformControllerComponents extends RsformController
 		$cids 		= JFactory::getApplication()->input->get('cid', array(), 'array');
 		$model 		= $this->getModel('forms');
 
-		array_map('intval', $cids);
+		$cids = array_map('intval', $cids);
 
 		foreach ($cids as $cid) {
 			$model->copyComponent($cid, $toFormId);
@@ -281,7 +281,7 @@ class RsformControllerComponents extends RsformController
         $cids 	= JFactory::getApplication()->input->get('cid', array(), 'array');
 		$model 	= $this->getModel('forms');
 
-		array_map('intval', $cids);
+		$cids = array_map('intval', $cids);
 		foreach ($cids as $cid) {
 			$model->copyComponent($cid, $formId);
 		}
