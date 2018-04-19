@@ -134,7 +134,9 @@ class RSFormProField
 		return $this->attr;
 	}
 	
-	public function getAttributes() {
+	public function getAttributes()
+	{
+		static $focused = array();
 		$return = array();
 
         if ($attr = $this->getProperty('ADDITIONALATTRIBUTES'))
@@ -147,13 +149,22 @@ class RSFormProField
 			$return['class'] = '';
 		}
 
-		if ($this->invalid && strlen($this->fieldErrorClass))
+		if ($this->invalid)
         {
-			if (strlen($return['class']))
+			if (strlen($this->fieldErrorClass))
 			{
-				$return['class'] .= ' ';
+				if (strlen($return['class']))
+				{
+					$return['class'] .= ' ';
+				}
+				$return['class'] .= $this->fieldErrorClass;
 			}
-            $return['class'] .= $this->fieldErrorClass;
+			
+			if (!isset($focused[$this->formId]))
+			{
+				$return['autofocus'] = '';
+				$focused[$this->formId] = true;
+			}
         }
 
 		return $return;

@@ -9,11 +9,12 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <?php if (!$this->isComponent) { ?>
 <div class="alert alert-info"><?php echo JText::_('RSFP_CONDITION_MULTILANGUAGE_WARNING'); ?></div>
-<br />
+
 <div id="conditionscontent" style="overflow: auto;">
 <?php } ?>
-<button type="button" class="btn btn-primary" onclick="openRSModal('<?php echo JRoute::_('index.php?option=com_rsform&view=conditions&layout=edit&formId='.$this->formId.'&tmpl=component'); ?>', 'Conditions', '800x600')"><?php echo JText::_('RSFP_FORM_CONDITION_NEW'); ?></button>
-<br /><br />
+<div>
+	<button type="button" class="btn btn-primary" onclick="openRSModal('<?php echo JRoute::_('index.php?option=com_rsform&view=conditions&layout=edit&formId='.$this->formId.'&tmpl=component'); ?>', 'Conditions', '800x600')"><?php echo JText::_('RSFP_FORM_CONDITION_NEW'); ?></button>
+</div>
 
 	<table class="adminlist table table-hover table-striped" id="conditionsTable">
 	<thead>

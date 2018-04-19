@@ -29,10 +29,11 @@ class RSFormProFormLayoutUIkit3 extends RSFormProFormLayout
 
 		// Load Javascript
 		$this->addScript('com_rsform/frameworks/uikit3/uikit.min.js');
+		$this->addScript('com_rsform/frameworks/uikit3/uikit-icons.min.js');
 	}
 
     public function generateButton($goto)
     {
-        return '<button type="button" class="rsform-submit-button uk-button uk-button-primary" name="continue" onclick="'.$goto.'">'.JText::_('RSFP_THANKYOU_BUTTON').'</button>';
+        return '<button type="button" class="rsform-submit-button rsform-thankyou-button uk-button uk-button-primary" name="continue" onclick="'.$goto.'">'.JText::_('RSFP_THANKYOU_BUTTON').'</button>';
     }
 }

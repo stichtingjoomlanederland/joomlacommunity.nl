@@ -43,14 +43,14 @@ $this->loadTemplate('grid_modal_body'));
 	<?php
 	foreach ($rows as $row_index => $row)
 	{
-		$has_pagebreak = !empty($row->has_pagebreak);
+		$has_pagebreak = !empty($row['has_pagebreak']);
 		?>
 		<div class="rsfp-grid-row<?php if ($has_pagebreak) { ?> rsfp-grid-page-container<?php } ?>">
 			<?php
-			foreach ($row->columns as $column_index => $fields)
+			foreach ($row['columns'] as $column_index => $fields)
 			{
-				$size = $row->sizes[$column_index];
-				$last_column = $column_index == count($row->columns) - 1;
+				$size = isset($row['sizes'][$column_index]) ? $row['sizes'][$column_index] : 12;
+				$last_column = $column_index == count($row['columns']) - 1;
 				?>
 				<div class="rsfp-grid-column rsfp-grid-column<?php echo $size; ?><?php if ($last_column) { ?> rsfp-grid-column-unresizable<?php } ?><?php if ($has_pagebreak) { ?> rsfp-grid-column-unconnectable<?php } ?>">
 				<h3><?php echo $size; ?>/12</h3>

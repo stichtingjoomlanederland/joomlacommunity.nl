@@ -36,7 +36,7 @@ defined('_JEXEC') or die('Restricted access'); ?>
 			   <table width="98%" style="clear:both;">
 					<tr>
 						<td>
-							<textarea rows="20" cols="75" style="width:100%;" class="codemirror-html" name="jform[ViewLayout]" id="ViewLayout" <?php echo $this->directory->ViewLayoutAutogenerate ? 'readonly="readonly"' : '';?>><?php echo $this->escape($this->directory->ViewLayout); ?></textarea>
+							<?php echo RSFormProHelper::showEditor('jform[ViewLayout]', $this->directory->ViewLayout, array('classes' => 'rs_100', 'id' => 'ViewLayout', 'syntax' => 'html', 'readonly' => $this->directory->ViewLayoutAutogenerate)); ?>
 						</td>
 					</tr>
 				</table>

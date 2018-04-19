@@ -469,8 +469,10 @@ class RsformModelForms extends JModelLegacy
 		$query->select($db->qn('ComponentTypeId'))
 			->from($db->qn('#__rsform_components'))
 			->where($db->qn('FormId').'='.$db->q($formId))
-			->where($db->qn('ComponentId').'='.$db->q($componentId))
-			->limit(1);
+			->where($db->qn('ComponentId').'='.$db->q($componentId));
+		
+		$query->setLimit(1);
+		
 		$db->setQuery($query);
 
 		return $db->loadResult();

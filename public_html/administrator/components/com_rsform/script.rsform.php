@@ -626,11 +626,6 @@ class com_rsformInstallerScript
 			$app->enqueueMessage('Please upgrade to at least Joomla! 3.7.0 before continuing!', 'error');
 			return false;
 		}
-		
-		if (version_compare(PHP_VERSION, '5.3.10', '<'))
-		{
-			$app->enqueueMessage('Your PHP version is too old ('.PHP_VERSION.'). Even though RSForm! Pro will work, we cannot guarantee this version of PHP will be fully supported. Please consider updating to a newer version of PHP.', 'warning');
-		}
 
 		// Flag to check if we should set 'Load Layout Framework' to 'Yes' for 'Responsive' layout forms now that front.css is missing responsive declarations
 		if ($type == 'update' && !file_exists(JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/formlayouts/responsive.php'))
@@ -990,9 +985,14 @@ class com_rsformInstallerScript
 			<?php } ?>
 			<?php } ?>
 		<?php } ?>
-		<h2>Changelog v2.0.8</h2>
+		<h2>Changelog v2.0.10</h2>
 		<ul class="version-history">
-            <li><span class="version-fixed">Fix</span> Multiple Products (Payment Plugin) were not working with Conditional Fields.</li>
+            <li><span class="version-upgraded">Upg</span> Can now hide editor buttons when 'Enable WYSIWYG Editor' is set to 'Yes' on 'Textarea' fields.</li>
+            <li><span class="version-fixed">Fix</span> 'Date and Time Picker' field value was being reset when using a Date Modifier.</li>
+            <li><span class="version-fixed">Fix</span> IDN email domains were failing validation when using 'Email Address /w DNS check'.</li>
+            <li><span class="version-fixed">Fix</span> Conditions were not removed from the database when deleting a form field.</li>
+            <li><span class="version-fixed">Fix</span> In some cases, restoring a form would not work because of a PHP Notice.</li>
+            <li><span class="version-fixed">Fix</span> In some cases, the Grid Layout data was corrupted.</li>
 		</ul>
 		<a class="btn btn-large btn-primary" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="btn" href="https://www.rsjoomla.com/support/documentation/rsform-pro.html" target="_blank">Read the RSForm! Pro User Guide</a>

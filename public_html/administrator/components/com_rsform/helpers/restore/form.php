@@ -400,6 +400,9 @@ class RSFormProRestoreForm
 		// Restore conditions #__rsform_conditions & #__rsform_condition_details
 		if (isset($this->xml->conditions)) {
 			foreach ($this->xml->conditions->children() as $condition) {
+				if (empty($this->fields[(string) $condition->component_id])) {
+					continue;
+				}
 				$query = $this->db->getQuery(true);
 				$query	->insert('#__rsform_conditions')
 						->set(array(
@@ -581,7 +584,7 @@ class RSFormProRestoreForm
             return false;
         }
 
-        $data   = json_decode($this->form->GridLayout);
+        $data   = json_decode($this->form->GridLayout, true);
         $rows 	= array();
         $hidden	= array();
 
@@ -594,24 +597,25 @@ class RSFormProRestoreForm
 
         if ($rows)
         {
-            foreach ($rows as $row_index => $row)
+            foreach ($rows as $row_index => &$row)
             {
-                foreach ($row->columns as $column_index => $fields)
+                foreach ($row['columns'] as $column_index => $fields)
                 {
                     foreach ($fields as $position => $id)
                     {
                         if (isset($this->fields[$id]))
                         {
-                            $row->columns[$column_index][$position] = $this->fields[$id];
+                            $row['columns'][$column_index][$position] = $this->fields[$id];
                         }
                         else
                         {
                             // Field doesn't exist, remove it from grid
-                            unset($row->columns[$column_index][$position]);
+                            unset($row['columns'][$column_index][$position]);
                         }
                     }
                 }
             }
+			unset($row);
         }
 
         if ($hidden)

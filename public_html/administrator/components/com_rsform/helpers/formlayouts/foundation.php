@@ -46,6 +46,6 @@ class RSFormProFormLayoutFoundation extends RSFormProFormLayout
 
     public function generateButton($goto)
     {
-        return '<button type="button" class="rsform-submit-button button" name="continue" onclick="'.$goto.'">'.JText::_('RSFP_THANKYOU_BUTTON').'</button>';
+        return '<button type="button" class="rsform-submit-button rsform-thankyou-button button" name="continue" onclick="'.$goto.'">'.JText::_('RSFP_THANKYOU_BUTTON').'</button>';
     }
 }

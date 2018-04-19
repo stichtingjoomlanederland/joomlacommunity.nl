@@ -111,30 +111,76 @@ class RSFormProHelper
 		return $class;
 	}
 
-	public static function loadCodeMirror() {
-		if (RSFormProHelper::getConfig('global.codemirror')) {
-			$document 	= JFactory::getDocument();
-			$root		= JUri::root(true).'/administrator/components/com_rsform/assets/codemirror';
-
-			// Load CodeMirror
-			$document->addScript($root.'/lib/codemirror.js');
-			$document->addScriptDeclaration('RSFormPro.initCodeMirror = true;');
-
-			// Load modes
-			$modes = array('xml', 'javascript', 'css', 'htmlmixed', 'clike', 'php');
-			foreach ($modes as $mode) {
-				$document->addScript("$root/mode/$mode/$mode.js");
-			}
-
-			// Load addons
-			$document->addScript($root.'/addon/fold/xml-fold.js');
-			$document->addScript($root.'/addon/selection/active-line.js');
-			$document->addScript($root.'/addon/edit/matchbrackets.js');
-			$document->addScript($root.'/addon/edit/matchtags.js');
-
-			// Load CSS
-			$document->addStyleSheet($root.'/lib/codemirror.css');
+	public static function showEditor($name, $html, $options = array())
+	{
+		if (!isset($options['syntax']))
+		{
+			$options['syntax'] = 'html';
 		}
+		if (!isset($options['readonly']))
+		{
+			$options['readonly'] = false;
+		}
+		if (!isset($options['id']))
+		{
+			$options['id'] = null;
+		}
+		
+		$use_editor = RSFormProHelper::getConfig('global.codemirror');
+		$editor = 'codemirror';
+
+		if ($use_editor)
+		{
+			$plugin = JPluginHelper::getPlugin('editors', $editor);
+			if (empty($plugin))
+			{
+				$use_editor = false;
+			}
+			else
+			{
+				if (!is_string($plugin->params) && is_callable(array($plugin->params, 'toString')))
+				{
+					$plugin->params = $plugin->params->toString();
+				}
+			}
+		}
+		
+		if ($use_editor)
+		{
+            $jversion = new JVersion;
+            if ($jversion->isCompatible('3.8.0'))
+			{
+				$instance = new \Joomla\CMS\Editor\Editor($editor);
+			}
+			else
+			{
+				$instance = new JEditor($editor);
+			}
+			
+			$html = $instance->display($name, static::htmlEscape($html), '100%', 300, 75, 20, $buttons = false, $options['id'], $asset = null, $author = null, array('syntax' => $options['syntax'], 'readonly' => $options['readonly']));
+			
+			if ($options['syntax'] == 'php')
+			{
+				$name = preg_replace('/jform\[(.*?)\]/', '$1', $name);
+				JFactory::getDocument()->addScriptDeclaration("jQuery(function(){Joomla.editors.instances['$name'].setOption('mode', 'text/x-php');});");
+			}
+		}
+		else
+		{
+			if (empty($options['id']))
+			{
+				$options['id'] = $name;
+			}
+			$readonly = '';
+			if (!empty($options['readonly']))
+			{
+				$readonly = 'readonly';
+			}
+			
+			$html = '<textarea class="' . $options['classes'] . '" ' . $readonly . ' rows="20" cols="75" name="' . static::htmlEscape($name) . '" id="' . static::htmlEscape($options['id']) . '">' . static::htmlEscape($html) . '</textarea>';
+		}
+		
+		return $html;
 	}
 
 	public static function getComponentId($name, $formId=0)
@@ -302,7 +348,7 @@ class RSFormProHelper
 		}
 		
 		// Must process form
-		$post = JRequest::getVar('form', array(), 'post', 'none', JREQUEST_ALLOWRAW);
+		$post = $mainframe->input->post->get('form', array(), 'array');
 		if (isset($post['formId']) && $post['formId'] == $formId)
 		{
 			$invalid = RSFormProHelper::processForm($formId);
@@ -316,10 +362,8 @@ class RSFormProHelper
 			}
 		}
 
-
-		$get = $mainframe->input->get->get('form', array(), 'array');
-
 		// Default - show the form
+		$get = $mainframe->input->get->get('form', array(), 'array');
 		return RSFormProHelper::showForm($formId, $get);
 	}
 
@@ -1569,7 +1613,7 @@ class RSFormProHelper
 		$CSSClass 	= $form->CSSClass ? ' class="'.RSFormProHelper::htmlEscape(trim($form->CSSClass)).'"' : '';
 		$CSSId 		= $form->CSSId ? ' id="'.RSFormProHelper::htmlEscape(trim($form->CSSId)).'"' : '';
 		$CSSName 	= $form->CSSName ? ' name="'.RSFormProHelper::htmlEscape(trim($form->CSSName)).'"' : '';
-		$u 			= $form->CSSAction ? RSFormProHelper::htmlEscape($form->CSSAction) : $u;
+		$u 			= $form->CSSAction ? $form->CSSAction : $u;
 		$CSSAdditionalAttributes = $form->CSSAdditionalAttributes ? ' '.trim($form->CSSAdditionalAttributes) : '';
 
 		if (!empty($pages))

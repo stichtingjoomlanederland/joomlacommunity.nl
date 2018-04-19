@@ -452,7 +452,15 @@ RSFormPro.getElementByType = function(formId, type) {
 	return elements;
 };
 
+RSFormPro.resettingValues = false;
+
 RSFormPro.resetValues = function(items) {
+	if (RSFormPro.resettingValues)
+	{
+		return;
+	}
+
+	RSFormPro.resettingValues = true;
 	var element, tagName;
 	try
 	{
@@ -508,6 +516,8 @@ RSFormPro.resetValues = function(items) {
 		}
 	}
 	catch (err) {}
+
+	RSFormPro.resettingValues = false;
 }
 
 RSFormPro.triggerEvent = function(element, type) {
@@ -664,6 +674,21 @@ RSFormPro.getFieldsByName = function(formId, name) {
 
 	return results;
 };
+
+RSFormPro.showCounter = function(element, id) {
+	var current = element.value.length;
+	var result;
+	if (element.maxLength > 0)
+	{
+		result = current + '/' + element.maxLength;
+	}
+	else
+	{
+		result = current;
+	}
+	
+	document.getElementById('rsfp-counter-' + id).innerText = result;
+}
 
 /*HTML5 simulators*/
 
@@ -1028,38 +1053,68 @@ RSFormPro.Ajax = {
 
 			ids = data.response[1].split(',');
 			var doScroll = false;
-			for (i = 0; i < ids.length; i++) {
+			var doFocus = false;
+			for (i = 0; i < ids.length; i++)
+			{
 				id = parseInt(ids[i]);
-				if (!isNaN(id) && typeof formComponents[id] != 'undefined') {
-					formComponent = RSFormPro.getFieldsByName(formId, formComponents[id]);
-					if (formComponent && formComponent.length > 0) {
-						for (j = 0; j < formComponent.length; j++) {
-							if (formComponent[j]) {
-								RSFormProUtils.addClass(formComponent[j], 'rsform-error');
+				
+				if (isNaN(id))
+				{
+					continue;
+				}
+				
+				if (typeof formComponents[id] == 'undefined')
+				{
+					continue;
+				}
+				
+				formComponent = RSFormPro.getFieldsByName(formId, formComponents[id]);
+				if (!formComponent || formComponent.length < 1)
+				{
+					continue;
+				}
+				
+				for (j = 0; j < formComponent.length; j++)
+				{
+					if (formComponent[j])
+					{
+						RSFormProUtils.addClass(formComponent[j], 'rsform-error');
 
-								if (!doScroll) {
-									doScroll = true;
-								}	
-								if (typeof data.parentErrorClass != 'undefined' && data.parentErrorClass.length > 0) {
-									try {
-										elementBlock = RSFormPro.getBlock(formId, RSFormProUtils.getAlias(formComponents[id]));
-										RSFormProUtils.addClass(elementBlock[0], data.parentErrorClass);
-									} catch (err) {}
-								}
-								if (typeof data.fieldErrorClass != 'undefined' && data.fieldErrorClass.length > 0) {
-									try {
-										results = RSFormPro.getFieldsByName(formId, formComponents[id]);
-										if (results.length > 0)
-										{
-											for (var r = 0; r < results.length; r++)
-											{
-												RSFormProUtils.addClass(results[r], data.fieldErrorClass);
-											}
-										}
-									} catch (err) {}
+						if (!doScroll)
+						{
+							doScroll = true;
+						}
+						
+						if (typeof data.parentErrorClass != 'undefined' && data.parentErrorClass.length > 0)
+						{
+							try
+							{
+								elementBlock = RSFormPro.getBlock(formId, RSFormProUtils.getAlias(formComponents[id]));
+								RSFormProUtils.addClass(elementBlock[0], data.parentErrorClass);
+							}
+							catch (err) {}
+						}
+						try
+						{
+							results = RSFormPro.getFieldsByName(formId, formComponents[id]);
+							if (results.length > 0)
+							{
+								for (var r = 0; r < results.length; r++)
+								{									
+									if (typeof data.fieldErrorClass != 'undefined' && data.fieldErrorClass.length > 0)
+									{
+										RSFormProUtils.addClass(results[r], data.fieldErrorClass);
+									}
+									
+									if (!doFocus)
+									{
+										results[r].focus();
+										doFocus = true;
+									}
 								}
 							}
 						}
+						catch (err) {}
 					}
 				}
 			}

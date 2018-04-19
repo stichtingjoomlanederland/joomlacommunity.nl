@@ -44,9 +44,9 @@ class RSFormProGridResponsive extends RSFormProGrid
 				// Start a new row
 				$html[] = "\t".'<div class="formRow">';
 				
-				foreach ($row->columns as $column_index => $fields)
+				foreach ($row['columns'] as $column_index => $fields)
 				{
-					$size = $row->sizes[$column_index];
+					$size = $row['sizes'][$column_index];
 					
 					$html[] = "\t"."\t".'<div class="formSpan' . (int) $size . '">';
 					

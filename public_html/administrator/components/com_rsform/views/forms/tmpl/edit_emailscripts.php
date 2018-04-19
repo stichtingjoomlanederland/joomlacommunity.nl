@@ -9,12 +9,12 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <h3 class="rsfp-legend"><?php echo JText::_('RSFP_USER_EMAIL_SCRIPT'); ?></h3>
 <p class="alert alert-info"><?php echo JText::_('RSFP_USER_EMAIL_SCRIPT_DESC'); ?></p>
-<textarea class="rs_textarea codemirror-php rs_100" rows="20" cols="75" name="UserEmailScript" id="UserEmailScript"><?php echo $this->escape($this->form->UserEmailScript);?></textarea>
+<?php echo RSFormProHelper::showEditor('UserEmailScript', $this->form->UserEmailScript, array('classes' => 'rs_100', 'syntax' => 'html')); ?>
 
 <h3 class="rsfp-legend"><?php echo JText::_('RSFP_ADMIN_EMAIL_SCRIPT'); ?></h3>
 <p class="alert alert-info"><?php echo JText::_('RSFP_ADMIN_EMAIL_SCRIPT_DESC'); ?></p>
-<textarea class="rs_textarea codemirror-php rs_100" rows="20" cols="75" name="AdminEmailScript" id="AdminEmailScript"><?php echo $this->escape($this->form->AdminEmailScript);?></textarea>
+<?php echo RSFormProHelper::showEditor('AdminEmailScript', $this->form->AdminEmailScript, array('classes' => 'rs_100', 'syntax' => 'html')); ?>
 
 <h3 class="rsfp-legend"><?php echo JText::_('RSFP_ADDITIONAL_EMAILS_SCRIPT'); ?></h3>
 <p class="alert alert-info"><?php echo JText::_('RSFP_ADDITIONAL_EMAILS_SCRIPT_DESC'); ?></p>
-<textarea class="rs_textarea codemirror-php rs_100" rows="20" cols="75" name="AdditionalEmailsScript" id="AdditionalEmailsScript"><?php echo $this->escape($this->form->AdditionalEmailsScript);?></textarea>
+<?php echo RSFormProHelper::showEditor('AdditionalEmailsScript', $this->form->AdditionalEmailsScript, array('classes' => 'rs_100', 'syntax' => 'html')); ?>

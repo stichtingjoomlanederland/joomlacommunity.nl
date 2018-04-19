@@ -1354,24 +1354,8 @@
                     this.$cache.input.trigger("change");
                     this.$cache.input.trigger("input");
 					
-					try {
-						var event; // The custom event that will be created
-						if (document.createEvent) {
-							event = document.createEvent("HTMLEvents");
-							event.initEvent("change", true, true);
-						} else {
-							event = document.createEventObject();
-							event.eventType = "change";
-						}
-
-						event.eventName = "change";
-
-						if (document.createEvent) {
-							this.$cache.input[0].dispatchEvent(event);
-						} else {
-							this.$cache.input[0].fireEvent("on" + event.eventType, event);
-						}
-					} catch (e) {}
+					RSFormPro.triggerEvent(this.$cache.input[0], 'change');
+					RSFormPro.triggerEvent(this.$cache.input[0], 'input');
                 }
 
                 this.old_from = this.result.from;

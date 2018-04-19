@@ -9,16 +9,16 @@ defined('_JEXEC') or die('Restricted access');
 
 class RsformModelSubmissions extends JModelLegacy
 {
-	var $_form = null;
-	var $_data = array();
-	var $_total = 0;
-	var $_query = '';
-	var $_pagination = null;
-	var $_db = null;
+	public $_form = null;
+	public $_data = array();
+	public $_total = 0;
+	public $_query = '';
+	public $_pagination = null;
+	public $_db = null;
 	
-	var $formId = 1;
-	var $params;
-	var $replacements;
+	public $formId = 1;
+	public $params;
+	public $replacements;
 	
 	public function __construct()
 	{
@@ -71,7 +71,7 @@ class RsformModelSubmissions extends JModelLegacy
 		return $this->_form;
 	}
 	
-	function _buildQuery()
+	public function _buildQuery()
 	{
 		$query  = "SELECT SQL_CALC_FOUND_ROWS DISTINCT(sv.SubmissionId), s.* FROM #__rsform_submissions s";
 		$query .= " LEFT JOIN #__rsform_submission_values sv ON (s.SubmissionId=sv.SubmissionId)";

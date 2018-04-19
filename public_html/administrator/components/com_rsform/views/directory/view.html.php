@@ -22,8 +22,6 @@ class RsformViewDirectory extends JViewLegacy
 			
 			JToolbarHelper::custom('directory.cancelform', 'previous', 'previous', JText::_('RSFP_BACK_TO_FORM'), false);
 			
-			RSFormProHelper::loadCodeMirror();
-			
 			$this->directory	= $this->get('Directory');
 			$this->formId		= JFactory::getApplication()->input->getInt('formId',0);
 			$this->tab			= JFactory::getApplication()->input->getInt('tab', 0);

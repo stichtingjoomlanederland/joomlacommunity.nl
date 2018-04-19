@@ -141,6 +141,7 @@ class RSFormProFieldJqueryCalendar extends RSFormProField
 				  ' id="hiddenjQcal'.$this->customId.'"'.
 				  ' type="hidden"'.
 				  ' name="hidden['.$this->formId.'_'.$id.']"'.
+				  ' value="' . $this->escape($hiddenValue) .'"'.
 				  ' />';
 		
 		$html = $this->setFieldOutput($input, $button, $container, $hidden, $layout);

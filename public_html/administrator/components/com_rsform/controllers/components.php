@@ -366,7 +366,32 @@ class RsformControllerComponents extends RsformController
 			}
 			$db->setQuery($query)
 				->execute();
+			
+			// Delete conditions
+			$query->clear()
+				->select($db->qn('id'))
+				->from($db->qn('#__rsform_conditions'))
+				->where($db->qn('component_id').' IN ('.$componentIds.')');
+			if ($condition_ids = $db->setQuery($query)->loadColumn())
+			{
+				$query->clear()
+					->delete($db->qn('#__rsform_condition_details'))
+					->where($db->qn('condition_id').' IN ('.implode(',', $condition_ids).')');
+				$db->setQuery($query)
+					->execute();
 
+				$query->clear()
+					->delete($db->qn('#__rsform_conditions'))
+					->where($db->qn('component_id').' IN ('.$componentIds.')');
+				$db->setQuery($query)
+					->execute();
+			}
+			$query->clear()
+				->delete($db->qn('#__rsform_condition_details'))
+				->where($db->qn('component_id').' IN ('.$componentIds.')');
+			$db->setQuery($query)
+				->execute();
+			
 			// Reorder
 			$query->clear()
 				->select($db->qn('ComponentId'))

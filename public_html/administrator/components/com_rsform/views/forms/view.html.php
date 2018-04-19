@@ -11,8 +11,6 @@ class RsformViewForms extends JViewLegacy
 {
 	public function display($tpl = null)
 	{
-		RSFormProHelper::loadCodeMirror();
-
 		JToolbarHelper::title('RSForm! Pro','rsform');
 
 		$layout = $this->getLayout();
@@ -334,7 +332,7 @@ class RsformViewForms extends JViewLegacy
 		if (strlen($this->form->GridLayout))
 		{
 			$used = array();
-			$data = json_decode($this->form->GridLayout);
+			$data = json_decode($this->form->GridLayout, true);
 			
 			// If decoding is successful, we should have $rows and $hidden
 			if (is_array($data) && isset($data[0], $data[1]))
@@ -346,9 +344,9 @@ class RsformViewForms extends JViewLegacy
 			// Actual layout (rows and columns)
 			if ($rows)
 			{
-				foreach ($rows as $row_index => $row)
+				foreach ($rows as $row_index => &$row)
 				{
-					foreach ($row->columns as $column_index => $fields)
+					foreach ($row['columns'] as $column_index => $fields)
 					{
 						foreach ($fields as $position => $id)
 						{
@@ -357,20 +355,21 @@ class RsformViewForms extends JViewLegacy
 								// Pages have a special property
 								if ($this->fields[$id]->type_id == RSFORM_FIELD_PAGEBREAK)
 								{
-									$row->has_pagebreak = true;
+									$row['has_pagebreak'] = true;
 								}
-								$row->columns[$column_index][$position] = $this->fields[$id];
+								$row['columns'][$column_index][$position] = $this->fields[$id];
 								
 								$used[] = $id;
 							}
 							else
 							{
 								// Field doesn't exist, remove it from grid
-								unset($row->columns[$column_index][$position]);
+								unset($row['columns'][$column_index][$position]);
 							}
 						}
 					}
 				}
+				unset($row);
 			}
 			
 			// This array just holds hidden fields so we can sort them separately
@@ -401,7 +400,7 @@ class RsformViewForms extends JViewLegacy
 					$diff[] = $this->fields[$id];
 				}
 
-				if (!empty($row->has_pagebreak))
+				if (!empty($row['has_pagebreak']))
 				{
                     $row_index++;
                 }
@@ -424,7 +423,7 @@ class RsformViewForms extends JViewLegacy
 			
 			if (!isset($rows[$row_index]))
 			{
-				$rows[$row_index] = (object) array(
+				$rows[$row_index] = array(
 					'columns' => array(array()),
 					'sizes'   => array(12)
 				);
@@ -433,16 +432,16 @@ class RsformViewForms extends JViewLegacy
 			// Pages are the only item on a row, they can't be resized
 			if ($field->type_id == RSFORM_FIELD_PAGEBREAK)
 			{
-				if (!count($rows[$row_index]->columns[0]))
+				if (!count($rows[$row_index]['columns'][0]))
 				{
-                    $rows[$row_index]->has_pagebreak = true;
-					$rows[$row_index]->columns[0][] = $field;
+                    $rows[$row_index]['has_pagebreak'] = true;
+					$rows[$row_index]['columns'][0][] = $field;
 					$row_index++;
 				}
 				else
 				{
 					// Add new row with just this page
-					$rows[++$row_index] = (object) array(
+					$rows[++$row_index] = array(
 						'columns'       => array(array($field)),
 						'sizes'         => array(12),
                         'has_pagebreak' => true
@@ -453,7 +452,7 @@ class RsformViewForms extends JViewLegacy
 			}
 			else
 			{
-				$rows[$row_index]->columns[0][] = $field;
+				$rows[$row_index]['columns'][0][] = $field;
 			}
 		}
 		

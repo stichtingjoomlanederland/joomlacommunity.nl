@@ -568,7 +568,7 @@ class RSFormProBackupForm
             return false;
         }
 
-        $data   = json_decode($this->GridLayout);
+        $data   = json_decode($this->GridLayout, true);
         $rows 	= array();
         $hidden	= array();
 
@@ -581,24 +581,25 @@ class RSFormProBackupForm
 
         if ($rows)
         {
-            foreach ($rows as $row_index => $row)
+            foreach ($rows as $row_index => &$row)
             {
-                foreach ($row->columns as $column_index => $fields)
+                foreach ($row['columns'] as $column_index => $fields)
                 {
                     foreach ($fields as $position => $id)
                     {
                         if (isset($this->fields[$id]))
                         {
-                            $row->columns[$column_index][$position] = $this->fields[$id];
+                            $row['columns'][$column_index][$position] = $this->fields[$id];
                         }
                         else
                         {
                             // Field doesn't exist, remove it from grid
-                            unset($row->columns[$column_index][$position]);
+                            unset($row['columns'][$column_index][$position]);
                         }
                     }
                 }
             }
+			unset($row);
         }
 
         if ($hidden)

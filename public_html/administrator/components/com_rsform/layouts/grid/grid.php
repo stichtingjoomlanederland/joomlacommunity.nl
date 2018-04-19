@@ -30,7 +30,7 @@ class RSFormProGrid
 		$this->showFormTitle 	= $showFormTitle;
 		$this->components 		= $this->getComponents();
 		
-		$data = json_decode($data);
+		$data = json_decode($data, true);
 		if (is_array($data) && isset($data[0], $data[1]))
 		{
 			$this->rows   = $data[0];
@@ -44,7 +44,7 @@ class RSFormProGrid
 			{
 				$length++;
 				
-				foreach ($row->columns as $fields)
+				foreach ($row['columns'] as $fields)
 				{
 					foreach ($fields as $field)
 					{
@@ -120,7 +120,7 @@ class RSFormProGrid
 
 		foreach ($this->rows as $row)
 		{
-			foreach ($row->columns as $column => $fields)
+			foreach ($row['columns'] as $column => $fields)
 			{
 				foreach ($fields as $field)
 				{

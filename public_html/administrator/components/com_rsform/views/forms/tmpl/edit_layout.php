@@ -89,7 +89,7 @@ JText::script('RSFP_HIDE_LEGACY_LAYOUTS');
 				<table width="98%" style="clear:both;">
 					<tr>
 						<td>
-							<textarea rows="20" cols="75" style="width:100%;" class="codemirror-html" name="FormLayout" id="formLayout" <?php echo $this->form->FormLayoutAutogenerate ? 'readonly="readonly"' : '';?>><?php echo $this->escape($this->form->FormLayout); ?></textarea>
+							<?php echo RSFormProHelper::showEditor('FormLayout', $this->form->FormLayout, array('classes' => 'rs_100', 'id' => 'formLayout', 'syntax' => 'html', 'readonly' => $this->form->FormLayoutAutogenerate)); ?>
 						</td>
 					</tr>
 				</table>
