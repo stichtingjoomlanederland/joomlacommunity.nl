@@ -400,6 +400,8 @@ class RsformViewForms extends JViewLegacy
 					$diff[] = $this->fields[$id];
 				}
 
+				// Must not be a page container
+				$row = end($rows);
 				if (!empty($row['has_pagebreak']))
 				{
                     $row_index++;
@@ -410,7 +412,7 @@ class RsformViewForms extends JViewLegacy
 		{
 			$diff = $this->fields;
 		}
-		
+
 		// Let's add fields to rows, keeping pages on a separate row
 		foreach ($diff as $field)
 		{

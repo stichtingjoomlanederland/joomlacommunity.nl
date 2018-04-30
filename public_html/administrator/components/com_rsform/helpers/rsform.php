@@ -1229,23 +1229,31 @@ class RSFormProHelper
 		$val = $db->q($val);
 	}
 
-	public static function componentExists($formId, $componentTypeId)
+	public static function componentExists($formId, $componentTypeId, $published = 1)
 	{
 		$formId = (int) $formId;
-		$db = JFactory::getDbo();
+		$db     = JFactory::getDbo();
 
-		if (is_array($componentTypeId))
-		{
+        if (is_array($componentTypeId))
+        {
             $componentTypeId = array_map('intval', $componentTypeId);
-            $db->setQuery("SELECT ComponentId FROM #__rsform_components WHERE ComponentTypeId IN (".implode(',', $componentTypeId).") AND FormId='".$formId."' AND Published='1'");
-		}
-		else
-		{
-			$componentTypeId = (int) $componentTypeId;
-			$db->setQuery("SELECT ComponentId FROM #__rsform_components WHERE ComponentTypeId='".$componentTypeId."' AND FormId='".$formId."' AND Published='1'");
-		}
+        }
+        else
+        {
+            $componentTypeId = array((int) $componentTypeId);
+        }
 
-		return $db->loadColumn();
+        $query = $db->getQuery(true)
+            ->select($db->qn('ComponentId'))
+            ->from($db->qn('#__rsform_components'))
+            ->where($db->qn('ComponentTypeId') . ' IN (' . implode(',', $componentTypeId) . ')')
+            ->where($db->qn('FormId') . ' = ' . $db->q($formId));
+        if ($published)
+        {
+            $query->where($db->qn('Published') . ' = ' . $db->q(1));
+        }
+
+        return $db->setQuery($query)->loadColumn();
 	}
 
 	public static function cleanCache()
@@ -2148,15 +2156,18 @@ class RSFormProHelper
 
 			if (!$form->Keepdata)
 			{
-				$db->setQuery("DELETE FROM #__rsform_submission_values WHERE SubmissionId = ".(int) $SubmissionId." ");
-				$db->execute();
-				$db->setQuery("DELETE FROM #__rsform_submissions WHERE SubmissionId = ".(int) $SubmissionId." ");
-				$db->execute();
+			    require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/submissions.php';
+
+			    RSFormProSubmissionsHelper::deleteSubmissions($SubmissionId);
 			}
 
-			if (!$form->KeepIP) {
-				$db->setQuery("UPDATE #__rsform_submissions SET UserIp = '--' WHERE SubmissionId = ".(int) $SubmissionId." ");
-				$db->execute();
+			if (!$form->KeepIP)
+			{
+			    $query = $db->getQuery(true)
+                    ->update($db->qn('#__rsform_submissions'))
+                    ->set($db->qn('UserIp') . ' = ' . $db->q('0.0.0.0'))
+                    ->where($db->qn('SubmissionId') . ' = ' . $db->q($SubmissionId));
+			    $db->setQuery($query)->execute();
 			}
 
 			if ($silentPost && !empty($silentPost->url) && $silentPost->url != 'http://')

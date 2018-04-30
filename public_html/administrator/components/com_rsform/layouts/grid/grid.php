@@ -91,7 +91,13 @@ class RSFormProGrid
 		$data = RSFormProHelper::getComponentProperties($components);
 		foreach ($components as $component)
 		{
-			$component->Required = in_array($component->ComponentTypeId, RSFormProHelper::$captchaFields) || isset($data[$component->ComponentId], $data[$component->ComponentId]['REQUIRED']) && $data[$component->ComponentId]['REQUIRED'] == 'YES';
+			$component->Required = isset($data[$component->ComponentId], $data[$component->ComponentId]['REQUIRED']) && $data[$component->ComponentId]['REQUIRED'] == 'YES';
+
+            if (in_array($component->ComponentTypeId, RSFormProHelper::$captchaFields))
+            {
+                // Invisible Captchas should not display a Required Marker
+                $component->Required = isset($data[$component->ComponentId]) && in_array('INVISIBLE', $data[$component->ComponentId], true) ? false : true;
+            }
 		}
 		
 		return $components;

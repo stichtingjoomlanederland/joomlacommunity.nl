@@ -439,8 +439,7 @@ class RsformControllerForms extends RsformController
 	}
 	
 	public function delete() {
-		$db 	= JFactory::getDbo();
-		$model 	= $this->getModel('submissions');
+		$db = JFactory::getDbo();
 		
 		// Get the selected items
 		$cid = JFactory::getApplication()->input->get('cid', array(), 'array');
@@ -558,8 +557,8 @@ class RsformControllerForms extends RsformController
 				}
 			}
 
-			$model->deleteSubmissionFiles($formId);
-			$model->deleteSubmissions($formId);
+            require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/submissions.php';
+			RSFormProSubmissionsHelper::deleteAllSubmissions($formId);
 			
 			// Trigger Event - onFormDelete
 			JFactory::getApplication()->triggerEvent('rsfp_onFormDelete', array(

@@ -81,6 +81,7 @@ class RSFormProFieldFileUpload extends RSFormProField
 
 		$prefixProperty = $this->getProperty('PREFIX', '');
 		$destination    = $this->getProperty('DESTINATION', '');
+		$sanitize       = $this->getProperty('SANITIZEFILENAME', false);
 
 		// Prefix
 		$prefix = uniqid('') . '-';
@@ -97,27 +98,52 @@ class RSFormProFieldFileUpload extends RSFormProField
 		}
 
 		// Filename
-		$file = $realpath . $prefix . $actualFile['name'];
+        if ($sanitize)
+        {
+            $file = $realpath . $prefix . $this->sanitize($actualFile['name']);
+        }
+        else
+        {
+            $file = $realpath . $prefix . $actualFile['name'];
+        }
 
 		jimport('joomla.filesystem.file');
 
 		// Upload File
 		if (JFile::upload($actualFile['tmp_name'], $file, false, (bool) RSFormProHelper::getConfig('allow_unsafe')))
 		{
-			//Trigger Event - onBeforeStoreSubmissions
+			// Trigger Event - onBeforeStoreSubmissions
 			JFactory::getApplication()->triggerEvent('rsfp_f_onAfterFileUpload', array(array('formId' => $this->formId, 'fieldname' => $this->name, 'file' => $file, 'name' => $prefix . $actualFile['name'])));
 
 			$db = JFactory::getDbo();
 			// Add to db (submission value)
 			$query = $db->getQuery(true)
 				->insert($db->qn('#__rsform_submission_values'))
-				->set($db->qn('SubmissionId') . ' = ' . $db->q($submissionId))
-				->set($db->qn('FormId') . ' = ' . $db->q($this->formId))
-				->set($db->qn('FieldName') . ' = ' . $db->q($this->name))
-				->set($db->qn('FieldValue') . ' = ' . $db->q($file));
+                ->columns($db->qn(array('SubmissionId', 'FormId', 'FieldName', 'FieldValue')))
+                ->values(implode(',', array($db->q($submissionId), $db->q($this->formId), $db->q($this->name), $db->q($file))));
 
 			$db->setQuery($query)
 				->execute();
 		}
 	}
+
+	protected function sanitize($string)
+    {
+        // Remove any '-' from the string since they will be used as concatenaters
+        $str = str_replace('-', ' ', $string);
+
+        // Transliterate on the current language
+        $str = JFactory::getLanguage()->transliterate($str);
+
+        // Trim white spaces at beginning and end
+        $str = trim($str);
+
+        // Remove any duplicate whitespace, and ensure all characters are alphanumeric
+        $str = preg_replace('/(\s|[^A-Za-z0-9\-\.])+/', '-', $str);
+
+        // Trim dashes at beginning and end of alias
+        $str = trim($str, '-');
+
+        return $str;
+    }
 }

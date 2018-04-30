@@ -230,47 +230,9 @@ class RsformController extends JControllerLegacy
             $db->setQuery($query);
             if ($submission = $db->loadObject())
             {
-                // If we have upload fields
-                if ($fields = RSFormProHelper::componentExists($submission->FormId, RSFORM_FIELD_FILEUPLOAD))
-                {
-                    // Delete files first
-                    foreach ($fields as $field)
-                    {
-                        $query->clear()
-                            ->select($db->qn('FieldValue'))
-                            ->from($db->qn('#__rsform_submission_values'))
-                            ->where($db->qn('SubmissionId') . ' = ' . $db->q($submission->SubmissionId) )
-                            ->where($db->qn('FieldName') . ' = ' . $db->q($field) )
-                            ->where($db->qn('FieldValue') . ' != ' . $db->q($field) );
+                require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/submissions.php';
 
-                        if ($files = $db->setQuery($query)->loadColumn())
-                        {
-                            jimport('joomla.filesystem.file');
-
-                            foreach ($files as $file)
-                            {
-                                if (file_exists($file) && is_file($file))
-                                {
-                                    JFile::delete($file);
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Remove the submission
-                $query->clear()
-                    ->delete($db->qn('#__rsform_submissions'))
-                    ->where($db->qn('SubmissionId') . ' = ' . $db->q($submission->SubmissionId));
-                $db->setQuery($query);
-                $db->execute();
-
-                // Remove the values
-                $query->clear()
-                    ->delete($db->qn('#__rsform_submission_values'))
-                    ->where($db->qn('SubmissionId') . ' = ' . $db->q($submission->SubmissionId));
-                $db->setQuery($query);
-                $db->execute();
+                RSFormProSubmissionsHelper::deleteSubmissions($submission->SubmissionId);
 
                 $app->triggerEvent('rsfp_f_onSubmissionDeletion', array(array('SubmissionId' => $submission->SubmissionId, 'hash' => $hash)));
                 $app->enqueueMessage(JText::_('COM_RSFORM_SUBMISSION_DELETED'));

@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS `#__rsform_forms` (
   `ScrollToError` tinyint(1) NOT NULL,
   `Keepdata` tinyint(1) NOT NULL default '1',
   `KeepIP` tinyint(1) NOT NULL default '1',
+  `DeleteSubmissionsAfter` int(11) NOT NULL default '0',
   `Backendmenu` tinyint(1) NOT NULL,
   `ConfirmSubmission` tinyint(1) NOT NULL DEFAULT '0',
   `Access` varchar(5) NOT NULL,

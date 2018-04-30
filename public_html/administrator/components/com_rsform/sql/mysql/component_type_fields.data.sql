@@ -109,6 +109,7 @@ INSERT IGNORE INTO `#__rsform_component_type_fields` (`ComponentTypeId`, `FieldN
 (9, 'REQUIRED', 'select', 'NO\r\nYES', '{"case":{"YES":{"show":["VALIDATIONMESSAGE"],"hide":[]},"NO":{"show":[],"hide":["VALIDATIONMESSAGE"]}}}', 4),
 (9, 'ACCEPTEDFILES', 'textarea', '', 'oneperline', 5),
 (9, 'DESTINATION', 'textbox', '//<code>\r\nreturn ''components/com_rsform/uploads/'';\r\n//</code>', '', 6),
+(9, 'SANITIZEFILENAME', 'select', 'NO\r\nYES', '', 8),
 (9, 'ADDITIONALATTRIBUTES', 'textarea', '', '',7),
 (9, 'DESCRIPTION', 'textarea', '', '', 8),
 (9, 'COMPONENTTYPE', 'hidden', '9', '', 9),

@@ -23,7 +23,7 @@ defined('_JEXEC') or die('Restricted access');
 					</tr>
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo RSFormProHelper::translateIcon(); ?> <?php echo JText::_('RSFP_FORM_TITLE'); ?></td>
-						<td><input name="FormTitle" class="rs_inp rs_80" value="<?php echo $this->escape($this->form->FormTitle); ?>" size="105" id="FormTitle" /></td>
+						<td><input name="FormTitle" class="rs_inp rs_80" value="<?php echo $this->escape($this->form->FormTitle); ?>" size="105" id="FormTitle" type="text" /></td>
 					</tr>
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_SHOW_FORM_TITLE'); ?></td>
@@ -31,7 +31,7 @@ defined('_JEXEC') or die('Restricted access');
 					</tr>
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_FORM_NAME'); ?></td>
-						<td><input name="FormName" class="rs_inp rs_80" value="<?php echo $this->escape($this->form->FormName); ?>" size="105" id="FormName" /></td>
+						<td><input name="FormName" class="rs_inp rs_80" value="<?php echo $this->escape($this->form->FormName); ?>" size="105" id="FormName" type="text" /></td>
 					</tr>
 				</table>
 			</fieldset>
@@ -53,7 +53,7 @@ defined('_JEXEC') or die('Restricted access');
 					</tr>
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_REQUIRED'); ?></td>
-						<td><input name="Required" class="rs_inp rs_10" value="<?php echo $this->escape($this->form->Required); ?>" size="105" id="Required" /></td>
+						<td><input name="Required" class="rs_inp rs_10" value="<?php echo $this->escape($this->form->Required); ?>" size="105" id="Required" type="text" /></td>
 					</tr>
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo RSFormProHelper::translateIcon(); ?>  <?php echo JText::_('RSFP_ERROR_MESSAGE'); ?></td>
@@ -111,7 +111,7 @@ defined('_JEXEC') or die('Restricted access');
 					</tr>
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_RETURN_URL'); ?></td>
-						<td><input name="ReturnUrl" class="rs_inp rs_80" value="<?php echo $this->escape($this->form->ReturnUrl); ?>" size="105" id="ReturnUrl" /></td>
+						<td><input name="ReturnUrl" class="rs_inp rs_80" value="<?php echo $this->escape($this->form->ReturnUrl); ?>" size="105" id="ReturnUrl" type="text" /></td>
 					</tr>
 					<tr>
 						<td>&nbsp;</td>
@@ -125,6 +125,14 @@ defined('_JEXEC') or die('Restricted access');
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_SAVE_IP_TO_DATABASE'); ?></td>
 						<td><?php echo $this->lists['KeepIP']; ?></td>
 					</tr>
+                    <tr>
+                        <td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_DELETE_SUBMISSIONS_AFTER'); ?></td>
+                        <td><input name="DeleteSubmissionsAfter" class="rs_inp rs_10" value="<?php echo (int) $this->form->DeleteSubmissionsAfter; ?>" size="105" id="DeleteSubmissionsAfter" type="text" /> <?php echo JText::_('RSFP_DELETE_SUBMISSIONS_AFTER_DAYS'); ?></td>
+                    </tr>
+                    <tr>
+                        <td>&nbsp;</td>
+                        <td><?php echo JText::_('RSFP_DELETE_SUBMISSIONS_AFTER_INSTRUCTIONS'); ?></td>
+                    </tr>
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_CONFIRM_SUBMISSION'); ?></td>
 						<td><?php echo $this->lists['confirmsubmission']; ?></td>
@@ -140,7 +148,7 @@ defined('_JEXEC') or die('Restricted access');
 				<table width="100%" class="com-rsform-table-props">
 					<tr>
 						<td width="25%" align="right" nowrap="nowrap" class="key"><?php echo JText::_('RSFP_MULTIPLE_SEPARATOR'); ?></td>
-						<td><input name="MultipleSeparator" class="rs_inp rs_10" value="<?php echo $this->escape($this->form->MultipleSeparator); ?>" size="105" id="MultipleSeparator" /></td>
+						<td><input name="MultipleSeparator" class="rs_inp rs_10" value="<?php echo $this->escape($this->form->MultipleSeparator); ?>" size="105" id="MultipleSeparator" type="text" /></td>
 					</tr>
 					<tr>
 						<td>&nbsp;</td>

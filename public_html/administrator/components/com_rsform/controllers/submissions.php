@@ -139,26 +139,24 @@ class RsformControllerSubmissions extends RsformController
 	
 	public function clear()
 	{
-		$app 	= JFactory::getApplication();
+        require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/submissions.php';
+
 		$formId = JFactory::getApplication()->input->getInt('formId');
-		$model 	= $this->getModel('submissions');
-		
-		$model->deleteSubmissionFiles($formId);
-		$total = $model->deleteSubmissions($formId);
+		$total  = RSFormProSubmissionsHelper::deleteAllSubmissions($formId);
 		
 		$this->setRedirect('index.php?option=com_rsform&view=forms', JText::sprintf('RSFP_SUBMISSIONS_CLEARED', $total));
 	}
 	
 	public function delete()
 	{
+        require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/submissions.php';
+
 		$app 	= JFactory::getApplication();
 		$formId = $app->input->getInt('formId');
         $cid	= $app->input->post->get('cid', array(), 'array');
-		$cid = array_map('intval', $cid);
-		
-		$model = $this->getModel('submissions');
-		$model->deleteSubmissionFiles($cid);
-		$model->deleteSubmissions($cid);
+		$cid    = array_map('intval', $cid);
+
+		RSFormProSubmissionsHelper::deleteSubmissions($cid);
 		
 		$app->redirect('index.php?option=com_rsform&view=submissions&formId='.$formId);
 	}

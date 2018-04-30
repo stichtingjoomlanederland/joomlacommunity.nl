@@ -44,14 +44,6 @@ class com_rsformInstallerScript
 		$this->runSQL('directory.sql');
 		$this->runSQL('directory_fields.sql');
 		
-		// Disable error reporting
-		$query = $db->getQuery(true);
-		$query->update('#__rsform_config')
-			  ->set($db->quoteName('SettingValue').'='.$db->quote(0))
-			  ->where($db->quoteName('SettingName').'='.$db->quote('global.debug.mode'));
-		$db->setQuery($query);
-		$db->execute();
-		
 		// #__rsform_forms updates
 		$columns = $db->getTableColumns('#__rsform_forms');
 		if (!isset($columns['UserEmailAttach'])) {
@@ -161,6 +153,10 @@ class com_rsformInstallerScript
 			$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `KeepIP` TINYINT( 1 ) NOT NULL DEFAULT '1' AFTER `Keepdata`");
 			$db->execute();
 		}
+        if (!isset($columns['DeleteSubmissionsAfter'])) {
+            $db->setQuery("ALTER TABLE `#__rsform_forms` ADD `DeleteSubmissionsAfter` INT( 11 ) NOT NULL DEFAULT '0' AFTER `KeepIP`");
+            $db->execute();
+        }
 		if (!isset($columns['Backendmenu'])) {
 			$db->setQuery("ALTER TABLE `#__rsform_forms` ADD `Backendmenu` TINYINT( 1 ) NOT NULL");
 			$db->execute();
@@ -229,14 +225,14 @@ class com_rsformInstallerScript
 		if (!$columns['SettingName']->Key) {
 			// remove duplicates
 			$query = $db->getQuery(true);
-			$query->select($db->quoteName('SettingName'))->from('#__rsform_config');
+			$query->select($db->qn('SettingName'))->from('#__rsform_config');
 			$db->setQuery($query);
 			$results = $db->loadColumn();
 			
 			$counts = array_count_values($results);
 			foreach ($counts as $key => $num) {
 				if ($num > 1) {
-					$db->setQuery("DELETE FROM #__rsform_config WHERE ".$db->quoteName('SettingName').'='.$db->quote($key)." LIMIT ".($num-1));
+					$db->setQuery("DELETE FROM #__rsform_config WHERE ".$db->qn('SettingName').'='.$db->q($key)." LIMIT ".($num-1));
 					$db->execute();
 				}
 			}
@@ -290,9 +286,9 @@ class com_rsformInstallerScript
 		// #__rsform_component_type_fields updates
 		$query = $db->getQuery(true);
 		$query->update('#__rsform_component_type_fields')
-			  ->set($db->quoteName('FieldType').'='.$db->quote('textarea'))
-			  ->where($db->quoteName('FieldName').'='.$db->quote('DEFAULTVALUE'))
-			  ->where($db->quoteName('ComponentTypeId').'='.$db->quote(1));
+			  ->set($db->qn('FieldType').'='.$db->q('textarea'))
+			  ->where($db->qn('FieldName').'='.$db->q('DEFAULTVALUE'))
+			  ->where($db->qn('ComponentTypeId').'='.$db->q(1));
 		$db->setQuery($query);
 		$db->execute();
 
@@ -590,9 +586,9 @@ class com_rsformInstallerScript
 	}
 	
 	public function uninstall($parent) {
-		$plg_installer_id = 0;
-		
 		$db = JFactory::getDbo();
+
+		// Uninstall the Installer - RSForm! Pro Plugin
 		$query = $db->getQuery(true);
 		$query->select($db->qn('extension_id'))
 			  ->from($db->qn('#__extensions'))
@@ -607,6 +603,22 @@ class com_rsformInstallerScript
 			$installer = new JInstaller();
 			$installer->uninstall('plugin', $plg_installer_id, 1);
 		}
+
+		// Uninstall the System - RSForm! Pro Delete Submissions Plugin
+        $query = $db->getQuery(true);
+        $query->select($db->qn('extension_id'))
+            ->from($db->qn('#__extensions'))
+            ->where($db->qn('element').'='.$db->q('rsformdeletesubmissions'))
+            ->where($db->qn('type').'='.$db->q('plugin'))
+            ->where($db->qn('folder').'='.$db->q('system'));
+        $db->setQuery($query);
+        $plg_installer_id = (int) $db->loadResult();
+
+        if (!empty($plg_installer_id)) {
+            // Get a new installer
+            $installer = new JInstaller();
+            $installer->uninstall('plugin', $plg_installer_id, 1);
+        }
 	}
 	
 	public function preflight($type, $parent) {
@@ -643,26 +655,27 @@ class com_rsformInstallerScript
 		
 		$this->source = $parent->getParent()->getPath('source');
 		
-		// Get a new installer
-		$installer = new JInstaller();
-		
 		$db = JFactory::getDbo();
 		
 		$messages = array(
-			'lib_tcpdf' 	=> false,
-			'plg_installer' => false,
-			'plugins' 		=> array(),
-			'modules' 		=> array()
+			'lib_tcpdf' 					=> false,
+			'plg_installer' 				=> false,
+			'plg_rsformdeletesubmissions' 	=> false,
+			'plugins' 						=> array(),
+			'modules' 						=> array()
 		);
 		// update plugins, modules as necessary
 		
 		// Check if we don't have TCPDF installed.
+        $installer = new JInstaller();
 		if (is_dir(JPATH_SITE.'/libraries/tcpdf')) {
 			$messages['lib_tcpdf'] = 'skip';
 		} elseif ($installer->install($this->source.'/other/lib_tcpdf')) {
 			$messages['lib_tcpdf'] = true;
 		}
 		
+		// Get a new installer
+		$installer = new JInstaller();
 		if ($installer->install($this->source.'/other/plg_installer')) {
 			$query = $db->getQuery(true);
 			$query->update('#__extensions')
@@ -674,6 +687,21 @@ class com_rsformInstallerScript
 			$db->execute();
 			
 			$messages['plg_installer'] = true;
+		}
+		
+		// Get a new installer
+		$installer = new JInstaller();
+		if ($installer->install($this->source.'/other/plg_rsformdeletesubmissions')) {
+			$query = $db->getQuery(true);
+			$query->update('#__extensions')
+				  ->set($db->qn('enabled').'='.$db->q(1))
+				  ->where($db->qn('element').'='.$db->q('rsformdeletesubmissions'))
+				  ->where($db->qn('type').'='.$db->q('plugin'))
+				  ->where($db->qn('folder').'='.$db->q('system'));
+			$db->setQuery($query);
+			$db->execute();
+			
+			$messages['plg_rsformdeletesubmissions'] = true;
 		}
 		
 		$this->checkPlugins($messages);
@@ -772,8 +800,8 @@ class com_rsformInstallerScript
 		$db = JFactory::getDbo();
 		$query = $db->getQuery(true);
 		$query->update('#__extensions')
-			  ->set($db->quoteName('enabled').'='.$db->quote(0))
-			  ->where($db->quoteName('extension_id').'='.$db->quote($extension_id));
+			  ->set($db->qn('enabled').'='.$db->q(0))
+			  ->where($db->qn('extension_id').'='.$db->q($extension_id));
 		$db->setQuery($query);
 		$db->execute();
 	}
@@ -826,9 +854,9 @@ class com_rsformInstallerScript
 		
 		$query->select('*')
 			  ->from('#__extensions')
-			  ->where($db->quoteName('type').'='.$db->quote('plugin'))
-			  ->where($db->quoteName('folder').' IN ('.$this->quoteImplode(array('content', 'system')).')')
-			  ->where($db->quoteName('element').' IN ('.$this->quoteImplode($element).')');
+			  ->where($db->qn('type').'='.$db->q('plugin'))
+			  ->where($db->qn('folder').' IN ('.$this->quoteImplode(array('content', 'system')).')')
+			  ->where($db->qn('element').' IN ('.$this->quoteImplode($element).')');
 		$db->setQuery($query);
 		
 		return $one ? $db->loadObject() : $db->loadObjectList();
@@ -845,8 +873,8 @@ class com_rsformInstallerScript
 		
 		$query->select('*')
 			  ->from('#__extensions')
-			  ->where($db->quoteName('type').'='.$db->quote('module'))
-			  ->where($db->quoteName('element').' IN ('.$this->quoteImplode($element).')');
+			  ->where($db->qn('type').'='.$db->q('module'))
+			  ->where($db->qn('element').' IN ('.$this->quoteImplode($element).')');
 		$db->setQuery($query);
 		
 		return $one ? $db->loadObject() : $db->loadObjectList();
@@ -855,7 +883,7 @@ class com_rsformInstallerScript
 	protected function quoteImplode($array) {
 		$db = JFactory::getDbo();
 		foreach ($array as $k => $v) {
-			$array[$k] = $db->quote($v);
+			$array[$k] = $db->q($v);
 		}
 		
 		return implode(',', $array);
@@ -955,6 +983,13 @@ class com_rsformInstallerScript
 			<b class="install-not-ok">Error installing!</b>
 			<?php } ?>
 		</p>
+		<p>System - RSForm! Pro Delete Submissions Plugin ...
+			<?php if ($messages['plg_rsformdeletesubmissions']) { ?>
+			<b class="install-ok">Installed</b>
+			<?php } else { ?>
+			<b class="install-not-ok">Error installing!</b>
+			<?php } ?>
+		</p>
 		<?php if ($messages['plugins']) { ?>
 			<?php if (!$isUpdateScreen) { ?>
 			<p class="big-warning"><b>Warning!</b> The following plugins have been temporarily disabled to prevent any errors being shown on your website. Please <a href="http://www.rsjoomla.com/downloads.html" target="_blank">download the latest versions</a> from your account and update your installation before enabling them. <a class="com-rsform-button" target="_blank" href="https://www.rsjoomla.com/support/documentation/rsform-pro/frequently-asked-questions/installing-rsformpro-version-151-causing-pluginmodules-issues.html">More information</a></p>
@@ -985,14 +1020,13 @@ class com_rsformInstallerScript
 			<?php } ?>
 			<?php } ?>
 		<?php } ?>
-		<h2>Changelog v2.0.10</h2>
+		<h2>Changelog v2.0.11</h2>
 		<ul class="version-history">
-            <li><span class="version-upgraded">Upg</span> Can now hide editor buttons when 'Enable WYSIWYG Editor' is set to 'Yes' on 'Textarea' fields.</li>
-            <li><span class="version-fixed">Fix</span> 'Date and Time Picker' field value was being reset when using a Date Modifier.</li>
-            <li><span class="version-fixed">Fix</span> IDN email domains were failing validation when using 'Email Address /w DNS check'.</li>
-            <li><span class="version-fixed">Fix</span> Conditions were not removed from the database when deleting a form field.</li>
-            <li><span class="version-fixed">Fix</span> In some cases, restoring a form would not work because of a PHP Notice.</li>
-            <li><span class="version-fixed">Fix</span> In some cases, the Grid Layout data was corrupted.</li>
+            <li><span class="version-new">New</span> Older submissions can automatically be deleted (configurable per form).</li>
+            <li><span class="version-new">New</span> Option to 'Sanitize Filenames' in 'File Upload' fields.</li>
+            <li><span class="version-fixed">Fix</span> Even if 'Save Data to Database' was set to 'No' file uploads were stored on the server.</li>
+            <li><span class="version-fixed">Fix</span> Built-in Invisible Captcha was showing a required marker.</li>
+            <li><span class="version-fixed">Fix</span> In some cases, Grid Layout rows allowed other fields to be put next to Pagebreak fields.</li>
 		</ul>
 		<a class="btn btn-large btn-primary" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="btn" href="https://www.rsjoomla.com/support/documentation/rsform-pro.html" target="_blank">Read the RSForm! Pro User Guide</a>
