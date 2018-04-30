@@ -1031,9 +1031,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.11.5</h2>
+	<h2>Changelog v1.11.6</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> Entering coordinates would freeze the window due to recent changes in the Google Maps API.</li>
+		<li><span class="version-fixed">Fix</span> Some all day events were not showing in the calendar.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>
@@ -1084,19 +1084,23 @@ class com_rseventsproInstallerScript
 		$lang		= JFactory::getLanguage();
 		
 		$plugins = array(
-			'rsepropdf' => '1.11',
-			'rsfprseventspro' => '1.5.0',
-			'rsepro2co' => '1.1',
-			'rseproanzegate' => '1.2',
-			'rseproauthorize' => '1.2',
-			'rseproeway' => '1.5',
-			'rseproideal' => '1.5',
-			'rsepromygate' => '1.1',
-			'rsepropaypal' => '1.2',
-			'rseprovmerchant' => '1.2',
-			'rseprostripe' => '1.1',
-			'rseprooffline' => '1.2',
-			'rseventspro' => '1.1'
+			'content' => array(
+				'rseventspro' => '1.1'
+			),
+			'system' => array(
+				'rsepropdf' => '1.11',
+				'rsfprseventspro' => '1.5.0',
+				'rsepro2co' => '1.1',
+				'rseproanzegate' => '1.2',
+				'rseproauthorize' => '1.2',
+				'rseproeway' => '1.5',
+				'rseproideal' => '1.5',
+				'rsepromygate' => '1.1',
+				'rsepropaypal' => '1.2',
+				'rseprovmerchant' => '1.2',
+				'rseprostripe' => '1.1',
+				'rseprooffline' => '1.2'
+			)
 		);
 		
 		// Check plugins version
@@ -1104,9 +1108,10 @@ class com_rseventsproInstallerScript
 			foreach ($installed as $plugin) {
 				$file = JPATH_SITE.'/plugins/'.$plugin->folder.'/'.$plugin->element.'/'.$plugin->element.'.xml';
 				if (file_exists($file)) {
-					$xml = file_get_contents($file);
+					$xml		= file_get_contents($file);
+					$version	= $plugins[$plugin->folder][$plugin->element];
 					
-					if ($this->checkVersion($xml, $plugins[$plugin->element], '>') || strpos($xml, '<extension') === false) {
+					if ($this->checkVersion($xml, $version, '>') || strpos($xml, '<extension') === false) {
 						$lang->load($plugin->element, JPATH_ADMINISTRATOR);
 						$this->disableExtension($plugin->extension_id);
 						$messages[] = 'Please update the plugin "'.JText::_($plugin->name).'" manually.';
@@ -1188,12 +1193,17 @@ class com_rseventsproInstallerScript
 	
 	protected function getPlugins($plugins) {
 		$db			= JFactory::getDbo();
-		$elements	= array_keys($plugins);
+		$folders	= array_keys($plugins);
+		$elements	= array();
+		
+		foreach ($folders as $folder) {
+			$elements = array_merge($elements , array_keys($plugins[$folder]));
+		}
 		
 		$query = $db->getQuery(true)->select('*')
 			->from('#__extensions')
 			->where($db->qn('type').'='.$db->q('plugin'))
-			->where($db->qn('folder').' IN ('.$this->quoteImplode(array('search', 'system')).')')
+			->where($db->qn('folder').' IN ('.$this->quoteImplode($folders).')')
 			->where($db->qn('element').' IN ('.$this->quoteImplode($elements).')');
 		$db->setQuery($query);
 		

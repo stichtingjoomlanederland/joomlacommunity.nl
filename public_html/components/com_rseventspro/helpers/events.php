@@ -1096,7 +1096,7 @@ class RSEvent
 						// Get the ids of all codes
 						$db->setQuery($query);
 						$codeids = $db->loadColumn();
-						if ($codeids) array_map('intval',$codeids);
+						if ($codeids) $codeids = array_map('intval',$codeids);
 						$ids = array();
 						
 						foreach ($codes as $code) {
@@ -1123,7 +1123,7 @@ class RSEvent
 						$remove = array_diff($codeids, $ids);
 						
 						if (!empty($remove)) {
-							array_map('intval',$remove);
+							$remove = array_map('intval',$remove);
 							$query->clear()
 								->delete()
 								->from($db->qn('#__rseventspro_coupon_codes'))

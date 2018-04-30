@@ -46,7 +46,7 @@ class JFormFieldRSUsers extends JFormFieldList
 			} catch (Exception $e) {
 				$users = array();
 			}
-			array_map('intval',$users);
+			$users = array_map('intval',$users);
 			
 			if (!empty($users)) {
 				// Get the options

@@ -260,7 +260,7 @@ class RseventsproViewCalendar extends JViewLegacy
 		$details	= '';
 		
 		if (!empty($ids)) {
-			array_map('intval',$ids);
+			$ids = array_map('intval',$ids);
 			$query->clear()
 				->select($db->qn('name'))
 				->from($db->qn('#__rseventspro_events'))

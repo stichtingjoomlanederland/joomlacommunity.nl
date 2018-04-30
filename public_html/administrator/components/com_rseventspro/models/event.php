@@ -603,7 +603,7 @@ class RseventsproModelEvent extends JModelAdmin
 		$name		= JFile::stripExt($icon);
 		
 		if ($folders = JFolder::folders($thumbs)) {
-			array_map('intval',$folders);
+			$folders = array_map('intval',$folders);
 			
 			foreach ($folders as $folder) {
 				if (file_exists($thumbs.$folder.'/'.md5($folder.$name).'.'.$extension)) {
@@ -746,7 +746,7 @@ class RseventsproModelEvent extends JModelAdmin
 	public function featured($pks, $value = 0) {
 		// Sanitize the ids.
 		$pks = (array) $pks;
-		array_map('intval',$pks);
+		$pks = array_map('intval',$pks);
 
 		if (empty($pks)) {
 			$this->setError(JText::_('JERROR_NO_ITEMS_SELECTED'));
@@ -774,7 +774,7 @@ class RseventsproModelEvent extends JModelAdmin
 	public function batchProcess($pks) {
 		// Sanitize the ids.
 		$pks = (array) $pks;
-		array_map('intval',$pks);
+		$pks = array_map('intval',$pks);
 		
 		$batch	 = JFactory::getApplication()->input->get('batch',array(),'array');
 		$all	 = isset($batch['all']) ? $batch['all'] : 0;
@@ -852,7 +852,7 @@ class RseventsproModelEvent extends JModelAdmin
 			
 			// Update categories
 			if (!empty($categories)) {
-				array_map('intval',$categories);
+				$categories = array_map('intval',$categories);
 				
 				if ($all) {
 					if ($type == 'r') {

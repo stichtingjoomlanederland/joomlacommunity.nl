@@ -280,7 +280,7 @@ class rseventsproHelper
 		}
 		
 		if (!empty($container)) {
-			array_map('intval',$container);
+			$container = array_map('intval',$container);
 			JFactory::getApplication()->triggerEvent('rsepro_beforeArchive',array(array('events'=>&$container)));
 			
 			$query->clear()
@@ -1903,7 +1903,7 @@ class rseventsproHelper
 				$usedtickets = $db->loadColumn();
 				
 				if (!empty($usedtickets)) {
-					array_map('intval',$usedtickets);
+					$usedtickets = array_map('intval',$usedtickets);
 				}
 				
 				// Update events
@@ -1924,7 +1924,7 @@ class rseventsproHelper
 					
 					$db->setQuery($query);
 					if ($couponids = $db->loadColumn()) {
-						array_map('intval',$couponids);
+						$couponids = array_map('intval',$couponids);
 						$query->clear()
 							->delete($db->qn('#__rseventspro_coupon_codes'))
 							->where($db->qn('idc').' IN ('.implode(',',$couponids).')');
@@ -2275,7 +2275,7 @@ class rseventsproHelper
 		
 		$db->setQuery($query);
 		if ($couponids = $db->loadColumn()) {
-			array_map('intval',$couponids);
+			$couponids = array_map('intval',$couponids);
 			$query->clear()
 				->delete($db->qn('#__rseventspro_coupon_codes'))
 				->where($db->qn('idc').' IN ('.implode(',',$couponids).')');
@@ -2312,7 +2312,7 @@ class rseventsproHelper
 		$subscriptions = $db->loadColumn();
 		
 		if (!empty($subscriptions)) {
-			array_map('intval',$subscriptions);
+			$subscriptions = array_map('intval',$subscriptions);
 			
 			$query->clear()
 				->delete($db->qn('#__rseventspro_users'))
@@ -3110,7 +3110,7 @@ class rseventsproHelper
 			}
 			
 			if (!empty($ids)) {
-				array_map('intval',$ids);
+				$ids = array_map('intval',$ids);
 				$ids = array_unique($ids);
 			}
 		}
@@ -3366,7 +3366,7 @@ class rseventsproHelper
 		}
 		
 		$ids = array_unique($ids);
-		array_map('intval',$ids);
+		$ids = array_map('intval',$ids);
 		$db = JFactory::getDbo();
 		
 		// Get event repeated events
@@ -3957,7 +3957,7 @@ class rseventsproHelper
 		}
 		
 		if (!empty($rsgroups)) {
-			array_map('intval',$rsgroups);
+			$rsgroups = array_map('intval',$rsgroups);
 			$rsgroups = array_unique($rsgroups);
 		}
 		
@@ -4561,7 +4561,7 @@ class rseventsproHelper
 		
 		// Check event coupons
 		if (!empty($cids)) {
-			array_map('intval',$cids);
+			$cids = array_map('intval',$cids);
 			$cids = array_unique($cids);
 			
 			foreach ($cids as $cid) {
@@ -4887,7 +4887,7 @@ class rseventsproHelper
 					->where($db->qn('ide').' = '.$db->q($ticket->ide));
 				$db->setQuery($query);
 				$tids = $db->loadColumn();
-				array_map('intval',$tids);
+				$tids = array_map('intval',$tids);
 				
 				$query->clear()
 					->select('SUM('.$db->qn('ut.quantity').')')
@@ -5281,7 +5281,7 @@ class rseventsproHelper
 			->where($db->qn('ide').' = '.$db->q($id));
 		$db->setQuery($query);
 		$tids = $db->loadColumn();
-		array_map('intval',$tids);
+		$tids = array_map('intval',$tids);
 		
 		$query->clear()
 			->select('SUM('.$db->qn('ut.quantity').')')
@@ -5421,7 +5421,7 @@ class rseventsproHelper
 		$default	= rseventsproHelper::getDefaults();
 		
 		if ($groups) {
-			array_map('intval',$groups);
+			$groups = array_map('intval',$groups);
 			
 			$query->clear()
 				->select($db->qn('event'))

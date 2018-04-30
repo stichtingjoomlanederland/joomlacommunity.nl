@@ -61,7 +61,7 @@ class RseventsproController extends JControllerLegacy
 			}
 			
 			if (!empty($unlimited)) {
-				array_map('intval',$unlimited);
+				$unlimited = array_map('intval',$unlimited);
 				foreach ($unlimited as $unlimitedid => $quantity)
 					$tickets[$unlimitedid] = $quantity;
 			}

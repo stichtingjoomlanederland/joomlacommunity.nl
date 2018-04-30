@@ -685,7 +685,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		$event = $model->getEvent();
 		
 		// Force array elements to be integers
-		array_map('intval',$pks);
+		$pks = array_map('intval',$pks);
 		
 		$admin = rseventsproHelper::admin();
 		$user  = $model->getUser();

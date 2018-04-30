@@ -289,7 +289,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		}
 		
 		if (!empty($categories)) {
-			array_map('intval',$categories);
+			$categories = array_map('intval',$categories);
 			$addcategorywhere = true;
 			
 			if (count($categories) == 1 && $categories[0] == 0) {
@@ -319,7 +319,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		}
 		
 		if (!empty($locations)) {
-			array_map('intval',$locations);
+			$locations = array_map('intval',$locations);
 			$addlocationwhere = true;
 			
 			if (count($locations) == 1 && $locations[0] == 0)
@@ -1459,7 +1459,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		if (!empty($send) || !empty($people))
 		{
 			if (!empty($people))
-				array_map('intval',$people);
+				$people = array_map('intval',$people);
 				
 			$query->clear()
 				->select($this->_db->qn('u.email'))->select($this->_db->qn('u.name'))->select($this->_db->qn('u.ide'))
@@ -1711,7 +1711,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 			}
 			
 			if (!empty($unlimited)) {
-				array_map('intval',$unlimited);
+				$unlimited = array_map('intval',$unlimited);
 				foreach ($unlimited as $unlimitedid => $quantity)
 					$tickets[$unlimitedid] = $quantity;
 			}
@@ -2884,7 +2884,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$name		= JFile::stripExt($icon);
 		
 		if ($folders = JFolder::folders($thumbs)) {
-			array_map('intval',$folders);
+			$folders = array_map('intval',$folders);
 			
 			foreach ($folders as $folder) {
 				if (file_exists($thumbs.$folder.'/'.md5($folder.$name).'.'.$extension)) {

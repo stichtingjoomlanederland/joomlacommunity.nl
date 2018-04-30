@@ -56,7 +56,7 @@ class RseventsproControllerEvents extends JControllerAdmin
 		$model = $this->getModel();
 		
 		// Force array elements to be integers
-		array_map('intval',$pks);
+		$pks = array_map('intval',$pks);
 		
 		// Export events
 		if ($model->exportical($pks)) {
@@ -81,7 +81,7 @@ class RseventsproControllerEvents extends JControllerAdmin
 		$model = $this->getModel();
 		
 		// Force array elements to be integers
-		array_map('intval',$pks);
+		$pks = array_map('intval',$pks);
 		
 		// Export events
 		if (!$model->exportcsv($pks)) {
@@ -104,7 +104,7 @@ class RseventsproControllerEvents extends JControllerAdmin
 		$model = $this->getModel();
 		
 		// Force array elements to be integers
-		array_map('intval',$pks);
+		$pks = array_map('intval',$pks);
 		
 		// Export events
 		if (!$model->rating($pks)) {
@@ -128,7 +128,7 @@ class RseventsproControllerEvents extends JControllerAdmin
 		$model = $this->getModel();
 		
 		// Force array elements to be integers
-		array_map('intval',$pks);
+		$pks = array_map('intval',$pks);
 		
 		// Copy events
 		if (!$model->copy($pks)) {
@@ -154,7 +154,7 @@ class RseventsproControllerEvents extends JControllerAdmin
 		$model = $this->getModel();
 		
 		// Force array elements to be integers
-		array_map('intval',$pks);
+		$pks = array_map('intval',$pks);
 		
 		// Delete reports
 		$model->deletereports($pks);

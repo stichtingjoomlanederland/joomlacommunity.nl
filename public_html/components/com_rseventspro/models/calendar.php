@@ -172,7 +172,7 @@ class RseventsproModelCalendar extends JModelLegacy
 			$query->where('access IN ('.$groups.')');
 
 			if (!empty($categories)) {
-				array_map('intval',$categories);
+				$categories = array_map('intval',$categories);
 				$query->where($this->_db->qn('id').' IN ('.implode(',',$categories).')');	
 			}
 			
@@ -324,7 +324,10 @@ class RseventsproModelCalendar extends JModelLegacy
 		
 		$endMonth->modify('+86399 seconds');
 		
-		return array($startMonth->toSql(), $endMonth->toSql());
+		$startMonth = new DateTime($startMonth->toSql(), new DateTimezone(rseventsproHelper::getTimezone()));
+		$startMonth->setTimezone(new DateTimezone('UTC'));
+		
+		return array($startMonth->format('Y-m-d H:i:s'), $endMonth->toSql());
 	}
 	
 	protected function getStartEndDay($date) {
