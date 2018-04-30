@@ -642,7 +642,7 @@ class WFMediaManager extends WFMediaManagerBase
             $tmp = $upload['tmp_name'];
 
             self::validateImageFile($upload);
-            $result = $filesystem->upload('multipart', trim($tmp), dirname($file), basename($name));
+            $result = $filesystem->upload('multipart', trim($tmp), dirname($file), $name);
 
             @unlink($tmp);
         }
@@ -960,6 +960,8 @@ class WFMediaManager extends WFMediaManagerBase
             return false;
         }
 
+        // clean path
+        $path = WFUtility::cleanPath($path);
         // check file path
         WFUtility::checkPath($path);
         // check file name and contents

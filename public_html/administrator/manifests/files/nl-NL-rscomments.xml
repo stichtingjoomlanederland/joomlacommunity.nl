@@ -1,13 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <extension version="2.5" type="file" method="upgrade">
 <name>nl-NL-rscomments</name>
 <tag>nl-NL</tag>
-<version>1.13.6</version>
-<creationDate>2017-04-17</creationDate>
+<version>1.13.10</version>
+<creationDate>2018-03-27</creationDate>
 <author>Connecting Connections</author>
 <authorEmail>info@con-con.nl</authorEmail>
 <authorUrl>https://con-con.nl</authorUrl>
-<copyright>Copyright (C) 2007 - 2017. All rights reserved.</copyright>
+<copyright>Copyright (C) 2007 - 2018. All rights reserved.</copyright>
 <license>GNU/GPL http://www.gnu.org/licenses/gpl-3.0.html</license>
 <description><![CDATA[
   <div align="center">
@@ -38,7 +38,7 @@
 	    </tr>
 	    <tr>
 		    <td width="18%"><u><b>Vertaling voor versie:</b></u></td>
-		    <td width="80%">1.13.6</td>
+		    <td width="80%">1.13.10</td>
 	    </tr>
 	    <tr>
 		    <td width="100%" colspan="2">
@@ -63,6 +63,7 @@
 <filename>nl-NL.mod_rscomments.sys.ini</filename>
 <filename>nl-NL.plg_installer_rscomments.ini</filename>
 <filename>nl-NL.plg_installer_rscomments.sys.ini</filename>
+<filename>nl-NL.plg_rscomments_ccomment.ini</filename>
 <filename>nl-NL.plg_rscomments_jacomment.ini</filename>
 <filename>nl-NL.plg_rscomments_jcomments.ini</filename>
 <filename>nl-NL.plg_rscomments_joomlacomments.ini</filename>
