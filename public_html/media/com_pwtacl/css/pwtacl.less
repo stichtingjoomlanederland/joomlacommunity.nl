@@ -1,0 +1,434 @@
+/**
+ * @package    PwtAcl
+ *
+ * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
+ * @copyright  Copyright (C) 2011 - [year] Perfect Web Team. All rights reserved.
+ * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
+ * @link       https://extensions.perfectwebteam.com/pwt-acl
+ */
+
+// Colors
+@red: #942A25;
+@green: #378137;
+@yellow: #FFFFCF;
+@gray_lighter: #F0F0F0;
+@gray_light: #CCC;
+@gray_dark: #AAA;
+@table_odd: #f9f9f9;
+
+// Titlebar
+.page-title {
+	.icon-pwtacl {
+		background-image: url('../images/pwt-acl.png');
+		background-size: contain;
+		background-repeat: no-repeat;
+		width: 105px;
+		height: 35px;
+		position: relative;
+		margin-bottom: -10px;
+		margin-right: 5px !important;
+	}
+}
+
+// Control Panel
+.well.groups,
+.well.users {
+	min-height: 500px;
+	padding-bottom: 0;
+
+	.dataTables_wrapper {
+		overflow: hidden;
+		position: relative;
+		margin-bottom: 10px;
+
+		.dataTables_length {
+			float: left;
+			height: 30px;
+			margin-top: 4px;
+
+			select {
+				margin: 0 5px 0 0;
+				width: 50px;
+				float: left;
+			}
+		}
+
+		.dataTables_filter {
+			input {
+				width: 96%;
+			}
+		}
+
+		.dataTables_paginate {
+			float: right;
+			text-align: right;
+			height: 20px;
+			margin-top: 7px;
+		}
+	}
+
+	.dataTables_paginate a {
+		background: none repeat scroll 0 0 #FFF;
+		border: 1px solid @gray_light;
+		text-decoration: none;
+		margin: 0 0 0 5px;
+		border-radius: 4px 4px 4px 4px;
+		line-height: 18px;
+		padding: 4px 14px;
+		vertical-align: middle;
+
+		&:hover {
+			background: none repeat scroll 0 0 #E8F6FE;
+			border: 1px solid @gray_dark;
+			cursor: pointer;
+			text-decoration: none;
+		}
+	}
+}
+
+// Table
+table#pwtacl {
+	thead {
+		background-color: #f0f0f0;
+		border-bottom: 1px solid #CCCCCC;
+
+		th {
+			text-align: center;
+			font-weight: normal;
+			font-size: 12px;
+		}
+
+		.border-left {
+			border-left-color: @gray_dark;
+		}
+	}
+
+	tr {
+		&.odd td {
+			background: @table_odd;
+		}
+
+		td {
+			&.title {
+				overflow: hidden;
+				white-space: nowrap;
+
+				.icons {
+					float: left;
+				}
+
+				&.trashed a {
+					color: @gray_dark;
+				}
+			}
+			&.no-action {
+				background: @gray_lighter;
+			}
+
+			&.action {
+				text-align: center;
+				padding: 0;
+				font-size: 18px;
+				vertical-align: middle;
+
+				&.edit {
+					cursor: pointer;
+				}
+			}
+
+			&.core-login-site,
+			&.core-admin,
+			&.core-create,
+			&.assetid,
+			&.border-left {
+				border-left-color: @gray_dark;
+			}
+
+			&.border-right {
+				border-right: 1px solid @gray_dark;
+			}
+
+			&.padding-small {
+				padding: 5px 4px;
+			}
+
+			&.padding-none {
+				padding: 0;
+			}
+		}
+	}
+
+	.large-icon {
+		margin-right: 0;
+	}
+
+	.table-additional {
+		border: none;
+		margin-bottom: 0;
+		border-bottom: 1px solid @gray_dark;
+		border-top: 1px solid @gray_dark;
+
+		tr,
+		td {
+			border-left: none;
+			border-radius: 0;
+
+			&.border-left {
+				border-left: 1px solid @gray_dark;
+			}
+		}
+	}
+
+	.additional {
+		display: none;
+	}
+
+	.powered-by-pwtacl {
+		float: right;
+		display: inline-table;
+		font-size: 18px;
+	}
+
+	.icon-lock:before {
+		color: @red;
+	}
+}
+
+// Legend
+table#legend {
+	tr {
+		border-bottom: 5px solid #F0F0F0;
+	}
+
+	.legend-icon {
+		background: #f9f9f9;
+		text-align: center;
+	}
+
+	.legend-title {
+		padding-left: 10px;
+	}
+
+	.icon-lock:before {
+		color: #942A25;
+	}
+}
+
+//Actions
+.action {
+	&.allowed {
+		background-color: @green !important;
+
+		[class^="icon-"]:before {
+			color: #fff;
+		}
+	}
+
+	&.denied {
+		background-color: @red !important;;
+
+		[class^="icon-"]:before {
+			color: #fff;
+		}
+	}
+
+	&.conflict {
+		background-color: @yellow !important;;
+	}
+}
+
+// Diagnostics
+.diagnostics {
+	.progress {
+		margin: 20px 0 0 0;
+		height: 25px;
+		background: #fff;
+	}
+
+	.accordion-group {
+		margin-bottom: 5px;
+	}
+
+	.accordion-heading .badge {
+		text-align: center;
+	}
+
+	.icon-ok.icon-white {
+		margin: 0;
+	}
+
+	.icon-ok.icon-white::before {
+		color: #fff;
+	}
+
+	.quickscan {
+		padding-right: 14px;
+
+		&.quickscan-issues {
+			background-color: #fcf8e3;
+			border: 1px solid #faebcc;
+			color: #8a6d3b;
+
+			legend {
+				color: #8a6d3b;
+				border-bottom-color: #faebcc;
+				font-weight: 700;
+			}
+		}
+
+		&.quickscan-noissues {
+			background-color: #dff0d8;
+			border-color: #d6e9c6;
+			color: #3c763d;
+
+			legend {
+				color: #3c763d;
+				border-bottom-color: #d6e9c6;
+				font-weight: 700;
+			}
+		}
+	}
+
+	.typeofchange {
+		display: block;
+		text-align: center;
+	}
+
+	.js-results-table {
+		margin-top: 14px;
+	}
+
+	.accordion-heading {
+		background: #e6e6e6;
+	}
+
+	.accordion-heading h3 {
+		margin: 6px 0;
+	}
+
+	.accordion-heading small {
+		color: #555;
+	}
+
+	.accordion-heading a {
+		text-decoration: none;
+	}
+
+	.accordion-heading .badge-warning {
+		margin-right: 5px;
+	}
+
+	.accordion-inner {
+		background: #F0F0F0;
+	}
+
+	.accordion-inner .alert {
+		margin-bottom: 0;
+	}
+
+	.completed {
+		border-color: #d6e9c6;
+	}
+
+	.completed .accordion-heading {
+		background-color: #dff0d8;
+		color: #3c763d;
+	}
+
+	.nopointer {
+		cursor: default;
+	}
+}
+
+// Siderbar
+.sidebar-content {
+	padding: 0 14px;
+
+	.nav-list {
+		padding: 0;
+	}
+
+	.action {
+		line-height: 24px;
+		padding-left: 3px;
+	}
+
+	.allowed,
+	.denied {
+		color: #fff;
+	}
+}
+
+// Filter tools
+.js-stools {
+	margin-bottom: 10px;
+}
+
+// PWT Extensions Dashboard
+.com_pwtacl {
+	header.header {
+		background-image: url('../images/pwt-bg.jpg');
+		background-size: cover;
+
+		.icon-pwtimage {
+			background-image: url('../images/pwt-acl.png');
+			background-size: contain;
+			background-repeat: no-repeat;
+			width: 115px;
+			height: 35px;
+			position: relative;
+			margin-bottom: -10px;
+			margin-right: 5px !important;
+		}
+	}
+
+	.pwt-extensions {
+		font-size: 1.05em;
+		line-height: 130%;
+
+		p:last-child {
+			margin-bottom: 0;
+		}
+
+		.pwt-heading {
+			margin: 20px 0 8px;
+			font-size: 1.2em;
+			font-weight: 700;
+		}
+
+		.pwt-section {
+			margin-bottom: 16px;
+
+			&:last-child {
+				margin-bottom: 0;
+			}
+		}
+
+		.pwt-section--border-top {
+			border-top: 1px solid #CCC;
+			padding-top: 16px;
+		}
+
+		.pwt-extension-logo {
+			max-height: 75px;
+		}
+
+		.btn-group-justified {
+			display: table;
+			width: 100%;
+			table-layout: fixed;
+			border-collapse: separate;
+
+			> .btn,
+			> .btn-group {
+				display: table-cell;
+				float: none;
+				width: 1%;
+
+				.btn {
+					width: 100%;
+				}
+			}
+		}
+	}
+}

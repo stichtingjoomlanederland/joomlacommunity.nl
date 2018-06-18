@@ -105,6 +105,14 @@ class ComDocmanTemplateHelperBehavior extends ComKoowaTemplateHelperBehavior
                     if (typeof window.GoogleAnalyticsObject !== 'undefined' && typeof window[window.GoogleAnalyticsObject] !== 'undefined') {
                         window[window.GoogleAnalyticsObject]('send', 'event', '{$config->category}', '{$config->action}', el.data('title'), parseInt(el.data('id'), 10));
                     }
+                    else if (typeof gtag !== 'undefined') {
+                        gtag('event', '{$config->action}', {
+                            'event_category': '{$config->category}',
+                            'event_label': el.data('title'),
+                            'name': el.data('title'),
+                            'value': parseInt(el.data('id'), 10)
+                        });
+                    }
                     else if (typeof _gaq !== 'undefined' && typeof _gat !== 'undefined') {
                         if (_gat._getTrackers().length) {
                             _gaq.push(function() {
@@ -293,6 +301,27 @@ class ComDocmanTemplateHelperBehavior extends ComKoowaTemplateHelperBehavior
         return $html;
     }
 
+    public function scanner($config = array())
+    {
+        $connect    = $this->getObject('com://admin/docman.model.entity.config')->connectAvailable();
+        $extensions = \ComDocmanControllerBehaviorScannable::$ocr_extensions;
+
+        $config = new KObjectConfigJson($config);
+        $config->append([
+            'options'  => array(
+                'scannableExtensions' => $extensions,
+                'isAdmin'             => $this->getObject('user')->authorise('core.manage', 'com_docman') === true,
+                'isConnectEnabled'    => $connect,
+            )
+        ]);
+
+        $html = $this->getTemplate()
+            ->loadFile('com://admin/docman.document.scanner.html')
+            ->render(array('config' => $config));
+
+        return $html;
+    }
+
     /**
      * Widget for selecting an thumbnail image
      *
@@ -312,6 +341,7 @@ class ComDocmanTemplateHelperBehavior extends ComKoowaTemplateHelperBehavior
             'entity_type' => KStringInflector::singularize($config->entity->getIdentifier()->name),
         ])->append([
             'options'  => array(
+                'isAdmin'           => $this->getObject('user')->authorise('core.manage', 'com_docman') === true,
                 'hasConnectSupport' => $connect,
                 'connect_token'     => $connect ? PlgKoowaConnect::generateToken() : false,
                 'csrf_token' => $this->getObject('user')->getSession()->getToken(),

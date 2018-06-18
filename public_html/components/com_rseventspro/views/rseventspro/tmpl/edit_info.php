@@ -152,6 +152,15 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	</div>
 </div>
 
+<?php if ($this->config->consent) { ?>
+<div class="control-group">
+	<label class="checkbox" for="consent">
+		<input type="checkbox" id="consent" class="required" name="consent" value="1" /> 
+		<?php echo JText::_('COM_RSEVENTSPRO_CONSENT'); ?>
+	</label>
+</div>
+<?php } ?>
+
 <div class="form-actions">
 	<button class="btn btn-success rsepro-event-save" type="button"><?php echo JText::_('COM_RSEVENTSPRO_SAVE_EVENT'); ?></button>
 	<button class="btn btn-success rsepro-event-update" type="button"><?php echo JText::_('COM_RSEVENTSPRO_UPDATE_EVENT'); ?></button>

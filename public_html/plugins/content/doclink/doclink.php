@@ -30,7 +30,7 @@ class PlgContentDoclink extends JPlugin
 
         $links = $this->_getLinks($row->text);
 
-        if (count($links->document)) {
+        if ($this->params->get('show_player') && count($links->document)) {
             $this->_replaceLinksWithPlayers($links->document, $row->text);
         }
 
@@ -67,7 +67,7 @@ class PlgContentDoclink extends JPlugin
                 continue;
             }
 
-            if ($document->isPlayable()) {
+            if ($this->params->get('show_player') && $document->isPlayable()) {
                 continue;
             }
 

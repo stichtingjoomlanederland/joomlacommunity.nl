@@ -1026,6 +1026,8 @@ class RSEvent
 	protected function savetickets($id) {
 		$db	  		= JFactory::getDbo();
 		$tickets	= JFactory::getApplication()->input->get('tickets',array(),'array');
+		$tzoffset	= rseventsproHelper::getTimezone();
+		$nulldate	= $db->getNullDate();
 		
 		if (!empty($tickets)) {
 			foreach ($tickets as $tid => $ticket) {
@@ -1044,6 +1046,9 @@ class RSEvent
 					} catch (Exception $e) {}
 				} else $ticket->groups = '';
 				
+				$ticket->from = !empty($ticket->from) && $ticket->from != $nulldate ? JFactory::getDate($ticket->from, $tzoffset)->toSql() : $nulldate;
+				$ticket->to = !empty($ticket->to) && $ticket->to != $nulldate ? JFactory::getDate($ticket->to, $tzoffset)->toSql() : $nulldate;
+				
 				$db->updateObject('#__rseventspro_tickets', $ticket, 'id');
 			}
 		}
@@ -1058,7 +1063,6 @@ class RSEvent
 	protected function savecoupons($id) {
 		$db			= JFactory::getDbo();
 		$query		= $db->getQuery(true);
-		$config		= JFactory::getConfig();
 		$tzoffset	= rseventsproHelper::getTimezone();
 		$nulldate	= $db->getNullDate();
 		$coupons	= JFactory::getApplication()->input->get('coupons',array(),'array');

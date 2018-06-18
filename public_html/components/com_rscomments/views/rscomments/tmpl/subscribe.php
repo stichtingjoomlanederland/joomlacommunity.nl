@@ -5,7 +5,11 @@
 * @license GPL, http://www.gnu.org/licenses/gpl-2.0.html
 */
 
-defined('_JEXEC') or die('Restricted access'); ?>
+defined('_JEXEC') or die('Restricted access'); 
+JText::script('COM_RSCOMMENTS_NO_SUBSCRIBER_NAME');
+JText::script('COM_RSCOMMENTS_NO_SUBSCRIBER_EMAIL');
+JText::script('COM_RSCOMMENTS_INVALID_SUBSCRIBER_EMAIL');
+JText::script('COM_RSCOMMENTS_CONSENT_ERROR'); ?>
 
 <div class="alert" id="subscriber-message" style="display: none;"></div>
 
@@ -31,5 +35,17 @@ defined('_JEXEC') or die('Restricted access'); ?>
 			</div>
 		</div>
 	</div>
+	
+	<?php if($this->config->consent) { ?>
+	<div class="row-fluid">
+		<div class="controls">
+			<label class="checkbox">
+				<input type="checkbox" id="consent" class="rsc_chk required" name="consent" value="1" /> 
+				<?php echo JText::_('COM_RSCOMMENTS_CONSENT'); ?>
+			</label>
+		</div>
+	</div>
+	<?php } ?>
+	
 </div>
 <button type="button" id="rscomm_subscribe" onclick="rscomments_subscribe();" style="display:none">&nbsp;</button>

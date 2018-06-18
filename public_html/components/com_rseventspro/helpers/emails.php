@@ -966,6 +966,7 @@ class rseventsproEmails
 						$code		= md5($ids.$ticket->id.$i);
 						$code		= substr($code,0,4).substr($code,-4);
 						$barcode	= rseventsproHelper::getConfig('barcode_prefix', 'string', 'RST-').$ids.'-'.$code;
+						$barcode	= in_array(rseventsproHelper::getConfig('barcode', 'string', 'C39'), array('C39', 'C93')) ? strtoupper($barcode) : $barcode;
 						$layout		= $ticket->layout;
 						
 						$app->triggerEvent('rseproTicketPDFLayout',array(array('ids' => $ids, 'ide' => $ide, 'layout' => &$layout)));

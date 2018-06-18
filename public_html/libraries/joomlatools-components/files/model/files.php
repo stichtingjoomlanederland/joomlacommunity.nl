@@ -18,23 +18,46 @@ class ComFilesModelFiles extends ComFilesModelNodes
     protected function _initialize(KObjectConfig $config)
     {
         $config->append(array('behaviors' => array('thumbnailable')));
+
         parent::_initialize($config);
+    }
+
+    protected function _beforeFetch(KModelContext $context)
+    {
+        $context->local = true;
+
+        $state = $this->getState();
+
+        if ($uri = $state->uri)
+        {
+            $parts = parse_url($uri);
+
+            if (isset($parts['scheme']) && $parts['scheme'] !== 'file') {
+                $context->local = false;
+            }
+        }
     }
 
     protected function _actionFetch(KModelContext $context)
     {
         $state = $this->getState();
-        $files = $this->getContainer()->getAdapter('iterator')->getFiles(array(
-            'path'    => $this->getPath(),
-            'exclude' => array('.svn', '.htaccess', 'web.config', '.git', 'CVS', 'index.html', '.DS_Store', 'Thumbs.db', 'Desktop.ini'),
-            'filter'  => array($this, 'iteratorFilter'),
-            'map'     => array($this, 'iteratorMap'),
-            'sort'    => $state->sort
-        ));
 
-        if ($files === false) {
-            throw new UnexpectedValueException('Invalid folder');
+        if ($context->local)
+        {
+            $files = $this->getObject('com:files.adapter.iterator')->getFiles(array(
+                'path'    => $this->getPath(),
+                'exclude' => array('.svn', '.htaccess', 'web.config', '.git', 'CVS', 'index.html', '.DS_Store', 'Thumbs.db', 'Desktop.ini'),
+                'filter'  => array($this, 'iteratorFilter'),
+                'map'     => array($this, 'iteratorMap'),
+                'sort'    => $state->sort
+            ));
+
+            if ($files === false) {
+                throw new UnexpectedValueException('Invalid folder');
+            }
         }
+        else $files = array($state->uri);
+
 
         $this->_count = count($files);
 
@@ -46,7 +69,7 @@ class ComFilesModelFiles extends ComFilesModelNodes
         $files   = array();
 
         foreach ($results as $result) {
-            $files[] = array('name' => $result);
+            $files[] = $context->local ? array('name' => $result) : array('uri' => $result);
         }
 
         $context->files = $files;
@@ -60,7 +83,7 @@ class ComFilesModelFiles extends ComFilesModelNodes
         return $context->set;
     }
 
-    protected function _actionCreateSet(KModelContextInterface $context)
+    protected function _actionCreateSet(KModelContext $context)
     {
         $state = $context->getState();
 
@@ -68,10 +91,13 @@ class ComFilesModelFiles extends ComFilesModelNodes
 
         foreach ($context->files as $file)
         {
-            $file->append(array(
-                'container' => $state->container,
-                'folder'    => $state->folder
-            ));
+            if ($context->local)
+            {
+                $file->append(array(
+                    'container' => $state->container,
+                    'folder'    => $state->folder
+                ));
+            }
 
             $data[] = $file->toArray();
         }

@@ -1,4 +1,7 @@
 ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
+	this.saveState = $.Deferred();
+
+	var self = this;
 
 	// Cancel button
 	var wrapper = $('[<?php echo $editorId;?>]');
@@ -48,9 +51,10 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 
 	var resetForm = function(form) {
 
+		self.saveState = $.Deferred();
+
 		// Trigger reset form
 		$(form).trigger('composer.form.reset');
-
 
 		// Empty contents of editor
 		form.find('textarea[name=dc_content]').val('');
@@ -61,17 +65,6 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 				window.CKEDITOR.instances['content'].setData('');
 			} catch (e) {}
 		}
-
-		// Clear off attachments
-		// var attachmentItem = el.parent('[data-ed-attachment-form]');
-		// attachmentItem.empty();
-
-		// // Polls
-		// var pollController = $(form).find('.polls-tab').controller();
-
-		// if (pollController) {
-		//     $(form).find('.polls-tab').controller().resetPollForm();
-		// }
 	};
 
 	var increaseReplyCount = function() {
@@ -108,7 +101,7 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 		var notification = wrapper.find('[data-ed-composer-alert]');
 		var content = wrapper.find('[data-ed-editor]');
 
-		if(content.val() == '') {
+		if (content.val() == '') {
 			notification.removeClass('t-hidden');
 			setAlert(notification, '<?php echo JText::_('COM_EASYDISCUSS_ERROR_REPLY_EMPTY'); ?>', 'error');
 			return false;
@@ -208,11 +201,34 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 		return true;
 	};
 
-	// Click reply submit
 	replyButton.live('click', function() {
+		var deferredObjects = [];
+		var element = this;
+
+		$(document).trigger('onSubmitPost', [deferredObjects]);
+
+		if (deferredObjects.length <= 0) {
+			self.saveState.resolve();
+		} else {
+			$.when.apply(null, deferredObjects) 
+				.done(function() {
+					self.saveState.resolve();
+				})
+				.fail(function() {
+					self.saveState.reject();
+				});
+		}
+
+		self.saveState.done(function() {
+			submitReply(element);
+		});		
+	});
+
+	// Click reply submit
+	var submitReply = function(element) {
 
 		// This is the reply button
-		var replyButton = $(this);
+		var replyButton = $(element);
 
 		// Find the wrapper for the reply form
 		var wrapper = replyButton.parents('[data-ed-composer-wrapper]');
@@ -231,8 +247,8 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 		// Always hide alerts when they submit
 		notification.addClass('t-hidden');
 
-		//validate inputs
-		if (! formValidateInputs(wrapper)){
+		// Validate inputs
+		if (!formValidateInputs(wrapper)){
 			return;
 		}
 
@@ -253,7 +269,7 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 		var iframeId = document.getElementById('upload_iframe');
 
 		// Temporarily disable the submit button.
-		$(this).prop('disabled', true);
+		$(element).prop('disabled', true);
 
 		// Get the replies wrapper
 		var repliesWrapper = $('[data-ed-post-replies-wrapper]');
@@ -302,6 +318,8 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 				var replyItem = replies.find('[data-ed-reply-item][data-id=' + result.id + ']');
 				replyItem.replaceWith(result.html);
 			}
+
+			$(document).trigger('reloadCaptcha');
 
 			// For success/info cases. info means its in pending state
 			if (result.type == 'success' || result.type == 'info') {
@@ -373,6 +391,6 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 
 		// Submit the form...
 		formDom.submit();
-	});
+	};
 
 });

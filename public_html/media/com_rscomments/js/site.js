@@ -169,6 +169,10 @@ function rscomments_subscribe() {
 		}
 	}
 	
+	if (jQuery('#consent').length && jQuery('#consent:checked').length == 0) {
+		errors.push('<p>' + Joomla.JText._('COM_RSCOMMENTS_CONSENT_ERROR') + '</p>');
+	}
+	
 	if (errors.length) {
 		jQuery('#subscriber-message').addClass('alert-danger');
 		jQuery('#subscriber-message').css('display','');
@@ -251,6 +255,10 @@ function rscomments_report() {
 		}
 	}
 	
+	if (jQuery('#consent').length && jQuery('#consent:checked').length == 0) {
+		errors.push('<p>' + Joomla.JText._('COM_RSCOMMENTS_CONSENT_ERROR') + '</p>');
+	}
+	
 	if (errors.length) {
 		jQuery('#report-message').addClass('alert-danger');
 		jQuery('#report-message').css('display','');
@@ -322,6 +330,21 @@ function rscomments_form_fields() {
 			ie_version = rsc_get_ie();
 			if (ie_version > -1 && ie_version >= 9) {
 				jQuery('.rokrsc_terms').each(function(i,el) {
+					if (jQuery(el).prop('class').indexOf('rokchecks-active') > -1) {
+						jQuery('#'+fnameid).prop('checked',true);
+					} else {
+						jQuery('#'+fnameid).prop('checked',false);
+					}
+				});
+			}
+			
+			fvalue = jQuery('#'+fnameid).is(':checked') ? 1 : 0;
+		}
+		
+		if (fname.indexOf('rsc_consent') != -1 ) {
+			ie_version = rsc_get_ie();
+			if (ie_version > -1 && ie_version >= 9) {
+				jQuery('.rokrsc_consent').each(function(i,el) {
 					if (jQuery(el).prop('class').indexOf('rokchecks-active') > -1) {
 						jQuery('#'+fnameid).prop('checked',true);
 					} else {

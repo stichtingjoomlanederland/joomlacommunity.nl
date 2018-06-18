@@ -336,7 +336,7 @@ class Directftp extends Base
 			{
 				if (@$this->ftpTransfer->mkdir($check) === false)
 				{
-					$this->setError('Could not create directory ' . $new_dir);
+					$this->setError('Could not create directory ' . $dir);
 
 					return false;
 				}
@@ -399,7 +399,7 @@ class Directftp extends Base
 		}
 		else
 		{
-            $this->ftpTransfer->chmod($realdir, 0755);
+            $this->ftpTransfer->chmod($realdir, 0644);
 
 			return true;
 		}

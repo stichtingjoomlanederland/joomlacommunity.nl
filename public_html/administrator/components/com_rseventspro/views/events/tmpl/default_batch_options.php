@@ -117,6 +117,15 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 			<input type="checkbox" name="batch[options][show_print]" id="show_print" value="1" />
 			<label for="show_print" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_PRINT'); ?></label>
 		</p>
+		
+		<p>
+			<input type="checkbox" name="batch[options][show_counter]" id="show_counter" value="1" />
+			<label for="show_counter" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_COUNTER'); ?></label>
+		</p>
+		<p>
+			<input type="checkbox" name="batch[options][counter_utc]" id="counter_utc" value="1" />
+			<label for="counter_utc" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_COUNTER_UTC'); ?></label>
+		</p>
 	</fieldset>
 	<fieldset class="span4 rswidth-30 rsfltlft" id="list">
 		<legend><?php echo JText::_('COM_RSEVENTSPRO_EVENT_OPTIONS_LISTINGS'); ?></legend>

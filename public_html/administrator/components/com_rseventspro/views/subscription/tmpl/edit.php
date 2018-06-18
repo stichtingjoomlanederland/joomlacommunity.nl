@@ -128,6 +128,7 @@ JHtml::_('behavior.keepalive'); ?>
 								$code	= md5($this->item->id.$ticket->id.$j);
 								$code	= substr($code,0,4).substr($code,-4);
 								$code	= rseventsproHelper::getConfig('barcode_prefix', 'string', 'RST-').$this->item->id.'-'.$code;
+								$code   = in_array(rseventsproHelper::getConfig('barcode', 'string', 'C39'), array('C39', 'C93')) ? strtoupper($code) : $code;
 								$confirmed = rseventsproHelper::confirmed($this->item->id, $code);
 								$hasLayout = rseventsproHelper::hasPDFLayout($ticket->layout,$this->item->SubmissionId);
 								

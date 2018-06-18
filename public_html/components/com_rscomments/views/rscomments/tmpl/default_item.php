@@ -8,9 +8,9 @@
 defined('_JEXEC') or die('Restricted access');
 
 $thread 	= RSCommentsHelper::getThreadStatus($this->id,$this->theoption);
-$ip 		= $_SERVER['REMOTE_ADDR'];
+$sid 		= JFactory::getSession()->getId();
 $ownComment = false;
-$ownComment	= $this->user->guest ? ($this->comment->ip == $ip) : ($this->comment->uid == $this->user->id);
+$ownComment	= $this->user->guest ? ($this->comment->sid == $sid) : ($this->comment->uid == $this->user->id);
 $canEmail	= isset($this->permissions['show_emails']) && $this->permissions['show_emails'];
 $canReply	= !empty($this->permissions['enable_reply']) && !$thread;
 $canQuote	= isset($this->permissions['new_comments']) && $this->permissions['new_comments'] && !$thread;

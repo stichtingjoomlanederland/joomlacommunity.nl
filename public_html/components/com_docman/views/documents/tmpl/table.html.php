@@ -89,18 +89,18 @@ kQuery(function($) {
 
     <tr>
         <? if ($can_delete): ?>
-        <th width="1%" data-hide="phone"></th> <!-- checkbox -->
+        <th width="1%" data-hide="phone"><?= translate('Select'); ?></th>
         <? endif ?>
-        <th width="1%" data-toggle="true" class="k-table-data--toggle"></th>
-        <th></th> <!-- title -->
+        <th width="1%" data-toggle="true" class="k-table-data--toggle"><?= translate('Toggle'); ?></th>
+        <th><?= translate('Title'); ?></th>
         <? if ($params->show_document_created): ?>
-        <th width="1%" data-hide="phone"></th> <!-- date -->
+        <th width="1%" data-hide="phone"><?= translate('Date'); ?></th>
         <? endif; ?>
         <? if ($params->document_title_link !== 'download'): ?>
-        <th width="1%" data-hide="phone,tablet"></th> <!-- download -->
+        <th width="1%" data-hide="phone,tablet"><?= translate('Download'); ?></th>
         <? endif; ?>
         <? if ($can_manage): ?>
-        <th data-hide="phone,tablet"></th> <!-- edit/delete buttons -->
+        <th data-hide="phone,tablet"><?= translate('Manage'); ?></th>
         <? endif ?>
     </tr>
     </thead>
@@ -226,8 +226,9 @@ kQuery(function($) {
             <? if ($params->document_title_link !== 'download'): ?>
             <td width="5" class="koowa_table__download k-no-wrap">
                 <? //hide download for audio/video ?>
+                <? $can_show_player = !$params->force_download && $params->show_player; ?>
                 <? $player = helper('player.render', array('document' => $document)) ?>
-                <? if ($params->force_download || empty($player)): ?>
+                <? if (!$can_show_player || empty($player)): ?>
                 <a class="btn btn-default btn-mini docman_track_download docman_download__button" href="<?= $document->download_link; ?>"
                     <?= $params->download_in_blank_page ? 'target="_blank"' : ''; ?>
                     data-title="<?= escape($document->title); ?>"

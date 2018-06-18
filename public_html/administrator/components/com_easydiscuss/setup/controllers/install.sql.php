@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -18,17 +18,12 @@ class EasyDiscussControllerInstallSql extends EasyDiscussSetupController
 	/**
 	 * Perform installation of SQL queries
 	 *
-	 * @since	5.0
+	 * @since	4.2.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function execute()
 	{
-		// Get the temporary path from the server.
 		$tmpPath = $this->input->get('path', '', 'default');
-
-		// There should be a queries.zip archive in the archive.
 		$tmpQueriesPath = $tmpPath . '/queries.zip';
 
 		// Extract the queries
@@ -45,7 +40,7 @@ class EasyDiscussControllerInstallSql extends EasyDiscussSetupController
 		}
 
 		// Extract the archive now
-		$state = JArchive::extract($tmpQueriesPath, $path);
+		$state = $this->extractArchive($tmpQueriesPath, $path);
 
 		if (!$state) {
 			$this->setInfo('COM_EASYDISCUSS_INSTALLATION_ERROR_UNABLE_EXTRACT_QUERIES', false);

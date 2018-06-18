@@ -7,7 +7,7 @@
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
 	<authorEmail>support@rsjoomla.com</authorEmail>
 	<authorUrl>www.rsjoomla.com</authorUrl>
-	<version>1.11.6</version>
+	<version>1.11.10</version>
 	<description>RSEvents!Pro is the ideal extension that you can use to organize events, invite people or sell tickets directly on your website.</description>
 	<scriptfile>script.rseventspro.php</scriptfile>
 
@@ -69,7 +69,6 @@
 			  <menu link="option=com_rseventspro&amp;view=backup">COM_RSEVENTSPRO_MAIN_MENU_BACKUP</menu>
 			  <menu link="option=com_rseventspro&amp;view=messages">COM_RSEVENTSPRO_MAIN_MENU_EMAILS</menu>
 			  <menu link="option=com_rseventspro&amp;view=settings">COM_RSEVENTSPRO_MAIN_MENU_SETTINGS</menu>
-			  <menu link="option=com_rseventspro&amp;layout=update">COM_RSEVENTSPRO_MAIN_MENU_UPDATES</menu>
 		</submenu>
 		
 		<files folder="admin">

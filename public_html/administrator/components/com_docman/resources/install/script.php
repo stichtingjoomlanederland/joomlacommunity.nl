@@ -103,7 +103,7 @@ class com_docmanInstallerScript extends JoomlatoolsInstallerHelper
         // If user has Docman 1.x installed, stop the installation
         if ($type === 'update' && file_exists(JPATH_ADMINISTRATOR.'/components/com_docman/docman.class.php'))
         {
-            $errors[] = JText::_('It seems that you have DOCman 1.6 installed. In order to install DOCman 2, you need to migrate your documents using our <a href=http://www.joomlatools.com/support/forums/topic/3363-how-to-migrate-from-docman-1x-to-docman-20 target=_blank>migrator</a>.');
+            $errors[] = JText::_('It seems that you have DOCman 1.6 installed. In order to install DOCman 3, you need to migrate your documents using our <a href=http://www.joomlatools.com/support/forums/topic/3363-how-to-migrate-from-docman-1x-to-docman-20 target=_blank>migrator</a>.');
         }
         else
         {
@@ -636,6 +636,24 @@ class com_docmanInstallerScript extends JoomlatoolsInstallerHelper
                 // add default layout to the query string
                 if (strpos($item->link, 'layout=') === false) {
                     $item->link .= '&layout=default';
+                }
+
+                // Player parameters for 3.2.1
+                if (strpos($item->params, 'show_player') === false) {
+                    $params = json_decode($item->params);
+
+                    $params->show_player = 1;
+
+                    $item->params = json_encode($params);
+                }
+
+                // Search parameters for 3.2.1
+                if (strpos($item->params, 'search_by') === false) {
+                    $params = json_decode($item->params);
+
+                    $params->search_by = 'exact';
+
+                    $item->params = json_encode($params);
                 }
             }
 

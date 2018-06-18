@@ -1,8 +1,8 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -15,12 +15,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 	<div class="app-tabs">
 		<ul class="app-tabs-list g-list-unstyled">
-			<li class="tabItem <?php echo $active == 'general' ? ' active' : '';?>">
+			<li class="tabItem <?php echo $active == 'general' ? ' active' : '';?>" data-ed-tab data-id="general">
 				<a href="#general" data-ed-toggle="tab">
 					<?php echo JText::_('COM_EASYDISCUSS_CATEGORY_GENERAL');?>
 				</a>
 			</li>
-			<li class="tabItem <?php echo $active == 'permissions' ? ' active' : '';?>">
+			<li class="tabItem <?php echo $active == 'permissions' ? ' active' : '';?>" data-ed-tab data-id="permissions">
 				<a href="#permissions" data-ed-toggle="tab">
 					<?php echo JText::_('COM_EASYDISCUSS_CATEGORY_PERMISSION');?>
 				</a>
@@ -39,5 +39,5 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<?php echo $this->html('form.hidden', 'category', 'categories', ''); ?>
 	<input type="hidden" name="id" value="<?php echo $category->id;?>" />
 	<input type="hidden" name="private" value="<?php echo (empty($category->private)) ? DISCUSS_PRIVACY_ACL : $category->private ;?>">
-	<input type="hidden" name="active" value="<?php echo $active;?>" data-ed-state-tabs-current />
+	<input type="hidden" name="active" value="<?php echo $active;?>" data-ed-active-tab />
 </form>

@@ -112,12 +112,7 @@ class OneDrive
 			return $response;
 		}
 
-		$refreshUrl = $this->getRefreshUrl();
-
-		$refreshResponse = $this->fetch('GET', $refreshUrl);
-
-		$this->refreshToken = $refreshResponse['refresh_token'];
-		$this->accessToken = $refreshResponse['access_token'];
+		$refreshResponse = $this->refreshToken();
 
 		return array_merge($response, $refreshResponse);
 	}
@@ -550,7 +545,7 @@ class OneDrive
 	 *
 	 * @throws  \RuntimeException
 	 *
-	 * @return  array
+	 * @return  array|string
 	 */
 	protected function fetch($method, $relativeUrl, array $additional = array(), $explicitPost = null)
 	{
@@ -777,6 +772,23 @@ class OneDrive
 		}
 
 		return $response;
+	}
+
+	/**
+	 * Refresh the access token.
+	 *
+	 * @return array|string  The result coming from OneDrive
+	 */
+	public function refreshToken()
+	{
+		$refreshUrl = $this->getRefreshUrl();
+
+		$refreshResponse = $this->fetch('GET', $refreshUrl);
+
+		$this->refreshToken = $refreshResponse['refresh_token'];
+		$this->accessToken  = $refreshResponse['access_token'];
+
+		return $refreshResponse;
 	}
 
 	/**

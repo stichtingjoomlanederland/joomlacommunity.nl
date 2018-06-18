@@ -71,7 +71,9 @@ class EasyDiscussIntegrate extends EasyDiscuss
 				case 'jomwall':
 					$socialFields = self::jomwall($profile);
 					break;
-
+				case 'jsn':
+					$socialFields = self::jsn($profile);
+					break;
 				case 'easydiscuss' :
 				default :
 					$socialFields = self::easydiscuss( $profile );
@@ -109,11 +111,18 @@ class EasyDiscussIntegrate extends EasyDiscuss
 
 	private static function jsn($profile)
 	{
-		require_once(JPATH_ROOT . '/components/com_jsn/helpers/helper.php');
+
+		$file = JPATH_ROOT . '/components/com_jsn/helpers/helper.php';
+
+		if (!JFile::exists($file)) {
+			return false;
+		}
+	
+		require_once($file);
 
 		$user = JsnHelper::getUser($profile->id);
 
-		$avatarLink = $user->avatar;
+		$avatarLink = '/' . $user->avatar;
 		$profileLink = EDR::_('index.php?option=com_easydiscuss&view=profile&id='.$profile->id, false);
 
 		return array($avatarLink, $profileLink);

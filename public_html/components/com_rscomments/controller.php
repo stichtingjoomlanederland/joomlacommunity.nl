@@ -78,6 +78,9 @@ class RscommentsController extends JControllerLegacy
 		));
 		
 		$view->addTemplatePath(JPATH_THEMES . '/' . JFactory::getApplication()->getTemplate() . '/html/com_rscomments/' . $view->getName());
+		
+		$view->config	= RSCommentsHelper::getConfig();
+		
 		echo $view->loadTemplate();
 	}
 	
@@ -95,6 +98,43 @@ class RscommentsController extends JControllerLegacy
 		$view->root 	= JURI::getInstance()->toString(array('scheme','host'));
 		
 		echo $view->loadTemplate();
+	}
+	
+	// Show a list of the user's comments
+	public function mycomments() {
+		$view = new JViewLegacy(array(
+			'name' => 'rscomments',
+			'layout' => 'mycomments',
+			'base_path' => JPATH_SITE.'/components/com_rscomments'
+		));
+		
+		$view->addTemplatePath(JPATH_THEMES . '/' . JFactory::getApplication()->getTemplate() . '/html/com_rscomments/' . $view->getName());
+		$model 				= $this->getModel('Comments');
+		
+		$view->setModel($model);
+		
+		$view->config		= RSCommentsHelper::getConfig();
+		$view->root 		= JURI::getInstance()->toString(array('scheme','host'));
+		$view->pagination	= $model->getUserCommentsPagination();
+		$view->comments		= $model->getUserComments();		
+		$view->permissions	= RSCommentsHelper::getPermissions();		
+		$view->user			= JFactory::getUser();
+		$view->sid			= JFactory::getSession()->getId();
+		
+		echo $view->loadTemplate();
+	}
+	
+	public function removecomment() {
+		$model	= $this->getModel('Comments');
+		$return	= $model->remove(JFactory::getApplication()->input->getInt('id'));
+		
+		if (isset($return['error'])) {
+			JFactory::getApplication()->enqueueMessage($return['error'], 'error');
+		} else {
+			JFactory::getApplication()->enqueueMessage(JText::_('COM_RSCOMMENTS_COMMENT_REMOVED'));
+		}
+		
+		$this->setRedirect(JRoute::_('index.php?option=com_rscomments&task=mycomments&tmpl=component', false));
 	}
 	
 	// Show the upload form

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -20,8 +20,6 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function form()
 	{
@@ -63,8 +61,6 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function unsubscribeDialog()
 	{
@@ -94,8 +90,6 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function unsubscribe()
 	{
@@ -135,12 +129,10 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 	}
 
 	/**
-	 * process subscirption
+	 * process subscription
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function process()
 	{
@@ -176,8 +168,15 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 
 		// default interval to weekly for site / cat, post to daily
 		// if the email digest is disabled, make a 'instant' as a default interval
-		$interval = ($type == 'post' || !$this->config->get('main_email_digest')) ? 'instant' :'weekly';
+		// for now we have an option from backend to set default interval
+		$emailDigestEnabled = $this->config->get('main_email_digest');
+		$emailDigestInterval = $this->config->get('main_email_digest_interval', 'weekly');
 
+		$interval = $emailDigestInterval;
+
+		if ($type == 'post' || !$emailDigestEnabled) {
+			$interval = 'instant';
+		}
 
 		// Apply filtering on the name.
 		$filter = JFilterInput::getInstance();

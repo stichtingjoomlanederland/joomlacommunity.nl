@@ -1,14 +1,15 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
+defined('_JEXEC') or die('Unauthorized Access');
 
 /**
  * This is a PHP library that handles calling reCAPTCHA.
@@ -41,8 +42,6 @@
  * THE SOFTWARE.
  */
 
-defined('_JEXEC') or die('Unauthorized Access');
-
 require_once(__DIR__ . '/abstract.php');
 
 class EasyDiscussCaptchaRecaptcha extends EasyDiscussCaptchaAbstract
@@ -73,8 +72,6 @@ class EasyDiscussCaptchaRecaptcha extends EasyDiscussCaptchaAbstract
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function validate($data = array())
 	{
@@ -97,26 +94,29 @@ class EasyDiscussCaptchaRecaptcha extends EasyDiscussCaptchaAbstract
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function html($isModule = false)
 	{
 		$uid = uniqid();
+		$invisible = $this->config->get('antispam_recaptcha_invisible');
+		$key = $this->config->get('antispam_recaptcha_public');
 
 		$theme = ED::themes();
-
 		$theme->set('recaptchaUid', $uid);
 		$theme->set('public', $this->public);
 		$theme->set('colorScheme', $this->colorScheme);
 		$theme->set('language', $this->language);
+		$theme->set('invisible', $invisible);
+		$theme->set('key', $key);
 
 		$output = '';
+		$namespace = 'site/captcha/recaptcha';
+
 		if ($isModule) {
-			$output = $theme->output('site/captcha/recaptcha.module');
-		} else {
-			$output = $theme->output('site/captcha/recaptcha');
+			$namespace = 'site/captcha/recaptcha.module';
 		}
+
+		$output = $theme->output($namespace);
 
 		return $output;
 	}
@@ -161,18 +161,16 @@ class EasyDiscussCaptchaRecaptcha extends EasyDiscussCaptchaAbstract
 	private function _submitHTTPGet($path, $data)
 	{
 		$req = $this->_encodeQS($data);
-		//$response = file_get_contents($path . $req);
 
-		// We use Curl instead of file_get_contents for security reason
-		$rCURL = curl_init();
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $path . $req);
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_CAINFO, JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/connector/adapters/cacert.pem');
 
-		curl_setopt($rCURL, CURLOPT_URL, $path . $req);
-		curl_setopt($rCURL, CURLOPT_HEADER, 0);
-		curl_setopt($rCURL, CURLOPT_RETURNTRANSFER, 1);
+		$response = curl_exec($ch);
 
-		$response = curl_exec($rCURL);
-
-		curl_close($rCURL);
+		curl_close($ch);
 
 		return $response;
 	}
@@ -219,6 +217,15 @@ class EasyDiscussCaptchaRecaptcha extends EasyDiscussCaptchaAbstract
 		}
 
 		return true;
+	}
+
+	public function isInvisible()
+	{
+		if ($this->config->get('antispam_recaptcha_invisible')) {
+			return true;
+		}
+		
+		return false;
 	}
 }
 

@@ -8,6 +8,7 @@
  */
 defined('KOOWA') or die; ?>
 
+
 <textarea style="display: none" id="attachments_container">
     <table id="document_list">
         <thead>
@@ -43,38 +44,36 @@ defined('KOOWA') or die; ?>
     [%
     var width = 0, height = 0, ratio = 0,
         is_image = (file.type == 'image');
-    if (is_image && file.metadata.image) {
-        width  = file.metadata.image.width;
-        height = file.metadata.image.height;
+    if (file.thumbnail && file.thumbnail.dimension) {
+        width  = file.thumbnail.dimension.width;
+        height = file.thumbnail.dimension.height;
         ratio  = 150 / (width > height ? width : height);
     }
     %]
     <div class="k-details">
         <div class="k-card k-card--center">
             <div class="k-card__body">
-                [% if (is_image) { %]
                 [% if (file.thumbnail) { %]
-                <div class="k-card__section k-card__section--small-spacing">
-                    <div class="k-ratio-block k-ratio-block--4-to-3">
-                        <div class="k-loader"></div>
-                        <div class="k-ratio-block__body">
-                            <div class="k-ratio-block__centered">
-                                <img class="icon" src="" alt="[%=name%]" border="0" width="[%=Math.min(ratio*width, width)%]" height="[%=Math.min(ratio*height, height)%]" />
+                    <div class="k-card__section k-card__section--small-spacing">
+                        <div class="k-ratio-block k-ratio-block--4-to-3">
+                            <div class="k-loader"></div>
+                            <div class="k-ratio-block__body">
+                                <div class="k-ratio-block__centered">
+                                    <img class="icon" src="" alt="[%=name%]" border="0" width="[%=Math.min(ratio*width, width)%]" height="[%=Math.min(ratio*height, height)%]" />
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                [% } else if (is_image) { %]
+                    <div class="k-card__section">
+                        <span class="k-icon-document-image k-icon--size-large k-icon--accent" aria-hidden="true"></span>
+                        <span class="k-visually-hidden">[%=name%]</span>
+                    </div>
                 [% } else { %]
-                <div class="k-card__section">
-                    <span class="k-icon-document-image k-icon--size-large k-icon--accent" aria-hidden="true"></span>
-                    <span class="k-visually-hidden">[%=name%]</span>
-                </div>
-                [% } %]
-                [% } else { %]
-                <div class="k-card__section">
-                    <span class="k-icon-document-default k-icon--size-large k-icon--accent" aria-hidden="true"></span>
-                    <span class="k-visually-hidden">[%=name%]</span>
-                </div>
+                    <div class="k-card__section">
+                        <span class="k-icon-document-default k-icon--size-large k-icon--accent" aria-hidden="true"></span>
+                        <span class="k-visually-hidden">[%=name%]</span>
+                    </div>
                 [% } %]
             </div>
         </div>

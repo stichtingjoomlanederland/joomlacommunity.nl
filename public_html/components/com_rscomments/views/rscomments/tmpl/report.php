@@ -5,7 +5,10 @@
 * @license GPL, http://www.gnu.org/licenses/gpl-2.0.html
 */
 
-defined('_JEXEC') or die('Restricted access'); ?>
+defined('_JEXEC') or die('Restricted access'); 
+JText::script('COM_RSCOMMENTS_REPORT_NO_REASON');
+JText::script('COM_RSCOMMENTS_REPORT_INVALID_CAPTCHA');
+JText::script('COM_RSCOMMENTS_CONSENT_ERROR'); ?>
 
 <div class="alert" id="report-message" style="display: none;"></div>
 
@@ -38,6 +41,15 @@ defined('_JEXEC') or die('Restricted access'); ?>
 				<div id="rscomments-recaptcha"></div>
 				<?php } ?>
 			</div>
+		</div>
+		<?php } ?>
+		
+		<?php if($this->config->consent) { ?>
+		<div class="controls">
+			<label class="checkbox">
+				<input type="checkbox" id="consent" class="rsc_chk required" name="consent" value="1" /> 
+				<?php echo JText::_('COM_RSCOMMENTS_CONSENT'); ?>
+			</label>
 		</div>
 		<?php } ?>
 	</div>

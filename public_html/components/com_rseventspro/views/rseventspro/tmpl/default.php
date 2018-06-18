@@ -43,6 +43,11 @@ JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 	<?php JFactory::getApplication()->triggerEvent('rsepro_showCartIcon'); ?>
 	<?php $rss = $this->params->get('rss',1); ?>
 	<?php $ical = $this->params->get('ical',1); ?>
+	
+	<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscriptions'); ?>" class="<?php echo rseventsproHelper::tooltipClass(); ?>" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_USER_SUBSCRIPTIONS')); ?>">
+		<i class="fa fa-user"></i>
+	</a>
+	
 	<?php if ($rss || $ical || $this->config->timezone) { ?>
 	<?php if ($this->config->timezone) { ?>
 	<a href="#timezoneModal" data-toggle="modal" class="<?php echo rseventsproHelper::tooltipClass(); ?> rsepro-timezone" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE')); ?>">

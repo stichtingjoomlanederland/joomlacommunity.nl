@@ -66,6 +66,34 @@ kQuery(function($) {
                 return false;
             }
 
+            if (typeof Joomla !== 'undefined' && typeof Joomla.editors !== 'undefined'
+                && typeof Joomla.editors.instances !== 'undefined'
+                && typeof Joomla.editors.instances['description'] !== 'undefined') {
+                var editor = Joomla.editors.instances['description'];
+                if (typeof editor.onSave === 'function') {
+                    editor.onSave();
+                }
+
+                if (typeof editor.save === 'function') {
+                    editor.save();
+                }
+
+                var value = '';
+
+                if (typeof editor.getValue === 'function') {
+                    value = editor.getValue();
+                } else {
+                    value = $('#description').val();
+                }
+
+                this.form.append($('<input/>', {name: 'description', type: 'hidden',
+                    value: value
+                }));
+
+                // turn off you have unsaved changes feature of TinyMCE
+                window.onbeforeunload = null;
+            }
+
             this.form.append($('<input/>', {name: '_action', type: 'hidden', value: context.action}));
 
             var uploader = uploader_el.uploader('instance'),

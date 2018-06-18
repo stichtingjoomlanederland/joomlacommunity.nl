@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussEasySocial extends EasyDiscuss
 {
-	static $file 	= null;
+	static $file = null;
 	private $exists	= false;
 
 	public function __construct()
@@ -21,7 +21,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		parent::__construct();
 
 		$lang = JFactory::getLanguage();
-		$lang->load( 'com_easydiscuss' , JPATH_ROOT );
+		$lang->load('com_easydiscuss' , JPATH_ROOT);
 
 		self::$file = JPATH_ADMINISTRATOR . '/components/com_easysocial/includes/easysocial.php';
 		$this->exists = $this->exists();
@@ -30,30 +30,30 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	/**
 	 * Determines if EasySocial is installed on the site.
 	 *
-	 * @since	1.0
+	 * @since	4.2.0
 	 * @access	public
 	 */
 	public function exists()
 	{
-		jimport('joomla.filesystem.file');
+		static $exists = null;
 
-		$file = JPATH_ADMINISTRATOR . '/components/com_easysocial/includes/easysocial.php';
+		if (is_null($exists)) {
+			jimport('joomla.filesystem.file');
 
-
-		if (!JFile::exists($file)) {
-			return false;
-		} else {
-			// now we check if this component enabled or not.
+			$file = JPATH_ADMINISTRATOR . '/components/com_easysocial/includes/easysocial.php';
+			$fileExists = JFile::exists($file);
 			$enabled = JComponentHelper::isEnabled('com_easysocial');
 
-			if (! $enabled) {
-				return false;
+			if (!$fileExists || !$enabled) {
+				$exists = false;
+				return $exists;
 			}
+
+			include_once($file);
+			$exists = true;
 		}
 
-		include_once($file);
-
-		return true;
+		return $exists;
 	}
 
 	/**
@@ -77,17 +77,39 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	}
 
 	/**
-	 * Retrieves EasySocial's toolbar
+	 * Generates the badges for toolbar
 	 *
-	 * @since	1.0
+	 * @since	4.2.0
 	 * @access	public
 	 */
-	public function getToolbar()
+	public function getToolbarBadgesHtml()
 	{
-		$this->init();
+		static $output = null;
 
-		$toolbar 	= Foundry::get( 'Toolbar' );
-		$output 	= $toolbar->render();
+		if (is_null($output)) {
+			$user = ES::user();
+			$badges = $user->getBadges();
+
+			$theme = ED::themes();
+			$theme->set('badges', $badges);
+
+			$output = $theme->output('site/toolbar/badges');
+		}
+
+		return $output;
+	}
+
+	/**
+	 * Renders the toolbar dropdown html
+	 *
+	 * @since	4.2.0
+	 * @access	public
+	 */
+	public function getToolbarDropdown()
+	{
+		$theme = ED::themes();
+		$theme->set('esConfig', ES::config());
+		$output = $theme->output('site/toolbar/easysocial');
 
 		return $output;
 	}
@@ -148,6 +170,24 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	}
 
 	/**
+	 * Retrieves the cover for the user
+	 *
+	 * @since	4.2.0
+	 * @access	public
+	 */
+	public function getCover($id = null)
+	{
+		if (!$this->exists()) {
+			return;
+		}
+
+		$user = ES::user($id);
+		$cover = $user->getCoverData();
+
+		return $cover;
+	}
+
+	/**
 	 * Assign badge
 	 *
 	 * @since	1.0
@@ -174,16 +214,16 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 * @since	1.0
 	 * @access	public
 	 */
-	public function assignPoints( $rule , $creatorId = null, $post = null)
+	public function assignPoints($rule , $creatorId = null, $post = null)
 	{
-		if( !$this->exists() || !$this->config->get( 'integration_easysocial_points' ) )
+		if(!$this->exists() || !$this->config->get('integration_easysocial_points'))
 		{
 			return false;
 		}
 
 		// Since all the "rule" in EasyDiscuss is prepended with discuss. , we need to remove it
-		$rule 		= str_ireplace( 'easydiscuss.' , '' , $rule );
-		$creator 	= Foundry::user( $creatorId );
+		$rule 		= str_ireplace('easydiscuss.' , '' , $rule);
+		$creator 	= Foundry::user($creatorId);
 
 		$points		= Foundry::points();
 
@@ -203,7 +243,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 				// Get the content length
 				if ($length > $min || $min == 0) {
-					$state 	= $points->assign($rule , 'com_easydiscuss', $creator->id );
+					$state 	= $points->assign($rule , 'com_easydiscuss', $creator->id);
 				}
 			}
 
@@ -237,7 +277,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 			return $state;
 		}
 
-		$state 		= $points->assign( $rule , 'com_easydiscuss' , $creator->id );
+		$state 		= $points->assign($rule , 'com_easydiscuss' , $creator->id);
 
 		return $state;
 	}
@@ -289,7 +329,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 */
 	public function replyDiscussionStream($post)
 	{
-
 		if (!$this->exists() || !$this->config->get('integration_easysocial_activity_reply_question')) {
 			return;
 		}
@@ -307,9 +346,21 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		$obj->question = $question;
 		$obj->cat = $category;
 
+		$contextType = 'discuss';
+
+		$esClusterType = array('event', 'group');
+		$contribution = $question->getDiscussionContribution();
+
+		if ($contribution) {
+			if (in_array($contribution->type, $esClusterType)) {
+				$template->setCluster($contribution->id, $contribution->type);
+				$contextType = 'easydiscuss';
+			}
+		}
+
 		// Get the stream template
 		$template->setActor($post->user_id, SOCIAL_TYPE_USER);
-		$template->setContext($post->id, 'discuss', $obj);
+		$template->setContext($post->id, $contextType, $obj);
 
 		$template->setVerb('reply');
 
@@ -369,9 +420,9 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 * @param	string
 	 * @return
 	 */
-	public function likesStream( $post , $question )
+	public function likesStream($post , $question)
 	{
-		if( !$this->exists() || !$this->config->get( 'integration_easysocial_activity_likes' ) )
+		if(!$this->exists() || !$this->config->get('integration_easysocial_activity_likes'))
 		{
 			return;
 		}
@@ -385,13 +436,13 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		$obj->question	= $question;
 
 		// Get the stream template
-		$template->setActor( $actor->id , SOCIAL_TYPE_USER );
-		$template->setContext( $post->id , 'discuss' , $obj );
+		$template->setActor($actor->id , SOCIAL_TYPE_USER);
+		$template->setContext($post->id , 'discuss' , $obj);
 
-		$template->setVerb( 'likes' );
+		$template->setVerb('likes');
 
-		$template->setPublicStream( 'core.view' );
-		$state 	= $stream->add( $template );
+		$template->setPublicStream('core.view');
+		$state 	= $stream->add($template);
 
 		return $state;
 	}
@@ -404,9 +455,9 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 * @param	string
 	 * @return
 	 */
-	public function rankStream( $rank )
+	public function rankStream($rank)
 	{
-		if( !$this->exists() || !$this->config->get( 'integration_easysocial_activity_ranks' ) )
+		if(!$this->exists() || !$this->config->get('integration_easysocial_activity_ranks'))
 		{
 			return;
 		}
@@ -420,13 +471,13 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		$obj->title		= $rank->title;
 
 		// Get the stream template
-		$template->setActor( $rank->user_id , SOCIAL_TYPE_USER );
-		$template->setContext( $rank->rank_id , 'discuss' , $obj );
+		$template->setActor($rank->user_id , SOCIAL_TYPE_USER);
+		$template->setContext($rank->rank_id , 'discuss' , $obj);
 
-		$template->setVerb( 'ranks' );
+		$template->setVerb('ranks');
 
-		$template->setPublicStream( 'core.view' );
-		$state 	= $stream->add( $template );
+		$template->setPublicStream('core.view');
+		$state 	= $stream->add($template);
 
 		return $state;
 	}
@@ -452,10 +503,10 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		$template->setActor(ES::user()->id, SOCIAL_TYPE_USER);
 		$template->setContext($post->id, 'discuss', $post);
 
-		$template->setVerb( 'favourite' );
+		$template->setVerb('favourite');
 
-		$template->setPublicStream( 'core.view' );
-		$state 	= $stream->add( $template );
+		$template->setPublicStream('core.view');
+		$state 	= $stream->add($template);
 
 		return $state;
 	}
@@ -468,9 +519,9 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 * @param	string
 	 * @return
 	 */
-	public function acceptedStream( $post , $question )
+	public function acceptedStream($post , $question)
 	{
-		if( !$this->exists() || !$this->config->get( 'integration_easysocial_activity_accepted' ) )
+		if(!$this->exists() || !$this->config->get('integration_easysocial_activity_accepted'))
 		{
 			return;
 		}
@@ -483,13 +534,13 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		$obj->question	= $question;
 
 		// Get the stream template
-		$template->setActor( $post->user_id , SOCIAL_TYPE_USER );
-		$template->setContext( $post->id , 'discuss' , $obj );
+		$template->setActor($post->user_id , SOCIAL_TYPE_USER);
+		$template->setContext($post->id , 'discuss' , $obj);
 
-		$template->setVerb( 'accepted' );
+		$template->setVerb('accepted');
 
-		$template->setPublicStream( 'core.view' );
-		$state 	= $stream->add( $template );
+		$template->setPublicStream('core.view');
+		$state 	= $stream->add($template);
 
 		return $state;
 	}
@@ -502,9 +553,9 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 * @param	string
 	 * @return
 	 */
-	public function voteStream( $post )
+	public function voteStream($post)
 	{
-		if( !$this->exists() || !$this->config->get( 'integration_easysocial_activity_vote' ) )
+		if(!$this->exists() || !$this->config->get('integration_easysocial_activity_vote'))
 		{
 			return;
 		}
@@ -516,18 +567,18 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		$my 		= Foundry::user();
 
 		// Get the stream template
-		$template->setActor( $my->id , SOCIAL_TYPE_USER );
-		$template->setContext( $post->id , 'discuss' , $post );
+		$template->setActor($my->id , SOCIAL_TYPE_USER);
+		$template->setContext($post->id , 'discuss' , $post);
 
-		$template->setVerb( 'vote' );
+		$template->setVerb('vote');
 
-		$template->setPublicStream( 'core.view' );
-		$state 	= $stream->add( $template );
+		$template->setPublicStream('core.view');
+		$state 	= $stream->add($template);
 
 		return $state;
 	}
 
-	private function getRecipients( $action , $post )
+	private function getRecipients($action , $post)
 	{
 		$recipients 	= array();
 
@@ -551,7 +602,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		if ($action == 'new.reply') {
 			// Get all users that are subscribed to this post
 			$model	= ED::model('Posts');
-			$rows	= $model->getParticipants( $post->parent_id );
+			$rows	= $model->getParticipants($post->parent_id);
 
 			if (!$rows) {
 				return false;
@@ -1003,14 +1054,30 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		ES::notify($rule, $recipients, $emailOptions, $options);
 	}
 
+	/**
+	 * Determines if the dropdown toolbar should be rendering easysocial items
+	 *
+	 * @since	4.2.0
+	 * @access	public
+	 */
+	public function hasToolbar()
+	{
+		if (!$this->exists()) {
+			return false;
+		}
+
+		if (!$this->config->get('integration_easysocial_toolbar') || !$this->exists()) {
+			return false;
+		}
+
+		return true;
+	}
 
 	/**
 	 * Notify cluster members when discussion is created.
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function notifyCluster($action, $post, $question = null, $comment = null, $actor = null)
 	{
@@ -1056,7 +1123,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		$system->url = $params->permalink;
 		$system->context_ids = $post->id;
 
-		ES::notify('easydiscuss.discussion.create', $targets, $options, $system);
+		ES::notify('easydiscuss.group.create', $targets, $options, $system, $group->notification);
 	}
 
 	public function deleteDiscussStream($post, $cluster = false)
@@ -1201,8 +1268,8 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	{
 		$id = $alias;
 
-		if (strpos($alias , ':' ) !== false) {
-			$parts = explode(':', $alias , 2 );
+		if (strpos($alias , ':') !== false) {
+			$parts = explode(':', $alias , 2);
 
 			$id = $parts[0];
 		}

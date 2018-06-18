@@ -52,6 +52,8 @@ class EasyDiscussComposer extends EasyDiscuss
 
 		// If the editor type is not bbcode, we should get the correct bbcode
 		if ($this->editorType != 'bbcode') {
+			JHtml::_('behavior.core');
+			
 			$this->editor = JFactory::getEditor($this->editorType);
 		}
 

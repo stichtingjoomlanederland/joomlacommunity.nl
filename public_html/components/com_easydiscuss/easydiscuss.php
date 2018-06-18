@@ -16,15 +16,15 @@ jimport('joomla.filesystem.file');
 // Include main engine
 require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
 
-// Start profiling1%
-ED::profiler()->start();
-
 // What is this for?
 ED::getUserGids();
 ED::getSAUsersIds();
 
 // AJAX calls
 ED::ajax()->process();
+
+// Check for environment changes
+ED::checkEnvironment();
 
 require_once(dirname(__FILE__) . '/services.php');
 

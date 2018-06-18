@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -18,7 +18,7 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 	/**
 	 * Post installation process
 	 *
-	 * @since	1.0
+	 * @since	4.2.0
 	 * @access	public
 	 */
 	public function execute()
@@ -66,14 +66,14 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 		// Create sample post
 		$results[] = $this->createSamplePost();
 
-		// Now we need to update the #__update_sites row to include the api key as well as the domain
-		$this->updateJoomlaUpdater();
-
 		// Update the manifest_cache in #__extensions table
 		$this->updateManifestCache();
 
 		// Delete the Easydiscuss from the Updates table
 		$this->deleteUpdateRecord();
+
+		// Update the toolbar colors
+		$this->updateToolbarColors();
 
 		// Change the default value for new features and theme
 		// Only for 3.x-4.0
@@ -183,8 +183,6 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getMainMenuType()
 	{
@@ -451,84 +449,10 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 	}
 
 	/**
-	 * Once the installation is completed, we need to update Joomla's update site table with the appropriate data
-	 *
-	 * @since	4.0.14
-	 * @access	public
-	 */
-	public function updateJoomlaUpdater()
-	{
-		$this->engine();
-
-		$extensionId = $this->getExtensionId();
-
-		$db = JFactory::getDBO();
-		$query = array();
-		$query[] = 'SELECT ' . $db->quoteName('update_site_id') . ' FROM ' . $db->quoteName('#__update_sites_extensions');
-		$query[] = 'WHERE ' . $db->quoteName('extension_id') . '=' . $db->Quote($extensionId);
-
-		$query = implode(' ', $query);
-		$db->setQuery($query);
-
-		$updateSiteId = $db->loadResult();
-
-		$defaultLocation = 'https://stackideas.com/jupdates/manifest/easydiscuss';
-		$location = $defaultLocation . '?apikey=' . ED_KEY;
-
-		// For some Joomla versions, there is no tables/updatesite.php
-		// Hence, the JTable::getInstance('UpdateSite') will return null
-		$table = JTable::getInstance('UpdateSite');
-
-		if ($table) {
-			// Now we need to update the url
-			$exists = $table->load($updateSiteId);
-
-			if (!$exists) {
-				return false;
-			}
-
-			$table->location = $location;
-			$table->store();
-		} else {
-			$query	= 'UPDATE '. $db->quoteName('#__update_sites')
-					. ' SET ' . $db->quoteName('location') . ' = ' . $db->Quote($location)
-					. ' WHERE ' . $db->quoteName('update_site_id') . ' = ' . $db->Quote($updateSiteId);
-			$db->setQuery($query);
-			$db->query();
-		}
-
-		// Cleanup unwanted data from updates table
-		// Since Joomla will always try to add a new record when it doesn't find the same match, we need to delete records created
-		// for https://stackideas.com/jupdates/manifest/easydiscuss
-		$query = 'SELECT * FROM ' . $db->quoteName('#__update_sites') . ' WHERE ' . $db->quoteName('location') . '=' . $db->Quote($defaultLocation);
-		$db->setQuery($query);
-
-		$defaultSites = $db->loadObjectList();
-
-		if (!$defaultSites) {
-			return true;
-		}
-
-		foreach ($defaultSites as $site) {
-			$query = 'DELETE FROM ' . $db->quoteName('#__update_sites') . ' WHERE ' . $db->quoteName('update_site_id') . '=' . $db->Quote($site->update_site_id);
-			$db->setQuery($query);
-			$db->Query();
-
-			$query = 'DELETE FROM ' . $db->quoteName('#__update_sites_extensions') . ' WHERE ' . $db->quoteName('update_site_id') . '=' . $db->Quote($site->update_site_id);
-			$db->setQuery($query);
-			$db->Query();
-		}
-
-		return true;
-	}
-
-	/**
 	 * Update the manifest cache
 	 *
-	 * @since   4.0.14
+	 * @since   4.2.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function updateManifestCache()
 	{	
@@ -562,10 +486,8 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 	/**
 	 * Delete record in updates table
 	 *
-	 * @since   4.0.14
+	 * @since   4.2.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function deleteUpdateRecord()
 	{
@@ -579,10 +501,8 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 	/**
 	 * Create a new default blog menu
 	 *
-	 * @since	5.0
+	 * @since	4.2.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function createDefaultMenu()
 	{
@@ -757,10 +677,8 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 	/**
 	 * Create a default category for the site
 	 *
-	 * @since	5.0
+	 * @since	4.2.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function createDefaultCategory()
 	{
@@ -809,12 +727,10 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 	}
 
 	/**
-	 * Update the ACL for EasyBlog
+	 * Update the ACL
 	 *
-	 * @since	5.0
+	 * @since	4.2.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function updateACL()
 	{
@@ -868,10 +784,8 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 	/**
 	 * Assign acl rules to existing Joomla groups
 	 *
-	 * @since	5.0
+	 * @since	4.2.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function assignACL()
 	{
@@ -1015,4 +929,44 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 		return true;
 	}
 
+	/**
+	 * Since version 4.2.0, we now use toolbar color settings instead
+	 *
+	 * @since	4.2.0
+	 * @access	public
+	 */
+	public function updateToolbarColors()
+	{
+		$this->engine();
+
+		$config = ED::config();
+		$theme = $config->get('layout_site_theme');
+
+		if ($theme == 'flatt') {
+			$this->updateConfig('layout_toolbarcolor', '#475a64');
+			$this->updateConfig('layout_toolbarbordercolor', '#475a64');
+			$this->updateConfig('layout_toolbaractivecolor', '#596c78');
+		}
+
+		if ($theme == 'simplistic') {
+			$this->updateConfig('layout_toolbarcolor', '#fafafa');
+			$this->updateConfig('layout_toolbarbordercolor', '#e1e1e1');
+			$this->updateConfig('layout_toolbaractivecolor', '#d6d6d6');
+			$this->updateConfig('layout_toolbartextcolor', '#777777');
+		}
+
+		if ($theme == 'timeless') {
+			$this->updateConfig('layout_toolbarcolor', '#ffffff');
+			$this->updateConfig('layout_toolbarbordercolor', '#e1e1e1');
+			$this->updateConfig('layout_toolbaractivecolor', '#ebebeb');
+			$this->updateConfig('layout_toolbartextcolor', '#888888');
+		}
+
+		if ($theme == 'zinc') {
+			$this->updateConfig('layout_toolbarcolor', '#F5F5F5');
+			$this->updateConfig('layout_toolbarbordercolor', '#e1e1e1');
+			$this->updateConfig('layout_toolbaractivecolor', '#d6d6d6');
+			$this->updateConfig('layout_toolbartextcolor', '#888888');
+		}
+	}
 }

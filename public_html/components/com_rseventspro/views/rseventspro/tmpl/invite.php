@@ -4,7 +4,12 @@
 * @copyright (C) 2015 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
-defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
+defined( '_JEXEC' ) or die( 'Restricted access' );
+JText::script('ERROR');
+JText::script('COM_RSEVENTSPRO_INVITE_FROM_ERROR');
+JText::script('COM_RSEVENTSPRO_INVITE_FROM_NAME_ERROR');
+JText::script('COM_RSEVENTSPRO_INVITE_EMAILS_ERROR');
+JText::script('COM_RSEVENTSPRO_INVITE_CAPTCHA_ERROR'); ?>
 
 <script type="text/javascript">
 var invitemessage = new Array();
@@ -24,7 +29,7 @@ function rs_google_auth() {
 <?php } ?>
 </script>
 
-<form method="post" action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro'); ?>" name="adminForm" id="adminForm" onsubmit="checkcaptcha();">
+<form method="post" action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro'); ?>" name="adminForm" id="adminForm" onsubmit="rs_invite();">
 	<h3><?php echo JText::sprintf('COM_RSEVENTSPRO_INVITE_FRIENDS',$this->event->name); ?></h3>
 
 	<?php if (!empty($this->config->google_client_id)) { ?><a class="rs_invite_btn" href="javascript:void(0)" onclick="rs_google_auth();"><?php echo JText::_('COM_RSEVENTSPRO_INVITE_FROM_GMAIL'); ?></a><?php } ?> 
@@ -92,7 +97,7 @@ function rs_google_auth() {
 	</div>
 	
 	<div class="form-actions">
-		<button type="button" class="button btn btn-primary" onclick="checkcaptcha();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SEND'); ?></button> <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?> 
+		<button type="button" class="button btn btn-primary" onclick="rs_invite();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SEND'); ?></button> <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?> 
 		<?php echo rseventsproHelper::redirect(false,JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'),rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id))); ?>
 	</div>
 	

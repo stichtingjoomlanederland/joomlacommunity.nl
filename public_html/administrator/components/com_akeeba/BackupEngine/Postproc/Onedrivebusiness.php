@@ -16,6 +16,7 @@ defined('AKEEBAENGINE') or die();
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
 use Akeeba\Engine\Postproc\Connector\OneDriveBusiness as ConnectorOneDriveBusiness;
+use Psr\Log\LogLevel;
 
 class Onedrivebusiness extends Onedrive
 {
@@ -24,7 +25,7 @@ class Onedrivebusiness extends Onedrive
 	 *
 	 * @var   string
 	 */
-	protected $callbackMethod = 'akeeba_onedrivebusiness_oauth_callback';
+	protected $callbackMethod = 'akconfig_onedrivebusiness_oauth_callback';
 
 	/**
 	 * The key in Akeeba Engine's settings registry for this post-processing method
@@ -43,11 +44,34 @@ class Onedrivebusiness extends Onedrive
 	 */
 	protected function getConnectorInstance($access_token, $refresh_token)
 	{
-		$configuration = Factory::getConfiguration();
-		$serviceId     = $configuration->get('engine.postproc.onedrivebusiness.service_id');
-		$serviceId     = trim($serviceId);
+		$connector = new ConnectorOneDriveBusiness($access_token, $refresh_token);
 
-		return new ConnectorOneDriveBusiness($serviceId, $access_token, $refresh_token);
+		try
+		{
+			$endPoint = $connector->discoverEndpoint(true);
+			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - OneDrive for Business endpoint is $endPoint");
+
+			return $connector;
+		}
+		catch (\RuntimeException $e)
+		{
+			// If we're here we need to refresh the token
+		}
+
+		$refreshResult = $connector->refreshToken();
+
+		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - OneDrive for Business tokens were refreshed");
+		$config = Factory::getConfiguration();
+		$config->set('engine.postproc.' . $this->settingsKey . '.access_token', $refreshResult['access_token'], false);
+		$config->set('engine.postproc.' . $this->settingsKey . '.refresh_token', $refreshResult['refresh_token'], false);
+
+		$profile_id = Platform::getInstance()->get_active_profile();
+		Platform::getInstance()->save_configuration($profile_id);
+
+		$endPoint = $connector->discoverEndpoint(true);
+		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - OneDrive for Business endpoint is $endPoint");
+
+		return $connector;
 	}
 
 	/**
@@ -59,22 +83,5 @@ class Onedrivebusiness extends Onedrive
 	{
 		return ConnectorOneDriveBusiness::helperUrl;
 	}
-
-	protected function initialiseConnector()
-	{
-		$configuration = Factory::getConfiguration();
-		$serviceId     = $configuration->get('engine.postproc.onedrivebusiness.service_id');
-		$serviceId     = trim($serviceId);
-
-		if (empty($serviceId))
-		{
-			$this->setError('You have not linked Akeeba Backup with your OneDrive for Business account (Service ID is missing)');
-
-			return false;
-		}
-
-		return parent::initialiseConnector();
-	}
-
 
 }

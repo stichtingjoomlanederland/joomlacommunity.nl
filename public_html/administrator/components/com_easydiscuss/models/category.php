@@ -334,7 +334,12 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 			if ($children) {
 				$query = "select count(1) from `#__discuss_thread` as a";
 				$query .= " where a.`published` = " . $db->Quote('1');
-				$query .= " and a.`private` = " . $db->Quote('0');
+
+				// Check for private post
+				if (!ED::isSiteAdmin() && !ED::isModerator()) {
+					$query .= " AND (a.`private` = " . $db->Quote(0) . " OR (a.`private` = " . $db->Quote(1) . " AND a.`user_id` = " . $db->Quote(ED::user()->id) . "))";
+				}
+
 				$query .= " and a.`cluster_id` = " . $db->Quote(0);
 				$query .= " and a.`category_id` in (" . implode(',', $children) . ")";
 

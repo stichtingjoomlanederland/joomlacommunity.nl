@@ -10,7 +10,7 @@ $clength	= (int) $this->config->max_comm_len;
 $icons		= RSCommentsHelper::showIcons($this->permissions); 
 $emoticons	= RSCommentsEmoticons::createEmoticons();
 $upload		= (int) $this->config->enable_upload;
-$required	= ' *'; ?>
+$required	= $this->config->anonymous ? '' : ' *'; ?>
 
 <div class="rscomment-form well<?php if ($this->config->comment_form_position) { ?> rscomment-form-top<?php } ?>">
 	<form id="rscommentsForm" name="rscommentsForm" action="javascript:void(0)" method="post">
@@ -24,7 +24,9 @@ $required	= ' *'; ?>
 		
 		<div id="rscomments-form-message" class="alert" style="display: none;"></div>
 		
+		<?php if ($this->config->enable_name_field == 1 || $this->config->enable_email_field == 1 || !$this->config->anonymous) { ?>
 		<div class="row-fluid">
+			<?php if ($this->config->enable_name_field == 1 || !$this->config->anonymous) { ?>
 			<div class="control-group span6">
 				<?php if ($this->config->show_labels) { ?>
 				<label class="control-label <?php echo RSTooltip::tooltipClass(); ?>" for="rsc_name" title="<?php echo RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_COMMENT_NAME_DESC')); ?>">
@@ -35,6 +37,9 @@ $required	= ' *'; ?>
 					<input <?php echo $this->disable; ?> type="text" class="span11 required" id="rsc_name" name="jform[name]" value="<?php echo $this->user->get('name'); ?>" size="45" <?php if (!$this->config->show_labels) { ?>placeholder="<?php echo JText::_('COM_RSCOMMENTS_COMMENT_NAME').$required; ?>"<?php } ?> />
 				</div>
 			</div>
+			<?php } ?>
+			
+			<?php if ($this->config->enable_email_field == 1 || !$this->config->anonymous) { ?>
 			<div class="control-group span6">
 				<?php if ($this->config->show_labels) { ?>
 				<label class="control-label <?php echo RSTooltip::tooltipClass(); ?>" for="rsc_email" title="<?php echo RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_COMMENT_EMAIL_DESC')); ?>">
@@ -45,7 +50,9 @@ $required	= ' *'; ?>
 					<input <?php echo $this->disable; ?> type="text" class="span11 required" id="rsc_email" name="jform[email]" value="<?php echo $this->user->get('email'); ?>" size="45" <?php if (!$this->config->show_labels) { ?>placeholder="<?php echo JText::_('COM_RSCOMMENTS_COMMENT_EMAIL').$required; ?>"<?php } ?> />
 				</div>
 			</div>
+			<?php } ?>
 		</div>
+		<?php } ?>
 		
 		<?php if ($this->config->enable_title_field == 1 || $this->config->enable_website_field == 1) { ?>
 		<div class="row-fluid">
@@ -151,6 +158,8 @@ $required	= ' *'; ?>
 		<hr>
 		<?php if (($this->config->show_subcription_checkbox && !$this->permissions['auto_subscribe_thread']) || $this->config->terms) { ?>
 		<div class="row-fluid">
+			
+			<?php if ($this->config->enable_email_field == 1 || !$this->config->anonymous) { ?>
 			<?php if ($this->config->show_subcription_checkbox && !$this->permissions['auto_subscribe_thread']) { ?>
 			<div class="control-group span3">
 				<div class="controls">
@@ -159,6 +168,7 @@ $required	= ' *'; ?>
 					</label>
 				</div>
 			</div>
+			<?php } ?>
 			<?php } ?>
 			
 			<?php if ($this->config->terms) { ?>
@@ -173,6 +183,19 @@ $required	= ' *'; ?>
 				</div>
 			</div>
 			<?php } ?>
+		</div>
+		<?php } ?>
+		
+		<?php if ($this->config->consent) { ?>
+		<div class="row-fluid">
+			<div class="control-group span9">
+				<div class="controls">
+					<label class="checkbox">
+						<input type="checkbox" id="rsc_consent" class="rsc_chk required" name="jform[rsc_consent]" value="1" /> 
+						<?php echo JText::_('COM_RSCOMMENTS_CONSENT'); ?>
+					</label>
+				</div>
+			</div>
 		</div>
 		<?php } ?>
 		

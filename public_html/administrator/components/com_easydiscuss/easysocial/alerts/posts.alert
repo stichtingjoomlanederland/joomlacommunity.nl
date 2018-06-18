@@ -1,132 +1,82 @@
-
-// These alert rules are for core features
 [
 	{
-		"extension"	: "com_easydiscuss",
-		"element"	: "discuss",
-
-		// The rule of this alert
-		"rule"		: "create",
-
-		// We don't want to send e-mail notifications via EasySocial
+		"extension" : "com_easydiscuss",
+		"element" : "discuss",
+		"rule" : "create",
 		"value" :
 		{
-			"email"		: false,
-
-			// We only want to use system notifications
-			"system"	: true			
+			"email" : false,
+			"system" : true
 		}
 	},
 	{
-		"extension"	: "com_easydiscuss",
-		"element"	: "discuss",
-
-		// The rule of this alert
-		"rule"		: "reply",
-
-		// We don't want to send e-mail notifications via EasySocial
+		"extension" : "com_easydiscuss",
+		"element" : "discuss",
+		"rule" : "reply",
 		"value" :
 		{
-			"email"		: false,
-
-			// We only want to use system notifications
-			"system"	: true			
+			"email" : false,
+			"system" : true
 		}
 	},
 	{
-		"extension"	: "com_easydiscuss",
-		"element"	: "discuss",
-
-		// The rule of this alert
-		"rule"		: "comment",
-
-		// We don't want to send e-mail notifications via EasySocial
+		"extension" : "com_easydiscuss",
+		"element" : "discuss",
+		"rule" : "comment",
 		"value" :
 		{
-			"email"		: false,
-
-			// We only want to use system notifications
-			"system"	: true			
+			"email" : false,
+			"system" : true
 		}
 	},
 	{
-		"extension"	: "com_easydiscuss",
-		"element"	: "discuss",
-
-		// The rule of this alert
-		"rule"		: "accepted",
-
-		// We don't want to send e-mail notifications via EasySocial
+		"extension" : "com_easydiscuss",
+		"element" : "discuss",
+		"rule" : "accepted",
 		"value" :
 		{
-			"email"		: false,
-
-			// We only want to use system notifications
-			"system"	: true			
+			"email" : false,
+			"system" : true
 		}
 	},
 	{
-		"extension"	: "com_easydiscuss",
-		"element"	: "discuss",
-
-		// The rule of this alert
-		"rule"		: "accepted.owner",
-
-		// We don't want to send e-mail notifications via EasySocial
+		"extension" : "com_easydiscuss",
+		"element" : "discuss",
+		"rule" : "accepted.owner",
 		"value" :
 		{
-			"email"		: false,
-
-			// We only want to use system notifications
-			"system"	: true			
+			"email" : false,
+			"system" : true
 		}
 	},
 	{
-		"extension"	: "com_easydiscuss",
-		"element"	: "discuss",
-
-		// The rule of this alert
-		"rule"		: "likes",
-
-		// We don't want to send e-mail notifications via EasySocial
+		"extension" : "com_easydiscuss",
+		"element" : "discuss",
+		"rule" : "likes",
 		"value" :
 		{
-			"email"		: false,
-
-			// We only want to use system notifications
-			"system"	: true			
+			"email" : false,
+			"system" : true
 		}
 	},
 	{
-		"extension"	: "com_easydiscuss",
-		"element"	: "discuss",
-
-		// The rule of this alert
-		"rule"		: "mentions",
-
-		// We don't want to send e-mail notifications via EasySocial
+		"extension" : "com_easydiscuss",
+		"element" : "discuss",
+		"rule" : "mentions",
 		"value" :
 		{
-			"email"		: false,
-
-			// We only want to use system notifications
-			"system"	: true			
+			"email" : false,
+			"system" : true
 		}
 	},
 	{
-		"extension"	: "com_easydiscuss",
-		"element"	: "discuss",
-
-		// The rule of this alert
-		"rule"		: "vote",
-
-		// We don't want to send e-mail notifications via EasySocial
+		"extension" : "com_easydiscuss",
+		"element" : "discuss",
+		"rule" : "vote",
 		"value" :
 		{
-			"email"		: false,
-
-			// We only want to use system notifications
-			"system"	: true			
+			"email" : false,
+			"system" : true
 		}
 	}
 ]

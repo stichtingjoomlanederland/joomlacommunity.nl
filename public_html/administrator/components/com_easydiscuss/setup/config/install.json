@@ -1,23 +1,18 @@
 [
 	{
 		"index": 1,
-		"title": "COM_EASYDISCUSS_INSTALLER_STEP_REQUIREMENTS",
-		"template": "requirements"
-	}, {
-		"index": 2,
-		"title": "COM_EASYDISCUSS_INSTALLATION_METHOD",
+		"title": "License",
+		"desc": "Associate licence for this installation",
 		"template": "installing.source"
 	}, {
-		"index": 3,
-		"title": "COM_EASYDISCUSS_INSTALLATION_EXTRACTING_AND_INSTALLING",
+		"index": 2,
+		"title": "Installation",
+		"desc": "Setting up necessary dependencies for EasyDiscuss",
 		"template": "installing"
 	}, {
-		"index": 4,
-		"title": "COM_EASYDISCUSS_INSTALLATION_ADDONS",
+		"index": 3,
+		"title": "Addons",
+		"desc": "Setting up modules and plugins",
 		"template": "addons"
-	}, 	{
-		"index": 5,
-		"title": "COM_EASYDISCUSS_INSTALLATION_MAINTENANCE",
-		"template": "maintenance"
 	}
 ]

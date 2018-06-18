@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 <install version="2.0" type="plugin" plugin="filemanager" editable="1" core="0" row="4">
     <name>WF_FILEMANAGER_TITLE</name>
-    <version>2.6.28</version>
-    <creationDate>21-03-2018</creationDate>
+    <version>2.6.30</version>
+    <creationDate>05-06-2018</creationDate>
     <author>Ryan Demmer</author>
     <authorEmail>info@joomlacontenteditor.net</authorEmail>
     <authorUrl>http://www.joomlacontenteditor.net/</authorUrl>
@@ -40,6 +40,7 @@
             <option value="_blank">WF_OPTION_TARGET_BLANK</option>
             <option value="_parent">WF_OPTION_TARGET_PARENT</option>
             <option value="_top">WF_OPTION_TARGET_TOP</option>
+            <option value="download">WF_OPTION_TARGET_DOWNLOAD</option>
         </param>
 
         <param type="text" name="id" default="" size="50" label="WF_LABEL_ID" description="WF_LABEL_ID_DESC" />

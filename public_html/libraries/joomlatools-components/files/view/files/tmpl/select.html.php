@@ -8,6 +8,7 @@
  */
 defined('KOOWA') or die; ?>
 
+
 <?= import('com:files.files.compact.html') ?>
 
 <?= helper('ui.load'); ?>

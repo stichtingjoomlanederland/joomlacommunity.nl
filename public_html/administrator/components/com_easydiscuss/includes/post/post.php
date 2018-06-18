@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -182,8 +182,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function __get($key)
 	{
@@ -203,8 +201,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function hit()
 	{
@@ -223,8 +219,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canComment()
 	{
@@ -240,6 +234,12 @@ class EasyDiscussPost extends EasyDiscuss
 			$this->setError('COM_EASYDISCUSS_SYSTEM_BANNED_YOU');
 			return false;
 		}
+
+		if ($this->isLocked()) {
+			$this->setError('COM_EASYDISCUSS_POST_IS_CURRENTLY_LOCKED');
+			return false;
+		}
+
 
 		$canComment = true;
 
@@ -365,8 +365,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canFeature()
 	{
@@ -394,8 +392,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canDelete()
 	{
@@ -434,8 +430,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canEdit()
 	{
@@ -493,8 +487,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canPrint()
 	{
@@ -510,8 +502,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canReply()
 	{
@@ -551,8 +541,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function branch()
 	{
@@ -567,8 +555,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canBranch()
 	{
@@ -600,8 +586,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canResolve()
 	{
@@ -638,8 +622,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canReport()
 	{
@@ -672,8 +654,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canMove()
 	{
@@ -696,8 +676,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canPostNewDiscussion()
 	{
@@ -728,8 +706,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function bindParams($data)
 	{
@@ -1006,8 +982,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function feature()
 	{
@@ -1190,8 +1164,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	private function validateQuestion($data, $options = array())
 	{
@@ -1210,6 +1182,17 @@ class EasyDiscussPost extends EasyDiscuss
 		if (!isset($this->post->content) || (JString::strlen($this->post->content) == 0)){
 			$this->setError('COM_EASYDISCUSS_POST_CONTENT_IS_EMPTY');
 			return false;
+		}
+
+		// Ensure that the title doesn't exceed the maximum characters count
+		if ($this->config->get('main_post_title_limit')) {
+			$limit = $this->config->get('main_post_title_chars');
+			$titleLength = JString::strlen($this->post->title);
+
+			if ($titleLength > $limit) {
+				$this->setError(JText::sprintf("COM_ED_POST_TITLE_EXCEEDED_LIMIT", $this->config->get('main_post_title_chars')));
+				return false;
+			}
 		}
 
 		// Ensure that the post meets the min length
@@ -1305,8 +1288,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function validateFields($operation = null)
 	{
@@ -1343,8 +1324,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function validateAttachment()
 	{
@@ -1355,6 +1334,7 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		$allowed = explode(',', $this->config->get('main_attachment_extension'));
+		$attachment = ED::attachment();
 
 		foreach ($files as $file) {
 			if ($file['name']) {
@@ -1368,21 +1348,28 @@ class EasyDiscussPost extends EasyDiscuss
 					return false;
 				}
 
+				// check for the file attachment size whether under within the limit
+				$size = $file['size'];
+				$maxSize = $attachment->getUploadLimit();
+
+				// Convert byte to megabyte size
+				$convertedLimitSize = $maxSize / 1024 / 1024;
+
+				if ($maxSize && $size > $maxSize) {
+					$this->setError(JText::sprintf('COM_EASYDISCUSS_FILE_ATTACHMENTS_MAX_SIZE_EXCLUDED', $file['name'], $convertedLimitSize));
+					return false;
+				}
 			}
 		}
 
 		return true;
 	}
 
-
-
 	/**
 	 * Combine question and reply validates together
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function validate($data = array(), $operation = null, $options = array())
 	{
@@ -1427,8 +1414,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function akismet()
 	{
@@ -1462,8 +1447,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canAcceptAsAnswer()
 	{
@@ -1566,8 +1549,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canAssign($userId = null)
 	{
@@ -1597,8 +1578,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canView($viewerId = null)
 	{
@@ -1649,7 +1628,7 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		// Check whether this is a valid discussion
-		if ($this->post->parent_id != 0 || ($this->post->published == DISCUSS_ID_PENDING && ($this->post->user_id != $this->my->id))) {
+		if ($this->isReply() && $this->isPending() && $this->post->user_id != $this->my->id) {
 			return false;
 		}
 
@@ -1657,8 +1636,6 @@ class EasyDiscussPost extends EasyDiscuss
 		if ($this->isPending() && !ED::isModerator($this->post->category_id, $this->my->id)) {
 			return false;
 		}
-
-
 
 		return true;
 	}
@@ -1668,8 +1645,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canLike()
 	{
@@ -1702,8 +1677,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canFav()
 	{
@@ -1736,8 +1709,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canLock()
 	{
@@ -1765,8 +1736,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function hasStatus()
 	{
@@ -1777,8 +1746,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canSetStatus($status)
 	{
@@ -1822,8 +1789,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canLockPolls()
 	{
@@ -1854,8 +1819,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canUnlock()
 	{
@@ -1868,8 +1831,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canBanAuthor()
 	{
@@ -1907,8 +1868,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function hasReplies()
 	{
@@ -1928,8 +1887,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function hasComments()
 	{
@@ -1949,8 +1906,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function hasVoted($userId = null)
 	{
@@ -1977,8 +1932,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function hasLocation()
 	{
@@ -1995,8 +1948,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @alternative for ->polls
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function hasPolls()
 	{
@@ -2026,8 +1977,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @alternative for ->attachments
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function hasAttachments()
 	{
@@ -2054,8 +2003,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isCluster()
 	{
@@ -2146,8 +2093,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isSeen($userId = null)
 	{
@@ -2175,8 +2120,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isUnread($userId = null)
 	{
@@ -2204,8 +2147,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getHeaderClass()
 	{
@@ -2275,8 +2216,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @alternative for ->post_type_title
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getTypeTitle()
 	{
@@ -2288,8 +2227,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getAssignment()
 	{
@@ -2342,8 +2279,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getCategoryLanguage()
 	{
@@ -2355,8 +2290,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getReferences()
 	{
@@ -2390,8 +2323,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getCustomFields()
 	{
@@ -2406,8 +2337,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getPriority()
 	{
@@ -2433,8 +2362,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @alternative for ->itemtype
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getType()
 	{
@@ -2450,8 +2377,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getClusterType()
 	{
@@ -2463,8 +2388,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0.10
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getDateObject()
 	{
@@ -2480,8 +2403,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getDuration()
 	{
@@ -2506,8 +2427,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	 public function getDiscussionContribution()
 	 {
@@ -2527,10 +2446,8 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
-	public function getPermalink($external = false, $xhtml = true, $json = false, $respectedLangMenu = false)
+	public function getPermalink($external = false, $xhtml = true, $json = false, $respectedLangMenu = false, $includeAnchor = true)
 	{
 		static $links = array();
 
@@ -2578,7 +2495,7 @@ class EasyDiscussPost extends EasyDiscuss
 				}
 			}
 
-			if ($this->isReply()) {
+			if ($this->isReply() && $includeAnchor) {
 				$links[$key] .= '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $this->post->id;
 			}
 
@@ -2595,8 +2512,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   5.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getAlias()
 	{
@@ -2693,8 +2608,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getAcceptedReply($checkAcl = true)
 	{
@@ -2734,8 +2647,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @alternative for ->reply
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getLastReplier()
 	{
@@ -2802,8 +2713,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @alternative for ->reply
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isLastReplyAnonymous()
 	{
@@ -2841,8 +2750,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getTotalFavorites()
 	{
@@ -2868,8 +2775,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @alternative for ->tags
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getTags()
 	{
@@ -2892,8 +2797,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @alternative for ->attachments
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getAttachments()
 	{
@@ -2916,7 +2819,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   int     The user's id.
 	 */
 	public function isLikedBy($userId)
 	{
@@ -2950,8 +2852,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isFavBy($userId)
 	{
@@ -2972,8 +2872,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getMyFavCount()
 	{
@@ -2988,8 +2886,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getParent()
 	{
@@ -3007,8 +2903,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getComments($limit = null, $limitstart = null)
 	{
@@ -3032,8 +2926,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getTotalComments()
 	{
@@ -3058,8 +2950,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getAccess()
 	{
@@ -3084,8 +2974,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getTotalReplies()
 	{
@@ -3115,8 +3003,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getHits()
 	{
@@ -3128,8 +3014,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getTotalVotes()
 	{
@@ -3152,8 +3036,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getTotalLikes()
 	{
@@ -3174,8 +3056,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getVoters($limit = '5')
 	{
@@ -3189,8 +3069,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @alternative for ->category
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getCategoryTitle()
 	{
@@ -3231,8 +3109,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getProtectedContent($type = 'intro')
 	{
@@ -3293,10 +3169,8 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
-	public function getContent($debug = false)
+	public function getContent($debug = false, $reload = false, $processAttachments = true)
 	{
 		$content = '';
 
@@ -3308,7 +3182,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 			// Add the br tags in the content, we do it here so that the content triggers's javascript will not get added with br tags
 			// here we assign the formatted value into ->content is bcos the trigger is seeing this value.
-			$this->post->content = $this->formatContent($debug);
+			$this->post->content = $this->formatContent($debug, $reload, $processAttachments);
 			// $this->post->content = ED::formatContent($this->post);
 
 			$this->events = new stdClass();
@@ -3329,7 +3203,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 
 			$content = ED::badwords()->filter($this->post->preview);
-			$content = $this->formatContent($debug);
+			$content = $this->formatContent($debug, $reload, $processAttachments);
 			// $content = ED::formatContent($this->post);
 
 			//debug code:
@@ -3346,8 +3220,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getContentType()
 	{
@@ -3359,8 +3231,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getOwner($isEmail = false)
 	{
@@ -3382,7 +3252,7 @@ class EasyDiscussPost extends EasyDiscuss
 				if ($isEmail && ED::isSiteAdmin() && $this->post->anonymous) {
 					$showAsAnonymous = true;
 				}
-				
+
 				if ($showAsAnonymous) {
 					$user = ED::user('0');
 					$user->name = JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');
@@ -3413,7 +3283,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   1.0
 	 * @access  public
-	 * @return  string
 	 */
 	public function getStatusClass()
 	{
@@ -3441,7 +3310,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   1.0
 	 * @access  public
-	 * @return  string
 	 */
 	public function getStatusMessage()
 	{
@@ -3469,8 +3337,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function setStatus($status)
 	{
@@ -3500,8 +3366,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function setError($message = '')
 	{
@@ -3513,8 +3377,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getError($message = '')
 	{
@@ -3526,8 +3388,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function hasError()
 	{
@@ -3539,8 +3399,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getPostItemType()
 	{
@@ -3558,8 +3416,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isQuestion()
 	{
@@ -3571,8 +3427,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isReply()
 	{
@@ -3584,8 +3438,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isPublished()
 	{
@@ -3597,8 +3449,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isPending()
 	{
@@ -3610,8 +3460,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isPrivate()
 	{
@@ -3624,8 +3472,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isPostRejected()
 	{
@@ -3637,8 +3483,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isPostOnhold()
 	{
@@ -3650,8 +3494,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isPostAccepted()
 	{
@@ -3731,8 +3573,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getPostTypeSuffix()
 	{
@@ -3751,8 +3591,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getPostType()
 	{
@@ -3781,8 +3619,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function slack()
 	{
@@ -3795,8 +3631,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function telegram()
 	{
@@ -3809,8 +3643,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function toData()
 	{
@@ -3851,9 +3683,6 @@ class EasyDiscussPost extends EasyDiscuss
 				$data->comments[] = $comment->toData();
 			}
 		}
-
-
-
 
 		return $data;
 	}
@@ -3931,8 +3760,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function processCustomFields()
 	{
@@ -4013,6 +3840,7 @@ class EasyDiscussPost extends EasyDiscuss
 			$attachment = ED::attachment();
 			$attachment->upload($this, $file);
 		}
+
 		return true;
 	}
 
@@ -4087,8 +3915,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function saveThread()
 	{
@@ -4192,8 +4018,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function updateReplyCount()
 	{
@@ -4219,8 +4043,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function bindPolls()
 	{
@@ -4290,8 +4112,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   null
-	 * @return  boolean True if success, false otherwise.
 	 */
 	public function autopost()
 	{
@@ -4349,8 +4169,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function trimEmail($content)
 	{
@@ -4382,8 +4200,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function truncateContentByLength($content, $start, $length)
 	{
@@ -4400,8 +4216,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function notifyNames()
 	{
@@ -4522,8 +4336,8 @@ class EasyDiscussPost extends EasyDiscuss
 
 		// Retrieve the guest name
 		} elseif (isset($this->post->poster_name) && $this->post->poster_name) {
-			$overrideName = $this->post->poster_name;	
-		
+			$overrideName = $this->post->poster_name;
+
 		} else {
 			$overrideName = '';
 		}
@@ -4557,11 +4371,18 @@ class EasyDiscussPost extends EasyDiscuss
 		// Ensure that content image style attribute set to max-width
 		$emailContent = ED::parser()->normaliseImageStyle($emailContent);
 
+		// fixed bbcode width in email content. #459
+		$emailContent = ED::parser()->normliseBBCode($emailContent);
+
 		$emailData['replyContent'] = $emailContent;
 		$emailData['replyAuthor'] = $owner->getName($overrideName);
 		$emailData['replyAuthorAvatar'] = $owner->getAvatar();
 		$emailData['post_id'] = $this->post->parent_id;
 		$emailData['cat_id'] = $this->post->category_id;
+
+		// retrieve the post owner email
+		$posterEmail = $this->post->poster_email ? $this->post->poster_email : $this->my->email;
+		$administratorEmails = array();
 
 		if ($this->isPending()) {
 
@@ -4593,42 +4414,44 @@ class EasyDiscussPost extends EasyDiscuss
 
 			ED::mailer()->notifyAdministrators($emailData, array(), $this->config->get('notify_admin'), $this->config->get('notify_moderator'));
 
-		} elseif (($this->isPublished() && !$this->post->private) || (!$this->isNew() && $this->prevPostStatus == DISCUSS_ID_PENDING)) {
+		} elseif (($this->isPublished() && $this->isNew()) || (!$this->isNew() && $this->prevPostStatus == DISCUSS_ID_PENDING)) {
 
 			$emailData['emailTemplate'] = 'email.post.reply.new.php';
 			$emailData['emailSubject']  = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $question->id , $question->title);
 			$emailData['post_id'] = $this->post->parent_id;
 
-			ED::mailer()->notifyAdministrators($emailData, $excludeEmails, $this->config->get('notify_admin_onreply'), $this->config->get('notify_moderator_onreply'));
+			$excludeEmails[] = $posterEmail;
+			$administratorEmails = ED::mailer()->notifyAdministrators($emailData, $excludeEmails, $this->config->get('notify_admin_onreply'), $this->config->get('notify_moderator_onreply'));
 		}
 
 		if (!$this->isNew() && $this->prevPostStatus != DISCUSS_ID_PENDING && !$this->isRejected) {
 			return;
 		}
 
-		if (($this->config->get('main_sitesubscription') ||  $this->config->get('main_postsubscription') ||  $this->config->get('main_ed_categorysubscription')) && $this->config->get('notify_subscriber') && $this->isPublished()) {
+		if (($this->config->get('main_sitesubscription') ||  $this->config->get('main_postsubscription') ||  $this->config->get('main_ed_categorysubscription')) && $this->config->get('notify_subscriber') && $this->isPublished() && !$question->private) {
 			$emailData['emailTemplate'] = 'email.subscription.reply.new.php';
 			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $question->id , $question->title);
 
-			$posterEmail = $this->post->poster_email ? $this->post->poster_email : $this->my->email;
+			$posterEmail = array($posterEmail, $this->my->email);
+			$excludeEmails = array_merge($posterEmail, $administratorEmails);
+			$excludeEmails = array_unique($excludeEmails);
 
 			// Get the emails of user who subscribe to this post only
 			// This does not send to subscribers whom subscribe to site and category
-			$subcribersEmails = ED::mailer()->notifyThreadSubscribers($emailData, array($posterEmail, $this->my->email));
+			$subcribersEmails = ED::mailer()->notifyThreadSubscribers($emailData, $excludeEmails, DISCUSS_CATEGORY_ACL_ACTION_VIEWREPLY);
 
 			// If the include_replies is enabled, we need to notify the site subscribers whenever the replies is made
 			if ($this->config->get('main_sitesubscription') && $this->config->get('main_subscription_include_replies')) {
-				$siteSubscribers = ED::Mailer()->notifySubscribers($emailData, array($posterEmail, $this->my->email));
+				$siteSubscribers = ED::Mailer()->notifySubscribers($emailData, $excludeEmails, DISCUSS_CATEGORY_ACL_ACTION_VIEWREPLY);
 				$subcribersEmails = array_merge($subcribersEmails, $siteSubscribers);
 			}
 
 			// Same goes to category subscription
 			if ($this->config->get('main_ed_categorysubscription') && $this->config->get('main_subscription_include_replies')) {
-				$categorySubscribers = ED::Mailer()->notifySubscribers($emailData , array($posterEmail, $this->my->email));
+				$categorySubscribers = ED::Mailer()->notifySubscribers($emailData , $excludeEmails, DISCUSS_CATEGORY_ACL_ACTION_VIEWREPLY);
 				$subcribersEmails = array_merge($subcribersEmails, $categorySubscribers);
 			}
 
-			$excludeEmails[] = $posterEmail;
 			$excludeEmails = array_merge($excludeEmails, $subcribersEmails);
 			$excludeEmails = array_unique($excludeEmails);
 		}
@@ -4643,7 +4466,7 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		// if reply under moderation and current reply user id shouldn't match with post owner user id, then send owner a notification.
-		if ($this->config->get('notify_owner') && $this->isPublished() && ($postOwnerId != $this->my->id) && !in_array($ownerEmail, $excludeEmails) && !empty( $ownerEmail)) {
+		if ($this->config->get('notify_owner') && $this->isPublished() && ($postOwnerId != $this->my->id) && !in_array($ownerEmail, $excludeEmails) && !empty($ownerEmail)) {
 			$emailData['owner_email'] = $ownerEmail;
 			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $question->id , $question->title);
 			$emailData['emailTemplate'] = 'email.post.reply.new.php';
@@ -4659,12 +4482,20 @@ class EasyDiscussPost extends EasyDiscuss
 			$emailData['post_id'] = $this->post->parent_id;
 			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $question->id , $question->title);
 			$emailData['emailTemplate'] = 'email.post.reply.new.php';
-			ED::mailer()->notifyThreadParticipants($emailData, $excludeEmails);
+
+			$excludeEmails = array_merge($excludeEmails, $administratorEmails);
+			$excludeEmails = array_unique($excludeEmails);
+
+			$participantsEmails = ED::mailer()->notifyThreadParticipants($emailData, $excludeEmails);
 		}
 
-
-
 		if ($this->config->get('notify_actor')) {
+			$emailData['emailIntro'] = JText::_('COM_EASYDISCUSS_EMAILS_YOU_CREATED_NEW_REPLIES_NOTIFICATION');
+
+			if ($this->isPending()) {
+				$emailData['emailIntro'] = JText::_('COM_ED_EMAILS_YOU_CREATED_NEW_REPLIES_NOTIFICATION_UNDER_MODERATION');
+			}
+
 			$emailData['actor_email'] = $this->getOwner()->getEmail();
 			$emailData['emailTemplate'] = 'email.reply.new.php';
 			$emailData['emailSubject']  = JText::sprintf('COM_EASYDISCUSS_YOU_ADDED_NEW_REPLY', $question->id, $question->title);
@@ -4702,9 +4533,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param
-	 * @return
-	 *
 	 */
 	public function notifyAssignedModerator($postassignerId, $postId)
 	{
@@ -4729,33 +4557,10 @@ class EasyDiscussPost extends EasyDiscuss
 	}
 
 	/**
-	 * Sends a ping request to pingomatic servers.
-	 *
-	 * @since   4.0
-	 * @access  public
-	 * @param   null
-	 * @return  bool    True if success, false otherwise.
-	 *
-	 */
-	public function ping()
-	{
-		if (!$this->config->get('integration_pingomatic')) {
-			return false;
-		}
-
-		if ((!$this->isNew() && $this->prevPostStatus != DISCUSS_ID_PENDING) || $this->post->published != DISCUSS_ID_PUBLISHED) {
-			return false;
-		}
-
-		return ED::Pingomatic()->ping($this->getTitle(), EDR::getRoutedURL('view=post&id=' . $this->post->id, true, true));
-	}
-
-	/**
 	 * Retrieve a reply permalink with limitstart
 	 *
 	 * @since   4.0
 	 * @access  public
-	 *
 	 */
 	public function getReplyPermalink()
 	{
@@ -4807,7 +4612,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 *
 	 */
 	public function getLastReplyPermalink($replyId)
 	{
@@ -4826,7 +4630,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 *
 	 */
 	public function notify()
 	{
@@ -4837,6 +4640,11 @@ class EasyDiscussPost extends EasyDiscuss
 
 		// prepare email content and information.
 		$profile = $this->getOwner(true);
+
+		// retrieve the post owner email
+		$posterEmail = $this->my->email;
+		$excludeEmails = array($posterEmail);
+		$subcribersEmails = array();
 
 		// For use within the emails.
 		$emailData = array();
@@ -4870,6 +4678,9 @@ class EasyDiscussPost extends EasyDiscuss
 		// Ensure that content image style attribute set to max-width
 		$emailContent = ED::parser()->normaliseImageStyle($emailContent);
 
+		// fixed bbcode width in email content. #459
+		$emailContent = ED::parser()->normliseBBCode($emailContent);
+
 		$emailData['attachments'] = $attachments;
 		$emailData['postContent'] = $emailContent;
 		$emailData['post_id'] = $this->post->id;
@@ -4894,6 +4705,12 @@ class EasyDiscussPost extends EasyDiscuss
 			$emailData['emailTemplate'] = 'email.subscription.site.moderate';
 			$emailData['emailSubject']  = JText::sprintf('COM_EASYDISCUSS_NEW_QUESTION_MODERATE', $this->post->id, $this->getTitle());
 
+			if (!$this->isNew()) {
+				$emailData['originalContent'] = $this->original->getContent();
+				$emailData['emailTemplate'] = 'email.post.edited.moderation';
+				$emailData['emailSubject'] = JText::sprintf('COM_ED_EDITED_DISCUSSION_MODERATE', $this->getTitle());
+			}
+
 		} else {
 
 			// If this is a private post, do not notify anyone
@@ -4903,35 +4720,41 @@ class EasyDiscussPost extends EasyDiscuss
 				if (($this->isNew() || $this->prevPostStatus == DISCUSS_ID_PENDING) && $this->isPublished() && !$this->config->get('notify_all')) {
 
 					if ($this->config->get('main_sitesubscription')) {
-						ED::Mailer()->notifySubscribers($emailData, array($this->my->email));
+						$siteSubscribers = ED::Mailer()->notifySubscribers($emailData, $excludeEmails);
+						$subcribersEmails = array_merge($excludeEmails, $siteSubscribers);
 					}
 
 					// Notify category subscribers
 					if ($this->config->get('main_ed_categorysubscription')) {
-						ED::Mailer()->notifySubscribers($emailData , array($this->my->email));
+						$categorySubscribers = ED::Mailer()->notifySubscribers($emailData , $excludeEmails);
+						$subcribersEmails = array_merge($subcribersEmails, $categorySubscribers);
 					}
 				}
 
 				// Notify user groups
 				if ($this->config->get('notify_joomla_groups') && !$this->config->get('notify_all') && ((!$this->isModerate && $this->isNew() && $this->isPublished()) || $this->prevPostStatus == DISCUSS_ID_PENDING)) {
-					ED::Mailer()->notifyUserGroups($emailData, array($this->my->email));
+					ED::Mailer()->notifyUserGroups($emailData, $excludeEmails);
 				}
 
 				// Notify EVERYBODY
 				if ($this->config->get('notify_all') && ((!$this->isModerate && $this->isNew() && $this->isPublished()) || $this->prevPostStatus == DISCUSS_ID_PENDING)) {
-					ED::mailer()->notifyAllMembers($emailData, array($this->my->email));
+					ED::mailer()->notifyAllMembers($emailData, $excludeEmails);
 				}
+
+				$excludeEmails[] = $posterEmail;
+				$excludeEmails = array_merge($excludeEmails, $subcribersEmails);
+				$excludeEmails = array_unique($excludeEmails);
 			}
 		}
 
 		// Notify admins and category moderators
 		if (($this->isNew() || $this->prevPostStatus == DISCUSS_ID_PENDING) ||
 			($this->post->published == DISCUSS_ID_PENDING && $this->prevPostStatus == DISCUSS_ID_PUBLISHED && $this->isModerate)) {
-			ED::Mailer()->notifyAdministrators($emailData, array($this->my->email), $this->config->get('notify_admin'), $this->config->get('notify_moderator'));
+			$administratorEmails = ED::Mailer()->notifyAdministrators($emailData, $excludeEmails, $this->config->get('notify_admin'), $this->config->get('notify_moderator'));
 		}
 
 		// Notify thread owner if the post is being approved.
-		if ($this->prevPostStatus == DISCUSS_ID_PENDING) {
+		if ($this->prevPostStatus == DISCUSS_ID_PENDING && $this->isPublished()) {
 			$emailData['owner_email'] = $this->getOwner()->getEmail();
 			$emailData['emailTemplate'] = 'email.post.approve';
 			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_QUESTION_ASKED_APPROVED', $this->post->title);
@@ -4952,6 +4775,13 @@ class EasyDiscussPost extends EasyDiscuss
 
 		// Notify the actor if the option is enabled
 		if ($this->config->get('notify_actor')) {
+
+			$emailData['emailIntro'] = JText::_('COM_EASYDISCUSS_EMAILS_YOU_CREATED_NEW_DISCUSSION_NOTIFICATION');
+
+			if ($this->isPending()) {
+				$emailData['emailIntro'] = JText::_('COM_ED_EMAILS_YOU_CREATED_NEW_DISCUSSION_NOTIFICATION_UNDER_MODERATION');
+			}
+
 			$emailData['actor_email'] = $this->getOwner()->getEmail();
 			$emailData['emailTemplate'] = 'email.post.new';
 			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_YOU_ASKED_NEW_QUESTION', $this->post->id, $this->post->title);
@@ -4966,9 +4796,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   null
-	 * @return  bool    True if success, false otherwise.
-	 *
 	 */
 	public function addTags()
 	{
@@ -5076,8 +4903,10 @@ class EasyDiscussPost extends EasyDiscuss
 			// assign new ranks.
 			ED::ranks()->assignRank($this->post->user_id, $this->config->get('main_ranking_calc_type'));
 
-			// aup
-			ED::Aup()->assign(DISCUSS_POINTS_NEW_DISCUSSION, $this->post->user_id, $this->post->title);
+			// alta user point determine there is new discussion or reply
+			$aupRulesName = $this->isReply() ? DISCUSS_POINTS_NEW_REPLY : DISCUSS_POINTS_NEW_DISCUSSION;
+
+			ED::Aup()->assign($aupRulesName, $this->post->user_id, $this->post->title);
 		}
 	}
 
@@ -5146,9 +4975,6 @@ class EasyDiscussPost extends EasyDiscuss
 			$this->notifyNames();
 		}
 
-		// Ping
-		$this->ping();
-
 		// should we send email notifications (question)
 		if ($this->isQuestion()) {
 			$this->notify();
@@ -5187,8 +5013,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function markRead($userId = null)
 	{
@@ -5227,8 +5051,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function validateCaptcha($data)
 	{
@@ -5266,8 +5088,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function isNew()
 	{
@@ -5286,9 +5106,9 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function formatContent($debug = false)
+	public function formatContent($debug = false, $reload = false, $processAttachments = true)
 	{
-		if ($this->post->preview) {
+		if ($this->post->preview && !$reload) {
 			$this->post->preview = ED::parser()->processSpoilerTag($this->post->preview);
 			$this->post->preview = ED::parser()->processHideTag($this->post->preview);
 			return $this->post->preview;
@@ -5310,7 +5130,9 @@ class EasyDiscussPost extends EasyDiscuss
 			$content = ED::parser()->processSizeTag($content);
 
 			// There is a possibility that we need to replace attachment tags
-			$content = ED::parser()->replaceAttachmentsEmbed($content, $this);
+			if ($processAttachments) {
+				$content = ED::parser()->replaceAttachmentsEmbed($content, $this);
+			}
 
 			// Since this is a bbcode content and source, we want to replace \n with <br /> tags.
 			$content = nl2br($content);
@@ -5331,8 +5153,9 @@ class EasyDiscussPost extends EasyDiscuss
 			$content = ED::parser()->processSizeTag($content);
 
 			// There is a possibility that we need to replace attachment tags
-			$content = ED::parser()->replaceAttachmentsEmbed($content, $this);
-
+			if ($processAttachments) {
+				$content = ED::parser()->replaceAttachmentsEmbed($content, $this);
+			}
 		}
 
 		// If the admin decides to switch from wysiwyg to bbcode, we need to fix the content here.
@@ -5364,8 +5187,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getPoll()
 	{
@@ -5396,8 +5217,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function delete()
 	{
@@ -5505,8 +5324,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function removeSubscription()
 	{
@@ -5522,8 +5339,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function removeReferences()
 	{
@@ -5558,8 +5373,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function canSubscribe()
 	{
@@ -5585,8 +5398,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function subscribe()
 	{
@@ -5630,8 +5441,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function deleteCustomFieldsValue()
 	{
@@ -5646,8 +5455,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function deleteAllFavourites()
 	{
@@ -5662,8 +5469,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function deleteAttachments()
 	{
@@ -5686,8 +5491,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function deleteNotifications()
 	{
@@ -5713,8 +5516,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function deletePolls()
 	{
@@ -5733,8 +5534,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function deleteTags()
 	{
@@ -5748,8 +5547,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function deleteReplies()
 	{
@@ -5842,8 +5639,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function markResolved()
 	{
@@ -5904,8 +5699,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function favNotify(EasyDiscussPost $post)
 	{
@@ -5934,8 +5727,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function setResolved()
 	{
@@ -5955,8 +5746,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function setUnresolved()
 	{
@@ -5976,8 +5765,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function setAsAnswer()
 	{
@@ -6096,8 +5883,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function rejectAnswer()
 	{
@@ -6158,8 +5943,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function updatePollsCount()
 	{
@@ -6190,12 +5973,10 @@ class EasyDiscussPost extends EasyDiscuss
 	}
 
 	/**
-	 *
+	 * Updates the thread
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function updateThread($columns)
 	{
@@ -6233,8 +6014,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function markUnresolve()
 	{
@@ -6259,8 +6038,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function markPostOnHold()
 	{
@@ -6299,8 +6076,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function markPostAccepted()
 	{
@@ -6340,8 +6115,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function markPostWorkingOn()
 	{
@@ -6382,8 +6155,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function markPostRejected()
 	{
@@ -6422,8 +6193,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function markPostNoStatus()
 	{
@@ -6459,8 +6228,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function lockPolls()
 	{
@@ -6479,8 +6246,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function unlockPolls()
 	{
@@ -6499,8 +6264,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function moveReplies($parentId = null, $newCatId = null)
 	{
@@ -6639,8 +6402,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getParticipants()
 	{
@@ -6667,8 +6428,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getPostNavigation($overrideType = '')
 	{
@@ -6708,8 +6467,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getSiteDetails()
 	{
@@ -6799,12 +6556,10 @@ class EasyDiscussPost extends EasyDiscuss
 	}
 
 	/**
-	 *
+	 * Retrieve user access details data from the discussion post
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getFieldData($fieldName, $params)
 	{

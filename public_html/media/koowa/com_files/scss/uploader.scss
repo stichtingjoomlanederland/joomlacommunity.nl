@@ -44,6 +44,7 @@ $k-upload-list-button-desktop-size: 23px !default;
   min-height: $k-upload-height;
   transition: $k-upload-transition-fast;
   max-width: 100%;
+  flex: 0 0 auto;
 
   /* Loading message on top */
   &:after {
@@ -62,9 +63,6 @@ $k-upload-list-button-desktop-size: 23px !default;
     }
   }
 
-  @include flexbox {
-    flex: 0 0 auto;
-  }
 
   /* Hide loading message on initializing */
   &.is-initialized {
@@ -130,7 +128,7 @@ $k-upload-list-button-desktop-size: 23px !default;
   }
 
   &.has-open-info .k-upload__body-info {
-    @include coverall($k-top: 60px); /* 3 */
+    @include coverall($top: 60px); /* 3 */
     max-height: none; /* 4 */
     overflow: auto; /* 5 */
   }
@@ -152,10 +150,7 @@ $k-upload-list-button-desktop-size: 23px !default;
 .k-upload--flex {
   margin: 0;
   min-height: 244px;
-
-  @include flexbox {
-    flex: 1 1 auto;
-  }
+  flex: 1 1 auto;
 }
 
 

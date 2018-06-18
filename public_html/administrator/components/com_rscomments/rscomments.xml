@@ -7,7 +7,7 @@
 	<license>http://www.gnu.org/copyleft/gpl.html GNU/GPL</license> 
 	<authorEmail>support@rsjoomla.com</authorEmail>
 	<authorUrl>www.rsjoomla.com</authorUrl>
-	<version>1.13.10</version>
+	<version>1.13.11</version>
 	<description>With RSComments! you can add commenting to articles, blogs and other Joomla! extensions on your website.</description>
 	<scriptfile>script.rscomments.php</scriptfile>
 
@@ -61,7 +61,6 @@
 			<menu link="option=com_rscomments&amp;view=groups">COM_RSCOMMENTS_MENU_GROUPS</menu>
 			<menu link="option=com_rscomments&amp;view=import">COM_RSCOMMENTS_MENU_IMPORT</menu>
 			<menu link="option=com_rscomments&amp;view=messages">COM_RSCOMMENTS_MENU_MESSAGES</menu>
-			<menu link="option=com_rscomments&amp;view=updates">COM_RSCOMMENTS_MENU_UPDATES</menu>
 		</submenu>
 		
 		<files folder="admin">

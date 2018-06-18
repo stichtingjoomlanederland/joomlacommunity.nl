@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -43,8 +43,7 @@ class EasyDiscussViewPost extends EasyDiscussView
 		$post = ED::post($id);
 
 		// Ensure that the viewer can view the post
-		if (!$post->canView($this->my->id) || !$post->isPublished()) {
-
+		if (!$post->canView($this->my->id) || !$post->isPublished() || !$post->isQuestion()) {
 			// Set a proper redirection according to the settings.
 			ED::getErrorRedirection(JText::_('COM_EASYDISCUSS_SYSTEM_POST_NOT_FOUND'));
 		}
@@ -200,22 +199,18 @@ class EasyDiscussViewPost extends EasyDiscussView
 
 		parent::display('post/default');
 	}
-
-
-
+	
 	/**
 	 * Displays the edit form for reply only
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function edit($tpl = null)
 	{
 		// Load post item
 		$id = $this->input->get('id', 0, 'int');
-        $seq = $this->input->get('seq', 0, 'int');
+		$seq = $this->input->get('seq', 0, 'int');
 
 		// Load the actor
 		$my = ED::user();

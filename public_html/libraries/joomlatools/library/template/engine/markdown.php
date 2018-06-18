@@ -112,18 +112,18 @@ class KTemplateEngineMarkdown extends KTemplateEngineAbstract
      */
     public function loadString($source)
     {
-        $file = crc32($source);
+        $name = crc32($source);
 
-        if(!$this->_source = $this->isCached($file))
+        if(!$file = $this->isCached($name))
         {
             //Compile the template
-            if(!$source = $this->_compile($source)) {
+            if(!$this->_source = $this->_compile($source)) {
                 throw new RuntimeException(sprintf('The template content cannot be compiled.'));
             }
 
-            $this->cache($file, $source);
-            $this->_source = $source;
+            $this->cache($name, $this->_source);
         }
+        else  $this->_source = file_get_contents($file);
 
         return $this;
     }

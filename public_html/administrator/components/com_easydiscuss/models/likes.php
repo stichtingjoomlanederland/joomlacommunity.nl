@@ -108,4 +108,38 @@ class EasyDiscussModelLikes extends EasyDiscussAdminModel
 
 		return $list;
 	}
+
+	/**
+	 * Method used to get user's likes for GDPR download.
+	 *
+	 * @since	4.1
+	 * @access	public
+	 */
+	public function getLikesGDPR($userid, $options = array())
+	{
+		$db = ED::db();
+
+		$limit = isset($options['limit']) ? $options['limit'] : 20;
+		$exclude = isset($options['exclude']) ? $options['exclude'] : array();
+
+		if ($exclude && !is_array($exclude)) {
+			$exclude = ED::makeArray($exclude);
+		}
+
+		$query = "select a.*";
+		$query .= " from `#__discuss_likes` as a";
+		$query .= " inner join `#__discuss_posts` as b on a.`content_id` = b.`id`";
+		$query .= " where `created_by` = " . $db->Quote($userid);
+
+		if ($exclude) {
+			$query .= " and a.`id` NOT IN (" . implode(',', $exclude) . ")";
+		}
+
+		$query .= " LIMIT " . $limit;
+
+		$db->setQuery($query);
+		$results = $db->loadObjectList();
+
+		return $results;
+	}
 }

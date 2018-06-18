@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -86,8 +86,8 @@ class EasyDiscussControllerInstallDownload extends EasyDiscussSetupController
 		}
 
 		// Try to extract the files
-		$state = JArchive::extract($storage, $tmp);
-
+		$state = $this->extractArchive($storage, $tmp);
+		
 		// If there is an error extracting the zip file, then there is a possibility that the server returned a json string
 		if (!$state) {
 

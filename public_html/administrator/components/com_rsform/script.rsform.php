@@ -1020,13 +1020,11 @@ class com_rsformInstallerScript
 			<?php } ?>
 			<?php } ?>
 		<?php } ?>
-		<h2>Changelog v2.0.11</h2>
+		<h2>Changelog v2.0.12</h2>
 		<ul class="version-history">
-            <li><span class="version-new">New</span> Older submissions can automatically be deleted (configurable per form).</li>
-            <li><span class="version-new">New</span> Option to 'Sanitize Filenames' in 'File Upload' fields.</li>
-            <li><span class="version-fixed">Fix</span> Even if 'Save Data to Database' was set to 'No' file uploads were stored on the server.</li>
-            <li><span class="version-fixed">Fix</span> Built-in Invisible Captcha was showing a required marker.</li>
-            <li><span class="version-fixed">Fix</span> In some cases, Grid Layout rows allowed other fields to be put next to Pagebreak fields.</li>
+            <li><span class="version-fixed">Fix</span> In some cases, setting up Conditional Fields would throw a Javascript error if a field had no values defined.</li>
+            <li><span class="version-fixed">Fix</span> Submissions were incorrectly deleted regardless of form ID.</li>
+            <li><span class="version-fixed">Fix</span> 'hasTooltip' class was incorrectly added to Uikit layouts.</li>
 		</ul>
 		<a class="btn btn-large btn-primary" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="btn" href="https://www.rsjoomla.com/support/documentation/rsform-pro.html" target="_blank">Read the RSForm! Pro User Guide</a>

@@ -34,8 +34,8 @@ kQuery(function($) {
                         item.download_link = element.attr('href');
                     } else {
                         item.src = element.attr('href');
-                        item.w   = parseInt(element.data('width'), 10);
-                        item.h   = parseInt(element.data('height'), 10);
+                        item.w   = element.data('width') ? parseInt(element.data('width'), 10) : 0;
+                        item.h   = element.data('height') ? parseInt(element.data('height'), 10) : 0;
                     }
 
                     if (element.find('.koowa_header__item')) {

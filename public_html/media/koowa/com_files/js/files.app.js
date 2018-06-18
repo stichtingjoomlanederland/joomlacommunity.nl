@@ -586,6 +586,7 @@ Files.App = new Class({
 
                     this.container.removeClass('k-'+remove).addClass('k-'+layout);
                     kQuery('#files-grid-container').removeClass('k-'+remove+'-container').addClass('k-'+layout+'-container');
+                    kQuery('#files-paginator-container').removeClass('k-'+remove+'-pagination').addClass('k-'+layout+'-pagination');
                 }
 
                 if (key) {
@@ -597,6 +598,7 @@ Files.App = new Class({
 
                 if (that.grid) {
                     that.setThumbnails();
+                    kodekitUI.gallery();
                 }
             },
             onSetState: function(state) {
@@ -830,15 +832,14 @@ Files.App = new Class({
 
         var nodes = this.grid.nodes,
             that = this;
-        if (nodes.getLength()) {
-            nodes.each(function(node) {
-                if (node.filetype !== 'image') {
-                    return;
-                }
-                var name = node.name;
-
+        if (nodes.getLength())
+        {
+            nodes.each(function(node)
+            {
                 var img = node.element.getElement('img.image-thumbnail');
-                if (img) {
+
+                if (img)
+                {
                     img.addEvent('load', function(){
                         this.addClass('loaded');
                     });
@@ -846,7 +847,7 @@ Files.App = new Class({
                     var source = Files.blank_image;
 
                     if (node.thumbnail) {
-                        source = Files.sitebase + '/' + node.thumbnail.relative_path;
+                        source = Files.sitebase + '/' + that.encodePath(node.thumbnail.relative_path);
                     }
 
                     img.set('src', source);
@@ -907,5 +908,18 @@ Files.App = new Class({
         }).toQueryString();
 
         return this.options.base_url ? this.options.base_url+route : route;
+    },
+    encodePath: function(path) {
+
+        path = encodeURI(path);
+
+        var replacements = {'\\?': '%3F', '#': '%23'}
+
+        for(var key in replacements)
+        {   var regexp = new RegExp(key, 'g');
+            path = path.replace(regexp, replacements[key]);
+        }
+
+        return path;
     }
 });

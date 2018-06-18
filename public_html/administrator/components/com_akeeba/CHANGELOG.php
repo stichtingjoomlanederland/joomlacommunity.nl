@@ -1,4 +1,24 @@
 <?php die();?>
+Akeeba Backup 6.1.1
+================================================================================
++ Added support for new Amazon S3 regions: Canada, Mumbai, Seoul, Osaka-Local, Ningxia, London, Paris
++ OneDrive for Business support
++ OVH cloud storage support
++ OpenStack Swift support
+# [LOW] DirectFTP and Upload to FTP create folders with 0744 instead of 0755 permissions
+
+Akeeba Backup 6.1.0
+================================================================================
++ Support for Amazon S3 OneZone-IA (single zone, infrequent access) storage class
++ Revamped Site Transfer Wizard, with more options to improve compatibility with more servers
+# [HIGH] Links pointing outside open_basedir restrictions cause a PHP Fatal error, halting the backup
+# [MEDIUM] Installer (ANGIE) language files not included in the backup
+# [MEDIUM] Default backup file permissions should be 0644, not 0755
+# [MEDIUM] Fixed folder scanning when a file is inaccessible due to open_basedir restrictions
+# [LOW] The View Log link displayed after backup is broken when the backup completes in a single page load
+# [LOW] The Site Transfer Wizard uses the wrong color labels
+# [LOW] The Site Transfer Wizard interface works erratically
+
 Akeeba Backup 6.0.1
 ================================================================================
 + Warn the user if either FOF or FEF is not installed

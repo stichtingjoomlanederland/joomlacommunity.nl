@@ -47,26 +47,27 @@ class ComFilesModelBehaviorThumbnailable extends KModelBehaviorAbstract
             $value = $state->thumbnails;
 
             if (in_array($value, array('false', 'true', '0', '1')) || is_numeric($value)) {
-                $state->offsetSet('thumbnails', (bool) $value);
+                $state->offsetSet('thumbnails', filter_var($value, FILTER_VALIDATE_BOOLEAN));
             }
         }
     }
 
     public function getThumbnailsContainer()
     {
-        $container = $this->getContainer()->getParameters()->thumbnails_container;
-
-        if ($container && (!$this->_container instanceof ComFilesModelEntityContainer))
+        if (!$this->_container  instanceof ComFilesModelEntityContainer && ($container = $this->getContainer()))
         {
-            $container = $this->getObject('com:files.model.containers')
-                              ->slug($container)
-                              ->fetch();
+            if ($slug = $container->getParameters()->thumbnails_container)
+            {
+                $container = $this->getObject('com:files.model.containers')
+                                  ->slug($slug)
+                                  ->fetch();
 
-            if ($container->isNew()) {
-                throw new RuntimeException('Could not fetch thumbnails container');
+                if ($container->isNew()) {
+                    throw new RuntimeException('Could not fetch thumbnails container');
+                }
+
+                $this->_container = $container->top();
             }
-
-            $this->_container = $container->top();
         }
 
         return $this->_container;

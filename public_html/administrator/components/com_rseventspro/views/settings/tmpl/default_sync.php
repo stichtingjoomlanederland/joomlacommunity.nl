@@ -6,7 +6,8 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-$fieldsets = array('google','facebook'); ?>
+$fieldsets = array('google','fb','facebook');
+$redirectURI = JRoute::_('index.php?option=com_rseventspro&task=settings.savetoken', false, true); ?>
 
 <div class="alert alert-info"><?php echo JText::_('COM_RSEVENTSPRO_CONF_CRON_INFO'); ?></div>
 
@@ -14,8 +15,12 @@ $fieldsets = array('google','facebook'); ?>
 foreach ($fieldsets as $fieldset) {
 	echo JHtml::_('rsfieldset.start', 'adminform', JText::_($this->fieldsets[$fieldset]->label));
 	
+	if ($fieldset == 'fb') {
+		echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', '<span style="float:left;margin-top: 4px;">'.JText::_('COM_RSEVENTSPRO_CONF_FB_APP').'</span>');
+	}
+	
 	if ($fieldset == 'facebook') {
-		echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', '<button type="button" class="btn btn-info button" onclick="fconnect()"><i class="fa fa-facebook-official fa-fw"></i> '.JText::_('COM_RSEVENTSPRO_CONF_FB_BTN').'</button>');
+		echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', '<a href="'.$this->login.'" class="btn btn-info"><i class="fa fa-facebook-official fa-fw"></i> '.JText::_('COM_RSEVENTSPRO_CONF_FB_BTN').'</a>');
 		echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', '<span style="float:left;margin-top: 4px;">'.JText::_('COM_RSEVENTSPRO_CONF_FB_INFO').'</span>');
 	}
 	
@@ -24,6 +29,10 @@ foreach ($fieldsets as $fieldset) {
 			continue;
 		
 		echo JHtml::_('rsfieldset.element', $field->label, $field->input);
+		
+		if ($fieldset == 'fb' && $field->fieldname == 'facebook_secret') {
+			echo JHtml::_('rsfieldset.element', '<label>'.JText::_('COM_RSEVENTSPRO_CONF_FACEBOOK_REDIRECT_URI').'</label>', '<span style="float:left;margin-top: 4px;font-weight:bold;">'.$redirectURI.'</span>');
+		}
 	}
 	
 	if ($fieldset == 'google') {
@@ -41,6 +50,4 @@ foreach ($fieldsets as $fieldset) {
 	echo JHtml::_('rsfieldset.end');
 }
 
-echo $this->form->getInput('facebook_appid');
-echo $this->form->getInput('facebook_secret');
 echo $this->form->getInput('facebook_token');

@@ -54,7 +54,7 @@ kQuery(function($){
         <p v-show="entity.storage_path && isLocal && !hasAutomaticSupport" class="k-alert k-alert--info">
             <?= translate('Automatically generated thumbnails are not supported on this file type.'); ?>
         </p>
-        <p v-show="!hasConnectSupport" class="k-alert k-alert--info">
+        <p v-show="!hasConnectSupport && isAdmin" class="k-alert k-alert--info">
             <?= translate('Image search requires connect', ['link' => 'https://www.joomlatools.com/connect/']); ?>
         </p>
         <p v-show="isRemote" class="k-alert k-alert--info">

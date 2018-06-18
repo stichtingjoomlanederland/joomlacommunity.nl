@@ -5,12 +5,7 @@
 * @license GPL, http://www.gnu.org/licenses/gpl-2.0.html
 */
 
-defined('_JEXEC') or die('Restricted access'); 
-JText::script('COM_RSCOMMENTS_NO_SUBSCRIBER_NAME');
-JText::script('COM_RSCOMMENTS_NO_SUBSCRIBER_EMAIL');
-JText::script('COM_RSCOMMENTS_INVALID_SUBSCRIBER_EMAIL');
-JText::script('COM_RSCOMMENTS_REPORT_NO_REASON');
-JText::script('COM_RSCOMMENTS_REPORT_INVALID_CAPTCHA'); ?>
+defined('_JEXEC') or die('Restricted access'); ?>
 
 <div id="rscomments-top-alert" class="alert alert-info" style="display: none;"></div>
 <div class="rscomment-top-actions">
@@ -20,6 +15,12 @@ JText::script('COM_RSCOMMENTS_REPORT_INVALID_CAPTCHA'); ?>
 		</div>
 	</div>
 	<div class="pull-right">
+	<span id="rsc_my_comments">
+		<a class="<?php echo RSTooltip::tooltipClass(); ?>" href="javascript:void(0);" title="<?php echo RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_MY_COMMENTS_DESC')); ?>" data-toggle="modal" data-target="#rscomments-mycomments">
+			<i class="fa fa-comments"></i> <?php echo JText::_('COM_RSCOMMENTS_MY_COMMENTS'); ?>
+		</a>
+	</span>
+	
 	<?php
 		if ($this->config->enable_subscription) {
 			if (RSCommentsHelper::isSubscribed($this->id, $this->theoption)) {

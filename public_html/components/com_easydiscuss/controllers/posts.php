@@ -124,39 +124,37 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		if (!empty($redirect)) {
 			$redirect = base64_decode($redirect);
+
+			// Decode any special characters to the correct url format, eg: &amp; to &
+			$redirect = htmlspecialchars_decode($redirect);
+
 			return $this->app->redirect(JRoute::_($redirect));
 		}
 
+		$redirect = EDR::getPostRoute($post->id, false);
 		$redirectionOption = $this->config->get('main_post_redirection');
 
-		switch($redirectionOption) {
-
-			case 'home':
-				$redirect = EDR::_('view=index', false);
-			break;
-
-			case 'mainCategory':
-				$redirect = EDR::_('view=categories', false );
-			break;
-
-			case 'currentCategory':
-				$redirect = EDR::getCategoryRoute($post->category_id, false);
-			break;
-
-			case 'default':
-			default:
-				if ($post->isPending()){
-					$redirect = EDR::_('view=index', false);
-
-				} else {
-					$redirect = EDR::getPostRoute($post->id, false);
-				}
-
-			break;
+		if ($post->isPending()) {
+			$redirect = EDR::_('view=index', false);
 		}
 
+		if ($redirectionOption == 'home') {
+			$redirect = EDR::_('view=index', false);
+		}
 
-		$this->app->redirect($redirect);
+		if ($redirectionOption == 'mainCategory') {
+			$redirect = EDR::_('view=categories', false);
+		}
+
+		if ($redirectionOption == 'currentCategory') {
+			$redirect = EDR::getCategoryRoute($post->category_id, false);
+		}
+
+		if ($redirectionOption == 'myPosts') {
+			$redirect = EDR::_('view=mypost', false);
+		}
+
+		return $this->app->redirect($redirect);
 	}
 
 	/**

@@ -27,6 +27,34 @@ defined('_JEXEC') or die('Unauthorized Access');
 								<?php echo $this->html('form.boolean', 'main_autopost_facebook', $this->config->get('main_autopost_facebook')); ?>
 							</div>
 						</div>
+
+						<div class="form-group" data-facebook-api>
+							<div class="col-md-5 control-label">
+								<?php echo $this->html('form.label', 'COM_ED_FB_AUTOPOST_OAUTH_REDIRECT_URI'); ?>
+							</div>
+
+							<div class="col-md-7">
+								<p>Effective <b>March 2018</b>, Facebook will be <a href="https://developers.facebook.com/blog/post/2017/12/18/strict-uri-matching/" target="_blank">imposing strict URI matching</a>. You will need to copy the links below and add it under the Valid OAuth redirect URIs section of the Facebook app.</p>
+								<?php 
+								$i = 1;
+								foreach ($oauthURIs as $oauthURI) { ?>
+									<div class="input-group mb-10">
+										<input type="text" id="oauth-uri-<?php echo $i?>" data-oauthuri-input name="main_autopost_facebook_oauth_redirect_uri" class="form-control" value="<?php echo $oauthURI;?>" size="60" style="pointer-events:none;" />
+										<span class="input-group-btn" 
+											data-oauthuri-button
+											data-original-title="<?php echo JText::_('COM_ED_COPY_TOOLTIP')?>"
+											data-placement="bottom"
+											data-eb-provide="tooltip"
+										>
+											<a href="javascript:void(0);" class="btn btn-default">
+												<i class="fa fa-copy"></i>
+											</a>
+										</span>
+									</div>
+								<?php $i++; } ?>
+							</div>
+						</div>						
+
 						<div class="form-group">
 							<div class="col-md-5 control-label">
 								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_FB_AUTOPOST_APP_ID'); ?>

@@ -250,10 +250,11 @@ class FtpCurl extends Ftp implements TransferInterface
      *
      * @param   string  $localFilename   The full path to the local file
      * @param   string  $remoteFilename  The full path to the remote file
+     * @param   bool    $useExceptions   Throw an exception instead of returning "false" on connection error.
      *
      * @return  boolean  True on success
      */
-    public function upload($localFilename, $remoteFilename)
+    public function upload($localFilename, $remoteFilename, $useExceptions = true)
     {
         $fp = @fopen($localFilename, 'rb');
 
@@ -269,6 +270,11 @@ class FtpCurl extends Ftp implements TransferInterface
         }
         catch (\RuntimeException $e)
         {
+	        if ($useExceptions)
+	        {
+		        throw $e;
+	        }
+
             return false;
         }
 
@@ -297,12 +303,13 @@ class FtpCurl extends Ftp implements TransferInterface
     /**
      * Download a remote file into a local file
      *
-     * @param   string  $remoteFilename
-     * @param   string  $localFilename
+     * @param   string  $remoteFilename  The remote file path to download from
+     * @param   string  $localFilename   The local file path to download to
+     * @param   bool    $useExceptions   Throw an exception instead of returning "false" on connection error.
      *
      * @return  boolean  True on success
      */
-    public function download($remoteFilename, $localFilename)
+    public function download($remoteFilename, $localFilename, $useExceptions = true)
     {
         $fp = @fopen($localFilename, 'wb');
 
@@ -318,6 +325,11 @@ class FtpCurl extends Ftp implements TransferInterface
         }
         catch (\RuntimeException $e)
         {
+	        if ($useExceptions)
+	        {
+		        throw $e;
+	        }
+
             return false;
         }
 

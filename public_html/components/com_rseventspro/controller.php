@@ -1232,4 +1232,37 @@ class RseventsproController extends JControllerLegacy
 			} catch(Exception $e) {}
 		}
 	}
+	
+	public function sendsubscription() {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		$email	= JFactory::getApplication()->input->getString('email');
+		
+		if (empty($email) || !JMailHelper::isEmailAddress($email)) {
+			$this->setMessage(JText::_('COM_RSEVENTSPRO_INVALID_EMAIL'),'error');
+			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscriptions',false));
+		}
+		
+		$query->select($db->qn('id'))->select($db->qn('date'))
+			->select($db->qn('verification'))
+			->from($db->qn('#__rseventspro_users'))
+			->where($db->qn('email').' = '.$db->q($email));
+		$db->setQuery($query);
+		
+		if ($subscriber = $db->loadObject()) {
+			$config		= rseventsproHelper::getConfig();
+			$hash		= md5($subscriber->date.$subscriber->id.$email.$subscriber->verification);
+			$url		= JUri::getInstance()->toString(array('scheme','host')).rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscriptions&code='.$hash,false);
+			$subject	= JText::_('COM_RSEVENTSPRO_SUBSCRIPTION_SUBJECT');
+			$body		= JText::sprintf('COM_RSEVENTSPRO_SUBSCRIPTION_BODY',$url);
+			
+			JFactory::getMailer()->sendMail($config->email_from, $config->email_fromname, $email, $subject, $body, 1, null, null, null, $config->email_replyto, $config->email_replytoname);
+			
+			$this->setMessage(JText::_('COM_RSEVENTSPRO_EMAIL_SENT'));
+		} else {
+			$this->setMessage(JText::_('COM_RSEVENTSPRO_NO_RECORDS_FOUND'), 'error');
+		}
+		
+		return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscriptions',false));
+	}
 }

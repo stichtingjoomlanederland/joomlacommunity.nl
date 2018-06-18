@@ -59,9 +59,15 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
 
     public function setAdapter()
     {
-        $this->_adapter = $this->getContainer()->getAdapter('file', array(
-            'path' => $this->getContainer()->fullpath.'/'.($this->folder ? $this->folder.'/' : '').$this->name
-        ));
+        $path = '/' . ($this->folder ? $this->folder . '/' : '') . $this->name;
+
+        if ($container = $this->getContainer()) {
+            $path = $container->fullpath . $path;
+        } else {
+            $path = $this->uri ?: $path;
+        }
+
+        $this->_adapter = $this->getObject('com:files.adapter.file', array('path' => $path));
 
         // Check if we should
         $this->_regenerate();
@@ -76,7 +82,9 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
     {
         $result = false;
 
-        if ($this->_adapter && $this->_adapter->exists() && $this->source)
+        $source = $this->source;
+
+        if ($this->_adapter && $this->_adapter->exists() && $source && $source->isImage())
         {
             $current_size = @getimagesize($this->fullpath);
 
@@ -95,10 +103,12 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
     {
 		@ini_set('memory_limit', '256M');
 
-    	if (($source = $this->source) && $this->_canGenerate())
+    	if ($this->_canGenerate())
 		{
             try
             {
+                $source = $this->source;
+
                 $imagine = new \Imagine\Gd\Imagine();
                 $image   = $imagine->open($source->fullpath);
 
@@ -143,11 +153,15 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
         {
             if ($source = $this->source)
             {
-                if ($str = $source->thumbnail_string ? $source->thumbnail_string : $this->generate())
+                if ($str = $this->generate())
                 {
-                    $folder = $this->getContainer()->getAdapter('folder', array(
-                        'path' => $this->getContainer()->fullpath.'/'.($this->folder ? $this->folder.'/' : '')
-                    ));
+                    $path = '/' . ($this->folder ? $this->folder . '/' : '');
+
+                    if ($container = $this->getContainer()) {
+                        $path = $container->fullpath . $path;
+                    }
+
+                    $folder = $this->getObject('com:files.adapter.folder', array('path' => $path));
 
                     if (!$folder->exists()) {
                         $folder->create();
@@ -192,10 +206,12 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
         }
 
         if (!$value instanceof ComFilesModelEntityFile) {
-            throw new RuntimeException('Wrong class type for source');
+            throw new RuntimeException('Wrong type for source');
         }
 
-        if ($value->isNew()) throw new RuntimeException('Source cannot be a new entity');
+        if ($value->isNew()) {
+            throw new RuntimeException('Source cannot be a new entity');
+        }
 
         return $value;
     }

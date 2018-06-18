@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -746,67 +746,46 @@ class EDR
 		return $loaded[$id];
 	}
 
-	public static function getRoutedURL( $url , $xhtml = false , $external = false )
+	public static function getRoutedURL($url, $xhtml = false, $external = false, $forceRouted = false)
 	{
-		if( !$external )
-		{
-			return DiscussRouter::_( $url , $xhtml );
+		if (!$external) {
+			return EDR::_($url, $xhtml);
 		}
 
-		$mainframe	= JFactory::getApplication();
-		$uri		= JURI::getInstance( JURI::base() );
+		$mainframe = JFactory::getApplication();
+		$uri = JURI::getInstance(JURI::base());
 
-		//To fix 1.6 Jroute issue as it will include the administrator into the url path.
-		$url 	= str_replace('/administrator/', '/', DiscussRouter::_( $url  , $xhtml ));
+		if ($mainframe->isAdmin() && EDR::isSefEnabled()) {
 
-		if( $mainframe->isAdmin() && DiscussRouter::isSefEnabled() )
-		{
-			if( DiscussHelper::getJoomlaVersion() >= '1.6')
-			{
-				JFactory::$application = JApplication::getInstance('site');
-			}
+			$base64Url = base64_encode($url);
 
-			if( DiscussHelper::getJoomlaVersion() >= '3.0' )
-			{
-				jimport( 'joomla.libraries.cms.router' );
-			}
-			else
-			{
-				jimport( 'joomla.application.router' );
-				require_once (JPATH_ROOT . '/includes/router.php');
-				require_once (JPATH_ROOT . '/includes/application.php');
-			}
+			// lets send to frontend to process the sef link.
+			$targetUrl = rtrim(JURI::root(), '/') . '/index.php?option=com_easydiscuss&controller=route&task=sef&url=' . $base64Url;
 
-			$router	= new JRouterSite( array('mode'=>JROUTER_MODE_SEF) );
-			$urls	= $router->build($url)->toString(array('path', 'query', 'fragment'));
-			$urls	= DISCUSS_JURIROOT . '/' . ltrim( str_replace('/administrator/', '/', $urls) , '/' );
+			$connector = ED::connector();
+			$connector->addUrl($targetUrl);
+			$connector->execute();
+			$response = $connector->getResult($targetUrl);
 
-			$container	= explode('/', $urls);
-			$container	= array_unique($container);
-			$urls = implode('/', $container);
+			$data = json_decode($response);
 
-			if( DiscussHelper::getJoomlaVersion() >= '1.6')
-			{
-				JFactory::$application = JApplication::getInstance('administrator');
-			}
+			if (($data && isset($data->link) && $data->link) || $forceRouted) {
+				$routedUrl = $data->link;
+				$routedUrl = $uri->toString(array('scheme', 'host', 'port')) . '/' . ltrim($routedUrl, '/');
 
-			return $urls;
-		}
-		else
-		{
-
-			$url	= rtrim($uri->toString( array('scheme', 'host', 'port' )), '/' ) . '/' . ltrim( $url , '/' );
-			$url	= str_replace('/administrator/', '/', $url);
-
-			if( DiscussRouter::isSefEnabled() )
-			{
-				$container  = explode('/', $url);
-				$container	= array_unique($container);
-				$url = implode('/', $container);
+				return $routedUrl;
 			}
 
 			return $url;
 		}
+
+		$url = EDR::_($url, $xhtml);
+		$url = str_replace('/administrator/', '/', $url);
+		$url = ltrim($url, '/');
+
+		// We need to use $uri->toString() because JURI::root() may contain a subfolder which will be duplicated
+		// since $url already has the subfolder.
+		return $uri->toString(array('scheme', 'host', 'port')) . '/' . $url;
 	}
 
 	public static function _isAliasExists($alias, $type='post', $id='0')
@@ -984,21 +963,19 @@ class EDR
 	{
 		static $loaded 	= array();
 
-		$tmpView 		= $view;
-		$indexKey       = $tmpView . $layout . $exact;
+		$tmpView = $view;
+		$indexKey = $tmpView . $layout . $exact;
 
 		// Since the search and index uses the same item id.
-		if( $view == 'search' )
-		{
-			$tmpView 	= 'index';
+		if ($view == 'search') {
+			$tmpView = 'index';
 		}
 
-		if( isset( $loaded[ $indexKey ] ) )
-		{
-			return $loaded[ $indexKey ];
+		if (isset($loaded[$indexKey])) {
+			return $loaded[$indexKey];
 		}
 
-		$db	= DiscussHelper::getDBO();
+		$db = ED::db();
 
 		switch($view)
 		{
@@ -1111,9 +1088,9 @@ class EDR
 
 
 
-		$loaded[ $indexKey ]	= $itemid;
+		$loaded[$indexKey] = $itemid;
 
-		return $loaded[ $indexKey ];
+		return $loaded[$indexKey];
 	}
 
 	public static function getLanguageQuery()
@@ -1164,7 +1141,7 @@ class EDR
 
 		// Redirect to same page?
 		if ($config->get('main_login_redirect') == 'same.page') {
-			$redirect = JUri::getInstance()->toString();
+			$redirect = EDR::getCurrentURI();
 		}
 
 		$redirect = base64_encode($redirect);
@@ -1181,7 +1158,7 @@ class EDR
 
 		// Redirect to same page?
 		if ($config->get('main_logout_redirect') == 'same.page') {
-			$redirect = JUri::getInstance()->toString();
+			$redirect = EDR::getCurrentURI();
 		}
 
 		// Redirect to forums page

@@ -65,6 +65,14 @@
 			<option value="0">JNO</option>
 		</field>
 		<field name="descr_length" type="text" class="input-small" label="COM_RSEVENTSPRO_CONF_DESCR_LENGTH" description="COM_RSEVENTSPRO_CONF_DESCR_LENGTH_DESC" size="5" default="255" />
+		<field name="store_ip" type="radio" default="1" class="btn-group" label="COM_RSEVENTSPRO_CONF_STORE_IP" description="COM_RSEVENTSPRO_CONF_STORE_IP_DESC" labelclass="control-label">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		<field name="consent" type="radio" default="1" class="btn-group" label="COM_RSEVENTSPRO_CONF_CONSENT" description="COM_RSEVENTSPRO_CONF_CONSENT_DESC" labelclass="control-label">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
 	</fieldset>
 	
 	<fieldset name="modules" label="COM_RSEVENTSPRO_CONF_MODULES" description="COM_RSEVENTSPRO_CONF_MODULES_DESC">
@@ -341,6 +349,11 @@
 		</field>
 	</fieldset>
 
+	<fieldset name="fb" label="COM_RSEVENTSPRO_CONF_FACEBOOK_CREDENTIALS">
+		<field type="text" name="facebook_appid" default="" label="COM_RSEVENTSPRO_CONF_FACEBOOK_ID" />
+		<field type="text" name="facebook_secret" default="" label="COM_RSEVENTSPRO_CONF_FACEBOOK_SECRET" />
+	</fieldset>
+	
 	<fieldset name="facebook" label="COM_RSEVENTSPRO_CONF_FACEBOOK" description="COM_RSEVENTSPRO_CONF_FACEBOOK_DESC">
 		<field name="facebook_category" type="category" extension="com_rseventspro" published="1" label="COM_RSEVENTSPRO_CONF_FACEBOOK_CATEGORY" description="COM_RSEVENTSPRO_CONF_FACEBOOK_CATEGORY_DESC" size="1" default="" />
 		<field name="facebook_location" type="rslocations" label="COM_RSEVENTSPRO_CONF_FACEBOOK_LOCATION" description="COM_RSEVENTSPRO_CONF_FACEBOOK_LOCATION_DESC" size="1" default="" />
@@ -416,8 +429,6 @@
 		<option value="0">JNO</option>
 	</field>
 	
-	<field type="hidden" name="facebook_appid" default="340486642645761" />
-	<field type="hidden" name="facebook_secret" default="fea413f9a085e01555de0e93848c2c4a" />
 	<field type="hidden" name="facebook_token" default="" />
 
 </form>

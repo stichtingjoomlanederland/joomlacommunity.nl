@@ -53,6 +53,7 @@ class plgSystemRsformdeletesubmissions extends JPlugin
 				$query->clear()
 					->select($db->qn('SubmissionId'))
 					->from($db->qn('#__rsform_submissions'))
+					->where($db->qn('FormId') . ' = ' . $db->q($form->FormId))
 					->where($db->qn('DateSubmitted') . ' < ' . $db->q($date));
 				
 				if ($submissions = $db->setQuery($query)->loadColumn())

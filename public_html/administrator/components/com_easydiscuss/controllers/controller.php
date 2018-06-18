@@ -13,81 +13,78 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussController extends JControllerLegacy
 {
-    public function __construct($config = array())
-    {
-        parent::__construct($config);
+	public function __construct($config = array())
+	{
+		parent::__construct($config);
 
-        $this->app = JFactory::getApplication();
-        $this->input = ED::request();
-        $this->doc = JFactory::getDocument();
-        $this->config = ED::getJConfig();
-        $this->my = JFactory::getUser();
-        $this->jconfig = ED::jConfig();
+		$this->app = JFactory::getApplication();
+		$this->input = ED::request();
+		$this->doc = JFactory::getDocument();
+		$this->config = ED::getJConfig();
+		$this->my = JFactory::getUser();
+		$this->jconfig = ED::jConfig();
 
-        if ($this->doc->getType() == 'ajax') {
-            $this->ajax = ED::ajax();
-        }
-    }
+		if ($this->doc->getType() == 'ajax') {
+			$this->ajax = ED::ajax();
+		}
+	}
 
-    /**
-     * Checks if the current viewer can really access this section
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function checkAccess($rule)
-    {
-        if (!$this->my->authorise($rule , 'com_easydiscuss')) {
-            ED::setMessage(JText::_('JERROR_ALERTNOAUTHOR'), 'error');
-            return $this->app->redirect('index.php?option=com_easydiscuss');
-        }
-    }
+	/**
+	 * Checks if the current viewer can really access this section
+	 *
+	 * @since   4.0
+	 * @access  public
 
-    /**
-     * Default display method which is invoked by Joomla
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function display($params = array() , $urlparams = false)
-    {
-        $type = $this->doc->getType();
-        $name = $this->input->get('view', 'easydiscuss', 'cmd');
-        $view = $this->getView($name, $type, '');
+	 */
+	public function checkAccess($rule)
+	{
+		if (!$this->my->authorise($rule , 'com_easydiscuss')) {
+			ED::setMessage(JText::_('JERROR_ALERTNOAUTHOR'), 'error');
+			return $this->app->redirect('index.php?option=com_easydiscuss');
+		}
+	}
 
-        // Once we have the view, set the appropriate layout.
-        $layout = $this->input->get('layout', 'default', 'cmd');
+	/**
+	 * Default display method which is invoked by Joomla
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function display($params = array() , $urlparams = false)
+	{
+		$type = $this->doc->getType();
+		$name = $this->input->get('view', 'easydiscuss', 'cmd');
+		$view = $this->getView($name, $type, '');
 
-        $view->setLayout($layout);
+		// Once we have the view, set the appropriate layout.
+		$layout = $this->input->get('layout', 'default', 'cmd');
 
-        // For ajax methods, we just load the view methods.
-        if ($type == 'ajax') {
+		$view->setLayout($layout);
 
-            if (!method_exists($view, $layout)) {
-                $view->display();
-            } else {
-                $params = $this->input->get('params', '', 'default');
-                $params = json_decode($params);
+		// For ajax methods, we just load the view methods.
+		if ($type == 'ajax') {
 
-                call_user_func_array(array($view, $layout), $params);
-            }
+			if (!method_exists($view, $layout)) {
+				$view->display();
+			} else {
+				$params = $this->input->get('params', '', 'default');
+				$params = json_decode($params);
 
-        } else {
+				call_user_func_array(array($view, $layout), $params);
+			}
 
-            if ($layout != 'default') {
-                if (!method_exists($view, $layout)) {
-                    $view->display();
-                } else {
-                    call_user_func_array(array($view, $layout), $params);
-                }
-            } else {
-                $view->display();
-            }
-        }
+		} else {
+
+			if ($layout != 'default') {
+				if (!method_exists($view, $layout)) {
+					$view->display();
+				} else {
+					call_user_func_array(array($view, $layout), $params);
+				}
+			} else {
+				$view->display();
+			}
+		}
 	}
 
 	public function updatedb()

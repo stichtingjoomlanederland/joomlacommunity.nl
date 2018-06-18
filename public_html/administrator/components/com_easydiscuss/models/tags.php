@@ -403,5 +403,36 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		return $result;
 	}
 
+	/**
+	 * Method used to get user's tags for GDPR download.
+	 *
+	 * @since	4.1
+	 * @access	public
+	 */
+	public function getTagsGDPR($userid, $options = array())
+	{
+		$db = ED::db();
 
+		$limit = isset($options['limit']) ? $options['limit'] : 20;
+		$exclude = isset($options['exclude']) ? $options['exclude'] : array();
+
+		if ($exclude && !is_array($exclude)) {
+			$exclude = ED::makeArray($exclude);
+		}
+
+		$query = "select *";
+		$query .= " from `#__discuss_tags`";
+		$query .= " where `user_id` = " . $db->Quote($userid);
+
+		if ($exclude) {
+			$query .= " and `id` NOT IN (" . implode(',', $exclude) . ")";
+		}
+
+		$query .= " LIMIT " . $limit;
+
+		$db->setQuery($query);
+		$results = $db->loadObjectList();
+
+		return $results;
+	}
 }

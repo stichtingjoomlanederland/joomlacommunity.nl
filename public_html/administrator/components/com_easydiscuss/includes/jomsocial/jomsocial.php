@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -27,16 +27,16 @@ class EasyDiscussJomSocial extends EasyDiscuss
 	{
 		jimport( 'joomla.filesystem.file' );
 		jimport('joomla.application.component.helper');
-			
+
 		$file = JPATH_ADMINISTRATOR . '/components/com_community/libraries/core.php';
+		$exists = JFile::exists($file);
 
-		if (!JFile::exists($file) || !JComponentHelper::isEnabled('com_community')) {
-			return false;
+		if ($exists && JComponentHelper::isInstalled('com_community') && JComponentHelper::isEnabled('com_community')) {
+			include_once($file);
+			return true;
 		}
-		
-		include_once($file);
 
-		return true;
+		return false;
 	}
 
 	public function init()
@@ -337,7 +337,7 @@ class EasyDiscussJomSocial extends EasyDiscuss
 		if ($post->parent_id == 0) {
 			$link = DiscussRouter::getRoutedURL( 'index.php?option=com_easydiscuss&view=post&id=' . $post->id , false , true );
 			$title = $this->getActivityTitle( $post->title );
-		}		
+		}
 
 		// Generate reply permalink
 		$replyLink = EDR::_('view=post&id=' . $post->parent_id . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK'). '-' . $question->id);
@@ -567,7 +567,7 @@ class EasyDiscussJomSocial extends EasyDiscuss
 		$contents = $theme->output('site/toolbar/toolbar.jomsocial');
 
 		return $contents;
-	}	
+	}
 
 	/**
 	 * Retrieve the PM button
@@ -608,8 +608,6 @@ class EasyDiscussJomSocial extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getConversationsRoute()
 	{

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -18,8 +18,6 @@ class EasyDiscussCron extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function execute()
 	{
@@ -32,7 +30,7 @@ class EasyDiscussCron extends EasyDiscuss
 			if (basename($hook) == 'index.html') {
 				continue;
 			}
-			
+
 			include_once($hook);
 
 			$objectClass = str_ireplace('.php', '', basename($hook));
@@ -42,5 +40,17 @@ class EasyDiscussCron extends EasyDiscuss
 
 			$obj->execute();
 		}
+	}
+
+	/**
+	 * Executes during download request cron.
+	 *
+	 * @since	4.1
+	 * @access	public
+	 */
+	public function executeDownload()
+	{
+		$result = ED::gdpr()->cron();
+		return $result;
 	}
 }

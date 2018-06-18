@@ -29,6 +29,7 @@ class EasyDiscussControllerSearch extends EasyDiscussController
 
 		$tags = $this->input->get('tags', array(), 'array');
 		$categories = $this->input->get('categories', array(), 'array');
+		$postType = $this->input->get_('post_type', '', 'default');
 
 		$catQuery = '';
 
@@ -50,7 +51,11 @@ class EasyDiscussControllerSearch extends EasyDiscussController
 			}
 		}
 
-		$url = EDR::_('view=search&query=' . $query . $catQuery . $tagQuery, false);
+		if ($postType) {
+			$postTypeQuery = '&post_type=' . $postType;
+		}
+
+		$url = EDR::_('view=search&query=' . $query . $catQuery . $tagQuery . $postTypeQuery, false);
 		$this->app->redirect($url);
 	}
 

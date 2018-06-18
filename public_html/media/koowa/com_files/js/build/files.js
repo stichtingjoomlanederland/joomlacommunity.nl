@@ -2799,6 +2799,8 @@ Files.Grid = new Class({
     },
     unspin: function(){
 		this.spinner_container.addClass('k-is-hidden');
+		kodekitUI.gallery();
+		kodekitUI.sidebarToggle();
     },
     /**
      * Updates the active state on the switchers
@@ -3143,6 +3145,8 @@ Files.File = new Class({
 		
 		this.size = new Files.Filesize(this.metadata.size);
 		this.filetype = Files.getFileType(this.metadata.extension);
+
+		this.client_cache = false;
 	},
 	getModifiedDate: function(formatted) {
         if (this.metadata.modified_date) {
@@ -4238,6 +4242,7 @@ Files.App = new Class({
 
                     this.container.removeClass('k-'+remove).addClass('k-'+layout);
                     kQuery('#files-grid-container').removeClass('k-'+remove+'-container').addClass('k-'+layout+'-container');
+                    kQuery('#files-paginator-container').removeClass('k-'+remove+'-pagination').addClass('k-'+layout+'-pagination');
                 }
 
                 if (key) {
@@ -4249,6 +4254,7 @@ Files.App = new Class({
 
                 if (that.grid) {
                     that.setThumbnails();
+                    kodekitUI.gallery();
                 }
             },
             onSetState: function(state) {
@@ -4482,15 +4488,14 @@ Files.App = new Class({
 
         var nodes = this.grid.nodes,
             that = this;
-        if (nodes.getLength()) {
-            nodes.each(function(node) {
-                if (node.filetype !== 'image') {
-                    return;
-                }
-                var name = node.name;
-
+        if (nodes.getLength())
+        {
+            nodes.each(function(node)
+            {
                 var img = node.element.getElement('img.image-thumbnail');
-                if (img) {
+
+                if (img)
+                {
                     img.addEvent('load', function(){
                         this.addClass('loaded');
                     });
@@ -4498,7 +4503,7 @@ Files.App = new Class({
                     var source = Files.blank_image;
 
                     if (node.thumbnail) {
-                        source = Files.sitebase + '/' + node.thumbnail.relative_path;
+                        source = Files.sitebase + '/' + that.encodePath(node.thumbnail.relative_path);
                     }
 
                     img.set('src', source);
@@ -4559,6 +4564,19 @@ Files.App = new Class({
         }).toQueryString();
 
         return this.options.base_url ? this.options.base_url+route : route;
+    },
+    encodePath: function(path) {
+
+        path = encodeURI(path);
+
+        var replacements = {'\\?': '%3F', '#': '%23'}
+
+        for(var key in replacements)
+        {   var regexp = new RegExp(key, 'g');
+            path = path.replace(regexp, replacements[key]);
+        }
+
+        return path;
     }
 });
 
@@ -4671,7 +4689,7 @@ Files.Attachments.App = new Class({
                 copy.render('attachments').inject(that.preview);
 
                 if (copy.file.thumbnail) {
-                    that.preview.getElement('img').set('src', Files.sitebase + '/' + copy.file.thumbnail.relative_path).show();
+                    that.preview.getElement('img').set('src', Files.sitebase + '/' + that.encodePath(copy.file.thumbnail.relative_path)).show();
                 }
 
                 that.grid.selected = row.name;
@@ -4825,7 +4843,7 @@ if (!Files) var Files = {};
 
                             var setThumbnail = function(thumbnail)
                             {
-                                image.set('src', Files.sitebase + '/' + thumbnail.relative_path).addClass('loaded').removeClass('loading');
+                                image.set('src', Files.sitebase + '/' + Files.app.encodePath(thumbnail.relative_path)).addClass('loaded').removeClass('loading');
 
                                 /* @TODO We probably do not need this anymore? Layouts have changed and these elements/classes no longer exist */
                                 var element = row.element.getElement('.files-node');

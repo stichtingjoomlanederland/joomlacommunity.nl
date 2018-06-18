@@ -83,14 +83,29 @@ class Smart extends Base
 		/** @var \DirectoryIterator $file */
 		foreach ($di as $file)
 		{
-			if ($file->isDot())
-			{
-				continue;
-			}
-
 			if ($breakflag)
 			{
 				break;
+			}
+
+			/**
+			 * If the directory entry is a link pointing somewhere outside the allowed directories per open_basedir we
+			 * will get a RuntimeException (tested on PHP 5.3 onwards). Catching it lets us report the link as
+			 * unreadable without suffering a PHP Fatal Error.
+			 */
+			try {
+				$file->isLink();
+			}
+			catch (\RuntimeException $e)
+			{
+				$this->setWarning(sprintf("Link %s is inaccessible. Check the open_basedir restrictions in your server's PHP configuration", $file->getPathname()));
+
+				continue;
+			}
+
+			if ($file->isDot())
+			{
+				continue;
 			}
 
 			if ($file->isDir())
@@ -165,6 +180,21 @@ class Smart extends Base
 			if ($breakflag)
 			{
 				break;
+			}
+
+			/**
+			 * If the directory entry is a link pointing somewhere outside the allowed directories per open_basedir we
+			 * will get a RuntimeException (tested on PHP 5.3 onwards). Catching it lets us report the link as
+			 * unreadable without suffering a PHP Fatal Error.
+			 */
+			try {
+				$file->isLink();
+			}
+			catch (\RuntimeException $e)
+			{
+				$this->setWarning(sprintf("Link %s is inaccessible. Check the open_basedir restrictions in your server's PHP configuration", $file->getPathname()));
+
+				continue;
 			}
 
 			if ($file->isDot())

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -39,12 +39,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</div>
 		</div>
 
-        <div class="o-empty o-empty--bordered">
-            <div class="o-empty__content">
-                <i class="o-empty__icon fa fa-flash"></i><br /><br />
-                <div class="o-empty__text"><?php echo JText::_('COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST');?></div>
-            </div>
-        </div>
+		<div class="o-empty o-empty--bordered">
+			<div class="o-empty__content">
+				<i class="o-empty__icon fa fa-flash"></i><br /><br />
+				<div class="o-empty__text"><?php echo JText::_('COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST');?></div>
+			</div>
+		</div>
 	</div>
 
 	<div class="" data-frontpage-pagination>

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,34 +11,36 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-
 <div class="ed-reply-login t-lg-mt--lg">
 	<div class="ed-reply-login__title">
 		<?php echo $title;?>
 	</div>
+
 	<div class="ed-reply-login__info t-lg-mb--md">
 		<?php echo $info;?>
 		<a href="<?php echo ED::getRegistrationLink();?>" class=""><?php echo JText::_('COM_EASYDISCUSS_REGISTER_HERE');?></a>
 	</div>
+
 	<div class="ed-reply-login__form-wrap t-lg-mb--md">
 		<form method="post" action="<?php echo JRoute::_('index.php');?>">
-			<div class="form-group">
-				<label for="discuss-post-username"><?php echo JText::_($usernameField);?></label>
-				<input type="text" tabindex="201" id="discuss-post-username" name="username" class="form-control" autocomplete="off" />
-			</div>
-			<div class="form-group">
-				<label for="discuss-post-password"><?php echo JText::_('COM_EASYDISCUSS_PASSWORD');?></label>
-				<input type="password" tabindex="202" id="discuss-post-password" class="form-control" name="password" autocomplete="off" />
-			</div>
-			<div class="">
-				<div class="o-checkbox o-checkbox--inline t-lg-mr--md">
-				    <input type="checkbox" tabindex="203" id="discuss-post-remember" name="remember" class="" value="yes" checked="" />
-				    <label for="discuss-post-remember">
-				       <?php echo JText::_('COM_EASYDISCUSS_REMEMBER_ME');?>
-				    </label>
+
+			<div class="o-grid">
+				<div class="o-grid__cell">
+					<?php echo $this->html('form.floatingLabel', $usernameField, 'username'); ?>
 				</div>
-				<input type="submit" tabindex="204" value="<?php echo JText::_('COM_EASYDISCUSS_LOGIN', true);?>" name="Submit" class="btn btn-primary pull-right" />
+
+				<div class="o-grid__cell t-lg-ml--xl t-xs-ml--no">
+					<?php echo $this->html('form.floatingLabel', 'COM_EASYDISCUSS_TOOLBAR_PASSWORD', 'password', 'password'); ?>
+				</div>
 			</div>
+
+			<div class="o-checkbox o-checkbox--inline t-lg-mr--md">
+				<input type="checkbox" tabindex="203" id="discuss-post-remember" name="remember" class="" value="yes" checked="" />
+				<label for="discuss-post-remember">
+				   <?php echo JText::_('COM_EASYDISCUSS_REMEMBER_ME');?>
+				</label>
+			</div>
+			<input type="submit" tabindex="204" value="<?php echo JText::_('COM_EASYDISCUSS_LOGIN', true);?>" name="Submit" class="btn btn-primary pull-right" />
 
 			<?php if ($this->config->get('integrations_jfbconnect') && ED::jfbconnect()->exists()) { ?>
 				{JFBCLogin}

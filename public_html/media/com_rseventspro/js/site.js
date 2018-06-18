@@ -1,3 +1,8 @@
+// Check for RSEventsPro variable
+if (typeof RSEventsPro == 'undefined') {
+	var RSEventsPro = {};
+}
+
 jQuery(document).ready(function() {
 	if (jQuery('#rs_repeats_control').length) {
 		if (parseInt(jQuery('#rs_repeats').prop('scrollHeight')) > 75)
@@ -425,10 +430,18 @@ function rsepro_validate_subscription() {
 		msg.push(smessage[3]); 
 	}
 	
+	if (jQuery('#consent').length) {
+		if (!jQuery('#consent:checked').length) {
+			ret = false; 
+			msg.push(smessage[8]);
+		}
+	}
+	
 	if (ret) {
 		return true;
 	} else {
-		alert(msg.join("\n"));
+		var messages = { 'error': msg };
+		Joomla.renderMessages(messages);
 		return false;
 	}
 }
@@ -547,31 +560,46 @@ function rs_send_guests() {
  *	Invite validation
  */
 function rs_invite() {
-	var ret = true;
+	var errors	 = [];
 	
 	if (jQuery('#jform_from').val() == '') { 
-		ret = false; 
 		jQuery('#jform_from').addClass('invalid');
+		errors.push(Joomla.JText._('COM_RSEVENTSPRO_INVITE_FROM_ERROR'));
 	} else { 
 		jQuery('#jform_from').removeClass('invalid');
 	}
 	
 	if (jQuery('#jform_from_name').val() == '') { 
-		ret = false; 
 		jQuery('#jform_from_name').addClass('invalid');
+		errors.push(Joomla.JText._('COM_RSEVENTSPRO_INVITE_FROM_NAME_ERROR'));
 	} else { 
 		jQuery('#jform_from_name').removeClass('invalid');
 	}
 	
 	if (jQuery('#emails').val() == '') { 
-		ret = false; 
 		jQuery('#emails').addClass('invalid'); 
-	} else { 
+		errors.push(Joomla.JText._('COM_RSEVENTSPRO_INVITE_EMAILS_ERROR'));
+	} else {
 		jQuery('#emails').removeClass('invalid');
 	}
 	
-	if (ret) {
-		document.adminForm.submit();
+	if (jQuery('#g-recaptcha-response').length) {
+		if (jQuery('#g-recaptcha-response').val() == '') {
+			errors.push(Joomla.JText._('COM_RSEVENTSPRO_INVITE_CAPTCHA_ERROR'));
+		}
+	} else if (jQuery('#secret').length) {
+		if (jQuery('#secret').val() == '') {
+			jQuery('#secret').addClass('invalid');
+			errors.push(Joomla.JText._('COM_RSEVENTSPRO_INVITE_CAPTCHA_ERROR'));
+		} else {
+			jQuery('#secret').removeClass('invalid');
+		}
+	}
+	
+	if (errors.length) {
+		Joomla.renderMessages({'error': errors});
+	} else {
+		checkcaptcha();
 	}
 }
 
@@ -604,22 +632,6 @@ function checkcaptcha() {
 	
 	params += '&randomTime='+Math.random();
 	
-	if (jQuery('#g-recaptcha-response').length != 0) {
-		if (jQuery('#g-recaptcha-response').val() == '') {
-			jQuery('#g-recaptcha-response').prev().addClass('invalid');
-			return;
-		} else {
-			jQuery('#g-recaptcha-response').prev().removeClass('invalid');
-		}
-	} else if (jQuery('#secret').length != 0) {
-		if (jQuery('#secret').val() == '') {
-			jQuery('#secret').addClass('invalid');
-			return;
-		} else {
-			jQuery('#secret').removeClass('invalid');
-		}
-	}
-	
 	jQuery.ajax({
 		url: rse_root + 'index.php?option=com_rseventspro',
 		type: 'post',
@@ -637,7 +649,7 @@ function checkcaptcha() {
 				jQuery('#secret').removeClass('invalid');
 			}
 			
-			rs_invite();
+			document.adminForm.submit();
 		} else  {
 			if (jQuery('#g-recaptcha-response').length != 0) {
 				jQuery('#g-recaptcha-response').prev().addClass('invalid');
@@ -1565,6 +1577,63 @@ function rsepro_show_image(img) {
 	jQuery('#rseImageModal .modal-body').empty();
 	jQuery('#rseImageModal .modal-body').append(jQuery('<img>').prop('src',img).addClass('rsepro_event_image'));
 	jQuery('#rseImageModal').modal('show');
+}
+
+var rsepro_timeinterval;
+
+RSEventsPro.Counter = {
+	
+	init: function() {
+		RSEventsPro.Counter.update();
+		rsepro_timeinterval = setInterval(function() {
+			RSEventsPro.Counter.update();
+		}, 1000);
+	},
+	
+	update: function() {
+		var counter = jQuery('#'+RSEventsPro.Counter.options.counterID);
+		var miliseconds = RSEventsPro.Counter.remainingTime(RSEventsPro.Counter.getDeadline());
+		
+		counter.find('.rsepro-counter-days').text(miliseconds.days);
+		counter.find('.rsepro-counter-hours').text(('0' + miliseconds.hours).slice(-2));
+		counter.find('.rsepro-counter-minutes').text(('0' + miliseconds.minutes).slice(-2));
+		counter.find('.rsepro-counter-seconds').text(('0' + miliseconds.seconds).slice(-2));
+
+		if (miliseconds.total <= 0) {
+			clearInterval(rsepro_timeinterval);
+			jQuery('#'+RSEventsPro.Counter.options.containerID).css('display', 'none');
+		}
+	},
+	
+	remainingTime: function() {
+		var miliseconds = Date.parse(new Date(RSEventsPro.Counter.getDeadline())) - Date.now();
+		
+		if (RSEventsPro.Counter.getUserTime()) {
+			tzOffset = new Date().getTimezoneOffset();
+			miliseconds = miliseconds + (tzOffset * 60 * 1000);
+		}
+		
+		var seconds = Math.floor((miliseconds / 1000) % 60);
+		var minutes = Math.floor((miliseconds / 1000 / 60) % 60);
+		var hours = Math.floor((miliseconds / (1000 * 60 * 60)) % 24);
+		var days = Math.floor(miliseconds / (1000 * 60 * 60 * 24));
+		
+		return {
+			'total': miliseconds,
+			'days': days,
+			'hours': hours,
+			'minutes': minutes,
+			'seconds': seconds
+		};
+	}, 
+	
+	getDeadline: function() {
+		return RSEventsPro.Counter.getUserTime() ? RSEventsPro.Counter.options.deadline : RSEventsPro.Counter.options.deadlineUTC;
+	},
+	
+	getUserTime: function() {
+		return typeof RSEventsPro.Counter.options.userTime != 'undefined' ? RSEventsPro.Counter.options.userTime : false;
+	}
 }
 
 function number_format(number, decimals, dec_point, thousands_sep) {

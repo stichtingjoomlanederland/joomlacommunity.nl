@@ -216,7 +216,7 @@ class EasyDiscussControllerUser extends EasyDiscussController
 		ED::ranks()->assignRank($profile->id, 'points');
 
 		$task = $this->getTask();
-		$url = $task == 'apply' ? 'index.php?option=com_easydiscuss&view=user&id=' . $profile->id : 'index.php?option=com_easydiscuss&view=users';
+		$url = $task == 'apply' ? 'index.php?option=com_easydiscuss&view=users&layout=form&id=' . $profile->id : 'index.php?option=com_easydiscuss&view=users';
 
 		ED::setMessage(JText::_('COM_EASYDISCUSS_USER_INFORMATION_SAVED'), 'success');
 
@@ -225,7 +225,7 @@ class EasyDiscussControllerUser extends EasyDiscussController
 
 	function _saveError($id = '')
 	{
-		$url = $this->getTask() == 'apply' ? 'index.php?option=com_easydiscuss&view=user&id=' . $profile->id : 'index.php?option=com_easydiscuss&view=users';
+		$url = $this->getTask() == 'apply' ? 'index.php?option=com_easydiscuss&view=users&layout=form&id=' . $profile->id : 'index.php?option=com_easydiscuss&view=users';
 
 		$this->app->redirect($url);
 	}
@@ -429,13 +429,11 @@ class EasyDiscussControllerUser extends EasyDiscussController
 	}
 
 	/**
-     * Remove user Avatar
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Remove user Avatar
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
 	public function removeAvatar()
 	{
 		// Check for request forgeries
@@ -447,7 +445,55 @@ class EasyDiscussControllerUser extends EasyDiscussController
 
 		ED::setMessage(JText::_('COM_EASYDISCUSS_USER_AVATAR_REMOVED'), 'success');
 
-		return $this->app->redirect('index.php?option=com_easydiscuss&view=user&id=' . $user->id);
+		return $this->app->redirect('index.php?option=com_easydiscuss&view=users&layout=form&id=' . $user->id);
+	}
+
+	/**
+	 * Delete user download request
+	 * @since	4.1
+	 * @access	public
+	 */
+	public function purgeAll()
+	{
+		// Check for request forgeries
+		ED::checkToken();
+
+		$model = ED::model('Download');
+		$model->purgeRequests();
+
+		ED::setMessage('COM_ED_USER_DOWNLOAD_PURGE_ALL_SUCCESS', 'success');
+		$this->app->redirect('index.php?option=com_easydiscuss&view=users&layout=downloads');
+	}
+
+	/**
+	 * Delete user download request
+	 * @since	4.1
+	 * @access	public
+	 */
+	public function removeRequest()
+	{
+		// Check for request forgeries
+		ED::checkToken();
+
+		$cid = $this->input->get('cid', array(), '', 'array');
+		JArrayHelper::toInteger($cid);
+
+		if (count( $cid ) < 1) {
+			JError::raiseError(500, JText::_( 'COM_EASYDISCUSS_INVALID_ID', true));
+		}
+
+		$result = null;
+
+		foreach ($cid as $id) {
+
+			$table = ED::table('Download');
+			$table->load($id);
+
+			$table->delete();
+		}
+
+		ED::setMessage('COM_ED_USER_DOWNLOAD_DELETE_SUCCESS', 'success');
+		$this->app->redirect('index.php?option=com_easydiscuss&view=users&layout=downloads');
 	}
 }
 
@@ -508,5 +554,4 @@ class EasyDiscussModelProfileEx extends UsersModelUser
 
 		return true;
 	}
-
 }

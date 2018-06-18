@@ -747,6 +747,8 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$params		= rseventsproHelper::getParams();
 		$past		= (int) $params->get('past',1);
 		$archived	= (int) $params->get('archived',1);
+		$code		= JFactory::getApplication()->input->getString('code');
+		$showform	= $this->getShowForm();
 		
 		$subscriptions = array();
 		
@@ -755,8 +757,14 @@ class RseventsproModelRseventspro extends JModelLegacy
 			->select($this->_db->qn('u.name','iname'))->select($this->_db->qn('u.SubmissionId'))->select($this->_db->qn('e.id'))->select($this->_db->qn('e.name'))
 			->from($this->_db->qn('#__rseventspro_users','u'))
 			->join('left',$this->_db->qn('#__rseventspro_events','e').' ON '.$this->_db->qn('e.id').' = '.$this->_db->qn('u.ide'))
-			->where($this->_db->qn('e.completed').' = 1')
-			->where($this->_db->qn('u.idu').' = '.(int) $this->_user->get('id'));
+			->where($this->_db->qn('e.completed').' = 1');
+		
+		if (!$showform && $code) {
+			$email = $this->getEmailFromCode();
+			$query->where($this->_db->qn('u.email').' = '.$this->_db->q($email));
+		} else {
+			$query->where($this->_db->qn('u.email').' = '.$this->_db->q($this->_user->get('email')));
+		}
 		
 		if (!$archived) {
 			$query->where($this->_db->qn('e.published').' = 1');
@@ -849,7 +857,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		
 		if (!empty($tickets)) {
 			foreach ($tickets as $ticket) {				
-				$checkticket = rseventsproHelper::checkticket($ticket->id);				
+				$checkticket = rseventsproHelper::checkticket($ticket->id);
 				if ($checkticket == -1) 
 					continue;
 				
@@ -1394,6 +1402,30 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$data	= $this->_app->input->get('jform',array(),'array');
 		$query	= $this->_db->getQuery(true);
 		
+		// Verify user
+		if ($this->_app->input->getInt('isuser',0)) {
+			$email = $this->getEmailFromCode();
+			$clone = clone($table);
+			$clone->load($data['id']);
+			
+			// We have a code in the URL
+			if ($email) {
+				if ($clone->email != $email) {
+					$this->setError(JText::_('COM_RSEVENTSPRO_ERROR_SUBSCRIBER_SAVE'));
+					return false;
+				}
+			} else {
+				if ($clone->idu != JFactory::getUser()->get('id')) {
+					$this->setError(JText::_('COM_RSEVENTSPRO_ERROR_SUBSCRIBER_SAVE'));
+					return false;
+				}
+			}
+			
+			if (isset($data['state'])) {
+				unset($data['state']);
+			}
+		}
+		
 		if (!$table->bind($data)) {
 			$this->setError($table->getError());
 			return false;
@@ -1412,12 +1444,16 @@ class RseventsproModelRseventspro extends JModelLegacy
 		
 		if ($table->store()) {
 			// Send activation email
-			if ($state != 1 && $data['state'] == 1)
-				rseventsproHelper::confirm($table->id);
-			
-			// Send denied email
-			if ($state != 2 && $data['state'] == 2)
-				rseventsproHelper::denied($table->id);
+			if (isset($data['state'])) {
+				if ($state != 1 && $data['state'] == 1) {
+					rseventsproHelper::confirm($table->id);
+				}
+				
+				// Send denied email
+				if ($state != 2 && $data['state'] == 2) {
+					rseventsproHelper::denied($table->id);
+				}
+			}
 			
 			return true;
 		} else {
@@ -1534,7 +1570,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 	public function rate() {
 		$id		= $this->_app->input->getInt('id',0);
 		$vote	= $this->_app->input->getInt('feedback',0);
-		$ip		= $_SERVER['REMOTE_ADDR'];
+		$ip		= md5($_SERVER['REMOTE_ADDR']);
 		$query	= $this->_db->getQuery(true);
 		
 		//check for the id of the event and for the number of votes
@@ -1683,6 +1719,16 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$this->_db->setQuery($query);
 		$event = $this->_db->loadObject();
 		
+		// Check for consent 
+		if (rseventsproHelper::getConfig('consent','int','1')) {
+			if (!isset($form['RSEProName'])) {
+				$consent = $jinput->getInt('consent',0);
+				if (!$consent) {
+					return array('status' => false, 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe&id='.rseventsproHelper::sef($id,$event->name),false) , 'message' => JText::_('COM_RSEVENTSPRO_CONSENT_INFO'));
+				}
+			}
+		}
+		
 		// Check if this event has tickets assigned to it
 		$query->clear()
 			->select('COUNT('.$this->_db->qn('id').')')
@@ -1817,7 +1863,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 			->set($this->_db->qn('SubmissionId').' = '.(int) $idsubmission)
 			->set($this->_db->qn('verification').' = '.$this->_db->q($verification))
 			->set($this->_db->qn('gateway').' = '.$this->_db->q($payment))
-			->set($this->_db->qn('ip').' = '.$this->_db->q($_SERVER['REMOTE_ADDR']))
+			->set($this->_db->qn('ip').' = '.$this->_db->q(rseventsproHelper::getIP()))
 			->set($this->_db->qn('params').' = '.$this->_db->q(''))
 			->set($this->_db->qn('log').' = '.$this->_db->q(''))
 			->set($this->_db->qn('hash').' = '.$this->_db->q($hash))
@@ -2098,7 +2144,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$lateFee			= !empty($late) ? rseventsproHelper::currency($late) : '';
 		$earlyDiscount		= !empty($early) ? rseventsproHelper::currency($early) : '';
 		$gateway			= rseventsproHelper::getPayment($payment);
-		$IP					= $_SERVER['REMOTE_ADDR'];
+		$IP					= rseventsproHelper::getIP();
 		$coupon				= !empty($thecouponcode) ? $thecouponcode : '';
 		$optionals			= array($info, $ticketstotal, $ticketsdiscount, $subscriptionTax, $lateFee, $earlyDiscount, $gateway, $IP, $coupon);
 		
@@ -2126,7 +2172,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 				'{SubscriberEmail}' => $email,
 				'{SubscribeDate}' => rseventsproHelper::showdate($now->toSql(),null,true),
 				'{PaymentGateway}' => rseventsproHelper::getPayment($payment),
-				'{SubscriberIP}' => $_SERVER['REMOTE_ADDR'],
+				'{SubscriberIP}' => rseventsproHelper::getIP(),
 				'{TicketInfo}' => $info,
 				'{TicketsTotal}' => $ticketstotal,
 				'{TicketsDiscount}' => $ticketsdiscount
@@ -2494,6 +2540,20 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$data->price = (float) $data->price;
 		$data->seats = (int) $data->seats;
 		$data->user_seats = (int) $data->user_seats;
+		
+		if (!empty($data->from) && $data->from != $this->_db->getNullDate()) {
+			$start = JFactory::getDate($data->from, rseventsproHelper::getTimezone());
+			$data->from = $start->format('Y-m-d H:i:s');
+		} else {
+			$data->from = $this->_db->getNullDate();
+		}
+		
+		if (!empty($data->to) && $data->to != $this->_db->getNullDate()) {
+			$end = JFactory::getDate($data->to, rseventsproHelper::getTimezone());
+			$data->to = $end->format('Y-m-d H:i:s');
+		} else {
+			$data->to = $this->_db->getNullDate();
+		}
 		
 		$this->_db->insertObject('#__rseventspro_tickets', $data, 'id');
 		return $data->id;
@@ -3052,14 +3112,14 @@ class RseventsproModelRseventspro extends JModelLegacy
 			->insert($db->qn('#__rseventspro_reports'))
 			->set($db->qn('ide').' = '.(int) $jform['id'])
 			->set($db->qn('idu').' = '.(int) $user->get('id'))
-			->set($db->qn('ip').' = '.$db->q($_SERVER['REMOTE_ADDR']))
+			->set($db->qn('ip').' = '.$db->q(rseventsproHelper::getIP()))
 			->set($db->qn('text').' = '.$db->q($jform['report']));
 		$db->setQuery($query);
 		$db->execute();
 		
 		$additional_data = array(
 				'{ReportUser}' => $user->get('guest') ? JText::_('COM_RSEVENTSPRO_GLOBAL_GUEST') : $user->get('name'),
-				'{ReportIP}' => $_SERVER['REMOTE_ADDR'],
+				'{ReportIP}' => rseventsproHelper::getIP(),
 				'{ReportMessage}' => $jform['report']
 			);
 		
@@ -3452,5 +3512,52 @@ class RseventsproModelRseventspro extends JModelLegacy
 		}
 		
 		return false;
+	}
+	
+	// Remove subscription
+	public function deletesubscriber() {
+		$table	= JTable::getInstance('Subscription','RseventsproTable');
+		$id		= $this->_app->input->getInt('id');
+		$user  	= $this->getUser();
+		
+		$table->load($id);
+		
+		if ($table->idu == $user || $table->email == $this->getEmailFromCode()) {
+			if (!$table->delete($id)) {
+				$this->setError($table->getError());
+				return false;
+			}
+		} else {
+			$this->setError(JText::_('COM_RSEVENTSPRO_ERROR_SUBSCRIBER_DELETE'));
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public function getShowForm() {
+		$email = $this->getEmailFromCode();
+		
+		if (JFactory::getUser()->get('guest')) {
+			if ($email) {
+				return false;
+			} else {
+				return true;
+			}
+		} else {
+			return false;
+		}
+	}
+	
+	public function getEmailFromCode() {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		$code	= JFactory::getApplication()->input->getString('code');
+		
+		$query->select($db->qn('email'))
+			->from($db->qn('#__rseventspro_users'))
+			->where('MD5(CONCAT('.$db->qn('date').','.$db->qn('id').','.$db->qn('email').','.$db->qn('verification').')) = '.$db->q($code));
+		$db->setQuery($query);
+		return $db->loadResult();
 	}
 }

@@ -320,6 +320,10 @@ class Amazons3 extends Base
 				case 2:
 					$headers['X-Amz-Storage-Class'] = 'STANDARD_IA';
 					break;
+
+				case 3:
+					$headers['X-Amz-Storage-Class'] = 'ONEZONE_IA';
+					break;
 			}
 		}
 
@@ -456,6 +460,10 @@ class Amazons3 extends Base
 
 				case 2:
 					$headers['X-Amz-Storage-Class'] = 'STANDARD_IA';
+					break;
+
+				case 3:
+					$headers['X-Amz-Storage-Class'] = 'ONEZONE_IA';
 					break;
 			}
 		}

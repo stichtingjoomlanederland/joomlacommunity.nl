@@ -416,7 +416,7 @@ class Request
 			//
 			// TL;DR: Amazon is a bunch of jerks.
 			$isAmazonS3 = (substr($this->headers['Host'], -14) == '.amazonaws.com') ||
-			              substr($this->headers['Host'], -16) == 'amazonaws.com.cn';
+				substr($this->headers['Host'], -16) == 'amazonaws.com.cn';
 			$tooManyDots = substr_count($this->headers['Host'], '.') > 3;
 
 			$verifyHost = ($isAmazonS3 && $tooManyDots) ? 0 : 2;
@@ -592,21 +592,21 @@ class Request
 
 		list($header, $value) = explode(': ', trim($data), 2);
 
-		switch ($header)
+		switch (strtolower($header))
 		{
-			case 'Last-Modified':
+			case 'last-modified':
 				$this->response->setHeader('time', strtotime($value));
 				break;
 
-			case 'Content-Length':
+			case 'content-length':
 				$this->response->setHeader('size', (int)$value);
 				break;
 
-			case 'Content-Type':
+			case 'content-type':
 				$this->response->setHeader('type', $value);
 				break;
 
-			case 'ETag':
+			case 'etag':
 				$this->response->setHeader('hash', $value{0} == '"' ? substr($value, 1, -1) : $value);
 				break;
 
@@ -617,7 +617,6 @@ class Request
 				}
 				break;
 		}
-
 		return $strlen;
 	}
 
@@ -651,12 +650,12 @@ class Request
 			$this->uri .= $query;
 
 			if (array_key_exists('acl', $this->parameters) ||
-			    array_key_exists('location', $this->parameters) ||
-			    array_key_exists('torrent', $this->parameters) ||
-			    array_key_exists('logging', $this->parameters) ||
-			    array_key_exists('uploads', $this->parameters) ||
-			    array_key_exists('uploadId', $this->parameters) ||
-			    array_key_exists('partNumber', $this->parameters)
+				array_key_exists('location', $this->parameters) ||
+				array_key_exists('torrent', $this->parameters) ||
+				array_key_exists('logging', $this->parameters) ||
+				array_key_exists('uploads', $this->parameters) ||
+				array_key_exists('uploadId', $this->parameters) ||
+				array_key_exists('partNumber', $this->parameters)
 			)
 			{
 				$this->resource .= $query;
@@ -751,7 +750,7 @@ class Request
 		{
 			$region = 'external-1';
 		}
-		elseif ($region == 'cn-north-1')
+		elseif (substr($region, 0, 3) == 'cn-')
 		{
 			return 's3.' . $region . '.' . $endpoint;
 		}

@@ -1212,8 +1212,10 @@ class rseventsproHelper
 							
 							$code	= md5($subscriber->id.$ticket->id.($j+1));
 							$code	= substr($code,0,4).substr($code,-4);
+							$code	= rseventsproHelper::getConfig('barcode_prefix', 'string', 'RST-').$subscriber->id.'-'.$code;
+							$code	= in_array(rseventsproHelper::getConfig('barcode', 'string', 'C39'), array('C39', 'C93')) ? strtoupper($code) : $code;
 							
-							$ticket->code = $ticket->id ? rseventsproHelper::getConfig('barcode_prefix', 'string', 'RST-').$subscriber->id.'-'.$code : '-';
+							$ticket->code = $ticket->id ? $code : '-';
 							$tickets[] = $ticket;
 						}
 					}
@@ -3119,7 +3121,7 @@ class rseventsproHelper
 	}
 	
 	// Prepare all event details
-	public static function details($id, $itemid = null) {
+	public static function details($id, $itemid = null, $content = false) {
 		$u			= JURI::getInstance();
 		$db			= JFactory::getDbo();
 		$query		= $db->getQuery(true);
@@ -3177,7 +3179,7 @@ class rseventsproHelper
 			$event->ownerprofile = rseventsproHelper::getProfile('owner', $event->owner);
 			
 			// Content trigger
-			if (rseventsproHelper::getConfig('content_prepare','int', 1)) {
+			if (rseventsproHelper::getConfig('content_prepare','int', 1) && $content) {
 				$event->description = JHtml::_('content.prepare',$event->description);
 			}
 			
@@ -4077,7 +4079,7 @@ class rseventsproHelper
 				// Gravatar
 				case 'gravatar':
 					$email = ($id == 0 && !empty($email)) ? md5(strtolower(trim($email))) : md5(strtolower(trim($user->get('email'))));
-					$html .= '<img src="http://www.gravatar.com/avatar/'.$email.'?d='.urlencode($default).'" alt="Gravatar" class="rs_avatar" width="64" height="64" />';
+					$html .= '<img src="https://www.gravatar.com/avatar/'.$email.'?d='.urlencode($default).'" alt="Gravatar" class="rs_avatar" width="64" height="64" />';
 				break;
 				
 				// Community Builder
@@ -4329,7 +4331,7 @@ class rseventsproHelper
 	public static function rating($id, $array = false) {
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
-		$ip		= $_SERVER['REMOTE_ADDR'];
+		$ip		= md5($_SERVER['REMOTE_ADDR']);
 		$html	= array();
 		
 		// Get the rating value
@@ -4724,13 +4726,35 @@ class rseventsproHelper
 						$cids[$globalCoupon->id] = $globalCoupon;
 					} else if ($globalCoupon->apply_to == 2) {
 						// Event assignment is set to Selected events
-						if (in_array($id,$events)) {
+						if (is_array($id)) {
 							$cids[$globalCoupon->id] = $globalCoupon;
+							
+							// Unset tickets
+							foreach ($tickets as $eID => $ticket) {
+								if (!in_array($eID ,$events)) {
+									unset($tickets[$eID]);
+								}
+							}
+						} else {
+							if (in_array($id,$events)) {
+								$cids[$globalCoupon->id] = $globalCoupon;
+							}
 						}
 					} else {
 						// Event assignment is set to All except those selected
-						if (!in_array($id,$events)) {
+						if (is_array($id)) {
 							$cids[$globalCoupon->id] = $globalCoupon;
+							
+							// Unset tickets
+							foreach ($tickets as $eID => $ticket) {
+								if (in_array($eID ,$events)) {
+									unset($tickets[$eID]);
+								}
+							}
+						} else {
+							if (!in_array($id,$events)) {
+								$cids[$globalCoupon->id] = $globalCoupon;
+							}
 						}
 					}
 				}
@@ -4776,10 +4800,27 @@ class rseventsproHelper
 					}
 					
 					// Check tickets quantity
-					if ($cid->discounttype) {
+					if ($cid->discounttype == 1) {
 						// Different tickets
 						if ($cid->different_tickets) {
 							if (count($tickets) <= (int) $cid->different_tickets) {
+								continue;
+							}
+						}
+					} elseif ($cid->discounttype == 2) {
+						// Cart tickets
+						if ($cid->cart_tickets) {
+							$nr = 0;
+							
+							if (is_array($id)) {
+								foreach ($tickets as $eventID => $thetickets) {
+									foreach ($thetickets as $tid => $quantity) {
+										$nr += (int) $quantity;
+									}
+								}
+							}
+							
+							if ($nr <= (int) $cid->cart_tickets) {
 								continue;
 							}
 						}
@@ -4853,14 +4894,37 @@ class rseventsproHelper
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
 		$seats	= RSEPRO_TICKETS_NOT_AVAILABLE;
+		$nowunix= JFactory::getDate()->toUnix();
 		
 		$query->clear()
-			->select($db->qn('ide'))->select($db->qn('seats'))->select($db->qn('user_seats'))
+			->select('*')
 			->from($db->qn('#__rseventspro_tickets'))
 			->where($db->qn('id').' = '.(int) $id);
 		
 		$db->setQuery($query);
 		if ($ticket = $db->loadObject()) {
+			
+			// Check for ticket availability
+			$available = true;
+			if ($ticket->from == $db->getNullDate()) $ticket->from = '';
+			if ($ticket->to == $db->getNullDate()) $ticket->to = '';
+			
+			if (!empty($ticket->from) && empty($ticket->to)) {
+				$fromunix  = JFactory::getDate($ticket->from)->toUnix();
+				$available = $fromunix <= $nowunix ? true : false;
+			} elseif (empty($ticket->from) && !empty($ticket->to)) {
+				$tounix		= JFactory::getDate($ticket->to)->toUnix();
+				$available	= $tounix <= $nowunix ? false : true;
+			} elseif (!empty($ticket->from) && !empty($ticket->to)) {
+				$fromunix	= JFactory::getDate($ticket->from)->toUnix();
+				$tounix		= JFactory::getDate($ticket->to)->toUnix();
+				$available	= (($fromunix <= $nowunix && $tounix >= $nowunix) || ($fromunix >= $nowunix && $tounix <= $nowunix)) ? true : false;
+			}
+			
+			if (!$available) {
+				return $seats;
+			}
+			
 			$query->clear()
 				->select('SUM('.$db->qn('ut.quantity').')')
 				->from($db->qn('#__rseventspro_user_tickets','ut'))
@@ -5403,6 +5467,8 @@ class rseventsproHelper
 			'show_repeats' => 1,
 			'show_hits' => 1,
 			'show_print' => 1,
+			'show_counter' => 0,
+			'counter_utc' => 0,
 			'start_date_list' => 1,
 			'start_time_list' => 1,
 			'end_date_list' => 1,
@@ -6394,12 +6460,12 @@ class rseventsproHelper
 			
 			// Get user events
 			if ($profile) {
-				$fbRequest	= $facebook->get('me/events?fields=id,name,start_time,end_time,timezone,description,owner,cover,place&limit=200');
+				$fbRequest	= $facebook->get('me/events?fields=id,name,start_time,end_time,timezone,description,owner,cover,place&limit=300');
 				$events		= $fbRequest->getDecodedBody();
 				
 				if (!empty($events) && !empty($events['data'])) {
 					foreach ($events['data'] as $event) {
-						$log[$event['id']] = array('name' => $event['name'], 'date' => JFactory::getDate()->toSql(), 'imported' => false, 'message' => '', 'page' => false, 'from' => @$event['owner']['name'], 'eventID' => 0);
+						$log[$event['id']] = array('name' => $event['name'], 'date' => JFactory::getDate()->toSql(), 'imported' => false, 'message' => '', 'page' => 'FBUSER', 'from' => @$event['owner']['name'], 'eventID' => 0);
 						
 						$owner	 = isset($event['owner']) ? $event['owner'] : array();
 						$ownerID = !empty($owner) && !empty($owner['id']) ? $owner['id'] : 0;
@@ -6420,11 +6486,15 @@ class rseventsproHelper
 			// Get page events
 			if (!empty($fbpages)) {
 				foreach ($fbpages as $pageid) {
-					$fbRequest	= $facebook->get('/'.$pageid.'/events?fields=id,name,start_time,end_time,timezone,description,owner,cover,place&limit=200');
-					$pageEvents = $fbRequest->getDecodedBody();					
+					$fbpRequest = $facebook->get('/'.$pageid.'?fields=name');
+					$page = $fbpRequest->getDecodedBody();
+					$pageName = isset($page['name']) ? $page['name'] : '-';
+					
+					$fbRequest	= $facebook->get('/'.$pageid.'/events?fields=id,name,start_time,end_time,timezone,description,owner,cover,place&limit=300');
+					$pageEvents = $fbRequest->getDecodedBody();
 					if (!empty($pageEvents) && !empty($pageEvents['data'])) {
 						foreach ($pageEvents['data'] as $pageEvent) {
-							$log[$pageEvent['id']] = array('name' => $event['name'], 'date' => JFactory::getDate()->toSql(), 'imported' => false, 'message' => '', 'page' => true, 'from' => @$pageEvent['owner']['name'], 'eventID' => 0);
+							$log[$pageEvent['id']] = array('name' => $pageEvent['name'], 'date' => JFactory::getDate()->toSql(), 'imported' => false, 'message' => '', 'page' => $pageName, 'from' => @$pageEvent['owner']['name'], 'eventID' => 0);
 							
 							$owner	 = isset($pageEvent['owner']) ? $pageEvent['owner'] : array();
 							$ownerID = !empty($owner) && !empty($owner['id']) ? $owner['id'] : 0;
@@ -6496,6 +6566,7 @@ class rseventsproHelper
 					
 					if (!$expired) {
 						if ($now > $endDate) {
+							$log[$ev->id]['message'] = JText::_('COM_RSEVENTSPRO_SYNC_LOG_EXPIRED');
 							continue;
 						}
 					}
@@ -6666,7 +6737,6 @@ class rseventsproHelper
 		
 		$startReg	 = !empty($event->start_registration) && $event->start_registration != '0000-00-00 00:00:00' ? $event->start_registration : $event->start;
 		$description = empty($event->description) ? $event->small_description : $event->description;
-		
 		
 		$json['@context'] = 'https://schema.org';
 		$json['@type'] = 'Event';
@@ -6845,7 +6915,7 @@ class rseventsproHelper
 					->set($db->qn('name').' = '.$db->q($log['name']))
 					->set($db->qn('imported').' = '.$db->q((int) $log['imported']))
 					->set($db->qn('message').' = '.$db->q($log['message']))
-					->set($db->qn('page').' = '.$db->q((int) $log['page']))
+					->set($db->qn('page').' = '.$db->q($log['page']))
 					->set($db->qn('from').' = '.$db->q($log['from']))
 					->set($db->qn('eid').' = '.$db->q($log['eventID']))
 					->set($db->qn('importid').' = '.$db->q($eventID));
@@ -6855,4 +6925,34 @@ class rseventsproHelper
 			}
 		}
 	}
+	
+	public static function getIP() {
+		if (rseventsproHelper::getConfig('store_ip', 1)) {
+			return JFactory::getApplication()->input->server->getString('REMOTE_ADDR');
+		} else {
+			return '0.0.0.0';
+		}
+	}
+	
+	public static function isCart($version = null) {
+		$cart = false;
+		
+		JFactory::getApplication()->triggerEvent('rsepro_isCart', array(array('cart' => &$cart)));
+		
+		if (!is_null($version) && $cart) {
+			if (file_exists(JPATH_SITE.'/plugins/system/rseprocart/rseprocart.xml')) {
+				$xml = file_get_contents(JPATH_SITE.'/plugins/system/rseprocart/rseprocart.xml');
+				preg_match('#<version>(.*?)<\/version>#is', $xml, $match);
+				$xmlversion = isset($match) && isset($match[1]) ? $match[1] : false;
+				
+				if ($xmlversion) {
+					if (!version_compare($xmlversion, $version, '>=')) {
+						return false;
+					}
+				}
+			}
+		}
+		
+		return $cart;
+	}	
 }

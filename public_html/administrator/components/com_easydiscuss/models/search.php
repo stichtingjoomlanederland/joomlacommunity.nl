@@ -93,7 +93,7 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 	 * @access private
 	 * @return string
 	 */
-	private function _buildQuery($sort = 'latest', $filter = '' , $category = '', $isCountOnly = false, $tags = array())
+	private function _buildQuery($sort = 'latest', $filter = '' , $category = '', $isCountOnly = false, $tags = array(), $postType = '')
 	{
 		$my = $this->my;
 		$config = $this->config;
@@ -125,7 +125,7 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 		if ($tags) {
 			$pquery .= '	INNER JOIN ' . $db->nameQuote( '#__discuss_posts_tags' ) . ' AS ptg ON a.`id`= ptg.`post_id`';
 		}
-		$pquery	.= $this->_buildQueryWhere('posts', 'a', $category);
+		$pquery	.= $this->_buildQueryWhere('posts', 'a', $category, $postType);
 		if ($tags) {
 			$pquery .= ' AND ptg.tag_id IN (' . $db->implode($tags) . ')';
 		}
@@ -150,7 +150,7 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 		return $query;
 	}
 
-	private function _buildQueryWhere( $type, $tbl, $categoryId = '')
+	private function _buildQueryWhere($type, $tbl, $categoryId = '', $postType = '')
 	{
 		$mainframe = $this->app;
 		$db = $this->db;
@@ -164,7 +164,6 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 		$includeCatChilds = false;
 
 		$where[] = $tbl.'.`published` = ' . $db->Quote('1');
-
 
 		if ($type == 'posts' || $type == 'replies') {
 
@@ -181,12 +180,16 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 				}
 			}
 
+			if ($postType) {
+				$where[] = $tbl . '.`post_type` = ' . $db->Quote($postType);
+			}
+
 			$words = explode(' ', $search);
 			$wheres = array();
 			foreach ($words as $word) {
 
-				$word		= $db->Quote('%'.$db->getEscaped($word, true).'%', false);
-				$wheres2	= array();
+				$word = $db->Quote('%'.$db->getEscaped($word, true).'%', false);
+				$wheres2 = array();
 
 				if ($type == 'posts') {
 					$wheres2[]	= 'a.title LIKE '.$word;
@@ -196,10 +199,7 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 				$wheres[] = implode(' OR ', $wheres2);
 			}
 
-
 			$whereString = '(' . implode( ($phrase == 'all' ? ') AND (' : ') OR ('), $wheres) . ')';
-
-
 
 			$where[] = '(' . $whereString . ')';
 			// $where[] = $whereString;
@@ -264,6 +264,7 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 		$category = isset($options['category']) ? $options['category'] : '';
 		$limit = isset($options['limit']) ? $options['limit'] : null;
 		$tags = isset($options['tags']) ? $options['tags'] : array();
+		$postType = isset($options['post_type']) ? $options['post_type'] : '';
 
 		// Check if this site support multilanguage
 		$multilang = JLanguageMultilang::isEnabled();
@@ -287,7 +288,7 @@ class EasyDiscussModelSearch extends EasyDiscussAdminModel
 
 		if (empty($this->_data)) {
 
-			$query = $this->_buildQuery($sort, $filter, $category, false, $tags);
+			$query = $this->_buildQuery($sort, $filter, $category, false, $tags, $postType);
 
 			if ($usePagination) {
 				$limitstart = is_null($limitstart) ? $this->getState('limitstart') : $limitstart;

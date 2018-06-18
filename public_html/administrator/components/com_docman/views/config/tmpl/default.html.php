@@ -167,7 +167,6 @@ defined('KOOWA') or die; ?>
                                     </div>
                                 </div><!-- .k-inline-form-group -->
 
-
                                 <div class="k-form-group">
                                     <label for="allowed_extensions_tag"><?= translate('Select from presets'); ?></label>
                                     <div id="extension_groups" class="k-js-extension-groups extension-groups"></div>
@@ -182,7 +181,6 @@ defined('KOOWA') or die; ?>
                             </fieldset>
 
                         </div><!-- .k-container__main -->
-
 
                         <!-- Other information -->
                         <div class="k-container__sub">

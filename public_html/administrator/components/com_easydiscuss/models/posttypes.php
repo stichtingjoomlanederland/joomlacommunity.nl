@@ -103,7 +103,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 	{
 		$mainframe = JFactory::getApplication();
 
-		$filter_order = $mainframe->getUserStateFromRequest('com_easydiscuss.customs.filter_order','filter_order', 'a.id', 'cmd');
+		$filter_order = $mainframe->getUserStateFromRequest('com_easydiscuss.customs.filter_order','filter_order', 'a.lft', 'cmd');
 		$filter_order_Dir = $mainframe->getUserStateFromRequest('com_easydiscuss.customs.filter_order_Dir', 'filter_order_Dir', '', 'word');
 
 		$orderby = ' ORDER BY ' . $filter_order . ' ' . $filter_order_Dir;
@@ -150,8 +150,8 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 
 		$result = $db->loadResult();
 
-		return $result;		
-	}	
+		return $result;
+	}
 
 
 	/**
@@ -200,7 +200,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 	{
 		$db = ED::db();
 		$query = array();
-		
+
 		if (!is_null($categoryId)) {
 			$categoryId = (int) $categoryId;
 		}
@@ -219,7 +219,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 		$query[] = 'a.' . $db->qn('type') . '=' . $db->Quote('global');
 		$query[] = 'OR';
 		$query[] = 'a.' . $db->qn('type') . '=' . $db->Quote('');
-	
+
 		if ($categoryId) {
 			$query[] = 'OR (';
 			$query[] = 'a.' . $db->qn('type') . '=' . $db->Quote('category');
@@ -410,7 +410,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 			$table->category_id = $id;
 			$table->store();
 		}
-		
+
 		return true;
 	}
 
@@ -432,10 +432,32 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 
 		$query = implode(' ', $query);
 		$db->setQuery($query);
-		
+
 		$categories = $db->loadObjectList();
 
 		return $categories;
+	}
+
+	/**
+	 * Method to check if the lft and rgt columns are valid or not.
+	 * If not, it will auto rebuild the ordering.
+	 *
+	 * @since 4.0.23
+	 * @access public
+	 */
+	public function verifyOrdering($rebuild = true)
+	{
+		$db = $this->db;
+		$query = "SELECT count(1) FROM `#__discuss_post_types` where `lft` = 0";
+		$db->setQuery($query);
+
+		$count = $db->loadResult();
+
+		if ($count && $rebuild) {
+			$this->rebuildOrdering();
+		}
+
+		return true;
 	}
 
 	public function rebuildOrdering($id = null, $leftId = 0)
@@ -463,7 +485,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 				// Increment the level for the children.
 				// Add this item's alias to the path (but avoid a leading /)
 				$rightId = $this->rebuildOrdering($node->id, $rightId);
-	 
+
 				// If there is an update failure, return false to break the recursion.
 				if ($rightId === false) return false;
 			}
@@ -496,7 +518,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 		$options = array();
 		if ($direction == DISCUSS_ORDER_UP) {
 
-			$query = "SELECT `id`, `lft`, `rgt` FROM `#__discuss_post_types` WHERE `lft` > " . $db->Quote($current->lft) . " ORDER BY `lft` ASC LIMIT 1";
+			$query = "SELECT `id`, `lft`, `rgt` FROM `#__discuss_post_types` WHERE `lft` < " . $db->Quote($current->lft) . " ORDER BY `lft` DESC LIMIT 1";
 			$db->setQuery($query);
 			$prevNode = $db->loadObject();
 
@@ -510,7 +532,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 			$options['nodeRight'] = $current->rgt;
 		} else {
 
-			$query = "SELECT `id`, `lft`, `rgt` FROM `#__discuss_post_types` WHERE `lft` < " . $db->Quote($current->lft) . " ORDER BY `lft` DESC LIMIT 1";
+			$query = "SELECT `id`, `lft`, `rgt` FROM `#__discuss_post_types` WHERE `lft` > " . $db->Quote($current->lft) . " ORDER BY `lft` ASC LIMIT 1";
 			$db->setQuery($query);
 			$nextNode = $db->loadObject();
 
@@ -529,7 +551,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 		$query .= " `lft` = " . $db->Quote($options['currentNewLeft']);
 		$query .= ", `rgt` = " . $db->Quote($options['currentNewRight']);
 		$query .= " WHERE `id` = " . $db->Quote($current->id);
-		
+
 		$db->setQuery($query);
 		$db->execute();
 

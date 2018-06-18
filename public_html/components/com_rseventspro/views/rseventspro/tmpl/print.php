@@ -5,7 +5,7 @@
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-$details	= rseventsproHelper::details($this->event->id);
+$details	= rseventsproHelper::details($this->event->id, null, true);
 $event		= $details['event'];
 $categories = $details['categories'];
 $tags		= $details['tags']; ?>

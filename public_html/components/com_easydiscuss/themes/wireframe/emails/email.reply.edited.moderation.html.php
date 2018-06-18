@@ -19,7 +19,7 @@ defined('_JEXEC') or die('Restricted access');
 				<?php echo JText::_('COM_EASYDISCUSS_EMAILS_EDITED_REPLY_REQUIRE_MODERATION') ?>
 			</div>
 			<div style="font-size:12px; color: #798796;font-weight:normal">
-				<?php echo JText::sprintf('COM_EASYDISCUSS_EMAILT_TEMPLATE_HAS_EDITED_REPLY', $replyAuthor, $postTitle); ?>
+				<?php echo JText::sprintf('COM_EASYDISCUSS_EMAILS_TEMPLATE_HAS_EDITED_REPLY', $replyAuthor, $postTitle); ?>
 			</div>
 		</div>
 	</td>

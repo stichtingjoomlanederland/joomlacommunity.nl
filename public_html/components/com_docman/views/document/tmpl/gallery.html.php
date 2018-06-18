@@ -21,7 +21,7 @@ defined('KOOWA') or die; ?>
 
 <meta itemprop="contentUrl" content="<?= $document->image_download_path ?>">
 
-<? if ($document->isImage()): ?>
+<? if ($document->isPreviewableImage()): ?>
 <? if ($document->storage->width): ?>
     <meta itemprop="width" content="<?= $document->storage->width; ?>">
 <? endif; ?>

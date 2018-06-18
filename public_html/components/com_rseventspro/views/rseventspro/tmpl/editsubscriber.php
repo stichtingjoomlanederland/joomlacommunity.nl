@@ -48,7 +48,11 @@ function rs_validate_subscr() {
 
 <div style="text-align:right;">
 	<button type="submit" class="button btn btn-primary" onclick="return rs_validate_subscr();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button> <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?>
+	<?php if (!$this->rlink) { ?>
 	<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribers&id='.rseventsproHelper::sef($event->id,$event->name)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></a>
+	<?php } else { ?>
+	<a href="<?php echo $this->rlink; ?>"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></a>
+	<?php } ?>
 </div>
 
 <fieldset class="rs_fieldset form-horizontal">
@@ -75,7 +79,11 @@ function rs_validate_subscr() {
 			<label for="jform_state"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS'); ?></label>
 		</div>
 		<div class="controls">
+			<?php if (!$this->user) { ?>
 			<?php echo $this->lists['status']; ?>
+			<?php } else { ?>
+			<div class="rsepro-text"><?php echo $this->getStatus($subscriber->state); ?></div>
+			<?php } ?>
 		</div>
 	</div>
 </fieldset>
@@ -112,10 +120,14 @@ function rs_validate_subscr() {
 						if (rseventsproHelper::pdf() && $subscriber->state == 1) {
 							$purchasedtickets .= '<th align="center" class="center">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF').'</th>';
 							$purchasedtickets .= '<th align="center" class="center">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF_CODE').'</th>';
-							$purchasedtickets .= '<th align="center" class="center">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF_CONFIRMED').'</th>';
+							
+							if (!$this->user) {
+								$purchasedtickets .= '<th align="center" class="center">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF_CONFIRMED').'</th>';
+							}
 						}
 						$purchasedtickets .= '</tr>';
 						$purchasedtickets .= '</thead>';
+						
 						foreach ($tickets as $ticket) {
 							$total += (int) $ticket->quantity * $ticket->price;
 							for ($j = 1; $j <= $ticket->quantity; $j++) {
@@ -125,14 +137,20 @@ function rs_validate_subscr() {
 									$code	= md5($subscriber->id.$ticket->id.$j);
 									$code	= substr($code,0,4).substr($code,-4);
 									$code	= rseventsproHelper::getConfig('barcode_prefix', 'string', 'RST-').$subscriber->id.'-'.$code;
-									$confirmed = rseventsproHelper::confirmed($subscriber->id, $code);
-									$hasLayout = rseventsproHelper::hasPDFLayout($ticket->layout,$subscriber->SubmissionId);
+									$code	= in_array(rseventsproHelper::getConfig('barcode', 'string', 'C39'), array('C39', 'C93')) ? strtoupper($code) : $code;
+									$confirmed	= rseventsproHelper::confirmed($subscriber->id, $code);
+									$hasLayout	= rseventsproHelper::hasPDFLayout($ticket->layout,$subscriber->SubmissionId);
+									$scode		= JFactory::getApplication()->input->getString('code');
+									$scode		= $scode ? '&code='.$scode : '';
 									
-									$purchasedtickets .= '<td align="center" class="center">'.($hasLayout ? '<a class="rsextra" href="'.JRoute::_('index.php?option=com_rseventspro&layout=ticket&from=subscriber&format=raw&id='.$subscriber->id.'&ide='.$subscriber->ide.'&tid='.$ticket->id.'&position='.$j).'"><i class="fa fa-file-pdf-o"></i> '.$ticket->name.'</a>' : '-').'</td>';
+									$purchasedtickets .= '<td align="center" class="center">'.($hasLayout ? '<a class="rsextra" href="'.JRoute::_('index.php?option=com_rseventspro&layout=ticket&from=subscriber&format=raw&id='.$subscriber->id.'&ide='.$subscriber->ide.'&tid='.$ticket->id.'&position='.$j.$scode).'"><i class="fa fa-file-pdf-o"></i> '.$ticket->name.'</a>' : '-').'</td>';
 									$purchasedtickets .= '<td align="center" class="center">'.($ticket->id ? $code : '-').'</td>';
-									$purchasedtickets .= '<td align="center" class="center">';
-									$purchasedtickets .= $ticket->id ? ($confirmed ? '<span class="label label-success">'.JText::_('JYES').'</span>' : '<span><a href="javascript:void(0)" class="label '.rseventsproHelper::tooltipClass().'" title="'.rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF_CONFIRMED_DESC')).'" onclick="rsepro_confirm_ticket(\''.$subscriber->id.'\',\''.$code.'\', this)">'.JText::_('JNO').'</a></span>') : '-';
-									$purchasedtickets .= '</td>';
+
+									if (!$this->user) {
+										$purchasedtickets .= '<td align="center" class="center">';
+										$purchasedtickets .= $ticket->id ? ($confirmed ? '<span class="label label-success">'.JText::_('JYES').'</span>' : '<span><a href="javascript:void(0)" class="label '.rseventsproHelper::tooltipClass().'" title="'.rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF_CONFIRMED_DESC')).'" onclick="rsepro_confirm_ticket(\''.$subscriber->id.'\',\''.$code.'\', this)">'.JText::_('JNO').'</a></span>') : '-';
+										$purchasedtickets .= '</td>';
+									}
 								}
 								$purchasedtickets .= '</tr>';
 							}
@@ -177,7 +195,7 @@ function rs_validate_subscr() {
 		<?php $total = $total + $subscriber->tax; ?>
 		<?php } ?>
 		
-		<?php if ($event->ticketsconfig && rseventsproHelper::hasSeats($subscriber->id)) { ?>
+		<?php if ($event->ticketsconfig && rseventsproHelper::hasSeats($subscriber->id) && !$this->user) { ?>
 		<tr>
 			<td width="160">&nbsp;</td>
 			<td><a class="btn" onclick="jQuery('#rseModal').modal('show');" href="javascript:void(0);"><?php echo JText::_('COM_RSEVENTSPRO_SEATS_CONFIGURATION'); ?></a></td>
@@ -228,6 +246,8 @@ function rs_validate_subscr() {
 	<input type="hidden" name="task" value="rseventspro.savesubscriber" />
 	<input type="hidden" name="jform[id]" value="<?php echo $subscriber->id; ?>" />
 	<input type="hidden" name="ide" value="<?php echo $event->id; ?>" />
+	<input type="hidden" name="isuser" value="<?php echo (int) $this->user; ?>" />
+	<input type="hidden" name="code" value="<?php echo JFactory::getApplication()->input->getString('code'); ?>" />
 </form>
 
 <?php echo JHtml::_('bootstrap.renderModal', 'rseModal', array('title' => '&nbsp;', 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=userseats&tmpl=component&id='.rseventsproHelper::sef($subscriber->id,$subscriber->name)), 'bodyHeight' => 70, 'width' => rseventsproHelper::getConfig('seats_width','int','1280'), 'height' => rseventsproHelper::getConfig('seats_height','int','800'))); ?>

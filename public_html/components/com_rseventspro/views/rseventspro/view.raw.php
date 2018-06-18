@@ -78,6 +78,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 					die();
 				}
 			} elseif ($layout == 'ticket') {
+				$isuser = false;
+				
 				if ($jinput->get('from') == 'subscriber') {
 					$ide = $jinput->getInt('ide',0);
 					
@@ -109,7 +111,32 @@ class RseventsproViewRseventspro extends JViewLegacy
 					$userid = (int) $db->loadResult();
 				}
 				
-				if ($this->admin || $userid == $this->user) {
+				if ($email = $this->get('EmailFromCode')) {
+					$query->clear()
+						->select($db->qn('id'))
+						->from($db->qn('#__rseventspro_users'))
+						->where($db->qn('email').' = '.$db->q($email))
+						->where($db->qn('id').' = '.$db->q($jinput->getInt('id')));
+					
+					$db->setQuery($query);
+					$id = (int) $db->loadResult();
+					
+					$isuser = $id > 0;
+				} else {
+					$userid = JFactory::getUser()->get('id');
+					
+					$query->clear()
+						->select($db->qn('idu'))
+						->from($db->qn('#__rseventspro_users'))
+						->where($db->qn('id').' = '.$db->q($jinput->getInt('id')));
+					
+					$db->setQuery($query);
+					$idu = (int) $db->loadResult();
+					
+					$isuser = $userid > 0 && $idu == $userid;
+				}
+				
+				if ($this->admin || $userid == $this->user || $isuser) {
 					if (file_exists(JPATH_SITE.'/components/com_rseventspro/helpers/pdf.php')) {
 						require_once JPATH_SITE.'/components/com_rseventspro/helpers/pdf.php';
 						JFactory::getDocument()->setMimeEncoding('application/pdf');

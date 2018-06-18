@@ -300,8 +300,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 	quoteButton.live('click', function() {
 
-		var rawContent  = $(this).find('input.raw_message').val(),
-			rawAuthor = $(this).find('input.raw_message').val();
+		var rawContent = $(this).find('input.raw_message').val();
 
 		var editorType = "<?php echo $this->config->get('layout_editor'); ?>";
 
@@ -319,14 +318,14 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 		} else {
 
-			var quoteContent = '<blockquote>' + rawContent + '</blockquote>';
+			var quoteContent = '<blockquote>' + rawContent + '</blockquote><br />';
 
 			if (window.CKEDITOR) {
 				try {
-					window.CKEDITOR.instances['content'].setData(quoteContent);
+					window.CKEDITOR.instances['dc_content'].setData(quoteContent);
 				} catch (e) {}
 			} else {
-				window.jInsertEditorText(quoteContent, 'content');
+				window.jInsertEditorText(quoteContent, 'dc_content');
 			}
 		}
 	});

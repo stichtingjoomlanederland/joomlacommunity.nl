@@ -896,6 +896,60 @@ class com_rseventsproInstallerScript
 				$db->execute();
 			}
 			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_tickets` WHERE `Field` = 'from'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_tickets` ADD `from` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `layout`");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_tickets` WHERE `Field` = 'to'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_tickets` ADD `to` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00' AFTER `from`");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_discounts` WHERE `Field` = 'cart_tickets'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rseventspro_discounts` ADD `cart_tickets` INT(3) NOT NULL DEFAULT '0' AFTER `different_tickets`");
+				$db->execute();
+			}
+			
+			// Set enable option to the notification emails
+			$token = false;
+			$db->setQuery("SELECT `value` FROM `#__rseventspro_config` WHERE name = 'facebook_appid'");
+			if ($fbappid = $db->loadResult()) {
+				if ($fbappid == '340486642645761') {
+					$db->setQuery("UPDATE `#__rseventspro_config` SET `value` = '' WHERE name = 'facebook_appid'");
+					$db->execute();
+					$token = true;
+				}
+			}
+			
+			$db->setQuery("SELECT `value` FROM `#__rseventspro_config` WHERE name = 'facebook_secret'");
+			if ($fbsecret = $db->loadResult()) {
+				if ($fbsecret == 'fea413f9a085e01555de0e93848c2c4a') {
+					$db->setQuery("UPDATE `#__rseventspro_config` SET `value` = '' WHERE name = 'facebook_secret'");
+					$db->execute();
+					$token = true;
+				}
+			}
+			
+			if ($token) {
+				$db->setQuery("UPDATE `#__rseventspro_config` SET `value` = '' WHERE name = 'facebook_token'");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW TABLES LIKE '".$db->getPrefix()."rseventspro_sync_log'");
+			if ($db->loadResult()) {
+				$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_sync_log` WHERE `Field` = 'page'");
+				if ($columns = $db->loadObject()) {
+					if (strtolower($columns->Type) == 'int(2)') {
+						$db->setQuery("ALTER TABLE `#__rseventspro_sync_log` CHANGE `page` `page` VARCHAR(255) NOT NULL DEFAULT ''");
+						$db->execute();
+					}
+				}
+			}
+			
 			// Run queries
 			$sqlfile = JPATH_ADMINISTRATOR.'/components/com_rseventspro/install.mysql.sql';
 			$buffer = file_get_contents($sqlfile);
@@ -1031,9 +1085,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.11.6</h2>
+	<h2>Changelog v1.11.10</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> Some all day events were not showing in the calendar.</li>
+		<li><span class="version-fixed">Fix</span> Updated the Facebook sync log.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>

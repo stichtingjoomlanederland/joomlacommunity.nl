@@ -95,7 +95,7 @@ class ComFilesControllerFile extends ComFilesControllerAbstract
                     // Check if the folder exists, folder shouldn't exist in query for cookie to be used
                     if (isset($cookie['folder']))
                     {
-                        $adapter = $container->getAdapter('folder');
+                        $adapter = $this->getObject('com:files.adapter.folder');
                         $adapter->setPath($container->fullpath . '/' . $cookie['folder']);
                         // Unset folder cookie if path does not exists.
                         if (!$adapter->exists()) {

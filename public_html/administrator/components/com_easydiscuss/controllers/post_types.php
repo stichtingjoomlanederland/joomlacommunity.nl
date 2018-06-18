@@ -185,7 +185,7 @@ class EasyDiscussControllerPost_types extends EasyDiscussController
 		// Check for request forgeries
 		ED::checkToken();
 
-		self::orderType(DISCUSS_ORDER_UP);
+		self::orderType(DISCUSS_ORDER_DOWN);
 	}
 
 	public function orderup()
@@ -193,10 +193,10 @@ class EasyDiscussControllerPost_types extends EasyDiscussController
 		// Check for request forgeries
 		ED::checkToken();
 
-		self::orderType(DISCUSS_ORDER_DOWN);
+		self::orderType(DISCUSS_ORDER_UP);
 	}
 
-	public function orderType($direction) 
+	public function orderType($direction)
 	{
 		// Check for request forgeries
 		ED::checkToken();

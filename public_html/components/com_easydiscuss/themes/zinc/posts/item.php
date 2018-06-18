@@ -39,6 +39,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<div class="ed-user-rank t-lg-mt--sm"><?php echo $this->escape(ED::getUserRanks($post->getOwner()->id)); ?></div>
 						<?php } ?>
 
+						<?php if ($this->config->get('layout_badges_in_post') && $post->getOwner()->hasUserBadges()) { ?>
+							<div class="t-lg-mt--sm">
+								<?php echo ED::badges()->getPostHtml($post->getOwner()->id); ?>
+							</div>
+						<?php } ?>
+
 					</div>
 					<?php } ?>
 
@@ -49,8 +55,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php } ?>
 
 					<div class="o-flag__body o-flag--top t-lg-pl--md">
-						<div class="o-col">
-							<div class="pull-left">
+						<div class="o-grid">
+							<div class="o-grid__cell o-grid__cell--center o-grid__cell--auto-size">
 								<?php if (!$post->isAnonymous()) { ?>
 									<a href="<?php echo $post->getOwner()->getLink();?>" class="ed-user-name t-fs--sm"><?php echo $post->getOwner()->getName();?></a>
 								<?php } ?>
@@ -61,17 +67,18 @@ defined('_JEXEC') or die('Unauthorized Access');
 								<span class="t-fs--sm"><?php echo JText::_('COM_EASYDISCUSS_POSTED_IN');?>
 								</span>
 							</div>
+							<div class="o-grid__cell o-grid__cell--center">
 
-
-							<ol class="g-list-inline g-list-inline--dashed ed-post-meta-cat pull-left t-lg-mt--sm t-lg-ml--sm">
-								<li><a href="<?php echo $post->getCategory()->getPermalink();?>" class=""><?php echo JText::_($post->getCategory()->title);?></a></li>
-								<?php if ($post->hasAttachments()) { ?>
-								<li><i class="fa fa-file"></i></li>
-								<?php } ?>
-								<?php if ($post->hasPolls()) { ?>
-								<li><i class="fa fa-bar-chart"></i></li>
-								<?php } ?>
-							</ol>
+								<ol class="g-list-inline g-list-inline--dashed ed-post-meta-cat xt-lg-mt--sm t-lg-ml--sm">
+									<li><a href="<?php echo $post->getCategory()->getPermalink();?>" class="t-fs--sm"><?php echo JText::_($post->getCategory()->title);?></a></li>
+									<?php if ($post->hasAttachments()) { ?>
+									<li><i class="fa fa-file"></i></li>
+									<?php } ?>
+									<?php if ($post->hasPolls()) { ?>
+									<li><i class="fa fa-bar-chart"></i></li>
+									<?php } ?>
+								</ol>	
+							</div>
 						</div>
 
 

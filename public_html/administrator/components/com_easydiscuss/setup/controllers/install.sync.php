@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -20,30 +20,23 @@ class EasyDiscussControllerInstallSync extends EasyDiscussSetupController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function execute()
 	{
-		// Load foundry
 		$this->engine();
 
 		// For development mode, we want to skip all this
 		if ($this->isDevelopment()) {
 			return $this->output($this->getResultObj('COM_EASYDISCUSS_INSTALLATION_DEVELOPER_MODE', true));
 		}
-		
-		// Get this installation version
-		$version = $this->getInstalledVersion();
 
-		// Get previous version installed
+		$version = $this->getInstalledVersion();
 		$previous = $this->getPreviousVersion('dbversion');
 
 		$affected = '';
 
+		// Run the db scripts sync if needed.
 		if ($previous !== false) {
-
-			// lets run the db scripts sync if needed.
 			$db = ED::db();
 			$affected = $db->sync($previous);
 		}
@@ -60,10 +53,10 @@ class EasyDiscussControllerInstallSync extends EasyDiscussSetupController
 		// If the previous version is empty, we can skip this altogether as we know this is a fresh installation
 		if (!empty($affected)) {
 			$this->setInfo(JText::sprintf('COM_EASYDISCUSS_INSTALLATION_MAINTENANCE_DB_SYNCED', $version));
-		} else {
-			$this->setInfo(JText::sprintf('COM_EASYDISCUSS_INSTALLATION_MAINTENANCE_DB_NOTHING_TO_SYNC', $version));
+			return $this->output();
 		}
-
+		
+		$this->setInfo(JText::sprintf('COM_EASYDISCUSS_INSTALLATION_MAINTENANCE_DB_NOTHING_TO_SYNC', $version));
 		return $this->output();
 	}
 }

@@ -29,6 +29,7 @@ defined('KOOWA') or die; ?>
     });
 </script>
 
+
 <!-- Wrapper -->
 <div class="k-wrapper k-js-wrapper">
 

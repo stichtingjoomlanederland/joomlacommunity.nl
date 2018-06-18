@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -883,13 +883,13 @@ class DiscussProfile extends EasyDiscussTable
 	}
 
 	/**
-     * Get number of unresolved posts
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Get number of unresolved posts
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function getNumTopicUnresolved()
 	{
 		static $cache = array();
@@ -1194,11 +1194,11 @@ class DiscussProfile extends EasyDiscussTable
 	}
 
 	/**
-     * Determines if the user is blocked
-     *
-     * @since   4.0.15
-     * @access  public
-     */
+	 * Determines if the user is blocked
+	 *
+	 * @since   4.0.15
+	 * @access  public
+	 */
 	public function isBlocked()
 	{
 		$db	= ED::db();
@@ -1247,6 +1247,31 @@ class DiscussProfile extends EasyDiscussTable
 		return $loaded[$this->id];
 	}
 
+	/**
+	 * Determine whether this user have any badges or not
+	 *
+	 * @since	4.1.2
+	 * @access	public
+	 */
+	public function hasUserBadges()
+	{
+		static $loaded = array();
+
+		if (!$this->id) {
+			return false;
+		}
+
+		if (!isset($loaded[$this->id])) {
+
+			$model = ED::model('Badges');
+			$result = $model->hasUserBadges($this->id);
+
+			$loaded[$this->id] = $result;
+		}
+
+		return $loaded[$this->id];		
+	}
+
 	public function getTotalBadges()
 	{
 		$db		= ED::db();
@@ -1276,7 +1301,7 @@ class DiscussProfile extends EasyDiscussTable
 		$db		= ED::db();
 		$query	= 'UPDATE ' . $db->nameQuote( '#__discuss_users' )
 				. ' SET ' . $db->nameQuote('points') . ' = ' . $db->Quote(0)
-   				. ' WHERE ' . $db->nameQuote('id') . '=' . $db->Quote($this->id);
+				. ' WHERE ' . $db->nameQuote('id') . '=' . $db->Quote($this->id);
 		$db->setQuery($query);
 		$db->query();
 	}
@@ -1304,8 +1329,6 @@ class DiscussProfile extends EasyDiscussTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getPoints()
 	{

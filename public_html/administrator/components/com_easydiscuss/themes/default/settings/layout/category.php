@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,29 +9,21 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 ?>
-
 <div class="row">
 	<div class="col-md-6">
 		<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_CATEGORY'); ?>
 
-			<div id="option01" class="panel-body">
+			<div class="panel-body">
 				<div class="form-horizontal">
+					<?php echo $this->html('settings.toggle', 'layout_category_description_hidden', 'COM_EASYDISCUSS_ALWAYS_HIDE_CATEGORY_DESCRIPTION'); ?>
 					<div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_ALWAYS_HIDE_CATEGORY_DESCRIPTION'); ?>
-                        </div>
-                        <div class="col-md-7">
-							<?php echo $this->html('form.boolean', 'layout_category_description_hidden', $this->config->get('layout_category_description_hidden'));?>
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_LAYOUT_CATEGORY_ORDERING'); ?>
 						</div>
-					</div>
-					<div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_LAYOUT_CATEGORY_ORDERING'); ?>
-                        </div>
-                        <div class="col-md-7">
+						<div class="col-md-7">
 							<?php
 								$orderingType = array();
 								$orderingType[] = JHTML::_('select.option', 'alphabet', JText::_( 'COM_EASYDISCUSS_SORT_ALPHABETICAL' ) );
@@ -43,10 +35,10 @@ defined('_JEXEC') or die('Restricted access');
 						</div>
 					</div>
 					<div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_LAYOUT_CATEGORY_SORTING'); ?>
-                        </div>
-                        <div class="col-md-7">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_LAYOUT_CATEGORY_SORTING'); ?>
+						</div>
+						<div class="col-md-7">
 							<?php
 								$sortingType = array();
 								$sortingType[] = JHTML::_('select.option', 'asc', JText::_( 'COM_EASYDISCUSS_SORT_ASC' ) );
@@ -56,79 +48,16 @@ defined('_JEXEC') or die('Restricted access');
 							?>
 						</div>
 					</div>
-					<div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_CATEGORY_PATH'); ?>
-                        </div>
-                        <div class="col-md-7">
-							<input type="text" name="main_categoryavatarpath" class="form-control" value="<?php echo $this->config->get('main_categoryavatarpath', 'images/eblog_cavatar/' );?>" />
-						</div>
-					</div>
-					<div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_CATEGORY_AVATAR'); ?>
-                        </div>
-                        <div class="col-md-7">
-							<?php echo $this->html('form.boolean', 'layout_category_show_avatar', $this->config->get('layout_category_show_avatar'));?>
-						</div>
-					</div>					
-					<div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_CATEGORY_SHOWMODERATORS'); ?>
-                        </div>
-                        <div class="col-md-7">
-							<?php echo $this->html('form.boolean', 'layout_show_moderators', $this->config->get('layout_show_moderators'));?>
-						</div>
-					</div>
-					<div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_CATEGORY_SHOW_STATS'); ?>
-                        </div>
-                        <div class="col-md-7">
-							<?php echo $this->html('form.boolean', 'layout_category_stats', $this->config->get('layout_category_stats'));?>
-						</div>
-					</div>
-					<div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_CATEGORY_SHOW_ONE_LEVEL_SUBCATEGORY'); ?>
-                        </div>
-                        <div class="col-md-7">
-							<?php echo $this->html('form.boolean', 'layout_category_one_level', $this->config->get('layout_category_one_level'));?>
-						</div>
-					</div>
-					<div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_CATEGORY_TOGGLE_CATEGORY'); ?>
-                        </div>
-                        <div class="col-md-7">
-							<?php echo $this->html('form.boolean', 'layout_category_toggle', $this->config->get('layout_category_toggle'));?>
-						</div>
-					</div>
-					<div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_CATEGORY_SHOW_CLASSIC_CATEGORY'); ?>
-                        </div>
-                        <div class="col-md-7">
-							<?php echo $this->html('form.boolean', 'layout_show_classic', $this->config->get('layout_show_classic'));?>
-						</div>
-					</div>
-					<div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_CATEGORY_SHOW_ALL_SUBCATEGORIES'); ?>
-                        </div>
-                        <div class="col-md-7">
-							<?php echo $this->html('form.boolean', 'layout_show_all_subcategories', $this->config->get('layout_show_all_subcategories'));?>
-						</div>
-					</div>
 
-                    <div class="form-group">
-                        <div class="col-md-5 control-label">
-                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_SINGLE_CATEGORY_POST_LIMIT'); ?>
-                        </div>
-                        <div class="col-md-7">
-                            <input type="text" name="layout_single_category_post_limit" value="<?php echo $this->config->get('layout_single_category_post_limit');?>" size="5" style="text-align:center;" class="form-control form-control-sm text-center" />
-                        </div>
-                    </div>
+					<?php echo $this->html('settings.toggle', 'layout_category_show_avatar', 'COM_EASYDISCUSS_CATEGORY_AVATAR'); ?>
+					<?php echo $this->html('settings.textbox', 'main_categoryavatarpath', 'COM_EASYDISCUSS_CATEGORY_PATH', '', array('defaultValue' => 'images/discuss_cavatar/')); ?>
+					<?php echo $this->html('settings.toggle', 'layout_show_moderators', 'COM_EASYDISCUSS_CATEGORY_SHOWMODERATORS'); ?>
+					<?php echo $this->html('settings.toggle', 'layout_category_stats', 'COM_EASYDISCUSS_CATEGORY_SHOW_STATS'); ?>
+					<?php echo $this->html('settings.toggle', 'layout_category_one_level', 'COM_EASYDISCUSS_CATEGORY_SHOW_ONE_LEVEL_SUBCATEGORY'); ?>
+					<?php echo $this->html('settings.toggle', 'layout_category_toggle', 'COM_EASYDISCUSS_CATEGORY_TOGGLE_CATEGORY'); ?>
+					<?php echo $this->html('settings.toggle', 'layout_show_classic', 'COM_EASYDISCUSS_CATEGORY_SHOW_CLASSIC_CATEGORY'); ?>
+					<?php echo $this->html('settings.toggle', 'layout_show_all_subcategories', 'COM_EASYDISCUSS_CATEGORY_SHOW_ALL_SUBCATEGORIES'); ?>
+					<?php echo $this->html('settings.textbox', 'layout_single_category_post_limit', 'COM_EASYDISCUSS_SINGLE_CATEGORY_POST_LIMIT', '', array('size' => 5, 'postfix' => 'Posts'), '', 'text-center form-control-sm'); ?>
 				</div>
 			</div>
 		</div>

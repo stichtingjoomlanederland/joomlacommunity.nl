@@ -1,8 +1,8 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -11,7 +11,7 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<?php if( $active != 'complete' ){ ?>
+<?php if ($active != 'complete') { ?>
 <script type="text/javascript">
 $(document).ready( function(){
 
@@ -29,7 +29,7 @@ $(document).ready( function(){
 	});
 
 	cancel.on('click', function() {
-		window.location = '<?php echo JURI::base();?>/index.php?option=com_easydiscuss&cancelSetup=1';
+		window.location = '<?php echo JURI::base();?>/index.php?option=<?php echo ED_IDENTIFIER;?>&cancelSetup=1';
 	});
 
 	retry.on('click', function() {
@@ -44,9 +44,10 @@ $(document).ready( function(){
 });
 </script>
 
+
 <form action="index.php" method="post" data-installation-form-nav class="hidden">
 	<input type="hidden" name="active" value="" data-installation-form-nav-active />
-	<input type="hidden" name="option" value="com_easydiscuss" />
+	<input type="hidden" name="option" value="<?php echo ED_IDENTIFIER;?>" />
 
 	<?php if ($reinstall) { ?>
 	<input type="hidden" name="reinstall" value="1" />
@@ -63,9 +64,6 @@ $(document).ready( function(){
 		<a href="javascript:void(0);" class="col-cell" <?php echo $active > 1 ? ' data-installation-nav-prev' : ' data-installation-nav-cancel';?>>
 			<b>
 				<span>
-					<i class="eb-icon icon-arrow-left-2 text-right"></i>
-				</span>
-				<span>
 					<?php if ($active > 1) { ?>
 						<?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_PREVIOUS'); ?>
 					<?php } else { ?>
@@ -78,9 +76,6 @@ $(document).ready( function(){
 		<a href="javascript:void(0);" class="col-cell primary" data-installation-submit>
 			<b>
 				<span><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_NEXT_STEP'); ?></span>
-				<span>
-					<i class="eb-icon icon-arrow-right-2 text-left"></i>
-				</span>
 			</b>
 		</a>
 
@@ -96,18 +91,12 @@ $(document).ready( function(){
 		<a href="javascript:void(0);" class="col-cell primary hide" data-installation-install-addons>
 			<b>
 				<span><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_INSTALL_ADDONS'); ?></span>
-				<span>
-					<i class="eb-icon icon-arrow-right-2 text-left"></i>
-				</span>
 			</b>
 		</a>
 
 		<a href="javascript:void(0);" class="col-cell primary hide" data-installation-retry>
 			<b>
 				<span><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_RETRY'); ?></span>
-				<span>
-					<i class="eb-icon icon-arrow-right-2 text-left"></i>
-				</span>
 			</b>
 		</a>
 	</div>
@@ -117,10 +106,10 @@ $(document).ready( function(){
 <?php if ($active == 'complete') { ?>
 <div class="container">
 	<div class="navi row-table">
-		<a class="col-cell primary" href="<?php echo JURI::root();?>index.php?option=com_easydiscuss" target="_blank">
+		<a class="col-cell primary" href="<?php echo JURI::root();?>index.php?option=<?php echo ED_IDENTIFIER;?>" target="_blank">
 			<b><span><?php echo JText::_('COM_EASYDISCUSS_LAUNCH_FRONTEND');?></span></b>
 		</a>
-		<a class="col-cell primary" href="<?php echo JURI::root();?>administrator/index.php?option=com_easydiscuss">
+		<a class="col-cell primary" href="<?php echo JURI::root();?>administrator/index.php?option=<?php echo ED_IDENTIFIER;?>">
 			<b><span><?php echo JText::_('COM_EASYDISCUSS_CONTINUE_TO_BACKEND');?></span></b>
 		</a>
 	</div>

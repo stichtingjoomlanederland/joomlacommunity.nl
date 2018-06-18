@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,96 +9,37 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-
-defined('_JEXEC') or die('Restricted access');
-
-jimport('joomla.application.component.controller');
+defined('_JEXEC') or die('Unauthorized Access');
 
 class EasydiscussControllerThemes extends EasyDiscussController
 {
-	public function getAjaxTemplate()
+	/**
+	 * Saves the custom.css contents
+	 *
+	 * @since	3.1.0
+	 * @access	public
+	 */
+	public function saveCustomCss()
 	{
-		// Since this is the back end we need to load the front end's language file here.
-		JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
+		$model = ED::model('Themes');
+		$path = $model->getCustomCssTemplatePath();
 
-		$files = $this->input->get('names', '', 'var');
+		$contents = $this->input->get('contents', '', 'raw');
 
-		if (empty($files)) {
-			return false;
-		}
+		JFile::write($path, $contents);
 
-		// Ensure the integrity of each items submitted to be an array.
-		if (!is_array($files)) {
-			$files = array($files);
-		}
+		ED::setMessage(JText::sprintf('COM_ED_THEMES_CUSTOM_CSS_SAVE_SUCCESS', $path), 'success');
 
-		$result	= array();
+		$redirect = 'index.php?option=com_easydiscuss&view=themes&layout=custom';
 
-		foreach ($files as $file) {
-			$theme = ED::themes();
-			$contents = $theme->output($file . '.ejs');
-
-			$obj = new stdClass();
-			$obj->name = $file;
-			$obj->content = $out;
-
-			$result[] = $obj;
-		}
-
-		header('Content-type: text/javascript; UTF-8');
-		echo json_encode($result);
-		exit;
-	}
-
-	public function compile()
-	{
-		$less = ED::less();
-
-		// Force compile
-		$less->compileMode = 'force';
-
-		$name = $this->input->get('name', null, 'GET');
-		$type = $this->input->get('type', null, 'GET');
-
-		$result = new stdClass();
-
-		if (isset($name) && isset($type)) {
-
-			switch ($type) {
-				case "admin":
-					$result = $less->compileAdminStylesheet($name);
-					break;
-
-				case "site":
-					$result = $less->compileSiteStylesheet($name);
-					break;
-
-				case "module":
-					$result = $less->compileModuleStylesheet($name);
-					break;
-
-				default:
-					$result->failed = true;
-					$result->message = "Stylesheet type is invalid.";
-			}
-
-		} else {
-			$result->failed = true;
-			$result->message = "Insufficient parameters provided.";
-		}
-
-		header('Content-type: text/javascript; UTF-8');
-		echo json_encode($result);
-		exit;
+		return $this->app->redirect($redirect);
 	}
 
 	/**
 	 * Allows caller to set a default theme
 	 *
-	 * @since	4.0
+	 * @since	3.0.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function makeDefault()
 	{ 

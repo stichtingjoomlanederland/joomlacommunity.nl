@@ -75,23 +75,35 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		// Check for request forgeries
 		JSession::checkToken() or jexit('Invalid Token');
 		
+		$app = JFactory::getApplication();
+		
 		// Get the model
 		$model = $this->getModel('rseventspro');
 		
 		// Get event details
 		$event = $model->getEvent();
 		
-		$admin = rseventsproHelper::admin();
-		$user  = $model->getUser();
+		$admin  = rseventsproHelper::admin();
+		$user   = $model->getUser();
+		$isuser = $app->input->getInt('isuser',0);
+		$code	= $app->input->getString('code');
+		$code	= $code ? '&code='.$code : '';
 		
-		if ($admin || $event->owner == $user || $event->sid == $user) {
-			if (!$model->savesubscriber())
-				$this->setMessage($model->getError(), 'error');
-			else
-				$msg = JText::_('COM_RSEVENTSPRO_SUBSCRIBER_SAVED');
-		} else $msg = JText::_('COM_RSEVENTSPRO_ERROR_SUBSCRIBER_SAVE');
+		if ($admin || $event->owner == $user || $event->sid == $user || $isuser) {
+			if (!$model->savesubscriber()) {
+				$app->enqueueMessage($model->getError(), 'error');
+			} else {
+				$app->enqueueMessage(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_SAVED'));
+			}
+		} else {
+			$app->enqueueMessage(JText::_('COM_RSEVENTSPRO_ERROR_SUBSCRIBER_SAVE'));
+		}
 		
-		$this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribers&id='.rseventsproHelper::sef($event->id,$event->name),false),$msg);
+		if ($isuser) {
+			$this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscriptions'.$code,false));
+		} else {
+			$this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribers&id='.rseventsproHelper::sef($event->id,$event->name),false));
+		}
 	}
 	
 	// Subscribers - remove
@@ -113,6 +125,21 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		} else $msg = JText::_('COM_RSEVENTSPRO_ERROR_SUBSCRIBER_DELETE');
 		
 		$this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribers&id='.rseventsproHelper::sef($event->id,$event->name),false),$msg);
+	}
+	
+	// Subscriber - remove
+	public function deletesubscriber() {
+		// Get the model
+		$model	= $this->getModel('rseventspro');
+		$code	= JFactory::getApplication()->input->getString('code');
+		$code	= $code ? '&code='.$code : '';
+		
+		if (!$model->deletesubscriber())
+			$this->setMessage($model->getError(), 'error');
+		else
+			$this->setMessage(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_DELETED'));
+		
+		$this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscriptions'.$code,false),$msg);
 	}
 	
 	// Event - send message to guests
@@ -149,6 +176,11 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		
 		if ($nowunix > $endunix)
 			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)), JText::_('COM_RSEVENTSPRO_ERROR_INVITE_1'));
+		
+		if (rseventsproHelper::getConfig('consent', 'int') && !JFactory::getApplication()->input->getInt('consent')) {
+			JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_CONSENT_INFO'), 'error');
+			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=invite&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)));
+		}
 		
 		$model->invite();
 		

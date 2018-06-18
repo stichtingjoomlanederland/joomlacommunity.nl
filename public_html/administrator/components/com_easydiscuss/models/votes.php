@@ -210,4 +210,39 @@ class EasyDiscussModelVotes extends EasyDiscussAdminModel
 		$db->Query();
 
 	}
+
+	/**
+	 * Method to retrieve vote data for GDPR purpose
+	 *
+	 * @since	4.1.0
+	 * @access	public
+	 */
+	public function getVoteGDPR($options)
+	{
+		$db = $this->db;
+
+		$userId = isset($options['userId']) ? $options['userId'] : null;
+		$limit = isset($options['limit']) ? $options['limit'] : null;
+		$exclude = isset($options['exclude']) ? $options['exclude'] : null;
+
+		$query = 'SELECT a.*, b.`title` as `postTitle`, c.`title` as `parentTitle`';
+		$query .= ' FROM `#__discuss_votes` as a';
+		$query .= ' LEFT JOIN `#__discuss_posts` as b ON a.`post_id` = b.`id`';
+		$query .= ' LEFT JOIN `#__discuss_posts` as c ON b.`parent_id` = c.`id` AND b.`parent_id` != ' . $db->Quote('0');
+
+		$query .= ' WHERE a.`user_id` = ' . $db->Quote($userId);
+
+		if ($exclude) {
+			$query .= ' AND a.`id` NOT IN(' . implode(',', $exclude) . ')';
+		}
+
+		$query .= ' ORDER BY a.`created` DESC';
+		$query .= ' LIMIT 0,' . $limit;
+
+		$db->setQuery($query);
+
+		$result = $db->loadObjectList();
+
+		return $result;
+	}
 }

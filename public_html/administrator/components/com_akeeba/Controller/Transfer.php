@@ -98,6 +98,8 @@ class Transfer extends Controller
 		$ftpPassive     = $this->input->getInt('passive', 1);
 		$ftpPassiveFix  = $this->input->getInt('passive_fix', 1);
 		$ftpDirectory   = $this->input->get('directory', '', 'raw', 2);
+		$chunkMode      = $this->input->getCmd('chunkMode', 'chunked');
+		$chunkSize      = $this->input->getInt('chunkSize', '5242880');
 
 		// Fix the port if it's missing
 		if (empty($ftpPort))
@@ -133,6 +135,8 @@ class Transfer extends Controller
 		$this->container->platform->setSessionVar('transfer.ftpDirectory', $ftpDirectory, 'akeeba');
 		$this->container->platform->setSessionVar('transfer.ftpPassive', $ftpPassive ? 1 : 0, 'akeeba');
 		$this->container->platform->setSessionVar('transfer.ftpPassiveFix', $ftpPassiveFix ? 1 : 0, 'akeeba');
+		$this->container->platform->setSessionVar('transfer.chunkMode', $chunkMode, 'akeeba');
+		$this->container->platform->setSessionVar('transfer.uploadLimit', $chunkSize, 'akeeba');
 
 		/** @var \Akeeba\Backup\Admin\Model\Transfer $model */
 		$model = $this->getModel();

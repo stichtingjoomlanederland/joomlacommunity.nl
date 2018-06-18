@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -301,17 +301,6 @@ class plgContentEasyDiscuss extends JPlugin
 	}
 
 	/**
-	 * Retrieves Joomla's version
-	 */
-	public function getJoomlaVersion()
-	{
-		$jVerArr = explode('.', JVERSION);
-		$jVersion = $jVerArr[0] . '.' . $jVerArr[1];
-
-		return $jVersion;
-	}
-
-	/**
 	 * Return paramenter of the plugins in form of object
 	 *
 	 * @since	4.0
@@ -332,9 +321,8 @@ class plgContentEasyDiscuss extends JPlugin
 	/**
 	 * Attaches the plugin's css file.
 	 *
-	 * @access 	private
-	 * @param 	null
-	 * @return 	boolean 	True on success, false otherwise.
+	 * @since	4.0
+	 * @access	private
 	 */
 	private function attachHeaders()
 	{
@@ -373,10 +361,8 @@ class plgContentEasyDiscuss extends JPlugin
 	/**
 	 * Adds some nifty contents into the frontpage listing of com_content.
 	 *
-	 * @access 	public
-	 * @param 	stdclass $article 		The standard Joomla article object.
-	 * @param 	DiscussTablePost $post 	EasyDiscuss DiscussTablePost object.
-	 * @return 	stdclass 				The Joomla article object.
+	 * @since	4.0
+	 * @access	public
 	 **/
 	public function addFrontpageTools(&$article , &$post)
 	{
@@ -413,10 +399,8 @@ class plgContentEasyDiscuss extends JPlugin
 	 * Returns the formatted date which is required during the output.
 	 * The resultant date includes the offset.
 	 *
-	 * @access 	public
-	 * @param 	string $format 		The date format.
-	 * @param 	string $dateString 	The date result.
-	 * @return 	string 				The formatted date result.
+	 * @since	4.0
+	 * @access	public
 	 */
 	public function formatDate($format, $dateString)
 	{
@@ -427,10 +411,8 @@ class plgContentEasyDiscuss extends JPlugin
 	/**
 	 * Attaches the response and form in the article.
 	 *
-	 * @access 	public
-	 * @param 	stdclass			$article 		The standard object from the article.
-	 * @param 	DiscussTablePost	$post 			The post table.
-	 * @return 	string 				The formatted date result.
+	 * @since	4.0
+	 * @access	public
 	 */
 	public function addResponses(&$article, &$post)
 	{
@@ -513,9 +495,8 @@ class plgContentEasyDiscuss extends JPlugin
 	/**
 	 * Returns the URL to a specific article in Joomla.
 	 *
-	 * @access 	private
-	 * @param 	stdclass 	$article 	The standard Joomla article object.
-	 * @return 	string 					The formatted url to the article.
+	 * @since	4.0
+	 * @access	private
 	 */
 	private function getArticleURL(&$article)
 	{
@@ -581,9 +562,8 @@ class plgContentEasyDiscuss extends JPlugin
 	/**
 	 * Gets the total hit count for the specific article.
 	 *
-	 * @access 	private
-	 * @param 	stdclass	$article 	The article object.
-	 * @return 	int 					The total hits for the specific article.
+	 * @since	4.0
+	 * @access	private
 	 */
 	private function getArticleHits(&$article)
 	{
@@ -698,7 +678,18 @@ class plgContentEasyDiscuss extends JPlugin
 
 		// Only assign the category if the post is new
 		if ($isNew) {
+
 			$data['category_id'] = $params->get('category_storage', 1);
+
+			// Map discussion category with article category if alias are the same
+			if ($params->get('map_category_storage')) {
+
+				$mapcategory = $this->mapCategory($article->catid);
+
+				if (!empty($mapcategory)) {
+					$data['category_id'] = $mapcategory->id;
+				}
+			}
 		}
 
 		$data['title'] = $article->title;
@@ -769,12 +760,35 @@ class plgContentEasyDiscuss extends JPlugin
 	}
 
 	/**
+	 * Map discussion category with article category if title are the same
+	 *
+	 * @since	4.1
+	 * @access	public
+	 */
+	public function mapCategory($articleCatId)
+	{
+		$db = ED::db();
+
+		// load the Joomla category alias
+		$query = 'SELECT a.`alias` FROM `#__categories` AS a';
+		$query .= ' WHERE a.`id` = ' . $db->Quote($articleCatId);
+		$db->setQuery($query);
+		$articleCat = $db->loadObject();		
+
+		// load Easydiscuss category table and see whether it did match with joomla category alias
+		$query = 'SELECT b.`id` FROM `#__discuss_category` AS b';
+		$query .= ' WHERE b.`alias` = ' . $db->Quote($articleCat->alias);
+		$db->setQuery($query);
+		$category = $db->loadObject();
+
+		return $category;
+	}
+
+	/**
 	 * Get registration link based on the provider
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getRegistrationLink()
 	{
@@ -821,8 +835,6 @@ class plgContentEasyDiscuss extends JPlugin
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getLoginLink()
 	{

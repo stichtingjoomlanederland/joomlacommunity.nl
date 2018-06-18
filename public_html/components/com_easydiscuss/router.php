@@ -371,8 +371,25 @@ class EasyDiscussRouter extends EasyDiscuss
 			}
 		}
 
+		// Auth view
+		if (isset($query['view']) && $query['view'] == 'auth') {
+			$segments[] = $query['view'];
+			unset($query['view']);
+
+			if (isset($query['layout'])) {
+				$segments[] = $query['layout'];
+				unset($query['layout']);
+			}
+		}
+
 		// Login view
 		if (isset($query['view']) && $query['view'] == 'login') {
+			$segments[] = $query['view'];
+			unset($query['view']);
+		}
+
+		// download view
+		if (isset($query['view']) && $query['view'] == 'download') {
 			$segments[] = $query['view'];
 			unset($query['view']);
 		}
@@ -406,9 +423,11 @@ class EasyDiscussRouter extends EasyDiscuss
 		$views = array('attachments', 'categories', 'index', 'forums','conversation',
 						'post', 'profile', 'search', 'tag', 'tags', 'users', 'notifications',
 						'badges', 'ask', 'subscription', 'featured', 'favourites', 'assigned',
-						'points','dashboard', 'mypost', 'groups', 'login');
+						'points','dashboard', 'mypost', 'groups', 'login', 'auth', 'download');
 
 		$repliesSorting = array('oldest', 'latest', 'voted', 'likes');
+		$categoryFilters = array('allposts', 'unresolved', 'resolved', 'unanswered', 'unread');
+
 
 		// Re-assign the correct item route to the segments if the item route is exists within the view.
 		// This is to avoid the link query to be treated as 'post' view all the times when menu item is exist. #1927
@@ -423,20 +442,29 @@ class EasyDiscussRouter extends EasyDiscuss
 
 		// We know that the view=categories&layout=listings&id=xxx because there's only 1 segment
 		// and the active menu is view=categories
-		if (isset($item) && $item->query['view'] == 'categories' && count($segments) == 1) {
+		//
+
+		if (isset($item) && $item->query['view'] == 'categories' && count($segments) >= 1 && !in_array($segments[0], $views) ) {
 
 			$catId = EDR::decodeAlias($segments[0], 'Category');
-			
+
 			$category = ED::table('Category');
 			$category->load($catId);
 
 			// Only force this when we can find a category id.
-			if ($category->id) {
+			if ($category->id && count($segments) == 1) {
 				$vars['view'] = 'categories';
 				$vars['layout'] = 'listings';
 				$vars['category_id'] = $category->id;
 
 				return $vars;
+			}
+
+			// here we know this is a single category view but there is more than one segment
+			// the extra segment cound be for the fitlering.
+			if ($category->id && in_array($segments[count($segments) - 1], $categoryFilters)) {
+				$xView = isset($item->query['view']) && $item->query['view'] ? $item->query['view'] : '';
+				array_unshift($segments, $xView);
 			}
 		}
 
@@ -460,7 +488,7 @@ class EasyDiscussRouter extends EasyDiscuss
 
 					// if the current active menu item is pointing to below views, means we now the current url most likely is a post url.
 					// thus, we need to exclude these views for later checking.
-					$xViews = array('index', 'forums', 'post', 'categories', 'tags');
+					$xViews = array('index', 'forums', 'post', 'categories', 'tags', 'subscription', 'ask');
 					$xView = isset($item->query['view']) && $item->query['view'] ? $item->query['view'] : '';
 
 					if ($numSegments >= 2) {
@@ -504,6 +532,7 @@ class EasyDiscussRouter extends EasyDiscuss
 				array_unshift($segments, $xView);
 			}
 		}
+
 
 		// Login View
 		if (isset($segments[0]) && $segments[0] == 'login') {
@@ -714,6 +743,7 @@ class EasyDiscussRouter extends EasyDiscuss
 				//      $vars['sort'] = $segments[4];
 				//  }
 				// }
+				//
 			}
 		}
 
@@ -744,6 +774,13 @@ class EasyDiscussRouter extends EasyDiscuss
 
 			if ($count > 1) {
 				$segments = EDR::encodeSegments($segments);
+
+				// user profile download page
+				if ($segments[1] == 'download') {
+					$vars['view'] = $segments[0];
+					$vars['layout'] = 'download';
+					return $vars;
+				}
 
 				if ($segments[1] == 'edit') {
 					$vars['layout'] = 'edit';
@@ -872,12 +909,24 @@ class EasyDiscussRouter extends EasyDiscuss
 			}
 		}
 
+		// http://site.com/auth/linkedin
+		if (isset($segments[0]) && $segments[0] == 'auth') {
+			$vars['view'] = $segments[0];
+			$vars['layout'] = $segments[1];
+		}
+
+		// download View
+		if (isset($segments[0]) && $segments[0] == 'download') {
+			$vars['view'] = $segments[0];
+		}
+
 		$count = count($segments);
 		if ($count == 1 && in_array( $segments[0], $views)) {
 			$vars['view'] = $segments[0];
 		}
 
 		unset( $segments );
+
 		return $vars;
 	}
 

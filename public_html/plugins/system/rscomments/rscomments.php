@@ -37,11 +37,6 @@ class plgSystemRSComments extends JPlugin
 		
 		JHtml::_('behavior.core');
 		
-		JText::script('COM_RSCOMMENTS_NO_SUBSCRIBER_NAME');
-		JText::script('COM_RSCOMMENTS_NO_SUBSCRIBER_EMAIL');
-		JText::script('COM_RSCOMMENTS_INVALID_SUBSCRIBER_EMAIL');
-		JText::script('COM_RSCOMMENTS_REPORT_NO_REASON');
-		JText::script('COM_RSCOMMENTS_REPORT_INVALID_CAPTCHA');
 		JText::script('COM_RSCOMMENTS_HIDE_FORM');
 		JText::script('COM_RSCOMMENTS_SHOW_FORM');
 	}
@@ -164,6 +159,7 @@ class plgSystemRSComments extends JPlugin
 		}
 		
 		$scripts[] = '<script src="'.JHtml::script('com_rscomments/site.js', array('relative' => true, 'version' => 'auto', 'pathOnly' => true)).'" type="text/javascript"></script>';
+		$scripts[] = '<script src="'.JHtml::script('com_rscomments/modals.js', array('relative' => true, 'version' => 'auto', 'pathOnly' => true)).'" type="text/javascript"></script>';
 		
 		if (isset($permissions['captcha']) && $permissions['captcha']) {
 			if ($config->captcha == 2) {

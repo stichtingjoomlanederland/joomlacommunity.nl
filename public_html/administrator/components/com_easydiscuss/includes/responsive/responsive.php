@@ -1,15 +1,15 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussResponsive extends EasyDiscuss
 {
@@ -62,7 +62,7 @@ class EasyDiscussResponsive extends EasyDiscuss
 
 	public $tablets = array(
 		// @todo: check for mobile friendly emails topic.
-		'iPad'              => 'iPad|iPad.*Mobile',
+		'iPad'              => 'iPad|iPad.*Mobile', //@see #818
 		// Removed |^.*Android.*Nexus(?!(?:Mobile).)*$
 		// @see #442
 		'NexusTablet'       => 'Android.*Nexus[\s]+(7|9|10)',
@@ -313,39 +313,6 @@ class EasyDiscussResponsive extends EasyDiscuss
 		'GenericTablet'     => 'Android.*\b97D\b|Tablet(?!.*PC)|BNTV250A|MID-WCDMA|LogicPD Zoom2|\bA7EB\b|CatNova8|A1_07|CT704|CT1002|\bM721\b|rk30sdk|\bEVOTAB\b|M758A|ET904|ALUMIUM10|Smartfren Tab|Endeavour 1010|Tablet-PC-4|Tagi Tab|\bM6pro\b|CT1020W|arc 10HD|\bJolla\b|\bTP750\b'
 	);
 
-
-	/**
-	 * List of mobile Operating Systems.
-	 *
-	 * @var array
-	 */
-	public $os = array(
-		'AndroidOS'         => 'Android',
-		'BlackBerryOS'      => 'blackberry|\bBB10\b|rim tablet os',
-		'PalmOS'            => 'PalmOS|avantgo|blazer|elaine|hiptop|palm|plucker|xiino',
-		'SymbianOS'         => 'Symbian|SymbOS|Series60|Series40|SYB-[0-9]+|\bS60\b',
-		// @reference: http://en.wikipedia.org/wiki/Windows_Mobile
-		'WindowsMobileOS'   => 'Windows CE.*(PPC|Smartphone|Mobile|[0-9]{3}x[0-9]{3})|Window Mobile|Windows Phone [0-9.]+|WCE;',
-		// @reference: http://en.wikipedia.org/wiki/Windows_Phone
-		// http://wifeng.cn/?r=blog&a=view&id=106
-		// http://nicksnettravels.builttoroam.com/post/2011/01/10/Bogus-Windows-Phone-7-User-Agent-String.aspx
-		// http://msdn.microsoft.com/library/ms537503.aspx
-		// https://msdn.microsoft.com/en-us/library/hh869301(v=vs.85).aspx
-		'WindowsPhoneOS'   => 'Windows Phone 10.0|Windows Phone 8.1|Windows Phone 8.0|Windows Phone OS|XBLWP7|ZuneWP7|Windows NT 6.[23]; ARM;',
-		'iOS'               => '\biPhone.*Mobile|\biPod|\biPad',
-		// http://en.wikipedia.org/wiki/MeeGo
-		// @todo: research MeeGo in UAs
-		'MeeGoOS'           => 'MeeGo',
-		// http://en.wikipedia.org/wiki/Maemo
-		// @todo: research Maemo in UAs
-		'MaemoOS'           => 'Maemo',
-		'JavaOS'            => 'J2ME/|\bMIDP\b|\bCLDC\b', // '|Java/' produces bug #135
-		'webOS'             => 'webOS|hpwOS',
-		'badaOS'            => '\bBada\b',
-		'BREWOS'            => 'BREW',
-	);
-
-
 	public $sizes = array(
 						'mobile' => 'w480',
 						'tablet' => 'w780'
@@ -353,7 +320,7 @@ class EasyDiscussResponsive extends EasyDiscuss
 	/**
 	 * Determines the class name to be used based on the user agent
 	 *
-	 * @since	4.0.20
+	 * @since	4.2.0
 	 * @access	public
 	 */
 	public function getClass()
@@ -385,60 +352,20 @@ class EasyDiscussResponsive extends EasyDiscuss
 		return $loaded;
 	}
 
-
-	/**
-	 * Retrieves the user agent of the viewer currently
-	 *
-	 * @since	4.0.20
-	 * @access	public
-	 */
 	public function getAgent()
 	{
 		$agent = @$_SERVER['HTTP_USER_AGENT'];
-
-		$debug = $this->input->get('debugUA', false, 'bool');
-
-		if ($debug) {
-			dump($agent);
-		}
 
 		return $agent;
 	}
 
 	/**
-	 * Determines if the current request was made from a webview app
+	 * Determines if this is an iphone device
 	 *
-	 * @since	4.0.20
+	 * @since	4.2.0
 	 * @access	public
 	 */
-	public function isWebView()
-	{
-		static $isWebView = null;
-
-		$agent = $this->getAgent();
-
-		if (!is_null($isWebView)) {
-			return $isWebView;
-		}
-
-		preg_match('/easydiscuss-webview/is', $agent, $matches);
-
-		$isWebView = false;
-
-		if (count($matches) > 0) {
-			$isWebView = true;
-		}
-
-		return $isWebView;
-	}
-
-	/**
-	 * Determines if this is an iOS device
-	 *
-	 * @since	4.0.20
-	 * @access	public
-	 */
-	public function isIos($agent = null)
+	public function isIphone($agent = null)
 	{
 		static $ios = null;
 
@@ -460,36 +387,37 @@ class EasyDiscussResponsive extends EasyDiscuss
 	}
 
 	/**
-	 * Determines if this is an Android device
+	 * Determines if this is an iphone device
 	 *
-	 * @since	4.0.20
+	 * @since	4.2.0
 	 * @access	public
 	 */
-	public function isAndroid($agent = null)
+	public function isIpad($agent = null)
 	{
-		static $android = null;
+		static $ios = null;
 
-		if (is_null($android)) {
+		if (is_null($ios)) {
 			if (is_null($agent)) {
 				$agent = $this->getAgent();
 			}
 
-			preg_match('/' . $this->os['AndroidOS'] . '/is', $agent, $matches);
+			preg_match('/' . $this->tablets['iPad'] . '/is', $agent, $matches);
 
-			$android = false;
+			$ios = false;
+
 			if (count($matches) > 0) {
-				$android = true;
+				$ios = true;
 			}
 		}
 
-		return $android;
+		return $ios;
 	}
 
 	/**
-	 * Determines if the current request was made from a mobile device
+	 * Determines if the current viewer is on a mobile device
 	 *
-	 * @since 	4.0.20
-	 * @access  public
+	 * @since	4.2.0
+	 * @access	public
 	 */
 	public function isMobile($agent = null)
 	{
@@ -497,53 +425,48 @@ class EasyDiscussResponsive extends EasyDiscuss
 			$agent = $this->getAgent();
 		}
 
-		static $isMobile = null;
+		static $mobile = null;
 
-		if (is_null($isMobile)) {
+		if (is_null($mobile)) {
+
 			$patterns = array_values($this->mobile);
 			$patterns = implode('|', $patterns);
 
 			preg_match('/' . $patterns . '/is', $agent, $matches);
 
-			// Default to false
-			$isMobile = false;
+			$mobile = false;
 
 			// Ensure that this isn't also a tablet
 			if (count($matches) > 0 && !$this->isTablet()) {
-				$isMobile = true;
+				$mobile = true;
 			}
 		}
 
-		return $isMobile;
+		return $mobile;
 	}
 
-	/**
-	 * Determines if the current viewer is using a tablet
-	 *
-	 * @since	4.0.20
-	 * @access	public
-	 */
 	public function isTablet($agent = null)
 	{
-		if (is_null($agent)) {
-			$agent = $this->getAgent();
-		}
+		static $tablet = null;
 
-		static $isTablet = null;
+		if (is_null($tablet)) {
 
-		if (is_null($isTablet)) {
+			if (is_null($agent)) {
+				$agent = $this->getAgent();
+			}
+
 			$patterns = array_values($this->tablets);
 			$patterns = implode('|', $patterns);
 
 			preg_match('/' . $patterns . '/is', $agent, $matches);
 
-			$isTablet = false;
+			$tablet = false;
 
 			if (count($matches) > 0) {
-				$isTablet = true;
+				$tablet = true;
 			}
 		}
 
-		return $isTablet;
+		return $tablet;
 	}
 }

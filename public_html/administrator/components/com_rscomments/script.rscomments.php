@@ -38,6 +38,67 @@ class com_rscommentsInstallerScript
 		// Run queries
 		$this->runSql();
 		
+		// Install the system plugin
+		$installer->install($parent->getParent()->getPath('source').'/extra/plg_system/');
+
+		$query->clear()
+			->update($db->qn('#__extensions'))
+			->set($db->qn('enabled').' = 1')
+			->where($db->qn('element').' = '.$db->q('rscomments'))
+			->where($db->qn('type').' = '.$db->q('plugin'))
+			->where($db->qn('folder').' = '.$db->q('system'));
+		$db->setQuery($query);
+		$db->execute();
+
+		// Install the content plugin
+		$installer->install($parent->getParent()->getPath('source').'/extra/plg_content/');
+
+		$query->clear()
+			->update($db->qn('#__extensions'))
+			->set($db->qn('enabled').' = 1')
+			->where($db->qn('element').' = '.$db->q('rscomments'))
+			->where($db->qn('type').' = '.$db->q('plugin'))
+			->where($db->qn('folder').' = '.$db->q('content'));
+		$db->setQuery($query);
+		$db->execute();
+
+		// Install the editors_xtd plugin
+		$installer->install($parent->getParent()->getPath('source').'/extra/plg_editors_xtd/');
+
+		$query->clear()
+			->update($db->qn('#__extensions'))
+			->set($db->qn('enabled').' = 1')
+			->where($db->qn('element').' = '.$db->q('rscomments'))
+			->where($db->qn('type').' = '.$db->q('plugin'))
+			->where($db->qn('folder').' = '.$db->q('editors-xtd'));
+		$db->setQuery($query);
+		$db->execute();
+		
+		// Install the updater plugin
+		$installer->install($parent->getParent()->getPath('source').'/extra/plg_installer/');
+		
+		$query->clear()
+			->update($db->qn('#__extensions'))
+			->set($db->qn('enabled').' = 1')
+			->where($db->qn('element').' = '.$db->q('rscomments'))
+			->where($db->qn('type').' = '.$db->q('plugin'))
+			->where($db->qn('folder').' = '.$db->q('installer'));
+		$db->setQuery($query);
+		$db->execute();
+
+		//Install sh404sef plugin
+		if (JFolder::exists(JPATH_SITE.'/components/com_sh404sef/sef_ext'))
+			JFile::copy($parent->getParent()->getPath('source').'/extra/sef_ext/com_rscomments.php', JPATH_SITE.'/components/com_sh404sef/sef_ext/com_rscomments.php');
+		
+		$db->setQuery("SELECT `IdGroup` FROM `#__rscomments_groups` WHERE `gid` = 1");
+		if (!$db->loadResult()) {
+			$permissions = 'a:28:{s:12:"new_comments";s:1:"1";s:16:"edit_own_comment";s:1:"0";s:18:"delete_own_comment";s:1:"0";s:13:"edit_comments";s:1:"0";s:15:"delete_comments";s:1:"0";s:6:"bbcode";s:1:"1";s:13:"vote_comments";s:1:"1";s:21:"auto_subscribe_thread";s:1:"0";s:12:"close_thread";s:1:"0";s:12:"enable_reply";s:1:"1";s:16:"publish_comments";s:1:"0";s:11:"autopublish";s:1:"0";s:11:"show_emails";s:1:"0";s:7:"view_ip";s:1:"0";s:7:"captcha";s:1:"1";s:8:"censored";s:1:"1";s:13:"flood_control";s:1:"1";s:11:"check_names";s:1:"1";s:7:"bb_bold";s:1:"1";s:9:"bb_italic";s:1:"1";s:12:"bb_underline";s:1:"1";s:9:"bb_stroke";s:1:"1";s:8:"bb_quote";s:1:"1";s:8:"bb_lists";s:1:"0";s:8:"bb_image";s:1:"0";s:6:"bb_url";s:1:"0";s:7:"bb_code";s:1:"0";s:9:"bb_videos";s:1:"0";}';
+			$db->setQuery("INSERT IGNORE INTO `#__rscomments_groups` (`IdGroup`, `GroupName`, `gid`, `permissions`) VALUES(1, 'Public', 1, ".$db->q($permissions).");");
+			$db->execute();
+		}
+		
+		
+		
 		$query->clear()
 			->select($db->qn('extension_id'))
 			->from($db->qn('#__extensions'))
@@ -49,7 +110,7 @@ class com_rscommentsInstallerScript
 		if ($type == 'install') {
 			// Add default configuration when installing the first time RSComments!
 			if ($extension_id) {
-				$default = '{"global_register_code":"","date_format":"d.m.Y H:i","enable_rss":"1","template":"LightScheme","authorname":"name","enable_title_field":"1","enable_website_field":"1","nofollow_rel":"1","enable_smiles":"1","enable_bbcode":"1","enable_votes":"1","enable_subscription":"1","show_subcription_checkbox":"1","terms":"1","enable_upload":"0","max_size":10,"allowed_extensions":"jpg\\r\\ntxt\\r\\n","min_comm_len":10,"max_comm_len":1000,"show_counter":"1","form_accordion":"0","show_form":"1","enable_modified":"1","avatar":"gravatar","user_social_link":"","default_order":"DESC","nr_comments":10,"email_notification":"0","notification_emails":"","show_no_comments":"1","captcha":"0","captcha_chars":5,"captcha_lines":"1","captcha_cases":"0","rec_public":"","rec_private":"","rec_themes":"red","akismet_key":"","flood_interval":"30","word_length":"15","no_follow":"1","forbiden_names":"admin\\r\\nadministrator\\r\\nmoderator\\r\\n","censored_words":"","replace_censored":"******","blocked_users":"","enable_reports":"1","enable_captcha_reports":"1","enable_email_reports":"0","report_emails":"","negative_count":"10","load_bootstrap":"0","backend_jquery":"1","frontend_jquery":"1","blocked_ips":"","fontawesome":"1","fontawesome_admin":"1","show_labels":"0","enable_location":"0"}';
+				$default = '{"global_register_code":"","date_format":"d.m.Y H:i","enable_rss":"1","template":"LightScheme","authorname":"name","enable_title_field":"1","enable_website_field":"1","nofollow_rel":"1","enable_smiles":"1","enable_bbcode":"1","enable_votes":"1","enable_subscription":"1","show_subcription_checkbox":"1","terms":"1","enable_upload":"0","max_size":10,"allowed_extensions":"jpg\\r\\ntxt\\r\\n","min_comm_len":10,"max_comm_len":1000,"show_counter":"1","form_accordion":"0","show_form":"1","enable_modified":"1","avatar":"gravatar","user_social_link":"","default_order":"DESC","nr_comments":10,"email_notification":"0","notification_emails":"","show_no_comments":"1","captcha":"0","captcha_chars":5,"captcha_lines":"1","captcha_cases":"0","rec_public":"","rec_private":"","rec_themes":"red","akismet_key":"","flood_interval":"30","word_length":"15","no_follow":"1","forbiden_names":"admin\\r\\nadministrator\\r\\nmoderator\\r\\n","censored_words":"","replace_censored":"******","blocked_users":"","enable_reports":"1","enable_captcha_reports":"1","enable_email_reports":"0","report_emails":"","negative_count":"10","load_bootstrap":"0","backend_jquery":"1","frontend_jquery":"1","blocked_ips":"","fontawesome":"1","fontawesome_admin":"1","show_labels":"0","enable_location":"0","store_ip":"1","consent":"1","anonymous":"0","enable_name_field":"1","enable_email_field":"1"}';
 				$query->clear()
 					->update($db->qn('#__extensions'))
 					->set($db->qn('params').' = '.$db->q($default))
@@ -66,21 +127,6 @@ class com_rscommentsInstallerScript
 				$db->execute();
 			}
 			
-			// We only need to run this update query on Joomla! 2.5
-			if (!version_compare(JVERSION, '3.0', '>=')) {
-				// Convert unixtimesatmps into datetime format
-				$db->setQuery("SHOW COLUMNS FROM `#__rscomments_comments` WHERE Field = 'date'");
-				$date = $db->loadObject();
-				if ($date->Type == 'int(15)') {
-					$db->setQuery("ALTER TABLE `#__rscomments_comments` CHANGE `date` `date` VARCHAR(255) NOT NULL");
-					$db->execute();
-					$db->setQuery("UPDATE `#__rscomments_comments` SET `date` = FROM_UNIXTIME(`date`)");
-					$db->execute();
-					$db->setQuery("ALTER TABLE `#__rscomments_comments` CHANGE `date` `date` DATETIME NOT NULL ");
-					$db->execute();
-				}
-			}
-		
 			// Add the old config to the new one
 			$db->setQuery("SHOW TABLES FROM `".JFactory::getConfig()->get('db')."` LIKE '%".JFactory::getConfig()->get('dbprefix')."rscomments_config%'");
 			if ($db->loadResult()) {
@@ -151,161 +197,6 @@ class com_rscommentsInstallerScript
 				}
 			}
 			
-			$db->setQuery("SHOW COLUMNS FROM `#__rscomments_groups` WHERE `Field` = 'joomla'");
-			if ($db->loadResult()) {
-				$db->setQuery("ALTER TABLE `#__rscomments_groups` DROP `joomla`");
-				$db->execute();
-			}
-			
-			$db->setQuery("SHOW COLUMNS FROM `#__rscomments_comments` WHERE `Field` = 'modified_by'");
-			if (!$db->loadResult()) {
-				$db->setQuery("ALTER TABLE `#__rscomments_comments` ADD `modified_by` INT NOT NULL AFTER `date`");
-				$db->execute();
-			}
-			
-			$db->setQuery("SHOW COLUMNS FROM `#__rscomments_comments` WHERE `Field` = 'modified'");
-			if (!$db->loadResult()) {
-				$db->setQuery("ALTER TABLE `#__rscomments_comments` ADD `modified` DATETIME NOT NULL AFTER `modified_by`");
-				$db->execute();
-			}
-			
-			// Remove the configuration  table
-			$db->setQuery("DROP TABLE IF EXISTS `#__rscomments_config`");
-			$db->execute();
-			
-			// Remove the terms table
-			$db->setQuery("DROP TABLE IF EXISTS `#__rscomments_terms`");
-			$db->execute();
-			
-			$db->setQuery("SELECT `params` FROM `#__extensions` WHERE `extension_id` = ".(int) $extension_id);
-			if ($params = $db->loadResult()) {
-				$registry = new JRegistry;
-				$registry->loadString($params);
-				
-				// Update config
-				$newconfig = array('blocked_ips' => '', 'fontawesome' => '1', 'show_labels' => '0', 'enable_location' => '0', 'fontawesome_admin' => '1');
-				
-				foreach ($newconfig as $name => $value) {
-					if (is_null($registry->get($name, null))) {
-						$registry->set($name,$value);
-					}
-				}
-				
-				$db->setQuery("UPDATE `#__extensions` SET `params` = ".$db->q($registry->toString())." WHERE `extension_id` = ".(int) $extension_id);
-				$db->execute();
-			}
-		}
-		
-		if ($type == 'update' || $type == 'install')  {
-			// Install the system plugin
-			$installer->install($parent->getParent()->getPath('source').'/extra/plg_system/');
-
-			$query->clear()
-				->update($db->qn('#__extensions'))
-				->set($db->qn('enabled').' = 1')
-				->where($db->qn('element').' = '.$db->q('rscomments'))
-				->where($db->qn('type').' = '.$db->q('plugin'))
-				->where($db->qn('folder').' = '.$db->q('system'));
-			$db->setQuery($query);
-			$db->execute();
-
-			// Install the content plugin
-			$installer->install($parent->getParent()->getPath('source').'/extra/plg_content/');
-
-			$query->clear()
-				->update($db->qn('#__extensions'))
-				->set($db->qn('enabled').' = 1')
-				->where($db->qn('element').' = '.$db->q('rscomments'))
-				->where($db->qn('type').' = '.$db->q('plugin'))
-				->where($db->qn('folder').' = '.$db->q('content'));
-			$db->setQuery($query);
-			$db->execute();
-
-			// Install the editors_xtd plugin
-			$installer->install($parent->getParent()->getPath('source').'/extra/plg_editors_xtd/');
-
-			$query->clear()
-				->update($db->qn('#__extensions'))
-				->set($db->qn('enabled').' = 1')
-				->where($db->qn('element').' = '.$db->q('rscomments'))
-				->where($db->qn('type').' = '.$db->q('plugin'))
-				->where($db->qn('folder').' = '.$db->q('editors-xtd'));
-			$db->setQuery($query);
-			$db->execute();
-			
-			// Install the updater plugin
-			$installer->install($parent->getParent()->getPath('source').'/extra/plg_installer/');
-			
-			$query->clear()
-				->update($db->qn('#__extensions'))
-				->set($db->qn('enabled').' = 1')
-				->where($db->qn('element').' = '.$db->q('rscomments'))
-				->where($db->qn('type').' = '.$db->q('plugin'))
-				->where($db->qn('folder').' = '.$db->q('installer'));
-			$db->setQuery($query);
-			$db->execute();
-
-			//Install sh404sef plugin
-			if (JFolder::exists(JPATH_SITE.'/components/com_sh404sef/sef_ext'))
-				JFile::copy($parent->getParent()->getPath('source').'/extra/sef_ext/com_rscomments.php', JPATH_SITE.'/components/com_sh404sef/sef_ext/com_rscomments.php');
-			
-			$db->setQuery("SELECT `IdGroup` FROM `#__rscomments_groups` WHERE `gid` = 1");
-			if (!$db->loadResult()) {
-				$permissions = 'a:28:{s:12:"new_comments";s:1:"1";s:16:"edit_own_comment";s:1:"0";s:18:"delete_own_comment";s:1:"0";s:13:"edit_comments";s:1:"0";s:15:"delete_comments";s:1:"0";s:6:"bbcode";s:1:"1";s:13:"vote_comments";s:1:"1";s:21:"auto_subscribe_thread";s:1:"0";s:12:"close_thread";s:1:"0";s:12:"enable_reply";s:1:"1";s:16:"publish_comments";s:1:"0";s:11:"autopublish";s:1:"0";s:11:"show_emails";s:1:"0";s:7:"view_ip";s:1:"0";s:7:"captcha";s:1:"1";s:8:"censored";s:1:"1";s:13:"flood_control";s:1:"1";s:11:"check_names";s:1:"1";s:7:"bb_bold";s:1:"1";s:9:"bb_italic";s:1:"1";s:12:"bb_underline";s:1:"1";s:9:"bb_stroke";s:1:"1";s:8:"bb_quote";s:1:"1";s:8:"bb_lists";s:1:"0";s:8:"bb_image";s:1:"0";s:6:"bb_url";s:1:"0";s:7:"bb_code";s:1:"0";s:9:"bb_videos";s:1:"0";}';
-				$db->setQuery("INSERT IGNORE INTO `#__rscomments_groups` (`IdGroup`, `GroupName`, `gid`, `permissions`) VALUES(1, 'Public', 1, ".$db->q($permissions).");");
-				$db->execute();
-			}
-		}
-		
-		# Version 1.12.0
-		$db->setQuery("SELECT `id` FROM `#__rscomments_messages` WHERE `type` = ".$db->q('report_message')." AND `tag` = ".$db->q('en-GB')." ");
-		if (!$db->loadResult()) {
-			$db->setQuery("INSERT IGNORE INTO `#__rscomments_messages` (`id`, `type`, `tag`, `content`) VALUES(NULL, 'report_message', 'en-GB', '<p>Hello,</p>\r\n<p>\"{user}\" reported the comment written by \"{author}\" on {date}.</p>\r\n<p>The report reason was :</p>\r\n<p>\"{report}\"</p>\r\n<p>Click <a href=\"{preview}\">here</a> to view the comment.</p>');");
-			$db->execute();
-		}
-		
-		if ($type == 'update') {
-			$db->setQuery("SELECT `params` FROM `#__extensions` WHERE `extension_id` = ".(int) $extension_id);
-			if ($componentParams = $db->loadResult()) {
-				$reg = new JRegistry();
-				$reg->loadString($componentParams);
-				
-				if ($dataArray = $reg->toArray()) {	
-					$values = array('enable_reports' => 1, 'enable_captcha_reports' => 1, 'enable_email_reports' => 0, 'report_emails' => '', 'negative_count' => '10');
-					foreach ($values as $key => $value) {
-						if (!array_key_exists($key,$dataArray)) {
-							$reg->set($key,$value);
-						}
-					}
-				}
-				
-				$db->setQuery('UPDATE `#__extensions` SET `params` = '.$db->q($reg->toString()).' WHERE `extension_id` = '.(int) $extension_id);
-				$db->execute();
-			}
-			
-			# Version 1.13.3
-			$db->setQuery("SHOW COLUMNS FROM `#__rscomments_comments` WHERE `Field` = 'location'");
-			if (!$db->loadResult()) {
-				$db->setQuery("ALTER TABLE `#__rscomments_comments` ADD `location` VARCHAR( 255 ) NOT NULL AFTER `file`");
-				$db->execute();
-			}
-			
-			$db->setQuery("SHOW COLUMNS FROM `#__rscomments_comments` WHERE `Field` = 'coordinates'");
-			if (!$db->loadResult()) {
-				$db->setQuery("ALTER TABLE `#__rscomments_comments` ADD `coordinates` VARCHAR( 255 ) NOT NULL AFTER `location`");
-				$db->execute();
-			}
-			
-			// Replace emoticons path
-			$db->setQuery("SELECT `id`, `with` FROM `#__rscomments_emoticons`");
-			if ($emoticons = $db->loadObjectList()) {
-				foreach ($emoticons as $emoticon) {
-					$image = str_replace('components/com_rscomments/assets/images/emoticons/', 'media/com_rscomments/images/emoticons/', $emoticon->with);
-					$db->setQuery('UPDATE `#__rscomments_emoticons` SET `with` = '.$db->q($image).' WHERE `id` = '.$db->q($emoticon->id));
-					$db->execute();
-				}
-			}
-			
 			// Set default values on database fields
 			if ($tables = $db->getTableList()) {
 				foreach ($tables as $table) {
@@ -332,6 +223,107 @@ class com_rscommentsInstallerScript
 					}
 				}
 			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rscomments_groups` WHERE `Field` = 'joomla'");
+			if ($db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rscomments_groups` DROP `joomla`");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rscomments_comments` WHERE `Field` = 'modified_by'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rscomments_comments` ADD `modified_by` INT NOT NULL AFTER `date`");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rscomments_comments` WHERE `Field` = 'modified'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rscomments_comments` ADD `modified` DATETIME NOT NULL AFTER `modified_by`");
+				$db->execute();
+			}
+			
+			// Remove the configuration  table
+			$db->setQuery("DROP TABLE IF EXISTS `#__rscomments_config`");
+			$db->execute();
+			
+			// Remove the terms table
+			$db->setQuery("DROP TABLE IF EXISTS `#__rscomments_terms`");
+			$db->execute();
+			
+			# Version 1.12.0
+			$db->setQuery("SELECT `id` FROM `#__rscomments_messages` WHERE `type` = ".$db->q('report_message')." AND `tag` = ".$db->q('en-GB')." ");
+			if (!$db->loadResult()) {
+				$db->setQuery("INSERT IGNORE INTO `#__rscomments_messages` (`id`, `type`, `tag`, `content`) VALUES(NULL, 'report_message', 'en-GB', '<p>Hello,</p>\r\n<p>\"{user}\" reported the comment written by \"{author}\" on {date}.</p>\r\n<p>The report reason was :</p>\r\n<p>\"{report}\"</p>\r\n<p>Click <a href=\"{preview}\">here</a> to view the comment.</p>');");
+				$db->execute();
+			}
+			
+			# Version 1.13.3
+			$db->setQuery("SHOW COLUMNS FROM `#__rscomments_comments` WHERE `Field` = 'location'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rscomments_comments` ADD `location` VARCHAR( 255 ) NOT NULL AFTER `file`");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rscomments_comments` WHERE `Field` = 'coordinates'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rscomments_comments` ADD `coordinates` VARCHAR( 255 ) NOT NULL AFTER `location`");
+				$db->execute();
+			}
+			
+			// Replace emoticons path
+			$db->setQuery("SELECT `id`, `with` FROM `#__rscomments_emoticons`");
+			if ($emoticons = $db->loadObjectList()) {
+				foreach ($emoticons as $emoticon) {
+					$image = str_replace('components/com_rscomments/assets/images/emoticons/', 'media/com_rscomments/images/emoticons/', $emoticon->with);
+					$db->setQuery('UPDATE `#__rscomments_emoticons` SET `with` = '.$db->q($image).' WHERE `id` = '.$db->q($emoticon->id));
+					$db->execute();
+				}
+			}
+			
+			# Version 1.13.11
+			$db->setQuery("SHOW COLUMNS FROM `#__rscomments_comments` WHERE `Field` = 'hash'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rscomments_comments` ADD `hash` VARCHAR( 32 ) NOT NULL AFTER `ip`");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rscomments_comments` WHERE `Field` = 'sid'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rscomments_comments` ADD `sid` VARCHAR( 255 ) NOT NULL AFTER `hash`");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rscomments_comments` WHERE `Field` = 'anonymous'");
+			if (!$db->loadResult()) {
+				$db->setQuery("ALTER TABLE `#__rscomments_comments` ADD `anonymous` TINYINT( 2 ) NOT NULL AFTER `coordinates`");
+				$db->execute();
+			}
+			
+			$db->setQuery("SHOW COLUMNS FROM `#__rscomments_votes` WHERE `Field` = 'ip'");
+			$ipField = $db->loadObject();
+			if (strtolower($ipField->Type) == 'varchar(15)') {
+				$db->setQuery("ALTER TABLE `#__rscomments_votes` CHANGE `ip` `ip` VARCHAR(32) NOT NULL DEFAULT ''");
+				$db->execute();
+			}
+			
+			$db->setQuery("SELECT `params` FROM `#__extensions` WHERE `extension_id` = ".(int) $extension_id);
+			if ($params = $db->loadResult()) {
+				$registry = new JRegistry;
+				$registry->loadString($params);
+				
+				// Update config
+				$newconfig = array('enable_reports' => 1, 'enable_captcha_reports' => 1, 'enable_email_reports' => 0, 'report_emails' => '', 'negative_count' => '10', 'blocked_ips' => '', 'fontawesome' => '1', 'show_labels' => '0', 'enable_location' => '0', 'fontawesome_admin' => '1', 'store_ip' => 1, 'consent' => 1, 'anonymous' => 0, 'enable_name_field' => 1, 'enable_email_field' => 1);
+				
+				foreach ($newconfig as $name => $value) {
+					if (is_null($registry->get($name, null))) {
+						$registry->set($name,$value);
+					}
+				}
+				
+				$db->setQuery("UPDATE `#__extensions` SET `params` = ".$db->q($registry->toString())." WHERE `extension_id` = ".(int) $extension_id);
+				$db->execute();
+			}
+			
 		}
 		
 		$messages = $this->checkAddons();
@@ -635,11 +627,12 @@ class com_rscommentsInstallerScript
 	</div>
 	<?php } ?>
 	
-	<h2>Changelog v1.13.10</h2>
+	<h2>Changelog v1.13.11</h2>
 	<ul class="version-history">
-		<li><span class="version-new">New</span> Global message.</li>
-		<li><span class="version-upgraded">Upg</span> Moved scripts to media folder.</li>
-		<li><span class="version-upgraded">Upg</span> Code optimizations.</li>
+		<li><span class="version-new">New</span> Option to store users IP address.</li>
+		<li><span class="version-new">New</span> Option to get user consent.</li>
+		<li><span class="version-new">New</span> Anonymous commenting.</li>
+		<li><span class="version-new">New</span> View all your comments.</li>
 	</ul>
 	<a class="com-rscomments-button" href="index.php?option=com_rscomments">Start using RSComments!</a>
 	<a class="com-rscomments-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/95-rscomments.html" target="_blank">Read the RSComments! User Guide</a>

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,11 +11,16 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-// Include parent library
 require_once(__DIR__ . '/controller.php');
 
 class EasyDiscussControllerMaintenanceFinalize extends EasyDiscussSetupController
 {
+	/**
+	 * Perform the finalization of scripts
+	 *
+	 * @since	4.2.0
+	 * @access	public
+	 */
 	public function execute()
 	{
 		$this->engine();
@@ -49,10 +54,8 @@ class EasyDiscussControllerMaintenanceFinalize extends EasyDiscussSetupControlle
 	/**
 	 * Deletes the installation file
 	 *
-	 * @since	4.0
+	 * @since	4.2.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	private function removeInstallationFile()
 	{
@@ -63,27 +66,26 @@ class EasyDiscussControllerMaintenanceFinalize extends EasyDiscussSetupControlle
 	/**
 	 * Since 4.x, easydiscuss no longer requires on foundry 3.1
 	 *
-	 * @since	4.0
+	 * @since	4.2.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function removeFoundry()
 	{
 		$folder = JPATH_ROOT . '/media/foundry/3.1';
 
-		if (JFolder::exists($folder)) {
+		if (!JFolder::exists($folder)) {
+			return;
+		}
 
-			// we need to check if the site has komento installed or not. if yes, we CANNOT remove the foundry
-			// as komento still using foundry 3.1.
-			$komento = JPATH_ROOT . '/administrator/components/com_komento/komento.php';
+		// we need to check if the site has komento installed or not. if yes, we CANNOT remove the foundry
+		// as komento still using foundry 3.1.
+		$komento = JPATH_ROOT . '/administrator/components/com_komento/komento.php';
 
-			// We also need to check if user are using easyblog 3.9 and below, do not remove foundry 3.1.
-			$easyblog = JPATH_ROOT .'/components/com_easyblog/helpers/helper.php';
+		// We also need to check if user are using easyblog 3.9 and below, do not remove foundry 3.1.
+		$easyblog = JPATH_ROOT .'/components/com_easyblog/helpers/helper.php';
 
-			if (!JFile::exists($komento) && !JFile::exists($easyblog)) {
-				return JFolder::delete($folder);
-			}
+		if (!JFile::exists($komento) && !JFile::exists($easyblog)) {
+			return JFolder::delete($folder);
 		}
 
 		return true;
@@ -92,10 +94,8 @@ class EasyDiscussControllerMaintenanceFinalize extends EasyDiscussSetupControlle
 	/**
 	 * Perform system wide cleanups after the installation is completed.
 	 *
-	 * @since	5.0
+	 * @since	4.2.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function cleanup($path)
 	{
@@ -131,10 +131,8 @@ class EasyDiscussControllerMaintenanceFinalize extends EasyDiscussSetupControlle
 	/**
 	 * Remove all old javascript files
 	 *
-	 * @since	4.0.16
+	 * @since	4.2.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function removeOldJavascripts()
 	{
@@ -165,10 +163,8 @@ class EasyDiscussControllerMaintenanceFinalize extends EasyDiscussSetupControlle
 	/**
 	 * Since 4.x, constants are moved to the back end.
 	 *
-	 * @since	4.0
+	 * @since	4.2.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function removeConstantsFile()
 	{
@@ -183,10 +179,8 @@ class EasyDiscussControllerMaintenanceFinalize extends EasyDiscussSetupControlle
 	/**
 	 * Since 4.x, we no longer use legacy helper and classes folders
 	 *
-	 * @since	4.0
+	 * @since	4.2.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function removeLegacyFolders()
 	{

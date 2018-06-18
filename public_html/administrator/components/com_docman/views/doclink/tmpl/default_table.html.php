@@ -37,4 +37,5 @@ defined('KOOWA') or die; ?>
     <div class="k-js-doclink-spinner k-loader-container k-is-hidden">
         <span class="k-loader k-loader--large"><?= translate('Loading') ?></span>
     </div>
+
 </div>

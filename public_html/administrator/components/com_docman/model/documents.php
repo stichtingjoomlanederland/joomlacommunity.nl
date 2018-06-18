@@ -28,7 +28,7 @@ class ComDocmanModelDocuments extends ComDocmanModelAbstract
             ->insert('storage_type', 'identifier')
             ->insert('storage_path', 'com:files.filter.path')
             ->insert('search_path', 'com:files.filter.path')
-            ->insert('search_by', 'string', 'any')
+            ->insert('search_by', 'string', 'exact')
             ->insert('search_date', 'date')
             ->insert('image', 'com:files.filter.path')
             ->insert('day_range', 'int');
@@ -446,11 +446,6 @@ class ComDocmanModelDocuments extends ComDocmanModelAbstract
 
             switch ($state->search_by)
             {
-                case 'exact':
-                    $query->where('(tbl.title LIKE :search OR tbl.description LIKE :search OR contents.contents LIKE :search)')
-                        ->bind(array('search' => '%'.$search.'%'));
-
-                    break;
                 case 'any':
                     $query->where('(tbl.title RLIKE :search OR tbl.description RLIKE :search OR contents.contents RLIKE :search)')
                         ->bind(array('search' => implode('|', explode(' ', $search))));
@@ -463,6 +458,12 @@ class ComDocmanModelDocuments extends ComDocmanModelAbstract
                             ->bind(array("search$i" => '%'.$keyword.'%'));
                         $i++;
                     }
+
+                    break;
+                case 'exact':
+                default:
+                    $query->where('(tbl.title LIKE :search OR tbl.description LIKE :search OR contents.contents LIKE :search)')
+                        ->bind(array('search' => '%'.$search.'%'));
 
                     break;
             }

@@ -113,6 +113,8 @@ class Large extends Base
 			{
 				$this->setWarning(sprintf("Link %s is inaccessible. Check the open_basedir restrictions in your server's PHP configuration", $di->getPathname()));
 
+				$di->next();
+
 				continue;
 			}
 

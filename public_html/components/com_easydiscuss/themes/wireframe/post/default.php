@@ -1,8 +1,8 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -33,11 +33,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 		<div class="o-col o-col--4">
 			<div class="ed-entry-action-bar__btn-group">
-				<?php if (!$post->isLocked() || ED::isModerator($post->category_id)) { ?>
+				<?php if ((!$post->isLocked() || ED::isModerator($post->category_id)) && ($post->canReply())) { ?>
 				<a href="<?php echo JRequest::getURI();?>#respond" class="btn btn-default btn-xs t-mr--sm">
 					<?php echo JText::_('COM_EASYDISCUSS_ADD_A_REPLY');?>
 				</a>
 				<?php } ?>
+
 				<a href="<?php echo JRequest::getURI();?>#replies" class="btn btn-default btn-xs">
 					<?php echo JText::_('COM_EASYDISCUSS_VIEW_REPLIES');?> (<span data-ed-post-reply-counter><?php echo $post->getTotalReplies(); ?></span>)
 				</a>
@@ -151,6 +152,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<a class="ed-user-name" href="<?php echo $post->getOwner()->getPermalink();?>"><?php echo $post->getOwner()->getName($post->poster_name);?></a>
 					<?php } ?>
 				</li>
+
+				<?php if ($this->config->get('layout_badges_in_post') && $post->getOwner()->hasUserBadges()) { ?>
+				<li>
+					<?php echo ED::badges()->getPostHtml($post->getOwner()->id); ?>					
+				</li>
+				<?php } ?>
 
 				<?php if ($post->isAnonymous() && $this->isSiteAdmin) { ?>
 				<li>

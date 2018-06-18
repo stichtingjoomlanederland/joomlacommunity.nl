@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -74,10 +74,10 @@ class EasyDiscussBadges extends EasyDiscuss
 				
 				//insert into JS stream.
 				if ($config->get('integration_jomsocial_activity_badges', 0)) {
-                    $badgeTable = ED::table('Badges');
-                    $badgeTable->load($badge->id);
-				    $badgeTable->uniqueId = $table->id;
-				    ED::jomsocial()->addActivityBadges($badgeTable);
+					$badgeTable = ED::table('Badges');
+					$badgeTable->load($badge->id);
+					$badgeTable->uniqueId = $table->id;
+					ED::jomsocial()->addActivityBadges($badgeTable);
 				}
 			}
 		}
@@ -195,12 +195,9 @@ class EasyDiscussBadges extends EasyDiscuss
 	/**
 	 * Retrieve a list of badges for the specific command
 	 *
-	 * @access	private
-	 * @param	string	$command	The action string.
-	 * @param	int		$userId		The actor's id.
-	 *
-	 * @return	Array	An array of BadgesHistory object.
-	 **/
+	 * @since	4.2.0
+	 * @access	public
+	 */
 	private function getBadges($command, $userId)
 	{
 		$db = ED::db();
@@ -225,11 +222,9 @@ class EasyDiscussBadges extends EasyDiscuss
 	/**
 	 * Retrieve total history for a user based on a specific command
 	 *
-	 * @access	private
-	 * @param	string	$command	The action string.
-	 * @param	int		$userId		The actor's id.
-	 * @return	int		The total number of items.
-	 **/
+	 * @since	4.2.0
+	 * @access	public
+	 */
 	private function getTotal($command, $userId)
 	{
 		$db = ED::db();
@@ -248,8 +243,6 @@ class EasyDiscussBadges extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function create($userId, $badgeId, $dateAchieved)
 	{
@@ -269,5 +262,67 @@ class EasyDiscussBadges extends EasyDiscuss
 		}
 
 		return true;
+	}
+
+	/**
+	 * Generates the html for badges in a post
+	 *
+	 * @since	4.2.0
+	 * @access	public
+	 */
+	public function getPostHtml($userId, $limit = 3)
+	{
+		static $data = array();
+
+		// by default we don't have assign any badge to guest user.
+		// we should skip it here.
+		if (!$userId) {
+			return;
+		}
+
+		if (!isset($data[$userId])) {
+			$user = ED::user($userId);
+			$userBadges = $user->getBadges();
+			$total = count($userBadges);
+			$hasMoreBadges = $total > $limit;
+
+			// Get the initial displayed badges
+			$badges = array_splice($userBadges, 0, $limit);
+
+			$theme = ED::themes();
+			$theme->set('hasMoreBadges', $hasMoreBadges);
+			$theme->set('userBadges', $userBadges);
+			$theme->set('badges', $badges);
+			$data[$userId] = $theme->output('site/badges/post');
+		}
+		
+		return $data[$userId];
+	}
+
+	/**
+	 * Generates the html for badges in the dropdown
+	 *
+	 * @since	4.2.0
+	 * @access	public
+	 */
+	public function getToolbarHtml()
+	{
+		if (!$this->my->id) {
+			return;
+		}
+
+		if (ED::easysocial()->hasToolbar()) {
+			return ED::easysocial()->getToolbarBadgesHtml();
+		}
+
+		$user = ED::user();
+		$badges = $user->getBadges();
+
+		$theme = ED::themes();
+		$theme->set('badges', $badges);
+
+		$output = $theme->output('site/toolbar/badges');
+
+		return $output;
 	}
 }

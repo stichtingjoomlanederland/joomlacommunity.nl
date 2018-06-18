@@ -26,9 +26,8 @@ class EasyDiscussViewSearch extends EasyDiscussView
 
 		// Get the category?
 		$category = $this->input->get('category_id', 0, 'int');
-
 		$catfilters = $this->input->get('categories', array(), 'array');
-
+		$postType = $this->input->get('post_type', '', 'default');
 
 		$cats = array();
 		$tags = array();
@@ -85,7 +84,6 @@ class EasyDiscussViewSearch extends EasyDiscussView
 			}
 		}
 
-
 		// Search query
 		$query = $this->input->get('query', '', 'string');
 		$limitstart	= null;
@@ -98,11 +96,11 @@ class EasyDiscussViewSearch extends EasyDiscussView
 		$options['filter'] = 'allpost';
 		$options['category'] = $cats;
 		$options['tags'] = $tags;
+		$options['post_type'] = $postType;
 
 		if ($query) {
-
-			$model = ED::model('Search');
 			// Get the result
+			$model = ED::model('Search');
 			$results = $model->getData($options);
 			$pagination = $model->getPagination();
 
@@ -113,12 +111,22 @@ class EasyDiscussViewSearch extends EasyDiscussView
 			}
 		}
 
+		$postTypes = false;
+		$postTypeValue = $this->input->get('post_type', '', 'default');
+
+		// Get post types list
+		if ($this->config->get('layout_post_types')) {
+			$postTypesModel = ED::model('PostTypes');
+			$postTypes = $postTypesModel->getPostTypes();
+		}
 
 		$this->set('query', $query);
 		$this->set('posts', $items);
 		$this->set('paginationType', DISCUSS_SEARCH_TYPE);
 		$this->set('pagination', $pagination);
 		$this->set('parent_id', $query);
+		$this->set('postTypes', $postTypes);
+		$this->set('postTypeValue', $postTypeValue);
 
 		$this->set('tagFilters', $tagItems);
 		$this->set('catFilters', $catItems);

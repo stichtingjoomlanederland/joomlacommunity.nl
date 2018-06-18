@@ -102,11 +102,21 @@ defined('_JEXEC') or die; ?>
                                 )
                             )); ?>
 
-                        </div>
+                        </div><!-- .k-container__full -->
+
+                    </div><!-- .k-container -->
+
+                    <!-- Container -->
+                    <div class="k-container">
 
                         <div class="k-container__full">
                             <div class="k-heading"><?= translate('Select default values'); ?></div>
                         </div>
+
+                    </div>
+
+                    <!-- Container -->
+                    <div class="k-container">
 
                         <form class="k-js-batch-form k-js-form-controller" id="document-batch">
 
@@ -165,9 +175,14 @@ defined('_JEXEC') or die; ?>
                                     <p class="k-form-info"><small>(document-2013-07-08.pdf &raquo; Document 2013 07 08)</small></p>
                                 </div>
 
-                            </div>
+                            </div><!-- .k-container__sub -->
 
                         </form>
+
+                    </div><!-- .k-container -->
+
+                    <!-- Container -->
+                    <div class="k-container">
 
                         <!-- Full width container -->
                         <div class="k-container__full">

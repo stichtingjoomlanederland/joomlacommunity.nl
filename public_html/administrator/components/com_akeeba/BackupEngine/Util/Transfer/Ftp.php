@@ -285,16 +285,22 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 	 *
 	 * @param   string  $localFilename   The full path to the local file
 	 * @param   string  $remoteFilename  The full path to the remote file
+	 * @param   bool    $useExceptions   Throw an exception instead of returning "false" on connection error.
 	 *
 	 * @return  boolean  True on success
 	 */
-	public function upload($localFilename, $remoteFilename)
+	public function upload($localFilename, $remoteFilename, $useExceptions = true)
 	{
 		$handle = @fopen($localFilename, 'rb');
 
 		if ($handle === false)
 		{
-			throw new \RuntimeException("Unreadable local file $localFilename");
+			if ($useExceptions)
+			{
+				throw new \RuntimeException("Unreadable local file $localFilename");
+			}
+
+			return false;
 		}
 
 		$ret = @ftp_fput($this->connection, $remoteFilename, $handle, FTP_BINARY);
@@ -343,14 +349,22 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 	/**
 	 * Download a remote file into a local file
 	 *
-	 * @param   string  $remoteFilename
-	 * @param   string  $localFilename
+	 * @param   string  $remoteFilename  The remote file path to download from
+	 * @param   string  $localFilename   The local file path to download to
+	 * @param   bool    $useExceptions   Throw an exception instead of returning "false" on connection error.
 	 *
 	 * @return  boolean  True on success
 	 */
-	public function download($remoteFilename, $localFilename)
+	public function download($remoteFilename, $localFilename, $useExceptions = true)
 	{
-		return @ftp_get($this->connection, $localFilename, $remoteFilename, FTP_BINARY);
+		$ret = @ftp_get($this->connection, $localFilename, $remoteFilename, FTP_BINARY);
+
+		if (!$ret && $useExceptions)
+		{
+			throw new \RuntimeException("Cannot download remote file $remoteFilename through FTP.");
+		}
+
+		return $ret;
 	}
 
 	/**
@@ -416,7 +430,19 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 	 */
 	public function chmod($fileName, $permissions)
 	{
-		return (@ftp_chmod($this->connection, $permissions, $fileName) !== false);
+		if (@ftp_chmod($this->connection, $permissions, $fileName) !== false)
+		{
+			return true;
+		}
+
+		$permissionsOctal = decoct((int) $permissions);
+
+		if (@ftp_site($this->connection, "CHMOD $permissionsOctal $fileName") !== false)
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

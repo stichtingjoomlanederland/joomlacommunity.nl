@@ -63,6 +63,8 @@ Files.File = new Class({
 		
 		this.size = new Files.Filesize(this.metadata.size);
 		this.filetype = Files.getFileType(this.metadata.extension);
+
+		this.client_cache = false;
 	},
 	getModifiedDate: function(formatted) {
         if (this.metadata.modified_date) {

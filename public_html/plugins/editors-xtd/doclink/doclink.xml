@@ -2,9 +2,9 @@
 <extension type="plugin" version="2.5" group="editors-xtd" method="upgrade">
 	<identifier>plg:editors-xtd.doclink</identifier>
 	<name>plg_editors-xtd_doclink</name>
-	<version>3.2.0</version>
+	<version>3.2.4</version>
     <author>Joomlatools</author>
-    <creationDate>January 2016</creationDate>
+    <creationDate>June 2018</creationDate>
     <copyright>Copyright (C) 2011 Timble CVBA (http://www.timble.net)</copyright>
     <license>GNU GPLv3 - http://www.gnu.org/licenses/gpl.html</license>
     <authorEmail>support@joomlatools.com</authorEmail>

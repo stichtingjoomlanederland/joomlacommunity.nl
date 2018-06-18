@@ -7,6 +7,7 @@
 defined( '_JEXEC' ) or die( 'Restricted access' ); 
 JText::script('COM_RSEVENTSPRO_TICKETS'); 
 JText::script('COM_RSEVENTSPRO_SEATS');
+JText::script('ERROR');
 $modal = $this->config->modal == 1 || $this->config->modal == 2; ?>
 
 <script type="text/javascript">
@@ -22,6 +23,7 @@ $modal = $this->config->modal == 1 || $this->config->modal == 2; ?>
 	smessage[5] = '<?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_NO_MORE_TICKETS',true); ?>';
 	smessage[6] = '<?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_NO_MORE_TICKETS_ALLOWED',true); ?>';
 	smessage[7] = '<?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_SINGLE_TICKET',true); ?>';
+	smessage[8] = '<?php echo JText::_('COM_RSEVENTSPRO_CONSENT_INFO',true); ?>';
 	
 	function RSopenModal() {
 		var dialogHeight = <?php echo rseventsproHelper::getConfig('seats_height','int','800'); ?>;
@@ -182,6 +184,16 @@ $modal = $this->config->modal == 1 || $this->config->modal == 2; ?>
 	</table>
 	
 	<?php } ?>	
+	
+	<?php if (rseventsproHelper::getConfig('consent','int','1')) { ?>
+	<div class="control-group">
+		<div class="controls">
+			<label class="checkbox inline">
+				<input type="checkbox" name="consent" id="consent" value="1" /> <?php echo JText::_('COM_RSEVENTSPRO_CONSENT'); ?>
+			</label>
+		</div>
+	</div>
+	<?php } ?>
 
 	<hr />
 	

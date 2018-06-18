@@ -1,8 +1,8 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -10,8 +10,6 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-defined('_JEXEC') or die('Restricted access');
 
 class EasyDiscussControllerSubscription extends EasyDiscussController
 {
@@ -53,6 +51,7 @@ class EasyDiscussControllerSubscription extends EasyDiscussController
 
 		// If the subscription type is post or category, ensure that there is a cid
 		if (($subscription->type == 'post' || $subscription->type == 'category') && !$subscription->cid) {
+
 			if ($subscription->type == 'post') {
 				ED::setMessage('COM_EASYDISCUSS_SUBSCRIPTION_PLEASE_SELECT_POST', 'error');
 			}

@@ -409,12 +409,12 @@ HTML;
 		// Retrieve engine configuration data
 		$config = Factory::getConfiguration();
 
-		$access_token = trim($config->get('engine.postproc.' . $this->settingsKey . '.access_token', ''));
+		$access_token  = trim($config->get('engine.postproc.' . $this->settingsKey . '.access_token', ''));
 		$refresh_token = trim($config->get('engine.postproc.' . $this->settingsKey . '.refresh_token', ''));
 
-		$this->chunked = $config->get('engine.postproc.' . $this->settingsKey . '.chunk_upload', true);
+		$this->chunked    = $config->get('engine.postproc.' . $this->settingsKey . '.chunk_upload', true);
 		$this->chunk_size = $config->get('engine.postproc.' . $this->settingsKey . '.chunk_upload_size', 10) * 1024 * 1024;
-		$this->directory = $config->get('volatile.postproc.directory', null);
+		$this->directory  = $config->get('volatile.postproc.directory', null);
 
 		if (empty($this->directory))
 		{
@@ -429,12 +429,12 @@ HTML;
 			return false;
 		}
 
-        if(!function_exists('curl_init'))
-        {
-            $this->setWarning('cURL is not enabled, please enable it in order to post-process your archives');
+		if (!function_exists('curl_init'))
+		{
+			$this->setWarning('cURL is not enabled, please enable it in order to post-process your archives');
 
-            return false;
-        }
+			return false;
+		}
 
 		// Fix the directory name, if required
 		if (!empty($this->directory))

@@ -1,28 +1,24 @@
 <?php
 /**
-* @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
-* @license		GNU/GPL, see LICENSE.php
+* @package      EasyDiscuss
+* @copyright    Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Unauthorized Access');
+defined('_JEXEC') or die('Restricted access');
 
 require_once(__DIR__ . '/consumer.php');
 
-class EasyDiscussLinkedIn extends EasyDiscuss
+class EasyDiscussLinkedIn extends EDLinkedInConsumer
 {
-	public $key = null;
-	public $secret = null;
-	public $callback = null;
-
-	public $userAccessToken = null;
-
-	public function __construct($key = '', $secret = '', $callback = '')
+	public function __construct($key = '', $secret = '', $redirect = '')
 	{
+		$this->app = JFactory::getApplication();
+		$this->input = $this->app->input;
 		$this->config = ED::config();
 
 		if (!$key) {
@@ -33,17 +29,17 @@ class EasyDiscussLinkedIn extends EasyDiscuss
 			$secret = $this->config->get('main_autopost_linkedin_secret');
 		}
 
-		if (!$callback) {
-			$callback = rtrim(JURI::root(), '/') . '/administrator/index.php?option=com_easydiscuss&controller=autoposting&task=grant&type=linkedin';
+		if (!$redirect) {
+			$redirect = 'index.php?option=com_easydiscuss&view=auth&layout=linkedin';
 		}
 
 		$this->key = $key;
 		$this->secret = $secret;
-		$this->callback	= $callback;
+		$this->redirect	= EDR::getRoutedUrl($redirect, true, true, true);
 
-		$options = array('appKey' => $key, 'appSecret' => $secret, 'callbackUrl' => $callback);
+		$options = array('appKey' => $this->key, 'appSecret' => $this->secret, 'callbackUrl' => $this->redirect);
 
-		$this->client = new EasyDiscussLinkedInConsumer($options);
+		parent::__construct($options);
 	}
 
 	/**
@@ -51,46 +47,10 @@ class EasyDiscussLinkedIn extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getCallbackUrl()
 	{
-		return $this->callback;
-	}
-
-	/**
-	 * Generates a request token
-	 *
-	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
-	public function getRequestToken()
-	{
-		$request = $this->client->retrieveTokenRequest();
-
-		$obj = new stdClass();
-		$obj->token = $request['linkedin']['oauth_token'];
-		$obj->secret = $request['linkedin']['oauth_token_secret'];
-
-		return $obj;
-	}
-
-	/**
-	 * Get the verifier code that is sent back by Facebook
-	 *
-	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
-	 */
-	public function getVerifier()
-	{
-		$verifier = JRequest::getVar('oauth_verifier', '', 'default');
-
-		return $verifier;
+		return $this->redirect;
 	}
 
 	/**
@@ -98,46 +58,57 @@ class EasyDiscussLinkedIn extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public function getAuthorizationURL($requestToken)
+	public function getAuthorizeURL()
 	{
-		$url = EasyDiscussLinkedInConsumer::_URL_AUTH . $requestToken->token;
+		$url = parent::_URL_AUTH_V2;
+		$url .= '&client_id=' . $this->key;
+		$url .= '&redirect_uri=' . $this->redirect;
+		$url .= '&state=' . $this->construcUserIdInState();
 
 		return $url;
 	}
 
+	private function construcUserIdInState()
+	{
+		$user = ED::user();
+		$state = parent::_USER_CONSTANT . $user->id;
+
+		return $state;
+	}
+
 	/**
-	 * Retrieves the access token given the request token, secret and verifier code.
+	 * Exchanges the request token with the access token
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public function getAccessTokens($token, $secret, $verifier)
+	public function getAccess()
 	{
-		// Exchange the request token, secret and verifier for an access token.
-		$accessToken = $this->client->retrieveTokenAccess($token, $secret, $verifier);
+		$access = $this->retrieveTokenAccess($this->auth_code);
 
-		if (isset($accessToken['linkedin']['oauth_problem'])) {
+		if (!$access) {
 			return false;
 		}
 
 		$obj = new stdClass();
-		$obj->token = $accessToken['linkedin']['oauth_token'];
-		$obj->secret = $accessToken['linkedin']['oauth_token_secret'];
+
+		// Convert to object
+		if (is_string($access['linkedin'])) {
+			$access['linkedin'] = json_decode($access['linkedin']);
+		}
+
+		$obj->token = $access['linkedin']->access_token;
+		$obj->secret = true;
 		$obj->params = '';
-		$obj->expires = '';
+		$obj->expires = ED::date();
 
 		// If the expiry date is given
-		if (isset($accessToken['linkedin']['oauth_expires_in'])) {
-			$expires = $accessToken['linkedin']['oauth_expires_in'];
+		if (isset($access['linkedin']->expires_in)) {
+			$expires = $access['linkedin']->expires_in;
 
 			// Set the expiry date with proper date data
-			$expiration = strtotime('now') + $expires;
-			$obj->expires = ED::date($expiration)->toSql();
+			$obj->expires = ED::date(strtotime('now') + $expires)->toSql();
 		}
 
 		return $obj;
@@ -147,9 +118,7 @@ class EasyDiscussLinkedIn extends EasyDiscuss
 	 * Formats the content to send to linkedin
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return	
+	 * @access	public	
 	 */
 	public function getData(EasyDiscussPost $post)
 	{
@@ -185,9 +154,7 @@ class EasyDiscussLinkedIn extends EasyDiscuss
 	 * Retrieve a stored list of companies to auto post to
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return	
+	 * @access	public	
 	 */
 	public function getStoredCompanies()
 	{
@@ -207,9 +174,7 @@ class EasyDiscussLinkedIn extends EasyDiscuss
 	 * Shares a message on Linkedin when a new discussion is created
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return	
+	 * @access	public	
 	 */
 	public function share(EasyDiscussPost $post)
 	{
@@ -219,7 +184,7 @@ class EasyDiscussLinkedIn extends EasyDiscuss
 		$companies = $this->getStoredCompanies();
 
 		if ($companies) {
-			$status = $this->client->sharePost('new', $options, true, false, $companies);
+			$status = $this->sharePost('new', $options, true, false, $companies);
 
 			if (isset($status['success'])) {
 				return true;
@@ -230,7 +195,7 @@ class EasyDiscussLinkedIn extends EasyDiscuss
 
 		// If there are no companies, just auto post to their account
 		if (!$companies) {
-			$status = $this->client->sharePost('new', $options, true, false);
+			$status = $this->sharePost('new', $options, true, false);
 
 			if (isset($status['success'])) {
 				return true;
@@ -243,19 +208,26 @@ class EasyDiscussLinkedIn extends EasyDiscuss
 	}
 
 	/**
+	 * Set the authorization code
+	 *
+	 * @since	4.1.0
+	 * @access	public
+	 */
+	public function setAuthCode($code)
+	{
+		$this->auth_code = $code;
+	}
+
+	/**
 	 * Set the access tokens
 	 *
-	 * @since	4.0
+	 * @since	4.1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function setAccess($access)
 	{
-		$access = json_decode($access);
-		$options = array('oauth_token' => $access->token, 'oauth_token_secret' => $access->secret);
-
-		$this->client->setTokenAccess($options);
+		$access = ED::registry($access);
+		return parent::setAccessToken($access->get('token'));
 	}
 
 	/**
@@ -263,14 +235,11 @@ class EasyDiscussLinkedIn extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function revokeApp()
 	{
-		$result = $this->client->revoke();
-
-		return $result['success'] == true;
+		// For oauth 2 we do not need to do anything here
+		return true;
 	}
 
 	/**
@@ -278,13 +247,11 @@ class EasyDiscussLinkedIn extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getCompanies()
 	{
 		// Get a list of accounts associated to this user
-		$result = $this->client->company('?is-company-admin=true');
+		$result = $this->company('?is-company-admin=true');
 
 		$parser = JFactory::getXML($result['linkedin'], false);
 		$result = $parser->children();
@@ -296,7 +263,7 @@ class EasyDiscussLinkedIn extends EasyDiscuss
 			foreach ($result as $item) {
 				$company = new stdClass();
 
-				$company->id    = (int) $item->id;
+				$company->id = (int) $item->id;
 				$company->title = (string) $item->name;
 
 				$companies[] = $company;

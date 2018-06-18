@@ -156,6 +156,12 @@ class RseventsproTableEvent extends JTable
 				$this->setError(JText::_('COM_RSEVENTSPRO_PLEASE_SELECT_CATEGORY'));
 				return false;
 			}
+			
+			// Check for consent
+			if ($app->isClient('site') && rseventsproHelper::getConfig('consent', 'int') && !$app->input->getInt('consent')) {
+				$this->setError(JText::_('COM_RSEVENTSPRO_CONSENT_INFO'));
+				return false;
+			}
 		}
 		
 		// Start registration

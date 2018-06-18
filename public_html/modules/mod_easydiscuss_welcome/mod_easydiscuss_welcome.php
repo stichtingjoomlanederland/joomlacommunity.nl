@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -16,10 +16,13 @@ jimport( 'joomla.filesystem.file' );
 $path = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php';
 
 if (!JFile::exists($path)) {
-    return;
+	return;
 }
 
 require_once ($path);
+
+// Ensure that it renders ED stylesheets
+ED::init();
 
 $my	= ED::user();
 $isLoggedIn	= ED::modules()->getLoginStatus();

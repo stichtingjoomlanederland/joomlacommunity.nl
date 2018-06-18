@@ -201,7 +201,7 @@ class Jpa extends BaseArchiver
 
 		if (function_exists('chmod'))
 		{
-			@chmod($this->_dataFileName, 0755);
+			@chmod($this->_dataFileName, 0644);
 		}
 	}
 
@@ -397,7 +397,7 @@ class Jpa extends BaseArchiver
 		 * permissions after reading its contents PHP segfaults.
 		 */
 		// Get file permissions
-		$perms = 0755;
+		$perms = 0644;
 
 		if (!$isVirtual)
 		{

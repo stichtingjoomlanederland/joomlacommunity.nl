@@ -98,6 +98,7 @@ class ComDocmanViewListHtml extends ComDocmanViewHtml
                 ->created_on_from($filter->created_on_from)
                 ->created_on_to($filter->created_on_to)
                 ->search($filter->search)
+                ->search_by($params->search_by)
                 ->tag($filter->tag)
                 ->category($document_category)
                 ->category_children($document_category_children)
@@ -203,6 +204,12 @@ class ComDocmanViewListHtml extends ComDocmanViewHtml
         if ($this->getName() === $this->getActiveMenu()->query['view'])
         {
             $category = $this->getModel()->fetch();
+            $slug     = isset($this->getActiveMenu()->query['slug']) ? $this->getActiveMenu()->query['slug'] : null;
+
+            if (!$category->isNew() && $category->slug !== $slug) {
+                $this->getParameters()->def('page_heading', $category->title);
+                $this->getParameters()->def('page_title',   $category->title);
+            }
 
             if ($category->isNew() && $this->getParameters()->show_page_heading) {
                 $this->getParameters()->show_category_title = false;

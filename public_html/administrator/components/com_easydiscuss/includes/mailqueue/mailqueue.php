@@ -147,10 +147,17 @@ class EasyDiscussMailQueue extends EasyDiscuss
 		jimport('joomla.filesystem.folder');
 		jimport('joomla.utilities.utility');
 
-        $searchCriteria = 'UNSEEN';
+		$searchCriteria = 'UNSEEN';
 
 		// Only search for messages that are new.
 		$unread	= $mailer->searchMessages($searchCriteria);
+
+		// retrieve the current fetch email limit
+		$limit = $this->config->get('main_email_parser_limit', 10);
+		sort($unread);
+
+		// Specifies the length of the returned array
+		$unread = array_slice($unread, 0, $limit);
 
 		// If there is no unread emails, just skip this altogether
 		if (!$unread) {
@@ -170,6 +177,14 @@ class EasyDiscussMailQueue extends EasyDiscuss
 			// Get the message info
 			$info = $mailer->getMessageInfo($sequence);
 			$from = $info->from;
+
+			// Get the sender's e-mail address
+			$senderEmail = $this->getSenderEmail($info);
+
+			// Ensure that the sender is whitelisted
+			if (!$this->isSenderAllowed($senderEmail)) {
+				continue;
+			}
 
 			$senderName = 'Unknown';
 
@@ -228,9 +243,6 @@ class EasyDiscussMailQueue extends EasyDiscuss
 				//since the editor is a bbcode, we should not allow any html tags.
 				$html = strip_tags($html);
 			}
-
-			// Get the sender's e-mail address
-			$senderEmail = $this->getSenderEmail($info);
 			
 			if ($this->config->get('main_email_parser_appendemail')) {
 				$newline = $editor == 'bbcode' ? "\r\n\r\n" : "<br /><br />";
@@ -507,5 +519,36 @@ class EasyDiscussMailQueue extends EasyDiscuss
 
 			DiscussHelper::getHelper( 'Mailer' )->notifyAdministrators( $emailData, array(), $config->get( 'notify_admin_onreply' ), $config->get( 'notify_moderator_onreply' ) );
 		}
+	}
+
+	/**
+	 * Ensure that the sender is allowed
+	 *
+	 * @since	4.1.0
+	 * @access	public
+	 */
+	public function isSenderAllowed($sender)
+	{
+		// filter email according to the whitelist
+		$filter = JFilterInput::getInstance();
+		$whitelist = $this->config->get('main_email_parser_sender_whitelist');
+		$whitelist = $filter->clean($whitelist, 'string');
+		$whitelist = trim($whitelist);
+
+		if (empty($whitelist)) {
+			return true;
+		}
+
+		$pattern = '([\w\.\-]+\@(?:[a-z0-9\.\-]+\.)+(?:[a-z0-9\-]{2,4}))';
+
+		preg_match_all($pattern, $whitelist, $matches);
+		$emails = $matches[0];
+
+		if (!in_array($sender, $emails)) {
+			$this->setError(JText::sprintf('COM_ED_MAILBOX_NOT_WHITELISTED', $sender));
+			return false;
+		}
+
+		return true;
 	}
 }

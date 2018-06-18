@@ -10,12 +10,15 @@ namespace Akeeba\Backup\Admin\Model;
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
+use Akeeba\Engine\Factory;
+use Akeeba\Engine\Util\RandomValue;
 use Akeeba\Backup\Admin\Model\Exceptions\TransferFatalError;
 use Akeeba\Backup\Admin\Model\Exceptions\TransferIgnorableError;
 use Akeeba\Engine\Util\Transfer as EngineTransfer;
 use Exception;
 use FOF30\Download\Download;
 use FOF30\Model\Model;
+use JFile;
 use JText;
 use JUri;
 use RuntimeException;
@@ -88,7 +91,7 @@ class Transfer extends Model
 		{
 			return [
 				'size'   => 0,
-				'string' => '0.00 Kb'
+				'string' => '0.00 KB'
 			];
 		}
 
@@ -443,12 +446,16 @@ class Transfer extends Model
 		 * upload size (minus 10Kb for overhead data)
 		 */
 		$chunkSizeLimit = $this->getMaxChunkSize();
-		$maxUploadLimit = $this->container->platform->getSessionVar('transfer.uploadLimit', 1048576, 'akeeba') - 10240;
+		$maxUploadLimit = $this->container->platform->getSessionVar('transfer.uploadLimit', 5242880, 'akeeba') - 10240;
+
 		/**
 		 * A little explanation for "$maxUploadLimit / 4" below. We are uploading binary data which gets encoded as
 		 * form data. The integer part is a rough estimation of the size discrepancy between raw and encoded data.
 		 */
-		$maxTransferSize = min(floor($maxUploadLimit / 4), $maxTransferSize, $chunkSizeLimit);
+		if ($config['chunkMode'] == 'post')
+		{
+			$maxTransferSize = min(floor($maxUploadLimit / 4), $maxTransferSize, $chunkSizeLimit);
+		}
 
 		// Save the optimal transfer size in the session
 		$this->container->platform->setSessionVar('transfer.fragSize', $maxTransferSize, 'akeeba');
@@ -558,67 +565,34 @@ class Transfer extends Model
 		$this->container->platform->setSessionVar('transfer.doneSize', $doneSize, 'akeeba');
 
 		// Upload the data
-		$url = $this->container->platform->getSessionVar('transfer.url', '', 'akeeba');
-		$directory = $this->container->platform->getSessionVar('transfer.targetPath', '', 'akeeba');
+		$this->container->platform->setSessionVar('transfer.frag', $frag, 'akeeba');
 
-		$url = rtrim($url, '/') . '/kickstart.php';
-		$uri = JUri::getInstance($url);
-		$uri->setVar('task', 'uploadFile');
-		$uri->setVar('file', basename($fileName));
-		$uri->setVar('directory', $directory);
-		$uri->setVar('frag', $frag);
-		$uri->setVar('fragSize', $fragSize);
+		try
+		{
+			switch ($config['chunkMode'])
+			{
+				case 'post':
+					$dataLength = $this->uploadUsingPost($fileName, $data);
+					break;
 
-		$downloader = new Download($this->container);
-		$downloader->setAdapterOptions([
-			CURLOPT_CUSTOMREQUEST => 'POST',
-			CURLOPT_POSTFIELDS => [
-				'data' => $data
-			]
-		]);
-		$dataLength = strlen($data);
-		unset($data);
-		$rawData = $downloader->getFromURL($uri->toString());
+				case 'chunked':
+				default:
+					$dataLength = $this->uploadUsingChunked($fileName, $data, $config);
+					break;
+			}
+		}
+		// A finally{} block is what we really need but it's not supported until PHP 5.5 and I'm stuck supporting 5.4 :(
+		catch (\RuntimeException $e)
+		{
+			// Close the part
+			fclose($fp);
+
+			// Rethrow the exception
+			throw $e;
+		}
 
 		// Close the part
 		fclose($fp);
-
-		// Try to get the raw JSON data
-		$pos = strpos($rawData, '###');
-
-		if ($pos === false)
-		{
-			// Invalid AJAX data, no leading ###
-			throw new RuntimeException(JText::sprintf('COM_AKEEBA_TRANSFER_ERR_CANNOTUPLOADARCHIVE', basename($fileName)));
-		}
-
-		// Remove the leading ###
-		$rawData = substr($rawData, $pos + 3);
-
-		$pos = strpos($rawData, '###');
-
-		if ($pos === false)
-		{
-			// Invalid AJAX data, no trailing ###
-			throw new RuntimeException(JText::sprintf('COM_AKEEBA_TRANSFER_ERR_CANNOTUPLOADARCHIVE', basename($fileName)));
-		}
-
-		// Remove the trailing ###
-		$rawData = substr($rawData, 0, $pos);
-
-		// Get the JSON response
-		$data = @json_decode($rawData, true);
-
-		if (empty($data))
-		{
-			// Invalid AJAX data, can't decode this stuff
-			throw new RuntimeException(JText::sprintf('COM_AKEEBA_TRANSFER_ERR_CANNOTUPLOADARCHIVE', basename($fileName)));
-		}
-
-		if (!$data['status'])
-		{
-			throw new RuntimeException(JText::sprintf('COM_AKEEBA_TRANSFER_ERR_ERRORFROMREMOTE', $data['message']));
-		}
 
 		// Update the session data
 		$this->container->platform->setSessionVar('transfer.fragSize', $fragSize, 'akeeba');
@@ -807,7 +781,11 @@ class Transfer extends Model
 		}
 		catch (Exception $e)
 		{
-			throw new RuntimeException(JText::sprintf('COM_AKEEBA_TRANSFER_ERR_CANNOTUPLOADTESTFILE', basename($sourceFile)));
+			$errorMessage = JText::sprintf('COM_AKEEBA_TRANSFER_ERR_CANNOTUPLOADTESTFILE', basename($sourceFile));
+
+			$errorMessage .= "  &mdash;  [ " . $e->getMessage() . ' ]';
+
+			throw new RuntimeException($errorMessage);
 		}
 
 		// Try to fetch the file over HTTP
@@ -852,6 +830,8 @@ class Transfer extends Model
 			'passive_fix' => $this->container->platform->getSessionVar('transfer.ftpPassiveFix', 1, 'akeeba'),
 			'privateKey'  => $this->container->platform->getSessionVar('transfer.ftpPrivateKey', '', 'akeeba'),
 			'publicKey'   => $this->container->platform->getSessionVar('transfer.ftpPubKey', '', 'akeeba'),
+			'chunkMode'   => $this->container->platform->getSessionVar('transfer.chunkMode', 'chunked', 'akeeba'),
+			'chunkSize'   => $this->container->platform->getSessionVar('transfer.uploadLimit', '5242880', 'akeeba'),
 		);
 	}
 
@@ -1092,5 +1072,206 @@ class Transfer extends Model
 		}
 
 		return (int) $val;
+	}
+
+	/**
+	 * Uploads a chunk of a backup part file using a direct POST to Kickstart.
+	 *
+	 * This is the method supported by the Site Transfer Wizard since its inception. However, it may not work with hosts
+	 * which have a sensitive server protection, e.g. the very tight mod_security2 rules on SiteGround servers. In those
+	 * cases the remote server will respond with a 500 Internal Server Error, a 403 Forbidden or another server error.
+	 *
+	 * @param   string   $fileName     The filename to upload
+	 * @param   string   $data         The data to upload
+	 *
+	 * @return  int      The length of the data we managed to upload
+	 *
+	 * @since   3.1.0
+	 */
+	private function uploadUsingPost($fileName, $data)
+	{
+		$frag      = $this->container->platform->getSessionVar('transfer.frag', -1, 'akeeba');
+		$fragSize  = $this->container->platform->getSessionVar('transfer.fragSize', 5242880, 'akeeba');
+		$url       = $this->container->platform->getSessionVar('transfer.url', '', 'akeeba');
+		$directory = $this->container->platform->getSessionVar('transfer.targetPath', '', 'akeeba');
+
+		$url = rtrim($url, '/') . '/kickstart.php';
+		$uri = JUri::getInstance($url);
+		$uri->setVar('task', 'uploadFile');
+		$uri->setVar('file', basename($fileName));
+		$uri->setVar('directory', $directory);
+		$uri->setVar('frag', $frag);
+		$uri->setVar('fragSize', $fragSize);
+
+		$downloader = new Download($this->container);
+		$downloader->setAdapterOptions([
+			CURLOPT_CUSTOMREQUEST => 'POST',
+			CURLOPT_POSTFIELDS    => [
+				'data' => $data
+			]
+		]);
+		$dataLength = strlen($data);
+		unset($data);
+		$rawData = $downloader->getFromURL($uri->toString());
+
+		// Try to get the raw JSON data
+		$pos = strpos($rawData, '###');
+
+		if ($pos === false)
+		{
+			// Invalid AJAX data, no leading ###
+			throw new RuntimeException(JText::sprintf('COM_AKEEBA_TRANSFER_ERR_CANNOTUPLOADARCHIVE', basename($fileName)));
+		}
+
+		// Remove the leading ###
+		$rawData = substr($rawData, $pos + 3);
+
+		$pos = strpos($rawData, '###');
+
+		if ($pos === false)
+		{
+			// Invalid AJAX data, no trailing ###
+			throw new RuntimeException(JText::sprintf('COM_AKEEBA_TRANSFER_ERR_CANNOTUPLOADARCHIVE', basename($fileName)));
+		}
+
+		// Remove the trailing ###
+		$rawData = substr($rawData, 0, $pos);
+
+		// Get the JSON response
+		$data = @json_decode($rawData, true);
+
+		if (empty($data))
+		{
+			// Invalid AJAX data, can't decode this stuff
+			throw new RuntimeException(JText::sprintf('COM_AKEEBA_TRANSFER_ERR_CANNOTUPLOADARCHIVE', basename($fileName)));
+		}
+
+		if (!$data['status'])
+		{
+			throw new RuntimeException(JText::sprintf('COM_AKEEBA_TRANSFER_ERR_ERRORFROMREMOTE', $data['message']));
+		}
+
+		return $dataLength;
+	}
+
+	/**
+	 * Uploads a chunk of a backup part file via FTP and then uses Kickstart to piece the file together.
+	 *
+	 * This is a new upload method which works better on servers with tighter security. The only downside is that we
+	 * have to open many FTP/SFTP upload sessions which may result in the remote server eventually blocking our uploads.
+	 *
+	 * @param   string   $fileName     The filename to upload
+	 * @param   string   $data         The data to upload
+	 * @param   array    $config       The FTP/SFTP configuration
+	 *
+	 * @return  int      The length of the data we managed to upload
+	 *
+	 * @since   3.1.0
+	 */
+	private function uploadUsingChunked($fileName, $data, $config)
+	{
+		// ==== Initialize
+		$frag      = $this->container->platform->getSessionVar('transfer.frag', -1, 'akeeba');
+		$fragSize  = $this->container->platform->getSessionVar('transfer.fragSize', 5242880, 'akeeba');
+		$url       = $this->container->platform->getSessionVar('transfer.url', '', 'akeeba');
+		$directory = $this->container->platform->getSessionVar('transfer.targetPath', '', 'akeeba');
+
+		// ==== Upload the data to the same folder as Kickstart, under a temporary name
+		// Even though the connector has the write() method, it's not very good for over 1M files. So we create a temp file instead.
+		$engineConfig = Factory::getConfiguration();
+		$localTempFile = tempnam($this->container->platform->getConfig()->get('tmp_path', sys_get_temp_dir()), 'stw');
+		$localTempFile = ($localTempFile === false) ? tempnam(sys_get_temp_dir(), 'stw') : $localTempFile;
+		$localTempFile = ($localTempFile === false) ? tempnam($engineConfig->get('akeeba.basic.output_directory', '[DEFAULT_OUTPUT]'), 'stw') : $localTempFile;
+
+		if ($localTempFile === false)
+		{
+			throw new \RuntimeException(JText::_('COM_AKEEBA_TRANSFER_ERR_CANTCREATETEMPCHUNK'));
+		}
+
+		if (!file_put_contents($localTempFile, $data))
+		{
+			if (!JFile::write($localTempFile, $data))
+			{
+				throw new \RuntimeException(JText::_('COM_AKEEBA_TRANSFER_ERR_CANTCREATETEMPCHUNK'));
+			}
+		}
+
+		$random    = new RandomValue();
+		$tempFile  = strtolower($random->generateString(8)) . '.dat';
+		$connector = $this->getConnector($config);
+
+		try
+		{
+			$connector->upload($localTempFile, $tempFile, true);
+		}
+		catch (\RuntimeException $e)
+		{
+			$this->container->fileSystem->delete($localTempFile);
+
+			throw $e;
+		}
+
+		// ==== Call Kickstart to piece together the file
+		$url = rtrim($url, '/') . '/kickstart.php';
+		$uri = JUri::getInstance($url);
+		$uri->setVar('task', 'uploadFile');
+		$uri->setVar('file', basename($fileName));
+		$uri->setVar('directory', $directory);
+		$uri->setVar('frag', $frag);
+		$uri->setVar('fragSize', $fragSize);
+		$uri->setVar('dataFile', $tempFile);
+
+		$downloader = new Download($this->container);
+		$dataLength = strlen($data);
+		unset($data);
+		$rawData = $downloader->getFromURL($uri->toString());
+
+		// ==== Delete the temporary files
+		if (!@unlink($localTempFile))
+		{
+			JFile::delete($localTempFile);
+		}
+		$connector->delete($tempFile);
+
+		// ==== Parse Kickstart's response
+
+		// Try to get the raw JSON data
+		$pos = strpos($rawData, '###');
+
+		if ($pos === false)
+		{
+			// Invalid AJAX data, no leading ###
+			throw new \RuntimeException(JText::sprintf('COM_AKEEBA_TRANSFER_ERR_CANNOTUPLOADARCHIVE', basename($fileName)));
+		}
+
+		// Remove the leading ###
+		$rawData = substr($rawData, $pos + 3);
+
+		$pos = strpos($rawData, '###');
+
+		if ($pos === false)
+		{
+			// Invalid AJAX data, no trailing ###
+			throw new \RuntimeException(JText::sprintf('COM_AKEEBA_TRANSFER_ERR_CANNOTUPLOADARCHIVE', basename($fileName)));
+		}
+
+		// Remove the trailing ###
+		$rawData = substr($rawData, 0, $pos);
+
+		// Get the JSON response
+		$data = @json_decode($rawData, true);
+
+		if (empty($data))
+		{
+			// Invalid AJAX data, can't decode this stuff
+			throw new \RuntimeException(JText::sprintf('COM_AKEEBA_TRANSFER_ERR_CANNOTUPLOADARCHIVE', basename($fileName)));
+		}
+
+		if (!$data['status'])
+		{
+			throw new \RuntimeException(JText::sprintf('COM_AKEEBA_TRANSFER_ERR_ERRORFROMREMOTE', $data['message']));
+		}
+
+		return $dataLength;
 	}
 }

@@ -81,6 +81,48 @@ class DiscussComment extends EasyDiscussTable
 	}
 
 	/**
+	 * Determines if a comment can be deleted
+	 *
+	 * @since	4.2.0
+	 * @access	public
+	 */
+	public function canDeleteComment($pk = null, $joins = null)
+	{
+		$aclHelper = ED::acl();
+
+		// If the user is site admin or able to delete all comments
+		if (ED::isSiteAdmin() || $aclHelper->allowed('delete_comment')) {
+			return true;
+		}
+
+		// If the user is the comment's owner and has permission to delete own comment
+		if ($aclHelper->isOwner($this->user_id) && $aclHelper->allowed('delete_own_comment')) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Generates the permalink for the comment
+	 *
+	 * @since	4.2.0
+	 * @access	public
+	 */
+	public function getPermalink($external = false, $xhtml = true, $anchor = true)
+	{
+		$post = ED::post($this->post_id);
+
+		$permalink = $post->getPermalink($external, $xhtml, false, false, false);
+
+		if ($anchor) {
+			$permalink .= '#comments-' . $this->id;
+		}
+
+		return $permalink;
+	}
+
+	/**
 	 * Generates an array of data for REST api
 	 *
 	 * @since	4.0
@@ -100,23 +142,6 @@ class DiscussComment extends EasyDiscussTable
 		$data->user_id = $this->user_id;
 
 		return $data;
-	}
-
-	public function canDeleteComment($pk = null, $joins = null)
-	{
-		$aclHelper = ED::acl();
-
-		// If the user is site admin or able to delete all comments
-		if (ED::isSiteAdmin() || $aclHelper->allowed('delete_comment')) {
-			return true;
-		}
-
-		// If the user is the comment's owner and has permission to delete own comment
-		if ($aclHelper->isOwner($this->user_id) && $aclHelper->allowed('delete_own_comment')) {
-			return true;
-		}
-
-		return false;
 	}
 
 	/**
@@ -171,7 +196,7 @@ class DiscussComment extends EasyDiscussTable
 						'type' => DISCUSS_NOTIFICATIONS_COMMENT,
 						'target' => $post->user_id,
 						'author' => $my->id,
-						'permalink'	=> 'index.php?option=com_easydiscuss&view=post&id=' . $question->id
+						'permalink'	=> $this->getPermalink()
 			));
 
 			$notification->store();
@@ -197,10 +222,11 @@ class DiscussComment extends EasyDiscussTable
 		$emailData['commentAuthor']	= $profile->getName();
 		$emailData['commentAuthorAvatar'] = $profile->getAvatar();
 		$emailData['postTitle']	= $question->title;
-		$emailData['postLink'] = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $question->id, false, true);
+		$emailData['postLink'] = $this->getPermalink(true);
 
 		// This is used when we need to alter the sender information
 		$emailData['senderObject'] = $profile;
+		$emailData['cat_id'] = $post->category_id;
 
 		// lets determine if we need to include the unsubcribe link here or not.
 		$addUnsubscribeLink = false;
@@ -263,8 +289,11 @@ class DiscussComment extends EasyDiscussTable
 			}
 		}
 
+		// notify to site admin and moderator based on the notification setting
+		$administratorEmails = ED::mailer()->notifyAdministrators($emailData, array(), $config->get('notify_admin'), $config->get('notify_moderator'), true);
+
 		// if the subscription part enable include comment setting
-		if ($config->get('main_subscription_include_comments')) {
+		if ($config->get('main_subscription_include_comments') && !$question->private) {
 
 			// Now we also need to get the site and category subscribers emails if they chose to include comments notification
 			if ($config->get('main_sitesubscription')) {
@@ -285,6 +314,7 @@ class DiscussComment extends EasyDiscussTable
 		}
 
 		// Ensure the emails are all unique.
+		$emails = array_merge($emails, $administratorEmails);
 		$emails = array_unique($emails);
 
 		$subTitle = $question->title;
@@ -322,6 +352,5 @@ class DiscussComment extends EasyDiscussTable
 
 			$this->comment = $this->content;
 		}
-
 	}
 }

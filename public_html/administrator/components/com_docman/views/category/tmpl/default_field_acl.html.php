@@ -7,10 +7,11 @@
  */
 defined('KOOWA') or die; ?>
 
+
 <? // Status field ?>
 <? if ($category->isPermissible() && $category->canPerform('admin')): ?>
 <div class="mfp-hide" id="advanced-permissions">
-    <button title="Close (Esc)" type="button" class="mfp-close">×</button>
+    <button title="<?= translate('Close (Esc)'); ?>" type="button" class="mfp-close">×</button>
     <div class="k-inline-modal">
         <?= helper('access.rules', array(
             'section' => 'category',

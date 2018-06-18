@@ -21,13 +21,15 @@ class ComDocmanTemplateHelperGrid extends ComKoowaTemplateHelperGrid
             'entity'  		=> null,
             'field'		=> 'enabled',
             'clickable'  => true
-        ))->append(array(
-            'data'		=> array($config->field => $config->entity->{$config->field})
         ));
 
         if (!($config->entity instanceof ComDocmanModelEntityDocument)) {
             return parent::publish($config);
         }
+
+        $config->append(array(
+            'data'		=> array($config->field => $config->entity->{$config->field})
+        ));
 
         $entity     = $config->entity;
         $translator = $this->getObject('translator');
@@ -69,7 +71,7 @@ class ComDocmanTemplateHelperGrid extends ComKoowaTemplateHelperGrid
         $config->data->{$config->field} = $access;
         $data = str_replace('"', '&quot;', $config->data);
 
-        $html = '<span class="k-table__item--state '.$class.'" data-k-tooltip=\'{"container":".k-ui-container","delay":{"show":500,"hide":50}}\' data-action="edit" data-data="'.$data.'" data-original-title="'.$tip.'">'.$group.'</span>';
+        $html = '<span style="cursor: pointer" class="k-table__item--state '.$class.'" data-k-tooltip=\'{"container":".k-ui-container","delay":{"show":500,"hide":50}}\' data-action="edit" data-data="'.$data.'" data-original-title="'.$tip.'">'.$group.'</span>';
         
         return $html;
     }

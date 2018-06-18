@@ -1,7 +1,7 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,27 +9,18 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 ?>
-
 <div class="row">
 	<div class="col-md-6">
 		<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_SOCIAL_LINKEDIN_TITLE'); ?>
+
 			<div class="panel-body">
 				<div class="form-horizontal">
-					<div class="form-group">
-						<div class="col-md-6 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_LINKEDIN_ENABLE_BUTTON'); ?>
-						</div>
-						<div class="col-md-6">
-							<?php echo $this->html('form.boolean', 'integration_linkedin', $this->config->get('integration_linkedin')); ?>
-						</div>
-					</div>
+					<?php echo $this->html('settings.toggle', 'integration_linkedin', 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_LINKEDIN_ENABLE_BUTTON'); ?>
 				</div>
 			</div>
-
 		</div>
-
 	</div>
 </div>

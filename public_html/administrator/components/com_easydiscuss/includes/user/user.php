@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,33 +9,10 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
-/**
- * This class act like a layer to allow caller to call multiple users object.
- * the class actually return DiscussTableProfile object.
- * Brief example of use:
- *
- * <code>
- *
- * // Shorthand loading of current user.
- * $user 	= ED::user();
- *
- * // Loading of a user based on the id.
- * $user	= ED::user(42);
- *
- * // Loading of multiple users based on an array of id's.
- * $users	= ED::user(array(42, 43, 44, 45));
- *
- * </code>
- *
- * @since	5.0
- * @access	public
- * @author	Sam <sam@stackideas.com>
- */
 class EasyDiscussUser
 {
-
 	/**
 	 * Stores the user type.
 	 * @var	string
@@ -54,16 +31,8 @@ class EasyDiscussUser
 	 * Helper object for various cms versions.
 	 * @var	object
 	 */
-	protected $helper 		= null;
+	protected $helper = null;
 
-
-	/**
-	 * Class Constructor
-	 *
-	 * @since	1.0
-	 * @access	public
-	 * @author	Mark Lee <mark@stackideas.com>
-	 */
 	public function __construct( $id = null , $debug = false )
 	{
 		$item	= self::loadUsers($id, $debug);
@@ -77,8 +46,6 @@ class EasyDiscussUser
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param   $id     int/Array     Optional parameter
-	 * @return  SocialUser   The person object.
 	 */
 	public static function factory($ids = null, $debug = false)
 	{
@@ -90,10 +57,8 @@ class EasyDiscussUser
 	/**
 	 * Initializes the guest user object
 	 *
-	 * @since	5.0
+	 * @since	4.2.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function createGuestObject()
 	{
@@ -107,13 +72,10 @@ class EasyDiscussUser
 	}
 
 	/**
+	 * Preload a list of users for caching purposes.
 	 *
-	 * @since	1.0
+	 * @since	4.2.0
 	 * @access	public
-	 * @param	int|Array	Either an int or an array of id's in integer.
-	 * @return	SocialUser	The user object.
-	 *
-	 * @author	Mark Lee <mark@stackideas.com>
 	 */
 	public static function loadUsers( $ids = null , $debug = false )
 	{
@@ -283,13 +245,9 @@ class EasyDiscussUser
 
 		return $result;
 	}
-
 }
 
-/**
- * This class would be used to store all user objects
- *
- */
+
 class EasyDiscussUserStorage
 {
 	static $users 	= array();

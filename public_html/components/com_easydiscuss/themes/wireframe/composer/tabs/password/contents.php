@@ -16,5 +16,5 @@ defined('_JEXEC') or die('Restricted access');
 		<?php echo JText::_('COM_EASYDISCUSS_PASSWORD_TIPS'); ?>
 	</div>
 
-	<input type="text" name="password" value="<?php echo $post->password;?>" class="form-control" />
+	<input type="text" name="password" autocomplete="off" value="<?php echo $post->password;?>" class="form-control" />
 </div>

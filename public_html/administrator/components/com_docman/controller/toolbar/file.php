@@ -19,7 +19,7 @@ class ComDocmanControllerToolbarFile extends ComDocmanControllerToolbarActionbar
                 'label' => 'New Folder',
                 'allowed' => $controller->canAdd(),
                 'icon' => 'k-icon-plus',
-                'attribs' => array('class' => array('js-open-folder-modal'))
+                'attribs' => array('class' => array('js-open-folder-modal k-button--success'))
             ));
 
             $this->addCopy(array('allowed' => $controller->canMove()));

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -18,27 +18,20 @@ class EasyDiscussControllerInstallExtract extends EasyDiscussSetupController
 	/**
 	 * For users who uploaded the installer and needs a manual extraction
 	 *
-	 * @since	5.0
+	 * @since	4.2.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function execute()
 	{
 		// Check the api key from the request
 		$key = $this->input->get('apikey', '');
 
-		// Get the package
-		$package = $this->input->get('package', '');
-
-		// If on developer mode, we skip the extraction
 		if ($this->isDevelopment()) {
 			return $this->output($this->getResultObj('COM_EASYDISCUSS_INSTALLATION_DEVELOPER_MODE', true));
 		}
 
 		// Construct storage path
-		$storage = ED_PACKAGES . '/' . $package;
-
+		$storage = ED_PACKAGES . '/' . ED_PACKAGE;
 		$exists = JFile::exists($storage);
 
 		// Test if package really exists
@@ -61,7 +54,7 @@ class EasyDiscussControllerInstallExtract extends EasyDiscussSetupController
 		}
 
 		// Try to extract the files
-		$state = JArchive::extract($storage, $tmp);
+		$state = $this->extractArchive($storage, $tmp);
 
 		// Regardless of the extraction state, delete the zip file.
 		@JFile::delete($storage);

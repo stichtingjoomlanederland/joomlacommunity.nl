@@ -1,55 +1,26 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
 defined('_JEXEC') or die('Restricted access');
 
 require_once dirname( __FILE__ ) . '/model.php';
 
 class EasyDiscussModelBadges extends EasyDiscussAdminModel
 {
-	/**
-	 * Blogs data array
-	 *
-	 * @var array
-	 */
 	public $_data = null;
-
-	/**
-	 * Pagination object
-	 *
-	 * @var object
-	 */
 	public $_pagination = null;
-
-	/**
-	 * Configuration data
-	 *
-	 * @var int	Total number of rows
-	 **/
 	public $_total;
-
-	/**
-	 * Parent ID
-	 *
-	 * @var integer
-	 */
 	public $_parent	= null;
-	public $_isaccept	= null;
+	public $_isaccept = null;
 
-	/**
-	 * Constructor
-	 *
-	 * @since 1.5
-	 */
 	public function __construct()
 	{
 		parent::__construct();
@@ -86,6 +57,36 @@ class EasyDiscussModelBadges extends EasyDiscussAdminModel
 		}
 
 		return true;
+	}
+
+	/**
+	 * Determine whether this user have any badges or not
+	 *
+	 * @since	4.1.2
+	 * @access	public
+	 */
+	public function hasUserBadges($userId)
+	{
+		if (!$userId) {
+			return false;
+		}
+
+		$db = $this->db;
+		$query = array();
+
+		$query[] = 'SELECT a.*, b.`custom` FROM ' . $db->nameQuote('#__discuss_badges') . ' AS a';
+		$query[] = 'INNER JOIN ' . $db->nameQuote('#__discuss_badges_users') . ' AS b';
+		$query[] = 'ON b.`badge_id` = a.`id`';
+		$query[] = 'AND b.`published` = ' . $db->Quote('1');
+		$query[] = 'AND b.`user_id` = ' . $db->Quote($userId);
+		$query[] = 'WHERE a.`published` = ' . $db->Quote('1');
+
+		$query = implode(' ', $query);
+
+		$db->setQuery($query);
+		$result = $db->loadObjectList();
+
+		return $result ? true : false;
 	}
 
 	/**

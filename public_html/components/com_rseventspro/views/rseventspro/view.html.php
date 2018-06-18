@@ -548,10 +548,14 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 			$payments = rseventsproHelper::getPayments(false,$this->event->payments);
 			if (!empty($payments)) {
-				if (rseventsproHelper::getConfig('payment_type','int'))
-					$lists['payments']      = JHTML::_('select.genericlist', $payments, 'payment', 'class="input-large" onchange="'.$this->updatefunction.'"', 'value' ,'text',rseventsproHelper::getConfig('default_payment'));
-				else
-					$lists['payments']      = JHTML::_('select.radiolist', $payments, 'payment', 'class="inputbox" onchange="'.$this->updatefunction.'"', 'value' ,'text',rseventsproHelper::getConfig('default_payment'));
+				$default = rseventsproHelper::getConfig('default_payment');
+				
+				if (rseventsproHelper::getConfig('payment_type','int')) {
+					$lists['payments']      = JHTML::_('select.genericlist', $payments, 'payment', 'class="input-large" onchange="'.$this->updatefunction.'"', 'value' ,'text',$default);
+				} else {
+					$default				= $default == 'none' ? @$payments[0]->value : $default;
+					$lists['payments']      = JHTML::_('select.radiolist', $payments, 'payment', 'class="inputbox" onchange="'.$this->updatefunction.'"', 'value' ,'text',$default);
+				}
 			}
 			
 			$this->user			= $user;
@@ -594,14 +598,13 @@ class RseventsproViewRseventspro extends JViewLegacy
 			$pathway->addItem(JText::_('COM_RSEVENTSPRO_BC_WIRE'));
 			
 		} elseif ($layout == 'subscriptions') {
+			$this->showform = $this->get('ShowForm');
+			$this->code		= $app->input->getString('code') ? '&code='.$app->input->getString('code') : '';
+			$this->return	= base64_encode(JUri::getInstance());
 			
-			if ($user->get('guest')) {
-				$app->enqueueMessage(JText::_('COM_RSEVENTSPRO_PLEASE_LOGIN_TO_VIEW_SUBSCRIPTIONS'));
-				$app->redirect(JRoute::_('index.php?option=com_users&view=login&return='.base64_encode(JURI::getInstance()),false));
-			} else {
+			if (!$this->showform) {
 				$this->subscriptions = $this->get('subscriptions');
 			}
-			
 		} elseif ($layout == 'subscribers') {
 			
 			$this->row = $this->get('event');
@@ -628,15 +631,22 @@ class RseventsproViewRseventspro extends JViewLegacy
 			}
 		
 		} elseif ($layout == 'editsubscriber') {
+			$this->data  = $this->get('subscriber');
+			$this->email = $this->get('EmailFromCode');
+			$this->code	 = $app->input->getString('code') ? '&code='.$app->input->getString('code') : '';
+			$this->rlink = $app->input->getString('return') ? base64_decode($app->input->getString('return')) : false;
 			
-			$this->data = $this->get('subscriber');
-			if ($this->admin || $this->data['event']->owner == $user->get('id')) {
+			$userid		 = $user->get('id');
+			
+			if ($this->admin || $this->data['event']->owner == $user->get('id') || ($userid > 0 && $this->data['data']->idu == $userid) || $this->data['data']->email == $this->email) {
 				$lists['status'] = JHTML::_('select.genericlist', $this->get('statuses'), 'jform[state]', 'size="1" class="input-small"','value','text', $this->data['data']->state);
 				$lists['confirmed'] = JHTML::_('select.genericlist', $this->get('YesNo'), 'jform[confirmed]', 'size="1" class="input-small"','value','text', $this->data['data']->confirmed);
 				
 				$this->fields	= $this->get('fields');
 				$tparams = $this->data['data']->gateway == 'offline' ? $this->get('card') : $this->data['data']->params;
 				$this->tparams = $tparams;
+				
+				$this->user = ($this->data['data']->idu == $user->get('id') || $this->data['data']->email == $this->email) && $this->data['event']->owner != $user->get('id');
 				
 				//set the pathway
 				$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';

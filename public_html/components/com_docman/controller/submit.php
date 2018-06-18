@@ -219,7 +219,7 @@ class ComDocmanControllerSubmit extends ComKoowaControllerModel
      */
     protected function _getUniqueName($container, $folder, $file)
     {
-        $adapter   = $container->getAdapter('file');
+        $adapter   = $this->getObject('com:files.adapter.file');
         $folder    = $container->fullpath.(!empty($folder) ? '/'.$folder : '');
         $fileinfo  = pathinfo(' '.strtr($file, array('/' => '/ ')));
         $filename  = ltrim($fileinfo['filename']);

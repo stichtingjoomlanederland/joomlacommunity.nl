@@ -429,7 +429,7 @@ class ComDocmanTemplateHelperListbox extends ComKoowaTemplateHelperListbox
             'attribs'	    => array(),
             'model'		    => KStringInflector::pluralize($this->getIdentifier()->package),
             'deselect'      => true,
-            'prompt'        => '- Select -',
+            'prompt'        => '- '.$this->getObject('translator')->translate('Select').' -',
             'unique'	    => false, // Overridden since there can be categories in different levels with the same name
             'check_access'  => false
         ))->append(array(

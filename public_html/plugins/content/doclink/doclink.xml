@@ -2,9 +2,9 @@
 <extension type="plugin" version="2.5" group="content" method="upgrade">
 	<identifier>plg:content.doclink</identifier>
 	<name>plg_content_doclink</name>
-	<version>3.2.0</version>
+	<version>3.2.4</version>
     <author>Joomlatools</author>
-    <creationDate>January 2016</creationDate>
+    <creationDate>June 2018</creationDate>
     <copyright>Copyright (C) 2011 Timble CVBA (http://www.timble.net)</copyright>
     <license>GNU GPLv3 - http://www.gnu.org/licenses/gpl.html</license>
     <authorEmail>support@joomlatools.com</authorEmail>
@@ -23,6 +23,10 @@
                     <option value="0">JNO</option>
                 </field>
                 <field name="show_size" type="radio" class="btn-group" default="1" label="SHOW_SIZE_DESCRIPTION">
+                    <option value="1">JYES</option>
+                    <option value="0">JNO</option>
+                </field>
+                <field name="show_player" type="radio" class="btn-group" default="1" label="SHOW_PLAYER_DESCRIPTION">
                     <option value="1">JYES</option>
                     <option value="0">JNO</option>
                 </field>

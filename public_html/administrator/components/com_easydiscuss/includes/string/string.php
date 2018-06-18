@@ -292,8 +292,7 @@ class EasyDiscussString extends EasyDiscuss
 
 		preg_match_all($pattern, $text, $matches);
 
-		$targetBlank = $config->get('main_link_new_window') ? ' target="_blank"' : '';
-		$noFollow = $config->get('main_link_rel_nofollow') ? ' rel="nofollow"' : '';
+		$linkAttr = ED::getLinkAttributes();
 
 		// Do not proceed if there are no links to process
 		if (!isset($matches[0]) || !is_array($matches[0]) || empty($matches[0])) {
@@ -388,7 +387,7 @@ class EasyDiscussString extends EasyDiscuss
 			$text = JString::str_ireplace('&amp;', '&', $text);
 
 			// Use preg_replace to only replace if the URL doesn't has <a> tag
-			$text = preg_replace($patternReplace, '<a href="\0" ' . $targetBlank . $noFollow . '>\0</a>', $text);
+			$text = preg_replace($patternReplace, '<a href="\0" ' . $linkAttr . '>\0</a>', $text);
 		}
 
 		return $text;

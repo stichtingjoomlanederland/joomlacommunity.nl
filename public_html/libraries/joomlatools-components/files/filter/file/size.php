@@ -17,20 +17,23 @@ class ComFilesFilterFileSize extends KFilterAbstract
 {
     public function validate($entity)
 	{
-		$max = $entity->getContainer()->getParameters()->maximum_size;
+	    if ($container = $entity->getContainer())
+        {
+            $max = $container->getParameters()->maximum_size;
 
-		if ($max)
-		{
-			$size = $entity->contents ? strlen($entity->contents) : false;
-			if (!$size && is_uploaded_file($entity->file)) {
-				$size = filesize($entity->file);
-			} elseif ($entity->file instanceof SplFileInfo && $entity->file->isFile()) {
-				$size = $entity->file->getSize();
-			}
+            if ($max)
+            {
+                $size = $entity->contents ? strlen($entity->contents) : false;
+                if (!$size && is_uploaded_file($entity->file)) {
+                    $size = filesize($entity->file);
+                } elseif ($entity->file instanceof SplFileInfo && $entity->file->isFile()) {
+                    $size = $entity->file->getSize();
+                }
 
-			if ($size && $size > $max) {
-                return $this->_error($this->getObject('translator')->translate('File is too big'));
-			}
-		}
+                if ($size && $size > $max) {
+                    return $this->_error($this->getObject('translator')->translate('File is too big'));
+                }
+            }
+        }
 	}
 }

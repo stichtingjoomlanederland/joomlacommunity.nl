@@ -4,7 +4,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		limit: 0,
 		editable: false,
 		types: {
-			'image': ["jpg","png","gif", "jpeg"],
+			'image': ["jpg","png","gif","jpeg"],
 			'archive': ["zip","rar","gz","gzip"],
 			'pdf': ["pdf"]
 		}
@@ -52,23 +52,38 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 	 
 	});
 
+	var existInArray = function(val, arr) {
+		var exist = false;
+
+		if (arr.length){
+			for (var i=0; arr.length > i; i++ ) {
+				if (val.toLowerCase() == arr[i].toLowerCase()) {
+					exist = true;
+					break;
+				}
+			}
+		}
+
+		return exist;
+	}
+
 	var getAttachmentType = function(filename) {
 
 		var extension = filename.substr((filename.lastIndexOf('.') + 1));
 		var type = 'default';
 
 		// Image type
-		if ($.inArray(extension, options.types.image) != -1) {
+		if (existInArray(extension, options.types.image)) {
 			type = 'image';
 		}
 
 		// Archive type
-		if ($.inArray(extension, options.types.archive) != -1) {
+		if (existInArray(extension, options.types.archive)) {
 			type = 'archive';
 		}
 
 		// Archive type
-		if ($.inArray(extension, options.types.pdf) != -1) {
+		if (existInArray(extension, options.types.pdf)) {
 			type = 'pdf';
 		}
 

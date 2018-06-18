@@ -21,6 +21,7 @@ $(function() {
                 hasDocumentContents: false,
                 hasPendingScan: false,
                 isConnectEnabled: false,
+                isAdmin: false,
                 scannableExtensions: []
             }
         },

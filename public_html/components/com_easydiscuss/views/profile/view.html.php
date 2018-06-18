@@ -341,4 +341,40 @@ class EasyDiscussViewProfile extends EasyDiscussView
 
 		return $text;
 	}
+
+	/**
+	 * GDPR download
+	 *
+	 * @since	4.1.0
+	 * @access	public
+	 */
+	public function download()
+	{
+		// Unauthorized users should not be allowed to access this page.
+		ED::requireLogin();
+
+		if (!$this->config->get('main_userdownload')) {
+			$this->setMessage('COM_ES_RESTRICTED_AREA_DESC', 'error');
+			$this->info->set($this->getMessage());
+			$redirect = EDR::_('view=profile&layout=edit', false);
+			return $this->redirect($redirect);
+		}
+
+		// Set page properties
+		ED::setPageTitle('COM_ED_PAGE_TITLE_GDPR_DOWNLOAD');
+
+		if (! EDR::isCurrentActiveMenu('profile', 0, 'id', 'edit')) {
+			$this->setPathway(JText::_('COM_EASYDISCUSS_PROFILE'), EDR::_('index.php?option=com_easydiscuss&view=profile&id=' . $this->my->id));
+		}
+
+		$this->setPathway(JText::_('COM_ED_PAGE_TITLE_GDPR_DOWNLOAD'));
+
+		// Check if this user has any download request or not
+		$download = ED::table('Download');
+		$download->load(array('userid' => $this->my->id));
+
+		$this->set('download', $download);
+
+		return parent::display('user/download/default');
+	}
 }

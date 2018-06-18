@@ -146,6 +146,29 @@ class EasyDiscussConversation extends EasyDiscuss
 	}
 
 	/**
+	 * Method to retrieve messages that are created by this user only
+	 *
+	 * @since	4.1.0
+	 * @access	public
+	 */
+	public function getUserMessagesOnly($userId = false)
+	{
+		if (!$userId) {
+			$userId = $this->table->created_by;
+		}
+
+		$model = ED::model('conversation');
+		$results = $model->getMessages($this->table->id, $userId, true, false, true);
+		$messages = array();
+
+		foreach ($results as $row) {
+			$messages[] = $this->getMessage($row);
+		}
+
+		return $messages;
+	}
+
+	/**
 	 * Retrieves the last replier of the message
 	 *
 	 * @since	4.0

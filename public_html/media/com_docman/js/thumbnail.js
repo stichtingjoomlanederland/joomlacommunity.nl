@@ -22,6 +22,7 @@
                 download_in_progress: false,
                 download_in_progress_error: false,
                 hasConnectSupport: false,
+                isAdmin: false,
                 connect_token: null,
                 csrf_token: null,
                 image_container: null,

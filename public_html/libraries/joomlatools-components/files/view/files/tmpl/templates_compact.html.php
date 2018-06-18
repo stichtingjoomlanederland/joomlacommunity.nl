@@ -8,6 +8,7 @@
  */
 defined('KOOWA') or die( 'Restricted access' ); ?>
 
+
 <textarea style="display: none" id="compact_details_image">
 [%
 var width = 0, height = 0;
@@ -75,7 +76,7 @@ if (metadata.image) {
 
 <textarea style="display: none"  id="compact_folder">
     <tr class="files-node files-folder">
-        <td>
+        <td class="k-table-data--ellipsis">
             <span>
                 <a class="navigate k-link-coverall" href="#" title="[%= name %]">
                     [%= name %]
@@ -87,7 +88,7 @@ if (metadata.image) {
 
 <textarea style="display: none"  id="compact_image">
     <tr class="files-node files-image">
-        <td>
+        <td class="k-table-data--ellipsis">
             <span>
                 <a class="navigate k-link-coverall" href="#" title="[%= name %]">
                     [%= name %]
@@ -100,7 +101,7 @@ if (metadata.image) {
 
 <textarea style="display: none"  id="compact_file">
     <tr class="files-node files-file">
-        <td>
+        <td class="k-table-data--ellipsis">
             <span >
                 <a class="navigate k-link-coverall" href="#" title="[%= name %]">
                     [%= name %]

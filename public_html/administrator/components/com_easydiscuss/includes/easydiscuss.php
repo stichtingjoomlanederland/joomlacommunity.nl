@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -78,8 +78,6 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function getCdnUrl()
 	{
@@ -575,10 +573,8 @@ class ED
 	/**
 	 * Retrieves the current version of EasyDiscuss
 	 *
-	 * @since	4.0
+	 * @since	4.2.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function getLocalVersion()
 	{
@@ -601,8 +597,6 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function getVersion()
 	{
@@ -641,8 +635,6 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function getDefaultConfigValue($key, $defaultVal = null)
 	{
@@ -664,8 +656,6 @@ class ED
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	null
-	 * @return	JRegistry
 	 */
 	public static function config()
 	{
@@ -694,6 +684,48 @@ class ED
 		}
 
 		return $config;
+	}
+
+	/**
+	 * If the current user is a super admin, allow them to change the environment via the query string
+	 *
+	 * @since	4.2.0
+	 * @access	public
+	 */
+	public static function checkEnvironment()
+	{
+		if (!ED::isSiteAdmin()) {
+			return;
+		}
+
+		$app = JFactory::getApplication();
+		$environment = $app->input->get('ed_env', '', 'word');
+		$allowed = array('production', 'development');
+
+		// Nothing has changed
+		if (!$environment || !in_array($environment, $allowed)) {
+			return;
+		}
+
+		$file = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/defaults/configuration.ini';
+		$contents = JFile::read($file);
+		$contents = preg_replace('/system_environment=(.*)/', 'system_environment=' . $environment, $contents);
+
+		JFile::write($file, $contents);
+
+		// We also need to update the database value
+		$config = ED::table('Configs');
+		$config->load(array('name' => 'config'));
+
+		$params = new JRegistry($config->params);
+		$params->set('system_environment', $environment);
+
+		$config->params = $params->toString();
+		$config->store();
+
+		ED::setMessageQueue('Updated system environment to <b>' . $environment . '</b> mode', 'success');
+
+		return $app->redirect('index.php?option=com_easydiscuss');
 	}
 
 	public static function getPostAccess( DiscussPost $post , DiscussCategory $category )
@@ -1587,6 +1619,9 @@ class ED
 				unset($comment->content);
 
 				$comment->comment = ED::badwords()->filter($comment->comment);
+
+				// Remove unnecessary <br> tag
+				$comment->comment = str_replace("<br>", "", $comment->comment);
 			}
 
 			$result[] = $comment;
@@ -1727,6 +1762,11 @@ class ED
 		$jVersion	= $jVerArr[0] . '.' . $jVerArr[1];
 
 		return $jVersion;
+	}
+
+	public static function isJoomla40()
+	{
+		return ED::getJoomlaVersion() >= '4.0';
 	}
 
 	public static function isJoomla31()
@@ -2805,8 +2845,6 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string	The model's name.
-	 * @return	mixed
 	 */
 	public static function model($name)
 	{
@@ -2834,6 +2872,21 @@ class ED
 		}
 
 		return $models[$key];
+	}
+
+	/**
+	 * Simple way to minify css codes
+	 *
+	 * @since	4.2.0
+	 * @access	public
+	 */
+	public static function minifyCSS($css)
+	{
+		$css = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!', '', $css);
+		$css = str_replace(': ', ':', $css);
+		$css = str_replace(array("\r\n", "\r", "\n", "\t", '  ', '    ', '    '), '', $css);
+
+		return $css;
 	}
 
 	/**
@@ -3725,6 +3778,27 @@ class ED
 		return $buffer;
 	}
 
+	/**
+	 * Render Joomla editor.
+	 *
+	 * @since   3.1.0
+	 * @access  public
+	 */
+	public static function getEditor($editorType)
+	{
+		if (self::isJoomla40()) {
+			$editor = Joomla\CMS\Editor\Editor::getInstance($editorType);
+		} else {
+			$editor = JFactory::getEditor($editorType);
+
+			if ($editorType == 'none') {
+				JHtml::_('behavior.core');	
+			}
+		}
+
+		return $editor;
+	}
+
 	public static function getEditorType( $type = '' )
 	{
 		// Cater for #__discuss_posts column content_type
@@ -3810,7 +3884,7 @@ class ED
 		}
 
 		// Apply word censorship on the content
-		$content	= ED::badwords()->filter($content);
+		$content = ED::badwords()->filter($content);
 
 		return $content;
 	}
@@ -4498,6 +4572,143 @@ class ED
 		$template = $assets->getJoomlaTemplate($client);
 
 		return $template;
+	}
+
+	/**
+	 * Detects if the folder exist based on the path given. If it doesn't exist, create it.
+	 *
+	 * @since   4.1
+	 * @access  public
+	 */
+	public static function makeFolder($path, $createIndex = true)
+	{
+		jimport('joomla.filesystem.folder');
+
+		// If folder exists, we don't need to do anything
+		if (JFolder::exists($path)) {
+			return true;
+		}
+
+		// Folder doesn't exist, let's try to create it.
+		$state = JFolder::create($path);
+
+		if ($state && $createIndex) {
+			ED::createIndex($path);
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Generates a blank index.html file into a specific target location.
+	 *
+	 * @since   4.1
+	 * @access  public
+	 */
+	public static function createIndex($targetLocation)
+	{
+		$targetLocation = $targetLocation . '/index.html';
+
+		jimport('joomla.filesystem.file');
+
+		$contents = "<html><body bgcolor=\"#FFFFFF\"></body></html>";
+
+		return JFile::write($targetLocation, $contents);
+	}
+
+	/**
+	 * Normalize directory separator
+	 *
+	 * @since   4.1.0
+	 * @access  public
+	 */
+	public static function normalizeSeparator($path)
+	{
+		$path = str_ireplace(array( '\\' ,'/' ) , '/' , $path);
+		return $path;
+	}
+
+	/**
+	 * Generate link attributes
+	 *
+	 * @since   4.1
+	 * @access  public
+	 */
+	public static function getLinkAttributes()
+	{
+		$config = ED::config();
+
+		$relValue = $config->get('main_link_rel_nofollow') ? array('nofollow') : array();
+		$targetBlank = '';
+
+		if ($config->get('main_link_new_window')) {
+			$relValue[] = 'noreferrer';
+			$targetBlank = ' target="_blank"';
+		}
+
+		$relAttr = !empty($relValue) ? ' rel="' . implode(' ', $relValue) . '"' : '';
+
+		return $targetBlank . $relAttr;
+	}
+
+	/**
+	 * Converts an argument into an array.
+	 *
+	 * @since   4.1
+	 * @access  public
+	 */
+	public static function makeArray($item, $delimeter = null)
+	{
+		// If this is already an array, we don't need to do anything here.
+		if (is_array($item)) {
+			return $item;
+		}
+
+		// Test if source is a SocialRegistry/JRegistry object
+		if ($item instanceof EasyDiscussRegistry || $item instanceof JRegistry) {
+			return $item->toArray();
+		}
+
+		// Test if source is an object.
+		if (is_object($item)) {
+			return JArrayHelper::fromObject($item);
+		}
+
+		if (is_integer($item)) {
+			return array($item);
+		}
+
+		// Test if source is a string.
+		if (is_string($item)) {
+			if ($item == '') {
+				return array();
+			}
+
+			// Test for comma separated values.
+			if (!is_null($delimeter) && stristr($item , $delimeter) !== false) {
+				$data   = explode($delimeter, $item);
+				return $data;
+			}
+
+			// Test for JSON array string
+			$pattern = '#^\s*//.+$#m';
+			$item = trim(preg_replace($pattern, '', $item));
+			if ((substr($item, 0, 1) === '[' && substr($item, -1, 1) === ']')) {
+				return FD::json()->decode($item);
+			}
+
+			// Test for JSON object string, but convert it into array
+			if ((substr($item, 0, 1) === '{' && substr($item, -1, 1) === '}')) {
+				$result = FD::json()->decode($item);
+
+				return JArrayHelper::fromObject($result);
+			}
+
+			return array( $item );
+		}
+
+		return false;
 	}
 }
 

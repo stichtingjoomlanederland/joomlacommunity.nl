@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Welcome</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>13th February 2018</creationDate>
+	<creationDate>12th June 2018</creationDate>
 	<copyright>Copyright 2009 - 2016 StackIdeas. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>4.0.22</version>
+	<version>4.1.2</version>
 	<description><![CDATA[A module that provides users login and will welcome the users if they are already logged in. It also includes the shortcuts to EasyDiscuss links.]]></description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easydiscuss_welcome.ini</language>
@@ -75,8 +75,12 @@
 					<option value="1">JYES</option>
 					<option value="0">JNO</option>					
 				</field>
-				<field name="login" type="menuitem" default="" disable="separator" label="Login Redirection URL" description="MOD_EASYBLOGWELCOME_LOGIN_REDIRECT" state="1" />
-				<field name="logout" type="menuitem" default="" disable="separator" label="Logout Redirection URL" description="MOD_EASYBLOGWELCOME_LOGOUT_REDIRECT" state="1" />
+				<field name="login" type="menuitem" default="none" disable="separator" label="MOD_EASYDISCUSS_WELCOME_LOGIN_REDIRECT" description="MOD_EASYDISCUSS_WELCOME_LOGIN_REDIRECT_DESC" state="1">
+					<option value="0">MOD_EASYDISCUSS_WELCOME_STAY_SAME_PAGE</option>
+				</field>
+				<field name="logout" type="menuitem" default="none" disable="separator" label="MOD_EASYDISCUSS_WELCOME_LOGOUT_REDIRECT" description="MOD_EASYDISCUSS_WELCOME_LOGOUT_REDIRECT_DESC" state="1">
+					<option value="0">MOD_EASYDISCUSS_WELCOME_STAY_SAME_PAGE</option>
+				</field>
 			</fieldset>
 			<fieldset name="advanced">
 				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
@@ -87,4 +91,3 @@
 		</fields>
 	</config>
 </extension>
-

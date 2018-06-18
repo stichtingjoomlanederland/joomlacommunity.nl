@@ -805,6 +805,8 @@ RSEventsPro.Event = {
 		var tSeats		= jQuery('#ticket_seats').val();
 		var tUserSeats	= jQuery('#ticket_user_seats').val();
 		var tDescr		= jQuery('#ticket_description').val();
+		var tFrom		= jQuery('#ticket_from').val();
+		var tTo			= jQuery('#ticket_to').val();
 		var params		= [];
 		
 		if (tName == '') {
@@ -828,6 +830,8 @@ RSEventsPro.Event = {
 		params.push('jform[seats]='+tSeats);
 		params.push('jform[user_seats]='+tUserSeats);
 		params.push('jform[description]='+tDescr);
+		params.push('jform[from]='+tFrom);
+		params.push('jform[to]='+tTo);
 		
 		jQuery('#ticket_groups option:selected').each(function(){
 			params.push('groups[]=' + jQuery(this).val());
@@ -856,6 +860,40 @@ RSEventsPro.Event = {
 				RSEventsPro.Event.cancel();
 			});
 			
+			if (jQuery('#rsepro-time').val() == 1) {
+				jQuery('#tickets_' + response.id + '_from_datetimepicker').datetimepicker({
+					pickTime: true,
+					pick12HourFormat: true,
+					linkField: 'tickets_' + response.id + '_from',
+					format: 'yyyy-MM-dd HH:mm:ss PP'
+				});
+				jQuery('#tickets_' + response.id + '_to_datetimepicker').datetimepicker({
+					pickTime: true,
+					pick12HourFormat: true,
+					linkField: 'tickets_' + response.id + '_to',
+					format: 'yyyy-MM-dd HH:mm:ss PP'
+				});
+			} else {
+				jQuery('#tickets_' + response.id + '_from_datetimepicker').datetimepicker({
+					pickTime: true,
+					format: "yyyy-MM-dd hh:mm:ss"
+				});
+				jQuery('#tickets_' + response.id + '_to_datetimepicker').datetimepicker({
+					pickTime: true,
+					format: "yyyy-MM-dd hh:mm:ss"
+				});
+			}
+			
+			if ( typeof MooTools != 'undefined' ) {
+				(function($) {
+					$("div[id$='datetimepicker']").each(function (i,el) {
+						if (typeof $(el)[0] != 'undefined') {
+							$(el)[0].hide = null;
+						}
+					});
+				})(jQuery);
+			}
+			
 			// Go to the new ticket tab
 			jQuery('.rsepro-edit-event > ul > li > a[data-target="#rsepro-edit-ticket' + response.id + '"]').click();
 			
@@ -867,6 +905,9 @@ RSEventsPro.Event = {
 			jQuery('#ticket_price').val('');
 			jQuery('#ticket_seats').val('');
 			jQuery('#ticket_user_seats').val('');
+			jQuery('#ticket_from').val('');
+			jQuery('#ticket_to').val('');
+			jQuery('#coupon_end').val('');
 			jQuery('#ticket_description').val('');
 			jQuery('#ticket_groups option').prop('selected',false);
 			jQuery('#ticket_groups').trigger('liszt:updated');
@@ -1298,6 +1339,15 @@ RSEventsPro.Event = {
 				} else {
 					jQuery('#jform_late_fee_start').removeClass('invalid');
 				}
+			}
+		}
+		
+		// Check for consent
+		if (jQuery('#consent').length) {
+			if (!jQuery('#consent').prop('checked')) {
+				msg.push(Joomla.JText._('COM_RSEVENTSPRO_CONSENT_INFO'));
+				ret = false;
+				tab1 = true;
 			}
 		}
 		

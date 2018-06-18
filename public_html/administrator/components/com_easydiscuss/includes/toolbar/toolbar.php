@@ -29,6 +29,7 @@ class EasyDiscussToolbar extends EasyDiscuss
 		$showToolbar = isset($options['showToolbar']) ? $options['showToolbar'] : $this->config->get('layout_enabletoolbar');
 		$showHeader = isset($options['showHeader']) ? $options['showHeader'] : $this->config->get('layout_headers');
 		$showSearch = isset($options['showSearch']) ? $options['showSearch'] : $this->config->get('layout_toolbar_searchbar');
+		$showHome = isset($options['showHome']) ? $options['showHome'] : $this->config->get('layout_toolbarhome');
 		$showRecent = isset($options['showRecent']) ? $options['showRecent'] : $this->config->get('layout_toolbardiscussion');
 		$showTags = isset($options['showTags']) ? $options['showTags'] : $this->config->get('layout_toolbartags');
 		$showCategories = isset($options['showCategories']) ? $options['showCategories'] : $this->config->get('layout_toolbarcategories');
@@ -195,7 +196,18 @@ class EasyDiscussToolbar extends EasyDiscuss
 		if (!$this->config->get('main_master_tags')) {
 			$showTags = false;
 		}
-		
+
+		$postType = false;
+		$postTypeValue = $this->input->get('post_type', '', 'default');
+
+		// Get post types list
+		$postTypes = array();
+
+		if ($this->config->get('layout_post_types')) {
+			$postTypesModel = ED::model('PostTypes');
+			$postTypes = $postTypesModel->getPostTypes();
+		}
+
 		$theme = ED::themes();
 		$theme->set('active', $active);
 		$theme->set('messageObject', $messageObject);
@@ -211,11 +223,14 @@ class EasyDiscussToolbar extends EasyDiscuss
 		$theme->set('header', $header);
 		$theme->set('group', $group);
 		$theme->set('usernameField', $usernameField);
+		$theme->set('postTypes', $postTypes);
+		$theme->set('postTypeValue', $postTypeValue);
 
 		// settings
 		$theme->set('showToolbar', $showToolbar);
 		$theme->set('showHeader', $showHeader);
 		$theme->set('showSearch', $showSearch);
+		$theme->set('showHome', $showHome);
 		$theme->set('showRecent', $showRecent);
 		$theme->set('showTags', $showTags);
 		$theme->set('showCategories', $showCategories);

@@ -1045,3 +1045,46 @@ textarea.invalid {
 		float: none;
 	}
 }
+
+.rsepro-counter {
+	text-align: center;
+}
+
+#rsepro-counter {
+	color: #fff;
+	display: inline-block;
+	font-weight: 100;
+	text-align: center;
+	font-size: 30px;
+}
+
+#rsepro-counter > div{
+	padding: 10px;
+	border-radius: 3px;
+	background: #00BF96;
+	display: inline-block;
+}
+
+#rsepro-counter div > span{
+	padding: 15px;
+	border-radius: 3px;
+	background: #00816A;
+	display: inline-block;
+}
+
+.rsepro-counter-text {
+	padding-top: 5px;
+	font-size: 16px;
+}
+
+#rsepro-counter-container {
+	background: #f5f5f5;
+    padding: 35px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
+.controls .rsepro-text {
+	padding-top: 5px;
+}

@@ -6,7 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-$details	= rseventsproHelper::details($this->event->id);
+$details	= rseventsproHelper::details($this->event->id, null, true);
 $event		= $details['event'];
 $categories = $details['categories'];
 $tags		= $details['tags'];
@@ -25,6 +25,22 @@ $messageURL		= $links == 2 ? 'javascript:void(0);' : rseventsproHelper::route('i
 $unsubscribeURL	= $links == 0 || $links == 2 ? 'javascript:void(0);' : rseventsproHelper::route('index.php?option=com_rseventspro&layout=unsubscribe&id='.rseventsproHelper::sef($event->id,$event->name).'&tmpl=component');
 
 rseventsproHelper::richSnippet($details); ?>
+
+<?php if (!empty($this->options['show_counter'])) { ?>
+<script type="text/javascript">
+jQuery(document).ready(function($) {
+	RSEventsPro.Counter.options = {
+		userTime: <?php echo !empty($this->options['counter_utc']) ? 'true' : 'false';  ?>,
+		counterID: 'rsepro-counter',
+		containerID: 'rsepro-counter-container',
+		deadlineUTC: '<?php echo rseventsproHelper::showdate($event->start,'c',false,'UTC'); ?>',
+		deadline: '<?php echo rseventsproHelper::showdate($event->start,'Y-m-d\TH:i:s',false); ?>+00:00'
+	}
+	
+	RSEventsPro.Counter.init();
+});
+</script>
+<?php } ?>
 
 <!-- Initialize map -->
 <?php if (!empty($this->options['show_map']) && !empty($event->coordinates) && rseventsproHelper::getConfig('enable_google_maps','int')) { ?>
@@ -198,6 +214,29 @@ jQuery(document).ready(function (){
 	<!--//end Invite/Join/Unsubscribe -->
 	</div>
 	<div class="rs_clear"></div>
+	
+	<?php if (!empty($this->options['show_counter'])) { ?>
+	<div id="rsepro-counter-container" class="rsepro-counter">
+		<div id="rsepro-counter">
+			<div>
+				<span class="rsepro-counter-days"></span>
+				<div class="rsepro-counter-text"><?php echo JText::_('COM_RSEVENTSPRO_COUNTER_DAYS'); ?></div>
+			</div>
+			<div>
+				<span class="rsepro-counter-hours"></span>
+				<div class="rsepro-counter-text"><?php echo JText::_('COM_RSEVENTSPRO_COUNTER_HOURS'); ?></div>
+			</div>
+			<div>
+				<span class="rsepro-counter-minutes"></span>
+				<div class="rsepro-counter-text"><?php echo JText::_('COM_RSEVENTSPRO_COUNTER_MINUTES'); ?></div>
+			</div>
+			<div>
+				<span class="rsepro-counter-seconds"></span>
+				<div class="rsepro-counter-text"><?php echo JText::_('COM_RSEVENTSPRO_COUNTER_SECONDS'); ?></div>
+			</div>
+		</div>
+	</div>
+	<?php } ?>
 
 	<!-- Image -->
 	<?php if (!empty($details['image_b'])) { ?>

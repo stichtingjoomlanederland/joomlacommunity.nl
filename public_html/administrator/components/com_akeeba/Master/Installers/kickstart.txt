@@ -37,7 +37,7 @@
  */
 
 define('KICKSTART', 1);
-define('VERSION', '5.4.2');
+define('VERSION', 'rev23305F8');
 define('KICKSTARTPRO', '0');
 // Uncomment the following line to enable Kickstart's debug mode
 //define('KSDEBUG', 1);
@@ -11000,7 +11000,7 @@ function echoHeadJavascript()
 		 */
 
 		var akeeba_update  = {version: '0'};
-		var akeeba_version = '5.4.2';
+		var akeeba_version = 'rev23305F8';
 
 		function version_compare(v1, v2, operator)
 		{
@@ -11267,7 +11267,7 @@ function echoPage()
 		<div id="header">
 			<div class="title">
 				<img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAACXBIWXMAAAHFAAABxQG6eNsrAAAA/0lEQVRIx+WVUQ2DMBCGv01B5wAHYw4qARxMwiQgYQ6YAyRMAjgAB+CgezmSSwOjZfRplzSXNE2/3t1/V/hXuwMjkKcC5ICTNQImBaRVEAfUKdLkFlaWMorDo8lUHXIvsvEoyEMubFai21TaOQByVeqaFWVUPewRkEz5FqjEa+Aus3KpAfqVojsvjXYtdacVSA8MAgqRaSd+AMrYzt6zgmriv3zaeNS08MhNiD5UArcvoA64AE+1FySEYiF0I939Fj/3iFVFd6F9g1KU33yNGiX+JDYCbmIkXHm1sd6YX/pT7pKF3VYrSB87fc8RZyfgJX5I8WEVsfn+5fs1/LV9AHnjYQzAbyUrAAAAAElFTkSuQmCC" alt="Akeeba Kickstart logo">
-				Akeeba Kickstart <?php echo $edition ?> 5.4.2
+				Akeeba Kickstart <?php echo $edition ?> rev23305F8
 			</div>
 		</div>
 
@@ -11909,7 +11909,7 @@ function kickstart_application_cli()
 	if (!$silent)
 	{
 		echo <<< BANNER
-Akeeba Kickstart CLI 5.4.2
+Akeeba Kickstart CLI rev23305F8
 Copyright (c) 2008-$year Akeeba Ltd / Nicholas K. Dionysopoulos
 -------------------------------------------------------------------------------
 Akeeba Kickstart is Free Software, distributed under the terms of the GNU General

@@ -148,6 +148,16 @@ $eventOptions = $this->eventClass->getEventOptions(); ?>
 				<?php echo JText::_('COM_RSEVENTSPRO_SHOW_PRINT'); ?>
 			</label>
 			
+			<label class="checkbox">
+				<input type="checkbox" name="jform[options][show_counter]" value="1" <?php echo (isset($eventOptions['show_counter']) && $eventOptions['show_counter'] == 1) ? 'checked="checked"' : ''; ?> />
+				<span class="hasTooltip" title="<?php echo JText::_('COM_RSEVENTSPRO_SHOW_COUNTER_DESC'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_COUNTER'); ?></span>
+			</label>
+			
+			<label class="checkbox">
+				<input type="checkbox" name="jform[options][counter_utc]" value="1" <?php echo (isset($eventOptions['counter_utc']) && $eventOptions['counter_utc'] == 1) ? 'checked="checked"' : ''; ?> />
+				<span class="hasTooltip" title="<?php echo JText::_('COM_RSEVENTSPRO_COUNTER_UTC_DESC'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_COUNTER_UTC'); ?></span>
+			</label>
+			
 		</div>
 	</div>
 	

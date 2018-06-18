@@ -25,11 +25,11 @@ class EasyDiscussViewComment extends EasyDiscussView
 	public function save()
 	{
 		ED::checkToken();
-		
+
         $id = $this->input->get('id','','int');
         $message = $this->input->get('comments','', 'string');
         $acceptedTerms = $this->input->get('tncCheckbox','');
-		
+
 		// Load the post item.
 		$post = ED::post($id);
 
@@ -46,7 +46,7 @@ class EasyDiscussViewComment extends EasyDiscussView
         if ($this->config->get('main_tnc_comment') && $acceptedTerms == 'false') {
 			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_TERMS_PLEASE_ACCEPT'));
 		}
-		
+
 		// Test if a valid post id is provided.
 		if (!$post->id) {
 			return $this->ajax->reject( JText::_('COM_EASYDISCUSS_COMMENTS_INVALID_POST_ID'));
@@ -54,7 +54,13 @@ class EasyDiscussViewComment extends EasyDiscussView
 
 		// Test if the user is allowed to add comment or not.
 		if (!$post->canComment()) {
-			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_COMMENTS_NOT_ALLOWED'));
+
+			$err = $post->getError();
+			if (!$err) {
+				$err = JText::_('COM_EASYDISCUSS_COMMENTS_NOT_ALLOWED');
+			}
+
+			return $this->ajax->reject($err);
 		}
 
 		// Proccess appending email in content
@@ -137,7 +143,7 @@ class EasyDiscussViewComment extends EasyDiscussView
 	 */
 	public function confirmConvert()
 	{
-		$id = $this->input->get('id', 0, 'int'); 
+		$id = $this->input->get('id', 0, 'int');
 		$postId = $this->input->get('postId', 0, 'int');
 
 		// Test if a valid post id is provided.
@@ -149,7 +155,7 @@ class EasyDiscussViewComment extends EasyDiscussView
 		$theme->set('id', $id);
 		$theme->set('postId', $postId);
 		$contents = $theme->output('site/dialogs/ajax.comment.convert');
-		
+
 		return $this->ajax->resolve($contents);
 	}
 

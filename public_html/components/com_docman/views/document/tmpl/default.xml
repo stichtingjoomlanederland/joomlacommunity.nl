@@ -81,6 +81,11 @@
                 <option value="1">JYES</option>
                 <option value="0">JNO</option>
             </field>
+            <field name="show_player" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_PLAYER" description="SHOW_PLAYER_DESCRIPTION"
+                   showon="force_download:0">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
 
             <field label="JGLOBAL_FIELDSET_ADVANCED" type="heading" />
 

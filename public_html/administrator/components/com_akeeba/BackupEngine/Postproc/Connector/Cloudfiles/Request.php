@@ -42,9 +42,9 @@
 namespace Akeeba\Engine\Postproc\Connector\Cloudfiles;
 
 // Protection against direct access
-use Akeeba\Engine\Postproc\Connector\Azure\Exception\Http;
-
 defined('AKEEBAENGINE') or die();
+
+use Akeeba\Engine\Postproc\Connector\Cloudfiles\Exception\Http;
 
 /**
  * RESTful API request abstraction
@@ -319,6 +319,11 @@ class Request
 		}
 		else
 		{
+			if (!isset($this->response->body))
+			{
+				$this->response->body = '';
+			}
+
 			$this->response->body .= $data;
 		}
 

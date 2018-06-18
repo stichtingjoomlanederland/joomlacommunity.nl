@@ -984,7 +984,9 @@ RewriteRule ^(cache|includes|language|logs|log|tmp)/ - [F]
 RewriteRule ^(configuration\.php|CONTRIBUTING\.md|htaccess\.txt|joomla\.xml|LICENSE\.txt|phpunit\.xml|README\.txt|web\.config\.txt) - [F]
 
 ## Explicitly allow access to the site's index.php main entry point file
-RewriteRule ^index.php$ - [L]
+RewriteRule ^index.php(/.*){0,1}$ - [L]
+## Explicitly allow access to the site's robots.txt file
+RewriteRule ^robots.txt$ - [L]
 
 ## Disallow access to all other PHP files throughout the site, unless they are explicitly allowed
 RewriteCond %{REQUEST_FILENAME} (\.php)$

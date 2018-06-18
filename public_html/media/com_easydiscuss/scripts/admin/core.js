@@ -12,8 +12,6 @@ ed.require.config({
 		'jquery.migrate': 'vendors/jquery.migrate',
 		'jquery.flot': 'admin/vendors/jquery.flot',
 		'jquery.joomla': 'admin/vendors/jquery.joomla',
-		'bootstrap.colorpicker': 'admin/vendors/bootstrap.colorpicker',
-		'select2': 'admin/vendors/select2',
 
 		'dialog': 'vendors/dialog',
 		'bootstrap': 'vendors/bootstrap',
@@ -25,7 +23,8 @@ ed.require.config({
 		'jquery.expanding': "vendors/jquery.expanding",
 		'jquery.atwho': 'vendors/jquery.atwho',
 		'jquery.caret': 'vendors/jquery.caret',
-		'chosen': 'vendors/jquery.chosen'
+		'chosen': 'vendors/jquery.chosen',
+		'select2': 'vendors/select2'
 	}
 });
 
@@ -81,11 +80,6 @@ ed.define('edq', ['edjquery', 'easydiscuss', 'jquery.uri', 'bootstrap', 'jquery.
 		}
 
 	});
-
-	function isMobile() {
-	  try{ document.createEvent("TouchEvent"); return true; }
-	  catch(e){ return false; }
-	}
 
 	// Tooltips
 	// detect if mouse is being used or not.

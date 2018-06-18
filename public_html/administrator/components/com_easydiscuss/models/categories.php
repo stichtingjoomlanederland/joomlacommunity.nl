@@ -25,12 +25,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 
 		$limit = $this->app->getUserStateFromRequest('com_easydiscuss.categories.limit', 'limit', $this->app->getCfg('list_limit'), 'int');
 		$limitstart	= $this->input->get('limitstart', 0, 'int');
-
-		$total = $this->getTotal();
-
-		if ($limitstart > $total - $limit) {
-			$limitstart = max(0, (int) (ceil($total / $limit) - 1) * $limit);
-		}
+		$limitstart = ($limit != 0 ? (floor($limitstart / $limit) * $limit) : 0);
 
 		$this->setState('limit', $limit);
 		$this->setState('limitstart', $limitstart);
@@ -296,7 +291,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 			}
 
 			if (!ED::isSiteAdmin() && !ED::isModerator() && !$private) {
-				$query .= " and a.`private` = " . $db->Quote(0);
+				$query .= " AND (a.`private` = " . $db->Quote(0) . " OR (a.`private` = " . $db->Quote(1) . " AND a.`user_id` = " . $db->Quote(ED::user()->id) . "))";
 			}
 
 			if (!$includeCluster) {
@@ -402,9 +397,18 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 
 			$query = "select b.*, FLOOR(((b.rgt - b.lft) - 1) / 2) as `descendants`,";
 			$query .= " (SELECT COUNT(id) FROM `#__discuss_category` WHERE lft < b.lft AND rgt > b.rgt) as `depth`";
+
 			if ($showPostCount || $orderConfig == 'popular') {
-				$query .= ', (select count(t.id) from `#__discuss_thread` as t where b.`id` = t.`category_id` and t.`published` = 1) as `post_count`';
+				$query .= ', (select count(t.id) from `#__discuss_thread` as t where b.`id` = t.`category_id` and t.`published` = 1';
+
+				// Check for private post
+				if (!ED::isSiteAdmin() && !ED::isModerator()) {
+					$query .= " AND (t.`private` = " . $db->Quote(0) . " OR (t.`private` = " . $db->Quote(1) . " AND t.`user_id` = " . $db->Quote(ED::user()->id) . "))";
+				}
+
+				$query .= ") as `post_count`";
 			}
+
 			$query .= " from `#__discuss_category` as a";
 			$query .= " 	inner join `#__discuss_category` as b on a.`lft` <= b.`lft` and a.`rgt` >= b.`rgt` AND b.`published`=" . $db->Quote(1);
 
@@ -415,7 +419,14 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 			$query = "select a.*, FLOOR(((a.rgt - a.lft) - 1) / 2) as `descendants`,";
 			$query .= " (SELECT COUNT(id) FROM `#__discuss_category` WHERE lft < a.lft AND rgt > a.rgt) as `depth`";
 			if ($showPostCount || $orderConfig == 'popular') {
-				$query .= ', (select count(t.id) from `#__discuss_thread` as t where a.`id` = t.`category_id` and t.`published` = 1) as `post_count`';
+				$query .= ', (select count(t.id) from `#__discuss_thread` as t where a.`id` = t.`category_id` and t.`published` = 1';
+
+				// Check for private post
+				if (!ED::isSiteAdmin() && !ED::isModerator()) {
+					$query .= " AND (t.`private` = " . $db->Quote(0) . " OR (t.`private` = " . $db->Quote(1) . " AND t.`user_id` = " . $db->Quote(ED::user()->id) . "))";
+				}
+
+				$query .= ') as `post_count`';
 
 			}
 			$query .= " from `#__discuss_category` as a";
@@ -433,7 +444,6 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 
 		$query .= $catAccessSQL;
 		$query .= $childCatAccessSQL;
-
 
 		$filterLanguage = JFactory::getApplication()->getLanguageFilter();
 		if ($filterLanguage) {

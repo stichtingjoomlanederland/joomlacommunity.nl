@@ -1253,24 +1253,26 @@ class RseventsproModelImports extends JModelLegacy
 		
 		// Get events
 		$query->clear()
-			->select($db->qn('ohanah_event_id'))->select($db->qn('ohanah_category_id'))->select($db->qn('title'))->select($db->qn('description'))
-			->select($db->qn('date'))->select($db->qn('start_time'))->select($db->qn('end_date'))->select($db->qn('end_time'))->select($db->qn('created_by'))
-			->select($db->qn('enabled'))->select($db->qn('ohanah_venue_id'))->select($db->qn('end_time_enabled'))
+			->select($db->qn('ohanah_event_id'))->select($db->qn('ohanah_category_id'))->select($db->qn('ohanah_venue_id'))
+			->select($db->qn('title'))->select($db->qn('description'))->select($db->qn('created_by'))
 			->from($db->qn('#__ohanah_events'));
 		
 		$db->setQuery($query);
 		$events = $db->loadObjectList();
 		
-		if (!empty($events)) {
+		if ($events) {
+			// Get locations
 			$query->clear()
-				->select($db->qn('ohanah_venue_id'))->select($db->qn('title'))->select($db->qn('description'))
-				->select($db->qn('address'))->select($db->qn('latitude'))->select($db->qn('longitude'))
-				->select($db->qn('enabled'))
+				->select($db->qn('ohanah_venue_id'))->select($db->qn('name'))->select($db->qn('description'))
+				->select($db->qn('address_1'))->select($db->qn('address_2'))->select($db->qn('city'))->select($db->qn('state'))
+				->select($db->qn('zipcode'))->select($db->qn('country'))
+				->select($db->qn('latitude'))->select($db->qn('longitude'))->select($db->qn('enabled'))
 				->from($db->qn('#__ohanah_venues'));
 			
 			$db->setQuery($query);
 			$locations = $db->loadObjectList();
 			
+			// Get categories
 			$query->clear()
 				->select($db->qn('ohanah_category_id'))->select($db->qn('title'))
 				->select($db->qn('enabled'))->select($db->qn('description'))
@@ -1279,6 +1281,7 @@ class RseventsproModelImports extends JModelLegacy
 			$db->setQuery($query);
 			$categories = $db->loadObjectList();
 			
+			// Store the Ohanah locations
 			$thelocations = array();
 			if (!empty($locations)) {
 				foreach ($locations as $location) {
@@ -1290,11 +1293,12 @@ class RseventsproModelImports extends JModelLegacy
 					$db->setQuery($query);
 					if ($db->loadResult()) {
 						// IMPORT locations
-						$coodinates = !empty($location->latitude) && !empty($location->longitude) ? $location->latitude.','.$location->longitude : '';
+						$coordinates = !empty($location->latitude) && !empty($location->longitude) ? $location->latitude.','.$location->longitude : '';
+						$address = $location->address_1.(!empty($location->address_2) ? ' '.$location->address_2 : '').(!empty($location->city) ? ', '.$location->city : '').(!empty($location->state) ? ', '.$location->state : '').(!empty($location->zipcode) ? ', '.$location->zipcode : '').(!empty($location->country) ? ', '.$location->country : '');
 						
 						$data = array();
-						$data['name'] = $location->title;
-						$data['address'] = $location->address;
+						$data['name'] = $location->name;
+						$data['address'] = $address;
 						$data['description'] = $location->description;
 						$data['published'] = $location->enabled;
 						$data['coordinates'] = $coordinates;
@@ -1328,35 +1332,61 @@ class RseventsproModelImports extends JModelLegacy
 				}
 			}
 			
-			if (!empty($events)) {
-				foreach ($events as $event) {
-					// IMPORT events
-					$startDate	= $event->date.' '.$event->start_time;
-					$endDate	= $event->end_date.' '.$event->end_time;					
-					$start		= JFactory::getDate($startDate, rseventsproHelper::getTimezone());
-					$end		= JFactory::getDate($endDate, rseventsproHelper::getTimezone());
-					
-					$data = array();
-					$data['name'] = $event->title;
-					$data['description'] = $event->description;
-					$data['location'] = $thelocations[$event->ohanah_venue_id];
-					$data['start'] = $start->format('Y-m-d H:i:s');
-					$data['end'] = $end->format('Y-m-d H:i:s');
-					$data['published'] = $event->enabled;
-					$data['owner'] = $event->created_by;
-					$data['completed'] = 1;
-					
-					if ($idevent = $this->_saveevent($data)) {
-						$query->clear()
-							->insert($db->qn('#__rseventspro_taxonomy'))
-							->set($db->qn('type').' = '.$db->q('category'))
-							->set($db->qn('id').' = '.(int) $thecategories[$event->ohanah_category_id])
-							->set($db->qn('ide').' = '.(int) $idevent);
-					
-						$db->setQuery($query);
-						$db->execute();
+			// Some events dont need a category ID
+			$query->clear()
+				->select('COUNT(ohanah_event_id)')
+				->from($db->qn('#__ohanah_events'))
+				->where($db->qn('ohanah_category_id').' = 0');
+			$db->setQuery($query);
+			if ((int) $db->loadResult()) {
+				$data = array();
+				$data['published'] = 1;
+				$data['title'] = 'Ohanah Uncategorised';
+				$data['description'] = '';
+				$data['parent_id'] = 1;
+				
+				$newcategory = $this->_savecategory($data);
+				$thecategories[0] = $newcategory;
+			}
+			
+			foreach ($events as $event) {
+				// Get event dates
+				$query->clear()
+					->select($db->qn('start'))->select($db->qn('end'))
+					->select($db->qn('timezone'))->select($db->qn('all_day'))->select($db->qn('enabled'))
+					->from($db->qn('#__ohanah_dates'))
+					->where($db->qn('ohanah_event_id').' = '.$db->q($event->ohanah_event_id));
+				$db->setQuery($query);
+				
+				if ($dates = $db->loadObjectList()) {
+					foreach ($dates as $date) {
+						// IMPORT events
+						$data = array();
+						$data['name'] = $event->title;
+						$data['description'] = $event->description;
+						$data['location'] = $thelocations[$event->ohanah_venue_id];
+						$data['start'] = $date->start;
+						$data['end'] = $date->all_day ? $db->getNullDate() : $date->end;
+						$data['published'] = $date->enabled;
+						$data['owner'] = $event->created_by;
+						$data['completed'] = 1;
 						
-						$counter++;
+						if ($date->all_day) {
+							$data['allday'] = 1;
+						}
+						
+						if ($idevent = $this->_saveevent($data)) {
+							$query->clear()
+								->insert($db->qn('#__rseventspro_taxonomy'))
+								->set($db->qn('type').' = '.$db->q('category'))
+								->set($db->qn('id').' = '.(int) $thecategories[$event->ohanah_category_id])
+								->set($db->qn('ide').' = '.(int) $idevent);
+						
+							$db->setQuery($query);
+							$db->execute();
+							
+							$counter++;
+						}
 					}
 				}
 			}

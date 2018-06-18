@@ -264,7 +264,7 @@ class Zip extends BaseArchiver
 
 		if (function_exists('chmod'))
 		{
-			@chmod($this->_dataFileName, 0755);
+			@chmod($this->_dataFileName, 0644);
 		}
 	}
 

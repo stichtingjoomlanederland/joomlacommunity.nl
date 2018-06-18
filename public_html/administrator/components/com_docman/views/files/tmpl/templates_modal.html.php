@@ -20,10 +20,9 @@ defined('KOOWA') or die( 'Restricted access' ); ?>
                 var width = metadata.image.width,
                 height = metadata.image.height,
                 ratio = 200 / (width > height ? width : height); %]
-                <img src="[%=url%]" style="
-                         width: [%=Math.min(ratio*width, width)%]px;
-                         height: [%=Math.min(ratio*height, height)%]px
-                     " alt="[%=name%]" border="0" />
+                <div class="k-position-relative k-content-block" style="padding-top:[%=(Math.min(ratio*height, height) / Math.min(ratio*width, width) * 100)%]%;">
+                    <img class="k-position-absolute" style="top: 0; left: 0;" src="[%=url%]" alt="[%=name%]" border="0" />
+                </div>
                 [% } else {
                 var icon = 'default',
                 extension = name.substr(name.lastIndexOf('.')+1).toLowerCase();
@@ -40,11 +39,12 @@ defined('KOOWA') or die( 'Restricted access' ); ?>
                 [% } %]
                 <p>
                     [% if (typeof image !== 'undefined') { %]
-                    <a class="k-button k-button--default k-button--small" href="[%=url%]" target="_blank">
-                        <span class="k-icon-eye"></span> <?= translate('View'); ?>
+                    <a class="k-button k-button--default" href="[%=url%]" target="_blank">
+                        <span class="k-icon-eye" aria-hidden="true"></span>
+                        <span class="k-button__text"><?= translate('View'); ?></span>
                     </a>
                     [% } else { %]
-                    <a class="k-button k-button--default k-button--small" href="[%=url%]" target="_blank" download="[%=name%]">
+                    <a class="k-button k-button--default" href="[%=url%]" target="_blank" download="[%=name%]">
                         <span class="k-icon-data-transfer-download"></span> <?= translate('Download'); ?>
                     </a>
                     [% } %]

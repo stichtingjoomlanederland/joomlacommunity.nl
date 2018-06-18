@@ -135,7 +135,7 @@ class RSFormProGridUikit3 extends RSFormProGrid
 			$html[] = "\t"."\t"."\t".'<div class="uk-margin rsform-block rsform-block-' . $block . '">';
 			if ($data->ComponentTypeId != RSFORM_FIELD_PAGEBREAK)
 			{
-				$label = "\t"."\t"."\t"."\t".'<label class="uk-form-label formControlLabel hasTooltip"';
+				$label = "\t"."\t"."\t"."\t".'<label class="uk-form-label formControlLabel"';
 				if (!in_array($data->ComponentTypeId, array(RSFORM_FIELD_CHECKBOXGROUP, RSFORM_FIELD_RADIOGROUP, RSFORM_FIELD_BIRTHDAY)))
 				{
 					$label .= ' for="' . $data->ComponentName . '"';
