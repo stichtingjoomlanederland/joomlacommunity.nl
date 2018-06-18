@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Random Number Generator
+ * Random Number Generator.
  *
  * The idea behind this function is that it can be easily replaced with your own crypt_random_string()
  * function. eg. maybe you have a better source of entropy for creating the initial states or whatever.
@@ -36,23 +36,24 @@
  * THE SOFTWARE.
  *
  * @category  Crypt
- * @package   Crypt_Random
+ *
  * @author    Jim Wigginton <terrafrost@php.net>
  * @copyright 2007 Jim Wigginton
  * @license   http://www.opensource.org/licenses/mit-license.html  MIT License
- * @link      http://phpseclib.sourceforge.net
+ *
+ * @see      http://phpseclib.sourceforge.net
  */
 
 // laravel is a PHP framework that utilizes phpseclib. laravel workbenches may, independently,
 // have phpseclib as a requirement as well. if you're developing such a program you may encounter
 // a "Cannot redeclare crypt_random_string()" error.
 if (!function_exists('crypt_random_string')) {
-    /**
+    /*
      * "Is Windows" test
      *
      * @access private
      */
-    define('CRYPT_RANDOM_IS_WINDOWS', strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
+    define('CRYPT_RANDOM_IS_WINDOWS', 'WIN' === strtoupper(substr(PHP_OS, 0, 3)));
 
     /**
      * Generate a random string.
@@ -61,9 +62,9 @@ if (!function_exists('crypt_random_string')) {
      * microoptimizations because this function has the potential of being called a huge number of times.
      * eg. for RSA key generation.
      *
-     * @param Integer $length
-     * @return String
-     * @access public
+     * @param int $length
+     *
+     * @return string
      */
     function crypt_random_string($length)
     {
@@ -96,12 +97,12 @@ if (!function_exists('crypt_random_string')) {
             }
             // method 2
             static $fp = true;
-            if ($fp === true) {
+            if (true === $fp) {
                 // warning's will be output unles the error suppression operator is used. errors such as
                 // "open_basedir restriction in effect", "Permission denied", "No such file or directory", etc.
                 $fp = @fopen('/dev/urandom', 'rb');
             }
-            if ($fp !== true && $fp !== false) { // surprisingly faster than !is_bool() or is_resource()
+            if (true !== $fp && false !== $fp) { // surprisingly faster than !is_bool() or is_resource()
                 return fread($fp, $length);
             }
             // method 3. pretty much does the same thing as method 2 per the following url:
@@ -133,13 +134,13 @@ if (!function_exists('crypt_random_string')) {
         // full control over his own http requests. he, however, is not going to have control over
         // everyone's http requests.
         static $crypto = false, $v;
-        if ($crypto === false) {
+        if (false === $crypto) {
             // save old session data
-            $old_session_id = session_id();
-            $old_use_cookies = ini_get('session.use_cookies');
+            $old_session_id            = session_id();
+            $old_use_cookies           = ini_get('session.use_cookies');
             $old_session_cache_limiter = session_cache_limiter();
-            $_OLD_SESSION = isset($_SESSION) ? $_SESSION : false;
-            if ($old_session_id != '') {
+            $_OLD_SESSION              = isset($_SESSION) ? $_SESSION : false;
+            if ('' != $old_session_id) {
                 session_write_close();
             }
 
@@ -149,31 +150,31 @@ if (!function_exists('crypt_random_string')) {
             session_start();
 
             $v = $seed = $_SESSION['seed'] = pack('H*', sha1(
-                serialize($_SERVER) .
-                serialize($_POST) .
-                serialize($_GET) .
-                serialize($_COOKIE) .
-                serialize($GLOBALS) .
-                serialize($_SESSION) .
+                serialize($_SERVER).
+                serialize($_POST).
+                serialize($_GET).
+                serialize($_COOKIE).
+                serialize($GLOBALS).
+                serialize($_SESSION).
                 serialize($_OLD_SESSION)
             ));
             if (!isset($_SESSION['count'])) {
                 $_SESSION['count'] = 0;
             }
-            $_SESSION['count']++;
+            ++$_SESSION['count'];
 
             session_write_close();
 
             // restore old session data
-            if ($old_session_id != '') {
+            if ('' != $old_session_id) {
                 session_id($old_session_id);
                 session_start();
                 ini_set('session.use_cookies', $old_use_cookies);
                 session_cache_limiter($old_session_cache_limiter);
             } else {
-               if ($_OLD_SESSION !== false) {
-                   $_SESSION = $_OLD_SESSION;
-                   unset($_OLD_SESSION);
+                if (false !== $_OLD_SESSION) {
+                    $_SESSION = $_OLD_SESSION;
+                    unset($_OLD_SESSION);
                 } else {
                     unset($_SESSION);
                 }
@@ -187,8 +188,8 @@ if (!function_exists('crypt_random_string')) {
             // http://tools.ietf.org/html/rfc4253#section-7.2
             //
             // see the is_string($crypto) part for an example of how to expand the keys
-            $key = pack('H*', sha1($seed . 'A'));
-            $iv = pack('H*', sha1($seed . 'C'));
+            $key = pack('H*', sha1($seed.'A'));
+            $iv  = pack('H*', sha1($seed.'C'));
 
             // ciphers are used as per the nist.gov link below. also, see this link:
             //
@@ -232,6 +233,7 @@ if (!function_exists('crypt_random_string')) {
                     break;
                 default:
                     user_error('crypt_random_string requires at least one symmetric cipher be loaded');
+
                     return false;
             }
 
@@ -255,8 +257,9 @@ if (!function_exists('crypt_random_string')) {
             $i = $crypto->encrypt(microtime()); // strlen(microtime()) == 21
             $r = $crypto->encrypt($i ^ $v); // strlen($v) == 20
             $v = $crypto->encrypt($r ^ $i); // strlen($r) == 20
-            $result.= $r;
+            $result .= $r;
         }
+
         return substr($result, 0, $length);
     }
 }
@@ -269,8 +272,8 @@ if (!function_exists('phpseclib_resolve_include_path')) {
      * PHP 5.3.2) with fallback implementation for earlier PHP versions.
      *
      * @param string $filename
-     * @return mixed Filename (string) on success, false otherwise.
-     * @access public
+     *
+     * @return mixed filename (string) on success, false otherwise
      */
     function phpseclib_resolve_include_path($filename)
     {
@@ -288,8 +291,8 @@ if (!function_exists('phpseclib_resolve_include_path')) {
             explode(PATH_SEPARATOR, get_include_path());
         foreach ($paths as $prefix) {
             // path's specified in include_path don't always end in /
-            $ds = substr($prefix, -1) == DIRECTORY_SEPARATOR ? '' : DIRECTORY_SEPARATOR;
-            $file = $prefix . $ds . $filename;
+            $ds   = DIRECTORY_SEPARATOR == substr($prefix, -1) ? '' : DIRECTORY_SEPARATOR;
+            $file = $prefix.$ds.$filename;
             if (file_exists($file)) {
                 return realpath($file);
             }

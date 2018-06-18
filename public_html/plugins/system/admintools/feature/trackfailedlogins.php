@@ -49,11 +49,6 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 		if (!empty($user))
 		{
 			$extraInfo = 'Username: ' . $user;
-
-			if ($this->cparams->getValue('showpwonloginfailure', 1))
-			{
-				$extraInfo = 'Username: ' . $user . ' -- Password: ' . $pass;
-			}
 		}
 
 		$this->exceptionsHandler->logAndAutoban('loginfailure', $user, $extraInfo);

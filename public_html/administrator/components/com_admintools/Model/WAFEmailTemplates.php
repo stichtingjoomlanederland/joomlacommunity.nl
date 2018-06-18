@@ -15,6 +15,7 @@ use FOF30\Model\DataModel;
 /**
  * Class WAFEmailTemplates
  *
+ * @property  int     $admintools_waftemplate_id
  * @property  string  $reason
  * @property  string  $language
  * @property  string  $subject

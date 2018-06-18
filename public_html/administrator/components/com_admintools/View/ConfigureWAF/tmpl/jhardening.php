@@ -13,6 +13,31 @@ defined('_JEXEC') or die;
 
 ?>
 <div class="akeeba-form-group">
+    <label
+            for="leakedpwd"
+            rel="akeeba-sticky-tooltip"
+            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_LEAKEDPWD'); ?>"
+            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_LEAKEDPWD_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_LEAKEDPWD'); ?>
+    </label>
+
+	<?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'leakedpwd', $this->wafconfig['leakedpwd']); ?>
+</div>
+
+<div class="akeeba-form-group">
+    <label
+            for="leakedpwd"
+            rel="akeeba-sticky-tooltip"
+            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_LEAKEDPWD_GROUPS'); ?>"
+            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_LEAKEDPWD_GROUPS_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_LEAKEDPWD_GROUPS'); ?>
+    </label>
+
+	<?php echo JHtml::_('access.usergroup', 'leakedpwd_groups[]', $this->wafconfig['leakedpwd_groups'], ['multiple' => true, 'size' => 5], false)?>
+
+</div>
+
+<div class="akeeba-form-group">
 	<label for="nonewadmins"
 		   rel="akeeba-sticky-tooltip"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_NONEWADMINS'); ?>"
@@ -76,6 +101,17 @@ defined('_JEXEC') or die;
     </label>
 
     <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'criticalfiles', $this->wafconfig['criticalfiles']); ?>
+</div>
+
+<div class="akeeba-form-group">
+    <label for="criticalfiles_global"
+           rel="akeeba-sticky-tooltip"
+           data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CRITICALFILES_GLOBAL'); ?>"
+           data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CRITICALFILES_GLOBAL_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_CRITICALFILES_GLOBAL'); ?>
+    </label>
+
+	<textarea id="criticalfiles_global" name="criticalfiles_global" rows="5"><?php echo $this->escape($this->wafconfig['criticalfiles_global'])?></textarea>
 </div>
 
 <div class="akeeba-form-group">
@@ -187,6 +223,28 @@ elseif ($userParams->get('useractivation') == 0)
     </label>
 
     <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'consolewarn', $this->wafconfig['consolewarn']); ?>
+</div>
+
+<div class="akeeba-form-group">
+    <label
+            for="filteremailregistration"
+            rel="akeeba-sticky-tooltip"
+            data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_FILTER_REGISTRATION'); ?>"
+            data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_FILTER_REGISTRATION_TIP'); ?>">
+		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_FILTER_REGISTRATION'); ?>
+    </label>
+
+    <?php
+	    $checked_1 = $this->wafconfig['filteremailregistration'] == 'allow' ? '' : 'checked ';
+	    $checked_2 = $this->wafconfig['filteremailregistration'] == 'block' ? 'checked ' : '';
+    ?>
+
+    <div class="akeeba-toggle">
+        <input type="radio" class="radio-allow" name="filteremailregistration" <?php echo $checked_2 ?> id="filteremailregistration-2" value="allow">
+        <label for="filteremailregistration-2" class="green"><?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_FILTER_REGISTRATION_ALLOW') ?></label>
+        <input type="radio" class="radio-block" name="filteremailregistration" <?php echo $checked_1 ?> id="filteremailregistration-1" value="block">
+        <label for="filteremailregistration-1" class="red"><?php echo JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_FILTER_REGISTRATION_BLOCK') ?></label>
+    </div>
 </div>
 
 <div class="akeeba-form-group">

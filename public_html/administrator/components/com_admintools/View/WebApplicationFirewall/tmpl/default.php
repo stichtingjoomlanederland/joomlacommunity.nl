@@ -72,6 +72,11 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
         <?php echo \JText::_('COM_ADMINTOOLS_TITLE_IPAUTOBANHISTORY'); ?>
 	</a>
 
+    <a href="index.php?option=com_admintools&view=UnblockIP" class="akeeba-action--orange">
+        <span class="akion-unlocked"></span>
+		<?php echo \JText::_('COM_ADMINTOOLS_TITLE_UNBLOCKIP'); ?>
+    </a>
+
 	<a href="index.php?option=com_admintools&view=WAFEmailTemplates" class="akeeba-action--grey">
         <span class="akion-email"></span>
         <?php echo \JText::_('COM_ADMINTOOLS_TITLE_WAFEMAILTEMPLATES'); ?>

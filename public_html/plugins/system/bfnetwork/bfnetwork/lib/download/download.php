@@ -1,9 +1,10 @@
 <?php
 /**
- * @package   Blue Flame Network (bfNetwork)
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
- * @link      https://myJoomla.com/
+ *
+ * @see      https://myJoomla.com/
+ *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
  * bfNetwork is free software: you can redistribute it and/or modify
@@ -21,7 +22,6 @@
  */
 
 /**
- * @package    AkeebaCMSUpdate
  * @copyright  Copyright (c)2010-2014 Nicholas K. Dionysopoulos
  * @license    GNU General Public License version 3, or later
  *
@@ -41,27 +41,27 @@
 class AcuDownload
 {
     /**
-     * Parameters passed from the GUI when importing from URL
+     * Parameters passed from the GUI when importing from URL.
      *
-     * @var  array
+     * @var array
      */
     private $params = array();
 
     /**
-     * The download adapter which will be used by this class
+     * The download adapter which will be used by this class.
      *
-     * @var  AcuDownloadInterface
+     * @var AcuDownloadInterface
      */
-    private $adapter = NULL;
+    private $adapter = null;
 
     public function __construct()
     {
         // Find the best fitting adapter
-        $allAdapters = AcuDownload::getFiles(dirname(__FILE__) . '/adapter', array(), array('abstract.php'));
+        $allAdapters = AcuDownload::getFiles(dirname(__FILE__).'/adapter', array(), array('abstract.php'));
         $priority    = 0;
 
         foreach ($allAdapters as $adapterInfo) {
-            $adapter = new $adapterInfo['classname'];
+            $adapter = new $adapterInfo['classname']();
 
             if (!$adapter->isSupported()) {
                 continue;
@@ -75,19 +75,19 @@ class AcuDownload
     }
 
     /**
-     * Forces the use of a specific adapter
+     * Forces the use of a specific adapter.
      *
      * @param  $className  The name of the class or the name of the adapter, e.g. 'AcuDownloadAdapterCurl' or 'curl'
      */
     public function setAdapter($className)
     {
-        $adapter = NULL;
+        $adapter = null;
 
-        if (class_exists($className, TRUE)) {
-            $adapter = new $className;
-        } elseif (class_exists('AcuDownloadAdapter' . ucfirst($className))) {
-            $className = 'AcuDownloadAdapter' . ucfirst($className);
-            $adapter   = new $className;
+        if (class_exists($className, true)) {
+            $adapter = new $className();
+        } elseif (class_exists('AcuDownloadAdapter'.ucfirst($className))) {
+            $className = 'AcuDownloadAdapter'.ucfirst($className);
+            $adapter   = new $className();
         }
 
         if (is_object($adapter) && ($adapter instanceof AcuDownloadInterface)) {
@@ -96,14 +96,14 @@ class AcuDownload
     }
 
     /**
-     * Used to decode the $params array
+     * Used to decode the $params array.
      *
-     * @param   string $key     The parameter key you want to retrieve the value for
-     * @param   mixed  $default The default value, if none is specified
+     * @param string $key     The parameter key you want to retrieve the value for
+     * @param mixed  $default The default value, if none is specified
      *
-     * @return  mixed  The value for this parameter key
+     * @return mixed The value for this parameter key
      */
-    private function getParam($key, $default = NULL)
+    private function getParam($key, $default = null)
     {
         if (array_key_exists($key, $this->params)) {
             return $this->params[$key];
@@ -113,27 +113,27 @@ class AcuDownload
     }
 
     /**
-     * Download data from a URL and return it
+     * Download data from a URL and return it.
      *
-     * @param   string $url The URL to download from
+     * @param string $url The URL to download from
      *
-     * @return  bool|string  The downloaded data or false on failure
+     * @return bool|string The downloaded data or false on failure
      */
     public function getFromURL($url)
     {
         try {
             return $this->adapter->downloadAndReturn($url);
         } catch (Exception $e) {
-            return FALSE;
+            return false;
         }
     }
 
     /**
      * Performs the staggered download of file.
      *
-     * @param   array $params A parameters array, as sent by the user interface
+     * @param array $params A parameters array, as sent by the user interface
      *
-     * @return  array  A return status array
+     * @return array A return status array
      */
     public function importFromURL($params)
     {
@@ -151,7 +151,7 @@ class AcuDownload
         $localFilename = 'myjoomla-upgradefile.zip';
 
         // This would have been //JFactory::getConfig()->get('tmp_path', JPATH_ROOT . '/tmp');
-        $tmpDir = dirname(__FILE__) . '/../../tmp';
+        $tmpDir = dirname(__FILE__).'/../../tmp';
         $tmpDir = rtrim($tmpDir, '/\\');
 
         /**
@@ -159,17 +159,17 @@ class AcuDownload
          * debugMsg('  file      : ' . $filename);
          * debugMsg('  frag      : ' . $frag);
          * debugMsg('  totalSize : ' . $totalSize);
-         * debugMsg('  doneSize  : ' . $doneSize);
+         * debugMsg('  doneSize  : ' . $doneSize);.
          * /**/
 
         // Init retArray
         $retArray = array(
-            "status"    => TRUE,
-            "error"     => '',
-            "frag"      => $frag,
-            "totalSize" => $totalSize,
-            "doneSize"  => $doneSize,
-            "percent"   => 0,
+            'status'    => true,
+            'error'     => '',
+            'frag'      => $frag,
+            'totalSize' => $totalSize,
+            'doneSize'  => $doneSize,
+            'percent'   => 0,
         );
 
         try {
@@ -178,12 +178,12 @@ class AcuDownload
                 'max_exec_time' => $maxExecTime,
                 'run_time_bias' => $runTimeBias,
             );
-            $timer           = new AcuTimer($timerParameters);
-            $start           = $timer->getRunningTime(); // Mark the start of this download
-            $break           = FALSE; // Don't break the step
+            $timer = new AcuTimer($timerParameters);
+            $start = $timer->getRunningTime(); // Mark the start of this download
+            $break = false; // Don't break the step
 
             // Figure out where on Earth to put that file
-            $local_file = $tmpDir . '/' . $localFilename;
+            $local_file = $tmpDir.'/'.$localFilename;
 
             //debugMsg("- Importing from $filename");
 
@@ -201,7 +201,7 @@ class AcuDownload
                     // Delete and touch the output file
                     $fp = @fopen($local_file, 'wb');
 
-                    if ($fp !== FALSE) {
+                    if (false !== $fp) {
                         @fclose($fp);
                     }
 
@@ -225,19 +225,19 @@ class AcuDownload
                 try {
                     $result = $this->adapter->downloadAndReturn($filename, $from, $to);
 
-                    if ($result === FALSE) {
+                    if (false === $result) {
                         throw new Exception(JText::sprintf('COM_CMSUPDATE_ERR_LIB_COULDNOTDOWNLOADFROMURL', $filename), 500);
                     }
                 } catch (Exception $e) {
-                    $result = FALSE;
+                    $result = false;
                     $error  = $e->getMessage();
                 }
 
-                if ($result === FALSE) {
+                if (false === $result) {
                     // Failed download
-                    if ($frag == 0) {
+                    if (0 == $frag) {
                         // Failure to download first frag = failure to download. Period.
-                        $retArray['status'] = FALSE;
+                        $retArray['status'] = false;
                         $retArray['error']  = $error;
 
                         //debugMsg("-- Download FAILED");
@@ -248,7 +248,7 @@ class AcuDownload
                         $frag = -1;
                         //debugMsg("-- Import complete");
                         $totalSize = $doneSize;
-                        $break     = TRUE;
+                        $break     = true;
                     }
                 }
 
@@ -261,10 +261,10 @@ class AcuDownload
                     // Append the file
                     $fp = @fopen($local_file, 'ab');
 
-                    if ($fp === FALSE) {
+                    if (false === $fp) {
                         //debugMsg("-- Can't open local file $local_file for writing");
                         // Can't open the file for writing
-                        $retArray['status'] = FALSE;
+                        $retArray['status'] = false;
                         $retArray['error']  = JText::sprintf('COM_CMSUPDATE_ERR_LIB_COULDNOTWRITELOCALFILE', $local_file);
 
                         return $retArray;
@@ -275,7 +275,7 @@ class AcuDownload
 
                     //debugMsg("-- Appended data to local file $local_file");
 
-                    $frag++;
+                    ++$frag;
 
                     //debugMsg("-- Proceeding to next fragment, frag $frag");
 
@@ -284,7 +284,7 @@ class AcuDownload
                         $frag = -1;
                         //debugMsg("-- Import complete (partial download of last frag)");
                         $totalSize = $doneSize;
-                        $break     = TRUE;
+                        $break     = true;
                     }
                 }
 
@@ -295,7 +295,7 @@ class AcuDownload
                 $required_time = max(1.1 * ($end - $start), $required_time);
 
                 if ($required_time > (10 - $end + $start)) {
-                    $break = TRUE;
+                    $break = true;
                 }
 
                 $start = $end;
@@ -315,17 +315,17 @@ class AcuDownload
 
             // Update $retArray
             $retArray = array(
-                "status"    => TRUE,
-                "error"     => '',
-                "frag"      => $frag,
-                "totalSize" => $totalSize,
-                "doneSize"  => $doneSize,
-                "percent"   => $percent,
+                'status'    => true,
+                'error'     => '',
+                'frag'      => $frag,
+                'totalSize' => $totalSize,
+                'doneSize'  => $doneSize,
+                'percent'   => $percent,
             );
         } catch (Exception $e) {
             //debugMsg("EXCEPTION RAISED:");
             //debugMsg($e->getMessage());
-            $retArray['status'] = FALSE;
+            $retArray['status'] = false;
             $retArray['error']  = $e->getMessage();
         }
 
@@ -337,12 +337,12 @@ class AcuDownload
      * that will be analyzed by __construct. Then it organizes them into an
      * associative array.
      *
-     * @param   string $path          Folder where we should start looking
-     * @param   array  $ignoreFolders Folder ignore list
-     * @param   array  $ignoreFiles   File ignore list
+     * @param string $path          Folder where we should start looking
+     * @param array  $ignoreFolders Folder ignore list
+     * @param array  $ignoreFiles   File ignore list
      *
-     * @return  array   Associative array, where the `fullpath` key contains the path to the file,
-     *                  and the `classname` key contains the name of the class
+     * @return array Associative array, where the `fullpath` key contains the path to the file,
+     *               and the `classname` key contains the name of the class
      */
     protected static function getFiles($path, array $ignoreFolders = array(), array $ignoreFiles = array())
     {
@@ -359,7 +359,7 @@ class AcuDownload
 
             $return[] = array(
                 'fullpath'  => $file,
-                'classname' => 'AcuDownloadAdapter' . ucfirst(basename($parts[0], '.php'))
+                'classname' => 'AcuDownloadAdapter'.ucfirst(basename($parts[0], '.php')),
             );
         }
 
@@ -370,11 +370,11 @@ class AcuDownload
      * Recursive function that will scan every directory unless it's in the
      * ignore list. Files that aren't in the ignore list are returned.
      *
-     * @param   string $path          Folder where we should start looking
-     * @param   array  $ignoreFolders Folder ignore list
-     * @param   array  $ignoreFiles   File ignore list
+     * @param string $path          Folder where we should start looking
+     * @param array  $ignoreFolders Folder ignore list
+     * @param array  $ignoreFiles   File ignore list
      *
-     * @return  array   List of all the files
+     * @return array List of all the files
      */
     protected static function scanDirectory($path, array $ignoreFolders = array(), array $ignoreFiles = array())
     {
@@ -386,12 +386,12 @@ class AcuDownload
             return $return;
         }
 
-        while (($file = readdir($handle)) !== FALSE) {
-            if ($file == '.' || $file == '..') {
+        while (false !== ($file = readdir($handle))) {
+            if ('.' == $file || '..' == $file) {
                 continue;
             }
 
-            $fullpath = $path . '/' . $file;
+            $fullpath = $path.'/'.$file;
 
             if ((is_dir($fullpath) && in_array($file, $ignoreFolders)) || (is_file($fullpath) && in_array($file, $ignoreFiles))) {
                 continue;
@@ -400,7 +400,7 @@ class AcuDownload
             if (is_dir($fullpath)) {
                 $return = array_merge(self::scanDirectory($fullpath, $ignoreFolders, $ignoreFiles), $return);
             } else {
-                $return[] = $path . '/' . $file;
+                $return[] = $path.'/'.$file;
             }
         }
 

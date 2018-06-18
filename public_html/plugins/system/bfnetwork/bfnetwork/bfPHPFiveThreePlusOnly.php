@@ -1,10 +1,11 @@
 <?php
 
 /**
- * @package   Blue Flame Network (bfNetwork)
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
- * @link      https://myJoomla.com/
+ *
+ * @see      https://myJoomla.com/
+ *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
  * bfNetwork is free software: you can redistribute it and/or modify
@@ -22,7 +23,7 @@
  */
 
 /**
- * This file contains code that can only be run on PHP 5.3.0+ servers
+ * This file contains code that can only be run on PHP 5.3.0+ servers.
  *
  * As myJoomla.com service has to support PHP 5.2 for idiot servers with crappy
  * webhosting the main connector needs to be fully PHP 5.2 compliant most of the time
@@ -31,7 +32,6 @@
  */
 final class bfPHPFiveThreePlusOnly
 {
-
     public function getAkeebaConfig($configConfiguration)
     {
         $key = Akeeba\Engine\Factory::getSecureSettings()->getKey();

@@ -1,9 +1,10 @@
 <?php
 /**
- * @package   Blue Flame Network (bfNetwork)
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
- * @link      https://myJoomla.com/
+ *
+ * @see      https://myJoomla.com/
+ *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
  * bfNetwork is free software: you can redistribute it and/or modify
@@ -28,7 +29,7 @@ if (!class_exists('bfEncrypt')) {
     require 'bfEncrypt.php';
 }
 
-/**
+/*
  * Ok so this is stupid, but we are dealing with XML Parsing on crappy servers on sites with 100+ extensions installed - gulp!
  * 5 Mins! GULP - Most well configured servers will probably not honour this, but in our live tests on crappy servers this seems to work
  */
@@ -44,31 +45,31 @@ final class bfExtensions
     /**
      * @var JDatabase|JDatabaseDriver|object
      */
-    protected $db;
+    private $db;
 
     /**
-     * Incoming decrypted vars from the request
+     * Incoming decrypted vars from the request.
+     *
      * @var stdClass
      */
     private $_dataObj;
 
-
     /**
      * We pass the command to run as a simple integer in our encrypted
      * request this is mainly to speed up the decryption process, plus its a
-     * single digit(or 2) rather than a huge string to remember :-)
+     * single digit(or 2) rather than a huge string to remember :-).
      */
     private $_methods = array(
-        1 => 'getExtensions'
+        1 => 'getExtensions',
     );
 
     /**
      * PHP 5 Constructor,
-     * I inject the request to the object
+     * I inject the request to the object.
      *
      * @param stdClass $dataObj
      */
-    public function __construct($dataObj = NULL)
+    public function __construct($dataObj = null)
     {
         // init Joomla
         require 'bfInitJoomla.php';
@@ -78,24 +79,20 @@ final class bfExtensions
     }
 
     /**
-     * I'm the controller - I run methods based on the request integer
+     * I'm the controller - I run methods based on the request integer.
      */
     public function run()
     {
         if (property_exists($this->_dataObj, 'c')) {
-
-            $c = ( int )$this->_dataObj->c;
+            $c = (int) $this->_dataObj->c;
             if (array_key_exists($c, $this->_methods)) {
-
                 // call the right method
-                $this->{$this->_methods [$c]} ();
+                $this->{$this->_methods[$c]} ();
             } else {
-
                 // Die if an unknown function
-                bfEncrypt::reply('error', 'No Such method #err1 - ' . $c);
+                bfEncrypt::reply('error', 'No Such method #err1 - '.$c);
             }
         } else {
-
             // Die if an unknown function
             bfEncrypt::reply('error', 'No Such method #err2');
         }
@@ -113,7 +110,7 @@ final class bfExtensions
         $this->db = JFactory::getDbo();
 
         // crazy way of handling Joomla 1.5.x legacy :-(
-        $one5 = FALSE;
+        $one5 = false;
 
         // Get Joomla 2.0+ Extensions
         $this->db->setQuery('SELECT e.extension_id, e.name, e.type, e.element, e.enabled, e.folder,
@@ -131,9 +128,8 @@ final class bfExtensions
 
         // ok if we have none maybe we are Joomla < 1.5.26
         if (!$installedExtensions) {
-
             // Yooo hoo I'm on a crap old, out of date, probably hackable Joomla version!
-            $one5 = TRUE;
+            $one5 = true;
 
             // Get the extensions - used to be called components
             $this->db->setQuery('SELECT "component" as "type", name, `option` as "element", enabled FROM #__components WHERE iscore != 1 and parent = 0');
@@ -150,16 +146,16 @@ final class bfExtensions
             /**
              * Get the templates - I n Joomla 1.5.x the templates are not in the
              * db unless published so we need to read the folders from the /templates folders
-             * Note in Joomla 1.5.x there was no such think as admin templates
+             * Note in Joomla 1.5.x there was no such think as admin templates.
              */
-            $folders   = array_merge(scandir(JPATH_BASE . '/templates'), scandir(JPATH_ADMINISTRATOR . '/templates'));
+            $folders   = array_merge(scandir(JPATH_BASE.'/templates'), scandir(JPATH_ADMINISTRATOR.'/templates'));
             $templates = array();
             foreach ($folders as $templateFolder) {
-                $f = JPATH_BASE . '/templates/' . trim($templateFolder);
-                $a = JPATH_ADMINISTRATOR . '/templates/' . trim($templateFolder);
+                $f = JPATH_BASE.'/templates/'.trim($templateFolder);
+                $a = JPATH_ADMINISTRATOR.'/templates/'.trim($templateFolder);
 
                 // We dont want index.html etc...
-                if (!is_dir($f) && !is_dir($a) || ($templateFolder == '.' || $templateFolder == '..')) {
+                if (!is_dir($f) && !is_dir($a) || ('.' == $templateFolder || '..' == $templateFolder)) {
                     continue;
                 }
 
@@ -174,7 +170,7 @@ final class bfExtensions
                     'type'      => 'template',
                     'template'  => $templateFolder,
                     'client_id' => $client_id,
-                    'enabled'   => 1
+                    'enabled'   => 1,
                 );
 
                 // Convert to an obj
@@ -187,85 +183,82 @@ final class bfExtensions
 
         $lang = JFactory::getLanguage();
 
-
         // Load all the language strings up front incase any strings are shared
         foreach ($installedExtensions as $k => $ext) {
+            $lang->load(strtolower($ext->element).'.sys', JPATH_ADMINISTRATOR, 'en-GB', true);
+            $lang->load(strtolower($ext->element).'.sys', JPATH_SITE, 'en-GB', true);
+            $lang->load(strtolower($ext->name).'.sys', JPATH_ADMINISTRATOR, 'en-GB', true);
+            $lang->load(strtolower($ext->name).'.sys', JPATH_SITE, 'en-GB', true);
+            $lang->load(strtolower($ext->title).'.sys', JPATH_ADMINISTRATOR, 'en-GB', true);
+            $lang->load(strtolower($ext->title).'.sys', JPATH_SITE, 'en-GB', true);
 
-            $lang->load(strtolower($ext->element) . ".sys", JPATH_ADMINISTRATOR, 'en-GB', TRUE);
-            $lang->load(strtolower($ext->element) . ".sys", JPATH_SITE, 'en-GB', TRUE);
-            $lang->load(strtolower($ext->name) . ".sys", JPATH_ADMINISTRATOR, 'en-GB', TRUE);
-            $lang->load(strtolower($ext->name) . ".sys", JPATH_SITE, 'en-GB', TRUE);
-            $lang->load(strtolower($ext->title) . ".sys", JPATH_ADMINISTRATOR, 'en-GB', TRUE);
-            $lang->load(strtolower($ext->title) . ".sys", JPATH_SITE, 'en-GB', TRUE);
-
-            $lang->load(strtolower($ext->element), JPATH_ADMINISTRATOR, 'en-GB', TRUE);
-            $lang->load(strtolower($ext->element), JPATH_SITE, 'en-GB', TRUE);
-            $lang->load(strtolower($ext->name), JPATH_ADMINISTRATOR, 'en-GB', TRUE);
-            $lang->load(strtolower($ext->name), JPATH_SITE, 'en-GB', TRUE);
-            $lang->load(strtolower($ext->title), JPATH_ADMINISTRATOR, 'en-GB', TRUE);
-            $lang->load(strtolower($ext->title), JPATH_SITE, 'en-GB', TRUE);
+            $lang->load(strtolower($ext->element), JPATH_ADMINISTRATOR, 'en-GB', true);
+            $lang->load(strtolower($ext->element), JPATH_SITE, 'en-GB', true);
+            $lang->load(strtolower($ext->name), JPATH_ADMINISTRATOR, 'en-GB', true);
+            $lang->load(strtolower($ext->name), JPATH_SITE, 'en-GB', true);
+            $lang->load(strtolower($ext->title), JPATH_ADMINISTRATOR, 'en-GB', true);
+            $lang->load(strtolower($ext->title), JPATH_SITE, 'en-GB', true);
 
             $element = str_replace('_TITLE', '', strtoupper($ext->element));
             $name    = str_replace('_TITLE', '', strtoupper($ext->name));
             $title   = str_replace('_TITLE', '', strtoupper($ext->title));
 
-            $lang->load(strtolower($element) . ".sys", JPATH_ADMINISTRATOR, 'en-GB', TRUE);
-            $lang->load(strtolower($element) . ".sys", JPATH_SITE, 'en-GB', TRUE);
-            $lang->load(strtolower($name) . ".sys", JPATH_ADMINISTRATOR, 'en-GB', TRUE);
-            $lang->load(strtolower($name) . ".sys", JPATH_SITE, 'en-GB', TRUE);
-            $lang->load(strtolower($title) . ".sys", JPATH_ADMINISTRATOR, 'en-GB', TRUE);
-            $lang->load(strtolower($title) . ".sys", JPATH_SITE, 'en-GB', TRUE);
+            $lang->load(strtolower($element).'.sys', JPATH_ADMINISTRATOR, 'en-GB', true);
+            $lang->load(strtolower($element).'.sys', JPATH_SITE, 'en-GB', true);
+            $lang->load(strtolower($name).'.sys', JPATH_ADMINISTRATOR, 'en-GB', true);
+            $lang->load(strtolower($name).'.sys', JPATH_SITE, 'en-GB', true);
+            $lang->load(strtolower($title).'.sys', JPATH_ADMINISTRATOR, 'en-GB', true);
+            $lang->load(strtolower($title).'.sys', JPATH_SITE, 'en-GB', true);
 
-            $lang->load(strtolower($element), JPATH_ADMINISTRATOR, 'en-GB', TRUE);
-            $lang->load(strtolower($element), JPATH_SITE, 'en-GB', TRUE);
-            $lang->load(strtolower($name), JPATH_ADMINISTRATOR, 'en-GB', TRUE);
-            $lang->load(strtolower($name), JPATH_SITE, 'en-GB', TRUE);
-            $lang->load(strtolower($title), JPATH_ADMINISTRATOR, 'en-GB', TRUE);
-            $lang->load(strtolower($title), JPATH_SITE, 'en-GB', TRUE);
+            $lang->load(strtolower($element), JPATH_ADMINISTRATOR, 'en-GB', true);
+            $lang->load(strtolower($element), JPATH_SITE, 'en-GB', true);
+            $lang->load(strtolower($name), JPATH_ADMINISTRATOR, 'en-GB', true);
+            $lang->load(strtolower($name), JPATH_SITE, 'en-GB', true);
+            $lang->load(strtolower($title), JPATH_ADMINISTRATOR, 'en-GB', true);
+            $lang->load(strtolower($title), JPATH_SITE, 'en-GB', true);
 
             // templates
-            $lang->load('tpl_' . strtolower($name), JPATH_ADMINISTRATOR, 'en-GB', TRUE);
-            $lang->load('tpl_' . strtolower($name), JPATH_SITE, 'en-GB', TRUE);
+            $lang->load('tpl_'.strtolower($name), JPATH_ADMINISTRATOR, 'en-GB', true);
+            $lang->load('tpl_'.strtolower($name), JPATH_SITE, 'en-GB', true);
 
             // Joomla 1.5.x modules
-            $lang->load('mod_' . strtolower($name), JPATH_ADMINISTRATOR, 'en-GB', TRUE);
-            $lang->load('mod_' . strtolower($name), JPATH_SITE, 'en-GB', TRUE);
+            $lang->load('mod_'.strtolower($name), JPATH_ADMINISTRATOR, 'en-GB', true);
+            $lang->load('mod_'.strtolower($name), JPATH_SITE, 'en-GB', true);
 
             // tut tut Akeeba - bad naming!
-            $lang->load(strtolower('PLG_SYSTEM_SRP'), JPATH_ADMINISTRATOR, 'en-GB', TRUE); // should be plg_srp
-            $lang->load(strtolower('PLG_SYSTEM_ONECLICKACTION'), JPATH_SITE, 'en-GB', TRUE); // should be plg_oneclickaction
-            $lang->load(strtolower('PLG_SYSTEM_ONECLICKACTION'), JPATH_ADMINISTRATOR, 'en-GB', TRUE); // should be plg_oneclickaction
+            $lang->load(strtolower('PLG_SYSTEM_SRP'), JPATH_ADMINISTRATOR, 'en-GB', true); // should be plg_srp
+            $lang->load(strtolower('PLG_SYSTEM_ONECLICKACTION'), JPATH_SITE, 'en-GB', true); // should be plg_oneclickaction
+            $lang->load(strtolower('PLG_SYSTEM_ONECLICKACTION'), JPATH_ADMINISTRATOR, 'en-GB', true); // should be plg_oneclickaction
 
             // Joomla 1.5 plugins
-            if ($ext->type == 'plugin') {
-                $plg = 'plg_' . $ext->folder . '_' . $ext->element;
-                $lang->load(strtolower($plg), JPATH_SITE, 'en-GB', TRUE);
-                $lang->load(strtolower($plg), JPATH_ADMINISTRATOR, 'en-GB', TRUE);
+            if ('plugin' == $ext->type) {
+                $plg = 'plg_'.$ext->folder.'_'.$ext->element;
+                $lang->load(strtolower($plg), JPATH_SITE, 'en-GB', true);
+                $lang->load(strtolower($plg), JPATH_ADMINISTRATOR, 'en-GB', true);
             }
 
-            if ($ext->type == 'template') {
-                $plg = 'tpl_' . $ext->name;
-                $lang->load(strtolower($plg), JPATH_SITE, 'en-GB', TRUE);
-                $lang->load(strtolower($plg), JPATH_ADMINISTRATOR, 'en-GB', TRUE);
+            if ('template' == $ext->type) {
+                $plg = 'tpl_'.$ext->name;
+                $lang->load(strtolower($plg), JPATH_SITE, 'en-GB', true);
+                $lang->load(strtolower($plg), JPATH_ADMINISTRATOR, 'en-GB', true);
             }
         }
 
         // ok now we have the extensions - get the xml for further offline crunching
         foreach ($installedExtensions as $k => $ext) {
-
             // remove not supported types :-(
-            if ($ext->type == 'file' || $ext->type == 'package') {
+            if ('file' == $ext->type || 'package' == $ext->type) {
                 unset($installedExtensions[$k]);
                 continue;
             }
             $ext->xmlFile = $this->findManifest($ext);
 
             try {
-                if ($ext->xmlFile !== FALSE) {
+                if (false !== $ext->xmlFile) {
                     $parts = explode('/', $ext->xmlFile);
                     array_pop($parts);
                     $ext->path = implode('/', $parts);
-                    bfLog::log('Loading XML file = ' . str_replace(JPATH_BASE, '', $ext->xmlFile));
+                    bfLog::log('Loading XML file = '.str_replace(JPATH_BASE, '', $ext->xmlFile));
                     $xml   = trim(file_get_contents($ext->xmlFile));
                     $myXML = new SimpleXMLElement($xml);
                     if (property_exists($myXML, 'description')) {
@@ -274,25 +267,23 @@ final class bfExtensions
                     $ext->xmlFileContents = base64_encode(gzcompress($xml));
                     $ext->xmlFileCreated  = filemtime($ext->xmlFile);
                 } else {
-                    $ext->MANIFESTERROR = TRUE;
+                    $ext->MANIFESTERROR = true;
                 }
             } catch (Exception $e) {
-                bfLog::log('EXCEPTION = ' . $ext->xmlFile . ' ' . $e->getMessage());
-                die('Could not process XML file at: ' . str_replace(JPATH_BASE, '', $ext->xmlFile));
+                bfLog::log('EXCEPTION = '.$ext->xmlFile.' '.$e->getMessage());
+                die('Could not process XML file at: '.str_replace(JPATH_BASE, '', $ext->xmlFile));
             }
-
 
             $ext->name  = JText::_($ext->name);
             $ext->title = JText::_($ext->title);
             $ext->desc  = base64_encode(gzcompress(JText::_($ext->desc)));
-
 
             // remove base paths - we dont want to leak data :)
             $ext->xmlFile = $this->removeBase($ext->xmlFile);
             $ext->path    = $this->removeBase($ext->path);
 
             // Sort so its pretty - not that anyone sees, but debugging is easier
-            $ext = (array)$ext;
+            $ext = (array) $ext;
             ksort($ext);
 
             // push to the result
@@ -303,7 +294,7 @@ final class bfExtensions
     }
 
     /**
-     * Find the XML file to parse
+     * Find the XML file to parse.
      *
      * @param $ext stdClass
      *
@@ -311,7 +302,6 @@ final class bfExtensions
      */
     private function findManifest($ext)
     {
-
         $prefixes = array('com_',
                           'ext_',
                           'plg_content_',
@@ -344,46 +334,46 @@ final class bfExtensions
         // Let the UGLY code begin
         switch ($ext->type) {
             case 'component':
-                $try[]  = JPATH_ADMINISTRATOR . '/components/' . $ext->element . '/' . $shortName . '.xml';
-                $last[] = JPATH_ADMINISTRATOR . '/components/' . $ext->element . '/';
+                $try[]  = JPATH_ADMINISTRATOR.'/components/'.$ext->element.'/'.$shortName.'.xml';
+                $last[] = JPATH_ADMINISTRATOR.'/components/'.$ext->element.'/';
                 break;
             case 'module':
-                $try[]  = JPATH_ADMINISTRATOR . '/modules/' . $ext->element . '/' . $shortName . '.xml';
-                $try[]  = JPATH_BASE . '/modules/' . $ext->element . '/' . $shortName . '.xml';
-                $try[]  = JPATH_ADMINISTRATOR . '/modules/' . $ext->module . '/' . $ext->module . '.xml';
-                $try[]  = JPATH_BASE . '/modules/' . $ext->module . '/' . $ext->module . '.xml';
-                $last[] = JPATH_ADMINISTRATOR . '/modules/' . $ext->module . '/';
-                $last[] = JPATH_BASE . '/modules/' . $ext->module . '/';
+                $try[]  = JPATH_ADMINISTRATOR.'/modules/'.$ext->element.'/'.$shortName.'.xml';
+                $try[]  = JPATH_BASE.'/modules/'.$ext->element.'/'.$shortName.'.xml';
+                $try[]  = JPATH_ADMINISTRATOR.'/modules/'.$ext->module.'/'.$ext->module.'.xml';
+                $try[]  = JPATH_BASE.'/modules/'.$ext->module.'/'.$ext->module.'.xml';
+                $last[] = JPATH_ADMINISTRATOR.'/modules/'.$ext->module.'/';
+                $last[] = JPATH_BASE.'/modules/'.$ext->module.'/';
                 break;
             case 'template':
 
-                $try[] = JPATH_ADMINISTRATOR . '/templates/' . $ext->element . '/templateDetails.xml';
-                $try[] = JPATH_BASE . '/templates/' . $ext->element . '/templateDetails.xml';
+                $try[] = JPATH_ADMINISTRATOR.'/templates/'.$ext->element.'/templateDetails.xml';
+                $try[] = JPATH_BASE.'/templates/'.$ext->element.'/templateDetails.xml';
                 if (property_exists($ext, 'template')) {
-                    $try[] = JPATH_ADMINISTRATOR . '/templates/' . $ext->template . '/templateDetails.xml';
-                    $try[] = JPATH_BASE . '/templates/' . $ext->template . '/templateDetails.xml';
+                    $try[] = JPATH_ADMINISTRATOR.'/templates/'.$ext->template.'/templateDetails.xml';
+                    $try[] = JPATH_BASE.'/templates/'.$ext->template.'/templateDetails.xml';
                 }
                 if (property_exists($ext, 'name')) {
-                    $try[] = JPATH_ADMINISTRATOR . '/templates/' . $ext->name . '/templateDetails.xml';
-                    $try[] = JPATH_BASE . '/templates/' . $ext->name . '/templateDetails.xml';
+                    $try[] = JPATH_ADMINISTRATOR.'/templates/'.$ext->name.'/templateDetails.xml';
+                    $try[] = JPATH_BASE.'/templates/'.$ext->name.'/templateDetails.xml';
                 }
                 break;
             case 'language':
-                $try[] = JPATH_ADMINISTRATOR . '/language/' . $ext->element . '/' . $ext->element . '.xml';
-                $try[] = JPATH_BASE . '/language/' . $ext->element . '/' . $ext->element . '.xml';
+                $try[] = JPATH_ADMINISTRATOR.'/language/'.$ext->element.'/'.$ext->element.'.xml';
+                $try[] = JPATH_BASE.'/language/'.$ext->element.'/'.$ext->element.'.xml';
                 break;
             case 'plugin':
-                $try[] = JPATH_ADMINISTRATOR . '/plugins/' . $ext->element . '/' . $shortName . '.xml';
-                $try[] = JPATH_BASE . '/plugins/' . $ext->folder . '/' . $ext->element . '/' . $shortName . '.xml';
-                $try[] = JPATH_BASE . '/plugins/' . $ext->element . '/' . $shortName . '.xml';
-                $try[] = JPATH_BASE . '/plugins/' . $ext->folder . '/' . $shortName . '.xml';
-                $try[] = JPATH_BASE . '/plugins/' . $ext->option . '/' . $shortName . '.xml';
+                $try[] = JPATH_ADMINISTRATOR.'/plugins/'.$ext->element.'/'.$shortName.'.xml';
+                $try[] = JPATH_BASE.'/plugins/'.$ext->folder.'/'.$ext->element.'/'.$shortName.'.xml';
+                $try[] = JPATH_BASE.'/plugins/'.$ext->element.'/'.$shortName.'.xml';
+                $try[] = JPATH_BASE.'/plugins/'.$ext->folder.'/'.$shortName.'.xml';
+                $try[] = JPATH_BASE.'/plugins/'.$ext->option.'/'.$shortName.'.xml';
 
-                $last[] = JPATH_ADMINISTRATOR . '/plugins/' . $ext->element . '/';
-                $last[] = JPATH_BASE . '/plugins/' . $ext->folder . '/' . $ext->element . '/';
-                $last[] = JPATH_BASE . '/plugins/' . $ext->element . '/';
-                $last[] = JPATH_BASE . '/plugins/' . $ext->folder . '/';
-                $last[] = JPATH_BASE . '/plugins/' . $ext->option . '/';
+                $last[] = JPATH_ADMINISTRATOR.'/plugins/'.$ext->element.'/';
+                $last[] = JPATH_BASE.'/plugins/'.$ext->folder.'/'.$ext->element.'/';
+                $last[] = JPATH_BASE.'/plugins/'.$ext->element.'/';
+                $last[] = JPATH_BASE.'/plugins/'.$ext->folder.'/';
+                $last[] = JPATH_BASE.'/plugins/'.$ext->option.'/';
                 break;
         }
 
@@ -397,13 +387,12 @@ final class bfExtensions
 
         // argh! still no xml file! - ok lets get tough!
         foreach ($last as $tryThisFolder) {
-
             $foldersAndFiles = scandir($tryThisFolder);
             foreach ($foldersAndFiles as $f) {
                 if (preg_match('/\.xml/', $f)) {
-                    $fileContents = file_get_contents($tryThisFolder . '/' . $f);
+                    $fileContents = file_get_contents($tryThisFolder.'/'.$f);
                     if (preg_match('/(\<install|\<extension )/', $fileContents)) {
-                        return realpath($tryThisFolder . '/' . $f);
+                        return realpath($tryThisFolder.'/'.$f);
                     }
                 }
             }
@@ -412,11 +401,11 @@ final class bfExtensions
             // If you find an xml file - look inside it to see if its a manifest/install
         }
 
-        return FALSE;
+        return false;
     }
 
     /**
-     * Remove the JPATH_BASE from a file with path to prevent leaking absolute paths
+     * Remove the JPATH_BASE from a file with path to prevent leaking absolute paths.
      *
      * @param $path string The full path to a file
      *
@@ -428,13 +417,13 @@ final class bfExtensions
     }
 
     /**
-     * Updates an extension
+     * Updates an extension.
      *
      * @param $extensionId
      */
     public function doUpdate($extensionId)
     {
-        require JPATH_BASE . '/administrator/components/com_installer/models/update.php';
+        require JPATH_BASE.'/administrator/components/com_installer/models/update.php';
 
         $model = new InstallerModelUpdate();
 

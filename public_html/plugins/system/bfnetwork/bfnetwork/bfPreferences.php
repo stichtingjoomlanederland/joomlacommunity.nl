@@ -1,9 +1,10 @@
 <?php
 /**
- * @package   Blue Flame Network (bfNetwork)
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
- * @link      https://myJoomla.com/
+ *
+ * @see      https://myJoomla.com/
+ *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
  * bfNetwork is free software: you can redistribute it and/or modify
@@ -27,122 +28,115 @@
  */
 final class bfPreferences
 {
-	/**
-	 * @var array
-	 */
-	public $default_alerting_filewatchlist = array(
-		'/includes/defines.php',
-		'/includes/framework.php',
-		'/configuration.php'
-	);
+    /**
+     * @var array
+     */
+    public $default_alerting_filewatchlist = array(
+        '/includes/defines.php',
+        '/includes/framework.php',
+        '/configuration.php',
+    );
 
-	/**
-	 * @var string
-	 */
-	private $dieStatement = "<?php\nheader('HTTP/1.0 404 Not Found');\ndie();\n?>\n";
+    /**
+     * @var string
+     */
+    private $dieStatement = "<?php\nheader('HTTP/1.0 404 Not Found');\ndie();\n?>\n";
 
-	/**
-	 * Incoming decrypted vars from the request
-	 * @var stdClass
-	 */
-	private $_dataObj;
+    /**
+     * Incoming decrypted vars from the request.
+     *
+     * @var stdClass
+     */
+    private $_dataObj;
 
-	/**
-	 * @var string
-	 */
-	private $_configFile;
+    /**
+     * @var string
+     */
+    private $_configFile;
 
-	/**
-	 * @var mixed|stdClass
-	 */
-	private $prefs;
+    /**
+     * @var mixed|stdClass
+     */
+    private $prefs;
 
-	/**
-	 * PHP 5 Constructor,
-	 * I inject the request to the object
-	 *
-	 * @param stdClass $dataObj
-	 */
-	public function __construct($dataObj = NULL)
-	{
-		$this->_configFile = dirname(__FILE__) . '/tmp/bfLocalConfig.php';
+    /**
+     * PHP 5 Constructor,
+     * I inject the request to the object.
+     *
+     * @param stdClass $dataObj
+     */
+    public function __construct($dataObj = null)
+    {
+        $this->_configFile = dirname(__FILE__).'/tmp/bfLocalConfig.php';
 
-		// Set the request vars
-		$this->_dataObj = $dataObj;
+        // Set the request vars
+        $this->_dataObj = $dataObj;
 
-		$this->prefs = $this->getPreferences();
+        $this->prefs = $this->getPreferences();
+    }
 
-	}
+    public function getPreferences()
+    {
+        $this->ensurePrefsFileCreated();
 
-	public function getPreferences()
-	{
-		$this->ensurePrefsFileCreated();
+        $prefs = file_get_contents($this->_configFile);
+        $prefs = trim(str_replace($this->dieStatement, '', $prefs));
 
-		$prefs = file_get_contents($this->_configFile);
-		$prefs = trim(str_replace($this->dieStatement, '', $prefs));
+        if (trim($prefs)) {
+            $data = json_decode($prefs);
+        } else {
+            $data = new stdClass();
+        }
 
-		if (trim($prefs))
-		{
-			$data = json_decode($prefs);
-		}
-		else
-		{
-			$data = new stdClass();
-		}
+        if (!is_object($data)) {
+            $data = new stdClass();
+        }
 
-		if (!is_object($data))
-		{
-			$data = new stdClass();
-		}
+        if (!property_exists($data, '_BF_LOG')) {
+            $data->_BF_LOG = false;
+        }
 
-		if (!property_exists($data, '_BF_LOG'))
-		{
-			$data->_BF_LOG = FALSE;
-		}
+        $this->prefs = $data;
 
-		$this->prefs = $data;
+        return $this->prefs;
+    }
 
-		return $this->prefs;
-	}
+    public function ensurePrefsFileCreated()
+    {
+        if (!file_exists($this->_configFile)) {
+            $this->prefs          = new stdClass();
+            $this->prefs->_BF_LOG = false;
+            $this->writeFile();
+        }
+    }
 
-	public function ensurePrefsFileCreated()
-	{
-		if (!file_exists($this->_configFile))
-		{
-			$this->prefs          = new stdClass();
-			$this->prefs->_BF_LOG = FALSE;
-			$this->writeFile();
-		}
-	}
+    public function writeFile()
+    {
+        file_put_contents($this->_configFile, $this->dieStatement);
+        file_put_contents($this->_configFile, json_encode($this->prefs), FILE_APPEND);
+    }
 
-	public function writeFile()
-	{
-		file_put_contents($this->_configFile, $this->dieStatement);
-		file_put_contents($this->_configFile, json_encode($this->prefs), FILE_APPEND);
-	}
+    /**
+     * I'm the controller - I run methods based on the request integer.
+     */
+    public function run($action)
+    {
+        return $this->$action();
+    }
 
-	/**
-	 * I'm the controller - I run methods based on the request integer
-	 */
-	public function run($action)
-	{
-		return $this->$action();
-	}
+    public function savePreferencesFromService()
+    {
+        $this->prefs = json_decode($this->_dataObj->preferences);
+        $this->writeFile();
+    }
 
-	public function savePreferencesFromService()
-	{
-		$this->prefs = json_decode($this->_dataObj->preferences);
-		$this->writeFile();
+    public function savePreference()
+    {
+        $preference = $this->_dataObj->preference;
+        $value      = $this->_dataObj->value;
 
-	}
+        $this->prefs->$preference = $value;
 
-	public function savePreference()
-	{
-		$preference = $this->_dataObj->preference;
-		$value      = $this->_dataObj->value;
-
-		$this->prefs->$preference = $value;
-
-		$this->writeFile();
-	}
+        $this->writeFile();
+    }
 }

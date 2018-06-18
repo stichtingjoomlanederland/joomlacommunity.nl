@@ -1,9 +1,10 @@
 <?php
 /**
- * @package   Blue Flame Network (bfNetwork)
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
- * @link      https://myJoomla.com/
+ *
+ * @see      https://myJoomla.com/
+ *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
  * bfNetwork is free software: you can redistribute it and/or modify
@@ -28,190 +29,184 @@ require 'bfEncrypt.php';
  */
 final class bfBackup
 {
-	/**
-	 * We pass the command to run as a simple integer in our encrypted
-	 * request this is mainly to speed up the decryption process, plus its a
-	 * single digit(or 2) rather than a huge string to remember :-)
-	 */
-	private $_methods = array(
-		1 => 'enableAkeebaFrontendBackup',
-	);
+    /**
+     * We pass the command to run as a simple integer in our encrypted
+     * request this is mainly to speed up the decryption process, plus its a
+     * single digit(or 2) rather than a huge string to remember :-).
+     */
+    private $_methods = array(
+        1 => 'enableAkeebaFrontendBackup',
+    );
 
-	/**
-	 * Pointer to the Joomla Database Object
-	 * @var JDatabaseMysql
-	 */
-	private $_db;
+    /**
+     * Pointer to the Joomla Database Object.
+     *
+     * @var JDatabaseMysql
+     */
+    private $_db;
 
-	/**
-	 * Incoming decrypted vars from the request
-	 * @var stdClass
-	 */
-	private $_dataObj;
+    /**
+     * Incoming decrypted vars from the request.
+     *
+     * @var stdClass
+     */
+    private $_dataObj;
 
-	/**
-	 * PHP 5 Constructor,
-	 * I inject the request to the object
-	 *
-	 * @param stdClass $dataObj
-	 */
-	public function __construct($dataObj)
-	{
-		// init Joomla
-		require 'bfInitJoomla.php';
+    /**
+     * PHP 5 Constructor,
+     * I inject the request to the object.
+     *
+     * @param stdClass $dataObj
+     */
+    public function __construct($dataObj)
+    {
+        // init Joomla
+        require 'bfInitJoomla.php';
 
-		// Set the request vars
-		$this->_dataObj = $dataObj;
-	}
+        // Set the request vars
+        $this->_dataObj = $dataObj;
+    }
 
-	/**
-	 * I'm the controller - I run methods based on the request integer
-	 */
-	public function run()
-	{
-		if (property_exists($this->_dataObj, 'c')) {
+    /**
+     * I'm the controller - I run methods based on the request integer.
+     */
+    public function run()
+    {
+        if (property_exists($this->_dataObj, 'c')) {
+            $c = (int) $this->_dataObj->c;
+            if (array_key_exists($c, $this->_methods)) {
+                // call the right method
+                $this->{$this->_methods[$c]} ();
+            } else {
+                // Die if an unknown function
+                bfEncrypt::reply('error', 'No Such method #err1 - '.$c);
+            }
+        } else {
+            // Die if an unknown function
+            bfEncrypt::reply('error', 'No Such method #err2');
+        }
+    }
 
-			$c = ( int )$this->_dataObj->c;
-			if (array_key_exists($c, $this->_methods)) {
+    /**
+     * If not enabled, then enable the Akeeba API Frontend using a secure secret word.
+     */
+    private function enableAkeebaFrontendBackup()
+    {
+        // load mini-Joomla
+        require 'bfInitJoomla.php';
 
-				// call the right method
-				$this->{$this->_methods [$c]} ();
-			} else {
+        $this->_db = JFactory::getDBO();
 
-				// Die if an unknown function
-				bfEncrypt::reply('error', 'No Such method #err1 - ' . $c);
-			}
-		} else {
+        // Get some Joomla version
+        $VERSION = new JVersion();
 
-			// Die if an unknown function
-			bfEncrypt::reply('error', 'No Such method #err2');
-		}
-	}
+        switch ($VERSION->RELEASE) {
+            case '1.5':
 
-	/**
-	 * If not enabled, then enable the Akeeba API Frontend using a secure secret word
-	 */
-	private function enableAkeebaFrontendBackup()
-	{
-		// load mini-Joomla
-		require 'bfInitJoomla.php';
+                $params = JComponentHelper::getParams('com_akeeba');
+                if (!count($params->toArray())) {
+                    // send back the totals
+                    bfEncrypt::reply('success', array(
+                        'akeeba_installed' => false,
+                    ));
+                }
 
-		$this->_db = JFactory::getDBO();
+                $frontend_enable      = $params->get('frontend_enable');
+                $frontend_secret_word = $params->get('frontend_secret_word');
 
-		// Get some Joomla version
-		$VERSION = new JVersion ();
+                if (1 != $frontend_enable) {
+                    $params->set('frontend_enable', 1);
+                    $saveChanges = true;
+                }
 
-		switch ($VERSION->RELEASE) {
-			case '1.5':
+                // Get a complex unique non-crypto string from myJoomla.com
+                $string = file_get_contents('https://manage.myjoomla.com/public/rand?'.time());
 
-				$params = JComponentHelper::getParams('com_akeeba');
-				if (!count($params->toArray())) {
-					// send back the totals
-					bfEncrypt::reply('success', array(
-						'akeeba_installed' => FALSE
-					));
-				}
+                $params->set('frontend_secret_word', $string);
+                $saveChanges = true;
 
-				$frontend_enable = $params->get('frontend_enable');
-				$frontend_secret_word = $params->get('frontend_secret_word');
+                $secretWord = $params->get('frontend_secret_word');
 
-				if ($frontend_enable != 1) {
-					$params->set('frontend_enable', 1);
-					$saveChanges = TRUE;
-				}
+                if (true == $saveChanges) {
+                    $params = $params->toString();
+                    $sql    = 'UPDATE #__components SET params = \'%s\' WHERE `OPTION` = "com_akeeba"';
+                    $sql    = sprintf($sql, addslashes($params));
+                    $this->_db->setQuery($sql);
+                    $this->_db->query();
+                }
+                break;
+            default:
+            case '2.5':
 
-				// Get a complex unique non-crypto string from myJoomla.com
-				$string = file_get_contents('https://manage.myjoomla.com/public/rand?' . time());
+                $this->_db->setQuery('SELECT extension_id, params FROM #__extensions WHERE NAME="akeeba" AND element = "com_akeeba"');
+                $data = $this->_db->loadObject();
 
-				$params->set('frontend_secret_word', $string);
-				$saveChanges = TRUE;
+                if (!$data) {
+                    // send back the totals
+                    bfEncrypt::reply('success', array(
+                        'akeeba_installed' => false,
+                    ));
+                }
 
-				$secretWord = $params->get('frontend_secret_word');
+                $params = json_decode($data->params);
 
-				if (TRUE == $saveChanges) {
-					$params = $params->toString();
-					$sql = 'UPDATE #__components SET params = \'%s\' WHERE `OPTION` = "com_akeeba"';
-					$sql = sprintf($sql, addslashes($params));
-					$this->_db->setQuery($sql);
-					$this->_db->query();
-				}
-				break;
-			default:
-			case '2.5':
+                if (!$params) {
+                    bfEncrypt::reply('success', array(
+                        'akeeba_installed' => false,
+                    ));
+                }
 
-				$this->_db->setQuery('SELECT extension_id, params FROM #__extensions WHERE NAME="akeeba" AND element = "com_akeeba"');
-				$data = $this->_db->loadObject();
+                // is it encrypted? Akeeba 5.5.2 onwards
+                if (file_exists(JPATH_ADMINISTRATOR.'/components/com_akeeba/BackupEngine/Util/SecureSettings.php')) {
+                    /*
+                     * As Akeeba provides no API for enabling front end feature we have to fudge it
+                     * This is done seamlessly as to allow easy integration rather than getting a user
+                     * to copy and paste his secret string.
+                     */
 
-				if (!$data) {
-					// send back the totals
-					bfEncrypt::reply('success', array(
-						'akeeba_installed' => FALSE
-					));
-				}
+                    define('AKEEBAENGINE', 1);
 
-				$params = json_decode($data->params);
+                    require JPATH_BASE.'/libraries/fof30/Autoloader/Autoloader.php';
+                    require JPATH_ADMINISTRATOR.'/components/com_akeeba/BackupEngine/Autoloader.php';
 
-				if (!$params) {
-					bfEncrypt::reply('success', array(
-						'akeeba_installed' => FALSE
-					));
-				}
+                    \Akeeba\Engine\Platform::addPlatform('joomla3x', JPATH_ADMINISTRATOR.'/components/com_akeeba/BackupPlatform/Joomla3x');
 
-				// is it encrypted? Akeeba 5.5.2 onwards
-				if (file_exists(JPATH_ADMINISTRATOR . '/components/com_akeeba/BackupEngine/Util/SecureSettings.php')) {
+                    $secretWord                   = (new \Akeeba\Engine\Util\RandomValue())->generateString(32);
+                    $params->frontend_secret_word = (new \Akeeba\Engine\Util\SecureSettings())->encryptSettings($secretWord);
+                } else {
+                    if (!$params->frontend_secret_word || preg_match('/\&/', $params->frontend_secret_word)) {
+                        // Get a complex unique non-crypto string from myJoomla.com
+                        $string                       = file_get_contents('https://manage.myjoomla.com/public/rand?'.time());
+                        $params->frontend_secret_word = $string;
+                        $secretWord                   = $params->frontend_secret_word;
+                    }
+                }
 
-					/**
-					 * As Akeeba provides no API for enabling front end feature we have to fudge it
-					 * This is done seamlessly as to allow easy integration rather than getting a user
-					 * to copy and paste his secret string.
-					 */
+                $params->frontend_enable = 1;
+                $params                  = json_encode($params);
 
-					define('AKEEBAENGINE', 1);
+                $sql = 'UPDATE #__extensions SET params = \'%s\' WHERE extension_id = %s';
+                $sql = sprintf($sql, addslashes($params), $data->extension_id);
+                $this->_db->setQuery($sql);
 
-					require JPATH_BASE . '/libraries/fof30/Autoloader/Autoloader.php';
-					require JPATH_ADMINISTRATOR . '/components/com_akeeba/BackupEngine/Autoloader.php';
+                if (method_exists($this->_db, 'execute')) {
+                    $this->_db->execute();
+                } else {
+                    $this->_db->query();
+                }
 
-					\Akeeba\Engine\Platform::addPlatform('joomla3x', JPATH_ADMINISTRATOR . '/components/com_akeeba/BackupPlatform/Joomla3x');
+                break;
+        }
 
-					$secretWord = (new \Akeeba\Engine\Util\RandomValue())->generateString(32);
-					$params->frontend_secret_word = (new \Akeeba\Engine\Util\SecureSettings())->encryptSettings($secretWord);
-
-				} else {
-
-					if (!$params->frontend_secret_word || preg_match('/\&/', $params->frontend_secret_word)) {
-
-						// Get a complex unique non-crypto string from myJoomla.com
-						$string = file_get_contents('https://manage.myjoomla.com/public/rand?' . time());
-						$params->frontend_secret_word = $string;
-						$secretWord = $params->frontend_secret_word;
-					}
-				}
-
-				$params->frontend_enable = 1;
-				$params = json_encode($params);
-
-				$sql = 'UPDATE #__extensions SET params = \'%s\' WHERE extension_id = %s';
-				$sql = sprintf($sql, addslashes($params), $data->extension_id);
-				$this->_db->setQuery($sql);
-
-				if (method_exists($this->_db, 'execute')) {
-					$this->_db->execute();
-				} else {
-					$this->_db->query();
-				}
-
-				break;
-		}
-
-		bfEncrypt::reply('success', array(
-			'akeeba_installed' => TRUE,
-			'secret'           => $secretWord
-		));
-	}
+        bfEncrypt::reply('success', array(
+            'akeeba_installed' => true,
+            'secret'           => $secretWord,
+        ));
+    }
 }
 
 // init this class
-$backupController = new bfBackup ($dataObj);
+$backupController = new bfBackup($dataObj);
 
 // Run the tool method
 $backupController->run();

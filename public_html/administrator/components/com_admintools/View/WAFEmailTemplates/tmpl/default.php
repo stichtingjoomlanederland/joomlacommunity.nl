@@ -55,7 +55,7 @@ $this->getContainer()->template->addJSInline($js);
 				<input type="checkbox" name="toggle" value="" onclick="Joomla.checkAll(this);"/>
 			</th>
 			<th style="width: 130px;">
-				<?php echo \JHtml::_('grid.sort', 'COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_REASON_SELECT', 'reason', $this->order_Dir, $this->order, 'browse'); ?>
+				<?php echo \JHtml::_('grid.sort', 'COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_REASON', 'reason', $this->order_Dir, $this->order, 'browse'); ?>
 			</th>
 			<th>
 				<?php echo \JHtml::_('grid.sort', 'COM_ADMINTOOLS_WAFEMAILTEMPLATES_FIELD_SUBJECT_LBL', 'subject', $this->order_Dir, $this->order, 'browse'); ?>

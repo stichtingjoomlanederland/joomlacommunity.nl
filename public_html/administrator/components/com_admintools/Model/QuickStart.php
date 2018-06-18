@@ -216,7 +216,6 @@ class QuickStart extends Model
 			'allowsitetemplate'       => 0,
 			'trackfailedlogins'       => $state,
 			'use403view'              => 0,
-			'showpwonloginfailure'    => 1,
 			'iplookup'                => 'ip-lookup.net/index.php?ip={ip}',
 			'iplookupscheme'          => 'http',
 			'saveusersignupip'        => $state,

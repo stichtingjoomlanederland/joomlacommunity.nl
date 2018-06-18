@@ -1,10 +1,11 @@
 <?php
 
 /**
- * @package   Blue Flame Network (bfNetwork)
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
- * @link      https://myJoomla.com/
+ *
+ * @see      https://myJoomla.com/
+ *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
  * bfNetwork is free software: you can redistribute it and/or modify
@@ -23,19 +24,16 @@
 class Bf_Filesystem
 {
     /**
-     * @package   AdminTools
-     *
      * @copyright Copyright (c)2010-2011 Nicholas K. Dionysopoulos
      * @license   GNU General Public License version 3, or later
      *
      * @param string $file
      * @param string $buffer
      *
-     * @return boolean
+     * @return bool
      */
-    static function _write($file, $buffer)
+    public static function _write($file, $buffer)
     {
-
         // Initialize variables
         jimport('joomla.client.helper');
         jimport('joomla.filesystem.folder');
@@ -46,22 +44,21 @@ class Bf_Filesystem
 
         // If the destination directory doesn't exist we need to create it
         if (!file_exists(dirname($file))) {
-
             JFolder::create(dirname($file));
         }
 
-        if ($FTPOptions ['enabled'] == 1) {
+        if (1 == $FTPOptions['enabled']) {
             // Connect the FTP client
             jimport('joomla.client.ftp');
             if (version_compare(JVERSION, '3.0', 'ge')) {
-                $ftp = JClientFTP::getInstance($FTPOptions ['host'], $FTPOptions ['port'], NULL, $FTPOptions ['user'], $FTPOptions ['pass']);
+                $ftp = JClientFTP::getInstance($FTPOptions['host'], $FTPOptions['port'], null, $FTPOptions['user'], $FTPOptions['pass']);
             } else {
-                $ftp = JFTP::getInstance($FTPOptions ['host'], $FTPOptions ['port'], NULL, $FTPOptions ['user'], $FTPOptions ['pass']);
+                $ftp = JFTP::getInstance($FTPOptions['host'], $FTPOptions['port'], null, $FTPOptions['user'], $FTPOptions['pass']);
             }
 
             // Translate path for the FTP account and use FTP write buffer to
             // file
-            $file = JPath::clean(str_replace(JPATH_ROOT, $FTPOptions ['root'], $file), '/');
+            $file = JPath::clean(str_replace(JPATH_ROOT, $FTPOptions['root'], $file), '/');
             $ret  = $ftp->write($file, $buffer);
         } else {
             if (!is_writable($file)) {
@@ -89,8 +86,8 @@ class Bf_Filesystem
      *
      * @return array
      */
-    static function readDirectory($path, $filter = '.', $recurse = FALSE,
-                                  $fullpath = FALSE)
+    public static function readDirectory($path, $filter = '.', $recurse = false,
+                                  $fullpath = false)
     {
         $arr = array();
         if (!@is_dir($path)) {
@@ -99,13 +96,13 @@ class Bf_Filesystem
         $handle = opendir($path);
 
         while ($file = readdir($handle)) {
-            $dir   = Bf_Filesystem::pathName($path . '/' . $file, FALSE);
+            $dir   = Bf_Filesystem::pathName($path.'/'.$file, false);
             $isDir = is_dir($dir);
-            if (($file != ".") && ($file != "..")) {
+            if (('.' != $file) && ('..' != $file)) {
                 if (preg_match("/$filter/", $file)) {
                     if ($fullpath) {
                         $arr[] = trim(
-                            Bf_Filesystem::pathName($path . '/' . $file, FALSE));
+                            Bf_Filesystem::pathName($path.'/'.$file, false));
                     } else {
                         $arr[] = trim($file);
                     }
@@ -113,7 +110,7 @@ class Bf_Filesystem
                 if ($recurse && $isDir) {
                     $arr2 = Bf_Filesystem::readDirectory($dir, $filter,
                                                          $recurse, $fullpath);
-                    $arr  = array_merge($arr, $arr2);
+                    $arr = array_merge($arr, $arr2);
                 }
             }
         }
@@ -129,47 +126,47 @@ class Bf_Filesystem
      *
      * @return mixed|string
      */
-    static function pathName($p_path, $p_addtrailingslash = TRUE)
+    public static function pathName($p_path, $p_addtrailingslash = true)
     {
-        $retval = "";
+        $retval = '';
 
-        $isWin = (substr(PHP_OS, 0, 3) == 'WIN');
+        $isWin = ('WIN' == substr(PHP_OS, 0, 3));
 
         if ($isWin) {
             $retval = str_replace('/', '\\', $p_path);
             if ($p_addtrailingslash) {
-                if (substr($retval, -1) != '\\') {
+                if ('\\' != substr($retval, -1)) {
                     $retval .= '\\';
                 }
             }
 
             // Check if UNC path
-            $unc = substr($retval, 0, 2) == '\\\\' ? 1 : 0;
+            $unc = '\\\\' == substr($retval, 0, 2) ? 1 : 0;
 
             // Remove double \\
             $retval = str_replace('\\\\', '\\', $retval);
 
             // If UNC path, we have to add one \ in front or everything breaks!
-            if ($unc == 1) {
-                $retval = '\\' . $retval;
+            if (1 == $unc) {
+                $retval = '\\'.$retval;
             }
         } else {
             $retval = str_replace('\\', '/', $p_path);
             if ($p_addtrailingslash) {
-                if (substr($retval, -1) != '/') {
+                if ('/' != substr($retval, -1)) {
                     $retval .= '/';
                 }
             }
 
             // Check if UNC path
-            $unc = substr($retval, 0, 2) == '//' ? 1 : 0;
+            $unc = '//' == substr($retval, 0, 2) ? 1 : 0;
 
             // Remove double //
             $retval = str_replace('//', '/', $retval);
 
             // If UNC path, we have to add one / in front or everything breaks!
-            if ($unc == 1) {
-                $retval = '/' . $retval;
+            if (1 == $unc) {
+                $retval = '/'.$retval;
             }
         }
 
@@ -178,25 +175,25 @@ class Bf_Filesystem
 
     /**
      * returns the directories in the path
-     * if append path is set then this path will appended to the results
+     * if append path is set then this path will appended to the results.
      *
      * @param string      $path
      * @param bool|string $appendPath
      *
      * @return array
      */
-    static function getDirectories($path, $appendPath = FALSE)
+    public static function getDirectories($path, $appendPath = false)
     {
         if (is_dir($path)) {
             $contents = scandir($path); //open directory and get contents
             if (is_array($contents)) { //it found files
-                $returnDirs = FALSE;
+                $returnDirs = false;
                 foreach ($contents as $dir) {
                     //validate that this is a directory
-                    if (is_dir($path . '/' . $dir) &&
-                        $dir != '.' && $dir != '..' && $dir != '.svn'
+                    if (is_dir($path.'/'.$dir) &&
+                        '.' != $dir && '..' != $dir && '.svn' != $dir
                     ) {
-                        $returnDirs[] = $appendPath . $dir;
+                        $returnDirs[] = $appendPath.$dir;
                     }
                 }
 
@@ -204,7 +201,6 @@ class Bf_Filesystem
                     return $returnDirs;
                 }
             }
-
         }
     }
 
@@ -214,50 +210,50 @@ class Bf_Filesystem
      * will create
      * >my
      * >>own
-     * >>>path
+     * >>>path.
      *
      * @param string $base
      * @param string $path
      *
      * @return bool
      */
-    static function makeRecursive($base, $path)
+    public static function makeRecursive($base, $path)
     {
         $pathArray = explode('/', $path);
         if (is_array($pathArray)) {
-            $strPath = NULL;
+            $strPath = null;
             foreach ($pathArray as $path) {
                 if (!empty($path)) {
-                    $strPath .= '/' . $path;
-                    if (!is_dir($base . $strPath)) {
-                        if (!self::make($base . $strPath)) {
-                            return FALSE;
+                    $strPath .= '/'.$path;
+                    if (!is_dir($base.$strPath)) {
+                        if (!self::make($base.$strPath)) {
+                            return false;
                         }
                     }
                 }
             }
 
-            return TRUE;
+            return true;
         }
     }
 
     /**
      * this is getting a little extreme i know
      * but it will help out later when we want to keep updated indexes
-     * for right now, not much
+     * for right now, not much.
      *
      * @param string $path
      *
      * @return bool
      */
-    static function make($path)
+    public static function make($path)
     {
         return mkdir($path, 0777);
     }
 
     /**
      * deletes a directory recursively
-     * Bf_Filesystem::deleteRecursive(JPATH_ROOT .'/tmp', TRUE);
+     * Bf_Filesystem::deleteRecursive(JPATH_ROOT .'/tmp', TRUE);.
      *
      * @param string $target
      * @param bool   $ignoreWarnings
@@ -265,12 +261,11 @@ class Bf_Filesystem
      *
      * @return bool
      */
-    static function deleteRecursive($target, $ignoreWarnings = FALSE, $msg = array())
+    public static function deleteRecursive($target, $ignoreWarnings = false, $msg = array())
     {
-
         $exceptions = array('.', '..');
         if (!$sourceDir = @opendir($target)) {
-            if ($ignoreWarnings !== TRUE) {
+            if (true !== $ignoreWarnings) {
                 $msg['result']   = 'failure';
                 $msg['errors'][] = $target;
 
@@ -282,23 +277,24 @@ class Bf_Filesystem
             return;
         }
 
-        while (FALSE !== ($sibling = readdir($sourceDir))) {
+        while (false !== ($sibling = readdir($sourceDir))) {
             if (!in_array($sibling, $exceptions)) {
-                $object = str_replace('//', '/', $target . '/' . $sibling);
+                $object = str_replace('//', '/', $target.'/'.$sibling);
                 if (is_dir($object)) {
                     $msg = Bf_Filesystem::deleteRecursive($object,
                                                           $ignoreWarnings, $msg);
                 }
 
                 if (is_file($object)) {
-
-                    bfLog::log('Deleting ' . $object);
+                    bfLog::log('Deleting '.$object);
 
                     $result = unlink($object);
-                    if ($result)
+                    if ($result) {
                         $msg['deleted_files'][] = $object;
-                    if (!$result)
+                    }
+                    if (!$result) {
                         $msg['errors'][] = $object;
+                    }
                 }
             }
         }
@@ -306,8 +302,7 @@ class Bf_Filesystem
         closedir($sourceDir);
 
         if (is_dir($target)) {
-
-            bfLog::log('Deleting ' . $target);
+            bfLog::log('Deleting '.$target);
 
             if ($result = rmdir($target)) {
                 $msg['deleted_folders'][] = $target;
@@ -317,7 +312,6 @@ class Bf_Filesystem
                 $msg['result'] = 'failure';
             }
         } else {
-
         }
 
         return $msg;

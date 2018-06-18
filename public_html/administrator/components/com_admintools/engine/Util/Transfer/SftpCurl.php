@@ -83,6 +83,13 @@ class SftpCurl extends Sftp implements TransferInterface
 	private $verbose = false;
 
 	/**
+	 * Should I enabled the passive IP workaround for cURL?
+	 *
+	 * @var   bool
+	 */
+	private $skipPassiveIP = false;
+
+	/**
 	 * Public constructor
 	 *
 	 * @param   array $options Configuration options
@@ -330,10 +337,11 @@ class SftpCurl extends Sftp implements TransferInterface
 	 *
 	 * @param   string  $localFilename   The full path to the local file
 	 * @param   string  $remoteFilename  The full path to the remote file
+	 * @param   bool    $useExceptions   Throw an exception instead of returning "false" on connection error.
 	 *
 	 * @return  boolean  True on success
 	 */
-	public function upload($localFilename, $remoteFilename)
+	public function upload($localFilename, $remoteFilename, $useExceptions = true)
 	{
 		$fp = @fopen($localFilename, 'rb');
 
@@ -349,6 +357,11 @@ class SftpCurl extends Sftp implements TransferInterface
 		}
 		catch (\RuntimeException $e)
 		{
+			if ($useExceptions)
+			{
+				throw $e;
+			}
+
 			return false;
 		}
 
@@ -377,12 +390,13 @@ class SftpCurl extends Sftp implements TransferInterface
 	/**
 	 * Download a remote file into a local file
 	 *
-	 * @param   string  $remoteFilename  The relative or absolute path to the file on the SFTP server
-	 * @param   string  $localFilename   The absolute path to the file which will be written on disk
+	 * @param   string  $remoteFilename  The remote file path to download from
+	 * @param   string  $localFilename   The local file path to download to
+	 * @param   bool    $useExceptions   Throw an exception instead of returning "false" on connection error.
 	 *
 	 * @return  boolean  True on success
 	 */
-	public function download($remoteFilename, $localFilename)
+	public function download($remoteFilename, $localFilename, $useExceptions = true)
 	{
 		$fp = @fopen($localFilename, 'wb');
 
@@ -398,6 +412,11 @@ class SftpCurl extends Sftp implements TransferInterface
 		}
 		catch (\RuntimeException $e)
 		{
+			if ($useExceptions)
+			{
+				throw $e;
+			}
+
 			return false;
 		}
 

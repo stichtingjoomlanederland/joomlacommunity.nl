@@ -1,9 +1,10 @@
 <?php
 /**
- * @package   Blue Flame Network (bfNetwork)
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
- * @link      https://myJoomla.com/
+ *
+ * @see      https://myJoomla.com/
+ *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
  * bfNetwork is free software: you can redistribute it and/or modify
@@ -31,7 +32,7 @@ require 'bfEncrypt.php';
 require 'bfInitJoomla.php';
 
 // Get some Joomla version
-$VERSION = new JVersion ();
+$VERSION = new JVersion();
 
 // Get the connector version
 $connectorVersion = file_get_contents('VERSION');
@@ -40,5 +41,5 @@ $connectorVersion = file_get_contents('VERSION');
 bfEncrypt::reply('success', array(
     'version'          => $VERSION->getShortVersion(),
     'platform'         => $VERSION->PRODUCT,
-    'connectorversion' => $connectorVersion
+    'connectorversion' => $connectorVersion,
 ));

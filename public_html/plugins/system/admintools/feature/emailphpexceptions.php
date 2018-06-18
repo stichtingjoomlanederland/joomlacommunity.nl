@@ -80,6 +80,13 @@ class AtsystemFeatureEmailphpexceptions extends AtsystemFeatureAbstract
 		$type = get_class($error);
 		$subject = 'Unhandled exception - '.$type;
 
+		// Now let's htmlencode the dump of all superglobals
+		$get 	 = htmlentities(print_r($_GET, true));
+		$post 	 = htmlentities(print_r($_POST, true));
+		$cookie  = htmlentities(print_r($_COOKIE, true));
+		$request = htmlentities(print_r($_REQUEST, true));
+		$server  = htmlentities(print_r($_SERVER, true));
+
 		$body = <<<HTML
 <p>A PHP Exception occurred on your site. Here you can find the stack trace:</p>
 <p>
@@ -90,6 +97,17 @@ class AtsystemFeatureEmailphpexceptions extends AtsystemFeatureAbstract
 </p>
 <pre>{$error->getTraceAsString()}</pre>
 
+<h3>Request information</h3>
+<h4>GET variables</h4>
+<pre>$get</pre>
+<h4>POST variables</h4>
+<pre>$post</pre>
+<h4>COOKIE variables</h4>
+<pre>$cookie</pre>
+<h4>REQUEST variables</h4>
+<pre>$request</pre>
+<h4>SERVER variables</h4>
+<pre>$server</pre>
 HTML;
 
 		$config = JFactory::getConfig();

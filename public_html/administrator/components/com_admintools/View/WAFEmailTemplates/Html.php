@@ -45,7 +45,7 @@ class Html extends BaseView
 
 		// Construct the array of sorting fields
 		$this->sortFields = array(
-			'reason' 	 		=> JText::_('COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_REASON_SELECT'),
+			'reason' 	 		=> JText::_('COM_ADMINTOOLS_LBL_SECURITYEXCEPTION_REASON'),
 			'subject' 	 		=> JText::_('COM_ADMINTOOLS_WAFEMAILTEMPLATES_FIELD_SUBJECT_LBL'),
 			'enabled' 	 		=> JText::_('JPUBLISHED'),
 			'language' 	 		=> JText::_('COM_ADMINTOOLS_COMMON_LANGUAGE'),

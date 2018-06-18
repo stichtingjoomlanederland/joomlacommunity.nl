@@ -48,7 +48,7 @@ $warningStyle = $this->isFirstRun ? 'display: none' : '';
 
 	<div class="akeeba-block--info" style="<?php echo $this->escape($formStyle); ?>">
 		<p>
-			<?php echo $this->escape(JText::sprintf('COM_ADMINTOOLS_QUICKSTART_INTRO', 'https://www.akeebabackup.com/documentation/admin-tools.html')); ?>
+			<?php echo JText::sprintf('COM_ADMINTOOLS_QUICKSTART_INTRO', 'https://www.akeebabackup.com/documentation/admin-tools.html'); ?>
 
 		</p>
 	</div>

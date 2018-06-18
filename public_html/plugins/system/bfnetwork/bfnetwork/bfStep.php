@@ -1,10 +1,11 @@
 <?php
 
 /**
- * @package   Blue Flame Network (bfNetwork)
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
- * @link      https://myJoomla.com/
+ *
+ * @see      https://myJoomla.com/
+ *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
  * bfNetwork is free software: you can redistribute it and/or modify
@@ -22,10 +23,9 @@
  */
 final class STEP
 {
-
     /**
      * Our steps of the audit, broken down into sections mainly for
-     * Reporting
+     * Reporting.
      */
     const TESTCONNECTION         = 1;
     const REQUESTSCANNERCONFIG   = 2;
@@ -47,7 +47,6 @@ final class STEP
     private $_currentStep;
 
     /**
-     *
      * @var array Inverse of our CONST's so that we can convert both ways
      */
     private $steps = array(
@@ -63,15 +62,15 @@ final class STEP
         '10' => 'COMPILEEXTENSIONS',
         '11' => 'VERIFYEXTENSIONS',
         '12' => 'BESTPRACTICESECURITY',
-        '13' => 'COMPLETE'
+        '13' => 'COMPLETE',
     );
 
     /**
-     * Initialise the audit, setting the current step to run
+     * Initialise the audit, setting the current step to run.
      *
      * @param int $currentStep
      */
-    public function __construct($currentStep = NULL)
+    public function __construct($currentStep = null)
     {
         if (!$currentStep) {
             $currentStep = STEP::TESTCONNECTION;
@@ -87,31 +86,29 @@ final class STEP
      */
     public function nextStepPlease()
     {
-
         // If we are almost complete then mark it as so
         if ($this->_currentStep > count($this->steps)) {
-
             $this->_currentStep = STEP::COMPLETE;
         } else {
-
             // Increase the step by one
-            $this->_currentStep++;
+            ++$this->_currentStep;
         }
 
         return $this->_currentStep;
     }
 
     /**
-     * Get the current step
+     * Get the current step.
+     *
      * @return string The name of the step
      */
     public function __toString()
     {
-        return $this->steps [$this->_currentStep];
+        return $this->steps[$this->_currentStep];
     }
 
     /**
-     * Get the method name for a step
+     * Get the method name for a step.
      *
      * @param int $step
      *
@@ -119,6 +116,6 @@ final class STEP
      */
     public function getStepFunction($step)
     {
-        return strtolower($this->steps[$step]) . 'Action';
+        return strtolower($this->steps[$step]).'Action';
     }
 }

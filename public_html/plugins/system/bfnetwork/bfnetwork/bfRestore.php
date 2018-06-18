@@ -1,9 +1,10 @@
 <?php
 /**
- * @package   Blue Flame Network (bfNetwork)
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
- * @link      https://myJoomla.com/
+ *
+ * @see      https://myJoomla.com/
+ *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
  * bfNetwork is free software: you can redistribute it and/or modify
@@ -20,17 +21,13 @@
  * along with this package.  If not, see http://www.gnu.org/licenses/
  */
 
-
 /**
  * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
+ * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
  * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
  */
-
 define('_AKEEBA_RESTORATION', 1);
 defined('DS') or define('DS', DIRECTORY_SEPARATOR);
 
@@ -70,8 +67,8 @@ if (!function_exists('fnmatch')) {
     function fnmatch($pattern, $string)
     {
         return @preg_match(
-            '/^' . strtr(addcslashes($pattern, '/\\.+^$(){}=!<>|'),
-                array('*' => '.*', '?' => '.?')) . '$/i', $string
+            '/^'.strtr(addcslashes($pattern, '/\\.+^$(){}=!<>|'),
+                array('*' => '.*', '?' => '.?')).'$/i', $string
         );
     }
 }
@@ -92,12 +89,12 @@ if (!function_exists('akstringlen')) {
 }
 
 /**
- * Gets a query parameter from GET or POST data
+ * Gets a query parameter from GET or POST data.
  *
  * @param $key
  * @param $default
  */
-function getQueryParam($key, $default = NULL)
+function getQueryParam($key, $default = null)
 {
     $value = $default;
 
@@ -121,11 +118,11 @@ function debugMsg($msg)
 
     $fp = fopen('debug.txt', 'at');
 
-    fwrite($fp, $msg . "\n");
+    fwrite($fp, $msg."\n");
     fclose($fp);
 }
 
-/**
+/*
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
@@ -135,7 +132,7 @@ function debugMsg($msg)
  * @subpackage  kickstart
  */
 
-/**
+/*
  * Akeeba Backup's JSON compatibility layer
  *
  * On systems where json_encode and json_decode are not available, Akeeba
@@ -145,7 +142,7 @@ function debugMsg($msg)
  * 3PD extension loading it for its own purposes.
  */
 
-/**
+/*
  * Converts to and from JSON format.
  *
  * JSON (JavaScript Object Notation) is a lightweight data-interchange
@@ -205,43 +202,43 @@ if (!defined('JSON_FORCE_OBJECT')) {
 }
 
 if (!defined('SERVICES_JSON_SLICE')) {
-    /**
+    /*
      * Marker constant for Services_JSON::decode(), used to flag stack state
      */
     define('SERVICES_JSON_SLICE', 1);
 
-    /**
+    /*
      * Marker constant for Services_JSON::decode(), used to flag stack state
      */
     define('SERVICES_JSON_IN_STR', 2);
 
-    /**
+    /*
      * Marker constant for Services_JSON::decode(), used to flag stack state
      */
     define('SERVICES_JSON_IN_ARR', 3);
 
-    /**
+    /*
      * Marker constant for Services_JSON::decode(), used to flag stack state
      */
     define('SERVICES_JSON_IN_OBJ', 4);
 
-    /**
+    /*
      * Marker constant for Services_JSON::decode(), used to flag stack state
      */
     define('SERVICES_JSON_IN_CMT', 5);
 
-    /**
+    /*
      * Behavior switch for Services_JSON::decode()
      */
     define('SERVICES_JSON_LOOSE_TYPE', 16);
 
-    /**
+    /*
      * Behavior switch for Services_JSON::decode()
      */
     define('SERVICES_JSON_SUPPRESS_ERRORS', 32);
 }
 
-/**
+/*
  * Converts to and from JSON format.
  *
  * Brief example of use:
@@ -266,9 +263,9 @@ if (!class_exists('Akeeba_Services_JSON')) {
     class Akeeba_Services_JSON
     {
         /**
-         * constructs a new JSON instance
+         * constructs a new JSON instance.
          *
-         * @param    int $use object behavior flags; combine with boolean-OR
+         * @param int $use object behavior flags; combine with boolean-OR
          *
          *                           possible values:
          *                           - SERVICES_JSON_LOOSE_TYPE:  loose typing.
@@ -281,34 +278,33 @@ if (!class_exists('Akeeba_Services_JSON')) {
          *                                   bubble up with an error, so all return values
          *                                   from encode() should be checked with isError()
          */
-        function Akeeba_Services_JSON($use = 0)
+        public function Akeeba_Services_JSON($use = 0)
         {
             $this->use = $use;
         }
 
         /**
-         * convert a string from one UTF-16 char to one UTF-8 char
+         * convert a string from one UTF-16 char to one UTF-8 char.
          *
          * Normally should be handled by mb_convert_encoding, but
          * provides a slower PHP-only method for installations
          * that lack the multibye string extension.
          *
-         * @param    string $utf16 UTF-16 character
+         * @param string $utf16 UTF-16 character
          *
-         * @return   string  UTF-8 character
-         * @access   private
+         * @return string UTF-8 character
          */
-        function utf162utf8($utf16)
+        public function utf162utf8($utf16)
         {
             // oh please oh please oh please oh please oh please
             if (function_exists('mb_convert_encoding')) {
                 return mb_convert_encoding($utf16, 'UTF-8', 'UTF-16');
             }
 
-            $bytes = (ord($utf16{0}) << 8) | ord($utf16{1});
+            $bytes = (ord($utf16[0]) << 8) | ord($utf16[1]);
 
-            switch (TRUE) {
-                case ((0x7F & $bytes) == $bytes):
+            switch (true) {
+                case (0x7F & $bytes) == $bytes:
                     // this case should never be reached, because we are in ASCII range
                     // see: http://www.cl.cam.ac.uk/~mgk25/unicode.html#utf-8
                     return chr(0x7F & $bytes);
@@ -317,14 +313,14 @@ if (!class_exists('Akeeba_Services_JSON')) {
                     // return a 2-byte UTF-8 character
                     // see: http://www.cl.cam.ac.uk/~mgk25/unicode.html#utf-8
                     return chr(0xC0 | (($bytes >> 6) & 0x1F))
-                    . chr(0x80 | ($bytes & 0x3F));
+                    .chr(0x80 | ($bytes & 0x3F));
 
                 case (0xFFFF & $bytes) == $bytes:
                     // return a 3-byte UTF-8 character
                     // see: http://www.cl.cam.ac.uk/~mgk25/unicode.html#utf-8
                     return chr(0xE0 | (($bytes >> 12) & 0x0F))
-                    . chr(0x80 | (($bytes >> 6) & 0x3F))
-                    . chr(0x80 | ($bytes & 0x3F));
+                    .chr(0x80 | (($bytes >> 6) & 0x3F))
+                    .chr(0x80 | ($bytes & 0x3F));
             }
 
             // ignoring UTF-32 for now, sorry
@@ -332,18 +328,17 @@ if (!class_exists('Akeeba_Services_JSON')) {
         }
 
         /**
-         * convert a string from one UTF-8 char to one UTF-16 char
+         * convert a string from one UTF-8 char to one UTF-16 char.
          *
          * Normally should be handled by mb_convert_encoding, but
          * provides a slower PHP-only method for installations
          * that lack the multibye string extension.
          *
-         * @param    string $utf8 UTF-8 character
+         * @param string $utf8 UTF-8 character
          *
-         * @return   string  UTF-16 character
-         * @access   private
+         * @return string UTF-16 character
          */
-        function utf82utf16($utf8)
+        public function utf82utf16($utf8)
         {
             // oh please oh please oh please oh please oh please
             if (function_exists('mb_convert_encoding')) {
@@ -359,17 +354,17 @@ if (!class_exists('Akeeba_Services_JSON')) {
                 case 2:
                     // return a UTF-16 character from a 2-byte UTF-8 char
                     // see: http://www.cl.cam.ac.uk/~mgk25/unicode.html#utf-8
-                    return chr(0x07 & (ord($utf8{0}) >> 2))
-                    . chr((0xC0 & (ord($utf8{0}) << 6))
-                        | (0x3F & ord($utf8{1})));
+                    return chr(0x07 & (ord($utf8[0]) >> 2))
+                    .chr((0xC0 & (ord($utf8[0]) << 6))
+                        | (0x3F & ord($utf8[1])));
 
                 case 3:
                     // return a UTF-16 character from a 3-byte UTF-8 char
                     // see: http://www.cl.cam.ac.uk/~mgk25/unicode.html#utf-8
-                    return chr((0xF0 & (ord($utf8{0}) << 4))
-                        | (0x0F & (ord($utf8{1}) >> 2)))
-                    . chr((0xC0 & (ord($utf8{1}) << 6))
-                        | (0x7F & ord($utf8{2})));
+                    return chr((0xF0 & (ord($utf8[0]) << 4))
+                        | (0x0F & (ord($utf8[1]) >> 2)))
+                    .chr((0xC0 & (ord($utf8[1]) << 6))
+                        | (0x7F & ord($utf8[2])));
             }
 
             // ignoring UTF-32 for now, sorry
@@ -377,17 +372,16 @@ if (!class_exists('Akeeba_Services_JSON')) {
         }
 
         /**
-         * encodes an arbitrary variable into JSON format
+         * encodes an arbitrary variable into JSON format.
          *
-         * @param    mixed $var any number, boolean, string, array, or object to be encoded.
-         *                           see argument 1 to Services_JSON() above for array-parsing behavior.
-         *                           if var is a strng, note that encode() always expects it
-         *                           to be in ASCII or UTF-8 format!
+         * @param mixed $var any number, boolean, string, array, or object to be encoded.
+         *                   see argument 1 to Services_JSON() above for array-parsing behavior.
+         *                   if var is a strng, note that encode() always expects it
+         *                   to be in ASCII or UTF-8 format!
          *
-         * @return   mixed   JSON string representation of input var or an error if a problem occurs
-         * @access   public
+         * @return mixed JSON string representation of input var or an error if a problem occurs
          */
-        function encode($var)
+        public function encode($var)
         {
             switch (gettype($var)) {
                 case 'boolean':
@@ -397,108 +391,107 @@ if (!class_exists('Akeeba_Services_JSON')) {
                     return 'null';
 
                 case 'integer':
-                    return (int)$var;
+                    return (int) $var;
 
                 case 'double':
                 case 'float':
-                    return (float)$var;
+                    return (float) $var;
 
                 case 'string':
                     // STRINGS ARE EXPECTED TO BE IN ASCII OR UTF-8 FORMAT
-                    $ascii = '';
+                    $ascii      = '';
                     $strlen_var = strlen($var);
 
                     /*
-	                * Iterate over every character in the string,
-	                * escaping with a slash or encoding to UTF-8 where necessary
-	                */
+                    * Iterate over every character in the string,
+                    * escaping with a slash or encoding to UTF-8 where necessary
+                    */
                     for ($c = 0; $c < $strlen_var; ++$c) {
+                        $ord_var_c = ord($var[$c]);
 
-                        $ord_var_c = ord($var{$c});
-
-                        switch (TRUE) {
-                            case $ord_var_c == 0x08:
+                        switch (true) {
+                            case 0x08 == $ord_var_c:
                                 $ascii .= '\b';
                                 break;
-                            case $ord_var_c == 0x09:
+                            case 0x09 == $ord_var_c:
                                 $ascii .= '\t';
                                 break;
-                            case $ord_var_c == 0x0A:
+                            case 0x0A == $ord_var_c:
                                 $ascii .= '\n';
                                 break;
-                            case $ord_var_c == 0x0C:
+                            case 0x0C == $ord_var_c:
                                 $ascii .= '\f';
                                 break;
-                            case $ord_var_c == 0x0D:
+                            case 0x0D == $ord_var_c:
                                 $ascii .= '\r';
                                 break;
 
-                            case $ord_var_c == 0x22:
-                            case $ord_var_c == 0x2F:
-                            case $ord_var_c == 0x5C:
+                            case 0x22 == $ord_var_c:
+                            case 0x2F == $ord_var_c:
+                            case 0x5C == $ord_var_c:
                                 // double quote, slash, slosh
-                                $ascii .= '\\' . $var{$c};
+                                $ascii .= '\\'.$var[$c];
                                 break;
 
-                            case (($ord_var_c >= 0x20) && ($ord_var_c <= 0x7F)):
+                            case ($ord_var_c >= 0x20) && ($ord_var_c <= 0x7F):
                                 // characters U-00000000 - U-0000007F (same as ASCII)
-                                $ascii .= $var{$c};
+                                $ascii .= $var[$c];
                                 break;
 
-                            case (($ord_var_c & 0xE0) == 0xC0):
+                            case 0xC0 == ($ord_var_c & 0xE0):
                                 // characters U-00000080 - U-000007FF, mask 110XXXXX
                                 // see http://www.cl.cam.ac.uk/~mgk25/unicode.html#utf-8
-                                $char = pack('C*', $ord_var_c, ord($var{$c + 1}));
-                                $c += 1;
+                                $char = pack('C*', $ord_var_c, ord($var[$c + 1]));
+                                ++$c;
                                 $utf16 = $this->utf82utf16($char);
                                 $ascii .= sprintf('\u%04s', bin2hex($utf16));
                                 break;
 
-                            case (($ord_var_c & 0xF0) == 0xE0):
+                            case 0xE0 == ($ord_var_c & 0xF0):
                                 // characters U-00000800 - U-0000FFFF, mask 1110XXXX
                                 // see http://www.cl.cam.ac.uk/~mgk25/unicode.html#utf-8
                                 $char = pack('C*', $ord_var_c,
-                                    ord($var{$c + 1}),
-                                    ord($var{$c + 2}));
+                                    ord($var[$c + 1]),
+                                    ord($var[$c + 2]));
                                 $c += 2;
                                 $utf16 = $this->utf82utf16($char);
                                 $ascii .= sprintf('\u%04s', bin2hex($utf16));
                                 break;
 
-                            case (($ord_var_c & 0xF8) == 0xF0):
+                            case 0xF0 == ($ord_var_c & 0xF8):
                                 // characters U-00010000 - U-001FFFFF, mask 11110XXX
                                 // see http://www.cl.cam.ac.uk/~mgk25/unicode.html#utf-8
                                 $char = pack('C*', $ord_var_c,
-                                    ord($var{$c + 1}),
-                                    ord($var{$c + 2}),
-                                    ord($var{$c + 3}));
+                                    ord($var[$c + 1]),
+                                    ord($var[$c + 2]),
+                                    ord($var[$c + 3]));
                                 $c += 3;
                                 $utf16 = $this->utf82utf16($char);
                                 $ascii .= sprintf('\u%04s', bin2hex($utf16));
                                 break;
 
-                            case (($ord_var_c & 0xFC) == 0xF8):
+                            case 0xF8 == ($ord_var_c & 0xFC):
                                 // characters U-00200000 - U-03FFFFFF, mask 111110XX
                                 // see http://www.cl.cam.ac.uk/~mgk25/unicode.html#utf-8
                                 $char = pack('C*', $ord_var_c,
-                                    ord($var{$c + 1}),
-                                    ord($var{$c + 2}),
-                                    ord($var{$c + 3}),
-                                    ord($var{$c + 4}));
+                                    ord($var[$c + 1]),
+                                    ord($var[$c + 2]),
+                                    ord($var[$c + 3]),
+                                    ord($var[$c + 4]));
                                 $c += 4;
                                 $utf16 = $this->utf82utf16($char);
                                 $ascii .= sprintf('\u%04s', bin2hex($utf16));
                                 break;
 
-                            case (($ord_var_c & 0xFE) == 0xFC):
+                            case 0xFC == ($ord_var_c & 0xFE):
                                 // characters U-04000000 - U-7FFFFFFF, mask 1111110X
                                 // see http://www.cl.cam.ac.uk/~mgk25/unicode.html#utf-8
                                 $char = pack('C*', $ord_var_c,
-                                    ord($var{$c + 1}),
-                                    ord($var{$c + 2}),
-                                    ord($var{$c + 3}),
-                                    ord($var{$c + 4}),
-                                    ord($var{$c + 5}));
+                                    ord($var[$c + 1]),
+                                    ord($var[$c + 2]),
+                                    ord($var[$c + 3]),
+                                    ord($var[$c + 4]),
+                                    ord($var[$c + 5]));
                                 $c += 5;
                                 $utf16 = $this->utf82utf16($char);
                                 $ascii .= sprintf('\u%04s', bin2hex($utf16));
@@ -506,26 +499,26 @@ if (!class_exists('Akeeba_Services_JSON')) {
                         }
                     }
 
-                    return '"' . $ascii . '"';
+                    return '"'.$ascii.'"';
 
                 case 'array':
                     /*
-	                * As per JSON spec if any array key is not an integer
-	                * we must treat the the whole array as an object. We
-	                * also try to catch a sparsely populated associative
-	                * array with numeric keys here because some JS engines
-	                * will create an array with empty indexes up to
-	                * max_index which can cause memory issues and because
-	                * the keys, which may be relevant, will be remapped
-	                * otherwise.
-	                *
-	                * As per the ECMA and JSON specification an object may
-	                * have any string as a property. Unfortunately due to
-	                * a hole in the ECMA specification if the key is a
-	                * ECMA reserved word or starts with a digit the
-	                * parameter is only accessible using ECMAScript's
-	                * bracket notation.
-	                */
+                    * As per JSON spec if any array key is not an integer
+                    * we must treat the the whole array as an object. We
+                    * also try to catch a sparsely populated associative
+                    * array with numeric keys here because some JS engines
+                    * will create an array with empty indexes up to
+                    * max_index which can cause memory issues and because
+                    * the keys, which may be relevant, will be remapped
+                    * otherwise.
+                    *
+                    * As per the ECMA and JSON specification an object may
+                    * have any string as a property. Unfortunately due to
+                    * a hole in the ECMA specification if the key is a
+                    * ECMA reserved word or starts with a digit the
+                    * parameter is only accessible using ECMAScript's
+                    * bracket notation.
+                    */
 
                     // treat as a JSON object
                     if (is_array($var) && count($var) && (array_keys($var) !== range(0, sizeof($var) - 1))) {
@@ -539,7 +532,7 @@ if (!class_exists('Akeeba_Services_JSON')) {
                             }
                         }
 
-                        return '{' . join(',', $properties) . '}';
+                        return '{'.join(',', $properties).'}';
                     }
 
                     // treat it like a regular array
@@ -551,7 +544,7 @@ if (!class_exists('Akeeba_Services_JSON')) {
                         }
                     }
 
-                    return '[' . join(',', $elements) . ']';
+                    return '['.join(',', $elements).']';
 
                 case 'object':
                     $vars = get_object_vars($var);
@@ -566,25 +559,24 @@ if (!class_exists('Akeeba_Services_JSON')) {
                         }
                     }
 
-                    return '{' . join(',', $properties) . '}';
+                    return '{'.join(',', $properties).'}';
 
                 default:
                     return ($this->use & SERVICES_JSON_SUPPRESS_ERRORS)
                         ? 'null'
-                        : new Akeeba_Services_JSON_Error(gettype($var) . " can not be encoded as JSON string");
+                        : new Akeeba_Services_JSON_Error(gettype($var).' can not be encoded as JSON string');
             }
         }
 
         /**
-         * array-walking function for use in generating JSON-formatted name-value pairs
+         * array-walking function for use in generating JSON-formatted name-value pairs.
          *
-         * @param    string $name name of key to use
-         * @param    mixed $value reference to an array element to be encoded
+         * @param string $name  name of key to use
+         * @param mixed  $value reference to an array element to be encoded
          *
-         * @return   string  JSON-formatted name-value pair, like '"name":value'
-         * @access   private
+         * @return string JSON-formatted name-value pair, like '"name":value'
          */
-        function name_value($name, $value)
+        public function name_value($name, $value)
         {
             $encoded_value = $this->encode($value);
 
@@ -592,28 +584,25 @@ if (!class_exists('Akeeba_Services_JSON')) {
                 return $encoded_value;
             }
 
-            return $this->encode(strval($name)) . ':' . $encoded_value;
+            return $this->encode(strval($name)).':'.$encoded_value;
         }
 
         /**
-         * reduce a string by removing leading and trailing comments and whitespace
+         * reduce a string by removing leading and trailing comments and whitespace.
          *
-         * @param    $str    string      string value to strip of comments and whitespace
+         * @param   $str string      string value to strip of comments and whitespace
          *
-         * @return   string  string value stripped of comments and whitespace
-         * @access   private
+         * @return string string value stripped of comments and whitespace
          */
-        function reduce_string($str)
+        public function reduce_string($str)
         {
             $str = preg_replace(array(
-
                 // eliminate single line comments in '// ...' form
                 '#^\s*//(.+)$#m',
                 // eliminate multi-line comments in '/* ... */' form, at start of string
                 '#^\s*/\*(.+)\*/#Us',
                 // eliminate multi-line comments in '/* ... */' form, at end of string
-                '#/\*(.+)\*/\s*$#Us'
-
+                '#/\*(.+)\*/\s*$#Us',
             ), '', $str);
 
             // eliminate extraneous space
@@ -621,30 +610,29 @@ if (!class_exists('Akeeba_Services_JSON')) {
         }
 
         /**
-         * decodes a JSON string into appropriate variable
+         * decodes a JSON string into appropriate variable.
          *
-         * @param    string $str JSON-formatted string
+         * @param string $str JSON-formatted string
          *
-         * @return   mixed   number, boolean, string, array, or object
-         *                   corresponding to given JSON input string.
-         *                   See argument 1 to Akeeba_Services_JSON() above for object-output behavior.
-         *                   Note that decode() always returns strings
-         *                   in ASCII or UTF-8 format!
-         * @access   public
+         * @return mixed number, boolean, string, array, or object
+         *               corresponding to given JSON input string.
+         *               See argument 1 to Akeeba_Services_JSON() above for object-output behavior.
+         *               Note that decode() always returns strings
+         *               in ASCII or UTF-8 format!
          */
-        function decode($str)
+        public function decode($str)
         {
             $str = $this->reduce_string($str);
 
             switch (strtolower($str)) {
                 case 'true':
-                    return TRUE;
+                    return true;
 
                 case 'false':
-                    return FALSE;
+                    return false;
 
                 case 'null':
-                    return NULL;
+                    return null;
 
                 default:
                     $m = array();
@@ -657,112 +645,107 @@ if (!class_exists('Akeeba_Services_JSON')) {
                         // return (float)$str;
 
                         // Return float or int, as appropriate
-                        return ((float)$str == (integer)$str)
-                            ? (integer)$str
-                            : (float)$str;
-
+                        return ((float) $str == (int) $str)
+                            ? (int) $str
+                            : (float) $str;
                     } elseif (preg_match('/^("|\').*(\1)$/s', $str, $m) && $m[1] == $m[2]) {
                         // STRINGS RETURNED IN UTF-8 FORMAT
-                        $delim = substr($str, 0, 1);
-                        $chrs = substr($str, 1, -1);
-                        $utf8 = '';
+                        $delim       = substr($str, 0, 1);
+                        $chrs        = substr($str, 1, -1);
+                        $utf8        = '';
                         $strlen_chrs = strlen($chrs);
 
                         for ($c = 0; $c < $strlen_chrs; ++$c) {
-
                             $substr_chrs_c_2 = substr($chrs, $c, 2);
-                            $ord_chrs_c = ord($chrs{$c});
+                            $ord_chrs_c      = ord($chrs[$c]);
 
-                            switch (TRUE) {
-                                case $substr_chrs_c_2 == '\b':
+                            switch (true) {
+                                case '\b' == $substr_chrs_c_2:
                                     $utf8 .= chr(0x08);
                                     ++$c;
                                     break;
-                                case $substr_chrs_c_2 == '\t':
+                                case '\t' == $substr_chrs_c_2:
                                     $utf8 .= chr(0x09);
                                     ++$c;
                                     break;
-                                case $substr_chrs_c_2 == '\n':
+                                case '\n' == $substr_chrs_c_2:
                                     $utf8 .= chr(0x0A);
                                     ++$c;
                                     break;
-                                case $substr_chrs_c_2 == '\f':
+                                case '\f' == $substr_chrs_c_2:
                                     $utf8 .= chr(0x0C);
                                     ++$c;
                                     break;
-                                case $substr_chrs_c_2 == '\r':
+                                case '\r' == $substr_chrs_c_2:
                                     $utf8 .= chr(0x0D);
                                     ++$c;
                                     break;
 
-                                case $substr_chrs_c_2 == '\\"':
-                                case $substr_chrs_c_2 == '\\\'':
-                                case $substr_chrs_c_2 == '\\\\':
-                                case $substr_chrs_c_2 == '\\/':
-                                    if (($delim == '"' && $substr_chrs_c_2 != '\\\'') ||
-                                        ($delim == "'" && $substr_chrs_c_2 != '\\"')
+                                case '\\"' == $substr_chrs_c_2:
+                                case '\\\'' == $substr_chrs_c_2:
+                                case '\\\\' == $substr_chrs_c_2:
+                                case '\\/' == $substr_chrs_c_2:
+                                    if (('"' == $delim && '\\\'' != $substr_chrs_c_2) ||
+                                        ("'" == $delim && '\\"' != $substr_chrs_c_2)
                                     ) {
-                                        $utf8 .= $chrs{++$c};
+                                        $utf8 .= $chrs[++$c];
                                     }
                                     break;
 
                                 case preg_match('/\\\u[0-9A-F]{4}/i', substr($chrs, $c, 6)):
                                     // single, escaped unicode character
                                     $utf16 = chr(hexdec(substr($chrs, ($c + 2), 2)))
-                                        . chr(hexdec(substr($chrs, ($c + 4), 2)));
+                                        .chr(hexdec(substr($chrs, ($c + 4), 2)));
                                     $utf8 .= $this->utf162utf8($utf16);
                                     $c += 5;
                                     break;
 
                                 case ($ord_chrs_c >= 0x20) && ($ord_chrs_c <= 0x7F):
-                                    $utf8 .= $chrs{$c};
+                                    $utf8 .= $chrs[$c];
                                     break;
 
-                                case ($ord_chrs_c & 0xE0) == 0xC0:
+                                case 0xC0 == ($ord_chrs_c & 0xE0):
                                     // characters U-00000080 - U-000007FF, mask 110XXXXX
                                     //see http://www.cl.cam.ac.uk/~mgk25/unicode.html#utf-8
                                     $utf8 .= substr($chrs, $c, 2);
                                     ++$c;
                                     break;
 
-                                case ($ord_chrs_c & 0xF0) == 0xE0:
+                                case 0xE0 == ($ord_chrs_c & 0xF0):
                                     // characters U-00000800 - U-0000FFFF, mask 1110XXXX
                                     // see http://www.cl.cam.ac.uk/~mgk25/unicode.html#utf-8
                                     $utf8 .= substr($chrs, $c, 3);
                                     $c += 2;
                                     break;
 
-                                case ($ord_chrs_c & 0xF8) == 0xF0:
+                                case 0xF0 == ($ord_chrs_c & 0xF8):
                                     // characters U-00010000 - U-001FFFFF, mask 11110XXX
                                     // see http://www.cl.cam.ac.uk/~mgk25/unicode.html#utf-8
                                     $utf8 .= substr($chrs, $c, 4);
                                     $c += 3;
                                     break;
 
-                                case ($ord_chrs_c & 0xFC) == 0xF8:
+                                case 0xF8 == ($ord_chrs_c & 0xFC):
                                     // characters U-00200000 - U-03FFFFFF, mask 111110XX
                                     // see http://www.cl.cam.ac.uk/~mgk25/unicode.html#utf-8
                                     $utf8 .= substr($chrs, $c, 5);
                                     $c += 4;
                                     break;
 
-                                case ($ord_chrs_c & 0xFE) == 0xFC:
+                                case 0xFC == ($ord_chrs_c & 0xFE):
                                     // characters U-04000000 - U-7FFFFFFF, mask 1111110X
                                     // see http://www.cl.cam.ac.uk/~mgk25/unicode.html#utf-8
                                     $utf8 .= substr($chrs, $c, 6);
                                     $c += 5;
                                     break;
-
                             }
-
                         }
 
                         return $utf8;
-
                     } elseif (preg_match('/^\[.*\]$/s', $str) || preg_match('/^\{.*\}$/s', $str)) {
                         // array, or object notation
 
-                        if ($str{0} == '[') {
+                        if ('[' == $str[0]) {
                             $stk = array(SERVICES_JSON_IN_ARR);
                             $arr = array();
                         } else {
@@ -776,19 +759,17 @@ if (!class_exists('Akeeba_Services_JSON')) {
                         }
 
                         array_push($stk, array('what' => SERVICES_JSON_SLICE,
-                            'where' => 0,
-                            'delim' => FALSE));
+                            'where'                   => 0,
+                            'delim'                   => false, ));
 
                         $chrs = substr($str, 1, -1);
                         $chrs = $this->reduce_string($chrs);
 
-                        if ($chrs == '') {
-                            if (reset($stk) == SERVICES_JSON_IN_ARR) {
+                        if ('' == $chrs) {
+                            if (SERVICES_JSON_IN_ARR == reset($stk)) {
                                 return $arr;
-
                             } else {
                                 return $obj;
-
                             }
                         }
 
@@ -797,24 +778,22 @@ if (!class_exists('Akeeba_Services_JSON')) {
                         $strlen_chrs = strlen($chrs);
 
                         for ($c = 0; $c <= $strlen_chrs; ++$c) {
-
-                            $top = end($stk);
+                            $top             = end($stk);
                             $substr_chrs_c_2 = substr($chrs, $c, 2);
 
-                            if (($c == $strlen_chrs) || (($chrs{$c} == ',') && ($top['what'] == SERVICES_JSON_SLICE))) {
+                            if (($c == $strlen_chrs) || ((',' == $chrs[$c]) && (SERVICES_JSON_SLICE == $top['what']))) {
                                 // found a comma that is not inside a string, array, etc.,
                                 // OR we've reached the end of the character list
                                 $slice = substr($chrs, $top['where'], ($c - $top['where']));
                                 array_push($stk, array('what' => SERVICES_JSON_SLICE,
-                                    'where' => ($c + 1),
-                                    'delim' => FALSE));
+                                    'where'                   => ($c + 1),
+                                    'delim'                   => false, ));
                                 //print("Found split at {$c}: ".substr($chrs, $top['where'], (1 + $c - $top['where']))."\n");
 
-                                if (reset($stk) == SERVICES_JSON_IN_ARR) {
+                                if (SERVICES_JSON_IN_ARR == reset($stk)) {
                                     // we are in an array, so just push an element onto the stack
                                     array_push($arr, $this->decode($slice));
-
-                                } elseif (reset($stk) == SERVICES_JSON_IN_OBJ) {
+                                } elseif (SERVICES_JSON_IN_OBJ == reset($stk)) {
                                     // we are in an object, so figure
                                     // out the property name and set an
                                     // element in an associative array,
@@ -842,116 +821,102 @@ if (!class_exists('Akeeba_Services_JSON')) {
                                             $obj->$key = $val;
                                         }
                                     }
-
                                 }
-
-                            } elseif ((($chrs{$c} == '"') || ($chrs{$c} == "'")) && ($top['what'] != SERVICES_JSON_IN_STR)) {
+                            } elseif ((('"' == $chrs[$c]) || ("'" == $chrs[$c])) && (SERVICES_JSON_IN_STR != $top['what'])) {
                                 // found a quote, and we are not inside a string
                                 array_push($stk, array('what' => SERVICES_JSON_IN_STR,
-                                    'where' => $c,
-                                    'delim' => $chrs{$c}));
-                                //print("Found start of string at {$c}\n");
-
-                            } elseif (($chrs{$c} == $top['delim']) &&
-                                ($top['what'] == SERVICES_JSON_IN_STR) &&
-                                ((strlen(substr($chrs, 0, $c)) - strlen(rtrim(substr($chrs, 0, $c), '\\'))) % 2 != 1)
+                                    'where'                   => $c,
+                                    'delim'                   => $chrs[$c], ));
+                            //print("Found start of string at {$c}\n");
+                            } elseif (($chrs[$c] == $top['delim']) &&
+                                (SERVICES_JSON_IN_STR == $top['what']) &&
+                                (1 != (strlen(substr($chrs, 0, $c)) - strlen(rtrim(substr($chrs, 0, $c), '\\'))) % 2)
                             ) {
                                 // found a quote, we're in a string, and it's not escaped
                                 // we know that it's not escaped becase there is _not_ an
                                 // odd number of backslashes at the end of the string so far
                                 array_pop($stk);
-                                //print("Found end of string at {$c}: ".substr($chrs, $top['where'], (1 + 1 + $c - $top['where']))."\n");
-
-                            } elseif (($chrs{$c} == '[') &&
+                            //print("Found end of string at {$c}: ".substr($chrs, $top['where'], (1 + 1 + $c - $top['where']))."\n");
+                            } elseif (('[' == $chrs[$c]) &&
                                 in_array($top['what'], array(SERVICES_JSON_SLICE,
                                     SERVICES_JSON_IN_ARR,
-                                    SERVICES_JSON_IN_OBJ))
+                                    SERVICES_JSON_IN_OBJ, ))
                             ) {
                                 // found a left-bracket, and we are in an array, object, or slice
                                 array_push($stk, array('what' => SERVICES_JSON_IN_ARR,
-                                    'where' => $c,
-                                    'delim' => FALSE));
-                                //print("Found start of array at {$c}\n");
-
-                            } elseif (($chrs{$c} == ']') && ($top['what'] == SERVICES_JSON_IN_ARR)) {
+                                    'where'                   => $c,
+                                    'delim'                   => false, ));
+                            //print("Found start of array at {$c}\n");
+                            } elseif ((']' == $chrs[$c]) && (SERVICES_JSON_IN_ARR == $top['what'])) {
                                 // found a right-bracket, and we're in an array
                                 array_pop($stk);
-                                //print("Found end of array at {$c}: ".substr($chrs, $top['where'], (1 + $c - $top['where']))."\n");
-
-                            } elseif (($chrs{$c} == '{') &&
+                            //print("Found end of array at {$c}: ".substr($chrs, $top['where'], (1 + $c - $top['where']))."\n");
+                            } elseif (('{' == $chrs[$c]) &&
                                 in_array($top['what'], array(SERVICES_JSON_SLICE,
                                     SERVICES_JSON_IN_ARR,
-                                    SERVICES_JSON_IN_OBJ))
+                                    SERVICES_JSON_IN_OBJ, ))
                             ) {
                                 // found a left-brace, and we are in an array, object, or slice
                                 array_push($stk, array('what' => SERVICES_JSON_IN_OBJ,
-                                    'where' => $c,
-                                    'delim' => FALSE));
-                                //print("Found start of object at {$c}\n");
-
-                            } elseif (($chrs{$c} == '}') && ($top['what'] == SERVICES_JSON_IN_OBJ)) {
+                                    'where'                   => $c,
+                                    'delim'                   => false, ));
+                            //print("Found start of object at {$c}\n");
+                            } elseif (('}' == $chrs[$c]) && (SERVICES_JSON_IN_OBJ == $top['what'])) {
                                 // found a right-brace, and we're in an object
                                 array_pop($stk);
-                                //print("Found end of object at {$c}: ".substr($chrs, $top['where'], (1 + $c - $top['where']))."\n");
-
-                            } elseif (($substr_chrs_c_2 == '/*') &&
+                            //print("Found end of object at {$c}: ".substr($chrs, $top['where'], (1 + $c - $top['where']))."\n");
+                            } elseif (('/*' == $substr_chrs_c_2) &&
                                 in_array($top['what'], array(SERVICES_JSON_SLICE,
                                     SERVICES_JSON_IN_ARR,
-                                    SERVICES_JSON_IN_OBJ))
+                                    SERVICES_JSON_IN_OBJ, ))
                             ) {
                                 // found a comment start, and we are in an array, object, or slice
                                 array_push($stk, array('what' => SERVICES_JSON_IN_CMT,
-                                    'where' => $c,
-                                    'delim' => FALSE));
-                                $c++;
-                                //print("Found start of comment at {$c}\n");
-
-                            } elseif (($substr_chrs_c_2 == '*/') && ($top['what'] == SERVICES_JSON_IN_CMT)) {
+                                    'where'                   => $c,
+                                    'delim'                   => false, ));
+                                ++$c;
+                            //print("Found start of comment at {$c}\n");
+                            } elseif (('*/' == $substr_chrs_c_2) && (SERVICES_JSON_IN_CMT == $top['what'])) {
                                 // found a comment end, and we're in one now
                                 array_pop($stk);
-                                $c++;
+                                ++$c;
 
-                                for ($i = $top['where']; $i <= $c; ++$i)
+                                for ($i = $top['where']; $i <= $c; ++$i) {
                                     $chrs = substr_replace($chrs, ' ', $i, 1);
+                                }
 
                                 //print("Found end of comment at {$c}: ".substr($chrs, $top['where'], (1 + $c - $top['where']))."\n");
-
                             }
-
                         }
 
-                        if (reset($stk) == SERVICES_JSON_IN_ARR) {
+                        if (SERVICES_JSON_IN_ARR == reset($stk)) {
                             return $arr;
-
-                        } elseif (reset($stk) == SERVICES_JSON_IN_OBJ) {
+                        } elseif (SERVICES_JSON_IN_OBJ == reset($stk)) {
                             return $obj;
-
                         }
-
                     }
             }
         }
 
-        function isError($data, $code = NULL)
+        public function isError($data, $code = null)
         {
             if (class_exists('pear')) {
                 return PEAR::isError($data, $code);
-            } elseif (is_object($data) && (get_class($data) == 'services_json_error' ||
+            } elseif (is_object($data) && ('services_json_error' == get_class($data) ||
                     is_subclass_of($data, 'services_json_error'))
             ) {
-                return TRUE;
+                return true;
             }
 
-            return FALSE;
+            return false;
         }
     }
 
     class Akeeba_Services_JSON_Error
     {
-        function Akeeba_Services_JSON_Error($message = 'unknown error', $code = NULL,
-                                            $mode = NULL, $options = NULL, $userinfo = NULL)
+        public function Akeeba_Services_JSON_Error($message = 'unknown error', $code = null,
+                                            $mode = null, $options = null, $userinfo = null)
         {
-
         }
     }
 }
@@ -960,7 +925,9 @@ if (!function_exists('json_encode')) {
     function json_encode($value, $options = 0)
     {
         $flags = SERVICES_JSON_LOOSE_TYPE;
-        if ($options & JSON_FORCE_OBJECT) $flags = 0;
+        if ($options & JSON_FORCE_OBJECT) {
+            $flags = 0;
+        }
         $encoder = new Akeeba_Services_JSON($flags);
 
         return $encoder->encode($value);
@@ -968,10 +935,12 @@ if (!function_exists('json_encode')) {
 }
 
 if (!function_exists('json_decode')) {
-    function json_decode($value, $assoc = FALSE)
+    function json_decode($value, $assoc = false)
     {
         $flags = 0;
-        if ($assoc) $flags = SERVICES_JSON_LOOSE_TYPE;
+        if ($assoc) {
+            $flags = SERVICES_JSON_LOOSE_TYPE;
+        }
         $decoder = new Akeeba_Services_JSON($flags);
 
         return $decoder->decode($value);
@@ -980,12 +949,10 @@ if (!function_exists('json_decode')) {
 
 /**
  * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
+ * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
  * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
  */
 
 /**
@@ -994,30 +961,30 @@ if (!function_exists('json_decode')) {
  */
 abstract class AKAbstractObject
 {
-    /** @var    array    The queue size of the $_errors array. Set to 0 for infinite size. */
+    /** @var array The queue size of the $_errors array. Set to 0 for infinite size. */
     protected $_errors_queue_size = 0;
-    /** @var    array    The queue size of the $_warnings array. Set to 0 for infinite size. */
+    /** @var array The queue size of the $_warnings array. Set to 0 for infinite size. */
     protected $_warnings_queue_size = 0;
-    /** @var    array    An array of errors */
+    /** @var array An array of errors */
     private $_errors = array();
-    /** @var    array    An array of warnings */
+    /** @var array An array of warnings */
     private $_warnings = array();
 
     /**
-     * Public constructor, makes sure we are instanciated only by the factory class
+     * Public constructor, makes sure we are instanciated only by the factory class.
      */
     public function __construct()
     {
     }
 
     /**
-     * Get the most recent error message
+     * Get the most recent error message.
      *
-     * @param    integer $i Optional error index
+     * @param int $i Optional error index
      *
-     * @return    string    Error message
+     * @return string Error message
      */
-    public function getError($i = NULL)
+    public function getError($i = null)
     {
         return $this->getItemFromArray($this->_errors, $i);
     }
@@ -1027,30 +994,30 @@ abstract class AKAbstractObject
      * if so specified.
      *
      * @param array $array An array of strings, holding messages
-     * @param int $i Optional message index
+     * @param int   $i     Optional message index
      *
      * @return mixed The message string, or false if the key doesn't exist
      */
-    private function getItemFromArray($array, $i = NULL)
+    private function getItemFromArray($array, $i = null)
     {
         // Find the item
-        if ($i === NULL) {
+        if (null === $i) {
             // Default, return the last item
             $item = end($array);
-        } else
-            if (!array_key_exists($i, $array)) {
-                // If $i has been specified but does not exist, return false
-                return FALSE;
-            } else {
-                $item = $array[$i];
-            }
+        } elseif (!array_key_exists($i, $array)) {
+            // If $i has been specified but does not exist, return false
+            return false;
+        } else {
+            $item = $array[$i];
+        }
 
         return $item;
     }
 
     /**
-     * Return all errors, if any
-     * @return    array    Array of error messages
+     * Return all errors, if any.
+     *
+     * @return array Array of error messages
      */
     public function getErrors()
     {
@@ -1058,7 +1025,7 @@ abstract class AKAbstractObject
     }
 
     /**
-     * Resets all error messages
+     * Resets all error messages.
      */
     public function resetErrors()
     {
@@ -1066,20 +1033,21 @@ abstract class AKAbstractObject
     }
 
     /**
-     * Get the most recent warning message
+     * Get the most recent warning message.
      *
-     * @param    integer $i Optional warning index
+     * @param int $i Optional warning index
      *
-     * @return    string    Error message
+     * @return string Error message
      */
-    public function getWarning($i = NULL)
+    public function getWarning($i = null)
     {
         return $this->getItemFromArray($this->_warnings, $i);
     }
 
     /**
-     * Return all warnings, if any
-     * @return    array    Array of error messages
+     * Return all warnings, if any.
+     *
+     * @return array Array of error messages
      */
     public function getWarnings()
     {
@@ -1087,7 +1055,7 @@ abstract class AKAbstractObject
     }
 
     /**
-     * Resets all warning messages
+     * Resets all warning messages.
      */
     public function resetWarnings()
     {
@@ -1100,12 +1068,14 @@ abstract class AKAbstractObject
      * AKAbstractObject type. For example, this can even be used to propagate to a
      * JObject instance in Joomla!. Propagated items will be removed from ourself.
      *
-     * @param object $object The object to propagate errors and warnings to.
+     * @param object $object the object to propagate errors and warnings to
      */
     public function propagateToObject(&$object)
     {
         // Skip non-objects
-        if (!is_object($object)) return;
+        if (!is_object($object)) {
+            return;
+        }
 
         if (method_exists($object, 'setError')) {
             if (!empty($this->_errors)) {
@@ -1161,9 +1131,9 @@ abstract class AKAbstractObject
     }
 
     /**
-     * Add an error message
+     * Add an error message.
      *
-     * @param    string $error Error message
+     * @param string $error Error message
      */
     public function setError($error)
     {
@@ -1176,9 +1146,9 @@ abstract class AKAbstractObject
     }
 
     /**
-     * Add an error message
+     * Add an error message.
      *
-     * @param    string $error Error message
+     * @param string $error Error message
      */
     public function setWarning($warning)
     {
@@ -1192,35 +1162,32 @@ abstract class AKAbstractObject
     }
 
     /**
-     * Sets the size of the error queue (acts like a LIFO buffer)
+     * Sets the size of the error queue (acts like a LIFO buffer).
      *
      * @param int $newSize The new queue size. Set to 0 for infinite length.
      */
     protected function setErrorsQueueSize($newSize = 0)
     {
-        $this->_errors_queue_size = (int)$newSize;
+        $this->_errors_queue_size = (int) $newSize;
     }
 
     /**
-     * Sets the size of the warnings queue (acts like a LIFO buffer)
+     * Sets the size of the warnings queue (acts like a LIFO buffer).
      *
      * @param int $newSize The new queue size. Set to 0 for infinite length.
      */
     protected function setWarningsQueueSize($newSize = 0)
     {
-        $this->_warnings_queue_size = (int)$newSize;
+        $this->_warnings_queue_size = (int) $newSize;
     }
-
 }
 
 /**
  * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
+ * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
  * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
  */
 
 /**
@@ -1233,53 +1200,61 @@ abstract class AKAbstractObject
 abstract class AKAbstractPart extends AKAbstractObject
 {
     /**
-     * Indicates whether this part has finished its initialisation cycle
-     * @var boolean
+     * Indicates whether this part has finished its initialisation cycle.
+     *
+     * @var bool
      */
-    protected $isPrepared = FALSE;
+    protected $isPrepared = false;
 
     /**
-     * Indicates whether this part has more work to do (it's in running state)
-     * @var boolean
+     * Indicates whether this part has more work to do (it's in running state).
+     *
+     * @var bool
      */
-    protected $isRunning = FALSE;
+    protected $isRunning = false;
 
     /**
-     * Indicates whether this part has finished its finalization cycle
-     * @var boolean
+     * Indicates whether this part has finished its finalization cycle.
+     *
+     * @var bool
      */
-    protected $isFinished = FALSE;
+    protected $isFinished = false;
 
     /**
-     * Indicates whether this part has finished its run cycle
-     * @var boolean
+     * Indicates whether this part has finished its run cycle.
+     *
+     * @var bool
      */
-    protected $hasRan = FALSE;
+    protected $hasRan = false;
 
     /**
      * The name of the engine part (a.k.a. Domain), used in return table
      * generation.
+     *
      * @var string
      */
-    protected $active_domain = "";
+    protected $active_domain = '';
 
     /**
      * The step this engine part is in. Used verbatim in return table and
      * should be set by the code in the _run() method.
+     *
      * @var string
      */
-    protected $active_step = "";
+    protected $active_step = '';
 
     /**
      * A more detailed description of the step this engine part is in. Used
      * verbatim in return table and should be set by the code in the _run()
      * method.
+     *
      * @var string
      */
-    protected $active_substep = "";
+    protected $active_substep = '';
 
     /**
      * Any configuration variables, in the form of an array.
+     *
      * @var array
      */
     protected $_parametersArray = array();
@@ -1295,22 +1270,23 @@ abstract class AKAbstractPart extends AKAbstractObject
      * The public interface to an engine part. This method takes care for
      * calling the correct method in order to perform the initialisation -
      * run - finalisation cycle of operation and return a proper reponse array.
-     * @return    array    A Reponse Array
+     *
+     * @return array A Reponse Array
      */
     final public function tick()
     {
         // Call the right action method, depending on engine part state
         switch ($this->getState()) {
-            case "init":
+            case 'init':
                 $this->_prepare();
                 break;
-            case "prepared":
+            case 'prepared':
                 $this->_run();
                 break;
-            case "running":
+            case 'running':
                 $this->_run();
                 break;
-            case "postrun":
+            case 'postrun':
                 $this->_finalize();
                 break;
         }
@@ -1325,38 +1301,38 @@ abstract class AKAbstractPart extends AKAbstractObject
      * Returns the state of this engine part.
      *
      * @return string The state of this engine part. It can be one of
-     * error, init, prepared, running, postrun, finished.
+     *                error, init, prepared, running, postrun, finished.
      */
     final public function getState()
     {
         if ($this->getError()) {
-            return "error";
+            return 'error';
         }
 
         if (!($this->isPrepared)) {
-            return "init";
+            return 'init';
         }
 
         if (!($this->isFinished) && !($this->isRunning) && !($this->hasRun) && ($this->isPrepared)) {
-            return "prepared";
+            return 'prepared';
         }
 
         if (!($this->isFinished) && $this->isRunning && !($this->hasRun)) {
-            return "running";
+            return 'running';
         }
 
         if (!($this->isFinished) && !($this->isRunning) && $this->hasRun) {
-            return "postrun";
+            return 'postrun';
         }
 
         if ($this->isFinished) {
-            return "finished";
+            return 'finished';
         }
     }
 
     /**
      * Runs the preparation for this part. Should set _isPrepared
-     * to true
+     * to true.
      */
     abstract protected function _prepare();
 
@@ -1376,6 +1352,7 @@ abstract class AKAbstractPart extends AKAbstractObject
 
     /**
      * Constructs a Response Array based on the engine part's state.
+     *
      * @return array The Response Array for the current state
      */
     final protected function _makeReturnTable()
@@ -1383,7 +1360,7 @@ abstract class AKAbstractPart extends AKAbstractObject
         // Get a list of warnings
         $warnings = $this->getWarnings();
         // Report only new warnings if there is no warnings queue size
-        if ($this->_warnings_queue_size == 0) {
+        if (0 == $this->_warnings_queue_size) {
             if (($this->warnings_pointer > 0) && ($this->warnings_pointer < (count($warnings)))) {
                 $warnings = array_slice($warnings, $this->warnings_pointer + 1);
                 $this->warnings_pointer += count($warnings);
@@ -1393,19 +1370,20 @@ abstract class AKAbstractPart extends AKAbstractObject
         }
 
         $out = array(
-            'HasRun' => (!($this->isFinished)),
-            'Domain' => $this->active_domain,
-            'Step' => $this->active_step,
-            'Substep' => $this->active_substep,
-            'Error' => $this->getError(),
-            'Warnings' => $warnings
+            'HasRun'   => (!($this->isFinished)),
+            'Domain'   => $this->active_domain,
+            'Step'     => $this->active_step,
+            'Substep'  => $this->active_substep,
+            'Error'    => $this->getError(),
+            'Warnings' => $warnings,
         );
 
         return $out;
     }
 
     /**
-     * Returns a copy of the class's status array
+     * Returns a copy of the class's status array.
+     *
      * @return array
      */
     public function getStatusArray()
@@ -1420,13 +1398,13 @@ abstract class AKAbstractPart extends AKAbstractObject
      * into account during the preparation process only. This function will
      * set the error flag if it's called after the engine part is prepared.
      *
-     * @param array $parametersArray The parameters to be passed to the
-     *                               engine part.
+     * @param array $parametersArray the parameters to be passed to the
+     *                               engine part
      */
     final public function setup($parametersArray)
     {
         if ($this->isPrepared) {
-            $this->setState('error', "Can't modify configuration after the preparation of " . $this->active_domain);
+            $this->setState('error', "Can't modify configuration after the preparation of ".$this->active_domain);
         } else {
             $this->_parametersArray = $parametersArray;
             if (array_key_exists('root', $parametersArray)) {
@@ -1436,47 +1414,47 @@ abstract class AKAbstractPart extends AKAbstractObject
     }
 
     /**
-     * Sets the engine part's internal state, in an easy to use manner
+     * Sets the engine part's internal state, in an easy to use manner.
      *
-     * @param    string $state One of init, prepared, running, postrun, finished, error
-     * @param    string $errorMessage The reported error message, should the state be set to error
+     * @param string $state        One of init, prepared, running, postrun, finished, error
+     * @param string $errorMessage The reported error message, should the state be set to error
      */
     protected function setState($state = 'init', $errorMessage = 'Invalid setState argument')
     {
         switch ($state) {
             case 'init':
-                $this->isPrepared = FALSE;
-                $this->isRunning = FALSE;
-                $this->isFinished = FALSE;
-                $this->hasRun = FALSE;
+                $this->isPrepared = false;
+                $this->isRunning  = false;
+                $this->isFinished = false;
+                $this->hasRun     = false;
                 break;
 
             case 'prepared':
-                $this->isPrepared = TRUE;
-                $this->isRunning = FALSE;
-                $this->isFinished = FALSE;
-                $this->hasRun = FALSE;
+                $this->isPrepared = true;
+                $this->isRunning  = false;
+                $this->isFinished = false;
+                $this->hasRun     = false;
                 break;
 
             case 'running':
-                $this->isPrepared = TRUE;
-                $this->isRunning = TRUE;
-                $this->isFinished = FALSE;
-                $this->hasRun = FALSE;
+                $this->isPrepared = true;
+                $this->isRunning  = true;
+                $this->isFinished = false;
+                $this->hasRun     = false;
                 break;
 
             case 'postrun':
-                $this->isPrepared = TRUE;
-                $this->isRunning = FALSE;
-                $this->isFinished = FALSE;
-                $this->hasRun = TRUE;
+                $this->isPrepared = true;
+                $this->isRunning  = false;
+                $this->isFinished = false;
+                $this->hasRun     = true;
                 break;
 
             case 'finished':
-                $this->isPrepared = TRUE;
-                $this->isRunning = FALSE;
-                $this->isFinished = TRUE;
-                $this->hasRun = FALSE;
+                $this->isPrepared = true;
+                $this->isRunning  = false;
+                $this->isFinished = true;
+                $this->hasRun     = false;
                 break;
 
             case 'error':
@@ -1502,21 +1480,21 @@ abstract class AKAbstractPart extends AKAbstractObject
     }
 
     /**
-     * Attaches an observer object
+     * Attaches an observer object.
      *
      * @param AKAbstractPartObserver $obs
      */
-    function attach(AKAbstractPartObserver $obs)
+    public function attach(AKAbstractPartObserver $obs)
     {
         $this->observers["$obs"] = $obs;
     }
 
     /**
-     * Dettaches an observer object
+     * Dettaches an observer object.
      *
      * @param AKAbstractPartObserver $obs
      */
-    function detach(AKAbstractPartObserver $obs)
+    public function detach(AKAbstractPartObserver $obs)
     {
         delete($this->observers["$obs"]);
     }
@@ -1527,7 +1505,7 @@ abstract class AKAbstractPart extends AKAbstractObject
      */
     protected function setBreakFlag()
     {
-        AKFactory::set('volatile.breakflag', TRUE);
+        AKFactory::set('volatile.breakflag', true);
     }
 
     final protected function setDomain($new_domain)
@@ -1546,7 +1524,7 @@ abstract class AKAbstractPart extends AKAbstractObject
     }
 
     /**
-     * Notifies observers each time something interesting happened to the part
+     * Notifies observers each time something interesting happened to the part.
      *
      * @param mixed $message The event object
      */
@@ -1560,16 +1538,14 @@ abstract class AKAbstractPart extends AKAbstractObject
 
 /**
  * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
+ * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
  * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
  */
 
 /**
- * The base class of unarchiver classes
+ * The base class of unarchiver classes.
  */
 abstract class AKAbstractUnarchiver extends AKAbstractPart
 {
@@ -1584,28 +1560,28 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
     /** @var array Which files to skip */
     public $skipFiles = array();
     /** @var string Archive filename */
-    protected $filename = NULL;
-    /** @var integer Current archive part number */
+    protected $filename = null;
+    /** @var int Current archive part number */
     protected $currentPartNumber = -1;
-    /** @var integer The offset inside the current part */
+    /** @var int The offset inside the current part */
     protected $currentPartOffset = 0;
     /** @var bool Should I restore permissions? */
-    protected $flagRestorePermissions = FALSE;
+    protected $flagRestorePermissions = false;
     /** @var AKAbstractPostproc Post processing class */
-    protected $postProcEngine = NULL;
+    protected $postProcEngine = null;
     /** @var string Absolute path to prepend to extracted files */
     protected $addPath = '';
-    /** @var integer Chunk size for processing */
+    /** @var int Chunk size for processing */
     protected $chunkSize = 524288;
 
     /** @var resource File pointer to the current archive part file */
-    protected $fp = NULL;
+    protected $fp = null;
 
     /** @var int Run state when processing the current archive file */
-    protected $runState = NULL;
+    protected $runState = null;
 
     /** @var stdClass File header data, as read by the readFileHeader() method */
-    protected $fileHeader = NULL;
+    protected $fileHeader = null;
 
     /** @var int How much of the uncompressed data we've read so far */
     protected $dataReadLength = 0;
@@ -1614,7 +1590,7 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
     protected $ignoreDirectories = array();
 
     /**
-     * Public constructor
+     * Public constructor.
      */
     public function __construct()
     {
@@ -1622,7 +1598,7 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
     }
 
     /**
-     * Wakeup function, called whenever the class is unserialized
+     * Wakeup function, called whenever the class is unserialized.
      */
     public function __wakeup()
     {
@@ -1635,7 +1611,7 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
     }
 
     /**
-     * Sleep function, called whenever the class is serialized
+     * Sleep function, called whenever the class is serialized.
      */
     public function shutdown()
     {
@@ -1651,14 +1627,14 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
      * errors in the log, logs and tmp directories which MIGHT be used by the system
      * on some low quality hosts and Plesk-powered hosts.
      *
-     * @param   string $shortFilename The relative path of the file/directory in the package
+     * @param string $shortFilename The relative path of the file/directory in the package
      *
-     * @return  boolean  True if it belongs in an ignored directory
+     * @return bool True if it belongs in an ignored directory
      */
     public function isIgnoredDirectory($shortFilename)
     {
-        return FALSE;
-        if (substr($shortFilename, -1) == '/') {
+        return false;
+        if ('/' == substr($shortFilename, -1)) {
             $check = substr($shortFilename, 0, -1);
         } else {
             $check = dirname($shortFilename);
@@ -1668,7 +1644,7 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
     }
 
     /**
-     * Implements the abstract _prepare() method
+     * Implements the abstract _prepare() method.
      */
     final protected function _prepare()
     {
@@ -1687,17 +1663,16 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
 
                             if (strlen($value) > 6) {
                                 if (
-                                    (substr($value, 0, 7) == 'http://')
-                                    || (substr($value, 0, 8) == 'https://')
-                                    || (substr($value, 0, 6) == 'ftp://')
-                                    || (substr($value, 0, 7) == 'ssh2://')
-                                    || (substr($value, 0, 6) == 'ssl://')
+                                    ('http://' == substr($value, 0, 7))
+                                    || ('https://' == substr($value, 0, 8))
+                                    || ('ftp://' == substr($value, 0, 6))
+                                    || ('ssh2://' == substr($value, 0, 7))
+                                    || ('ssl://' == substr($value, 0, 6))
                                 ) {
                                     $this->setState('error', 'Invalid archive location');
                                 }
                             }
                         }
-
 
                         break;
 
@@ -1716,7 +1691,9 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
                         $this->addPath = $value;
                         $this->addPath = str_replace('\\', '/', $this->addPath);
                         $this->addPath = rtrim($this->addPath, '/');
-                        if (!empty($this->addPath)) $this->addPath .= '/';
+                        if (!empty($this->addPath)) {
+                            $this->addPath .= '/';
+                        }
                         break;
 
                     // Which files to rename (hash array)
@@ -1755,7 +1732,7 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
     }
 
     /**
-     * Scans for archive parts
+     * Scans for archive parts.
      */
     private function scanArchives()
     {
@@ -1767,22 +1744,22 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
         $privateArchiveList = array();
 
         // Get the components of the archive filename
-        $dirname = dirname($this->filename);
-        $base_extension = $this->getBaseExtension();
-        $basename = basename($this->filename, $base_extension);
+        $dirname         = dirname($this->filename);
+        $base_extension  = $this->getBaseExtension();
+        $basename        = basename($this->filename, $base_extension);
         $this->totalSize = 0;
 
         // Scan for multiple parts until we don't find any more of them
-        $count = 0;
-        $found = TRUE;
+        $count             = 0;
+        $found             = true;
         $this->archiveList = array();
         while ($found) {
             ++$count;
-            $extension = substr($base_extension, 0, 2) . sprintf('%02d', $count);
-            $filename = $dirname . DIRECTORY_SEPARATOR . $basename . $extension;
-            $found = file_exists($filename);
+            $extension = substr($base_extension, 0, 2).sprintf('%02d', $count);
+            $filename  = $dirname.DIRECTORY_SEPARATOR.$basename.$extension;
+            $found     = file_exists($filename);
             if ($found) {
-                debugMsg('- Found archive ' . $filename);
+                debugMsg('- Found archive '.$filename);
                 // Add yet another part, with a numeric-appended filename
                 $this->archiveList[] = $filename;
 
@@ -1791,7 +1768,7 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
 
                 $privateArchiveList[] = array($filename, $filesize);
             } else {
-                debugMsg('- Found archive ' . $this->filename);
+                debugMsg('- Found archive '.$this->filename);
                 // Add the last part, with the regular extension
                 $this->archiveList[] = $this->filename;
 
@@ -1802,23 +1779,24 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
                 $privateArchiveList[] = array($filename, $filesize);
             }
         }
-        debugMsg('Total archive parts: ' . $count);
+        debugMsg('Total archive parts: '.$count);
 
         $this->currentPartNumber = -1;
         $this->currentPartOffset = 0;
-        $this->runState = AK_STATE_NOFILE;
+        $this->runState          = AK_STATE_NOFILE;
 
         // Send start of file notification
-        $message = new stdClass;
-        $message->type = 'totalsize';
-        $message->content = new stdClass;
+        $message                     = new stdClass();
+        $message->type               = 'totalsize';
+        $message->content            = new stdClass();
         $message->content->totalsize = $this->totalSize;
-        $message->content->filelist = $privateArchiveList;
+        $message->content->filelist  = $privateArchiveList;
         $this->notify($message);
     }
 
     /**
-     * Returns the base extension of the file, e.g. '.jpa'
+     * Returns the base extension of the file, e.g. '.jpa'.
+     *
      * @return string
      */
     private function getBaseExtension()
@@ -1826,8 +1804,8 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
         static $baseextension;
 
         if (empty($baseextension)) {
-            $basename = basename($this->filename);
-            $lastdot = strrpos($basename, '.');
+            $basename      = basename($this->filename);
+            $lastdot       = strrpos($basename, '.');
             $baseextension = substr($basename, $lastdot);
         }
 
@@ -1838,28 +1816,30 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
      * Concrete classes are supposed to use this method in order to read the archive's header and
      * prepare themselves to the point of being ready to extract the first file.
      */
-    protected abstract function readArchiveHeader();
+    abstract protected function readArchiveHeader();
 
     protected function _run()
     {
-        if ($this->getState() == 'postrun') return;
+        if ('postrun' == $this->getState()) {
+            return;
+        }
 
         $this->setState('running');
 
         $timer = AKFactory::getTimer();
 
-        $status = TRUE;
+        $status = true;
         while ($status && ($timer->getTimeLeft() > 0)) {
             switch ($this->runState) {
                 case AK_STATE_NOFILE:
-                    debugMsg(__CLASS__ . '::_run() - Reading file header');
+                    debugMsg(__CLASS__.'::_run() - Reading file header');
                     $status = $this->readFileHeader();
                     if ($status) {
-                        debugMsg(__CLASS__ . '::_run() - Preparing to extract ' . $this->fileHeader->realFile);
+                        debugMsg(__CLASS__.'::_run() - Preparing to extract '.$this->fileHeader->realFile);
                         // Send start of file notification
-                        $message = new stdClass;
-                        $message->type = 'startfile';
-                        $message->content = new stdClass;
+                        $message          = new stdClass();
+                        $message->type    = 'startfile';
+                        $message->content = new stdClass();
                         if (array_key_exists('realfile', get_object_vars($this->fileHeader))) {
                             $message->content->realfile = $this->fileHeader->realFile;
                         } else {
@@ -1874,21 +1854,21 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
                         $message->content->uncompressed = $this->fileHeader->uncompressed;
                         $this->notify($message);
                     } else {
-                        debugMsg(__CLASS__ . '::_run() - Could not read file header');
+                        debugMsg(__CLASS__.'::_run() - Could not read file header');
                     }
                     break;
 
                 case AK_STATE_HEADER:
                 case AK_STATE_DATA:
-                    debugMsg(__CLASS__ . '::_run() - Processing file data');
+                    debugMsg(__CLASS__.'::_run() - Processing file data');
                     $status = $this->processFileData();
                     break;
 
                 case AK_STATE_DATAREAD:
                 case AK_STATE_POSTPROC:
-                    debugMsg(__CLASS__ . '::_run() - Calling post-processing class');
+                    debugMsg(__CLASS__.'::_run() - Calling post-processing class');
                     $this->postProcEngine->timestamp = $this->fileHeader->timestamp;
-                    $status = $this->postProcEngine->process();
+                    $status                          = $this->postProcEngine->process();
                     $this->propagateFromObject($this->postProcEngine);
                     $this->runState = AK_STATE_DONE;
                     break;
@@ -1896,11 +1876,11 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
                 case AK_STATE_DONE:
                 default:
                     if ($status) {
-                        debugMsg(__CLASS__ . '::_run() - Finished extracting file');
+                        debugMsg(__CLASS__.'::_run() - Finished extracting file');
                         // Send end of file notification
-                        $message = new stdClass;
-                        $message->type = 'endfile';
-                        $message->content = new stdClass;
+                        $message          = new stdClass();
+                        $message->type    = 'endfile';
+                        $message->content = new stdClass();
                         if (array_key_exists('realfile', get_object_vars($this->fileHeader))) {
                             $message->content->realfile = $this->fileHeader->realFile;
                         } else {
@@ -1921,29 +1901,31 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
         }
 
         $error = $this->getError();
-        if (!$status && ($this->runState == AK_STATE_NOFILE) && empty($error)) {
-            debugMsg(__CLASS__ . '::_run() - Just finished');
+        if (!$status && (AK_STATE_NOFILE == $this->runState) && empty($error)) {
+            debugMsg(__CLASS__.'::_run() - Just finished');
             // We just finished
             $this->setState('postrun');
         } elseif (!empty($error)) {
-            debugMsg(__CLASS__ . '::_run() - Halted with an error:');
+            debugMsg(__CLASS__.'::_run() - Halted with an error:');
             debugMsg($error);
             $this->setState('error', $error);
         }
     }
 
     /**
-     * Concrete classes must use this method to read the file header
+     * Concrete classes must use this method to read the file header.
+     *
      * @return bool True if reading the file was successful, false if an error occured or we reached end of archive
      */
-    protected abstract function readFileHeader();
+    abstract protected function readFileHeader();
 
     /**
      * Concrete classes must use this method to process file data. It must set $runState to AK_STATE_DATAREAD when
      * it's finished processing the file data.
+     *
      * @return bool True if processing the file data was successful, false if an error occured
      */
-    protected abstract function processFileData();
+    abstract protected function processFileData();
 
     protected function _finalize()
     {
@@ -1952,39 +1934,41 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
     }
 
     /**
-     * Opens the next part file for reading
+     * Opens the next part file for reading.
      */
     protected function nextFile()
     {
-        debugMsg('Current part is ' . $this->currentPartNumber . '; opening the next part');
+        debugMsg('Current part is '.$this->currentPartNumber.'; opening the next part');
         ++$this->currentPartNumber;
 
         if ($this->currentPartNumber > (count($this->archiveList) - 1)) {
             $this->setState('postrun');
 
-            return FALSE;
+            return false;
         } else {
-            if (is_resource($this->fp)) @fclose($this->fp);
-            debugMsg('Opening file ' . $this->archiveList[$this->currentPartNumber]);
+            if (is_resource($this->fp)) {
+                @fclose($this->fp);
+            }
+            debugMsg('Opening file '.$this->archiveList[$this->currentPartNumber]);
             $this->fp = @fopen($this->archiveList[$this->currentPartNumber], 'rb');
-            if ($this->fp === FALSE) {
+            if (false === $this->fp) {
                 debugMsg('Could not open file - crash imminent');
             }
             fseek($this->fp, 0);
             $this->currentPartOffset = 0;
 
-            return TRUE;
+            return true;
         }
     }
 
     /**
-     * Returns true if we have reached the end of file
+     * Returns true if we have reached the end of file.
      *
      * @param $local bool True to return EOF of the local file, false (default) to return if we have reached the end of the archive set
      *
      * @return bool True if we have reached End Of File
      */
-    protected function isEOF($local = FALSE)
+    protected function isEOF($local = false)
     {
         $eof = @feof($this->fp);
 
@@ -1996,9 +1980,9 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
             $filesize = @filesize($this->archiveList[$this->currentPartNumber]);
             if ($filesize <= 0) {
                 // 2Gb or more files on a 32 bit version of PHP tend to get screwed up. Meh.
-                $eof = FALSE;
+                $eof = false;
             } elseif ($position >= $filesize) {
-                $eof = TRUE;
+                $eof = true;
             }
         }
 
@@ -2010,13 +1994,13 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
     }
 
     /**
-     * Tries to make a directory user-writable so that we can write a file to it
+     * Tries to make a directory user-writable so that we can write a file to it.
      *
      * @param $path string A path to a file
      */
     protected function setCorrectPermissions($path)
     {
-        static $rootDir = NULL;
+        static $rootDir = null;
 
         if (is_null($rootDir)) {
             $rootDir = rtrim(AKFactory::get('kickstart.setup.destdir', ''), '/\\');
@@ -2033,12 +2017,12 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
     }
 
     /**
-     * Reads data from the archive and notifies the observer with the 'reading' message
+     * Reads data from the archive and notifies the observer with the 'reading' message.
      *
      * @param $fp
      * @param $length
      */
-    protected function fread($fp, $length = NULL)
+    protected function fread($fp, $length = null)
     {
         if (is_numeric($length)) {
             if ($length > 0) {
@@ -2049,12 +2033,14 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
         } else {
             $data = fread($fp, PHP_INT_MAX);
         }
-        if ($data === FALSE) $data = '';
+        if (false === $data) {
+            $data = '';
+        }
 
         // Send start of file notification
-        $message = new stdClass;
-        $message->type = 'reading';
-        $message->content = new stdClass;
+        $message                  = new stdClass();
+        $message->type            = 'reading';
+        $message->content         = new stdClass();
         $message->content->length = strlen($data);
         $this->notify($message);
 
@@ -2064,30 +2050,28 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
 
 /**
  * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
+ * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
  * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
  */
 
 /**
- * File post processor engines base class
+ * File post processor engines base class.
  */
 abstract class AKAbstractPostproc extends AKAbstractObject
 {
     /** @var int The UNIX timestamp of the file's desired modification date */
     public $timestamp = 0;
     /** @var string The current (real) file path we'll have to process */
-    protected $filename = NULL;
+    protected $filename = null;
     /** @var int The requested permissions */
     protected $perms = 0755;
     /** @var string The temporary file path we gave to the unarchiver engine */
-    protected $tempFilename = NULL;
+    protected $tempFilename = null;
 
     /**
-     * Processes the current file, e.g. moves it from temp to final location by FTP
+     * Processes the current file, e.g. moves it from temp to final location by FTP.
      */
     abstract public function process();
 
@@ -2096,17 +2080,17 @@ abstract class AKAbstractPostproc extends AKAbstractObject
      * a different path instead.
      *
      * @param string $filename The path to the real file
-     * @param int $perms The permissions we need the file to have
+     * @param int    $perms    The permissions we need the file to have
      *
      * @return string The path to the temporary file
      */
     abstract public function processFilename($filename, $perms = 0755);
 
     /**
-     * Recursively creates a directory if it doesn't exist
+     * Recursively creates a directory if it doesn't exist.
      *
      * @param string $dirName The directory to create
-     * @param int $perms The permissions to give to that directory
+     * @param int    $perms   The permissions to give to that directory
      */
     abstract public function createDirRecursive($dirName, $perms);
 
@@ -2119,46 +2103,40 @@ abstract class AKAbstractPostproc extends AKAbstractObject
     abstract public function rename($from, $to);
 }
 
-
 /**
  * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
+ * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
  * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
  */
 
 /**
- * Descendants of this class can be used in the unarchiver's observer methods (attach, detach and notify)
- * @author Nicholas
+ * Descendants of this class can be used in the unarchiver's observer methods (attach, detach and notify).
  *
+ * @author Nicholas
  */
 abstract class AKAbstractPartObserver
 {
     abstract public function update($object, $message);
 }
 
-
 /**
  * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
+ * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
  * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
  */
 
 /**
- * Direct file writer
+ * Direct file writer.
  */
 class AKPostprocDirect extends AKAbstractPostproc
 {
     public function process()
     {
-        $restorePerms = AKFactory::get('kickstart.setup.restoreperms', FALSE);
+        $restorePerms = AKFactory::get('kickstart.setup.restoreperms', false);
         if ($restorePerms) {
             @chmod($this->filename, $this->perms);
         } else {
@@ -2172,12 +2150,12 @@ class AKPostprocDirect extends AKAbstractPostproc
             @touch($this->filename, $this->timestamp);
         }
 
-        return TRUE;
+        return true;
     }
 
     public function processFilename($filename, $perms = 0755)
     {
-        $this->perms = $perms;
+        $this->perms    = $perms;
         $this->filename = $filename;
 
         return $filename;
@@ -2185,52 +2163,58 @@ class AKPostprocDirect extends AKAbstractPostproc
 
     public function createDirRecursive($dirName, $perms)
     {
-        if (AKFactory::get('kickstart.setup.dryrun', '0')) return TRUE;
-        if (@mkdir($dirName, 0755, TRUE)) {
+        if (AKFactory::get('kickstart.setup.dryrun', '0')) {
+            return true;
+        }
+        if (@mkdir($dirName, 0755, true)) {
             @chmod($dirName, 0755);
 
-            return TRUE;
+            return true;
         }
 
         $root = AKFactory::get('kickstart.setup.destdir');
         $root = rtrim(str_replace('\\', '/', $root), '/');
-        $dir = rtrim(str_replace('\\', '/', $dirName), '/');
-        if (strpos($dir, $root) === 0) {
+        $dir  = rtrim(str_replace('\\', '/', $dirName), '/');
+        if (0 === strpos($dir, $root)) {
             $dir = ltrim(substr($dir, strlen($root)), '/');
             $root .= '/';
         } else {
             $root = '';
         }
 
-        if (empty($dir)) return TRUE;
+        if (empty($dir)) {
+            return true;
+        }
 
         $dirArray = explode('/', $dir);
-        $path = '';
+        $path     = '';
         foreach ($dirArray as $dir) {
-            $path .= $dir . '/';
-            $ret = is_dir($root . $path) ? TRUE : @mkdir($root . $path);
+            $path .= $dir.'/';
+            $ret = is_dir($root.$path) ? true : @mkdir($root.$path);
             if (!$ret) {
                 // Is this a file instead of a directory?
-                if (is_file($root . $path)) {
-                    @unlink($root . $path);
-                    $ret = @mkdir($root . $path);
+                if (is_file($root.$path)) {
+                    @unlink($root.$path);
+                    $ret = @mkdir($root.$path);
                 }
                 if (!$ret) {
                     $this->setError(AKText::sprintf('COULDNT_CREATE_DIR', $path));
 
-                    return FALSE;
+                    return false;
                 }
             }
             // Try to set new directory permissions to 0755
-            @chmod($root . $path, $perms);
+            @chmod($root.$path, $perms);
         }
 
-        return TRUE;
+        return true;
     }
 
     public function chmod($file, $perms)
     {
-        if (AKFactory::get('kickstart.setup.dryrun', '0')) return TRUE;
+        if (AKFactory::get('kickstart.setup.dryrun', '0')) {
+            return true;
+        }
 
         return @chmod($file, $perms);
     }
@@ -2249,28 +2233,25 @@ class AKPostprocDirect extends AKAbstractPostproc
     {
         return @rename($from, $to);
     }
-
 }
 
 /**
  * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
+ * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
  * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
  */
 
 /**
- * FTP file writer
+ * FTP file writer.
  */
 class AKPostprocFTP extends AKAbstractPostproc
 {
     /** @var bool Should I use FTP over implicit SSL? */
-    public $useSSL = FALSE;
+    public $useSSL = false;
     /** @var bool use Passive mode? */
-    public $passive = TRUE;
+    public $passive = true;
     /** @var string FTP host name */
     public $host = '';
     /** @var int FTP port */
@@ -2282,7 +2263,7 @@ class AKPostprocFTP extends AKAbstractPostproc
     /** @var string FTP initial directory */
     public $dir = '';
     /** @var resource The FTP handle */
-    private $handle = NULL;
+    private $handle = null;
     /** @var string The temporary directory where the data will be stored */
     private $tempDir = '';
 
@@ -2290,25 +2271,27 @@ class AKPostprocFTP extends AKAbstractPostproc
     {
         parent::__construct();
 
-        $this->useSSL = AKFactory::get('kickstart.ftp.ssl', FALSE);
-        $this->passive = AKFactory::get('kickstart.ftp.passive', TRUE);
-        $this->host = AKFactory::get('kickstart.ftp.host', '');
-        $this->port = AKFactory::get('kickstart.ftp.port', 21);
-        if (trim($this->port) == '') $this->port = 21;
-        $this->user = AKFactory::get('kickstart.ftp.user', '');
-        $this->pass = AKFactory::get('kickstart.ftp.pass', '');
-        $this->dir = AKFactory::get('kickstart.ftp.dir', '');
+        $this->useSSL  = AKFactory::get('kickstart.ftp.ssl', false);
+        $this->passive = AKFactory::get('kickstart.ftp.passive', true);
+        $this->host    = AKFactory::get('kickstart.ftp.host', '');
+        $this->port    = AKFactory::get('kickstart.ftp.port', 21);
+        if ('' == trim($this->port)) {
+            $this->port = 21;
+        }
+        $this->user    = AKFactory::get('kickstart.ftp.user', '');
+        $this->pass    = AKFactory::get('kickstart.ftp.pass', '');
+        $this->dir     = AKFactory::get('kickstart.ftp.dir', '');
         $this->tempDir = AKFactory::get('kickstart.ftp.tempdir', '');
 
         $connected = $this->connect();
 
         if ($connected) {
             if (!empty($this->tempDir)) {
-                $tempDir = rtrim($this->tempDir, '/\\') . '/';
+                $tempDir  = rtrim($this->tempDir, '/\\').'/';
                 $writable = $this->isDirWritable($tempDir);
             } else {
-                $tempDir = '';
-                $writable = FALSE;
+                $tempDir  = '';
+                $writable = false;
             }
 
             if (!$writable) {
@@ -2319,8 +2302,10 @@ class AKPostprocFTP extends AKAbstractPostproc
                     $tempDir = '.';
                 }
                 $absoluteDirToHere = $tempDir;
-                $tempDir = rtrim(str_replace('\\', '/', $tempDir), '/');
-                if (!empty($tempDir)) $tempDir .= '/';
+                $tempDir           = rtrim(str_replace('\\', '/', $tempDir), '/');
+                if (!empty($tempDir)) {
+                    $tempDir .= '/';
+                }
                 $this->tempDir = $tempDir;
                 // Is this directory writable?
                 $writable = $this->isDirWritable($tempDir);
@@ -2328,7 +2313,7 @@ class AKPostprocFTP extends AKAbstractPostproc
 
             if (!$writable) {
                 // Nope. Let's try creating a temporary directory in the site's root.
-                $tempDir = $absoluteDirToHere . '/kicktemp';
+                $tempDir = $absoluteDirToHere.'/kicktemp';
                 $this->createDirRecursive($tempDir, 0777);
                 // Try making it writable...
                 $this->fixPermissions($tempDir);
@@ -2341,13 +2326,13 @@ class AKPostprocFTP extends AKAbstractPostproc
                 $userdir = AKFactory::get('kickstart.ftp.tempdir', '');
                 if (!empty($userdir)) {
                     // Is it an absolute or a relative directory?
-                    $absolute = FALSE;
-                    $absolute = $absolute || (substr($userdir, 0, 1) == '/');
-                    $absolute = $absolute || (substr($userdir, 1, 1) == ':');
-                    $absolute = $absolute || (substr($userdir, 2, 1) == ':');
+                    $absolute = false;
+                    $absolute = $absolute || ('/' == substr($userdir, 0, 1));
+                    $absolute = $absolute || (':' == substr($userdir, 1, 1));
+                    $absolute = $absolute || (':' == substr($userdir, 2, 1));
                     if (!$absolute) {
                         // Make absolute
-                        $tempDir = $absoluteDirToHere . $userdir;
+                        $tempDir = $absoluteDirToHere.$userdir;
                     } else {
                         // it's already absolute
                         $tempDir = $userdir;
@@ -2379,10 +2364,10 @@ class AKPostprocFTP extends AKAbstractPostproc
         } else {
             $this->handle = @ftp_connect($this->host, $this->port);
         }
-        if ($this->handle === FALSE) {
+        if (false === $this->handle) {
             $this->setError(AKText::_('WRONG_FTP_HOST'));
 
-            return FALSE;
+            return false;
         }
 
         // Login
@@ -2390,7 +2375,7 @@ class AKPostprocFTP extends AKAbstractPostproc
             $this->setError(AKText::_('WRONG_FTP_USER'));
             @ftp_close($this->handle);
 
-            return FALSE;
+            return false;
         }
 
         // Change to initial directory
@@ -2398,41 +2383,41 @@ class AKPostprocFTP extends AKAbstractPostproc
             $this->setError(AKText::_('WRONG_FTP_PATH1'));
             @ftp_close($this->handle);
 
-            return FALSE;
+            return false;
         }
 
         // Enable passive mode if the user requested it
         if ($this->passive) {
-            @ftp_pasv($this->handle, TRUE);
+            @ftp_pasv($this->handle, true);
         } else {
-            @ftp_pasv($this->handle, FALSE);
+            @ftp_pasv($this->handle, false);
         }
 
         // Try to download ourselves
         $testFilename = defined('KSSELFNAME') ? KSSELFNAME : basename(__FILE__);
-        $tempHandle = fopen('php://temp', 'r+');
-        if (@ftp_fget($this->handle, $tempHandle, $testFilename, FTP_ASCII, 0) === FALSE) {
+        $tempHandle   = fopen('php://temp', 'r+');
+        if (false === @ftp_fget($this->handle, $tempHandle, $testFilename, FTP_ASCII, 0)) {
             $this->setError(AKText::_('WRONG_FTP_PATH2'));
             @ftp_close($this->handle);
             fclose($tempHandle);
 
-            return FALSE;
+            return false;
         }
         fclose($tempHandle);
 
-        return TRUE;
+        return true;
     }
 
     private function isDirWritable($dir)
     {
-        $fp = @fopen($dir . '/kickstart.dat', 'wb');
-        if ($fp === FALSE) {
-            return FALSE;
+        $fp = @fopen($dir.'/kickstart.dat', 'wb');
+        if (false === $fp) {
+            return false;
         } else {
             @fclose($fp);
-            unlink($dir . '/kickstart.dat');
+            unlink($dir.'/kickstart.dat');
 
-            return TRUE;
+            return true;
         }
     }
 
@@ -2443,43 +2428,47 @@ class AKPostprocFTP extends AKAbstractPostproc
         if (!empty($removePath)) {
             // UNIXize the paths
             $removePath = str_replace('\\', '/', $removePath);
-            $dirName = str_replace('\\', '/', $dirName);
+            $dirName    = str_replace('\\', '/', $dirName);
             // Make sure they both end in a slash
-            $removePath = rtrim($removePath, '/\\') . '/';
-            $dirName = rtrim($dirName, '/\\') . '/';
+            $removePath = rtrim($removePath, '/\\').'/';
+            $dirName    = rtrim($dirName, '/\\').'/';
             // Process the path removal
             $left = substr($dirName, 0, strlen($removePath));
             if ($left == $removePath) {
                 $dirName = substr($dirName, strlen($removePath));
             }
         }
-        if (empty($dirName)) $dirName = ''; // 'cause the substr() above may return FALSE.
+        if (empty($dirName)) {
+            $dirName = '';
+        } // 'cause the substr() above may return FALSE.
 
-        $check = '/' . trim($this->dir, '/') . '/' . trim($dirName, '/');
-        if ($this->is_dir($check)) return TRUE;
+        $check = '/'.trim($this->dir, '/').'/'.trim($dirName, '/');
+        if ($this->is_dir($check)) {
+            return true;
+        }
 
-        $alldirs = explode('/', $dirName);
-        $previousDir = '/' . trim($this->dir);
+        $alldirs     = explode('/', $dirName);
+        $previousDir = '/'.trim($this->dir);
         foreach ($alldirs as $curdir) {
-            $check = $previousDir . '/' . $curdir;
+            $check = $previousDir.'/'.$curdir;
             if (!$this->is_dir($check)) {
                 // Proactively try to delete a file by the same name
                 @ftp_delete($this->handle, $check);
 
-                if (@ftp_mkdir($this->handle, $check) === FALSE) {
+                if (false === @ftp_mkdir($this->handle, $check)) {
                     // If we couldn't create the directory, attempt to fix the permissions in the PHP level and retry!
-                    $this->fixPermissions($removePath . $check);
-                    if (@ftp_mkdir($this->handle, $check) === FALSE) {
+                    $this->fixPermissions($removePath.$check);
+                    if (false === @ftp_mkdir($this->handle, $check)) {
                         // Can we fall back to pure PHP mode, sire?
                         if (!@mkdir($check)) {
                             $this->setError(AKText::sprintf('FTP_CANT_CREATE_DIR', $check));
 
-                            return FALSE;
+                            return false;
                         } else {
                             // Since the directory was built by PHP, change its permissions
-                            @chmod($check, "0777");
+                            @chmod($check, '0777');
 
-                            return TRUE;
+                            return true;
                         }
                     }
                 }
@@ -2488,7 +2477,7 @@ class AKPostprocFTP extends AKAbstractPostproc
             $previousDir = $check;
         }
 
-        return TRUE;
+        return true;
     }
 
     private function is_dir($dir)
@@ -2504,24 +2493,29 @@ class AKPostprocFTP extends AKAbstractPostproc
         }
 
         // Get UNIX style paths
-        $relPath = str_replace('\\', '/', $path);
+        $relPath  = str_replace('\\', '/', $path);
         $basePath = rtrim(str_replace('\\', '/', KSROOTDIR), '/');
         $basePath = rtrim($basePath, '/');
-        if (!empty($basePath)) $basePath .= '/';
+        if (!empty($basePath)) {
+            $basePath .= '/';
+        }
         // Remove the leading relative root
-        if (substr($relPath, 0, strlen($basePath)) == $basePath)
+        if (substr($relPath, 0, strlen($basePath)) == $basePath) {
             $relPath = substr($relPath, strlen($basePath));
-        $dirArray = explode('/', $relPath);
+        }
+        $dirArray  = explode('/', $relPath);
         $pathBuilt = rtrim($basePath, '/');
         foreach ($dirArray as $dir) {
-            if (empty($dir)) continue;
+            if (empty($dir)) {
+                continue;
+            }
             $oldPath = $pathBuilt;
-            $pathBuilt .= '/' . $dir;
-            if (is_dir($oldPath . $dir)) {
-                @chmod($oldPath . $dir, 0777);
+            $pathBuilt .= '/'.$dir;
+            if (is_dir($oldPath.$dir)) {
+                @chmod($oldPath.$dir, 0777);
             } else {
-                if (@chmod($oldPath . $dir, 0777) === FALSE) {
-                    @unlink($oldPath . $dir);
+                if (false === @chmod($oldPath.$dir, 0777)) {
+                    @unlink($oldPath.$dir);
                 }
             }
         }
@@ -2532,7 +2526,7 @@ class AKPostprocFTP extends AKAbstractPostproc
         }
     }
 
-    function __wakeup()
+    public function __wakeup()
     {
         $this->connect();
     }
@@ -2542,79 +2536,79 @@ class AKPostprocFTP extends AKAbstractPostproc
         if (is_null($this->tempFilename)) {
             // If an empty filename is passed, it means that we shouldn't do any post processing, i.e.
             // the entity was a directory or symlink
-            return TRUE;
+            return true;
         }
 
         $remotePath = dirname($this->filename);
         $removePath = AKFactory::get('kickstart.setup.destdir', '');
         if (!empty($removePath)) {
-            $removePath = ltrim($removePath, "/");
-            $remotePath = ltrim($remotePath, "/");
-            $left = substr($remotePath, 0, strlen($removePath));
+            $removePath = ltrim($removePath, '/');
+            $remotePath = ltrim($remotePath, '/');
+            $left       = substr($remotePath, 0, strlen($removePath));
             if ($left == $removePath) {
                 $remotePath = substr($remotePath, strlen($removePath));
             }
         }
 
-        $absoluteFSPath = dirname($this->filename);
+        $absoluteFSPath  = dirname($this->filename);
         $relativeFTPPath = trim($remotePath, '/');
-        $absoluteFTPPath = '/' . trim($this->dir, '/') . '/' . trim($remotePath, '/');
-        $onlyFilename = basename($this->filename);
+        $absoluteFTPPath = '/'.trim($this->dir, '/').'/'.trim($remotePath, '/');
+        $onlyFilename    = basename($this->filename);
 
-        $remoteName = $absoluteFTPPath . '/' . $onlyFilename;
+        $remoteName = $absoluteFTPPath.'/'.$onlyFilename;
 
         $ret = @ftp_chdir($this->handle, $absoluteFTPPath);
-        if ($ret === FALSE) {
+        if (false === $ret) {
             $ret = $this->createDirRecursive($absoluteFSPath, 0755);
-            if ($ret === FALSE) {
+            if (false === $ret) {
                 $this->setError(AKText::sprintf('FTP_COULDNT_UPLOAD', $this->filename));
 
-                return FALSE;
+                return false;
             }
             $ret = @ftp_chdir($this->handle, $absoluteFTPPath);
-            if ($ret === FALSE) {
+            if (false === $ret) {
                 $this->setError(AKText::sprintf('FTP_COULDNT_UPLOAD', $this->filename));
 
-                return FALSE;
+                return false;
             }
         }
 
         $ret = @ftp_put($this->handle, $remoteName, $this->tempFilename, FTP_BINARY);
-        if ($ret === FALSE) {
+        if (false === $ret) {
             // If we couldn't create the file, attempt to fix the permissions in the PHP level and retry!
             $this->fixPermissions($this->filename);
             $this->unlink($this->filename);
 
             $fp = @fopen($this->tempFilename, 'rb');
-            if ($fp !== FALSE) {
+            if (false !== $fp) {
                 $ret = @ftp_fput($this->handle, $remoteName, $fp, FTP_BINARY);
                 @fclose($fp);
             } else {
-                $ret = FALSE;
+                $ret = false;
             }
         }
         @unlink($this->tempFilename);
 
-        if ($ret === FALSE) {
+        if (false === $ret) {
             $this->setError(AKText::sprintf('FTP_COULDNT_UPLOAD', $this->filename));
 
-            return FALSE;
+            return false;
         }
-        $restorePerms = AKFactory::get('kickstart.setup.restoreperms', FALSE);
+        $restorePerms = AKFactory::get('kickstart.setup.restoreperms', false);
         if ($restorePerms) {
             @ftp_chmod($this->_handle, $this->perms, $remoteName);
         } else {
             @ftp_chmod($this->_handle, 0644, $remoteName);
         }
 
-        return TRUE;
+        return true;
     }
 
     /*
-	 * Tries to fix directory/file permissions in the PHP level, so that
-	 * the FTP operation doesn't fail.
-	 * @param $path string The full path to a directory or file
-	 */
+     * Tries to fix directory/file permissions in the PHP level, so that
+     * the FTP operation doesn't fail.
+     * @param $path string The full path to a directory or file
+     */
 
     public function unlink($file)
     {
@@ -2626,7 +2620,7 @@ class AKPostprocFTP extends AKAbstractPostproc
             }
         }
 
-        $check = '/' . trim($this->dir, '/') . '/' . trim($file, '/');
+        $check = '/'.trim($this->dir, '/').'/'.trim($file, '/');
 
         return @ftp_delete($this->handle, $check);
     }
@@ -2635,16 +2629,16 @@ class AKPostprocFTP extends AKAbstractPostproc
     {
         // Catch some error conditions...
         if ($this->getError()) {
-            return FALSE;
+            return false;
         }
 
         // If a null filename is passed, it means that we shouldn't do any post processing, i.e.
         // the entity was a directory or symlink
         if (is_null($filename)) {
-            $this->filename = NULL;
-            $this->tempFilename = NULL;
+            $this->filename     = null;
+            $this->tempFilename = null;
 
-            return NULL;
+            return null;
         }
 
         // Strip absolute filesystem path to website's root
@@ -2659,13 +2653,13 @@ class AKPostprocFTP extends AKAbstractPostproc
         // Trim slash on the left
         $filename = ltrim($filename, '/');
 
-        $this->filename = $filename;
+        $this->filename     = $filename;
         $this->tempFilename = tempnam($this->tempDir, 'kickstart-');
-        $this->perms = $perms;
+        $this->perms        = $perms;
 
         if (empty($this->tempFilename)) {
             // Oops! Let's try something different
-            $this->tempFilename = $this->tempDir . '/kickstart-' . time() . '.dat';
+            $this->tempFilename = $this->tempDir.'/kickstart-'.time().'.dat';
         }
 
         return $this->tempFilename;
@@ -2691,7 +2685,7 @@ class AKPostprocFTP extends AKAbstractPostproc
             }
         }
 
-        $check = '/' . trim($this->dir, '/') . '/' . trim($directory, '/');
+        $check = '/'.trim($this->dir, '/').'/'.trim($directory, '/');
 
         return @ftp_rmdir($this->handle, $check);
     }
@@ -2699,7 +2693,7 @@ class AKPostprocFTP extends AKAbstractPostproc
     public function rename($from, $to)
     {
         $originalFrom = $from;
-        $originalTo = $to;
+        $originalTo   = $to;
 
         $removePath = AKFactory::get('kickstart.setup.destdir', '');
         if (!empty($removePath)) {
@@ -2708,7 +2702,7 @@ class AKPostprocFTP extends AKAbstractPostproc
                 $from = substr($from, strlen($removePath));
             }
         }
-        $from = '/' . trim($this->dir, '/') . '/' . trim($from, '/');
+        $from = '/'.trim($this->dir, '/').'/'.trim($from, '/');
 
         if (!empty($removePath)) {
             $left = substr($to, 0, strlen($removePath));
@@ -2716,38 +2710,34 @@ class AKPostprocFTP extends AKAbstractPostproc
                 $to = substr($to, strlen($removePath));
             }
         }
-        $to = '/' . trim($this->dir, '/') . '/' . trim($to, '/');
+        $to = '/'.trim($this->dir, '/').'/'.trim($to, '/');
 
         $result = @ftp_rename($this->handle, $from, $to);
-        if ($result !== TRUE) {
+        if (true !== $result) {
             return @rename($from, $to);
         } else {
-            return TRUE;
+            return true;
         }
     }
-
 }
-
 
 /**
  * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
+ * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
  * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
  */
 
 /**
- * FTP file writer
+ * FTP file writer.
  */
 class AKPostprocSFTP extends AKAbstractPostproc
 {
     /** @var bool Should I use FTP over implicit SSL? */
-    public $useSSL = FALSE;
+    public $useSSL = false;
     /** @var bool use Passive mode? */
-    public $passive = TRUE;
+    public $passive = true;
     /** @var string FTP host name */
     public $host = '';
     /** @var int FTP port */
@@ -2760,10 +2750,10 @@ class AKPostprocSFTP extends AKAbstractPostproc
     public $dir = '';
 
     /** @var resource SFTP resource handle */
-    private $handle = NULL;
+    private $handle = null;
 
     /** @var resource SSH2 connection resource handle */
-    private $_connection = NULL;
+    private $_connection = null;
 
     /** @var string Current remote directory, including the remote directory string */
     private $_currentdir;
@@ -2778,22 +2768,24 @@ class AKPostprocSFTP extends AKAbstractPostproc
         $this->host = AKFactory::get('kickstart.ftp.host', '');
         $this->port = AKFactory::get('kickstart.ftp.port', 22);
 
-        if (trim($this->port) == '') $this->port = 22;
+        if ('' == trim($this->port)) {
+            $this->port = 22;
+        }
 
-        $this->user = AKFactory::get('kickstart.ftp.user', '');
-        $this->pass = AKFactory::get('kickstart.ftp.pass', '');
-        $this->dir = AKFactory::get('kickstart.ftp.dir', '');
+        $this->user    = AKFactory::get('kickstart.ftp.user', '');
+        $this->pass    = AKFactory::get('kickstart.ftp.pass', '');
+        $this->dir     = AKFactory::get('kickstart.ftp.dir', '');
         $this->tempDir = AKFactory::get('kickstart.ftp.tempdir', '');
 
         $connected = $this->connect();
 
         if ($connected) {
             if (!empty($this->tempDir)) {
-                $tempDir = rtrim($this->tempDir, '/\\') . '/';
+                $tempDir  = rtrim($this->tempDir, '/\\').'/';
                 $writable = $this->isDirWritable($tempDir);
             } else {
-                $tempDir = '';
-                $writable = FALSE;
+                $tempDir  = '';
+                $writable = false;
             }
 
             if (!$writable) {
@@ -2804,8 +2796,10 @@ class AKPostprocSFTP extends AKAbstractPostproc
                     $tempDir = '.';
                 }
                 $absoluteDirToHere = $tempDir;
-                $tempDir = rtrim(str_replace('\\', '/', $tempDir), '/');
-                if (!empty($tempDir)) $tempDir .= '/';
+                $tempDir           = rtrim(str_replace('\\', '/', $tempDir), '/');
+                if (!empty($tempDir)) {
+                    $tempDir .= '/';
+                }
                 $this->tempDir = $tempDir;
                 // Is this directory writable?
                 $writable = $this->isDirWritable($tempDir);
@@ -2813,7 +2807,7 @@ class AKPostprocSFTP extends AKAbstractPostproc
 
             if (!$writable) {
                 // Nope. Let's try creating a temporary directory in the site's root.
-                $tempDir = $absoluteDirToHere . '/kicktemp';
+                $tempDir = $absoluteDirToHere.'/kicktemp';
                 $this->createDirRecursive($tempDir, 0777);
                 // Try making it writable...
                 $this->fixPermissions($tempDir);
@@ -2826,13 +2820,13 @@ class AKPostprocSFTP extends AKAbstractPostproc
                 $userdir = AKFactory::get('kickstart.ftp.tempdir', '');
                 if (!empty($userdir)) {
                     // Is it an absolute or a relative directory?
-                    $absolute = FALSE;
-                    $absolute = $absolute || (substr($userdir, 0, 1) == '/');
-                    $absolute = $absolute || (substr($userdir, 1, 1) == ':');
-                    $absolute = $absolute || (substr($userdir, 2, 1) == ':');
+                    $absolute = false;
+                    $absolute = $absolute || ('/' == substr($userdir, 0, 1));
+                    $absolute = $absolute || (':' == substr($userdir, 1, 1));
+                    $absolute = $absolute || (':' == substr($userdir, 2, 1));
                     if (!$absolute) {
                         // Make absolute
-                        $tempDir = $absoluteDirToHere . $userdir;
+                        $tempDir = $absoluteDirToHere.$userdir;
                     } else {
                         // it's already absolute
                         $tempDir = $userdir;
@@ -2858,12 +2852,12 @@ class AKPostprocSFTP extends AKAbstractPostproc
 
     public function connect()
     {
-        $this->_connection = FALSE;
+        $this->_connection = false;
 
         if (!function_exists('ssh2_connect')) {
             $this->setError(AKText::_('SFTP_NO_SSH2'));
 
-            return FALSE;
+            return false;
         }
 
         $this->_connection = @ssh2_connect($this->host, $this->port);
@@ -2871,9 +2865,9 @@ class AKPostprocSFTP extends AKAbstractPostproc
         if (!@ssh2_auth_password($this->_connection, $this->user, $this->pass)) {
             $this->setError(AKText::_('SFTP_WRONG_USER'));
 
-            $this->_connection = FALSE;
+            $this->_connection = false;
 
-            return FALSE;
+            return false;
         }
 
         $this->handle = @ssh2_sftp($this->_connection);
@@ -2882,7 +2876,7 @@ class AKPostprocSFTP extends AKAbstractPostproc
         if (!$this->dir) {
             $this->setError(AKText::_('SFTP_WRONG_STARTING_DIR'));
 
-            return FALSE;
+            return false;
         }
 
         // Change to initial directory
@@ -2892,23 +2886,23 @@ class AKPostprocSFTP extends AKAbstractPostproc
             unset($this->_connection);
             unset($this->handle);
 
-            return FALSE;
+            return false;
         }
 
         // Try to download ourselves
         $testFilename = defined('KSSELFNAME') ? KSSELFNAME : basename(__FILE__);
-        $basePath = '/' . trim($this->dir, '/');
+        $basePath     = '/'.trim($this->dir, '/');
 
-        if (@fopen("ssh2.sftp://{$this->handle}$basePath/$testFilename", 'r+') === FALSE) {
+        if (false === @fopen("ssh2.sftp://{$this->handle}$basePath/$testFilename", 'r+')) {
             $this->setError(AKText::_('SFTP_WRONG_STARTING_DIR'));
 
             unset($this->_connection);
             unset($this->handle);
 
-            return FALSE;
+            return false;
         }
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -2916,9 +2910,9 @@ class AKPostprocSFTP extends AKAbstractPostproc
      * path relative to the initial directory and it does all the rest by itself,
      * including doing nothing if the remote directory is the one we want.
      *
-     * @param   string $dir The (realtive) remote directory
+     * @param string $dir The (realtive) remote directory
      *
-     * @return  bool True if successful, false otherwise.
+     * @return bool true if successful, false otherwise
      */
     private function sftp_chdir($dir)
     {
@@ -2927,11 +2921,11 @@ class AKPostprocSFTP extends AKAbstractPostproc
         if (!empty($removePath)) {
             // UNIXize the paths
             $removePath = str_replace('\\', '/', $removePath);
-            $dir = str_replace('\\', '/', $dir);
+            $dir        = str_replace('\\', '/', $dir);
 
             // Make sure they both end in a slash
-            $removePath = rtrim($removePath, '/\\') . '/';
-            $dir = rtrim($dir, '/\\') . '/';
+            $removePath = rtrim($removePath, '/\\').'/';
+            $dir        = rtrim($dir, '/\\').'/';
 
             // Process the path removal
             $left = substr($dir, 0, strlen($removePath));
@@ -2947,35 +2941,35 @@ class AKPostprocSFTP extends AKAbstractPostproc
         }
 
         // Calculate "real" (absolute) SFTP path
-        $realdir = substr($this->dir, -1) == '/' ? substr($this->dir, 0, strlen($this->dir) - 1) : $this->dir;
-        $realdir .= '/' . $dir;
-        $realdir = substr($realdir, 0, 1) == '/' ? $realdir : '/' . $realdir;
+        $realdir = '/' == substr($this->dir, -1) ? substr($this->dir, 0, strlen($this->dir) - 1) : $this->dir;
+        $realdir .= '/'.$dir;
+        $realdir = '/' == substr($realdir, 0, 1) ? $realdir : '/'.$realdir;
 
         if ($this->_currentdir == $realdir) {
             // Already there, do nothing
-            return TRUE;
+            return true;
         }
 
         $result = @ssh2_sftp_stat($this->handle, $realdir);
 
-        if ($result === FALSE) {
-            return FALSE;
+        if (false === $result) {
+            return false;
         } else {
             // Update the private "current remote directory" variable
             $this->_currentdir = $realdir;
 
-            return TRUE;
+            return true;
         }
     }
 
     private function isDirWritable($dir)
     {
-        if (@fopen("ssh2.sftp://{$this->handle}$dir/kickstart.dat", 'wb') === FALSE) {
-            return FALSE;
+        if (false === @fopen("ssh2.sftp://{$this->handle}$dir/kickstart.dat", 'wb')) {
+            return false;
         } else {
-            @ssh2_sftp_unlink($this->handle, $dir . '/kickstart.dat');
+            @ssh2_sftp_unlink($this->handle, $dir.'/kickstart.dat');
 
-            return TRUE;
+            return true;
         }
     }
 
@@ -2986,53 +2980,55 @@ class AKPostprocSFTP extends AKAbstractPostproc
         if (!empty($removePath)) {
             // UNIXize the paths
             $removePath = str_replace('\\', '/', $removePath);
-            $dirName = str_replace('\\', '/', $dirName);
+            $dirName    = str_replace('\\', '/', $dirName);
             // Make sure they both end in a slash
-            $removePath = rtrim($removePath, '/\\') . '/';
-            $dirName = rtrim($dirName, '/\\') . '/';
+            $removePath = rtrim($removePath, '/\\').'/';
+            $dirName    = rtrim($dirName, '/\\').'/';
             // Process the path removal
             $left = substr($dirName, 0, strlen($removePath));
             if ($left == $removePath) {
                 $dirName = substr($dirName, strlen($removePath));
             }
         }
-        if (empty($dirName)) $dirName = ''; // 'cause the substr() above may return FALSE.
+        if (empty($dirName)) {
+            $dirName = '';
+        } // 'cause the substr() above may return FALSE.
 
-        $check = '/' . trim($this->dir, '/ ') . '/' . trim($dirName, '/');
+        $check = '/'.trim($this->dir, '/ ').'/'.trim($dirName, '/');
 
         if ($this->is_dir($check)) {
-            return TRUE;
+            return true;
         }
 
-        $alldirs = explode('/', $dirName);
-        $previousDir = '/' . trim($this->dir, '/ ');
+        $alldirs     = explode('/', $dirName);
+        $previousDir = '/'.trim($this->dir, '/ ');
 
         foreach ($alldirs as $curdir) {
             if (!$curdir) {
                 continue;
             }
 
-            $check = $previousDir . '/' . $curdir;
+            $check = $previousDir.'/'.$curdir;
 
             if (!$this->is_dir($check)) {
                 // Proactively try to delete a file by the same name
                 @ssh2_sftp_unlink($this->handle, $check);
 
-                if (@ssh2_sftp_mkdir($this->handle, $check) === FALSE) {
+                if (false === @ssh2_sftp_mkdir($this->handle, $check)) {
                     // If we couldn't create the directory, attempt to fix the permissions in the PHP level and retry!
                     $this->fixPermissions($check);
 
-                    if (@ssh2_sftp_mkdir($this->handle, $check) === FALSE) {
+                    if (false === @ssh2_sftp_mkdir($this->handle, $check)) {
                         // Can we fall back to pure PHP mode, sire?
                         if (!@mkdir($check)) {
                             $this->setError(AKText::sprintf('FTP_CANT_CREATE_DIR', $check));
 
-                            return FALSE;
+                            return false;
                         } else {
                             // Since the directory was built by PHP, change its permissions
-                            @chmod($check, "0777");
+                            @chmod($check, '0777');
 
-                            return TRUE;
+                            return true;
                         }
                     }
                 }
@@ -3043,7 +3039,7 @@ class AKPostprocSFTP extends AKAbstractPostproc
             $previousDir = $check;
         }
 
-        return TRUE;
+        return true;
     }
 
     private function is_dir($dir)
@@ -3059,7 +3055,7 @@ class AKPostprocSFTP extends AKAbstractPostproc
         }
 
         // Get UNIX style paths
-        $relPath = str_replace('\\', '/', $path);
+        $relPath  = str_replace('\\', '/', $path);
         $basePath = rtrim(str_replace('\\', '/', KSROOTDIR), '/');
         $basePath = rtrim($basePath, '/');
 
@@ -3072,7 +3068,7 @@ class AKPostprocSFTP extends AKAbstractPostproc
             $relPath = substr($relPath, strlen($basePath));
         }
 
-        $dirArray = explode('/', $relPath);
+        $dirArray  = explode('/', $relPath);
         $pathBuilt = rtrim($basePath, '/');
 
         foreach ($dirArray as $dir) {
@@ -3081,13 +3077,13 @@ class AKPostprocSFTP extends AKAbstractPostproc
             }
 
             $oldPath = $pathBuilt;
-            $pathBuilt .= '/' . $dir;
+            $pathBuilt .= '/'.$dir;
 
-            if (is_dir($oldPath . '/' . $dir)) {
-                @chmod($oldPath . '/' . $dir, 0777);
+            if (is_dir($oldPath.'/'.$dir)) {
+                @chmod($oldPath.'/'.$dir, 0777);
             } else {
-                if (@chmod($oldPath . '/' . $dir, 0777) === FALSE) {
-                    @unlink($oldPath . $dir);
+                if (false === @chmod($oldPath.'/'.$dir, 0777)) {
+                    @unlink($oldPath.$dir);
                 }
             }
         }
@@ -3098,49 +3094,49 @@ class AKPostprocSFTP extends AKAbstractPostproc
         }
     }
 
-    function __wakeup()
+    public function __wakeup()
     {
         $this->connect();
     }
 
     /*
-	 * Tries to fix directory/file permissions in the PHP level, so that
-	 * the FTP operation doesn't fail.
-	 * @param $path string The full path to a directory or file
-	 */
+     * Tries to fix directory/file permissions in the PHP level, so that
+     * the FTP operation doesn't fail.
+     * @param $path string The full path to a directory or file
+     */
 
     public function process()
     {
         if (is_null($this->tempFilename)) {
             // If an empty filename is passed, it means that we shouldn't do any post processing, i.e.
             // the entity was a directory or symlink
-            return TRUE;
+            return true;
         }
 
-        $remotePath = dirname($this->filename);
-        $absoluteFSPath = dirname($this->filename);
-        $absoluteFTPPath = '/' . trim($this->dir, '/') . '/' . trim($remotePath, '/');
-        $onlyFilename = basename($this->filename);
+        $remotePath      = dirname($this->filename);
+        $absoluteFSPath  = dirname($this->filename);
+        $absoluteFTPPath = '/'.trim($this->dir, '/').'/'.trim($remotePath, '/');
+        $onlyFilename    = basename($this->filename);
 
-        $remoteName = $absoluteFTPPath . '/' . $onlyFilename;
+        $remoteName = $absoluteFTPPath.'/'.$onlyFilename;
 
         $ret = $this->sftp_chdir($absoluteFTPPath);
 
-        if ($ret === FALSE) {
+        if (false === $ret) {
             $ret = $this->createDirRecursive($absoluteFSPath, 0755);
 
-            if ($ret === FALSE) {
+            if (false === $ret) {
                 $this->setError(AKText::sprintf('SFTP_COULDNT_UPLOAD', $this->filename));
 
-                return FALSE;
+                return false;
             }
 
             $ret = $this->sftp_chdir($absoluteFTPPath);
 
-            if ($ret === FALSE) {
+            if (false === $ret) {
                 $this->setError(AKText::sprintf('SFTP_COULDNT_UPLOAD', $this->filename));
 
-                return FALSE;
+                return false;
             }
         }
 
@@ -3151,10 +3147,10 @@ class AKPostprocSFTP extends AKAbstractPostproc
         if ($ret === -1) {
             $this->setError(AKText::sprintf('SFTP_COULDNT_UPLOAD', $this->filename));
 
-            return FALSE;
+            return false;
         }
 
-        if ($ret === FALSE) {
+        if (false === $ret) {
             // If we couldn't create the file, attempt to fix the permissions in the PHP level and retry!
             $this->fixPermissions($this->filename);
             $this->unlink($this->filename);
@@ -3164,12 +3160,12 @@ class AKPostprocSFTP extends AKAbstractPostproc
 
         @unlink($this->tempFilename);
 
-        if ($ret === FALSE) {
+        if (false === $ret) {
             $this->setError(AKText::sprintf('SFTP_COULDNT_UPLOAD', $this->filename));
 
-            return FALSE;
+            return false;
         }
-        $restorePerms = AKFactory::get('kickstart.setup.restoreperms', FALSE);
+        $restorePerms = AKFactory::get('kickstart.setup.restoreperms', false);
 
         if ($restorePerms) {
             $this->chmod($remoteName, $this->perms);
@@ -3177,29 +3173,29 @@ class AKPostprocSFTP extends AKAbstractPostproc
             $this->chmod($remoteName, 0644);
         }
 
-        return TRUE;
+        return true;
     }
 
     private function write($local, $remote)
     {
-        $fp = @fopen("ssh2.sftp://{$this->handle}$remote", 'w');
+        $fp      = @fopen("ssh2.sftp://{$this->handle}$remote", 'w');
         $localfp = @fopen($local, 'rb');
 
-        if ($fp === FALSE) {
+        if (false === $fp) {
             return -1;
         }
 
-        if ($localfp === FALSE) {
+        if (false === $localfp) {
             @fclose($fp);
 
             return -1;
         }
 
-        $res = TRUE;
+        $res = true;
 
-        while (!feof($localfp) && ($res !== FALSE)) {
+        while (!feof($localfp) && (false !== $res)) {
             $buffer = @fread($localfp, 65567);
-            $res = @fwrite($fp, $buffer);
+            $res    = @fwrite($fp, $buffer);
         }
 
         @fclose($fp);
@@ -3210,7 +3206,7 @@ class AKPostprocSFTP extends AKAbstractPostproc
 
     public function unlink($file)
     {
-        $check = '/' . trim($this->dir, '/') . '/' . trim($file, '/');
+        $check = '/'.trim($this->dir, '/').'/'.trim($file, '/');
 
         return @ssh2_sftp_unlink($this->handle, $check);
     }
@@ -3224,16 +3220,16 @@ class AKPostprocSFTP extends AKAbstractPostproc
     {
         // Catch some error conditions...
         if ($this->getError()) {
-            return FALSE;
+            return false;
         }
 
         // If a null filename is passed, it means that we shouldn't do any post processing, i.e.
         // the entity was a directory or symlink
         if (is_null($filename)) {
-            $this->filename = NULL;
-            $this->tempFilename = NULL;
+            $this->filename     = null;
+            $this->tempFilename = null;
 
-            return NULL;
+            return null;
         }
 
         // Strip absolute filesystem path to website's root
@@ -3248,13 +3244,13 @@ class AKPostprocSFTP extends AKAbstractPostproc
         // Trim slash on the left
         $filename = ltrim($filename, '/');
 
-        $this->filename = $filename;
+        $this->filename     = $filename;
         $this->tempFilename = tempnam($this->tempDir, 'kickstart-');
-        $this->perms = $perms;
+        $this->perms        = $perms;
 
         if (empty($this->tempFilename)) {
             // Oops! Let's try something different
-            $this->tempFilename = $this->tempDir . '/kickstart-' . time() . '.dat';
+            $this->tempFilename = $this->tempDir.'/kickstart-'.time().'.dat';
         }
 
         return $this->tempFilename;
@@ -3268,52 +3264,47 @@ class AKPostprocSFTP extends AKAbstractPostproc
 
     public function rmdir($directory)
     {
-        $check = '/' . trim($this->dir, '/') . '/' . trim($directory, '/');
+        $check = '/'.trim($this->dir, '/').'/'.trim($directory, '/');
 
         return @ssh2_sftp_rmdir($this->handle, $check);
     }
 
     public function rename($from, $to)
     {
-        $from = '/' . trim($this->dir, '/') . '/' . trim($from, '/');
-        $to = '/' . trim($this->dir, '/') . '/' . trim($to, '/');
+        $from = '/'.trim($this->dir, '/').'/'.trim($from, '/');
+        $to   = '/'.trim($this->dir, '/').'/'.trim($to, '/');
 
         $result = @ssh2_sftp_rename($this->handle, $from, $to);
 
-        if ($result !== TRUE) {
+        if (true !== $result) {
             return @rename($from, $to);
         } else {
-            return TRUE;
+            return true;
         }
     }
-
 }
-
 
 /**
  * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
+ * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
  * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
  */
 
 /**
- * Hybrid direct / FTP mode file writer
+ * Hybrid direct / FTP mode file writer.
  */
 class AKPostprocHybrid extends AKAbstractPostproc
 {
-
     /** @var bool Should I use the FTP layer? */
-    public $useFTP = FALSE;
+    public $useFTP = false;
 
     /** @var bool Should I use FTP over implicit SSL? */
-    public $useSSL = FALSE;
+    public $useSSL = false;
 
     /** @var bool use Passive mode? */
-    public $passive = TRUE;
+    public $passive = true;
 
     /** @var string FTP host name */
     public $host = '';
@@ -3331,13 +3322,13 @@ class AKPostprocHybrid extends AKAbstractPostproc
     public $dir = '';
 
     /** @var resource The FTP handle */
-    private $handle = NULL;
+    private $handle = null;
 
     /** @var string The temporary directory where the data will be stored */
     private $tempDir = '';
 
     /** @var null The FTP connection handle */
-    private $_handle = NULL;
+    private $_handle = null;
 
     /**
      * Public constructor. Tries to connect to the FTP server.
@@ -3346,23 +3337,23 @@ class AKPostprocHybrid extends AKAbstractPostproc
     {
         parent::__construct();
 
-        $this->useFTP = TRUE;
-        $this->useSSL = AKFactory::get('kickstart.ftp.ssl', FALSE);
-        $this->passive = AKFactory::get('kickstart.ftp.passive', TRUE);
-        $this->host = AKFactory::get('kickstart.ftp.host', '');
-        $this->port = AKFactory::get('kickstart.ftp.port', 21);
-        $this->user = AKFactory::get('kickstart.ftp.user', '');
-        $this->pass = AKFactory::get('kickstart.ftp.pass', '');
-        $this->dir = AKFactory::get('kickstart.ftp.dir', '');
+        $this->useFTP  = true;
+        $this->useSSL  = AKFactory::get('kickstart.ftp.ssl', false);
+        $this->passive = AKFactory::get('kickstart.ftp.passive', true);
+        $this->host    = AKFactory::get('kickstart.ftp.host', '');
+        $this->port    = AKFactory::get('kickstart.ftp.port', 21);
+        $this->user    = AKFactory::get('kickstart.ftp.user', '');
+        $this->pass    = AKFactory::get('kickstart.ftp.pass', '');
+        $this->dir     = AKFactory::get('kickstart.ftp.dir', '');
         $this->tempDir = AKFactory::get('kickstart.ftp.tempdir', '');
 
-        if (trim($this->port) == '') {
+        if ('' == trim($this->port)) {
             $this->port = 21;
         }
 
         // If FTP is not configured, skip it altogether
         if (empty($this->host) || empty($this->user) || empty($this->pass)) {
-            $this->useFTP = FALSE;
+            $this->useFTP = false;
         }
 
         // Try to connect to the FTP server
@@ -3370,16 +3361,16 @@ class AKPostprocHybrid extends AKAbstractPostproc
 
         // If the connection fails, skip FTP altogether
         if (!$connected) {
-            $this->useFTP = FALSE;
+            $this->useFTP = false;
         }
 
         if ($connected) {
             if (!empty($this->tempDir)) {
-                $tempDir = rtrim($this->tempDir, '/\\') . '/';
+                $tempDir  = rtrim($this->tempDir, '/\\').'/';
                 $writable = $this->isDirWritable($tempDir);
             } else {
-                $tempDir = '';
-                $writable = FALSE;
+                $tempDir  = '';
+                $writable = false;
             }
 
             if (!$writable) {
@@ -3390,7 +3381,7 @@ class AKPostprocHybrid extends AKAbstractPostproc
                     $tempDir = '.';
                 }
                 $absoluteDirToHere = $tempDir;
-                $tempDir = rtrim(str_replace('\\', '/', $tempDir), '/');
+                $tempDir           = rtrim(str_replace('\\', '/', $tempDir), '/');
                 if (!empty($tempDir)) {
                     $tempDir .= '/';
                 }
@@ -3401,7 +3392,7 @@ class AKPostprocHybrid extends AKAbstractPostproc
 
             if (!$writable) {
                 // Nope. Let's try creating a temporary directory in the site's root.
-                $tempDir = $absoluteDirToHere . '/kicktemp';
+                $tempDir = $absoluteDirToHere.'/kicktemp';
                 $this->createDirRecursive($tempDir, 0777);
                 // Try making it writable...
                 $this->fixPermissions($tempDir);
@@ -3414,13 +3405,13 @@ class AKPostprocHybrid extends AKAbstractPostproc
                 $userdir = AKFactory::get('kickstart.ftp.tempdir', '');
                 if (!empty($userdir)) {
                     // Is it an absolute or a relative directory?
-                    $absolute = FALSE;
-                    $absolute = $absolute || (substr($userdir, 0, 1) == '/');
-                    $absolute = $absolute || (substr($userdir, 1, 1) == ':');
-                    $absolute = $absolute || (substr($userdir, 2, 1) == ':');
+                    $absolute = false;
+                    $absolute = $absolute || ('/' == substr($userdir, 0, 1));
+                    $absolute = $absolute || (':' == substr($userdir, 1, 1));
+                    $absolute = $absolute || (':' == substr($userdir, 2, 1));
                     if (!$absolute) {
                         // Make absolute
-                        $tempDir = $absoluteDirToHere . $userdir;
+                        $tempDir = $absoluteDirToHere.$userdir;
                     } else {
                         // it's already absolute
                         $tempDir = $userdir;
@@ -3445,14 +3436,14 @@ class AKPostprocHybrid extends AKAbstractPostproc
     }
 
     /**
-     * Tries to connect to the FTP server
+     * Tries to connect to the FTP server.
      *
      * @return bool
      */
     public function connect()
     {
         if (!$this->useFTP) {
-            return FALSE;
+            return false;
         }
 
         // Connect to server, using SSL if so required
@@ -3461,10 +3452,10 @@ class AKPostprocHybrid extends AKAbstractPostproc
         } else {
             $this->handle = @ftp_connect($this->host, $this->port);
         }
-        if ($this->handle === FALSE) {
+        if (false === $this->handle) {
             $this->setError(AKText::_('WRONG_FTP_HOST'));
 
-            return FALSE;
+            return false;
         }
 
         // Login
@@ -3472,7 +3463,7 @@ class AKPostprocHybrid extends AKAbstractPostproc
             $this->setError(AKText::_('WRONG_FTP_USER'));
             @ftp_close($this->handle);
 
-            return FALSE;
+            return false;
         }
 
         // Change to initial directory
@@ -3480,31 +3471,31 @@ class AKPostprocHybrid extends AKAbstractPostproc
             $this->setError(AKText::_('WRONG_FTP_PATH1'));
             @ftp_close($this->handle);
 
-            return FALSE;
+            return false;
         }
 
         // Enable passive mode if the user requested it
         if ($this->passive) {
-            @ftp_pasv($this->handle, TRUE);
+            @ftp_pasv($this->handle, true);
         } else {
-            @ftp_pasv($this->handle, FALSE);
+            @ftp_pasv($this->handle, false);
         }
 
         // Try to download ourselves
         $testFilename = defined('KSSELFNAME') ? KSSELFNAME : basename(__FILE__);
-        $tempHandle = fopen('php://temp', 'r+');
+        $tempHandle   = fopen('php://temp', 'r+');
 
-        if (@ftp_fget($this->handle, $tempHandle, $testFilename, FTP_ASCII, 0) === FALSE) {
+        if (false === @ftp_fget($this->handle, $tempHandle, $testFilename, FTP_ASCII, 0)) {
             $this->setError(AKText::_('WRONG_FTP_PATH2'));
             @ftp_close($this->handle);
             fclose($tempHandle);
 
-            return FALSE;
+            return false;
         }
 
         fclose($tempHandle);
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -3516,23 +3507,23 @@ class AKPostprocHybrid extends AKAbstractPostproc
      */
     private function isDirWritable($dir)
     {
-        $fp = @fopen($dir . '/kickstart.dat', 'wb');
+        $fp = @fopen($dir.'/kickstart.dat', 'wb');
 
-        if ($fp === FALSE) {
-            return FALSE;
+        if (false === $fp) {
+            return false;
         }
 
         @fclose($fp);
-        unlink($dir . '/kickstart.dat');
+        unlink($dir.'/kickstart.dat');
 
-        return TRUE;
+        return true;
     }
 
     /**
-     * Create a directory, recursively
+     * Create a directory, recursively.
      *
      * @param string $dirName The directory to create
-     * @param int $perms The permissions to give to the directory
+     * @param int    $perms   The permissions to give to the directory
      *
      * @return bool
      */
@@ -3544,10 +3535,10 @@ class AKPostprocHybrid extends AKAbstractPostproc
         if (!empty($removePath)) {
             // UNIXize the paths
             $removePath = str_replace('\\', '/', $removePath);
-            $dirName = str_replace('\\', '/', $dirName);
+            $dirName    = str_replace('\\', '/', $dirName);
             // Make sure they both end in a slash
-            $removePath = rtrim($removePath, '/\\') . '/';
-            $dirName = rtrim($dirName, '/\\') . '/';
+            $removePath = rtrim($removePath, '/\\').'/';
+            $dirName    = rtrim($dirName, '/\\').'/';
             // Process the path removal
             $left = substr($dirName, 0, strlen($removePath));
 
@@ -3561,20 +3552,20 @@ class AKPostprocHybrid extends AKAbstractPostproc
             $dirName = '';
         }
 
-        $check = '/' . trim($this->dir, '/') . '/' . trim($dirName, '/');
-        $checkFS = $removePath . trim($dirName, '/');
+        $check   = '/'.trim($this->dir, '/').'/'.trim($dirName, '/');
+        $checkFS = $removePath.trim($dirName, '/');
 
         if ($this->is_dir($check)) {
-            return TRUE;
+            return true;
         }
 
-        $alldirs = explode('/', $dirName);
-        $previousDir = '/' . trim($this->dir);
+        $alldirs       = explode('/', $dirName);
+        $previousDir   = '/'.trim($this->dir);
         $previousDirFS = rtrim($removePath, '/\\');
 
         foreach ($alldirs as $curdir) {
-            $check = $previousDir . '/' . $curdir;
-            $checkFS = $previousDirFS . '/' . $curdir;
+            $check   = $previousDir.'/'.$curdir;
+            $checkFS = $previousDirFS.'/'.$curdir;
 
             if (!is_dir($checkFS) && !$this->is_dir($check)) {
                 // Proactively try to delete a file by the same name
@@ -3588,7 +3579,7 @@ class AKPostprocHybrid extends AKAbstractPostproc
                     $createdDir = @ftp_mkdir($this->handle, $check);
                 }
 
-                if ($createdDir === FALSE) {
+                if (false === $createdDir) {
                     // If we couldn't create the directory, attempt to fix the permissions in the PHP level and retry!
                     $this->fixPermissions($checkFS);
 
@@ -3597,10 +3588,10 @@ class AKPostprocHybrid extends AKAbstractPostproc
                         $createdDir = @ftp_mkdir($this->handle, $check);
                     }
 
-                    if ($createdDir === FALSE) {
+                    if (false === $createdDir) {
                         $this->setError(AKText::sprintf('FTP_CANT_CREATE_DIR', $check));
 
-                        return FALSE;
+                        return false;
                     }
                 }
 
@@ -3609,11 +3600,11 @@ class AKPostprocHybrid extends AKAbstractPostproc
                 }
             }
 
-            $previousDir = $check;
+            $previousDir   = $check;
             $previousDirFS = $checkFS;
         }
 
-        return TRUE;
+        return true;
     }
 
     private function is_dir($dir)
@@ -3622,7 +3613,7 @@ class AKPostprocHybrid extends AKAbstractPostproc
             return @ftp_chdir($this->handle, $dir);
         }
 
-        return FALSE;
+        return false;
     }
 
     /**
@@ -3639,7 +3630,7 @@ class AKPostprocHybrid extends AKAbstractPostproc
         }
 
         // Get UNIX style paths
-        $relPath = str_replace('\\', '/', $path);
+        $relPath  = str_replace('\\', '/', $path);
         $basePath = rtrim(str_replace('\\', '/', KSROOTDIR), '/');
         $basePath = rtrim($basePath, '/');
 
@@ -3652,7 +3643,7 @@ class AKPostprocHybrid extends AKAbstractPostproc
             $relPath = substr($relPath, strlen($basePath));
         }
 
-        $dirArray = explode('/', $relPath);
+        $dirArray  = explode('/', $relPath);
         $pathBuilt = rtrim($basePath, '/');
 
         foreach ($dirArray as $dir) {
@@ -3661,13 +3652,13 @@ class AKPostprocHybrid extends AKAbstractPostproc
             }
 
             $oldPath = $pathBuilt;
-            $pathBuilt .= '/' . $dir;
+            $pathBuilt .= '/'.$dir;
 
-            if (is_dir($oldPath . $dir)) {
-                @chmod($oldPath . $dir, 0777);
+            if (is_dir($oldPath.$dir)) {
+                @chmod($oldPath.$dir, 0777);
             } else {
-                if (@chmod($oldPath . $dir, 0777) === FALSE) {
-                    @unlink($oldPath . $dir);
+                if (false === @chmod($oldPath.$dir, 0777)) {
+                    @unlink($oldPath.$dir);
                 }
             }
         }
@@ -3679,16 +3670,16 @@ class AKPostprocHybrid extends AKAbstractPostproc
     }
 
     /**
-     * Called after unserialisation, tries to reconnect to FTP
+     * Called after unserialisation, tries to reconnect to FTP.
      */
-    function __wakeup()
+    public function __wakeup()
     {
         if ($this->useFTP) {
             $this->connect();
         }
     }
 
-    function __destruct()
+    public function __destruct()
     {
         if (!$this->useFTP) {
             @ftp_close($this->handle);
@@ -3696,7 +3687,7 @@ class AKPostprocHybrid extends AKAbstractPostproc
     }
 
     /**
-     * Post-process an extracted file, using FTP or direct file writes to move it
+     * Post-process an extracted file, using FTP or direct file writes to move it.
      *
      * @return bool
      */
@@ -3705,42 +3696,42 @@ class AKPostprocHybrid extends AKAbstractPostproc
         if (is_null($this->tempFilename)) {
             // If an empty filename is passed, it means that we shouldn't do any post processing, i.e.
             // the entity was a directory or symlink
-            return TRUE;
+            return true;
         }
 
         $remotePath = dirname($this->filename);
         $removePath = AKFactory::get('kickstart.setup.destdir', '');
-        $root = rtrim($removePath, '/\\');
+        $root       = rtrim($removePath, '/\\');
 
         if (!empty($removePath)) {
-            $removePath = ltrim($removePath, "/");
-            $remotePath = ltrim($remotePath, "/");
-            $left = substr($remotePath, 0, strlen($removePath));
+            $removePath = ltrim($removePath, '/');
+            $remotePath = ltrim($remotePath, '/');
+            $left       = substr($remotePath, 0, strlen($removePath));
 
             if ($left == $removePath) {
                 $remotePath = substr($remotePath, strlen($removePath));
             }
         }
 
-        $absoluteFSPath = dirname($this->filename);
+        $absoluteFSPath  = dirname($this->filename);
         $relativeFTPPath = trim($remotePath, '/');
-        $absoluteFTPPath = '/' . trim($this->dir, '/') . '/' . trim($remotePath, '/');
-        $onlyFilename = basename($this->filename);
+        $absoluteFTPPath = '/'.trim($this->dir, '/').'/'.trim($remotePath, '/');
+        $onlyFilename    = basename($this->filename);
 
-        $remoteName = $absoluteFTPPath . '/' . $onlyFilename;
+        $remoteName = $absoluteFTPPath.'/'.$onlyFilename;
 
         // Does the directory exist?
-        if (!is_dir($root . '/' . $absoluteFSPath)) {
+        if (!is_dir($root.'/'.$absoluteFSPath)) {
             $ret = $this->createDirRecursive($absoluteFSPath, 0755);
 
-            if (($ret === FALSE) && ($this->useFTP)) {
+            if ((false === $ret) && ($this->useFTP)) {
                 $ret = @ftp_chdir($this->handle, $absoluteFTPPath);
             }
 
-            if ($ret === FALSE) {
+            if (false === $ret) {
                 $this->setError(AKText::sprintf('FTP_COULDNT_UPLOAD', $this->filename));
 
-                return FALSE;
+                return false;
             }
         }
 
@@ -3749,51 +3740,51 @@ class AKPostprocHybrid extends AKAbstractPostproc
         }
 
         // Try copying directly
-        $ret = @copy($this->tempFilename, $root . '/' . $this->filename);
+        $ret = @copy($this->tempFilename, $root.'/'.$this->filename);
 
-        if ($ret === FALSE) {
+        if (false === $ret) {
             $this->fixPermissions($this->filename);
             $this->unlink($this->filename);
 
-            $ret = @copy($this->tempFilename, $root . '/' . $this->filename);
+            $ret = @copy($this->tempFilename, $root.'/'.$this->filename);
         }
 
-        if ($this->useFTP && ($ret === FALSE)) {
+        if ($this->useFTP && (false === $ret)) {
             $ret = @ftp_put($this->handle, $remoteName, $this->tempFilename, FTP_BINARY);
 
-            if ($ret === FALSE) {
+            if (false === $ret) {
                 // If we couldn't create the file, attempt to fix the permissions in the PHP level and retry!
                 $this->fixPermissions($this->filename);
                 $this->unlink($this->filename);
 
                 $fp = @fopen($this->tempFilename, 'rb');
-                if ($fp !== FALSE) {
+                if (false !== $fp) {
                     $ret = @ftp_fput($this->handle, $remoteName, $fp, FTP_BINARY);
                     @fclose($fp);
                 } else {
-                    $ret = FALSE;
+                    $ret = false;
                 }
             }
         }
 
         @unlink($this->tempFilename);
 
-        if ($ret === FALSE) {
+        if (false === $ret) {
             $this->setError(AKText::sprintf('FTP_COULDNT_UPLOAD', $this->filename));
 
-            return FALSE;
+            return false;
         }
 
-        $restorePerms = AKFactory::get('kickstart.setup.restoreperms', FALSE);
-        $perms = $restorePerms ? $this->perms : 0644;
+        $restorePerms = AKFactory::get('kickstart.setup.restoreperms', false);
+        $perms        = $restorePerms ? $this->perms : 0644;
 
-        $ret = @chmod($root . '/' . $this->filename, $perms);
+        $ret = @chmod($root.'/'.$this->filename, $perms);
 
-        if ($this->useFTP && ($ret === FALSE)) {
+        if ($this->useFTP && (false === $ret)) {
             @ftp_chmod($this->_handle, $perms, $remoteName);
         }
 
-        return TRUE;
+        return true;
     }
 
     public function unlink($file)
@@ -3809,7 +3800,7 @@ class AKPostprocHybrid extends AKAbstractPostproc
                 }
             }
 
-            $check = '/' . trim($this->dir, '/') . '/' . trim($file, '/');
+            $check = '/'.trim($this->dir, '/').'/'.trim($file, '/');
 
             $ret = @ftp_delete($this->handle, $check);
         }
@@ -3818,10 +3809,10 @@ class AKPostprocHybrid extends AKAbstractPostproc
     }
 
     /**
-     * Create a temporary filename
+     * Create a temporary filename.
      *
      * @param string $filename The original filename
-     * @param int $perms The file permissions
+     * @param int    $perms    The file permissions
      *
      * @return string
      */
@@ -3829,16 +3820,16 @@ class AKPostprocHybrid extends AKAbstractPostproc
     {
         // Catch some error conditions...
         if ($this->getError()) {
-            return FALSE;
+            return false;
         }
 
         // If a null filename is passed, it means that we shouldn't do any post processing, i.e.
         // the entity was a directory or symlink
         if (is_null($filename)) {
-            $this->filename = NULL;
-            $this->tempFilename = NULL;
+            $this->filename     = null;
+            $this->tempFilename = null;
 
-            return NULL;
+            return null;
         }
 
         // Strip absolute filesystem path to website's root
@@ -3855,20 +3846,20 @@ class AKPostprocHybrid extends AKAbstractPostproc
         // Trim slash on the left
         $filename = ltrim($filename, '/');
 
-        $this->filename = $filename;
+        $this->filename     = $filename;
         $this->tempFilename = tempnam($this->tempDir, 'kickstart-');
-        $this->perms = $perms;
+        $this->perms        = $perms;
 
         if (empty($this->tempFilename)) {
             // Oops! Let's try something different
-            $this->tempFilename = $this->tempDir . '/kickstart-' . time() . '.dat';
+            $this->tempFilename = $this->tempDir.'/kickstart-'.time().'.dat';
         }
 
         return $this->tempFilename;
     }
 
     /**
-     * Closes the FTP connection
+     * Closes the FTP connection.
      */
     public function close()
     {
@@ -3880,7 +3871,7 @@ class AKPostprocHybrid extends AKAbstractPostproc
     public function chmod($file, $perms)
     {
         if (AKFactory::get('kickstart.setup.dryrun', '0')) {
-            return TRUE;
+            return true;
         }
 
         $ret = @chmod($file, $perms);
@@ -3919,7 +3910,7 @@ class AKPostprocHybrid extends AKAbstractPostproc
                 }
             }
 
-            $check = '/' . trim($this->dir, '/') . '/' . trim($directory, '/');
+            $check = '/'.trim($this->dir, '/').'/'.trim($directory, '/');
 
             $ret = @ftp_rmdir($this->handle, $check);
         }
@@ -3933,7 +3924,7 @@ class AKPostprocHybrid extends AKAbstractPostproc
 
         if (!$ret && $this->useFTP) {
             $originalFrom = $from;
-            $originalTo = $to;
+            $originalTo   = $to;
 
             $removePath = AKFactory::get('kickstart.setup.destdir', '');
             if (!empty($removePath)) {
@@ -3942,7 +3933,7 @@ class AKPostprocHybrid extends AKAbstractPostproc
                     $from = substr($from, strlen($removePath));
                 }
             }
-            $from = '/' . trim($this->dir, '/') . '/' . trim($from, '/');
+            $from = '/'.trim($this->dir, '/').'/'.trim($from, '/');
 
             if (!empty($removePath)) {
                 $left = substr($to, 0, strlen($removePath));
@@ -3950,7 +3941,7 @@ class AKPostprocHybrid extends AKAbstractPostproc
                     $to = substr($to, strlen($removePath));
                 }
             }
-            $to = '/' . trim($this->dir, '/') . '/' . trim($to, '/');
+            $to = '/'.trim($this->dir, '/').'/'.trim($to, '/');
 
             $ret = @ftp_rename($this->handle, $from, $to);
         }
@@ -3961,16 +3952,14 @@ class AKPostprocHybrid extends AKAbstractPostproc
 
 /**
  * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
+ * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
  * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
  */
 
 /**
- * JPA archive extraction class
+ * JPA archive extraction class.
  */
 class AKUnarchiverJPA extends AKAbstractUnarchiver
 {
@@ -3987,48 +3976,49 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
         $this->nextFile();
 
         // Fail for unreadable files
-        if ($this->fp === FALSE) {
+        if (false === $this->fp) {
             debugMsg('Could not open the first part');
 
-            return FALSE;
+            return false;
         }
 
         // Read the signature
         $sig = fread($this->fp, 3);
 
-        if ($sig != 'JPA') {
+        if ('JPA' != $sig) {
             // Not a JPA file
             debugMsg('Invalid archive signature');
             $this->setError(AKText::_('ERR_NOT_A_JPA_FILE'));
 
-            return FALSE;
+            return false;
         }
 
         // Read and parse header length
         $header_length_array = unpack('v', fread($this->fp, 2));
-        $header_length = $header_length_array[1];
+        $header_length       = $header_length_array[1];
 
         // Read and parse the known portion of header data (14 bytes)
-        $bin_data = fread($this->fp, 14);
+        $bin_data    = fread($this->fp, 14);
         $header_data = unpack('Cmajor/Cminor/Vcount/Vuncsize/Vcsize', $bin_data);
 
         // Load any remaining header data (forward compatibility)
         $rest_length = $header_length - 19;
-        if ($rest_length > 0)
+        if ($rest_length > 0) {
             $junk = fread($this->fp, $rest_length);
-        else
+        } else {
             $junk = '';
+        }
 
         // Temporary array with all the data we read
         $temp = array(
-            'signature' => $sig,
-            'length' => $header_length,
-            'major' => $header_data['major'],
-            'minor' => $header_data['minor'],
-            'filecount' => $header_data['count'],
+            'signature'        => $sig,
+            'length'           => $header_length,
+            'major'            => $header_data['major'],
+            'minor'            => $header_data['minor'],
+            'filecount'        => $header_data['count'],
             'uncompressedsize' => $header_data['uncsize'],
-            'compressedsize' => $header_data['csize'],
-            'unknowndata' => $junk
+            'compressedsize'   => $header_data['csize'],
+            'unknowndata'      => $junk,
         );
         // Array-to-object conversion
         foreach ($temp as $key => $value) {
@@ -4036,28 +4026,29 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
         }
 
         debugMsg('Header data:');
-        debugMsg('Length              : ' . $header_length);
-        debugMsg('Major               : ' . $header_data['major']);
-        debugMsg('Minor               : ' . $header_data['minor']);
-        debugMsg('File count          : ' . $header_data['count']);
-        debugMsg('Uncompressed size   : ' . $header_data['uncsize']);
-        debugMsg('Compressed size	  : ' . $header_data['csize']);
+        debugMsg('Length              : '.$header_length);
+        debugMsg('Major               : '.$header_data['major']);
+        debugMsg('Minor               : '.$header_data['minor']);
+        debugMsg('File count          : '.$header_data['count']);
+        debugMsg('Uncompressed size   : '.$header_data['uncsize']);
+        debugMsg('Compressed size	  : '.$header_data['csize']);
 
         $this->currentPartOffset = @ftell($this->fp);
 
         $this->dataReadLength = 0;
 
-        return TRUE;
+        return true;
     }
 
     /**
-     * Concrete classes must use this method to read the file header
+     * Concrete classes must use this method to read the file header.
+     *
      * @return bool True if reading the file was successful, false if an error occured or we reached end of archive
      */
     protected function readFileHeader()
     {
         // If the current part is over, proceed to the next part please
-        if ($this->isEOF(TRUE)) {
+        if ($this->isEOF(true)) {
             debugMsg('Archive part EOF; moving to next file');
             $this->nextFile();
         }
@@ -4066,26 +4057,26 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
         // Get and decode Entity Description Block
         $signature = fread($this->fp, 3);
 
-        $this->fileHeader = new stdClass();
+        $this->fileHeader            = new stdClass();
         $this->fileHeader->timestamp = 0;
 
         // Check signature
-        if ($signature != 'JPF') {
-            if ($this->isEOF(TRUE)) {
+        if ('JPF' != $signature) {
+            if ($this->isEOF(true)) {
                 // This file is finished; make sure it's the last one
                 $this->nextFile();
-                if (!$this->isEOF(FALSE)) {
+                if (!$this->isEOF(false)) {
                     debugMsg('Invalid file signature before end of archive encountered');
                     $this->setError(AKText::sprintf('INVALID_FILE_HEADER', $this->currentPartNumber, $this->currentPartOffset));
 
-                    return FALSE;
+                    return false;
                 }
 
                 // We're just finished
-                return FALSE;
+                return false;
             } else {
-                $screwed = TRUE;
-                if (AKFactory::get('kickstart.setup.ignoreerrors', FALSE)) {
+                $screwed = true;
+                if (AKFactory::get('kickstart.setup.ignoreerrors', false)) {
                     debugMsg('Invalid file block signature; launching heuristic file block signature scanner');
                     $screwed = !$this->heuristicFileHeaderLocator();
                     if (!$screwed) {
@@ -4099,13 +4090,13 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
                     // This is not a file block! The archive is corrupt.
                     $this->setError(AKText::sprintf('INVALID_FILE_HEADER', $this->currentPartNumber, $this->currentPartOffset));
 
-                    return FALSE;
+                    return false;
                 }
             }
         }
         // This a JPA Entity Block. Process the header.
 
-        $isBannedFile = FALSE;
+        $isBannedFile = false;
 
         // Read length of EDB and of the Entity Path Data
         $length_array = unpack('vblocksize/vpathsize', fread($this->fp, 4));
@@ -4117,26 +4108,26 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
         }
 
         // Handle file renaming
-        $isRenamed = FALSE;
+        $isRenamed = false;
         if (is_array($this->renameFiles) && (count($this->renameFiles) > 0)) {
             if (array_key_exists($file, $this->renameFiles)) {
-                $file = $this->renameFiles[$file];
-                $isRenamed = TRUE;
+                $file      = $this->renameFiles[$file];
+                $isRenamed = true;
             }
         }
 
         // Handle directory renaming
-        $isDirRenamed = FALSE;
+        $isDirRenamed = false;
         if (is_array($this->renameDirs) && (count($this->renameDirs) > 0)) {
             if (array_key_exists(dirname($file), $this->renameDirs)) {
-                $file = rtrim($this->renameDirs[dirname($file)], '/') . '/' . basename($file);
-                $isRenamed = TRUE;
-                $isDirRenamed = TRUE;
+                $file         = rtrim($this->renameDirs[dirname($file)], '/').'/'.basename($file);
+                $isRenamed    = true;
+                $isDirRenamed = true;
             }
         }
 
         // Read and parse the known data portion
-        $bin_data = fread($this->fp, 14);
+        $bin_data    = fread($this->fp, 14);
         $header_data = unpack('Ctype/Ccompression/Vcompsize/Vuncompsize/Vperms', $bin_data);
         // Read any unknown data
         $restBytes = $length_array['blocksize'] - (21 + $length_array['pathsize']);
@@ -4144,7 +4135,7 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
             // Start reading the extra fields
             while ($restBytes >= 4) {
                 $extra_header_data = fread($this->fp, 4);
-                $extra_header = unpack('vsignature/vlength', $extra_header_data);
+                $extra_header      = unpack('vsignature/vlength', $extra_header_data);
                 $restBytes -= 4;
                 $extra_header['length'] -= 4;
                 switch ($extra_header['signature']) {
@@ -4153,8 +4144,8 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
                         if ($extra_header['length'] > 0) {
                             $bindata = fread($this->fp, $extra_header['length']);
                             $restBytes -= $extra_header['length'];
-                            $timestamps = unpack('Vmodified', substr($bindata, 0, 4));
-                            $filectime = $timestamps['modified'];
+                            $timestamps                  = unpack('Vmodified', substr($bindata, 0, 4));
+                            $filectime                   = $timestamps['modified'];
                             $this->fileHeader->timestamp = $filectime;
                         }
                         break;
@@ -4168,14 +4159,16 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
                         break;
                 }
             }
-            if ($restBytes > 0) $junk = fread($this->fp, $restBytes);
+            if ($restBytes > 0) {
+                $junk = fread($this->fp, $restBytes);
+            }
         }
 
         $compressionType = $header_data['compression'];
 
         // Populate the return array
-        $this->fileHeader->file = $file;
-        $this->fileHeader->compressed = $header_data['compsize'];
+        $this->fileHeader->file         = $file;
+        $this->fileHeader->compressed   = $header_data['compsize'];
         $this->fileHeader->uncompressed = $header_data['uncompsize'];
         switch ($header_data['type']) {
             case 0:
@@ -4204,54 +4197,58 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
         $this->fileHeader->permissions = $header_data['perms'];
 
         // Find hard-coded banned files
-        if ((basename($this->fileHeader->file) == ".") || (basename($this->fileHeader->file) == "..")) {
-            $isBannedFile = TRUE;
+        if (('.' == basename($this->fileHeader->file)) || ('..' == basename($this->fileHeader->file))) {
+            $isBannedFile = true;
         }
 
         // Also try to find banned files passed in class configuration
         if ((count($this->skipFiles) > 0) && (!$isRenamed)) {
             if (in_array($this->fileHeader->file, $this->skipFiles)) {
-                $isBannedFile = TRUE;
+                $isBannedFile = true;
             }
         }
 
         // If we have a banned file, let's skip it
         if ($isBannedFile) {
-            debugMsg('Skipping file ' . $this->fileHeader->file);
+            debugMsg('Skipping file '.$this->fileHeader->file);
             // Advance the file pointer, skipping exactly the size of the compressed data
             $seekleft = $this->fileHeader->compressed;
             while ($seekleft > 0) {
                 // Ensure that we can seek past archive part boundaries
                 $curSize = @filesize($this->archiveList[$this->currentPartNumber]);
-                $curPos = @ftell($this->fp);
+                $curPos  = @ftell($this->fp);
                 $canSeek = $curSize - $curPos;
-                if ($canSeek > $seekleft) $canSeek = $seekleft;
+                if ($canSeek > $seekleft) {
+                    $canSeek = $seekleft;
+                }
                 @fseek($this->fp, $canSeek, SEEK_CUR);
                 $seekleft -= $canSeek;
-                if ($seekleft) $this->nextFile();
+                if ($seekleft) {
+                    $this->nextFile();
+                }
             }
 
             $this->currentPartOffset = @ftell($this->fp);
-            $this->runState = AK_STATE_DONE;
+            $this->runState          = AK_STATE_DONE;
 
-            return TRUE;
+            return true;
         }
 
         // Last chance to prepend a path to the filename
         if (!empty($this->addPath) && !$isDirRenamed) {
-            $this->fileHeader->file = $this->addPath . $this->fileHeader->file;
+            $this->fileHeader->file = $this->addPath.$this->fileHeader->file;
         }
 
         // Get the translated path name
-        $restorePerms = AKFactory::get('kickstart.setup.restoreperms', FALSE);
-        if ($this->fileHeader->type == 'file') {
+        $restorePerms = AKFactory::get('kickstart.setup.restoreperms', false);
+        if ('file' == $this->fileHeader->type) {
             // Regular file; ask the postproc engine to process its filename
             if ($restorePerms) {
                 $this->fileHeader->realFile = $this->postProcEngine->processFilename($this->fileHeader->file, $this->fileHeader->permissions);
             } else {
                 $this->fileHeader->realFile = $this->postProcEngine->processFilename($this->fileHeader->file);
             }
-        } elseif ($this->fileHeader->type == 'dir') {
+        } elseif ('dir' == $this->fileHeader->type) {
             $dir = $this->fileHeader->file;
 
             // Directory; just create it
@@ -4260,10 +4257,10 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
             } else {
                 $this->postProcEngine->createDirRecursive($this->fileHeader->file, 0755);
             }
-            $this->postProcEngine->processFilename(NULL);
+            $this->postProcEngine->processFilename(null);
         } else {
             // Symlink; do not post-process
-            $this->postProcEngine->processFilename(NULL);
+            $this->postProcEngine->processFilename(null);
         }
 
         $this->createDirectory();
@@ -4273,35 +4270,35 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
 
         $this->dataReadLength = 0;
 
-        return TRUE;
+        return true;
     }
 
     protected function heuristicFileHeaderLocator()
     {
-        $ret = FALSE;
-        $fullEOF = FALSE;
+        $ret     = false;
+        $fullEOF = false;
 
         while (!$ret && !$fullEOF) {
             $this->currentPartOffset = @ftell($this->fp);
-            if ($this->isEOF(TRUE)) {
+            if ($this->isEOF(true)) {
                 $this->nextFile();
             }
 
-            if ($this->isEOF(FALSE)) {
-                $fullEOF = TRUE;
+            if ($this->isEOF(false)) {
+                $fullEOF = true;
                 continue;
             }
 
             // Read 512Kb
-            $chunk = fread($this->fp, 524288);
+            $chunk     = fread($this->fp, 524288);
             $size_read = mb_strlen($chunk, '8bit');
             //$pos = strpos($chunk, 'JPF');
             $pos = mb_strpos($chunk, 'JPF', 0, '8bit');
-            if ($pos !== FALSE) {
+            if (false !== $pos) {
                 // We found it!
                 $this->currentPartOffset += $pos + 3;
                 @fseek($this->fp, $this->currentPartOffset, SEEK_SET);
-                $ret = TRUE;
+                $ret = true;
             } else {
                 // Not yet found :(
                 $this->currentPartOffset = @ftell($this->fp);
@@ -4312,30 +4309,35 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
     }
 
     /**
-     * Creates the directory this file points to
+     * Creates the directory this file points to.
      */
     protected function createDirectory()
     {
-        if (AKFactory::get('kickstart.setup.dryrun', '0')) return TRUE;
+        if (AKFactory::get('kickstart.setup.dryrun', '0')) {
+            return true;
+        }
 
         // Do we need to create a directory?
-        if (empty($this->fileHeader->realFile)) $this->fileHeader->realFile = $this->fileHeader->file;
+        if (empty($this->fileHeader->realFile)) {
+            $this->fileHeader->realFile = $this->fileHeader->file;
+        }
         $lastSlash = strrpos($this->fileHeader->realFile, '/');
-        $dirName = substr($this->fileHeader->realFile, 0, $lastSlash);
-        $perms = $this->flagRestorePermissions ? $this->fileHeader->permissions : 0755;
-        $ignore = AKFactory::get('kickstart.setup.ignoreerrors', FALSE) || $this->isIgnoredDirectory($dirName);
-        if (($this->postProcEngine->createDirRecursive($dirName, $perms) == FALSE) && (!$ignore)) {
+        $dirName   = substr($this->fileHeader->realFile, 0, $lastSlash);
+        $perms     = $this->flagRestorePermissions ? $this->fileHeader->permissions : 0755;
+        $ignore    = AKFactory::get('kickstart.setup.ignoreerrors', false) || $this->isIgnoredDirectory($dirName);
+        if ((false == $this->postProcEngine->createDirRecursive($dirName, $perms)) && (!$ignore)) {
             $this->setError(AKText::sprintf('COULDNT_CREATE_DIR', $dirName));
 
-            return FALSE;
+            return false;
         } else {
-            return TRUE;
+            return true;
         }
     }
 
     /**
      * Concrete classes must use this method to process file data. It must set $runState to AK_STATE_DATAREAD when
      * it's finished processing the file data.
+     *
      * @return bool True if processing the file data was successful, false if an error occured
      */
     protected function processFileData()
@@ -4359,18 +4361,18 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
                     case 'bzip2':
                         return $this->processTypeFileCompressedSimple();
                         break;
-
                 }
                 break;
 
             default:
-                debugMsg('Unknown file type ' . $this->fileHeader->type);
+                debugMsg('Unknown file type '.$this->fileHeader->type);
                 break;
         }
     }
 
     /**
-     * Process the file data of a directory entry
+     * Process the file data of a directory entry.
+     *
      * @return bool
      */
     private function processTypeDir()
@@ -4378,29 +4380,30 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
         // Directory entries in the JPA do not have file data, therefore we're done processing the entry
         $this->runState = AK_STATE_DATAREAD;
 
-        return TRUE;
+        return true;
     }
 
     /**
-     * Process the file data of a link entry
+     * Process the file data of a link entry.
+     *
      * @return bool
      */
     private function processTypeLink()
     {
-        $readBytes = 0;
+        $readBytes   = 0;
         $toReadBytes = 0;
-        $leftBytes = $this->fileHeader->compressed;
-        $data = '';
+        $leftBytes   = $this->fileHeader->compressed;
+        $data        = '';
 
         while ($leftBytes > 0) {
-            $toReadBytes = ($leftBytes > $this->chunkSize) ? $this->chunkSize : $leftBytes;
-            $mydata = $this->fread($this->fp, $toReadBytes);
+            $toReadBytes     = ($leftBytes > $this->chunkSize) ? $this->chunkSize : $leftBytes;
+            $mydata          = $this->fread($this->fp, $toReadBytes);
             $reallyReadBytes = akstringlen($mydata);
             $data .= $mydata;
             $leftBytes -= $reallyReadBytes;
             if ($reallyReadBytes < $toReadBytes) {
                 // We read less than requested! Why? Did we hit local EOF?
-                if ($this->isEOF(TRUE) && !$this->isEOF(FALSE)) {
+                if ($this->isEOF(true) && !$this->isEOF(false)) {
                     // Yeap. Let's go to the next file
                     $this->nextFile();
                 } else {
@@ -4408,7 +4411,7 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
                     // Nope. The archive is corrupt
                     $this->setError(AKText::_('ERR_CORRUPT_ARCHIVE'));
 
-                    return FALSE;
+                    return false;
                 }
             }
         }
@@ -4419,68 +4422,73 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
             @rmdir($this->fileHeader->realFile);
         }
         // Remove any trailing slash
-        if (substr($this->fileHeader->realFile, -1) == '/') $this->fileHeader->realFile = substr($this->fileHeader->realFile, 0, -1);
+        if ('/' == substr($this->fileHeader->realFile, -1)) {
+            $this->fileHeader->realFile = substr($this->fileHeader->realFile, 0, -1);
+        }
         // Create the symlink - only possible within PHP context. There's no support built in the FTP protocol, so no postproc use is possible here :(
-        if (!AKFactory::get('kickstart.setup.dryrun', '0'))
+        if (!AKFactory::get('kickstart.setup.dryrun', '0')) {
             @symlink($data, $this->fileHeader->realFile);
+        }
 
         $this->runState = AK_STATE_DATAREAD;
 
-        return TRUE; // No matter if the link was created!
+        return true; // No matter if the link was created!
     }
 
     private function processTypeFileUncompressed()
     {
         // Uncompressed files are being processed in small chunks, to avoid timeouts
-        if (($this->dataReadLength == 0) && !AKFactory::get('kickstart.setup.dryrun', '0')) {
+        if ((0 == $this->dataReadLength) && !AKFactory::get('kickstart.setup.dryrun', '0')) {
             // Before processing file data, ensure permissions are adequate
             $this->setCorrectPermissions($this->fileHeader->file);
         }
 
         // Open the output file
         if (!AKFactory::get('kickstart.setup.dryrun', '0')) {
-            $ignore = AKFactory::get('kickstart.setup.ignoreerrors', FALSE) || $this->isIgnoredDirectory($this->fileHeader->file);
-            if ($this->dataReadLength == 0) {
+            $ignore = AKFactory::get('kickstart.setup.ignoreerrors', false) || $this->isIgnoredDirectory($this->fileHeader->file);
+            if (0 == $this->dataReadLength) {
                 $outfp = @fopen($this->fileHeader->realFile, 'wb');
             } else {
                 $outfp = @fopen($this->fileHeader->realFile, 'ab');
             }
 
             // Can we write to the file?
-            if (($outfp === FALSE) && (!$ignore)) {
+            if ((false === $outfp) && (!$ignore)) {
                 // An error occured
                 debugMsg('Could not write to output file');
                 $this->setError(AKText::sprintf('COULDNT_WRITE_FILE', $this->fileHeader->realFile));
 
-                return FALSE;
+                return false;
             }
         }
 
         // Does the file have any data, at all?
-        if ($this->fileHeader->compressed == 0) {
+        if (0 == $this->fileHeader->compressed) {
             // No file data!
-            if (!AKFactory::get('kickstart.setup.dryrun', '0') && is_resource($outfp)) @fclose($outfp);
+            if (!AKFactory::get('kickstart.setup.dryrun', '0') && is_resource($outfp)) {
+                @fclose($outfp);
+            }
             $this->runState = AK_STATE_DATAREAD;
 
-            return TRUE;
+            return true;
         }
 
         // Reference to the global timer
         $timer = AKFactory::getTimer();
 
         $toReadBytes = 0;
-        $leftBytes = $this->fileHeader->compressed - $this->dataReadLength;
+        $leftBytes   = $this->fileHeader->compressed - $this->dataReadLength;
 
         // Loop while there's data to read and enough time to do it
         while (($leftBytes > 0) && ($timer->getTimeLeft() > 0)) {
-            $toReadBytes = ($leftBytes > $this->chunkSize) ? $this->chunkSize : $leftBytes;
-            $data = $this->fread($this->fp, $toReadBytes);
+            $toReadBytes     = ($leftBytes > $this->chunkSize) ? $this->chunkSize : $leftBytes;
+            $data            = $this->fread($this->fp, $toReadBytes);
             $reallyReadBytes = akstringlen($data);
             $leftBytes -= $reallyReadBytes;
             $this->dataReadLength += $reallyReadBytes;
             if ($reallyReadBytes < $toReadBytes) {
                 // We read less than requested! Why? Did we hit local EOF?
-                if ($this->isEOF(TRUE) && !$this->isEOF(FALSE)) {
+                if ($this->isEOF(true) && !$this->isEOF(false)) {
                     // Yeap. Let's go to the next file
                     $this->nextFile();
                 } else {
@@ -4488,27 +4496,33 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
                     debugMsg('Not enough data in file. The archive is truncated or corrupt.');
                     $this->setError(AKText::_('ERR_CORRUPT_ARCHIVE'));
 
-                    return FALSE;
+                    return false;
                 }
             }
-            if (!AKFactory::get('kickstart.setup.dryrun', '0'))
-                if (is_resource($outfp)) @fwrite($outfp, $data);
+            if (!AKFactory::get('kickstart.setup.dryrun', '0')) {
+                if (is_resource($outfp)) {
+                    @fwrite($outfp, $data);
+                }
+            }
         }
 
         // Close the file pointer
-        if (!AKFactory::get('kickstart.setup.dryrun', '0'))
-            if (is_resource($outfp)) @fclose($outfp);
+        if (!AKFactory::get('kickstart.setup.dryrun', '0')) {
+            if (is_resource($outfp)) {
+                @fclose($outfp);
+            }
+        }
 
         // Was this a pre-timeout bail out?
         if ($leftBytes > 0) {
             $this->runState = AK_STATE_DATA;
         } else {
             // Oh! We just finished!
-            $this->runState = AK_STATE_DATAREAD;
+            $this->runState       = AK_STATE_DATAREAD;
             $this->dataReadLength = 0;
         }
 
-        return TRUE;
+        return true;
     }
 
     private function processTypeFileCompressedSimple()
@@ -4521,31 +4535,34 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
             $outfp = @fopen($this->fileHeader->realFile, 'wb');
 
             // Can we write to the file?
-            $ignore = AKFactory::get('kickstart.setup.ignoreerrors', FALSE) || $this->isIgnoredDirectory($this->fileHeader->file);
-            if (($outfp === FALSE) && (!$ignore)) {
+            $ignore = AKFactory::get('kickstart.setup.ignoreerrors', false) || $this->isIgnoredDirectory($this->fileHeader->file);
+            if ((false === $outfp) && (!$ignore)) {
                 // An error occured
                 debugMsg('Could not write to output file');
                 $this->setError(AKText::sprintf('COULDNT_WRITE_FILE', $this->fileHeader->realFile));
 
-                return FALSE;
+                return false;
             }
         }
 
         // Does the file have any data, at all?
-        if ($this->fileHeader->compressed == 0) {
+        if (0 == $this->fileHeader->compressed) {
             // No file data!
-            if (!AKFactory::get('kickstart.setup.dryrun', '0'))
-                if (is_resource($outfp)) @fclose($outfp);
+            if (!AKFactory::get('kickstart.setup.dryrun', '0')) {
+                if (is_resource($outfp)) {
+                    @fclose($outfp);
+                }
+            }
             $this->runState = AK_STATE_DATAREAD;
 
-            return TRUE;
+            return true;
         }
 
         // Simple compressed files are processed as a whole; we can't do chunk processing
         $zipData = $this->fread($this->fp, $this->fileHeader->compressed);
         while (akstringlen($zipData) < $this->fileHeader->compressed) {
             // End of local file before reading all data, but have more archive parts?
-            if ($this->isEOF(TRUE) && !$this->isEOF(FALSE)) {
+            if ($this->isEOF(true) && !$this->isEOF(false)) {
                 // Yeap. Read from the next file
                 $this->nextFile();
                 $bytes_left = $this->fileHeader->compressed - akstringlen($zipData);
@@ -4554,13 +4571,13 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
                 debugMsg('End of local file before reading all data with no more parts left. The archive is corrupt or truncated.');
                 $this->setError(AKText::_('ERR_CORRUPT_ARCHIVE'));
 
-                return FALSE;
+                return false;
             }
         }
 
-        if ($this->fileHeader->compression == 'gzip') {
+        if ('gzip' == $this->fileHeader->compression) {
             $unzipData = gzinflate($zipData);
-        } elseif ($this->fileHeader->compression == 'bzip2') {
+        } elseif ('bzip2' == $this->fileHeader->compression) {
             $unzipData = bzdecompress($zipData);
         }
         unset($zipData);
@@ -4574,22 +4591,20 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
 
         $this->runState = AK_STATE_DATAREAD;
 
-        return TRUE;
+        return true;
     }
 }
 
 /**
  * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
+ * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
  * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
  */
 
 /**
- * ZIP archive extraction class
+ * ZIP archive extraction class.
  *
  * Since the file data portion of ZIP and JPA are similarly structured (it's empty for dirs,
  * linked node name for symlinks, dumped binary data for no compressions and dumped gzipped
@@ -4598,7 +4613,7 @@ class AKUnarchiverJPA extends AKAbstractUnarchiver
  */
 class AKUnarchiverZIP extends AKUnarchiverJPA
 {
-    var $expectDataDescriptor = FALSE;
+    public $expectDataDescriptor = false;
 
     protected function readArchiveHeader()
     {
@@ -4611,18 +4626,18 @@ class AKUnarchiverZIP extends AKUnarchiverJPA
         $this->nextFile();
 
         // Fail for unreadable files
-        if ($this->fp === FALSE) {
+        if (false === $this->fp) {
             debugMsg('The first part is not readable');
 
-            return FALSE;
+            return false;
         }
 
         // Read a possible multipart signature
-        $sigBinary = fread($this->fp, 4);
+        $sigBinary  = fread($this->fp, 4);
         $headerData = unpack('Vsig', $sigBinary);
 
         // Roll back if it's not a multipart archive
-        if ($headerData['sig'] == 0x04034b50) {
+        if (0x04034b50 == $headerData['sig']) {
             debugMsg('The archive is not multipart');
             fseek($this->fp, -4, SEEK_CUR);
         } else {
@@ -4632,31 +4647,32 @@ class AKUnarchiverZIP extends AKUnarchiverJPA
         $multiPartSigs = array(
             0x08074b50,        // Multi-part ZIP
             0x30304b50,        // Multi-part ZIP (alternate)
-            0x04034b50        // Single file
+            0x04034b50,        // Single file
         );
         if (!in_array($headerData['sig'], $multiPartSigs)) {
-            debugMsg('Invalid header signature ' . dechex($headerData['sig']));
+            debugMsg('Invalid header signature '.dechex($headerData['sig']));
             $this->setError(AKText::_('ERR_CORRUPT_ARCHIVE'));
 
-            return FALSE;
+            return false;
         }
 
         $this->currentPartOffset = @ftell($this->fp);
-        debugMsg('Current part offset after reading header: ' . $this->currentPartOffset);
+        debugMsg('Current part offset after reading header: '.$this->currentPartOffset);
 
         $this->dataReadLength = 0;
 
-        return TRUE;
+        return true;
     }
 
     /**
-     * Concrete classes must use this method to read the file header
+     * Concrete classes must use this method to read the file header.
+     *
      * @return bool True if reading the file was successful, false if an error occured or we reached end of archive
      */
     protected function readFileHeader()
     {
         // If the current part is over, proceed to the next part please
-        if ($this->isEOF(TRUE)) {
+        if ($this->isEOF(true)) {
             debugMsg('Opening next archive part');
             $this->nextFile();
         }
@@ -4667,18 +4683,18 @@ class AKUnarchiverZIP extends AKUnarchiverJPA
             // byte optional data descriptor header (0x08074b50).
             $junk = @fread($this->fp, 4);
             $junk = unpack('Vsig', $junk);
-            if ($junk['sig'] == 0x08074b50) {
+            if (0x08074b50 == $junk['sig']) {
                 // Yes, there was a signature
                 $junk = @fread($this->fp, 12);
-                debugMsg('Data descriptor (w/ header) skipped at ' . (ftell($this->fp) - 12));
+                debugMsg('Data descriptor (w/ header) skipped at '.(ftell($this->fp) - 12));
             } else {
                 // No, there was no signature, just read another 8 bytes
                 $junk = @fread($this->fp, 8);
-                debugMsg('Data descriptor (w/out header) skipped at ' . (ftell($this->fp) - 8));
+                debugMsg('Data descriptor (w/out header) skipped at '.(ftell($this->fp) - 8));
             }
 
             // And check for EOF, too
-            if ($this->isEOF(TRUE)) {
+            if ($this->isEOF(true)) {
                 debugMsg('EOF before reading header');
 
                 $this->nextFile();
@@ -4687,32 +4703,32 @@ class AKUnarchiverZIP extends AKUnarchiverJPA
 
         // Get and decode Local File Header
         $headerBinary = fread($this->fp, 30);
-        $headerData = unpack('Vsig/C2ver/vbitflag/vcompmethod/vlastmodtime/vlastmoddate/Vcrc/Vcompsize/Vuncomp/vfnamelen/veflen', $headerBinary);
+        $headerData   = unpack('Vsig/C2ver/vbitflag/vcompmethod/vlastmodtime/vlastmoddate/Vcrc/Vcompsize/Vuncomp/vfnamelen/veflen', $headerBinary);
 
         // Check signature
-        if (!($headerData['sig'] == 0x04034b50)) {
-            debugMsg('Not a file signature at ' . (ftell($this->fp) - 4));
+        if (!(0x04034b50 == $headerData['sig'])) {
+            debugMsg('Not a file signature at '.(ftell($this->fp) - 4));
 
             // The signature is not the one used for files. Is this a central directory record (i.e. we're done)?
-            if ($headerData['sig'] == 0x02014b50) {
-                debugMsg('EOCD signature at ' . (ftell($this->fp) - 4));
+            if (0x02014b50 == $headerData['sig']) {
+                debugMsg('EOCD signature at '.(ftell($this->fp) - 4));
                 // End of ZIP file detected. We'll just skip to the end of file...
                 while ($this->nextFile()) {
-                };
+                }
                 @fseek($this->fp, 0, SEEK_END); // Go to EOF
-                return FALSE;
+                return false;
             } else {
-                debugMsg('Invalid signature ' . dechex($headerData['sig']) . ' at ' . ftell($this->fp));
+                debugMsg('Invalid signature '.dechex($headerData['sig']).' at '.ftell($this->fp));
                 $this->setError(AKText::_('ERR_CORRUPT_ARCHIVE'));
 
-                return FALSE;
+                return false;
             }
         }
 
         // If bit 3 of the bitflag is set, expectDataDescriptor is true
         $this->expectDataDescriptor = ($headerData['bitflag'] & 4) == 4;
 
-        $this->fileHeader = new stdClass();
+        $this->fileHeader            = new stdClass();
         $this->fileHeader->timestamp = 0;
 
         // Read the last modified data and time
@@ -4721,45 +4737,45 @@ class AKUnarchiverZIP extends AKUnarchiverJPA
 
         if ($lastmoddate && $lastmodtime) {
             // ----- Extract time
-            $v_hour = ($lastmodtime & 0xF800) >> 11;
-            $v_minute = ($lastmodtime & 0x07E0) >> 5;
+            $v_hour    = ($lastmodtime & 0xF800) >> 11;
+            $v_minute  = ($lastmodtime & 0x07E0) >> 5;
             $v_seconde = ($lastmodtime & 0x001F) * 2;
 
             // ----- Extract date
-            $v_year = (($lastmoddate & 0xFE00) >> 9) + 1980;
+            $v_year  = (($lastmoddate & 0xFE00) >> 9) + 1980;
             $v_month = ($lastmoddate & 0x01E0) >> 5;
-            $v_day = $lastmoddate & 0x001F;
+            $v_day   = $lastmoddate & 0x001F;
 
             // ----- Get UNIX date format
             $this->fileHeader->timestamp = @mktime($v_hour, $v_minute, $v_seconde, $v_month, $v_day, $v_year);
         }
 
-        $isBannedFile = FALSE;
+        $isBannedFile = false;
 
-        $this->fileHeader->compressed = $headerData['compsize'];
+        $this->fileHeader->compressed   = $headerData['compsize'];
         $this->fileHeader->uncompressed = $headerData['uncomp'];
-        $nameFieldLength = $headerData['fnamelen'];
-        $extraFieldLength = $headerData['eflen'];
+        $nameFieldLength                = $headerData['fnamelen'];
+        $extraFieldLength               = $headerData['eflen'];
 
         // Read filename field
         $this->fileHeader->file = fread($this->fp, $nameFieldLength);
 
         // Handle file renaming
-        $isRenamed = FALSE;
+        $isRenamed = false;
         if (is_array($this->renameFiles) && (count($this->renameFiles) > 0)) {
             if (array_key_exists($this->fileHeader->file, $this->renameFiles)) {
                 $this->fileHeader->file = $this->renameFiles[$this->fileHeader->file];
-                $isRenamed = TRUE;
+                $isRenamed              = true;
             }
         }
 
         // Handle directory renaming
-        $isDirRenamed = FALSE;
+        $isDirRenamed = false;
         if (is_array($this->renameDirs) && (count($this->renameDirs) > 0)) {
             if (array_key_exists(dirname($this->fileHeader->file), $this->renameDirs)) {
-                $file = rtrim($this->renameDirs[dirname($this->fileHeader->file)], '/') . '/' . basename($this->fileHeader->file);
-                $isRenamed = TRUE;
-                $isDirRenamed = TRUE;
+                $file         = rtrim($this->renameDirs[dirname($this->fileHeader->file)], '/').'/'.basename($this->fileHeader->file);
+                $isRenamed    = true;
+                $isDirRenamed = true;
             }
         }
 
@@ -4768,14 +4784,17 @@ class AKUnarchiverZIP extends AKUnarchiverJPA
             $extrafield = fread($this->fp, $extraFieldLength);
         }
 
-        debugMsg('*' . ftell($this->fp) . ' IS START OF ' . $this->fileHeader->file . ' (' . $this->fileHeader->compressed . ' bytes)');
-
+        debugMsg('*'.ftell($this->fp).' IS START OF '.$this->fileHeader->file.' ('.$this->fileHeader->compressed.' bytes)');
 
         // Decide filetype -- Check for directories
         $this->fileHeader->type = 'file';
-        if (strrpos($this->fileHeader->file, '/') == strlen($this->fileHeader->file) - 1) $this->fileHeader->type = 'dir';
+        if (strrpos($this->fileHeader->file, '/') == strlen($this->fileHeader->file) - 1) {
+            $this->fileHeader->type = 'dir';
+        }
         // Decide filetype -- Check for symbolic links
-        if (($headerData['ver1'] == 10) && ($headerData['ver2'] == 3)) $this->fileHeader->type = 'link';
+        if ((10 == $headerData['ver1']) && (3 == $headerData['ver2'])) {
+            $this->fileHeader->type = 'link';
+        }
 
         switch ($headerData['compmethod']) {
             case 0:
@@ -4787,14 +4806,14 @@ class AKUnarchiverZIP extends AKUnarchiverJPA
         }
 
         // Find hard-coded banned files
-        if ((basename($this->fileHeader->file) == ".") || (basename($this->fileHeader->file) == "..")) {
-            $isBannedFile = TRUE;
+        if (('.' == basename($this->fileHeader->file)) || ('..' == basename($this->fileHeader->file))) {
+            $isBannedFile = true;
         }
 
         // Also try to find banned files passed in class configuration
         if ((count($this->skipFiles) > 0) && (!$isRenamed)) {
             if (in_array($this->fileHeader->file, $this->skipFiles)) {
-                $isBannedFile = TRUE;
+                $isBannedFile = true;
             }
         }
 
@@ -4805,39 +4824,43 @@ class AKUnarchiverZIP extends AKUnarchiverJPA
             while ($seekleft > 0) {
                 // Ensure that we can seek past archive part boundaries
                 $curSize = @filesize($this->archiveList[$this->currentPartNumber]);
-                $curPos = @ftell($this->fp);
+                $curPos  = @ftell($this->fp);
                 $canSeek = $curSize - $curPos;
-                if ($canSeek > $seekleft) $canSeek = $seekleft;
+                if ($canSeek > $seekleft) {
+                    $canSeek = $seekleft;
+                }
                 @fseek($this->fp, $canSeek, SEEK_CUR);
                 $seekleft -= $canSeek;
-                if ($seekleft) $this->nextFile();
+                if ($seekleft) {
+                    $this->nextFile();
+                }
             }
 
             $this->currentPartOffset = @ftell($this->fp);
-            $this->runState = AK_STATE_DONE;
+            $this->runState          = AK_STATE_DONE;
 
-            return TRUE;
+            return true;
         }
 
         // Last chance to prepend a path to the filename
         if (!empty($this->addPath) && !$isDirRenamed) {
-            $this->fileHeader->file = $this->addPath . $this->fileHeader->file;
+            $this->fileHeader->file = $this->addPath.$this->fileHeader->file;
         }
 
         // Get the translated path name
-        if ($this->fileHeader->type == 'file') {
+        if ('file' == $this->fileHeader->type) {
             $this->fileHeader->realFile = $this->postProcEngine->processFilename($this->fileHeader->file);
-        } elseif ($this->fileHeader->type == 'dir') {
+        } elseif ('dir' == $this->fileHeader->type) {
             $this->fileHeader->timestamp = 0;
 
             $dir = $this->fileHeader->file;
 
             $this->postProcEngine->createDirRecursive($this->fileHeader->file, 0755);
-            $this->postProcEngine->processFilename(NULL);
+            $this->postProcEngine->processFilename(null);
         } else {
             // Symlink; do not post-process
             $this->fileHeader->timestamp = 0;
-            $this->postProcEngine->processFilename(NULL);
+            $this->postProcEngine->processFilename(null);
         }
 
         $this->createDirectory();
@@ -4845,23 +4868,20 @@ class AKUnarchiverZIP extends AKUnarchiverJPA
         // Header is read
         $this->runState = AK_STATE_HEADER;
 
-        return TRUE;
+        return true;
     }
-
 }
 
 /**
  * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
+ * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
  * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
  */
 
 /**
- * JPS archive extraction class
+ * JPS archive extraction class.
  */
 class AKUnarchiverJPS extends AKUnarchiverJPA
 {
@@ -4885,35 +4905,38 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
         $this->nextFile();
 
         // Fail for unreadable files
-        if ($this->fp === FALSE) return FALSE;
+        if (false === $this->fp) {
+            return false;
+        }
 
         // Read the signature
         $sig = fread($this->fp, 3);
 
-        if ($sig != 'JPS') {
+        if ('JPS' != $sig) {
             // Not a JPA file
             $this->setError(AKText::_('ERR_NOT_A_JPS_FILE'));
 
-            return FALSE;
+            return false;
         }
 
         // Read and parse the known portion of header data (5 bytes)
-        $bin_data = fread($this->fp, 5);
+        $bin_data    = fread($this->fp, 5);
         $header_data = unpack('Cmajor/Cminor/cspanned/vextra', $bin_data);
 
         // Load any remaining header data (forward compatibility)
         $rest_length = $header_data['extra'];
-        if ($rest_length > 0)
+        if ($rest_length > 0) {
             $junk = fread($this->fp, $rest_length);
-        else
+        } else {
             $junk = '';
+        }
 
         // Temporary array with all the data we read
         $temp = array(
             'signature' => $sig,
-            'major' => $header_data['major'],
-            'minor' => $header_data['minor'],
-            'spanned' => $header_data['spanned']
+            'major'     => $header_data['major'],
+            'minor'     => $header_data['minor'],
+            'spanned'   => $header_data['spanned'],
         );
         // Array-to-object conversion
         foreach ($temp as $key => $value) {
@@ -4924,17 +4947,18 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
 
         $this->dataReadLength = 0;
 
-        return TRUE;
+        return true;
     }
 
     /**
-     * Concrete classes must use this method to read the file header
+     * Concrete classes must use this method to read the file header.
+     *
      * @return bool True if reading the file was successful, false if an error occured or we reached end of archive
      */
     protected function readFileHeader()
     {
         // If the current part is over, proceed to the next part please
-        if ($this->isEOF(TRUE)) {
+        if ($this->isEOF(true)) {
             $this->nextFile();
         }
 
@@ -4942,47 +4966,47 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
         $signature = fread($this->fp, 3);
 
         // Check for end-of-archive siganture
-        if ($signature == 'JPE') {
+        if ('JPE' == $signature) {
             $this->setState('postrun');
 
-            return TRUE;
+            return true;
         }
 
-        $this->fileHeader = new stdClass();
+        $this->fileHeader            = new stdClass();
         $this->fileHeader->timestamp = 0;
 
         // Check signature
-        if ($signature != 'JPF') {
-            if ($this->isEOF(TRUE)) {
+        if ('JPF' != $signature) {
+            if ($this->isEOF(true)) {
                 // This file is finished; make sure it's the last one
                 $this->nextFile();
-                if (!$this->isEOF(FALSE)) {
+                if (!$this->isEOF(false)) {
                     $this->setError(AKText::sprintf('INVALID_FILE_HEADER', $this->currentPartNumber, $this->currentPartOffset));
 
-                    return FALSE;
+                    return false;
                 }
 
                 // We're just finished
-                return FALSE;
+                return false;
             } else {
                 fseek($this->fp, -6, SEEK_CUR);
                 $signature = fread($this->fp, 3);
-                if ($signature == 'JPE') {
-                    return FALSE;
+                if ('JPE' == $signature) {
+                    return false;
                 }
 
                 $this->setError(AKText::sprintf('INVALID_FILE_HEADER', $this->currentPartNumber, $this->currentPartOffset));
 
-                return FALSE;
+                return false;
             }
         }
         // This a JPA Entity Block. Process the header.
 
-        $isBannedFile = FALSE;
+        $isBannedFile = false;
 
         // Read and decrypt the header
         $edbhData = fread($this->fp, 4);
-        $edbh = unpack('vencsize/vdecsize', $edbhData);
+        $edbh     = unpack('vencsize/vdecsize', $edbhData);
         $bin_data = fread($this->fp, $edbh['encsize']);
 
         // Decrypt and truncate
@@ -4995,33 +5019,33 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
         $file = substr($bin_data, 2, $length_array['pathsize']);
 
         // Handle file renaming
-        $isRenamed = FALSE;
+        $isRenamed = false;
         if (is_array($this->renameFiles) && (count($this->renameFiles) > 0)) {
             if (array_key_exists($file, $this->renameFiles)) {
-                $file = $this->renameFiles[$file];
-                $isRenamed = TRUE;
+                $file      = $this->renameFiles[$file];
+                $isRenamed = true;
             }
         }
 
         // Handle directory renaming
-        $isDirRenamed = FALSE;
+        $isDirRenamed = false;
         if (is_array($this->renameDirs) && (count($this->renameDirs) > 0)) {
             if (array_key_exists(dirname($file), $this->renameDirs)) {
-                $file = rtrim($this->renameDirs[dirname($file)], '/') . '/' . basename($file);
-                $isRenamed = TRUE;
-                $isDirRenamed = TRUE;
+                $file         = rtrim($this->renameDirs[dirname($file)], '/').'/'.basename($file);
+                $isRenamed    = true;
+                $isDirRenamed = true;
             }
         }
 
         // Read and parse the known data portion
-        $bin_data = substr($bin_data, 2 + $length_array['pathsize']);
+        $bin_data    = substr($bin_data, 2 + $length_array['pathsize']);
         $header_data = unpack('Ctype/Ccompression/Vuncompsize/Vperms/Vfilectime', $bin_data);
 
         $this->fileHeader->timestamp = $header_data['filectime'];
-        $compressionType = $header_data['compression'];
+        $compressionType             = $header_data['compression'];
 
         // Populate the return array
-        $this->fileHeader->file = $file;
+        $this->fileHeader->file         = $file;
         $this->fileHeader->uncompressed = $header_data['uncompsize'];
         switch ($header_data['type']) {
             case 0:
@@ -5050,27 +5074,27 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
         $this->fileHeader->permissions = $header_data['perms'];
 
         // Find hard-coded banned files
-        if ((basename($this->fileHeader->file) == ".") || (basename($this->fileHeader->file) == "..")) {
-            $isBannedFile = TRUE;
+        if (('.' == basename($this->fileHeader->file)) || ('..' == basename($this->fileHeader->file))) {
+            $isBannedFile = true;
         }
 
         // Also try to find banned files passed in class configuration
         if ((count($this->skipFiles) > 0) && (!$isRenamed)) {
             if (in_array($this->fileHeader->file, $this->skipFiles)) {
-                $isBannedFile = TRUE;
+                $isBannedFile = true;
             }
         }
 
         // If we have a banned file, let's skip it
         if ($isBannedFile) {
-            $done = FALSE;
+            $done = false;
             while (!$done) {
                 // Read the Data Chunk Block header
                 $binMiniHead = fread($this->fp, 8);
                 if (in_array(substr($binMiniHead, 0, 3), array('JPF', 'JPE'))) {
                     // Not a Data Chunk Block header, I am done skipping the file
                     @fseek($this->fp, -8, SEEK_CUR); // Roll back the file pointer
-                    $done = TRUE; // Mark as done
+                    $done = true; // Mark as done
                     continue; // Exit loop
                 } else {
                     // Skip forward by the amount of compressed data
@@ -5080,27 +5104,27 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
             }
 
             $this->currentPartOffset = @ftell($this->fp);
-            $this->runState = AK_STATE_DONE;
+            $this->runState          = AK_STATE_DONE;
 
-            return TRUE;
+            return true;
         }
 
         // Last chance to prepend a path to the filename
         if (!empty($this->addPath) && !$isDirRenamed) {
-            $this->fileHeader->file = $this->addPath . $this->fileHeader->file;
+            $this->fileHeader->file = $this->addPath.$this->fileHeader->file;
         }
 
         // Get the translated path name
-        $restorePerms = AKFactory::get('kickstart.setup.restoreperms', FALSE);
-        if ($this->fileHeader->type == 'file') {
+        $restorePerms = AKFactory::get('kickstart.setup.restoreperms', false);
+        if ('file' == $this->fileHeader->type) {
             // Regular file; ask the postproc engine to process its filename
             if ($restorePerms) {
                 $this->fileHeader->realFile = $this->postProcEngine->processFilename($this->fileHeader->file, $this->fileHeader->permissions);
             } else {
                 $this->fileHeader->realFile = $this->postProcEngine->processFilename($this->fileHeader->file);
             }
-        } elseif ($this->fileHeader->type == 'dir') {
-            $dir = $this->fileHeader->file;
+        } elseif ('dir' == $this->fileHeader->type) {
+            $dir                        = $this->fileHeader->file;
             $this->fileHeader->realFile = $dir;
 
             // Directory; just create it
@@ -5109,10 +5133,10 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
             } else {
                 $this->postProcEngine->createDirRecursive($this->fileHeader->file, 0755);
             }
-            $this->postProcEngine->processFilename(NULL);
+            $this->postProcEngine->processFilename(null);
         } else {
             // Symlink; do not post-process
-            $this->postProcEngine->processFilename(NULL);
+            $this->postProcEngine->processFilename(null);
         }
 
         $this->createDirectory();
@@ -5122,33 +5146,36 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
 
         $this->dataReadLength = 0;
 
-        return TRUE;
+        return true;
     }
 
     /**
-     * Creates the directory this file points to
+     * Creates the directory this file points to.
      */
     protected function createDirectory()
     {
-        if (AKFactory::get('kickstart.setup.dryrun', '0')) return TRUE;
+        if (AKFactory::get('kickstart.setup.dryrun', '0')) {
+            return true;
+        }
 
         // Do we need to create a directory?
         $lastSlash = strrpos($this->fileHeader->realFile, '/');
-        $dirName = substr($this->fileHeader->realFile, 0, $lastSlash);
-        $perms = $this->flagRestorePermissions ? $retArray['permissions'] : 0755;
-        $ignore = AKFactory::get('kickstart.setup.ignoreerrors', FALSE) || $this->isIgnoredDirectory($dirName);
-        if (($this->postProcEngine->createDirRecursive($dirName, $perms) == FALSE) && (!$ignore)) {
+        $dirName   = substr($this->fileHeader->realFile, 0, $lastSlash);
+        $perms     = $this->flagRestorePermissions ? $retArray['permissions'] : 0755;
+        $ignore    = AKFactory::get('kickstart.setup.ignoreerrors', false) || $this->isIgnoredDirectory($dirName);
+        if ((false == $this->postProcEngine->createDirRecursive($dirName, $perms)) && (!$ignore)) {
             $this->setError(AKText::sprintf('COULDNT_CREATE_DIR', $dirName));
 
-            return FALSE;
+            return false;
         } else {
-            return TRUE;
+            return true;
         }
     }
 
     /**
      * Concrete classes must use this method to process file data. It must set $runState to AK_STATE_DATAREAD when
      * it's finished processing the file data.
+     *
      * @return bool True if processing the file data was successful, false if an error occured
      */
     protected function processFileData()
@@ -5172,14 +5199,14 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
                     case 'bzip2':
                         return $this->processTypeFileCompressedSimple();
                         break;
-
                 }
                 break;
         }
     }
 
     /**
-     * Process the file data of a directory entry
+     * Process the file data of a directory entry.
+     *
      * @return bool
      */
     private function processTypeDir()
@@ -5187,74 +5214,74 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
         // Directory entries in the JPA do not have file data, therefore we're done processing the entry
         $this->runState = AK_STATE_DATAREAD;
 
-        return TRUE;
+        return true;
     }
 
     /**
-     * Process the file data of a link entry
+     * Process the file data of a link entry.
+     *
      * @return bool
      */
     private function processTypeLink()
     {
-
         // Does the file have any data, at all?
-        if ($this->fileHeader->uncompressed == 0) {
+        if (0 == $this->fileHeader->uncompressed) {
             // No file data!
             $this->runState = AK_STATE_DATAREAD;
 
-            return TRUE;
+            return true;
         }
 
         // Read the mini header
-        $binMiniHeader = fread($this->fp, 8);
+        $binMiniHeader   = fread($this->fp, 8);
         $reallyReadBytes = akstringlen($binMiniHeader);
         if ($reallyReadBytes < 8) {
             // We read less than requested! Why? Did we hit local EOF?
-            if ($this->isEOF(TRUE) && !$this->isEOF(FALSE)) {
+            if ($this->isEOF(true) && !$this->isEOF(false)) {
                 // Yeap. Let's go to the next file
                 $this->nextFile();
                 // Retry reading the header
-                $binMiniHeader = fread($this->fp, 8);
+                $binMiniHeader   = fread($this->fp, 8);
                 $reallyReadBytes = akstringlen($binMiniHeader);
                 // Still not enough data? If so, the archive is corrupt or missing parts.
                 if ($reallyReadBytes < 8) {
                     $this->setError(AKText::_('ERR_CORRUPT_ARCHIVE'));
 
-                    return FALSE;
+                    return false;
                 }
             } else {
                 // Nope. The archive is corrupt
                 $this->setError(AKText::_('ERR_CORRUPT_ARCHIVE'));
 
-                return FALSE;
+                return false;
             }
         }
 
         // Read the encrypted data
-        $miniHeader = unpack('Vencsize/Vdecsize', $binMiniHeader);
-        $toReadBytes = $miniHeader['encsize'];
-        $data = $this->fread($this->fp, $toReadBytes);
+        $miniHeader      = unpack('Vencsize/Vdecsize', $binMiniHeader);
+        $toReadBytes     = $miniHeader['encsize'];
+        $data            = $this->fread($this->fp, $toReadBytes);
         $reallyReadBytes = akstringlen($data);
         if ($reallyReadBytes < $toReadBytes) {
             // We read less than requested! Why? Did we hit local EOF?
-            if ($this->isEOF(TRUE) && !$this->isEOF(FALSE)) {
+            if ($this->isEOF(true) && !$this->isEOF(false)) {
                 // Yeap. Let's go to the next file
                 $this->nextFile();
                 // Read the rest of the data
                 $toReadBytes -= $reallyReadBytes;
-                $restData = $this->fread($this->fp, $toReadBytes);
+                $restData        = $this->fread($this->fp, $toReadBytes);
                 $reallyReadBytes = akstringlen($data);
                 if ($reallyReadBytes < $toReadBytes) {
                     $this->setError(AKText::_('ERR_CORRUPT_ARCHIVE'));
 
-                    return FALSE;
+                    return false;
                 }
                 $data .= $restData;
             } else {
                 // Nope. The archive is corrupt
                 $this->setError(AKText::_('ERR_CORRUPT_ARCHIVE'));
 
-                return FALSE;
+                return false;
             }
         }
 
@@ -5266,7 +5293,7 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
         if ($data_length < $miniHeader['decsize']) {
             $this->setError(AKText::_('ERR_INVALID_JPS_PASSWORD'));
 
-            return FALSE;
+            return false;
         }
 
         // Trim the data
@@ -5278,7 +5305,9 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
             @rmdir($this->fileHeader->file);
         }
         // Remove any trailing slash
-        if (substr($this->fileHeader->file, -1) == '/') $this->fileHeader->file = substr($this->fileHeader->file, 0, -1);
+        if ('/' == substr($this->fileHeader->file, -1)) {
+            $this->fileHeader->file = substr($this->fileHeader->file, 0, -1);
+        }
         // Create the symlink - only possible within PHP context. There's no support built in the FTP protocol, so no postproc use is possible here :(
 
         if (!AKFactory::get('kickstart.setup.dryrun', '0')) {
@@ -5287,49 +5316,51 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
 
         $this->runState = AK_STATE_DATAREAD;
 
-        return TRUE; // No matter if the link was created!
+        return true; // No matter if the link was created!
     }
 
     private function processTypeFileUncompressed()
     {
         // Uncompressed files are being processed in small chunks, to avoid timeouts
-        if (($this->dataReadLength == 0) && !AKFactory::get('kickstart.setup.dryrun', '0')) {
+        if ((0 == $this->dataReadLength) && !AKFactory::get('kickstart.setup.dryrun', '0')) {
             // Before processing file data, ensure permissions are adequate
             $this->setCorrectPermissions($this->fileHeader->file);
         }
 
         // Open the output file
         if (!AKFactory::get('kickstart.setup.dryrun', '0')) {
-            $ignore = AKFactory::get('kickstart.setup.ignoreerrors', FALSE) || $this->isIgnoredDirectory($this->fileHeader->file);
-            if ($this->dataReadLength == 0) {
+            $ignore = AKFactory::get('kickstart.setup.ignoreerrors', false) || $this->isIgnoredDirectory($this->fileHeader->file);
+            if (0 == $this->dataReadLength) {
                 $outfp = @fopen($this->fileHeader->realFile, 'wb');
             } else {
                 $outfp = @fopen($this->fileHeader->realFile, 'ab');
             }
 
             // Can we write to the file?
-            if (($outfp === FALSE) && (!$ignore)) {
+            if ((false === $outfp) && (!$ignore)) {
                 // An error occured
                 $this->setError(AKText::sprintf('COULDNT_WRITE_FILE', $this->fileHeader->realFile));
 
-                return FALSE;
+                return false;
             }
         }
 
         // Does the file have any data, at all?
-        if ($this->fileHeader->uncompressed == 0) {
+        if (0 == $this->fileHeader->uncompressed) {
             // No file data!
-            if (!AKFactory::get('kickstart.setup.dryrun', '0') && is_resource($outfp)) @fclose($outfp);
+            if (!AKFactory::get('kickstart.setup.dryrun', '0') && is_resource($outfp)) {
+                @fclose($outfp);
+            }
             $this->runState = AK_STATE_DATAREAD;
 
-            return TRUE;
+            return true;
         } else {
             $this->setError('An uncompressed file was detected; this is not supported by this archive extraction utility');
 
-            return FALSE;
+            return false;
         }
 
-        return TRUE;
+        return true;
     }
 
     private function processTypeFileCompressedSimple()
@@ -5337,7 +5368,7 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
         $timer = AKFactory::getTimer();
 
         // Files are being processed in small chunks, to avoid timeouts
-        if (($this->dataReadLength == 0) && !AKFactory::get('kickstart.setup.dryrun', '0')) {
+        if ((0 == $this->dataReadLength) && !AKFactory::get('kickstart.setup.dryrun', '0')) {
             // Before processing file data, ensure permissions are adequate
             $this->setCorrectPermissions($this->fileHeader->file);
         }
@@ -5348,23 +5379,26 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
             $outfp = @fopen($this->fileHeader->realFile, 'wb');
 
             // Can we write to the file?
-            $ignore = AKFactory::get('kickstart.setup.ignoreerrors', FALSE) || $this->isIgnoredDirectory($this->fileHeader->file);
-            if (($outfp === FALSE) && (!$ignore)) {
+            $ignore = AKFactory::get('kickstart.setup.ignoreerrors', false) || $this->isIgnoredDirectory($this->fileHeader->file);
+            if ((false === $outfp) && (!$ignore)) {
                 // An error occured
                 $this->setError(AKText::sprintf('COULDNT_WRITE_FILE', $this->fileHeader->realFile));
 
-                return FALSE;
+                return false;
             }
         }
 
         // Does the file have any data, at all?
-        if ($this->fileHeader->uncompressed == 0) {
+        if (0 == $this->fileHeader->uncompressed) {
             // No file data!
-            if (!AKFactory::get('kickstart.setup.dryrun', '0'))
-                if (is_resource($outfp)) @fclose($outfp);
+            if (!AKFactory::get('kickstart.setup.dryrun', '0')) {
+                if (is_resource($outfp)) {
+                    @fclose($outfp);
+                }
+            }
             $this->runState = AK_STATE_DATAREAD;
 
-            return TRUE;
+            return true;
         }
 
         $leftBytes = $this->fileHeader->uncompressed - $this->dataReadLength;
@@ -5372,50 +5406,50 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
         // Loop while there's data to write and enough time to do it
         while (($leftBytes > 0) && ($timer->getTimeLeft() > 0)) {
             // Read the mini header
-            $binMiniHeader = fread($this->fp, 8);
+            $binMiniHeader   = fread($this->fp, 8);
             $reallyReadBytes = akstringlen($binMiniHeader);
             if ($reallyReadBytes < 8) {
                 // We read less than requested! Why? Did we hit local EOF?
-                if ($this->isEOF(TRUE) && !$this->isEOF(FALSE)) {
+                if ($this->isEOF(true) && !$this->isEOF(false)) {
                     // Yeap. Let's go to the next file
                     $this->nextFile();
                     // Retry reading the header
-                    $binMiniHeader = fread($this->fp, 8);
+                    $binMiniHeader   = fread($this->fp, 8);
                     $reallyReadBytes = akstringlen($binMiniHeader);
                     // Still not enough data? If so, the archive is corrupt or missing parts.
                     if ($reallyReadBytes < 8) {
                         $this->setError(AKText::_('ERR_CORRUPT_ARCHIVE'));
 
-                        return FALSE;
+                        return false;
                     }
                 } else {
                     // Nope. The archive is corrupt
                     $this->setError(AKText::_('ERR_CORRUPT_ARCHIVE'));
 
-                    return FALSE;
+                    return false;
                 }
             }
 
             // Read the encrypted data
-            $miniHeader = unpack('Vencsize/Vdecsize', $binMiniHeader);
-            $toReadBytes = $miniHeader['encsize'];
-            $data = $this->fread($this->fp, $toReadBytes);
+            $miniHeader      = unpack('Vencsize/Vdecsize', $binMiniHeader);
+            $toReadBytes     = $miniHeader['encsize'];
+            $data            = $this->fread($this->fp, $toReadBytes);
             $reallyReadBytes = akstringlen($data);
             if ($reallyReadBytes < $toReadBytes) {
                 // We read less than requested! Why? Did we hit local EOF?
-                if ($this->isEOF(TRUE) && !$this->isEOF(FALSE)) {
+                if ($this->isEOF(true) && !$this->isEOF(false)) {
                     // Yeap. Let's go to the next file
                     $this->nextFile();
                     // Read the rest of the data
                     $toReadBytes -= $reallyReadBytes;
-                    $restData = $this->fread($this->fp, $toReadBytes);
+                    $restData        = $this->fread($this->fp, $toReadBytes);
                     $reallyReadBytes = akstringlen($restData);
                     if ($reallyReadBytes < $toReadBytes) {
                         $this->setError(AKText::_('ERR_CORRUPT_ARCHIVE'));
 
-                        return FALSE;
+                        return false;
                     }
-                    if (akstringlen($data) == 0) {
+                    if (0 == akstringlen($data)) {
                         $data = $restData;
                     } else {
                         $data .= $restData;
@@ -5424,7 +5458,7 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
                     // Nope. The archive is corrupt
                     $this->setError(AKText::_('ERR_CORRUPT_ARCHIVE'));
 
-                    return FALSE;
+                    return false;
                 }
             }
 
@@ -5436,19 +5470,22 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
             if ($data_length < $miniHeader['decsize']) {
                 $this->setError(AKText::_('ERR_INVALID_JPS_PASSWORD'));
 
-                return FALSE;
+                return false;
             }
 
             // Trim the data
             $data = substr($data, 0, $miniHeader['decsize']);
 
             // Decompress
-            $data = gzinflate($data);
+            $data    = gzinflate($data);
             $unc_len = akstringlen($data);
 
             // Write the decrypted data
-            if (!AKFactory::get('kickstart.setup.dryrun', '0'))
-                if (is_resource($outfp)) @fwrite($outfp, $data, akstringlen($data));
+            if (!AKFactory::get('kickstart.setup.dryrun', '0')) {
+                if (is_resource($outfp)) {
+                    @fwrite($outfp, $data, akstringlen($data));
+                }
+            }
 
             // Update the read length
             $this->dataReadLength += $unc_len;
@@ -5456,45 +5493,47 @@ class AKUnarchiverJPS extends AKUnarchiverJPA
         }
 
         // Close the file pointer
-        if (!AKFactory::get('kickstart.setup.dryrun', '0'))
-            if (is_resource($outfp)) @fclose($outfp);
+        if (!AKFactory::get('kickstart.setup.dryrun', '0')) {
+            if (is_resource($outfp)) {
+                @fclose($outfp);
+            }
+        }
 
         // Was this a pre-timeout bail out?
         if ($leftBytes > 0) {
             $this->runState = AK_STATE_DATA;
         } else {
             // Oh! We just finished!
-            $this->runState = AK_STATE_DATAREAD;
+            $this->runState       = AK_STATE_DATAREAD;
             $this->dataReadLength = 0;
         }
 
-        return TRUE;
+        return true;
     }
 }
 
 /**
  * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
+ * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
  * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
  */
 
 /**
- * Timer class
+ * Timer class.
  */
 class AKCoreTimer extends AKAbstractObject
 {
     /** @var int Maximum execution time allowance per step */
-    private $max_exec_time = NULL;
+    private $max_exec_time = null;
 
     /** @var int Timestamp of execution start */
-    private $start_time = NULL;
+    private $start_time = null;
 
     /**
-     * Public constructor, creates the timer object and calculates the execution time limits
+     * Public constructor, creates the timer object and calculates the execution time limits.
+     *
      * @return AECoreTimer
      */
     public function __construct()
@@ -5506,12 +5545,12 @@ class AKCoreTimer extends AKAbstractObject
 
         // Get configured max time per step and bias
         $config_max_exec_time = AKFactory::get('kickstart.tuning.max_exec_time', 14);
-        $bias = AKFactory::get('kickstart.tuning.run_time_bias', 75) / 100;
+        $bias                 = AKFactory::get('kickstart.tuning.run_time_bias', 75) / 100;
 
         // Get PHP's maximum execution time (our upper limit)
         if (@function_exists('ini_get')) {
-            $php_max_exec_time = @ini_get("maximum_execution_time");
-            if ((!is_numeric($php_max_exec_time)) || ($php_max_exec_time == 0)) {
+            $php_max_exec_time = @ini_get('maximum_execution_time');
+            if ((!is_numeric($php_max_exec_time)) || (0 == $php_max_exec_time)) {
                 // If we have no time limit, set a hard limit of about 10 seconds
                 // (safe for Apache and IIS timeouts, verbose enough for users)
                 $php_max_exec_time = 14;
@@ -5522,10 +5561,10 @@ class AKCoreTimer extends AKAbstractObject
         }
 
         // Apply an arbitrary correction to counter CMS load time
-        $php_max_exec_time--;
+        --$php_max_exec_time;
 
         // Apply bias
-        $php_max_exec_time = $php_max_exec_time * $bias;
+        $php_max_exec_time    = $php_max_exec_time * $bias;
         $config_max_exec_time = $config_max_exec_time * $bias;
 
         // Use the most appropriate time limit value
@@ -5537,17 +5576,17 @@ class AKCoreTimer extends AKAbstractObject
     }
 
     /**
-     * Returns the current timestampt in decimal seconds
+     * Returns the current timestampt in decimal seconds.
      */
     private function microtime_float()
     {
-        list($usec, $sec) = explode(" ", microtime());
+        list($usec, $sec) = explode(' ', microtime());
 
-        return ((float)$usec + (float)$sec);
+        return (float) $usec + (float) $sec;
     }
 
     /**
-     * Wake-up function to reset internal timer when we get unserialized
+     * Wake-up function to reset internal timer when we get unserialized.
      */
     public function __wakeup()
     {
@@ -5556,7 +5595,8 @@ class AKCoreTimer extends AKAbstractObject
     }
 
     /**
-     * Gets the number of seconds left, before we hit the "must break" threshold
+     * Gets the number of seconds left, before we hit the "must break" threshold.
+     *
      * @return float
      */
     public function getTimeLeft()
@@ -5566,7 +5606,8 @@ class AKCoreTimer extends AKAbstractObject
 
     /**
      * Gets the time elapsed since object creation/unserialization, effectively how
-     * long Akeeba Engine has been processing data
+     * long Akeeba Engine has been processing data.
+     *
      * @return float
      */
     public function getRunningTime()
@@ -5575,17 +5616,17 @@ class AKCoreTimer extends AKAbstractObject
     }
 
     /**
-     * Enforce the minimum execution time
+     * Enforce the minimum execution time.
      */
     public function enforce_min_exec_time()
     {
         // Try to get a sane value for PHP's maximum_execution_time INI parameter
         if (@function_exists('ini_get')) {
-            $php_max_exec = @ini_get("maximum_execution_time");
+            $php_max_exec = @ini_get('maximum_execution_time');
         } else {
             $php_max_exec = 10;
         }
-        if (($php_max_exec == "") || ($php_max_exec == 0)) {
+        if (('' == $php_max_exec) || (0 == $php_max_exec)) {
             $php_max_exec = 10;
         }
         // Decrease $php_max_exec time by 500 msec we need (approx.) to tear down
@@ -5595,10 +5636,14 @@ class AKCoreTimer extends AKAbstractObject
 
         // Get the "minimum execution time per step" Akeeba Backup configuration variable
         $minexectime = AKFactory::get('kickstart.tuning.min_exec_time', 0);
-        if (!is_numeric($minexectime)) $minexectime = 0;
+        if (!is_numeric($minexectime)) {
+            $minexectime = 0;
+        }
 
         // Make sure we are not over PHP's time limit!
-        if ($minexectime > $php_max_exec) $minexectime = $php_max_exec;
+        if ($minexectime > $php_max_exec) {
+            $minexectime = $php_max_exec;
+        }
 
         // Get current running time
         $elapsed_time = $this->getRunningTime() * 1000;
@@ -5609,7 +5654,7 @@ class AKCoreTimer extends AKAbstractObject
             if (function_exists('usleep')) {
                 usleep(1000 * $sleep_msec);
             } elseif (function_exists('time_nanosleep')) {
-                $sleep_sec = floor($sleep_msec / 1000);
+                $sleep_sec  = floor($sleep_msec / 1000);
                 $sleep_nsec = 1000000 * ($sleep_msec - ($sleep_sec * 1000));
                 time_nanosleep($sleep_sec, $sleep_nsec);
             } elseif (function_exists('time_sleep_until')) {
@@ -5635,41 +5680,43 @@ class AKCoreTimer extends AKAbstractObject
 
 /**
  * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
+ * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
  * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
  */
 
 /**
- * A filesystem scanner which uses opendir()
+ * A filesystem scanner which uses opendir().
  */
 class AKUtilsLister extends AKAbstractObject
 {
     public function &getFiles($folder, $pattern = '*')
     {
         // Initialize variables
-        $arr = array();
-        $false = FALSE;
+        $arr   = array();
+        $false = false;
 
-        if (!is_dir($folder)) return $false;
+        if (!is_dir($folder)) {
+            return $false;
+        }
 
         $handle = @opendir($folder);
         // If directory is not accessible, just return FALSE
-        if ($handle === FALSE) {
-            $this->setWarning('Unreadable directory ' . $folder);
+        if (false === $handle) {
+            $this->setWarning('Unreadable directory '.$folder);
 
             return $false;
         }
 
-        while (($file = @readdir($handle)) !== FALSE) {
-            if (!fnmatch($pattern, $file)) continue;
+        while (false !== ($file = @readdir($handle))) {
+            if (!fnmatch($pattern, $file)) {
+                continue;
+            }
 
-            if (($file != '.') && ($file != '..')) {
-                $ds = ($folder == '') || ($folder == '/') || (@substr($folder, -1) == '/') || (@substr($folder, -1) == DIRECTORY_SEPARATOR) ? '' : DIRECTORY_SEPARATOR;
-                $dir = $folder . $ds . $file;
+            if (('.' != $file) && ('..' != $file)) {
+                $ds    = ('' == $folder) || ('/' == $folder) || ('/' == @substr($folder, -1)) || (DIRECTORY_SEPARATOR == @substr($folder, -1)) ? '' : DIRECTORY_SEPARATOR;
+                $dir   = $folder.$ds.$file;
                 $isDir = is_dir($dir);
                 if (!$isDir) {
                     $arr[] = $dir;
@@ -5684,25 +5731,29 @@ class AKUtilsLister extends AKAbstractObject
     public function &getFolders($folder, $pattern = '*')
     {
         // Initialize variables
-        $arr = array();
-        $false = FALSE;
+        $arr   = array();
+        $false = false;
 
-        if (!is_dir($folder)) return $false;
+        if (!is_dir($folder)) {
+            return $false;
+        }
 
         $handle = @opendir($folder);
         // If directory is not accessible, just return FALSE
-        if ($handle === FALSE) {
-            $this->setWarning('Unreadable directory ' . $folder);
+        if (false === $handle) {
+            $this->setWarning('Unreadable directory '.$folder);
 
             return $false;
         }
 
-        while (($file = @readdir($handle)) !== FALSE) {
-            if (!fnmatch($pattern, $file)) continue;
+        while (false !== ($file = @readdir($handle))) {
+            if (!fnmatch($pattern, $file)) {
+                continue;
+            }
 
-            if (($file != '.') && ($file != '..')) {
-                $ds = ($folder == '') || ($folder == '/') || (@substr($folder, -1) == '/') || (@substr($folder, -1) == DIRECTORY_SEPARATOR) ? '' : DIRECTORY_SEPARATOR;
-                $dir = $folder . $ds . $file;
+            if (('.' != $file) && ('..' != $file)) {
+                $ds    = ('' == $folder) || ('/' == $folder) || ('/' == @substr($folder, -1)) || (DIRECTORY_SEPARATOR == @substr($folder, -1)) ? '' : DIRECTORY_SEPARATOR;
+                $dir   = $folder.$ds.$file;
                 $isDir = is_dir($dir);
                 if ($isDir) {
                     $arr[] = $dir;
@@ -5717,145 +5768,146 @@ class AKUtilsLister extends AKAbstractObject
 
 /**
  * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
+ * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
  * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
  */
 
 /**
- * A simple INI-based i18n engine
+ * A simple INI-based i18n engine.
  */
 class AKText extends AKAbstractObject
 {
     /**
-     * The default (en_GB) translation used when no other translation is available
+     * The default (en_GB) translation used when no other translation is available.
+     *
      * @var array
      */
     private $default_translation = array(
-        'AUTOMODEON' => 'Auto-mode enabled',
-        'ERR_NOT_A_JPA_FILE' => 'The file is not a JPA archive',
-        'ERR_CORRUPT_ARCHIVE' => 'The archive file is corrupt, truncated or archive parts are missing',
-        'ERR_INVALID_LOGIN' => 'Invalid login',
-        'COULDNT_CREATE_DIR' => 'Could not create %s folder',
-        'COULDNT_WRITE_FILE' => 'Could not open %s for writing.',
-        'WRONG_FTP_HOST' => 'Wrong FTP host or port',
-        'WRONG_FTP_USER' => 'Wrong FTP username or password',
-        'WRONG_FTP_PATH1' => 'Wrong FTP initial directory - the directory doesn\'t exist',
-        'FTP_CANT_CREATE_DIR' => 'Could not create directory %s',
-        'FTP_TEMPDIR_NOT_WRITABLE' => 'Could not find or create a writable temporary directory',
-        'SFTP_TEMPDIR_NOT_WRITABLE' => 'Could not find or create a writable temporary directory',
-        'FTP_COULDNT_UPLOAD' => 'Could not upload %s',
-        'THINGS_HEADER' => 'Things you should know about Akeeba Kickstart',
-        'THINGS_01' => 'Kickstart is not an installer. It is an archive extraction tool. The actual installer was put inside the archive file at backup time.',
-        'THINGS_02' => 'Kickstart is not the only way to extract the backup archive. You can use Akeeba eXtract Wizard and upload the extracted files using FTP instead.',
-        'THINGS_03' => 'Kickstart is bound by your server\'s configuration. As such, it may not work at all.',
-        'THINGS_04' => 'You should download and upload your archive files using FTP in Binary transfer mode. Any other method could lead to a corrupt backup archive and restoration failure.',
-        'THINGS_05' => 'Post-restoration site load errors are usually caused by .htaccess or php.ini directives. You should understand that blank pages, 404 and 500 errors can usually be worked around by editing the aforementioned files. It is not our job to mess with your configuration files, because this could be dangerous for your site.',
-        'THINGS_06' => 'Kickstart overwrites files without a warning. If you are not sure that you are OK with that do not continue.',
-        'THINGS_07' => 'Trying to restore to the temporary URL of a cPanel host (e.g. http://1.2.3.4/~username) will lead to restoration failure and your site will appear to be not working. This is normal and it\'s just how your server and CMS software work.',
-        'THINGS_08' => 'You are supposed to read the documentation before using this software. Most issues can be avoided, or easily worked around, by understanding how this software works.',
-        'THINGS_09' => 'This text does not imply that there is a problem detected. It is standard text displayed every time you launch Kickstart.',
-        'CLOSE_LIGHTBOX' => 'Click here or press ESC to close this message',
-        'SELECT_ARCHIVE' => 'Select a backup archive',
-        'ARCHIVE_FILE' => 'Archive file:',
-        'SELECT_EXTRACTION' => 'Select an extraction method',
-        'WRITE_TO_FILES' => 'Write to files:',
-        'WRITE_HYBRID' => 'Hybrid (use FTP only if needed)',
-        'WRITE_DIRECTLY' => 'Directly',
-        'WRITE_FTP' => 'Use FTP for all files',
-        'WRITE_SFTP' => 'Use SFTP for all files',
-        'FTP_HOST' => '(S)FTP host name:',
-        'FTP_PORT' => '(S)FTP port:',
-        'FTP_FTPS' => 'Use FTP over SSL (FTPS)',
-        'FTP_PASSIVE' => 'Use FTP Passive Mode',
-        'FTP_USER' => '(S)FTP user name:',
-        'FTP_PASS' => '(S)FTP password:',
-        'FTP_DIR' => '(S)FTP directory:',
-        'FTP_TEMPDIR' => 'Temporary directory:',
-        'FTP_CONNECTION_OK' => 'FTP Connection Established',
-        'SFTP_CONNECTION_OK' => 'SFTP Connection Established',
-        'FTP_CONNECTION_FAILURE' => 'The FTP Connection Failed',
-        'SFTP_CONNECTION_FAILURE' => 'The SFTP Connection Failed',
-        'FTP_TEMPDIR_WRITABLE' => 'The temporary directory is writable.',
-        'FTP_TEMPDIR_UNWRITABLE' => 'The temporary directory is not writable. Please check the permissions.',
-        'FTPBROWSER_ERROR_HOSTNAME' => "Invalid FTP host or port",
-        'FTPBROWSER_ERROR_USERPASS' => "Invalid FTP username or password",
-        'FTPBROWSER_ERROR_NOACCESS' => "Directory doesn't exist or you don't have enough permissions to access it",
-        'FTPBROWSER_ERROR_UNSUPPORTED' => "Sorry, your FTP server doesn't support our FTP directory browser.",
-        'FTPBROWSER_LBL_GOPARENT' => "&lt;up one level&gt;",
-        'FTPBROWSER_LBL_INSTRUCTIONS' => 'Click on a directory to navigate into it. Click on OK to select that directory, Cancel to abort the procedure.',
-        'FTPBROWSER_LBL_ERROR' => 'An error occurred',
-        'SFTP_NO_SSH2' => 'Your web server does not have the SSH2 PHP module, therefore can not connect to SFTP servers.',
-        'SFTP_NO_FTP_SUPPORT' => 'Your SSH server does not allow SFTP connections',
-        'SFTP_WRONG_USER' => 'Wrong SFTP username or password',
-        'SFTP_WRONG_STARTING_DIR' => 'You must supply a valid absolute path',
-        'SFTPBROWSER_ERROR_NOACCESS' => "Directory doesn't exist or you don't have enough permissions to access it",
-        'SFTP_COULDNT_UPLOAD' => 'Could not upload %s',
-        'SFTP_CANT_CREATE_DIR' => 'Could not create directory %s',
-        'UI-ROOT' => '&lt;root&gt;',
-        'CONFIG_UI_FTPBROWSER_TITLE' => 'FTP Directory Browser',
-        'FTP_BROWSE' => 'Browse',
-        'BTN_CHECK' => 'Check',
-        'BTN_RESET' => 'Reset',
-        'BTN_TESTFTPCON' => 'Test FTP connection',
-        'BTN_TESTSFTPCON' => 'Test SFTP connection',
-        'BTN_GOTOSTART' => 'Start over',
-        'FINE_TUNE' => 'Fine tune',
-        'MIN_EXEC_TIME' => 'Minimum execution time:',
-        'MAX_EXEC_TIME' => 'Maximum execution time:',
-        'SECONDS_PER_STEP' => 'seconds per step',
-        'EXTRACT_FILES' => 'Extract files',
-        'BTN_START' => 'Start',
-        'EXTRACTING' => 'Extracting',
-        'DO_NOT_CLOSE_EXTRACT' => 'Do not close this window while the extraction is in progress',
-        'RESTACLEANUP' => 'Restoration and Clean Up',
-        'BTN_RUNINSTALLER' => 'Run the Installer',
-        'BTN_CLEANUP' => 'Clean Up',
-        'BTN_SITEFE' => 'Visit your site\'s front-end',
-        'BTN_SITEBE' => 'Visit your site\'s back-end',
-        'WARNINGS' => 'Extraction Warnings',
-        'ERROR_OCCURED' => 'An error occurred',
-        'STEALTH_MODE' => 'Stealth mode',
-        'STEALTH_URL' => 'HTML file to show to web visitors',
-        'ERR_NOT_A_JPS_FILE' => 'The file is not a JPA archive',
-        'ERR_INVALID_JPS_PASSWORD' => 'The password you gave is wrong or the archive is corrupt',
-        'JPS_PASSWORD' => 'Archive Password (for JPS files)',
-        'INVALID_FILE_HEADER' => 'Invalid header in archive file, part %s, offset %s',
-        'NEEDSOMEHELPKS' => 'Want some help to use this tool? Read this first:',
-        'QUICKSTART' => 'Quick Start Guide',
-        'CANTGETITTOWORK' => 'Can\'t get it to work? Click me!',
-        'NOARCHIVESCLICKHERE' => 'No archives detected. Click here for troubleshooting instructions.',
+        'AUTOMODEON'                     => 'Auto-mode enabled',
+        'ERR_NOT_A_JPA_FILE'             => 'The file is not a JPA archive',
+        'ERR_CORRUPT_ARCHIVE'            => 'The archive file is corrupt, truncated or archive parts are missing',
+        'ERR_INVALID_LOGIN'              => 'Invalid login',
+        'COULDNT_CREATE_DIR'             => 'Could not create %s folder',
+        'COULDNT_WRITE_FILE'             => 'Could not open %s for writing.',
+        'WRONG_FTP_HOST'                 => 'Wrong FTP host or port',
+        'WRONG_FTP_USER'                 => 'Wrong FTP username or password',
+        'WRONG_FTP_PATH1'                => 'Wrong FTP initial directory - the directory doesn\'t exist',
+        'FTP_CANT_CREATE_DIR'            => 'Could not create directory %s',
+        'FTP_TEMPDIR_NOT_WRITABLE'       => 'Could not find or create a writable temporary directory',
+        'SFTP_TEMPDIR_NOT_WRITABLE'      => 'Could not find or create a writable temporary directory',
+        'FTP_COULDNT_UPLOAD'             => 'Could not upload %s',
+        'THINGS_HEADER'                  => 'Things you should know about Akeeba Kickstart',
+        'THINGS_01'                      => 'Kickstart is not an installer. It is an archive extraction tool. The actual installer was put inside the archive file at backup time.',
+        'THINGS_02'                      => 'Kickstart is not the only way to extract the backup archive. You can use Akeeba eXtract Wizard and upload the extracted files using FTP instead.',
+        'THINGS_03'                      => 'Kickstart is bound by your server\'s configuration. As such, it may not work at all.',
+        'THINGS_04'                      => 'You should download and upload your archive files using FTP in Binary transfer mode. Any other method could lead to a corrupt backup archive and restoration failure.',
+        'THINGS_05'                      => 'Post-restoration site load errors are usually caused by .htaccess or php.ini directives. You should understand that blank pages, 404 and 500 errors can usually be worked around by editing the aforementioned files. It is not our job to mess with your configuration files, because this could be dangerous for your site.',
+        'THINGS_06'                      => 'Kickstart overwrites files without a warning. If you are not sure that you are OK with that do not continue.',
+        'THINGS_07'                      => 'Trying to restore to the temporary URL of a cPanel host (e.g. http://1.2.3.4/~username) will lead to restoration failure and your site will appear to be not working. This is normal and it\'s just how your server and CMS software work.',
+        'THINGS_08'                      => 'You are supposed to read the documentation before using this software. Most issues can be avoided, or easily worked around, by understanding how this software works.',
+        'THINGS_09'                      => 'This text does not imply that there is a problem detected. It is standard text displayed every time you launch Kickstart.',
+        'CLOSE_LIGHTBOX'                 => 'Click here or press ESC to close this message',
+        'SELECT_ARCHIVE'                 => 'Select a backup archive',
+        'ARCHIVE_FILE'                   => 'Archive file:',
+        'SELECT_EXTRACTION'              => 'Select an extraction method',
+        'WRITE_TO_FILES'                 => 'Write to files:',
+        'WRITE_HYBRID'                   => 'Hybrid (use FTP only if needed)',
+        'WRITE_DIRECTLY'                 => 'Directly',
+        'WRITE_FTP'                      => 'Use FTP for all files',
+        'WRITE_SFTP'                     => 'Use SFTP for all files',
+        'FTP_HOST'                       => '(S)FTP host name:',
+        'FTP_PORT'                       => '(S)FTP port:',
+        'FTP_FTPS'                       => 'Use FTP over SSL (FTPS)',
+        'FTP_PASSIVE'                    => 'Use FTP Passive Mode',
+        'FTP_USER'                       => '(S)FTP user name:',
+        'FTP_PASS'                       => '(S)FTP password:',
+        'FTP_DIR'                        => '(S)FTP directory:',
+        'FTP_TEMPDIR'                    => 'Temporary directory:',
+        'FTP_CONNECTION_OK'              => 'FTP Connection Established',
+        'SFTP_CONNECTION_OK'             => 'SFTP Connection Established',
+        'FTP_CONNECTION_FAILURE'         => 'The FTP Connection Failed',
+        'SFTP_CONNECTION_FAILURE'        => 'The SFTP Connection Failed',
+        'FTP_TEMPDIR_WRITABLE'           => 'The temporary directory is writable.',
+        'FTP_TEMPDIR_UNWRITABLE'         => 'The temporary directory is not writable. Please check the permissions.',
+        'FTPBROWSER_ERROR_HOSTNAME'      => 'Invalid FTP host or port',
+        'FTPBROWSER_ERROR_USERPASS'      => 'Invalid FTP username or password',
+        'FTPBROWSER_ERROR_NOACCESS'      => "Directory doesn't exist or you don't have enough permissions to access it",
+        'FTPBROWSER_ERROR_UNSUPPORTED'   => "Sorry, your FTP server doesn't support our FTP directory browser.",
+        'FTPBROWSER_LBL_GOPARENT'        => '&lt;up one level&gt;',
+        'FTPBROWSER_LBL_INSTRUCTIONS'    => 'Click on a directory to navigate into it. Click on OK to select that directory, Cancel to abort the procedure.',
+        'FTPBROWSER_LBL_ERROR'           => 'An error occurred',
+        'SFTP_NO_SSH2'                   => 'Your web server does not have the SSH2 PHP module, therefore can not connect to SFTP servers.',
+        'SFTP_NO_FTP_SUPPORT'            => 'Your SSH server does not allow SFTP connections',
+        'SFTP_WRONG_USER'                => 'Wrong SFTP username or password',
+        'SFTP_WRONG_STARTING_DIR'        => 'You must supply a valid absolute path',
+        'SFTPBROWSER_ERROR_NOACCESS'     => "Directory doesn't exist or you don't have enough permissions to access it",
+        'SFTP_COULDNT_UPLOAD'            => 'Could not upload %s',
+        'SFTP_CANT_CREATE_DIR'           => 'Could not create directory %s',
+        'UI-ROOT'                        => '&lt;root&gt;',
+        'CONFIG_UI_FTPBROWSER_TITLE'     => 'FTP Directory Browser',
+        'FTP_BROWSE'                     => 'Browse',
+        'BTN_CHECK'                      => 'Check',
+        'BTN_RESET'                      => 'Reset',
+        'BTN_TESTFTPCON'                 => 'Test FTP connection',
+        'BTN_TESTSFTPCON'                => 'Test SFTP connection',
+        'BTN_GOTOSTART'                  => 'Start over',
+        'FINE_TUNE'                      => 'Fine tune',
+        'MIN_EXEC_TIME'                  => 'Minimum execution time:',
+        'MAX_EXEC_TIME'                  => 'Maximum execution time:',
+        'SECONDS_PER_STEP'               => 'seconds per step',
+        'EXTRACT_FILES'                  => 'Extract files',
+        'BTN_START'                      => 'Start',
+        'EXTRACTING'                     => 'Extracting',
+        'DO_NOT_CLOSE_EXTRACT'           => 'Do not close this window while the extraction is in progress',
+        'RESTACLEANUP'                   => 'Restoration and Clean Up',
+        'BTN_RUNINSTALLER'               => 'Run the Installer',
+        'BTN_CLEANUP'                    => 'Clean Up',
+        'BTN_SITEFE'                     => 'Visit your site\'s front-end',
+        'BTN_SITEBE'                     => 'Visit your site\'s back-end',
+        'WARNINGS'                       => 'Extraction Warnings',
+        'ERROR_OCCURED'                  => 'An error occurred',
+        'STEALTH_MODE'                   => 'Stealth mode',
+        'STEALTH_URL'                    => 'HTML file to show to web visitors',
+        'ERR_NOT_A_JPS_FILE'             => 'The file is not a JPA archive',
+        'ERR_INVALID_JPS_PASSWORD'       => 'The password you gave is wrong or the archive is corrupt',
+        'JPS_PASSWORD'                   => 'Archive Password (for JPS files)',
+        'INVALID_FILE_HEADER'            => 'Invalid header in archive file, part %s, offset %s',
+        'NEEDSOMEHELPKS'                 => 'Want some help to use this tool? Read this first:',
+        'QUICKSTART'                     => 'Quick Start Guide',
+        'CANTGETITTOWORK'                => 'Can\'t get it to work? Click me!',
+        'NOARCHIVESCLICKHERE'            => 'No archives detected. Click here for troubleshooting instructions.',
         'POSTRESTORATIONTROUBLESHOOTING' => 'Something not working after the restoration? Click here for troubleshooting instructions.',
-        'UPDATE_HEADER' => 'An updated version of Akeeba Kickstart (<span id="update-version">unknown</span>) is available!',
-        'UPDATE_NOTICE' => 'You are advised to always use the latest version of Akeeba Kickstart available. Older versions may be subject to bugs and will not be supported.',
-        'UPDATE_DLNOW' => 'Download now',
-        'UPDATE_MOREINFO' => 'More information',
-        'IGNORE_MOST_ERRORS' => 'Ignore most errors',
-        'WRONG_FTP_PATH2' => 'Wrong FTP initial directory - the directory doesn\'t correspond to your site\'s web root',
-        'ARCHIVE_DIRECTORY' => 'Archive directory:',
-        'RELOAD_ARCHIVES' => 'Reload',
-        'CONFIG_UI_SFTPBROWSER_TITLE' => 'SFTP Directory Browser',
+        'UPDATE_HEADER'                  => 'An updated version of Akeeba Kickstart (<span id="update-version">unknown</span>) is available!',
+        'UPDATE_NOTICE'                  => 'You are advised to always use the latest version of Akeeba Kickstart available. Older versions may be subject to bugs and will not be supported.',
+        'UPDATE_DLNOW'                   => 'Download now',
+        'UPDATE_MOREINFO'                => 'More information',
+        'IGNORE_MOST_ERRORS'             => 'Ignore most errors',
+        'WRONG_FTP_PATH2'                => 'Wrong FTP initial directory - the directory doesn\'t correspond to your site\'s web root',
+        'ARCHIVE_DIRECTORY'              => 'Archive directory:',
+        'RELOAD_ARCHIVES'                => 'Reload',
+        'CONFIG_UI_SFTPBROWSER_TITLE'    => 'SFTP Directory Browser',
     );
 
     /**
-     * The array holding the translation keys
+     * The array holding the translation keys.
+     *
      * @var array
      */
     private $strings;
 
     /**
-     * The currently detected language (ISO code)
+     * The currently detected language (ISO code).
+     *
      * @var string
      */
     private $language;
 
     /*
-	 * Initializes the translation engine
-	 * @return AKText
-	 */
+     * Initializes the translation engine
+     * @return AKText
+     */
     public function __construct()
     {
         // Start with the default translation
@@ -5869,25 +5921,31 @@ class AKText extends AKAbstractObject
         }
     }
 
-    private function loadTranslation($lang = NULL)
+    private function loadTranslation($lang = null)
     {
         if (defined('KSLANGDIR')) {
             $dirname = KSLANGDIR;
         } else {
             $dirname = KSROOTDIR;
         }
-        $basename = basename(__FILE__, '.php') . '.ini';
-        if (empty($lang)) $lang = $this->language;
-
-        $translationFilename = $dirname . DIRECTORY_SEPARATOR . $lang . '.' . $basename;
-        if (!@file_exists($translationFilename) && ($basename != 'kickstart.ini')) {
-            $basename = 'kickstart.ini';
-            $translationFilename = $dirname . DIRECTORY_SEPARATOR . $lang . '.' . $basename;
+        $basename = basename(__FILE__, '.php').'.ini';
+        if (empty($lang)) {
+            $lang = $this->language;
         }
-        if (!@file_exists($translationFilename)) return;
-        $temp = self::parse_ini_file($translationFilename, FALSE);
 
-        if (!is_array($this->strings)) $this->strings = array();
+        $translationFilename = $dirname.DIRECTORY_SEPARATOR.$lang.'.'.$basename;
+        if (!@file_exists($translationFilename) && ('kickstart.ini' != $basename)) {
+            $basename            = 'kickstart.ini';
+            $translationFilename = $dirname.DIRECTORY_SEPARATOR.$lang.'.'.$basename;
+        }
+        if (!@file_exists($translationFilename)) {
+            return;
+        }
+        $temp = self::parse_ini_file($translationFilename, false);
+
+        if (!is_array($this->strings)) {
+            $this->strings = array();
+        }
         if (empty($temp)) {
             $this->strings = array_merge($this->default_translation, $this->strings);
         } else {
@@ -5901,90 +5959,91 @@ class AKText extends AKAbstractObject
      * Thanks to asohn ~at~ aircanopy ~dot~ net for posting this handy function on
      * the parse_ini_file page on http://gr.php.net/parse_ini_file
      *
-     * @param string $file Filename to process
-     * @param bool $process_sections True to also process INI sections
+     * @param string $file             Filename to process
+     * @param bool   $process_sections True to also process INI sections
      *
      * @return array An associative array of sections, keys and values
-     * @access private
      */
-    public static function parse_ini_file($file, $process_sections = FALSE, $raw_data = FALSE)
+    public static function parse_ini_file($file, $process_sections = false, $raw_data = false)
     {
-        $process_sections = ($process_sections !== TRUE) ? FALSE : TRUE;
+        $process_sections = (true !== $process_sections) ? false : true;
 
         if (!$raw_data) {
             $ini = @file($file);
         } else {
             $ini = $file;
         }
-        if (count($ini) == 0) {
+        if (0 == count($ini)) {
             return array();
         }
 
         $sections = array();
-        $values = array();
-        $result = array();
-        $globals = array();
-        $i = 0;
-        if (!empty($ini)) foreach ($ini as $line) {
-            $line = trim($line);
-            $line = str_replace("\t", " ", $line);
+        $values   = array();
+        $result   = array();
+        $globals  = array();
+        $i        = 0;
+        if (!empty($ini)) {
+            foreach ($ini as $line) {
+                $line = trim($line);
+                $line = str_replace("\t", ' ', $line);
 
-            // Comments
-            if (!preg_match('/^[a-zA-Z0-9[]/', $line)) {
-                continue;
-            }
+                // Comments
+                if (!preg_match('/^[a-zA-Z0-9[]/', $line)) {
+                    continue;
+                }
 
-            // Sections
-            if ($line{0} == '[') {
-                $tmp = explode(']', $line);
-                $sections[] = trim(substr($tmp[0], 1));
-                $i++;
-                continue;
-            }
+                // Sections
+                if ('[' == $line[0]) {
+                    $tmp        = explode(']', $line);
+                    $sections[] = trim(substr($tmp[0], 1));
+                    ++$i;
+                    continue;
+                }
 
-            // Key-value pair
-            list($key, $value) = explode('=', $line, 2);
-            $key = trim($key);
-            $value = trim($value);
-            if (strstr($value, ";")) {
-                $tmp = explode(';', $value);
-                if (count($tmp) == 2) {
-                    if ((($value{0} != '"') && ($value{0} != "'")) ||
+                // Key-value pair
+                list($key, $value) = explode('=', $line, 2);
+                $key               = trim($key);
+                $value             = trim($value);
+                if (strstr($value, ';')) {
+                    $tmp = explode(';', $value);
+                    if (2 == count($tmp)) {
+                        if ((('"' != $value[0]) && ("'" != $value[0])) ||
                         preg_match('/^".*"\s*;/', $value) || preg_match('/^".*;[^"]*$/', $value) ||
                         preg_match("/^'.*'\s*;/", $value) || preg_match("/^'.*;[^']*$/", $value)
                     ) {
-                        $value = $tmp[0];
-                    }
-                } else {
-                    if ($value{0} == '"') {
-                        $value = preg_replace('/^"(.*)".*/', '$1', $value);
-                    } elseif ($value{0} == "'") {
-                        $value = preg_replace("/^'(.*)'.*/", '$1', $value);
+                            $value = $tmp[0];
+                        }
                     } else {
-                        $value = $tmp[0];
+                        if ('"' == $value[0]) {
+                            $value = preg_replace('/^"(.*)".*/', '$1', $value);
+                        } elseif ("'" == $value[0]) {
+                            $value = preg_replace("/^'(.*)'.*/", '$1', $value);
+                        } else {
+                            $value = $tmp[0];
+                        }
                     }
                 }
-            }
-            $value = trim($value);
-            $value = trim($value, "'\"");
+                $value = trim($value);
+                $value = trim($value, "'\"");
 
-            if ($i == 0) {
-                if (substr($line, -1, 2) == '[]') {
-                    $globals[$key][] = $value;
+                if (0 == $i) {
+                    if ('[]' == substr($line, -1, 2)) {
+                        $globals[$key][] = $value;
+                    } else {
+                        $globals[$key] = $value;
+                    }
                 } else {
-                    $globals[$key] = $value;
-                }
-            } else {
-                if (substr($line, -1, 2) == '[]') {
-                    $values[$i - 1][$key][] = $value;
-                } else {
-                    $values[$i - 1][$key] = $value;
+                    if ('[]' == substr($line, -1, 2)) {
+                        $values[$i - 1][$key][] = $value;
+                    } else {
+                        $values[$i - 1][$key] = $value;
+                    }
                 }
             }
         }
 
-        for ($j = 0; $j < $i; $j++) {
-            if ($process_sections === TRUE) {
+        for ($j = 0; $j < $i; ++$j) {
+            if (true === $process_sections) {
                 $result[$sections[$j]] = $values[$j];
             } else {
                 $result[] = $values[$j];
@@ -6000,58 +6059,57 @@ class AKText extends AKAbstractObject
         // Retrieved from http://techpatterns.com/downloads/php_language_detection.php
         $user_languages = array();
         //check to see if language is set
-        if (isset($_SERVER["HTTP_ACCEPT_LANGUAGE"])) {
-            $languages = strtolower($_SERVER["HTTP_ACCEPT_LANGUAGE"]);
+        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+            $languages = strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE']);
             // $languages = ' fr-ch;q=0.3, da, en-us;q=0.8, en;q=0.5, fr;q=0.3';
             // need to remove spaces from strings to avoid error
             $languages = str_replace(' ', '', $languages);
-            $languages = explode(",", $languages);
+            $languages = explode(',', $languages);
 
             foreach ($languages as $language_list) {
                 // pull out the language, place languages into array of full and primary
                 // string structure:
                 $temp_array = array();
                 // slice out the part before ; on first step, the part before - on second, place into array
-                $temp_array[0] = substr($language_list, 0, strcspn($language_list, ';'));//full language
-                $temp_array[1] = substr($language_list, 0, 2);// cut out primary language
-                if ((strlen($temp_array[0]) == 5) && ((substr($temp_array[0], 2, 1) == '-') || (substr($temp_array[0], 2, 1) == '_'))) {
-                    $langLocation = strtoupper(substr($temp_array[0], 3, 2));
-                    $temp_array[0] = $temp_array[1] . '-' . $langLocation;
+                $temp_array[0] = substr($language_list, 0, strcspn($language_list, ';')); //full language
+                $temp_array[1] = substr($language_list, 0, 2); // cut out primary language
+                if ((5 == strlen($temp_array[0])) && (('-' == substr($temp_array[0], 2, 1)) || ('_' == substr($temp_array[0], 2, 1)))) {
+                    $langLocation  = strtoupper(substr($temp_array[0], 3, 2));
+                    $temp_array[0] = $temp_array[1].'-'.$langLocation;
                 }
                 //place this array into main $user_languages language array
                 $user_languages[] = $temp_array;
             }
-        } else// if no languages found
-        {
+        } else {// if no languages found
             $user_languages[0] = array('', ''); //return blank array.
         }
 
-        $this->language = NULL;
-        $basename = basename(__FILE__, '.php') . '.ini';
+        $this->language = null;
+        $basename       = basename(__FILE__, '.php').'.ini';
 
         // Try to match main language part of the filename, irrespective of the location, e.g. de_DE will do if de_CH doesn't exist.
         if (class_exists('AKUtilsLister')) {
-            $fs = new AKUtilsLister();
-            $iniFiles = $fs->getFiles(KSROOTDIR, '*.' . $basename);
-            if (empty($iniFiles) && ($basename != 'kickstart.ini')) {
+            $fs       = new AKUtilsLister();
+            $iniFiles = $fs->getFiles(KSROOTDIR, '*.'.$basename);
+            if (empty($iniFiles) && ('kickstart.ini' != $basename)) {
                 $basename = 'kickstart.ini';
-                $iniFiles = $fs->getFiles(KSROOTDIR, '*.' . $basename);
+                $iniFiles = $fs->getFiles(KSROOTDIR, '*.'.$basename);
             }
         } else {
-            $iniFiles = NULL;
+            $iniFiles = null;
         }
 
         if (is_array($iniFiles)) {
             foreach ($user_languages as $languageStruct) {
                 if (is_null($this->language)) {
                     // Get files matching the main lang part
-                    $iniFiles = $fs->getFiles(KSROOTDIR, $languageStruct[1] . '-??.' . $basename);
+                    $iniFiles = $fs->getFiles(KSROOTDIR, $languageStruct[1].'-??.'.$basename);
                     if (count($iniFiles) > 0) {
-                        $filename = $iniFiles[0];
-                        $filename = substr($filename, strlen(KSROOTDIR) + 1);
+                        $filename       = $iniFiles[0];
+                        $filename       = substr($filename, strlen(KSROOTDIR) + 1);
                         $this->language = substr($filename, 0, 5);
                     } else {
-                        $this->language = NULL;
+                        $this->language = null;
                     }
                 }
             }
@@ -6060,17 +6118,16 @@ class AKText extends AKAbstractObject
         if (is_null($this->language)) {
             // Try to find a full language match
             foreach ($user_languages as $languageStruct) {
-                if (@file_exists($languageStruct[0] . '.' . $basename) && is_null($this->language)) {
+                if (@file_exists($languageStruct[0].'.'.$basename) && is_null($this->language)) {
                     $this->language = $languageStruct[0];
                 } else {
-
                 }
             }
         } else {
             // Do we have an exact match?
             foreach ($user_languages as $languageStruct) {
                 if (substr($this->language, 0, strlen($languageStruct[1])) == $languageStruct[1]) {
-                    if (file_exists($languageStruct[0] . '.' . $basename)) {
+                    if (file_exists($languageStruct[0].'.'.$basename)) {
                         $this->language = $languageStruct[0];
                     }
                 }
@@ -6078,7 +6135,6 @@ class AKText extends AKAbstractObject
         }
 
         // Now, scan for full language based on the partial match
-
     }
 
     public static function sprintf($key)
@@ -6095,7 +6151,8 @@ class AKText extends AKAbstractObject
     }
 
     /**
-     * Singleton pattern for Language
+     * Singleton pattern for Language.
+     *
      * @return AKText The global AKText instance
      */
     public static function &getInstance()
@@ -6114,9 +6171,9 @@ class AKText extends AKAbstractObject
         $text = self::getInstance();
 
         $key = strtoupper($string);
-        $key = substr($key, 0, 1) == '_' ? substr($key, 1) : $key;
+        $key = '_' == substr($key, 0, 1) ? substr($key, 1) : $key;
 
-        if (isset ($text->strings[$key])) {
+        if (isset($text->strings[$key])) {
             $string = $text->strings[$key];
         } else {
             if (defined($string)) {
@@ -6141,9 +6198,11 @@ class AKText extends AKAbstractObject
     {
         $out = '';
         foreach ($this->strings as $key => $value) {
-            $key = addcslashes($key, '\\\'"');
+            $key   = addcslashes($key, '\\\'"');
             $value = addcslashes($value, '\\\'"');
-            if (!empty($out)) $out .= ",\n";
+            if (!empty($out)) {
+                $out .= ",\n";
+            }
             $out .= "'$key':\t'$value'";
         }
 
@@ -6157,8 +6216,12 @@ class AKText extends AKAbstractObject
 
     public function addDefaultLanguageStrings($stringList = array())
     {
-        if (!is_array($stringList)) return;
-        if (empty($stringList)) return;
+        if (!is_array($stringList)) {
+            return;
+        }
+        if (empty($stringList)) {
+            return;
+        }
 
         $this->strings = array_merge($stringList, $this->strings);
     }
@@ -6166,17 +6229,15 @@ class AKText extends AKAbstractObject
 
 /**
  * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
+ * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
  * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
  */
 
 /**
  * The Akeeba Kickstart Factory class
- * This class is reponssible for instanciating all Akeeba Kicsktart classes
+ * This class is reponssible for instanciating all Akeeba Kicsktart classes.
  */
 class AKFactory
 {
@@ -6192,7 +6253,8 @@ class AKFactory
     }
 
     /**
-     * Gets a serialized snapshot of the Factory for safekeeping (hibernate)
+     * Gets a serialized snapshot of the Factory for safekeeping (hibernate).
+     *
      * @return string The serialized snapshot of the Factory
      */
     public static function serialize()
@@ -6209,24 +6271,24 @@ class AKFactory
     }
 
     /**
-     * Gets the unarchiver engine
+     * Gets the unarchiver engine.
      */
-    public static function &getUnarchiver($configOverride = NULL)
+    public static function &getUnarchiver($configOverride = null)
     {
         static $class_name;
 
         if (!empty($configOverride)) {
             if ($configOverride['reset']) {
-                $class_name = NULL;
+                $class_name = null;
             }
         }
 
         if (empty($class_name)) {
-            $filetype = self::get('kickstart.setup.filetype', NULL);
+            $filetype = self::get('kickstart.setup.filetype', null);
 
             if (empty($filetype)) {
-                $filename = self::get('kickstart.setup.sourcefile', NULL);
-                $basename = basename($filename);
+                $filename      = self::get('kickstart.setup.sourcefile', null);
+                $basename      = basename($filename);
                 $baseextension = strtoupper(substr($basename, -3));
                 switch ($baseextension) {
                     case 'JPA':
@@ -6242,43 +6304,43 @@ class AKFactory
                         break;
 
                     default:
-                        die('Invalid archive type or extension in file ' . $filename);
+                        die('Invalid archive type or extension in file '.$filename);
                         break;
                 }
             }
 
-            $class_name = 'AKUnarchiver' . ucfirst($filetype);
+            $class_name = 'AKUnarchiver'.ucfirst($filetype);
         }
 
-        $destdir = self::get('kickstart.setup.destdir', NULL);
+        $destdir = self::get('kickstart.setup.destdir', null);
         if (empty($destdir)) {
             $destdir = KSROOTDIR;
         }
 
         $object = self::getClassInstance($class_name);
-        if ($object->getState() == 'init') {
+        if ('init' == $object->getState()) {
             $sourcePath = self::get('kickstart.setup.sourcepath', '');
             $sourceFile = self::get('kickstart.setup.sourcefile', '');
 
             if (!empty($sourcePath)) {
-                $sourceFile = rtrim($sourcePath, '/\\') . '/' . $sourceFile;
+                $sourceFile = rtrim($sourcePath, '/\\').'/'.$sourceFile;
             }
 
             // Initialize the object
             $config = array(
-                'filename' => $sourceFile,
+                'filename'            => $sourceFile,
                 'restore_permissions' => self::get('kickstart.setup.restoreperms', 0),
-                'post_proc' => self::get('kickstart.procengine', 'direct'),
-                'add_path' => self::get('kickstart.setup.targetpath', $destdir),
-                'rename_files' => array('.htaccess' => 'htaccess.bak',
-                    'php.ini' => 'php.ini.bak',
-                    'web.config' => 'web.config.bak'),
+                'post_proc'           => self::get('kickstart.procengine', 'direct'),
+                'add_path'            => self::get('kickstart.setup.targetpath', $destdir),
+                'rename_files'        => array('.htaccess' => 'htaccess.bak',
+                    'php.ini'                              => 'php.ini.bak',
+                    'web.config'                           => 'web.config.bak', ),
                 'skip_files' => array(basename(__FILE__),
                     'kickstart.php',
                     'abiautomation.ini',
                     'htaccess.bak',
                     'php.ini.bak',
-                    'cacert.pem'),
+                    'cacert.pem', ),
                 'ignoredirectories' => array('tmp', 'log', 'logs'),
             );
 
@@ -6304,7 +6366,7 @@ class AKFactory
     // Public factory interface
     // ========================================================================
 
-    public static function get($key, $default = NULL)
+    public static function get($key, $default = null)
     {
         $self = self::getInstance();
         if (array_key_exists($key, $self->varlist)) {
@@ -6315,28 +6377,29 @@ class AKFactory
     }
 
     /**
-     * Gets a single, internally used instance of the Factory
+     * Gets a single, internally used instance of the Factory.
      *
      * @param string $serialized_data [optional] Serialized data to spawn the instance from
      *
      * @return AKFactory A reference to the unique Factory object instance
      */
-    protected static function &getInstance($serialized_data = NULL)
+    protected static function &getInstance($serialized_data = null)
     {
         static $myInstance;
-        if (!is_object($myInstance) || !is_null($serialized_data))
+        if (!is_object($myInstance) || !is_null($serialized_data)) {
             if (!is_null($serialized_data)) {
                 $myInstance = unserialize($serialized_data);
             } else {
                 $myInstance = new self();
             }
+        }
 
         return $myInstance;
     }
 
     /**
      * Internal function which instanciates a class named $class_name.
-     * The autoloader
+     * The autoloader.
      *
      * @param object $class_name
      *
@@ -6346,7 +6409,7 @@ class AKFactory
     {
         $self = self::getInstance();
         if (!isset($self->objectlist[$class_name])) {
-            $self->objectlist[$class_name] = new $class_name;
+            $self->objectlist[$class_name] = new $class_name();
         }
 
         return $self->objectlist[$class_name];
@@ -6357,7 +6420,7 @@ class AKFactory
     // ========================================================================
 
     /**
-     * Regenerates the full Factory state from a serialized snapshot (resume)
+     * Regenerates the full Factory state from a serialized snapshot (resume).
      *
      * @param string $serialized_data The serialized snapshot to resume from
      */
@@ -6370,13 +6433,13 @@ class AKFactory
     }
 
     /**
-     * Reset the internal factory state, freeing all previously created objects
+     * Reset the internal factory state, freeing all previously created objects.
      */
     public static function nuke()
     {
         $self = self::getInstance();
         foreach ($self->objectlist as $key => $object) {
-            $self->objectlist[$key] = NULL;
+            $self->objectlist[$key] = null;
         }
         $self->objectlist = array();
     }
@@ -6387,47 +6450,45 @@ class AKFactory
 
     public static function set($key, $value)
     {
-        $self = self::getInstance();
+        $self                = self::getInstance();
         $self->varlist[$key] = $value;
     }
 
     /**
-     * Gets the post processing engine
+     * Gets the post processing engine.
      *
      * @param string $proc_engine
      */
-    public static function &getPostProc($proc_engine = NULL)
+    public static function &getPostProc($proc_engine = null)
     {
         static $class_name;
         if (empty($class_name)) {
             if (empty($proc_engine)) {
                 $proc_engine = self::get('kickstart.procengine', 'direct');
             }
-            $class_name = 'AKPostproc' . ucfirst($proc_engine);
+            $class_name = 'AKPostproc'.ucfirst($proc_engine);
         }
 
         return self::getClassInstance($class_name);
     }
 
     /**
-     * Get the a reference to the Akeeba Engine's timer
+     * Get the a reference to the Akeeba Engine's timer.
+     *
      * @return AKCoreTimer
      */
     public static function &getTimer()
     {
         return self::getClassInstance('AKCoreTimer');
     }
-
 }
 
 /**
  * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
+ * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
  * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
  */
 
 /**
@@ -6696,7 +6757,7 @@ class AKEncryptionAES
             0xb0,
             0x54,
             0xbb,
-            0x16);
+            0x16, );
 
     // Rcon is Round Constant used for the Key Expansion [1st col is 2^(r-1) in GF(2^8)] [�5.2]
     protected static $Rcon = array(
@@ -6710,13 +6771,13 @@ class AKEncryptionAES
         array(0x40, 0x00, 0x00, 0x00),
         array(0x80, 0x00, 0x00, 0x00),
         array(0x1b, 0x00, 0x00, 0x00),
-        array(0x36, 0x00, 0x00, 0x00));
+        array(0x36, 0x00, 0x00, 0x00), );
 
     protected static $passwords = array();
 
     /**
      * Encrypt a text using AES encryption in Counter mode of operation
-     *  - see http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf
+     *  - see http://csrc.nist.gov/publications/nistpubs/800-38a/sp800-38a.pdf.
      *
      * Unicode multi-byte character safe
      *
@@ -6724,54 +6785,68 @@ class AKEncryptionAES
      * @param password  the password to use to generate a key
      * @param nBits     number of bits to be used in the key (128, 192, or 256)
      *
-     * @return          encrypted text
+     * @return encrypted text
      */
     public static function AESEncryptCtr($plaintext, $password, $nBits)
     {
         $blockSize = 16;  // block size fixed at 16 bytes / 128 bits (Nb=4) for AES
-        if (!($nBits == 128 || $nBits == 192 || $nBits == 256)) return '';  // standard allows 128/192/256 bit keys
+        if (!(128 == $nBits || 192 == $nBits || 256 == $nBits)) {
+            return '';
+        }  // standard allows 128/192/256 bit keys
         // note PHP (5) gives us plaintext and password in UTF8 encoding!
 
         // use AES itself to encrypt password to get cipher key (using plain password as source for
         // key expansion) - gives us well encrypted key
-        $nBytes = $nBits / 8;  // no bytes in key
+        $nBytes  = $nBits / 8;  // no bytes in key
         $pwBytes = array();
-        for ($i = 0; $i < $nBytes; $i++) $pwBytes[$i] = ord(substr($password, $i, 1)) & 0xff;
+        for ($i = 0; $i < $nBytes; ++$i) {
+            $pwBytes[$i] = ord(substr($password, $i, 1)) & 0xff;
+        }
         $key = self::Cipher($pwBytes, self::KeyExpansion($pwBytes));
         $key = array_merge($key, array_slice($key, 0, $nBytes - 16));  // expand key to 16/24/32 bytes long
 
         // initialise counter block (NIST SP800-38A �B.2): millisecond time-stamp for nonce in
         // 1st 8 bytes, block counter in 2nd 8 bytes
         $counterBlock = array();
-        $nonce = floor(microtime(TRUE) * 1000);   // timestamp: milliseconds since 1-Jan-1970
-        $nonceSec = floor($nonce / 1000);
-        $nonceMs = $nonce % 1000;
+        $nonce        = floor(microtime(true) * 1000);   // timestamp: milliseconds since 1-Jan-1970
+        $nonceSec     = floor($nonce / 1000);
+        $nonceMs      = $nonce % 1000;
         // encode nonce with seconds in 1st 4 bytes, and (repeated) ms part filling 2nd 4 bytes
-        for ($i = 0; $i < 4; $i++) $counterBlock[$i] = self::urs($nonceSec, $i * 8) & 0xff;
-        for ($i = 0; $i < 4; $i++) $counterBlock[$i + 4] = $nonceMs & 0xff;
+        for ($i = 0; $i < 4; ++$i) {
+            $counterBlock[$i] = self::urs($nonceSec, $i * 8) & 0xff;
+        }
+        for ($i = 0; $i < 4; ++$i) {
+            $counterBlock[$i + 4] = $nonceMs & 0xff;
+        }
         // and convert it to a string to go on the front of the ciphertext
         $ctrTxt = '';
-        for ($i = 0; $i < 8; $i++) $ctrTxt .= chr($counterBlock[$i]);
+        for ($i = 0; $i < 8; ++$i) {
+            $ctrTxt .= chr($counterBlock[$i]);
+        }
 
         // generate key schedule - an expansion of the key into distinct Key Rounds for each round
         $keySchedule = self::KeyExpansion($key);
 
         $blockCount = ceil(strlen($plaintext) / $blockSize);
-        $ciphertxt = array();  // ciphertext as array of strings
+        $ciphertxt  = array();  // ciphertext as array of strings
 
-        for ($b = 0; $b < $blockCount; $b++) {
+        for ($b = 0; $b < $blockCount; ++$b) {
             // set counter (block #) in last 8 bytes of counter block (leaving nonce in 1st 8 bytes)
             // done in two stages for 32-bit ops: using two words allows us to go past 2^32 blocks (68GB)
-            for ($c = 0; $c < 4; $c++) $counterBlock[15 - $c] = self::urs($b, $c * 8) & 0xff;
-            for ($c = 0; $c < 4; $c++) $counterBlock[15 - $c - 4] = self::urs($b / 0x100000000, $c * 8);
+            for ($c = 0; $c < 4; ++$c) {
+                $counterBlock[15 - $c] = self::urs($b, $c * 8) & 0xff;
+            }
+            for ($c = 0; $c < 4; ++$c) {
+                $counterBlock[15 - $c - 4] = self::urs($b / 0x100000000, $c * 8);
+            }
 
             $cipherCntr = self::Cipher($counterBlock, $keySchedule);  // -- encrypt counter block --
 
             // block size is reduced on final block
             $blockLength = $b < $blockCount - 1 ? $blockSize : (strlen($plaintext) - 1) % $blockSize + 1;
-            $cipherByte = array();
+            $cipherByte  = array();
 
-            for ($i = 0; $i < $blockLength; $i++) {  // -- xor plaintext with ciphered counter byte-by-byte --
+            for ($i = 0; $i < $blockLength; ++$i) {  // -- xor plaintext with ciphered counter byte-by-byte --
                 $cipherByte[$i] = $cipherCntr[$i] ^ ord(substr($plaintext, $b * $blockSize + $i, 1));
                 $cipherByte[$i] = chr($cipherByte[$i]);
             }
@@ -6779,20 +6854,20 @@ class AKEncryptionAES
         }
 
         // implode is more efficient than repeated string concatenation
-        $ciphertext = $ctrTxt . implode('', $ciphertxt);
+        $ciphertext = $ctrTxt.implode('', $ciphertxt);
         $ciphertext = base64_encode($ciphertext);
 
         return $ciphertext;
     }
 
     /**
-     * AES Cipher function: encrypt 'input' with Rijndael algorithm
+     * AES Cipher function: encrypt 'input' with Rijndael algorithm.
      *
      * @param input message as byte-array (16 bytes)
      * @param w     key schedule as 2D byte-array (Nr+1 x Nb bytes) -
      *              generated from the cipher key by KeyExpansion()
      *
-     * @return      ciphertext as byte-array (16 bytes)
+     * @return ciphertext as byte-array (16 bytes)
      */
     protected static function Cipher($input, $w)
     {    // main Cipher function [�5.1]
@@ -6800,11 +6875,13 @@ class AKEncryptionAES
         $Nr = count($w) / $Nb - 1; // no of rounds: 10/12/14 for 128/192/256-bit keys
 
         $state = array();  // initialise 4xNb byte-array 'state' with input [�3.4]
-        for ($i = 0; $i < 4 * $Nb; $i++) $state[$i % 4][floor($i / 4)] = $input[$i];
+        for ($i = 0; $i < 4 * $Nb; ++$i) {
+            $state[$i % 4][floor($i / 4)] = $input[$i];
+        }
 
         $state = self::AddRoundKey($state, $w, 0, $Nb);
 
-        for ($round = 1; $round < $Nr; $round++) {  // apply Nr rounds
+        for ($round = 1; $round < $Nr; ++$round) {  // apply Nr rounds
             $state = self::SubBytes($state, $Nb);
             $state = self::ShiftRows($state, $Nb);
             $state = self::MixColumns($state, $Nb);
@@ -6816,15 +6893,19 @@ class AKEncryptionAES
         $state = self::AddRoundKey($state, $w, $Nr, $Nb);
 
         $output = array(4 * $Nb);  // convert state to 1-d array before returning [�3.4]
-        for ($i = 0; $i < 4 * $Nb; $i++) $output[$i] = $state[$i % 4][floor($i / 4)];
+        for ($i = 0; $i < 4 * $Nb; ++$i) {
+            $output[$i] = $state[$i % 4][floor($i / 4)];
+        }
 
         return $output;
     }
 
     protected static function AddRoundKey($state, $w, $rnd, $Nb)
     {  // xor Round Key into state S [�5.1.4]
-        for ($r = 0; $r < 4; $r++) {
-            for ($c = 0; $c < $Nb; $c++) $state[$r][$c] ^= $w[$rnd * 4 + $c][$r];
+        for ($r = 0; $r < 4; ++$r) {
+            for ($c = 0; $c < $Nb; ++$c) {
+                $state[$r][$c] ^= $w[$rnd * 4 + $c][$r];
+            }
         }
 
         return $state;
@@ -6832,8 +6913,10 @@ class AKEncryptionAES
 
     protected static function SubBytes($s, $Nb)
     {    // apply SBox to state S [�5.1.1]
-        for ($r = 0; $r < 4; $r++) {
-            for ($c = 0; $c < $Nb; $c++) $s[$r][$c] = self::$Sbox[$s[$r][$c]];
+        for ($r = 0; $r < 4; ++$r) {
+            for ($c = 0; $c < $Nb; ++$c) {
+                $s[$r][$c] = self::$Sbox[$s[$r][$c]];
+            }
         }
 
         return $s;
@@ -6842,19 +6925,23 @@ class AKEncryptionAES
     protected static function ShiftRows($s, $Nb)
     {    // shift row r of state S left by r bytes [�5.1.2]
         $t = array(4);
-        for ($r = 1; $r < 4; $r++) {
-            for ($c = 0; $c < 4; $c++) $t[$c] = $s[$r][($c + $r) % $Nb];  // shift into temp copy
-            for ($c = 0; $c < 4; $c++) $s[$r][$c] = $t[$c];         // and copy back
+        for ($r = 1; $r < 4; ++$r) {
+            for ($c = 0; $c < 4; ++$c) {
+                $t[$c] = $s[$r][($c + $r) % $Nb];
+            }  // shift into temp copy
+            for ($c = 0; $c < 4; ++$c) {
+                $s[$r][$c] = $t[$c];
+            }         // and copy back
         }          // note that this will work for Nb=4,5,6, but not 7,8 (always 4 for AES):
         return $s;  // see fp.gladman.plus.com/cryptography_technology/rijndael/aes.spec.311.pdf
     }
 
     protected static function MixColumns($s, $Nb)
     {   // combine bytes of each col of state S [�5.1.3]
-        for ($c = 0; $c < 4; $c++) {
+        for ($c = 0; $c < 4; ++$c) {
             $a = array(4);  // 'a' is a copy of the current column from 's'
             $b = array(4);  // 'b' is a�{02} in GF(2^8)
-            for ($i = 0; $i < 4; $i++) {
+            for ($i = 0; $i < 4; ++$i) {
                 $a[$i] = $s[$i][$c];
                 $b[$i] = $s[$i][$c] & 0x80 ? $s[$i][$c] << 1 ^ 0x011b : $s[$i][$c] << 1;
             }
@@ -6870,11 +6957,11 @@ class AKEncryptionAES
 
     /**
      * Key expansion for Rijndael Cipher(): performs key expansion on cipher key
-     * to generate a key schedule
+     * to generate a key schedule.
      *
      * @param key cipher key byte-array (16 bytes)
      *
-     * @return    key schedule as 2D byte-array (Nr+1 x Nb bytes)
+     * @return key schedule as 2D byte-array (Nr+1 x Nb bytes)
      */
     protected static function KeyExpansion($key)
     {  // generate Key Schedule from Cipher Key [�5.2]
@@ -6882,24 +6969,30 @@ class AKEncryptionAES
         $Nk = count($key) / 4;  // key length (in words): 4/6/8 for 128/192/256-bit keys
         $Nr = $Nk + 6;        // no of rounds: 10/12/14 for 128/192/256-bit keys
 
-        $w = array();
+        $w    = array();
         $temp = array();
 
-        for ($i = 0; $i < $Nk; $i++) {
-            $r = array($key[4 * $i], $key[4 * $i + 1], $key[4 * $i + 2], $key[4 * $i + 3]);
+        for ($i = 0; $i < $Nk; ++$i) {
+            $r     = array($key[4 * $i], $key[4 * $i + 1], $key[4 * $i + 2], $key[4 * $i + 3]);
             $w[$i] = $r;
         }
 
-        for ($i = $Nk; $i < ($Nb * ($Nr + 1)); $i++) {
+        for ($i = $Nk; $i < ($Nb * ($Nr + 1)); ++$i) {
             $w[$i] = array();
-            for ($t = 0; $t < 4; $t++) $temp[$t] = $w[$i - 1][$t];
-            if ($i % $Nk == 0) {
+            for ($t = 0; $t < 4; ++$t) {
+                $temp[$t] = $w[$i - 1][$t];
+            }
+            if (0 == $i % $Nk) {
                 $temp = self::SubWord(self::RotWord($temp));
-                for ($t = 0; $t < 4; $t++) $temp[$t] ^= self::$Rcon[$i / $Nk][$t];
-            } else if ($Nk > 6 && $i % $Nk == 4) {
+                for ($t = 0; $t < 4; ++$t) {
+                    $temp[$t] ^= self::$Rcon[$i / $Nk][$t];
+                }
+            } elseif ($Nk > 6 && 4 == $i % $Nk) {
                 $temp = self::SubWord($temp);
             }
-            for ($t = 0; $t < 4; $t++) $w[$i][$t] = $w[$i - $Nk][$t] ^ $temp[$t];
+            for ($t = 0; $t < 4; ++$t) {
+                $w[$i][$t] = $w[$i - $Nk][$t] ^ $temp[$t];
+            }
         }
 
         return $w;
@@ -6907,23 +7000,27 @@ class AKEncryptionAES
 
     protected static function SubWord($w)
     {    // apply SBox to 4-byte word w
-        for ($i = 0; $i < 4; $i++) $w[$i] = self::$Sbox[$w[$i]];
+        for ($i = 0; $i < 4; ++$i) {
+            $w[$i] = self::$Sbox[$w[$i]];
+        }
 
         return $w;
     }
 
     /*
-	 * Unsigned right shift function, since PHP has neither >>> operator nor unsigned ints
-	 *
-	 * @param a  number to be shifted (32-bit integer)
-	 * @param b  number of bits to shift a to the right (0..31)
-	 * @return   a right-shifted and zero-filled by b bits
-	 */
+     * Unsigned right shift function, since PHP has neither >>> operator nor unsigned ints
+     *
+     * @param a  number to be shifted (32-bit integer)
+     * @param b  number of bits to shift a to the right (0..31)
+     * @return   a right-shifted and zero-filled by b bits
+     */
 
     protected static function RotWord($w)
     {    // rotate 4-byte word w left by one byte
         $tmp = $w[0];
-        for ($i = 0; $i < 3; $i++) $w[$i] = $w[$i + 1];
+        for ($i = 0; $i < 3; ++$i) {
+            $w[$i] = $w[$i + 1];
+        }
         $w[3] = $tmp;
 
         return $w;
@@ -6944,57 +7041,68 @@ class AKEncryptionAES
     }
 
     /**
-     * Decrypt a text encrypted by AES in counter mode of operation
+     * Decrypt a text encrypted by AES in counter mode of operation.
      *
      * @param ciphertext source text to be decrypted
      * @param password   the password to use to generate a key
      * @param nBits      number of bits to be used in the key (128, 192, or 256)
      *
-     * @return           decrypted text
+     * @return decrypted text
      */
     public static function AESDecryptCtr($ciphertext, $password, $nBits)
     {
         $blockSize = 16;  // block size fixed at 16 bytes / 128 bits (Nb=4) for AES
-        if (!($nBits == 128 || $nBits == 192 || $nBits == 256)) return '';  // standard allows 128/192/256 bit keys
+        if (!(128 == $nBits || 192 == $nBits || 256 == $nBits)) {
+            return '';
+        }  // standard allows 128/192/256 bit keys
         $ciphertext = base64_decode($ciphertext);
 
         // use AES to encrypt password (mirroring encrypt routine)
-        $nBytes = $nBits / 8;  // no bytes in key
+        $nBytes  = $nBits / 8;  // no bytes in key
         $pwBytes = array();
-        for ($i = 0; $i < $nBytes; $i++) $pwBytes[$i] = ord(substr($password, $i, 1)) & 0xff;
+        for ($i = 0; $i < $nBytes; ++$i) {
+            $pwBytes[$i] = ord(substr($password, $i, 1)) & 0xff;
+        }
         $key = self::Cipher($pwBytes, self::KeyExpansion($pwBytes));
         $key = array_merge($key, array_slice($key, 0, $nBytes - 16));  // expand key to 16/24/32 bytes long
 
         // recover nonce from 1st element of ciphertext
         $counterBlock = array();
-        $ctrTxt = substr($ciphertext, 0, 8);
-        for ($i = 0; $i < 8; $i++) $counterBlock[$i] = ord(substr($ctrTxt, $i, 1));
+        $ctrTxt       = substr($ciphertext, 0, 8);
+        for ($i = 0; $i < 8; ++$i) {
+            $counterBlock[$i] = ord(substr($ctrTxt, $i, 1));
+        }
 
         // generate key schedule
         $keySchedule = self::KeyExpansion($key);
 
         // separate ciphertext into blocks (skipping past initial 8 bytes)
         $nBlocks = ceil((strlen($ciphertext) - 8) / $blockSize);
-        $ct = array();
-        for ($b = 0; $b < $nBlocks; $b++) $ct[$b] = substr($ciphertext, 8 + $b * $blockSize, 16);
+        $ct      = array();
+        for ($b = 0; $b < $nBlocks; ++$b) {
+            $ct[$b] = substr($ciphertext, 8 + $b * $blockSize, 16);
+        }
         $ciphertext = $ct;  // ciphertext is now array of block-length strings
 
         // plaintext will get generated block-by-block into array of block-length strings
         $plaintxt = array();
 
-        for ($b = 0; $b < $nBlocks; $b++) {
+        for ($b = 0; $b < $nBlocks; ++$b) {
             // set counter (block #) in last 8 bytes of counter block (leaving nonce in 1st 8 bytes)
-            for ($c = 0; $c < 4; $c++) $counterBlock[15 - $c] = self::urs($b, $c * 8) & 0xff;
-            for ($c = 0; $c < 4; $c++) $counterBlock[15 - $c - 4] = self::urs(($b + 1) / 0x100000000 - 1, $c * 8) & 0xff;
+            for ($c = 0; $c < 4; ++$c) {
+                $counterBlock[15 - $c] = self::urs($b, $c * 8) & 0xff;
+            }
+            for ($c = 0; $c < 4; ++$c) {
+                $counterBlock[15 - $c - 4] = self::urs(($b + 1) / 0x100000000 - 1, $c * 8) & 0xff;
+            }
 
             $cipherCntr = self::Cipher($counterBlock, $keySchedule);  // encrypt counter block
 
             $plaintxtByte = array();
-            for ($i = 0; $i < strlen($ciphertext[$b]); $i++) {
+            for ($i = 0; $i < strlen($ciphertext[$b]); ++$i) {
                 // -- xor plaintext with ciphered counter byte-by-byte --
                 $plaintxtByte[$i] = $cipherCntr[$i] ^ ord(substr($ciphertext[$b], $i, 1));
                 $plaintxtByte[$i] = chr($plaintxtByte[$i]);
-
             }
             $plaintxt[$b] = implode('', $plaintxtByte);
         }
@@ -7014,32 +7122,39 @@ class AKEncryptionAES
      * data length.
      *
      * @since  3.0.1
+     *
      * @author Nicholas K. Dionysopoulos
      *
      * @param string $ciphertext The data to encrypt
-     * @param string $password Encryption password
-     * @param int $nBits Encryption key size. Can be 128, 192 or 256
+     * @param string $password   Encryption password
+     * @param int    $nBits      Encryption key size. Can be 128, 192 or 256
      *
      * @return string The plaintext
      */
     public static function AESDecryptCBC($ciphertext, $password, $nBits = 128)
     {
-        if (!($nBits == 128 || $nBits == 192 || $nBits == 256)) return FALSE;  // standard allows 128/192/256 bit keys
-        if (!function_exists('mcrypt_module_open')) return FALSE;
+        if (!(128 == $nBits || 192 == $nBits || 256 == $nBits)) {
+            return false;
+        }  // standard allows 128/192/256 bit keys
+        if (!function_exists('mcrypt_module_open')) {
+            return false;
+        }
 
         // Try to fetch cached key/iv or create them if they do not exist
-        $lookupKey = $password . '-' . $nBits;
+        $lookupKey = $password.'-'.$nBits;
         if (array_key_exists($lookupKey, self::$passwords)) {
             $key = self::$passwords[$lookupKey]['key'];
-            $iv = self::$passwords[$lookupKey]['iv'];
+            $iv  = self::$passwords[$lookupKey]['iv'];
         } else {
             // use AES itself to encrypt password to get cipher key (using plain password as source for
             // key expansion) - gives us well encrypted key
-            $nBytes = $nBits / 8;  // no bytes in key
+            $nBytes  = $nBits / 8;  // no bytes in key
             $pwBytes = array();
-            for ($i = 0; $i < $nBytes; $i++) $pwBytes[$i] = ord(substr($password, $i, 1)) & 0xff;
-            $key = self::Cipher($pwBytes, self::KeyExpansion($pwBytes));
-            $key = array_merge($key, array_slice($key, 0, $nBytes - 16));  // expand key to 16/24/32 bytes long
+            for ($i = 0; $i < $nBytes; ++$i) {
+                $pwBytes[$i] = ord(substr($password, $i, 1)) & 0xff;
+            }
+            $key    = self::Cipher($pwBytes, self::KeyExpansion($pwBytes));
+            $key    = array_merge($key, array_slice($key, 0, $nBytes - 16));  // expand key to 16/24/32 bytes long
             $newKey = '';
             foreach ($key as $int) {
                 $newKey .= chr($int);
@@ -7047,10 +7162,12 @@ class AKEncryptionAES
             $key = $newKey;
 
             // Create an Initialization Vector (IV) based on the password, using the same technique as for the key
-            $nBytes = 16;  // AES uses a 128 -bit (16 byte) block size, hence the IV size is always 16 bytes
+            $nBytes  = 16;  // AES uses a 128 -bit (16 byte) block size, hence the IV size is always 16 bytes
             $pwBytes = array();
-            for ($i = 0; $i < $nBytes; $i++) $pwBytes[$i] = ord(substr($password, $i, 1)) & 0xff;
-            $iv = self::Cipher($pwBytes, self::KeyExpansion($pwBytes));
+            for ($i = 0; $i < $nBytes; ++$i) {
+                $pwBytes[$i] = ord(substr($password, $i, 1)) & 0xff;
+            }
+            $iv    = self::Cipher($pwBytes, self::KeyExpansion($pwBytes));
             $newIV = '';
             foreach ($iv as $int) {
                 $newIV .= chr($int);
@@ -7058,7 +7175,7 @@ class AKEncryptionAES
             $iv = $newIV;
 
             self::$passwords[$lookupKey]['key'] = $key;
-            self::$passwords[$lookupKey]['iv'] = $iv;
+            self::$passwords[$lookupKey]['iv']  = $iv;
         }
 
         // Read the data size
@@ -7081,12 +7198,10 @@ class AKEncryptionAES
 
 /**
  * Akeeba Restore
- * A JSON-powered JPA, JPS and ZIP archive extraction library
+ * A JSON-powered JPA, JPS and ZIP archive extraction library.
  *
  * @copyright   2010-2014 Nicholas K. Dionysopoulos / Akeeba Ltd.
  * @license     GNU GPL v2 or - at your option - any later version
- * @package     akeebabackup
- * @subpackage  kickstart
  */
 
 /**
@@ -7101,19 +7216,18 @@ function masterSetup()
     // 1. Import basic setup parameters
     // ------------------------------------------------------------
 
-    $ini_data = NULL;
+    $ini_data = null;
 
     // In restore.php mode, require restoration.php or fail
     if (!defined('KICKSTART')) {
-
         // This is the standalone mode, used by Akeeba Backup Professional. It looks for a restoration.php
         // file to perform its magic. If the file is not there, we will abort.
         $setupFile = 'tmp/restoration.php';
 
         if (!file_exists($setupFile)) {
-            AKFactory::set('kickstart.enabled', FALSE);
+            AKFactory::set('kickstart.enabled', false);
 
-            return FALSE;
+            return false;
         }
 
         // Load restoration.php. It creates a global variable named $restoration_setup
@@ -7123,18 +7237,18 @@ function masterSetup()
 
         if (empty($ini_data)) {
             // No parameters fetched. Darn, how am I supposed to work like that?!
-            AKFactory::set('kickstart.enabled', FALSE);
+            AKFactory::set('kickstart.enabled', false);
 
-            return FALSE;
+            return false;
         }
 
-        AKFactory::set('kickstart.enabled', TRUE);
+        AKFactory::set('kickstart.enabled', true);
     } else {
         // Maybe we have $restoration_setup defined in the head of kickstart.php
         global $restoration_setup;
 
         if (!empty($restoration_setup) && !is_array($restoration_setup)) {
-            $ini_data = AKText::parse_ini_file($restoration_setup, FALSE, TRUE);
+            $ini_data = AKText::parse_ini_file($restoration_setup, false, true);
         } elseif (is_array($restoration_setup)) {
             $ini_data = $restoration_setup;
         }
@@ -7145,18 +7259,18 @@ function masterSetup()
         foreach ($ini_data as $key => $value) {
             AKFactory::set($key, $value);
         }
-        AKFactory::set('kickstart.enabled', TRUE);
+        AKFactory::set('kickstart.enabled', true);
     }
 
     // Reinitialize $ini_data
-    $ini_data = NULL;
+    $ini_data = null;
 
     // ------------------------------------------------------------
     // 2. Explode JSON parameters into $_REQUEST scope
     // ------------------------------------------------------------
 
     // Detect a JSON string in the request variable and store it.
-    $json = getQueryParam('json', NULL);
+    $json = getQueryParam('json', null);
 
     // Remove everything from the request, post and get arrays
     if (!empty($_REQUEST)) {
@@ -7178,7 +7292,7 @@ function masterSetup()
     }
 
     // Decrypt a possibly encrypted JSON string
-    $password = AKFactory::get('kickstart.security.password', NULL);
+    $password = AKFactory::get('kickstart.security.password', null);
 
     if (!empty($json)) {
         if (!empty($password)) {
@@ -7190,7 +7304,7 @@ function masterSetup()
         }
 
         // Get the raw data
-        $raw = json_decode($json, TRUE);
+        $raw = json_decode($json, true);
 
         if (!empty($password) && (empty($raw))) {
             die('###{"status":false,"message":"Invalid login"}###');
@@ -7210,14 +7324,14 @@ function masterSetup()
     // 3. Try the "factory" variable
     // ------------------------------------------------------------
     // A "factory" variable will override all other settings.
-    $serialized = getQueryParam('factory', NULL);
+    $serialized = getQueryParam('factory', null);
 
     if (!is_null($serialized)) {
         // Get the serialized factory
         AKFactory::unserialize($serialized);
-        AKFactory::set('kickstart.enabled', TRUE);
+        AKFactory::set('kickstart.enabled', true);
 
-        return TRUE;
+        return true;
     }
 
     // ------------------------------------------------------------
@@ -7228,10 +7342,10 @@ function masterSetup()
 
         if (!is_null($configuration)) {
             // Let's decode the configuration from JSON to array
-            $ini_data = json_decode($configuration, TRUE);
+            $ini_data = json_decode($configuration, true);
         } else {
             // Neither exists. Enable Kickstart's interface anyway.
-            $ini_data = array('kickstart.enabled' => TRUE);
+            $ini_data = array('kickstart.enabled' => true);
         }
 
         // Import any INI data we might have from other sources
@@ -7240,14 +7354,14 @@ function masterSetup()
                 AKFactory::set($key, $value);
             }
 
-            AKFactory::set('kickstart.enabled', TRUE);
+            AKFactory::set('kickstart.enabled', true);
 
-            return TRUE;
+            return true;
         }
     }
 }
 
-/**
+/*
  * Akeeba Restore
  * A JSON-powered JPA, JPS and ZIP archive extraction library
  *
@@ -7262,18 +7376,22 @@ if (!defined('KICKSTART')) {
     // The observer class, used to report number of files and bytes processed
     class RestorationObserver extends AKAbstractPartObserver
     {
-        public $compressedTotal = 0;
+        public $compressedTotal   = 0;
         public $uncompressedTotal = 0;
-        public $filesProcessed = 0;
+        public $filesProcessed    = 0;
 
         public function update($object, $message)
         {
-            if (!is_object($message)) return;
+            if (!is_object($message)) {
+                return;
+            }
 
-            if (!array_key_exists('type', get_object_vars($message))) return;
+            if (!array_key_exists('type', get_object_vars($message))) {
+                return;
+            }
 
-            if ($message->type == 'startfile') {
-                $this->filesProcessed++;
+            if ('startfile' == $message->type) {
+                ++$this->filesProcessed;
                 $this->compressedTotal += $message->content->compressed;
                 $this->uncompressedTotal += $message->content->uncompressed;
             }
@@ -7283,18 +7401,17 @@ if (!defined('KICKSTART')) {
         {
             return __CLASS__;
         }
-
     }
 
     // Import configuration
     masterSetup();
 
     $retArray = array(
-        'status' => TRUE,
-        'message' => NULL
+        'status'  => true,
+        'message' => null,
     );
 
-    $enabled = AKFactory::get('kickstart.enabled', FALSE);
+    $enabled = AKFactory::get('kickstart.enabled', false);
 
     if ($enabled) {
         $task = getQueryParam('task');
@@ -7311,65 +7428,68 @@ if (!defined('KICKSTART')) {
 
             // Let the control flow to the next step (the rest of the code is common!!)
 
+            // no break
             case 'stepRestore':
-                $engine = AKFactory::getUnarchiver(); // Get the engine
+                $engine   = AKFactory::getUnarchiver(); // Get the engine
                 $observer = new RestorationObserver(); // Create a new observer
                 $engine->attach($observer); // Attach the observer
                 $engine->tick();
                 $ret = $engine->getStatusArray();
 
-                if ($ret['Error'] != '') {
-                    $retArray['status'] = FALSE;
-                    $retArray['done'] = TRUE;
+                if ('' != $ret['Error']) {
+                    $retArray['status']  = false;
+                    $retArray['done']    = true;
                     $retArray['message'] = $ret['Error'];
                 } elseif (!$ret['HasRun']) {
-                    $retArray['files'] = $observer->filesProcessed;
-                    $retArray['bytesIn'] = $observer->compressedTotal;
+                    $retArray['files']    = $observer->filesProcessed;
+                    $retArray['bytesIn']  = $observer->compressedTotal;
                     $retArray['bytesOut'] = $observer->uncompressedTotal;
-                    $retArray['status'] = TRUE;
-                    $retArray['done'] = TRUE;
+                    $retArray['status']   = true;
+                    $retArray['done']     = true;
                 } else {
-                    $retArray['files'] = $observer->filesProcessed;
-                    $retArray['bytesIn'] = $observer->compressedTotal;
+                    $retArray['files']    = $observer->filesProcessed;
+                    $retArray['bytesIn']  = $observer->compressedTotal;
                     $retArray['bytesOut'] = $observer->uncompressedTotal;
-                    $retArray['status'] = TRUE;
-                    $retArray['done'] = FALSE;
-                    $retArray['factory'] = AKFactory::serialize();
+                    $retArray['status']   = true;
+                    $retArray['done']     = false;
+                    $retArray['factory']  = AKFactory::serialize();
                 }
                 break;
 
             case 'finalizeRestore':
                 $root = AKFactory::get('kickstart.setup.destdir');
                 // Remove the installation directory
-                recursive_remove_directory($root . '/installation');
+                recursive_remove_directory($root.'/installation');
 
                 $postproc = AKFactory::getPostProc();
 
                 // Rename htaccess.bak to .htaccess
-                if (file_exists($root . '/htaccess.bak')) {
-                    if (file_exists($root . '/.htaccess')) {
-                        $postproc->unlink($root . '/.htaccess');
+                if (file_exists($root.'/htaccess.bak')) {
+                    if (file_exists($root.'/.htaccess')) {
+                        $postproc->unlink($root.'/.htaccess');
                     }
-                    $postproc->rename($root . '/htaccess.bak', $root . '/.htaccess');
+                    $postproc->rename($root.'/htaccess.bak', $root.'/.htaccess');
                 }
 
                 // Rename htaccess.bak to .htaccess
-                if (file_exists($root . '/web.config.bak')) {
-                    if (file_exists($root . '/web.config')) {
-                        $postproc->unlink($root . '/web.config');
+                if (file_exists($root.'/web.config.bak')) {
+                    if (file_exists($root.'/web.config')) {
+                        $postproc->unlink($root.'/web.config');
                     }
-                    $postproc->rename($root . '/web.config.bak', $root . '/web.config');
+                    $postproc->rename($root.'/web.config.bak', $root.'/web.config');
                 }
 
                 // Remove restoration.php
                 $basepath = KSROOTDIR;
                 $basepath = rtrim(str_replace('\\', '/', $basepath), '/');
-                if (!empty($basepath)) $basepath .= '/';
-                $postproc->unlink($basepath . 'restoration.php');
+                if (!empty($basepath)) {
+                    $basepath .= '/';
+                }
+                $postproc->unlink($basepath.'restoration.php');
 
                 // Import a custom finalisation file
-                if (file_exists(dirname(__FILE__) . '/restore_finalisation.php')) {
-                    include_once dirname(__FILE__) . '/restore_finalisation.php';
+                if (file_exists(dirname(__FILE__).'/restore_finalisation.php')) {
+                    include_once dirname(__FILE__).'/restore_finalisation.php';
                 }
 
                 // Run a custom finalisation script
@@ -7380,7 +7500,7 @@ if (!defined('KICKSTART')) {
 
             default:
                 // Invalid task!
-                $enabled = FALSE;
+                $enabled = false;
                 break;
         }
     }
@@ -7388,21 +7508,20 @@ if (!defined('KICKSTART')) {
     // Maybe we weren't authorized or the task was invalid?
     if (!$enabled) {
         // Maybe the user failed to enter any information
-        $retArray['status'] = FALSE;
+        $retArray['status']  = false;
         $retArray['message'] = AKText::_('ERR_INVALID_LOGIN');
     }
 
     // JSON encode the message
     $json = json_encode($retArray);
     // Do I have to encrypt?
-    $password = AKFactory::get('kickstart.security.password', NULL);
+    $password = AKFactory::get('kickstart.security.password', null);
     if (!empty($password)) {
         $json = AKEncryptionAES::AESEncryptCtr($json, $password, 128);
     }
 
     // Return the message
     echo "###$json###";
-
 }
 
 // ------------ lixlpixel recursive PHP functions -------------
@@ -7414,34 +7533,34 @@ if (!defined('KICKSTART')) {
 function recursive_remove_directory($directory)
 {
     // if the path has a slash at the end we remove it here
-    if (substr($directory, -1) == '/') {
+    if ('/' == substr($directory, -1)) {
         $directory = substr($directory, 0, -1);
     }
     // if the path is not valid or is not a directory ...
     if (!file_exists($directory) || !is_dir($directory)) {
         // ... we return false and exit the function
-        return FALSE;
-        // ... if the path is not readable
+        return false;
+    // ... if the path is not readable
     } elseif (!is_readable($directory)) {
         // ... we return false and exit the function
-        return FALSE;
-        // ... else if the path is readable
+        return false;
+    // ... else if the path is readable
     } else {
         // we open the directory
-        $handle = opendir($directory);
+        $handle   = opendir($directory);
         $postproc = AKFactory::getPostProc();
         // and scan through the items inside
-        while (FALSE !== ($item = readdir($handle))) {
+        while (false !== ($item = readdir($handle))) {
             // if the filepointer is not the current directory
             // or the parent directory
-            if ($item != '.' && $item != '..') {
+            if ('.' != $item && '..' != $item) {
                 // we build the new path to delete
-                $path = $directory . '/' . $item;
+                $path = $directory.'/'.$item;
                 // if the new path is a directory
                 if (is_dir($path)) {
                     // we call this function with the new path
                     recursive_remove_directory($path);
-                    // if the new path is a file
+                // if the new path is a file
                 } else {
                     // we remove the file
                     $postproc->unlink($path);
@@ -7453,10 +7572,10 @@ function recursive_remove_directory($directory)
         // try to delete the now empty directory
         if (!$postproc->rmdir($directory)) {
             // return false if not possible
-            return FALSE;
+            return false;
         }
 
         // return success
-        return TRUE;
+        return true;
     }
 }

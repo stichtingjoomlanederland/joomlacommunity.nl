@@ -67,7 +67,6 @@ class ConfigureWAF extends Model
 		'allowsitetemplate'         => 0,
 		'trackfailedlogins'         => 1,
 		'use403view'                => 0,
-		'showpwonloginfailure'      => 1,
 		'iplookup'                  => 'ip-lookup.net/index.php?ip={ip}',
 		'iplookupscheme'            => 'http',
 		'saveusersignupip'          => 0,
@@ -87,17 +86,24 @@ class ConfigureWAF extends Model
 		'awayschedule_from'         => '',
 		'awayschedule_to'           => '',
 		'adminlogindir'             => '',
+		// PLEASE NOTE: Previously this field was used only to BLOCK email domains,
+		// but now is used to hold the list of blocked OR allowed domains.
 		'blockedemaildomains'       => '',
 		'configmonitor_global'      => 1,
 		'configmonitor_components'  => 1,
 		'configmonitor_action'      => 'email',
 		'selfprotect'               => 1,
 		'criticalfiles'             => 0,
+		'criticalfiles_global'      => '',
 		'superuserslist'            => 0,
 		'consolewarn'				=> 1,
 		'404shield_enable'			=> 1,
 		'404shield'					=> "wp-admin.php\nwp-login.php\nwp-content/*\nwp-admin/*",
-		'emailphpexceptions'		=> ''
+		'emailphpexceptions'		=> '',
+		'logfile'					=> 0,
+		'filteremailregistration'   => 'block',
+		'leakedpwd'					=> 0,
+		'leakedpwd_groups'			=> array(),
 	);
 
 	/**
@@ -117,6 +123,7 @@ class ConfigureWAF extends Model
 		}
 
 		$this->migrateIplookup($config);
+		$this->fillLeakedPwdGroups($config);
 
 		return $config;
 	}
@@ -189,6 +196,7 @@ class ConfigureWAF extends Model
 		}
 
 		$test = strtolower($iplookup);
+
 		if (substr($test, 0, 7) == 'http://')
 		{
 			$iplookup       = substr($iplookup, 7);
@@ -202,5 +210,55 @@ class ConfigureWAF extends Model
 
 		$data['iplookup']       = $iplookup;
 		$data['iplookupscheme'] = $iplookupscheme;
+	}
+
+	/**
+	 * If empty, fills the groups where we should check for leaked passwords
+	 *
+	 * @param	array	$data	The configuration data we'll modify
+	 */
+	private function fillLeakedPwdGroups(&$data)
+	{
+		// Already filled, nothing to do
+		if ($data['leakedpwd_groups'])
+		{
+			return;
+		}
+
+		// Let's see if we already calculated them previously
+		$params			   = $this->container->params;
+		$super_user_groups = $params->get('default_super_user_groups', array());
+
+		if ($super_user_groups)
+		{
+			$data['leakedpwd_groups'] = $super_user_groups;
+
+			return;
+		}
+
+		// Ok, I don't have any. Let's get them
+		$db = $this->container->db;
+		$query = $db->getQuery(true)
+					->select($db->qn('rules'))
+					->from($db->qn('#__assets'))
+					->where($db->qn('parent_id') . ' = ' . $db->q(0));
+		$rulesJSON = $db->setQuery($query, 0, 1)->loadResult();
+		$rules	   = json_decode($rulesJSON, true);
+
+		$rawGroups = $rules['core.admin'];
+		$groups = array();
+
+		foreach ($rawGroups as $g => $enabled)
+		{
+			if ($enabled)
+			{
+				$groups[] = $db->q($g);
+			}
+		}
+
+		$data['leakedpwd_groups'] = $groups;
+
+		$params->set('default_super_user_groups', $groups);
+		$params->save();
 	}
 }

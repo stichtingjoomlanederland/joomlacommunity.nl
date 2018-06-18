@@ -46,6 +46,18 @@ defined('_JEXEC') or die;
 </div>
 
 <div class="akeeba-form-group">
+    <label for="logfile"
+           rel="akeeba-sticky-tooltip"
+           data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_CONFIGUREWAF_OPT_LOGFILE'); ?>"
+           data-content="<?php echo \JText::_('COM_ADMINTOOLS_CONFIGUREWAF_OPT_LOGFILE_TIP'); ?>"
+    >
+		<?php echo \JText::_('COM_ADMINTOOLS_CONFIGUREWAF_OPT_LOGFILE'); ?>
+    </label>
+
+	<?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'logfile', $this->wafconfig['logfile']); ?>
+</div>
+
+<div class="akeeba-form-group">
 	<label for="iplookup"
 		   rel="akeeba-sticky-tooltip"
 		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_IPLOOKUP_LABEL'); ?>"
@@ -92,18 +104,6 @@ defined('_JEXEC') or die;
 	</label>
 
     <input type="text" size="20" name="emailonfailedadminlogin" value="<?php echo $this->escape($this->wafconfig['emailonfailedadminlogin']); ?>">
-</div>
-
-<div class="akeeba-form-group">
-	<label
-		   for="showpwonloginfailure"
-		   rel="akeeba-sticky-tooltip"
-		   data-original-title="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_SHOWPWONLOGINFAILURE'); ?>"
-		   data-content="<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_SHOWPWONLOGINFAILURE_TIP'); ?>">
-		<?php echo \JText::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_OPT_SHOWPWONLOGINFAILURE'); ?>
-	</label>
-
-    <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'showpwonloginfailure', $this->wafconfig['showpwonloginfailure']); ?>
 </div>
 
 <div class="akeeba-form-group">

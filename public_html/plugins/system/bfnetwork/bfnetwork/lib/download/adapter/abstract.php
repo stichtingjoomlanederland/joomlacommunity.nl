@@ -1,9 +1,10 @@
 <?php
 /**
- * @package   Blue Flame Network (bfNetwork)
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
- * @link      https://myJoomla.com/
+ *
+ * @see      https://myJoomla.com/
+ *
  * @author    Phil Taylor / Blue Flame Digital Solutions Limited.
  *
  * bfNetwork is free software: you can redistribute it and/or modify
@@ -21,7 +22,6 @@
  */
 
 /**
- * @package    AkeebaCMSUpdate
  * @copyright  Copyright (c)2010-2014 Nicholas K. Dionysopoulos
  * @license    GNU General Public License version 3, or later
  *
@@ -44,16 +44,16 @@ abstract class AcuDownloadAdapterAbstract implements AcuDownloadInterface
 
     public $name = '';
 
-    public $isSupported = FALSE;
+    public $isSupported = false;
 
-    public $supportsChunkDownload = FALSE;
+    public $supportsChunkDownload = false;
 
-    public $supportsFileSize = FALSE;
+    public $supportsFileSize = false;
 
     /**
      * Does this download adapter support downloading files in chunks?
      *
-     * @return  boolean  True if chunk download is supported
+     * @return bool True if chunk download is supported
      */
     public function supportsChunkDownload()
     {
@@ -63,7 +63,7 @@ abstract class AcuDownloadAdapterAbstract implements AcuDownloadInterface
     /**
      * Does this download adapter support reading the size of a remote file?
      *
-     * @return  boolean  True if remote file size determination is supported
+     * @return bool True if remote file size determination is supported
      */
     public function supportsFileSize()
     {
@@ -73,7 +73,7 @@ abstract class AcuDownloadAdapterAbstract implements AcuDownloadInterface
     /**
      * Is this download class supported in the current server environment?
      *
-     * @return  boolean  True if this server environment supports this download class
+     * @return bool True if this server environment supports this download class
      */
     public function isSupported()
     {
@@ -85,7 +85,7 @@ abstract class AcuDownloadAdapterAbstract implements AcuDownloadInterface
      * supported on a site, the one with the highest priority will be
      * used.
      *
-     * @return  boolean
+     * @return bool
      */
     public function getPriority()
     {
@@ -93,9 +93,9 @@ abstract class AcuDownloadAdapterAbstract implements AcuDownloadInterface
     }
 
     /**
-     * Returns the name of this download adapter in use
+     * Returns the name of this download adapter in use.
      *
-     * @return  string
+     * @return string
      */
     public function getName()
     {
@@ -112,25 +112,25 @@ abstract class AcuDownloadAdapterAbstract implements AcuDownloadInterface
      * If this class' supportsChunkDownload returns false you should assume
      * that the $from and $to parameters will be ignored.
      *
-     * @param   string  $url  The remote file's URL
-     * @param   integer $from Byte range to start downloading from. Use null for start of file.
-     * @param   integer $to   Byte range to stop downloading. Use null to download the entire file ($from is ignored)
+     * @param string $url  The remote file's URL
+     * @param int    $from Byte range to start downloading from. Use null for start of file.
+     * @param int    $to   Byte range to stop downloading. Use null to download the entire file ($from is ignored)
      *
-     * @return  string  The raw file data retrieved from the remote URL.
+     * @return string the raw file data retrieved from the remote URL
      *
-     * @throws  Exception  A generic exception is thrown on error
+     * @throws Exception A generic exception is thrown on error
      */
-    public function downloadAndReturn($url, $from = NULL, $to = NULL)
+    public function downloadAndReturn($url, $from = null, $to = null)
     {
         return '';
     }
 
     /**
-     * Get the size of a remote file in bytes
+     * Get the size of a remote file in bytes.
      *
-     * @param   string $url The remote file's URL
+     * @param string $url The remote file's URL
      *
-     * @return  integer  The file size, or -1 if the remote server doesn't support this feature
+     * @return int The file size, or -1 if the remote server doesn't support this feature
      */
     public function getFileSize($url)
     {

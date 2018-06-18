@@ -26,7 +26,7 @@ class AtsystemFeatureShield404 extends AtsystemFeatureAbstract
 	public function isEnabled()
 	{
 		// Assign those values to our static variables so we can reference to them in the static context
-		static::$blockedUrls = $this->cparams->getValue('404shield', '');
+		static::$blockedUrls = $this->cparams->getValue('404shield', "wp-admin.php\nwp-login.php\nwp-content/*\nwp-admin/*");
 		static::$exceptionHandler = $this->exceptionsHandler;
 
 		return ($this->cparams->getValue('404shield_enable', 1));
