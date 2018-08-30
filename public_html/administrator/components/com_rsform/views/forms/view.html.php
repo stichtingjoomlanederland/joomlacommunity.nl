@@ -68,8 +68,8 @@ class RsformViewForms extends JViewLegacy
             $lists['ShowSystemMessage'] = $this->renderHTML('select.booleanlist', 'ShowSystemMessage', '', $this->form->ShowSystemMessage);
             $lists['ShowThankyou'] = $this->renderHTML('select.booleanlist', 'ShowThankyou', 'onclick="enableThankyou(this.value);"', $this->form->ShowThankyou);
             $lists['ScrollToThankYou'] = $this->renderHTML('select.booleanlist', 'ScrollToThankYou', 'onclick="enableThankyouPopup(this.value);"', $this->form->ScrollToThankYou);
-            $lists['ThankYouMessagePopUp'] = $this->renderHTML('select.booleanlist', 'ThankYouMessagePopUp', ((!$this->form->ShowThankyou || ($this->form->ShowThankyou && $this->form->ScrollToThankYou)) ? 'disabled="true"' : ''), $this->form->ThankYouMessagePopUp);
-            $lists['ShowContinue'] = $this->renderHTML('select.booleanlist', 'ShowContinue', !$this->form->ShowThankyou ? 'disabled="true"' : '', $this->form->ShowContinue);
+            $lists['ThankYouMessagePopUp'] = $this->renderHTML('select.booleanlist', 'ThankYouMessagePopUp', '', $this->form->ThankYouMessagePopUp);
+            $lists['ShowContinue'] = $this->renderHTML('select.booleanlist', 'ShowContinue', '', $this->form->ShowContinue);
             $lists['UserEmailMode'] = $this->renderHTML('select.booleanlist', 'UserEmailMode', 'onclick="enableEmailMode(\'User\', this.value)"', $this->form->UserEmailMode, JText::_('HTML'), JText::_('RSFP_COMP_FIELD_TEXT'));
             $lists['UserEmailAttach'] = $this->renderHTML('select.booleanlist', 'UserEmailAttach', 'onclick="enableAttachFile(this.value)"', $this->form->UserEmailAttach);
             $lists['AdminEmailMode'] = $this->renderHTML('select.booleanlist', 'AdminEmailMode', 'onclick="enableEmailMode(\'Admin\', this.value)"', $this->form->AdminEmailMode, JText::_('HTML'), JText::_('RSFP_COMP_FIELD_TEXT'));
@@ -99,8 +99,8 @@ class RsformViewForms extends JViewLegacy
 			$this->pagination = $this->get('fieldspagination');
 			$this->calculations = RSFormProHelper::getCalculations($this->form->FormId);
 
-			$lists['Languages'] = JHtml::_('select.genericlist', $this->get('languages'), 'Language', 'onchange="submitbutton(\'changeLanguage\')"', 'value', 'text', $this->lang);
-			$lists['totalFields'] = JHtml::_('select.genericlist', $this->get('languages'), 'Language', 'onchange="submitbutton(\'changeLanguage\')"', 'value', 'text', $this->lang);
+			$lists['Languages'] = JHtml::_('select.genericlist', $this->get('languages'), 'Language', 'onchange="Joomla.submitbutton(\'changeLanguage\')"', 'value', 'text', $this->lang);
+			$lists['totalFields'] = JHtml::_('select.genericlist', $this->get('languages'), 'Language', 'onchange="Joomla.submitbutton(\'changeLanguage\')"', 'value', 'text', $this->lang);
 
 			$this->mappings = $this->get('mappings');
 			$this->mpagination = $this->get('mpagination');
@@ -217,7 +217,7 @@ class RsformViewForms extends JViewLegacy
 			$this->row = $this->get('email');
 			$this->lang = $this->get('emaillang');
 			$lists['mode'] = $this->renderHTML('select.booleanlist', 'mode', 'onclick="showMode(this.value);"', $this->row->mode, JText::_('HTML'), JText::_('Text'));
-			$lists['Languages'] = JHtml::_('select.genericlist', $this->get('languages'), 'ELanguage', 'onchange="submitbutton(\'changeEmailLanguage\')"', 'value', 'text', $this->lang);
+			$lists['Languages'] = JHtml::_('select.genericlist', $this->get('languages'), 'ELanguage', 'onchange="Joomla.submitbutton(\'changeEmailLanguage\')"', 'value', 'text', $this->lang);
 			$this->lists = $lists;
 			$this->editor = RSFormProHelper::getEditor();
 			$this->quickfields = $this->get('quickfields');

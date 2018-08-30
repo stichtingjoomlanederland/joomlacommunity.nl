@@ -294,7 +294,7 @@ JFactory::getDocument()->addScript(JUri::root(true).'/administrator/components/c
 
 			xml.open("POST", url, true);
 
-			params = new Array();
+			params = [];
 			params.push('i=' + cb);
 			params.push('componentId=' + document.getElementById(cb).value);
 			params.push('formId=<?php echo $this->form->FormId; ?>');
@@ -362,7 +362,6 @@ JFactory::getDocument()->addScript(JUri::root(true).'/administrator/components/c
 				}
 
 				tidyOrderMp(true);
-				return;
 			}
 		}
 
@@ -373,7 +372,7 @@ JFactory::getDocument()->addScript(JUri::root(true).'/administrator/components/c
 
 		function returnQuickFields()
 		{
-			var quickfields = new Array();
+			var quickfields = [];
 
 			<?php foreach ($this->quickfields as $quickfield) { ?>
 			quickfields.push('<?php echo $quickfield['name']; ?>');
@@ -416,25 +415,16 @@ JFactory::getDocument()->addScript(JUri::root(true).'/administrator/components/c
 		{
 			if (value == 1)
 			{
-				document.getElementById('ShowContinue0').disabled = false;
-				document.getElementById('ShowContinue1').disabled = false;
-
 				document.getElementById('showContinueContainer').style.display = 'table-row';
 				document.getElementById('systemMessageContainer').style.display = 'none';
 
-				if (document.getElementById('ScrollToThankYou0').checked) {
-					document.getElementById('ThankYouMessagePopUp0').disabled = false;
-					document.getElementById('ThankYouMessagePopUp1').disabled = false;
+				if (document.getElementById('ScrollToThankYou0').checked)
+				{
 					document.getElementById('thankyouMessagePopupContainer').style.display = 'table-row';
 				}
 			}
 			else
 			{
-				document.getElementById('ShowContinue0').disabled = true;
-				document.getElementById('ShowContinue1').disabled = true;
-				document.getElementById('ThankYouMessagePopUp0').disabled = true;
-				document.getElementById('ThankYouMessagePopUp1').disabled = true;
-
 				document.getElementById('showContinueContainer').style.display = 'none';
 				document.getElementById('systemMessageContainer').style.display = 'table-row';
 				
@@ -446,18 +436,15 @@ JFactory::getDocument()->addScript(JUri::root(true).'/administrator/components/c
 		{
 			if (value == 0)
 			{
-				if (document.getElementById('ShowThankyou1').checked) {
-					document.getElementById('ThankYouMessagePopUp0').disabled = false;
-					document.getElementById('ThankYouMessagePopUp1').disabled = false;
+				if (document.getElementById('ShowThankyou1').checked)
+				{
 					document.getElementById('thankyouMessagePopupContainer').style.display = 'table-row';
 				}
 			}
 			else
 			{
-				if (document.getElementById('ShowThankyou1').checked) {
-					document.getElementById('ThankYouMessagePopUp0').disabled = true;
-					document.getElementById('ThankYouMessagePopUp1').disabled = true;
-
+				if (document.getElementById('ShowThankyou1').checked)
+				{
 					document.getElementById('thankyouMessagePopupContainer').style.display = 'none';
 				}
 			}

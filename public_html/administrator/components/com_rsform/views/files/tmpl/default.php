@@ -24,7 +24,7 @@ function rsform_close_window() {
 		<tr>
 			<td width="120"><label for="upload"><?php echo JText::_('RSFP_FILE'); ?>:</label></td>
 			<td width="1%" nowrap="nowrap"><input class="input_box" id="upload" name="upload" type="file" size="57" /></td>
-			<td><input class="btn" type="button" value="<?php echo JText::_('RSFP_UPLOAD_FILE'); ?>" onclick="submitbutton('upload')" /></td>
+			<td><input class="btn" type="button" value="<?php echo JText::_('RSFP_UPLOAD_FILE'); ?>" onclick="Joomla.submitbutton('upload')" /></td>
 		</tr>
 		</table>
 	<?php } else { ?>

@@ -10,7 +10,7 @@ defined('_JEXEC') or die('Restricted access');
 <form action="index.php?option=com_rsform" method="post" name="adminForm" id="adminForm">
 	<p><?php echo JText::_('RSFP_COPY_COMPONENTS_WHERE'); ?></p>
 	<?php echo $this->lists['forms']; ?>
-	<p><button class="btn btn-primary" type="submit"><?php echo JText::_('RSFP_COPY');?></button></p>
+	<p><button class="btn btn-primary" type="submit"><?php echo JText::_('RSFP_DO_COPY');?></button></p>
 	
 	<input type="hidden" name="formId" value="<?php echo $this->formId; ?>" />
 	<input type="hidden" name="task" value="components.copy.process" />

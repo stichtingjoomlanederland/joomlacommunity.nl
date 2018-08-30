@@ -28,11 +28,11 @@ RSFormPro.ionSlider = {
 		var forms = Object.keys(RSFormPro.ionSlider.slidersData);
 		
 		if (countForms > 0) {
-			for(i = 0; i < countForms; i++) {
+			for (i = 0; i < countForms; i++) {
 				var formId = forms[i];
 				var slidersIds = Object.keys(RSFormPro.ionSlider.slidersData[formId]);
 				
-				for(j = 0; j < slidersIds.length; j++) {
+				for (var j = 0; j < slidersIds.length; j++) {
 					RSFormPro.ionSlider.initSlider(formId, slidersIds[j], RSFormPro.ionSlider.slidersData[formId][slidersIds[j]].config);
 				}
 			}

@@ -37,14 +37,14 @@ RSFormPro.YUICalendar = {
 		var forms = Object.keys(RSFormPro.YUICalendar.calendarsData);
 		
 		if (countForms > 0) {
-			for(var i = 0; i < countForms; i++) {
+			for (var i = 0; i < countForms; i++) {
 				var formId = forms[i];
 				var calendarsIds = Object.keys(RSFormPro.YUICalendar.calendarsData[formId]);
 				
 				if (typeof RSFormPro.YUICalendar.calendars[formId] == 'undefined') {
 					RSFormPro.YUICalendar.calendars[formId] = {};
 				}
-				for(j = 0; j < calendarsIds.length; j++) {
+				for (var j = 0; j < calendarsIds.length; j++) {
 					RSFormPro.YUICalendar.initCalendar(formId, calendarsIds[j], RSFormPro.YUICalendar.calendarsData[formId][calendarsIds[j]].config);
 				}
 			}

@@ -63,6 +63,6 @@ defined('_JEXEC') or die('Restricted access');
 		</td>
 	</tr>
 	<tr>
-		<td><button type="button" class="btn" onclick="submitbutton('submissions.export.task');" name="Export"><?php echo JText::_('RSFP_EXPORT');?></button></td>
+		<td><button type="button" class="btn" onclick="Joomla.submitbutton('submissions.export.task');" name="Export"><?php echo JText::_('RSFP_EXPORT');?></button></td>
 	</tr>
 </table>

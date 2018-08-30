@@ -123,8 +123,8 @@ function rsform_close_box() {
 <form name="adminForm" id="adminForm" method="post" action="index.php">
 	<div id="rsform_conditions">
 	<p>
-		<button class="btn btn-success pull-left" onclick="submitform('apply');" type="button"><?php echo JText::_('JAPPLY'); ?></button>
-		<button class="btn btn-success pull-left" onclick="submitform('save');" type="button"><?php echo JText::_('JSAVE'); ?></button>
+		<button class="btn btn-success pull-left" onclick="Joomla.submitform('apply');" type="button"><?php echo JText::_('JAPPLY'); ?></button>
+		<button class="btn btn-success pull-left" onclick="Joomla.submitform('save');" type="button"><?php echo JText::_('JSAVE'); ?></button>
 		<button class="btn pull-left" onclick="rsform_close_box();" type="button"><?php echo JText::_('JCANCEL'); ?></button>
 	</p>
 	<p><br /><br /></p>

@@ -12,8 +12,8 @@ defined('_JEXEC') or die('Restricted access');
 		<h3><?php echo JText::_('RSFP_NEW_FORM_STEP_1'); ?></h3>
 		<p><?php echo JText::_('RSFP_NEW_FORM_STEP_1_DESC'); ?></p>
 		<button class="btn pull-left btn-primary" type="submit"><?php echo JText::_('Next'); ?></button>
-		<button class="btn pull-left" type="button" onclick="submitform('forms.new.stepfinal');"><?php echo JText::_('RSFP_SKIP_WIZARD'); ?></button>
-		<button class="btn pull-left btn-danger" type="button" onclick="submitform('forms.cancel');"><?php echo JText::_('Cancel'); ?></button>
+		<button class="btn pull-left" type="button" onclick="Joomla.submitbutton('forms.new.stepfinal');"><?php echo JText::_('RSFP_SKIP_WIZARD'); ?></button>
+		<button class="btn pull-left btn-danger" type="button" onclick="Joomla.submitbutton('forms.cancel');"><?php echo JText::_('Cancel'); ?></button>
 	</fieldset>
 	
 	<input type="hidden" name="option" value="com_rsform" />

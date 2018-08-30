@@ -53,13 +53,12 @@ defined('_JEXEC') or die('Restricted access');
 			document.getElementById('ThankYou2').style.display = '';
 		}
 	}
-	
-	function submitbutton(task)
+
+    Joomla.submitbutton = function(task)
 	{
 		if (task == 'forms.cancel')
 		{
-			submitform(task);
-			return;
+			Joomla.submitform(task);
 		}
 		else
 		{
@@ -81,11 +80,9 @@ defined('_JEXEC') or die('Restricted access');
 				return;
 			}
 			
-			submitform(task);
+			Joomla.submitform(task);
 		}
 	}
-	
-	Joomla.submitbutton = submitbutton;
 </script>
 
 <form method="post" action="index.php?option=com_rsform&amp;task=forms.new.stepthree" name="adminForm" id="adminForm">
@@ -173,7 +170,7 @@ defined('_JEXEC') or die('Restricted access');
 			</tr>
 		</table>
 		
-		<p><button class="btn pull-left btn-primary" type="button" onclick="submitbutton('forms.new.stepthree');"><?php echo JText::_('Next'); ?></button></p>
+		<p><button class="btn pull-left btn-primary" type="button" onclick="Joomla.submitbutton('forms.new.stepthree');"><?php echo JText::_('Next'); ?></button></p>
 	
 	<input type="hidden" name="option" value="com_rsform" />
 	<input type="hidden" name="task" value="forms.new.stepthree" />

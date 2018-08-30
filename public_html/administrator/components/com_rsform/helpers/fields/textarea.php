@@ -60,7 +60,7 @@ class RSFormProFieldTextarea extends RSFormProField
 		$additional 	= '';
 		
 		if ($editor) {
-			$this->addScriptDeclaration('RSFormPro.Editors['.json_encode($name).'] = function() { try { return '.$this->getEditor()->getContent($name).' } catch (e) {} };');
+			$this->addScriptDeclaration('RSFormPro.Editors['.json_encode($name).'] = function() { try { return '.$this->getEditor()->getContent($id).' } catch (e) {} };');
 
 			return $this->getEditor()->display($name, $this->escape($value), $cols*10, $rows*10, $cols, $rows, $this->getProperty('WYSIWYGBUTTONS', 'NO'), $id, null, null,
 				array('relative_urls' => '0',

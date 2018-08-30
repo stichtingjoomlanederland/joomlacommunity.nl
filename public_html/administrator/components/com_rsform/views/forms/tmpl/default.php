@@ -10,14 +10,12 @@ JHtml::_('behavior.tooltip');
 ?>
 
 <script type="text/javascript">
-function submitbutton(task)
-{
-	if (task == 'forms.copy' && document.adminForm.boxchecked.value == 0)
-		return alert('<?php echo JText::sprintf( 'RSFP_PLEASE_MAKE_SELECTION_TO', JText::_('RSFP_COPY')); ?>');
-	submitform(task);
-}
-
-Joomla.submitbutton = submitbutton;
+    Joomla.submitbutton = function(task)
+    {
+        if (task == 'forms.copy' && document.adminForm.boxchecked.value == 0)
+            return alert('<?php echo JText::sprintf( 'RSFP_PLEASE_MAKE_SELECTION_TO', JText::_('RSFP_COPY')); ?>');
+        Joomla.submitform(task);
+    }
 </script>
 
 <form action="index.php?option=com_rsform" method="post" name="adminForm" id="adminForm">

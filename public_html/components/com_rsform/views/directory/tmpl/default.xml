@@ -8,7 +8,7 @@
 	<config>
 	<fields name="params">
 		<fieldset name="basic">
-			<field name="formId" type="forms" directory="true" default="" label="RSFP_SUBM_DIR_FORM" description="RSFP_SUBM_DIR_FORM" addfieldpath="/administrator/components/com_rsform/models/fields" />
+			<field name="formId" type="forms" directory="true" required="true" default="" label="RSFP_SUBM_DIR_FORM" description="RSFP_SUBM_DIR_FORM" addfieldpath="/administrator/components/com_rsform/models/fields" />
 			<field name="lang" type="lang" default="" label="RSFP_SUBM_DIR_LANGUAGE" description="RSFP_SUBM_DIR_LANGUAGE_DESC" addfieldpath="/administrator/components/com_rsform/models/fields" />
 			<field name="enable_directory" type="radio" class="btn-group" default="0" label="RSFP_SUBM_DIR_ENABLE_DIRECTORY" description="RSFP_SUBM_DIR_ENABLE_DIRECTORY_DESC">
 				<option value="0">JNO</option>
