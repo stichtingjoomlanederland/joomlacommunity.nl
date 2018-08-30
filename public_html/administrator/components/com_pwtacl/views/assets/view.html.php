@@ -153,7 +153,7 @@ class PwtaclViewAssets extends HtmlView
 
 		// Add options for JS
 		Factory::getDocument()->addScriptOptions('pwtacl', array(
-			'superuseralert' => Text::_('COM_PWTACL_ASSETS_NOTICE_SUPERUSER_ACCESS'))
+				'superuseralert' => Text::_('COM_PWTACL_ASSETS_NOTICE_SUPERUSER_ACCESS'))
 		);
 
 		// Load the toolbar
@@ -199,8 +199,13 @@ class PwtaclViewAssets extends HtmlView
 		// Reset & clear buttons for group
 		if ($this->group && $canDo->get('core.edit'))
 		{
-			JToolBarHelper::custom('assets.clear', 'delete.png', 'delete.png', 'COM_PWTACL_TOOLBAR_CLEAR', false);
+			// Clear permissions buttonfor non-Super-User groups
+			if (!Access::checkGroup($this->group, 'core.admin', 'root.1'))
+			{
+				JToolBarHelper::custom('assets.clear', 'delete.png', 'delete.png', 'COM_PWTACL_TOOLBAR_CLEAR', false);
+			}
 
+			// Reset button for default user groups
 			if ($this->group <= 9)
 			{
 				JToolBarHelper::custom('assets.reset', 'refresh.png', 'refresh.png', 'COM_PWTACL_TOOLBAR_REVERT', false);

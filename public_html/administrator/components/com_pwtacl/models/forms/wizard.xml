@@ -12,9 +12,8 @@
                 name="new"
                 type="radio"
                 label="COM_PWTACL_WIZARD_NEW"
-                description="COM_PWTACL_WIZARD_NEW_DESC"
                 class="btn-group btn-group-yesno"
-                default=""
+                default="0"
         >
             <option value="0">JNO</option>
             <option value="1">JYES</option>
@@ -24,7 +23,6 @@
                 name="grouptitle"
                 type="text"
                 label="COM_PWTACL_WIZARD_GROUP_NEW"
-                description="COM_PWTACL_WIZARD_GROUP_NEW_DESC"
                 showon="new:1"
                 hint="COM_PWTACL_WIZARD_GROUP_NEW_HINT"
         />
@@ -33,7 +31,6 @@
                 name="groupid"
                 type="usergrouplist"
                 label="COM_PWTACL_WIZARD_SELECT_GROUP"
-                description="COM_PWTACL_WIZARD_SELECT_GROUP_DESC"
                 showon="new:0"
         >
             <option value="">JSELECT</option>
@@ -51,6 +48,7 @@
                 type="spacer"
                 name="permissions"
                 label="COM_PWTACL_WIZARD_PERMISSIONS"
+                showon="groupid!:[OR]grouptitle!:"
         />
 
         <field
@@ -60,6 +58,7 @@
                 description="COM_CONFIG_ACTION_LOGIN_SITE_DESC"
                 class="btn-group btn-group-yesno"
                 default="0"
+                showon="groupid!:[OR]grouptitle!:"
         >
             <option value="0">JNO</option>
             <option value="1">JYES</option>
@@ -72,6 +71,7 @@
                 description="COM_CONFIG_ACTION_LOGIN_ADMIN_DESC"
                 class="btn-group btn-group-yesno"
                 default="0"
+                showon="groupid!:[OR]grouptitle!:"
         >
             <option value="0">JNO</option>
             <option value="1">JYES</option>
@@ -84,6 +84,7 @@
                 description="COM_CONFIG_ACTION_LOGIN_OFFLINE_DESC"
                 class="btn-group btn-group-yesno"
                 default="0"
+                showon="groupid!:[OR]grouptitle!:"
         >
             <option value="0">JNO</option>
             <option value="1">JYES</option>
@@ -91,11 +92,12 @@
 
         <field
                 name="core.manage"
-                type="components"
+                type="assetcomponents"
                 label="COM_PWTACL_WIZARD_ACCESS_COMPONENTS"
                 description="JACTION_MANAGE_COMPONENT_DESC"
                 multiple="true"
                 class="multipleTags"
+                showon="groupid!:[OR]grouptitle!:"
         />
 
     </fieldset>

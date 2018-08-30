@@ -14,6 +14,7 @@ use Joomla\CMS\Access\Exception\NotAllowed;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Uri\Uri;
 
 defined('_JEXEC') or die;
 
@@ -104,7 +105,7 @@ class PlgSystemPwtacl extends JPlugin
 		}
 
 		// Module Manager overrides
-		if ($aclModulesOnlyEditable && $option == 'com_modules' && (($view == 'articles') || (!$view)))
+		if ($aclModulesOnlyEditable && $option == 'com_modules' && (($view == 'modules') || (!$view)))
 		{
 			$this->overrideJoomlaCoreClass('ModulesModelModules', 'com_modules/models/modules.php');
 		}
@@ -284,13 +285,8 @@ class PlgSystemPwtacl extends JPlugin
 			$url       .= $separator . 'key=' . $downloadId;
 		}
 
-		// Get the clean domain
-		$domain = '';
-
-		if (preg_match('/\w+\..{2,3}(?:\..{2,3})?(?:$|(?=\/))/i', Uri::base(), $matches) === 1)
-		{
-			$domain = $matches[0];
-		}
+		// Get the domain for this site
+		$domain = preg_replace('(^https?://)', '', rtrim(Uri::root(), '/'));
 
 		// Append domain
 		$url .= '&domain=' . $domain;

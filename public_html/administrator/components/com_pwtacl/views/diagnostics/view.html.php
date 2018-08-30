@@ -113,7 +113,7 @@ class PwtaclViewDiagnostics extends HtmlView
 		// Buttons
 		if (Factory::getUser()->authorise('core.admin', 'com_pwtacl'))
 		{
-			JToolBarHelper::custom('diagnostics.rebuild', 'refresh.png', 'refresh_f2.png','COM_PWTACL_TOOLBAR_REBUILD', false);
+			JToolBarHelper::custom('diagnostics.rebuild', 'refresh.png', 'refresh_f2.png','COM_PWTACL_DIAGNOSTICS_STEP_REBUILD', false);
 			JToolBarHelper::divider();
 			JToolBarHelper::preferences('com_pwtacl');
 		}
