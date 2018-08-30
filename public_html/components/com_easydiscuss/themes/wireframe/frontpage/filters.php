@@ -77,13 +77,20 @@ defined('_JEXEC') or die('Restricted access');
 		</ul>
 	</div>
 
-	<!-- Sort tabs -->
+	<?php
+	$sortBaseUrl = $baseUrl;
+	
+	if ($activeFilter) {
+		$sortBaseUrl .= '&filter=' . $activeFilter;
+	}
+
+	?>
 	<div class="ed-filter-bar__sort-action">
 		<select data-index-sort-filter>
-		  <option value="latest" <?php echo $activeSort == 'latest' || $activeSort == '' ? ' selected="true"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_SORT_LATEST');?></option>
+		  <option value="latest" <?php echo $activeSort == 'latest' || $activeSort == '' ? ' selected="true"' : '';?> data-link="<?php echo EDR::_($sortBaseUrl . '&sort=latest');?>"><?php echo JText::_('COM_EASYDISCUSS_SORT_LATEST');?></option>
 		  <?php if ($activeFilter != 'unread') { ?>
-			<option value="popular" <?php echo $activeSort == 'popular' ? ' selected="true"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_SORT_POPULAR');?></option>
-			<option value="title" <?php echo $activeSort == 'title' ? ' selected="true"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_SORT_TITLE');?></option>
+			<option value="popular" <?php echo $activeSort == 'popular' ? ' selected="true"' : '';?> data-link="<?php echo EDR::_($sortBaseUrl . '&sort=popular');?>"><?php echo JText::_('COM_EASYDISCUSS_SORT_POPULAR');?></option>
+			<option value="title" <?php echo $activeSort == 'title' ? ' selected="true"' : '';?> data-link="<?php echo EDR::_($sortBaseUrl . '&sort=title');?>"><?php echo JText::_('COM_EASYDISCUSS_SORT_TITLE');?></option>
 		  <?php } ?>
 		</select>
 	</div>

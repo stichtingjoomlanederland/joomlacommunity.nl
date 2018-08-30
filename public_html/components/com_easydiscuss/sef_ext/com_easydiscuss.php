@@ -111,6 +111,15 @@ if (isset($view) && !empty($view)) {
 	shRemoveFromGETVarsList('view');
 }
 
+
+if ($view == 'post' && $id) {
+	$edConfig = ED::config();
+	if ($edConfig->get('main_sef') == 'category') {
+		$post = ED::post($id);
+		$title[] = EDR::getAlias('category', $post->getCategory()->id);
+	}
+}
+
 if ($view == 'categories' && $layout == 'listings' && !empty($category_id)) {
 
 	$addAlias = true;

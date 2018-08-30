@@ -120,6 +120,22 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('settings.toggle', 'main_allowguest_vote_question', 'COM_EASYDISCUSS_ALLOW_GUEST_TO_VOTE_QUESTION'); ?>
 
 					<?php echo $this->html('settings.toggle', 'main_allowguest_vote_reply', 'COM_EASYDISCUSS_ALLOW_GUEST_TO_VOTE_REPLY'); ?>
+
+					<div class="form-group">
+						<div class="col-md-5 control-label">
+							<?php echo $this->html('form.label', 'COM_ED_VOTING_BEHAVIOR'); ?>
+						</div>
+						<div class="col-md-7">
+							<select name="main_voting_behavior_type" id="main_voting_behavior_type" class="form-control">
+								<option value="default" <?php echo ($this->config->get('main_voting_behavior_type') == 'default') ? 'selected="selected"' : '' ?> ><?php echo JText::_('COM_ED_VOTING_BEHAVIOR_TYPE_DEFAULT'); ?></option>
+								<option value="contribution" <?php echo ($this->config->get('main_voting_behavior_type') == 'contribution') ? 'selected="selected"' : '' ?>><?php echo JText::_('COM_ED_VOTING_BEHAVIOR_TYPE_CONTRIBUTION'); ?></option>
+							</select>
+
+							<p class="small mt-10">
+								<?php echo JText::_('COM_ED_VOTING_BEHAVIOR_TYPE_FOOTNOTE'); ?>
+							</p>							
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

@@ -1,17 +1,17 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
-* Komento is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once dirname( __FILE__ ) . '/model.php';
+require_once dirname(__FILE__) . '/model.php';
 
 class EasyDiscussModelVotes extends EasyDiscussAdminModel
 {
@@ -19,6 +19,7 @@ class EasyDiscussModelVotes extends EasyDiscussAdminModel
 	 * Check if a user vote exists in the system.
 	 *
 	 * @since	4.0
+	 * @access	public	 
 	 */
 	public function hasVoted($postId, $userId = null, $sessionId = null)
 	{
@@ -109,6 +110,7 @@ class EasyDiscussModelVotes extends EasyDiscussAdminModel
 		}
 
 		$query = array();
+
 		if ($post->isQuestion()) {
 			$query[] = 'UPDATE ' . $db->nameQuote('#__discuss_posts') . ' AS a';
 			$query[] = 'INNER JOIN ' . $db->nameQuote('#__discuss_thread') . ' AS b';
@@ -142,6 +144,73 @@ class EasyDiscussModelVotes extends EasyDiscussAdminModel
 		$query = implode(' ', $query);
 		$db->setQuery($query);
 		$state = $db->execute();
+
+		// re-calculate the user point after undo vote
+		if ($state) {
+			
+			$post = ED::post($post->id);
+			$points = array();
+
+			if ($post->isReply()) {
+				// votes on reply
+				// Voted up 1
+				if ($votes->value == '1') {
+
+					// retrieve back how many point that user gain it just now
+					$points = ED::points()->getPoints('easydiscuss.vote.reply');
+
+					// If the user vote on the accepted answered
+					if ($post->answered == '1') {
+
+						// retrieve back how many point that user gain it just now
+						$answeredPoints = ED::points()->getPoints('easydiscuss.vote.answer');
+
+						// retrieve the total point after merge the reply vote point rule limit data
+						$points = array_merge($answeredPoints, $points);
+					}
+
+				} else {
+
+					// retrieve back how many point that user gain it just now
+					$points = ED::points()->getPoints('easydiscuss.unvote.reply');
+
+					// If the user vote on the accepted answered
+					if ($post->answered == '1') {
+
+						// retrieve back how many point that user gain it just now
+						$answeredPoints = ED::points()->getPoints('easydiscuss.unvote.answer');
+
+						// retrieve the total point after merge the reply vote point rule limit data
+						$points = array_merge($answeredPoints, $points);						
+					}
+				}
+
+			} else {
+				// votes on topic/question
+				// Voted up 1
+				if ($votes->value == '1') {
+					// retrieve back how many point that user gain it just now
+					$points = ED::points()->getPoints('easydiscuss.vote.question');
+
+				} else {
+					// Voted -1
+					// retrieve back how many point that user gain it just now
+					$points = ED::points()->getPoints('easydiscuss.unvote.question');
+				}
+			}
+
+			if ($points) {
+				
+				$user = ED::user($userId);
+
+				foreach ($points as $point) {
+					// Retrieve the point rule limit then add/minus in the current user point
+					$user->addPoint($point->rule_limit, true);
+				}
+
+				$user->store();		
+			}
+		}
 
 		// Now we can delete the current vote record 
 		$state = $votes->delete();

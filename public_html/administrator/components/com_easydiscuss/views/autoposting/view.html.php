@@ -131,8 +131,11 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 
 		$authorizationURL = 'index.php?option=com_easydiscuss&controller=autoposting&task=request&type=twitter';
 
+		$oauthURIs = ED::oauth()->getOauthRedirectURI('twitter');
+
 		$this->set('authorizationURL', $authorizationURL);
 		$this->set('associated', $associated);
+		$this->set('oauthURIs', $oauthURIs);
 
 		parent::display('autoposting/twitter');
 	}

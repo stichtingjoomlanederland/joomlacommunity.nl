@@ -46,7 +46,10 @@ class EasyDiscussParser extends EasyDiscuss
 						 '/\[quote\](.*?)\[\/quote\]/ims',
 						 '/\[left\](.*?)\[\/left\]/ims',
 						 '/\[center\](.*?)\[\/center\]/ims',
-						 '/\[right\](.*?)\[\/right\]/ims'
+						 '/\[right\](.*?)\[\/right\]/ims',
+						 '/\[ul\](.*?)\[\/ul\]/ims',
+						 '/\[ol\](.*?)\[\/ol\]/ims',
+						 '/\[li\](.*?)\[\/li\]/ims'
 		);
 
 		// And replace them by...
@@ -59,7 +62,10 @@ class EasyDiscussParser extends EasyDiscuss
 						 '<blockquote>\1</blockquote>',
 						 '<p style="text-align: left;">\1</p>',
 						 '<p style="text-align: center;">\1</p>',
-						 '<p style="text-align: right;">\1</p>'
+						 '<p style="text-align: right;">\1</p>',
+						 '<ul>\1</ul>',
+						 '<ol>\1</ol>',
+						 '<li>\1</li>'
 		);
 
 		// @rule: Replace URL links.

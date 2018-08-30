@@ -89,6 +89,11 @@ class EasyDiscussOauth extends EasyDiscuss
 			$callbackUri[] = EDR::getRoutedUrl('index.php?option=com_easydiscuss&view=auth&layout=linkedin', true, true, true, true);
 		}
 
+		if ($type == 'twitter') {
+			$callbackUri[] = JURI::root() . 'index.php?option=com_easydiscuss';
+			$callbackUri[] = rtrim(JURI::root(), '/') . '/administrator/index.php?option=com_easydiscuss';
+		}
+
 		return $callbackUri;
 	}	
 }

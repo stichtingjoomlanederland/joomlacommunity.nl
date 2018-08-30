@@ -1974,7 +1974,6 @@ class EasyDiscussPost extends EasyDiscuss
 	/**
 	 * Retrieves a list of attachments for this post
 	 *
-	 * @alternative for ->attachments
 	 * @since   4.0
 	 * @access  public
 	 */
@@ -2330,6 +2329,97 @@ class EasyDiscussPost extends EasyDiscuss
 		$fields = $model->getViewableFields($this->post->id);
 
 		return $fields;
+	}
+
+	/**
+	 * Central location to retrieve the embedded data object without processing the content in different places
+	 *
+	 * @since	4.1.3
+	 * @access	public
+	 */
+	public function getEmbedData()
+	{
+		static $items = array();
+
+		if (!isset($items[$this->id])) {
+
+			$data = new stdClass();
+
+			// Content
+			$maxContent = 350;
+
+			// Remove bbcode tags from the content.
+			$description = $this->content;
+			$description = preg_replace('/\s+/', ' ', (strip_tags(ED::parser()->bbcode($description))));
+			// strip this kind of tag -> &nbsp; &amp;
+			$description = strip_tags(html_entity_decode($description));
+
+			// We need to escape quotes this now
+			$description = ED::string()->escape($description);
+			
+			if (JString::strlen($description) > $maxContent) {
+				$description = JString::substr($description, 0, $maxContent) . '...';
+			}
+
+			$data->url = EDR::getRoutedURL('view=post&id=' . $this->id, false, true);		
+			$data->description = $description;
+
+			// Get a list of images in the attachments list first
+			$data->images = array();
+			$attachments = $this->getAttachments();
+
+			if ($attachments) {
+				foreach ($attachments as $attachment) {
+					if ($attachment->isImage()) {
+						$data->images[] = $attachment->getDownloadLink();
+					}
+				}
+			}
+
+			// Search for images inserted in the content
+			$data->images = array_merge($data->images, $this->getEmbedImages());
+
+			$items[$this->id] = $data;
+		}
+
+		return $items[$this->id];
+	}
+
+	/**
+	 * This should not be called by external scripts and it should only be triggered by getEmbedData
+	 *
+	 * @since	4.1.3
+	 * @access	public
+	 */
+	private function getEmbedImages()
+	{
+		$content = $this->preview;
+		$images = array();
+		$pattern = '/<img[^>]*>/is';
+
+		preg_match_all($pattern, $content, $matches);
+
+		// If there's a match, get hold of the image as we need to run some processing.
+		if ($matches && isset($matches[0])) {
+			$result = $matches[0];
+
+			if ($result) {
+				foreach ($result as $item) {
+
+					// Try to just get the image url.
+					$pattern = '/src\s*=\s*"(.+?)"/i';
+
+					preg_match($pattern, $item, $matches);
+
+					if ($matches && isset($matches[1]) && stristr($matches[1], 'emoticon-') === false) {
+						$image = $matches[1];
+						$images[] = ED::image()->rel2abs($image, DISCUSS_JURIROOT);
+					}
+				}
+			}
+		}
+
+		return $images;
 	}
 
 	/**
@@ -3927,7 +4017,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 			if ($this->isQuestion()) {
 				// update the thread content and maybe title
-				$data = get_object_vars ($this->post);
+				$data = get_object_vars($this->post);
 
 				// now need to clear unnessary data.
 				unset($data['id']);
@@ -3938,6 +4028,10 @@ class EasyDiscussPost extends EasyDiscuss
 
 				// Use thread last replied data #342
 				unset($data['replied']);
+
+				// Update the attachments count from the thread table.
+				$attachments = $this->getAttachments();
+				$data['num_attachments'] = count($attachments);
 
 				$thread->bind($data);
 				$thread->store();
@@ -4327,7 +4421,6 @@ class EasyDiscussPost extends EasyDiscuss
 		// Process Email notification
 		// Get current submit reply/comment user id
 		$reply = ED::user($this->my->id);
-		$excludeEmails = array();
 		$owner = $this->getOwner(true);
 
 		// Retrieve the reply owner name
@@ -4342,8 +4435,6 @@ class EasyDiscussPost extends EasyDiscuss
 			$overrideName = '';
 		}
 
-		$model = ED::model('Posts');
-
 		$question = ED::post($this->post->parent_id);
 
 		if (!$this->post->title) {
@@ -4351,20 +4442,21 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		$emailData = array();
-
-		// send notification to all comment subscribers that want to receive notification immediately
+		$excludeEmails = array();
+		$administratorEmails = array();
+		
 		$attachments = $this->getAttachments();
+		$isEditing = $this->isNew() == true ? false : true;
 
 		// This is used when we need to alter the sender information
 		$emailData['senderObject'] = $owner;
-
 		$emailData['attachments'] = $attachments;
 		$emailData['postTitle'] = $this->post->title;
 		$emailData['comment'] = ED::parseContent($this->post->content);
 		$emailData['commentAuthor'] = $owner->getName($this->post->poster_name);
 		$emailData['postLink'] =  EDR::getRoutedURL($this->getReplyPermalink(), false, true);
+
 		$emailContent = $this->post->content;
-		$isEditing = $this->isNew() == true ? false : true;
 		$emailContent = ED::bbcodeHtmlSwitcher($this, 'reply', $isEditing);
 		$emailContent = $this->trimEmail($emailContent);
 
@@ -4382,7 +4474,6 @@ class EasyDiscussPost extends EasyDiscuss
 
 		// retrieve the post owner email
 		$posterEmail = $this->post->poster_email ? $this->post->poster_email : $this->my->email;
-		$administratorEmails = array();
 
 		if ($this->isPending()) {
 
@@ -4465,14 +4556,14 @@ class EasyDiscussPost extends EasyDiscuss
 			$ownerEmail = $this->post->poster_email;
 		}
 
-		// if reply under moderation and current reply user id shouldn't match with post owner user id, then send owner a notification.
+		// if the reply under moderation and current reply user id shouldn't match with post owner user id, then notify owner.
 		if ($this->config->get('notify_owner') && $this->isPublished() && ($postOwnerId != $this->my->id) && !in_array($ownerEmail, $excludeEmails) && !empty($ownerEmail)) {
 			$emailData['owner_email'] = $ownerEmail;
 			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $question->id , $question->title);
 			$emailData['emailTemplate'] = 'email.post.reply.new.php';
+
 			ED::mailer()->notifyThreadOwner($emailData);
 
-			// Notify Participants
 			$excludeEmails[] = $ownerEmail;
 			$excludeEmails = array_unique($excludeEmails);
 		}
@@ -4819,9 +4910,15 @@ class EasyDiscussPost extends EasyDiscuss
 				foreach ($tags as $tag) {
 					if (!empty($tag)) {
 						$tagTable = ED::table('Tags');
+						$exists = $tagTable->exists($tag);
 
-						//@task: Only add tags if it doesn't exist.
-						if (!$tagTable->exists($tag)) {
+						// When tag doesn't exist and user does not have permissions to create tag, do not add them
+						if (!$exists && !$this->acl->allowed('create_tag')) {
+							continue;
+						}
+
+						// Only create tags if it doesn't exist
+						if (!$exists) {
 							$tagTable->title = JString::trim($tag);
 							$tagTable->alias = ED::getAlias($tag, 'tag');
 							$tagTable->created = ED::date()->toSql();
@@ -4829,7 +4926,9 @@ class EasyDiscussPost extends EasyDiscuss
 							$tagTable->user_id = $this->my->id;
 
 							$tagTable->store();
-						} else {
+						} 
+
+						if ($exists) {
 							$tagTable->load($tag, true);
 						}
 

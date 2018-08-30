@@ -84,27 +84,36 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="ed-profile-container__content-bd t-pl--xl">
 				<div class="ed-form-panel">
 					<div class="tab-content editProfileTabsContent">
-						<div class="tab-pane active" id="edit-bio">
-							<?php echo $this->output('site/user/account'); ?>
-						</div>
-						<?php if ($this->config->get('layout_avatar') && $this->config->get('layout_avatarIntegration') == 'default' || $this->config->get('layout_avatarIntegration') == 'gravatar' || $allowJFBCAvatarEdit) { ?>
-						<div class="tab-pane" id="edit-photo">
-							<?php echo $this->output('site/user/photo'); ?>
-						</div>
+						<?php if ($this->config->get('layout_profile_showaccount')) { ?>
+							<div class="tab-pane active" id="edit-bio">
+								<?php echo $this->output('site/user/account'); ?>
+							</div>
 						<?php } ?>
-						<div class="tab-pane" id="edit-social">
-							<?php echo $this->output('site/user/social'); ?>
-						</div>
-
-						<div class="tab-pane" id="edit-location">
-							<?php echo $this->output('site/user/location'); ?>
-						</div>
-						<div class="tab-pane" id="edit-alias">
-							<?php echo $this->output('site/user/alias'); ?>
-						</div>
-						<div class="tab-pane" id="edit-site">
-							<?php echo $this->output('site/user/site'); ?>
-						</div>
+						<?php if ($this->config->get('layout_avatar') && $this->config->get('layout_avatarIntegration') == 'default' || $this->config->get('layout_avatarIntegration') == 'gravatar' || $allowJFBCAvatarEdit) { ?>
+							<div class="tab-pane" id="edit-photo">
+								<?php echo $this->output('site/user/photo'); ?>
+							</div>
+						<?php } ?>
+						<?php if ($this->config->get('layout_profile_showsocial')) { ?>
+							<div class="tab-pane" id="edit-social">
+								<?php echo $this->output('site/user/social'); ?>
+							</div>
+						<?php } ?>
+						<?php if ($this->config->get('layout_profile_showlocation')) { ?>
+							<div class="tab-pane" id="edit-location">
+								<?php echo $this->output('site/user/location'); ?>
+							</div>
+						<?php } ?>
+						<?php if ($this->config->get('layout_profile_showurl')) { ?>
+							<div class="tab-pane" id="edit-alias">
+								<?php echo $this->output('site/user/alias'); ?>
+							</div>
+						<?php } ?>
+						<?php if ($this->config->get('layout_profile_showsite')) { ?>
+							<div class="tab-pane" id="edit-site">
+								<?php echo $this->output('site/user/site'); ?>
+							</div>
+						<?php } ?>
 						<div class="tab-pane" id="edit-others">
 							<?php echo $this->output('site/user/others'); ?>
 						</div>

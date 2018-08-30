@@ -241,7 +241,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		// <this> is select when you click that button
 		var id = $(this).parents(voteWrapper.selector).data('id');
 		var counterEle = $(this).siblings(counter.selector);
-		
+
 		EasyDiscuss.ajax('site/views/votes/undo', {
 			'id': id
 		}).done(function(total, successMsg) {

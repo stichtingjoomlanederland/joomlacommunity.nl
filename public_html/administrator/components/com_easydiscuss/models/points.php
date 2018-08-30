@@ -1,55 +1,32 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-defined('_JEXEC') or die('Restricted access');
+* @package		EasyDiscuss
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once dirname( __FILE__ ) . '/model.php';
+require_once dirname(__FILE__) . '/model.php';
 
 class EasyDiscussModelPoints extends EasyDiscussAdminModel
 {
-	/**
-	 * Blogs data array
-	 *
-	 * @var array
-	 */
 	var $_data = null;
-
-	/**
-	 * Pagination object
-	 *
-	 * @var object
-	 */
 	var $_pagination = null;
-
-	/**
-	 * Configuration data
-	 *
-	 * @var int	Total number of rows
-	 **/
 	var $_total;
 
-	/**
-	 * Constructor
-	 *
-	 * @since 1.5
-	 */
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 
-		$mainframe 	= JFactory::getApplication();
+		$mainframe = JFactory::getApplication();
 
 		//get the number of events from database
-		$limit		= $mainframe->getUserStateFromRequest('com_easydiscuss.points.limit', 'limit', $mainframe->getCfg('list_limit') , 'int');
+		$limit = $mainframe->getUserStateFromRequest('com_easydiscuss.points.limit', 'limit', $mainframe->getCfg('list_limit') , 'int');
 		$limitstart	= JRequest::getVar('limitstart', 0, '', 'int');
 
 		$this->setState('limit', $limit);
@@ -58,77 +35,77 @@ class EasyDiscussModelPoints extends EasyDiscussAdminModel
 
 	public function getPoints()
 	{
-		if(empty($this->_data) )
-		{
-			$this->_data	= $this->_getList( $this->buildQuery() , $this->getState('limitstart'), $this->getState('limit') );
+		if (empty($this->_data)) {
+			$this->_data = $this->_getList($this->buildQuery(), $this->getState('limitstart'), $this->getState('limit'));
 		}
+
 		return $this->_data;
 	}
 
 	private function buildQuery()
 	{
 		// Get the WHERE and ORDER BY clauses for the query
-		$where		= $this->_buildQueryWhere();
-		$orderby	= $this->_buildQueryOrderBy();
-		$db			= DiscussHelper::getDBO();
+		$where = $this->_buildQueryWhere();
+		$orderby = $this->_buildQueryOrderBy();
+		$db	= ED::db();
 
-		$query	= 'SELECT * FROM ' . $db->nameQuote( '#__discuss_points' ) . ' AS a ';
-		$query	.= $where . ' ';
-		$query	.= $orderby;
+		$query = 'SELECT * FROM ' . $db->nameQuote('#__discuss_points') . ' AS a ';
+		$query .= $where . ' ';
+		$query .= $orderby;
 
 		return $query;
 	}
 
-	function _buildQueryWhere()
+	public function _buildQueryWhere()
 	{
-		$mainframe		= JFactory::getApplication();
-		$db				= DiscussHelper::getDBO();
+		$mainframe = JFactory::getApplication();
+		$db	= ED::db();
 
-		$filter_state	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.points.filter_state', 'filter_state', '', 'word' );
-		$search			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.points.search', 'search', '', 'string' );
-		$search			= $db->getEscaped( trim(JString::strtolower( $search ) ) );
+		$filter_state = $mainframe->getUserStateFromRequest('com_easydiscuss.points.filter_state', 'filter_state', '', 'word');
+		$search	= $mainframe->getUserStateFromRequest('com_easydiscuss.points.search', 'search', '', 'string');
+		$search = $db->getEscaped(trim(JString::strtolower($search)));
 
 		$where = array();
 
-		if ( $filter_state )
-		{
-			if ( $filter_state == 'P' )
-			{
-				$where[] = $db->nameQuote( 'a.published' ) . '=' . $db->Quote( '1' );
-			}
-			else if ($filter_state == 'U' )
-			{
-				$where[] = $db->nameQuote( 'a.published' ) . '=' . $db->Quote( '0' );
+		if ($filter_state) {
+
+			if ($filter_state == 'P') {
+				
+				$where[] = $db->nameQuote('a.published') . '=' . $db->Quote('1');
+
+			} else if ($filter_state == 'U') {
+				
+				$where[] = $db->nameQuote('a.published') . '=' . $db->Quote('0');
 			}
 		}
 
-		if ($search)
-		{
+		if ($search) {
 			$where[] = ' LOWER( a.title ) LIKE \'%' . $search . '%\' ';
 		}
 
-		$where 		= count( $where ) ? ' WHERE ' . implode( ' AND ', $where ) : '' ;
+		$where = count($where) ? ' WHERE ' . implode(' AND ', $where) : '';
 
 		return $where;
 	}
 
-	function _buildQueryOrderBy()
+	public function _buildQueryOrderBy()
 	{
-		$mainframe			= JFactory::getApplication();
+		$mainframe = JFactory::getApplication();
 
-		$filter_order		= $mainframe->getUserStateFromRequest( 'com_easydiscuss.points.filter_order', 		'filter_order', 	'a.created', 'cmd' );
-		$filter_order_Dir	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.points.filter_order_Dir',	'filter_order_Dir',	'ASC', 'word' );
+		$filter_order = $mainframe->getUserStateFromRequest('com_easydiscuss.points.filter_order', 'filter_order', 'a.created', 'cmd');
+		$filter_order_Dir = $mainframe->getUserStateFromRequest('com_easydiscuss.points.filter_order_Dir', 'filter_order_Dir', 'ASC', 'word');
 
-		$orderby			= ' ORDER BY '.$filter_order.' '.$filter_order_Dir;
+		$orderby = ' ORDER BY ' . $filter_order . ' ' . $filter_order_Dir;
 
 		return $orderby;
 	}
 
-
 	/**
 	 * Get a list of user badge history
 	 *
-	 **/
+	 * @since	4.0
+	 * @access	public
+	 */	
 	public function getPointsHistory($userId)
 	{
 		$db = ED::db();
@@ -143,6 +120,7 @@ class EasyDiscussModelPoints extends EasyDiscussAdminModel
 		// First get all the accessible parentId
 		$parentCats = array();
 		$childCats = array();
+		$query = array();
 
 		$parentCats = ED::getAccessibleCategories();
 
@@ -159,33 +137,54 @@ class EasyDiscussModelPoints extends EasyDiscussAdminModel
 			}
 		}
 
-		$query	= 'SELECT a.*, ' . $db->Quote( 'post' ) . ' as `type`'
-				. ' FROM ' . $db->nameQuote( '#__discuss_users_history' ) . ' AS a'
-				. ' LEFT JOIN ' . $db->nameQuote( '#__discuss_posts' ) . ' AS b'
-				. ' ON a.' . $db->nameQuote( 'content_id' ) . '=' . 'b.' . $db->nameQuote( 'id' )
-				. ' WHERE a.' . $db->nameQuote( 'user_id' ) . '=' . $db->Quote( $userId )
-				. ' AND a.' . $db->nameQuote( 'command' )
+		$defaultRules = array('easydiscuss.new.discussion', 
+							  'easydiscuss.new.reply', 
+							  'easydiscuss.answer.reply', 
+							  'easydiscuss.new.comment', 
+							  'easydiscuss.like.discussion', 
+							  'easydiscuss.like.reply',
+							  'easydiscuss.resolved.discussion',
+							  'easydiscuss.vote.reply',
+							  'easydiscuss.unvote.reply'
+							);
 
-				. ' IN(' . $db->Quote( 'easydiscuss.new.discussion') . ',' . $db->Quote( 'easydiscuss.new.reply' ) . ','
-				. $db->Quote( 'easydiscuss.answer.reply' ) . ',' . $db->Quote( 'easydiscuss.new.comment' ) . ','
-				. $db->Quote( 'easydiscuss.like.discussion' ) . ',' . $db->Quote( 'easydiscuss.like.reply' ) . ','
-				. $db->Quote( 'easydiscuss.resolved.discussion' ) . ',' . $db->Quote( 'easydiscuss.vote.reply' ) . ','
-				. $db->Quote( 'easydiscuss.unvote.reply' ) . ')';
+		// Retrieve a list of published point rules
+		$rulesPublished = $this->getPublishedPointRules();
 
-		if ($viewableCats) {
-			$query .= ' AND b.' . $db->nameQuote( 'category_id' ) . ' IN(' . implode( $viewableCats, ',' ) . ')';
+		// return an array containing all of the values in array1 whose values exist
+		$rules = array_intersect($defaultRules, $rulesPublished);
+		$inclusionsRules = array();
+
+		foreach ($rules as $rule) {
+			$inclusionsRules[] = $db->Quote($rule);
 		}
 
-		$query .= ' UNION'
-				. ' SELECT a.*, ' . $db->Quote( 'profile' ) . ' as `type`'
-				. ' FROM ' . $db->nameQuote( '#__discuss_users_history' ) . ' AS a'
-				. ' WHERE a.' . $db->nameQuote( 'user_id' ) . '=' . $db->Quote( $userId )
-				. ' AND a.' . $db->nameQuote( 'command' )
-				. ' IN(' . $db->Quote( 'easydiscuss.new.avatar') . ' , ' . $db->Quote( 'easydiscuss.update.profile' ) .  ')'
-				. ' ORDER BY ' . $db->nameQuote( 'created' ) . ' DESC'
-				. ' LIMIT 0,20';
+		$inclusionsRules = implode(',', $inclusionsRules);
 
+		$query[] = 'SELECT a.*, ' . $db->Quote('post') . ' as `type`';
+		$query[] = 'FROM ' . $db->nameQuote('#__discuss_users_history') . ' AS a';
+		$query[] = 'LEFT JOIN ' . $db->nameQuote('#__discuss_posts') . ' AS b';
+		$query[] = 'ON a.' . $db->nameQuote('content_id') . ' = ' . 'b.' . $db->nameQuote('id');
+		$query[] = 'WHERE a.' . $db->nameQuote('user_id') . ' = ' . $db->Quote($userId);
 
+		if ($inclusionsRules) {
+			$query[] = 'AND a.' . $db->nameQuote('command') . ' IN (' . $inclusionsRules . ')';
+		}
+
+		if ($viewableCats) {
+			$query[] = 'AND b.' . $db->nameQuote('category_id') . ' IN (' . implode($viewableCats, ',') . ')';
+		}
+
+		$query[] = 'UNION';
+		$query[] = 'SELECT a.*, ' . $db->Quote('profile') . ' as `type`';
+		$query[] = 'FROM ' . $db->nameQuote('#__discuss_users_history') . ' AS a';
+		$query[] = 'WHERE a.' . $db->nameQuote('user_id') . ' = ' . $db->Quote($userId);
+		$query[] = 'AND a.' . $db->nameQuote('command');
+		$query[] = 'IN (' . $db->Quote('easydiscuss.new.avatar') . ' , ' . $db->Quote('easydiscuss.update.profile') .  ')';
+		$query[] = 'ORDER BY ' . $db->nameQuote('created') . ' DESC';
+		$query[] = 'LIMIT 0,20';
+
+		$query = implode(' ', $query);
 
 		$db->setQuery($query);
 		$result	= $db->loadObjectList();
@@ -215,12 +214,11 @@ class EasyDiscussModelPoints extends EasyDiscussAdminModel
 	 * @access public
 	 * @return integer
 	 */
-	function getTotal()
+	public function getTotal()
 	{
 		// Load total number of rows
-		if( empty($this->_total) )
-		{
-			$this->_total	= $this->_getListCount( $this->buildQuery() );
+		if (empty($this->_total)) {
+			$this->_total = $this->_getListCount($this->buildQuery());
 		}
 
 		return $this->_total;
@@ -344,4 +342,58 @@ class EasyDiscussModelPoints extends EasyDiscussAdminModel
 
 		return $result;
 	}
+
+	/**
+	 * Determine if the point rules publish/unpublished
+	 *
+	 * @since	4.1.3
+	 * @access	public
+	 */
+	public function pointRulesExist($command)
+	{
+		$db = $this->db;
+
+		$query = array();
+
+		$query[] = 'SELECT a.`published` AS `published` FROM ' . $db->nameQuote('#__discuss_points') . ' AS a';
+		$query[] = 'INNER JOIN '. $db->nameQuote('#__discuss_rules') . ' AS b';
+		$query[] = 'ON b.' . $db->nameQuote('id') . ' = a.' . $db->nameQuote('rule_id');
+		$query[] = 'WHERE b.' . $db->nameQuote('command') . '=' . $db->Quote($command);
+
+		$query = implode(' ', $query);
+
+		$db->setQuery($query);
+		$result = $db->loadResult();
+
+        return $result > 0 ? true : false;
+	}
+
+	/**
+	 * Retrieve all the published point rules command
+	 *
+	 * @since	4.1.3
+	 * @access	public
+	 */
+	public function getPublishedPointRules()
+	{
+		$db = $this->db;
+
+		$query = array();
+
+		$query[] = 'SELECT b.`command` AS `command` FROM ' . $db->nameQuote('#__discuss_points') . ' AS a';
+		$query[] = 'INNER JOIN '. $db->nameQuote('#__discuss_rules') . ' AS b';
+		$query[] = 'ON b.' . $db->nameQuote('id') . ' = a.' . $db->nameQuote('rule_id');
+		$query[] = 'WHERE a.' . $db->nameQuote('published') . ' = ' . $db->Quote('1');
+
+		$query = implode(' ', $query);
+
+		$db->setQuery($query);
+		$result = $db->loadResultArray();
+
+		if (!$result) {
+			return array();
+		}
+
+		return $result;
+	}	
 }
