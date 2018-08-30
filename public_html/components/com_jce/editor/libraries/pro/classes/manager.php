@@ -273,7 +273,7 @@ class WFMediaManager extends WFMediaManagerBase
                 foreach (array('resize_width', 'resize_height', 'file_resize_width', 'file_resize_height') as $var) {
                     $ $var = JRequest::getVar('upload_' . $var, '');
                     // pass each value through intval
-                    $ $var = array_map(intval, $ $var);
+                    $ $var = array_map('intval', $ $var);
                 }
 
                 $resize_suffix = JRequest::getVar('upload_resize_suffix', '');
