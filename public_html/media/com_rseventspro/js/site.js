@@ -289,8 +289,14 @@ function rspagination(tpl,limitstart,ide) {
 			});
 		}
 		
-		if ((jQuery('#rs_events_container').children('li[class!="rsepro-month-year"]').length) >= parseInt(jQuery('#total').text())) {
-			jQuery('#rsepro_loadmore').css('display','none');
+		if (tpl == 'categories') {
+			if ((jQuery('#rs_events_container').children('li[class!="clearfix"]').length) >= parseInt(jQuery('#total').text())) {
+				jQuery('#rsepro_loadmore').css('display','none');
+			}
+		} else {
+			if ((jQuery('#rs_events_container').children('li[class!="rsepro-month-year"]').length) >= parseInt(jQuery('#total').text())) {
+				jQuery('#rsepro_loadmore').css('display','none');
+			}
 		}
 	});
 }

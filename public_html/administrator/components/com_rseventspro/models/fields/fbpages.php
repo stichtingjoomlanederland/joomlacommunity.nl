@@ -47,7 +47,7 @@ class JFormFieldFbpages extends JFormFieldList
 				$facebook = new Facebook\Facebook(array(
 					'app_id' => $config->facebook_appid,
 					'app_secret' => $config->facebook_secret,
-					'default_graph_version' => 'v2.6',
+					'default_graph_version' => 'v2.10',
 					'default_access_token' => $config->facebook_token
 				));
 				

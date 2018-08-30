@@ -34,8 +34,6 @@ class JFormFieldRSCalendar extends JFormField
 		
 		// Load jQuery
 		rseventsproHelper::loadjQuery();
-		// Load Bootstrap
-		rseventsproHelper::loadBootstrap();
 
 		return JHtml::_('rseventspro.rscalendar', $this->name, $this->value);
 	}

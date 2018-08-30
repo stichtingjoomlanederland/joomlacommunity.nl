@@ -15,7 +15,11 @@ if (file_exists(JPATH_SITE.'/components/com_rseventspro/helpers/rseventspro.php'
 
 	// Get events
 	$events = modRseventsProUpcoming::getEvents($params);
-
+	
+	// Get number of columns
+	$columns = (int) $params->get('columns', 1);
+	$items	 = array_chunk($events, $columns);
+	
 	// Load language
 	JFactory::getLanguage()->load('com_rseventspro');
 

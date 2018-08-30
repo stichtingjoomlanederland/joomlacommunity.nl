@@ -225,6 +225,15 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_payments` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `#__rseventspro_rating` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ide` int(11) NOT NULL DEFAULT '0',
+  `value` int(11) NOT NULL DEFAULT '0',
+  `ip` varchar(50) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`),
+  KEY `ide` (`ide`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `#__rseventspro_rules` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `payment` varchar(255) NOT NULL DEFAULT '',

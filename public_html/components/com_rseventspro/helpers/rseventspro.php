@@ -115,13 +115,19 @@ class rseventsproHelper
 	}
 	
 	// Load language files
-	public static function loadLang() {
+	public static function loadLang($system = false) {
 		$lang = JFactory::getLanguage();
 		$from = JFactory::getApplication()->isClient('administrator') ? JPATH_ADMINISTRATOR : JPATH_SITE;
 		
 		$lang->load('com_rseventspro', $from, 'en-GB', true);
 		$lang->load('com_rseventspro', $from, $lang->getDefault(), true);
 		$lang->load('com_rseventspro', $from, null, true);
+		
+		if ($system) {
+			$lang->load('com_rseventspro.sys', $from, 'en-GB', true);
+			$lang->load('com_rseventspro.sys', $from, $lang->getDefault(), true);
+			$lang->load('com_rseventspro.sys', $from, null, true);
+		}
 	}
 	
 	// Load scripts
@@ -1656,10 +1662,9 @@ class rseventsproHelper
 		$query = $db->getQuery(true);
 		
 		$query->clear()
-			->select('CEIL(IFNULL(SUM(id)/COUNT(id),0))')
-			->from($db->qn('#__rseventspro_taxonomy'))
-			->where($db->qn('ide').' = '.(int) $id)
-			->where($db->qn('type').' = '.$db->q('rating'));
+			->select('CEIL(IFNULL(SUM(value)/COUNT(id),0))')
+			->from($db->qn('#__rseventspro_rating'))
+			->where($db->qn('ide').' = '.(int) $id);
 		
 		$db->setQuery($query);
 		return (int) $db->loadResult();
@@ -1910,7 +1915,7 @@ class rseventsproHelper
 				
 				// Update events
 				if ($task == 'update') {
-					// Delete categories, tags, repeating days, event groups, ratings
+					// Delete categories, tags, repeating days, event groups
 					$query->clear()
 						->delete($db->qn('#__rseventspro_taxonomy'))
 						->where($db->qn('ide').' = '.(int) $id);
@@ -2333,7 +2338,7 @@ class rseventsproHelper
 		
 		$app->triggerEvent('rsepro_deleteCartSubscriptions', array(array('id' => $id)));
 		
-		// Delete categories, tags, repeating days, event groups, ratings
+		// Delete categories, tags, repeating days, event groups
 		$query->clear()
 			->delete($db->qn('#__rseventspro_taxonomy'))
 			->where($db->qn('ide').' = '.(int) $id);
@@ -4336,9 +4341,8 @@ class rseventsproHelper
 		
 		// Get the rating value
 		$query->clear()
-			->select('CEIL(IFNULL(SUM(id)/COUNT(id),0))')
-			->from($db->qn('#__rseventspro_taxonomy'))
-			->where($db->qn('type').' = '.$db->q('rating'))
+			->select('CEIL(IFNULL(SUM(value)/COUNT(id),0))')
+			->from($db->qn('#__rseventspro_rating'))
 			->where($db->qn('ide').' = '.(int) $id);
 		
 		$db->setQuery($query);
@@ -4347,8 +4351,7 @@ class rseventsproHelper
 		// Get the rating count
 		$query->clear()
 			->select('COUNT(id)')
-			->from($db->qn('#__rseventspro_taxonomy'))
-			->where($db->qn('type').' = '.$db->q('rating'))
+			->from($db->qn('#__rseventspro_rating'))
 			->where($db->qn('ide').' = '.(int) $id);
 		
 		$db->setQuery($query);
@@ -4361,9 +4364,8 @@ class rseventsproHelper
 		// Check if the user has already voted
 		$query->clear()
 			->select($db->qn('id'))
-			->from($db->qn('#__rseventspro_taxonomy'))
-			->where($db->qn('type').' = '.$db->q('rating'))
-			->where($db->qn('extra').' = '.$db->q($ip))
+			->from($db->qn('#__rseventspro_rating'))
+			->where($db->qn('ip').' = '.$db->q($ip))
 			->where($db->qn('ide').' = '.(int) $id);
 		
 		$db->setQuery($query,0,1);
@@ -6428,7 +6430,7 @@ class rseventsproHelper
 			$facebook = new Facebook\Facebook(array(
 				'app_id' => $config->facebook_appid,
 				'app_secret' => $config->facebook_secret,
-				'default_graph_version' => 'v2.6',
+				'default_graph_version' => 'v2.10',
 				'default_access_token' => $config->facebook_token
 			));
 			
@@ -6684,7 +6686,7 @@ class rseventsproHelper
 					$path = JPATH_SITE.'/components/com_rseventspro/assets/images/events/';
 					
 					// Try to create a tmp filename and write the content of the image in it
-					$tmp = tempnam(JPATH_SITE.'components/com_rseventspro/assets/images', 'temp');
+					$tmp = tempnam(JPATH_SITE.'/components/com_rseventspro/assets/images', 'temp');
 					if ($tmp) {
 						file_put_contents($tmp, file_get_contents($event->image));
 					

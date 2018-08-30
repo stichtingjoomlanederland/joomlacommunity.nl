@@ -627,12 +627,9 @@ class com_rscommentsInstallerScript
 	</div>
 	<?php } ?>
 	
-	<h2>Changelog v1.13.11</h2>
+	<h2>Changelog v1.13.12</h2>
 	<ul class="version-history">
-		<li><span class="version-new">New</span> Option to store users IP address.</li>
-		<li><span class="version-new">New</span> Option to get user consent.</li>
-		<li><span class="version-new">New</span> Anonymous commenting.</li>
-		<li><span class="version-new">New</span> View all your comments.</li>
+		<li><span class="version-fixed">Fix</span> Code optimization.</li>
 	</ul>
 	<a class="com-rscomments-button" href="index.php?option=com_rscomments">Start using RSComments!</a>
 	<a class="com-rscomments-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/95-rscomments.html" target="_blank">Read the RSComments! User Guide</a>

@@ -37,6 +37,23 @@
 			
 			<field name="sp3" type="spacer" label="COM_RSEVENTSPRO_EVENTS_FILTERING" />
 			
+			<field name="list" type="rslist" default="all" label="COM_RSEVENTSPRO_EVENTS_VIEW_LIST_TYPE" description="COM_RSEVENTSPRO_EVENTS_VIEW_LIST_TYPE_DESC" onchange="rsepro_change_list(this.value);">
+				<option value="thisweek">COM_RSEVENTSPRO_EVENTS_VIEW_LIST_TYPE_THIS_WEEK</option>
+				<option value="nextweek">COM_RSEVENTSPRO_EVENTS_VIEW_LIST_TYPE_NEXT_WEEK</option>
+				<option value="thisweekend">COM_RSEVENTSPRO_EVENTS_VIEW_LIST_TYPE_THIS_WEEKEND</option>
+				<option value="nextweekend">COM_RSEVENTSPRO_EVENTS_VIEW_LIST_TYPE_NEXT_WEEKEND</option>
+				<option value="thismonth">COM_RSEVENTSPRO_EVENTS_VIEW_LIST_TYPE_THIS_MONTH</option>
+				<option value="nextmonth">COM_RSEVENTSPRO_EVENTS_VIEW_LIST_TYPE_NEXT_MONTH</option>
+				<option value="ongoing">COM_RSEVENTSPRO_EVENTS_VIEW_LIST_TYPE_ONGOING</option>
+			</field>
+			
+			<field name="archived" type="list" default="0" label="COM_RSEVENTSPRO_EVENTS_VIEW_ARCHIVED" description="COM_RSEVENTSPRO_EVENTS_VIEW_ARCHIVED_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			
+			<field name="days" type="text" default="0" label="COM_RSEVENTSPRO_EVENTS_VIEW_FUTURE_DAYS" size="4" description="COM_RSEVENTSPRO_EVENTS_VIEW_FUTURE_DAYS_DESC" />
+			
 			<field name="rss" type="list" default="1" label="COM_RSEVENTSPRO_ENABLE_RSS" description="COM_RSEVENTSPRO_ENABLE_RSS_DESC">
 				<option value="1">JYES</option>
 				<option value="0">JNO</option>

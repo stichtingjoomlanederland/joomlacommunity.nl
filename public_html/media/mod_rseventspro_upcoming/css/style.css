@@ -4,12 +4,12 @@
     margin: 0;
 }
 
-.rsepro_upcoming li {
-	clear: both;
-	padding: 2px;
-}
-
 .rsepro_upcoming li .rsepro-image {
 	float: left;
 	margin-right: 5px;
+}
+
+#rsepro-upcoming-module {
+	overflow: hidden;
+	margin-bottom: 10px;
 }

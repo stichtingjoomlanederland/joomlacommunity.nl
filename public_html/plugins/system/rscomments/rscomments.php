@@ -114,6 +114,7 @@ class plgSystemRSComments extends JPlugin
 		$config			= RSCommentsHelper::getConfig();
 		$permissions	= RSCommentsHelper::getPermissions();
 		$template		= RSCommentsHelper::getTemplate();
+		$version		= JFactory::getDocument()->getMediaVersion();
 		
 		$css	 = array();
 		$scripts = array();
@@ -158,8 +159,16 @@ class plgSystemRSComments extends JPlugin
 			}
 		}
 		
-		$scripts[] = '<script src="'.JHtml::script('com_rscomments/site.js', array('relative' => true, 'version' => 'auto', 'pathOnly' => true)).'" type="text/javascript"></script>';
-		$scripts[] = '<script src="'.JHtml::script('com_rscomments/modals.js', array('relative' => true, 'version' => 'auto', 'pathOnly' => true)).'" type="text/javascript"></script>';
+		$sitejs		= JHtml::script('com_rscomments/site.js', array('relative' => true, 'version' => 'auto', 'pathOnly' => true));
+		$modaljs	= JHtml::script('com_rscomments/modal.js', array('relative' => true, 'version' => 'auto', 'pathOnly' => true));
+		
+		if (strpos($body, $sitejs) === false) {
+			$scripts[] = '<script src="'.$sitejs.'?'.$version.'" type="text/javascript"></script>';
+		}
+		
+		if (strpos($body, $modaljs) === false) {
+			$scripts[] = '<script src="'.$modaljs.'?'.$version.'" type="text/javascript"></script>';
+		}
 		
 		if (isset($permissions['captcha']) && $permissions['captcha']) {
 			if ($config->captcha == 2) {
@@ -176,15 +185,28 @@ class plgSystemRSComments extends JPlugin
 			}
 		}
 		
-		$css[] = '<link rel="stylesheet" href="'.JHtml::stylesheet('com_rscomments/site.css', array('relative' => true, 'version' => 'auto', 'pathOnly' => true)).'" type="text/css" />';
+		$sitecss = JHtml::stylesheet('com_rscomments/site.css', array('relative' => true, 'version' => 'auto', 'pathOnly' => true));
+		
+		if (strpos($body, $sitecss) === false) {
+			$css[] = '<link rel="stylesheet" href="'.$sitecss.'?'.$version.'" type="text/css" />';
+		}
 		
 		if ($config->fontawesome == 1) {
-			$css[] = '<link rel="stylesheet" href="'.JHtml::stylesheet('com_rscomments/font-awesome.min.css', array('relative' => true, 'version' => 'auto', 'pathOnly' => true)).'" type="text/css" />';
+			$facss = JHtml::stylesheet('com_rscomments/font-awesome.min.css', array('relative' => true, 'version' => 'auto', 'pathOnly' => true));
+			
+			if (strpos($body, $facss) === false) {
+				$css[] = '<link rel="stylesheet" href="'.$facss.'?'.$version.'" type="text/css" />';
+			}
 		}
 		
 		if ($config->enable_location) {
 			$scripts[] = '<script src="https://maps.google.com/maps/api/js" type="text/javascript"></script>';
-			$scripts[] = '<script src="'.JHtml::script('com_rscomments/jquery.map.js', array('relative' => true, 'version' => 'auto', 'pathOnly' => true)).'" type="text/javascript"></script>';
+			
+			$mapsjs = JHtml::script('com_rscomments/jquery.map.js', array('relative' => true, 'version' => 'auto', 'pathOnly' => true));
+			
+			if (strpos($body, $mapsjs) === false) {
+				$scripts[] = '<script src="'.$mapsjs.'?'.$version.'" type="text/javascript"></script>';
+			}
 		}
 		
 		$html = implode("\n",$css)."\n";

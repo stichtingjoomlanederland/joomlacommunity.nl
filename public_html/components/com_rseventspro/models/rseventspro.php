@@ -162,7 +162,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		
 		$query->clear()
 			->select($this->_db->qn('c.id'))->select($this->_db->qn('c.title'))
-			->select($this->_db->qn('c.description'))->select($this->_db->qn('c.level'))
+			->select($this->_db->qn('c.description'))->select($this->_db->qn('c.level'))->select($this->_db->qn('c.params'))
 			->from($this->_db->qn('#__categories','c'))
 			->where($this->_db->qn('c.extension').' = '.$this->_db->q('com_rseventspro'))
 			->where($this->_db->qn('c.published').' = 1')
@@ -479,7 +479,20 @@ class RseventsproModelRseventspro extends JModelLegacy
 	public function getCategories() {
 		if (empty($this->_categoriesdata)) {
 			$this->_db->setQuery($this->_categoriesquery,$this->getState('com_rseventspro.limitstart'), $this->getState('com_rseventspro.limit'));
-			$this->_categoriesdata = $this->_db->loadObjectList();
+			if ($this->_categoriesdata = $this->_db->loadObjectList()) {
+				foreach ($this->_categoriesdata as $i => $category) {
+					$this->_categoriesdata[$i]->image = '';
+					$this->_categoriesdata[$i]->color = '';
+					
+					try {
+						$registry = new JRegistry;
+						$registry->loadString($category->params);
+						$this->_categoriesdata[$i]->image = $registry->get('image');
+						$this->_categoriesdata[$i]->color = $registry->get('color');
+						
+					} catch (Exception $e) {}
+				}
+			}
 		}
 		return $this->_categoriesdata;
 	}
@@ -1585,11 +1598,10 @@ class RseventsproModelRseventspro extends JModelLegacy
 		
 		//check if the user or the ip has already voted
 		$query->clear()
-			->select($this->_db->qn('id'))
-			->from($this->_db->qn('#__rseventspro_taxonomy'))
-			->where($this->_db->qn('extra').' = '.$this->_db->q($ip))
-			->where($this->_db->qn('ide').' = '.$id)
-			->where($this->_db->qn('type').' = '.$this->_db->q('rating'));
+			->select($this->_db->qn('value'))
+			->from($this->_db->qn('#__rseventspro_rating'))
+			->where($this->_db->qn('ip').' = '.$this->_db->q($ip))
+			->where($this->_db->qn('ide').' = '.$id);
 			
 		$this->_db->setQuery($query,0,1);
 		$voted = $this->_db->loadResult();
@@ -1601,21 +1613,19 @@ class RseventsproModelRseventspro extends JModelLegacy
 		
 		//insert the vote
 		$query->clear()
-			->insert($this->_db->qn('#__rseventspro_taxonomy'))
-			->set($this->_db->qn('extra').' = '.$this->_db->q($ip))
+			->insert($this->_db->qn('#__rseventspro_rating'))
+			->set($this->_db->qn('ip').' = '.$this->_db->q($ip))
 			->set($this->_db->qn('ide').' = '.$id)
-			->set($this->_db->qn('id').' = '.$this->_db->q($vote))
-			->set($this->_db->qn('type').' = '.$this->_db->q('rating'));
+			->set($this->_db->qn('value').' = '.$this->_db->q($vote));
 		
 		$this->_db->setQuery($query);
 		$this->_db->execute();
 		
 		//get the total votes
 		$query->clear()
-			->select('CEIL(IFNULL(SUM(id)/COUNT(id),0))')
-			->from($this->_db->qn('#__rseventspro_taxonomy'))
-			->where($this->_db->qn('ide').' = '.$id)
-			->where($this->_db->qn('type').' = '.$this->_db->q('rating'));
+			->select('CEIL(IFNULL(SUM(value)/COUNT(id),0))')
+			->from($this->_db->qn('#__rseventspro_rating'))
+			->where($this->_db->qn('ide').' = '.$id);
 		
 		
 		$this->_db->setQuery($query);
@@ -2964,9 +2974,10 @@ class RseventsproModelRseventspro extends JModelLegacy
 		
 		$query->clear()
 			->select('DISTINCT(u.email)')
-			->select($this->_db->qn('u.idu'))
+			->select($this->_db->qn('ju.id'))
 			->select($this->_db->qn('u.name'))
 			->from($this->_db->qn('#__rseventspro_users','u'))
+			->join('LEFT', $this->_db->qn('#__users','ju').' ON '.$this->_db->qn('u.idu').' = '.$this->_db->qn('ju.id'))
 			->where($this->_db->qn('u.ide').' = '.$id)
 			->where($this->_db->qn('u.state').' IN (0,1)');
 		
@@ -2976,15 +2987,16 @@ class RseventsproModelRseventspro extends JModelLegacy
 		if ($guests = $this->_db->loadObjectList()) {
 			foreach ($guests as $guest) {
 				$object = new stdClass();
+				
 				// Already logged in?
-				if ($guest->idu) {
-					$object->name = rseventsproHelper::getUser($guest->idu, 'guest', $guest->name);
+				if ($guest->id) {
+					$object->name = rseventsproHelper::getUser($guest->id, 'guest', $guest->name);
 				} else {
 					$object->name = $guest->name;
 				}
 				
-				$object->url	= !empty($guest->idu) ? rseventsproHelper::getProfile('guests', $guest->idu) : '';
-				$object->avatar = rseventsproHelper::getAvatar($guest->idu,$guest->email);
+				$object->url	= !empty($guest->id) ? rseventsproHelper::getProfile('guests', $guest->id) : '';
+				$object->avatar = rseventsproHelper::getAvatar($guest->id,$guest->email);
 				$return[] = $object;
 			}
 		}

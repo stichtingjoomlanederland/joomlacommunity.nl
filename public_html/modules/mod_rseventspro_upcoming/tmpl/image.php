@@ -9,20 +9,27 @@
 defined('_JEXEC') or die('Restricted access');
 $open = !$links ? 'target="_blank"' : ''; ?>
 
-<ul class="rsepro_upcoming<?php echo $suffix; ?>">
-	<?php foreach ($events as $eventid) { ?>
-	<?php $details = rseventsproHelper::details($eventid->id); ?>
-	<?php $image = !empty($details['image_s']) ? $details['image_s'] : rseventsproHelper::defaultImage(); ?>
-	
-	<?php if (isset($details['event']) && !empty($details['event'])) $event = $details['event']; else continue; ?>
-	<li>
-		<div class="rsepro-image">
-			<img src="<?php echo $image; ?>" alt="" width="70" />
-		</div>
+<?php if ($items) { ?>
+<div id="rsepro-upcoming-module">
+	<?php foreach ($items as $block => $events) { ?>
+	<ul class="rsepro_upcoming<?php echo $suffix; ?> row-fluid">
+		<?php foreach ($events as $id) { ?>
+		<?php $details = rseventsproHelper::details($id); ?>
+		<?php $image = !empty($details['image_s']) ? $details['image_s'] : rseventsproHelper::defaultImage(); ?>
 		
-		<a <?php echo $open; ?> href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),true,$itemid); ?>"><?php echo $event->name; ?></a> 
-		<br />
-		<small>(<?php echo $event->allday ? rseventsproHelper::date($event->start,rseventsproHelper::getConfig('global_date'),true) : rseventsproHelper::date($event->start,null,true); ?>)</small>
-	</li>
+		<?php if (isset($details['event']) && !empty($details['event'])) $event = $details['event']; else continue; ?>
+		<li class="clearfix span<?php echo 12 / $columns; ?>">
+			<div class="rsepro-image">
+				<img src="<?php echo $image; ?>" alt="" width="70" />
+			</div>
+			
+			<a <?php echo $open; ?> href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),true,$itemid); ?>"><?php echo $event->name; ?></a> 
+			<br />
+			<small>(<?php echo $event->allday ? rseventsproHelper::date($event->start,rseventsproHelper::getConfig('global_date'),true) : rseventsproHelper::date($event->start,null,true); ?>)</small>
+		</li>
+		<?php } ?>
+	</ul>
 	<?php } ?>
-</ul>
+</div>
+<div class="clearfix"></div>
+<?php } ?>
