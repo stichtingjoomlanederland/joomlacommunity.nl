@@ -61,6 +61,8 @@ class WebConfigMaker extends ServerConfigMaker
 		'utf8charset'     => 1,
 		// Send ETag
 		'etagtype' => 'default',
+		// Referrer policy
+		'referrerpolicy'  => 'unsafe-url',
 
 		// == Basic security ==
 		// Disable directory listings
@@ -906,6 +908,15 @@ XML;
 				<!-- Cross-Origin Resource Sharing (CORS) - See http://enable-cors.org/ -->
 				<add name="Access-Control-Allow-Origin" value="*" />
 				<add name="Timing-Allow-Origin" value="*" />
+
+XML;
+		}
+
+		if ($config->referrerpolicy !== '-1')
+		{
+			$webConfig .= <<<XML
+				<!-- Referrer-policy -->
+				<add name="Referrer-Policy" value="{$config->referrerpolicy}" />
 
 XML;
 		}

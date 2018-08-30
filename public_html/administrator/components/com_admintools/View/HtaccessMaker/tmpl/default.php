@@ -290,6 +290,12 @@ $config = $this->htconfig;
 
             <?php echo Select::etagtype('etagtype', array('class' => 'input-medium'), $config->etagtype); ?>
         </div>
+
+        <div class="akeeba-form-group">
+            <label for="referrerpolicy"><?php echo \JText::_('COM_ADMINTOOLS_LBL_HTACCESSMAKER_REFERRERPOLICY'); ?></label>
+
+			<?php echo Select::referrerpolicy('referrerpolicy', array(), $config->referrerpolicy); ?>
+        </div>
     </div>
 
     <div class="akeeba-panel--primary">

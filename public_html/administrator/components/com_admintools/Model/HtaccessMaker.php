@@ -63,6 +63,8 @@ class HtaccessMaker extends ServerConfigMaker
 		'utf8charset'         => 1,
 		// Send ETag
 		'etagtype'            => 'default',
+		// Referrer policy
+		'referrerpolicy'	  => 'unsafe-url',
 
 		// == Basic security ==
 		// Disable directory listings
@@ -1137,6 +1139,18 @@ END;
 <IfModule mod_headers.c>
 	Header $action Access-Control-Allow-Origin "*"
 	Header $action Timing-Allow-Origin "*"
+</IfModule>
+
+END;
+		}
+
+		if ($config->referrerpolicy !== '-1')
+		{
+			$action = version_compare($apacheVersion, '2.0', 'ge') ? 'always set' : 'set';
+			$htaccess .= <<<END
+## Referrer-policy
+<IfModule mod_headers.c>
+	Header $action Referrer-Policy "{$config->referrerpolicy}"
 </IfModule>
 
 END;
