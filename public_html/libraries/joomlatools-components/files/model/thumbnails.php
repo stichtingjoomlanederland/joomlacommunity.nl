@@ -243,7 +243,7 @@ class ComFilesModelThumbnails extends ComFilesModelFiles
                 {
                     $thumbnail = $model->version($version)->create();
 
-                    if (!$thumbnails->offsetExists($thumbnail))
+                    if (!$thumbnails->offsetExists($thumbnail) && $file->canHaveThumbnail($thumbnail->dimension))
                     {
                         if ($thumbnail->save()) {
                             $thumbnails->insert($thumbnail);
@@ -255,7 +255,7 @@ class ComFilesModelThumbnails extends ComFilesModelFiles
             {
                 $thumbnail = $model->create();
 
-                if ($thumbnail->save()) {
+                if ($file->canHaveThumbnail($thumbnail->dimension) && $thumbnail->save()) {
                     $thumbnails->insert($thumbnail);
                 }
             }

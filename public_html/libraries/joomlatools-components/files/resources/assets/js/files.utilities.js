@@ -26,6 +26,20 @@ Files.Filesize.prototype.humanize = function() {
     return (i === 0 || size % 1 === 0 ? size : size.toFixed(2)) + ' ' + Koowa.translate(this.units[i]);
 };
 
+Files.urlEncoder = function(value)
+{
+    value = encodeURI(value);
+
+    var replacements = {'\\?': '%3F', '#': '%23'}
+
+    for(var key in replacements)
+    {   var regexp = new RegExp(key, 'g');
+        value = value.replace(regexp, replacements[key]);
+    }
+
+    return value;
+};
+
 Files.FileTypes = {};
 Files.FileTypes.map = {
 	'audio': ['aif','aiff','alac','amr','flac','ogg','m3u','m4a','mid','mp3','mpa','wav','wma'],

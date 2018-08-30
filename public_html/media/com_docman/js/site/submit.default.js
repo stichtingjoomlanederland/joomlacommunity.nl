@@ -97,9 +97,10 @@ kQuery(function($) {
             this.form.append($('<input/>', {name: '_action', type: 'hidden', value: context.action}));
 
             var uploader = uploader_el.uploader('instance'),
-                params = this.form.serializeArray();
+                params = this.form.serializeArray(),
+                action = this.form.attr('action');
 
-            uploader.options.url = this.form.attr('action')+'?format=json';
+            uploader.options.url = action+(action.indexOf('?') === -1 ? '?' : '&')+'format=json';
             uploader.uploader.bind('FileUploaded', function(up, file, result) {
                 if (result.status === 201 && typeof result.response === 'object') {
                     window.location = result.response.redirect;

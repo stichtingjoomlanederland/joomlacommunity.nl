@@ -75,9 +75,9 @@ defined('KOOWA') or die( 'Restricted access' ); ?>
             extension = name.substr(name.lastIndexOf('.')+1).toLowerCase();
 
             kQuery.each(Files.icon_map, function(key, value) {
-            if (kQuery.inArray(extension, value) !== -1) {
-            icon = key;
-            }
+                    if (kQuery.inArray(extension, value) !== -1) {
+                    icon = key;
+                }
             });
             %]
             <a href="javascript:void(0)"
@@ -88,7 +88,7 @@ defined('KOOWA') or die( 'Restricted access' ); ?>
                     <div class="k-ratio-block k-ratio-block--4-to-3">
                         <div class="k-ratio-block__body">
                             <div class="k-ratio-block__centered">
-                            [% if (typeof thumbnail === 'object') { %]
+                            [% if (type == 'image') { %]
                                 <img class="image-thumbnail [%= client_cache ? 'loaded' : '' %]" src="" alt="[%=name%]" border="0" />
                             [% } else { %]
                                 <span class="k-icon-document-[%=icon%] k-icon--size-large k-icon--accent extension-label"></span>
@@ -118,7 +118,7 @@ defined('KOOWA') or die( 'Restricted access' ); ?>
                     <div class="k-ratio-block k-ratio-block--4-to-3">
                         <div class="k-ratio-block__body">
                             <div class="k-ratio-block__centered">
-                            [% if (typeof thumbnail === 'object') { %]
+                            [% if (type == 'image') { %]
                                 <img class="image-thumbnail [%= client_cache ? 'loaded' : '' %]" src="" alt="[%=name%]" border="0" />
                             [% } else { %]
                                 <span class="k-icon-document-image k-icon--size-large k-icon--accent"></span>

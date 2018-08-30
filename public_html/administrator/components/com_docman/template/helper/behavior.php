@@ -102,10 +102,7 @@ class ComDocmanTemplateHelperBehavior extends ComKoowaTemplateHelperBehavior
                 $('.{$config->selector}').on('click', function() {
                     var el = $(this);
                     
-                    if (typeof window.GoogleAnalyticsObject !== 'undefined' && typeof window[window.GoogleAnalyticsObject] !== 'undefined') {
-                        window[window.GoogleAnalyticsObject]('send', 'event', '{$config->category}', '{$config->action}', el.data('title'), parseInt(el.data('id'), 10));
-                    }
-                    else if (typeof gtag !== 'undefined') {
+                    if (typeof gtag !== 'undefined') {
                         gtag('event', '{$config->action}', {
                             'event_category': '{$config->category}',
                             'event_label': el.data('title'),
@@ -113,6 +110,9 @@ class ComDocmanTemplateHelperBehavior extends ComKoowaTemplateHelperBehavior
                             'value': parseInt(el.data('id'), 10)
                         });
                     }
+                    else if (typeof window.GoogleAnalyticsObject !== 'undefined' && typeof window[window.GoogleAnalyticsObject] !== 'undefined') {
+                        window[window.GoogleAnalyticsObject]('send', 'event', '{$config->category}', '{$config->action}', el.data('title'), parseInt(el.data('id'), 10));
+                    } 
                     else if (typeof _gaq !== 'undefined' && typeof _gat !== 'undefined') {
                         if (_gat._getTrackers().length) {
                             _gaq.push(function() {

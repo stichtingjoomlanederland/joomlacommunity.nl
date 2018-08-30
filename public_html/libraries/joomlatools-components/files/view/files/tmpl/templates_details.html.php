@@ -106,14 +106,14 @@ window.addEvent('domready', function() {
         extension = name.substr(name.lastIndexOf('.')+1).toLowerCase();
 
         kQuery.each(Files.icon_map, function(key, value) {
-        if (kQuery.inArray(extension, value) !== -1) {
-        icon = key;
-        }
+                if (kQuery.inArray(extension, value) !== -1) {
+                icon = key;
+            }
         });
         %]
         <td class="k-table-data--toggle"></td>
         <td class="k-table-data--icon">
-            [% if (typeof thumbnail === 'object') { %]
+            [% if (type == 'image') { %]
                 <img src="[%= client_cache || Files.blank_image %]" alt="[%=name%]" border="0" class="image-thumbnail [%= client_cache ? 'loaded' : '' %]" height="24px" />
             [% } else { %]
                 <span class="k-icon-document-[%=icon%]"></span>
@@ -143,7 +143,7 @@ window.addEvent('domready', function() {
 		</td>
         <td class="k-table-data--toggle"></td>
         <td class="k-table-data--icon">
-            [% if (typeof thumbnail === 'object') { %]
+            [% if (type == 'image') { %]
                 <img src="[%= client_cache || Files.blank_image %]" alt="[%=name%]" border="0" class="image-thumbnail [%= client_cache ? 'loaded' : '' %]" height="24px" />
             [% } else { %]
                 <span class="k-icon-document-image"></span>

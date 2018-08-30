@@ -44,16 +44,16 @@ defined('KOOWA') or die; ?>
     [%
     var width = 0, height = 0, ratio = 0,
         is_image = (file.type == 'image');
-    if (file.thumbnail && file.thumbnail.dimension) {
-        width  = file.thumbnail.dimension.width;
-        height = file.thumbnail.dimension.height;
+    if (file.metadata && file.metadata.image) {
+        width  = file.metadata.image.width;
+        height = file.metadata.image.height;
         ratio  = 150 / (width > height ? width : height);
     }
     %]
     <div class="k-details">
         <div class="k-card k-card--center">
             <div class="k-card__body">
-                [% if (file.thumbnail) { %]
+                [% if (is_image) { %]
                     <div class="k-card__section k-card__section--small-spacing">
                         <div class="k-ratio-block k-ratio-block--4-to-3">
                             <div class="k-loader"></div>
@@ -64,11 +64,6 @@ defined('KOOWA') or die; ?>
                             </div>
                         </div>
                     </div>
-                [% } else if (is_image) { %]
-                    <div class="k-card__section">
-                        <span class="k-icon-document-image k-icon--size-large k-icon--accent" aria-hidden="true"></span>
-                        <span class="k-visually-hidden">[%=name%]</span>
-                    </div>
                 [% } else { %]
                     <div class="k-card__section">
                         <span class="k-icon-document-default k-icon--size-large k-icon--accent" aria-hidden="true"></span>
@@ -78,7 +73,7 @@ defined('KOOWA') or die; ?>
             </div>
         </div>
         <dl>
-            [% if (is_image) { %]
+            [% if (is_image && width && height){ %]
             <dt><?= translate('Dimensions'); ?></dt>
             <dd>[%=width%] x [%=height%]</dd>
             [% } %]

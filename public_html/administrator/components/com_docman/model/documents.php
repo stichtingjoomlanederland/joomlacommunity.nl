@@ -30,6 +30,7 @@ class ComDocmanModelDocuments extends ComDocmanModelAbstract
             ->insert('search_path', 'com:files.filter.path')
             ->insert('search_by', 'string', 'exact')
             ->insert('search_date', 'date')
+            ->insert('search_contents', 'boolean', true)
             ->insert('image', 'com:files.filter.path')
             ->insert('day_range', 'int');
     }
@@ -442,31 +443,92 @@ class ComDocmanModelDocuments extends ComDocmanModelAbstract
 
         if (!empty($search))
         {
-            $query->join(array('contents' => 'docman_document_contents'), 'contents.docman_document_id = tbl.docman_document_id');
+            $search_column = null;
 
-            switch ($state->search_by)
-            {
-                case 'any':
-                    $query->where('(tbl.title RLIKE :search OR tbl.description RLIKE :search OR contents.contents RLIKE :search)')
-                        ->bind(array('search' => implode('|', explode(' ', $search))));
-
-                    break;
-                case 'all':
-                    $i = 0;
-                    foreach (explode(' ', $search) as $keyword) {
-                        $query->where("(tbl.title LIKE :search$i OR tbl.description LIKE :search$i  OR contents.contents LIKE :search$i)")
-                            ->bind(array("search$i" => '%'.$keyword.'%'));
-                        $i++;
-                    }
-
-                    break;
-                case 'exact':
-                default:
-                    $query->where('(tbl.title LIKE :search OR tbl.description LIKE :search OR contents.contents LIKE :search)')
-                        ->bind(array('search' => '%'.$search.'%'));
-
-                    break;
+            // Parse $state->search for possible column prefix
+            if (preg_match('#^(title|id|contents|description)\s*:\s*(.+)\s*$#i', $search, $matches)) {
+                $search_column = $matches[1];
+                $search       = $matches[2];
             }
+
+            // Search in the form of id:NUM
+            if ($search_column === 'id') {
+                $query->where('(tbl.' . $this->getTable()->getIdentityColumn() . ' = :search)')
+                    ->bind(array('search' => $search));
+            }
+            else
+            {
+                // Convert search field into proper column name
+                if ($search_column === 'contents') {
+                    $search_column = ['contents.contents'];
+                }
+                else if (in_array($search_column, ['title', 'description'])) {
+                    $search_column = ['tbl.'.$search_column];
+                }
+                else {
+                    $search_column = ['tbl.title', 'tbl.description'];
+
+                    if ($state->search_contents) {
+                        $search_column[] = 'contents.contents';
+                    }
+                }
+
+                if (in_array('contents.contents', $search_column)) {
+                    $query->join(array('contents' => 'docman_document_contents'), 'contents.docman_document_id = tbl.docman_document_id');
+                }
+
+                switch ($state->search_by)
+                {
+                    case 'any':
+                        $conditions = array();
+
+                        foreach ($search_column as $column) {
+                            $conditions[] = $column . ' RLIKE :search';
+                        }
+
+                        if ($conditions) {
+                            $query->where('(' . implode(' OR ', $conditions) . ')');
+                            $query->bind(array('search' => implode('|', explode(' ', $search))));
+                        }
+
+                        break;
+                    case 'all':
+                        $i = 0;
+                        foreach (explode(' ', $search) as $keyword)
+                        {
+                            $conditions = array();
+
+                            foreach ($search_column as $column) {
+                                $conditions[] = $column . " LIKE :search$i";
+                            }
+
+                            if ($conditions) {
+                                $query->where('(' . implode(' OR ', $conditions) . ')');
+                                $query->bind(array("search$i" => '%'.$keyword.'%'));
+                            }
+
+                            $i++;
+                        }
+
+                        break;
+                    case 'exact':
+                    default:
+                        $conditions = array();
+
+                        foreach ($search_column as $column) {
+                            $conditions[] = $column . " LIKE :search";
+                        }
+
+                        if ($conditions) {
+                            $query->where('(' . implode(' OR ', $conditions) . ')');
+                            $query->bind(array('search' => '%'.$search.'%'));
+                        }
+
+                        break;
+                }
+            }
+
+
         }
     }
 }

@@ -87,6 +87,12 @@
 				<option value="1">JYES</option>
 				<option value="0">JNO</option>
 			</field>
+			<field name="show_content_filter" type="radio" class="btn-group btn-group-yesno" default="0" label="SHOW_CONTENT_FILTER" description="SHOW_CONTENT_FILTER_DESCRIPTION"
+				   showon="show_document_search:1"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
 			<field name="show_document_sort_limit" type="radio" class="btn-group btn-group-yesno" default="0" label="SHOW_DOCUMENT_SORT_LIMIT"
 				   description="SHOW_DOCUMENT_SORT_LIMIT_DESCRIPTION">
 				<option value="1">JYES</option>
