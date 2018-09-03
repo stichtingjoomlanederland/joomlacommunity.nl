@@ -12,6 +12,7 @@ module.exports = {
             sourceMap: false
         },
         files: {
+            '<%= paths.assets %>/css/font.css': '<%= paths.assets %>/scss/font.scss',
             '<%= paths.assets %>/css/style.css': '<%= paths.assets %>/scss/style.scss'
         }
     }
