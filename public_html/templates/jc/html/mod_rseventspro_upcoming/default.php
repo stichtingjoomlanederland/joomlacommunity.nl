@@ -27,8 +27,8 @@ $i    = 0;
 <div class="list-group list-group-flush">
 	<?php foreach ($events as $eventid) : ?>
 		<?php
-		$details   = rseventsproHelper::details($eventid->id);
-		$category  = $rsEventHelper->getCategoryName($eventid->id);
+		$details   = rseventsproHelper::details($eventid);
+		$category  = $rsEventHelper->getCategoryName($eventid);
 		$category  = str_replace('Joomla Gebruikersgroep', 'Gebruikersgroep', $category);
 		$event     = $details['event'];
 		$startdate = rseventsproHelper::date($event->start, 'Y-m-d');
