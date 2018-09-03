@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,7 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 require_once(DISCUSS_ROOT . '/views/views.php');
 require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/akismet/akismet.php');
@@ -26,24 +26,24 @@ class EasyDiscussViewComment extends EasyDiscussView
 	{
 		ED::checkToken();
 
-        $id = $this->input->get('id','','int');
-        $message = $this->input->get('comments','', 'string');
-        $acceptedTerms = $this->input->get('tncCheckbox','');
+		$id = $this->input->get('id','','int');
+		$message = $this->input->get('comments','', 'string');
+		$acceptedTerms = $this->input->get('tncCheckbox','');
 
 		// Load the post item.
 		$post = ED::post($id);
 
 		// check if the user is it get banned or not
 		if ($post->isUserBanned()) {
-        	return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SYSTEM_BANNED_YOU'));
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SYSTEM_BANNED_YOU'));
 		}
 
-        if (empty($message)) {
-        	return $this->ajax->reject(JText::_('COM_EASYDISCUSS_COMMENT_IS_EMPTY'));
-        }
+		if (empty($message)) {
+			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_COMMENT_IS_EMPTY'));
+		}
 
-        // Check the terms and condirion if it is enabled
-        if ($this->config->get('main_tnc_comment') && $acceptedTerms == 'false') {
+		// Check the terms and condirion if it is enabled
+		if ($this->config->get('main_tnc_comment') && $acceptedTerms == 'false') {
 			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_TERMS_PLEASE_ACCEPT'));
 		}
 
@@ -116,11 +116,7 @@ class EasyDiscussViewComment extends EasyDiscussView
 		$durationObj->timediff = '00:00:01';
 
 		$comment->duration = ED::getDurationString($durationObj);
-
-		// Set the comment creator.
 		$comment->creator = $profile;
-
-		// Process after save operation
 		$comment->postSave();
 
 		// Remove unnecessary <br> tag

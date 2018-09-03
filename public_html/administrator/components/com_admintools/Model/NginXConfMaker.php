@@ -311,6 +311,8 @@ class NginXConfMaker extends ServerConfigMaker
 		'encutf8'             => 0,
 		// Send ETag
 		'etagtype'            => -1,
+		// Referrer policy
+		'referrerpolicy'	  => 'unsafe-url',
 		// Tighten NginX security settings
 		'nginxsecurity'       => 1,
 		// Set maximum client body size to 1G
@@ -804,6 +806,15 @@ END;
 ## Cross-Origin Resource Sharing (CORS)
 add_header Access-Control-Allow-Origin "*";
 add_header Timing-Allow-Origin "*";
+
+END;
+		}
+
+		if ($config->referrerpolicy !== '-1')
+		{
+			$nginxConf .= <<<END
+## Referrer-policy
+add_header Referrer-Policy "{$config->referrerpolicy}";
 
 END;
 		}

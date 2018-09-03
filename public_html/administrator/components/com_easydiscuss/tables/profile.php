@@ -320,7 +320,7 @@ class DiscussProfile extends EasyDiscussTable
 
 			$items[$key] = EDR::_('view=profile&layout=edit');
 
-			if ($config->get('layout_avatarLinking') && $field['editProfileLink']) {
+			if ($config->get('layout_avatarLinking') && (isset($field['editProfileLink']) && $field['editProfileLink']))  {
 				$items[$key] = $field['editProfileLink'];
 			}
 		}
@@ -388,8 +388,39 @@ class DiscussProfile extends EasyDiscussTable
 		return true;
 	}
 
-	public function addPoint($point)
+	/**
+	 * Method to add point
+	 *
+	 * @since	4.1.3
+	 * @access	public
+	 */
+	public function addPoint($point, $isUndoVote = false, $isVotedBefore = false, $offsetPoint = false)
 	{
+		// if this is undo vote process
+		if ($isUndoVote) {
+
+			// convert positive value to negative in order to deduct user point
+			if ($point > 0) {
+				$point = -$point;
+			} else {
+				// Convert point to negative value
+				$point = abs($point);
+			}
+
+		// if the system detected this user changing their vote
+		// for example :
+		// 1. User upvote first then system add 10 point to this him.
+		// 2. User decide to downvote then system have to minus his 10 point and another 10 point for that downvote point rule limit
+		} elseif (!$isUndoVote && $isVotedBefore) {
+
+			if ($offsetPoint !== false) {
+				// now we offset user's point based on previos action.
+				$this->points += $offsetPoint;
+			}
+
+			// $point = $point * 2;
+		}
+
 		$this->points += $point;
 	}
 
@@ -398,8 +429,6 @@ class DiscussProfile extends EasyDiscussTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getName($default = '')
 	{
@@ -1269,7 +1298,7 @@ class DiscussProfile extends EasyDiscussTable
 			$loaded[$this->id] = $result;
 		}
 
-		return $loaded[$this->id];		
+		return $loaded[$this->id];
 	}
 
 	public function getTotalBadges()

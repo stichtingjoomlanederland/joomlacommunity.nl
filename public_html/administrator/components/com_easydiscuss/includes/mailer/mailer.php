@@ -35,9 +35,10 @@ class EasyDiscussMailer extends EasyDiscuss
 	{
 		// Get and unique emails from admins, custom admins,
 		// category moderators and custom category moderators
+		$emails = array();
 
 		if (!$notifyAdmins && !$notifyModerators) {
-			return;
+			return $emails;
 		}
 
 		$catId = isset($data['cat_id']) ? $data['cat_id'] : null;
@@ -209,11 +210,11 @@ class EasyDiscussMailer extends EasyDiscuss
 		$participants = self::_getParticipants($data['post_id'], $data['cat_id']);
 
 		// need to do some exclusion here.
-		if (count($excludes) > 0) {
+		if ($excludes && count($excludes) > 0) {
 			$participants = array_diff($participants, $excludes);
 		}
 
-		if (count($participants) > 0) {
+		if ($participants && count($participants) > 0) {
 
 			$participants = array_unique($participants);
 
@@ -614,7 +615,6 @@ class EasyDiscussMailer extends EasyDiscuss
 
 		// Modify the from name to the user that generated this activity
 		if ($config->get('notify_modify_from') && isset($data['senderObject']) && $data['senderObject']) {
-
 			return $data['senderObject']->user->email;
 		}
 

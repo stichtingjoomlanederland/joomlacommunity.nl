@@ -249,7 +249,7 @@ class RseventsproModelSettings extends JModelAdmin
 			$facebook = new Facebook\Facebook(array(
 				'app_id' => $config->facebook_appid,
 				'app_secret' => $config->facebook_secret,
-				'default_graph_version' => 'v2.6'
+				'default_graph_version' => 'v2.10'
 			));
 			
 			$helper = $facebook->getRedirectLoginHelper();
@@ -393,22 +393,24 @@ class RseventsproModelSettings extends JModelAdmin
 		$config 	 = $this->getConfig();
 		$redirectURI = JRoute::_('index.php?option=com_rseventspro&task=settings.savetoken', false, true);
 		
-		try {
-			require_once JPATH_SITE.'/components/com_rseventspro/helpers/facebook/autoload.php';
-			
-			$facebook = new Facebook\Facebook(array(
-				'app_id' => $config->facebook_appid,
-				'app_secret' => $config->facebook_secret,
-				'default_graph_version' => 'v2.6'
-			));
-			
-			$helper = $facebook->getRedirectLoginHelper();
-			$permissions = array('user_events', 'manage_pages');
+		if ($config->facebook_appid && $config->facebook_secret) {
+			try {
+				require_once JPATH_SITE.'/components/com_rseventspro/helpers/facebook/autoload.php';
+				
+				$facebook = new Facebook\Facebook(array(
+					'app_id' => $config->facebook_appid,
+					'app_secret' => $config->facebook_secret,
+					'default_graph_version' => 'v2.10'
+				));
+				
+				$helper = $facebook->getRedirectLoginHelper();
+				$permissions = array('user_events', 'manage_pages');
 
-			return $helper->getLoginUrl($redirectURI, $permissions);
-			
-		} catch (Exception $e) {
-			JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+				return $helper->getLoginUrl($redirectURI, $permissions);
+				
+			} catch (Exception $e) {
+				JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+			}
 		}
 		
 		return false;

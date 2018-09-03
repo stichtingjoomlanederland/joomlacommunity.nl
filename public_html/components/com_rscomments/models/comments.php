@@ -113,7 +113,7 @@ class RscommentsModelComments extends JModelLegacy
 		} else {
 			$commentIds = array_slice(array_keys($this->_data), $jinput->getInt('limitstart'), $this->getState('rscomments.comments.limit'));
 		}
-		ArrayHelper::toInteger($commentIds);
+		$commentIds = ArrayHelper::toInteger($commentIds);
 		
 		if (empty($commentIds)) {
 			return $return_comments;

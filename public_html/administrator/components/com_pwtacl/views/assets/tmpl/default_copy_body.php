@@ -8,6 +8,7 @@
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
 
+use Joomla\CMS\Access\Access;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 
@@ -18,7 +19,7 @@ defined('_JEXEC') or die;
 <div class="container-fluid">
     <div class="row-fluid">
         <div id="copy-choose-action" class="controls">
-            <p class="alert alert-warning"><?php echo Text::_('COM_PWTACL_ASSETS_COPY_DESC'); ?></p>
+            <p class="alert alert-warning"><?php echo Text::sprintf('COM_PWTACL_ASSETS_COPY_DESC', Access::getGroupTitle($this->group)); ?></p>
             <div class="control-group">
                 <label class="control-label" for="copy-group-id">
 					<?php echo Text::_('COM_PWTACL_WIZARD_SELECT_GROUP'); ?>

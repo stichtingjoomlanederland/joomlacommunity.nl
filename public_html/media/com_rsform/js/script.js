@@ -16,6 +16,7 @@ RSFormPro.setHTML5Validation = function (formId, isDisabledSubmit, errorClasses,
 	var parentErrorClass = errorClasses.parent;
 	var fieldErrorClass = errorClasses.field;
 	var submitElement = RSFormPro.getElementByType(formId, 'submit');
+	var i, j;
 	for (i = 0; i < submitElement.length; i++) {
 		if (RSFormProUtils.hasClass(submitElement[i],'rsform-submit-button')) {
 			RSFormProUtils.addEvent(submitElement[i], 'click', (function (event) {
@@ -75,6 +76,7 @@ RSFormPro.setHTML5Validation = function (formId, isDisabledSubmit, errorClasses,
 /* Disable the submit button when form is submitted functions */
 RSFormPro.setDisabledSubmit = function(formId, ajaxValidation){
 	if (!ajaxValidation) {
+		var i, j;
 		var submitElement = RSFormPro.getElementByType(formId, 'submit');
 		for (i = 0; i < submitElement.length; i++) {
 			if (RSFormProUtils.hasClass(submitElement[i],'rsform-submit-button')) {
@@ -1371,6 +1373,7 @@ RSFormPro.Ajax = {
 	overrideSubmit: function(formId, validationParams) {
         var form = RSFormPro.getForm(formId);
         var submitElement = RSFormPro.getElementByType(formId, 'submit');
+		var i, j;
         for (i = 0; i < submitElement.length; i++) {
 			if (RSFormProUtils.hasClass(submitElement[i],'rsform-submit-button')) {
 				RSFormProUtils.addEvent(submitElement[i],'click', (function(event) {

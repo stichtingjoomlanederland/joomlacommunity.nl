@@ -1088,3 +1088,21 @@ textarea.invalid {
 .controls .rsepro-text {
 	padding-top: 5px;
 }
+
+.rsepro-category-row2 {
+	float: left;
+	width: 47.936170208%;
+	*width: 47.882978718638%;
+}
+
+.rsepro-category-row3 {
+	float: left;
+	width: 30.914893614%;
+	*width: 30.861702124638%;
+}
+
+.rsepro-category-row4 {
+	float: left;
+	width: 22.404255317%;
+	*width: 22.351063827638%;
+}

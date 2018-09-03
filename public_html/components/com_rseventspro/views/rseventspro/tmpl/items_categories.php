@@ -5,10 +5,17 @@
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
-defined('_JEXEC') or die('Restricted access');?>
+defined('_JEXEC') or die('Restricted access'); 
+
+$limitstart = JFactory::getApplication()->input->getInt('limitstart');
+
+$columns = (int) $this->params->get('columns', 1);
+$modulo = $columns == 2 ? 1 : ($columns == 3 ? 2 : ($columns == 4 ? 3 : 0)); ?>
 <?php if (!empty($this->categories)) { ?>
-<?php foreach($this->categories as $category) { ?>
-<?php if ($this->params->get('hierarchy', 0)) { ?><li class="rs_level_<?php echo $category->level; ?>"><?php } else { ?><li><?php } ?>
+<?php foreach($this->categories as $i => $category) { ?>
+<?php $i = $limitstart + $i; ?>
+<?php $class = $this->params->get('hierarchy', 0) ? 'rs_level_'.$category->level : 'rsepro-category-row'.$columns; ?>
+<li class="rsepro-category <?php echo $class; ?>">
 	<div class="well">
 		<div class="rs_heading">
 			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&category='.rseventsproHelper::sef($category->id,$category->title)); ?>">
@@ -26,5 +33,6 @@ defined('_JEXEC') or die('Restricted access');?>
 		</div>
 	</div>
 </li>
+<?php if ($i%$columns == $modulo && $modulo) { ?><li class="clearfix" style="width:100%;"></li><?php } ?>
 <?php } ?>
 <?php } ?>

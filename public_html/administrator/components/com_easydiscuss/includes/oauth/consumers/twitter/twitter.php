@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -18,7 +18,6 @@ class EasyDiscussTwitter extends EasyDiscuss
 	public $key = null;
 	public $secret = null;
 	public $callback = null;
-
 	public $client = null;
 
 	public function __construct($key = '', $secret = '', $callback = '')
@@ -49,8 +48,6 @@ class EasyDiscussTwitter extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getCallbackUrl()
 	{
@@ -62,8 +59,6 @@ class EasyDiscussTwitter extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getRequestToken()
 	{
@@ -81,8 +76,6 @@ class EasyDiscussTwitter extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getAuthorizationURL($requestToken)
 	{
@@ -92,9 +85,15 @@ class EasyDiscussTwitter extends EasyDiscuss
 		return $url;
 	}
 
+	/**
+	 * Retrieves the verifier code
+	 *
+	 * @since	4.1
+	 * @access	public
+	 */
 	public function getVerifier()
 	{
-		$verifier	= JRequest::getVar( 'oauth_verifier' , '' );
+		$verifier = JRequest::getVar('oauth_verifier', '');
 		return $verifier;
 	}
 
@@ -103,13 +102,11 @@ class EasyDiscussTwitter extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getAccessTokens($requestToken, $secret, $verifier)
 	{
 		// We need to pass the request token and secret to the library
-		$this->client->token = new OAuthConsumer($requestToken, $secret);
+		$this->client->token = new EDOAuthConsumer($requestToken, $secret);
 
 		// Exchange for access token with the verifier code
 		$accessToken = $this->client->getAccessToken($verifier);
@@ -137,8 +134,6 @@ class EasyDiscussTwitter extends EasyDiscuss
 	 *
 	 * @since	4.0.7
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function share($post, $oauth)
 	{
@@ -178,13 +173,11 @@ class EasyDiscussTwitter extends EasyDiscuss
 	 *
 	 * @since	4.0.7
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function setAccess($access)
 	{
 		$access	= ED::registry($access);
-		$this->token = new OAuthConsumer($access->get('token'), $access->get( 'secret'));
+		$this->token = new EDOAuthConsumer($access->get('token'), $access->get( 'secret'));
 
 		return $this->token;
 	}
@@ -194,8 +187,6 @@ class EasyDiscussTwitter extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function revokeApp()
 	{
@@ -207,8 +198,6 @@ class EasyDiscussTwitter extends EasyDiscuss
 	 *
 	 * @since	4.0.7
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function processMessage($message, $post)
 	{

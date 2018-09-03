@@ -9,94 +9,92 @@ defined('_JEXEC') or die('Restricted access');
 JHtml::_('behavior.tooltip');
 ?>
 <script type="text/javascript">
-function submitbutton(task)
-{
-	var totalHeaders = <?php echo count($this->previewArray); ?>;
-	
-	if (task == 'submissions.export.task')
-	{
-		var isChecked = false;
-		for (var i=1; i<=totalHeaders; i++)
-			if (document.getElementById('header' + i).checked)
-			{
-				isChecked = true;
-				break;
-			}
-		
-		if (isChecked)
-			submitform(task);
-		else
-			alert('<?php echo JText::_('RSFP_EXPORT_PLEASE_SELECT', true); ?>');
-	}
-	else
-		submitform(task);
-}
+    Joomla.submitbutton = function(task)
+    {
+        var totalHeaders = <?php echo count($this->previewArray); ?>;
 
-Joomla.submitbutton = submitbutton;
+        if (task == 'submissions.export.task')
+        {
+            var isChecked = false;
+            for (var i=1; i<=totalHeaders; i++)
+                if (document.getElementById('header' + i).checked)
+                {
+                    isChecked = true;
+                    break;
+                }
 
-function updateCSVPreview()
-{
-	<?php if ($this->exportType != 'csv') { ?>
-	return;
-	<?php } ?>
-	var form = document.adminForm;
-	var headersPre = document.getElementById('headersPre');
-	var rowPre = document.getElementById('rowPre');
-	var delimiter = form.ExportDelimiter.value;
-	var enclosure = form.ExportFieldEnclosure.value;
-	var totalHeaders = <?php echo count($this->previewArray); ?>;
-	
-	var headers = new Array();
-	var previewArray = new Array();
-	var orderArray = new Array();
-	
-	for (var i=1; i<=totalHeaders; i++)
-		if (document.getElementById('header' + i).checked)
-		{
-			var header = document.getElementById('header' + i).value;
-			
-			var order = document.getElementsByName('ExportOrder[' + header + ']')[0].value;
-			orderArray.push(order + '_' + header);
-		}
-	
-	orderArray.sort(function (a,b) {
-			a = a.split('_');
-			a = a[0];
-			b = b.split('_');
-			b = b[0];
-			return a - b;
-		});
-		
-	for (var i=0; i<orderArray.length; i++)
-	{
-		var header = orderArray[i].split('_');
-		var header = enclosure + header[1] + enclosure;
-		
-		headers.push(header);
-	}
-	
-	headersPre.innerHTML = headers.join(delimiter);
-	headersPre.style.display = form.ExportHeaders.checked ? '' : 'none';
-	
-	for (var i=1; i<=headers.length; i++)
-	{
-		var item = enclosure + 'Value ' + i + enclosure;
-		previewArray.push(item);
-	}
-	
-	rowPre.innerHTML = previewArray.join(delimiter);
-}
+            if (isChecked)
+                Joomla.submitform(task);
+            else
+                alert('<?php echo JText::_('RSFP_EXPORT_PLEASE_SELECT', true); ?>');
+        }
+        else
+            Joomla.submitform(task);
+    };
 
-function toggleCheckColumns()
-{
-	var tocheck = document.getElementById('checkColumns').checked;
-	var totalHeaders = <?php echo count($this->previewArray); ?>;
-	
-	for (var i=1; i<=totalHeaders; i++)
-		document.getElementById('header' + i).checked = tocheck;
-	
-	updateCSVPreview();
-}
+    function updateCSVPreview()
+    {
+        <?php if ($this->exportType != 'csv') { ?>
+        return;
+        <?php } ?>
+        var form = document.adminForm;
+        var headersPre = document.getElementById('headersPre');
+        var rowPre = document.getElementById('rowPre');
+        var delimiter = form.ExportDelimiter.value;
+        var enclosure = form.ExportFieldEnclosure.value;
+        var totalHeaders = <?php echo count($this->previewArray); ?>;
+
+        var headers = new Array();
+        var previewArray = new Array();
+        var orderArray = new Array();
+
+        for (var i=1; i<=totalHeaders; i++)
+            if (document.getElementById('header' + i).checked)
+            {
+                var header = document.getElementById('header' + i).value;
+
+                var order = document.getElementsByName('ExportOrder[' + header + ']')[0].value;
+                orderArray.push(order + '_' + header);
+            }
+
+        orderArray.sort(function (a,b) {
+                a = a.split('_');
+                a = a[0];
+                b = b.split('_');
+                b = b[0];
+                return a - b;
+            });
+
+        for (var i=0; i<orderArray.length; i++)
+        {
+            var header = orderArray[i].split('_');
+            var header = enclosure + header[1] + enclosure;
+
+            headers.push(header);
+        }
+
+        headersPre.innerHTML = headers.join(delimiter);
+        headersPre.style.display = form.ExportHeaders.checked ? '' : 'none';
+
+        for (var i=1; i<=headers.length; i++)
+        {
+            var item = enclosure + 'Value ' + i + enclosure;
+            previewArray.push(item);
+        }
+
+        rowPre.innerHTML = previewArray.join(delimiter);
+    }
+
+    function toggleCheckColumns()
+    {
+        var tocheck = document.getElementById('checkColumns').checked;
+        var totalHeaders = <?php echo count($this->previewArray); ?>;
+
+        for (var i=1; i<=totalHeaders; i++)
+            document.getElementById('header' + i).checked = tocheck;
+
+        updateCSVPreview();
+    }
 </script>
 
 <form action="index.php?option=com_rsform" method="post" id="adminForm" name="adminForm">

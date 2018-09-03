@@ -33,7 +33,6 @@ HTMLHelper::_('bootstrap.tooltip');
     <div id="pwtacl" class="row-fluid">
 
 		<?php if ($this->step == 1): ?>
-
             <div class="span12">
                 <div class="well well-large">
                     <legend><?php echo Text::_('COM_PWTACL_WIZARD_STEP1'); ?></legend>
@@ -49,7 +48,6 @@ HTMLHelper::_('bootstrap.tooltip');
                 <input type="hidden" name="task" value="wizard.groupSetup"/>
 				<?php echo HTMLHelper::_('form.token'); ?>
             </form>
-
 		<?php endif; ?>
 
 		<?php if ($this->step == 2): ?>
@@ -79,7 +77,6 @@ HTMLHelper::_('bootstrap.tooltip');
 				<?php echo HTMLHelper::_('form.token'); ?>
             </form>
 		<?php endif; ?>
-
 
     </div>
 </div>

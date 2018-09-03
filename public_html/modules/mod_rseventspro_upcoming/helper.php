@@ -62,7 +62,7 @@ abstract class modRseventsProUpcoming {
 			$query->where($active_today);
 		
 		if (!empty($categories)) {
-			array_map('intval',$categories);
+			$categories = array_map('intval',$categories);
 			
 			$subquery->clear()
 				->select($db->qn('tx.ide'))
@@ -84,7 +84,7 @@ abstract class modRseventsProUpcoming {
 		}
 		
 		if (!empty($tags)) {
-			array_map('intval',$tags);
+			$tags = array_map('intval',$tags);
 			
 			$subquery->clear()
 				->select($db->qn('tx.ide'))
@@ -97,7 +97,7 @@ abstract class modRseventsProUpcoming {
 		}
 		
 		if (!empty($locations)) {
-			array_map('intval',$locations);
+			$locations = array_map('intval',$locations);
 			
 			$query->where($db->qn('e.location').' IN ('.implode(',',$locations).')');
 		}
@@ -113,7 +113,7 @@ abstract class modRseventsProUpcoming {
 			$db->setQuery($query,0,$limit);
 		else $db->setQuery($query);
 		
-		return $db->loadObjectList();
+		return $db->loadColumn();
 	}
 	
 	protected static function excludeEvents() {
@@ -145,7 +145,7 @@ abstract class modRseventsProUpcoming {
 			}
 			
 			if (!empty($ids)) {
-				array_map('intval',$ids);
+				$ids = array_map('intval',$ids);
 				$ids = array_unique($ids);
 			}
 		}
@@ -174,7 +174,7 @@ abstract class modRseventsProUpcoming {
 		
 		$db->setQuery($query);
 		if ($events = $db->loadColumn()) {
-			array_map('intval',$events);
+			$events = array_map('intval',$events);
 			return $events;
 		}
 		

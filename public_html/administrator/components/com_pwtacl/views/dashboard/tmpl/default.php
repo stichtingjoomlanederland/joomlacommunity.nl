@@ -22,6 +22,22 @@ defined('_JEXEC') or die;
 	<?php echo $this->sidebar; ?>
 </div>
 <div id="j-main-container" class="span10">
+	<?php if ($this->issues): ?>
+        <div class="row-fluid diagnostics">
+            <div class="span12">
+                <div class="quickscan quickscan-issues well well-large">
+                    <legend><?php echo Text::_('COM_PWTACL_DIAGNOSTICS_ISSUES_DETECTED'); ?></legend>
+                    <p class="lead"><?php echo Text::_('COM_PWTACL_DIAGNOSTICS_ISSUES_DETECTED_DESC'); ?></p>
+                    <p>
+                        <a class="btn btn-large btn-block btn-success" href="<?php echo Route::_('index.php?option=com_pwtacl&view=diagnostics'); ?>">
+							<?php echo Text::_('COM_PWTACL_DIAGNOSTICS_DIAGNOSTICS_FIX'); ?>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+	<?php endif ?>
+
     <div id="pwtacl" class="dashboard row-fluid">
         <!-- Start User Group Permissions -->
         <div class="span4">
@@ -29,9 +45,6 @@ defined('_JEXEC') or die;
                 <legend>
                     <span class="icon-users"></span> <?php echo Text::_('COM_PWTACL_DASHBOARD_PERMISSION_GROUP'); ?>
                 </legend>
-                <div class="desc">
-                    <p><?php echo Text::_('COM_PWTACL_DASHBOARD_PERMISSION_GROUP_DESC'); ?></p>
-                </div>
 
                 <table class="table table-striped" id="groups">
                     <thead>
@@ -76,11 +89,9 @@ defined('_JEXEC') or die;
         <!-- Start User Permissions -->
         <div class="span4">
             <div class="well users">
-                <legend><span class="icon-user"></span> <?php echo Text::_('COM_PWTACL_DASHBOARD_PERMISSION_USER'); ?>
+                <legend>
+                    <span class="icon-user"></span> <?php echo Text::_('COM_PWTACL_DASHBOARD_PERMISSION_USER'); ?>
                 </legend>
-                <div class="desc">
-                    <p><?php echo Text::_('COM_PWTACL_DASHBOARD_PERMISSION_USER_DESC'); ?></p>
-                </div>
 
                 <table class="table table-striped" id="users">
                     <thead>
@@ -149,7 +160,9 @@ defined('_JEXEC') or die;
                 </div>
 
                 <div class="pwt-section pwt-section--border-top">
-                    <p><strong><?php echo Text::sprintf('COM_PWTACL_DASHBOARD_ABOUT_VERSION', '</strong>3.0.0'); ?></p>
+                    <p>
+                        <strong><?php echo Text::sprintf('COM_PWTACL_DASHBOARD_ABOUT_VERSION', '</strong>3.1.0'); ?>
+                    </p>
                 </div>
                 <!-- End PWT branding -->
 

@@ -437,7 +437,12 @@ class PwtaclModelAssets extends ListModel
 	protected function getListQuery()
 	{
 		// Initialise variables.
-		$db    = $this->getDbo();
+		$db = $this->getDbo();
+
+		// Prevent server limitation issues
+		$db->setQuery('SET SQL_BIG_SELECTS=1')->execute();
+
+		// Compile query
 		$query = $db->getQuery(true);
 
 		// Select the required fields from the table.

@@ -430,7 +430,19 @@ class Ftp implements TransferInterface, RemoteResourceInterface
 	 */
 	public function chmod($fileName, $permissions)
 	{
-		return (@ftp_chmod($this->connection, $permissions, $fileName) !== false);
+		if (@ftp_chmod($this->connection, $permissions, $fileName) !== false)
+		{
+			return true;
+		}
+
+		$permissionsOctal = decoct((int) $permissions);
+
+		if (@ftp_site($this->connection, "CHMOD $permissionsOctal $fileName") !== false)
+		{
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

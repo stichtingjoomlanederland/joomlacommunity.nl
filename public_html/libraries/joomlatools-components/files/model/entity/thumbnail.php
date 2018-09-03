@@ -69,7 +69,6 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
 
         $this->_adapter = $this->getObject('com:files.adapter.file', array('path' => $path));
 
-        // Check if we should
         $this->_regenerate();
 
         unset($this->_data['fullpath']);
@@ -84,7 +83,8 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
 
         $source = $this->source;
 
-        if ($this->_adapter && $this->_adapter->exists() && $source && $source->isImage())
+        // Only regenerate local sources ...we don't want to calculate dimensions on external sources.
+        if ($this->_adapter && $this->_adapter->exists() && $source && $source->isImage() && $source->isLocal())
         {
             $current_size = @getimagesize($this->fullpath);
 
@@ -269,7 +269,7 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
 
             $ratio = $info[0] / $info[1];
 
-            if (!$this->crop && !empty($dimension['height']) && !empty($dimension['weight']))
+            if (!$this->crop && !empty($dimension['height']) && !empty($dimension['width']))
             {
                 $dimension_ratio = $dimension['height'] / $dimension['width'];
 
@@ -310,15 +310,13 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
      */
     protected function _canGenerate()
     {
-        $result = false;
+        $result = true;
 
         // Multiplier to take into account memory consumed by the Image Processing Library.
         $tweak_factor  = 6;
 
-        if ($source = $this->source)
+        if (($source = $this->source) && ($info = @getimagesize($source->fullpath)))
         {
-            $info = @getimagesize($source->fullpath);
-
             $channels      = isset($info['channels']) ? $info['channels'] : 4;
             $bits          = isset($info['bits']) ? $info['bits'] : 8;
             $source_memory = ceil($info[0] * $info[1] * $bits * $channels / 8 * $tweak_factor);
@@ -328,8 +326,9 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
             // We assume the same amount of bits and channels as source.
             $thumb_memory = ceil($dimension['width'] * $dimension ['height'] * $bits * $channels / 8 * $tweak_factor);
 
-            //If memory is limited
             $limit = ini_get('memory_limit');
+
+            // Check if memory is limited (-1 => Unlimited)
             if ($limit != '-1')
             {
                 $limit = self::convertToBytes($limit);
@@ -338,11 +337,10 @@ class ComFilesModelEntityThumbnail extends ComFilesModelEntityFile
                 // Leave 16 megs for the rest of the request
                 $available_memory -= 16777216;
 
-                if ($source_memory + $thumb_memory < $available_memory) {
-                    $result = true;
+                if ($source_memory + $thumb_memory > $available_memory) {
+                    $result = false;
                 }
             }
-            else $result = true;
         }
 
         return $result;

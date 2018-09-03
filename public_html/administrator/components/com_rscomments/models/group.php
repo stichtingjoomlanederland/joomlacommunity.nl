@@ -133,7 +133,7 @@ class RscommentsModelGroup extends JModelAdmin
 		$used = $db->loadColumn();
 		
 		if (!empty($used)) {
-			ArrayHelper::toInteger($used);
+			$used = ArrayHelper::toInteger($used);
 			$used = array_unique($used);
 			return $used;
 		}

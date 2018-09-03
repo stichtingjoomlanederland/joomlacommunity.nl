@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -42,11 +42,18 @@ class EasyDiscussViewVotes extends EasyDiscussView
 		$voteModel = ED::model('Votes');
 
 		// Detect if the user has already voted on this item.
-		$votedType = $voteModel->getVoteType($post->id, $this->my->id, $sessionId); 
+		$votedTypeValue = $voteModel->getVoteType($post->id, $this->my->id, $sessionId); 
 
-		if ($votedType) {
+		// Add a flag for determine the current use vote this post before or not
+		$voted = false;
+
+		if ($votedTypeValue) {
+
+			// if it come in here mean this user already voted this post
+			$voted = true;
+
 			// Determine what vote type the user has made previously.
-			if ($typeValue == $votedType) {
+			if ($typeValue == $votedTypeValue) {
 				$this->ajax->reject(JText::_('COM_EASYDISCUSS_YOU_ALREADY_VOTED_FOR_THIS_POST'));
 				return $this->ajax->send();
 			}
@@ -56,15 +63,13 @@ class EasyDiscussViewVotes extends EasyDiscussView
 
 		$ownVote = false;
 
-		if ($votedType) {
+		if ($votedTypeValue) {
 			// Try to load the user's vote and update the vote value
 			$vote->loadComposite($post->id, $this->my->id, $sessionId);
 
 			if ($vote->id) {
 				$ownVote = true;
 			}
-
-			$vote->value = $typeValue;
 		}
 
 		$vote->value = $typeValue;
@@ -72,7 +77,6 @@ class EasyDiscussViewVotes extends EasyDiscussView
 		$vote->user_id = $this->my->id;
 		$vote->created = ED::date()->toSql();
 		$vote->session_id = $sessionId;
-
 
 		$state = $vote->store();
 
@@ -113,13 +117,13 @@ class EasyDiscussViewVotes extends EasyDiscussView
 
 					if ($post->answered == '1') {
 
-						ED::points()->assign('easydiscuss.vote.answer', $this->my->id);
+						ED::points()->assign('easydiscuss.vote.answer', $this->my->id, null, $voted);
 
 						//AUP
 						ED::aup()->assign(DISCUSS_POINTS_ANSWER_VOTE_UP, $this->my->id, $question->title);
 					}
 
-					ED::points()->assign('easydiscuss.vote.reply', $this->my->id);
+					ED::points()->assign('easydiscuss.vote.reply', $this->my->id, null, $voted);
 
 					// @rule: Add notifications for the thread starter
 					$notification = ED::table('Notifications');
@@ -139,14 +143,14 @@ class EasyDiscussViewVotes extends EasyDiscussView
 
 					if ($post->answered == '1') {
 
-						ED::points()->assign('easydiscuss.unvote.answer', $this->my->id);
+						ED::points()->assign('easydiscuss.unvote.answer', $this->my->id, null, $voted);
 
 						//AUP
 						ED::aup()->assign(DISCUSS_POINTS_ANSWER_VOTE_DOWN, $this->my->id, $question->title);
 
 					}
 
-					ED::points()->assign('easydiscuss.unvote.reply', $this->my->id);
+					ED::points()->assign('easydiscuss.unvote.reply', $this->my->id, null, $voted);
 
 					// @rule: Add notifications for the thread starter
 					$notification = ED::table('Notifications');
@@ -164,9 +168,10 @@ class EasyDiscussViewVotes extends EasyDiscussView
 			} else {
 				// votes on topic
 				$points	= ED::points();
+
 				// Vote up
 				if ($typeValue == '1') {
-					ED::points()->assign('easydiscuss.vote.question', $this->my->id);
+					ED::points()->assign('easydiscuss.vote.question', $this->my->id, null, $voted);
 					ED::badges()->assign('easydiscuss.vote.question', $this->my->id);
 
 					//AUP
@@ -185,7 +190,7 @@ class EasyDiscussViewVotes extends EasyDiscussView
 
 				} else {
 					// Voted -1
-					ED::points()->assign('easydiscuss.unvote.question', $this->my->id);
+					ED::points()->assign('easydiscuss.unvote.question', $this->my->id, null, $voted);
 					ED::badges()->assign('easydiscuss.unvote.question', $this->my->id);
 
 					//AUP
@@ -220,6 +225,7 @@ class EasyDiscussViewVotes extends EasyDiscussView
 	 * Displays a list of voters on the site.
 	 *
 	 * @since	3.0
+	 * @access	public	 
 	 */
 	public function showVoters()
 	{
@@ -268,8 +274,10 @@ class EasyDiscussViewVotes extends EasyDiscussView
 
 
 	/**
-	 * Ajax Call
-	 * Sum all votes
+	 * Ajax call for sum votes
+	 *
+	 * @since	3.0
+	 * @access	public	 
 	 */
 	public function ajaxSumVote($postId = null)
 	{

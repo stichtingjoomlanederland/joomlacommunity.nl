@@ -5,7 +5,9 @@
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-$count = count($this->categories); ?>
+$count = count($this->categories);
+$columns = (int) $this->params->get('columns', 1);
+$modulo = $columns == 2 ? 1 : ($columns == 3 ? 2 : ($columns == 4 ? 3 : 0)); ?>
 
 <?php if ($this->params->get('show_page_heading', 1)) { ?>
 <?php $title = $this->params->get('page_heading', ''); ?>
@@ -14,8 +16,9 @@ $count = count($this->categories); ?>
 
 <?php if (!empty($this->categories)) { ?>
 <ul class="rs_events_container rsepro-categories-list" id="rs_events_container">
-	<?php foreach($this->categories as $category) { ?>
-	<?php if ($this->params->get('hierarchy', 0)) { ?><li class="rs_level_<?php echo $category->level; ?>"><?php } else { ?><li><?php } ?>
+	<?php foreach($this->categories as $i => $category) { ?>
+	<?php $class = $this->params->get('hierarchy', 0) ? 'rs_level_'.$category->level : 'rsepro-category-row'.$columns; ?>
+	<li class="rsepro-category <?php echo $class; ?>">
 		<div class="well">
 			<div class="rs_heading">
 				<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&category='.rseventsproHelper::sef($category->id,$category->title)); ?>">
@@ -33,9 +36,11 @@ $count = count($this->categories); ?>
 			</div>
 		</div>
 	</li>
+	<?php if ($i%$columns == $modulo && $modulo) { ?><li class="clearfix" style="width:100%;"></li><?php } ?>
 	<?php } ?>
 </ul>
 <?php } ?>
+<div class="clearfix"></div>
 <span id="total" class="rs_hidden"><?php echo $this->total; ?></span>
 <span id="Itemid" class="rs_hidden"><?php echo JFactory::getApplication()->input->getInt('Itemid'); ?></span>
 
@@ -51,7 +56,7 @@ $count = count($this->categories); ?>
 <script type="text/javascript">
 	jQuery(document).ready(function() {
 		jQuery('#rsepro_loadmore').on('click', function() {
-			rspagination('categories',jQuery('#rs_events_container > li').length);
+			rspagination('categories',jQuery('#rs_events_container > li.rsepro-category').length);
 		});
 	});
 </script>

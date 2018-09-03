@@ -908,11 +908,13 @@ class com_rseventsproInstallerScript
 				$db->execute();
 			}
 			
-			$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_discounts` WHERE `Field` = 'cart_tickets'");
-			if (!$db->loadResult()) {
-				$db->setQuery("ALTER TABLE `#__rseventspro_discounts` ADD `cart_tickets` INT(3) NOT NULL DEFAULT '0' AFTER `different_tickets`");
-				$db->execute();
-			}
+			try {			
+				$db->setQuery("SHOW COLUMNS FROM `#__rseventspro_discounts` WHERE `Field` = 'cart_tickets'");
+				if (!$db->loadResult()) {
+					$db->setQuery("ALTER TABLE `#__rseventspro_discounts` ADD `cart_tickets` INT(3) NOT NULL DEFAULT '0' AFTER `different_tickets`");
+					$db->execute();
+				}
+			} catch (Exception $e) {}
 			
 			// Set enable option to the notification emails
 			$token = false;
@@ -973,6 +975,18 @@ class com_rseventsproInstallerScript
 						throw new Exception(JText::sprintf('JLIB_INSTALLER_ERROR_SQL_ERROR', $db->stderr(true)), 1);
 					}
 				}
+			}
+			
+			// Add old rating to the new rating table
+			$db->setQuery("SELECT * FROM `#__rseventspro_taxonomy` WHERE `type` = 'rating'");
+			if ($ratings = $db->loadObjectList()) {
+				foreach ($ratings as $rating) {
+					$db->setQuery('INSERT INTO `#__rseventspro_rating` SET `ide` = '.$db->q($rating->ide).', `value` = '.$db->q($rating->id).', `ip` = '.$db->q($rating->extra));
+					$db->execute();
+				}
+				
+				$db->setQuery("DELETE FROM `#__rseventspro_taxonomy` WHERE `type` = 'rating'");
+				$db->execute();
 			}
 		}
 		
@@ -1085,9 +1099,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.11.10</h2>
+	<h2>Changelog v1.11.12</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> Updated the Facebook sync log.</li>
+		<li><span class="version-fixed">Fix</span> The rating algorithm has been improved.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>

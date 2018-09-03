@@ -12,9 +12,9 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="gdpr-jumbo">
-	<h1><?php echo JText::_('Your Data');?></h1>
+	<h1><?php echo JText::_('COM_ED_GDPR_YOUR_DATA');?></h1>
 
 	<p>
-		<?php echo JText::_('This download consists of files and data that has been stored when you are using our site. You may view and review these data.<br /><br />In the event that you want to remove the data, you may access the site to update or remove the necessary items.');?>
+		<?php echo JText::_('COM_ED_GDPR_YOUR_DATA_DESC');?>
 	</p>
 </div>	

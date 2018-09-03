@@ -268,14 +268,14 @@ abstract class RSCommentsHelper {
 		$db->setQuery($query);
 		
 		if ($groups = $db->loadColumn()) {
-			ArrayHelper::toInteger($groups);
+			$groups = ArrayHelper::toInteger($groups);
 			
 			$query->clear();
 			$query->select('gid');
 			$query->from($db->qn('#__rscomments_groups'));
 			$db->setQuery($query);
 			if ($gids = $db->loadColumn()) {
-				ArrayHelper::toInteger($gids);
+				$gids = ArrayHelper::toInteger($gids);
 				$diff = array_diff($groups,$gids);
 				
 				if (empty($diff)) {

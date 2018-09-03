@@ -93,7 +93,7 @@ class EasyDiscussFacebook extends Facebook
 	 */
 	public function getAuthorizationURL()
 	{
-		$scopes = array('publish_actions', 'manage_pages', 'publish_pages', 'user_managed_groups');
+		$scopes = array('manage_pages', 'publish_pages', 'user_managed_groups', 'publish_to_groups', 'groups_access_member_info');
 		$scopes = implode(',', $scopes);
 
 		$callbackURI = urlencode($this->callback);

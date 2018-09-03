@@ -292,8 +292,7 @@ class RseventsproModelEvent extends JModelAdmin
 			
 			$query->clear()
 				->delete()
-				->from($db->qn('#__rseventspro_taxonomy'))
-				->where($db->qn('type').' = '.$db->q('rating'))
+				->from($db->qn('#__rseventspro_rating'))
 				->where($db->qn('ide').' IN ('.implode(',',$pks).')');
 			
 			$db->setQuery($query);

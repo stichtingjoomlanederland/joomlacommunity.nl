@@ -61,6 +61,13 @@ class ComDocmanViewFlatHtml extends ComDocmanViewHtml
             $menu->params->set('show_document_tags', false);
         }
 
+        if (!$this->getObject('com://admin/docman.model.entity.config')->connectAvailable()) {
+            $menu->params->set('show_content_filter', false);
+        }
+        elseif ($filter->search_contents === null) {
+            $filter->search_contents = true;
+        }
+
         $category_filter = array(
             'page'         => $this->getModel()->getState()->page,
             'access'       => $this->getObject('user')->getRoles(),

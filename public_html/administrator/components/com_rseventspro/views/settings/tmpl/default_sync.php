@@ -6,6 +6,7 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
+$hasFB = !empty($this->config->facebook_appid) && !empty($this->config->facebook_secret) && !empty($this->config->facebook_token);
 $fieldsets = array('google','fb','facebook');
 $redirectURI = JRoute::_('index.php?option=com_rseventspro&task=settings.savetoken', false, true); ?>
 
@@ -25,7 +26,7 @@ foreach ($fieldsets as $fieldset) {
 	}
 	
 	foreach ($this->form->getFieldset($fieldset) as $field) {
-		if (empty($this->config->facebook_token) && $fieldset == 'facebook')
+		if (!$hasFB && $fieldset == 'facebook')
 			continue;
 		
 		echo JHtml::_('rsfieldset.element', $field->label, $field->input);
@@ -43,7 +44,7 @@ foreach ($fieldsets as $fieldset) {
 		}
 	}
 	
-	if (!empty($this->config->facebook_token) && $fieldset == 'facebook') {
+	if ($hasFB && $fieldset == 'facebook') {
 		echo JHtml::_('rsfieldset.element', '<label>&nbsp;</label>', '<button type="button" class="btn btn-info button" onclick="Joomla.submitbutton(\'settings.facebook\')">'.JText::_('COM_RSEVENTSPRO_CONF_SYNC_BTN').'</button> <button type="button" class="btn btn-info button" onclick="jQuery(\'#rseproFacebookLog\').modal(\'show\')">'.JText::_('COM_RSEVENTSPRO_CONF_SYNC_LOG_BTN').'</button>');
 	}
 	

@@ -10,8 +10,8 @@ defined('_JEXEC') or die('Restricted access');
 ?>
 <form method="post" action="index.php?option=com_rsform" name="adminForm" id="adminForm" class="com-rsform-padding">
 <p>
-	<button class="btn btn-success pull-left" type="button" onclick="submitform('emails.apply');"><?php echo JText::_('JAPPLY'); ?></button>
-	<button class="btn btn-success pull-left" type="button" onclick="submitform('emails.save');"><?php echo JText::_('JSAVE'); ?></button>
+	<button class="btn btn-success pull-left" type="button" onclick="Joomla.submitbutton('emails.apply');"><?php echo JText::_('JAPPLY'); ?></button>
+	<button class="btn btn-success pull-left" type="button" onclick="Joomla.submitbutton('emails.save');"><?php echo JText::_('JSAVE'); ?></button>
 	<button class="btn pull-left" type="button" onclick="window.close();"><?php echo JText::_('JCANCEL'); ?></button>
 </p>
 <span class="rsform_clear_both"></span>

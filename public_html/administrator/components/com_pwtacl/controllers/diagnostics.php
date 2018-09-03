@@ -39,7 +39,7 @@ class PwtaclControllerDiagnostics extends BaseController
 		$model->rebuildAssetsTable();
 
 		// Redirect and show message
-		$this->setMessage(Text::_('COM_PWTACL_DIAGNOSTICS_REBUILD_SUCCESS'));
+		$this->setMessage(Text::_('COM_PWTACL_DIAGNOSTICS_STEP_REBUILD_SUCCESS'));
 		$this->setRedirect(Route::_('index.php?option=com_pwtacl&view=diagnostics', false));
 	}
 

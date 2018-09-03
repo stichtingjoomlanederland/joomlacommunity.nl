@@ -2066,6 +2066,20 @@ Files.Filesize.prototype.humanize = function() {
     return (i === 0 || size % 1 === 0 ? size : size.toFixed(2)) + ' ' + Koowa.translate(this.units[i]);
 };
 
+Files.urlEncoder = function(value)
+{
+    value = encodeURI(value);
+
+    var replacements = {'\\?': '%3F', '#': '%23'}
+
+    for(var key in replacements)
+    {   var regexp = new RegExp(key, 'g');
+        value = value.replace(regexp, replacements[key]);
+    }
+
+    return value;
+};
+
 Files.FileTypes = {};
 Files.FileTypes.map = {
 	'audio': ['aif','aiff','alac','amr','flac','ogg','m3u','m4a','mid','mp3','mpa','wav','wma'],
@@ -4503,7 +4517,9 @@ Files.App = new Class({
                     var source = Files.blank_image;
 
                     if (node.thumbnail) {
-                        source = Files.sitebase + '/' + that.encodePath(node.thumbnail.relative_path);
+                        source = Files.sitebase + '/' + node.encodePath(node.thumbnail.relative_path, Files.urlEncoder);
+                    } else if (node.download_link) {
+                        source = node.download_link;
                     }
 
                     img.set('src', source);
@@ -4564,19 +4580,6 @@ Files.App = new Class({
         }).toQueryString();
 
         return this.options.base_url ? this.options.base_url+route : route;
-    },
-    encodePath: function(path) {
-
-        path = encodeURI(path);
-
-        var replacements = {'\\?': '%3F', '#': '%23'}
-
-        for(var key in replacements)
-        {   var regexp = new RegExp(key, 'g');
-            path = path.replace(regexp, replacements[key]);
-        }
-
-        return path;
     }
 });
 
@@ -4689,7 +4692,9 @@ Files.Attachments.App = new Class({
                 copy.render('attachments').inject(that.preview);
 
                 if (copy.file.thumbnail) {
-                    that.preview.getElement('img').set('src', Files.sitebase + '/' + that.encodePath(copy.file.thumbnail.relative_path)).show();
+                    that.preview.getElement('img').set('src', Files.sitebase + '/' + row.encodePath(copy.file.thumbnail.relative_path, Files.urlEncoder)).show();
+                } else if (copy.file.type == 'image') {
+                    that.preview.getElement('img').set('src', that.createRoute({view: 'file', format: 'html', name: copy.file.name, routed: 1}));
                 }
 
                 that.grid.selected = row.name;
@@ -4837,13 +4842,23 @@ if (!Files) var Files = {};
                         }
                     }
 
-                    if (row.type == 'image') {
+                    if (row.type == 'image')
+                    {
                         var image = row.element.getElement('img');
+
                         if (image) {
 
-                            var setThumbnail = function(thumbnail)
+                            var setThumbnail = function(row)
                             {
-                                image.set('src', Files.sitebase + '/' + Files.app.encodePath(thumbnail.relative_path)).addClass('loaded').removeClass('loading');
+                                var source = Files.blank_image;
+
+                                if (row.thumbnail) {
+                                    source = Files.sitebase + '/' + row.encodePath(row.thumbnail.relative_path, Files.urlEncoder);
+                                } else if (row.download_link) {
+                                    source = row.download_link;
+                                }
+
+                                image.set('src', source).addClass('loaded').removeClass('loading');
 
                                 /* @TODO We probably do not need this anymore? Layouts have changed and these elements/classes no longer exist */
                                 var element = row.element.getElement('.files-node');
@@ -4853,15 +4868,7 @@ if (!Files) var Files = {};
                                 }
                             };
 
-                            if (!row.thumbnail)
-                            {
-                                row.getThumbnail(function (response) {
-                                    if (response.entities[0].thumbnail) {
-                                        setThumbnail(response.entities[0].thumbnail);
-                                    }
-                                });
-                            }
-                            else setThumbnail(row.thumbnail);
+                            setThumbnail(row);
 
                             /* @TODO Test if this is necessary: This is for the thumb margins to recalculate */
                             window.fireEvent('resize');

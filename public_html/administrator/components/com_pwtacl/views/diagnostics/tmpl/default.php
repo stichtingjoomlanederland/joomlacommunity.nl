@@ -44,7 +44,7 @@ defined('_JEXEC') or die;
             <p class="lead"><?php echo Text::_('COM_PWTACL_DIAGNOSTICS_NO_ISSUES_DETECTED_DESC'); ?></p>
             <p>
                 <button class="btn btn-large btn-success btn-block js--rebuild" type="button" onclick="Joomla.submitbutton('diagnostics.rebuild');">
-					<?php echo Text::_('COM_PWTACL_TOOLBAR_REBUILD'); ?>
+					<?php echo Text::_('COM_PWTACL_DIAGNOSTICS_STEP_REBUILD'); ?>
                 </button>
             </p>
         </div>
@@ -59,21 +59,33 @@ defined('_JEXEC') or die;
                                     <i class="icon-ok icon-white"></i>
                                 </span>
                                 <span class="js-assets-fixed-number badge badge-warning pull-right"></span>
-								<?php echo Text::_('COM_PWTACL_DIAGNOSTICS_STEP'); ?> <?php echo $key; ?>:
-								<?php echo Text::_('COM_PWTACL_DIAGNOSTICS_STEP_' . $step); ?>
-                                <small>
-									<?php echo Text::_('COM_PWTACL_DIAGNOSTICS_STEP_' . $step . '_DESC'); ?>
-                                </small>
+								<?php echo Text::sprintf('COM_PWTACL_DIAGNOSTICS_STEP', $key); ?>
+								<?php if (strpos($step, 'GENERAL') === false) : ?>
+									<?php echo Text::_('COM_PWTACL_DIAGNOSTICS_STEP_' . $step); ?>
+                                    <small>
+										<?php echo Text::_('COM_PWTACL_DIAGNOSTICS_STEP_' . $step . '_DESC'); ?>
+                                    </small>
+								<?php else: ?>
+									<?php $steptitle = Text::_('COM_PWTACL_DIAGNOSTICS_STEP_' . $step); ?>
+									<?php echo Text::sprintf('COM_PWTACL_DIAGNOSTICS_STEP_GENERAL_TITLE', $steptitle); ?>
+                                    <small>
+										<?php echo Text::sprintf('COM_PWTACL_DIAGNOSTICS_STEP_GENERAL_DESC', $steptitle, $steptitle); ?>
+                                    </small>
+								<?php endif; ?>
                             </h3>
                         </a>
                     </div>
                     <div id="step<?php echo $key; ?>" class="accordion-body collapse">
                         <div class="accordion-inner">
                             <div class="alert alert-success">
-								<?php echo Text::_('COM_PWTACL_DIAGNOSTICS_STEP_' . $step . '_SUCCESS'); ?>
+								<?php if (strpos($step, 'GENERAL') === false) : ?>
+									<?php echo Text::_('COM_PWTACL_DIAGNOSTICS_STEP_' . $step . '_SUCCESS'); ?>
+								<?php else: ?>
+									<?php echo Text::sprintf('COM_PWTACL_DIAGNOSTICS_STEP_GENERAL_SUCCESS', $steptitle); ?>
+								<?php endif; ?>
                                 <span class="js-assets-fixed hidden">
                                     <strong>
-                                        <span class="js-assets-fixed-number"></span> <?php echo Text::_('COM_PWTACL_DIAGNOSTICS_RESULTS_ITEMS_FIXED'); ?>.
+                                        <span class="js-assets-fixed-number"></span> <?php echo Text::sprintf('COM_PWTACL_DIAGNOSTICS_RESULTS_ITEMS_FIXED', null); ?>.
                                     </strong>
                                 </span>
                             </div>

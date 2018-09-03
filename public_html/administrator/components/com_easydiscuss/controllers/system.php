@@ -30,7 +30,7 @@ class EasyDiscussControllerSystem extends EasyDiscussController
 		$state = $model->update();
 
 		if ($state === false) {
-			$this->info->set($model->getError(), 'error');
+			ED::setMessage($model->getError(), 'error');
 			return $this->app->redirect('index.php?option=com_easydiscuss');
 		}
 

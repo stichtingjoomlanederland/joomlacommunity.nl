@@ -253,8 +253,8 @@ abstract class RSCommentsHelper
 
 		// URL
 		$nofollow = $config->no_follow ? 'rel="nofollow"' : '';
-		$patterns[] = '/(\[url=)(.+)(\])(.+)(\[\/url\])/i';
-		$replacements[] = (isset($permissions['bb_url']) && $permissions['bb_url']) ? '<a href="\\2" '.$nofollow.'>\\4</a>' : '\\2';
+		$patterns[] = '/\[url=(.+?)\](.+?)\[\/url\]/i';
+		$replacements[] = (isset($permissions['bb_url']) && $permissions['bb_url']) ? '<a href="\\1" '.$nofollow.'>\\2</a>' : '\\2';
 		
 		$patterns[] = '/\[url\]([ a-zA-Z0-9\:\/\-\?\&\.\=\_\~\#\']*)\[\/url\]/i';
 		$replacements[] = (isset($permissions['bb_url']) && $permissions['bb_url']) ? '<a href="\\1" '.$nofollow.'>\\1</a>' : '\\1';

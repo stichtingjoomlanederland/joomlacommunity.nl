@@ -110,8 +110,14 @@ class Pkg_PwtAclInstallerScript
 
 		$app->enqueueMessage(Text::_('PKG_PWTACL_PLUGINS_ENABLED'));
 
-		// Check for old ACL Manager installations
-		$this->removeAclmanager();
+		// Check for old ACL Manager package installations
+		$this->removeExtension('package', 'pkg_aclmanager');
+
+		// Check for old ACL Manager component installations
+		$this->removeExtension('component', 'com_aclmanager');
+
+		// Check for old ACL Manager plugin installations
+		$this->removeExtension('plugin', 'aclmanager');
 
 		// Remove old folders
 		// $this->removeOldFolders();
@@ -123,12 +129,15 @@ class Pkg_PwtAclInstallerScript
 	}
 
 	/**
-	 * Method to remove old installations of ACL Manager
+	 * Method to remove extension
+	 *
+	 * @param   string $type    The extension type
+	 * @param   string $element The extension element
 	 *
 	 * @since 3.0
 	 * @return void
 	 */
-	private function removeAclmanager()
+	private function removeExtension($type, $element)
 	{
 		$app = Factory::getApplication();
 		$db  = Factory::getDbo();
@@ -137,14 +146,15 @@ class Pkg_PwtAclInstallerScript
 		$query = $db->getQuery(true)
 			->select('extension_id')
 			->from($db->quoteName('#__extensions'))
-			->where($db->quoteName('element') . ' = ' . $db->quote('pkg_aclmanager'));
+			->where($db->quoteName('type') . ' = ' . $db->quote($type))
+			->where($db->quoteName('element') . ' = ' . $db->quote($element));
 
-		$aclmanager = $db->setQuery($query)->loadResult();
+		$extensionId = $db->setQuery($query)->loadResult();
 
-		// We found a package, lets remove it
-		if ($aclmanager)
+		// Special behaviour for ACL Manager to copy the settings
+		if ($element == 'pkg_aclmanager' || $element == 'com_aclmanager')
 		{
-			// Lets copy the settings first
+			// Get settings for com_aclmanager
 			$query = $db->getQuery(true)
 				->select('params')
 				->from($db->quoteName('#__extensions'))
@@ -152,19 +162,24 @@ class Pkg_PwtAclInstallerScript
 
 			$params = $db->setQuery($query)->loadResult();
 
+			// Store settings for com_pwtacl
 			$query = $db->getQuery(true)
 				->update($db->quoteName('#__extensions'))
 				->set($db->quoteName('params') . ' = ' . $db->quote($params))
 				->where($db->quoteName('element') . ' = ' . $db->quote('com_pwtacl'));
 
 			$db->setQuery($query)->execute();
+		}
 
+		// We found an extension, lets remove it
+		if ($extensionId)
+		{
 			// We can now remove the extension
 			JModelLegacy::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_installer/models', 'InstallerModel');
 
 			/** @var InstallerModelManage $model */
 			$model = JModelLegacy::getInstance('Manage', 'InstallerModel', array('ignore_request' => true));
-			$model->remove(array($aclmanager));
+			$model->remove(array($extensionId));
 
 			$app->enqueueMessage(Text::_('PKG_PWTACL_ACLMANAGER_REMOVED'));
 		}

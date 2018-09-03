@@ -9,111 +9,117 @@ defined('_JEXEC') or die('Restricted access');
 
 class RsformViewSubmissions extends JViewLegacy
 {
-	public function display($tpl = null) {
-		$this->params 	= JFactory::getApplication()->getParams('com_rsform');
+	public function display($tpl = null)
+    {
+        $this->app      = JFactory::getApplication();
+		$this->params 	= $this->app->getParams('com_rsform');
 		$this->template = $this->get('template');
 		
 		parent::display($tpl);
-		
-		$this->buildPdf();
-	}
-	
-	protected function buildPdf() {
-		/*
-		 * Setup external configuration options
-		 */
-		define('K_TCPDF_EXTERNAL_CONFIG', true);
 
-		/*
-		 * Path options
-		 */
+        // Build the PDF Document string from the document buffer
+        $contents = ob_get_contents();
+        ob_end_clean();
 
-		// Installation path
-		define("K_PATH_MAIN", JPATH_LIBRARIES."/tcpdf");
+        $filename = 'export.pdf';
 
-		// URL path
-		define("K_PATH_URL", JPATH_BASE);
+        // Allow plugins to use their own PDF library
+        $this->app->triggerEvent('rsfp_onPDFView', array($contents, $filename));
 
-		// Fonts path
-		define("K_PATH_FONTS", K_PATH_MAIN.'/fonts/');
+        /*
+         * Setup external configuration options
+         */
+        define('K_TCPDF_EXTERNAL_CONFIG', true);
 
-		// Cache directory path
-		define("K_PATH_CACHE", K_PATH_MAIN."/cache");
+        /*
+         * Path options
+         */
 
-		// Cache URL path
-		define("K_PATH_URL_CACHE", K_PATH_URL."/cache");
+        // Installation path
+        define("K_PATH_MAIN", JPATH_LIBRARIES . "/tcpdf");
 
-		// Images path
-		define("K_PATH_IMAGES", K_PATH_MAIN."/images");
+        // URL path
+        define("K_PATH_URL", JPATH_BASE);
 
-		// Blank image path
-		define("K_BLANK_IMAGE", K_PATH_IMAGES."/_blank.png");
+        // Fonts path
+        define("K_PATH_FONTS", K_PATH_MAIN . '/fonts/');
 
-		/*
-		 * Format options
-		 */
+        // Cache directory path
+        define("K_PATH_CACHE", K_PATH_MAIN . "/cache");
 
-		// Cell height ratio
-		define("K_CELL_HEIGHT_RATIO", 1.25);
+        // Cache URL path
+        define("K_PATH_URL_CACHE", K_PATH_URL . "/cache");
 
-		// Magnification scale for titles
-		define("K_TITLE_MAGNIFICATION", 1.3);
+        // Images path
+        define("K_PATH_IMAGES", K_PATH_MAIN . "/images");
 
-		// Reduction scale for small font
-		define("K_SMALL_RATIO", 2/3);
+        // Blank image path
+        define("K_BLANK_IMAGE", K_PATH_IMAGES . "/_blank.png");
 
-		// Magnication scale for head
-		define("HEAD_MAGNIFICATION", 1.1);
+        /*
+         * Format options
+         */
 
-		/*
-		 * Create the pdf document
-		 */
+        // Cell height ratio
+        define("K_CELL_HEIGHT_RATIO", 1.25);
 
-		jimport('tcpdf.tcpdf');
-		
-		$pdf = new TCPDF();
-		$pdf->SetMargins(15, 27, 15);
-		$pdf->SetAutoPageBreak(true, 25);
-		$pdf->SetHeaderMargin(5);
-		$pdf->SetFooterMargin(10);
-		$pdf->setImageScale(4);
-		
-		$document = JFactory::getDocument();
-		
-		// Set PDF Metadata
-		$pdf->SetCreator($document->getGenerator());
-		$pdf->SetTitle($document->getTitle());
-		$pdf->SetSubject($document->getDescription());
-		$pdf->SetKeywords($document->getMetaData('keywords'));
-		
-		// Set PDF Header data
-		$pdf->setHeaderData('', 0, $document->getTitle(), null);
-		
-		// Set RTL
-		$lang = JFactory::getLanguage();
-		$pdf->setRTL($lang->isRTL());
-		
-		// Set Font
-		$font = 'freesans';
-		$pdf->setHeaderFont(array($font, '', 10));
-		$pdf->setFooterFont(array($font, '', 8));
-		
-		// Initialize PDF Document
-		if (is_callable(array($pdf, 'AliasNbPages'))) {
-			$pdf->AliasNbPages();
-		}
-		$pdf->AddPage();
-		
-		$pdf->WriteHTML(ob_get_contents(), true);
-		$data = $pdf->Output('', 'S');
-		
-		ob_end_clean();
-		
-		// Build the PDF Document string from the document buffer
-		header('Content-Type: application/pdf; charset=utf-8');
-		header('Content-disposition: inline; filename="export.pdf"', true);
-		
-		echo $data;
-		die();
+        // Magnification scale for titles
+        define("K_TITLE_MAGNIFICATION", 1.3);
+
+        // Reduction scale for small font
+        define("K_SMALL_RATIO", 2 / 3);
+
+        // Magnication scale for head
+        define("HEAD_MAGNIFICATION", 1.1);
+
+        /*
+         * Create the pdf document
+         */
+
+        jimport('tcpdf.tcpdf');
+
+        $pdf = new TCPDF();
+        $pdf->SetMargins(15, 27, 15);
+        $pdf->SetAutoPageBreak(true, 25);
+        $pdf->SetHeaderMargin(5);
+        $pdf->SetFooterMargin(10);
+        $pdf->setImageScale(4);
+
+        $document = JFactory::getDocument();
+
+        // Set PDF Metadata
+        $pdf->SetCreator($document->getGenerator());
+        $pdf->SetTitle($document->getTitle());
+        $pdf->SetSubject($document->getDescription());
+        $pdf->SetKeywords($document->getMetaData('keywords'));
+
+        // Set PDF Header data
+        $pdf->setHeaderData('', 0, $document->getTitle(), null);
+
+        // Set RTL
+        $lang = JFactory::getLanguage();
+        $pdf->setRTL($lang->isRTL());
+
+        // Set Font
+        $font = 'freesans';
+        $pdf->setHeaderFont(array($font, '', 10));
+        $pdf->setFooterFont(array($font, '', 8));
+
+        // Initialize PDF Document
+        if (is_callable(array($pdf, 'AliasNbPages'))) {
+            $pdf->AliasNbPages();
+        }
+        $pdf->AddPage();
+
+        $pdf->WriteHTML($contents, true);
+        $data = $pdf->Output('', 'S');
+
+        // Build the PDF Document string from the document buffer
+        header('Content-Type: application/pdf; charset=utf-8');
+        header('Content-disposition: inline; filename="' . $filename . '"', true);
+
+        echo $data;
+
+        $this->app->close();
 	}
 }

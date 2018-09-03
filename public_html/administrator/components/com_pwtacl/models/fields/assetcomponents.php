@@ -73,7 +73,7 @@ class JFormFieldAssetComponents extends JFormFieldList
 		foreach ($options as $key => $option)
 		{
 			// Translate component name
-			$option->text = Text::_($option->text);
+			$option->text = strip_tags(Text::_($option->text));
 		}
 
 		// Sort by component name

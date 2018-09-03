@@ -19,6 +19,6 @@ $field = $this->form->getField('keepid');
 $this->field->showField($field->label, $field->input);
 
 // Button
-$this->field->showField('', '<button type="button" class="btn btn-primary" onclick="submitbutton(\'restore.start\')">'.JText::_('RSFP_RESTORE').'</button>', array('class' => 'form-actions'));
+$this->field->showField('', '<button type="button" class="btn btn-primary" onclick="Joomla.submitbutton(\'restore.start\')">'.JText::_('RSFP_RESTORE').'</button>', array('class' => 'form-actions'));
 
 $this->field->endFieldset();

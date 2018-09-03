@@ -190,26 +190,24 @@ class DiscussComment extends EasyDiscussTable
 		// Add notification to the post owner.
 		if ($post->user_id != $my->id && $this->published && $config->get('main_notifications_comments')) {
 			$notification = ED::table('Notifications');
+
+			// for the live notification part have to store non-sef
+			$commentPermalink = 'index.php?option=com_easydiscuss&view=post&id=' . $question->id . '#comments-' . $this->id;
+
 			$notification->bind( array(
-						'title'	=> JText::sprintf( $liveNotificationText , $question->title ),
+						'title'	=> JText::sprintf($liveNotificationText, $question->title),
 						'cid' => $question->id,
 						'type' => DISCUSS_NOTIFICATIONS_COMMENT,
 						'target' => $post->user_id,
 						'author' => $my->id,
-						'permalink'	=> $this->getPermalink()
+						'permalink'	=> $commentPermalink
 			));
 
 			$notification->store();
 		}
 
-		// Try to assign badge and points to the current user.
-
-		// Add logging for user.
 		ED::history()->log('easydiscuss.new.comment', $my->id, JText::_('COM_EASYDISCUSS_BADGES_HISTORY_NEW_COMMENT'), $post->id);
-
-		// Assign badge for EasySocial
 		ED::easySocial()->assignBadge('create.comment', $my->id, JText::_('COM_EASYDISCUSS_BADGES_HISTORY_NEW_COMMENT'));
-
 		ED::badges()->assign('easydiscuss.new.comment', $my->id);
 		ED::points()->assign('easydiscuss.new.comment', $my->id, $this);
 

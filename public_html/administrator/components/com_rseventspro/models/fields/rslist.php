@@ -25,6 +25,8 @@ class JFormFieldRSList extends JFormFieldList
 			require_once JPATH_SITE.'/components/com_rseventspro/helpers/rseventspro.php';
 		}
 		
+		rseventsproHelper::loadLang(true);
+		
 		// Load jQuery
 		rseventsproHelper::loadjQuery();
 		

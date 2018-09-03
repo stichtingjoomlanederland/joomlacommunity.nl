@@ -68,7 +68,7 @@ class Html extends BaseView
 		// Create an admin password if necessary
 		if (empty($this->wafconfig['adminpw']))
 		{
-			$this->wafconfig['adminpw'] = \JUserHelper::genRandomPassword(8);
+			$this->wafconfig['adminpw'] = $this->genRandomPassword(1, 'abcdefghijklmnopqrstuvwxyz') . $this->genRandomPassword(7);
 		}
 
 		// Populate email addresses if necessary
@@ -107,4 +107,37 @@ JS;
 
 		$this->addJavascriptInline($js);
 	}
+
+	/**
+	 * Generate a random password. Forked from Joomla to allow the use of a different salt (characters to use in the
+	 * password).
+	 *
+	 * @param   integer  $length  Length of the password to generate
+	 *
+	 * @return  string  Random Password
+	 */
+	protected function genRandomPassword($length = 8, $salt = 'abcdefghijklmnopqrstuvwxyz0123456789')
+	{
+		$base = strlen($salt);
+		$makepass = '';
+
+		/*
+		 * Start with a cryptographic strength random string, then convert it to
+		 * a string with the numeric base of the salt.
+		 * Shift the base conversion on each character so the character
+		 * distribution is even, and randomize the start shift so it's not
+		 * predictable.
+		 */
+		$random = \JCrypt::genRandomBytes($length + 1);
+		$shift = ord($random[0]);
+
+		for ($i = 1; $i <= $length; ++$i)
+		{
+			$makepass .= $salt[($shift + ord($random[$i])) % $base];
+			$shift += ord($random[$i]);
+		}
+
+		return $makepass;
+	}
+
 }

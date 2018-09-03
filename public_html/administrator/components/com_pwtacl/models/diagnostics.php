@@ -68,15 +68,15 @@ class PwtaclModelDiagnostics extends ListModel
 			1  => 'CLEANUP',
 			2  => 'LEGACY',
 			3  => 'ROOT',
-			4  => 'COMPONENTS',
-			5  => 'CATGEORIES',
-			6  => 'ARTICLES',
-			7  => 'UCMCONTENT',
-			8  => 'MODULES',
-			9  => 'MENUS',
-			10 => 'FIELDGROUPS',
-			11 => 'FIELDS',
-			12 => 'LANGUAGES',
+			4  => 'GENERAL_COMPONENTS',
+			5  => 'GENERAL_CATEGORIES',
+			6  => 'GENERAL_ARTICLES',
+			7  => 'GENERAL_UCMCONTENT',
+			8  => 'GENERAL_MODULES',
+			9  => 'GENERAL_MENUS',
+			10 => 'GENERAL_FIELDGROUPS',
+			11 => 'GENERAL_FIELDS',
+			12 => 'GENERAL_LANGUAGES',
 			13 => 'ADMINCONFLICTS',
 			14 => 'REBUILD'
 		);
@@ -704,6 +704,12 @@ class PwtaclModelDiagnostics extends ListModel
 			$category->rebuild();
 		}
 
+		// Check the content table
+		if ($table == 'content')
+		{
+			$this->fixContent();
+		}
+
 		// Step 1: Remove orphan assets
 		$orphanAssets = $this->getOrphanAssets($table, $extension, $view);
 
@@ -913,7 +919,7 @@ class PwtaclModelDiagnostics extends ListModel
 
 		switch ($table)
 		{
-			case 'extension':
+			case 'extensions':
 				$id = $table . '.element';
 				break;
 
@@ -1824,5 +1830,121 @@ class PwtaclModelDiagnostics extends ListModel
 		{
 			throw new Exception($e->getMessage(), 500, $e);
 		}
+	}
+
+	/**
+	 * Method to fix bogus content entries
+	 *
+	 * @return  void
+	 * @since   3.1
+	 * @throws  Exception
+	 */
+	protected function fixContent()
+	{
+		$db    = $this->getDbo();
+		$query = $db->getQuery(true);
+		$query
+			->select('content.id')
+			->from($db->quoteName('#__content', 'content'))
+			->leftJoin($db->quoteName('#__categories', 'category') . ' ON category.id = content.catid')
+			->where('(' . $db->quoteName('category.title') . ' IS NULL OR ' . $db->quoteName('category.title') . ' = ' . $db->quote('ROOT') . ')');
+
+		try
+		{
+			$itemsToFix = $db->setQuery($query)->loadColumn();
+		}
+		catch (RuntimeException $e)
+		{
+			throw new Exception($e->getMessage(), 500, $e);
+		}
+
+		// If we have items to fix, fix them!
+		if ($itemsToFix)
+		{
+			// Get PWT ACL Fix Category
+			$catId = $this->pwtAclCategory();
+
+			// Set content catid to PWT ACL Fix category
+			$db    = $this->getDbo();
+			$query = $db->getQuery(true);
+			$query
+				->update($db->quoteName('#__content'))
+				->set($db->quoteName('catid') . ' = ' . $catId)
+				->where($db->quoteName('id') . ' IN (' . implode(',', $itemsToFix) . ')');
+
+			try
+			{
+				$db->setQuery($query)->execute();
+			}
+			catch (RuntimeException $e)
+			{
+				throw new Exception($e->getMessage(), 500, $e);
+			}
+		}
+	}
+
+	/**
+	 * Method to get the category ID of the PWT ACL fix category
+	 *
+	 * @return  integer
+	 * @since   3.1
+	 * @throws  Exception
+	 */
+	protected function pwtAclCategory()
+	{
+		// Check if we already have PWT Fix category
+		$db    = $this->getDbo();
+		$query = $db->getQuery(true);
+		$query
+			->select('id')
+			->from($db->quoteName('#__categories'))
+			->where($db->quoteName('alias') . ' = ' . $db->quote('fixed-pwt-acl'));
+
+		try
+		{
+			$categoryId = $db->setQuery($query)->loadResult();
+		}
+		catch (RuntimeException $e)
+		{
+			throw new Exception($e->getMessage(), 500, $e);
+		}
+
+		// If we have a category ID, return it
+		if ($categoryId)
+		{
+			return $categoryId;
+		}
+
+		// Create PWT Fix category
+		$category            = Table::getInstance('Category');
+		$category->extension = 'com_content';
+		$category->title     = 'Content fixed by PWT ACL';
+		$category->alias     = 'fixed-pwt-acl';
+		$category->published = 0;
+		$category->language  = '*';
+
+		// Set the location in the tree
+		$category->setLocation(1, 'last-child');
+
+		// Check to make sure our data is valid
+		if (!$category->check())
+		{
+			$this->setError($category->getError());
+
+			return false;
+		}
+
+		// Store the category
+		if (!$category->store(true))
+		{
+			$this->setError($category->getError());
+
+			return false;
+		}
+
+		// Rebuild category
+		$category->rebuildPath($category->id);
+
+		return $category->id;
 	}
 }

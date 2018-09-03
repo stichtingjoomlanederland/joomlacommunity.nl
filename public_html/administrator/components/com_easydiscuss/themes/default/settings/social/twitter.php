@@ -19,6 +19,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="panel-body">
 				<div class="form-horizontal">
 					<?php echo $this->html('settings.toggle', 'integration_twitter_button', 'COM_EASYDISCUSS_SETTINGS_SOCIALSHARE_USE_TWITTER_BUTTON'); ?>
+					<?php echo $this->html('settings.toggle', 'integration_twitter_card', 'COM_ED_TWITTER_LOAD_TWITTER_CARDS'); ?>
 				</div>
 			</div>
 		</div>

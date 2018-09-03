@@ -211,11 +211,17 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="o-col-sm">
 				<ol class="g-list-inline g-list-inline--dashed pull-right ed-post-meta-cat">
 					<li><a href="<?php echo $post->getCategory()->getPermalink();?>" class=""><?php echo JText::_($post->getCategory()->title);?></a></li>
+
 					<?php if ($post->hasAttachments()) { ?>
-					<li><i class="fa fa-file"></i></li>
+					<li>
+						<i class="fa fa-file" data-ed-provide="tooltip" data-title="<?php echo JText::_('COM_ED_HAS_ATTACHMENTS');?>"></i>
+					</li>
 					<?php } ?>
+
 					<?php if ($post->hasPolls()) { ?>
-					<li><i class="fa fa-bar-chart"></i></li>
+					<li>
+						<i class="fa fa-pie-chart" data-ed-provide="tooltip" data-title="<?php echo JText::_('COM_ED_HAS_POLL');?>"></i>
+					</li>
 					<?php } ?>
 				</ol>
 			</div>

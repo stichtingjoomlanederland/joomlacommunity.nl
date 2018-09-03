@@ -49,13 +49,23 @@ if (!Files) var Files = {};
                         }
                     }
 
-                    if (row.type == 'image') {
+                    if (row.type == 'image')
+                    {
                         var image = row.element.getElement('img');
+
                         if (image) {
 
-                            var setThumbnail = function(thumbnail)
+                            var setThumbnail = function(row)
                             {
-                                image.set('src', Files.sitebase + '/' + Files.app.encodePath(thumbnail.relative_path)).addClass('loaded').removeClass('loading');
+                                var source = Files.blank_image;
+
+                                if (row.thumbnail) {
+                                    source = Files.sitebase + '/' + row.encodePath(row.thumbnail.relative_path, Files.urlEncoder);
+                                } else if (row.download_link) {
+                                    source = row.download_link;
+                                }
+
+                                image.set('src', source).addClass('loaded').removeClass('loading');
 
                                 /* @TODO We probably do not need this anymore? Layouts have changed and these elements/classes no longer exist */
                                 var element = row.element.getElement('.files-node');
@@ -65,15 +75,7 @@ if (!Files) var Files = {};
                                 }
                             };
 
-                            if (!row.thumbnail)
-                            {
-                                row.getThumbnail(function (response) {
-                                    if (response.entities[0].thumbnail) {
-                                        setThumbnail(response.entities[0].thumbnail);
-                                    }
-                                });
-                            }
-                            else setThumbnail(row.thumbnail);
+                            setThumbnail(row);
 
                             /* @TODO Test if this is necessary: This is for the thumb margins to recalculate */
                             window.fireEvent('resize');

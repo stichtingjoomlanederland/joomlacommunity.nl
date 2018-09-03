@@ -368,5 +368,9 @@ class EasyDiscussViewPost extends EasyDiscussView
 		if ($this->config->get('integration_facebook_opengraph')) {
 			ED::facebook()->addOpenGraph($post);
 		}
+
+		if ($this->config->get('integration_twitter_card')) {
+			ED::twitter()->addCard($post);
+		}
 	}
 }

@@ -162,8 +162,6 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	 *
 	 * @since   1.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function branch()
 	{
@@ -206,8 +204,6 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	 *
 	 * @since   1.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function merge()
 	{
@@ -260,8 +256,6 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function banUser()
 	{
@@ -390,7 +384,6 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   null
 	 */
 	public function setPassword()
 	{
@@ -601,8 +594,6 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function delete()
 	{
@@ -715,8 +706,6 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function feature()
 	{
@@ -764,8 +753,6 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	 *
 	 * @since   3.2
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function saveReply()
 	{
@@ -837,8 +824,6 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function toEmailData($post, $author)
 	{
@@ -881,8 +866,6 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function toEmailModerationData($post)
 	{

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package RSForm! Pro
-* @copyright (C) 2007-2014 www.rsjoomla.com
+* @copyright (C) 2007-2018 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 
@@ -301,6 +301,13 @@ class RSFormProValidations
 		
 		return true;
 	}
+
+	public static function iban($value, $extra = null, $data = null)
+    {
+        require_once __DIR__ . '/iban.php';
+        $iban = new RSFormIBAN($value);
+        return $iban->validate();
+    }
 	
 	protected static function luhn($value) {
 		$sum = 0;

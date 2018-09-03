@@ -102,8 +102,9 @@ abstract class JHTMLRSEventsPro
 		$html	= array();
 		$script	= array();
 		
+		$script[] = 'var rseprocal'.md5($id).';';
 		$script[] = 'jQuery(document).ready(function (){';
-		$script[] = "\t".'jQuery("#'.$id.'_datetimepicker").datetimepicker({';
+		$script[] = "\t".'rseprocal'.md5($id).' = jQuery("#'.$id.'_datetimepicker").datetimepicker({';
 		
 		// Trigger the custom function, if exist
 		if ($onchange) {

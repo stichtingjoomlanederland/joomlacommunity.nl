@@ -6,8 +6,8 @@
 	<authorUrl>http://www.akeebabackup.com</authorUrl>
 	<copyright>Copyright (c)2010-2018 Nicholas K. Dionysopoulos</copyright>
 	<license>GNU General Public License version 3, or later</license>
-	<creationDate>2018-05-23</creationDate>
-	<version>5.1.2</version>
+	<creationDate>2018-07-17</creationDate>
+	<version>5.1.3</version>
 	<description>
 		Handles URL redirections defined in Admin Tools, fends off common attacks
 		and automates session table and cache clean-up

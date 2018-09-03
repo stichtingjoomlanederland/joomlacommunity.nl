@@ -58,7 +58,7 @@ HTMLHelper::_('formbehavior.chosen', 'select');
 		'bootstrap.renderModal',
 		'importModal',
 		array(
-			'title'  => JText::_('COM_PWTACL_ASSETS_IMPORT'),
+			'title'  => JText::_('COM_PWTACL_TOOLBAR_IMPORT'),
 			'footer' => $this->loadTemplate('import_footer'),
 		),
 		$this->loadTemplate('import_body')
@@ -68,7 +68,7 @@ HTMLHelper::_('formbehavior.chosen', 'select');
 		'bootstrap.renderModal',
 		'copyModal',
 		array(
-			'title'  => JText::_('COM_PWTACL_ASSETS_COPY'),
+			'title'  => JText::_('COM_PWTACL_TOOLBAR_COPY'),
 			'footer' => $this->loadTemplate('copy_footer'),
 		),
 		$this->loadTemplate('copy_body')

@@ -35,17 +35,39 @@ class ComFilesDatabaseBehaviorThumbnailable extends KDatabaseBehaviorAbstract
     }
 
     /**
-     * Tells if a thumbnail may be generated for the file
+     * Tells if a thumbnail should be generated for the file
+     *
+     * @param array $dimension An array specifying the dimension of the thumbnail in pixels
      *
      * @return bool true if it can, false otherwise
      */
-    public function canHaveThumbnail()
+    public function canHaveThumbnail($dimension = null)
     {
         $result = false;
         $mixer  = $this->getMixer();
 
         if ($mixer instanceof ComFilesModelEntityFile && !$mixer->isNew()) {
             $result = in_array($mixer->extension, $this->_thumbnailable_extensions);
+        }
+
+        if ($result && is_array($dimension))
+        {
+            // Check source size against thumbnail size (local sources only)
+            if ($mixer->isLocal() && ($size = $mixer->adapter->getImageSize()))
+            {
+                if (isset($dimension['width']) && isset($dimension['height']))
+                {
+                    if ($size['width'] <= $dimension['width'] && $size['height'] <= $dimension['height']) $result = false;
+                }
+                elseif (isset($dimension['width']))
+                {
+                    if ($size['width'] <= $dimension['width']) $result = false;
+                }
+                elseif (isset($dimension['height']))
+                {
+                    if ($size['height'] <= $dimension['height']) $result = false;
+                }
+            }
         }
 
         return $result;

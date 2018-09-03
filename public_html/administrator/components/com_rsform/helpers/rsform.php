@@ -12,13 +12,6 @@ require_once dirname(__FILE__).'/config.php';
 require_once dirname(__FILE__).'/version.php';
 require_once dirname(__FILE__).'/assets.php';
 
-// Product info
-if (!defined('_RSFORM_REVISION')) {
-	$version = new RSFormProVersion();
-
-	define('_RSFORM_REVISION', $version->revision);
-}
-
 JTable::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_rsform/tables');
 
 // Let's run some workarounds
@@ -260,8 +253,15 @@ class RSFormProHelper
 
 		if (empty($form) || !$form->Published)
 		{
-			$mainframe->enqueueMessage(JText::sprintf('RSFP_FORM_DOES_NOT_EXIST', $formId), 'warning');
-			return false;
+			if ($is_module)
+			{
+				$mainframe->enqueueMessage(JText::sprintf('RSFP_FORM_DOES_NOT_EXIST', $formId), 'warning');
+				return false;
+			}
+			else
+			{
+				return JError::raiseError(404, JText::sprintf('RSFP_FORM_DOES_NOT_EXIST', $formId));
+			}
 		}
 
 		// Check form access level
@@ -3002,6 +3002,13 @@ class RSFormProHelper
 		static $cache = array();
 
 		if (!isset($cache[$formId])) {
+		    $excludedFields = array(
+                RSFORM_FIELD_BUTTON,
+                RSFORM_FIELD_CAPTCHA,
+                RSFORM_FIELD_SUBMITBUTTON,
+                RSFORM_FIELD_PAGEBREAK
+            );
+
 			$query = $db->getQuery(true);
 			$query->select($db->qn('p.PropertyValue','FieldName'))
 				->select($db->qn('p.ComponentId','FieldId'))
@@ -3010,7 +3017,7 @@ class RSFormProHelper
 				->join('left', $db->qn('#__rsform_properties','p').' ON '.$db->qn('c.ComponentId').' = '.$db->qn('p.ComponentId'))
 				->where($db->qn('c.FormId').'='.$db->q($formId))
 				->where($db->qn('p.PropertyName').' = '.$db->q('NAME'))
-				->where($db->qn('c.ComponentTypeId').' NOT IN (7,8,10,12,13,41)')
+				->where($db->qn('c.ComponentTypeId').' NOT IN (' . implode(',', $excludedFields) . ')')
 				->where($db->qn('c.Published').'='.$db->q(1))
 				->order($db->qn('c.Order').' '.$db->escape('asc'));
 			$db->setQuery($query);
@@ -3068,7 +3075,7 @@ class RSFormProHelper
 
 			foreach ($allFields as $field) {
 				// Hidden fields don't have a caption
-				if (in_array($field->FieldType, array(RSFORM_FIELD_HIDDEN, RSFORM_FIELD_TICKET))) {
+				if (in_array($field->FieldType, array(RSFORM_FIELD_HIDDEN, RSFORM_FIELD_TICKET, RSFORM_FIELD_FREETEXT))) {
 					$field->FieldCaption = $field->FieldName;
 				}
 
@@ -3342,7 +3349,8 @@ class RSFormProHelper
 
 				// skip this field for now, no need to edit it
 				case 'freeText':
-					continue 2;
+				    $new_field[0] = '';
+				    $new_field[1] = RSFormProHelper::isCode($data['TEXT']);
 					break;
 
 				default:

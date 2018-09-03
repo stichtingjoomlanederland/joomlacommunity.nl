@@ -38,7 +38,7 @@ class RscommentsControllerComments extends JControllerAdmin
 		$model = $this->getModel();
 		
 		// Force array elements to be integers
-		ArrayHelper::toInteger($pks);
+		$pks = ArrayHelper::toInteger($pks);
 		
 		if (!$model->votes($pks)) {
 			$this->setMessage($model->getError());

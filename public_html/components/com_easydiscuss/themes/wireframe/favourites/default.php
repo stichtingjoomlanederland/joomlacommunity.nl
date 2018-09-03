@@ -19,7 +19,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="o-col">
 				<div class="o-flag">
 					<div class="o-flag__image o-flag--top">
-					   <?php echo $this->html('user.avatar', $profile, array('status' => true, 'size' => 'xl')); ?>
+					   <?php echo $this->html('user.avatar', $profile, array('status' => true, 'size' => 'lg')); ?>
 					</div>
 
 					<div class="o-flag__body">

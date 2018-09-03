@@ -111,7 +111,10 @@ class Large extends Base
 			}
 			catch (\RuntimeException $e)
 			{
-				$this->setWarning(sprintf("Link %s is inaccessible. Check the open_basedir restrictions in your server's PHP configuration", $di->getPathname()));
+				if (!in_array($di->getFilename(), array('.', '..')))
+				{
+					$this->setWarning(sprintf("Link %s is inaccessible. Check the open_basedir restrictions in your server's PHP configuration", $di->getPathname()));
+				}
 
 				$di->next();
 

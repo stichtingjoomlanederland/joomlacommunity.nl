@@ -3,7 +3,17 @@ ed.require(['edq', 'select2'], function($) {
 	var selector = $('[data-ed-tags-select]');
 	selector.select2({
 		tags: <?php echo ($this->acl->allowed('add_tag')) ? 'true' : 'false' ?>,
-		maximumSelectionLength: 10
+		maximumSelectionLength: 10,
+		createTag: function(params) {
+			<?php if (!$this->acl->allowed('create_tag')) { ?>
+				return null;
+			<?php } ?>
+
+			return {
+				"id": params.term,
+				"text": params.term
+			}
+		}
 	});
 
 	var checkCount = function(n) {

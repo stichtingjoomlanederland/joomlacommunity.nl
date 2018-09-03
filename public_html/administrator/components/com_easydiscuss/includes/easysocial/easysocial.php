@@ -381,10 +381,8 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	/**
 	 * Creates a new stream for new replies
 	 *
-	 * @since	1.0
+	 * @since	4.1.3
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function commentDiscussionStream($comment, $post, $question)
 	{
@@ -400,13 +398,23 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		$obj->post = $post;
 		$obj->question = $question;
 
-		// Get the stream template
+		// For user app, we use a different element
+		$context = 'discuss';
+
+		// Determine if this is being posted in an event or group app
+		$clusters = array('event', 'group');
+		$contribution = $post->getDiscussionContribution();
+
+		if ($contribution && in_array($contribution->type, $clusters)) {
+			$template->setCluster($contribution->id, $contribution->type);
+			$context = 'easydiscuss';
+		}
+
 		$template->setActor($comment->user_id, SOCIAL_TYPE_USER);
-		$template->setContext($comment->id, 'discuss', $obj);
-
+		$template->setContext($comment->id, $context, $obj);
 		$template->setVerb('comment');
-
 		$template->setPublicStream('core.view');
+
 		$state = $stream->add($template);
 
 		return $state;
@@ -417,8 +425,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function likesStream($post , $question)
 	{
@@ -1285,7 +1291,11 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 */
 	public function getUserPoints($userId)
 	{
-		if (!$this->exists() || !$userId) {
+		if (!$this->exists()) {
+			return false;
+		}
+
+		if (!$userId) {
 			return false;
 		}
 
