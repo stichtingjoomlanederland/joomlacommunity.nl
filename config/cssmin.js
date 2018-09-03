@@ -13,7 +13,7 @@ module.exports = {
             cwd: '<%= paths.assets %>/css',
             src: ['*.css', '!*.min.css'],
             dest: '<%= paths.template %>/css',
-            ext: '.min.css'
+            ext: '.css'
         }]
     }
 };
