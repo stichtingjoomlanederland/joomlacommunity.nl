@@ -175,7 +175,7 @@ class ComDocmanControllerBehaviorRedirectable extends KControllerBehaviorAbstrac
 
                 // Do not rewrite it for copy URLs
                 // See: https://www.makeuseof.com/tag/make-copy-trick-sharing-google-drive-documents/
-                if (count($segments) && $segments[count($segments)-1] === 'copy') {
+                if (count($segments) && in_array($segments[count($segments)-1], ['copy', 'preview', 'pubhtml'])) {
                     return $url;
                 }
 

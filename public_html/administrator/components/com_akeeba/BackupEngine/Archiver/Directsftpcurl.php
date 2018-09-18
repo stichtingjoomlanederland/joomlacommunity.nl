@@ -25,7 +25,7 @@ use Psr\Log\LogLevel;
  * an archive
  *
  */
-class Directsftp extends Base
+class Directsftpcurl extends Base
 {
 	/** @var SftpCurl SFTP transport engine */
 	private $sftpTransfer = false;

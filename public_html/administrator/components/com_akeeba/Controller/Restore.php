@@ -83,6 +83,7 @@ class Restore extends Controller
 
 		$model->setState('jps_key', $this->input->get('jps_key', '', 'cmd'));
 		$model->setState('procengine', $this->input->get('procengine', 'direct', 'cmd'));
+		$model->setState('zapbefore', $this->input->get('zapbefore', 0, 'int'));
 		$model->setState('ftp_host', $this->input->get('ftp_host', '', 'none', 2));
 		$model->setState('ftp_port', $this->input->get('ftp_port', 21, 'int'));
 		$model->setState('ftp_user', $this->input->get('ftp_user', '', 'none', 2));

@@ -38,6 +38,12 @@ class AtsystemFeatureLeakedpwd extends AtsystemFeatureAbstract
 			return;
 		}
 
+		// This group is allowed to have insecure passwords? If so let's stop here
+		if (!$this->checkByGroup($oldUser, $data))
+		{
+			return;
+		}
+
 		// HIBP database searches for the first 5 chars, if the rest of the hash is in the response body, the password
 		// is included in a leaked database
 		$hashed = strtoupper(sha1($data['password_clear']));
@@ -75,5 +81,54 @@ class AtsystemFeatureLeakedpwd extends AtsystemFeatureAbstract
 
 			throw new Exception(JText::sprintf('COM_ADMINTOOLS_LEAKEDPWD_ERR', $data['password_clear']), '403');
 		}
+	}
+
+	/**
+	 * Given a user group, should we allow insecure passwords?
+	 *
+	 * @param	JUser|array	$oldUser
+	 * @param	array		$data
+	 *
+	 * @return bool		Should we continue with the check or no?
+	 */
+	private function checkByGroup($oldUser, $data)
+	{
+		$groups = $this->cparams->getValue('leakedpwd_groups');
+
+		if (!$groups)
+		{
+			return false;
+		}
+
+		// Ok, here's the situation. If you DON'T change user group, $data['groups'] is empty and we have to check the $oldUser.
+		// If you change the groups or create a new user, data['groups'] is populated and we have to check for it
+		if (isset($data['groups']) && $data['groups'])
+		{
+			$user_groups = $data['groups'];
+		}
+		else
+		{
+			$user_groups = array();
+
+			if(is_array($oldUser))
+			{
+				$user_groups = $oldUser['groups'];
+			}
+			elseif($oldUser instanceof JUser)
+			{
+				$user_groups = $oldUser->groups;
+			}
+		}
+
+		// We have the groups, now let's check them
+		foreach ($user_groups as $user_group)
+		{
+			if (in_array($user_group, $groups))
+			{
+				return true;
+			}
+		}
+
+		return false;
 	}
 }

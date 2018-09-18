@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="3.3.0" type="component" method="upgrade">
 	<name>Akeeba</name>
-	<creationDate>2018-06-05</creationDate>
+	<creationDate>2018-09-05</creationDate>
 	<author>Nicholas K. Dionysopoulos</author>
 	<authorEmail>nicholas@dionysopoulos.me</authorEmail>
 	<authorUrl>http://www.akeebabackup.com</authorUrl>
 	<copyright>Copyright (c)2006-2017 Akeeba Ltd / Nicholas K. Dionysopoulos</copyright>
 	<license>GNU GPL v3 or later</license>
-	<version>6.1.1</version>
+	<version>6.2.1</version>
 	<description>Akeeba Backup Pro - Full Joomla! site backup solution, Professional Edition</description>
 
 	<!-- Public front end files -->
@@ -33,8 +33,7 @@
 	<!-- Administrator back-end section -->
 	<administration>
 		<!-- Administration menu -->
-		<menu view="cpanel"
-			img="../media/com_akeeba/icons/akeeba-16.png">COM_AKEEBA</menu>
+		<menu>COM_AKEEBA</menu>
 
 		<!-- Back-end files -->
 		<files folder="backend">

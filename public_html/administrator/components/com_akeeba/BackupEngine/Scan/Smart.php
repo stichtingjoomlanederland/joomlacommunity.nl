@@ -98,7 +98,10 @@ class Smart extends Base
 			}
 			catch (\RuntimeException $e)
 			{
-				$this->setWarning(sprintf("Link %s is inaccessible. Check the open_basedir restrictions in your server's PHP configuration", $file->getPathname()));
+				if (!in_array($di->getFilename(), array('.', '..')))
+				{
+					$this->setWarning(sprintf("Link %s is inaccessible. Check the open_basedir restrictions in your server's PHP configuration", $file->getPathname()));
+				}
 
 				continue;
 			}
@@ -192,7 +195,10 @@ class Smart extends Base
 			}
 			catch (\RuntimeException $e)
 			{
-				$this->setWarning(sprintf("Link %s is inaccessible. Check the open_basedir restrictions in your server's PHP configuration", $file->getPathname()));
+				if (!in_array($di->getFilename(), array('.', '..')))
+				{
+					$this->setWarning(sprintf("Link %s is inaccessible. Check the open_basedir restrictions in your server's PHP configuration", $file->getPathname()));
+				}
 
 				continue;
 			}

@@ -146,6 +146,15 @@ class Zip extends BaseArchiver
 		}
 
 		$this->openArchiveForOutput(true);
+
+		/**
+		 * Do not remove the fcloseByName line! This is required for post-processing multipart archives when for any
+		 * reason $this->filePointers[$this->centralDirectoryFilename] contains null instead of boolean false. In this
+		 * case the while loop would be stuck forever and the backup would fail. This HAS happened and I have been able
+		 * to reproduce it but I did not have enough time to identify the real root cause. This workaround, however,
+		 * works.
+		 */
+		$this->fcloseByName($this->centralDirectoryFilename);
 		$this->cdfp = $this->fopen($this->centralDirectoryFilename, "rb");
 
 		if ($this->cdfp === false)
@@ -177,8 +186,30 @@ class Zip extends BaseArchiver
 			}
 		}
 
-		// Write the CD record
-		while (!feof($this->cdfp))
+		/**
+		 * Write the CD record
+		 *
+		 * Note about is_resource: in some circumstances where multipart ZIP files are generated, the $this->cdfp will
+		 * contain a null value. This seems to happen when $this->fopen returns null, i.e. $this->filePointers has a
+		 * null value instead of a file pointer (resource). Why this happens is unclear but the workaround is to remove
+		 * the null value from $this->filePointers and retry $this->fopen. Normally this should not be required since we
+		 * already to the fcloseByName/fopen dance above. This if-block is our last hope to catch a potential issue
+		 * which would either make the while loop go infinite (not anymore, I've patched it) or the Central Directory
+		 * not get written to the archive, which results in a broken archive.
+		 */
+		if (!is_resource($this->cdfp))
+		{
+			$this->fcloseByName($this->centralDirectoryFilename);
+			$this->cdfp = $this->fopen($this->centralDirectoryFilename, "rb");
+
+			if (!$this->cdfp)
+			{
+				// $this->setWarning("Finalization of the ZIP archive may have been interrupted (cannot get a file pointer for the Central Directory temporary file). Please check that you can extract your ZIP file.");
+				$this->setError("Cannot open central directory temporary file {$this->centralDirectoryFilename} for reading.");
+			}
+		}
+
+		while (!feof($this->cdfp) && is_resource($this->cdfp))
 		{
 			/**
 			 * Why not split the Central Directory between parts?

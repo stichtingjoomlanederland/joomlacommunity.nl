@@ -8,6 +8,8 @@
 // Protect from unauthorized access
 defined('_JEXEC') or die();
 
+/** @var \Akeeba\Backup\Admin\View\Restore\Html $this */
+
 $urlBrowser = addslashes('index.php?view=Browser&tmpl=component&processfolder=1&folder=');
 $urlFtpBrowser = addslashes('index.php?option=com_akeeba&view=FTPBrowser');
 $urlTestFtp = addslashes('index.php?option=com_akeeba&view=Restore&task=ajax&ajax=testftp');
@@ -84,6 +86,16 @@ $this->getContainer()->template->addJSInline($js);
 			<?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_REMOTETIP'); ?>
         </p>
     </div>
+
+    <?php if($this->container->params->get('showDeleteOnRestore', 0) == 1): ?>
+    <div class="akeeba-form-group">
+        <label for="zapbefore">
+		    <?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_ZAPBEFORE'); ?>
+        </label>
+        <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'zapbefore', 0); ?>
+        <p class="akeeba-help-text"><?php echo JText::_('COM_AKEEBA_RESTORE_LABEL_ZAPBEFORE_HELP'); ?></p>
+    </div>
+    <?php endif; ?>
 
     <?php if ($this->extension == 'jps'): ?>
         <h4><?php echo \JText::_('COM_AKEEBA_RESTORE_LABEL_JPSOPTIONS'); ?></h4>

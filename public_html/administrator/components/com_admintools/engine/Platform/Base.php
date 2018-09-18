@@ -255,6 +255,11 @@ abstract class Base implements PlatformInterface
 
 		unset($databaseData);
 
+		if (!is_array($dataArray))
+		{
+			$dataArray = array();
+		}
+
 		foreach ($dataArray as $section => $row)
 		{
 			if ($section == 'volatile')

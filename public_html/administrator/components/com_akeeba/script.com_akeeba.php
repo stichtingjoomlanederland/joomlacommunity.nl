@@ -95,8 +95,6 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			'administrator/components/com_akeeba/BackupEngine/Postproc/Idrivesync.php',
 			'administrator/components/com_akeeba/BackupEngine/Postproc/onedrive.ini',
 			'administrator/components/com_akeeba/BackupEngine/Postproc/Onedrive.php',
-			'administrator/components/com_akeeba/BackupEngine/Postproc/onedrivebusiness.ini',
-			'administrator/components/com_akeeba/BackupEngine/Postproc/Onedrivebusiness.php',
 			'administrator/components/com_akeeba/BackupEngine/Postproc/s3.ini',
 			'administrator/components/com_akeeba/BackupEngine/Postproc/S3.php',
 			'administrator/components/com_akeeba/BackupEngine/Postproc/sftp.ini',
@@ -312,6 +310,11 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 			// Obsolete media files
             'media/com_akeeba/icons/akeeba-ui-32.png',
             'media/com_akeeba/changelog.png',
+
+			// Microsoft sucks. Go get some real storage from a company that knows what they are doing.
+			'administrator/components/com_akeeba/BackupEngine/Postproc/onedrivebusiness.ini',
+			'administrator/components/com_akeeba/BackupEngine/Postproc/Onedrivebusiness.php',
+			'administrator/components/com_akeeba/BackupEngine/Postproc/Connector/OneDriveBusiness.php',
 		),
 		'folders' => array(
 			// Directories used up to version 4.1 (inclusive)
@@ -560,11 +563,6 @@ class Com_AkeebaInstallerScript extends \FOF30\Utils\InstallScript
 		<img src="../media/com_akeeba/icons/logo-48.png" width="48" height="48" alt="Akeeba Backup" align="right"/>
 
 		<h2>Welcome to Akeeba Backup!</h2>
-
-		<div style="margin: 1em; font-size: 14pt; background-color: #fffff9; color: black">
-			You can download translation files <a href="http://cdn.akeebabackup.com/language/akeebabackup/index.html">directly
-				from our CDN page</a>.
-		</div>
 
 		<fieldset>
 			<p>

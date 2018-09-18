@@ -134,6 +134,23 @@ abstract class BaseFileManagement extends Base
 		return $result;
 	}
 
+	protected function fcloseByName($file)
+	{
+		if (!array_key_exists($file, $this->filePointers))
+		{
+			return true;
+		}
+
+		$ret = $this->fclose($this->filePointers[$file]);
+
+		if (array_key_exists($file, $this->filePointers))
+		{
+			unset($this->filePointers[$file]);
+		}
+
+		return $ret;
+	}
+
 	/**
 	 * Write to file, defeating magic_quotes_runtime settings (pure binary write)
 	 *

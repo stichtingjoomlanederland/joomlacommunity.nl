@@ -78,6 +78,7 @@ $warningStyle = $this->isFirstRun ? 'display: none' : '';
             <input type="text" size="20" name="adminpw" value="<?php echo $this->escape($this->wafconfig['adminpw']); ?>"/>
         </div>
 
+	    <?php if ($this->hasHtaccess): ?>
         <div class="akeeba-form-group">
             <label for="admin_username"
                    rel="akeeba-sticky-tooltip"
@@ -95,6 +96,7 @@ $warningStyle = $this->isFirstRun ? 'display: none' : '';
                     />
             </div>
         </div>
+		<?php endif; ?>
 
         <div class="akeeba-form-group">
             <label for="emailonadminlogin"
@@ -170,13 +172,6 @@ $warningStyle = $this->isFirstRun ? 'display: none' : '';
             </label>
 
             <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'ipworkarounds', 1); ?>
-
-            <div class="help-block">
-                <?php echo \JText::_('COM_ADMINTOOLS_CONFIGUREWAF_IPWORKAROUNDS_RECOMMENDED'); ?>
-                <span class="akeeba-label--grey" id="ipWorkaroundsRecommendedSetting">
-                    <?php echo \JText::_('COM_ADMINTOOLS_CONFIGUREWAF_IPWORKAROUNDS_RECOMMENDED_WAIT'); ?>
-                </span>
-            </div>
         </div>
 
         <div class="akeeba-form-group">
@@ -231,6 +226,7 @@ $warningStyle = $this->isFirstRun ? 'display: none' : '';
             <input type="text" size="45" name="bbhttpblkey" value="<?php echo $this->escape($this->wafconfig['bbhttpblkey']); ?>"/>
         </div>
 
+	    <?php if ($this->hasHtaccess): ?>
         <div class="akeeba-form-group">
             <label for="htmaker"
                    rel="akeeba-sticky-tooltip"
@@ -242,6 +238,7 @@ $warningStyle = $this->isFirstRun ? 'display: none' : '';
 
             <?php echo \JHtml::_('FEFHelper.select.booleanswitch', 'htmaker', 1); ?>
         </div>
+		<?php endif; ?>
     </div>
 
     <div class="akeeba-panel--primary">

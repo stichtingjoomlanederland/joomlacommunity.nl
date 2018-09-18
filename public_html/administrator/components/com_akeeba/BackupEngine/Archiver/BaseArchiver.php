@@ -108,7 +108,7 @@ abstract class BaseArchiver extends BaseFileManagement
 	 *
 	 * @param   bool  $finalPart  True if this is the final part
 	 *
-	 * @return  void
+	 * @return  bool  False if creating a new part fails
 	 */
 	abstract protected function createNewPartFile($finalPart = false);
 

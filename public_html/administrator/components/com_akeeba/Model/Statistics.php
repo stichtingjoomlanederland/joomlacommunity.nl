@@ -166,7 +166,8 @@ class Statistics extends Model
 			if (in_array($stat['id'], $validRecords))
 			{
 				$archives     = Factory::getStatistics()->get_all_filenames($stat);
-				$stat['meta'] = (count($archives) > 0) ? 'ok' : 'obsolete';
+				$count        = is_array($archives) ? count($archives) : 0;
+				$stat['meta'] = ($count > 0) ? 'ok' : 'obsolete';
 
 				// The archives exist. Set $stat['size'] to the total size of the backup archives.
 				if ($stat['meta'] == 'ok')

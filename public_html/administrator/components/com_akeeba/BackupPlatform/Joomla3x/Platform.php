@@ -693,13 +693,13 @@ class Joomla3x extends BasePlatform
 		{
 			$releaseDate = new Date(AKEEBA_DATE);
 
-			if (time() - $releaseDate->toUnix() > 7776000)
+			if (time() - $releaseDate->toUnix() > 10368000)
 			{
 				if ( !isset($ret['warnings']))
 				{
 					$ret['warnings'] = array();
 					$ret['warnings'] = array_merge($ret['warnings'], array(
-						'Your version of Akeeba Backup is more than 90 days old and most likely already out of date. Please check if a newer version is published and install it.'
+						'Your version of Akeeba Backup is more than 120 days old and most likely already out of date. Please check if a newer version is published and install it.'
 					));
 				}
 			}
@@ -717,7 +717,7 @@ class Joomla3x extends BasePlatform
 				}
 
 				$ret['warnings'] = array_merge($ret['warnings'], array(
-					'Your site\'s root is using a UNC path (e.g. \\SERVER\path\to\root). PHP has known bugs which may',
+					'Your site\'s root is using a UNC path (e.g. \\\\SERVER\\path\\to\\root). PHP has known bugs which may',
 					'prevent it from working properly on a site like this. Please take a look at',
 					'https://bugs.php.net/bug.php?id=40163 and https://bugs.php.net/bug.php?id=52376. As a result your',
 					'backup may fail.'

@@ -177,6 +177,13 @@
             <option value="\G\M\TP">COM_AKEEBA_CONFIG_BACKEND_TIMEZONETEXT_GMTOFFSET</option>
         </field>
 
+		<field name="showDeleteOnRestore" type="radio" default="0"
+			   label="COM_AKEEBA_CONFIG_BACKEND_SHOWDELETEONRESTORE_LABEL"
+			   description="COM_AKEEBA_CONFIG_BACKEND_SHOWDELETEONRESTORE_DESC"
+			   class="switcher btn-group">
+			<option value="0">JNo</option>
+			<option value="1">JYes</option>
+		</field>
     </fieldset>
 
 	<fieldset name="push" label="COM_AKEEBA_CONFIG_PUSH_HEADER_LABEL" description="COM_AKEEBA_CONFIG_PUSH_HEADER_DESC">

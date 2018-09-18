@@ -197,6 +197,7 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 
 			$tokens = $this->exceptionsHandler->getEmailVariables('', [
 				'[ACTIVATE]' => '<a href="' . $activate . '">' . $activate . '</a>',
+				'[USER]'     => $user->username . ' (' . $user->name . ' <' . $user->email . '>)',
 			]);
 
 			$subject = str_replace(array_keys($tokens), array_values($tokens), $subject);

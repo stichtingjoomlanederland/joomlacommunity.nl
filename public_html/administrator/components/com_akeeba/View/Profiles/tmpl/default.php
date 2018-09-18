@@ -75,6 +75,9 @@ $configurl = base64_encode(JUri::base().'index.php?option=com_akeeba&view=Config
 				<th>
 					<?php echo \JHtml::_('grid.sort', 'COM_AKEEBA_PROFILES_COLLABEL_DESCRIPTION', 'description', $this->lists->order_Dir, $this->lists->order, 'browse'); ?>
 				</th>
+                <th>
+                    <?php echo JText::_('COM_AKEEBA_CONFIG_QUICKICON_LABEL'); ?>
+                </th>
 			</tr>
 		</thead>
 		<tfoot>
@@ -86,16 +89,15 @@ $configurl = base64_encode(JUri::base().'index.php?option=com_akeeba&view=Config
 			</tr>
 		</tfoot>
 		<tbody>
-		<?php $i = 1; ?>
+		<?php $r = 1; $i = 0; ?>
 		<?php foreach( $this->items as $profile ): ?>
-		<?php $i = 1 - $i; ?>
-			<tr class="row<?php echo $i; ?>">
+		<?php $r = 1 - $r; ?>
+			<tr class="row<?php echo $r; ?>">
 				<td>
 					<?php echo \JHtml::_('grid.id', ++$i, $profile->id); ?>
 				</td>
 				<td>
 					<?php echo (int) $profile->id; ?>
-
 				</td>
 				<td>
 					<a class="akeeba-btn akeeba-btn--small akeeba-btn--primary"
@@ -116,6 +118,9 @@ $configurl = base64_encode(JUri::base().'index.php?option=com_akeeba&view=Config
 
 					</a>
 				</td>
+                <td>
+                    <?php echo JHtml::_('FEFHelper.browse.published', $profile->quickicon, $i, 'quickicon_') ?>
+                </td>
 			</tr>
 		<?php endforeach; ?>
 		</tbody>

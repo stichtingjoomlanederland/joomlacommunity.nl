@@ -165,9 +165,15 @@ HTML;
 		// Get the remote file's pathname
 		$remotePath = trim($directory, '/') . '/' . basename($absolute_filename);
 
-		// Are we already processing a multipart upload?
-		if ($this->chunked)
+		// Check if the size of the file is compatible with chunked uploading
+		clearstatcache();
+		$totalSize   = filesize($absolute_filename);
+		$isBigEnough = $this->chunked ? ($totalSize > $this->chunk_size) : false;
+
+		// Chunked uploads if the feature is enabled and the file is at least as big as the chunk size.
+		if ($this->chunked && $isBigEnough)
 		{
+			// Are we already processing a multipart upload?
 			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Using chunked upload, part size {$this->chunk_size}");
 
 			$offset = $config->get('volatile.engine.postproc.' . $this->settingsKey . '.offset', 0);
@@ -242,8 +248,6 @@ HTML;
 			}
 
 			// Are we done uploading?
-			clearstatcache();
-			$totalSize = filesize($absolute_filename);
 			$nextOffset = $offset + $this->chunk_size - 1;
 
 			if (isset($result['name']) || ($nextOffset > $totalSize))
@@ -270,7 +274,7 @@ HTML;
 			$this->onedrive->delete($remotePath, false);
 
 			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Performing simple upload");
-			$result = $this->onedrive->upload($remotePath, $absolute_filename);
+			$result = $this->onedrive->simpleUpload($remotePath, $absolute_filename);
 		}
 		catch (\Exception $e)
 		{

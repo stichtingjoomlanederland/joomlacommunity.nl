@@ -85,6 +85,37 @@ HTML;
 	}
 
 	/**
+	 * Used by the interface to display a list of drives to choose from.
+	 *
+	 * @param   array  $params
+	 *
+	 * @return  array
+	 */
+	public function getDrives($params = array())
+	{
+		// Make sure we can get a connector object
+		$validSettings = $this->initialiseConnector($params);
+
+		if ($validSettings === false)
+		{
+			return array();
+		}
+
+		$items = array_merge(array(
+			'' => \JText::_('COM_AKEEBA_CONFIG_GOOGLEDRIVE_TEAMDRIVE_OPT_PERSONAL')
+		), $this->googleDrive->getTeamDrives());
+
+		$ret = array();
+
+		foreach ($items as $k => $v)
+		{
+			$ret[] = array($k, $v);
+		}
+
+		return $ret;
+	}
+
+	/**
 	 * This function takes care of post-processing a backup archive's part, or the
 	 * whole backup archive if it's not a split archive type. If the process fails
 	 * it should return false. If it succeeds and the entirety of the file has been
@@ -95,6 +126,8 @@ HTML;
 	 * @param   string $upload_as         Base name of the uploaded file, skip to use $absolute_filename's
 	 *
 	 * @return  boolean|integer  False on failure, true on success, 1 if more work is required
+	 *
+	 * @throws \Exception
 	 */
 	public function processPart($absolute_filename, $upload_as = null)
 	{
@@ -110,8 +143,8 @@ HTML;
 		$config = Factory::getConfiguration();
 
 		// Store the absolute remote path in the class property
-		$directory = $this->directory;
-		$basename = empty($upload_as) ? basename($absolute_filename) : $upload_as;
+		$directory         = $this->directory;
+		$basename          = empty($upload_as) ? basename($absolute_filename) : $upload_as;
 		$this->remote_path = $directory . '/' . $basename;
 
 		// Do not use multipart uploads when in an immediate post-processing step,
@@ -130,13 +163,14 @@ HTML;
 		}
 
 		// Have I already made sure the remote directory exists?
-		$folderId = $config->get('volatile.engine.postproc.googledrive.check_directory', 0);
+		$folderId    = $config->get('volatile.engine.postproc.googledrive.check_directory', 0);
+		$teamDriveID = $config->get('engine.postproc.googledrive.team_drive', '');
 
 		if (!$folderId)
 		{
 			try
 			{
-				$folderId = $this->googleDrive->getIdForFolder($directory, true);
+				$folderId = $this->googleDrive->getIdForFolder($directory, true, $teamDriveID);
 			}
 			catch (\Exception $e)
 			{
@@ -151,19 +185,25 @@ HTML;
 		// Get the remote file's pathname
 		$remotePath = trim($directory, '/') . '/' . basename($absolute_filename);
 
-		// Are we already processing a multipart upload?
-		if ($this->chunked)
+		// Check if the size of the file is compatible with chunked uploading
+		clearstatcache();
+		$totalSize   = filesize($absolute_filename);
+		$isBigEnough = $this->chunked ? ($totalSize > $this->chunk_size) : false;
+
+		// Chunked uploads if the feature is enabled and the file is at least as big as the chunk size.
+		if ($this->chunked && $isBigEnough)
 		{
+			// Are we already processing a multipart upload?
 			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Using chunked upload, part size {$this->chunk_size}");
 
-			$offset = $config->get('volatile.engine.postproc.googledrive.offset', 0);
+			$offset    = $config->get('volatile.engine.postproc.googledrive.offset', 0);
 			$upload_id = $config->get('volatile.engine.postproc.googledrive.upload_id', null);
 
 			if (empty($upload_id))
 			{
 				// Convert path to folder ID and file ID, creating missing folders and deleting existing files in the process
 				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Trying to create possibly missing directories and remove existing file by the same name ($remotePath)");
-				list($fileName, $folderId) = $this->googleDrive->preprocessUploadPath($remotePath);
+				list($fileName, $folderId) = $this->googleDrive->preprocessUploadPath($remotePath, $teamDriveID);
 
 				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Creating new upload session");
 
@@ -228,8 +268,6 @@ HTML;
 			}
 
 			// Are we done uploading?
-			clearstatcache();
-			$totalSize = filesize($absolute_filename);
 			$nextOffset = $offset + $this->chunk_size - 1;
 
 			if (isset($result['name']) || ($nextOffset > $totalSize))
@@ -253,7 +291,7 @@ HTML;
 		{
 			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Performing simple upload.");
 
-			$result = $this->googleDrive->upload($remotePath, $absolute_filename);
+			$result = $this->googleDrive->upload($remotePath, $absolute_filename, 10485760, 'application/octet-stream', $teamDriveID);
 		}
 		catch (\Exception $e)
 		{
@@ -323,7 +361,9 @@ HTML;
 		// Download the file
 		try
 		{
-			$fileId = $this->googleDrive->getIdForFile($remotePath, false);
+			$engineConfig = Factory::getConfiguration();
+			$teamDriveID  = $engineConfig->get('engine.postproc.googledrive.team_drive', '');
+			$fileId       = $this->googleDrive->getIdForFile($remotePath, false, $teamDriveID);
 			$this->googleDrive->download($fileId, $localFile);
 		}
 		catch (\Exception $e)
@@ -348,7 +388,9 @@ HTML;
 
 		try
 		{
-			$fileId = $this->googleDrive->getIdForFile($path, false);
+			$engineConfig = Factory::getConfiguration();
+			$teamDriveID  = $engineConfig->get('engine.postproc.googledrive.team_drive', '');
+			$fileId       = $this->googleDrive->getIdForFile($path, false, $teamDriveID);
 			$this->googleDrive->delete($fileId, true);
 		}
 		catch (\Exception $e)
@@ -366,10 +408,11 @@ HTML;
 	 *
 	 * @return  bool  True on success, false if we cannot proceed
 	 */
-	protected function initialiseConnector()
+	protected function initialiseConnector($overrides = array())
 	{
 		// Retrieve engine configuration data
 		$config = Factory::getConfiguration();
+		$config->mergeArray($overrides);
 
 		$access_token = trim($config->get('engine.postproc.googledrive.access_token', ''));
 		$refresh_token = trim($config->get('engine.postproc.googledrive.refresh_token', ''));

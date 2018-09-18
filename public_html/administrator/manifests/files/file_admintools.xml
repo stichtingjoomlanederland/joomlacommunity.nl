@@ -6,9 +6,9 @@
     <authorUrl>https://www.akeebabackup.com</authorUrl>
     <copyright>Copyright (c)2010-2018 Akeeba Ltd / Nicholas K. Dionysopoulos</copyright>
     <license>GNU GPL v3 or later</license>
-    <version>5.1.3</version>
-    <creationDate>2018-07-17</creationDate>
-    <description>Admin Tools CLI scripts v.5.1.3</description>
+    <version>5.1.4</version>
+    <creationDate>2018-09-04</creationDate>
+    <description>Admin Tools CLI scripts v.5.1.4</description>
 
     <fileset>
         <files target="cli">

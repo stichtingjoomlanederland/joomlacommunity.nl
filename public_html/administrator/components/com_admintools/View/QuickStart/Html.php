@@ -9,6 +9,7 @@ namespace Akeeba\AdminTools\Admin\View\QuickStart;
 
 defined('_JEXEC') or die;
 
+use Akeeba\AdminTools\Admin\Helper\ServerTechnology;
 use Akeeba\AdminTools\Admin\Model\ControlPanel;
 use Akeeba\AdminTools\Admin\Model\QuickStart;
 use Akeeba\AdminTools\Admin\Model\ConfigureWAF;
@@ -53,6 +54,9 @@ class Html extends BaseView
 	 */
 	public $admin_password;
 
+	/** @var  bool   Does the server technology seem to support .htaccess files? */
+	public $hasHtaccess = false;
+
 	protected function onBeforeMain()
 	{
 		// Get the reported IP
@@ -89,6 +93,8 @@ class Html extends BaseView
 		/** @var QuickStart $model */
 		$model = $this->getModel();
 		$this->isFirstRun = $model->isFirstRun();
+
+		$this->hasHtaccess = ServerTechnology::isHtaccessSupported();
 
 		$this->addJavascriptFile('admin://components/com_admintools/media/js/Tooltip.min.js');
 		$this->addJavascriptFile('admin://components/com_admintools/media/js/QuickStart.min.js');

@@ -292,7 +292,7 @@ $config = $this->htconfig;
         </div>
 
         <div class="akeeba-form-group">
-            <label for="referrerpolicy"><?php echo \JText::_('COM_ADMINTOOLS_LBL_HTACCESSMAKER_REFERRERPOLICY'); ?></label>
+            <label for="referrerpolicy"><?php echo \JText::_('COM_ADMINTOOLS_LBL_HTACCESSMAKER_REFERERPOLICY'); ?></label>
 
 			<?php echo Select::referrerpolicy('referrerpolicy', array(), $config->referrerpolicy); ?>
         </div>

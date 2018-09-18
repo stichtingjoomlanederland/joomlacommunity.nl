@@ -390,11 +390,6 @@ class GoogleStorage
 		clearstatcache();
 		$filesize = @filesize($localFile);
 
-		if ($filesize > 104857600)
-		{
-			// throw new \RuntimeException("File size too big for simpleUpload ($filesize bigger than 100Mb).", 500);
-		}
-
 		// Get the relative URL
 		$relativeUrl =
 			self::uploadUrl .
@@ -431,19 +426,19 @@ class GoogleStorage
 		clearstatcache();
 		$filesize = @filesize($localFile);
 
-		if ($filesize < 5242880)
-		{
-			throw new \RuntimeException("File size too small for resumable upload ($filesize smaller than 5Mb).", 500);
-		}
+//		if ($filesize < 10485760)
+//		{
+//			throw new \RuntimeException("File size too small for resumable upload ($filesize smaller than 10MB).", 500);
+//		}
 
 		// Get the relative URL
 		$relativeUrl =
 			self::uploadUrl .
 			'b/' . $bucket . '/o?uploadType=resumable';
 
-		$json = json_encode([
-			'name' => $path
-		]);
+		$json = json_encode(array(
+			'name' => $this->normalizePath($path)
+		));
 
 		$response = $this->fetch('POST', $relativeUrl, array(
 			'headers'         => array(
@@ -479,13 +474,13 @@ class GoogleStorage
 	 * @param   string  $sessionUrl  The upload session URL, see createUploadSession
 	 * @param   string  $localFile   Absolute filesystem path of the source file
 	 * @param   int     $from        Starting byte to begin uploading, default is 0 (start of file)
-	 * @param   int     $length      Chunk size in bytes, default 5Mb.
+	 * @param   int     $length      Chunk size in bytes, default 1MB.
 	 *
 	 * @return  array  Empty while the upload is incomplete, upload information when complete
 	 *
 	 * @see  https://cloud.google.com/storage/docs/json_api/v1/how-tos/resumable-upload
 	 */
-	public function uploadPart($sessionUrl, $localFile, $from = 0, $length = 5242880)
+	public function uploadPart($sessionUrl, $localFile, $from = 0, $length = 1048576)
 	{
 		clearstatcache();
 		$totalSize = filesize($localFile);
@@ -528,11 +523,11 @@ class GoogleStorage
 	 * @param   string  $bucket     The bucket containing the path
 	 * @param   string  $path       Relative path in the Drive
 	 * @param   string  $localFile  Absolute filesystem path of the source file
-	 * @param   int     $partSize   Part size in bytes, default 10Mb, must NOT be over 60Mb! MUST be a multiple of 320Kb.
+	 * @param   int     $partSize   Part size in bytes, default 1MB.
 	 *
 	 * @return  array  File metadata
 	 */
-	public function resumableUpload($bucket, $path, $localFile, $partSize = 5242880)
+	public function resumableUpload($bucket, $path, $localFile, $partSize = 1048576)
 	{
 		$sessionUrl = $this->createUploadSession($bucket, $path, $localFile);
 		$from       = 0;
@@ -560,16 +555,17 @@ class GoogleStorage
 	 * @param   string  $bucket     The bucket containing the path
 	 * @param   string  $path       The remote path relative to Drive root
 	 * @param   string  $localFile  The absolute local filesystem path
+	 * @param   int     $partSize   The part size for resumable upload. Default 1MB.
 	 *
-	 * @return  array  See http://onedrive.github.io/items/upload_put.htm
+	 * @return  array
 	 */
-	public function upload($bucket, $path, $localFile)
+	public function upload($bucket, $path, $localFile, $partSize = 1048576)
 	{
 		clearstatcache();
 		$filesize = @filesize($localFile);
 
 		// Bigger than 100Mb: use resumable uploads with default (10Mb) parts
-		if ($filesize > 5242880)
+		if ($filesize > $partSize)
 		{
 			return $this->resumableUpload($bucket, $path, $localFile);
 		}

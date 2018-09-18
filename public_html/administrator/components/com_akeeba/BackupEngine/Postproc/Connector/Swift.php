@@ -86,7 +86,7 @@ class Swift
 	 * @var    \stdClass[]
 	 * @since  6.1.0
 	 */
-	protected $endPoints = [];
+	protected $endPoints = array();
 
 	/**
 	 * A callable which is passed the authentication information and result to cater for non-standard SWIFT
