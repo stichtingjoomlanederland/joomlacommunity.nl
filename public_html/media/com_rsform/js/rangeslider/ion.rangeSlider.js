@@ -412,7 +412,15 @@
             }
 
             if (options && options.values && options.values.length) {
+                if (val[0])
+                {
+                    val[0] = String(val[0]);
+                }
                 config.from = val[0] && options.values.indexOf(val[0]);
+                if (val[1])
+                {
+                    val[1] = String(val[1]);
+                }
                 config.to = val[1] && options.values.indexOf(val[1]);
             } else {
                 config.from = val[0] && +val[0];

@@ -9,6 +9,7 @@
  */
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 
 // No direct access.
@@ -122,5 +123,29 @@ class PwtaclHelper
 		}
 
 		return;
+	}
+
+	/**
+	 * Get a list of filter options for the levels.
+	 *
+	 * @return  array  An array of JHtmlOption elements.
+	 * @since   3.2
+	 */
+	public static function getLevelsOptions()
+	{
+		// Build the filter options.
+		$options   = array();
+		$options[] = HTMLHelper::_('select.option', '1', '1 (' . strtolower(Text::_('MOD_MENU_CONFIGURATION')) . ')');
+		$options[] = HTMLHelper::_('select.option', '2', Text::sprintf('COM_USERS_OPTION_LEVEL_COMPONENT', 2));
+		$options[] = HTMLHelper::_('select.option', '3', Text::sprintf('COM_USERS_OPTION_LEVEL_CATEGORY', 3));
+		$options[] = HTMLHelper::_('select.option', '4', Text::sprintf('COM_USERS_OPTION_LEVEL_DEEPER', 4));
+		$options[] = HTMLHelper::_('select.option', '5', '5');
+		$options[] = HTMLHelper::_('select.option', '6', '6');
+		$options[] = HTMLHelper::_('select.option', '7', '7');
+		$options[] = HTMLHelper::_('select.option', '8', '8');
+		$options[] = HTMLHelper::_('select.option', '9', '9');
+		$options[] = HTMLHelper::_('select.option', '10', '10');
+
+		return $options;
 	}
 }

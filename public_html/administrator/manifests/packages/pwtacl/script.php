@@ -9,6 +9,7 @@
  */
 
 use Joomla\CMS\Factory;
+use Joomla\CMS\Installer\Installer;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Version;
 
@@ -119,11 +120,8 @@ class Pkg_PwtAclInstallerScript
 		// Check for old ACL Manager plugin installations
 		$this->removeExtension('plugin', 'aclmanager');
 
-		// Remove old folders
-		// $this->removeOldFolders();
-
-		// Remove old files
-		// $this->removeOldFiles();
+		// Remove .DS_Store files
+		$this->cleanupSystemFiles();
 
 		return true;
 	}
@@ -175,49 +173,51 @@ class Pkg_PwtAclInstallerScript
 		if ($extensionId)
 		{
 			// We can now remove the extension
-			JModelLegacy::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_installer/models', 'InstallerModel');
+			$installer = Installer::getInstance();
+			$installer->uninstall($type, $extensionId);
 
-			/** @var InstallerModelManage $model */
-			$model = JModelLegacy::getInstance('Manage', 'InstallerModel', array('ignore_request' => true));
-			$model->remove(array($extensionId));
-
+			// Display ACL Manager removal message
 			$app->enqueueMessage(Text::_('PKG_PWTACL_ACLMANAGER_REMOVED'));
 		}
 	}
 
 	/**
-	 * Function to remove old folders
+	 * Cleanup OS system files
 	 *
 	 * @return  void
 	 *
 	 * @since   2.5.0
 	 */
-	private function removeOldFolders()
+	private function cleanupSystemFiles()
 	{
-		// Build the folder array
-		$folders = array();
+		$folders = array(
+			JPATH_ADMINISTRATOR . '/components/com_pwtacl',
+			JPATH_SITE . '/media/com_pwtacl',
+			JPATH_PLUGINS . '/system/pwtacl'
+		);
 
-		// Remove the admin files
 		foreach ($folders as $folder)
 		{
-			if (is_dir($folder))
-			{
-				JFolder::delete($folder);
-			}
+			$componentFiles = JFolder::files($folder, '.DS_Store', true, true, array(), array());
+			$this->removeOldFiles($componentFiles);
 		}
 	}
 
 	/**
 	 * Function to remove old files
 	 *
+	 * @param   array $files Files to remove
+	 *
 	 * @return  void
 	 *
 	 * @since   2.5.0
 	 */
-	private function removeOldFiles()
+	private function removeOldFiles($files)
 	{
-		// Files to remove
-		$files = array();
+		if (!$files)
+		{
+			return;
+		}
 
 		// Remove the admin files
 		foreach ($files as $file)

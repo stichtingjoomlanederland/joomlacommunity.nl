@@ -9,6 +9,8 @@
  */
 
 use Joomla\CMS\Access\Access;
+use Joomla\CMS\Component\ComponentHelper;
+use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
@@ -16,6 +18,7 @@ use Joomla\CMS\MVC\Model\ListModel;
 use Joomla\CMS\Table\Asset;
 use Joomla\CMS\Table\Category;
 use Joomla\CMS\Table\Table;
+use Joomla\Registry\Registry;
 
 // No direct access.
 defined('_JEXEC') or die;
@@ -85,12 +88,26 @@ class PwtaclModelDiagnostics extends ListModel
 	/**
 	 * Performs a quick scan to check for Asset Issues.
 	 *
+	 * @param   boolean $force Force quickscan without cache
+	 *
 	 * @return  boolean
 	 * @since   3.0
 	 * @throws  Exception
 	 */
-	public function getQuickScan()
+	public function getQuickScan($force = false)
 	{
+		// Get variables needed
+		$params = ComponentHelper::getParams('com_pwtacl');
+		$now    = time();
+		$last   = (int) $params->get('diagnosticslastrun', 0);
+		$issues = $params->get('diagnosticsissues', false);
+
+		// Run quickscan only if last quickscan was over 6 hours ago
+		if (!$force && abs($now - $last) < 21600)
+		{
+			return $issues;
+		}
+
 		// Log quickscan
 		Log::add(
 			'--- QUICKSCAN STARTED ---',
@@ -248,6 +265,13 @@ class PwtaclModelDiagnostics extends ListModel
 			Log::INFO,
 			'com_pwtacl'
 		);
+
+		// Set last run data in params
+		$params->set('diagnosticslastrun', $now);
+		$params->set('diagnosticsissues', $issues ? true : false);
+
+		// Update extension params
+		$this->storeParams($params);
 
 		return $issues ? true : false;
 	}
@@ -441,6 +465,14 @@ class PwtaclModelDiagnostics extends ListModel
 			Log::INFO,
 			'com_pwtacl'
 		);
+
+		// Set last run data in params
+		$params = ComponentHelper::getParams('com_pwtacl');
+		$params->set('diagnosticslastrun', null);
+		$params->set('diagnosticsissues', false);
+
+		// Update extension params
+		$this->storeParams($params);
 
 		return $this->changes;
 	}
@@ -1946,5 +1978,33 @@ class PwtaclModelDiagnostics extends ListModel
 		$category->rebuildPath($category->id);
 
 		return $category->id;
+	}
+
+	/**
+	 * Store PWT ACL Params
+	 *
+	 * @param   Registry $params Extension params.
+	 *
+	 * @return   void
+	 * @since    3.2
+	 * @throws   Exception
+	 */
+	protected function storeParams(Registry $params)
+	{
+		// Update extension params
+		$db    = Factory::getDbo();
+		$query = $db->getQuery(true)
+			->update($db->quoteName('#__extensions'))
+			->set($db->quoteName('params') . ' = ' . $db->quote($params->toString('JSON')))
+			->where($db->quoteName('element') . ' = ' . $db->quote('com_pwtacl'));
+
+		try
+		{
+			$db->setQuery($query)->execute();
+		}
+		catch (Exception $e)
+		{
+			throw new Exception($e->getMessage(), 500, $e);
+		}
 	}
 }

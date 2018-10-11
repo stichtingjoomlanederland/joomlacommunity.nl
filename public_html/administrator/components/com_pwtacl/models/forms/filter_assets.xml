@@ -38,13 +38,23 @@
         </field>
 
         <field
-                name="category"
-                type="list"
+                name="level_start"
+                type="assetlevels"
+                label="COM_USERS_FILTER_LEVEL_START_LABEL"
+                description="COM_USERS_FILTER_LEVEL_START_DESC"
                 onchange="this.form.submit();"
         >
-            <option value="">COM_PWTACL_ASSETS_FILTER_CATEGORY</option>
-            <option value="1">JYES</option>
-            <option value="0">JNO</option>
+            <option value="">COM_USERS_OPTION_SELECT_LEVEL_START</option>
+        </field>
+
+        <field
+                name="level_end"
+                type="assetlevels"
+                label="COM_USERS_FILTER_LEVEL_END_LABEL"
+                description="COM_USERS_FILTER_LEVEL_END_DESC"
+                onchange="this.form.submit();"
+        >
+            <option value="">COM_USERS_OPTION_SELECT_LEVEL_END</option>
         </field>
 
         <field
@@ -55,6 +65,16 @@
             <option value="">COM_PWTACL_ASSETS_FILTER_ITEM</option>
             <option value="1">JYES</option>
             <option value="0">JNO</option>
+        </field>
+
+        <field
+                name="language"
+                type="contentlanguage"
+                label="JOPTION_FILTER_LANGUAGE"
+                description="JOPTION_FILTER_LANGUAGE_DESC"
+                onchange="this.form.submit();"
+        >
+            <option value="">JOPTION_SELECT_LANGUAGE</option>
         </field>
     </fields>
 

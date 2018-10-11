@@ -8,6 +8,7 @@
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
 
+use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
 use Joomla\CMS\Router\Route;
@@ -32,6 +33,11 @@ $group  = $displayData['group'];
 			<?php if ($asset->pwtacl): ?>
                 <span class="powered-by-pwtacl hasTooltip" title="<?php echo Text::_('COM_PWTACL_TABLE_ADDED_SUPPORT'); ?>">
                     <span class="icon-featured"></span>
+                </span>
+			<?php endif; ?>
+			<?php if ($asset->language && $asset->language !== '*'): ?>
+                <span class="pull-right">
+				    <?php echo HTMLHelper::_('image', 'mod_languages/' . $asset->languageimage . '.gif', $asset->languagetitle, null, true); ?>
                 </span>
 			<?php endif; ?>
             <a href="<?php echo Route::_($asset->link); ?>">

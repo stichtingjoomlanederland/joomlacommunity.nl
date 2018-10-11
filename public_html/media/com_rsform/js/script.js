@@ -491,6 +491,11 @@ RSFormPro.resetValues = function(items) {
 								
 								RSFormPro.triggerEvent(element, 'change');
 								RSFormPro.triggerEvent(element, 'input');
+
+                                if (element.id && element.id.indexOf('rs-range-slider') == 0 && typeof jQuery != 'undefined')
+                                {
+                                    jQuery(element).data('ionRangeSlider').reset();
+                                }
 							break;
 						}
 					}

@@ -9,7 +9,7 @@ if (!Object.keys) Object.keys = function(o) {
   var k=[],p;
   for (p in o) if (Object.prototype.hasOwnProperty.call(o,p)) k.push(p);
   return k;
-}
+};
 
 RSFormPro.ionSlider = {
 	sliders:  {},
@@ -46,9 +46,9 @@ RSFormPro.ionSlider = {
 		
 		if (typeof RSFormPro.ionSlider.sliders[formId][sliderName] == 'undefined') {
 			// initiate the object
-			RSFormPro.ionSlider.sliders[formId][sliderName] = {}
+			RSFormPro.ionSlider.sliders[formId][sliderName] = {};
 			RSFormPro.ionSlider.sliders[formId][sliderName].slider = jQuery('#rs-range-slider'+sliderId);
 			RSFormPro.ionSlider.sliders[formId][sliderName].slider.ionRangeSlider(config);
 		}
-	},
-}
+	}
+};

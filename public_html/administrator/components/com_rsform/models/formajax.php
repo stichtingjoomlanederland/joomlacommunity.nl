@@ -52,7 +52,7 @@ class RsformModelFormajax extends JModelLegacy
 		$formId = JFactory::getApplication()->input->getInt('formId');
 
 		$general		= array('NAME','CAPTION','LABEL','DEFAULTVALUE','ITEMS','TEXT','DESCRIPTION','COMPONENTTYPE');
-		$validations	= array('REQUIRED','VALIDATIONRULE','VALIDATIONMESSAGE','VALIDATIONEXTRA');
+		$validations	= array('REQUIRED','VALIDATIONRULE','VALIDATIONMESSAGE','VALIDATIONEXTRA', 'VALIDATIONDATE');
 
 		$componentId = $this->getComponentId();
 		$componentType = $this->getComponentType();

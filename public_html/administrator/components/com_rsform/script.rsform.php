@@ -1020,13 +1020,13 @@ class com_rsformInstallerScript
 			<?php } ?>
 			<?php } ?>
 		<?php } ?>
-		<h2>Changelog v2.0.14</h2>
+		<h2>Changelog v2.0.15</h2>
 		<ul class="version-history">
-            <li><span class="version-upgraded">Upg</span> Bootstrap updated to 4.1.3.</li>
-            <li><span class="version-upgraded">Upg</span> UIkit updated to 3.0.0-rc11.</li>
-            <li><span class="version-upgraded">Upg</span> Free Text fields can now appear in Submissions Directory when editing a submission.</li>
-            <li><span class="version-upgraded">Upg</span> Non-existing forms will now display a 404 Not Found message for consistency.</li>
-            <li><span class="version-upgraded">Upg</span> Responsive Layout will now generate label elements instead of divs for a more semantic approach.</li>
+            <li><span class="version-upgraded">Upg</span> Can now disable Date Validation in the calendar fields.</li>
+            <li><span class="version-fixed">Fix</span> Slider value was not being reset correctly when using Conditional Fields.</li>
+            <li><span class="version-fixed">Fix</span> Slider default value wasn't being taken into account in some cases.</li>
+            <li><span class="version-fixed">Fix</span> Bootstrap 4 File Upload class name was incorrect.</li>
+            <li><span class="version-fixed">Fix</span> When using Unicode date formats validation would fail in calendar fields.</li>
 		</ul>
 		<a class="btn btn-large btn-primary" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="btn" href="https://www.rsjoomla.com/support/documentation/rsform-pro.html" target="_blank">Read the RSForm! Pro User Guide</a>

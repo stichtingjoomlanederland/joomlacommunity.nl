@@ -11,6 +11,7 @@
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Language\LanguageHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Model\ListModel;
 
@@ -38,8 +39,10 @@ class PwtaclModelAssets extends ListModel
 		{
 			$config['filter_fields'] = array(
 				'component',
-				'category',
+				'level_start',
+				'level_end',
 				'item',
+				'language'
 			);
 		}
 
@@ -386,8 +389,11 @@ class PwtaclModelAssets extends ListModel
 		$this->setState('user', $this->getUserStateFromRequest($this->context . '.user', 'user'));
 		$this->setState('filter.search', $this->getUserStateFromRequest($this->context . '.filter.search', 'filter_search'));
 		$this->setState('filter.component', $this->getUserStateFromRequest($this->context . '.filter.component', 'filter_component', '', 'string'));
-		$this->setState('filter.category', $this->getUserStateFromRequest($this->context . '.filter.category', 'filter_category', ''));
-		$this->setState('filter.item', $this->getUserStateFromRequest($this->context . '.filter.item', 'filter_item', ''));
+		$this->setState('filter.level_start', $this->getUserStateFromRequest($this->context . '.filter.level_start', 'filter_level_start'));
+		$this->setState('filter.level_end', $this->getUserStateFromRequest($this->context . '.filter.level_end', 'filter_level_end'));
+		$this->setState('filter.item', $this->getUserStateFromRequest($this->context . '.filter.item', 'filter_item'));
+		$this->setState('filter.language', $this->getUserStateFromRequest($this->context . '.filter.language', 'filter_language'));
+
 
 		if ($type == 'group')
 		{
@@ -422,8 +428,10 @@ class PwtaclModelAssets extends ListModel
 		$id .= ':' . $this->getState('user');
 		$id .= ':' . $this->getState('filter.search');
 		$id .= ':' . $this->getState('filter.component');
-		$id .= ':' . $this->getState('filter.category');
+		$id .= ':' . $this->getState('filter.level_start');
+		$id .= ':' . $this->getState('filter.level_end');
 		$id .= ':' . $this->getState('filter.item');
+		$id .= ':' . $this->getState('filter.language');
 
 		return parent::getStoreId($id);
 	}
@@ -471,7 +479,13 @@ class PwtaclModelAssets extends ListModel
 						IF(fields.state IS NOT NULL, fields.state, 
 						IF(fieldsgroups.state IS NOT NULL, fieldsgroups.state, 
 						IF(extensions.enabled IS NOT NULL, extensions.enabled, 1
-						)))))) AS state'
+						)))))) AS state',
+					'IF(content.language IS NOT NULL, content.language, 
+						IF(categories.language IS NOT NULL, categories.language, 
+						IF(modules.language IS NOT NULL, modules.language, 
+						IF(fields.language IS NOT NULL, fields.language, 
+						IF(fieldsgroups.language IS NOT NULL, fieldsgroups.language, "*"
+						))))) AS language'
 				)
 			)
 			->from($db->quoteName('#__assets') . ' AS a')
@@ -502,13 +516,25 @@ class PwtaclModelAssets extends ListModel
 			->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('com_ajax'))
 			->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('com_fields'));
 
-		// Filter on the categories.
-		$category = $this->getState('filter.category');
+		// Filter on the start and end levels.
+		$levelStart = (int) $this->getState('filter.level_start');
+		$levelEnd   = (int) $this->getState('filter.level_end');
 
-		if (is_numeric($category) && $category == 0)
+		if ($levelEnd > 0 && $levelEnd < $levelStart)
+		{
+			$levelEnd = $levelStart;
+		}
+
+		if ($levelStart > 0)
 		{
 			$query
-				->where('(' . $db->quoteName('a.level') . ' = 0 OR ' . $db->quoteName('a.level') . ' = 1)');
+				->where($db->quoteName('a.level') . ' >= ' . ($levelStart - 1));
+		}
+
+		if ($levelEnd > 0)
+		{
+			$query
+				->where($db->quoteName('a.level') . ' <= ' . ($levelEnd - 1));
 		}
 
 		// Filter on the items.
@@ -531,6 +557,21 @@ class PwtaclModelAssets extends ListModel
 				->where(
 					$db->quoteName('a.name') . ' LIKE ' . $db->quote($db->escape(trim($component) . '%')) . ' OR ' .
 					$db->quoteName('a.name') . ' LIKE ' . $db->quote('root%')
+				);
+		}
+
+		// Filter on the language.
+		$language = $this->getState('filter.language');
+
+		if (!empty($language))
+		{
+			$query
+				->where(
+					$db->quoteName('content.language') . ' = ' . $db->quote($language) . ' OR ' .
+					$db->quoteName('categories.language') . ' = ' . $db->quote($language) . ' OR ' .
+					$db->quoteName('modules.language') . ' = ' . $db->quote($language) . ' OR ' .
+					$db->quoteName('fields.language') . ' = ' . $db->quote($language) . ' OR ' .
+					$db->quoteName('fieldsgroups.language') . ' = ' . $db->quote($language)
 				);
 		}
 
@@ -588,6 +629,7 @@ class PwtaclModelAssets extends ListModel
 		$superUser      = Factory::getUser($user)->authorise('core.admin', 'root.1');
 		$canEdit        = Factory::getUser()->authorise('core.edit', 'com_pwtacl');
 		$superUserGroup = Access::checkGroup($group, 'core.admin', 'root.1');
+		$languages      = LanguageHelper::getLanguages('lang_code');
 
 		// Prepare asset rows
 		foreach ($assets as $key => $asset)
@@ -812,6 +854,10 @@ class PwtaclModelAssets extends ListModel
 			{
 				$asset->additional = true;
 			}
+
+			// Set language image
+			$asset->languageimage = ($asset->language == '*') ? '' : $languages[$asset->language]->image;
+			$asset->languagetitle = ($asset->language == '*') ? '' : $languages[$asset->language]->title;
 		}
 
 		return $assets;

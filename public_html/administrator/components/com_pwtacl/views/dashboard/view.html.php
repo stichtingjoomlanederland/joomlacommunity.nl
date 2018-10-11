@@ -41,10 +41,6 @@ class PwtaclViewDashboard extends HtmlView
 	 */
 	public function display($tpl = null)
 	{
-		/** @var PwtaclModelDiagnostics $model */
-		$diagnostics  = BaseDatabaseModel::getInstance('Diagnostics', 'PwtaclModel', array('ignore_request' => true));
-		$this->issues = $diagnostics->getQuickScan();
-
 		// Check for errors.
 		if (count($errors = $this->get('Errors')))
 		{

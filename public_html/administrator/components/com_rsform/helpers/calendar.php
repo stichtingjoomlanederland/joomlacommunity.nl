@@ -36,10 +36,11 @@ class RSFormProCalendar
 	public function printInlineScript($formId) {
 		$className = $this->className;
 		$calendarOptions = call_user_func(array($className, 'getCalendarOptions'));
+
+        $script = '';
 		
 		if (isset($calendarOptions[$formId])) {
 			// the form calendar fields
-			$script = '';
 			$calendarsIds = array();
 			foreach ($calendarOptions[$formId] as $calendarId => $calendarConfigs) {
 				$configs = array();
@@ -86,7 +87,7 @@ class RSFormProCalendar
 				
 				if ($from !== $to)
 				{
-					$value = preg_replace('/\b' . preg_quote($from) . '\b/', $to, $value);
+					$value = preg_replace('/\b' . preg_quote($from) . '\b/u', $to, $value);
 				}
 			}
 		}
@@ -101,7 +102,7 @@ class RSFormProCalendar
 				
 				if ($from !== $to)
 				{
-					$value = preg_replace('/\b' . preg_quote($from) . '\b/', $to, $value);
+					$value = preg_replace('/\b' . preg_quote($from) . '\b/u', $to, $value);
 				}
 			}
 		}
@@ -116,7 +117,7 @@ class RSFormProCalendar
 				
 				if ($from !== $to)
 				{
-					$value = preg_replace('/\b' . preg_quote($from) . '\b/', $to, $value);
+					$value = preg_replace('/\b' . preg_quote($from) . '\b/u', $to, $value);
 				}
 			}
 		}
@@ -131,7 +132,7 @@ class RSFormProCalendar
 				
 				if ($from !== $to)
 				{
-					$value = preg_replace('/\b' . preg_quote($from) . '\b/', $to, $value);
+					$value = preg_replace('/\b' . preg_quote($from) . '\b/u', $to, $value);
 				}
 			}
 		}

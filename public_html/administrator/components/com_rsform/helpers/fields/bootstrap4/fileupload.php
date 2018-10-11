@@ -16,7 +16,7 @@ class RSFormProFieldBootstrap4Fileupload extends RSFormProFieldFileUpload
         if (strlen($attr['class'])) {
             $attr['class'] .= ' ';
         }
-        $attr['class'] .= 'form-control';
+        $attr['class'] .= 'form-control-file';
 
         return $attr;
     }

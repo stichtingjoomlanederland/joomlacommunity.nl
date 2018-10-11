@@ -13,7 +13,10 @@ use Joomla\CMS\Access\Access;
 use Joomla\CMS\Access\Exception\NotAllowed;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
+use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 
 defined('_JEXEC') or die;
@@ -188,6 +191,62 @@ class PlgSystemPwtacl extends JPlugin
 	}
 
 	/**
+	 * onBeforeRender trigger
+	 *
+	 * @return  void
+	 * @since   3.2
+	 * @throws  Exception
+	 */
+	public function onBeforeRender()
+	{
+		// Not for frontend
+		if ($this->app->isClient('site'))
+		{
+			return;
+		}
+
+		// Only run for those that can access diagnostics
+		if (!Factory::getUser()->authorise('pwtacl.diagnostics', 'com_pwtacl'))
+		{
+			return;
+		}
+
+		// Get Category ACL setting
+		$option = $this->app->input->getCmd('option');
+		$view   = $this->app->input->getCmd('view');
+
+		// Display assets
+		if (($option == 'com_cpanel' || $option == 'com_pwtacl') && $view != 'diagnostics')
+		{
+			// Load the model
+			BaseDatabaseModel::addIncludePath(JPATH_ADMINISTRATOR . '/components/com_pwtacl/models', 'PwtaclModel');
+
+			/** @var PwtaclModelDiagnostics $diagnostics */
+			$diagnostics = BaseDatabaseModel::getInstance('Diagnostics', 'PwtaclModel', array('ignore_request' => true));
+			$issues      = $diagnostics->getQuickScan();
+
+			// Issues detected in quickscan
+			if ($issues)
+			{
+				// Load language file
+				$jLanguage = Factory::getLanguage();
+				$jLanguage->load('com_pwtacl', JPATH_ADMINISTRATOR . '/components/com_pwtacl/', 'en-GB', true, true);
+				$jLanguage->load('com_pwtacl', JPATH_ADMINISTRATOR . '/components/com_pwtacl/', null, true, false);
+
+				$script[] = 'var pwtacl = {'
+					. '"PWTACLDIAGNOSTICS_MESSAGE" : "' . Text::_('COM_PWTACL_DIAGNOSTICS_ISSUES_DETECTED_DESC', true) . '",'
+					. '"PWTACLDIAGNOSTICS_BUTTON": "' . Text::_('COM_PWTACL_DIAGNOSTICS_DIAGNOSTICS_FIX', true) . '",'
+					. '"PWTACLDIAGNOSTICS_URL": "' . Route::_('index.php?option=com_pwtacl&view=diagnostics') . '"'
+					. '};';
+
+				Factory::getDocument()->addScriptDeclaration(implode('', $script));
+
+				HTMLHelper::_('script', 'media/com_pwtacl/js/assetissues.js', array('version' => 'auto'), array('defer' => true));
+			}
+		}
+	}
+
+	/**
 	 * onAfterRender trigger
 	 *
 	 * @return  void
@@ -262,34 +321,40 @@ class PlgSystemPwtacl extends JPlugin
 		$jLanguage->load('com_pwtacl', JPATH_ADMINISTRATOR . '/components/com_pwtacl/', 'en-GB', true, true);
 		$jLanguage->load('com_pwtacl', JPATH_ADMINISTRATOR . '/components/com_pwtacl/', null, true, false);
 
-		// Get the Download ID from component params
-		$downloadId = ComponentHelper::getComponent($this->extension)->params->get('downloadid', '');
-
-		// Set Download ID first
-		if (empty($downloadId))
+		// Append key to url if not set yet
+		if (strpos($url, 'key') == false)
 		{
-			Factory::getApplication()->enqueueMessage(
-				Text::sprintf('COM_PWTACL_DOWNLOAD_ID_REQUIRED',
-					$this->extension,
-					$this->extensionTitle
-				),
-				'error'
-			);
+			// Get the Download ID from component params
+			$downloadId = ComponentHelper::getComponent($this->extension)->params->get('downloadid', '');
 
-			return true;
-		}
-		// Append the Download ID
-		else
-		{
+			// Check if Download ID is set
+			if (empty($downloadId))
+			{
+				Factory::getApplication()->enqueueMessage(
+					Text::sprintf('COM_PWTACL_DOWNLOAD_ID_REQUIRED',
+						$this->extension,
+						$this->extensionTitle
+					),
+					'error'
+				);
+
+				return true;
+			}
+
+			// Append the Download ID from component options
 			$separator = strpos($url, '?') !== false ? '&' : '?';
 			$url       .= $separator . 'key=' . $downloadId;
 		}
 
-		// Get the domain for this site
-		$domain = preg_replace('(^https?://)', '', rtrim(Uri::root(), '/'));
+		// Append domain to url if not set yet
+		if (strpos($url, 'domain') == false)
+		{
+			// Get the domain for this site
+			$domain = preg_replace('(^https?://)', '', rtrim(Uri::root(), '/'));
 
-		// Append domain
-		$url .= '&domain=' . $domain;
+			// Append domain
+			$url .= '&domain=' . $domain;
+		}
 
 		return true;
 	}

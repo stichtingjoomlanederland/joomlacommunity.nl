@@ -13,6 +13,7 @@ use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Joomla\CMS\MVC\View\HtmlView;
 
 // No direct access.
@@ -61,8 +62,11 @@ class PwtaclViewDiagnostics extends HtmlView
 	public function display($tpl = null)
 	{
 		$this->params = ComponentHelper::getParams('com_pwtacl');
-		$this->steps  = $this->get('DiagnosticsSteps');
-		$this->issues = $this->get('QuickScan');
+
+		/** @var PwtaclModelDiagnostics $diagnostics */
+		$diagnostics  = BaseDatabaseModel::getInstance('Diagnostics', 'PwtaclModel', array('ignore_request' => true));
+		$this->steps  = $diagnostics->getDiagnosticsSteps();
+		$this->issues = $diagnostics->getQuickScan(true);
 
 		// Access check.
 		if (!Factory::getUser()->authorise('pwtacl.diagnostics', 'com_pwtacl'))
@@ -108,12 +112,12 @@ class PwtaclViewDiagnostics extends HtmlView
 	protected function addToolbar()
 	{
 		// Title
-		JToolBarHelper::title( Text::_('COM_PWTACL_SUBMENU_DIAGNOSTICS'), 'pwtacl.png');
+		JToolBarHelper::title(Text::_('COM_PWTACL_SUBMENU_DIAGNOSTICS'), 'pwtacl.png');
 
 		// Buttons
 		if (Factory::getUser()->authorise('core.admin', 'com_pwtacl'))
 		{
-			JToolBarHelper::custom('diagnostics.rebuild', 'refresh.png', 'refresh_f2.png','COM_PWTACL_DIAGNOSTICS_STEP_REBUILD', false);
+			JToolBarHelper::custom('diagnostics.rebuild', 'refresh.png', 'refresh_f2.png', 'COM_PWTACL_DIAGNOSTICS_STEP_REBUILD', false);
 			JToolBarHelper::divider();
 			JToolBarHelper::preferences('com_pwtacl');
 		}

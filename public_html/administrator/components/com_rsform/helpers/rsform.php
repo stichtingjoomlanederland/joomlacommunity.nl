@@ -2683,25 +2683,26 @@ class RSFormProHelper
 				
 				// check the calendar field if is required
 				if (($typeId == RSFORM_FIELD_CALENDAR || $typeId == RSFORM_FIELD_JQUERY_CALENDAR) && strlen(trim($post['form'][$data['NAME']]))) {
-					$selectedDate = $post['form'][$data['NAME']];
+				    if (!isset($data['VALIDATIONDATE']) || $data['VALIDATIONDATE'] == 'YES') {
+                        $selectedDate = $post['form'][$data['NAME']];
 
-					if (JFactory::getLanguage()->getTag() != 'en-GB')
-					{
-						require_once JPATH_ADMINISTRATOR.'/components/com_rsform/helpers/calendar.php';
-						
-						$selectedDate = RSFormProCalendar::fixValue($selectedDate, $data['DATEFORMAT']);
-					}
+                        if (JFactory::getLanguage()->getTag() != 'en-GB') {
+                            require_once JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/calendar.php';
 
-					$validDate = JFactory::getDate()->createFromFormat($data['DATEFORMAT'], $selectedDate);
+                            $selectedDate = RSFormProCalendar::fixValue($selectedDate, $data['DATEFORMAT']);
+                        }
 
-					if ($validDate) {
-						$validDate = $validDate->format($data['DATEFORMAT']);
-					}
+                        $validDate = JFactory::getDate()->createFromFormat($data['DATEFORMAT'], $selectedDate);
 
-					if ($validDate != $selectedDate) {
-						$invalid[] = $data['componentId'];
-						continue;
-					}
+                        if ($validDate) {
+                            $validDate = $validDate->format($data['DATEFORMAT']);
+                        }
+
+                        if ($validDate != $selectedDate) {
+                            $invalid[] = $data['componentId'];
+                            continue;
+                        }
+                    }
 				}
 
 				if ($runValidations && isset($validations[$validationRule]) && !call_user_func(array($validationClass, $validationRule), $post['form'][$data['NAME']], isset($data['VALIDATIONEXTRA']) ? $data['VALIDATIONEXTRA'] : '', $data)) {
