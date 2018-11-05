@@ -1699,7 +1699,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$total			= 0;
 		$discount		= 0;
 		$info			= '';
-		$cansubscribe	= $this->getCanSubscribe();
+		$cansubscribe	= rseventsproHelper::getCanSubscribe($id, true);
 		$couponid		= 0;
 		$tickets		= array();
 		$eventtickets	= array();

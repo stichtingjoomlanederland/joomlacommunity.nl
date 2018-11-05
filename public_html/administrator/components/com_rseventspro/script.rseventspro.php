@@ -1099,9 +1099,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.11.12</h2>
+	<h2>Changelog v1.11.13</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> The rating algorithm has been improved.</li>
+		<li><span class="version-fixed">Fix</span> Multiple registrations were possible when using the RSForm!Pro integration and the maximum attendance option was set.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>

@@ -6078,7 +6078,7 @@ class rseventsproHelper
 	}
 	
 	// Check if the current user can subscribe
-	public static function getCanSubscribe($id) {
+	public static function getCanSubscribe($id, $skip = false) {
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
 		$user	= JFactory::getUser();
@@ -6108,7 +6108,7 @@ class rseventsproHelper
 		$tickets = $db->loadResult();
 		
 		// If we are using RSForm!Pro and we have multiple registration off we return true;
-		if ($event->form != 0 && $jinput->get('layout') == 'subscribe' && !$multi) {
+		if ($event->form != 0 && $jinput->get('layout') == 'subscribe' && !$multi && !$skip) {
 			return array('status' => true);
 		}
 		

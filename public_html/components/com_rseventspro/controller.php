@@ -687,7 +687,7 @@ class RseventsproController extends JControllerLegacy
 			->select($db->qn('sid'))->select($db->qn('owner'))
 			->select($db->qn('start'))->select($db->qn('allday'))
 			->from($db->qn('#__rseventspro_events'))
-			->where($db->qn('published').' = 1')
+			->where($db->qn('published').' IN (1,2)')
 			->where($db->qn('completed').' = 1')
 			->where($db->qn('id').' = '.$db->q($id));
 		
@@ -757,6 +757,8 @@ class RseventsproController extends JControllerLegacy
 		
 			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)), $msg);
 		}
+		
+		return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro'));
 	}
 	
 	/**

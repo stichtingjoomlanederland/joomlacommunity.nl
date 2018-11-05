@@ -5,7 +5,7 @@
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
-$locations = count($this->events); ?>
+$locations = is_array($this->events) ? count($this->events) : 0; ?>
 
 <?php if ($this->params->get('show_page_heading', 1)) { ?>
 <?php $title = $this->params->get('page_heading', ''); ?>
@@ -221,7 +221,7 @@ jQuery(document).ready(function (){
 <span id="rsepro-itemid" style="display: none;"><?php echo JFactory::getApplication()->input->get('Itemid'); ?></span>
 
 <?php if ($this->config->timezone) { ?>
-<div id="timezoneModal" class="modal hide fade" tabindex="-1" role="dialog" aria-hidden="true">
+<div id="timezoneModal" class="modal hide fade jviewport-width30" tabindex="-1" role="dialog" aria-hidden="true">
 	<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 		<h3><?php echo JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE'); ?></h3>
