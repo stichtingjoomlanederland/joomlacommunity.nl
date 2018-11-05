@@ -572,7 +572,8 @@ class PwtaclModelDiagnostics extends ListModel
 			{
 				foreach ($oldAssetrules as $action => $settings)
 				{
-					if (!in_array($action, $actions->items))
+					// Only remove if no actions are set, mainly for extensions abusing the Joomla core...
+					if (!in_array($action, $actions->items) && (count((array) $settings) === 0))
 					{
 						unset($oldAssetrules->{$action});
 					}

@@ -214,25 +214,20 @@ class PwtaclModelWizard extends ListModel
 			// Check the actions for the asset
 			$actions = json_decode($asset->rules);
 
+			// Remove actions not displayed
 			unset($actions->{'core.admin'});
 			unset($actions->{'core.options'});
 			unset($actions->{'core.manage'});
+			unset($asset->actions->core->{'core.admin'});
+			unset($asset->actions->core->{'core.options'});
+			unset($asset->actions->core->{'core.manage'});
 
-			// Only show table if we do have object actions
-			if (count((array) $actions))
-			{
-				// Remove actions not displayed
-				unset($asset->actions->core->{'core.admin'});
-				unset($asset->actions->core->{'core.options'});
-				unset($asset->actions->core->{'core.manage'});
+			// Correct level for this view
+			$asset->level = $asset->level - 1;
 
-				// Correct level for this view
-				$asset->level = $asset->level - 1;
-
-				// Prepare components array
-				$components->{$asset->component}->{'assets'}[] = $asset;
-				$components->{$asset->component}->{'title'}    = $assets[$asset->component]->title;
-			}
+			// Prepare components array
+			$components->{$asset->component}->{'assets'}[] = $asset;
+			$components->{$asset->component}->{'title'}    = $assets[$asset->component]->title;
 		}
 
 		return $components;

@@ -145,7 +145,7 @@ defined('_JEXEC') or die;
 
                 <div class="pwt-section pwt-section--border-top">
                     <p>
-                        <strong><?php echo Text::sprintf('COM_PWTACL_DASHBOARD_ABOUT_VERSION', '</strong>3.2.0'); ?>
+                        <strong><?php echo Text::sprintf('COM_PWTACL_DASHBOARD_ABOUT_VERSION', '</strong>3.2.1'); ?>
                     </p>
                 </div>
                 <!-- End PWT branding -->

@@ -205,15 +205,23 @@ class PlgSystemPwtacl extends JPlugin
 			return;
 		}
 
-		// Only run for those that can access diagnostics
-		if (!Factory::getUser()->authorise('pwtacl.diagnostics', 'com_pwtacl'))
+		// Only run for super users
+		if (!Factory::getUser()->authorise('core.admin'))
 		{
 			return;
 		}
 
-		// Get Category ACL setting
-		$option = $this->app->input->getCmd('option');
-		$view   = $this->app->input->getCmd('view');
+		// Get variables
+		$params              = ComponentHelper::getParams('com_pwtacl');
+		$displayControlPanel = $params->get('diagnostics_controlpanel', 1);
+		$option              = $this->app->input->getCmd('option');
+		$view                = $this->app->input->getCmd('view');
+
+		// Do not proceed for Control Panel if disabled
+		if ($option == 'com_cpanel' && !$displayControlPanel)
+		{
+			return;
+		}
 
 		// Display assets
 		if (($option == 'com_cpanel' || $option == 'com_pwtacl') && $view != 'diagnostics')

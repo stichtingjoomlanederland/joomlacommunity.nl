@@ -88,37 +88,40 @@ class PwtaclHelper
 		$query = $db->getQuery(true);
 
 		// Load frontend default language file
-		$lang->load('', JPATH_SITE, null, false, false)
-		|| $lang->load('', JPATH_SITE, $lang->getDefault(), false, false);
+		$lang->load('', JPATH_SITE, $lang->getDefault(), false, false);
+		$lang->load('', JPATH_SITE, null, false, false);
+
+		// Load com_config language file
+		$lang->load('com_config', JPATH_ADMINISTRATOR, $lang->getDefault(), false, false);
+		$lang->load('com_config', JPATH_ADMINISTRATOR, null, false, false);
+
+		// Load com_users language file
+		$lang->load('com_users', JPATH_ADMINISTRATOR, $lang->getDefault(), false, false);
+		$lang->load('com_users', JPATH_ADMINISTRATOR, null, false, false);
+
+		// Load mod_menu language file
+		$lang->load('mod_menu', JPATH_ADMINISTRATOR, $lang->getDefault(), false, false);
+		$lang->load('mod_menu', JPATH_ADMINISTRATOR, null, false, false);
 
 		// Get all active extensions
 		$query->select('element AS value')
 			->from('#__extensions')
 			->where('enabled >= 1')
-			->where('type =' . $db->Quote('component'));
+			->where('element != ' . $db->quote('com_config'))
+			->where('type =' . $db->quote('component'));
 
-		$languages = $db->setQuery($query)->loadObjectList();
+		$extensions = $db->setQuery($query)->loadObjectList();
 
-		if (count($languages))
+		// Load the .sys languages for the extensions
+		if (count($extensions))
 		{
-			foreach ($languages as &$language)
+			foreach ($extensions as &$extension)
 			{
 				// Load system language files for all extensions
-				$extension = $language->value;
-				$source    = JPATH_ADMINISTRATOR . '/components/' . $extension;
-				$lang->load($extension . '.sys', JPATH_ADMINISTRATOR, $lang->getDefault(), false, false)
-				|| $lang->load($extension . '.sys', $source, $lang->getDefault(), false, false)
-				|| $lang->load($extension . '.sys', JPATH_ADMINISTRATOR, null, false, false)
-				|| $lang->load($extension . '.sys', $source, null, false, false);
-
-				// Load com_config language file
-				if ($language->value == 'com_config')
-				{
-					$lang->load($extension, JPATH_ADMINISTRATOR, $lang->getDefault(), false, false)
-					|| $lang->load($extension, $source, $lang->getDefault(), false, false)
-					|| $lang->load($extension, JPATH_ADMINISTRATOR, null, false, false)
-					|| $lang->load($extension, $source, null, false, false);
-				}
+				$lang->load($extension->value . '.sys', JPATH_ADMINISTRATOR, $lang->getDefault(), false, false);
+				$lang->load($extension->value . '.sys', JPATH_ADMINISTRATOR, null, false, false);
+				$lang->load($extension->value . '.sys', JPATH_ADMINISTRATOR . '/components/' . $extension->value, $lang->getDefault(), false, false);
+				$lang->load($extension->value . '.sys', JPATH_ADMINISTRATOR . '/components/' . $extension->value, null, false, false);
 			}
 		}
 

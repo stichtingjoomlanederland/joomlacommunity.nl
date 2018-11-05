@@ -514,7 +514,9 @@ class PwtaclModelAssets extends ListModel
 			->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('com_wrapper'))
 			->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('com_contenthistory'))
 			->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('com_ajax'))
-			->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('com_fields'));
+			->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('com_fields'))
+			->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('com_actionlogs'))
+			->where($db->quoteName('a.name') . ' NOT LIKE ' . $db->quote('com_privacy'));
 
 		// Filter on the start and end levels.
 		$levelStart = (int) $this->getState('filter.level_start');
@@ -856,8 +858,11 @@ class PwtaclModelAssets extends ListModel
 			}
 
 			// Set language image
-			$asset->languageimage = ($asset->language == '*') ? '' : $languages[$asset->language]->image;
-			$asset->languagetitle = ($asset->language == '*') ? '' : $languages[$asset->language]->title;
+			if (isset($asset->language))
+			{
+				$asset->languageimage = ($asset->language == '*') ? '' : $languages[$asset->language]->image;
+				$asset->languagetitle = ($asset->language == '*') ? '' : $languages[$asset->language]->title;
+			}
 		}
 
 		return $assets;

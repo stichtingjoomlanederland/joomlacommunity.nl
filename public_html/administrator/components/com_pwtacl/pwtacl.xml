@@ -2,12 +2,12 @@
 <extension version="3.8" type="component" method="upgrade">
     <name>PWT ACL</name>
     <author>Perfect Web Team</author>
-    <creationDate>1 October 2018</creationDate>
+    <creationDate>2 November 2018</creationDate>
     <copyright>Copyright (C) 2011 - 2018 Perfect Web Team</copyright>
     <license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
     <authorEmail>extensions@perfectwebteam.com</authorEmail>
     <authorUrl>https://extensions.perfectwebteam.com</authorUrl>
-    <version>3.2.0</version>
+    <version>3.2.1</version>
     <description>PWT ACL - Joomla! ACL simplified</description>
 
     <!-- Media files -->
@@ -18,12 +18,12 @@
     </media>
 
     <administration>
-        <menu view="com_pwtacl">com_pwtacl</menu>
+        <menu>com_pwtacl</menu>
         <submenu>
-            <menu link="option=com_pwtacl&amp;view=assets&amp;type=group" view="assets">COM_PWTACL_SUBMENU_GROUP</menu>
-            <menu link="option=com_pwtacl&amp;view=assets&amp;type=user" view="assets">COM_PWTACL_SUBMENU_USER</menu>
-            <menu link="option=com_pwtacl&amp;view=diagnostics" view="diagnostics">COM_PWTACL_SUBMENU_DIAGNOSTICS</menu>
-            <menu link="option=com_pwtacl&amp;view=wizard" view="wizard">COM_PWTACL_SUBMENU_WIZARD</menu>
+            <menu view="assets" link="option=com_pwtacl&amp;view=assets&amp;type=group">COM_PWTACL_SUBMENU_GROUP</menu>
+            <menu view="assets" link="option=com_pwtacl&amp;view=assets&amp;type=user">COM_PWTACL_SUBMENU_USER</menu>
+            <menu view="diagnostics">COM_PWTACL_SUBMENU_DIAGNOSTICS</menu>
+            <menu view="wizard">COM_PWTACL_SUBMENU_WIZARD</menu>
         </submenu>
 
         <files folder="administrator/components/com_pwtacl">
@@ -38,25 +38,5 @@
             <filename>controller.php</filename>
             <filename>pwtacl.php</filename>
         </files>
-    </administration>
-
-    <administration>
-        <!-- Administration menu -->
-        <menu link="option=com_pwtacl">COM_PWTACL</menu>
-
-        <!-- Back-end files -->
-        <files folder="admin">
-            <filename>access.xml</filename>
-            <filename>pwtacl.php</filename>
-            <filename>config.xml</filename>
-            <filename>controller.php</filename>
-            <folder>controllers</folder>
-            <folder>helpers</folder>
-            <folder>language</folder>
-            <folder>layouts</folder>
-            <folder>models</folder>
-            <folder>views</folder>
-        </files>
-
     </administration>
 </extension>

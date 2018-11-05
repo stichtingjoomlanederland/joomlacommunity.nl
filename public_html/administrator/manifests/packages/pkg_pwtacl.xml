@@ -3,20 +3,20 @@
     <name>PWT ACL - Package</name>
     <packagename>pwtacl</packagename>
     <author>Perfect Web Team</author>
-    <creationDate>1 October 2018</creationDate>
+    <creationDate>2 November 2018</creationDate>
     <copyright>Copyright (C) 2016 - 2018 Perfect Web Team</copyright>
     <license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
     <authorEmail>extensions@perfectwebteam.com</authorEmail>
     <authorUrl>https://extensions.perfectwebteam.com</authorUrl>
-    <version>3.2.0</version>
+    <version>3.2.1</version>
     <description>PWT ACL Package</description>
 
     <scriptfile>script.php</scriptfile>
 
     <files folder="packages">
-        <file type="component" id="com_pwtacl">com_pwtacl-3.2.0.zip</file>
-        <file type="plugin" group="system" id="pwtacl">plg_system_pwtacl-3.2.0.zip</file>
-        <file type="file" id="pwtacl_cli">pwtacl_cli-3.2.0.zip</file>
+        <file type="component" id="com_pwtacl">com_pwtacl-3.2.1.zip</file>
+        <file type="plugin" group="system" id="pwtacl">plg_system_pwtacl-3.2.1.zip</file>
+        <file type="file" id="pwtacl_cli">pwtacl_cli-3.2.1.zip</file>
     </files>
 
     <updateservers>

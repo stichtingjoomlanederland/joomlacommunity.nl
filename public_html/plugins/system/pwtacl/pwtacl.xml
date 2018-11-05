@@ -2,12 +2,12 @@
 <extension type="plugin" version="1.6" group="system" method="upgrade">
 	<name>System - PWT ACL</name>
 	<author>Perfect Web Team</author>
-	<creationDate>1 October 2018</creationDate>
+	<creationDate>2 November 2018</creationDate>
     <copyright>Copyright (C) 2011 - 2018 Perfect Web Team</copyright>
     <license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
     <authorEmail>extensions@perfectwebteam.com</authorEmail>
     <authorUrl>https://extensions.perfectwebteam.com</authorUrl>
-    <version>3.2.0</version>
+    <version>3.2.1</version>
     <description>PWT ACL - System plugin</description>
 
     <files>

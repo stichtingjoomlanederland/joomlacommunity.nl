@@ -29,23 +29,7 @@ JLoader::register('PwtaclHelper', __DIR__ . '/helpers/pwtacl.php');
 // Add stylesheet
 HTMLHelper::_('stylesheet', 'com_pwtacl/pwtacl.css', array('relative' => true, 'version' => 'auto'));
 
-// Load language and fall back language
-$jlang = Factory::getLanguage();
-$jlang->load('com_pwtacl.sys', JPATH_ADMINISTRATOR, 'en-GB', true);
-$jlang->load('com_pwtacl.sys', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
-$jlang->load('com_pwtacl.sys', JPATH_ADMINISTRATOR, null, true);
-$jlang->load('com_pwtacl', JPATH_ADMINISTRATOR, 'en-GB', true);
-$jlang->load('com_pwtacl', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
-$jlang->load('com_pwtacl', JPATH_ADMINISTRATOR, null, true);
-
-// Additional language files datatables
-$jlang->load('com_users', JPATH_ADMINISTRATOR, 'en-GB', true);
-$jlang->load('com_users', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
-$jlang->load('com_users', JPATH_ADMINISTRATOR, null, true);
-$jlang->load('mod_menu', JPATH_ADMINISTRATOR, 'en-GB', true);
-$jlang->load('mod_menu', JPATH_ADMINISTRATOR, $jlang->getDefault(), true);
-$jlang->load('mod_menu', JPATH_ADMINISTRATOR, null, true);
-
+// Lets start!
 $controller = BaseController::getInstance('pwtacl');
 $controller->execute(Factory::getApplication()->input->get('task'));
 $controller->redirect();

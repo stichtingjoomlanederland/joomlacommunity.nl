@@ -76,7 +76,7 @@ class PwtaclViewWizard extends HtmlView
 		$this->form       = $this->get('Form');
 		$this->components = $this->get('Items');
 		$this->group      = Factory::getApplication()->input->getInt('group');
-		$this->step       = empty((array) $this->components) ? 1 : 2;
+		$this->step       = ($this->group) ? 2 : 1;
 
 		// Access check.
 		if (!Factory::getUser()->authorise('pwtacl.wizard', 'com_pwtacl'))

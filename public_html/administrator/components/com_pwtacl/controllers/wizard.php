@@ -83,7 +83,7 @@ class PwtaclControllerWizard extends BaseController
 		$groupId     = $wizardModel->groupSetup($data);
 
 		// Fix the admin access conflicts
-		/** @var PwtaclModelDiagnostic $diagnosticsModel */
+		/** @var PwtaclModelDiagnostics $diagnosticModel */
 		$diagnosticModel = $this->getModel('diagnostics');
 		$diagnosticModel->fixAdminConflicts(true);
 
