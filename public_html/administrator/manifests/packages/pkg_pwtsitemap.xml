@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<extension version="3.8" type="package" method="upgrade">
+	<name>PWT Sitemap - Package</name>
+	<packagename>pwtsitemap</packagename>
+    <author>Perfect Web Team</author>
+	<creationDate>9 November 2018</creationDate>
+    <copyright>Copyright (C) 2016 - 2018 Perfect Web Team</copyright>
+    <license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
+	<authorEmail>extensions@perfectwebteam.com</authorEmail>
+	<authorUrl>https://extensions.perfectwebteam.com</authorUrl>
+	<version>1.2.1</version>
+	<description>PWT Sitemap Package</description>
+
+	<scriptfile>script.php</scriptfile>
+
+	<files folder="packages">
+		<file type="component" id="com_pwtsitemap">com_pwtsitemap-1.2.1.zip</file>
+		<file type="plugin" group="system" id="pwtsitemap">plg_system_pwtsitemap-1.2.1.zip</file>
+		<file type="plugin" group="pwtsitemap" id="content">plg_pwtsitemap_content-1.2.1.zip</file>
+		<file type="plugin" group="pwtsitemap" id="contact">plg_pwtsitemap_contact-1.2.1.zip</file>
+		<file type="plugin" group="pwtsitemap" id="newsfeed">plg_pwtsitemap_newsfeed-1.2.1.zip</file>
+		<file type="plugin" group="pwtsitemap" id="tag">plg_pwtsitemap_tag-1.2.1.zip</file>
+	</files>
+
+	<updateservers>
+		<server type="extension" priority="1" name="PWT Sitemap">https://extensions.perfectwebteam.com/pwt-sitemap/updates</server>
+	</updateservers>
+</extension>

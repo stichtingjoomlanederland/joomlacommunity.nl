@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+    <fieldset name="update">
+        <field name="downloadid" type="text" default="" size="50" label="COM_PWTSITEMAP_DOWNLOAD_LABEL" description ="COM_PWTSITEMAP_DOWNLOAD_DESC" />
+    </fieldset>
+
+	<fieldset
+			name="permissions"
+			label="JCONFIG_PERMISSIONS_LABEL"
+			description="JCONFIG_PERMISSIONS_DESC"
+	>
+		<field
+				name="rules"
+				type="rules"
+				label="JCONFIG_PERMISSIONS_LABEL"
+				validate="rules"
+				filter="rules"
+				component="com_pwtsitemap"
+				section="component" />
+	</fieldset>
+</config>
