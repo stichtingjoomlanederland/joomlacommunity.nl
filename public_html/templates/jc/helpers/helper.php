@@ -24,7 +24,7 @@ $helper->loadCss();
 $helper->loadJs();
 
 // Font
-$helper->localstorageFont();
+//$helper->localstorageFont();
 
 // Analytics
 $analyticsData = $helper->getAnalytics($this);
