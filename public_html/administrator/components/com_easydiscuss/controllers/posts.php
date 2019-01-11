@@ -522,7 +522,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		}
 
 
-		$message = JText::_('COM_EASYDISCUSS_POSTS_LOCKED');
+		$message = JText::_('COM_EASYDISCUSS_POSTS_UNLOCKED');
 		ED::setMessage($message, DISCUSS_QUEUE_SUCCESS);
 
 		$this->app->redirect($redirect);	

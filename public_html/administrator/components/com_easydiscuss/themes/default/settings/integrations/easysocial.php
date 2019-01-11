@@ -98,8 +98,8 @@ defined('_JEXEC') or die('Restricted access');
 					<?php echo $this->html('settings.toggle', 'integration_easysocial_activity_accepted', 'COM_EASYDISCUSS_EASYSOCIAL_ACTIVITY_REPLY_ACCEPTED_ANSWER'); ?>
 					<?php echo $this->html('settings.toggle', 'integration_easysocial_activity_vote', 'COM_EASYDISCUSS_EASYSOCIAL_ACTIVITY_VOTE_POST'); ?>
 
-					<?php echo $this->html('settings.textbox', 'integration_easysocial_activity_content_length', 'COM_EASYDISCUSS_JOMSOCIAL_ACTIVITY_CONTENT_LENGTH', '', array('postfix' => 'COM_EASYDISCUSS_CHARACTERS', 'size' => 5), '', 'form-control-sm text-center'); ?>
-					<?php echo $this->html('settings.textbox', 'integration_easysocial_activity_title_length', 'COM_EASYDISCUSS_JOMSOCIAL_ACTIVITY_TITLE_LENGTH', '', array('postfix' => 'COM_EASYDISCUSS_CHARACTERS', 'size' => 5), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'integration_easysocial_activity_content_length', 'COM_EASYDISCUSS_JOMSOCIAL_ACTIVITY_CONTENT_LENGTH', '', array('postfix' => 'COM_EASYDISCUSS_CHARACTERS', 'size' => 9), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'integration_easysocial_activity_title_length', 'COM_EASYDISCUSS_JOMSOCIAL_ACTIVITY_TITLE_LENGTH', '', array('postfix' => 'COM_EASYDISCUSS_CHARACTERS', 'size' => 9), '', 'form-control-sm text-center'); ?>
 				</div>
 			</div>
 		</div>

@@ -57,7 +57,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('settings.toggle', 'main_email_parser_validate', 'COM_EASYDISCUSS_EMAIL_PARSER_VALIDATE'); ?>
 					<?php echo $this->html('settings.textbox', 'main_email_parser_username', 'COM_EASYDISCUSS_EMAIL_PARSER_USERNAME'); ?>
 					<?php echo $this->html('settings.textbox', 'main_email_parser_password', 'COM_EASYDISCUSS_EMAIL_PARSER_PASSWORD', '', array('type' => 'password', 'attributes' => 'autocomplete="off"')); ?>
-					<?php echo $this->html('settings.textbox', 'main_email_parser_limit', 'COM_EASYDISCUSS_EMAIL_PARSER_PROCESS_LIMIT', '', array('size' => 5, 'postfix' => 'COM_EASYDISCUSS_EMAILS'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'main_email_parser_limit', 'COM_EASYDISCUSS_EMAIL_PARSER_PROCESS_LIMIT', '', array('size' => 7, 'postfix' => 'COM_EASYDISCUSS_EMAILS'), '', 'form-control-sm text-center'); ?>
 				</div>
 			</div>
 		</div>

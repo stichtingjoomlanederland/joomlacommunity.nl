@@ -67,7 +67,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						</div>
 					</div>
 
-					<?php echo $this->html('settings.textbox', 'main_post_min_length', 'COM_EASYDISCUSS_MAIN_POST_MIN_LENGTH', '', array('size' => 5, 'postfix' => 'COM_EASYDISCUSS_CHARACTERS'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'main_post_min_length', 'COM_EASYDISCUSS_MAIN_POST_MIN_LENGTH', '', array('size' => 8, 'postfix' => 'COM_EASYDISCUSS_CHARACTERS'), '', 'form-control-sm text-center'); ?>
 					<?php echo $this->html('settings.toggle', 'main_post_appendemail', 'COM_EASYDISCUSS_POST_APPEND_EMAIL_ADDRESS_IN_CONTENT'); ?>
 					<?php echo $this->html('settings.toggle', 'main_anonymous_posting', 'COM_EASYDISCUSS_ENABLE_ANONYMOUS_POSTING'); ?>
 					<?php echo $this->html('settings.toggle', 'main_mentions', 'COM_EASYDISCUSS_ENABLE_MENTIONS'); ?>
@@ -115,9 +115,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<div class="form-horizontal">
 					<?php echo $this->html('settings.toggle', 'main_lock_newpost_only', 'COM_EASYDISCUSS_AUTOLOCK_NEWPOST_ONLY'); ?>
 
-					<?php echo $this->html('settings.textbox', 'main_daystolock_afterlastreplied', 'COM_EASYDISCUSS_DAYSTOLOCK_REPLIED', '', array('size' => 5, 'postfix' => 'Days'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'main_daystolock_afterlastreplied', 'COM_EASYDISCUSS_DAYSTOLOCK_REPLIED', '', array('size' => 7, 'postfix' => 'Days'), '', 'form-control-sm text-center'); ?>
 
-					<?php echo $this->html('settings.textbox', 'main_daystolock_aftercreated', 'COM_EASYDISCUSS_DAYSTOLOCK_CREATED', '', array('size' => 5, 'postfix' => 'Days'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'main_daystolock_aftercreated', 'COM_EASYDISCUSS_DAYSTOLOCK_CREATED', '', array('size' => 7, 'postfix' => 'Days'), '', 'form-control-sm text-center'); ?>
 				</div>
 			</div>
 		</div>
@@ -129,7 +129,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<div class="form-horizontal">
 					<?php echo $this->html('settings.toggle', 'main_similartopic', 'COM_EASYDISCUSS_SIMILAR_QUESTION_ENABLE'); ?>
 					<?php echo $this->html('settings.toggle', 'main_similartopic_privatepost', 'COM_EASYDISCUSS_SIMILAR_QUESTION_INCLUDE_PRIVATE_POSTS'); ?>
-					<?php echo $this->html('settings.textbox', 'main_similartopic_limit', 'COM_EASYDISCUSS_SIMILAR_QUESTION_SEARCH_LIMIT', '', array('size' => 5, 'postfix' => 'Posts'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'main_similartopic_limit', 'COM_EASYDISCUSS_SIMILAR_QUESTION_SEARCH_LIMIT', '', array('size' => 7, 'postfix' => 'Posts'), '', 'form-control-sm text-center'); ?>
 				</div>
 			</div>
 		</div>

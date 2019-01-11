@@ -21,7 +21,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('settings.toggle', 'attachment_questions', 'COM_EASYDISCUSS_ENABLE_FILE_ATTACHMENTS_QUESTIONS'); ?>
 					<?php echo $this->html('settings.toggle', 'enable_attachment_limit', 'COM_EASYDISCUSS_FILE_ENABLE_ATTACHMENTS_LIMIT'); ?>
 
-					<div class="form-group">
+					<div class="form-group <?php echo !$this->config->get('enable_attachment_limit') ? 't-hidden' : ''; ?>" data-ed-attachment-limit>
 						<div class="col-md-5 control-label">
 							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_FILE_ATTACHMENTS_LIMIT'); ?>
 						</div>

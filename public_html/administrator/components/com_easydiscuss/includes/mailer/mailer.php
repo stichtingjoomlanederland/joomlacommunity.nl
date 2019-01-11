@@ -330,6 +330,14 @@ class EasyDiscussMailer extends EasyDiscuss
 			$category->load($data['cat_id']);
 			$groups = $category->getViewableGroups();
 
+			// when there is nothing return, this mean
+			// there is no jooml user group that can view posts
+			// from this category. If that is the case,
+			// we dont have to process further. #573
+			if (!$groups) {
+				return;
+			}
+
 			$query .= ' AND b.`group_id` IN(' . implode(',', $groups) . ')';
 		}
 
@@ -531,8 +539,10 @@ class EasyDiscussMailer extends EasyDiscuss
 			$db->setQuery($query);
 			$aclItems  = $db->loadObjectList();
 
+			$guestGroupId = JComponentHelper::getParams('com_users')->get('guest_usergroup');
+
 			// Now get the guest subscribers
-			if (in_array('1', $categoryGrps) || in_array('0', $categoryGrps)) {
+			if (in_array('1', $categoryGrps) || in_array($guestGroupId, $categoryGrps)) {
 				$query	= 'SELECT * FROM `#__discuss_subscription` AS ds';
 				$query	.= ' WHERE ds.`interval` = ' . $db->Quote('instant');
 				$query	.= ' AND ds.`type` = ' . $db->Quote($type);
@@ -770,13 +780,13 @@ class EasyDiscussMailer extends EasyDiscuss
 	}
 
 	/**
-     * Trim email content before send
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Trim email content before send
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function trimEmail($content)
 	{
 		if ($this->config->get('layout_editor') != 'bbcode') {
@@ -802,13 +812,13 @@ class EasyDiscussMailer extends EasyDiscuss
 	}
 
 	/**
-     * Truncate email content
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Truncate email content
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function truncate($content)
 	{
 		// Convert HTML entities to characters e.g. &lt;br&gt; => <br>
@@ -823,21 +833,21 @@ class EasyDiscussMailer extends EasyDiscuss
 	}
 
 	/**
-     * Get email moderation link
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Get email moderation link
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function getModerationLink($approveURL, $rejectURL)
 	{
 		$content  = '<div style="display:inline-block;width:100%;padding:20px;border-top:1px solid #ccc;padding:20px 0 10px;margin-top:20px;line-height:19px;color:#555;font-family:\'Lucida Grande\',Tahoma,Arial;font-size:12px;text-align:left">';
-        $content .= '<a href="' . $approveURL . '" style="display:inline-block;padding:5px 15px;background:#fc0;border:1px solid #caa200;border-bottom-color:#977900;color:#534200;text-shadow:0 1px 0 #ffe684;font-weight:bold;box-shadow:inset 0 1px 0 #ffe064;-moz-box-shadow:inset 0 1px 0 #ffe064;-webkit-box-shadow:inset 0 1px 0 #ffe064;border-radius:2px;moz-border-radius:2px;-webkit-border-radius:2px;text-decoration:none!important">' . JText::_('COM_EASYDISCUSS_EMAIL_APPROVE_POST') . '</a>';
-        $content .= ' ' . JText::_('COM_EASYDISCUSS_OR') . ' <a href="' . $rejectURL . '" style="color:#477fda">' . JText::_('COM_EASYDISCUSS_REJECT') . '</a>';
-        $content .= '</div>';
+		$content .= '<a href="' . $approveURL . '" style="display:inline-block;padding:5px 15px;background:#fc0;border:1px solid #caa200;border-bottom-color:#977900;color:#534200;text-shadow:0 1px 0 #ffe684;font-weight:bold;box-shadow:inset 0 1px 0 #ffe064;-moz-box-shadow:inset 0 1px 0 #ffe064;-webkit-box-shadow:inset 0 1px 0 #ffe064;border-radius:2px;moz-border-radius:2px;-webkit-border-radius:2px;text-decoration:none!important">' . JText::_('COM_EASYDISCUSS_EMAIL_APPROVE_POST') . '</a>';
+		$content .= ' ' . JText::_('COM_EASYDISCUSS_OR') . ' <a href="' . $rejectURL . '" style="color:#477fda">' . JText::_('COM_EASYDISCUSS_REJECT') . '</a>';
+		$content .= '</div>';
 
-        return $content;
+		return $content;
 	}
 
 	/**

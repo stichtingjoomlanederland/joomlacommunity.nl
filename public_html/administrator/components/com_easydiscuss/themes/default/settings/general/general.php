@@ -38,7 +38,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 					<?php echo $this->html('settings.toggle', 'main_master_tags', 'COM_EASYDISCUSS_MAIN_TAGS_ENABLE'); ?>
 
-					<?php echo $this->html('settings.textbox', 'max_tags_allowed', 'COM_EASYDISCUSS_MAX_TAG_ALLOWED', '', array('size' => 5, 'postfix' => 'Tags'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'max_tags_allowed', 'COM_EASYDISCUSS_MAX_TAG_ALLOWED', '', array('size' => 7, 'postfix' => 'Tags'), '', 'form-control-sm text-center'); ?>
 
 					<div class="form-group">
 						<div class="col-md-5 control-label">
@@ -58,7 +58,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 					<?php echo $this->html('settings.toggle', 'main_report', 'COM_EASYDISCUSS_ENABLE_REPORT'); ?>
 
-					<?php echo $this->html('settings.textbox', 'main_reportthreshold', 'COM_EASYDISCUSS_REPORT_THRESHOLD', '', array('size' => 5, 'postfix' => 'Reports'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'main_reportthreshold', 'COM_EASYDISCUSS_REPORT_THRESHOLD', '', array('size' => 7, 'postfix' => 'Reports'), '', 'form-control-sm text-center'); ?>
 
 					<?php echo $this->html('settings.toggle', 'main_ban', 'COM_EASYDISCUSS_ENABLE_BAN'); ?>
 				</div>
@@ -80,7 +80,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<div class="form-horizontal">
 					<?php echo $this->html('settings.toggle', 'main_userdownload', 'COM_ED_USER_ALLOW_DOWNLOAD'); ?>
 
-					<?php echo $this->html('settings.textbox', 'main_userdownload_expiry', 'COM_ED_USER_DOWNLOAD_EXPIRY', '', array('size' => 5, 'postfix' => 'Days'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'main_userdownload_expiry', 'COM_ED_USER_DOWNLOAD_EXPIRY', '', array('size' => 7, 'postfix' => 'Days'), '', 'form-control-sm text-center'); ?>
 				</div>
 			</div>
 		</div>
@@ -99,7 +99,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('settings.toggle', 'main_comment_permalink', 'COM_ED_COMMENTS_SHOW_PERMALINK'); ?>
 
 					<?php echo $this->html('settings.toggle', 'main_comment_pagination', 'COM_EASYDISCUSS_COMMENT_PAGINATION'); ?>
-					<?php echo $this->html('settings.textbox', 'main_comment_pagination_count', 'COM_EASYDISCUSS_COMMENT_PAGINATION_COUNT', '', array('size' => 5, 'postfix' => 'Comments'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'main_comment_pagination_count', 'COM_EASYDISCUSS_COMMENT_PAGINATION_COUNT', '', array('size' => 8, 'postfix' => 'Comments'), '', 'form-control-sm text-center'); ?>
 				</div>
 			</div>
 		</div>

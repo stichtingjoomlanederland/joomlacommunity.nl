@@ -2,6 +2,14 @@ ed.require(['edq', 'site/src/toolbar', 'site/src/discuss', 'site/src/floatlabels
 
 	var toolbarSelector = '[data-ed-toolbar]';
 
+	// If conversekit is installed, do not redirect the user
+	if (window.ck !== undefined) {
+
+		$('[data-ed-external-conversation]').on('click', function(event) {
+			event.preventDefault();
+		});
+	}
+
 	// Prevent closing toolbar dropdown
 	$(document).on('click.toolbar', '[data-ed-toolbar-dropdown]', function(event) {
 		event.stopPropagation();

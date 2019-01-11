@@ -125,6 +125,9 @@ class EasyDiscussViewVotes extends EasyDiscussView
 
 					ED::points()->assign('easydiscuss.vote.reply', $this->my->id, null, $voted);
 
+					// assign new ranks.
+					ED::ranks()->assignRank($this->my->id, $this->config->get('main_ranking_calc_type'));
+
 					// @rule: Add notifications for the thread starter
 					$notification = ED::table('Notifications');
 					$notification->bind( array(
@@ -152,6 +155,9 @@ class EasyDiscussViewVotes extends EasyDiscussView
 
 					ED::points()->assign('easydiscuss.unvote.reply', $this->my->id, null, $voted);
 
+					// assign new ranks.
+					ED::ranks()->assignRank($this->my->id, $this->config->get('main_ranking_calc_type'));
+
 					// @rule: Add notifications for the thread starter
 					$notification = ED::table('Notifications');
 					$notification->bind(array(
@@ -177,6 +183,9 @@ class EasyDiscussViewVotes extends EasyDiscussView
 					//AUP
 					ED::aup()->assign(DISCUSS_POINTS_QUESTION_VOTE_UP, $this->my->id, $question->title);
 
+					// assign new ranks.
+					ED::ranks()->assignRank($this->my->id, $this->config->get('main_ranking_calc_type'));
+
 					$notification = ED::table('Notifications');
 					$notification->bind(array(
 							'title'	=> JText::sprintf( 'COM_EASYDISCUSS_VOTE_UP_DISCUSSION' , $post->title ),
@@ -195,6 +204,9 @@ class EasyDiscussViewVotes extends EasyDiscussView
 
 					//AUP
 					ED::aup()->assign(DISCUSS_POINTS_QUESTION_VOTE_DOWN, $this->my->id, $question->title);
+
+					// assign new ranks.
+					ED::ranks()->assignRank($this->my->id, $this->config->get('main_ranking_calc_type'));
 
 					$notification = ED::table('Notifications');
 					$notification->bind(array(

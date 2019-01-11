@@ -138,7 +138,7 @@ class EasyDiscussCategory extends EasyDiscuss
 		$postCount = 0;
 		if ($this->table->id) {
 			$model = ED::model('Categories');
-			$postCount = $model->getUsedCount($this->table->id, false, true);
+			$postCount = $model->getUsedCount($this->table->id, false);
 		}
 
 		// if user enable container option to yes, we need to ensure that

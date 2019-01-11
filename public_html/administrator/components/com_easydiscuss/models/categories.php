@@ -197,20 +197,15 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 	 * @return int	$result	The total count of entries.
 	 * @param boolean	$published	Whether to filter by published.
 	 */
-	public function getUsedCount($categoryId, $published = false, $parentOnly = false)
+	public function getUsedCount($categoryId, $published = false)
 	{
 		$db = $this->db;
 
-
-		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__discuss_posts') . ' '
-				. 'WHERE ' . $db->nameQuote('category_id') . '=' . $db->Quote($categoryId);
+		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__discuss_thread');
+		$query	.= ' WHERE ' . $db->nameQuote('category_id') . '=' . $db->Quote($categoryId);
 
 		if ($published) {
 			$query	.= ' AND ' . $db->nameQuote('published') . '=' . $db->Quote(1);
-		}
-
-		if ($parentOnly) {
-			$query	.= ' AND ' . $db->nameQuote('parent_id') . '=' . $db->Quote(0);
 		}
 
 		$db->setQuery($query);

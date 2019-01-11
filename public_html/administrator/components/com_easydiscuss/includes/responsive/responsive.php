@@ -315,7 +315,7 @@ class EasyDiscussResponsive extends EasyDiscuss
 
 	public $sizes = array(
 						'mobile' => 'w480',
-						'tablet' => 'w780'
+						'tablet' => 'w640'
 					);
 	/**
 	 * Determines the class name to be used based on the user agent

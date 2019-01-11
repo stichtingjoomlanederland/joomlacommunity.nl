@@ -10,6 +10,8 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		}
 	};
 
+	var allowedExtensions = "<?php echo $allowedExtensions; ?>";
+
 	var wrapper = $('[<?php echo $editorId;?>] [data-ed-attachments]');
 
 	// Clone the form once
@@ -40,7 +42,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 		// If there is attachment form, remove it
 		wrapper.find('[data-ed-attachment-form]').remove();
-		
+
 		// get back the cloned form
 		var form = clonedForm.clone();
 
@@ -49,7 +51,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 		// Reset the info dom
 		info.html('<?php echo JText::sprintf('COM_EASYDISCUSS_ATTACHMENTS_INFO', $allowedExtensions); ?>');
-	 
+
 	});
 
 	var existInArray = function(val, arr) {
@@ -90,6 +92,23 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		return type;
 	};
 
+	var isExtensionAllowed = function(file) {
+		filename = file.title;
+
+		var extension = filename.substr((filename.lastIndexOf('.') + 1));
+
+		var exts = allowedExtensions.split(',');
+
+		var index = $.inArray(extension, exts);
+
+		// extension found. This mean the file extension is supported.
+		if (index >= 0) {
+			return true;
+		}
+
+		return false;
+	};
+
 	var insertAttachment = function(form) {
 
 		var fileInput = form.find("input:not(:hidden)");
@@ -103,6 +122,20 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		// Chrome fix
 		if (file.title.match(/fakepath/)) {
 			file.title = file.title.replace(/C:\\fakepath\\/i, '');
+		}
+
+		// reset message.
+		info.html('<?php echo JText::sprintf('COM_EASYDISCUSS_ATTACHMENTS_INFO', $allowedExtensions); ?>');
+
+		if (!isExtensionAllowed(file)) {
+
+			var error = '<?php echo JText::_('COM_EASYDISCUSS_FILE_ATTACHMENTS_INVALID_EXTENSION', true); ?>';
+			errorMsg = error.replace('%1s', filename);
+
+			fullErrorMsg = '<label class="o-alert o-alert--icon o-alert--danger">' + errorMsg + '</label>';
+
+			info.html(fullErrorMsg);
+			return false;
 		}
 
 		// Set the file title
@@ -119,7 +152,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 			var insertLink = form.children('[data-ed-attachment-item-insert]');
 			insertLink.remove();
 		}
-		
+
 		// Add it into the list
 		form.appendTo(list);
 
@@ -133,7 +166,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 			info.html('<?php echo JText::_('COM_EASYDISCUSS_EXCEED_ATTACHMENT_LIMIT') ?>');
 
 		}
-		
+
 	};
 
 	var resetAttachmentForm = function() {
@@ -165,9 +198,9 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 			if (diff == 1 && limitEnabled) {
 				// Once it is removed, we want to attach a new form to the list
 				resetAttachmentForm();
-				
+
 				info.html('<?php echo JText::sprintf('COM_EASYDISCUSS_ATTACHMENTS_INFO', $allowedExtensions); ?>');
-			} 
+			}
 			return;
 		}
 
@@ -193,9 +226,9 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 						if (diff == 1 && limitEnabled) {
 							// Once it is removed, we want to attach a new form to the list
 							resetAttachmentForm();
-							
+
 							info.html('<?php echo JText::sprintf('COM_EASYDISCUSS_ATTACHMENTS_INFO', $allowedExtensions); ?>');
-						} 
+						}
 					});
 				}
 			}

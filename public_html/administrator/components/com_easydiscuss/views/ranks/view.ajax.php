@@ -21,7 +21,7 @@ class EasyDiscussViewRanks extends EasyDiscussAdminView
 	
 		$table = ED::table('Ranksusers');
 
-		$table->load('', $userid);
+		$table->load($userid, true);
 
 		// If there is no data for this user, just skip
 		if (!$table->id) {

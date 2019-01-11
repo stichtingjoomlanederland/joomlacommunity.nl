@@ -33,8 +33,10 @@ class EasyDiscussViewProfile extends EasyDiscussView
 
 		$profile = ED::user($profileId);
 
+		$tabTitle = JText::_('COM_EASYDISCUSS_PROFILE_TAB_' . strtoupper($type));
+
 		// Append page title.
-		$pageTitle = JText::sprintf('COM_EASYDISCUSS_PROFILE_PAGE_TITLE', $profile->getName(), $type);
+		$pageTitle = JText::sprintf('COM_EASYDISCUSS_PROFILE_PAGE_TITLE', $profile->getName(), $tabTitle);
 
 		if ($type == 'easyblog') {
 			$helperFile = JPATH_ADMINISTRATOR . '/components/com_easyblog/includes/easyblog.php';
@@ -58,8 +60,9 @@ class EasyDiscussViewProfile extends EasyDiscussView
 					$contents .= $theme->output('site/profile/simple.item');
 				}
 			}
-
-			$this->ajax->resolve($contents, $pagination, JText::_('COM_EASYDISCUSS_EMPTY_LIST'));
+		
+			$tabTitle = JText::_('COM_EASYDISCUSS_PROFILE_TAB_EASYBLOG');
+			$this->ajax->resolve($contents, $pagination, $pageTitle);
 			return $this->ajax->send();
 		}
 

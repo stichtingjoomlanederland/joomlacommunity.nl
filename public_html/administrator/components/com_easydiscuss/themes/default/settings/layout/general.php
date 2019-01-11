@@ -21,8 +21,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('settings.textbox', 'layout_wrapper_sfx', 'COM_EASYDISCUSS_WRAPPERCLASS_SFX'); ?>
 					<?php echo $this->html('settings.toggle', 'main_responsive', 'COM_EASYDISCUSS_ENABLE_RESPONSIVE'); ?>
 					<?php echo $this->html('settings.toggle', 'layout_board_stats', 'COM_EASYDISCUSS_ENABLE_BOARD_STATISTICS'); ?>
-					<?php echo $this->html('settings.textbox', 'layout_list_limit', 'COM_EASYDISCUSS_LIST_LIMIT', '', array('size' => 5, 'postfix' => 'Posts'), '', 'form-control-sm text-center'); ?>
-					<?php echo $this->html('settings.textbox', 'layout_daystostaynew', 'COM_EASYDISCUSS_NUMBER_OF_DAYS_A_POST_STAY_AS_NEW', '', array('size' => 5, 'postfix' => 'Days'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'layout_list_limit', 'COM_EASYDISCUSS_LIST_LIMIT', '', array('size' => 7, 'postfix' => 'Posts'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'layout_daystostaynew', 'COM_EASYDISCUSS_NUMBER_OF_DAYS_A_POST_STAY_AS_NEW', '', array('size' => 7, 'postfix' => 'Days'), '', 'form-control-sm text-center'); ?>
 					<?php echo $this->html('settings.toggle', 'layout_zero_as_plural', 'COM_EASYDISCUSS_SETTINGS_ZERO_AS_PLURAL'); ?>
 					<?php echo $this->html('settings.toggle', 'main_copyright_link_back', 'COM_EASYDISCUSS_ENABLE_POWERED_BY'); ?>
 				</div>
@@ -89,10 +89,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('settings.toggle', 'layout_avatar_in_post', 'COM_EASYDISCUSS_ENABLE_AVATARS_IN_POST'); ?>
 					<?php echo $this->html('settings.toggle', 'layout_avatar_popbox', 'COM_EASYDISCUSS_ENABLE_AVATARS_POPBOX'); ?>
 					<?php echo $this->html('settings.toggle', 'layout_badges_in_post', 'COM_ED_BADGES_IN_POST'); ?>
-					<?php echo $this->html('settings.textbox', 'layout_avatarwidth', 'COM_EASYDISCUSS_AVATARS_SIZE_PIXELS', '', array('size' => 5, 'postfix' => 'px'), '', 'form-control-sm text-center'); ?>
-					<?php echo $this->html('settings.textbox', 'layout_avatarthumbwidth', 'COM_EASYDISCUSS_AVATARS_THUMBNAIL_SIZE_PIXELS', '', array('size' => 5, 'postfix' => 'px'), '', 'form-control-sm text-center'); ?>
-					<?php echo $this->html('settings.textbox', 'main_upload_maxsize', 'COM_EASYDISCUSS_MAX_UPLOAD_SIZE', '', array('size' => 5, 'postfix' => 'MB'), '', 'form-control-sm text-center'); ?>
-					<?php echo $this->html('settings.textbox', 'layout_originalavatarwidth', 'COM_EASYDISCUSS_ORIGINAL_AVATAR_SIZE', '', array('size' => 5, 'postfix' => 'px'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'layout_avatarwidth', 'COM_EASYDISCUSS_AVATARS_SIZE_PIXELS', '', array('size' => 6, 'postfix' => 'px'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'layout_avatarthumbwidth', 'COM_EASYDISCUSS_AVATARS_THUMBNAIL_SIZE_PIXELS', '', array('size' => 6, 'postfix' => 'px'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'main_upload_maxsize', 'COM_EASYDISCUSS_MAX_UPLOAD_SIZE', '', array('size' => 6, 'postfix' => 'MB'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'layout_originalavatarwidth', 'COM_EASYDISCUSS_ORIGINAL_AVATAR_SIZE', '', array('size' => 6, 'postfix' => 'px'), '', 'form-control-sm text-center'); ?>
 					<?php echo $this->html('settings.textbox', 'main_avatarpath', 'COM_EASYDISCUSS_AVATAR_PATH', '', array('defaultValue' => 'images/discuss_avatar/')); ?>
 
 				</div>

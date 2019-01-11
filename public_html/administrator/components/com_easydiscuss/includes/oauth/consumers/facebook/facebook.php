@@ -93,12 +93,14 @@ class EasyDiscussFacebook extends Facebook
 	 */
 	public function getAuthorizationURL()
 	{
-		$scopes = array('manage_pages', 'publish_pages', 'user_managed_groups', 'publish_to_groups', 'groups_access_member_info');
-		$scopes = implode(',', $scopes);
+		$config = ED::config();
+		$scopes = $config->get('main_autopost_facebook_scope_permissions');
 
-		$callbackURI = urlencode($this->callback);
+		$redirect = $this->callback;
+		$redirect = urlencode($redirect);
 
-		$url = 'https://facebook.com/dialog/oauth?scope=' . $scopes . '&client_id=' . $this->key . '&redirect_uri=' . $callbackURI . '&response_type=code&display=popup';
+		$url = 'https://facebook.com/dialog/oauth?scope=' . $scopes . '&client_id=' . $this->key . '&redirect_uri=' . $redirect . '&response_type=code&display=popup';
+
 		return $url;
 	}
 

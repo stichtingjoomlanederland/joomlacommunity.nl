@@ -78,6 +78,16 @@ defined('_JEXEC') or die('Unauthorized Access');
 								</div>
 							</div>
 						</div>
+
+						<div class="form-group">
+							<div class="col-md-5 control-label">
+								<?php echo $this->html('form.label', 'COM_ED_FB_AUTOPOST_SCOPE_PERMISSIONS'); ?>
+							</div>
+							<div class="col-md-7">
+								<?php echo $this->html('form.scopes', 'main_autopost_facebook_scope_permissions[]', 'main_autopost_facebook_scope_permissions', $selectedScopePermissions); ?>
+							</div>
+						</div>
+
 						<div class="form-group">
 							<div class="col-md-5 control-label">
 								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_FB_AUTOPOST_SIGN_IN'); ?>

@@ -15,6 +15,15 @@ class EasyDiscussToolbar extends EasyDiscuss
 {
 	public function render($options = array())
 	{
+		$activeMenu = JFactory::getApplication()->getMenu()->getActive();
+		$params = new JRegistry();
+
+		if ($activeMenu) {
+			$params = $activeMenu->params;
+		}
+
+		$heading = $params->get('show_page_heading', '');
+
 		// Get a list of available views
 		$views = JFolder::folders(JPATH_COMPONENT . '/views');
 
@@ -45,7 +54,10 @@ class EasyDiscussToolbar extends EasyDiscuss
 
 		// Get the headers for the toolbar
 		$headers = new stdClass;
-		$headers->title = JText::_($this->config->get('main_title'));
+		
+		// If user does not fill in anything from the menu's page heading field, it should load the menu title by default.
+		// If is false, it will load ED's Heading Title #590
+		$headers->title = $heading ? $params->get('page_heading', $activeMenu->title) : JText::_($this->config->get('main_title'));
 		$headers->desc = JText::_($this->config->get('main_description'));
 
 		// temporary commented this is because if toolbar and header disable together, that error message will not show out on the page

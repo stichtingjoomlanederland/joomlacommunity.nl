@@ -128,6 +128,17 @@ class EasydiscussControllerConversation extends EasyDiscussController
 		// Get message from query.
 		$message = $this->input->get('message', '', 'default');
 
+		if (empty($message)) {
+			$message = JText::_('COM_EASYDISCUSS_CONVERSATION_EMPTY_MESSAGE');
+			
+			if ($this->isAjax) {
+				return $this->ajax->reject($message);
+			}
+
+			ED::setMessage($message);
+			return $this->app->redirect($redirect);
+		}
+
 		// Create a new conversation
 		$conversation = ED::conversation();
 		$conversation->create($this->my->id, $recipientId, $message);

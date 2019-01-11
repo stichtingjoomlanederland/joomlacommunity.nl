@@ -23,13 +23,13 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php } ?>
 			>
 				<div class="ed-badge">
-					<div class="o-flag ed-badge--flag">
-						<div class="o-flag__image o-flag--top">
+					<div class="o-media ed-badge--flag o-media--top">
+						<div class="o-media__image">
 							<a href="<?php echo EDR::_('view=badges&layout=listings&id=' . $badge->id);?>" class="o-avatar">
 								<img src="<?php echo $badge->getAvatar();?>"/>
 							</a>
 						</div>
-						<div class="o-flag__body">
+						<div class="o-media__body">
 							<a href="<?php echo EDR::_('view=badges&layout=listings&id=' . $badge->id);?>" class="ed-badge__name"><?php echo JText::_($badge->title);?></a>
 							<div class="ed-badge__meta t-lg-mb--md t-lg-mt--md small"><?php echo $badge->get('description');?></div>
 							<a href="<?php echo EDR::_('view=badges&layout=listings&id=' . $badge->id); ?>" class="ed-badge__rank t-lg-mb--sm"><?php echo JText::sprintf('COM_EASYDISCUSS_BADGE_TOTAL_ACHIEVERS', $badge->getTotalAchievers());?></a>

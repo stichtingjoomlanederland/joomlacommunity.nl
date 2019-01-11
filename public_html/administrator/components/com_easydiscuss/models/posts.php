@@ -162,16 +162,15 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 	 */
 	public function getTotalResolved()
 	{
-		$db 	= DiscussHelper::getDBO();
+		$db = ED::db();
 
 		$query	= array();
-		$query[] 	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_posts' );
-		$query[]	= 'WHERE ' . $db->nameQuote( 'isresolve' ) . '=' . $db->Quote( 1 );
-		$query[]	= 'AND ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( DISCUSS_ID_PUBLISHED );
-		$query[]	= 'AND ' . $db->nameQuote( 'parent_id' ) . '=' . $db->Quote( 0 );
-		$query[]	= 'AND ' . $db->nameQuote('private') . '=' . $db->Quote( 0 );
+		$query[] = 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__discuss_thread');
+		$query[] = 'WHERE ' . $db->nameQuote('published') . '=' . $db->Quote(1);
+		$query[] = 'AND ' . $db->nameQuote('isresolve') . '=' . $db->Quote(DISCUSS_ID_PUBLISHED);
+		$query[] = 'AND ' . $db->nameQuote('private') . '=' . $db->Quote(0);
 
-		$query 		= implode( ' ' , $query );
+		$query = implode(' ', $query);
 
 		$db->setQuery( $query );
 
@@ -1649,31 +1648,20 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		}
 
 		$query = "select a.* from `#__discuss_posts` as a";
-		$query .= " inner join `#__discuss_thread` as b on a.thread_id = b.id and b.published = 1";
+		$query .= " inner join `#__discuss_thread` as b on a.thread_id = b.id";
 		$query .= ' where a.`published` = 1';
 		$query .= " and a.`parent_id` > 0";
+
+		if (!ED::isSiteAdmin() && !ED::isModerator()) {
+			$query	.= ' AND a.`private`=' . $db->Quote(0);
+		}
 
 		$catOptions = array();
 		$catOptions['idOnly'] = true;
 		$catOptions['includeChilds'] = true;
 
-		// $catAccessSQL = ED::category()->genCategoryAccessSQL('a.category_id', $catOptions);
-		// $where[] = $catAccessSQL;
-		$catModel = ED::model('Categories');
-		$catIds = $catModel->getCategoriesTree(0, $catOptions);
-
-		// if there is no categories return, means this user has no permission to view all the categories.
-		// if that is the case, just return empty array.
-		if (! $catIds) {
-			return array();
-		}
-
-		$query .= " and b.`category_id` IN (" . implode(',', $catIds) . ")";
-
-
-		if (!ED::isSiteAdmin() && !ED::isModerator()) {
-			$query	.= ' AND b.`private`=' . $db->Quote(0);
-		}
+		$catAccessSQL = ED::category()->genCategoryAccessSQL('a.category_id', $catOptions);
+		$query .= " and " . $catAccessSQL;
 
 
 		$query .= " order by a.`id` desc";
@@ -1959,6 +1947,27 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 		return $result;
 	}
+
+	/**
+	 * Retrieves the total number of thread posts created on the site.
+	 *
+	 * @since	4.1
+	 * @access	public
+	 */
+	public function getTotalThread()
+	{
+		$db	= ED::db();
+
+		$query = "select count(1) from `#__discuss_thread` as a";
+		$query .= " where a.`published` = " . $db->Quote(1);
+		$query .= " and a.`cluster_id` = " . $db->Quote(0);
+
+		$db->setQuery($query);
+		$result = $db->loadResult();
+
+		return $result;
+	}
+
 
 	/**
 	 * Retrieves the total number of comments for this particular discussion.
@@ -2264,33 +2273,31 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		return $result;
 	}
 
-	public function getUnresolvedCount( $filter = '' , $category = '' , $tagId = '', $featuredOnly = 'all', $queryOnly = false, $clusterId = '')
+	public function getUnresolvedCount($filter = '', $category = '', $tagId = '', $featuredOnly = 'all', $queryOnly = false, $clusterId = '')
 	{
-		$db	= DiscussHelper::getDBO();
+		$db	= ED::db();
 		$my	= JFactory::getUser();
 
-		$queryExclude	= '';
-		$excludeCats	= array();
+		$queryExclude = '';
+		$excludeCats = array();
 		$includeCluster = false;
 
 		// get all private categories id
-		$excludeCats	= DiscussHelper::getPrivateCategories();
-		if(! empty($excludeCats))
-		{
+		$excludeCats = ED::getPrivateCategories();
+
+		if (!empty($excludeCats)) {
 			$queryExclude .= ' AND a.`category_id` NOT IN (' . implode(',', $excludeCats) . ')';
 		}
 
-		$query	= 'SELECT COUNT(a.`id`) FROM ' . $db->nameQuote( '#__discuss_posts' ) . ' AS a';
+		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__discuss_thread') . ' AS a';
 
-		if(! empty($tagId))
-		{
-			$query	.= ' INNER JOIN `#__discuss_posts_tags` as c';
-			$query	.= '	ON a.`id` = c.`post_id`';
-			$query	.= '	AND c.`tag_id` = ' . $db->Quote($tagId);
+		if (!empty($tagId)) {
+			$query .= ' INNER JOIN `#__discuss_posts_tags` as c';
+			$query .= '	ON a.`id` = c.`post_id`';
+			$query .= '	AND c.`tag_id` = ' . $db->Quote($tagId);
 		}
 
-		$query	.= ' WHERE a.`published` = ' . $db->Quote(1);
-		$query	.= ' AND a.`parent_id`=' . $db->Quote(0);
+		$query .= ' WHERE a.`published` = ' . $db->Quote(1);
 
 		if ($clusterId) {
 			$query .= ' AND a.`cluster_id` = ' . $clusterId;
@@ -2302,14 +2309,12 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 		}
 
 		// @rule: Should not calculate resolved posts
-		$query	.= ' AND a.`isresolve`=' . $db->Quote(0);
+		$query .= ' AND a.`isresolve`=' . $db->Quote(0);
 
-		if( $featuredOnly === true )
-		{
-			$query	.= ' AND a.`featured`=' . $db->Quote(1);
-		}
-		else if( $featuredOnly === false)
-		{
+		if ($featuredOnly === true) {
+			$query .= ' AND a.`featured`=' . $db->Quote(1);
+
+		} else if( $featuredOnly === false) {
 			$query	.= ' AND a.`featured`=' . $db->Quote(0);
 		}
 
@@ -2317,37 +2322,34 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 			$query	.= ' AND a.`private`=' . $db->Quote(0);
 		}
 
+		if ($category) {
 
-		if( $category )
-		{
-			if( !is_array( $category ) )
-			{
-				$category 	= array( $category );
+			if (!is_array($category)) {
+				$category = array($category);
 			}
 
-			$model 		= ED::model( 'Categories' );
+			$model = ED::model('Categories');
 
-			foreach( $category as $categoryId )
-			{
-				$data		= $model->getChildIds( $categoryId );
+			foreach ($category as $categoryId) {
 
-				if( $data )
-				{
-					foreach( $data as $childCategory )
-					{
-						$childs[]	= $childCategory;
+				$data = $model->getChildIds($categoryId);
+
+				if ($data) {
+
+					foreach ($data as $childCategory) {
+						$childs[] = $childCategory;
 					}
 				}
-				$childs[]	= $categoryId;
+
+				$childs[] = $categoryId;
 			}
 
-			$query	.= ' AND a.`category_id` IN (' . implode( ',' , $childs ) . ')';
+			$query	.= ' AND a.`category_id` IN (' . implode(',' , $childs) . ')';
 		}
 
-		$query	.= $queryExclude;
+		$query .= $queryExclude;
 
-
-		$db->setQuery( $query );
+		$db->setQuery($query);
 
 		return $db->loadResult();
 	}
@@ -2502,74 +2504,68 @@ class EasyDiscussModelPosts extends EasyDiscussAdminModel
 
 	public function getUnansweredCount( $filter = '' , $category = '' , $tagId = '', $featuredOnly = 'all', $clusterId = '')
 	{
-		$db	= DiscussHelper::getDBO();
+		$db	= ED::db();
 		$my	= JFactory::getUser();
 
-		$queryExclude	= '';
-		$excludeCats	= array();
+		$queryExclude = '';
+		$excludeCats = array();
 		$includeCluster = false;
 
 		// get all private categories id
-		$excludeCats	= DiscussHelper::getPrivateCategories();
-		if(! empty($excludeCats))
-		{
-			$queryExclude .= ' AND a.`category_id` NOT IN (' . implode(',', $excludeCats) . ')';
+		$excludeCats = DiscussHelper::getPrivateCategories();
+		if (! empty($excludeCats)) {
+			$queryExclude .= " AND a.`category_id` NOT IN (" . implode(',', $excludeCats) . ')';
 		}
 
+		$query = "select count(1)";
+		$query .= " from `#__discuss_thread` as a";
 
-		$query	= 'SELECT COUNT(a.`id`) FROM `#__discuss_posts` AS a';
-		$query	.= '	LEFT JOIN `#__discuss_posts` AS b';
-		$query	.= '	ON a.`id`=b.`parent_id`';
-		$query	.= '	AND b.`published`=' . $db->Quote('1');
-		$query .= ' inner join `#__discuss_thread` as dt on a.`id` = dt.`post_id`';
-
-		if(! empty($tagId))
-		{
-			$query	.= ' INNER JOIN `#__discuss_posts_tags` as c';
-			$query	.= '	ON a.`id` = c.`post_id`';
-			$query	.= '	AND c.`tag_id` = ' . $db->Quote($tagId);
+		if (! empty($tagId)) {
+			$query .= " INNER JOIN `#__discuss_posts_tags` as c";
+			$query .= "	ON a.`post_id` = c.`post_id`";
+			$query .= "	AND c.`tag_id` = " . $db->Quote($tagId);
 		}
 
-		$query	.= ' WHERE a.`parent_id` = ' . $db->Quote('0');
-		$query	.= ' AND a.`published`=' . $db->Quote('1');
+		$query .= " WHERE a.`published` = " . $db->Quote('1');
+
+		// @rule: Should not calculate resolved posts
+		$query .= " AND a.`isresolve`= " . $db->Quote(0);
+
+		// unanswered thread always have 0 replies
+		$query .= " AND a.`num_replies` = 0";
 
 		if ($clusterId) {
-			$query .= ' AND a.`cluster_id` = ' . $clusterId;
+			$query .= " AND a.`cluster_id` = " . $clusterId;
 			$includeCluster = true;
 		}
 
 		if (!$includeCluster) {
-			$query .= ' AND a.`cluster_id` = ' . $db->Quote(0);
+			$query .= " AND a.`cluster_id` = " . $db->Quote(0);
 		}
 
-		// @rule: Should not calculate resolved posts
-		$query .= ' AND a.`isresolve`=' . $db->Quote(0);
-		$query .= " AND (dt.`last_user_id` = 0 and dt.`last_poster_email` = '')";
-
-		if( $featuredOnly === true )
-		{
-			$query	.= ' AND a.`featured`=' . $db->Quote('1');
-		}
-		else if( $featuredOnly === false)
-		{
-			$query	.= ' AND a.`featured`=' . $db->Quote('0');
+		if ($featuredOnly === true) {
+			$query	.= " AND a.`featured` = " . $db->Quote('1');
+		} else if ($featuredOnly === false) {
+			$query	.= " AND a.`featured` = " . $db->Quote('0');
 		}
 
 		if (!ED::isSiteAdmin() && !ED::isModerator()) {
-			$query	.= ' AND a.`private`=' . $db->Quote(0);
+			$query	.= " AND a.`private` = " . $db->Quote(0);
 		}
 
-		if( $category )
-		{
-			$model	= ED::model( 'Categories' );
+		if ($category) {
+			$model = ED::model( 'Categories' );
 			$childs	= $model->getChildIds( $category );
-			$childs[]	 = $category;
-			$query	.= ' AND a.`category_id` IN (' . implode( ',' , $childs ) . ')';
+			$childs[] = $category;
+			$query .= " AND a.`category_id` IN (" . implode( ',' , $childs ) . ")";
 		}
-		$query	.= ' AND b.`id` IS NULL';
-		$query	.= $queryExclude;
 
-		$db->setQuery( $query );
+		$query .= $queryExclude;
+
+		// echo $query;
+		// echo '<br><br>';
+
+		$db->setQuery($query);
 
 		return $db->loadResult();
 	}

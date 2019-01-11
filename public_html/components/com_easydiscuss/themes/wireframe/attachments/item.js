@@ -35,6 +35,8 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 
 	attachmentPreview.fancybox({
 		type: 'image',
+		wrapCSS: 'fancy--ed-image',
+
 		helpers: {
 			overlay: null
 		}

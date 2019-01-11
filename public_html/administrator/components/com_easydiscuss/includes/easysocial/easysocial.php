@@ -1295,12 +1295,17 @@ class EasyDiscussEasySocial extends EasyDiscuss
 			return false;
 		}
 
+		if (!$this->config->get('integration_easysocial_points')) {
+			return false;
+		}
+
 		if (!$userId) {
 			return false;
 		}
 
 		$model = ES::model('Points');
+		$point = $model->getPoints($userId);
 
-		return $model->getPoints($userId);
+		return $point;
 	}
 }

@@ -13,29 +13,16 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <?php echo $jsToolbar; ?>
 
-<script type="text/javascript">
-document.addEventListener('DOMContentLoaded', function(){
-	if (window.innerWidth < 640 && window.innerWidth > 481) {
-		var wrapper = document.querySelectorAll('.ed-responsive');
-		for(var i = 0; i < wrapper.length; i++) {
-			wrapper[i].classList.add('w640');
-		}
-	}
-	if (window.innerWidth < 480 ) {
-		var wrapper = document.querySelectorAll('.ed-responsive');
-		for(var i = 0; i < wrapper.length; i++) {
-			wrapper[i].classList.add('w480');
-		}
-	}
-});
-</script>
 <div id="ed" class="type-component
 	ed-responsive
 	<?php echo $categoryClass;?>
 	<?php echo $suffix; ?>
 	<?php echo 'view-' . $view; ?>
 	<?php echo 'layout-' . $layout; ?>
-	<?php echo $rtl ? ' is-rtl' : '';?>"
+	<?php echo $rtl ? ' is-rtl' : '';?>
+	<?php echo $this->responsiveClass();?>
+	"
+
 	data-ed-wrapper
 >
 	<?php if ($miniheader) { ?>

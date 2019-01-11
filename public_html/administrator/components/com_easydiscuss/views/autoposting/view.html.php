@@ -91,6 +91,13 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 		// retrieve Facebook oauth valid URIs
 		$oauthURIs = ED::oauth()->getOauthRedirectURI();
 
+		// Retrieve Facebook scopes permission
+		$selectedScopePermissions = $this->config->get('main_autopost_facebook_scope_permissions');
+
+		if ($selectedScopePermissions) {
+			$selectedScopePermissions = explode(',', $selectedScopePermissions);
+		}
+
 		$this->set('oauthURIs', $oauthURIs);
 		$this->set('authorizationURL', $authorizationURL);
 		$this->set('associated', $associated);
@@ -98,6 +105,7 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 		$this->set('storedGroups', $storedGroups);
 		$this->set('pages', $pages);
 		$this->set('storedPages', $storedPages);
+		$this->set('selectedScopePermissions', $selectedScopePermissions);
 
 		parent::display('autoposting/facebook');
 	}

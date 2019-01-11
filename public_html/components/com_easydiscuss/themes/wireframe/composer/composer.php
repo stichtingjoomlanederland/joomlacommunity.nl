@@ -16,6 +16,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	 <?php echo $editorId;?>
 	 data-editortype="<?php echo $composer->editorType ?>"
 	 data-operation="<?php echo $composer->operation; ?>"
+	 data-replies-order="<?php echo $this->config->get('layout_replies_sorting'); ?>"
 	 >
 	<div role="alert" class="o-alert o-alert--icon t-hidden" data-ed-composer-alert></div>
 

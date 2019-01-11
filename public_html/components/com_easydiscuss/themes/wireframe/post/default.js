@@ -76,7 +76,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		$(this).siblings('[data-ed-comment-form]').toggleClass('t-hidden');
 	});
 
-	submitButton.on('click', function() {
+	submitButton.live('click', function() {
 
 		$(this).attr('disabled');
 

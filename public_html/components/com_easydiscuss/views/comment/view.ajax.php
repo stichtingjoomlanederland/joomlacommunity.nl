@@ -81,6 +81,7 @@ class EasyDiscussViewComment extends EasyDiscussView
 		$commentData->email	= $this->my->email;
 		$commentData->comment = $message;
 		$commentData->post_id = $post->id;
+		$commentData->ip = @$_SERVER['REMOTE_ADDR'];
 
 		// Run through akismet screening if necessary.
 		if ($this->config->get('antispam_akismet') && ($this->config->get('antispam_akismet_key'))) {
@@ -117,10 +118,8 @@ class EasyDiscussViewComment extends EasyDiscussView
 
 		$comment->duration = ED::getDurationString($durationObj);
 		$comment->creator = $profile;
+		$comment->comment = nl2br($comment->comment);
 		$comment->postSave();
-
-		// Remove unnecessary <br> tag
-		$comment->comment = str_replace("<br>", "", $comment->comment);
 
 		// Get the result of the posted comment.
 		$theme = ED::themes();

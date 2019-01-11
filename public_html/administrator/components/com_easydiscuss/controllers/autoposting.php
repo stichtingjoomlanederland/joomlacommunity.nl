@@ -54,6 +54,11 @@ class EasyDiscussControllerAutoposting extends EasyDiscussController
 			$post['main_autopost_linkedin_company_id'] = '';
 		}
 
+		// If doesn't select any scope permission then store it as empty
+		if (!isset($post['main_autopost_facebook_scope_permissions'])) {
+			$post['main_autopost_facebook_scope_permissions'] = '';
+		}
+
 		$options = array();
 
 		foreach ($post as $key => $value) {

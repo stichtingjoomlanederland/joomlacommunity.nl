@@ -48,7 +48,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 		<?php if ($postTypes) { ?>
 		<div class="o-col t-lg-pr--md t-xs-pr--no">
-			<div class="ed-search-results-choices__title"><?php echo JText::_('Filter by post types');?></div>
+			<div class="ed-search-results-choices__title"><?php echo JText::_('COM_EASYDISCUSS_SEARCH_FILTER_BY_TYPES');?></div>
 			<div class="ed-filter-select-group">
 				<div class="o-select-group">
 					<?php echo $this->output('site/ask/post.types', array('selected' => $postTypeValue)); ?>

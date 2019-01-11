@@ -57,7 +57,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('settings.toggle', 'layout_category_toggle', 'COM_EASYDISCUSS_CATEGORY_TOGGLE_CATEGORY'); ?>
 					<?php echo $this->html('settings.toggle', 'layout_show_classic', 'COM_EASYDISCUSS_CATEGORY_SHOW_CLASSIC_CATEGORY'); ?>
 					<?php echo $this->html('settings.toggle', 'layout_show_all_subcategories', 'COM_EASYDISCUSS_CATEGORY_SHOW_ALL_SUBCATEGORIES'); ?>
-					<?php echo $this->html('settings.textbox', 'layout_single_category_post_limit', 'COM_EASYDISCUSS_SINGLE_CATEGORY_POST_LIMIT', '', array('size' => 5, 'postfix' => 'Posts'), '', 'text-center form-control-sm'); ?>
+					<?php echo $this->html('settings.textbox', 'layout_single_category_post_limit', 'COM_EASYDISCUSS_SINGLE_CATEGORY_POST_LIMIT', '', array('size' => 7, 'postfix' => 'Posts'), '', 'text-center form-control-sm'); ?>
 				</div>
 			</div>
 		</div>

@@ -19,7 +19,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="panel-body">
 				<div class="form-horizontal">
 					<?php echo $this->html('settings.toggle', 'layout_enableintrotext', 'COM_EASYDISCUSS_ENABLE_INTROTEXT'); ?>
-					<?php echo $this->html('settings.textbox', 'layout_introtextlength', 'COM_EASYDISCUSS_INTROTEXT_LENGTH', '', array('size' => 5, 'postfix' => 'Characters'), '', 'text-center form-control-sm'); ?>
+					<?php echo $this->html('settings.textbox', 'layout_introtextlength', 'COM_EASYDISCUSS_INTROTEXT_LENGTH', '', array('size' => 8, 'postfix' => 'Characters'), '', 'text-center form-control-sm'); ?>
 
 					<?php echo $this->html('settings.toggle', 'layout_showtags', 'COM_EASYDISCUSS_LAYOUT_SHOWS_TAGS'); ?>
 					<?php echo $this->html('settings.toggle', 'layout_enablefilter_resolved', 'COM_EASYDISCUSS_ENABLE_FILTER_RESOLVED'); ?>
@@ -38,7 +38,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="panel-body">
 				<div class="form-horizontal">
 					<?php echo $this->html('settings.toggle', 'layout_featuredpost_frontpage', 'COM_EASYDISCUSS_FEATURED_POSTS_FRONTPAGE'); ?>
-					<?php echo $this->html('settings.textbox', 'layout_featuredpost_limit', 'COM_EASYDISCUSS_FEATURED_POSTS_LIMIT', '', array('size' => 5, 'postfix' => 'Posts'), '', 'text-center form-control-sm'); ?>
+					<?php echo $this->html('settings.textbox', 'layout_featuredpost_limit', 'COM_EASYDISCUSS_FEATURED_POSTS_LIMIT', '', array('size' => 8, 'postfix' => 'Posts'), '', 'text-center form-control-sm'); ?>
 					
 					<div class="form-group">
 						<div class="col-md-5 control-label">

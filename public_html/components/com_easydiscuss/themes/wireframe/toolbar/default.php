@@ -136,7 +136,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</div>
 			<?php } ?>
 
-			<?php if ($this->isMobile()) { ?>
+			<?php if (($this->isMobile() || $this->isTablet()) && $this->my->id) { ?>
 				<?php echo $this->output('site/toolbar/mobile'); ?>
 			<?php } ?>
 		</div>
@@ -203,6 +203,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 							data-original-title="<?php echo JText::_('COM_EASYDISCUSS_CONVERSATIONS');?>"
 						>
 							<a href="<?php echo ED::getConversationsRoute();?>" class="o-nav__link ed-toolbar__link no-active-state <?php echo $conversationsCount ? 'has-new' : '';?>"
+								data-ck-chat data-ed-external-conversation
 							>
 								<i class="fa fa-envelope"></i>
 								<span class="ed-toolbar__link-text"><?php echo JText::_('COM_EASYDISCUSS_CONVERSATIONS');?></span>

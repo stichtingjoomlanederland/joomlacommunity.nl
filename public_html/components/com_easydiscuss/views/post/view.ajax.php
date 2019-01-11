@@ -964,10 +964,14 @@ class EasyDiscussViewPost extends EasyDiscussView
 	{
 		$element = $this->input->get('editorName', '', 'word');
 		$caretPosition = $this->input->get('caretPosition', '', 'int');
+		$contents = $this->input->get('contents', '', 'raw');
+		$dialogRecipient = $this->input->get('dialogRecipient', 0, 'int');
 
 		$theme = ED::themes();
 		$theme->set('element', $element);
 		$theme->set('caretPosition', $caretPosition);
+		$theme->set('contents', $contents);
+		$theme->set('dialogRecipient', $dialogRecipient);
 
 		$output = $theme->output('site/composer/dialogs/video');
 
@@ -986,10 +990,14 @@ class EasyDiscussViewPost extends EasyDiscussView
 	{
 		$element = $this->input->get('editorName', '', 'word');
 		$caretPosition = $this->input->get('caretPosition', '', 'int');
+		$contents = $this->input->get('contents', '', 'raw');
+		$dialogRecipient = $this->input->get('dialogRecipient', 0, 'int');
 
 		$theme = ED::themes();
 		$theme->set('element', $element);
 		$theme->set('caretPosition', $caretPosition);
+		$theme->set('contents', $contents);
+		$theme->set('dialogRecipient', $dialogRecipient);
 
 		$output = $theme->output('site/composer/dialogs/photo');
 
@@ -1008,10 +1016,14 @@ class EasyDiscussViewPost extends EasyDiscussView
 	{
 		$element = $this->input->get('editorName', '', 'word');
 		$caretPosition = $this->input->get('caretPosition', '', 'int');
+		$contents = $this->input->get('contents', '', 'raw');
+		$dialogRecipient = $this->input->get('dialogRecipient', 0, 'int');
 
 		$theme = ED::themes();
 		$theme->set('element', $element);
 		$theme->set('caretPosition', $caretPosition);
+		$theme->set('contents', $contents);
+		$theme->set('dialogRecipient', $dialogRecipient);
 
 		$output = $theme->output('site/composer/dialogs/link');
 

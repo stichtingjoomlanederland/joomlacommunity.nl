@@ -19,9 +19,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="panel-body">
 				<div class="form-horizontal">
 					<?php echo $this->html('settings.toggle', 'main_notifications', 'COM_EASYDISCUSS_ENABLE_NOTIFICATIONS'); ?>
-					<?php echo $this->html('settings.textbox', 'main_notifications_limit', 'COM_EASYDISCUSS_NOTIFICATIONS_LIMIT', '', array('size' => 5, 'postfix' => 'COM_EASYDISCUSS_ITEMS'), '', 'form-control-sm text-center'); ?>
-					<?php echo $this->html('settings.textbox', 'main_notifications_interval', 'COM_EASYDISCUSS_NOTIFICATIONS_INTERVAL', '', array('size' => 5, 'postfix' => 'COM_EASYDISCUSS_SECONDS'), '', 'form-control-sm text-center'); ?>
-					<?php echo $this->html('settings.textbox', 'main_notification_listings_limit', 'COM_EASYDISCUSS_NOTIFICATION_LIMIT_DISPLAY', '', array('size' => 5, 
+					<?php echo $this->html('settings.textbox', 'main_notifications_limit', 'COM_EASYDISCUSS_NOTIFICATIONS_LIMIT', '', array('size' => 7, 'postfix' => 'COM_EASYDISCUSS_ITEMS'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'main_notifications_interval', 'COM_EASYDISCUSS_NOTIFICATIONS_INTERVAL', '', array('size' => 8, 'postfix' => 'COM_EASYDISCUSS_SECONDS'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'main_notification_listings_limit', 'COM_EASYDISCUSS_NOTIFICATION_LIMIT_DISPLAY', '', array('size' => 7, 
 									'defaultValue' => 20, 'postfix' => 'Items'), '', 'form-control-sm text-center'); ?>
 				</div>
 			</div>

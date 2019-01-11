@@ -31,10 +31,8 @@ class EasyDiscussBadwords extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
-	public function filter($str)
+	public function filter($str, $contentType = 'bbcode', $debug = null)
 	{
 		$config = ED::config();
 
@@ -42,12 +40,26 @@ class EasyDiscussBadwords extends EasyDiscuss
 			return $str;
 		}
 
-		// Fixed for extra added line by nl2br when badwords is enabled.
-		$str = str_replace("<br />", "", $str);
+		// We need to determine whether we should use nl2br or not during the process #633
+		// By default BBcode content will not use nl2br
+		$useBrTag = false;
+
+		// For codemirror and none editor, we need to use nl2br
+		if ($contentType == 'html') {
+
+			// Get current editor being used
+			$editor = $this->config->get('layout_editor');
+
+			if ($editor == 'codemirror' || $editor == 'none') {
+				$useBrTag = true;
+			}
+		}
 
 		$decoda = ED::decoda($str);
 		$decoda->initHook('CensorHook');
 		$decoda->setEscaping(false);
+
+		$decoda->setNl2br($useBrTag);
 
 		$result = $decoda->parse();
 

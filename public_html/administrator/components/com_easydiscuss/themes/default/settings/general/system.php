@@ -52,7 +52,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="panel-body">
 				<?php echo $this->html('settings.toggle', 'prune_notifications_cron', 'COM_EASYDISCUSS_AUTO_PRUNE_NOTIFICATIONS_ON_CRON'); ?>
 				<?php echo $this->html('settings.toggle', 'prune_notifications_onload', 'COM_EASYDISCUSS_AUTO_PRUNE_NOTIFICATIONS_ON_PAGE_LOAD'); ?>
-				<?php echo $this->html('settings.textbox', 'notifications_history', 'COM_EASYDISCUSS_AUTO_PRUNE_NOTIFICATIONS', '', array('size' => 5, 'postfix' => 'COM_EASYDISCUSS_DAYS'), '', 'form-control-sm text-center'); ?>
+				<?php echo $this->html('settings.textbox', 'notifications_history', 'COM_EASYDISCUSS_AUTO_PRUNE_NOTIFICATIONS', '', array('size' => 7, 'postfix' => 'COM_EASYDISCUSS_DAYS'), '', 'form-control-sm text-center'); ?>
 				<?php echo $this->html('settings.textbox', 'main_orphanitem_ownership', 'COM_EASYDISCUSS_OWNER_FOR_ORPHANED_ITEMS', '', array(), '', 'form-control-sm text-center'); ?>
 			</div>
 		</div>

@@ -28,7 +28,7 @@ class EasyDiscussTwitter extends EasyDiscuss
 		$data = $post->getEmbedData();
 		$type = 'summary';
 
-		$this->doc->addCustomTag('<meta name="twitter:title" content="' . $post->title . '" />');
+		$this->doc->addCustomTag('<meta name="twitter:title" content="' . $post->getTitle() . '" />');
 		$this->doc->addCustomTag('<meta name="twitter:url" content="' . $data->url . '" />');
 		$this->doc->addCustomTag('<meta property="twitter:description" content="' . $data->description . '" />');
 

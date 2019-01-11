@@ -11,4 +11,17 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 		form.addClass('t-hidden');
 	});
+
+	$('[data-moderation-threshold]').on('change', function() {
+		var checked = $(this).is(':checked');
+		var form = $('[data-moderation-threshold-wrapper]');
+
+		if (checked) {
+			form.removeClass('t-hidden');
+			return;
+		}
+
+		form.addClass('t-hidden');
+
+	});
 });

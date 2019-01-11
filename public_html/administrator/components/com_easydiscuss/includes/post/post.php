@@ -863,10 +863,12 @@ class EasyDiscussPost extends EasyDiscuss
 		// Detect the poster type.
 		$this->post->user_type = !$this->post->user_id ? DISCUSS_POSTER_GUEST : DISCUSS_POSTER_MEMBER;
 
+		// Determine the editor type that is being used
+		$editor = $this->config->get('layout_editor');
+
 		// Process the appending email
 		if ($this->config->get('main_post_appendemail')) {
 			$posterEmail = $this->my->id ? $this->my->email : $data['poster_email'];
-			$editor = $this->config->get('layout_editor');
 
 			$newline = $editor == 'bbcode' ? "\r\n\r\n" : "<br /><br />";
 
@@ -875,7 +877,15 @@ class EasyDiscussPost extends EasyDiscuss
 
 		// some joomla editor htmlentity the content before it send to server. so we need
 		// to do the god job to fix the content.
-		$content = ED::string()->unhtmlentities($data['content']);
+		// $content = ED::string()->unhtmlentities($data['content']);
+
+		// It seems like when the content is unhtmlentities for wysiwyg editor,
+		// it will not be able to display the correct content format such as the xml code. #637
+		if ($editor == 'bbcode') {
+			$content = ED::string()->unhtmlentities($data['content']);
+		} else {
+			$content = $data['content'];
+		}
 
 		// Ensure that the posted content is respecting the correct values.
 		$this->post->content = $content;
@@ -2016,10 +2026,16 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function isLocked()
 	{
-		$thread = ED::table('Thread');
-		$thread->load($this->thread_id);
+		static $_cache = array();
 
-		return $thread->islock;
+		if (!isset($_cache[$this->thread_id])) {
+			$thread = ED::table('Thread');
+			$thread->load($this->thread_id);
+
+			$_cache[$this->thread_id] = $thread->islock;
+		}
+
+		return $_cache[$this->thread_id];
 	}
 
 	/**
@@ -2356,12 +2372,12 @@ class EasyDiscussPost extends EasyDiscuss
 
 			// We need to escape quotes this now
 			$description = ED::string()->escape($description);
-			
+
 			if (JString::strlen($description) > $maxContent) {
 				$description = JString::substr($description, 0, $maxContent) . '...';
 			}
 
-			$data->url = EDR::getRoutedURL('view=post&id=' . $this->id, false, true);		
+			$data->url = EDR::getRoutedURL('view=post&id=' . $this->id, false, true);
 			$data->description = $description;
 
 			// Get a list of images in the attachments list first
@@ -2431,16 +2447,22 @@ class EasyDiscussPost extends EasyDiscuss
 	public function getPriority()
 	{
 		static $items = array();
+		static $_prorities = array();
 
 		if (!$this->post->priority) {
 			return false;
 		}
 
 		if (!isset($items[$this->post->id])) {
-			$item = ED::table('Priority');
-			$item->load($this->post->priority);
 
-			$items[$this->post->id] = $item;
+			if (!isset($_prorities[$this->post->priority])) {
+				$item = ED::table('Priority');
+				$item->load($this->post->priority);
+
+				$_prorities[$this->post->priority] = $item;
+			}
+
+			$items[$this->post->id] = $_prorities[$this->post->priority];
 		}
 
 		return $items[$this->post->id];
@@ -3187,6 +3209,9 @@ class EasyDiscussPost extends EasyDiscuss
 				$title = JText::_('COM_EASYDISCUSS_SEARCH_REPLY_TITLE_PREFIX') . $parent->getTitle();
 			}
 
+			$title = ED::badwords()->filter($title);
+			$title = ED::string()->escape($title);
+
 			// Apply badword filtering
 			$titles[$this->post->id] = ED::badwords()->filter($title);
 		}
@@ -3291,16 +3316,9 @@ class EasyDiscussPost extends EasyDiscuss
 			$this->post->content = $raw;
 		} else {
 
-
-			$content = ED::badwords()->filter($this->post->preview);
+			// Retrieve the formatted content
 			$content = $this->formatContent($debug, $reload, $processAttachments);
-			// $content = ED::formatContent($this->post);
-
-			//debug code:
-			// $content = ED::formatContent($this->post);
 		}
-
-		// var_dump($content);exit;
 
 		return $content;
 	}
@@ -4336,7 +4354,7 @@ class EasyDiscussPost extends EasyDiscuss
 			$notification = ED::table('Notifications');
 			$notification->bind(array(
 										'title' => JText::sprintf('COM_EASYDISCUSS_MENTIONED_QUESTION_NOTIFICATION_TITLE', $question->getTitle()),
-										'cid' => $this->post->id,
+										'cid' => $question->id,
 										'type' => DISCUSS_NOTIFICATIONS_MENTIONED,
 										'target' => $user->id,
 										'author' => $this->post->user_id,
@@ -4423,6 +4441,9 @@ class EasyDiscussPost extends EasyDiscuss
 		$reply = ED::user($this->my->id);
 		$owner = $this->getOwner(true);
 
+		// Retrieve poster email
+		$posterEmail = $owner->user->email;
+
 		// Retrieve the reply owner name
 		if (isset($owner->name) && $owner->name) {
 			$overrideName = $owner->name;
@@ -4444,7 +4465,7 @@ class EasyDiscussPost extends EasyDiscuss
 		$emailData = array();
 		$excludeEmails = array();
 		$administratorEmails = array();
-		
+
 		$attachments = $this->getAttachments();
 		$isEditing = $this->isNew() == true ? false : true;
 
@@ -4471,9 +4492,6 @@ class EasyDiscussPost extends EasyDiscuss
 		$emailData['replyAuthorAvatar'] = $owner->getAvatar();
 		$emailData['post_id'] = $this->post->parent_id;
 		$emailData['cat_id'] = $this->post->category_id;
-
-		// retrieve the post owner email
-		$posterEmail = $this->post->poster_email ? $this->post->poster_email : $this->my->email;
 
 		if ($this->isPending()) {
 
@@ -4580,7 +4598,10 @@ class EasyDiscussPost extends EasyDiscuss
 			$participantsEmails = ED::mailer()->notifyThreadParticipants($emailData, $excludeEmails);
 		}
 
-		if ($this->config->get('notify_actor')) {
+		$isBeingApproved = $this->prevPostStatus == DISCUSS_ID_PENDING && $this->isPublished();
+		$isBeingRejected = $this->isRejected;
+
+		if ($this->config->get('notify_actor') && (!$isBeingApproved && !$isBeingRejected)) {
 			$emailData['emailIntro'] = JText::_('COM_EASYDISCUSS_EMAILS_YOU_CREATED_NEW_REPLIES_NOTIFICATION');
 
 			if ($this->isPending()) {
@@ -4596,7 +4617,7 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		// Notify reply owner if the reply is being approved.
-		if ($this->prevPostStatus == DISCUSS_ID_PENDING) {
+		if ($isBeingApproved) {
 			$emailData['postContent'] = $emailContent;
 			$emailData['owner_email'] = $this->getOwner()->getEmail();
 			$emailData['emailTemplate'] = 'email.post.approve';
@@ -4607,7 +4628,7 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		// Notfy thread owner if the post is being rejected
-		if ($this->isRejected) {
+		if ($isBeingRejected) {
 			$emailData['postContent'] = $emailContent;
 			$emailData['owner_email'] = $this->getOwner()->getEmail();
 			$emailData['emailTemplate'] = 'email.post.rejected';
@@ -4733,7 +4754,7 @@ class EasyDiscussPost extends EasyDiscuss
 		$profile = $this->getOwner(true);
 
 		// retrieve the post owner email
-		$posterEmail = $this->my->email;
+		$posterEmail = $profile->user->email;
 		$excludeEmails = array($posterEmail);
 		$subcribersEmails = array();
 
@@ -4844,8 +4865,11 @@ class EasyDiscussPost extends EasyDiscuss
 			$administratorEmails = ED::Mailer()->notifyAdministrators($emailData, $excludeEmails, $this->config->get('notify_admin'), $this->config->get('notify_moderator'));
 		}
 
+		$isBeingApproved = $this->prevPostStatus == DISCUSS_ID_PENDING && $this->isPublished();
+		$isBeingRejected = $this->isRejected;
+
 		// Notify thread owner if the post is being approved.
-		if ($this->prevPostStatus == DISCUSS_ID_PENDING && $this->isPublished()) {
+		if ($isBeingApproved) {
 			$emailData['owner_email'] = $this->getOwner()->getEmail();
 			$emailData['emailTemplate'] = 'email.post.approve';
 			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_QUESTION_ASKED_APPROVED', $this->post->title);
@@ -4855,7 +4879,7 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		// Notfy thread owner if the post is being rejected
-		if ($this->isRejected) {
+		if ($isBeingRejected) {
 			$emailData['owner_email'] = $this->getOwner()->getEmail();
 			$emailData['emailTemplate'] = 'email.post.rejected';
 			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_QUESTION_ASKED_REJECTED', $this->post->title);
@@ -4865,7 +4889,7 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		// Notify the actor if the option is enabled
-		if ($this->config->get('notify_actor')) {
+		if ($this->config->get('notify_actor') && (!$isBeingApproved && !$isBeingRejected)) {
 
 			$emailData['emailIntro'] = JText::_('COM_EASYDISCUSS_EMAILS_YOU_CREATED_NEW_DISCUSSION_NOTIFICATION');
 
@@ -4926,7 +4950,7 @@ class EasyDiscussPost extends EasyDiscuss
 							$tagTable->user_id = $this->my->id;
 
 							$tagTable->store();
-						} 
+						}
 
 						if ($exists) {
 							$tagTable->load($tag, true);
@@ -5210,6 +5234,9 @@ class EasyDiscussPost extends EasyDiscuss
 		if ($this->post->preview && !$reload) {
 			$this->post->preview = ED::parser()->processSpoilerTag($this->post->preview);
 			$this->post->preview = ED::parser()->processHideTag($this->post->preview);
+			// Apply word censorship on the content
+			$this->post->preview = ED::badwords()->filter($this->post->preview, $this->getContentType());
+
 			return $this->post->preview;
 		}
 
@@ -5275,8 +5302,7 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		// Apply word censorship on the content
-		$content = ED::badwords()->filter($content);
-
+		$content = ED::badwords()->filter($content, $this->getContentType(), true);
 
 		return $content;
 	}
@@ -5376,10 +5402,11 @@ class EasyDiscussPost extends EasyDiscuss
 
 		// If the post owner is registered user, assign points to the post owner
 		if ($this->post->user_id) {
-			ED::points()->assign('easydiscuss.remove.discussion', $this->post->user_id);
 
 			if ($this->isReply()) {
 				ED::points()->assign('easydiscuss.remove.reply', $this->post->user_id);
+			} else {
+				ED::points()->assign('easydiscuss.remove.discussion', $this->post->user_id);
 			}
 		}
 

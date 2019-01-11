@@ -51,12 +51,14 @@ class ED
 				$locations = array('site', 'admin');
 			}
 
+			$minify = $input->get('minify', true, 'bool');
+
 			foreach ($locations as $location) {
 				// Render the JS compiler
 				$compiler = ED::compiler($location);
 
 				if ($recompile) {
-					$compiler->compile(true, true);
+					$compiler->compile($minify, true);
 				}
 			}
 
@@ -922,24 +924,13 @@ class ED
 				}
 			}
 
-			if ($language) {
-				$language .= '/';
-			}
-
 			if ($rewrite) {
-				$url = rtrim(JURI::root(), '/');
+				$url = rtrim(JURI::root(), '/') . '/' . $language . '?option=com_easydiscuss';
 
-				if ($config->get('general.ajaxindex')) {
-					$url .= '/index.php';
-				}
-
-				$url .= '/' . $language . '?option=com_easydiscuss';
 			} else {
 				$url = rtrim(JURI::root(), '/') . '/index.php/' . $language . '?option=com_easydiscuss';
 			}
 		}
-
-
 
 		$menu = JFactory::getApplication()->getmenu();
 
@@ -1598,14 +1589,18 @@ class ED
 
 			$creator = ED::user($comment->user_id);
 			$comment->creator = $creator;
+			$comment->comment = nl2br($comment->comment);
 
 			if ($config->get('main_content_trigger_comments')) {
 
 				// process content plugins
 				$comment->content = $comment->comment;
 
-				EasyDiscussEvents::importPlugin('content');
-				EasyDiscussEvents::onContentPrepare('comment', $comment);
+				// filter bad words
+				$comment->comment = ED::badwords()->filter($comment->comment);
+
+				ED::events()->importPlugin('content');
+				ED::events()->onContentPrepare('comment', $comment);
 
 				$comment->event = new stdClass();
 
@@ -1618,10 +1613,9 @@ class ED
 				$comment->comment = $comment->content;
 				unset($comment->content);
 
-				$comment->comment = ED::badwords()->filter($comment->comment);
-
 				// Remove unnecessary <br> tag
-				$comment->comment = str_replace("<br>", "", $comment->comment);
+				$comment->comment = str_replace("&lt;br&gt;", "", $comment->comment);
+
 			}
 
 			$result[] = $comment;
@@ -3205,7 +3199,7 @@ class ED
 		$theme = ED::themes();
 
 		$postModel = ED::model('Posts');
-		$totalPosts	= $postModel->getTotal();
+		$totalPosts	= $postModel->getTotalThread();
 
 		$resolvedPosts = $postModel->getTotalResolved();
 		$unresolvedPosts = $postModel->getUnresolvedCount();
@@ -3792,7 +3786,7 @@ class ED
 			$editor = JFactory::getEditor($editorType);
 
 			if ($editorType == 'none') {
-				JHtml::_('behavior.core');	
+				JHtml::_('behavior.core');
 			}
 		}
 
@@ -4542,8 +4536,6 @@ class ED
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public static function getConversationsRoute()
 	{

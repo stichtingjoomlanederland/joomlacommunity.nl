@@ -72,8 +72,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="panel-body">
 				<?php echo $this->html('settings.toggle', 'main_mailqueueonpageload', 'COM_EASYDISCUSS_SEND_EMAIL_ON_PAGE_LOAD'); ?>
 				<?php echo $this->html('settings.toggle', 'notify_html_format', 'COM_EASYDISCUSS_NOTIFICATIONS_HTML_FORMAT'); ?>
-				<?php echo $this->html('settings.textbox', 'main_mailqueuenumber', 'COM_EASYDISCUSS_MAILNUMBER_PERLOAD', '', array('postfix' => 'E-mails', 'size' => 5), '', 'form-control-sm text-center'); ?>
-				<?php echo $this->html('settings.textbox', 'main_notification_max_length', 'COM_EASYDISCUSS_TRUNCATE_EMAIL_LENGTH', '', array('postfix' => 'Characters', 'size' => 5), '', 'form-control-sm text-center'); ?>
+				<?php echo $this->html('settings.textbox', 'main_mailqueuenumber', 'COM_EASYDISCUSS_MAILNUMBER_PERLOAD', '', array('postfix' => 'E-mails', 'size' => 8), '', 'form-control-sm text-center'); ?>
+				<?php echo $this->html('settings.textbox', 'main_notification_max_length', 'COM_EASYDISCUSS_TRUNCATE_EMAIL_LENGTH', '', array('postfix' => 'Characters', 'size' => 9), '', 'form-control-sm text-center'); ?>
 			</div>
 		</div>
 	</div>

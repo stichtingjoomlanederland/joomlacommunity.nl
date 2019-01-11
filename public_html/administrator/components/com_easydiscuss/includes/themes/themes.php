@@ -164,6 +164,48 @@ class EasyDiscussThemes extends EasyDiscuss
 	}
 
 	/**
+	 * Determines if this is a mobile layout
+	 *
+	 * @since	4.2.0
+	 * @access	public
+	 */
+	public function isTablet()
+	{
+		static $tablet = null;
+
+		if (is_null($tablet)) {
+			$tablet = ED::responsive()->isTablet();
+		}
+
+		return $tablet;
+	}
+
+	/**
+	 * Returns the class for related devices.
+	 *
+	 * @since	2.2
+	 * @access	public
+	 */
+	public function responsiveClass()
+	{
+		static $loaded = false;
+
+		if (!$loaded) {
+			$loaded = 'is-desktop';
+
+			if ($this->isMobile()) {
+				$loaded = 'is-mobile';
+			}
+
+			if ($this->isTablet()) {
+				$loaded = 'is-tablet';
+			}
+		}
+
+		return $loaded;
+	}
+
+	/**
 	 * Retrieves the theme's name.
 	 *
 	 * @since	4.0

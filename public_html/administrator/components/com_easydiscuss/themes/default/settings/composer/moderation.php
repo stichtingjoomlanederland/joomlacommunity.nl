@@ -18,7 +18,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 			<div class="panel-body">
 				<div class="form-horizontal">
-					<?php echo $this->html('settings.toggle', 'main_moderatepost', 'COM_EASYDISCUSS_MODERATE_NEW_POST'); ?>
+					<?php echo $this->html('settings.toggle', 'main_moderatepost', 'COM_EASYDISCUSS_MODERATE_NEW_POST', '','data-moderation-threshold'); ?>
 				</div>
 			</div>
 
@@ -26,7 +26,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	</div>
 
 	<div class="col-md-6">
-		<div class="panel">
+		<div class="panel <?php echo $this->config->get('main_moderatepost') ? '' : 't-hidden';?>" data-moderation-threshold-wrapper>
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_MODERATION_THRESHOLD'); ?>
 
 			<div class="panel-body">
@@ -34,7 +34,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				
 				<div class="form-horizontal">
 					<?php echo $this->html('settings.toggle', 'main_moderation_automated', 'COM_EASYDISCUSS_ENABLE_MODERATION_THRESHOLD'); ?>
-					<?php echo $this->html('settings.textbox', 'moderation_threshold', 'COM_EASYDISCUSS_MODERATION_THRESHOLD', '', array('size' => 5, 'postfix' => 'Posts'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'moderation_threshold', 'COM_EASYDISCUSS_MODERATION_THRESHOLD', '', array('size' => 7, 'postfix' => 'Posts'), '', 'form-control-sm text-center'); ?>
 				</div>
 			</div>
 		</div>

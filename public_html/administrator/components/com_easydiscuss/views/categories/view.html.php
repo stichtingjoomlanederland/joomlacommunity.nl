@@ -57,7 +57,7 @@ class EasyDiscussViewCategories extends EasyDiscussAdminView
 			$category->bind($row);
 
 			$category->depth = $row->depth;
-			$category->count = $model->getUsedCount($category->id, false, true);
+			$category->count = $model->getUsedCount($category->id, false);
 			$category->child_count = $model->getChildCount($category->id);
 
 			$category->link = 'index.php?option=com_easydiscuss&view=categories&layout=form&id='. $category->id;

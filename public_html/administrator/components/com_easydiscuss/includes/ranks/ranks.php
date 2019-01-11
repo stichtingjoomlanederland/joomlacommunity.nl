@@ -44,16 +44,13 @@ class EasyDiscussRanks extends EasyDiscuss
 				$curUserScore = 0;
 			} else {
 
-				$curUserScore = $user->points;
-
 				// We need to respect if user integrated with ES's point
-				if ($this->config->get('integration_easysocial_points')) {
-					
-					$esUserPoint = ED::easysocial()->getUserPoints($userId);
+				$esUserPoint = ED::easysocial()->getUserPoints($userId);
 
-					if ($esUserPoint) {
-						$curUserScore = $esUserPoint;
-					}
+				if ($esUserPoint === false) {
+					$curUserScore = $user->points;
+				} else {
+					$curUserScore = $esUserPoint;
 				}
 			}
 		}

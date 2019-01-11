@@ -90,8 +90,8 @@ class EasyDiscussOauth extends EasyDiscuss
 		}
 
 		if ($type == 'twitter') {
-			$callbackUri[] = JURI::root() . 'index.php?option=com_easydiscuss';
-			$callbackUri[] = rtrim(JURI::root(), '/') . '/administrator/index.php?option=com_easydiscuss';
+			$callbackUri[] = rtrim(JURI::root(), '/') . '/administrator/index.php';
+			$callbackUri[] = rtrim(JURI::root(), '/') . '/index.php';
 		}
 
 		return $callbackUri;

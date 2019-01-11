@@ -20,10 +20,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="panel-body">
 				<div class="form-horizontal">
 					<?php echo $this->html('settings.toggle', 'layout_replies_pagination', 'COM_EASYDISCUSS_REPLIES_ENABLE_PAGINATION'); ?>
-					<?php echo $this->html('settings.textbox', 'layout_replies_list_limit', 'COM_EASYDISCUSS_REPLIES_LIST_LIMIT', '', array('size' => 5, 'postfix' => 'Replies'), '', 'text-center form-control-sm'); ?>
+					<?php echo $this->html('settings.textbox', 'layout_replies_list_limit', 'COM_EASYDISCUSS_REPLIES_LIST_LIMIT', '', array('size' => 8, 'postfix' => 'Replies'), '', 'text-center form-control-sm'); ?>
 					<?php echo $this->html('settings.toggle', 'main_enable_print', 'COM_EASYDISCUSS_ENABLE_PRINT_BUTTON'); ?>
 					<?php echo $this->html('settings.toggle', 'main_viewingpage', 'COM_EASYDISCUSS_ENABLE_WHOS_VIEWING'); ?>
-					<?php echo $this->html('settings.textbox', 'layout_autominimisepost', 'COM_EASYDISCUSS_AUTO_MINIMISE_POST_IF_HIT_MINIMUM_VOTE', '', array('size' => 5, 'postfix' => 'Votes'), '', 'text-center form-control-sm'); ?>
+					<?php echo $this->html('settings.textbox', 'layout_autominimisepost', 'COM_EASYDISCUSS_AUTO_MINIMISE_POST_IF_HIT_MINIMUM_VOTE', '', array('size' => 8, 'postfix' => 'Votes'), '', 'text-center form-control-sm'); ?>
 
 					<div class="form-group">
 						<div class="col-md-5 control-label">

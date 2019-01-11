@@ -136,7 +136,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="ed-profile-container__side-bd">
 				<ul class="o-nav  o-nav--stacked ed-profile-container__side-nav">
 					<li data-profile-tab data-filter-type="questions" <?php echo ($viewType == 'questions')? 'class="active"' : '' ?>><a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_QUESTIONS');?> (<?php echo $profile->getNumTopicPosted(); ?>)</a></li>
+					<?php if ($this->config->get('main_qna')) { ?>
 					<li data-profile-tab data-filter-type="unresolved" <?php echo ($viewType == 'unresolved')? 'class="active"' : '' ?>><a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_UNRESOLVED');?> (<?php echo $profile->getNumTopicUnresolved(); ?>)</a></li>
+					<?php } ?>
 					<?php if ($this->config->get('main_favorite')) { ?>
 					<li data-profile-tab data-filter-type="favourites" <?php echo ($viewType == 'favourites')? 'class="active"' : '' ?>><a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_FAVOURITES');?> (<?php echo $profile->getTotalFavourites(); ?>)</a></li>
 					<?php } ?>

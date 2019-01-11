@@ -36,7 +36,7 @@ class DiscussTags extends EasyDiscussTable
 
 		if (!isset($loaded[$sig])) {
 			
-			if(!$loadByTitle) {
+			if (!$loadByTitle) {
 
 				if (ED::cache()->exists($id, 'tag')) {
 					$data = ED::cache()->get($id, 'tag');
@@ -47,27 +47,27 @@ class DiscussTags extends EasyDiscussTable
 				}
 			} else {
 
-				$db		= DiscussHelper::getDBO();
+				$db = ED::db();
 
-				$query	= 'SELECT ' . $db->nameQuote( 'id' ) . ' FROM ' . $db->nameQuote( $this->_tbl ) . ' '
-						. 'WHERE ' . $db->nameQuote( 'alias' ) . '=' . $db->Quote( $id );
-				$db->setQuery( $query );
+				$query = 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote($this->_tbl) . ' '
+						. 'WHERE ' . $db->nameQuote('title') . '=' . $db->Quote($id);
 
 				$db->setQuery($query);
-				$tid	= $db->loadResult();
+
+				$db->setQuery($query);
+				$tid = $db->loadResult();
 
 				// Try replacing ':' to '-' since Joomla replaces it
-				if( !$tid )
-				{
-					$query	= 'SELECT ' . $db->nameQuote( 'id' ) . ' FROM ' . $this->_tbl . ' '
-							. 'WHERE ' . $db->nameQuote( 'title' ) . '=' . $db->Quote( JString::str_ireplace( ':' , '-' , $id ) );
-					$db->setQuery( $query );
+				if (!$tid) {
+					$query = 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $this->_tbl . ' '
+							. 'WHERE ' . $db->nameQuote('title') . '=' . $db->Quote(JString::str_ireplace(':' , '-' , $id));
+					$db->setQuery($query);
 
-					$tid		= $db->loadResult();
+					$tid = $db->loadResult();
 				}
 
-				parent::load( $tid );
-				$loaded[ $sig ]   = $this;
+				parent::load($tid);
+				$loaded[$sig] = $this;
 
 				$doBind = false;
 			}

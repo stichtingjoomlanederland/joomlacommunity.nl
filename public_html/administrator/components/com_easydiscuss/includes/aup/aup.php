@@ -46,8 +46,9 @@ class EasyDiscussAup extends EasyDiscuss
 			jimport('joomla.filesystem.file');
 
 			$file = JPATH_ROOT . '/components/com_altauserpoints/helper.php';
+			$enabled = $this->config->get('integration_altauserpoints_enable');
 
-			if (!JFile::exists($file)) {
+			if (!JFile::exists($file) || !$enabled) {
 				$exists = false;
 				return $exists;
 			}

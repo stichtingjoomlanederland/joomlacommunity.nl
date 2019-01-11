@@ -27,7 +27,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	</a>
 	
 	<div class="t-hidden" data-ed-support-dropdown>
-		<div class="popbox popbox--work-status top-left">
+		<div class="popbox popbox--work-status">
 			<div class="ed-work-status-wrap">
 				<div class="ed-work-status-wrap">
 					<div class="ed-work-status is-<?php echo $isOnline ? 'online' : 'offline';?>">

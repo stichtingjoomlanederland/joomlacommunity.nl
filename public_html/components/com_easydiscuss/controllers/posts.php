@@ -576,7 +576,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		}
 
 		$post = ED::post($hashkey->uid);
-		$state = $post->publish(0);
+		$state = $post->publish(0, true);
 
 		// Delete the unused hashkey now.
 		$hashkey->delete();

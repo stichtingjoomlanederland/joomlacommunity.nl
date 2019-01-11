@@ -233,6 +233,8 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 		// Find the wrapper for the reply form
 		var wrapper = replyButton.parents('[data-ed-composer-wrapper]');
 
+		var repliesOrder = wrapper.data('replies-order');
+
 		// Get the session token from the site to prevent CSRF attacks
 		var token = $('[data-ed-token]').val();
 		var target = '<?php echo JURI::root();?>index.php?option=com_easydiscuss&view=post&layout=<?php echo $operation == 'editing' ? 'update' : 'reply';?>&format=ajax&tmpl=component&' + token + '=1';
@@ -330,9 +332,12 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 				// Update the counter.
 				increaseReplyCount();
 
-				// What if the current sorting is oldest / latest ?
 				// Append the result to the list.
-				replies.append(result.html);
+				if (repliesOrder == 'latest') {
+					replies.prepend(result.html);
+				} else {
+					replies.append(result.html);
+				}
 
 				// Reload the syntax highlighter.
 				if (result.script != 'undefined') {

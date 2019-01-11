@@ -63,6 +63,9 @@ $originalOrders	= array();
 					<th width="10%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_CATEGORIES_CHILD_COUNT'); ?>
 					</th>
+					<th width="10%" class="center">
+						<?php echo JText::_('COM_EASYDISCUSS_CATEGORIES_EDIT_CATEGORY_LANGUAGE'); ?>
+					</th>
 					<th width="8%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_CATEGORIES_AUTHOR') , 'created_by', $orderDirection, $order); ?>
 					</th>
@@ -103,6 +106,13 @@ $originalOrders	= array();
 						</td>
 						<td class="center">
 							<?php echo $category->child_count; ?>
+						</td>
+						<td class="center">
+							<?php if (!$category->language || $category->language == '*') { ?>
+								<?php echo JText::_('COM_ED_LANGUAGE_ALL');?>
+							<?php } else { ?>
+								<?php echo $category->language;?>
+							<?php } ?>
 						</td>
 						<td class="center">
 							<a href="<?php echo JRoute::_('index.php?option=com_easydiscuss&controller=user&id=' . $category->created_by . '&task=edit'); ?>"><?php echo $category->user->name; ?></a>

@@ -22,7 +22,7 @@ class EasyDiscussFacebook extends EasyDiscuss
 	public function addOpenGraph(EasyDiscussPost $post)
 	{
 		// Post title
-		$this->doc->addCustomTag('<meta property="og:title" content="' . $post->title . '" />');
+		$this->doc->addCustomTag('<meta property="og:title" content="' . $post->getTitle() . '" />');
 
 		// Facebook likes data
 		if ($this->config->get('integration_facebook_like')) {
@@ -43,7 +43,7 @@ class EasyDiscussFacebook extends EasyDiscuss
 		$this->doc->addCustomTag('<meta property="og:type" content="article" />');
 		$this->doc->addCustomTag('<meta property="og:url" content="' . $data->url . '" />');
 
-		$this->doc->setTitle($post->title);
+		$this->doc->setTitle($post->getTitle());
 		$this->doc->setDescription($data->description);
 
 		// If we still can't find any images, load up the placeholder

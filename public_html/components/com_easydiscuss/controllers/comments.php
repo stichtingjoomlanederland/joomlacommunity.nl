@@ -61,8 +61,16 @@ class EasydiscussControllerComments extends EasyDiscussController
 			$post = ED::post($parent->id);
 		}
 
+		$content = $comment->comment;
+
+		$editor = $this->config->get('layout_editor');
+
+		if ($editor != 'bbcode') {
+			$content = nl2br($content);
+		}
+
 		// For contents, we need to get the raw data.
-		$data['content'] = $comment->comment;
+		$data['content'] = $content;
 		$data['parent_id'] = $post->id;
 		$data['user_id'] = $comment->user_id;
 
@@ -72,7 +80,7 @@ class EasydiscussControllerComments extends EasyDiscussController
 
 		// Try to save the post now
 		$state = $post->save();
-		
+
 		// Throws error if the store process hits error
 		if (!$state) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_COMMENTS_ERROR_SAVING_REPLY'), 'error');

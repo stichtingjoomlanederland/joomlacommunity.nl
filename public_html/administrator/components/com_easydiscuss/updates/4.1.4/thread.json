@@ -1,0 +1,12 @@
+[
+	{
+		"table": "#__discuss_thread",
+		"index": "idx_resolved_thread",
+		"query": "ALTER TABLE `#__discuss_thread` ADD INDEX `idx_resolved_thread` (`published`, `isresolve`)"
+	},
+	{
+		"table": "#__discuss_thread",
+		"index": "idx_unanswered_count",
+		"query": "ALTER TABLE `#__discuss_thread` ADD INDEX `idx_unanswered_count` (`published`, `isresolve`, `num_replies`, `cluster_id`, `category_id`)"
+	}
+]

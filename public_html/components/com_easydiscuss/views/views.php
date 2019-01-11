@@ -162,7 +162,8 @@ class EasyDiscussView extends JViewLegacy
 
 			// Only work for Easysocial 2.0. 
 			// Only display if there is no cluster header.
-			if ($view == 'post' && $this->config->get('integration_easysocial_mini_header', true) && $easysocial->exists() && !$easysocial->isLegacy() && !$clusterHeader) {
+			if ($view == 'post' && $this->config->get('integration_easysocial_mini_header', true) && $easysocial->exists() && !$easysocial->isLegacy() && !$clusterHeader && !$post->isAnonymous()) {
+
 				ES::initialize();
 
 				$user = ES::user($post->getOwner()->id);

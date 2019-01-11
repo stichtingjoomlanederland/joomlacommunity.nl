@@ -35,11 +35,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php } ?>
 				</ol>
 			</div>
-			
+
 			<a name="comments-<?php echo $comment->id;?>"></a>
 
 			<div class="ed-comment-item__content t-lg-mt--md t-lg-mb--md">
-				<?php echo nl2br($comment->comment); ?>
+				<?php echo $comment->comment; ?>
 			</div>
 
 			<div class="ed-comment-item__action">

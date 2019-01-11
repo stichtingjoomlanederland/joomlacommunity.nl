@@ -29,6 +29,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('settings.toggle', 'layout_bbcode_quote', 'COM_EASYDISCUSS_BBCODE_SHOW_QUOTE'); ?>
 					<?php echo $this->html('settings.toggle', 'layout_bbcode_code', 'COM_EASYDISCUSS_BBCODE_SHOW_CODE'); ?>
 					<?php echo $this->html('settings.toggle', 'integrations_github', 'COM_EASYDISCUSS_BBCODE_SHOW_GIST'); ?>
+					<?php echo $this->html('settings.toggle', 'layout_bbcode_emoji', 'COM_EASYDISCUSS_BBCODE_SHOW_EMOJI'); ?>
 				</div>
 			</div>
 		</div>
@@ -61,8 +62,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 			<div class="panel-body">
 				<div class="form-horizontal">
-					<?php echo $this->html('settings.textbox', 'bbcode_video_width', 'COM_EASYDISCUSS_VIDEO_WIDTH', '', array('size' => 5, 'postfix' => 'px'), '', 'form-control-sm text-center'); ?>
-					<?php echo $this->html('settings.textbox', 'bbcode_video_height', 'COM_EASYDISCUSS_VIDEO_HEIGHT', '', array('size' => 5, 'postfix' => 'px'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'bbcode_video_width', 'COM_EASYDISCUSS_VIDEO_WIDTH', '', array('size' => 6, 'postfix' => 'px'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'bbcode_video_height', 'COM_EASYDISCUSS_VIDEO_HEIGHT', '', array('size' => 6, 'postfix' => 'px'), '', 'form-control-sm text-center'); ?>
 				</div>
 			</div>
 		</div>

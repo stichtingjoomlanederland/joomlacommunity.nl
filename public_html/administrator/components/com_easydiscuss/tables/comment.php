@@ -258,7 +258,7 @@ class DiscussComment extends EasyDiscussTable
 		// We should skip it all together if these 2 setting didn't enabled.
 		if (!$config->get('notify_comment_participants') && !$config->get('main_subscription_include_comments')) {
 			return false;
-		}		
+		}
 
 		// Get the list of emails to be sent
 		$emails	= array();

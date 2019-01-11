@@ -39,7 +39,7 @@ class DiscussRanksUsers extends EasyDiscussTable
 			
 			if ($byUserId) {
 				$db = ED::db();
-				$query = 'SELECT * FROM `#__discuss_ranks_users` WHERE `user_id` = ' . $db->Quote($byUserId);
+				$query = 'SELECT * FROM `#__discuss_ranks_users` WHERE `user_id` = ' . $db->Quote($id);
 				$query .= ' ORDER BY `created` DESC LIMIT 1';
 
 				$db->setQuery($query);

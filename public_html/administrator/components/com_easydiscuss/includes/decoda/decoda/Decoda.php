@@ -86,7 +86,8 @@ class EdDecoda {
 		'xhtml' => false,
 		'escape' => true,
 		'strict' => true,
-		'locale' => 'en-us'
+		'locale' => 'en-us',
+		'nl2br' => true
 	);
 
 	/**
@@ -476,7 +477,13 @@ class EdDecoda {
 	 * @param boolean $xhtml
 	 * @return string
 	 */
-	public static function nl2br($string, $xhtml = true) {
+	public function nl2br($string, $xhtml = true)
+	{
+		// Only process this if the config is allow
+		if (!$this->config('nl2br')) {
+			return $string;
+		}
+
 		if (version_compare(PHP_VERSION, '5.3.0', '<')) {
 			return nl2br($string);
 		} else {
@@ -512,7 +519,7 @@ class EdDecoda {
 			$this->_extractChunks();
 			$this->_parsed = $this->_parse($this->_nodes);
 		} else {
-			$this->_parsed = self::nl2br($this->_string, $this->config('xhtml'));
+			$this->_parsed = $this->nl2br($this->_string, $this->config('xhtml'));
 		}
 
 		$this->_parsed = $this->_trigger('afterParse', $this->_parsed);
@@ -676,6 +683,18 @@ class EdDecoda {
 	 */
 	public function setStrict($strict = true) {
 		$this->_config['strict'] = (bool) $strict;
+
+		return $this;
+	}
+
+	/**
+	 * Custom method to overwrite nl2br
+	 *
+	 * @since	4.1.5
+	 * @access	public
+	 */
+	public function setNl2br($nl2br = true) {
+		$this->_config['nl2br'] = (bool) $nl2br;
 
 		return $this;
 	}
@@ -1192,7 +1211,7 @@ class EdDecoda {
 		foreach ($nodes as $node) {
 			if (is_string($node)) {
 				if (empty($wrapper)) {
-					$parsed .= self::nl2br($node, $xhtml);
+					$parsed .= $this->nl2br($node, $xhtml);
 				} else {
 					$parsed .= $node;
 				}

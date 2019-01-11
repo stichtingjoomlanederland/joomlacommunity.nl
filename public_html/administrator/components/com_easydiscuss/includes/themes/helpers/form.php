@@ -494,5 +494,28 @@ class EasyDiscussThemesHelperForm
 		$output = $theme->output('admin/html/form.languages');
 
 		return $output;
-	}	
+	}
+
+	/**
+	 * Displays dropdown list for the Facebook scopes permission
+	 *
+	 * @since	4.1.4
+	 * @access	public
+	 */
+	public static function scopes($name, $id, $selected = null)
+	{
+		// Get the list of Facebook scope permission
+		$scopes = array('publish_pages', 'manage_pages', 'publish_to_groups');
+		$scopes = array_combine($scopes, $scopes);
+
+		$theme = ED::themes();
+		$theme->set('name', $name);
+		$theme->set('scopes', $scopes);
+		$theme->set('id', $id);
+		$theme->set('selected', $selected);
+
+		$output = $theme->output('admin/html/form.scopes');
+
+		return $output;
+	}			
 }

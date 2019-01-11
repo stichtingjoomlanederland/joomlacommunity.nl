@@ -21,8 +21,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<div class="form-horizontal">
 					<?php echo $this->html('settings.toggle', 'layout_categories_with_nopost', 'COM_EASYDISCUSS_FORUMS_SHOW_EMPTY_POST_CATEGORIES'); ?>
 					<?php echo $this->html('settings.toggle', 'layout_categories_tags', 'COM_EASYDISCUSS_FORUMS_SHOW_TAGS'); ?>
-					<?php echo $this->html('settings.textbox', 'layout_categories_limit', 'COM_EASYDISCUSS_CATEGORIES_LIMIT', '', array('size' => 5, 'postfix' => 'Categories'), '', 'text-center form-control-sm'); ?>
-					<?php echo $this->html('settings.textbox', 'layout_post_category_limit', 'COM_EASYDISCUSS_POST_CATEGORY_LIMIT', '', array('size' => 5, 'postfix' => 'Posts'), '', 'text-center form-control-sm'); ?>
+					<?php echo $this->html('settings.textbox', 'layout_categories_limit', 'COM_EASYDISCUSS_CATEGORIES_LIMIT', '', array('size' => 8, 'postfix' => 'Categories'), '', 'text-center form-control-sm'); ?>
+					<?php echo $this->html('settings.textbox', 'layout_post_category_limit', 'COM_EASYDISCUSS_POST_CATEGORY_LIMIT', '', array('size' => 7, 'postfix' => 'Posts'), '', 'text-center form-control-sm'); ?>
 				</div>
 			</div>
 		</div>

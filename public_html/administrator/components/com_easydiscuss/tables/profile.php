@@ -1105,7 +1105,7 @@ class DiscussProfile extends EasyDiscussTable
 
 		if (!isset($cache[$this->id])) {
 			$model = ED::model('Subscribe');
-			$results = $model->getTotalSubscriptions($this->id) ? $model->getTotalSubscriptions($this->id) : '0';
+			$results = $model->getTotalSubscriptions($this->id);
 
 			$cache[$this->id] = 0;
 
@@ -1363,6 +1363,17 @@ class DiscussProfile extends EasyDiscussTable
 	{
 		if (ED::aup()->exists()) {
 			return ED::aup()->getUserPoints($this->id);
+		}
+
+		if (ED::easysocial()->exists()) {
+
+			$esUserPoint = ED::easysocial()->getUserPoints($this->id);
+
+			if ($esUserPoint === false) {
+				return $this->points;
+			}
+			
+			return $esUserPoint;
 		}
 
 		return $this->points;

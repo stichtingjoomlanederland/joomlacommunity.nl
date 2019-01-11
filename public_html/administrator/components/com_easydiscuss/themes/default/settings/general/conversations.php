@@ -23,9 +23,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('settings.toggle', 'main_conversations_notification', 'COM_EASYDISCUSS_CONVERSATIONS_NOTIFICATIONS_ENABLE'); ?>
 
 					<?php echo $this->html('settings.textbox', 'main_conversations_notification_interval', 'COM_EASYDISCUSS_CONVERSATIONS_NOTIFICATIONS_POLLING_INTERVAL', '', 
-						array('size' => 6, 'postfix' => 'COM_EASYDISCUSS_SECONDS'), '', 'form-control-sm text-center'); ?>
+						array('size' => 8, 'postfix' => 'COM_EASYDISCUSS_SECONDS'), '', 'form-control-sm text-center'); ?>
 
-					<?php echo $this->html('settings.textbox', 'main_conversations_notification_items', 'COM_EASYDISCUSS_CONVERSATIONS_TOTAL_ITEMS', '', array('size' => 6, 'postfix' => 'Conversations'), '', 'form-control-sm text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'main_conversations_notification_items', 'COM_EASYDISCUSS_CONVERSATIONS_TOTAL_ITEMS', '', array('size' => 9, 'postfix' => 'Conversations'), '', 'form-control-sm text-center'); ?>
 				</div>
 			</div>
 		</div>
