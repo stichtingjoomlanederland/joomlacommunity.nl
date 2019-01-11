@@ -2329,6 +2329,7 @@ Files.Grid = new Class({
             }
 
             var target = event.target;
+
             if (target.get('tag') === 'a' || target.get('tag') === 'input') {
                 return;
             }
@@ -2336,6 +2337,10 @@ Files.Grid = new Class({
             if (target.get('tag') === 'i' && target.hasClass('icon-download')) {
                 return;
             }
+
+            if (target.get('tag') === 'span' && target.getParent().get('tag') === 'a') {
+            	return;
+			}
 
             var node = target.getParent('.files-node-shadow') || target.getParent('.files-node');
 
@@ -2624,22 +2629,28 @@ Files.Grid = new Class({
 
 		this.renew();
 
-		// footable
-		var $footable = kQuery('.k-js-responsive-table');
-
-		if (this.layout === 'details') {
-
-			$footable.footable({
-				toggleSelector: '.footable-toggle',
-				breakpoints: {
-					phone: 400,
-					tablet: 600,
-					desktop: 800
-				}
-			});
-		}
+		this.setFootable();
 
 		this.fireEvent('afterRender');
+	},
+	setFootable: function() {
+        var $footable = kQuery('.k-js-responsive-table');
+
+        if ($footable.length && this.layout === 'details')
+        {
+			if (!$footable.hasClass('footable'))
+			{
+				$footable.footable({
+					toggleSelector: '.footable-toggle',
+					breakpoints: {
+						phone: 400,
+						tablet: 600,
+						desktop: 800
+					}
+				});
+			}
+			else $footable.trigger('footable_redraw');
+        }
 	},
 	renderObject: function(object, position) {
 		position = position || 'alphabetical';
@@ -3183,7 +3194,7 @@ Files.File = new Class({
 				url: Files.app.createRoute({view: 'file', folder: that.folder, name: that.name}),
 				method: 'post',
 				data: {
-					'_action': 'delete',
+					'_method': 'delete',
 					'csrf_token': Files.token
 				},
 				onSuccess: function(response) {
@@ -3307,7 +3318,7 @@ Files.Folder = new Class({
 				url: Files.app.createRoute({view: 'folder', folder: Files.app.getPath(), name: that.name}),
 				method: 'post',
 				data: {
-					'_action': 'delete',
+					'_method': 'delete',
 					'csrf_token': Files.token
 				},
 				onSuccess: function(response) {
@@ -3693,6 +3704,7 @@ Files.App = new Class({
         root_path: '',
         root_text: 'Root folder',
         cookie: {
+            name: null,
             path: '/'
         },
         persistent: true,
@@ -3827,7 +3839,11 @@ Files.App = new Class({
 
         this.fireEvent('onInitialize', this);
 
-        if (this.options.persistent && this.options.container) {
+        if (this.options.cookie.name) {
+            this.cookie = this.options.cookie.name;
+        }
+
+        if (this.cookie === null && this.options.persistent && this.options.container) {
             var container = typeof this.options.container === 'string' ? this.options.container : this.options.container.slug;
             this.cookie = 'com.files.container.'+container;
         }
@@ -3879,7 +3895,7 @@ Files.App = new Class({
     setState: function() {
         this.fireEvent('beforeSetState');
 
-        if (this.cookie) {
+        if (this.cookie && this.options.persistent) {
             var state = Cookie.read(this.cookie+'.state'),
                 obj   = JSON.decode(state, true);
 
@@ -4275,7 +4291,10 @@ Files.App = new Class({
                 this.state.set(state);
 
                 this.navigate();
-            }.bind(this)
+            }.bind(this),
+            onAfterInsertRows: function() {
+                this.setFootable();
+            }
         });
         this.grid = new Files.Grid(this.options.grid.element, opts);
 

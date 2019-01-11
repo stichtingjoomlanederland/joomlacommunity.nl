@@ -106,7 +106,7 @@ kQuery(function($) {
     </thead>
     <tbody>
     <? foreach ($documents as $document): ?>
-        <tr class="docman_item" itemscope itemtype="http://schema.org/CreativeWork">
+        <tr class="docman_item" data-document="<?= $document->uuid ?>" itemscope itemtype="http://schema.org/CreativeWork">
             <? if ($can_delete): ?>
             <td>
                 <input name="item-select" type="checkbox" data-url="<?= $document->document_link ?>" />

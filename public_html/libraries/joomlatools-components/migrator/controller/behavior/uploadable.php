@@ -77,10 +77,7 @@ class ComMigratorControllerBehaviorUploadable extends KControllerBehaviorAbstrac
         }
 
         $zip->close();
-    }
 
-    protected function _afterUpload(KControllerContextInterface $context)
-    {
         $this->_setConfig($context);
 
         // Send a task list back to the client.
@@ -99,7 +96,7 @@ class ComMigratorControllerBehaviorUploadable extends KControllerBehaviorAbstrac
         }
         else throw new RuntimeException('Importer not found');
 
-        $context->response->setContent(json_encode(KObjectConfig::unbox($output)));
+        return new KObjectConfigJson($output);
     }
 
     /**

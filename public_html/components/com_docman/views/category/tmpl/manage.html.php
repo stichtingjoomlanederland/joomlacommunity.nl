@@ -44,7 +44,7 @@ if ($category->isNew()) {
         'url' => (string) helper('route.category',array('entity' => $category), true, false),
         'params' => array(
             'csrf_token' => object('user')->getSession()->getToken(),
-            '_action'    => 'delete',
+            '_method'    => 'delete',
             '_referrer'  => base64_encode((string) object('request')->getUrl())
         )
     );

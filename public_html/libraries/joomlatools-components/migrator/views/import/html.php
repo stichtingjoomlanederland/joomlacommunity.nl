@@ -11,6 +11,15 @@
  */
 class ComMigratorViewImportHtml extends ComKoowaViewHtml
 {
+    protected function _initialize(KObjectConfig $config)
+    {
+        $config->append(array(
+            'decorator'  => 'koowa'
+        ));
+
+        parent::_initialize($config);
+    }
+
     /**
      * The extension name.
      *

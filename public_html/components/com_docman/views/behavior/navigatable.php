@@ -33,12 +33,18 @@ class ComDocmanViewBehaviorNavigatable extends KViewBehaviorAbstract
                     $params->set('show_subcategories', false);
                 }
                 else {
-                    $model         = $this->getObject('com://site/docman.model.categories');
-                    $first         = $model->setState($data['state'])->limit(1)->fetch();
-                    $category_link = $this->getTemplate()->createHelper('com://admin/docman.template.helper.route')
-                        ->category(array('entity' => $first, 'view' => 'tree'), true, false);
+                    $model = $this->getObject('com://site/docman.model.categories');
+                    $first = $model->setState($data['state'])->limit(1)->fetch();
 
-                    $this->getObject('response')->setRedirect($category_link)->send();
+                    // Ensure there is a category
+                    if (!$first->isNew())
+                    {
+                        $category_link = $this->getTemplate()->createHelper('com://admin/docman.template.helper.route')
+                            ->category(array('entity' => $first, 'view' => 'tree'), true, false);
+
+                        $this->getObject('response')->setRedirect($category_link)->send();
+                    }
+
                 }
             }
         }

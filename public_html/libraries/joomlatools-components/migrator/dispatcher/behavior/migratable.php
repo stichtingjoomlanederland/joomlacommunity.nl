@@ -47,8 +47,7 @@ class ComMigratorDispatcherBehaviorMigratable extends KControllerBehaviorAbstrac
 
             $context->param = 'com:migrator.dispatcher.http';
             $this->getMixer()->execute('forward', $context);
-
-            $context->response->send();
+            $this->send();
         }
     }
 }

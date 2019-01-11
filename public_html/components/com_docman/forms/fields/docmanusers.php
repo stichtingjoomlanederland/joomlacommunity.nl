@@ -25,7 +25,7 @@ class JFormFieldDocmanusers extends JFormField
 
         KObjectManager::getInstance()->getObject('translator')->load('com://admin/docman');
 
-        $view = KObjectManager::getInstance()->getObject('com://admin/docman.view.default');
+        $view = KObjectManager::getInstance()->getObject('com://admin/docman.view.default.html');
         $template = $view->getTemplate()
             ->addFilter('style')
             ->addFilter('script');

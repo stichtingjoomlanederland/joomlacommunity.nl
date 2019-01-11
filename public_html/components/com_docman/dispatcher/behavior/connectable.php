@@ -36,7 +36,9 @@ class ComDocmanDispatcherBehaviorConnectable extends KControllerBehaviorAbstract
                         'result' => $this->_updateThumbnail()
                     );
 
-                    $this->getObject('response')->setContent(json_encode($result), 'application/json')->send();
+                    $this->getObject('response')
+                        ->setContent(json_encode($result), 'application/json')
+                        ->send();
                 }
 
                 return false;
@@ -72,7 +74,7 @@ class ComDocmanDispatcherBehaviorConnectable extends KControllerBehaviorAbstract
 
         $response->attachTransport('stream')
             ->setContent($file->fullpath, $document->mimetype ?: 'application/octet-stream')
-            ->getHeaders()->set('Content-Disposition', array('attachment', 'filename="file"'));
+            ->getHeaders()->set('Content-Disposition', ['attachment' => ['filename' => '"file"']]);
 
         $response->send();
     }

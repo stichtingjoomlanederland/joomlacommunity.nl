@@ -73,9 +73,9 @@ defined('KOOWA') or die; ?>
                     }
                 };
 
-                this.elements.form.on('koowa:beforeApply', beforeSend)
-                    .on('koowa:beforeSave', beforeSend)
-                    .on('koowa:beforeSave2new', beforeSend);
+                this.elements.form.on('k:beforeApply', beforeSend)
+                    .on('k:beforeSave', beforeSend)
+                    .on('k:beforeSave2new', beforeSend);
             }
         },
         updateCurrent: function() {

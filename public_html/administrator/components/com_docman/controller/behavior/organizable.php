@@ -473,7 +473,18 @@ class ComDocmanControllerBehaviorOrganizable extends KControllerBehaviorAbstract
                             ->container('docman-files')->folder($file->folder)->name($file->name)
                             ->move($destination);
 
-                        $document->storage_path = $entity->path;
+                        // Making sure that the storage_path is updated. Movable is expected to do this but
+                        // we've had clients for which is storage_path isn't updated after adding a new document
+                        // Not using $document->save() approach to avoid failed status on model entity if the
+                        // path was already updated (no affected rows)
+                        $query = $this->getObject('lib:database.query.update')->table('docman_documents')
+                                      ->where('docman_document_id = :id')->values('storage_path = :storage_path')
+                                      ->bind(array('id' => $document->id, 'storage_path' => $entity->path));
+
+                        $document->getTable()->getAdapter()->update($query);
+
+                        // Make sure that entity is in sync with the DB table
+                        $document->setProperty('storage_path', $entity->path, false);
                     }
                     catch (Exception $e) {
                         if (JDEBUG) {

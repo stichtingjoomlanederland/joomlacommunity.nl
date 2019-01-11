@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="3.8" client="administrator" type="language" method="upgrade">
+<extension version="3.9" client="administrator" type="language" method="upgrade">
 	<name>Nederlands (nl-NL)</name>
 	<tag>nl-NL</tag>
-	<version>3.8.13.1</version>
-	<creationDate>Oktober 2018</creationDate>
+	<version>3.9.1.2</version>
+	<creationDate>December 2018</creationDate>
 	<author>Dutch Translation Team</author>
 	<authorEmail>taal@joomlacommunity.nl</authorEmail>
-	<authorUrl>http://joomlacode.org/gf/project/nederlands/</authorUrl>
+	<authorUrl>https://joomlacommunity.nl</authorUrl>
 	<copyright>Copyright (C) 2005 - 2018 Dutch Translation Team en Open Source Matters. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
-	<description>Nederlands taalbestand Joomla! 3.8 (beheergedeelte)</description>
+	<description>Nederlands taalbestand Joomla! 3.9 (beheergedeelte)</description>
 	<files>
 		<folder>/</folder>
 		<filename file="meta">install.xml</filename>
 	</files>
-	<params />
+	<params/>
 </extension>

@@ -88,6 +88,7 @@ Files.Grid = new Class({
             }
 
             var target = event.target;
+
             if (target.get('tag') === 'a' || target.get('tag') === 'input') {
                 return;
             }
@@ -95,6 +96,10 @@ Files.Grid = new Class({
             if (target.get('tag') === 'i' && target.hasClass('icon-download')) {
                 return;
             }
+
+            if (target.get('tag') === 'span' && target.getParent().get('tag') === 'a') {
+            	return;
+			}
 
             var node = target.getParent('.files-node-shadow') || target.getParent('.files-node');
 
@@ -383,22 +388,28 @@ Files.Grid = new Class({
 
 		this.renew();
 
-		// footable
-		var $footable = kQuery('.k-js-responsive-table');
-
-		if (this.layout === 'details') {
-
-			$footable.footable({
-				toggleSelector: '.footable-toggle',
-				breakpoints: {
-					phone: 400,
-					tablet: 600,
-					desktop: 800
-				}
-			});
-		}
+		this.setFootable();
 
 		this.fireEvent('afterRender');
+	},
+	setFootable: function() {
+        var $footable = kQuery('.k-js-responsive-table');
+
+        if ($footable.length && this.layout === 'details')
+        {
+			if (!$footable.hasClass('footable'))
+			{
+				$footable.footable({
+					toggleSelector: '.footable-toggle',
+					breakpoints: {
+						phone: 400,
+						tablet: 600,
+						desktop: 800
+					}
+				});
+			}
+			else $footable.trigger('footable_redraw');
+        }
 	},
 	renderObject: function(object, position) {
 		position = position || 'alphabetical';

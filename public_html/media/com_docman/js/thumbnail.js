@@ -90,7 +90,7 @@
 
                         vm.download_in_progress = true;
 
-                        $('.k-js-form-controller').on('koowa:validate', function(args) {
+                        $('.k-js-form-controller').on('k:validate', function(args) {
                             if (vm.download_in_progress) {
                                 vm.download_in_progress_error = true;
 

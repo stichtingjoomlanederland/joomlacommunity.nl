@@ -24,6 +24,10 @@ class ComFilesViewFilesHtml extends ComKoowaViewHtml
 	{
 		$config->auto_fetch = false;
 
+        $config->append([
+            'decorator'  => $config->layout === 'select' ? 'koowa' : 'joomla'
+        ]);
+
 		parent::_initialize($config);
 	}
 

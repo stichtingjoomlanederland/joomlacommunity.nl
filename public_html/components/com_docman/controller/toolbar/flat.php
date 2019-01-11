@@ -22,7 +22,7 @@ class ComDocmanControllerToolbarFlat extends ComKoowaControllerToolbarActionbar
         if($this->getController()->canDelete() && !empty($layout) && $layout !== 'default') {
             $data = array(
                 'csrf_token' => $this->getObject('user')->getSession()->getToken(),
-                '_action' => 'delete'
+                '_method' => 'delete'
             );
 
             $this->addCommand('delete', array(

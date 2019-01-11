@@ -84,10 +84,10 @@ if (typeof Docman === 'undefined') { //noinspection JSUndeclaredVariable
                     $('<input type="hidden" name="storage_path" />').val(value).appendTo(form);
                 };
 
-                $('.k-js-form-controller').on('koowa:beforeApply', beforeSend)
-                    .on('koowa:beforeSave', beforeSend)
-                    .on('koowa:beforeSave2new', beforeSend)
-                    .on('koowa:validate', function(args) {
+                $('.k-js-form-controller').on('k:beforeApply', beforeSend)
+                    .on('k:beforeSave', beforeSend)
+                    .on('k:beforeSave2new', beforeSend)
+                    .on('k:validate', function(args) {
                         var path = vm.entity.storage_path;
 
                         vm.error_message = '';

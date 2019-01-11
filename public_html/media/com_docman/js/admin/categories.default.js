@@ -17,7 +17,7 @@ kQuery(function($){
         placement: 'bottom'
     });
 
-    grid.on('koowa:afterValidate', function() {
+    grid.on('k:afterValidate', function() {
         if (countDocuments()) {
             delete_button.addClass('k-is-disabled');
             delete_button.ktooltip('destroy');

@@ -75,7 +75,11 @@ class ComFilesModelEntityFolder extends ComFilesModelEntityNode implements KComm
 			$context->siblings = array();
 		}
 
-		$context->siblings[] = scandir(dirname($context->getSubject()->fullpath));
+		$parent = dirname($context->getSubject()->fullpath);
+
+		if (file_exists($parent)) {
+            $context->siblings[] = scandir(dirname($context->getSubject()->fullpath));
+        }
 	}
 
 	/**

@@ -87,7 +87,7 @@ Files.File = new Class({
 				url: Files.app.createRoute({view: 'file', folder: that.folder, name: that.name}),
 				method: 'post',
 				data: {
-					'_action': 'delete',
+					'_method': 'delete',
 					'csrf_token': Files.token
 				},
 				onSuccess: function(response) {
@@ -211,7 +211,7 @@ Files.Folder = new Class({
 				url: Files.app.createRoute({view: 'folder', folder: Files.app.getPath(), name: that.name}),
 				method: 'post',
 				data: {
-					'_action': 'delete',
+					'_method': 'delete',
 					'csrf_token': Files.token
 				},
 				onSuccess: function(response) {

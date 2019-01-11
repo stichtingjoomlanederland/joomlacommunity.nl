@@ -12,7 +12,7 @@ kQuery(function($) {
         placement: 'bottom'
     });
 
-    grid.on('koowa:afterValidate', function() {
+    grid.on('k:afterValidate', function() {
         var message  = 'You are not authorized to perform the %s action on these items',
             selected = Koowa.Grid.getAllSelected(),
             actions  = {
@@ -68,5 +68,5 @@ kQuery(function($) {
         return true;
     });
 
-    grid.trigger('koowa:afterValidate');
+    grid.trigger('k:afterValidate');
 });

@@ -61,11 +61,12 @@ defined('_JEXEC') or die; ?>
             <div class="k-toolbar k-js-toolbar">
                 <button class="k-button k-button--success k-js-save">
                     <span class="k-icon-check" aria-hidden="true"></span>
-                    <?= translate('Save') ?>
+                    <span class="k-button__text"><?= translate('Save') ?></span>
                 </button>
                 <button class="k-button k-button--default k-js-cancel">
                     <span class="k-icon-x" aria-hidden="true"></span>
-                    <?= translate('Cancel') ?>
+                    <span class="k-button__text"><?= translate('Cancel') ?></span>
+
                 </button>
             </div>
 

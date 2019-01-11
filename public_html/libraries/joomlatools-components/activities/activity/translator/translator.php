@@ -580,6 +580,12 @@ class ComActivitiesActivityTranslator extends KObjectDecorator implements ComAct
 
             foreach ($labels[1] as $label)
             {
+                $parts = explode(':', $label);
+
+                if (count($parts) > 1) {
+                    $label = $parts[0];
+                }
+
                 $object = null;
                 $parts  = explode('.', $label);
 

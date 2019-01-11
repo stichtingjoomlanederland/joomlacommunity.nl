@@ -32,7 +32,7 @@ class ComMigratorControllerExport extends ComMigratorControllerMigrator
 
     protected function _actionRender(KControllerContextInterface $context)
     {
-        if ($this->getRequest()->getFormat() === 'raw')
+        if ($this->getRequest()->getFormat() === 'binary')
         {
             $folder  = $this->getTemporaryFolder();
             $package = sprintf('%s/export.zip', $folder);

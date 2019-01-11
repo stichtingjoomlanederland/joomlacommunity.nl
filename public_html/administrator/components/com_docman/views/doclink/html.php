@@ -12,7 +12,8 @@ class ComDocmanViewDoclinkHtml extends ComDocmanViewHtml
     {
         $config->append(array(
             'layout'     => 'default',
-            'auto_fetch' => false
+            'auto_fetch' => false,
+            'decorator'  => 'koowa'
         ));
 
         parent::_initialize($config);

@@ -41,7 +41,7 @@ class ComMigratorControllerMigrator extends KControllerView implements KControll
     protected function _initialize(KObjectConfig $config)
     {
         $config->append(array(
-            'formats'   => array('json', 'raw'),
+            'formats'   => array('json', 'binary'),
             'model'     => 'model.empty'
         ));
 
