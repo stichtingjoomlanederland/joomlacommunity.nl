@@ -16,7 +16,6 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->_db			= JFactory::getDbo();
 		$this->_app			= JFactory::getApplication();
 		$this->permissions	= rseventsproHelper::permissions();
 		
@@ -804,5 +803,88 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		}
 		
 		$this->setRedirect(JRoute::_('index.php?option=com_rseventspro&layout=edituser&id='.$id));
+	}
+	
+	public function rsvp() {
+		// Get the model
+		$model = $this->getModel('rseventspro');
+		
+		// Get event details
+		$event = $model->getEvent();
+		
+		$admin = rseventsproHelper::admin();
+		$user  = $model->getUser();
+		$data   = array();
+		
+		if ($admin || $event->owner == $user || $event->sid == $user) {
+			$id		= JFactory::getApplication()->input->getInt('id');
+			$rsvp	= JFactory::getApplication()->input->get('rsvp');
+			
+			$model->rsvp($id, $rsvp);
+			
+			$data['success'] = true;
+			$data['status'] = rseventsproHelper::RSVPStatus($rsvp);
+		} else {
+			$data['success'] = false;
+			$data['message'] = JText::_('COM_RSEVENTSPRO_ERROR_SUBSCRIBER_STATUS');
+		}
+		
+		header('Content-Type: application/json');
+		echo json_encode($data);
+		JFactory::getApplication()->close();
+	}
+	
+	public function removersvp() {
+		// Get the model
+		$model = $this->getModel('rseventspro');
+		
+		// Get event details
+		$event = $model->getEvent();
+		
+		$admin = rseventsproHelper::admin();
+		$user  = $model->getUser();
+		
+		if ($admin || $event->owner == $user || $event->sid == $user) {
+			$model->removersvp();
+			$msg = JText::_('COM_RSEVENTSPRO_RSVP_GUEST_REMOVED');
+		} else $msg = JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED');
+		
+		$this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=rsvp&id='.rseventsproHelper::sef($event->id,$event->name),false),$msg);
+	}
+	
+	public function exportrsvpguests() {
+		// Get the model
+		$model = $this->getModel('rseventspro');
+		
+		// Get event details
+		$event = $model->getEvent();
+		
+		$admin = rseventsproHelper::admin();
+		$user  = $model->getUser();
+		
+		if ($admin || $event->owner == $user || $event->sid == $user) {
+			$model->exportrsvpguests();
+		} else {
+			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)), JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED'));
+		}
+	}
+	
+	public function savespeaker() {
+		// Get the model
+		$model = $this->getModel('rseventspro');
+		$admin = rseventsproHelper::admin();
+		
+		if (!$admin && empty($this->permissions['can_add_speaker']))
+			throw new Exception(JText::_('COM_RSEVENTSPRO_ERROR_ADD_SPEAKER'), 500);
+		
+		$speakers = $model->savespeaker();
+		
+		echo '<script type="text/javascript">'."\n";
+		echo 'var data = '.json_encode($speakers).';'."\n";
+		echo 'window.parent.rsepro_update_speakers(data);'."\n";
+		echo 'window.parent.jQuery("#rsepro-add-new-speaker").modal("hide")'."\n";
+		echo '</script>';
+		
+		JFactory::getApplication()->close();
 	}
 }

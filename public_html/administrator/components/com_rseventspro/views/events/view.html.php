@@ -136,6 +136,7 @@ class RseventsproViewEvents extends JViewLegacy
 		
 		$query->clear()
 			->select($db->qn('e.id'))->select($db->qn('e.name'))->select($db->qn('e.start'))->select($db->qn('e.end'))
+			->select($db->qn('e.registration'))->select($db->qn('e.rsvp'))
 			->select($db->qn('e.parent'))->select($db->qn('e.icon'))->select($db->qn('e.published'))
 			->select($db->qn('e.owner'))->select($db->qn('e.featured'))->select($db->qn('e.completed'))->select($db->qn('l.id','lid'))
 			->select($db->qn('l.name','lname'))->select($db->qn('u.name','uname'))->select($db->qn('e.allday'))->select($db->qn('e.hits'))

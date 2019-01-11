@@ -12,6 +12,7 @@ $categories = $details['categories'];
 $tags		= $details['tags'];
 $files		= $details['files'];
 $repeats	= $details['repeats'];
+$speakers	= $details['speakers'];
 $full		= rseventsproHelper::eventisfull($this->event->id);
 $ongoing	= rseventsproHelper::ongoing($this->event->id); 
 $featured 	= $event->featured ? ' rs_featured_event' : ''; 
@@ -68,6 +69,15 @@ jQuery(document).ready(function (){
 <?php JFactory::getApplication()->triggerEvent('rsepro_onBeforeEventDisplay',array(array('event' => &$event, 'categories' => &$categories, 'tags' => &$tags))); ?>
 
 <div id="rs_event_show">
+	
+	<!-- Event Message -->
+	<?php if ($full && $event->event_full && !$this->eventended) { ?>
+	<div class="alert rse_event_message"><?php echo $event->event_full; ?></div>
+	<?php } ?>
+	<?php if ($this->eventended && $event->event_ended) { ?>
+	<div class="alert rse_event_message"><?php echo $event->event_ended; ?></div>
+	<?php } ?>
+	<!-- end Event Message -->
 
 	<!-- Event Title -->
 	<h1 class="<?php echo $full ? ' rs_event_full' : ''; ?><?php echo $ongoing ? ' rs_event_ongoing' : ''; ?><?php echo $featured; ?>"><?php echo $this->escape($event->name); ?></h1>
@@ -84,6 +94,13 @@ jQuery(document).ready(function (){
 						<i class="fa fa-pencil fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_EDIT'); ?>
 					</a>
 				</li>
+				<?php if ($event->rsvp) { ?>
+				<li>
+					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=rsvp&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
+						<i class="fa fa-users fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_RSVP_GUESTS'); ?>
+					</a>
+				</li>
+				<?php } ?>
 				<li>
 					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribers&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
 						<i class="fa fa-users fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_SUBSCRIBERS'); ?>
@@ -210,8 +227,30 @@ jQuery(document).ready(function (){
 			</ul>
 		</div>
 		<?php } ?>
-
 	<!--//end Invite/Join/Unsubscribe -->
+
+		<?php if ($event->rsvp) { ?>
+		<?php $rsvpOptions = rseventsproHelper::getRSVPOptions($event->id); ?>
+		<?php if (rseventsproHelper::canRSVP($event->id)) { ?>
+		<?php if (!$this->eventended) { ?>
+		<div id="rsepro_rsvp" class="btn-group">
+			<a id="rsepro_going" class="btn <?php if ($rsvpOptions->rsvp == 'going') echo 'btn-success hasTooltip'; ?><?php echo $rsvpOptions->offClass; ?>" title="<?php if ($rsvpOptions->rsvp == 'going') echo JText::_('COM_RSEVENTSPRO_RSVP_INFO'); ?> <?php echo $rsvpOptions->offTitle; ?>" <?php if ($rsvpOptions->canRSVP) { ?>onclick="rsepro_rsvp(<?php echo $event->id; ?>, 'going');"<?php } ?>>
+				<?php echo JText::_('COM_RSEVENTSPRO_RSVP_GOING'); ?>
+			</a>
+			<a id="rsepro_interested" class="btn <?php if ($rsvpOptions->rsvp == 'interested') echo 'btn-success hasTooltip'; ?><?php echo $rsvpOptions->offClass; ?>" title="<?php if ($rsvpOptions->rsvp == 'interested') echo JText::_('COM_RSEVENTSPRO_RSVP_INFO'); ?> <?php echo $rsvpOptions->offTitle; ?>" <?php if ($rsvpOptions->canRSVP) { ?>onclick="rsepro_rsvp(<?php echo $event->id; ?>, 'interested');"<?php } ?>>
+				<?php echo JText::_('COM_RSEVENTSPRO_RSVP_INTERESTED'); ?>
+			</a>
+			<a id="rsepro_notgoing" class="btn <?php if ($rsvpOptions->rsvp == 'notgoing') echo 'btn-success hasTooltip'; ?><?php echo $rsvpOptions->offClass; ?>" title="<?php if ($rsvpOptions->rsvp == 'notgoing') echo JText::_('COM_RSEVENTSPRO_RSVP_INFO'); ?> <?php echo $rsvpOptions->offTitle; ?>" <?php if ($rsvpOptions->canRSVP) { ?>onclick="rsepro_rsvp(<?php echo $event->id; ?>, 'notgoing')"<?php } ?>>
+				<?php echo JText::_('COM_RSEVENTSPRO_RSVP_NOT_GOING'); ?>
+			</a>
+		</div>
+		<?php } else { ?>
+		<?php if (isset($rsvpOptions->rsvp)) { ?>
+		<button class="btn btn-success disabled"><?php echo rseventsproHelper::RSVPStatus($rsvpOptions->rsvp); ?></button>
+		<?php } ?>
+		<?php } ?>
+		<?php } ?>
+		<?php } ?>
 	</div>
 	<div class="rs_clear"></div>
 	
@@ -416,6 +455,88 @@ jQuery(document).ready(function (){
 		<div class="rs_clear"></div>
 	<?php } ?>
 	<!--//end Description -->
+	
+	<?php if ($speakers) { ?>
+	<?php $chunks = array_chunk($speakers, 4); ?>
+	<!-- Speakers -->
+	<h3><?php echo JText::_('COM_RSEVENTSPRO_EVENT_LIST_SPEAKERS'); ?></h3>
+	<?php foreach ($chunks as $speakers) { ?>
+	<ul class="thumbnails rsepro-speakers">
+	<?php foreach($speakers as $speaker) { ?>
+		<li class="span3">
+			<div class="thumbnail">
+				<?php if ($speaker->image) { ?>
+				<img class="rsepro-speaker-image" src="<?php echo JUri::root(); ?>components/com_rseventspro/assets/images/speakers/<?php echo $speaker->image; ?>" alt="<?php echo $speaker->name; ?>" width="<?php echo rseventsproHelper::getConfig('speaker_icon_width', 'int', 100); ?>" height="<?php echo rseventsproHelper::getConfig('speaker_icon_height', 'int', 150); ?>" />
+				<?php } else { ?>
+				<?php echo JHtml::image('com_rseventspro/blankuser.png', $speaker->name, array('class' => 'rsepro-speaker-image', 'width' => rseventsproHelper::getConfig('speaker_icon_width', 'int', 100), 'height' => rseventsproHelper::getConfig('speaker_icon_height', 'int', 150)), true); ?>
+				<?php } ?>
+				<div class="caption">
+					<p class="rsepro-speaker-name"><?php echo $speaker->name; ?></p>
+					
+					<ul class="rsepro-speaker-info">
+						<?php if ($speaker->email) { ?>
+						<li>
+							<a href="mailto:<?php echo $speaker->email; ?>">
+								<i class="fa fa-envelope"></i>
+							</a>
+						</li>
+						<?php } ?>
+						<?php if ($speaker->url) { ?>
+						<li>
+							<a href="<?php echo $speaker->url; ?>" target="_blank">
+								<i class="fa fa-link"></i>
+							</a>
+						</li>
+						<?php } ?>
+						<?php if ($speaker->phone) { ?>
+						<li>
+							<a href="tel:<?php echo $speaker->phone; ?>">
+								<i class="fa fa-phone"></i>
+							</a>
+						</li>
+						<?php } ?>
+						<?php if ($speaker->facebook) { ?>
+						<li>
+							<a href="<?php echo $speaker->facebook; ?>" target="_blank">
+								<i class="fa fa-facebook"></i>
+							</a>
+						</li>
+						<?php } ?>
+						<?php if ($speaker->twitter) { ?>
+						<li>
+							<a href="<?php echo $speaker->twitter; ?>" target="_blank">
+								<i class="fa fa-twitter"></i>
+							</a>
+						</li>
+						<?php } ?>
+						<?php if ($speaker->linkedin) { ?>
+						<li>
+							<a href="<?php echo $speaker->linkedin; ?>" target="_blank">
+								<i class="fa fa-linkedin"></i>
+							</a>
+						</li>
+						<?php } ?>
+						<li></li>
+					</ul>
+				</div>
+				<div class="rsepro-speaker-description"><?php echo $speaker->description; ?></div>
+			</div>
+		</li>
+	<?php } ?>
+	</ul>
+	<?php } ?>
+	
+	<div id="rsepro-speaker-overlay" class="rsepro-speaker-overlay">
+		<div class="rsepro-close">x</div>
+		<div class="rsepro-speaker-overlay-container">
+			<div id="rsepro-speaker-overlay-image"></div>
+			<div id="rsepro-speaker-overlay-name"></div>
+			<div id="rsepro-speaker-overlay-info"></div>
+			<div id="rsepro-speaker-overlay-description"></div>
+		</div>
+	</div>
+	<!--//end Speakers -->
+	<?php } ?>
 
 	<!-- Google maps -->
 	<?php if (!empty($this->options['show_map']) && !empty($event->coordinates) && rseventsproHelper::getConfig('enable_google_maps','int')) { ?>
@@ -478,6 +599,27 @@ jQuery(document).ready(function (){
 	<div class="rs_clear"></div>
 	<?php } ?>
 	<?php } ?>
+	<?php if ($event->rsvp && $event->rsvp_guests) { ?>
+	<?php if (!empty($this->RSVPguests)) { ?>
+	
+	<?php foreach ($this->RSVPguests as $type => $guests) { ?>
+	<?php if (!empty($guests)) { ?>
+	<h3><?php echo JText::_('COM_RSEVENTSPRO_RSVP_EVENT_GUESTS_'.strtoupper($type)); ?></h3>
+	<ul class="thumbnails">
+	<?php foreach ($guests as $guest) { ?>
+		<li class="thumbnail">
+			<?php if (!empty($guest->url)) { ?><a href="<?php echo $guest->url; ?>"><?php } ?>
+			<?php echo $guest->avatar; ?>
+			<p class="center"><?php echo $guest->name; ?></p>
+			<?php if (!empty($guest->url)) { ?></a><?php } ?>
+		</li>
+	<?php } ?>
+	</ul>
+	<div class="clearfix"></div>
+	<?php } ?>
+	<?php } ?>
+	<?php } ?>
+	<?php } ?>
 	<!--//end Show subscribers -->
 
 	<?php JFactory::getApplication()->triggerEvent('rsepro_onAfterEventDisplay',array(array('event' => $event, 'categories' => $categories, 'tags' => $tags))); ?>
@@ -506,38 +648,7 @@ jQuery(document).ready(function (){
 </div>
 
 <?php if ($this->config->timezone) { ?>
-<div id="timezoneModal" class="modal hide fade jviewport-width30" tabindex="-1" role="dialog" aria-hidden="true">
-	<div class="modal-header">
-		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-		<h3><?php echo JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE'); ?></h3>
-	</div>
-	<div class="modal-body">
-		<form method="post" action="<?php echo htmlentities(JUri::getInstance(), ENT_COMPAT, 'UTF-8'); ?>" id="timezoneForm" name="timezoneForm" class="form-horizontal">
-			<div class="control-group">
-				<div class="control-label">
-					<label><?php echo JText::_('COM_RSEVENTSPRO_DEFAULT_TIMEZONE'); ?></label>
-				</div>
-				<div class="controls">
-					<span class="btn disabled"><?php echo $this->timezone; ?></span>
-				</div>
-			</div>
-			<div class="control-group">
-				<div class="control-label">
-					<label for="timezone"><?php echo JText::_('COM_RSEVENTSPRO_SELECT_TIMEZONE'); ?></label>
-				</div>
-				<div class="controls">
-					<?php echo JHtml::_('rseventspro.timezones','timezone'); ?>
-				</div>
-			</div>
-			<input type="hidden" name="task" value="timezone" />
-			<input type="hidden" name="return" value="<?php echo $this->timezoneReturn; ?>" />
-		</form>
-	</div>
-	<div class="modal-footer">
-		<button class="btn" data-dismiss="modal" aria-hidden="true"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
-		<button class="btn btn-primary" type="button" onclick="document.timezoneForm.submit();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button>
-	</div>
-</div>
+<?php echo rseventsproHelper::timezoneModal(); ?>
 <?php } ?>
 
 <?php 

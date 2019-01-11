@@ -90,6 +90,11 @@ RSEventsPro.Event = {
 			RSEventsPro.Event.enableRegistration();
 		});
 		
+		// Enable/Disable RSVP
+		jQuery('#jform_rsvp').on('click', function() {
+			RSEventsPro.Event.enableRSVP();
+		});
+		
 		// Add ticket
 		jQuery('.rsepro-add-ticket').on('click', function() {
 			RSEventsPro.Event.addTicket();
@@ -394,6 +399,10 @@ RSEventsPro.Event = {
 		jQuery('ul li a[data-target^="#rsepro-edit-ticket"]').parent().slideToggle();
 		
 		if (jQuery('#jform_registration').is(':checked')) {
+			jQuery('#jform_rsvp').prop('checked', false);
+			jQuery('#jform_rsvp').prop('disabled', true);
+			jQuery('#jform_rsvp_label').addClass('muted');
+			
 			if (jQuery('#jform_discounts').is(':checked')) {
 				jQuery('ul li a[data-target="#rsepro-edit-tab6"]').parent().slideDown();
 				jQuery('ul li a[data-target="#rsepro-edit-tab7"]').parent().slideDown();
@@ -404,10 +413,27 @@ RSEventsPro.Event = {
 				jQuery('ul li a[data-target^="#rsepro-edit-coupon"]').parent().slideUp();
 			}
 		} else {
+			jQuery('#jform_rsvp').prop('disabled', false);
+			jQuery('#jform_rsvp_label').removeClass('muted');
+			
 			jQuery('ul li a[data-target="#rsepro-edit-tab6"]').parent().slideUp();
 			jQuery('ul li a[data-target="#rsepro-edit-tab7"]').parent().slideUp();
 			jQuery('ul li a[data-target^="#rsepro-edit-coupon"]').parent().slideUp();
 		}
+	},
+	
+	// Enable/Disable RSVP
+	enableRSVP: function() {
+		if (jQuery('#jform_rsvp').is(':checked')) {
+			jQuery('#jform_registration').prop('disabled', true);
+			jQuery('#jform_registration').prop('checked', false);
+			jQuery('#jform_registration_label').addClass('muted');
+		} else {
+			jQuery('#jform_registration').prop('disabled', false);
+			jQuery('#jform_registration_label').removeClass('muted');
+		}
+		
+		jQuery('ul li a[data-target="#rsepro-edit-tabrsvp"]').parent().slideToggle();
 	},
 	
 	// Enable/Disable coupons
@@ -683,6 +709,7 @@ RSEventsPro.Event = {
 				'jform[published]': '1',
 				'jform[name]': jQuery('#rsepro-location').val(),
 				'jform[address]': jQuery('#location_address').val(),
+				'jform[url]': jQuery('#location_URL').val(),
 				'jform[description]': jQuery('#location_description').val(),
 				'jform[coordinates]': jQuery('#location_coordinates').val()
 			}
@@ -697,6 +724,7 @@ RSEventsPro.Event = {
 					jQuery('#jform_location').val(response);
 					jQuery('#location_address').val('');
 					jQuery('#location_description').val('');
+					jQuery('#location_URL').val('');
 					jQuery('#location_coordinates').val('');
 					
 					jQuery('#rsepro-save-location').html(Joomla.JText._('COM_RSEVENTSPRO_EVENT_LOCATION_ADD_LOCATION'));
@@ -845,7 +873,7 @@ RSEventsPro.Event = {
 			dataType: 'json',
 			data: params.join('&')
 		}).done(function(response) {
-			jQuery('<li style="display:block;" class="rsepro-ticket rsepro-hide" id="ticket_' + response.id + '"><a data-toggle="tab" data-target="#rsepro-edit-ticket' + response.id + '" href="javascript:void(0);">' + tName + '</a></li>').insertBefore(jQuery('ul li a[data-target="#rsepro-edit-tab6"]').parent());
+			jQuery('<li style="display:block;" class="rsepro-ticket rsepro-hide" id="ticket_' + response.id + '"><a data-toggle="tab" data-target="#rsepro-edit-ticket' + response.id + '" href="javascript:void(0);">' + tName + ' <span class="fa fa-ticket"></span></a></li>').insertBefore(jQuery('ul li a[data-target="#rsepro-edit-tab6"]').parent());
 			jQuery(response.html).insertBefore(jQuery('#rsepro-edit-tab6'));
 			
 			// Add custom js codes

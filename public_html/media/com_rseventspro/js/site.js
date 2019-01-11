@@ -14,6 +14,23 @@ jQuery(document).ready(function() {
 			jQuery(this).val(jQuery(this).val().replace(/[^0-9]/g, ''));
 		});
 	}
+	
+	jQuery('.rsepro-speakers .rsepro-speaker-image').on('click', function() {
+		rsepro_show_speaker(this);
+	});
+	
+	jQuery('#rsepro-speaker-overlay .rsepro-close').on('click', function() {
+		rsepro_close_speaker();
+	});
+	
+	jQuery('#rsepro-speaker-overlay').on('click', function(e) {
+		e.preventDefault();
+		rsepro_close_speaker();
+	});
+	
+	jQuery('.rsepro-speaker-overlay-container').on('click', function(e) {
+		e.stopPropagation();
+	});
 });
 
 function rse_calculatetotal(tickets,type) {
@@ -279,7 +296,7 @@ function rspagination(tpl,limitstart,ide) {
 		jQuery('#rs_events_container').append(response);
 		jQuery('#rs_loader').css('display','none');
 		
-		if (jQuery('#rs_events_container li[class!="rsepro-month-year"]').length > 0 && (tpl == 'events' || tpl == 'locations' || tpl == 'subscribers' || tpl == 'day' || tpl == 'week')) {
+		if (jQuery('#rs_events_container li[class!="rsepro-month-year"]').length > 0 && (tpl == 'events' || tpl == 'locations' || tpl == 'subscribers' || tpl == 'day' || tpl == 'week' || tpl == 'search' || tpl == 'rsvp')) {
 			jQuery('#rs_events_container li[class!="rsepro-month-year"]').on('mouseenter', function() {
 				jQuery(this).find('div.rs_options').css('display','');
 			});
@@ -546,17 +563,13 @@ function rs_send_guests() {
 		jQuery('#subject').removeClass('invalid');
 	}
 	
-	if (jQuery('#denied').prop('checked') == false && jQuery('#pending').prop('checked') == false && jQuery('#accepted').prop('checked') == false && !jQuery('#subscribers :selected').length) {
+	if (!jQuery('#messageContainer input[type="checkbox"]:checked').length && !jQuery('#subscribers :selected').length) {
+		jQuery('#messageContainer label').addClass('invalid');
+		jQuery('#subscribers').addClass('invalid');
 		ret = false;
-		jQuery('#a_option').addClass('invalid');
-		jQuery('#d_option').addClass('invalid');
-		jQuery('#p_option').addClass('invalid');
-		jQuery('#subscribers').addClass('invalid')
 	} else {
-		jQuery('#a_option').removeClass('invalid');
-		jQuery('#d_option').removeClass('invalid');
-		jQuery('#p_option').removeClass('invalid');
-		jQuery('#subscribers').removeClass('invalid')
+		jQuery('#messageContainer label').removeClass('invalid');
+		jQuery('#subscribers').removeClass('invalid');
 	}
 	
 	return ret;
@@ -1583,6 +1596,91 @@ function rsepro_show_image(img) {
 	jQuery('#rseImageModal .modal-body').empty();
 	jQuery('#rseImageModal .modal-body').append(jQuery('<img>').prop('src',img).addClass('rsepro_event_image'));
 	jQuery('#rseImageModal').modal('show');
+}
+
+function rsepro_rsvp(id, rsvp) {
+	rse_root = typeof rsepro_root != 'undefined' ? rsepro_root : '';
+	jQuery('#rsepro_rsvp a').attr('disabled', true);
+	
+	jQuery.ajax({
+		url: rse_root + 'index.php?option=com_rseventspro',
+		type: 'post',
+		dataType: 'json',
+		data: 'task=rsvp&id='+ id + '&rsvp=' + rsvp
+	}).done(function( response ) {
+		jQuery('#rsepro_rsvp a').attr('disabled', false);
+		if (response.success) {
+			jQuery('#rsepro_rsvp a').removeClass('btn-success hasTooltip');
+			jQuery('#rsepro_rsvp a').removeAttr('title');
+			jQuery('#rsepro_rsvp a').removeAttr('data-original-title');
+			jQuery('#rsepro_rsvp a').tooltip('destroy');
+			
+			jQuery('#rsepro_' + rsvp).addClass('btn-success hasTooltip');
+			jQuery('#rsepro_' + rsvp).prop('title', response.info);
+			
+			if (response.remove) {
+				jQuery('#rsepro_rsvp a').removeClass('btn-success hasTooltip');
+			}
+			
+			jQuery('.tooltip').hide();
+			jQuery('.hasTooltip').tooltip('destroy');
+			jQuery('.hasTooltip').tooltip({"html": true,"container": "body"});
+		} else {
+			alert(response.message);
+		}
+	});
+}
+
+function rsepro_rsvp_status(id, rsvp) {
+	rse_root = typeof rsepro_root != 'undefined' ? rsepro_root : '';
+	
+	jQuery.ajax({
+		url: rse_root + 'index.php?option=com_rseventspro',
+		type: 'post',
+		dataType: 'json',
+		data: 'task=rseventspro.rsvp&id='+ id + '&rsvp=' + rsvp
+	}).done(function( response ) {
+		if (response.success) {
+			jQuery('#status' + id).html(response.status);
+		} else {
+			alert(response.message);
+		}
+	});
+}
+
+function rsepro_show_speaker(what) {
+	container = jQuery(what).parents('li');
+	
+	if (container.length) {
+		container.find('.rsepro-speaker-image').clone().appendTo('#rsepro-speaker-overlay-image');
+		jQuery('#rsepro-speaker-overlay-name').html(container.find('.rsepro-speaker-name').html());
+		container.find('.rsepro-speaker-info').clone().appendTo('#rsepro-speaker-overlay-info');
+		jQuery('#rsepro-speaker-overlay-description').html(container.find('.rsepro-speaker-description').html());
+		jQuery('#rsepro-speaker-overlay').addClass('rsepro-speaker-overlay-on');
+	}
+}
+
+function rsepro_close_speaker() {
+	jQuery('#rsepro-speaker-overlay-image').html('');
+	jQuery('#rsepro-speaker-overlay-name').html('');
+	jQuery('#rsepro-speaker-overlay-info').html('');
+	jQuery('#rsepro-speaker-overlay-description').html('');
+	jQuery('#rsepro-speaker-overlay').removeClass('rsepro-speaker-overlay-on');
+}
+
+function rsepro_update_speakers(data) {
+	var selected = window.parent.jQuery('#speakers').val();
+	window.parent.document.getElementById('speakers').options.length = 0;
+	
+	jQuery(data).each(function (i,el){
+		window.parent.jQuery('#speakers').append(jQuery('<option>', { 'text': el.text, 'value': el.value }));
+	});
+	
+	if (selected.length) {
+		window.parent.jQuery('#speakers').val(selected);
+	}
+	
+	window.parent.jQuery('#speakers').trigger('liszt:updated');
 }
 
 var rsepro_timeinterval;

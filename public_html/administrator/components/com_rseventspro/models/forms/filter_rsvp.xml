@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fields name="filter">
+		<field name="search" type="text" label="JSEARCH_FILTER" hint="JSEARCH_FILTER" />
+		
+		<field name="rsvp" type="list" onchange="this.form.submit();">
+			<option value="">COM_RSEVENTSPRO_RSVP_SELECT_STATUS</option>
+			<option value="going">COM_RSEVENTSPRO_RSVP_GOING</option>
+			<option value="interested">COM_RSEVENTSPRO_RSVP_INTERESTED</option>
+			<option value="notgoing">COM_RSEVENTSPRO_RSVP_NOT_GOING</option>
+		</field>
+	</fields>
+
+	<fields name="list">
+		<field name="fullordering" type="list" onchange="this.form.submit();" default="r.date ASC">
+			<option value="">JGLOBAL_SORT_BY</option>
+			<option value="r.id ASC">JGRID_HEADING_ID_ASC</option>
+			<option value="r.id DESC">JGRID_HEADING_ID_DESC</option>
+			<option value="r.date ASC">COM_RSEVENTSPRO_RSVP_DATE_ASC</option>
+			<option value="r.date DESC">COM_RSEVENTSPRO_RSVP_DATE_DESC</option>
+		</field>
+		
+		<field name="limit" type="limitbox" default="25" class="input-mini" onchange="this.form.submit();" />
+	</fields>
+</form>

@@ -36,16 +36,23 @@ class com_rseventsproInstallerScript
 		$db->setQuery('SELECT '.$db->qn('extension_id').' FROM '.$db->qn('#__extensions').' WHERE '.$db->qn('element').' = '.$db->q('rseventspro').' AND '.$db->qn('folder').' = '.$db->q('installer').' AND '.$db->qn('type').' = '.$db->q('plugin').' LIMIT 1');
 		$plg_id = $db->loadResult();
 		if ($plg_id) $installer->uninstall('plugin', $plg_id);
+		
+		$db->setQuery('SELECT '.$db->qn('extension_id').' FROM '.$db->qn('#__extensions').' WHERE '.$db->qn('element').' = '.$db->q('rseventspro').' AND '.$db->qn('folder').' = '.$db->q('provacy').' AND '.$db->qn('type').' = '.$db->q('plugin').' LIMIT 1');
+		$priv_id = $db->loadResult();
+		if ($priv_id) $installer->uninstall('plugin', $priv_id);
 	}
 	
 	// Install - Update process
 	public function installprocess($type, $parent) {
-		$db		= JFactory::getDbo();
-		
-		// Install the updater plugin
+		$db	= JFactory::getDbo();
 		$installer = new JInstaller();
+		
 		$installer->install($parent->getParent()->getPath('source').'/other/plg_installer');
 		$db->setQuery('UPDATE '.$db->qn('#__extensions').' SET '.$db->qn('enabled').' = 1 WHERE '.$db->qn('element').' = '.$db->q('rseventspro').' AND '.$db->qn('type').' = '.$db->q('plugin').' AND '.$db->qn('folder').' = '.$db->q('installer'));
+		$db->execute();
+		
+		$installer->install($parent->getParent()->getPath('source').'/other/plg_rseventsproprivacy');
+		$db->setQuery('UPDATE '.$db->qn('#__extensions').' SET '.$db->qn('enabled').' = 1 WHERE '.$db->qn('element').' = '.$db->q('rseventspro').' AND '.$db->qn('type').' = '.$db->q('plugin').' AND '.$db->qn('folder').' = '.$db->q('privacy'));
 		$db->execute();
 		
 		
@@ -952,6 +959,35 @@ class com_rseventsproInstallerScript
 				}
 			}
 			
+			
+			$updateData = array();
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsvp', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsvp_quota', 'type' => 'INT(11)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsvp_guests', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsvp_start', 'type' => 'DATETIME', 'default' => '0000-00-00 00:00:00');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsvp_end', 'type' => 'DATETIME', 'default' => '0000-00-00 00:00:00');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsvp_going', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsvp_interested', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'rsvp_notgoing', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'event_ended', 'type' => 'TEXT');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'event_full', 'type' => 'TEXT');
+			$updateData[] = array('table' => '#__rseventspro_groups', 'field' => 'can_select_speakers', 'type' => 'TINYINT(2)', 'default' => '1');
+			$updateData[] = array('table' => '#__rseventspro_groups', 'field' => 'can_add_speaker', 'type' => 'TINYINT(2)', 'default' => '0');
+			
+			foreach ($updateData as $data) {
+				$checkQuery = 'SHOW COLUMNS FROM '.$db->qn($data['table']).' WHERE '.$db->qn('Field').' = '.$db->q($data['field']);
+				$updateQuery = 'ALTER TABLE '.$db->qn($data['table']).' ADD '.$db->qn($data['field']).' '.$data['type'].' NOT NULL';
+				
+				if (isset($data['default'])) $updateQuery .= " DEFAULT '".$data['default']."'";
+				if (isset($data['after'])) $updateQuery .= ' AFTER '.$db->q($data['after']);
+				
+				$db->setQuery($checkQuery);
+				if (!$db->loadResult()) {
+					$db->setQuery($updateQuery);
+					$db->execute();
+				}
+			}
+			
 			// Run queries
 			$sqlfile = JPATH_ADMINISTRATOR.'/components/com_rseventspro/install.mysql.sql';
 			$buffer = file_get_contents($sqlfile);
@@ -1099,9 +1135,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.11.13</h2>
+	<h2>Changelog v1.12.2</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> Multiple registrations were possible when using the RSForm!Pro integration and the maximum attendance option was set.</li>
+		<li><span class="version-upgraded">Upg</span> Calendar layout speed improvements.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>
@@ -1156,7 +1192,7 @@ class com_rseventsproInstallerScript
 				'rseventspro' => '1.1'
 			),
 			'system' => array(
-				'rsepropdf' => '1.11',
+				'rsepropdf' => '1.13',
 				'rsfprseventspro' => '1.5.0',
 				'rsepro2co' => '1.1',
 				'rseproanzegate' => '1.2',
@@ -1167,7 +1203,7 @@ class com_rseventsproInstallerScript
 				'rsepropaypal' => '1.2',
 				'rseprovmerchant' => '1.2',
 				'rseprostripe' => '1.1',
-				'rseprooffline' => '1.2'
+				'rseprooffline' => '1.3'
 			)
 		);
 		

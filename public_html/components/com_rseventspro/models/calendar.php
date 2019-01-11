@@ -9,11 +9,8 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 class RseventsproModelCalendar extends JModelLegacy
 {
 	protected $_query		= null;
-	protected $_data		= null;
-	protected $_total		= null;
 	protected $_db 			= null;
 	protected $_app 		= null;
-	protected $_user 		= null;
 	
 	/**
 	 *	Main constructor
@@ -25,12 +22,10 @@ class RseventsproModelCalendar extends JModelLegacy
 		$config				= JFactory::getConfig();
 		$this->_db			= JFactory::getDBO();
 		$this->_app			= JFactory::getApplication();
-		$this->_user		= JFactory::getUser();
 		$this->_filters		= $this->getFilters();
 		$this->_query		= $this->_buildQuery();
 		
 		if ($this->_app->input->get('layout') == 'day' || $this->_app->input->get('layout') == 'week' || $this->_app->input->get('tpl') == 'day' || $this->_app->input->get('tpl') == 'week') {
-			// Get pagination request variables
 			$thelimit	= $this->_app->input->get('format','') == 'feed' ? $config->get('feed_limit') : $config->get('list_limit');
 			$limit		= $this->_app->getUserStateFromRequest('com_rseventspro.limit', 'limit', $thelimit, 'int');
 			$limitstart	= $this->_app->input->getInt('limitstart', 0);
@@ -82,38 +77,28 @@ class RseventsproModelCalendar extends JModelLegacy
 	 *	Method to get calendar events
 	 */
 	public function getEvents() {
-		if (empty($this->_data)) {
-			if ($this->_app->input->get('layout') == 'day' || $this->_app->input->get('layout') == 'week' || $this->_app->input->get('tpl') == 'day' || $this->_app->input->get('tpl') == 'week') {
-				
-				if ($this->_app->input->get('type','') == 'ical') {
-					$this->_db->setQuery($this->_query);
-					$this->_data = $this->_db->loadObjectList();
-				} else {
-					$this->_db->setQuery($this->_query,$this->getState('com_rseventspro.limitstart'), $this->getState('com_rseventspro.limit'));
-					$this->_data = $this->_db->loadObjectList();
-				}
-			} else {
+		if ($this->_app->input->get('layout') == 'day' || $this->_app->input->get('layout') == 'week' || $this->_app->input->get('tpl') == 'day' || $this->_app->input->get('tpl') == 'week') {
+			if ($this->_app->input->get('type','') == 'ical') {
 				$this->_db->setQuery($this->_query);
-				$this->_data = $this->_db->loadObjectList();
+				return $this->_db->loadObjectList();
+			} else {
+				$this->_db->setQuery($this->_query,$this->getState('com_rseventspro.limitstart'), $this->getState('com_rseventspro.limit'));
+				return $this->_db->loadObjectList();
 			}
+		} else {
+			$this->_db->setQuery($this->_query);
+			return $this->_db->loadObjectList();
 		}
-		return $this->_data;
-	}
-	
-	protected function getCount($query) {
-		$this->_db->setQuery($query);
-		$this->_db->execute();
-
-		return $this->_db->getNumRows();
 	}
 	
 	/**
 	 *	Method to get the total number of events
 	 */
 	public function getTotal() {
-		if (empty($this->_total))
-			$this->_total = $this->getCount($this->_query);
-		return $this->_total;
+		$this->_db->setQuery($this->_query);
+		$this->_db->execute();
+
+		return $this->_db->getNumRows();
 	}
 	
 	/**
@@ -146,7 +131,6 @@ class RseventsproModelCalendar extends JModelLegacy
 	}
 	
 	public function getColors() {
-		// Get params
 		$params		= rseventsproHelper::getParams();
 		$colors		= $params->get('colors',0);
 		$legend		= $params->get('legend',0);
@@ -458,20 +442,6 @@ class RseventsproModelCalendar extends JModelLegacy
 		return $count;
 	}
 	
-	public function getFilterOptions() { 
-		return array(JHTML::_('select.option', 'events', JText::_('COM_RSEVENTSPRO_FILTER_NAME')), JHTML::_('select.option', 'description', JText::_('COM_RSEVENTSPRO_FILTER_DESCRIPTION')), 
-			JHTML::_('select.option', 'locations', JText::_('COM_RSEVENTSPRO_FILTER_LOCATION')) ,JHTML::_('select.option', 'categories', JText::_('COM_RSEVENTSPRO_FILTER_CATEGORY')),
-			JHTML::_('select.option', 'tags', JText::_('COM_RSEVENTSPRO_FILTER_TAG')), JHTML::_('select.option', 'featured', JText::_('COM_RSEVENTSPRO_FILTER_FEATURED')), 
-			JHTML::_('select.option', 'price', JText::_('COM_RSEVENTSPRO_FILTER_PRICE'))
-		);
-	}
-	
-	public function getFilterConditions() {
-		return array(JHTML::_('select.option', 'is', JText::_('COM_RSEVENTSPRO_FILTER_CONDITION_IS')), JHTML::_('select.option', 'isnot', JText::_('COM_RSEVENTSPRO_FILTER_CONDITION_ISNOT')),
-			JHTML::_('select.option', 'contains', JText::_('COM_RSEVENTSPRO_FILTER_CONDITION_CONTAINS')),JHTML::_('select.option', 'notcontain', JText::_('COM_RSEVENTSPRO_FILTER_CONDITION_NOTCONTAINS'))
-		);
-	}
-	
 	public function getMaxPrice() {
 		require_once JPATH_SITE.'/components/com_rseventspro/helpers/query.php';
 		
@@ -500,5 +470,19 @@ class RseventsproModelCalendar extends JModelLegacy
 		$operator	= $this->_app->getUserStateFromRequest('com_rseventspro.events.filter_operator'.$itemid, 'filter_operator', 'AND');
 		
 		return !in_array($operator, $valid) ? 'AND' : $operator;		
+	}
+	
+	public function getFilterOptions() { 
+		return array(JHTML::_('select.option', 'events', JText::_('COM_RSEVENTSPRO_FILTER_NAME')), JHTML::_('select.option', 'description', JText::_('COM_RSEVENTSPRO_FILTER_DESCRIPTION')), 
+			JHTML::_('select.option', 'locations', JText::_('COM_RSEVENTSPRO_FILTER_LOCATION')) ,JHTML::_('select.option', 'categories', JText::_('COM_RSEVENTSPRO_FILTER_CATEGORY')),
+			JHTML::_('select.option', 'tags', JText::_('COM_RSEVENTSPRO_FILTER_TAG')), JHTML::_('select.option', 'featured', JText::_('COM_RSEVENTSPRO_FILTER_FEATURED')), 
+			JHTML::_('select.option', 'price', JText::_('COM_RSEVENTSPRO_FILTER_PRICE'))
+		);
+	}
+	
+	public function getFilterConditions() {
+		return array(JHTML::_('select.option', 'is', JText::_('COM_RSEVENTSPRO_FILTER_CONDITION_IS')), JHTML::_('select.option', 'isnot', JText::_('COM_RSEVENTSPRO_FILTER_CONDITION_ISNOT')),
+			JHTML::_('select.option', 'contains', JText::_('COM_RSEVENTSPRO_FILTER_CONDITION_CONTAINS')),JHTML::_('select.option', 'notcontain', JText::_('COM_RSEVENTSPRO_FILTER_CONDITION_NOTCONTAINS'))
+		);
 	}
 }

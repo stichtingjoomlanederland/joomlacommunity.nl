@@ -28,12 +28,16 @@
 			<option	value="1">JYES</option>
 		</field>
 		<field name="store_ip" type="radio" class="btn-group" label="COM_RSCOMMENTS_STORE_IP" description="COM_RSCOMMENTS_STORE_IP_DESC" default="1">
-			<option value="1">JYES</option>
 			<option value="0">JNO</option>
+			<option value="1">JYES</option>
 		</field>
 		<field name="consent" type="radio" class="btn-group" label="COM_RSCOMMENTS_SHOW_CONSENT" description="COM_RSCOMMENTS_SHOW_CONSENT_DESC" default="1">
-			<option value="1">JYES</option>
 			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="modal" type="list" label="COM_RSCOMMENTS_MODAL" description="COM_RSCOMMENTS_MODAL_DESC" class="input-large" default="1">
+			<option value="1">COM_RSCOMMENTS_MODAL_JOOMLA</option>
+			<option value="2">COM_RSCOMMENTS_MODAL_MAGNIFIC_POPUP</option>
 		</field>
 	</fieldset>
 	
@@ -163,7 +167,6 @@
 	<fieldset name="captcha_conf" label="COM_RSCOMMENTS_CAPTCHA_CONFIG" addfieldpath="/administrator/components/com_rscomments/models/fields">
 		<field name="captcha" type="list" class="btn-group" default="0" size="1" label="COM_RSCOMMENTS_USE_CAPTCHA" description="COM_RSCOMMENTS_USE_CAPTCHA_DESC">
 			<option value="0">COM_RSCOMMENTS_BUILTIN_CAPTCHA</option>
-			<option	value="1">COM_RSCOMMENTS_RECAPTCHA</option>
 			<option	value="2">COM_RSCOMMENTS_NEW_RECAPTCHA</option>
 		</field>
 		
@@ -177,17 +180,6 @@
 		<field name="captcha_cases" type="radio" class="btn-group" default="0" size="1" label="COM_RSCOMMENTS_CAPTCHA_CASES" description="COM_RSCOMMENTS_CAPTCHA_CASES_DESC" showon="captcha:0">
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
-		</field>
-		
-		<field name="spacer2" type="spacer" label="COM_RSCOMMENTS_RECAPTCHA_SETTINGS" showon="captcha:1" />
-		
-		<field name="rec_public" type="text" class="input-xlarge" description="COM_RSCOMMENTS_REC_PUBLICK_DESC" label="COM_RSCOMMENTS_REC_PUBLICK" size="70" showon="captcha:1" />
-		<field name="rec_private" type="text" class="input-xlarge" description="COM_RSCOMMENTS_REC_PRIVATEK_DESC" label="COM_RSCOMMENTS_REC_PRIVATEK" size="70" showon="captcha:1" />
-		<field name="rec_themes" type="list" class="btn-group" default="red" label="COM_RSCOMMENTS_REC_THEME" description="COM_RSCOMMENTS_REC_THEME_DESC" showon="captcha:1">
-			<option value="red">COM_RSCOMMENTS_REC_RED</option>
-			<option	value="white">COM_RSCOMMENTS_REC_WHITE</option>
-			<option	value="blackglass">COM_RSCOMMENTS_REC_BLACKGLASS</option>
-			<option	value="clean">COM_RSCOMMENTS_REC_CLEAN</option>
 		</field>
 		
 		<field name="spacer3" type="spacer" label="COM_RSCOMMENTS_NEW_RECAPTCHA_SETTINGS" showon="captcha:2" />

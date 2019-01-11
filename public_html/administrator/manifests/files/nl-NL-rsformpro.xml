@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<extension version="2.5" type="file" method="upgrade">
+<extension version="3.8" type="file" method="upgrade">
 <name>nl-NL-rsformpro</name>
 <tag>nl-NL</tag>
-<version>2.0.14</version>
-<creationDate>2018-08-31</creationDate>
+<version>2.0.15.2</version>
+<creationDate>2018-10-14</creationDate>
 <author>Connecting Connections</author>
 <authorEmail>info@con-con.nl</authorEmail>
 <authorUrl>https://con-con.nl</authorUrl>
@@ -38,7 +38,7 @@
 	    </tr>
 	    <tr>
 		    <td width="18%"><u><b>Vertaling voor versie:</b></u></td>
-		    <td width="80%">2.0.14</td>
+		    <td width="80%">2.0.15.2</td>
 	    </tr>
 	    <tr>
 		    <td width="100%" colspan="2">
@@ -50,13 +50,13 @@
 	    </tr>
 	    <tr>
 		    <td width="100%" colspan="2">
-		      <p align="center"><b><font color="#008000">Controleer regelmatig de <a href="www.rsjoomla.com" target="_blank">RSJoomla! downloadsite</a> voor een nieuwe versie van de vertaling voor deze extensie.<br /> Of kijk op onze <a href="https://con-con.nl/downloads" target="_blank">Download site</a>.</font></b></td>
+		      <p align="center"><b><font color="#008000">Controleer regelmatig de <a href="//www.rsjoomla.com" target="_blank">RSJoomla! downloadsite</a> voor een nieuwe versie van de vertaling voor deze extensie.<br /> Of kijk op onze <a href="https://con-con.nl/downloads" target="_blank">Download site</a>.</font></b></td>
 	    </tr>
     </table>
   </div>]]></description>
       <fileset>
         <!-- Backend Lang pack languages -->
-        <files folder="adminj25/nl-NL" target="administrator/language/nl-NL">
+        <files folder="admin/nl-NL" target="administrator/language/nl-NL">
 <filename>nl-NL.com_rsform.ini</filename>
 <filename>nl-NL.com_rsform.sys.ini</filename>
 <filename>nl-NL.plg_content_rsform.ini</filename>
@@ -159,7 +159,7 @@
 <filename>nl-NL.plg_system_rsfpzohocrm.sys.ini</filename>
 </files>
 		<!-- Frontend Lang pack languages -->
-		<files folder="sitej25/nl-NL" target="language/nl-NL">
+		<files folder="site/nl-NL" target="language/nl-NL">
 <filename>nl-NL.com_rsform 2.ini</filename>
 <filename>nl-NL.com_rsform.ini</filename>
 <filename>nl-NL.mod_rsform 2.ini</filename>

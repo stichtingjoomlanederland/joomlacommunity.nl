@@ -6,6 +6,11 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); 
 
+use Joomla\CMS\Crypt\Cipher\SimpleCipher;
+use Joomla\CMS\Crypt\CipherInterface;
+use Joomla\CMS\Crypt\Crypt;
+use Joomla\CMS\Crypt\Key;
+
 class RseventsproController extends JControllerLegacy
 {
 	/**
@@ -140,8 +145,6 @@ class RseventsproController extends JControllerLegacy
 		JFactory::getApplication()->close();
 	}
 	
-	
-	
 	/**
 	 *	Method to clear filters
 	 *
@@ -198,7 +201,6 @@ class RseventsproController extends JControllerLegacy
 		echo 'RS_DELIMITER0'.$seats.'|'.$ticket_description.'RS_DELIMITER1';
 		JFactory::getApplication()->close();
 	}
-	
 	
 	/**
 	 *	Method to generate the captcha image
@@ -555,23 +557,7 @@ class RseventsproController extends JControllerLegacy
 		$event = $db->loadObject();
 		
 		if (rseventsproHelper::admin() || ($user->get('id') == $event->owner && !$user->get('guest')) || $sid == $event->sid) {
-			$query->clear()
-				->select('DISTINCT '.$db->qn('u.email'))->select($db->qn('u.name'))
-				->from($db->qn('#__rseventspro_users','u'))
-				->where($db->qn('u.ide').' = '.(int) $id)
-				->where($db->qn('u.state').' IN (0,1)');
-			
-			JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
-			
-			$db->setQuery($query);
-			$subscribers = $db->loadObjectList();
-			
-			if (!empty($subscribers)) {
-				foreach ($subscribers as $subscriber) {
-					rseventsproEmails::reminder($subscriber->email,$id,$subscriber->name, $lang->getTag());
-				}
-			}
-			
+			$this->reminderSend($id);
 			$msg = JText::_('COM_RSEVENTSPRO_EVENT_REMINDERS_SENT');
 		}
 		
@@ -584,8 +570,6 @@ class RseventsproController extends JControllerLegacy
 	 * @return
 	 */
 	public function autoreminder() {
-		// no need to edit below
-		
 		$db		= JFactory::getDbo();
 		$query	= $db->getQuery(true);
 		$squery	= $db->getQuery(true);
@@ -645,23 +629,7 @@ class RseventsproController extends JControllerLegacy
 			$db->setQuery($query);
 			$db->execute();
 			
-			//get subscribers 
-			$query->clear()
-				->select('DISTINCT '.$db->qn('u.email'))->select($db->qn('u.name'))
-				->from($db->qn('#__rseventspro_users','u'))
-				->where($db->qn('u.ide').' = '.(int) $row->id)
-				->where($db->qn('u.state').' IN (0,1)');
-			
-			JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
-			
-			$db->setQuery($query);
-			$subscribers = $db->loadObjectList();
-			
-			if (!empty($subscribers)) {
-				foreach ($subscribers as $subscriber) {
-					rseventsproEmails::reminder($subscriber->email,$row->id,$subscriber->name, $lang->getTag());
-				}
-			}
+			$this->reminderSend($row->id);
 		}
 		
 		JFactory::getApplication()->close();
@@ -704,54 +672,7 @@ class RseventsproController extends JControllerLegacy
 			}
 			
 			if ($endunix < $now && (rseventsproHelper::admin() || ($user->get('id') == $event->owner && !$user->get('guest')) || $event->sid == $sid)) {
-				$query->clear()
-					->select('DISTINCT '.$db->qn('u.email'))->select($db->qn('u.name'))
-					->from($db->qn('#__rseventspro_users','u'))
-					->where($db->qn('u.ide').' = '.(int) $id)
-					->where($db->qn('u.state').' = 1');
-				
-				JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
-				
-				$db->setQuery($query);
-				$subscribers = $db->loadObjectList();
-				
-				if (!empty($subscribers)) {
-					foreach ($subscribers as $subscriber) {
-						if ($type == 0) {
-							$query->clear()
-								->select($db->qn('id'))
-								->from($db->qn('#__rseventspro_taxonomy'))
-								->where($db->qn('type').' = '.$db->q('preminder'))
-								->where($db->qn('ide').' = '.$db->q($event->id))
-								->where($db->qn('extra').' = '.$db->q($subscriber->email));
-							$db->setQuery($query);
-							if ($db->loadResult()) {
-								continue;
-							}
-						}
-						
-						rseventsproEmails::postreminder($subscriber->email,$id,$subscriber->name,$lang->getTag());
-						
-						if ($type == 0) {
-							$query->clear()
-								->select('MAX('.$db->qn('id').')')
-								->from($db->qn('#__rseventspro_taxonomy'))
-								->where($db->qn('type').' = '.$db->q('preminder'))
-								->where($db->qn('ide').' = '.$db->q($event->id));
-							$db->setQuery($query);
-							$id = (int) $db->loadResult() + 1;
-							
-							$query->clear()
-								->insert($db->qn('#__rseventspro_taxonomy'))
-								->set($db->qn('type').' = '.$db->q('preminder'))
-								->set($db->qn('ide').' = '.$db->q($event->id))
-								->set($db->qn('id').' = '.$db->q($id))
-								->set($db->qn('extra').' = '.$db->q($subscriber->email));
-							$db->setQuery($query);
-							$db->execute();
-						}
-					}
-				}
+				$this->postreminderSend($id);
 				$msg = JText::_('COM_RSEVENTSPRO_EVENT_POSTREMINDERS_SENT');
 			}
 		
@@ -800,55 +721,7 @@ class RseventsproController extends JControllerLegacy
 					}
 					
 					if ($endunix < $now) {
-						$query->clear()
-							->select('DISTINCT '.$db->qn('u.email'))->select($db->qn('u.name'))
-							->from($db->qn('#__rseventspro_users','u'))
-							->where($db->qn('u.ide').' = '.(int) $event->id)
-							->where($db->qn('u.state').' = 1');
-						
-						JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
-						
-						$db->setQuery($query);
-						$subscribers = $db->loadObjectList();
-						
-						if (!empty($subscribers)) {
-							foreach ($subscribers as $subscriber) {
-								if ($type == 0) {
-									$query->clear()
-										->select($db->qn('id'))
-										->from($db->qn('#__rseventspro_taxonomy'))
-										->where($db->qn('type').' = '.$db->q('preminder'))
-										->where($db->qn('ide').' = '.$db->q($event->id))
-										->where($db->qn('extra').' = '.$db->q($subscriber->email));
-									$db->setQuery($query);
-									if ($db->loadResult()) {
-										continue;
-									}
-								}
-								
-								echo 'Event ('.$event->name.') - Email ('.$subscriber->email.') <br />';
-								rseventsproEmails::postreminder($subscriber->email,$event->id,$subscriber->name,$lang->getTag());
-								
-								if ($type == 0) {
-									$query->clear()
-										->select('MAX('.$db->qn('id').')')
-										->from($db->qn('#__rseventspro_taxonomy'))
-										->where($db->qn('type').' = '.$db->q('preminder'))
-										->where($db->qn('ide').' = '.$db->q($event->id));
-									$db->setQuery($query);
-									$id = (int) $db->loadResult() + 1;
-									
-									$query->clear()
-										->insert($db->qn('#__rseventspro_taxonomy'))
-										->set($db->qn('type').' = '.$db->q('preminder'))
-										->set($db->qn('ide').' = '.$db->q($event->id))
-										->set($db->qn('id').' = '.$db->q($id))
-										->set($db->qn('extra').' = '.$db->q($subscriber->email));
-									$db->setQuery($query);
-									$db->execute();
-								}
-							}
-						}
+						$this->postreminderSend($event->id);
 					}
 				}
 			}
@@ -1245,15 +1118,27 @@ class RseventsproController extends JControllerLegacy
 			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscriptions',false));
 		}
 		
-		$query->select($db->qn('id'))->select($db->qn('date'))
+		$query->clear()
+			->select($db->qn('id'))->select($db->qn('date'))
 			->select($db->qn('verification'))
 			->from($db->qn('#__rseventspro_users'))
 			->where($db->qn('email').' = '.$db->q($email));
 		$db->setQuery($query);
+		$subscriber = $db->loadObject();
 		
-		if ($subscriber = $db->loadObject()) {
+		if (!$subscriber) {
+			$query->clear()
+				->select($db->qn('r.id'))->select($db->qn('r.date'))
+				->from($db->qn('#__rseventspro_rsvp_users','r'))
+				->join('LEFT', $db->qn('#__users','u').' ON '.$db->qn('r.uid').' = '.$db->qn('u.id'))
+				->where($db->qn('u.email').' = '.$db->q($email));
+			$db->setQuery($query);
+			$subscriber = $db->loadObject();
+		}
+		
+		if ($subscriber) {
 			$config		= rseventsproHelper::getConfig();
-			$hash		= md5($subscriber->date.$subscriber->id.$email.$subscriber->verification);
+			$hash		= isset($subscriber->verification) ? md5($subscriber->date.$subscriber->id.$email.$subscriber->verification) : md5($subscriber->date.$subscriber->id.$email);
 			$url		= JUri::getInstance()->toString(array('scheme','host')).rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscriptions&code='.$hash,false);
 			$subject	= JText::_('COM_RSEVENTSPRO_SUBSCRIPTION_SUBJECT');
 			$body		= JText::sprintf('COM_RSEVENTSPRO_SUBSCRIPTION_BODY',$url);
@@ -1266,5 +1151,282 @@ class RseventsproController extends JControllerLegacy
 		}
 		
 		return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscriptions',false));
+	}
+	
+	public function confirm() {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		$hash	= JFactory::getApplication()->input->getString('hash');
+		$secret = JFactory::getConfig()->get('secret');
+		$ids	= 0;
+		$found	= false;
+		
+		if (substr($hash, 0 , 2) == 'cr') {
+			$hash = str_replace('_', ' ', $hash);
+			$hash = substr_replace($hash,'',0,2);
+			
+			try {
+				$key	= new Key('simple',$secret, $secret);
+				$crypt	= new \JCrypt(null, $key);
+				$hash	= $crypt->decrypt($hash);
+			} catch (Exception $e) {}
+			
+		}
+		
+		if (preg_match('#\|([0-9]*)\|#is', $hash, $match)) {
+			if (isset($match) && isset($match[1])) {
+				$ids	= $match[1];
+				$hash	= str_replace($match[0], '', $hash);
+			}
+		}
+		
+		if ($ids) {
+			$query->clear()
+				->select($db->qn('t.id'))->select($db->qn('t.ide'))->select($db->qn('t.name'))
+				->select($db->qn('t.price'))->select($db->qn('ut.quantity'))
+				->from($db->qn('#__rseventspro_tickets','t'))
+				->join('left',$db->qn('#__rseventspro_user_tickets','ut').' ON '.$db->qn('t.id').' = '.$db->qn('ut.idt'))
+				->where($db->qn('ut.ids').' = '.(int) $ids);
+			$db->setQuery($query);
+			if ($tickets = $db->loadObjectList()) {
+				foreach ($tickets as $ticket) {
+					for ($i=1;$i<=$ticket->quantity;$i++) {
+						$tcode	= md5($ids.$ticket->id.$i);
+						
+						if (strtolower($tcode) == strtolower($hash)) {
+							$found	= true;
+							$code	= rseventsproHelper::getBarcodeOptions('barcode_prefix', 'RST-').$ids.'-'.substr($tcode,0,4).substr($tcode,-4);
+														
+							$query->clear()
+								->select($db->qn('id'))
+								->from('#__rseventspro_confirmed')
+								->where($db->qn('ids').' = '.$db->q($ids))
+								->where($db->qn('code').' = '.$db->q($code));
+							$db->setQuery($query);
+							if (!$db->loadResult()) {
+								$query->clear()
+									->insert('#__rseventspro_confirmed')
+									->set($db->qn('ids').' = '.$db->q($ids))
+									->set($db->qn('code').' = '.$db->q($code));
+								$db->setQuery($query);
+								if ($db->execute()) {
+									JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_TICKET_CONFIRMED'));
+								}
+							} else {
+								JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_TICKET_ALREADY_CONFIRMED'), 'error');
+							}
+							continue 2;
+						}
+					}
+				}
+			}
+		}
+		
+		if (!$found) {
+			JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_TICKET_CONFIRMED_ERROR'), 'error');
+		}
+	}
+	
+	public function rsvp() {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		$app	= JFactory::getApplication();
+		$id		= $app->input->getInt('id', 0);
+		$rsvp	= $app->input->get('rsvp');
+		$uid	= JFactory::getUser()->get('id');
+		$to		= JFactory::getUser()->get('email');
+		$data	= array();
+		
+		if ($id && $uid) {
+			$options = rseventsproHelper::getRSVPOptions($id);
+			
+			// Check if the user can RSVP to this event
+			if (!$options->canRSVP && $rsvp == 'going') {
+				$data['success'] = false;
+				$data['message'] = $options->message;
+				
+				echo json_encode($data);
+				$app->close();
+			}
+			
+			$query->clear()
+				->select($db->qn('id'))->select($db->qn('rsvp'))
+				->from($db->qn('#__rseventspro_rsvp_users'))
+				->where($db->qn('ide').' = '.$db->q($id))
+				->where($db->qn('uid').' = '.$db->q($uid));
+			$db->setQuery($query);
+			if ($rsvpData = $db->loadObject()) {
+				if ($rsvpData->rsvp == $rsvp) {
+					$query->clear()
+						->delete($db->qn('#__rseventspro_rsvp_users'))
+						->where($db->qn('id').' = '.$db->q($rsvpData->id));
+					$db->setQuery($query);
+					$db->execute();
+					$data['remove'] = true;
+				} else {
+					$query->clear()
+						->update($db->qn('#__rseventspro_rsvp_users'))
+						->set($db->qn('rsvp').' = '.$db->q($rsvp))
+						->set($db->qn('date').' = '.$db->q(JFactory::getDate()->toSql()))
+						->where($db->qn('id').' = '.$db->q($rsvpData->id));
+					$db->setQuery($query);
+					$db->execute();
+					
+					$func = 'rsvp'.$rsvp;
+					rseventsproEmails::$func($to, $id);
+				}
+			} else {
+				$query->clear()
+					->insert($db->qn('#__rseventspro_rsvp_users'))
+					->set($db->qn('ide').' = '.$db->q($id))
+					->set($db->qn('uid').' = '.$db->q($uid))
+					->set($db->qn('rsvp').' = '.$db->q($rsvp))
+					->set($db->qn('date').' = '.$db->q(JFactory::getDate()->toSql()));
+				$db->setQuery($query);
+				$db->execute();
+				
+				$func = 'rsvp'.$rsvp;
+				rseventsproEmails::$func($to, $id);
+			}
+			
+			$data['success'] = true;
+			$data['info'] = JText::_('COM_RSEVENTSPRO_RSVP_INFO');
+		} else {
+			$data['success'] = false;
+			$data['message'] = JText::_('COM_RSEVENTSPRO_RSVP_PLEASE_LOGIN');
+		}
+		
+		echo json_encode($data);
+		$app->close();
+	}
+	
+	protected function reminderSend($ide) {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		$lang	= JFactory::getLanguage();
+		$data	= array();
+		
+		// Get subscribers
+		$query->clear()
+			->select('DISTINCT '.$db->qn('u.email'))->select($db->qn('u.name'))->select($db->qn('u.id'))
+			->from($db->qn('#__rseventspro_users','u'))
+			->where($db->qn('u.ide').' = '.(int) $ide)
+			->where($db->qn('u.state').' IN (0,1)');
+		
+		JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
+		
+		$db->setQuery($query);
+		if ($subscribers = $db->loadObjectList()) {
+			$data = array_merge($subscribers, $data);
+		}
+		
+		// Get RSVP subscribers
+		$query->clear()
+			->select($db->qn('u.email'))->select($db->qn('u.name'))->select($db->qn('r.id'))
+			->from($db->qn('#__rseventspro_rsvp_users','r'))
+			->join('LEFT',$db->qn('#__users','u').' ON '.$db->qn('r.uid').' = '.$db->qn('u.id'))
+			->where($db->qn('r.rsvp').' IN ("going","interested")')
+			->where($db->qn('r.ide').' = '.(int) $ide);
+		$db->setQuery($query);
+		if ($RSVPsubscribers = $db->loadObjectList()) {
+			foreach ($RSVPsubscribers as $s) {
+				$s->id = null;
+			}
+			
+			$data = array_merge($data, $RSVPsubscribers);
+		}
+		
+		if (!empty($data)) {
+			$sent = array();
+			foreach ($data as $subscriber) {
+				$hash = md5($subscriber->email.$ide);
+				
+				if (!isset($sent[$hash])) {
+					rseventsproEmails::reminder($subscriber, $ide, $lang->getTag());
+					$sent[$hash] = true;
+				}
+			}
+		}
+	}
+	
+	protected function postreminderSend($ide) {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		$lang	= JFactory::getLanguage();
+		$type	= rseventsproHelper::getConfig('postreminder','int');
+		$data	= array();
+		
+		// Get event name
+		$query->clear()
+			->select($db->qn('name'))
+			->from($db->qn('#__rseventspro_events'))
+			->where($db->qn('id').' = '.$db->q($ide));
+		$db->setQuery($query);
+		$name = $db->loadResult();
+		
+		// Get subscribers
+		$query->clear()
+			->select('DISTINCT '.$db->qn('u.email'))->select($db->qn('u.name'))
+			->from($db->qn('#__rseventspro_users','u'))
+			->where($db->qn('u.ide').' = '.(int) $ide)
+			->where($db->qn('u.state').' = 1');
+		
+		JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
+		
+		$db->setQuery($query);
+		if ($subscribers = $db->loadObjectList()) {
+			$data = array_merge($subscribers, $data);
+		}
+		
+		// Get RSVP subscribers
+		$query->clear()
+			->select('DISTINCT '.$db->qn('u.email'))->select($db->qn('u.name'))
+			->from($db->qn('#__rseventspro_rsvp_users','r'))
+			->join('LEFT',$db->qn('#__users','u').' ON '.$db->qn('r.uid').' = '.$db->qn('u.id'))
+			->where($db->qn('r.rsvp').' = '.$db->q('going'))
+			->where($db->qn('r.ide').' = '.(int) $ide);
+		$db->setQuery($query);
+		if ($RSVPsubscribers = $db->loadObjectList()) {
+			$data = array_merge($data, $RSVPsubscribers);
+		}
+		
+		if (!empty($data)) {
+			foreach ($data as $subscriber) {
+				if ($type == 0) {
+					$query->clear()
+						->select($db->qn('id'))
+						->from($db->qn('#__rseventspro_taxonomy'))
+						->where($db->qn('type').' = '.$db->q('preminder'))
+						->where($db->qn('ide').' = '.$db->q($ide))
+						->where($db->qn('extra').' = '.$db->q($subscriber->email));
+					$db->setQuery($query);
+					if ($db->loadResult()) {
+						continue;
+					}
+				}
+				
+				echo 'Event ('.$name.') - Email ('.$subscriber->email.') <br />';
+				rseventsproEmails::postreminder($subscriber->email, $ide, $subscriber->name, $lang->getTag());
+				
+				if ($type == 0) {
+					$query->clear()
+						->select('MAX('.$db->qn('id').')')
+						->from($db->qn('#__rseventspro_taxonomy'))
+						->where($db->qn('type').' = '.$db->q('preminder'))
+						->where($db->qn('ide').' = '.$db->q($ide));
+					$db->setQuery($query);
+					$id = (int) $db->loadResult() + 1;
+					
+					$query->clear()
+						->insert($db->qn('#__rseventspro_taxonomy'))
+						->set($db->qn('type').' = '.$db->q('preminder'))
+						->set($db->qn('ide').' = '.$db->q($ide))
+						->set($db->qn('id').' = '.$db->q($id))
+						->set($db->qn('extra').' = '.$db->q($subscriber->email));
+					$db->setQuery($query);
+					$db->execute();
+				}
+			}
+		}
 	}
 }

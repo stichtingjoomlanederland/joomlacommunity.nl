@@ -19,7 +19,7 @@ $canPublish	= isset($this->permissions['publish_comments']) && $this->permission
 $canDelete	= ((isset($this->permissions['delete_own_comment']) && $this->permissions['delete_own_comment']) && $ownComment ) || (isset($this->permissions['delete_comments']) && $this->permissions['delete_comments']);
 $canEdit	= ((isset($this->permissions['edit_own_comment']) && $this->permissions['edit_own_comment']) && $ownComment && !$thread) || (isset($this->permissions['edit_comments']) && $this->permissions['edit_comments'] && !$thread); ?>
 
-<div id="rscomment<?php echo $this->comment->IdComment; ?>" class="media rscomment rsc_comment_big_box<?php echo $this->comment->level; ?>" <?php echo !$this->comment->published ? 'style="opacity:0.6;"' : ''; ?> itemprop="comment" itemscope itemtype="http://schema.org/UserComments">
+<div id="rscomment<?php echo $this->comment->IdComment; ?>" class="media rscomment rsc_comment_big_box<?php echo $this->comment->level; ?>" <?php echo !$this->comment->published ? 'style="opacity:0.6;"' : ''; ?> itemprop="comment" itemscope itemtype="http://schema.org/UserComments" data-rsc-cid="<?php echo $this->comment->IdComment; ?>">
 	<?php $name			= RSCommentsHelper::name($this->comment, $this->permissions); ?>
 	<?php $social		= RSCommentsHelper::getUserSocialLink($this->comment->uid); ?>
 	<?php $badComment	= isset($this->config->negative_count) && $this->config->negative_count && $this->comment->neg >= $this->config->negative_count; ?>
@@ -71,7 +71,7 @@ $canEdit	= ((isset($this->permissions['edit_own_comment']) && $this->permissions
 			<?php } ?>
 			
 			<?php if ($badComment) { ?>
-			<span id="comment-hidden-<?php echo $this->comment->IdComment; ?>"><?php echo JText::_('COM_RSCOMMENTS_COMMENT_HIDDEN'); ?> <a href="javascript:void(0);" onclick="rsc_view('<?php echo $this->comment->IdComment; ?>')"><?php echo JText::_('COM_RSCOMMENTS_COMMENT_HIDDEN_LINK'); ?></a></span>
+			<span id="comment-hidden-<?php echo $this->comment->IdComment; ?>"><?php echo JText::_('COM_RSCOMMENTS_COMMENT_HIDDEN'); ?> <a href="javascript:void(0);" data-rsc-task="showcomment"><?php echo JText::_('COM_RSCOMMENTS_COMMENT_HIDDEN_LINK'); ?></a></span>
 			<?php } ?>
 			
 			<span id="c<?php echo $this->comment->IdComment; ?>" class="rscomm-content<?php if ($badComment) { ?> muted hidden<?php } ?>" itemprop="commentText">
@@ -105,7 +105,7 @@ $canEdit	= ((isset($this->permissions['edit_own_comment']) && $this->permissions
 					<?php } ?>
 					
 					<?php if ($this->config->enable_reports) { ?>
-					<a href="javascript:void(0)" class="<?php echo RSTooltip::tooltipClass(); ?>" title="<?php echo RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_REPORT_COMMENT')); ?>" onclick="rscomments_show_report(<?php echo (int) $this->comment->IdComment; ?>);">
+					<a href="javascript:void(0)" class="<?php echo RSTooltip::tooltipClass(); ?>" title="<?php echo RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_REPORT_COMMENT')); ?>" data-rsc-task="report">
 						<i class="rscomm-meta-icon fa fa-flag"></i>
 					</a>
 					<?php } ?>
@@ -117,23 +117,23 @@ $canEdit	= ((isset($this->permissions['edit_own_comment']) && $this->permissions
 					<?php } ?>
 					
 					<?php if ($canEdit) { ?>
-					<a class="<?php echo RSTooltip::tooltipClass(); ?>" href="javascript:void(0);" title="<?php echo RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_EDIT_COMMENT')); ?>" onclick="rsc_edit('<?php echo $this->comment->IdComment; ?>');">
+					<a class="<?php echo RSTooltip::tooltipClass(); ?>" href="javascript:void(0);" title="<?php echo RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_EDIT_COMMENT')); ?>" data-rsc-task="edit">
 						<i class="rscomm-meta-icon fa fa-edit"></i>
 					</a>
 					<?php } ?>
 					
 					<?php if ($canDelete) { ?>
-					<a class="<?php echo RSTooltip::tooltipClass(); ?>" href="javascript:void(0);" title="<?php echo RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_DELETE_COMMENT')); ?>" onclick="rsc_delete_fn('<?php echo JText::_('COM_RSCOMMENTS_DELETE_COMMENT_CONFIRM',true); ?>', '<?php echo $this->comment->IdComment; ?>'); return false;">
+					<a class="<?php echo RSTooltip::tooltipClass(); ?>" href="javascript:void(0);" title="<?php echo RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_DELETE_COMMENT')); ?>" data-rsc-task="delete" data-rsc-text="<?php echo JText::_('COM_RSCOMMENTS_DELETE_COMMENT_CONFIRM'); ?>">
 						<i class="rscomm-meta-icon fa fa-trash"></i>
 					</a>
 					<?php } ?>
 					
 					<?php if ($canPublish) { ?>
 					<?php $publish = ($this->comment->published == 1) ? 'minus-circle' : 'check'; ?>
-					<?php $function = ($this->comment->published == 1) ? 'rsc_unpublish(\''.$this->comment->IdComment.'\')' : 'rsc_publish(\''.$this->comment->IdComment.'\')'; ?>
+					<?php $function = ($this->comment->published == 1) ? ' data-rsc-task="unpublish"' : ' data-rsc-task="publish"'; ?>
 					<?php $message = ($this->comment->published == 1) ? JText::_('COM_RSCOMMENTS_UNPUBLISH') : JText::_('COM_RSCOMMENTS_PUBLISH'); ?>
 					<span id="rsc_publish<?php echo $this->comment->IdComment; ?>">
-						<a class="<?php echo RSTooltip::tooltipClass(); ?>" href="javascript:void(0);" title="<?php echo RSTooltip::tooltipText($message); ?>" onclick="<?php echo $function; ?>">
+						<a class="<?php echo RSTooltip::tooltipClass(); ?>" href="javascript:void(0);" title="<?php echo RSTooltip::tooltipText($message); ?>"<?php echo $function; ?>>
 							<i class="rscomm-meta-icon fa fa-<?php echo $publish; ?>"></i>
 						</a>
 					</span>
@@ -145,8 +145,8 @@ $canEdit	= ((isset($this->permissions['edit_own_comment']) && $this->permissions
 				<?php if ($this->config->enable_votes) { ?>
 				<span class="rscomm-meta-item rscomm-rate">
 					
-					<?php $positive = '<a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_GOOD_COMMENT')).'" onclick="rsc_pos(\''.$this->comment->IdComment.'\');"><i class="rscomm-meta-icon fa fa-thumbs-up"></i></a>'; ?>
-					<?php $negative = '<a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_BAD_COMMENT')).'" onclick="rsc_neg(\''.$this->comment->IdComment.'\');"><i class="rscomm-meta-icon fa fa-thumbs-down"></i></a>'; ?>
+					<?php $positive = '<a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_GOOD_COMMENT')).'" data-rsc-task="voteup"><i class="rscomm-meta-icon fa fa-thumbs-up"></i></a>'; ?>
+					<?php $negative = '<a class="'.RSTooltip::tooltipClass().'" href="javascript:void(0);" title="'.RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_BAD_COMMENT')).'" data-rsc-task="votedown"><i class="rscomm-meta-icon fa fa-thumbs-down"></i></a>'; ?>
 					
 					
 					<?php if (isset($this->permissions['vote_comments']) && $this->permissions['vote_comments']) { ?>
@@ -179,11 +179,11 @@ $canEdit	= ((isset($this->permissions['edit_own_comment']) && $this->permissions
 				<?php if ($this->comment->published && ($canReply || $canQuote)) { ?>
 				<span class="rscomm-meta-item rscomm-actions">
 					<?php if ($canReply) { ?>
-					<button class="btn btn-mini btn-primary" type="button" onclick="rsc_reply('<?php echo $this->comment->IdComment; ?>');"><?php echo JText::_('COM_RSCOMMENTS_REPLY'); ?></button>
+					<button class="btn btn-mini btn-primary" type="button" data-rsc-commentid="<?php echo $this->comment->IdComment; ?>" data-rsc-task="reply"><?php echo JText::_('COM_RSCOMMENTS_REPLY'); ?></button>
 					<?php } ?>
 					
 					<?php if ($canQuote) { ?>
-					<button class="btn btn-mini" type="button" onclick="rsc_quote('<?php echo $name['cleanname']; ?>', '<?php echo $this->comment->IdComment; ?>');"><?php echo JText::_('COM_RSCOMMENTS_COMMENT_QUOTE'); ?></button>
+					<button class="btn btn-mini" type="button" data-rsc-commentid="<?php echo $this->comment->IdComment; ?>" data-rsc-task="quote" data-rsc-name="<?php echo $this->escape($name['cleanname']); ?>"><?php echo JText::_('COM_RSCOMMENTS_COMMENT_QUOTE'); ?></button>
 					<?php } ?>
 				</span>
 				<?php } ?>

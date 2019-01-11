@@ -27,6 +27,7 @@ class RSEBackup {
 		'#__rseventspro_events',
 		'#__rseventspro_coupons',
 		'#__rseventspro_coupon_codes',
+		'#__rseventspro_speakers',
 		'#__rseventspro_tickets',
 		'#__rseventspro_users',
 		'#__rseventspro_user_seats',
@@ -659,6 +660,9 @@ class RSEBackup {
 		} elseif ($type == 'tag') {
 			$tmp['ide'] = $this->getId($hash, '#__rseventspro_events', $tmp['ide']);
 			$tmp['id'] 	= $this->getId($hash, '#__rseventspro_tags', $tmp['id']);
+		} elseif ($type == 'speaker') {
+			$tmp['ide'] = $this->getId($hash, '#__rseventspro_events', $tmp['ide']);
+			$tmp['id'] 	= $this->getId($hash, '#__rseventspro_speakers', $tmp['id']);
 		}
 		
 		foreach ($tmp as $col => $val) {

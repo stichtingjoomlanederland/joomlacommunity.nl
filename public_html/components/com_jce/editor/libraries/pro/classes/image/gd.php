@@ -124,10 +124,15 @@ class WFImageGD
                 $limit = get_cfg_var('memory_limit');
             }
 
+            // no limit set...
+            if ($limit === '-1') {
+                return true;
+            }
+
             // can't get from ini, assume low value of 32M
             if (empty($limit)) {
                 $limit = 32 * 1048576;
-            } else {
+            } else {                
                 $limit = self::convertIniValue($limit);
             }
 

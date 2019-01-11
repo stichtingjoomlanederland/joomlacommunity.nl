@@ -80,7 +80,7 @@ JText::script('COM_RSEVENTSPRO_CONSENT_INFO'); ?>
 		<div class="tab-content">
 			
 			<!-- Start Information tab -->
-			<div class="tab-pane active" id="rsepro-edit-tab1">
+			<div class="tab-pane <?php if (!$this->tab) echo 'active'; ?>" id="rsepro-edit-tab1">
 				<?php echo $this->loadTemplate('info'); ?>
 			</div>
 			<!-- End Information tab -->
@@ -163,6 +163,20 @@ JText::script('COM_RSEVENTSPRO_CONSENT_INFO'); ?>
 			<!-- End Recurring tab -->
 			<?php } ?>
 			
+			<!-- Start RSVP tab -->
+			<div class="tab-pane" id="rsepro-edit-tabrsvp">
+				<?php echo $this->loadTemplate('rsvp'); ?>
+			</div>
+			<!-- End RSVP tab -->
+			
+			<?php if ($this->item->completed) { ?>
+			<!-- Start Dashboard tab -->
+			<div class="tab-pane" id="rsepro-edit-tabd">
+				<?php echo $this->loadTemplate('dashboard'); ?>
+			</div>
+			<!-- End Dashboard tab -->
+			<?php } ?>
+			
 		</div>
 		
 		<div>
@@ -179,6 +193,10 @@ JText::script('COM_RSEVENTSPRO_CONSENT_INFO'); ?>
 	
 	<?php echo JHtml::_('bootstrap.renderModal', 'rsepro-edit-event-photo', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_PHOTO'), 'footer' => $this->loadTemplate('modal_icon_footer'), 'bodyHeight' => 70), $this->loadTemplate('modal_icon')); ?>
 	<?php echo JHtml::_('bootstrap.renderModal', 'rsepro-edit-event-file', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_EDIT_FILE'), 'footer' => $this->loadTemplate('modal_file_footer'), 'bodyHeight' => 70), $this->loadTemplate('modal_file')); ?>
+	
+	<?php if (!empty($this->permissions['can_add_speaker']) || $this->admin) { ?>
+	<?php echo JHtml::_('bootstrap.renderModal', 'rsepro-add-new-speaker', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_ADD_SPEAKER'), 'footer' => $this->loadTemplate('modal_speaker_footer'), 'bodyHeight' => 70, 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&view=rseventspro&layout=edit&id='.$this->item->id.'&tpl=modal_speaker', false)),''); ?>
+	<?php } ?>
 	
 	<?php if (!empty($this->permissions['can_create_categories']) || $this->admin) { ?>
 	<?php echo JHtml::_('bootstrap.renderModal', 'rsepro-add-new-categ', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_ADD_CATEGORY'), 'footer' => $this->loadTemplate('modal_category_footer'), 'bodyHeight' => 70), $this->loadTemplate('modal_category')); ?>

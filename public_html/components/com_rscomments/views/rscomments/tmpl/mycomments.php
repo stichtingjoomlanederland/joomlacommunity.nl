@@ -7,7 +7,7 @@
 
 defined('_JEXEC') or die('Restricted access'); ?>
 
-<div class="rscomments-my-comments">
+<div class="rscomments-my-comments <?php if ($this->config->modal == 2) echo 'rscomments-popup-padding'; ?>">
 	<?php if ($this->comments) { ?>
 	<?php foreach ($this->comments as $comment) { ?>
 	<?php $name	= RSCommentsHelper::name($comment, $this->permissions); ?>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.9" type="plugin" group="privacy" method="upgrade">
+	<name>plg_privacy_rseventspro</name>
+	<author>RSJoomla!</author>
+	<creationDate>November 2018</creationDate>
+	<copyright>(C) 2013-2018 www.rsjoomla.com</copyright>
+	<license>GPLv2.0</license>
+	<authorEmail>support@rsjoomla.com</authorEmail>
+	<authorUrl>www.rsjoomla.com</authorUrl>
+	<version>1.0.0</version>
+	<description>PLG_PRIVACY_RSEVENTSPRO_XML_DESCRIPTION</description>
+		
+	<files>
+		<filename plugin="rseventspro">rseventspro.php</filename>
+		<filename>index.html</filename>
+	</files>
+		
+	<languages>
+		<language tag="en-GB">language/en-GB/en-GB.plg_privacy_rseventspro.ini</language>
+		<language tag="en-GB">language/en-GB/en-GB.plg_privacy_rseventspro.sys.ini</language>
+	</languages>
+</extension>

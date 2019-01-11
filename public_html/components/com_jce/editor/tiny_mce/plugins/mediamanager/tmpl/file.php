@@ -31,14 +31,6 @@ defined('_JEXEC') or die('RESTRICTED');
                 <input type="text" id="src" value="" class="filebrowser" required />
             </div>
         </div>
-        <div class="uk-form-row">
-            <label for="alt" class="hastip uk-form-label uk-width-1-5" title="<?php echo WFText::_('WF_LABEL_ALT_DESC'); ?>">
-                <?php echo WFText::_('WF_LABEL_ALT'); ?>
-            </label>
-            <div class="uk-form-controls uk-width-4-5">
-                <input type="text" id="alt" value="" />
-            </div>
-        </div>
         <div class="uk-form-row" id="attributes-dimensions">
             <label class="hastip uk-form-label uk-width-1-5" title="<?php echo WFText::_('WF_LABEL_DIMENSIONS_DESC'); ?>">
                 <?php echo WFText::_('WF_LABEL_DIMENSIONS'); ?>

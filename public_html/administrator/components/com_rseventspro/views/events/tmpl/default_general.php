@@ -63,11 +63,16 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 						<?php echo rseventsproHelper::report($row->id); ?>
 					</p>
 					<p><?php echo $row->allday ? rseventsproHelper::showdate($row->start,rseventsproHelper::getConfig('global_date'),true) : rseventsproHelper::showdate($row->start,null,true); ?></p>
+					<?php if ($row->registration) { ?>
 					<?php if ($availabletickets = $this->getTickets($row->id)) { ?>
 					<p><?php echo $availabletickets; ?></p>
 					<?php } ?>
 					<?php if ($subscriptions = $this->getSubscribers($row->id)) { ?>
 					<p><a href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=subscriptions&filter_event='.$row->id); ?>"><?php echo JText::plural('COM_RSEVENTSPRO_SUBSCRIBERS_NO',$subscriptions); ?></a></p>
+					<?php } ?>
+					<?php } ?>
+					<?php if ($row->rsvp) { ?>
+					<a href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=rsvp&id='.$row->id); ?>"><?php echo JText::_('COM_RSEVENTSPRO_RSVP_GUESTS'); ?></a>
 					<?php } ?>
 				</div>
 			</td>

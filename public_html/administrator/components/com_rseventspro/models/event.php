@@ -75,6 +75,9 @@ class RseventsproModelEvent extends JModelAdmin
 			if (empty($item->itemid)) 
 				$item->itemid = '';
 			
+			if (empty($item->rsvp_quota)) 
+				$item->rsvp_quota = '';
+			
 			if (empty($item->repeat_end) || $item->repeat_end == $db->getNullDate()) 
 				$item->repeat_end = '';
 			
@@ -94,6 +97,12 @@ class RseventsproModelEvent extends JModelAdmin
 				
 			if (empty($item->late_fee_start) || $item->late_fee_start == $db->getNullDate()) 
 				$item->late_fee_start = '';
+				
+			if (empty($item->rsvp_start) || $item->rsvp_start == $db->getNullDate()) 
+				$item->rsvp_start = '';
+					
+			if (empty($item->rsvp_end) || $item->rsvp_end == $db->getNullDate()) 
+				$item->rsvp_end = '';
 				
 			if (empty($item->repeat_type)) 
 				$item->repeat_type = 1;

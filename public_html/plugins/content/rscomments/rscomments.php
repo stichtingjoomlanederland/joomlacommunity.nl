@@ -60,8 +60,8 @@ class plgContentRSComments extends JPlugin
 		}
 		
 		$content	= $article->introtext.$article->fulltext;
-		$this->_on  = RSCommentsHelper::rscOn($content);
-		$this->_off = RSCommentsHelper::rscOff($content);
+		$on  		= RSCommentsHelper::rscOn($content);
+		$off 		= RSCommentsHelper::rscOff($content);
 		
 		// Remove the {rscomments on|off}
 		RSCommentsHelper::clean($article);
@@ -69,7 +69,7 @@ class plgContentRSComments extends JPlugin
 		// We are not allowed to show comments in these categories
 		if (isset($config->categories)) {
 			if ($categories = $config->categories) {
-				if (in_array($article->catid,$categories) && !$this->_on) {
+				if (in_array($article->catid,$categories) && !$on) {
 					return;
 				}
 			}
@@ -77,7 +77,7 @@ class plgContentRSComments extends JPlugin
 		
 		// Show the number of comments
 		if ($view == 'frontpage' || $view == 'category' || $view == 'featured' || $option != 'com_content')  {
-			if ($this->_off) {
+			if ($off) {
 				return;
 			}
 			
@@ -98,23 +98,21 @@ class plgContentRSComments extends JPlugin
 			return;
 		}
 		
-		if ($this->_off) {
+		if ($off) {
 			$comments_closed = RSCommentsHelper::getMessage('comments_closed');
 			$msg = empty($comments_closed) ? '' : '<hr/><div class="rsc_comments_closed">'.$comments_closed.'</div>';
 			
 			return $msg; 
 		}
 		
-		$this->_template = RSCommentsHelper::getTemplate();
-		$this->_articleid = $article->id;
-		
 		// Clean the cache
 		RSCommentsHelper::clearCache();
 		
 		// Load css/js data
 		RSCommentsHelper::loadScripts();
+		RSCommentsHelper::loadRecaptcha(md5('com_content'.$article->id));
 		
-		return RSCommentsHelper::showRSComments('com_content',$this->_articleid,$this->_template, null, $this->_on);
+		return RSCommentsHelper::showRSComments('com_content', $article->id, null, null, $on);
 	}
 	
 	protected function canRun() {

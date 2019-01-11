@@ -3378,7 +3378,7 @@ exit;
 			}
 			if ($rawimagedata) {
 				$this->DebugMessage('attempting ImageCreateFromStringReplacement($rawimagedata ('.strlen($rawimagedata).' bytes), true)', __FILE__, __LINE__);
-				$gd_image = $this->ImageCreateFromStringReplacement($rawimagedata, true);
+				$gd_image = $this->ImageCreateFromStringReplacement($rawimagedata);
 			}
 		}
 		return $gd_image;

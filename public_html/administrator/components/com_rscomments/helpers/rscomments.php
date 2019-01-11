@@ -321,4 +321,125 @@ abstract class RSCommentsHelper {
 		JHtmlSidebar::addEntry(JText::_('COM_RSCOMMENTS_IMPORT'),				JRoute::_('index.php?option=com_rscomments&view=import'),			$view == 'import');
 		JHtmlSidebar::addEntry(JText::_('COM_RSCOMMENTS_MESSAGES'),				JRoute::_('index.php?option=com_rscomments&view=messages'),			$view == 'messages');
 	}
+	
+	public static function getAvatar($user_id, $useremail = null, $size = 60, $class = null) {
+		$db			= JFactory::getDbo();
+		$query		= $db->getQuery(true);
+		$avatar 	= RSCommentsHelper::getConfig('avatar');
+		$theclass	= '';
+		$html		= '';
+		
+		if (!is_null($class)) {
+			$theclass = $class;
+		}
+		
+		if (!$avatar) 
+			return $html;
+		
+		switch ($avatar) {
+			// Gravatar
+			case 'gravatar':
+				$user	 = JFactory::getUser($user_id);
+				$default = JUri::getInstance()->toString(array('host', 'scheme')).JHtml::image('com_rscomments/user.png', '', array(), true, 1);
+				$email	 = ($user_id == 0 && !is_null($useremail)) ? md5(strtolower(trim($useremail))) : md5(strtolower(trim($user->get('email'))));
+				$html 	.= '<img src="https://www.gravatar.com/avatar/'.$email.'?d='.urlencode($default).'&s='.$size.'" alt="Gravatar" class="'.$theclass.'" />';
+			break;
+			
+			// Community Builder
+			case 'comprofiler':
+				$query->clear()
+					->select($db->qn('avatar'))
+					->from($db->qn('#__comprofiler'))
+					->where($db->qn('user_id').' = '.(int) $user_id);
+				
+				$db->setQuery($query);
+				if ($avatar = $db->loadResult())
+					$html .= '<img width="'.$size.'" src="'.JURI::root().'images/comprofiler/'.$avatar.'" alt="Community Builder Avatar" class="'.$theclass.'" />';
+				else
+					$html .= '<img width="'.$size.'" src="'.JURI::root().'components/com_comprofiler/plugin/templates/default/images/avatar/tnnophoto_n.png" alt="Community Builder Avatar" class="'.$theclass.'" />';
+			break;
+			
+			 // JomSocial
+			case 'community':
+				require_once JPATH_BASE.'/components/com_community/libraries/core.php';
+				$user =& CFactory::getUser($user_id);
+				$html .= '<img width="'.$size.'" src="'.$user->getThumbAvatar().'" alt="JomSocial Avatar" class="'.$theclass.'" />';
+			break;
+			
+			//Kunena
+			case 'kunena':
+				$query->clear()
+					->select($db->qn('avatar'))
+					->from($db->qn('#__kunena_users'))
+					->where($db->qn('userid').' = '.(int) $user_id);
+				
+				$db->setQuery($query);
+				$avatar = $db->loadResult();
+				
+				if (!$avatar)
+					$avatar = 's_nophoto.jpg';
+				
+				$html .= '<img width="'.$size.'" src="'.JURI::root().'media/kunena/avatars/'.$avatar.'" alt="Kunena Avatar" class="'.$theclass.'" />';
+			break;
+			
+			//Fireboard
+			case 'fireboard':
+				$query->clear()
+					->select($db->qn('avatar'))
+					->from($db->qn('#__fb_users'))
+					->where($db->qn('userid').' = '.(int) $user_id);
+				
+				$db->setQuery($query);
+				$avatar = $db->loadResult();
+				
+				if (!$avatar)
+					$avatar = 's_nophoto.jpg';
+				
+				$html .= '<img width="'.$size.'" src="'.JURI::root().'images/fbfiles/avatars/'.$avatar.'" alt="Fireboard Avatar" class="'.$theclass.'" />';
+			break;
+			
+			//EasyBlog
+			case 'easyblog':
+				$query->clear()
+					->select($db->qn('avatar'))
+					->from($db->qn('#__easyblog_users'))
+					->where($db->qn('id').' = '.(int) $user_id);
+				
+				$db->setQuery($query);
+				$avatar = $db->loadResult();
+				
+				$query->clear()
+					->select($db->qn('params'))
+					->from($db->qn('#__easyblog_configs'))
+					->where($db->qn('name').' = '.$db->q('config'));
+				
+				$db->setQuery($query);
+				$eparams = $db->loadResult();
+				
+				$params = new JRegistry();
+				$params->loadString($eparams);
+				$path = $params->get('main_avatarpath','images/easyblog_avatar/');
+				
+				if (empty($avatar) || $avatar == 'default.png')
+					$html .= '<img width="'.$size.'" src="'.JURI::root().'components/com_easyblog/assets/images/default.png" alt="EasyBlog Avatar" class="'.$theclass.'" />';
+				else
+					$html .= '<img width="'.$size.'" src="'.JURI::root().$path.$avatar.'" alt="EasyBlog Avatar" class="'.$theclass.'" />';
+			break;
+			
+			// EasyDiscuss
+			case 'easydiscuss':
+				$file = JPATH_ADMINISTRATOR.'/components/com_easydiscuss/includes/easydiscuss.php';
+				if (file_exists($file)) {
+					require_once $file;
+					
+					$profile = DiscussHelper::getTable('Profile')->load($user_id);
+					$html .= '<img src="'.$profile->getAvatar().'" alt="EasyDiscuss Avatar" width="'.$size.'" class="'.$theclass.'" />';
+				} else {
+					$html .= '<img width="'.$size.'" src="'.JURI::root().'components/com_easyblog/assets/images/default.png" alt="EasyDiscuss Avatar" class="'.$theclass.'" />';
+				}
+			break;
+		}
+		
+		return $html;
+	}
 }

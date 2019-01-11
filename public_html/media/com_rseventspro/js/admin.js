@@ -546,6 +546,20 @@ function rsepro_delete_user_image(id) {
 	});
 }
 
+function rsepro_delete_speaker_image(id) {
+	jQuery('#rse_loader').css({'display' : '' });
+	
+	jQuery.ajax({
+		url: 'index.php?option=com_rseventspro&task=speakers.deleteimage',
+		type: 'post',
+		data: {	'id': id }
+	}).done(function( response ) {
+		if (response == 1) {
+			jQuery('#userImage').remove();
+		}
+	});
+}
+
 /****** DEPRECATED ******/
 function rs_stop() {}
 function rs_search() {}

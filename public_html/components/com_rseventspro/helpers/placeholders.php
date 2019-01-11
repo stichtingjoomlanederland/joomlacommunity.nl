@@ -127,7 +127,16 @@ class RSEventsProPlaceholders {
 	
 	public static function reminder() {
 		$reminder = array(
-			'{user}'			=> 'COM_RSEVENTSPRO_PLACEHOLDER_USER'
+			'{user}'			=> 'COM_RSEVENTSPRO_PLACEHOLDER_USER',
+			'{TicketInfo}' 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_TICKETS_INFO',
+			'{TicketsTotal}' 	=> 'COM_RSEVENTSPRO_PLACEHOLDER_TICKETS_TOTAL',
+			'{Discount}' 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_DISCOUNT',
+			'{Tax}' 			=> 'COM_RSEVENTSPRO_PLACEHOLDER_TAX',
+			'{LateFee}' 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_LATE_FEE',
+			'{EarlyDiscount}' 	=> 'COM_RSEVENTSPRO_PLACEHOLDER_EARLY_DISCOUNT',
+			'{Gateway}' 		=> 'COM_RSEVENTSPRO_PLACEHOLDER_GATEWAY',
+			'{IP}' 				=> 'COM_RSEVENTSPRO_PLACEHOLDER_IP',
+			'{Coupon}' 			=> 'COM_RSEVENTSPRO_PLACEHOLDER_COUPON'
 		);
 		
 		return array_merge(self::$globals, $reminder);
@@ -247,5 +256,29 @@ class RSEventsProPlaceholders {
 	
 	public static function payment() {
 		return self::$globals;
+	}
+	
+	public static function rsvpgoing() {
+		$rsvpgoing = array(
+			'{user}'			=> 'COM_RSEVENTSPRO_PLACEHOLDER_USER'
+		);
+		
+		return array_merge(self::$globals, $rsvpgoing);
+	}
+	
+	public static function rsvpinterested() {
+		$rsvpinterested = array(
+			'{user}'			=> 'COM_RSEVENTSPRO_PLACEHOLDER_USER'
+		);
+		
+		return array_merge(self::$globals, $rsvpinterested);
+	}
+	
+	public static function rsvpnotgoing() {
+		$rsvpnotgoing = array(
+			'{user}'			=> 'COM_RSEVENTSPRO_PLACEHOLDER_USER'
+		);
+		
+		return array_merge(self::$globals, $rsvpnotgoing);
 	}
 }

@@ -110,7 +110,7 @@ class com_rscommentsInstallerScript
 		if ($type == 'install') {
 			// Add default configuration when installing the first time RSComments!
 			if ($extension_id) {
-				$default = '{"global_register_code":"","date_format":"d.m.Y H:i","enable_rss":"1","template":"LightScheme","authorname":"name","enable_title_field":"1","enable_website_field":"1","nofollow_rel":"1","enable_smiles":"1","enable_bbcode":"1","enable_votes":"1","enable_subscription":"1","show_subcription_checkbox":"1","terms":"1","enable_upload":"0","max_size":10,"allowed_extensions":"jpg\\r\\ntxt\\r\\n","min_comm_len":10,"max_comm_len":1000,"show_counter":"1","form_accordion":"0","show_form":"1","enable_modified":"1","avatar":"gravatar","user_social_link":"","default_order":"DESC","nr_comments":10,"email_notification":"0","notification_emails":"","show_no_comments":"1","captcha":"0","captcha_chars":5,"captcha_lines":"1","captcha_cases":"0","rec_public":"","rec_private":"","rec_themes":"red","akismet_key":"","flood_interval":"30","word_length":"15","no_follow":"1","forbiden_names":"admin\\r\\nadministrator\\r\\nmoderator\\r\\n","censored_words":"","replace_censored":"******","blocked_users":"","enable_reports":"1","enable_captcha_reports":"1","enable_email_reports":"0","report_emails":"","negative_count":"10","load_bootstrap":"0","backend_jquery":"1","frontend_jquery":"1","blocked_ips":"","fontawesome":"1","fontawesome_admin":"1","show_labels":"0","enable_location":"0","store_ip":"1","consent":"1","anonymous":"0","enable_name_field":"1","enable_email_field":"1"}';
+				$default = '{"global_register_code":"","date_format":"d.m.Y H:i","enable_rss":"1","template":"LightScheme","authorname":"name","enable_title_field":"1","enable_website_field":"1","nofollow_rel":"1","enable_smiles":"1","enable_bbcode":"1","enable_votes":"1","enable_subscription":"1","show_subcription_checkbox":"1","terms":"1","enable_upload":"0","max_size":10,"allowed_extensions":"jpg\\r\\ntxt\\r\\n","min_comm_len":10,"max_comm_len":1000,"show_counter":"1","form_accordion":"0","show_form":"1","enable_modified":"1","avatar":"gravatar","user_social_link":"","default_order":"DESC","nr_comments":10,"email_notification":"0","notification_emails":"","show_no_comments":"1","captcha":"0","captcha_chars":5,"captcha_lines":"1","captcha_cases":"0","rec_public":"","rec_private":"","rec_themes":"red","akismet_key":"","flood_interval":"30","word_length":"15","no_follow":"1","forbiden_names":"admin\\r\\nadministrator\\r\\nmoderator\\r\\n","censored_words":"","replace_censored":"******","blocked_users":"","enable_reports":"1","enable_captcha_reports":"1","enable_email_reports":"0","report_emails":"","negative_count":"10","load_bootstrap":"0","backend_jquery":"1","frontend_jquery":"1","blocked_ips":"","fontawesome":"1","fontawesome_admin":"1","show_labels":"0","enable_location":"0","store_ip":"1","consent":"1","anonymous":"0","enable_name_field":"1","enable_email_field":"1","modal":"1"}';
 				$query->clear()
 					->update($db->qn('#__extensions'))
 					->set($db->qn('params').' = '.$db->q($default))
@@ -312,7 +312,7 @@ class com_rscommentsInstallerScript
 				$registry->loadString($params);
 				
 				// Update config
-				$newconfig = array('enable_reports' => 1, 'enable_captcha_reports' => 1, 'enable_email_reports' => 0, 'report_emails' => '', 'negative_count' => '10', 'blocked_ips' => '', 'fontawesome' => '1', 'show_labels' => '0', 'enable_location' => '0', 'fontawesome_admin' => '1', 'store_ip' => 1, 'consent' => 1, 'anonymous' => 0, 'enable_name_field' => 1, 'enable_email_field' => 1);
+				$newconfig = array('enable_reports' => 1, 'enable_captcha_reports' => 1, 'enable_email_reports' => 0, 'report_emails' => '', 'negative_count' => '10', 'blocked_ips' => '', 'fontawesome' => '1', 'show_labels' => '0', 'enable_location' => '0', 'fontawesome_admin' => '1', 'store_ip' => 1, 'consent' => 1, 'anonymous' => 0, 'enable_name_field' => 1, 'enable_email_field' => 1, 'modal' => 1);
 				
 				foreach ($newconfig as $name => $value) {
 					if (is_null($registry->get($name, null))) {
@@ -324,6 +324,8 @@ class com_rscommentsInstallerScript
 				$db->execute();
 			}
 			
+			# Version 1.13.13
+			JFactory::getApplication()->enqueueMessage('If your template does have overrides for RSComments!, please make sure to correct them accordingly.', 'error');
 		}
 		
 		$messages = $this->checkAddons();
@@ -627,9 +629,9 @@ class com_rscommentsInstallerScript
 	</div>
 	<?php } ?>
 	
-	<h2>Changelog v1.13.12</h2>
+	<h2>Changelog v1.13.14</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> Code optimization.</li>
+		<li><span class="version-upgraded">Upg</span> Select the default frontend modal.</li>
 	</ul>
 	<a class="com-rscomments-button" href="index.php?option=com_rscomments">Start using RSComments!</a>
 	<a class="com-rscomments-button" href="http://www.rsjoomla.com/support/documentation/view-knowledgebase/95-rscomments.html" target="_blank">Read the RSComments! User Guide</a>

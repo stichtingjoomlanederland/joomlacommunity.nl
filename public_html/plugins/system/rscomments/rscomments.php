@@ -47,6 +47,7 @@ class plgSystemRSComments extends JPlugin
 		$pattern 	= '#{rscomments option="(.*?)" id="(.*?)"}#is';
 		$html		= JFactory::getApplication()->getBody();
 		$hasContent	= false;
+		$additional = '';
 		
 		if (strpos($html, '</head>') !== false) {
 			list($head, $content) = explode('</head>', $html, 2);
@@ -63,24 +64,21 @@ class plgSystemRSComments extends JPlugin
         }
 		
 		// Get all ocurrences for : {rscomments option="com_test" id="1"}
-		preg_match_all($pattern, $content, $matches);
-		
-		if (!empty($matches[0])) {
-			$placeholder 	= end($matches[0]);
-			$option 		= end($matches[1]);
-			$id 			= end($matches[2]);
+		if (preg_match_all($pattern, $content, $matches)) {
 			
-			RSCommentsHelper::clearCache();
-			
-			$this->_template = RSCommentsHelper::getTemplate();
-			$html = RSCommentsHelper::showRSComments($option,$id,$this->_template);
-			$content = str_replace($placeholder,$html,$content);
-			
-			foreach($matches[0] as $text) {
-				$content = str_replace($text,'',$content);
+			if (count($matches) == 3) {
+				RSCommentsHelper::clearCache();
+				
+				foreach ($matches[0] as $i => $match) {
+					$option = $matches[1][$i];
+					$id = (int) $matches[2][$i];
+					
+					$content = str_replace($match, RSCommentsHelper::showRSComments($option,$id), $content);
+					$additional .= $this->loadRecaptcha($html, md5($option.$id));
+					
+					$hasContent = true;
+				}
 			}
-			
-			$hasContent	= true;
 		}
 		
 		$pattern = '#{rscomments_no option="(.*?)" id="(.*?)"}#is';
@@ -104,23 +102,22 @@ class plgSystemRSComments extends JPlugin
 		$html = isset($head) ? ($head . '</head>' . $content) : $content;
 		
 		if ($hasContent) {
-			$this->setScripts($html);
+			$this->setScripts($html, $additional);
 		}
 		
 		JFactory::getApplication()->setBody($html);
 	}
 	
-	protected function setScripts(&$body) {
+	protected function setScripts(&$body, $additional) {
 		$config			= RSCommentsHelper::getConfig();
 		$permissions	= RSCommentsHelper::getPermissions();
-		$template		= RSCommentsHelper::getTemplate();
 		$version		= JFactory::getDocument()->getMediaVersion();
 		
 		$css	 = array();
 		$scripts = array();
 		
 		$scripts[] = '<script type="text/javascript">';
-		$scripts[] = 'var rsc_root = "'.addslashes(JURI::root()).'";';
+		$scripts[] = 'if (typeof rsc_root == "undefined") var rsc_root = "'.addslashes(JURI::root()).'";';
 		$scripts[] = '</script>';
 		
 		if (RSCommentsHelper::getConfig('frontend_jquery') || RSCommentsHelper::getConfig('load_bootstrap')) {
@@ -159,29 +156,23 @@ class plgSystemRSComments extends JPlugin
 			}
 		}
 		
-		$sitejs		= JHtml::script('com_rscomments/site.js', array('relative' => true, 'version' => 'auto', 'pathOnly' => true));
-		$modaljs	= JHtml::script('com_rscomments/modal.js', array('relative' => true, 'version' => 'auto', 'pathOnly' => true));
+		$sitejs = JHtml::script('com_rscomments/site.js', array('relative' => true, 'version' => 'auto', 'pathOnly' => true));
 		
 		if (strpos($body, $sitejs) === false) {
 			$scripts[] = '<script src="'.$sitejs.'?'.$version.'" type="text/javascript"></script>';
 		}
 		
-		if (strpos($body, $modaljs) === false) {
-			$scripts[] = '<script src="'.$modaljs.'?'.$version.'" type="text/javascript"></script>';
-		}
-		
-		if (isset($permissions['captcha']) && $permissions['captcha']) {
-			if ($config->captcha == 2) {
-				$scripts[] = '<script src="https://www.google.com/recaptcha/api.js?render=explicit&amp;hl='.JFactory::getLanguage()->getTag().'" type="text/javascript"></script>';
-				$scripts[] = "<script type=\"text/javascript\">
-					RSCommentsReCAPTCHAv2.loaders.push(function(){
-						grecaptcha.render('rsc-g-recaptcha', {
-							'sitekey': '".htmlentities($config->recaptcha_new_site_key, ENT_QUOTES, 'UTF-8')."',
-							'theme': '".htmlentities($config->recaptcha_new_theme, ENT_QUOTES, 'UTF-8')."',
-							'type': '".htmlentities($config->recaptcha_new_type, ENT_QUOTES, 'UTF-8')."'
-						});
-					});
-					</script>";
+		if ($config->modal == 2) {
+			$popjs = JHtml::script('com_rscomments/jquery.magnific-popup.min.js', array('relative' => true, 'version' => 'auto', 'pathOnly' => true));	
+			
+			if (strpos($body, $popjs) === false) {
+				$scripts[] = '<script src="'.$popjs.'?'.$version.'" type="text/javascript"></script>';
+			}
+		} else {
+			$modaljs = JHtml::script('com_rscomments/modals.js', array('relative' => true, 'version' => 'auto', 'pathOnly' => true));
+			
+			if (strpos($body, $modaljs) === false) {
+				$scripts[] = '<script src="'.$modaljs.'?'.$version.'" type="text/javascript"></script>';
 			}
 		}
 		
@@ -200,18 +191,57 @@ class plgSystemRSComments extends JPlugin
 		}
 		
 		if ($config->enable_location) {
-			$scripts[] = '<script src="https://maps.google.com/maps/api/js" type="text/javascript"></script>';
-			
-			$mapsjs = JHtml::script('com_rscomments/jquery.map.js', array('relative' => true, 'version' => 'auto', 'pathOnly' => true));
+			$mapsjs = 'https://maps.google.com/maps/api/js'.(isset($config->map_key) ? '?key='.$config->map_key : '');
 			
 			if (strpos($body, $mapsjs) === false) {
-				$scripts[] = '<script src="'.$mapsjs.'?'.$version.'" type="text/javascript"></script>';
+				$scripts[] = '<script src="'.$mapsjs.'" type="text/javascript"></script>';
+			}
+		}
+		
+		if ($config->modal == 2) {
+			$popcss = JHtml::stylesheet('com_rscomments/magnific-popup.css', array('relative' => true, 'version' => 'auto', 'pathOnly' => true));
+			
+			if (strpos($body, $popcss) === false) {
+				$css[] = '<link rel="stylesheet" href="'.$popcss.'?'.$version.'" type="text/css" />';
 			}
 		}
 		
 		$html = implode("\n",$css)."\n";
 		$html .= implode("\n",$scripts);
 		
+		if (!empty($additional)) {
+			$recaptchaAPI = 'https://www.google.com/recaptcha/api.js?render=explicit&amp;hl='.JFactory::getLanguage()->getTag();
+			
+			if (strpos($body, $recaptchaAPI) === false) {
+				$html .= "\n".'<script src="'.$recaptchaAPI.'" type="text/javascript"></script>';
+			}
+			
+			$html .= "\n".$additional;
+		}
+		
 		$body = str_replace('</head>', $html."\n".'</head>', $body);
+	}
+	
+	protected static function loadRecaptcha($content, $hash) {
+		$config = RSCommentsHelper::getConfig();
+		$permissions = RSCommentsHelper::getPermissions();
+		$scripts = array();
+		
+		if ($config->captcha == 2) {
+			$scripts[] = '<script type="text/javascript">';
+			$scripts[] = "\t".'RSCommentsReCAPTCHAv2.loaders.push(function() {';
+			$scripts[] = "\t\t".'var id = grecaptcha.render(\'rsc-g-recaptcha-'.$hash.'\', {';
+			$scripts[] = "\t\t\t".'\'sitekey\': \''.htmlentities($config->recaptcha_new_site_key, ENT_QUOTES, 'UTF-8').'\',';
+			$scripts[] = "\t\t\t".'\'theme\': \''.htmlentities($config->recaptcha_new_theme, ENT_QUOTES, 'UTF-8').'\',';
+			$scripts[] = "\t\t\t".'\'type\': \''.htmlentities($config->recaptcha_new_type, ENT_QUOTES, 'UTF-8').'\'';
+			$scripts[] = "\t\t".'});';
+			$scripts[] = "\t\t".'RSCommentsReCAPTCHAv2.ids[\''.$hash.'\'] = id;';
+			$scripts[] = "\t".'});';
+			$scripts[] = '</script>';
+			
+			return implode("\n",$scripts)."\n";
+		}
+		
+		return '';
 	}
 }

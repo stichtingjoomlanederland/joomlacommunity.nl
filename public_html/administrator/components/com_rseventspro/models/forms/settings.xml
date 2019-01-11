@@ -154,6 +154,21 @@
 			<option value="1">JYES</option>
 			<option value="0">JNO</option>
 		</field>
+		
+		<field name="filter_from" type="list" label="COM_RSEVENTSPRO_CONF_FILTER_FROM" description="COM_RSEVENTSPRO_CONF_FILTER_FROM_DESC" default="events">
+			<option value="events">COM_RSEVENTSPRO_FILTER_NAME</option>
+			<option value="description">COM_RSEVENTSPRO_FILTER_DESCRIPTION</option>
+			<option value="locations">COM_RSEVENTSPRO_FILTER_LOCATION</option>
+			<option value="categories">COM_RSEVENTSPRO_FILTER_CATEGORY</option>
+			<option value="tags">COM_RSEVENTSPRO_FILTER_TAG</option>
+		</field>
+		
+		<field name="filter_condition" type="list" label="COM_RSEVENTSPRO_CONF_FILTER_CONDITION" description="COM_RSEVENTSPRO_CONF_FILTER_CONDITION_DESC" default="is">
+			<option value="is">COM_RSEVENTSPRO_FILTER_CONDITION_IS</option>
+			<option value="isnot">COM_RSEVENTSPRO_FILTER_CONDITION_ISNOT</option>
+			<option value="contains">COM_RSEVENTSPRO_FILTER_CONDITION_CONTAINS</option>
+			<option value="notcontain">COM_RSEVENTSPRO_FILTER_CONDITION_NOTCONTAINS</option>
+		</field>
 	</fieldset>
 	
 	<fieldset name="moderation" label="COM_RSEVENTSPRO_CONF_MODERATION" description="COM_RSEVENTSPRO_CONF_MODERATION_DESC">
@@ -272,15 +287,9 @@
 		<field name="icon_small_width" type="text" label="COM_RSEVENTSPRO_CONF_ICON_SMALL_WIDTH" description="COM_RSEVENTSPRO_CONF_ICON_SMALL_WIDTH_DESC" size="5" default="100" />
 		<field name="icon_big_width" type="text" label="COM_RSEVENTSPRO_CONF_ICON_BIG_WIDTH" description="COM_RSEVENTSPRO_CONF_ICON_BIG_WIDTH_DESC" size="5" default="200" />
 		<field name="user_icon_width" type="text" label="COM_RSEVENTSPRO_CONF_USER_ICON_WIDTH" description="COM_RSEVENTSPRO_CONF_USER_ICON_WIDTH_DESC" size="5" default="100" />
+		<field name="speaker_icon_width" type="text" label="COM_RSEVENTSPRO_CONF_SPEAKER_ICON_WIDTH" description="COM_RSEVENTSPRO_CONF_SPEAKER_ICON_WIDTH_DESC" size="5" default="100" />
+		<field name="speaker_icon_height" type="text" label="COM_RSEVENTSPRO_CONF_SPEAKER_ICON_HEIGHT" description="COM_RSEVENTSPRO_CONF_SPEAKER_ICON_HEIGHT_DESC" size="5" default="150" />
 		<field name="extensions" type="text" label="COM_RSEVENTSPRO_CONF_EXTENSIONS" description="COM_RSEVENTSPRO_CONF_EXTENSIONS_DESC" default="zip,gif,jpg,txt" class="input-large" size="40" />
-		<field name="barcode" type="list" label="COM_RSEVENTSPRO_CONF_BARCODE" description="COM_RSEVENTSPRO_CONF_BARCODE_DESC" default="" size="1">
-			<option value="qrcode">QR code</option>
-			<option value="C39">Code 39</option>
-			<option value="C39E">Code 39 Extended</option>
-			<option value="C93">Code 93</option>
-			<option value="C128">Code 128</option>
-		</field>
-		<field name="barcode_prefix" type="text" label="COM_RSEVENTSPRO_CONF_BARCODE_PREFIX" description="COM_RSEVENTSPRO_CONF_BARCODE_PREFIX_DESC" default="RST-" class="input-large" size="20" />
 	</fieldset>
 	
 	<fieldset name="emails" label="COM_RSEVENTSPRO_CONF_EMAILS" description="COM_RSEVENTSPRO_CONF_EMAILS_DESC">
@@ -371,6 +380,10 @@
 			<option value="0">JNO</option>
 		</field>
 		<field name="facebook_expired" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_FACEBOOK_EXPIRED" description="COM_RSEVENTSPRO_CONF_FACEBOOK_EXPIRED_DESC" default="1">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+		<field name="facebook_recurring" type="radio" class="btn-group" label="COM_RSEVENTSPRO_CONF_FACEBOOK_RECURRING" description="COM_RSEVENTSPRO_CONF_FACEBOOK_RECURRING_DESC" default="1">
 			<option value="1">JYES</option>
 			<option value="0">JNO</option>
 		</field>

@@ -20,6 +20,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 		$menus		= $app->getMenu();
 		$menu		= $menus->getActive();
 		$jconfig	= JFactory::getConfig();
+		$tpl		= $app->input->get('tpl', null);
 		$skipMeta	= false;
 		
 		// Get menu parameters , user permission etc.
@@ -197,21 +198,25 @@ class RseventsproViewRseventspro extends JViewLegacy
 			}
 			
 			// Load scripts
-			JHtml::_('rseventspro.chosen');
-			if ($this->document->getType() == 'html') {
-				$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/edit.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
+			if (!$tpl) {
+				JHtml::_('rseventspro.chosen');
+				if ($this->document->getType() == 'html') {
+					$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/edit.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
+				}
+				JHtml::stylesheet('com_rseventspro/edit.css', array('relative' => true, 'version' => 'auto'));
 			}
-			JHtml::stylesheet('com_rseventspro/edit.css', array('relative' => true, 'version' => 'auto'));
 			
 			JHtml::_('jquery.ui', array('core', 'sortable'));
 			
 			// Load custom scripts
 			$app->triggerEvent('rsepro_addCustomScripts');
 			
-			if (rseventsproHelper::getConfig('enable_google_maps')) {
-				$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry&language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
-				if ($this->document->getType() == 'html') {
-					$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.map.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
+			if (!$tpl) {
+				if (rseventsproHelper::getConfig('enable_google_maps')) {
+					$this->document->addScript('https://maps.google.com/maps/api/js?libraries=geometry&language='.JFactory::getLanguage()->getTag().($this->config->google_map_api ? '&key='.$this->config->google_map_api : ''));
+					if ($this->document->getType() == 'html') {
+						$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.map.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
+					}
 				}
 			}
 			
@@ -442,8 +447,9 @@ class RseventsproViewRseventspro extends JViewLegacy
 				}
 			}
 			
-			$this->options	= rseventsproHelper::options($this->event->id);
-			$this->guests	= $this->get('guests');
+			$this->options		= rseventsproHelper::options($this->event->id);
+			$this->guests		= $this->get('guests');
+			$this->RSVPguests	= $this->get('RSVPGuests');
 			
 			$this->modal_width = !empty($this->config->modal_width) ? (int) $this->config->modal_width : 800;
 			$this->modal_height = !empty($this->config->modal_height) ? (int) $this->config->modal_height : 600;
@@ -604,6 +610,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 			if (!$this->showform) {
 				$this->subscriptions = $this->get('subscriptions');
+				$this->rsvpsubscriptions = $this->get('rsvpsubscriptions');
 			}
 		} elseif ($layout == 'subscribers') {
 			
@@ -897,6 +904,26 @@ class RseventsproViewRseventspro extends JViewLegacy
 				$this->form = $form;
 			} else {
 				rseventsproHelper::error(JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED'), rseventsproHelper::route('index.php?option=com_rseventspro',false));
+			}
+		} elseif ($layout == 'rsvp') {
+			$this->row = $this->get('event');
+			
+			if ($this->admin || $this->row->owner == $user->get('id')) {
+				$states = array_merge(array(JHTML::_('select.option', '-', JText::_('COM_RSEVENTSPRO_GLOBAL_SELECT_STATE'))), $this->get('RSVPstatuses'));
+				$lists['state'] = JHTML::_('select.genericlist', $states, 'state', 'size="1" onchange="document.adminForm.submit();" class="input-large"','value','text',$app->getUserState('com_rseventspro.rsvp.state'));
+				
+				$this->filter_word	= $app->getUserState('com_rseventspro.rsvp.search');
+				$this->data			= $this->get('RSVPData');
+				$this->total		= $this->get('RSVPTotal');
+				
+				$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
+				if (($menu && $theview != 'show') || !$menu)
+					$pathway->addItem($this->row->name,rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->row->id,$this->row->name),false,rseventsproHelper::itemid($this->row->id)));
+				
+				$pathway->addItem(JText::_('COM_RSEVENTSPRO_BC_RSVP_GUESTS'));
+				
+			} else {
+				rseventsproHelper::error(JText::_('COM_RSEVENTSPRO_ERROR_RSVP_VIEW'), rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->row->id,$this->row->name),false,rseventsproHelper::itemid($this->row->id)));
 			}
 		}
 		

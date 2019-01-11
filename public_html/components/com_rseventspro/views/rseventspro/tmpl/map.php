@@ -91,7 +91,7 @@ jQuery(document).ready(function (){
 				<div class="nav-collapse collapse rsepro-navbar-responsive-collapse">
 					<ul class="nav">
 						<li id="rsepro-filter-from" class="dropdown">
-							<a data-toggle="dropdown" class="dropdown-toggle" href="#" rel="events"><span><?php echo JText::_('COM_RSEVENTSPRO_FILTER_NAME'); ?></span> <i class="caret"></i></a>
+							<a data-toggle="dropdown" class="dropdown-toggle" href="#" rel="<?php echo $this->config->filter_from; ?>"><span><?php echo rseventsproHelper::getFilterText($this->config->filter_from); ?></span> <i class="caret"></i></a>
 							<ul class="dropdown-menu">
 								<?php foreach ($this->get('filteroptions') as $option) { ?>
 								<li><a href="javascript:void(0);" rel="<?php echo $option->value; ?>"><?php echo $option->text; ?></a></li>
@@ -99,7 +99,7 @@ jQuery(document).ready(function (){
 							</ul>
 						</li>
 						<li id="rsepro-filter-condition" class="dropdown">
-							<a data-toggle="dropdown" class="dropdown-toggle" href="#" rel="is"><span><?php echo JText::_('COM_RSEVENTSPRO_FILTER_CONDITION_IS'); ?></span> <i class="caret"></i></a>
+							<a data-toggle="dropdown" class="dropdown-toggle" href="#" rel="<?php echo $this->config->filter_condition; ?>"><span><?php echo rseventsproHelper::getFilterText($this->config->filter_condition); ?></span> <i class="caret"></i></a>
 							<ul class="dropdown-menu">
 								<?php foreach ($this->get('filterconditions') as $option) { ?>
 								<li><a href="javascript:void(0);" rel="<?php echo $option->value; ?>"><?php echo $option->text; ?></a></li>
@@ -221,38 +221,7 @@ jQuery(document).ready(function (){
 <span id="rsepro-itemid" style="display: none;"><?php echo JFactory::getApplication()->input->get('Itemid'); ?></span>
 
 <?php if ($this->config->timezone) { ?>
-<div id="timezoneModal" class="modal hide fade jviewport-width30" tabindex="-1" role="dialog" aria-hidden="true">
-	<div class="modal-header">
-		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-		<h3><?php echo JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE'); ?></h3>
-	</div>
-	<div class="modal-body">
-		<form method="post" action="<?php echo htmlentities(JUri::getInstance(), ENT_COMPAT, 'UTF-8'); ?>" id="timezoneForm" name="timezoneForm" class="form-horizontal">
-			<div class="control-group">
-				<div class="control-label">
-					<label><?php echo JText::_('COM_RSEVENTSPRO_DEFAULT_TIMEZONE'); ?></label>
-				</div>
-				<div class="controls">
-					<span class="btn disabled"><?php echo $this->timezone; ?></span>
-				</div>
-			</div>
-			<div class="control-group">
-				<div class="control-label">
-					<label for="timezone"><?php echo JText::_('COM_RSEVENTSPRO_SELECT_TIMEZONE'); ?></label>
-				</div>
-				<div class="controls">
-					<?php echo JHtml::_('rseventspro.timezones','timezone'); ?>
-				</div>
-			</div>
-			<input type="hidden" name="task" value="timezone" />
-			<input type="hidden" name="return" value="<?php echo $this->timezoneReturn; ?>" />
-		</form>
-	</div>
-	<div class="modal-footer">
-		<button class="btn" data-dismiss="modal" aria-hidden="true"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
-		<button class="btn btn-primary" type="button" onclick="document.timezoneForm.submit();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button>
-	</div>
-</div>
+<?php echo rseventsproHelper::timezoneModal(); ?>
 <?php } ?>
 
 <?php if ($this->params->get('search',1)) { ?>

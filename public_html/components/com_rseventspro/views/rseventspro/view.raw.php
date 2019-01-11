@@ -172,6 +172,14 @@ class RseventsproViewRseventspro extends JViewLegacy
 					} else {
 						JFactory::getApplication()->close();
 					}
+				} elseif ($tmpl == 'rsvp') {
+					$this->event = $this->get('Event');
+					
+					if ($this->admin || $this->event->owner == $this->user) {
+						$this->data  = $this->get('RSVPData');
+					} else {
+						JFactory::getApplication()->close();
+					}
 				}
 				
 				$this->tmpl			= $tmpl;

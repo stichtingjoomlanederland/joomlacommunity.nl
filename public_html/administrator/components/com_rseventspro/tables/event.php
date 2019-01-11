@@ -187,11 +187,22 @@ class RseventsproTableEvent extends JTable
 			$this->unsubscribe_date = $db->getNullDate();
 		}
 		
-		// End registration date
 		if (!empty($this->repeat_end) && $this->repeat_end != $db->getNullDate()) {
 			$this->repeat_end = JFactory::getDate($this->repeat_end, $tzoffset)->toSql();
 		} else {
 			$this->repeat_end = $db->getNullDate();
+		}
+		
+		if (!empty($this->rsvp_start) && $this->rsvp_start != $db->getNullDate()) {
+			$this->rsvp_start = JFactory::getDate($this->rsvp_start, $tzoffset)->toSql();
+		} else {
+			$this->rsvp_start = $db->getNullDate();
+		}
+		
+		if (!empty($this->rsvp_end) && $this->rsvp_end != $db->getNullDate()) {
+			$this->rsvp_end = JFactory::getDate($this->rsvp_end, $tzoffset)->toSql();
+		} else {
+			$this->rsvp_end = $db->getNullDate();
 		}
 		
 		// Discounts
@@ -351,41 +362,23 @@ class RseventsproTableEvent extends JTable
 	
 	
 	public function verify(&$array) {
-		if (!isset($array['recurring']))
-			$array['recurring'] = 0;
-		
-		if (!isset($array['allday']))
-			$array['allday'] = 0;
-		
-		if (!isset($array['discounts']))
-			$array['discounts'] = 0;
-		
-		if (!isset($array['ticketsconfig']))
-			$array['ticketsconfig'] = 0;
-		
-		if (!isset($array['registration']))
-			$array['registration'] = 0;
-		
-		if (!isset($array['comments']))
-			$array['comments'] = 0;
-		
-		if (!isset($array['notify_me']))
-			$array['notify_me'] = 0;
-		
-		if (!isset($array['notify_me_unsubscribe']))
-			$array['notify_me_unsubscribe'] = 0;
-		
-		if (!isset($array['overbooking']))
-			$array['overbooking'] = 0;
-		
-		if (!isset($array['max_tickets']))
-			$array['max_tickets'] = 0;
-		
-		if (!isset($array['show_registered']))
-			$array['show_registered']= 0;
-		
-		if (!isset($array['automatically_approve']))
-			$array['automatically_approve'] = 0;
+		if (!isset($array['recurring'])) 				$array['recurring'] = 0;
+		if (!isset($array['allday']))					$array['allday'] = 0;
+		if (!isset($array['discounts']))				$array['discounts'] = 0;
+		if (!isset($array['ticketsconfig']))			$array['ticketsconfig'] = 0;
+		if (!isset($array['registration']))				$array['registration'] = 0;
+		if (!isset($array['rsvp']))						$array['rsvp'] = 0;
+		if (!isset($array['rsvp_guests']))				$array['rsvp_guests'] = 0;
+		if (!isset($array['rsvp_going']))				$array['rsvp_going'] = 0;
+		if (!isset($array['rsvp_interested']))			$array['rsvp_interested'] = 0;
+		if (!isset($array['rsvp_notgoing']))			$array['rsvp_notgoing'] = 0;
+		if (!isset($array['comments']))					$array['comments'] = 0;
+		if (!isset($array['notify_me']))				$array['notify_me'] = 0;
+		if (!isset($array['notify_me_unsubscribe']))	$array['notify_me_unsubscribe'] = 0;
+		if (!isset($array['overbooking']))				$array['overbooking'] = 0;
+		if (!isset($array['max_tickets']))				$array['max_tickets'] = 0;
+		if (!isset($array['show_registered']))			$array['show_registered']= 0;
+		if (!isset($array['automatically_approve']))	$array['automatically_approve'] = 0;
 		
 		if (isset($array['options'])) {
 			$defaults = rseventsproHelper::getDefaultOptions();

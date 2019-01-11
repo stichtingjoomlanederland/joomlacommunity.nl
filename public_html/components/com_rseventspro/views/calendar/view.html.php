@@ -197,17 +197,18 @@ class RseventsproViewCalendar extends JViewLegacy
 	}
 	
 	public function getColour($id) {
-		$db			= JFactory::getDbo();
-		$query		= $db->getQuery(true);
-		$excluded	= rseventsproHelper::excludeEvents();
-		
 		static $cache = array();
 		if (empty($cache)) {
+			$db			= JFactory::getDbo();
+			$query		= $db->getQuery(true);
+			$excluded	= rseventsproHelper::excludeEvents();
+
 			$query->clear()
 				->select($db->qn('t.ide'))->select($db->qn('c.params'))
 				->from($db->qn('#__categories','c'))
 				->join('left', $db->qn('#__rseventspro_taxonomy','t').' ON '.$db->qn('t.id').' = '.$db->qn('c.id'))
 				->where($db->qn('t.type').' = '.$db->q('category'))
+				->where($db->qn('c.params').' <> '.$db->q(''))
 				->where($db->qn('c.extension').' = '.$db->q('com_rseventspro'));
 			
 			if (JLanguageMultilang::isEnabled()) {
@@ -238,7 +239,7 @@ class RseventsproViewCalendar extends JViewLegacy
 			}
 		}
 		
-		return isset($cache[$id]) ? $cache[$id]->color : '';
+		return !empty($cache[$id]) ? $cache[$id]->color : '';
 	}
 	
 	public function getDetailsBig($event) {

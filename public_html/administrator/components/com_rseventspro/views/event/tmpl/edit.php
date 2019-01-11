@@ -98,7 +98,7 @@ JText::script('COM_RSEVENTSPRO_END_REG_BIGGER_THAN_END_ERROR'); ?>
 		<div class="tab-content">
 			
 			<!-- Start Information tab -->
-			<div class="tab-pane active" id="rsepro-edit-tab1">
+			<div class="tab-pane <?php if (!$this->tab) echo 'active'; ?>" id="rsepro-edit-tab1">
 				<?php echo $this->loadTemplate('info'); ?>
 			</div>
 			<!-- End Information tab -->
@@ -177,6 +177,19 @@ JText::script('COM_RSEVENTSPRO_END_REG_BIGGER_THAN_END_ERROR'); ?>
 			<!-- End Recurring tab -->
 			<?php } ?>
 			
+			<!-- Start RSVP tab -->
+			<div class="tab-pane" id="rsepro-edit-tabrsvp">
+				<?php echo $this->loadTemplate('rsvp'); ?>
+			</div>
+			<!-- End RSVP tab -->
+			
+			<?php if ($this->item->completed) { ?>
+			<!-- Start Dashboard tab -->
+			<div class="tab-pane" id="rsepro-edit-tabd">
+				<?php echo $this->loadTemplate('dashboard'); ?>
+			</div>
+			<!-- End Dashboard tab -->
+			<?php } ?>
 			
 		</div>
 		

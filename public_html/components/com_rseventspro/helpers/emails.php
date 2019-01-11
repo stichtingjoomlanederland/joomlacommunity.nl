@@ -383,7 +383,7 @@ class rseventsproEmails
 	*	Reminder e-mail
 	*/
 	
-	public static function reminder($to, $ide, $name, $lang = 'en-GB') {
+	public static function reminder($subscriber, $ide, $lang = 'en-GB') {
 		$config		= rseventsproHelper::getConfig();
 		$email		= rseventsproEmails::email('reminder', null, null, $lang);
 		
@@ -413,14 +413,15 @@ class rseventsproEmails
 			'body'		=> $body
 		);
 		
-		$text				= rseventsproEmails::placeholders($replacer,$ide,$name);
+		$optionals			= !empty($subscriber->id) ? rseventsproEmails::createOptionals($subscriber->id) : null;
+		$text				= rseventsproEmails::placeholders($replacer, $ide, $subscriber->name, $optionals, $subscriber->id);
 		$text['cc']			= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
 		$text['bcc']		= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
 		$text['replyto']	= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
 		
 		$mailer	= JFactory::getMailer();
-		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		$mailer->sendMail($text['from'] , $text['fromName'] , $subscriber->email , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
 		
 		return true;
 	}
@@ -965,8 +966,8 @@ class rseventsproEmails
 					for ($i = 1; $i <= $ticket->quantity; $i++) {
 						$code		= md5($ids.$ticket->id.$i);
 						$code		= substr($code,0,4).substr($code,-4);
-						$barcode	= rseventsproHelper::getConfig('barcode_prefix', 'string', 'RST-').$ids.'-'.$code;
-						$barcode	= in_array(rseventsproHelper::getConfig('barcode', 'string', 'C39'), array('C39', 'C93')) ? strtoupper($barcode) : $barcode;
+						$barcode	= rseventsproHelper::getBarcodeOptions('barcode_prefix', 'RST-').$ids.'-'.$code;
+						$barcode	= in_array(rseventsproHelper::getBarcodeOptions('barcode', 'C39'), array('C39', 'C93')) ? strtoupper($barcode) : $barcode;
 						$layout		= $ticket->layout;
 						
 						$app->triggerEvent('rseproTicketPDFLayout',array(array('ids' => $ids, 'ide' => $ide, 'layout' => &$layout)));
@@ -979,7 +980,7 @@ class rseventsproEmails
 						if (strpos($layout,'{barcode}') !== FALSE) {
 							jimport('joomla.filesystem.file');
 							require_once JPATH_SITE.'/components/com_rseventspro/helpers/pdf/barcodes.php';
-							$barcodeIMG = new TCPDFBarcode($barcode, rseventsproHelper::getConfig('barcode'));
+							$barcodeIMG = new TCPDFBarcode($barcode, rseventsproHelper::getBarcodeOptions('barcode', 'C39'));
 							
 							ob_start();
 							$barcodeIMG->getBarcodePNG();
@@ -1092,6 +1093,92 @@ class rseventsproEmails
 	}
 	
 	/*
+	*	RSVP Going email
+	*/
+	public static function rsvpgoing($to, $ide) {
+		return rseventsproEmails::rsvpemail('rsvpgoing', $to, $ide);
+	}
+	
+	/*
+	*	RSVP Interested email
+	*/
+	public static function rsvpinterested($to, $ide) {
+		return rseventsproEmails::rsvpemail('rsvpinterested', $to, $ide);
+	}
+	
+	/*
+	*	RSVP Not going email
+	*/
+	public static function rsvpnotgoing($to, $ide) {
+		return rseventsproEmails::rsvpemail('rsvpnotgoing', $to, $ide);
+	}
+	
+	/*
+	*	Get RSVP email
+	*/
+	
+	protected function rsvpemail($type, $to, $ide) {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		$check	= str_replace('rsvp', 'rsvp_', $type);
+		
+		$query->clear()
+			->select($db->qn($check))
+			->from($db->qn('#__rseventspro_events'))
+			->where($db->qn('id').' = '.$db->q($ide));
+		$db->setQuery($query);
+		if (!$db->loadResult()) {
+			return false;
+		}
+		
+		$config		= rseventsproHelper::getConfig();
+		$lang		= JFactory::getLanguage()->getTag();
+		$email		= rseventsproEmails::email($type, null, null, $lang);
+		
+		if (empty($email)) return false;
+		
+		// Get the name of the subscriber
+		$query->clear()
+			->select($db->qn('name'))
+			->from($db->qn('#__users'))
+			->where($db->qn('email').' = '.$db->q($to));
+		$db->setQuery($query);
+		$name = $db->loadResult();
+		
+		$from		= $config->email_from;
+		$fromName	= $config->email_fromname;
+		$mode		= $email->mode;
+		$replyto	= $config->email_replyto;
+		$replyname	= $config->email_replytoname;
+		$cc			= $config->email_cc;
+		$bcc		= $config->email_bcc;
+		$cc			= !empty($cc) ? $cc : null;
+		$bcc		= !empty($bcc) ? $bcc : null;
+		$subject	= $email->subject;
+		$body		= $email->message;
+		
+		$replacer	= array(
+			'from'		=> $from,
+			'fromName'	=> $fromName,
+			'replyto'	=> $replyto,
+			'replyname' => $replyname,
+			'cc'		=> $cc,
+			'bcc'		=> $bcc,
+			'subject'	=> $subject,
+			'body'		=> $body
+		);
+		
+		$text				= rseventsproEmails::placeholders($replacer, $ide, $name);
+		$text['cc']			= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
+		$text['bcc']		= isset($text['bcc']) && !empty($text['bcc']) ? explode(',',$text['bcc']) : null;
+		$text['replyto']	= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
+		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
+		
+		$mailer	= JFactory::getMailer();
+		return $mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+	}
+	
+	/*
 	*	Create optional placeholders
 	*/
 	
@@ -1146,8 +1233,8 @@ class rseventsproEmails
 		$ticketstotal		= !empty($total) ? rseventsproHelper::currency($total) : '';
 		$ticketsdiscount	= !empty($subscription->discount)	? rseventsproHelper::currency($subscription->discount) : '';
 		$subscriptionTax	= !empty($subscription->tax)		? rseventsproHelper::currency($subscription->tax) : '';
-		$lateFee			= !empty($subscription->late)		? rseventsproHelper::currency($subscription->late) : '';
-		$earlyDiscount		= !empty($subscription->early)		? rseventsproHelper::currency($subscription->early) : '';
+		$lateFee			= !empty($subscription->late_fee)	? rseventsproHelper::currency($subscription->late_fee) : '';
+		$earlyDiscount		= !empty($subscription->early_fee)	? rseventsproHelper::currency($subscription->early_fee) : '';
 		$gateway			= rseventsproHelper::getPayment($subscription->gateway);
 		$IP					= $subscription->ip;
 		$coupon				= $subscription->coupon;

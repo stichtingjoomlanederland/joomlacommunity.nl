@@ -152,8 +152,8 @@ class RscommentsModelComments extends JModelLegacy
 	// Get commenting pagination
 	public function getPagination() {
 		if (empty($this->_pagination)) {
-			require_once JPATH_SITE.'/components/com_rscomments/helpers/pagination.php';
-			$this->_pagination = new RSPagination($this->getTotal(), $this->getState('rscomments.comments.limitstart'), $this->getState('rscomments.comments.limit'),$this->_option,$this->_id,$this->_template,$this->_overwrite);
+			jimport('joomla.html.pagination');
+			$this->_pagination = new JPagination($this->getTotal(), $this->getState('rscomments.comments.limitstart'), $this->getState('rscomments.comments.limit'));
 		}
 		
 		return $this->_pagination;
@@ -597,19 +597,12 @@ class RscommentsModelComments extends JModelLegacy
 		if (isset($permissions['captcha']) && $permissions['captcha']) {
 			if ($config->captcha == 0) {
 				require_once JPATH_SITE.'/components/com_rscomments/helpers/securimage/securimage.php';
+				$hash = md5($jform['obj_option'].$jform['obj_id']);
 				$captcha_image = new JSecurImage();
-				$valid = $captcha_image->check($jform['captcha'],'form');
+				$valid = $captcha_image->check($jform['captcha'],'form'.$hash);
 				if (!$valid) {
 					$return['errors'][] = JText::_('COM_RSCOMMENTS_INVALID_CAPTCHA',true);
 					$return['fields'][] = 'captcha';
-				}
-			} elseif ($config->captcha == 1) {
-				require_once JPATH_SITE.'/components/com_rscomments/helpers/recaptcha/recaptchalib.php';
-				$privatekey = $config->rec_private;
-
-				$response = RSCommentsReCAPTCHA::checkAnswer($privatekey, $_SERVER['REMOTE_ADDR'], @$jinput->getString('recaptcha_challenge_field'), @$jinput->getString('recaptcha_response_field'));
-				if ($response === false || !$response->is_valid) {
-					$return['errors'][] = JText::_('COM_RSCOMMENTS_INVALID_CAPTCHA',true);
 				}
 			} else {
 				try {
@@ -993,14 +986,6 @@ class RscommentsModelComments extends JModelLegacy
 				$captcha_image = new JSecurImage();
 				$valid = $captcha_image->check($input->getString('captcha',''),'report');
 				if (!$valid) {
-					$data['success'] = false;
-					$data['message'] = JText::_('COM_RSCOMMENTS_INVALID_CAPTCHA',true);
-				}
-			} else if ($config->captcha == 1) {
-				require_once JPATH_SITE.'/components/com_rscomments/helpers/recaptcha/recaptchalib.php';
-				
-				$response = RSCommentsReCAPTCHA::checkAnswer($config->rec_private, $_SERVER['REMOTE_ADDR'], @$input->getString('recaptcha_challenge_field'), @$input->getString('recaptcha_response_field'));
-				if ($response === false || !$response->is_valid) {
 					$data['success'] = false;
 					$data['message'] = JText::_('COM_RSCOMMENTS_INVALID_CAPTCHA',true);
 				}

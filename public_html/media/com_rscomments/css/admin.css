@@ -225,7 +225,6 @@
 	border-top: 1px solid #DDDDDD;
     line-height: 20px;
     padding: 5px;
-    text-align: left;
     vertical-align: middle;
 }
 
@@ -283,4 +282,17 @@
 	.controls .btn-group .btn {
 		width:auto !important;
 	}
+}
+
+.rsc_comment_details > span {
+	margin-right: 10px;
+}
+
+.rsc_comment_details > span > a {
+	color: #999;
+}
+
+.rsc_comment_details > span > a:hover {
+	text-decoration: none;
+	color: #999;
 }

@@ -209,11 +209,15 @@ class WFMediaManager extends WFMediaManagerBase
                 $limit = get_cfg_var('memory_limit');
             }
 
+            // no limit set...
+            if ($limit === '-1') {
+                return true;
+            }
+
             // can't get from ini, assume low value of 32M
             if (empty($limit)) {
                 $limit = 32 * 1048576;
-            }
-            else {
+            } else {
                 $limit = self::convertIniValue($limit);
             }
 
@@ -341,8 +345,8 @@ class WFMediaManager extends WFMediaManagerBase
                             $destination = '';
 
                             $path = dirname($file);
-                            $name = pathinfo($file, PATHINFO_FILENAME);
-                            $ext = pathinfo($file, PATHINFO_EXTENSION);
+                            $name   = WFUtility::getFilename($file);
+                            $ext    = WFUtility::getExtension($file);
 
                             $suffix = '';
 

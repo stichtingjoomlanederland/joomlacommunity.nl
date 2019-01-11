@@ -224,17 +224,17 @@
 	margin-bottom: 5px;
 }
 
-#rscomments-comment-area {
+.rscomments-comment-area {
 	margin-left: 0;
 }
 
-#rsc_terms,
-#rsc_subscribe_thread {
-    margin-top: 3px;
+.rsc_terms,
+.rsc_subscribe_thread {
+    margin-top: 3px !important;
 }
 
 
-.rsc_comment_box_form > #rscomments-form-message, 
+.rsc_comment_box_form > .rscomments-form-message, 
 .rsc_comment_box_form > #rscommentsForm {
     margin-top: 5px;
 }
@@ -402,4 +402,19 @@ textarea.invalid {
 	margin: 10px;
 	padding: 10px;
 	border-left: 5px solid #c8c8c8;
+}
+
+.rscomments-white-popup {
+  position: relative;
+  background: #FFF;
+  padding: 40px;
+  width: auto;
+  max-width: 700px;
+  margin: 20px auto;
+}
+
+.rscomments-popup-padding {
+	padding-top: 20px;
+	padding-left: 20px;
+	padding-right: 20px;
 }

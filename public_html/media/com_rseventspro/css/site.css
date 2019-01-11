@@ -1091,3 +1091,103 @@ textarea.invalid {
 	width: 22.404255317%;
 	*width: 22.351063827638%;
 }
+
+.rsepro-speaker-description {
+	max-height: 150px;
+	overflow: hidden;
+	height: auto;
+}
+
+.rsepro-speaker-info {
+	text-align: center;
+	margin: 0 auto;
+	list-style: none;
+}
+
+.rsepro-speaker-info li {
+	display: inline-block;
+	*display: inline;
+	*zoom: 1;
+	margin-right: 5px;
+}
+
+.rsepro-speaker-image {
+	cursor: pointer;
+}
+
+.rsepro-speaker-name {
+	text-align: center;
+	font-weight: bold;
+}
+
+.rsepro-speaker-description {
+	display: none;
+}
+
+.rsepro-speaker-overlay {
+	opacity: 0;
+	visibility: hidden;
+	-webkit-transition: opacity 0.5s, visibility 0s 0.5s;
+	transition: opacity 0.5s, visibility 0s 0.5s;
+	z-index: 99999;
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	background: rgba(0, 0, 0, 0.9);
+}
+
+.rsepro-speaker-overlay-on {
+	opacity: 1;
+	visibility: visible;
+	-webkit-transition: opacity 0.5s;
+	transition: opacity 0.5s;
+}
+
+#rsepro-speaker-overlay .rsepro-close {
+	position: absolute;
+	right: 25px;
+	top: 25px;
+	z-index: 100;
+	cursor: pointer;
+	font-size: 5rem;
+	color: #fff;
+}
+
+.rsepro-speaker-overlay-container {
+	max-width: 700px;
+	width: 100%;
+	height: 100%;
+	margin: 0 auto;
+	color: #fff;
+	padding: 0 20px;
+	overflow-y: visible;
+	overflow-x: hidden;
+}
+
+#rsepro-speaker-overlay-image {
+	margin-top: 45px;
+	text-align: center;
+}
+
+#rsepro-speaker-overlay-image > img {
+	cursor: default;
+}
+
+#rsepro-speaker-overlay-name {
+	text-align: center;
+	margin-top: 20px;
+	font-size: 25px;
+	margin-bottom: 10px;
+}
+
+#rsepro-speaker-overlay-info {
+	margin-bottom: 20px;
+	margin-top: 15px;
+}
+
+#rsepro-speaker-overlay-info a {
+	color: #fff;
+	font-size: 15px;
+}

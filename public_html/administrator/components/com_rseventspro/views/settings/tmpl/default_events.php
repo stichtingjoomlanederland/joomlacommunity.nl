@@ -10,9 +10,6 @@ $fieldsets = array('generalsettings','moderation','maintenance','registration', 
 foreach ($fieldsets as $fieldset) {
 	echo JHtml::_('rsfieldset.start', 'adminform', JText::_($this->fieldsets[$fieldset]->label));
 	foreach ($this->form->getFieldset($fieldset) as $field) {
-		if (($field->fieldname == 'barcode' || $field->fieldname == 'barcode_prefix') && !rseventsproHelper::pdf())
-			continue;
-		
 		$extra = '';
 		if ($field->fieldname == 'archive_days')
 			$extra = '<span class="rsextra">'.JText::_('COM_RSEVENTSPRO_DAYS').'</span>';

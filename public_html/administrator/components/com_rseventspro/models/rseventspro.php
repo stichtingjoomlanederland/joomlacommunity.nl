@@ -151,6 +151,8 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$buttons[] = array('icon' => 'fa fa-calendar', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_EVENTS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=events'));
 		$buttons[] = array('icon' => 'fa fa-map-marker', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_LOCATIONS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=locations'));
 		$buttons[] = array('icon' => 'fa fa-book', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_CATEGORIES'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=categories'));
+		$buttons[] = array('icon' => 'fa fa-tag', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_TAGS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=tags'));
+		$buttons[] = array('icon' => 'fa fa-user-circle-o', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_SPEAKERS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=speakers'));
 		$buttons[] = array('icon' => 'fa fa-user', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_SUBSCRIPTIONS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=subscriptions'));
 		$buttons[] = array('icon' => 'fa fa-scissors', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_DISCOUNTS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=discounts'));
 		$buttons[] = array('icon' => 'fa fa-credit-card', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_PAYMENTS'), 'link' => JRoute::_('index.php?option=com_rseventspro&view=payments'));

@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 <install version="2.0" type="plugin" plugin="filemanager" editable="1" core="0" row="4">
     <name>WF_FILEMANAGER_TITLE</name>
-    <version>2.6.33</version>
-    <creationDate>10-10-2018</creationDate>
+    <version>2.6.35</version>
+    <creationDate>19-12-2018</creationDate>
     <author>Ryan Demmer</author>
     <authorEmail>info@joomlacontenteditor.net</authorEmail>
     <authorUrl>http://www.joomlacontenteditor.net/</authorUrl>
@@ -22,7 +22,7 @@
     <params group="standard">
         <param name="dir" type="text" default="" size="50" label="WF_PARAM_DIRECTORY" description="WF_PARAM_DIRECTORY_DESC"/>
         <param name="max_size" class="upload_size" max="" type="text" default="" label="WF_PARAM_UPLOAD_SIZE" description="WF_PARAM_UPLOAD_SIZE_DESC" />
-        <param name="extensions" type="extension" class="extensions create" default="acrobat=pdf;office=doc,docx,ppt,xls,xlsx;image=gif,jpeg,jpg,png;archive=zip,tar,gz;video=swf,mov,wmv,avi,flv,mp4,ogv,ogg,webm,mpeg,mpg;audio=wav,mp3,ogg,webm,aiff;openoffice=odt,odg,odp,ods,odf" label="WF_PARAM_EXTENSIONS" description="WF_PARAM_EXTENSIONS_DESC" />
+        <param name="extensions" type="extension" class="extensions create" default="acrobat=pdf;office=doc,docx,dot,dotx,ppt,xls,xlsx;image=gif,jpeg,jpg,png;archive=zip,tar,gz;video=swf,mov,wmv,avi,flv,mp4,ogv,ogg,webm,mpeg,mpg;audio=wav,mp3,ogg,webm,aiff;openoffice=odt,odg,odp,ods,odf" label="WF_PARAM_EXTENSIONS" description="WF_PARAM_EXTENSIONS_DESC" />
         <param name="replace_text" type="radio" default="1" label="WF_FILEMANAGER_REPLACE_TEXT" description="WF_FILEMANAGER_REPLACE_TEXT_DESC">
             <option value="1">WF_OPTION_YES</option>
             <option value="0">WF_OPTION_NO</option>
