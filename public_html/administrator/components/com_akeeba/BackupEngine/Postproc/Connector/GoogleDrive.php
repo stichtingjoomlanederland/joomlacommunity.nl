@@ -1,13 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
- *
  */
 
 namespace Akeeba\Engine\Postproc\Connector;
@@ -36,7 +34,14 @@ class GoogleDrive
 	 */
 	private $refreshToken = '';
 
-	/**
+    /**
+     * Download ID to use with the helper URL
+     *
+     * @var string
+     */
+    private $dlid = '';
+
+    /**
 	 * The root URL for the Google Drive v3 API
 	 */
 	const rootUrl = 'https://www.googleapis.com/drive/v3/';
@@ -69,13 +74,15 @@ class GoogleDrive
 	/**
 	 * Public constructor
 	 *
-	 * @param   string $accessToken  The access token for accessing OneDrive
-	 * @param   string $refreshToken The refresh token for getting new access tokens for OneDrive
+	 * @param   string  $accessToken   The access token for accessing OneDrive
+	 * @param   string  $refreshToken  The refresh token for getting new access tokens for OneDrive
+	 * @param   string  $dlid          The AkeebaBackup.com Download ID, used whenever you try to refresh the token
 	 */
-	public function __construct($accessToken, $refreshToken)
+	public function __construct($accessToken, $refreshToken, $dlid)
 	{
 		$this->accessToken  = $accessToken;
 		$this->refreshToken = $refreshToken;
+		$this->dlid         = $dlid;
 	}
 
 	/**
@@ -121,7 +128,7 @@ class GoogleDrive
 			return $response;
 		}
 
-		$refreshUrl = self::helperUrl . '?refresh_token=' . urlencode($this->refreshToken);
+		$refreshUrl = self::helperUrl . '?refresh_token=' . urlencode($this->refreshToken) . '&dlid=' . $this->dlid;
 
 		$refreshResponse = $this->fetch('GET', $refreshUrl);
 
@@ -541,6 +548,8 @@ JSON;
 	 * @param   string  $mimeType    The MIME type of the file. Defaults to application/octet-stream.
 	 *
 	 * @return  string|null  The upload URL for the session, null if the upload session wasn't created
+	 *
+	 * @see https://developers.google.com/drive/api/v3/resumable-upload
 	 */
 	public function createUploadSession($folderId, $localFile, $remoteName = null, $mimeType = 'application/octet-stream')
 	{
@@ -588,7 +597,7 @@ JSON;
 
 			list($header, $value) = explode(": ", $line);
 
-			if ($header != 'Location')
+			if (strtolower($header) != 'location')
 			{
 				continue;
 			}
@@ -608,6 +617,8 @@ JSON;
 	 * @param   int     $length      Chunk size in bytes, default 10Mb, must NOT be over 60Mb!  MUST be a multiple of 320Kb.
 	 *
 	 * @return  array  The upload information, see https://developers.google.com/drive/v3/reference/files#resource-representations
+	 *
+	 * @see https://developers.google.com/drive/api/v3/resumable-upload
 	 */
 	public function uploadPart($sessionUrl, $localFile, $from = 0, $length = 10485760)
 	{
@@ -658,6 +669,8 @@ JSON;
 	 * @return  array  See https://developers.google.com/drive/v3/reference/files#resource-representations
 	 *
 	 * @throws \Exception
+	 *
+	 * @see https://developers.google.com/drive/api/v3/resumable-upload
 	 */
 	public function resumableUpload($path, $localFile, $partSize = 10485760, $mimeType = 'application/octet-stream', $teamDriveID = '')
 	{
@@ -700,8 +713,12 @@ JSON;
 		clearstatcache();
 		$filesize = @filesize($localFile);
 
-		// Bigger than the part size: use resumable uploads with the specified part size
-		if ($filesize > $partSize)
+		/**
+		 * Google Drive has a hard limit of 5MB for simple uploads. If the file is bigger than 5MB **OR** bigger than
+		 * the part size (whatever is smaller) **THEN** we have to use resumable uploads.
+		 */
+		$smallestSizeForSinglePartUpload = min(5242880, $partSize);
+		if ($filesize > $smallestSizeForSinglePartUpload)
 		{
 			return $this->resumableUpload($path, $localFile, $partSize, $mimeType, $teamDriveID);
 		}
@@ -766,6 +783,12 @@ JSON;
 
 		// Get the default options array
 		$options = $this->defaultOptions;
+
+		// Some broken cURL versions cause an error. Forcing HTTP/1.1 seems to be fixing it.
+		if (defined('CURLOPT_HTTP_VERSION') && defined('CURL_HTTP_VERSION_1_1'))
+		{
+			$options[CURLOPT_HTTP_VERSION] = CURL_HTTP_VERSION_1_1;
+		}
 
 		// Do I have explicit cURL options to add?
 		if (isset($additional['curl-options']) && is_array($additional['curl-options']))

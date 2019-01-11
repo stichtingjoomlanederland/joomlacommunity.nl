@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -28,6 +28,7 @@ class AtsystemFeatureCriticalfilesglobal extends AtsystemFeatureAbstract
 		$mustSaveData    = false;
 
 		$criticalFiles = $this->cparams->getValue('criticalfiles_global', '');
+		$criticalFiles = str_replace("\r", '', $criticalFiles);
 		$criticalFiles = explode("\n", $criticalFiles);
 
 		$loadedFiles   = $this->load();

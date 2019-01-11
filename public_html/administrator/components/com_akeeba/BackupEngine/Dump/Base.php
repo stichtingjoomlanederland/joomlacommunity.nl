@@ -1,11 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * The PHP-only site backup engine
+ *
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
  */
 
 namespace Akeeba\Engine\Dump;
@@ -271,7 +271,8 @@ abstract class Base extends Part
 
 		// Initialize the extended INSERTs feature
 		$this->extendedInserts = ($configuration->get('engine.dump.common.extended_inserts', 0) != 0);
-		$this->packetSize = $configuration->get('engine.dump.common.packet_size', 0);
+		$this->packetSize = (int) $configuration->get('engine.dump.common.packet_size', 0);
+
 		if ($this->packetSize == 0)
 		{
 			$this->extendedInserts = false;
@@ -285,7 +286,7 @@ abstract class Base extends Part
 		}
 		if (($this->partSize != 0) && ($this->packetSize != 0) && ($this->packetSize > $this->partSize))
 		{
-			$this->packetSize = $this->partSize / 2;
+			$this->packetSize = floor($this->partSize / 2);
 		}
 
 		// Initialize the algorithm

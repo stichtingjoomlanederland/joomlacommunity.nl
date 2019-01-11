@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -36,7 +36,7 @@ class Pkg_AkeebaInstallerScript
 	 *
 	 * @var   string
 	 */
-	protected $minimumJoomlaVersion = '3.3.0';
+	protected $minimumJoomlaVersion = '3.4.0';
 
 	/**
 	 * The maximum Joomla! version this extension can be installed on

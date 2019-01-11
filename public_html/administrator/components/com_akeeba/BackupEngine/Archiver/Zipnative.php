@@ -1,12 +1,24 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
+ */
+
+namespace Akeeba\Engine\Archiver;
+
+// Protection against direct access
+defined('AKEEBAENGINE') or die();
+
+use Akeeba\Engine\Factory;
+use Psr\Log\LogLevel;
+use ZipArchive;
+
+/**
+ * Class Zipnative
  *
  * This file uses the ZipArchive class to create and add files to existing ZIP
  * archives. For more information on the use of this class, please see:
@@ -19,21 +31,12 @@
  * We deem it only suitable for small sites, without large files, running on a
  * decent hosting facility.
  */
-
-namespace Akeeba\Engine\Archiver;
-
-// Protection against direct access
-defined('AKEEBAENGINE') or die();
-
-use Akeeba\Engine\Factory;
-use Psr\Log\LogLevel;
-
 class Zipnative extends Base
 {
 	/** @var string The name of the file holding the ZIP's data, which becomes the final archive */
 	private $_dataFileName;
 
-	/** @var \ZipArchive An instance of the PHP ZIPArchive class */
+	/** @var ZipArchive An instance of the PHP ZIPArchive class */
 	private $zip = null;
 
 	/** @var int Running sum of bytes added to the archive */
@@ -74,11 +77,11 @@ class Zipnative extends Base
 		}
 
 		// Try to reopen the ZIP
-		$this->zip = new \ZipArchive;
+		$this->zip = new ZipArchive;
 
 		if ( !file_exists($this->_dataFileName))
 		{
-			$res = $this->zip->open($this->_dataFileName, \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+			$res = $this->zip->open($this->_dataFileName, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 		}
 		else
 		{
@@ -89,39 +92,39 @@ class Zipnative extends Base
 		{
 			switch ($res)
 			{
-				case \ZipArchive::ER_EXISTS:
+				case ZipArchive::ER_EXISTS:
 					$this->setError("The archive {$this->_dataFileName} already exists");
 					break;
 
-				case \ZipArchive::ER_INCONS:
+				case ZipArchive::ER_INCONS:
 					$this->setError("Inconsistent archive {$this->_dataFileName} detected");
 					break;
 
-				case \ZipArchive::ER_INVAL:
+				case ZipArchive::ER_INVAL:
 					$this->setError("Invalid archive {$this->_dataFileName} detected");
 					break;
 
-				case \ZipArchive::ER_MEMORY:
+				case ZipArchive::ER_MEMORY:
 					$this->setError("Not enough memory to process archive {$this->_dataFileName}");
 					break;
 
-				case \ZipArchive::ER_NOENT:
+				case ZipArchive::ER_NOENT:
 					$this->setError("Unexpected ZipArchive::ER_NOENT error processing archive {$this->_dataFileName}");
 					break;
 
-				case \ZipArchive::ER_NOZIP:
+				case ZipArchive::ER_NOZIP:
 					$this->setError("File {$this->_dataFileName} is not a ZIP archive!");
 					break;
 
-				case \ZipArchive::ER_OPEN:
+				case ZipArchive::ER_OPEN:
 					$this->setError("Could not open archive file {$this->_dataFileName} for writing");
 					break;
 
-				case \ZipArchive::ER_READ:
+				case ZipArchive::ER_READ:
 					$this->setError("Could not read from archive file {$this->_dataFileName}");
 					break;
 
-				case \ZipArchive::ER_SEEK:
+				case ZipArchive::ER_SEEK:
 					$this->setError("Could not seek into position while processing archive file {$this->_dataFileName}");
 					break;
 			}

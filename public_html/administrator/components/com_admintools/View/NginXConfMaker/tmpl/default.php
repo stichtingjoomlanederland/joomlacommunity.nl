@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -288,6 +288,12 @@ $nginxConfPath = rtrim(JPATH_ROOT, '/\\') . '/nginx.conf';
     
             <?php echo Select::etagtypeNginX('etagtype', array('class' => 'input-medium'), $config->etagtype); ?>
         </div>
+
+		<div class="akeeba-form-group">
+			<label for="referrerpolicy"><?php echo \JText::_('COM_ADMINTOOLS_LBL_HTACCESSMAKER_REFERERPOLICY'); ?></label>
+
+		    <?php echo Select::referrerpolicy('referrerpolicy', array(), $config->referrerpolicy); ?>
+		</div>
     </div>
     <!-- ======================================================================= -->
     <div class="akeeba-panel--primary">

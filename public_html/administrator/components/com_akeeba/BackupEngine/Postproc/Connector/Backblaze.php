@@ -1,11 +1,9 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * This is Akeeba Engine's RackSpace CloudFiles API implementation
- *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  */
@@ -18,6 +16,7 @@ use Akeeba\Engine\Postproc\Connector\Backblaze\BucketInformation;
 use Akeeba\Engine\Postproc\Connector\Backblaze\Exception\APIError;
 use Akeeba\Engine\Postproc\Connector\Backblaze\Exception\cURLError;
 use Akeeba\Engine\Postproc\Connector\Backblaze\Exception\InvalidJSON;
+use Akeeba\Engine\Postproc\Connector\Backblaze\Exception\NotAllowed;
 use Akeeba\Engine\Postproc\Connector\Backblaze\Exception\UnexpectedHTTPStatus;
 use Akeeba\Engine\Postproc\Connector\Backblaze\FileInformation;
 use Akeeba\Engine\Postproc\Connector\Backblaze\UploadURL;
@@ -146,9 +145,14 @@ class Backblaze
 	 */
 	public function listBuckets()
 	{
+		if (!$this->getAccountInformation()->allowed->canListBuckets())
+		{
+			throw new NotAllowed('Retrieving a list of your BackBlaze B2 buckets');
+		}
+
 		$apiUrl       = $this->getApiUrl();
 		$explicitPost = json_encode(array(
-			'accountId' => $this->accountId,
+			'accountId' => $this->getAccountInformation()->accountId,
 		));
 		$additional = array(
 			'headers' => array(
@@ -179,6 +183,11 @@ class Backblaze
 	 */
 	public function getBucketId($name, $forceRefresh = false)
 	{
+		if ($this->getAccountInformation()->allowed->bucketName == $name)
+		{
+			return $this->getAccountInformation()->allowed->bucketId;
+		}
+
 		if (empty($this->buckets) || $forceRefresh)
 		{
 			$this->buckets = $this->listBuckets();
@@ -204,6 +213,11 @@ class Backblaze
 	 */
 	public function getUploadUrl($bucketId)
 	{
+		if (!$this->getAccountInformation()->allowed->canWriteFiles())
+		{
+			throw new NotAllowed('Writing to files');
+		}
+
 		$apiUrl       = $this->getApiUrl();
 		$explicitPost = json_encode(array(
 			'bucketId' => $bucketId,
@@ -231,6 +245,16 @@ class Backblaze
 	 */
 	public function uploadSingleFile($bucketId, $remoteFile, $localFile, $contentType = 'application/octet-stream')
 	{
+		if (!$this->getAccountInformation()->allowed->canWriteFiles())
+		{
+			throw new NotAllowed('Writing to files');
+		}
+
+		if (!$this->getAccountInformation()->allowed->isPrefixAllowed($remoteFile))
+		{
+			throw new NotAllowed("Accessing the $remoteFile file; the prefix (directory) is not allowed)");
+		}
+
 		$uploadUrl = $this->getUploadUrl($bucketId);
 
 		clearstatcache(false, $localFile);
@@ -268,6 +292,16 @@ class Backblaze
 	 */
 	public function startUpload($bucketId, $remoteFile, $contentType = 'application/octet-stream')
 	{
+		if (!$this->getAccountInformation()->allowed->canWriteFiles())
+		{
+			throw new NotAllowed('Writing to files');
+		}
+
+		if (!$this->getAccountInformation()->allowed->isPrefixAllowed($remoteFile))
+		{
+			throw new NotAllowed("Accessing the $remoteFile file; the prefix (directory) is not allowed)");
+		}
+
 		$apiUrl            = $this->getApiUrl();
 		$explicitPost      = json_encode(array(
 			'bucketId'    => $bucketId,
@@ -297,6 +331,11 @@ class Backblaze
 	 */
 	public function getPartUploadUrl($fileId)
 	{
+		if (!$this->getAccountInformation()->allowed->canWriteFiles())
+		{
+			throw new NotAllowed('Writing to files');
+		}
+
 		$apiUrl = $this->getApiUrl();
 		$explicitPost = json_encode(array(
 			'fileId' => $fileId,
@@ -324,6 +363,11 @@ class Backblaze
 	 */
 	public function uploadPart(UploadURL $uploadUrl, $localFile, $partNumber, $partSize = 5242880)
 	{
+		if (!$this->getAccountInformation()->allowed->canWriteFiles())
+		{
+			throw new NotAllowed('Writing to files');
+		}
+
 		clearstatcache(false, $localFile);
 		$filesize = filesize($localFile);
 
@@ -391,6 +435,11 @@ class Backblaze
 	 */
 	public function finishUpload($fileId, $sha1PerPart)
 	{
+		if (!$this->getAccountInformation()->allowed->canWriteFiles())
+		{
+			throw new NotAllowed('Writing to files');
+		}
+
 		$apiUrl = $this->getApiUrl();
 		$explicitPost = json_encode(array(
 			'fileId' => $fileId,
@@ -415,6 +464,11 @@ class Backblaze
 	 */
 	public function cancelUpload($fileId)
 	{
+		if (!$this->getAccountInformation()->allowed->canWriteFiles())
+		{
+			throw new NotAllowed('Writing to files');
+		}
+
 		$apiUrl = $this->getApiUrl();
 		$explicitPost = array(
 			'fileId' => $fileId,
@@ -442,6 +496,16 @@ class Backblaze
 	 */
 	public function uploadLargeFile($bucketId, $remoteFile, $localFile, $partSize = 5242880, $contentType = 'application/octet-stream')
 	{
+		if (!$this->getAccountInformation()->allowed->canWriteFiles())
+		{
+			throw new NotAllowed('Writing to files');
+		}
+
+		if (!$this->getAccountInformation()->allowed->isPrefixAllowed($remoteFile))
+		{
+			throw new NotAllowed("Accessing the $remoteFile file; the prefix (directory) is not allowed)");
+		}
+
 		$fileStartInfo = $this->startUpload($bucketId, $remoteFile, $contentType);
 		$uploadUrl = $this->getPartUploadUrl($fileStartInfo->fileId);
 		$partNumber = 0;
@@ -478,6 +542,11 @@ class Backblaze
 	 */
 	public function uploadFile($bucketId, $remoteFile, $localFile, $partSize = 5242880, $contentType = 'application/octet-stream')
 	{
+		if (!$this->getAccountInformation()->allowed->canWriteFiles())
+		{
+			throw new NotAllowed('Writing to files');
+		}
+
 		clearstatcache(false, $localFile);
 		$fileSize = @filesize($localFile);
 
@@ -511,27 +580,16 @@ class Backblaze
 	 */
 	public function getFileVersions($bucketId, $fileName)
 	{
-		$originalFilename = $fileName;
-		$prefix           = '';
-		$parts            = explode("/", $fileName);
-
-		if (count($parts) > 1)
+		if (!$this->getAccountInformation()->allowed->canReadFiles())
 		{
-			$fileName = array_pop($parts);
-			$prefix   = implode('/', $parts);
+			throw new NotAllowed('Reading files');
 		}
 
 		$apiUrl = $this->getApiUrl();
 		$body   = array(
-			'bucketId'      => $bucketId,
-			'startFileName' => $fileName,
+			'bucketId' => $bucketId,
+			'prefix'   => $fileName,
 		);
-
-		if ($prefix)
-		{
-			$body['prefix']    = $prefix . '/';
-			$body['delimiter'] = '/';
-		}
 
 		$additional = array(
 			'headers' => array(
@@ -539,8 +597,8 @@ class Backblaze
 			),
 		);
 
-		$apiReturn = $this->fetch('POST', $apiUrl, '/b2api/v1/b2_list_file_versions', $additional, json_encode($body));
-		$return    = array();
+		$apiReturn        = $this->fetch('POST', $apiUrl, '/b2api/v1/b2_list_file_versions', $additional, json_encode($body));
+		$return           = array();
 
 		foreach ($apiReturn['files'] as $file)
 		{
@@ -551,7 +609,7 @@ class Backblaze
 			}
 
 			// The API returns versions for all files, starting with the one we requested. Hence the filtering here.
-			if ($file['fileName'] != $originalFilename)
+			if ($file['fileName'] != $fileName)
 			{
 				continue;
 			}
@@ -572,6 +630,11 @@ class Backblaze
 	 */
 	public function deleteByFileName($bucketId, $fileName)
 	{
+		if (!$this->getAccountInformation()->allowed->canDeleteFiles())
+		{
+			throw new NotAllowed('Deleting files');
+		}
+
 		$files = $this->getFileVersions($bucketId, $fileName);
 
 		if (empty($files))
@@ -595,6 +658,11 @@ class Backblaze
 	 */
 	public function deleteByFileId($fileName, $fileId)
 	{
+		if (!$this->getAccountInformation()->allowed->canDeleteFiles())
+		{
+			throw new NotAllowed('Deleting files');
+		}
+
 		$apiUrl     = $this->getApiUrl();
 		$body       = array(
 			'fileName' => $fileName,
@@ -620,6 +688,11 @@ class Backblaze
 	 */
 	public function getSignedUrl($bucketName, $fileName, $expiresIn = 604800)
 	{
+		if (!$this->getAccountInformation()->allowed->canReadFiles())
+		{
+			throw new NotAllowed('Reading files');
+		}
+
 		// Let's get the bucket ID
 		$bucketId = $this->getBucketId($bucketName);
 
@@ -665,6 +738,21 @@ class Backblaze
 	 */
 	public function downloadFile($bucketName, $fileName, $localFile, $headers = array())
 	{
+		if (!$this->getAccountInformation()->allowed->canReadFiles())
+		{
+			throw new NotAllowed('Reading files');
+		}
+
+		if (!$this->getAccountInformation()->allowed->isBucketAllowed($bucketName))
+		{
+			throw new NotAllowed("Accessing the $bucketName bucket");
+		}
+
+		if (!$this->getAccountInformation()->allowed->isPrefixAllowed($fileName))
+		{
+			throw new NotAllowed("Accessing the $fileName file; the prefix (directory) is not allowed)");
+		}
+
 		$accountInfo = $this->getAccountInformation();
 		$url         = rtrim($accountInfo->downloadUrl, '/') . '/';
 		$relativeUrl = 'file/' . $bucketName . '/' . ltrim($fileName, '/');
@@ -689,6 +777,11 @@ class Backblaze
 	 */
 	public function downloadFileById($fileId, $localFile, $headers = array())
 	{
+		if (!$this->getAccountInformation()->allowed->canReadFiles())
+		{
+			throw new NotAllowed('Reading files');
+		}
+
 		$accountInfo = $this->getAccountInformation();
 		$url = rtrim($accountInfo->downloadUrl, '/') . '/';
 		$relativeUrl = 'api/b2_download_file_by_id?fileId=' . $fileId;

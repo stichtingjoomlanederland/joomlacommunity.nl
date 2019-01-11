@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -212,5 +212,32 @@ class ScanAlerts extends DataModel
 		], $filedata);
 
 		return $filedata;
+	}
+
+	/**
+	 * Mark all entries of the specified scan as safe.
+	 *
+	 * @param   int  $scan_id  The ID of the scan
+	 *
+	 * @since   5.2.1
+	 */
+	public function markAllSafe($scan_id)
+	{
+		$scan_id = max(0, (int) $scan_id);
+
+		if ($scan_id == 0)
+		{
+			return;
+		}
+
+		$db    = $this->getDbo();
+		$query = $db->getQuery(true)
+			->update($db->qn($this->tableName))
+			->set([
+				$db->qn('acknowledged') . ' = ' . $db->q(1),
+			])
+			->where($db->qn('scan_id') . ' = ' . $db->q($scan_id))
+			->where($db->qn('threat_score') . ' > ' . $db->q(0));
+		$db->setQuery($query)->execute();
 	}
 }

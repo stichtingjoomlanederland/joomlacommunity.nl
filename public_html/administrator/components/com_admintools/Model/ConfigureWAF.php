@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -175,6 +175,20 @@ class ConfigureWAF extends Model
 		}
 
 		$params->save();
+
+		/**
+		 * Special case: when superuserslist is set to 0 we need to remove the saved Super User IDs from the
+		 * #__admintools_storage table
+		 */
+		if ($params->getValue('superuserslist', 0) == 0)
+		{
+			$db   = $this->container->db;
+			$query = $db->getQuery(true)
+				->delete($db->quoteName('#__admintools_storage'))
+				->where($db->quoteName('key') . ' = ' . $db->quote('superuserslist'));
+			$db->setQuery($query);
+			$db->execute();
+		}
 	}
 
 	/**

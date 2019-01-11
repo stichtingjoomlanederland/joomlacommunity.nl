@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -16,6 +16,7 @@ use JText;
 use RuntimeException;
 
 /**
+ * @property   int	   $id
  * @property   string  $option
  * @property   string  $view
  * @property   string  $query

@@ -1,12 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
  */
 
 namespace Akeeba\Engine\Postproc;
@@ -80,7 +79,7 @@ class Dreamobjects extends Amazons3
 			'useSSL'           => $akeebaConfig->get('engine.postproc.dreamobjects.usessl', 0),
 			'bucket'           => $akeebaConfig->get('engine.postproc.dreamobjects.bucket', null),
 			'lowercase'        => $akeebaConfig->get('engine.postproc.dreamobjects.lowercase', 1),
-			'customEndpoint'   => 'objects-us-west-1.dream.io',
+			'customEndpoint'   => $endpoint,
 			'signatureMethod'  => 'v2',
 			'region'           => '',
 			'disableMultipart' => 1,

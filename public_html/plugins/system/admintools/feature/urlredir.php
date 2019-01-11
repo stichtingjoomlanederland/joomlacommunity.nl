@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -99,8 +99,11 @@ class AtsystemFeatureUrlredir extends AtsystemFeatureAbstract
 
 			$new      = JUri::getInstance($newURL);
 			$host     = $new->getHost();
-			$fragment = $new->getFragment();
-			$query    = $new->getQuery();
+
+			if ((substr($newURL, 0, 1) !== '/') && (strpos($newURL, '://') === false))
+			{
+				$newURL = '/' . $newURL;
+			}
 
 			if (empty($host))
 			{
@@ -108,6 +111,7 @@ class AtsystemFeatureUrlredir extends AtsystemFeatureAbstract
 				$new->setHost($base->getHost());
 				$new->setPort($base->getPort());
 				$new->setScheme($base->getScheme());
+				$new->setPath($base->getPath() . $newURL);
 			}
 
 			// Keep URL Params == 1 (override all)

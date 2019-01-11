@@ -1,9 +1,9 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  */
@@ -77,21 +77,6 @@ class Googlestoragejson extends Base
 		$directory         = $this->directory;
 		$basename          = empty($upload_as) ? basename($absolute_filename) : $upload_as;
 		$this->remote_path = $directory . '/' . $basename;
-
-		// Do not use multipart uploads when in an immediate post-processing step,
-		// i.e. we are uploading a part right after its creation
-		if ($this->chunked)
-		{
-			// Retrieve engine configuration data
-			$config = Factory::getConfiguration();
-
-			$immediateEnabled = $config->get('engine.postproc.common.after_part', 0);
-
-			if ($immediateEnabled)
-			{
-				$this->chunked = false;
-			}
-		}
 
 		// Check if the size of the file is compatible with chunked uploading
 		clearstatcache();

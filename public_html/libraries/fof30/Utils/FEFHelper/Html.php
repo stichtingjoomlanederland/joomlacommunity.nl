@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     FOF
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL version 2 or later
  */
 
@@ -44,6 +44,21 @@ abstract class Html
 	 */
 	public static function selectOrderingBackend($pagination, $sortFields, $order, $order_Dir)
 	{
+		if (is_null($sortFields))
+		{
+			$sortFields = [];
+		}
+
+		if (is_string($sortFields))
+		{
+			$sortFields = [$sortFields];
+		}
+
+		if (!is_array($sortFields))
+		{
+			$sortFields = [];
+		}
+
 		return
 			'<div class="akeeba-filter-bar akeeba-filter-bar--right">' .
 			JHtml::_('FEFHelper.browse.orderheader', null, $sortFields, $pagination, $order, $order_Dir) .

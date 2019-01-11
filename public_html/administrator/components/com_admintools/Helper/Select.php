@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -107,7 +107,7 @@ class Select
 			'tmpl', 'template', 'muashield', 'csrfshield',
 			'geoblocking', 'rfishield', 'dfishield', 'uploadshield',
 			'httpbl', 'loginfailure', 'external', 'awayschedule', 'admindir',
-			'nonewadmins', 'nonewfrontendadmins', 'phpshield', '404shield'
+			'nonewadmins', 'nonewfrontendadmins', 'phpshield', '404shield', 'wafblacklist'
 		);
 
 		foreach ($reasons as $reason)

@@ -1,11 +1,9 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * This is Akeeba Engine's RackSpace CloudFiles API implementation
- *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  */
@@ -161,9 +159,13 @@ class Cloudfiles extends Swift
 
         $this->region = strtoupper($defaultRegion);
 
+        $needsEndpoint = false;
+
 		if (empty($this->storageEndpoint))
 		{
 			$this->storageEndpoint = $this->storageEndpoints[$this->region];
+
+            $needsEndpoint = true;
 		}
 
 		foreach ($response->body->access->serviceCatalog as $service)
@@ -186,6 +188,9 @@ class Cloudfiles extends Swift
 		}
 
 		// Finally, set up the storage endpoint in the way the API class expects it
-		$this->storageEndpoint .= '/' . $this->apiVersion . '/' . $this->userContract . '/' . $this->container;
+        if ($needsEndpoint)
+        {
+		    $this->storageEndpoint .= '/' . $this->apiVersion . '/' . $this->userContract . '/' . $this->container;
+        }
 	}
 }

@@ -1,12 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
  */
 
 namespace Akeeba\Engine\Util;
@@ -343,8 +342,7 @@ class EngineParameters
 				}
 
 				// PHP 5.3.5 and earlier do not support getExtension
-				// if ($file->getExtension() !== 'ini')
-				if (substr($file->getBasename(), -4) != '.ini')
+				if ($file->getExtension() !== 'ini')
 				{
 					continue;
 				}
@@ -421,8 +419,7 @@ class EngineParameters
 				}
 
 				// PHP 5.3.5 and earlier do not support getExtension
-				// if ($file->getExtension() !== 'ini')
-				if (substr($file->getBasename(), -4) != '.ini')
+				if ($file->getExtension() !== 'ini')
 				{
 					continue;
 				}
@@ -506,8 +503,7 @@ class EngineParameters
 				}
 
 				// PHP 5.3.5 and earlier do not support getExtension
-				// if ($file->getExtension() !== 'ini')
-				if (substr($file->getBasename(), -4) != '.ini')
+				if ($file->getExtension() !== 'ini')
 				{
 					continue;
 				}
@@ -603,8 +599,7 @@ class EngineParameters
 				}
 
 				// PHP 5.3.5 and earlier do not support getExtension
-				// if ($file->getExtension() !== 'ini')
-				if (substr($file->getBasename(), -4) != '.ini')
+				if ($file->getExtension() !== 'ini')
 				{
 					continue;
 				}

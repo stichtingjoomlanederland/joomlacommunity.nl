@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -421,7 +421,7 @@ ENDBODY;
 		}
 
 		// Get the backup statistics record and the files to delete
-		$stat     = Platform::getInstance()->get_statistics($id);
+		$stat     = (array) Platform::getInstance()->get_statistics($id);
 		$allFiles = Factory::getStatistics()->get_all_filenames($stat, false);
 
 		// Remove the custom log file if necessary

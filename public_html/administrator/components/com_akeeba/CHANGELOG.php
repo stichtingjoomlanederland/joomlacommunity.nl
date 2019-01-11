@@ -1,4 +1,43 @@
 <?php die();?>
+Akeeba Backup 6.3.3
+================================================================================
++ Added new Stockholm region for Amazon S3 post-processing engine
+# [LOW] Fixed fatal error when two users are deleting the same backup at the same time
+
+Akeeba Backup 6.3.2
+================================================================================
++ Added integration with Joomla! User Actions Log component
+# [MEDIUM] Fixed importing backup archives from Amazon S3
+# [LOW] cannot finish restoring when you have two or more off-site folders
+# [LOW] CLI Backups could fail if PHP cannot report the current working directory and you're using [SITEROOT] followed by a folder name which is not preceded by a slash (extremely rare)
+
+Akeeba Backup 6.3.1
+================================================================================
+~ Workaround for buggy cURL versions breaking Google Drive uploads
+~ Site Transfer Wizard: detect and report wrong DNS setup and invalid SSL certifications instead of a generic error
+# [HIGH] Site Transfer Wizard: uploading the backup archive through FTP/SFTP had mulitple issues preventing its operation
+# [MEDIUM] Restoration: Invalid redirection after deleting the installation directory when not using Kickstart or the integrated restoration
+# [LOW] We should no longer attempt to load the obsolete Encryption.min.js file
+
+Akeeba Backup 6.3.0
+================================================================================
++ Support for Application Keys in BackBlaze B2
++ Added new filter to exclude User Action Logs from the backup (Joomla 3.9+ only)
++ New look and feel for the backup restoration script (ANGIE)
+~ Always enable multipart uploads in Google Drive 
+~ OneDrive: do not disable multipart uploads when the option to upload part files immediately after their creation is enabled
+~ Google Storage (JSON API): do not disable multipart uploads when the option to upload part files immediately after their creation is enabled
+~ Dropbox: do not disable multipart uploads when the option to upload part files immediately after their creation is enabled
+# [HIGH] Upload to DreamObjects: the Cluster setting had no effect
+# [HIGH] Uploading multiple parts to CloudFiles results in files stored in the wrong location
+# [MEDIUM] Cannot delete files stored on BackBlaze
+# [MEDIUM] Google Drive fails to upload files larger than 5MB and smaller than the part size
+# [MEDIUM] Kickstart (used in Site Transfer Wizard) showed untranslated strings
+# [MEDIUM] OneDrive download to browser does not work when the tokens have expired
+# [LOW] Fixed JavaScript issues when Content-Security-Policy header is missing the unsafe-eval value
+# [LOW] PHP 7.3 warning in the Control Panel page
+# [LOW] Sometimes media folder permissions may not be detected correctly
+
 Akeeba Backup 6.2.1
 ================================================================================
 ! Missing language strings in the restoration script (ANGIE)

@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -32,6 +32,11 @@ class GetVersion extends AbstractTask
 		$model = $this->container->factory->model('Updates')->tmpInstance();
 
 		$updateInformation = $model->getUpdates();
+
+		if (is_array($updateInformation) && array_key_exists('releasenotes', $updateInformation))
+		{
+			unset ($updateInformation['releasenotes']);
+		}
 
 		$edition = AKEEBA_PRO ? 'pro' : 'core';
 

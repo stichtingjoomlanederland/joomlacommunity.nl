@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -90,7 +90,7 @@ else
 	akeeba.System.addEventListener(document.getElementById('backup-default'), 'click', akeeba.Backup.restoreDefaultOptions);
 
 	// Work around Safari which ignores autocomplete=off (FOR CRYING OUT LOUD!)
-	setTimeout('akeeba.Backup.restoreCurrentOptions();', 500);
+	setTimeout(akeeba.Backup.restoreCurrentOptions, 500);
 
 JS;
 }

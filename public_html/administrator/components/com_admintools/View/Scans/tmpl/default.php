@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -137,12 +137,15 @@ $this->getContainer()->template->addJSInline($js);
 </form>
 
 <div id="admintools-scan-dim" style="display: none">
-	<div id="admintools-scan-container">
-		<p>
-			<?php echo JText::_('COM_ADMINTOOLS_MSG_SCAN_PLEASEWAIT') ?><br/>
-			<?php echo JText::_('COM_ADMINTOOLS_MSG_SCAN_SCANINPROGRESS') ?>
-		</p>
-
+	<div id="admintools-scan-container" class="akeeba-renderer-fef">
+        <div class="akeeba-block--info large">
+            <h4>
+		        <?php echo JText::_('COM_ADMINTOOLS_MSG_SCAN_PLEASEWAIT') ?>
+            </h4>
+            <p>
+		        <?php echo JText::_('COM_ADMINTOOLS_MSG_SCAN_SCANINPROGRESS') ?>
+            </p>
+        </div>
 		<p>
 			<progress></progress>
 		</p>

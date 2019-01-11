@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -19,6 +19,7 @@ use Exception;
 use FOF30\Download\Download;
 use FOF30\Model\Model;
 use JFile;
+use Joomla\Uri\Uri;
 use JText;
 use JUri;
 use RuntimeException;
@@ -445,8 +446,14 @@ class Transfer extends Model
 		 * We never go above a maximum transfer size that depends on the server memory setting and the maximum remote
 		 * upload size (minus 10Kb for overhead data)
 		 */
-		$chunkSizeLimit = $this->getMaxChunkSize();
-		$maxUploadLimit = $this->container->platform->getSessionVar('transfer.uploadLimit', 5242880, 'akeeba') - 10240;
+		// Maximum chunk size determined by local server's memory constraints
+		$chunkSizeLimit  = $this->getMaxChunkSize();
+		// Chunk size selected by the user
+		$userUploadLimit = $this->container->platform->getSessionVar('transfer.chunkSize', 5242880, 'akeeba') - 10240;
+		// Maximum chunk size determined by the remote server
+		$maxUploadLimit  = $this->container->platform->getSessionVar('transfer.uploadLimit', 5242880, 'akeeba') - 10240;
+		// Calculated optimum chunk size (maxTransferSize is calculated by server-to-server speed limits)
+		$maxTransferSize = min($maxUploadLimit, $userUploadLimit, $maxTransferSize, $chunkSizeLimit);
 
 		/**
 		 * A little explanation for "$maxUploadLimit / 4" below. We are uploading binary data which gets encoded as
@@ -790,11 +797,63 @@ class Transfer extends Model
 
 		// Try to fetch the file over HTTP
 		$url = $this->container->platform->getSessionVar('transfer.url', '', 'akeeba');
-
 		$url = rtrim($url, '/');
 
 		$downloader = new Download($this->container);
-		$data = $downloader->getFromURL($url . '/' . basename($sourceFile));
+		$wrongSSL   = false;
+		$data       = $downloader->getFromURL($url . '/' . basename($sourceFile));
+
+		/**
+		 * The download of the test file failed. This can mean that the (S)FTP directory does not match the site URL we
+		 * were given, DNS resolution does not work or we have an SSL issue. We are going to determine which one is it.
+		 */
+		if ($data === false)
+		{
+			$uri      = new Uri($url);
+			$hostname = $uri->getHost();
+			$results  = dns_get_record($hostname, DNS_A);
+
+			// If there are no IPv4 records let's try to get IPv6 records
+			if (count($results) == 0)
+			{
+				$results = dns_get_record($hostname, DNS_AAAA);
+			}
+
+			// No DNS records. So, that's why fetching data failed!
+			if (count($results) == 0)
+			{
+				// Delete the temporary file
+				$connector->delete($connector->getPath(basename($sourceFile)));
+
+				// And now throw the error
+				throw new TransferFatalError(JText::sprintf('COM_AKEEBA_TRANSFER_ERR_WRONGSSL', $hostname));
+			}
+
+			/**
+			 * The DNS resolution worked. The next theory we have to test is that the SSL certificate is invalid or
+			 * self-signed. The best way to do that without having to go through the OpenSSL extensions (which might not
+			 * be installed or activated) is to do no SSL checking and retry the download. If that works we definitely
+			 * have an SSL issue.
+			 */
+			$options = [
+				CURLOPT_SSL_VERIFYPEER => 0,
+				CURLOPT_SSL_VERIFYHOST => 0,
+			];
+
+			if ($downloader->getAdapterName() == 'fopen')
+			{
+				$options = [
+					'ssl' => [
+						'verify_peer' => false,
+					],
+				];
+			}
+
+			$downloader->setAdapterOptions($options);
+
+			$wrongSSL = true;
+			$data     = $downloader->getFromURL($url . '/' . basename($sourceFile));
+		}
 
 		// Delete the temporary file
 		$connector->delete($connector->getPath(basename($sourceFile)));
@@ -802,6 +861,13 @@ class Transfer extends Model
 		// Could we get it over HTTP?
 		$originalData = file_get_contents($sourceFile);
 
+		// Downloaded data is verified but the SSL certificate was bad: tell the user to fix the SSL certificate.
+		if ($wrongSSL && ($originalData == $data))
+		{
+			throw new TransferFatalError(JText::_('COM_AKEEBA_TRANSFER_ERR_WRONGSSL'));
+		}
+
+		// Downloaded data did not match (no matter of the SSL verification): configuration error.
 		if ($originalData != $data)
 		{
 			throw new TransferFatalError(JText::_('COM_AKEEBA_TRANSFER_ERR_CANNOTACCESSTESTFILE'));
@@ -831,7 +897,7 @@ class Transfer extends Model
 			'privateKey'  => $this->container->platform->getSessionVar('transfer.ftpPrivateKey', '', 'akeeba'),
 			'publicKey'   => $this->container->platform->getSessionVar('transfer.ftpPubKey', '', 'akeeba'),
 			'chunkMode'   => $this->container->platform->getSessionVar('transfer.chunkMode', 'chunked', 'akeeba'),
-			'chunkSize'   => $this->container->platform->getSessionVar('transfer.uploadLimit', '5242880', 'akeeba'),
+			'chunkSize'   => $this->container->platform->getSessionVar('transfer.chunkSize', '5242880', 'akeeba'),
 		);
 	}
 
@@ -1051,13 +1117,15 @@ class Transfer extends Model
 	 */
 	private function convertMemoryLimitToBytes($setting)
 	{
-		$val = trim($setting);
-		$last = strtolower($val{strlen($val) - 1});
+		$val  = trim($setting);
+		$last = strtolower(substr($val, -1));
 
 		if (is_numeric($last))
 		{
 			return $setting;
 		}
+
+		$val = substr($val, 0, -1);
 
 		switch ($last)
 		{
@@ -1202,11 +1270,14 @@ class Transfer extends Model
 
 		try
 		{
-			$connector->upload($localTempFile, $tempFile, true);
+			$remoteDirectory = $config['directory'] . (empty($directory) ? '' : ('/' . $directory));
+			$remoteFile      = $remoteDirectory . '/' . $tempFile;
+
+			$connector->upload($localTempFile, $remoteFile, true);
 		}
 		catch (\RuntimeException $e)
 		{
-			$this->container->fileSystem->delete($localTempFile);
+			JFile::delete($localTempFile);
 
 			throw $e;
 		}
@@ -1231,7 +1302,7 @@ class Transfer extends Model
 		{
 			JFile::delete($localTempFile);
 		}
-		$connector->delete($tempFile);
+		$connector->delete($remoteFile);
 
 		// ==== Parse Kickstart's response
 

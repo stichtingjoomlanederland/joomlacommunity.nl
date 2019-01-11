@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -40,6 +40,18 @@ class AtsystemFeatureNofesalogin extends AtsystemFeatureAbstract
 		if (!$isSuperAdmin)
 		{
 			return true;
+		}
+
+		// Is this a Joomla! 3.9+ installation with a user who's not yet provided consent?
+		if ($this->isJoomlaPrivacyEnabled())
+		{
+			$userID     = JUserHelper::getUserId($user['username']);
+			$userObject = JFactory::getUser($userID);
+
+			if (!$this->hasUserConsented($userObject))
+			{
+				return true;
+			}
 		}
 
 		$newopts = array();

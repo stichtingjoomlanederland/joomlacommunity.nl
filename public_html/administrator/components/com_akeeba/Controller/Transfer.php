@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -136,7 +136,7 @@ class Transfer extends Controller
 		$this->container->platform->setSessionVar('transfer.ftpPassive', $ftpPassive ? 1 : 0, 'akeeba');
 		$this->container->platform->setSessionVar('transfer.ftpPassiveFix', $ftpPassiveFix ? 1 : 0, 'akeeba');
 		$this->container->platform->setSessionVar('transfer.chunkMode', $chunkMode, 'akeeba');
-		$this->container->platform->setSessionVar('transfer.uploadLimit', $chunkSize, 'akeeba');
+		$this->container->platform->setSessionVar('transfer.chunkSize', $chunkSize, 'akeeba');
 
 		/** @var \Akeeba\Backup\Admin\Model\Transfer $model */
 		$model = $this->getModel();

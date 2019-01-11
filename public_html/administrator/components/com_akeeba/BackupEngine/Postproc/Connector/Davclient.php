@@ -1,11 +1,20 @@
 <?php
 /**
+ * Akeeba Engine
+ * The PHP-only site backup engine
+ *
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU GPL version 3 or, at your option, any later version
+ * @package   akeebaengine
+ */
+
+/**
  * SabreDAV DAV client
  *
  * This client wraps around Curl to provide a convenient API to a WebDAV
  * server.
  *
- * NOTE: This class is experimental, it's api will likely change in the future.
+ * NOTE: This class is experimental, its api will likely change in the future.
  *
  * @copyright Copyright (C) 2007-2016 fruux GmbH (https://fruux.com/).
  * @author    Evert Pot (http://evertpot.com/)

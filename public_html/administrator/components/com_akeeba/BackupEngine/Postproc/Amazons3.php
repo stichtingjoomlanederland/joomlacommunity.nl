@@ -1,12 +1,11 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
- *
  */
 
 namespace Akeeba\Engine\Postproc;
@@ -813,9 +812,9 @@ class Amazons3 extends Base
 		{
 			$error = sprintf("(cURL Error %u) %s", $errno, $errmsg);
 		}
-		elseif (($http_status >= 300) && ($http_status <= 399) && isset($this->headers['Location']) && !empty($this->headers['Location']))
+		elseif (($http_status >= 300) && ($http_status <= 399) && isset($this->headers['location']) && !empty($this->headers['location']))
 		{
-			return $this->getURL($this->headers['Location']);
+			return $this->getURL($this->headers['location']);
 		}
 		elseif ($http_status > 399)
 		{
@@ -850,14 +849,16 @@ class Amazons3 extends Base
 			return $strlen;
 		}
 
-		if (substr($data, 0, 4) == 'HTTP')
+		$testForHTTP = substr($data, 0, 4);
+
+		if (strtoupper($testForHTTP) == 'HTTP')
 		{
 			return $strlen;
 		}
 
 		list($header, $value) = explode(': ', trim($data), 2);
 
-		$this->headers[$header] = $value;
+		$this->headers[strtolower($header)] = $value;
 
 		return $strlen;
 	}

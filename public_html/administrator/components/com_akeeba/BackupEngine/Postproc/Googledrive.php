@@ -1,9 +1,9 @@
 <?php
 /**
  * Akeeba Engine
- * The modular PHP5 site backup engine
+ * The PHP-only site backup engine
  *
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU GPL version 3 or, at your option, any later version
  * @package   akeebaengine
  */
@@ -29,9 +29,6 @@ class Googledrive extends Base
 	/** @var string The currently configured directory */
 	private $directory;
 
-	/** @var bool Are we using chunk uploads? */
-	private $chunked = false;
-
 	/** @var int Chunk size (MB) */
 	private $chunk_size = 10;
 
@@ -47,7 +44,7 @@ class Googledrive extends Base
 	 *
 	 * @param   array   $params  Passed by the backup extension, used for the callback URI
 	 *
-	 * @return  boolean  False on failure, redirects on success
+	 * @return  void  Redirects on success
 	 */
 	public function oauthOpen($params = array())
 	{
@@ -56,6 +53,7 @@ class Googledrive extends Base
 		$url = ConnectorGoogleDrive::helperUrl;
 		$url .= (strpos($url, '?') !== false) ? '&' : '?';
 		$url .= 'callback=' . urlencode($callback);
+		$url .= '&dlid=' . Platform::getInstance()->get_platform_configuration_option('update_dlid', '');
 
 		Platform::getInstance()->redirect($url);
 	}
@@ -101,8 +99,20 @@ HTML;
 			return array();
 		}
 
+		$baseItem = 'Google Drive (personal)';
+
+		if (class_exists('JText'))
+		{
+			$baseItem = \JText::_('COM_AKEEBA_CONFIG_GOOGLEDRIVE_TEAMDRIVE_OPT_PERSONAL');
+		}
+
+		if (class_exists('\Awf\Text\Text'))
+		{
+			$baseItem = \Awf\Text\Text::_('COM_AKEEBA_CONFIG_GOOGLEDRIVE_TEAMDRIVE_OPT_PERSONAL');
+		}
+
 		$items = array_merge(array(
-			'' => \JText::_('COM_AKEEBA_CONFIG_GOOGLEDRIVE_TEAMDRIVE_OPT_PERSONAL')
+			'' => $baseItem
 		), $this->googleDrive->getTeamDrives());
 
 		$ret = array();
@@ -145,22 +155,7 @@ HTML;
 		// Store the absolute remote path in the class property
 		$directory         = $this->directory;
 		$basename          = empty($upload_as) ? basename($absolute_filename) : $upload_as;
-		$this->remote_path = $directory . '/' . $basename;
-
-		// Do not use multipart uploads when in an immediate post-processing step,
-		// i.e. we are uploading a part right after its creation
-		if ($this->chunked)
-		{
-			// Retrieve engine configuration data
-			$config = Factory::getConfiguration();
-
-			$immediateEnabled = $config->get('engine.postproc.common.after_part', 0);
-
-			if ($immediateEnabled)
-			{
-				$this->chunked = false;
-			}
-		}
+		$this->remote_path = trim($directory, '/') . '/' . $basename;
 
 		// Have I already made sure the remote directory exists?
 		$folderId    = $config->get('volatile.engine.postproc.googledrive.check_directory', 0);
@@ -170,11 +165,13 @@ HTML;
 		{
 			try
 			{
-				$folderId = $this->googleDrive->getIdForFolder($directory, true, $teamDriveID);
+				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Preparing to upload to Google Drive, file path = {$this->remote_path}.");
+				list($fileName, $folderId) = $this->googleDrive->preprocessUploadPath($this->remote_path, $teamDriveID);
+				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Google Drive folder ID = " . $folderId);
 			}
 			catch (\Exception $e)
 			{
-				$this->setWarning("Could not create directory $directory. " . $e->getCode() . ': ' . $e->getMessage());
+				$this->setWarning("Could not create Google Drive directory $directory. " . $e->getCode() . ': ' . $e->getMessage());
 
 				return false;
 			}
@@ -183,125 +180,74 @@ HTML;
 		}
 
 		// Get the remote file's pathname
-		$remotePath = trim($directory, '/') . '/' . basename($absolute_filename);
+		$remotePath = $this->remote_path;
 
 		// Check if the size of the file is compatible with chunked uploading
 		clearstatcache();
 		$totalSize   = filesize($absolute_filename);
-		$isBigEnough = $this->chunked ? ($totalSize > $this->chunk_size) : false;
 
-		// Chunked uploads if the feature is enabled and the file is at least as big as the chunk size.
-		if ($this->chunked && $isBigEnough)
+		/**
+		 * Google Drive is broken.
+		 *
+		 * When you use Simple Upload it will upload your files in two(!!!) places at the same time: the folder you tell
+		 * it and the Drive's root. Why? Probably because Google gives fat bonuses to morons who publish broken stuff
+		 * instead of the poor souls who fix all the bugs.
+		 *
+		 * The kind daft way around this is using chunked upload even for tiny files, less than the part size. Many more
+		 * requests to the API server yet it works. Beats me, man...
+		 */
+		// Are we already processing a multipart upload?
+		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Using chunked upload, part size {$this->chunk_size}");
+
+		$offset    = $config->get('volatile.engine.postproc.googledrive.offset', 0);
+		$upload_id = $config->get('volatile.engine.postproc.googledrive.upload_id', null);
+
+		if (empty($upload_id))
 		{
-			// Are we already processing a multipart upload?
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Using chunked upload, part size {$this->chunk_size}");
+			// Convert path to folder ID and file ID, creating missing folders and deleting existing files in the process
+			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Trying to create possibly missing directories and remove existing file by the same name ($remotePath)");
+			list($fileName, $folderId) = $this->googleDrive->preprocessUploadPath($remotePath, $teamDriveID);
 
-			$offset    = $config->get('volatile.engine.postproc.googledrive.offset', 0);
-			$upload_id = $config->get('volatile.engine.postproc.googledrive.upload_id', null);
-
-			if (empty($upload_id))
-			{
-				// Convert path to folder ID and file ID, creating missing folders and deleting existing files in the process
-				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Trying to create possibly missing directories and remove existing file by the same name ($remotePath)");
-				list($fileName, $folderId) = $this->googleDrive->preprocessUploadPath($remotePath, $teamDriveID);
-
-				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Creating new upload session");
-
-				try
-				{
-					$upload_id = $this->googleDrive->createUploadSession($folderId, $absolute_filename, $fileName);
-				}
-				catch (\Exception $e)
-				{
-					$this->setWarning("The upload session for remote file $remotePath cannot be created. Debug info: #" . $e->getCode() . ' – ' . $e->getMessage());
-
-					return false;
-				}
-
-				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - New upload session $upload_id");
-				$config->set('volatile.engine.postproc.googledrive.upload_id', $upload_id);
-			}
+			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Creating new upload session");
 
 			try
 			{
-				if (empty($offset))
-				{
-					$offset = 0;
-				}
-
-				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Uploading chunked part");
-
-				$result = $this->googleDrive->uploadPart($upload_id, $absolute_filename, $offset, $this->chunk_size);
-
-				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Got uploadPart result " . print_r($result, true));
+				$upload_id = $this->googleDrive->createUploadSession($folderId, $absolute_filename, $fileName);
 			}
 			catch (\Exception $e)
 			{
-				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Got uploadPart Exception " . $e->getCode() . ': ' . $e->getMessage());
+				$this->setWarning("The upload session for remote file $remotePath cannot be created. Debug info: #" . $e->getCode() . ' – ' . $e->getMessage());
 
-				$this->setWarning($e->getMessage());
-
-				$result = false;
+				return false;
 			}
 
-			// Did we fail uploading?
-			if ($result === false)
-			{
-				// Let's retry
-				$this->tryCount++;
-
-				// However, if we've already retried twice, we stop retrying and call it a failure
-				if ($this->tryCount > 2)
-				{
-					Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Maximum number of retries exceeded. The upload has failed.");
-
-					return false;
-				}
-
-				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Error detected, trying to force-refresh the tokens");
-
-				$this->forceRefreshTokens();
-
-				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Retrying chunk upload");
-
-				return -1;
-			}
-
-			// Are we done uploading?
-			$nextOffset = $offset + $this->chunk_size - 1;
-
-			if (isset($result['name']) || ($nextOffset > $totalSize))
-			{
-				Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Chunked upload is now complete");
-
-				$config->set('volatile.engine.postproc.googledrive.offset', null);
-				$config->set('volatile.engine.postproc.googledrive.upload_id', null);
-
-				return true;
-			}
-
-			// Otherwise, continue uploading
-			$config->set('volatile.engine.postproc.googledrive.offset', $offset + $this->chunk_size);
-
-			return -1;
+			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - New upload session $upload_id");
+			$config->set('volatile.engine.postproc.googledrive.upload_id', $upload_id);
 		}
 
-		// Single part upload
 		try
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Performing simple upload.");
+			if (empty($offset))
+			{
+				$offset = 0;
+			}
 
-			$result = $this->googleDrive->upload($remotePath, $absolute_filename, 10485760, 'application/octet-stream', $teamDriveID);
+			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Uploading chunked part (offset:$offset // chunk size: {$this->chunk_size})");
+
+			$result = $this->googleDrive->uploadPart($upload_id, $absolute_filename, $offset, $this->chunk_size);
+
+			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Got uploadPart result " . print_r($result, true));
 		}
 		catch (\Exception $e)
 		{
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Simple upload failed, " . $e->getCode() . ": " . $e->getMessage());
+			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Got uploadPart Exception " . $e->getCode() . ': ' . $e->getMessage());
 
 			$this->setWarning($e->getMessage());
 
 			$result = false;
 		}
 
+		// Did we fail uploading?
 		if ($result === false)
 		{
 			// Let's retry
@@ -319,15 +265,30 @@ HTML;
 
 			$this->forceRefreshTokens();
 
-			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Retrying upload");
+			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Retrying chunk upload");
 
 			return -1;
 		}
 
-		// Upload complete. Reset the retry counter.
-		$this->tryCount = 0;
+		// Are we done uploading?
+		$nextOffset = $offset + $this->chunk_size - 1;
 
-		return true;
+		if (isset($result['name']) || ($nextOffset > $totalSize))
+		{
+			Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Chunked upload is now complete");
+
+			$config->set('volatile.engine.postproc.googledrive.offset', null);
+			$config->set('volatile.engine.postproc.googledrive.upload_id', null);
+
+			$this->tryCount = 0;
+
+			return true;
+		}
+
+		// Otherwise, continue uploading
+		$config->set('volatile.engine.postproc.googledrive.offset', $offset + $this->chunk_size);
+
+		return -1;
 	}
 
 	/**
@@ -417,7 +378,6 @@ HTML;
 		$access_token = trim($config->get('engine.postproc.googledrive.access_token', ''));
 		$refresh_token = trim($config->get('engine.postproc.googledrive.refresh_token', ''));
 
-		$this->chunked = $config->get('engine.postproc.googledrive.chunk_upload', true);
 		$this->chunk_size = $config->get('engine.postproc.googledrive.chunk_upload_size', 10) * 1024 * 1024;
 		$this->directory = $config->get('volatile.postproc.directory', null);
 
@@ -456,7 +416,17 @@ HTML;
 		$this->directory = Factory::getFilesystemTools()->replace_archive_name_variables($this->directory);
 		$config->set('volatile.postproc.directory', $this->directory);
 
-		$this->googleDrive = new ConnectorGoogleDrive($access_token, $refresh_token);
+		// Get Download ID
+		$dlid = Platform::getInstance()->get_platform_configuration_option('update_dlid', '');
+
+		if (empty($dlid))
+		{
+			$this->setWarning('You must enter your Download ID in the application configuration before using the “Upload to Google Drive” feature.');
+
+			return false;
+		}
+
+		$this->googleDrive = new ConnectorGoogleDrive($access_token, $refresh_token, $dlid);
 
 		// Validate the tokens
 		Factory::getLog()->log(LogLevel::DEBUG, __CLASS__ . '::' . __METHOD__ . " - Validating the Google Drive tokens");

@@ -1,10 +1,8 @@
 <?php
 /**
  * @package     FOF
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL version 2 or later
- *
- * Based on the Seesion package of Aura for PHP – https://github.com/auraphp/Aura.Session
  */
 
 namespace FOF30\Utils;
@@ -13,6 +11,8 @@ defined('_JEXEC') or die;
 
 /**
  * Intercept calls to PHP functions.
+ *
+ * Based on the Session package of Aura for PHP – https://github.com/auraphp/Aura.Session
  *
  * @method  function_exists(StringHelper $function)
  * @method  mcrypt_list_algorithms()

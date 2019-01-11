@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -82,6 +82,13 @@ abstract class AtsystemUtilRescueurl
 		if (empty($email))
 		{
 			return;
+		}
+
+		if ($email == 'you@example.com')
+		{
+			echo JText::sprintf('ADMINTOOLS_RESCUEURL_ERR_INVALIDADDRESS', $email);
+
+			$app->close(0);
 		}
 
 		// Does the email belong to a Super User?

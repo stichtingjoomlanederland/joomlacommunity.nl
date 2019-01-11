@@ -1,10 +1,8 @@
 <?php
 /**
- * @package AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license GNU General Public License version 3, or later
- *
- * @since 1.3
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @license   GNU General Public License version 3, or later
  */
 
 defined('KICKSTART') or die;

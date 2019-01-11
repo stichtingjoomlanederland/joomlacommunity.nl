@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   akeebabackup
+ * @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -122,7 +122,7 @@ class Html extends BaseView
 		$this->ftpSupport       = $this->container->platform->getSessionVar('transfer.ftpsupport', null, 'akeeba');
 		$this->transferOption   = $this->container->platform->getSessionVar('transfer.transferOption', null, 'akeeba');
 		$this->chunkMode        = $this->container->platform->getSessionVar('transfer.chunkMode', 'chunked', 'akeeba');
-		$this->chunkSize        = $this->container->platform->getSessionVar('transfer.uploadLimit', 5242880, 'akeeba');
+		$this->chunkSize        = $this->container->platform->getSessionVar('transfer.chunkSize', 5242880, 'akeeba');
 		$this->ftpHost          = $this->container->platform->getSessionVar('transfer.ftpHost', null, 'akeeba');
 		$this->ftpPort          = $this->container->platform->getSessionVar('transfer.ftpPort', null, 'akeeba');
 		$this->ftpUsername      = $this->container->platform->getSessionVar('transfer.ftpUsername', null, 'akeeba');

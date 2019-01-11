@@ -1,7 +1,7 @@
 <?php
 /**
  * @package     FOF
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright   Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license     GNU GPL version 2 or later
  */
 
@@ -91,19 +91,47 @@ class Curl extends AbstractAdapter implements DownloadInterface
 			$params = array();
 		}
 
+		$patched_accept_encoding = false;
+
 		// Work around LiteSpeed sending compressed output under HTTP/2 when no encoding was requested
 		// See https://github.com/joomla/joomla-cms/issues/21423#issuecomment-410941000
-		if (!array_key_exists(CURLOPT_ACCEPT_ENCODING, $params))
+		if (defined('CURLOPT_ACCEPT_ENCODING'))
 		{
-			$params[CURLOPT_ACCEPT_ENCODING] = 'identity';
+			if (!array_key_exists(CURLOPT_ACCEPT_ENCODING, $params))
+			{
+				$params[CURLOPT_ACCEPT_ENCODING] = 'identity';
+			}
+
+			$patched_accept_encoding = true;
 		}
 
 		if (!empty($params))
 		{
 			foreach ($params as $k => $v)
 			{
+				// I couldn't patch the accept encoding header (missing constant), so I'll check if we manually set it
+				if (!$patched_accept_encoding && $k == CURLOPT_HTTPHEADER)
+				{
+					foreach ($v as $custom_header)
+					{
+						// Ok, we explicitly set the Accept-Encoding header, so we consider it patched
+						if (stripos($custom_header, 'Accept-Encoding') !== false)
+						{
+							$patched_accept_encoding = true;
+						}
+					}
+				}
+
 				@curl_setopt($ch, $k, $v);
 			}
+		}
+
+		// Accept encoding wasn't patched, let's manually do that
+		if (!$patched_accept_encoding)
+		{
+			@curl_setopt($ch, CURLOPT_HTTPHEADER, array('Accept-Encoding: identity'));
+
+			$patched_accept_encoding = true;
 		}
 
 		$result = curl_exec($ch);
@@ -117,9 +145,9 @@ class Curl extends AbstractAdapter implements DownloadInterface
 		{
 			$error = JText::sprintf('LIB_FOF_DOWNLOAD_ERR_CURL_ERROR', $errno, $errmsg);
 		}
-		elseif (($http_status >= 300) && ($http_status <= 399) && isset($this->headers['Location']) && !empty($this->headers['Location']))
+		elseif (($http_status >= 300) && ($http_status <= 399) && isset($this->headers['location']) && !empty($this->headers['location']))
 		{
-			return $this->downloadAndReturn($this->headers['Location'], $from, $to, $params);
+			return $this->downloadAndReturn($this->headers['location'], $from, $to, $params);
 		}
 		elseif ($http_status > 399)
 		{
@@ -174,17 +202,17 @@ class Curl extends AbstractAdapter implements DownloadInterface
 			$status = "unknown";
 			$redirection = null;
 
-			if (preg_match( "/^HTTP\/1\.[01] (\d\d\d)/", $data, $matches))
+			if (preg_match( "/^HTTP\/1\.[01] (\d\d\d)/i", $data, $matches))
 			{
 				$status = (int)$matches[1];
 			}
 
-			if (preg_match( "/Content-Length: (\d+)/", $data, $matches))
+			if (preg_match( "/Content-Length: (\d+)/i", $data, $matches))
 			{
 				$content_length = (int)$matches[1];
 			}
 
-			if (preg_match( "/Location: (.*)/", $data, $matches))
+			if (preg_match( "/Location: (.*)/i", $data, $matches))
 			{
 				$redirection = (int)$matches[1];
 			}
@@ -230,9 +258,14 @@ class Curl extends AbstractAdapter implements DownloadInterface
 			return $strlen;
 		}
 
+		if (strpos($data, ':') === false)
+		{
+			return $strlen;
+		}
+
 		list($header, $value) = explode(': ', trim($data), 2);
 
-		$this->headers[$header] = $value;
+		$this->headers[strtolower($header)] = $value;
 
 		return $strlen;
 	}

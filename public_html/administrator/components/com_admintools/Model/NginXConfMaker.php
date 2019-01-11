@@ -1,7 +1,7 @@
 <?php
 /**
- * @package   AdminTools
- * @copyright Copyright (c)2010-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @package   admintools
+ * @copyright Copyright (c)2010-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -1111,10 +1111,10 @@ location = $rewritebaseSlash/administrator/index.php {
 	break;
 }
 location ~* ^$rewritebaseSlash/administrator$ {
-	return 301 $rewritebaseSlash/administrator/index.php;
+	return 301 $rewritebaseSlash/administrator/index.php?\$args;
 }
 location ~* ^$rewritebaseSlash/administrator/$ {
-	return 301 $rewritebaseSlash/administrator/index.php;
+	return 301 $rewritebaseSlash/administrator/index.php?\$args;
 }
 
 # Disable access to everything else.
@@ -1155,7 +1155,7 @@ END;
 				$nginxConf .= <<<END
 # Allow access to the front-end index.php file
 location ~* ^$rewritebaseSlash/$ {
-	return 301 $rewritebaseSlash/index.php;
+	return 301 $rewritebaseSlash/index.php?\$args;
 }
 location ^$rewritebaseSlash/index.php$ {
 	$fastcgi_pass_block
@@ -1168,7 +1168,7 @@ END;
 			$nginxConf .= <<<END
 # Allow access to /
 location ~* ^$rewritebaseSlash/$ {
-	return 301 $rewritebaseSlash/index.php;
+	return 301 $rewritebaseSlash/index.php?\$args;
 }
 
 # Disable access to everything else.

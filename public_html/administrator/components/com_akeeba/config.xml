@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
- * @package   AkeebaBackup
- * @copyright Copyright (c)2006-2018 Nicholas K. Dionysopoulos / Akeeba Ltd
- * @license   GNU General Public License version 3, or later
--->
+  ~ @package   akeebabackup
+  ~ @copyright Copyright (c)2006-2019 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @license   GNU General Public License version 3, or later
+  -->
 <config addfieldpath="/administrator/components/com_akeeba/fields">
 	<fieldset
 			name="permissions"
@@ -151,6 +151,7 @@
 			<option value="0">JNo</option>
 			<option value="1">JYes</option>
 		</field>
+
 	</fieldset>
 
 	<fieldset name="backend" label="COM_AKEEBA_CONFIG_BACKEND_HEADER_LABEL"
