@@ -267,7 +267,7 @@ $organisers   = JAccess::getUsersByGroup($usergroup);
                 </div>
 				<?php if ($this->total > $count)
 				{ ?>
-                    <a class="rs_read_more" id="rsepro_loadmore"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_LOAD_MORE'); ?></a>
+<!--                    <a class="rs_read_more" id="rsepro_loadmore">--><?php //echo JText::_('COM_RSEVENTSPRO_GLOBAL_LOAD_MORE'); ?><!--</a>-->
 				<?php } ?>
                 <div class="hidden">
                     <span id="total" class="rs_hidden"><?php echo $this->total; ?></span>
