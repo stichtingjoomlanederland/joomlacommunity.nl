@@ -92,7 +92,7 @@ class PlgSystemJoomlaCommunity extends JPlugin
 
 			// Modify route data
 			$route['query']['Itemid'] = $itemid;
-			$route['segments']        = '';
+			$route['segments']        = array();
 		}
 
 		return $route;
