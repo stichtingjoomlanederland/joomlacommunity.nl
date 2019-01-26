@@ -44,7 +44,7 @@ class PlgSystemJoomlaCommunity extends JPlugin
 		$slug = isset($route['segments'][1]) ? $route['segments'][1] : '';
 
 		// Check for JUG
-		if (strpos($slug, 'joomla-gebruikersgroep-') !== false)
+		if (strpos($slug, ':joomla-gebruikersgroep-') !== false)
 		{
 			// Get menu alias
 			$slugarray = explode(':', $slug, 2);
