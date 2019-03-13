@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright 	Copyright (c) 2009-2017 Ryan Demmer. All rights reserved
+ * @copyright 	Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
  * @copyright   Copyright (C) 2005 - 2012 Open Source Matters, Inc. All rights reserved
  * @license   	GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
@@ -83,7 +83,7 @@ class WFImage
     protected static $removeExif = false;
 
     /**
-     * @var integer Resample the image to 72dpi
+     * @var int Resample the image to 72dpi
      *
      * @since  2.1
      */

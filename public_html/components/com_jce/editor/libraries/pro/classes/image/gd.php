@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @copyright 	Copyright (c) 2009-2017 Ryan Demmer. All rights reserved
+ * @copyright 	Copyright (c) 2009-2019 Ryan Demmer. All rights reserved
  * @copyright   Copyright (C) 2005 - 2012 Open Source Matters, Inc. All rights reserved
  * @license   	GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
@@ -132,7 +132,7 @@ class WFImageGD
             // can't get from ini, assume low value of 32M
             if (empty($limit)) {
                 $limit = 32 * 1048576;
-            } else {                
+            } else {
                 $limit = self::convertIniValue($limit);
             }
 
@@ -493,7 +493,7 @@ class WFImageGD
      * @param type $resolution
      *
      * @return WFImageGD
-     * https://gist.github.com/chemicaloliver/3164297
+     *                   https://gist.github.com/chemicaloliver/3164297
      */
     public function resample($resolution)
     {
