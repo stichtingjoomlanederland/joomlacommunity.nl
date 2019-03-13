@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <metafile version="3.9" client="administrator">
 	<name>Dutch (nl-NL)</name>
-	<version>3.9.1.2</version>
-	<creationDate>December 2018</creationDate>
+	<version>3.9.4.1</version>
+	<creationDate>Maart 2019</creationDate>
 	<author>Dutch Translation Team</author>
 	<authorEmail>taal@joomlacommunity.nl</authorEmail>
 	<authorUrl>https://joomlacommunity.nl</authorUrl>
-	<copyright>Copyright (C) 2005 - 2018 Dutch Translation Team en Open Source Matters. All rights reserved.</copyright>
+	<copyright>Copyright (C) 2005 - 2019 Dutch Translation Team en Open Source Matters. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<description><![CDATA[Nederlands taalbestand Joomla! 3.9 (beheergedeelte)]]></description>
 	<metadata>
