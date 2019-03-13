@@ -64,7 +64,7 @@ defined('KOOWA') or die; ?>
                     class="form-control input-block-level"
                     type="search"
                     name="<?= !empty($filter_group) ? $filter_group.'[search]' : 'search' ?>"
-                    value="<?= $filter->search ?>" />
+                    value="<?= escape($filter->search) ?>" />
             </div>
 
             <? if ($params->show_content_filter): ?>

@@ -115,7 +115,7 @@ class ComSchedulerControllerDispatcher extends KControllerAbstract implements Co
     {
         $start = microtime(true);
 
-        if ($entity = $this->getNextJob())
+        if (($entity = $context->job) || ($entity = $this->getNextJob()))
         {
             // Set to running
             $entity->status = 1;

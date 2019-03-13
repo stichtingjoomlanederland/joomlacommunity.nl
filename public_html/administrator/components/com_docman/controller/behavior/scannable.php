@@ -14,6 +14,10 @@ class ComDocmanControllerBehaviorScannable extends KControllerBehaviorAbstract
 
     const STATUS_FAILED = 2;
 
+    const STATUS_DEFERRED = 3;
+
+    const STATUS_ABANDONED = 4;
+
     const MAXIMUM_PENDING_SCANS = 6;
 
     const MAXIMUM_FILE_SIZE = 262144000; // 250 MB
@@ -76,7 +80,7 @@ class ComDocmanControllerBehaviorScannable extends KControllerBehaviorAbstract
         $this->getObject('com://admin/docman.database.table.scans')->getAdapter()->delete($query);
 
         /*
-         * Set status back to "not sent" for scans that did not receive a response for over an hour
+         * Set status back to "not sent" for scans that did not receive a response for over 4 minutes
          */
         /** @var KDatabaseQueryUpdate $query */
         $query = $this->getObject('database.query.update');
@@ -84,10 +88,11 @@ class ComDocmanControllerBehaviorScannable extends KControllerBehaviorAbstract
         $now = gmdate('Y-m-d H:i:s');
 
         $query
-            ->values('status = '.\ComDocmanControllerBehaviorScannable::STATUS_PENDING)
+            ->values('status = '.\ComDocmanControllerBehaviorScannable::STATUS_FAILED)
+            ->values('retries = retries + 1')
             ->table(array('tbl' => 'docman_scans'))
             ->where('status = '.\ComDocmanControllerBehaviorScannable::STATUS_SENT)
-            ->where("GREATEST(created_on, modified_on) < DATE_SUB(:now, INTERVAL 1 HOUR)")
+            ->where("GREATEST(created_on, sent_on) < DATE_SUB(:now, INTERVAL 4 MINUTE)")
             ->bind(['now' => $now]);
 
         $this->getObject('com://admin/docman.database.table.scans')->getAdapter()->update($query);
@@ -303,11 +308,21 @@ class ComDocmanControllerBehaviorScannable extends KControllerBehaviorAbstract
 
             $response = PlgKoowaConnect::sendRequest('scanner/start', ['data' => $data]);
 
+            $scan->status = static::STATUS_SENT;
+
             if ($response && $response->status_code == 200) {
-                $scan->status = static::STATUS_SENT;
                 $scan->response = $response->body;
-                $scan->save();
+            } else if (!$response || $response->status_code === 401 || $response->status_code === 403) {
+                $scan->status = static::STATUS_FAILED;
             }
+
+            if ($scan->sent_on != '0000-00-00 00:00:00') {
+                $scan->retries += 1;
+            }
+
+            $scan->sent_on = gmdate('Y-m-d H:i:s', time());
+
+            $scan->save();
         }
 
         return $scan;

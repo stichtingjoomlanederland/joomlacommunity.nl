@@ -144,7 +144,10 @@ CREATE TABLE IF NOT EXISTS `#__docman_scans` (
   `thumbnail` tinyint(1) NOT NULL DEFAULT '0',
   `modified_on` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_on` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
-  `response` varchar(2048) NOT NULL DEFAULT ''
+  `response` varchar(2048) NOT NULL DEFAULT '',
+  `sent_on` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `retries` tinyint(1) unsigned DEFAULT 0,
+  `parameters` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 # Duplicated from update.sql to here to make sure 2.1 -> 3.x updates work

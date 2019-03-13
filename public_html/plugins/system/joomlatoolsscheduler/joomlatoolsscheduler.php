@@ -41,19 +41,19 @@ class PlgSystemJoomlatoolsscheduler extends JPlugin
      * @param ComSchedulerJobInterface $job    The job
      * @param array                    $config A optional configration array that gets appended to the context
      */
-    static public function runJob(ComSchedulerJobInterface $job, $config = null)
+    static public function runJob(KModelEntityInterface $job, $config = array())
     {
         $controller = KObjectManager::getInstance()->getObject('com:scheduler.dispatcher.http')->getController();
 
+        $controller->addCommandCallback('after.dispatch', function($context) {
+            self::handleLogs($context->getLogs());
+        });
+
         $context = $controller->getContext();
 
-        if (isset($config)) {
-            $context->append($config);
-        }
+        $context->append(array('job' => $job))->append($config);
 
-        $job->run($context);
-
-        self::handleLogs($context->getLogs());
+        $controller->dispatch($context);
     }
 
     /**

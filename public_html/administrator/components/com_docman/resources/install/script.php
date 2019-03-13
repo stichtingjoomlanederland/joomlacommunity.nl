@@ -252,6 +252,14 @@ class com_docmanInstallerScript extends JoomlatoolsInstallerHelper
         if (!$this->_columnExists('docman_scans', 'response')) {
             $this->_executeQuery("ALTER TABLE `#__docman_scans` ADD `response` varchar(2048) NOT NULL DEFAULT ''");
         }
+
+        // 3.3.5
+        if (!$this->_columnExists('docman_scans', 'retries'))
+        {
+            $this->_executeQuery("ALTER TABLE `#__docman_scans` ADD COLUMN `sent_on` datetime NOT NULL DEFAULT '0000-00-00 00:00:00'");
+            $this->_executeQuery("ALTER TABLE `#__docman_scans` ADD COLUMN `retries` tinyint(1) unsigned DEFAULT '0'");
+            $this->_executeQuery("ALTER TABLE `#__docman_scans` ADD COLUMN `parameters` text");
+        }
     }
 
     public function uninstall($installer)
